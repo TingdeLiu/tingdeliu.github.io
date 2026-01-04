@@ -90,7 +90,7 @@ kramdown:
 #
 
 permalink: /:title/
-paginate_path: "/home/page:num/" #/page:num/ #指定分页页面的目标路径(若博客主页不在根目录下，需修改)
+paginate_path: "/page:num/" # 分页页面路径
 
 # The release of Jekyll Now that you're using
 version: v1.2.0
