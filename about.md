@@ -4,111 +4,78 @@ title: About
 permalink: /about/
 ---
 
-# Hi~ 👋
-This blog is my original work, archived in the `_posts` folder, and all rights are reserved. 
-Please contact me for authorization before reusing or reposting.
+# Hi~ 👋 I'm Tingde Liu
 
-If you find this blog is useful, a simple star (<a class="github-button" 
-  href="https://github.com/KwanWaiPang/KwanWaiPang.github.io" 
-  data-icon="octicon-star" 
-  data-size="large"
-  data-show-count="true" 
-  aria-label="Star it on GitHub">Star on Github</a>) should be the best affirmation. 😊
+Welcome to my personal blog! I'm a **Robotics student** at **Leibniz Universität Hannover (LUH)** in Germany, focusing on **Artificial Intelligence and Robotics**.
 
-<!-- * [My Homepage](https://kwanwaipang.github.io/)  -->
+## 🎓 Education
 
-[comment]: <> (  <h2 align="center">PAPER</h2>)
-  <h3 align="center">
-  <a href="/about/">English Version</a> 
-  | <a href="/about-cn/">中文版</a> 
-  </h3>
+**Leibniz Universität Hannover**
+Robotics and AI Student
+📍 Hannover, Germany
 
-<div id="dynamic-content-root">Loading...</div>
+## 🔬 Research Interests
 
-<script>
-(function() {
-  const container = document.getElementById('dynamic-content-root');
-  const shadow = container.attachShadow({ mode: 'open' });
+My research focuses on the intersection of robotics, computer vision, and artificial intelligence:
 
-  // 这里的路径确保指向你仓库根目录的 index.html
-  fetch('/index.html')
-    .then(response => response.text())
-    .then(html => {
-      // 直接注入全部代码，Shadow DOM 会自动处理其中的 <html> <body> 和 <style>
-      shadow.innerHTML = html;
-      container.childNodes[0].textContent = ""; // 加载成功后移除 "Loading..." 文字
-    })
-    .catch(err => {
-      console.error('Failed to load content:', err);
-      container.innerHTML = "Content load failed.";
-    });
-})();
-</script>
+- **SLAM (Simultaneous Localization and Mapping)** - Building spatial understanding for autonomous systems
+- **Path Planning** - Enabling intelligent navigation in complex environments
+- **3D Vision & Reconstruction** - Working with point clouds and 3D scene understanding
+- **Multi-Sensor Systems** - Fusing data from various sensors for robust perception
+- **Vision-Language Navigation (VLN)** - Bridging natural language and robotic navigation
+- **Large Language Models for Robotics** - Exploring LLM applications in spatial reasoning
 
-<style>
-/* 仅保留必要的物理占位，不做任何视觉修饰 */
-#dynamic-content-root {
-  display: block;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  border: none;
-}
-</style>
+## 💻 Technical Skills
 
+**Programming Languages:**
+Python, MATLAB
 
-<!--
+**Key Technologies:**
+- Machine Learning & Deep Learning
+- Computer Vision (OpenCV, PCL)
+- Sensor Fusion & State Estimation
+- Laser Scanning & 3D Modeling
+- Retrieval-Augmented Generation (RAG)
 
-<style>
-/* 内联样式隔离 */
-#iframe-wrapper {
-  width: 100%;
-  overflow: hidden;
-  border: none;
-  display: block;
-  margin: 0;
-  padding: 0;
-}
+**Tools & Frameworks:**
+Jupyter Notebook, Git, ROS (Robot Operating System)
 
-#iframe-content {
-  width: 100%;
-  border: none;
-  display: block; /* 消除 iframe 默认的 inline 空隙 */
-}
-</style>
+## 📚 Notable Projects
 
-<div id="iframe-wrapper">
-  <iframe 
-    id="iframe-content"
-    src="https://kwanwaipang.github.io/index.html" 
-    onload="this.style.height = this.contentWindow.document.documentElement.scrollHeight + 'px'"
-  ></iframe>
-</div>
+Some of my key projects include:
 
-<script>
-// 纯当前页面运行的脚本
-document.getElementById('iframe-content').addEventListener('load', function() {
-  try {
-    const contentHeight = this.contentWindow.document.documentElement.scrollHeight;
-    this.style.height = contentHeight +100+ 'px';//增加了高度
-    // 添加窗口变化监听
-    window.addEventListener('resize', () => {
-      this.style.height = this.contentWindow.document.documentElement.scrollHeight + 'px';
-    });
-  } catch (error) {
-    console.log('跨域保护机制触发，请确保被嵌入页面与本站同源');
-  }
-});
-</script>
+- **SLAM and Path Planning** - Implementing simultaneous localization and mapping algorithms
+- **MMS-LLM** - 3D large language model research at Institute of Cartography and Geoinformatics
+- **RAG_pdf** - Retrieval-augmented generation for document understanding
+- **Laserscanning Modelling and Interpretation** - 3D point cloud processing and analysis
+- **Multi-Sensor Systems** - Sensor data fusion and processing
+- **Recursive State Estimation** - Kalman filtering and state estimation techniques
 
--->
+You can find more on my [GitHub](https://github.com/TingdeLiu).
 
-<!-- # Hi~ 👋
-only for template
+## 🌐 Connect With Me
 
-## 版权声明
+- **GitHub**: [TingdeLiu](https://github.com/TingdeLiu)
+- **LinkedIn**: [Tingde Liu](https://www.linkedin.com/in/tingde-liu-379818270/)
+- **Email**: tingde.liu.ai@gmail.com
 
-博客文章是我原创文章，存档于_posts 文件夹下，版权归我所有，转载请与我联系获得授权许可。
+## 📝 About This Blog
 
-This blog is my original work, archived in the _posts folder, and all rights are reserved. 
-Please contact me for authorization before reusing or reposting. -->
+This blog is where I share my learning journey, research notes, and technical insights in robotics and AI. Topics include:
+
+- Vision-Language Navigation (VLN)
+- SLAM algorithms and implementations
+- 3D vision and reconstruction
+- Machine learning applications in robotics
+- Research paper reviews and summaries
+
+All blog posts are my original work, archived in the `_posts` folder. If you find this blog useful, feel free to star it on [GitHub](https://github.com/TingdeLiu/Tingde.Liu.github.io)! ⭐
+
+## 📄 Copyright Notice
+
+All content on this blog is my original work. Please contact me for authorization before reusing or reposting any articles.
+
+---
+
+**持续学习，探索人工智能与机器人技术的无限可能！**
+*Continuously learning and exploring the infinite possibilities of AI and Robotics!*
