@@ -439,6 +439,14 @@ nav {
   }
 }
 
+// 没有侧边栏时，内容区域占满全宽
+.no-sidebar .wrapper-content {
+  float: none;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
 // Posts
 
 .posts{
