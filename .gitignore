@@ -1,0 +1,27 @@
+# 排除参考模板目录
+KwanWaiPang.github.io-main/
+chirpy-starter-main/
+
+# Jekyll 生成的文件
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 编辑器文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 依赖
+vendor/
+.bundle/
+
+# 日志
+*.log

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  {% include head.html %}
+  <body>
+    {% include nav.html %}
+
+    <!-- 如果当前页面的toc为true，就添加目录 -->
+    {% if page.toc==true %}
+      <aside class="toc">
+        {% include toc.html html=content %}
+      </aside>
+    {% endif %}
+
+    <div id="main" role="main" class="wrapper-content">
+      <div class="container">
+        {{ content }}
+      </div>
+    </div>
+
+    <!-- Google Analytics -->
+    {% include analytics.html %}
+  </body>
+
+  <!-- 如果当前页面的toc为true，就添加目录 -->
+  {% if page.toc==true %}
+  <script>
+    document.getElementById("main").classList.add("withtoc");
+  </script>
+  {% endif %}
+
+  <div class="wrapper-footer-mobile">
+    <footer class="footer">
+      {% include footer.html %}
+    </footer>
+  </div>
+
+
+</html>
