@@ -2,7 +2,10 @@
 <html>
   {% include head.html %}
   <body>
-    {% include nav.html %}
+    <!-- 只在非文章页面显示导航侧边栏 -->
+    {% unless page.layout == 'post' %}
+      {% include nav.html %}
+    {% endunless %}
 
     <!-- 如果当前页面的toc为true，就添加目录 -->
     {% if page.toc==true %}
