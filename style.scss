@@ -439,25 +439,19 @@ nav {
   }
 }
 
-// 没有侧边栏时，内容区域占满全宽
+// 没有侧边栏时，调整布局
 .no-sidebar .wrapper-content {
   float: none;
-  width: 100%;
-  margin: 0 auto;
+  width: calc(100% - 280px); // 减去目录宽度
+  margin-left: 280px; // 为左侧目录留出空间
   padding: 0 20px;
 }
 
-// 没有侧边栏时，目录定位到左侧
+// 没有侧边栏时，目录固定在左侧
 .no-sidebar .toc {
   left: 0 !important;
   padding: 60px 20px 0 20px;
-}
-
-// 没有侧边栏且有目录时，内容左侧留出空间给目录
-.no-sidebar #main.withtoc {
-  padding-left: 280px !important; // 给左侧目录留出空间
-  padding-right: 20px;
-  max-width: none;
+  width: 260px;
 }
 
 // Posts
