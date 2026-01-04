@@ -443,8 +443,16 @@ nav {
 .no-sidebar .wrapper-content {
   float: none;
   width: 100%;
-  max-width: 1200px;
   margin: 0 auto;
+  padding: 0 20px;
+}
+
+// 没有侧边栏且有目录时，给目录留出空间
+.no-sidebar #main.withtoc {
+  max-width: 800px;
+  margin: 0 auto;
+  padding-left: 20px;
+  padding-right: 280px; // 给右侧目录留出空间
 }
 
 // Posts
