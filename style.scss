@@ -442,9 +442,9 @@ nav {
 // 没有侧边栏时，调整布局
 .no-sidebar .wrapper-content {
   float: none;
-  width: calc(100% - 280px); // 减去目录宽度
-  margin-left: 280px; // 为左侧目录留出空间
+  width: 100%; // 占满全宽
   padding: 0 20px;
+  margin: 0; // 重置 margin
 }
 
 // 没有侧边栏时，目录固定在左侧
@@ -452,6 +452,12 @@ nav {
   left: 0 !important;
   padding: 60px 20px 0 20px;
   width: 260px;
+}
+
+// 关键：没有侧边栏时，内容区域左侧留出空间给目录
+.no-sidebar #main.withtoc {
+  padding-left: 280px !important; // 给左侧目录留空间
+  padding-right: 20px;
 }
 
 // Posts
