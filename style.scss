@@ -447,12 +447,17 @@ nav {
   padding: 0 20px;
 }
 
-// 没有侧边栏且有目录时，给目录留出空间
+// 没有侧边栏时，目录定位到左侧
+.no-sidebar .toc {
+  left: 0 !important;
+  padding: 60px 20px 0 20px;
+}
+
+// 没有侧边栏且有目录时，内容左侧留出空间给目录
 .no-sidebar #main.withtoc {
-  max-width: 800px;
-  margin: 0 auto;
-  padding-left: 20px;
-  padding-right: 280px; // 给右侧目录留出空间
+  padding-left: 280px !important; // 给左侧目录留出空间
+  padding-right: 20px;
+  max-width: none;
 }
 
 // Posts
