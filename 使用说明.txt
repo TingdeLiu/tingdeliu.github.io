@@ -1,0 +1,12 @@
+  📝 下次添加新文章
+
+  当您想添加新文章时，只需：
+
+  # 1. 在 _posts 文件夹创建新文件
+  # 文件名格式：YYYY-MM-DD-title.md
+
+  # 2. 添加前置信息和内容
+  # 3. 提交推送
+  git add _posts/新文章.md
+  git commit -m "添加新文章"
+  git push origin main
