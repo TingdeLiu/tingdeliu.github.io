@@ -908,7 +908,7 @@ VLN领域存在基本矛盾：强大的推理能力需要"慢思考"，而流畅
 DualVLN提出双系统架构，将高级语义理解与低级轨迹执行解耦，形成互补的快慢系统：
 
 <div align="center">
-  <img src="images/dualvln-framework-overview.png" width="100%" />
+  <img src="/images/dualvln-framework-overview.png" width="100%" />
 <figcaption>
 DualVLN双系统框架架构
 </figcaption>
