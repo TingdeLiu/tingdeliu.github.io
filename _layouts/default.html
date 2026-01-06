@@ -10,7 +10,7 @@
     <!-- 如果当前页面的toc为true，就添加目录 -->
     {% if page.toc==true %}
       <aside class="toc">
-        {% include toc.html html=content %}
+        {% include toc.html html=content h_min=1 h_max=2 %}
       </aside>
     {% endif %}
 

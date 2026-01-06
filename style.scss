@@ -451,12 +451,12 @@ nav {
 .no-sidebar .toc {
   left: 0 !important;
   padding: 60px 20px 0 20px;
-  width: 260px;
+  width: 340px;
 }
 
 // 关键：没有侧边栏时，内容区域左侧留出空间给目录
 .no-sidebar #main.withtoc {
-  padding-left: 280px !important; // 给左侧目录留空间
+  padding-left: 360px !important; // 给左侧目录留空间
   padding-right: 20px;
 }
 
@@ -540,7 +540,7 @@ nav {
 // TOC(目录样式)
 
 .toc {
-  width: 240px;
+  width: 320px;
   height: 100%;
   left: 30%;
   position: fixed;
@@ -568,7 +568,7 @@ nav {
 
 @media screen and (max-width:6600px) and (min-width:1200px){
   .withtoc{
-    padding-left: 260px;
+    padding-left: 340px;
   }
 
   /* 仅添加滚动条功能，不改变布局 */
