@@ -896,7 +896,79 @@ VLN领域的评估体系经历了以下演进：
 
 # VLN经典论文
 
-## 1. ODYSSEY
+## 1. DualVLN/InternVLN
+——Ground Slow, Move Fast
+
+**研究背景/问题**
+
+VLN领域存在基本矛盾：强大的推理能力需要"慢思考"，而流畅的导航行动需要"快反应"。传统端到端模型存在三大瓶颈：动作碎片化（每一步都需调用大模型）、响应延迟高（无法实现高频控制）、缺乏层次协调（语义理解、全局规划和局部避障耦合在一起）。
+
+**主要方法/创新点**
+
+DualVLN提出双系统架构，将高级语义理解与低级轨迹执行解耦，形成互补的快慢系统：
+
+<div align="center">
+  <img src="images/dualvln-framework-overview.png" width="100%" />
+<figcaption>
+DualVLN双系统框架架构
+</figcaption>
+</div>
+
+**系统2（慢思考的"大脑"）：**
+- **全局规划器**：基于Qwen-VL-2.5，以约2 Hz频率运行，负责理解指令、观察环境
+- **像素级目标预测**：将3D导航任务转化为2D像素级目标定位问题（最远像素目标grounding）
+- **自动生成训练数据**：通过三维到二维投影，将未来轨迹点投影到当前视角的2D图像上，利用深度信息过滤遮挡点，选择最远可见点作为"像素目标"
+- **智能视角调整**：自主决定何时调整视角（如"左转/右转15°、抬头/低头15°"），最多支持4次连续视角调整，模仿人类寻路行为
+
+<div align="center">
+  <img src="https://r-c-group.github.io/blog_media/images/dualvln-system2-waypoint.png" width="100%" />
+<figcaption>
+系统2的3D路径到2D路标自动生成机制
+</figcaption>
+</div>
+
+**系统1（快行动的"小脑"）：**
+- **高频轨迹生成**：轻量级扩散Transformer策略，以高达30 Hz频率运行
+- **条件扩散模型**：融合低频语义条件（来自系统2）与高频视觉条件（实时RGB图像）
+- **语义特征提取**：使用4个可学习的潜在查询向量从系统2的隐藏状态中提取任务相关语义特征
+- **动态环境适配**：通过融合旧图像特征与最新图像特征，动态理解机器人位移和环境变化
+- 输出平滑、连续、避障的轨迹（32个密集路径点）
+
+<div align="center">
+  <img src="https://r-c-group.github.io/blog_media/images/dualvln-system1-trajectory.png" width="100%" />
+<figcaption>
+系统1的高频轨迹生成机制
+</figcaption>
+</div>
+
+**协同机制**：系统2每0.5秒规划一个新目标，系统1每0.03秒更新一次轨迹，实现"大脑想一步，小脑走十步"的高效控制。
+
+**新基准Social-VLN**：
+- 在VLN-CE环境中加入动态行走的人形机器人，沿任务路径放置，增加交互概率
+- 引入Human Collision Rate指标，量化与行人的不安全交互次数
+
+<div align="center">
+  <img src="https://r-c-group.github.io/blog_media/images/dualvln-social-vln-benchmark.png" width="100%" />
+<figcaption>
+Social-VLN基准测试场景示例
+</figcaption>
+</div>
+
+**核心结果/发现**
+
+- **仿真基准SOTA**：在VLN-CE和VLN-PE两大基准上均取得最佳成绩，尤其在R2R和RxR的未见场景中，成功率显著领先所有基线模型（NaVILA、StreamVLN等）
+- **跨平台部署**：成功部署在轮式（Turtlebot4）、四足（Unitree Go2）、人形（Unitree G1）三种机器人平台上，仅搭载Intel RealSense D455单目RGB相机
+- **多场景验证**：在办公室、食堂、街道、便利店等多种室内外场景中表现出色，能够规划平滑路径、避开动态行人、处理楼梯等复杂地形
+- **零样本泛化**：展现出强大的零样本迁移能力，可直接迁移至长视程导航和户外自主探索任务
+- **系统鲁棒性**：系统1对像素目标偏差具有鲁棒性，当系统2输出的像素目标存在方向正确但位置偏差时，系统1仍能通过实时RGB图像修正轨迹
+
+**局限性**
+
+系统在极端扰动下的鲁棒性仍需提升，仿真到现实的迁移效率有待优化。跨层表征对齐机制还需进一步改进，以实现更高效的双系统协同。
+
+---
+
+## 2. ODYSSEY
 ——Open-World Quadrupeds Exploration and Manipulation for Long-Horizon Tasks
 
 **研究背景/问题**
@@ -958,78 +1030,6 @@ ODYSSEY框架整体架构
 **局限性**
 
 模型在物体几何形状的空间推理方面存在局限，导致夹爪对齐不佳和细长手柄或部分遮挡物品的定位不准确。此外，抓取小物体时偶尔失败，主要由于末端执行器跟踪和视觉感知精度不足。
-
----
-
-## 2. DualVLN
-——Ground Slow, Move Fast
-
-**研究背景/问题**
-
-VLN领域存在基本矛盾：强大的推理能力需要"慢思考"，而流畅的导航行动需要"快反应"。传统端到端模型存在三大瓶颈：动作碎片化（每一步都需调用大模型）、响应延迟高（无法实现高频控制）、缺乏层次协调（语义理解、全局规划和局部避障耦合在一起）。
-
-**主要方法/创新点**
-
-DualVLN提出双系统架构，将高级语义理解与低级轨迹执行解耦，形成互补的快慢系统：
-
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/dualvln-framework-overview.png" width="100%" />
-<figcaption>
-DualVLN双系统框架架构
-</figcaption>
-</div>
-
-**系统2（慢思考的"大脑"）：**
-- **全局规划器**：基于Qwen-VL-2.5，以约2 Hz频率运行，负责理解指令、观察环境
-- **像素级目标预测**：将3D导航任务转化为2D像素级目标定位问题（最远像素目标grounding）
-- **自动生成训练数据**：通过三维到二维投影，将未来轨迹点投影到当前视角的2D图像上，利用深度信息过滤遮挡点，选择最远可见点作为"像素目标"
-- **智能视角调整**：自主决定何时调整视角（如"左转/右转15°、抬头/低头15°"），最多支持4次连续视角调整，模仿人类寻路行为
-
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/dualvln-system2-waypoint.png" width="100%" />
-<figcaption>
-系统2的3D路径到2D路标自动生成机制
-</figcaption>
-</div>
-
-**系统1（快行动的"小脑"）：**
-- **高频轨迹生成**：轻量级扩散Transformer策略，以高达30 Hz频率运行
-- **条件扩散模型**：融合低频语义条件（来自系统2）与高频视觉条件（实时RGB图像）
-- **语义特征提取**：使用4个可学习的潜在查询向量从系统2的隐藏状态中提取任务相关语义特征
-- **动态环境适配**：通过融合旧图像特征与最新图像特征，动态理解机器人位移和环境变化
-- 输出平滑、连续、避障的轨迹（32个密集路径点）
-
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/dualvln-system1-trajectory.png" width="100%" />
-<figcaption>
-系统1的高频轨迹生成机制
-</figcaption>
-</div>
-
-**协同机制**：系统2每0.5秒规划一个新目标，系统1每0.03秒更新一次轨迹，实现"大脑想一步，小脑走十步"的高效控制。
-
-**新基准Social-VLN**：
-- 在VLN-CE环境中加入动态行走的人形机器人，沿任务路径放置，增加交互概率
-- 引入Human Collision Rate指标，量化与行人的不安全交互次数
-
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/dualvln-social-vln-benchmark.png" width="100%" />
-<figcaption>
-Social-VLN基准测试场景示例
-</figcaption>
-</div>
-
-**核心结果/发现**
-
-- **仿真基准SOTA**：在VLN-CE和VLN-PE两大基准上均取得最佳成绩，尤其在R2R和RxR的未见场景中，成功率显著领先所有基线模型（NaVILA、StreamVLN等）
-- **跨平台部署**：成功部署在轮式（Turtlebot4）、四足（Unitree Go2）、人形（Unitree G1）三种机器人平台上，仅搭载Intel RealSense D455单目RGB相机
-- **多场景验证**：在办公室、食堂、街道、便利店等多种室内外场景中表现出色，能够规划平滑路径、避开动态行人、处理楼梯等复杂地形
-- **零样本泛化**：展现出强大的零样本迁移能力，可直接迁移至长视程导航和户外自主探索任务
-- **系统鲁棒性**：系统1对像素目标偏差具有鲁棒性，当系统2输出的像素目标存在方向正确但位置偏差时，系统1仍能通过实时RGB图像修正轨迹
-
-**局限性**
-
-系统在极端扰动下的鲁棒性仍需提升，仿真到现实的迁移效率有待优化。跨层表征对齐机制还需进一步改进，以实现更高效的双系统协同。
 
 ---
 

@@ -1,6 +1,7 @@
 # 排除参考模板目录
 KwanWaiPang.github.io-main/
 chirpy-starter-main/
+.claude/
 
 # Jekyll 生成的文件
 _site/
