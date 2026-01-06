@@ -905,14 +905,16 @@ VLN领域存在基本矛盾：强大的推理能力需要"慢思考"，而流畅
 
 **主要方法/创新点**
 
-DualVLN提出双系统架构，将高级语义理解与低级轨迹执行解耦，形成互补的快慢系统：
-
 <div align="center">
-  <img src="/images/dualvln-framework-overview.png" width="100%" />
+  <img src="/images/dualvln-framework.png" width="100%" />
 <figcaption>
-DualVLN双系统框架架构
+DualVLN
 </figcaption>
 </div>
+
+DualVLN提出双系统架构，将高级语义理解与低级轨迹执行解耦，形成互补的快慢系统：
+
+
 
 **系统2（慢思考的"大脑"）：**
 - **全局规划器**：基于Qwen-VL-2.5，以约2 Hz频率运行，负责理解指令、观察环境
@@ -921,9 +923,9 @@ DualVLN双系统框架架构
 - **智能视角调整**：自主决定何时调整视角（如"左转/右转15°、抬头/低头15°"），最多支持4次连续视角调整，模仿人类寻路行为
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/dualvln-system2-waypoint.png" width="100%" />
+  <img src="/images/dualvln-framework-overview.png" width="100%" />
 <figcaption>
-系统2的3D路径到2D路标自动生成机制
+DualVLN双系统框架架构
 </figcaption>
 </div>
 
@@ -935,9 +937,9 @@ DualVLN双系统框架架构
 - 输出平滑、连续、避障的轨迹（32个密集路径点）
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/dualvln-system1-trajectory.png" width="100%" />
+  <img src="/images/dualvln-system1-trajectory.png" width="100%" />
 <figcaption>
-系统1的高频轨迹生成机制
+系统1的高频轨迹生成
 </figcaption>
 </div>
 
@@ -1013,12 +1015,12 @@ ODYSSEY框架整体架构
 - 基准测试包括10个真实场景（室内家居、超市、餐厅、室外庭院等）
 - 长期任务包含246个室内和58个室外变化，涉及抓取、重新定向、容器放置、关节操作等多种技能
 
-<div align="center">
+<!-- <div align="center">
   <img src="https://r-c-group.github.io/blog_media/images/odyssey-results-comparison.png" width="100%" />
 <figcaption>
 与基线方法的性能对比
 </figcaption>
-</div>
+</div> -->
 
 **核心结果/发现**
 
@@ -1103,25 +1105,14 @@ PanoNav框架整体架构
 
 ---
 
-## 4. NavDP与NoMaD
-——扩散模型在通用导航中的应用
+## 4. NavDP
+——基于扩散模型的零样本导航规划
 
 **研究背景/问题**
 
-机器人的通用导航不仅要求能够在未知或动态环境中安全移动，还需要具备灵活的探索能力和跨场景、跨平台的适应性。传统方法通常为探索和目标导航分别训练独立策略，导致模型复杂且泛化能力有限。本文介绍了两个代表性工作：NavDP（上海AI Lab）和NoMaD（伯克利，ICRA2024 Best Paper）。
+机器人导航面临的核心挑战是如何在保证安全的前提下实现跨场景、跨平台的泛化能力。传统的导航方法往往依赖于显式地图构建或需要在目标环境中大量采集真实数据，这限制了其在实际场景中的部署效率。NavDP（Navigation with Diffusion Policy，上海AI Lab）提出通过大规模模拟数据训练，结合扩散模型生成候选轨迹和Critic网络评估安全性，实现零样本sim-to-real迁移。
 
 **主要方法/创新点**
-
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/diffusion-navigation-overview.png" width="100%" />
-<figcaption>
-扩散模型在通用导航中的应用框架对比
-</figcaption>
-</div>
-
-### NavDP（上海AI Lab）
-
-**核心思路**：扩散模型负责生成候选轨迹，Critic负责挑选安全路线
 
 <div align="center">
   <img src="https://r-c-group.github.io/blog_media/images/navdp-framework.png" width="100%" />
@@ -1130,21 +1121,29 @@ NavDP双阶段推理框架
 </figcaption>
 </div>
 
-**两阶段推理框架：**
+### 核心思路
+
+扩散模型负责生成候选轨迹，Critic负责挑选安全路线
+
+### 两阶段推理框架
+
 - **第一阶段（策略生成）**：用RGB-D图像+导航目标，经策略Transformer编码后，通过扩散生成候选轨迹
 - **第二阶段（安全评估）**：将生成轨迹与RGB-D token融合，再经共享Transformer与critic head，选择与目标无关的安全轨迹
 
-**模拟特权信息利用：**
+### 模拟特权信息利用
+
 - **生成器训练**：利用模拟环境中的全局最优规划器指导轨迹生成
 - **Critic训练**：利用模拟环境的全局ESDF，从负样本轨迹中学习精细空间理解
 - **数据增强**：对原始轨迹进行随机旋转和插值，生成混合轨迹增加多样性
 
-**多模态输入编码：**
+### 多模态输入编码
+
 - **输入**：单帧RGB-D图像+导航目标（四种类型：点目标、图像目标、轨迹目标、无目标）
 - **深度处理**：裁剪至0.1-3.0 m，RGB经预训练DepthAnything ViT编码，深度由自训练ViT编码
 - **Transformer解码器**：将512个RGB-D token压缩为16个融合token
 
-**Real-to-Sim增强：**
+### Real-to-Sim增强
+
 - 采用Gaussian Splatting重建真实环境，提供高真实感的训练与评测平台
 - 在训练集中加入27%的real-to-sim样本，可使目标场景成功率提升30%，且不损害泛化能力
 
@@ -1155,9 +1154,29 @@ NavDP模拟数据生成流程
 </figcaption>
 </div>
 
-### NoMaD（伯克利，ICRA2024 Best Paper）
+**核心结果/发现**
 
-**核心思路**：通过统一的扩散策略，同时建模任务特定和任务无关行为
+- **跨机器人平台泛化**：在不同机器人（Dingo、Go2、Galaxea R1）上稳定高于基线（GNM, ViNT, NoMad, iPlanner, ViPlanner, EgoPlanner）
+- **零样本Sim-to-Real**：成功在Unitree Go2、Galaxea R1、Unitree G1上部署，室内外场景均表现良好，含动态行人干扰
+- **数据规模与效率**：模拟数据生成速度约2,500条轨迹/GPU/天，比真实采集快20倍；数据集覆盖1244个场景、总长度363.2 km
+- **模型组件贡献**：Critic模块是性能提升的关键，移除后性能显著下降；No-goal训练目标对整体避障行为影响最大
+- **Real-to-Sim效果**：真实场景成功率提高30%，证明real-to-sim数据能显著提升sim-to-real成功率
+- **高速避障**：>10Hz推理，支持2.0 m/s高速避障，动态场景下优于传统地图规划方法
+
+**局限性**
+
+NavDP的性能高度依赖于高质量的模拟数据训练，Real-to-Sim数据比例需要仔细平衡以避免过拟合特定场景。虽然在多种机器人平台上展现了良好的泛化能力，但在极端复杂环境（如密集人群、高度动态场景）下的鲁棒性仍有提升空间。此外，扩散模型的多步推理虽然提供了多样化的轨迹候选，但相比直接回归方法计算开销更大，对实时性要求极高的应用场景可能存在挑战。
+
+---
+
+## 5. NoMaD
+——目标掩码扩散策略实现统一导航
+
+**研究背景/问题**
+
+传统机器人导航系统通常为探索（exploration）和目标导航（goal-conditioned navigation）分别训练独立的策略模型，这不仅增加了系统复杂度，也限制了跨任务的知识共享和泛化能力。NoMaD（Nomadic Multi-task Agent with Diffusion，伯克利，ICRA2024 Best Paper）提出通过统一的扩散策略框架，使用目标掩码机制同时建模任务特定行为（目标导向）和任务无关行为（探索），实现单一策略胜任多种导航任务。
+
+**主要方法/创新点**
 
 <div align="center">
   <img src="https://r-c-group.github.io/blog_media/images/nomad-framework.png" width="100%" />
@@ -1166,19 +1185,24 @@ NoMaD目标掩码扩散策略框架
 </figcaption>
 </div>
 
-**两个关键组件：**
+### 核心思路
 
-*目标掩码（Goal Masking）：*
+通过统一的扩散策略，同时建模任务特定和任务无关行为
+
+### 两个关键组件
+
+**目标掩码（Goal Masking）**
 - 通过二值掩码控制策略是否关注目标图像，实现任务条件的灵活切换
 - **训练时**：目标掩码以50%概率随机设置，使模型同时学习目标导向行为和探索行为
 - **推理时**：根据任务需要设置掩码（探索时掩盖目标，导航时提供目标）
 
-*扩散策略（Diffusion Policy）：*
+**扩散策略（Diffusion Policy）**
 - 利用扩散模型生成多模态、无碰撞的动作序列
 - 从随机噪声逐步迭代生成预测动作序列
 - 动作分布既可在无目标条件下表达探索行为，也可在提供目标条件下收敛到目标导向行为
 
-**统一框架设计：**
+### 统一框架设计
+
 - 通过Transformer编码视觉观测并结合扩散模型生成未来动作序列
 - 同时支持任务特定行为（目标导向）和任务无关行为（探索）
 - 使用大规模多样化数据集（GNM和SACSoN）进行端到端监督训练
@@ -1192,17 +1216,6 @@ NoMaD目标掩码机制示意图
 
 **核心结果/发现**
 
-### NavDP实验结果：
-
-- **跨机器人平台泛化**：在不同机器人（Dingo、Go2、Galaxea R1）上稳定高于基线（GNM, ViNT, NoMad, iPlanner, ViPlanner, EgoPlanner）
-- **零样本Sim-to-Real**：成功在Unitree Go2、Galaxea R1、Unitree G1上部署，室内外场景均表现良好，含动态行人干扰
-- **数据规模与效率**：模拟数据生成速度约2,500条轨迹/GPU/天，比真实采集快20倍；数据集覆盖1244个场景、总长度363.2 km
-- **模型组件贡献**：Critic模块是性能提升的关键，移除后性能显著下降；No-goal训练目标对整体避障行为影响最大
-- **Real-to-Sim效果**：真实场景成功率提高30%，证明real-to-sim数据能显著提升sim-to-real成功率
-- **高速避障**：>10Hz推理，支持2.0 m/s高速避障，动态场景下优于传统地图规划方法
-
-### NoMaD实验结果：
-
 - **探索未知环境**：成功率达到98%，平均碰撞数仅0.2，超过最优基线Subgoal Diffusion约25%，且参数量仅为其1/15
 - **目标导航**：在已知环境的目标导航任务中，成功率与最优基线相当，但计算资源需求更少
 - **计算效率**：比现有方法计算效率提升约15倍，是首个成功在物理机器人上部署的目标条件动作扩散模型
@@ -1212,11 +1225,11 @@ NoMaD目标掩码机制示意图
 
 **局限性**
 
-两种方法虽然在跨场景、跨平台泛化方面表现出色，但在极端复杂环境下的鲁棒性仍需进一步提升。NavDP依赖高质量的模拟数据训练，Real-to-Sim数据比例需要仔细平衡。NoMaD的视觉编码器选择对性能影响较大，需要仔细调优，且ViT编码器虽然容量大但训练优化难度高。
+NoMaD的视觉编码器选择对性能影响较大，需要仔细调优以达到最佳效果。虽然ViT编码器具有更大的容量和表达能力，但其训练优化难度较高，收敛速度相对较慢。此外，目标掩码机制的随机采样比例（训练时50%）是一个关键超参数，在不同场景下可能需要针对性调整。尽管在多个室内外环境中表现优异，但在极端复杂、高度动态的场景（如密集人流、快速变化的障碍物）下的鲁棒性仍有进一步提升空间。
 
 ---
 
-## 5. VLN-R1
+## 6. VLN-R1
 ——基于GRPO与Time-Decayed Reward的端到端导航
 
 **研究背景/问题**
@@ -1330,7 +1343,7 @@ VLN-R1在VLN-CE（视觉-语言导航连续环境）基准上进行了全面测�
 ---
 
 
-## 6. Survey on VLA for Autonomous Driving
+## 7. Survey on VLA for Autonomous Driving
 
 **研究背景/问题**
 
@@ -1383,7 +1396,7 @@ VLA模型四阶段训练流程
 
 
 
-## 7. VLN入门基础技术梳理
+<!-- ## 8. VLN入门基础技术梳理
 
 **研究背景/问题**
 
@@ -1452,7 +1465,7 @@ VLN方法演进路线图
 
 当前VLN研究主要集中在仿真环境，Sim-to-Real迁移仍面临挑战。数据集规模有限且场景多样性不足，长尾场景处理能力有待提升。此外，实时性、鲁棒性和跨平台部署等实际应用需求尚未得到充分解决。
 
----
+--- -->
 
 
 
@@ -1685,7 +1698,7 @@ VLFM系统架构：初始化、语义前沿探索、目标导航三阶段流程
 **局限性**
 仅支持单层楼导航（缺少z坐标里程计导致价值图重置困难），HM3D和MP3D中14.6%和9.6%的跨楼层任务失败；假定目标物体在默认相机高度可见，未来可探索主动相机控制、操作式搜索（如打开抽屉）及可复用的语义地图表征以支持长时程多任务规划。
 
-## 11. Vision-Language-Action Models for Robotics
+<!-- ## 12. Vision-Language-Action Models for Robotics
 ——A Review Towards Real-World Applications
 
 **研究背景/问题**
@@ -1770,9 +1783,9 @@ VLA模型训练阶段
 
 **局限性**
 
-当前VLA模型主要在仿真环境或受控实验室环境中评估，实际部署面临诸多挑战：安全性保障不足、缺乏故障检测和恢复机制、计算资源需求高、跨embodiment泛化能力有限。此外，大多数模型缺乏持续学习能力，无法在部署后适应新环境。评估方法不够严格，缺乏统计显著性检验。未来需要在世界模型、推理能力、多模态融合、持续学习和实际应用方面取得突破。
+当前VLA模型主要在仿真环境或受控实验室环境中评估，实际部署面临诸多挑战：安全性保障不足、缺乏故障检测和恢复机制、计算资源需求高、跨embodiment泛化能力有限。此外，大多数模型缺乏持续学习能力，无法在部署后适应新环境。评估方法不够严格，缺乏统计显著性检验。未来需要在世界模型、推理能力、多模态融合、持续学习和实际应用方面取得突破。 -->
 
-## 12. Motus
+## 11. Motus
 ——A Unified Latent Action World Model
 
 **研究背景/问题**
