@@ -1787,7 +1787,7 @@ VLFM系统架构：初始化、语义前沿探索、目标导航三阶段流程
 **主要方法/创新点**
 
 <div align="center">
-  <img src="/images/motus-architecture-overview.png" width="100%" />
+  <img src="/images/motus-architecture-overview.png" width="90%" />
 <figcaption>
 Motus整体架构:Mixture-of-Transformer结构整合理解专家、视频生成专家和动作专家
 </figcaption>
@@ -1815,13 +1815,13 @@ Motus提出了统一的潜在动作世界模型,通过以下创新实现五种�
 - 使用rectified flow目标函数:
   - $$l_{\text{action}} = \mathbb{E} \left[ \left\| v^{\theta_a} - (\epsilon_a - a_{t+1:t+k}) \right\|^2 \right]$$
   - $$l_{\text{obs}} = \mathbb{E} \left[ \left\| v^{\theta_o} - (\epsilon_o - o_{t+1:t+k}) \right\|^2 \right]$$
-  <!-- - l_action = E[||v^θ_a - (ε_a - a_{t+1:t+k})||²]
-  - l_obs = E[||v^θ_o - (ε_o - o_{t+1:t+k})||²] -->
+  
+<!-- - l_action = E[||v^θ_a - (ε_a - a_{t+1:t+k})||²]   - l_obs = E[||v^θ_o - (ε_o - o_{t+1:t+k})||²] -->
 
 **3. 潜在动作(Latent Actions) - 像素级"增量动作":**
 
 <div align="center">
-  <img src="/images/motus-latent-action-vae.png" width="100%" />
+  <img src="/images/motus-latent-action-vae.png" width="60%" />
 <figcaption>
 潜在动作VAE架构:从光流到潜在动作表示
 </figcaption>
@@ -1831,7 +1831,8 @@ Motus提出了统一的潜在动作世界模型,通过以下创新实现五种�
 - **深度压缩自编码器(DC-AE)**:将高维光流压缩为4×512维token,再通过轻量级编码器投影到14维潜在动作向量
 - **训练策略**:混合90%无标注数据(自监督重建)+10%有标注轨迹(任务无关数据+标准演示)
 - **分布对齐**:引入任务无关数据(AnyPos方法),使用Curobo随机采样目标机器人动作空间
-- **损失函数**:L = L_recon + λ_a||a_real - a_pred||² + βL_KL
+- **损失函数**:$$\mathcal{L} = \mathcal{L}_{\text{recon}} + \lambda_a \left\| a_{\text{real}} - a_{\text{pred}} \right\|^2 + \beta \mathcal{L}_{\text{KL}}$$
+<!-- - **损失函数**:L = L_recon + λ_a||a_real - a_pred||² + βL_KL -->
 
 **4. 动作密集-视频稀疏预测策略:**
 - 视频帧率:8帧 @ 5Hz
@@ -1910,11 +1911,21 @@ Motus在真实世界复杂任务上的执行展示
 - **世界模型生成质量**:FID 11.209,FVD 61.209,SSIM 0.866,PSNR 25.07(在两个平台上评估)
 
 **五种统一模式实证验证:**
-1. VLA: p(a_{t+1:t+k} | o_t, ℓ) - 从观察和语言预测动作
+$$
+\begin{aligned}
+\text{1. VLA:} & \quad p(a_{t+1:t+k} \mid o_t, \ell) && \text{--- 从观察和语言预测动作} \\
+\text{2. 世界模型:} & \quad p(o_{t+1:t+k} \mid o_t, a_{t+1:t+k}) && \text{--- 从当前观察和动作预测未来观察} \\
+\text{3. IDM:} & \quad p(a_{t+1:t+k} \mid o_{t:t+k}) && \text{--- 从观察序列推断动作} \\
+\text{4. VGM:} & \quad p(o_{t+1:t+k} \mid o_t, \ell) && \text{--- 从观察和语言生成未来视频} \\
+\text{5. 联合预测:} & \quad p(o_{t+1:t+k}, a_{t+1:t+k} \mid o_t, \ell) && \text{--- 同时生成视频和动作}
+\end{aligned}
+$$
+
+<!-- 1. VLA: p(a_{t+1:t+k} | o_t, ℓ) - 从观察和语言预测动作
 2. 世界模型: p(o_{t+1:t+k} | o_t, a_{t+1:t+k}) - 从当前观察和动作预测未来观察
 3. IDM: p(a_{t+1:t+k} | o_{t:t+k}) - 从观察序列推断动作
 4. VGM: p(o_{t+1:t+k} | o_t, ℓ) - 从观察和语言生成未来视频
-5. 视频-动作联合预测: p(o_{t+1:t+k}, a_{t+1:t+k} | o_t, ℓ) - 同时生成视频和动作
+5. 视频-动作联合预测: p(o_{t+1:t+k}, a_{t+1:t+k} | o_t, ℓ) - 同时生成视频和动作 -->
 
 <!-- <div align="center">
   <img src="https://r-c-group.github.io/blog_media/images/motus-unified-modes-visualization.png" width="100%" />
