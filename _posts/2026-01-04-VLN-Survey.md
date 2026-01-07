@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Vision-Language Navigation (VLN) 综述"
-date:   2026-01-04
+date:   2026-01-07
 tags: [VLN, Robotics, Computer Vision, Deep Learning]
 comments: true
 author: Tingde Liu
@@ -48,7 +48,7 @@ VLN任务示意图
 
 3. **Environment（环境）**：Environment 定义了智能体执行导航任务的空间。由于真实环境中的数据采集与训练成本较高，现有研究通常依赖高保真模拟器进行训练与评测。例如，在 Room-to-Room（R2R）任务中，Matterport3D 数据集被广泛用作室内三维仿真环境。
 
-## VLN in the Vision–Language–Action Paradigm
+## VLN in the VLA Paradigm
 
 Vision-and-Language Navigation（VLN）通常被视为 Vision–Language–Action（VLA）范式下的代表性任务之一。与仅关注跨模态表示学习的视觉-语言任务不同，VLA 强调在动态环境中将语言理解、视觉感知与序列动作决策进行统一建模。
 
@@ -1365,7 +1365,7 @@ ODYSSEY框架整体架构
 
 ---
 
-## 5. PanoNav:
+## 5. PanoNav
 ——Mapless Zero-Shot Object Navigation
 
 **研究背景/问题**
