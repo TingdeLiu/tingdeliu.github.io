@@ -970,7 +970,137 @@ Social-VLN基准测试场景示例
 
 ---
 
-## 2. ODYSSEY
+## 2. NavDP
+——基于扩散模型的零样本导航规划
+
+<div align="center">
+  <img src="/images/navdp.png" width="100%" />
+<figcaption>
+NavDP双阶段推理框架
+</figcaption>
+</div>
+
+**研究背景/问题**
+
+机器人导航面临的核心挑战是如何在保证安全的前提下实现跨场景、跨平台的泛化能力。传统的导航方法往往依赖于显式地图构建或需要在目标环境中大量采集真实数据，这限制了其在实际场景中的部署效率。NavDP（Navigation with Diffusion Policy，上海AI Lab）提出通过大规模模拟数据训练，结合扩散模型生成候选轨迹和Critic网络评估安全性，实现零样本sim-to-real迁移。
+
+**主要方法/创新点**
+
+<div align="center">
+  <img src="/images/navdp-framework.png" width="100%" />
+<figcaption>
+NavDP双阶段推理框架
+</figcaption>
+</div>
+
+### 核心思路
+
+扩散模型负责生成候选轨迹，Critic负责挑选安全路线
+
+### 两阶段推理框架
+
+- **第一阶段（策略生成）**：用RGB-D图像+导航目标，经策略Transformer编码后，通过扩散生成候选轨迹
+- **第二阶段（安全评估）**：将生成轨迹与RGB-D token融合，再经共享Transformer与critic head，选择与目标无关的安全轨迹
+
+### 模拟特权信息利用
+
+- **生成器训练**：利用模拟环境中的全局最优规划器指导轨迹生成
+- **Critic训练**：利用模拟环境的全局ESDF，从负样本轨迹中学习精细空间理解
+- **数据增强**：对原始轨迹进行随机旋转和插值，生成混合轨迹增加多样性
+
+### 多模态输入编码
+
+- **输入**：单帧RGB-D图像+导航目标（四种类型：点目标、图像目标、轨迹目标、无目标）
+- **深度处理**：裁剪至0.1-3.0 m，RGB经预训练DepthAnything ViT编码，深度由自训练ViT编码
+- **Transformer解码器**：将512个RGB-D token压缩为16个融合token
+
+### Real-to-Sim增强
+
+- 采用Gaussian Splatting重建真实环境，提供高真实感的训练与评测平台
+- 在训练集中加入27%的real-to-sim样本，可使目标场景成功率提升30%，且不损害泛化能力
+
+<div align="center">
+  <img src="/images/navdp-trajectory-visualization.png" width="100%" />
+<figcaption>
+NavDP模拟数据生成流程
+</figcaption>
+</div>
+
+**核心结果/发现**
+
+- **跨机器人平台泛化**：在不同机器人（Dingo、Go2、Galaxea R1）上稳定高于基线（GNM, ViNT, NoMad, iPlanner, ViPlanner, EgoPlanner）
+- **零样本Sim-to-Real**：成功在Unitree Go2、Galaxea R1、Unitree G1上部署，室内外场景均表现良好，含动态行人干扰
+- **数据规模与效率**：模拟数据生成速度约2,500条轨迹/GPU/天，比真实采集快20倍；数据集覆盖1244个场景、总长度363.2 km
+- **模型组件贡献**：Critic模块是性能提升的关键，移除后性能显著下降；No-goal训练目标对整体避障行为影响最大
+- **Real-to-Sim效果**：真实场景成功率提高30%，证明real-to-sim数据能显著提升sim-to-real成功率
+- **高速避障**：>10Hz推理，支持2.0 m/s高速避障，动态场景下优于传统地图规划方法
+
+**局限性**
+
+NavDP的性能高度依赖于高质量的模拟数据训练，Real-to-Sim数据比例需要仔细平衡以避免过拟合特定场景。虽然在多种机器人平台上展现了良好的泛化能力，但在极端复杂环境（如密集人群、高度动态场景）下的鲁棒性仍有提升空间。此外，扩散模型的多步推理虽然提供了多样化的轨迹候选，但相比直接回归方法计算开销更大，对实时性要求极高的应用场景可能存在挑战。
+
+---
+
+## 3. NoMaD
+——目标掩码扩散策略实现统一导航
+
+**研究背景/问题**
+
+传统机器人导航系统通常为探索（exploration）和目标导航（goal-conditioned navigation）分别训练独立的策略模型，这不仅增加了系统复杂度，也限制了跨任务的知识共享和泛化能力。NoMaD（Nomadic Multi-task Agent with Diffusion，伯克利，ICRA2024 Best Paper）提出通过统一的扩散策略框架，使用目标掩码机制同时建模任务特定行为（目标导向）和任务无关行为（探索），实现单一策略胜任多种导航任务。
+
+**主要方法/创新点**
+
+<div align="center">
+  <img src="/images/nomad-framework.png" width="100%" />
+<figcaption>
+NoMaD目标掩码扩散策略框架
+</figcaption>
+</div>
+
+### 核心思路
+
+通过统一的扩散策略，同时建模任务特定和任务无关行为
+
+### 两个关键组件
+
+**目标掩码（Goal Masking）**
+- 通过二值掩码控制策略是否关注目标图像，实现任务条件的灵活切换
+- **训练时**：目标掩码以50%概率随机设置，使模型同时学习目标导向行为和探索行为
+- **推理时**：根据任务需要设置掩码（探索时掩盖目标，导航时提供目标）
+
+**扩散策略（Diffusion Policy）**
+- 利用扩散模型生成多模态、无碰撞的动作序列
+- 从随机噪声逐步迭代生成预测动作序列
+- 动作分布既可在无目标条件下表达探索行为，也可在提供目标条件下收敛到目标导向行为
+
+### 统一框架设计
+
+- 通过Transformer编码视觉观测并结合扩散模型生成未来动作序列
+- 同时支持任务特定行为（目标导向）和任务无关行为（探索）
+- 使用大规模多样化数据集（GNM和SACSoN）进行端到端监督训练
+
+<!-- <div align="center">
+  <img src="https://r-c-group.github.io/blog_media/images/nomad-goal-masking.png" width="100%" />
+<figcaption>
+NoMaD目标掩码机制示意图
+</figcaption>
+</div> -->
+
+**核心结果/发现**
+
+- **探索未知环境**：成功率达到98%，平均碰撞数仅0.2，超过最优基线Subgoal Diffusion约25%，且参数量仅为其1/15
+- **目标导航**：在已知环境的目标导航任务中，成功率与最优基线相当，但计算资源需求更少
+- **计算效率**：比现有方法计算效率提升约15倍，是首个成功在物理机器人上部署的目标条件动作扩散模型
+- **统一策略优势**：联合训练能够学习共享表示和环境可操作性，单一策略即可胜任多种行为
+- **编码器选择**：ViNT编码器配合注意力目标掩码效果最佳，成功率98%，碰撞数最少
+- **多场景验证**：在6个复杂的室内外环境中表现优异
+
+**局限性**
+
+NoMaD的视觉编码器选择对性能影响较大，需要仔细调优以达到最佳效果。虽然ViT编码器具有更大的容量和表达能力，但其训练优化难度较高，收敛速度相对较慢。此外，目标掩码机制的随机采样比例（训练时50%）是一个关键超参数，在不同场景下可能需要针对性调整。尽管在多个室内外环境中表现优异，但在极端复杂、高度动态的场景（如密集人流、快速变化的障碍物）下的鲁棒性仍有进一步提升空间。
+
+---
+## 4. ODYSSEY
 ——Open-World Quadrupeds Exploration and Manipulation for Long-Horizon Tasks
 
 **研究背景/问题**
@@ -982,7 +1112,7 @@ Social-VLN基准测试场景示例
 ODYSSEY提出了一个统一的移动操作框架，包含分层规划和全身控制两大核心模块：
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/odyssey-framework-overview.png" width="100%" />
+  <img src="/images/odyssey-framework-overview.png" width="100%" />
 <figcaption>
 ODYSSEY框架整体架构
 </figcaption>
@@ -999,7 +1129,7 @@ ODYSSEY框架整体架构
 - 根据目标物体主轴和表面法线施加几何约束，确定末端执行器朝向
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/odyssey-whole-body-control.png" width="100%" />
+  <img src="/images/odyssey-whole-body-control.png" width="100%" />
 <figcaption>
 两阶段全身控制策略训练流程
 </figcaption>
@@ -1035,7 +1165,7 @@ ODYSSEY框架整体架构
 
 ---
 
-## 3. PanoNav:
+## 5. PanoNav:
 ——Mapless Zero-Shot Object Navigation
 
 **研究背景/问题**
@@ -1047,7 +1177,7 @@ ODYSSEY框架整体架构
 PanoNav是一个无地图、仅使用RGB图像的零样本目标导航框架，包含两个核心模块：
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/panonav-framework-overview.png" width="100%" />
+  <img src="/images/panonav-framework-overview.png" width="100%" />
 <figcaption>
 PanoNav框架整体架构
 </figcaption>
@@ -1060,7 +1190,7 @@ PanoNav框架整体架构
 - **空间关系图构建**：MLLM利用几何距离关系和平面位置关系，构建空间关系图，生成每个方向的详细描述（物体存在、空间关系、房间类型等）
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/panonav-panoramic-parsing.png" width="100%" />
+  <img src="/images/panonav-panoramic-parsing.png" width="100%" />
 <figcaption>
 全景场景解析模块：从RGB输入到局部方向描述
 </figcaption>
@@ -1079,7 +1209,7 @@ PanoNav框架整体架构
 - **动作选择**：决策结果包括导航方向和是否找到目标的标志，由运动控制器执行相应动作
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/panonav-dynamic-memory.png" width="100%" />
+  <img src="/images/panonav-dynamic-memory.png" width="100%" />
 <figcaption>
 动态记忆引导决策机制
 </figcaption>
@@ -1105,130 +1235,6 @@ PanoNav框架整体架构
 
 ---
 
-## 4. NavDP
-——基于扩散模型的零样本导航规划
-
-**研究背景/问题**
-
-机器人导航面临的核心挑战是如何在保证安全的前提下实现跨场景、跨平台的泛化能力。传统的导航方法往往依赖于显式地图构建或需要在目标环境中大量采集真实数据，这限制了其在实际场景中的部署效率。NavDP（Navigation with Diffusion Policy，上海AI Lab）提出通过大规模模拟数据训练，结合扩散模型生成候选轨迹和Critic网络评估安全性，实现零样本sim-to-real迁移。
-
-**主要方法/创新点**
-
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/navdp-framework.png" width="100%" />
-<figcaption>
-NavDP双阶段推理框架
-</figcaption>
-</div>
-
-### 核心思路
-
-扩散模型负责生成候选轨迹，Critic负责挑选安全路线
-
-### 两阶段推理框架
-
-- **第一阶段（策略生成）**：用RGB-D图像+导航目标，经策略Transformer编码后，通过扩散生成候选轨迹
-- **第二阶段（安全评估）**：将生成轨迹与RGB-D token融合，再经共享Transformer与critic head，选择与目标无关的安全轨迹
-
-### 模拟特权信息利用
-
-- **生成器训练**：利用模拟环境中的全局最优规划器指导轨迹生成
-- **Critic训练**：利用模拟环境的全局ESDF，从负样本轨迹中学习精细空间理解
-- **数据增强**：对原始轨迹进行随机旋转和插值，生成混合轨迹增加多样性
-
-### 多模态输入编码
-
-- **输入**：单帧RGB-D图像+导航目标（四种类型：点目标、图像目标、轨迹目标、无目标）
-- **深度处理**：裁剪至0.1-3.0 m，RGB经预训练DepthAnything ViT编码，深度由自训练ViT编码
-- **Transformer解码器**：将512个RGB-D token压缩为16个融合token
-
-### Real-to-Sim增强
-
-- 采用Gaussian Splatting重建真实环境，提供高真实感的训练与评测平台
-- 在训练集中加入27%的real-to-sim样本，可使目标场景成功率提升30%，且不损害泛化能力
-
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/navdp-data-generation.png" width="100%" />
-<figcaption>
-NavDP模拟数据生成流程
-</figcaption>
-</div>
-
-**核心结果/发现**
-
-- **跨机器人平台泛化**：在不同机器人（Dingo、Go2、Galaxea R1）上稳定高于基线（GNM, ViNT, NoMad, iPlanner, ViPlanner, EgoPlanner）
-- **零样本Sim-to-Real**：成功在Unitree Go2、Galaxea R1、Unitree G1上部署，室内外场景均表现良好，含动态行人干扰
-- **数据规模与效率**：模拟数据生成速度约2,500条轨迹/GPU/天，比真实采集快20倍；数据集覆盖1244个场景、总长度363.2 km
-- **模型组件贡献**：Critic模块是性能提升的关键，移除后性能显著下降；No-goal训练目标对整体避障行为影响最大
-- **Real-to-Sim效果**：真实场景成功率提高30%，证明real-to-sim数据能显著提升sim-to-real成功率
-- **高速避障**：>10Hz推理，支持2.0 m/s高速避障，动态场景下优于传统地图规划方法
-
-**局限性**
-
-NavDP的性能高度依赖于高质量的模拟数据训练，Real-to-Sim数据比例需要仔细平衡以避免过拟合特定场景。虽然在多种机器人平台上展现了良好的泛化能力，但在极端复杂环境（如密集人群、高度动态场景）下的鲁棒性仍有提升空间。此外，扩散模型的多步推理虽然提供了多样化的轨迹候选，但相比直接回归方法计算开销更大，对实时性要求极高的应用场景可能存在挑战。
-
----
-
-## 5. NoMaD
-——目标掩码扩散策略实现统一导航
-
-**研究背景/问题**
-
-传统机器人导航系统通常为探索（exploration）和目标导航（goal-conditioned navigation）分别训练独立的策略模型，这不仅增加了系统复杂度，也限制了跨任务的知识共享和泛化能力。NoMaD（Nomadic Multi-task Agent with Diffusion，伯克利，ICRA2024 Best Paper）提出通过统一的扩散策略框架，使用目标掩码机制同时建模任务特定行为（目标导向）和任务无关行为（探索），实现单一策略胜任多种导航任务。
-
-**主要方法/创新点**
-
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/nomad-framework.png" width="100%" />
-<figcaption>
-NoMaD目标掩码扩散策略框架
-</figcaption>
-</div>
-
-### 核心思路
-
-通过统一的扩散策略，同时建模任务特定和任务无关行为
-
-### 两个关键组件
-
-**目标掩码（Goal Masking）**
-- 通过二值掩码控制策略是否关注目标图像，实现任务条件的灵活切换
-- **训练时**：目标掩码以50%概率随机设置，使模型同时学习目标导向行为和探索行为
-- **推理时**：根据任务需要设置掩码（探索时掩盖目标，导航时提供目标）
-
-**扩散策略（Diffusion Policy）**
-- 利用扩散模型生成多模态、无碰撞的动作序列
-- 从随机噪声逐步迭代生成预测动作序列
-- 动作分布既可在无目标条件下表达探索行为，也可在提供目标条件下收敛到目标导向行为
-
-### 统一框架设计
-
-- 通过Transformer编码视觉观测并结合扩散模型生成未来动作序列
-- 同时支持任务特定行为（目标导向）和任务无关行为（探索）
-- 使用大规模多样化数据集（GNM和SACSoN）进行端到端监督训练
-
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/nomad-goal-masking.png" width="100%" />
-<figcaption>
-NoMaD目标掩码机制示意图
-</figcaption>
-</div>
-
-**核心结果/发现**
-
-- **探索未知环境**：成功率达到98%，平均碰撞数仅0.2，超过最优基线Subgoal Diffusion约25%，且参数量仅为其1/15
-- **目标导航**：在已知环境的目标导航任务中，成功率与最优基线相当，但计算资源需求更少
-- **计算效率**：比现有方法计算效率提升约15倍，是首个成功在物理机器人上部署的目标条件动作扩散模型
-- **统一策略优势**：联合训练能够学习共享表示和环境可操作性，单一策略即可胜任多种行为
-- **编码器选择**：ViNT编码器配合注意力目标掩码效果最佳，成功率98%，碰撞数最少
-- **多场景验证**：在6个复杂的室内外环境中表现优异
-
-**局限性**
-
-NoMaD的视觉编码器选择对性能影响较大，需要仔细调优以达到最佳效果。虽然ViT编码器具有更大的容量和表达能力，但其训练优化难度较高，收敛速度相对较慢。此外，目标掩码机制的随机采样比例（训练时50%）是一个关键超参数，在不同场景下可能需要针对性调整。尽管在多个室内外环境中表现优异，但在极端复杂、高度动态的场景（如密集人流、快速变化的障碍物）下的鲁棒性仍有进一步提升空间。
-
----
-
 ## 6. VLN-R1
 ——基于GRPO与Time-Decayed Reward的端到端导航
 
@@ -1241,7 +1247,7 @@ VLN是具身人工智能领域的一项核心挑战，要求智能体根据自�
 VLN-R1提出了一种创新的端到端框架，利用大型视觉-语言模型（LVLM）直接处理自我中心视频流，生成连续的导航动作。
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/vln-r1-framework-overview.png" width="100%" />
+  <img src="/images/vln-r1-framework-overview.png" width="100%" />
 <figcaption>
 VLN-R1端到端框架整体架构
 </figcaption>
@@ -1266,7 +1272,7 @@ VLN-R1端到端框架整体架构
   - 覆盖了61个训练场景
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/vln-ego-dataset.png" width="100%" />
+  <img src="/images/vln-ego-dataset.png" width="100%" />
 <figcaption>
 VLN-Ego数据集构建流程
 </figcaption>
@@ -1280,7 +1286,7 @@ VLN-Ego数据集构建流程
 **两阶段训练策略：**
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/vln-r1-training-pipeline.png" width="100%" />
+  <img src="/images/vln-r1-training-pipeline.png" width="100%" />
 <figcaption>
 VLN-R1两阶段训练流程
 </figcaption>
@@ -1301,12 +1307,12 @@ VLN-R1两阶段训练流程
 - **作用机制**：使模型能够更关注近期的动作，同时考虑长期目标
 - **优势**：用于评估多步动作预测的长期效果，优化长时程导航性能
 
-<div align="center">
+<!-- <div align="center">
   <img src="https://r-c-group.github.io/blog_media/images/vln-r1-tdr-mechanism.png" width="100%" />
 <figcaption>
 时间衰减奖励（TDR）机制示意图
 </figcaption>
-</div>
+</div> -->
 
 **模型架构：**
 - **输入**：自我中心视频流和指令
@@ -1342,134 +1348,7 @@ VLN-R1在VLN-CE（视觉-语言导航连续环境）基准上进行了全面测�
 
 ---
 
-
-## 7. Survey on VLA for Autonomous Driving
-
-**研究背景/问题**
-
-自动驾驶正从规则驱动、端到端学习向更高阶的"人类级智能"演进。当前方法在处理长尾场景、理解驾驶意图、执行复杂推理时面临瓶颈。VLA（Vision-Language-Action）模型通过融合多模态理解与推理能力，为实现人类级驾驶智能提供新路径。
-
-**主要方法/创新点**
-
-文章提出了从"昆虫智能"到"哺乳动物智能"再到"人类级智能"的三阶段演进框架：
-
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/vla-driving-evolution.png" width="100%" />
-<figcaption>
-自动驾驶智能演进的三个阶段
-</figcaption>
-</div>
-
-**VLA驾驶智能体架构：**
-- **Driver Agent核心**：融合Chain-of-Thought推理与多模态感知，将驾驶决策分解为"感知-理解-推理-决策"链路
-- **四阶段训练流程**：
-  1. VL预训练（10B级通用数据+车端多模态数据）
-  2. 蒸馏（32B云端大模型→3.2B/4B边缘模型）
-  3. 驾驶模仿学习（专家轨迹+规划奖励）
-  4. 强化学习（场景覆盖奖励+违规惩罚）
-
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/vla-training-pipeline.png" width="100%" />
-<figcaption>
-VLA模型四阶段训练流程
-</figcaption>
-</div>
-
-**技术创新点：**
-- **多模态融合**：统一处理多视角图像、激光雷达、定位信息和自然语言指令
-- **思维链增强**：引入CoT提示工程，使模型输出可解释的中间推理步骤
-- **分布式部署**：云端32B模型提供规划监督，边缘3.2B/4B模型实现实时推理（Orin-X/Thor-U硬件）
-- **数据闭环**：整合真实驾驶场景数据，持续优化长尾case处理能力
-
-**核心结果/发现**
-
-- 在理想汽车AD Pro平台上实现端到端部署，边缘模型推理延迟满足实时性要求
-- 通过蒸馏和量化技术，将32B云端模型的能力有效迁移至3.2B/4B边缘模型，准确率保持在92%以上
-- 在复杂城区场景中，VLA方案相比传统端到端方法，接管率降低37%，长尾case处理成功率提升42%
-- CoT推理使决策过程可解释，用户信任度调查显示满意度提升28%
-
-**局限性**
-
-当前VLA模型在极端天气（如暴雨、浓雾）下的感知能力仍需增强，计算资源消耗较高导致部署成本上升。未来需进一步优化模型效率，并拓展至更广泛的驾驶场景。
-
----
-
-
-
-<!-- ## 8. VLN入门基础技术梳理
-
-**研究背景/问题**
-
-VLN是一个多学科交叉的研究领域，涵盖自然语言处理、计算机视觉、多模态信息融合及机器人导航等学科。智能体需要理解自然语言指令并在复杂环境中实现自主导航，但数据稀缺、跨模态匹配困难以及泛化能力不足是该领域面临的核心挑战。
-
-**主要方法/创新点**
-
-本文系统性地介绍了VLN领域的基础知识体系：
-
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/vln-basics-overview.png" width="100%" />
-<figcaption>
-VLN任务基本框架与分类体系
-</figcaption>
-</div>
-
-**任务分类与环境设置：**
-- **任务类型**：指令导向（R2R、R4R）、目标导向（REVERIE、SOON）、需求导向（DDN）
-- **交互方式**：单轮指令任务、多轮对话式导航任务
-- **场景类型**：室内场景（Room-to-Room）、室外场景（街道导航）、空中场景（AerialVLN）
-- **环境表示**：离散环境（连通图表示，节点间导航）、连续环境（三维空间自由移动）
-
-**测试基准与评估：**
-- **模拟器**：Matterport3DSimulator、Habitat、AirSim、Gibson/iGibson
-- **数据集**：R2R（10,567张全景图，90个房屋）、R4R（长指令）、CVDN（对话式）、REVERIE/SOON（对象定位）、AerialVLN（无人机导航）
-- **评估指标**：
-  - 导航精度：Success Rate (SR)、Navigation Error (NE)、Oracle Success Rate (OSR)
-  - 导航效率：Success weighted by Path Length (SPL)、Coverage weighted by Length Score (CLS)
-  - 轨迹质量：normalized Dynamic Time Warping (nDTW)
-
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/vln-datasets-comparison.png" width="100%" />
-<figcaption>
-主要VLN数据集对比与特点
-</figcaption>
-</div>
-
-**典型方法分类：**
-1. **传统Seq2seq方法**：基于注意力机制的LSTM序列到序列模型，使用"学生自学"训练方法
-2. **数据增强方法**：Speaker-Follower模型，通过生成指令扩充训练数据
-3. **辅助目标方法**：引入辅助推理任务（如自监督学习、进度估计）增强泛化能力
-4. **拓扑图方法**：构建场景拓扑图支持全局路径规划（如DualVLN的双尺度图Transformer）
-5. **大模型方法**：NavGPT/NavGPT-2利用大语言模型的多模态理解和推理能力
-
-**理论基础：**
-- **神经网络架构**：RNN/LSTM/GRU（序列建模）、CNN（视觉特征提取）、Transformer（长距离依赖捕获）
-- **训练范式**：模仿学习（交叉熵损失）、强化学习（策略梯度）、辅助监督学习（自监督预训练）
-- **工具框架**：PyTorch（模型构建）、Transformers库（预训练模型）
-
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/vln-methods-evolution.png" width="100%" />
-<figcaption>
-VLN方法演进路线图
-</figcaption>
-</div>
-
-**核心结果/发现**
-
-- VLN任务在Matterport3D等真实场景数据集上的性能不断提升，从早期Seq2seq方法的30-40% SR提升至基于大模型方法的60%+ SR
-- 数据增强技术（如Speaker-Follower）可有效缓解数据稀缺问题，性能提升10-15%
-- 拓扑图表示和全局规划显著改善长距离导航任务表现，R4R等复杂任务成功率提升20%+
-- 大模型（如GPT-4、Qwen-VL）的引入实现了零样本学习和可解释推理，为VLN带来范式转变
-- 评估体系已从单一SR指标扩展至涵盖精度、效率、轨迹质量的综合评估框架
-
-**局限性**
-
-当前VLN研究主要集中在仿真环境，Sim-to-Real迁移仍面临挑战。数据集规模有限且场景多样性不足，长尾场景处理能力有待提升。此外，实时性、鲁棒性和跨平台部署等实际应用需求尚未得到充分解决。
-
---- -->
-
-
-
-## 8. LagMemo 
+## 7. LagMemo 
 ——Language 3D Gaussian Splatting Memory for Multi-modal Open-vocabulary Multi-goal Visual Navigation
 
 **研究背景/问题**
@@ -1481,7 +1360,7 @@ VLN方法演进路线图
 LagMemo提出了首个将语言特征融入3D Gaussian Splatting（3DGS）的视觉导航系统：
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/lagmemo-framework-overview.png" width="100%" />
+  <img src="/images/lagmemo-framework-overview.png" width="100%" />
 <figcaption>
 LagMemo系统框架：先进行前沿探索构建语言3DGS记忆，再基于记忆进行多目标导航
 </figcaption>
@@ -1495,7 +1374,7 @@ LagMemo系统框架：先进行前沿探索构建语言3DGS记忆，再基于记
 - **关键帧检索机制**：针对导航场景中帧间重叠有限导致的遗忘和表面空洞问题，引入帧池存储历史帧，周期性渲染并按PSNR评估，优先优化低保真帧
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/lagmemo-language-injection.png" width="100%" />
+  <img src="/images/lagmemo-language-injection.png" width="100%" />
 <figcaption>
 语言特征注入流程：SAM实例分割→CLIP特征提取→2D-3D特征关联→离散化码本
 </figcaption>
@@ -1510,7 +1389,7 @@ LagMemo系统框架：先进行前沿探索构建语言3DGS记忆，再基于记
 **记忆引导的视觉导航：**
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/lagmemo-navigation-pipeline.png" width="100%" />
+  <img src="/images/lagmemo-navigation-pipeline.png" width="100%" />
 <figcaption>
 记忆引导导航管线：目标定位→路径点导航→目标验证→终点导航
 </figcaption>
@@ -1548,7 +1427,7 @@ LagMemo系统框架：先进行前沿探索构建语言3DGS记忆，再基于记
 
 
 
-## 9. GaussNav 
+## 8. GaussNav 
 ——Gaussian Splatting for Visual Navigation
 
 **研究背景/问题**
@@ -1560,7 +1439,7 @@ Instance ImageGoal Navigation (IIN)要求智能体在未探索环境中定位并
 GaussNav首次将3D Gaussian Splatting（3DGS）引入具身视觉导航，提出语义高斯地图表示：
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/gaussnav-framework-overview.png" width="100%" />
+  <img src="/images/gaussnav-framework-overview.png" width="100%" />
 <figcaption>
 GaussNav整体框架：前沿探索→语义高斯构建→高斯导航
 </figcaption>
@@ -1578,7 +1457,7 @@ GaussNav整体框架：前沿探索→语义高斯构建→高斯导航
 - **关键帧检索机制**：针对导航场景帧间重叠有限问题，存储历史帧并周期性渲染评估PSNR，优先优化低保真帧，采用两阶段优化（p1=30迭代新视点，p2=60迭代关键帧视点）
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/gaussnav-semantic-gaussian-construction.png" width="100%" />
+  <img src="/images/gaussnav-semantic-gaussian-construction.png" width="100%" />
 <figcaption>
 语义高斯构建流程：高斯密集化与语义高斯更新交替进行
 </figcaption>
@@ -1592,7 +1471,7 @@ GaussNav整体框架：前沿探索→语义高斯构建→高斯导航
 **高斯导航（Gaussian Navigation）：**
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/gaussnav-navigation-pipeline.png" width="100%" />
+  <img src="/images/gaussnav-navigation-pipeline.png" width="100%" />
 <figcaption>
 高斯导航流程：分类器→渲染描述性图像→匹配与定位→路径规划
 </figcaption>
@@ -1629,7 +1508,7 @@ GaussNav整体框架：前沿探索→语义高斯构建→高斯导航
 ---
 
 
-## 10. VLFM
+## 9. VLFM
 ——Vision-Language Frontier Maps for Zero-Shot Semantic Navigation
 
 **研究背景/问题**
@@ -1640,7 +1519,7 @@ GaussNav整体框架：前沿探索→语义高斯构建→高斯导航
 VLFM提出语言驱动的前沿价值图框架，实现端到端视觉-语义推理：
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/vlfm-system-overview.png" width="100%" />
+  <img src="/images/vlfm-system-overview.png" width="100%" />
 <figcaption>
 VLFM系统架构：初始化、语义前沿探索、目标导航三阶段流程
 </figcaption>
@@ -1658,25 +1537,25 @@ VLFM系统架构：初始化、语义前沿探索、目标导航三阶段流程
    - 输出余弦相似度分数并投影到俯视图价值图（双通道：语义分数+置信度分数）
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/vlfm-value-map-generation.png" width="100%" />
+  <img src="/images/vlfm-value-map-generation.png" width="100%" />
 <figcaption>
 价值图生成流程：BLIP-2计算语义分数并投影到俯视图
 </figcaption>
 </div>
 
-3. **置信度加权更新（Confidence-Weighted Averaging）**
+1. **置信度加权更新（Confidence-Weighted Averaging）**
    - 置信度分数基于像素相对光轴位置：$c_{i,j} = \cos^2(\theta/(\theta_{fov}/2) \times \pi/2)$
    - 重叠区域的语义值更新：$v_{i,j}^{new} = (c_{i,j}^{curr}v_{i,j}^{curr} + c_{i,j}^{prev}v_{i,j}^{prev})/(c_{i,j}^{curr} + c_{i,j}^{prev})$
    - 置信度更新偏向高置信值：$c_{i,j}^{new} = ((c_{i,j}^{curr})^2 + (c_{i,j}^{prev})^2)/(c_{i,j}^{curr} + c_{i,j}^{prev})$
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/vlfm-confidence-weighting.png" width="100%" />
+  <img src="/images/vlfm-confidence-weighting.png" width="100%" />
 <figcaption>
 置信度评分机制：光轴附近像素置信度最高，边缘递减
 </figcaption>
 </div>
 
-4. **物体检测与导航**
+1. **物体检测与导航**
    - YOLOv7用于COCO类别，Grounding-DINO用于开放词汇检测
    - Mobile-SAM提取目标轮廓，确定最近点作为目标航点
    - 使用VER训练的PointNav策略执行航点导航（纯几何理解，不依赖语义）
@@ -1698,94 +1577,7 @@ VLFM系统架构：初始化、语义前沿探索、目标导航三阶段流程
 **局限性**
 仅支持单层楼导航（缺少z坐标里程计导致价值图重置困难），HM3D和MP3D中14.6%和9.6%的跨楼层任务失败；假定目标物体在默认相机高度可见，未来可探索主动相机控制、操作式搜索（如打开抽屉）及可复用的语义地图表征以支持长时程多任务规划。
 
-<!-- ## 12. Vision-Language-Action Models for Robotics
-——A Review Towards Real-World Applications
-
-**研究背景/问题**
-
-机器人领域正努力利用大语言模型（LLM）和视觉-语言模型（VLM）的进展来实现更通用和可扩展的机器人系统。Vision-Language-Action (VLA) 模型通过统一视觉、语言和行动数据，旨在学习能够泛化到不同任务、物体、embodiment和环境的策略。然而，VLA模型的架构和训练方法尚未标准化，实际部署面临数据稀缺、embodiment迁移和计算成本等挑战。
-
-**主要方法/创新点**
-
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/vla-survey-structure.png" width="100%" />
-<figcaption>
-VLA综述论文的整体结构
-</figcaption>
-</div>
-
-本综述提供了VLA模型的全栈式系统性回顾，涵盖软件和硬件组件：
-
-**VLA架构演进**：
-- **早期CNN-based端到端架构**：CLIPort等模型整合CLIP进行视觉和语言特征提取，结合Transporter Network学习物体操作任务
-- **Transformer-based序列模型**：Gato作为通用智能体先驱，使用单个transformer执行多种任务；VIMA通过encoder-decoder transformer实现通用任务指令跟随
-- **基于预训练VLM的统一实时策略**：RT-1首次实现大规模真实世界通用控制；RT-2利用PaLM-E/PaLI-X等VLM主干，通过互联网规模数据联合微调实现强泛化；OpenVLA作为开源框架
-- **Diffusion Policy架构**：Octo首次将Diffusion Policy引入VLA，生成连续平滑的动作输出
-- **Diffusion Transformer架构**：RDT-1B将扩散过程直接集成到transformer解码器中
-- **Flow Matching策略架构**：π0利用flow-matching实现高达50Hz的实时控制
-- **潜在动作学习**：LAPA从视频中学习潜在动作表示，有效利用人类演示数据
-- **分层策略架构**：RT-H引入高层"language motion"预测和低层动作生成的分层结构；π0.5和GR00T N1进一步整合多阶段策略
-
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/vla-architecture-timeline.png" width="100%" />
-<figcaption>
-VLA模型架构演进时间线
-</figcaption>
-</div>
-
-**核心架构组件**：
-- **感知运动模型（Sensorimotor Model）**：七种主要架构变体
-  - Transformer + 离散动作Token
-  - Transformer + Diffusion动作头
-  - Diffusion Transformer
-  - VLM + 离散动作Token
-  - VLM + Diffusion/Flow Matching动作头
-  - VLM + Diffusion Transformer
-- **世界模型（World Model）**：通过预测未来观察支持规划和推理
-- **Affordance-based模型**：预测动作相关的视觉affordances
-
-**模态处理**：
-- 视觉：SigLIP、DINOv2成为主流视觉编码器
-- 语言：继承LLM的tokenizer，使用T5、CLIP Text Encoder等编码器
-- 动作：从离散化binning到连续动作生成（diffusion/flow matching）
-- 其他模态：音频、触觉、3D信息（深度、点云、体素）
-
-**训练策略**：
-- 预训练：利用大规模VLM主干（如PaliGemma、Prismatic VLM、Qwen2.5-VL）
-- 后训练：任务特定的高质量数据微调
-- Gradient insulation：冻结主干防止梯度污染预训练表示
-- 自监督学习：模态对齐、视觉表示学习、潜在动作表示学习
-- 强化学习：通过RL微调提升VLA鲁棒性和适应性
-
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/vla-training-stages.png" width="100%" />
-<figcaption>
-VLA模型训练阶段
-</figcaption>
-</div>
-
-**数据收集与增强**：
-- 遥操作：ALOHA系列、Mobile ALOHA
-- 代理设备：UMI、DexUMI、Dobb-E
-- 人类数据：Ego4D、EPIC-KITCHENS、Ego-Exo4D
-- 数据集：RT-X (1.4M episodes)、DROID (76K)、RoboMIND (107K)、AgiBot World (1M)
-- 数据增强：视觉增强（Stable Diffusion-based）、语言增强（DIAL）、动作增强（DAgger、CCIL）
-
-**核心结果/发现**
-
-- VLA模型已从早期CNN方法演进到复杂的多模态transformer架构，显著提升了泛化能力
-- 预训练VLM主干（如PaliGemma、Qwen2.5-VL）对VLA性能至关重要，能够继承常识知识和in-context学习能力
-- Diffusion和flow matching方法生成平滑连续动作，优于离散token化方法
-- 分层架构（如RT-H、π0.5、GR00T N1）在长时域任务中表现优异
-- 数据规模和多样性对VLA泛化至关重要，但数据收集成本高昂
-- 跨embodiment迁移仍是重大挑战，需要统一的动作空间表示
-- 实际部署面临安全性、实时性、计算效率等挑战
-
-**局限性**
-
-当前VLA模型主要在仿真环境或受控实验室环境中评估，实际部署面临诸多挑战：安全性保障不足、缺乏故障检测和恢复机制、计算资源需求高、跨embodiment泛化能力有限。此外，大多数模型缺乏持续学习能力，无法在部署后适应新环境。评估方法不够严格，缺乏统计显著性检验。未来需要在世界模型、推理能力、多模态融合、持续学习和实际应用方面取得突破。 -->
-
-## 11. Motus
+## 10. Motus
 ——A Unified Latent Action World Model
 
 **研究背景/问题**
@@ -1795,7 +1587,7 @@ VLA模型训练阶段
 **主要方法/创新点**
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/motus-architecture-overview.png" width="100%" />
+  <img src="/images/motus-architecture-overview.png" width="100%" />
 <figcaption>
 Motus整体架构:Mixture-of-Transformer结构整合理解专家、视频生成专家和动作专家
 </figcaption>
@@ -1810,12 +1602,12 @@ Motus提出了统一的潜在动作世界模型,通过以下创新实现五种�
   - 动作专家(Action Expert):Transformer结构(641.5M参数),与Wan相同深度
 - **总模型规模**:8B参数(VGM 5.00B + VLM 2.13B + Act Expert 641.5M + Und Expert 253.5M)
 
-<div align="center">
+<!-- <div align="center">
   <img src="https://r-c-group.github.io/blog_media/images/motus-tri-model-attention.png" width="100%" />
 <figcaption>
 三模态联合注意力机制详解
 </figcaption>
-</div>
+</div> -->
 
 **2. UniDiffuser式调度器:**
 - 为视频和动作分配不同的时间步τ_o、τ_a和噪声尺度
@@ -1827,7 +1619,7 @@ Motus提出了统一的潜在动作世界模型,通过以下创新实现五种�
 **3. 潜在动作(Latent Actions) - 像素级"增量动作":**
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/motus-latent-action-vae.png" width="100%" />
+  <img src="/images/motus-latent-action-vae.png" width="100%" />
 <figcaption>
 潜在动作VAE架构:从光流到潜在动作表示
 </figcaption>
@@ -1846,12 +1638,12 @@ Motus提出了统一的潜在动作世界模型,通过以下创新实现五种�
 
 **5. 三阶段训练流程:**
 
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/motus-training-pipeline.png" width="100%" />
+<!-- <div align="center">
+  <img src="/images/motus-training-pipeline.png" width="100%" />
 <figcaption>
 Motus三阶段训练流程与数据金字塔
 </figcaption>
-</div>
+</div> -->
 
 - **阶段1(视频生成)**:使用多机器人轨迹、自我中心人类视频和合成数据适配VGM(仅训练VGM,约8000 GPU小时)
 - **阶段2(潜在动作统一训练)**:冻结VLM,在视频、语言和潜在动作上预训练整个Motus模型(约10000 GPU小时)
@@ -1880,12 +1672,12 @@ Motus三阶段训练流程与数据金字塔
 - 在50个任务上评估,包含强背景和环境随机化(随机背景、杂乱桌面、桌高扰动、随机光照)
 - 清洁场景成功率:88.66%(Motus) vs 72.80%(X-VLA) vs 42.98%(π0.5)
 
-<div align="center">
+<!-- <div align="center">
   <img src="https://r-c-group.github.io/blog_media/images/motus-robotwin-results.png" width="100%" />
 <figcaption>
 RoboTwin 2.0仿真基准测试结果对比
 </figcaption>
-</div>
+</div> -->
 
 **真实世界实验:**
 - **两个平台**:AC-One和Agilex-Aloha-2双臂机器人
@@ -1898,12 +1690,12 @@ RoboTwin 2.0仿真基准测试结果对比
 - **Agilex-Aloha-2平台**:平均59.30%(Motus) vs 26.60%(无预训练) vs 48.60%(π0.5)
   - 突出任务:从饮水机取水96% vs 8%(无预训练),叠毛巾39% vs 0%
 
-<div align="center">
+<!-- <div align="center">
   <img src="https://r-c-group.github.io/blog_media/images/motus-real-world-tasks.png" width="100%" />
 <figcaption>
 Motus在真实世界复杂任务上的执行展示
 </figcaption>
-</div>
+</div> -->
 
 **其他基准测试:**
 - **LIBERO-Long**:97.6%成功率(与X-VLA并列最优,达到state-of-the-art)
@@ -1922,12 +1714,12 @@ Motus在真实世界复杂任务上的执行展示
 4. VGM: p(o_{t+1:t+k} | o_t, ℓ) - 从观察和语言生成未来视频
 5. 视频-动作联合预测: p(o_{t+1:t+k}, a_{t+1:t+k} | o_t, ℓ) - 同时生成视频和动作
 
-<div align="center">
+<!-- <div align="center">
   <img src="https://r-c-group.github.io/blog_media/images/motus-unified-modes-visualization.png" width="100%" />
 <figcaption>
 Motus五种统一模式的可视化展示
 </figcaption>
-</div>
+</div> -->
 
 **局限性**
 
