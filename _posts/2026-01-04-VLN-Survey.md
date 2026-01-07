@@ -552,6 +552,44 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 
 ---
 
+## NVIDIA Isaac Sim / Isaac Lab
+
+**基本信息：**
+- **开发者**：NVIDIA
+- **核心组件**：
+  - **Isaac Sim**：基于 NVIDIA Omniverse 的高保真机器人仿真环境
+  - **Isaac Lab**：基于 Isaac Sim 的模块化机器人学习与强化学习框架（GPU 加速）
+- **开源地址**：
+  - Isaac Lab 文档： https://isaac-sim.github.io/IsaacLab/main/index.html :contentReference[oaicite:0]{index=0}
+  - Isaac Sim 官方页面： https://developer.nvidia.com/isaac-sim :contentReference[oaicite:1]{index=1}
+
+**核心特点：**
+- **高保真物理与渲染**：基于 RTX 加速的 PhysX 物理引擎与真实感渲染，可模拟碰撞、摩擦、传感器噪声等真实物理特性 :contentReference[oaicite:2]{index=2}
+- **机器人学习集成**：Isaac Lab 提供强化学习、模仿学习、策略训练等端到端机器人学习工作流，可批量训练数千个并行环境 :contentReference[oaicite:3]{index=3}
+- **多机平台资产库**：包括四旋翼、差分驱动机器人、步态机器人、机械臂等多种机器人模型，可自定义场景与任务 :contentReference[oaicite:4]{index=4}
+- **导航与控制支持**：
+  - 支持 ROS2、Nav2 等机器人导航栈集成，可用于路径规划与多机器人导航测试 :contentReference[oaicite:5]{index=5}
+  - 虽主要用于强化学习与策略训练，但同样可用于评估视觉导航策略、连续控制与视觉感知组合任务
+- **数据生成与 Sim‑to‑Real**：结合 Omniverse Replicator，可生成训练用合成数据并辅助现实迁移训练 :contentReference[oaicite:6]{index=6}
+
+**应用场景：**
+- 连续控制与导航策略训练（强化学习 / 模仿学习）
+- 多传感器 SLAM、视觉感知与导航策略评估
+- 多机器人协作与动态环境测试
+- 合成数据生成与 Sim‑to‑Real 迁移训练
+
+**优势：**
+- **高保真模拟**：比传统离散图导航能更真实模拟连续物理行为与多传感器数据
+- **学习框架支持**：内置强化学习训练工作流，可扩展到大规模并行环境
+- **集成生态**：与 Omniverse、ROS、RTX GPU 加速等生态联动良好
+
+**局限性：**
+- **复杂度高**：上手门槛比简易模拟器如 Habitat、AI2‑THOR 更陡峭
+- **计算资源要求高**：需要强 GPU 才能充分利用高保真渲染与物理仿真
+- **目前在视觉导航（VLN）Benchmark 领域的专用数据集支持较少**：相比 Matterport/Habitat 等，社区内 VLN benchmark 评测还不如它们成熟
+
+---
+
 ## AI2-THOR
 
 **基本信息：**
@@ -668,6 +706,7 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 |--------|----------|----------|----------|----------|----------|----------|---------------------|
 | Matterport3D | 室内 | 离散 | 有限 | 快 | R2R/R4R | 90 | 保持经典基准 |
 | Habitat 3.1 | 室内/空中/户外 | 连续 | 基础 | 极快 | VLN-CE, LHPR-VLN | 800+ (HM3D) | 动态物体、空中/长程导航、Sim2Real强化 |
+| Isaac Sim / Lab | 室内/室外/空中 | 连续 | 强 | 高 | 强化学习、连续VLN | 可定制 | 高保真物理、动态环境、多机协作、Sim2Real |
 | AI2-THOR 4.0 | 室内 | 离散/连续 | 强 | 中等 | 交互任务 | 200+ | 多智能体、可定制交互、家庭场景扩大 |
 | iGibson 3.0 | 室内 | 连续 | 强 | 快 | 综合任务 | 1000+ | 动态人群、社交导航、Sim2Real强化 |
 | AirSim | 室内外 | 连续 | 强 | 中等 | 无人机/车辆 | 可定制 | 城市航拍、大规模航程、多机协作 |
@@ -677,12 +716,12 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 
 ## 选择建议
 
-- **研究经典VLN基准（R2R/R4R）**：Matterport3D Simulator  
+- **经典VLN基准（R2R/R4R）**：Matterport3D Simulator  
 - **连续环境与长程任务**：Habitat 3.1  
 - **需要物理交互任务**：AI2-THOR 4.0 / iGibson 3.0  
-- **无人机/空中导航**：AirSim / iThorAir  
+- **无人机/空中导航**：AirSim / Isaac Sim  
 - **大规模场景训练**：Gibson/iGibson 或 Habitat + HM3D  
-- **Sim-to-Real部署**：Habitat 3.1 / iGibson 3.0
+- **Sim-to-Real部署**：Habitat 3.1 / iGibson 3.0 / Isaac Sim
 
 
 # 评估指标
