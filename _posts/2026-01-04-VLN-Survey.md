@@ -1639,7 +1639,7 @@ Instance ImageGoal Navigation (IIN)要求智能体在未探索环境中定位并
 GaussNav首次将3D Gaussian Splatting（3DGS）引入具身视觉导航，提出语义高斯地图表示：
 
 <div align="center">
-  <img src="/images/gaussnav-framework-overview.png" width="100%" />
+  <img src="/images/gaussnav-framework-overview.png" width="60%" />
 <figcaption>
 GaussNav整体框架：前沿探索→语义高斯构建→高斯导航
 </figcaption>
@@ -1657,7 +1657,7 @@ GaussNav整体框架：前沿探索→语义高斯构建→高斯导航
 - **关键帧检索机制**：针对导航场景帧间重叠有限问题，存储历史帧并周期性渲染评估PSNR，优先优化低保真帧，采用两阶段优化（p1=30迭代新视点，p2=60迭代关键帧视点）
 
 <div align="center">
-  <img src="/images/gaussnav-semantic-gaussian-construction.png" width="100%" />
+  <img src="/images/gaussnav-semantic-gaussian-construction.png" width="60%" />
 <figcaption>
 语义高斯构建流程：高斯密集化与语义高斯更新交替进行
 </figcaption>
@@ -1671,7 +1671,7 @@ GaussNav整体框架：前沿探索→语义高斯构建→高斯导航
 **高斯导航（Gaussian Navigation）：**
 
 <div align="center">
-  <img src="/images/gaussnav-navigation-pipeline.png" width="100%" />
+  <img src="/images/gaussnav-navigation-pipeline.png" width="90%" />
 <figcaption>
 高斯导航流程：分类器→渲染描述性图像→匹配与定位→路径规划
 </figcaption>
@@ -1813,8 +1813,10 @@ Motus提出了统一的潜在动作世界模型,通过以下创新实现五种�
 - 为视频和动作分配不同的时间步τ_o、τ_a和噪声尺度
 - 支持五种推理模式的灵活切换:VLA、世界模型、IDM、VGM、视频-动作联合预测
 - 使用rectified flow目标函数:
-  - l_action = E[||v^θ_a - (ε_a - a_{t+1:t+k})||²]
-  - l_obs = E[||v^θ_o - (ε_o - o_{t+1:t+k})||²]
+  - $$l_{\text{action}} = \mathbb{E} \left[ \left\| v^{\theta_a} - (\epsilon_a - a_{t+1:t+k}) \right\|^2 \right]$$
+  - $$l_{\text{obs}} = \mathbb{E} \left[ \left\| v^{\theta_o} - (\epsilon_o - o_{t+1:t+k}) \right\|^2 \right]$$
+  <!-- - l_action = E[||v^θ_a - (ε_a - a_{t+1:t+k})||²]
+  - l_obs = E[||v^θ_o - (ε_o - o_{t+1:t+k})||²] -->
 
 **3. 潜在动作(Latent Actions) - 像素级"增量动作":**
 
@@ -1858,7 +1860,7 @@ Motus三阶段训练流程与数据金字塔
 - **Level 6**: 目标机器人任务轨迹数据(In-house: 2,000样本)
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/motus-embodied-data-pyramid.png" width="100%" />
+  <img src="/images/motus-embodied-data-pyramid.png" width="100%" />
 <figcaption>
 具身数据金字塔:从Level 1到Level 6数据量递减但质量递增
 </figcaption>
