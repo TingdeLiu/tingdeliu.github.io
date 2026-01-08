@@ -1057,42 +1057,72 @@ VLN领域的评估体系经历了以下演进：
 - [AI2-THOR](https://ai2thor.allenai.org/) - 侧重于室内物体的交互式导航（如打开冰箱、移动杯子）。
 
 ### 预训练框架与基座模型
-- [VLN-BERT (Recurrent)](https://github.com/YicongHong/Recurrent-VLN-BERT) - 经典的判别式模型基准。
-- [NaVid / Uni-NaVid](https://github.com/jzhzhang/NaVid-VLN-CE) - **2024-2025 SOTA**。首个仅依靠视频流（Video-only）实现连续环境导航的端到端大模型。
-- [DUET](https://github.com/cshizhe/DUET) - 大规模拓扑图表示学习的标杆。
+
+- [VLN-BERT (Recurrent)](https://github.com/YicongHong/Recurrent-VLN-BERT) - **经典的判别式模型基准**。将 BERT 引入 VLN 领域，通过循环状态（Recurrent State）处理长序列导航指令，是很多后续工作的 Baseline。
+- [DualVLN](https://github.com/panyuehu/DualVLN) - **全局与局部双系统导航框架（CVPR 2022）**。
+  - **核心贡献**：提出了“双重规划”机制。**局部控制器**负责细粒度的跨模态对齐（行走），**全局规划器**基于维护的拓扑图进行大尺度路径优化。
+  - **地位**：它标志着 VLN 模型从简单的“走一步看一步”进化到了具有“战略规划能力”的阶段。
+- [DUET](https://github.com/cshizhe/DUET) - **大规模拓扑图表示学习的标杆**。通过交叉模态 Transformer 联合推理全局拓扑图和自然语言指令，是目前离散环境下最强的框架之一。
+- [ETPNav](https://github.com/ChunHui-Zheng/ETPNav) - **演进式拓扑规划器 (2023-2024)**。在 DualVLN 和 DUET 的基础上，进一步解决了连续环境下动态构建拓扑图并进行高效路径规划的问题。
+- [NaVid / Uni-NaVid](https://github.com/jzhzhang/NaVid-VLN-CE) - **2024-2025 视觉大模型（VLM）导航 SOTA**。
+  - **特点**：首个不需要地图、不需要测距仪、仅依靠“纯视频流”输入即可完成连续环境导航的大模型，代表了目前从“基于几何”转向“基于端到端大模型语义”的研究前沿。
 
 ---
 
-# 主流研究框架 (Paradigms)
+# 主流研究框架 (Paradigms) 2026版
 
-目前的 VLN 研究已演进为以下三大主流框架：
+目前的 VLN 研究已演进为以下五大主流框架：
 
 ### 1. 判别式跨模态匹配框架 (Cross-modal Matching)
-- **核心思想**：利用 BERT/ViT 结构对指令和路径进行相似度建模。
+- **核心思想**：将导航视为“指令-路径”的匹配问题，通过 BERT/ViT 提取特征，利用注意力机制寻找指令关键词与视觉特征的对应关系。
 - **代表作**：VLN-BERT, Recurrent VLN-BERT, PREVALENT。
+- **评价**：经典架构，计算效率高，但在处理长距离、零样本任务时泛化性较弱。
 
 ### 2. 基于拓扑图与全局规划框架 (Graph-based Planning)
-- **核心思想**：智能体维护一个“拓扑地图”，记录已访问和待访问节点，进行全局回溯和预测。
-- **代表作**：**DUET**, **ETPNav** (Evolving Topological Planning)。
+- **核心思想**：智能体在移动过程中实时构建拓扑地图（Topological Map），记录空间连接关系，支持长距离回溯和多路径预测。
+- **代表作**：**DUET**, **DualVLN**, **ETPNav**。
+- **评价**：有效解决了“走错路无法回头”的问题，是目前复杂室内导航的主流方案。
 
-### 3. 基于基础大模型框架 (Foundation Model-based)
-- **核心思想**：直接利用冻结的 LLM (GPT-4) 或 VLM (BLIP-2, Qwen2-VL) 作为决策大脑，通过 Prompt Engineering 进行零样本（Zero-shot）导航。
-- **代表作**：**VelMA**, **LLM-Grounder**, **MapGPT**, **NaVid**。
+### 3. 具身大模型与 VLA 统一框架 (Foundation Models & VLA)
+- **核心思想**：利用超大规模预训练模型（如 GPT-4o, Qwen2-VL）作为认知核心，将导航指令、视觉观察和动作（Action）统一在同一个 Token 空间内。
+- **代表作**：**NaVid**, **LLM-Grounder**, **OpenVLA**。
+- **评价**：具备强大的常识推理能力（如知道“去厨房找杯子”应先找灶台），大幅提升了零样本（Zero-shot）性能。
 
-### 4. 连续环境与低级控制 (Continuous VLN)
-- **核心思想**：摆脱离散点跳转，处理 RGB 图像到速度向量 ($v, \omega$) 的映射。
-- **代表作**：**VLN-CE**, **C-PST**。
+### 4. 连续环境与具身控制 (Continuous VLN & Control)
+- **核心思想**：模拟真实物理世界，智能体输出连续的线速度和角速度，需处理动态障碍物、滑移和碰撞。
+- **代表作**：**VLN-CE**, **C-PST**, **Habitat-Web**。
+- **评价**：研究重点从“高层逻辑匹配”下移到“低级动作执行”，是实现机器狗/轮式机器人落地的关键。
 
+### 5. 生成式世界模型框架 (Generative World Models) —— *2025-2026 前沿*
+- **核心思想**：智能体具备“想象”能力。通过训练预测模型，在实际迈步前模拟不同动作带来的视觉后果（Predictive Visual Forward Modeling），在潜空间内进行搜索。
+- **代表作**：**Dynam3D** (NeurIPS '25), **V-A-World**。
+- **评价**：使模型具备类人的前瞻性规划能力，大幅减少了在物理环境中的试错次数。
 ---
 
-### 2024-2025 技术趋势 (Key Trends)
+### 2024-2026 技术趋势 (Key Trends)
 
 | 技术趋势 | 描述 | 关键论文/项目 |
 | :--- | :--- | :--- |
-| **Long-Horizon** | 处理超过 150 步的长路径及多阶段任务 | LHPR-VLN (CVPR '25) |
-| **Dynamic Environment** | 环境中存在移动的人、开关的门或光影变化 | DynamicVLN, Dynam3D |
-| **World Models** | 利用生成式模型预测未来帧，辅助导航决策 | NVIDIA Cosmos, GenNav |
-| **VLA Models** | 视觉-语言-动作统一大模型，直接输出控制指令 | RT-2, OpenVLA, Helix |
+| **Long-Horizon** | 处理超长距离路径（>150步）及涉及多房间、跨楼层的复杂多阶段导航任务。 | LHPR-VLN (CVPR '25), L-VLN |
+| **Dynamic Environment** | 针对真实世界中移动行人、开关门、光照突变等非稳态场景的适应性导航。 | DynamicVLN (2025), DynaNav |
+| **World Models** | 引入预测学习，智能体通过生成未来视觉帧预测动作结果，实现“脑内模拟规划”。 | NVIDIA Cosmos, GenNav, NavMorph |
+| **VLA Models** | **视觉-语言-动作 (VLA) 一体化**。直接从多模态输入输出底层控制指令，消除感知与动作的鸿沟。 | OpenVLA (2024), Helix, RT-2 |
+| **Self-Evolving VLN** | **2025-2026 新趋势**。智能体在测试阶段通过自我反思和经验检索，在无需重新训练的情况下实现性能进化。 | **SE-VLN** (ICLR '26 / 2025), Reflection-Nav |
+| **3DGS-based Map** | 利用 **3D高斯泼溅 (3D Gaussian Splatting)** 进行环境重建，提供比点云更精细、渲染更快的神经导航地图。 | GS-Nav (2025), Splat-Nav |
+
+---
+
+### 趋势深度解析
+
+#### 1. 从“固定模型”到“自我演进 (Self-Evolving)”
+这是目前最前沿的方向（如 **SE-VLN**）。传统的 VLN 模型在部署后能力是固定的，而最新的研究让智能体拥有一个“经验库”。当它导航失败时，它会记录失败原因并在下次遇到类似场景时进行**自我修正**。这种“闭环进化”让模型更像真实的生物。
+
+#### 2. 生成式 AI 赋予智能体“想象力”
+**World Models** 的引入改变了 VLN 的本质。以前智能体是“应激式”移动，现在它能利用 **Diffusion** 或 **Video Generation** 技术预判：“如果我右转，我会看到什么？”这种前瞻性规划显著降低了碰撞率。
+
+#### 3. 具身大模型 (VLA) 的统领地位
+随着 **OpenVLA** 等模型的成熟，VLN 不再是一个独立的视觉匹配任务，而是被纳入了通用的具身机器人大脑中。现在的趋势是：一个模型既能做 R2R 导航，也能在到达终点后完成“把杯子放进微波炉”的操作任务。
+
 
 # VLN经典论文
 
@@ -1939,7 +1969,8 @@ Motus五种统一模式的可视化展示
 当前方法需要大量计算资源(总计约18,400 GPU小时训练)。某些复杂任务(如叠毛巾)的性能仍有限,部分成功率仅为39%。尽管通过潜在动作改进了跨具身泛化,但仍需进一步研究。未来工作将探索更先进的统一模型架构,追求更通用的运动先验,并从互联网规模的通用视频中学习潜在动作。此外,需要研究如何降低部署成本并提升模型在极端条件下的鲁棒性。
 
 ---
-## 11. NavGPT (AAAI-2024)——利用大语言模型进行视觉语言导航的显式推理
+## 11. NavGPT 
+——利用大语言模型进行视觉语言导航的显式推理
 📄 **Paper**: https://arxiv.org/abs/2305.16986
 
 **研究背景/问题**
@@ -2001,7 +2032,8 @@ NavGPT展现出多种高级导航规划能力:
 
 ---
 
-## 12. NavGPT-2 (ECCV-2024)——释放大型视觉语言模型的导航推理能力
+## 12. NavGPT-2 
+——释放大型视觉语言模型的导航推理能力
 📄 **Paper**: https://arxiv.org/abs/2407.12366
 
 **研究背景/问题**
