@@ -1069,7 +1069,7 @@ VLN领域的评估体系经历了以下演进：
 
 ---
 
-# 主流研究框架 (Paradigms) 2026版
+# 主流研究框架 
 
 目前的 VLN 研究已演进为以下五大主流框架：
 
@@ -1097,6 +1097,7 @@ VLN领域的评估体系经历了以下演进：
 - **核心思想**：智能体具备“想象”能力。通过训练预测模型，在实际迈步前模拟不同动作带来的视觉后果（Predictive Visual Forward Modeling），在潜空间内进行搜索。
 - **代表作**：**Dynam3D** (NeurIPS '25), **V-A-World**。
 - **评价**：使模型具备类人的前瞻性规划能力，大幅减少了在物理环境中的试错次数。
+
 ---
 
 ### 2024-2026 技术趋势 (Key Trends)
@@ -1701,7 +1702,7 @@ GaussNav整体框架：前沿探索→语义高斯构建→高斯导航
 **高斯导航（Gaussian Navigation）：**
 
 <div align="center">
-  <img src="/images/gaussnav-navigation-pipeline.png" width="90%" />
+  <img src="/images/gaussnav-navigation-pipeline.png" width="80%" />
 <figcaption>
 高斯导航流程：分类器→渲染描述性图像→匹配与定位→路径规划
 </figcaption>
