@@ -7,7 +7,12 @@
       "WebFetch(domain:www.linkedin.com)",
       "WebFetch(domain:github.com)",
       "Bash(git remote set-url:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(test:*)",
+      "Bash(bundle install:*)",
+      "Bash(ruby --version:*)",
+      "Bash(gem install:*)",
+      "Bash(ruby -S bundle install:*)"
     ]
   }
 }
