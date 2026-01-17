@@ -1124,11 +1124,11 @@ VLN领域的评估体系经历了以下演进：
 ---
 
 # 主流 VLN 研究框架 
-
 目前的 VLN 研究已演进为以下四大主流框架：
----
 
-## 1. 判别式跨模态匹配框架 (Cross-modal Matching)
+
+## 1. 判别式跨模态匹配框架 
+——Cross-modal Matching
 
 - **起始时间**：2018–2020  
 - **代表工作**：VLN-BERT, Recurrent VLN-BERT, PREVALENT  
@@ -1140,6 +1140,12 @@ VLN领域的评估体系经历了以下演进：
 
 ---
 
+<div align="center">
+  <img src="/images/VLN_Bert.png" width="100%" />
+  <figcaption>Cross-modal Matching VLN 架构示意</figcaption>
+</div>
+
+---
 ### 典型 Pipeline  
 
 ```
@@ -1172,14 +1178,9 @@ Action Predictor (Policy Head)
 
 ---
 
-<div align="center">
-  <img src="/images/VLN_Bert.png" width="100%" />
-  <figcaption>Cross-modal Matching VLN 架构示意</figcaption>
-</div>
 
----
-
-## 2. 语义地图与拓扑规划框架 (Semantic Map & Graph-based Planning)
+## 2. 语义地图与拓扑规划框架 
+——Semantic Map & Graph-based Planning
 
 - **起始时间**：2020–2022  
 - **代表工作**：DUET, DualVLN, ETPNav, LagMemo  
@@ -1192,6 +1193,12 @@ Action Predictor (Policy Head)
 
 ---
 
+<div align="center">
+  <img src="/images/lagmemo-language-injection.png" width="100%" />
+  <figcaption>Semantic Map + Planning VLN 架构示意（LagMemo范式）</figcaption>
+</div>
+
+---
 ### 典型 Pipeline  
 
 ```
@@ -1223,14 +1230,9 @@ Global Planner → Local Policy → Action
 
 ---
 
-<div align="center">
-  <img src="/images/lagmemo-language-injection.png" width="100%" />
-  <figcaption>Semantic Map + Planning VLN 架构示意（LagMemo范式）</figcaption>
-</div>
 
----
-
-## 3. 具身大模型与 VLA 统一框架 (Foundation Models & VLA)
+## 3. 具身大模型与 VLA 统一框架 
+——Foundation Models & VLA
 
 - **起始时间**：2023–2024  
 - **代表工作**：NaVid, LLM-Grounder, OpenVLA, InternVLN  
@@ -1247,6 +1249,12 @@ Global Planner → Local Policy → Action
 
 ---
 
+<div align="center">
+  <img src="/images/dualvln-framework-overview.png" width="100%" />
+  <figcaption>VLA / InternVLN 双系统架构示意</figcaption>
+</div>
+
+---
 ### 典型 Pipeline  
 
 ```
@@ -1278,12 +1286,6 @@ Action Token Generator
 
 ---
 
-<div align="center">
-  <img src="/images/dualvln-framework-overview.png" width="100%" />
-  <figcaption>VLA / InternVLN 双系统架构示意</figcaption>
-</div>
-
----
 
 <!-- ## 4. 连续环境与具身控制框架 (Continuous VLN & Control)
 
@@ -1326,7 +1328,8 @@ Language-conditioned Goal
 
 --- -->
 
-## 4. 生成式世界模型框架 (Generative World Models) —— 2025-2026 前沿
+## 4. 生成式世界模型框架 
+——Generative World Models
 
 - **起始时间**：2024–2025  
 - **代表工作**：Dynam3D (NeurIPS'25), V-A-World  
@@ -1338,7 +1341,12 @@ Language-conditioned Goal
 VLN 从 reactive 转向 **deliberative planning with imagination**。
 
 ---
+<div align="center">
+  <img src="/images/world_model_architecture.png" width="100%" />
+  <figcaption>Generative World Model VLN 架构示意</figcaption>
+</div>
 
+--
 ### 典型 Pipeline  
 
 ```
@@ -1369,12 +1377,7 @@ Action
 
 ---
 
-<div align="center">
-  <img src="/images/world_model_architecture.png" width="100%" />
-  <figcaption>Generative World Model VLN 架构示意</figcaption>
-</div>
 
----
 
 ### 总结
 

@@ -12,7 +12,9 @@
       "Bash(bundle install:*)",
       "Bash(ruby --version:*)",
       "Bash(gem install:*)",
-      "Bash(ruby -S bundle install:*)"
+      "Bash(ruby -S bundle install:*)",
+      "Bash(ruby -S bundle exec jekyll serve:*)",
+      "Bash(git restore:*)"
     ]
   }
 }
