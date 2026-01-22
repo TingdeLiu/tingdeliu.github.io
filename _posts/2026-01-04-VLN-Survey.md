@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Vision-Language Navigation (VLN) 综述"
-date:   2026-01-17
+date:   2026-01-22
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 comments: true
 author: Tingde Liu
@@ -2492,6 +2492,161 @@ GaussianAD整体框架：使用统一3D高斯初始化场景，通过4D稀疏卷
 **局限性**
 
 GaussianAD无法预测完全准确的场景演化，因为它没有考虑自车向前移动时新观察到的区域的补全。这导致在4D占用预测任务上的性能相比专用方法有所不足。
+
+---
+
+
+## 14. FSR-VLN (2025)
+——基于层次化多模态场景图的快慢推理视觉语言导航
+
+📄 **Paper**: https://arxiv.org/abs/2509.13733v3
+
+**研究背景/问题**
+
+视觉语言导航（VLN）是具身智能中的基础任务，但现有方法在长距离空间推理方面存在严重局限，特别是在长距离导航任务中表现出较低的成功率和较高的推理延迟。关键瓶颈在于缺乏持久的长距离空间记忆来编码、组织和检索环境知识。现有几何语义地图和3D场景图依赖预提取的视觉特征，缺乏与VLM的直接交互；而基于图像的拓扑方法虽然成功率高，但由于依赖视频字幕处理长序列而效率低下。
+
+**主要方法/创新点**
+
+<div align="center">
+  <img src="/images/fsr-vln-system-overview.png" width="100%" />
+<figcaption>
+系统总览：HMSG构建与基于FSR的导航推理流程
+</figcaption>
+</div>
+
+FSR-VLN提出了结合两大核心创新的新型导航系统：
+
+**1. 层次化多模态场景图（HMSG）表示**
+
+HMSG将环境组织为四个层级：
+- **楼层节点（Floor nodes）**：存储楼层标识符、名称、最小/最大高度、PLY点云以及所含房间节点的引用
+- **房间节点（Room nodes）**：包含ID、2D多边形边界、点云、语义属性（名称、CLIP嵌入）以及关联的视图和对象节点链接
+- **视图节点（View nodes）**（新颖贡献）：表示房间内的特定视觉视角，存储CLIP嵌入、VLM生成的描述、相机位姿以及与对象的可见性关系。该层支持使用VLM对图像视图进行推理，同时增强对象级定位能力
+- **对象节点（Object nodes）**：表示离散实例，具有几何属性（3D边界框、点云）、语义嵌入以及与父房间和可见视图的链接
+
+每个节点编码多模态特征，包括几何属性、语义信息和拓扑连接。HMSG使用FAST-LIVO2 SLAM系统提取RGBD数据和位姿来构建，然后进行开放词汇实例映射。GPT-4o从图像视图推断房间名称，系统计算每个对象的平均深度以选择最佳代表视图。
+
+<div align="center">
+  <img src="/images/hmsg-representation.png" width="100%" />
+<figcaption>
+四层HMSG层次结构，每个节点包含多模态特征
+</figcaption>
+</div>
+
+**2. 快慢导航推理（FSR）**
+
+受人类认知双过程理论启发，FSR分三个阶段运行：
+
+**阶段1：基于LLM的用户指令理解**
+- 对于空间指令（如"办公室里的蓝色圆柱形凳子"）：LLM充当层次化概念解析器，将输入分解为楼层、区域和对象组件
+- 对于非空间指令（如"我累了"）：LLM充当目标推理代理，根据用户意图识别最相关的对象或区域
+
+**阶段2：快速匹配（直觉检索）**
+- 在查询文本与HMSG视图层嵌入之间进行基于CLIP的相似度匹配以识别目标视图
+- 并行进行对象级匹配，使用查询文本与对象嵌入之间的CLIP特征
+- 通过层次化特征匹配高效检索候选房间、视图和对象
+
+**阶段3：慢速推理（深思熟虑的精化）**
+- VLM（GPT-4o）验证匹配的对象是否出现在其最佳视图中
+- 如果验证失败，系统会：
+  - 使用LLM对未匹配视图的文本描述进行推理
+  - 比较快速匹配视图与LLM选择的视图
+  - 应用VLM推理确定最终最优目标图像
+  - 通过重新计算与最终视图中对象的CLIP相似度来更新目标对象
+
+<div align="center">
+  <img src="/images/fsr-navigation-reasoning.png" width="100%" />
+<figcaption>
+三阶段FSR流程：LLM指令理解、基于CLIP的快速匹配、基于VLM的慢速推理
+</figcaption>
+</div>
+
+这种多阶段架构无缝集成了高效的特征空间匹配与鲁棒的VLM驱动视觉验证。慢速推理仅在快速直觉失败时激活，大幅减少推理时间的同时提高准确性。
+
+**核心结果/发现**
+
+FSR-VLN在长距离真实室内环境中对87条机器人采集的指令进行评估，涵盖四个不同类别（无需推理、需要推理、小物体、空间目标）：
+
+- **成功率（SR）**：92%（80/87），显著优于基线方法：
+  - 比MobilityVLA（34.5%）高167%
+  - 比OK-Robot（60.9%）高51%
+  - 比HOVSG（51.7%）高77%
+
+- **检索成功率（RSR@Top1）**：在4-5米距离阈值下达到96.6%，在所有距离阈值下始终保持最佳性能
+
+- **响应时间**：使用慢速推理平均5.5秒，仅使用快速匹配平均1.5秒
+  - 与MobilityVLM（30秒）相比响应时间减少82%
+  - 通过仅在快速匹配失败时激活慢速推理，实现高效实时性能
+
+- **HM3D-SEM数据集**：RSR@Top1在1米处达到87%，显著优于HOVSG（52%）和osmAG-LLM（28%）
+
+- **消融实验**：添加空间目标（ST）指令使RSR从72.4%提升到81.6%，结合导航推理（NR）进一步提升到92%，验证了两个组件的有效性
+
+该系统已成功集成到Unitree-G1人形机器人的语音交互、规划和控制模块中，展示了具备自然语言交互能力的真实世界部署能力。
+
+**局限性**
+
+HMSG构建耗时，不适合实时建图。系统假设静态环境，限制了在动态场景中的适用性。未来工作将重点提高场景图构建效率、扩展对动态环境的鲁棒性，以及集成探索性导航能力以处理新颖或模糊的场景。
+
+
+---
+
+## 15. VLingNav: Embodied Navigation with Adaptive Reasoning and Visual-Assisted Linguistic Memory (2026)
+——A Unified VLA Model with Adaptive CoT and Visual-Assisted Linguistic Memory
+📄 **Paper**: https://wsakobe.github.io/VLingNav-web/
+
+**精华**
+该论文提出了VLingNav框架，通过自适应链式思考（AdaCoT）和视觉辅助语言记忆（VLingMem）赋予具身智能体认知能力，实现了高效且可解释的具身导航。其核心亮点在于动态推理机制和跨模态记忆，使其在各种具身导航基准测试中达到SOTA性能，并展示了强大的零样本迁移能力和跨任务泛化能力，为资源受限机器人平台上的智能导航提供了启发。
+
+**研究背景/问题**
+当前的具身导航VLA模型在复杂、长周期任务中缺乏明确的推理能力和持久性记忆，难以泛化到不同环境和任务变体。现有模型多为被动式系统，缺少自适应推理机制，并且依赖有限的上下文窗口，导致在复杂场景下无法有效规划和避免重复探索。
+
+**主要方法/创新点**
+本文提出了VLingNav，一个以语言驱动的VLA框架，旨在通过两个核心组件赋予具身智能体认知能力：
+
+1.  **自适应链式思考 (Adaptive Chain-of-Thought, AdaCoT)**：受人类双进程理论启发，AdaCoT机制在必要时动态触发显式推理，使智能体能够根据任务复杂性在快速、直观执行和缓慢、深思熟虑的规划之间灵活切换。这解决了现有CoT方法中推理频率固定导致效率低下的问题。
+
+<div align="center">
+  <img src="/images/VLingNav_architecture.png" width="100%" />
+<figcaption>
+VLingNav 整体架构概述，展示了AdaCoT推理和VLingMem记忆模块。
+</figcaption>
+</div>
+
+2.  **视觉辅助语言记忆 (Visual-Assisted Linguistic Memory, VLingMem)**：为了处理长周期的空间依赖性，VLingMem构建了一个持久的、跨模态的语义记忆，使智能体能够回忆过去的观察结果，防止重复探索，并推断动态环境中的移动趋势，从而确保在长时间交互中的连贯决策。
+
+<div align="center">
+  <img src="/images/VLingNav-CoT-labeling-pipeline.png" width="100%" />
+<figcaption>
+VLingNav的自适应CoT标注流程图。
+</figcaption>
+</div>
+
+**训练数据和策略**：
+- **Nav-AdaCoT-2.9M数据集**：构建了目前最大的具身导航数据集，包含推理标注和自适应CoT标注。
+- **在线专家引导强化学习 (Online Expert-guided RL)**：在模仿学习（SFT）之后引入了在线专家引导RL阶段，使模型能够获得更鲁棒、自探索的导航行为，超越监督演示的局限性。
+
+<div align="center">
+  <img src="/images/VLingNav-online-training.png" width="100%" />
+<figcaption>
+在线后训练的混合rollout过程。
+</figcaption>
+</div>
+
+**核心结果/发现**
+- VLingNav在多项具身导航基准测试（如ObjectNav, EVT, ImageNav）上实现了最先进的性能。
+- 在HM3Dv1 ObjectNav上，SR和SPL显著优于Uni-NaVid，展现了强大的探索和记忆能力。
+- 在HM3D OVON上，VLingNav在所有测试拆分中均表现最佳，证明了其强大的跨领域泛化能力。
+- 在EVT-Bench上，VLingNav在单目标跟踪和分心跟踪任务中均达到SOTA性能，尤其在复杂混乱场景中优势明显。
+- 在Image Goal Navigation上，VLingNav的成功率和导航效率显著高于UniGoal，表明其先进的推理和规划能力。
+- 在真实世界机器人平台上实现了零样本迁移，成功执行了未见过的导航任务，展示了强大的真实世界泛化和实用性。
+
+**局限性**
+- 当前模型主要依赖单目自我中心观测，这限制了其感知能力。未来工作可以探索多视角观测以提高导航效率。
+- 模型采用单系统架构，限制了预测频率，可能影响在高度动态环境中的快速决策和障碍物处理。未来可升级为双系统结构以支持高频动作输出。
+- 当前方法仅使用基于MPC的路点控制器，缺乏更灵活的运动模型，未来可集成更多运动能力。
+
+
 
 ---
 
