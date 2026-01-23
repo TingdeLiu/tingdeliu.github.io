@@ -2591,20 +2591,26 @@ HMSG构建耗时，不适合实时建图。系统假设静态环境，限制了�
 
 ---
 
-## 15. VLingNav: Embodied Navigation with Adaptive Reasoning and Visual-Assisted Linguistic Memory (2026)
+## 15. VLingNav (2026)
+Embodied Navigation with Adaptive Reasoning and Visual-Assisted Linguistic Memory
 ——A Unified VLA Model with Adaptive CoT and Visual-Assisted Linguistic Memory
+
 📄 **Paper**: https://wsakobe.github.io/VLingNav-web/
 
 **精华**
+
 该论文提出了VLingNav框架，通过自适应链式思考（AdaCoT）和视觉辅助语言记忆（VLingMem）赋予具身智能体认知能力，实现了高效且可解释的具身导航。其核心亮点在于动态推理机制和跨模态记忆，使其在各种具身导航基准测试中达到SOTA性能，并展示了强大的零样本迁移能力和跨任务泛化能力，为资源受限机器人平台上的智能导航提供了启发。
 
 **研究背景/问题**
+
 当前的具身导航VLA模型在复杂、长周期任务中缺乏明确的推理能力和持久性记忆，难以泛化到不同环境和任务变体。现有模型多为被动式系统，缺少自适应推理机制，并且依赖有限的上下文窗口，导致在复杂场景下无法有效规划和避免重复探索。
 
 **主要方法/创新点**
+
 本文提出了VLingNav，一个以语言驱动的VLA框架，旨在通过两个核心组件赋予具身智能体认知能力：
 
-1.  **自适应链式思考 (Adaptive Chain-of-Thought, AdaCoT)**：受人类双进程理论启发，AdaCoT机制在必要时动态触发显式推理，使智能体能够根据任务复杂性在快速、直观执行和缓慢、深思熟虑的规划之间灵活切换。这解决了现有CoT方法中推理频率固定导致效率低下的问题。
+1.  **自适应链式思考 (Adaptive Chain-of-Thought, AdaCoT)**：
+受人类双进程理论启发，AdaCoT机制在必要时动态触发显式推理，使智能体能够根据任务复杂性在快速、直观执行和缓慢、深思熟虑的规划之间灵活切换。这解决了现有CoT方法中推理频率固定导致效率低下的问题。
 
 <div align="center">
   <img src="/images/VLingNav_architecture.png" width="100%" />
@@ -2613,7 +2619,8 @@ VLingNav 整体架构概述，展示了AdaCoT推理和VLingMem记忆模块。
 </figcaption>
 </div>
 
-2.  **视觉辅助语言记忆 (Visual-Assisted Linguistic Memory, VLingMem)**：为了处理长周期的空间依赖性，VLingMem构建了一个持久的、跨模态的语义记忆，使智能体能够回忆过去的观察结果，防止重复探索，并推断动态环境中的移动趋势，从而确保在长时间交互中的连贯决策。
+1.  **视觉辅助语言记忆 (Visual-Assisted Linguistic Memory, VLingMem)**：
+为了处理长周期的空间依赖性，VLingMem构建了一个持久的、跨模态的语义记忆，使智能体能够回忆过去的观察结果，防止重复探索，并推断动态环境中的移动趋势，从而确保在长时间交互中的连贯决策。
 
 <div align="center">
   <img src="/images/VLingNav-CoT-labeling-pipeline.png" width="100%" />
@@ -2649,6 +2656,63 @@ VLingNav的自适应CoT标注流程图。
 
 
 ---
+## 16. [slow4fast-VLN(2026)]
+——General Vision-Language Navigation via Fast-Slow Interactive Reasoning
+📄 **Paper**: https://arxiv.org/abs/2601.09111v1
 
+### 精华 
+这篇论文的核心借鉴价值在于其提出的动态交互式快慢脑（Fast-Slow Interactive Reasoning）导航框架。它通过模拟人类的“快思考”（直觉决策）和“慢思考”（深度反思），实现导航策略的持续优化。其亮点在于，慢脑系统能够从历史经验中提炼出可泛化的“导航知识”，并用其“赋能”快脑，从而有效提升了智能体在未知环境（OOD场景）中的泛化能力和决策效率，解决了传统方法中快慢系统割裂、经验无法沉淀的问题。
 
+### 1. 研究背景/问题 
+传统的视觉-语言导航（VLN）方法在封闭环境下表现良好，但在面对环境和指令风格多变的开放世界时，其泛化能力严重不足。GSA-VLN任务通过引入多样化的场景和指令，对模型的场景适应性提出了更高要求。当前方法的主要挑战在于如何让智能体在导航过程中动态生成可泛化的策略，以应对前所未见的场景和指令。
+
+### 2. 主要方法/创新点 (Core content, most detailed)
+论文提出了一个名为 **slow4fast-VLN** 的动态交互式快慢推理框架，以应对开放环境下的视觉语言导航挑战。该框架包含快慢两个核心模块：
+
+*   **快推理模块 (Fast Reasoning)**：这是一个端到端的策略网络（基于DUET），负责根据实时的视觉和指令输入，快速生成导航动作。同时，它会记录导航过程中的所有执行记录（如观测、动作、度量等），形成历史记忆（History Repository）。
+
+*   **慢推理模块 (Slow Reasoning)**：该模块是整个框架的核心创新点。它利用大语言模型（LLM）对快推理模块产生的历史记忆进行深度“反思”（Reflection），从中提取出结构化、可泛化的导航经验（Structured Experience），并存入一个经验库（Experience Library）。这些经验包含了场景类型、空间上下文、空间规则、导航策略等关键信息。
+
+*   **快慢交互机制 (Interaction)**：这是区别于以往工作的关键。在导航决策时，快推理模块会从经验库中检索与当前场景最相关的经验，并将这些经验特征与实时视觉特征进行融合（通过Attention机制），从而“赋能”快脑，使其做出更精准、更泛化的决策。这种交互使得慢脑提炼的经验能够持续优化快脑的性能。
+
+*   **指令风格转换 (Instruction Style Conversion)**：为了应对多样的指令风格（如场景化、用户个性化），论文还设计了一个基于LLM的指令转换模块，通过CoT提示工程，将不同风格的指令实时转换为统一的“基础风格”指令，降低了模型对指令变化的敏感度。
+
+<div align="center">
+  <img src="/images/slow4fast-VLN-framework.png" width="100%" />
+<figcaption>
+图1: slow4fast-VLN 框架概览，展示了快慢推理模块如何通过历史记忆和泛化经验进行交互，以适应不同环境。
+</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/slow4fast-VLN-overview.png" width="100%" />
+<figcaption>
+图2: 方法概览。策略网络（快推理）处理实时输入并存储历史，LLM（慢推理）反思历史并生成经验，这些经验反过来指导策略网络。
+</figcaption>
+</div>
+
+### 3. 核心结果/发现 (Key findings)
+*   **环境适应性**：在GSA-R2R数据集上，使用基础指令进行测试时，slow4fast-VLN在住宅（ID）和非住宅（OOD）场景中的成功率（SR）分别比基线方法GR-DUET提升了1.5%和2.2%，证明了快慢交互框架对于提升场景泛化能力的有效性。
+*   **指令适应性**：在面对用户个性化指令和场景化指令时，该方法同样全面优于基线。例如，在用户指令测试中，其SR和SPL指标在多种角色（如Child, Keith, Moira等）下均达到SOTA水平。这得益于其指令风格转换模块和动态经验反馈循环。
+*   **消融实验**：实验证明，快慢推理（FSR）框架和指令风格转换（ISC）模块都是有效的。当两者协同工作时，模型在最具挑战的Test-N-Scene任务上达到了最佳性能。
+*   **案例研究**：通过可视化导航轨迹，论文展示了在引入慢脑反思后，智能体能够修正初始的错误路径，并基于经验（如“寻找蓝色画作”作为线索）更高效、更准确地完成导航任务，避免了不必要的探索。
+
+<div align="center">
+  <img src="/images/slow4fast-VLN-casestudy.png" width="100%" />
+<figcaption>
+图3: 案例研究。左图为仅使用快推理的轨迹，右图为经过慢推理优化后的轨迹，显示出路径更优，定位更准。
+</figcaption>
+</div>
+
+### 4. 局限性 (Brief, 1-2 sentences)
+论文指出的一个局限是，慢脑推理产生的知识是隐式地编码在策略网络的权重中，这种“黑盒”形式使得学习到的经验难以解释和直接干预。未来的一个研究方向是让慢脑生成显式的、结构化的知识库（如语义地图或知识图谱），以供快脑在导航时直接查询。
+
+<div align="center">
+  <img src="/images/slow4fast-VLN-results.png" width="100%" />
+<figcaption>
+图4: GR-DUET与本文方法在不同场景下的导航轨迹对比，证明了本文方法路径规划的优越性。
+</figcaption>
+</div>
+
+---
 **注**：本文为个人学习笔记，大量内容来自网络公开资料，仅供参考。如有错误或建议，欢迎指正！
