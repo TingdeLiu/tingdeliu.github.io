@@ -2597,6 +2597,13 @@ Embodied Navigation with Adaptive Reasoning and Visual-Assisted Linguistic Memor
 
 📄 **Paper**: https://wsakobe.github.io/VLingNav-web/
 
+<div align="center">
+  <img src="/images/VLingNav_architecture.png" width="100%" />
+<figcaption>
+VLingNav 整体架构概述，展示了AdaCoT推理和VLingMem记忆模块。
+</figcaption>
+</div>
+
 **精华**
 
 该论文提出了VLingNav框架，通过自适应链式思考（AdaCoT）和视觉辅助语言记忆（VLingMem）赋予具身智能体认知能力，实现了高效且可解释的具身导航。其核心亮点在于动态推理机制和跨模态记忆，使其在各种具身导航基准测试中达到SOTA性能，并展示了强大的零样本迁移能力和跨任务泛化能力，为资源受限机器人平台上的智能导航提供了启发。
@@ -2609,23 +2616,30 @@ Embodied Navigation with Adaptive Reasoning and Visual-Assisted Linguistic Memor
 
 本文提出了VLingNav，一个以语言驱动的VLA框架，旨在通过两个核心组件赋予具身智能体认知能力：
 
-1.  **自适应链式思考 (Adaptive Chain-of-Thought, AdaCoT)**：
-受人类双进程理论启发，AdaCoT机制在必要时动态触发显式推理，使智能体能够根据任务复杂性在快速、直观执行和缓慢、深思熟虑的规划之间灵活切换。这解决了现有CoT方法中推理频率固定导致效率低下的问题。
-
 <div align="center">
-  <img src="/images/VLingNav_architecture.png" width="100%" />
+  <img src="/images/VLingNav_framework.png" width="100%" />
 <figcaption>
-VLingNav 整体架构概述，展示了AdaCoT推理和VLingMem记忆模块。
+VLingNav 整体架构。
 </figcaption>
 </div>
 
-1.  **视觉辅助语言记忆 (Visual-Assisted Linguistic Memory, VLingMem)**：
-为了处理长周期的空间依赖性，VLingMem构建了一个持久的、跨模态的语义记忆，使智能体能够回忆过去的观察结果，防止重复探索，并推断动态环境中的移动趋势，从而确保在长时间交互中的连贯决策。
+1.  **自适应链式思考 (Adaptive Chain-of-Thought, AdaCoT)**：
+受人类双进程理论启发，AdaCoT机制在必要时动态触发显式推理，使智能体能够根据任务复杂性在快速、直观执行和缓慢、深思熟虑的规划之间灵活切换。这解决了现有CoT方法中推理频率固定导致效率低下的问题。
 
 <div align="center">
   <img src="/images/VLingNav-CoT-labeling-pipeline.png" width="100%" />
 <figcaption>
 VLingNav的自适应CoT标注流程图。
+</figcaption>
+</div>
+
+2.  **视觉辅助语言记忆 (Visual-Assisted Linguistic Memory, VLingMem)**：
+为了处理长周期的空间依赖性，VLingMem构建了一个持久的、跨模态的语义记忆，使智能体能够回忆过去的观察结果，防止重复探索，并推断动态环境中的移动趋势，从而确保在长时间交互中的连贯决策。
+
+<div align="center">
+  <img src="/images/VLingNav-CoT-labeling-pipeline.png" width="100%" />
+<figcaption>
+视觉辅助语言记忆流程图。
 </figcaption>
 </div>
 
@@ -2656,7 +2670,7 @@ VLingNav的自适应CoT标注流程图。
 
 
 ---
-## 16. [slow4fast-VLN(2026)]
+## 16. slow4fast-VLN(2026)
 ——General Vision-Language Navigation via Fast-Slow Interactive Reasoning
 📄 **Paper**: https://arxiv.org/abs/2601.09111v1
 
