@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Vision-Language Navigation (VLN) 综述"
-date:   2026-01-22
+date:   {{ site.time | date: '%Y-%m-%d' }}
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 comments: true
 author: Tingde Liu
@@ -2729,14 +2729,14 @@ VLingNav的自适应CoT标注流程图。
 **研究背景/问题**
 现有VLN方法面临关键挑战:纯文本CoT缺乏空间理解且容易过拟合稀疏标注;多模态CoT通过生成想象的视觉观测引入严重的token膨胀,导致推理延迟增加数个数量级,无法实现实时导航。这在长时域、多阶段导航场景中尤为突出。
 
-**主要方法/创新点**
-
 <div align="center">
   <img src="/images/FantasyVLN-overview.png" width="100%" />
 <figcaption>
 FantasyVLN系统概览:整合文本和视觉CoT推理模式,联合建模语义规划和空间理解
 </figcaption>
 </div>
+
+**主要方法/创新点**
 
 FantasyVLN提出了统一的隐式推理框架,核心创新包括:
 
@@ -2823,4 +2823,5 @@ FantasyVLN与WorldVLA的训练效率对比:CompV-CoT快速收敛,像素级V-CoT�
 该方法在LH-VLN这种小规模数据集(18k轨迹切片)上训练,显式CoT容易过拟合并产生累积误差;在更大规模数据集上的表现有待验证。此外,绝对成功率仍较低(SR 2.44%),表明长时域多阶段导航仍是极具挑战性的任务。
 
 ---
+##
 **注**：本文为个人学习笔记，大量内容来自网络公开资料，仅供参考。如有错误或建议，欢迎指正！
