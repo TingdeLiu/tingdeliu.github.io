@@ -1129,477 +1129,94 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 
 ---
 
-# 经典论文（按挑战分类）
+# 经典论文
 
-本节按照前述的五大核心挑战组织VLA领域的代表性论文，帮助读者系统性地理解各个研究方向的进展。
+本节将VLA领域的代表性论文分为“奠基性工作”和“最新突破”两类，以展示该领域的核心进展和前沿动态。
 
 ---
 
 ## 奠基性工作
 
-### RT-1: Robotics Transformer for Real-World Control at Scale
+奠基性工作通常指那些开创了新方向、提出了核心模型架构或关键技术范式，并对后续研究产生深远影响的论文。
 
-**论文信息**：
-- **发表时间**：2022年12月
-- **机构**：Google Brain
-- **核心贡献**：首个大规模真实世界机器人Transformer模型，证明了Transformer架构在机器人控制中的有效性
+### π₀ (Pi-Zero): A Universal Policy for Embodied AI (2024)
 
-**技术要点**：
-- 在130k真实机器人轨迹上训练
-- 使用TokenLearner压缩视觉特征
-- 离散化动作空间，使用分类头预测
+**核心贡献**: Physical Intelligence 公司提出的通用具身AI策略，旨在提供一种能够解决各种机器人任务的通用解决方案。它强调通过大规模预训练和持续学习，使机器人具备泛化能力和对未知环境的适应性。
 
-**论文链接**：待补充
 
----
 
-### RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control
 
-**论文信息**：
-- **发表时间**：2023年7月
-- **机构**：Google DeepMind
-- **核心贡献**：首次将预训练VLM成功转化为VLA模型，开创了VLA研究方向
+### RT-1: Robotics Transformer for Real-World Control at Scale (2022)
 
-**技术要点**：
-- 基于PaLI-X和PaLM-E预训练VLM
-- 将机器人动作编码为离散token
-- 展示了网络知识向机器人控制的迁移能力
-
-**意义**：标志着VLA作为独立研究方向的诞生
-
-**论文链接**：https://robotics-transformer2.github.io/
+**核心贡献**：首个大规模真实世界机器人Transformer模型，在130k真实轨迹上训练，证明了Transformer架构在端到端机器人控制中的巨大潜力。
 
 ---
 
-### OpenVLA: An Open-Source Vision-Language-Action Model
+### RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control (2023)
 
-**论文信息**：
-- **发表时间**：2024年6月
-- **机构**：Stanford University
-- **核心贡献**：首个开源的7B参数VLA模型，在多项任务上超越RT-2
-
-**技术要点**：
-- 融合DINOv2和SigLIP视觉编码器
-- 使用Llama-2作为语言骨干网络
-- 在970k Open X-Embodiment轨迹上训练
-
-**开源地址**：https://github.com/openvla/openvla
-
-**论文链接**：https://arxiv.org/abs/2406.09246
+**核心贡献**：VLA领域的里程碑，首次将预训练的VLM成功转化为VLA模型，实现了从网络知识到机器人控制的有效迁移，正式开创了VLA这一研究方向。
 
 ---
 
-## 挑战1：多模态对齐与物理世界建模
+### Diffusion Policy: Visuomotor Policy Learning via Action Diffusion (2023)
 
-### CLAP: Aligning Visual Latent Space with Robot Action Space
-
-**核心贡献**：通过对比学习将视频视觉潜在空间与可执行机器人动作空间对齐
-
-**技术方法**：
-- 对比学习框架
-- 视觉-动作联合嵌入
-- 改进语义到物理的接地能力
-
-**论文信息**：待补充
+**核心贡献**：首次将扩散模型（Diffusion Model）应用于机器人模仿学习，能够有效建模多模态的动作分布，在精细操作任务中表现出色，成为主流动作解码范式之一。
 
 ---
 
-### Point-VLA: Resolving Referential Ambiguity with Visual Cues
+### OpenVLA: An Open-Source Vision-Language-Action Model (2024)
 
-**核心贡献**：通过边界框等显式视觉线索解决指代歧义问题
-
-**技术方法**：
-- 引入点云和边界框作为额外输入
-- 空间注意力机制
-- 精确的物体定位
-
-**论文信息**：待补充
+**核心贡献**：首个开源的7B参数大规模VLA模型，在970k的Open X-Embodiment数据集上训练，性能超越RT-2，极大地推动了VLA领域的开放研究。
 
 ---
 
-### VoxPoser: 3D Affordance Maps as Intermediate Representations
+### RT-X / Open X-Embodiment Dataset (2023)
 
-**核心贡献**：生成3D可供性图作为强中间表示，连接语言和动作
-
-**技术方法**：
-- 体素化场景表示
-- 语言到3D可供性的映射
-- 基于可供性的动作生成
-
-**论文信息**：待补充
+**核心贡献**：通过构建包含22种不同机器人的大规模跨平台数据集（Open X-Embodiment），并训练了统一模型RT-X，证明了跨具身形态（cross-embodiment）策略迁移的可行性。
 
 ---
 
-### OccLLaMA: 3D Occupancy Networks for Spatial Understanding
+## 最新突破
 
-**核心贡献**：利用3D占据网络增强VLA的空间理解能力
+最新突破涵盖了近年来在VLA领域的关键技术创新和性能飞跃，代表了当前研究的前沿方向，如更强的推理能力、更高的执行效率、更可靠的安全性以及对物理世界更深入的理解。
 
-**技术方法**：
-- 占据网络预测
-- 2D到3D的特征提升
-- 空间推理增强
+### 规划与推理增强
 
-**论文信息**：待补充
+- **CoT-VLA**: 引入链式思考（Chain-of-Thought）增强VLA的规划与失败恢复能力。
+- **EToT (Embodied Thought)**: 利用基于物理的交互式数字孪生作为具身世界模型，进行更可靠的规划。
+- **WALL-OSS**: 聚合超过10000小时的机器人数据，实现大规模分层规划系统。
+- **MoE-DP**: 集成混合专家层（Mixture of Experts）将长时序任务分解为专门技能。
+- **ECoT (Editable CoT)**: 提供可编辑的逐步推理链，允许用户通过语言修正模型的决策过程。
 
----
+### 多模态对齐与世界模型
 
-### TraceVLA: 3D Trajectory Tracking and Prediction
+- **VoxPoser**: 生成3D可供性图（Affordance Maps）作为连接语言和动作的强中间表示。
+- **OccLLaMA**: 利用3D占据网络（Occupancy Networks）增强VLA对三维空间的理解能力。
+- **VideoVLA**: 使用视频条件的世界模型学习物理动力学，预测动作对环境的影响。
+- **InternVLA-M1**: 结合空间接地预训练和空间引导的动作后训练，提升泛化能力。
+- **ProphRL**: 在多样化机器人数据上预训练统一的动作条件世界模型。
+- **Point-VLA**: 通过边界框等显式视觉线索解决指代歧义，实现更精确的物体接地。
 
-**核心贡献**：通过追踪3D空间中的轨迹理解运动和动态
+### 轻量化与高效执行
 
-**技术方法**：
-- 3D轨迹表示
-- 时空特征编码
-- 未来轨迹预测
+- **SmolVLA**: 450M参数的轻量化VLA，为在资源受限设备上实时推理提供了可能。
+- **OFT**: 优化的微调方法，在不牺牲性能的前提下实现25-50倍的推理加速。
+- **FAST Action Tokenizer**: 通过压缩动作块，将动作序列编码为更少的token，实现15倍推理加速。
+- **Octo**: 开源的通用机器人策略模型，支持多任务和跨机器人泛化，具有灵活的微调接口。
 
-**论文信息**：待补充
+### 安全性与可靠性
 
----
+- **VLSA-AEGIS**: 基于控制屏障函数（CBF）实现即插即用的安全约束层，提供形式化安全保证。
+- **RationalVLA**: 训练模型学习一个可拒绝的token，使其能够主动识别并拒绝不安全或无效的指令。
 
-### VideoVLA: Video-Conditioned World Models for VLA
+### 数据与基准
 
-**核心贡献**：使用视频条件的世界模型学习物理动力学
-
-**技术方法**：
-- 视频预测模型
-- 动作条件的世界模型
-- 隐式物理学习
-
-**论文信息**：待补充
-
----
-
-## 挑战2：指令跟随、规划与鲁棒实时执行
-
-### WALL-OSS: Large-Scale Hierarchical Planning System
-
-**核心贡献**：聚合超过10000小时的机器人数据，实现大规模分层规划
-
-**技术方法**：
-- 海量数据聚合
-- 分层规划架构
-- 多任务联合训练
-
-**论文信息**：待补充
+- **LIBERO**: 首个为终身机器人学习（Lifelong Learning）设计的基准，包含标准化评测指标。
+- **PolaRiS**: 通过神经重建技术将真实视频扫描转化为可交互的仿真环境，极大地丰富了仿真数据的来源。
+- **SIMPLER**: 标准化的VLA评测平台，支持对模型的泛化能力、鲁棒性等多维度进行评估。
 
 ---
-
-### EToT: Embodied Thought with Interactive Digital Twins
-
-**核心贡献**：利用基于物理的交互式数字孪生作为具身世界模型
-
-**技术方法**：
-- 物理模拟引擎集成
-- 数字孪生环境
-- 基于模型的规划
-
-**论文信息**：待补充
-
----
-
-### MoE-DP: Mixture of Experts for Diffusion Policy
-
-**核心贡献**：集成混合专家层将长时序任务分解为专门技能
-
-**技术方法**：
-- 专家混合架构
-- 技能分解与组合
-- 分层扩散策略
-
-**论文信息**：待补充
-
----
-
-### CoT-VLA: Chain-of-Thought Reasoning for VLA
-
-**核心贡献**：引入链式思考推理增强VLA的规划能力
-
-**技术方法**：
-- 显式推理链生成
-- 中间步骤监督
-- 推理与动作的联合优化
-
-**论文信息**：待补充
-
----
-
-### Fast-ThinkAct: Real-Time Inference and Failure Recovery
-
-**核心贡献**：实现实时推理和失败恢复机制
-
-**技术方法**：
-- 压缩推理路径
-- 快速失败检测
-- 在线重规划
-
-**论文信息**：待补充
-
----
-
-### Diffusion Policy: Visuomotor Policy Learning via Action Diffusion
-
-**核心贡献**：使用扩散模型进行动作生成，建模多模态动作分布
-
-**技术方法**：
-- DDPM for action generation
-- 条件扩散过程
-- 多模态动作建模
-
-**论文链接**：待补充
-
----
-
-### ACT: Action Chunking with Transformers
-
-**核心贡献**：通过动作分块提升长时序任务的执行流畅性
-
-**技术方法**：
-- 序列级动作预测
-- 时间抽象
-- 平滑轨迹生成
-
-**论文链接**：待补充
-
----
-
-## 挑战3：从泛化到持续适应
-
-### InternVLA-M1: Spatial Grounding Pre-training with Spatially Guided Action Post-training
-
-**核心贡献**：结合空间接地预训练和空间引导的动作后训练，提升泛化能力
-
-**技术方法**：
-- 两阶段训练范式
-- 空间语义对齐
-- 跨环境泛化
-
-**论文信息**：待补充
-
----
-
-### ProphRL: Unified Action-Conditioned World Model on Diverse Robot Data
-
-**核心贡献**：在多样化机器人数据上预训练统一的动作条件世界模型
-
-**技术方法**：
-- 跨机器人世界模型
-- 动作条件预测
-- 大规模预训练
-
-**论文信息**：待补充
-
----
-
-### AdaWorld: Efficient Adaptation and Action Transfer to Novel Environments
-
-**核心贡献**：实现高效的环境适应和动作迁移
-
-**技术方法**：
-- 快速微调策略
-- 域自适应技术
-- Sim-to-real迁移
-
-**论文信息**：待补充
-
----
-
-### RT-X: Open X-Embodiment Dataset and Cross-Embodiment Transfer
-
-**核心贡献**：构建跨机器人数据集，实现跨具身形态的策略迁移
-
-**技术方法**：
-- 统一数据格式
-- 跨机器人训练
-- 零样本迁移
-
-**论文链接**：https://robotics-transformer-x.github.io/
-
----
-
-### Octo: An Open-Source Generalist Robot Policy
-
-**核心贡献**：开源的通用机器人策略模型，支持多任务和跨机器人泛化
-
-**技术方法**：
-- Transformer-based架构
-- 大规模多任务训练
-- 灵活的微调接口
-
-**论文链接**：待补充
-
----
-
-## 挑战4：安全性、可解释性与可靠交互
-
-### VLSA-AEGIS: Plug-and-Play Safety Constraint Layer with Control Barrier Functions
-
-**核心贡献**：通过控制屏障函数实现即插即用的安全约束层
-
-**技术方法**：
-- 控制屏障函数（CBF）
-- 安全约束优化
-- 形式化安全保证
-
-**论文信息**：待补充
-
----
-
-### ECoT: Editable Chain-of-Thought for User Correction
-
-**核心贡献**：提供可编辑的逐步推理链，用户可通过语言进行修正
-
-**技术方法**：
-- 可解释推理生成
-- 交互式修正机制
-- 推理链验证
-
-**论文信息**：待补充
-
----
-
-### RationalVLA: Learnable Refusal Tokens for Unsafe/Invalid Commands
-
-**核心贡献**：使用可学习的拒绝token主动识别并拒绝不安全或无效指令
-
-**技术方法**：
-- 安全性分类器
-- 拒绝token机制
-- 对抗性训练
-
-**论文信息**：待补充
-
----
-
-## 挑战5：数据构建与基准测试标准
-
-### LIBERO: Lifelong Benchmark for Robot Manipulation
-
-**核心贡献**：首个终身机器人学习基准，包含标准化评测指标
-
-**技术方法**：
-- 4个任务套件
-- 持续学习评估
-- 标准化协议
-
-**官网**：https://libero-project.github.io/
-
-**论文链接**：待补充
-
----
-
-### PolaRiS: Neural Reconstruction from Video Scans to Interactive Simulation
-
-**核心贡献**：通过神经重建方法将真实视频扫描转化为交互式仿真环境
-
-**技术方法**：
-- Neural radiance fields
-- 物理属性估计
-- 可交互场景重建
-
-**论文信息**：待补充
-
----
-
-### SIMPLER: Simulation Platform for Embodied Learning and Evaluation Research
-
-**核心贡献**：标准化的VLA评测平台，支持多维度性能评估
-
-**技术方法**：
-- 统一评测接口
-- 多任务基准
-- 标准化指标
-
-**论文信息**：待补充
-
----
-
-## 轻量化与高效化
-
-### SmolVLA: Compact VLA with 450M Parameters
-
-**核心贡献**：450M参数的轻量化VLA，在资源受限设备上实现实时推理
-
-**技术方法**：
-- 模型压缩
-- 知识蒸馏
-- 高效架构设计
-
-**论文信息**：待补充
-
----
-
-### OFT: Optimized Fine-Tuning Recipe for VLAs
-
-**核心贡献**：优化微调方法，实现25-50倍推理加速
-
-**技术方法**：
-- 参数高效微调
-- 推理优化
-- 高频控制支持
-
-**发布时间**：2025年
-
-**论文信息**：待补充
-
----
-
-### FAST Action Tokenizer
-
-**核心贡献**：压缩动作块为更少token，实现15倍推理加速
-
-**技术方法**：
-- 动作序列压缩
-- 高效token化
-- 加速推理
-
-**发布时间**：2025年1月
-
-**论文信息**：待补充
-
----
-
-## 其他重要工作
-
-### PaLM-E: An Embodied Multimodal Language Model
-
-**核心贡献**：大规模具身多模态语言模型，融合视觉、语言和机器人数据
-
-**技术方法**：
-- 562B参数多模态模型
-- 跨模态预训练
-- 具身任务微调
-
-**论文链接**：待补充
-
----
-
-### SayCan: Grounding Language in Robotic Affordances
-
-**核心贡献**：将语言模型的语义理解与机器人可供性结合，实现可执行的任务规划
-
-**技术方法**：
-- 语言模型 + 价值函数
-- 可供性接地
-- 长时序任务规划
-
-**论文链接**：待补充
-
----
-
-### π₀ (Pi-Zero): A General-Purpose Robot Policy
-
-**核心贡献**：通用机器人策略，支持多种操作任务
-
-**技术方法**：
-- 流式架构
-- 跨任务泛化
-- 高效推理
-
-**论文信息**：待补充
-
----
-
-**注**：本节论文分类基于[VLA-Survey-Anatomy](https://github.com/SuyuZ1/VLA-Survey-Anatomy)的挑战驱动分类法。标注⭐的论文表示作者提交，体现了社区对该综述的持续贡献。由于VLA领域发展迅速，更多最新论文请参考原仓库和相关会议论文集（ICLR、CoRL、RSS、ICRA等）。
+**注**：由于VLA领域发展迅速，更多最新论文请参考相关会议论文集（ICLR、CoRL、RSS、ICRA等）以及[VLA-Survey-Anatomy](https://github.com/SuyuZ1/VLA-Survey-Anatomy)等开源项目。
 
 ---
 
