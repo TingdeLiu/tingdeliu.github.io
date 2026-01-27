@@ -441,15 +441,15 @@ VLN-CE/
 **[核心数据解析]**
 
 * **动作空间**：不再是选择节点 ID，而是执行 `MOVE_FORWARD(0.25m)`, `TURN_LEFT(15°)`, `TURN_RIGHT(15°)`, `STOP`。
-* **坐标表示**：
+* **坐标表示**
   
+
 ```json
 {
   "start_position": [x, y, z],  // 三维坐标
   "start_rotation": [q1, q2, q3, q4], // 四元数表示的旋转
   "instruction": "Go straight then turn left at the couch."
 }
-
 ```
 
 ## 2. 目标导向数据集
