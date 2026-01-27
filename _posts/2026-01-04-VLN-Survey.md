@@ -475,6 +475,155 @@ VLN-PE 与 VLN-CE 的主要区别在于：
 因此，VLN-PE 可以看作是 VLN-CE 任务的简化版本，专注于训练连续环境中的路径执行能力，为完整的视觉-语言导航任务奠定基础。
 
 ---
+
+### 1.6 InternNav Dataset
+
+* **发布时间**：2025
+* **环境表示**：**连续环境 (Continuous Environment)**。基于 VLN-CE 等导航数据集转换，采用统一的 LeRobotDataset 格式。
+* **核心特点**：标准化的机器人学习数据格式，支持视频、指令、动作和元数据的结构化存储，兼容多种导航基准测试。
+
+<div align="center">
+  <img src="/images/InternNav.png" width="100%" />
+<figcaption>
+InternNav 数据集架构
+</figcaption>
+</div>
+
+**[数据集目录结构]**
+
+```text
+<datasets_root>/
+│
+├── <sub_dataset_1>/              # 环境级数据集 (如 3dfront_zed)
+│   ├── <scene_dataset_1>/        # 场景级数据集
+│   │   ├── <traj_dataset_1>/     # 轨迹级数据集
+│   │   │   ├── data/             # 结构化 episode 数据 (.parquet)
+│   │   │   │   └── chunk-000/
+│   │   │   │       └── episode_000000.parquet
+│   │   │   │
+│   │   │   ├── meta/             # 元数据与统计信息
+│   │   │   │   ├── episodes_stats.jsonl  # 每个 episode 的特征统计
+│   │   │   │   ├── episodes.jsonl        # Episode 元数据 (任务、指令等)
+│   │   │   │   ├── info.json             # 数据集级别配置信息
+│   │   │   │   └── tasks.jsonl           # 任务定义
+│   │   │   │
+│   │   │   └── videos/           # 观测视频
+│   │   │       └── chunk-000/
+│   │   │           ├── observation.images.depth/    # 深度图序列
+│   │   │           │   ├── 0.png
+│   │   │           │   ├── 1.png
+│   │   │           │   └── ...
+│   │   │           ├── observation.images.rgb/      # RGB 图像序列
+│   │   │           │   ├── 0.jpg
+│   │   │           │   ├── 1.jpg
+│   │   │           │   └── ...
+│   │   │           ├── observation.video.depth/     # 深度视频
+│   │   │           │   └── episode_000000.mp4
+│   │   │           └── observation.video.trajectory/# RGB 轨迹视频
+│   │   │               └── episode_000000.mp4
+│   │   │
+│   │   ├── <traj_dataset_2>/
+│   │   └── ...
+│   │
+│   ├── <scene_dataset_2>/
+│   └── ...
+│
+├── <sub_dataset_2>/
+└── ...
+```
+
+**[核心元数据文件解析]**
+
+**1. episodes_stats.jsonl** - 每个 episode 的特征统计
+
+```json
+{
+  "episode_index": 0,
+  "stats": {
+    "observation.images.rgb": {
+      "min": [[[x]], [[x]], [[x]]],      // 最小像素值
+      "max": [[[x]], [[x]], [[x]]],      // 最大像素值
+      "mean": [[[x]], [[x]], [[x]]],     // 平均值
+      "std": [[[x]], [[x]], [[x]]],      // 标准差
+      "count": [300]                      // 帧数
+    },
+    "observation.images.depth": {...},
+    "action": {...}
+  }
+}
+```
+
+**2. episodes.jsonl** - Episode 索引与任务描述
+
+```json
+{
+  "episode_index": 0,
+  "tasks": [
+    "Go straight down the hall and up the stairs. When you reach the door to the gym, go left into the gym and stop..."
+  ],
+  "length": 57                           // 该 episode 的总帧数
+}
+```
+
+**3. info.json** - 数据集全局配置
+
+```json
+{
+  "codebase_version": "v2.1",            // LeRobot 格式版本
+  "robot_type": "unknown",               // 机器人平台类型
+  "total_episodes": 1,
+  "total_frames": 152,
+  "fps": 30,                             // 视频与状态采集帧率
+  "splits": {"train": "0:503"},          // 数据集划分
+  "features": {                          // 特征模式定义
+    "observation.images.rgb": {
+      "dtype": "image",
+      "shape": [270, 480, 3],            // [height, width, channels]
+      "names": ["height", "width", "channel"]
+    },
+    "observation.camera_intrinsic": {    // 相机内参矩阵 (3×3)
+      "dtype": "float32",
+      "shape": [3, 3]
+    },
+    "observation.path_points": {         // 轨迹点云 (N×3)
+      "dtype": "float64",
+      "shape": [36555, 3],
+      "names": ["x", "y", "z"]
+    },
+    "action": {                          // 动作变换矩阵 (4×4)
+      "dtype": "float32",
+      "shape": [4, 4]
+    }
+  }
+}
+```
+
+**4. tasks.jsonl** - 任务自然语言描述
+
+```json
+{
+  "task_index": 0,
+  "task": "Go straight to the hallway and then turn left. Go past the bed. Veer to the right and go through the white door. Stop when you're in the doorway."
+}
+```
+
+**[关键技术特性]**
+
+* **格式统一化**：将离散节点路径转换为连续的相机轨迹 + 动作序列
+* **多模态融合**：同时存储 RGB、深度图、点云、相机参数
+* **高效存储**：Parquet 格式支持快速索引，MP4 视频便于可视化
+* **扩展性强**：通过继承 `NavDataset` 和 `NavDatasetMetadata` 类适配导航任务特性
+
+**[核心评估指标]**
+
+InternNav 保留 VLN-CE 的标准指标，同时支持 LeRobot 框架的训练评估：
+
+* **SR (Success Rate)**: 终点误差 < 3m 的成功率
+* **SPL (Success weighted by Path Length)**: 路径效率加权成功率
+* **Oracle Success Rate**: 轨迹中任意点接近目标的比例
+* **DtG (Distance to Goal)**: 最终距离目标的平均距离
+* 
+---
 ## 2. 目标导向数据集
 
 目标导向任务(Object-grounded)在路径导航的基础上增加了物体定位和语义理解的要求，更接近真实应用场景。
