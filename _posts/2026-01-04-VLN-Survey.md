@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Vision-Language Navigation (VLN) 综述"
-date:   {{ site.time | date: '%Y-%m-%d' }}
+27date:   2026-01-01
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 comments: true
 author: Tingde Liu

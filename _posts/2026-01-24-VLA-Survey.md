@@ -1139,40 +1139,123 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 
 奠基性工作通常指那些开创了新方向、提出了核心模型架构或关键技术范式，并对后续研究产生深远影响的论文。
 
+### RT-1: Robotics Transformer for Real-World Control at Scale (2022)
+
+
+
+**核心贡献**：首个大规模真实世界机器人Transformer模型，在130k真实轨迹上训练，证明了Transformer架构在端到端机器人控制中的巨大潜力。
+
+
+
+---
+
+
+
+### RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control (2023)
+
+
+
+**核心贡献**：VLA领域的里程碑，首次将预训练的VLM成功转化为VLA模型，实现了从网络知识到机器人控制的有效迁移，正式开创了VLA这一研究方向。
+
+
+
+---
+
+
+
+### Diffusion Policy: Visuomotor Policy Learning via Action Diffusion (2023)
+
+
+
+**核心贡献**：首次将扩散模型（Diffusion Model）应用于机器人模仿学习，能够有效建模多模态的动作分布，在精细操作任务中表现出色，成为主流动作解码范式之一。
+
+
+
+---
+
+
+
+### OpenVLA: An Open-Source Vision-Language-Action Model (2024)
+
+
+
+**核心贡献**：首个开源的7B参数大规模VLA模型，在970k的Open X-Embodiment数据集上训练，性能超越RT-2，极大地推动了VLA领域的开放研究。
+
+
+
+---
+
+
+
+### RT-X / Open X-Embodiment Dataset (2023)
+
+
+
+**核心贡献**：通过构建包含22种不同机器人的大规模跨平台数据集（Open X-Embodiment），并训练了统一模型RT-X，证明了跨具身形态（cross-embodiment）策略迁移的可行性。
+
+
+
+---
+
+
+
 ### π₀ (Pi-Zero): A Universal Policy for Embodied AI (2024)
+
+
+
+
+
+
 
 **核心贡献**: Physical Intelligence 公司提出的通用具身AI策略，旨在提供一种能够解决各种机器人任务的通用解决方案。它强调通过大规模预训练和持续学习，使机器人具备泛化能力和对未知环境的适应性。
 
 
 
 
-### RT-1: Robotics Transformer for Real-World Control at Scale (2022)
 
-**核心贡献**：首个大规模真实世界机器人Transformer模型，在130k真实轨迹上训练，证明了Transformer架构在端到端机器人控制中的巨大潜力。
 
----
-
-### RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control (2023)
-
-**核心贡献**：VLA领域的里程碑，首次将预训练的VLM成功转化为VLA模型，实现了从网络知识到机器人控制的有效迁移，正式开创了VLA这一研究方向。
 
 ---
 
-### Diffusion Policy: Visuomotor Policy Learning via Action Diffusion (2023)
 
-**核心贡献**：首次将扩散模型（Diffusion Model）应用于机器人模仿学习，能够有效建模多模态的动作分布，在精细操作任务中表现出色，成为主流动作解码范式之一。
+
+
+
+
+
+### π₀.5 (Pi-Zero.5): Enhancing Universal Policy with Multimodal Reasoning (2025)
+
+
+
+
+
+
+
+**核心贡献**: 作为π₀的升级版本，π₀.5进一步增强了多模态推理能力，融合了更丰富的视觉和语言信息，提升了机器人在复杂指令理解和精细操作任务中的表现。
+
+
+
+
+
+
 
 ---
 
-### OpenVLA: An Open-Source Vision-Language-Action Model (2024)
 
-**核心贡献**：首个开源的7B参数大规模VLA模型，在970k的Open X-Embodiment数据集上训练，性能超越RT-2，极大地推动了VLA领域的开放研究。
 
----
 
-### RT-X / Open X-Embodiment Dataset (2023)
 
-**核心贡献**：通过构建包含22种不同机器人的大规模跨平台数据集（Open X-Embodiment），并训练了统一模型RT-X，证明了跨具身形态（cross-embodiment）策略迁移的可行性。
+
+
+### π₀.6 (Pi-Zero.6): Towards Open-World Generalization and Human-Robot Collaboration (2026)
+
+
+
+
+
+
+
+**核心贡献**: π₀.6致力于实现开放世界泛化和更自然的人机协作。它引入了更强的场景理解和意图识别能力，使机器人能够在未知环境中学习新技能，并与人类进行更高效的交互。
 
 ---
 
