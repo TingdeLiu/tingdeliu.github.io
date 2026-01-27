@@ -2433,7 +2433,7 @@ $$
 - 评估社交导航能力
 - 测试动态避障性能
 
-## VLN评估指标速查表
+## 评估指标速查表
 
 ### 核心指标总览
 
@@ -2487,6 +2487,7 @@ $$
 ### 评估最佳实践
 
 **报告规范：**
+
 ```markdown
 1. 必须分别报告 Val-Seen 和 Val-Unseen
 2. 标注成功阈值（默认3m，如有不同需说明）
@@ -2520,36 +2521,44 @@ $$
 
 # 学习资源与框架
 
-## 相关论文列表与库
+**[VLN-Survey-with-Foundation-Models](https://github.com/zhangyuejoslin/VLN-Survey-with-Foundation-Models)** ⭐⭐⭐⭐⭐
+- **类型**：GitHub资源仓库
+- **重点**：专注于LLM/VLM时代的VLN方法（2023-至今），持续更新最新论文
+- **适合**：想了解大模型如何革新VLN领域的研究者
 
-- [VLN-Survey-with-Foundation-Models](https://github.com/zhangyuejoslin/VLN-Survey-with-Foundation-Models) - **最新！** 专门整理了结合大模型（LLM/VLM）的 VLN 论文。
-- [Awesome-Embodied-AI](https://github.com/jonyzhang2023/awesome-embodied-vla-va-vln) - 涵盖了从导航（VLN）到操作（VLA）的全栈具身智能资源。
-- [CVPR 2024/2025 Open Access](https://openaccess.thecvf.com/menu) - 搜索 "Vision-and-Language Navigation" 获取最新的顶会全文。
+**[Awesome-Embodied-AI](https://github.com/jonyzhang2023/awesome-embodied-vla-va-vln)** ⭐⭐⭐⭐⭐
+- **类型**：全栈资源合集
+- **重点**：涵盖VLN、VLA、机器人操作等完整具身智能技术栈
+- **适合**：系统学习具身AI全貌的研究者
 
-## 重要会议与研讨会
+**[Embodied-AI-Guide](https://github.com/TianxingChen/Embodied-AI-Guide)** ⭐⭐⭐⭐⭐
+- **类型**：入门教程 + 实践指南
+- **重点**：提供代码实践、论文解读、学习路径规划
+- **适合**：零基础入门或需要结构化学习路径的新人
 
-- **具身智能专项**：
-  - [Embodied AI Workshop](https://embodied-ai.org/) (通常与 CVPR 联动)
-  - CoRL (Conference on Robot Learning) - 目前 VLN 论文向机器人学迁移的主要阵地。
-- **主流顶会**：CVPR, ICCV, ECCV, NeurIPS, ICRA, IROS。
+**[Vision-and-Language Navigation: A Survey](https://arxiv.org/abs/2203.12667)** ⭐⭐⭐⭐
+- **类型**：综述论文（IJCV 2023）
+- **重点**：系统梳理VLN发展脉络，截至2022年的方法总结
+- **适合**：需要全面了解VLN历史演进的研究者
 
-## 开源项目与仿真平台
+---
 
-### 核心仿真器（Simulators）
-- [Habitat-Sim / Habitat-Lab 3.0](https://github.com/facebookresearch/habitat-lab) - **行业标准**。支持多智能体协作、物理交互及 HM3DS 高清场景。
-- [NVIDIA Isaac Lab (Omniverse)](https://github.com/isaac-sim/IsaacLab) - 基于高度物理拟真的导航环境，支持 Sim-to-Real 的跨越。
-- [AI2-THOR](https://ai2thor.allenai.org/) - 侧重于室内物体的交互式导航（如打开冰箱、移动杯子）。
 
-### 预训练框架与基座模型
+### 🎓 重要会议与研讨会
 
-- [VLN-BERT (Recurrent)](https://github.com/YicongHong/Recurrent-VLN-BERT) - **经典的判别式模型基准**。将 BERT 引入 VLN 领域，通过循环状态（Recurrent State）处理长序列导航指令，是很多后续工作的 Baseline。
-- [DualVLN](https://github.com/panyuehu/DualVLN) - **全局与局部双系统导航框架（CVPR 2022）**。
-  - **核心贡献**：提出了“双重规划”机制。**局部控制器**负责细粒度的跨模态对齐（行走），**全局规划器**基于维护的拓扑图进行大尺度路径优化。
-  - **地位**：它标志着 VLN 模型从简单的“走一步看一步”进化到了具有“战略规划能力”的阶段。
-- [DUET](https://github.com/cshizhe/DUET) - **大规模拓扑图表示学习的标杆**。通过交叉模态 Transformer 联合推理全局拓扑图和自然语言指令，是目前离散环境下最强的框架之一。
-- [ETPNav](https://github.com/ChunHui-Zheng/ETPNav) - **演进式拓扑规划器 (2023-2024)**。在 DualVLN 和 DUET 的基础上，进一步解决了连续环境下动态构建拓扑图并进行高效路径规划的问题。
-- [NaVid / Uni-NaVid](https://github.com/jzhzhang/NaVid-VLN-CE) - **2024-2025 视觉大模型（VLM）导航 SOTA**。
-  - **特点**：首个不需要地图、不需要测距仪、仅依靠“纯视频流”输入即可完成连续环境导航的大模型，代表了目前从“基于几何”转向“基于端到端大模型语义”的研究前沿。
+**具身智能专项会议：**
+- **[Embodied AI Workshop](https://embodied-ai.org/)** - CVPR官方Workshop，最新趋势和挑战赛发布地
+- **[CoRL](https://www.corl.org/)** (Conference on Robot Learning) - VLN向真实机器人迁移的主要阵地
+- **[RSS](https://roboticsconference.org/)** (Robotics: Science and Systems) - 顶级机器人会议，强调Sim-to-Real
+
+**主流顶会VLN论文分布：**
+
+| 会议 | 侧重点 | 近期代表作 |
+|:----:|:-------|:-----------|
+| **CVPR** / **ICCV** / **ECCV** | 视觉-语言方法创新 | NaVILA (CVPR'25), DualVLN (投稿中) |
+| **NeurIPS** | 基础模型 + 强化学习 | StreamVLN (NeurIPS'24) |
+| **CoRL** | 真实机器人部署 | GNM (CoRL'23), NoMad (CoRL'24) |
+| **ICRA** / **IROS** | 导航算法工程化 | VLN-PE (ICRA'25), ViPlanner (ICRA'24) |
 
 ---
 
