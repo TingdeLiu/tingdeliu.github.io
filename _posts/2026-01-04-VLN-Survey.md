@@ -2834,6 +2834,13 @@ VLN 的研究正在从感知对齐问题演进为融合 **语言理解、空间�
 ## 1. DualVLN/InternVLN (2025)
 ——Ground Slow, Move Fast
 
+<div align="center">
+  <img src="/images/dualvln-framework.png" width="100%" />
+<figcaption>
+DualVLN双系统框架总览
+</figcaption>
+</div>
+
 **研究背景/问题**
 
 VLN领域存在基本矛盾：强大的推理能力需要"慢思考"，而流畅的导航行动需要"快反应"。传统端到端模型存在三大瓶颈：
@@ -2843,12 +2850,7 @@ VLN领域存在基本矛盾：强大的推理能力需要"慢思考"，而流畅
 
 **主要方法/创新点**
 
-<div align="center">
-  <img src="/images/dualvln-framework.png" width="100%" />
-<figcaption>
-DualVLN双系统框架总览
-</figcaption>
-</div>
+
 
 DualVLN提出**首个双系统VLN基础模型**，将高级语义理解与低级轨迹执行解耦，形成互补的快慢系统：
 
@@ -2880,12 +2882,6 @@ DualVLN双系统框架架构
 
 ### 系统1（快行动的"小脑"）
 
-<div align="center">
-  <img src="/images/dualvln-system1-trajectory.png" width="100%" />
-<figcaption>
-系统1的高频轨迹生成
-</figcaption>
-</div>
 
 **核心功能**：
 - **高频轨迹生成**：轻量级扩散Transformer策略，以30 Hz频率运行
@@ -2916,6 +2912,13 @@ DualVLN双系统框架架构
 - 优化器：AdamW，学习率1e-4，批量大小128，训练15,000步
 - **关键设计**：仅使用像素目标grounding样本进行监督（不包含视角调整样本）
 
+<div align="center">
+  <img src="/images/dualvln-system1-trajectory.png" width="100%" />
+<figcaption>
+系统1的高频轨迹生成
+</figcaption>
+</div>
+
 ### 协同机制
 
 **异步推理流水线**：
@@ -2928,15 +2931,21 @@ DualVLN双系统框架架构
 
 ### 1. 仿真基准测试（VLN-CE）
 
-**R2R Val-Unseen（仅单视角RGB输入）**：
-- **DualVLN**：SR 64.3% | SPL 58.5% | NE 4.05m | OS 70.7%
-- StreamVLN（前SOTA）：SR 56.9% | SPL 51.9% | NE 4.98m | OS 64.2%
-- **提升**：成功率+7.4%，SPL+6.6%，导航误差-0.93m
+#### R2R Val-Unseen（仅单视角RGB输入）
 
-**RxR Val-Unseen（多语言指令）**：
-- **DualVLN**：SR 61.4% | SPL 51.8% | NE 4.58m | nDTW 70.0%
-- NaVILA（前SOTA）：SR 49.3% | SPL 44.0% | NE 6.77m | nDTW 58.8%
-- **提升**：成功率+12.1%，nDTW+11.2%
+| 方法 | SR ↑ | SPL ↑ | NE ↓ | OS ↑ |
+|------|------|-------|------|------|
+| StreamVLN（前SOTA） | 56.9% | 51.9% | 4.98m | 64.2% |
+| **DualVLN** | **64.3%** | **58.5%** | **4.05m** | **70.7%** |
+| **提升幅度** | **+7.4%** | **+6.6%** | **-0.93m** | **+6.5%** |
+
+#### RxR Val-Unseen（多语言指令）
+
+| 方法 | SR ↑ | SPL ↑ | NE ↓ | nDTW ↑ |
+|------|------|-------|------|--------|
+| NaVILA（前SOTA） | 49.3% | 44.0% | 6.77m | 58.8% |
+| **DualVLN** | **61.4%** | **51.8%** | **4.58m** | **70.0%** |
+| **提升幅度** | **+12.1%** | **+7.8%** | **-2.19m** | **+11.2%** |
 
 **关键观察**：
 - 在RxR基准上，DualVLN的优势更明显（+12.1% SR），说明双系统设计对复杂多语言指令有更好的泛化能力
@@ -2944,10 +2953,13 @@ DualVLN双系统框架架构
 
 ### 2. 物理仿真基准（VLN-PE）
 
-**R2R Val-Unseen（Humanoid H1机器人）**：
-- **DualVLN**：SR 51.60% | SPL 42.49% | NE 4.66m | FR 12.32% | StR 2.23%
-- NaVid（零样本迁移）：SR 22.42% | SPL 18.58% | NE 5.94m | FR 8.61% | StR 0.45%
-- RDP（在VLN-PE上训练）：SR 25.24% | SPL 17.73% | NE 6.72m | FR 24.57% | StR 3.11%
+#### R2R Val-Unseen（Humanoid H1机器人）
+
+| 方法 | SR ↑ | SPL ↑ | NE ↓ | FR ↓ | StR ↓ |
+|------|------|-------|------|------|-------|
+| NaVid（零样本迁移） | 22.42% | 18.58% | 5.94m | 8.61% | 0.45% |
+| RDP（在VLN-PE上训练） | 25.24% | 17.73% | 6.72m | 24.57% | 3.11% |
+| **DualVLN（零样本迁移）** | **51.60%** | **42.49%** | **4.66m** | **12.32%** | **2.23%** |
 
 **关键发现**：
 - 尽管DualVLN未在VLN-PE上微调，但仍大幅超越所有基线（包括在VLN-PE上训练的方法）
@@ -2962,6 +2974,7 @@ DualVLN双系统框架架构
 - 收集763K社交导航样本（60个MP3D场景），用改进的A*算法生成避障轨迹
 
 **性能对比（R2R Val-Unseen）**：
+
 | 方法 | 静态VLN SR | Social-VLN SR | SR下降 | HCR |
 |------|------------|---------------|--------|-----|
 | StreamVLN | 56.9% | 31.4% | -25.5% | 36.4% |
@@ -2986,6 +2999,7 @@ DualVLN双系统框架架构
 - **R2R办公室（困难，跨房间）**：DualVLN SR 85% vs 基线0%-60%
 
 **导航误差对比**：
+
 | 场景 | CMA | NaVid | NaVILA | StreamVLN | DualVLN |
 |------|-----|-------|--------|-----------|---------|
 | 走廊 | 3.2m | 0.9m | 0.3m | 0.2m | **0.2m** |
@@ -3010,6 +3024,7 @@ DualVLN双系统框架架构
 - **w/o Latent Goal**：仅使用冻结VLM的像素目标文本的最后一层隐藏状态
 
 **结果对比**：
+
 | 配置 | SR | SPL | OS | NE |
 |------|-----|-----|-----|-----|
 | DualVLN（完整） | 64.3% | 58.5% | 70.7% | 4.05m |
@@ -3042,6 +3057,7 @@ DualVLN双系统框架架构
   - **NavDP**：导航扩散策略（Cai et al., 2025）
 
 **结果对比**：
+
 | 局部规划器 | SR | SPL | NE | OS |
 |------------|-----|-----|-----|-----|
 | iPlanner | 47.07% | 41.09% | 4.91m | 55.53% |
