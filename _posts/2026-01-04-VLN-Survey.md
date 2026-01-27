@@ -418,7 +418,7 @@ RxR/
 * **发布时间**：2020 (CVPR)
 * **环境基础**：Habitat Simulator (Matterport3D 场景的连续化)
 * **核心特点**：从离散的“点对点跳转”变为“连续的物理移动”。
-* 
+  
 <div align="center">
   <img src="/images/VLN-CE.png" width="100%" />
 <figcaption>
@@ -442,6 +442,7 @@ VLN-CE/
 
 * **动作空间**：不再是选择节点 ID，而是执行 `MOVE_FORWARD(0.25m)`, `TURN_LEFT(15°)`, `TURN_RIGHT(15°)`, `STOP`。
 * **坐标表示**：
+  
 ```json
 {
   "start_position": [x, y, z],  // 三维坐标
@@ -450,11 +451,6 @@ VLN-CE/
 }
 
 ```
-
-
-
----
-
 
 ## 2. 目标导向数据集
 
@@ -1815,7 +1811,7 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 
 ---
 
-## NVIDIA Isaac Sim / Isaac Lab
+## Isaac Sim / Isaac Lab
 
 **基本信息：**
 - **开发者**：NVIDIA
