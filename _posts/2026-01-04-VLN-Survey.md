@@ -452,11 +452,33 @@ VLN-CE/
 }
 ```
 
+### 1.5 VLN-PE
+
+* **任务定位**：VLN-CE 的辅助任务与预训练阶段
+* **核心价值**：为连续环境导航提供基础训练
+* **研究意义**：简化复杂导航任务，降低训练成本
+
+**[VLN-PE 在研究中的角色]**
+
+在 VLN 研究中，VLN-PE (Path Following in Continuous Environments) 通常被视为 **VLN-CE 的辅助任务或预训练阶段**，具有以下特点：
+
+* **预训练价值**：在 VLN-CE 的连续环境中，VLN-PE 提供了较为简单的路径跟随任务，帮助模型学习基础的视觉-运动控制能力。
+* **辅助训练**：许多 VLN-CE 模型采用 VLN-PE 作为中间训练步骤，在掌握路径跟随后再进行指令理解训练。
+* **评估基准**：VLN-PE 可以独立评估模型的路径执行能力，将"语言理解"与"运动控制"解耦，便于定位模型瓶颈。
+
+**[与 VLN-CE 的关系]**
+
+VLN-PE 与 VLN-CE 的主要区别在于：
+* **VLN-PE**：直接提供参考路径（如轨迹坐标序列），任务是精确跟随给定路径
+* **VLN-CE**：仅提供自然语言指令，需要模型同时完成语言理解和导航规划
+
+因此，VLN-PE 可以看作是 VLN-CE 任务的简化版本，专注于训练连续环境中的路径执行能力，为完整的视觉-语言导航任务奠定基础。
+
+---
 ## 2. 目标导向数据集
 
 目标导向任务(Object-grounded)在路径导航的基础上增加了物体定位和语义理解的要求，更接近真实应用场景。
 
----
 
 ### 2.1 REVERIE (Remote Embodied Visual Referring Expression in Real Indoor Environments)
 
@@ -1959,6 +1981,48 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 
 ---
 
+## InternUtopia
+
+**基本信息：**
+- **开发者**：Shanghai AI Laboratory (上海人工智能实验室)
+- **发布时间**：2024年
+- **开源地址**：[GitHub](https://github.com/OpenGVLab/InternUtopia)
+
+**核心特点：**
+- **大规模开放世界**：支持超大规模城市场景模拟（10+ km²）
+- **高保真渲染**：基于Unreal Engine 5的照片级真实感渲染
+- **物理交互**：完整的物理引擎，支持动态物体和环境交互
+- **多智能体支持**：支持多智能体协同导航和交互任务
+- **丰富的动态元素**：包含动态交通流、行人、天气变化等
+- **语义信息**：提供详细的场景语义标注和3D边界框
+- **多模态感知**：支持RGB、深度、语义分割、LiDAR等多种传感器
+- **新特性**：
+  - 大规模城市场景的自动生成
+  - 实时物理模拟与照片级渲染
+  - 支持VLN、具身智能、自动驾驶等多种任务
+  - 可扩展的任务定义框架
+
+**应用场景：**
+- 大规模城市导航任务
+- 开放世界具身智能研究
+- 多智能体协作与社交导航
+- 自动驾驶与户外导航
+- 长距离导航规划
+
+**优势：**
+- 超大规模场景支持，适合长程导航研究
+- 高保真视觉渲染，接近真实世界
+- 动态环境模拟，更贴近实际应用
+- 灵活的任务定义和可扩展性
+- 多模态传感器支持
+
+**局限性：**
+- 计算资源需求极高（需要高性能GPU）
+- 配置和使用复杂度较高
+- 社区生态相对较新，文档和资源仍在完善
+
+---
+
 ## 模拟器对比
 
 | 模拟器 | 环境类型 | 动作空间 | 物理交互 | 渲染速度 | 主要应用 | 场景数量 | 新增特性 (2024–2025) |
@@ -1969,17 +2033,19 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 | AI2-THOR 4.0 | 室内 | 离散/连续 | 强 | 中等 | 交互任务 | 200+ | 多智能体、可定制交互、家庭场景扩大 |
 | iGibson 3.0 | 室内 | 连续 | 强 | 快 | 综合任务 | 1000+ | 动态人群、社交导航、Sim2Real强化 |
 | AirSim | 室内外 | 连续 | 强 | 中等 | 无人机/车辆 | 可定制 | 城市航拍、大规模航程、多机协作 |
+| InternUtopia | 开放世界/城市 | 连续 | 强 | 中等 | 大规模城市导航 | 可定制 | 超大规模场景、照片级渲染、动态环境 |
 | iThorAir / Aerial Sim | 室外/空中 | 连续 | 基础 | 中等 | 空中VLN | 可定制 | 多机协作、长程规划、动态障碍物 |
 
 ---
 
 ## 选择建议
 
-- **经典VLN基准（R2R/R4R）**：Matterport3D Simulator  
-- **连续环境与长程任务**：Habitat 3.1  
-- **需要物理交互任务**：AI2-THOR 4.0 / iGibson 3.0  
-- **无人机/空中导航**：AirSim / Isaac Sim  
-- **大规模场景训练**：Gibson/iGibson 或 Habitat + HM3D  
+- **经典VLN基准（R2R/R4R）**：Matterport3D Simulator
+- **连续环境与长程任务**：Habitat 3.1
+- **需要物理交互任务**：AI2-THOR 4.0 / iGibson 3.0
+- **无人机/空中导航**：AirSim / Isaac Sim
+- **大规模场景训练**：Gibson/iGibson 或 Habitat + HM3D
+- **大规模城市/开放世界导航**：InternUtopia
 - **Sim-to-Real部署**：Habitat 3.1 / iGibson 3.0 / Isaac Sim
 
 
@@ -2671,7 +2737,7 @@ DualVLN双系统框架架构
 - 引入Human Collision Rate指标，量化与行人的不安全交互次数
 
 <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/dualvln-social-vln-benchmark.png" width="100%" />
+  <img src="/images/dualvln-social-vln-benchmark.png" width="100%" />
 <figcaption>
 Social-VLN基准测试场景示例
 </figcaption>
@@ -4026,6 +4092,92 @@ FantasyVLN与WorldVLA的训练效率对比:CompV-CoT快速收敛,像素级V-CoT�
 
 **局限性**
 该方法在LH-VLN这种小规模数据集(18k轨迹切片)上训练,显式CoT容易过拟合并产生累积误差;在更大规模数据集上的表现有待验证。此外,绝对成功率仍较低(SR 2.44%),表明长时域多阶段导航仍是极具挑战性的任务。
+
+---
+## 18. ACoT-VLA (2026)
+———Action Chain-of-Thought for Vision-Language-Action Models
+
+📄 **Paper**: https://arxiv.org/abs/2601.11404
+
+**精华**
+这篇论文的核心创新在于将推理过程从语言/视觉空间转移到动作空间，值得借鉴的点包括：(1) 直接在动作空间进行推理，提供同质化的运动指导，弥合语义与运动学之间的鸿沟；(2) 显式推理器(EAR)与隐式推理器(IAR)的互补设计，同时提供轨迹级和语义级指导；(3) Teacher Forcing稳定化训练策略，避免推理模块对动作头的优化干扰；(4) 通过action-level guidance大幅提升长时域任务的鲁棒性和误差抗累积能力。
+
+**研究背景/问题**
+现有VLA模型主要在视觉-语言空间进行推理（如语言CoT预测子任务、视觉CoT合成目标图像），但这些推理形式对动作执行的指导是间接且次优的。VLM预训练主要聚焦语义理解而非物理动力学，世界模型虽能预测未来视觉状态但仍局限于视觉表征，两者都存在语义-运动学鸿沟（semantic-kinematic gap），难以为精确的低层动作生成提供充分的细粒度指导。
+
+**主要方法/创新点**
+
+本文提出 **Action Chain-of-Thought (ACoT)** 范式，将推理过程重新定义为结构化的动作意图序列，直接在动作空间进行deliberation。ACoT-VLA框架包含三个核心组件：
+
+<div align="center">
+  <img src="/images/ACoT-VLA-paradigm-comparison.png" width="100%" />
+<figcaption>
+不同CoT范式对比：(a) 语言CoT预测子任务，(b) 视觉CoT合成目标图像，(c) 本文提出的动作CoT直接在动作空间提供同质化指导
+</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/ACoT-VLA-architecture.png" width="100%" />
+<figcaption>
+ACoT-VLA整体架构，包含EAR、IAR和Action-Guided Prediction三大模块
+</figcaption>
+</div>
+
+**1. Explicit Action Reasoner (EAR)**
+- 设计为轻量级Transformer，以noisy action sequence作为输入
+- 通过self-attention捕获时序依赖，cross-attention从VLM的key-value cache注入多模态上下文
+- 采用flow matching训练，自主生成粗粒度参考轨迹 $a^{ref}_{t:t+H^{ref}-1}$
+- 参考轨迹编码后形成显式动作空间指导 $Z^{ex}$
+
+**2. Implicit Action Reasoner (IAR)**
+- 直接操作VLM的key-value cache，提取隐式运动线索
+- 对每层VLM特征，使用可学习query矩阵 $Q_i$ 通过cross-attention提取动作相关信息
+- 下采样策略降低计算开销：将KV cache降维至 $d' \ll d$
+- 跨层聚合后形成隐式动作指导 $Z^{im}$，捕获visual affordances和action semantics
+
+**3. Action-Guided Prediction (AGP)**
+- 将noisy action embedding视为query $Q_{action}$，与 $Z^{ex}$ 和 $Z^{im}$ 进行dual cross-attention
+- 通过self-attention融合显式与隐式指导：$\bar{h} = \text{Self-Attn}([S^{ex}; S^{im}])$
+- 最终action head $\pi^{head}_\theta$ 基于聚合表征预测去噪动作序列
+
+**训练策略**：
+- Flow matching损失同时优化EAR和action head
+- Teacher Forcing稳定化：训练时 $Z^{ex}$ 直接从ground-truth轨迹计算，推理时切换为自条件模式
+
+<div align="center">
+  <img src="/images/ACoT-VLA-real-world-tasks.png" width="100%" />
+<figcaption>
+真实世界三项操作任务：擦拭污渍、倒水、开放集抓取
+</figcaption>
+</div>
+
+**核心结果/发现**
+
+**仿真实验**：
+- LIBERO: 98.5%平均成功率（SOTA），相比π0.5提升1.6%，在LIBERO-Long（长时域）提升最显著（96.0% vs 92.4%）
+- LIBERO-Plus: 84.1%，在鲁棒性测试中大幅超越，尤其在相机视角变化(+11.6%)、机器人初始状态扰动(+16.3%)、传感器噪声(+12.5%)上表现突出
+- VLABench: Intention Score 63.5%、Progress Score 47.4%，在unseen-texture track上获得+12.6% IS和+7.2% PS的显著提升
+
+<div align="center">
+  <img src="/images/ACoT-VLA-real-world-results.png" width="100%" />
+<figcaption>
+真实世界实验结果对比
+</figcaption>
+</div>
+
+**真实世界部署**：
+- 在AgiBot G1机器人上平均成功率66.7%（vs π0.5的61.0%、π0的33.8%）
+- 跨embodiment验证：在AgileX平台上同样有效，证明方法的通用性
+
+**消融研究关键发现**：
+- EAR单独使用提升1.4%（LIBERO），IAR单独提升1.2%
+- EAR+IAR联合使用达到最优，证明显式与隐式指导的互补性
+- 参考动作horizon在15-30时效果最佳，过长或过短均不利
+- EAR参数量在300M时性能最优，过度参数化反而导致过拟合
+- 推理延迟仅增加约20ms（91ms→112ms），性能-效率权衡优秀
+
+**局限性**
+该方法需要额外的推理模块，虽然计算开销相对较小但在资源受限平台上可能存在挑战。此外，当前动作表征仍采用action chunks（关节角度/末端执行器位姿），缺乏显式几何结构，未来可将动作表征扩展至几何可解释的3D空间，进一步释放ACoT的推理潜力。
 
 ---
 ##
