@@ -4559,6 +4559,12 @@ FantasyVLN与WorldVLA的训练效率对比:CompV-CoT快速收敛,像素级V-CoT�
 
 **精华**
 这篇论文的核心创新在于将推理过程从语言/视觉空间转移到动作空间，值得借鉴的点包括：(1) 直接在动作空间进行推理，提供同质化的运动指导，弥合语义与运动学之间的鸿沟；(2) 显式推理器(EAR)与隐式推理器(IAR)的互补设计，同时提供轨迹级和语义级指导；(3) Teacher Forcing稳定化训练策略，避免推理模块对动作头的优化干扰；(4) 通过action-level guidance大幅提升长时域任务的鲁棒性和误差抗累积能力。
+<div align="center">
+  <img src="/images/ACoT-VLA-paradigm-comparison.png" width="60%" />
+<figcaption>
+不同CoT范式对比：(a) 语言CoT预测子任务，(b) 视觉CoT合成目标图像，(c) 本文提出的动作CoT直接在动作空间提供同质化指导
+</figcaption>
+</div>
 
 **研究背景/问题**
 现有VLA模型主要在视觉-语言空间进行推理（如语言CoT预测子任务、视觉CoT合成目标图像），但这些推理形式对动作执行的指导是间接且次优的。VLM预训练主要聚焦语义理解而非物理动力学，世界模型虽能预测未来视觉状态但仍局限于视觉表征，两者都存在语义-运动学鸿沟（semantic-kinematic gap），难以为精确的低层动作生成提供充分的细粒度指导。
@@ -4567,12 +4573,6 @@ FantasyVLN与WorldVLA的训练效率对比:CompV-CoT快速收敛,像素级V-CoT�
 
 本文提出 **Action Chain-of-Thought (ACoT)** 范式，将推理过程重新定义为结构化的动作意图序列，直接在动作空间进行deliberation。ACoT-VLA框架包含三个核心组件：
 
-<div align="center">
-  <img src="/images/ACoT-VLA-paradigm-comparison.png" width="100%" />
-<figcaption>
-不同CoT范式对比：(a) 语言CoT预测子任务，(b) 视觉CoT合成目标图像，(c) 本文提出的动作CoT直接在动作空间提供同质化指导
-</figcaption>
-</div>
 
 <div align="center">
   <img src="/images/ACoT-VLA-architecture.png" width="100%" />
@@ -4602,12 +4602,6 @@ ACoT-VLA整体架构，包含EAR、IAR和Action-Guided Prediction三大模块
 - Flow matching损失同时优化EAR和action head
 - Teacher Forcing稳定化：训练时 $Z^{ex}$ 直接从ground-truth轨迹计算，推理时切换为自条件模式
 
-<div align="center">
-  <img src="/images/ACoT-VLA-real-world-tasks.png" width="100%" />
-<figcaption>
-真实世界三项操作任务：擦拭污渍、倒水、开放集抓取
-</figcaption>
-</div>
 
 **核心结果/发现**
 
@@ -4616,16 +4610,26 @@ ACoT-VLA整体架构，包含EAR、IAR和Action-Guided Prediction三大模块
 - LIBERO-Plus: 84.1%，在鲁棒性测试中大幅超越，尤其在相机视角变化(+11.6%)、机器人初始状态扰动(+16.3%)、传感器噪声(+12.5%)上表现突出
 - VLABench: Intention Score 63.5%、Progress Score 47.4%，在unseen-texture track上获得+12.6% IS和+7.2% PS的显著提升
 
+
+**真实世界部署**：
+
+
+- 在AgiBot G1机器人上平均成功率66.7%（vs π0.5的61.0%、π0的33.8%）
+- 跨embodiment验证：在AgileX平台上同样有效，证明方法的通用性
+
+<div align="center">
+  <img src="/images/ACoT-VLA-real-world-tasks.png" width="90%" />
+<figcaption>
+真实世界三项操作任务：擦拭污渍、倒水、开放集抓取
+</figcaption>
+</div>
+
 <div align="center">
   <img src="/images/ACoT-VLA-real-world-results.png" width="100%" />
 <figcaption>
 真实世界实验结果对比
 </figcaption>
 </div>
-
-**真实世界部署**：
-- 在AgiBot G1机器人上平均成功率66.7%（vs π0.5的61.0%、π0的33.8%）
-- 跨embodiment验证：在AgileX平台上同样有效，证明方法的通用性
 
 **消融研究关键发现**：
 - EAR单独使用提升1.4%（LIBERO），IAR单独提升1.2%
@@ -4685,15 +4689,14 @@ Heuristic Cues 包括两个启发式项：(1) Distance Weighting: S_dist(g) = 1/
 最终 HVL score 为：S_HVL(g) = w_dist * S_dist(g) + w_VL * S_VL(g) * S_unknown(g)。系统优先选择 instance-based goals（基于 VL score），若无则选择得分最高的 frontier goal（基于 HVL score）。
 
 **Path Planning**：选定 HVL goal 后，系统使用 FAR Planner 进行 point-goal 路径规划，以多边形表示障碍物并实时更新可见性图，支持部分未知环境中的高效重规划。局部规划器将 FAR Planner 的路径点细化为短时域速度命令，确保对新障碍物的快速反应。
-
-**核心结果/发现**
-
 <div align="center">
-  <img src="/images/VL-Nav-experiment-environments.png" width="100%" />
+  <img src="/images/VL-Nav-experiment-environments.png" width="50%" />
 <figcaption>
 四种不同规模和语义复杂度的真实世界实验环境
 </figcaption>
 </div>
+
+**核心结果/发现**
 
 <div align="center">
   <img src="/images/VL-Nav-trajectory-comparison.png" width="100%" />
@@ -4718,4 +4721,4 @@ VL-Nav 在四个真实世界环境（Hallway、Office、Apartment、Outdoor）�
 
 ---
 ##
-**注**：本文为个人学习笔记，大量内容来自网络公开资料，仅供参考。如有错误或建议，欢迎指正！
+**注**：本文为个人学习笔记，大量内容来自网络公开资料以及AI辅助总结，仅供参考。如有错误或建议，欢迎指正！
