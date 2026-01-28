@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Vision-Language-Action (VLA) 综述"
-date:   2026-01-24
+date:   2026-01-28
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 comments: true
 author: Tingde Liu
