@@ -42,10 +42,20 @@ VLA模型架构示意图（来源：OpenVLA）
 
 ### VLA的发展里程碑
 
-- **2023年7月**：Google DeepMind发布RT-2，首次将VLM成功转化为VLA模型，开创了这一研究方向
-- **2024年6月**：斯坦福大学发布OpenVLA，首个7B参数的开源VLA模型，在多项操作任务上超越RT-2
-- **2025年**：出现多个轻量化VLA模型（如SmolVLA 450M参数），使VLA模型能够在边缘设备上实时运行
-- **2026年**：VLA研究进入快速发展期，ICLR 2026收录164篇VLA相关论文，研究重点转向推理能力、跨机器人泛化和实际部署
+<div align="center">
+  <img src="/images/vla-timeline.png" width="100%" />
+<figcaption>
+VLA研究时间线：从模块化到端到端统一模型的演进历程（2022-2025）
+</figcaption>
+</div>
+
+- **2022年**：RT-1开创Transformer在真实机器人控制中的应用，SayCan、Inner Monologue探索语言模型规划
+- **2023年7月**：Google DeepMind发布RT-2，首次将VLM成功转化为VLA模型，正式开创VLA研究方向
+- **2023年10月**：Open X-Embodiment数据集发布（970k轨迹，22种机器人），Diffusion Policy引入扩散模型作为动作解码器
+- **2024年6月**：斯坦福大学发布OpenVLA（7B参数），首个开源大规模VLA模型，在多项操作任务上超越RT-2
+- **2024年**：π0引入Flow Matching，GR-2利用人类第一人称视频，3D-VLA系列（PointVLA、GeoVLA）引入3D空间表示
+- **2025年**：出现多个轻量化VLA模型（SmolVLA 450M参数、Evo-1 77M参数），Humanoid-VLA实现全身人形机器人控制，CoT-VLA增强推理能力
+- **2026年**：VLA研究进入快速发展期，ICLR 2026收录164篇VLA相关论文，研究重点转向推理能力、跨机器人泛化、安全性和实际部署
 
 ## VLA的三个核心要素
 
@@ -200,51 +210,123 @@ VLA代表了机器人控制范式的根本性转变：
 
 本节采用**挑战驱动分类法**（Challenge-Centric Taxonomy），围绕VLA研究的五大核心瓶颈进行组织，而非传统的架构或任务分类。这种分类方式更好地反映了当前VLA领域亟需突破的关键问题。
 
+<div align="center">
+  <img src="/images/vla-five-challenges.png" width="100%" />
+<figcaption>
+VLA研究的五大核心挑战及其子问题分类树
+</figcaption>
+</div>
+
+这五大挑战形成了VLA系统的完整开发路径：
+1. **表示（Representation）**：建立多模态感知与物理世界的连接
+2. **执行（Execution）**：实现指令理解、规划和实时控制
+3. **泛化（Generalization）**：扩展到开放世界并持续适应
+4. **安全（Safety）**：确保可靠性、可解释性和可信交互
+5. **数据与评测（Data & Evaluation）**：构建标准化的数据基础设施和评测体系
+
 ### 挑战1：多模态对齐与物理世界建模
 
 **核心问题**：弥合语义感知与物理交互之间的鸿沟，实现从2D图像到时空表示的跨越，并发展动态预测世界模型。
+
+<div align="center">
+  <img src="/images/vla-multimodal-alignment.png" width="100%" />
+<figcaption">
+多模态对齐与物理世界建模的三层架构：基础对齐 → 时空表示 → 动态预测
+</figcaption>
+</div>
 
 VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世界的准确建模，这涉及三个层次的挑战：
 
 #### 1.1 语义到物理的接地（Semantic-to-Physical Grounding）
 
-**问题描述**：如何将抽象的语言描述（如"红色的杯子"）映射到物理世界中的具体对象和可执行动作。
+**问题描述**：如何将抽象的语言描述（如"红色的杯子"）映射到物理世界中的具体对象和可执行动作。这涉及三个层次的对齐挑战：
 
-**关键技术**：
-- **对比学习**：通过对比学习将视频的视觉潜在空间与可执行的机器人动作空间对齐（如CLAP）
-- **显式视觉线索**：通过边界框等明确视觉提示解决指代歧义（如Point-VLA）
-- **3D可供性图**：生成三维可供性图作为强中间表示（如VoxPoser）
+**（1）Vision-Language Gap（视觉-语言鸿沟）**
+- **问题**：RGB的高维感知空间与抽象符号语言之间的语义鸿沟
+- **解决方案**：
+  - **OTTER**：文本感知的特征提取机制
+  - **LIV**：针对机器人控制数据的对比学习框架
+  - **符号推理方式**：ACT-LLM, Look Leap等利用LLM进行高层符号推理
+
+**（2）Vision-Language-Action Gap（视觉-语言-动作三元鸿沟）**
+- **问题**：VLM的感知对齐能力如何转化为实际的物理动作执行
+- **解决方案**：
+  - **端到端微调**：RT-2, OpenVLA通过动作token化实现VLM到VLA的转化
+  - **共享中间表示**：CLIP-RT, Humanoid-VLA在动作和感知间建立共享语义空间
+  - **层级架构**：引入显式规划层作为语义-动作的桥梁
+  - **VoxPoser**：LLM推理生成3D Affordance Map作为中间表示
+
+**（3）多模态感觉融合（Sensory Fusion）**
+- **问题**：如何整合触觉、力传感、音频等额外模态
+- **解决方案**：
+  - **专业编码器 + 对比学习**：TLA, OmniVTLA对齐多感觉模态
+  - **融合策略**：深融合（Tactile-VLA）vs 模块化MoE融合（ForceVLA）
+  - **生成式方案**：MultiGen在模拟器中生成多模态数据
 
 **代表性工作**：
 - **CLAP**：对齐视频视觉潜在空间与机器人动作空间
-- **Point-VLA**：通过显式视觉提示解决指代模糊
-- **VoxPoser**：生成3D可供性图作为中间表示
+- **Point-VLA**：通过显式视觉提示（边界框）解决指代模糊
+- **VoxPoser**：生成3D可供性图作为强中间表示
+- **Tactile-VLA/ForceVLA**：整合触觉和力传感的多模态VLA
 
 #### 1.2 2D到3D的空间表示（2D-to-3D Spatial Representations）
 
-**问题描述**：从2D图像输入推断3D空间结构，理解深度、遮挡和空间关系。
+**问题描述**：从2D图像输入推断3D空间结构，理解深度、遮挡和空间关系。这是从平面视觉到立体物理世界的关键跨越。
 
-**关键技术**：
-- **3D占据网络**：学习场景的体素化占据表示（如OccLLaMA）
-- **轨迹追踪**：通过追踪3D空间中的轨迹理解运动（如TraceVLA）
-- **多视角融合**：整合多个相机视角构建完整的3D场景理解
+**空间表示层次**：
+- **2.5D深度地图**：Depth Helps, RoboFlamingo-Plus利用深度信息增强空间感知
+- **点云表示**：PointVLA, GeoVLA, FP3直接操作3D点云进行操作规划
+- **体素/占据栅格**：OccLLaMA, RoboMM使用体素化占据表示学习场景结构
+- **4D表示（新方向）**：ARM4R预测3D点的时序运动轨迹，实现动态空间建模
+
+**架构集成策略**：
+- **适配器方法**：PointVLA, GeoVLA保留预训练骨干网络，通过轻量适配器注入3D信息
+- **隐式方法**：Evo-0 + VGGT, AC-DiT将3D信息作为扩散模型的条件
+- **2D投影方式**：BridgeVLA, RoboPoint, A0将3D表示投影回2D进行处理
+- **VLM推理方式**：VoxPoser, Gemini Robotics利用VLM的推理能力生成3D表示
 
 **代表性工作**：
-- **OccLLaMA**：基于占据网络的3D场景理解
-- **TraceVLA**：3D轨迹追踪与预测
+- **OccLLaMA**：基于占据网络的3D场景理解，学习体素化空间表示
+- **TraceVLA**：3D轨迹追踪与预测，理解物体运动
+- **PointVLA/GeoVLA**：直接在3D点云上进行操作推理
+- **ARM4R**：预测3D点的运动轨迹，实现4D时空建模
 
 #### 1.3 动态世界建模（Dynamic World Modeling）
 
-**问题描述**：预测物体交互的动态变化，理解物理规律和因果关系。
+**问题描述**：预测物体交互的动态变化，理解物理规律和因果关系。世界模型使VLA能够"想象"动作的后果，进行更智能的规划。
 
-**关键技术**：
-- **视频预测模型**：通过视频数据学习物理动力学（如mimic-video）
-- **动作条件世界模型**：建模动作对环境的影响（如VideoVLA）
-- **隐式物理引擎**：在神经网络中隐式编码物理规律
+**表示空间选择**：
+- **观察空间预测（高保真）**：
+  - TriVLA, UP-VLA：预测未来视觉观察，提供直观的视觉反馈
+  - CoT-VLA, DreamVLA：生成视觉子目标作为中间推理步骤
+  - FlowVLA, WorldVLA：基于flow matching的视频预测
+
+- **潜在空间预测（高效）**：
+  - VLM-in-the-Loop：在压缩潜在空间中进行快速预测
+  - MinD：轻量级潜在动力学模型
+  - WMPO：结合世界模型的策略优化
+
+**利用范式**：
+- **策略增强**：短期预测作为辅助信号指导动作生成
+  - TriVLA, CoT-VLA：视觉预测作为推理链
+  - DreamVLA：梦境模拟辅助决策
+
+- **显式规划**：解耦的内部模拟器进行前瞻规划
+  - LUMOS：分离的世界模型用于规划
+  - VLM-in-the-Loop：闭环规划-执行-验证
+  - MinD：基于模型的强化学习
 
 **代表性工作**：
-- **mimic-video**：从视频中学习物理动力学
-- **VideoVLA**：视频条件的世界模型
+- **TriVLA**：三角形架构融合过去-现在-未来的视觉表示
+- **VideoVLA**：视频条件的世界模型，预测动作后果
+- **mimic-video**：从人类视频中学习物理动力学
+- **LUMOS**：显式世界模型进行长时程规划
+- **DreamVLA**：在"梦境"中模拟和优化动作序列
+
+**未来方向**：
+- **混合潜在-物理-语义世界模型**：整合3D几何、物理动力学和语义属性
+- **因果世界模型**：显式建模动作-结果的因果关系
+- **可学习物理先验**：在神经网络中编码物理定律（守恒律、碰撞等）
 
 ---
 
@@ -252,18 +334,77 @@ VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世�
 
 **核心问题**：解析复杂指令，进行分层任务分解，实现错误检测与自主恢复，并保证实时计算效率。
 
+<div align="center">
+  <img src="/images/vla-execution-pipeline.png" width="100%" />
+<figcaption>
+指令跟随、规划与实时执行的完整流程：理解 → 规划 → 执行 → 恢复 → 优化
+</figcaption>
+</div>
+
 #### 2.1 复杂指令解析与理解
 
-**问题描述**：理解多样化、组合式的自然语言指令，处理模糊性和不完整性。
+**问题描述**：理解多样化、组合式的自然语言指令，处理模糊性和不完整性。真实世界的指令往往包含多模态信息、隐含假设和不明确的描述。
+
+**开放式多模态指令**：
+- **混合文本+图像+草图**：
+  - OE-VLA：处理开放式混合模态指令
+  - Interleave-VLA：交错处理图像和文本序列
+
+**模糊和欠指定指令**：
+- **场景解析与验证**：
+  - ThinkAct：场景分析和反馈验证机制
+  - DeepThinkVLA：因果CoT推理和结果驱动RL
+
+- **空间推理**：
+  - InSpire：显式空间推理提示，理解"左边"、"上面"等相对位置
+
+- **主动澄清**：
+  - AskToAct：模糊识别模块+主动请求用户澄清
 
 **关键技术**：
 - **大语言模型推理**：利用LLM进行语义理解和常识推理
 - **上下文学习**：通过少样本示例快速适应新指令模式
 - **多轮对话**：支持交互式指令澄清
 
+**代表性工作**：
+- **ThinkAct**：思考-行动架构，在执行前进行推理验证
+- **InSpire**：空间推理增强的指令理解
+- **AskToAct**：主动询问机制，处理模糊指令
+
 #### 2.2 分层任务分解与规划
 
-**问题描述**：将长时序复杂任务分解为可执行的子任务序列，并进行高层规划。
+**问题描述**：将长时序复杂任务分解为可执行的子任务序列，并进行高层规划。这是处理复杂多步骤任务的关键能力。
+
+**三大规划范式**：
+
+**（1）语言驱动规划**
+- **单推理链方法**：
+  - π0.5：在单一推理链中生成明确的语言子任务
+  - OneTwoVLA：在关键决策点进行结构化文本推理
+
+- **层级方法**：
+  - Hi Robot：两层架构（VLM规划 + VLA执行）
+  - LoHoVLA：端到端学习的层级范式，无需显式分解
+
+**（2）多模态中间表示规划**
+- **视觉驱动规划**：
+  - CoT-VLA：生成像素级视觉子目标作为推理步骤
+  - Embodied-SlotSSM：基于对象中心的表示
+  - HiP：三层架构（任务-子任务-动作）
+
+- **Affordance驱动规划**：
+  - RT-Affordance：预测可操作性作为中间表示
+  - CoA-VLA：Chain-of-Affordance推理
+
+**（3）技能库组合规划**
+- **显式技能库**：
+  - VLP：预定义技能的组合
+  - Agentic Robot：技能库管理和选择
+  - RoboBrain：大规模技能记忆库
+
+- **隐式技能学习**：
+  - DexVLA：billion参数的隐式技能表示
+  - AgiBot World：从大规模数据中自动发现技能
 
 **关键技术**：
 - **具身数字孪生**：使用基于物理的交互式数字孪生作为具身世界模型（如EToT）
@@ -271,8 +412,10 @@ VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世�
 - **分层强化学习**：在不同抽象层次上学习策略
 
 **代表性工作**：
-- **EToT**：利用物理交互式数字孪生
-- **MoE-DP**：混合专家进行任务分解
+- **π0.5**：增强的推理能力，支持多步骤规划
+- **Hi Robot**：显式的两层层级架构
+- **CoT-VLA**：视觉子目标作为思维链
+- **DexVLA**：billion参数的灵巧操作专家
 - **WALL-OSS**：大规模分层规划系统
 
 #### 2.3 错误检测与自主恢复
@@ -290,12 +433,77 @@ VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世�
 
 #### 2.4 实时性与计算效率
 
-**问题描述**：满足高频控制的实时性要求（30Hz+），同时保证推理准确性。
+**问题描述**：满足高频控制的实时性要求（30Hz+），同时保证推理准确性。大规模VLA模型的计算开销是实时部署的主要瓶颈。
+
+**四大优化方向**：
+
+**（1）静态架构优化**
+- **压缩量化**：
+  - BitVLA：1-bit量化，极致压缩
+  - Evo-1：77M参数的超轻量模型
+
+- **轻量级骨干网络**：
+  - NORA, TinyVLA：专为实时控制设计的小型架构
+
+- **线性注意力机制**：
+  - SARA-RT, RoboMamba：用Mamba/SSM替代Transformer的二次复杂度
+
+**（2）动态优化解码过程**
+- **动态推理路径**：
+  - MoLe-VLA：跳层推理，根据任务难度动态调整深度
+  - CEED-VLA, DeeR-VLA：提前退出机制
+
+- **Token处理优化**：
+  - VLA-Cache：自适应KV缓存
+  - SpecPrune-VLA：token级别剪枝
+  - CogVLA：认知导向的token选择
+
+- **加速解码**：
+  - OpenVLA-OFT：并行解码，25-50倍加速
+  - Spec-VLA：推测解码
+
+**（3）动作表示和生成范式优化**
+- **高效token化**：
+  - FAST：频率空间动作序列token化，15倍加速
+  - XR-1, VQ-VLA：向量量化动作表示
+
+- **异步执行**：
+  - SmolVLA：450M参数实时运行
+  - Real-Time Action Chunking：动作块异步执行
+
+- **加速扩散**：
+  - Time-Diffusion Policy：时间条件加速
+  - Discrete Diffusion VLA：离散扩散加速
+
+**（4）训练范式优化**
+- **训练时推理，推断时跳过**：
+  - ECoT-Lite：训练中使用推理，推断时直接输出
+
+- **预测压缩表示**：
+  - V-JEPA 2：预测语义压缩表示而非像素
+
+- **双系统架构**：
+  - Fast-in-Slow：快速System 1 + 慢速System 2
+
+- **联邦学习**：
+  - FedVLA：分布式训练框架
 
 **关键技术**：
 - **模型压缩**：量化、剪枝、蒸馏
 - **推理优化**：动作token压缩、批处理优化
 - **边缘部署**：轻量化架构设计
+
+**代表性工作**：
+- **SmolVLA**：450M参数实时运行
+- **FAST**：动作tokenizer，15倍推理加速
+- **OpenVLA-OFT**：优化微调，25-50倍加速
+- **RoboMamba**：Mamba架构的线性复杂度
+- **MoLe-VLA**：动态深度推理
+
+**未来方向**：
+- **自适应架构**：根据任务难度自动调整推理深度和模型规模
+- **统一决策Token**：see-think-act的统一token流
+- **硬件协同优化**：专用芯片加速VLA推理
 
 ---
 
@@ -303,9 +511,62 @@ VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世�
 
 **核心问题**：实现开放世界泛化，支持持续学习与增量技能获取，完成sim-to-real迁移，并启用在线强化学习。
 
+<div align="center">
+  <img src="/images/vla-generalization-adaptation.png" width="100%" />
+<figcaption>
+从泛化到持续适应的四层递进：零样本泛化 → 持续学习 → Sim2Real → 在线RL
+</figcaption>
+</div>
+
 #### 3.1 开放世界泛化（Open-World Generalization）
 
-**问题描述**：在未见环境、未见物体和未见任务组合上的零样本或少样本泛化。
+**问题描述**：在未见环境、未见物体和未见任务组合上的零样本或少样本泛化。这是VLA模型走向通用性的关键。
+
+**四大策略**：
+
+**（1）知识迁移与利用**
+
+- **多任务/多机器人预训练**：
+  - Octo：在800k机器人轨迹上预训练，学习通用操作规律
+  - DexVLA：billion参数扩散专家，跨机器人形态预训练
+  - RoboCat：异构多机器人数据持续训练
+  - Dita：leveraging OXE数据集和扩散Transformer
+  - EO-1：在1.5M-EO-Data上预训练共享骨干
+
+- **互联网/人类视频知识迁移**：
+  - R3M：在Ego4D等人类第一人称视频上预训练视觉编码器
+  - GR系列（GR-1, GR-2）：从人类视角视频迁移物理和交互知识
+
+**（2）范式级创新**
+
+- **In-Context Learning**：
+  - ICIL：从prompt中的少量演示推断任务，无需重新训练
+
+- **涌现组合性**：
+  - TRA：时间对比损失赋予表示空间组合结构
+
+- **概念泛化**：
+  - ObjectVLA：联合训练机器人轨迹和box标注VL数据，实现零样本操作
+  - LERF：融合CLIP和3D NeRF，实现自然语言定位和抓取
+
+- **自适应范式**：
+  - Align-Then-Steer：非侵入式适应，用轻量潜在空间适配器引导冻结VLA
+  - Robot Utility Models (RUM)：配对大规模家庭演示和VLM推理，实现零样本部署
+
+**（3）增强数据多样性**
+
+- **数据增强**：
+  - CACTI：扩散修补技术生成多样化场景
+  - GenAug：文本到图像合成增强训练数据
+
+- **语义增强**：
+  - ROSIE：VLM知识蒸馏到机器人策略
+
+**（4）自适应架构设计**
+
+- **分层设计**：高层抽象语义+低层具体执行
+- **多模态融合**：BAKU等多模态感知融合架构
+- **生成多样性**：StructDiffusion等结构化生成方法
 
 **关键技术**：
 - **空间接地预训练**：结合空间引导的动作后训练（如InternVLA-M1）
@@ -313,38 +574,144 @@ VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世�
 - **元学习**：学习快速适应新任务的能力
 
 **代表性工作**：
-- **InternVLA-M1**：空间接地预训练 + 空间引导动作后训练
-- **ProphRL**：统一的动作条件世界模型
+- **Octo**：800k轨迹预训练的通用策略
+- **DexVLA**：billion参数跨形态专家
+- **R3M/GR-2**：从人类视频迁移知识
+- **ICIL**：上下文学习范式
+- **ObjectVLA/LERF**：概念级泛化
+- **Robot Utility Models**：零样本家庭部署
 
 #### 3.2 持续学习与增量技能获取
 
-**问题描述**：在不遗忘旧技能的前提下持续学习新技能。
+**问题描述**：在不遗忘旧技能的前提下持续学习新技能。这是构建终身学习机器人的核心挑战。
+
+**两大策略**：
+
+**（1）参数隔离与扩展**
+- **基于提示/码书学习**：
+  - 新技能独立编码为提示或码书向量
+  - 保持核心参数不变，避免灾难性遗忘
+
+- **模块化MoE架构**：
+  - InstructVLA：专家混合架构，每个专家负责特定技能
+  - iManip：PerceiverIO架构实现模块化技能表示
+
+**（2）回放知识巩固**
+- **压缩经验回放**：
+  - ExpReS-VLA：压缩体验回放，高效存储历史经验
+
+- **时间回放策略**：
+  - iManip：关键帧回放，保留重要状态转移
 
 **关键技术**：
 - **经验回放**：保留旧任务数据防止遗忘
 - **弹性权重固化**：保护重要参数
 - **模块化技能库**：独立学习和组合技能模块
 
+**代表性工作**：
+- **InstructVLA**：MoE架构的终身学习
+- **iManip**：模块化技能表示
+- **ExpReS-VLA**：压缩经验回放
+
+**评测基准**：
+- **LIBERO**：首个终身机器人学习基准，评估技能保留和迁移
+
 #### 3.3 Sim-to-Real迁移
 
-**问题描述**：缩小仿真训练与真实部署之间的性能差距。
+**问题描述**：缩小仿真训练与真实部署之间的性能差距。仿真器提供了无限的训练数据，但存在现实差距（Reality Gap）。
+
+**两大策略**：
+
+**（1）增强模拟保真度**
+- **高保真仿真器**：
+  - ManiSkill3：GPU并行渲染+物理模拟，域随机化
+  - 提升视觉、物理、动力学的真实感
+
+- **稳定中间表示**：
+  - SLIM：使用分割+深度等对光照不敏感的表示
+  - 减少视觉域差异
+
+**（2）数据驱动模拟器**
+- **生成增强**：
+  - GenAug：无模拟器直接从文本生成训练数据
+  - 绕过传统仿真流程
+
+- **学习世界模型**：
+  - DreamGen：从真实数据学习生成模型
+  - RynnVLA-001：神经模拟器
+
+**（3）高效真实适应**
+- **快速微调**：
+  - AdaWorld：在少量真实数据上高效适应
+  - 利用仿真预训练作为强初始化
+
+- **鲁棒视觉表示**：
+  - 学习对光照、纹理变化不敏感的特征
+  - 自监督预训练（DINOv2等）
 
 **关键技术**：
 - **域随机化**：增强模拟环境的多样性
-- **高效适应**：快速在真实环境中微调（如AdaWorld）
+- **高效适应**：快速在真实环境中微调
 - **鲁棒视觉表示**：学习对外观变化不敏感的特征
 
 **代表性工作**：
-- **AdaWorld**：高效适应与动作迁移到新环境
+- **ManiSkill3**：新一代GPU并行仿真器
+- **SLIM**：稳定中间表示减少域差距
+- **GenAug**：生成式数据增强
+- **AdaWorld**：高效sim-to-real适应
+
+**未来方向**：
+- **神经模拟器**：完全从数据学习的可微分模拟器
+- **双向迁移**：real-to-sim用于改进仿真器
 
 #### 3.4 在线强化学习
 
-**问题描述**：通过与环境交互自主学习和改进策略。
+**问题描述**：通过与环境交互自主学习和改进策略。相比离线模仿学习，在线RL能够自主探索和优化。
+
+**两大方向**：
+
+**（1）优化学习过程**
+
+- **知识迁移加速**：
+  - RLDG：蒸馏预训练VLA知识到RL策略
+  - Refined Policy Distillation：MSE约束保持预训练能力
+  - iRe-VLA：阶段性冻结-解冻策略
+
+- **算法内部优化**：
+  - CO-RFT：分块时间差分学习，稳定训练
+
+**（2）自动化奖励生成**
+
+- **感知对齐奖励**：
+  - VLM-RMs：用VLM作为奖励模型
+  - RoboCLIP：CLIP对齐的奖励信号
+  - Affordance-Guided RL：可供性作为奖励
+
+- **VLM批评**：
+  - RL-VLM-F：GPT-4V比较不同轨迹
+  - GRAPE：VLM生成密集奖励信号
+
+- **代码生成奖励**：
+  - Eureka：LLM生成奖励函数代码
+  - VIP：视觉-语言-策划一体化
+  - VLA-RL：端到端VLA强化学习
 
 **关键技术**：
-- **离线到在线**：先离线预训练再在线微调
+- **离线到在线**：先离线预训练再在线微调（π*0.6）
 - **安全探索**：在保证安全的前提下探索
 - **奖励学习**：从人类反馈中学习奖励函数
+
+**代表性工作**：
+- **π*0.6**：从经验中学习，整合专家干预的RL（详见经典论文章节）
+- **SERL**：样本高效的机器人RL套件
+- **Eureka**：LLM自动生成奖励函数
+- **VLA-RL**：端到端VLA强化学习框架
+- **RLDG**：知识蒸馏加速RL训练
+
+**未来方向**：
+- **形态无关表示**：跨具身形态的策略迁移
+- **零样本跨具身迁移**：在一个机器人上学习，直接部署到另一个
+- **自主开放式进化**：部署→发现→进化的闭环系统
 
 ---
 
@@ -352,18 +719,76 @@ VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世�
 
 **核心问题**：确保可靠性保证，提升可解释性，实现可信的人机交互，并满足安全约束。
 
+<div align="center">
+  <img src="/images/vla-safety-interpretability.png" width="100%" />
+<figcaption>
+安全性与可解释性的双层结构：可靠性保证 + 透明可信交互
+</figcaption>
+</div>
+
 #### 4.1 可靠性保证
 
-**问题描述**：保证VLA系统在各种情况下的稳定性和可预测性。
+**问题描述**：保证VLA系统在各种情况下的稳定性和可预测性。机器人与物理世界交互，错误可能导致严重后果。
+
+**两大范式**：
+
+**（1）基于约束的安全范式**
+
+- **规则约束**：
+  - AutoRT：宪法提示（Constitutional Prompting）硬编码安全规则
+  - 人工定义的禁止行为列表
+
+- **内部化约束**：
+  - SafeVLA：将成本函数约束整合到MDP
+  - 学习隐式的安全边界
+
+**（2）学习对齐范式**
+
+- **值对齐**：
+  - Gemini Robotics：Constitutional AI后训练，对齐人类价值观
+  - 从人类偏好中学习安全边界
+
+- **不确定性评估**：
+  - GPI：置信度估计+回溯机制
+  - RationalVLA：可学习的拒绝token，主动拒绝不安全/无效指令
 
 **关键技术**：
 - **形式化验证**：数学证明系统满足安全属性
 - **冗余机制**：多层次的安全保障
 - **失效安全**：检测异常并进入安全状态
 
+**代表性工作**：
+- **SafeVLA**：约束MDP框架
+- **RationalVLA**：学习拒绝危险指令
+- **GPI**：不确定性感知的安全回溯
+
 #### 4.2 可解释性与可信赖性
 
-**问题描述**：使VLA的决策过程透明可理解，增强用户信任。
+**问题描述**：使VLA的决策过程透明可理解，增强用户信任。黑盒模型难以调试和信任。
+
+**两大方向**：
+
+**（1）增强过程可解释性**
+
+- **链式思维（CoT）**：
+  - Diffusion-VLA：自然语言中间推理步骤
+  - ECoT：可编辑的推理链，用户可修正错误步骤
+  - CoT-VLA：视觉子目标作为可视化推理链
+
+- **层级结构天然可解释**：
+  - RT-H, HiRobot：高层语言规划+低层执行
+  - GraSP-VLA：分层规划提供可追溯性
+
+- **解码隐藏符号状态**：
+  - DIARC-OpenVLA：线性探针解释内部表示
+
+**（2）行为可预测性**
+
+- **外化决策逻辑**：
+  - CrayonRobo：视觉提示（箭头、高亮）外化决策过程
+
+- **结构化任务切换**：
+  - SwitchVLA：显式任务切换机制（回滚+平滑过渡）
 
 **关键技术**：
 - **可编辑推理链**：用户可通过语言修正的逐步推理（如ECoT）
@@ -372,29 +797,60 @@ VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世�
 
 **代表性工作**：
 - **ECoT**：可编辑的链式思考推理
-- **RationalVLA**：可学习的拒绝token
+- **CoT-VLA**：视觉CoT增强可解释性
+- **RT-H/HiRobot**：层级架构的天然可解释性
+- **CrayonRobo**：视觉化决策过程
 
-#### 4.3 安全约束与主动拒绝
+**未来方向**：
+- **内在不确定性感知**：System 2反思层，自我评估决策质量
+- **主动风险规避**：检测到歧义时主动暂停并请求帮助
+- **交互式安全**：可介入的透明性，实时人类监督
+- **共享心智模型**：机器人与人类对任务的共同理解
 
-**问题描述**：识别并拒绝不安全或无效的指令，主动避免危险行为。
+#### 4.3 安全约束与主动拒绝（已在4.1中合并）
 
-**关键技术**：
-- **控制屏障函数**：插件式安全约束层（如VLSA-AEGIS）
-- **可学习拒绝**：训练模型识别并拒绝危险指令（如RationalVLA）
-- **碰撞避免**：实时预测和避免碰撞
+本节内容已整合到4.1可靠性保证中，主要包括：
 
-**代表性工作**：
-- **VLSA-AEGIS**：基于控制屏障函数的即插即用安全层
+**插件式安全层**：
+- **VLSA-AEGIS**：基于控制屏障函数（CBF）的即插即用安全层
+- 在不修改VLA模型的前提下添加硬约束
+
+**可学习拒绝机制**：
 - **RationalVLA**：学习拒绝不安全/无效指令
+- 训练模型识别危险行为并主动拒绝
 
 #### 4.4 人机协作交互
 
-**问题描述**：与人类自然、高效地协作完成任务。
+**问题描述**：与人类自然、高效地协作完成任务。机器人需要理解人类意图、接受反馈并主动沟通。
 
-**关键技术**：
-- **意图识别**：理解人类的隐含意图
-- **主动询问**：在不确定时向人类请求帮助
-- **从反馈学习**：从人类纠正中快速学习
+**关键能力**：
+
+- **意图识别**：
+  - 理解人类的隐含意图和目标
+  - 从不完整指令中推断完整任务
+
+- **主动询问**：
+  - AskToAct：检测模糊指令时主动请求澄清
+  - OneTwoVLA：关键决策点主动询问
+
+- **从反馈学习**：
+  - Yell At Your Robot：实时语言反馈纠正
+  - CLIP-RT：语言反馈引导
+  - π*0.6：从专家干预中学习（详见经典论文）
+
+- **协作规划**：
+  - 共享心智模型：机器人与人类对任务的共同理解
+  - 预测人类动作：在协作环境中避免冲突
+
+**代表性工作**：
+- **AskToAct**：主动澄清机制
+- **Yell At Your Robot**：实时语言纠正
+- **π*0.6**：整合人类干预的在线学习
+
+**未来方向**：
+- **预测式协作**：预测人类下一步动作，主动辅助
+- **情境感知安全**：根据环境动态调整安全边界
+- **自然多模态交互**：语言+手势+视觉指向的融合理解
 
 ---
 
@@ -402,52 +858,285 @@ VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世�
 
 **核心问题**：管理多源异构数据整合，建立标准化评测基准。
 
+<div align="center">
+  <img src="/images/vla-data-benchmark.png" width="100%" />
+<figcaption>
+数据构建与评测标准：多源异构数据整合 + 标准化评测体系
+</figcaption>
+</div>
+
 #### 5.1 多源异构数据整合
 
-**问题描述**：有效整合来自不同机器人平台、不同任务、不同采集方式的数据。
+**问题描述**：有效整合来自不同机器人平台、不同任务、不同采集方式的数据。数据是VLA的基石，但异构性是最大挑战。
+
+**三大层面**：
+
+**（1）表示层统一对齐**
+
+- **离散动作表示**：
+  - LAPA, Moto, UniVLA：统一的动作token化方案
+  - 跨平台的动作空间标准化
+
+- **共享语义空间**：
+  - RDT-1B：扩散Transformer学习跨机器人表示
+  - AgiBot World：大规模统一语义空间
+  - Scaling Cross-Embodied Learning：形态无关表示
+
+- **多模态对齐**：
+  - RT-1, GR-2：视觉-动作对齐
+  - ViSA-Flow：视觉-空间-动作三元对齐
+  - Humanoid-VLA：全身控制的多模态对齐
+
+**（2）数据层增强与优化**
+
+- **生成增强**：
+  - CACTI：扩散修补生成多样场景
+  - GenAug：文本到图像合成
+  - ROSIE：VLM知识蒸馏
+  - Residual RL Data Generation：通过残差RL生成数据
+
+- **混合优化**：
+  - Re-Mix：自适应采样权重平衡异构数据源
+
+**（3）标准化与基准构建**
+
+- **统一采集协议**：
+  - RH20T：严格时间对齐的多模态数据（视觉+触觉+音频）
+  - BridgeData V2：标准化的桌面操作数据
+
+- **模拟标准化环境**：
+  - RoboCasa：家庭环境仿真基准
+  - CoVLA：跨机器人仿真平台
+
+- **人类中心多视角**：
+  - Ego4D：3700小时第一人称视频
+  - EPIC-KITCHENS：厨房活动数据集
+  - Ego-Exo4D：同步的自我-外部视角
+
+- **跨域标准化**：
+  - Open X-Embodiment：60+数据集，970k轨迹，22种机器人
+  - RoboMM：多模态跨机器人数据
 
 **关键技术**：
 - **统一数据格式**：设计通用的数据表示标准
-- **大规模数据聚合**：整合海量机器人轨迹（如WALL-OSS超过10000小时）
+- **大规模数据聚合**：整合海量机器人轨迹
 - **数据质量控制**：筛选和清洗低质量数据
 
 **代表性工作**：
+- **Open X-Embodiment**：最大规模的跨机器人数据集
 - **WALL-OSS**：聚合超过10000小时的自收集机器人轨迹
-- **Open X-Embodiment**：跨机器人数据集标准
+- **RH20T**：高质量多模态时间对齐数据
+- **RDT-1B**：billion规模的扩散Transformer，统一表示
 
 #### 5.2 评测基准与标准化指标
 
-**问题描述**：建立公平、全面、标准化的VLA评测体系。
+**问题描述**：建立公平、全面、标准化的VLA评测体系。缺乏统一评测标准导致模型难以比较。
+
+**三大方向**：
+
+**（1）全面性与标准化**
+
+- **统一评测框架**：
+  - Benchmarking VLAs：统一输入/输出接口、标准化指标、多机器人支持
+  - 消除实现细节差异，公平比较
+
+- **多维度评分**：
+  - EUQ (Evaluating Uncertainty and Quality)：人类评估的多维评分
+  - 超越简单成功率，评估执行质量
+
+- **基础设施**：
+  - ManiSkill3：GPU并行，支持大规模评测
+  - robosuite：模块化仿真框架
+
+**（2）任务广度与深度扩展**
+
+- **长视距序列**：
+  - CALVIN：连续多任务执行，评估长期规划
+  - 5个连续任务成功率作为核心指标
+
+- **终身学习**：
+  - LIBERO：130个任务，4个套件（Spatial, Object, Goal, Long）
+  - 评估技能保留和前向/后向迁移
+
+- **多视角同步**：
+  - Ego-Exo4D：自我+外部视角，评估多视角理解
+
+- **多维对象/语言复杂度**：
+  - From Intention to Execution (VLABench)：分离意图理解和执行能力
+  - Intention Score + Progress Score双指标
+
+- **零样本多语言**：
+  - SimplerEnv-Instruct：80个零样本任务，多语言指令
+
+**（3）真实场景转仿真**
+
+- **神经重建**：
+  - PolaRiS：将真实视频转化为交互式仿真环境
+  - 提供可控的评测环境
 
 **关键技术**：
-- **终身学习基准**：首个终身机器人基准与标准化指标（如LIBERO）
-- **真实场景转仿真**：通过神经重建将真实视频转化为交互仿真环境（如PolaRiS）
-- **多维度评估**：成功率、泛化能力、鲁棒性、效率等
+- **终身学习基准**：LIBERO的4个难度递增套件
+- **真实场景转仿真**：通过神经重建将真实视频转化为交互仿真环境
+- **多维度评估**：成功率、泛化能力、鲁棒性、效率、意图理解
 
 **代表性工作**：
-- **LIBERO**：首个终身机器人学习基准
-- **PolaRiS**：将视频扫描转化为交互式仿真环境
-- **SIMPLER**：标准化VLA评测平台
+- **LIBERO**：首个终身机器人学习基准，130个任务
+- **CALVIN**：长时序多任务基准
+- **VLABench (Intention to Execution)**：分离意图和执行的评测
+- **SimplerEnv**：标准化VLA评测平台，80个零样本任务
+- **PolaRiS**：真实场景神经重建
+- **ManiSkill3**：GPU并行高效评测
+
+**未来方向**：
+- **Simulation-First, Failure-Centric Paradigm**：以失败为核心的评测
+- **Turn Failure into Signal**：将失败轨迹用于对比学习
+- **Comprehensive Diagnostic Stress Testing**：超越二元成功率的细粒度诊断
 
 #### 5.3 数据高效学习
 
-**问题描述**：在有限数据下实现高性能，降低数据收集成本。
+**问题描述**：在有限数据下实现高性能，降低数据收集成本。真实机器人数据获取昂贵且耗时。
 
-**关键技术**：
-- **数据增强**：自动生成多样化训练样本
-- **主动学习**：选择最有价值的数据进行标注
-- **迁移学习**：利用预训练知识减少对任务特定数据的需求
+**三大策略**：
+
+**（1）数据增强**
+- **视觉增强**：
+  - CACTI：扩散修补生成多样化背景
+  - GenAug：文本到图像生成
+  - 颜色、光照、遮挡变化
+
+- **轨迹增强**：
+  - 时间插值、噪声注入
+  - 反向轨迹生成
+
+**（2）主动学习**
+- **选择最有价值的数据**：
+  - 不确定性采样
+  - 多样性采样
+  - 优先标注难例
+
+**（3）迁移学习**
+- **预训练知识利用**：
+  - VLM预训练（CLIP, SigLIP）
+  - 人类视频预训练（Ego4D, GR-2）
+  - 跨机器人迁移（Octo, RoboCat）
+
+- **少样本微调**：
+  - 适配器方法：轻量化微调
+  - LoRA, AdaLoRA等参数高效微调
+
+**代表性工作**：
+- **CACTI**：扩散增强数据生成
+- **Octo**：10次演示实现新任务适应
+- **ROSIE**：VLM知识蒸馏减少数据需求
+
+**未来方向**：
+- **自监督预训练**：利用大规模无标注视频
+- **主动数据收集**：机器人自主选择探索策略
+- **合成到真实**：完全在合成数据上训练，零样本迁移到真实
+
+## VLA架构分类：End-to-End vs Hierarchical
+
+VLA模型可以从架构层面分为两大类：端到端统一模型和层级架构模型。这种分类反映了不同的设计哲学和应用场景。
+
+<div align="center">
+  <img src="/images/vla-architecture-comparison.png" width="100%" />
+<figcaption>
+End-to-End架构 vs Hierarchical架构对比
+</figcaption>
+</div>
+
+### End-to-End Architecture（端到端架构）
+
+**核心思想**：直接从视觉+语言输入映射到动作输出，单一神经网络统一学习感知-决策-控制。
+
+**主要特点**：
+- **简洁统一**：单一损失函数，联合优化所有组件
+- **隐式推理**：推理过程隐藏在神经网络内部
+- **高度集成**：无需显式的中间表示
+
+**代表模型**：
+
+| 模型 | 动作解码器 | 参数规模 | 特点 |
+|------|-----------|---------|------|
+| **OpenVLA** | 离散token化 | 7B | 首个开源大规模VLA |
+| **π0** | Flow Matching | 3B (VLM) + 860M (Action) | 50Hz实时控制 |
+| **Diffusion Policy** | DDPM | - | 多模态动作分布 |
+| **RDT-1B** | Diffusion Transformer | 1B | 大规模扩散VLA |
+| **SPECI** | 离散化 | - | 专门优化的编码 |
+| **VIMA** | 自回归 | - | 多模态prompt |
+
+**优势**：
+- 更简洁的学习目标
+- 更好的感知-控制对齐
+- 适合短时域任务
+
+**劣势**：
+- 长视距任务推理能力有限
+- 缺乏可解释性
+- 难以处理复杂任务分解
+
+---
+
+### Hierarchical Architecture（层级架构）
+
+**核心思想**：分离高层规划和低层执行，VLM负责推理和任务分解，小型控制器负责具体动作生成。
+
+**主要特点**：
+- **显式推理**：语言作为高层规划的中间表示
+- **模块化设计**：规划器和执行器独立训练和优化
+- **可解释性强**：推理步骤可追溯
+
+**代表模型**：
+
+| 模型 | 高层规划 | 低层执行 | 特点 |
+|------|---------|---------|------|
+| **π0.5** | 增强推理VLM | Flow Matching | 多步骤推理链 |
+| **RT-H** | VLM子任务分解 | RT-1 | 层级任务执行 |
+| **Hi Robot** | VLM规划器 | VLA执行器 | 两层显式分离 |
+| **HiRT** | 高层策略 | RT-based低层 | 时间抽象 |
+| **HAMSTER** | 语言规划 | 视觉-运动控制 | 混合架构 |
+| **LoHoVLA** | 端到端学习的层级 | - | 隐式层级结构 |
+
+**优势**：
+- 更好的长视距推理能力
+- 可解释的决策过程
+- 灵活的任务分解
+
+**劣势**：
+- 训练复杂度更高
+- 可能存在规划-执行不一致
+- 依赖高质量的子任务标注
+
+---
+
+### 混合趋势
+
+最新研究表明，纯端到端和纯层级架构各有优劣，混合方法成为新趋势：
+
+**（1）端到端学习的层级表示**：
+- LoHoVLA：通过辅助损失学习隐式层级结构
+- 保持端到端训练的简洁性，获得层级推理能力
+
+**（2）可切换架构**：
+- 简单任务：端到端快速执行
+- 复杂任务：激活层级推理模块
+
+**（3）注意力引导的隐式层级**：
+- ACoT-VLA：动作空间的推理链（详见经典论文章节）
+- 在动作层面进行显式推理，保持统一架构
+
+---
 
 ## VLA研究发展趋势
 
 <div align="center">
-  <img src="https://vla-survey.github.io/static/images/timeline.png" width="100%" />
+  <img src="/images/vla-evolution-timeline.png" width="100%" />
 <figcaption>
-VLA研究时间线（参考自VLA Survey）
+VLA研究时间线：从模块化到端到端再到混合架构的演进（2022-2026）
 </figcaption>
 </div>
 
-从整体发展脉络来看，VLA研究经历了从模块化系统到端到端模型的重要转变。
+从整体发展脉络来看，VLA研究经历了从模块化系统到端到端模型，再到端到端与层级混合的重要转变。
 
 ### 1. 早期阶段：基于VLM的机器人控制探索（2022-2023初）
 
@@ -948,23 +1637,56 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 
 ### Open X-Embodiment Dataset
 
+<div align="center">
+  <img src="/images/open-x-embodiment.png" width="90%" />
+<figcaption>
+Open X-Embodiment: 22种机器人，60+数据集，970k轨迹的跨具身形态数据集
+</figcaption>
+</div>
+
 **基本信息：**
 - **发布时间**：2023年10月
-- **数据规模**：970k条真实机器人轨迹
-- **机器人平台**：22种不同的机器人
-- **任务类型**：多样化的操作任务
+- **数据规模**：970k条真实机器人轨迹，60+个数据集
+- **机器人平台**：22种不同的机器人（单臂、双臂、移动操作、人形等）
+- **任务类型**：多样化的操作任务（抓取、放置、组装、厨房任务等）
 
 **数据特点**：
-- 跨机器人、跨任务的统一格式
-- 包含视觉观察、语言指令和动作轨迹
-- 支持跨具身形态的泛化研究
+- **跨机器人统一格式**：RLDS (Reinforcement Learning Datasets)标准
+- **多模态观察**：RGB图像、深度图、本体感觉
+- **语言标注**：自然语言任务描述
+- **动作表示**：统一的动作空间定义
+- **支持跨具身形态泛化研究**
+
+**核心贡献**：
+- 首个大规模跨机器人数据集
+- 定义了机器人数据集的事实标准
+- 催生了RT-X、OpenVLA等一系列跨机器人模型
 
 **应用模型**：
-- RT-X
-- OpenVLA
-- 多数最新的VLA模型
+- RT-X：在OXE上训练的跨机器人策略
+- OpenVLA：7B参数开源VLA模型
+- Octo：通用机器人策略
+- DexVLA、RDT-1B等最新VLA模型
 
 **获取方式**：https://robotics-transformer-x.github.io/
+
+---
+
+### EO-1 Dataset
+
+**基本信息**：
+- **数据规模**：1.5M轨迹（EO-Data）
+- **特点**：超大规模预训练数据集
+- **应用**：EO-1模型的预训练
+
+---
+
+### WALL-OSS Dataset
+
+**基本信息**：
+- **数据规模**：超过10,000小时自收集机器人轨迹
+- **特点**：自主收集的大规模数据
+- **应用**：大规模分层规划系统
 
 ---
 
@@ -1054,21 +1776,62 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 
 ## 真实世界数据集
 
-### Bridge Dataset
+### Bridge Dataset (BridgeData V2)
 
 **基本信息：**
 - **发布时间**：2023年
 - **数据规模**：60k条真实机器人轨迹
 - **机器人平台**：WidowX 250机械臂
+- **环境**：多样化的真实场景（办公室、厨房等）
 
 **数据特点**：
 - 多样化的桌面操作任务
 - 真实办公和家庭场景
 - 人类遥操作演示
+- 高质量的标注和清洗
+
+**V2更新**：
+- 标准化采集流程
+- 改进的数据质量控制
+- 更丰富的场景多样性
 
 **应用**：
 - 模仿学习研究
 - Sim-to-Real转移
+- 包含在Open X-Embodiment中
+
+**官网**：https://rail-berkeley.github.io/bridgedata/
+
+---
+
+### RH20T Dataset
+
+**基本信息**：
+- **发布时间**：2024年
+- **特点**：严格时间对齐的多模态数据
+- **模态**：视觉 + 触觉 + 音频 + 动作
+
+**数据特点**：
+- **微秒级时间同步**：所有传感器严格对齐
+- **多模态融合**：RGB-D、触觉传感、音频
+- **高频采集**：支持精细操作的高频数据
+
+**应用**：
+- 多模态VLA训练（Tactile-VLA, OmniVTLA等）
+- 触觉感知研究
+
+---
+
+### DROID Dataset
+
+**基本信息**：
+- **发布时间**：2024年
+- **数据规模**：76k条真实机器人操作轨迹
+- **特点**：大规模in-the-wild数据
+
+**应用**：
+- 真实环境操作研究
+- 鲁棒性评估
 
 ---
 
@@ -1112,20 +1875,95 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 
 ## 评测基准
 
-### SIMPLER (Simulation Platform for Embodied Learning and Evaluation Research)
+### SIMPLER / SimplerEnv (Simulation Platform for Embodied Learning and Evaluation Research)
 
 **基本信息**：
-- **发布时间**：2025年
+- **发布时间**：2024-2025年
 - **目标**：标准化的VLA评测框架
 
 **评测内容**：
+- **SimplerEnv-Instruct**：80个零样本任务，多语言指令支持
 - 跨任务泛化
 - 跨环境泛化
 - 鲁棒性测试
 
+**特点**：
+- 统一的输入输出接口
+- 标准化的评测指标
+- 支持多种机器人平台
+
 **应用**：
 - ICLR 2026等会议广泛使用
 - 比较不同VLA模型的性能
+- π0, OpenVLA等模型的官方评测平台
+
+**官网**：https://simpler-env.github.io/
+
+---
+
+### VLABench (From Intention to Execution)
+
+**基本信息**：
+- **发布时间**：2025年
+- **目标**：分离评测VLA的意图理解和执行能力
+
+**核心指标**：
+- **Intention Score (IS)**：评估指令理解的准确性
+- **Progress Score (PS)**：评估任务执行进度
+- 双指标分离意图和执行两个维度
+
+**评测维度**：
+- Seen objects (已见物体)
+- Unseen objects (未见物体)
+- Unseen colors (未见颜色)
+- Unseen textures (未见纹理)
+- Unseen scenes (未见场景)
+
+**特点**：
+- 细粒度诊断VLA能力边界
+- 超越二元成功率的多维评估
+
+**应用**：
+- ACoT-VLA等最新模型的评测
+- 识别模型的弱点和改进方向
+
+---
+
+### ManiSkill3
+
+**基本信息**：
+- **发布时间**：2024年
+- **特点**：GPU并行高性能仿真器
+
+**技术特点**：
+- **GPU加速**：大规模并行仿真
+- **域随机化**：自动生成多样化场景
+- **物理精度**：高保真物理模拟
+- **渲染质量**：逼真的视觉渲染
+
+**应用**：
+- 大规模数据生成
+- 快速策略评估
+- Sim-to-Real研究
+
+**官网**：https://maniskill.ai/
+
+---
+
+### RoboCasa
+
+**基本信息**：
+- **发布时间**：2024年
+- **环境**：标准化的家庭环境仿真
+
+**特点**：
+- 丰富的厨房场景
+- 多样的家庭物品
+- 标准化的任务定义
+
+**应用**：
+- 家庭机器人评测
+- 长时程任务研究
 
 ---
 
@@ -1151,7 +1989,7 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 
 
 
-### RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control (2023)
+## RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control (2023)
 
 
 
@@ -1163,7 +2001,7 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 
 
 
-### Diffusion Policy: Visuomotor Policy Learning via Action Diffusion (2023)
+## Diffusion Policy: Visuomotor Policy Learning via Action Diffusion (2023)
 
 
 
@@ -1175,7 +2013,7 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 
 
 
-### OpenVLA: An Open-Source Vision-Language-Action Model (2024)
+## OpenVLA: An Open-Source Vision-Language-Action Model (2024)
 
 
 
@@ -1187,7 +2025,7 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 
 
 
-### RT-X / Open X-Embodiment Dataset (2023)
+## RT-X / Open X-Embodiment Dataset (2023)
 
 
 
@@ -1382,16 +2220,11 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 - [GitHub repository](https://github.com/Physical-Intelligence/openpi)
 - [InfoQ coverage](https://www.infoq.com/news/2024/12/pi-zero-robot/)
 
-### π₀.5 (Pi-Zero.5): Enhancing Universal Policy with Multimodal Reasoning (2025)
+## π₀.5 (Pi-Zero.5): Enhancing Universal Policy with Multimodal Reasoning (2025)
 
 
 
 **核心贡献**: 作为π₀的升级版本，π₀.5进一步增强了多模态推理能力，融合了更丰富的视觉和语言信息，提升了机器人在复杂指令理解和精细操作任务中的表现。
-
-
-
-
-
 
 
 ---
@@ -1497,43 +2330,96 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 
 最新突破涵盖了近年来在VLA领域的关键技术创新和性能飞跃，代表了当前研究的前沿方向，如更强的推理能力、更高的执行效率、更可靠的安全性以及对物理世界更深入的理解。
 
-### 规划与推理增强
+## 1. ACoT-VLA (2026)
+———Action Chain-of-Thought for Vision-Language-Action Models
 
-- **CoT-VLA**: 引入链式思考（Chain-of-Thought）增强VLA的规划与失败恢复能力。
-- **EToT (Embodied Thought)**: 利用基于物理的交互式数字孪生作为具身世界模型，进行更可靠的规划。
-- **WALL-OSS**: 聚合超过10000小时的机器人数据，实现大规模分层规划系统。
-- **MoE-DP**: 集成混合专家层（Mixture of Experts）将长时序任务分解为专门技能。
-- **ECoT (Editable CoT)**: 提供可编辑的逐步推理链，允许用户通过语言修正模型的决策过程。
+📄 **Paper**: https://arxiv.org/abs/2601.11404
 
-### 多模态对齐与世界模型
+**精华**
+这篇论文的核心创新在于将推理过程从语言/视觉空间转移到动作空间，值得借鉴的点包括：(1) 直接在动作空间进行推理，提供同质化的运动指导，弥合语义与运动学之间的鸿沟；(2) 显式推理器(EAR)与隐式推理器(IAR)的互补设计，同时提供轨迹级和语义级指导；(3) Teacher Forcing稳定化训练策略，避免推理模块对动作头的优化干扰；(4) 通过action-level guidance大幅提升长时域任务的鲁棒性和误差抗累积能力。
+<div align="center">
+  <img src="/images/ACoT-VLA-paradigm-comparison.png" width="60%" />
+<figcaption>
+不同CoT范式对比：(a) 语言CoT预测子任务，(b) 视觉CoT合成目标图像，(c) 本文提出的动作CoT直接在动作空间提供同质化指导
+</figcaption>
+</div>
 
-- **VoxPoser**: 生成3D可供性图（Affordance Maps）作为连接语言和动作的强中间表示。
-- **OccLLaMA**: 利用3D占据网络（Occupancy Networks）增强VLA对三维空间的理解能力。
-- **VideoVLA**: 使用视频条件的世界模型学习物理动力学，预测动作对环境的影响。
-- **InternVLA-M1**: 结合空间接地预训练和空间引导的动作后训练，提升泛化能力。
-- **ProphRL**: 在多样化机器人数据上预训练统一的动作条件世界模型。
-- **Point-VLA**: 通过边界框等显式视觉线索解决指代歧义，实现更精确的物体接地。
+**研究背景/问题**
+现有VLA模型主要在视觉-语言空间进行推理（如语言CoT预测子任务、视觉CoT合成目标图像），但这些推理形式对动作执行的指导是间接且次优的。VLM预训练主要聚焦语义理解而非物理动力学，世界模型虽能预测未来视觉状态但仍局限于视觉表征，两者都存在语义-运动学鸿沟（semantic-kinematic gap），难以为精确的低层动作生成提供充分的细粒度指导。
 
-### 轻量化与高效执行
+**主要方法/创新点**
 
-- **SmolVLA**: 450M参数的轻量化VLA，为在资源受限设备上实时推理提供了可能。
-- **OFT**: 优化的微调方法，在不牺牲性能的前提下实现25-50倍的推理加速。
-- **FAST Action Tokenizer**: 通过压缩动作块，将动作序列编码为更少的token，实现15倍推理加速。
-- **Octo**: 开源的通用机器人策略模型，支持多任务和跨机器人泛化，具有灵活的微调接口。
+本文提出 **Action Chain-of-Thought (ACoT)** 范式，将推理过程重新定义为结构化的动作意图序列，直接在动作空间进行deliberation。ACoT-VLA框架包含三个核心组件：
 
-### 安全性与可靠性
 
-- **VLSA-AEGIS**: 基于控制屏障函数（CBF）实现即插即用的安全约束层，提供形式化安全保证。
-- **RationalVLA**: 训练模型学习一个可拒绝的token，使其能够主动识别并拒绝不安全或无效的指令。
+<div align="center">
+  <img src="/images/ACoT-VLA-architecture.png" width="100%" />
+<figcaption>
+ACoT-VLA整体架构，包含EAR、IAR和Action-Guided Prediction三大模块
+</figcaption>
+</div>
 
-### 数据与基准
+**1. Explicit Action Reasoner (EAR)**
+- 设计为轻量级Transformer，以noisy action sequence作为输入
+- 通过self-attention捕获时序依赖，cross-attention从VLM的key-value cache注入多模态上下文
+- 采用flow matching训练，自主生成粗粒度参考轨迹 $a^{ref}_{t:t+H^{ref}-1}$
+- 参考轨迹编码后形成显式动作空间指导 $Z^{ex}$
 
-- **LIBERO**: 首个为终身机器人学习（Lifelong Learning）设计的基准，包含标准化评测指标。
-- **PolaRiS**: 通过神经重建技术将真实视频扫描转化为可交互的仿真环境，极大地丰富了仿真数据的来源。
-- **SIMPLER**: 标准化的VLA评测平台，支持对模型的泛化能力、鲁棒性等多维度进行评估。
+**2. Implicit Action Reasoner (IAR)**
+- 直接操作VLM的key-value cache，提取隐式运动线索
+- 对每层VLM特征，使用可学习query矩阵 $Q_i$ 通过cross-attention提取动作相关信息
+- 下采样策略降低计算开销：将KV cache降维至 $d' \ll d$
+- 跨层聚合后形成隐式动作指导 $Z^{im}$，捕获visual affordances和action semantics
 
----
-**注**：由于VLA领域发展迅速，更多最新论文请参考相关会议论文集（ICLR、CoRL、RSS、ICRA等）以及[VLA-Survey-Anatomy](https://github.com/SuyuZ1/VLA-Survey-Anatomy)等开源项目。
+**3. Action-Guided Prediction (AGP)**
+- 将noisy action embedding视为query $Q_{action}$，与 $Z^{ex}$ 和 $Z^{im}$ 进行dual cross-attention
+- 通过self-attention融合显式与隐式指导：$\bar{h} = \text{Self-Attn}([S^{ex}; S^{im}])$
+- 最终action head $\pi^{head}_\theta$ 基于聚合表征预测去噪动作序列
+
+**训练策略**：
+- Flow matching损失同时优化EAR和action head
+- Teacher Forcing稳定化：训练时 $Z^{ex}$ 直接从ground-truth轨迹计算，推理时切换为自条件模式
+
+
+**核心结果/发现**
+
+**仿真实验**：
+- LIBERO: 98.5%平均成功率（SOTA），相比π0.5提升1.6%，在LIBERO-Long（长时域）提升最显著（96.0% vs 92.4%）
+- LIBERO-Plus: 84.1%，在鲁棒性测试中大幅超越，尤其在相机视角变化(+11.6%)、机器人初始状态扰动(+16.3%)、传感器噪声(+12.5%)上表现突出
+- VLABench: Intention Score 63.5%、Progress Score 47.4%，在unseen-texture track上获得+12.6% IS和+7.2% PS的显著提升
+
+
+**真实世界部署**：
+
+
+- 在AgiBot G1机器人上平均成功率66.7%（vs π0.5的61.0%、π0的33.8%）
+- 跨embodiment验证：在AgileX平台上同样有效，证明方法的通用性
+
+<div align="center">
+  <img src="/images/ACoT-VLA-real-world-tasks.png" width="90%" />
+<figcaption>
+真实世界三项操作任务：擦拭污渍、倒水、开放集抓取
+</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/ACoT-VLA-real-world-results.png" width="100%" />
+<figcaption>
+真实世界实验结果对比
+</figcaption>
+</div>
+
+**消融研究关键发现**：
+- EAR单独使用提升1.4%（LIBERO），IAR单独提升1.2%
+- EAR+IAR联合使用达到最优，证明显式与隐式指导的互补性
+- 参考动作horizon在15-30时效果最佳，过长或过短均不利
+- EAR参数量在300M时性能最优，过度参数化反而导致过拟合
+- 推理延迟仅增加约20ms（91ms→112ms），性能-效率权衡优秀
+
+**局限性**
+该方法需要额外的推理模块，虽然计算开销相对较小但在资源受限平台上可能存在挑战。此外，当前动作表征仍采用action chunks（关节角度/末端执行器位姿），缺乏显式几何结构，未来可将动作表征扩展至几何可解释的3D空间，进一步释放ACoT的推理潜力。
+
+
 
 ---
 
@@ -1543,7 +2429,8 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 
 ### 学术综述
 
-- [VLA-Survey-Anatomy](https://github.com/SuyuZ1/VLA-Survey-Anatomy) - **挑战驱动的VLA分类法**，本文的主要参考资源之一
+- **[An Anatomy of Vision-Language-Action Models (2512.11362v3)](https://arxiv.org/abs/2512.11362)** - IEEE TPAMI 2025，**本文的核心参考综述**，提出挑战驱动的分类法，系统梳理五大核心问题
+- [VLA-Survey-Anatomy GitHub](https://github.com/SuyuZ1/VLA-Survey-Anatomy) - 上述综述的项目页面，持续更新
 - [Vision-Language-Action Models for Robotics: A Review Towards Real-World Applications](https://vla-survey.github.io/) - 面向真实世界应用的系统性综述
 - [Multimodal fusion with vision-language-action models for robotic manipulation: A systematic review](https://www.sciencedirect.com/science/article/pii/S1566253525011248) - ScienceDirect 2025年发表的系统综述
 - [10 Open Challenges Steering the Future of Vision-Language-Action Models](https://arxiv.org/abs/2511.05936) - 未来十大开放挑战
@@ -1557,9 +2444,17 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 
 ### 主要VLA模型
 
-- [OpenVLA](https://github.com/openvla/openvla) - 7B参数开源VLA模型（斯坦福）
+**开源模型**：
+- [OpenVLA](https://github.com/openvla/openvla) - 7B参数开源VLA模型（斯坦福大学）
+- [π0 (openpi)](https://github.com/Physical-Intelligence/openpi) - Physical Intelligence的Flow Matching VLA
+- [Octo](https://octo-models.github.io/) - 通用机器人策略
+- [LeRobot](https://github.com/huggingface/lerobot) - Hugging Face的机器人学习库，整合多种VLA模型
 - [Large VLM-based VLA for Robotic Manipulation](https://github.com/JiuTian-VL/Large-VLM-based-VLA-for-Robotic-Manipulation) - 大规模VLM-based VLA列表
-- [LeRobot](https://learnopencv.com/vision-language-action-models-lerobot-policy/) - Hugging Face的机器人学习库
+
+**商业/闭源模型**：
+- RT-2, RT-X - Google DeepMind
+- π0.5, π*0.6 - Physical Intelligence
+- Gemini Robotics - Google
 
 ### 工具与框架
 
@@ -1630,17 +2525,141 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 
 ---
 
-# 总结
+# 总结与展望
 
-Vision-Language-Action (VLA) 模型代表了机器人技术的重要范式转变，通过统一视觉、语言和行动三个模态，实现了从自然语言指令到机器人控制的端到端学习。自2023年RT-2开创这一方向以来，VLA研究取得了快速进展，在模型架构、训练方法、数据集和评测基准等方面都有重要突破。
+Vision-Language-Action (VLA) 模型代表了机器人技术的重要范式转变，通过统一视觉、语言和行动三个模态，实现了从自然语言指令到机器人控制的端到端学习。自2022年RT-1和2023年RT-2开创这一方向以来，VLA研究取得了爆发式进展。
 
-当前VLA研究正朝着以下方向发展：
-1. **通用化**：从单一任务向多任务、跨机器人的通用模型演进
-2. **高效化**：通过模型压缩、架构优化实现实时部署
-3. **智能化**：集成推理能力，处理更复杂的长时序任务
-4. **实用化**：缩小sim-to-real差距，走向真实世界应用
+## 核心成就
 
-随着大规模预训练模型、高质量机器人数据集和先进训练方法的发展，VLA模型有望成为下一代智能机器人的"大脑"，推动具身智能进入新的发展阶段。
+**架构创新**：
+- 从模块化系统演进到端到端统一模型
+- 端到端与层级架构的混合趋势
+- 动作表示从离散token到扩散模型再到Flow Matching的演进
+
+**规模扩大**：
+- 模型参数从130M (RT-1) 到7B (OpenVLA) 再到billion级 (DexVLA, RDT-1B)
+- 数据规模从130k轨迹到970k (OXE) 再到1.5M+ (EO-Data)
+- 支持的机器人从单一平台扩展到22+种形态
+
+**能力提升**：
+- 零样本泛化能力大幅提升
+- 推理能力增强（CoT-VLA, ACoT-VLA, π0.5）
+- 实时性改善（SmolVLA 450M, Evo-1 77M, FAST 15x加速）
+- 多模态感知（触觉、力传感、3D空间表示）
+
+**标准建立**：
+- 数据集标准（RLDS, Open X-Embodiment）
+- 评测基准（LIBERO, CALVIN, SimplerEnv, VLABench）
+- 开源生态（OpenVLA, LeRobot, ManiSkill3）
+
+## 五大核心挑战的进展与未来
+
+### 1. 表示（Representation）
+
+**当前进展**：
+- 多模态对齐方法日益成熟（对比学习、共享语义空间）
+- 3D空间表示突破（点云、体素、4D轨迹）
+- 世界模型快速发展（观察空间/潜在空间预测）
+
+**未来方向**：
+- 原生多模态架构（所有模态统一token化）
+- 混合潜在-物理-语义世界模型
+- 因果世界模型显式建模动作-结果关系
+
+### 2. 执行（Execution）
+
+**当前进展**：
+- 推理增强VLA（CoT, ACoT）
+- 层级规划方法成熟（语言/视觉/技能驱动）
+- 实时性大幅提升（轻量模型、高效解码）
+
+**未来方向**：
+- 自适应架构（根据任务难度动态调整）
+- 统一决策Token（see-think-act一体化）
+- 自主性闭环（自感知、自纠正、自改进）
+
+### 3. 泛化（Generalization）
+
+**当前进展**：
+- 跨机器人预训练成为标准
+- 人类视频知识迁移有效
+- Sim-to-Real差距缩小
+- 在线RL与VLA结合（π*0.6）
+
+**未来方向**：
+- 形态无关表示（真正的跨具身迁移）
+- 零样本跨形态部署
+- 自主开放式进化（部署-发现-进化闭环）
+
+### 4. 安全（Safety）
+
+**当前进展**：
+- 基于约束和学习对齐的双范式
+- 可学习拒绝机制（RationalVLA）
+- 层级架构提供天然可解释性
+
+**未来方向**：
+- 内在不确定性感知（System 2反思）
+- 主动风险规避
+- 交互式安全（可介入的透明性）
+- 共享心智模型
+
+### 5. 数据与评测（Data & Evaluation）
+
+**当前进展**：
+- 大规模跨机器人数据集（OXE, EO-Data）
+- 标准化评测框架（SimplerEnv, VLABench）
+- 多维度评估指标
+
+**未来方向**：
+- Simulation-First范式（模拟为主要数据源）
+- Failure-Centric评测（失败作为信号）
+- 细粒度诊断测试（超越二元成功率）
+
+## VLA研究的发展趋势
+
+**1. 从通用VLA到通用具身基础模型**
+- 支持全身协调（人形机器人、四足机器人）
+- 移动操作一体化
+- 跨任务、跨场景、跨形态的统一模型
+
+**2. 从模仿学习到自主学习**
+- 在线强化学习成为主流
+- 自主数据收集和探索
+- 从人类反馈中持续改进
+
+**3. 从单体智能到协作智能**
+- 多机器人协作
+- 人机协作交互
+- 预测式协作
+
+**4. 从实验室到真实世界**
+- 生产级可靠性
+- 长时间稳定运行
+- 商业化部署（家庭、工业、服务）
+
+**5. 从数据驱动到知识驱动**
+- 整合符号推理
+- 物理常识先验
+- 因果理解能力
+
+## 关键开放问题
+
+1. **如何实现真正的开放世界泛化？** 当前模型仍依赖有限的训练分布
+2. **如何在保持性能的同时大幅降低计算开销？** 实时性vs准确性的权衡
+3. **如何建立形式化的安全保证？** 超越启发式的数学验证
+4. **如何实现持续终身学习？** 无遗忘的增量技能获取
+5. **如何从少量演示快速适应新任务？** 真正的少样本学习
+6. **如何整合符号推理和神经感知？** 神经-符号混合系统
+7. **如何实现人机共享的心智模型？** 机器人理解人类意图，人类预测机器人行为
+
+## 结语
+
+VLA领域正处于快速发展期，ICLR 2026收录的164篇VLA论文标志着这一领域的爆发式增长。从RT-1的模块化系统，到RT-2的VLM转VLA，再到OpenVLA的开源生态，π0的Flow Matching创新，以及ACoT-VLA的动作空间推理，每一步都在推动具身智能向前发展。
+
+随着大规模预训练模型、高质量机器人数据集、先进训练方法和标准化评测体系的不断完善，VLA模型有望成为下一代智能机器人的"大脑"。我们正站在通用具身智能的门槛上，未来的机器人将能够像人类一样理解世界、规划任务、精确执行，并在真实环境中持续学习和进化。
+
+VLA不仅是技术突破，更代表了机器人研究范式的根本转变——从手工设计到数据驱动，从任务特定到通用能力，从离线学习到在线适应，从单一模态到多模态融合。这一转变正在重新定义机器人技术的未来。
 
 ---
 
@@ -1648,14 +2667,39 @@ Vision-Language-Action (VLA) 模型代表了机器人技术的重要范式转变
 
 ---
 
-## Sources
+## 主要参考文献
 
-本文参考了以下资料：
-
-- [State of Vision-Language-Action (VLA) Research at ICLR 2026 – Moritz Reuss](https://mbreuss.github.io/blog_post_iclr_26_vla.html)
-- [Multimodal fusion with vision-language-action models for robotic manipulation: A systematic review](https://www.sciencedirect.com/science/article/pii/S1566253525011248)
+### 核心综述论文
+- **Xu et al. (2025)** - An Anatomy of Vision-Language-Action Models: From Modules to Milestones and Challenges. *IEEE TPAMI Preprint*. [arXiv:2512.11362v3](https://arxiv.org/abs/2512.11362)
 - [Vision-Language-Action Models for Robotics: A Review Towards Real-World Applications](https://vla-survey.github.io/)
-- [OpenVLA: An Open-Source Vision-Language-Action Model](https://openvla.github.io/)
+- [Multimodal fusion with vision-language-action models for robotic manipulation: A systematic review](https://www.sciencedirect.com/science/article/pii/S1566253525011248) - *Information Fusion*, 2025
+
+### 奠基性论文
+- **RT-1** (2022) - Robotics Transformer for Real-World Control at Scale
+- **RT-2** (2023) - Vision-Language-Action Models Transfer Web Knowledge to Robotic Control
+- **Diffusion Policy** (2023) - Visuomotor Policy Learning via Action Diffusion
+- **OpenVLA** (2024) - An Open-Source Vision-Language-Action Model
+- **RT-X / Open X-Embodiment** (2023) - Open X-Embodiment: Robotic Learning Datasets and RT-X Models
+
+### 最新突破
+- **π0** (2024) - A Vision-Language-Action Flow Model for General Robot Control
+- **π*0.6** (2025) - A VLA That Learns From Experience
+- **ACoT-VLA** (2026) - Action Chain-of-Thought for Vision-Language-Action Models
+
+### 博客与教程
+- [State of Vision-Language-Action (VLA) Research at ICLR 2026 – Moritz Reuss](https://mbreuss.github.io/blog_post_iclr_26_vla.html)
 - [RT-2: New model translates vision and language into action - Google DeepMind](https://deepmind.google/blog/rt-2-new-model-translates-vision-and-language-into-action/)
-- [Vision-Language-Action (VLA) Models: The AI Brain Behind the Next Generation of Robots & Physical AI](https://medium.com/@raktims2210/vision-language-action-vla-models-the-ai-brain-behind-the-next-generation-of-robots-physical-bced48e8ae94)
+- [Physical Intelligence π0 Blog](https://www.pi.website/blog/pi0)
+- [Hugging Face π0 Blog](https://huggingface.co/blog/pi0)
+- [Vision-Language-Action (VLA) Models: The AI Brain Behind the Next Generation of Robots](https://medium.com/@raktims2210/vision-language-action-vla-models-the-ai-brain-behind-the-next-generation-of-robots-physical-bced48e8ae94)
 - [Vision Language Action Models (VLA) & Policies for Robots - LearnOpenCV](https://learnopencv.com/vision-language-action-models-lerobot-policy/)
+
+### 开源资源
+- [OpenVLA GitHub](https://github.com/openvla/openvla)
+- [openpi (π0) GitHub](https://github.com/Physical-Intelligence/openpi)
+- [LeRobot](https://github.com/huggingface/lerobot)
+- [VLA-Survey-Anatomy](https://github.com/SuyuZ1/VLA-Survey-Anatomy)
+
+---
+
+**致谢**：本文主要基于Xu et al. (2025)的IEEE TPAMI综述论文《An Anatomy of Vision-Language-Action Models》进行撰写和扩展，特此致谢。
