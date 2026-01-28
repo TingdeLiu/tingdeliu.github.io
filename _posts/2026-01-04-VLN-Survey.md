@@ -4648,12 +4648,12 @@ Lumina-T2X 作为基于 Flow-based Large Diffusion Transformer (Flag-DiT) 的生
 
 **主要方法/创新点**
 
-<div align="center">
+<!-- <div align="center">
   <img src="/images/Lumina-Next-architecture-comparison.png" width="100%" />
 <figcaption>
 Flag-DiT 和 Next-DiT 的架构对比,展示了主要改进点
 </figcaption>
-</div>
+</div> -->
 
 **Next-DiT 架构改进:**
 
@@ -4661,12 +4661,12 @@ Flag-DiT 和 Next-DiT 的架构对比,展示了主要改进点
 
 2. **Sandwich Normalization**: 通过在每个 attention 和 MLP 层前后都添加 RMSNorm,有效控制网络激活量级的增长。实验表明,Flag-DiT 中存在的长信号路径会导致激活值在深层累积,特别是在分辨率外推时,早期层的小误差会在后续层被放大。Sandwich normalization 配合 tanh gating 机制,稳定了训练和采样过程。
 
-<div align="center">
+<!-- <div align="center">
   <img src="/images/Lumina-Next-rope-comparison.png" width="100%" />
 <figcaption>
 1D RoPE 与 2D RoPE 的注意力模式对比,以及不同外推策略在 2K 生成中的效果
 </figcaption>
-</div>
+</div> -->
 
 3. **Grouped-Query Attention**: 采用 GQA 将 32 个 query heads 分成 8 组,共享 8 个 key-value heads,在保持性能的同时降低参数量和计算复杂度,特别适合高分辨率图像生成。
 
@@ -4678,12 +4678,12 @@ Flag-DiT 和 Next-DiT 的架构对比,展示了主要改进点
 
 2. **Time-Aware Scaled RoPE**: 考虑 diffusion 模型先生成全局概念再生成局部细节的特性,设计时间相关系数 d_t = (d_head - 1)·t + 1,在去噪早期使用位置插值确保全局结构,在后期逐渐转向 NTK-Aware Scaled RoPE 保留局部细节。
 
-<div align="center">
+<!-- <div align="center">
   <img src="/images/Lumina-Next-convergence.png" width="100%" />
 <figcaption>
 Next-DiT 在 ImageNet-256 基准上的收敛速度对比
 </figcaption>
-</div>
+</div> -->
 
 **优化采样效率:**
 
@@ -4691,12 +4691,12 @@ Next-DiT 在 ImageNet-256 基准上的收敛速度对比
 
 2. **Time-Aware Context Drop**: 对 keys 和 values 进行空间平均池化合并相似 token,减少注意力计算冗余。与 Token Merging 不同,该方法只下采样 KV 而保留完整的视觉内容,并且引入时间感知机制,在 t=0 时最大程度 drop token 提升效率,在 t=1 时不 drop 以保持视觉质量,在 1K 分辨率生成中实现 2× 推理加速。
 
-<div align="center">
+<!-- <div align="center">
   <img src="/images/Lumina-Next-resolution-extrapolation.png" width="100%" />
 <figcaption>
 4× 分辨率外推对比,Lumina-Next 相比其他方法展现出更好的全局一致性和局部细节
 </figcaption>
-</div>
+</div> -->
 
 **统一多模态框架:**
 

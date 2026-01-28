@@ -2820,7 +2820,7 @@ VLM4VLA 网络架构:通过可学习的 Action Query token 提取具身相关知
 **核心发现**:
 
 <div align="center">
-  <img src="/images/VLM4VLA-vlm-capability-correlation.png" width="100%" />
+  <img src="/images/VLM4VLA-vlm-capability-correlation.png" width="80%" />
 <figcaption>
 VLM 通用能力与 VLA 性能的线性关系:Calvin 呈强正相关(r=0.839),而 Simpler 和 Libero 几乎无相关性
 </figcaption>
@@ -2840,7 +2840,7 @@ VLM 通用能力与 VLA 性能的线性关系:Calvin 呈强正相关(r=0.839),�
 4. **存在视觉-语言理解与低级控制的语义差距**: 通过向 vision encoder 注入动作 token 预测任务,即使冻结 encoder 也能获得 +18.1% 性能提升,证明 VLM 视觉特征与控制需求存在根本性不对齐
 
 <div align="center">
-  <img src="/images/VLM4VLA-training-divergence.png" width="100%" />
+  <img src="/images/VLM4VLA-training-divergence.png" width="80%" />
 <figcaption>
 VLM 和 VLA 训练轨迹示意图:两者初期沿相同方向学习,但在某个时间点分歧到不同区域
 </figcaption>
@@ -2861,11 +2861,11 @@ VLM 和 VLA 训练轨迹示意图:两者初期沿相同方向学习,但在某个
 
 
 ---
-## 1. TwinBrainVLA (2026)
+## 11. TwinBrainVLA (2026)
 ——通过非对称双Transformer混合机制释放通用VLM在具身任务中的潜力
 
 📄 **Paper**: https://arxiv.org/abs/2601.14133
-
+s
 **精华**
 
 这篇论文展示了如何通过结构化解耦来解决VLA模型中的灾难性遗忘问题,值得借鉴的核心思想包括:利用双流架构分离高层语义理解和低层运动控制、通过冻结"通才"分支保留预训练知识同时训练"专才"分支学习具身技能、采用非对称注意力机制实现知识迁移而不破坏原始能力、使用Flow-Matching生成连续动作而非离散token化。这种"左右脑"设计哲学为构建既有认知能力又有物理灵巧性的通用机器人提供了新范式。
@@ -2876,12 +2876,12 @@ VLM 和 VLA 训练轨迹示意图:两者初期沿相同方向学习,但在某个
 
 **主要方法/创新点**
 
-<div align="center">
+<!-- <div align="center">
   <img src="/images/TwinBrainVLA-architecture-comparison.png" width="100%" />
 <figcaption>
 Vanilla VLA与TwinBrainVLA架构对比图
 </figcaption>
-</div>
+</div> -->
 
 论文提出了 TwinBrainVLA,一个受大脑半球侧化 (hemispheric lateralization) 启发的双流VLA架构,通过协调"通才VLM"和"具身专才VLM"来实现联合机器人控制:
 
