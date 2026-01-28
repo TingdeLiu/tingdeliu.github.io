@@ -1967,462 +1967,6 @@ Open X-Embodiment: 22种机器人，60+数据集，970k轨迹的跨具身形态�
 
 ---
 
-# 经典论文
-
-本节将VLA领域的代表性论文分为“奠基性工作”和“最新突破”两类，以展示该领域的核心进展和前沿动态。
-
----
-
-## 奠基性工作
-
-奠基性工作通常指那些开创了新方向、提出了核心模型架构或关键技术范式，并对后续研究产生深远影响的论文。
-
-### RT-1: Robotics Transformer for Real-World Control at Scale (2022)
-
-
-
-**核心贡献**：首个大规模真实世界机器人Transformer模型，在130k真实轨迹上训练，证明了Transformer架构在端到端机器人控制中的巨大潜力。
-
-
-
----
-
-
-
-## RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control (2023)
-
-
-
-**核心贡献**：VLA领域的里程碑，首次将预训练的VLM成功转化为VLA模型，实现了从网络知识到机器人控制的有效迁移，正式开创了VLA这一研究方向。
-
-
-
----
-
-
-
-## Diffusion Policy: Visuomotor Policy Learning via Action Diffusion (2023)
-
-
-
-**核心贡献**：首次将扩散模型（Diffusion Model）应用于机器人模仿学习，能够有效建模多模态的动作分布，在精细操作任务中表现出色，成为主流动作解码范式之一。
-
-
-
----
-
-
-
-## OpenVLA: An Open-Source Vision-Language-Action Model (2024)
-
-
-
-**核心贡献**：首个开源的7B参数大规模VLA模型，在970k的Open X-Embodiment数据集上训练，性能超越RT-2，极大地推动了VLA领域的开放研究。
-
-
-
----
-
-
-
-## RT-X / Open X-Embodiment Dataset (2023)
-
-
-
-**核心贡献**：通过构建包含22种不同机器人的大规模跨平台数据集（Open X-Embodiment），并训练了统一模型RT-X，证明了跨具身形态（cross-embodiment）策略迁移的可行性。
-
-
-
----
-
-## π₀: A Vision-Language-Action Flow Model for General Robot Control (2024)
-———首个基于 Flow Matching 的通用机器人策略基础模型
-
-📄 **Paper**: https://arxiv.org/abs/2410.24164
-
-**精华**
-
-这篇论文展示了如何构建真正的通用机器人策略基础模型，值得借鉴的点包括：在预训练 VLM 之上通过 flow matching 添加连续动作输出能力、利用互联网规模的语义知识指导机器人控制、设计专门的注意力掩码处理视觉-语言-动作的异构 token、在多个机器人平台上联合训练实现跨平台泛化。这种方法论为构建能够快速适应新任务的通用机器人智能提供了清晰路径，特别是 flow matching 相比扩散模型在实时控制中的优势值得在其他具身 AI 系统中借鉴。
-
-**研究背景/问题**
-
-现有的机器人学习方法主要依赖针对特定任务和特定机器人平台的专门训练，难以实现跨任务和跨平台的泛化。虽然大规模视觉语言模型展示了强大的语义理解能力，但如何将其应用于需要实时、精确、连续动作输出的机器人控制仍是挑战。本文探索如何构建能够处理多样化任务的通用机器人策略基础模型。
-
-**主要方法/创新点**
-
-论文提出了 **π₀** (Pi-Zero)，一个基于 flow matching 的视觉-语言-动作 (VLA) 模型，用于通用机器人控制。
-
-### 1. 整体架构设计
-
-**预训练 VLM 骨干网络**:
-- 使用 **PaliGemma** 作为基础，这是一个结合了 **SigLIP** (视觉编码器) 和 **Gemma** (语言编码器) 的 3B 参数 VLM
-- 继承互联网规模的语义知识，理解自然语言指令和视觉场景
-
-**Flow Matching 动作专家**:
-- 在预训练 VLM 之上添加专门的动作生成模块
-- 使用 flow matching 技术生成连续、平滑的动作轨迹
-- 实现 **50Hz** 的实时控制频率，满足灵巧操作需求
-
-### 2. Flow Matching 方法
-
-**核心原理**:
-- 从随机噪声开始，通过学习的流场逐步变换到目标动作序列
-- 相比扩散模型，flow matching 提供更平滑的轨迹和更快的采样速度
-- 特别适合机器人控制中需要连续、实时的动作生成
-
-**实时性能**:
-- 生成平滑、精确、自适应的控制信号
-- 50Hz 的控制频率保证了对快速动态任务的响应能力
-- 避免了扩散模型多步采样带来的延迟问题
-
-### 3. 专门的注意力机制
-
-**VLA vs VLM 的关键区别**:
-
-| 特性 | VLM | VLA |
-|------|-----|-----|
-| 输入 | 图像、文本 | 图像、文本、**观察状态** |
-| 输出 | 文本、嵌入 | **连续动作序列** |
-| 注意力模式 | 标准因果 | **块稀疏因果** |
-
-**Token 类型设计**:
-
-1. **前缀 Token** (图像 + 文本指令):
-   - 完全双向注意力，类似标准 Transformer
-   - 编码场景理解和任务描述
-
-2. **状态 Token** (机器人观察):
-   - 可访问所有前缀 token
-   - 与之前时间步的状态呈三角形因果关系
-   - 编码当前机器人状态
-
-3. **动作 Token** (电机命令):
-   - 可访问所有非 padding 的 token
-   - 完全可见的因果注意力
-   - 生成具体的控制信号
-
-**FlexAttention 优化**:
-- 使用 PyTorch 的 FlexAttention 高效处理 VLA 的块稀疏注意力模式
-- 相比 FlashAttention2（设计用于严格因果模式），FlexAttention 更适合不规则块掩码
-- 提供纯 PyTorch 接口，易于定制和优化
-
-### 4. 大规模多任务训练
-
-**训练数据来源**:
-- **Open X-Embodiment Dataset**: 开源机器人轨迹数据
-- **互联网规模预训练**: 从 PaliGemma 继承的视觉语言知识
-- **π Dataset**: Physical Intelligence 自己收集的多机器人数据
-
-**多平台训练**:
-- **7-8 个机器人平台**: 单臂（UR5e）、双臂（Franka）、移动操纵器
-- **68 个独特任务**: 覆盖灵巧操作、物体取回、整理等多样场景
-- 跨平台联合训练实现形态无关的通用策略
-
-**数据整合策略**:
-- 统一的观察-动作序列表示
-- 处理不同机器人平台的动作空间差异
-- 利用 VLM 的语义理解能力实现跨任务知识迁移
-
-### 5. π₀-FAST：加速版本
-
-**FAST (频率空间行动序列标记化)**:
-- 将连续动作序列转换为离散 token，支持自回归生成
-- 通过 DCT 变换到频域，保留低频重要系数
-- 使用 BPE 编码频域系数，实现高效压缩
-
-**FAST 优势**:
-- 比基于扩散的 VLA **快 5 倍**
-- 改进的动作表示减少冗余
-- 更强的跨环境和机器人形态泛化
-- 已在 100 万个动作序列上训练，支持多种机器人类型
-
-主要创新包括：
-- 首次将 flow matching 应用于大规模通用机器人策略
-- 设计了适合 VLA 的块稀疏注意力机制
-- 实现了真正的多平台、多任务联合训练
-- 开源了模型权重和代码（openpi repository）
-
-**核心结果/发现**
-
-### 零样本性能（无任务特定微调）
-
-在 5 个零样本评估任务上的平均成功率：
-
-| 任务 | π₀ | OpenVLA | Octo |
-|------|-----|---------|------|
-| **Bussing Easy** (收拾桌子-简单) | **97.1%** | 34.3% | 4.3% |
-| **Shirt Folding** (折叠衬衫) | **100%** | 0% | 0% |
-| **Grocery Bagging** (装袋杂货) | **78.6%** | 0% | 0% |
-| **Box Assembly** (组装盒子) | 高成功率 | - | - |
-| **Object Retrieval** (物体取回) | 高成功率 | - | - |
-
-**关键发现**:
-- π₀ 在所有任务上显著优于开源模型 OpenVLA 和 Octo
-- 即使在最简单的任务上，π₀ 也展示了 2-3 倍的性能优势
-- 在复杂任务（如折叠衬衫、装袋杂货）上，其他模型完全失败而 π₀ 仍保持高成功率
-
-### 微调性能（少量任务特定数据）
-
-在相同微调数据下，与其他机器人学习方法对比：
-
-| 模型 | Bowl Stacking (碗堆叠) | 平均跨任务成功率 |
-|------|----------------------|-----------------|
-| **π₀** | **~100%** | **~80%** |
-| Diffusion Policy | ~55% | ~35% |
-| ACT | ~45% | - |
-| OpenVLA | <10% | - |
-| Octo | <10% | - |
-
-**关键观察**:
-- π₀ 微调后在几乎所有任务上接近完美表现
-- 相比专门的行为克隆方法（ACT、Diffusion Policy），性能提升超过 2 倍
-- 预训练带来的零样本能力使微调更高效
-
-### 消融实验
-
-**VLM 预训练的价值**:
-- π₀-small（无 VLM 预训练）vs 完整 π₀：性能差距超过 2 倍
-- 证明了互联网规模语义知识对机器人控制的重要性
-
-**Flow Matching vs 扩散模型**:
-- 实时性：50Hz 控制频率，满足灵巧操作需求
-- 平滑性：生成的动作轨迹更连续、更适合物理系统
-- 效率：相比多步扩散采样，推理速度显著提升
-
-### 真实世界长时运行
-
-**部署验证**:
-- 在真实家庭环境中折叠多种衣物（T恤、毛巾、裤子）
-- 收拾真实餐桌，处理不同大小和形状的餐具
-- 在超市场景中装袋杂货，处理软硬不同的物品
-- 组装各种尺寸的纸箱，展示精细操作能力
-
-**跨平台泛化**:
-- 在未见过的机器人平台上通过少量微调实现高性能
-- 展示了通用策略基础模型的实用价值
-
-### 开源影响
-
-- 2025 年 2 月开源代码和权重（GitHub: Physical-Intelligence/openpi）
-- 集成到 Hugging Face LeRobot 框架
-- FAST 标记器已集成到 Hugging Face Transformers
-
-**局限性**
-
-当前模型仍需要针对具体任务进行微调才能达到生产级别的可靠性，特别是在处理完全未见过的任务类型时。模型的成功依赖于高质量的训练数据，在数据分布外的长尾场景（如极端光照、复杂遮挡）下性能可能下降。50Hz 的控制频率虽然适合大多数操作任务，但对于需要更高频率反馈的动态任务（如接球、快速避障）可能不够。未来工作可以探索更大规模的预训练、主动学习策略和更高效的在线适应机制。
-
----
-
-**Sources**:
-- [arXiv paper](https://arxiv.org/abs/2410.24164)
-- [Physical Intelligence blog](https://www.pi.website/blog/pi0)
-- [Hugging Face blog post](https://huggingface.co/blog/pi0)
-- [GitHub repository](https://github.com/Physical-Intelligence/openpi)
-- [InfoQ coverage](https://www.infoq.com/news/2024/12/pi-zero-robot/)
-
-## π₀.5 (Pi-Zero.5): Enhancing Universal Policy with Multimodal Reasoning (2025)
-
-
-
-**核心贡献**: 作为π₀的升级版本，π₀.5进一步增强了多模态推理能力，融合了更丰富的视觉和语言信息，提升了机器人在复杂指令理解和精细操作任务中的表现。
-
-
----
-
-
-## π*₀.₆: a VLA That Learns From Experience (2025)
-———通过真实部署经验实现自我改进的视觉语言动作模型
-
-📄 **Paper**: https://arxiv.org/abs/2511.14759
-
-**精华**
-
-这篇论文展示了如何让通用机器人策略模型通过真实世界部署数据实现持续自我改进，值得借鉴的点包括：通过优势条件化（advantage conditioning）避免传统 RL 算法中复杂的梯度计算和对数似然估计问题、整合异构数据源（演示数据、自主收集数据、专家干预数据）到统一训练框架、使用 Knowledge Insulation 技术实现端到端 RL 训练而无需回传梯度到动作专家模块。这种方法论特别适合需要在真实环境中持续改进的具身 AI 系统，为 VLA 模型的实用化部署提供了可行路径。
-
-**研究背景/问题**
-
-现有的 Vision-Language-Action (VLA) 模型通常依赖离线数据集进行监督学习，难以通过真实世界的部署经验实现持续改进。虽然强化学习理论上可以实现在线优化，但传统 RL 算法（如 PPO）在大规模流匹配（flow-matching）动作模型上难以计算梯度和对数似然，限制了其在真实机器人系统中的应用。本文探索如何让 VLA 模型通过部署经验和专家纠正实现自我改进。
-
-**主要方法/创新点**
-
-论文提出了 **RECAP** (RL with Experience and Corrections via Advantage-conditioned Policies) 方法，核心思想是通过优势条件化策略实现强化学习训练。整个流程包含三个关键步骤：
-
-1. **异构数据收集**:
-   - 自主执行任务并记录结果（成功/失败）
-   - 允许人类专家在执行过程中进行遥操作干预
-   - 收集三类数据：初始演示、自主收集的在线数据、专家纠正数据
-
-2. **价值函数训练**:
-   - 训练一个多任务分布式价值函数 V(o,ℓ)，预测当前观察下完成任务 ℓ 还需要多少步
-   - 使用 670M 参数的独立 VLM 作为价值函数网络
-   - 基于任务成功/失败标签计算每个动作的优势（advantage）
-
-3. **优势条件化策略提取**:
-   - 关键创新：训练策略网络 π̂(a|o,ℓ,I) 时加入二值化的优势指示器 I
-   - 数学形式：π̂(a|o,ℓ) ∝ π_ref(a|o,ℓ) × (π_ref(a|I,o,ℓ)/π_ref(a|o,ℓ))^β
-   - I 表示该动作的优势是否超过任务相关阈值 ε_ℓ
-   - 推理时强制 I=true，引导模型选择高优势动作
-
-**模型架构 π*₀.₆**:
-- 基于 Gemma 3 的 4B 参数 VLM 骨干网络
-- 860M 参数的 flow-matching 动作专家模块
-- 使用 Knowledge Insulation 技术：冻结动作专家的梯度，仅训练 VLM 部分
-- 这避免了计算 flow-matching 模型对数似然的难题
-
-**数据整合策略**:
-- **演示数据**: 在监督微调阶段，将优势固定为 "true"
-- **自主收集数据**: 通过价值函数计算真实优势
-- **专家干预数据**: 假设人类专家动作总是好的，强制优势为 "true"
-- 所有数据统一通过优势条件化框架训练
-
-主要创新包括：
-- 首次将优势条件化方法应用于大规模 VLA 模型的在线 RL 训练
-- 避免了传统策略梯度方法对可微分对数似然的依赖
-- 充分利用所有数据而不需要对次优样本进行下采样或降权
-- 支持人类专家实时干预并将其有效整合到训练过程
-
-**研究背景/问题**
-
-现有的 Vision-Language-Action (VLA) 模型通常依赖离线数据集进行监督学习，难以通过真实世界的部署经验实现持续改进。虽然强化学习理论上可以实现在线优化，但传统 RL 算法（如 PPO）在大规模流匹配（flow-matching）动作模型上难以计算梯度和对数似然，限制了其在真实机器人系统中的应用。
-
-**核心结果/发现**
-
-**与基线 π₀.₆ 的性能对比**:
-- **任务吞吐量**: 在多样化的洗衣和咖啡任务上提升超过 2 倍
-- **失败率**: 在困难任务上降低约 50%（降低约 2 倍）
-- **成功率**: 经过单次迭代后，大多数任务达到 90%+ 成功率
-
-**真实部署验证**:
-- 在真实家庭环境中折叠各种衣物，连续运行超过 2 小时
-- 使用专业咖啡机制作浓缩咖啡，连续运行 13 小时
-- 可靠地组装纸箱，展示精细操作能力
-
-**与其他 RL 算法对比**:
-- 相比 PPO 和 AWR (Advantage Weighted Regression) 等基线方法，优势条件化方法：
-  - 无需计算 flow-matching 模型的可微分对数似然
-  - 能够充分利用所有数据，包括次优轨迹
-  - 在大规模模型上训练效率更高
-
-**消融实验**:
-- 验证了 Knowledge Insulation 技术的有效性（端到端 RL 无需回传到动作专家）
-- 证明了整合专家干预数据对性能提升的重要性
-- 展示了多任务价值函数对跨任务泛化的贡献
-
-**实际部署统计**:
-- 论文展示了模型在无人监督情况下长时间稳定运行的能力
-- 在复杂的真实世界环境中处理新颖物体（未见过的衣物款式等）
-
-**局限性**
-
-该方法目前仍依赖人类提供奖励标签（成功/失败判断）和场景重置，尚未实现完全自主的端到端 RL。探索策略依赖于策略的随机性和人类干预，而非主动探索机制。当前实现为迭代式离线更新而非完全在线的 RL，在大规模自主学习方面仍有提升空间。未来工作可以探索自动奖励标注、场景自动重置和更高效的探索策略。
-
----
-
-**Sources**:
-- [arXiv paper](https://arxiv.org/abs/2511.14759)
-- [Physical Intelligence blog post](https://www.pi.website/blog/pistar06)
-- [Paper HTML version](https://arxiv.org/html/2511.14759)
-
-
----
-
-## 最新突破
-
-最新突破涵盖了近年来在VLA领域的关键技术创新和性能飞跃，代表了当前研究的前沿方向，如更强的推理能力、更高的执行效率、更可靠的安全性以及对物理世界更深入的理解。
-
-## 1. ACoT-VLA (2026)
-———Action Chain-of-Thought for Vision-Language-Action Models
-
-📄 **Paper**: https://arxiv.org/abs/2601.11404
-
-**精华**
-这篇论文的核心创新在于将推理过程从语言/视觉空间转移到动作空间，值得借鉴的点包括：(1) 直接在动作空间进行推理，提供同质化的运动指导，弥合语义与运动学之间的鸿沟；(2) 显式推理器(EAR)与隐式推理器(IAR)的互补设计，同时提供轨迹级和语义级指导；(3) Teacher Forcing稳定化训练策略，避免推理模块对动作头的优化干扰；(4) 通过action-level guidance大幅提升长时域任务的鲁棒性和误差抗累积能力。
-<div align="center">
-  <img src="/images/ACoT-VLA-paradigm-comparison.png" width="60%" />
-<figcaption>
-不同CoT范式对比：(a) 语言CoT预测子任务，(b) 视觉CoT合成目标图像，(c) 本文提出的动作CoT直接在动作空间提供同质化指导
-</figcaption>
-</div>
-
-**研究背景/问题**
-现有VLA模型主要在视觉-语言空间进行推理（如语言CoT预测子任务、视觉CoT合成目标图像），但这些推理形式对动作执行的指导是间接且次优的。VLM预训练主要聚焦语义理解而非物理动力学，世界模型虽能预测未来视觉状态但仍局限于视觉表征，两者都存在语义-运动学鸿沟（semantic-kinematic gap），难以为精确的低层动作生成提供充分的细粒度指导。
-
-**主要方法/创新点**
-
-本文提出 **Action Chain-of-Thought (ACoT)** 范式，将推理过程重新定义为结构化的动作意图序列，直接在动作空间进行deliberation。ACoT-VLA框架包含三个核心组件：
-
-
-<div align="center">
-  <img src="/images/ACoT-VLA-architecture.png" width="100%" />
-<figcaption>
-ACoT-VLA整体架构，包含EAR、IAR和Action-Guided Prediction三大模块
-</figcaption>
-</div>
-
-**1. Explicit Action Reasoner (EAR)**
-- 设计为轻量级Transformer，以noisy action sequence作为输入
-- 通过self-attention捕获时序依赖，cross-attention从VLM的key-value cache注入多模态上下文
-- 采用flow matching训练，自主生成粗粒度参考轨迹 $a^{ref}_{t:t+H^{ref}-1}$
-- 参考轨迹编码后形成显式动作空间指导 $Z^{ex}$
-
-**2. Implicit Action Reasoner (IAR)**
-- 直接操作VLM的key-value cache，提取隐式运动线索
-- 对每层VLM特征，使用可学习query矩阵 $Q_i$ 通过cross-attention提取动作相关信息
-- 下采样策略降低计算开销：将KV cache降维至 $d' \ll d$
-- 跨层聚合后形成隐式动作指导 $Z^{im}$，捕获visual affordances和action semantics
-
-**3. Action-Guided Prediction (AGP)**
-- 将noisy action embedding视为query $Q_{action}$，与 $Z^{ex}$ 和 $Z^{im}$ 进行dual cross-attention
-- 通过self-attention融合显式与隐式指导：$\bar{h} = \text{Self-Attn}([S^{ex}; S^{im}])$
-- 最终action head $\pi^{head}_\theta$ 基于聚合表征预测去噪动作序列
-
-**训练策略**：
-- Flow matching损失同时优化EAR和action head
-- Teacher Forcing稳定化：训练时 $Z^{ex}$ 直接从ground-truth轨迹计算，推理时切换为自条件模式
-
-
-**核心结果/发现**
-
-**仿真实验**：
-- LIBERO: 98.5%平均成功率（SOTA），相比π0.5提升1.6%，在LIBERO-Long（长时域）提升最显著（96.0% vs 92.4%）
-- LIBERO-Plus: 84.1%，在鲁棒性测试中大幅超越，尤其在相机视角变化(+11.6%)、机器人初始状态扰动(+16.3%)、传感器噪声(+12.5%)上表现突出
-- VLABench: Intention Score 63.5%、Progress Score 47.4%，在unseen-texture track上获得+12.6% IS和+7.2% PS的显著提升
-
-
-**真实世界部署**：
-
-
-- 在AgiBot G1机器人上平均成功率66.7%（vs π0.5的61.0%、π0的33.8%）
-- 跨embodiment验证：在AgileX平台上同样有效，证明方法的通用性
-
-<div align="center">
-  <img src="/images/ACoT-VLA-real-world-tasks.png" width="90%" />
-<figcaption>
-真实世界三项操作任务：擦拭污渍、倒水、开放集抓取
-</figcaption>
-</div>
-
-<div align="center">
-  <img src="/images/ACoT-VLA-real-world-results.png" width="100%" />
-<figcaption>
-真实世界实验结果对比
-</figcaption>
-</div>
-
-**消融研究关键发现**：
-- EAR单独使用提升1.4%（LIBERO），IAR单独提升1.2%
-- EAR+IAR联合使用达到最优，证明显式与隐式指导的互补性
-- 参考动作horizon在15-30时效果最佳，过长或过短均不利
-- EAR参数量在300M时性能最优，过度参数化反而导致过拟合
-- 推理延迟仅增加约20ms（91ms→112ms），性能-效率权衡优秀
-
-**局限性**
-该方法需要额外的推理模块，虽然计算开销相对较小但在资源受限平台上可能存在挑战。此外，当前动作表征仍采用action chunks（关节角度/末端执行器位姿），缺乏显式几何结构，未来可将动作表征扩展至几何可解释的3D空间，进一步释放ACoT的推理潜力。
-
-
-
----
-
 # 参考资源
 
 ## 综述与调研
@@ -2667,6 +2211,760 @@ VLA不仅是技术突破，更代表了机器人研究范式的根本转变—�
 
 ---
 
+# 经典论文
+
+
+---
+
+## 1. RT-1 (2022)
+Robotics Transformer for Real-World Control at Scale (2022)
+
+
+
+**核心贡献**：首个大规模真实世界机器人Transformer模型，在130k真实轨迹上训练，证明了Transformer架构在端到端机器人控制中的巨大潜力。
+
+
+
+---
+
+
+
+## 2. RT-2 (2023)
+: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control 
+
+
+
+**核心贡献**：VLA领域的里程碑，首次将预训练的VLM成功转化为VLA模型，实现了从网络知识到机器人控制的有效迁移，正式开创了VLA这一研究方向。
+
+
+
+---
+## 3. RT-X / Open X-Embodiment Dataset (2023)
+
+
+
+**核心贡献**：通过构建包含22种不同机器人的大规模跨平台数据集（Open X-Embodiment），并训练了统一模型RT-X，证明了跨具身形态（cross-embodiment）策略迁移的可行性。
+
+
+
+---
+
+
+## 4. Diffusion Policy (2023)
+: Visuomotor Policy Learning via Action Diffusion 
+
+
+
+**核心贡献**：首次将扩散模型（Diffusion Model）应用于机器人模仿学习，能够有效建模多模态的动作分布，在精细操作任务中表现出色，成为主流动作解码范式之一。
+
+
+
+---
+
+
+
+## 5. OpenVLA (2024)
+———开源视觉-语言-动作模型
+
+📄 **Paper**: https://arxiv.org/abs/2406.09246v3
+
+**精华**
+
+这篇论文展示了如何构建开源的大规模机器人控制模型,值得借鉴的核心思想包括:
+1. 利用预训练的视觉-语言模型作为基础,通过将机器人动作视为语言token的方式实现端到端训练
+2. 在大规模多样化机器人数据集(97万条轨迹)上训练可以显著提升泛化能力
+3. 融合多个视觉编码器(SigLIP + DINOv2)能够同时捕获语义和空间信息,提升机器人控制性能
+4. 参数高效微调(LoRA)和量化技术使得7B参数模型可以在消费级GPU上部署和微调
+5. 完全开源模型、代码和训练流程为社区研究提供了重要基础设施
+
+**研究背景/问题**
+
+现有的机器人操作策略难以泛化到训练数据之外的物体、场景和任务。虽然视觉-语言基础模型在互联网规模数据上展现了强大的泛化能力,但现有的视觉-语言-动作模型(VLA)要么是闭源的,要么缺乏高效微调到新机器人设置的方法,阻碍了VLA在机器人领域的广泛应用。
+
+**主要方法/创新点**
+
+OpenVLA是一个7B参数的开源视觉-语言-动作模型,在Open X-Embodiment数据集的97万条机器人演示轨迹上训练。模型架构包含三个关键组件:
+
+1. **融合视觉编码器**: 结合SigLIP和DINOv2两个预训练视觉编码器,前者提供高层语义特征,后者提供低层空间信息,特征在通道维度拼接。
+
+2. **投影器**: 2层MLP将视觉特征投影到语言模型的输入空间。
+
+3. **语言模型骨干**: 基于Llama 2 7B,将视觉特征和语言指令作为输入,输出离散化的机器人动作token。
+
+<div align="center">
+  <img src="/images/OpenVLA-architecture.png" width="100%" />
+<!-- RENAME: figure_01.png -> OpenVLA-architecture.png -->
+<figcaption>
+OpenVLA模型架构图,展示了从图像观察和语言指令到7维机器人动作的端到端预测流程
+</figcaption>
+</div>
+
+**训练策略**:
+- 动作离散化:将连续动作的每个维度量化为256个bin,使用1-99分位数作为量化范围
+- 使用Llama tokenizer中最少使用的256个token表示离散化动作
+- 端到端微调所有参数(包括视觉编码器),在64个A100 GPU上训练14天
+- 完成27个epoch,直到动作token准确率超过95%
+
+**数据处理**:
+- 从Open X-Embodiment筛选具有第三人称相机和单臂末端执行器控制的数据集
+- 采用Octo的数据混合权重,对多样性高的数据集上采样
+- 过滤Bridge数据集中的全零动作,提升模型性能
+
+<div align="center">
+  <img src="/images/OpenVLA-training-pipeline.png" width="100%" />
+<!-- RENAME: figure_02.png -> OpenVLA-training-pipeline.png -->
+<figcaption>
+OpenVLA训练流程:在97万条机器人轨迹上微调预训练VLM以预测机器人动作
+</figcaption>
+</div>
+
+**微调和部署优化**:
+- **LoRA微调**: rank=32的LoRA可以匹配全参数微调性能,仅需训练1.4%参数,单个A100 GPU即可完成
+- **量化推理**: 4-bit量化将GPU内存需求从16.8GB降至7.0GB,性能无明显下降
+- **推理速度**: 在RTX 4090上以6Hz运行(bfloat16),4-bit量化可进一步提升速度
+
+**核心结果/发现**
+
+1. **跨机器人泛化能力**:
+   - 在BridgeData V2 WidowX机器人上,OpenVLA达到70.6%平均成功率,比RT-2-X(55B参数)高16.5%,参数量仅为其1/7
+   - 在Google机器人上与RT-2-X性能相当(85.0% vs 78.3%)
+   - 显著优于Octo(20.0%)和RT-1-X(18.5%)等开源方法
+
+2. **多种泛化能力测试**:
+   - 视觉泛化(未见背景、干扰物):52.0% vs RT-2-X 29.0%
+   - 运动泛化(未见物体位置/方向):60.0% vs RT-2-X 25.0%
+   - 物理泛化(未见物体尺寸/形状):55.0% vs RT-2-X 26.7%
+   - 语义泛化(未见物体和概念):36.3% vs RT-2-X 38.8%
+   - 语言grounding(多物体场景):85.0% vs RT-2-X 76.7%
+
+<div align="center">
+  <img src="/images/OpenVLA-BridgeV2-results.png" width="100%" />
+<!-- RENAME: figure_03.png -> OpenVLA-BridgeV2-results.png -->
+<figcaption>
+BridgeData V2评估结果,OpenVLA在多种泛化任务上均优于现有方法
+</figcaption>
+</div>
+
+3. **数据高效适应**:
+   - 在Franka机器人7个任务上(10-150条演示),OpenVLA微调后平均成功率63.8%
+   - 在单指令任务上,Diffusion Policy表现更好(66.7% vs 53.5%)
+   - 在多指令任务上,OpenVLA显著优于Diffusion Policy(91.7% vs 19.4%)
+   - OpenVLA是唯一在所有任务上达到≥50%成功率的方法
+
+<div align="center">
+  <img src="/images/OpenVLA-finetuning-results.png" width="100%" />
+<!-- RENAME: figure_04.png -> OpenVLA-finetuning-results.png -->
+<figcaption>
+数据高效适应实验:OpenVLA在多样化多指令任务上表现最佳
+</figcaption>
+</div>
+
+4. **计算效率**:
+   - LoRA微调(rank=32)匹配全参数微调性能,GPU内存需求从163.3GB降至59.7GB
+   - 4-bit量化推理性能无下降(71.9% vs 71.3%),内存占用减半
+   - 在消费级GPU上即可部署和微调
+
+5. **开源影响**:
+   - 首个开源的大规模VLA模型,包含完整训练代码和流程
+   - 支持HuggingFace集成,提供微调notebook
+   - 为社区研究VLA提供重要基础设施
+
+**局限性**
+
+模型目前仅支持单图像观察输入,不支持多相机视角、本体感知信息或观察历史。推理速度(6Hz)对于高频控制任务(如50Hz的ALOHA)仍不够快。虽然优于现有泛化策略,但在测试任务上的成功率通常<90%,可靠性还有提升空间。由于计算限制,许多VLA设计问题(如基础VLM规模、协同训练策略、最佳视觉特征等)尚未充分探索。
+
+
+
+
+---
+
+
+
+
+
+## 6. π₀ (2024)
+: A Vision-Language-Action Flow Model for General Robot Control 
+———首个基于 Flow Matching 的通用机器人策略基础模型
+
+📄 **Paper**: https://arxiv.org/abs/2410.24164
+
+**精华**
+
+这篇论文展示了如何构建真正的通用机器人策略基础模型，值得借鉴的点包括：在预训练 VLM 之上通过 flow matching 添加连续动作输出能力、利用互联网规模的语义知识指导机器人控制、设计专门的注意力掩码处理视觉-语言-动作的异构 token、在多个机器人平台上联合训练实现跨平台泛化。这种方法论为构建能够快速适应新任务的通用机器人智能提供了清晰路径，特别是 flow matching 相比扩散模型在实时控制中的优势值得在其他具身 AI 系统中借鉴。
+
+**研究背景/问题**
+
+现有的机器人学习方法主要依赖针对特定任务和特定机器人平台的专门训练，难以实现跨任务和跨平台的泛化。虽然大规模视觉语言模型展示了强大的语义理解能力，但如何将其应用于需要实时、精确、连续动作输出的机器人控制仍是挑战。本文探索如何构建能够处理多样化任务的通用机器人策略基础模型。
+
+**主要方法/创新点**
+
+论文提出了 **π₀** (Pi-Zero)，一个基于 flow matching 的视觉-语言-动作 (VLA) 模型，用于通用机器人控制。
+
+### 1. 整体架构设计
+
+**预训练 VLM 骨干网络**:
+- 使用 **PaliGemma** 作为基础，这是一个结合了 **SigLIP** (视觉编码器) 和 **Gemma** (语言编码器) 的 3B 参数 VLM
+- 继承互联网规模的语义知识，理解自然语言指令和视觉场景
+
+**Flow Matching 动作专家**:
+- 在预训练 VLM 之上添加专门的动作生成模块
+- 使用 flow matching 技术生成连续、平滑的动作轨迹
+- 实现 **50Hz** 的实时控制频率，满足灵巧操作需求
+
+### 2. Flow Matching 方法
+
+**核心原理**:
+- 从随机噪声开始，通过学习的流场逐步变换到目标动作序列
+- 相比扩散模型，flow matching 提供更平滑的轨迹和更快的采样速度
+- 特别适合机器人控制中需要连续、实时的动作生成
+
+**实时性能**:
+- 生成平滑、精确、自适应的控制信号
+- 50Hz 的控制频率保证了对快速动态任务的响应能力
+- 避免了扩散模型多步采样带来的延迟问题
+
+### 3. 专门的注意力机制
+
+**VLA vs VLM 的关键区别**:
+
+| 特性 | VLM | VLA |
+|------|-----|-----|
+| 输入 | 图像、文本 | 图像、文本、**观察状态** |
+| 输出 | 文本、嵌入 | **连续动作序列** |
+| 注意力模式 | 标准因果 | **块稀疏因果** |
+
+**Token 类型设计**:
+
+1. **前缀 Token** (图像 + 文本指令):
+   - 完全双向注意力，类似标准 Transformer
+   - 编码场景理解和任务描述
+
+2. **状态 Token** (机器人观察):
+   - 可访问所有前缀 token
+   - 与之前时间步的状态呈三角形因果关系
+   - 编码当前机器人状态
+
+3. **动作 Token** (电机命令):
+   - 可访问所有非 padding 的 token
+   - 完全可见的因果注意力
+   - 生成具体的控制信号
+
+**FlexAttention 优化**:
+- 使用 PyTorch 的 FlexAttention 高效处理 VLA 的块稀疏注意力模式
+- 相比 FlashAttention2（设计用于严格因果模式），FlexAttention 更适合不规则块掩码
+- 提供纯 PyTorch 接口，易于定制和优化
+
+### 4. 大规模多任务训练
+
+**训练数据来源**:
+- **Open X-Embodiment Dataset**: 开源机器人轨迹数据
+- **互联网规模预训练**: 从 PaliGemma 继承的视觉语言知识
+- **π Dataset**: Physical Intelligence 自己收集的多机器人数据
+
+**多平台训练**:
+- **7-8 个机器人平台**: 单臂（UR5e）、双臂（Franka）、移动操纵器
+- **68 个独特任务**: 覆盖灵巧操作、物体取回、整理等多样场景
+- 跨平台联合训练实现形态无关的通用策略
+
+**数据整合策略**:
+- 统一的观察-动作序列表示
+- 处理不同机器人平台的动作空间差异
+- 利用 VLM 的语义理解能力实现跨任务知识迁移
+
+### 5. π₀-FAST：加速版本
+
+**FAST (频率空间行动序列标记化)**:
+- 将连续动作序列转换为离散 token，支持自回归生成
+- 通过 DCT 变换到频域，保留低频重要系数
+- 使用 BPE 编码频域系数，实现高效压缩
+
+**FAST 优势**:
+- 比基于扩散的 VLA **快 5 倍**
+- 改进的动作表示减少冗余
+- 更强的跨环境和机器人形态泛化
+- 已在 100 万个动作序列上训练，支持多种机器人类型
+
+主要创新包括：
+- 首次将 flow matching 应用于大规模通用机器人策略
+- 设计了适合 VLA 的块稀疏注意力机制
+- 实现了真正的多平台、多任务联合训练
+- 开源了模型权重和代码（openpi repository）
+
+**核心结果/发现**
+
+### 零样本性能（无任务特定微调）
+
+在 5 个零样本评估任务上的平均成功率：
+
+| 任务 | π₀ | OpenVLA | Octo |
+|------|-----|---------|------|
+| **Bussing Easy** (收拾桌子-简单) | **97.1%** | 34.3% | 4.3% |
+| **Shirt Folding** (折叠衬衫) | **100%** | 0% | 0% |
+| **Grocery Bagging** (装袋杂货) | **78.6%** | 0% | 0% |
+| **Box Assembly** (组装盒子) | 高成功率 | - | - |
+| **Object Retrieval** (物体取回) | 高成功率 | - | - |
+
+**关键发现**:
+- π₀ 在所有任务上显著优于开源模型 OpenVLA 和 Octo
+- 即使在最简单的任务上，π₀ 也展示了 2-3 倍的性能优势
+- 在复杂任务（如折叠衬衫、装袋杂货）上，其他模型完全失败而 π₀ 仍保持高成功率
+
+### 微调性能（少量任务特定数据）
+
+在相同微调数据下，与其他机器人学习方法对比：
+
+| 模型 | Bowl Stacking (碗堆叠) | 平均跨任务成功率 |
+|------|----------------------|-----------------|
+| **π₀** | **~100%** | **~80%** |
+| Diffusion Policy | ~55% | ~35% |
+| ACT | ~45% | - |
+| OpenVLA | <10% | - |
+| Octo | <10% | - |
+
+**关键观察**:
+- π₀ 微调后在几乎所有任务上接近完美表现
+- 相比专门的行为克隆方法（ACT、Diffusion Policy），性能提升超过 2 倍
+- 预训练带来的零样本能力使微调更高效
+
+### 消融实验
+
+**VLM 预训练的价值**:
+- π₀-small（无 VLM 预训练）vs 完整 π₀：性能差距超过 2 倍
+- 证明了互联网规模语义知识对机器人控制的重要性
+
+**Flow Matching vs 扩散模型**:
+- 实时性：50Hz 控制频率，满足灵巧操作需求
+- 平滑性：生成的动作轨迹更连续、更适合物理系统
+- 效率：相比多步扩散采样，推理速度显著提升
+
+### 真实世界长时运行
+
+**部署验证**:
+- 在真实家庭环境中折叠多种衣物（T恤、毛巾、裤子）
+- 收拾真实餐桌，处理不同大小和形状的餐具
+- 在超市场景中装袋杂货，处理软硬不同的物品
+- 组装各种尺寸的纸箱，展示精细操作能力
+
+**跨平台泛化**:
+- 在未见过的机器人平台上通过少量微调实现高性能
+- 展示了通用策略基础模型的实用价值
+
+### 开源影响
+
+- 2025 年 2 月开源代码和权重（GitHub: Physical-Intelligence/openpi）
+- 集成到 Hugging Face LeRobot 框架
+- FAST 标记器已集成到 Hugging Face Transformers
+
+**局限性**
+
+当前模型仍需要针对具体任务进行微调才能达到生产级别的可靠性，特别是在处理完全未见过的任务类型时。模型的成功依赖于高质量的训练数据，在数据分布外的长尾场景（如极端光照、复杂遮挡）下性能可能下降。50Hz 的控制频率虽然适合大多数操作任务，但对于需要更高频率反馈的动态任务（如接球、快速避障）可能不够。未来工作可以探索更大规模的预训练、主动学习策略和更高效的在线适应机制。
+
+---
+
+**Sources**:
+- [arXiv paper](https://arxiv.org/abs/2410.24164)
+- [Physical Intelligence blog](https://www.pi.website/blog/pi0)
+- [Hugging Face blog post](https://huggingface.co/blog/pi0)
+- [GitHub repository](https://github.com/Physical-Intelligence/openpi)
+- [InfoQ coverage](https://www.infoq.com/news/2024/12/pi-zero-robot/)
+
+## 7. π₀.5 (Pi-Zero.5)
+: Enhancing Universal Policy with Multimodal Reasoning (2025)
+
+
+
+**核心贡献**: 作为π₀的升级版本，π₀.5进一步增强了多模态推理能力，融合了更丰富的视觉和语言信息，提升了机器人在复杂指令理解和精细操作任务中的表现。
+
+
+---
+
+
+## 8. π*₀.₆ (2025)
+: a VLA That Learns From Experience 
+———通过真实部署经验实现自我改进的视觉语言动作模型
+
+📄 **Paper**: https://arxiv.org/abs/2511.14759
+
+**精华**
+
+这篇论文展示了如何让通用机器人策略模型通过真实世界部署数据实现持续自我改进，值得借鉴的点包括：通过优势条件化（advantage conditioning）避免传统 RL 算法中复杂的梯度计算和对数似然估计问题、整合异构数据源（演示数据、自主收集数据、专家干预数据）到统一训练框架、使用 Knowledge Insulation 技术实现端到端 RL 训练而无需回传梯度到动作专家模块。这种方法论特别适合需要在真实环境中持续改进的具身 AI 系统，为 VLA 模型的实用化部署提供了可行路径。
+
+**研究背景/问题**
+
+现有的 Vision-Language-Action (VLA) 模型通常依赖离线数据集进行监督学习，难以通过真实世界的部署经验实现持续改进。虽然强化学习理论上可以实现在线优化，但传统 RL 算法（如 PPO）在大规模流匹配（flow-matching）动作模型上难以计算梯度和对数似然，限制了其在真实机器人系统中的应用。本文探索如何让 VLA 模型通过部署经验和专家纠正实现自我改进。
+
+**主要方法/创新点**
+
+论文提出了 **RECAP** (RL with Experience and Corrections via Advantage-conditioned Policies) 方法，核心思想是通过优势条件化策略实现强化学习训练。整个流程包含三个关键步骤：
+
+1. **异构数据收集**:
+   - 自主执行任务并记录结果（成功/失败）
+   - 允许人类专家在执行过程中进行遥操作干预
+   - 收集三类数据：初始演示、自主收集的在线数据、专家纠正数据
+
+2. **价值函数训练**:
+   - 训练一个多任务分布式价值函数 V(o,ℓ)，预测当前观察下完成任务 ℓ 还需要多少步
+   - 使用 670M 参数的独立 VLM 作为价值函数网络
+   - 基于任务成功/失败标签计算每个动作的优势（advantage）
+
+3. **优势条件化策略提取**:
+   - 关键创新：训练策略网络 π̂(a|o,ℓ,I) 时加入二值化的优势指示器 I
+   - 数学形式：π̂(a|o,ℓ) ∝ π_ref(a|o,ℓ) × (π_ref(a|I,o,ℓ)/π_ref(a|o,ℓ))^β
+   - I 表示该动作的优势是否超过任务相关阈值 ε_ℓ
+   - 推理时强制 I=true，引导模型选择高优势动作
+
+**模型架构 π*₀.₆**:
+- 基于 Gemma 3 的 4B 参数 VLM 骨干网络
+- 860M 参数的 flow-matching 动作专家模块
+- 使用 Knowledge Insulation 技术：冻结动作专家的梯度，仅训练 VLM 部分
+- 这避免了计算 flow-matching 模型对数似然的难题
+
+**数据整合策略**:
+- **演示数据**: 在监督微调阶段，将优势固定为 "true"
+- **自主收集数据**: 通过价值函数计算真实优势
+- **专家干预数据**: 假设人类专家动作总是好的，强制优势为 "true"
+- 所有数据统一通过优势条件化框架训练
+
+主要创新包括：
+- 首次将优势条件化方法应用于大规模 VLA 模型的在线 RL 训练
+- 避免了传统策略梯度方法对可微分对数似然的依赖
+- 充分利用所有数据而不需要对次优样本进行下采样或降权
+- 支持人类专家实时干预并将其有效整合到训练过程
+
+**研究背景/问题**
+
+现有的 Vision-Language-Action (VLA) 模型通常依赖离线数据集进行监督学习，难以通过真实世界的部署经验实现持续改进。虽然强化学习理论上可以实现在线优化，但传统 RL 算法（如 PPO）在大规模流匹配（flow-matching）动作模型上难以计算梯度和对数似然，限制了其在真实机器人系统中的应用。
+
+**核心结果/发现**
+
+**与基线 π₀.₆ 的性能对比**:
+- **任务吞吐量**: 在多样化的洗衣和咖啡任务上提升超过 2 倍
+- **失败率**: 在困难任务上降低约 50%（降低约 2 倍）
+- **成功率**: 经过单次迭代后，大多数任务达到 90%+ 成功率
+
+**真实部署验证**:
+- 在真实家庭环境中折叠各种衣物，连续运行超过 2 小时
+- 使用专业咖啡机制作浓缩咖啡，连续运行 13 小时
+- 可靠地组装纸箱，展示精细操作能力
+
+**与其他 RL 算法对比**:
+- 相比 PPO 和 AWR (Advantage Weighted Regression) 等基线方法，优势条件化方法：
+  - 无需计算 flow-matching 模型的可微分对数似然
+  - 能够充分利用所有数据，包括次优轨迹
+  - 在大规模模型上训练效率更高
+
+**消融实验**:
+- 验证了 Knowledge Insulation 技术的有效性（端到端 RL 无需回传到动作专家）
+- 证明了整合专家干预数据对性能提升的重要性
+- 展示了多任务价值函数对跨任务泛化的贡献
+
+**实际部署统计**:
+- 论文展示了模型在无人监督情况下长时间稳定运行的能力
+- 在复杂的真实世界环境中处理新颖物体（未见过的衣物款式等）
+
+**局限性**
+
+该方法目前仍依赖人类提供奖励标签（成功/失败判断）和场景重置，尚未实现完全自主的端到端 RL。探索策略依赖于策略的随机性和人类干预，而非主动探索机制。当前实现为迭代式离线更新而非完全在线的 RL，在大规模自主学习方面仍有提升空间。未来工作可以探索自动奖励标注、场景自动重置和更高效的探索策略。
+
+---
+
+**Sources**:
+- [arXiv paper](https://arxiv.org/abs/2511.14759)
+- [Physical Intelligence blog post](https://www.pi.website/blog/pistar06)
+- [Paper HTML version](https://arxiv.org/html/2511.14759)
+
+
+---
+
+
+## 9. ACoT-VLA (2026)
+———Action Chain-of-Thought for Vision-Language-Action Models
+
+📄 **Paper**: https://arxiv.org/abs/2601.11404
+
+**精华**
+这篇论文的核心创新在于将推理过程从语言/视觉空间转移到动作空间，值得借鉴的点包括：(1) 直接在动作空间进行推理，提供同质化的运动指导，弥合语义与运动学之间的鸿沟；(2) 显式推理器(EAR)与隐式推理器(IAR)的互补设计，同时提供轨迹级和语义级指导；(3) Teacher Forcing稳定化训练策略，避免推理模块对动作头的优化干扰；(4) 通过action-level guidance大幅提升长时域任务的鲁棒性和误差抗累积能力。
+<div align="center">
+  <img src="/images/ACoT-VLA-paradigm-comparison.png" width="60%" />
+<figcaption>
+不同CoT范式对比：(a) 语言CoT预测子任务，(b) 视觉CoT合成目标图像，(c) 本文提出的动作CoT直接在动作空间提供同质化指导
+</figcaption>
+</div>
+
+**研究背景/问题**
+现有VLA模型主要在视觉-语言空间进行推理（如语言CoT预测子任务、视觉CoT合成目标图像），但这些推理形式对动作执行的指导是间接且次优的。VLM预训练主要聚焦语义理解而非物理动力学，世界模型虽能预测未来视觉状态但仍局限于视觉表征，两者都存在语义-运动学鸿沟（semantic-kinematic gap），难以为精确的低层动作生成提供充分的细粒度指导。
+
+**主要方法/创新点**
+
+本文提出 **Action Chain-of-Thought (ACoT)** 范式，将推理过程重新定义为结构化的动作意图序列，直接在动作空间进行deliberation。ACoT-VLA框架包含三个核心组件：
+
+
+<div align="center">
+  <img src="/images/ACoT-VLA-architecture.png" width="100%" />
+<figcaption>
+ACoT-VLA整体架构，包含EAR、IAR和Action-Guided Prediction三大模块
+</figcaption>
+</div>
+
+**1. Explicit Action Reasoner (EAR)**
+- 设计为轻量级Transformer，以noisy action sequence作为输入
+- 通过self-attention捕获时序依赖，cross-attention从VLM的key-value cache注入多模态上下文
+- 采用flow matching训练，自主生成粗粒度参考轨迹 $a^{ref}_{t:t+H^{ref}-1}$
+- 参考轨迹编码后形成显式动作空间指导 $Z^{ex}$
+
+**2. Implicit Action Reasoner (IAR)**
+- 直接操作VLM的key-value cache，提取隐式运动线索
+- 对每层VLM特征，使用可学习query矩阵 $Q_i$ 通过cross-attention提取动作相关信息
+- 下采样策略降低计算开销：将KV cache降维至 $d' \ll d$
+- 跨层聚合后形成隐式动作指导 $Z^{im}$，捕获visual affordances和action semantics
+
+**3. Action-Guided Prediction (AGP)**
+- 将noisy action embedding视为query $Q_{action}$，与 $Z^{ex}$ 和 $Z^{im}$ 进行dual cross-attention
+- 通过self-attention融合显式与隐式指导：$\bar{h} = \text{Self-Attn}([S^{ex}; S^{im}])$
+- 最终action head $\pi^{head}_\theta$ 基于聚合表征预测去噪动作序列
+
+**训练策略**：
+- Flow matching损失同时优化EAR和action head
+- Teacher Forcing稳定化：训练时 $Z^{ex}$ 直接从ground-truth轨迹计算，推理时切换为自条件模式
+
+
+**核心结果/发现**
+
+**仿真实验**：
+- LIBERO: 98.5%平均成功率（SOTA），相比π0.5提升1.6%，在LIBERO-Long（长时域）提升最显著（96.0% vs 92.4%）
+- LIBERO-Plus: 84.1%，在鲁棒性测试中大幅超越，尤其在相机视角变化(+11.6%)、机器人初始状态扰动(+16.3%)、传感器噪声(+12.5%)上表现突出
+- VLABench: Intention Score 63.5%、Progress Score 47.4%，在unseen-texture track上获得+12.6% IS和+7.2% PS的显著提升
+
+
+**真实世界部署**：
+
+
+- 在AgiBot G1机器人上平均成功率66.7%（vs π0.5的61.0%、π0的33.8%）
+- 跨embodiment验证：在AgileX平台上同样有效，证明方法的通用性
+
+<div align="center">
+  <img src="/images/ACoT-VLA-real-world-tasks.png" width="90%" />
+<figcaption>
+真实世界三项操作任务：擦拭污渍、倒水、开放集抓取
+</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/ACoT-VLA-real-world-results.png" width="100%" />
+<figcaption>
+真实世界实验结果对比
+</figcaption>
+</div>
+
+**消融研究关键发现**：
+- EAR单独使用提升1.4%（LIBERO），IAR单独提升1.2%
+- EAR+IAR联合使用达到最优，证明显式与隐式指导的互补性
+- 参考动作horizon在15-30时效果最佳，过长或过短均不利
+- EAR参数量在300M时性能最优，过度参数化反而导致过拟合
+- 推理延迟仅增加约20ms（91ms→112ms），性能-效率权衡优秀
+
+**局限性**
+该方法需要额外的推理模块，虽然计算开销相对较小但在资源受限平台上可能存在挑战。此外，当前动作表征仍采用action chunks（关节角度/末端执行器位姿），缺乏显式几何结构，未来可将动作表征扩展至几何可解释的3D空间，进一步释放ACoT的推理潜力。
+
+---
+---
+## 10. VLM4VLA (2026)
+———重新审视 Vision-Language-Action 模型中的 Vision-Language 模型
+
+📄 **Paper**: https://arxiv.org/abs/2601.03309
+
+**精华**
+
+这篇论文最值得借鉴的核心思想包括:通过最小化适配管道公平评估不同 VLM 对下游任务性能的影响;发现 VLM 的通用能力与具身控制性能并不强相关,挑战了常见假设;识别出视觉编码器(而非语言组件)是性能瓶颈,揭示了 VLM 预训练目标与具身动作规划需求之间存在领域差距;提出通过向视觉编码器注入控制相关监督信号可获得持续性能提升的策略。
+
+**研究背景/问题**
+
+当前 Vision-Language-Action (VLA) 模型研究主要关注网络架构、训练范式和动作解码方案的改进,但很少系统研究一个核心问题:底层 Vision-Language Model (VLM) 的选择和能力如何影响 VLA 策略的性能。现有工作缺乏公平的实验框架来评估不同 VLM 对下游机器人任务性能的贡献。
+
+**主要方法/创新点**
+
+论文提出了 **VLM4VLA** 框架,这是一个最小化适配管道,通过引入少于 1% 的新参数将通用 VLM 转换为 VLA 策略,确保公平高效的比较。
+
+<div align="center">
+  <img src="/images/VLM4VLA-framework-overview.png" width="100%" />
+<figcaption>
+VLM4VLA 框架概览:展示评估流程、辅助具身任务微调和不同训练策略的影响
+</figcaption>
+</div>
+
+**核心架构设计**:
+
+<div align="center">
+  <img src="/images/VLM4VLA-network-architecture.png" width="100%" />
+<figcaption>
+VLM4VLA 网络架构:通过可学习的 Action Query token 提取具身相关知识,使用 MLP 解码动作块
+</figcaption>
+</div>
+
+- 引入可学习的 **Action Query token** 从 VLM 中提取具身相关知识
+- 使用简单的 **MLP-based policy head** 解码动作,避免 diffusion/flow-matching 引入的随机性
+- 采用 **L1/L2 loss** 而非 diffusion loss,提高推理稳定性和评估鲁棒性
+- 所有 VLM 参数(vision encoder、LLM、word embeddings)在下游任务微调时全部训练
+
+**三维实验设计**:
+
+1. **通用能力评估**: 比较 9 个开源 VLM(1B-30B 参数)作为 VLA 骨干网络的性能,包括 Qwen2.5VL/Qwen3VL 系列、Paligemma 系列、Kosmos-2
+2. **具身特定能力评估**: 使用 7 种辅助具身任务(visual grounding、depth estimation、trajectory prediction 等)微调 VLM,测试对下游控制任务的影响
+3. **模态级消融**: 独立冻结/微调视觉和语言编码器,并测试向 vision encoder 注入控制相关信息(FAST tokenizer)的效果
+
+**评估基准**: 在三个模拟环境上测试
+- **Calvin ABC-D**: 训练于 ABC 场景,测试于 D 场景(跨场景泛化)
+- **SimplerEnv-Bridge**: 训练于真实 BridgeV2 数据,测试于仿真环境
+- **Libero-Long**: 10 个长视距操作任务
+
+**核心发现**:
+
+<div align="center">
+  <img src="/images/VLM4VLA-vlm-capability-correlation.png" width="100%" />
+<figcaption>
+VLM 通用能力与 VLA 性能的线性关系:Calvin 呈强正相关(r=0.839),而 Simpler 和 Libero 几乎无相关性
+</figcaption>
+</div>
+
+1. **VLM 通用能力是必要但不充分的**: VLM 初始化相比从头训练提供一致性收益,但 VLM 的通用 VQA 能力无法预测其在具身控制任务上的表现
+2. **辅助具身任务微调效果有限**: 在 visual pointing、spatial understanding、embodied VQA 等任务上微调 VLM 并未提升下游控制性能,甚至略有下降
+
+<div align="center">
+  <img src="/images/VLM4VLA-auxiliary-tasks-performance.png" width="100%" />
+<figcaption>
+不同辅助 VLM 微调任务的性能表现:所有具身 VQA 任务微调后性能均略低于基线
+</figcaption>
+</div>
+
+3. **Vision encoder 是关键瓶颈**: 冻结视觉编码器导致显著性能下降(Calvin 上下降 1.0-3.0 分),而冻结 word embeddings 几乎无影响
+4. **存在视觉-语言理解与低级控制的语义差距**: 通过向 vision encoder 注入动作 token 预测任务,即使冻结 encoder 也能获得 +18.1% 性能提升,证明 VLM 视觉特征与控制需求存在根本性不对齐
+
+<div align="center">
+  <img src="/images/VLM4VLA-training-divergence.png" width="100%" />
+<figcaption>
+VLM 和 VLA 训练轨迹示意图:两者初期沿相同方向学习,但在某个时间点分歧到不同区域
+</figcaption>
+</div>
+
+**核心结果/发现**
+
+- **Calvin ABC-D**: Qwen3VL-2B 达到最佳性能(平均完成 4.142 个任务),接近 SOTA VLA(pi0: 3.509)
+- **SimplerEnv-Bridge**: 最小的 Kosmos-2 (1.7B) 达到最高成功率(60.4%),超越更大的 Qwen 系列模型
+- **Libero-Long**: Qwen3VL-2B 和 Kosmos-2 均达到 55%+ 成功率,优于其他 VLM
+- **从头训练性能崩溃**: 不使用 VLM 预训练的模型性能下降 60-70%,证明 VLM 预训练对 VLA 泛化至关重要
+- **Real-to-Sim 差距非主因**: 在真实图像上微调 VLM 的动作预测任务后,冻结 vision encoder 仍导致性能下降,表明问题源于视觉-语言任务与低级控制任务的本质差异
+- **Vision encoder 微调必要性**: 在 SimplerEnv-Bridge 任务上,解冻 vision encoder 并注入控制信息使性能从 27.6% 提升至 45.7%(+18.1%)
+
+**局限性**
+
+研究未在物理机器人上进行实验,主要受限于公平性和可重复性考虑。虽然分析表明 VLM-VLA 差距源于任务异质性而非简单的 sim-to-real 差距,但真实世界部署仍是最终目标。论文的全面模拟基准结果可为未来研究提供有价值的参考。
+
+
+---
+## 1. TwinBrainVLA (2026)
+——通过非对称双Transformer混合机制释放通用VLM在具身任务中的潜力
+
+📄 **Paper**: https://arxiv.org/abs/2601.14133
+
+**精华**
+
+这篇论文展示了如何通过结构化解耦来解决VLA模型中的灾难性遗忘问题,值得借鉴的核心思想包括:利用双流架构分离高层语义理解和低层运动控制、通过冻结"通才"分支保留预训练知识同时训练"专才"分支学习具身技能、采用非对称注意力机制实现知识迁移而不破坏原始能力、使用Flow-Matching生成连续动作而非离散token化。这种"左右脑"设计哲学为构建既有认知能力又有物理灵巧性的通用机器人提供了新范式。
+
+**研究背景/问题**
+
+当前的Vision-Language-Action (VLA)模型通常直接对预训练的Vision-Language Model (VLM)进行机器人控制任务的微调。然而,这种方法在维持高层语义理解和学习低层精细运动技能之间存在根本性冲突,导致"灾难性遗忘" (catastrophic forgetting)——模型为适应机器人操作而牺牲了原有的开放世界语言能力和视觉推理能力。
+
+**主要方法/创新点**
+
+<div align="center">
+  <img src="/images/TwinBrainVLA-architecture-comparison.png" width="100%" />
+<figcaption>
+Vanilla VLA与TwinBrainVLA架构对比图
+</figcaption>
+</div>
+
+论文提出了 TwinBrainVLA,一个受大脑半球侧化 (hemispheric lateralization) 启发的双流VLA架构,通过协调"通才VLM"和"具身专才VLM"来实现联合机器人控制:
+
+**1. 非对称双VLM骨干网络 (Asymmetric Dual-VLM Backbone)**
+
+- **Left Brain (左脑 - 通才)**: 冻结的预训练VLM,保留开放世界知识和指令跟随能力。输入仅包含视觉和语言token: `H⁰_L = [V(I); T(T)]`
+
+- **Right Brain (右脑 - 专才)**: 可训练的VLM,专门用于具身运动控制。输入融合视觉、语言和本体感受状态信息: `H⁰_R = [V(I); T(T); φ(s)]`,其中φ是将机器人状态s (关节角度、末端执行器位姿等) 投影到VLM嵌入空间的轻量级MLP State Encoder
+
+**2. AsyMoT机制 (Asymmetric Mixture-of-Transformers)**
+
+<div align="center">
+  <img src="/images/TwinBrainVLA-framework-AsyMoT.png" width="100%" />
+<figcaption>
+TwinBrainVLA整体框架及AsyMoT机制详解
+</figcaption>
+</div>
+
+核心创新在于双流的交互方式:
+
+- **Left Brain**: 保持冻结,独立运行自注意力机制以保留预训练能力
+  ```
+  H^(l+1)_L = Attn(Q^l_L, K^l_L, V^l_L) + FFN(H^l_L)
+  ```
+
+- **Right Brain**: 可训练,采用非对称联合注意力 (Asymmetric Joint Attention)——Query来自Right Brain,而Key和Value通过拼接两个分支构建:
+  ```
+  K_joint = [sg(K^l_L); K^l_R]
+  V_joint = [sg(V^l_L); V^l_R]
+  H^(l+1)_R = Softmax(Q^l_R(K_joint)^T / √d_k) V_joint + FFN(H^l_R)
+  ```
+
+  其中sg(·)表示stop-gradient操作,确保Left Brain作为稳定的"语义锚点"提供高层推理特征,而Right Brain动态融合这些语义与精细的本体感受线索来推理空间动作。
+
+**3. Flow-Matching Action Expert**
+
+- 采用Diffusion Transformer (DiT) 架构,通过flow matching训练策略生成高精度连续控制信号,超越离散token化范式
+
+- 关键区别在于condition的来源:使用可训练Right Brain的空间丰富表征H_R通过交叉注意力注入DiT
+
+- Flow-Matching损失函数:
+  ```
+  L_FM(ψ) = E_{t,a₀,a₁}[||v_ψ(a_t, t, H_R) - (a₁ - a₀)||²]
+  ```
+
+**4. 非对称训练策略**
+
+- 训练目标: `L_total = L_FM(θ_R, ψ, φ; D_robot)`,仅使用机器人动作损失,不混合通用视觉-语言数据集
+
+- 参数更新策略: 严格冻结Left Brain参数 `∇θ_L = 0`,梯度仅在Right Brain (θ_R)、Action Expert (ψ) 和State Encoder (φ) 中传播
+
+- 在AsyMoT融合层,通过stop-gradient显式阻断来自Left Brain的梯度流,确保其作为稳定语义锚点不被机器人控制任务的高方差梯度扰动
+
+主要创新总结:
+- 首个通过非对称双流设计显式解耦通用语义理解和具身感知的VLA架构
+- AsyMoT机制实现两个同构VLM路径的信息交互和联合训练
+- 结构化免疫灾难性遗忘——Right Brain专注控制动力学,Left Brain隐式保护语言和语义先验
+
+**核心结果/发现**
+
+**SimplerEnv基准测试** (WidowX机器人):
+- TwinBrainVLA + Qwen3-VL-4B-Instruct 达到 **62.0%** 平均成功率,超越最强基线Isaac-GR00T-N1.6 (57.1%) **+4.9%**
+- TwinBrainVLA + Qwen2.5-VL-3B-Instruct 达到 **58.4%**,同样超越所有基线方法
+- 在"Put Eggplant in Yellow Basket"任务上达到83.3%,展现强大的物体操作能力
+
+**RoboCasa基准测试** (GR1机器人桌面操作,24项任务):
+- TwinBrainVLA + Qwen3-VL-4B-Instruct 达到 **54.6%** 平均成功率,大幅超越:
+  - Isaac-GR00T-N1.6 (47.6%) **+7.0%**
+  - QwenGR00T (47.8%) **+6.8%**
+  - QwenPI (43.9%) **+10.7%**
+- 在复杂桌面场景中展现优异的精细操作技能,验证了解耦语义理解与具身感知的有效性
+
+**关键发现**:
+- 尽管未经过大规模机器人动作预训练,TwinBrainVLA在两个基准测试中均达到SOTA性能
+- 双脑架构在不同VLM家族间展现强泛化性 (Qwen2.5-VL和Qwen3-VL)
+- 显式保留预训练VLM的综合视觉理解能力,同时实现卓越的操作性能
+
+**局限性**
+
+当前实现要求Left Brain和Right Brain共享相同的模型架构以确保兼容的隐藏状态维度。未来研究方向包括:探索更解耦的模型架构 (如通过可学习投影层支持异构backbone)、整合专门的具身VLM checkpoints初始化Right Brain、扩展到完整OXE数据集训练以充分发挥双流架构容量、以及在更广泛基准和真实机器人场景中评估。
+
+
+---
 ## 主要参考文献
 
 ### 核心综述论文
