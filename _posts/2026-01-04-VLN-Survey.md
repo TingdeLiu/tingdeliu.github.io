@@ -4647,14 +4647,14 @@ VL-Nav 在四个真实世界环境（Hallway、Office、Apartment、Outdoor）�
 
 现有的机器人模仿学习方法在处理多模态动作分布、高维动作空间和训练稳定性方面面临挑战。显式策略(如 LSTM-GMM)难以表达复杂的多模态分布,而隐式策略(如 IBC)虽然理论上可以建模任意分布,但由于需要负采样估计归一化常数,导致训练不稳定。
 
-**主要方法/创新点**
-
 <div align="center">
   <img src="/images/DiffusionPolicy-policy-representations.png" width="100%" />
 <figcaption>
 三种策略表示方法对比:显式策略、隐式策略和 Diffusion Policy
 </figcaption>
 </div>
+
+**主要方法/创新点**
 
 Diffusion Policy 将机器人的视觉运动策略表示为条件去噪扩散过程。核心思想是通过迭代去噪过程从噪声中生成动作序列,而不是直接预测动作。
 
@@ -4677,6 +4677,14 @@ Diffusion Policy 将机器人的视觉运动策略表示为条件去噪扩散过
 - 从高斯噪声 Aᴷₜ 开始
 - 迭代 K 次去噪: Aᵏ⁻¹ₜ = α(Aᵏₜ - γεθ(Oₜ, Aᵏₜ, k) + N(0, σ²I))
 - 使用 DDIM 加速推理,将迭代次数从 100 降至 10-16
+
+<div align="center">
+  <img src="/images/DiffusionPolicy-overview.png" width="100%" />
+<figcaption>
+Diffusion Policy
+</figcaption>
+</div>
+
 
 **核心结果/发现**
 

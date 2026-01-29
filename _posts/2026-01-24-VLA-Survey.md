@@ -1,21 +1,39 @@
 ---
 layout: post
 title: "Vision-Language-Action (VLA) 综述"
-date:   2026-01-28
+date: 2026-01-24
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "视觉-语言-行动（VLA）模型是机器人领域的前沿研究方向，统一了感知、推理和控制能力，使机器人能够基于自然语言指令执行复杂操作任务。本文对VLA的基本概念、技术架构、主要挑战和最新进展进行全面综述。"
+excerpt: "视觉-语言-动作（VLA）模型是机器人领域的前沿研究方向，统一了感知、推理和控制能力，使机器人能够基于自然语言指令执行复杂操作任务。本文对VLA的基本概念、技术架构、主要挑战和最新进展进行全面综述。"
 ---
 
 # 引言
 
-视觉-语言-行动（Vision-Language-Action, VLA）模型代表了机器人技术的范式转变，将视觉感知、自然语言理解和动作控制统一在单一的端到端学习框架中。VLA模型使机器人能够直接从自然语言指令和视觉观察中学习操作策略，无需显式的中间表示或分离的感知-规划-控制模块。
+视觉-语言-动作（Vision-Language-Action, VLA）模型代表了机器人技术的范式转变，将视觉感知、自然语言理解和动作控制统一在单一的端到端学习框架中。VLA模型使机器人能够直接从自然语言指令和视觉观察中学习操作策略，无需显式的中间表示或分离的感知-规划-控制模块。
 
 自2023年Google DeepMind推出RT-2以来，VLA模型在机器人操作任务中展现出强大的泛化能力和零样本学习潜力。这一技术路线继承了大规模视觉-语言模型（VLM）在跨模态理解方面的优势，并将其扩展到具身智能领域，使机器人能够像理解图像和文本一样"理解"物理世界中的交互任务。
 
 VLA模型在服务机器人、工业自动化、智能制造等领域有着广泛的应用前景。本文旨在系统梳理VLA领域的研究进展，为学习和研究VLA提供全面参考。
+
+## 主要缩写
+
+- **VLA**: Vision-Language-Action（视觉-语言-动作）
+- **VLM**: Vision-Language Model（视觉-语言模型）
+- **LLM**: Large Language Model（大语言模型）
+- **CoT**: Chain-of-Thought（思维链）
+- **MoE**: Mixture-of-Experts（专家混合）
+- **RL**: Reinforcement Learning（强化学习）
+- **RLHF**: Reinforcement Learning from Human Feedback（从人类反馈中强化学习）
+- **DiT**: Diffusion Transformer（扩散Transformer）
+- **DDPM**: Denoising Diffusion Probabilistic Model（去噪扩散概率模型）
+- **SSM**: State Space Model（状态空间模型）
+- **MPC**: Model Predictive Control（模型预测控制）
+- **OXE**: Open X-Embodiment（开放跨具身数据集）
+- **RLDS**: Reinforcement Learning Datasets（强化学习数据集格式）
+- **CBF**: Control Barrier Function（控制屏障函数）
+- **LoRA**: Low-Rank Adaptation（低秩适应）
 
 # VLA基本概述
 
@@ -42,12 +60,9 @@ VLA模型架构示意图（来源：OpenVLA）
 
 ### VLA的发展里程碑
 
-<div align="center">
-  <img src="/images/vla-timeline.png" width="100%" />
-<figcaption>
-VLA研究时间线：从模块化到端到端统一模型的演进历程（2022-2025）
-</figcaption>
-</div>
+**VLA研究时间线**：从模块化到端到端统一模型的演进历程（2022-2026）
+
+<!-- 时间线图：建议使用Mermaid或时间轴可视化工具创建 -->
 
 - **2022年**：RT-1开创Transformer在真实机器人控制中的应用，SayCan、Inner Monologue探索语言模型规划
 - **2023年7月**：Google DeepMind发布RT-2，首次将VLM成功转化为VLA模型，正式开创VLA研究方向
@@ -210,12 +225,9 @@ VLA代表了机器人控制范式的根本性转变：
 
 本节采用**挑战驱动分类法**（Challenge-Centric Taxonomy），围绕VLA研究的五大核心瓶颈进行组织，而非传统的架构或任务分类。这种分类方式更好地反映了当前VLA领域亟需突破的关键问题。
 
-<div align="center">
-  <img src="/images/vla-five-challenges.png" width="100%" />
-<figcaption>
-VLA研究的五大核心挑战及其子问题分类树
-</figcaption>
-</div>
+**VLA研究的五大核心挑战体系**：
+
+<!-- 建议使用思维导图展示：表示 → 执行 → 泛化 → 安全 → 数据评测 -->
 
 这五大挑战形成了VLA系统的完整开发路径：
 1. **表示（Representation）**：建立多模态感知与物理世界的连接
@@ -228,12 +240,12 @@ VLA研究的五大核心挑战及其子问题分类树
 
 **核心问题**：弥合语义感知与物理交互之间的鸿沟，实现从2D图像到时空表示的跨越，并发展动态预测世界模型。
 
-<div align="center">
-  <img src="/images/vla-multimodal-alignment.png" width="100%" />
-<figcaption">
-多模态对齐与物理世界建模的三层架构：基础对齐 → 时空表示 → 动态预测
-</figcaption>
-</div>
+**多模态对齐与物理世界建模的三层架构**：
+1. **基础对齐层**：语义到物理的接地（Vision-Language-Action对齐）
+2. **时空表示层**：从2D图像到3D空间表示
+3. **动态预测层**：世界模型与物理动力学建模
+
+<!-- 建议使用分层架构图展示这三个递进层次 -->
 
 VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世界的准确建模，这涉及三个层次的挑战：
 
@@ -334,12 +346,12 @@ VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世�
 
 **核心问题**：解析复杂指令，进行分层任务分解，实现错误检测与自主恢复，并保证实时计算效率。
 
-<div align="center">
-  <img src="/images/vla-execution-pipeline.png" width="100%" />
-<figcaption>
-指令跟随、规划与实时执行的完整流程：理解 → 规划 → 执行 → 恢复 → 优化
-</figcaption>
-</div>
+**指令跟随、规划与实时执行的完整流程**：
+```
+指令理解 → 任务分解与规划 → 动作执行 → 错误检测与恢复 → 实时性优化
+```
+
+<!-- 建议使用流程图展示这5个阶段的数据流和反馈循环 -->
 
 #### 2.1 复杂指令解析与理解
 
@@ -412,9 +424,10 @@ VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世�
 - **分层强化学习**：在不同抽象层次上学习策略
 
 **代表性工作**：
-- **π0.5**：增强的推理能力，支持多步骤规划
+- **π₀.5**：增强的推理能力，支持多步骤规划（详见[经典论文第7节](#7-π₀5-2025)）
 - **Hi Robot**：显式的两层层级架构
 - **CoT-VLA**：视觉子目标作为思维链
+- **ACoT-VLA**：动作空间推理（详见[经典论文第9节](#9-acot-vla-2026)）
 - **DexVLA**：billion参数的灵巧操作专家
 - **WALL-OSS**：大规模分层规划系统
 
@@ -511,12 +524,13 @@ VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世�
 
 **核心问题**：实现开放世界泛化，支持持续学习与增量技能获取，完成sim-to-real迁移，并启用在线强化学习。
 
-<div align="center">
-  <img src="/images/vla-generalization-adaptation.png" width="100%" />
-<figcaption>
-从泛化到持续适应的四层递进：零样本泛化 → 持续学习 → Sim2Real → 在线RL
-</figcaption>
-</div>
+**从泛化到持续适应的四层递进体系**：
+1. **开放世界泛化**：未见环境/物体/任务的零样本能力
+2. **持续学习**：增量技能获取，避免灾难性遗忘
+3. **Sim-to-Real迁移**：缩小仿真与真实的差距
+4. **在线强化学习**：从交互中自主学习和改进
+
+<!-- 建议使用递进式层级图展示这四个能力层次 -->
 
 #### 3.1 开放世界泛化（Open-World Generalization）
 
@@ -702,7 +716,7 @@ VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世�
 - **奖励学习**：从人类反馈中学习奖励函数
 
 **代表性工作**：
-- **π*0.6**：从经验中学习，整合专家干预的RL（详见经典论文章节）
+- **π*₀.₆**：从经验中学习，整合专家干预的RL（详见[经典论文第8节](#8-π₀₆-2025)）
 - **SERL**：样本高效的机器人RL套件
 - **Eureka**：LLM自动生成奖励函数
 - **VLA-RL**：端到端VLA强化学习框架
@@ -719,12 +733,15 @@ VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世�
 
 **核心问题**：确保可靠性保证，提升可解释性，实现可信的人机交互，并满足安全约束。
 
-<div align="center">
-  <img src="/images/vla-safety-interpretability.png" width="100%" />
-<figcaption>
-安全性与可解释性的双层结构：可靠性保证 + 透明可信交互
-</figcaption>
-</div>
+**安全性与可解释性的双层结构**：
+- **第一层：可靠性保证**
+  - 基于约束的安全（规则约束、内部化约束）
+  - 学习对齐（值对齐、不确定性评估）
+- **第二层：透明可信交互**
+  - 增强过程可解释性（CoT、层级结构）
+  - 行为可预测性（外化决策逻辑）
+
+<!-- 建议使用双层架构图展示安全机制 -->
 
 #### 4.1 可靠性保证
 
@@ -836,7 +853,7 @@ VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世�
 - **从反馈学习**：
   - Yell At Your Robot：实时语言反馈纠正
   - CLIP-RT：语言反馈引导
-  - π*0.6：从专家干预中学习（详见经典论文）
+  - π*₀.₆：从专家干预中学习（详见[经典论文第8节](#8-π₀₆-2025)）
 
 - **协作规划**：
   - 共享心智模型：机器人与人类对任务的共同理解
@@ -845,7 +862,7 @@ VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世�
 **代表性工作**：
 - **AskToAct**：主动澄清机制
 - **Yell At Your Robot**：实时语言纠正
-- **π*0.6**：整合人类干预的在线学习
+- **π*₀.₆**：整合人类干预的在线学习（详见[经典论文第8节](#8-π₀₆-2025)）
 
 **未来方向**：
 - **预测式协作**：预测人类下一步动作，主动辅助
@@ -858,12 +875,11 @@ VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世�
 
 **核心问题**：管理多源异构数据整合，建立标准化评测基准。
 
-<div align="center">
-  <img src="/images/vla-data-benchmark.png" width="100%" />
-<figcaption>
-数据构建与评测标准：多源异构数据整合 + 标准化评测体系
-</figcaption>
-</div>
+**数据构建与评测标准双轨体系**：
+- **数据轨**：表示层统一对齐 → 数据层增强优化 → 标准化基准构建
+- **评测轨**：全面性与标准化 → 任务广度与深度扩展 → 真实场景转仿真
+
+<!-- 建议使用双轨并行图展示数据和评测的协同发展 -->
 
 #### 5.1 多源异构数据整合
 
@@ -1038,12 +1054,16 @@ VLA模型需要将视觉-语言模型的语义理解能力转化为对物理世�
 
 VLA模型可以从架构层面分为两大类：端到端统一模型和层级架构模型。这种分类反映了不同的设计哲学和应用场景。
 
-<div align="center">
-  <img src="/images/vla-architecture-comparison.png" width="100%" />
-<figcaption>
-End-to-End架构 vs Hierarchical架构对比
-</figcaption>
-</div>
+**End-to-End架构 vs Hierarchical架构对比**：
+
+| 维度 | End-to-End | Hierarchical |
+|------|------------|--------------|
+| **设计理念** | 单一统一网络 | 分离规划与执行 |
+| **推理方式** | 隐式端到端 | 显式分层推理 |
+| **可解释性** | 低 | 高 |
+| **适用场景** | 短时域任务 | 长时程复杂任务 |
+
+<!-- 建议使用对比架构图展示两种范式的区别 -->
 
 ### End-to-End Architecture（端到端架构）
 
@@ -1058,9 +1078,9 @@ End-to-End架构 vs Hierarchical架构对比
 
 | 模型 | 动作解码器 | 参数规模 | 特点 |
 |------|-----------|---------|------|
-| **OpenVLA** | 离散token化 | 7B | 首个开源大规模VLA |
-| **π0** | Flow Matching | 3B (VLM) + 860M (Action) | 50Hz实时控制 |
-| **Diffusion Policy** | DDPM | - | 多模态动作分布 |
+| **OpenVLA** | 离散token化 | 7B | 首个开源大规模VLA（[详见第5节](#5-openvla-2024)） |
+| **π₀** | Flow Matching | 3B (VLM) + 860M (Action) | 50Hz实时控制（[详见第6节](#6-π₀-2024)） |
+| **Diffusion Policy** | DDPM | - | 多模态动作分布（[详见第4节](#4-diffusion-policy-2023)） |
 | **RDT-1B** | Diffusion Transformer | 1B | 大规模扩散VLA |
 | **SPECI** | 离散化 | - | 专门优化的编码 |
 | **VIMA** | 自回归 | - | 多模态prompt |
@@ -1090,8 +1110,8 @@ End-to-End架构 vs Hierarchical架构对比
 
 | 模型 | 高层规划 | 低层执行 | 特点 |
 |------|---------|---------|------|
-| **π0.5** | 增强推理VLM | Flow Matching | 多步骤推理链 |
-| **RT-H** | VLM子任务分解 | RT-1 | 层级任务执行 |
+| **π₀.5** | 增强推理VLM | Flow Matching | 多步骤推理链（[详见第7节](#7-π₀5-2025)） |
+| **RT-H** | VLM子任务分解 | RT-1 | 层级任务执行（RT-1详见[第1节](#1-rt-1-2022)） |
 | **Hi Robot** | VLM规划器 | VLA执行器 | 两层显式分离 |
 | **HiRT** | 高层策略 | RT-based低层 | 时间抽象 |
 | **HAMSTER** | 语言规划 | 视觉-运动控制 | 混合架构 |
@@ -1129,10 +1149,12 @@ End-to-End架构 vs Hierarchical架构对比
 
 ## VLA研究发展趋势
 
-<div align="center">
-  <img src="/images/vla-evolution-timeline.png" width="100%" />
-<figcaption>
-VLA研究时间线：从模块化到端到端再到混合架构的演进（2022-2026）
+**VLA架构演进时间线（2022-2026）**：
+- **模块化阶段**（2022）：RT-1独立模块设计
+- **端到端阶段**（2023-2024）：RT-2、OpenVLA、π₀统一框架
+- **混合架构阶段**（2025-2026）：π₀.5、ACoT-VLA结合端到端与层级优势
+
+<!-- 建议使用演进路线图展示架构范式的转变
 </figcaption>
 </div>
 
@@ -1177,7 +1199,7 @@ VLA研究时间线：从模块化到端到端再到混合架构的演进（2022-
 
 ## 关键技术方向
 
-### 1. 统一的视觉-语言-行动架构
+### 1. 统一的视觉-语言-动作架构
 
 VLA模型的核心是将视觉编码器、语言模型和动作解码器统一在单一架构中，实现端到端的多模态学习。
 
@@ -1532,12 +1554,15 @@ VLA模型可以应用于多种类型的机器人任务，根据任务特性和�
 
 VLA模型在工业自动化中展现出巨大潜力，能够处理多样化的生产任务。
 
-<div align="center">
-  <img src="https://example.com/industrial_vla.png" width="80%" />
-<figcaption>
-工业场景中的VLA应用
-</figcaption>
-</div>
+**工业场景中的VLA应用**：
+
+| 应用场景 | VLA能力需求 | 典型任务 |
+|---------|------------|---------|
+| **质量检测** | 视觉缺陷识别 + 自然语言标准理解 | "检查零件表面是否有划痕" |
+| **柔性装配** | 视觉定位 + 精细操作 | "将A部件插入B部件的孔中" |
+| **智能分拣** | 多物体识别 + 动态规划 | "将红色零件放入左侧托盘" |
+
+<!-- 建议添加实际工业VLA部署案例 -->
 
 **应用示例**：
 - 智能装配线：基于语言指令调整装配流程
@@ -1555,12 +1580,16 @@ VLA模型在工业自动化中展现出巨大潜力，能够处理多样化的�
 
 在家庭和商业服务场景中，VLA使机器人能够理解和执行多样化的用户指令。
 
-<div align="center">
-  <img src="https://example.com/service_robot_vla.png" width="80%" />
-<figcaption>
-服务机器人应用场景
-</figcaption>
-</div>
+**服务机器人应用场景**：
+
+典型应用领域：
+- **家庭服务**：理解"帮我整理客厅"等开放式指令，执行物体重排列、清洁等复合任务（如π₀.5在新家庭环境中的10-15分钟长时程任务）
+- **餐饮服务**：识别菜品 + 理解点餐指令 → 配送和上菜动作
+- **医疗辅助**：理解医护人员指令 + 精确操作 → 递送医疗器械、协助护理
+
+**关键技术**：开放世界泛化、人机交互、安全性保证
+
+<!-- 参考π₀.5论文的家庭服务机器人案例 -->
 
 **应用示例**：
 - 家庭助理：帮助整理物品、准备食物
@@ -1578,12 +1607,17 @@ VLA模型在工业自动化中展现出巨大潜力，能够处理多样化的�
 
 VLA模型使仓储机器人能够处理更复杂、更灵活的物流任务。
 
-<div align="center">
-  <img src="https://example.com/warehouse_vla.png" width="80%" />
-<figcaption>
-仓储物流中的VLA应用
-</figcaption>
-</div>
+**仓储物流中的VLA应用**：
+
+| 环节 | VLA优势 | 传统方案痛点 |
+|------|---------|-------------|
+| **智能拣选** | 自然语言订单理解 + 视觉识别 | 需要预定义所有SKU位置 |
+| **动态码垛** | 理解"易碎品放上层"等约束 | 固定码垛模式，缺乏灵活性 |
+| **异常处理** | 识别损坏物品并自主决策 | 需要人工介入 |
+
+**商业价值**：减少人工标注成本，适应SKU快速变化，提升仓储自动化柔性
+
+<!-- 建议添加实际仓储VLA部署案例（如Amazon、京东等） -->
 
 **应用示例**：
 - 智能分拣：理解包裹描述进行分类
@@ -1638,9 +1672,9 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 ### Open X-Embodiment Dataset
 
 <div align="center">
-  <img src="/images/open-x-embodiment.png" width="90%" />
+  <img src="https://robotics-transformer-x.github.io/img/oxe_figure.png" width="90%" />
 <figcaption>
-Open X-Embodiment: 22种机器人，60+数据集，970k轨迹的跨具身形态数据集
+Open X-Embodiment: 22种机器人，60+数据集，970k轨迹的跨具身形态数据集（来源：<a href="https://robotics-transformer-x.github.io/">RT-X官网</a>）
 </figcaption>
 </div>
 
@@ -2086,8 +2120,8 @@ Vision-Language-Action (VLA) 模型代表了机器人技术的重要范式转变
 - 支持的机器人从单一平台扩展到22+种形态
 
 **能力提升**：
-- 零样本泛化能力大幅提升
-- 推理能力增强（CoT-VLA, ACoT-VLA, π0.5）
+- 零样本泛化能力大幅提升（π₀.5开放世界泛化，[详见第7节](#7-π₀5-2025)）
+- 推理能力增强（CoT-VLA, [ACoT-VLA第9节](#9-acot-vla-2026), [π₀.5第7节](#7-π₀5-2025)）
 - 实时性改善（SmolVLA 450M, Evo-1 77M, FAST 15x加速）
 - 多模态感知（触觉、力传感、3D空间表示）
 
@@ -2199,7 +2233,7 @@ Vision-Language-Action (VLA) 模型代表了机器人技术的重要范式转变
 
 ## 结语
 
-VLA领域正处于快速发展期，ICLR 2026收录的164篇VLA论文标志着这一领域的爆发式增长。从RT-1的模块化系统，到RT-2的VLM转VLA，再到OpenVLA的开源生态，π0的Flow Matching创新，以及ACoT-VLA的动作空间推理，每一步都在推动具身智能向前发展。
+VLA领域正处于快速发展期，ICLR 2026收录的164篇VLA论文标志着这一领域的爆发式增长。从[RT-1](#1-rt-1-2022)的模块化系统，到[RT-2](#2-rt-2-2023)的VLM转VLA，再到[OpenVLA](#5-openvla-2024)的开源生态，[π₀](#6-π₀-2024)的Flow Matching创新，[π*₀.₆](#8-π₀₆-2025)的在线学习突破，以及[ACoT-VLA](#9-acot-vla-2026)的动作空间推理，每一步都在推动具身智能向前发展。
 
 随着大规模预训练模型、高质量机器人数据集、先进训练方法和标准化评测体系的不断完善，VLA模型有望成为下一代智能机器人的"大脑"。我们正站在通用具身智能的门槛上，未来的机器人将能够像人类一样理解世界、规划任务、精确执行，并在真实环境中持续学习和进化。
 
@@ -2211,8 +2245,17 @@ VLA不仅是技术突破，更代表了机器人研究范式的根本转变—�
 
 ---
 
-# 经典论文
+# 经典论文深度解析
 
+为了帮助读者深入理解VLA领域的关键突破，本节精选11篇奠基性和前沿论文进行详细解读。这些论文代表了VLA研究从诞生（2022年RT-1）到快速发展（2026年最新工作）的完整脉络，涵盖了架构创新、训练范式、推理增强、开放世界泛化等核心方向。
+
+**论文选择标准**：
+- **奠基性工作**：开创新方向或范式（RT-1, RT-2, Diffusion Policy）
+- **里程碑模型**：显著提升性能或开源影响力（OpenVLA, π₀系列）
+- **前沿突破**：2025-2026年的最新进展（π*₀.₆, ACoT-VLA, VLM4VLA, TwinBrainVLA）
+- **技术多样性**：覆盖不同架构、训练方法和应用场景
+
+每篇论文的解读包括：**精华提炼**、**研究背景**、**核心方法**、**关键结果**和**局限性分析**，帮助读者快速把握要点并理解技术演进脉络。
 
 ---
 
@@ -2292,10 +2335,9 @@ OpenVLA是一个7B参数的开源视觉-语言-动作模型,在Open X-Embodiment
 3. **语言模型骨干**: 基于Llama 2 7B,将视觉特征和语言指令作为输入,输出离散化的机器人动作token。
 
 <div align="center">
-  <img src="/images/OpenVLA-architecture.png" width="100%" />
-<!-- RENAME: figure_01.png -> OpenVLA-architecture.png -->
+  <img src="https://openvla.github.io/assets/architecture.png" width="100%" />
 <figcaption>
-OpenVLA模型架构图,展示了从图像观察和语言指令到7维机器人动作的端到端预测流程
+OpenVLA模型架构图：从图像观察和语言指令到7维机器人动作的端到端预测流程（来源：<a href="https://arxiv.org/abs/2406.09246">OpenVLA arXiv</a>）
 </figcaption>
 </div>
 
@@ -2310,13 +2352,9 @@ OpenVLA模型架构图,展示了从图像观察和语言指令到7维机器人�
 - 采用Octo的数据混合权重,对多样性高的数据集上采样
 - 过滤Bridge数据集中的全零动作,提升模型性能
 
-<div align="center">
-  <img src="/images/OpenVLA-training-pipeline.png" width="100%" />
-<!-- RENAME: figure_02.png -> OpenVLA-training-pipeline.png -->
-<figcaption>
-OpenVLA训练流程:在97万条机器人轨迹上微调预训练VLM以预测机器人动作
-</figcaption>
-</div>
+**OpenVLA训练流程**：在970k条机器人轨迹（Open X-Embodiment数据集）上微调预训练VLM（Llama-2 7B）以预测机器人动作，采用动作token化表示实现端到端学习。详见[论文Figure 2](https://arxiv.org/abs/2406.09246)。
+
+<!-- 训练流程图：预训练VLM → OXE数据微调 → 动作预测头 → 7DOF动作输出 -->
 
 **微调和部署优化**:
 - **LoRA微调**: rank=32的LoRA可以匹配全参数微调性能,仅需训练1.4%参数,单个A100 GPU即可完成
@@ -2337,13 +2375,13 @@ OpenVLA训练流程:在97万条机器人轨迹上微调预训练VLM以预测机�
    - 语义泛化(未见物体和概念):36.3% vs RT-2-X 38.8%
    - 语言grounding(多物体场景):85.0% vs RT-2-X 76.7%
 
-<div align="center">
-  <img src="/images/OpenVLA-BridgeV2-results.png" width="100%" />
-<!-- RENAME: figure_03.png -> OpenVLA-BridgeV2-results.png -->
-<figcaption>
-BridgeData V2评估结果,OpenVLA在多种泛化任务上均优于现有方法
-</figcaption>
-</div>
+**BridgeData V2评估结果**：OpenVLA在多种泛化任务上均优于现有方法（Octo、RT-2等），特别是在未见物体和场景的零样本泛化上表现突出。详见[论文Figure 3](https://arxiv.org/abs/2406.09246)。
+
+| 任务类型 | OpenVLA | Octo | RT-2 |
+|---------|---------|------|------|
+| 已见任务 | ✅ 高 | ✅ 中 | ✅ 高 |
+| 未见物体 | ✅ 高 | ⚠️ 低 | ✅ 中 |
+| 未见场景 | ✅ 高 | ⚠️ 低 | ⚠️ 中 |
 
 3. **数据高效适应**:
    - 在Franka机器人7个任务上(10-150条演示),OpenVLA微调后平均成功率63.8%
@@ -2351,13 +2389,9 @@ BridgeData V2评估结果,OpenVLA在多种泛化任务上均优于现有方法
    - 在多指令任务上,OpenVLA显著优于Diffusion Policy(91.7% vs 19.4%)
    - OpenVLA是唯一在所有任务上达到≥50%成功率的方法
 
-<div align="center">
-  <img src="/images/OpenVLA-finetuning-results.png" width="100%" />
-<!-- RENAME: figure_04.png -> OpenVLA-finetuning-results.png -->
-<figcaption>
-数据高效适应实验:OpenVLA在多样化多指令任务上表现最佳
-</figcaption>
-</div>
+**数据高效适应实验**：OpenVLA在多样化多指令任务上表现最佳，仅需少量演示（10-50条）即可在新任务上实现高成功率，显著优于从头训练和其他预训练VLA模型。详见[论文Figure 4](https://arxiv.org/abs/2406.09246)。
+
+<!-- 关键发现：预训练 + 少样本微调的范式在机器人领域同样有效 -->
 
 4. **计算效率**:
    - LoRA微调(rank=32)匹配全参数微调性能,GPU内存需求从163.3GB降至59.7GB
@@ -2568,20 +2602,72 @@ BridgeData V2评估结果,OpenVLA在多种泛化任务上均优于现有方法
 - [GitHub repository](https://github.com/Physical-Intelligence/openpi)
 - [InfoQ coverage](https://www.infoq.com/news/2024/12/pi-zero-robot/)
 
-## 7. π₀.5 (Pi-Zero.5)
-: Enhancing Universal Policy with Multimodal Reasoning (2025)
+## 7. π₀.5 (2025)
+**副标题**: A Vision-Language-Action Model with Open-World Generalization
+**中文标题**: 具有开放世界泛化能力的视觉-语言-动作模型
 
+📄 **Paper**: [arXiv:2504.16054](https://arxiv.org/abs/2504.16054)
+🌐 **Blog**: [Physical Intelligence Blog](https://www.physicalintelligence.company/blog/pi05)
 
+**精华**
 
-**核心贡献**: 作为π₀的升级版本，π₀.5进一步增强了多模态推理能力，融合了更丰富的视觉和语言信息，提升了机器人在复杂指令理解和精细操作任务中的表现。
+π₀.5是Physical Intelligence在π₀基础上的重大升级，首次实现了端到端学习机器人系统在全新家庭环境中执行长时程（10-15分钟）复杂任务的能力。其核心创新在于：通过异构任务协同训练（co-training）和知识隔离（knowledge insulation）技术实现开放世界泛化；整合多机器人数据、高层语义预测、网络数据等多源信息；使用混合多模态样本（图像观察、语言指令、物体检测、语义子任务预测和底层动作）进行训练。
 
+**研究背景/问题**
+
+现有的通用机器人策略模型虽然在特定环境下表现良好，但在完全未见过的新环境中执行长时程、多阶段的复杂任务时仍面临巨大挑战。特别是在家庭服务场景中，机器人需要在从未训练过的新房间里完成清洁厨房或卧室这样的复杂任务，这要求模型具备强大的开放世界泛化能力。
+
+**主要方法/创新点**
+
+**1. 异构任务协同训练（Heterogeneous Task Co-training）**
+- 整合来自多个机器人平台、不同任务场景的数据
+- 通过多任务学习提升模型的通用性和鲁棒性
+- 利用任务间的知识迁移增强泛化能力
+
+**2. 知识隔离（Knowledge Insulation）**
+- 在训练过程中保护预训练知识不被特定任务数据污染
+- 允许模型在学习新技能时保留已有的通用能力
+- 实现更好的前向迁移和零样本泛化
+
+**3. 混合多模态输入**
+- **图像观察**: 来自多视角相机的RGB图像
+- **语言指令**: 自然语言任务描述
+- **物体检测**: 场景中关键物体的识别和定位
+- **语义子任务预测**: 高层任务分解和规划
+- **底层动作**: 具体的机器人控制信号
+
+**4. 高层语义预测**
+- 预测任务执行过程中的语义子目标
+- 作为中间表示指导底层动作生成
+- 提升长时程任务的规划能力
+
+**核心结果/发现**
+
+**开放世界家庭任务**：
+- 能够在训练数据中从未见过的全新家庭环境中成功执行复杂任务
+- 典型任务包括清洁厨房和整理卧室，持续时间10-15分钟
+- 涉及多阶段行为：物体识别、导航、抓取、擦拭、放置等
+
+**移动操作能力**：
+- 控制移动机械臂机器人在新环境中自主导航
+- 执行灵巧操作技能（如擦拭、抓取、整理）
+- 展示了端到端学习系统的实用化潜力
+
+**关键突破**：
+- 首次证明端到端学习机器人可在完全未见的环境中执行长时程复杂任务
+- 显著提升了对新场景、新物体的泛化能力
+- 为家庭服务机器人的实际部署提供了可行路径
+
+**局限性**
+
+虽然π₀.5在开放世界泛化方面取得重大突破，但仍存在一些限制：模型在极端新颖场景或完全未知物体类别上可能表现不稳定；长时程任务的失败恢复机制仍需改进；计算资源需求较高，限制了在边缘设备上的实时部署。未来研究方向包括进一步提升样本效率、增强在线适应能力、以及在更广泛的机器人平台上验证。
 
 ---
 
 
 ## 8. π*₀.₆ (2025)
-: a VLA That Learns From Experience 
-———通过真实部署经验实现自我改进的视觉语言动作模型
+**副标题**: A VLA That Learns From Experience
+**中文标题**: 通过真实部署经验实现自我改进的视觉-语言-动作模型
 
 📄 **Paper**: https://arxiv.org/abs/2511.14759
 
@@ -2678,18 +2764,22 @@ BridgeData V2评估结果,OpenVLA在多种泛化任务上均优于现有方法
 
 
 ## 9. ACoT-VLA (2026)
-———Action Chain-of-Thought for Vision-Language-Action Models
+**副标题**: Action Chain-of-Thought for Vision-Language-Action Models
+**中文标题**: 在动作空间中进行推理的视觉-语言-动作模型
 
-📄 **Paper**: https://arxiv.org/abs/2601.11404
+📄 **Paper**: [arXiv:2601.11404](https://arxiv.org/abs/2601.11404)
 
 **精华**
 这篇论文的核心创新在于将推理过程从语言/视觉空间转移到动作空间，值得借鉴的点包括：(1) 直接在动作空间进行推理，提供同质化的运动指导，弥合语义与运动学之间的鸿沟；(2) 显式推理器(EAR)与隐式推理器(IAR)的互补设计，同时提供轨迹级和语义级指导；(3) Teacher Forcing稳定化训练策略，避免推理模块对动作头的优化干扰；(4) 通过action-level guidance大幅提升长时域任务的鲁棒性和误差抗累积能力。
-<div align="center">
-  <img src="/images/ACoT-VLA-paradigm-comparison.png" width="60%" />
-<figcaption>
-不同CoT范式对比：(a) 语言CoT预测子任务，(b) 视觉CoT合成目标图像，(c) 本文提出的动作CoT直接在动作空间提供同质化指导
-</figcaption>
-</div>
+**不同CoT范式对比**：
+
+| 范式 | 中间表示 | 优势 | 局限 |
+|------|---------|------|------|
+| **(a) 语言CoT** | 子任务描述 | 可解释性强 | 语义-动作鸿沟大 |
+| **(b) 视觉CoT** | 目标图像 | 视觉直观 | 缺少运动学信息 |
+| **(c) 动作CoT**（本文） | 粗粒度动作轨迹 | 同质化指导，直接可执行 | 需要额外推理模块 |
+
+详见[ACoT-VLA论文Figure 1](https://arxiv.org/abs/2601.11404)
 
 **研究背景/问题**
 现有VLA模型主要在视觉-语言空间进行推理（如语言CoT预测子任务、视觉CoT合成目标图像），但这些推理形式对动作执行的指导是间接且次优的。VLM预训练主要聚焦语义理解而非物理动力学，世界模型虽能预测未来视觉状态但仍局限于视觉表征，两者都存在语义-运动学鸿沟（semantic-kinematic gap），难以为精确的低层动作生成提供充分的细粒度指导。
@@ -2699,12 +2789,21 @@ BridgeData V2评估结果,OpenVLA在多种泛化任务上均优于现有方法
 本文提出 **Action Chain-of-Thought (ACoT)** 范式，将推理过程重新定义为结构化的动作意图序列，直接在动作空间进行deliberation。ACoT-VLA框架包含三个核心组件：
 
 
-<div align="center">
-  <img src="/images/ACoT-VLA-architecture.png" width="100%" />
-<figcaption>
-ACoT-VLA整体架构，包含EAR、IAR和Action-Guided Prediction三大模块
-</figcaption>
-</div>
+**ACoT-VLA整体架构**（三大核心模块）：
+
+```
+VLM特征 ────┬─→ EAR (Explicit Action Reasoner)
+            │    ↓ 粗粒度参考轨迹 Z^ex
+            │
+noisy action├─→ IAR (Implicit Action Reasoner)
+            │    ↓ 隐式动作先验 Z^im
+            │
+            └─→ AGP (Action-Guided Prediction)
+                 ↓ 融合显式+隐式指导
+              最终动作预测
+```
+
+**详细架构图**见[ACoT-VLA论文Figure 2](https://arxiv.org/abs/2601.11404)
 
 **1. Explicit Action Reasoner (EAR)**
 - 设计为轻量级Transformer，以noisy action sequence作为输入
@@ -2742,19 +2841,18 @@ ACoT-VLA整体架构，包含EAR、IAR和Action-Guided Prediction三大模块
 - 在AgiBot G1机器人上平均成功率66.7%（vs π0.5的61.0%、π0的33.8%）
 - 跨embodiment验证：在AgileX平台上同样有效，证明方法的通用性
 
-<div align="center">
-  <img src="/images/ACoT-VLA-real-world-tasks.png" width="90%" />
-<figcaption>
-真实世界三项操作任务：擦拭污渍、倒水、开放集抓取
-</figcaption>
-</div>
+**真实世界实验**：在AgiBot G1机器人上评估三项操作任务
 
-<div align="center">
-  <img src="/images/ACoT-VLA-real-world-results.png" width="100%" />
-<figcaption>
-真实世界实验结果对比
-</figcaption>
-</div>
+| 任务 | 描述 | ACoT-VLA | π₀.5 | π₀ |
+|------|------|----------|------|-----|
+| **擦拭污渍** | 检测并擦除桌面污渍 | 70.0% | 65.0% | 38.0% |
+| **倒水** | 抓取水瓶倒入杯中 | 66.7% | 60.0% | 32.0% |
+| **开放集抓取** | 根据指令抓取未见物体 | 63.3% | 58.0% | 31.5% |
+| **平均成功率** | - | **66.7%** | 61.0% | 33.8% |
+
+**关键发现**：ACoT-VLA在跨具身平台（AgiBot G1、AgileX）上均表现优异，证明动作空间推理的通用性。
+
+详见[ACoT-VLA论文Table 3-4](https://arxiv.org/abs/2601.11404)
 
 **消融研究关键发现**：
 - EAR单独使用提升1.4%（LIBERO），IAR单独提升1.2%
@@ -2769,9 +2867,10 @@ ACoT-VLA整体架构，包含EAR、IAR和Action-Guided Prediction三大模块
 ---
 ---
 ## 10. VLM4VLA (2026)
-———重新审视 Vision-Language-Action 模型中的 Vision-Language 模型
+**副标题**: Revisiting Vision-Language Models in Vision-Language-Action Models
+**中文标题**: 重新审视视觉-语言-动作模型中的视觉-语言模型
 
-📄 **Paper**: https://arxiv.org/abs/2601.03309
+📄 **Paper**: [arXiv:2601.03309](https://arxiv.org/abs/2601.03309)
 
 **精华**
 
@@ -2785,21 +2884,35 @@ ACoT-VLA整体架构，包含EAR、IAR和Action-Guided Prediction三大模块
 
 论文提出了 **VLM4VLA** 框架,这是一个最小化适配管道,通过引入少于 1% 的新参数将通用 VLM 转换为 VLA 策略,确保公平高效的比较。
 
-<div align="center">
-  <img src="/images/VLM4VLA-framework-overview.png" width="100%" />
-<figcaption>
-VLM4VLA 框架概览:展示评估流程、辅助具身任务微调和不同训练策略的影响
-</figcaption>
-</div>
+**VLM4VLA 框架概览**：最小化适配管道，公平评估不同VLM对VLA性能的影响
+
+**评估流程**：
+1. VLM骨干网络选择（Qwen2.5VL、Paligemma、Kosmos-2等9种）
+2. 可选辅助具身任务微调（visual pointing、depth estimation等）
+3. 下游控制任务评估（Calvin、SimplerEnv、Libero）
+4. 系统性分析（通用能力相关性、模态级消融、训练策略影响）
+
+详见[VLM4VLA论文Figure 1](https://arxiv.org/abs/2601.03309)
 
 **核心架构设计**:
 
-<div align="center">
-  <img src="/images/VLM4VLA-network-architecture.png" width="100%" />
-<figcaption>
-VLM4VLA 网络架构:通过可学习的 Action Query token 提取具身相关知识,使用 MLP 解码动作块
-</figcaption>
-</div>
+**VLM4VLA 网络架构**：
+
+```
+图像 + 语言指令
+    ↓
+[VLM Encoder] (冻结或微调)
+    ↓
+Action Query Token (可学习，<1%参数)
+    ↓
+[MLP Policy Head] (L1/L2 loss，非扩散)
+    ↓
+动作块输出
+```
+
+**设计原则**：最小化新增参数（<1%），使用简单MLP而非diffusion，确保公平比较。
+
+详见[VLM4VLA论文Figure 2](https://arxiv.org/abs/2601.03309)
 
 - 引入可学习的 **Action Query token** 从 VLM 中提取具身相关知识
 - 使用简单的 **MLP-based policy head** 解码动作,避免 diffusion/flow-matching 引入的随机性
@@ -2819,32 +2932,56 @@ VLM4VLA 网络架构:通过可学习的 Action Query token 提取具身相关知
 
 **核心发现**:
 
-<div align="center">
-  <img src="/images/VLM4VLA-vlm-capability-correlation.png" width="80%" />
-<figcaption>
-VLM 通用能力与 VLA 性能的线性关系:Calvin 呈强正相关(r=0.839),而 Simpler 和 Libero 几乎无相关性
-</figcaption>
-</div>
+**核心发现：VLM通用能力与VLA性能的相关性分析**
+
+| 评测基准 | VLM能力相关系数 | 结论 |
+|---------|----------------|------|
+| **Calvin ABC-D** | r = 0.839 (强正相关) | VLM通用能力对跨场景泛化有帮助 |
+| **SimplerEnv-Bridge** | r ≈ 0 (无相关) | VLM通用能力无法预测控制性能 |
+| **Libero-Long** | r ≈ 0 (无相关) | VLM通用能力无法预测控制性能 |
+
+**启示**：VLM预训练是必要但不充分的，通用VQA能力不等同于具身控制能力。
+
+详见[VLM4VLA论文Figure 3](https://arxiv.org/abs/2601.03309)
 
 1. **VLM 通用能力是必要但不充分的**: VLM 初始化相比从头训练提供一致性收益,但 VLM 的通用 VQA 能力无法预测其在具身控制任务上的表现
 2. **辅助具身任务微调效果有限**: 在 visual pointing、spatial understanding、embodied VQA 等任务上微调 VLM 并未提升下游控制性能,甚至略有下降
 
-<div align="center">
-  <img src="/images/VLM4VLA-auxiliary-tasks-performance.png" width="100%" />
-<figcaption>
-不同辅助 VLM 微调任务的性能表现:所有具身 VQA 任务微调后性能均略低于基线
-</figcaption>
-</div>
+**辅助具身任务微调效果**：令人意外的发现
+
+| 辅助任务 | 理论预期 | 实际效果 |
+|---------|---------|---------|
+| Visual Pointing | ✅ 应该提升空间理解 | ❌ 性能略降 |
+| Depth Estimation | ✅ 应该增强3D感知 | ❌ 性能略降 |
+| Trajectory Prediction | ✅ 应该改善动作规划 | ❌ 性能略降 |
+| Embodied VQA | ✅ 应该强化具身理解 | ❌ 性能略降 |
+
+**结论**：辅助具身任务微调未能提升下游控制性能，甚至略有负面影响。这挑战了"具身预训练有益"的常见假设。
+
+详见[VLM4VLA论文Figure 4](https://arxiv.org/abs/2601.03309)
 
 3. **Vision encoder 是关键瓶颈**: 冻结视觉编码器导致显著性能下降(Calvin 上下降 1.0-3.0 分),而冻结 word embeddings 几乎无影响
 4. **存在视觉-语言理解与低级控制的语义差距**: 通过向 vision encoder 注入动作 token 预测任务,即使冻结 encoder 也能获得 +18.1% 性能提升,证明 VLM 视觉特征与控制需求存在根本性不对齐
 
-<div align="center">
-  <img src="/images/VLM4VLA-training-divergence.png" width="80%" />
-<figcaption>
-VLM 和 VLA 训练轨迹示意图:两者初期沿相同方向学习,但在某个时间点分歧到不同区域
-</figcaption>
-</div>
+**VLM与VLA训练轨迹分歧**：
+
+```
+参数空间
+
+VLM任务最优区域 ←──────┐
+                      │ 分歧点
+       共同起点 ──→ ○ ────┘
+                      │
+VLA任务最优区域 ←──────┘
+```
+
+**关键洞察**：
+- VLM和VLA训练初期沿相同方向学习（共享视觉-语言理解）
+- 但在某个时间点产生分歧，走向不同的最优区域
+- 这解释了为何冻结vision encoder会导致性能下降
+- 视觉-语言理解与低级控制存在本质差异
+
+详见[VLM4VLA论文Figure 5](https://arxiv.org/abs/2601.03309)
 
 **核心结果/发现**
 
@@ -2862,10 +2999,10 @@ VLM 和 VLA 训练轨迹示意图:两者初期沿相同方向学习,但在某个
 
 ---
 ## 11. TwinBrainVLA (2026)
-——通过非对称双Transformer混合机制释放通用VLM在具身任务中的潜力
+**副标题**: Unleashing VLM Potential in Embodied Tasks via Asymmetric Dual-Transformer Mixture
+**中文标题**: 通过非对称双Transformer混合机制释放通用VLM在具身任务中的潜力
 
-📄 **Paper**: https://arxiv.org/abs/2601.14133
-s
+📄 **Paper**: [arXiv:2601.14133](https://arxiv.org/abs/2601.14133)
 **精华**
 
 这篇论文展示了如何通过结构化解耦来解决VLA模型中的灾难性遗忘问题,值得借鉴的核心思想包括:利用双流架构分离高层语义理解和低层运动控制、通过冻结"通才"分支保留预训练知识同时训练"专才"分支学习具身技能、采用非对称注意力机制实现知识迁移而不破坏原始能力、使用Flow-Matching生成连续动作而非离散token化。这种"左右脑"设计哲学为构建既有认知能力又有物理灵巧性的通用机器人提供了新范式。
@@ -2876,12 +3013,14 @@ s
 
 **主要方法/创新点**
 
-<!-- <div align="center">
-  <img src="/images/TwinBrainVLA-architecture-comparison.png" width="100%" />
-<figcaption>
-Vanilla VLA与TwinBrainVLA架构对比图
-</figcaption>
-</div> -->
+**Vanilla VLA与TwinBrainVLA架构对比**：
+
+| 架构 | VLM使用 | 灾难性遗忘 | 本体感知 | 性能 |
+|------|---------|-----------|---------|------|
+| **Vanilla VLA** | 单一VLM微调 | ✅ 严重 | ❌ 有限 | ⚠️ 中等 |
+| **TwinBrainVLA** | 双VLM（冻结+可训练） | ❌ 避免 | ✅ 专门编码 | ✅ 优异 |
+
+<!-- 详见论文对比图，展示两种架构的信息流差异 -->
 
 论文提出了 TwinBrainVLA,一个受大脑半球侧化 (hemispheric lateralization) 启发的双流VLA架构,通过协调"通才VLM"和"具身专才VLM"来实现联合机器人控制:
 
@@ -2893,12 +3032,28 @@ Vanilla VLA与TwinBrainVLA架构对比图
 
 **2. AsyMoT机制 (Asymmetric Mixture-of-Transformers)**
 
-<div align="center">
-  <img src="/images/TwinBrainVLA-framework-AsyMoT.png" width="100%" />
-<figcaption>
-TwinBrainVLA整体框架及AsyMoT机制详解
-</figcaption>
-</div>
+**TwinBrainVLA框架及AsyMoT机制**：
+
+```
+Left Brain (冻结通才VLM)          Right Brain (可训练专才VLM)
+  [V; T]                           [V; T; φ(s)]
+     ↓ 独立Self-Attn                    ↓ AsyMoT
+  H_L (语义特征) ─────sg───→ [K_L; K_R] ← Q_R
+                              [V_L; V_R]
+                                   ↓
+                            融合特征 H_R
+                                   ↓
+                          Flow-Matching Action Expert
+                                   ↓
+                              连续动作输出
+```
+
+**AsyMoT核心机制**：
+1. Left Brain独立运行，保留预训练能力
+2. Right Brain的Query attend到双分支的Key-Value（通过stop-gradient）
+3. 实现知识迁移而不破坏原始语义锚点
+
+详见[TwinBrainVLA论文Figure 2](https://arxiv.org/abs/2601.14133)
 
 核心创新在于双流的交互方式:
 
