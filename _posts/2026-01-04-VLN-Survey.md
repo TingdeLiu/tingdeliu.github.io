@@ -4629,8 +4629,9 @@ VL-Nav 在四个真实世界环境（Hallway、Office、Apartment、Outdoor）�
 
 系统在处理包含隐藏对象引用和特定文本注释的复杂语言描述时存在困难。此外，系统依赖于手动定义的阈值（如光照条件等），这些阈值可能无法在不同环境和场景中很好地泛化，需要进一步研究自适应或基于学习的阈值调整方法。
 ---
-## 19. StreamVLN: Streaming Vision-and-Language Navigation via SlowFast Context Modeling (2025)
-———通过慢-快上下文建模实现流式视觉-语言导航
+## 19. StreamVLN (2025)
+
+——— 通过慢-快上下文建模实现流式视觉-语言导航
 
 📄 **Paper**: https://arxiv.org/abs/2507.05240
 
