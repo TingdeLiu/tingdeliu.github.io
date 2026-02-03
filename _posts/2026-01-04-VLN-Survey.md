@@ -295,7 +295,7 @@ VLN研究依赖高质量的数据集来训练和评估导航模型。以下是VL
 
 ---
 
-## 1. 指令导向数据集 
+## 指令导向数据集 
 
 指令导向任务(Instruction-guided)是 VLN 的核心，重点在于将复杂的自然语言指令映射到具体的环境动作序列中。
 
@@ -414,7 +414,7 @@ RxR/
 ---
 
 ---
-## 1.2 VLN-CE (2020)
+## 2. VLN-CE (2020)
 ——Beyond the Nav-Graph: 在连续环境中的视觉-语言导航
 
 📄 **Paper**: https://arxiv.org/abs/2004.02857
@@ -469,7 +469,7 @@ VLN 与 VLN-CE 的对比:VLN 基于固定拓扑的全景图节点(左),而 VLN-C
 约 23% 的 R2R 轨迹无法在连续环境中导航(环境重建的不连续性、物体移动等)。当前端到端方法的绝对性能仍较低,未来需要探索模块化方法,如将学习到的智能体与运动控制器集成。论文未详细探索所有可能改善 VLN-CE 性能的技术(如更多应对 exposure bias 和数据稀疏性的方法)。
 
 ---
-## 1.3 VLN-PE (2025)
+## 3. VLN-PE (2025)
 ———重新思考视觉-语言导航中的具身化差距:物理和视觉差异的全面研究
 
 📄 **Paper**: https://arxiv.org/abs/2507.13019v2
@@ -573,7 +573,7 @@ RDP(循环扩散策略)框架:使用GRU维护历史信息,交叉注意力融合�
 
 ---
 
-## 1.6 VLN-N1 (Synthetic Data for InternVLA-N1)
+## 4. VLN-N1 (Synthetic Data for InternVLA-N1)
 
 * **发布时间**：2025
 * **环境表示**：**连续环境 (Continuous Environment)**。基于 VLN-CE 等导航数据集转换，采用统一的 LeRobotDataset 格式。
@@ -721,12 +721,12 @@ InternNav 保留 VLN-CE 的标准指标，同时支持 LeRobot 框架的训练�
 * **DtG (Distance to Goal)**: 最终距离目标的平均距离
 * 
 ---
-## 2. 目标导向数据集
+## 目标导向数据集
 
 目标导向任务(Object-grounded)在路径导航的基础上增加了物体定位和语义理解的要求，更接近真实应用场景。
 
 
-### 2.1 REVERIE (Remote Embodied Visual Referring Expression in Real Indoor Environments)
+### 1. REVERIE (Remote Embodied Visual Referring Expression in Real Indoor Environments)
 
 * **发布时间**：2020 (CVPR)
 * **环境表示**：基于 Matterport3D 的离散拓扑图
@@ -803,7 +803,7 @@ REVERIE 使用 **三级评估体系**：
 
 ---
 
-### 2.2 SOON (Scenario Oriented Object Navigation)
+### 2. SOON (Scenario Oriented Object Navigation)
 
 * **发布时间**：2021 (CVPR)
 * **环境表示**：基于 Matterport3D 的连续 3D 环境
@@ -882,7 +882,7 @@ SOON 引入了富含语义信息的场景描述，避免目标歧义：
 
 ---
 
-### 2.3 LHPR-VLN (Long-Horizon Planning and Reasoning in VLN)
+### 3. LHPR-VLN (Long-Horizon Planning and Reasoning in VLN)
 
 * **发布时间**：2025 (CVPR)
 * **环境表示**：Habitat Simulator + 连续 3D 环境（216 个复杂场景）
@@ -978,13 +978,13 @@ LHPR-VLN 引入了多阶段任务结构和细粒度步骤标注：
 
 ---
 
-## 3. 对话式导航数据集
+## 对话式导航数据集
 
 对话式导航(Dialog-based Navigation)允许智能体通过多轮交互主动获取信息，模拟人类在不确定情况下的问询行为。
 
 ---
 
-### 3.1 CVDN (Cooperative Vision-and-Dialog Navigation)
+### 1. CVDN (Cooperative Vision-and-Dialog Navigation)
 
 * **发布时间**：2019 (CoRL - Conference on Robot Learning)
 * **环境表示**：Matterport3D 离散拓扑图（基于 R2R 环境）
@@ -1087,7 +1087,7 @@ CVDN 提出了 **Navigation from Dialog History (NDH)** 子任务：
 
 ---
 
-### 3.2 TEACh (Task-driven Embodied Agents that Chat)
+### 2. TEACh (Task-driven Embodied Agents that Chat)
 
 * **发布时间**：2022 (AAAI)（arXiv 首次发布于 2021 年 10 月）
 * **环境表示**：AI2-THOR 模拟器 + 可交互家居环境
@@ -1221,7 +1221,7 @@ TEACh 数据包含 **完整的任务执行过程** 和 **对话交互**：
 
 ---
 
-### 3.3 HA-VLN (Human-Aware Vision-Language Navigation)
+### 3. HA-VLN (Human-Aware Vision-Language Navigation)
 
 * **发布时间**：2025 (NeurIPS 2024 Datasets and Benchmarks Track, HA-VLN 2.0 发布于 2025年3月)
 * **环境表示**：离散（Matterport3D）+ 连续（Habitat）双模式支持
@@ -1337,13 +1337,13 @@ HA-VLN 2.0 包含真实机器人实验：
 
 ---
 
-## 4. 需求导向数据集
+## 需求导向数据集
 
 需求导向导航(Demand-driven Navigation)要求智能体理解用户的抽象需求（如"我想喝咖啡"），并自主推理需要找到的物体。
 
 ---
 
-### 4.1 DDN (Demand-driven Navigation)
+### DDN (Demand-driven Navigation)
 
 * **发布时间**：2023-2024（基于 ProcThor 数据集）
 * **环境表示**：AI2-THOR + ProcThor 程序化生成的室内环境
@@ -1458,13 +1458,13 @@ DDN 数据强调 **需求到物体的映射**：
 
 ---
 
-## 5. 特殊场景数据集
+## 特殊场景数据集
 
 特殊场景数据集突破了室内导航的限制，探索无人机、城市航拍等新兴应用场景。
 
 ---
 
-### 5.1 AerialVLN (Vision-and-Language Navigation for UAVs)
+### 1. AerialVLN (Vision-and-Language Navigation for UAVs)
 
 * **发布时间**：2023 (ICCV)
 * **环境表示**：3D 模拟器 + 近真实感城市场景渲染（25 个城市场景）
@@ -1596,7 +1596,7 @@ AerialVLN 需要处理 **三维空间的飞行路径**：
 
 ---
 
-### 5.2 CityNav (Language-Goal Aerial Navigation Dataset with Geographic Information)
+### 2. CityNav (Language-Goal Aerial Navigation Dataset with Geographic Information)
 
 * **发布时间**：2025 (ICCV)（arXiv 于 2024 年 6 月首次发布）
 * **环境表示**：真实城市航拍图像 + 地理语义地图（GSM）
@@ -1779,7 +1779,7 @@ CityNav 结合了 **真实航拍图像** 和 **地理信息**：
 
 ---
 
-### 5.3 OpenFly (A Comprehensive Platform for Aerial Vision-Language Navigation)
+### 3. OpenFly (A Comprehensive Platform for Aerial Vision-Language Navigation)
 
 * **发布时间**：2025 (arXiv 首次发布于 2025 年 2 月)
 * **环境表示**：多引擎集成（Unreal Engine + GTA V + Google Earth + 3D Gaussian Splatting）
