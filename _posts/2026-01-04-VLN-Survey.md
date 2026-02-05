@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Vision-Language Navigation (VLN) 综述"
-27date:   2026-01-28
+27date:   2026-02-03
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 comments: true
 author: Tingde Liu
@@ -415,165 +415,243 @@ RxR/
 
 ---
 ## 2. VLN-CE (2020)
-——Beyond the Nav-Graph: 在连续环境中的视觉-语言导航
+————Beyond the Nav-Graph: Vision-and-Language Navigation in Continuous Environments
+
+* **发布时间**：2020 (ECCV)
+* **环境表示**：**连续环境 (Continuous Environment)**。基于 Habitat 模拟器渲染 Matterport3D 场景，使用低层动作控制（0.25m 前进，15° 转向）。
+* **核心特点**：将离散拓扑图导航转换为连续空间导航，移除了预先构建导航图、完美定位和瞬移假设，更贴近真实机器人场景。
 
 📄 **Paper**: https://arxiv.org/abs/2004.02857
-
-**精华**
-
-这篇论文通过将 VLN 任务从离散导航图迁移到连续 3D 环境,揭示了基于导航图的设定中隐含的强假设对性能的巨大影响。值得借鉴的核心思想包括:批判性地审视任务设定中的隐含假设、通过消除不现实的简化来提高任务的实际应用价值、深度信息在具身导航中的关键作用、以及端到端学习与低层控制结合的必要性。这种"去简化"的研究思路对构建更接近真实机器人应用的 AI 系统具有重要指导意义。
-
-**研究背景/问题**
-
-现有的 Vision-and-Language Navigation (VLN) 任务基于导航图 (nav-graph) 表示,引入了三个不现实的假设:已知环境拓扑、短距离 oracle 导航、以及完美的智能体定位。这些假设使得任务本质上退化为视觉引导的图搜索问题,与真实机器人导航场景存在巨大差距,限制了向实际机器人平台迁移的可能性。
-
-**主要方法/创新点**
 
 <div align="center">
   <img src="/images/VLN-CE-comparison.png" width="100%" />
 <figcaption>
-VLN 与 VLN-CE 的对比:VLN 基于固定拓扑的全景图节点(左),而 VLN-CE 在连续环境中使用低层动作(右)
+VLN 与 VLN-CE 的对比: VLN 基于固定拓扑的全景图节点(左)，而 VLN-CE 在连续环境中使用低层动作(右)
 </figcaption>
 </div>
 
-论文提出了 Vision-and-Language Navigation in Continuous Environments (VLN-CE) 任务,在 Habitat 模拟器中实例化连续的 Matterport3D 环境。主要创新包括:
+**[数据集目录结构]**
 
-1. **连续环境设定**:智能体通过低层动作(前进 0.25m、左转/右转 15°、停止)在连续 3D 空间中自由导航,而非在固定节点间传送。
+```text
+data/
+├── datasets/
+│   ├── R2R_VLNCE_v1-3/              # R2R 数据集转换版本
+│   │   ├── train/
+│   │   │   └── train.json.gz        # 训练集（4,475 条轨迹）
+│   │   ├── val_seen/
+│   │   │   └── val_seen.json.gz     # 已见环境验证集
+│   │   └── val_unseen/
+│   │       └── val_unseen.json.gz   # 未见环境验证集
+│   │
+│   ├── RxR_VLNCE_v0/                # RxR 多语言版本
+│   │   ├── train/
+│   │   │   ├── train_guide.json.gz           # Guide 轨迹
+│   │   │   ├── train_guide_gt.json.gz        # Ground Truth
+│   │   │   ├── train_follower.json.gz        # Follower 轨迹
+│   │   │   └── train_follower_gt.json.gz
+│   │   ├── val_seen/
+│   │   ├── val_unseen/
+│   │   └── text_features/                    # BERT 预编码特征
+│   │
+├── scene_datasets/
+│   └── mp3d/                        # Matterport3D 场景资源
+│       ├── <scan_id>.glb            # 场景网格模型
+│       └── <scan_id>.navmesh        # 可导航网格
+│
+└── ddppo-models/                    # 预训练强化学习模型
+```
 
-2. **轨迹迁移方法**:设计了将 Room-to-Room (R2R) 数据集的导航图轨迹转换为连续环境路径的算法。通过向下投射射线找到最近的可导航点,并使用 A* 算法验证路径可达性,成功转换了 77% 的 R2R 轨迹(4475 条)。
+**[数据格式示例]**
 
-3. **模型架构**:
-   - **Seq2Seq Baseline**: 使用 GRU 处理 RGB 和 Depth 观察的均值池化特征以及 LSTM 编码的指令
-   - **Cross-Modal Attention Model**: 采用双 GRU 架构,一个处理视觉观察,另一个基于注意力机制融合指令和视觉特征进行决策。使用预训练的 ResNet50 (ImageNet) 提取 RGB 特征,使用预训练的 ResNet50 (Point-Goal Navigation) 提取深度特征。
+VLN-CE 保留 R2R 的指令和路径信息，但将离散节点路径转换为连续轨迹：
 
-4. **训练策略**:
-   - 基础模仿学习 with inflection weighting
-   - DAgger 应对 exposure bias
-   - Progress Monitor 辅助损失
-   - Speaker 模型生成的合成数据增强(~150k 条轨迹)
+```json
+{
+  "episode_id": 1234,
+  "scene_id": "2n8kARJN3HM",
+  "trajectory_id": "4321",
+  "instruction": {
+    "instruction_text": "Walk past the bathroom and stop near the stairs.",
+    "instruction_tokens": ["walk", "past", "the", "bathroom", ...]
+  },
+  "reference_path": [              // 离散参考路径（来自 R2R）
+    "viewpoint_1",
+    "viewpoint_2",
+    "viewpoint_3"
+  ],
+  "start_position": [1.2, 0.15, 3.4],  // 连续空间起始坐标 (x, y, z)
+  "start_rotation": [0, 1.57, 0, 0],   // 四元数表示的初始朝向
+  "goals": [                           // 目标位置（可能有多个）
+    {
+      "position": [5.6, 0.15, 8.2],
+      "radius": 3.0                    // 成功判定半径（米）
+    }
+  ],
+  "shortest_paths": [                  // 预计算的最短路径动作序列
+    [
+      {"action": "MOVE_FORWARD", "rotation": 0},
+      {"action": "TURN_LEFT", "rotation": 15},
+      {"action": "MOVE_FORWARD", "rotation": 0},
+      ...
+    ]
+  ],
+  "info": {
+    "geodesic_distance": 9.89,         // 最短路径长度（米）
+    "euclidean_distance": 7.32
+  }
+}
+```
 
-**核心结果/发现**
+**[关键技术特性]**
 
-1. **任务难度显著增加**:VLN-CE 中平均轨迹长度为 55.88 个动作,而 VLN 仅需 4-6 个节点跳转。最佳模型在 val-unseen 上达到 32% 成功率 (SR) 和 0.30 SPL,显著低于 VLN 中的表现。
+* **轨迹转换方法**：通过射线投射和 A* 路径验证，将 77% 的 R2R 离散路径成功转换为连续环境轨迹
+* **动作空间**：`MOVE_FORWARD (0.25m)`, `TURN_LEFT (15°)`, `TURN_RIGHT (15°)`, `STOP`
+* **观测空间**：RGB (480×640) + Depth (480×640)，视场角 (FoV) 79°
+* **物理约束**：支持碰撞检测、可导航网格 (NavMesh)、Agent 高度 1.5m
+* **Habitat 集成**：利用 Habitat-Sim 高性能渲染（1000+ FPS），支持分布式训练
 
-2. **深度信息至关重要**:移除深度输入导致模型性能崩溃(成功率 ≤1%),而移除 RGB 或指令的影响相对较小。深度使智能体能够快速学会有效遍历环境(避免碰撞),是引导学习的关键信号。
+**[核心评估指标]**
 
-3. **训练技术的混合效果**:Cross-Modal Attention 优于 Seq2Seq;DAgger 带来 3-5% SPL 提升;但 Progress Monitor 和数据增强单独使用时效果不佳,需要组合使用(预训练 + DAgger 微调)才能达到最佳性能。
+VLN-CE 采用与 R2R 一致的评估指标，但在连续空间中重新定义：
 
-4. **导航图的强先验**:将 VLN-CE 训练的智能体路径转换回导航图并在 VLN 测试集上评估,SPL 为 0.21,远低于利用导航图训练的 SOTA 方法(0.47 SPL)。这表明现有 VLN 结果可能因导航图的强先验而被高估。
+* **NE (Navigation Error)**: 最终位置与目标的欧式距离（米），越低越好
+* **SR (Success Rate)**: 终点误差 < 3m 的轨迹比例，越高越好
+* **SPL (Success weighted by Path Length)**: 路径效率加权成功率 = SR × (最短路径长度 / 实际路径长度)
+* **OSR (Oracle Success Rate)**: 轨迹中任意位置曾接近目标（< 3m）的比例
 
-5. **单模态消融**:无指令模型达到 17% SR,无图像模型也达到 17% SR,表明轨迹存在共同的规律性;但完整多模态模型(20% SR)仍明显优于单模态基线。
+**[性能基准]**
 
-**局限性**
+| 模型 | Val Unseen SR | Val Unseen SPL | 备注 |
+|------|--------------|----------------|------|
+| Seq2Seq | 18% | 0.16 | 基础模型 |
+| CMA (Cross-Modal Attention) | 32% | 0.30 | 最佳基线 |
+| 无深度输入 | ≤1% | - | 性能崩溃 |
+| 无指令输入 | 17% | - | 单模态基线 |
 
-约 23% 的 R2R 轨迹无法在连续环境中导航(环境重建的不连续性、物体移动等)。当前端到端方法的绝对性能仍较低,未来需要探索模块化方法,如将学习到的智能体与运动控制器集成。论文未详细探索所有可能改善 VLN-CE 性能的技术(如更多应对 exposure bias 和数据稀疏性的方法)。
+**核心发现**：深度信息对 VLN-CE 至关重要，移除深度导致性能崩溃；平均轨迹长度从 VLN 的 4-6 步增加到 55.88 步。
 
 ---
 ## 3. VLN-PE (2025)
-———重新思考视觉-语言导航中的具身化差距:物理和视觉差异的全面研究
+————Rethinking the Embodied Gap: Physical and Visual Disparities in VLN
+
+* **发布时间**：2025 (ICCV)
+* **环境表示**：**物理真实连续环境 (Physically Realistic Environment)**。基于 GRUTopia 物理模拟器 (Isaac Sim)，支持真实的运动动力学和物理交互。
+* **核心特点**：首个支持多种机器人具身（人形/四足/轮式）的 VLN 平台，引入物理控制器和真机部署验证，揭示了仿真到真实的具身化差距。
 
 📄 **Paper**: https://arxiv.org/abs/2507.13019v2
-
-**精华**
-
-这篇论文通过构建物理真实的VLN平台,系统性地揭示了理想化仿真与物理部署之间的巨大差距。核心启示包括:(1) 跨具身数据融合训练可以显著提升模型泛化能力,为统一的跨机器人导航模型奠定基础;(2) 多模态感知(RGB+Depth)比单一RGB更鲁棒,尤其在光照变化环境下;(3) 物理控制器的引入对于腿足机器人至关重要,训练和评估阶段的控制器一致性直接影响性能;(4) 现有MP3D风格数据集的泛化能力有限,小规模域内数据微调即可超越大模型零样本性能;(5) diffusion policy作为连续路径点预测的新范式在VLN任务中展现潜力。
-
-**研究背景/问题**
-
-现有的VLN方法在理想化仿真环境中表现优异,但在部署到真实物理机器人时面临巨大挑战。主要问题包括:当前VLN平台忽视了机器人的物理具身特性(如视点高度、运动动力学、碰撞和跌倒等),并且缺乏对不同机器人类型(轮式、人形、四足)的跨具身支持。研究核心问题是:物理具身约束和视觉环境变化对现有VLN方法的性能影响究竟有多大?
-
-**主要方法/创新点**
 
 <div align="center">
   <img src="/images/VLN-PE-evolution.png" width="100%" />
 <figcaption>
-VLN任务的演进:从oracle-based导航(2018)到VLN-CE连续导航(2020),再到VLN-PE物理真实导航(2025)
+VLN 任务的演进: 从 oracle-based 导航(2018)到 VLN-CE 连续导航(2020)，再到 VLN-PE 物理真实导航(2025)
 </figcaption>
 </div>
 
-论文提出了**VLN-PE平台**,一个基于GRUTopia构建的物理真实VLN基准测试平台,具有以下核心特性:
+**[数据集目录结构]**
 
-1. **跨具身支持**:支持人形机器人(Unitree H1, G1)、四足机器人(Unitree Aliengo)和轮式机器人(Jetbot),并提供基于RL的物理控制器API,实现真实的运动动力学模拟
+```text
+VLN-PE/
+├── datasets/
+│   ├── R2R-filtered/                # 过滤楼梯场景的 R2R
+│   │   ├── train/                   # 8,679 个 episodes
+│   │   ├── val_seen/                # 658 个 episodes
+│   │   └── val_unseen/              # 1,347 个 episodes
+│   │
+│   ├── GRU-VLN10/                   # 新增合成家居场景
+│   │   ├── train/                   # 441 个 episodes
+│   │   ├── val_seen/                # 111 个 episodes
+│   │   └── val_unseen/              # 1,287 个 episodes
+│   │
+│   └── 3DGS-Lab-VLN/                # 3D Gaussian Splatting 渲染实验室
+│       ├── train/                   # 160 个 episodes
+│       └── val/                     # 640 个 episodes
+│
+├── scenes/
+│   ├── mp3d/                        # 90 个 Matterport3D 场景
+│   ├── GRScenes/                    # 10 个高质量合成场景
+│   └── 3DGS/                        # 3DGS 在线渲染场景
+│
+├── robots/
+│   ├── humanoid/                    # 人形机器人配置
+│   │   ├── unitree_h1/              # Unitree H1 (相机高度 ~1.5m)
+│   │   └── unitree_g1/              # Unitree G1
+│   ├── quadruped/                   # 四足机器人
+│   │   └── unitree_aliengo/         # Unitree Aliengo (相机高度 ~0.5m)
+│   └── wheeled/                     # 轮式机器人
+│       └── jetbot/                  # NVIDIA Jetbot
+│
+└── controllers/
+    ├── physical_controller/         # RL-based 物理控制器
+    └── simple_controller/           # 简化运动控制器
+```
 
-2. **场景多样性**:除了90个MP3D场景外,新增10个高质量合成家居场景(GRScenes)和3DGS在线渲染实验室场景,支持无缝集成更多环境
+**[数据格式特点]**
 
-<div align="center">
-  <img src="/images/VLN-PE-platform-overview.png" width="100%" />
-<figcaption>
-VLN-PE平台概览:支持多种机器人具身、场景类型、光照条件和控制器模式
-</figcaption>
-</div>
+VLN-PE 扩展了 VLN-CE 数据格式，新增机器人具身和物理状态信息：
 
-3. **系统性评估框架**:评估三类ego-centric VLN方法
-   - **单步端到端方法**:Seq2Seq、CMA(约36M参数)和NaVid(7B参数的视频MLLM)
-   - **多步端到端方法**:首次提出RDP(Recurrent Diffusion Policy),使用transformer-based diffusion模块预测连续轨迹路径点
-   - **地图基零样本方法**:改进的VLMaps,结合LLM和语义地图进行路径规划
+```json
+{
+  "episode_id": 5678,
+  "scene_id": "GRScene_001",
+  "instruction": "Walk to the living room and find the red pillow.",
+  "robot_type": "humanoid_h1",           // 机器人类型
+  "controller_type": "physical",         // 控制器类型
+  "camera_height": 1.5,                  // 相机高度（米）
+  "start_position": [2.3, 0.0, 4.1],
+  "start_rotation": [0, 0.785, 0, 0],
+  "goal_position": [8.7, 0.0, 9.2],
+  "goal_radius": 3.0,
+  "lighting_condition": "normal",        // 光照条件: normal/low/high
+  "sensor_config": {
+    "rgb": true,
+    "depth": true,                       // 是否包含深度
+    "resolution": [270, 480]
+  }
+}
+```
 
-<div align="center">
-  <img src="/images/VLN-PE-RDP-framework.png" width="100%" />
-<figcaption>
-RDP(循环扩散策略)框架:使用GRU维护历史信息,交叉注意力融合视觉-语言特征,Transformer扩散模块预测连续动作序列
-</figcaption>
-</div>
+**[关键技术特性]**
 
-4. **新数据集**:
-   - **R2R-filtered**:过滤楼梯场景后保留8,679/658/1,347个训练/val-seen/val-unseen episodes
-   - **GRU-VLN10**:10个合成场景,441/111/1,287个episodes
-   - **3DGS-Lab-VLN**:3DGS渲染实验室环境,160训练/640评估episodes
+* **跨具身支持**：统一接口支持人形（H1, G1）、四足（Aliengo）和轮式（Jetbot）机器人，各具身可独立训练或联合训练
+* **物理控制器**：基于 RL 训练的低层控制器，模拟真实运动动力学（步态、平衡、碰撞响应）
+* **多场景融合**：101 个场景（90 MP3D + 10 GRScene + 1 定制），支持光照变化和 3DGS 渲染
+* **真机验证**：在 Unitree Go2 四足机器人上进行 14 个室内场景的实际部署测试
+* **标准化格式**：兼容 LeRobot v2.1 格式（InternData-N1），便于跨平台使用
 
-5. **新评估指标**:除了传统的TL、NE、SR、OS、SPL外,新增Fall Rate (FR)和Stuck Rate (StR)来衡量物理真实性挑战
+**[核心评估指标]**
 
-**核心结果/发现**
+VLN-PE 保留传统指标并新增物理真实性指标：
 
-<div align="center">
-  <img src="/images/VLN-PE-main-results.png" width="100%" />
-<figcaption>
-使用人形机器人Unitree H1在R2R数据集上的主要实验结果对比
-</figcaption>
-</div>
+* **TL (Trajectory Length)**: 轨迹总长度（米）
+* **NE (Navigation Error)**: 最终距离目标的误差（米）
+* **SR (Success Rate)**: 成功率（< 3m）
+* **SPL (Success weighted by Path Length)**: 路径效率加权成功率
+* **OSR (Oracle Success Rate)**: 曾接近目标的比例
+* **FR (Fall Rate)**: 机器人跌倒的比例（物理真实性指标）⭐
+* **StR (Stuck Rate)**: 机器人卡住的比例（碰撞/动力学失败）⭐
 
-**零样本迁移性能大幅下降**:
-- VLN-CE模型直接迁移到VLN-PE时,SR相对下降约34%
-- Seq2Seq-Full、CMA-Full和NaVid的SR分别下降10%、16%和18%
-- 这表明现有模型严重过拟合特定仿真平台
+**[性能基准 - Humanoid H1 on R2R-filtered Val Unseen]**
 
-**域内微调显著提升**:
-- 在VLN-PE上从头训练的CMA(无数据增强)超越了使用175K增强数据训练的CMA-Full
-- 小模型CMA+经过微调后,在val-seen上达到SR 28.72,SPL 24.24,超越NaVid的零样本性能
+| 模型 | 参数量 | SR (%) | SPL | FR (%) | StR (%) | 备注 |
+|------|--------|--------|-----|--------|---------|------|
+| Seq2Seq-Full (VLN-CE) | 36M | 15.2 | 0.13 | 8.3 | 12.1 | 零样本迁移 |
+| CMA-Full (VLN-CE) | 36M | 18.7 | 0.16 | 7.5 | 10.8 | 零样本迁移 |
+| NaVid (零样本) | 7B | 22.4 | 0.19 | 6.2 | 9.3 | 大模型 |
+| CMA (VLN-PE 训练) | 36M | 25.8 | 0.22 | 3.8 | 5.2 | 域内训练 |
+| RDP (Diffusion Policy) | 6M | 27.1 | 0.23 | 2.9 | 4.7 | 新方法 |
+| CMA+ (跨具身训练) | 36M | **28.7** | **0.24** | **2.1** | **3.9** | 最佳性能 |
 
-**跨具身敏感性**:
-- 四足机器人(相机高度约0.5m)在迁移时几乎完全失败
-- 调整相机高度到1.8m可改善人形机器人的迁移性能
-- 跨具身联合训练使单一模型在所有机器人类型上达到SoTA性能
-
-**物理控制器的重要性**:
-- 训练和评估使用相同控制器时性能最佳
-- 使用物理控制器收集数据可降低Fall Rate和Stuck Rate
-
-**多模态鲁棒性**:
-- 仅RGB的NaVid在低光照下SR下降12.47%
-- RGB+Depth的CMA和RDP受光照影响较小(下降约1-2%)
-
-**MP3D数据集泛化能力有限**:
-- 在GRU-VLN10上,RDP用6M参数仅441个训练样本,零样本超越NaVid大模型
-- 在3DGS-Lab-VLN上,NaVid完全失败(SR仅5.81),可能是3DGS渲染噪声导致
-
-**扩散策略的潜力**:
-- RDP作为首个VLN扩散策略基线,在从头训练时优于Seq2Seq和CMA
-- 预测连续密集路径点,可与MPC等控制理论方法结合
-
-**真机实验验证**:
-- 使用Unitree Go2机器人进行14个室内场景测试
-- VLN-PE微调模型在真实环境中OS达到57.14,SR达到28.57,显著优于VLN-CE训练模型
-
-**局限性**
-
-当前RL-based运动控制器无法可靠处理复杂环境中的楼梯导航,需要过滤相关场景。论文主要聚焦ego-centric视角,未评估panoramic VLN方法。MLLM在精确目标识别和停止决策上仍存在挑战。3DGS渲染引入的像素级噪声可能干扰纯RGB模型,需要进一步研究图像扰动的鲁棒性。
+**核心发现**：
+1. **零样本迁移失败**：VLN-CE 模型迁移到 VLN-PE 时 SR 相对下降 34%
+2. **跨具身泛化**：联合训练单一模型可在所有机器人类型上达到 SOTA
+3. **多模态鲁棒性**：RGB+Depth 在低光照下性能下降仅 1-2%，而纯 RGB 下降 12.47%
+4. **真机验证成功**：VLN-PE 训练模型在真实 Unitree Go2 上 SR 达到 28.57%
 
 
 ---
 
-## 4. VLN-N1 (Synthetic Data for InternVLA-N1)
+## 4. VLN-N1(2025)
+————Synthetic Data for InternVLA-N1
 
 * **发布时间**：2025
 * **环境表示**：**连续环境 (Continuous Environment)**。基于 VLN-CE 等导航数据集转换，采用统一的 LeRobotDataset 格式。
@@ -2659,8 +2737,8 @@ $$
 
 ---
 
-# 主流 VLN 研究框架 
-目前的 VLN 研究已演进为以下四大主流框架：
+# 主流 VLN 研究路线
+目前的 VLN 研究已演进为以下四大主流路线：
 
 
 ## 1. 判别式跨模态匹配框架 
@@ -5125,6 +5203,163 @@ Qwen3-VL提出了一个完整的视觉-语言模型系列,包括4个dense模型(
 论文未明确指出局限性,但从架构和实验设计可推断:训练成本较高(四阶段预训练+三阶段后训练),对于资源受限的场景可能难以复现;虽然支持256K上下文,但在超长序列(>256K)上仍需YaRN外推;thinking模式虽然提升推理能力,但会增加推理延迟和成本。
 
 ---
+## 4. VLN-CE (2020)
+——Beyond the Nav-Graph: 在连续环境中的视觉-语言导航
 
+📄 **Paper**: https://arxiv.org/abs/2004.02857
+
+**精华**
+
+这篇论文通过将 VLN 任务从离散导航图迁移到连续 3D 环境,揭示了基于导航图的设定中隐含的强假设对性能的巨大影响。值得借鉴的核心思想包括:批判性地审视任务设定中的隐含假设、通过消除不现实的简化来提高任务的实际应用价值、深度信息在具身导航中的关键作用、以及端到端学习与低层控制结合的必要性。这种"去简化"的研究思路对构建更接近真实机器人应用的 AI 系统具有重要指导意义。
+
+**研究背景/问题**
+
+现有的 Vision-and-Language Navigation (VLN) 任务基于导航图 (nav-graph) 表示,引入了三个不现实的假设:已知环境拓扑、短距离 oracle 导航、以及完美的智能体定位。这些假设使得任务本质上退化为视觉引导的图搜索问题,与真实机器人导航场景存在巨大差距,限制了向实际机器人平台迁移的可能性。
+
+**主要方法/创新点**
+
+<div align="center">
+  <img src="/images/VLN-CE-comparison.png" width="100%" />
+<figcaption>
+VLN 与 VLN-CE 的对比:VLN 基于固定拓扑的全景图节点(左),而 VLN-CE 在连续环境中使用低层动作(右)
+</figcaption>
+</div>
+
+论文提出了 Vision-and-Language Navigation in Continuous Environments (VLN-CE) 任务,在 Habitat 模拟器中实例化连续的 Matterport3D 环境。主要创新包括:
+
+1. **连续环境设定**:智能体通过低层动作(前进 0.25m、左转/右转 15°、停止)在连续 3D 空间中自由导航,而非在固定节点间传送。
+
+2. **轨迹迁移方法**:设计了将 Room-to-Room (R2R) 数据集的导航图轨迹转换为连续环境路径的算法。通过向下投射射线找到最近的可导航点,并使用 A* 算法验证路径可达性,成功转换了 77% 的 R2R 轨迹(4475 条)。
+
+3. **模型架构**:
+   - **Seq2Seq Baseline**: 使用 GRU 处理 RGB 和 Depth 观察的均值池化特征以及 LSTM 编码的指令
+   - **Cross-Modal Attention Model**: 采用双 GRU 架构,一个处理视觉观察,另一个基于注意力机制融合指令和视觉特征进行决策。使用预训练的 ResNet50 (ImageNet) 提取 RGB 特征,使用预训练的 ResNet50 (Point-Goal Navigation) 提取深度特征。
+
+4. **训练策略**:
+   - 基础模仿学习 with inflection weighting
+   - DAgger 应对 exposure bias
+   - Progress Monitor 辅助损失
+   - Speaker 模型生成的合成数据增强(~150k 条轨迹)
+
+**核心结果/发现**
+
+1. **任务难度显著增加**:VLN-CE 中平均轨迹长度为 55.88 个动作,而 VLN 仅需 4-6 个节点跳转。最佳模型在 val-unseen 上达到 32% 成功率 (SR) 和 0.30 SPL,显著低于 VLN 中的表现。
+
+2. **深度信息至关重要**:移除深度输入导致模型性能崩溃(成功率 ≤1%),而移除 RGB 或指令的影响相对较小。深度使智能体能够快速学会有效遍历环境(避免碰撞),是引导学习的关键信号。
+
+3. **训练技术的混合效果**:Cross-Modal Attention 优于 Seq2Seq;DAgger 带来 3-5% SPL 提升;但 Progress Monitor 和数据增强单独使用时效果不佳,需要组合使用(预训练 + DAgger 微调)才能达到最佳性能。
+
+4. **导航图的强先验**:将 VLN-CE 训练的智能体路径转换回导航图并在 VLN 测试集上评估,SPL 为 0.21,远低于利用导航图训练的 SOTA 方法(0.47 SPL)。这表明现有 VLN 结果可能因导航图的强先验而被高估。
+
+5. **单模态消融**:无指令模型达到 17% SR,无图像模型也达到 17% SR,表明轨迹存在共同的规律性;但完整多模态模型(20% SR)仍明显优于单模态基线。
+
+**局限性**
+
+约 23% 的 R2R 轨迹无法在连续环境中导航(环境重建的不连续性、物体移动等)。当前端到端方法的绝对性能仍较低,未来需要探索模块化方法,如将学习到的智能体与运动控制器集成。论文未详细探索所有可能改善 VLN-CE 性能的技术(如更多应对 exposure bias 和数据稀疏性的方法)。
+
+---
+## 5. VLN-PE (2025)
+———重新思考视觉-语言导航中的具身化差距:物理和视觉差异的全面研究
+
+📄 **Paper**: https://arxiv.org/abs/2507.13019v2
+
+**精华**
+
+这篇论文通过构建物理真实的VLN平台,系统性地揭示了理想化仿真与物理部署之间的巨大差距。核心启示包括:(1) 跨具身数据融合训练可以显著提升模型泛化能力,为统一的跨机器人导航模型奠定基础;(2) 多模态感知(RGB+Depth)比单一RGB更鲁棒,尤其在光照变化环境下;(3) 物理控制器的引入对于腿足机器人至关重要,训练和评估阶段的控制器一致性直接影响性能;(4) 现有MP3D风格数据集的泛化能力有限,小规模域内数据微调即可超越大模型零样本性能;(5) diffusion policy作为连续路径点预测的新范式在VLN任务中展现潜力。
+
+**研究背景/问题**
+
+现有的VLN方法在理想化仿真环境中表现优异,但在部署到真实物理机器人时面临巨大挑战。主要问题包括:当前VLN平台忽视了机器人的物理具身特性(如视点高度、运动动力学、碰撞和跌倒等),并且缺乏对不同机器人类型(轮式、人形、四足)的跨具身支持。研究核心问题是:物理具身约束和视觉环境变化对现有VLN方法的性能影响究竟有多大?
+
+**主要方法/创新点**
+
+<div align="center">
+  <img src="/images/VLN-PE-evolution.png" width="100%" />
+<figcaption>
+VLN任务的演进:从oracle-based导航(2018)到VLN-CE连续导航(2020),再到VLN-PE物理真实导航(2025)
+</figcaption>
+</div>
+
+论文提出了**VLN-PE平台**,一个基于GRUTopia构建的物理真实VLN基准测试平台,具有以下核心特性:
+
+1. **跨具身支持**:支持人形机器人(Unitree H1, G1)、四足机器人(Unitree Aliengo)和轮式机器人(Jetbot),并提供基于RL的物理控制器API,实现真实的运动动力学模拟
+
+2. **场景多样性**:除了90个MP3D场景外,新增10个高质量合成家居场景(GRScenes)和3DGS在线渲染实验室场景,支持无缝集成更多环境
+
+<div align="center">
+  <img src="/images/VLN-PE-platform-overview.png" width="100%" />
+<figcaption>
+VLN-PE平台概览:支持多种机器人具身、场景类型、光照条件和控制器模式
+</figcaption>
+</div>
+
+3. **系统性评估框架**:评估三类ego-centric VLN方法
+   - **单步端到端方法**:Seq2Seq、CMA(约36M参数)和NaVid(7B参数的视频MLLM)
+   - **多步端到端方法**:首次提出RDP(Recurrent Diffusion Policy),使用transformer-based diffusion模块预测连续轨迹路径点
+   - **地图基零样本方法**:改进的VLMaps,结合LLM和语义地图进行路径规划
+
+<div align="center">
+  <img src="/images/VLN-PE-RDP-framework.png" width="100%" />
+<figcaption>
+RDP(循环扩散策略)框架:使用GRU维护历史信息,交叉注意力融合视觉-语言特征,Transformer扩散模块预测连续动作序列
+</figcaption>
+</div>
+
+4. **新数据集**:
+   - **R2R-filtered**:过滤楼梯场景后保留8,679/658/1,347个训练/val-seen/val-unseen episodes
+   - **GRU-VLN10**:10个合成场景,441/111/1,287个episodes
+   - **3DGS-Lab-VLN**:3DGS渲染实验室环境,160训练/640评估episodes
+
+5. **新评估指标**:除了传统的TL、NE、SR、OS、SPL外,新增Fall Rate (FR)和Stuck Rate (StR)来衡量物理真实性挑战
+
+**核心结果/发现**
+
+<div align="center">
+  <img src="/images/VLN-PE-main-results.png" width="100%" />
+<figcaption>
+使用人形机器人Unitree H1在R2R数据集上的主要实验结果对比
+</figcaption>
+</div>
+
+**零样本迁移性能大幅下降**:
+- VLN-CE模型直接迁移到VLN-PE时,SR相对下降约34%
+- Seq2Seq-Full、CMA-Full和NaVid的SR分别下降10%、16%和18%
+- 这表明现有模型严重过拟合特定仿真平台
+
+**域内微调显著提升**:
+- 在VLN-PE上从头训练的CMA(无数据增强)超越了使用175K增强数据训练的CMA-Full
+- 小模型CMA+经过微调后,在val-seen上达到SR 28.72,SPL 24.24,超越NaVid的零样本性能
+
+**跨具身敏感性**:
+- 四足机器人(相机高度约0.5m)在迁移时几乎完全失败
+- 调整相机高度到1.8m可改善人形机器人的迁移性能
+- 跨具身联合训练使单一模型在所有机器人类型上达到SoTA性能
+
+**物理控制器的重要性**:
+- 训练和评估使用相同控制器时性能最佳
+- 使用物理控制器收集数据可降低Fall Rate和Stuck Rate
+
+**多模态鲁棒性**:
+- 仅RGB的NaVid在低光照下SR下降12.47%
+- RGB+Depth的CMA和RDP受光照影响较小(下降约1-2%)
+
+**MP3D数据集泛化能力有限**:
+- 在GRU-VLN10上,RDP用6M参数仅441个训练样本,零样本超越NaVid大模型
+- 在3DGS-Lab-VLN上,NaVid完全失败(SR仅5.81),可能是3DGS渲染噪声导致
+
+**扩散策略的潜力**:
+- RDP作为首个VLN扩散策略基线,在从头训练时优于Seq2Seq和CMA
+- 预测连续密集路径点,可与MPC等控制理论方法结合
+
+**真机实验验证**:
+- 使用Unitree Go2机器人进行14个室内场景测试
+- VLN-PE微调模型在真实环境中OS达到57.14,SR达到28.57,显著优于VLN-CE训练模型
+
+**局限性**
+
+当前RL-based运动控制器无法可靠处理复杂环境中的楼梯导航,需要过滤相关场景。论文主要聚焦ego-centric视角,未评估panoramic VLN方法。MLLM在精确目标识别和停止决策上仍存在挑战。3DGS渲染引入的像素级噪声可能干扰纯RGB模型,需要进一步研究图像扰动的鲁棒性。
+
+---
 ##
 **注**：本文为个人学习笔记，大量内容来自网络公开资料以及AI辅助总结，仅供参考。如有错误或建议，欢迎指正！
+
