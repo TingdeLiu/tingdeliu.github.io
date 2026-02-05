@@ -2738,62 +2738,26 @@ $$
 ---
 
 # 主流 VLN 研究路线
-目前的 VLN 研究已演进为以下四大主流路线：
 
+## 0. 技术演进脉络与历史发展
 
-## 1. 判别式跨模态匹配框架 
-——Cross-modal Matching
+VLN 研究从 2018 年至今经历了显著的范式演进：
 
-- **起始时间**：2018–2020  
-- **代表工作**：VLN-BERT, Recurrent VLN-BERT, PREVALENT  
+**早期范式 (2018-2020)：判别式跨模态匹配**
+- **代表工作**：VLN-BERT, Recurrent VLN-BERT, PREVALENT
+- **核心思想**：通过文本编码器与视觉编码器提取特征，利用跨模态注意力实现语言-视觉对齐，预测动作 $$P(a_t \mid o_t, I)$$
+- **本质**：reactive policy learning，无显式长期规划
+- **关键局限**：缺乏空间记忆、泛化能力弱、难以处理复杂指令
 
-### 核心思想  
-该类方法将 VLN 建模为语言条件下的动作预测问题，通过文本编码器（BERT/LSTM）与视觉编码器（CNN/ViT）提取特征，并利用跨模态注意力机制实现指令语义与当前视觉观测的对齐，从而预测下一步动作。
-
-本质上属于 **reactive policy learning**，不包含显式长期规划。
-
----
-
-<div align="center">
-  <img src="/images/VLN_Bert.png" width="100%" />
-  <figcaption>Cross-modal Matching VLN 架构示意</figcaption>
-</div>
-
----
-### 典型 Pipeline  
-
-```
-
-Instruction → Text Encoder
-Observation → Vision Encoder
-↓
-Cross-modal Attention Fusion
-↓
-Action Predictor (Policy Head)
-
-```
-
----
-
-### 优势  
-
-- 结构简单，训练稳定。  
-- 高效完成语言-视觉 grounding。  
-- 奠定 VLN 的基础范式。
-
----
-
-### 关键缺陷  
-
-- ❌ 缺乏长期规划能力，仅建模 $$P(a_t \mid o_t, I)$$。  
-- ❌ 无显式空间记忆，误差容易累积。  
-- ❌ 泛化能力依赖训练分布，zero-shot 表现有限。  
-- ❌ 难以处理复杂组合指令与回溯需求。
+**演进路径**：
+- **Matching → Planning (2020-2022)**：引入语义地图与拓扑规划，赋予智能体显式空间建模能力
+- **Planning → Reasoning (2023-2024)**：基于大模型的双系统/单系统架构，实现从匹配到推理的升级
+- **Reasoning → Imagination (2024-2025)**：生成式世界模型，智能体在"想象空间"中前瞻性规划
 
 ---
 
 
-## 2. 语义地图与拓扑规划框架 
+## 1. 语义地图与拓扑规划框架
 ——Semantic Map & Graph-based Planning
 
 - **起始时间**：2020–2022  
@@ -2845,149 +2809,248 @@ Global Planner → Local Policy → Action
 ---
 
 
-## 3. 具身大模型与 VLA 统一框架 
-——Foundation Models & VLA
+## 2. VLN双系统架构
+——Dual-System VLN
 
-- **起始时间**：2023–2024  
-- **代表工作**：NaVid, LLM-Grounder, OpenVLA, InternVLN  
+- **起始时间**：2023–2024
+- **代表工作**：DualVLN, InternVLN
 
-### 核心思想  
+### 核心思想
 
-该类方法以大规模视觉语言模型（VLM / LLM）作为认知核心，将视觉观测、语言指令与动作统一建模为 token 序列，直接进行序列生成式决策。  
+该类方法受认知科学"双过程理论"（快思考/慢思考）启发，采用 **双系统分层架构**：
 
-以 InternVLN 为代表的方法通常采用 **双系统结构**：  
-- System-1：VLM 感知与语言理解。  
-- System-2：基于推理的高层规划与子目标分解。  
+- **System-2（慢思考，"大脑"）**：基于 VLM/LLM 的高层推理与规划模块
+  - 负责：语言理解、指令分解、全局规划、子目标生成
+  - 频率：低频（约2 Hz），深度推理
+  - 代表：Qwen-VL, GPT-4V, InternVL
 
-从而实现从 matching 到 reasoning 的升级。
+- **System-1（快行动，"小脑"）**：基于 VN System（Vision-Navigation）的快速轨迹执行模块
+  - 负责：高频轨迹生成、局部避障、快速导航决策
+  - 频率：高频（30 Hz），实时响应
+  - 代表：DD-PPO, iPlanner, ViPlanner, GNM, ViNT, NoMad, NavDP, InternVLA-N1（DiT策略）
+
+两个系统异步协作：System-2 提供高层语义引导，System-1 负责流畅的低层执行，实现 **"Ground Slow, Move Fast"**。
 
 ---
 
 <div align="center">
   <img src="/images/dualvln-framework-overview.png" width="100%" />
-  <figcaption>VLA / InternVLN 双系统架构示意</figcaption>
+  <figcaption>DualVLN 双系统架构示意：System-2（VLM）负责慢推理规划，System-1（VN）负责快轨迹执行</figcaption>
 </div>
 
 ---
-### 典型 Pipeline  
+### 典型 Pipeline
+
+```
+Instruction + Observation → System-2 (VLM/LLM) → Pixel Goal / Subgoal
+                                ↓
+                         Latent Features
+                                ↓
+Current RGB Observation → System-1 (VN System / DiT) → High-Freq Trajectory
+                                ↓
+                         Low-Level Controller (MPC)
+                                ↓
+                            Action Execution
 
 ```
 
-Image / History / Instruction → VLM Encoder
+---
+
+### 优势
+
+- ✅ 强语言理解与常识推理能力（System-2）
+- ✅ 高频流畅导航，低延迟实时响应（System-1）
+- ✅ 优秀的 zero-shot 泛化性能
+- ✅ 支持复杂指令分解与多步规划
+- ✅ 异步推理流水线，充分利用 KV-cache
+
+---
+
+### 关键缺陷
+
+- ❌ 系统架构复杂，需要两个独立模型
+- ❌ 系统间信息传递需要精心设计（如像素目标、潜在特征）
+- ❌ System-2 易产生 hallucination 行为
+- ❌ 需要大规模轨迹数据训练 System-1
+
+---
+
+
+## 3. 单系统端到端 VLN 架构
+——Single-System End-to-End VLN
+
+- **起始时间**：2019–2024
+- **代表工作**：Seq2Seq, CMA, RDP, StreamVLN
+
+### 核心思想
+
+该类方法采用 **统一的端到端模型**，直接从多模态输入（视觉观测 + 语言指令 + 历史动作）生成下一步动作，无需显式的系统分层或模块划分。
+
+以 StreamVLN 为代表的最新方法将 VLN 建模为 **多轮对话式的交错生成任务**：$$o_1 \to a_1 \to o_2 \to a_2 \to ... \to o_T \to a_T$$，通过滑动窗口 KV cache 和体素化空间剪枝实现高效的流式导航。
+
+---
+
+<div align="center">
+  <img src="/images/StreamVLN-framework-overview.png" width="100%" />
+  <figcaption>StreamVLN 单系统架构示意：统一模型直接生成观测-动作交错序列</figcaption>
+</div>
+
+---
+### 典型 Pipeline
+
+```
+[Instruction, o_1, a_1, ..., o_{t-1}, a_{t-1}, o_t] → Unified VLM
 ↓
-Reasoning / Planner (LLM)
+Autoregressive Generation
 ↓
-Action Token Generator
+Action Token a_t
 
 ```
 
 ---
 
-### 优势  
+### 优势
 
-- 强语言理解与常识推理能力。  
-- 优秀 zero-shot 泛化。  
-- 支持复杂指令分解与子目标规划。
-
----
-
-### 关键缺陷  
-
-- ❌ 推理成本高，实时性受限。  
-- ❌ grounding 稳定性仍不足。  
-- ❌ 易产生 hallucination 行为。  
-- ❌ 缺乏低层物理执行建模。
+- ✅ 端到端优化，无模块间信息损耗
+- ✅ 推理延迟低（StreamVLN: 0.27s/step），适合实时部署
+- ✅ 训练简洁，无需多阶段训练或手工设计模块
+- ✅ 通过 KV cache 复用高效处理长对话历史
 
 ---
 
+### 关键缺陷
 
-<!-- ## 4. 连续环境与具身控制框架 (Continuous VLN & Control)
-
-- **起始时间**：2021–2023  
-- **代表工作**：VLN-CE, C-PST, Habitat-Web  
-
-### 核心思想  
-
-该类方法将 VLN 从离散动作空间扩展到真实物理连续空间，智能体需直接输出线速度与角速度，并处理滑移、碰撞与动态障碍问题。
-
-VLN 不再仅是决策问题，而是融合 **planning + control + perception** 的系统工程问题。
+- ❌ 决策过程黑盒，可解释性较弱
+- ❌ 需要大规模多源数据联合训练（VLA + VQA + 通用视觉数据）
+- ❌ grounding 稳定性依赖数据质量与模型规模
+- ❌ 对复杂多步推理的建模能力弱于双系统架构
 
 ---
 
-### 典型 Pipeline  
+### 架构对比：双系统 vs 单系统
 
-```
+| 维度 | 双系统（DualVLN） | 单系统（StreamVLN） |
+|:---:|:---|:---|
+| **架构设计** | System-2（VLM/LLM）+ System-1（VN System）分离 | 统一端到端 VLM |
+| **推理方式** | VLM规划（2Hz）→ VN高频执行（30Hz） | 观测-动作交错自回归生成 |
+| **训练方式** | 分阶段训练（System-2微调 + System-1监督） | 端到端联合训练 |
+| **推理延迟** | System-2: 0.7s, System-1: 0.03s | 单次推理: 0.27s |
+| **控制频率** | 高频（30 Hz）流畅轨迹 | 低频（约4 Hz）离散动作 |
+| **可解释性** | 强（显式像素目标 + 推理链） | 弱（黑盒） |
+| **复杂推理** | 强（VLM/LLM显式推理） | 弱（隐式编码） |
+| **部署复杂度** | 高（两个模型 + 异步协调） | 低（单模型 + KV cache） |
 
-Observation → State Estimation → Local Planner → Controller → Velocity Action
-↑
-Language-conditioned Goal
 
-```
-
----
-
-### 优势  
-
-- 面向真实机器人部署。  
-- 融合控制与语义决策。  
-- 支持动态环境导航。
-
----
-
-### 关键缺陷  
-
-- ❌ sim2real gap 明显。  
-- ❌ 控制误差放大高层决策错误。  
-- ❌ 与语言推理结合仍较弱。  
 
 --- -->
 
-## 4. 生成式世界模型框架 
-——Generative World Models
+## 4. 生成式世界模型框架
+——Generative World Models for VLN
 
-- **起始时间**：2024–2025  
-- **代表工作**：Dynam3D (NeurIPS'25), V-A-World  
+- **起始时间**：2024–2025
+- **代表工作**：
+  - [Dynam3D](https://openreview.net/forum?id=s6k9l5yX8e) (NeurIPS'25 Oral)
+  - [Navigation World Models (NWM)](https://www.amirbar.net/nwm/) (CVPR'25, Best Paper Honorable Mention, Meta AI)
+  - [DreamVLA](https://zhangwenyao1.github.io/DreamVLA/) (NeurIPS'25)
+  - [WMNav](https://b0b8k1ng.github.io/WMNav/) (IROS'25 Oral)
 
-### 核心思想  
+### 核心思想
 
-该类方法引入 **Predictive World Modeling**，使智能体在潜空间中预测不同动作可能带来的未来视觉结果，并在“想象空间”中搜索最优路径，从而减少真实环境中的试错。
+该类方法引入 **Predictive World Modeling**，使智能体能够：
+1. **预测未来**：在执行动作前，在"想象空间"中模拟可能的未来观测
+2. **前瞻性规划**：通过评估多条候选轨迹的未来结果，选择最优路径
+3. **减少试错**：显著降低真实环境中的碰撞和探索成本
 
-VLN 从 reactive 转向 **deliberative planning with imagination**。
+VLN 从 **reactive execution** 转向 **deliberative planning with imagination**，更接近人类"先想象后行动"的认知方式。
 
 ---
+
 <div align="center">
   <img src="/images/world_model_architecture.png" width="100%" />
   <figcaption>Generative World Model VLN 架构示意</figcaption>
 </div>
 
---
-### 典型 Pipeline  
+---
+
+### 典型 Pipeline
 
 ```
-
-Current State → World Model → Future Rollouts
-↓
-Latent Space Planning
-↓
-Action
+Current Observation + Action Candidate → World Model (Diffusion/Autoregressive)
+                                           ↓
+                                    Future Visual Rollouts
+                                           ↓
+                                    Trajectory Evaluation
+                                           ↓
+                                    Optimal Action Selection
 
 ```
 
 ---
 
-### 优势  
+### 主流技术路线
 
-- 支持前瞻性规划。  
-- 显著降低真实试错成本。  
-- 更接近人类认知导航方式。
+#### 1. **3D动态表示 + 世界模型**（Dynam3D）
+
+- **核心创新**：多层级 patch-instance-zone 3D 表示，动态在线更新
+- **技术特点**：
+  - 将 2D CLIP 特征投影到 3D 空间
+  - 在线编码和定位 3D 实例
+  - 动态适应环境变化，提供长期记忆
+- **性能**：SOTA on R2R-CE, REVERIE-CE, NavRAG-CE
+- **优势**：大规模探索 + 长期记忆 + 动态环境适应
+
+#### 2. **可控视频生成模型**（Navigation World Models, Meta AI）
+
+- **核心创新**：1B 参数 Conditional Diffusion Transformer (CDiT)
+- **技术特点**：
+  - 基于过去观测和导航动作预测未来视觉观测
+  - 在熟悉环境中模拟轨迹并评估是否达到目标
+  - 从单张图像想象未知环境的轨迹
+- **训练数据**：多样化的自我中心视频（人类 + 机器人）
+- **优势**：灵活的约束规划 + 单图像泛化能力
+- **荣誉**：CVPR 2025 Best Paper Honorable Mention
+
+#### 3. **多模态世界知识预测**（DreamVLA）
+
+- **核心创新**：动态区域引导的世界知识预测机制
+- **预测内容**：视觉 + 深度 + 几何 + 语义 + 分割
+- **技术特点**：
+  - 扩散 Transformer 建模动作条件分布
+  - 先形成抽象多模态推理链，再执行动作
+- **性能**：76.7% 真实机器人任务成功率
+- **应用**：操作任务，但范式可迁移到 VLN
+
+#### 4. **VLM + 世界模型融合**（WMNav）
+
+- **核心创新**：将 Vision-Language Models 集成到世界模型中
+- **关键组件**：
+  - PredictVLM：预测决策的可能结果
+  - Curiosity Value Map：构建记忆并提供反馈
+  - 导航策略模块：动态决策
+- **性能**：
+  - HM3D: +3.2% SR, +3.2% SPL（zero-shot SOTA）
+  - MP3D: +13.5% SR（所有方法中最优）
+- **优势**：模块化设计 + zero-shot 泛化
 
 ---
 
-### 关键缺陷  
+### 优势
 
-- ❌ 想象误差会累积。  
-- ❌ 训练成本极高。  
-- ❌ 与语言约束融合仍不成熟。
+- ✅ 支持前瞻性规划，在行动前"想象"结果
+- ✅ 显著降低真实试错成本和碰撞率
+- ✅ 更接近人类认知导航方式（先思考再行动）
+- ✅ 可以评估多条候选轨迹，选择最优路径
+- ✅ 单图像即可想象未知环境的导航轨迹（NWM）
+
+---
+
+### 关键缺陷
+
+- ❌ 想象误差会累积，长期预测不稳定
+- ❌ 训练成本极高（需要大规模视频数据 + 大模型）
+- ❌ 推理延迟较高（视频生成模型较慢）
+- ❌ 与语言约束的融合仍需改进（语义漂移问题）
+- ❌ sim2real gap：模拟的未来可能与真实不符
 
 ---
 
@@ -2995,7 +3058,14 @@ Action
 
 ### 总结
 
-VLN 的研究正在从感知对齐问题演进为融合 **语言理解、空间建模、规划推理、物理执行与想象预测** 的统一具身智能体。未来趋势是将 VLA 与 World Model 融合，形成“语言引导 + 想象规划 + 连续执行”的统一 VLN 系统架构。
+VLN 的研究已从早期的判别式匹配演进为当前的四大主流路线：
+
+1. **语义地图与拓扑规划**：显式空间建模，支持长距离规划与回溯
+2. **VLN双系统架构**：认知分层，System-1快速感知 + System-2推理规划
+3. **单系统端到端架构**：统一优化，低延迟流式导航
+4. **生成式世界模型**：前瞻性规划，在"想象空间"中搜索最优路径
+
+未来趋势是融合 **语言理解、空间建模、双系统推理、端到端优化与世界模型预测**，形成"语言引导 + 想象规划 + 连续执行"的统一具身智能体架构。
 
 ---
 
@@ -3005,7 +3075,7 @@ VLN 的研究正在从感知对齐问题演进为融合 **语言理解、空间�
 | :--- | :--- | :--- |
 | **Long-Horizon** | 处理超长距离路径（>150步）及涉及多房间、跨楼层的复杂多阶段导航任务。 | LHPR-VLN (CVPR '25), L-VLN |
 | **Dynamic Environment** | 针对真实世界中移动行人、开关门、光照突变等非稳态场景的适应性导航。 | DynamicVLN (2025), DynaNav |
-| **World Models** | 引入预测学习，智能体通过生成未来视觉帧预测动作结果，实现“脑内模拟规划”。 | NVIDIA Cosmos, GenNav, NavMorph |
+| **World Models** | 引入预测学习，智能体通过生成未来视觉帧预测动作结果，实现"脑内模拟规划"。2025年重大突破：Dynam3D (NeurIPS'25 Oral)、NWM (CVPR'25 Best Paper)、DreamVLA (NeurIPS'25)、WMNav (IROS'25 Oral)。 | Dynam3D, NWM (Meta AI), DreamVLA, WMNav |
 | **VLA Models** | **视觉-语言-动作 (VLA) 一体化**。直接从多模态输入输出底层控制指令，消除感知与动作的鸿沟。 | OpenVLA (2024), Helix, RT-2 |
 | **Self-Evolving VLN** | **2025-2026 新趋势**。智能体在测试阶段通过自我反思和经验检索，在无需重新训练的情况下实现性能进化。 | **SE-VLN** (ICLR '26 / 2025), Reflection-Nav |
 | **3DGS-based Map** | 利用 **3D高斯泼溅 (3D Gaussian Splatting)** 进行环境重建，提供比点云更精细、渲染更快的神经导航地图。 | GS-Nav (2025), Splat-Nav |
@@ -3022,6 +3092,8 @@ VLN 的研究正在从感知对齐问题演进为融合 **语言理解、空间�
 
 #### 3. 具身大模型 (VLA) 的统领地位
 随着 **OpenVLA** 等模型的成熟，VLN 不再是一个独立的视觉匹配任务，而是被纳入了通用的具身机器人大脑中。现在的趋势是：一个模型既能做 R2R 导航，也能在到达终点后完成“把杯子放进微波炉”的操作任务。
+
+---
 
 # VLN经典论文
 
