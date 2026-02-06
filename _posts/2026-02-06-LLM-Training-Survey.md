@@ -668,64 +668,157 @@ SFT阶段将预训练模型转化为能够理解和执行指令的助手。
 ## RLHF
 ————Reinforcement Learning from Human Feedback
 
-### 训练流程
+**论文来源**：[Training language models to follow instructions with human feedback (InstructGPT)](https://arxiv.org/abs/2203.02155)
 
-#### 1. 收集偏好数据
-- 采样多个模型输出
-- 人工标注偏好排序
-- 构建偏好对比数据集
+### RLHF 三阶段流程
 
-#### 2. 训练奖励模型（Reward Model）
+<div align="center">
+  <img src="/assets/images/llm-training/rlhf-three-steps.png" width="90%" alt="RLHF 三阶段流程图" />
+  <figcaption>图：RLHF 完整训练流程（来源：InstructGPT 论文 Figure 2）</figcaption>
+</div>
+
+**三个关键步骤**：
+
+#### Step 1: 收集偏好数据
+- 采样多个模型输出（通常4-9个候选回答）
+- 人工标注员对回答质量排序
+- 构建偏好对比数据集：$(x, y_w, y_l)$
+- **数据规模**：InstructGPT 使用 33k 偏好对比
+
+#### Step 2: 训练奖励模型（Reward Model）
 - 使用偏好数据训练打分模型
-- 输入：prompt + response
-- 输出：质量分数
-- 目标：预测人类偏好排序
+- **输入**：prompt $x$ + response $y$
+- **输出**：标量质量分数 $r(x, y)$
+- **目标**：预测人类偏好排序
+- **架构**：通常基于 SFT Model，替换 LM head 为标量输出层
 
-#### 3. PPO强化学习
-- 使用PPO（Proximal Policy Optimization）优化策略
-- 奖励：Reward Model评分
-- KL散度约束：避免偏离SFT模型过远
-- 平衡探索与利用
+#### Step 3: PPO强化学习优化
+- 使用 PPO（Proximal Policy Optimization）优化策略
+- **奖励信号**：Reward Model 评分
+- **KL 散度约束**：$\beta \cdot D_{\text{KL}}(\pi_\theta \| \pi_{\text{ref}})$ 防止偏离 SFT 模型过远
+- **需要的模型**：Policy Model、Reference Model、Reward Model、Critic Model（共4个）
 
-### RLHF的挑战
-- Reward Model可能被利用（Reward Hacking）
-- 训练不稳定
-- 计算开销大（需同时运行多个模型）
-- 人类偏好标注成本高
+### RLHF 的挑战
+- ❌ **Reward Hacking**：模型可能学会exploit RM的弱点而非真正提升质量
+- ❌ **训练不稳定**：RL 训练本身容易发散
+- ❌ **计算开销大**：需同时运行 4 个大模型
+- ❌ **人类标注成本高**：每个偏好标注 $0.5-2
 
 ## DPO
 ————Direct Preference Optimization
 
-### 核心思想
-- 绕过显式的Reward Model
-- 直接从偏好数据优化策略
-- 更简单、更稳定
+**论文来源**：[Direct Preference Optimization: Your Language Model is Secretly a Reward Model](https://arxiv.org/abs/2305.18290)
 
-### 优势
-- 训练过程更稳定
-- 无需训练单独的RM
-- 计算效率更高
-- 效果与RLHF相当或更好
+### DPO vs RLHF 对比
 
-### DPO的变体
-- IPO（Identity Policy Optimization）
-- KTO（Kahneman-Tversky Optimization）
-- RRHF（Rank Responses to align Human Feedback）
+<div align="center">
+  <img src="/assets/images/llm-training/dpo-vs-rlhf.png" width="85%" alt="DPO 与 RLHF 对比" />
+  <figcaption>图：DPO 简化了 RLHF 流程（来源：DPO 论文 Figure 1）</figcaption>
+</div>
+
+### 核心创新
+
+**关键洞察**：将 Reward Model 隐式地参数化到策略模型中，无需显式训练 RM。
+
+**DPO 损失函数**：
+
+$$
+\mathcal{L}_{\text{DPO}} = -\mathbb{E}_{(x,y_w,y_l)} \left[ \log \sigma \left( \beta \log \frac{\pi_\theta(y_w | x)}{\pi_{\text{ref}}(y_w | x)} - \beta \log \frac{\pi_\theta(y_l | x)}{\pi_{\text{ref}}(y_l | x)} \right) \right]
+$$
+
+**直观理解**：
+- ✅ 增加模型对好回答 $y_w$ 的概率
+- ❌ 降低模型对差回答 $y_l$ 的概率
+- 🔒 通过 $\beta$ 控制相对于参考模型的变化幅度
+
+### DPO 的优势
+
+| 维度 | RLHF | DPO |
+|------|------|-----|
+| **训练阶段** | 3步（数据→RM→PPO） | 2步（数据→直接优化） |
+| **模型数量** | 4个模型 | 2个模型 |
+| **训练稳定性** | 较低（RL不稳定） | ✅ 高（监督学习） |
+| **计算开销** | 大 | ✅ 小（节省50%+） |
+| **实现复杂度** | 高（需要RL库） | ✅ 低（标准优化） |
+| **Reward Hacking** | 容易发生 | ✅ 不易发生 |
+| **效果** | 强 | ✅ 相当或更好 |
+
+### DPO 的变体
+
+- **IPO** (Identity Policy Optimization)：改进优化目标，减少 length bias
+- **KTO** (Kahneman-Tversky Optimization)：基于前景理论的偏好优化
+- **ORPO** (Odds Ratio PO)：将 SFT 和偏好优化合并为单阶段
+- **RRHF** (Rank Responses to align Human Feedback)：使用排序损失
 
 ## RLAIF
 ————RL from AI Feedback
 
-- 使用AI模型代替人类标注偏好
-- 降低标注成本
-- 可扩展性更强
-- 质量接近RLHF
+**论文来源**：[RLAIF: Scaling Reinforcement Learning from Human Feedback with AI Feedback](https://arxiv.org/abs/2309.00267)
+
+<div align="center">
+  <img src="/assets/images/llm-training/rlaif-workflow.png" width="85%" alt="RLAIF 工作流程" />
+  <figcaption>图：RLAIF 使用 AI 模型替代人类标注（来源：RLAIF 论文）</figcaption>
+</div>
+
+### 核心思想
+
+**用强大的 AI 模型（如 GPT-4）替代人类标注偏好数据**
+
+**工作流程**：
+1. **AI 标注器生成偏好**：使用 GPT-4 等模型对候选回答进行评分和排序
+2. **训练 Reward Model**：基于 AI 标注的偏好数据训练 RM
+3. **RL 优化**：使用 PPO 或 DPO 进行策略优化
+
+### 优势
+
+- ✅ **成本低**：无需人工标注，节省 90%+ 成本
+- ✅ **可扩展**：可以生成大规模偏好数据
+- ✅ **质量高**：实验表明效果接近甚至超过 RLHF
+- ✅ **一致性好**：AI 标注比人类更一致
+
+### 挑战
+
+- AI 标注器的偏见会传递给对齐模型
+- 需要高质量的 AI 标注器（如 GPT-4）
 
 ## Constitutional AI
 
-- 明确定义模型的行为准则（Constitution）
-- 自我批评和修正
-- 减少有害输出
-- 提升安全性和对齐度
+**论文来源**：[Constitutional AI: Harmlessness from AI Feedback](https://arxiv.org/abs/2212.08073)
+
+<div align="center">
+  <img src="/assets/images/llm-training/constitutional-ai.png" width="85%" alt="Constitutional AI 流程" />
+  <figcaption>图：Constitutional AI 的自我批评和修正流程（来源：Anthropic Constitutional AI 论文）</figcaption>
+</div>
+
+### 核心理念
+
+**让 AI 系统遵循明确的行为准则（Constitution），通过自我批评和修正实现对齐**
+
+### 两阶段训练
+
+#### 第一阶段：监督学习（SL-CAI）
+1. **生成初始回答**：模型生成对有害指令的回答
+2. **自我批评**：模型根据 Constitution 评估自己的回答
+3. **自我修正**：模型生成改进版本的回答
+4. **监督学习**：在修正后的数据上进行 SFT
+
+#### 第二阶段：强化学习（RL-CAI）
+1. **AI 反馈**：使用模型评估不同回答相对于 Constitution 的符合度
+2. **偏好数据**：构建 AI 标注的偏好对
+3. **RL 训练**：使用 RLAIF 进行偏好对齐
+
+### Constitution 示例
+
+- "请选择最有帮助、诚实且无害的回答"
+- "请选择不鼓励非法、不道德或不当行为的回答"
+- "请选择最能表现出关心、尊重和考虑的回答"
+
+### 优势
+
+- ✅ **透明可控**：行为准则明确且可调整
+- ✅ **自主对齐**：减少对人类反馈的依赖
+- ✅ **可扩展**：容易扩展到新的价值观和准则
+- ✅ **效果好**：在 HH-RLHF 基准上表现优异
 
 ---
 
