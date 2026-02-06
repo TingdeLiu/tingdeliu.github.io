@@ -123,31 +123,28 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 
 ## 大模型训练的三大核心阶段
 
-现代大模型训练通常遵循一个**三阶段范式**，每个阶段都有明确的目标和方法论。这个范式已经成为当前主流大模型（GPT-4、Claude、Gemini、LLaMA等）的标准训练流程。
+现代大模型训练遵循**预训练 → 监督微调 → 偏好对齐**的三阶段范式，这已成为GPT-4、Claude、Gemini、LLaMA等主流模型的标准流程。
 
 ```mermaid
-graph LR
-    A[原始文本数据<br/>数万亿tokens] --> B[预训练<br/>Pre-training]
-    B --> C[Base Model<br/>基座模型]
-    C --> D[监督微调<br/>SFT]
-    E[指令-回答对<br/>数万样本] --> D
-    D --> F[SFT Model<br/>指令模型]
-    F --> G[偏好对齐<br/>RLHF/DPO]
-    H[偏好对比数据<br/>数万对] --> G
-    G --> I[Aligned Model<br/>对齐模型<br/>最终部署]
+flowchart LR
+    A["原始文本数据<br>数万亿tokens"] --> B["阶段1: 预训练<br>Pre-training"]
+    B --> C["Base Model<br>基座模型"]
+    C --> D["阶段2: 监督微调<br>SFT"]
+    E["指令-回答对<br>数万样本"] --> D
+    D --> F["SFT Model<br>指令模型"]
+    F --> G["阶段3: 偏好对齐<br>RLHF/DPO"]
+    H["偏好对比数据<br>数万对"] --> G
+    G --> I["✓ Aligned Model<br>最终部署"]
 
-    style A fill:#e3f2fd
-    style C fill:#fff9c4
-    style E fill:#e3f2fd
-    style F fill:#ffe0b2
-    style H fill:#e3f2fd
-    style I fill:#c8e6c9
+    style A fill:#e3f2fd,stroke:#01579b
+    style C fill:#fff9c4,stroke:#f57f17
+    style E fill:#e3f2fd,stroke:#01579b
+    style F fill:#ffe0b2,stroke:#e65100
+    style H fill:#e3f2fd,stroke:#01579b
+    style I fill:#c8e6c9,stroke:#1b5e20
 ```
 
-**三阶段关键指标对比**：
-- **预训练**：数据量最大（T级tokens）、时间最长（月级）、成本最高（80-90%）
-- **监督微调**：数据量中等（万级样本）、时间中等（天级）、成本较低（5-10%）
-- **偏好对齐**：数据量较小（万级对比）、时间较短（天级）、成本最低（5-10%）
+**关键对比**：预训练（数据T级、时间月级、成本80-90%）→ SFT（数据万级、时间天级、成本5-10%）→ 对齐（数据万级、时间天级、成本5-10%）
 
 ### 第一阶段：预训练（Pre-training）—— 构建语言基础
 
@@ -677,7 +674,8 @@ Aligned Model（对齐模型）
 
 ---
 
-# 预训练阶段（Pre-training）
+# 预训练阶段
+————Pre-training
 
 预训练是大模型训练的基石，目标是让模型从海量无标注文本中学习语言的统计规律和世界知识。
 
@@ -908,7 +906,8 @@ $$
 
 ---
 
-# 监督微调阶段（Supervised Fine-Tuning, SFT）
+# 监督微调阶段
+————Supervised Fine-Tuning, SFT
 
 SFT阶段将预训练模型转化为能够理解和执行指令的助手。
 
@@ -1038,7 +1037,8 @@ The capital of France is Paris.
 
 ---
 
-# 偏好对齐阶段（Preference Alignment）
+# 偏好对齐阶段
+————Preference Alignment
 
 对齐阶段让模型输出符合人类偏好、价值观和安全准则。
 
@@ -1046,7 +1046,8 @@ The capital of France is Paris.
 >
 > 偏好对齐是从"能用"到"好用"的**关键一跃**，通过RLHF或DPO等技术让模型输出更有帮助、更安全、更符合人类价值观。本章详细对比RLHF和DPO的原理、优劣，并介绍最新的对齐技术进展。**推荐优先使用DPO**，因其更稳定、更简单、效果相当。
 
-## RLHF（Reinforcement Learning from Human Feedback）
+## RLHF
+————Reinforcement Learning from Human Feedback
 
 ### 训练流程
 
@@ -1073,7 +1074,8 @@ The capital of France is Paris.
 - 计算开销大（需同时运行多个模型）
 - 人类偏好标注成本高
 
-## DPO（Direct Preference Optimization）
+## DPO
+————Direct Preference Optimization
 
 ### 核心思想
 - 绕过显式的Reward Model
@@ -1091,7 +1093,8 @@ The capital of France is Paris.
 - KTO（Kahneman-Tversky Optimization）
 - RRHF（Rank Responses to align Human Feedback）
 
-## RLAIF（RL from AI Feedback）
+## RLAIF
+————RL from AI Feedback
 
 - 使用AI模型代替人类标注偏好
 - 降低标注成本
@@ -1109,7 +1112,8 @@ The capital of France is Paris.
 
 ### DPO及其变体家族
 
-#### DPO（Direct Preference Optimization）
+#### DPO
+————Direct Preference Optimization
 - **核心思想**：绕过显式Reward Model，直接优化策略
 - **优势**：更稳定、更简单、计算效率更高
 - **适用场景**：成为RLHF的主要替代方案
@@ -1137,7 +1141,8 @@ The capital of France is Paris.
 - 突破人类标注瓶颈
 - 迭代式自我改进
 
-#### RLAIF（RL from AI Feedback）
+#### RLAIF
+————RL from AI Feedback
 - 使用AI模型代替人类标注
 - 可扩展性更强
 - 降低标注成本
@@ -1177,7 +1182,8 @@ The capital of France is Paris.
 >
 > 分布式训练是大模型训练的**核心工程技术**，没有分布式并行就无法训练超过单GPU显存容量的模型。本章介绍数据并行、张量并行、流水线并行、ZeRO等关键技术，以及如何选择合适的并行策略。**核心原则**：TP用于单层过大，PP用于层数过多，DP用于提升吞吐。
 
-## 数据并行（Data Parallelism）
+## 数据并行
+————Data Parallelism
 
 ### 原理
 - 每个GPU持有完整模型副本
@@ -1193,7 +1199,8 @@ The capital of France is Paris.
 - 模型必须能装入单个GPU显存
 - 不适用于超大模型
 
-## 张量并行（Tensor Parallelism）
+## 张量并行
+————Tensor Parallelism
 
 ### 原理
 - 将单个Transformer层的参数切分到多个GPU
@@ -1209,7 +1216,8 @@ The capital of France is Paris.
 - 超大模型无法装入单GPU
 - 需要细粒度并行
 
-## 流水线并行（Pipeline Parallelism）
+## 流水线并行
+————Pipeline Parallelism
 
 ### 原理
 - 将模型按层切分到多个GPU（设备）
@@ -1226,7 +1234,8 @@ The capital of France is Paris.
 - 通信开销
 - 负载均衡
 
-## 序列并行（Sequence Parallelism）
+## 序列并行
+————Sequence Parallelism
 
 ### 原理
 - 将序列（sequence）维度切分
@@ -1237,7 +1246,8 @@ The capital of France is Paris.
 - 支持更长的序列
 - 减少激活值显存占用
 
-## ZeRO（Zero Redundancy Optimizer）
+## ZeRO
+————Zero Redundancy Optimizer
 
 ### ZeRO-1：优化器状态分片
 - 将Adam状态（momentum、variance）切分到多个GPU
@@ -1260,7 +1270,8 @@ The capital of France is Paris.
 - 利用NVMe存储
 - 训练超大规模模型
 
-## 混合并行（3D Parallelism）
+## 混合并行
+————3D Parallelism
 
 结合数据并行、张量并行、流水线并行：
 
@@ -2380,7 +2391,8 @@ trainer.train()
 
 ---
 
-# 常见问题（FAQ）
+# 常见问题
+————FAQ
 
 本章汇总大模型训练中最常遇到的问题及解答，帮助快速解决实践中的困惑。
 
@@ -2488,7 +2500,8 @@ optimizer = AdamW(lr=1e-4, betas=(0.9, 0.95), eps=1e-8)
 
 ---
 
-## 监督微调（SFT）相关
+## 监督微调相关
+————SFT
 
 ### Q5: LoRA和全参数微调如何选择？
 
@@ -2627,7 +2640,8 @@ if step % eval_steps == 0:
 
 ---
 
-## 对齐（RLHF/DPO）相关
+## 对齐相关
+————RLHF/DPO
 
 ### Q8: RLHF和DPO如何选择？
 
@@ -2824,7 +2838,8 @@ deepspeed_config = {
 
 **Level 4：终极方案**
 ```python
-# 8. 量化训练（QLoRA）
+# 8. 量化训练
+————QLoRA
 load_in_4bit = True
 
 # 9. 使用更小的模型
