@@ -651,60 +651,456 @@ SFT阶段将预训练模型转化为能够理解和执行指令的助手。
 >
 > SFT是**激活**模型能力的关键阶段，通过少量高质量的指令-回答数据，让Base Model学会遵循指令和对话交互。本章介绍SFT的数据构建、训练策略和高效微调技术（如LoRA、QLoRA），特别强调**数据质量远比数量重要**的核心理念。
 
-## SFT的目标
+## SFT 完整流程概览
 
-- 让模型学会理解各类指令格式
-- 生成结构化、有帮助的回答
-- 适应对话交互模式
-- 减少幻觉和错误输出
+下图展示了从 Base Model 到 SFT Model 的完整训练流程：
 
-## SFT数据构建
+```mermaid
+graph TD
+    A[Base Model<br/>基座模型] --> B[准备SFT数据集]
+    B --> C[数据来源选择]
+    C --> D1[人工标注<br/>高质量]
+    C --> D2[模型蒸馏<br/>GPT-4生成]
+    C --> D3[开源数据集<br/>ShareGPT等]
+    D1 --> E[数据质量控制]
+    D2 --> E
+    D3 --> E
+    E --> F[格式化为统一模板<br/>System/User/Assistant]
+    F --> G[构建训练数据<br/>只对Assistant部分计算loss]
+    G --> H{选择微调方式}
+    H -->|资源充足| I1[全参数微调<br/>更新所有参数]
+    H -->|资源受限| I2[LoRA/QLoRA<br/>参数高效微调]
+    I1 --> J[训练1-3个epoch]
+    I2 --> J
+    J --> K[训练监控与评估]
+    K --> L{是否收敛?}
+    L -->|否| M[调整超参数]
+    M --> J
+    L -->|是| N[SFT Model<br/>指令微调模型]
+
+    style A fill:#fff9c4
+    style N fill:#c8e6c9
+    style E fill:#e1f5ff
+    style G fill:#ffe0b2
+```
+
+**关键特点**：
+1. **数据规模小**：通常 10k-100k 样本，远小于预训练
+2. **训练时间短**：数小时到数天，而非数周
+3. **质量优先**：数据质量比数量更重要
+4. **灵活性高**：可以使用 LoRA 等技术大幅降低成本
+
+## SFT 的训练目标
+
+**核心任务**：让模型学会遵循指令（Instruction Following）
+
+### 数学表达
+
+给定指令 $x$（prompt）和期望回答 $y$（response），训练目标是最大化条件概率：
+
+$$
+\mathcal{L}_{\text{SFT}} = -\sum_{(x,y) \in \mathcal{D}_{\text{SFT}}} \log P(y \mid x; \theta)
+$$
+
+其中 $\mathcal{D}_{\text{SFT}}$ 是监督微调数据集，包含高质量的指令-回答对。
+
+### 与预训练的关键区别
+
+**预训练**：
+- 模型看到整个文档，预测每个 token
+- 所有位置都计算 loss
+
+**SFT**：
+- 模型**只对回答部分计算 loss**
+- 指令部分不计算 loss（通过 attention mask 实现）
+
+**训练代码示例**：
+```python
+# SFT 训练的关键：只对回答部分计算 loss
+def sft_loss(model, batch):
+    input_ids = batch['input_ids']  # [batch_size, seq_len]
+    labels = batch['labels']        # [batch_size, seq_len]
+
+    # labels 中，指令部分设为 -100（忽略），回答部分为真实 token
+    # 例如：[-100, -100, -100, 152, 234, 567, ...]
+    #       ^~~~ 指令部分 ~~~^  ^~~~ 回答部分 ~~~^
+
+    logits = model(input_ids)  # 前向传播
+
+    # PyTorch 的 CrossEntropyLoss 会自动忽略 label=-100 的位置
+    loss = F.cross_entropy(
+        logits.view(-1, vocab_size),
+        labels.view(-1),
+        ignore_index=-100  # 只计算回答部分的 loss
+    )
+    return loss
+```
+
+### SFT 的四大目标
+
+1. **指令理解**：识别各类指令格式和任务类型
+2. **结构化输出**：生成格式规范、逻辑清晰的回答
+3. **对话适应**：掌握多轮对话的上下文管理
+4. **减少幻觉**：提高事实准确性，降低编造信息的倾向
+
+## SFT 数据构建
+
+**核心原则**：质量 > 数量。少量高质量数据胜过大量低质量数据。
+
+### 数据规模对比
+
+| 模型 | SFT 数据规模 | 数据来源 | 说明 |
+|------|-------------|---------|------|
+| **InstructGPT** | 13k | 人工标注 | OpenAI 的早期对齐工作 |
+| **LLaMA-2-Chat** | 27.5k | 人工标注 | Meta 的高质量对话数据 |
+| **Vicuna** | 70k | ShareGPT | 用户分享的 ChatGPT 对话 |
+| **Alpaca** | 52k | GPT-3.5 生成 | Stanford 的开源指令数据 |
+| **WizardLM** | 250k | GPT-4 进化生成 | 复杂指令数据 |
+| **Phi-1** | 仅 6B tokens | GPT-4 "教科书式" | 极高质量，证明数据质量重要性 |
+
+**关键洞察**：
+- ✅ 1-10 万高质量样本通常足够
+- ✅ 数据质量比数量更重要（Phi 系列的证明）
+- ✅ 多样性和难度分布很关键
 
 ### 1. 数据来源
-- **人工标注**：雇佣标注员编写高质量指令-回答对
-- **模型蒸馏**：使用强模型（如GPT-4）生成数据
-- **开源数据集**：ShareGPT、OpenOrca、UltraChat等
-- **合成数据**：使用模板和规则生成
 
-### 2. 指令类型
-- **信息查询**：事实性问答、知识检索
-- **创作写作**：文章、故事、诗歌、代码
-- **分析推理**：逻辑推理、数学解题
-- **对话交互**：多轮对话、角色扮演
-- **任务执行**：翻译、摘要、格式转换
+#### 人工标注（最高质量）
+
+**流程**：
+1. **招募标注员**：通常需要通过资格考试
+2. **标注指南**：详细的指令编写规范
+3. **样本编写**：标注员根据指令编写回答
+4. **多轮审核**：质量检查和修正
+5. **一致性验证**：多个标注员交叉验证
+
+**成本**：
+- 单个样本：$5-20（取决于复杂度）
+- 10k 样本：$50k-200k
+- 总成本：远低于预训练（通常<总成本的 5%）
+
+**优势**：
+- ✅ 质量最高，符合人类期望
+- ✅ 可控性强，能覆盖特定领域
+- ✅ 适合安全关键应用
+
+**示例标注指南**：
+```
+【任务】：为给定指令编写高质量回答
+【要求】：
+1. 准确性：事实正确，无编造信息
+2. 有用性：直接回答问题，提供足够细节
+3. 清晰性：结构清晰，易于理解
+4. 安全性：无害、无偏见、拒绝不当请求
+【格式】：
+- 指令：[用户的问题或请求]
+- 回答：[助手的回答，200-500字]
+```
+
+#### 模型蒸馏（性价比高）
+
+**方法**：使用强大模型（如 GPT-4）生成训练数据
+
+**Self-Instruct 流程**：
+1. **种子指令**：手工编写 100-200 个种子指令
+2. **指令生成**：用 GPT-4 生成新指令
+3. **回答生成**：用 GPT-4 为指令生成回答
+4. **质量过滤**：自动化 + 人工抽样验证
+5. **迭代扩展**：重复 2-4 步
+
+**成本**：
+- GPT-4 API 调用：~$0.03-0.06/样本
+- 10k 样本：$300-600
+- 比人工标注便宜 100 倍以上
+
+**代表工作**：
+- **Alpaca**：Stanford，52k 样本，$500 成本
+- **Vicuna**：ShareGPT 用户对话，免费
+- **WizardLM**：Evol-Instruct 方法，自动提升复杂度
+
+**代码示例**：
+```python
+# Self-Instruct 伪代码
+def self_instruct_pipeline(seed_instructions, num_samples=10000):
+    generated_data = []
+
+    while len(generated_data) < num_samples:
+        # 1. 从种子中随机采样几个指令作为示例
+        examples = random.sample(seed_instructions, k=3)
+
+        # 2. 让 GPT-4 生成新指令
+        prompt = f"""Generate a new instruction similar to:
+        {examples}
+
+        New instruction:"""
+        new_instruction = gpt4_generate(prompt)
+
+        # 3. 让 GPT-4 为新指令生成回答
+        response = gpt4_generate(new_instruction)
+
+        # 4. 质量检查
+        if quality_check(new_instruction, response):
+            generated_data.append({
+                'instruction': new_instruction,
+                'response': response
+            })
+
+    return generated_data
+```
+
+#### 开源数据集
+
+**常用数据集**：
+
+| 数据集 | 规模 | 语言 | 特点 |
+|--------|------|------|------|
+| **ShareGPT** | 90k | 多语言 | 真实用户与 ChatGPT 对话 |
+| **OpenOrca** | 1M+ | 英语 | GPT-4 生成，含推理过程 |
+| **UltraChat** | 1.5M | 英语 | 多轮对话 |
+| **FLAN** | 1.8M | 英语 | Google 的多任务指令集 |
+| **Dolly-15k** | 15k | 英语 | Databricks 员工标注 |
+
+### 2. 指令类型分布
+
+**典型配比**（推荐）：
+
+| 指令类型 | 占比 | 示例 |
+|---------|------|------|
+| **开放式问答** | 30-40% | "解释什么是量子计算" |
+| **创意写作** | 15-20% | "写一首关于秋天的诗" |
+| **信息提取** | 10-15% | "总结这篇文章的要点" |
+| **代码生成** | 10-15% | "用Python实现快速排序" |
+| **数学推理** | 5-10% | "解这道微积分题" |
+| **多轮对话** | 10-15% | 上下文相关的连续问题 |
+| **其他任务** | 5-10% | 翻译、格式转换等 |
+
+**平衡原则**：
+- 覆盖主要应用场景
+- 避免某类任务占比过高
+- 包含不同难度级别
 
 ### 3. 数据质量控制
-- 多轮人工审核
-- 自动化质量评估
-- 多样性检查
-- 难度分层
 
-## SFT训练策略
+**自动化检查**：
+```python
+def quality_check(instruction, response):
+    # 1. 长度检查
+    if len(response) < 50 or len(response) > 2000:
+        return False
+
+    # 2. 相似度检查（去重）
+    if is_similar_to_existing(response, threshold=0.9):
+        return False
+
+    # 3. 毒性检测
+    if contains_toxic_content(response):
+        return False
+
+    # 4. 事实性检查（可选，使用检索增强）
+    if not factual_consistency_check(response):
+        return False
+
+    return True
+```
+
+**人工审核**：
+- **抽样审核**：随机抽取 5-10% 进行人工检查
+- **一致性验证**：多个审核员评分，计算一致性
+- **迭代改进**：根据反馈调整数据生成策略
+
+## SFT 训练策略
 
 ### 1. 全参数微调（Full Fine-Tuning）
-- 更新所有模型参数
-- 效果最好但成本最高
-- 适合有充足资源的场景
 
-### 2. 参数高效微调（Parameter-Efficient Fine-Tuning, PEFT）
+**方法**：更新模型的所有参数
+
+**特点**：
+- ✅ **效果最好**：充分适应新任务
+- ❌ **成本最高**：需要存储完整模型和梯度
+- ❌ **显存需求大**：通常需要 4-8 块高端 GPU
+
+**显存需求计算**：
+```
+总显存 = 模型参数 + 优化器状态 + 梯度 + 激活值
+
+对于 7B 模型（FP16 训练）：
+- 模型：7B × 2 bytes = 14GB
+- 优化器（AdamW）：7B × 8 bytes = 56GB
+- 梯度：7B × 2 bytes = 14GB
+- 激活值：~20-40GB（取决于 batch size）
+总计：~104-124GB
+
+→ 需要 2-4 块 A100 (80GB)
+```
+
+**适用场景**：
+- 有充足计算资源
+- 需要最佳性能
+- 任务与预训练差异较大
+
+### 2. 参数高效微调（PEFT）
+
+**核心思想**：冻结大部分参数，只训练小部分参数或额外添加的参数
 
 #### LoRA（Low-Rank Adaptation）
-- 在预训练权重上添加低秩矩阵
-- 只训练新增参数（通常<1%）
-- 可合并回主模型
 
-#### QLoRA
-- 量化+LoRA
-- 在量化模型上应用LoRA
-- 显著降低显存需求
+**数学原理**：
 
-#### Prefix Tuning / P-Tuning
-- 优化输入前缀
-- 冻结主模型参数
+在预训练权重 $W_0 \in \mathbb{R}^{d \times k}$ 的基础上，添加低秩分解的可训练矩阵：
 
-#### Adapter Layers
-- 在Transformer层间插入小型适配器模块
-- 只训练adapter参数
+$$
+W = W_0 + \Delta W = W_0 + BA
+$$
+
+其中：
+- $B \in \mathbb{R}^{d \times r}$，$A \in \mathbb{R}^{r \times k}$
+- **秩 $r \ll \min(d, k)$**（通常 $r=8, 16, 32$）
+- $W_0$ 冻结，只训练 $B$ 和 $A$
+
+**参数量对比**：
+```
+原始参数：d × k
+LoRA 参数：d × r + r × k = r(d + k)
+
+示例（d=4096, k=4096, r=16）：
+- 原始：4096 × 4096 = 16,777,216
+- LoRA：16 × (4096 + 4096) = 131,072
+- 比例：131k / 16.7M ≈ 0.78%
+
+→ 只训练 <1% 的参数！
+```
+
+**实现代码**：
+```python
+import torch
+import torch.nn as nn
+
+class LoRALayer(nn.Module):
+    def __init__(self, in_features, out_features, rank=16, alpha=32):
+        super().__init__()
+        self.rank = rank
+        self.alpha = alpha
+
+        # 冻结的预训练权重
+        self.W = nn.Linear(in_features, out_features, bias=False)
+        self.W.weight.requires_grad = False
+
+        # LoRA 可训练参数
+        self.lora_A = nn.Parameter(torch.randn(rank, in_features) / rank)
+        self.lora_B = nn.Parameter(torch.zeros(out_features, rank))
+
+        self.scaling = alpha / rank
+
+    def forward(self, x):
+        # 原始前向传播 + LoRA 修正
+        return self.W(x) + (x @ self.lora_A.T @ self.lora_B.T) * self.scaling
+
+# 应用到模型
+def apply_lora_to_model(model, rank=16, alpha=32):
+    for name, module in model.named_modules():
+        if isinstance(module, nn.Linear):
+            # 将 Linear 层替换为 LoRA 层
+            lora_layer = LoRALayer(
+                module.in_features,
+                module.out_features,
+                rank=rank,
+                alpha=alpha
+            )
+            # 复制预训练权重
+            lora_layer.W.weight.data = module.weight.data
+            # 替换模块
+            parent = get_parent_module(model, name)
+            setattr(parent, name.split('.')[-1], lora_layer)
+```
+
+**优势**：
+- ✅ **显存占用少**：只需训练 <1% 参数
+- ✅ **训练速度快**：2-3 倍加速
+- ✅ **可合并**：训练后可以合并回原模型 $W = W_0 + BA$
+- ✅ **模块化**：可以为不同任务训练多个 LoRA，按需切换
+
+**超参数选择**：
+- **秩 r**：8-64，越大效果越好但参数越多
+  - r=8: 最轻量，适合简单任务
+  - r=16-32: 推荐默认值
+  - r=64: 复杂任务
+- **alpha**：通常设为 2r（如 r=16, alpha=32）
+- **目标模块**：通常应用到 `q_proj`, `v_proj`, `k_proj`, `o_proj`
+
+#### QLoRA（Quantized LoRA）
+
+**核心创新**：在量化模型上应用 LoRA，进一步降低显存
+
+**技术组合**：
+1. **4-bit 量化**：将 Base Model 量化到 4-bit（NF4 格式）
+2. **双重量化**：量化 quantization constants
+3. **分页优化器**：使用 NVIDIA 统一内存
+
+**显存对比**：
+```
+7B 模型的显存需求：
+
+全参数微调（FP16）：~104GB → 需要 2-4 块 A100
+LoRA（FP16）：      ~24GB  → 需要 1 块 A100
+QLoRA（4-bit）：    ~9GB   → 可用单块 RTX 3090/4090 (24GB)
+
+65B 模型：
+全参数微调：      ~780GB  → 基本不可行
+QLoRA（4-bit）：  ~48GB   → 单块 A100 (80GB) 即可！
+```
+
+**实现代码**：
+```python
+from transformers import AutoModelForCausalLM, BitsAndBytesConfig
+from peft import LoraConfig, get_peft_model
+
+# 1. 配置 4-bit 量化
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_quant_type="nf4",        # NormalFloat4
+    bnb_4bit_use_double_quant=True,   # 双重量化
+    bnb_4bit_compute_dtype=torch.bfloat16
+)
+
+# 2. 加载量化模型
+model = AutoModelForCausalLM.from_pretrained(
+    "meta-llama/Llama-2-7b-hf",
+    quantization_config=bnb_config,
+    device_map="auto"
+)
+
+# 3. 配置 LoRA
+lora_config = LoraConfig(
+    r=16,
+    lora_alpha=32,
+    target_modules=["q_proj", "v_proj", "k_proj", "o_proj"],
+    lora_dropout=0.05,
+    bias="none",
+    task_type="CAUSAL_LM"
+)
+
+# 4. 应用 LoRA
+model = get_peft_model(model, lora_config)
+model.print_trainable_parameters()
+# 输出: trainable params: 4,194,304 || all params: 6,742,609,920 || trainable%: 0.062%
+```
+
+**QLoRA 的三大技术**：
+1. **NF4 量化**：专为正态分布权重设计的 4-bit 格式
+2. **Double Quantization**：量化 quantization constants，再节省 0.37 bit/param
+3. **Paged Optimizers**：利用 NVIDIA 统一内存，防止 OOM
+
+#### 其他 PEFT 方法
+
+**Prefix Tuning**：
+- 在输入前添加可训练的 prefix token
+- 只优化 prefix embedding
+- 参数量：~0.1% 的原模型
+
+**Adapter Layers**：
+- 在 Transformer 层间插入小型适配器（2 层 MLP）
+- 只训练 adapter 参数
+- 参数量：~2-4% 的原模型
 
 ### 3. 指令模板（Instruction Template）
 
