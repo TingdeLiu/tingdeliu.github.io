@@ -90,29 +90,464 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 
 ## 大模型训练的三大核心阶段
 
-现代大模型训练通常遵循一个三阶段范式：
+现代大模型训练通常遵循一个**三阶段范式**，每个阶段都有明确的目标和方法论。这个范式已经成为当前主流大模型（GPT-4、Claude、Gemini、LLaMA等）的标准训练流程。
 
-### 1. 预训练（Pre-training）
-- **目标**：在海量无标注文本上学习语言的基础表示
-- **方法**：自监督学习（如Next Token Prediction）
-- **数据规模**：通常数万亿token
-- **计算需求**：数千GPU×数月训练时间
-- **输出**：具备基础语言能力的Base Model
+```mermaid
+graph LR
+    A[原始文本数据<br/>数万亿tokens] --> B[预训练<br/>Pre-training]
+    B --> C[Base Model<br/>基座模型]
+    C --> D[监督微调<br/>SFT]
+    E[指令-回答对<br/>数万样本] --> D
+    D --> F[SFT Model<br/>指令模型]
+    F --> G[偏好对齐<br/>RLHF/DPO]
+    H[偏好对比数据<br/>数万对] --> G
+    G --> I[Aligned Model<br/>对齐模型<br/>最终部署]
 
-### 2. 监督微调（Supervised Fine-Tuning, SFT）
-- **目标**：让模型学会遵循指令并生成高质量回答
-- **方法**：在人工标注的指令-回答对上进行监督学习
-- **数据规模**：数万到数十万高质量样本
-- **输出**：能够理解和执行指令的SFT Model
+    style A fill:#e3f2fd
+    style C fill:#fff9c4
+    style E fill:#e3f2fd
+    style F fill:#ffe0b2
+    style H fill:#e3f2fd
+    style I fill:#c8e6c9
+```
 
-### 3. 偏好对齐（Preference Alignment）
-- **目标**：让模型的输出符合人类偏好和价值观
-- **方法**：
-  - RLHF（Reinforcement Learning from Human Feedback）
-  - DPO（Direct Preference Optimization）
-  - RLAIF（Reinforcement Learning from AI Feedback）
-- **数据规模**：数万到数十万对比较数据
-- **输出**：对齐后的最终模型
+**三阶段关键指标对比**：
+- **预训练**：数据量最大（T级tokens）、时间最长（月级）、成本最高（80-90%）
+- **监督微调**：数据量中等（万级样本）、时间中等（天级）、成本较低（5-10%）
+- **偏好对齐**：数据量较小（万级对比）、时间较短（天级）、成本最低（5-10%）
+
+### 第一阶段：预训练（Pre-training）—— 构建语言基础
+
+预训练是整个训练流程的**基石**，目标是让模型从海量文本中学习语言的统计规律、语法结构和世界知识。
+
+#### 训练目标
+
+**核心任务：Next Token Prediction（下一个词预测）**
+
+给定前面的文本序列 $x_1, x_2, ..., x_{t-1}$，模型需要预测下一个token $x_t$。训练目标是最大化条件概率：
+
+$$
+\mathcal{L}_{\text{pretrain}} = -\sum_{t=1}^{T} \log P(x_t \mid x_1, x_2, \ldots, x_{t-1}; \theta)
+$$
+
+其中 $\theta$ 是模型参数，$T$ 是序列长度。
+
+#### 训练数据
+
+**数据规模**：
+- **GPT-3**：约300B tokens（4100亿词）
+- **LLaMA-2**：2T tokens（2万亿词）
+- **LLaMA-3**：15T tokens（15万亿词）
+- **训练时长**：在数千块A100 GPU上训练数周到数月
+
+**数据来源配比示例（参考LLaMA）**：
+- 网页数据（Common Crawl、C4）：~67%
+- 书籍（Books3、BookCorpus）：~15%
+- 代码（GitHub、Stack）：~10%
+- 学术论文（arXiv、PubMed）：~5%
+- 百科知识（Wikipedia）：~3%
+
+#### 训练流程
+
+```
+原始数据采集
+    ↓
+质量过滤 + 去重 + 清洗
+    ↓
+Tokenization（分词）
+    ↓
+数据配比和采样
+    ↓
+分布式训练（3D并行）
+    ↓
+训练监控和checkpointing
+    ↓
+Base Model（基座模型）
+```
+
+#### 关键技术点
+
+1. **学习率调度**：
+   - Warmup阶段（0-2%训练步数）：从0线性增加到峰值
+   - 稳定阶段（2-90%）：保持峰值或缓慢下降
+   - Decay阶段（90-100%）：Cosine annealing降至峰值的10%
+
+2. **批次大小策略**：
+   - 起始：~2M tokens/batch
+   - 逐步增大到：~4-8M tokens/batch
+   - 使用梯度累积模拟大批次
+
+3. **混合精度训练**：
+   - 使用BF16（Brain Float16）进行前向和反向传播
+   - 保持FP32的优化器状态
+   - 提升训练速度同时保证稳定性
+
+4. **Checkpointing策略**：
+   - 每1000-5000步保存checkpoint
+   - 保留最近N个checkpoint
+   - 支持从任意checkpoint恢复训练
+
+#### 输出产物
+
+- **Base Model（基座模型）**：具备基础语言能力，但不擅长遵循指令
+- **能力表现**：
+  - ✅ 能够续写文本
+  - ✅ 具备一定的知识储备
+  - ✅ 理解基本语法和语义
+  - ❌ 不擅长问答
+  - ❌ 不理解对话格式
+  - ❌ 输出可能不符合人类期望
+
+---
+
+### 第二阶段：监督微调（Supervised Fine-Tuning, SFT）—— 教会指令遵循
+
+SFT阶段将Base Model转化为能够**理解指令、生成有用回答**的AI助手。
+
+#### 训练目标
+
+**核心任务：指令遵循（Instruction Following）**
+
+给定一个指令 $x$ (prompt)，模型需要生成符合要求的回答 $y$ (response)。训练目标是最大化条件概率：
+
+$$
+\mathcal{L}_{\text{SFT}} = -\sum_{(x,y) \in \mathcal{D}_{\text{SFT}}} \log P(y \mid x; \theta)
+$$
+
+其中 $\mathcal{D}_{\text{SFT}}$ 是监督微调数据集，包含高质量的指令-回答对。
+
+**关键区别**：
+- 预训练：模型看到整个文档，预测每个token
+- SFT：模型**只对回答部分计算loss**，不对指令部分计算loss
+
+#### 训练数据
+
+**数据规模**：
+- **典型规模**：10k - 100k 高质量样本
+- **LLaMA-2-Chat**：约27,540个样本
+- **Vicuna**：约70k ShareGPT对话
+- **远小于预训练**：数据质量 > 数据数量
+
+**数据来源**：
+
+1. **人工标注**（最高质量）：
+   - 雇佣专业标注员
+   - 给定指令，编写高质量回答
+   - 多轮审核和质量控制
+   - 成本高：$20-50/小时 × 数千小时
+
+2. **模型蒸馏**（性价比高）：
+   - 使用GPT-4等强模型生成训练数据
+   - Self-Instruct、Evol-Instruct方法
+   - 自动化生成 + 人工抽样审核
+   - 代表：ShareGPT、UltraChat、OpenOrca
+
+3. **开源数据集**：
+   - FLAN、Dolly、OpenAssistant
+   - 社区贡献的对话数据
+
+**指令类型分布**：
+
+**指令类型分布**：
+- 开放式问答：30-40%
+- 创意写作：15-20%
+- 信息提取：10-15%
+- 代码生成：10-15%
+- 数学推理：5-10%
+- 多轮对话：10-15%
+- 其他任务：5-10%
+
+#### 训练流程
+
+```
+Base Model（基座模型）
+    ↓
+准备SFT数据集（指令-回答对）
+    ↓
+格式化为统一模板
+    ↓
+    【System】You are a helpful assistant.
+    【User】用户指令
+    【Assistant】模型回答
+    ↓
+只对【Assistant】部分计算loss
+    ↓
+全参数微调 或 LoRA/QLoRA
+    ↓
+训练1-3个epoch
+    ↓
+SFT Model（指令微调模型）
+```
+
+#### 训练超参数
+
+- **学习率**：1e-5 ~ 5e-5（远小于预训练的1e-4）
+- **训练轮数**：1-3 epochs（过多会导致过拟合）
+- **批次大小**：32-128（取决于显存）
+- **序列长度**：2048-4096 tokens
+- **优化器**：AdamW（β₁=0.9, β₂=0.95）
+- **Warmup比例**：10-20%
+- **权重衰减**：0.01-0.1
+
+#### 高效微调技术
+
+**LoRA（Low-Rank Adaptation）**：
+
+在预训练权重 $W_0$ 的基础上，添加低秩分解的可训练矩阵：
+
+$$
+W = W_0 + \Delta W = W_0 + BA
+$$
+
+其中 $B \in \mathbb{R}^{d \times r}$，$A \in \mathbb{R}^{r \times k}$，秩 $r \ll \min(d,k)$。
+
+**优势**：
+- 只训练<1%的参数
+- 显存占用大幅降低
+- 训练速度提升2-3倍
+- 可以合并回原模型
+
+**QLoRA（Quantized LoRA）**：
+- 将Base Model量化到4-bit
+- 在量化模型上应用LoRA
+- 单张24GB GPU即可微调65B模型
+
+#### 输出产物
+
+- **SFT Model（指令微调模型）**：能够理解和执行各类指令
+- **能力表现**：
+  - ✅ 理解对话格式和角色
+  - ✅ 能够回答问题、完成任务
+  - ✅ 输出更加结构化和有用
+  - ⚠️ 可能仍有有害输出
+  - ⚠️ 输出质量参差不齐
+  - ⚠️ 需要进一步对齐
+
+---
+
+### 第三阶段：偏好对齐（Preference Alignment）—— 符合人类价值观
+
+对齐阶段让模型的输出不仅"能用"，更要"好用"，符合人类的偏好、价值观和安全准则。
+
+#### 训练目标
+
+**核心任务：学习人类偏好（Human Preference Learning）**
+
+给定同一个指令 $x$，模型生成的两个回答 $y_w$（更好）和 $y_l$（较差），训练目标是让模型更倾向于生成 $y_w$。
+
+#### 方法一：RLHF（Reinforcement Learning from Human Feedback）
+
+```mermaid
+graph TD
+    A[SFT Model] --> B[Step 1: 收集偏好数据]
+    B --> C[模型生成多个回答]
+    C --> D[人类标注员排序]
+    D --> E[构建偏好数据集]
+    E --> F[Step 2: 训练奖励模型 RM]
+    F --> G[Reward Model<br/>评分器]
+    G --> H[Step 3: PPO强化学习]
+    A --> H
+    H --> I[采样prompts]
+    I --> J[Policy Model生成回答]
+    J --> K[RM评分]
+    K --> L[计算奖励 + KL惩罚]
+    L --> M[PPO更新策略]
+    M --> N{收敛?}
+    N -->|否| I
+    N -->|是| O[Aligned Model]
+
+    style A fill:#ffe0b2
+    style G fill:#fff9c4
+    style O fill:#c8e6c9
+    style F fill:#e1f5ff
+    style H fill:#f8bbd0
+```
+
+**RLHF三步流程**：
+
+**Step 1: 收集偏好数据**
+```
+对于指令 x：
+    模型生成多个回答：[y1, y2, y3, y4]
+    人类标注员排序：y2 > y4 > y1 > y3
+    构建偏好对：(x, y2, y4), (x, y2, y1), ...
+```
+
+**数据规模**：
+- InstructGPT：约33k偏好对比
+- Anthropic HH-RLHF：约160k对话偏好数据
+- 成本：每个标注$0.5-2
+
+**Step 2: 训练奖励模型（Reward Model, RM）**
+
+输入：prompt $x$ + response $y$
+输出：标量奖励分数 $r(x, y)$
+
+损失函数（Bradley-Terry模型）：
+
+$$
+\mathcal{L}_{\text{RM}} = -\mathbb{E}_{(x,y_w,y_l)} \left[ \log \sigma(r(x, y_w) - r(x, y_l)) \right]
+$$
+
+其中 $y_w$ 是人类偏好的回答，$y_l$ 是被拒绝的回答，$\sigma$ 是sigmoid函数。
+
+**RM架构**：
+- 通常基于SFT Model初始化
+- 去除最后的LM head
+- 添加标量输出层
+- 参数量：与Policy Model相同或稍小
+
+**Step 3: PPO强化学习优化**
+
+使用PPO（Proximal Policy Optimization）算法优化策略模型：
+
+$$
+\mathcal{L}_{\text{PPO}} = \mathbb{E}_{x,y} \left[ r(x, y) - \beta \cdot D_{\text{KL}}(\pi_\theta \| \pi_{\text{ref}}) \right]
+$$
+
+**解释**：
+- 第一项：奖励模型评分，鼓励高质量输出
+- 第二项：KL散度惩罚，防止偏离SFT模型过远（避免模式崩溃）
+- $\beta$：KL惩罚系数（通常0.01-0.1）
+
+**训练细节**：
+- 每次迭代采样batch prompts
+- 用当前策略生成回答
+- 使用RM计算奖励
+- PPO更新策略参数
+- 重复数千到数万步
+
+**RLHF的挑战**：
+- ❌ 训练不稳定（需要同时运行4个模型）
+- ❌ RM可能被exploit（reward hacking）
+- ❌ 计算开销大（需要Policy、Reference、RM、Critic）
+- ❌ 超参数敏感
+
+#### 方法二：DPO（Direct Preference Optimization）
+
+**核心创新**：绕过显式的Reward Model和RL训练，直接从偏好数据优化策略。
+
+**DPO损失函数**：
+
+$$
+\mathcal{L}_{\text{DPO}} = -\mathbb{E}_{(x,y_w,y_l)} \left[ \log \sigma \left( \beta \log \frac{\pi_\theta(y_w \mid x)}{\pi_{\text{ref}}(y_w \mid x)} - \beta \log \frac{\pi_\theta(y_l \mid x)}{\pi_{\text{ref}}(y_l \mid x)} \right) \right]
+$$
+
+**直观理解**：
+- 增加模型对 $y_w$（好回答）的概率
+- 降低模型对 $y_l$（差回答）的概率
+- 相对于参考模型 $\pi_{\text{ref}}$（通常是SFT模型）的变化受 $\beta$ 控制
+
+```mermaid
+graph TD
+    subgraph "RLHF流程（复杂）"
+    A1[SFT Model] --> A2[收集偏好数据]
+    A2 --> A3[训练Reward Model]
+    A3 --> A4[PPO强化学习]
+    A4 --> A5[需要4个模型:<br/>Policy, Reference,<br/>Reward, Critic]
+    A5 --> A6[训练不稳定]
+    end
+
+    subgraph "DPO流程（简化）"
+    B1[SFT Model] --> B2[收集偏好数据]
+    B2 --> B3[直接优化策略]
+    B3 --> B4[只需2个模型:<br/>Policy, Reference]
+    B4 --> B5[训练稳定]
+    end
+
+    A6 -.对比.-> B5
+
+    style A5 fill:#ffcdd2
+    style A6 fill:#ffcdd2
+    style B4 fill:#c8e6c9
+    style B5 fill:#c8e6c9
+```
+
+**DPO vs RLHF对比**：
+
+| 维度 | RLHF | DPO |
+|------|------|-----|
+| **训练阶段** | 3步（数据→RM→PPO） | 2步（数据→直接优化） |
+| **模型数量** | 4个（Policy/Ref/RM/Critic） | 2个（Policy/Ref） |
+| **训练稳定性** | 较低（RL不稳定） | 高（监督学习） |
+| **计算开销** | 大（4个模型） | 小（2个模型） |
+| **实现复杂度** | 高（需要RL库） | 低（标准优化） |
+| **Reward Hacking** | 容易发生 | 不易发生 |
+| **效果** | 强 | 相当或更好 |
+
+**DPO的优势**：
+- ✅ 训练更稳定（只需训练一个模型）
+- ✅ 无需训练RM（节省计算）
+- ✅ 无需RL（更简单）
+- ✅ 效果与RLHF相当或更好
+- ✅ 超参数更鲁棒
+
+**训练流程**：
+```
+SFT Model → 冻结作为参考模型 π_ref
+    ↓
+准备偏好数据 (x, y_w, y_l)
+    ↓
+直接优化策略模型 π_θ
+    ↓
+最小化 DPO loss
+    ↓
+Aligned Model（对齐模型）
+```
+
+**训练超参数**：
+- **学习率**：5e-7 ~ 5e-6（更小）
+- **β参数**：0.1 ~ 0.5
+- **训练轮数**：1-3 epochs
+- **批次大小**：16-64
+
+#### 方法三：其他对齐技术
+
+**RLAIF（RL from AI Feedback）**：
+- 使用AI模型（如GPT-4）代替人类标注偏好
+- 成本更低、可扩展性更强
+- Constitutional AI的核心技术
+
+**ORPO（Odds Ratio Preference Optimization）**：
+- 将SFT和偏好优化合并为单阶段
+- 无需reference model
+- 进一步简化训练流程
+
+**IPO、KTO等DPO变体**：
+- 改进优化目标
+- 减少length bias
+- 更好的理论保证
+
+#### 对齐后的效果
+
+- **Aligned Model（对齐模型）**：最终可部署的模型
+- **能力表现**：
+  - ✅ 输出更有帮助、诚实、无害（HHH）
+  - ✅ 符合人类偏好和价值观
+  - ✅ 减少有害、偏见输出
+  - ✅ 更好的对话体验
+  - ✅ 拒绝不当请求
+
+---
+
+### 三阶段总结对比
+
+| 阶段 | 预训练 | 监督微调 | 偏好对齐 |
+|------|--------|----------|----------|
+| **目标** | 学习语言基础 | 教会指令遵循 | 符合人类偏好 |
+| **数据类型** | 无标注文本 | 指令-回答对 | 偏好对比数据 |
+| **数据规模** | 数万亿tokens | 数万-数十万样本 | 数万-数十万对比 |
+| **训练时长** | 数周-数月 | 数小时-数天 | 数小时-数天 |
+| **计算需求** | 数千GPU | 数十-数百GPU | 数十-数百GPU |
+| **成本占比** | ~80-90% | ~5-10% | ~5-10% |
+| **学习率** | 1e-4 ~ 3e-4 | 1e-5 ~ 5e-5 | 5e-7 ~ 5e-6 |
+| **Epoch数** | <1 epoch（太大） | 1-3 epochs | 1-3 epochs |
+| **输出模型** | Base Model | SFT Model | Aligned Model |
+
+**关键洞察**：
+- 预训练是能力的来源（占成本90%）
+- SFT是能力的激活（数据质量 > 数量）
+- 对齐是体验的保证（必不可少）
 
 ## 大模型训练的核心组成要素
 
@@ -215,7 +650,7 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 - **方法**：预测下一个token（Next Token Prediction）
 - **代表模型**：GPT系列、LLaMA、PaLM
 - **优势**：生成能力强，适合对话和创作任务
-- **公式**：最大化 P(x_t | x_1, ..., x_{t-1})
+- **公式**：最大化条件概率 $P(x_t \mid x_1, x_2, \ldots, x_{t-1})$
 
 ### 2. 掩码语言建模（Masked Language Modeling）
 - **方法**：预测被mask的token
@@ -267,15 +702,88 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 - 领域特定数据的权重调整
 - 随训练进行的动态调整
 
+## 预训练训练流程可视化
+
+```mermaid
+graph TD
+    A[原始数据采集] --> B[数据清洗与过滤]
+    B --> C[质量评估]
+    C --> D{是否通过?}
+    D -->|否| E[丢弃]
+    D -->|是| F[去重处理]
+    F --> G[MinHash/SimHash去重]
+    G --> H[Tokenization]
+    H --> I[数据配比与采样]
+    I --> J[构建训练批次]
+    J --> K[分布式训练<br/>3D并行: DP+TP+PP]
+    K --> L[前向传播]
+    L --> M[计算Loss<br/>Next Token Prediction]
+    M --> N[反向传播]
+    N --> O[梯度同步 All-Reduce]
+    O --> P[优化器更新<br/>AdamW]
+    P --> Q{是否保存checkpoint?}
+    Q -->|是| R[保存模型状态]
+    Q -->|否| S{训练完成?}
+    R --> S
+    S -->|否| J
+    S -->|是| T[Base Model<br/>基座模型]
+
+    style A fill:#e1f5ff
+    style T fill:#c8e6c9
+    style M fill:#fff9c4
+    style K fill:#ffe0b2
+```
+
+**流程说明**：
+1. **数据准备阶段**（A-I）：占整体时间的20-30%
+2. **训练迭代阶段**（J-S）：占整体时间的70-80%
+3. **每1000-5000步保存一次checkpoint**
+4. **总训练步数**：通常100k-500k步
+
 ## 预训练的关键技术
 
 ### 1. 学习率调度
+
+**标准三阶段调度**：
 ```
 Warmup → Peak Learning Rate → Cosine/Linear Decay
 ```
-- Warmup步数：通常数千到数万步
-- Peak Learning Rate：根据模型规模调整（通常1e-4到3e-4）
-- Decay策略：Cosine Annealing较常用
+
+```mermaid
+graph LR
+    A[步骤0<br/>lr=0] --> B[Warmup阶段<br/>0-2%步数<br/>线性增长]
+    B --> C[峰值阶段<br/>2-10%步数<br/>保持峰值]
+    C --> D[Decay阶段<br/>10-100%步数<br/>余弦衰减]
+    D --> E[结束<br/>lr=峰值×10%]
+
+    style A fill:#e3f2fd
+    style B fill:#fff9c4
+    style C fill:#ffcdd2
+    style D fill:#c8e6c9
+    style E fill:#e3f2fd
+```
+
+**关键参数**：
+- **Warmup步数**：通常2,000-10,000步（占总步数的1-2%）
+- **Peak Learning Rate**：根据模型规模调整
+  - 小模型（<1B参数）：3e-4 ~ 1e-3
+  - 中型模型（1-10B参数）：1e-4 ~ 3e-4
+  - 大模型（10B+参数）：6e-5 ~ 2e-4
+- **Decay策略**：Cosine Annealing最常用
+- **最小学习率**：通常为峰值的10%
+
+**Warmup的重要性**：
+- 避免训练初期的梯度爆炸
+- 让优化器状态（Adam的momentum）逐步稳定
+- 大模型训练的必要技巧
+
+**学习率与批次大小关系**（Linear Scaling Rule）：
+
+$$
+\text{lr}_{\text{new}} = \text{lr}_{\text{base}} \times \frac{\text{batch}_{\text{new}}}{\text{batch}_{\text{base}}}
+$$
+
+例如：基础配置 lr=1e-4, batch=256 → 扩展到 batch=2048 → lr=8e-4
 
 ### 2. 批次大小（Batch Size）
 - **趋势**：随训练进行逐步增大
@@ -702,14 +1210,68 @@ The capital of France is Paris.
 ## 混合并行（3D Parallelism）
 
 结合数据并行、张量并行、流水线并行：
-```
-总GPU数 = DP度 × TP度 × PP度
+
+$$
+\text{总GPU数} = \text{DP度} \times \text{TP度} \times \text{PP度}
+$$
+
+```mermaid
+graph TD
+    A[选择并行策略] --> B{单层参数能否<br/>装入单GPU?}
+    B -->|否| C[启用张量并行 TP]
+    B -->|是| D{模型总层数<br/>是否很多?}
+    C --> D
+    D -->|是| E[启用流水线并行 PP]
+    D -->|否| F{还有剩余GPU?}
+    E --> F
+    F -->|是| G[启用数据并行 DP<br/>提升吞吐量]
+    F -->|否| H[完成配置]
+    G --> H
+
+    I[示例配置] --> J[1024 GPUs训练<br/>175B模型]
+    J --> K[TP=8: 单层切8份]
+    K --> L[PP=16: 分16个stage]
+    L --> M[DP=8: 8个数据副本]
+    M --> N[8×8×16=1024]
+
+    style C fill:#ffcdd2
+    style E fill:#fff9c4
+    style G fill:#c8e6c9
+    style H fill:#e3f2fd
 ```
 
-### 策略选择
-- 模型层数多 → 增加PP
-- 单层参数大 → 增加TP
-- 都满足后 → 增加DP提升吞吐
+### 策略选择原则
+
+**决策流程**：
+1. **首先考虑TP（张量并行）**：
+   - 当单层参数 > 单GPU显存时必须使用
+   - 典型配置：TP=2/4/8（同节点内，NVLink通信）
+   - 例如：单层12GB，单GPU 80GB → 不需要TP
+
+2. **其次考虑PP（流水线并行）**：
+   - 当模型总层数很多时使用
+   - 典型配置：PP=2/4/8/16
+   - 例如：96层模型，PP=16 → 每个stage 6层
+
+3. **最后考虑DP（数据并行）**：
+   - 使用剩余所有GPU
+   - 提升训练吞吐量
+   - 例如：1024 GPU，TP=8，PP=16 → DP=8
+
+**实际案例**：
+
+| 模型规模 | TP | PP | DP | 总GPU | 说明 |
+|---------|----|----|----|----|------|
+| **7B参数** | 1 | 1 | 64 | 64 | 小模型，纯DP即可 |
+| **13B参数** | 2 | 1 | 32 | 64 | 需要少量TP |
+| **70B参数** | 8 | 4 | 4 | 128 | 需要TP+PP |
+| **175B参数** | 8 | 16 | 8 | 1024 | 大模型，3D并行 |
+| **540B参数** | 8 | 32 | 16 | 4096 | 超大模型 |
+
+**Trade-off考虑**：
+- **TP增大**：层内通信增多，需要高速互联（NVLink）
+- **PP增大**：Pipeline bubble增大，GPU利用率下降
+- **DP增大**：梯度同步通信增多，但可用Ring-AllReduce优化
 
 
 # 训练优化技术
@@ -739,9 +1301,18 @@ The capital of France is Paris.
 - 典型：2000-10000步
 
 ### Cosine Decay
-```
-lr = lr_min + 0.5 * (lr_max - lr_min) * (1 + cos(π * t / T))
-```
+
+学习率随训练步数按余弦曲线衰减：
+
+$$
+\text{lr}(t) = \text{lr}_{\min} + \frac{1}{2}(\text{lr}_{\max} - \text{lr}_{\min}) \left(1 + \cos\left(\frac{\pi t}{T}\right)\right)
+$$
+
+其中：
+- $t$：当前训练步数
+- $T$：总训练步数
+- $\text{lr}_{\max}$：峰值学习率
+- $\text{lr}_{\min}$：最小学习率（通常为峰值的10%）
 
 ### Linear Decay
 - 线性降低学习率
@@ -888,15 +1459,32 @@ lr = lr_min + 0.5 * (lr_max - lr_min) * (1 + cos(π * t / T))
 ### 静态配比策略
 
 **GPT-3配比示例**：
-- Common Crawl：60%
-- WebText2：22%
-- Books：16%
-- Wikipedia：3%
+
+```mermaid
+pie title GPT-3预训练数据配比
+    "Common Crawl" : 60
+    "WebText2" : 22
+    "Books" : 16
+    "Wikipedia" : 3
+```
+
+**LLaMA配比示例**（更新的配比策略）：
+
+| 数据源 | 占比 | Token数量 | 说明 |
+|--------|------|-----------|------|
+| CommonCrawl | 67% | ~1.34T | 网页数据，多样性最高 |
+| C4 | 15% | ~300B | 清洗后的网页数据 |
+| GitHub | 4.5% | ~90B | 代码数据 |
+| Wikipedia | 4.5% | ~90B | 高质量百科知识 |
+| Books | 4.5% | ~90B | 长文本，叙事能力 |
+| ArXiv | 2.5% | ~50B | 数学、科学推理 |
+| StackExchange | 2% | ~40B | 专业问答 |
 
 **配比原则**：
-- 高质量数据提权
-- 代码数据单独控制（10-20%）
-- 对话数据少量但重要
+- **高质量数据提权**：Wikipedia、Books、ArXiv虽然占比小，但多次采样
+- **代码数据单独控制**：10-20%，提升代码能力但不过度
+- **对话数据少量但重要**：StackExchange等问答数据培养对话能力
+- **多样性优先**：Common Crawl占主导，保证知识广度
 
 ### 动态配比策略
 
@@ -914,8 +1502,19 @@ lr = lr_min + 0.5 * (lr_max - lr_min) * (1 + cos(π * t / T))
 - 从通用到专业
 
 ### Temperature Sampling
-$$p_i = \frac{n_i^{\alpha}}{\sum_j n_j^{\alpha}}$$
-- $\alpha < 1$：提升小数据源采样概率
+
+采样概率计算公式：
+
+$$
+p_i = \frac{n_i^{\alpha}}{\sum_j n_j^{\alpha}}
+$$
+
+其中：
+- $n_i$：数据源 $i$ 的原始样本数量
+- $\alpha$：温度参数
+- $\alpha < 1$：提升小数据源采样概率（up-sampling）
+- $\alpha > 1$：降低小数据源采样概率（down-sampling）
+- $\alpha = 1$：按原始比例采样
 
 ## Tokenization
 
