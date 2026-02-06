@@ -137,423 +137,49 @@ flowchart LR
     style I fill:#c8e6c9,stroke:#1b5e20
 ```
 
-**关键对比**：预训练（数据T级、时间月级、成本80-90%）→ SFT（数据万级、时间天级、成本5-10%）→ 对齐（数据万级、时间天级、成本5-10%）
+**关键对比**：
 
-### 第一阶段：预训练（Pre-training）—— 构建语言基础
+| 阶段 | 数据规模 | 时间周期 | 成本占比 | 目标 |
+|------|---------|---------|---------|------|
+| **预训练** | 数万亿tokens | 数周-数月 | 80-90% | 学习语言基础和世界知识 |
+| **监督微调** | 数万样本 | 数天-数周 | 5-10% | 学会遵循指令和对话 |
+| **偏好对齐** | 数万对比对 | 数天-数周 | 5-10% | 符合人类偏好和价值观 |
 
-预训练是整个训练流程的**基石**，目标是让模型从海量文本中学习语言的统计规律、语法结构和世界知识。
+### 阶段一：预训练（Pre-training）
 
-#### 训练目标
+从海量无标注文本中学习语言的统计规律、语法结构和世界知识，训练出**Base Model（基座模型）**。
 
-**核心任务：Next Token Prediction（下一个词预测）**
+**核心特点**：
+- 📊 **数据规模最大**：数万亿tokens（如 LLaMA-3 使用 15T tokens）
+- ⏰ **训练时间最长**：在数千块GPU上训练数周到数月
+- 💰 **成本最高**：占总训练成本的 80-90%
+- 🎯 **目标**：Next Token Prediction（预测下一个词）
 
-给定前面的文本序列 $x_1, x_2, ..., x_{t-1}$，模型需要预测下一个token $x_t$。训练目标是最大化条件概率：
+**输出能力**：具备文本续写能力，但不擅长问答和指令遵循。
 
-$$
-\mathcal{L}_{\text{pretrain}} = -\sum_{t=1}^{T} \log P(x_t \mid x_1, x_2, \ldots, x_{t-1}; \theta)
-$$
+### 阶段二：监督微调（SFT）
 
-其中 $\theta$ 是模型参数，$T$ 是序列长度。
+使用高质量的指令-回答对训练，将Base Model转化为能够理解指令的**SFT Model（指令模型）**。
 
-#### 训练数据
+**核心特点**：
+- 📊 **数据规模小**：10k-100k 高质量样本
+- ⏰ **训练时间短**：数天到数周
+- 💰 **成本较低**：占总成本的 5-10%
+- 🎯 **目标**：Instruction Following（指令遵循）
 
-**数据规模**：
-- **GPT-3**：约300B tokens（4100亿词）
-- **LLaMA-2**：2T tokens（2万亿词）
-- **LLaMA-3**：15T tokens（15万亿词）
-- **训练时长**：在数千块A100 GPU上训练数周到数月
+**输出能力**：能够理解和执行用户指令，进行多轮对话。
 
-**数据来源配比示例（参考LLaMA）**：
-- 网页数据（Common Crawl、C4）：~67%
-- 书籍（Books3、BookCorpus）：~15%
-- 代码（GitHub、Stack）：~10%
-- 学术论文（arXiv、PubMed）：~5%
-- 百科知识（Wikipedia）：~3%
+### 阶段三：偏好对齐（Alignment）
 
-#### 训练流程
+通过人类反馈或AI反馈优化模型行为，使其更符合人类期望和价值观，训练出**Aligned Model（对齐模型）**。
 
-```mermaid
-graph TD
-    A[原始数据采集] --> B[质量过滤 + 去重 + 清洗]
-    B --> C[Tokenization 分词]
-    C --> D[数据配比和采样]
-    D --> E[分布式训练<br/>3D并行]
-    E --> F[训练监控和checkpointing]
-    F --> G[Base Model<br/>基座模型]
+**核心特点**：
+- 📊 **数据规模**：数万对偏好对比数据
+- ⏰ **训练时间**：数天到数周
+- 💰 **成本**：占总成本的 5-10%
+- 🎯 **方法**：RLHF、DPO、RLAIF等
 
-    style A fill:#e3f2fd
-    style G fill:#c8e6c9
-    style E fill:#ffe0b2
-```
-
-#### 关键技术点
-
-1. **学习率调度**：
-   - Warmup阶段（0-2%训练步数）：从0线性增加到峰值
-   - 稳定阶段（2-90%）：保持峰值或缓慢下降
-   - Decay阶段（90-100%）：Cosine annealing降至峰值的10%
-
-2. **批次大小策略**：
-   - 起始：~2M tokens/batch
-   - 逐步增大到：~4-8M tokens/batch
-   - 使用梯度累积模拟大批次
-
-3. **混合精度训练**：
-   - 使用BF16（Brain Float16）进行前向和反向传播
-   - 保持FP32的优化器状态
-   - 提升训练速度同时保证稳定性
-
-4. **Checkpointing策略**：
-   - 每1000-5000步保存checkpoint
-   - 保留最近N个checkpoint
-   - 支持从任意checkpoint恢复训练
-
-#### 输出产物
-
-- **Base Model（基座模型）**：具备基础语言能力，但不擅长遵循指令
-- **能力表现**：
-  - ✅ 能够续写文本
-  - ✅ 具备一定的知识储备
-  - ✅ 理解基本语法和语义
-  - ❌ 不擅长问答
-  - ❌ 不理解对话格式
-  - ❌ 输出可能不符合人类期望
-
----
-
-### 第二阶段：监督微调（Supervised Fine-Tuning, SFT）—— 教会指令遵循
-
-SFT阶段将Base Model转化为能够**理解指令、生成有用回答**的AI助手。
-
-#### 训练目标
-
-**核心任务：指令遵循（Instruction Following）**
-
-给定一个指令 $x$ (prompt)，模型需要生成符合要求的回答 $y$ (response)。训练目标是最大化条件概率：
-
-$$
-\mathcal{L}_{\text{SFT}} = -\sum_{(x,y) \in \mathcal{D}_{\text{SFT}}} \log P(y \mid x; \theta)
-$$
-
-其中 $\mathcal{D}_{\text{SFT}}$ 是监督微调数据集，包含高质量的指令-回答对。
-
-**关键区别**：
-- 预训练：模型看到整个文档，预测每个token
-- SFT：模型**只对回答部分计算loss**，不对指令部分计算loss
-
-#### 训练数据
-
-**数据规模**：
-- **典型规模**：10k - 100k 高质量样本
-- **LLaMA-2-Chat**：约27,540个样本
-- **Vicuna**：约70k ShareGPT对话
-- **远小于预训练**：数据质量 > 数据数量
-
-**数据来源**：
-
-1. **人工标注**（最高质量）：
-   - 雇佣专业标注员
-   - 给定指令，编写高质量回答
-   - 多轮审核和质量控制
-   - 成本高：$20-50/小时 × 数千小时
-
-2. **模型蒸馏**（性价比高）：
-   - 使用GPT-4等强模型生成训练数据
-   - Self-Instruct、Evol-Instruct方法
-   - 自动化生成 + 人工抽样审核
-   - 代表：ShareGPT、UltraChat、OpenOrca
-
-3. **开源数据集**：
-   - FLAN、Dolly、OpenAssistant
-   - 社区贡献的对话数据
-
-**指令类型分布**：
-
-**指令类型分布**：
-- 开放式问答：30-40%
-- 创意写作：15-20%
-- 信息提取：10-15%
-- 代码生成：10-15%
-- 数学推理：5-10%
-- 多轮对话：10-15%
-- 其他任务：5-10%
-
-#### 训练流程
-
-```mermaid
-graph TD
-    A[Base Model<br/>基座模型] --> B[准备SFT数据集<br/>指令-回答对]
-    B --> C[格式化为统一模板<br/>System/User/Assistant]
-    C --> D[只对Assistant部分计算loss]
-    D --> E[全参数微调或<br/>LoRA/QLoRA]
-    E --> F[训练1-3个epoch]
-    F --> G[SFT Model<br/>指令微调模型]
-
-    style A fill:#fff9c4
-    style G fill:#c8e6c9
-    style E fill:#ffe0b2
-```
-
-**数据格式示例**：
-
-| 角色 | 内容 |
-|------|------|
-| **System** | You are a helpful assistant. |
-| **User** | 用户指令 |
-| **Assistant** | 模型回答 ✓ *（仅此部分计算loss）* |
-
-#### 训练超参数
-
-- **学习率**：1e-5 ~ 5e-5（远小于预训练的1e-4）
-- **训练轮数**：1-3 epochs（过多会导致过拟合）
-- **批次大小**：32-128（取决于显存）
-- **序列长度**：2048-4096 tokens
-- **优化器**：AdamW（β₁=0.9, β₂=0.95）
-- **Warmup比例**：10-20%
-- **权重衰减**：0.01-0.1
-
-#### 高效微调技术
-
-**LoRA（Low-Rank Adaptation）**：
-
-在预训练权重 $W_0$ 的基础上，添加低秩分解的可训练矩阵：
-
-$$
-W = W_0 + \Delta W = W_0 + BA
-$$
-
-其中 $B \in \mathbb{R}^{d \times r}$，$A \in \mathbb{R}^{r \times k}$，秩 $r \ll \min(d,k)$。
-
-**优势**：
-- 只训练<1%的参数
-- 显存占用大幅降低
-- 训练速度提升2-3倍
-- 可以合并回原模型
-
-**QLoRA（Quantized LoRA）**：
-- 将Base Model量化到4-bit
-- 在量化模型上应用LoRA
-- 单张24GB GPU即可微调65B模型
-
-#### 输出产物
-
-- **SFT Model（指令微调模型）**：能够理解和执行各类指令
-- **能力表现**：
-  - ✅ 理解对话格式和角色
-  - ✅ 能够回答问题、完成任务
-  - ✅ 输出更加结构化和有用
-  - ⚠️ 可能仍有有害输出
-  - ⚠️ 输出质量参差不齐
-  - ⚠️ 需要进一步对齐
-
----
-
-### 第三阶段：偏好对齐（Preference Alignment）—— 符合人类价值观
-
-对齐阶段让模型的输出不仅"能用"，更要"好用"，符合人类的偏好、价值观和安全准则。
-
-#### 训练目标
-
-**核心任务：学习人类偏好（Human Preference Learning）**
-
-给定同一个指令 $x$，模型生成的两个回答 $y_w$（更好）和 $y_l$（较差），训练目标是让模型更倾向于生成 $y_w$。
-
-#### 方法一：RLHF（Reinforcement Learning from Human Feedback）
-
-```mermaid
-graph TD
-    A[SFT Model] --> B[Step 1: 收集偏好数据]
-    B --> C[模型生成多个回答]
-    C --> D[人类标注员排序]
-    D --> E[构建偏好数据集]
-    E --> F[Step 2: 训练奖励模型 RM]
-    F --> G[Reward Model<br/>评分器]
-    G --> H[Step 3: PPO强化学习]
-    A --> H
-    H --> I[采样prompts]
-    I --> J[Policy Model生成回答]
-    J --> K[RM评分]
-    K --> L[计算奖励 + KL惩罚]
-    L --> M[PPO更新策略]
-    M --> N{收敛?}
-    N -->|否| I
-    N -->|是| O[Aligned Model]
-
-    style A fill:#ffe0b2
-    style G fill:#fff9c4
-    style O fill:#c8e6c9
-    style F fill:#e1f5ff
-    style H fill:#f8bbd0
-```
-
-**RLHF三步流程**：
-
-**Step 1: 收集偏好数据**
-```
-对于指令 x：
-    模型生成多个回答：[y1, y2, y3, y4]
-    人类标注员排序：y2 > y4 > y1 > y3
-    构建偏好对：(x, y2, y4), (x, y2, y1), ...
-```
-
-**数据规模**：
-- InstructGPT：约33k偏好对比
-- Anthropic HH-RLHF：约160k对话偏好数据
-- 成本：每个标注$0.5-2
-
-**Step 2: 训练奖励模型（Reward Model, RM）**
-
-输入：prompt $x$ + response $y$
-输出：标量奖励分数 $r(x, y)$
-
-损失函数（Bradley-Terry模型）：
-
-$$
-\mathcal{L}_{\text{RM}} = -\mathbb{E}_{(x,y_w,y_l)} \left[ \log \sigma(r(x, y_w) - r(x, y_l)) \right]
-$$
-
-其中 $y_w$ 是人类偏好的回答，$y_l$ 是被拒绝的回答，$\sigma$ 是sigmoid函数。
-
-**RM架构**：
-- 通常基于SFT Model初始化
-- 去除最后的LM head
-- 添加标量输出层
-- 参数量：与Policy Model相同或稍小
-
-**Step 3: PPO强化学习优化**
-
-使用PPO（Proximal Policy Optimization）算法优化策略模型：
-
-$$
-\mathcal{L}_{\text{PPO}} = \mathbb{E}_{x,y} \left[ r(x, y) - \beta \cdot D_{\text{KL}}(\pi_\theta \| \pi_{\text{ref}}) \right]
-$$
-
-**解释**：
-- 第一项：奖励模型评分，鼓励高质量输出
-- 第二项：KL散度惩罚，防止偏离SFT模型过远（避免模式崩溃）
-- $\beta$：KL惩罚系数（通常0.01-0.1）
-
-**训练细节**：
-- 每次迭代采样batch prompts
-- 用当前策略生成回答
-- 使用RM计算奖励
-- PPO更新策略参数
-- 重复数千到数万步
-
-**RLHF的挑战**：
-- ❌ 训练不稳定（需要同时运行4个模型）
-- ❌ RM可能被exploit（reward hacking）
-- ❌ 计算开销大（需要Policy、Reference、RM、Critic）
-- ❌ 超参数敏感
-
-#### 方法二：DPO（Direct Preference Optimization）
-
-**核心创新**：绕过显式的Reward Model和RL训练，直接从偏好数据优化策略。
-
-**DPO损失函数**：
-
-$$
-\mathcal{L}_{\text{DPO}} = -\mathbb{E}_{(x,y_w,y_l)} \left[ \log \sigma \left( \beta \log \frac{\pi_\theta(y_w \mid x)}{\pi_{\text{ref}}(y_w \mid x)} - \beta \log \frac{\pi_\theta(y_l \mid x)}{\pi_{\text{ref}}(y_l \mid x)} \right) \right]
-$$
-
-**直观理解**：
-- 增加模型对 $y_w$（好回答）的概率
-- 降低模型对 $y_l$（差回答）的概率
-- 相对于参考模型 $\pi_{\text{ref}}$（通常是SFT模型）的变化受 $\beta$ 控制
-
-```mermaid
-graph TD
-    subgraph "RLHF流程（复杂）"
-    A1[SFT Model] --> A2[收集偏好数据]
-    A2 --> A3[训练Reward Model]
-    A3 --> A4[PPO强化学习]
-    A4 --> A5[需要4个模型:<br/>Policy, Reference,<br/>Reward, Critic]
-    A5 --> A6[训练不稳定]
-    end
-
-    subgraph "DPO流程（简化）"
-    B1[SFT Model] --> B2[收集偏好数据]
-    B2 --> B3[直接优化策略]
-    B3 --> B4[只需2个模型:<br/>Policy, Reference]
-    B4 --> B5[训练稳定]
-    end
-
-    A6 -.对比.-> B5
-
-    style A5 fill:#ffcdd2
-    style A6 fill:#ffcdd2
-    style B4 fill:#c8e6c9
-    style B5 fill:#c8e6c9
-```
-
-**DPO vs RLHF对比**：
-
-| 维度 | RLHF | DPO |
-|------|------|-----|
-| **训练阶段** | 3步（数据→RM→PPO） | 2步（数据→直接优化） |
-| **模型数量** | 4个（Policy/Ref/RM/Critic） | 2个（Policy/Ref） |
-| **训练稳定性** | 较低（RL不稳定） | 高（监督学习） |
-| **计算开销** | 大（4个模型） | 小（2个模型） |
-| **实现复杂度** | 高（需要RL库） | 低（标准优化） |
-| **Reward Hacking** | 容易发生 | 不易发生 |
-| **效果** | 强 | 相当或更好 |
-
-**DPO的优势**：
-- ✅ 训练更稳定（只需训练一个模型）
-- ✅ 无需训练RM（节省计算）
-- ✅ 无需RL（更简单）
-- ✅ 效果与RLHF相当或更好
-- ✅ 超参数更鲁棒
-
-**训练流程**：
-
-```mermaid
-graph TD
-    A[SFT Model] --> B[冻结作为参考模型<br/>π_ref]
-    B --> C[准备偏好数据<br/>x, y_w, y_l]
-    C --> D[直接优化策略模型<br/>π_θ]
-    D --> E[最小化 DPO loss]
-    E --> F[Aligned Model<br/>对齐模型]
-
-    style A fill:#ffe0b2
-    style F fill:#c8e6c9
-    style D fill:#e1f5ff
-```
-
-**训练超参数**：
-- **学习率**：5e-7 ~ 5e-6（更小）
-- **β参数**：0.1 ~ 0.5
-- **训练轮数**：1-3 epochs
-- **批次大小**：16-64
-
-#### 方法三：其他对齐技术
-
-**RLAIF（RL from AI Feedback）**：
-- 使用AI模型（如GPT-4）代替人类标注偏好
-- 成本更低、可扩展性更强
-- Constitutional AI的核心技术
-
-**ORPO（Odds Ratio Preference Optimization）**：
-- 将SFT和偏好优化合并为单阶段
-- 无需reference model
-- 进一步简化训练流程
-
-**IPO、KTO等DPO变体**：
-- 改进优化目标
-- 减少length bias
-- 更好的理论保证
-
-#### 对齐后的效果
-
-- **Aligned Model（对齐模型）**：最终可部署的模型
-- **能力表现**：
-  - ✅ 输出更有帮助、诚实、无害（HHH）
-  - ✅ 符合人类偏好和价值观
-  - ✅ 减少有害、偏见输出
-  - ✅ 更好的对话体验
-  - ✅ 拒绝不当请求
-
----
+**输出能力**：输出更有帮助、更安全、更符合人类价值观。
 
 ### 三阶段总结对比
 
