@@ -295,11 +295,12 @@ graph TD
 ```
 
 **数据格式示例**：
-```
-【System】You are a helpful assistant.
-【User】用户指令
-【Assistant】模型回答
-```
+
+| 角色 | 内容 |
+|------|------|
+| **System** | You are a helpful assistant. |
+| **User** | 用户指令 |
+| **Assistant** | 模型回答 ✓ *（仅此部分计算loss）* |
 
 #### 训练超参数
 
