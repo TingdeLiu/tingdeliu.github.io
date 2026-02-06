@@ -302,24 +302,143 @@ flowchart LR
 >
 > 预训练是整个训练流程中**成本最高、时间最长、技术难度最大**的阶段，占总成本的80-90%。本章将详细介绍预训练的目标函数、数据处理、训练技巧和前沿技术，帮助读者理解如何从零开始训练一个基座模型。
 
+## 预训练完整流程概览
+
+下图展示了从原始数据到 Base Model 的完整训练流程：
+
+```mermaid
+graph TD
+    A[原始数据采集] --> B[数据清洗与过滤]
+    B --> C[质量评估]
+    C --> D{是否通过?}
+    D -->|否| E[丢弃]
+    D -->|是| F[去重处理]
+    F --> G[MinHash/SimHash去重]
+    G --> H[Tokenization]
+    H --> I[数据配比与采样]
+    I --> J[构建训练批次]
+    J --> K[分布式训练<br/>3D并行: DP+TP+PP]
+    K --> L[前向传播]
+    L --> M[计算Loss<br/>Next Token Prediction]
+    M --> N[反向传播]
+    N --> O[梯度同步 All-Reduce]
+    O --> P[优化器更新<br/>AdamW]
+    P --> Q{是否保存checkpoint?}
+    Q -->|是| R[保存模型状态]
+    Q -->|否| S{训练完成?}
+    R --> S
+    S -->|否| J
+    S -->|是| T[Base Model<br/>基座模型]
+
+    style A fill:#e1f5ff
+    style T fill:#c8e6c9
+    style M fill:#fff9c4
+    style K fill:#ffe0b2
+```
+
+**流程说明**：
+1. **数据准备阶段**（A-I）：占整体时间的 20-30%，包括采集、清洗、去重、分词
+2. **训练迭代阶段**（J-S）：占整体时间的 70-80%，核心是前向-反向-优化循环
+3. **Checkpoint 管理**：每 1000-5000 步保存一次，总训练步数通常 100k-500k 步
+
 ## 预训练目标函数
 
+预训练的核心是设计合适的目标函数，让模型从无标注文本中学习语言规律。
+
 ### 1. 自回归语言建模（Autoregressive Language Modeling）
-- **方法**：预测下一个token（Next Token Prediction）
-- **代表模型**：GPT系列、LLaMA、PaLM
-- **优势**：生成能力强，适合对话和创作任务
-- **公式**：最大化条件概率 $P(x_t \mid x_1, x_2, \ldots, x_{t-1})$
+
+**核心思想**：给定前文，预测下一个 token（Next Token Prediction）
+
+**数学表达**：
+
+对于文本序列 $\mathbf{x} = (x_1, x_2, \ldots, x_T)$，训练目标是最大化：
+
+$$
+\mathcal{L}_{\text{AR}} = \sum_{t=1}^{T} \log P(x_t \mid x_1, x_2, \ldots, x_{t-1}; \theta)
+$$
+
+其中 $\theta$ 是模型参数。
+
+**训练过程**：
+- **Teacher Forcing**：训练时使用真实的前文作为输入
+- **Causal Masking**：注意力机制只能看到左侧（过去）的 token
+- **损失计算**：对每个位置计算交叉熵损失，然后平均
+
+**代表模型**：
+- **GPT 系列**（GPT-3, GPT-4）：纯 Decoder 架构
+- **LLaMA 系列**（LLaMA-2, LLaMA-3）：开源高性能模型
+- **PaLM、Gemini**：Google 的大模型
+
+**优势**：
+- ✅ 生成能力强，擅长续写和对话
+- ✅ 架构简单，易于扩展到超大规模
+- ✅ 训练效率高
+
+**实际训练代码示例**：
+```python
+# 伪代码：自回归语言建模
+for batch in dataloader:
+    input_ids = batch['input_ids']  # shape: [batch_size, seq_len]
+
+    # 前向传播：模型预测每个位置的下一个 token
+    logits = model(input_ids)  # shape: [batch_size, seq_len, vocab_size]
+
+    # 计算损失：将预测与目标对齐（目标是输入右移一位）
+    # input:  [x1, x2, x3, x4]
+    # target: [x2, x3, x4, x5]
+    shift_logits = logits[:, :-1, :]
+    shift_labels = input_ids[:, 1:]
+
+    loss = cross_entropy(shift_logits, shift_labels)
+    loss.backward()
+    optimizer.step()
+```
 
 ### 2. 掩码语言建模（Masked Language Modeling）
-- **方法**：预测被mask的token
-- **代表模型**：BERT、RoBERTa
-- **优势**：双向上下文理解
-- **应用**：分类、信息抽取等理解任务
 
-### 3. 混合目标
-- **Encoder-Decoder架构**：T5、BART
-- **Prefix Language Modeling**：UL2
-- **Fill-in-the-Middle**：代码模型常用
+**核心思想**：随机 mask 部分 token，预测被 mask 的内容
+
+**数学表达**：
+
+$$
+\mathcal{L}_{\text{MLM}} = \sum_{i \in \mathcal{M}} \log P(x_i \mid \mathbf{x}_{\backslash \mathcal{M}}; \theta)
+$$
+
+其中 $\mathcal{M}$ 是被 mask 的位置集合，$\mathbf{x}_{\backslash \mathcal{M}}$ 表示除了 masked 位置外的所有 token。
+
+**训练策略**（BERT 方式）：
+- 随机选择 15% 的 token 进行处理：
+  - 80% 替换为 `[MASK]`
+  - 10% 替换为随机 token
+  - 10% 保持不变
+
+**代表模型**：
+- **BERT**：双向 Encoder，预训练+微调范式
+- **RoBERTa**：优化的 BERT（更多数据、更大 batch、去除 NSP）
+- **DeBERTa**：Disentangled Attention
+
+**优势**：
+- ✅ 双向上下文理解（能同时看到左右信息）
+- ✅ 适合理解类任务（分类、信息抽取）
+
+**劣势**：
+- ❌ 预训练和微调的 gap（预训练有 [MASK]，微调没有）
+- ❌ 生成能力较弱
+
+### 3. 混合目标与其他变体
+
+#### Encoder-Decoder 架构（T5、BART）
+- **Span Corruption**：mask 连续的 token span
+- **适合序列到序列任务**：翻译、摘要
+
+#### Prefix Language Modeling（PrefixLM）
+- **UL2**：结合双向和单向建模
+- **灵活性高**：可以选择双向或单向注意力
+
+#### Fill-in-the-Middle（FIM）
+- **用于代码模型**：预测中间缺失的代码
+- **代表**：CodeLlama、StarCoder
+- **格式**：`[前缀] <FILL> [后缀] → [中间内容]`
 
 ## 预训练数据
 
@@ -356,47 +475,45 @@ flowchart LR
 - SentencePiece
 
 ### 数据配比（Data Mixture）
-- 不同来源数据的采样比例
-- 领域特定数据的权重调整
-- 随训练进行的动态调整
 
-## 预训练训练流程可视化
+**核心原则**：不同数据源的配比直接影响模型的能力分布
 
-```mermaid
-graph TD
-    A[原始数据采集] --> B[数据清洗与过滤]
-    B --> C[质量评估]
-    C --> D{是否通过?}
-    D -->|否| E[丢弃]
-    D -->|是| F[去重处理]
-    F --> G[MinHash/SimHash去重]
-    G --> H[Tokenization]
-    H --> I[数据配比与采样]
-    I --> J[构建训练批次]
-    J --> K[分布式训练<br/>3D并行: DP+TP+PP]
-    K --> L[前向传播]
-    L --> M[计算Loss<br/>Next Token Prediction]
-    M --> N[反向传播]
-    N --> O[梯度同步 All-Reduce]
-    O --> P[优化器更新<br/>AdamW]
-    P --> Q{是否保存checkpoint?}
-    Q -->|是| R[保存模型状态]
-    Q -->|否| S{训练完成?}
-    R --> S
-    S -->|否| J
-    S -->|是| T[Base Model<br/>基座模型]
+**典型配比示例**（参考 LLaMA）：
 
-    style A fill:#e1f5ff
-    style T fill:#c8e6c9
-    style M fill:#fff9c4
-    style K fill:#ffe0b2
+| 数据源 | 比例 | 说明 |
+|-------|------|------|
+| **Common Crawl / C4** | 67% | 网页数据，提供广泛的语言知识 |
+| **Books** | 15% | 高质量长文本，提升推理和叙事能力 |
+| **GitHub** | 4.5% | 代码数据，提升代码理解和生成能力 |
+| **Wikipedia** | 4.5% | 百科知识，提供结构化知识 |
+| **ArXiv** | 2.5% | 学术论文，提升科学推理能力 |
+| **StackExchange** | 2% | 问答数据，提升问答能力 |
+
+**配比策略**：
+- **上采样（Upsampling）**：高质量数据源可以重复多次
+- **下采样（Downsampling）**：低质量或超大规模数据源采样一部分
+- **动态调整**：训练后期可以增加特定领域数据的比例
+
+**示例代码**：
+```python
+# 数据配比采样
+data_mixture = {
+    'common_crawl': 0.67,
+    'books': 0.15,
+    'github': 0.045,
+    'wikipedia': 0.045,
+    'arxiv': 0.025,
+    'stackexchange': 0.02
+}
+
+# 按比例采样构建训练批次
+def sample_batch(data_mixture, batch_size):
+    batch = []
+    for source, weight in data_mixture.items():
+        n_samples = int(batch_size * weight)
+        batch.extend(sample_from_source(source, n_samples))
+    return batch
 ```
-
-**流程说明**：
-1. **数据准备阶段**（A-I）：占整体时间的20-30%
-2. **训练迭代阶段**（J-S）：占整体时间的70-80%
-3. **每1000-5000步保存一次checkpoint**
-4. **总训练步数**：通常100k-500k步
 
 ## 预训练的关键技术
 
