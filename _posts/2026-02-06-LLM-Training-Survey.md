@@ -172,20 +172,18 @@ $$
 
 #### 训练流程
 
-```
-原始数据采集
-    ↓
-质量过滤 + 去重 + 清洗
-    ↓
-Tokenization（分词）
-    ↓
-数据配比和采样
-    ↓
-分布式训练（3D并行）
-    ↓
-训练监控和checkpointing
-    ↓
-Base Model（基座模型）
+```mermaid
+graph TD
+    A[原始数据采集] --> B[质量过滤 + 去重 + 清洗]
+    B --> C[Tokenization 分词]
+    C --> D[数据配比和采样]
+    D --> E[分布式训练<br/>3D并行]
+    E --> F[训练监控和checkpointing]
+    F --> G[Base Model<br/>基座模型]
+
+    style A fill:#e3f2fd
+    style G fill:#c8e6c9
+    style E fill:#ffe0b2
 ```
 
 #### 关键技术点
@@ -282,24 +280,25 @@ $$
 
 #### 训练流程
 
+```mermaid
+graph TD
+    A[Base Model<br/>基座模型] --> B[准备SFT数据集<br/>指令-回答对]
+    B --> C[格式化为统一模板<br/>System/User/Assistant]
+    C --> D[只对Assistant部分计算loss]
+    D --> E[全参数微调或<br/>LoRA/QLoRA]
+    E --> F[训练1-3个epoch]
+    F --> G[SFT Model<br/>指令微调模型]
+
+    style A fill:#fff9c4
+    style G fill:#c8e6c9
+    style E fill:#ffe0b2
 ```
-Base Model（基座模型）
-    ↓
-准备SFT数据集（指令-回答对）
-    ↓
-格式化为统一模板
-    ↓
-    【System】You are a helpful assistant.
-    【User】用户指令
-    【Assistant】模型回答
-    ↓
-只对【Assistant】部分计算loss
-    ↓
-全参数微调 或 LoRA/QLoRA
-    ↓
-训练1-3个epoch
-    ↓
-SFT Model（指令微调模型）
+
+**数据格式示例**：
+```
+【System】You are a helpful assistant.
+【User】用户指令
+【Assistant】模型回答
 ```
 
 #### 训练超参数
@@ -506,16 +505,18 @@ graph TD
 - ✅ 超参数更鲁棒
 
 **训练流程**：
-```
-SFT Model → 冻结作为参考模型 π_ref
-    ↓
-准备偏好数据 (x, y_w, y_l)
-    ↓
-直接优化策略模型 π_θ
-    ↓
-最小化 DPO loss
-    ↓
-Aligned Model（对齐模型）
+
+```mermaid
+graph TD
+    A[SFT Model] --> B[冻结作为参考模型<br/>π_ref]
+    B --> C[准备偏好数据<br/>x, y_w, y_l]
+    C --> D[直接优化策略模型<br/>π_θ]
+    D --> E[最小化 DPO loss]
+    E --> F[Aligned Model<br/>对齐模型]
+
+    style A fill:#ffe0b2
+    style F fill:#c8e6c9
+    style D fill:#e1f5ff
 ```
 
 **训练超参数**：
