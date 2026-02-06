@@ -592,14 +592,14 @@ SFT阶段将预训练模型转化为能够理解和执行指令的助手。
 ### 3. 指令模板（Instruction Template）
 
 设计统一的输入输出格式：
-```
-<|system|>
-You are a helpful assistant.
-<|user|>
-What is the capital of France?
-<|assistant|>
-The capital of France is Paris.
-```
+
+| 标记 | 角色 | 示例内容 |
+|------|------|---------|
+| `<|system|>` | 系统提示 | You are a helpful assistant. |
+| `<|user|>` | 用户输入 | What is the capital of France? |
+| `<|assistant|>` | 模型回答 | The capital of France is Paris. |
+
+**常见模板格式**：ChatML、Alpaca、Vicuna、Llama-2-Chat 等各有不同的特殊标记。
 
 ### 4. 训练超参数
 - 学习率：通常小于预训练（1e-5到5e-5）
