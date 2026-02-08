@@ -219,6 +219,11 @@ flowchart LR
 - **归一化方式**：LayerNorm、RMSNorm、Pre-Norm vs Post-Norm
 - **激活函数**：GELU、SwiGLU、GeGLU
 
+<div align="center">
+  <img src="/images/llm-training/transformer-architecture.png" width="75%" alt="Transformer架构" />
+  <figcaption>图：Transformer架构详解（来源："Attention is All You Need" 论文 Figure 1）</figcaption>
+</div>
+
 ### 3. 优化器与训练策略（Optimization）⚡
 - **优化器**：AdamW、Adafactor、Lion
 - **学习率调度**：Warmup、Cosine Decay、Constant
@@ -536,6 +541,11 @@ graph LR
     style D fill:#c8e6c9
     style E fill:#e3f2fd
 ```
+
+<div align="center">
+  <img src="/images/llm-training/learning-rate-schedule.png" width="85%" alt="预训练学习率调度曲线" />
+  <figcaption>图：预训练学习率调度实际曲线 - Warmup-Peak-Decay三阶段（来源：Chinchilla 论文 Figure 1）</figcaption>
+</div>
 
 **关键参数**：
 - **Warmup步数**：通常2,000-10,000步（占总步数的1-2%）
@@ -873,6 +883,11 @@ def self_instruct_pipeline(seed_instructions, num_samples=10000):
 | **多轮对话** | 10-15% | 上下文相关的连续问题 |
 | **其他任务** | 5-10% | 翻译、格式转换等 |
 
+<div align="center">
+  <img src="/images/llm-training/instruction-distribution.png" width="80%" alt="SFT指令类型分布" />
+  <figcaption>图：高质量SFT数据集的指令类型分布示例（来源：Self-Instruct 论文 Figure 2）</figcaption>
+</div>
+
 **平衡原则**：
 - 覆盖主要应用场景
 - 避免某类任务占比过高
@@ -1186,7 +1201,7 @@ model.print_trainable_parameters()
 ### RLHF 三阶段流程
 
 <div align="center">
-  <img src="/assets/images/llm-training/rlhf-three-steps.png" width="90%" alt="RLHF 三阶段流程图" />
+  <img src="/images/llm-training/rlhf-three-steps.png" width="90%" alt="RLHF 三阶段流程图" />
   <figcaption>图：RLHF 完整训练流程（来源：InstructGPT 论文 Figure 2）</figcaption>
 </div>
 
@@ -1225,7 +1240,7 @@ model.print_trainable_parameters()
 ### DPO vs RLHF 对比
 
 <div align="center">
-  <img src="/assets/images/llm-training/dpo-vs-rlhf.png" width="85%" alt="DPO 与 RLHF 对比" />
+  <img src="/images/llm-training/dpo-vs-rlhf.png" width="85%" alt="DPO 与 RLHF 对比" />
   <figcaption>图：DPO 简化了 RLHF 流程（来源：DPO 论文 Figure 1）</figcaption>
 </div>
 
@@ -1269,7 +1284,7 @@ $$
 **论文来源**：[RLAIF: Scaling Reinforcement Learning from Human Feedback with AI Feedback](https://arxiv.org/abs/2309.00267)
 
 <div align="center">
-  <img src="/assets/images/llm-training/rlaif-workflow.png" width="85%" alt="RLAIF 工作流程" />
+  <img src="/images/llm-training/rlaif-workflow.png" width="85%" alt="RLAIF 工作流程" />
   <figcaption>图：RLAIF 使用 AI 模型替代人类标注（来源：RLAIF 论文）</figcaption>
 </div>
 
@@ -1299,7 +1314,7 @@ $$
 **论文来源**：[Constitutional AI: Harmlessness from AI Feedback](https://arxiv.org/abs/2212.08073)
 
 <div align="center">
-  <img src="/assets/images/llm-training/constitutional-ai.png" width="85%" alt="Constitutional AI 流程" />
+  <img src="/images/llm-training/constitutional-ai.png" width="85%" alt="Constitutional AI 流程" />
   <figcaption>图：Constitutional AI 的自我批评和修正流程（来源：Anthropic Constitutional AI 论文）</figcaption>
 </div>
 
@@ -1360,6 +1375,11 @@ $$
 - 模型必须能装入单个GPU显存
 - 不适用于超大模型
 
+<div align="center">
+  <img src="/images/llm-training/data-parallelism.png" width="80%" alt="数据并行架构" />
+  <figcaption>图：数据并行(DP)架构 - 每个GPU持有完整模型副本（来源：PyTorch Distributed 论文 Figure 1）</figcaption>
+</div>
+
 ## 张量并行
 ————Tensor Parallelism
 
@@ -1376,6 +1396,11 @@ $$
 ### 适用场景
 - 超大模型无法装入单GPU
 - 需要细粒度并行
+
+<div align="center">
+  <img src="/images/llm-training/tensor-parallelism.png" width="85%" alt="张量并行架构" />
+  <figcaption>图：张量并行(TP)架构 - Transformer层的列/行切分策略（来源：Megatron-LM 论文 Figure 3）</figcaption>
+</div>
 
 ## 流水线并行
 ————Pipeline Parallelism
@@ -1394,6 +1419,11 @@ $$
 - 流水线bubble导致GPU利用率下降
 - 通信开销
 - 负载均衡
+
+<div align="center">
+  <img src="/images/llm-training/pipeline-parallelism.png" width="85%" alt="流水线并行架构" />
+  <figcaption>图：流水线并行(PP)架构与1F1B调度策略（来源：GPipe 论文 Figure 1、PipeDream 论文 Figure 3）</figcaption>
+</div>
 
 ## 序列并行
 ————Sequence Parallelism
@@ -1464,6 +1494,11 @@ graph TD
     style G fill:#c8e6c9
     style H fill:#e3f2fd
 ```
+
+<div align="center">
+  <img src="/images/llm-training/3d-parallelism.png" width="90%" alt="3D混合并行架构" />
+  <figcaption>图：3D混合并行架构(DP+TP+PP)训练大模型（来源：Megatron-LM 2021 论文 Figure 1）</figcaption>
+</div>
 
 ### 策略选择原则
 
@@ -1585,6 +1620,11 @@ $$
 >
 > "Garbage in, garbage out"——数据质量直接决定模型上限。本章介绍数据采集、质量评估、去重、配比、Tokenization等完整数据处理流程。**核心理念**：高质量 > 大规模，多样性 > 单一来源。数据工程往往被低估，但它是训练成功的关键。
 
+<div align="center">
+  <img src="/images/llm-training/data-processing-pipeline.png" width="90%" alt="数据处理完整流程" />
+  <figcaption>图：预训练数据处理完整流程 - 从采集到训练（来源：RefinedWeb 论文 Figure 1）</figcaption>
+</div>
+
 ## 数据采集与来源
 
 ### 预训练数据来源
@@ -1662,6 +1702,11 @@ $$
 - 估计Jaccard相似度
 - 步骤：生成shingles → MinHash签名 → LSH找相似对
 - 工具：datasketch库
+
+<div align="center">
+  <img src="/images/llm-training/minhash-deduplication.png" width="85%" alt="MinHash去重原理" />
+  <figcaption>图：MinHash + LSH去重工作原理示意图（来源：CCNet 论文 Figure 1）</figcaption>
+</div>
 
 #### SimHash
 - 快速计算文档指纹
@@ -1960,6 +2005,11 @@ $$
   - 支持大规模评测
   - 可视化排行榜
 
+<div align="center">
+  <img src="/images/llm-training/benchmark-comparison.png" width="90%" alt="主流模型评估对比" />
+  <figcaption>图：主流大模型在各基准测试上的性能对比（MMLU/GSM8K/HumanEval等）</figcaption>
+</div>
+
 ## 评测的最佳实践
 
 ### 避免数据泄露
@@ -2117,6 +2167,11 @@ GPU配置：1 × A100 (80GB)
 > - **缺乏监控**：未及时发现训练异常导致浪费
 
 ## 训练监控与调试
+
+<div align="center">
+  <img src="/images/llm-training/training-loss-curve.png" width="85%" alt="训练loss曲线示例" />
+  <figcaption>图：健康的训练loss曲线（平滑下降，无spike）（来源：LLaMA 论文 Figure 2）</figcaption>
+</div>
 
 ### 关键监控指标
 
@@ -2404,6 +2459,11 @@ def resume_training(checkpoint_path):
 | **学习率过大** | 逐步上升 | 降低LR至原来的50% |
 | **数值不稳定** | 随机出现 | 启用BF16，增加梯度裁剪 |
 | **梯度爆炸** | 伴随grad norm飙升 | 降低LR，启用gradient clipping |
+
+<div align="center">
+  <img src="/images/llm-training/loss-spike-example.png" width="80%" alt="Loss Spike案例" />
+  <figcaption>图：Loss Spike现象与恢复策略示意图（来源：OPT 论文 Figure 3）</figcaption>
+</div>
 
 **Loss Spike预防代码**：
 ```python
