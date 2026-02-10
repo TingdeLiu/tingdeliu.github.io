@@ -3120,39 +3120,229 @@ Left Brain (冻结通才VLM)          Right Brain (可训练专才VLM)
 
 
 ---
-## 主要参考文献
 
-### 核心综述论文
-- **Xu et al. (2025)** - An Anatomy of Vision-Language-Action Models: From Modules to Milestones and Challenges. *IEEE TPAMI Preprint*. [arXiv:2512.11362v3](https://arxiv.org/abs/2512.11362)
-- [Vision-Language-Action Models for Robotics: A Review Towards Real-World Applications](https://vla-survey.github.io/)
-- [Multimodal fusion with vision-language-action models for robotic manipulation: A systematic review](https://www.sciencedirect.com/science/article/pii/S1566253525011248) - *Information Fusion*, 2025
+## 12. InternVLA-A1 (2026)
+——Unifying Understanding, Generation and Action for Robotic Manipulation
 
-### 奠基性论文
-- **RT-1** (2022) - Robotics Transformer for Real-World Control at Scale
-- **RT-2** (2023) - Vision-Language-Action Models Transfer Web Knowledge to Robotic Control
-- **Diffusion Policy** (2023) - Visuomotor Policy Learning via Action Diffusion
-- **OpenVLA** (2024) - An Open-Source Vision-Language-Action Model
-- **RT-X / Open X-Embodiment** (2023) - Open X-Embodiment: Robotic Learning Datasets and RT-X Models
-
-### 最新突破
-- **π0** (2024) - A Vision-Language-Action Flow Model for General Robot Control
-- **π*0.6** (2025) - A VLA That Learns From Experience
-- **ACoT-VLA** (2026) - Action Chain-of-Thought for Vision-Language-Action Models
-
-### 博客与教程
-- [State of Vision-Language-Action (VLA) Research at ICLR 2026 – Moritz Reuss](https://mbreuss.github.io/blog_post_iclr_26_vla.html)
-- [RT-2: New model translates vision and language into action - Google DeepMind](https://deepmind.google/blog/rt-2-new-model-translates-vision-and-language-into-action/)
-- [Physical Intelligence π0 Blog](https://www.pi.website/blog/pi0)
-- [Hugging Face π0 Blog](https://huggingface.co/blog/pi0)
-- [Vision-Language-Action (VLA) Models: The AI Brain Behind the Next Generation of Robots](https://medium.com/@raktims2210/vision-language-action-vla-models-the-ai-brain-behind-the-next-generation-of-robots-physical-bced48e8ae94)
-- [Vision Language Action Models (VLA) & Policies for Robots - LearnOpenCV](https://learnopencv.com/vision-language-action-models-lerobot-policy/)
-
-### 开源资源
-- [OpenVLA GitHub](https://github.com/openvla/openvla)
-- [openpi (π0) GitHub](https://github.com/Physical-Intelligence/openpi)
-- [LeRobot](https://github.com/huggingface/lerobot)
-- [VLA-Survey-Anatomy](https://github.com/SuyuZ1/VLA-Survey-Anatomy)
+📄 **Paper**: https://arxiv.org/abs/2601.02456
 
 ---
 
-**致谢**：本文主要基于Xu et al. (2025)的IEEE TPAMI综述论文《An Anatomy of Vision-Language-Action Models》进行撰写和扩展，特此致谢。
+**精华**
+
+InternVLA-A1 的核心创新在于将语义理解、视觉预见（visual foresight）与动作执行统一到单一 Mixture-of-Transformers (MoT) 框架中，用"想象未来"来指导当前动作，特别适合动态场景。其层级数据金字塔（合成仿真数据 + 真实数据混合预训练）有效弥合了 sim-to-real gap，值得 VLA 研究者借鉴。Generation Expert 的引入通过联合训练视觉预测和动作预测目标，使模型内化了动作与环境动力学之间的因果关系，是提升动态鲁棒性的关键设计。Flow Matching 作为动作解码器既保留了 MLLM 语义理解能力，又获得了对多模态动作分布的精细建模。
+
+---
+
+**研究背景/问题**
+
+主流 VLA 模型（如 π₀、GR00T N1.5）基于 MLLM 构建，具有强大的语义理解能力，但本质上缺乏对物理世界动态的推理能力——它们执行的是反应式感知到动作映射，而非预判状态将如何演变。现有引入 World Model 的视频预测方法（如 VPP、Genie Envisioner）虽然能预测未来观测，但语义接地弱且对预测误差敏感。本文的目标是构建一个能同时紧密耦合语义理解与动态预测的统一架构。
+
+---
+
+**主要方法/创新点**
+
+<div align="center">
+  <img src="/images/InternVLA-A1-overview.png" width="100%" />
+<figcaption>
+InternVLA-A1 整体框架：理解专家、生成专家、动作专家三者协同工作，将语义推理与动力学预测融合以指导动作执行
+</figcaption>
+</div>
+
+InternVLA-A1 采用 **Mixture-of-Transformers (MoT)** 架构，协调三个专家模块共同工作：
+
+**（1）Understanding Expert（理解专家）**
+直接复用现有 MLLM 架构（InternVL3-1B 或 Qwen3-VL-2.13B），通过 ViT 视觉编码器处理多视角观测 `o_t`，通过文本 Tokenizer 处理语言指令 `l`，将二者拼接为 prefix tokens `h_und`，为下游专家提供语义上下文。
+
+**（2）Generation Expert（生成专家）**
+受 Janus Pro 启发，采用**解耦视觉编码**策略——理解用 ViT（高层语义），生成用 VAE（像素级保真）。具体使用 Cosmos CI8×8 连续 VAE tokenizer 将输入图像编码为 latent features `z_t`，再经卷积层压缩空间维度至 4×4（每帧仅 16 个 tokens），对齐 Transformer 隐维度后送入生成专家。生成专家在历史帧 `z_{t-m}` 和当前帧 `z_t` 基础上，以 `h_und` 为条件，预测未来帧的 latent `ẑ_{t+m}`，最终经反卷积和 Cosmos decoder 重建预测图像。
+
+<div align="center">
+  <img src="/images/InternVLA-A1-architecture.png" width="100%" />
+<figcaption>
+InternVLA-A1 架构详图：三专家通过 Unified Masked Self-Attention 交互，理解专家输出语义上下文，生成专家预测未来视觉状态，动作专家基于两者产生控制指令
+</figcaption>
+</div>
+
+**（3）Action Expert（动作专家）**
+以语言目标 `l`、当前观测（经 `h_und`）、本体感知 `q_t` 和生成专家的预测 latent `ẑ_{t+m}` 为条件，使用 **Flow Matching** 目标预测动作块 `â_{t:t+k}`。采样时从高斯噪声出发，通过 Euler 迭代法解 ODE 得到目标动作。
+
+**（4）Unified Masked Self-Attention**
+实现三专家间信息流的分块注意力掩码：累积分段掩码确保信息流单向传递（理解 → 生成 → 动作）；前缀块（视觉+语言）完全双向；生成块完全双向且仅接收 Cosmos latent tokens；动作块分为状态 token（只关注自身和更早块）和动作 tokens（相互关注）。
+
+**（5）优化目标**
+联合优化两个目标：
+- **视觉预见生成**：$\mathcal{L}_{\text{gen}} = \mathbb{E}\left[\|f_{\text{gen}}(z_{t-m}, z_t; h_{\text{und}}) - \text{sg}[z_{t+m}]\|^2\right]$
+- **Flow Matching 动作预测**：$\mathcal{L}_{\text{action}} = \mathbb{E}\left[\|v_\theta(l, \{o_i\}_{i=t-m}^t, q_t, a_{t:t+k}^\tau) - (a_{t:t+k} - \epsilon)\|^2\right]$
+- **总损失**：$\mathcal{L}_{\text{total}} = \lambda \cdot \mathcal{L}_{\text{gen}} + \mathcal{L}_{\text{action}}$，其中 $\lambda = 0.01$
+
+**（6）层级数据金字塔**
+
+<div align="center">
+  <img src="/images/InternVLA-A1-data-pyramid.png" width="100%" />
+<figcaption>
+层级数据金字塔：底层为大规模开源示范数据（AgiBot-World），中层为仿真合成数据（InternData-A1），顶层为专项真实数据
+</figcaption>
+</div>
+
+预训练数据混合配方（共 533M+ 帧）：
+- InternData-A1（ARX Lift-2）：96M 帧（18%）
+- InternData-A1（AgileX）：122.5M 帧（23%）
+- InternData-A1（Franka）：90.5M 帧（17%）
+- InternData-A1（Genie-1）：16M 帧（3%）
+- AgiBot-World（Beta）：208M 帧（39%）
+
+预训练后，使用少量专项真实数据进行 post-training 微调，适配目标部署环境。
+
+**（7）模型规模**
+- InternVLA-A1（2B）：Understanding=InternVL3（0.94B）+ Gen/Act=Qwen2.5（各 0.36B），共 1.8B
+- InternVLA-A1（3B）：Understanding=Qwen3-VL（2.13B）+ Gen/Act=Qwen3（各 0.44B），共 3.2B
+- 推理速度：两者均约 13 Hz（NVIDIA RTX 4090）
+
+---
+
+**核心结果/发现**
+
+**通用任务（10 个真实任务，Table 4）**：
+- InternVLA-A1（3B）平均成功率 **75.1%**，比 π₀（3.3B）的 60.6% 提升 **14.5%**
+- InternVLA-A1（2B）以 64.7% 超越更大的 π₀（3.3B）模型，凸显架构与数据质量优势
+- 在精细操作任务（Make Sandwich: 93.3% vs 66.7%；Operate Oven: 86.7% vs 73.3%）表现尤为突出
+
+**动态场景专项任务（Figure 6）**：
+
+<div align="center">
+  <img src="/images/InternVLA-A1-dynamic-results.png" width="100%" />
+<figcaption>
+Express Sorting 和 In-motion Ingredient Picking 任务的成功率对比：InternVLA-A1（3B）以 80% 和 93.3% 大幅领先基线
+</figcaption>
+</div>
+
+- Express Sorting：π₀ 仅 36.7%，GR00T N1.5 仅 40.0%，InternVLA-A1（3B）达 **80.0%**（+40%以上）
+- In-motion Ingredient Picking：基线均仅 20.0%，InternVLA-A1（3B）达 **93.3%**（+73.3%）
+
+**仿真基准（RoboTwin 2.0, 50 任务）**：InternVLA-A1（3B）Easy/Hard 分别为 65.0%/25.4%，超越 π₀ 的 54.5%/19.8%（+10.5%/+5.6%）
+
+**消融实验**：
+- 去除预训练：平均成功率从 77.0% 降至 25.4%（↓51.6%）
+- 去除 Generation Expert：平均成功率从 77.0% 降至 57.6%（↓19.4%），11/12 个任务均退化
+
+---
+
+**局限性**
+
+理解专家缺乏与多模态 VQA 数据集的联合训练，导致通用语义推理和复杂指令跟随能力有所退化；视觉预见模块为保证实时推理效率而牺牲了图像预测的保真度，生成未来帧的粒度有限。
+
+---
+
+## 1. InternData-A1 (2025)
+——Pioneering High-Fidelity Synthetic Data for Pre-training Generalist Policy
+
+📄 **Paper**: https://arxiv.org/abs/2511.16651
+
+---
+
+**精华**
+
+本文首次证明纯合成数据预训练的 VLA 模型可以匹配甚至超越使用真实机器人数据的最强基线（π-dataset），打破了"仿真数据无法替代真实数据"的固有认知。数据合成 pipeline 完全解耦（环境构建、技能组合、Domain Randomization、轨迹生成独立模块化），极大降低人工成本（每条 episode 低于 0.003 美元）。消融实验揭示**轨迹多样性**（articulation + long-horizon tasks）而非单一规模是有效 VLA 预训练的核心驱动力，这对数据采集策略有重要指导意义。大规模 domain randomization 使仿真与真实的视觉 gap 缩小到约 1:8 的仿真对真实数据等效比例，强调了渲染保真度和随机化的重要性。开源数据集和生成 pipeline 为 embodied AI 社区提供了可复现的大规模数据基础设施。
+
+---
+
+**研究背景/问题**
+
+现有 VLA 模型已证明大规模真实机器人数据预训练的有效性，但合成数据单独能否达到相同效果尚未被系统验证。真实数据采集代价高昂，需要专业遥操作员、特殊硬件和大量人力，大多数研究机构难以复现；现有仿真数据集覆盖的技能集窄（主要是 pick-and-place）、仅涉及 rigid 物体，且未在大规模 VLA 预训练中验证有效性。
+
+---
+
+**主要方法/创新点**
+
+InternData-A1 是一个包含 630k 轨迹、7,433 小时、覆盖 4 种机器人体态（AgiBot Genie-1、Franka Emika Panda、AgileX Split Aloha、ARX Lift-2）、18 种技能、70 个任务、227 个室内场景的大规模高保真合成数据集。
+
+<div align="center">
+  <img src="/images/InternData-A1-data-statistics.png" width="100%" />
+<figcaption>
+InternData-A1 数据统计概览：4 种体态、70 个任务、3185 个 rigid 物体、321 个 articulation 物体、20 件服装，共 630k episodes、401.4M 帧、7433.9 小时
+</figcaption>
+</div>
+
+### 数据合成 Pipeline（4 阶段全自动）
+
+<div align="center">
+  <img src="/images/InternData-A1-pipeline.png" width="100%" />
+<figcaption>
+InternData-A1 数据合成 pipeline，包含环境构建、技能组合、Domain Randomization 和轨迹生成与存储四个阶段
+</figcaption>
+</div>
+
+**1. Environment Construction（环境构建）**
+- **Embodiment**: 支持 4 种体态，均以 USD 格式定义，经过碰撞动力学验证
+- **Scene Library**: 227 个室内场景（厨房、书房、餐厅、客厅）来自 GRScenes-100，每个场景标注了详细的操作区域元数据
+- **Object Library**: 覆盖 rigid（3185 个，含自动 grasp pose 标注）、articulated（321 个，含关节轴和物理参数）、deformable（20 件真实扫描服装，用 Vertex Block Descent 模拟）、fluid（粒子系统 + isosurface 渲染）四类物体
+
+**2. Skill Composition（技能组合）**
+- 每个技能是模块化脚本策略，输入：物体状态、机器人状态、用户约束；输出：waypoints 序列（end-effector 6D pose）
+- 包含 Pick、Place、Push 等 18 种原子技能，通过简单配置文件组合成完整任务
+- 支持双臂并行和顺序执行，无需额外代码即可扩展到新物体、场景、体态
+- 18 个 long-horizon 任务（每个涉及至少 3 个连续技能），共 124,789 条轨迹
+
+**3. Domain Randomization（域随机化）**
+- **视觉多样性**: 相机视角 ±5° 旋转、±5cm 平移；174 个环境光照图（随机光温和强度）；目标物体可从同类资产中替换
+- **轨迹多样性**: 物体位姿在任务特定空间范围内随机采样；AnyGrasp 生成数百万 grasp 候选，最终随机选取 top-40 之一；articulated 和 deformable 物体的接触区域扩展为邻域
+
+**4. Generation & Storage（生成与存储）**
+- 使用 **CuRobo** 运动规划器在 waypoints 间插值密集关节空间动作
+- 仅存储成功完成的轨迹（Isaac Sim 物理验证），转换为 **LeRobot** 格式
+- 记录：物体元数据、语言指令、多视角 RGB、相机参数、机器人本体感知状态和动作标签
+
+**5. Framework Optimization（框架优化）**
+- **Stage Decoupling**: 轨迹规划（CPU-bound）与视觉渲染（GPU-bound）解耦为 pipeline 架构，规划失败不触发冗余渲染
+- **Dynamic Resource Scheduling**: Planner 和 Renderer 内部均采用并行批处理策略 + 动态调度算法
+- **Stack Render**: 堆叠渲染技术进一步提升 GPU 利用率
+- **Cluster Stability**: Balancer 模块负载均衡 + Supervisor 模块监控，整体吞吐量提升 **2–3×**，生产成本低于 **$0.003/episode**
+
+---
+
+**核心结果/发现**
+
+**与 π-dataset 对比（49 个仿真任务）**
+- π₀(InternData-A1) vs 官方 π₀：Easy 模式 **60.0% vs 55.0%**（+5%），Hard 模式 **26.5% vs 20.0%**（+6.5%）
+- 在 Hard 模式下的提升说明 InternData-A1 的大规模 domain randomization 提供的鲁棒性在下游 fine-tuning 中持续保留
+
+**与 π-dataset 对比（9 个真实世界任务）**
+<div align="center">
+  <img src="/images/InternData-A1-realworld-comparison.png" width="100%" />
+<figcaption>
+InternData-A1 在 9 个真实世界任务上的性能对比，包括 5 个常规任务和 4 个灵巧任务，平均超越 π-dataset 6.2%
+</figcaption>
+</div>
+
+- 在 5 个常规任务上平均超越 π-dataset **6.2%**（包括 Place Markpen、Pass Bottle、Heat Sandwich、Sort Rubbish、Sweep Trash）
+- 在 4 个灵巧任务（Sort Parts、Unscrew Cap、Fold Clothes、Zip Bag）上性能与 π-dataset 相当，使用了全新体态 ARX AC One（训练数据中未见过）
+
+**与开源数据集对比（49 个仿真 + 2 个真实任务）**
+- InternData-A1 大幅领先：Easy **60.0%** vs OXE 32.5% / Agibot World 52.5% / RoboCasa 50.0%
+- 真实任务 Sort Rubbish：**90.0%** vs OXE 40.0%；Pass Bottle：**60.0%** vs RoboCasa 13.3%
+
+**Sim-to-Real 迁移**
+<div align="center">
+  <img src="/images/InternData-A1-sim2real-results.png" width="100%" />
+<figcaption>
+6 个 sim-to-real 任务仅使用 500 条仿真 episodes 即可实现超过 50% 的成功率
+</figcaption>
+</div>
+
+- 10 个任务中直接零样本迁移成功率超过 50%；仅需 500 条仿真数据即达到高成功率
+- 对于基础技能任务（Sort Rubbish、Wipe Stain），200 条仿真 episodes ≈ 200 条真实数据
+- 对于复杂任务（Flip Package、Instructional Pick），仿真对真实等效比约为 **8:1**
+
+**消融实验（数据组成分析）**
+- 去除 Base 或 Long-horizon 任务的性能下降 > 去除 PnP 任务，说明任务多样性比单一任务规模更重要
+- 去除 Articulation 任务（仅 11.67%）导致显著下降，说明 articulated 操作能扩展 action space 多样性
+- 核心结论：**轨迹多样性（Trajectory Diversity）是有效预训练的核心驱动**
+
+---
+
+**局限性**
+
+由于物理仿真器的局限，目前难以模拟高度灵巧的操作任务（如系鞋带、穿针引线等精细接触任务）；未来工作将扩展任务多样性和灵巧度，进一步确立大规模仿真数据作为 VLA 模型发展基石的地位。
+
+---
