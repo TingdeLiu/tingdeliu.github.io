@@ -5341,7 +5341,7 @@ ASM 是一个多通道张量 **M**（维度 $C \times W \times H$，$C = C_n + 4
 **为什么 ASM 优于普通语义地图？**
 
 <div align="center">
-  <img src="/images/MapNav-map-format-comparison.png" width="100%" />
+  <img src="/images/MapNav-map-format-comparison.png" width="70%" />
 <figcaption>
 不同地图格式的 VLM 理解对比：ASM 的文字标注使 VLM 能精确识别物体位置和语义
 </figcaption>
@@ -5373,7 +5373,7 @@ VLM 直接输出自然语言动作，通过正则表达式匹配解析为 {前�
 **历史帧数量的消融**
 
 <div align="center">
-  <img src="/images/MapNav-historical-frames-ablation.png" width="100%" />
+  <img src="/images/MapNav-historical-frames-ablation.png" width="70%" />
 <figcaption>
 不同历史帧数量对性能的影响：加入 ASM 的提升远大于增加历史帧数量
 </figcaption>
