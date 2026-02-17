@@ -3,16 +3,72 @@
 
 <!-- 插入添加的文字 -->
 {% if site.footer-text %}
-<p>{{ site.footer-text }}</p>
+<div class="footer-text-container">
+  <p class="footer-gradient-text">{{ site.footer-text }}</p>
+</div>
 {% endif %}
 
+<!-- 极客风格的状态栏 -->
+<div class="footer-status-bar">
+  <span class="status-item">
+    <span class="status-label">uptime:</span>
+    <span class="status-value" id="uptime">loading...</span>
+  </span>
+  <span class="status-separator">|</span>
+  <span class="status-item">
+    <span class="status-label">version:</span>
+    <span class="status-value">v2.0-geek</span>
+  </span>
+  <span class="status-separator">|</span>
+  <span class="status-item">
+    <span class="status-label">powered by:</span>
+    <span class="status-value">Jekyll + ❤️</span>
+  </span>
+</div>
+
+<!-- GitHub Stats Badges -->
+<div class="github-stats-container">
+  <a href="https://github.com/TingdeLiu" target="_blank">
+    <img src="https://img.shields.io/badge/GitHub-TingdeLiu-100000?style=flat-square&logo=github&logoColor=white" alt="GitHub Profile">
+  </a>
+  <a href="https://github.com/TingdeLiu/tingdeliu.github.io" target="_blank">
+    <img src="https://img.shields.io/github/stars/TingdeLiu/tingdeliu.github.io?style=flat-square&logo=github&color=yellow" alt="GitHub Stars">
+  </a>
+  <img src="https://komarev.com/ghpvc/?username=TingdeLiu&color=blueviolet&style=flat-square&label=Views" alt="Profile Views">
+</div>
 
 <!-- 载入GitHub按钮库 -->
 <script async defer src="https://buttons.github.io/buttons.js"></script>
+
 <!-- Star按钮 -->
-<a class="github-button"
-  href="https://github.com/TingdeLiu/tingdeliu.github.io"
-  data-icon="octicon-star"
-  data-size="large"
-  data-show-count="true"
-  aria-label="Star it on GitHub">Star on Github</a>
+<div class="github-button-container">
+  <a class="github-button"
+    href="https://github.com/TingdeLiu/tingdeliu.github.io"
+    data-icon="octicon-star"
+    data-size="large"
+    data-show-count="true"
+    aria-label="Star it on GitHub">Star on Github</a>
+</div>
+
+<!-- Uptime counter script -->
+<script>
+(function() {
+  const startDate = new Date('2024-01-01'); // Site start date
+  
+  function updateUptime() {
+    const now = new Date();
+    const diff = now - startDate;
+    
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    
+    const uptimeElement = document.getElementById('uptime');
+    if (uptimeElement) {
+      uptimeElement.textContent = `${days}d ${hours}h`;
+    }
+  }
+  
+  updateUptime();
+  setInterval(updateUptime, 3600000); // Update every hour
+})();
+</script>
