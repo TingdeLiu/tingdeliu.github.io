@@ -1,9 +1,20 @@
 <div class="wrapper-sidebar">
   <header class="sidebar clearfix">
     <div class="site-info">
-
+      <!-- Terminal-style header -->
+      <div class="terminal-header">
+        <span class="terminal-prompt">root@embodied-ai:~$</span>
+        <span class="terminal-typing"></span>
+        <span class="terminal-cursor">█</span>
+      </div>
+      
       <h1 class="site-name"><a href="{{ site.baseurl }}/">{{ site.name }}</a></h1>
       <p class="site-description">{{ site.description }}</p>
+      
+      <!-- Code-style divider -->
+      <div class="code-divider">
+        <span class="code-comment">// Navigation Menu</span>
+      </div>
     </div>
   </header>
 
@@ -11,9 +22,13 @@
     <nav>
       {% for nav in site.navigation %}
       {% if nav.url contains 'http://' or nav.url contains 'https://' %}
-      <a href="{{ nav.url }}">{{ nav.name }}</a>
+      <a href="{{ nav.url }}" class="nav-link">
+        <span class="nav-bracket">[</span>{{ nav.name }}<span class="nav-bracket">]</span>
+      </a>
       {% else %}
-      <a href="{{ site.baseurl }}{{ nav.url }}">{{ nav.name }}</a>
+      <a href="{{ site.baseurl }}{{ nav.url }}" class="nav-link">
+        <span class="nav-bracket">[</span>{{ nav.name }}<span class="nav-bracket">]</span>
+      </a>
       {% endif %}
       {% endfor %}
     </nav>
@@ -25,3 +40,6 @@
     </footer>
   </div>
 </div>
+
+<!-- Load terminal typing effect -->
+<script src="{{ site.baseurl }}/js/terminal-typing.js"></script>
