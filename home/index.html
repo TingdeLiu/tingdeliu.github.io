@@ -24,7 +24,11 @@ layout: default
   <div class="search-label">
     <span class="terminal-prompt-small">search@blog:~$</span>
   </div>
-  <input type="text" id="search-input" placeholder="search blog posts..." style="width: 90%;
+  <input type="text" 
+         id="search-input" 
+         placeholder="search blog posts..." 
+         aria-label="Search blog posts"
+         style="width: 90%;
     height: 35px;
     color: #333;
     background-color: rgba(227,231,236,.2);
@@ -37,7 +41,7 @@ layout: default
     outline: none;
     box-sizing: border-box;
     box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,.6);">
-  <ul id="results-container"></ul>
+  <ul id="results-container" role="list" aria-label="Search results"></ul>
 </div>
 <!-- 上面配置的是搜索栏 -->
 

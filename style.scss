@@ -998,38 +998,34 @@ footer {
   li, a {
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
     font-size: 12px;
+    position: relative;
+    padding-left: 15px;
+    padding-right: 15px;
     
     &::before {
       content: '<';
       color: #00ff00;
       margin-right: 2px;
+      position: absolute;
+      left: 0;
     }
     
     &::after {
       content: '>';
       color: #00ff00;
       margin-left: 2px;
+      position: absolute;
+      right: 0;
     }
   }
 }
 
-// Search box enhancement
-.search-container input {
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
-  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%) !important;
-  border: 2px solid #00ff00 !important;
-  transition: all 0.3s ease !important;
+// Search box base styling (avoid !important)
+.search-container input[type="text"] {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   
   &:focus {
-    box-shadow: 0 0 0 3px rgba(0, 255, 0, 0.1),
-                inset 0 1px 1px rgba(0,0,0,.075),
-                0 0 12px rgba(0, 255, 0, 0.4) !important;
-    border-color: #00aa00 !important;
-  }
-  
-  &::placeholder {
-    color: #888;
-    font-style: italic;
+    outline: none;
   }
 }
 
@@ -1239,20 +1235,24 @@ pre, code {
 .search-container {
   position: relative;
   
-  &::before {
-    content: '🔍';
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 18px;
-    z-index: 1;
-    pointer-events: none;
-    margin-top: 20px;
-  }
-  
   input {
-    padding-left: 45px !important;
+    padding-left: 45px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+    border: 2px solid #00ff00;
+    transition: all 0.3s ease;
+    
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(0, 255, 0, 0.1),
+                  inset 0 1px 1px rgba(0,0,0,.075),
+                  0 0 12px rgba(0, 255, 0, 0.4);
+      border-color: #00aa00;
+    }
+    
+    &::placeholder {
+      color: #888;
+      font-style: italic;
+    }
   }
 }
 

@@ -7,7 +7,6 @@
         typingSpeed: 50,        // milliseconds per character
         deletingSpeed: 30,      // milliseconds per character when deleting
         pauseAfterTyping: 2000, // pause after completing a phrase
-        cursorBlinkSpeed: 530   // cursor blink speed
     };
     
     // Phrases to type
@@ -21,7 +20,7 @@
     let phraseIndex = 0;
     let charIndex = 0;
     let isDeleting = false;
-    let isPaused = false;
+    let timeoutId = null;
     
     // Get elements
     const terminalText = document.querySelector('.terminal-typing');
@@ -41,16 +40,14 @@
             
             if (charIndex > currentPhrase.length) {
                 // Finished typing, pause before deleting
-                isPaused = true;
-                setTimeout(() => {
-                    isPaused = false;
+                timeoutId = setTimeout(() => {
                     isDeleting = true;
                     type();
                 }, config.pauseAfterTyping);
                 return;
             }
             
-            setTimeout(type, config.typingSpeed);
+            timeoutId = setTimeout(type, config.typingSpeed);
         } else if (isDeleting && charIndex >= 0) {
             // Deleting backward
             terminalText.textContent = currentPhrase.substring(0, charIndex);
@@ -61,23 +58,23 @@
                 isDeleting = false;
                 phraseIndex = (phraseIndex + 1) % phrases.length;
                 charIndex = 0;
-                setTimeout(type, 500);
+                timeoutId = setTimeout(type, 500);
                 return;
             }
             
-            setTimeout(type, config.deletingSpeed);
+            timeoutId = setTimeout(type, config.deletingSpeed);
         }
     }
     
     // Start typing effect when page loads
     document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(type, 1000); // Delay before starting
+        timeoutId = setTimeout(type, 1000); // Delay before starting
     });
     
-    // Cursor blink effect
-    setInterval(() => {
-        if (cursor && !isPaused) {
-            cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
+    // Cleanup function to clear timeout when page unloads
+    window.addEventListener('beforeunload', function() {
+        if (timeoutId) {
+            clearTimeout(timeoutId);
         }
-    }, config.cursorBlinkSpeed);
+    });
 })();
