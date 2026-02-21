@@ -1,9 +1,20 @@
 <div class="wrapper-sidebar">
   <header class="sidebar clearfix">
     <div class="site-info">
-
+      {% if site.avatar %}
+      <div class="site-avatar">
+        <img src="{{ site.baseurl }}{{ site.avatar }}" alt="{{ site.name }}">
+      </div>
+      {% endif %}
       <h1 class="site-name"><a href="{{ site.baseurl }}/">{{ site.name }}</a></h1>
       <p class="site-description">{{ site.description }}</p>
+      {% if site.tagline or site.company %}
+      <p class="site-tagline">
+        {% if site.tagline %}{{ site.tagline }}{% endif %}
+        {% if site.tagline and site.company %} · {% endif %}
+        {% if site.company %}<span class="site-company">{{ site.company }}</span>{% endif %}
+      </p>
+      {% endif %}
     </div>
   </header>
 
@@ -17,6 +28,18 @@
       {% endif %}
       {% endfor %}
     </nav>
+
+    <div class="site-stats">
+      <span id="busuanzi_container_site_uv">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+        <span id="busuanzi_value_site_uv"></span> 访客
+      </span>
+      <span class="stats-divider">·</span>
+      <span id="busuanzi_container_site_pv">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+        <span id="busuanzi_value_site_pv"></span> 次浏览
+      </span>
+    </div>
   </div>
 
   <div class="wrapper-footer-desktop">

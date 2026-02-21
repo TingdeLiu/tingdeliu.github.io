@@ -6,15 +6,16 @@
 name: "Tingde Liu"
 # Short bio or description (displayed in the header)
 description: "Personal Blog & Research Notes"
+# Job title and company (displayed in sidebar)
+tagline: "AI Engineer"
+company: "Tyndall Labs"
 
 #
 # Flags below are optional
 #
 
 # URL of your avatar or profile pic (you could use your GitHub profile pic)
-avatar: # //clustrmaps.com/map_v2.png?cl=ffffff&w=924&t=tt&d=fgDHbdr1jwhscwH6bcYS87rhy0jSPyRggFZvP4jIinM
-# https://avatars.githubusercontent.com/u/44108932?s=400&u=dbbb2abcd70a8baf00fe0ec6e6563e223cb58a0d&v=4
-# avatar不输入那么就不会显示，改为输入访客地图
+avatar: /images/avatar.png
 
 # 你的favicon（出现在浏览器tab上）图片URL，建议使用较小(64px × 64px)的图片
 favicon: # 暂时留空，之后可以添加您的logo
@@ -66,7 +67,7 @@ gitalk:
   owner: TingdeLiu
 
 # Enter your Google Analytics web tracking code (e.g. UA-2110908-2) to activate tracking
-google_analytics: # 如果需要可以添加 Google Analytics ID
+google_analytics: G-KXKFYB0T0H
 
 # Your website URL (e.g. http://barryclark.github.io or http://www.barryclark.co)
 # Used for Sitemap.xml and your RSS feed

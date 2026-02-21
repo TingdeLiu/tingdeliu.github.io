@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- 背景圆 -->
+  <circle cx="100" cy="100" r="100" fill="#dbeafe"/>
+
+  <!-- 天线杆 -->
+  <rect x="97" y="28" width="6" height="28" rx="3" fill="#3b82f6"/>
+  <!-- 天线球 -->
+  <circle cx="100" cy="23" r="10" fill="#ef4444"/>
+  <circle cx="96" cy="19" r="3.5" fill="rgba(255,255,255,0.75)"/>
+
+  <!-- 头部主体 -->
+  <rect x="44" y="54" width="112" height="96" rx="22" fill="#60a5fa"/>
+  <!-- 头部高光 -->
+  <ellipse cx="71" cy="68" rx="19" ry="10" fill="rgba(255,255,255,0.22)" transform="rotate(-22 71 68)"/>
+
+  <!-- 耳朵 / 侧面面板 -->
+  <rect x="29" y="74" width="17" height="38" rx="8.5" fill="#3b82f6"/>
+  <rect x="154" y="74" width="17" height="38" rx="8.5" fill="#3b82f6"/>
+  <!-- 耳朵指示灯 -->
+  <circle cx="37.5" cy="93" r="4" fill="#7dd3fc"/>
+  <circle cx="162.5" cy="93" r="4" fill="#7dd3fc"/>
+
+  <!-- 左眼 -->
+  <circle cx="75" cy="100" r="21" fill="white"/>
+  <circle cx="75" cy="100" r="15" fill="#1e40af"/>
+  <circle cx="75" cy="100" r="8" fill="#0f172a"/>
+  <circle cx="68"  cy="93"  r="5.5" fill="rgba(255,255,255,0.95)"/>
+  <circle cx="82"  cy="108" r="2.5" fill="rgba(255,255,255,0.55)"/>
+
+  <!-- 右眼 -->
+  <circle cx="125" cy="100" r="21" fill="white"/>
+  <circle cx="125" cy="100" r="15" fill="#1e40af"/>
+  <circle cx="125" cy="100" r="8" fill="#0f172a"/>
+  <circle cx="118" cy="93"  r="5.5" fill="rgba(255,255,255,0.95)"/>
+  <circle cx="132" cy="108" r="2.5" fill="rgba(255,255,255,0.55)"/>
+
+  <!-- 腮红 (动漫风) -->
+  <ellipse cx="56"  cy="117" rx="12" ry="6" fill="rgba(252,165,165,0.48)"/>
+  <ellipse cx="144" cy="117" rx="12" ry="6" fill="rgba(252,165,165,0.48)"/>
+
+  <!-- 嘴部面板 -->
+  <rect x="70" y="128" width="60" height="15" rx="7.5" fill="#2563eb"/>
+  <!-- LED 点阵嘴 -->
+  <circle cx="84"  cy="135.5" r="3.5" fill="#7dd3fc"/>
+  <circle cx="100" cy="135.5" r="3.5" fill="#7dd3fc"/>
+  <circle cx="116" cy="135.5" r="3.5" fill="#7dd3fc"/>
+  <circle cx="84"  cy="135.5" r="1.5" fill="white"/>
+  <circle cx="100" cy="135.5" r="1.5" fill="white"/>
+  <circle cx="116" cy="135.5" r="1.5" fill="white"/>
+
+  <!-- 导航轮 (移动机器人特征) -->
+  <ellipse cx="72"  cy="163" rx="19" ry="10" fill="#3b82f6" opacity="0.75"/>
+  <ellipse cx="128" cy="163" rx="19" ry="10" fill="#3b82f6" opacity="0.75"/>
+  <ellipse cx="72"  cy="163" rx="11" ry="5.5" fill="#1d4ed8" opacity="0.85"/>
+  <ellipse cx="128" cy="163" rx="11" ry="5.5" fill="#1d4ed8" opacity="0.85"/>
+</svg>
