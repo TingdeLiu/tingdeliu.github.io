@@ -32,7 +32,8 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 3. ⚡ **训练优化技术**：优化器选择、学习率调度、梯度处理
 4. 🗂️ **数据工程**：数据采集、质量评估、去重、配比
 5. 📈 **评估体系**：全面的基准测试和评测方法
-6. 🚀 **最新进展**：持续更新的前沿技术和论文
+6. 👁️ **多模态扩展**：VLM 架构与训练流程
+7. 🚀 **最新进展**：持续更新的前沿技术和论文
 
 ## 👥 目标读者
 
@@ -49,7 +50,7 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 
 ## 📖 快速导航
 
-本文共分为10个主要章节，建议根据需求选择性阅读：
+本文共分为 11 个主要章节，建议根据需求选择性阅读：
 
 | 章节 | 内容 | 适合读者 | 阅读时间 |
 |------|------|---------|---------|
@@ -60,6 +61,7 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 | **数据工程** | 数据采集、清洗、去重、配比 | 工程师、研究者 | 25分钟 |
 | **评估基准** | MMLU、GSM8K等评测体系 | 研究者、从业者 | 15分钟 |
 | **实践指南** | 硬件配置、成本估算、监控调试 | 工程师 ⭐必读 | 30分钟 |
+| **VLM 多模态** | 视觉语言模型架构与训练 | 工程师、研究者 | 15分钟 |
 | **FAQ** | 常见问题快速解答 | 所有读者 ⭐推荐 | 20分钟 |
 | **参考资源** | 论文、项目、学习路径 | 所有读者 | 15分钟 |
 | **最新进展** | 前沿论文和技术 | 研究者 | 持续更新 |
@@ -315,6 +317,7 @@ flowchart LR
 
 ```mermaid
 graph TD
+    A0[Step 0: 分词器训练] --> H
     A[原始数据采集] --> B[数据清洗与过滤]
     B --> C[质量评估]
     C --> D{是否通过?}
@@ -337,6 +340,7 @@ graph TD
     S -->|否| J
     S -->|是| T[Base Model<br/>基座模型]
 
+    style A0 fill:#f3e5f5,stroke:#7b1fa2
     style A fill:#e1f5ff
     style T fill:#c8e6c9
     style M fill:#fff9c4
@@ -344,9 +348,55 @@ graph TD
 ```
 
 **流程说明**：
-1. **数据准备阶段**（A-I）：占整体时间的 20-30%，包括采集、清洗、去重、分词
+1. **数据准备阶段**（A-I）：占整体时间的 20-30%，包括采集、清洗、去重、**分词器训练**与分词
 2. **训练迭代阶段**（J-S）：占整体时间的 70-80%，核心是前向-反向-优化循环
 3. **Checkpoint 管理**：每 1000-5000 步保存一次，总训练步数通常 100k-500k 步
+
+## Step 0: 分词器训练 (Tokenizer Training)
+
+在正式开始模型训练之前，我们需要定义模型如何“阅读”文本。分词器将连续的文本切割成模型可理解的最小单元（Tokens）。
+
+### 1. 为什么需要训练分词器？
+如果直接使用字符（Character）或词（Word），会面临词表过大（难以收敛）或单个 Token 信息密度过低（序列过长）的问题。现代大模型普遍采用 **子词（Subword）** 分词方案，如 **BPE (Byte Pair Encoding)**。
+
+### 2. 核心权衡：词表大小 (Vocab Size)
+*   **大词表（如 100k+）**：
+    *   ✅ 优点：单个 Token 承载信息多，序列更短，推理更快。
+    *   ❌ 缺点：Embedding 层参数巨大，稀疏词难以充分训练。
+*   **小词表（如 32k）**：
+    *   ✅ 优点：Embedding 层小，参数利用率高，适合小模型。
+    *   ❌ 缺点：同一个句子生成的 Token 数更多，增加计算开销。
+
+> **💡 MiniMind 经验**：对于参数量在 500M 以下的小模型，词表不宜过大（如 6400 个字符或 32k BPE 词表），以确保每个 Token 的向量都能得到充分更新。
+
+### 3. 分词器训练实战 (Python)
+
+使用 Hugging Face 的 `tokenizers` 库，我们可以快速训练一个支持多语言的 BPE 分词器：
+
+```python
+from tokenizers import Tokenizer
+from tokenizers.models import BPE
+from tokenizers.trainers import BpeTrainer
+from tokenizers.pre_tokenizers import Whitespace
+
+# 1. 初始化 BPE 模型
+tokenizer = Tokenizer(BPE(unk_token="[UNK]"))
+tokenizer.pre_tokenizer = Whitespace()
+
+# 2. 配置训练器
+trainer = BpeTrainer(
+    vocab_size=32000, 
+    min_frequency=2,
+    special_tokens=["[UNK]", "[CLS]", "[SEP]", "[PAD]", "[MASK]"]
+)
+
+# 3. 训练分词器
+files = ["data/corpus_1.txt", "data/corpus_2.txt"]
+tokenizer.train(files, trainer)
+
+# 4. 保存分词器
+tokenizer.save("my_tokenizer.json")
+```
 
 ## 预训练目标函数
 
@@ -1191,7 +1241,7 @@ model.print_trainable_parameters()
 
 > **🎯 本章导读**
 >
-> 偏好对齐是从"能用"到"好用"的**关键一跃**，通过RLHF或DPO等技术让模型输出更有帮助、更安全、更符合人类价值观。本章详细对比RLHF和DPO的原理、优劣，并介绍最新的对齐技术进展。**推荐优先使用DPO**，因其更稳定、更简单、效果相当。
+> 偏好对齐是从"能用"到"好用"的**关键一跃**，通过RLHF、DPO或最新的 **GRPO** 等技术让模型输出更有帮助、更安全、更符合人类价值观。本章详细对比RLHF、DPO和GRPO的原理、优劣。**推荐：简单任务优先使用DPO，复杂推理任务及资源受限场景优先考虑GRPO。**
 
 ## RLHF
 ————Reinforcement Learning from Human Feedback
@@ -1347,6 +1397,62 @@ $$
 - ✅ **自主对齐**：减少对人类反馈的依赖
 - ✅ **可扩展**：容易扩展到新的价值观和准则
 - ✅ **效果好**：在 HH-RLHF 基准上表现优异
+
+## GRPO
+————Group Relative Policy Optimization
+
+**论文来源**：[DeepSeek-V3 Technical Report](https://arxiv.org/abs/2412.19437) / [DeepSeek-R1](https://arxiv.org/abs/2501.12948)
+
+GRPO 是由 DeepSeek 提出的一种新型强化学习算法，目前已成为训练推理模型（Reasoning Models）的主流选择。
+
+### 核心创新
+
+**取消 Critic 模型，利用群体相对评分**
+
+在传统的 PPO 算法中，需要一个复杂的 Critic 模型来估计状态价值（Value Function）。GRPO 通过对同一个 Prompt 采样一组回答（Group），并利用这组回答的相对得分作为优势信号（Advantage），从而彻底去掉了 Critic 模型。
+
+### GRPO 工作流程
+
+```mermaid
+graph TD
+    A[Prompt x] --> B[采样一组回答 G={y1, y2, ..., yn}]
+    B --> C[评分函数 Reward Function]
+    C --> D[计算组内平均分与标准差]
+    D --> E[计算相对分数 Advantage]
+    E --> F[更新策略模型 Policy]
+    F --> G[KL 散度约束防止偏离]
+    
+    style A fill:#e1f5ff
+    style C fill:#fff9c4
+    style E fill:#ffe0b2
+    style F fill:#c8e6c9
+```
+
+**优势计算公式**：
+
+对于组内的第 $i$ 个回答 $y_i$，其优势 $A_i$ 为：
+
+$$
+A_i = \frac{r_i - \text{mean}(r_1, \ldots, r_n)}{\text{std}(r_1, \ldots, r_n)}
+$$
+
+其中 $r_i$ 是评分函数对回答 $y_i$ 的打分。
+
+### 为什么 GRPO 是“对齐神器”？
+
+| 特性 | RLHF (PPO) | GRPO |
+|------|-----------|------|
+| **模型数量** | 4个（Policy, Ref, RM, Critic） | ✅ 2个（Policy, Ref） |
+| **显存消耗** | 极高（需加载多个模型） | ✅ 显著降低（节省约50%） |
+| **奖励函数** | 依赖神经网络 RM | ✅ 支持规则评分（如正则匹配、编译器反馈） |
+| **推理任务** | 效果一般 | ✅ 极强（DeepSeek-R1 的核心秘密） |
+| **训练稳定性** | 较低 | ✅ 较高（群体均值减小了方差） |
+
+### 实践建议
+
+1. **规则导向（Rule-based）**：对于数学、代码等有标准答案的任务，直接使用规则评分而非神经网络打分，可以极大地提升对齐精度。
+2. **组大小选择**：通常选择 $G=8$ 或 $G=16$，组越大梯度估计越准，但显存开销也越大。
+3. **MiniMind 实践**：在个人显卡上，GRPO 是目前唯一能让你在几百 M 参数模型上跑出“类 R1 推理能力”的强化学习方案。
 
 ---
 
@@ -2949,6 +3055,7 @@ $$
 
 | 模型规模 | 参数量 | 推荐GPU | 数量 | 显存需求 | 互联网络 | 适用场景 |
 |---------|--------|---------|------|---------|---------|---------|
+| **极小(MiniMind)** | 26M-500M | RTX 3060/4060 | 1 | 8GB+ | PCIe 3.0 | 学习原理、极速验证 |
 | **小型** | 1-3B | RTX 4090 | 4-8 | 24GB | PCIe 4.0 | 研究、原型开发 |
 | **中型** | 7-13B | A100 | 16-32 | 40GB/80GB | InfiniBand | 企业应用 |
 | **大型** | 30-70B | A100/H100 | 64-256 | 80GB | InfiniBand | 生产级模型 |
@@ -2957,20 +3064,36 @@ $$
 ### GPU选择指南
 
 **训练场景**：
+- **入门/个人实践**：RTX 3060 (12GB) / 4060 Ti (16GB) —— 能够完整跑通 MiniMind 等 SLM 项目。
 - **预算有限**：RTX 4090（24GB，性价比高，适合小模型和LoRA微调）
 - **企业级训练**：A100（80GB，成熟稳定，生态完善）
 - **最新旗舰**：H100（80GB，性能最强，FP8支持，适合大规模训练）
-- **国产选择**：华为昇腾、寒武纪等（国产化需求）
 
 **网络互联**：
 - **节点内通信**：NVLink（900GB/s）> PCIe 5.0（128GB/s）
 - **节点间通信**：InfiniBand（200-400Gb/s）> Ethernet（100Gb/s）
 
-> **💡 选择建议**
->
-> - **预训练**：必须使用InfiniBand，通信密集
-> - **SFT/对齐**：普通Ethernet即可，通信较少
-> - **LoRA微调**：单卡即可，无需分布式
+## 💡 个人级实践案例：MiniMind
+
+如果说训练 Llama-3 是一场“烧钱”的豪赌，那么 **MiniMind** 项目则向我们展示了大模型训练的“平民化”可能。
+
+### 1. 为什么关注 MiniMind？
+MiniMind 是一个极简的开源 LLM 训练项目，旨在让开发者在**单张消费级显卡**上，从零开始完成 LLM 的全流程训练。
+
+### 2. 核心数据对比
+
+| 维度 | MiniMind (26M版) | Llama-3 (8B版) |
+|------|-----------------|---------------|
+| **参数量** | 2.6千万 | 80亿 |
+| **硬件要求** | 1 x RTX 3060 | 8 x A100 (SFT) / 1024+ (PT) |
+| **训练时长** | ~2 小时 | 数周 |
+| **数据规模** | ~1B Tokens | 15T Tokens |
+| **成本** | 几块钱电费 | 数十万美元 |
+
+### 3. 给初学者的启示
+*   **掌握全流程比堆算力更重要**：通过 MiniMind，你可以亲手训练分词器、编写 Transformer 结构、执行从预训练到 DPO 对齐的每一个 Python 脚本。
+*   **快速验证的想法**：如果你有一个新的 Loss 函数或一种新的位置编码，在 MiniMind 这样的小模型上验证速度是极快的。
+*   **SLM 的潜力**：在垂直领域（如特定格式转换、逻辑提取），经过精调的超小模型（Small Language Model）同样能爆发惊人的表现。
 
 ## 训练成本估算
 
@@ -3932,6 +4055,45 @@ if grad_norm > 100:
 ```
 
 ---
+
+# 迈向多模态：VLM 架构扩展
+————Vision Language Model
+
+在纯文本 LLM 的基础上，如何让模型“看见”世界？Vision Language Model (VLM) 提供了将图像模态整合进语言模型的标准方案。
+
+### 1. 极简 VLM 架构
+正如 **MiniMind-V** 所演示的，构建一个基础 VLM 并不需要从头训练。
+
+```mermaid
+graph LR
+    IMG[图像输入] --> VE[Visual Encoder<br/>如 ViT-L/14]
+    VE --> PROJ[Projection Layer<br/>线性层/MLP]
+    PROJ --> LLM[LLM Backbone<br/>如 Llama-3/MiniMind]
+    TXT[文本 Prompt] --> LLM
+    LLM --> OUT[文本回答]
+
+    style VE fill:#e1f5ff
+    style PROJ fill:#fff9c4
+    style LLM fill:#c8e6c9
+```
+
+*   **Visual Encoder**：负责提取图像特征，通常使用预训练好的 CLIP-ViT 或 SigLIP。
+*   **Projection Layer**：核心的“粘合剂”，将图像特征向量映射到 LLM 的词嵌入空间（Embedding Space）。
+*   **LLM Backbone**：利用已有的语言理解能力，将图像特征视为一串特殊的“视觉 Tokens”。
+
+### 2. VLM 的训练两阶段
+
+#### 阶段一：模态对齐训练 (Modality Alignment)
+*   **目标**：让投影层学会如何将视觉特征翻译成 LLM 能懂的语言。
+*   **策略**：**冻结 Visual Encoder 和 LLM**，仅训练中间的 Projection Layer。
+*   **数据**：大规模图像-描述对（Image-Caption Pairs）。
+
+#### 阶段二：多模态指令微调 (Visual Instruction Fine-Tuning)
+*   **目标**：让模型能够根据图像内容回答复杂指令。
+*   **策略**：**冻结 Visual Encoder**，同时微调 Projection Layer 和 LLM。
+*   **数据**：高质量多模态对话数据（如 LLaVA 数据集）。
+
+> **💡 实践建议**：如果你手头已有一个训练好的小模型（如 MiniMind），只需为其添加一个线性投影层并接入 ViT，即可低成本地将其升级为具有“识图”能力的 VLM。
 
 ---
 
