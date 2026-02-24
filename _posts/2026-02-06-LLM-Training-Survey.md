@@ -352,7 +352,7 @@ graph TD
 2. **训练迭代阶段**（J-S）：占整体时间的 70-80%，核心是前向-反向-优化循环
 3. **Checkpoint 管理**：每 1000-5000 步保存一次，总训练步数通常 100k-500k 步
 
-## Step 0: 分词器训练 (Tokenizer Training)
+## 分词器训练 (Tokenizer Training)
 
 在正式开始模型训练之前，我们需要定义模型如何“阅读”文本。分词器将连续的文本切割成模型可理解的最小单元（Tokens）。
 
@@ -1414,14 +1414,14 @@ GRPO 是由 DeepSeek 提出的一种新型强化学习算法，目前已成为�
 ### GRPO 工作流程
 
 ```mermaid
-graph TD
-    A[Prompt x] --> B[采样一组回答 G={y1, y2, ..., yn}]
-    B --> C[评分函数 Reward Function]
-    C --> D[计算组内平均分与标准差]
-    D --> E[计算相对分数 Advantage]
-    E --> F[更新策略模型 Policy]
-    F --> G[KL 散度约束防止偏离]
-    
+flowchart TD
+    A["Prompt x"] --> B["采样一组回答 G = {y1, y2, ..., yn}"]
+    B --> C["评分函数 Reward Function"]
+    C --> D["计算组内平均分与标准差"]
+    D --> E["计算相对分数 Advantage"]
+    E --> F["更新策略模型 Policy"]
+    F --> G["KL 散度约束防止偏离"]
+
     style A fill:#e1f5ff
     style C fill:#fff9c4
     style E fill:#ffe0b2
@@ -1439,6 +1439,11 @@ $$
 其中 $r_i$ 是评分函数对回答 $y_i$ 的打分。
 
 ### 为什么 GRPO 是“对齐神器”？
+
+<div align="center">
+  <img src="/images/llm-training/GRPO_overview.png" width="85%" alt="GRPO 流程" />
+  <figcaption>图：GRPO的工作流程</figcaption>
+</div>
 
 | 特性 | RLHF (PPO) | GRPO |
 |------|-----------|------|
@@ -3073,27 +3078,6 @@ $$
 - **节点内通信**：NVLink（900GB/s）> PCIe 5.0（128GB/s）
 - **节点间通信**：InfiniBand（200-400Gb/s）> Ethernet（100Gb/s）
 
-## 💡 个人级实践案例：MiniMind
-
-如果说训练 Llama-3 是一场“烧钱”的豪赌，那么 **MiniMind** 项目则向我们展示了大模型训练的“平民化”可能。
-
-### 1. 为什么关注 MiniMind？
-MiniMind 是一个极简的开源 LLM 训练项目，旨在让开发者在**单张消费级显卡**上，从零开始完成 LLM 的全流程训练。
-
-### 2. 核心数据对比
-
-| 维度 | MiniMind (26M版) | Llama-3 (8B版) |
-|------|-----------------|---------------|
-| **参数量** | 2.6千万 | 80亿 |
-| **硬件要求** | 1 x RTX 3060 | 8 x A100 (SFT) / 1024+ (PT) |
-| **训练时长** | ~2 小时 | 数周 |
-| **数据规模** | ~1B Tokens | 15T Tokens |
-| **成本** | 几块钱电费 | 数十万美元 |
-
-### 3. 给初学者的启示
-*   **掌握全流程比堆算力更重要**：通过 MiniMind，你可以亲手训练分词器、编写 Transformer 结构、执行从预训练到 DPO 对齐的每一个 Python 脚本。
-*   **快速验证的想法**：如果你有一个新的 Loss 函数或一种新的位置编码，在 MiniMind 这样的小模型上验证速度是极快的。
-*   **SLM 的潜力**：在垂直领域（如特定格式转换、逻辑提取），经过精调的超小模型（Small Language Model）同样能爆发惊人的表现。
 
 ## 训练成本估算
 
@@ -3416,6 +3400,34 @@ def resume_training(checkpoint_path):
 > - 设置**自动化监控告警**（Loss异常、GPU故障等）
 > - 保留**多个历史checkpoint**，不要只保留最新的
 > - 定期**手动检查**训练日志和可视化图表
+
+## 个人级实践案例：MiniMind
+
+### 项目地址
+```
+https://github.com/jingyaogong/minimind
+```
+
+如果说训练 Llama-3 是一场“烧钱”的豪赌，那么 **MiniMind** 项目则向我们展示了大模型训练的“平民化”可能。
+
+### 1. 为什么关注 MiniMind？
+MiniMind 是一个极简的开源 LLM 训练项目，旨在让开发者在**单张消费级显卡**上，从零开始完成 LLM 的全流程训练。
+
+### 2. 核心数据对比
+
+| 维度 | MiniMind (26M版) | Llama-3 (8B版) |
+|------|-----------------|---------------|
+| **参数量** | 2.6千万 | 80亿 |
+| **硬件要求** | 1 x RTX 3060 | 8 x A100 (SFT) / 1024+ (PT) |
+| **训练时长** | ~2 小时 | 数周 |
+| **数据规模** | ~1B Tokens | 15T Tokens |
+| **成本** | 几块钱电费 | 数十万美元 |
+
+### 3. 给初学者的启示
+*   **掌握全流程比堆算力更重要**：通过 MiniMind，你可以亲手训练分词器、编写 Transformer 结构、执行从预训练到 DPO 对齐的每一个 Python 脚本。
+*   **快速验证的想法**：如果你有一个新的 Loss 函数或一种新的位置编码，在 MiniMind 这样的小模型上验证速度是极快的。
+*   **SLM 的潜力**：在垂直领域（如特定格式转换、逻辑提取），经过精调的超小模型（Small Language Model）同样能爆发惊人的表现。
+
 
 ---
 # 常见问题
