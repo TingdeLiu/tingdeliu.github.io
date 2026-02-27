@@ -562,6 +562,8 @@ nav {
 
   .read-more {
     font-size: 15px;
+    color: #4dabf7;
+    &::before { content: none; }
   }
 }
 
