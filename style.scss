@@ -832,4 +832,614 @@ footer {
 @import "highlights";
 @import "gitalk";
 
+/**********************************************/
+/* GEEK STYLE ENHANCEMENTS - TERMINAL THEME */
+/**********************************************/
 
+// Terminal-style header with typing effect
+.terminal-header {
+  background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+  padding: 15px 20px;
+  margin: 20px 15px;
+  border-radius: 8px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid #333;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ff5f56;
+    box-shadow: 20px 0 0 #ffbd2e, 40px 0 0 #27c93f;
+  }
+  
+  @include mobile {
+    margin: 15px 10px;
+    padding: 12px 15px;
+    font-size: 12px;
+  }
+}
+
+.terminal-prompt {
+  color: #00ff00;
+  font-weight: bold;
+  margin-right: 8px;
+  text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+.terminal-typing {
+  color: #ffffff;
+  min-height: 1.2em;
+  display: inline-block;
+  min-width: 150px;
+  
+  @include mobile {
+    min-width: 100px;
+  }
+}
+
+.terminal-cursor {
+  color: #00ff00;
+  animation: blink 1s step-end infinite;
+  font-weight: bold;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+// Code-style divider
+.code-divider {
+  margin: 20px 0 10px;
+  padding: 8px 0;
+  border-top: 1px dashed #444;
+  border-bottom: 1px dashed #444;
+  
+  .code-comment {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    color: #6a9955;
+    font-size: 13px;
+    font-style: italic;
+  }
+}
+
+// Enhanced navigation with brackets
+.nav-link {
+  display: block;
+  padding: 10px 20px;
+  margin: 5px 15px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 15px;
+  color: $base-color;
+  background: transparent;
+  border-left: 3px solid transparent;
+  transition: all 0.3s ease;
+  position: relative;
+  
+  .nav-bracket {
+    color: #00ff00;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  &:hover {
+    background: rgba(0, 255, 0, 0.05);
+    border-left-color: #00ff00;
+    padding-left: 25px;
+    color: $link-color;
+    
+    .nav-bracket {
+      opacity: 1;
+    }
+  }
+  
+  &:active {
+    background: rgba(0, 255, 0, 0.1);
+  }
+  
+  @include mobile {
+    margin: 5px 10px;
+    padding: 8px 15px;
+  }
+}
+
+// Enhanced site name with glow effect
+.site-name a {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00ff00, transparent);
+    transition: width 0.3s ease;
+  }
+  
+  &:hover::after {
+    width: 100%;
+  }
+}
+
+// Code-style footer enhancement
+.footer {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  
+  p {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 500;
+  }
+}
+
+// Enhanced post cards with terminal style
+.posts .post {
+  border: 1px solid $divider-color;
+  border-radius: 8px;
+  padding: 25px;
+  margin-bottom: 30px;
+  background: $background-color;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '// Article';
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 11px;
+    color: #6a9955;
+    opacity: 0.6;
+  }
+  
+  &:hover {
+    border-color: #00ff00;
+    box-shadow: 0 5px 15px rgba(0, 255, 0, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  h1 {
+    position: relative;
+    padding-left: 15px;
+    
+    &::before {
+      content: '>';
+      position: absolute;
+      left: 0;
+      color: #00ff00;
+      font-weight: bold;
+    }
+  }
+}
+
+// Tag styling with code brackets
+.tag, .tags {
+  li, a {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 12px;
+    position: relative;
+    padding-left: 15px;
+    padding-right: 15px;
+    
+    &::before {
+      content: '<';
+      color: #00ff00;
+      margin-right: 2px;
+      position: absolute;
+      left: 0;
+    }
+    
+    &::after {
+      content: '>';
+      color: #00ff00;
+      margin-left: 2px;
+      position: absolute;
+      right: 0;
+    }
+  }
+}
+
+// Search box base styling (avoid !important)
+.search-container input[type="text"] {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  
+  &:focus {
+    outline: none;
+  }
+}
+
+// Read more button with terminal style
+.read-more {
+  display: inline-block;
+  padding: 8px 16px;
+  margin-top: 10px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white !important;
+  border-radius: 4px;
+  border: none;
+  transition: all 0.3s ease;
+  
+  &::before {
+    content: '$ ';
+    font-weight: bold;
+  }
+  
+  &:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+  }
+}
+
+// Pagination with terminal style
+.pagination {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  
+  a, span {
+    padding: 10px 15px;
+    margin: 0 5px;
+    border: 1px solid $divider-color;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: rgba(0, 255, 0, 0.1);
+      border-color: #00ff00;
+    }
+  }
+}
+
+// ASCII art and code blocks enhancement
+pre, code {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  border: 1px solid #333;
+  border-radius: 4px;
+  
+  &::selection {
+    background: #264f78;
+  }
+}
+
+// Responsive adjustments
+@include mobile {
+  .terminal-header {
+    font-size: 11px;
+    
+    &::before {
+      width: 8px;
+      height: 8px;
+      box-shadow: 15px 0 0 #ffbd2e, 30px 0 0 #27c93f;
+    }
+  }
+  
+  .nav-link {
+    font-size: 14px;
+  }
+  
+  .posts .post {
+    padding: 20px;
+    
+    &::before {
+      font-size: 10px;
+    }
+  }
+}
+
+/**********************************************/
+/* GEEK WELCOME BANNER - ASCII ART STYLE */
+/**********************************************/
+
+.geek-welcome-banner {
+  margin: 20px 0 30px;
+  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+  border: 2px solid #00ff00;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 8px 16px rgba(0, 255, 0, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      rgba(0, 255, 0, 0.1) 50%, 
+      transparent 100%);
+    animation: scan 3s linear infinite;
+  }
+  
+  @include mobile {
+    margin: 15px 0 20px;
+    padding: 15px 10px;
+  }
+}
+
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(500%); }
+}
+
+.ascii-art {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  line-height: 1.2;
+  color: #00ff00;
+  text-align: center;
+  margin: 0;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+  font-weight: bold;
+  white-space: pre;
+  overflow-x: auto;
+  
+  @include mobile {
+    font-size: 8px;
+    line-height: 1.1;
+    padding: 5px;
+  }
+}
+
+.system-info {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px dashed #00ff00;
+  
+  @include mobile {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.info-item {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  color: #d4d4d4;
+  
+  .label {
+    color: #569cd6;
+    font-weight: bold;
+    margin-right: 5px;
+    
+    &::after {
+      content: ':';
+      color: #00ff00;
+    }
+  }
+  
+  @include mobile {
+    font-size: 11px;
+    text-align: center;
+  }
+}
+
+.status-online {
+  color: #00ff00;
+  font-weight: bold;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+// Search label enhancement
+.search-label {
+  margin-bottom: 8px;
+  
+  .terminal-prompt-small {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    color: #00ff00;
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+  }
+}
+
+// Enhanced search container
+.search-container {
+  position: relative;
+  
+  input {
+    padding-left: 45px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+    border: 2px solid #00ff00;
+    transition: all 0.3s ease;
+    
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(0, 255, 0, 0.1),
+                  inset 0 1px 1px rgba(0,0,0,.075),
+                  0 0 12px rgba(0, 255, 0, 0.4);
+      border-color: #00aa00;
+    }
+    
+    &::placeholder {
+      color: #888;
+      font-style: italic;
+    }
+  }
+}
+
+#results-container {
+  margin-top: 15px;
+  list-style: none;
+  padding: 0;
+  
+  li {
+    background: rgba(0, 255, 0, 0.05);
+    border-left: 3px solid #00ff00;
+    padding: 10px 15px;
+    margin: 8px 0;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: rgba(0, 255, 0, 0.1);
+      transform: translateX(5px);
+    }
+    
+    a {
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 14px;
+      
+      &::before {
+        content: '> ';
+        color: #00ff00;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+
+
+
+/**********************************************/
+/* ENHANCED FOOTER - GEEK STYLE STATUS BAR */
+/**********************************************/
+
+.footer-text-container {
+  margin: 15px 0;
+  
+  .footer-gradient-text {
+    background: linear-gradient(90deg, #00ff00 0%, #00aa00 50%, #00ff00 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+    animation: gradient-shift 3s ease infinite;
+  }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.footer-status-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px;
+  margin: 15px 0;
+  background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+  border: 1px solid #333;
+  border-radius: 6px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  
+  @include mobile {
+    font-size: 10px;
+    padding: 8px;
+    gap: 5px;
+  }
+}
+
+.status-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  
+  .status-label {
+    color: #569cd6;
+    font-weight: bold;
+  }
+  
+  .status-value {
+    color: #00ff00;
+    font-weight: normal;
+  }
+}
+
+.status-separator {
+  color: #666;
+  font-weight: bold;
+  
+  @include mobile {
+    display: none;
+  }
+}
+
+.github-stats-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 15px 0;
+  
+  img {
+    height: 20px;
+    transition: transform 0.3s ease;
+    margin: 0;
+    
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+}
+
+.github-button-container {
+  display: flex;
+  justify-content: center;
+  margin: 15px 0;
+  
+  .github-button {
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.2);
+    }
+  }
+}
+
+// Enhanced SVG icons
+.svg-icon {
+  transition: all 0.3s ease;
+  filter: grayscale(20%);
+  
+  &:hover {
+    filter: grayscale(0%) brightness(1.2);
+    transform: translateY(-3px);
+  }
+}
