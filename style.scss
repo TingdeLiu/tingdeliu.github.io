@@ -362,9 +362,8 @@ img {
     margin:0 auto;
     display: block;
     width: 60%;
+    max-width: 180px;
     height: auto;
-    // max-width: 200px;
-    // max-height: 200px;
 
     @include mobile {
       max-width: 120px;
@@ -373,7 +372,8 @@ img {
 
     img {
       display: inline-block;
-      border-radius: 2px;
+      border-radius: 50%;
+      box-shadow: 0 2px 12px rgba(59, 130, 246, 0.25);
     }
   }
 }
@@ -395,6 +395,44 @@ img {
 
   @include mobile {
     margin: 10px auto;
+  }
+}
+
+.site-stats {
+  margin-top: 16px;
+  font-size: 12px;
+  color: $base-lightener-color;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .stats-divider {
+    color: $divider-color;
+  }
+
+  svg {
+    vertical-align: middle;
+    opacity: 0.6;
+  }
+}
+
+.site-tagline {
+  margin: 6px auto 0;
+  color: $base-lighten-color;
+  font-size: 13px;
+  letter-spacing: 0.4px;
+
+  .site-company {
+    color: $link-color;
+    font-weight: 500;
   }
 }
 

@@ -37,6 +37,40 @@
     </footer>
   </div>
 
+  <!-- 标签自动着色：对标签名哈希映射到调色板，同名标签颜色全站一致 -->
+  <script>
+    (function () {
+      var palette = [
+        { bg: '#d0ebff', text: '#1864ab', hover: '#a5d8ff' }, // 蓝
+        { bg: '#d3f9d8', text: '#2b8a3e', hover: '#b2f2bb' }, // 绿
+        { bg: '#e5dbff', text: '#5f3dc4', hover: '#d0bfff' }, // 紫
+        { bg: '#ffe8cc', text: '#d9480f', hover: '#ffd8a8' }, // 橙
+        { bg: '#fff3bf', text: '#e67700', hover: '#ffec99' }, // 黄
+        { bg: '#ffd6e0', text: '#c2255c', hover: '#ffa8c5' }, // 粉
+        { bg: '#c5f6fa', text: '#0c8599', hover: '#99e9f2' }, // 青
+      ];
+
+      function hash(str) {
+        var h = 0;
+        for (var i = 0; i < str.length; i++) {
+          h = str.charCodeAt(i) + ((h << 5) - h);
+        }
+        return Math.abs(h);
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.tag li > a').forEach(function (el) {
+          var tag = el.textContent.trim();
+          var c = palette[hash(tag) % palette.length];
+          el.style.backgroundColor = c.bg;
+          el.style.color = c.text;
+          el.addEventListener('mouseenter', function () { el.style.backgroundColor = c.hover; });
+          el.addEventListener('mouseleave', function () { el.style.backgroundColor = c.bg; });
+        });
+      });
+    })();
+  </script>
+
   <!-- Mermaid 图表支持 -->
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>
