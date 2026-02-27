@@ -1,16 +1,12 @@
 ---
 layout: post
-title: "传统机器人导航算法综述：感知、定位、建图、路径规划与路径跟踪"
+title: "传统机器人导航算法综述"
 date: 2026-02-27
-tags: [Robotics, SLAM, Path Planning, Localization, Navigation]
+tags: [Robotics, Navigation, SLAM,  Localization, Mapping, Path Planning, Path Tracking, Perception]
 comments: true
 author: Tingde Liu
 toc: true
 excerpt: "系统梳理传统机器人导航算法栈：从感知、定位与建图（SLAM），到全局与局部路径规划，再到路径跟踪控制器，涵盖主要算法原理、对比与应用场景。"
----
-
-* 目录
-{:toc}
 
 ---
 
