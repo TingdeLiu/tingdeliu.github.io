@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="660" height="270" viewBox="0 0 660 270">
+  <defs>
+    <marker id="arrowPF" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="660" height="270" fill="#f9f9fb" rx="8" stroke="#dde" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="330" y="26" text-anchor="middle"
+        font-family="'Microsoft YaHei', 'PingFang SC', Arial, sans-serif"
+        font-size="14" font-weight="bold" fill="#222">粒子滤波（MCL）三阶段示意图</text>
+
+  <!-- ===== Panel 1: 扩散 (Diffusion after motion) ===== -->
+  <rect x="20" y="42" width="180" height="160" rx="6"
+        fill="white" stroke="#bbb" stroke-width="1.2"/>
+  <text x="110" y="60" text-anchor="middle"
+        font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="12" font-weight="bold" fill="#2c3e50">① 运动更新（扩散）</text>
+
+  <!-- Particles spread out (equal weight, uniform dots) -->
+  <!-- True position star at ~(110, 120) -->
+  <polygon points="110,100 114,112 126,112 116,120 120,132 110,124 100,132 104,120 94,112 106,112"
+           fill="#f39c12" stroke="#d68910" stroke-width="1"/>
+
+  <!-- Scattered equal-weight particles -->
+  <circle cx="75" cy="110" r="4" fill="#4a90d9" opacity="0.8"/>
+  <circle cx="95" cy="95" r="4" fill="#4a90d9" opacity="0.8"/>
+  <circle cx="115" cy="88" r="4" fill="#4a90d9" opacity="0.8"/>
+  <circle cx="135" cy="100" r="4" fill="#4a90d9" opacity="0.8"/>
+  <circle cx="148" cy="115" r="4" fill="#4a90d9" opacity="0.8"/>
+  <circle cx="130" cy="130" r="4" fill="#4a90d9" opacity="0.8"/>
+  <circle cx="105" cy="138" r="4" fill="#4a90d9" opacity="0.8"/>
+  <circle cx="80" cy="128" r="4" fill="#4a90d9" opacity="0.8"/>
+  <circle cx="65" cy="95" r="4" fill="#4a90d9" opacity="0.8"/>
+  <circle cx="145" cy="88" r="4" fill="#4a90d9" opacity="0.8"/>
+  <circle cx="155" cy="135" r="4" fill="#4a90d9" opacity="0.8"/>
+  <circle cx="70" cy="140" r="4" fill="#4a90d9" opacity="0.8"/>
+
+  <text x="110" y="190" text-anchor="middle"
+        font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="10" fill="#555">粒子等权重扩散</text>
+  <text x="110" y="204" text-anchor="middle"
+        font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="9" fill="#888">（加入运动噪声）</text>
+
+  <!-- Arrow 1 -->
+  <line x1="205" y1="122" x2="240" y2="122"
+        stroke="#666" stroke-width="1.6" marker-end="url(#arrowPF)"/>
+  <text x="222" y="113" text-anchor="middle"
+        font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="9" fill="#555">加权</text>
+
+  <!-- ===== Panel 2: 加权 (Weighting) ===== -->
+  <rect x="245" y="42" width="180" height="160" rx="6"
+        fill="white" stroke="#bbb" stroke-width="1.2"/>
+  <text x="335" y="60" text-anchor="middle"
+        font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="12" font-weight="bold" fill="#2c3e50">② 观测加权</text>
+
+  <!-- True position star -->
+  <polygon points="335,100 339,112 351,112 341,120 345,132 335,124 325,132 329,120 319,112 331,112"
+           fill="#f39c12" stroke="#d68910" stroke-width="1"/>
+
+  <!-- Particles with varying weights (size represents weight) -->
+  <!-- Large weight (close to true pos) -->
+  <circle cx="330" cy="108" r="8" fill="#e74c3c" opacity="0.75"/>
+  <circle cx="342" cy="115" r="7" fill="#e74c3c" opacity="0.70"/>
+  <circle cx="325" cy="120" r="6" fill="#e74c3c" opacity="0.65"/>
+  <!-- Medium weight -->
+  <circle cx="310" cy="100" r="5" fill="#e67e22" opacity="0.6"/>
+  <circle cx="355" cy="105" r="4" fill="#e67e22" opacity="0.55"/>
+  <circle cx="315" cy="130" r="4" fill="#e67e22" opacity="0.55"/>
+  <!-- Low weight (far from true pos) -->
+  <circle cx="270" cy="90" r="2.5" fill="#4a90d9" opacity="0.5"/>
+  <circle cx="375" cy="88" r="2" fill="#4a90d9" opacity="0.5"/>
+  <circle cx="380" cy="140" r="2" fill="#4a90d9" opacity="0.5"/>
+  <circle cx="262" cy="138" r="2" fill="#4a90d9" opacity="0.5"/>
+  <circle cx="368" cy="135" r="2.5" fill="#4a90d9" opacity="0.5"/>
+  <circle cx="275" cy="145" r="2" fill="#4a90d9" opacity="0.5"/>
+
+  <text x="335" y="190" text-anchor="middle"
+        font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="10" fill="#555">粒子大小 ∝ 权重</text>
+  <text x="335" y="204" text-anchor="middle"
+        font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="9" fill="#888">（越接近观测越大）</text>
+
+  <!-- Arrow 2 -->
+  <line x1="430" y1="122" x2="465" y2="122"
+        stroke="#666" stroke-width="1.6" marker-end="url(#arrowPF)"/>
+  <text x="447" y="113" text-anchor="middle"
+        font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="9" fill="#555">重采样</text>
+
+  <!-- ===== Panel 3: 重采样 (Resampling) ===== -->
+  <rect x="470" y="42" width="175" height="160" rx="6"
+        fill="white" stroke="#bbb" stroke-width="1.2"/>
+  <text x="557" y="60" text-anchor="middle"
+        font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="12" font-weight="bold" fill="#2c3e50">③ 重采样</text>
+
+  <!-- True position star -->
+  <polygon points="557,100 561,112 573,112 563,120 567,132 557,124 547,132 551,120 541,112 553,112"
+           fill="#f39c12" stroke="#d68910" stroke-width="1"/>
+
+  <!-- Particles concentrated near true position -->
+  <circle cx="552" cy="106" r="4" fill="#27ae60" opacity="0.85"/>
+  <circle cx="564" cy="110" r="4" fill="#27ae60" opacity="0.85"/>
+  <circle cx="546" cy="115" r="4" fill="#27ae60" opacity="0.85"/>
+  <circle cx="570" cy="118" r="4" fill="#27ae60" opacity="0.85"/>
+  <circle cx="558" cy="120" r="4" fill="#27ae60" opacity="0.85"/>
+  <circle cx="544" cy="107" r="4" fill="#27ae60" opacity="0.80"/>
+  <circle cx="568" cy="103" r="4" fill="#27ae60" opacity="0.80"/>
+  <circle cx="575" cy="112" r="4" fill="#27ae60" opacity="0.75"/>
+  <circle cx="540" cy="122" r="4" fill="#27ae60" opacity="0.75"/>
+  <circle cx="562" cy="127" r="4" fill="#27ae60" opacity="0.75"/>
+  <circle cx="548" cy="98" r="4" fill="#27ae60" opacity="0.70"/>
+  <circle cx="572" cy="127" r="4" fill="#27ae60" opacity="0.70"/>
+
+  <text x="557" y="190" text-anchor="middle"
+        font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="10" fill="#555">粒子集中在高权重区域</text>
+  <text x="557" y="204" text-anchor="middle"
+        font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="9" fill="#888">（低权重粒子被淘汰）</text>
+
+  <!-- ===== Legend ===== -->
+  <g transform="translate(140, 238)">
+    <polygon points="0,-7 2.8,1 9.5,1 4,5.8 6,14 0,9.5 -6,14 -4,5.8 -9.5,1 -2.8,1"
+             fill="#f39c12" stroke="#d68910" stroke-width="0.8" transform="scale(0.7)"/>
+    <text x="12" y="4" font-family="'Microsoft YaHei', Arial, sans-serif"
+          font-size="10" fill="#333">真实位置</text>
+    <circle cx="100" cy="0" r="5" fill="#4a90d9" opacity="0.8"/>
+    <text x="112" y="4" font-family="'Microsoft YaHei', Arial, sans-serif"
+          font-size="10" fill="#333">低权重粒子</text>
+    <circle cx="215" cy="0" r="7" fill="#e74c3c" opacity="0.75"/>
+    <text x="228" y="4" font-family="'Microsoft YaHei', Arial, sans-serif"
+          font-size="10" fill="#333">高权重粒子</text>
+    <circle cx="325" cy="0" r="5" fill="#27ae60" opacity="0.85"/>
+    <text x="337" y="4" font-family="'Microsoft YaHei', Arial, sans-serif"
+          font-size="10" fill="#333">重采样后粒子</text>
+  </g>
+</svg>

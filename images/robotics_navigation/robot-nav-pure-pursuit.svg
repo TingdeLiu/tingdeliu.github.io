@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="340" viewBox="0 0 560 340">
+  <defs>
+    <marker id="arrPP" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#555"/>
+    </marker>
+    <marker id="arrPP2" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#e74c3c"/>
+    </marker>
+    <marker id="arrPP3" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#2980b9"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="560" height="340" fill="#f9f9fb" rx="8" stroke="#dde" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="280" y="26" text-anchor="middle"
+        font-family="'Microsoft YaHei', 'PingFang SC', Arial, sans-serif"
+        font-size="14" font-weight="bold" fill="#222">Pure Pursuit 几何原理示意图</text>
+
+  <!-- ===== Reference path (dotted curve) ===== -->
+  <!-- Quadratic bezier: M 30,225 Q 255,175 490,148 -->
+  <path d="M 30,225 Q 255,175 490,148"
+        fill="none" stroke="#7f8c8d" stroke-width="2"
+        stroke-dasharray="8,5"/>
+  <text x="420" y="138" font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="11" fill="#555">参考路径</text>
+
+  <!-- ===== Car body ===== -->
+  <!-- Rear axle center: (155, 218), Front axle center: (215, 218) -->
+  <!-- Car body: rect centered between axles -->
+  <rect x="130" y="200" width="110" height="38" rx="6"
+        fill="#bdc3c7" stroke="#7f8c8d" stroke-width="1.5"/>
+  <!-- Car roof indication -->
+  <rect x="148" y="194" width="75" height="12" rx="3"
+        fill="#95a5a6" stroke="#7f8c8d" stroke-width="1"/>
+
+  <!-- Rear axle line -->
+  <line x1="155" y1="196" x2="155" y2="242"
+        stroke="#555" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <!-- Front axle line (steered front wheels) -->
+  <line x1="215" y1="196" x2="215" y2="242"
+        stroke="#555" stroke-width="1.5" stroke-dasharray="3,2"/>
+
+  <!-- Wheels (rear, fixed) -->
+  <rect x="144" y="236" width="22" height="8" rx="2" fill="#2c3e50"/>
+  <!-- Wheels (front, steered - slightly turned) -->
+  <g transform="rotate(-12, 215, 236)">
+    <rect x="204" y="232" width="22" height="8" rx="2" fill="#2c3e50"/>
+  </g>
+
+  <!-- Rear axle point marker -->
+  <circle cx="155" cy="218" r="4" fill="#e74c3c"/>
+  <!-- Front axle point marker -->
+  <circle cx="215" cy="218" r="4" fill="#2980b9"/>
+
+  <!-- ===== Lookahead circle (dashed) ===== -->
+  <!-- Center at rear axle (155, 218), radius = 90 -->
+  <circle cx="155" cy="218" r="90"
+          fill="none" stroke="#e74c3c" stroke-width="1.5"
+          stroke-dasharray="6,4" opacity="0.7"/>
+
+  <!-- ===== Target point T on path ===== -->
+  <!-- At approximately where circle intersects path: ~(235, 178) -->
+  <!-- Verify: dist((235,178),(155,218)) = sqrt(80²+40²) = sqrt(8000) ≈ 89.4 ≈ 90 -->
+  <circle cx="235" cy="178" r="6" fill="#e74c3c" stroke="white" stroke-width="1.5"/>
+  <text x="245" y="172" font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="11" font-weight="bold" fill="#e74c3c">目标点 T</text>
+
+  <!-- ===== Ld line (rear axle to target point) ===== -->
+  <line x1="155" y1="218" x2="227" y2="182"
+        stroke="#e74c3c" stroke-width="1.8"
+        stroke-dasharray="none" marker-end="url(#arrPP2)"/>
+  <!-- Ld label midpoint -->
+  <text x="180" y="192" font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="12" font-weight="bold" fill="#e74c3c">L_d</text>
+
+  <!-- ===== Vehicle heading direction (east) ===== -->
+  <line x1="155" y1="218" x2="310" y2="218"
+        stroke="#7f8c8d" stroke-width="1.2" stroke-dasharray="5,3"/>
+  <text x="318" y="222" font-family="Arial, sans-serif"
+        font-size="10" fill="#888">航向方向</text>
+
+  <!-- ===== alpha angle arc ===== -->
+  <!-- α is angle between heading (east) and direction to T from rear axle -->
+  <!-- Direction to T: (235-155, 178-218) = (80, -40), angle ≈ -26.6° -->
+  <!-- Draw arc from 0° to -26.6° at radius 45 from rear axle -->
+  <!-- Arc SVG: center (155,218), radius 45, from (200,218) to ~(195,198) -->
+  <path d="M 200,218 A 45,45 0 0,0 195.5,199"
+        fill="none" stroke="#9b59b6" stroke-width="1.5"/>
+  <text x="207" y="212" font-family="Arial, sans-serif"
+        font-size="12" font-style="italic" font-weight="bold" fill="#9b59b6">α</text>
+
+  <!-- ===== Wheelbase L label ===== -->
+  <line x1="155" y1="248" x2="215" y2="248"
+        stroke="#2980b9" stroke-width="1.5"
+        marker-start="url(#arrPP3)" marker-end="url(#arrPP3)"/>
+  <text x="185" y="264" text-anchor="middle"
+        font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="11" font-weight="bold" fill="#2980b9">轴距 L</text>
+
+  <!-- ===== δ steering angle label ===== -->
+  <!-- Front wheel angle indicator -->
+  <path d="M 245,218 A 30,30 0 0,0 240,190"
+        fill="none" stroke="#27ae60" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="255" y="208" font-family="Arial, sans-serif"
+        font-size="12" font-style="italic" font-weight="bold" fill="#27ae60">δ</text>
+  <text x="268" y="222" font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="10" fill="#27ae60">（前轮转角）</text>
+
+  <!-- ===== Tracking arc from front axle to T ===== -->
+  <!-- A curved arc showing the circular arc path -->
+  <path d="M 215,218 Q 228,195 235,178"
+        fill="none" stroke="#27ae60" stroke-width="2"
+        stroke-dasharray="5,3" opacity="0.7"/>
+
+  <!-- ===== Formula box ===== -->
+  <rect x="330" y="200" width="210" height="80" rx="6"
+        fill="white" stroke="#bbb" stroke-width="1.2"/>
+  <text x="435" y="220" text-anchor="middle"
+        font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="11" font-weight="bold" fill="#333">控制律</text>
+  <text x="435" y="240" text-anchor="middle"
+        font-family="Arial, sans-serif"
+        font-size="12" fill="#333">δ = arctan(2L·sinα / L_d)</text>
+  <text x="435" y="262" text-anchor="middle"
+        font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="10" fill="#666">速度自适应：L_d = k·v</text>
+  <text x="435" y="278" text-anchor="middle"
+        font-family="'Microsoft YaHei', Arial, sans-serif"
+        font-size="9" fill="#888">（速度快→预瞄远，速度慢→预瞄近）</text>
+
+  <!-- ===== Legend ===== -->
+  <g transform="translate(30, 300)">
+    <circle cx="0" cy="0" r="4" fill="#e74c3c"/>
+    <text x="10" y="4" font-family="'Microsoft YaHei', Arial, sans-serif"
+          font-size="10" fill="#333">后轴中心（参考点）</text>
+    <circle cx="160" cy="0" r="4" fill="#2980b9"/>
+    <text x="170" y="4" font-family="'Microsoft YaHei', Arial, sans-serif"
+          font-size="10" fill="#333">前轴中心</text>
+    <circle cx="255" cy="0" r="5" fill="#e74c3c" stroke="white" stroke-width="1.5"/>
+    <text x="266" y="4" font-family="'Microsoft YaHei', Arial, sans-serif"
+          font-size="10" fill="#333">预瞄目标点 T</text>
+  </g>
+</svg>
