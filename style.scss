@@ -584,7 +584,7 @@ nav {
   position: fixed;
   z-index: 4;
   padding: 60px 20px 0 20px;
-
+  
   &:before{
     content:"目录";
     margin: 0 0 1em 1em;
@@ -615,7 +615,7 @@ nav {
     overflow-y: auto; /* 关键属性 - 启用垂直滚动 */
     position: fixed; /* 使用固定定位 */
     top: auto; /* 重置top值 */
-
+    
     /* 滚动条美化 */
     scrollbar-width: thin; /* Firefox */
     scrollbar-color: #888 #f1f1f1; /* Firefox */
@@ -629,7 +629,7 @@ nav {
       display: none;
     }
   }
-
+  
   /* Webkit滚动条样式 */
   .toc::-webkit-scrollbar {
     width: 6px;
@@ -764,7 +764,7 @@ nav {
   clear:both;
   width:100%;
   bottom:0;
-
+  
   @include mobile {
     display: none;
   }
@@ -773,7 +773,7 @@ nav {
 
 .wrapper-footer-mobile {
   display: none;
-
+  
   @include mobile {
     display: block;
     width: 100%;
@@ -807,7 +807,7 @@ footer {
       height: 20px;
       width: 20px;
       fill: $base-lighten-color;
-
+      
       &:hover {
         fill: $link-lighten-color;
       }
@@ -831,3 +831,5 @@ footer {
 // ... Otherwise it really bloats up the top of the CSS file and makes it difficult to find the start
 @import "highlights";
 @import "gitalk";
+
+

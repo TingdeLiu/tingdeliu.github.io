@@ -82,9 +82,9 @@ baseurl: "" # 若非子目录，留空
 
 # Jekyll 默认使用 kramdown 作为 Markdown 解析器，需确保启用数学公式支持：
 markdown: kramdown
-# kramdown:
-#   math_engine: mathjax  # 指定使用MathJax处理数学公式
-#   syntax_highlighter: rouge
+kramdown:
+  math_engine: mathjax  # 指定使用MathJax处理数学公式
+  syntax_highlighter: rouge
 
 #
 # !! You don't need to change any of the configuration flags below !!
@@ -108,7 +108,7 @@ kramdown:
 
 # Set the Sass partials directory, as we're using @imports
 sass:
-  style: expanded # You might prefer to minify using :compressed
+  style: :expanded # You might prefer to minify using :compressed
 
 # Use the following plug-ins
 plugins:
@@ -123,3 +123,4 @@ exclude:
   - LICENSE
   - README.md
   - CNAME
+
