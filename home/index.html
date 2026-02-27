@@ -1,34 +1,9 @@
 ---
 layout: default
 ---
-
-<!-- Geek-style welcome banner -->
-<div class="geek-welcome-banner">
-  <pre class="ascii-art">
- ╔══════════════════════════════════════════════════════════╗
- ║     🤖 EMBODIED AI RESEARCH & ENGINEERING BLOG 🚀       ║
- ║                                                          ║
- ║  Vision-Language Navigation | Spatial Intelligence      ║
- ║  Teaching Robots to See, Understand, and Navigate       ║
- ╚══════════════════════════════════════════════════════════╝
-  </pre>
-  <div class="system-info">
-    <span class="info-item"><span class="label">System:</span> Embodied AI Research Platform</span>
-    <span class="info-item"><span class="label">Status:</span> <span class="status-online">● Online</span></span>
-    <span class="info-item"><span class="label">Focus:</span> VLN · SLAM · 3D Vision</span>
-  </div>
-</div>
-
 <p><br></p>
 <div class="search-container">
-  <div class="search-label">
-    <span class="terminal-prompt-small">search@blog:~$</span>
-  </div>
-  <input type="text" 
-         id="search-input" 
-         placeholder="search blog posts..." 
-         aria-label="Search blog posts"
-         style="width: 90%;
+  <input type="text" id="search-input" placeholder="search blog posts..." style="width: 90%;
     height: 35px;
     color: #333;
     background-color: rgba(227,231,236,.2);
@@ -41,7 +16,7 @@ layout: default
     outline: none;
     box-sizing: border-box;
     box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,.6);">
-  <ul id="results-container" role="list" aria-label="Search results"></ul>
+  <ul id="results-container"></ul>
 </div>
 <!-- 上面配置的是搜索栏 -->
 
@@ -60,7 +35,7 @@ layout: default
 	exclude: ['Welcome']
   })
 </script>
- 
+
 {% if site.posts.size == 0 %}
   <h2>No post found</h2>
 {% endif %}
@@ -116,18 +91,3 @@ layout: default
     </span>
   {% endif %}
 </div>
-
-<!--不算子网站访客统计-->
-<!-- <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"> -->
-<!-- </script> -->
-<!-- 显示站点总访问量 -->
-<!-- pv的方式，单个用户连续点击n篇文章，记录n次访问量 -->
-<!-- <div align="center"> -->
-	<!-- <span id="busuanzi_container_site_pv" style="font-family:Consolas;color:Silver;font-size:12px;"> -->
-		<!-- View:<span id="busuanzi_value_site_pv" style="font-family:Consolas;color:Silver;font-size:12px;"></span> -->
-	<!-- </span> -->
-	<!-- uv的方式，单个用户连续点击n篇文章，只记录1次访客数 -->
-	<!-- <span id="busuanzi_container_site_uv" style="font-family:Consolas;color:Silver;font-size:12px;"> -->
-		<!-- User:<span id="busuanzi_value_site_uv" style="font-family:Consolas;color:Silver;font-size:12px;"></span> -->
-	<!-- </span> -->
-<!-- </div> -->

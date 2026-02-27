@@ -22,13 +22,9 @@
     <nav>
       {% for nav in site.navigation %}
       {% if nav.url contains 'http://' or nav.url contains 'https://' %}
-      <a href="{{ nav.url }}" class="nav-link">
-        <span class="nav-bracket">[</span>{{ nav.name }}<span class="nav-bracket">]</span>
-      </a>
+      <a href="{{ nav.url }}">{{ nav.name }}</a>
       {% else %}
-      <a href="{{ site.baseurl }}{{ nav.url }}" class="nav-link">
-        <span class="nav-bracket">[</span>{{ nav.name }}<span class="nav-bracket">]</span>
-      </a>
+      <a href="{{ site.baseurl }}{{ nav.url }}">{{ nav.name }}</a>
       {% endif %}
       {% endfor %}
     </nav>
@@ -52,6 +48,3 @@
     </footer>
   </div>
 </div>
-
-<!-- Load terminal typing effect -->
-<script src="{{ site.baseurl }}/js/terminal-typing.js"></script>
