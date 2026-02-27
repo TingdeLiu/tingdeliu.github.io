@@ -7,7 +7,7 @@ name: "Tingde Liu"
 # Short bio or description (displayed in the header)
 description: "Personal Blog & Research Notes"
 # Job title and company (displayed in sidebar)
-tagline: "AI Engineer"
+tagline: "Embodied AI Engineer | VLN Specialist 🤖"
 company: "Tyndall Labs"
 
 #
@@ -52,8 +52,7 @@ footer-links:
   bilibili: # "Your-Bilibili-ID"
 
 # Text under the icons in footer
-footer-text: 探索人工智能与机器人技术的无限可能
-# Research notes on AI and Robotics
+footer-text: 探索具身智能与视觉-语言导航的无限可能 | Exploring Embodied AI & Vision-Language Navigation
 
 # Enter your Disqus shortname (not your username) to enable commenting on posts
 # You can find your shortname on the Settings page of your Disqus account
