@@ -443,7 +443,6 @@ flowchart TD
 </div>
 
 <div align="center">
-  <img src="/images/robotics_navigation/cost_grid_map_construction.gif" width="55%" style="margin:4px"/>
   <img src="/images/robotics_navigation/Costmap.png" width="38%" style="margin:4px"/>
   <figcaption>图：成品代价地图——蓝色=低代价，红色=高代价（障碍附近）</figcaption>
 </div>
@@ -746,15 +745,16 @@ graph LR
 
 ### 回环检测（Loop Closure Detection）
 
-<div align="center">
-  <img src="/images/robotics_navigation/回环检测算法流程.png" width="65%" />
-  <figcaption>图：回环检测算法流程</figcaption>
-</div>
 
 回环检测的任务：判断机器人是否回到了之前探索过的地方，从而添加回环约束消除累积误差。
 
 - **基于外观（Appearance-based）**：词袋模型（BoW）、神经网络特征，比较图像相似度
 - **基于几何（Geometry-based）**：扫描匹配验证候选回环的几何一致性
+
+<div align="center">
+  <img src="/images/robotics_navigation/回环检测算法流程.png" width="65%" />
+  <figcaption>图：回环检测算法流程</figcaption>
+</div>
 
 <div align="center">
   <img src="/images/robotics_navigation/回环检测.jpg" width="65%" />
