@@ -71,6 +71,13 @@ flowchart LR
     Actuator -->|里程计反馈| Perception
 ```
 
+
+<div align="center">
+  <img src="/images/robotics_navigation/传统机器人导航流程.png" width="70%" />
+  <figcaption>图：传统机器人导航：基于传感器采集的数据进行建图与定位（SLAM），并在构建的环境地图中自动导航（规划+控制）</figcaption>
+</div>
+
+
 ## 1.3 传统导航 vs. 学习型导航
 
 在深度学习兴起之前，机器人导航主要依赖**模块化、可解释的传统算法栈**。每个模块职责清晰，可以独立调试和优化。本文将系统介绍这套算法栈的核心组件。
