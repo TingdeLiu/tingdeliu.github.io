@@ -28,6 +28,11 @@ excerpt: "系统梳理传统机器人导航算法栈：从感知、定位与建�
 
 一个完整的机器人导航系统，数据从传感器出发，经过层层处理，最终驱动执行器运动。下图展示了导航算法栈的整体数据流：
 
+<div align="center">
+  <img src="/images/robotics_navigation/传统机器人导航流程.png" width="50%" />
+  <figcaption>图：传统机器人导航流程图：基于传感器采集的数据进行建图与定位（SLAM），并在构建的环境地图中自动导航（规划+控制）</figcaption>
+</div>
+
 ```mermaid
 flowchart LR
     subgraph Sensors["传感器层"]
@@ -71,11 +76,6 @@ flowchart LR
     Actuator -->|里程计反馈| Perception
 ```
 
-
-<div align="center">
-  <img src="/images/robotics_navigation/传统机器人导航流程.png" width="70%" />
-  <figcaption>图：传统机器人导航：基于传感器采集的数据进行建图与定位（SLAM），并在构建的环境地图中自动导航（规划+控制）</figcaption>
-</div>
 
 
 ## 1.3 传统导航 vs. 学习型导航
@@ -1317,4 +1317,4 @@ flowchart TB
 
 ---
 
-*参考资料：Thrun et al. "Probabilistic Robotics" (2005)；LaValle "Planning Algorithms" (2006)；ROS Navigation Wiki；Cartographer Paper (ICRA 2016)；LIO-SAM (IROS 2020)；ORB-SLAM3 (T-RO 2021)；VINS-Mono (T-RO 2018)；Hybrid A* (IJRR 2010)；TEB Local Planner (IROS 2013)*
+*参考资料：Thrun et al. "Probabilistic Robotics" (2005)；LaValle "Planning Algorithms" (2006)；ROS Navigation Wiki；Cartographer Paper (ICRA 2016)；LIO-SAM (IROS 2020)；ORB-SLAM3 (T-RO 2021)；VINS-Mono (T-RO 2018)；Hybrid A* (IJRR 2010)；TEB Local Planner (IROS 2013)*;http://www.autolabor.cn/usedoc/m1/navigationKit/development/slamintro; https://github.com/ShisatoYano/AutonomousVehicleControlBeginnersGuide;
