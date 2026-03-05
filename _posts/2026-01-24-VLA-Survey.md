@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "VLA综述"
+title: "VLA综述：基于视觉语言的行动"
 date: 2026-01-24
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 comments: true

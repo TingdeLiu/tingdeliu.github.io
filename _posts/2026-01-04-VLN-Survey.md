@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "VLN综述"
+title: "VLN综述：基于视觉语言的导航"
 27date:   2026-02-03
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 comments: true
