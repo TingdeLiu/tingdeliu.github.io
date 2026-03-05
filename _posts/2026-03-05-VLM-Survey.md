@@ -43,6 +43,12 @@ VLM通常需要解决以下核心问题：
 
 VLM的系统架构通常由三个核心模块构成：
 
+| 模块 | 职责 | 主流实现方案 |
+|------|------|------------|
+| **视觉编码器**（Visual Encoder） | 从图像提取特征表示 | CNN（ResNet）→ ViT → CLIP ViT → InternViT |
+| **连接模块**（Connector / Bridge） | 跨模态对齐与特征融合 | 线性投影（LLaVA）/ Q-Former（BLIP-2）/ 交叉注意力（Flamingo） |
+| **语言模型**（Language Model） | 语言理解与文本生成 | OPT / Flan-T5 / LLaMA / Qwen / InternLM 等预训练LLM |
+
 **视觉编码器（Visual Encoder）**：负责从图像中提取特征。主流方案从早期的CNN（ResNet、EfficientNet）演进至基于Transformer的ViT，再到专门为跨模态对齐训练的CLIP视觉编码器。编码器输出的特征形式可以是全局向量、patch-level特征序列或混合表示。
 
 **连接模块（Connector / Bridge）**：这是决定多模态融合策略的关键模块，不同方法在此处差异最大。主要形式包括：线性投影层、交叉注意力机制、Q-Former等。
@@ -149,6 +155,11 @@ BLIP提出了**多目标联合预训练**框架，同时优化三个目标：
 - **ITG**（Image-grounded Text Generation）：以图像为条件生成文本
 
 BLIP还引入了**CapFilt**（Caption Filtering）机制：用已有模型对噪声网络数据生成伪标题，再过滤低质量样本，从而实现数据自举（bootstrapping）——以较少的高质量数据提升超大规模噪声数据的效果。
+
+<div align="center">
+  <img src="/images/vlm/BLIP.png" width="80%" />
+  <figcaption>图：BLIP多目标预训练框架——ITC、ITM、ITG三个目标联合优化（来源：Salesforce Research）</figcaption>
+</div>
 
 ---
 
