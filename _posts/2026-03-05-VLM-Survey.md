@@ -205,6 +205,11 @@ BLIP-2将视觉编码器（冻结的ViT-G）和大语言模型（冻结的OPT或
 
 Q-Former仅有188M参数，却能有效"压缩"复杂的视觉信息，大幅降低了视觉-语言联合微调的计算成本。
 
+<div align="center">
+  <img src="/images/vlm/BLP2-overview.jpg" width="80%" />
+  <figcaption>图：BLIP-2整体架构——冻结的视觉编码器与LLM之间通过Q-Former桥接（来源：Salesforce Research）</figcaption>
+</div>
+
 ### InstructBLIP
 
 InstructBLIP在BLIP-2基础上引入**指令感知（instruction-aware）**的Q-Former：将文本指令也输入Q-Former，使查询token能根据当前任务的指令动态地从图像中提取最相关的特征，而非提取固定的通用特征。这一改进显著提升了模型对不同任务指令的泛化能力。
