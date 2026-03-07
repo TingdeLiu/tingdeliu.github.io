@@ -6,7 +6,7 @@ tags: [Agent, LLM, Robotics, VLM, Embodied AI, Multi-Agent]
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "AI Agent（AI智能体）是能够自主感知环境、推理规划并调用工具执行多步骤任务的AI系统，代表着从"对话式AI"向"自主行动AI"的范式转变。本文系统梳理AI Agent的核心架构、关键范式（ReAct、多Agent等），并重点介绍其在机器人领域的前沿应用与最新进展。"
+excerpt: "AI Agent（AI智能体）是能够自主感知环境、推理规划并调用工具执行多步骤任务的AI系统，代表着从「对话式AI」向「自主行动AI」的范式转变。本文系统梳理AI Agent的核心架构、关键范式（ReAct、多Agent等），并重点介绍其在机器人领域的前沿应用与最新进展。"
 ---
 
 * 目录
