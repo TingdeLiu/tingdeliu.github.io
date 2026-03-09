@@ -5637,6 +5637,166 @@ div align="center">
 3DGS 的在线增量重建和自由视角优化带来一定计算开销，在计算资源受限的嵌入式平台上实时性仍有挑战；此外，真实场景的动态物体、运动模糊和视觉感知噪声会影响 3DGS 质量，进而影响导航可靠性。
 
 ---
+## 24.BudVLN (2026)
+———Nipping the Drift in the Bud: Retrospective Rectification for Robust Vision-Language Navigation
+
+📄 **Paper**: [arXiv:2602.06356](https://arxiv.org/abs/2602.06356)
+
+### 精华
+
+1. **核心思想**：通过“回顾式纠偏”（Retrospective Rectification）解决 Vision-Language Navigation (VLN) 中的指令-状态不一致问题。
+2. **训练范式**：引入了 **Adaptive Mutual Exclusion Strategy**，将样本动态分流为效率路径（GRPO）和鲁棒性路径（SFT），实现了精准训练。
+3. **纠偏机制**：利用“回锚”机制合成语义一致的修正轨迹，避免了传统方法中强制回归导致的语义冲突。
+4. **极致效率**：采用 GRPO 算法（借鉴自 DeepSeek-R1），无需价值网络，训练成本仅为传统 DAgger 的约 25%。
+5. **性能卓越**：在 R2R-CE 和 RxR-CE 基准测试上刷新 SOTA，尤其在处理偏差和鲁棒性方面表现突出。
+
+---
+
+### 1. 研究背景/问题
+
+当前的视觉-语言导航（VLN）系统面临严重的**曝光偏差（Exposure Bias）**问题：推理时的细微偏差会导致严重的累积误差。虽然 DAgger 类方法尝试通过纠正错误状态来缓解这一问题，但论文指出这些方法存在**指令-状态不一致（Instruction-State Misalignment）**的致命局限。如图 1 所示，强制智能体从离群状态回归往往会生成与其原始语言指令相冲突的监督信号（例如：指令要求直行，但为回归正轨必须掉头），这会损害智能体的指令遵循能力。
+
+<div align="center">
+  <img src="/images/VLN/BudVLN-misalignment-illustration.png" width="100%" />
+<figcaption>
+图 1：指令-状态不一致现象的图示，展示了传统 DAgger 如何产生语义冲突的监督。
+</figcaption>
+</div>
+
+---
+
+### 2. 主要方法/创新点
+
+论文提出了 **BudVLN**，一个旨在通过统一的在线回顾式纠偏框架解决上述挑战的系统。
+
+#### Adaptive Mutual Exclusion Strategy (自适应互斥策略)
+BudVLN 并不对所有样本一视同仁，而是采用一种自适应策略进行动态路由：
+- **Proficiency Pathway (效率路径)**：通过 Greedy Probe 评估。若智能体已能熟练完成任务，则利用 **GRPO (Group Relative Policy Optimization)** 进行组内相对优势学习，进一步优化路径效率。
+- **Rectification Pathway (纠偏路径)**：若智能体在任务中失败，则触发**回顾式纠偏**。
+
+<div align="center">
+  <img src="/images/VLN/BudVLN-framework-overview.png" width="100%" />
+<figcaption>
+图 2：BudVLN 训练框架概览，展示了 GRPO 路径与回顾式纠偏（SFT）路径的动态分流。
+</figcaption>
+</div>
+
+#### Retrospective Rectification (回顾式纠偏)
+针对失败样本，BudVLN 执行以下操作：
+1. **回锚（Anchor Identification）**：将状态回溯到发生偏差前的最后一个有效路径点（Valid Anchor）。
+2. **语义一致性合成**：利用 Oracle 合成从该锚点出发的正确轨迹，以此作为 SFT 的监督信号。
+这种方法确保了监督信号与原始指令的语义一致性，彻底解决了 DAgger 的语义冲突问题。
+
+#### GRPO 优化
+受到大规模推理模型成功的启发，BudVLN 引入了 GRPO 算法。它通过在一个采样组内计算相对优势，摆脱了对昂贵价值网络（Value Network）的依赖，极大地降低了计算开销，同时提升了探索效率。
+
+---
+
+### 3. 核心结果/发现
+
+- **SOTA 性能**：在 R2R-CE 和 RxR-CE 两个主流基准测试中，BudVLN 全面超越了现有模型。在 R2R-CE 上，成功率 (SR) 达到 **57.6%**，SPL 达到 **51.1%**。
+- **训练效率**：得益于 GRPO 算法和高效的纠偏机制，BudVLN 仅需 **27 GPU 小时** 即可完成训练，相比 DAgger 的 114 小时，效率提升了近 4 倍。
+- **消融研究**：实验证明，单独添加纠偏机制能显著提升 SR，而 GRPO 算法则对 SPL 的提升和训练效率的优化起到了关键作用。
+
+<div align="center">
+  <img src="/images/VLN/BudVLN-main-results.png" width="100%" />
+<figcaption>
+表 1：BudVLN 与现有 VLN 模型在 R2R-CE 和 RxR-CE 测试集上的性能对比。
+</figcaption>
+</div>
+
+---
+
+### 4. 局限性
+
+虽然 BudVLN 在离散和连续环境中均表现出色，但其鲁棒性目前仍受限于预定义 Oracle 的质量。在极度复杂的极端环境下，如何自主生成更高质量的“回顾性”知识仍是未来研究的方向。
+
+---
+## 25.Video Generation Models in Robotics (2026)
+———Applications, Research Challenges, Future Directions
+
+📄 **Paper**: [arXiv:2601.07823](https://arxiv.org/abs/2601.07823)
+
+### 精华
+
+1. **核心价值**：视频生成模型作为**高保真物理世界模拟器**，能克服物理仿真器的简化假设，为机器人提供精细的交互感知。
+2. **具身世界模型**：视频模型不仅是视觉输出工具，更是能够预测时空演变的“具身世界模型”，支持策略学习与视觉规划。
+3. **关键应用**：涵盖模仿学习（数据增强）、强化学习（动力学建模）、策略评估（免真实环境部署）和视觉规划。
+4. **主要挑战**：包括违反物理规律的幻觉（Hallucinations）、指令遵循能力弱、长视频生成的连贯性以及极高的推理成本。
+5. **未来方向**：整合物理先验（物理引擎作为约束）、不确定性量化、更高效的推理架构（如 DiT）以及长序列生成。
+
+---
+
+### 1. 研究背景/问题
+
+传统的机器人研究依赖物理仿真器进行策略验证和训练，但仿真器通常需要复杂的参数调整且难以模拟柔性体或精细物理交互。与此同时，仅依赖语言抽象的大模型（LLMs）缺乏对物理世界细粒度时空动态的理解。视频生成模型（Video Generation Models）凭借其在互联网规模数据上学习到的丰富视觉和动作知识，展现出作为**具身世界模型（Embodied World Models）**的巨大潜力。
+
+<div align="center">
+  <img src="/images/VLN/Robot-Video-Gen-Overview.png" width="100%" />
+<figcaption>
+图 1：视频生成模型在机器人领域的应用框架，包括策略学习、视觉规划和策略评估。
+</figcaption>
+</div>
+
+---
+
+### 2. 主要方法/创新点
+
+论文系统地梳理了视频生成模型在机器人中的架构分类、应用范式及评估体系。
+
+#### 核心分类学 (Taxonomy)
+视频生成模型在机器人中的角色主要分为：
+- **模仿学习中的数据生成器**：合成多样化的专家演示，缓解数据稀缺问题。
+- **强化学习中的动力学/奖励模型**：预测未来状态并提供视觉反馈。
+- **视觉规划器**：通过合成未来视频序列来辅助机器人进行任务分解和搜索。
+
+<div align="center">
+  <img src="/images/VLN/Robot-Video-Gen-Taxonomy.png" width="100%" />
+<figcaption>
+图 2：论文的组织架构，展示了背景、应用、评估及开放挑战的分类体系。
+</figcaption>
+</div>
+
+#### 模型架构演进
+从传统的基于 RNN/CNN 的预测模型演进到如今主流的基于 **Diffusion** 和 **Flow-matching** 的架构。
+- **扩散模型 (Diffusion Models)**：利用逐步去噪过程合成高质量视频帧，结合 Transformer (DiT) 或 U-Net 实现条件控制。
+- **联合嵌入预测架构 (JEPA)**：通过学习隐藏特征空间中的动态，实现更鲁棒的非像素级世界建模。
+
+<div align="center">
+  <img src="/images/VLN/Diffusion-Video-Architecture.png" width="100%" />
+<figcaption>
+图 3：基于扩散的视频模型架构示意图，展示了条件输入（文本、图像、动作）如何指导合成。
+</figcaption>
+</div>
+
+#### 显式与隐式世界模型
+- **隐式模型**：通过视觉像素或潜空间表示世界状态。
+- **显式模型**：输出如点云（Point Cloud）、体素网格（Voxel Map）或 3D 高斯泼溅（3DGS）等显式 3D 表示，以增强物理一致性。
+
+<div align="center">
+  <img src="/images/VLN/Implicit-vs-Explicit-Models.png" width="100%" />
+<figcaption>
+图 4：具身世界模型的两种表示形式：隐式表示（如视频潜空间）与显式表示（如点云、3DGS）。
+</figcaption>
+</div>
+
+---
+
+### 3. 核心结果/发现
+
+- **性能评估标准**：除了传统的视觉指标（PSNR, SSIM, FVD），机器人领域更关注物理一致性（Physics-IQ）、指令遵循度（VBench）和策略部署后的成功率。
+- **跨模态优势**：视频模型能整合文本指令、参考图像和动作序列，生成的视频轨迹可直接用于训练 VLA（Vision-Language-Action）策略。
+- **成本效益**：通过视频生成进行大规模策略评估，可减少对真实物理站点的依赖，降低硬件损耗和人工成本。
+
+---
+
+### 4. 局限性
+
+- **Hallucinations**：生成的视频常出现物体凭空消失或违反重力等现象，限制了其在安全敏感场景的应用。
+- **长序列漂移**：随着生成步数增加，视频的物理真实度和连贯性会迅速下降。
+- **实时性瓶颈**：扩散模型的采样过程极其耗时，难以满足机器人闭环控制的需求。
+
+---
 
 # 基石论文
 
