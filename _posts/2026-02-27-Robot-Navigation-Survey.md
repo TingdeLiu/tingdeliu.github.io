@@ -1041,7 +1041,7 @@ $$G(v, \omega) = \sigma(\alpha \cdot \text{heading} + \beta \cdot \text{dist} + 
 ❌ 参数调优复杂
 
 <div align="center">
-  <img src="/images/robotics_navigation/时间弹力带.png" width="65%" />
+  <img src="/images/robotics_navigation/TEB.png" width="65%" />
   <figcaption>图：时间弹力带</figcaption>
 </div>
 
