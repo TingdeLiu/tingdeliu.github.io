@@ -1058,6 +1058,21 @@ $$G(v, \omega) = \sigma(\alpha \cdot \text{heading} + \beta \cdot \text{dist} + 
   <figcaption>图：势场法避障演示——机器人沿引力/斥力合力运动，遭遇局部极小值时可能停滞</figcaption>
 </div>
 
+### MPPI（模型预测路径积分）
+
+**模型预测路径积分（Model Predictive Path Integral）思路**：属于**模型预测控制（MPC）** 的随机变体。在当前时刻，向前采样**大量随机控制序列**（通过 GPU 并行采样），用运动模型仿真每条轨迹的未来状态，根据轨迹代价（碰撞 + 偏离路径 + 控制平滑）计算**加权平均**作为当前控制输出，然后滑动时间窗口重复。
+
+✅ 无需求解最优控制问题（只需前向仿真）
+✅ 天然支持非线性系统和非凸代价函数
+✅ GPU 并行采样，可处理复杂障碍物分布
+❌ 需要相对精确的运动模型
+❌ 计算量较大，需要 GPU
+
+<div align="center">
+  <img src="/images/robotics_navigation/mppi_path_tracking.gif" width="75%" />
+  <figcaption>图：MPPI 路径跟踪仿真——GPU 并行采样大量轨迹（半透明线），加权平均得到最优控制</figcaption>
+</div>
+
 ## 5.4 代价地图（Costmap）层次结构
 
 ROS `costmap_2d` 采用**分层代价地图**架构：
@@ -1103,6 +1118,7 @@ $$\text{cost}(d) = \text{INSCRIBED\_COST} \cdot e^{-\text{cost\_scaling\_factor}
 | **DWA** | 局部 | 局部最优 | ❌ | 极快 | 室内移动机器人实时避障 |
 | **TEB** | 局部 | 局部最优 | ❌ | 中等 | 复杂局部环境，需平滑轨迹 |
 | **势场法** | 局部 | ❌ | ❌ | 极快 | 简单场景，辅助引导 |
+| **MPPI** | 采样（局部） | 渐近最优 | 概率完备 | 中等（GPU加速） | 非线性动力学，越野无人车，动态避障 |
 
 ---
 
@@ -1220,22 +1236,7 @@ $$J = \sum_{t=0}^{\infty} \left( \mathbf{e}_t^T \mathbf{Q} \mathbf{e}_t + u_t^T 
   <figcaption>图：LQR 路径跟踪仿真——最优控制律使得跟踪误差最小化，响应平滑稳定</figcaption>
 </div>
 
-## 6.6 MPPI（模型预测路径积分）
-
-**模型预测路径积分（Model Predictive Path Integral）思路**：属于**模型预测控制（MPC）** 的随机变体。在当前时刻，向前采样**大量随机控制序列**（通过 GPU 并行采样），用运动模型仿真每条轨迹的未来状态，根据轨迹代价（碰撞 + 偏离路径 + 控制平滑）计算**加权平均**作为当前控制输出，然后滑动时间窗口重复。
-
-✅ 无需求解最优控制问题（只需前向仿真）
-✅ 天然支持非线性系统和非凸代价函数
-✅ GPU 并行采样，可处理复杂障碍物分布
-❌ 需要相对精确的运动模型
-❌ 计算量较大，需要 GPU
-
-<div align="center">
-  <img src="/images/robotics_navigation/mppi_path_tracking.gif" width="75%" />
-  <figcaption>图：MPPI 路径跟踪仿真——GPU 并行采样大量轨迹（半透明线），加权平均得到最优控制</figcaption>
-</div>
-
-## 6.7 控制器对比汇总
+## 6.6 控制器对比汇总
 
 | 控制器 | 跟踪精度 | 计算量 | 参数数量 | 适用速度 | 典型应用 |
 |--------|---------|--------|---------|---------|---------|
