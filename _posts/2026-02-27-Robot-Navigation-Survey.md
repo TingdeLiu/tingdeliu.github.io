@@ -1348,7 +1348,7 @@ flowchart TB
 
 # 9. 常用开源工具与框架汇总
 
-## 传感器驱动与处理
+### 传感器驱动与处理
 
 | 工具 | 功能 | 链接 |
 |------|------|------|
@@ -1356,7 +1356,7 @@ flowchart TB
 | **Open3D** | 点云和 3D 数据处理，Python 友好 | open3d.org |
 | **OpenCV** | 图像处理和特征提取 | opencv.org |
 
-## 定位
+### 定位
 
 | 工具 | 功能 | ROS 包 |
 |------|------|--------|
@@ -1364,7 +1364,7 @@ flowchart TB
 | **AMCL** | 粒子滤波自适应蒙特卡洛定位 | `amcl` |
 | **NDT_CPU** | NDT 扫描匹配 | `ndt_cpu` |
 
-## SLAM
+### SLAM
 
 | 工具 | 类型 | 特点 |
 |------|------|------|
@@ -1376,7 +1376,7 @@ flowchart TB
 | **VINS-Mono/Fusion** | 视觉+IMU | 无人机/手机导航 |
 | **hdl_graph_slam** | 激光 3D | 图优化，支持 NDT/ICP |
 
-## 路径规划
+### 路径规划
 
 | 工具 | 功能 |
 |------|------|
@@ -1387,7 +1387,7 @@ flowchart TB
 | **TEB Local Planner** | ROS 时间弹性带局部规划 |
 | **Smac Planner** | Nav2 内置 Hybrid A* 规划器 |
 
-## 仿真
+### 仿真
 
 | 工具 | 功能 |
 |------|------|
