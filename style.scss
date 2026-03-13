@@ -436,6 +436,22 @@ img {
   }
 }
 
+.site-bio {
+  margin: 10px auto 0;
+  color: $base-lighten-color;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 10px 0;
+  border-top: 1px solid $divider-color;
+  border-bottom: 1px solid $divider-color;
+  text-align: center;
+
+  @include mobile {
+    font-size: 12px;
+    padding: 8px 4px;
+  }
+}
+
 .navlist{
   text-align:center;
 }
