@@ -3300,3 +3300,77 @@ InternData-A1 在 9 个真实世界任务上的性能对比，包括 5 个常规
 
 ---
 
+## 8. RynnBrain: Open Embodied Foundation Models (2026)
+———Open Spatiotemporal Foundation Model for Embodied Intelligence
+
+📄 **Paper**: https://arxiv.org/abs/2602.14979
+
+### 精华
+
+RynnBrain 最值得借鉴的核心思想包括：**统一输出空间设计**——将 bounding box、轨迹点、区域点等空间量编码为离散 coordinate token，与语言 token 共享同一 autoregressive 解码器，优雅地将定位任务转化为分类问题；**Chain-of-Point (CoP) 推理**——在文本推理链中交替插入显式空间定位步骤，使推理过程"扎根"于物理环境，避免幻觉；**层级式 Plan-VLA 架构**——高层 RynnBrain-Plan 生成带精确坐标的子任务计划，低层 RynnBrain-VLA 执行动作，两者分工明确；**人模协作数据飞轮**——仅在关键节点引入人工标注，结合模型辅助生成，以有限预算构建出 2000 万样本的高质量语料；**多维度 Spatio-temporal Memory**——将图像和视频统一为帧序列，用 temporal positional embedding 编码时序信息，赋予模型跨帧的全局空间感知能力。
+
+---
+
+### 1. 研究背景/问题
+
+当前多模态基础模型在具身智能场景中存在三大缺口：自我中心认知范围狭窄（通常仅覆盖有限任务类别）；空间推理局限于静态图像、缺乏时序一致的 spatio-temporal 表征；高层规划停留在纯文本空间、与物理约束脱节导致幻觉和执行失败。现有具身模型与通用 VLM 各有偏废，尚无统一框架同时具备宽泛语义泛化与精确物理定位能力。
+
+---
+
+### 2. 主要方法/创新点
+
+**RynnBrain** 是阿里巴巴 DAMO Academy 提出的开源具身基础模型系列，基于 Qwen3-VL 构建，强化四大核心能力：
+
+**① 综合自我中心理解 (Egocentric Cognition)**
+涵盖物体理解、空间理解、计数、OCR、自我中心任务问答等，新增细粒度视频理解能力。
+
+**② 多样化时空定位 (Spatio-temporal Localization)**
+输出涵盖 Object Location（bounding box）、Area Location（区域点集）、Affordance Location（可交互热点）、Trajectory Location（最多 10 个轨迹航点）、Grasp Pose（4 角点抓取矩形），所有坐标归一化到 [0, 1000] 编码为整数 token。
+
+<div align="center">
+  <img src="/images/vlm/RynnBrain-overview.png" width="100%" />
+  <figcaption>RynnBrain 能力概览：自我中心认知、时空定位、物理推理、规划</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vlm/RynnBrain-architecture.png" width="100%" />
+  <figcaption>RynnBrain 整体架构：共享 Dense/MoE Decoder 统一输出文本、区域、轨迹和指向信号</figcaption>
+</div>
+
+**③ 物理扎根推理 (Chain-of-Point Reasoning)**
+RynnBrain-CoP 在推理链中交替生成文本步骤与空间定位 token，将抽象推理锚定到可观测的物理证据。训练数据由 Qwen3-VL-235B 生成初始推理链，再经人工标注关键帧精确空间实体。
+
+**④ 物理感知规划 (Physics-aware Planning)**
+RynnBrain-Plan 输出的子任务计划直接嵌入 affordance/区域坐标，供下游 RynnBrain-VLA 执行；使用多轮对话数据微调，维持任务执行中的历史状态一致性。
+
+**模型规模**：提供 RynnBrain-2B、8B（Dense）和 30B-A3B（MoE）三个尺度，预训练语料约 **2000 万样本**，涵盖 General MLLM、Cognition、Localization、Planning 四大类别。
+
+**训练优化**：在线负载均衡流水线（按序列长度动态分配 DP worker），per-sample loss reduction 消除全局 token 计数同步开销，训练效率提升 2×。
+
+<div align="center">
+  <img src="/images/vlm/RynnBrain-nav-ablation.png" width="100%" />
+  <figcaption>不同模型规模下 RynnBrain-Nav vs Qwen3-VL-Nav 导航性能对比</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vlm/RynnBrain-plan-results.png" width="100%" />
+  <figcaption>RynnBrain-Plan 在多任务、多难度下的规划结果对比</figcaption>
+</div>
+
+---
+
+### 3. 核心结果/发现
+
+- **VLN 导航**：RynnBrain-Nav-8B 在 R2R 基准达到 SOTA（SR 56.1%、NE 4.92），在 R2R 和 RxR 上全面超越同尺度 Qwen3-VL 基线；2B 模型相比 Qwen3-VL-2B 提升 7.2% SR / 7.6% SPL；DAgger 迭代训练将 SR 从 50.6% 提升至 58.5%。
+- **操作规划**：RynnBrain-Plan-30B 在 OOD 任务 *Table Bussing* Hard 难度达到近 100% Task Progress，而 Qwen3-VL 30B < 10%、Gemini-3 Pro ~60%；多轮对话微调相比单轮基线在 Hard 任务提升显著（单轮几乎为 0）。
+- **VLA 抓取**：RynnBrain-VLA 整体 SR 为 **0.77**，超越 π₀.₅（0.47）和 Qwen3-VL-Finetuned（0.60）；RSR 0.97，体现出强的目标识别精度。
+- **综合评测**：在 28 个基准（20 个具身 + 8 个通用视觉理解）上，RynnBrain 全面超越现有开源具身基础模型，同时保留竞争力的通用 VLM 能力。
+
+---
+
+### 4. 局限性
+
+MoE 架构（30B-A3B）在 VLN 任务上未能超越 8B Dense 模型，稀疏激活机制在此类任务中的潜力尚未充分释放，需要进一步探索专门的训练策略；DAgger 迭代在第 3 轮后呈现明显收益递减，导航策略收敛后的持续提升路径有待研究。
+
+---
+

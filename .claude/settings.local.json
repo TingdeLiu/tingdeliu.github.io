@@ -22,7 +22,8 @@
       "Bash(for f:*)",
       "Bash(ls C:/GitHub/Tingde.Liu.github.io/images/avatar* 2>/dev/null && echo \"avatar found\" || echo \"avatar NOT found\")",
       "Bash(git checkout:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "WebSearch"
     ]
   }
 }
