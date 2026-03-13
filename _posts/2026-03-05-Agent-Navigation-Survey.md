@@ -14,6 +14,11 @@ excerpt: "AI Agent（AI智能体）是能够自主感知环境、推理规划并
 
 2022年以来，以ChatGPT为代表的大语言模型（Large Language Model, LLM）使AI在文本生成和对话方面达到了接近人类的水平。然而，"对话"只是AI能力的冰山一角——真正改变生产力的，是AI能否**自主地完成任务**：搜索信息、调用API、写代码并执行、操作浏览器、控制机器人……这便催生了AI领域的下一个核心概念：**AI Agent（AI智能体）**。
 
+<div align="center">
+  <img src="/images/agent/openclawrobot.png" width="100%" />
+  <figcaption>图：Agentic Robot的未来愿景</figcaption>
+</div>
+
 AI Agent不是一个单一的模型，而是一种**系统架构**：以LLM为"大脑"，配备感知、记忆、工具调用和行动能力，形成一个能够在环境中持续循环推理-执行的自主系统。2025-2026年，AI Agent已从学术概念迅速走向产业爆发——开源框架**OpenClaw**（前身Clawdbot，2025年11月发布）在72小时内积累60,000+ GitHub Stars，目前已突破**280,000 Stars**，用户数量估计达30-40万，研究者和工程师开始将其部署到Unitree人形机器人平台；2026年初，OpenAI和Anthropic相继发布文章定义**「Harness Engineering（Agent工程化）」**——如何为Agent构建可靠的生产级基础设施，成为2026年工程界最热议的范式；与此同时，**波士顿动力**在CES 2026宣布与Google DeepMind合作将Gemini Robotics基础模型引入新一代Atlas；**Gemini Robotics 1.5**于2025年9月向开发者开放，标志着具身AI正式进入商用。
 
 机器人是AI Agent最具挑战性也最令人期待的应用场景之一：Agent不仅要在语言空间推理，还要与物理世界交互，面对感知噪声、执行不确定性和实时性约束。本文旨在系统梳理AI Agent的研究进展与在机器人中的应用，为学习和研究AI Agent提供参考。
