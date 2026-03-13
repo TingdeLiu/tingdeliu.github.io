@@ -15,7 +15,7 @@ excerpt: "AI Agent（AI智能体）是能够自主感知环境、推理规划并
 2022年以来，以ChatGPT为代表的大语言模型（Large Language Model, LLM）使AI在文本生成和对话方面达到了接近人类的水平。然而，"对话"只是AI能力的冰山一角——真正改变生产力的，是AI能否**自主地完成任务**：搜索信息、调用API、写代码并执行、操作浏览器、控制机器人……这便催生了AI领域的下一个核心概念：**AI Agent（AI智能体）**。
 
 <div align="center">
-  <img src="/images/agent/openclawrobot.png" width="100%" />
+  <img src="/images/agent/openclawrobot.png" width="80%" />
   <figcaption>图：Agentic Robot的未来愿景</figcaption>
 </div>
 
