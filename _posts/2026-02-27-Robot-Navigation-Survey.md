@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "Agent in Robot：Agent 如何驾驭机器人"
+title: "传统机器人导航算法综述"
 date: 2026-02-27
-tags: [Robotics, Navigation, SLAM, AI Agent, LLM, Harness Engineering, OpenClaw, VLA, Path Planning, Path Tracking, Perception]
+tags: [Robotics, Navigation, SLAM,  Localization, Mapping, Path Planning, Path Tracking, Perception]
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "从传统机器人导航算法栈（SLAM、路径规划、路径跟踪），到 AI Agent 如何通过 Harness Engineering 驾驭机器人——深入解析 Skill 抽象、感知接地、OpenClaw、NavGPT、VoxPoser 等代表性工作，揭示 LLM Agent 与物理机器人融合的最新范式。"
+excerpt: "系统梳理传统机器人导航算法栈：从感知、定位与建图（SLAM），到全局与局部路径规划，再到路径跟踪控制器，涵盖主要算法原理、对比与应用场景。"
 
 ---
 
@@ -1247,520 +1247,13 @@ $$J = \sum_{t=0}^{\infty} \left( \mathbf{e}_t^T \mathbf{Q} \mathbf{e}_t + u_t^T 
 | **LQR** | 高 | 中 | Q、R矩阵 | 全速域 | 高精度自动驾驶 |
 | **MPPI** | 高 | 高（需GPU） | 多 | 全速域 | 越野无人车、高动态场景 |
 
-## 6.7 MPPI：基于采样的随机最优控制
-
-**MPPI（Model Predictive Path Integral）** 是近年来在高动态场景（越野机器人、竞速无人车）中表现亮眼的随机最优控制方法：
-
-**核心思想**：不用解析地求解最优控制，而是**大量采样随机轨迹**（可 GPU 并行），用车辆动力学模型仿真每条轨迹的未来状态，计算代价，再以代价的指数权重聚合出最优控制输入：
-
-$$\mathbf{u}^* = \frac{\sum_{k=1}^{K} w_k \mathbf{U}_k}{\sum_{k=1}^{K} w_k}, \quad w_k = \exp\!\left(-\frac{1}{\lambda} C(\mathbf{U}_k)\right)$$
-
-其中 $C(\mathbf{U}_k)$ 是第 $k$ 条轨迹的累积代价，$\lambda$ 是温度参数。
-
-```mermaid
-flowchart LR
-    subgraph MPPI_Loop["MPPI 控制循环"]
-        S["当前状态 x_t"] --> SAMP["GPU 并行采样\nK 条随机噪声轨迹"]
-        SAMP --> SIM["动力学仿真\n预测未来 N 步状态"]
-        SIM --> COST["计算代价\n障碍 + 速度偏差 + 姿态"]
-        COST --> AGG["指数加权平均\n合成最优控制序列"]
-        AGG --> EXEC["执行第一步控制\n滚动窗口"]
-        EXEC -->|新状态| S
-    end
-```
-
-✅ 可以直接使用非线性动力学模型（不需要线性化）
-✅ GPU 并行采样，计算瓶颈可被硬件加速
-✅ 天然处理多模态代价（可融入障碍物代价图）
-❌ 依赖动力学模型精度，模型失配会导致性能下降
-❌ GPU 计算需求高，嵌入式部署需优化
-
-**典型应用**：MIT 的 [AutoRally](https://autorally.github.io/)、[MPPI-Generic](https://github.com/ACDSLab/MPPI-Generic)，在越野地形以 15+ m/s 实现实时避障控制。
-
 ---
 
-## 6.8 路径跟踪作为 Agent 的控制原语
+# 7. 完整导航栈集成
 
-传统路径跟踪控制器在 Agent 时代并未被淘汰，而是成为 **Agent 可调用的底层技能（Skill）**：LLM Agent 负责语义推理和任务分解，路径跟踪控制器以 50–100 Hz 稳定地执行低层运动。
+## 7.1 ROS Navigation Stack 架构
 
-```mermaid
-flowchart TB
-    subgraph AgentLevel["Agent 层（慢：1–5s）"]
-        LLM_A["LLM / VLM\n理解意图、规划路径点序列"]
-    end
-
-    subgraph SkillLayer["Skill 抽象层（Harness）"]
-        SK_NAV["navigate_to(x, y, θ)\n封装为 LLM 可调用工具"]
-    end
-
-    subgraph ControlLevel["控制层（快：50–100Hz）"]
-        PP2["Pure Pursuit\n简单稳定，室内机器人"]
-        LQR2["LQR\n高精度，自动驾驶"]
-        MPPI2["MPPI\n动态环境，越野机器人"]
-    end
-
-    LLM_A -->|函数调用| SK_NAV
-    SK_NAV --> PP2
-    SK_NAV --> LQR2
-    SK_NAV --> MPPI2
-    PP2 & LQR2 & MPPI2 -->|执行结果 + 里程计| SK_NAV
-    SK_NAV -->|完成/失败 反馈| LLM_A
-```
-
-这种"慢思考驱动快动作"的解耦设计是现代 Agent-Robot 系统的核心架构原则，详见第 7 章。
-
----
-
-# 7. Agent 如何驾驭机器人：Harness Engineering 全解析
-
-## 7.1 从导航栈到 Agent 指挥的机器人
-
-前六章描述的传统导航栈已经赋予机器人强大的底层自主能力：它能在未知环境中建图定位、规划无碰撞路径、精确跟踪轨迹。但面对"帮我去厨房拿瓶水"这样的日常指令，它依然无能为力——缺乏语义理解、常识推理和任务分解能力。
-
-这正是 **AI Agent** 要填补的鸿沟。
-
-```mermaid
-flowchart TB
-    subgraph Traditional["传统导航（可靠但缺乏语义）"]
-        H1["人类输入\n坐标 (x=3.2, y=1.5)"] --> NS["Nav Stack\nSLAM + A* + DWA"]
-        NS --> R1["机器人到达目标点"]
-    end
-
-    subgraph AgentDriven["Agent 驱动（语义 → 动作）"]
-        H2["人类输入\n自然语言：去厨房拿水"] --> LLM_TOP["LLM Agent\n推理 + 规划"]
-        LLM_TOP --> HAR["Harness\n技能抽象层"]
-        HAR --> NS2["Nav Stack\nSLAM + A* + DWA"]
-        NS2 --> R2["机器人完成任务"]
-        NS2 -->|"传感器反馈"| HAR
-        HAR -->|"执行结果"| LLM_TOP
-    end
-```
-
-| 对比维度 | 传统导航栈 | Agent 驱动导航 |
-|---------|----------|--------------||
-| 指令形式 | 坐标/位姿目标 | 自然语言意图 |
-| 任务分解 | 手动设计状态机 | LLM 动态推理 |
-| 语义理解 | ❌ 无 | ✅ VLM/LLM |
-| 异常处理 | 预设恢复行为 | Agent 自主推理重规划 |
-| 典型输入 | `(3.2, 1.5, 0.0)` | "帮我去厨房拿水" |
-
----
-
-## 7.2 Harness Engineering：让 Agent 能够"抓住"机器人
-
-### 7.2.1 什么是 Harness？
-
-**Harness（驾驭层）** 是位于 LLM/Agent 与物理机器人之间的软件中间件，负责将 LLM 的高层推理输出转化为机器人可执行的低层命令，同时将传感器状态反馈回 LLM 上下文。
-
-> "Your agent needs a harness, not a framework. The framework defines *what* the agent does; the harness controls *when* and *how* it's allowed to act."
-> — Inngest Engineering Blog (2025)
-
-**三层架构**：
-
-```mermaid
-flowchart TB
-    subgraph Layer1["① Agent 层（What to do）"]
-        LLM_L["LLM / VLM\nGPT-4o / Claude / Gemini"]
-        REASON["推理引擎\nReAct / Chain-of-Thought"]
-    end
-
-    subgraph Layer2["② Harness 层（When & How）"]
-        SKILL_H["Skill Registry\n技能注册表"]
-        CTX_H["Context Engine\n上下文工程"]
-        SAFE_H["Safety Guard\n安全约束"]
-        LOOP_H["Feedback Loop\n反馈闭环"]
-    end
-
-    subgraph Layer3["③ 机器人底层（Physical World）"]
-        ROS_L["ROS 2 / Nav2"]
-        SENSOR_L["传感器\nLiDAR / Camera / IMU"]
-        ACT_L["执行器\n底盘 / 机械臂"]
-    end
-
-    LLM_L <--> REASON
-    REASON --> SKILL_H
-    SKILL_H --> SAFE_H
-    SAFE_H --> ROS_L
-    ROS_L --> SENSOR_L
-    SENSOR_L --> CTX_H
-    CTX_H --> LOOP_H
-    LOOP_H --> REASON
-    ROS_L --> ACT_L
-```
-
-| 层级 | 职责 | 关键组件 |
-|------|------|---------|
-| **Agent 层** | 理解意图、推理规划、决策 | LLM、ReAct、思维链 |
-| **Harness 层** | 工具封装、上下文管理、安全过滤、反馈闭环 | Skill Registry、Context Engine、Safety Guard |
-| **机器人底层** | 传感、定位、运动执行 | ROS 2、Nav2、驱动 |
-
-### 7.2.2 Harness 的四大核心挑战
-
-在机器人场景中，Harness 面临的挑战远比普通软件 Agent 更复杂：
-
-```mermaid
-flowchart LR
-    LLM_C["LLM Agent"] --> T_C["⏱ 时间接地\nLLM 慢，控制快"]
-    LLM_C --> P_C["🔒 物理约束\n几何/动力学过滤"]
-    LLM_C --> G_C["👁 感知接地\n高维数据→文本"]
-    LLM_C --> D_C["🔄 状态漂移\n实时状态维护"]
-    T_C & P_C & G_C & D_C --> HAR_C["Harness 中间件"] --> BOT_C["物理机器人"]
-```
-
-1. **时间接地**：LLM 推理需要 200ms–2s，机器人控制需要 50–100 Hz 实时响应，Harness 必须解决"慢思考驱动快动作"的时序问题。
-2. **物理约束**：LLM 不理解"机器人半径 0.3m，无法穿过宽度 0.2m 的门缝"，必须在输出到执行器前过滤物理不可行动作。
-3. **感知接地**：将激光点云、RGB 图像等高维数据转化为 LLM 可理解的文本/结构化描述。
-4. **状态漂移**：机器人在 LLM 推理过程中持续运动，Harness 必须维护实时更新的状态快照。
-
----
-
-## 7.3 Skill 抽象：将 ROS API 封装为 Agent 工具
-
-将 ROS 原语封装为 **Skill（技能）** 是 Harness Engineering 的核心工作。每个 Skill 是可被 LLM 以**函数调用（Function Calling）** 方式调用的工具，内部对接 ROS Topic/Service/Action。
-
-### ROS 原语 → Skill 映射
-
-| ROS 原语 | Skill 名称 | LLM 调用描述 |
-|---------|----------|------------|
-| `move_base` Action | `navigate_to(x, y, θ)` | 导航到指定坐标 |
-| `/cmd_vel` Topic | `drive(v_x, v_z)` | 以指定速度行驶 |
-| `/scan` Topic | `get_scan_summary()` | 获取障碍物摘要 |
-| SLAM 地图查询 | `query_map(landmark)` | 查询地标坐标 |
-| 物体检测 | `detect_objects()` | 分析相机画面 |
-| 机械臂 | `grasp(object_name)` | 抓取指定物体 |
-
-```mermaid
-flowchart LR
-    NL_SK["用户指令\n去厨房拿水"] --> LLM_SK["LLM 推理"]
-    LLM_SK -->|"函数调用"| SREG["Skill Registry"]
-
-    SREG --> SK1["navigate_to\n(kitchen_x, y)"]
-    SREG --> SK2["detect_objects()"]
-    SREG --> SK3["grasp\n('water_bottle')"]
-
-    SK1 -->|"ROS Action"| MBA["move_base / Nav2"]
-    SK2 -->|"ROS Service"| DET["物体检测节点\nYOLO / CLIP"]
-    SK3 -->|"ROS Action"| ARM_SK["机械臂\nMoveIt!"]
-
-    MBA & DET & ARM_SK -->|"执行结果"| SREG
-    SREG -->|"结构化反馈"| LLM_SK
-    LLM_SK --> NEXT_SK["下一步推理"]
-```
-
-### OpenClaw Skills 格式示例
-
-OpenClaw 使用 `SKILL.md` 文件定义每个技能，是目前社区最广泛采用的 Skill 规范之一：
-
-```markdown
----
-name: navigate_to_landmark
-description: 导航机器人到指定地标位置
-parameters:
-  - name: landmark
-    type: string
-    description: 目标地标（如 "kitchen", "door", "charging_station"）
----
-# 技能实现
-调用 ROS 2 Nav2 的 navigate_to_pose action，先通过语义地图查询
-landmark 的世界坐标，然后发布导航目标并等待完成。
-失败时返回结构化错误：{ "status": "failed", "reason": "path_blocked" }
-```
-
----
-
-## 7.4 感知接地：传感器数据如何进入 LLM
-
-LLM 只能处理文本/图像，但机器人传感器输出激光点云、IMU 角速度、占据栅格等高维数据。**感知接地**是将这些数据转化为 LLM 可理解格式的工程核心。
-
-```mermaid
-flowchart TB
-    subgraph RawSensors["原始传感器数据"]
-        PC_G["点云\n3D LiDAR\n~10万点/帧"]
-        IMG_G["RGB 图像\n640×480 px"]
-        OCC_G["占据栅格\n500×500 cells"]
-        POSE_G["位姿\n(x, y, θ)"]
-    end
-
-    subgraph GroundingLayer["感知接地处理"]
-        PC_G --> PG_G["点云摘要\n前方0.8m有障碍物\n左侧通道宽1.2m"]
-        IMG_G --> VLM_G["VLM 场景描述\n看到白色冰箱、厨房台面、水瓶"]
-        OCC_G --> MG_G["语义地图查询\n当前在走廊，前方30m是厨房"]
-        POSE_G --> POS_G["位姿文字化\n起点东北方3.2m，朝向45°"]
-    end
-
-    subgraph ContextBuild["LLM 上下文构建"]
-        PG_G & VLM_G & MG_G & POS_G --> CTX_G["结构化观测\n+ 任务历史\n+ 可用技能列表"]
-    end
-
-    CTX_G --> LLM_G["LLM Agent\n推理下一步行动"]
-```
-
-| 传感器数据 | 接地方法 | 工具/模型 |
-|---------|---------|---------|
-| RGB 图像 | VLM 场景描述 | GPT-4V、LLaVA、PaliGemma |
-| LiDAR 点云 | 规则提取障碍物摘要 | PCL + 文本模板 |
-| 占据地图 | 语义地图 API 查询 | 地图服务 |
-| 位姿/速度 | 结构化文本序列化 | 自定义格式 |
-
----
-
-## 7.5 代表性 Agent-Robot 系统演进
-
-过去三年，Agent-Robot 系统经历了快速的代际演进：
-
-```mermaid
-flowchart LR
-    subgraph G1["第一代（2022）\n接地规划"]
-        SC_E["SayCan\nGoogle\nLLM × 可供性函数"]
-    end
-
-    subgraph G2["第二代（2022–2023）\n代码生成"]
-        CAP_E["Code as Policies\n代码即策略"]
-        VP_E["VoxPoser\nStanford\n3D 价值图"]
-    end
-
-    subgraph G3["第三代（2023–2024）\nLLM 导航"]
-        NGPT_E["NavGPT\n纯 LLM VLN\n显式推理链"]
-        OVLA_E["OpenVLA\n7B 开源 VLA"]
-    end
-
-    subgraph G4["第四代（2025–2026）\nAgent OS"]
-        OC_E["OpenClaw\n通用 Agent OS\n190K Stars"]
-        P0_E["π₀\n流匹配 VLA\n50Hz 控制"]
-    end
-
-    G1 --> G2 --> G3 --> G4
-```
-
-### SayCan（Google，2022）
-
-**核心思想**：LLM 生成候选动作序列，**可供性价值函数（Affordance Value Function）** 评估每个动作在当前物理状态下的可执行概率，两者联合打分：
-
-$$\text{Score}(a \mid i, s) = P_{\text{LLM}}(a \mid i) \times V_{\text{afford}}(a \mid s)$$
-
-- $P_{\text{LLM}}$：LLM 认为动作 $a$ 与指令 $i$ 的语义匹配概率
-- $V_{\text{afford}}$：动作 $a$ 在当前机器人状态 $s$ 下的物理可执行性
-
-**意义**：首次系统性地解决 LLM 输出与物理世界的"接地问题"——即使 LLM 说"飞到桌子上"，可供性函数也会给出接近 0 的得分，自动过滤物理不可行动作。
-
----
-
-## 7.6 OpenClaw：通用 Agent OS 驾驭机器人（详解）
-
-### 什么是 OpenClaw？
-
-**OpenClaw** 是目前 GitHub 增长最快的开源 AI 项目之一，2025 年 11 月由奥地利开发者 Peter Steinberger 以 "Clawdbot" 命名创立，约 90 天内从 0 增长至 **190,000+ Stars**。2026 年 2 月，创始人加入 OpenAI 后，项目移交开源基金会继续维护。
-
-OpenClaw 的定位是一个**自托管的 Agent 操作系统（Agent OS）**——并非专为机器人设计，但其 **Skills 架构**天然适合机器人控制：任何功能都可封装为 Skill，机器人的 ROS API 同样如此。
-
-### OpenClaw 核心架构
-
-```mermaid
-flowchart TB
-    subgraph UserEnd["用户端"]
-        WA_OC["WhatsApp / Telegram\n/ WebChat"]
-        UI_OC["Control UI\n控制面板"]
-    end
-
-    subgraph Gateway["OpenClaw Gateway（Node.js, :18789）"]
-        MSG_OC["消息路由\nMessage Router"]
-        SESSION_OC["会话管理\nSession Manager"]
-        TOOL_OC["工具调度\nTool Dispatcher"]
-    end
-
-    subgraph SkillsOC["Skills 技能系统（ClawHub 13,700+ 技能）"]
-        NAV_OC["navigate_to\n导航技能"]
-        GRASP_OC["grasp_object\n抓取技能"]
-        VISION_OC["describe_scene\n视觉感知"]
-        CUSTOM_OC["自定义技能\n(SKILL.md)"]
-    end
-
-    subgraph LLMBack["LLM 后端（可切换）"]
-        OAI_OC["OpenAI GPT-4o"]
-        ANT_OC["Anthropic Claude"]
-        LOC_OC["本地模型\nOllama / LM Studio"]
-    end
-
-    subgraph RobotLayer["机器人层"]
-        CB_OC["ClawBody\nMuJoCo 仿真桥接"]
-        ROS_OC["ROS 2 / Nav2"]
-        HW_OC["物理硬件\nUnitree G1/H1\nSO-Arm / 自定义机器人"]
-    end
-
-    UserEnd --> Gateway
-    Gateway <--> LLMBack
-    Gateway --> SkillsOC
-    SkillsOC --> CB_OC
-    CB_OC --> ROS_OC
-    ROS_OC --> HW_OC
-    HW_OC -->|"传感器反馈"| ROS_OC
-    ROS_OC --> CB_OC
-    CB_OC -->|"状态反馈"| Gateway
-```
-
-### OpenClaw 机器人生态
-
-**ClawBody**：软件桥接层，将 OpenClaw 的高层语言推理转化为低延迟电机指令，支持 MuJoCo 物理仿真，实现"说'拿起杯子' → 精确电机字节码"的全链路。
-
-**RoClaw**：一个 20 cm 立方体开源机器人，专为 OpenClaw 设计的"物理身体"。用户通过 WhatsApp 发送指令，VLM 输出原始电机字节码，实现**双脑架构**：OpenClaw 负责语义推理，本地专用模型负责低层控制。
-
-| 集成案例 | 机器人平台 | 接口方式 | 典型用例 |
-|---------|----------|---------|---------|
-| ClawBody | MuJoCo 仿真 | Python API | 仿真开发与验证 |
-| RoClaw | 自制 20cm 机器人 | WhatsApp 消息 | 桌面演示 |
-| Unitree G1/H1 | 宇树人形机器人 | ROS 2 Skills | 人形机器人控制 |
-| SO-Arm + Jetson Thor | 机械臂 | LeRobot 低层 | 桌面操作任务 |
-| DeepMirror 集成 | 商业机器人 | Physical AI 栈 | 工业应用 |
-
-### 为什么 OpenClaw 对 Harness Engineering 有启发性
-
-```mermaid
-flowchart LR
-    F1["Skill 即插即用\n新机器人只需写 SKILL.md"] --> OC_INS["OpenClaw\nHarness 设计理念"]
-    F2["多 LLM 后端\n可切换 GPT / Claude / 本地"] --> OC_INS
-    F3["消息驱动\n任意 IM 应用控制机器人"] --> OC_INS
-    F4["双脑解耦\n高层 LLM + 低层专用模型"] --> OC_INS
-    F5["社区生态\nClawHub 13,700+ 技能"] --> OC_INS
-```
-
-OpenClaw 最大的工程价值在于：它将 Harness 工程的复杂性**降低到"写一个 SKILL.md 文件"**的门槛，让机器人工程师无需深入 LLM 基础设施即可快速接入 Agent 能力。
-
----
-
-## 7.7 NavGPT：LLM 驱动的视觉语言导航
-
-**NavGPT**（AAAI 2024）是第一个将纯 LLM（GPT-4）用于**零样本视觉语言导航（Zero-shot VLN）**的系统，无需任何导航专项训练即可在室内环境导航：
-
-```mermaid
-flowchart TB
-    subgraph NavGPT_Input["输入"]
-        NLI_NG["自然语言指令\nTurn left and go to the kitchen"]
-        OBS_NG["视觉观测\n图像→文字描述"]
-        HIST_NG["导航历史\n已走路径"]
-        DIR_NG["可探索方向\n当前视点候选"]
-    end
-
-    subgraph NavGPT_Core["NavGPT 推理核心（GPT-4）"]
-        SA_NG["场景分析\n我在走廊，左边有门"]
-        SP_NG["子目标分解\n先找到厨房方向"]
-        PM_NG["进度跟踪\n已完成 2/3 步"]
-        AC_NG["动作决策\n向左转 + 前进"]
-    end
-
-    NLI_NG & OBS_NG & HIST_NG & DIR_NG --> NavGPT_Core
-    NavGPT_Core --> ACT_NG["动作指令\nTurn_Left / Move_Forward"]
-    ACT_NG -->|"环境反馈"| NavGPT_Input
-```
-
-**NavGPT 的显式推理链**（区别于端到端黑盒）是其核心优势：
-
-> **输入**："去厨房找水"，当前观测"走廊，左转有门，右边是储藏室"
->
-> **LLM 推理**：
-> 1. 当前位置：走廊北端
-> 2. 关键地标：左边门可能通向厨房
-> 3. 历史追踪：已从起点向北走约 10m
-> 4. 决策：向左转，穿过门
->
-> **输出**：`Turn_Left, Move_Forward`
-
-| 对比维度 | 传统 VLN（监督学习） | NavGPT（LLM 推理） |
-|---------|------------------|-----------------||
-| 训练数据 | 需要大量标注轨迹 | 零样本，无需导航训练 |
-| 推理过程 | 端到端黑盒 | 显式推理链，可解释 |
-| 指令泛化 | 依赖训练分布 | LLM 常识推理泛化 |
-| 环境泛化 | 换环境性能下降 | 语义泛化能力强 |
-
----
-
-## 7.8 VoxPoser：代码生成 × 3D 价值图
-
-**VoxPoser**（NeurIPS 2023，斯坦福 / 谷歌）是将代码生成 Agent 用于机器人**零样本操作**的里程碑工作：
-
-```mermaid
-flowchart TB
-    NLI_VP["自然语言指令\n抓取红色杯子，放到抽屉里"] --> LLM_VP["LLM\n生成 Python 查询代码"]
-    LLM_VP --> CODE_VP["代码调用 VLM API\n查询物体位置和可供性"]
-    CODE_VP --> VLM_VP["VLM\n在 RGB-D 中定位物体\n返回 3D 坐标"]
-    VLM_VP --> MAPS_VP["合成 3D 价值图\n可供性图 + 约束图"]
-    MAPS_VP --> MP_VP["运动规划器\nMotion Planner"]
-    MP_VP --> EXEC_VP["执行动作"]
-    EXEC_VP -->|"感知反馈"| NLI_VP
-```
-
-**三大核心创新**：
-
-1. **组合式 3D 价值图**：将自然语言约束（"避开玻璃杯"、"从上方抓取"）转化为 3D 空间数值地图，运动规划器在这些地图上求解无碰撞轨迹。
-2. **零样本**：不需要针对特定物体/任务的训练数据，直接从语言指令到动作。
-3. **代码作为接口**：LLM 写代码调用感知 API，比直接输出坐标更灵活，能处理组合语义约束。
-
----
-
-## 7.9 完整 Agent-Robot 系统：从语言指令到电机控制
-
-综合以上技术，一个完整的 Agent-Robot 系统数据流如下：
-
-```mermaid
-flowchart TB
-    subgraph InputLayer["输入层"]
-        USER_FULL["用户语言指令\n去厨房拿水"]
-        SENSOR_FULL["传感器数据\nLiDAR / Camera / IMU"]
-    end
-
-    subgraph AgentFull["Agent 层（慢：1–5s）"]
-        VLM_FULL["VLM 感知\n场景理解 + 物体检测"]
-        LLM_FULL["LLM 推理\n任务分解 + Skill 选择"]
-        PLAN_FULL["执行计划\nnavigate_to(kitchen)\ndetect('water')\ngrasp('water')"]
-    end
-
-    subgraph HarnessFull["Harness 层"]
-        SKREG_FULL["Skill 注册表\n路由 + 安全检查"]
-        CTX_FULL["上下文引擎\n状态序列化"]
-    end
-
-    subgraph NavFull["导航层（快：10–50Hz）"]
-        AMCL_FULL["AMCL 定位"]
-        ASTAR_FULL["A* 全局规划"]
-        DWA_FULL["DWA 局部规划"]
-        PP_FULL["Pure Pursuit / LQR\n路径跟踪"]
-    end
-
-    subgraph HWFull["执行层（实时：50–200Hz）"]
-        MOTOR_FULL["底盘电机"]
-        ARM_FULL["机械臂 MoveIt!"]
-    end
-
-    USER_FULL --> LLM_FULL
-    SENSOR_FULL --> VLM_FULL
-    VLM_FULL --> CTX_FULL
-    CTX_FULL --> LLM_FULL
-    LLM_FULL --> PLAN_FULL
-    PLAN_FULL --> SKREG_FULL
-    SKREG_FULL --> AMCL_FULL & ASTAR_FULL
-    ASTAR_FULL --> DWA_FULL
-    DWA_FULL --> PP_FULL
-    PP_FULL --> MOTOR_FULL
-    SKREG_FULL --> ARM_FULL
-    MOTOR_FULL & ARM_FULL -->|"里程计 + 关节角反馈"| AMCL_FULL
-    AMCL_FULL -->|"位姿更新"| CTX_FULL
-```
-
-**关键设计原则**：
-
-| 原则 | 说明 |
-|------|------|
-| **速度解耦** | Agent 层（1–5s）与导航层（50Hz）异步解耦，LLM 延迟不影响底层控制 |
-| **反馈闭环** | 机器人状态持续回传上下文引擎，LLM 每次推理基于最新物理状态 |
-| **失败恢复** | Skill 执行失败时将错误结构化返回给 LLM，触发自主重规划 |
-| **安全守卫** | 物理不可行动作在 Harness 层被过滤，不到达执行器 |
-
----
-
-## 7.10 ROS Navigation Stack 与 Nav2 架构
-
-以下是传统导航栈作为 Agent 底层基础设施的集成方案。
-
-### ROS 1：move_base 架构
+ROS 1 的 `move_base` 提供了一套经典的导航栈集成方案：
 
 ```mermaid
 flowchart TB
@@ -1781,6 +1274,8 @@ flowchart TB
     AMCL[AMCL 定位] --> MoveBase
 ```
 
+**典型话题接口**：
+
 | 话题 | 方向 | 说明 |
 |------|------|------|
 | `/move_base/goal` | 输入 | 导航目标位姿 |
@@ -1790,41 +1285,29 @@ flowchart TB
 | `/amcl_pose` | 输入 | 定位结果 |
 | `/cmd_vel` | 输出 | 速度指令（线速度 + 角速度） |
 
-### Nav2（ROS 2）：行为树架构
+## 7.2 Nav2（ROS 2）架构
 
-Nav2 是 ROS 2 的导航栈，核心改进：
+Nav2 是 ROS 2 的导航栈，相比 `move_base` 有以下重要改进：
+
 - **行为树（Behavior Tree）** 替代状态机：导航行为（规划、恢复、重试）用 BT 灵活配置
 - **生命周期节点（Lifecycle Nodes）**：支持优雅的启动/停止管理
 - **插件化架构**：全局规划器、局部规划器、恢复行为均可作为插件替换
-- **Smac Planner**：内置 Hybrid A* 和 State Lattice 规划器
+- **Smac Planner**：Nav2 内置的改进规划器，支持 Hybrid A* 和 State Lattice
 
 ```mermaid
 flowchart TB
-    subgraph AgentIntegration["LLM Agent 集成层"]
-        LAGENT_N["LLM Agent\nOpenClaw / ROS-LLM"]
-        SKILL_N["Skill: navigate_to\nwrap Nav2 Action"]
-    end
-
-    subgraph Nav2Full["Nav2 导航栈"]
-        BT_N[行为树\nBehavior Tree] --> NP_N[Nav2 Planner\nServer]
-        BT_N --> NC_N[Nav2 Controller\nServer]
-        BT_N --> NR_N[Nav2 Recovery\nServer]
-        NP_N --> GCM_N[全局代价地图]
-        NC_N --> LCM_N[局部代价地图]
-        NC_N -->|cmd_vel| Base_N[机器人底盘]
-        NR_N -->|恢复行为\n旋转/后退| Base_N
-    end
-
-    LAGENT_N --> SKILL_N
-    SKILL_N -->|NavigateToPose Action| BT_N
-    Base_N -->|里程计反馈| LAGENT_N
+    BT[行为树\nBehavior Tree] --> NP[Nav2 Planner\nServer]
+    BT --> NC[Nav2 Controller\nServer]
+    BT --> NR[Nav2 Recovery\nServer]
+    NP --> GCM2[全局代价地图]
+    NC --> LCM2[局部代价地图]
+    NC -->|cmd_vel| Base[机器人底盘]
+    NR -->|恢复行为\n旋转/后退| Base
 ```
 
-**Nav2 对 Agent 集成的优势**：BT 的可配置性使 Agent 可以更细粒度地干预导航行为——不仅能发送目标点，还能在 BT 节点中插入语义检查、动态重规划触发条件。
+## 7.3 参数调优要点
 
----
-
-## 7.11 参数调优要点
+导航栈的调优是一个迭代过程，以下是几个关键参数：
 
 **代价地图**：
 - `inflation_radius`：障碍物膨胀半径，设为机器人半径 + 安全余量
@@ -1835,13 +1318,8 @@ flowchart TB
 
 **局部规划（DWA）**：
 - `max_vel_x`、`max_rot_vel`：速度上限，根据机器人能力设置
-- `sim_time`：轨迹仿真时间，越长越有预见性但计算量越大
+- `sim_time`：轨迹仿真时间，越长越"有预见性"但计算量越大
 - `path_distance_bias` / `goal_distance_bias`：路径偏好 vs 终点偏好的权衡
-
-**Agent 层调优**：
-- `skill_timeout`：单个 Skill 超时时间（建议 30–120s）
-- `max_replanning`：失败重规划次数上限（建议 3 次）
-- `context_window`：传入 LLM 的历史步数（平衡性能与 token 消耗）
 
 ---
 
@@ -1917,18 +1395,6 @@ flowchart TB
 | **Isaac Sim（NVIDIA）** | GPU 加速光线追踪仿真，合成数据生成 |
 | **CARLA** | 自动驾驶专用仿真器，城市场景 |
 | **Webots** | 跨平台开源机器人仿真 |
-| **MuJoCo** | 高性能物理仿真，机器人操作研究主流 |
-
-### Agent-Robot 集成框架
-
-| 工具 | 功能 | 链接 |
-|------|------|------|
-| **OpenClaw** | 通用自托管 Agent OS，Skills 架构支持机器人集成 | openclaw.ai |
-| **ClawBody** | OpenClaw 与 MuJoCo/ROS 2 的桥接层，"语言 → 电机"全链路 | GitHub |
-| **ROS-LLM** | ROS 原生 LLM 集成框架，自然语言 → ROS 话题/服务 | GitHub: Auromix/ROS-LLM |
-| **Langroid** | "Harness LLMs with Multi-Agent Programming"，多 Agent 编排 | GitHub: langroid/langroid |
-| **LeRobot** | HuggingFace 机器人学习框架，低层运动控制 | huggingface.co/lerobot |
-| **OpenVLA** | Stanford 7B 开源视觉语言动作模型，支持 22 种机器人 | GitHub: openvla/openvla |
 
 ---
 
@@ -1936,54 +1402,26 @@ flowchart TB
 
 ## 本文回顾
 
-本文以"**Agent 如何驾驭机器人**"为主线，从底层算法到顶层 Agent 构建了完整的技术图景：
+本文系统梳理了传统机器人导航算法栈的五大核心模块：
 
-1. **感知**（第2章）：LiDAR / 相机 / IMU 各有优劣，传感器融合（EKF/UKF）是提高鲁棒性的关键
-2. **定位**（第3章）：EKF/UKF 适合实时位姿跟踪，粒子滤波（AMCL）支持全局定位，NDT/ICP 提供精确扫描匹配
-3. **建图/SLAM**（第4章）：激光 SLAM（Cartographer、LIO-SAM）精度高；视觉 SLAM（ORB-SLAM3）成本低；因子图后端是当前主流
-4. **路径规划**（第5章）：A* / Hybrid A* 用于全局规划，DWA / TEB 用于局部动态避障
-5. **路径跟踪**（第6章）：Pure Pursuit / Stanley 实现简单，MPPI 适合高动态场景；路径跟踪控制器作为 Agent 的底层控制原语
-6. **Harness Engineering**（第7章）：AI Agent 通过 Skill 抽象、感知接地、反馈闭环驾驭机器人；OpenClaw 作为通用 Agent OS 正在快速改变机器人集成范式
-
-```mermaid
-flowchart LR
-    subgraph Foundation["底层基础（第2–6章）"]
-        F_SENSE["感知\nLiDAR/Camera/IMU"]
-        F_LOC["定位\nSLAM/AMCL"]
-        F_MAP["建图\nCartographer/LIO-SAM"]
-        F_PLAN["规划\nA*/DWA/TEB"]
-        F_CTRL["控制\nPurePursuit/MPPI"]
-    end
-
-    subgraph AgentLayer2["Agent 层（第7章）"]
-        A_SKILL["Skill 抽象\nROS API → LLM 工具"]
-        A_CTX["感知接地\n传感器 → LLM 上下文"]
-        A_LLM["LLM 推理\n任务分解 + 重规划"]
-        A_OC["OpenClaw\nAgent OS"]
-    end
-
-    Foundation --> A_SKILL
-    Foundation --> A_CTX
-    A_SKILL & A_CTX --> A_LLM
-    A_LLM --> A_OC
-```
+1. **感知**：激光雷达 / 相机 / IMU 各有优劣，传感器融合（EKF/UKF）是提高鲁棒性的关键
+2. **定位**：EKF/UKF 适合实时位姿跟踪，粒子滤波（AMCL）支持全局定位，NDT/ICP 提供精确扫描匹配
+3. **建图/SLAM**：激光 SLAM（Cartographer、LIO-SAM）精度高、全天候可用；视觉 SLAM（ORB-SLAM3、VINS-Mono）成本低但对光照敏感；因子图后端优化是当前主流
+4. **路径规划**：A* / Hybrid A* 用于全局规划，DWA / TEB 用于局部动态避障，代价地图是两者的"共同语言"
+5. **路径跟踪**：Pure Pursuit / Stanley 实现简单，LQR / MPPI 精度更高，控制器选择取决于速度和场景复杂度
 
 ## 展望
 
-**近期挑战**：
-- **长廊退化、动态场景**：对 SLAM 鲁棒性提出更高要求
-- **Harness 延迟优化**：LLM 推理延迟（1–5s）与实时控制（50Hz）的协同设计
-- **技能泛化**：如何让 Skill 在不同机器人平台上零样本复用
+传统导航算法栈经过数十年发展已相当成熟，但仍面临挑战：
 
-**中期趋势**：
-- **具身多模态 Agent**：不只导航，还能操作、对话、学习的通用机器人 Agent
-- **社区驱动的 Skill 生态**：OpenClaw ClawHub 模式将催生更多开箱即用的机器人技能
-- **端云协同**：边缘端运行轻量控制（Fast System），云端处理复杂推理（Slow System）
+- **长廊退化、动态场景、非结构化地形**：对 SLAM 鲁棒性提出更高要求
+- **多机器人协同 SLAM**：分布式建图与通信效率的权衡
+- **语义理解缺失**：传统算法缺乏"这是厨房"的语义能力，限制了在日常服务场景的应用
 
-**长期愿景**：**"传统导航栈 + LLM/VLM Agent + Harness Engineering"的混合架构**将成为下一代通用服务机器人的主流范式——传统算法保证安全性和实时性，AI Agent 负责语义理解和任务规划，Harness 将两者无缝连接。
+当前研究趋势是**"传统导航 + 大模型"的混合架构**：保留传统导航栈的安全性和可靠性，在任务规划和语义理解层引入 LLM/VLM，构建能够理解人类意图、在复杂现实世界中自主行动的下一代机器人系统。
 
 > 关于视觉语言导航（VLN）和 VLA 大模型的内容，请参考我的博客 [VLN综述](/VLN-Survey/) 和 [VLA综述](/VLA-Survey/) 系列文章。
 
 ---
 
-*参考资料：Thrun et al. "Probabilistic Robotics" (2005)；LaValle "Planning Algorithms" (2006)；ROS Navigation Wiki；Cartographer Paper (ICRA 2016)；LIO-SAM (IROS 2020)；ORB-SLAM3 (T-RO 2021)；VINS-Mono (T-RO 2018)；Hybrid A* (IJRR 2010)；TEB Local Planner (IROS 2013)；SayCan (2022)；VoxPoser, NeurIPS 2023；NavGPT, AAAI 2024；OpenVLA (2024)；π₀ arXiv 2410.24164；OpenClaw (2025)；Inngest "Your Agent Needs a Harness" (2025)；Anthropic "Effective Harnesses for Long-Running Agents" (2025)*；http://www.autolabor.cn/usedoc/m1/navigationKit/development/slamintro；https://github.com/ShisatoYano/AutonomousVehicleControlBeginnersGuide
+*参考资料：Thrun et al. "Probabilistic Robotics" (2005)；LaValle "Planning Algorithms" (2006)；ROS Navigation Wiki；Cartographer Paper (ICRA 2016)；LIO-SAM (IROS 2020)；ORB-SLAM3 (T-RO 2021)；VINS-Mono (T-RO 2018)；Hybrid A* (IJRR 2010)；TEB Local Planner (IROS 2013)*;http://www.autolabor.cn/usedoc/m1/navigationKit/development/slamintro; https://github.com/ShisatoYano/AutonomousVehicleControlBeginnersGuide;
