@@ -9,9 +9,6 @@ toc: true
 excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划并执行多步骤任务的 AI 系统。本文系统梳理 AI Agent 核心架构、关键技术范式（ReAct、工具调用/MCP、反思、Harness Engineering、多 Agent）、代表性工作（ReAct、Voyager、OpenClaw），并深入介绍 2025–2026 年主流商业 Agent 产品（Manus、Claude Code、OpenAI Codex、OpenClaw、NemoClaw）与主流评测基准，聚焦软件端自主智能体的研究全貌。"
 ---
 
-* 目录
-{:toc}
-
 # 一、引言
 
 2022 年以来，以 ChatGPT 为代表的大语言模型（LLM）使 AI 在文本生成和对话方面达到了接近人类的水平。然而，"对话"只是 AI 能力的冰山一角——真正改变生产力的，是 AI 能否**自主地完成任务**：搜索信息、调用 API、写代码并执行、操作浏览器、管理文件……这便催生了 AI 领域的下一个核心概念：**AI Agent（AI 智能体）**。

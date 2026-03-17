@@ -27,7 +27,9 @@
       "WebFetch(domain:openai.com)",
       "WebFetch(domain:martinfowler.com)",
       "WebFetch(domain:blog.langchain.com)",
-      "WebFetch(domain:www.nxcode.io)"
+      "WebFetch(domain:www.nxcode.io)",
+      "WebFetch(domain:www.ibm.com)",
+      "WebFetch(domain:aws.amazon.com)"
     ]
   }
 }
