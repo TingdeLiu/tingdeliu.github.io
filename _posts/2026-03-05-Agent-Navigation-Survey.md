@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Agent in Robot：Agent 如何驾驭机器人"
+title: "Agentic Robot：Agent 如何驾驭机器人"
 date: 2026-03-05
 tags: [Agent, LLM, Robotics, VLM, Embodied AI, Multi-Agent, Harness Engineering, OpenClaw, NavGPT, VoxPoser]
 comments: true

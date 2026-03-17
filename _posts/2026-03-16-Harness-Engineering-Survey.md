@@ -9,8 +9,6 @@ toc: true
 excerpt: "Harness Engineering（Agent工程化）是2026年最重要的AI工程新范式：通过上下文工程、架构约束与熵管理三大支柱，为AI Agent构建可靠的生产级基础设施。OpenAI用此方法在5个月内零手写代码生成超100万行生产代码；LangChain仅修改Harness配置就将编程Agent的基准得分从52.8%提升至66.5%。本文系统梳理Harness Engineering的核心概念、关键技术与工程实践。"
 ---
 
-* 目录
-{:toc}
 
 # 一、引言
 
