@@ -2506,7 +2506,7 @@ div align="center">
 ### 精华
 
 1. **核心思想**：通过“回顾式纠偏”（Retrospective Rectification）解决 Vision-Language Navigation (VLN) 中的指令-状态不一致问题。
-2. **训练范式**：引入了 **Adaptive Mutual Exclusion Strategy**，将样本动态分流为效率路径（GRPO）和鲁棒性路径（SFT），实现了精准训练。
+2. **训练范式**：引入了 **Adaptive Mutual Exclusion Strategy**，将样本动态分流为效率路径和鲁棒性路径，实现了精准训练。
 3. **纠偏机制**：利用“回锚”机制合成语义一致的修正轨迹，避免了传统方法中强制回归导致的语义冲突。
 4. **极致效率**：采用 GRPO 算法（借鉴自 DeepSeek-R1），无需价值网络，训练成本仅为传统 DAgger 的约 25%。
 5. **性能卓越**：在 R2R-CE 和 RxR-CE 基准测试上刷新 SOTA，尤其在处理偏差和鲁棒性方面表现突出。
