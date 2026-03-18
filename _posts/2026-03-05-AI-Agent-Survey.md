@@ -217,11 +217,23 @@ flowchart TB
 
 **Tree of Thoughts（ToT，2023）** 将 LLM 的推理过程从线性链（CoT）扩展为**树形搜索**：每一步同时生成多个候选思维节点，通过评估函数打分，选择最优路径继续展开，必要时回溯剪枝。
 
-```
-CoT（链式）：  Thought₁ → Thought₂ → Thought₃ → Answer
-ToT（树形）：          Thought₁a ──→ Thought₂a ──→ Answer（✓ 最优路径）
-              Start ──→ Thought₁b ──→ Thought₂b ──→ 死路（回溯）
-                      Thought₁c ──→ ...
+```mermaid
+flowchart LR
+    subgraph CoT["CoT（链式推理）"]
+        direction LR
+        C1["💭 Thought₁"] --> C2["💭 Thought₂"] --> C3["💭 Thought₃"] --> CA["✅ Answer"]
+    end
+
+    subgraph ToT["ToT（树形搜索）"]
+        direction TB
+        S["🌱 Start"]
+        S --> T1a["💭 Thought₁a"]
+        S --> T1b["💭 Thought₁b"]
+        S --> T1c["💭 Thought₁c"]
+        T1a --> T2a["💭 Thought₂a"] --> TA["✅ Answer\n最优路径"]
+        T1b --> T2b["💭 Thought₂b"] --> TB_["❌ 死路\n回溯"]
+        T1c --> TC["..."]
+    end
 ```
 
 **与 ReAct 的关系**：ReAct 是单路径推理；ToT 是多路径并行搜索，适合**需要前瞻与回溯**的高难度规划任务（数学证明、代码架构设计、博弈策略）。LLM 自身充当评估器，对每个候选思维打分（sure / maybe / impossible）。RAP 进一步将 MCTS 引入 LLM 推理，在数学竞赛题上显著优于 CoT。
