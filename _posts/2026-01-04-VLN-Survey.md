@@ -2828,6 +2828,7 @@ VLN 研究从 2018 年至今经历了显著的范式演进：
 - **Matching → Planning (2020-2022)**：引入语义地图与拓扑规划，赋予智能体显式空间建模能力
 - **Planning → Reasoning (2023-2024)**：基于大模型的双系统/单系统架构，实现从匹配到推理的升级
 - **Reasoning → Imagination (2024-2025)**：生成式世界模型，智能体在"想象空间"中前瞻性规划
+- **Imagination → Agency (2025-2026)**：Agent 导航框架，VLM 作为中控大脑编排模块化技能库
 
 ---
 
@@ -3028,6 +3029,7 @@ Action Token a_t
   - [Navigation World Models (NWM)](https://www.amirbar.net/nwm/) (CVPR'25, Best Paper Honorable Mention, Meta AI)
   - [DreamVLA](https://zhangwenyao1.github.io/DreamVLA/) (NeurIPS'25)
   - [WMNav](https://b0b8k1ng.github.io/WMNav/) (IROS'25 Oral)
+  - [Video Generation Models in Robotics -- Applications, Research Challenges, Future Directions](https://arxiv.org/abs/2601.07823) (2025)
 
 ### 核心思想
 
@@ -3131,16 +3133,99 @@ Current Observation + Action Candidate → World Model (Diffusion/Autoregressive
 
 
 
+---
+
+## 5. Agent 导航框架
+——Agentic VLM Navigation
+
+- **起始时间**：2025–2026
+- **代表工作**：
+  - [AgentVLN](https://github.com/Allenxinn/AgentVLN) (arXiv 2603.17670, 南京航空航天大学)
+  - RoboClaw (arXiv 2603.11558, AgiBot / 上海交大)
+
+### 核心思想
+
+该框架将 **VLM 作为导航大脑 (VLM-as-Brain)**，彻底解耦高层认知推理与低层技能执行：
+
+1. **模块化技能库**：感知技能（深度估计、目标定位）与规划技能（全局路径、避障）以插件化形式挂载，VLM 按需调度
+2. **Agent 决策循环**：VLM 基于当前多模态观测和历史记忆，通过链式推理输出高层决策，再映射到具体技能调用
+3. **主动纠错**：遇到遮挡、盲点或轨迹偏离时，系统自主生成探索动作以恢复，抑制长轨迹中的误差累积
+4. **跨空间表示对齐**：将 3D 拓扑路点投影到 2D 图像平面，生成像素对齐的视觉提示，消除 VLM 固有的 2D-3D 表示鸿沟
+
+**与传统方法的关键区别**：VLM 不再是特征提取器或打分函数，而是具有自主决策能力的中控大脑，整个系统的行为随 VLM 能力提升而自动受益。
+
+---
+
+### 典型 Pipeline
+
+```
+Language Instruction + Egocentric Observation
+        ↓
+  VLM (Central Brain) ←→ Structured Memory
+        ↓ CoT Reasoning
+  Skill Scheduling (Perception / Planning Skills)
+        ↓
+  Cross-Space Representation Mapping
+        ↓
+  Navigation Action / Self-Correction
+```
+
+---
+
+### 代表方法详解
+
+#### 1. **VLM-as-Brain 导航**（AgentVLN）
+
+- **核心范式**：将 VLN 建模为 POSMDP，VLM 作为中央控制器
+- **技术特点**：
+  - 跨空间表示映射：3D 路点 → 像素对齐视觉提示，消除 2D-3D 表示鸿沟
+  - QD-PCoT（Query-Driven Perceptual Chain-of-Thought）：主动查询几何深度信息消解空间歧义
+  - 上下文感知自纠错：遇遮挡/轨迹偏离时自主生成细粒度探索动作
+  - AgentVLN-Instruct：动态阶段路由的大规模指令微调数据集
+  - 3B 参数，支持 Jetson 边缘设备实时推理
+- **性能**：在 RxR-CE Val-Unseen 以更小参数规模超越所有 SOTA
+
+#### 2. **全生命周期 Agentic 框架**（RoboClaw）
+
+- **核心范式**：统一数据采集、策略学习与任务执行于单一 VLM Agent（机器人操作，范式可迁移至 VLN）
+- **技术特点**：
+  - 纠缠动作对 EAP（Entangled Action Pairs）：正向操作 + 反向复位，构建自复位闭环
+  - 结构化记忆（角色身份 + 任务记忆 + 工作记忆）+ MCP 工具调用
+  - 推理时监控子任务状态，动态触发恢复行为
+- **性能**：长时序任务成功率 +25%，人工介入减少 53.7%
+
+---
+
+### 优势
+
+- ✅ VLM 能力提升直接惠及导航性能，无需重新训练
+- ✅ 模块化设计：增加新技能无需修改核心 VLM
+- ✅ 支持边缘设备轻量部署，消除云端依赖
+- ✅ 主动纠错机制大幅提升长轨迹鲁棒性
+- ✅ 将 VLN 从"任务特定模型"扩展为"通用具身 Agent"
+
+---
+
+### 关键挑战
+
+- ❌ VLM 推理引入额外延迟，实时控制频率受限
+- ❌ 技能库设计依赖领域专家，扩展至新环境仍需适配
+- ❌ 长上下文推理中的幻觉问题可能导致错误动作链
+- ❌ 结构化记忆与历史轨迹的有效检索机制仍待优化
+
+---
+
 ### 总结
 
-VLN 的研究已从早期的判别式匹配演进为当前的四大主流路线：
+VLN 的研究已从早期的判别式匹配演进为当前的五大主流路线：
 
 1. **语义地图与拓扑规划**：显式空间建模，支持长距离规划与回溯
 2. **VLN双系统架构**：认知分层，System-1快速感知 + System-2推理规划
 3. **单系统端到端架构**：统一优化，低延迟流式导航
 4. **生成式世界模型**：前瞻性规划，在"想象空间"中搜索最优路径
+5. **Agent 导航框架**：VLM 作为中控大脑，编排模块化技能库实现自主纠错与长程导航
 
-未来趋势是融合 **语言理解、空间建模、双系统推理、端到端优化与世界模型预测**，形成"语言引导 + 想象规划 + 连续执行"的统一具身智能体架构。
+未来趋势是融合 **语言理解、空间建模、双系统推理、端到端优化、世界模型预测与 Agent 决策**，形成"语言引导 + 想象规划 + Agent 执行"的统一具身智能体架构。
 
 ---
 
