@@ -4,78 +4,47 @@ title: About
 permalink: /about/
 ---
 
-# Hi~ 👋 I'm Tingde Liu
+# Tingde Liu
 
-Welcome to my personal blog! I'm a **Robotics student** at **Leibniz Universität Hannover (LUH)** in Germany, focusing on **Artificial Intelligence and Robotics**.
+I am a robotics and AI engineer with an M.Sc. in Mechatronics and Robotics from Leibniz Universität Hannover (LUH). My current research centers on vision-language navigation (VLN) and vision-language-action models (VLA) — and the broader question of what it would actually take for a robot to understand and act in the world the way we do. I am interested in genuine embodied intelligence, not just systems that appear to navigate, but ones that truly reason about space, language, and intention.
 
-## 🎓 Education
+## How I Got Here
 
-**Leibniz Universität Hannover**
-Robotics and AI Student
-📍 Hannover, Germany
+My first real encounter with 3D sensing came during my **Studienarbeit** at the Geodätisches Institut Hannover, where I worked alongside Research Associate Jan Hartmann. The problem was deceptively simple: laser scanners are not perfect, and their errors follow physical patterns. Under Jan's guidance I learned to model that uncertainty with deep learning — reducing mean measurement error from 0.387 mm to just 0.009 mm using a PointNet++ architecture. Seeing the work eventually published in the *Journal of Applied Geodesy* ([DOI: 10.1515/jag-2023-0097](https://www.degruyterbrill.com/document/doi/10.1515/jag-2023-0097/html)) was the moment I understood that careful, rigorous research produces results worth sharing.
 
-## 🔬 Research Interests
+That experience led me to the **Institut für Kartographie und Geoinformatik (IKG)** at LUH, where I spent over a year as a research associate working with M.Sc. Leichter Artem and Dr.-Ing. Jeldrik Axmann. The environment there was both demanding and generative. Working alongside them on urban 3D reconstruction and multimodal sensor data exposed me to the gap between academic benchmarks and real-world LiDAR data — sparse, noisy, colorless — and made me want to close it. Their rigour in data quality and system design became a standard I internalized.
 
-My research focuses on the intersection of robotics, computer vision, and artificial intelligence:
+That question became my **Masterarbeit**, supervised by apl. Prof. Dr.-Ing. Claus Brenner. I set out to build a multimodal large language model that could genuinely understand urban LiDAR point clouds — not synthetic, color-rich data, but the kind of sparse, intensity-only scans you get from a real city. The result was MMS-LLM ([GitHub](https://github.com/TingdeLiu/MMS-LLM)): a system combining a Point-BERT encoder with a fine-tuned Vicuna-7B, trained on the ikgc17 dataset I built from scratch (4,185 instances, 7,000+ instruction pairs). It outperformed the PointLLM baseline by 40% on classification and description tasks. Prof. Brenner's expectation of intellectual honesty — to understand not just what the numbers say but why — shaped how I think about model evaluation. The thesis was graded **1.0**.
 
-- **SLAM (Simultaneous Localization and Mapping)** - Building spatial understanding for autonomous systems
-- **Path Planning** - Enabling intelligent navigation in complex environments
-- **3D Vision & Reconstruction** - Working with point clouds and 3D scene understanding
-- **Multi-Sensor Systems** - Fusing data from various sensors for robust perception
-- **Vision-Language Navigation (VLN)** - Bridging natural language and robotic navigation
-- **Large Language Models for Robotics** - Exploring LLM applications in spatial reasoning
+After graduating, I joined **IPH – Institut für Integrierte Produktion Hannover** as a robotics engineer, where I worked with Dipl.-Ing. Marc Warnecke on deploying robots in real industrial environments. The gap between a working demo and a system that runs reliably on a factory floor turned out to be enormous. Marc's practical, problem-first mindset taught me that engineering is ultimately about what works under real constraints — and that lesson has been just as valuable as anything I learned in the lab.
 
-## 💻 Technical Skills
+In 2025, after five years abroad, I returned to China — partly out of longing for family, partly drawn by the energy around embodied AI that I could feel building back home. I am now based in Beijing, working as an AI engineer focused on embodied intelligence, with VLA and VLN as my primary research directions. This blog is one way I stay connected to the ideas I care about.
 
-**Programming Languages:**
-Python, MATLAB
+## Research Interests
 
-**Key Technologies:**
-- Machine Learning & Deep Learning
-- Computer Vision (OpenCV, PCL)
-- Sensor Fusion & State Estimation
-- Laser Scanning & 3D Modeling
-- Retrieval-Augmented Generation (RAG)
+These experiences converged around a set of questions I keep returning to:
 
-**Tools & Frameworks:**
-Jupyter Notebook, Git, ROS (Robot Operating System)
+- How can language models reason meaningfully about 3D space?
+- What does it take for a robot to navigate using natural instructions?
+- How do we bridge the gap between simulation and real-world perception?
+- How do we build a **Robot OS** — a coherent harness that integrates perception, memory, planning, and action into a unified system?
+- How can **agentic AI** give robots something closer to genuine agency: not just executing instructions, but forming intentions, adapting plans, and acting with purpose?
 
-## 📚 Notable Projects
+In practice this means I work on **Vision-Language Navigation (VLN)**, **Vision-Language-Action models (VLA)**, **agentic robot systems**, and the infrastructure that makes embodied intelligence real.
 
-Some of my key projects include:
+## Technical Skills
 
-- **SLAM and Path Planning** - Implementing simultaneous localization and mapping algorithms
-- **MMS-LLM** - 3D large language model research at Institute of Cartography and Geoinformatics
-- **RAG_pdf** - Retrieval-augmented generation for document understanding
-- **Laserscanning Modelling and Interpretation** - 3D point cloud processing and analysis
-- **Multi-Sensor Systems** - Sensor data fusion and processing
-- **Recursive State Estimation** - Kalman filtering and state estimation techniques
+**Languages:** Python, C++, MATLAB
+**Frameworks:** PyTorch, ROS2, LangChain
+**3D Vision:** LiDAR processing, PCL, 3D Gaussian Splatting
+**Tools:** Docker, Git, Gazebo, Isaac Sim
 
-You can find more on my [GitHub](https://github.com/TingdeLiu).
+## Links
 
-## 🌐 Connect With Me
-
-- **GitHub**: [TingdeLiu](https://github.com/TingdeLiu)
-- **LinkedIn**: [Tingde Liu](https://www.linkedin.com/in/tingde-liu-379818270/)
-- **Email**: tingde.liu.ai@gmail.com
-
-## 📝 About This Blog
-
-This blog is where I share my learning journey, research notes, and technical insights in robotics and AI. Topics include:
-
-- Vision-Language Navigation (VLN)
-- SLAM algorithms and implementations
-- 3D vision and reconstruction
-- Machine learning applications in robotics
-- Research paper reviews and summaries
-
-All blog posts are my original work, archived in the `_posts` folder. If you find this blog useful, feel free to star it on [GitHub](https://github.com/TingdeLiu/Tingde.Liu.github.io)! ⭐
-
-## 📄 Copyright Notice
-
-All content on this blog is my original work. Please contact me for authorization before reusing or reposting any articles.
-
+- **GitHub:** [TingdeLiu](https://github.com/TingdeLiu)
+- **LinkedIn:** [Tingde Liu](https://www.linkedin.com/in/tingde-liu-379818270/)
+- **Email:** tingde.liu.luh@gmail.com
+- **Blog:** [Archive](https://tingdeliu.github.io/archive/)
 ---
 
-**持续学习，探索人工智能与机器人技术的无限可能！**
 *Continuously learning and exploring the infinite possibilities of AI and Robotics!*
