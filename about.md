@@ -45,7 +45,7 @@ In practice this means I work on **Vision-Language Navigation (VLN)**, **Vision-
 
 - **GitHub:** [TingdeLiu](https://github.com/TingdeLiu)
 - **LinkedIn:** [Tingde Liu](https://www.linkedin.com/in/tingde-liu-379818270/)
-- **Blog:** [Archive](https://tingdeliu.github.io/archive/)
+- **Blog:** [Tingde Liu](https://tingdeliu.github.io/archive/)
 - **Email:** tingde.liu.luh@gmail.com
   
 ---
