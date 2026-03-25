@@ -59,11 +59,11 @@ footer-text: 探索人工智能与机器人技术的无限可能
 disqus: # fromendworld
 
 # Gitalk（评论功能的配置）
-gitalk:
-  clientID: # 需要配置 GitHub OAuth App
-  clientSecret: # 需要配置 GitHub OAuth App
-  repo: Tingde.Liu.github.io
-  owner: TingdeLiu
+# gitalk:
+#   clientID:
+#   clientSecret:
+#   repo: Tingde.Liu.github.io
+#   owner: TingdeLiu
 
 # Enter your Google Analytics web tracking code (e.g. UA-2110908-2) to activate tracking
 google_analytics: G-KXKFYB0T0H
