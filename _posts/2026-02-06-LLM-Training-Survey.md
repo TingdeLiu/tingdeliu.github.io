@@ -1721,6 +1721,119 @@ $$
 ### Embedding Dropout
 - 对token embedding应用dropout
 
+## Flash Attention
+
+Flash Attention 是当前 LLM 训练和推理中最重要的注意力加速技术，通过改变计算顺序而非简化算法，在保持数值等价的前提下大幅减少显存占用、加快计算速度。
+
+### 背景：标准 Attention 的内存瓶颈
+
+标准 Scaled Dot-Product Attention 的计算：
+
+$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+
+**问题所在**：
+- 序列长度为 $n$ 时，$QK^T$ 矩阵大小为 $n \times n$，需完整写入 GPU 主显存（HBM）
+- 内存复杂度 $O(n^2)$：$n=4096$ 时约占数百 MB，$n=32768$ 时高达数十 GB
+- **真正的瓶颈不是计算量，而是数据搬运**：HBM 带宽远低于片上 SRAM，反复读写大矩阵成为性能瓶颈
+
+### GPU 内存层次：工作台 vs 仓库
+
+```
+SRAM（片上缓存）= 工作台
+  • 容量：几十 MB
+  • 速度：极快（~19 TB/s on A100）
+  • 特点：运算单元直接读写
+
+HBM（主显存）= 仓库
+  • 容量：40–80 GB
+  • 速度：较慢（~2 TB/s on A100）
+  • 特点：所有 tensor 默认存放于此
+```
+
+标准 Attention 每步计算都需把中间矩阵写回 HBM，再从 HBM 读回，造成大量低效的数据搬运。Flash Attention 的核心目标：**尽量让数据留在 SRAM，减少往返 HBM 的次数**。
+
+### 核心思想：分块 + Online Softmax
+
+Flash Attention 的两个关键创新：
+
+**1. 分块计算（Tiling）**
+
+将 $K$、$V$ 切成小块，逐块载入 SRAM 计算，避免 $n \times n$ 矩阵写入 HBM。当前块计算完后直接丢弃，不写回 HBM。
+
+**2. Online Softmax（增量归一化）**
+
+传统 Softmax 需先扫描全局最大值 $A_{\max}$，才能计算 $\exp$——这要求看到全部数据，无法分块。Online 方法的解决思路：
+
+- 处理每一块时维护当前见过的最大值，遇到更大值时用修正因子还原历史累积：
+
+$$\text{修正因子} = \exp\!\left(A_{\max}^{\text{旧}} - A_{\max}^{\text{新}}\right)$$
+
+- 全程无需存储完整的 $n \times n$ 注意力矩阵
+
+**3. 直接累积输出**
+
+不显式存储注意力权重，直接累积输出 $O$：
+
+$$O_k = O_{k-1} \times \text{修正因子} + \text{当前块贡献}$$
+
+**4. 反向传播重计算**
+
+反向传播时不从 HBM 读取中间矩阵，而是从 $Q/K/V$ 重新计算——用少量额外算力换取大量显存节省。
+
+### 内存与速度对比
+
+| 方法 | 注意力矩阵内存 | HBM 访问次数 |
+|------|-------------|------------|
+| 标准 Attention | $O(n^2)$ | 多次往返 |
+| Flash Attention | $O(n)$（无完整矩阵）| 最少化 |
+
+**实测性能数据**：
+- 序列长度 4096：速度约提升 **8–9×**
+- 数值精度差异：$< 10^{-7}$（与标准 Attention 数值等价）
+- Yi-34B 实测：70K tokens 时 2.0s → 1.3s；730K+ tokens 时无 Flash Attention 直接 OOM
+
+### 版本演进
+
+| 版本 | 年份 | 核心改进 |
+|------|-----|---------|
+| FlashAttention v1 | 2022 | IO-aware 分块 + Online Softmax 原始实现 |
+| FlashAttention v2 | 2023 | 更优并行策略，减少线程同步开销，~2× vs v1 |
+| FlashAttention v3 | 2024 | 针对 H100/Hopper 架构，原生 FP8 支持 |
+
+### 实际使用
+
+**PyTorch 2.0+ 内置支持**（推荐，零额外依赖）：
+
+```python
+import torch.nn.functional as F
+
+output = F.scaled_dot_product_attention(
+    query, key, value,
+    attn_mask=None,
+    dropout_p=0.0,
+    is_causal=True  # 自回归训练必须设为 True
+)
+```
+
+**通过 transformers 显式启用 Flash Attention 2**：
+
+```python
+from transformers import AutoModelForCausalLM
+import torch
+
+model = AutoModelForCausalLM.from_pretrained(
+    "meta-llama/Llama-2-7b-hf",
+    torch_dtype=torch.bfloat16,
+    attn_implementation="flash_attention_2"  # 需先安装 flash-attn
+)
+```
+
+```bash
+pip install flash-attn --no-build-isolation
+```
+
+> **最佳实践**：Flash Attention 与标准 Attention 数值等价，序列越长收益越显著。PyTorch 2.0+ 可通过 `scaled_dot_product_attention` 零成本启用；所有 LLM 训练任务均建议开启。
+
 ---
 
 # 模型量化技术
@@ -1896,7 +2009,7 @@ graph LR
 |---------|------|------|---------|
 | **仅权重** | 只量化模型参数 | 简单 | GPTQ, AWQ |
 | **权重+激活** | 同时量化参数和中间结果 | 困难 | SmoothQuant, QAT |
-| **KV Cache** | 量化注意力缓存 | 中等 | Per-token量化 |
+| **KV Cache** | 量化推理阶段的注意力缓存，减少长上下文显存 | 中等 | INT8/INT4 Per-token, GQA/MQA |
 
 ---
 
@@ -2628,8 +2741,62 @@ graph LR
 ### 4. 大模型特定优化
 
 - **稀疏性+量化**：结合剪枝，进一步压缩
-- **KV Cache量化**：长上下文场景的关键优化
+- **KV Cache量化**：长上下文场景的关键优化（详见下节）
 - **动态量化**：根据输入自适应调整量化精度
+
+### 5. KV Cache 显存管理
+
+#### 为什么 KV Cache 会占用大量显存？
+
+大模型推理包含两个阶段：
+- **Prefill（预填充）**：将整个输入序列一次性并行处理，生成初始 K/V 矩阵
+- **Decode（解码）**：每次只生成一个 token，但需要访问所有历史 token 的 K/V
+
+为避免重复计算历史 token 的 K/V，推理时将其缓存，这就是 KV Cache。随着序列变长，缓存持续增长，成为长上下文场景下显存的主要消耗来源。
+
+**显存计算公式**：
+
+$$\text{KV Cache大小} = 2 \times L \times H \times d \times n \times \text{bytes\_per\_element}$$
+
+其中 $L$ = 层数，$H$ = 注意力头数，$d$ = 每头维度，$n$ = 序列长度
+
+以 **Gemma 2 27B** 为例（46 层，30 头，128 维，FP16）：
+- 每 token 占用：$2 \times 46 \times 30 \times 128 \times 2 \approx \mathbf{0.72 \text{ MB}}$
+- A100（80GB）最多容纳约 **114,000 tokens**
+
+#### KV Cache 量化
+
+直接对缓存的 K/V 矩阵进行低精度量化，无需修改模型结构：
+
+| 精度 | 方法 | 显存节省 | 精度影响 |
+|------|-----|---------|--------|
+| INT8 | Per-token 动态量化 | ~50% | 极小 |
+| INT4 | Per-group 量化 | ~75% | 小 |
+| FP8 | 硬件原生（H100）| ~50% | 极小 |
+
+#### GQA / MQA：从架构层面减少 KV Cache
+
+比量化更根本的优化：减少 KV 头的数量。
+
+```
+MHA: [Q1 K1V1] [Q2 K2V2] [Q3 K3V3] [Q4 K4V4]  ← KV头数 = Q头数
+GQA: [Q1 Q2] [K1V1]  [Q3 Q4] [K2V2]            ← KV头数 = Q头数 / 组大小
+MQA: [Q1 Q2 Q3 Q4]   [K1V1]                    ← 所有 Q 共享 1 个 KV 头
+```
+
+| 方式 | 全称 | KV Cache 大小 | 代表模型 |
+|------|-----|-------------|--------|
+| MHA | Multi-Head Attention | 基准（1×）| GPT-2, BERT |
+| GQA | Grouped-Query Attention | 减少 $g$ 倍 | LLaMA-2-70B, Mistral |
+| MQA | Multi-Query Attention | 减少 $H$ 倍 | PaLM, Falcon |
+
+GQA 是目前主流大模型的首选方案，在显存节省与模型质量之间取得较好平衡。
+
+#### 其他 KV Cache 节省技术
+
+- **Sliding Window Attention**：每层只保留最近 $w$ 个 token 的 KV，多层堆叠后感受野仍可覆盖较长上下文
+- **Streaming LLM**：保留最近窗口 + 最初几个 token 的 KV（初始 token 的注意力分数对整体分布有锚定作用）
+- **Prefix Caching（跨请求复用）**：相同前缀（如系统提示）的请求共享 KV Cache，在 API 服务场景中可节省 50%+ 成本
 
 ---
 
