@@ -1752,6 +1752,11 @@ HBM（主显存）= 仓库
 
 标准 Attention 每步计算都需把中间矩阵写回 HBM，再从 HBM 读回，造成大量低效的数据搬运。Flash Attention 的核心目标：**尽量让数据留在 SRAM，减少往返 HBM 的次数**。
 
+<div align="center">
+  <img src="/images/llm-training/FlashAttention.png" width="90%" />
+  <figcaption>图：GPU 内存层次（左）、FlashAttention 分块计算机制（中）、与标准 PyTorch 实现的速度对比（右）。来源：Dao et al., FlashAttention, NeurIPS 2022</figcaption>
+</div>
+
 ### 核心思想：分块 + Online Softmax
 
 Flash Attention 的两个关键创新：
@@ -2754,6 +2759,30 @@ graph LR
 
 为避免重复计算历史 token 的 K/V，推理时将其缓存，这就是 KV Cache。随着序列变长，缓存持续增长，成为长上下文场景下显存的主要消耗来源。
 
+<div class="mermaid">
+flowchart LR
+    subgraph prefill["① Prefill（并行处理）"]
+        direction TB
+        p1["输入序列<br/>token₁ token₂ … tokenₙ"] --> p2["Transformer<br/>并行计算所有 token"]
+        p2 --> p3["KV Cache 初始化<br/>K₁V₁, K₂V₂, …, KₙVₙ"]
+        p3 --> p4["输出第一个新 token"]
+    end
+
+    subgraph decode["② Decode（逐 token 自回归）"]
+        direction TB
+        d1["新 token<br/>tokenₙ₊₁"] --> d2["读取 KV Cache<br/>（跳过历史重算）"]
+        d2 --> d3["追加<br/>Kₙ₊₁Vₙ₊₁ 到缓存"]
+        d3 --> d4["输出下一个 token"]
+        d4 -->|"继续循环"| d1
+    end
+
+    prefill -->|"缓存传递"| decode
+
+    style p3 fill:#e3f2fd,stroke:#01579b
+    style d2 fill:#e3f2fd,stroke:#01579b
+    style d3 fill:#e8f5e9,stroke:#1b5e20
+</div>
+
 **显存计算公式**：
 
 $$\text{KV Cache大小} = 2 \times L \times H \times d \times n \times \text{bytes\_per\_element}$$
@@ -2777,6 +2806,11 @@ $$\text{KV Cache大小} = 2 \times L \times H \times d \times n \times \text{byt
 #### GQA / MQA：从架构层面减少 KV Cache
 
 比量化更根本的优化：减少 KV 头的数量。
+
+<div align="center">
+  <img src="/images/llm-training/GQA.png" width="85%" />
+  <figcaption>图：MHA（左）、GQA（中）、MQA（右）三种注意力机制的 KV 头共享方式对比。来源：Ainslie et al., GQA, EMNLP 2023</figcaption>
+</div>
 
 ```
 MHA: [Q1 K1V1] [Q2 K2V2] [Q3 K3V3] [Q4 K4V4]  ← KV头数 = Q头数
