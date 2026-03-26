@@ -620,84 +620,253 @@ $$
 例如：基础配置 lr=1e-4, batch=256 → 扩展到 batch=2048 → lr=8e-4
 
 ### 2. 批次大小（Batch Size）
-- **趋势**：随训练进行逐步增大
-- **典型值**：从数百万到数千万tokens per batch
-- **梯度累积**：模拟更大batch size
+
+Batch size 直接影响训练效率和梯度质量。以 token 数量计（而非样本数），主流做法是**训练过程中逐步增大 batch size**。
+
+#### 为什么需要大 Batch Size？
+
+- **计算效率**：更高的 GPU 利用率，矩阵乘法更高效
+- **梯度质量**：大 batch 的梯度估计方差更小，更新方向更稳定
+- **通信效率**：分布式训练中步数减少，AllReduce 次数减少
+
+> 注意：batch size 过大会导致泛化性下降（sharp minima 问题），需配合学习率调整（参见上方线性缩放规则）。
+
+#### 典型规模（以 tokens/batch 计）
+
+| 模型 | Batch Size（tokens）| 说明 |
+|------|-------------------|------|
+| GPT-3 175B | 32K → 3.2M（逐步增大）| 训练前期小 batch，后期大 batch |
+| LLaMA-2 | 4M tokens | 全程固定 |
+| PaLM 540B | 4M tokens | 与 LLaMA-2 相近 |
+| Chinchilla | 1.5M tokens | 较小规模 |
+
+#### 梯度累积（Gradient Accumulation）
+
+当单卡显存不足以容纳目标 batch size 时，通过多步小 batch 累积梯度来等效模拟：
+
+```python
+optimizer.zero_grad()
+for step, batch in enumerate(dataloader):
+    loss = model(batch) / accumulation_steps   # 缩放 loss
+    loss.backward()                             # 累积梯度
+    if (step + 1) % accumulation_steps == 0:
+        optimizer.step()                        # 每 N 步更新一次
+        optimizer.zero_grad()
+```
+
+**等效关系**：effective batch size = per-GPU batch size × gradient accumulation steps × 数据并行卡数
+
+---
 
 ### 3. 上下文长度（Context Length）
-- **起始**：通常从较短长度开始（如2048）
-- **扩展**：Position Interpolation、YaRN等技术
-- **长上下文训练**：渐进式扩展策略
+
+#### 为什么从短上下文开始？
+
+- 注意力计算复杂度为 $O(n^2)$，序列越长显存和计算量急剧增加
+- 训练初期模型尚未学到长程依赖，长序列带来的收益有限
+- 短上下文阶段积累充分的语言理解能力，再扩展事半功倍
+
+#### 渐进式扩展策略
+
+```
+主训练阶段:  2048 tokens  → 完成大部分训练步数（占总计算量 80%+）
+扩展阶段1:  4096 tokens  → 少量追加步数
+扩展阶段2:  8192 tokens  → 更少步数，通常仅占 5% 以内
+长上下文:   32K–128K    → 专项长上下文微调
+```
+
+#### 位置编码扩展技术
+
+**Position Interpolation（PI）**
+
+RoPE 的旋转频率是为固定最大长度 $L_{\text{train}}$ 设计的，超出此范围时位置编码失效。PI 的解决方案：将位置索引从 $[0, L_{\text{target}}]$ 缩放映射回 $[0, L_{\text{train}}]$：
+
+$$\text{pos}_{\text{new}} = \text{pos} \times \frac{L_{\text{train}}}{L_{\text{target}}}$$
+
+优点：实现简单，仅需约 1000 步微调即可适应 2–4× 上下文扩展。
+
+**YaRN（Yet another RoPE extension）**
+
+PI 对所有频率分量使用统一缩放，导致高频分量信息损失。YaRN 改进策略：
+- **低频分量**：使用 PI 缩放（长程依赖）
+- **高频分量**：保持不插值（短程精细特征）
+- **温度缩放（Temperature Scaling）**：缩小注意力 logits 防止熵塌缩
+
+效果：扩展到 128k 上下文，仅需少量数据微调，精度优于 PI。
+
+**ALiBi（Attention with Linear Biases）**
+
+不依赖绝对位置编码，在注意力分数上直接叠加与距离成正比的线性惩罚：
+
+$$\text{Attention score}_{ij} = q_i \cdot k_j^T - m \cdot (i - j)$$
+
+其中 $m$ 为每个注意力头的斜率（超参数）。优点：训练时无需指定最大长度，推理时可直接外推，无需额外微调。
+
+---
 
 ### 4. 混合精度训练
-- **BF16**（Brain Float16）：更稳定，适合大模型
-- **FP16**：节省内存，需要Loss Scaling
-- **FP8**：新一代硬件支持
+
+使用低精度浮点数（FP16/BF16）计算，配合 FP32 优化器状态，在节省显存的同时保持训练稳定性。
+
+#### 浮点格式对比
+
+| 格式 | 符号位 | 指数位 | 尾数位 | 最大值 | LLM 训练适用性 |
+|------|--------|--------|--------|--------|--------------|
+| FP32 | 1 | 8 | 23 | ~3.4×10³⁸ | 基准，稳定但显存大 |
+| FP16 | 1 | 5 | 10 | ~65504 | 范围小，容易上溢/下溢 |
+| **BF16** | **1** | **8** | **7** | **~3.4×10³⁸** | **LLM 首选：范围同 FP32** |
+| FP8 (E4M3) | 1 | 4 | 3 | ~448 | H100 原生，推理/训练新选择 |
+
+**关键结论**：BF16 与 FP32 指数位数相同，不会因梯度数值范围过大/过小导致溢出，是当前大模型训练的首选格式。
+
+#### FP16 训练需要 Loss Scaling
+
+FP16 最大值约 65504，梯度如果很小（< 2⁻²⁴）会下溢为 0，导致参数不更新。解决方案：
+
+```python
+from torch.cuda.amp import autocast, GradScaler
+
+scaler = GradScaler()
+
+with autocast(dtype=torch.float16):      # 前向用 FP16
+    loss = model(inputs)
+
+scaler.scale(loss).backward()            # 梯度乘以 scale factor 防下溢
+scaler.step(optimizer)                   # 反缩放后更新参数
+scaler.update()                          # 自动调整 scale factor
+```
+
+#### BF16 训练（推荐，无需 Loss Scaling）
+
+```python
+with torch.autocast("cuda", dtype=torch.bfloat16):
+    loss = model(inputs)
+
+loss.backward()
+optimizer.step()
+```
+
+#### 混合精度中的 Master Weights
+
+优化器状态（Adam 的一阶矩 $m$、二阶矩 $v$）保留 FP32 副本，确保数值精度：
+
+```
+前向/反向计算：BF16（节省显存）
+优化器状态：  FP32（保证精度，但多占显存）
+权重更新：    FP32 累加后再转 BF16 写回模型
+```
+
+---
 
 ### 5. Flash Attention
-- 减少显存占用
-- 加速注意力计算
-- 支持更长上下文
+
+Flash Attention 通过 IO-aware 分块计算，将注意力层的显存复杂度从 $O(n^2)$ 降至 $O(n)$，同时实现 2–9× 速度提升。详细原理参见后文「[训练优化技术 → Flash Attention](#flash-attention)」章节。
+
+---
 
 ## 预训练的前沿技术
 
 ### MoE（Mixture of Experts）架构
 
 #### 核心思想
-- 训练多个专家网络，每次只激活部分专家
-- 增加模型容量的同时控制计算成本
-- 稀疏激活机制
+
+标准 Transformer 每个 token 都经过全部参数，而 MoE 在 FFN 层引入多个"专家"网络，每次只激活其中 top-k 个，实现**参数量大、计算量小**的目标。
+
+```
+输入 token → Router（路由器）→ 选择 top-k 专家 → 各专家并行计算 → 加权输出
+```
+
+**专家路由（Gating）机制**：
+
+$$\text{Gate}(x) = \text{TopK}(\text{softmax}(W_g \cdot x), k)$$
+
+每个 token 的输出是 top-k 专家输出的加权和，权重由 softmax 归一化分数决定。
+
+#### 负载均衡（Load Balancing）
+
+如果路由器总把 token 分给同几个专家，其他专家形同虚设——这是 MoE 最核心的训练挑战。解决方案是在训练 loss 中加入辅助均衡损失：
+
+$$\mathcal{L}_{\text{aux}} = \alpha \cdot N \sum_{i=1}^{N} f_i \cdot P_i$$
+
+其中 $f_i$ 为实际分配到专家 $i$ 的 token 比例，$P_i$ 为路由器输出给专家 $i$ 的平均概率，$\alpha$ 通常取 0.01–0.1。
 
 #### 代表模型
-- **Mixtral 8x7B**：8个专家，每次激活2个，达到47B容量但计算成本仅相当于13B
-- **Switch Transformer**：简化路由机制，扩展到1.6万亿参数
-- **GPT-4**：据传使用MoE架构
 
-#### 训练挑战
-- Expert load balancing（专家负载均衡）
-- 路由策略设计
-- 通信开销优化
+| 模型 | 专家数 | 每次激活 | 等效密集参数量 | 实际计算量 |
+|------|--------|---------|-------------|---------|
+| Switch Transformer | 最多 2048 | top-1 | 1.6T | 相当于小模型 |
+| Mixtral 8x7B | 8 | top-2 | 47B | 相当于 13B |
+| GPT-4（传言）| 多专家 | 稀疏激活 | — | — |
+
+#### 工程挑战
+- **通信开销**：不同 token 的专家可能在不同 GPU 上，需要 All-to-All 通信
+- **专家并行（Expert Parallelism）**：将不同专家放置在不同 GPU 上
+- **训练不稳定性**：路由崩塌（所有 token 涌入少数专家）
+
+---
 
 ### 长上下文训练
 
-#### 位置编码扩展技术
-- **Position Interpolation**：直接插值RoPE，仅需少量训练
-- **YaRN**：改进的插值+温度缩放，扩展到128k
-- **ALiBi**：基于注意力偏置的位置编码
+#### 训练策略
+
+长上下文模型通常分两阶段训练：
+
+1. **标准预训练**：在 2K–4K 上下文上完成主要训练，积累语言理解能力
+2. **长上下文继续训练**：固定大部分参数，在长序列数据上用位置编码扩展技术进行少量步数的持续训练
+
+位置编码扩展技术（PI/YaRN/ALiBi）详见上方「[上下文长度](#3-上下文长度context-length)」小节。
 
 #### 长上下文注意力优化
-- **Ring Attention**：分块+循环通信，支持数百万token
-- **LongLoRA**：Shifted Sparse Attention，高效扩展到100k+
-- **FlashAttention-2**：IO优化，支持更长序列
+
+长序列的注意力计算面临两个问题：显存（$O(n^2)$）和多 GPU 时的序列并行。
+
+- **Ring Attention**：将序列分块分配到多个 GPU，通过循环通信方式完成全局注意力，支持数百万 token 的超长上下文
+- **LongLoRA（Shifted Sparse Attention）**：训练时用局部分组注意力替代全局注意力，推理时恢复标准注意力，以小计算量高效扩展到 100k+ 上下文
+- **FlashAttention-2**：通过 IO-aware 分块降低注意力层显存，是长上下文训练的必备基础设施
+
+---
 
 ### 训练稳定性技术
 
-#### Loss Spike问题解决
-- **μ-Parameterization**：参数化方案使超参数可跨规模迁移
-- **WSD Schedule**：Warmup-Stable-Decay三阶段学习率
-- **Adaptive Gradient Clipping**：自适应梯度裁剪
+#### WSD 学习率调度（Warmup-Stable-Decay）
 
-#### 数值稳定性
-- BF16训练（更稳定）
-- 梯度累积与检查点
-- 混合精度策略
+传统 Cosine 调度只能训练到预设 token 数就结束，无法灵活延长训练。WSD 解决了这个问题：
+
+```
+Warmup 阶段：线性增大到峰值学习率（通常几千步）
+    ↓
+Stable 阶段：保持峰值学习率不变（可持续任意长）← 关键优势
+    ↓
+Decay 阶段：快速衰减至接近 0（通常几千到几万步）
+```
+
+**优势**：可以在 Stable 阶段随时保存检查点，接续训练更多数据时只需重新进入 Decay，实现**持续/增量预训练**。代表模型：MiniCPM、Qwen 系列。
+
+#### μ-Parameterization（maximal update parameterization）
+
+标准 Xavier/Kaiming 初始化的超参数在不同模型规模下需要重新调整，难以跨规模迁移。μP 的核心思想：对权重的初始化和学习率进行规模相关的缩放，使得**最优超参数在小模型上调出后可直接迁移到大模型**。
+
+- 学习率不随宽度变化：$\eta = O(1/\text{width})$ 的缩放抵消了参数量增加的影响
+- 实践价值：在小代理模型（proxy model）上搜索超参数，再直接用于大模型训练，节省巨大调参成本
+
+#### Loss Spike 处理
+
+训练过程中偶发的梯度爆炸会导致 loss 急剧上升，常见应对策略：
+
+1. **梯度裁剪**（Gradient Clipping）：限制梯度 L2 范数，通常设为 1.0
+2. **BF16 代替 FP16**：避免数值溢出引发的不稳定
+3. **自动回滚**：监测 loss 突变时自动回退到上一个检查点并调低学习率
+4. **稳定 Adam 配置**：将 $\beta_2$ 从默认 0.999 调低至 0.95，减小二阶矩的历史依赖
+
+---
 
 ### 高质量数据工程
 
-#### 数据质量评估
-- 基于困惑度的质量评分
-- 启发式规则过滤
-- 毒性和偏见检测
+数据工程是预训练质量的基石，详细流程（数据源、清洗、去重、配比）参见后文「数据工程」专章。关键结论：
 
-#### 数据去重策略
-- MinHash：估计Jaccard相似度
-- SimHash：快速近似去重
-- 跨数据集去重（避免测试集泄露）
-
-#### 数据配比优化
-- 静态配比 vs 动态调整
-- 课程学习（Curriculum Learning）
-- 领域数据权重调整
+- **数量 vs 质量**：Chinchilla scaling law 表明，同等计算量下适当减少参数、增加训练数据反而更优
+- **去重至关重要**：重复数据会导致模型过拟合、评估集泄露，MinHash + LSH 是主流方案
+- **数据配比影响能力边界**：代码数据比例影响推理能力，多语言比例影响跨语言泛化
 
 ---
 
