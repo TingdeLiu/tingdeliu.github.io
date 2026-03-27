@@ -17,7 +17,7 @@ company: "Tyndall Labs"
 avatar: /images/Tingde.png
 
 # 你的favicon（出现在浏览器tab上）图片URL，建议使用较小(64px × 64px)的图片
-favicon: # 暂时留空，之后可以添加您的logo
+favicon: /images/Tingde.png
 
 # Tabs in header. There are 'Blog', 'About', 'Archive', 'Tags'
 # and URL Link(e.g. 'Theme' tab below) tabs. If you don't need one, just delete

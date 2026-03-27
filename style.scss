@@ -12,6 +12,64 @@
 // Syntax highlighting @import is at the bottom of this file
 
 /**************/
+/* CSS CUSTOM PROPERTIES (for dark mode) */
+/**************/
+
+:root {
+  --color-bg: #fff;
+  --color-bg-secondary: #{$oc-gray-0};
+  --color-text: #{$oc-gray-8};
+  --color-text-secondary: #{$oc-gray-6};
+  --color-text-tertiary: #{$oc-gray-4};
+  --color-link: #{$oc-blue-8};
+  --color-link-hover: #{$oc-blue-6};
+  --color-link-bg-hover: #{$oc-blue-0};
+  --color-divider: #{$oc-gray-1};
+  --color-border: #{$oc-gray-2};
+  --color-table-bg: #{$oc-gray-1};
+  --color-tag-bg: #{$oc-gray-2};
+  --color-tag-count-bg: #868e961a;
+  --color-blockquote-border: #{$oc-gray-3};
+  --color-code-bg: #{$oc-gray-1};
+  --color-code-text: #{$oc-indigo-9};
+  --color-highlight-bg: #{$oc-gray-0};
+  --color-highlight-border: #{$oc-gray-3};
+  --color-selection-bg: #{$oc-gray-3};
+  --color-footnote-border: #{$oc-gray-1};
+  --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-avatar-shadow: rgba(59, 130, 246, 0.25);
+  --color-scrollbar-thumb: #888;
+  --color-scrollbar-track: #f1f1f1;
+}
+
+[data-theme="dark"] {
+  --color-bg: #1a1b1e;
+  --color-bg-secondary: #25262b;
+  --color-text: #c1c2c5;
+  --color-text-secondary: #909296;
+  --color-text-tertiary: #5c5f66;
+  --color-link: #74c0fc;
+  --color-link-hover: #a5d8ff;
+  --color-link-bg-hover: rgba(116, 192, 252, 0.1);
+  --color-divider: #2c2e33;
+  --color-border: #373a40;
+  --color-table-bg: #2c2e33;
+  --color-tag-bg: #2c2e33;
+  --color-tag-count-bg: rgba(134, 142, 150, 0.15);
+  --color-blockquote-border: #495057;
+  --color-code-bg: #2c2e33;
+  --color-code-text: #a5d8ff;
+  --color-highlight-bg: #25262b;
+  --color-highlight-border: #373a40;
+  --color-selection-bg: #495057;
+  --color-footnote-border: #373a40;
+  --color-shadow: rgba(0, 0, 0, 0.3);
+  --color-avatar-shadow: rgba(116, 192, 252, 0.2);
+  --color-scrollbar-thumb: #5c5f66;
+  --color-scrollbar-track: #25262b;
+}
+
+/**************/
 /* BASE RULES */
 /**************/
 
@@ -21,8 +79,10 @@ html {
 
 body {
   font-family: $base-font;
-  color: $base-color;
+  color: var(--color-text);
+  background-color: var(--color-bg);
   line-height: 1.7em;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .container {
@@ -63,20 +123,20 @@ h3 {
 
 h4 {
   font-size: 20px;
-  color: $base-lighten-color;
+  color: var(--color-text-secondary);
 }
 
 h6 {
-  color: $base-lighten-color;
+  color: var(--color-text-secondary);
 }
 
 p {
-  color: $text-color;
+  color: var(--color-text);
   margin: 1em 0;
 }
 
 a {
-  color: $link-color;
+  color: var(--color-link);
   text-decoration: none;
   cursor: pointer;
   -webkit-transition: all 0.5s;
@@ -86,7 +146,7 @@ a {
   transition: all 0.5s;
 
   &:hover, &:active {
-    color: $link-lighten-color;
+    color: var(--color-link-hover);
   }
 }
 
@@ -110,7 +170,7 @@ sup {
 
 hr {
   border: 0;
-  border-top: 1px solid $divider-color;
+  border-top: 1px solid var(--color-divider);
   margin: 1.5em auto;
 }
 
@@ -424,6 +484,61 @@ img {
   }
 }
 
+.theme-toggle {
+  margin-top: 16px;
+  text-align: center;
+
+  #themeToggle {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 24px;
+    padding: 6px 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-text-secondary);
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: var(--color-link-bg-hover);
+      border-color: var(--color-link);
+      color: var(--color-link);
+    }
+
+    .sun-icon,
+    .moon-icon {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .sun-icon {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .moon-icon {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+
+    &.dark {
+      .sun-icon {
+        opacity: 0;
+        transform: translateX(10px);
+      }
+
+      .moon-icon {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+  }
+
+  @include mobile {
+    margin-top: 12px;
+  }
+}
+
 .site-tagline {
   margin: 6px auto 0;
   color: $base-lighten-color;
@@ -653,11 +768,11 @@ nav {
     width: 6px;
   }
   .toc::-webkit-scrollbar-thumb {
-    background: #888;
+    background: var(--color-scrollbar-thumb);
     border-radius: 3px;
   }
   .toc::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: var(--color-scrollbar-track);
   }
 }
 

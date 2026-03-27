@@ -4,31 +4,28 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
 
     <!-- 作者信息 -->
-    <meta name="author" content="Kwan Wai-Pang" />
+    <meta name="author" content="{{ site.name }}" />
 
-    <meta name="keywords" content="Robotics, SLAM, Event-based Vision, Deep Learning, Blog" />
+    <meta name="keywords" content="Robotics, VLN, VLA, Deep Learning, AI, Blog" />
 
     <!-- 网页描述 -->
-    <!-- {% if page.excerpt %}
-    <meta name="description" content="{{ page.excerpt| strip_html }}" />
-    <meta property="og:description" content="{{ page.excerpt| strip_html }}" />
+    {% if page.excerpt %}
+    <meta name="description" content="{{ page.excerpt | strip_html | truncate: 160 }}" />
+    <meta property="og:description" content="{{ page.excerpt | strip_html | truncate: 160 }}" />
     {% else %}
-    <meta name="description" content="{{ site.description }}">
+    <meta name="description" content="{{ site.description }}" />
     <meta property="og:description" content="{{ site.description }}" />
     {% endif %}
-    <meta name="author" content="{{ site.name }}" /> -->
-    <meta name="description" content="Personal Blog of Kwan Wai-Pang" />
-    <meta property="og:description" content="Welcome 😊{% if page.title %} {{ page.title }}{% endif %}" />
 
     <!-- OpenGraph 元数据 -->
-    <meta property="og:site_name" content="My Technology Blog" />
+    <meta property="og:site_name" content="{{ site.name }}" />
     <meta property="og:type" content="website" />
     {% if page.title %}
         <meta property="og:title" content="{{ page.title }}" />
         <meta property="twitter:title" content="{{ page.title }}" />
     {% else %}
-        <meta property="og:title" content="Kwan Wai-Pang | Personal Blog" />
-        <meta property="twitter:title" content="Kwan Wai-Pang | Personal Blog" />
+        <meta property="og:title" content="{{ site.name }} | {{ site.description }}" />
+        <meta property="twitter:title" content="{{ site.name }} | {{ site.description }}" />
     {% endif %}
 
     <!-- <meta property="og:image" content="https://kwanwaipang.github.io/Poster_files/hku_logo.jpg" /> -->
