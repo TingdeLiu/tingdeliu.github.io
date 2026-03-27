@@ -22,20 +22,19 @@
 
     <!-- Google Analytics -->
     {% include analytics.html %}
-  </body>
 
-  <!-- 如果当前页面的toc为true，就添加目录 -->
-  {% if page.toc==true %}
-  <script>
-    document.getElementById("main").classList.add("withtoc");
-  </script>
-  {% endif %}
+    <!-- 如果当前页面的toc为true，就添加目录 -->
+    {% if page.toc==true %}
+    <script>
+      document.getElementById("main").classList.add("withtoc");
+    </script>
+    {% endif %}
 
-  <div class="wrapper-footer-mobile">
-    <footer class="footer">
-      {% include footer.html %}
-    </footer>
-  </div>
+    <div class="wrapper-footer-mobile">
+      <footer class="footer">
+        {% include footer.html %}
+      </footer>
+    </div>
 
   <!-- 标签自动着色：对标签名哈希映射到调色板，同名标签颜色全站一致 -->
   <script>
@@ -105,4 +104,5 @@
     });
   </script>
 
+  </body>
 </html>

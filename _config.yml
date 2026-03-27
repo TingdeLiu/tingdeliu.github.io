@@ -79,11 +79,14 @@ url: https://tingdeliu.github.io
 baseurl: "" # 若非子目录，留空
 
 
-# Jekyll 默认使用 kramdown 作为 Markdown 解析器，需确保启用数学公式支持：
+# Jekyll 使用 kramdown 作为 Markdown 解析器，启用 MathJax 数学公式支持
 markdown: kramdown
 kramdown:
-  math_engine: mathjax  # 指定使用MathJax处理数学公式
+  input: GFM
+  math_engine: mathjax
   syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: 'highlight'
 
 #
 # !! You don't need to change any of the configuration flags below !!
@@ -95,25 +98,16 @@ paginate_path: "/page:num/" # 分页页面路径
 # The release of Jekyll Now that you're using
 version: v1.2.0
 
-# Jekyll 3 now only supports Kramdown for Markdown
-kramdown:
-  # Use GitHub flavored markdown, including triple backtick fenced code blocks
-  input: GFM
-  # Jekyll 3 and GitHub Pages now only support rouge for syntax highlighting
-  syntax_highlighter: rouge
-  syntax_highlighter_opts:
-    # Use existing pygments syntax highlighting css
-    css_class: 'highlight'
-
 # Set the Sass partials directory, as we're using @imports
 sass:
-  style: :expanded # You might prefer to minify using :compressed
+  style: :compressed
 
 # Use the following plug-ins
 plugins:
   - jekyll-sitemap # Create a sitemap using the official Jekyll sitemap gem
   - jekyll-feed # Create an Atom feed using the official Jekyll feed gem
   - jekyll-paginate
+  - jekyll-seo-tag
 
 # Exclude these files from your production _site
 exclude:
