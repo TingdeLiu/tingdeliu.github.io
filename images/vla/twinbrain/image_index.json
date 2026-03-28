@@ -1,0 +1,21 @@
+{
+  "pdf_path": "C:\\Users\\tingd\\Zotero\\storage\\Z46THIV8\\Yu 等 - 2026 - TwinBrainVLA Unleashing the Potential of Generalist VLMs for Embodied Tasks via Asymmetric Mixture-.pdf",
+  "total_pages": 13,
+  "target_pages": [
+    1,
+    2
+  ],
+  "extracted_items": [
+    {
+      "filename": "figure_01.png",
+      "type": "figure",
+      "page": 2,
+      "bbox": [
+        945.2610473632812,
+        567.20751953125,
+        1486.1190185546875,
+        1058.3974609375
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "pdf_path": "C:\\GitHub\\Tingde.Liu.github.io\\tmp\\pistar06.pdf",
+  "total_pages": 18,
+  "target_pages": [
+    1,
+    2
+  ],
+  "extracted_items": [
+    {
+      "filename": "figure_01.png",
+      "type": "figure",
+      "page": 1,
+      "bbox": [
+        131.75,
+        509.3000183105469,
+        1569.9500732421875,
+        1186.9000244140625
+      ]
+    },
+    {
+      "filename": "figure_02.png",
+      "type": "figure",
+      "page": 2,
+      "bbox": [
+        126.6500015258789,
+        141.90000915527344,
+        1573.35009765625,
+        727.1000366210938
+      ]
+    }
+  ]
+}

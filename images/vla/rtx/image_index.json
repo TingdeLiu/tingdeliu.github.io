@@ -1,0 +1,21 @@
+{
+  "pdf_path": "C:\\GitHub\\Tingde.Liu.github.io\\tmp\\rtx.pdf",
+  "total_pages": 12,
+  "target_pages": [
+    1,
+    2
+  ],
+  "extracted_items": [
+    {
+      "filename": "figure_01.png",
+      "type": "figure",
+      "page": 1,
+      "bbox": [
+        141.9499969482422,
+        1349.7000732421875,
+        1558.050048828125,
+        1857.9000244140625
+      ]
+    }
+  ]
+}

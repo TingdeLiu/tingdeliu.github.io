@@ -1,0 +1,21 @@
+{
+  "pdf_path": "C:\\GitHub\\Tingde.Liu.github.io\\tmp\\xiaomi_r0.pdf",
+  "total_pages": 23,
+  "target_pages": [
+    1,
+    2
+  ],
+  "extracted_items": [
+    {
+      "filename": "figure_01.png",
+      "type": "figure",
+      "page": 2,
+      "bbox": [
+        186.15000915527344,
+        214.5,
+        1513.85009765625,
+        1039.5
+      ]
+    }
+  ]
+}

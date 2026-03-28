@@ -1,0 +1,32 @@
+{
+  "pdf_path": "C:\\GitHub\\Tingde.Liu.github.io\\tmp\\pi05.pdf",
+  "total_pages": 19,
+  "target_pages": [
+    1,
+    2
+  ],
+  "extracted_items": [
+    {
+      "filename": "figure_01.png",
+      "type": "figure",
+      "page": 1,
+      "bbox": [
+        126.6500015258789,
+        592.9000244140625,
+        1573.35009765625,
+        1483.9000244140625
+      ]
+    },
+    {
+      "filename": "figure_02.png",
+      "type": "figure",
+      "page": 2,
+      "bbox": [
+        126.6500015258789,
+        152.90000915527344,
+        1573.35009765625,
+        504.9000244140625
+      ]
+    }
+  ]
+}

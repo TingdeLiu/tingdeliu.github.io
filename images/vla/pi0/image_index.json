@@ -1,0 +1,32 @@
+{
+  "pdf_path": "C:\\Users\\tingd\\Zotero\\storage\\47SBKH9K\\Black 等 - 2024 - $π_0$ A Vision-Language-Action Flow Model for General Robot Control.pdf",
+  "total_pages": 17,
+  "target_pages": [
+    1,
+    2
+  ],
+  "extracted_items": [
+    {
+      "filename": "figure_01.png",
+      "type": "figure",
+      "page": 1,
+      "bbox": [
+        126.6500015258789,
+        639.1000366210938,
+        1573.35009765625,
+        1596.0999755859375
+      ]
+    },
+    {
+      "filename": "figure_02.png",
+      "type": "figure",
+      "page": 2,
+      "bbox": [
+        126.6500015258789,
+        144.10000610351562,
+        1569.9500732421875,
+        498.3000183105469
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "pdf_path": "C:\\GitHub\\Tingde.Liu.github.io\\tmp\\xvla.pdf",
+  "total_pages": 33,
+  "target_pages": [
+    1,
+    2
+  ],
+  "extracted_items": [
+    {
+      "filename": "figure_01.png",
+      "type": "figure",
+      "page": 1,
+      "bbox": [
+        164.0500030517578,
+        1090.0999755859375,
+        1535.9500732421875,
+        1959.10009765625
+      ]
+    }
+  ]
+}
