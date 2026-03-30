@@ -266,7 +266,7 @@ $$\text{MultiHead}(Q,K,V) = \text{Concat}(head_1, \ldots, head_h) W^O$$
 ### Transformer 完整架构
 
 <div align="center">
-  <img src="../images/DL/transformer-architecture.png" width="45%" />
+  <img src="../images/DL/transformer-architecture.png" width="80%" />
   <figcaption>Transformer 架构（Vaswani et al., 2017 "Attention Is All You Need"）：左为编码器，右为解码器</figcaption>
 </div>
 

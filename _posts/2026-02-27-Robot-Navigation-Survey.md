@@ -1061,6 +1061,12 @@ $$f(n) = g(n) + h(n)$$
   <figcaption>图：A* 路径优化流程——原始栅格路径（左）→ DP 精简关键点（中）→ B-样条平滑轨迹（右）</figcaption>
 </div>
 
+
+<div align="center">
+  <img src="/images/robotics_navigation/astar_optimization_campare.png" width="75%" />
+  <figcaption>图：优化前的A*算法搜索点密集（图2a），路径拐点多；优化后不仅搜索点数量锐减（图2b），路径也更简洁平滑，搜索效率和路径质量实现双重提升。</figcaption>
+</div>
+
 ## 5.2 全局路径规划——采样类
 
 采样类算法通过**随机采样**构建路径，不需要显式栅格化地图，适合高维空间和复杂几何约束场景。
