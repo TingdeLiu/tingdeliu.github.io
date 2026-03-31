@@ -247,40 +247,170 @@ $$c_t = f_t \odot c_{t-1} + i_t \odot \tilde{c}_t$$
 
 ## 3. Transformer
 
-**Transformer**（Vaswani et al.，2017）彻底改变了 NLP 乃至整个深度学习格局。其核心是**自注意力机制（Self-Attention）**，能够直接建模序列中任意两个位置之间的依赖关系，无需逐步递推。
+**Transformer**（Vaswani et al.，2017）彻底改变了 NLP 乃至整个深度学习格局。它完全放弃了循环和卷积，仅通过**自注意力机制（Self-Attention）**直接建模序列中任意两个位置之间的全局依赖关系。
 
-### 缩放点积注意力
+<div align="center">
+  <img src="../images/DL/Self-Attention.png" width="80%" />
+  <figcaption>Self-Attention 架构（</figcaption>
+</div>
+
+### 核心机制：缩放点积注意力
 
 $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
 
-其中 $Q, K, V$ 分别为 Query、Key、Value 矩阵，$\sqrt{d_k}$ 为缩放因子，防止点积过大导致 softmax 梯度消失。
+- **Query (Q)**：代表“我要找什么”（如当前词）。
+- **Key (K)**：代表“我有什么特征”（用于与 Q 匹配）。
+- **Value (V)**：代表“我要传递的信息”（匹配成功后的内容）。
+- **$\sqrt{d_k}$ 缩放**：当维度很大时，点积结果可能极大，导致 softmax 进入梯度极小的区域。缩放可保持梯度稳定。
 
-**直觉理解**：注意力机制类似 Python 字典查询——Query 是要查找的问题，Key 是字典的键，Value 是对应的值；softmax 计算相似度权重，加权求和得到输出。
+### 多头注意力（Multi-Head Attention）
 
-### 多头注意力
-
-**多头注意力（Multi-Head Attention）** 将输入映射到多个子空间分别计算注意力，再拼接：
-
+将输入映射到 $h$ 个不同的子空间分别计算注意力，再将结果拼接：
 $$\text{MultiHead}(Q,K,V) = \text{Concat}(head_1, \ldots, head_h) W^O$$
+**直觉理解**：不同的“头”可以同时关注不同的信息（如一个头关注语法关系，另一个头关注语义关联）。
 
-### Transformer 完整架构
+### 关键组件
+
+**1. 位置编码（Positional Encoding）**
+
+**为什么需要位置编码？**
+Transformer 的核心——自注意力机制是**置换不变的（Permutation Invariant）**。在计算 $O = \sum \alpha_i V_i$ 时，由于加法满足交换律，模型无法分辨输入顺序。如果没有位置信息，句子“你打我”和“我打你”在模型看来是完全一样的。因此，必须将位置信息注入 Input Embedding 中。
+
+<div align="center">
+  <img src="../images/DL/绝对位置编码.png" width="85%" />
+  <figcaption>绝对位置编码</figcaption>
+</div>
+
+**绝对位置编码：Sinusoidal 设计**
+原始 Transformer 采用预定义的正余弦函数构造位置向量：
+$$PE_{(pos, 2i)} = \sin\left(\frac{pos}{10000^{2i/d_{model}}}\right)$$
+$$PE_{(pos, 2i+1)} = \cos\left(\frac{pos}{10000^{2i/d_{model}}}\right)$$
+
+<div align="center">
+  <img src="../images/DL/positional-encoding.png" width="85%" />
+  <figcaption>位置编码方式</figcaption>
+</div>
+
+<div align="center">
+  <img src="../images/DL/positional-encoding-visual.png" width="85%" />
+  <figcaption>位置编码可视化：不同维度对应不同周期的正余弦波，构成独特的位置指纹</figcaption>
+</div>
+
+<div align="center">
+  <img src="../images/DL/Clock-Hands1.png" width="85%" />
+  <figcaption>多频指针</figcaption>
+</div>
+
+<div align="center">
+  <img src="../images/DL/Clock-Hands2.png" width="85%" />
+  <figcaption>多频指针</figcaption>
+</div>
+
+**直观理解：多频指针（Clock Hands）**
+我们可以将每一对 $(\sin, \cos)$ 看作二维平面上的一个“指针”。
+- **低维（$i$ 小）**：频率高，指针旋转极快。类似时钟的“秒针”，几个 Token 就会转完一圈。
+- **高维（$i$ 大）**：频率低，指针旋转极慢。类似“时针”，可能需要上万个 Token 才转一圈。
+Transformer 就像是在观察由几十个不同转速的指针构成的仪表盘，从而精确锁定当前 Token 在序列中的绝对位置。
+
+**数学特性：建模相对位置**
+作者选择正余弦函数的精妙之处在于，它允许模型通过线性变换表达**相对位置**。根据三角函数合角公式，存在一个仅与相对距离 $r$ 有关的变换矩阵 $M_r$，使得：
+$$PE_{pos+r} = M_r \cdot PE_{pos}$$
+这意味着模型在计算 Attention 时，可以更容易地捕捉到两个词之间的距离信息，而不仅仅是绝对坐标。
+
+**RoPE位置编码：Rotary Position Embedding 设计**
+
+绝对位置编码把位置信息加在 Input Embedding 上，间接影响 Attention；ALiBi 则在 Attention Score 上强行减去距离偏差。RoPE 选择了另一条路：**在 Q 与 K 做内积之前，直接把位置信息以旋转的方式编码进向量本身**。
+
+<div align="center">
+  <img src="../images/DL/RoPE.png" width="85%" />
+  <figcaption>RoPE位置编码：每两个维度为一组，根据位置 m 旋转 mθ 角度，将位置信息编码为旋转量</figcaption>
+</div>
+
+**核心思想：用旋转代替加法**
+
+对向量的每两个维度（$d_0, d_1$），RoPE 将其视为二维平面上的一个向量，然后根据 token 所在位置 $m$ 旋转对应角度：
+
+$$\text{K}^{(m)} = R(m\theta) \cdot \text{K}, \quad \text{Q}^{(m)} = R(m\theta) \cdot \text{Q}$$
+
+其中旋转矩阵为标准二维旋转矩阵：
+
+$$R(\alpha) = \begin{pmatrix} \cos\alpha & -\sin\alpha \\ \sin\alpha & \cos\alpha \end{pmatrix}$$
+
+对于 $d$ 维向量，将所有维度两两分组，共 $d/2$ 组，每组使用不同的基础角度 $\theta_i$：
+
+$$\theta_i = 10000^{-2i/d}, \quad i = 0, 1, \ldots, \frac{d}{2}-1$$
+
+这个设计与 Sinusoidal PE 一脉相承——不同维度对应不同频率，低维度旋转快、高维度旋转慢，共同构成唯一的位置指纹。
+
+**RoPE 如何天然编码相对位置？**
+
+当 Q 在位置 $m$、K 在位置 $n$ 时，两者做内积：
+
+$$\langle \text{Q}^{(m)}, \text{K}^{(n)} \rangle = \text{Q}^T \cdot R((m-n)\theta) \cdot \text{K}$$
+
+内积结果**只依赖相对距离 $m-n$**，而非绝对坐标。这正是 RoPE 最精妙之处——无需像 Relative PE 那样显式建模相对距离，旋转的几何性质自动保证了这一点。
+
+<div align="center">
+  <img src="../images/DL/RoPE1.png" width="85%" />
+  <figcaption>RoPE位置编码：每两个维度为一组，根据位置 m 旋转 mθ 角度，将位置信息编码为旋转量</figcaption>
+</div>
+**平移不变性的几何证明**
+
+假设"猫"在位置 1，"鱼"在位置 3，算出 Attention 值 $A$。现在在前面插入 100 个无关 token，"猫"变到位置 101，"鱼"变到位置 103。二者**相对距离不变**（仍是 2），内积中的旋转角度 $(m-n)\theta$ 保持不变，所以 Attention 值仍等于 $A$。
+
+几何上更直观：Q 旋转 $N\theta$，K 旋转 $N\theta$，二者同步旋转，内积（夹角的余弦）不变。
+
+**与工程加速的兼容性**
+
+RoPE 只修改了 Q 和 K 本身，Attention 的计算流程与原版完全相同，因此天然兼容所有 Attention 加速技术：
+- **Flash Attention**：直接可用，无需修改算子；
+- **KV Cache**：直接缓存已旋转的 $\text{K}^{(m)}$，读出即用，无需再次注入位置。
+
+这也是 RoPE 最终胜出的关键工程原因之一——它不仅效果好，而且和整个工程生态完美兼容。
+
+> **常见误解澄清**：很多人以为 RoPE 像 ALiBi 一样保证"Q 与 K 距离越远，Attention 越小"。实际上 RoPE 并不保证这一点——旋转会产生周期性的振荡模式，Attention 随距离呈锯齿状波动。这反而是优势：RoPE 允许模型学习到"虽然距离远，但仍然高度相关"的 Attention 模式（例如长程依赖），而 ALiBi 则硬性压制了远距离的注意力。
+
+
+
+**位置编码的演进**
+| 方案 | 核心思想 | 特点 | 代表模型 |
+|:---|:---|:---|:---|
+| **Absolute PE** | 正余弦或可学习 Embedding | 简单，但外推性差（无法处理比训练更长的序列）| BERT、原始 Transformer |
+| **Relative PE** | 建模 $i$ 和 $j$ 的相对距离 | 关注距离而非绝对坐标 | T5 |
+| **ALiBi** | 在 Attention Score 上减去距离偏差 | 外推性极强，计算极其简单 | MPT、Bloom |
+| **RoPE** | 将 $Q, K$ 旋转特定角度（旋转位置嵌入）| **当前 SOTA**，结合了绝对与相对的优点 | LLaMA、Qwen、Gemma |
+
+**2. 逐点前馈网络（Point-wise FFN）**
+在每个注意力层后，接一个全连接块（通常是 $d_{model} \to 4d_{model} \to d_{model}$），引入非线性变换：
+$$\text{FFN}(x) = \text{max}(0, xW_1 + b_1)W_2 + b_2$$
+
+**3. 残差连接与归一化（Add & Norm）**
+每个子层均采用残差连接，并配合层归一化（LayerNorm）。目前存在两种主流布局：
+- **Post-LN**（原始版）：先计算子层再加残差做 LN。性能好但深层难以训练。
+- **Pre-LN**（现代大模型标配）：先做 LN 再计算子层。训练更稳定，无需复杂的 Warmup 策略（如 GPT-2/3、LLaMA）。
+
+### Encoder 与 Decoder 的差异
+
+Transformer 采用编码器-解码器架构，两者的核心区别在于**掩码（Masking）**：
+- **Encoder**：双向注意力，每个词都能看到序列中的所有词。
+- **Decoder**：采用 **Masked Self-Attention**，确保生成第 $t$ 个词时只能看到前 $t-1$ 个词（防止信息泄露）；同时包含 **Cross-Attention**，用于关注 Encoder 的输出。
 
 <div align="center">
   <img src="../images/DL/transformer-architecture.png" width="80%" />
-  <figcaption>Transformer 架构（Vaswani et al., 2017 "Attention Is All You Need"）：左为编码器，右为解码器</figcaption>
+  <figcaption>Transformer 架构（Vaswani et al., 2017 "Attention Is All You Need"）</figcaption>
 </div>
 
 ### RNN 与 Transformer 对比
 
 | 维度 | RNN/LSTM | Transformer |
 |:---|:---|:---|
-| **计算方式** | 顺序递推，无法并行 | 全并行计算 |
-| **长程依赖** | 梯度消失，难以捕获 | 任意两位置距离恒为 1 |
-| **训练速度** | 慢（序列依赖） | 快（GPU 并行友好）|
-| **序列长度** | 理论无限但实际有限 | 受 $O(n^2)$ 显存限制 |
-| **适用场景** | 流式推理、轻量设备 | 大规模预训练模型 |
+| **计算方式** | 顺序递推，无法并行 | 全并行计算，硬件利用率极高 |
+| **长程依赖** | 随距离指数衰减，难以捕获超长文本 | 任意两位置距离恒为 1，无信息损耗 |
+| **感官范围** | 局部上下文 | 全局上下文 |
+| **归纳偏置** | 强（时序关联） | 弱（全连接性质），需要更多数据训练 |
+| **显存复杂度** | $O(n \cdot d^2)$ | $O(n^2 \cdot d)$，长序列下显存压力大 |
 
-*代表性工作*：BERT（2018，编码器）、GPT 系列（2018-至今，解码器）、ViT（2020，图像 Transformer）
+*代表性工作*：BERT（2018，纯 Encoder）、GPT 系列（2018-至今，纯 Decoder）、T5（2019，Encoder-Decoder）、ViT（2020，将图像分块视为序列）。
 
 ---
 
