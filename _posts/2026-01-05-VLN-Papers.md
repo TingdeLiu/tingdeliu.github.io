@@ -4137,3 +4137,56 @@ Janus-Pro-7B 的多模态理解（图像描述、地标识别、通识问答、�
 ### 4. 局限性
 
 多模态理解输入分辨率限制在 $384 \times 384$，影响 OCR 等细粒度任务性能；VQ tokenizer 的重建损失导致生成图像中小面部区域等细节欠缺，提升分辨率是解决上述两个问题的主要方向。
+
+---
+
+# 参考资料
+
+## VLN 经典论文
+
+1. **DualVLN/InternVLN** (2025). Ground Slow, Move Fast: Dual-System VLN Foundation Model. arXiv: [2512.08186](https://arxiv.org/abs/2512.08186)
+2. **NavDP** (2025). Navigation Diffusion Policy. arXiv: [2505.08712](https://arxiv.org/abs/2505.08712)
+3. **NoMaD** (2023). Goal-Masking Diffusion Policies for Navigation and Exploration. arXiv: [2310.07896](https://arxiv.org/abs/2310.07896)
+4. **ODYSSEY** (2025). arXiv: [2508.08240](https://arxiv.org/abs/2508.08240)
+5. **PanoNav** (2025). Panoramic Vision-Language Navigation. arXiv: [2511.06840](https://arxiv.org/abs/2511.06840)
+6. **VLN-R1** (2025). arXiv: [2506.17221](https://arxiv.org/abs/2506.17221)
+7. **LagMemo** (2025). arXiv: [2510.24118](https://arxiv.org/abs/2510.24118)
+8. **GaussNav** (2025). Gaussian Representation for Visual Navigation. arXiv: [2403.11625](https://arxiv.org/abs/2403.11625)
+9. **VLFM** (2023). Vision-Language Frontier Maps for Zero-Shot Semantic Navigation. arXiv: [2312.03275](https://arxiv.org/abs/2312.03275)
+10. **Motus** (2025). arXiv: [2512.13030](https://arxiv.org/abs/2512.13030)
+11. **NavGPT** (2024). Explicit Reasoning in Vision-Language Navigation with Large Language Models. arXiv: [2305.16986](https://arxiv.org/abs/2305.16986)
+12. **NavGPT-2** (2024). Unleashing Navigational Reasoning Capability for Large Vision-Language Models. arXiv: [2407.12366](https://arxiv.org/abs/2407.12366)
+13. **GaussianAD** (2024). Gaussian-Centric End-to-End Autonomous Driving. arXiv: [2412.10371](https://arxiv.org/abs/2412.10371)
+14. **FSR-VLN** (2025). arXiv: [2509.13733](https://arxiv.org/abs/2509.13733)
+15. **VLingNav** (2026). [Project Page](https://wsakobe.github.io/VLingNav-web/)
+16. **Slow4fast-VLN** (2026). arXiv: [2601.09111](https://arxiv.org/abs/2601.09111)
+17. **FantasyVLN** (2026). arXiv: [2601.13976](https://arxiv.org/abs/2601.13976)
+18. **VL-Nav** (2025). arXiv: [2502.00931](https://arxiv.org/abs/2502.00931)
+19. **StreamVLN** (2025). arXiv: [2507.05240](https://arxiv.org/abs/2507.05240)
+20. **NavFoM** (2025). arXiv: [2509.12129](https://arxiv.org/abs/2509.12129)
+21. **DGNav** (2026). arXiv: [2601.21751](https://arxiv.org/abs/2601.21751)
+22. **MapNav** (2025). arXiv: [2502.13451](https://arxiv.org/abs/2502.13451)
+23. **Hydra-Nav** (2026). arXiv: [2602.09972](https://arxiv.org/abs/2602.09972)
+24. **3DGSNav** (2026). 3D Gaussian Splatting-Based Navigation. arXiv: [2602.12159](https://arxiv.org/abs/2602.12159)
+25. **BudVLN** (2026). arXiv: [2602.06356](https://arxiv.org/abs/2602.06356)
+26. **Open-Nav** (2025). arXiv: [2409.18794](https://arxiv.org/abs/2409.18794)
+27. **CausalNav** (2026). arXiv: [2601.01872](https://arxiv.org/abs/2601.01872)
+28. **SparseVideoNav** (2026). arXiv: [2602.05827](https://arxiv.org/abs/2602.05827)
+29. **AgentVLN** (2026). arXiv: [2603.17670](https://arxiv.org/abs/2603.17670)
+30. **RoboClaw** (2026). arXiv: [2603.11558](https://arxiv.org/abs/2603.11558)
+31. **Skill-Nav** (2025). arXiv: [2506.21853](https://arxiv.org/abs/2506.21853)
+32. **VLN-Cache** (2026). arXiv: [2603.07080](https://arxiv.org/abs/2603.07080)
+33. **Video Generation Models as World Models in Robotics** (2026). arXiv: [2601.07823](https://arxiv.org/abs/2601.07823)
+
+## 基石论文
+
+34. **Diffusion Policy** (2023). Visuomotor Policy Learning via Action Diffusion. arXiv: [2303.04137](https://arxiv.org/abs/2303.04137)
+35. **VLN-CE** (2020). Beyond the Nav-Graph: Vision-and-Language Navigation in Continuous Environments. arXiv: [2004.02857](https://arxiv.org/abs/2004.02857)
+36. **VLN-PE** (2025). Vision-Language Navigation in Physical Embodied Environments. arXiv: [2507.13019](https://arxiv.org/abs/2507.13019)
+37. **Qwen3-VL** (2025). arXiv: [2511.21631](https://arxiv.org/abs/2511.21631)
+38. **Lumina-Next** (2024). Next-DiT Scaling for Next-Generation Image Generation. arXiv: [2406.18583](https://arxiv.org/abs/2406.18583)
+39. **InternVLA-A1** (2026). arXiv: [2601.02456](https://arxiv.org/abs/2601.02456)
+40. **InternData-A1** (2025). arXiv: [2511.16651](https://arxiv.org/abs/2511.16651)
+41. **RynnBrain** (2026). Open Embodied Foundation Models. arXiv: [2602.14979](https://arxiv.org/abs/2602.14979)
+42. **Janus-Pro** (2025). Unified Multimodal Understanding and Generation with Data and Model Scaling. arXiv: [2501.17811](https://arxiv.org/abs/2501.17811)
+
