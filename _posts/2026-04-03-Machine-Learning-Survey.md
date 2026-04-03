@@ -82,23 +82,28 @@ flowchart LR
 
 根据训练数据是否带有标签以及模型与环境的交互方式，机器学习主要分为以下四大范式：
 
-## 3.1 监督学习 (Supervised Learning)
+## 3.1 监督学习 
 
-监督学习是最成熟、应用最广的范式。其训练数据由输入特征 $\mathbf{x}$ 和对应的标签（Ground Truth）$y$ 组成。模型的目标是学习一个映射函数 $f: \mathbf{x} \rightarrow y$。
+监督学习(Supervised Learning)是最成熟、应用最广的范式。其训练数据由输入特征 $\mathbf{x}$ 和对应的标签（Ground Truth）$y$ 组成。模型的目标是学习一个映射函数 $f: \mathbf{x} \rightarrow y$。
 - **核心任务**：分类（Classification，标签为离散类别）与回归（Regression，标签为连续数值）。
 - **代表算法**：线性回归、逻辑回归、SVM、决策树、多数深度神经网络。
 
 ## 3.2 无监督学习 (Unsupervised Learning)
 
-无监督学习的数据**没有标签**，模型需要自主发掘数据内部的潜在结构、模式或分布。
+无监督学习(Unsupervised Learning)的数据**没有标签**，模型需要自主发掘数据内部的潜在结构、模式或分布。
 - **核心任务**：聚类（Clustering）、降维（Dimensionality Reduction）、异常检测（Anomaly Detection）。
 - **代表算法**：K-Means、PCA、自编码器（Autoencoder）、高斯混合模型（GMM）。
 
 ## 3.3 强化学习 (Reinforcement Learning)
 
-强化学习侧重于智能体（Agent）如何在环境（Environment）中采取动作（Action），以最大化累积奖励（Reward）。它没有立即的标注数据，而是通过“试错”（Trial and Error）和“延迟奖励”来进行学习。
+强化学习(Reinforcement Learning)侧重于智能体（Agent）如何在环境（Environment）中采取动作（Action），以最大化累积奖励（Reward）。它没有立即的标注数据，而是通过“试错”（Trial and Error）和“延迟奖励”来进行学习。
 - **核心概念**：状态（State）、动作（Action）、奖励（Reward）、策略（Policy）、价值函数（Value Function）。
 - **代表算法**：Q-Learning、DQN、PPO、SAC。
+
+<div align="center">
+  <img src="/images/ML/RL.png" width="60%" />
+  <figcaption>图：强化学习算法示意图</figcaption>
+</div>
 
 ## 3.4 半监督与自监督学习 (Semi/Self-Supervised Learning)
 
