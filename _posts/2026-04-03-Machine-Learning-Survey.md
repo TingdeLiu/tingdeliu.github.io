@@ -255,12 +255,13 @@ KNN 是一种典型的“懒惰学习（Lazy Learning）”算法，它在训练
 ## 4.11 主成分分析 (PCA) 与 t-SNE
 
 - **主成分分析 (PCA)**：一种经典的线性降维方法。核心思想是通过正交变换，将可能相关的原始高维特征投影到一个新的正交坐标系中，这些新的坐标轴（主成分）按照数据方差的大小排列。保留前几个方差最大的主成分，可以在损失最少信息的前提下实现降维、数据去相关性和压缩。
-- **t-SNE (t-Distributed Stochastic Neighbor Embedding)**：一种非线性降维算法，主要用于将高维数据映射到 2D 或 3D 空间进行可视化。它通过将数据点之间的欧氏距离转化为条件概率来表达相似度，并使用 t 分布缓解高维空间映射到低维时的“拥挤问题（Crowding Problem）”，能够非常出色地保持数据的局部流形结构和类内聚集特征。
 
 <div align="center">
   <img src="/images/ML/pca.png" width="60%" />
   <figcaption>图：主成分分析 (PCA) 降维示意图</figcaption>
 </div>
+
+- **t-SNE (t-Distributed Stochastic Neighbor Embedding)**：一种非线性降维算法，主要用于将高维数据映射到 2D 或 3D 空间进行可视化。它通过将数据点之间的欧氏距离转化为条件概率来表达相似度，并使用 t 分布缓解高维空间映射到低维时的“拥挤问题（Crowding Problem）”，能够非常出色地保持数据的局部流形结构和类内聚集特征。
 
 <div align="center">
   <img src="/images/ML/tsne.png" width="60%" />
