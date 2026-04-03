@@ -1330,7 +1330,25 @@ $$\delta = \psi_e + \arctan\left(\frac{k \cdot e}{v}\right)$$
   <figcaption>图：Stanley 控制器路径跟踪仿真——同时修正航向误差和横向偏差，转弯处精度更高</figcaption>
 </div>
 
-## 6.5 路径跟踪算法对比汇总
+## 6.5 LQR 路径跟踪
+
+**线性二次调节器（Linear Quadratic Regulator）**将路径跟踪问题建模为**最优控制问题**。在车辆线性化模型下，LQR 求解最小化如下代价函数的最优控制律：
+
+$$J = \sum_{t=0}^{\infty} \left( \mathbf{e}_t^T \mathbf{Q} \mathbf{e}_t + u_t^T \mathbf{R} u_t \right)$$
+
+其中 $\mathbf{e}_t$ 是跟踪误差（横向偏差 + 航向误差），$u_t$ 是控制输入（转向角），$\mathbf{Q}$ 和 $\mathbf{R}$ 是权重矩阵（调参关键：$\mathbf{Q}$ 大表示"更重视减小误差"，$\mathbf{R}$ 大表示"更重视平稳控制"）。
+
+✅ 理论上最优，精度高
+✅ 系统响应平滑
+❌ 依赖精确的线性化模型
+❌ $\mathbf{Q}$、$\mathbf{R}$ 矩阵调参需要经验
+
+<div align="center">
+  <img src="/images/robotics_navigation/lqr_path_tracking.gif" width="75%" />
+  <figcaption>图：LQR 路径跟踪仿真——最优控制律使得跟踪误差最小化，响应平滑稳定</figcaption>
+</div>
+
+## 6.6 路径跟踪算法对比汇总
 
 | 控制器 | 跟踪精度 | 计算量 | 参数数量 | 适用速度 | 典型应用 |
 |--------|---------|--------|---------|---------|---------|
@@ -1338,6 +1356,7 @@ $$\delta = \psi_e + \arctan\left(\frac{k \cdot e}{v}\right)$$
 | **Adaptive Pure Pursuit** | 中 | 极低 | 1（$k$） | 全速域 | 一般移动机器人 |
 | **Stanley** | 中–高 | 低 | 1（$k$） | 低–高 | 自动驾驶 |
 | **后轮反馈** | 中–高 | 低 | 少 | 全速域 | 差速轮式机器人 |
+| **LQR** | 高 | 中 | 2（$\mathbf{Q}$, $\mathbf{R}$） | 低–高 | 自动驾驶、高精度机器人 |
 
 ---
 
@@ -1367,25 +1386,7 @@ $$u_k = K_p e_k + K_i \sum_{j=0}^{k} e_j \Delta t + K_d \frac{e_k - e_{k-1}}{\De
 ❌ 参数固定，难以适应非线性和时变系统
 ❌ 无法显式处理约束（如最大转速、最大转向角）
 
-## 7.2 LQR 路径跟踪
-
-**线性二次调节器（Linear Quadratic Regulator）**将路径跟踪问题建模为**最优控制问题**。在车辆线性化模型下，LQR 求解最小化如下代价函数的最优控制律：
-
-$$J = \sum_{t=0}^{\infty} \left( \mathbf{e}_t^T \mathbf{Q} \mathbf{e}_t + u_t^T \mathbf{R} u_t \right)$$
-
-其中 $\mathbf{e}_t$ 是跟踪误差（横向偏差 + 航向误差），$u_t$ 是控制输入（转向角），$\mathbf{Q}$ 和 $\mathbf{R}$ 是权重矩阵（调参关键：$\mathbf{Q}$ 大表示"更重视减小误差"，$\mathbf{R}$ 大表示"更重视平稳控制"）。
-
-✅ 理论上最优，精度高
-✅ 系统响应平滑
-❌ 依赖精确的线性化模型
-❌ $\mathbf{Q}$、$\mathbf{R}$ 矩阵调参需要经验
-
-<div align="center">
-  <img src="/images/robotics_navigation/lqr_path_tracking.gif" width="75%" />
-  <figcaption>图：LQR 路径跟踪仿真——最优控制律使得跟踪误差最小化，响应平滑稳定</figcaption>
-</div>
-
-## 7.3 MPC（模型预测控制，Model Predictive Control）
+## 7.2 MPC（模型预测控制，Model Predictive Control）
 
 MPC 是目前自动驾驶和高精度机器人控制中最受关注的方法之一。**核心思想**：在每个控制周期内，基于当前状态和系统模型，求解一个**有限时域优化问题**，输出一段最优控制序列，但只执行第一步，然后在下一周期重新求解——即"**滚动优化、反馈校正**"。
 
@@ -1418,7 +1419,7 @@ $$\text{s.t.} \quad \mathbf{x}_{k+1} = f(\mathbf{x}_k, u_k), \quad \mathbf{x}_k 
 | **线性 MPC** | 线性化运动学模型 | QP（OSQP） | 中 | 低速 AGV、移动机器人 |
 | **非线性 MPC** | 完整非线性模型 | NLP（CasADi+IPOPT） | 高 | 高速自动驾驶、无人机 |
 
-## 7.4 模糊 PID 控制（Fuzzy PID）
+## 7.3 模糊 PID 控制（Fuzzy PID）
 
 在传统的 PID 控制基础上引入模糊推理机，实现 $K_p, K_i, K_d$ 参数的**在线自整定**。系统以横向/航向误差及误差变化率为输入，根据预设的模糊规则表实时修正参数。
 
@@ -1426,7 +1427,7 @@ $$\text{s.t.} \quad \mathbf{x}_{k+1} = f(\mathbf{x}_k, u_k), \quad \mathbf{x}_k 
 ✅ **计算高效**：计算开销远小于 MPC，非常适合算力受限的嵌入式平台
 ❌ 依赖模糊规则的人工设计，缺乏 LQR 那样的严格最优性证明
 
-## 7.5 控制器对比汇总
+## 7.4 控制器对比汇总
 
 | 控制器 | 需要模型 | 处理约束 | 计算量 | 精度 | 典型应用 |
 |--------|---------|---------|--------|------|---------|
