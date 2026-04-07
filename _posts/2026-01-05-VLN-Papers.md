@@ -4325,6 +4325,7 @@ Janus-Pro-7B 的多模态理解（图像描述、地标识别、通识问答、�
                   '实机部署', '加速优化', '基础工作'];
 
   var activeTags = [];
+  var resultsPanel = null;
 
   function getTagsForTitle(text) {
     for (var i = 0; i < TAG_MAP.length; i++) {
@@ -4340,11 +4341,19 @@ Janus-Pro-7B 的多模态理解（图像描述、地标识别、通识问答、�
     updateFilter();
   }
 
+  // AND logic: paper must have ALL selected tags
+  function sectionMatches(sectionTags) {
+    return activeTags.every(function (t) {
+      return sectionTags.indexOf(t) !== -1;
+    });
+  }
+
   function updateFilter() {
     var sections = document.querySelectorAll('.paper-section');
     var bar = document.getElementById('paper-filter-bar');
-    var visibleCount = 0;
+    var matchedSections = [];
 
+    // Update button active states
     bar.querySelectorAll('.filter-btn').forEach(function (btn) {
       var t = btn.getAttribute('data-tag');
       if (t === '__all__') {
@@ -4354,20 +4363,46 @@ Janus-Pro-7B 的多模态理解（图像描述、地标识别、通识问答、�
       }
     });
 
+    // Show/hide sections (AND logic)
     sections.forEach(function (s) {
       var sectionTags = s.getAttribute('data-tags').split(',');
-      var visible = activeTags.length === 0 ||
-        sectionTags.some(function (t) { return activeTags.indexOf(t) !== -1; });
+      var visible = activeTags.length === 0 || sectionMatches(sectionTags);
       s.classList.toggle('hidden', !visible);
-      if (visible) visibleCount++;
+      if (visible) matchedSections.push(s);
     });
 
+    // Update count
     var countEl = bar.querySelector('.filter-count');
     if (countEl) {
       countEl.textContent = activeTags.length === 0
         ? '共 ' + sections.length + ' 篇'
-        : visibleCount + ' / ' + sections.length + ' 篇';
+        : matchedSections.length + ' / ' + sections.length + ' 篇';
     }
+
+    // Update results panel
+    updateResultsPanel(matchedSections, sections.length);
+  }
+
+  function updateResultsPanel(matchedSections, total) {
+    if (!resultsPanel) return;
+    if (activeTags.length === 0) {
+      resultsPanel.style.display = 'none';
+      return;
+    }
+    resultsPanel.style.display = 'block';
+    var list = resultsPanel.querySelector('.results-list');
+    list.innerHTML = '';
+    matchedSections.forEach(function (s) {
+      var h2 = s.querySelector('h2');
+      if (!h2) return;
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      a.href = '#' + h2.id;
+      // Clean title: strip leading number like "1. "
+      a.textContent = h2.textContent.trim();
+      li.appendChild(a);
+      list.appendChild(li);
+    });
   }
 
   function buildFilterBar() {
@@ -4401,6 +4436,19 @@ Janus-Pro-7B 的多模态理解（图像描述、地标识别、通识问答、�
     var count = document.createElement('span');
     count.className = 'filter-count';
     bar.appendChild(count);
+
+    // Results panel injected right after filter bar
+    resultsPanel = document.createElement('div');
+    resultsPanel.className = 'paper-filter-results';
+    resultsPanel.style.display = 'none';
+    var rLabel = document.createElement('span');
+    rLabel.className = 'results-label';
+    rLabel.textContent = '匹配论文：';
+    var rList = document.createElement('ul');
+    rList.className = 'results-list';
+    resultsPanel.appendChild(rLabel);
+    resultsPanel.appendChild(rList);
+    bar.insertAdjacentElement('afterend', resultsPanel);
   }
 
   function wrapSections() {
