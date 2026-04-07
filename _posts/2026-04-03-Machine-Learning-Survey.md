@@ -504,7 +504,7 @@ $$ \min_G \max_D \; \mathbb{E}_{\mathbf{x} \sim p_{data}}[\log D(\mathbf{x})] + 
 
 ## 3.18 自编码器 (Autoencoder)
 
-自编���器（Autoencoder, AE）是一种无监督学习的神经网络模型，核心目标是学习数据的压缩表示。
+自编码器（Autoencoder, AE）是一种无监督学习的神经网络模型，核心目标是学习数据的压缩表示。
 
 - **架构**：由**编码器（Encoder）** $f_\theta$ 和**解码器（Decoder）** $g_\phi$ 两部分组成。编码器将高维输入 $\mathbf{x} \in \mathbb{R}^n$ 压缩为低维潜在表示 $\mathbf{z} = f_\theta(\mathbf{x}) \in \mathbb{R}^d$（其中 $d \ll n$）���解码器再将 $\mathbf{z}$ 映射回原始空间，生成重构 $\hat{\mathbf{x}} = g_\phi(\mathbf{z})$。
 - **核心思想**：通过”瓶颈”结构（低维隐层）迫使网络学习数据中最本质的特征，丢弃冗余信息。可以类比为一种非线性的 PCA。

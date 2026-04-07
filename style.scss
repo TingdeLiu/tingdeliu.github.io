@@ -547,6 +547,80 @@ nav {
   }
 }
 
+// Paper filter system
+.paper-filter-bar {
+  margin: 20px 0;
+  padding: 12px 16px;
+  background: $background-lighten-color;
+  border: 1px solid $divider-color;
+  border-radius: 8px;
+
+  .filter-label {
+    display: inline-block;
+    font-size: $small-font-size;
+    color: $base-lighten-color;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  .filter-btn {
+    display: inline-block;
+    margin: 3px 4px 3px 0;
+    padding: 2px 10px;
+    font-size: 13px;
+    color: $base-color;
+    background-color: $white;
+    border: 1px solid $table-border-color;
+    border-radius: 12px;
+    cursor: pointer;
+    vertical-align: middle;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+    &:hover {
+      border-color: $link-color;
+      color: $link-color;
+    }
+
+    &.active {
+      background-color: $link-color;
+      border-color: $link-color;
+      color: $white;
+    }
+  }
+
+  .filter-count {
+    font-size: $small-font-size;
+    color: $base-lighten-color;
+    margin-left: 8px;
+  }
+}
+
+.paper-section {
+  &.hidden {
+    display: none;
+  }
+}
+
+.paper-tags-row {
+  margin: 4px 0 14px;
+
+  .paper-tag {
+    display: inline-block;
+    margin: 2px 4px 2px 0;
+    padding: 1px 9px;
+    font-size: 12px;
+    color: $link-color;
+    background-color: $link-bghv-color;
+    border-radius: 10px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $link-color;
+      color: $white;
+    }
+  }
+}
+
 .posts > .post {
   padding-bottom: 2em;
   border-bottom: 1px solid $divider-color;
