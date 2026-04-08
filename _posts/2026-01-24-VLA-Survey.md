@@ -1,12 +1,12 @@
 ---
 layout: post
 title: "VLA综述：具身智能路线梳理"
-date: 2026-01-24
+date:  2026-01-24
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "视觉-语言-动作（VLA）模型是机器人领域的前沿研究方向。本文结合"两年三次范式跃迁"的发展脉络，全面梳理VLA的基本概念、核心技术（如Action Chunking、Diffusion Policy、Flow Matching）以及强化学习（RL）重返舞台的最新进展，并提供完整的具身智能入门路线。"
+excerpt: "视觉-语言-动作（VLA）模型是机器人领域的前沿研究方向。本文结合「两年三次范式跃迁」的发展脉络，全面梳理VLA的基本概念、核心技术（如Action Chunking、Diffusion Policy、Flow Matching）以及强化学习（RL）重返舞台的最新进展，并提供完整的具身智能入门路线。"
 ---
 
 # 1. 引言
