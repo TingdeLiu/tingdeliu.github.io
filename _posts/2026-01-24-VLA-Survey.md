@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "VLA综述：两年三次范式跃迁，从SayCan到pi0的具身智能路线全梳理"
+title: "VLA综述：具身智能路线梳理"
 date: 2026-01-24
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 comments: true
