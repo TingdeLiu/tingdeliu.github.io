@@ -479,14 +479,30 @@ flowchart TD
 
 **空间细分原理**：
 
+```mermaid
+graph TD
+    R["🌐 根节点<br/>整个空间"]
+    R --> N1["📦 子节点 1<br/>空间的 1/8"]
+    R --> N2["📦 子节点 2<br/>空间的 1/8"]
+    R --> ND["… 共 8 个子节点"]
+    R --> N8["📦 子节点 8<br/>空间的 1/8"]
+    N1 --> L1["🟩 叶节点（体素）<br/>已足够小，停止细分"]
+    N1 --> L2["🟥 叶节点（体素）<br/>已足够小，停止细分"]
+    N2 --> N21["📦 继续细分<br/>子节点的 1/8"]
+    N21 --> L3["🟨 叶节点（体素）"]
+
+    style R fill:#4a90d9,color:#fff,stroke:#2c6fad
+    style N1 fill:#6db8f2,color:#fff,stroke:#4a90d9
+    style N2 fill:#6db8f2,color:#fff,stroke:#4a90d9
+    style N8 fill:#6db8f2,color:#fff,stroke:#4a90d9
+    style ND fill:#ccc,color:#555,stroke:#aaa
+    style N21 fill:#a8d4f5,color:#333,stroke:#6db8f2
+    style L1 fill:#52c41a,color:#fff,stroke:#389e0d
+    style L2 fill:#ff4d4f,color:#fff,stroke:#cf1322
+    style L3 fill:#faad14,color:#fff,stroke:#d48806
 ```
-根节点（整个空间）
-├── 子节点 1（空间的 1/8）
-│   ├── 叶节点（体素，若足够小则停止细分）
-│   └── ...
-└── 子节点 8
-    └── ...
-```
+
+> 🟩 自由体素 　🟥 占据体素 　🟨 未知体素 　深色节点 = 仍可继续细分
 
 体素大小（分辨率）通常设为 5–20 cm，可按需调整。
 
