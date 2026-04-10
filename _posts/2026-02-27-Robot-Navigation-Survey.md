@@ -1666,7 +1666,7 @@ $$\omega_R = \frac{v + b\omega}{r}, \quad \omega_L = \frac{v - b\omega}{r}$$
 | **自由度** | 2（$v$, $\omega$），非完整约束（不能横向平移） |
 | **转弯半径** | $R = v / \omega$，可取 $0$（原地旋转） |
 | **瞬时旋转中心** | 位于两轮连线延长线上，$\omega_L = -\omega_R$ 时在轴心原地旋转 |
-| **速度约束** | $|v| \le v_{\max}$，$|\omega| \le \omega_{\max}$，各轮转速不超硬件上限 |
+| **速度约束** | $\vert v \vert \le v_{\max}$，$\vert\omega\vert \le \omega_{\max}$，各轮转速不超硬件上限 |
 
 ### 对规划算法的影响
 
