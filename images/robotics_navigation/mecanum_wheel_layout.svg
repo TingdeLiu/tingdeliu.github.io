@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="580" height="430" viewBox="0 0 580 430">
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#555"/>
+    </marker>
+    <marker id="arrBlue" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#1565c0"/>
+    </marker>
+    <marker id="arrGreen" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#2e7d32"/>
+    </marker>
+    <marker id="arrOrange" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#e65100"/>
+    </marker>
+    <marker id="arrDim" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="#888"/>
+    </marker>
+    <marker id="arrDimL" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto-start-reverse">
+      <polygon points="0 0,7 3.5,0 7" fill="#888"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="580" height="430" fill="#f9f9fb" rx="8" stroke="#dde" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="290" y="26" text-anchor="middle"
+        font-family="'Microsoft YaHei','PingFang SC',Arial,sans-serif"
+        font-size="14" font-weight="bold" fill="#222">四轮 Mecanum 底盘布局（俯视图）</text>
+
+  <!-- Robot body -->
+  <rect x="175" y="130" width="230" height="170" rx="12" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+
+  <!-- Forward arrow -->
+  <line x1="290" y1="130" x2="290" y2="75" stroke="#1565c0" stroke-width="2.5" marker-end="url(#arrBlue)"/>
+  <text x="300" y="98" font-family="Arial,sans-serif" font-size="13" fill="#1565c0" font-style="italic">v</text>
+  <text x="300" y="113" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="10" fill="#1565c0">前进方向</text>
+
+  <!-- Center cross -->
+  <circle cx="290" cy="215" r="5" fill="#546e7a"/>
+  <line x1="260" y1="215" x2="320" y2="215" stroke="#90a4ae" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="290" y1="185" x2="290" y2="245" stroke="#90a4ae" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- ===== WHEEL HELPER MACRO via groups ===== -->
+
+  <!-- FL wheel (ω1, left-front): roller direction / (45°, bottom-left to top-right) -->
+  <g transform="translate(153,152)">
+    <rect x="-22" y="-38" width="44" height="76" rx="6" fill="#37474f" stroke="#263238" stroke-width="1.5"/>
+    <!-- roller lines: direction / inside wheel -->
+    <line x1="-14" y1="28" x2="14" y2="-28" stroke="#90a4ae" stroke-width="2"/>
+    <line x1="-14" y1="10" x2="14" y2="-10" stroke="#90a4ae" stroke-width="2"/>
+    <line x1="-14" y1="-8" x2="8" y2="-28" stroke="#90a4ae" stroke-width="2"/>
+    <line x1="-6" y1="28" x2="14" y2="8" stroke="#90a4ae" stroke-width="2"/>
+  </g>
+  <text x="85" y="120" font-family="Arial,sans-serif" font-size="13" fill="#c62828" font-weight="bold">ω₁</text>
+  <text x="75" y="136" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#555">左前</text>
+  <!-- force direction arrow: 45° upward-right -->
+  <line x1="153" y1="152" x2="185" y2="120" stroke="#c62828" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+
+  <!-- FR wheel (ω2, right-front): roller direction \ (135°, top-left to bottom-right) -->
+  <g transform="translate(427,152)">
+    <rect x="-22" y="-38" width="44" height="76" rx="6" fill="#37474f" stroke="#263238" stroke-width="1.5"/>
+    <!-- roller lines: direction \ -->
+    <line x1="14" y1="28" x2="-14" y2="-28" stroke="#90a4ae" stroke-width="2"/>
+    <line x1="14" y1="10" x2="-14" y2="-10" stroke="#90a4ae" stroke-width="2"/>
+    <line x1="14" y1="-8" x2="-8" y2="-28" stroke="#90a4ae" stroke-width="2"/>
+    <line x1="6" y1="28" x2="-14" y2="8" stroke="#90a4ae" stroke-width="2"/>
+  </g>
+  <text x="450" y="120" font-family="Arial,sans-serif" font-size="13" fill="#1565c0" font-weight="bold">ω₂</text>
+  <text x="450" y="136" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#555">右前</text>
+  <!-- force direction: 45° upward-left -->
+  <line x1="427" y1="152" x2="395" y2="120" stroke="#1565c0" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+
+  <!-- RL wheel (ω3, left-rear): roller direction \ -->
+  <g transform="translate(153,278)">
+    <rect x="-22" y="-38" width="44" height="76" rx="6" fill="#37474f" stroke="#263238" stroke-width="1.5"/>
+    <!-- roller lines: direction \ -->
+    <line x1="14" y1="28" x2="-14" y2="-28" stroke="#90a4ae" stroke-width="2"/>
+    <line x1="14" y1="10" x2="-14" y2="-10" stroke="#90a4ae" stroke-width="2"/>
+    <line x1="14" y1="-8" x2="-8" y2="-28" stroke="#90a4ae" stroke-width="2"/>
+    <line x1="6" y1="28" x2="-14" y2="8" stroke="#90a4ae" stroke-width="2"/>
+  </g>
+  <text x="85" y="295" font-family="Arial,sans-serif" font-size="13" fill="#2e7d32" font-weight="bold">ω₃</text>
+  <text x="75" y="311" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#555">左后</text>
+  <!-- force direction: 45° downward-right -->
+  <line x1="153" y1="278" x2="185" y2="310" stroke="#2e7d32" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+
+  <!-- RR wheel (ω4, right-rear): roller direction / -->
+  <g transform="translate(427,278)">
+    <rect x="-22" y="-38" width="44" height="76" rx="6" fill="#37474f" stroke="#263238" stroke-width="1.5"/>
+    <!-- roller lines: direction / -->
+    <line x1="-14" y1="28" x2="14" y2="-28" stroke="#90a4ae" stroke-width="2"/>
+    <line x1="-14" y1="10" x2="14" y2="-10" stroke="#90a4ae" stroke-width="2"/>
+    <line x1="-14" y1="-8" x2="8" y2="-28" stroke="#90a4ae" stroke-width="2"/>
+    <line x1="-6" y1="28" x2="14" y2="8" stroke="#90a4ae" stroke-width="2"/>
+  </g>
+  <text x="450" y="295" font-family="Arial,sans-serif" font-size="13" fill="#e65100" font-weight="bold">ω₄</text>
+  <text x="450" y="311" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#555">右后</text>
+  <!-- force direction: 45° downward-left -->
+  <line x1="427" y1="278" x2="395" y2="310" stroke="#e65100" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+
+  <!-- lx dimension (longitudinal half-distance) -->
+  <line x1="290" y1="152" x2="290" y2="278" stroke="#888" stroke-width="1"
+        marker-start="url(#arrDimL)" marker-end="url(#arrDim)"/>
+  <text x="296" y="220" font-family="Arial,sans-serif" font-size="11" fill="#666" font-style="italic">2l</text>
+  <text x="313" y="224" font-family="Arial,sans-serif" font-size="8" fill="#666" font-style="italic">x</text>
+
+  <!-- ly dimension (lateral half-distance) -->
+  <line x1="153" y1="215" x2="427" y2="215" stroke="#888" stroke-width="1"
+        marker-start="url(#arrDimL)" marker-end="url(#arrDim)"/>
+  <text x="284" y="232" font-family="Arial,sans-serif" font-size="11" fill="#666" font-style="italic">2l</text>
+  <text x="301" y="236" font-family="Arial,sans-serif" font-size="8" fill="#666" font-style="italic">y</text>
+
+  <!-- Mecanum motion modes box -->
+  <rect x="30" y="345" width="520" height="60" rx="6" fill="#fff8e1" stroke="#f9a825" stroke-width="1.2"/>
+  <text x="290" y="363" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" font-weight="bold" fill="#555">典型运动模式</text>
+  <text x="50" y="381" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="10" fill="#333">前进：ω₁=ω₂=ω₃=ω₄（同向）</text>
+  <text x="50" y="396" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="10" fill="#333">横移：ω₁=ω₄＞0，ω₂=ω₃＜0</text>
+  <text x="295" y="381" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="10" fill="#333">旋转：ω₁=ω₃＜0，ω₂=ω₄＞0</text>
+  <text x="295" y="396" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="10" fill="#333">斜移：各轮差速组合</text>
+</svg>

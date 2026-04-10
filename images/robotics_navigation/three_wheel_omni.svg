@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="440" viewBox="0 0 520 440">
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#555"/>
+    </marker>
+    <marker id="arrBlue" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#1565c0"/>
+    </marker>
+    <marker id="arrRed" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#c62828"/>
+    </marker>
+    <marker id="arrGreen" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#2e7d32"/>
+    </marker>
+    <marker id="arrOrange" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#e65100"/>
+    </marker>
+    <marker id="arrDim" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="#888"/>
+    </marker>
+    <marker id="arrDimL" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto-start-reverse">
+      <polygon points="0 0,7 3.5,0 7" fill="#888"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="520" height="440" fill="#f9f9fb" rx="8" stroke="#dde" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="260" y="26" text-anchor="middle"
+        font-family="'Microsoft YaHei','PingFang SC',Arial,sans-serif"
+        font-size="14" font-weight="bold" fill="#222">三轮全向底盘布局（俯视图）</text>
+
+  <!-- Center of robot -->
+  <!-- cx=260, cy=220, radius of wheel placement d=120 -->
+
+  <!-- Robot body circle -->
+  <circle cx="260" cy="220" r="100" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+
+  <!-- Center point -->
+  <circle cx="260" cy="220" r="5" fill="#546e7a"/>
+
+  <!-- Radial lines to wheels (dashed) -->
+  <!-- Wheel 1: φ1=90° → top: (260, 220-120)=(260,100) -->
+  <line x1="260" y1="220" x2="260" y2="100" stroke="#aaa" stroke-width="1.2" stroke-dasharray="5,4"/>
+  <!-- Wheel 2: φ2=210° → (260+120cos210°, 220-120sin210°) = (260-103.9, 220+60) = (156,280) -->
+  <line x1="260" y1="220" x2="156" y2="280" stroke="#aaa" stroke-width="1.2" stroke-dasharray="5,4"/>
+  <!-- Wheel 3: φ3=330° → (260+120cos330°, 220-120sin330°) = (260+103.9, 220+60) = (364,280) -->
+  <line x1="260" y1="220" x2="364" y2="280" stroke="#aaa" stroke-width="1.2" stroke-dasharray="5,4"/>
+
+  <!-- d label on line to wheel 1 -->
+  <text x="268" y="165" font-family="Arial,sans-serif" font-size="13" fill="#666" font-style="italic">d</text>
+
+  <!-- === Wheel 1 (top, φ1=90°) === -->
+  <!-- wheel is perpendicular to radius, so it's horizontal at (260,100) -->
+  <g transform="translate(260,100) rotate(0)">
+    <rect x="-30" y="-12" width="60" height="24" rx="5" fill="#c62828" stroke="#b71c1c" stroke-width="1.5"/>
+    <!-- roller lines (omni wheel rollers, perpendicular to wheel axis) -->
+    <line x1="-20" y1="-10" x2="-20" y2="10" stroke="#ef9a9a" stroke-width="1.5"/>
+    <line x1="-8" y1="-10" x2="-8" y2="10" stroke="#ef9a9a" stroke-width="1.5"/>
+    <line x1="4" y1="-10" x2="4" y2="10" stroke="#ef9a9a" stroke-width="1.5"/>
+    <line x1="16" y1="-10" x2="16" y2="10" stroke="#ef9a9a" stroke-width="1.5"/>
+  </g>
+  <!-- ω1 label -->
+  <text x="278" y="92" font-family="Arial,sans-serif" font-size="14" fill="#c62828" font-weight="bold">ω₁</text>
+  <!-- φ1 label -->
+  <text x="220" y="108" font-family="Arial,sans-serif" font-size="12" fill="#c62828">φ₁=90°</text>
+  <!-- ω1 rotation arc -->
+  <path d="M 240,100 A 18,18 0 0,1 280,100" fill="none" stroke="#c62828" stroke-width="2" marker-end="url(#arrRed)"/>
+  <!-- drive force arrow (perpendicular to radius = horizontal) -->
+  <line x1="260" y1="100" x2="220" y2="100" stroke="#c62828" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrRed)"/>
+
+  <!-- === Wheel 2 (bottom-left, φ2=210°) === -->
+  <!-- radius direction: cos210°=-0.866, sin210°=-0.5 → pointing to lower-left -->
+  <!-- wheel perpendicular to radius → rotate 210-90=120° from horizontal → rotate(120) -->
+  <g transform="translate(156,280) rotate(120)">
+    <rect x="-30" y="-12" width="60" height="24" rx="5" fill="#2e7d32" stroke="#1b5e20" stroke-width="1.5"/>
+    <line x1="-20" y1="-10" x2="-20" y2="10" stroke="#a5d6a7" stroke-width="1.5"/>
+    <line x1="-8" y1="-10" x2="-8" y2="10" stroke="#a5d6a7" stroke-width="1.5"/>
+    <line x1="4" y1="-10" x2="4" y2="10" stroke="#a5d6a7" stroke-width="1.5"/>
+    <line x1="16" y1="-10" x2="16" y2="10" stroke="#a5d6a7" stroke-width="1.5"/>
+  </g>
+  <text x="95" y="285" font-family="Arial,sans-serif" font-size="14" fill="#2e7d32" font-weight="bold">ω₂</text>
+  <text x="85" y="305" font-family="Arial,sans-serif" font-size="12" fill="#2e7d32">φ₂=210°</text>
+  <!-- drive force arrow (perpendicular to radius at 210° → direction 120° from x) -->
+  <!-- perpendicular to (cos210,sin210) is (sin210,-cos210)=(−0.5,0.866) or (0.5,−0.866) -->
+  <line x1="156" y1="280" x2="130" y2="235" stroke="#2e7d32" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrGreen)"/>
+
+  <!-- === Wheel 3 (bottom-right, φ3=330°) === -->
+  <!-- perpendicular to radius: rotate 330-90=240° -->
+  <g transform="translate(364,280) rotate(240)">
+    <rect x="-30" y="-12" width="60" height="24" rx="5" fill="#e65100" stroke="#bf360c" stroke-width="1.5"/>
+    <line x1="-20" y1="-10" x2="-20" y2="10" stroke="#ffcc80" stroke-width="1.5"/>
+    <line x1="-8" y1="-10" x2="-8" y2="10" stroke="#ffcc80" stroke-width="1.5"/>
+    <line x1="4" y1="-10" x2="4" y2="10" stroke="#ffcc80" stroke-width="1.5"/>
+    <line x1="16" y1="-10" x2="16" y2="10" stroke="#ffcc80" stroke-width="1.5"/>
+  </g>
+  <text x="390" y="285" font-family="Arial,sans-serif" font-size="14" fill="#e65100" font-weight="bold">ω₃</text>
+  <text x="383" y="305" font-family="Arial,sans-serif" font-size="12" fill="#e65100">φ₃=330°</text>
+  <!-- drive force arrow (perpendicular to radius at 330° → direction 60° from x = upper-right) -->
+  <line x1="364" y1="280" x2="390" y2="235" stroke="#e65100" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrOrange)"/>
+
+  <!-- 120° angle arcs between radii -->
+  <path d="M 260,180 A 40,40 0 0,1 225,255" fill="none" stroke="#90a4ae" stroke-width="1.3" stroke-dasharray="3,3"/>
+  <text x="224" y="220" font-family="Arial,sans-serif" font-size="11" fill="#888">120°</text>
+
+  <path d="M 225,255 A 40,40 0 0,1 295,255" fill="none" stroke="#90a4ae" stroke-width="1.3" stroke-dasharray="3,3"/>
+  <text x="248" y="275" font-family="Arial,sans-serif" font-size="11" fill="#888">120°</text>
+
+  <path d="M 295,255 A 40,40 0 0,1 260,180" fill="none" stroke="#90a4ae" stroke-width="1.3" stroke-dasharray="3,3"/>
+  <text x="290" y="215" font-family="Arial,sans-serif" font-size="11" fill="#888">120°</text>
+
+  <!-- Forward direction arrow -->
+  <line x1="260" y1="220" x2="260" y2="155" stroke="#1565c0" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrBlue)"/>
+  <text x="268" y="180" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#1565c0">前进</text>
+
+  <!-- Formula box -->
+  <rect x="30" y="355" width="460" height="60" rx="6" fill="#fff8e1" stroke="#f9a825" stroke-width="1.2"/>
+  <text x="260" y="374" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" font-weight="bold" fill="#555">逆运动学：ωᵢ = (1/r)(−sin φᵢ · vₓ + cos φᵢ · vᵧ + d · ωz)</text>
+  <text x="260" y="395" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="10.5" fill="#555">三轮互成 120° 均匀分布，d 为轮心到底盘中心距离，r 为轮半径</text>
+
+  <!-- Legend dashes = drive force direction -->
+  <line x1="35" y1="337" x2="65" y2="337" stroke="#555" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+  <text x="70" y="341" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#555">各轮驱动力方向（垂直于辊子轴）</text>
+</svg>

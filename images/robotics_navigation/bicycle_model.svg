@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="420" viewBox="0 0 560 420">
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#555"/>
+    </marker>
+    <marker id="arrBlue" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#1565c0"/>
+    </marker>
+    <marker id="arrOrange" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#e65100"/>
+    </marker>
+    <marker id="arrGreen" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#2e7d32"/>
+    </marker>
+    <marker id="arrDim" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="#888"/>
+    </marker>
+    <marker id="arrDimL" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto-start-reverse">
+      <polygon points="0 0,7 3.5,0 7" fill="#888"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="560" height="420" fill="#f9f9fb" rx="8" stroke="#dde" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="280" y="26" text-anchor="middle"
+        font-family="'Microsoft YaHei','PingFang SC',Arial,sans-serif"
+        font-size="14" font-weight="bold" fill="#222">阿克曼自行车模型近似</text>
+
+  <!-- World frame -->
+  <line x1="45" y1="370" x2="85" y2="370" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="45" y1="370" x2="45" y2="330" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="90" y="374" font-family="Arial,sans-serif" font-size="11" fill="#555">x</text>
+  <text x="38" y="325" font-family="Arial,sans-serif" font-size="11" fill="#555">y</text>
+
+  <!-- Turning arc (trajectory of rear wheel) -->
+  <path d="M 220,330 A 200,200 0 0,1 370,120" fill="none" stroke="#e53935" stroke-width="1.5" stroke-dasharray="8,5"/>
+
+  <!-- ICR -->
+  <circle cx="60" cy="330" r="6" fill="#e53935" stroke="#b71c1c" stroke-width="1.5"/>
+  <text x="68" y="325" font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#c62828">ICR</text>
+
+  <!-- R arc label -->
+  <line x1="60" y1="330" x2="220" y2="330" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="138" y="322" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#888" font-style="italic">R</text>
+
+  <!-- Rear wheel (reference point) -->
+  <ellipse cx="220" cy="330" rx="14" ry="26" fill="#37474f" stroke="#263238" stroke-width="1.5"/>
+  <circle cx="220" cy="330" r="5" fill="#fff" stroke="#555" stroke-width="1.5"/>
+  <text x="240" y="350" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#555">后轮（参考点）</text>
+
+  <!-- Robot body link (chassis rod) -->
+  <!-- θ is the heading angle from x-axis. Let's say θ ≈ 70° from horizontal (mostly upward-left) -->
+  <!-- rear at (220,330), front at rear + L*(sin70, -cos70) ≈ (220+120,330-44) = (340, 286) — let's use θ=60° -->
+  <!-- front = (220 + 140*cos30°, 330 - 140*sin30°) ≈ (220+121, 330-70) = (341, 260) -->
+  <line x1="220" y1="330" x2="341" y2="195" stroke="#546e7a" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Front wheel (turned at δ) -->
+  <!-- δ ≈ 20° relative to chassis heading (θ+δ from x-axis) -->
+  <!-- chassis heading vector: (341-220, 195-330) = (121, -135), angle≈ atan2(135,121)≈48° from x -->
+  <!-- front wheel rotated by δ≈20° more -->
+  <g transform="translate(341,195) rotate(-68)">
+    <ellipse cx="0" cy="0" rx="14" ry="26" fill="#1565c0" stroke="#0d47a1" stroke-width="1.5"/>
+  </g>
+  <text x="355" y="185" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#1565c0">前轮</text>
+
+  <!-- Front wheel heading arrow -->
+  <line x1="341" y1="195" x2="306" y2="120" stroke="#1565c0" stroke-width="2" marker-end="url(#arrBlue)" stroke-dasharray="5,3"/>
+
+  <!-- θ angle arc (heading at rear wheel) -->
+  <!-- heading ≈ 48° from x, draw arc from x-axis to heading direction -->
+  <path d="M 258,330 A 38,38 0 0,1 241,296" fill="none" stroke="#e65100" stroke-width="1.8"/>
+  <text x="262" y="310" font-family="Arial,sans-serif" font-size="14" fill="#e65100" font-style="italic">θ</text>
+  <!-- x-direction reference line at rear wheel -->
+  <line x1="220" y1="330" x2="270" y2="330" stroke="#e65100" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- δ angle arc (steer angle at front wheel) -->
+  <!-- chassis direction at front: same as (121,-135) normalized * some length -->
+  <!-- we draw a small arc between chassis direction and front-wheel direction -->
+  <path d="M 341,195 L 358,162" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+  <path d="M 328,166 A 28,28 0 0,1 346,156" fill="none" stroke="#2e7d32" stroke-width="1.8"/>
+  <text x="352" y="155" font-family="Arial,sans-serif" font-size="14" fill="#2e7d32" font-style="italic">δ</text>
+
+  <!-- L dimension line along chassis -->
+  <line x1="196" y1="342" x2="317" y2="207" stroke="#888" stroke-width="1"
+        marker-start="url(#arrDimL)" marker-end="url(#arrDim)"/>
+  <text x="248" y="295" font-family="Arial,sans-serif" font-size="14" fill="#666" font-style="italic">L</text>
+
+  <!-- v arrow along heading -->
+  <line x1="220" y1="330" x2="182" y2="248" stroke="#2e7d32" stroke-width="2.5" marker-end="url(#arrGreen)"/>
+  <text x="165" y="255" font-family="Arial,sans-serif" font-size="14" fill="#2e7d32" font-style="italic">v</text>
+
+  <!-- Line from ICR to front wheel -->
+  <line x1="60" y1="330" x2="341" y2="195" stroke="#e53935" stroke-width="1" stroke-dasharray="5,4"/>
+
+  <!-- Formula box -->
+  <rect x="360" y="300" width="175" height="80" rx="6" fill="#fff8e1" stroke="#f9a825" stroke-width="1.2"/>
+  <text x="448" y="320" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" font-weight="bold" fill="#555">自行车模型方程</text>
+  <text x="373" y="338" font-family="Arial,sans-serif" font-size="10.5" fill="#333">ẋ = v cos θ</text>
+  <text x="373" y="354" font-family="Arial,sans-serif" font-size="10.5" fill="#333">ẏ = v sin θ</text>
+  <text x="373" y="370" font-family="Arial,sans-serif" font-size="10.5" fill="#333">θ̇ = v tan δ / L</text>
+
+  <!-- Legend -->
+  <rect x="360" y="50" width="14" height="14" fill="#37474f"/>
+  <text x="380" y="62" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#333">后轮（参考点 [x,y]）</text>
+  <rect x="360" y="72" width="14" height="14" fill="#1565c0"/>
+  <text x="380" y="84" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#333">前轮（转向角 δ）</text>
+  <circle cx="367" cy="101" r="5" fill="#e53935"/>
+  <text x="380" y="105" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#333">ICR</text>
+</svg>

@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="430" viewBox="0 0 600 430">
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#555"/>
+    </marker>
+    <marker id="arrR" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#c62828"/>
+    </marker>
+    <marker id="arrDim" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="#888"/>
+    </marker>
+    <marker id="arrDimL" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto-start-reverse">
+      <polygon points="0 0,7 3.5,0 7" fill="#888"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="600" height="430" fill="#f9f9fb" rx="8" stroke="#dde" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="300" y="26" text-anchor="middle"
+        font-family="'Microsoft YaHei','PingFang SC',Arial,sans-serif"
+        font-size="14" font-weight="bold" fill="#222">阿克曼转向几何（俯视图）</text>
+
+  <!-- Car body -->
+  <rect x="210" y="120" width="180" height="220" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+
+  <!-- === Rear wheels (straight) === -->
+  <!-- Rear-left wheel -->
+  <rect x="175" y="290" width="38" height="22" rx="4" fill="#37474f" stroke="#263238" stroke-width="1.5"/>
+  <!-- Rear-right wheel -->
+  <rect x="387" y="290" width="38" height="22" rx="4" fill="#37474f" stroke="#263238" stroke-width="1.5"/>
+
+  <!-- Rear axle dashed -->
+  <line x1="175" y1="301" x2="425" y2="301" stroke="#aaa" stroke-width="1" stroke-dasharray="5,4"/>
+
+  <!-- === Front wheels (turned) === -->
+  <!-- Front-left wheel: turned inward (more) — δ_in ~ 25° -->
+  <g transform="translate(194,155) rotate(20)">
+    <rect x="-19" y="-11" width="38" height="22" rx="4" fill="#1565c0" stroke="#0d47a1" stroke-width="1.5"/>
+  </g>
+  <!-- Front-right wheel: turned inward (less) — δ_out ~ 18° -->
+  <g transform="translate(406,155) rotate(15)">
+    <rect x="-19" y="-11" width="38" height="22" rx="4" fill="#1565c0" stroke="#0d47a1" stroke-width="1.5"/>
+  </g>
+
+  <!-- Front axle dashed -->
+  <line x1="175" y1="155" x2="425" y2="155" stroke="#aaa" stroke-width="1" stroke-dasharray="5,4"/>
+
+  <!-- ICR point -->
+  <circle cx="530" cy="301" r="7" fill="#e53935" stroke="#b71c1c" stroke-width="1.5"/>
+  <text x="538" y="295" font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#c62828">ICR</text>
+  <text x="532" y="315" font-family="Arial,sans-serif" font-size="9" fill="#555">瞬时旋转中心</text>
+
+  <!-- Dashed lines from front wheels to ICR -->
+  <line x1="200" y1="150" x2="530" y2="301" stroke="#e53935" stroke-width="1" stroke-dasharray="6,4"/>
+  <line x1="412" y1="150" x2="530" y2="301" stroke="#e53935" stroke-width="1" stroke-dasharray="6,4"/>
+  <!-- From rear axle to ICR -->
+  <line x1="425" y1="301" x2="523" y2="301" stroke="#e53935" stroke-width="1" stroke-dasharray="6,4"/>
+
+  <!-- Turning arc -->
+  <path d="M 300,301 A 230,230 0 0,1 530,85" fill="none" stroke="#e53935" stroke-width="1.5" stroke-dasharray="8,5"/>
+
+  <!-- δ_in arc (left front wheel angle) -->
+  <path d="M 194,130 A 22,22 0 0,1 212,145" fill="none" stroke="#1565c0" stroke-width="1.8"/>
+  <text x="160" y="135" font-family="Arial,sans-serif" font-size="12" fill="#1565c0" font-style="italic">δ</text>
+  <text x="172" y="140" font-family="Arial,sans-serif" font-size="9" fill="#1565c0">in</text>
+
+  <!-- δ_out arc (right front wheel angle) -->
+  <path d="M 406,131 A 22,22 0 0,1 422,143" fill="none" stroke="#0d47a1" stroke-width="1.8"/>
+  <text x="425" y="128" font-family="Arial,sans-serif" font-size="12" fill="#0d47a1" font-style="italic">δ</text>
+  <text x="437" y="133" font-family="Arial,sans-serif" font-size="9" fill="#0d47a1">out</text>
+
+  <!-- L dimension (wheelbase) -->
+  <line x1="178" y1="155" x2="178" y2="301" stroke="#888" stroke-width="1"
+        marker-start="url(#arrDimL)" marker-end="url(#arrDim)"/>
+  <text x="150" y="232" font-family="Arial,sans-serif" font-size="13" fill="#555" font-style="italic">L</text>
+  <line x1="173" y1="155" x2="183" y2="155" stroke="#888" stroke-width="1"/>
+  <line x1="173" y1="301" x2="183" y2="301" stroke="#888" stroke-width="1"/>
+
+  <!-- W dimension (track width) -->
+  <line x1="194" y1="335" x2="406" y2="335" stroke="#888" stroke-width="1"
+        marker-start="url(#arrDimL)" marker-end="url(#arrDim)"/>
+  <text x="290" y="352" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#555" font-style="italic">W</text>
+  <line x1="194" y1="330" x2="194" y2="340" stroke="#888" stroke-width="1"/>
+  <line x1="406" y1="330" x2="406" y2="340" stroke="#888" stroke-width="1"/>
+
+  <!-- R dimension -->
+  <line x1="300" y1="301" x2="530" y2="301" stroke="#888" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="415" y="295" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#555" font-style="italic">R</text>
+
+  <!-- Forward arrow -->
+  <line x1="300" y1="120" x2="300" y2="65" stroke="#2e7d32" stroke-width="2.5" marker-end="url(#arr)"/>
+  <text x="310" y="88" font-family="Arial,sans-serif" font-size="13" fill="#2e7d32" font-style="italic">v</text>
+
+  <!-- Formula box -->
+  <rect x="28" y="50" width="155" height="42" rx="6" fill="#fff8e1" stroke="#f9a825" stroke-width="1.2"/>
+  <text x="105" y="68" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#555">R = L / tan δ</text>
+  <text x="105" y="85" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#888">cot δ</text>
+  <text x="126" y="89" font-family="Arial,sans-serif" font-size="8" fill="#888">out</text>
+  <text x="134" y="85" font-family="Arial,sans-serif" font-size="10" fill="#888"> − cot δ</text>
+  <text x="175" y="89" font-family="Arial,sans-serif" font-size="8" fill="#888">in</text>
+  <text x="183" y="85" font-family="Arial,sans-serif" font-size="10" fill="#888"> = W/L</text>
+
+  <!-- Legend -->
+  <rect x="28" y="370" width="12" height="12" fill="#1565c0"/>
+  <text x="46" y="381" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#333">前轮（转向）</text>
+  <rect x="28" y="390" width="12" height="12" fill="#37474f"/>
+  <text x="46" y="401" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#333">后轮（驱动）</text>
+  <circle cx="34" cy="413" r="5" fill="#e53935"/>
+  <text x="46" y="417" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#333">ICR 共线条件（阿克曼几何）</text>
+</svg>

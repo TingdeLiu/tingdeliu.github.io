@@ -1624,11 +1624,212 @@ $$J = \sum_{t=0}^{\infty} \left( \mathbf{e}_t^T \mathbf{Q} \mathbf{e}_t + u_t^T 
 
 ---
 
-# 7. 运动控制（Motion Control）
+# 7. 机器人运动学模型（Kinematic Models）
+
+路径规划和运动控制的所有算法，其速度约束、轨迹曲率、控制变量都建立在特定运动学模型之上。不同底盘结构对应截然不同的状态方程，直接决定了哪些规划/跟踪算法可用、约束如何建模。本章系统梳理三类主流模型。
+
+---
+
+## 7.1 差分驱动模型（Differential Drive）
+
+### 机构特征
+
+差分驱动底盘由两个独立驱动轮（左轮 $\omega_L$、右轮 $\omega_R$）和若干从动万向轮组成，通过两轮转速差实现转向。典型平台：TurtleBot、Husky、室内移动机器人。
+
+<div align="center">
+  <img src="/images/robotics_navigation/differential_drive_model.svg" width="60%" />
+<figcaption>差分驱动底盘结构示意：左右轮独立驱动，$r$ 为轮半径，$2b$ 为轮距</figcaption>
+</div>
+
+### 运动学方程
+
+设轮半径为 $r$，轮距（左右轮中心距）为 $2b$，则：
+
+$$v = \frac{r(\omega_R + \omega_L)}{2}, \quad \omega = \frac{r(\omega_R - \omega_L)}{2b}$$
+
+机器人在世界坐标系下的状态 $\mathbf{q} = [x, y, \theta]^\top$ 满足：
+
+$$\dot{x} = v\cos\theta, \quad \dot{y} = v\sin\theta, \quad \dot{\theta} = \omega$$
+
+写成矩阵形式：
+
+$$\dot{\mathbf{q}} = \begin{bmatrix} \cos\theta & 0 \\ \sin\theta & 0 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} v \\ \omega \end{bmatrix}$$
+
+控制输入为线速度 $v$ 和角速度 $\omega$，通过逆运动学解算得到各轮转速：
+
+$$\omega_R = \frac{v + b\omega}{r}, \quad \omega_L = \frac{v - b\omega}{r}$$
+
+### 约束与特性
+
+| 属性 | 说明 |
+|------|------|
+| **自由度** | 2（$v$, $\omega$），非完整约束（不能横向平移） |
+| **转弯半径** | $R = v / \omega$，可取 $0$（原地旋转） |
+| **瞬时旋转中心** | 位于两轮连线延长线上，$\omega_L = -\omega_R$ 时在轴心原地旋转 |
+| **速度约束** | $|v| \le v_{\max}$，$|\omega| \le \omega_{\max}$，各轮转速不超硬件上限 |
+
+### 对规划算法的影响
+
+- **DWA**：速度采样空间为 $(v, \omega)$ 二维矩形，可支持原地旋转，无最小转弯半径约束。
+- **TEB**：可直接约束 $v$、$\omega$ 及其导数（加速度），差分模型优化自由度高。
+- **Pure Pursuit / LQR**：通常将 $\omega$ 作为控制输出，直接控制角速度即可。
+
+---
+
+## 7.2 阿克曼转向模型（Ackermann Steering）
+
+### 机构特征
+
+阿克曼底盘仿照汽车转向几何设计：后轮驱动，前轮转向；两前轮绕各自转向节转动，理想情况下四轮瞬时旋转中心共线，消除轮胎侧滑。典型平台：自动驾驶乘用车、AgileX Scout、Jackal（小型四轮差速/阿克曼混合）。
+
+<div align="center">
+  <img src="/images/robotics_navigation/ackermann_geometry.svg" width="65%" />
+<figcaption>阿克曼转向几何：四轮瞬时旋转中心共线，内外轮转角不同以消除侧滑</figcaption>
+</div>
+
+### 几何关系
+
+设轴距（前后轴中心距）为 $L$，前轮等效转角为 $\delta$，则转弯半径为：
+
+$$R = \frac{L}{\tan\delta}$$
+
+内外侧实际前轮转角满足（完整阿克曼条件）：
+
+$$\cot\delta_{out} - \cot\delta_{in} = \frac{W}{L}$$
+
+其中 $W$ 为轮距。工程上通常用单一等效前轮角 $\delta$ 近似。
+
+### 运动学方程（自行车模型近似）
+
+将前后轮各合并为单轮，得到经典**自行车模型**：
+
+<div align="center">
+  <img src="/images/robotics_navigation/bicycle_model.svg" width="55%" />
+<figcaption>自行车模型简化：轴距 $L$，前轮转角 $\delta$，后轮为参考点</figcaption>
+</div>
+
+$$\dot{x} = v\cos\theta, \quad \dot{y} = v\sin\theta, \quad \dot{\theta} = \frac{v\tan\delta}{L}$$
+
+控制输入为纵向速度 $v$ 和前轮转角 $\delta$，曲率 $\kappa = \tan\delta / L$。
+
+离散化（前向欧拉，步长 $\Delta t$）：
+
+$$\begin{aligned}
+x_{k+1} &= x_k + v_k \cos\theta_k \cdot \Delta t \\
+y_{k+1} &= y_k + v_k \sin\theta_k \cdot \Delta t \\
+\theta_{k+1} &= \theta_k + \frac{v_k \tan\delta_k}{L} \cdot \Delta t
+\end{aligned}$$
+
+### 约束与特性
+
+| 属性 | 说明 |
+|------|------|
+| **自由度** | 2（$v$, $\delta$），非完整约束 |
+| **最小转弯半径** | $R_{\min} = L / \tan\delta_{\max}$，不能原地旋转 |
+| **曲率连续性** | 转角变化率受转向执行器限制，路径需曲率连续（$C^1$） |
+| **高速稳定性** | 高速时轮胎侧偏角不可忽略，需扩展为动力学模型 |
+
+### 对规划算法的影响
+
+- **Hybrid A\***：以 $(x, y, \theta)$ 为状态，用阿克曼运动方程展开节点，生成曲率连续路径，直接可跟踪。
+- **TEB**：需开启阿克曼模式，约束 $|\delta| \le \delta_{\max}$ 和 $\dot{\delta}$ 上限，轨迹最小曲率半径有限。
+- **Pure Pursuit / Stanley**：输出前轮转角 $\delta$，是为阿克曼车辆专门推导的跟踪控制律。
+- **MPC**：以自行车模型为预测模型，约束 $\delta$ 和 $\dot{\delta}$，适合高速精确跟踪。
+
+---
+
+## 7.3 全向轮模型（Omnidirectional / Holonomic）
+
+### 机构特征
+
+全向底盘利用特殊轮结构（Mecanum 轮或全向轮）实现平面内任意方向的独立平移，无需旋转机身。典型结构：
+
+| 构型 | 轮数 | 特点 |
+|------|------|------|
+| **三轮全向** | 3 | 轮子互成 120°，结构简洁，地面适应性好 |
+| **四轮 Mecanum** | 4 | 辊子与轮轴成 45°，工业仓储最常用 |
+| **四轮全向（90°辊）** | 4 | 辊子垂直轮轴，转向力矩弱于 Mecanum |
+
+典型平台：仓储 AMR（亚马逊 Kiva 类）、实验室移动操作机器人（HSR、TIAGo）。
+
+<div align="center">
+  <img src="/images/robotics_navigation/mecanum_wheel_layout.svg" width="65%" />
+<figcaption>四轮 Mecanum 底盘布局：辊子与轮轴成 45°，左前/右后同向，右前/左后反向</figcaption>
+</div>
+
+### 四轮 Mecanum 运动学方程
+
+设四轮布局为矩形，半轴距 $l_x$（纵向）、$l_y$（横向），轮半径 $r$，辊子与轮轴夹角 $45°$，则逆运动学（机器人速度 → 轮速）：
+
+$$\begin{bmatrix} \omega_1 \\ \omega_2 \\ \omega_3 \\ \omega_4 \end{bmatrix} = \frac{1}{r} \begin{bmatrix} 1 & -1 & -(l_x+l_y) \\ 1 & 1 & (l_x+l_y) \\ 1 & 1 & -(l_x+l_y) \\ 1 & -1 & (l_x+l_y) \end{bmatrix} \begin{bmatrix} v_x \\ v_y \\ \omega_z \end{bmatrix}$$
+
+轮编号约定：$\omega_1$=左前，$\omega_2$=右前，$\omega_3$=左后，$\omega_4$=右后。
+
+正运动学（轮速 → 机器人速度）取上矩阵伪逆（满秩时为 $\frac{1}{4}$ 倍转置）：
+
+$$\begin{bmatrix} v_x \\ v_y \\ \omega_z \end{bmatrix} = \frac{r}{4} \begin{bmatrix} 1 & 1 & 1 & 1 \\ -1 & 1 & 1 & -1 \\ -\frac{1}{l_x+l_y} & \frac{1}{l_x+l_y} & -\frac{1}{l_x+l_y} & \frac{1}{l_x+l_y} \end{bmatrix} \begin{bmatrix} \omega_1 \\ \omega_2 \\ \omega_3 \\ \omega_4 \end{bmatrix}$$
+
+世界坐标系下状态方程（含航向角 $\theta$）：
+
+$$\dot{\mathbf{q}} = \begin{bmatrix} \cos\theta & -\sin\theta & 0 \\ \sin\theta & \cos\theta & 0 \\ 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} v_x \\ v_y \\ \omega_z \end{bmatrix}$$
+
+### 三轮全向运动学方程
+
+<div align="center">
+  <img src="/images/robotics_navigation/three_wheel_omni.svg" width="50%" />
+<figcaption>三轮全向底盘：三轮互成 120° 均匀分布，$d$ 为轮心到底盘中心距离</figcaption>
+</div>
+
+三轮互成 $120°$，设第 $i$ 轮安装角为 $\phi_i = 120°(i-1)$：
+
+$$\omega_i = \frac{1}{r}\left(-\sin\phi_i \cdot v_x + \cos\phi_i \cdot v_y + d \cdot \omega_z\right), \quad i=1,2,3$$
+
+其中 $d$ 为轮子到底盘中心的距离。逆解：
+
+$$\begin{bmatrix} v_x \\ v_y \\ \omega_z \end{bmatrix} = \frac{2r}{3} \begin{bmatrix} -\sin\phi_1 & -\sin\phi_2 & -\sin\phi_3 \\ \cos\phi_1 & \cos\phi_2 & \cos\phi_3 \\ \frac{1}{2d} & \frac{1}{2d} & \frac{1}{2d} \end{bmatrix} \begin{bmatrix} \omega_1 \\ \omega_2 \\ \omega_3 \end{bmatrix}$$
+
+### 约束与特性
+
+| 属性 | 说明 |
+|------|------|
+| **自由度** | 3（$v_x$, $v_y$, $\omega_z$），完整约束（Holonomic） |
+| **横向平移** | 可任意横移，无侧偏约束，路径规划自由度最高 |
+| **地形适应性** | Mecanum 辊子接触地面，地面不平时打滑严重 |
+| **里程计精度** | 辊子打滑导致轮式里程计误差显著，需融合 IMU/激光 |
+| **承载能力** | 弱于差分/阿克曼，辊子接触应力集中 |
+
+### 对规划算法的影响
+
+- **全局规划**：可直接使用标准 A\* / Dijkstra 在栅格地图规划，路径无曲率约束，任意方向可达。
+- **DWA**：速度空间扩展为 $(v_x, v_y, \omega_z)$ 三维，或等效为 $(v, \theta_{vel}, \omega_z)$，采样空间更大。
+- **路径跟踪**：无需复杂跟踪控制律，可用简单 PID 分别控制 $x$、$y$、$\theta$ 三个通道，独立解耦。
+- **MPC**：预测模型为线性（忽略打滑），约束为各轮转速上限，设计比阿克曼更简单。
+
+---
+
+## 7.4 三类模型综合对比
+
+| 对比维度 | 差分驱动 | 阿克曼转向 | 全向轮（Mecanum） |
+|----------|----------|------------|-------------------|
+| **约束类型** | 非完整（2-DoF） | 非完整（2-DoF） | 完整（3-DoF） |
+| **原地旋转** | 支持 | 不支持 | 支持 |
+| **横向平移** | 不支持 | 不支持 | 支持 |
+| **最小转弯半径** | 0 | $L/\tan\delta_{\max}$ | 0 |
+| **路径曲率要求** | 低 | 需曲率连续 | 无约束 |
+| **高速稳定性** | 中 | 高（汽车成熟方案） | 低（打滑） |
+| **里程计精度** | 高 | 中（轮胎滑动） | 低（辊子打滑） |
+| **适配规划算法** | DWA、TEB、Pure Pursuit | Hybrid A\*、TEB(Ackermann)、Stanley、MPC | A\*、DWA(3D)、PID解耦 |
+| **典型应用场景** | 室内服务机器人 | 自动驾驶、室外车辆 | 仓储 AMR、移动操作 |
+
+> **工程选型原则**：室内窄道优先差分（转弯灵活、成本低）；室外高速优先阿克曼（稳定性好、轮胎模型成熟）；需要横移的仓储/操作场景选全向轮（效率高，但需补偿打滑）。
+
+---
+
+# 8. 运动控制（Motion Control）
 
 路径跟踪（第6章）解决的是"朝哪个方向走"的几何问题，而**运动控制**解决的是"如何精确执行这些指令"的动态问题——需要考虑系统模型、物理约束、扰动抑制和最优性。本章介绍机器人导航中常用的模型化控制方法。
 
-## 7.1 PID 控制
+## 8.1 PID 控制
 
 PID（比例-积分-微分，Proportional-Integral-Derivative）是工程中应用最广泛的控制器，也是理解更复杂控制算法的基础。
 
@@ -1650,7 +1851,7 @@ $$u_k = K_p e_k + K_i \sum_{j=0}^{k} e_j \Delta t + K_d \frac{e_k - e_{k-1}}{\De
 ❌ 参数固定，难以适应非线性和时变系统
 ❌ 无法显式处理约束（如最大转速、最大转向角）
 
-## 7.2 MPC（模型预测控制，Model Predictive Control）
+## 8.2 MPC（模型预测控制，Model Predictive Control）
 
 MPC 是目前自动驾驶和高精度机器人控制中最受关注的方法之一。**核心思想**：在每个控制周期内，基于当前状态和系统模型，求解一个**有限时域优化问题**，输出一段最优控制序列，但只执行第一步，然后在下一周期重新求解——即"**滚动优化、反馈校正**"。
 
@@ -1683,7 +1884,7 @@ $$\text{s.t.} \quad \mathbf{x}_{k+1} = f(\mathbf{x}_k, u_k), \quad \mathbf{x}_k 
 | **线性 MPC** | 线性化运动学模型 | QP（OSQP） | 中 | 低速 AGV、移动机器人 |
 | **非线性 MPC** | 完整非线性模型 | NLP（CasADi+IPOPT） | 高 | 高速自动驾驶、无人机 |
 
-## 7.3 模糊 PID 控制（Fuzzy PID）
+## 8.3 模糊 PID 控制（Fuzzy PID）
 
 在传统的 PID 控制基础上引入模糊推理机，实现 $K_p, K_i, K_d$ 参数的**在线自整定**。系统以横向/航向误差及误差变化率为输入，根据预设的模糊规则表实时修正参数。
 
@@ -1691,7 +1892,7 @@ $$\text{s.t.} \quad \mathbf{x}_{k+1} = f(\mathbf{x}_k, u_k), \quad \mathbf{x}_k 
 ✅ **计算高效**：计算开销远小于 MPC，非常适合算力受限的嵌入式平台
 ❌ 依赖模糊规则的人工设计，缺乏 LQR 那样的严格最优性证明
 
-## 7.4 控制器对比汇总
+## 8.4 控制器对比汇总
 
 | 控制器 | 需要模型 | 处理约束 | 计算量 | 精度 | 典型应用 |
 |--------|---------|---------|--------|------|---------|
@@ -1703,9 +1904,9 @@ $$\text{s.t.} \quad \mathbf{x}_{k+1} = f(\mathbf{x}_k, u_k), \quad \mathbf{x}_k 
 
 ---
 
-# 8. 完整导航栈集成
+# 9. 完整导航栈集成
 
-## 8.1 ROS Navigation Stack 架构
+## 9.1 ROS Navigation Stack 架构
 
 ROS 1 的 `move_base` 提供了一套经典的导航栈集成方案：
 
@@ -1739,7 +1940,7 @@ flowchart TB
 | `/amcl_pose` | 输入 | 定位结果 |
 | `/cmd_vel` | 输出 | 速度指令（线速度 + 角速度） |
 
-## 8.2 Nav2（ROS 2）架构
+## 9.2 Nav2（ROS 2）架构
 
 Nav2 是 ROS 2 的导航栈，相比 `move_base` 有以下重要改进：
 
@@ -1759,7 +1960,7 @@ flowchart TB
     NR -->|恢复行为\n旋转/后退| Base
 ```
 
-## 8.3 参数调优要点
+## 9.3 参数调优要点
 
 导航栈的调优是一个迭代过程，以下是几个关键参数：
 
@@ -1777,7 +1978,7 @@ flowchart TB
 
 ---
 
-# 9. 传统导航 vs. 端到端深度学习导航
+# 10. 传统导航 vs. 端到端深度学习导航
 
 | 对比维度 | 传统导航栈（SLAM+A*+DWA）| 端到端深度学习（VLN/VLA）|
 |---------|----------------------|----------------------|
@@ -1800,7 +2001,7 @@ flowchart TB
 
 ---
 
-# 10. 常用开源工具与框架汇总
+# 11. 常用开源工具与框架汇总
 
 ### 传感器驱动与处理
 
@@ -1853,7 +2054,7 @@ flowchart TB
 
 ---
 
-# 11. 小结与展望
+# 12. 小结与展望
 
 ## 本文回顾
 
