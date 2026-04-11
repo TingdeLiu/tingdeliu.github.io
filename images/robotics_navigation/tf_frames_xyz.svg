@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="390" viewBox="0 0 640 390">
+  <defs>
+    <marker id="arr-red"    markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#dc2626"/></marker>
+    <marker id="arr-green"  markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#16a34a"/></marker>
+    <marker id="arr-gray"   markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#94a3b8"/></marker>
+    <marker id="arr-orange" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#f59e0b"/></marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="640" height="390" fill="#f9f9fb" rx="8" stroke="#dde" stroke-width="1"/>
+
+  <!-- Grid -->
+  <g stroke="#e8eaee" stroke-width="0.6">
+    <line x1="40"  y1="45" x2="40"  y2="375"/><line x1="80"  y1="45" x2="80"  y2="375"/>
+    <line x1="120" y1="45" x2="120" y2="375"/><line x1="160" y1="45" x2="160" y2="375"/>
+    <line x1="200" y1="45" x2="200" y2="375"/><line x1="240" y1="45" x2="240" y2="375"/>
+    <line x1="280" y1="45" x2="280" y2="375"/><line x1="320" y1="45" x2="320" y2="375"/>
+    <line x1="360" y1="45" x2="360" y2="375"/><line x1="400" y1="45" x2="400" y2="375"/>
+    <line x1="440" y1="45" x2="440" y2="375"/><line x1="480" y1="45" x2="480" y2="375"/>
+    <line x1="520" y1="45" x2="520" y2="375"/><line x1="560" y1="45" x2="560" y2="375"/>
+    <line x1="600" y1="45" x2="600" y2="375"/>
+    <line x1="20" y1="80"  x2="625" y2="80" /><line x1="20" y1="120" x2="625" y2="120"/>
+    <line x1="20" y1="160" x2="625" y2="160"/><line x1="20" y1="200" x2="625" y2="200"/>
+    <line x1="20" y1="240" x2="625" y2="240"/><line x1="20" y1="280" x2="625" y2="280"/>
+    <line x1="20" y1="320" x2="625" y2="320"/><line x1="20" y1="360" x2="625" y2="360"/>
+  </g>
+
+  <!-- Title -->
+  <text x="320" y="30" text-anchor="middle"
+        font-family="'Microsoft YaHei','PingFang SC',Arial,sans-serif"
+        font-size="14" font-weight="bold" fill="#1e293b">导航坐标系 XYZ 关系示意图</text>
+
+  <!-- ===== TRANSFORM ARROWS (behind frames) ===== -->
+
+  <!-- Drift line: map → odom (short orange dashed) -->
+  <line x1="90" y1="320" x2="152" y2="280"
+        stroke="#f59e0b" stroke-width="1.4" stroke-dasharray="4,3"
+        marker-end="url(#arr-orange)"/>
+  <text x="96" y="300"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="10"
+        fill="#b45309" font-style="italic">漂移</text>
+
+  <!-- T_map^odom annotation -->
+  <text x="55" y="266" font-family="'Microsoft YaHei',Arial,sans-serif"
+        font-size="10" fill="#3b82f6" font-style="italic">T_map^odom</text>
+  <text x="55" y="278" font-family="'Microsoft YaHei',Arial,sans-serif"
+        font-size="9"  fill="#64748b">（定位节点发布）</text>
+
+  <!-- T_odom^base_link: curved dashed gray -->
+  <path d="M 161 278 C 290 245 360 205 410 165"
+        stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="6,4" fill="none"
+        marker-end="url(#arr-gray)"/>
+  <text x="263" y="232" font-family="'Microsoft YaHei',Arial,sans-serif"
+        font-size="10" fill="#64748b" font-style="italic">T_odom^base_link</text>
+  <text x="268" y="244" font-family="'Microsoft YaHei',Arial,sans-serif"
+        font-size="9"  fill="#64748b">（里程计积分）</text>
+
+  <!-- ===== MAP FRAME  origin=(90,320)  θ=0° ===== -->
+  <!-- X: (90,320)→(160,320) -->
+  <line x1="90" y1="320" x2="156" y2="320" stroke="#dc2626" stroke-width="2.6" marker-end="url(#arr-red)"/>
+  <text x="162" y="325" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#dc2626">X</text>
+  <!-- Y: (90,320)→(90,250) -->
+  <line x1="90" y1="320" x2="90" y2="254" stroke="#16a34a" stroke-width="2.6" marker-end="url(#arr-green)"/>
+  <text x="95" y="247" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#16a34a">Y</text>
+  <!-- Z out-of-page symbol at (106, 303) -->
+  <line x1="90" y1="320" x2="104" y2="306" stroke="#2563eb" stroke-width="1.6"/>
+  <circle cx="106" cy="304" r="6"   fill="none" stroke="#2563eb" stroke-width="1.8"/>
+  <circle cx="106" cy="304" r="2.2" fill="#2563eb"/>
+  <text x="115" y="300" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="#2563eb">Z</text>
+  <!-- Origin dot -->
+  <circle cx="90" cy="320" r="5.5" fill="#3b82f6" stroke="white" stroke-width="1.5"/>
+  <!-- Label badge -->
+  <rect x="44" y="330" width="40" height="20" rx="4" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.2"/>
+  <text x="64" y="344" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" font-weight="bold" fill="#1d4ed8">map</text>
+  <text x="64" y="362" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="9.5" fill="#64748b">SLAM / AMCL</text>
+
+  <!-- ===== ODOM FRAME  origin=(158,280)  θ=3° ===== -->
+  <!-- cos3°=0.9986  sin3°=0.0523 -->
+  <!-- X end: (158+65×0.9986, 280−65×0.0523)=(223,277) -->
+  <!-- Y end: (158−65×0.0523, 280−65×0.9986)=(155,215) -->
+  <line x1="158" y1="280" x2="221" y2="276" stroke="#dc2626" stroke-width="2.6" marker-end="url(#arr-red)"/>
+  <text x="227" y="280" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#dc2626">X</text>
+  <line x1="158" y1="280" x2="155" y2="215" stroke="#16a34a" stroke-width="2.6" marker-end="url(#arr-green)"/>
+  <text x="160" y="208" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#16a34a">Y</text>
+  <!-- Z symbol at (174,263) -->
+  <line x1="158" y1="280" x2="172" y2="266" stroke="#2563eb" stroke-width="1.6"/>
+  <circle cx="174" cy="264" r="6"   fill="none" stroke="#2563eb" stroke-width="1.8"/>
+  <circle cx="174" cy="264" r="2.2" fill="#2563eb"/>
+  <text x="183" y="260" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="#2563eb">Z</text>
+  <!-- Origin dot -->
+  <circle cx="158" cy="280" r="5.5" fill="#f59e0b" stroke="white" stroke-width="1.5"/>
+  <!-- Label badge -->
+  <rect x="164" y="285" width="48" height="20" rx="4" fill="#fef9c3" stroke="#f59e0b" stroke-width="1.2"/>
+  <text x="188" y="299" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" font-weight="bold" fill="#92400e">odom</text>
+  <text x="188" y="317" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="9.5" fill="#64748b">里程计节点</text>
+
+  <!-- ===== BASE_LINK FRAME  origin=(420,158)  θ=30° ===== -->
+  <!-- cos30°=0.866  sin30°=0.500 -->
+  <!-- X end: (420+65×0.866, 158−65×0.5)=(476,126) -->
+  <!-- Y end: (420−65×0.5,   158−65×0.866)=(388,101) -->
+
+  <!-- Robot body -->
+  <circle cx="420" cy="158" r="24" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
+  <!-- Direction arrow (forward = base_link X = 30° above horizontal) -->
+  <!-- Tip at (420+18×0.866, 158−18×0.5)=(436,149); base perpendicular ±9 in Y dir -->
+  <polygon points="436,149  408,152  408,164" fill="#22c55e" opacity="0.55"/>
+
+  <line x1="420" y1="158" x2="474" y2="126" stroke="#dc2626" stroke-width="2.6" marker-end="url(#arr-red)"/>
+  <text x="479" y="123" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#dc2626">X</text>
+  <line x1="420" y1="158" x2="388" y2="101" stroke="#16a34a" stroke-width="2.6" marker-end="url(#arr-green)"/>
+  <text x="390" y="93" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#16a34a">Y</text>
+  <!-- Z symbol at (436,141) -->
+  <line x1="420" y1="158" x2="434" y2="144" stroke="#2563eb" stroke-width="1.6"/>
+  <circle cx="436" cy="142" r="6"   fill="none" stroke="#2563eb" stroke-width="1.8"/>
+  <circle cx="436" cy="142" r="2.2" fill="#2563eb"/>
+  <text x="445" y="138" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="#2563eb">Z</text>
+  <!-- Origin dot -->
+  <circle cx="420" cy="158" r="5.5" fill="#16a34a" stroke="white" stroke-width="1.5"/>
+
+  <!-- yaw angle arc: horizontal→base_link X (30° CCW) -->
+  <!-- Arc from (455,158) CCW to (420+35×cos30°,158−35×sin30°)=(450,141) -->
+  <path d="M 455 158 A 35 35 0 0 0 450 141"
+        stroke="#7c3aed" stroke-width="1.3" stroke-dasharray="3,2" fill="none"/>
+  <text x="458" y="153" font-family="Arial,sans-serif" font-size="10"
+        fill="#7c3aed" font-style="italic">θ=30°</text>
+
+  <!-- Label badge -->
+  <rect x="426" y="164" width="74" height="20" rx="4" fill="#dcfce7" stroke="#22c55e" stroke-width="1.2"/>
+  <text x="463" y="178" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" font-weight="bold" fill="#14532d">base_link</text>
+  <text x="463" y="196" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="9.5" fill="#64748b">机器人驱动</text>
+
+  <!-- ===== LEGEND ===== -->
+  <rect x="500" y="55" width="130" height="148" rx="6" fill="white" stroke="#e2e8f0" stroke-width="1.2"/>
+  <text x="565" y="75" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="12" font-weight="bold" fill="#334155">图例</text>
+  <!-- X -->
+  <line x1="512" y1="91" x2="537" y2="91" stroke="#dc2626" stroke-width="2.5" marker-end="url(#arr-red)"/>
+  <text x="543" y="95" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#374151">X 轴（前方）</text>
+  <!-- Y -->
+  <line x1="512" y1="110" x2="537" y2="110" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arr-green)"/>
+  <text x="543" y="114" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#374151">Y 轴（左方）</text>
+  <!-- Z -->
+  <circle cx="524" cy="129" r="6"   fill="none" stroke="#2563eb" stroke-width="1.8"/>
+  <circle cx="524" cy="129" r="2.2" fill="#2563eb"/>
+  <text x="543" y="133" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#374151">Z 轴（向上）</text>
+  <!-- transform arrow -->
+  <line x1="512" y1="149" x2="537" y2="149" stroke="#94a3b8" stroke-width="1.5"
+        stroke-dasharray="5,3" marker-end="url(#arr-gray)"/>
+  <text x="543" y="153" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#374151">坐标变换</text>
+  <!-- drift line -->
+  <line x1="512" y1="168" x2="537" y2="168" stroke="#f59e0b" stroke-width="1.4" stroke-dasharray="4,3"
+        marker-end="url(#arr-orange)"/>
+  <text x="543" y="172" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#374151">里程计漂移</text>
+  <!-- theta arc -->
+  <path d="M 520 188 A 8 8 0 0 0 527 183" stroke="#7c3aed" stroke-width="1.3" stroke-dasharray="2,2" fill="none"/>
+  <text x="543" y="191" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="11" fill="#374151">偏航角 θ</text>
+
+  <!-- Bottom note -->
+  <text x="320" y="380" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="10" fill="#94a3b8" font-style="italic">
+    右手坐标系：Z 轴垂直纸面向外（⊙）；θ 为机器人在 XY 平面内的偏航角（yaw）
+  </text>
+</svg>

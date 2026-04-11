@@ -2051,6 +2051,11 @@ flowchart TB
     style URDF fill:#ede9fe,stroke:#8b5cf6,color:#4c1d95
 ```
 
+<div align="center">
+  <img src="/images/robotics_navigation/tf_frames_xyz.svg" width="92%" />
+  <figcaption>图：三个核心坐标系的 XYZ 轴示意——map（蓝点）固定在全局原点，odom（橙点）随里程计漂移，base_link（绿点）跟随机器人运动并有偏航角 θ；Z 轴均垂直纸面向外（右手坐标系）</figcaption>
+</div>
+
 ### 为什么 `map` 和 `odom` 要分开？
 
 - **`odom` 保证连续性**：里程计积分不会跳变，控制器能平滑跟踪
