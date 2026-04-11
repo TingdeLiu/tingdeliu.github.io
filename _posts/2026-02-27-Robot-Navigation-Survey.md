@@ -1339,10 +1339,21 @@ $$f(n) = g(n) + h(n)$$
 
 **思路**：从起点生长一棵树，每次随机采一个点，找到树上最近的节点，向随机点方向延伸一小步，如果没有碰撞就加入树。当树的某个节点足够接近终点时，路径即找到。
 
+**核心步骤**：
+
+1. 初始化：树 $\mathcal{T}$ 仅含起点 $x_{start}$
+2. **随机采样** $x_{rand} \sim \mathcal{U}(\mathcal{X})$（有时以一定概率 $p_{goal} \approx 5\%$ 直接采终点，加速收敛）
+3. **最近邻** $x_{near} = \arg\min_{x \in \mathcal{T}} \|x - x_{rand}\|$
+4. **步进** $x_{new} = x_{near} + \delta \cdot \frac{x_{rand} - x_{near}}{\|x_{rand} - x_{near}\|}$，其中 $\delta$ 为步长（step_size）
+5. **碰撞检测**：若 $x_{near} \to x_{new}$ 无障碍，则将 $x_{new}$ 加入树，边权为 $\delta$
+6. 重复直到 $\|x_{new} - x_{goal}\| < \epsilon$
+
+关键参数 `step_size`：过大则跨越障碍物失败，过小则收敛极慢，通常取地图对角线的 1%–5%。
+
 ✅ 天然处理高维空间（机械臂规划）
 ✅ 不需要栅格化
 ❌ **不保证最优性**（找到的路径通常较曲折）
-❌ 最终路径需要额外平滑处理
+❌ 最终路径需要额外平滑处理（常用 B-Spline 或 Shortcut 平滑）
 
 <div align="center">
   <img src="/images/robotics_navigation/rrt_search.gif" width="46%" style="margin:4px"/>
@@ -1352,9 +1363,19 @@ $$f(n) = g(n) + h(n)$$
 
 ### RRT*
 
-RRT 的改进版，加入了**重连（Rewiring）** 步骤：每次加入新节点时，检查其邻近节点是否能通过新节点降低代价，如果能就重连。随着采样点增多，路径**逐渐收敛到最优解（渐近最优）**。
+RRT 的改进版，在标准 RRT 基础上增加了两个关键步骤：**近邻选父（Choose Parent）** 和 **重连（Rewiring）**。
+
+**Choose Parent**：不再直接用最近邻作为父节点，而是在半径 $r$ 的近邻集合 $\mathcal{X}_{near}$ 中，选择**到起点代价最低**的节点作为父节点：
+
+$$x_{parent} = \arg\min_{x \in \mathcal{X}_{near}} \left[ \text{cost}(x) + d(x, x_{new}) \right]$$
+
+**Rewiring**：将 $x_{new}$ 加入树后，检查 $\mathcal{X}_{near}$ 中的每个节点 $x_{near}$：若经过 $x_{new}$ 能降低 $x_{near}$ 的路径代价，则断开 $x_{near}$ 的旧父边，改由 $x_{new}$ 作为父节点。
+
+搜索半径 $r$ 随采样点数 $n$ 缩小：$r(n) = \gamma \left(\frac{\log n}{n}\right)^{1/d}$（$d$ 为空间维度），保证渐近最优的同时控制计算量。
 
 ✅ 渐近最优性（采样越多路径越好）
+✅ 与 RRT 共享相同的采样框架，易于实现
+❌ 每次新增节点需遍历近邻集合，单步时间复杂度 $O(\log n)$ 高于 RRT 的 $O(1)$
 ❌ 收敛速度慢，实时规划时可能采样时间不够
 
 <div align="center">
@@ -1365,7 +1386,14 @@ RRT 的改进版，加入了**重连（Rewiring）** 步骤：每次加入新节
 
 ### 双向 RRT*（Bidirectional RRT*）
 
-从起点和终点同时生长两棵树，两棵树相遇时合并路径。收敛速度比单向 RRT* 快约一个数量级。
+从起点 $x_{start}$ 和终点 $x_{goal}$ 各生长一棵 RRT* 树（$\mathcal{T}_a$、$\mathcal{T}_b$），每次迭代交替扩展两棵树：
+
+1. 对 $\mathcal{T}_a$ 执行一步 RRT* 扩展，得到新节点 $x_{new}$
+2. 尝试将 $x_{new}$ 连接到 $\mathcal{T}_b$ 中距其最近且路径无碰撞的节点 $x_{b,near}$
+3. 若连接成功，合并两条子路径得到候选完整路径；保留代价最小的完整路径
+4. 两棵树角色互换（$\mathcal{T}_a \leftrightarrow \mathcal{T}_b$），继续迭代优化
+
+**优势来源**：两棵树"对向生长"，有效避免了单向树在宽阔空间中的盲目扩散，搜索体积从 $O(r^d)$ 降为 $O(2 \cdot (r/2)^d)$，收敛速度比单向 RRT* 快约一个数量级。
 
 <div align="center">
   <img src="/images/robotics_navigation/rrt_star_bidirectional_search.gif" width="46%" style="margin:4px"/>
@@ -1375,7 +1403,13 @@ RRT 的改进版，加入了**重连（Rewiring）** 步骤：每次加入新节
 
 ### Informed RRT*
 
-进一步改进：当找到一条初始解后，将采样限制在**椭圆区域**内（以起终点为焦点的椭圆，长轴等于当前最优路径长度）。这样所有后续采样点都有可能改善当前解，大幅提升收敛速度。
+进一步改进：当找到一条初始解 $c_{best}$ 后，将采样限制在**椭圆区域**内。该椭圆的两个焦点为 $x_{start}$ 和 $x_{goal}$，长半轴为 $a = c_{best}/2$，短半轴为：
+
+$$b = \frac{1}{2}\sqrt{c_{best}^2 - \|x_{goal} - x_{start}\|^2}$$
+
+**直觉**：只有椭圆内的点才可能使路径代价低于 $c_{best}$（椭圆的定义恰好是到两焦点距离之和 $\leq c_{best}$）。随着路径不断优化，$c_{best}$ 减小，椭圆持续收缩，采样越来越"精准"，避免在无效区域浪费采样。
+
+采样时将标准圆内的均匀随机点 $x_{ball} \sim \mathcal{U}(\mathcal{B}^d)$ 通过仿射变换映射到椭圆坐标系：$x_{rand} = C \cdot L \cdot x_{ball} + x_{center}$，其中 $C$ 是旋转矩阵（使椭圆主轴对准 $x_{start} \to x_{goal}$ 方向），$L = \text{diag}(a, b, \ldots, b)$。
 
 <div align="center">
   <img src="/images/robotics_navigation/informed_rrt_star_search.gif" width="46%" style="margin:4px"/>
@@ -1391,15 +1425,29 @@ RRT 的改进版，加入了**重连（Rewiring）** 步骤：每次加入新节
 
 **思路**：在机器人当前速度周围的**可达速度窗口**（受加速度限制）中采样速度指令 $(v, \omega)$，用运动模型预测每条轨迹，根据**目标方向 + 速度 + 障碍物距离**综合打分，选择最优速度指令执行。
 
-$$G(v, \omega) = \sigma(\alpha \cdot \text{heading} + \beta \cdot \text{dist} + \gamma \cdot \text{velocity})$$
+**动态窗口的构造**：速度空间 $(v, \omega)$ 需同时满足三个约束，取交集：
+
+- **速度限制**：$v \in [v_{min}, v_{max}]$，$\omega \in [\omega_{min}, \omega_{max}]$
+- **动态窗口**（加速度限制）：$v \in [v_c - \dot{v}_{max} \cdot \Delta t,\ v_c + \dot{v}_{max} \cdot \Delta t]$，$\omega$ 类似
+- **可达性约束**：轨迹上距离最近障碍物的距离 $> 0$（且机器人能在到达障碍物前制动）
+
+**评分函数**：
+
+$$G(v, \omega) = \sigma\bigl(\alpha \cdot \text{heading}(v,\omega) + \beta \cdot \text{dist}(v,\omega) + \gamma \cdot \text{velocity}(v,\omega)\bigr)$$
+
+三个分量的含义：
+- $\text{heading}$：轨迹终点朝向与目标点方向的夹角差（越小越好，鼓励机器人转向目标）
+- $\text{dist}$：轨迹上离最近障碍物的最小距离（越大越好，鼓励远离障碍）
+- $\text{velocity}$：线速度 $v$ 本身（越大越好，鼓励快速前进）
+- $\sigma(\cdot)$ 为归一化函数，$\alpha, \beta, \gamma$ 为权重
 
 ✅ 计算快（ms 级），适合实时避障
 ✅ ROS `dwa_local_planner` 开箱即用
 ❌ 速度搜索空间有限，在狭窄通道中容易失败
-❌ 只考虑短期轨迹，无法处理需要"绕路"的障碍
+❌ 只考虑短期轨迹（约 1–3 s），无法处理需要”绕路”的障碍
 
 **改进变体：模糊 DWA (Fuzzy DWA)**  
-传统 DWA 的评价权重（$\alpha, \beta, \gamma$）是固定的，难以兼顾“高速行驶”与“狭窄避障”。**模糊 DWA** 引入模糊推理机，以**目标距离**和**最近障碍物距离**为输入，动态调整采样权重。例如：当障碍物极近时，大幅提高 $\beta$（避障权重）并降低 $\gamma$（速度权重），使避障行为更丝滑、不生硬。
+传统 DWA 的评价权重（$\alpha, \beta, \gamma$）是固定的，难以兼顾”高速行驶”与”狭窄避障”。**模糊 DWA** 引入模糊推理机，以**目标距离**和**最近障碍物距离**为输入，动态调整采样权重。例如：当障碍物极近时，大幅提高 $\beta$（避障权重）并降低 $\gamma$（速度权重），使避障行为更丝滑、不生硬。
 
 <div align="center">
   <img src="/images/robotics_navigation/DWA.png" width="65%" />
@@ -1408,13 +1456,32 @@ $$G(v, \omega) = \sigma(\alpha \cdot \text{heading} + \beta \cdot \text{dist} + 
 
 ### TEB（时间弹性带，Timed Elastic Band）
 
-**思路**：将路径视为一段"橡皮筋"，加入时间维度后变成"时间弹性带"。将路径优化问题建模为**多目标优化**（最短路径 + 避障 + 运动学约束 + 时间一致性），通过迭代调整路径上的路点（Way Point）来得到平滑、无碰撞的轨迹。
+**思路**：将路径视为一段"橡皮筋"，加入时间维度后变成"时间弹性带"。TEB 将局部规划问题建模为一个**稀疏非线性最小二乘优化**：
+
+**状态表示**：路径由一系列带时间戳的位姿序列表示 $\mathcal{B} = \{x_i, \Delta T_i\}_{i=1}^{n}$，其中 $x_i = (p_x, p_y, \theta)$，$\Delta T_i$ 是相邻路点间的时间间隔。
+
+**优化目标**（多约束加权求和）：
+
+$$\min_{\mathcal{B}} \sum_k \gamma_k f_k(\mathcal{B})$$
+
+各约束项的含义：
+
+| 约束项 | 含义 |
+|--------|------|
+| $f_{short}$ | 路径长度最短（路点间距之和最小） |
+| $f_{obs}$ | 障碍物距离约束（所有路点离障碍物 $> d_{min}$） |
+| $f_{kin}$ | 运动学可行性（非完整约束：曲率 $\leq \kappa_{max}$，即最小转弯半径） |
+| $f_{vel}$ | 速度约束（$v \leq v_{max}$，$\omega \leq \omega_{max}$） |
+| $f_{acc}$ | 加速度约束（$\|\dot{v}\| \leq a_{max}$，$\|\dot{\omega}\| \leq \alpha_{max}$） |
+
+优化采用 **g2o 稀疏图优化框架**：每个路点为节点，每个约束为边，利用 Levenberg–Marquardt 或 Gauss-Newton 迭代求解，通常 10–30 次迭代即可收敛。
 
 ✅ 生成平滑、运动学可行的轨迹
-✅ 支持动态障碍物
-✅ 支持倒车
+✅ 支持动态障碍物（将障碍物也建模为图中的节点）
+✅ 支持倒车（允许 $v < 0$）
 ❌ 计算量比 DWA 大，约 50–200 ms
-❌ 参数调优复杂
+❌ 参数调优复杂（约束权重 $\gamma_k$ 间相互影响）
+❌ 对初始路径质量敏感，全局规划结果差时局部可能陷入局部最优
 
 <div align="center">
   <img src="/images/robotics_navigation/TEB.png" width="65%" />
@@ -1423,11 +1490,27 @@ $$G(v, \omega) = \sigma(\alpha \cdot \text{heading} + \beta \cdot \text{dist} + 
 
 ### 势场法（Potential Field Method）
 
-最简单直观的局部避障方法：终点产生**引力**，障碍物产生**斥力**，机器人沿合力方向移动。
+最简单直观的局部避障方法：终点产生**引力场**，障碍物产生**斥力场**，机器人沿势场梯度方向下降移动。
 
-✅ 实现简单，计算极快
+**引力势**（抛物线型，距目标越远引力越大）：
+
+$$U_{att}(q) = \frac{1}{2} k_{att} \cdot d^2(q, q_{goal})$$
+
+**斥力势**（当距障碍物 $d(q, O) < Q^*$ 时生效）：
+
+$$U_{rep}(q) = \begin{cases} \dfrac{1}{2} k_{rep} \left(\dfrac{1}{d(q,O)} - \dfrac{1}{Q^*}\right)^2 & \text{if } d(q,O) \leq Q^* \\ 0 & \text{otherwise} \end{cases}$$
+
+机器人受到的合力为负梯度：$F(q) = -\nabla U_{att}(q) - \nabla U_{rep}(q)$，沿合力方向移动。
+
+**局部极小值**的成因：在障碍物密集区域，某点的引力方向与斥力恰好大小相等、方向相反，梯度为零，机器人陷入"假终点"。
+
+**缓解方法**：随机扰动（Random Walk）、增加全局目标的势权重、结合全局规划引路等。
+
+✅ 实现简单，计算极快（O(障碍物数量)）
+✅ 可生成连续的力指令，适合与控制器直接耦合
 ❌ **局部极小值问题**（机器人可能卡在引力和斥力平衡点）
-❌ 狭窄通道中斥力可能过大导致无法通行
+❌ 狭窄通道中障碍物两侧斥力叠加，合力垂直于通道方向，机器人无法通行
+❌ 靠近目标时引力趋近零，若仍有斥力，机器人可能无法到达终点
 
 <div align="center">
   <img src="/images/robotics_navigation/potential_field_demo.gif" width="65%" />
@@ -1436,13 +1519,26 @@ $$G(v, \omega) = \sigma(\alpha \cdot \text{heading} + \beta \cdot \text{dist} + 
 
 ### MPPI（模型预测路径积分）
 
-**模型预测路径积分（Model Predictive Path Integral）思路**：属于**模型预测控制（MPC）** 的随机变体。在当前时刻，向前采样**大量随机控制序列**（通过 GPU 并行采样），用运动模型仿真每条轨迹的未来状态，根据轨迹代价（碰撞 + 偏离路径 + 控制平滑）计算**加权平均**作为当前控制输出，然后滑动时间窗口重复。
+**模型预测路径积分（Model Predictive Path Integral）思路**：属于**模型预测控制（MPC）** 的随机变体。在当前时刻，向前采样**大量随机控制序列**（通过 GPU 并行采样），用运动模型仿真每条轨迹的未来状态，根据轨迹代价计算**信息论加权平均**作为当前控制输出，然后滑动时间窗口重复。
 
-✅ 无需求解最优控制问题（只需前向仿真）
-✅ 天然支持非线性系统和非凸代价函数
-✅ GPU 并行采样，可处理复杂障碍物分布
-❌ 需要相对精确的运动模型
-❌ 计算量较大，需要 GPU
+**算法流程**：
+
+1. 当前控制序列 $U = \{u_0, u_1, \ldots, u_{T-1}\}$，采样 $K$ 条扰动序列 $\epsilon^{(k)} \sim \mathcal{N}(0, \Sigma)$
+2. 对每条轨迹 $k$，并行前向仿真 $T$ 步，计算代价：
+   $$S^{(k)} = \sum_{t=0}^{T-1} \left[ c(x_t^{(k)}) + \lambda \, u_t^\top \Sigma^{-1} \epsilon_t^{(k)} \right] + \phi(x_T^{(k)})$$
+   其中 $c(x_t)$ 为状态代价（碰撞惩罚、偏航偏差等），$\phi$ 为终端代价，$\lambda$ 为温度参数
+3. 计算每条轨迹的**指数权重**（代价越低权重越大）：
+   $$w^{(k)} = \frac{\exp\!\left(-\frac{1}{\lambda} S^{(k)}\right)}{\sum_{j=1}^K \exp\!\left(-\frac{1}{\lambda} S^{(j)}\right)}$$
+4. 加权平均更新控制序列：$u_t \leftarrow u_t + \sum_k w^{(k)} \epsilon_t^{(k)}$
+5. 执行 $u_0$，滑动窗口前移一步，重复
+
+**温度参数 $\lambda$** 控制"探索-利用"权衡：$\lambda \to 0$ 时几乎只用代价最低的轨迹（贪婪），$\lambda \to \infty$ 时所有轨迹权重相等（纯随机）。
+
+✅ 无需求解最优控制问题（只需前向仿真，无梯度）
+✅ 天然支持非线性系统和非凸代价函数（如碰撞的阶跃代价）
+✅ GPU 并行采样（$K$ 可达 $10^3$–$10^4$），可处理复杂障碍物分布
+❌ 需要相对精确的运动模型（仿真误差积累会导致轨迹偏差）
+❌ 计算量较大，通常需要 GPU 才能达到实时控制频率（$\geq 10$ Hz）
 
 <div align="center">
   <img src="/images/robotics_navigation/mppi_path_tracking.gif" width="75%" />
@@ -1906,7 +2002,55 @@ $$\text{s.t.} \quad \mathbf{x}_{k+1} = f(\mathbf{x}_k, u_k), \quad \mathbf{x}_k 
 
 # 9. 完整导航栈集成
 
-## 9.1 ROS Navigation Stack 架构
+## 9.1 坐标系与 TF 树
+
+导航栈各模块（传感器、定位、规划、控制）之间的数据交换，都需要明确"这个位姿/点是相对哪个坐标系的"。ROS 用 **TF2** 库统一管理这棵变换树。
+
+### 四个核心坐标系
+
+| 坐标系 | ROS 帧名 | 语义 | 由谁发布 |
+|--------|----------|------|---------|
+| 世界/地图系 | `map` | 全局一致的固定系，原点通常为建图起始点 | SLAM / AMCL 定位节点 |
+| 里程计系 | `odom` | 以启动点为原点，里程计积分得到，**连续但会漂移** | 轮式里程计 / IMU 融合节点 |
+| 机器人本体系 | `base_link` | 固连于底盘中心 | 机器人驱动 / URDF |
+| 传感器系 | `lidar_link` 等 | 固连于各传感器安装位置 | URDF 静态 TF |
+
+**TF 树结构**：
+
+```
+map
+ └── odom
+      └── base_link
+           ├── lidar_link
+           ├── camera_link
+           └── imu_link
+```
+
+### 为什么 `map` 和 `odom` 要分开？
+
+- **`odom` 保证连续性**：里程计积分不会跳变，控制器能平滑跟踪
+- **`map` 保证全局一致性**：SLAM 回环或 AMCL 修正会更新 `map→odom`，但不影响 `odom→base_link` 的连续性
+- 若合并为一个系，每次定位修正都会使位姿瞬间跳变，导致控制器失稳
+
+`map→odom` 这段变换正是**定位节点的输出**，它实时修正里程计的累积漂移。
+
+### 齐次变换矩阵
+
+坐标系间的变换用 $4\times4$ 齐次矩阵表示（$SE(3)$ 元素）：
+
+$$T_{A}^{B} = \begin{bmatrix} R_{3\times3} & t_{3\times1} \\ \mathbf{0}^T & 1 \end{bmatrix}, \quad p^B = T_A^B \cdot p^A$$
+
+**链式变换**：$T_{map}^{base} = T_{map}^{odom} \cdot T_{odom}^{base}$
+
+**逆变换**：$T_B^A = \left(T_A^B\right)^{-1} = \begin{bmatrix} R^T & -R^T t \\ \mathbf{0}^T & 1 \end{bmatrix}$
+
+平面导航退化为 $SE(2)$，位姿 $(x, y, \theta)$ 对应：
+
+$$T = \begin{bmatrix} \cos\theta & -\sin\theta & x \\ \sin\theta & \cos\theta & y \\ 0 & 0 & 1 \end{bmatrix}$$
+
+**调试技巧**：`ros2 run tf2_tools view_frames` 可导出当前 TF 树为 PDF；`ros2 run tf2_ros tf2_echo map base_link` 实时打印两帧间变换。
+
+## 9.2 ROS Navigation Stack 架构
 
 ROS 1 的 `move_base` 提供了一套经典的导航栈集成方案：
 
@@ -1940,7 +2084,7 @@ flowchart TB
 | `/amcl_pose` | 输入 | 定位结果 |
 | `/cmd_vel` | 输出 | 速度指令（线速度 + 角速度） |
 
-## 9.2 Nav2（ROS 2）架构
+## 9.3 Nav2（ROS 2）架构
 
 Nav2 是 ROS 2 的导航栈，相比 `move_base` 有以下重要改进：
 
@@ -1960,7 +2104,7 @@ flowchart TB
     NR -->|恢复行为\n旋转/后退| Base
 ```
 
-## 9.3 参数调优要点
+## 9.4 参数调优要点
 
 导航栈的调优是一个迭代过程，以下是几个关键参数：
 
