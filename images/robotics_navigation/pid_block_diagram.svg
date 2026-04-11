@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="660" height="330" viewBox="0 0 660 330">
+  <defs>
+    <marker id="arr"     markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
+    <marker id="arr-b"   markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#3b82f6"/></marker>
+    <marker id="arr-g"   markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#16a34a"/></marker>
+    <marker id="arr-o"   markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#f59e0b"/></marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="660" height="330" fill="#f9f9fb" rx="8" stroke="#dde" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="330" y="24" text-anchor="middle"
+        font-family="'Microsoft YaHei','PingFang SC',Arial,sans-serif"
+        font-size="13" font-weight="bold" fill="#1e293b">PID 控制器结构与反馈回路</text>
+
+  <!-- ── r(t) input ── -->
+  <text x="18" y="158" font-family="Arial,sans-serif" font-size="13" font-style="italic" fill="#334155">r(t)</text>
+  <line x1="44" y1="154" x2="63" y2="154" stroke="#555" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <!-- ── Σ1: error junction ── -->
+  <circle cx="82" cy="154" r="17" fill="white" stroke="#555" stroke-width="1.8"/>
+  <text x="82" y="149" text-anchor="middle" font-size="14" font-weight="bold" fill="#334155">+</text>
+  <text x="75" y="163" text-anchor="middle" font-size="14" font-weight="bold" fill="#dc2626">−</text>
+
+  <!-- e(t) label + arrow into PID block -->
+  <line x1="99" y1="154" x2="126" y2="154" stroke="#555" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="113" y="147" text-anchor="middle"
+        font-family="Arial,sans-serif" font-size="11" font-style="italic" fill="#555">e(t)</text>
+
+  <!-- ══════════════════════════════
+       PID block outer rectangle
+       ══════════════════════════════ -->
+  <rect x="128" y="58" width="296" height="193" rx="7"
+        fill="white" stroke="#64748b" stroke-width="2"/>
+  <text x="276" y="78" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif"
+        font-size="13" font-weight="bold" fill="#1e293b">PID 控制器</text>
+
+  <!-- Branch node at entry of PID block -->
+  <circle cx="148" cy="154" r="4" fill="#555"/>
+
+  <!-- Vertical spine inside PID block -->
+  <line x1="148" y1="103" x2="148" y2="205"
+        stroke="#94a3b8" stroke-width="1.2"/>
+
+  <!-- Horizontal stubs to each box -->
+  <line x1="148" y1="103" x2="162" y2="103" stroke="#94a3b8" stroke-width="1.2"/>
+  <line x1="148" y1="154" x2="162" y2="154" stroke="#94a3b8" stroke-width="1.2"/>
+  <line x1="148" y1="205" x2="162" y2="205" stroke="#94a3b8" stroke-width="1.2"/>
+
+  <!-- ── P box ── -->
+  <rect x="162" y="88" width="156" height="30" rx="5"
+        fill="#dbeafe" stroke="#3b82f6" stroke-width="1.6"/>
+  <text x="240" y="108" text-anchor="middle"
+        font-family="'Courier New',monospace,Arial" font-size="12.5" font-weight="bold" fill="#1d4ed8">Kp · e(t)</text>
+  <text x="240" y="127" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="9.5" fill="#3b82f6">比例：快速响应，可能超调</text>
+
+  <!-- ── I box ── -->
+  <rect x="162" y="139" width="156" height="30" rx="5"
+        fill="#dcfce7" stroke="#22c55e" stroke-width="1.6"/>
+  <text x="240" y="159" text-anchor="middle"
+        font-family="'Courier New',monospace,Arial" font-size="12.5" font-weight="bold" fill="#15803d">Ki · ∫e(τ) dτ</text>
+  <text x="240" y="178" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="9.5" fill="#16a34a">积分：消除稳态误差</text>
+
+  <!-- ── D box ── -->
+  <rect x="162" y="190" width="156" height="30" rx="5"
+        fill="#fef3c7" stroke="#f59e0b" stroke-width="1.6"/>
+  <text x="240" y="210" text-anchor="middle"
+        font-family="'Courier New',monospace,Arial" font-size="12.5" font-weight="bold" fill="#92400e">Kd · ė(t)</text>
+  <text x="240" y="229" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="9.5" fill="#b45309">微分：抑制超调，预测趋势</text>
+
+  <!-- Arrows from boxes to internal Σ -->
+  <line x1="318" y1="103" x2="372" y2="154"
+        stroke="#3b82f6" stroke-width="1.6" marker-end="url(#arr-b)"/>
+  <line x1="318" y1="154" x2="374" y2="154"
+        stroke="#16a34a" stroke-width="1.6" marker-end="url(#arr-g)"/>
+  <line x1="318" y1="205" x2="372" y2="156"
+        stroke="#f59e0b" stroke-width="1.6" marker-end="url(#arr-o)"/>
+
+  <!-- Internal Σ -->
+  <circle cx="388" cy="154" r="14" fill="white" stroke="#555" stroke-width="1.8"/>
+  <text x="388" y="149" text-anchor="middle" font-size="13" font-weight="bold" fill="#334155">+</text>
+  <text x="388" y="162" text-anchor="middle" font-size="13" font-weight="bold" fill="#334155">+</text>
+
+  <!-- ── u(t) arrow out of PID block ── -->
+  <line x1="402" y1="154" x2="450" y2="154"
+        stroke="#555" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="426" y="147" text-anchor="middle"
+        font-family="Arial,sans-serif" font-size="11" font-style="italic" fill="#555">u(t)</text>
+
+  <!-- ══════════════════════════════
+       Plant block
+       ══════════════════════════════ -->
+  <rect x="452" y="124" width="110" height="60" rx="7"
+        fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+  <text x="507" y="150" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="12" font-weight="bold" fill="#334155">被控对象</text>
+  <text x="507" y="167" text-anchor="middle"
+        font-family="Arial,sans-serif" font-size="10.5" fill="#64748b">(Plant)</text>
+
+  <!-- ── y(t) output ── -->
+  <line x1="562" y1="154" x2="618" y2="154"
+        stroke="#555" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="628" y="158" font-family="Arial,sans-serif"
+        font-size="13" font-style="italic" fill="#334155">y(t)</text>
+
+  <!-- ── Feedback path ── -->
+  <!-- down from output -->
+  <line x1="610" y1="154" x2="610" y2="286" stroke="#64748b" stroke-width="1.6"/>
+  <!-- left across bottom -->
+  <line x1="610" y1="286" x2="82" y2="286" stroke="#64748b" stroke-width="1.6"/>
+  <!-- up into Σ1 -->
+  <line x1="82" y1="286" x2="82" y2="172" stroke="#64748b" stroke-width="1.6" marker-end="url(#arr)"/>
+  <!-- feedback label -->
+  <text x="346" y="300" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif"
+        font-size="10.5" fill="#64748b">反馈（Feedback）</text>
+
+  <!-- ── Bottom note ── -->
+  <text x="330" y="320" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif"
+        font-size="10" fill="#94a3b8" font-style="italic">
+    ė(t) = de(t)/dt；误差 e(t) = 设定值 r(t) − 实际输出 y(t)
+  </text>
+</svg>

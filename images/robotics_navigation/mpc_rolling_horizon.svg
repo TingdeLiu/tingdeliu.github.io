@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="660" height="300" viewBox="0 0 660 300">
+  <defs>
+    <marker id="ax"  markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
+    <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#94a3b8"/></marker>
+    <marker id="ab"  markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#3b82f6"/></marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="660" height="300" fill="#f9f9fb" rx="8" stroke="#dde" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="330" y="22" text-anchor="middle"
+        font-family="'Microsoft YaHei','PingFang SC',Arial,sans-serif"
+        font-size="13" font-weight="bold" fill="#1e293b">MPC 滚动时域优化示意图</text>
+
+  <!-- ════════════════════════════
+       STATE PLOT  (y: 38–178)
+       ════════════════════════════ -->
+
+  <!-- y-axis -->
+  <line x1="70" y1="178" x2="70" y2="38" stroke="#555" stroke-width="1.5" marker-end="url(#ax)"/>
+  <text x="30" y="115" text-anchor="middle" font-family="'Microsoft YaHei',Arial,sans-serif"
+        font-size="11" fill="#555" transform="rotate(-90,30,115)">状态 x(t)</text>
+
+  <!-- x-axis (time) -->
+  <line x1="70" y1="178" x2="640" y2="178" stroke="#555" stroke-width="1.5" marker-end="url(#ax)"/>
+
+  <!-- Reference line r (orange dashed) -->
+  <line x1="70" y1="80" x2="635" y2="80" stroke="#f59e0b" stroke-width="1.8"
+        stroke-dasharray="8,5"/>
+  <text x="640" y="84" font-family="Arial,sans-serif" font-size="11" fill="#f59e0b" font-style="italic">r</text>
+  <text x="78" y="76" font-family="'Microsoft YaHei',Arial,sans-serif"
+        font-size="10" fill="#f59e0b">参考轨迹</text>
+
+  <!-- Past trajectory (gray dashed)  steps k-2, k-1, k -->
+  <!-- points: (110,158) (190,145) (270,133) -->
+  <polyline points="110,158 190,145 270,133"
+            fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,4"/>
+  <circle cx="110" cy="158" r="5" fill="#94a3b8"/>
+  <circle cx="190" cy="145" r="5" fill="#94a3b8"/>
+
+  <!-- Current state marker -->
+  <circle cx="270" cy="133" r="7" fill="#1d4ed8" stroke="white" stroke-width="2"/>
+
+  <!-- Predicted optimal trajectory (blue solid curve) k → k+N(=k+4) -->
+  <!-- k(270,133) k+1(350,112) k+2(430,94) k+3(510,84) k+4(590,80) -->
+  <path d="M 270 133 C 330 113, 410 88, 510 83 S 575 80, 590 80"
+        fill="none" stroke="#3b82f6" stroke-width="2.2"/>
+  <circle cx="350" cy="112" r="4" fill="#3b82f6"/>
+  <circle cx="430" cy="94"  r="4" fill="#3b82f6"/>
+  <circle cx="510" cy="83"  r="4" fill="#3b82f6"/>
+  <circle cx="590" cy="80"  r="4" fill="#3b82f6"/>
+
+  <!-- Current time vertical dashed line -->
+  <line x1="270" y1="38" x2="270" y2="255" stroke="#475569"
+        stroke-width="1.4" stroke-dasharray="5,4"/>
+  <text x="272" y="52" font-family="'Microsoft YaHei',Arial,sans-serif"
+        font-size="10" fill="#475569">当前时刻 k</text>
+
+  <!-- Prediction horizon brace -->
+  <line x1="270" y1="168" x2="590" y2="168" stroke="#3b82f6" stroke-width="1.2"/>
+  <line x1="270" y1="164" x2="270" y2="172" stroke="#3b82f6" stroke-width="1.2"/>
+  <line x1="590" y1="164" x2="590" y2="172" stroke="#3b82f6" stroke-width="1.2"/>
+  <text x="430" y="162" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="10" fill="#3b82f6">预测时域 N 步</text>
+
+  <!-- Time tick labels -->
+  <text x="110" y="192" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#64748b">k−2</text>
+  <text x="190" y="192" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#64748b">k−1</text>
+  <text x="270" y="192" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#1d4ed8">k</text>
+  <text x="350" y="192" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#64748b">k+1</text>
+  <text x="430" y="192" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#64748b">k+2</text>
+  <text x="510" y="192" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#64748b">k+3</text>
+  <text x="590" y="192" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#64748b">k+N</text>
+
+  <!-- ════════════════════════════
+       CONTROL PLOT  (y: 205–270)
+       ════════════════════════════ -->
+
+  <!-- Control axis label -->
+  <text x="30" y="238" text-anchor="middle" font-family="'Microsoft YaHei',Arial,sans-serif"
+        font-size="11" fill="#555" transform="rotate(-90,30,238)">控制 u(t)</text>
+  <line x1="70" y1="270" x2="640" y2="270" stroke="#555" stroke-width="1"/>
+
+  <!-- u_k bar (green, executed) -->
+  <rect x="272" y="222" width="74" height="48" rx="3"
+        fill="#bbf7d0" stroke="#16a34a" stroke-width="1.8"/>
+  <text x="309" y="250" text-anchor="middle"
+        font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#15803d">u_k</text>
+
+  <!-- u_{k+1..k+3} bars (gray, planned but not executed) -->
+  <rect x="352" y="230" width="74" height="40" rx="3" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.4"/>
+  <text x="389" y="254" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">u_{k+1}</text>
+  <rect x="432" y="236" width="74" height="34" rx="3" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.4"/>
+  <text x="469" y="257" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">u_{k+2}</text>
+  <rect x="512" y="242" width="74" height="28" rx="3" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.4"/>
+  <text x="549" y="260" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">u_{k+3}</text>
+
+  <!-- "仅执行 u_k" annotation -->
+  <line x1="309" y1="222" x2="309" y2="213" stroke="#16a34a" stroke-width="1.2"/>
+  <text x="309" y="210" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="9.5" fill="#16a34a">仅执行此步</text>
+
+  <!-- "丢弃" annotation for gray bars -->
+  <text x="469" y="218" text-anchor="middle"
+        font-family="'Microsoft YaHei',Arial,sans-serif" font-size="9.5" fill="#94a3b8">规划但不执行（下一周期重新优化）</text>
+
+  <!-- Legend -->
+  <line x1="80"  y1="285" x2="106" y2="285" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,4"/>
+  <text x="110" y="289" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="10" fill="#64748b">过去轨迹</text>
+  <line x1="175" y1="285" x2="201" y2="285" stroke="#3b82f6" stroke-width="2"/>
+  <text x="205" y="289" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="10" fill="#3b82f6">预测轨迹</text>
+  <line x1="265" y1="285" x2="291" y2="285" stroke="#f59e0b" stroke-width="2" stroke-dasharray="8,5"/>
+  <text x="295" y="289" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="10" fill="#f59e0b">参考轨迹</text>
+  <rect x="356" y="279" width="12" height="10" rx="2" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.2"/>
+  <text x="372" y="289" font-family="'Microsoft YaHei',Arial,sans-serif" font-size="10" fill="#15803d">当步执行控制</text>
+</svg>
