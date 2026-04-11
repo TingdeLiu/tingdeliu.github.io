@@ -2015,15 +2015,40 @@ $$\text{s.t.} \quad \mathbf{x}_{k+1} = f(\mathbf{x}_k, u_k), \quad \mathbf{x}_k 
 | 机器人本体系 | `base_link` | 固连于底盘中心 | 机器人驱动 / URDF |
 | 传感器系 | `lidar_link` 等 | 固连于各传感器安装位置 | URDF 静态 TF |
 
-**TF 树结构**：
+**TF 树结构与各模块的关系**：
 
-```
-map
- └── odom
-      └── base_link
-           ├── lidar_link
-           ├── camera_link
-           └── imu_link
+```mermaid
+flowchart TB
+    MAP["🗺️ map\n全局一致固定系\n原点 = 建图起始点"]
+    ODOM["📍 odom\n里程计积分系\n连续但会漂移"]
+    BASE["🤖 base_link\n机器人底盘中心"]
+    LIDAR["📡 lidar_link"]
+    CAM["📷 camera_link"]
+    IMU["🔄 imu_link"]
+
+    SLAM["SLAM / AMCL\n定位节点"]
+    WHEEL["轮式里程计\n/ IMU融合"]
+    URDF["URDF\n静态变换"]
+
+    MAP -->|"T_map^odom\n修正漂移（跳变）"| ODOM
+    ODOM -->|"T_odom^base\n连续平滑"| BASE
+    BASE -->|"固定外参"| LIDAR
+    BASE -->|"固定外参"| CAM
+    BASE -->|"固定外参"| IMU
+
+    SLAM -.->|发布| MAP
+    WHEEL -.->|发布| ODOM
+    URDF -.->|发布| BASE
+
+    style MAP fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
+    style ODOM fill:#fef9c3,stroke:#eab308,color:#713f12
+    style BASE fill:#dcfce7,stroke:#22c55e,color:#14532d
+    style LIDAR fill:#f3f4f6,stroke:#9ca3af,color:#374151
+    style CAM fill:#f3f4f6,stroke:#9ca3af,color:#374151
+    style IMU fill:#f3f4f6,stroke:#9ca3af,color:#374151
+    style SLAM fill:#ede9fe,stroke:#8b5cf6,color:#4c1d95
+    style WHEEL fill:#ede9fe,stroke:#8b5cf6,color:#4c1d95
+    style URDF fill:#ede9fe,stroke:#8b5cf6,color:#4c1d95
 ```
 
 ### 为什么 `map` 和 `odom` 要分开？
@@ -2050,7 +2075,7 @@ $$T = \begin{bmatrix} \cos\theta & -\sin\theta & x \\ \sin\theta & \cos\theta & 
 
 **调试技巧**：`ros2 run tf2_tools view_frames` 可导出当前 TF 树为 PDF；`ros2 run tf2_ros tf2_echo map base_link` 实时打印两帧间变换。
 
-## 9.2 ROS Navigation Stack 架构
+## 9.2 ROS1 Navigation Stack 架构
 
 ROS 1 的 `move_base` 提供了一套经典的导航栈集成方案：
 
