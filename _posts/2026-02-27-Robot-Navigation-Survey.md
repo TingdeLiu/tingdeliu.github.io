@@ -2087,52 +2087,147 @@ ROS 1 的 `move_base` 提供了一套经典的导航栈集成方案：
 ```mermaid
 flowchart TB
     subgraph MoveBase["move_base"]
-        GM[全局规划器\nGlobal Planner\nNavfn / GlobalPlanner] --> GCM[全局代价地图\nGlobal Costmap]
-        LM[局部规划器\nLocal Planner\nDWA / TEB] --> LCM[局部代价地图\nLocal Costmap]
-        GM -->|全局路径| LM
+        GM[全局规划器\nNavfn / GlobalPlanner] --> GCM[全局代价地图\nGlobal Costmap]
+        LM[局部规划器\nDWA / TEB] --> LCM[局部代价地图\nLocal Costmap]
+        GM -->|全局路径 global_plan| LM
         LM -->|速度指令 cmd_vel| VEL
+        REC[恢复行为\nRecovery Behaviors]
     end
 
     GOAL[/目标位姿 goal/] --> MoveBase
     MAP[/静态地图 map/] --> GCM
-    MAP --> LCM
-    SCAN[/激光雷达 scan/] --> GCM
-    SCAN --> LCM
+    SCAN[/激光雷达 scan/] --> GCM & LCM
     ODOM[/里程计 odom/] --> MoveBase
     VEL[/cmd_vel/] --> Robot[机器人底盘]
     AMCL[AMCL 定位] --> MoveBase
+    LM -- 卡住/超时 --> REC
+    REC -- 恢复后重试 --> GM
 ```
+
+### move_base 状态机
+
+`move_base` 内部是一个四状态机：
+
+```mermaid
+stateDiagram-v2
+    [*] --> PLANNING : 收到目标
+    PLANNING --> CONTROLLING : 全局路径规划成功
+    PLANNING --> CLEARING : 规划失败
+    CONTROLLING --> PLANNING : 局部规划请求重规划
+    CONTROLLING --> CLEARING : 机器人卡住 / 超时
+    CONTROLLING --> [*] : 到达目标
+    CLEARING --> PLANNING : 恢复行为完成，重试
+    CLEARING --> [*] : 所有恢复失败，报错
+```
+
+- **PLANNING**：调用全局规划器生成从当前位置到目标的全局路径（频率较低，默认仅在收到新目标或局部规划请求时触发）
+- **CONTROLLING**：调用局部规划器，以约 10–20 Hz 频率持续生成 `cmd_vel` 并跟踪全局路径
+- **CLEARING**：全局或局部规划失败时进入，依次执行恢复行为列表，执行完后回到 PLANNING 重试
+
+### 恢复行为链（Recovery Behaviors）
+
+`move_base` 默认的 `recovery_behaviors` 按顺序执行：
+
+| 步骤 | 行为 | 本质 | 触发原因 |
+|------|------|------|---------|
+| ① | `conservative_reset` | 清除 3 m 半径以外的局部代价地图障碍物 | 传感器噪声误标了远处空闲区域 |
+| ② | `rotate_recovery` | 原地旋转 360°，用新传感器数据重建代价地图 | 代价地图过期或机器人姿态估计误差 |
+| ③ | `aggressive_reset` | 清除足迹之外**所有**局部代价地图障碍物 | 保守清除仍无法找到路径 |
+| ④ | `rotate_recovery` | 再次旋转 360° | 激进清除后重新感知环境 |
+
+全部失败后 `move_base` 发布 `aborted` 结果并停止。
 
 **典型话题接口**：
 
 | 话题 | 方向 | 说明 |
 |------|------|------|
-| `/move_base/goal` | 输入 | 导航目标位姿 |
+| `/move_base/goal` | 输入 | 导航目标位姿（ActionLib） |
 | `/map` | 输入 | 静态地图 |
 | `/scan` | 输入 | 激光雷达数据 |
 | `/odom` | 输入 | 里程计 |
 | `/amcl_pose` | 输入 | 定位结果 |
 | `/cmd_vel` | 输出 | 速度指令（线速度 + 角速度） |
+| `/move_base/result` | 输出 | 导航结果（succeeded / aborted / preempted）|
+
+**两个代价地图的频率差异**：全局代价地图更新慢（仅在静态层变化时更新），局部代价地图高频更新（与传感器帧率同步，约 5–20 Hz），保证实时避障的同时不浪费计算资源。
 
 ## 9.3 Nav2（ROS 2）架构
 
-Nav2 是 ROS 2 的导航栈，相比 `move_base` 有以下重要改进：
+Nav2 是 ROS 2 的导航栈，相比 `move_base` 的核心变化是用**行为树**替换硬编码状态机，将导航逻辑从代码解耦到可配置的 XML 文件。
 
-- **行为树（Behavior Tree）** 替代状态机：导航行为（规划、恢复、重试）用 BT 灵活配置
-- **生命周期节点（Lifecycle Nodes）**：支持优雅的启动/停止管理
-- **插件化架构**：全局规划器、局部规划器、恢复行为均可作为插件替换
-- **Smac Planner**：Nav2 内置的改进规划器，支持 Hybrid A* 和 State Lattice
+### 五大服务器架构
 
 ```mermaid
 flowchart TB
-    BT[行为树\nBehavior Tree] --> NP[Nav2 Planner\nServer]
-    BT --> NC[Nav2 Controller\nServer]
-    BT --> NR[Nav2 Recovery\nServer]
-    NP --> GCM2[全局代价地图]
-    NC --> LCM2[局部代价地图]
-    NC -->|cmd_vel| Base[机器人底盘]
-    NR -->|恢复行为\n旋转/后退| Base
+    BTN["BT Navigator\n（读取 BT XML，驱动整个导航流程）"]
+
+    BTN -->|ComputePathToPose| PS["Planner Server\n全局规划\nNavFn / Smac / Theta*"]
+    BTN -->|FollowPath| CS["Controller Server\n局部控制\nDWB / TEB / MPPI"]
+    BTN -->|Recovery Action| RS["Recovery Server\n恢复行为\nclear_costmap / spin / wait / backup"]
+    BTN -->|SmoothPath| SS["Smoother Server\n路径平滑\nSimple / Savitzky-Golay"]
+
+    PS --> GCM["全局代价地图"]
+    CS --> LCM["局部代价地图"]
+    CS -->|cmd_vel| Robot["机器人底盘"]
+    RS -->|原地旋转 / 后退| Robot
 ```
+
+每个 Server 是独立的 ROS 2 节点，通过 Action 接口通信，可以单独替换插件而不影响其他模块。
+
+### 生命周期节点（Lifecycle Nodes）
+
+Nav2 所有节点均实现 ROS 2 生命周期接口，状态转换如下：
+
+```
+Unconfigured → Inactive → Active → Deactivating → Inactive → Finalized
+```
+
+- **Unconfigured → Inactive**（`configure`）：加载参数、初始化插件，不接收数据
+- **Inactive → Active**（`activate`）：开始订阅话题、发布数据，进入正常工作状态
+- **Active → Inactive**（`deactivate`）：停止处理，保留资源（可快速重新激活）
+- 启动顺序由 `nav2_lifecycle_manager` 统一管理，避免节点乱序初始化导致的竞态
+
+### 行为树（BT）默认导航流程
+
+Nav2 默认 BT（`navigate_w_replanning_and_recovery.xml`）的简化逻辑：
+
+```mermaid
+flowchart TD
+    START([收到导航目标]) --> PLAN[ComputePathToPose\n全局规划]
+    PLAN -->|成功| FOLLOW[FollowPath\n局部控制跟踪]
+    PLAN -->|失败| R1[ClearEntireCostmap\n清除局部代价地图]
+    R1 --> PLAN
+
+    FOLLOW -->|到达目标| DONE([导航成功])
+    FOLLOW -->|卡住 / 超时| R2[ClearEntireCostmap\n清除局部代价地图]
+    R2 --> PLAN2[重新全局规划]
+    PLAN2 -->|仍失败| R3[Spin\n原地旋转 180°]
+    R3 --> PLAN3[重新全局规划]
+    PLAN3 -->|仍失败| R4[Wait\n等待 5 s]
+    R4 --> PLAN4[重新全局规划]
+    PLAN4 -->|仍失败| R5[Backup\n后退 0.3 m]
+    R5 --> PLAN5[最后一次全局规划]
+    PLAN5 -->|仍失败| FAIL([导航失败 / abort])
+```
+
+### 失败恢复链详解
+
+| 恢复行为 | 参数（默认值）| 原理 | 适用场景 |
+|---------|-------------|------|---------|
+| **ClearEntireCostmap** | 清除范围可配置 | 向 Costmap 服务发送清除请求，抹去障碍物层所有标记，迫使下次传感器扫描重建 | 传感器误报、动态障碍物已离开但未从代价地图清除 |
+| **Spin** | `target_yaw: 1.57 rad`（可调） | 以最大允许角速度原地旋转目标角度，期间持续更新代价地图，解除视角盲区 | 机器人陷入局部死角、代价地图被陈旧数据污染 |
+| **Wait** | `duration: 5.0 s` | 停止发布 `cmd_vel`，等待指定时间后重新规划 | 动态障碍物（行人）暂时挡路，等待其自行移开 |
+| **Backup** | `backup_dist: 0.30 m`，`backup_speed: 0.025 m/s` | 向后方发布负线速度，缓慢后退指定距离（后方须无障碍） | 机器人前方被障碍夹住、需要腾出重规划空间 |
+
+**执行顺序的设计逻辑**：
+- 先 `ClearEntireCostmap`（最轻量，只改数据，不移动）
+- 再 `Spin`（重新感知周围环境）
+- 再 `Wait`（给动态障碍让路）
+- 最后 `Backup`（物理脱困，风险最高，放在末位）
+
+每步恢复后都重新触发全局规划，只要有一步成功就跳出恢复链继续导航。全部失败后 BT 返回 `FAILURE`，Action Server 发布 `aborted` 结果。
+
+**自定义恢复行为**：实现 `nav2_core::Recovery` 接口，在 `nav2_params.yaml` 的 `recovery_server.plugins` 列表中注册，然后在 BT XML 中添加对应节点即可。
 
 ## 9.4 参数调优要点
 
