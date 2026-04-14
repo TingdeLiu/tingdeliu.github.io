@@ -105,30 +105,27 @@ flowchart TD
 **功能**：作为"大脑"层，负责指令理解、推理与动作规划。
 
 ```mermaid
-flowchart TD
-    User[用户指令: "帮我洗杯子"] --> S2_in
-    Obs[多视角视觉观察] --> S2_in
-    Obs --> S1_in
+flowchart LR
+  %% 高层规划路径
+  subgraph S2 ["System 2 (慢思考/脑): 高层规划器"]
+    User[用户指令: "帮我洗杯子"] --> VLM[预训练 VLM]
+    Obs[多视角视觉观察] --> VLM
+    VLM --> TaskDecomp[任务分解: 1.移动 2.抓取 3.清洗]
+    TaskDecomp --> SubGoal[子目标生成: 3D 姿态/语义点]
+  end
 
-    subgraph S2["System 2 (慢思考/脑): 高层规划器"]
-        S2_in[输入]
-        VLM[预训练 VLM] --> TaskDecomp[任务分解: 1.移动 2.抓取 3.清洗]
-        S2_in --> VLM
-        TaskDecomp --> SubGoal[子目标生成: 3D 姿态/语义点]
-    end
-
-    SubGoal -- "低频指令 (~5Hz)" --> S1_in
-
-    subgraph S1["System 1 (快思考/小脑): 动作专家"]
-        S1_in[动作输入]
-        Controller[Flow Matching/Diffusion] --> Motor[电机电流/扭矩控制]
-        S1_in --> Controller
-        Motor --> Feedback[实时触觉/位姿反馈]
-        Feedback --> Controller
-    end
-
+  %% 动作执行路径
+  Bridge[低频指令 (~5Hz)]
+  subgraph S1 ["System 1 (快思考/小脑): 动作专家"]
+    Bridge --> Controller[Flow Matching/Diffusion]
+    Controller --> Motor[电机电流/扭矩控制]
+    Motor --> Feedback[实时触觉/位姿反馈]
+    Feedback --> Controller
     Motor --> Act[物理动作执行]
-    Feedback -.-> VLM
+  end
+
+  SubGoal --> Bridge
+  Feedback --> VLM
     
     style S2 fill:#e1f5fe,stroke:#01579b
     style S1 fill:#fff3e0,stroke:#e65100
