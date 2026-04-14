@@ -132,7 +132,7 @@ flowchart LR
 ```
 
 **主流架构**：
-- **Transformer-based LLM**：如 Llama-2/3、Phi-3 等。
+- **Transformer-based LLM**：如 Qwen3-VL、Llama-2/3、Phi-3 等。
 - **双系统架构（NVIDIA GR00T 范式）**：
   - **System 2 (慢思考)**：基于视觉语言模型负责理解环境、解读指令并作出长时序规划（~5Hz）。
   - **System 1 (快思考)**：基于扩散 Transformer (DiT) 或流匹配负责高频、精细的反射性动作（~50Hz）。
