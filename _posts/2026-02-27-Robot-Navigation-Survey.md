@@ -2429,6 +2429,51 @@ flowchart TD
 
 **自定义恢复行为**：实现 `nav2_core::Recovery` 接口，在 `nav2_params.yaml` 的 `recovery_server.plugins` 列表中注册，然后在 BT XML 中添加对应节点即可。
 
+### 常见恢复触发时机（实机经验）
+
+恢复链的触发来源可分为以下四类，对应不同的根因和处置方向：
+
+**① 局部地图瞬时不可行**
+
+传感器噪声或瞬时遮挡把局部代价地图"堵死"，`FollowPath` 找不到合法速度（`follow_path_error`），直接触发恢复：
+
+| 根因 | 典型现象 | 推荐处置 |
+|------|---------|---------|
+| 玻璃/镜面反光 | 激光在玻璃前产生虚假障碍点云，局部地图出现"幽灵障碍" | 先执行 `ClearEntireCostmap` 清除误报，重新建图；或滤波过滤玻璃反射点 |
+| 人流/推车瞬时挡路 | 行人走进传感器视野，局部路径被瞬时堵断 | `Wait` 等待动态障碍离开；若频繁触发可增大 `controller_patience` |
+| 点云噪声突刺 | 单帧噪声点标记了本应自由的格子 | 调小 `obstacle_range` 或开启点云滤波（`min_obstacle_height` 过滤地面反射） |
+
+**② 进度检查失败（机器人卡住）**
+
+机器人在原地微抖但累计位移不足阈值（Nav2 默认：10 s 内位移 < 0.5 m），BT 的 `GoalReached` 或进度检查节点判定卡住，触发恢复：
+
+| 根因 | 典型现象 | 推荐处置 |
+|------|---------|---------|
+| 窄门口/贴墙 | 机器人贴近墙壁，膨胀代价阻止前进，但路径规划仍给出贴墙路径 | 增大 `inflation_radius` 让全局规划主动远离墙壁；或增大 `min_obstacle_dist`（TEB） |
+| 角落局部最优 | 机器人被三面障碍物夹住，前后左右均高代价，振荡抖动 | `Backup` 后退腾出空间；若频繁发生，检查 `enable_homotopy_class_planning` 是否开启 |
+| 进度阈值过严 | 机器人在合理减速但被误判为卡住 | 适当放宽 `progress_checker_distance`（Nav2）或 `oscillation_distance`（move_base） |
+
+**③ TF / 时序问题**
+
+`map→odom→base_link` 变换短时不可用（TF 超时）或时间戳不一致，控制器拿不到一致的状态估计，连续规划失败后触发恢复：
+
+| 根因 | 典型现象 | 推荐处置 |
+|------|---------|---------|
+| AMCL 定位丢失 | 粒子滤波发散，`map→odom` 变换跳变或停止发布 | 检查激光数据质量；增大 `max_particles`；提供更好初始位姿 |
+| 里程计延迟 | `odom→base_link` 时间戳落后于控制器期望，TF 查询超时 | 检查底盘驱动发布频率（建议 $\geq$ 50 Hz）；排查 `transform_tolerance` 配置 |
+| 节点启动竞态 | SLAM / AMCL 尚未就绪，导航栈已收到目标 | 使用 `nav2_lifecycle_manager` 确保依赖节点全部 Active 后再接受目标 |
+
+**④ 全局路径可行但局部动力学不可行**
+
+全局规划（A\* / Smac）给出的路径在几何上无碰撞，但局部规划器（DWA / MPPI）受速度、加速度和障碍约束，短时间内无法给出满足约束的安全控制序列：
+
+| 根因 | 典型现象 | 推荐处置 |
+|------|---------|---------|
+| 全局路径贴边太紧 | 全局路径切角经过膨胀区边缘，DWA 采样速度均碰膨胀层 | 增大全局代价地图 `inflation_radius`，迫使全局路径走更中央；或提高 `path_distance_bias` |
+| 转角太急 | Smac/Navfn 给出 90° 急转，但 `minimum_turning_radius` 不允许 | 增大 `minimum_turning_radius`；或切换到支持运动学约束的 Smac Hybrid A\* |
+| 目标附近收敛困难 | 临近 goal 时障碍惩罚、姿态约束、噪声互相冲突，控制器 stop-and-go，最终超时进入恢复 | 增大 `goal_dist_tol`（Nav2 Controller）放宽到达判定；检查目标点是否在膨胀区内 |
+| MPPI Critics 权重冲突 | `ObstaclesCritic` 和 `GoalCritic` 权重相近，在障碍物附近产生震荡 | 降低 `GoalCritic` 权重或增大 `ObstaclesCritic`；启用 `TwirlingCritic` 抑制旋转 |
+
 ## 9.4 参数调优要点
 
 导航栈调优是**模块串联**的过程——上游参数错误会伪装成下游问题。建议按以下顺序调：代价地图 → 全局规划 → 局部规划 → 恢复行为。
