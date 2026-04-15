@@ -1521,6 +1521,11 @@ $$U_{rep}(q) = \begin{cases} \dfrac{1}{2} k_{rep} \left(\dfrac{1}{d(q,O)} - \dfr
 
 **模型预测路径积分（Model Predictive Path Integral）思路**：属于**模型预测控制（MPC）** 的随机变体。在当前时刻，向前采样**大量随机控制序列**（通过 GPU 并行采样），用运动模型仿真每条轨迹的未来状态，根据轨迹代价计算**信息论加权平均**作为当前控制输出，然后滑动时间窗口重复。
 
+<div align="center">
+  <img src="/images/robotics_navigation/mppi_path_tracking.gif" width="75%" />
+  <figcaption>图：MPPI 路径跟踪仿真——GPU 并行采样大量轨迹（半透明线），加权平均得到最优控制</figcaption>
+</div>
+
 **算法流程**：
 
 1. 当前控制序列 $U = \{u_0, u_1, \ldots, u_{T-1}\}$，采样 $K$ 条扰动序列 $\epsilon^{(k)} \sim \mathcal{N}(0, \Sigma)$
@@ -1623,10 +1628,6 @@ FollowPath:
       weight: 10.0
 ```
 
-<div align="center">
-  <img src="/images/robotics_navigation/mppi_path_tracking.gif" width="75%" />
-  <figcaption>图：MPPI 路径跟踪仿真——GPU 并行采样大量轨迹（半透明线），加权平均得到最优控制</figcaption>
-</div>
 
 ## 5.4 代价地图（Costmap）层次结构
 
