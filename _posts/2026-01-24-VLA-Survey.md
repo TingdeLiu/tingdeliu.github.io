@@ -1935,8 +1935,6 @@ ACT 算法架构：基于 CVAE 和 Transformer 的动作序列预测
 </div>
 
 1. **动作块 (Action Chunking)**：不同于传统方法预测单步动作 $a_t$，ACT 在每个观测点 $s_t$ 预测未来 $k$ 步的动作序列 $a_{t:t+k}$。这大大缩短了任务的有效时序跨度（减少了 $k$ 倍），从而缓解复利误差。
-2. **CVAE 建模**：使用条件变分自编码器 (CVAE) 处理人类演示中的多峰性（即同一场景下可能有多种有效路径）。
-3. **Transformer 架构**：利用 Transformer 的编码器-解码器结构来融合多视角图像 and 关节位置信息，并生成连贯的动作块。
 
 <div align="center">
   <img src="/images/vla/Action-Chunking-Temporal-Ensemble.png" width="100%" />
@@ -1945,7 +1943,21 @@ ACT 算法架构：基于 CVAE 和 Transformer 的动作序列预测
 </figcaption>
 </div>
 
+2. **CVAE 建模**：使用条件变分自编码器 (CVAE) 处理人类演示中的多峰性（即同一场景下可能有多种有效路径）。
+
+<div align="center">
+  <img src="/images/vla/CVAE.png" width="100%" />
+<figcaption>
+CVAE架构：非常适合轨迹生成
+</figcaption>
+</div>
+
+3. **Transformer 架构**：利用 Transformer 的编码器-解码器结构来融合多视角图像 and 关节位置信息，并生成连贯的动作块。
+
+
+
 4. **时间集成 (Temporal Ensembling)**：在推理时，系统在每一帧都进行预测，并对重叠的动作块进行加权平均。这种方式不仅提高了预测的鲁棒性，还消除了“动作块”切换时的动作不连续感。
+
 
 <div align="center">
   <img src="/images/vla/ACT-detailed-training.png" width="100%" />
@@ -1978,6 +1990,7 @@ ACT 详细推理/测试流程 (Testing)
 - **感官缺失**：目前的系统仅依赖视觉，缺乏力觉反馈，在处理极度复杂的接触（如拆解复杂的糖果包装）时仍有挑战。
 
 ---
+
 ## 8.5 Diffusion Policy (2023) {#8-5-diffusion-policy-2023}
 Visuomotor Policy Learning via Action Diffusion
 
