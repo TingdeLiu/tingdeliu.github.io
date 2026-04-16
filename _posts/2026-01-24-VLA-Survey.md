@@ -1958,7 +1958,6 @@ CVAE架构：非常适合轨迹生成
 
 4. **时间集成 (Temporal Ensembling)**：在推理时，系统在每一帧都进行预测，并对重叠的动作块进行加权平均。这种方式不仅提高了预测的鲁棒性，还消除了“动作块”切换时的动作不连续感。
 
-
 <div align="center">
   <img src="/images/vla/ACT-detailed-training.png" width="100%" />
 <figcaption>
