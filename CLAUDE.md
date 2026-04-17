@@ -67,12 +67,19 @@ The excerpt separator is `<!-- more -->` (configured in `_config.yml`).
 **Image insertion** (used in all existing posts):
 ```html
 <div align="center">
-  <img src="/images/filename.png" width="80%" />
+  <img src="/images/filename/imagename.png" width="80%" />
 <figcaption>Caption text</figcaption>
 </div>
 ```
 
-**Math:** Inline `$...$`, block `$$...$$` (MathJax).
+**Math:** Block display math uses `$$...$$` on its own line. Inline math rules:
+
+- **Simple formulas** (without subscripts following `}`, such as `$T$`, `$t$`, `$w$`): Use `$...$` is fine.
+- **Inline formulas with the `}_` pattern** (such as `\mathbf{x}_T`, `\bar{\alpha}_t`, `\boldsymbol{\epsilon}_\theta`): **Must use `$$...$$`**, not `$...$`.
+
+**Reason**: kramdown (GFM mode) treats `}` as a word boundary, and the `_` in `}_` will be parsed as the start of Markdown italics, breaking the formula. When using `$$...$$` instead, kramdown recognizes the entire content as a math span and does not perform internal Markdown processing, outputting `\(...\)` for MathJax to render correctly.
+
+**Decision rule**: For any inline formula containing combinations like `\mathbf{...}_`, `\mathcal{...}_`, `\boldsymbol{...}_`, `\bar{...}_`, `\hat{...}_` (closing brace followed by underscore), always use `$$...$$`.
 
 **Table of contents:** Add `* 目录\n{:toc}` after front matter to auto-generate TOC from headings.
 

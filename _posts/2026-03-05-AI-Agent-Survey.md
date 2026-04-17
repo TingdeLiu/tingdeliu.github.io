@@ -36,6 +36,8 @@ flowchart LR
 
 Agent 的核心能力在于它不仅能"说"，还能"做"——通过调用外部工具（搜索引擎、代码执行器、API、浏览器等）影响真实世界，并根据执行结果动态调整后续计划。
 
+从工程视角看，AI Agent 可以理解为 **LLM（推理核心）+ Harness（工程约束框架）** 的结合体：LLM 提供推理与生成能力，Harness 则通过上下文工程、架构约束与验证循环，决定 Agent 能可靠地做什么、不能做什么。两者缺一不可——只有 LLM 的 Agent 强大但不可控，只有 Harness 没有 LLM 则寸步难行。Harness Engineering 的工程细节详见：[Harness Engineering 综述](/Harness-Engineering-Survey/)。
+
 ## 2.2 Agent 与普通 LLM 的核心区别
 
 | 维度 | 普通 LLM | AI Agent |
