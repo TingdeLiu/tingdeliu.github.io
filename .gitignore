@@ -34,3 +34,5 @@ vendor/
 
 # 其他
 CLAUDE.md
+standard.md
+fix_format.py
