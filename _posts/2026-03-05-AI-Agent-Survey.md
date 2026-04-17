@@ -1305,7 +1305,7 @@ Manus 执行过程：
 
 ---
 
-## 11.4 MiniAgent：极简开源 Agent 框架
+## 11.4 MiniAgent：极简开源框架
 
 **[MiniAgent](https://github.com/TingdeLiu/miniagent)**（开源，~500 行 Python）是一个面向学习者的极简 Agent 实现，目标只有一个：**用最少的代码，把本文所有核心概念跑通一遍**。
 
