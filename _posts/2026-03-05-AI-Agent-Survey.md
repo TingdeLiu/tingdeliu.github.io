@@ -1432,6 +1432,36 @@ miclaw 执行过程：
 
 miclaw 的意义不在于技术突破，而在于**验证了 Agent 的消费级可行性**：绝大多数用户既不懂 API 也不会写代码，但他们有完整的任务需求。当 Agent 内嵌进手机系统，自然语言成为操作系统的新界面，AI Agent 才真正触达了最广泛的用户群体。
 
+---
+
+## 11.8 MiniAgent：极简开源 Agent 框架
+
+**[MiniAgent](https://github.com/TingdeLiu/miniagent)**（开源，~500 行 Python）是一个面向学习者的极简 Agent 实现，目标只有一个：**用最少的代码，把本文所有核心概念跑通一遍**。
+
+与上述商业产品不同，MiniAgent 不追求功能完整，而是刻意保持代码透明——每一个模块都可以直接阅读、修改和扩展，没有任何框架魔法遮蔽实现细节。
+
+### 五个核心模块
+
+```
+Tools     →  外部能力（计算器、DuckDuckGo 搜索、文件读写）
+Memory    →  对话历史，为 LLM 提供上下文
+Planner   →  将任务分解为有序步骤
+Executor  →  解析 LLM 输出，派发工具调用
+Loop      →  ReAct 循环（Reason → Act → Observe）
+```
+
+五个模块一一对应本文第 2–6 章的概念：工具调用（§8）、记忆（§5）、规划（§3.3）、执行、ReAct 循环（§3.1）。
+
+### 技术选型
+
+- **LLM 后端**：支持本地 Ollama 部署，也支持 OpenAI 兼容接口（DeepSeek、Qwen 等），无需付费 API 即可上手
+- **工具安全**：计算器使用 Python AST 解析而非 `eval()`，文件操作内置路径穿越防护
+- **零依赖框架**：不依赖 LangChain / AutoGen，所有逻辑裸写在 Python 函数中，便于逐行理解
+
+### 定位
+
+MiniAgent 适合在读完本文后作为**动手验证**的第一步——在几百行代码里亲手跑一遍 ReAct 循环，比阅读任何文档都更有助于建立对 Agent 架构的直觉。在此基础上，再去使用 LangChain、AutoGen 或直接调用 Claude API 构建生产级 Agent，会清晰得多。
+
 
 # 12. Agent 安全
 
