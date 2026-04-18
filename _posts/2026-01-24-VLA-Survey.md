@@ -3207,13 +3207,6 @@ InternVLA-A1 的核心创新在于将语义理解、视觉预见（visual foresi
 
 **主要方法/创新点**
 
-<div align="center">
-  <img src="/images/vla/InternVLA-A1-overview.png" width="100%" />
-<figcaption>
-InternVLA-A1 整体框架：理解专家、生成专家、动作专家三者协同工作，将语义推理与动力学预测融合以指导动作执行
-</figcaption>
-</div>
-
 InternVLA-A1 采用 **Mixture-of-Transformers (MoT)** 架构，协调三个专家模块共同工作：
 
 **（1）Understanding Expert（理解专家）**
