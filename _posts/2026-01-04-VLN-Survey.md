@@ -3033,6 +3033,8 @@ Action Token a_t
   - [NVIDIA Cosmos](https://www.nvidia.com/en-us/ai/cosmos/) (2025, NVIDIA) — 面向物理 AI 的大规模世界基础模型
   - [Video Generation Models in Robotics -- Applications, Research Challenges, Future Directions](https://arxiv.org/abs/2601.07823) (2025)
 
+> 📖 **延伸阅读**：本节聚焦世界模型在 **VLN 任务**中的应用。关于世界模型本体的系统性综述——四大技术范式（世界规划器 / 动作模型 / 合成器 / 模拟器）、基础模型生态、评测基准与未来方向——详见 [《世界模型综述：迈向通用 VLA 智能体》]({% post_url 2026-04-16-World-Models-Survey %})。
+
 ### 核心思想
 
 该类方法引入 **Predictive World Modeling**，使智能体能够：
@@ -3161,30 +3163,9 @@ flowchart TD
 
 ### 基础设施与数据引擎
 
-上述方法的共同瓶颈是**大规模高质量训练数据的稀缺**。以 NVIDIA Cosmos 为代表的物理 AI 世界基础模型，正在成为解决这一问题的底层基础设施。
+上述方法的共同瓶颈是**大规模高质量训练数据的稀缺**。以 **NVIDIA Cosmos**（2025）为代表的物理 AI 世界基础模型，正在成为底层基础设施：其 Predict 模块可作为**合成数据引擎**生成多样化导航轨迹，Transfer 模块可降低 sim2real gap，Reason 模块可作为 VLN 策略评估与数据筛选的推理底座，为 NWM、WMNav 等上层方法提供预训练基础。
 
-#### **NVIDIA Cosmos**（2025）
-
-- **定位**：面向物理 AI 的世界基础模型平台，而非特定导航算法
-- **核心能力**：
-  - 支持文本 / 图像 / 视频条件驱动的物理世界视频生成
-  - 提供 Tokenizer + Diffusion WFM + Autoregressive WFM 全套组件
-  - 针对机器人、自动驾驶场景优化，具备物理一致性
-- **三大功能模块**：
-
-| | **Predict** | **Transfer** | **Reason** |
-| :--- | :--- | :--- | :--- |
-| **类型** | World Generation | Multi-Controlnet | Reasoning VLM |
-| **功能** | 给定初始帧，预测未来新帧 | 将控制帧转化为视频中的真实感帧 | 对视频片段内的帧进行推理 |
-| **用途** | 数据生成 & 策略评估 | 数据增强 | 数据筛选、机器人规划、视觉 AI Agent |
-| **输入** | 文本、图像、视频 | RGB、深度图、语义分割等多模态视频 | 视频、图像、文本 |
-| **输出** | 视频 | 视频 | 文本 |
-
-- **对 VLN 的价值**：
-  - **Predict 模块**：作为**合成数据引擎**，生成多样化室内/室外导航轨迹，缓解真实标注数据稀缺
-  - **Transfer 模块**：将深度图、语义分割等传感器数据转化为真实感视频，降低 sim2real gap
-  - **Reason 模块**：作为视觉 AI Agent 的推理底座，支持导航策略评估与数据筛选
-  - 为上层世界模型方法（NWM、WMNav 等）提供预训练基础
+> Cosmos 的完整架构（Tokenizer、Diffusion/Autoregressive WFM、三大功能模块对比）详见 [《世界模型综述》§4.3]({% post_url 2026-04-16-World-Models-Survey %})。
 
 ---
 
