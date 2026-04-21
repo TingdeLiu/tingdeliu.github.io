@@ -781,6 +781,77 @@ $$ \mathcal{L} = \mathbb{E}_{t, \mathbf{x}_0, \boldsymbol{\epsilon}} \left[ \|\b
 
 </div>
 
+### 3.20.1 架构演进：传统 U-Net Diffusion vs DiT (Diffusion Transformer)
+
+扩散模型的骨干网络（Backbone）主要经历了从 **U-Net** 到 **DiT (Diffusion Transformer)** 的演进。两者使用同样的扩散训练范式（前向加噪 + 反向去噪），但在**噪声预测网络** $$\boldsymbol{\epsilon}_\theta$$ 的架构设计上有本质差异。
+
+- **传统 U-Net Diffusion**（DDPM、Stable Diffusion 1.x/2.x 代表）：
+
+  - **结构**：编码器-解码器对称的卷积 U 型网络，带跳跃连接（Skip Connection），在不同分辨率下提取多尺度特征。
+  - **条件注入**：时间步 $t$ 通过正弦位置编码送入残差块；文本/类别条件通过 **交叉注意力（Cross-Attention）** 注入中间层。
+  - **优势**：归纳偏置强（卷积的局部性与平移不变性），在中小数据规模下收敛快、参数效率高。
+  - **劣势**：卷积感受野受限，难以建模全局长程依赖；扩展到超大规模时 scaling 效果弱于 Transformer。
+
+- **DiT (Diffusion Transformer)**（Peebles & Xie, 2023；Sora、Stable Diffusion 3、PixArt-α 代表）：
+
+  - **结构**：完全抛弃 U-Net，采用 **纯 Transformer** 主干。将含噪潜变量（通常在 VAE 的 latent space 中）切分为 Patch Token 序列，经过若干 Transformer Block 后再重建为噪声预测图。
+  - **条件注入**：通过 **adaLN-Zero**（自适应 LayerNorm，将时间步和类别条件映射为 LayerNorm 的 scale/shift/gate 参数）替代传统的残差条件注入，零初始化残差分支保证训练稳定。
+  - **优势**：严格遵循 Transformer 的 **Scaling Law**——参数量和计算量越大，FID 越低；对视频、长序列、多模态条件的适应性远强于 U-Net。Sora、Stable Diffusion 3 的成功验证了 DiT 是通往大规模生成模型的主流路径。
+  - **劣势**：缺乏卷积的归纳偏置，小数据下需要更多样本；计算成本随 Token 数平方增长。
+
+**对比总结**：
+
+| 维度 | U-Net Diffusion | DiT (Diffusion Transformer) |
+|:---|:---|:---|
+| 主干 | 卷积 U-Net + 注意力 | 纯 Transformer (Patch Token) |
+| 归纳偏置 | 强（局部、多尺度） | 弱（依赖数据） |
+| 条件注入 | Cross-Attention + 残差 | **adaLN-Zero** |
+| 可扩展性 | 中等 | **极强（Scaling Law）** |
+| 代表作 | DDPM、SD 1.5/2.1 | **Sora、SD3、PixArt-α、MovieGen** |
+
+### 3.20.2 Diffusion Policy：扩散模型在机器人决策中的应用
+
+**Diffusion Policy**（Chi et al., 2023）将扩散模型的强大分布建模能力迁移到 **机器人模仿学习（Imitation Learning）** 领域，成为当前 VLA (Vision-Language-Action) 和具身智能中的主流动作生成范式。
+
+- **核心思想**：把机器人的**动作序列**（Action Chunk，未来 $H$ 步的关节位姿或末端执行器轨迹）视作需要生成的"图像"，用扩散模型从高斯噪声中逐步去噪，生成以当前观测 $$\mathbf{o}_t$$ 为条件的动作序列 $$\mathbf{a}_{t:t+H}$$：
+
+$$\boldsymbol{\epsilon}_\theta(\mathbf{a}^k_{t:t+H}, k, \mathbf{o}_t) \rightarrow \boldsymbol{\epsilon}$$
+
+  其中 $k$ 为扩散去噪步。
+
+- **相较传统 BC（Behavior Cloning）的优势**：
+
+  - **多模态动作分布**：人类演示数据常存在"多种正确解法"（如绕过障碍可向左或向右），MSE 回归会平均成错误的中间路径；扩散模型天然支持多峰分布，能忠实建模多模态策略。
+  - **高维动作序列**：一次性生成一个 Action Chunk（通常 8-16 步），而非逐步自回归，避免误差累积、提升时序一致性。
+  - **稳定训练**：相比 GAN-based Policy，扩散训练目标（噪声 MSE）简单稳定；相比 EBM，避免了对比散度采样的高方差。
+
+- **架构选择**：早期 Diffusion Policy 采用 **1D 卷积 U-Net**（处理时间维度上的动作序列），近期趋势转向 **Transformer 主干**（如 RDT、π₀ 等 VLA 模型），以便与视觉-语言编码器深度融合。
+
+- **代表工作**：Diffusion Policy（CMU/TRI）、3D Diffusion Policy、RDT-1B（清华）、π₀（Physical Intelligence）、Octo 等；在真实机器人操作、双臂协作、灵巧手等任务上均显著超越 BC-RNN、BC-Transformer 等基线。
+
+### 3.20.3 扩散架构 vs 自回归架构：两种生成范式的对比
+
+在序列/内容生成领域，**Diffusion（扩散）** 和 **Autoregressive（自回归，AR）** 是两条主导性的技术路线。理解它们的差异对于选择合适的架构至关重要。
+
+| 维度 | Autoregressive (AR) | Diffusion |
+|:---|:---|:---|
+| **生成方式** | 逐 Token 串行生成：$$p(x) = \prod_i p(x_i \mid x_{<i})$$ | 并行迭代去噪：$$\mathbf{x}_T \to \mathbf{x}_{T-1} \to \cdots \to \mathbf{x}_0$$ |
+| **并行度** | 训练并行（Teacher Forcing），**推理串行** | 训练并行，**推理步内并行**（但需多步） |
+| **生成长度** | 变长、灵活（可逐步终止） | **固定长度**（需预先设定输出尺寸） |
+| **误差累积** | 存在（Exposure Bias） | 无（每步基于全局噪声预测） |
+| **概率建模** | 精确似然（$\log p$ 可计算） | 变分下界（ELBO），近似似然 |
+| **多模态分布** | 依赖 temperature/top-k 采样 | **天然支持**（噪声注入即多样性） |
+| **连续 vs 离散** | 擅长**离散** Token（文本、代码） | 擅长**连续**信号（图像、音频、动作） |
+| **Scaling Law** | 成熟（GPT 系列验证） | 逐步成熟（DiT、Sora 验证） |
+| **代表模型** | GPT、LLaMA、PaLM；VQ-VAE + AR（DALL-E 1） | Stable Diffusion、Sora、Diffusion Policy |
+
+- **文本生成**：AR 几乎是唯一主流（LLM 全家桶）；但近期 Diffusion-LM、LLaDA 等尝试将扩散用于文本，展示了并行解码、可控编辑的潜力。
+- **图像/视频生成**：Diffusion 已成为主流；AR 路线（如 Parti、VAR）通过 Tokenizer + AR 也能取得竞争力，但推理延迟高。
+- **机器人动作**：Diffusion Policy 凭借多模态分布建模占优；AR-based VLA（如 OpenVLA）则在与 LLM 统一架构上更自然。
+- **融合趋势**：近期出现 **MAR (Masked AR)**、**Transfusion**（Zhou et al., 2024）等混合架构，在单一 Transformer 中统一 AR（文本）与 Diffusion（图像），是通往真正多模态基础模型的潜在路径。
+
+**直观理解**：AR 像"逐字写作"，每一步都决定最终结果；Diffusion 像"雕刻"，先有一团大致的形状（噪声），再逐步精修到清晰。前者擅长有严格因果顺序的符号序列，后者擅长需要全局一致性的连续信号。
+
 # 4. 总结
 
 机器学习是一场关于数据与算法的演化史。从早期的专家规则，到严谨的统计概率模型，再到大力出奇迹的深度神经网络和基础大模型，其核心始终是**寻找更优的表示和更高效的优化路径**。
