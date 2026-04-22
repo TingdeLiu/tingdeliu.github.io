@@ -859,3 +859,86 @@ $$\boldsymbol{\epsilon}_\theta(\mathbf{a}^k_{t:t+H}, k, \mathbf{o}_t) \rightarro
 对于研究者和工程师而言，了解每一种算法的边界与假设至关重要：在海量非结构化数据（图、文、音）面前，深度学习与 Transformer 无可替代；但在中小规模的结构化表格数据中，XGBoost 等树模型依然具有极高的性价比和解释性。未来，随着算法、算力和数据的进一步交融，机器学习必将朝着通用性（AGI）和可信性稳步迈进。
 
 # 参考资料
+
+1. Hastie, T., Tibshirani, R., & Friedman, J. (2009). *The Elements of Statistical Learning: Data Mining, Inference, and Prediction* (2nd ed.). Springer.
+2. Bishop, C. M. (2006). *Pattern Recognition and Machine Learning*. Springer.
+3. Goodfellow, I., Bengio, Y., & Courville, A. (2016). *Deep Learning*. MIT Press. [https://www.deeplearningbook.org/](https://www.deeplearningbook.org/)
+4. Sutton, R. S., & Barto, A. G. (2018). *Reinforcement Learning: An Introduction* (2nd ed.). MIT Press.
+5. Tibshirani, R. (1996). *Regression Shrinkage and Selection via the Lasso*. Journal of the Royal Statistical Society, Series B, 58(1), 267–288.
+6. Quinlan, J. R. (1986). *Induction of Decision Trees*. Machine Learning, 1(1), 81–106. (ID3)
+7. Quinlan, J. R. (1993). *C4.5: Programs for Machine Learning*. Morgan Kaufmann.
+8. Breiman, L., Friedman, J., Olshen, R., & Stone, C. (1984). *Classification and Regression Trees*. Wadsworth. (CART)
+9. Breiman, L. (2001). *Random Forests*. Machine Learning, 45(1), 5–32.
+10. Friedman, J. H. (2001). *Greedy Function Approximation: A Gradient Boosting Machine*. The Annals of Statistics, 29(5), 1189–1232. (GBDT)
+11. Chen, T., & Guestrin, C. (2016). *XGBoost: A Scalable Tree Boosting System*. KDD 2016. [arXiv:1603.02754](https://arxiv.org/abs/1603.02754)
+12. Ke, G., et al. (2017). *LightGBM: A Highly Efficient Gradient Boosting Decision Tree*. NeurIPS 2017.
+13. Cover, T., & Hart, P. (1967). *Nearest Neighbor Pattern Classification*. IEEE Transactions on Information Theory, 13(1), 21–27. (KNN)
+14. Rabiner, L. R. (1989). *A Tutorial on Hidden Markov Models and Selected Applications in Speech Recognition*. Proceedings of the IEEE, 77(2), 257–286.
+15. Cortes, C., & Vapnik, V. (1995). *Support-Vector Networks*. Machine Learning, 20(3), 273–297.
+16. MacQueen, J. (1967). *Some Methods for Classification and Analysis of Multivariate Observations*. Proc. 5th Berkeley Symp. on Math. Statist. and Prob. (K-Means)
+17. Pearson, K. (1901). *On Lines and Planes of Closest Fit to Systems of Points in Space*. Philosophical Magazine, 2(11), 559–572. (PCA)
+18. van der Maaten, L., & Hinton, G. (2008). *Visualizing Data using t-SNE*. Journal of Machine Learning Research, 9, 2579–2605.
+19. Rumelhart, D. E., Hinton, G. E., & Williams, R. J. (1986). *Learning Representations by Back-Propagating Errors*. Nature, 323(6088), 533–536.
+20. Hornik, K., Stinchcombe, M., & White, H. (1989). *Multilayer Feedforward Networks are Universal Approximators*. Neural Networks, 2(5), 359–366.
+21. Kingma, D. P., & Ba, J. (2015). *Adam: A Method for Stochastic Optimization*. ICLR 2015. [arXiv:1412.6980](https://arxiv.org/abs/1412.6980)
+22. LeCun, Y., Bottou, L., Bengio, Y., & Haffner, P. (1998). *Gradient-Based Learning Applied to Document Recognition*. Proceedings of the IEEE, 86(11), 2278–2324. (LeNet-5)
+23. Krizhevsky, A., Sutskever, I., & Hinton, G. E. (2012). *ImageNet Classification with Deep Convolutional Neural Networks*. NeurIPS 2012. (AlexNet)
+24. Simonyan, K., & Zisserman, A. (2015). *Very Deep Convolutional Networks for Large-Scale Image Recognition*. ICLR 2015. [arXiv:1409.1556](https://arxiv.org/abs/1409.1556) (VGG)
+25. He, K., Zhang, X., Ren, S., & Sun, J. (2016). *Deep Residual Learning for Image Recognition*. CVPR 2016. [arXiv:1512.03385](https://arxiv.org/abs/1512.03385) (ResNet)
+26. Hochreiter, S., & Schmidhuber, J. (1997). *Long Short-Term Memory*. Neural Computation, 9(8), 1735–1780.
+27. Cho, K., et al. (2014). *Learning Phrase Representations using RNN Encoder-Decoder for Statistical Machine Translation*. EMNLP 2014. [arXiv:1406.1078](https://arxiv.org/abs/1406.1078) (GRU)
+28. Vaswani, A., et al. (2017). *Attention Is All You Need*. NeurIPS 2017. [arXiv:1706.03762](https://arxiv.org/abs/1706.03762)
+29. Su, J., et al. (2021). *RoFormer: Enhanced Transformer with Rotary Position Embedding*. [arXiv:2104.09864](https://arxiv.org/abs/2104.09864) (RoPE)
+30. Press, O., Smith, N. A., & Lewis, M. (2022). *Train Short, Test Long: Attention with Linear Biases Enables Input Length Extrapolation*. ICLR 2022. (ALiBi)
+31. Devlin, J., Chang, M. W., Lee, K., & Toutanova, K. (2019). *BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding*. NAACL 2019. [arXiv:1810.04805](https://arxiv.org/abs/1810.04805)
+32. Liu, Y., et al. (2019). *RoBERTa: A Robustly Optimized BERT Pretraining Approach*. [arXiv:1907.11692](https://arxiv.org/abs/1907.11692)
+33. Lan, Z., et al. (2020). *ALBERT: A Lite BERT for Self-supervised Learning of Language Representations*. ICLR 2020.
+34. He, P., et al. (2021). *DeBERTa: Decoding-Enhanced BERT with Disentangled Attention*. ICLR 2021.
+35. Radford, A., et al. (2018). *Improving Language Understanding by Generative Pre-Training*. OpenAI Tech Report. (GPT-1)
+36. Radford, A., et al. (2019). *Language Models are Unsupervised Multitask Learners*. OpenAI Tech Report. (GPT-2)
+37. Brown, T. B., et al. (2020). *Language Models are Few-Shot Learners*. NeurIPS 2020. [arXiv:2005.14165](https://arxiv.org/abs/2005.14165) (GPT-3)
+38. OpenAI. (2023). *GPT-4 Technical Report*. [arXiv:2303.08774](https://arxiv.org/abs/2303.08774)
+39. Kaplan, J., et al. (2020). *Scaling Laws for Neural Language Models*. [arXiv:2001.08361](https://arxiv.org/abs/2001.08361)
+40. Wei, J., et al. (2022). *Emergent Abilities of Large Language Models*. TMLR 2022. [arXiv:2206.07682](https://arxiv.org/abs/2206.07682)
+41. Wei, J., et al. (2022). *Chain-of-Thought Prompting Elicits Reasoning in Large Language Models*. NeurIPS 2022. [arXiv:2201.11903](https://arxiv.org/abs/2201.11903)
+42. Ouyang, L., et al. (2022). *Training Language Models to Follow Instructions with Human Feedback*. NeurIPS 2022. [arXiv:2203.02155](https://arxiv.org/abs/2203.02155) (InstructGPT / RLHF)
+43. Rafailov, R., et al. (2023). *Direct Preference Optimization: Your Language Model is Secretly a Reward Model*. NeurIPS 2023. [arXiv:2305.18290](https://arxiv.org/abs/2305.18290) (DPO)
+44. Goodfellow, I., et al. (2014). *Generative Adversarial Nets*. NeurIPS 2014. [arXiv:1406.2661](https://arxiv.org/abs/1406.2661)
+45. Arjovsky, M., Chintala, S., & Bottou, L. (2017). *Wasserstein GAN*. ICML 2017. [arXiv:1701.07875](https://arxiv.org/abs/1701.07875)
+46. Karras, T., Laine, S., & Aila, T. (2019). *A Style-Based Generator Architecture for Generative Adversarial Networks*. CVPR 2019. (StyleGAN)
+47. Zhu, J. Y., et al. (2017). *Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks*. ICCV 2017. (CycleGAN)
+48. Vincent, P., et al. (2008). *Extracting and Composing Robust Features with Denoising Autoencoders*. ICML 2008.
+49. Kingma, D. P., & Welling, M. (2014). *Auto-Encoding Variational Bayes*. ICLR 2014. [arXiv:1312.6114](https://arxiv.org/abs/1312.6114) (VAE)
+50. Ho, J., Jain, A., & Abbeel, P. (2020). *Denoising Diffusion Probabilistic Models*. NeurIPS 2020. [arXiv:2006.11239](https://arxiv.org/abs/2006.11239) (DDPM)
+51. Song, J., Meng, C., & Ermon, S. (2021). *Denoising Diffusion Implicit Models*. ICLR 2021. [arXiv:2010.02502](https://arxiv.org/abs/2010.02502) (DDIM)
+52. Lu, C., et al. (2022). *DPM-Solver: A Fast ODE Solver for Diffusion Probabilistic Model Sampling*. NeurIPS 2022.
+53. Ho, J., & Salimans, T. (2022). *Classifier-Free Diffusion Guidance*. [arXiv:2207.12598](https://arxiv.org/abs/2207.12598)
+54. Rombach, R., et al. (2022). *High-Resolution Image Synthesis with Latent Diffusion Models*. CVPR 2022. [arXiv:2112.10752](https://arxiv.org/abs/2112.10752) (Stable Diffusion)
+55. Ramesh, A., et al. (2022). *Hierarchical Text-Conditional Image Generation with CLIP Latents*. [arXiv:2204.06125](https://arxiv.org/abs/2204.06125) (DALL-E 2)
+56. Peebles, W., & Xie, S. (2023). *Scalable Diffusion Models with Transformers*. ICCV 2023. [arXiv:2212.09748](https://arxiv.org/abs/2212.09748) (DiT)
+57. Brooks, T., et al. (2024). *Video Generation Models as World Simulators*. OpenAI Tech Report. (Sora)
+58. Chen, J., et al. (2024). *PixArt-α: Fast Training of Diffusion Transformer for Photorealistic Text-to-Image Synthesis*. ICLR 2024.
+59. Esser, P., et al. (2024). *Scaling Rectified Flow Transformers for High-Resolution Image Synthesis*. ICML 2024. (Stable Diffusion 3)
+60. Chi, C., et al. (2023). *Diffusion Policy: Visuomotor Policy Learning via Action Diffusion*. RSS 2023. [arXiv:2303.04137](https://arxiv.org/abs/2303.04137)
+61. Ze, Y., et al. (2024). *3D Diffusion Policy*. RSS 2024.
+62. Liu, S., et al. (2024). *RDT-1B: A Diffusion Foundation Model for Bimanual Manipulation*. [arXiv:2410.07864](https://arxiv.org/abs/2410.07864)
+63. Black, K., et al. (2024). *π₀: A Vision-Language-Action Flow Model for General Robot Control*. Physical Intelligence. [arXiv:2410.24164](https://arxiv.org/abs/2410.24164)
+64. Octo Model Team. (2024). *Octo: An Open-Source Generalist Robot Policy*. RSS 2024.
+65. Kim, M. J., et al. (2024). *OpenVLA: An Open-Source Vision-Language-Action Model*. [arXiv:2406.09246](https://arxiv.org/abs/2406.09246)
+66. Tian, K., et al. (2024). *Visual Autoregressive Modeling: Scalable Image Generation via Next-Scale Prediction*. NeurIPS 2024. (VAR)
+67. Zhou, C., et al. (2024). *Transfusion: Predict the Next Token and Diffuse Images with One Multi-Modal Model*. [arXiv:2408.11039](https://arxiv.org/abs/2408.11039)
+68. Nie, S., et al. (2025). *Large Language Diffusion Models*. [arXiv:2502.09992](https://arxiv.org/abs/2502.09992) (LLaDA)
+69. Deng, J., et al. (2009). *ImageNet: A Large-Scale Hierarchical Image Database*. CVPR 2009.
+70. Lin, T. Y., et al. (2014). *Microsoft COCO: Common Objects in Context*. ECCV 2014.
+71. Wang, A., et al. (2019). *GLUE: A Multi-Task Benchmark and Analysis Platform for Natural Language Understanding*. ICLR 2019.
+72. Pedregosa, F., et al. (2011). *Scikit-learn: Machine Learning in Python*. JMLR, 12, 2825–2830.
+73. Abadi, M., et al. (2016). *TensorFlow: Large-Scale Machine Learning on Heterogeneous Distributed Systems*. [arXiv:1603.04467](https://arxiv.org/abs/1603.04467)
+74. Paszke, A., et al. (2019). *PyTorch: An Imperative Style, High-Performance Deep Learning Library*. NeurIPS 2019.
+75. Wolf, T., et al. (2020). *Transformers: State-of-the-Art Natural Language Processing*. EMNLP 2020 (System Demos). (HuggingFace)
+76. Jumper, J., et al. (2021). *Highly Accurate Protein Structure Prediction with AlphaFold*. Nature, 596, 583–589.
+77. Silver, D., et al. (2016). *Mastering the Game of Go with Deep Neural Networks and Tree Search*. Nature, 529, 484–489. (AlphaGo)
+78. Mnih, V., et al. (2015). *Human-Level Control through Deep Reinforcement Learning*. Nature, 518, 529–533. (DQN)
+79. Schulman, J., et al. (2017). *Proximal Policy Optimization Algorithms*. [arXiv:1707.06347](https://arxiv.org/abs/1707.06347) (PPO)
+80. Haarnoja, T., et al. (2018). *Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor*. ICML 2018. (SAC)
+
+本文所有示意图均来自对应论文或公开教程/博客资源，版权归原作者所有，仅用于学术交流与学习整理。
