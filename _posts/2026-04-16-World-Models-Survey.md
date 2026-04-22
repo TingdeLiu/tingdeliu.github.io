@@ -1279,3 +1279,63 @@ V-JEPA 2 是目前最具代表性的具身表示学习基础模型，其自监�
 - **五大未来方向**：物理一致性、4D 时空感知、安全可靠性、长航程前瞻、失效感知动力学
 
 尽管当前方法在 LIBERO 和 CALVIN 等基准上趋于饱和，在物理一致性、4D 时空感知、长航程推理和真实世界泛化等核心挑战上仍有广阔的探索空间。随着生成式 AI 技术的持续进步，基于世界模型的具身智能体有望在更多复杂的工业和家庭场景中落地，最终实现真正理解物理世界的具身通用人工智能。
+
+# 9. 参考资料
+
+1. Tan, Z., et al. (2026). *Towards Generalist Embodied AI: A Survey on World Models for VLA Agents*. TechRxiv.
+2. *Video Generation Models in Robotics: Applications, Research Challenges, Future Directions* (2026). [arXiv:2601.07823](https://arxiv.org/abs/2601.07823)
+3. Mildenhall, B., et al. (2020). *NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis*. [arXiv:2003.08934](https://arxiv.org/abs/2003.08934)
+4. Kerbl, B., et al. (2023). *3D Gaussian Splatting for Real-Time Radiance Field Rendering*. SIGGRAPH 2023. [项目主页](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/)
+5. NVIDIA. (2025). *Cosmos World Foundation Model Platform for Physical AI*. [arXiv:2501.03575](https://arxiv.org/abs/2501.03575)
+6. NVIDIA. (2026). *Lyra 2.0: Explorable Generative 3D Worlds at Scale*. [arXiv:2604.13036](https://arxiv.org/abs/2604.13036)
+7. Bruce, J., et al. (2024). *Genie: Generative Interactive Environments*. [arXiv:2402.15391](https://arxiv.org/abs/2402.15391)
+8. *VLA-World: Learning Vision-Language-Action World Models for Autonomous Driving* (2026). [项目主页](https://vlaworld.github.io)
+9. Cen, J., et al. (2025). *WorldVLA: Towards Autoregressive Action World Model*. [arXiv:2506.21539](https://arxiv.org/abs/2506.21539)
+10. *WoVR: World Models as Reliable Simulators for Post-Training VLA Policies with RL* (2026). [arXiv:2602.13977](https://arxiv.org/abs/2602.13977)
+11. Chen, X., et al. (2025). *Janus-Pro: Unified Multimodal Understanding and Generation with Data and Model Scaling*. [arXiv:2501.17811](https://arxiv.org/abs/2501.17811)
+12. Du, Y., et al. (2023). *Learning Universal Policies via Text-Guided Video Generation (UniPi)*. NeurIPS 2023.
+13. Black, K., et al. (2024). *Zero-Shot Robotic Manipulation with Pre-trained Image-Editing Diffusion Models (SuSIE)*. ICLR 2024.
+14. Wu, H., et al. (2023). *Unleashing Large-Scale Video Generative Pre-training for Visual Robot Manipulation (GR-1)*. ICLR 2024.
+15. Cheang, C., et al. (2024). *GR-2: A Generative Video-Language-Action Model with Web-Scale Knowledge*.
+16. Li, H., et al. (2024). *GR-MG: Leveraging Partially-Annotated Data via Multi-Modal Goal-Conditioned Policy*.
+17. Tian, R., et al. (2024). *Predictive Inverse Dynamics Models are Scalable Learners for Robotic Manipulation (Seer)*. ICLR 2025.
+18. Assran, M., et al. (2025). *V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning*. Meta AI.
+19. Zhen, H., et al. (2024). *3D-VLA: A 3D Vision-Language-Action Generative World Model*. ICML 2024.
+20. Gao, C., et al. (2024). *PIVOT-R: Primitive-Driven Waypoint-Aware World Model for Robotic Manipulation*.
+21. Hu, Y., et al. (2024). *Video Prediction Policy (VPP): A Generalist Robot Policy with Predictive Visual Representations*.
+22. Gao, X., et al. (2025). *FLIP: Flow-Centric Generative Planning as General-Purpose Manipulation World Model*. ICLR 2025.
+23. Liu, J., et al. (2025). *CoT-VLA: Visual Chain-of-Thought Reasoning for Vision-Language-Action Models*.
+24. Zhang, W., et al. (2025). *DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge*.
+25. Zhang, Z., et al. (2025). *FlowVLA: Thinking in Flow for Vision-Language-Action Models*.
+26. Bu, Q., et al. (2025). *UniVLA: Learning to Act Anywhere with Task-centric Latent Actions*.
+27. Bu, Q., et al. (2025). *AgiBot World Colosseum: Large-Scale Manipulation Platform for Scalable and Intelligent Embodied Systems (GO-1)*.
+28. Liao, Y., et al. (2025). *Genie Envisioner: A Unified World Foundation Platform for Robotic Manipulation*.
+29. Zhao, J., et al. (2025). *DreamGen: Unlocking Generalization in Robot Learning through Neural Trajectories*. NVIDIA.
+30. *GigaWorld-0: World Models as Data Engine to Empower VLA Models* (2025).
+31. *WristWorld: Generating Wrist-Views via 4D World Models for Robotic Manipulation* (2025).
+32. *Ctrl-World: A Controllable Generative Framework for Robotic Manipulation* (2025).
+33. *VLA-RFT: Vision-Language-Action Reinforcement Fine-tuning with Verified Rewards in World Simulators* (2025).
+34. *WMPO: World Model-based Policy Optimization for Vision-Language-Action Models* (2025).
+35. *SRPO: Scaffolded Reinforcement Policy Optimization for Robotic Manipulation* (2025).
+36. *NORA-1.5: A Small Open Vision-Language-Action Model for Embodied Tasks with Flow-Matching Action Expert* (2025).
+37. *VLA-Reasoner: Empowering Vision-Language-Action Models for Complex Tasks with Future Imagination* (2025).
+38. *AdaPower: Adaptive Test-Time Scaling for Vision-Language-Action Models* (2025).
+39. Liu, B., et al. (2023). *LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning*. [项目主页](https://libero-project.github.io/)
+40. Mees, O., et al. (2022). *CALVIN: A Benchmark for Language-Conditioned Policy Learning for Long-Horizon Robot Manipulation Tasks*. [代码仓库](https://github.com/mees/calvin)
+41. James, S., et al. (2020). *RLBench: The Robot Learning Benchmark & Learning Environment*.
+42. Gu, J., et al. (2023). *ManiSkill 2: A Unified Benchmark for Generalizable Manipulation Skills*.
+43. Yu, T., et al. (2020). *Meta-World: A Benchmark and Evaluation for Multi-Task and Meta Reinforcement Learning*.
+44. Nasiriany, S., et al. (2024). *RoboCasa: Large-Scale Simulation of Everyday Tasks for Generalist Robots*.
+45. Li, X., et al. (2024). *SimplerEnv: Simulated Manipulation Policy Evaluation Environments for Real Robot Setups*.
+46. Walke, H., et al. (2023). *BridgeData V2: A Dataset for Robot Learning at Scale*.
+47. Khazatsky, A., et al. (2024). *DROID: A Large-Scale In-the-Wild Robot Manipulation Dataset*.
+48. Brohan, A., et al. (2022). *RT-1: Robotics Transformer for Real-World Control at Scale*.
+49. Open X-Embodiment Collaboration (2023). *Open X-Embodiment: Robotic Learning Datasets and RT-X Models*.
+50. Huang, Z., et al. (2024). *VBench: Comprehensive Benchmark Suite for Video Generative Models*.
+51. Team Chameleon (Meta AI). (2024). *Chameleon: Mixed-Modal Early-Fusion Foundation Models*.
+52. Xie, J., et al. (2024). *Show-o: One Single Transformer to Unify Multimodal Understanding and Generation*.
+53. Wu, Y., et al. (2024). *VILA-U: A Unified Foundation Model Integrating Visual Understanding and Generation*.
+54. Wang, X., et al. (2024). *Emu3: Next-Token Prediction is All You Need*.
+55. NVIDIA Cosmos 开源生态 — [nvidia-cosmos](https://github.com/nvidia-cosmos)；Cookbook：[cosmos-cookbook](https://github.com/nvidia-cosmos/cosmos-cookbook)；Isaac Sim：[developer.nvidia.com/isaac-sim](https://developer.nvidia.com/isaac-sim)。
+
+本文所有示意图、架构图、实验对比图均来自上述论文或对应官方项目主页，版权归原作者所有，仅用于学术交流与学习整理。
