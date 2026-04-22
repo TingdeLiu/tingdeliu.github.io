@@ -415,6 +415,60 @@ $$h_t = (1-z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t$$
 
 **经验结论**：Chung et al., 2014 系统实验显示 GRU 与 LSTM 在多数任务上性能相当，GRU 因参数更少、训练更快，在中短序列任务（对话、情感分类）中更常用；LSTM 在需要严格长期记忆的任务（机器翻译长句、语音识别）中仍有优势。
 
+### 双向 RNN（Bidirectional RNN）
+
+标准 RNN 只能利用**过去**的信息（从左到右）。但对许多任务（命名实体识别、情感分析、阅读理解），**未来**的上下文同样关键——例如判断 "bank" 是"银行"还是"河岸"，需要看后面的词。
+
+**Bidirectional RNN（Schuster & Paliwal, 1997）** 同时跑两个方向的 RNN，输出拼接：
+
+$$\overrightarrow{h}_t = \text{RNN}_\text{fwd}(x_t, \overrightarrow{h}_{t-1}), \quad \overleftarrow{h}_t = \text{RNN}_\text{bwd}(x_t, \overleftarrow{h}_{t+1})$$
+
+$$h_t = [\overrightarrow{h}_t; \overleftarrow{h}_t]$$
+
+```mermaid
+flowchart LR
+    x1["x₁"] --> fh1["→h₁"]
+    x2["x₂"] --> fh2["→h₂"]
+    x3["x₃"] --> fh3["→h₃"]
+    fh1 --> fh2 --> fh3
+    x1 --> bh1["←h₁"]
+    x2 --> bh2["←h₂"]
+    x3 --> bh3["←h₃"]
+    bh3 --> bh2 --> bh1
+    fh1 --> c1["[→;←] h₁"]
+    bh1 --> c1
+    fh2 --> c2["[→;←] h₂"]
+    bh2 --> c2
+    fh3 --> c3["[→;←] h₃"]
+    bh3 --> c3
+    style c1 fill:#c4e1ff
+    style c2 fill:#c4e1ff
+    style c3 fill:#c4e1ff
+```
+
+**限制**：双向 RNN 必须看到整个序列才能计算，**不能用于自回归生成任务**（生成下一个词时没有未来信息）。因此：
+- **适合**：序列标注、分类、NER、阅读理解（BiLSTM-CRF 在 2016–2018 年是 NER 主流方案）
+- **不适合**：语言模型、机器翻译的 Decoder 端
+
+BERT 的 MLM（Masked Language Model）可以看作 Transformer 对"双向建模"的一般化——通过 mask 保证双向注意力不会泄露目标。
+
+### Teacher Forcing：训练序列生成模型的关键技巧
+
+训练 Seq2Seq / RNN Decoder 时有一个微妙的选择——解码第 $t$ 步时，输入是什么？
+
+| 策略 | 第 $t$ 步输入 | 优点 | 缺点 |
+|:---|:---|:---|:---|
+| **Teacher Forcing** | **真实标签** $y_{t-1}$ | 训练稳定、收敛快 | 训练-推理分布不一致（推理用自己的预测）|
+| **Free Running** | **模型预测** $\hat{y}_{t-1}$ | 与推理完全一致 | 训练初期模型预测很差，错误级联，难以收敛 |
+| **Scheduled Sampling** | 按概率 $p$ 采样真实或预测（Bengio et al., 2015）| 折中方案，逐步切换 | 需调 schedule 超参 |
+
+**Teacher Forcing 的问题**——**Exposure Bias**：训练时模型从未"见过"自己的错误预测，推理时一旦某步预测偏了就会越错越远（错误累积 / hallucination 的雏形）。
+
+**现代解决方案**：
+- **Scheduled Sampling**：训练后期逐渐混入模型预测
+- **Minimum Risk Training / REINFORCE**：直接用生成序列的整体质量作为训练信号
+- **Transformer + Causal Masking**：一次性并行计算所有位置（见 §4.3），本质上仍是 Teacher Forcing，但效率远高于 RNN 逐步递推
+
 *代表性工作*：GRU（2014，LSTM 的简化版）、Seq2Seq（2014）、Attention + LSTM（2015）、Bidirectional LSTM（2005 提出、BiLSTM-CRF 2016 广泛应用）
 
 ---
@@ -629,6 +683,31 @@ $$\text{FFN}(x) = \text{max}(0, xW_1 + b_1)W_2 + b_2$$
 Transformer 采用编码器-解码器架构，两者的核心区别在于**掩码（Masking）**：
 - **Encoder**：双向注意力，每个词都能看到序列中的所有词。
 - **Decoder**：采用 **Masked Self-Attention**，确保生成第 $t$ 个词时只能看到前 $t-1$ 个词（防止信息泄露）；同时包含 **Cross-Attention**，用于关注 Encoder 的输出。
+
+**因果掩码（Causal Mask）的具体形式**——一个 $n \times n$ 的下三角矩阵（以序列长度 4 为例）：
+
+| | $k_1$ | $k_2$ | $k_3$ | $k_4$ |
+|:---:|:---:|:---:|:---:|:---:|
+| $q_1$ | ✓ | −∞ | −∞ | −∞ |
+| $q_2$ | ✓ | ✓ | −∞ | −∞ |
+| $q_3$ | ✓ | ✓ | ✓ | −∞ |
+| $q_4$ | ✓ | ✓ | ✓ | ✓ |
+
+**实现**：在 softmax 之前，将掩码位置的 attention score 置为 $-\infty$（实际用 `-1e9` 之类的大负数），softmax 后这些位置的权重变为 0。这保证了"第 $t$ 个 token 只能看到 $\leq t$ 的位置"的因果性，也就实现了训练时的并行化 Teacher Forcing——不再像 RNN 那样逐步递推，而是一次前向同时预测所有位置的下一个 token。
+
+### Attention 可视化：模型真的学到了什么？
+
+Attention 的最大魅力之一是**可解释性**——每一层每一个头的 attention 权重可以直接可视化为热力图，揭示模型的"关注模式"。典型发现：
+
+| 关注模式 | 示例 | 解释 |
+|:---|:---|:---|
+| **指代消解头** | "The cat ... it was hungry" 中 "it" 的 attention 指向 "cat" | 某些头专门处理代词指代 |
+| **句法头** | 动词关注其主语、宾语；形容词关注修饰的名词 | 隐式学到了语法依存 |
+| **位置头** | 每个 token 关注紧邻的前一个或后一个 | 捕捉局部 bigram 模式 |
+| **分隔符头** | 所有 token 关注 [SEP] 或标点 | 相当于"全局信息池" |
+| **冗余头** | 与其他头高度相似 | 为什么 Attention Head Pruning 有效的依据 |
+
+BertViz（Vig, 2019）、attention-flow（Abnar & Zuidema, 2020）等工具能交互式展示这些模式。Clark et al., 2019 "What Does BERT Look At?" 系统分析了 BERT 的 144 个头，发现**大量头捕获了清晰可解释的语法/语义功能**——这是 Transformer 超越"黑盒"标签的重要证据。
 
 <div align="center">
   <img src="/images/DL/transformer-architecture.png" width="80%" />
@@ -908,7 +987,23 @@ $$\text{output} = F(x) + x$$
 
 即在原有变换 $F(x)$ 之上直接叠加输入 $x$（恒等映射）。即使 $F(x)$ 效果微弱，梯度依然可以通过恒等路径直接流回浅层，大幅缓解梯度消失，使 ResNet-152 等极深网络可以稳定训练。
 
-Skip Connection 已成为现代深度学习中几乎所有架构（ResNet、Transformer、U-Net）的标配组件，改善的是 **Optimization**。
+### 残差连接的变体
+
+ResNet 之后，残差连接发展出多个变体，各自权衡"恒等程度"与"信息密度"：
+
+| 变体 | 年份 | 核心公式 | 特点 |
+|:---|:---:|:---|:---|
+| **Highway Network** | 2015 | $y = T(x) \odot F(x) + (1-T(x)) \odot x$ | 用门控 $T$ 控制残差比例；ResNet 的前身 |
+| **ResNet v1** | 2015 | $y = \text{ReLU}(F(x) + x)$ | 原始残差块，激活在残差相加**之后** |
+| **ResNet v2（Pre-activation）** | 2016 | $y = F(x) + x$，BN/ReLU 在 $F$ 内部 | 激活放在残差**之前**，梯度更纯净地流回，支持 >1000 层 |
+| **DenseNet** | 2017 | $x_l = H_l([x_0, x_1, \ldots, x_{l-1}])$ | 每层与之前**所有层拼接**，最大化特征复用 |
+| **ResNeXt** | 2017 | ResNet + Grouped Conv | 多路径（cardinality）思想，参数更少性能更高 |
+
+**Pre-activation ResNet（v2）的关键洞察**：原始 ResNet 的 `ReLU(F(x)+x)` 中 ReLU 会截断部分梯度；v2 将 BN-ReLU 移到 $F$ 内部，残差路径上完全是恒等映射，梯度无损穿透。这使得 ResNet-1001（1001 层！）能稳定训练。Transformer 的 Pre-LN 布局本质是同一思想的推广。
+
+**DenseNet 的反直觉**：每层与前面所有层拼接，看似参数爆炸，实则因特征复用使每层可以更"瘦"（通常 growth rate 只有 32 通道），总参数量反而少于同深度 ResNet。缺点是显存占用高（需保存大量中间激活）。
+
+Skip Connection 已成为现代深度学习中几乎所有架构（ResNet、Transformer、U-Net、Diffusion UNet）的标配组件，改善的是 **Optimization**——它解决的不是"深层网络能不能表达复杂函数"（浅层也能），而是"深层网络能不能被 SGD 训练出来"。
 
 ---
 
@@ -1002,6 +1097,44 @@ $$\mathcal{L}_{Focal} = -\alpha(1-p)^\gamma \log p$$
 
 $$\mathcal{L}_{KL}(P \| Q) = \sum_i P(i) \log \frac{P(i)}{Q(i)}$$
 
+#### 交叉熵与 KL 散度的数学关系
+
+Cross-Entropy 和 KL 散度不是两个独立的损失，而是**同一个量的不同视角**：
+
+$$\text{CE}(P, Q) = H(P) + \text{KL}(P \| Q)$$
+
+其中 $H(P) = -\sum_i P(i) \log P(i)$ 是真实分布 $P$ 的熵。
+
+**推论**：当 $P$ 是 one-hot 硬标签时，$H(P) = 0$，所以 **CE $\equiv$ KL**。因此在标准分类任务中，"最小化 Cross-Entropy"和"最小化 KL 散度"完全等价。
+
+**实用差异**：
+- 硬标签（one-hot）：用 CE，计算简单
+- 软标签（蒸馏、Label Smoothing、RLHF 参考策略）：用 KL，因为 $H(P) \neq 0$ 时，CE 包含一个不可优化的常数项，KL 更干净地衡量"与目标分布的差距"
+
+### 对比学习损失（Contrastive / Triplet Loss）
+
+**度量学习（Metric Learning）** 的目标是学到一个嵌入空间，使"同类样本"距离近、"异类样本"距离远。两类经典损失：
+
+**Contrastive Loss**（Hadsell et al., 2006）：给一对样本 $(x_i, x_j)$，标签 $y=1$ 表示同类、$y=0$ 异类：
+
+$$\mathcal{L}_{\text{contrastive}} = y \cdot d(x_i, x_j)^2 + (1-y) \cdot \max(0, m - d(x_i, x_j))^2$$
+
+其中 $d$ 是嵌入距离（通常欧氏），$m$ 是 margin 超参。
+
+**Triplet Loss**（Schroff et al., 2015，FaceNet）：给一个三元组（anchor $a$, positive $p$, negative $n$）：
+
+$$\mathcal{L}_{\text{triplet}} = \max(0, d(a, p) - d(a, n) + m)$$
+
+直觉是"正样本到锚点的距离 + margin 要小于负样本到锚点的距离"。FaceNet 用它学到的人脸嵌入在 LFW 上达到 99.63% 精度。
+
+**InfoNCE（Contrastive Predictive Coding，Oord et al., 2018）**：现代对比学习的主流形式，一个正样本对 $N-1$ 个负样本做 softmax：
+
+$$\mathcal{L}_{\text{InfoNCE}} = -\log \frac{\exp(\text{sim}(q, k^+)/\tau)}{\sum_{i=0}^{N-1} \exp(\text{sim}(q, k_i)/\tau)}$$
+
+其中 $\tau$ 是温度系数。**SimCLR、MoCo、CLIP** 都基于 InfoNCE——这类损失驱动了 2020–2023 年自监督表示学习的爆发。
+
+> **InfoNCE 本质就是 $N$ 分类的 Cross-Entropy**——正样本是唯一"正确类别"，负样本是"其他类别"。这再次印证 CE 的普适性。
+
 ### 损失函数选择速查
 
 | 任务类型 | 推荐损失函数 | 说明 |
@@ -1011,9 +1144,11 @@ $$\mathcal{L}_{KL}(P \| Q) = \sum_i P(i) \log \frac{P(i)}{Q(i)}$$
 | 二分类 | Binary Cross-Entropy | 配合 Sigmoid 输出层 |
 | 多分类 | Cross-Entropy | 配合 Softmax 输出层 |
 | 语言模型 | Cross-Entropy | 下一 token 预测 = 多分类 |
-| 分布匹配 | KL 散度 | VAE、知识蒸馏 |
+| 分布匹配 | KL 散度 | VAE、知识蒸馏、RLHF KL 约束 |
 | 目标检测（框回归）| Smooth L1 / IoU Loss | 对齐检测任务特性 |
 | 类别严重不平衡 | Focal Loss | 目标检测、长尾分类、医学图像 |
+| 度量学习 / 人脸识别 | Triplet Loss、ArcFace | 学习判别性嵌入空间 |
+| 自监督表示学习 | InfoNCE（对比学习）| SimCLR、MoCo、CLIP |
 
 ## 6.2 Dropout
 
@@ -1502,9 +1637,22 @@ $$\mathcal{L} = \mathbb{E}_{t, x_0, \epsilon}\left[\|\epsilon - \epsilon_\theta(
 
 ## 9.11 深度学习与大语言模型
 
-深度学习（尤其是 Transformer）是大语言模型（LLM）的技术基础。本文专注于通用深度学习原理；若对 LLM 的预训练细节（Scaling Laws、混合并行、Flash Attention、KV Cache、GQA 等）感兴趣，请参阅：
+深度学习（尤其是 Transformer）是大语言模型（LLM）的技术基础。**本文与 LLM 训练综述分工如下**：
+
+| 本文关注 | LLM 训练综述关注 |
+|:---|:---|
+| 通用深度学习原理与经典架构 | LLM 工程栈的端到端细节 |
+| CNN / RNN / Transformer 基本机制 | Scaling Laws（Chinchilla、Kaplan）|
+| 优化器、归一化、正则化通用方法 | 预训练数据工程与课程学习 |
+| MoE / PEFT / 量化 / RLHF 概念介绍 | 3D 并行（DP / TP / PP）、ZeRO、FSDP |
+| 主流 Benchmark 概览 | 长上下文训练（YaRN、NTK 插值）|
+| 基础知识蒸馏思想 | KV Cache 优化、Continuous Batching、PagedAttention、Speculative Decoding |
+
+如需了解 LLM 预训练/微调/推理的具体工程细节，请参阅：
 
 > **[LLM 训练技术综述](https://tingdeliu.github.io/LLM-Training-Survey/)**
+>
+> 涵盖 Scaling Laws、分布式训练、混合并行、KV Cache、GQA/MQA 内部实现、长上下文外推、推理加速等主题。
 
 ---
 
