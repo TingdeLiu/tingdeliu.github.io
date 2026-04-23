@@ -618,6 +618,10 @@ nav {
       display: inline-block;
       margin: 0;
 
+      &::before {
+        content: none;
+      }
+
       &::after {
         content: '·';
         color: $base-lightener-color;
