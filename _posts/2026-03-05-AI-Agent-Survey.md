@@ -1176,6 +1176,8 @@ robot_release()    → 松开夹爪
 
 **局限与风险**：OpenClaw 机器人方案的核心瓶颈是**安全性**——OpenClaw 本身没有机器人专属的安全约束层，LLM 生成的动作指令可能越出机器人运动范围，导致硬件损坏。现有社区方案普遍依赖机器人厂商的底层保护机制兜底，尚不适合无人值守的工业部署。
 
+**延伸阅读**：机器人控制 Agent 与视觉语言导航（VLN）高度交叉，可在 [VLN Papers 合集](https://tingdeliu.github.io/VLN-Papers/) 首页通过 **Agent** 标签筛选相关论文，目前匹配条目包括：ODYSSEY (2025)、PanoNav (2025)、NavGPT (2024)、NavGPT-2 (2024)、Open-Nav (2025)、CausalNav (2026)、AgentVLN (2026)、RoboClaw (2026)、SysNav (2026)、ABot-Claw (2026)。
+
 
 # 11. 优秀 Agent 示例
 

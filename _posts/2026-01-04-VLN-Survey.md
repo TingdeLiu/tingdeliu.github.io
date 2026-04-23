@@ -542,6 +542,7 @@ flowchart TD
 - **代表工作**：
   - [AgentVLN](https://github.com/Allenxinn/AgentVLN) (arXiv 2603.17670, 南京航空航天大学)
   - RoboClaw (arXiv 2603.11558, AgiBot / 上海交大)
+- **延伸阅读**：[AI Agent Survey](https://tingdeliu.github.io/AI-Agent-Survey/)
 
 ### 3.5.1 核心思想
 
