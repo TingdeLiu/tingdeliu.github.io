@@ -11,7 +11,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 > 本文是 [VLN综述：基于视觉语言的导航](/VLN-Survey/) 的配套论文精读，收录 VLN 经典论文与依赖基础工作。
 
-<div id="paper-filter-bar"></div>
+<div id="paper-filter-bar" class="paper-filter-bar"></div>
 
 # VLN经典论文
 
