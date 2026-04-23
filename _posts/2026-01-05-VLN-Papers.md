@@ -3295,6 +3295,115 @@ Instruction grounding → Embodiment selection → Memory-assisted action genera
 
 ---
 
+## 36. R³: Run, Ruminate, and Regulate (AAAI 2026)
+———一个面向视觉语言导航的双过程思考框架
+
+📄 **Paper**: [arXiv:2511.14131](https://arxiv.org/abs/2511.14131) · [Code](https://github.com/IAIII-CAS/navigation_R3)
+
+---
+
+### 精华
+
+- 将 Kahneman 双过程理论落到 VLN：**Runner（快系统）**处理常规导航，**Ruminator（慢系统）**处理异常情境，**Regulator**在两者间做监督切换——解决 "LLM 方法慢但泛化强 vs. 专家模型快但迁移差" 的取舍。
+- Runner 用轻量级 transformer VLN 专家（~160 M 参数、沿用 GridMM）做反应式高频动作预测；Ruminator 用 GPT-4o + CoT 做感知-规划-预测三步推理；二者共享一个**grid-based topological memory bank**，使慢系统能直接继承快系统的历史上下文。
+- Regulator 的切换信号来自三路**critical evaluation**（looping 视点重访阈值 + scoring GNN 对轨迹图做自监督打分 + ending 对 STOP 的校验），切换后进入**critical formulation**清空误导性历史，避免 LLM 被错误上下文污染。
+- Scoring 的自监督标注策略值得借鉴：以"是否最终到达目的地 / 路径是否属于 GT 子集"作为二分类伪标签，GNN 用图注意力做消息传递，从而**无需人工标注**就能早期识别失败前兆。
+- R³ 在 REVERIE Val-Unseen 上 SPL/RGSPL 比 SOTA 高 3.28 / 3.30，推理时间仅为其他 LLM-assisted 方法的 1/5（1.10 s vs. 5~11 s），展示了"大部分步数走快系统、异常步数才调 LLM"这一思路在效率与性能上的双赢。
+
+---
+
+### 1. 研究背景/问题
+
+VLN 需要智能体根据自然语言指令在复杂 3D 环境中动态导航。两条主流路线各有短板：（1）**基于 BC 的 VLN 专家**（DUET、GridMM 等）效率高但常识缺失、对未见环境泛化差；（2）**LLM-assisted 零样本方法**（NavGPT、MapGPT、DiscussNav 等）泛化好但每步调 LLM 导致延迟高（5~11 s/step），且对空间几何与场景布局的理解不够精确。作者目标是把两者的长处糅合在同一框架下——而不是简单地把 LLM 插进每一步。
+
+---
+
+### 2. 主要方法/创新点
+
+#### 2.1 整体思想：双过程思考
+
+<div align="center">
+  <img src="/images/vln/R3-dual-process-overview.png" width="90%" />
+<figcaption>图 1: R³ 双过程思考示意。工作流为 (i) Runner 执行常规导航 → (ii) Regulator 评估当前状态 → (iii-a) 情况正常则 Runner 继续；(iii-b) 检测到异常则切换到 Ruminator 介入。</figcaption>
+</div>
+
+R³ 由三个模块组成：
+
+- **Runner（快系统）**：反应式 VLN 专家，常规步骤下主导。
+- **Ruminator（慢系统）**：多模态 LLM + CoT，仅在检测到异常时激活，接管直到该异常消除或片段结束。
+- **Regulator（监督者）**：每个时间步评估当前状态，决定是否切换到 Ruminator，并在切换时清洗历史。
+
+#### 2.2 整体 Pipeline
+
+<div align="center">
+  <img src="/images/vln/R3-pipeline.png" width="100%" />
+<figcaption>图 2: R³ 完整 pipeline。Regulator 接收 $V_t=\{H_t, I, O_t, D_t, R_t\}$，通过三条 critical evaluation（Looping / Scoring / Ending）判断是否异常；异常则进入 critical formulation 由 LLM 产生修正规划 $P_t$，送往 Ruminator；正常则走 Runner 直接输出 $A_t$。</figcaption>
+</div>
+
+**问题形式化**：VLN 建模为 POMDP，智能体在时刻 $t$ 观察到位姿 $R_t$ 与全景 $O_t=\{o_t^i\}_{i=1}^{36}$（36 个相对 heading/elevation 的透视图），从可导航视点集合中选一个作为动作 $A_t$。策略 $\pi(A_t \mid I, O_t, H_t; \Theta)$ 基于指令 $I$、历史 $H_t=\{O_0, A_0, ..., O_{t-1}, A_{t-1}\}$ 与当前观察预测动作，直到智能体输出 `[STOP]` 或超步数上限。
+
+#### 2.3 Runner：轻量 transformer 快速响应
+
+Runner 接收 RGB-D $O_t, D_t$ 与位姿 $R_t$，通过投影提取细粒度特征并写入**egocentric grid memory**；随后与指令嵌入一起走 cross-modal transformer encoder，最终由两层 FFN 预测动作。Runner 仅 160 M 参数，保证实时推理。其实现直接复用 GridMM 官方仓库。作者指出 Runner 的两类固有缺陷：（1）训练 teacher-forcing 分布有限导致未见场景下容易出现**短视决策**（aimless wandering / 重复徘徊）；（2）BC 学习使其**进入错误视点后难以自我纠错**——这正是 Ruminator 要补的。
+
+#### 2.4 Ruminator：GPT-4o + CoT 三步慎思
+
+Ruminator 的输入通过一段**结构化文本模板**拼接（论文 Fig. 4）：`Instruction` + 36 张全景 `Observation` + `Trajectory`（"你从 $id_0$ 出发看到 $M_0$；step 1 到 $id_1$ 看到 $M_1$..."）+ `Map`（视点连通关系）+ `Option`（候选动作）。这种系统化格式化让 LLM 能显式感知环境拓扑与历史。
+
+Ruminator 以 GPT-4o 为底座，用 CoT 组织三步：
+
+- **Perception**：根据指令 $I$ 与全景 $O_t$ 生成细粒度环境文字描述，突出指令涉及的对象。
+- **Planning**：结合历史 $H_t$、上一步规划 $P_{t-1}$ 做长视野重规划，生成新 plan $P_t$。历史在 Ruminator 状态下以"**taken action + target destination**"形式表达——动作从 `{go forward to, turn left to, turn right to, turn back to}` 根据当前朝向与目标视点的夹角生成。
+- **Prediction**：基于 $I, P_t, O'_t$（可导航视点的子集）从候选中选动作。执行后更新 $H_t$ 与相邻视点。
+
+#### 2.5 Regulator：双阶段切换机制
+
+**Stage 1 — Critical Evaluation（何时切换）** 三条互补准则：
+
+- **Looping**：当任一视点的重访次数超过 $\tau_r$，或轨迹长度超过 $\tau_l$，判定为陷入循环。
+- **Scoring**：用 **GNN**（两层 graph attention + edge encoding）给当前轨迹打分，输入是以"位置 / 最后到达时间戳 / 视觉 embedding"为节点特征、视点连通关系为边的拓扑图，未访问节点用邻居视觉嵌入均值近似。训练用**自监督伪标签**——成功到达或所有视点都属于 GT 路径的 $\mathcal T_t$ 标 0，否则标 1。推理时分数 $>\tau_g=0.35$ 触发切换。
+- **Ending**：Runner 预测 `[STOP]` 时再由 GPT-4o 根据 $I, O_t$ 判断是否真的到达目的地，避免早停。
+
+**Stage 2 — Critical Formulation（如何切换）** 切换到 Ruminator 前，Regulator 额外用 LLM 判断"从起点重启是否更可取"——这一步**重置 memory bank**以模拟真实部署；同时在其它触发下也会**剔除 Runner 积累的误导历史**，再让 Ruminator 重新推理，避免错误上下文污染 LLM。
+
+#### 2.6 共享 Memory Bank
+
+这是效率关键：Runner 的 grid-based topological memory 不仅服务快系统的长上下文决策，在切换时也**直接继承给 Ruminator**，使 LLM 无需从零重建历史（消融显示 w/o memory bank 时 SR 下降 0.87）。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vln/R3-main-results.png" width="100%" />
+<figcaption>图 4: R2R 与 REVERIE Val-Unseen 主要结果。R³ 在所有指标上同时超越 BC 专家、LLM 微调方法与 LLM-assisted 方法。</figcaption>
+</div>
+
+- **R2R Val-Unseen**：SR 77 / SPL 66，较最佳 BC 基线（GridMM 75 / 64、BEVBert 75 / 64）提升 2 / 1.5 个点；NE 2.76（最低）。
+- **REVERIE Val-Unseen**：SR 53.76 / SPL 42.14 / RGS 37.94 / RGSPL 29.86，较次优方法（SUSA 51.75 / 38.86 / 35.02 / 26.56）分别 +2.01 / +3.28 / +2.92 / +3.30；REVERIE 上提升**显著大于 R2R**，表明 R³ 对高层语义理解与慎思分析要求更高的"粗粒度"指令更有优势。
+- **效率（Fig. 1）**：R³ 1.10 s/step vs. 其他 LLM-assisted 方法 5~11 s，约 1/5；且 SR 77 远超所有 LLM-assisted 基线（最高 DiscussNav 40）。证明"异常步才调 LLM"的策略可同时获得效率与性能。
+
+<div align="center">
+  <img src="/images/vln/R3-qualitative-reverie.png" width="100%" />
+<figcaption>图 5: REVERIE 可视化对比。GridMM 在起始区域长时间徘徊直至失败；R³ 由路径冗余触发 Ruminator，通过慎思识别正确路线并完成任务。</figcaption>
+</div>
+
+**消融要点**（Table 2/3，略图）：
+
+- **Regulator 三准则互补**：去掉 Scoring 掉 SR 2.05 / SPL 2.76（最大降幅），说明 GNN 打分是主要的失败早期信号；去掉 Ending 掉 RGS 2.33 / RGSPL 4.01（RGS/RGSPL 最大降幅），对物体定位影响最大；去掉 Looping 与 Critical Formulation 也都有 0.37~0.39 的 SR 下降，全部非冗余。
+- **LLM 能力 × 性能正相关**：GPT-4o > GPT-3.5 Turbo >> MiniGPT-4；有趣的是不接 Ruminator（w/o LLM）的 R³ 仍比接 MiniGPT-4 好 1.98 SR，说明**能力不足的 LLM 会破坏系统**，预示未来更强 LLM 可直接放大 R³ 收益。
+- **共享 memory 的必要性**：w/o memory bank 时 SR 52.89（-0.87）、RGSPL 28.06（-1.80），说明 Ruminator 真的依赖 Runner 积累的上下文。
+
+---
+
+### 4. 局限性
+
+- Ruminator 依赖 GPT-4o API，部署成本与网络延迟仍是瓶颈（Fig. 1 中 NavGPT-2 本地部署效率更好）；在真实机器人上需要等价的本地 MLLM。
+- 仅在 Matterport3D（R2R / REVERIE）上评测，连续动作空间（R2R-CE、RxR-CE）与真实机器人泛化尚未验证。
+- Scoring GNN 的自监督伪标签依赖"GT 路径子集"这一先验，迁移到无明确路径标注的任务（如 ObjectNav）可能需要重新设计。
+  
+---
+
 # 相关基础工作
 
 ---
