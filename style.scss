@@ -618,8 +618,9 @@ nav {
       display: inline-block;
       margin: 0;
 
-      &::before {
-        content: none;
+      &:before {
+        content: "";
+        display: none;
       }
 
       &::after {
