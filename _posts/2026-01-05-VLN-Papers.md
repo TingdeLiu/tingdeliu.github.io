@@ -3174,9 +3174,6 @@ excerpt: "阿里 AMAP CV Lab 在 OpenClaw 运行时上构建的具身 Agent 框�
 📄 **Paper**: [arXiv:2604.10096v2](https://arxiv.org/abs/2604.10096)
 🔗 **Project**: [github.com/amap-cvlab/ABot-Claw](https://github.com/amap-cvlab/ABot-Claw)
 
-* 目录
-{:toc}
-
 ---
 
 ### 精华
