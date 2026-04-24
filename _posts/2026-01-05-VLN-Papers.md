@@ -3295,7 +3295,7 @@ Instruction grounding → Embodiment selection → Memory-assisted action genera
 
 ---
 
-## 36. R³: Run, Ruminate, and Regulate (AAAI 2026)
+## 36. R³: Run, Ruminate, and Regulate (2026)
 ———一个面向视觉语言导航的双过程思考框架
 
 📄 **Paper**: [arXiv:2511.14131](https://arxiv.org/abs/2511.14131) · [Code](https://github.com/IAIII-CAS/navigation_R3)
@@ -3402,6 +3402,91 @@ Ruminator 以 GPT-4o 为底座，用 CoT 组织三步：
 - 仅在 Matterport3D（R2R / REVERIE）上评测，连续动作空间（R2R-CE、RxR-CE）与真实机器人泛化尚未验证。
 - Scoring GNN 的自监督伪标签依赖"GT 路径子集"这一先验，迁移到无明确路径标注的任务（如 ObjectNav）可能需要重新设计。
   
+---
+
+## 37. Uncertainty-Aware Gaussian Map for VLN (2026)
+———三类感知不确定性 × Semantic Gaussian Map，赋予 VLN 智能体可靠决策能力
+
+📄 **Paper**: https://github.com/Gaozzzz/Uncertainty-Aware-VLN
+
+---
+
+### 精华
+
+- 将环境表征（3D Gaussian Map）与感知不确定性（几何/语义/外观）统一到同一空间，是比单纯 map-based 方法更稳健的设计范式。
+- 几何不确定性用变分推断建模位置/尺度扰动，语义不确定性用语义属性扰动揭示歧义解释，外观不确定性用 Fisher Information 衡量渲染敏感度——三条路径正交互补，可迁移到其他 3DGS 场景表征任务。
+- 用"3D Value Map"将不确定性从特征维度编码为可导航的 affordance / constraint，是将感知置信度转化为行动先验的优雅工程。
+- 训练时让 SGM 的渲染损失和导航损失联合优化，使场景表征与决策策略协同提升，避免了两阶段分离设计的 representation gap。
+- REVERIE RGS 提升 2.94%、R2R SR 提升 2% 的边际增益表明：当前 VLN 瓶颈已从"语言理解"转移到"感知可靠性"，不确定性建模是下一个值得深耕的方向。
+
+---
+
+### 1. 研究背景/问题
+
+VLN 要求智能体在 3D 环境中依据自然语言指令导航。现有智能体在推理时普遍忽略感知不确定性（如相似门洞的视觉歧义、遮挡导致的路径可通行性不确定），训练目标迫使模型对每个 step 输出确定动作，无法表达"不确定"。这在遮挡多、结构重复的场景中易造成错误停止或路径偏移。
+
+<div align="center">
+  <img src="/images/vln/UncertaintyGaussian-motivation.png" width="100%" />
+<figcaption>图1：动机示意。左：视觉相似结构（多扇门）导致智能体证据不足而停错位置；右：遮挡使路径可通行性模糊，智能体选择次优路径。本文智能体通过显式建模不确定性（亮色=高不确定性）避免上述错误。</figcaption>
+</div>
+
+---
+
+### 2. 主要方法/创新点
+
+**整体框架**：SGM 构建 → 不确定性估计 → 3D Value Map → 多层 Transformer 预测动作。
+
+<div align="center">
+  <img src="/images/vln/UncertaintyGaussian-pipeline.png" width="100%" />
+<figcaption>图2：整体 Pipeline。每步从全景 RGB-D 观测构建 SGM，估计三类不确定性并嵌入形成 3D Value Map，再与语言指令拼接输入 MLT 预测动作。</figcaption>
+</div>
+
+**3.1 Semantic Gaussian Map (SGM)**
+
+每个导航点处，将多视角 RGB-D 观测反投影为稀疏伪激光点云，每个点初始化为一个可微 3D Gaussian primitive $$g_i$$，包含：均值 $$\boldsymbol{\mu}_i \in \mathbb{R}^3$$（位置）、协方差 $$\boldsymbol{\Sigma}_i$$（形状/尺度）、不透明度 $$\alpha_i$$、颜色球谐系数 $$c_i$$，以及语义属性 $$s_i$$（由 SAM2 分割区域 + CLIP 特征附加而来）。通过可微渲染优化使 SGM 与当前观测一致，并裁剪低尺度（$$\lVert e_i \rVert_2 < \tau_e$$）和低不透明度（$$\alpha_i < \tau_\alpha$$）的冗余 Gaussian。
+
+**3.2 不确定性估计（三类）**
+
+| 类型 | 建模方式 | 含义 |
+|---|---|---|
+| 几何不确定性 $$U^g$$ | 对位置/尺度施加变分扰动，最小化 ELBO，提取变分分布标准差 | 结构可靠性：Gaussian 是否在多种几何假设下保持稳定 |
+| 语义不确定性 $$U^s$$ | 对语义属性施加可学习偏移，同样 ELBO 优化 | 语义歧义程度：同一区域的语义解释有多不稳定 |
+| 外观不确定性 $$U^a$$ | 用 Fisher Information（渲染 Jacobian 的 log-determinant）近似 Hessian | 外观敏感性：纹理复杂/遮挡/光照变化是否导致渲染剧变 |
+
+$$U_i^g = \lVert \mathcal{F}^{\text{std}}(q_{\phi^\mu}(\chi_i^\mu)) \rVert_2 + \lVert \mathcal{F}^{\text{std}}(q_{\phi^e}(\chi_i^e)) \rVert_2$$
+
+$$U_i^a = \log \lvert \nabla_{\mathcal{G}} \hat{\mathcal{I}} \nabla_{\mathcal{G}} \hat{\mathcal{I}}^\top \rvert$$
+
+**3.3 3D Value Map 与动作预测**
+
+将 $$(U^g, U^s, U^a)$$ 附加到每个 Gaussian 的属性向量，扩展为 $$g_i \in \mathbb{R}^{20}$$。再通过非线性投影得到每个 Gaussian 的特征 $$F^{g_i} \in \mathbb{R}^{768}$$，聚合后与语言嵌入 $$X$$ 拼接，输入多层 Transformer $$\mathcal{F}^{\text{MLT}}$$ 预测候选 waypoint 的导航概率。
+
+<div align="center">
+  <img src="/images/vln/UncertaintyGaussian-uncertainty-vis.png" width="100%" />
+<figcaption>图5：三类不确定性可视化。几何不确定性突出结构边界/不规则面，语义不确定性揭示对象级歧义区域，外观不确定性标记纹理复杂/遮挡/光照敏感区域。亮色=高不确定性。</figcaption>
+</div>
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vln/UncertaintyGaussian-qualitative-r2r.png" width="100%" />
+<figcaption>图3：R2R 定性对比。左：面对多扇相似窗户，VER 误判后提前停止，本文方法正确到达；右：VER 被桌子阻挡而停止，本文方法绕行成功完成指令。</figcaption>
+</div>
+
+- **R2R val unseen**：SR 78%（vs VER 76%，+2%），SPL 66%（vs 65%，+1%）
+- **RxR val unseen**：SR 65.2%（vs BEVBert 64.1%，+1.1%），nDTW 65.6%（vs 63.9%，+1.7%）
+- **REVERIE val unseen**：RGS 37.65%（vs BEVBert 34.71%，+2.94%），RGSPL 27.01%（vs 24.44%，+2.57%）——远程目标定位能力显著提升
+- 消融：SGM 单独带来结构理解增益（REVERIE RGS 32.15% → 35.48%），不确定性单独将 R2R SR 从 72.22% 提升至 74.20%，两者叠加达到最优 78.32%
+- 三类不确定性均有独立贡献，全部使用时最优，几何+语义的提升幅度大于外观
+
+---
+
+### 4. 局限性
+
+SGM 构建（尤其是 SAM2 语义抽取与不确定性估计）推理开销较大，训练阶段采用离线预计算缓解，但实时部署仍需轻量化替代（论文建议以轻量 SAM2 变体替换）；此外，框架在 Matterport3D 室内场景验证，对室外或动态环境的泛化性未知。
+
 ---
 
 # 相关基础工作
