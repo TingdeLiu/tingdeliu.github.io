@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "世界模型综述：迈向通用 VLA 智能体"
+title: "世界模型综述：迈向通用AGI的关键"
 date: 2026-04-16
 tags: [VLA, World Models, Robotics, Embodied AI, Survey]
 comments: true
