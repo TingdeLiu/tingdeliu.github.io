@@ -174,6 +174,11 @@ flowchart LR
 - 可用于分类、部分分割、语义分割三类任务。
 - 奠定了点云深度学习"点独立处理+对称聚合"的基本范式。
 
+<div align="center">
+  <img src="/images/si/PointNet-architecture.png" width="90%" />
+<figcaption>PointNet 网络架构：对每个点独立应用共享 MLP 提取特征，通过 Max Pooling 对称聚合得到全局特征向量，T-Net 分别对输入点坐标（3×3）和特征空间（64×64）学习对齐变换。</figcaption>
+</div>
+
 *代表性工作*：PointNet（CVPR 2017）
 
 ---
@@ -193,6 +198,11 @@ flowchart LR
 - 自适应处理非均匀点云密度。
 - 奠定了"采样+分组+聚合"的点云学习标准范式，后续工作（DGCNN、Point Transformer 等）均在此框架下扩展。
 
+<div align="center">
+  <img src="/images/si/PointNet2-architecture.png" width="90%" />
+<figcaption>PointNet++ 层级化特征学习：通过 FPS 采样 → Ball Query 分组 → PointNet 局部特征提取的反复堆叠，逐层扩大感受野；分割任务额外使用插值上采样将特征传回原始点集。</figcaption>
+</div>
+
 *代表性工作*：PointNet++（NeurIPS 2017）
 
 ---
@@ -211,6 +221,11 @@ $$e_{ij} = h_\Theta(x_i,\ x_j - x_i)$$
 - 动态图结构能捕捉语义关联，而非仅依赖空间邻近性。
 - EdgeConv 操作简洁高效，易于集成至各类点云架构。
 
+<div align="center">
+  <img src="/images/si/DGCNN-EdgeConv.png" width="85%" />
+<figcaption>DGCNN 架构与 EdgeConv 操作：在特征空间动态构建 k-NN 图（每层重新计算），计算中心点与邻居的边特征后聚合；多层 EdgeConv 堆叠后接 Max Pooling 得到全局描述符。</figcaption>
+</div>
+
 *代表性工作*：DGCNN（TOG 2019）
 
 ---
@@ -227,6 +242,11 @@ $$y_i = \sum_{x_j \in \mathcal{N}(x_i)} \rho\!\left(\gamma\!\left(\phi(x_i) - \p
 - 基于 Transformer 的局部自注意力，捕捉细粒度局部几何特征。
 - 位置编码设计使网络对点云几何结构具有明确的感知能力。
 - 确立了点云 Transformer 的标准架构，后续 Point Transformer v3（2024）进一步在大规模数据上预训练。
+
+<div align="center">
+  <img src="/images/si/PointTransformer-attention.png" width="85%" />
+<figcaption>Point Transformer 向量自注意力：为每个特征维度分配独立注意力权重（区别于标量注意力），位置编码 δ 基于近邻点坐标差学习，同时注入注意力权重和值向量，捕捉局部几何关系。</figcaption>
+</div>
 
 *代表性工作*：Point Transformer v1（ICCV 2021）、Point Transformer v2（NeurIPS 2022）
 
@@ -251,6 +271,11 @@ $$\mathcal{L}_{si} = \frac{1}{n}\sum_i d_i^2 - \frac{\lambda}{n^2}\left(\sum_i d
 - 多尺度特征融合，从粗到细捕捉不同层次的深度信息。
 - 在相对深度零样本迁移中具有很强的跨数据集泛化性。
 
+<div align="center">
+  <img src="/images/si/DPT-architecture.png" width="90%" />
+<figcaption>DPT 架构：以 ViT 为骨干提取多层 patch token，通过 Reassemble 操作恢复空间分辨率得到多尺度特征图，再经 Fusion 解码器逐步上采样融合，输出高分辨率密集深度预测。</figcaption>
+</div>
+
 *代表性工作*：DPT（ICCV 2021）
 
 ---
@@ -266,6 +291,11 @@ $$\mathcal{L}_{si} = \frac{1}{n}\sum_i d_i^2 - \frac{\lambda}{n^2}\left(\sum_i d
 - 零样本泛化能力显著优于前代模型，在未见场景上表现稳定。
 - V2 版本的细节质量（边缘清晰度、薄结构）得到显著改善。
 
+<div align="center">
+  <img src="/images/si/DepthAnything-pipeline.png" width="90%" />
+<figcaption>Depth Anything 半监督数据引擎：以 150 万有标注图像训练教师模型，对 6200 万无标注图像生成伪标签，再以强数据增强（色彩畸变、CutMix 等）训练学生模型，强迫其学习更鲁棒的深度先验。</figcaption>
+</div>
+
 *代表性工作*：Depth Anything（CVPR 2024）、Depth Anything V2（NeurIPS 2024）
 
 ---
@@ -278,6 +308,11 @@ $$\mathcal{L}_{si} = \frac{1}{n}\sum_i d_i^2 - \frac{\lambda}{n^2}\left(\sum_i d
 - 基于扩散模型的生成式深度估计框架，通过多步去噪生成深度图。
 - 仅需在少量有标注数据上微调即可达到 SOTA 性能。
 - 生成的深度图具有丰富的细节和清晰的边界，在弱纹理/重复纹理区域表现尤为突出。
+
+<div align="center">
+  <img src="/images/si/Marigold-pipeline.png" width="85%" />
+<figcaption>Marigold 推理流程：将 RGB 图像编码至 Stable Diffusion 潜在空间，以随机噪声初始化深度潜变量，通过迭代去噪步骤生成深度图潜变量，最后解码为相对深度图。</figcaption>
+</div>
 
 *代表性工作*：Marigold（CVPR 2024）
 
@@ -300,6 +335,11 @@ $$\hat{C}(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\,\sigma\!\left(\mathbf{r}(t)\right
 - 可微渲染支持端到端优化，无需显式三维监督。
 - 高质量新视角合成，擅长细节纹理与镜面反射。
 - 局限：训练缓慢（数小时/场景）、仅表示静态场景、不同场景间无泛化性。
+
+<div align="center">
+  <img src="/images/wm/NeRF-Pipeline.png" width="90%" />
+<figcaption>NeRF 渲染原理：沿相机光线均匀采样后用 Coarse MLP 估计密度分布，再对高密度区域重要性采样后送入 Fine MLP，最终通过体积渲染方程积分得到像素颜色，与真实图像的光度损失反向传播优化网络权重。</figcaption>
+</div>
 
 **重要扩展**：Mip-NeRF（处理混叠）、Mip-NeRF 360（无界场景）、Instant-NGP（哈希编码，加速至秒级）、Block-NeRF（大规模城市场景）。
 
@@ -325,6 +365,11 @@ $$\hat{C}(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\,\sigma\!\left(\mathbf{r}(t)\right
 - 训练速度远快于 NeRF（分钟级），且渲染质量更高。
 - 局限：高斯基元数量庞大（数百万），存储开销较大；对无纹理平滑区域建模较弱。
 
+<div align="center">
+  <img src="/images/wm/3DGS-pipeline-overview.png" width="90%" />
+<figcaption>3D Gaussian Splatting 概览：从 SfM 稀疏点云初始化高斯基元，将三维高斯投影至图像平面后按深度排序进行 α-混合渲染，梯度驱动的自适应密度控制（Clone/Split）自动增殖或修剪高斯。</figcaption>
+</div>
+
 *代表性工作*：3D Gaussian Splatting（SIGGRAPH 2023）
 
 ---
@@ -340,6 +385,11 @@ $$\hat{C}(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\,\sigma\!\left(\mathbf{r}(t)\right
 **核心特点**：
 - 体素/柱状编码将无序点云转化为规则特征图，兼容成熟的 2D/3D CNN 框架。
 - PointPillars 推动了三维检测系统在嵌入式硬件上的实时部署。
+
+<div align="center">
+  <img src="/images/si/PointPillars-architecture.png" width="90%" />
+<figcaption>PointPillars 架构：将点云沿高度方向压缩为柱状（Pillar）伪图像，经 PointNet 提取柱特征后散射回 2D BEV 特征图，再通过 2D CNN 骨干网络和 SSD 检测头输出三维边界框。</figcaption>
+</div>
 
 *代表性工作*：VoxelNet（CVPR 2018）、PointPillars（CVPR 2019）
 
@@ -357,6 +407,11 @@ $$\hat{C}(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\,\sigma\!\left(\mathbf{r}(t)\right
 **核心特点**：
 - 无需昂贵 LiDAR，仅用摄像头实现接近 LiDAR 水平的 3D 感知。
 - BEV 统一表示支持检测、跟踪、地图分割等多任务联合训练。
+
+<div align="center">
+  <img src="/images/si/BEVFormer-architecture.png" width="90%" />
+<figcaption>BEVFormer 架构：在 BEV 平面预设网格 Query，通过空间交叉注意力从多相机图像中采样特征投影到 BEV 空间，再以时间自注意力融合历史 BEV 帧隐式编码运动信息，最终送入检测/分割头。</figcaption>
+</div>
 
 *代表性工作*：BEVFormer（ECCV 2022）、BEVFormer v2（CVPR 2023）
 
@@ -380,6 +435,11 @@ $$\hat{C}(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\,\sigma\!\left(\mathbf{r}(t)\right
 
 **核心挑战**：语言歧义消解、多物体区分（利用空间关系描述区分同类物体）、三维点云与语言的跨模态对齐。ScanRefer 之后，**Nr3D/Sr3D**（Achlioptas et al., 2020）和 **ScanQA**（Azuma et al., CVPR 2022）进一步扩展了三维语言理解的评测维度。
 
+<div align="center">
+  <img src="/images/si/ScanRefer-grounding.png" width="85%" />
+<figcaption>ScanRefer 三维视觉定位示例：给定自然语言描述（如"靠近门口的棕色椅子"），模型在三维点云场景中定位目标并输出三维边界框，需同时理解语言中的空间关系线索并在点云中消解歧义。</figcaption>
+</div>
+
 *代表性工作*：ScanRefer（ECCV 2020）、ScanQA（CVPR 2022）
 
 ---
@@ -392,6 +452,11 @@ $$\hat{C}(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\,\sigma\!\left(\mathbf{r}(t)\right
 - 将 LLM 的开放式语言理解能力迁移到三维场景感知，赋予模型三维感知能力。
 - 支持多样化三维-语言任务，展示了统一框架的可行性。
 - 为后续三维多模态大模型（3D MLLM）奠定基础。
+
+<div align="center">
+  <img src="/images/si/3DLLM-architecture.png" width="90%" />
+<figcaption>3D-LLM 框架：利用基于扩散模型的三维特征提取器将点云场景映射为 token 序列，注入 LLM 的上下文窗口，使 LLM 具备三维空间感知能力，支持场景问答、视觉定位与多轮对话等任务。</figcaption>
+</div>
 
 *代表性工作*：3D-LLM（NeurIPS 2023）
 
@@ -406,6 +471,11 @@ $$\hat{C}(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\,\sigma\!\left(\mathbf{r}(t)\right
 - 自动化数据生成管线可扩展至大规模，不依赖人工标注。
 - 在机器人操控等空间推理密集型下游任务中显著提升性能。
 
+<div align="center">
+  <img src="/images/si/SpatialVLM-pipeline.png" width="85%" />
+<figcaption>SpatialVLM 数据生成管线：利用三维传感器数据自动生成距离估计、方位判断、大小比较等定量空间推理问答对，对 VLM 进行空间推理专项微调，显著提升模型在定量空间问题上的准确率。</figcaption>
+</div>
+
 *代表性工作*：SpatialVLM（CVPR 2024）
 
 ---
@@ -418,6 +488,11 @@ $$\hat{C}(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\,\sigma\!\left(\mathbf{r}(t)\right
 - 统一的多任务具身三维理解框架，贴近真实机器人部署的感知模式。
 - 强调实时、增量式的三维场景理解，而非离线离线处理完整点云。
 - 引入多粒度空间语言对齐，支持细粒度物体级和场景级描述。
+
+<div align="center">
+  <img src="/images/si/EmbodiedScan-overview.png" width="90%" />
+<figcaption>EmbodiedScan 框架概览：以智能体主动探索的第一人称 RGB-D 视角流为输入，统一支持三维目标检测、三维视觉定位和场景问答等多任务评测，覆盖 5000+ 真实室内场景与 146 万+ 实例标注。</figcaption>
+</div>
 
 *代表性工作*：EmbodiedScan（CVPR 2024）
 

@@ -381,6 +381,10 @@ Global Planner → Local Policy → Action
 
 ---
 
+> **扩展阅读**：语义地图的构建原理（点云融合、占用栅格、拓扑图等）详见 [Spatial Intelligence Survey —— 空间感知与地图构建](https://tingdeliu.github.io/Spatial-Intelligence-Survey/)。
+
+---
+
 
 ## 3.4 生成式世界模型框架
 ——Generative World Models for VLN
