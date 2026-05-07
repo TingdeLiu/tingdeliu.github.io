@@ -1240,6 +1240,78 @@ RoboTwin 2.0 上的代表性任务执行过程（place mouse pad / press stapler
 
 ---
 
+## 5.9 LingBot-World: Advancing Open-source World Models (2026)
+———首个开源、支持实时交互的长程世界模型
+
+📄 **Paper**: [arXiv:2601.20540](https://arxiv.org/abs/2601.20540)
+
+### 精华
+1. **LingBot-World** 是一个开源的实时交互世界模型，支持分钟级的长程生成一致性。
+2. 提出了包含分层语义的数据引擎，通过叙事、静态场景和密集时间描述解决了交互数据稀缺问题。
+3. 采用了三阶段进化训练策略：预训练（通用视频先验）、中训练（知识注入与 MoE 架构）和后训练（因果适配与蒸馏）。
+4. 实现了亚秒级（<1s）的推理延迟，支持 16 fps 的实时生成。
+5. 展示了在可控世界事件编辑、具身智能 Action Agent 和 3D 重建等领域的广泛应用潜力。
+
+### 1. 研究背景/问题
+当前的视频生成模型虽能生成高质量短片，但本质上是“梦想家”而非“模拟器”，缺乏对物理规律（如因果性、物体恒久性）的理解，且难以实现实时交互。此外，高质量交互数据的匮乏、长程一致性的维持以及扩散模型高昂的计算开销，也是阻碍世界模型发展的核心瓶颈。
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vla/LingBot-World-overview.png" width="100%" />
+<figcaption>LingBot-World 交互式世界模拟概览：支持在多种场景（写实、科学、卡通等）下通过键盘操作进行实时交互。</figcaption>
+</div>
+
+#### ① 数据引擎与分层描述
+为了解决高质量交互数据稀缺的问题，LingBot-World 构建了一个混合数据引擎，结合了真实世界视频、游戏录像和 Unreal Engine (UE) 合成数据。关键创新在于**分层描述策略**：
+- **叙事描述 (Narrative Caption)**：描述整体环境和摄像机轨迹，作为全局语义提示。
+- **静态场景描述 (Scene-Static Caption)**：仅聚焦环境，实现动作与场景的解耦。
+- **密集时间描述 (Dense Temporal Caption)**：对视频事件进行细粒度的时间对齐描述。
+
+#### ② 三阶段进化训练管线
+模型采用了从视频生成器向交互式模拟器进化的三阶段策略：
+
+<div align="center">
+  <img src="/images/vla/LingBot-World-training-pipeline.png" width="100%" />
+<figcaption>LingBot-World 训练管线：从预训练的视频先验出发，经过中训练注入知识，最后通过后训练实现实时交互能力。</figcaption>
+</div>
+
+- **Stage I: 预训练**：利用 14B 参数的 Wan2.2 扩散模型建立强大的时空相干性和视觉先验。
+- **Stage II: 中训练 (MoE 知识注入)**：引入 Mixture-of-Experts (MoE) 架构（总参数 28B，激活 14B），通过 progressive curriculum 策略将训练时长从 5 秒扩展到 60 秒，并注入 Plücker 编码的动作信号。
+- **Stage III: 后训练 (实时化)**：将双向扩散模型适配为因果自回归系统，并结合分布匹配蒸馏 (DMD) 和对抗优化，将推理延迟降低至亚秒级。
+
+#### ③ 模型架构与动作注入
+
+<div align="center">
+  <img src="/images/vla/LingBot-World-architecture.png" width="100%" />
+<figcaption>LingBot-World 模型架构：基于 DiT 块，通过 Plücker Encoder 注入动作信号，并利用 AdaLN 进行调制。</figcaption>
+</div>
+
+LingBot-World 基于 DiT (Diffusion Transformer) 架构。动作信号（离散键盘输入和连续摄像机旋转）通过 **Plücker Encoder** 投影为嵌入向量，再通过 Adaptive Layer Normalization (AdaLN) 注入到 DiT 块中，实现对视频生成的精确控制。
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vla/LingBot-World-memory-capability.png" width="100%" />
+<figcaption>涌现的记忆能力：模型能够记住视野外的静态地标（如巨石阵），并在 60 秒后返回时保持结构一致，且能模拟视野外物体的动态演化。</figcaption>
+</div>
+
+- **长程一致性**：模型表现出显著的涌现记忆能力，即使物体长时间离开视野，返回时仍能保持结构完整。
+- **实时性与质量平衡**：LingBot-World-Fast 在单 GPU 节点上实现了 16 fps 的吞吐量，同时保持了与教师模型相当的视觉质量。
+- **可控编辑**：支持通过文本指令（如“Firework”、“Fish”）对生成的世界进行实时干预。
+
+<div align="center">
+  <img src="/images/vla/LingBot-World-promptable-events.png" width="100%" />
+<figcaption>可控世界事件示例：通过文本提示词实时改变天气、风格或在场景中注入特定动态元素。</figcaption>
+</div>
+
+### 4. 局限性
+- **记忆稳定性**：长程一致性仍是基于上下文窗口的涌现能力，缺乏显式的存储模块。
+- **交互精度**：对细粒度物体操作（如抓取特定物体）的支持尚不足。
+- **算力成本**：推理仍需企业级 GPU 支持。
+
+---
+
 # 6. 基础模型
 
 世界模型的强大离不开底层生成式基础模型的支持。根据功能定位，可分为三大类别：
