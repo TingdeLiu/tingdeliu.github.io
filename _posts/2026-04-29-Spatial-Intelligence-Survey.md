@@ -334,12 +334,46 @@ $$\hat{C}(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\,\sigma\!\left(\mathbf{r}(t)\right
 - 全场景一致的稠密点图（Pointmap）
 - 跨帧的 3D 点轨迹（point tracks）
 
+**前馈范式的演进**：从传统 SfM/MVS 多阶段几何流水线，到 DUSt3R/MASt3R 的成对前馈+全局对齐，再到 VGGT 的统一前馈，三维重建的"阶段数"在逐步收敛——下图直观对比三种范式：
+
+```mermaid
+graph TD
+    subgraph Trad ["① 传统 SfM/MVS 流水线（多阶段几何）"]
+        T1["多视图输入"] --> T2["特征提取与匹配"]
+        T2 --> T3["相机位姿估计"]
+        T3 --> T4["稀疏三角化"]
+        T4 --> T5["Bundle Adjustment"]
+        T5 --> T6["MVS 稠密重建<br/>(分钟~小时级)"]
+    end
+
+    subgraph Dust ["② DUSt3R / MASt3R（成对前馈 + 全局对齐）"]
+        D1["图像对 (2 张)"] --> D2["前馈 Pointmap 网络"]
+        D2 --> D3["全局对齐优化<br/>(多对融合)"]
+        D3 --> D4["相机参数 + 稠密点云<br/>(秒~十秒级)"]
+    end
+
+    subgraph Vggt ["③ VGGT（统一前馈基础模型）"]
+        V1["1 ~ 数百张图像"] --> V2["统一 Transformer<br/>(交替注意力, 单次前馈)"]
+        V2 --> V3["相机 + 深度 + 点图 + 点轨迹<br/>(亚秒级, 无需任何后处理)"]
+    end
+
+    style Trad fill:#fff5f5,stroke:#fca5a5
+    style Dust fill:#fffbeb,stroke:#fcd34d
+    style Vggt fill:#f0fdf4,stroke:#86efac
+    style V3 fill:#bbf7d0,stroke:#16a34a,stroke-width:2px
+```
+
 **核心设计**：
 
 - **统一前馈架构**：彻底抛弃了 DUSt3R 路线中仍依赖的全局对齐优化、bundle adjustment 等几何后处理步骤——所有几何量都直接由网络一次性输出，无需任何测试时优化。
 - **交替注意力（Alternating Attention）**：网络主体由"逐帧自注意力（frame-wise self-attention）"与"跨帧全局自注意力（global self-attention）"层交替堆叠组成。前者提取单图局部细节，后者建立多视角间的几何一致性，避免了 DUSt3R 显式构造图像对带来的 $O(N^2)$ 复杂度，可平滑扩展到数百张输入视图。
 - **多任务联合监督**：通过多个轻量预测头同时回归相机参数、深度、点图与轨迹，并采用置信度（confidence）加权损失自适应处理动态物体与遮挡区域。
 - **大规模混合训练**：在多种真实与合成 3D-annotated 数据集（包含 ScanNet、CO3D、ARKitScenes、MegaDepth、BlendedMVS 等）上联合预训练，吸收跨域几何先验。
+
+<div align="center">
+  <img src="/images/si/VGGT-architecture.png" width="92%" />
+<figcaption>VGGT 架构概览（图源：Wang et al., CVPR 2025, Fig. 2）：DINO 将各帧图像 Patchify 为视觉 token，并附加可学习的相机 token；网络主体由全局自注意力（Global Attention）与逐帧自注意力（Frame Attention）交替堆叠 L 次组成；最终 Camera Head 输出相机内外参，DPT Head 输出每帧深度图、稠密点图与跟踪特征——所有几何量在一次前馈中并行得到，无需 Bundle Adjustment 等后处理。</figcaption>
+</div>
 
 **核心结果**：
 
