@@ -2731,7 +2731,7 @@ $$x_t = (1 - t)x_0 + tx_1$$
 
 
 
-## 5.12 π*0.6 (2025) {#5-12-pi06-2025}
+## 5.12 π₀.6 (2025) {#5-12-pi06-2025}
 ———a VLA That Learns From Experience
 
 📄 **Paper**: [https://arxiv.org/abs/2511.14759](https://arxiv.org/abs/2511.14759)
@@ -2803,7 +2803,7 @@ RECAP 工作流：从预训练的 VLA 开始，通过部署采集自主轨迹和
 
 ---
 
-## 5.13 π0.7: a Steerable Generalist Robotic Foundation Model (2026)
+## 5.13 π₀.7: a Steerable Generalist Robotic Foundation Model (2026)
 ———可控的通用型机器人基础模型，具备零样本跨构型迁移与任务组合能力
 
 📄 **Paper**: [arXiv:2604.15483](https://arxiv.org/abs/2604.15483)
