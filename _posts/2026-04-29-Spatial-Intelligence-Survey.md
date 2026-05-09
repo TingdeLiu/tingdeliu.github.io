@@ -93,6 +93,7 @@ graph TD
         R3 --> R4["Instant-NGP (2022)"]
         R4 --> R5["3D Gaussian Splatting (2023)"]
         R2 --> R6["DUSt3R / MASt3R (2024)"]
+        R6 --> R7["VGGT (CVPR 2025 Best Paper)"]
     end
 
     %% 路径 3: 空间语言模型
@@ -102,7 +103,7 @@ graph TD
     end
 
     %% 汇聚点
-    P4 & R6 & L3 --> F["通用空间智能基础模型 (Spatial Foundation Models)"]
+    P4 & R7 & L3 --> F["通用空间智能基础模型 (Spatial Foundation Models)"]
 
     style F fill:#f96,stroke:#333,stroke-width:4px
 ```
@@ -112,7 +113,7 @@ graph TD
 - **2018–2020**：VoxelNet、PointPillars 推动了自动驾驶 LiDAR 感知商业化；NeRF 的提出彻底改变了三维重建技术范式。
 - **2021–2022**：Transformer 架构被引入三维感知（Point Transformer、DETR3D、BEVFormer），性能大幅提升；Instant-NGP 将 NeRF 训练时间压缩至秒级。
 - **2023**：3D Gaussian Splatting 实现实时高质量渲染；3D-LLM、EmbodiedScan 将语言模型与三维场景理解结合。
-- **2024–2025**：Depth Anything、SpatialVLM、DUSt3R、Uni3D 等工作推动空间感知基础模型形成，空间智能进入"大模型驱动"新阶段。
+- **2024–2025**：Depth Anything、SpatialVLM、DUSt3R、Uni3D 等工作推动空间感知基础模型形成；VGGT（CVPR 2025 Best Paper）以单次前馈同时输出相机参数、深度、点图与点轨迹，标志空间智能正式进入"前馈三维基础模型"新阶段。
 
 # 3. 任务分类体系
 
@@ -321,6 +322,36 @@ $$\hat{C}(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\,\sigma\!\left(\mathbf{r}(t)\right
 **DUSt3R**（Wang et al., CVPR 2024）提出端到端稠密三维重建新范式，将传统 SfM 管线（特征匹配→位姿估计→密集重建）统一为单一 Transformer 网络：输入任意图像对（无需已知相机参数），直接预测稠密点图（Pointmap），再通过全局优化融合多图。DUSt3R 突破了传统方法对高重叠度图像对的依赖，在极端视角变换下依然稳健。
 
 **MASt3R**（Leroy et al., 2024）在 DUSt3R 基础上增加局部特征匹配能力，进一步提升多视角三维重建的鲁棒性与精度，同时支持稀疏匹配任务。两者共同代表了三维重建向"前馈基础模型"方向的重要转变。
+
+---
+
+### VGGT：通用三维视觉基础模型 (2025)
+
+**VGGT**（Visual Geometry Grounded Transformer，Wang et al., **CVPR 2025 Best Paper**，arXiv:2503.11651）是 DUSt3R/MASt3R 路线的集大成者，也是首个真正意义上的"通用三维视觉基础模型"。其核心突破是用**单个前馈 Transformer** 在亚秒级一次推理中，同时预测一组图像（从单张到数百张）所对应的**全部关键三维属性**：
+
+- 相机内参与外参（intrinsics + extrinsics）
+- 每帧度量深度图（metric depth）
+- 全场景一致的稠密点图（Pointmap）
+- 跨帧的 3D 点轨迹（point tracks）
+
+**核心设计**：
+
+- **统一前馈架构**：彻底抛弃了 DUSt3R 路线中仍依赖的全局对齐优化、bundle adjustment 等几何后处理步骤——所有几何量都直接由网络一次性输出，无需任何测试时优化。
+- **交替注意力（Alternating Attention）**：网络主体由"逐帧自注意力（frame-wise self-attention）"与"跨帧全局自注意力（global self-attention）"层交替堆叠组成。前者提取单图局部细节，后者建立多视角间的几何一致性，避免了 DUSt3R 显式构造图像对带来的 $O(N^2)$ 复杂度，可平滑扩展到数百张输入视图。
+- **多任务联合监督**：通过多个轻量预测头同时回归相机参数、深度、点图与轨迹，并采用置信度（confidence）加权损失自适应处理动态物体与遮挡区域。
+- **大规模混合训练**：在多种真实与合成 3D-annotated 数据集（包含 ScanNet、CO3D、ARKitScenes、MegaDepth、BlendedMVS 等）上联合预训练，吸收跨域几何先验。
+
+**核心结果**：
+
+- 在**相机位姿估计、多视角深度估计、稠密点云重建、3D 点跟踪**等多个基准上**同时**达到 SOTA，全面超越仍依赖测试时优化的 DUSt3R / MASt3R / MonST3R 等方法。
+- 推理速度达到秒级（典型几十张图像 < 1s），相比传统 SfM/MVS 与基于优化的前馈方法快 1–2 个数量级。
+- 输出可直接作为下游任务（新视角合成、动态点跟踪、3DGS 初始化、视觉 SLAM、机器人空间感知）的高质量先验，验证了其作为通用"三维基础模型"的可迁移性。
+
+**意义与影响**：
+
+- 标志着三维重建正式从"先估位姿—再三角化—再稠密化"的多阶段几何管线，转向"前馈基础模型一步出几何"的新范式，与 NLP/2D 视觉的发展轨迹高度对应。
+- 推动了 **Fast3R**、**CUT3R** 等多视角/流式前馈三维重建工作的快速涌现，形成了围绕 DUSt3R → VGGT 的"3D Foundation Model"研究热潮。
+- 对具身智能与世界模型而言，VGGT 提供了一个可即插即用的统一几何先验，显著降低了空间感知模块的工程复杂度。
 
 ---
 
