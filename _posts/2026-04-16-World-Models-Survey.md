@@ -123,6 +123,62 @@ flowchart LR
 
 **演进路径**：UniPi、SuSIE、GR-MG、Vidar、3D-VLA、FLIP 等将规划视为高保真视频生成任务，通过扩散模型合成像素级未来状态，再经逆动力学模型导出动作。近期 V-JEPA 2 和 PIVOT-R 转向隐式规划，直接在潜空间预测未来状态，避免了动力学无关的视觉细节（如光照、纹理）的干扰，提升了引导信号的质量。MoWM 则融合多种动力学先验形成混合方案，进一步简化动作推导。
 
+### 工业落地案例：GENE-26.5（Genesis AI, 2026）
+
+[Genesis AI 于 2026 年发布的 GENE-26.5](https://www.genesis.ai/blog/gene-26-5-advancing-robotic-manipulation-to-human-level) 是当前世界规划器范式在工业级灵巧操作上的代表性落地之一。它最直观的卖点是：**新任务只需 < 1 小时（约 200 episodes、< 20 秒技能）的机器人特定数据即可完成微调**，而支撑这一数据效率的，正是"用世界模型为低层动作策略注入物理先验"的世界规划器思想。
+
+**三个功能角色，一个统一模型**
+
+从系统视角看，GENE-26.5 自然地呈现出三个功能层：
+
+- **语义感知层（VLM）**：编码自然语言指令与场景语义，对应任务的高层逻辑链（如"做三明治需要先找面包再找火腿"）。
+- **物理预测层（World Model）**：动作条件视频生成模型，从大规模视频中学习"接下来几秒钟内物体如何受力、形变、断裂"，提供物理常识先验。
+- **执行转化层（Action Model）**：高频底层控制，将前两层提供的语义+物理条件翻译为具体的关节扭矩。
+
+但需要指出的是，**GENE-26.5 在工程实现上并不是三个独立串联的模块**，而是用 **Flow Matching** 建模 language / vision / proprioception / tactile / action 的**联合分布**——VLM 与 World Model 是被吸收进来的预训练组件，下游通过**条件查询**（conditional queries）从同一分布里采样出 control / generative simulation / state estimation / inverse dynamics / goal inference / rendering / value estimation 等不同子任务。这种"一模多用"的设计，让物理预测信号可以无缝、近乎零成本地流向动作生成。
+
+**信号路径：从语义到扭矩**
+
+```mermaid
+flowchart LR
+    Lang["语言指令\n(intent)"] --> VLM
+    Img["第一/第三人称视频\n本体感觉 / 触觉"] --> VLM
+
+    VLM["VLM\n语义编码"] -->|"语义条件"| Joint
+    VLM -->|"语义条件"| WM
+
+    subgraph Joint["联合分布模型 (Flow Matching)\n language ⊕ vision ⊕ proprioception ⊕ tactile ⊕ action"]
+        direction TB
+        WM["World Model\n动作条件视频生成\n→ 物理先验 z_phys"]
+        Cond["条件查询接口\n control / sim / state est. / IDM / value"]
+    end
+
+    WM -->|"潜空间物理引导"| Cond
+    Cond -->|"action sample"| Ctrl["500Hz 控制栈\nEtherCAT, 3ms 端到端\n~2mm 追踪误差"]
+    Ctrl --> Hand["Genesis Hand 1.0\n20-DoF 仿人手"]
+```
+
+**训练范式：异构多模态预训练 + 短时下游适配**
+
+GENE-26.5 的训练数据规模超过 **200,000 小时**，覆盖四类异构来源：
+
+| 数据来源 | 提供的物理/语义信息 |
+|:---|:---|
+| Glove 数据 | 人手动作轨迹 + 触觉信号 |
+| 第一人称（egocentric）视频 | 自然交互行为、任务多样性 |
+| 第三人称视频 | 互联网级物理交互场景 |
+| 互联网语言 + 视频 | 语义先验、世界知识 |
+
+关键设计是**不要求显式跨模态对齐**：联合分布模型直接吃部分可观测、异构的多模态数据，在预训练阶段习得"看-想-动"耦合先验。下游任务因此只需做条件适配——这才是"<1 小时微调"真正的来源，**而不是简单地"动作模型只是把预测帧翻译成扭矩"那么轻量**。新任务评测中 20–30 分钟的适配数据即可达到可用性能，进一步验证了该范式的样本效率。
+
+**硬件协同**
+
+世界规划器范式落地到真机的瓶颈往往不在模型，而在控制栈延迟。GENE-26.5 自研 EtherCAT 中间件实现 **500Hz 控制频率、3ms 端到端延迟**，把跟踪误差从基线的 20mm 压到 ~2mm。Genesis Hand 1.0 提供 20 个主动可反驱（back-drivable）自由度、1:1 人手尺寸——只有控制带宽足够高，世界模型预测出的"物理一致轨迹"才不会在执行端被低频/高延迟控制器涂抹掉。**这一点对所有走"WM 引导动作"路线的方案都是值得抄的工程经验**。
+
+**与四大范式的关系**
+
+GENE-26.5 主体上属于 §3.1 的**世界规划器**：World Model 提供前瞻性物理引导信号，策略据此生成动作。但它同时具备 §3.2 **世界动作模型**的影子——联合分布显式建模观测与动作的耦合，并支持双向条件查询（既能 $a \mid o$ 控制，也能 $o \mid a$ 仿真）；并且支持作为**世界模拟器**为自身评测提供 2700 人-机器人小时的仿真数据。这种**单模型、多范式角色**的设计趋势，与 §2.3 时间线中 2025–2026 年世界合成器/模拟器的爆发一脉相承，也代表了世界模型与 VLA 进一步收敛为统一基础模型的方向。
+
 ## 3.2 世界动作模型 (World Action Model)
 
 **定义**：该范式采用生成式建模近似未来观测与动作的联合分布，预测视觉与控制的耦合动力学：
@@ -1240,7 +1296,7 @@ RoboTwin 2.0 上的代表性任务执行过程（place mouse pad / press stapler
 
 ---
 
-## 5.9 LingBot-World: Advancing Open-source World Models (2026)
+## 5.9 LingBot-World (2026)
 ———首个开源、支持实时交互的长程世界模型
 
 📄 **Paper**: [arXiv:2601.20540](https://arxiv.org/abs/2601.20540)
