@@ -1407,6 +1407,45 @@ model.print_trainable_parameters()
 - GPTQ后训练量化
 - AWQ激活感知量化
 
+#### Unsloth：高效微调加速库
+
+[Unsloth](https://unsloth.ai) 是目前最流行的 LoRA/QLoRA 加速库，通过重写底层 CUDA kernel 实现了显著的提速和省显存效果：
+
+- 🚀 **速度**：训练速度提升约 **2×**（无精度损失）
+- 💾 **显存**：VRAM 占用减少约 **70%**
+- 🔌 **兼容**：与 Hugging Face PEFT/TRL 完全兼容，几乎零迁移成本
+- 🤖 **支持模型**：Llama、Qwen、Mistral、Gemma、Phi 等 500+ 模型
+
+**快速上手**（将 `get_peft_model` 替换为 Unsloth 版本即可）：
+
+```python
+from unsloth import FastLanguageModel
+
+# 加载模型（支持4-bit QLoRA）
+model, tokenizer = FastLanguageModel.from_pretrained(
+    model_name="unsloth/llama-3-8b",
+    max_seq_length=2048,
+    load_in_4bit=True,    # 4-bit QLoRA，显存减少75%
+)
+
+# 添加LoRA适配器（与PEFT接口一致）
+model = FastLanguageModel.get_peft_model(
+    model,
+    r=16,
+    target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+    lora_alpha=16,
+    lora_dropout=0,
+    use_gradient_checkpointing="unsloth",  # Unsloth专有：支持更长上下文
+)
+
+# 使用标准TRL SFTTrainer（无需修改训练代码）
+from trl import SFTTrainer
+trainer = SFTTrainer(model=model, ...)
+trainer.train()
+```
+
+> **💡 适用场景**：消费级 GPU（RTX 3090/4090）上的 7B–70B 模型 LoRA/QLoRA 微调；GRPO 强化学习训练（显存节省约 **80%**）。
+
 ---
 
 # 偏好对齐阶段
@@ -1633,6 +1672,7 @@ $$
 1. **规则导向（Rule-based）**：对于数学、代码等有标准答案的任务，直接使用规则评分而非神经网络打分，可以极大地提升对齐精度。
 2. **组大小选择**：通常选择 $G=8$ 或 $G=16$，组越大梯度估计越准，但显存开销也越大。
 3. **MiniMind 实践**：在个人显卡上，GRPO 是目前唯一能让你在几百 M 参数模型上跑出”类 R1 推理能力”的强化学习方案。
+4. **Unsloth 加速**：使用 [Unsloth](https://unsloth.ai) 进行 GRPO 训练可节省约 **80% VRAM**，使单卡完整跑通 GRPO pipeline 成为可能。
 
 ---
 
@@ -2950,6 +2990,7 @@ $$
 
 | 工具 | 支持方法 | 特点 | 推荐场景 |
 |------|---------|------|---------|
+| **Unsloth** | LoRA, QLoRA, 4-bit, 16-bit, FP8, GRPO | 2×加速，减少70% VRAM，兼容HF生态 | 消费级GPU高效微调 |
 | **bitsandbytes** | QLoRA, 8-bit, 4-bit | 易用，Hugging Face集成 | QLoRA微调 |
 | **auto-gptq** | GPTQ | 成熟，广泛支持 | PTQ部署 |
 | **AutoAWQ** | AWQ | 速度快，精度高 | PTQ部署 |
