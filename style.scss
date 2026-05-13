@@ -682,6 +682,59 @@ nav {
   border-bottom: none;
 }
 
+.post-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 9px 0;
+    border-bottom: 1px solid $divider-color;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    @include mobile {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+  }
+
+  .post-list-date {
+    flex-shrink: 0;
+    width: 90px;
+    font-size: $small-font-size;
+    color: $base-lighten-color;
+    font-family: $code-font;
+  }
+
+  .post-list-title {
+    flex: 1;
+    font-size: 15px;
+    color: $base-color;
+    min-width: 0;
+
+    &:hover {
+      color: $link-color;
+    }
+  }
+
+  .post-list-tags {
+    flex-shrink: 0;
+    display: inline;
+    font-size: $small-font-size;
+
+    @include mobile {
+      width: 100%;
+      padding-left: 104px;
+    }
+  }
+}
+
 .date {
   font-weight: 300;
   font-size: $small-font-size;
