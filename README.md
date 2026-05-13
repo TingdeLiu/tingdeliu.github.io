@@ -4,23 +4,35 @@
 
 ## About
 
-This is my personal blog where I share my learning journey, research notes, and technical insights in **Robotics** and **Artificial Intelligence**.
+This is my personal blog where I share research surveys and technical notes on **Robotics**, **Embodied AI**, and **Large Language Models**. All posts are written in Chinese and focus on systematic reviews of key topics in the field.
 
-## Topics
+## Survey Posts
 
-- Vision-Language Navigation (VLN)
-- SLAM (Simultaneous Localization and Mapping)
-- 3D Vision & Reconstruction
-- Multi-Sensor Systems
-- Machine Learning for Robotics
-- Research Paper Reviews
+| Post | Topics |
+| :--- | :--- |
+| Vision-Language Navigation (VLN) Survey | VLN, R2R, NavGPT, multi-modal navigation |
+| Vision-Language-Action (VLA) Survey | VLA, RT-2, π0, robot policy learning |
+| Vision-Language Models (VLM) Survey | VLM, CLIP, LLaVA, grounding |
+| AI Agent Survey | LLM agents, tool use, memory, planning |
+| World Models Survey | DreamerV3, RSSM, latent dynamics |
+| Spatial Intelligence Survey | 3D vision, PointNet, Gaussian Splatting |
+| Machine Learning Survey | Supervised/unsupervised learning, transformers |
+| Deep Learning Survey | CNN, RNN, LSTM, GRU, attention |
+| Reinforcement Learning (Embodied) Survey | PPO, SAC, TD3, Diffusion Policy, RLVR |
+| LLM Training Survey | Pre-training, SFT, RLHF, Unsloth |
+| Robot Navigation Survey | SLAM, path planning, local/global navigation |
+| Harness Engineering Survey | Embodied AI system engineering |
+| ROS2 Survey | ROS2 framework, nodes, topics, services |
+| VLN Paper Notes | Individual paper reviews |
 
 ## Tech Stack
 
-- **Framework**: Jekyll
+- **Framework**: Jekyll ~4.3
 - **Theme**: Custom (based on Jekyll Now)
 - **Hosting**: GitHub Pages
-- **Content**: Markdown
+- **Math**: MathJax
+- **Diagrams**: Mermaid
+- **Comments**: Gitalk
 
 ## Quick Links
 
@@ -38,7 +50,3 @@ This is my personal blog where I share my learning journey, research notes, and 
 ## License
 
 All blog content is my original work. Please contact me for authorization before reusing or reposting.
-
----
-
-⭐ If you find this blog useful, feel free to star this repository!
