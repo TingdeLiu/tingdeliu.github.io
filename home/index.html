@@ -1,75 +1,107 @@
 ---
 layout: default
 ---
-<p><br></p>
-<div class="search-container">
-  <input type="text" id="search-input" placeholder="search blog posts..." style="width: 90%;
-    height: 35px;
-    color: #333;
-    background-color: rgba(227,231,236,.2);
-    line-height: 35px;
-    padding:0px 16px;
-    border: 1px solid #c0c0c0;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 17px;
-    outline: none;
-    box-sizing: border-box;
-    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,.6);">
-  <ul id="results-container"></ul>
+
+<style>
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 0.8rem;
+}
+
+.project-card {
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  transition: box-shadow 0.2s;
+}
+
+.project-card:hover {
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.project-card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.project-card-title a {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #0366d6;
+  text-decoration: none;
+}
+
+.project-card-title a:hover {
+  text-decoration: underline;
+}
+
+.lang-badge {
+  font-size: 0.72rem;
+  background: #f1f8ff;
+  color: #0366d6;
+  border-radius: 10px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.project-card p {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.55;
+}
+
+.section-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #444;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.4rem;
+  margin: 1.8rem 0 0.8rem;
+}
+
+.section-heading:first-of-type {
+  margin-top: 0.5rem;
+}
+</style>
+
+<h2 class="section-heading">Projects</h2>
+<div class="project-grid">
+
+  <div class="project-card">
+    <div class="project-card-title">
+      <a href="https://github.com/TingdeLiu/AgentNav" target="_blank">AgentNav</a>
+      <span class="lang-badge">Python</span>
+    </div>
+    <p>Agent-based navigation system for real robots. Natural language control via AI agents.</p>
+  </div>
+
+  <div class="project-card">
+    <div class="project-card-title">
+      <a href="https://github.com/TingdeLiu/MMS-LLM" target="_blank">MMS-LLM</a>
+      <span class="lang-badge">Python</span>
+    </div>
+    <p>Multimodal LLM for urban LiDAR point clouds. Point-BERT + Vicuna-7B, +40% over PointLLM baseline. Master's thesis (1.0).</p>
+  </div>
+
+  <div class="project-card">
+    <div class="project-card-title">
+      <a href="https://github.com/TingdeLiu/miniagent" target="_blank">miniagent</a>
+      <span class="lang-badge">Python</span>
+    </div>
+    <p>Lightweight agent framework for building tool-using AI agents.</p>
+  </div>
+
+  <div class="project-card">
+    <div class="project-card-title">
+      <a href="https://github.com/TingdeLiu/RAG_pdf" target="_blank">RAG_pdf</a>
+      <span class="lang-badge">Python</span>
+    </div>
+    <p>Intelligent document Q&amp;A system built on RAG and LangChain.</p>
+  </div>
+
 </div>
-<!-- 上面配置的是搜索栏 -->
-
-<!--script src="https://unpkg.com/simple-jekyll-search/dest/simple-jekyll-search.min.js"></script-->
-<script src="{{ site.baseurl }}/js/simple-jekyll-search.min.js"></script>
-
-<script>
-	window.simpleJekyllSearch = new SimpleJekyllSearch({
-	searchInput: document.getElementById('search-input'),
-	resultsContainer: document.getElementById('results-container'),
-	json: '{{ site.baseurl }}/search.json',
-	searchResultTemplate: '<li><a href="{url}?query={query}" title="{desc}">{title}</a></li>',
-	noResultsText: 'No results found',
-	limit: 10,
-	fuzzy: false,
-	exclude: ['Welcome']
-  })
-</script>
- 
-{% if site.posts.size == 0 %}
-  <h2>No post found</h2>
-{% endif %}
-
-<ul class="archive">
-  {% for post in site.posts %}
-    {% unless post.next %}
-      <h2>{{ post.date | date: '%Y' }}</h2>
-    {% else %}
-      {% capture year %}{{ post.date | date: '%Y' }}{% endcapture %}
-      {% capture nyear %}{{ post.next.date | date: '%Y' }}{% endcapture %}
-      {% if year != nyear %}
-        <h2>{{ post.date | date: '%Y' }}</h2>
-      {% endif %}
-    {% endunless %}
-
-    <li>
-      <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
-      <time>{{ post.date | date: "%Y-%m-%d" }}</time>
-    </li>
-  {% endfor %}
-</ul>
-
-<!--不算子网站访客统计-->
-<!-- <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"> -->
-<!-- </script> -->
-<!-- 显示站点总访问量 -->
-<!-- pv的方式，单个用户连续点击n篇文章，记录n次访问量 -->
-<!-- <div align="center"> -->
-	<!-- <span id="busuanzi_container_site_pv" style="font-family:Consolas;color:Silver;font-size:12px;"> -->
-		<!-- View:<span id="busuanzi_value_site_pv" style="font-family:Consolas;color:Silver;font-size:12px;"></span> -->
-	<!-- </span> -->
-	<!-- uv的方式，单个用户连续点击n篇文章，只记录1次访客数 -->
-	<!-- <span id="busuanzi_container_site_uv" style="font-family:Consolas;color:Silver;font-size:12px;"> -->
-		<!-- User:<span id="busuanzi_value_site_uv" style="font-family:Consolas;color:Silver;font-size:12px;"></span> -->
-	<!-- </span> -->
-<!-- </div> -->
