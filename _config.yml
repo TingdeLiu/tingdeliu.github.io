@@ -27,10 +27,10 @@ navigation:
     url: /home
   - name: Archive
     url: /archive
-  - name: Tags
-    url: /tags
+  - name: Blog
+    url: /blog
   - name: About
-    url: /about #/ #https://kwanwaipang.github.io/ 
+    url: /about #/ #https://kwanwaipang.github.io/
 
 # Pagination（分页）
 paginate: 10 #8 

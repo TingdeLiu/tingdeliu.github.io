@@ -1,8 +1,9 @@
----
+﻿---
 layout: post
 title: "大语言模型训练综述"
 date:   2026-02-06
 tags: [LLM, Deep Learning, NLP, Training, AI]
+categories: research
 comments: true
 author: Tingde Liu
 toc: true

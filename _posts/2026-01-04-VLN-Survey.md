@@ -1,8 +1,9 @@
----
+﻿---
 layout: post
 title: "VLN综述：基于视觉语言的导航"
 date:   2026-02-03
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
+categories: research
 comments: true
 author: Tingde Liu
 toc: true

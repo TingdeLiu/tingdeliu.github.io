@@ -1,8 +1,9 @@
----
+﻿---
 layout: post
 title: "空间智能综述：从三维感知到空间推理"
 date: 2026-04-29
 tags: [Spatial Intelligence, 3D Vision, NeRF, Point Cloud, Embodied AI, Survey]
+categories: research
 comments: true
 author: Tingde Liu
 toc: true

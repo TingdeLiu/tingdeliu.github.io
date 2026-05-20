@@ -1,8 +1,9 @@
----
+﻿---
 layout: post
 title: "AI Agent 综述：自主推理与工具调用的范式革命"
 date: 2026-03-05
 tags: [Agent, LLM, Multi-Agent, Survey]
+categories: research
 comments: true
 author: Tingde Liu
 toc: true

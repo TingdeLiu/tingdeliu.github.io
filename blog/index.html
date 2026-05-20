@@ -1,17 +1,17 @@
 ---
 layout: page
-title: Archive
-permalink: /archive/
+title: Blog
+permalink: /blog/
 ---
 
-{% assign research_posts = site.posts | where: "categories", "research" %}
+{% assign blog_posts = site.posts | where: "categories", "blog" %}
 
-{% if research_posts.size == 0 %}
+{% if blog_posts.size == 0 %}
   <h2>No post found</h2>
 {% endif %}
 
 <ul class="archive">
-  {% for post in research_posts %}
+  {% for post in blog_posts %}
     {% unless post.next %}
       <h2>{{ post.date | date: '%Y' }}</h2>
     {% else %}

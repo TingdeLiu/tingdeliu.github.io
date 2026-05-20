@@ -1,8 +1,9 @@
----
+﻿---
 layout: post
 title: "VLN经典论文"
 date:   2026-01-05
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
+categories: research
 comments: true
 author: Tingde Liu
 toc: true
@@ -3162,6 +3163,7 @@ layout: post
 title: "ABot-Claw: A Foundation for Persistent, Cooperative, and Self-Evolving Robotic Agents"
 date: 2026-04-23
 tags: [agent, embodied-ai, robotics, vla, memory]
+categories: research
 comments: true
 author: Tingde Liu
 toc: true
