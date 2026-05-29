@@ -70,37 +70,31 @@
     })();
   </script>
 
-  <!-- Mermaid 图表支持 -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <!-- Mermaid 图表支持：仅在页面含 mermaid 代码块时才加载 CDN 脚本 -->
   <script>
-    // 初始化 Mermaid
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: 'default',
-      flowchart: {
-        htmlLabels: true,
-        useMaxWidth: true
-      }
-    });
-
-    // 转换 kramdown 渲染的 Mermaid 代码块
     document.addEventListener('DOMContentLoaded', function() {
-      // 查找所有 language-mermaid 代码块
-      const mermaidBlocks = document.querySelectorAll('code.language-mermaid');
+      var mermaidBlocks = document.querySelectorAll('code.language-mermaid');
+      if (mermaidBlocks.length === 0) return;
 
       mermaidBlocks.forEach(function(block) {
-        // 创建新的 div 元素
-        const div = document.createElement('div');
+        var div = document.createElement('div');
         div.className = 'mermaid';
         div.textContent = block.textContent;
-
-        // 替换原来的 pre>code 结构
-        const pre = block.parentElement;
+        var pre = block.parentElement;
         pre.parentElement.replaceChild(div, pre);
       });
 
-      // 渲染所有 Mermaid 图表
-      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+      s.onload = function() {
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: 'default',
+          flowchart: { htmlLabels: true, useMaxWidth: true }
+        });
+        mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+      };
+      document.body.appendChild(s);
     });
   </script>
 
