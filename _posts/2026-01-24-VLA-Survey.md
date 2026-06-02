@@ -3931,6 +3931,139 @@ A) Task Proposal  →  B) Scene Generation  →  C) Training Supervision Generat
 
 ---
 
+## 5.24 Qwen-VLA (2026)
+———统一操作、导航与轨迹预测的具身基础模型
+
+📄 **Paper**: https://arxiv.org/abs/2605.30280
+
+---
+
+### 精华
+
+- 操作、导航、人体视角动作等异构具身任务，本质上共享同一计算结构：给定视觉观察、语言指令和 embodiment 描述，预测未来动作序列——Qwen-VLA 用一个统一的 action-and-trajectory 预测框架将它们全部吸收进单一模型。
+- DiT-based flow matching 是将离散 VLM token 空间与连续高维动作空间"解压缩"的关键桥梁；在 CPT/SFT 前先用文本-to-action 预训练（T2A）预热 DiT，让解码器无需视觉捷径即可学会语言→动作先验。
+- Embodiment-aware prompt conditioning 将机器人平台、控制频率、预测时域全部编码进文本 prompt，无需任何架构改动即可支持 10+ 种机器人形态跨模型共享。
+- Zero-padding 统一异构 action 空间：不同机器人动作维度对齐到最大维度并补零，per-channel 有效性掩码防止 padding 污染梯度，架构参数量最轻且效果与复杂方案相当。
+- RL 微调（PPO + GAE）仅在单一仿真环境中收集稀疏 reward，但改进能跨环境正向迁移：在未参与 RL rollout 的 RoboCasa、DOMINO 等基准上同样出现性能提升。
+
+---
+
+### 1. 研究背景/问题
+
+现有具身智能系统高度专业化：操作模型专为桌面/灵巧操作设计，导航模型专注室内路径点预测，二者无法跨任务、跨环境、跨机器人形态迁移，也难以像通用视觉-语言预训练那样规模化扩展。核心挑战在于操作与导航在输出格式、控制频率、动作维度、评估协议上看似完全异质，实则共享同一计算结构——均需 agent 对视觉观察、语言指令和 embodiment 约束进行条件化，预测物理与语义一致的未来动作序列。Qwen-VLA 正是利用这一洞察，将两者统一进单一 VLA 模型。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vla/QwenVLA-architecture-overview.png" width="100%" />
+<figcaption>Qwen-VLA 整体架构：Qwen3.5 VLM 主干 + DiT flow-matching 动作专家，同时支持 VLA（操作）、VLN（导航）和 VL（语言理解）三类任务</figcaption>
+</div>
+
+**① 整体框架概述**
+
+Qwen-VLA 由两个核心模块构成：**Qwen3.5-4B 视觉-语言主干**（负责高层感知与推理）和**单流 DiT 风格的 flow-matching 动作专家**（负责精细连续动作生成），二者通过 VLM 隐状态拼接共同服务于操作、导航和视觉语言理解三类任务。
+
+**② 逐模块讲解**
+
+**VLM 主干（Qwen3.5-4B）**
+- **输入**：多视角 RGB 图像（ego、左腕、右腕摄像头，每路用视图标记 `<|tag_start|> <image> <|tag_end|>` 包裹）+ 语言指令 + embodiment 描述 prompt
+- **处理**：ViT 生成视觉 token，经 spatial merging 后与文本 token 交错输入混合注意力 Transformer（大多数层为门控线性注意力，少数层为 GQA softmax 注意力），实现图像、视频与语言的统一编码
+- **输出**：VLM 隐状态序列，供动作专家条件化
+- **设计动机**：复用强大的视觉语言预训练能力，避免从头学习感知与 grounding；混合注意力在长多模态序列上兼顾效率与精度
+
+**动作专家（DiT flow-matching，约 1.15B 参数，16 个 DiT block）**
+- **输入**：VLM 隐状态 + 带噪声的动作 chunk（维度 $$\mathbf Y \in \mathbb{R}^{H \times K}$$，K 为所有 embodiment 共享的最大通道数，有效维度 c ≤ K，其余补零）
+- **处理**：VLM 隐状态拼接 noisy action chunk 后，经 16 个 DiT block 联合 self-attention，以 AdaLN timestep conditioning 和多段 RoPE 处理；per-channel 有效性掩码 **M** 确保 padding 不参与梯度
+- **输出**：预测速度场 $$v_\theta$$，推理时通过数步 Euler 积分（从 τ=1 到 τ=0）产出干净动作 chunk
+- **设计动机**：flow-matching 自然处理连续高维动作分布的多峰性；单流设计让 VLM 语义特征与动作序列充分交互
+
+**Embodiment-aware Prompt Conditioning**
+
+每条训练样本前添加文本描述（唯一的平台专属接口，无需任何架构改动）：
+```
+The robot is {robot_tag} with {arms}. The control frequency is {FPS} Hz.
+Please predict the next {chunk_size} control actions to execute: {instruction}.
+```
+覆盖 WidowX、Franka、ALOHA、AgiBot、人形机器人等 10+ 种平台，控制模式涵盖 ΔEF、绝对关节角、灵巧手等。
+
+**统一 Action-and-Trajectory 表示（Zero-Padding）**
+
+目标张量 $$\mathbf Y \in \mathbb{R}^{H \times K}$$，有效动作 c 维放在前 c 维，其余补零：
+- **操作**：Δ末端执行器位姿 / 关节角 / 夹爪开合
+- **导航**：$(\Delta x, \Delta y, \Delta\theta)$ 路径点序列
+- **人体视角**：SE(3) 腕部运动 + 10 维 eigengrasp 系数（45 维手势 PCA 压缩），共 32 维/步
+
+**③ 端到端数据流**
+
+embodiment prompt + 图像 → VLM 主干生成隐状态 → 拼接带噪动作 chunk → 16 个 DiT block 联合处理 → 预测速度场 → Euler 积分输出干净动作 chunk
+
+**④ 训练目标**
+
+**Flow-matching 动作损失**（per-channel 两级平均，防止 padding 主导梯度）：
+
+$$\ell_k = \frac{\sum_{h=1}^{H} M_{h,k} \left\lVert \left(v_\theta(\mathbf Y_\tau, \tau \mid o_{1:t}, x, e, z) - (\mathbf Y_1 - \mathbf Y_0)\right)_{h,k} \right\rVert_2^2}{\sum_{h=1}^{H} M_{h,k}}$$
+
+$$\mathcal{L}_\text{act} = \mathbb{E}_{\tau, \mathbf Y_0, \mathbf Y_1} \left[ \frac{1}{c} \sum_{k=0}^{c-1} \ell_k \right]$$
+
+**视觉语言损失**（next-token prediction，防止灾难性遗忘）：
+
+$$\mathcal{L}_\text{vl} = -\sum_i \log p_\theta(w_i \mid w_{<i}, o_{1:t})$$
+
+**联合损失**：$$\mathcal{L} = \lambda_\text{act} \mathcal{L}_\text{act} + \lambda_\text{vl} \mathcal{L}_\text{vl}$$
+
+**⑤ 四阶段渐进式训练**
+
+<div align="center">
+  <img src="/images/vla/QwenVLA-training-recipe.png" width="100%" />
+<figcaption>四阶段训练：Stage I（T2A，冻结 VLM 仅训练 DiT）→ Stage II/III（CPT & SFT，解冻双模块引入图像）→ Stage IV（RL，环境稀疏奖励优化闭环成功率）</figcaption>
+</div>
+
+- **Stage I — T2A（Text-to-Action 预训练）**：冻结 VLM，仅凭文本 + embodiment prompt 训练 DiT，**不引入图像**。目标是让 DiT 学会"语言→动作解压缩"先验；用 Sigmoid-Normal 采样中间 timestep（最大化信息量），最优 2000 步（过多则过拟合，带来 −10.7pp 劣化）。纯合成数据（Syn only）→ 64.1%，纯真实数据（Real only）→ 51.0%，20% Syn + 80% Real 混合最优 → **71.1%**（+10.2pp vs. 无 T2A）。
+- **Stage II — CPT（继续预训练）**：解冻全部参数，在多源异构数据混合（74.2% 操作轨迹、7.5% 导航、6.0% 人体、3.7% 合成仿真、8.5% VL 数据）上联合训练，将 T2A 动作先验 grounding 到视觉观察。
+- **Stage III — SFT（监督微调）**：从 CPT checkpoint 分两路并行微调——多任务 SFT（VQA + 操作 + 导航均衡采样）和真实机器人 SFT（ALOHA 遥操作数据）。
+- **Stage IV — RL（强化学习）**：从多任务 SFT 出发，在 SimplerEnv 中用 **PPO + GAE** 优化稀疏二元成功奖励（R=1 完成 / R=0 未完成），128 并行环境实例。Flow-matching 的 log-probability 通过将确定性 ODE 转为 SDE 注入噪声的方式在 Euler 步上解析计算，无需数值积分。
+
+**大规模合成数据（ROBOINF 流水线）**
+
+<div align="center">
+  <img src="/images/vla/QwenVLA-synthetic-data.png" width="100%" />
+<figcaption>ROBOINF 生成的合成数据示例：短时域任务（放置订书机、旋转蛋糕铲）和长时域任务（整理饮料+海绵），包含子任务分割监督</figcaption>
+</div>
+
+ROBOINF 流水线在 IsaacLab 中自动构建场景（20 桌面场景 × 10 姿态配置 = 200 基础场景），生成 450 个任务（短/长时域各半），每任务 300 条轨迹，随机化光照/视角/背景/纹理/控制器参数。同时构建纯语言-动作数据（7.2M 条），覆盖 6 种单臂机器人 × 6 种操作模板，作为 T2A Stage I 的主体语料。
+
+---
+
+### 3. 核心结果/发现
+
+**操作（仿真，单一通用模型 vs. 各基准专家模型）**：
+
+| 基准 | Qwen-VLA-Instruct | 最强专家 |
+|------|-------------------|---------|
+| LIBERO | **97.9%** | ABot-M0 98.6% |
+| Simpler-WidowX | **73.7%** | StarVLA-OFT 64.6% |
+| RoboTwin-Easy | **86.1%** | ABot-M0 86.0% |
+| RoboTwin-Hard | **87.2%** | ABot-M0 85.0% ✓ |
+| RoboCasa-GR1 | **56.7%** | Being-H0.5 53.3% |
+
+**操作（真实机器人 ALOHA 双臂）**：微调后域内任务平均 **83.6%**，OOD 成功率 **76.9%**（vs. π0.5 的 41.5%），有预训练 vs. 无预训练差距高达 +35.1pp（83.6% vs. 48.5%），证明预训练表示迁移价值显著。
+
+**导航（VLN-CE Val-Unseen）**：R2R 最高 OSR **69.0%**、SR **57.5%**；RxR SR **59.6%**、SPL **47.8%**，均超越 StreamVLN、NaVILA 等开源基线。
+
+**OOD 动态操作（DOMINO，零样本）**：SR **26.6%**、MS **39.5**，仅凭当前帧观察、无动态操作训练数据，超越专门 DOMINO 微调的 PUMA（17.2%/35.0%）。
+
+**消融关键发现**：T2A 预热带来 +10.2pp；VL 数据联合训练在复杂任务（RoboCasa）带来 +4.9pp；RL 后训练在训练环境 +2.9pp，且在其他所有基准上无灾难性遗忘（最大波动 <0.6pp）；不加入本体感觉状态仅损失 ≤1.3pp，视觉信息已足够。
+
+---
+
+### 4. 局限性
+
+具身动作数据规模远小于 VL 数据，长尾物体、接触丰富任务（如布料折叠、插槽）的鲁棒性仍有不足；操作/导航/VL 联合训练存在优化权衡，动作增强训练会轻微损伤纯 VL 和导航评测指标；当前评估以短时域、基准驱动为主，长时域真实部署（故障恢复、情景记忆）仍是未解挑战。
+
+---
+
 # 6. 总结与展望
 
 Vision-Language-Action (VLA) 模型代表了机器人技术的重要范式转变，通过统一视觉、语言和行动三个模态，实现了从自然语言指令到机器人控制的端到端学习。自2022年RT-1和2023年RT-2开创这一方向以来，VLA研究取得了爆发式进展。
