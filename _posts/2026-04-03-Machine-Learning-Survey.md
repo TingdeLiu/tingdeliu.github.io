@@ -7,6 +7,7 @@ title: "机器学习综述"
 date: 2026-04-03
 
 tags: [Machine Learning, Deep Learning, Algorithm, Foundation Models]
+categories: research
 
 comments: true
 

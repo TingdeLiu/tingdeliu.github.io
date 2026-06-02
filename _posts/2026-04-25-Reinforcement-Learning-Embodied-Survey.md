@@ -1,8 +1,9 @@
----
+﻿---
 layout: post
 title: "强化学习算法全景：聚焦具身智能领域的深度演进"
 date: 2026-04-25
 tags: [Reinforcement Learning, RL, Embodied AI, Robotics, World Models, Diffusion Policy, PPO, SAC, TD3, DDPG, Actor-Critic, MDP]
+categories: research
 comments: true
 author: Tingde Liu
 toc: true

@@ -1,8 +1,9 @@
----
+﻿---
 layout: post
 title: "传统机器人导航算法综述"
 date: 2026-02-27
 tags: [Robotics, Navigation, SLAM,  Localization, Mapping, Path Planning, Path Tracking, Perception]
+categories: research
 comments: true
 author: Tingde Liu
 toc: true

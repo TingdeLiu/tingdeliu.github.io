@@ -1,8 +1,9 @@
----
+﻿---
 layout: post
 title: "深度学习综述"
 date: 2026-03-26
 tags: [Deep Learning, Neural Network, Optimization, Training, AI, Transformer, LLM, MoE, LoRA, Diffusion, RLHF, Mamba, SSM]
+categories: research
 comments: true
 author: Tingde Liu
 toc: true

@@ -45,7 +45,7 @@ This is my personal blog where I share research surveys and technical notes on *
 
 - **GitHub**: [@TingdeLiu](https://github.com/TingdeLiu)
 - **LinkedIn**: [Tingde Liu](https://www.linkedin.com/in/tingde-liu-379818270/)
-- **Email**: tingde.liu.ai@gmail.com
+- **Email**: tingde.liu.luh@gmail.com
 
 ## License
 

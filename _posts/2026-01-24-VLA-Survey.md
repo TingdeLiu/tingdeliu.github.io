@@ -1,8 +1,9 @@
----
+﻿---
 layout: post
 title: "VLA综述：具身智能路线梳理"
 date:  2026-01-24
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
+categories: research
 comments: true
 author: Tingde Liu
 toc: true
