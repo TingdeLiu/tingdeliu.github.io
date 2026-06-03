@@ -3907,9 +3907,6 @@ $$d, y_t = \pi_\theta\big(f_{tok}(I), f_{tok}(R'), f_{vis}(O_t)\big)$$
 
 📄 **Paper**: [arXiv:2604.17473v2](https://arxiv.org/abs/2604.17473)
 
-* 目录
-{:toc}
-
 ---
 
 ### 精华
