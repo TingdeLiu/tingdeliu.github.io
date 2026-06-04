@@ -1,7 +1,7 @@
 ﻿---
 layout: post
 title: "世界模型综述：迈向通用AGI的关键"
-date: 2026-04-16
+date: 2026-06-04
 tags: [VLA, World Models, Robotics, Embodied AI, Survey]
 categories: research
 comments: true
@@ -585,6 +585,100 @@ Cosmos 平台在六个物理 AI 场景上展示了多样的适用性：
 </div>
 
 对具身 AI 研究者而言，Cosmos 的实用价值在于：**无需从头训练，可直接调用 Predict 做滚动仿真、Transfer 做大规模 Sim2Real 数据增强、Reason 做自动化物理合理性评估**，将科研原型到规模化应用的门槛大幅降低。
+
+---
+
+## 4.6 Cosmos 3：全模态统一世界模型（2026）
+———Omnimodal World Models for Physical AI
+
+📄 **Cosmos 3 (2026)**: [arxiv.org/abs/2606.02800](https://arxiv.org/abs/2606.02800)  
+🔗 **代码/权重**: [github.com/nvidia/cosmos](https://github.com/nvidia/cosmos) · [huggingface.co/collections/nvidia/cosmos3](https://huggingface.co/collections/nvidia/cosmos3)（OpenMDW-1.1 License）
+
+如果说 §4.1–§4.5 的 Cosmos 平台是用**一条工具链串起多个专用模型**（Predict 预测、Transfer 翻译、Reason 推理各司其职），那么 2026 年 6 月 NVIDIA 发布的 **Cosmos 3** 则把这条路线推到了终点：**用单一网络架构同时完成理解与生成、并原生覆盖语言、图像、视频、音频、动作五大模态**。它直接把本文 §3 的四大范式——视觉语言模型（VLM）、视频生成 / 前向动力学模型（世界合成器/模拟器）、世界动作模型（WAM/VLA）——**吸收进同一个模型**，是"单模型、多范式角色"趋势（参见 §3.1 的 GENE-26.5 讨论与 §9.3）最彻底的一次工程落地。
+
+<div align="center">
+  <img src="/images/wm/Cosmos3-Fig1-UnifiedBackbone.png" width="100%" />
+<figcaption>图：Cosmos 3 作为 Physical AI 的通用骨干。仅通过改变输入-输出配置，同一套权重即可化身视觉语言模型、图像生成模型、音视频生成模型、策略/世界动作模型、前向动力学模型、逆动力学模型，无需任何结构改动。（图源：Cosmos 3）</figcaption>
+</div>
+
+### 核心动机：终结"范式割裂"
+
+论文的出发点是一个尖锐的判断：**理解与生成被人为割裂是根本性的局限**。以"晚餐后清理餐桌"的家用机器人为例，当前范式需要拼装一条割裂的流水线——VLM 定位餐具并生成计划、VLA/WAM 生成动作序列、前向动力学模型（"世界模型"）仿真并评估未来状态。这种碎片化架构既不优雅也浪费算力。Cosmos 3 的主张是：理解本就需要推理"世界如何演化、动作有何后果"，而生成本就依赖"对世界与行为的紧凑结构化表示"——两者应当统一在**一个可扩展框架**里。
+
+### 架构：双塔 Mixture-of-Transformers（MoT）
+
+Cosmos 3 的核心是一个 **MoT 双塔**结构：把一条 token 序列切成两段——前段是**自回归（AR）子序列**负责理解推理，后段是**扩散（DM）子序列**负责生成。每个 Transformer 解码层内部都并行持有**两套独立参数**（Reasoner 塔 + Generator 塔），二者均从预训练 VLM 权重初始化，从而继承强语言/视觉推理能力。
+
+<div align="center">
+  <img src="/images/wm/Cosmos3-Fig5-MoTArchitecture.png" width="100%" />
+<figcaption>图：Cosmos 3 的 MoT 架构。同一条序列由 AR 子序列（语言 + ViT 视觉 token，以 EOS/BOG 收尾）与 DM 子序列（VAE 视觉、音频、动作 token，训练时加噪）拼接而成；层内 AR 与 DM token 各用独立 LayerNorm 与 MLP（均由预训练 VLM 共同初始化），仅在共享自注意力处交汇。右图为注意力掩码：AR 为因果三角、DM 为全注意力。（图源：Cosmos 3）</figcaption>
+</div>
+
+两塔虽参数独立，却通过**双流联合注意力（Dual-Stream Joint Attention）**耦合：
+
+- **AR 子序列**使用**因果自注意力**，只能看到自身前序 token——完整保留了从 VLM 继承的自回归文本生成能力（语言走 next-token prediction）；
+- **DM 子序列**使用**全双向注意力**，以 AR 与 DM token 的并集为 Key/Value，使每个扩散 token 都能自由"读取"文本提示与所有条件帧（生成走迭代去噪，Flow Matching 预测速度场）；
+- **关键约束**：AR token 永远不会被 DM token 更新——保证了条件通路的因果完整性。
+
+这种设计的精妙之处在于：**理解（AR）为生成（DM）提供语义条件，而生成不污染理解**，二者在同一张注意力图里完成协作，却互不破坏各自的归纳偏置。
+
+**编码器**：视觉理解用与语言对齐预训练的 **ViT**（随骨干联合训练），视觉生成用 **Wan2.2-TI2V-5B 的视频 VAE**（冻结，时间 4×、空间 32×32 压缩）；音频用冻结的音频 VAE（48kHz 立体声，25 token/秒）；动作用域感知投影层。位置编码采用带**绝对时间调制的 3D MRoPE**，把不同帧率/采样率的视频、音频、动作 token 对齐到同一条物理时间轴上。
+
+### 把"动作"当作一等模态
+
+与多数工作把动作当作附属输出不同，Cosmos 3 显式引入一类**动作 token**，作为连接物理世界与语言推理、视频建模的桥梁。它用一套**统一动作表示**容纳异构本体（自动驾驶、相机运动、第一人称人体、单臂/双臂/人形机器人）：自我位姿（Ego Pose 9D）与执行器位姿（Effector Pose 9D）以"3D 平移 + 6D 旋转"的相对位姿伪动作表示，抓取状态（Grasp State）直接编码当前操作状态。各本体用**域感知的输入/输出投影**适配不同维度，同时共享 MoT 骨干。动作 token $a_t$ 表示从视频状态 $v_{t-1}$ 到 $v_t$ 的转移。
+
+<div align="center">
+  <img src="/images/wm/Cosmos3-Fig3-UnifiedActionRepresentation.png" width="100%" />
+<figcaption>图：统一动作表示。异构本体的控制被映射为由共享几何分量构成的紧凑动作向量——Ego/Effector 运动编码为相对位姿伪动作（3D 平移 + 6D 旋转），抓取状态直接编码指尖位置或夹爪开合。（图源：Cosmos 3）</figcaption>
+</div>
+
+正因为动作与视频被纳入同一序列模型，Cosmos 3 仅靠"哪些 token 干净、哪些 token 加噪"的不同配置，就统一了三种动作生成模式：
+
+<div align="center">
+  <img src="/images/wm/Cosmos3-Fig4-ActionModes.png" width="95%" />
+<figcaption>图：三种动作模式由 token 加噪配置决定。前向动力学（给定干净动作去噪视频）、逆动力学（给定干净视频去噪动作）、策略（同时去噪视频与动作）。（图源：Cosmos 3）</figcaption>
+</div>
+
+- **前向动力学（Forward Dynamics）**：以观测上下文 + 干净动作为条件，预测未来视觉状态——即 §3.4 的世界模拟器；
+- **逆动力学（Inverse Dynamics）**：从观测到的视觉转移反推动作——即 §3.3 世界合成器中常用的 IDM 标注器；
+- **策略（Policy）**：同时预测动作与视频，既给出"干预"又给出"预期视觉后果"——即 §3.2 的世界动作模型。
+
+加上作为 VLM 的纯语言理解、Text2Image、Text2Video（可联合生成音频）、Image/Video2Video、Video Transfer 等生成模式，**四大范式在 Cosmos 3 中第一次由同一套权重原生支持**。
+
+### 模型变体：Edge / Nano / Super
+
+三个尺度覆盖从端侧部署到数据中心推理。注意总参数约为稠密 Transformer 的 2 倍——这正是双塔（Reasoner + Generator 各持一套参数）的代价：
+
+| 变体 | 总参 / 稠密骨干 | 层数 | 隐藏维 | 注意力头 | KV 头 | FFN 维 | 初始化 |
+|:---|:---|:---:|:---:|:---:|:---:|:---:|:---|
+| Cosmos3-Edge | 4B / 2B | 28 | 2,048 | 16 | 8 | 9,216 | 从零训练（类 Qwen3-1.7B） |
+| Cosmos3-Nano | 16B / 8B | 36 | 4,096 | 32 | 8 | 12,288 | Qwen3-VL 8B |
+| Cosmos3-Super | 64B / 32B | 64 | 5,120 | 64 | 8 | 25,600 | Qwen3-VL 32B |
+
+本次发布 Nano 与 Super，Edge 留待后续。Reasoner 在约 **24.2M** 样本（22.0M 预训练 + 2.2M SFT）的图文/视频-文本对上训练；Generator 在大规模图像/视频/音频/动作语料上以重建目标（Flow Matching）训练，经历预训练 → 中训练（mid-training）→ T2I 后训练 → I2V 后训练 → 机器人策略后训练的多阶段课程。
+
+### 训练范式与 Physical AI 角色
+
+<div align="center">
+  <img src="/images/wm/Cosmos3-Fig2-TrainingParadigm.png" width="92%" />
+<figcaption>图：Cosmos 3 是训练 Physical AI 智能体的强起点。预训练 + 中训练得到通用底座后，可在目标数据上无结构改动地后训练，分别服务于合成数据生成、任务专域特化、闭环训练环境三类用途。（图源：Cosmos 3）</figcaption>
+</div>
+
+Cosmos 3 把自己定位为破解"数据与环境扩展瓶颈"的三重起点：(i) **合成数据生成**——后训练为更强的 T2I / I2V 生成器，低成本合成高保真多样视觉数据；(ii) **任务专域特化**——在共享底座上做本体/任务特定微调，保留统一世界表示；(iii) **训练环境**——长期目标是生成高质量、可交互的复杂环境用于闭环训练。论文同时开源了 5 个合成数据集（SDG-PhyxSim / RobotSim / DriveSim / SynHuman / Warehouse）与评测基准 **Cosmos-HUE**。
+
+### 核心结果
+
+撰写技术报告时，Cosmos 3 的后训练变体取得多项 SOTA：
+
+- **Cosmos3-Super-Text2Image**：Artificial Analysis 文生图榜单**开源权重第 1**（含闭源模型计第 4，日期 2026-05-28）；
+- **Cosmos3-Super-Image2Video**：Artificial Analysis 图生视频榜单**开源权重第 1**，整体优于 Veo-3.1 等强闭源模型；
+- **Cosmos3-Nano-Policy-DROID**：在 RoboLab 与 **RoboArena** 真机策略评测中**均排名第 1**（从中训练 Nano 续训，在 DROID 76k 轨迹上后训练，15Hz 联合输出动作与未来视频帧）；
+- 在机器人、智能空间、自动驾驶领域的推理任务上同时超越开源与闭源模型（机器人仅略逊 Gemini 3.1 Pro），且两代视频生成均显著优于前代 Cosmos-Predict2.5。
+
+### 与四大范式的关系
+
+Cosmos 3 是本文叙事的一个**收敛点**。GENE-26.5（§3.1）已展示"联合分布 + 条件查询"如何让单模型兼任多角色，而 Cosmos 3 把这一思路推广到全模态、并以双塔 MoT 给出更清晰的工程边界：**Reasoner 塔承担世界规划器的高层语义推理，Generator 塔以前向动力学/视频生成承担世界合成器与世界模拟器，Policy 模式则是世界动作模型**。§2.3 时间线中 2025–2026 年世界合成器/模拟器的爆发，最终汇流为"理解-生成-动作一体化"的全模态世界模型——这与 §9.3"从想象到验证再到规划"的判断完全一致，也指向 §8 中长航程前瞻、4D 感知、物理一致性等方向的统一载体。
 
 ---
 
