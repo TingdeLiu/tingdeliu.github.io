@@ -1,7 +1,7 @@
 ﻿---
 layout: post
 title: "VLN经典论文"
-date:   2026-06-04
+date:   2026-06-05
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -14,7 +14,38 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
-# VLN经典论文
+# VLN 模型性能排行榜
+
+下表汇总本文收录论文在主流 VLN 基准上**公开报告**的核心指标，便于横向对比。指标含义：**SR**（成功率，↑）、**SPL**（路径加权成功率，↑）、**NE**（导航误差，单位米，↓）、**OSR**（Oracle 成功率，↑）。"–" 表示原文未报告该指标，各表按 SR 降序排列。
+
+> ⚠️ **不同基准不可直接混比**：离散全景环境（discrete R2R，DUET / HAMT 体系，全景 RGB-D）与连续环境（R2R-CE / VLN-CE，机器人第一视角逐步控制）任务设定不同，SR 数值不可跨表直接比较，故分两表列出。
+
+## 连续环境（R2R-CE / VLN-CE，Val-Unseen）
+
+| 模型 | 年份 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ |
+|:-----|:----:|:----:|:-----:|:----:|:-----:|
+| AgentVLN-3B | 2026 | **67.2** | **64.7** | – | – |
+| NavFoM | 2025 | 64.9 | 56.2 | – | – |
+| DGNav | 2026 | 64.82 | 50.08 | – | – |
+| DualVLN | 2025 | 64.3 | 58.5 | **4.05** | **70.7** |
+| BudVLN | 2026 | 57.6 | 51.1 | – | – |
+| StreamVLN | 2025 | 56.9 | 51.9 | 4.98 | 64.2 |
+| MapNav | 2025 | 53.0 | 39.7 | – | – |
+
+注：NavFoM 为单视角 VLN-CE R2R 结果；DualVLN 与 StreamVLN 为同口径单视角对比。
+
+## 离散全景环境（R2R，Val-Unseen）
+
+| 模型 | 年份 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ |
+|:-----|:----:|:----:|:-----:|:----:|:-----:|
+| VLN-Imagine (DUET) | 2025 | ≈80.9 | ≈74.3 | – | – |
+| Uncertainty-Aware Gaussian Map | 2026 | 78.3 | 66 | – | – |
+| R³ | 2026 | 77 | 66 | **2.76** | – |
+| NavGPT-2 | 2024 | 71 | 60 | 3.18 | 80 |
+
+注：VLN-Imagine 在 DUET（基线 79.9 / 73.75）基础上于 val-unseen 约 +1.0 SR / +0.5 SPL，绝对值为估算。
+
+# 具身导航经典论文
 
 ## 1. DualVLN/InternVLN (2025)
 ——Ground Slow, Move Fast
