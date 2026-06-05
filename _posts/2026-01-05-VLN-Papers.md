@@ -16,11 +16,11 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 # VLN 模型性能排行榜
 
-下表汇总本文收录论文在主流 VLN 基准上**公开报告**的核心指标，便于横向对比。指标含义：**SR**（成功率，↑）、**SPL**（路径加权成功率，↑）、**NE**（导航误差，单位米，↓）、**OSR**（Oracle 成功率，↑）。"–" 表示原文未报告该指标，各表按 SR 降序排列。
+下表汇总本文收录论文在主流基准上**公开报告**的核心指标，便于横向对比。指标含义：**SR**（成功率，↑）、**SPL**（路径加权成功率，↑）、**NE**（导航误差，单位米，↓）、**OSR**（Oracle 成功率，↑）。"–" 表示原文未报告该指标，各表按 SR 降序排列。
 
-> ⚠️ **不同基准不可直接混比**：离散全景环境（discrete R2R，DUET / HAMT 体系，全景 RGB-D）与连续环境（R2R-CE / VLN-CE，机器人第一视角逐步控制）任务设定不同，SR 数值不可跨表直接比较，故分两表列出。
+> ⚠️ **不同基准不可直接混比**：本文论文覆盖三类任务设定——指令跟随·连续环境（R2R-CE / VLN-CE，机器人第一视角逐步控制）、指令跟随·离散全景（R2R / REVERIE，DUET / HAMT 体系全景 RGB-D）、目标导航（ObjectNav / 实例图像导航，HM3D / MP3D / Gibson 等）。三者任务定义不同，SR 数值不可跨表比较，故分表列出。NE / OSR 仅在 R2R 系列基准中定义。
 
-## 连续环境（R2R-CE / VLN-CE，Val-Unseen）
+## ① 指令跟随 · 连续环境（R2R-CE / VLN-CE，Val-Unseen）
 
 | 模型 | 年份 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ |
 |:-----|:----:|:----:|:-----:|:----:|:-----:|
@@ -28,13 +28,14 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | NavFoM | 2025 | 64.9 | 56.2 | – | – |
 | DGNav | 2026 | 64.82 | 50.08 | – | – |
 | DualVLN | 2025 | 64.3 | 58.5 | **4.05** | **70.7** |
+| VLN-Cache | 2026 | 63.1 | 57.6 | – | – |
 | BudVLN | 2026 | 57.6 | 51.1 | – | – |
 | StreamVLN | 2025 | 56.9 | 51.9 | 4.98 | 64.2 |
 | MapNav | 2025 | 53.0 | 39.7 | – | – |
 
-注：NavFoM 为单视角 VLN-CE R2R 结果；DualVLN 与 StreamVLN 为同口径单视角对比。
+注：NavFoM 为单视角 VLN-CE R2R 结果；DualVLN 与 StreamVLN 为同口径单视角对比；VLN-Cache 为对 DualVLN 的加速方案，几乎无损（基线 64.3 / 58.5）。
 
-## 离散全景环境（R2R，Val-Unseen）
+## ② 指令跟随 · 离散全景（R2R，Val-Unseen）
 
 | 模型 | 年份 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ |
 |:-----|:----:|:----:|:-----:|:----:|:-----:|
@@ -42,8 +43,26 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | Uncertainty-Aware Gaussian Map | 2026 | 78.3 | 66 | – | – |
 | R³ | 2026 | 77 | 66 | **2.76** | – |
 | NavGPT-2 | 2024 | 71 | 60 | 3.18 | 80 |
+| NavGPT (零样本 GPT-4) | 2024 | 34 | 29 | – | 42 |
 
-注：VLN-Imagine 在 DUET（基线 79.9 / 73.75）基础上于 val-unseen 约 +1.0 SR / +0.5 SPL，绝对值为估算。
+注：VLN-Imagine 在 DUET（基线 79.9 / 73.75）基础上于 val-unseen 约 +1.0 SR / +0.5 SPL，绝对值为估算。REVERIE 基准另用 RGS / RGSPL 指标：R³ 为 53.76 / 42.14 / 37.94 / 29.86（SR/SPL/RGS/RGSPL），Uncertainty-Aware Gaussian Map 的 RGS / RGSPL 为 37.65 / 27.01。
+
+## ③ 目标导航 / 实例图像导航（ObjectNav / IIN）
+
+| 模型 | 年份 | 基准 | SR ↑ | SPL ↑ |
+|:-----|:----:|:----:|:----:|:-----:|
+| Hydra-Nav | 2026 | HM3D | **84.8** | 28.8 |
+| VLFM | 2023 | Gibson | 84.0 | 52.2 |
+| SysNav | 2026 | HM3D-v2 | 80.8 | 37.2 |
+| GaussNav | 2025 | HM3D（实例图像） | 72.5 | 57.8 |
+| LagMemo | 2025 | GOAT-Core | 70.8 | – |
+| VLFM | 2023 | HM3D | 52.5 | 30.4 |
+| NavFoM | 2025 | HM3D-OVON | 45.2 | – |
+| PanoNav | 2025 | HM3D | 43.5 | 23.7 |
+
+注：各行基准数据集 / 任务不同（HM3D-v1 与 v2、Gibson、OVON、GOAT、实例图像导航 IIN 等口径各异），SR 不可直接横比；ObjectNav 系列不定义 NE / OSR。SysNav 同时报告 HM3D-v1（63.7 / 30.5）、MP3D（50.7 / 18.1）、HM3D-OVON（54.9 / 26.1）；VLFM 另有 MP3D（36.4 / 17.5）。
+
+> **说明**：以下论文因评测于真实世界 / 自建或非标准基准（如 NavDP、Open-Nav、SparseVideoNav、CausalNav、VLingNav、VL-Nav 等），或属运动控制 / 操作 / 生成等非导航指标任务（Skill-Nav、RoboClaw、ABot-Claw 等），或为依赖性基础工作，未列入上述指标表。详见各自章节。
 
 # 具身导航经典论文
 
