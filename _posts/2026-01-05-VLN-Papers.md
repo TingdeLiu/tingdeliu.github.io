@@ -18,7 +18,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 > ⚠️ **不同基准不可直接混比**：本文论文覆盖三类任务设定——指令跟随·连续环境（分为单语言 R2R-CE 与多语言 RxR-CE，机器人第一视角逐步控制）、指令跟随·离散全景（R2R / REVERIE，DUET / HAMT 体系全景 RGB-D）、目标导航（ObjectNav / 实例图像导航，HM3D / MP3D / Gibson 等）。它们任务定义或基准不同，SR 数值不可跨表比较，故分表列出。NE / OSR 仅在 R2R 系列基准中定义。
 
-## ① 指令跟随 · 连续环境 - 英文（R2R-CE，Val-Unseen）
+## ① 指令跟随 · 连续环境 - 英文
 
 | 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ |
 |:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|
@@ -37,7 +37,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 注：NavFoM 为单视角 VLN-CE R2R 结果；DualVLN 与 StreamVLN 为同口径单视角对比；VLN-Cache 为对 DualVLN 的加速方案，几乎无损（基线 64.3 / 58.5）。
 
-## ② 指令跟随 · 连续环境 - 多语言（RxR-CE，Val-Unseen）
+## ② 指令跟随 · 连续环境 - 多语言
 
 | 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ |
 |:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|
@@ -50,7 +50,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 注：RynnBrain-Nav-8B 指标来自 RxR-CE（R2R 结果未详述）；Dual-Anchoring 与 StreamVLN 基线（52.9%）对比来自 Dual-Anchoring 原文。
 
-## ③ 指令跟随 · 离散全景（R2R，Val-Unseen）
+## ③ 指令跟随 · 离散全景
 
 | 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ |
 |:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|
@@ -66,7 +66,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 注：VLN-Imagine 在 DUET（基线 79.9 / 73.75）基础上于 val-unseen 约 +1.0 SR / +0.5 SPL，绝对值为估算。GSA-R2R 区分住宅（ID，Test-R-Basic）与非住宅（OOD，Test-N-Basic）场景，Slow4fast-VLN 相对 GR-DUET 性能有所提升。REVERIE 基准另用 RGS / RGSPL 指标：R³ 为 53.76 / 42.14 / 37.94 / 29.86（SR/SPL/RGS/RGSPL），Uncertainty-Aware Gaussian Map 的 RGS / RGSPL 为 37.65 / 27.01。
 
-## ④ 目标导航 / 实例图像导航（ObjectNav / IIN）
+## ④ 目标导航 / 实例图像导航
 
 | 模型 | 年份 | 基准 | SR ↑ | SPL ↑ |
 |:-----|:----:|:----:|:----:|:-----:|
