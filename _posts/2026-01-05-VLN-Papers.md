@@ -54,13 +54,17 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 | 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ |
 |:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|
-| VLN-Imagine (DUET) | 2025 | R2R | ≈80.9 | ≈74.3 | – | – |
+| VLN-Imagine (DUET) | 2025 | R2R | **≈80.9** | **≈74.3** | – | – |
 | Uncertainty-Aware Gaussian Map | 2026 | R2R | 78.3 | 66 | – | – |
 | R³ | 2026 | R2R | 77 | 66 | **2.76** | – |
 | NavGPT-2 | 2024 | R2R | 71 | 60 | 3.18 | 80 |
+| Slow4fast-VLN | 2026 | GSA-R2R (ID) | 70.8 | 65.0 | 2.9 | – |
+| GR-DUET | 2024 | GSA-R2R (ID) | 69.3 | 64.3 | 3.1 | – |
+| Slow4fast-VLN | 2026 | GSA-R2R (OOD) | 58.4 | 52.9 | 4.2 | – |
+| GR-DUET | 2024 | GSA-R2R (OOD) | 56.6 | 51.5 | 4.4 | – |
 | NavGPT (零样本 GPT-4) | 2024 | R2R | 34 | 29 | – | 42 |
 
-注：VLN-Imagine 在 DUET（基线 79.9 / 73.75）基础上于 val-unseen 约 +1.0 SR / +0.5 SPL，绝对值为估算。REVERIE 基准另用 RGS / RGSPL 指标：R³ 为 53.76 / 42.14 / 37.94 / 29.86（SR/SPL/RGS/RGSPL），Uncertainty-Aware Gaussian Map 的 RGS / RGSPL 为 37.65 / 27.01。
+注：VLN-Imagine 在 DUET（基线 79.9 / 73.75）基础上于 val-unseen 约 +1.0 SR / +0.5 SPL，绝对值为估算。GSA-R2R 区分住宅（ID，Test-R-Basic）与非住宅（OOD，Test-N-Basic）场景，Slow4fast-VLN 相对 GR-DUET 性能有所提升。REVERIE 基准另用 RGS / RGSPL 指标：R³ 为 53.76 / 42.14 / 37.94 / 29.86（SR/SPL/RGS/RGSPL），Uncertainty-Aware Gaussian Map 的 RGS / RGSPL 为 37.65 / 27.01。
 
 ## ④ 目标导航 / 实例图像导航（ObjectNav / IIN）
 
@@ -68,16 +72,29 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 |:-----|:----:|:----:|:----:|:-----:|
 | Hydra-Nav | 2026 | HM3D | **84.8** | 28.8 |
 | VLFM | 2023 | Gibson | 84.0 | 52.2 |
+| VLingNav | 2026 | HM3D-v2 | 83.0 | 40.5 |
 | SysNav | 2026 | HM3D-v2 | 80.8 | 37.2 |
+| WAM-Nav | 2026 | Clutter/Intern (Point-Goal) | 80.4 | 78.0 |
+| 3DGSNav | 2026 | HM3D-v1 | 80.0 | **51.8** |
+| VLingNav | 2026 | HM3D-v1 | 79.1 | 42.9 |
+| NavDP | 2025 | Clutter/Intern (Point-Goal) | 77.8 | 74.8 |
+| 3DGSNav | 2026 | HM3D-v2 | 75.0 | 44.2 |
 | GaussNav | 2025 | HM3D（实例图像） | 72.5 | 57.8 |
 | LagMemo | 2025 | GOAT-Core | 70.8 | – |
+| GSMem | 2025 | GOAT-Bench | 67.2 | 46.9 |
+| VLingNav | 2026 | HM3D (实例图像) | 60.8 | 37.4 |
+| VLingNav | 2026 | MP3D | 58.9 | 26.5 |
 | VLFM | 2023 | HM3D | 52.5 | 30.4 |
+| WAM-Nav | 2026 | Clutter/Intern (Image-Goal) | 50.2 | 48.2 |
+| VLingNav | 2026 | HM3D-OVON | 50.1 | 24.6 |
 | NavFoM | 2025 | HM3D-OVON | 45.2 | – |
+| 3DGSNav | 2026 | MP3D | 43.6 | 21.3 |
 | PanoNav | 2025 | HM3D | 43.5 | 23.7 |
+| NavDP | 2025 | Clutter/Intern (Image-Goal) | 43.4 | 41.4 |
 
-注：各行基准数据集 / 任务不同（HM3D-v1 与 v2、Gibson、OVON、GOAT、实例图像导航 IIN 等口径各异），SR 不可直接横比；ObjectNav 系列不定义 NE / OSR。SysNav 同时报告 HM3D-v1（63.7 / 30.5）、MP3D（50.7 / 18.1）、HM3D-OVON（54.9 / 26.1）；VLFM 另有 MP3D（36.4 / 17.5）。
+注：各行基准数据集 / 任务及物理模型不同（HM3D-v1与v2、Gibson、OVON、GOAT、实例图像导航IIN、以及IsaacSim下的Clutter/Intern等口径各异），SR不可直接横比；ObjectNav系列不定义NE/OSR。GSMem的GOAT-Bench为多模态长程导航；WAM-Nav与NavDP的Clutter/Intern包含Image-Goal与Point-Goal两类任务，采用端到端扩散/世界模型高频输出轨迹控制动作。SysNav同时报告HM3D-v1（63.7/30.5）、MP3D（50.7/18.1）、HM3D-OVON（54.9/26.1）；VLFM另有MP3D（36.4/17.5）。
 
-> **说明**：以下论文因评测于真实世界 / 自建或非标准基准（如 NavDP、Open-Nav、SparseVideoNav、CausalNav、VLingNav、VL-Nav 等），或属运动控制 / 操作 / 生成等非导航指标任务（Skill-Nav、RoboClaw、ABot-Claw 等），或为依赖性基础工作，未列入上述指标表。详见各自章节。
+> **说明**：以下论文因评测于真实世界 / 自建或非标准基准（如 Open-Nav、SparseVideoNav、CausalNav、VL-Nav 等），或属运动控制 / 操作 / 生成等非导航指标任务（Skill-Nav、RoboClaw、ABot-Claw 等），或为依赖性基础工作，未列入上述指标表。详见各自章节。
 
 # 具身导航经典论文
 
