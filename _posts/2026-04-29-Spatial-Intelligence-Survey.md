@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "空间智能综述：从三维感知到空间推理"
 date: 2026-06-04
@@ -111,7 +111,7 @@ graph TD
 
 **关键里程碑**：
 - **2015–2017**：PointNet 奠定了直接在无序点云上进行深度学习的基础，开启了三维深度学习新纪元。
-- **2018–2020**：VoxelNet、PointPillars 推动了自动驾驶 LiDAR 感知商业化；NeRF 的提出彻底改变了三维重建技术范式。
+- **2018–2020**：VoxelNet、SECOND、PointPillars 推动了自动驾驶 LiDAR 感知商业化；NeRF 的提出彻底改变了三维重建技术范式。
 - **2021–2022**：Transformer 架构被引入三维感知（Point Transformer、DETR3D、BEVFormer），性能大幅提升；Instant-NGP 将 NeRF 训练时间压缩至秒级。
 - **2023**：3D Gaussian Splatting 实现实时高质量渲染；3D-LLM、EmbodiedScan 将语言模型与三维场景理解结合。
 - **2024–2025**：Depth Anything、SpatialVLM、DUSt3R、Uni3D 等工作推动空间感知基础模型形成；VGGT（CVPR 2025 Best Paper）以单次前馈同时输出相机参数、深度、点图与点轨迹，标志空间智能正式进入"前馈三维基础模型"新阶段。
@@ -545,10 +545,22 @@ graph TD
 
 ## 4.4 三维目标检测与场景理解
 
-### VoxelNet 与 PointPillars
-**VoxelNet**（Zhou & Tuzel, CVPR 2018）是第一个端到端直接从激光雷达点云学习三维目标检测的框架。它将点云体素化，在每个非空体素内用 VFE（Voxel Feature Encoding）层提取局部特征，再通过三维卷积骨干网络和 RPN 完成检测，消除了人工特征工程。
+### VoxelNet, SECOND 与 PointPillars
+**VoxelNet**（Zhou & Tuzel, CVPR 2018）是第一个端到端直接从激光雷达点云学习三维目标检测的框架。它将点云体素化，在每个非空体素内用 VFE（Voxel Feature Encoding）层提取局部特征，再通过三维卷积骨干网络和 RPN 完成检测，消除了人工特征工程。然而，由于使用常规稠密三维卷积，其计算与显存开销极大，限制了其实时性。
 
-**PointPillars**（Lang et al., CVPR 2019）将体素化替换为"柱状（Pillar）"编码——沿高度方向将点云压缩为二维伪图像，用高效 2D CNN 处理，推理速度提升至 62 FPS（GPU）。PointPillars 在速度与精度之间取得了优秀的工程平衡，成为工业界自动驾驶 LiDAR 感知的主流基线。
+<div align="center">
+  <img src="/images/si/voxelnet_architecture.png" width="90%" />
+<figcaption>VoxelNet 架构 </figcaption>
+</div>
+
+**SECOND**（Sparsely Embedded Convolutional Detection，Yan et al., Sensors 2018）针对 VoxelNet 常规三维卷积的高昂开销，引入了**稀疏卷积（Sparse Convolution）**与流形稀疏卷积（Submanifold Sparse Convolution），仅在非空体素上进行卷积计算，大幅提升了训练和推理速度，并改进了角度回归损失函数，使基于体素的方法真正具备了实用价值。
+
+<div align="center">
+  <img src="/images/si/SECOND_architecture.jpg" width="90%" />
+<figcaption>SECOND 架构 </figcaption>
+</div>
+
+**PointPillars**（Lang et al., CVPR 2019）则更进一步，将体素化简化为"柱状（Pillar）"编码——沿高度方向将点云压缩为二维伪图像，从而用高效的 2D CNN 代替了 3D 卷积（无论是稠密还是稀疏），推理速度提升至 62 FPS（GPU）。PointPillars 在速度与精度之间取得了极佳的工程平衡，成为自动驾驶 LiDAR 感知领域经典的工业界基线。
 
 **核心特点**：
 - 体素/柱状编码将无序点云转化为规则特征图，兼容成熟的 2D/3D CNN 框架。
