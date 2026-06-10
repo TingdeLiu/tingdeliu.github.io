@@ -1739,6 +1739,99 @@ graph TD
 
 ---
 
+## 6.11 LLaVA-3D (2024)
+——— 简单高效地为多模态大模型赋予三维空间感知能力
+
+📄 **Paper**: [arXiv:2409.18125](https://arxiv.org/abs/2409.18125)
+
+### 精华
+- 证明了直接在成熟的 2D 多模态大模型上通过添加 3D 位置编码与联合微调，即可高效实现强大的 3D 场景理解，无需从头训练 3D 编码器。
+- 巧妙利用 RGB-D 深度图与相机内外参，将 2D视觉特征（CLIP Patches）与 3D 空间绝对坐标进行加法融合，构建极简的 “3D Patches” 表征。
+- 验证了视频预训练多模态大模型（如 LLaVA-Video）在多视图 3D 表征上的天然亲和力，使其在收敛速度和 3D 问答上表现出卓越性能。
+- 设计了轻量级的 Grounding Decoder 结构，解耦了高阶语义推理与低阶几何框预测，成功避开了 LLM 不擅长生成精确坐标文本的问题。
+- 采用 2D 与 3D 数据的联合微调策略，在显著提升 3D 空间智能的同时，完全保留了原始模型优异 2D 理解与对话能力。
+
+---
+
+### 1. 研究背景/问题
+- **核心问题**：现有的 3D 多模态大模型（3D LMMs）发展受限于大规模 3D 视觉-语言数据集的稀缺，以及缺乏类似 2D CLIP 那样强大且通用的 3D 点云预训练编码器。
+- **研究动机**：现实世界的具身智能体主要依赖多视角图像（Ego-centric images）进行观测，但现有的 3D LMM 通常依赖复杂的离线 3D 实例分割来提取物体特征，流程繁琐且难以端到端应用。作者旨在利用 2D LMM 的强语义先验，以极简且高效的方式赋予模型 3D 空间智能。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/si/LLaVA-3D-overview.png" width="100%" />
+<figcaption>LLaVA-3D 框架概览，实现高效的 3D 场景理解、更快的收敛速度和推理效率</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/si/LLaVA-3D-architecture.png" width="100%" />
+<figcaption>LLaVA-3D 架构设计，包含 3D Patch 的构建、池化、以及 3D 坐标编解码与 Grounding Decoder</figcaption>
+</div>
+
+**① 整体框架概述**
+LLaVA-3D 框架基于 LLaVA-Video 改进，由 CLIP 图像编码器、2D-to-3D 投影与可学习 3D 位置编码层、免训练的 Token 压缩池化层、LLM 主干网络以及专门的 Grounding Decoder 组成。通过多视图特征与 3D 坐标编码的融合，将 2D 视觉 Token 升级为 3D Patches，在输入 LLM 进行语义推理的同时，使用 Grounding Decoder 解码出高精度的 3D 边界框。
+
+**② 逐模块讲解**
+- **3D Patch 的构建**：
+  - **输入**：多视角 RGB-D 图像及相机内外参。
+  - **处理**：基座模型（LLaVA-Video）使用 CLIP 视觉编码器提取各帧/视图的 2D Patch 特征，并通过线性层投影到 LLM 嵌入空间。同时，根据对应的深度图和相机参数，将每个 2D 像素 Patch 投影到 3D 空间，得到其 3D 世界坐标 $P \in \mathbb{R}^{V \times 3 \times w \times h}$。接着，使用一个由两层 MLP 构成的可学习 3D 位置编码层，将 3D 坐标转换为 3D 位置嵌入 $P' \in \mathbb{R}^{V \times d \times w \times h}$。最后，将 3D 位置嵌入与投影后的 2D 视觉 Token 直接相加，输出 3D Patches $X'_{3D} = X'_p + P'$。
+  - **设计动机**：在保留 2D CLIP 强视觉-语义对齐特性的同时，赋予其显式的 3D 空间几何信息，避免了构建繁重的三维点云或体素网格的开销。
+- **3D Patch Pooling 机制**：
+  - **输入**：多视角图像生成的高密度 3D Patches（其数量随视图数线性增长）。
+  - **处理**：为了降低输入 LLM 的 Token 数量，引入了两种免训练的池化策略：
+    1. **体素化池化（Voxelization Pooling）**：将 3D 空间离散化为三维网格，将落在同一占用体素内的 3D Patches 进行均值池化，仅保留被占用体素的 Token。
+    2. **最远点采样池化（FPS Pooling）**：使用最远点采样算法，从所有 3D Patches 中均匀采样固定数量（如 $N$ 个）的代表性 Token。
+  - **设计动机**：有效降低 LLM 上下文长度，保障计算效率，同时通过 3D 空间分布规律最大程度地保留场景的几何和空间结构。
+- **3D 坐标的编码与解码**：
+  - **输入**：用户指令中包含的 3D 坐标（如密集物体描述任务），或 LLM 用于指导预测的隐状态。
+  - **处理**：
+    - **编码端**：用户指令中的 3D 坐标通过 3D 位置编码层转化为 3D Coordinate Token，与 text tokens、3D patch tokens 共同输入 LLM，协助空间敏感的文本生成。
+    - **解码端（Grounding Decoder）**：直接让 LLM 输出 3D 边界框文本坐标极其困难。因此，LLaVA-3D 设计了 Grounding Decoder。首先从 3D Patches 中通过 FPS 采样一组 Instance Queries。在每个 Decoder 层中，Instance Queries 与 3D Patch 特征进行 Cross-Attention，并使用多尺度 3D k-NN 注意力和相对位置编码建模局部几何。随后，更新后的 Queries 与 LLM 提取的 Location Token 拼接，利用距离自适应自注意力（Distance-adaptive Self-Attention）捕获相对位置，最终输入 Grounding Head 预测 3D 边界框。
+  - **设计动机**：解耦高级语义理解与低级边界框预测，让 LLM 专注文本推理，Decoder 专注三维几何预测，解决 LLM 直接预测坐标时精度低下的难题。
+
+**③ 端到端数据流**
+输入的多个视角 RGB 帧及其深度图首先输入视觉模块，结合相机投影几何提取出对应的 3D Patches。接着，根据需要执行 3D Patch Pooling 以压缩序列长度。将压缩后的 3D 视觉 Token 与文本 Token 拼接，输入 LLM 进行自回归语言推理。若当前任务包含 3D 定位输出，LLM 输出的特定位置隐状态将与 3D Patches 共同被送入 Grounding Decoder，并最终解码出 3D 边界框。
+
+**④ 训练目标 / 损失函数**
+- 训练分为两阶段：
+  - **第一阶段：多任务联合微调（Multi-Task Instruction Tuning）**：混合 3D QA、3D Captioning 等 3D 数据（LLaVA-3D-Instruct-86K）与原 LLaVA-Video 的 2D 视频微调数据。整体损失包含文本自回归损失 $\mathcal{L}_{text}$ 以及 3D 边界框预测损失（GIoU 损失与 $L_1$ 框回归损失之和 $\mathcal{L}_{box}$）：
+    $$\mathcal{L} = \mathcal{L}_{text} + \lambda \mathcal{L}_{box}$$
+  - **第二阶段：仅微调解码器（Decoder-only Fine-tuning）**：冻结 LLM 和位置编码层，仅在 3D 视觉定位数据上继续训练 Grounding Decoder 几个 epoch，以加速边界框预测部分的收敛。
+
+**⑤ 推理流程**
+推理时除了支持标准的文本和图像问答外，模型还支持交互式理解。用户可在 2D 图像或视频帧中点击特定像素，点击位置通过相机几何投影至 3D 空间生成 3D Coordinate Token，指导模型对特定物体生成 3D 边界框及详细的描述文本。
+
+<div align="center">
+  <img src="/images/si/LLaVA-3D-dataset.png" width="100%" />
+<figcaption>LLaVA-3D-Instruct-86K 混合 3D 语料的数据分布与细节</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/si/LLaVA-3D-interaction.png" width="100%" />
+<figcaption>LLaVA-3D 支持的点击式（Click-based）三维问答和描述交互示例</figcaption>
+</div>
+
+---
+
+### 3. 核心结果/发现
+- **极快的训练收敛速度**：相比于从头训练 3D 编码器并进行对齐的 3D LMM，得益于强大的 2D 大模型先验，LLaVA-3D 在 3D 数据集上的收敛速度提升了 **3.5 倍**。
+- **各项 3D 任务显著超越 SOTA**：
+  - 在 3D QA 上，**ScanQA** (103.1 CIDEr)、**SQA3D** (60.1 EM@1) 分别创造了全新纪录，显著优于 LEO (101.4/50.0) 和 LL3DA (76.8/-).
+  - 在 3D Dense Captioning 上，**Scan2Cap** (84.1 C@0.5) 和 **MMScan Captioning** (78.8 Overall) 达到最先进水平，其中在颜色和设计维度的描述精度分别提升了 49.5% 和 43.3%。
+  - 在 3D 视觉定位上，单阶段模式的 **ScanRefer** (50.1 Acc@0.25) 和 **Multi3DRefer** (49.8 Acc@0.25) 表现极为优异，逼近复杂的两阶段模型。
+- **保留原始 2D 理解能力**：联合训练使模型在 MVBench (58.1 vs. 58.6) 和 VideoMME (62.8 vs. 63.3) 2D 视频测试中几乎与 LLaVA-Video 保持一致，有效避免了严重遗忘。
+
+---
+
+### 4. 局限性
+- 高度依赖高质量的 RGB-D 深度图以及精确的相机标定参数。在复杂未知的现实场景中，深度估计的累积误差或粗糙的标定会导致 3D Coordinate 映射偏移，进而影响 3D Patches 构建的准确度。
+- Grounding Decoder 的收敛无法在第一阶段单 epoch 训练中完美解决，当前仍需要分阶段的独立微调步骤。
+
+---
+
 # 7. 总结与展望
 
 空间智能是迈向具身通用人工智能的核心能力之一。本文系统梳理了从基础离散几何学习到最新的大模型驱动空间推理的技术路径。
