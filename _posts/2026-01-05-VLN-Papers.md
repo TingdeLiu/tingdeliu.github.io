@@ -92,7 +92,10 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [GaussNav](#gaussnav) | 2025 | HM3D（实例图像） | 72.5 | 57.8 |
 | [LagMemo](#lagmemo) | 2025 | GOAT-Core | 70.8 | – |
 | [GSMem](#gsmem) | 2025 | GOAT-Bench | 67.2 | 46.9 |
+| [EvoMemNav](#evomemnav) | 2026 | HM3D-v2 | 63.8 | 39.4 |
 | [VLingNav](#vlingnav) | 2026 | HM3D (实例图像) | 60.8 | 37.4 |
+| [EvoMemNav](#evomemnav) | 2026 | GOAT-Bench | 59.6 | 38.9 |
+| [EvoMemNav](#evomemnav) | 2026 | HM3D-v1 | 59.2 | 33.6 |
 | [VLingNav](#vlingnav) | 2026 | MP3D | 58.9 | 26.5 |
 | [VLFM](#vlfm) | 2023 | HM3D | 52.5 | 30.4 |
 | [WAM-Nav](#wam-nav) | 2026 | Clutter/Intern (Image-Goal) | 50.2 | 48.2 |
@@ -4995,6 +4998,121 @@ MoE 架构（30B-A3B）在 VLN 任务上未能超越 8B Dense 模型，稀疏激
 
 ---
 
+## 51. EvoMemNav (2026) {#evomemnav}
+——— 零样本具身导航中基于轻量化图先验与多视图反思的高效自进化细粒度拓扑记忆框架
+
+📄 **Paper**: [arXiv:2606.03509](https://arxiv.org/abs/2606.03509v1)
+
+### 精华
+
+1. **纯视觉记忆设计**：提出视觉-语义记忆图（VSMGraph），将原始视觉视图（View）作为一等公民（first-class）存储在图节点中，避免了传统检测中心化场景图的信息压缩与噪声积累，且无需高昂的 3D 重建开销。
+2. **预算受限的粗到细决策（Budgeted Coarse-to-Fine）**：将决策分解为粗阶段（Explore，过滤并路由至前沿或锚点）和细阶段（Search+Verify，仅针对短名单进行 VLM 决策和多视图 Stop 验证），在降低 VLM 延迟与 Token 数的同时，解决了同类多实例歧义和过早停止（premature stop）问题。
+3. **反思驱动的自进化记忆（RDCMA）**：设计了一种无需训练的在线先验更新机制，在子任务结束后通过评估轨迹事件与停止结果，更新附着于图节点上的轻量级目标条件先验（Episode-STM 和 Scene-LTM），指导后续决策。
+4. **开箱即用且高效通用**：在 GOAT-Bench 和 HM3D 上取得显著的 SR/SPL 提升，相比 3D-Mem 表现更佳，同时 VLM 调用次数减少了 41%，总耗时缩短了 39%，且无需任何权重训练或微调。
+
+---
+
+### 1. 研究背景/问题
+
+在长程零样本具身导航（Zero-Shot Embodied Navigation）中，建立能够支撑长期规划的记忆系统至关重要。然而，现有的记忆表征方案存在以下局限性：
+1. **基于检测器的场景图（Detector-centric Scene Graphs）**：将观测压缩成稀疏的对象节点，会丢弃纹理、空间布局等细粒度视觉线索，且检测器的错误（如类别噪声）会在下游推理中累积，导致决策失误。
+2. **基于 3D 重建的记忆方法（3D-reconstruction-based Memory）**：在运行时会产生高昂的计算和存储开销，且与只能直接推理图像的强大 VLM 不兼容。
+3. **基于图像的拓扑图缓存（Image-based Topological Graphs）**：缺乏房间、前沿或可达性的结构化组织，容易在同类别物体的多实例场景中混淆，导致在错误的实例前过早停下（Premature Stop），且记忆缺乏演进能力，失败教训无法复用。
+
+---
+
+### 2. 主要方法/创新点
+
+#### 整体框架概述
+EvoMemNav 由三个核心部分构成：构建于 occupancy grid 上的层次化拓扑记忆图（VSMGraph）、双阶段“粗到细”导航控制器（Coarse-to-Fine Policy）以及无训练的反思驱动在线自进化先验模块（RDCMA）。系统在每个时间步接收 posed RGB-D 观测，更新拓扑图；导航决策时，由粗决策进行候选过滤并导航，随后利用 VLM 进行细粒度的精确路由与多视图 Stop 验证；子任务结束时，反思机制将结果写回图中的轻量化统计量（STM/LTM），以指导未来的导航。
+
+<div align="center">
+  <img src="/images/vln/EvoMemNav-overview.png" width="100%" />
+<figcaption>EvoMemNav 核心理念与流程总览（VSMGraph、粗到细导航决策、反思写入）</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vln/EvoMemNav-framework.png" width="100%" />
+<figcaption>EvoMemNav 详细框架：包含基于图像的 VSMGraph 拓扑记忆图、受预算限制的“粗到细”导航决策系统，以及反思驱动的在线自进化先验写入策略</figcaption>
+</div>
+
+#### 逐模块讲解
+
+**① 视觉-语义记忆图 (VSMGraph) 构建**
+- **输入**：posed RGB-D 观测流 $I_t = \langle I_t^{rgb}, I_t^{depth}, p_t \rangle$ 和作为度量支撑的二维占用网格（occupancy grid）$M_t$。
+- **处理**：在线在占用网格上添加沿着机器人运动轨迹的视图节点，并根据无碰撞路径建立可达性边（navigability edges）。通过轻量级目标检测模型（YOLOv8-World & SAM）维护一个 3D 目标候选缓存 $O_{map}$，但它仅用于给视图节点添加“目标可见性”的弱标签（visibility edges），并不用于压缩图像信息。视图节点被划分为：
+  - **锚点视图 (Anchor Views)** $V_{A,t}$：富含物体观测的已探索区域，存储原始图像、位姿及可见的目标弱标签。
+  - **前沿视图 (Frontier Views)** $V_{F,t}$：位于探索边界的未探索区域，连接至最近的已探索视图，代表可探索的前沿方向。
+  同时，利用 CLIP 提取房间类别对每个视图进行分类 $\rho_v$，形成“房间-视图-物体”（Room-View-Object）的层次化拓扑图。
+- **输出**：图结构 $G_t = (R_t, V_t, O_t, E_t)$。
+- **设计动机**：以原始视图作为一等公民记忆，完全保留细粒度细节供 VLM 进行直接的图像级分析验证，避免检测误差引起的硬分类错误；同时，利用拓扑边和房间类别软标签加速检索。
+
+<div align="center">
+  <img src="/images/vln/EvoMemNav-vsmgraph.png" width="100%" />
+<figcaption>VSMGraph 构建过程：基于拓扑关系和房间-视图-物体层次化结构组织视觉信息</figcaption>
+</div>
+
+**② 预算受限的粗到细导航决策（Coarse-to-Fine Policy）**
+- **输入**：多模态目标 $g$、当前拓扑图 $G_t$。
+- **处理**：
+  - **粗阶段 (Explore - 候选压缩与路由)**：从大量的锚点和前沿视图中过滤，仅保留最相关的 Top-K 个候选（锚点候选集 $C_t^A$ 预算限制为 $K_A$，前沿候选集 $C_t^F$ 预算限制为 $K_F$）。候选通过房间类别关联和轻量目标命中进行初步筛选。如果锚点集为空，则直接路由至前沿；若不为空，则进入细阶段。
+  - **细阶段 (Search+Verify - 局部选择与验证)**：将过滤后的候选池 $C_t = C_t^A \cup C_t^F$ 输入给 VLM（Qwen3-VL-8B），VLM 只需对这个精简的短名单进行单步推理：
+    $$a_t, \sigma_t = \text{VLM}(g, C_t)$$
+    其中 $a_t$ 是选择的目标点，$\sigma_t \in \{\text{certain}, \text{uncertain}, \text{unknown}\}$ 为置信度。若 VLM 选择锚点视图但置信度不足（`uncertain`/`unknown`），系统会强制降级为前沿探索以避免盲目决策。
+  - **验证步骤 (Verify - 多视图停止验证)**：当智能体抵达选择的锚点视图时，不立即停止，而是调用 VLM 结合智能体在当前位置的多角度视图进行最终的多视图 Stop 验证，返回 `STOP` 或 `RESELECT`。如果判定为 `RESELECT`，则将当前锚点拉入冷却队列并重新回到粗阶段，防止由于局部视野限制而产生的过早停止错误。
+  - **恢复机制 (Recover)**：如果检测到死锁或多次冷却，会触发 Recover 机制，强制智能体进行一段时间的纯前沿探索。
+- **输出**：下一个运动路径终点或 `STOP` 指令。
+- **设计动机**：用粗筛选控制 VLM 的计算开销（避免对全图检索的 Token 爆炸），同时在局部进行多视角图像级的细粒度对比，提高多实例判别的准确度。
+
+**③ 反思驱动在线记忆自适应 (RDCMA)**
+- **输入**：历史子任务的运动轨迹事件（如常去的房间、探索受阻的前沿、环路检测等）以及多视图验证结果（STOP / RESELECT）。
+- **处理**：任务结束时，将结果以目标条件签名 $s_g$（类别或模态）归纳为轻量化统计先验，写回图结构中附着于对应的房间/视图/前沿节点：
+  - **短时记忆 (Episode-STM)**：缓存当前 episode 内的避障与路径惩罚信息，避免在一个任务中反复打转，在 episode 结束时重置。
+  - **长时记忆 (Scene-LTM)**：记录房间中特定物体的支持概率（例如，厨房更容易有冰箱）和特定锚点的停止可靠度，长效留存，跨子任务复用。
+  在 Explore 阶段，这些先验以“加权平局决胜（tie-breakers）”的方式调整过滤后的候选排序，指导探索方向；在 Verify 阶段，作为 hint 输入给 VLM 提示当前区域此前是否曾被成功验证过。
+  通过指数衰减（exponential decay）来淘汰陈旧先验，且仅保留 Top-K 项并对冲突先验进行抑制。
+- **输出**：图附着的记忆先验。
+- **设计动机**：实现非参数化的轻量自适应，使得智能体在未知的终身学习任务中能够随着时间“越走越聪明”，越熟悉当前环境，导航成功率越高。
+
+<div align="center">
+  <img src="/images/vln/EvoMemNav-rdcma.png" width="100%" />
+<figcaption>反思驱动在线记忆自适应 (RDCMA) 的运作原理</figcaption>
+</div>
+
+---
+
+### 3. 核心结果/发现
+
+1. **GOAT-Bench 终身多模态导航**：
+   在 GOAT-Bench VAL-UNSEEN 验证集上，EvoMemNav 取得了 **59.6% SR** 和 **38.9% SPL** 的最佳结果（见下表），大幅领先于先前的图像级拓扑记忆方法 3D-Mem（42.6% SR / 22.8% SPL）和 MSGNav（52.0% SR / 29.6% SPL）。
+   
+| 方法 | 类别 | 是否无需训练 | SR (%) ↑ | SPL (%) ↑ |
+|---|---|---|---|---|
+| SenseAct-NN Monolithic [20] | 单体学习型 | ❌ | 12.3 | 6.8 |
+| CLIP on Wheels [20] | 模块化零样本 | ✓ | 16.1 | 10.4 |
+| Modular GOAT [20] | 模块化零样本 | ✓ | 24.9 | 17.2 |
+| TANGO [28] | 模块化零样本 | ✓ | 32.1 | 16.5 |
+| 3D-Mem [46] | 模块化拓扑 | ✓ | 42.6 | 22.8 |
+| MSGNav [17] | 模块化拓扑 | ✓ | 52.0 | 29.6 |
+| **EvoMemNav (Ours)** | **模块化拓扑 (自进化)** | **✓** | **59.6** | **38.9** |
+
+2. **HM3D ObjectGoal 导航**：
+   在纯目标导航（ObjectGoal）的 HM3D 任务上，EvoMemNav 在 HM3Dv1（59.2% SR / 33.6% SPL）和 HM3Dv2（63.8% SR / 39.4% SPL）上均创下或逼近了免训练方法的最高水准。
+   
+3. **消融实验与效率分析**：
+   - 相比于完全不带有 coarse 筛选的拓扑 baseline，加入 VSMGraph 使 SR 提升了 7.2%，而粗筛选（Coarse）模块直接带来了 **+11.6%** 的巨大 SR 跃升，是性能提升的主要因素。
+   - 反思模块 RDCMA 使整体 SR 进一步提升了 4.0%（从 60.8% 提升至 64.8%），并且这种增益在第 3 至第 5 个子任务（Mid subtasks）中最为明显，说明随着记忆在场景中的不断写入和演进，智能体表现越发稳健。
+   - 相比于 3D-Mem，得益于粗阶段的决策短名单机制，VLM 调用次数从 10.7 次降至 6.5 次（减少 39%），单次子任务的耗时从 102.2s 骤降至 58.7s（降低 42.5%），实现了性能与效率的完美兼顾。
+
+---
+
+### 4. 局限性
+
+1. **多模态目标识别依然受限于感知模块**：尽管使用 VSMGraph 规避了下游推理对目标检测框的绝对依赖，但粗筛选阶段生成 soft tags 仍需依靠 YOLOv8-World 和 SAM 等 2D 检测器。在极其嘈杂或低光照环境下，若检测标签完全丢失或偏离，可能导致过滤时的 Top-K 列表中漏掉正确的锚点，从而拖累粗筛选的准确性。
+2. **反思先验的表达与检索粒度仍可优化**：目前的 RDCMA 先验写入是通过对离散的 CLIP 房间类型和停止事件做简单的支持度与错误率计数来实现的。对于极其复杂、分布非常离散的房间结构或者开箱即用的大规模开放世界，简单的图计数可能会面临记忆冲突问题，未来可考虑融入基于小规模向量嵌入的非参数化情境记忆检索。
+
+---
+
 # 参考资料
 
 ## 论文
@@ -5047,6 +5165,7 @@ MoE 架构（30B-A3B）在 VLN 任务上未能超越 8B Dense 模型，稀疏激
 46. **HSGM** (2026). 层级式语义-几何地图，填补 VLM 2D 视觉与 3D 空间推理及运动规划的鸿沟. arXiv: [2606.00095](https://arxiv.org/abs/2606.00095)
 47. **OneVLA: A Unified Framework for Embodied Tasks** (2026). 首个在单一网络与动作头下统一具身导航和操作的 VLA 模型. arXiv: [2606.01241](https://arxiv.org/abs/2606.01241)
 48. **CA-VLN** (2026). 基于双智能体协作的多模态大模型具身导航框架.
+49. **EvoMemNav** (2026). 零样本具身导航中基于轻量化图先验与多视图反思的高效自进化细粒度拓扑记忆框架. arXiv: [2606.03509](https://arxiv.org/abs/2606.03509)
 
 <script>
 (function () {
@@ -5101,6 +5220,7 @@ MoE 架构（30B-A3B）在 VLN 任务上未能超越 8B Dense 模型，稀疏激
         { m: 'HSGM',                  t: ['Agent', '拓扑图', '零样本', '连续环境'] },
         { m: 'OneVLA: A Unified Framework for Embodied Tasks', t: ['端到端', '扩散模型', '连续环境', '实机部署'] },
         { m: 'CA-VLN',                t: ['Agent', '拓扑图', '离散环境'] },
+        { m: 'EvoMemNav',             t: ['Agent', '拓扑图', '零样本'] },
     { m: 'VLN-CE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'VLN-PE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'RynnBrain',         t: ['基础工作'] },
