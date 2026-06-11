@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "大语言模型训练综述"
-date:   2026-02-06
+date:   2026-06-11
 tags: [LLM, Deep Learning, NLP, Training, AI]
 categories: research
 comments: true
