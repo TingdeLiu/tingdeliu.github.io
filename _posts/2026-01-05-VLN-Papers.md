@@ -27,7 +27,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [AwareVLN](#awarevln) | 2026 | R2R-CE | 65.4 | 55.1 | **4.02** | **73.5** |
 | [NavFoM](#navfom) | 2025 | R2R-CE | 64.9 | 56.2 | – | – |
 | [DGNav](#dgnav) | 2026 | R2R-CE | 64.82 | 50.08 | – | – |
-| [DualVLN](#dualvln) | 2025 | R2R-CE | 64.3 | 58.5 | **4.05** | 70.7 |
+| [DualVLN](#dualvln) | 2025 | R2R-CE | 64.3 | 58.5 | 4.05 | 70.7 |
 | [VLN-Cache](#vln-cache) | 2026 | R2R-CE | 63.1 | 57.6 | – | – |
 | [JanusVLN](#janusvln) | 2026 | R2R-CE | 60.5 | 56.8 | 4.78 | 65.2 |
 | [BudVLN](#budvln) | 2026 | R2R-CE | 57.6 | 51.1 | – | – |
@@ -47,7 +47,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 |:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|
 | [AwareVLN](#awarevln) | 2026 | RxR-CE | **67.6** | **56.1** | **3.95** | – |
 | [Dual-Anchoring](#dual-anchoring) | 2026 | RxR-CE | 61.7 | 53.3 | – | – |
-| [DualVLN](#dualvln) | 2025 | RxR-CE | 61.4 | 51.8 | **4.58** | – |
+| [DualVLN](#dualvln) | 2025 | RxR-CE | 61.4 | 51.8 | 4.58 | – |
 | [JanusVLN](#janusvln) | 2026 | RxR-CE | 56.2 | 47.5 | 6.06 | – |
 | [RynnBrain-Nav-8B](#rynnbrain) | 2026 | RxR-CE | 56.1 | – | 4.92 | – |
 | [StreamVLN](#streamvln) | 2025 | RxR-CE | 52.9 | – | – | – |
