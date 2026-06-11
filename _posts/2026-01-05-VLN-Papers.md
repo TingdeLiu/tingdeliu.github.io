@@ -22,12 +22,12 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 | 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ |
 |:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|
-| [AwareVLN](#awarevln) | 2026 | R2R-CE | **73.5** | **65.4** | **4.02** | – |
-| [AgentVLN-3B](#agentvln) | 2026 | R2R-CE | 67.2 | 64.7 | – | – |
+| [AgentVLN-3B](#agentvln) | 2026 | R2R-CE | **67.2** | **64.7** | – | – |
 | [Dual-Anchoring](#dual-anchoring) | 2026 | R2R-CE | 65.6 | 62.1 | – | – |
+| [AwareVLN](#awarevln) | 2026 | R2R-CE | 65.4 | 55.1 | **4.02** | **73.5** |
 | [NavFoM](#navfom) | 2025 | R2R-CE | 64.9 | 56.2 | – | – |
 | [DGNav](#dgnav) | 2026 | R2R-CE | 64.82 | 50.08 | – | – |
-| [DualVLN](#dualvln) | 2025 | R2R-CE | 64.3 | 58.5 | **4.05** | **70.7** |
+| [DualVLN](#dualvln) | 2025 | R2R-CE | 64.3 | 58.5 | **4.05** | 70.7 |
 | [VLN-Cache](#vln-cache) | 2026 | R2R-CE | 63.1 | 57.6 | – | – |
 | [JanusVLN](#janusvln) | 2026 | R2R-CE | 60.5 | 56.8 | 4.78 | 65.2 |
 | [BudVLN](#budvln) | 2026 | R2R-CE | 57.6 | 51.1 | – | – |
@@ -45,7 +45,8 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 | 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ |
 |:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|
-| [Dual-Anchoring](#dual-anchoring) | 2026 | RxR-CE | **61.7** | **53.3** | – | – |
+| [AwareVLN](#awarevln) | 2026 | RxR-CE | **67.6** | **56.1** | **3.95** | – |
+| [Dual-Anchoring](#dual-anchoring) | 2026 | RxR-CE | 61.7 | 53.3 | – | – |
 | [DualVLN](#dualvln) | 2025 | RxR-CE | 61.4 | 51.8 | **4.58** | – |
 | [JanusVLN](#janusvln) | 2026 | RxR-CE | 56.2 | 47.5 | 6.06 | – |
 | [RynnBrain-Nav-8B](#rynnbrain) | 2026 | RxR-CE | 56.1 | – | 4.92 | – |
@@ -4052,7 +4053,7 @@ $$d, y_t = \pi_\theta\big(f_{tok}(I), f_{tok}(R'), f_{vis}(O_t)\big)$$
 
 ### 3. 核心结果/发现
 
-- **仿真主结果**（R2R-CE / RxR-CE Val-Unseen，纯单目 RGB 输入）：AwareVLN 在 R2R-CE 上 SR **73.5**、SPL **65.4**、NE **4.02**；RxR-CE 上 SR **67.6**、SPL **56.1**、nDTW **65.7**，**全面超越所有不依赖模拟器预训练 waypoint predictor 的方法**（包括 NaVILA、StreamVLN、Uni-NaVid、OctoNav 等），甚至优于很多使用深度、全景、里程计等额外输入的方法。例如相比 StreamVLN，R2R-CE SR 从 64.2 提升到 73.5。
+- **仿真主结果**（R2R-CE / RxR-CE Val-Unseen，纯单目 RGB 输入）：AwareVLN 在 R2R-CE 上 SR **65.4**、SPL **55.1**、OS **73.5**、NE **4.02**；RxR-CE 上 SR **67.6**、SPL **56.1**、nDTW **65.7**，**全面超越所有不依赖模拟器预训练 waypoint predictor 的方法**（包括 NaVILA、StreamVLN、Uni-NaVid、OctoNav 等），甚至优于很多使用深度、全景、里程计等额外输入的方法。例如相比 StreamVLN，R2R-CE SR 从 56.9 提升到 65.4，OS 从 64.2 提升到 73.5。
 - **真实世界评测**：在 Corridor / Home / Office 三类环境、简单与复杂任务共 18 条指令上，AwareVLN 的 NE 和 SR 一致优于 NaVid、NaVILA，复杂任务下优势尤为明显（多个复杂场景 SR 从 0.33 提升到 0.67–1.00），验证了自我感知推理对 sim-to-real 泛化的增益。
 - **消融——数据引擎关键节点**（Table 3）：去掉任一节点都会掉点；去掉 **Subtask Completion** 掉点最严重（R2R SR 65.4→52.3），因为模型失去对整体指令进度的跟踪；去掉 Path Deviation 削弱纠错能力，去掉 Stopping Error 影响终点判定。
 - **消融——架构与推理调度**（Table 4）：去掉 special token 强迫模型直接预测会掉点（结构化输出对任务分解很关键）；"每帧都密集推理 + 动作"（Reason with action densely）反而明显变差，证明**稀疏推理**既更有效又更高效（昂贵的推理只在必要时触发）。
