@@ -505,7 +505,7 @@ nav {
 // 没有侧边栏时，目录固定在左侧
 .no-sidebar .toc {
   left: 0 !important;
-  padding: 60px 20px 0 20px;
+  padding: 60px 20px 30px 20px;
   width: 340px;
 }
 
@@ -776,11 +776,12 @@ nav {
 
 .toc {
   width: 320px;
-  height: 100%;
+  top: 0;
+  height: 100vh;
   left: 30%;
   position: fixed;
   z-index: 4;
-  padding: 60px 20px 0 20px;
+  padding: 60px 20px 30px 20px;
   
   &:before{
     content:"目录";
@@ -811,8 +812,7 @@ nav {
     /* 只添加滚动条相关属性 */
     overflow-y: auto; /* 关键属性 - 启用垂直滚动 */
     position: fixed; /* 使用固定定位 */
-    top: auto; /* 重置top值 */
-    
+
     /* 滚动条美化 */
     scrollbar-width: thin; /* Firefox */
     scrollbar-color: #888 #f1f1f1; /* Firefox */
