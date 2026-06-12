@@ -1,4 +1,4 @@
-# 刘廷德的个人博客
+# Tingde Liu 的个人博客
 
 🌐 **博客地址**：[https://tingdeliu.github.io/](https://tingdeliu.github.io/)
 
