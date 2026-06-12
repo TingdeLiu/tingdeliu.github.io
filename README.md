@@ -59,7 +59,7 @@
 ## 快捷入口
 
 - 🏠 [首页](https://tingdeliu.github.io/)
-- 📝 [最新文章](https://tingdeliu.github.io/home/)
+- 📂 [项目](https://tingdeliu.github.io/home/)
 - 🏷️ [标签](https://tingdeliu.github.io/tags/)
 - 👤 [关于我](https://tingdeliu.github.io/about/)
 
