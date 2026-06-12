@@ -1,0 +1,86 @@
+//
+// Post feedback card (报告错误 / 推荐论文 / 修改建议 + 社区贡献者墙)
+//
+
+.post-feedback {
+  margin-top: 3em;
+  padding: 24px;
+  background: $background-color;
+  border: 1px solid $oc-gray-3;
+  border-radius: 10px;
+
+  .feedback-header {
+    h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      line-height: 1.5em;
+    }
+
+    p {
+      margin: 0 0 16px;
+      color: $base-lighten-color;
+      font-size: $small-font-size;
+    }
+  }
+
+  .feedback-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    @include mobile {
+      flex-direction: column;
+    }
+  }
+
+  .feedback-btn {
+    display: inline-block;
+    padding: 8px 18px;
+    border: 1px solid $oc-gray-4;
+    border-radius: 999px;
+    background: $white;
+    color: $base-color;
+    font-size: $small-font-size;
+    line-height: 1.5em;
+    text-align: center;
+    transition: all 0.15s ease;
+
+    &:hover {
+      border-color: $link-color;
+      color: $link-color;
+      background: $link-bghv-color;
+    }
+  }
+
+  .feedback-contributors {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid $oc-gray-2;
+
+    h4 {
+      margin: 0 0 10px;
+      font-size: $small-font-size;
+      font-weight: bold;
+      color: $base-lighten-color;
+      line-height: 1.5em;
+    }
+  }
+
+  .contributors-wall {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .contributor img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid $oc-gray-3;
+      transition: transform 0.15s ease;
+
+      &:hover {
+        transform: scale(1.15);
+      }
+    }
+  }
+}

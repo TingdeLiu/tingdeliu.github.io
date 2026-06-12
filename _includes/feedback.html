@@ -1,0 +1,139 @@
+{% capture page_link %}{{ site.url }}{{ site.baseurl }}{{ page.url }}{% endcapture %}
+
+{% capture bug_body %}**页面**：{{ page_link }}
+
+**章节 / 位置**：
+<!-- 出错内容所在的章节标题或段落 -->
+
+**错误描述**：
+
+
+**建议修改**：
+
+{% endcapture %}
+
+{% capture paper_body %}**页面**：{{ page_link }}
+
+**论文标题**：
+
+
+**论文链接**（arXiv / OpenReview 等）：
+
+
+**推荐理由**：
+
+
+**建议加入的章节**：
+
+{% endcapture %}
+
+{% capture suggest_body %}**页面**：{{ page_link }}
+
+**建议内容**：
+
+
+**理由**：
+
+{% endcapture %}
+
+<div class="post-feedback">
+  <div class="feedback-header">
+    <h3>📮 参与改进这篇文章</h3>
+    <p>发现错误、想推荐相关论文、或有修改建议？点击下方按钮通过 GitHub Issue 提交，提交后你将出现在社区贡献者墙中。</p>
+  </div>
+  <div class="feedback-buttons">
+    <a class="feedback-btn" target="_blank" rel="noopener"
+       href="https://github.com/TingdeLiu/Tingde.Liu.github.io/issues/new?title={{ '[错误反馈] ' | append: page.title | url_encode }}&labels=bug&body={{ bug_body | url_encode }}">🐛 报告错误</a>
+    <a class="feedback-btn" target="_blank" rel="noopener"
+       href="https://github.com/TingdeLiu/Tingde.Liu.github.io/issues/new?title={{ '[论文推荐] ' | append: page.title | url_encode }}&labels=paper&body={{ paper_body | url_encode }}">📄 推荐论文</a>
+    <a class="feedback-btn" target="_blank" rel="noopener"
+       href="https://github.com/TingdeLiu/Tingde.Liu.github.io/issues/new?title={{ '[修改建议] ' | append: page.title | url_encode }}&labels=suggestion&body={{ suggest_body | url_encode }}">✏️ 修改建议</a>
+  </div>
+  <div class="feedback-contributors" id="feedback-contributors" hidden>
+    <h4>🙌 社区贡献者</h4>
+    <div class="contributors-wall" id="contributors-wall"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var OWNER = "TingdeLiu";
+  var CACHE_KEY = "gh-contributors-v1";
+  var CACHE_TTL = 60 * 60 * 1000; // 1 hour
+
+  function render(contributors) {
+    if (!contributors || contributors.length === 0) return;
+    var wall = document.getElementById("contributors-wall");
+    var section = document.getElementById("feedback-contributors");
+    if (!wall || !section) return;
+    wall.textContent = "";
+    contributors.forEach(function (c) {
+      var a = document.createElement("a");
+      a.className = "contributor";
+      a.href = c.url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.title = c.login + " · " + c.count + " 次贡献";
+      var img = document.createElement("img");
+      img.src = c.avatar + (c.avatar.indexOf("?") >= 0 ? "&" : "?") + "s=80";
+      img.alt = c.login;
+      img.loading = "lazy";
+      a.appendChild(img);
+      wall.appendChild(a);
+    });
+    section.hidden = false;
+  }
+
+  function fromCache() {
+    try {
+      var raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      var cached = JSON.parse(raw);
+      if (!cached.ts || Date.now() - cached.ts > CACHE_TTL) return null;
+      return cached.data;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function toCache(data) {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: data }));
+    } catch (e) { /* ignore */ }
+  }
+
+  var cached = fromCache();
+  if (cached) {
+    render(cached);
+    return;
+  }
+
+  fetch("https://api.github.com/repos/TingdeLiu/Tingde.Liu.github.io/issues?state=all&per_page=100")
+    .then(function (res) {
+      if (!res.ok) throw new Error("GitHub API " + res.status);
+      return res.json();
+    })
+    .then(function (issues) {
+      var byLogin = {};
+      issues.forEach(function (issue) {
+        if (issue.pull_request) return;
+        var user = issue.user;
+        if (!user || user.login === OWNER || user.type === "Bot") return;
+        if (!byLogin[user.login]) {
+          byLogin[user.login] = {
+            login: user.login,
+            avatar: user.avatar_url,
+            url: user.html_url,
+            count: 0
+          };
+        }
+        byLogin[user.login].count += 1;
+      });
+      var contributors = Object.keys(byLogin).map(function (k) { return byLogin[k]; });
+      contributors.sort(function (a, b) { return b.count - a.count; });
+      toCache(contributors);
+      render(contributors);
+    })
+    .catch(function () { /* silently degrade */ });
+})();
+</script>
