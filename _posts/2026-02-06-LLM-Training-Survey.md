@@ -2696,22 +2696,20 @@ $$
 3. 对应的等式：$B_{\text{global}} = B_{\text{micro}} \times N \times \text{DP\_degree}$。
 
 ```mermaid
-sequenceDiagram
-    autonumber
-    participant GPU as GPU 显存 (Micro-Batch)
-    participant Comm as 节点间通信 (All-Reduce)
-    participant Opt as 优化器更新 (optimizer.step)
-    
-    Note over GPU: 运行 Micro-batch 1: 前向 + 反向
-    Note over GPU: 梯度保留在显存中，不进行同步
-    Note over GPU: 运行 Micro-batch 2: 前向 + 反向
-    Note over GPU: 梯度与 Micro-batch 1 累加，不进行同步
-    Note over GPU: ... 运行至 Micro-batch N
-    Note over GPU: 累积完成 (N 步)
-    GPU->>Comm: 触发 All-Reduce，跨卡同步累积梯度
-    Comm-->>GPU: 同步完毕
-    GPU->>Opt: 执行优化器参数更新
-    GPU->>GPU: zero_grad() 清空梯度缓冲区
+flowchart LR
+    subgraph ACCUM ["N 步梯度累积（不触发 All-Reduce）"]
+        direction LR
+        S1["mb₁\n前向+反向\n∇L₁ 写入缓冲"] --> S2["mb₂\n前向+反向\n∇L₂ 累加缓冲"] --> SN["mb_N\n前向+反向\n∇L_N 累加缓冲"]
+    end
+
+    SN --> AR["All-Reduce\n一次跨卡梯度同步"]
+    AR --> OPT["optimizer.step()\n参数更新"]
+    OPT --> ZG["zero_grad()\n清空梯度缓冲"]
+    ZG --> S1
+
+    style AR fill:#fce4ec,stroke:#880e4f,color:#000
+    style OPT fill:#c8e6c9,stroke:#1b5e20,color:#000
+    style ZG fill:#e8eaf6,stroke:#3949ab,color:#000
 ```
 
 - **工程优化 (PyTorch `no_sync` 机制)**：在分布式训练中，默认的反向传播会在每一步自动触发卡间梯度同步（All-Reduce）。在梯度累积的前 $N-1$ 步中，应使用 `model.no_sync()` 上下文管理器，阻断无用的网络同步，只在最后一步执行 All-Reduce，能极大地提升网络带宽利用率。
@@ -2730,27 +2728,25 @@ sequenceDiagram
 - **反向重计算**：反向传播到未保存激活值的层时，从最近的检查点开始，重新运行一次前向传播，实时计算出临时激活值用于梯度计算，算完后立即丢弃。
 
 ```mermaid
-graph TD
-    subgraph 标准训练 (Standard Training)
-        A1[Layer 1 Forward] -->|保存 Activation 1| A2[Layer 2 Forward]
-        A2 -->|保存 Activation 2| A3[Layer 3 Forward]
-        A3 --> A4[Loss & Backward]
-        A4 -->|使用 Activation 2| A5[Layer 2 Backward]
-        A5 -->|使用 Activation 1| A6[Layer 1 Backward]
+flowchart TD
+    subgraph STND ["标准训练 — 保存全部激活值 O(L)"]
+        direction TB
+        A1["Layer 1 前向<br>保存激活值 a₁"] -->|"保存 a₁"| A2["Layer 2 前向<br>保存激活值 a₂"] -->|"保存 a₂"| A3["Layer 3 前向<br>保存激活值 a₃"] --> A4["Loss + 反向"]
+        A4 -->|"使用 a₂"| A5["Layer 2 反向"] -->|"使用 a₁"| A6["Layer 1 反向"]
     end
 
-    subgraph 激活值重计算 (Gradient Checkpointing)
-        B1[Layer 1 Forward] -->|保存 Checkpoint 1| B2[Layer 2 Forward]
-        B2 -.->|丢弃中间 Activation 2| B3[Layer 3 Forward]
-        B3 --> B4[Loss & Backward]
-        B4 -->|临时重计算: B1 -> Layer 2 Forward| B5[Layer 2 Backward]
-        B5 -->|使用 Checkpoint 1| B6[Layer 1 Backward]
+    subgraph CKPT ["梯度检查点 — 只保存检查点 O(√L)"]
+        direction TB
+        B1["Layer 1 前向<br>✓ 保存检查点 c₁"] -->|"保存 c₁"| B2["Layer 2 前向<br>✗ 丢弃激活值"] -->|"丢弃"| B3["Layer 3 前向<br>✗ 丢弃激活值"] --> B4["Loss + 反向"]
+        B4 -->|"从 c₁ 重计算 Layer 2"| B5["Layer 2 反向"] -->|"使用 c₁"| B6["Layer 1 反向"]
     end
-    
-    style A1 fill:#ffebee,stroke:#c62828
-    style A2 fill:#ffebee,stroke:#c62828
-    style B1 fill:#e8f5e9,stroke:#2e7d32
-    style B2 fill:#eceff1,stroke:#37474f
+
+    style A1 fill:#ffebee,stroke:#c62828,color:#000
+    style A2 fill:#ffebee,stroke:#c62828,color:#000
+    style A3 fill:#ffebee,stroke:#c62828,color:#000
+    style B1 fill:#e8f5e9,stroke:#2e7d32,color:#000
+    style B2 fill:#f5f5f5,stroke:#9e9e9e,color:#000
+    style B3 fill:#f5f5f5,stroke:#9e9e9e,color:#000
 ```
 
 #### 3. 代价与收益
