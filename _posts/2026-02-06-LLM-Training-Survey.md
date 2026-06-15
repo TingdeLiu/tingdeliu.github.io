@@ -2096,6 +2096,39 @@ flowchart TD
 1. **梯度分组（Buckets）**：DDP 在初始化时，根据反向传播的逆序（即从输出层向输入层），将梯度张量分配进多个固定大小的“桶”（Bucket，通常为 25MB）。
 2. **异步同步**：在反向传播计算梯度时，一旦某一个 Bucket 中的梯度全部计算完毕，系统会立即在后台启动针对该 Bucket 的 `All-Reduce` 异步通信。与此同时，更前几层的反向传播梯度计算仍在 GPU 核心上继续运行。这成功实现了计算与网络通信的并发，掩盖了大量的卡间同步时间。
 
+```mermaid
+flowchart LR
+    subgraph COMPUTE ["GPU 反向传播（输出层 → 输入层）"]
+        direction LR
+        C1["Bucket K<br>梯度计算"] --> C2["Bucket K-1<br>梯度计算"] --> C3["Bucket K-2<br>梯度计算"] --> C4["⋯ Bucket 1<br>梯度计算"]
+    end
+
+    subgraph COMM ["后台异步 All-Reduce（各 Bucket 独立通信）"]
+        direction LR
+        R1["Bucket K<br>All-Reduce"]
+        R2["Bucket K-1<br>All-Reduce"]
+        R3["Bucket K-2<br>All-Reduce"]
+        R4["Bucket 1<br>All-Reduce"]
+    end
+
+    C1 -.->|"满即触发"| R1
+    C2 -.->|"满即触发"| R2
+    C3 -.->|"满即触发"| R3
+    C4 -.->|"满即触发"| R4
+
+    R1 & R2 & R3 & R4 --> UPDATE["全部同步完成<br>优化器更新参数 W"]
+
+    style C1 fill:#fff3e0,stroke:#e65100,color:#000
+    style C2 fill:#fff3e0,stroke:#e65100,color:#000
+    style C3 fill:#fff3e0,stroke:#e65100,color:#000
+    style C4 fill:#fff3e0,stroke:#e65100,color:#000
+    style R1 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style R2 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style R3 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style R4 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UPDATE fill:#c8e6c9,stroke:#1b5e20,color:#000
+```
+
 ### 6.1.3 DDP 局限
 - 模型所有参数、优化器状态及梯度必须能够完整装入单个 GPU 的物理显存中。
 - 对于超过单卡显存容量的超大模型（如 7B 及以上），DDP 会直接导致 OOM (Out of Memory)，无法独立运行。
