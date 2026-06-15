@@ -2228,7 +2228,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    DATA[“输入数据<br>Micro-Batches<br>m₁, m₂, ⋯”]
+    DATA[“输入数据<br>Micro-Batches”]
 
     subgraph S0 [“GPU 0 — Stage 0”]
         L0[“Layer 1 ~ L/p”]
@@ -2236,23 +2236,23 @@ flowchart LR
     subgraph S1 [“GPU 1 — Stage 1”]
         L1[“Layer L/p+1 ~ 2L/p”]
     end
-    subgraph SX [“⋯”]
-        LX[“⋯”]
+    subgraph SX [“...”]
+        LX[“...”]
     end
     subgraph SP [“GPU p-1 — Stage p-1”]
         LP[“Layer (p-1)L/p+1 ~ L”]
     end
 
-    DATA --> S0
-    S0 -->|”激活值 P2P 通信”| S1
-    S1 -->|”激活值 P2P 通信”| SX
-    SX -->|”激活值 P2P 通信”| SP
-    SP --> LOSS[“Loss 计算<br>梯度沿逆序 P2P 回传”]
+    DATA --> L0
+    L0 -->|”激活值 P2P 通信”| L1
+    L1 -->|”激活值 P2P 通信”| LX
+    LX -->|”激活值 P2P 通信”| LP
+    LP --> LOSS[“Loss 计算<br>梯度沿逆序 P2P 回传”]
 
     style DATA fill:#e3f2fd,stroke:#01579b,color:#000
-    style S0 fill:#fff3e0,stroke:#e65100,color:#000
-    style S1 fill:#fff9c4,stroke:#f57f17,color:#000
-    style SP fill:#f3e5f5,stroke:#6a1b9a,color:#000
+    style L0 fill:#fff3e0,stroke:#e65100,color:#000
+    style L1 fill:#fff9c4,stroke:#f57f17,color:#000
+    style LP fill:#f3e5f5,stroke:#6a1b9a,color:#000
     style LOSS fill:#c8e6c9,stroke:#1b5e20,color:#000
 ```
 
