@@ -32,7 +32,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [JanusVLN](#janusvln) | 2026 | R2R-CE | 60.5 | 56.8 | 4.78 | 65.2 |
 | [BudVLN](#budvln) | 2026 | R2R-CE | 57.6 | 51.1 | – | – |
 | [StreamVLN](#streamvln) | 2025 | R2R-CE | 56.9 | 51.9 | 4.98 | 64.2 |
-| [Goal2Pixel](#goal2pixel) | 2025 | R2R-CE Val-Unseen | 54.1 | 52.5 | 4.85 | 59.9 |
+| [Goal2Pixel](#goal2pixel) | 2025 | R2R-CE | 54.1 | 52.5 | 4.85 | 59.9 |
 | [MapNav](#mapnav) | 2025 | R2R-CE | 53.0 | 39.7 | – | – |
 | [JanusVLN*](#janusvln) | 2026 | R2R-CE | 52.8 | 49.2 | 5.17 | 58.0 |
 | [HSGM](#hsgm) | 2026 | R2R-CE | 47.9 | 32.8 | 5.42 | 58.7 |
@@ -53,7 +53,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [RynnBrain-Nav-8B](#rynnbrain) | 2026 | RxR-CE | 56.1 | – | 4.92 | – |
 | [StreamVLN](#streamvln) | 2025 | RxR-CE | 52.9 | – | – | – |
 | [JanusVLN*](#janusvln) | 2026 | RxR-CE | 51.4 | 44.3 | 6.46 | – |
-| [Goal2Pixel](#goal2pixel) | 2025 | RxR-CE Val-Unseen | 43.8 | 40.4 | 7.50 | – |
+| [Goal2Pixel](#goal2pixel) | 2025 | RxR-CE | 43.8 | 40.4 | 7.50 | – |
 | [HSGM](#hsgm) | 2026 | RxR-CE | 41.8 | 25.1 | 7.43 | – |
 | [VLN-R1 (Qwen2-VL-7B)](#vln-r1) | 2025 | RxR-CE | 22.7 | 17.6 | 9.1 | 30.4 |
 | [VLN-R1 (Qwen2-VL-2B)](#vln-r1) | 2025 | RxR-CE | 20.7 | 16.9 | 10.2 | 30.1 |
