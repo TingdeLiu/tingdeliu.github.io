@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "VLN经典论文"
-date:   2026-06-11
+date:   2026-06-15
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -32,6 +32,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [JanusVLN](#janusvln) | 2026 | R2R-CE | 60.5 | 56.8 | 4.78 | 65.2 |
 | [BudVLN](#budvln) | 2026 | R2R-CE | 57.6 | 51.1 | – | – |
 | [StreamVLN](#streamvln) | 2025 | R2R-CE | 56.9 | 51.9 | 4.98 | 64.2 |
+| [Goal2Pixel](#goal2pixel) | 2025 | R2R-CE Val-Unseen | 54.1 | 52.5 | 4.85 | 59.9 |
 | [MapNav](#mapnav) | 2025 | R2R-CE | 53.0 | 39.7 | – | – |
 | [JanusVLN*](#janusvln) | 2026 | R2R-CE | 52.8 | 49.2 | 5.17 | 58.0 |
 | [HSGM](#hsgm) | 2026 | R2R-CE | 47.9 | 32.8 | 5.42 | 58.7 |
@@ -52,6 +53,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [RynnBrain-Nav-8B](#rynnbrain) | 2026 | RxR-CE | 56.1 | – | 4.92 | – |
 | [StreamVLN](#streamvln) | 2025 | RxR-CE | 52.9 | – | – | – |
 | [JanusVLN*](#janusvln) | 2026 | RxR-CE | 51.4 | 44.3 | 6.46 | – |
+| [Goal2Pixel](#goal2pixel) | 2025 | RxR-CE Val-Unseen | 43.8 | 40.4 | 7.50 | – |
 | [HSGM](#hsgm) | 2026 | RxR-CE | 41.8 | 25.1 | 7.43 | – |
 | [VLN-R1 (Qwen2-VL-7B)](#vln-r1) | 2025 | RxR-CE | 22.7 | 17.6 | 9.1 | 30.4 |
 | [VLN-R1 (Qwen2-VL-2B)](#vln-r1) | 2025 | RxR-CE | 20.7 | 16.9 | 10.2 | 30.1 |
@@ -5114,6 +5116,128 @@ EvoMemNav 由三个核心部分构成：构建于 occupancy grid 上的层次化
 
 ---
 
+## 52. Goal2Pixel (2025) {#goal2pixel}
+———将导航目标接地到图像像素，以像素预测统一 VLN-CE 的决策空间
+
+📄 **Paper**: [arXiv:2606.01621](https://arxiv.org/abs/2606.01621)
+
+### 精华
+
+1. **图像平面即决策空间**：将 VLN-CE 的高层决策从离散动作预测重新定义为像素预测——VLM 只需输出一个像素坐标，消除了动作标签的歧义性，并与 VLM 的原生输出空间对齐。
+2. **辅助指令区域设计**：将转向/停止等非前进动作编码为图像平面扩展区域中的像素，使所有决策在同一坐标空间内统一处理，无需两阶段切换。
+3. **ViKeyMem 以可见性驱动关键帧**：以"未来路点可见性变化"为关键帧选取标准，仅需 3–4 帧即可编码 100+ 步轨迹，训练成本从 156 降至 70 H100 GPU 小时。
+4. **减少 VLM 调用次数**：像素预测粒度更粗（一次预测对应 5 步低层动作），使 VLM 调用次数从 46.62 降至 7.75，同时性能从 32.9% SR 提升至 54.1% SR。
+5. **跨平台可迁移性**：像素输出将高层 VLM 推理与机器人底层控制器解耦，同一模型可跨不同硬件平台复用。
+
+---
+
+### 1. 研究背景/问题
+
+VLN-CE（连续环境视觉语言导航）中，现有 VLM-based 方法多以低层动作预测（前进/左转/右转/停止）为输出接口，存在三个缺陷：监督信号模糊（同一空间目标对应多个合法动作序列）、决策视野短（每步只移动 25cm）、VLM 调用次数过多（每集需 30–47 次）。如何为 VLM 推理与机器人执行之间找到更合适的接口，成为核心问题。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vln/Goal2Pixel-architecture.png" width="100%" />
+<figcaption>Figure 1：Goal2Pixel 整体框架。上：三阶段执行流水线——VLM 预测目标像素 (u,v)，经相机几何反投影为 3D 路径点，本地规划器转化为低层动作；辅助指令区域（图像左/右/下扩展区）分别对应 Turn_Left/Turn_Right/Stop。下：VLM 以语言指令、填充后的当前 RGB 图像和 ViKeyMem 历史记忆为输入，输出坐标字符串 "XXX,YYY"；视觉语义嵌入与坐标感知损失辅助适配。</figcaption>
+</div>
+
+**① 整体框架概述**
+
+Goal2Pixel 由三个核心部分构成：**像素预测 VLM**（InternVL3 微调）、**几何反投影模块**、**本地规划器**。VLM 输出坐标字符串 → 反投影为 3D 路径点 → 规划器执行至多 5 步低层动作后再次查询 VLM，形成闭环。
+
+**② 纯像素输出接口（Pure Pixel Paradigm）**
+
+- **输入**：正方形填充的当前 RGB 图像（含三侧辅助指令区域）+ 语言指令 + ViKeyMem 历史（最多 8 帧）
+- **处理**：VLM 自回归生成 "XXX,YYY" 格式坐标字符串，坐标归一化至 [000, 999]
+- **输出判断**：坐标落在 RGB 区域 → 经相机内参反投影为 3D 路径点，由本地规划器跟踪执行；坐标落在辅助区域 → 直接执行 Turn_Left / Turn_Right / Stop
+- **设计动机**：像素坐标是 VLM 的原生输出空间，监督信号更明确；所有决策统一在同一接口，无需两阶段 action-then-pixel 切换
+
+**辅助指令区域规则**：
+- 底部区域 → Stop（距终点 ≤1m 时，GT 像素指向此区域）
+- 左/右区域 → Turn_Left / Turn_Right（当前进路点不可见时，根据接下来 5 个路点的平均自中心方向决定）
+
+**GT 像素定义**：沿 oracle 轨迹，当前帧中**最远可见可行驶像素**——鼓励更长视野决策，去除短程动作的模糊歧义。
+
+**③ ViKeyMem 关键帧历史记忆**
+
+<div align="center">
+  <img src="/images/vln/Goal2Pixel-vikeymem.png" width="100%" />
+<figcaption>Figure 4：ViKeyMem 可视化。每行为一个独立轨迹（长度 90–123 步），关键帧从左至右按时间排列，最右列为鸟瞰地图。蓝色轨迹点叠加于历史帧，提供紧凑的过去运动线索；100+ 步轨迹通常仅需 3–4 关键帧即可完整覆盖关键视角转换。</figcaption>
+</div>
+
+ViKeyMem 以**未来路点可见性变化**为关键帧选取标准，候选帧满足以下三个条件时加入关键帧集合：
+1. 候选帧视点不再被最近关键帧覆盖（核心可见性条件）
+2. 候选帧自中心图像中至少有一个后续路点可见
+3. 至少两个不同后续路点落在候选帧 45° 前向视场内
+
+每个选取的关键帧上叠加蓝色轨迹点（trajectory overlay），提供轻量级过去运动提示。R2R-CE 上平均每 100 步仅选 3–4 帧，推理时间从 0.224s 降至 0.121s，训练时间从 156 H100 小时降至 70 小时。
+
+**④ 视觉语义嵌入（Visual Semantic Embeddings）**
+
+预训练 VLM 对导航特有的视觉模式（辅助指令区域、轨迹叠加点）识别能力不足，因此引入两类可学习嵌入：
+- **指令区域嵌入（directive embedding）**：叠加在与辅助指令区域重叠的当前帧 visual token 上
+- **轨迹嵌入（trajectory embedding）**：叠加在含蓝色轨迹点的历史帧 visual token 上
+- 普通 RGB token 保持不变，参数量极小
+
+**⑤ 训练目标与坐标感知损失**
+
+$$\mathcal{L} = \mathcal{L}_{CE} + \lambda_{num}\mathcal{L}_{num} + \lambda_{ang}\mathcal{L}_{ang}$$
+
+- $$\mathcal{L}_{CE}$$：标准 token 级交叉熵，主要监督信号；$$\lambda_{CE}=1$$
+- $$\mathcal{L}_{num}$$：数值损失，通过 softmax logits 推导可微 soft 坐标，鼓励预测数值接近 GT；$$\lambda_{num}=0.3$$
+- $$\mathcal{L}_{ang}$$：角度损失，鼓励预测像素保持与 GT 相同的自中心方向；$$\lambda_{ang}=0.03$$
+
+**⑥ 推理流程**
+
+每次 VLM 调用后，本地规划器最多执行 t=5 步低层动作；若出现连续 20 步左右震荡，自动 fallback 到固定前进像素 (500,970) 以脱困。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vln/Goal2Pixel-training-cost.png" width="80%" />
+<figcaption>Figure 5：R2R-CE Val-Unseen SR 与训练成本对比（x 轴对数坐标，标记大小对应模型规模）。Goal2Pixel (2B) 以 80 H100 小时实现 54.1% SR，训练成本远低于同等性能的其他方法。</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vln/Goal2Pixel-qualitative.png" width="100%" />
+<figcaption>Figure 7：Goal2Pixel 在 R2R-CE 上的定性结果。每行为一个导航集，红点为 VLM 每步预测的目标像素，最右列为鸟瞰执行轨迹。</figcaption>
+</div>
+
+**R2R-CE Val-Unseen 主要结果**（2B 模型，零外部数据）：
+- **SR 54.1%，SPL 52.5%**，每集仅需 **7.75 次 VLM 调用**
+- 直接动作预测：SR 32.9%，需 46.62 次调用（SR 差 21.2 点，调用多 6×）
+- 与 JanusVLN 7B（SR 52.8%）相比，2B Goal2Pixel SR 高 1.3 点，参数规模仅 2/7
+
+**输出范式消融**（Table 2）：
+
+| 输出范式 | SR | SPL | # VLM Calls |
+|---------|-----|-----|-------------|
+| 1 动作预测 | 32.9% | 31.5% | 46.62 |
+| 4 动作预测 | 37.0% | 36.0% | 15.77 |
+| 混合 Action-Pixel (Seq) | 43.7% | — | ~10 |
+| **纯 Pixel（本文）** | **54.1%** | **52.5%** | **7.55** |
+
+**ViKeyMem 消融**（Table 3a）：
+- 对比 5-step 固定间隔采样：SR/SPL +8.0/+7.4（R2R），+5.1/+5.0（RxR）
+- 推理时间：0.243s → 0.121s（−50%）；训练时间：173h → 70h（−60%）
+
+**RxR-CE Val-Unseen**（2B）：SR 43.8%，SPL 40.4%，nDTW 61.1%
+
+**实物机器人**：16 次室内导航测试，Goal2Pixel 能将语言指令（门、沙发、冰箱、楼梯等）接地到有意义的像素目标，并通过本地控制器完成实际导航。
+
+---
+
+### 4. 局限性
+
+ViKeyMem 以可见性为标准可能遗漏短暂出现或远距低分辨率的细粒度地标；soft 坐标期望值在多峰数字分布下可靠性有限（但主监督仍为 token 级 CE loss，已起缓解作用）。
+
+---
+
 # 参考资料
 
 ## 论文
@@ -5167,6 +5291,7 @@ EvoMemNav 由三个核心部分构成：构建于 occupancy grid 上的层次化
 47. **OneVLA: A Unified Framework for Embodied Tasks** (2026). 首个在单一网络与动作头下统一具身导航和操作的 VLA 模型. arXiv: [2606.01241](https://arxiv.org/abs/2606.01241)
 48. **CA-VLN** (2026). 基于双智能体协作的多模态大模型具身导航框架.
 49. **EvoMemNav** (2026). 零样本具身导航中基于轻量化图先验与多视图反思的高效自进化细粒度拓扑记忆框架. arXiv: [2606.03509](https://arxiv.org/abs/2606.03509)
+50. **Goal2Pixel** (2025). 将导航目标接地到图像像素，以像素预测统一 VLN-CE 的决策空间. arXiv: [2606.01621](https://arxiv.org/abs/2606.01621)
 
 <script>
 (function () {
@@ -5222,6 +5347,7 @@ EvoMemNav 由三个核心部分构成：构建于 occupancy grid 上的层次化
         { m: 'OneVLA: A Unified Framework for Embodied Tasks', t: ['端到端', '扩散模型', '连续环境', '实机部署'] },
         { m: 'CA-VLN',                t: ['Agent', '拓扑图', '离散环境'] },
         { m: 'EvoMemNav',             t: ['Agent', '拓扑图', '零样本'] },
+        { m: 'Goal2Pixel',            t: ['端到端', '连续环境', '实机部署', '加速优化'] },
     { m: 'VLN-CE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'VLN-PE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'RynnBrain',         t: ['基础工作'] },
