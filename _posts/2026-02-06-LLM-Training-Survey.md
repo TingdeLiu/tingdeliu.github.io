@@ -2164,6 +2164,42 @@ Transformer 的 MLP 层包含两个投影矩阵：门控/上投影 $W_{\text{gat
 - **注意力计算**：各 GPU 独立运行注意力运算，获得局部的 Context 向量。
 - **Output 投影**：使用行并行。将各卡局部的输出权重进行行投影相乘，最后在输出端执行 1 次 `All-Reduce (Sum)` 合并，即可恢复完整的 Multi-Head Attention 输出。
 
+```mermaid
+flowchart LR
+    X["输入 X（完整）<br>所有卡共享"]
+
+    subgraph COLPAR ["① 列并行 — 无通信"]
+        direction TB
+        G0["GPU 0<br>W_col 列分片 W₀<br>Y₀ = Act(X·W₀)"]
+        G1["GPU 1<br>W_col 列分片 W₁<br>Y₁ = Act(X·W₁)"]
+        GP["GPU p-1<br>W_col 列分片 Wₚ₋₁<br>Yₚ₋₁ = Act(X·Wₚ₋₁)"]
+    end
+
+    subgraph ROWPAR ["② 行并行 — 无通信"]
+        direction TB
+        R0["GPU 0<br>W_row 行分片 V₀<br>Z₀ = Y₀·V₀"]
+        R1["GPU 1<br>W_row 行分片 V₁<br>Z₁ = Y₁·V₁"]
+        RP["GPU p-1<br>W_row 行分片 Vₚ₋₁<br>Zₚ₋₁ = Yₚ₋₁·Vₚ₋₁"]
+    end
+
+    X --> G0 & G1 & GP
+    G0 --> R0
+    G1 --> R1
+    GP --> RP
+    R0 & R1 & RP --> AR["③ All-Reduce (Sum)<br>Z = Z₀ + Z₁ + ⋯ + Zₚ₋₁"]
+    AR --> OUT["输出 Z（完整）"]
+
+    style X fill:#e3f2fd,stroke:#01579b,color:#000
+    style G0 fill:#fff3e0,stroke:#e65100,color:#000
+    style G1 fill:#fff3e0,stroke:#e65100,color:#000
+    style GP fill:#fff3e0,stroke:#e65100,color:#000
+    style R0 fill:#f3e5f5,stroke:#6a1b9a,color:#000
+    style R1 fill:#f3e5f5,stroke:#6a1b9a,color:#000
+    style RP fill:#f3e5f5,stroke:#6a1b9a,color:#000
+    style AR fill:#fce4ec,stroke:#880e4f,color:#000
+    style OUT fill:#c8e6c9,stroke:#1b5e20,color:#000
+```
+
 ### 6.2.2 数学推导与通信代价分析
 对于 Transformer 的一个基本 Block，其前向和反向的通信算子调用非常明确：
 - **前向传播 (Forward)**：
@@ -2188,7 +2224,37 @@ Transformer 的 MLP 层包含两个投影矩阵：门控/上投影 $W_{\text{gat
 ## 6.3 流水线并行 (Pipeline Parallelism, PP)
 
 ### 6.3.1 原理
-当模型层数过多，单节点显存已无法装下时，流水线并行采用“层间纵向切分”：将模型的 $L$ 层划分为 $p$ 个 Stage（阶段），分配到 $p$ 个不同的 GPU 上（可跨节点）。
+当模型层数过多，单节点显存已无法装下时，流水线并行采用”层间纵向切分”：将模型的 $L$ 层划分为 $p$ 个 Stage（阶段），分配到 $p$ 个不同的 GPU 上（可跨节点）。
+
+```mermaid
+flowchart LR
+    DATA[“输入数据<br>Micro-Batches<br>m₁, m₂, ⋯”]
+
+    subgraph S0 [“GPU 0 — Stage 0”]
+        L0[“Layer 1 ~ L/p”]
+    end
+    subgraph S1 [“GPU 1 — Stage 1”]
+        L1[“Layer L/p+1 ~ 2L/p”]
+    end
+    subgraph SX [“⋯”]
+        LX[“⋯”]
+    end
+    subgraph SP [“GPU p-1 — Stage p-1”]
+        LP[“Layer (p-1)L/p+1 ~ L”]
+    end
+
+    DATA --> S0
+    S0 -->|”激活值 P2P 通信”| S1
+    S1 -->|”激活值 P2P 通信”| SX
+    SX -->|”激活值 P2P 通信”| SP
+    SP --> LOSS[“Loss 计算<br>梯度沿逆序 P2P 回传”]
+
+    style DATA fill:#e3f2fd,stroke:#01579b,color:#000
+    style S0 fill:#fff3e0,stroke:#e65100,color:#000
+    style S1 fill:#fff9c4,stroke:#f57f17,color:#000
+    style SP fill:#f3e5f5,stroke:#6a1b9a,color:#000
+    style LOSS fill:#c8e6c9,stroke:#1b5e20,color:#000
+```
 
 ### 6.3.2 调度策略与气泡占比公式
 若直接将整个 Batch 送入流水线，会导致大部分 GPU 在前向和反向时处于闲置等待状态，称为流水线气泡（Bubble）。PP 通过将 Batch 细分为 $m$ 个更小的 Micro-Batches 来提高利用率。
@@ -2204,6 +2270,33 @@ Transformer 的 MLP 层包含两个投影矩阵：门控/上投影 $W_{\text{gat
 - **气泡占比公式**：
   $$F_{\text{bubble}} \approx \frac{p - 1}{m}$$
 - **优势**：Micro-Batch $i$ 的激活值在其前向完成并执行对应的反向后，可以立即从显存中销毁。这使激活值显存占用与 Micro-Batch 数量 $m$ 彻底解耦，极大缓解了显存压力。
+
+```mermaid
+flowchart TD
+    subgraph GPIPE ["GPipe (F-then-B)"]
+        direction LR
+        GF["① 全部 m 个 Micro-Batch<br>依次完成前向<br>激活值全部驻留显存"] --> GBUB["② 气泡等待<br>⬜ p-1 步空闲"] --> GBW["③ 全部 m 个 Micro-Batch<br>依次完成反向"]
+    end
+
+    subgraph F1B ["1F1B (One Forward, One Backward)"]
+        direction LR
+        WU["① 预热<br>p-1 步填充流水线"] --> SS["② 稳定交替<br>F(mbᵢ) 完成后立即 B(mbᵢ₋ₚ₊₁)<br>同一时刻只缓存 p 份激活值"] --> CD["③ 收尾<br>p-1 步清空"]
+    end
+
+    subgraph MEM ["激活值显存峰值对比"]
+        direction LR
+        GM["GPipe<br>同时缓存 m 份激活<br>O(m) 显存"]
+        FM["1F1B<br>同时仅缓存 p 份激活<br>O(p) 显存 ✓"]
+    end
+
+    GPIPE -.-> GM
+    F1B -.-> FM
+
+    style GBUB fill:#ffcdd2,stroke:#b71c1c,color:#000
+    style GM fill:#ffcdd2,stroke:#b71c1c,color:#000
+    style FM fill:#c8e6c9,stroke:#1b5e20,color:#000
+    style SS fill:#c8e6c9,stroke:#1b5e20,color:#000
+```
 
 #### 3. Interleaved 1F1B (虚拟流水线)
 - 每个 GPU 卡被虚拟分配负责非连续的多个 Stage（例如，GPU 0 负责第 1 层和第 9 层）。这能够进一步将 Bubble 时间减少达约 **2×**，但付出的代价是略微增加了点对点（P2P）的通信频率。
@@ -2223,6 +2316,30 @@ Transformer 的 MLP 层包含两个投影矩阵：门控/上投影 $W_{\text{gat
 ### 6.4.2 优势与长序列分布式优化
 - **降本增效**：成功将 LayerNorm 和 Dropout 处的激活值显存分摊到了 $p$ 张 GPU 上。
 - **支持超长上下文**：与 TP 配合（即 TP-SP），能将超长文本（如 128k - 1M Tokens）训练的激活值显存减小近一个数量级，使超长上下文训练不再受阻。
+
+```mermaid
+flowchart LR
+    IN["各卡持有<br>s/p 长度序列<br>（激活值切分）"]
+
+    IN --> LN["LayerNorm<br>（各卡独立，无通信）"]
+    LN -->|"All-Gather<br>拼回完整序列 s"| FULL["完整序列激活<br>（s × h）"]
+
+    subgraph TPATTN ["Attention TP 区域"]
+        FULL --> QKV["QKV 投影<br>（列并行）"] --> ATTN["Attention 计算<br>（各卡独立）"] --> OPRJ["Output 投影<br>（行并行）"]
+    end
+
+    OPRJ -->|"Reduce-Scatter<br>切回 s/p 序列"| DROP["Dropout + 残差<br>（各卡 s/p tokens）"]
+    DROP --> LN2["LayerNorm → MLP<br>（同样 All-Gather / Reduce-Scatter）"]
+    LN2 --> OUT["下一层输入<br>（s/p 序列维度切分）"]
+
+    style IN fill:#e3f2fd,stroke:#01579b,color:#000
+    style FULL fill:#fff3e0,stroke:#e65100,color:#000
+    style QKV fill:#f3e5f5,stroke:#6a1b9a,color:#000
+    style ATTN fill:#f3e5f5,stroke:#6a1b9a,color:#000
+    style OPRJ fill:#f3e5f5,stroke:#6a1b9a,color:#000
+    style DROP fill:#e8eaf6,stroke:#3949ab,color:#000
+    style OUT fill:#e3f2fd,stroke:#01579b,color:#000
+```
 
 ---
 
@@ -2269,6 +2386,24 @@ $$\text{静态总显存} = 2\Psi + 2\Psi + 12\Psi = 16\Psi \text{ 字节}$$
 
 #### 5. ZeRO-Infinity
 - 在 ZeRO-Offload 基础上，利用 NVMe 固态硬盘（SSD）作三级缓存，可直接在低配 GPU 平台上微调千亿级大模型，打破物理硬件壁垒。
+
+```mermaid
+flowchart TD
+    DDP["DDP 基准（每卡完整副本）<br>─────────────────<br>● 参数 2Ψ<br>● 梯度 2Ψ<br>● 优化器状态 12Ψ<br>─────────────────<br>单卡显存：16Ψ 字节"]
+
+    Z1["ZeRO-1：优化器状态分片<br>─────────────────<br>● 参数 2Ψ<br>● 梯度 2Ψ<br>✓ 优化器状态 12Ψ / Nd<br>─────────────────<br>单卡显存：(4 + 12/Nd)Ψ 字节"]
+
+    Z2["ZeRO-2：+ 梯度分片<br>─────────────────<br>● 参数 2Ψ<br>✓ 梯度 2Ψ / Nd<br>✓ 优化器状态 12Ψ / Nd<br>─────────────────<br>单卡显存：(2 + 14/Nd)Ψ 字节"]
+
+    Z3["ZeRO-3：+ 参数分片<br>─────────────────<br>✓ 参数 2Ψ / Nd<br>✓ 梯度 2Ψ / Nd<br>✓ 优化器状态 12Ψ / Nd<br>─────────────────<br>单卡显存：16Ψ / Nd 字节"]
+
+    DDP -->|"分片优化器状态"| Z1 -->|"+ 分片梯度"| Z2 -->|"+ 分片参数"| Z3
+
+    style DDP fill:#ffcdd2,stroke:#b71c1c,color:#000
+    style Z1 fill:#fff9c4,stroke:#f57f17,color:#000
+    style Z2 fill:#fff3e0,stroke:#e65100,color:#000
+    style Z3 fill:#c8e6c9,stroke:#1b5e20,color:#000
+```
 
 ## 6.6 混合并行
 ————3D Parallelism
