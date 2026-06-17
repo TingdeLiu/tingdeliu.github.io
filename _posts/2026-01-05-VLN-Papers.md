@@ -22,8 +22,8 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 | 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ |
 |:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|
-| [Qwen-RobotNav-8B](#qwen-robotnav) | 2026 | R2R-CE, Val-Unseen | **72.1** | **66.6** | **3.53** | **78.5** |
-| [OmniNav: A Unified Framework for Prospective Exploration and Visual-Language Navigation](#omninav) | 2026 | R2R-CE, Val-Unseen | 69.5 | 66.1 | 3.74 | 74.6 |
+| [Qwen-RobotNav-8B](#qwen-robotnav) | 2026 | R2R-CE | **72.1** | **66.6** | **3.53** | **78.5** |
+| [OmniNav](#omninav) | 2026 | R2R-CE | 69.5 | 66.1 | 3.74 | 74.6 |
 | [AstraNav-World](#astranav-world) | 2025 | R2R-CE | 67.9 | 65.4 | – | – |
 | [AgentVLN-3B](#agentvln) | 2026 | R2R-CE | 67.2 | 64.7 | – | – |
 | [ABot-N0](#abot-n0) | 2026 | R2R-CE | 66.4 | – | – | – |
@@ -50,8 +50,8 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 | 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ |
 |:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|
-| [Qwen-RobotNav-8B](#qwen-robotnav) | 2026 | RxR-CE, Val-Unseen | **76.5** | **65.7** | **3.58** | – |
-| [OmniNav: A Unified Framework for Prospective Exploration and Visual-Language Navigation](#omninav) | 2026 | RxR-CE, Val-Unseen | 73.6 | 62.0 | 3.77 | – |
+| [Qwen-RobotNav-8B](#qwen-robotnav) | 2026 | RxR-CE | **76.5** | **65.7** | **3.58** | – |
+| [OmniNav](#omninav) | 2026 | RxR-CE | 73.6 | 62.0 | 3.77 | – |
 | [AstraNav-World](#astranav-world) | 2025 | RxR-CE | 72.9 | – | – | – |
 | [ABot-N0](#abot-n0) | 2026 | RxR-CE | 69.3 | 60.0 | – | – |
 | [AwareVLN](#awarevln) | 2026 | RxR-CE | 67.6 | 56.1 | 3.95 | – |
@@ -65,7 +65,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [HSGM](#hsgm) | 2026 | RxR-CE | 41.8 | 25.1 | 7.43 | – |
 | [VLN-R1 (Qwen2-VL-7B)](#vln-r1) | 2025 | RxR-CE | 22.7 | 17.6 | 9.1 | 30.4 |
 | [VLN-R1 (Qwen2-VL-2B)](#vln-r1) | 2025 | RxR-CE | 20.7 | 16.9 | 10.2 | 30.1 |
-| [OneVLA: A Unified Framework for Embodied Tasks](#onevla-a-unified-framework-for-embodied-tasks) | 2026 | RxR-CE | – | – | – | 58.2 |
+| [OneVLA](#onevla-a-unified-framework-for-embodied-tasks) | 2026 | RxR-CE | – | – | – | 58.2 |
 
 注：RynnBrain-Nav-8B 指标来自 RxR-CE（R2R 结果未详述）；Dual-Anchoring 与 StreamVLN 基线（52.9%）对比来自 Dual-Anchoring 原文。
 
@@ -109,7 +109,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [VLingNav](#vlingnav) | 2026 | HM3D (实例图像) | 60.8 | 37.4 |
 | [EvoMemNav](#evomemnav) | 2026 | GOAT-Bench | 59.6 | 38.9 |
 | [EvoMemNav](#evomemnav) | 2026 | HM3D-v1 | 59.2 | 33.6 |
-| [OmniNav: A Unified Framework for Prospective Exploration and Visual-Language Navigation](#omninav) | 2026 | HM3D-OVON (Object-Goal), Val-Unseen | 59.2 | 33.2 |
+| [OmniNav](#omninav) | 2026 | HM3D-OVON (Object-Goal), Val-Unseen | 59.2 | 33.2 |
 | [VLingNav](#vlingnav) | 2026 | MP3D | 58.9 | 26.5 |
 | [ABot-N0](#abot-n0) | 2026 | HM3D-OVON | 54.0 | – |
 | [Qwen-RobotNav-4B](#qwen-robotnav) | 2026 | HM3D-OVON (Unseen) | 53.1 | 20.9 |
