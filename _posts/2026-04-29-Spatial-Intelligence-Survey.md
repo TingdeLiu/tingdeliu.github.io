@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "空间智能综述：从三维感知到空间推理"
-date: 2026-06-16
+date: 2026-06-24
 tags: [Spatial Intelligence, 3D Vision, NeRF, Point Cloud, Embodied AI, Survey]
 categories: research
 comments: true
@@ -95,6 +95,7 @@ graph TD
         R4 --> R5["3D Gaussian Splatting (2023)"]
         R2 --> R6["DUSt3R / MASt3R (2024)"]
         R6 --> R7["VGGT (CVPR 2025 Best Paper)"]
+        R7 --> R8["MapAnything (2026)"]
     end
 
     %% 路径 3: 空间语言模型
@@ -104,7 +105,7 @@ graph TD
     end
 
     %% 汇聚点
-    P4 & R7 & L3 --> F["通用空间智能基础模型 (Spatial Foundation Models)"]
+    P4 & R8 & L3 --> F["通用空间智能基础模型 (Spatial Foundation Models)"]
 
     style F fill:#f96,stroke:#333,stroke-width:4px
 ```
@@ -526,6 +527,41 @@ graph TD
 - 标志着三维重建正式从"先估位姿—再三角化—再稠密化"的多阶段几何管线，转向"前馈基础模型一步出几何"的新范式，与 NLP/2D 视觉的发展轨迹高度对应。
 - 推动了 **Fast3R**、**CUT3R** 等多视角/流式前馈三维重建工作的快速涌现，形成了围绕 DUSt3R → VGGT 的"3D Foundation Model"研究热潮。
 - 对具身智能与世界模型而言，VGGT 提供了一个可即插即用的统一几何先验，显著降低了空间感知模块的工程复杂度。
+
+---
+
+### MapAnything：通用度量级前馈重建模型 (2026)
+
+**MapAnything**（Keetha et al., Meta Reality Labs & CMU, arXiv:2509.13414）将 VGGT 的"统一前馈"范式进一步推向**通用化**与**度量化**。VGGT 只吃图像、输出 up-to-scale 几何，而 MapAnything 补上两个关键缺口：**(1)** 灵活接受任意几何先验（相机内参、位姿、深度）作为**可选输入**；**(2)** 直接输出**度量级（metric-scale）**三维与相机。单个模型由此覆盖无标定 SfM、标定 MVS、单目/多视角深度估计、相机定位、度量深度补全等 **12+ 种任务、64 种输入组合**。
+
+<div align="center">
+  <img src="/images/si/MapAnything-teaser.png" width="92%" />
+<figcaption>MapAnything 接受 N 张图像并可选附带相机位姿、内参、深度等几何输入，单次前馈即输出带相机信息的度量级三维重建，统一覆盖相机定位、SfM、MVS、度量深度补全等 12+ 种任务。</figcaption>
+</div>
+
+**核心设计——因子化场景表示（Factored Scene Representation）**：MapAnything 的关键洞察是不直接回归 pointmap，而是把每个视角的几何拆解为四个解耦分量——逐像素 **ray 方向**（等价相机标定）、沿 ray 的**深度**、视角在首帧系下的**全局位姿**（四元数 + up-to-scale 平移），以及全场景**单一 metric scale 因子** $m$。由这些因子可逐级还原局部点图 $$\tilde{L}_i = R_i \cdot \tilde{D}_i$$、世界系点图直至度量三维 $$X_i^{\text{metric}} = m \cdot \tilde{X}_i$$。这套因子表示同时充当**可选输入**与**最终输出**：有先验时按同一参数化喂入，无先验时退化为纯图像重建。
+
+<div align="center">
+  <img src="/images/si/MapAnything-architecture.png" width="92%" />
+<figcaption>MapAnything 架构总览：N 路图像与可选几何输入各自编码进共享隐空间并逐视角相加，拼上一个可学习 scale token 后送入交替注意力 Transformer；单个 DPT 头解码每视角稠密量（ray 方向、深度、mask、置信度），pose 头预测各视角位姿，scale token 经 MLP 给出全场景 metric scale 因子。</figcaption>
+</div>
+
+**架构要点**：
+- **多模态编码器**：图像走 DINOv2 ViT-G；ray 方向 / 深度等稠密量走浅层卷积编码器；旋转、平移、深度尺度、位姿尺度等全局量走 MLP 并广播到所有 patch。所有模态编码后经 LayerNorm 逐视角相加，进入共享隐空间。
+- **交替注意力 Transformer**：与 VGGT 同源，16 层逐帧 / 全局交替注意力，用 DINOv2 后 16 层初始化；首视角加 reference-view embedding，并额外拼一个可学习 **scale token** 专门预测全局度量尺度，使尺度预测与几何**解耦**（消融证明这是通用度量推理的关键）。
+- **输入概率训练（input-probability training）**：训练时按概率随机给入各几何模态（ray、深度、位姿各约 0.5），让单一通用模型自然支持 64 种输入组合，并能从"只有 up-to-scale 标注"的数据集学习——这是实现通用度量推理的另一关键。
+
+**核心结果**：
+- 仅用图像即在 ETH3D / ScanNet++ v2 / TartanAirV2 上取得多视角密集重建 SOTA，超过 VGGT；提供内参 / 位姿 / 稀疏深度等先验后精度进一步显著提升（全先验下点图 rel 低至 0.01）。
+- 单视角标定（平均角误差 1.06°，优于 VGGT 4.00、MoGe-2 1.95）、两视角重建、Robust-MVD 度量深度等多项基准上达到或逼近专家模型。
+- 用等同两个专用模型的算力一次训成 12+ 任务，性能却媲美甚至超过多个 bespoke 专家模型，验证多任务训练的高效性；在 2–500 视角下推理速度与峰值显存均优于 VGGT、Depth-Anything-3 等并发模型。
+
+<div align="center">
+  <img src="/images/si/MapAnything-vs-VGGT.png" width="90%" />
+<figcaption>仅用 in-the-wild 图像输入时 MapAnything 与 VGGT 的定性对比（两者施加相同的法向边缘 mask 与天空 mask）。MapAnything 在大视差变化、季节差异、无纹理表面、水体与大场景上明显更稳健。</figcaption>
+</div>
+
+**意义**：MapAnything 把 DUSt3R → VGGT 的前馈三维基础模型路线，从"纯图像、up-to-scale"扩展到"任意几何先验、度量级"，并以开源（Apache 2.0 / CC BY-NC）的模型与训练框架，朝"通用三维重建主干（Universal 3D Reconstruction Backbone）"又迈进一步。
 
 ---
 
@@ -2051,6 +2087,114 @@ ROSS3D 基于 LLaVA-Video-7B 微调，在五个ScanNet系3D基准上全面超越
 
 - Paper: [ROSS3D: Reconstructive Visual Instruction Tuning with 3D-Awareness](https://arxiv.org/abs/2504.01901)
 - Project Page: [haochen-wang409.github.io/ross3d](https://haochen-wang409.github.io/ross3d)
+
+---
+
+## 6.14 MapAnything (2026)
+———一个前馈主干，单次推理统一 12+ 种度量级三维重建任务
+
+📄 **Paper**: [arXiv:2509.13414](https://arxiv.org/abs/2509.13414)
+
+---
+
+### 精华
+
+1. **核心思想——因子化场景表示（Factored Scene Representation）**：不直接回归 pointmap，而是把多视角几何拆成「每像素 ray 方向 + 沿 ray 的深度 + 每视角全局位姿 + 全场景单一 metric scale 因子」四个解耦分量，再组合还原出全局度量一致的三维。
+2. **因子化同时统一了输入与输出**：任意可得的几何先验（内参/位姿/深度）都能按同一套因子表示喂进模型，于是单个模型支持 SfM、MVS、单目深度、相机定位、深度补全等 12+ 任务、64 种输入组合。
+3. **尺度解耦是实现通用度量推理的关键**：用一个可学习的 scale token 经 MLP 单独预测 metric scale 因子，使模型既能吃「只有 up-to-scale 标注」的数据集训练，又能在有度量先验时输出精确尺度。
+4. **输入概率训练（input-probability training）**：训练时以一定概率随机给入各几何模态，一个通用模型即可媲美甚至超过为单一任务专门训练的专家模型，且训练算力更省。
+5. **可迁移启发**：当一个任务族共享底层物理量但输入条件各异时，「把表示因子化 + 随机 drop 输入模态」是用一个前馈模型吃下整族任务的有效范式。
+
+---
+
+### 1. 研究背景/问题
+
+传统 image-based 3D 重建被拆成特征匹配、两视图位姿、相机标定、BA、MVS、单目深度等一系列独立子任务串联求解。近期前馈方法（DUSt3R、MASt3R、VGGT、π³ 等）虽把部分子任务统一进一个 transformer，但仍有三大局限：**(a)** 只吃图像输入、无法利用机器人场景常有的内参/位姿先验；**(b)** 多预测耦合的 pointmap，需昂贵后处理才能恢复相机与几何，且常有冗余分支；**(c)** 视角数受限、只建模简单针孔相机、且多数无法输出 metric scale。本文要解决的核心问题是：**能否用一个前馈主干，吃任意数量视角 + 任意几何先验子集，直接输出度量级三维重建与相机？**
+
+<div align="center">
+  <img src="/images/si/MapAnything-teaser.png" width="100%" />
+<figcaption>MapAnything 接受 N 张图像并可选附带相机位姿、内参、深度等几何输入，单次前馈即输出带相机信息的度量级三维重建，统一覆盖相机定位、SfM、MVS、度量深度补全等 12+ 种任务。</figcaption>
+</div>
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/si/MapAnything-architecture.png" width="100%" />
+<figcaption>MapAnything 架构总览。N 路图像与可选几何输入先各自编码进共享隐空间并逐视角相加，拼上一个可学习 scale token 后送入交替注意力 transformer；单个 DPT 头解码出每视角稠密量，pose 头预测各视角位姿，scale token 经 MLP 给出全场景 metric scale 因子。</figcaption>
+</div>
+
+#### ① 整体框架概述
+
+MapAnything 由三大部分构成：**多模态编码器**把图像与几何先验统一编码进同一隐空间，**多视角交替注意力 transformer** 在所有视角间传播信息，**多个轻量预测头 + scale token** 解码出因子化的度量三维输出。其设计动机是：用一套「因子化表示」同时承载可选输入与最终输出，从而既能利用任意几何先验，又能在缺先验时退化为纯图像重建。
+
+#### ② 因子化表示（方法基石）
+
+模型不直接预测 pointmap，而是把每个视角 $i$ 的几何拆成四个分量：局部 ray 方向 $R_i$（等价于相机标定）、沿 ray 的 up-to-scale 深度 $$\tilde{D}_i$$、视角在首帧坐标系下的位姿 $$\tilde{P}_i$$（四元数 $Q_i$ + up-to-scale 平移 $$\tilde{T}_i$$），以及**全场景单一**的 metric scale 因子 $m$。由这些因子可逐级还原：局部点图 $$\tilde{L}_i = R_i \cdot \tilde{D}_i$$，世界系 up-to-scale 点图 $$\tilde{X}_i = O_i \cdot \tilde{L}_i + \tilde{T}_i$$（$O_i$ 为 $Q_i$ 对应的旋转矩阵），最终度量三维 $$X_i^{\text{metric}} = m \cdot \tilde{X}_i$$。**设计动机**：把「计算标定」（ray 方向）和「沿 ray 深度」做成逐视角任务，可由单个稠密头预测；把尺度抽成独立标量，使模型能从只有 up-to-scale 标注的数据集学习。
+
+#### ③ 多模态编码器（输入 → 处理 → 输出）
+
+- **图像分支**：用 DINOv2 ViT-G 第 24 层归一化 patch 特征 $$F_I \in \mathbb{R}^{1536 \times H/14 \times W/14}$$。作者对比 CroCov2、DUSt3R encoder、RADIO 等后发现 DINOv2 在下游性能、收敛速度与泛化上最优。
+- **稠密几何分支（ray 方向、归一化 ray 深度）**：用浅层卷积编码器 + pixel-unshuffle（步长 14）投影到与 DINOv2 同样的空间与隐维度。
+- **全局非像素量（旋转、平移方向、深度尺度、位姿尺度）**：用 4 层 GeLU-MLP 投到 $$\mathbb{R}^{1536}$$ 后**广播**到所有 patch。
+- **关键解耦**：旋转与平移分开编码（兼容只有 IMU/GPS 单独先验的情形）；深度与位姿的归一化分开（不假设二者总是成对给入）。尺度因可能极大且跨场景剧变，先做 log 变换再编码。只有当给入的位姿/深度本身是 metric 时才使用其尺度信息。
+- **输出**：所有编码量经 LayerNorm → 求和 → LayerNorm，得到每视角 token $$F_E \in \mathbb{R}^{1536 \times (HW/256)}$$。
+
+#### ④ 多视角交替注意力 Transformer
+
+把 N 视角 patch token 拼上**单个可学习 scale token** 后，送入 16 层交替注意力（alternating-attention）transformer（24 头、隐维 1536、MLP ratio 4），用 DINOv2 ViT-G 的后 16 层初始化。首视角 token 额外加一个固定的 reference-view embedding 以标识参考系。作者发现 DINOv2 自带的 patch 位置编码已足够，**刻意不用 RoPE**（认为它会引入不必要的偏置）。
+
+#### ⑤ 因子化输出预测头
+
+- **单个 DPT 头**解码 N 视角 patch token，输出每视角稠密量：ray 方向 $R_i$（归一化为单位长）、up-to-scale ray 深度 $$\tilde{D}_i$$、非歧义深度类别 mask $M_i$、点图置信度 $C_i$。
+- **平均池化卷积 pose 头**用 N 视角 token 预测各视角在首帧系下的单位四元数 $Q_i$ 与 up-to-scale 平移 $$\tilde{T}_i$$。
+- **scale token** 经 2 层 ReLU-MLP 预测一个标量，再指数化得到 metric scale 因子 $m$。消融（Table 5a）证明这种**尺度解耦预测**是实现通用度量前馈推理的关键。
+
+#### ⑥ 端到端数据流
+
+一个样本流经路径为：N 张图像（及可选几何先验）→ 各模态编码并逐视角相加 → 拼 scale token → 交替注意力 transformer 融合跨视角信息 → DPT 头出逐视角 ray/深度/mask/置信度、pose 头出逐视角位姿、scale token 出 $m$ → 按因子公式组合还原全局度量三维点云与相机。
+
+#### ⑦ 训练目标
+
+ray 方向与四元数不依赖尺度，直接回归（四元数取 $$\min(\lVert \hat{Q}_i - Q_i \rVert,\ \lVert -\hat{Q}_i - Q_i \rVert)$$ 以处理双覆盖）。对 up-to-scale 的深度、平移、点图，沿用 DUSt3R 的尺度归一化做 scale-invariant 监督，并对深度/点图/尺度施加 **log 空间损失** $$f_{\log}: x \mapsto (x/\lVert x \rVert)\cdot \log(1+\lVert x \rVert)$$。为防尺度梯度污染几何，用 stop-grad 把度量范数因子写成 $z^{\text{metric}} = m \cdot \text{sg}(\tilde{z})$。总损失（上调全局点图、下调 mask）：
+
+$$\mathcal{L} = 10\,\mathcal{L}_{\text{pointmap}} + \mathcal{L}_{\text{rays}} + \mathcal{L}_{\text{rot}} + \mathcal{L}_{\text{translation}} + \mathcal{L}_{\text{depth}} + \mathcal{L}_{\text{lpm}} + \mathcal{L}_{\text{scale}} + \mathcal{L}_{\text{normal}} + \mathcal{L}_{\text{GM}} + 0.1\,\mathcal{L}_{\text{mask}}$$
+
+其中 normal 损失与多尺度梯度匹配损失 $$\mathcal{L}_{\text{GM}}$$ 只施加于合成数据集（真实数据几何偏粗糙）。所有回归项用自适应鲁棒损失（$c=0.05,\ \alpha=0.5$）。
+
+#### ⑧ 输入概率训练（让一个模型吃下整族任务）
+
+训练时以总几何输入概率 0.9 给入先验，其中 ray 方向、ray 深度、位姿各以 0.5 概率独立给入；选中深度时一半概率给稠密、一半给 90% 随机稀疏化的深度；每视角 0.95 概率拥有几何信息；对 metric 数据集以 0.05 概率不给 metric scale。这种**随机 drop 输入模态**的训练让单模型自然支持 64 种输入组合。模型在 13 个高质量数据集（约 72K 场景的 MPSD 等，覆盖室内/室外/in-the-wild）上以两阶段课程训练（64×H200，约 420K 步）。开源两个权重：6 数据集的 Apache 2.0 版与额外 7 数据集的 CC BY-NC 版。
+
+---
+
+### 3. 核心结果/发现
+
+- **多视角密集重建（2–100 视角）**：仅用图像即在 ETH3D / ScanNet++ v2 / TartanAirV2-WB 上取得 SOTA，超过 VGGT；加入内参/位姿/稀疏深度等先验后，pointmap、位姿、深度、ray 误差进一步显著下降。
+- **两视角重建**：仅图像输入即 SOTA；加先验后大幅超过唯一同类利用先验的两视图方法 Pow3R（含其 BA 变体）。给全先验（图像+内参+位姿+深度）时点图 rel 低至 0.01。
+- **单视角标定**：虽未专门为单图训练，平均角误差 1.06° 优于 VGGT(4.00)、MoGe-2(1.95)、AnyCalib(2.01)。
+- **度量深度估计（Robust-MVD）**：多视角仅图像即超过 MASt3R-BA、MUSt3R；加内参/位姿后与专家模型相当。
+- **关键消融**：① 因子化 RDP & Scale 表示是强重建性能的关键（优于直接 local pointmap、优于 π³ 式解耦设计）；② **通用训练 ≈ 专家训练**——用等同两个专用模型的算力一口气训 12+ 任务，性能却媲美甚至超过三个分别定制的 bespoke 模型，说明多任务训练高效；③ log 缩放与交替注意力对 50 视角外推至关重要。
+- **速度/显存**：相比 VGGT、Depth-Anything-3 等并发模型，MapAnything 在 2–500 视角下速度与峰值显存均最优；mem-efficient 变体把稠密头按视角小批循环，几乎不损速度而大幅降显存。
+
+<div align="center">
+  <img src="/images/si/MapAnything-vs-VGGT.png" width="100%" />
+<figcaption>仅用 in-the-wild 图像输入时 MapAnything 与 VGGT 的定性对比（两者施加相同的法向边缘 mask 与天空 mask）。MapAnything 在大视差变化、季节差异、无纹理表面、水体与大场景上明显更稳健。</figcaption>
+</div>
+
+---
+
+### 4. 局限性
+
+模型不显式建模几何输入中的噪声/不确定性；当前架构尚未支持「部分视角无图像」（如新视角合成中目标视角只有相机）的情形；输入像素与输出场景表示是一对一映射，限制了对超大场景的可扩展性（场景需更高效的内存表示与按需解码）；当前参数化不建模动态运动 / scene flow。
+
+---
+
+### 参考
+
+- Paper: [MapAnything: Universal Feed-Forward Metric 3D Reconstruction](https://arxiv.org/abs/2509.13414)
+- Project Page: [map-anything.github.io](https://map-anything.github.io)
 
 ---
 
