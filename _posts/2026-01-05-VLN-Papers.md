@@ -37,7 +37,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [GA-VLN](#ga-vln) | 2026 | R2R-CE | 61.0 | 55.2 | 4.80 | 67.6 | [是](https://github.com/chen-zhipeng/GA-VLN) | 代码与模型权重已开源 |
 | [JanusVLN](#janusvln) | 2026 | R2R-CE | 60.5 | 56.8 | 4.78 | 65.2 | [是](https://github.com/MIV-XJTU/JanusVLN) | – |
 | [BudVLN](#budvln) | 2026 | R2R-CE | 57.6 | 51.1 | – | – | [是](https://github.com/Beat992/CDC2F) | – |
-| [StreamVLN](#streamvln) | 2025 | R2R-CE | 56.9 | 51.9 | 4.98 | 64.2 | [是](https://github.com/AIR-DISCOVER/StreamVLN) | – |
+| [StreamVLN](#streamvln) | 2025 | R2R-CE | 56.9 | 51.9 | 4.98 | 64.2 | [是](https://github.com/OpenRobotLab/StreamVLN) | – |
 | [Goal2Pixel](#goal2pixel) | 2025 | R2R-CE | 54.1 | 52.5 | 4.85 | 59.9 | 否 | – |
 | [MapNav](#mapnav) | 2025 | R2R-CE | 53.0 | 39.7 | – | – | [是](https://github.com/linglingxiansen/MapNav) | – |
 | [HSGM](#hsgm) | 2026 | R2R-CE | 47.9 | 32.8 | 5.42 | 58.7 | [是](https://github.com/Teacher-Tom/HSGM_public) | – |
@@ -62,7 +62,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [JanusVLN](#janusvln) | 2026 | RxR-CE | 56.2 | 47.5 | 6.06 | – | [是](https://github.com/MIV-XJTU/JanusVLN) | – |
 | [RynnBrain-Nav-8B](#rynnbrain) | 2026 | RxR-CE | 56.1 | – | 4.92 | – | [是](https://github.com/alibaba-damo-academy/RynnBrain) | – |
 | [GA-VLN](#ga-vln) | 2026 | RxR-CE | 55.4 | 45.2 | 5.88 | 67.0 | [是](https://github.com/chen-zhipeng/GA-VLN) | 代码与模型权重已开源 |
-| [StreamVLN](#streamvln) | 2025 | RxR-CE | 52.9 | – | – | – | [是](https://github.com/AIR-DISCOVER/StreamVLN) | – |
+| [StreamVLN](#streamvln) | 2025 | RxR-CE | 52.9 | – | – | – | [是](https://github.com/OpenRobotLab/StreamVLN) | – |
 | [Goal2Pixel](#goal2pixel) | 2025 | RxR-CE | 43.8 | 40.4 | 7.50 | – | 否 | – |
 | [HSGM](#hsgm) | 2026 | RxR-CE | 41.8 | 25.1 | 7.43 | – | [是](https://github.com/Teacher-Tom/HSGM_public) | – |
 | [VLN-R1 (Qwen2-VL-7B)](#vln-r1) | 2025 | RxR-CE | 22.7 | 17.6 | 9.1 | 30.4 | [是](https://github.com/cshizhe/VLN-R1) | – |
