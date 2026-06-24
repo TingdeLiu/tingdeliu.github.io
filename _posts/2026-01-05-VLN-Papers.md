@@ -42,7 +42,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [HSGM](#hsgm) | 2026 | R2R-CE | 47.9 | 32.8 | 5.42 | 58.7 |
 | [VLN-R1 (Qwen2-VL-7B)](#vln-r1) | 2025 | R2R-CE | 30.2 | 21.8 | 7.0 | 41.2 |
 | [VLN-R1 (Qwen2-VL-2B)](#vln-r1) | 2025 | R2R-CE | 25.6 | 20.5 | 10.2 | 37.5 |
-| [OneVLA: A Unified Framework for Embodied Tasks](#onevla-a-unified-framework-for-embodied-tasks) | 2026 | R2R-CE | – | – | – | 68.6 |
+| [OneVLA](#onevla-a-unified-framework-for-embodied-tasks) | 2026 | R2R-CE | – | – | – | 68.6 |
 
 注：NavFoM 为单视角 VLN-CE R2R 结果；DualVLN 与 StreamVLN 为同口径单视角对比；VLN-Cache 为对 DualVLN 的加速方案，几乎无损（基线 64.3 / 58.5）。
 
