@@ -22,7 +22,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 | 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 开源 | 备注 |
 |:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|:----:|:----:|
-| [Qwen-RobotNav-8B (全景)](#qwen-robotnav) | 2026 | R2R-CE | **72.1** | **66.6** | **3.53** | **78.5** | [是](https://github.com/QwenLM/Qwen-RobotNav) | 全景相机 |
+| [Qwen-RobotNav-8B (全景)](#qwen-robotnav) | 2026 | R2R-CE | **72.1** | **66.6** | **3.53** | **78.5** | 否 | 全景相机 |
 | [OmniNav](#omninav) | 2026 | R2R-CE | 69.5 | 66.1 | 3.74 | 74.6 | [是](https://github.com/amap-cvlab/OmniNav) | – |
 | [AstraNav-World](#astranav-world) | 2025 | R2R-CE | 67.9 | 65.4 | – | – | 否 | – |
 | [AgentVLN-3B](#agentvln) | 2026 | R2R-CE | 67.2 | 64.7 | – | – | [是](https://github.com/Allenxinn/AgentVLN) | – |
@@ -5221,7 +5221,7 @@ ABot-N0 在 7 个权威基准上全面刷新 SOTA：
 ## 52. Qwen-RobotNav (2026) {#qwen-robotnav}
 ———首个统一的多任务、时空可重构具身导航大模型
 
-📄 **Paper**: [Qwen-RobotNav Blog & Github](https://github.com/QwenLM/Qwen-RobotNav)
+📄 **Paper**: [arxiv:2606.18112 ](https://arxiv.org/abs/2606.18112)
 
 ### 精华
 1. **统一建模**：Qwen-RobotNav 是首个将多任务导航（指令遵循、目标搜索、主动追踪、自动驾驶）统一为参数化观测上下文建模的通用导航底座大模型。
