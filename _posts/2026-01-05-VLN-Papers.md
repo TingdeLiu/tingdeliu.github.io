@@ -26,11 +26,11 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [OmniNav](#omninav) | 2026 | R2R-CE | 69.5 | 66.1 | 3.74 | 74.6 | [是](https://github.com/amap-cvlab/OmniNav) | – |
 | [AstraNav-World](#astranav-world) | 2025 | R2R-CE | 67.9 | 65.4 | – | – | 否 | – |
 | [AgentVLN-3B](#agentvln) | 2026 | R2R-CE | 67.2 | 64.7 | – | – | [是](https://github.com/Allenxinn/AgentVLN) | – |
-| [Qwen-RobotNav-8B (单目)](#qwen-robotnav) | 2026 | R2R-CE | 66.9 | 60.5 | – | – | [是](https://github.com/QwenLM/Qwen-RobotNav) | 单前向相机 |
+| [Qwen-RobotNav-8B (单目)](#qwen-robotnav) | 2026 | R2R-CE | 66.9 | 60.5 | – | – | 否 | 单前向相机 |
 | [ABot-N0](#abot-n0) | 2026 | R2R-CE | 66.4 | – | – | – | 否 | – |
 | [Dual-Anchoring](#dual-anchoring) | 2026 | R2R-CE | 65.6 | 62.1 | – | – | 否 | – |
 | [AwareVLN](#awarevln) | 2026 | R2R-CE | 65.4 | 55.1 | 4.02 | 73.5 | [是](https://github.com/GWxuan/AwareVLN) | – |
-| [NavFoM](#navfom) | 2025 | R2R-CE | 64.9 | 56.2 | – | – | [是](https://github.com/PKU-EPIC/NavFoM) | – |
+| [NavFoM](#navfom) | 2025 | R2R-CE | 64.9 | 56.2 | – | – | 否 | – |
 | [DGNav](#dgnav) | 2026 | R2R-CE | 64.82 | 50.08 | – | – | [是](https://github.com/shannanshouyin/DGNav) | – |
 | [DualVLN](#dualvln) | 2025 | R2R-CE | 64.3 | 58.5 | 4.05 | 70.7 | [是](https://github.com/AIR-DISCOVER/DualVLN) | – |
 | [VLN-Cache](#vln-cache) | 2026 | R2R-CE | 63.1 | 57.6 | – | – | 否 | – |
@@ -51,9 +51,9 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 | 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 开源 | 备注 |
 |:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|:----:|:----:|
-| [Qwen-RobotNav-8B (全景)](#qwen-robotnav) | 2026 | RxR-CE | **76.5** | **65.7** | **3.58** | – | [是](https://github.com/QwenLM/Qwen-RobotNav) | 全景相机 |
+| [Qwen-RobotNav-8B (全景)](#qwen-robotnav) | 2026 | RxR-CE | **76.5** | **65.7** | **3.58** | – | 否 | 全景相机 |
 | [OmniNav](#omninav) | 2026 | RxR-CE | 73.6 | 62.0 | 3.77 | – | [是](https://github.com/amap-cvlab/OmniNav) | – |
-| [Qwen-RobotNav-8B (单目)](#qwen-robotnav) | 2026 | RxR-CE | 73.4 | 63.5 | – | – | [是](https://github.com/QwenLM/Qwen-RobotNav) | 单前向相机 |
+| [Qwen-RobotNav-8B (单目)](#qwen-robotnav) | 2026 | RxR-CE | 73.4 | 63.5 | – | – | 否 | 单前向相机 |
 | [AstraNav-World](#astranav-world) | 2025 | RxR-CE | 72.9 | – | – | – | 否 | – |
 | [ABot-N0](#abot-n0) | 2026 | RxR-CE | 69.3 | 60.0 | – | – | 否 | – |
 | [AwareVLN](#awarevln) | 2026 | RxR-CE | 67.6 | 56.1 | 3.95 | – | [是](https://github.com/GWxuan/AwareVLN) | – |
@@ -104,7 +104,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [Qwen-RobotNav-4B](#qwen-robotnav) | 2026 | HM3Dv2 | 75.6 | 30.6 | [是](https://github.com/QwenLM/Qwen-RobotNav) |
 | [3DGSNav](#3dgsnav) | 2026 | HM3D-v2 | 75.0 | 44.2 | [是](https://github.com/zhengwancai/3DGSNav) |
 | [GaussNav](#gaussnav) | 2025 | HM3D（实例图像） | 72.5 | 57.8 | [是](https://github.com/XiaohanLei/GaussNav) |
-| [Qwen-RobotNav-8B](#qwen-robotnav) | 2026 | HM3Dv2 | 71.2 | 33.0 | [是](https://github.com/QwenLM/Qwen-RobotNav) |
+| [Qwen-RobotNav-8B](#qwen-robotnav) | 2026 | HM3Dv2 | 71.2 | 33.0 | 否 |
 | [LagMemo](#lagmemo) | 2025 | GOAT-Core | 70.8 | – | 否 |
 | [GSMem](#gsmem) | 2025 | GOAT-Bench | 67.2 | 46.9 | [是](https://github.com/vulab-AI/GSMem) |
 | [EvoMemNav](#evomemnav) | 2026 | HM3D-v2 | 63.8 | 39.4 | 否 |
@@ -116,11 +116,11 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [ABot-N0](#abot-n0) | 2026 | HM3D-OVON | 54.0 | – | 否 |
 | [Qwen-RobotNav-4B](#qwen-robotnav) | 2026 | HM3D-OVON (Unseen) | 53.1 | 20.9 | [是](https://github.com/QwenLM/Qwen-RobotNav) |
 | [VLFM](#vlfm) | 2023 | HM3D | 52.5 | 30.4 | [是](https://github.com/krrish94/vlfm) |
-| [Qwen-RobotNav-8B](#qwen-robotnav) | 2026 | HM3D-OVON (Unseen) | 51.2 | 24.0 | [是](https://github.com/QwenLM/Qwen-RobotNav) |
+| [Qwen-RobotNav-8B](#qwen-robotnav) | 2026 | HM3D-OVON (Unseen) | 51.2 | 24.0 | 否 |
 | [WAM-Nav](#wam-nav) | 2026 | Clutter/Intern (Image-Goal) | 50.2 | 48.2 | 否 |
 | [VLingNav](#vlingnav) | 2026 | HM3D-OVON | 50.1 | 24.6 | [是](https://github.com/wsakobe/VLingNav-web) |
 | [AstraNav-World](#astranav-world) | 2025 | HM3D-OVON | 45.7 | – | 否 |
-| [NavFoM](#navfom) | 2025 | HM3D-OVON | 45.2 | – | [是](https://github.com/PKU-EPIC/NavFoM) |
+| [NavFoM](#navfom) | 2025 | HM3D-OVON | 45.2 | – | 否 |
 | [JanusVLN](#janusvln) | 2026 | HM3D-OVON | 44.9 | 31.7 | [是](https://github.com/MIV-XJTU/JanusVLN) |
 | [3DGSNav](#3dgsnav) | 2026 | MP3D | 43.6 | 21.3 | [是](https://github.com/zhengwancai/3DGSNav) |
 | [PanoNav](#panonav) | 2025 | HM3D | 43.5 | 23.7 | 否 |
