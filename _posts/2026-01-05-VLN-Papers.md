@@ -43,7 +43,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [HSGM](#hsgm) | 2026 | R2R-CE | 47.9 | 32.8 | 5.42 | 58.7 | [是](https://github.com/Teacher-Tom/HSGM_public) | – |
 | [VLN-R1 (Qwen2-VL-7B)](#vln-r1) | 2025 | R2R-CE | 30.2 | 21.8 | 7.0 | 41.2 | [是](https://github.com/cshizhe/VLN-R1) | – |
 | [VLN-R1 (Qwen2-VL-2B)](#vln-r1) | 2025 | R2R-CE | 25.6 | 20.5 | 10.2 | 37.5 | [是](https://github.com/cshizhe/VLN-R1) | – |
-| [OneVLA](#onevla-a-unified-framework-for-embodied-tasks) | 2026 | R2R-CE | – | – | – | 68.6 | [是](https://github.com/onevla/OneVLA) | – |
+| [OneVLA](#onevla-a-unified-framework-for-embodied-tasks) | 2026 | R2R-CE | – | – | – | 68.6 | [是](https://github.com/onevla/OneVLA) | 仅评估 OSR |
 
 注：NavFoM 为单视角 VLN-CE R2R 结果；DualVLN 与 StreamVLN 为同口径单视角对比；VLN-Cache 为对 DualVLN 的加速方案，几乎无损（基线 64.3 / 58.5）。
 
@@ -67,7 +67,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [HSGM](#hsgm) | 2026 | RxR-CE | 41.8 | 25.1 | 7.43 | – | [是](https://github.com/Teacher-Tom/HSGM_public) | – |
 | [VLN-R1 (Qwen2-VL-7B)](#vln-r1) | 2025 | RxR-CE | 22.7 | 17.6 | 9.1 | 30.4 | [是](https://github.com/cshizhe/VLN-R1) | – |
 | [VLN-R1 (Qwen2-VL-2B)](#vln-r1) | 2025 | RxR-CE | 20.7 | 16.9 | 10.2 | 30.1 | [是](https://github.com/cshizhe/VLN-R1) | – |
-| [OneVLA](#onevla-a-unified-framework-for-embodied-tasks) | 2026 | RxR-CE | – | – | – | 58.2 | [是](https://github.com/onevla/OneVLA) | – |
+| [OneVLA](#onevla-a-unified-framework-for-embodied-tasks) | 2026 | RxR-CE | – | – | – | 58.2 | [是](https://github.com/onevla/OneVLA) | 仅评估 OSR |
 
 注：RynnBrain-Nav-8B 指标来自 RxR-CE（R2R 结果未详述）；Dual-Anchoring 与 StreamVLN 基线（52.9%）对比来自 Dual-Anchoring 原文。
 
@@ -85,7 +85,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [Slow4fast-VLN](#slow4fast-vln) | 2026 | GSA-R2R (OOD) | 58.4 | 52.9 | 4.2 | – | 否 | – |
 | GR-DUET | 2024 | GSA-R2R (OOD) | 56.6 | 51.5 | 4.4 | – | [是](https://github.com/cshizhe/VLN-DUET) | – |
 | [CA-VLN](#ca-vln) | 2026 | REVERIE | 51.0 | 35.5 | – | 56.3 | [是](https://github.com/ankursikarwar/Cosmic) | – |
-| [NavGPT (零样本 GPT-4)](#navgpt) | 2024 | R2R | 34 | 29 | – | 42 | [是](https://github.com/GengzeZhou/NavGPT) | – |
+| [NavGPT (零样本 GPT-4)](#navgpt) | 2024 | R2R | 34 | 29 | – | 42 | [是](https://github.com/GengzeZhou/NavGPT) | GPT-4 零样本 |
 
 注：VLN-Imagine 在 DUET（基线 79.9 / 73.75）基础上于 val-unseen 约 +1.0 SR / +0.5 SPL，绝对值为估算。GSA-R2R 区分住宅（ID，Test-R-Basic）与非住宅（OOD，Test-N-Basic）场景，Slow4fast-VLN 相对 GR-DUET 性能有所提升。REVERIE 基准另用 RGS / RGSPL 指标：R³ 为 53.76 / 42.14 / 37.94 / 29.86（SR/SPL/RGS/RGSPL），Uncertainty-Aware Gaussian Map 的 RGS / RGSPL 为 37.65 / 27.01。
 
@@ -5505,43 +5505,44 @@ GA-VLN 在 Habitat 仿真环境中的多个连续导航数据集上进行了评�
 11. **NavGPT** (2024). Explicit Reasoning in Vision-and-Language Navigation with Large Language Models. arXiv: [2305.16986](https://arxiv.org/abs/2305.16986)
 12. **NavGPT-2** (2024). Unleashing Navigational Reasoning Capability for Large Vision-Language Models. arXiv: [2407.12366](https://arxiv.org/abs/2407.12366)
 13. **FSR-VLN** (2025). Fast and Slow Reasoning for Vision-Language Navigation with Hierarchical Multi-modal Scene Graph. arXiv: [2509.13733](https://arxiv.org/abs/2509.13733)
-14. **VLingNav** (2026). Embodied Navigation with Adaptive Reasoning and Visual-Assisted Linguistic Memory. arXiv: [2601.08665](https://arxiv.org/abs/2601.08665)15. **Slow4fast-VLN** (2026). Towards Open Environments and Instructions: General Vision-Language Navigation via Fast-Slow Interactive Reasoning. arXiv: [2601.09111](https://arxiv.org/abs/2601.09111)
-15. **FantasyVLN** (2026). Unified Multimodal Chain-of-Thought Reasoning for Vision-Language Navigation. arXiv: [2601.13976](https://arxiv.org/abs/2601.13976)
-16. **VL-Nav** (2025). A Neuro-Symbolic Approach for Reasoning-based Vision-Language Navigation. arXiv: [2502.00931](https://arxiv.org/abs/2502.00931)
-17. **StreamVLN** (2025). Streaming Vision-and-Language Navigation via SlowFast Context Modeling. arXiv: [2507.05240](https://arxiv.org/abs/2507.05240)
-18. **NavFoM** (2025). Embodied Navigation Foundation Model. arXiv: [2509.12129](https://arxiv.org/abs/2509.12129)
-19. **DGNav** (2026). Dynamic Topology Awareness: Breaking the Granularity Rigidity in Vision-Language Navigation. arXiv: [2601.21751](https://arxiv.org/abs/2601.21751)
-20. **MapNav** (2025). A Novel Memory Representation via Annotated Semantic Maps for VLM-based Vision-and-Language Navigation. arXiv: [2502.13451](https://arxiv.org/abs/2502.13451)
-21. **Hydra-Nav** (2026). Object Navigation via Adaptive Dual-Process Reasoning. arXiv: [2602.09972](https://arxiv.org/abs/2602.09972)
-22. **3DGSNav** (2026). Enhancing Vision-Language Model Reasoning for Object Navigation via Active 3D Gaussian Splatting. arXiv: [2602.12159](https://arxiv.org/abs/2602.12159)
-23. **BudVLN** (2026). Nipping the Drift in the Bud: Retrospective Rectification for Robust Vision-Language Navigation. arXiv: [2602.06356](https://arxiv.org/abs/2602.06356)
-24. **Open-Nav** (2025). Exploring Zero-Shot Vision-and-Language Navigation in Continuous Environment with Open-Source LLMs. arXiv: [2409.18794](https://arxiv.org/abs/2409.18794)
-25. **CausalNav** (2026). A Long-term Embodied Navigation System for Autonomous Mobile Robots in Dynamic Outdoor Scenarios. arXiv: [2601.01872](https://arxiv.org/abs/2601.01872)
-26. **SparseVideoNav** (2026). Sparse Video Generation Propels Real-World Beyond-the-View Vision-Language Navigation. arXiv: [2602.05827](https://arxiv.org/abs/2602.05827)
-27. **AgentVLN** (2026). Towards Agentic Vision-and-Language Navigation. arXiv: [2603.17670](https://arxiv.org/abs/2603.17670)
-28. **GSMem** (2025). 3D Gaussian Splatting as Persistent Spatial Memory for Zero-Shot Embodied Exploration and Reasoning. arXiv: [2603.19137](https://arxiv.org/abs/2603.19137)
-29. **Skill-Nav** (2025). Enhanced Navigation with Versatile Quadrupedal Locomotion via Waypoint Interface. arXiv: [2506.21853](https://arxiv.org/abs/2506.21853)
-30. **VLN-Cache** (2026). Enabling Token Caching for VLN Models with Visual/Semantic Dynamics Awareness. arXiv: [2603.07080](https://arxiv.org/abs/2603.07080)
-31. **VLN-CE** (2020). Beyond the Nav-Graph: Vision-and-Language Navigation in Continuous Environments. arXiv: [2004.02857](https://arxiv.org/abs/2004.02857)
-32. **VLN-PE** (2025). Rethinking the Embodied Gap in Vision-and-Language Navigation: A Holistic Study of Physical and Visual Disparities. arXiv: [2507.13019](https://arxiv.org/abs/2507.13019)
-33. **RynnBrain** (2026). Open Embodied Foundation Models. arXiv: [2602.14979](https://arxiv.org/abs/2602.14979)
-34. **LingBot-World** (2026). Advancing Open-source World Models. arXiv: [2601.20540](https://arxiv.org/abs/2601.20540)
-35. **WorldVLN** (2025). Autoregressive World Action Model for Aerial Vision-Language Navigation. arXiv: [2605.15964](https://arxiv.org/abs/2605.15964)
-36. **AwareVLN** (2026). Reasoning with Self-awareness for Vision-Language Navigation. arXiv: [2605.22816](https://arxiv.org/abs/2605.22816)
-37. **Dual-Anchoring** (2026). Addressing State Drift in Vision-Language Navigation. arXiv: [2604.17473](https://arxiv.org/abs/2604.17473)
-38. **LoGoPlanner** (2025). Localization Grounded Navigation Policy with Metric-aware Visual Geometry. arXiv: [2512.19629](https://arxiv.org/abs/2512.19629)
-39. **WAM-Nav** (2026). Asymmetric Latent World-Action Modeling for Unified Visual Navigation. arXiv: [2606.04907](https://arxiv.org/abs/2606.04907)
-40. **JanusVLN** (2026). Decoupling Semantics and Spatiality with Dual Implicit Memory for Vision-Language Navigation. arXiv: [2509.22548](https://arxiv.org/abs/2509.22548)
-41. **HSGM** (2026). Bridging the 2D-3D Gap: A Hierarchical Semantic-Geometric Map for Vision Language Navigation. arXiv: [2606.00095](https://arxiv.org/abs/2606.00095)
-42. **OneVLA** (2026). A Unified Framework for Embodied Tasks. arXiv: [2606.01241](https://arxiv.org/abs/2606.01241)
-43. **CA-VLN** (2026). Collaborative Agents in MLLM-Powered Visual-Language Navigation. [Sensors 2026](https://doi.org/10.3390/s26041254)
-44. **EvoMemNav** (2026). Efficient Self-Evolving Fine-Grained Memory for Zero-Shot Embodied Navigation. arXiv: [2606.03509](https://arxiv.org/abs/2606.03509)
-45. **Goal2Pixel** (2025). Grounding Goals to Pixels for Vision-Language Navigation. arXiv: [2606.01621](https://arxiv.org/abs/2606.01621)
-46. **OmniNav** (2026). A Unified Framework for Prospective Exploration and Visual-Language Navigation. arXiv: [2509.25687](https://arxiv.org/abs/2509.25687)
-47. **AstraNav-World** (2025). World Model for Foresight Control and Consistency. arXiv: [2512.21714](https://arxiv.org/abs/2512.21714)
-48. **ABot-N0** (2026). Technical Report on the VLA Foundation Model for Versatile Embodied Navigation. arXiv: [2602.11598](https://arxiv.org/abs/2602.11598)
-49. **Qwen-RobotNav** (2026). Technical Report: A Scalable Navigation Model Designed for an Agentic Navigation System. [GitHub](https://github.com/QwenLM/Qwen-RobotNav)
-50. **GA-VLN** (2026). Geometry-Aware BEV Representation for Efficient Vision-Language Navigation. arXiv: [2605.22036](https://arxiv.org/abs/2605.22036)
+14. **VLingNav** (2026). Embodied Navigation with Adaptive Reasoning and Visual-Assisted Linguistic Memory. arXiv: [2601.08665](https://arxiv.org/abs/2601.08665)
+15. **Slow4fast-VLN** (2026). Towards Open Environments and Instructions: General Vision-Language Navigation via Fast-Slow Interactive Reasoning. arXiv: [2601.09111](https://arxiv.org/abs/2601.09111)
+16. **FantasyVLN** (2026). Unified Multimodal Chain-of-Thought Reasoning for Vision-Language Navigation. arXiv: [2601.13976](https://arxiv.org/abs/2601.13976)
+17. **VL-Nav** (2025). A Neuro-Symbolic Approach for Reasoning-based Vision-Language Navigation. arXiv: [2502.00931](https://arxiv.org/abs/2502.00931)
+18. **StreamVLN** (2025). Streaming Vision-and-Language Navigation via SlowFast Context Modeling. arXiv: [2507.05240](https://arxiv.org/abs/2507.05240)
+19. **NavFoM** (2025). Embodied Navigation Foundation Model. arXiv: [2509.12129](https://arxiv.org/abs/2509.12129)
+20. **DGNav** (2026). Dynamic Topology Awareness: Breaking the Granularity Rigidity in Vision-Language Navigation. arXiv: [2601.21751](https://arxiv.org/abs/2601.21751)
+21. **MapNav** (2025). A Novel Memory Representation via Annotated Semantic Maps for VLM-based Vision-and-Language Navigation. arXiv: [2502.13451](https://arxiv.org/abs/2502.13451)
+22. **Hydra-Nav** (2026). Object Navigation via Adaptive Dual-Process Reasoning. arXiv: [2602.09972](https://arxiv.org/abs/2602.09972)
+23. **3DGSNav** (2026). Enhancing Vision-Language Model Reasoning for Object Navigation via Active 3D Gaussian Splatting. arXiv: [2602.12159](https://arxiv.org/abs/2602.12159)
+24. **BudVLN** (2026). Nipping the Drift in the Bud: Retrospective Rectification for Robust Vision-Language Navigation. arXiv: [2602.06356](https://arxiv.org/abs/2602.06356)
+25. **Open-Nav** (2025). Exploring Zero-Shot Vision-and-Language Navigation in Continuous Environment with Open-Source LLMs. arXiv: [2409.18794](https://arxiv.org/abs/2409.18794)
+26. **CausalNav** (2026). A Long-term Embodied Navigation System for Autonomous Mobile Robots in Dynamic Outdoor Scenarios. arXiv: [2601.01872](https://arxiv.org/abs/2601.01872)
+27. **SparseVideoNav** (2026). Sparse Video Generation Propels Real-World Beyond-the-View Vision-Language Navigation. arXiv: [2602.05827](https://arxiv.org/abs/2602.05827)
+28. **AgentVLN** (2026). Towards Agentic Vision-and-Language Navigation. arXiv: [2603.17670](https://arxiv.org/abs/2603.17670)
+29. **GSMem** (2025). 3D Gaussian Splatting as Persistent Spatial Memory for Zero-Shot Embodied Exploration and Reasoning. arXiv: [2603.19137](https://arxiv.org/abs/2603.19137)
+30. **Skill-Nav** (2025). Enhanced Navigation with Versatile Quadrupedal Locomotion via Waypoint Interface. arXiv: [2506.21853](https://arxiv.org/abs/2506.21853)
+31. **VLN-Cache** (2026). Enabling Token Caching for VLN Models with Visual/Semantic Dynamics Awareness. arXiv: [2603.07080](https://arxiv.org/abs/2603.07080)
+32. **VLN-CE** (2020). Beyond the Nav-Graph: Vision-and-Language Navigation in Continuous Environments. arXiv: [2004.02857](https://arxiv.org/abs/2004.02857)
+33. **VLN-PE** (2025). Rethinking the Embodied Gap in Vision-and-Language Navigation: A Holistic Study of Physical and Visual Disparities. arXiv: [2507.13019](https://arxiv.org/abs/2507.13019)
+34. **RynnBrain** (2026). Open Embodied Foundation Models. arXiv: [2602.14979](https://arxiv.org/abs/2602.14979)
+35. **LingBot-World** (2026). Advancing Open-source World Models. arXiv: [2601.20540](https://arxiv.org/abs/2601.20540)
+36. **WorldVLN** (2025). Autoregressive World Action Model for Aerial Vision-Language Navigation. arXiv: [2605.15964](https://arxiv.org/abs/2605.15964)
+37. **AwareVLN** (2026). Reasoning with Self-awareness for Vision-Language Navigation. arXiv: [2605.22816](https://arxiv.org/abs/2605.22816)
+38. **Dual-Anchoring** (2026). Addressing State Drift in Vision-Language Navigation. arXiv: [2604.17473](https://arxiv.org/abs/2604.17473)
+39. **LoGoPlanner** (2025). Localization Grounded Navigation Policy with Metric-aware Visual Geometry. arXiv: [2512.19629](https://arxiv.org/abs/2512.19629)
+40. **WAM-Nav** (2026). Asymmetric Latent World-Action Modeling for Unified Visual Navigation. arXiv: [2606.04907](https://arxiv.org/abs/2606.04907)
+41. **JanusVLN** (2026). Decoupling Semantics and Spatiality with Dual Implicit Memory for Vision-Language Navigation. arXiv: [2509.22548](https://arxiv.org/abs/2509.22548)
+42. **HSGM** (2026). Bridging the 2D-3D Gap: A Hierarchical Semantic-Geometric Map for Vision Language Navigation. arXiv: [2606.00095](https://arxiv.org/abs/2606.00095)
+43. **OneVLA** (2026). A Unified Framework for Embodied Tasks. arXiv: [2606.01241](https://arxiv.org/abs/2606.01241)
+44. **CA-VLN** (2026). Collaborative Agents in MLLM-Powered Visual-Language Navigation. [Sensors 2026](https://doi.org/10.3390/s26041254)
+45. **EvoMemNav** (2026). Efficient Self-Evolving Fine-Grained Memory for Zero-Shot Embodied Navigation. arXiv: [2606.03509](https://arxiv.org/abs/2606.03509)
+46. **Goal2Pixel** (2025). Grounding Goals to Pixels for Vision-Language Navigation. arXiv: [2606.01621](https://arxiv.org/abs/2606.01621)
+47. **OmniNav** (2026). A Unified Framework for Prospective Exploration and Visual-Language Navigation. arXiv: [2509.25687](https://arxiv.org/abs/2509.25687)
+48. **AstraNav-World** (2025). World Model for Foresight Control and Consistency. arXiv: [2512.21714](https://arxiv.org/abs/2512.21714)
+49. **ABot-N0** (2026). Technical Report on the VLA Foundation Model for Versatile Embodied Navigation. arXiv: [2602.11598](https://arxiv.org/abs/2602.11598)
+50. **Qwen-RobotNav** (2026). Technical Report: A Scalable Navigation Model Designed for an Agentic Navigation System. [GitHub](https://github.com/QwenLM/Qwen-RobotNav)
+51. **GA-VLN** (2026). Geometry-Aware BEV Representation for Efficient Vision-Language Navigation. arXiv: [2605.22036](https://arxiv.org/abs/2605.22036)
 
 
 <script>
@@ -5590,7 +5591,7 @@ GA-VLN 在 Habitat 仿真环境中的多个连续导航数据集上进行了评�
         { m: 'Dual-Anchoring',        t: ['端到端', '世界模型', '连续环境', '实机部署'] },
         { m: 'WAM-Nav',               t: ['世界模型', '扩散模型', '零样本', '实机部署'] },
         { m: 'JanusVLN',              t: ['双系统', '连续环境', '实机部署', '加速优化'] },
-        { m: 'HSGM',                  t: ['Agentic', '拓扑图', '零样本', '连续环境'] },
+        { m: 'HSGM',                  t: ['Agentic', '拓扑图', '零样本', '连续环境', 'BEV'] },
         { m: 'OneVLA: A Unified Framework for Embodied Tasks', t: ['端到端', '扩散模型', '连续环境', '实机部署'] },
         { m: 'CA-VLN',                t: ['Agentic', '拓扑图', '离散环境'] },
         { m: 'EvoMemNav',             t: ['Agentic', '拓扑图', '零样本'] },
@@ -5599,7 +5600,7 @@ GA-VLN 在 Habitat 仿真环境中的多个连续导航数据集上进行了评�
         { m: 'AstraNav-World: World Model for Foresight Control and Consistency', t: ['世界模型', '扩散模型', '端到端', '连续环境', '实机部署'] },
         { m: 'ABot-N0',               t: ['Agentic', '端到端', '拓扑图', '强化学习', '连续环境', '实机部署'] },
         { m: 'Qwen-RobotNav',         t: ['Agentic', '端到端', '连续环境', '实机部署'] },
-        { m: 'GA-VLN',                t: ['Agentic', '连续环境', '实机部署', '加速优化'] },
+        { m: 'GA-VLN',                t: ['端到端', '连续环境', '实机部署', '加速优化', 'BEV'] },
     { m: 'VLN-CE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'VLN-PE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'RynnBrain',         t: ['基础工作'] },
@@ -5607,7 +5608,7 @@ GA-VLN 在 Habitat 仿真环境中的多个连续导航数据集上进行了评�
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',
                   '强化学习', '零样本', '世界模型', '数据增强',
-                  '连续环境', '离散环境', '实机部署', '加速优化', '数据集', '基础工作'];
+                  '连续环境', '离散环境', '实机部署', '加速优化', '数据集', '基础工作', 'BEV'];
 
   var activeTags = [];
   var resultsPanel = null;
