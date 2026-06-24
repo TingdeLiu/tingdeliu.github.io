@@ -20,72 +20,72 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 ## ① 指令跟随 · 连续环境 - 英文
 
-| 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ |
-|:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|
-| [Qwen-RobotNav-8B](#qwen-robotnav) | 2026 | R2R-CE | **72.1** | **66.6** | **3.53** | **78.5** |
-| [OmniNav](#omninav) | 2026 | R2R-CE | 69.5 | 66.1 | 3.74 | 74.6 |
-| [AstraNav-World](#astranav-world) | 2025 | R2R-CE | 67.9 | 65.4 | – | – |
-| [AgentVLN-3B](#agentvln) | 2026 | R2R-CE | 67.2 | 64.7 | – | – |
-| [ABot-N0](#abot-n0) | 2026 | R2R-CE | 66.4 | – | – | – |
-| [Dual-Anchoring](#dual-anchoring) | 2026 | R2R-CE | 65.6 | 62.1 | – | – |
-| [AwareVLN](#awarevln) | 2026 | R2R-CE | 65.4 | 55.1 | 4.02 | 73.5 |
-| [NavFoM](#navfom) | 2025 | R2R-CE | 64.9 | 56.2 | – | – |
-| [DGNav](#dgnav) | 2026 | R2R-CE | 64.82 | 50.08 | – | – |
-| [DualVLN](#dualvln) | 2025 | R2R-CE | 64.3 | 58.5 | 4.05 | 70.7 |
-| [VLN-Cache](#vln-cache) | 2026 | R2R-CE | 63.1 | 57.6 | – | – |
-| [GA-VLN](#ga-vln) | 2026 | R2R-CE | 61.0 | 55.2 | 4.80 | 67.6 |
-| [JanusVLN](#janusvln) | 2026 | R2R-CE | 60.5 | 56.8 | 4.78 | 65.2 |
-| [BudVLN](#budvln) | 2026 | R2R-CE | 57.6 | 51.1 | – | – |
-| [StreamVLN](#streamvln) | 2025 | R2R-CE | 56.9 | 51.9 | 4.98 | 64.2 |
-| [Goal2Pixel](#goal2pixel) | 2025 | R2R-CE | 54.1 | 52.5 | 4.85 | 59.9 |
-| [MapNav](#mapnav) | 2025 | R2R-CE | 53.0 | 39.7 | – | – |
-| [JanusVLN*](#janusvln) | 2026 | R2R-CE | 52.8 | 49.2 | 5.17 | 58.0 |
-| [HSGM](#hsgm) | 2026 | R2R-CE | 47.9 | 32.8 | 5.42 | 58.7 |
-| [VLN-R1 (Qwen2-VL-7B)](#vln-r1) | 2025 | R2R-CE | 30.2 | 21.8 | 7.0 | 41.2 |
-| [VLN-R1 (Qwen2-VL-2B)](#vln-r1) | 2025 | R2R-CE | 25.6 | 20.5 | 10.2 | 37.5 |
-| [OneVLA](#onevla-a-unified-framework-for-embodied-tasks) | 2026 | R2R-CE | – | – | – | 68.6 |
+| 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 备注 |
+|:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|:----:|
+| [Qwen-RobotNav-8B](#qwen-robotnav) | 2026 | R2R-CE | **72.1** | **66.6** | **3.53** | **78.5** | – |
+| [OmniNav](#omninav) | 2026 | R2R-CE | 69.5 | 66.1 | 3.74 | 74.6 | – |
+| [AstraNav-World](#astranav-world) | 2025 | R2R-CE | 67.9 | 65.4 | – | – | – |
+| [AgentVLN-3B](#agentvln) | 2026 | R2R-CE | 67.2 | 64.7 | – | – | – |
+| [ABot-N0](#abot-n0) | 2026 | R2R-CE | 66.4 | – | – | – | – |
+| [Dual-Anchoring](#dual-anchoring) | 2026 | R2R-CE | 65.6 | 62.1 | – | – | – |
+| [AwareVLN](#awarevln) | 2026 | R2R-CE | 65.4 | 55.1 | 4.02 | 73.5 | – |
+| [NavFoM](#navfom) | 2025 | R2R-CE | 64.9 | 56.2 | – | – | – |
+| [DGNav](#dgnav) | 2026 | R2R-CE | 64.82 | 50.08 | – | – | – |
+| [DualVLN](#dualvln) | 2025 | R2R-CE | 64.3 | 58.5 | 4.05 | 70.7 | – |
+| [VLN-Cache](#vln-cache) | 2026 | R2R-CE | 63.1 | 57.6 | – | – | – |
+| [GA-VLN](#ga-vln) | 2026 | R2R-CE | 61.0 | 55.2 | 4.80 | 67.6 | – |
+| [JanusVLN](#janusvln) | 2026 | R2R-CE | 60.5 | 56.8 | 4.78 | 65.2 | – |
+| [BudVLN](#budvln) | 2026 | R2R-CE | 57.6 | 51.1 | – | – | – |
+| [StreamVLN](#streamvln) | 2025 | R2R-CE | 56.9 | 51.9 | 4.98 | 64.2 | – |
+| [Goal2Pixel](#goal2pixel) | 2025 | R2R-CE | 54.1 | 52.5 | 4.85 | 59.9 | – |
+| [MapNav](#mapnav) | 2025 | R2R-CE | 53.0 | 39.7 | – | – | – |
+| [JanusVLN*](#janusvln) | 2026 | R2R-CE | 52.8 | 49.2 | 5.17 | 58.0 | – |
+| [HSGM](#hsgm) | 2026 | R2R-CE | 47.9 | 32.8 | 5.42 | 58.7 | – |
+| [VLN-R1 (Qwen2-VL-7B)](#vln-r1) | 2025 | R2R-CE | 30.2 | 21.8 | 7.0 | 41.2 | – |
+| [VLN-R1 (Qwen2-VL-2B)](#vln-r1) | 2025 | R2R-CE | 25.6 | 20.5 | 10.2 | 37.5 | – |
+| [OneVLA](#onevla-a-unified-framework-for-embodied-tasks) | 2026 | R2R-CE | – | – | – | 68.6 | – |
 
 注：NavFoM 为单视角 VLN-CE R2R 结果；DualVLN 与 StreamVLN 为同口径单视角对比；VLN-Cache 为对 DualVLN 的加速方案，几乎无损（基线 64.3 / 58.5）。
 
 ## ② 指令跟随 · 连续环境 - 多语言
 
-| 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ |
-|:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|
-| [Qwen-RobotNav-8B](#qwen-robotnav) | 2026 | RxR-CE | **76.5** | **65.7** | **3.58** | – |
-| [OmniNav](#omninav) | 2026 | RxR-CE | 73.6 | 62.0 | 3.77 | – |
-| [AstraNav-World](#astranav-world) | 2025 | RxR-CE | 72.9 | – | – | – |
-| [ABot-N0](#abot-n0) | 2026 | RxR-CE | 69.3 | 60.0 | – | – |
-| [AwareVLN](#awarevln) | 2026 | RxR-CE | 67.6 | 56.1 | 3.95 | – |
-| [Dual-Anchoring](#dual-anchoring) | 2026 | RxR-CE | 61.7 | 53.3 | – | – |
-| [DualVLN](#dualvln) | 2025 | RxR-CE | 61.4 | 51.8 | 4.58 | – |
-| [JanusVLN](#janusvln) | 2026 | RxR-CE | 56.2 | 47.5 | 6.06 | – |
-| [RynnBrain-Nav-8B](#rynnbrain) | 2026 | RxR-CE | 56.1 | – | 4.92 | – |
-| [GA-VLN](#ga-vln) | 2026 | RxR-CE | 55.4 | 45.2 | 5.88 | 67.0 |
-| [StreamVLN](#streamvln) | 2025 | RxR-CE | 52.9 | – | – | – |
-| [JanusVLN*](#janusvln) | 2026 | RxR-CE | 51.4 | 44.3 | 6.46 | – |
-| [Goal2Pixel](#goal2pixel) | 2025 | RxR-CE | 43.8 | 40.4 | 7.50 | – |
-| [HSGM](#hsgm) | 2026 | RxR-CE | 41.8 | 25.1 | 7.43 | – |
-| [VLN-R1 (Qwen2-VL-7B)](#vln-r1) | 2025 | RxR-CE | 22.7 | 17.6 | 9.1 | 30.4 |
-| [VLN-R1 (Qwen2-VL-2B)](#vln-r1) | 2025 | RxR-CE | 20.7 | 16.9 | 10.2 | 30.1 |
-| [OneVLA](#onevla-a-unified-framework-for-embodied-tasks) | 2026 | RxR-CE | – | – | – | 58.2 |
+| 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 备注 |
+|:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|:----:|
+| [Qwen-RobotNav-8B](#qwen-robotnav) | 2026 | RxR-CE | **76.5** | **65.7** | **3.58** | – | – |
+| [OmniNav](#omninav) | 2026 | RxR-CE | 73.6 | 62.0 | 3.77 | – | – |
+| [AstraNav-World](#astranav-world) | 2025 | RxR-CE | 72.9 | – | – | – | – |
+| [ABot-N0](#abot-n0) | 2026 | RxR-CE | 69.3 | 60.0 | – | – | – |
+| [AwareVLN](#awarevln) | 2026 | RxR-CE | 67.6 | 56.1 | 3.95 | – | – |
+| [Dual-Anchoring](#dual-anchoring) | 2026 | RxR-CE | 61.7 | 53.3 | – | – | – |
+| [DualVLN](#dualvln) | 2025 | RxR-CE | 61.4 | 51.8 | 4.58 | – | – |
+| [JanusVLN](#janusvln) | 2026 | RxR-CE | 56.2 | 47.5 | 6.06 | – | – |
+| [RynnBrain-Nav-8B](#rynnbrain) | 2026 | RxR-CE | 56.1 | – | 4.92 | – | – |
+| [GA-VLN](#ga-vln) | 2026 | RxR-CE | 55.4 | 45.2 | 5.88 | 67.0 | – |
+| [StreamVLN](#streamvln) | 2025 | RxR-CE | 52.9 | – | – | – | – |
+| [JanusVLN*](#janusvln) | 2026 | RxR-CE | 51.4 | 44.3 | 6.46 | – | – |
+| [Goal2Pixel](#goal2pixel) | 2025 | RxR-CE | 43.8 | 40.4 | 7.50 | – | – |
+| [HSGM](#hsgm) | 2026 | RxR-CE | 41.8 | 25.1 | 7.43 | – | – |
+| [VLN-R1 (Qwen2-VL-7B)](#vln-r1) | 2025 | RxR-CE | 22.7 | 17.6 | 9.1 | 30.4 | – |
+| [VLN-R1 (Qwen2-VL-2B)](#vln-r1) | 2025 | RxR-CE | 20.7 | 16.9 | 10.2 | 30.1 | – |
+| [OneVLA](#onevla-a-unified-framework-for-embodied-tasks) | 2026 | RxR-CE | – | – | – | 58.2 | – |
 
 注：RynnBrain-Nav-8B 指标来自 RxR-CE（R2R 结果未详述）；Dual-Anchoring 与 StreamVLN 基线（52.9%）对比来自 Dual-Anchoring 原文。
 
 ## ③ 指令跟随 · 离散全景
 
-| 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ |
-|:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|
-| [VLN-Imagine (DUET)](#vln-imagine) | 2025 | R2R | **≈80.9** | **≈74.3** | – | – |
-| [Uncertainty-Aware Gaussian Map](#uncertainty-aware-gaussian-map) | 2026 | R2R | 78.3 | 66 | – | – |
-| [R³](#r3) | 2026 | R2R | 77 | 66 | **2.76** | – |
-| [CA-VLN](#ca-vln) | 2026 | R2R | 73.3 | 62.0 | 3.03 | – |
-| [NavGPT-2](#navgpt-2) | 2024 | R2R | 71 | 60 | 3.18 | 80 |
-| [Slow4fast-VLN](#slow4fast-vln) | 2026 | GSA-R2R (ID) | 70.8 | 65.0 | 2.9 | – |
-| GR-DUET | 2024 | GSA-R2R (ID) | 69.3 | 64.3 | 3.1 | – |
-| [Slow4fast-VLN](#slow4fast-vln) | 2026 | GSA-R2R (OOD) | 58.4 | 52.9 | 4.2 | – |
-| GR-DUET | 2024 | GSA-R2R (OOD) | 56.6 | 51.5 | 4.4 | – |
-| [CA-VLN](#ca-vln) | 2026 | REVERIE | 51.0 | 35.5 | – | 56.3 |
-| [NavGPT (零样本 GPT-4)](#navgpt) | 2024 | R2R | 34 | 29 | – | 42 |
+| 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 备注 |
+|:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|:----:|
+| [VLN-Imagine (DUET)](#vln-imagine) | 2025 | R2R | **≈80.9** | **≈74.3** | – | – | – |
+| [Uncertainty-Aware Gaussian Map](#uncertainty-aware-gaussian-map) | 2026 | R2R | 78.3 | 66 | – | – | – |
+| [R³](#r3) | 2026 | R2R | 77 | 66 | **2.76** | – | – |
+| [CA-VLN](#ca-vln) | 2026 | R2R | 73.3 | 62.0 | 3.03 | – | – |
+| [NavGPT-2](#navgpt-2) | 2024 | R2R | 71 | 60 | 3.18 | 80 | – |
+| [Slow4fast-VLN](#slow4fast-vln) | 2026 | GSA-R2R (ID) | 70.8 | 65.0 | 2.9 | – | – |
+| GR-DUET | 2024 | GSA-R2R (ID) | 69.3 | 64.3 | 3.1 | – | – |
+| [Slow4fast-VLN](#slow4fast-vln) | 2026 | GSA-R2R (OOD) | 58.4 | 52.9 | 4.2 | – | – |
+| GR-DUET | 2024 | GSA-R2R (OOD) | 56.6 | 51.5 | 4.4 | – | – |
+| [CA-VLN](#ca-vln) | 2026 | REVERIE | 51.0 | 35.5 | – | 56.3 | – |
+| [NavGPT (零样本 GPT-4)](#navgpt) | 2024 | R2R | 34 | 29 | – | 42 | – |
 
 注：VLN-Imagine 在 DUET（基线 79.9 / 73.75）基础上于 val-unseen 约 +1.0 SR / +0.5 SPL，绝对值为估算。GSA-R2R 区分住宅（ID，Test-R-Basic）与非住宅（OOD，Test-N-Basic）场景，Slow4fast-VLN 相对 GR-DUET 性能有所提升。REVERIE 基准另用 RGS / RGSPL 指标：R³ 为 53.76 / 42.14 / 37.94 / 29.86（SR/SPL/RGS/RGSPL），Uncertainty-Aware Gaussian Map 的 RGS / RGSPL 为 37.65 / 27.01。
 
