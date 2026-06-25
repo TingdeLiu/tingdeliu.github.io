@@ -2333,6 +2333,112 @@ $$\mathcal{L} = 10\,\mathcal{L}_{\text{pointmap}} + \mathcal{L}_{\text{rays}} + 
 
 ---
 
+## 6.16 Depth Anything 3 (2025)
+——— 从任意视角恢复一致的三维几何空间
+
+📄 **Paper**: [arXiv:2511.10647](https://arxiv.org/abs/2511.10647)
+
+---
+
+### 精华
+
+1. **抛弃特化架构的极简建模**：DA3 证明了无需复杂的多阶段/多分支流水线或特化网络，仅使用单个 Plain Transformer (DINOv2) 配合双 DPT 头，即可实现任意视图下端到端的位姿与深度联合估计。
+2. **深度-射线 (Depth-Ray) 极简表征**：将相机外参以逐像素三维射线方向和起点隐式建模，通过这种极简表征将场景几何与相机运动完美结合，极大地降低了多任务学习的优化难度。
+3. **教师-学生蒸馏范式**：针对真实世界 3D 传感器捕获的数据中常见的噪声和缺失问题，先在大规模合成数据集上训练单目指数深度教师模型（DA3-Teacher），进而生成高品质伪深度标签，用 RANSAC 尺度-偏移量对齐技术去监督学生模型，极大提升了模型的三维细节还原度。
+4. **度量级与一致性重建**：在位姿估计和几何重建上展现出超越 VGGT 和 Pi3 的优异表现。此外，微调后的前馈 3D 高斯泼溅 (FF-NVS) 头能直接产生高保真得新视角渲染，证明了其作为三维几何骨干的优越性。
+
+---
+
+### 1. 研究背景/问题
+
+传统的 3D 几何重建任务（如单目深度估计、多视图立体视觉 MVS、运动恢复结构 SfM、视觉 SLAM 等）通常依赖高度特化的独立模型或复杂的级联架构。尽管有研究尝试多任务统一，但其架构往往存在分支冗余、优化冲突且难以直接复用大规模预训练视觉基础模型（如 DINOv2）的强特征。本文旨在探讨：
+1. **是否存在一个最小的几何表征目标集**，能够同时捕获三维场景结构和相机相对运动，而无需复杂的交织目标？
+2. **一个没有任何架构定制的 plain transformer 骨干**，是否足以胜任这一通用的任意视角几何恢复任务？
+DA3 通过引入“深度-射线（Depth-Ray）”表征与输入自适应自注意力机制，对这两个问题给出了肯定的回答。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vln/DepthAnything3-pipeline.png" width="100%" />
+<figcaption>Depth Anything 3 整体架构：基于 Plain Transformer 骨干网络（如 DINOv2），支持相机位姿条件输入，通过自适应跨视图注意力进行视图内与视图间交互，并使用双 DPT 头联合预测一致的深度与射线图。</figcaption>
+</div>
+
+#### ① 整体框架概述
+DA3 主要由三部分构成：单个 DINOv2 Vision Transformer 骨干网络、相机条件注入编码器，以及联合输出深度图和射线图的双预测头（Dual-DPT Head）。输入任意视角图像后，网络直接前馈生成像素级对齐的深度图与射线方向/起点，最后通过简单的逐像素计算直接恢复出全局一致的三维度量点云，整体流程极简且计算高效。
+
+#### ② 深度-射线（Depth-Ray）隐式位姿表征
+为了避免回归具有严格正交约束的旋转矩阵 $R_i$，DA3 采用了一种新颖的逐像素射线图（Ray Map） $M_i \in \mathbb{R}^{H \times W \times 6}$ 来隐式表达相机位姿。每一像素的射线定义为 $r = (t, d)$，其中平移起点 $t \in \mathbb{R}^3$ 和方向向量 $d \in \mathbb{R}^3$ 均为三维向量，且未归一化的方向向量其模长本身也蕴含了投影尺度。结合对应的深度 $D(u, v)$，物体的三维点坐标直接由下式算出：
+$$P = t + D(u, v) \cdot d$$
+在推理阶段，若需要显式恢复相机参数，则通过求 ray 起点的均值来估计相机中心 $t_c$，并建立与单位相机射线的 homography 矩阵 $H = KR$，使用直接线性变换（DLT）算法求解并进行 RQ 分解，即可高效地分离出相机的内参 $K$ 与旋转矩阵 $R$。
+
+#### ③ 视图自适应交替自注意力
+为了适配从单张（单目）到十数张（多视角）不等的输入视图数量，DA3 采用了一种输入自适应的 Token 排列策略。网络分为 $L_s$ 层内部注意力模块（Within-view Attention，捕获单图细节） and $L_g$ 层交替注意力模块（交替在所有视图 of tokens 间进行 Cross-view Attention），通过简单的张量轴置换实现了跨视图的信息交换。若输入只有单张图像，则跨视图模块自动退化，没有额外开销。
+
+#### ④ 共享特征的双 DPT 头（Dual-DPT Head）
+
+<div align="center">
+  <img src="/images/vln/DepthAnything3-dual-dpt.png" width="80%" />
+<figcaption>Dual-DPT Head 结构：深度与射线估计任务共享高阶特征重组模块（Reassemble），仅在最终 the 融合输出阶段分离，提升联合估计的效率和一致性。</figcaption>
+</div>
+
+Dual-DPT 头包含共享的 Reassemble 模块与两个独立的融合解码分支。这种共享特征通道的架构促成了深度估计与射线估计之间的强几何共鸣与约束，同时极大地避免了分别使用两个完整 DPT 头所带来的冗余计算和不一致现象。
+
+#### ⑤ 教师-学生蒸馏与 RANSAC 对齐
+真实数据（如 LiDAR 和 COLMAP 点云）常包含噪点和空洞。DA3 首先使用纯合成数据集（包含 Hypersim、TartanAir 等 20 个高品质数据集）训练出单目指数深度教师模型（DA3-Teacher），对所有的真实多视图序列预测出稠密的相对深度伪标签。再利用 RANSAC 最小二乘法估计出尺度参数 $s$ 与平移参数 $t$，对齐到真实稀疏/嘈杂深度上：
+$$(s^*, t^*) = \arg\min_{s > 0, t} \sum_{p \in \Omega} m_p \left\lvert s \tilde{D}_p + t - D_p \right\rvert^2$$
+最后用对齐后的稠密标签 $D_{T \to M}$ 监督学生网络，使学生模型不仅继承了真实位姿的准确性，还获得了极致清晰的深度边缘细节。
+
+<div align="center">
+  <img src="/images/vln/DepthAnything3-teacher-supervision.png" width="90%" />
+<figcaption>Teacher 监督的消融对比：相比没有 Teacher 监督，使用 Teacher 伪标签监督训练出的模型能够捕获更丰富的三维微观结构和边缘细节。</figcaption>
+</div>
+
+#### ⑥ 联合训练目标
+DA3 采用多分支加权联合监督进行优化：
+$$L = L_D(\hat{D}, D) + L_M(\hat{R}, M) + L_P(\hat{D} \odot d + t, P) + \beta L_C(\hat{c}, v) + \alpha L_{\mathrm{grad}}(\hat{D}, D)$$
+其中针对深度的边缘平滑，引入了深度梯度损失：
+$$L_{\mathrm{grad}}(\hat{D}, D) = \lVert \nabla_x \hat{D} - \nabla_x D \rVert_1 + \lVert \nabla_y \hat{D} - \nabla_y D \rVert_1$$
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vln/DepthAnything3-teaser.png" width="100%" />
+<figcaption>Depth Anything 3 teaser：输入任意视图（有或无位姿），模型重建出一致的高精度几何与高保真 3D 高斯泼溅表现。</figcaption>
+</div>
+
+- **更强的相机位姿估计**：在 HiRoom、ETH3D、DTU、7Scenes 和 ScanNet++ 五大评测数据集上，DA3-Giant 的位姿 AUC 指标显著超越 DUSt3R、MapAnything、Pi3、VGGT 等基线。在 ScanNet++ 室内场景中，其 Auc3 比 VGGT 领先约 35.7%。
+- **极高的重建质量与效率**：DA3 在有/无相机位姿输入下均取得了 SOTA 重建 F1 评分。且其参数仅 0.36B 的 DA3-Large 在多个基准上击败了 1.19B 参数量的 VGGT，推理吞吐量（A100 上 78 FPS 对比 VGGT 的 34 FPS）快了 2 倍以上。
+- **向下游 3DGS 强力泛化**：在大大规模前馈 3D 像素级高斯预测（FF-NVS）任务中，以 DA3 为先验骨干微调的 GS-DPT 头，在 DL3DV、Tanks and Temples 以及 MegaDepth 上的 PSNR/SSIM 渲染质量全面击败了专门设计的端端新视角合成模型。
+
+<div align="center">
+  <img src="/images/vln/DepthAnything3-pointcloud-comparison.png" width="100%" />
+<figcaption>重建点云质量对比：DA3 生成的点云结构极其规整、几乎无背景杂讯，相比同类方法具有更高的精度和完整度。</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vln/DepthAnything3-depth-comparison.png" width="100%" />
+<figcaption>与其他方法（VGGT, Pi3, Fast3R）的深度图质量对比：DA3 预测 of 深度图细节清晰、语义边界干净，展现出极强的几何逼真度。</figcaption>
+</div>
+
+---
+
+### 4. 局限性
+
+对于存在剧烈非刚体变形或大面积动态运动的场景，其像素射线的时序一致性难以得到完美保证；另外，因其纯粹聚焦于物理几何的重建，对跨模态高级语义及控制规律的感知仍需依靠额外的外部网络进行耦合。
+
+---
+
+### 参考
+
+- Paper: [Depth Anything 3: Recovering the Visual Space from Any Views](https://arxiv.org/abs/2511.10647)
+- Code: [depth-anything-3.github.io](https://depth-anything-3.github.io)
+
+---
+
 # 7. 总结与展望
 
 空间智能是迈向具身通用人工智能的核心能力之一。本文系统梳理了从基础离散几何学习到最新的大模型驱动空间推理的技术路径。
