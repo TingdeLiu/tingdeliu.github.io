@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "深度学习综述"
 date: 2026-06-24
@@ -518,6 +518,11 @@ $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)
 将输入映射到 $h$ 个不同的子空间分别计算注意力，再将结果拼接：
 $$\text{MultiHead}(Q,K,V) = \text{Concat}(head_1, \ldots, head_h) W^O$$
 **直觉理解**：不同的"头"可以同时关注不同的信息（如一个头关注语法关系，另一个头关注语义关联）。
+
+<div align="center">
+  <img src="/images/DL/multi-head-attention.svg" width="85%" alt="多头注意力机制 (Multi-Head Attention) 架构示意图" />
+  <figcaption>多头注意力机制 (Multi-Head Attention) 架构示意图，左为缩放点积注意力，右为多头注意力</figcaption>
+</div>
 
 ### Attention 变体：MHA → MQA → GQA → MLA
 

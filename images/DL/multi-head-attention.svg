@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <!-- Definitions for gradients and markers -->
+  <defs>
+    <style>
+      .label { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 13px; font-weight: 500; fill: #2c3e50; text-anchor: middle; }
+      .title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #1a252f; text-anchor: middle; }
+      .subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 11px; fill: #7f8c8d; text-anchor: middle; }
+      .input-text { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; font-size: 14px; font-weight: bold; fill: #2c3e50; text-anchor: middle; }
+      .connection-line { fill: none; stroke: #7f8c8d; stroke-width: 1.5; stroke-linejoin: round; }
+      
+      /* Box Colors */
+      .box-input { fill: #e8f8f5; stroke: #1abc9c; stroke-width: 1.5; rx: 4px; }
+      .box-matmul { fill: #ebf5fb; stroke: #3498db; stroke-width: 1.5; rx: 4px; }
+      .box-scale { fill: #fef9e7; stroke: #f1c40f; stroke-width: 1.5; rx: 4px; }
+      .box-mask { fill: #fdf2e9; stroke: #e67e22; stroke-width: 1.5; rx: 4px; }
+      .box-softmax { fill: #f5eef8; stroke: #9b59b6; stroke-width: 1.5; rx: 4px; }
+      .box-linear { fill: #eaf2f8; stroke: #2980b9; stroke-width: 1.5; rx: 4px; }
+      .box-concat { fill: #fcf3cf; stroke: #f39c12; stroke-width: 1.5; rx: 4px; }
+      .box-attention { fill: #e8f8f5; stroke: #27ae60; stroke-width: 1.5; rx: 4px; }
+    </style>
+    
+    <!-- Arrow marker definition -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#7f8c8d" />
+    </marker>
+  </defs>
+
+  <!-- Background container -->
+  <rect width="100%" height="100%" fill="#ffffff" />
+  
+  <!-- Outer Border -->
+  <rect x="5" y="5" width="790" height="490" rx="8" fill="none" stroke="#eaeded" stroke-width="2" />
+  
+  <!-- Left Side: Scaled Dot-Product Attention -->
+  <g transform="translate(10, 0)">
+    <!-- Title -->
+    <text x="190" y="35" class="title">Scaled Dot-Product Attention</text>
+    <text x="190" y="52" class="subtitle">缩放点积注意力</text>
+    
+    <!-- Nodes -->
+    <!-- Output -->
+    <text x="190" y="80" class="input-text">Output</text>
+    
+    <!-- MatMul 2 -->
+    <rect x="130" y="105" width="120" height="30" class="box-matmul" />
+    <text x="190" y="124" class="label">MatMul</text>
+    
+    <!-- SoftMax -->
+    <rect x="130" y="165" width="120" height="30" class="box-softmax" />
+    <text x="190" y="184" class="label">SoftMax</text>
+    
+    <!-- Mask (opt.) -->
+    <rect x="130" y="225" width="120" height="30" class="box-mask" />
+    <text x="190" y="244" class="label">Mask (opt.)</text>
+    
+    <!-- Scale -->
+    <rect x="130" y="285" width="120" height="30" class="box-scale" />
+    <text x="190" y="304" class="label">Scale</text>
+    
+    <!-- MatMul 1 -->
+    <rect x="130" y="345" width="120" height="30" class="box-matmul" />
+    <text x="190" y="364" class="label">MatMul</text>
+    
+    <!-- Inputs Q, K, V -->
+    <circle cx="100" cy="435" r="16" fill="#fadbd8" stroke="#e74c3c" stroke-width="1.5" />
+    <text x="100" y="440" class="input-text">Q</text>
+    
+    <circle cx="190" cy="435" r="16" fill="#fcf3cf" stroke="#f1c40f" stroke-width="1.5" />
+    <text x="190" y="440" class="input-text">K</text>
+    
+    <circle cx="280" cy="435" r="16" fill="#d4efdf" stroke="#27ae60" stroke-width="1.5" />
+    <text x="280" y="440" class="input-text">V</text>
+    
+    <!-- Connections -->
+    <!-- Q to MatMul 1 -->
+    <path d="M 100 419 L 100 395 L 160 395 L 160 375" class="connection-line" marker-end="url(#arrow)" />
+    
+    <!-- K to MatMul 1 -->
+    <path d="M 190 419 L 190 375" class="connection-line" marker-end="url(#arrow)" />
+    
+    <!-- MatMul 1 to Scale -->
+    <path d="M 190 345 L 190 315" class="connection-line" marker-end="url(#arrow)" />
+    
+    <!-- Scale to Mask -->
+    <path d="M 190 285 L 190 255" class="connection-line" marker-end="url(#arrow)" />
+    
+    <!-- Mask to SoftMax -->
+    <path d="M 190 225 L 190 195" class="connection-line" marker-end="url(#arrow)" />
+    
+    <!-- SoftMax to MatMul 2 -->
+    <path d="M 190 165 L 190 135" class="connection-line" marker-end="url(#arrow)" />
+    
+    <!-- V to MatMul 2 -->
+    <path d="M 280 419 L 280 120 L 250 120" class="connection-line" marker-end="url(#arrow)" />
+    
+    <!-- MatMul 2 to Output -->
+    <path d="M 190 105 L 190 88" class="connection-line" marker-end="url(#arrow)" />
+  </g>
+  
+  <!-- Divider Line -->
+  <line x1="390" y1="20" x2="390" y2="480" stroke="#eaeded" stroke-width="2" stroke-dasharray="5 5" />
+  
+  <!-- Right Side: Multi-Head Attention -->
+  <g transform="translate(400, 0)">
+    <!-- Title -->
+    <text x="190" y="35" class="title">Multi-Head Attention</text>
+    <text x="190" y="52" class="subtitle">多头注意力机制</text>
+    
+    <!-- Nodes -->
+    <!-- Output -->
+    <text x="190" y="80" class="input-text">Output</text>
+    
+    <!-- Linear (Post-attention) -->
+    <rect x="120" y="105" width="140" height="30" class="box-linear" />
+    <text x="190" y="124" class="label">Linear</text>
+    
+    <!-- Concat -->
+    <rect x="120" y="165" width="140" height="30" class="box-concat" />
+    <text x="190" y="184" class="label">Concat</text>
+    
+    <!-- Scaled Dot-Product Attention (h heads) -->
+    <!-- Box h (back) -->
+    <rect x="132" y="221" width="140" height="40" class="box-attention" style="opacity: 0.4;" />
+    <!-- Box h-1 (middle) -->
+    <rect x="126" y="227" width="140" height="40" class="box-attention" style="opacity: 0.7;" />
+    <!-- Box 1 (front) -->
+    <rect x="120" y="233" width="140" height="40" class="box-attention" />
+    <text x="190" y="253" class="label">Scaled Dot-Product</text>
+    <text x="190" y="266" style="font-family: sans-serif; font-size: 10px; font-weight: bold; fill: #27ae60; text-anchor: middle;">Attention</text>
+    <text x="270" y="240" style="font-family: sans-serif; font-size: 12px; font-weight: bold; fill: #27ae60;">h</text>
+    
+    <!-- Linears for Q, K, V -->
+    <!-- Linear V (stacked) -->
+    <rect x="290" y="322" width="70" height="30" class="box-linear" style="opacity: 0.4;" />
+    <rect x="285" y="328" width="70" height="30" class="box-linear" style="opacity: 0.7;" />
+    <rect x="280" y="334" width="70" height="30" class="box-linear" />
+    <text x="315" y="353" class="label" style="font-size: 12px;">Linear</text>
+    
+    <!-- Linear K (stacked) -->
+    <rect x="165" y="322" width="70" height="30" class="box-linear" style="opacity: 0.4;" />
+    <rect x="160" y="328" width="70" height="30" class="box-linear" style="opacity: 0.7;" />
+    <rect x="155" y="334" width="70" height="30" class="box-linear" />
+    <text x="190" y="353" class="label" style="font-size: 12px;">Linear</text>
+    
+    <!-- Linear Q (stacked) -->
+    <rect x="40" y="322" width="70" height="30" class="box-linear" style="opacity: 0.4;" />
+    <rect x="35" y="328" width="70" height="30" class="box-linear" style="opacity: 0.7;" />
+    <rect x="30" y="334" width="70" height="30" class="box-linear" />
+    <text x="65" y="353" class="label" style="font-size: 12px;">Linear</text>
+    
+    <!-- Inputs Q, K, V -->
+    <circle cx="65" cy="435" r="16" fill="#fadbd8" stroke="#e74c3c" stroke-width="1.5" />
+    <text x="65" y="440" class="input-text">Q</text>
+    
+    <circle cx="190" cy="435" r="16" fill="#fcf3cf" stroke="#f1c40f" stroke-width="1.5" />
+    <text x="190" y="440" class="input-text">K</text>
+    
+    <circle cx="315" cy="435" r="16" fill="#d4efdf" stroke="#27ae60" stroke-width="1.5" />
+    <text x="315" y="440" class="input-text">V</text>
+    
+    <!-- Connections -->
+    <!-- Inputs to Linears -->
+    <path d="M 65 419 L 65 364" class="connection-line" marker-end="url(#arrow)" />
+    <path d="M 190 419 L 190 364" class="connection-line" marker-end="url(#arrow)" />
+    <path d="M 315 419 L 315 364" class="connection-line" marker-end="url(#arrow)" />
+    
+    <!-- Linears to Attention -->
+    <!-- Linear Q to Attention -->
+    <path d="M 65 334 L 65 300 L 140 300 L 140 273" class="connection-line" marker-end="url(#arrow)" />
+    <!-- Linear K to Attention -->
+    <path d="M 190 334 L 190 273" class="connection-line" marker-end="url(#arrow)" />
+    <!-- Linear V to Attention -->
+    <path d="M 315 334 L 315 300 L 240 300 L 240 273" class="connection-line" marker-end="url(#arrow)" />
+    
+    <!-- Attention to Concat -->
+    <path d="M 190 233 L 190 195" class="connection-line" marker-end="url(#arrow)" />
+    
+    <!-- Concat to Linear -->
+    <path d="M 190 165 L 190 135" class="connection-line" marker-end="url(#arrow)" />
+    
+    <!-- Linear to Output -->
+    <path d="M 190 105 L 190 88" class="connection-line" marker-end="url(#arrow)" />
+  </g>
+</svg>
