@@ -23,7 +23,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 开源 | 备注 |
 |:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|:----:|:----:|
 | [Qwen-RobotNav-8B (全景)](#qwen-robotnav) | 2026 | R2R-CE | **72.1** | **66.6** | **3.53** | **78.5** | 否 | 全景相机 |
-| [OmniNav](#omninav) | 2026 | R2R-CE | 69.5 | 66.1 | 3.74 | 74.6 | [是](https://github.com/amap-cvlab/OmniNav) | – |
+| [OmniNav](#omninav) | 2026 | R2R-CE | 69.5 | 66.1 | 3.74 | 74.6 | [是](https://github.com/amap-cvlab/OmniNav) | 三目全景相机 |
 | [AstraNav-World](#astranav-world) | 2025 | R2R-CE | 67.9 | 65.4 | – | – | [是](https://github.com/amap-cvlab/AstraNav-World)| – |
 | [AgentVLN-3B](#agentvln) | 2026 | R2R-CE | 67.2 | 64.7 | – | – | [是](https://github.com/Allenxinn/AgentVLN) | – |
 | [Qwen-RobotNav-8B (单目)](#qwen-robotnav) | 2026 | R2R-CE | 66.9 | 60.5 | – | – | 否 | 单前向相机 |
@@ -34,7 +34,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [DGNav](#dgnav) | 2026 | R2R-CE | 64.82 | 50.08 | – | – | [是](https://github.com/shannanshouyin/DGNav) | – |
 | [DualVLN](#dualvln) | 2025 | R2R-CE | 64.3 | 58.5 | 4.05 | 70.7 | [是](https://github.com/InternRobotics/InternNav) | – |
 | [VLN-Cache](#vln-cache) | 2026 | R2R-CE | 63.1 | 57.6 | – | – | 否 | – |
-| [GA-VLN](#ga-vln) | 2026 | R2R-CE | 61.0 | 55.2 | 4.80 | 67.6 | [是](https://github.com/jahhaoyang/GA-VLN) | 代码与模型权重已开源 |
+| [GA-VLN](#ga-vln) | 2026 | R2R-CE | 61.0 | 55.2 | 4.80 | 67.6 | [是](https://github.com/jahhaoyang/GA-VLN) |  |
 | [JanusVLN](#janusvln) | 2026 | R2R-CE | 60.5 | 56.8 | 4.78 | 65.2 | [是](https://github.com/MIV-XJTU/JanusVLN) | – |
 | [BudVLN](#budvln) | 2026 | R2R-CE | 57.6 | 51.1 | – | – | [是](https://github.com/Beat992/CDC2F) | – |
 | [StreamVLN](#streamvln) | 2025 | R2R-CE | 56.9 | 51.9 | 4.98 | 64.2 | [是](https://github.com/OpenRobotLab/StreamVLN) | – |
@@ -52,7 +52,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 开源 | 备注 |
 |:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|:----:|:----:|
 | [Qwen-RobotNav-8B (全景)](#qwen-robotnav) | 2026 | RxR-CE | **76.5** | **65.7** | **3.58** | – | 否 | 全景相机 |
-| [OmniNav](#omninav) | 2026 | RxR-CE | 73.6 | 62.0 | 3.77 | – | [是](https://github.com/amap-cvlab/OmniNav) | – |
+| [OmniNav](#omninav) | 2026 | RxR-CE | 73.6 | 62.0 | 3.77 | – | [是](https://github.com/amap-cvlab/OmniNav) | 三目全景相机 |
 | [Qwen-RobotNav-8B (单目)](#qwen-robotnav) | 2026 | RxR-CE | 73.4 | 63.5 | – | – | 否 | 单前向相机 |
 | [AstraNav-World](#astranav-world) | 2025 | RxR-CE | 72.9 | – | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) | – |
 | [ABot-N0](#abot-n0) | 2026 | RxR-CE | 69.3 | 60.0 | – | – | 否 | – |
