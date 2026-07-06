@@ -536,7 +536,7 @@ ViT 颠覆了传统的卷积神经网络结构，直接将 Transformer 架构应
    整个序列的初始化数学表达为：
    $$z_0 = [x_{cls}; x_1^p E; x_2^p E; \ldots; x_N^p E] + E_{pos}$$
 
-3. **多层 Transformer 编解码**：
+3. **多层 Transformer 编码**：
    输入序列 $$z_0$$ 经过多层标准的 Multi-Head Self-Attention (MHSA) 和 MLP（多层感知机）计算，每一层都伴随 Layer Normalization (LN) 和残差连接（Residual Connection）。
 
 主流 VLM（如 LLaVA、PaliGemma）采用的视觉编码器通常是在 CLIP 或 SigLIP 目标下训练的 ViT-L/14（约 307M 参数）或 ViT-G/14（约 1.8B 参数）。
