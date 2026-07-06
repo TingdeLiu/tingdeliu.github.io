@@ -1,7 +1,7 @@
-﻿---
+---
 layout: post
 title: "VLM综述：多模态融合方法全景"
-date: 2026-06-25
+date: 2026-07-06
 tags: [VLM, Computer Vision, Deep Learning, Multimodal]
 categories: research
 comments: true
@@ -507,22 +507,91 @@ MiniGPT-4证明了极简对齐方案的可行性：仅用一个**线性投影层
 
 ## 4.7 视觉特征提取：ViT与视觉编码器的演进
 
-实现高质量多模态融合的前提是强大的视觉表示。VLM中视觉编码器的设计经历了从CNN到Transformer的重大转变。
+实现高质量多模态融合的前提是强大的视觉表示。VLM中视觉编码器的设计经历了从早期CNN区域特征提取到Transformer全局特征建模，再到大尺度对比学习和动态高分辨率适配的重大转变。
+
+<div align="center">
+  <img src="/images/vlm/vit-encoder-evolution.jpg" width="80%" />
+  <figcaption>图 4.7.1：VLM 视觉编码器的演进历程：从 CNN 区域特征到 ViT，再到对比学习对齐与动态高分辨率方案</figcaption>
+</div>
 
 **核心演进路线**：
-- **CNN时代**（2018-2020）：ResNet、EfficientNet提取区域特征，与文本编码器拼接
-- **ViT时代**（2021-2022）：将图像切分为patch序列，用Transformer编码，与NLP架构统一
-- **CLIP ViT时代**（2021至今）：针对图文对比学习训练的ViT，成为VLM的主流视觉编码器
-- **纯视觉自监督路线**（2021至今）：DINO→DINOv2，无语言监督，patch级密集特征更优，适合密集预测任务和 VLM 视觉骨干初始化
-- **高分辨率ViT时代**（2023至今）：支持任意分辨率、动态切片的视觉编码方案
+- **CNN时代**（2018-2020）：以 ResNet、EfficientNet 为代表，利用滑动卷积提取网格或区域特征，再与文本编码器拼接。特征偏向局部，且难以适配长序列 Transformer。
+- **ViT时代**（2021-2022）：将图像切分为 patch 序列，用 Transformer 进行端到端编码，将视觉和 NLP 架构统一为序列处理任务。
+- **CLIP / SigLIP 对比学习时代**（2021至今）：通过在大规模图文对（如 LAION）上进行对比学习训练，使 ViT 具备天然的语言对齐属性，成为现代 VLM 的主流视觉编码器。
+- **纯视觉自监督路线**（2021至今）：以 DINO、DINOv2 为代表，摆脱语言标注偏置，通过自蒸馏与掩码重建学习高空间一致性的 patch 特征，适合定位与密集预测。
+- **高分辨率与动态切片时代**（2023至今）：支持任意长宽比、高分辨率输入的动态编码方案（如 AnyRes、Naive Dynamic Resolution），以保留细粒度文档及 OCR 信息。
 
-### Vision Transformer（ViT）
+### Vision Transformer（ViT）工作原理
 
-ViT将图像分割为固定大小的patch（如16×16像素），每个patch线性嵌入后加上位置编码，作为Transformer的输入token序列。ViT在大规模图像数据上预训练后，可以提取丰富的全局语义特征，并与文本Transformer共享相似的架构，极大简化了视觉-语言的融合设计。
+ViT 颠覆了传统的卷积神经网络结构，直接将 Transformer 架构应用于图像处理。其核心是将连续图像离散化为 Token 序列，与文本的 Token 化处理高度契合：
 
-$$z_0 = [x_{cls}; x_1^p E; x_2^p E; \ldots; x_N^p E] + E_{pos}$$
+1. **Patch 分割与线性投影**：
+   对于输入图像 $$x \in \mathbb{R}^{H \times W \times C}$$，首先将其分割为一系列不重叠的二维图像块 $$\mathbf{x}_p \in \mathbb{R}^{N \times (P^2 \cdot C)}$$，其中 $$(P, P)$$ 是设定的图像块分辨率（如 $14 \times 14$ 或 $16 \times 16$），而 $$N = HW/P^2$$ 是最终生成的序列长度（即 Patch 数量）。
+   随后，通过一个可学习的线性投影矩阵 $$E \in \mathbb{R}^{(P^2 \cdot C) \times D}$$ 将每个 patch 映射为 $D$ 维的向量特征。
 
-主流VLM采用的视觉编码器通常是在CLIP目标或SigLIP目标下训练的ViT-L（307M参数）或ViT-G（1.8B参数）。
+2. **位置编码与类别标记 (Class Token)**：
+   类似于 BERT 的设计，ViT 会在前向传播前拼接一个可学习的类别标记（Class Token）$$x_{cls} \in \mathbb{R}^{1 \times D}$$，其最终输出的状态可直接用于整图分类或全局语义表示。
+   由于 Transformer 的自注意力机制不具备空间方向感知，必须加入一维或二维的可学习位置编码 $$E_{pos} \in \mathbb{R}^{(N+1) \times D}$$ 来保留每个图像块的空间相对关系。
+
+   整个序列的初始化数学表达为：
+   $$z_0 = [x_{cls}; x_1^p E; x_2^p E; \ldots; x_N^p E] + E_{pos}$$
+
+3. **多层 Transformer 编解码**：
+   输入序列 $$z_0$$ 经过多层标准的 Multi-Head Self-Attention (MHSA) 和 MLP（多层感知机）计算，每一层都伴随 Layer Normalization (LN) 和残差连接（Residual Connection）。
+
+主流 VLM（如 LLaVA、PaliGemma）采用的视觉编码器通常是在 CLIP 或 SigLIP 目标下训练的 ViT-L/14（约 307M 参数）或 ViT-G/14（约 1.8B 参数）。
+
+### CLIP 与 SigLIP 视觉编码器：图文对比对齐范式
+
+为什么对比学习训练出的 ViT 会成为 VLM 的绝对主流？因为**在对比学习中，视觉特征已经被“语言化”了**。
+
+#### 1. CLIP 对比损失 (Contrastive Loss)
+CLIP（Contrastive Language-Image Pretraining）采用双塔结构（图像编码器与文本编码器），使用对称的 InfoNCE 损失函数进行预训练。在一个包含 $B$ 个图文对的 Batch 内，模型最小化配对图文的距离，并最大化不配对图文的距离：
+
+$$L_{\text{InfoNCE}} = -\frac{1}{2B} \sum_{i=1}^{B} \left( \log \frac{\exp(\text{sim}(I_i, T_i)/\tau)}{\sum_{j=1}^{B} \exp(\text{sim}(I_i, T_j)/\tau)} + \log \frac{\exp(\text{sim}(I_i, T_i)/\tau)}{\sum_{j=1}^{B} \exp(\text{sim}(I_j, T_i)/\tau)} \right)$$
+
+其中 $$sim(I_i, T_i)$$ 表示图像 $i$ 与文本 $i$ 投影特征的余弦相似度，$$\tau$$ 为可学习的温度参数。通过这种全局 Softmax 的方式，CLIP 在语义空间上将视觉 patch 和语言 token 强力拉近。
+
+#### 2. SigLIP 的 Sigmoid 损失优化
+虽然 CLIP 取得了巨大成功，但 Softmax 归一化要求计算全局分母，这使得跨多卡分布式训练时需要巨大的全收集（All-Gather）通信开销。PaliGemma 等最新模型所采用的 **SigLIP (Sigmoid Language-Image Pretraining)** 提出用 Sigmoid 损失代替 Softmax，将对比学习转化为逐对的二分类任务：
+
+$$L_{\text{SigLIP}} = -\frac{1}{B} \sum_{i=1}^{B} \sum_{j=1}^{B} \log \sigma \left( y_{ij} (\text{sim}(I_i, T_j) \cdot c + b) \right)$$
+
+其中，当且仅当 $i=j$（正样本对）时 $$y_{ij} = 1$$，否则为 $$-1$$；$$c, b$$ 是可学习的缩放与偏置参数。
+- **SigLIP 的优势**：由于每个图文对的分类是独立的，不需要跨 Batch 进行全局求和或归一化，因此不需要复杂的分布式同步，极大节省了显存并提高了训练效率，使得预训练可以扩展到极大的 Batch Size（如 32k 以上），模型精度和泛化能力明显优于同规模 CLIP。
+
+### InternViT 与大尺度视觉编码器缩放 (Scaling)
+
+随着大语言模型扩展到数百亿甚至数千亿参数，视觉编码器的规模也迎来了**缩放定律（Scaling Laws）**。较小的视觉编码器（如 300M 参数的 ViT-L）在大型 VLM 中极易成为表征瓶颈。
+
+以 InternVL 系列为代表，研究者将视觉编码器缩放到巨型规模，推出了 **InternViT-6B** 和 **InternViT-24B**：
+- **特征表达的飞跃**：更大参数量的视觉编码器（通过层数增深、注意力头数增多、隐藏层维度拓宽）可以捕捉更低对比度、更密集的文本 OCR 结构、更复杂的场景深度信息。
+- **缓解 LLM 的多模态对齐压力**：由于视觉编码器自身表征能力极强，在第一阶段的特征对齐中，投影层（Connector）只需做非常简单的映射，大语言模型就能无缝读取细粒度视觉信号，避免了 LLM 在训练中发生"灾难性遗忘"或难以收敛的问题。
+
+### 高分辨率与动态切片方案 (Any-Resolution)
+
+传统的 ViT 将输入图像固定缩放为单分辨率（如 $224 \times 224$ 或 $336 \times 336$），但这会严重破坏长宽比，并导致高细粒度图像（如表格、网页截图、PDF 文档）中的小文字完全模糊。为了解决高分辨率输入与 Transformer 计算复杂度之间的矛盾，业界演进出了以下几种主流方案：
+
+#### 1. NaViT (Patch n' Pack)
+NaViT 打破了图像必须是固定大小的传统。它支持任意分辨率和长宽比的图像直接输入，通过将不同尺寸图像切出的 patch 进行打包（Packing），塞入同一个 Batch 的固定长度序列中，并在 Transformer 的自注意力计算中应用 Mask 来阻止跨图像的信息泄露。
+
+#### 2. LLaVA-NeXT 动态切片 (AnyRes)
+LLaVA-NeXT 采用了一种更为直观的**图像切片（Image Tiling）**策略：
+- 根据图像的原始长宽比，动态计算最匹配的切片网格（如 $1 \times 2$, $2 \times 2$, $3 \times 1$ 等，每个子切片大小固定为 $336 \times 336$）。
+- 将图像切割为 $N$ 个局部子图，同时将原图等比例缩放为 $336 \times 336$ 的全局缩略图（Thumbnail）。
+- 将这 $N+1$ 张子图同时送入同一个共享的 ViT 视觉编码器提取特征。
+- 在融合阶段，将各个局部子图的特征按空间相对位置拼接起来（通常会在子图行末插入一个特殊的 `<newline>` token 以帮助 LLM 识别换行），再与全局缩略图特征拼接，一同输入 Connector。
+
+#### 3. Qwen2-VL / Qwen2.5-VL 动态分辨率 (Naive Dynamic Resolution)
+Qwen 系列采用了更为彻底的动态解析方案：
+- **任意尺寸直接 Token 化**：无论图像大小，直接按原始分辨率分割成 $14 \times 14$ 的 patch。
+- **3D 旋转位置编码 (3D-RoPE)**：为应对不固定的图像宽高，引入 3D-RoPE 显式地从时间、高度、宽度三个维度计算位置嵌入，使得模型可以天然适配任意宽高比和分辨率的图像（甚至视频）。
+- **Token 压缩 (Patch Merging / Downsampler)**：由于高分辨率图像产生的 patch 过多，Qwen 在 ViT 之后添加了一个由 2D RMSNorm + MLP 组成的下采样层，将相邻的 $2 \times 2$ 个视觉 token 合并压缩为 1 个 token，极大地减轻了 LLM 端的计算负担。
+
+<div align="center">
+  <img src="/images/vlm/vit-dynamic-patching.jpg" width="80%" />
+  <figcaption>图 4.7.2：任意分辨率 ViT 动态切片与 Token 拼接机制示意图</figcaption>
+</div>
 
 ### DINOv2：纯视觉自监督的另一条路线
 
