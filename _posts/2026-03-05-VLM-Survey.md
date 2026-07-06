@@ -1,4 +1,4 @@
----
+﻿---
 layout: post
 title: "VLM综述：多模态融合方法全景"
 date: 2026-07-06
@@ -510,7 +510,7 @@ MiniGPT-4证明了极简对齐方案的可行性：仅用一个**线性投影层
 实现高质量多模态融合的前提是强大的视觉表示。VLM中视觉编码器的设计经历了从早期CNN区域特征提取到Transformer全局特征建模，再到大尺度对比学习和动态高分辨率适配的重大转变。
 
 <div align="center">
-  <img src="/images/vlm/vit-encoder-evolution.jpg" width="80%" />
+  <img src="/images/vlm/vit-encoder-evolution.jpg" width="100%" />
   <figcaption>图 4.7.1：VLM 视觉编码器的演进历程：从 CNN 区域特征到 ViT，再到对比学习对齐与动态高分辨率方案</figcaption>
 </div>
 
@@ -589,7 +589,7 @@ Qwen 系列采用了更为彻底的动态解析方案：
 - **Token 压缩 (Patch Merging / Downsampler)**：由于高分辨率图像产生的 patch 过多，Qwen 在 ViT 之后添加了一个由 2D RMSNorm + MLP 组成的下采样层，将相邻的 $2 \times 2$ 个视觉 token 合并压缩为 1 个 token，极大地减轻了 LLM 端的计算负担。
 
 <div align="center">
-  <img src="/images/vlm/vit-dynamic-patching.jpg" width="80%" />
+  <img src="/images/vlm/vit-dynamic-patching.jpg" width="100%" />
   <figcaption>图 4.7.2：任意分辨率 ViT 动态切片与 Token 拼接机制示意图</figcaption>
 </div>
 
