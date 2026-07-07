@@ -3217,9 +3217,7 @@ G2VLM 采用了受神经科学“双流假说”启发的 Mixture-of-Transformer
 
   - **传统 MoE 与 G2VLM MoT 的 Block 内部数据流对比示意图**：
 
-    <div align="center">
-    <b>1. 传统 MoE Block (基于门控路由动态分配 Token)</b>
-    </div>
+    * **1. 传统 MoE Block (基于门控路由动态分配 Token)**：
 
 ```mermaid
 graph TD
@@ -3274,9 +3272,7 @@ graph TD
     class FFN_1,FFN_2,FFN_N expert;
 ```
 
-    <div align="center">
-    <b>2. G2VLM MoT Block (基于静态 Token 序列切片路由，无门控网络)</b>
-    </div>
+    * **2. G2VLM MoT Block (基于静态 Token 序列切片路由，无门控网络)**：
 
 ```mermaid
 graph TD
