@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "空间智能综述：从三维感知到空间推理"
-date: 2026-07-03
+date: 2026-07-07
 tags: [Spatial Intelligence, 3D Vision, NeRF, Point Cloud, Embodied AI, Survey]
 categories: research
 comments: true
@@ -2958,6 +2958,127 @@ $$L = \lambda L_{stream} + L_{LM}$$
 ### 4. 局限性
 1. **依赖深度重建前置模块**：模型的空间几何感知依赖于前置的 StreamVGGT 的估计精度。当视频中出现极端的动态模糊、剧烈相机晃动或大面积无纹理区域时，几何特征可能失真，进而影响测距和空间定位的准确性。
 2. **缺乏多轮对话的决策可回溯性**：目前的流式决策是自回归单向进行的，一旦模型在某帧预测了 `<SEP>`（继续静默）导致错过了最佳答题点，便无法回溯重新决策，未来需要引入软性的流式置信度回溯机制。
+
+---
+
+## 6.22 MDM: Masked Depth Modeling for Spatial Perception (2026)
+——— 基于遮蔽深度建模与海量 RGB-D 数据的通用三维空间几何感知底座
+
+📄 **Paper**: [arXiv:2601.17895](https://arxiv.org/abs/2601.17895) · [Project Page](https://technology.robbyant.com/lingbot-depth) · [Code](https://github.com/robbyant/lingbot-depth)
+
+---
+
+### 精华
+
+1. **遮蔽深度建模（MDM）**：将商用深度相机常见的几何和外观歧义（如镜面反射、低纹理、复杂光照等导致的深度缺失）视为一种天然的遮蔽（Masking）信号，并以此构建自监督预训练任务，而不是将其作为噪声丢弃。
+2. **通用的几何表示底座**：通过统一单目深度估计与深度图补全（Depth Completion）两大任务，基于 ViT-Large 主干网络实现了极强的跨模态（RGB 和 Depth）几何表征对齐，在测试集上能够跨越两种任务输出一致的度量深度预测。
+3. **海量多模态数据集**：构建了包含 200 万真实世界捕获和 100 万仿真渲染的多模态 RGB-D 训练集，其中真实数据利用多相机红外（IR）立体匹配生成伪深度监督，并结合 7 个公开数据集形成 1000 万规模的预训练语料。
+4. **即插即用的感知先验**：在无显式时序监督下，展示了出色的零样本（Zero-shot）视频深度补全一致性，能够作为强几何感知先验即插即用集成到 3D 点跟踪（SpatialTrackerV2）与灵巧手操作策略（DP3）中。
+5. **硬件性能超越**：在深度补全和度量级单目重建的多项基准上，LingBot-Depth 在深度精度和像素覆盖率上均优于现有的商业 RGB-D 相机（如 Orbbec, RealSense 等硬件本身自带的算法）以及经典的深度估计大模型。
+
+---
+
+### 1. 研究背景/问题
+
+精确的三维世界几何感知（绝对度量尺度、像素对齐的稠密几何、实时获取）是具身智能和机器人控制的基石。RGB-D 相机是实现这一目标最可行的低成本方案，但在现实场景中，受限于硬件限制、表面材质（如透明、强反射镜面）或低纹理等条件，传感器往往会产生严重的局部深度数据缺失（即深度图上的“孔洞”）。以往的工作要么将这些缺失区域视为废弃的噪声，要么依赖于测试时耗时的迭代优化或单对图像前馈对齐。本文提出了一场范式转变：**将传感器天然失效导致的缺失区域解释为遮蔽建模中的“天然 Mask”**，以自监督的形式强迫模型结合完整的 RGB 图像上下文，推断和重构缺失的度量深度值，以此学习稳健的空间几何表征。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vla/MDM-teaser.png" width="100%" />
+<figcaption>图 1：通过遮蔽深度建模（MDM）预训练，LingBot-Depth 能够修复商业 RGB-D 传感器由于高反光、透明或无纹理表面导致的深度缺失，为下游 3D 轨迹跟踪和灵巧抓取提供高质量的空间几何先验。</figcaption>
+</div>
+
+#### ① 整体框架概述
+
+MDM（Masked Depth Modeling）框架采用 Encoder-Decoder 结构，使用 Vision Transformer（ViT-Large）作为骨干编码器，并结合分层卷积解码器（ConvStack）进行稠密几何预测。它的核心流程是：分别提取 RGB 图像和带缺失值的 Sensor Depth 的 patch token，将它们混合后输入 ViT 编码器学习跨模态的联合特征，最后在解码阶段丢弃深度 latent token，仅利用 RGB token 和全局上下文恢复出完整、密集的绝对度量深度图。
+
+<div align="center">
+  <img src="/images/vla/MDM-architecture.png" width="100%" />
+<figcaption>图 2：Masked Depth Modeling (MDM) 框架架构。输入 RGB 图像与带缺失值的 Sensor Depth 分别投影为 Token，添加空间和模态位置编码。ViT Encoder 提取联合表示，随后丢弃深度 latent token，仅保留 RGB 相关的上下文 token，输入至分层卷积解码器（ConvStack）中重建出稠密、完整的度量深度图。</figcaption>
+</div>
+
+#### ② 逐模块讲解
+
+**(a) 分离式 Patch Embedding**
+- **输入**：3 通道 RGB 图像 $I \in \mathbb{R}^{3\times H\times W}$ 与单通道原始深度图 $D_{raw} \in \mathbb{R}^{1\times H\times W}$。
+- **处理**：应用两个独立的 Patch Embedding 层对两种模态进行降采样投影，Patch 大小设为 14（遵循 DINOv2 规范）。RGB 图像和深度图均投影为 spatially aligned 的 $N = HW/14^2$ 个 Token。
+- **输出**：RGB 图像 token 序列 $c_i \in \mathbb{R}^n$ 与深度图 token 序列 $d_i \in \mathbb{R}^n$，其中 $n$ 为 Token 嵌入维度（ViT-L 为 1024）。
+- **设计动机**：分离的 Patch 嵌入层使自注意力层能够直接在网格级交叉学习 RGB 的外观上下文与深度的局部几何，融合近远关系、共面性以及空间连续性等几何特征。
+
+**(b) 混合位置编码（Positional Embeddings）**
+- **处理**：由于输入由 RGB 和 Depth 两种模态组成，且具有空间对应性，模型设计了双重位置编码：
+  1. **空间位置编码**：RGB 和 Depth 共用一套可学习的 2D 空间位置编码，绑定图像坐标系；
+  2. **模态嵌入编码（Modality Embedding）**：用于标识输入源，RGB token 加 1，Depth token 加 2。
+- **输出**：最终输入 Token 为原始投影与空间位置编码、模态编码的求和结果，之后再送入 Attention block。
+- **设计动机**：帮助 Transformer 隐式感知像素的空间位置，并能清晰区分哪些是外观表示，哪些是测量的粗糙深度。
+
+**(c) 天然失效诱导的遮蔽策略（Masking Strategy）**
+- **处理**：在输入 ViT 之前，对深度 Token 实施高比例 Mask（60%–90%），而 RGB Token 保持 100% 可见。Mask 策略分为三个部分：
+  1. **完全缺失区域**：深度图上完全无测量值的 patch 必须 100% 进行 Mask；
+  2. **混合测量区域**：若 Patch 内包含部分失效值，则赋予较高的 Mask 概率（训练中设为 0.75）；
+  3. **随机掩码补充**：若上述失效导致的 Mask Token 数量不足以达到目标掩码率，则随机抽取完全有效的深度 Token 进行掩补，确保总 Mask 率维持在 60%–90%。
+- **设计动机**：传感器天然缺失区往往与高难度的三维外观（强反光、无纹理）直接相关，具有强烈的归纳偏置。通过这种非随机的“天然 Mask”机制，迫使网络必须通过复杂的 RGB 上下文线索来重建深度，显著提升了网络对几何退化区域的推理能力。
+
+**(d) ViT-Large Encoder**
+- **输入**：未被 Mask 的深度 Token 与全量 RGB Token 的拼接序列，以及 1 个全局 `[cls]` token。
+- **处理**：输入包含 24 层自注意力块的 ViT-Large 编码器。
+- **输出**：仅保留最终编码层输出的 Latent Token 进行后续预测，不再混合中间层的特征（与 DepthAnythingV2 等多层融合不同，极大地简化了网络设计）。
+
+**(e) ConvStack 解码器**
+- **输入**：编码后的 Latent 图像 Token 以及全局广播并加和的 `[cls]` token。**关键操作是：在解码前将深度 Latent Token 直接全部丢弃**，只利用 RGB 关联的上下文 Token 重建深度。
+- **处理**：采用基于 MoGe 的分层卷积解码结构（ConvStack），通过残差块和转置卷积（Kernel size = 2, Stride = 2）将特征图从低分辨率逐级上采样到 $16\times$ 分辨率。在每个尺度中，注入基于图像坐标圆形映射的 UV 位置编码以维持比例和布局。
+- **输出**：双线性插值还原至原分辨率的稠密深度预测 $D^{pred}$。
+- **设计动机**：在 vanilla MAE 中采用的浅层 Transformer 解码器在稠密几何重建中容易产生边界模糊和伪影，而 ConvStack 卷积堆叠结构更适合预测高保真的局部分类和连续边界信息，从而极大提升重建的平滑度。
+
+#### ③ 训练目标与损失函数
+
+模型训练时，仅针对 ground-truth 深度图中有效像素计算 L1 损失，以避免未标定或缺失的背景像素干扰优化：
+
+$$L_{depth} = \frac{1}{\sum_i M^{gt}_i} \sum_i M^{gt}_i \lvert d^{pred}_i - d^{gt}_i \rvert$$
+
+其中 $d^{pred}_i$ 和 $d^{gt}_i$ 分别表示第 $i$ 个像素的预测深度值与真实深度值，而 $M^{gt}_i \in \{0, 1\}$ 是指示真值深度在第 $i$ 个像素是否有效的二值掩码。
+
+---
+
+### 3. 核心结果/发现
+
+- **深度补全（Depth Completion）**：
+  - 在 Protocol 1（块遮蔽与模拟噪声）基准上，LingBot-Depth 表现出极强的噪声鲁棒性，在 iBims、NYUv2、DIODE 数据集上的 RMSE 相比当时最好的方法（PromptDA）降低了 **40% 以上**（如在 iBims Extreme 难度下 RMSE 为 0.345 对比 PromptDA 0.607）。
+  - 在 Protocol 2（稀疏 SfM 输入，ETH3D 数据集）中，在没有完整边界条件的前提下，RMSE 分别在室内和室外降低了 **47%** 和 **38%**，验证了其在稀疏几何输入下的极限重构能力。
+
+- **单目深度估计（Monocular Depth Estimation）**：
+  - 在 MoGe-2 架构中，将初始化的 DINOv2 替换为 MDM 预训练的 ViT 权重，在不修改解码器结构的前提下，测试的 10 个跨域基准指标获得全面提升。这证明了经过 Masked Depth 训练的编码器已经能够很好地将度量几何先验吸收进语义 token 中，从而显著增强了纯单目 RGB 的空间感知上限。
+
+<div align="center">
+  <img src="/images/vla/MDM-point-tracking.png" width="100%" />
+<figcaption>图 3：在视频深度补全与 3D 点跟踪上的应用效果：(a) 在包含大面积玻璃幕墙的室内场景中估计稳定的相机轨迹与三维重建几何；(b) 配合 SpatialTrackerV2 针对动态物体（滑板车、划船机、健身器材、引体向上）进行鲁棒的 3D 点轨迹跟踪。</figcaption>
+</div>
+
+- **下游应用 1：视频深度补全与 3D 点跟踪**：
+  - 虽然 MDM 仅基于静态图像训练，但在视频序列上展现出卓越的时序一致性。将其作为 Drop-in 的深度估计模块嵌入 SpatialTrackerV2（替代传统的 VGGT 前端），能在玻璃表面等强干扰场景中提供非常平滑、精准的深度估计，大幅消除轨迹漂移并提高了 2D/3D 轨迹预测的效率。
+
+- **下游应用 2：具身灵巧手抓取**：
+  - 将 LingBot-Depth 结合基于点云输入的 3D 扩散策略（DP3 架构），在六自由度 Rokae XMate-SR5 机械臂与灵巧手（X Hand-1）系统上进行物体抓取。在面对不锈钢杯、透明玻璃杯、透明收纳盒、玩具车四类高反射/透明挑战性物体时，利用 LingBot-Depth 提供的稠密点云，抓取成功率相比原始传感器深度显著提升（例如：透明收纳盒在原始传感器深度下完全无法建立点云导致 N/A 失败，而使用 LingBot-Depth 后抓取成功率达到了 50%）。
+
+<div align="center">
+  <img src="/images/vla/MDM-grasp-qualitative.png" width="100%" />
+<figcaption>图 4：抓取实验定性对比。右侧展示了不锈钢杯、玻璃杯、收纳盒与玩具车四类物体在 RGB、原始 Sensor 深度以及 LingBot-Depth 重构深度下的表现。明显可见，LingBot-Depth 彻底消除了高透/反光表面的大量缺失深度值并平滑了结构特征。</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vla/MDM-grasp-execution.png" width="100%" />
+<figcaption>图 5：在预测的三维点云上进行灵巧手抓取姿态生成（上排）并由机械臂在实体环境中物理执行（下排）。</figcaption>
+</div>
+
+---
+
+### 4. 局限性
+
+1. **极端透明表面的伪影**：尽管抓取成功率翻倍，但在面对极薄、大面积纯透明介质（如某些特定角度的玻璃杯边缘）时，LingBot-Depth 的重构深度仍可能存在轻微的几何收缩与边缘退化。
+2. **高算力与时延限制**：前向推理主要依赖于大型 ViT-L 编码器，在目前嵌入式机器人端上（如 Jetson Orin）部署时，如果不进行 TensorRT量化与剪枝，其帧率表现难以直接满足极高动态避障的要求。
 
 ---
 
