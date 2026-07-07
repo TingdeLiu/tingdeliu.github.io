@@ -3114,6 +3114,79 @@ $$L_{depth} = \frac{1}{\sum_i M^{gt}_i} \sum_i M^{gt}_i \lvert d^{pred}_i - d^{g
 <figcaption>图 2：G2VLM 整体架构与专家划分：基于混合专家（MoT）设计，通过共享自注意力融合几何特征与语义表示</figcaption>
 </div>
 
+```mermaid
+graph TD
+    %% Inputs
+    subgraph Inputs ["输入数据"]
+        Img["N 张 RGB 图像 (I_i)"]
+        Txt["用户文本问题"]
+    end
+
+    %% Encoders
+    subgraph Encoders ["双视觉编码器"]
+        DINO["DINOv2 编码器 (空间敏感)"]
+        QwenEnc["Qwen2-VL 视觉编码器 (语义丰富)"]
+    end
+
+    Img --> DINO
+    Img --> QwenEnc
+
+    %% Experts HIDDEN states
+    subgraph MoT ["混合专家 Transformer 架构 (MoT Block)"]
+        subgraph Expert1 ["几何感知专家 (Geometric Perception Expert)"]
+            GP_H["几何隐藏状态 h_i"]
+        end
+
+        subgraph Expert2 ["语义感知专家 (Semantic Perception Expert)"]
+            SP_H["语义/文本隐藏状态"]
+        end
+
+        %% Self-Attention Interaction
+        GP_H <--> |"共享自注意力 (Shared Self-Attention)"| SP_H
+    end
+
+    DINO --> GP_H
+    QwenEnc --> SP_H
+    Txt --> SP_H
+
+    %% Decoding & Outputs
+    subgraph Outputs ["解码与输出"]
+        %% Geometry Heads
+        subgraph GP_Heads ["3D 几何解码头"]
+            LocalHead["局部点云头"]
+            GlobalHead["全局点云头"]
+            CamHead["相机位姿头"]
+        end
+        
+        %% Text Output
+        SP_Dec["文本解码器 (Text De-Tokenizer)"]
+
+        %% Final predictions
+        PC["3D 点云图 (X_i)"]
+        Pose["6-DoF 相机位姿 (T_i)"]
+        Ans["空间推理文本回答"]
+    end
+
+    GP_H --> GP_Heads
+    SP_H --> SP_Dec
+
+    LocalHead & GlobalHead --> PC
+    CamHead --> Pose
+    SP_Dec --> Ans
+
+    %% Styles
+    classDef input fill:#f5f5f7,stroke:#1d1d1f,stroke-width:1px;
+    classDef encoder fill:#e8f0fe,stroke:#1a73e8,stroke-width:1px;
+    classDef gp fill:#fce8e6,stroke:#d93025,stroke-width:1px;
+    classDef sp fill:#e6f4ea,stroke:#137333,stroke-width:1px;
+    classDef output fill:#fef7e0,stroke:#f9ab00,stroke-width:1px;
+
+    class Img,Txt input;
+    class DINO,QwenEnc encoder;
+    class GP_H,GP_Heads,LocalHead,GlobalHead,CamHead,PC,Pose gp;
+    class SP_H,SP_Dec,Ans sp;
+```
+
 **① 整体框架概述**
 G2VLM 采用了受神经科学“双流假说”启发的 Mixture-of-Transformer-Experts (MoT) 架构，包含负责处理 3D 空间几何重构的**几何感知专家**（Geometric Perception Expert，即 where 路径）和负责多模态文本交互的**语义感知专家**（Semantic Perception Expert，即 what 路径）。两个专家在每一层通过共享自注意力（Shared Self-Attention）来进行信息穿透。
 
