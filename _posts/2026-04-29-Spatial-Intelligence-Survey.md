@@ -3202,10 +3202,73 @@ G2VLM 采用了受神经科学“双流假说”启发的 Mixture-of-Transformer
   - **输出**：生成空间问题的文本回答。
   - **设计动机**：直接复用强语义基座的能力，使其具备回答复杂位置指令和长上下文推理的常识。
 * **共享自注意力机制 (Shared Self-Attention)**：
-  - **输入**：拼接 SP 通道的文本/外观 Token 与 GP 通道的几何 Token。
-  - **处理**：两个专家生成的隐藏状态不再仅执行单向计算，而是可以在每个 Transformer block 内部执行全向自注意力计算。
-  - **输出**：交叉对齐并相互促进的联合特征。
-  - **设计动机**：允许几何专家在 3D 重建时借鉴语义类别信息；更重要的是，能让语义大模型直接使用 GP 预测的真实 3D 几何特征进行交织推理（Interleaved Reasoning）。
+  - **机制的物理本质**：在传统的 MoE 架构中，各个专家通常在 Feed-Forward Network (FFN) 层相互独立，输入 Token 仅被路由（Router）派发给单一的专家 FFN 处理。而 G2VLM 的 **Mixture-of-Transformer-Experts (MoT)** 架构采用**共享自注意力 (Shared Self-Attention) + 解耦前馈专家 (Decoupled FFN Experts)** 的设计。其本质是：在每个 Transformer Block 中，将来自“几何感知专家 (GP)”的几何 Token $X_{GP}$ 与来自“语义感知专家 (SP)”的语义/文本 Token $X_{SP}$ 拼接到同一个序列中进行全局自注意力计算。
+  - **Token 交互过程**：正如您所料，**不同专家输入的 Token 在进行自注意力时会全面进行跨专家交互**。GP 通道的 Token 可以 attend 到 SP 通道的语义和文本信息，反之亦然。这允许模型在计算 $Q, K, V$ 时跨越专家的阻隔：
+    - **GP 专家获取高层语义**（几何 Token $\to$ 语义 Token）：当重建特定 3D 几何结构时，网络可以通过高层语义标签（如“桌面”、“墙壁”、“反光镜”）作为先验指导，提高深度和点云预测的平滑度。
+    - **SP 专家检索底层三维几何**（语义 Token $\to$ 几何 Token）：大语言模型在进行空间常识推理（如问答 “杯子与显示器哪一个离相机更近”）时，能直接跨通道检索并读取几何专家生成的绝对度量 3D 坐标隐藏状态，从而做出符合物理事实的**交织推理 (Interleaved Reasoning)**。
+  - **MoT 与 传统 MoE 的架构对比**：
+
+| 维度 | 传统 MoE (Mixture of Experts) | G2VLM 中的 MoT (Shared Self-Attention) |
+| :--- | :--- | :--- |
+| **专家粒度** | 通常仅在 FFN (Feed-Forward Network) 层 | 扩展到整个 Transformer Block 通道级（解耦的 FFN 专家） |
+| **Token 分流** | 通过 **Router (门控路由)** 动态分流，每个 Token 只分给 1-2 个 FFN 专家 | **双通道并行静态分流**：几何 Token 送入 GP 通道，文本 Token 送入 SP 通道 |
+| **自注意力机制** | 全局共享自注意力，不分通道类型 | **共享自注意力 (Shared Self-Attention)**，但在计算后会**分流至独立的专家 FFN** |
+| **设计目的** | 增加大模型参数量与容量，节省计算开销 | 融合异构特征，促使低层三维几何与高层空间语义双向对齐 |
+
+  - **MoT Block 内部数据流示意图**：
+
+```mermaid
+graph TD
+    %% Inputs to Block
+    X_GP["几何 Token X_GP"]
+    X_SP["语义 Token X_SP"]
+
+    %% Concatenation
+    Concat["拼接 (Concatenate)"]
+    X_GP --> Concat
+    X_SP --> Concat
+
+    %% Shared Self-Attention
+    subgraph AttentionBlock ["共享自注意力层 (Shared Self-Attention)"]
+        Shared_Q["计算 Q = [X_GP, X_SP] * W_Q"]
+        Shared_K["计算 K = [X_GP, X_SP] * W_K"]
+        Shared_V["计算 V = [X_GP, X_SP] * W_V"]
+        
+        Concat --> Shared_Q & Shared_K & Shared_V
+        
+        AttnCalc["Softmax(Q K^T / √d) * V"]
+        Shared_Q & Shared_K & Shared_V --> AttnCalc
+    end
+
+    %% Split
+    Split["分割 (Split / Slice)"]
+    AttnCalc --> Split
+
+    %% FFN Experts
+    subgraph Experts ["解耦前馈专家 (Decoupled FFN Experts)"]
+        FFN_GP["几何前馈专家 (FFN_GP)"]
+        FFN_SP["语义前馈专家 (FFN_SP)"]
+    end
+
+    Split --> |"几何部分 (前 Tg 个 Token)"| FFN_GP
+    Split --> |"语义部分 (后 Ts 个 Token)"| FFN_SP
+
+    %% Outputs of Block
+    Out_GP["输出几何 Token Y_GP"]
+    Out_SP["输出语义 Token Y_SP"]
+
+    FFN_GP --> Out_GP
+    FFN_SP --> Out_SP
+
+    %% Style
+    classDef gp fill:#fce8e6,stroke:#d93025,stroke-width:1px;
+    classDef sp fill:#e6f4ea,stroke:#137333,stroke-width:1px;
+    classDef shared fill:#e8f0fe,stroke:#1a73e8,stroke-width:1px;
+
+    class X_GP,FFN_GP,Out_GP gp;
+    class X_SP,FFN_SP,Out_SP sp;
+    class Concat,Shared_Q,Shared_K,Shared_V,AttnCalc,Split shared;
+```
 
 **③ 训练目标与损失函数**
 模型在第一阶段先冻结 SP 专家，从零优化几何专家，几何损失 $L_{VG}$ 定义为：
