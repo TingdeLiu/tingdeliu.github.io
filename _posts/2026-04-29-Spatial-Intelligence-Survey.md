@@ -3215,7 +3215,68 @@ G2VLM 采用了受神经科学“双流假说”启发的 Mixture-of-Transformer
 | **自注意力机制** | 全局共享自注意力，不分通道类型 | **共享自注意力 (Shared Self-Attention)**，但在计算后会**分流至独立的专家 FFN** |
 | **设计目的** | 增加大模型参数量与容量，节省计算开销 | 融合异构特征，促使低层三维几何与高层空间语义双向对齐 |
 
-  - **MoT Block 内部数据流示意图**：
+  - **传统 MoE 与 G2VLM MoT 的 Block 内部数据流对比示意图**：
+
+    <div align="center">
+    <b>1. 传统 MoE Block (基于门控路由动态分配 Token)</b>
+    </div>
+
+```mermaid
+graph TD
+    %% Inputs to Block
+    X["输入 Token 序列 X"]
+
+    %% Shared Self-Attention
+    subgraph AttentionBlock ["共享自注意力层 (Shared Self-Attention)"]
+        Shared_Q["计算 Q = X * W_Q"]
+        Shared_K["计算 K = X * W_K"]
+        Shared_V["计算 V = X * W_V"]
+        
+        X --> Shared_Q & Shared_K & Shared_V
+        
+        AttnCalc["Softmax(Q K^T / √d) * V"]
+        Shared_Q & Shared_K & Shared_V --> AttnCalc
+    end
+
+    %% Router/Gating Network
+    Router["门控路由网络 (Router / Gating Network)"]
+    AttnCalc --> Router
+
+    %% Decoupled FFN Experts
+    subgraph Experts ["并列前馈专家 (Parallel FFN Experts)"]
+        FFN_1["专家 1 (FFN_1)"]
+        FFN_2["专家 2 (FFN_2)"]
+        FFN_N["专家 N (FFN_N)"]
+    end
+
+    %% Routing lines
+    Router --> |"根据路由概率分配 Token"| FFN_1
+    Router --> |"根据路由概率分配 Token"| FFN_2
+    Router --> |"根据路由概率分配 Token"| FFN_N
+
+    %% Combine/Sum
+    Combine["加权汇聚 (Weighted Sum / Combine)"]
+    FFN_1 --> Combine
+    FFN_2 --> Combine
+    FFN_N --> Combine
+
+    %% Output of Block
+    Out["输出 Token Y"]
+    Combine --> Out
+
+    %% Style
+    classDef input fill:#f5f5f7,stroke:#1d1d1f,stroke-width:1px;
+    classDef router fill:#fef7e0,stroke:#f9ab00,stroke-width:1px;
+    classDef expert fill:#e6f4ea,stroke:#137333,stroke-width:1px;
+
+    class X,Out input;
+    class Router,Combine router;
+    class FFN_1,FFN_2,FFN_N expert;
+```
+
+    <div align="center">
+    <b>2. G2VLM MoT Block (基于静态 Token 序列切片路由，无门控网络)</b>
+    </div>
 
 ```mermaid
 graph TD
