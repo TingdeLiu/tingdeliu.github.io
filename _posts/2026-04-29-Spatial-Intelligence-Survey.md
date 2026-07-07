@@ -3271,9 +3271,55 @@ graph TD
 ```
 
 **③ 训练目标与损失函数**
-模型在第一阶段先冻结 SP 专家，从零优化几何专家，几何损失 $L_{VG}$ 定义为：
+G2VLM 采用了**两阶段解耦的训练策略**，在保护底层 3D 物理重建精度的同时，利用大语言模型（LLM）的强泛化能力来拟合高层空间语义。
+
+* **两阶段训练详细对比**：
+
+| 训练阶段 | 优化目标 (Objective) | 激活/优化模型参数 | 冻结模型参数 | 训练损失 (Loss) | 主要数据集 (Datasets) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **第一阶段：几何预训练** (GP Pre-training) | 训练几何感知专家 (GP) 的底层 3D 几何感知能力 | 几何感知专家 (GP) 的特征网络及 3D 几何解码头从头训练 | 语义感知专家 (SP) (基于 Qwen2-VL-2B) 保持冻结 | 视觉几何损失 $L_{VG}$ (点云损失 + 位姿损失 + 法线损失) | ScanNet, Co3Dv2, MegaDepth 等大规模 3D 标注集 |
+| **第二阶段：空间推理联训** (SP Joint-training) | 优化语义感知专家 (SP) 的三维场景问答与推理能力 | 语义感知专家 (SP)；默认冻结 GP (也可选微调 GP) | 几何感知专家 (GP) (在默认的 *CE Loss Only* 策略下冻结) | 交叉熵损失 $L_{CE}$ (Language Modeling Loss) | SPAR-7M, Omnispatial, Mindcube 等空间推理/问答数据集 |
+
+* **两阶段训练流程示意图**：
+
+```mermaid
+graph TD
+    %% Stage 1
+    subgraph Stage1 ["第一阶段：几何专家预训练 (GP Pre-training)"]
+        S1_Data["海量 3D 标注数据集"] --> S1_Inputs["RGB 图像输入 (I_i)"]
+        S1_Inputs --> S1_GP["几何专家 GP (从头学习 3D 几何特征)"]
+        S1_Inputs --> S1_SP["语义专家 SP (冻结 Qwen2-VL)"]
+        
+        S1_GP --> S1_Loss["优化 LVG (点云重建 + 位姿估计 + 法线损失)"]
+    end
+
+    %% Transition
+    S1_GP -.-> |"加载预训练几何权重"| S2_GP
+
+    %% Stage 2
+    subgraph Stage2 ["第二阶段：空间推理联合训练 (SP Joint-training)"]
+        S2_Data["空间问答与推理数据集"] --> S2_Inputs["多视角/视频图像 + 文本问题"]
+        S2_Inputs --> S2_GP["几何专家 GP (默认冻结/可选微调)"]
+        S2_Inputs --> S2_SP["语义专家 SP (解冻微调)"]
+        
+        S2_GP & S2_SP --> S2_Shared["共享自注意力机制 (Shared Self-Attention)"]
+        S2_Shared --> S2_Loss["优化 LCE (交叉熵文本预测损失)"]
+    end
+
+    %% Styles
+    classDef freeze fill:#ebebeb,stroke:#7f7f7f,stroke-width:1px,stroke-dasharray: 5 5;
+    classDef active fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px;
+    classDef loss fill:#fef7e0,stroke:#f9ab00,stroke-width:1px;
+
+    class S1_SP,S2_GP freeze;
+    class S1_GP,S2_SP active;
+    class S1_Loss,S2_Loss loss;
+```
+
+* **具体损失函数数学表述**：
+  - **阶段一几何损失**：优化几何感知专家（GP）时，视觉几何损失函数 $L_{VG}$ 定义为点云重建、相机位姿与法线损失的加权和：
 $$L_{VG} = L_{points} + \lambda_{cam} L_{cam} + \lambda_{normal} L_{normal}$$
-点云重建损失 $L_{points}$ 计算尺度不变的 L1 误差：
+其中，尺度不变的点云重建损失 $L_{points}$ 计算如下：
 $$L_{points} = \frac{1}{3NHW} \sum_{i=1}^N \sum_{j=1}^{H \times W} \frac{1}{z_{i,j}} \lVert s^* \hat{x}_{i,j} - x_{i,j} \rVert_1$$
 $$s^* = \arg\min_s \sum_{i=1}^N \sum_{j=1}^{H \times W} \frac{1}{z_{i,j}} \lVert s \hat{x}_{i,j} - x_{i,j} \rVert_1$$
 相机损失 $L_{cam}$ 平衡了 geodesic 旋转偏差和平移的 Huber 损失：
@@ -3281,7 +3327,10 @@ $$L_{cam} = \frac{1}{N(N-1)} \sum_{i \neq j} (L_{rot}(i, j) + \lambda_{trans} L_
 $$L_{rot}(i, j) = \arccos\left(\frac{\text{Tr}(R_{i\leftarrow j}^\top \hat{R}_{i\leftarrow j}) - 1}{2}\right)$$
 表面法线损失 $L_{normal}$ 保证几何的局部平滑一致性：
 $$L_{normal} = \sum_{i=1}^N \sum_{j=1}^{H \times W} \arccos(\hat{n}_{i,j} \cdot n_{i,j})$$
-在第二阶段，解冻语义专家进行联合训练，并对比了三种微调策略：*CE Loss Only*（仅对 SP 进行交叉熵微调，冻结 GP）、*CE + CE Loss*（两专家同时优化，空间推理能力最佳但几何精度略降，被命名为 G2VLM-SR）与 *VG + CE Loss*（同时更新且加入几何 $L_{VG}$ 约束）。为了保证模型的泛化可扩展性，默认采用 *CE Loss Only* 策略。
+  - **阶段二联合训练优化策略**：在此阶段解冻语义专家进行联合训练，作者对比了三种微调策略：
+    1. *CE Loss Only*（默认）：仅对 SP 专家进行交叉熵（CE）损失微调，GP 专家完全冻结。该策略不仅能完全保留 GP 第一阶段学到的 3D 感知性能，而且可以使用海量无 3D 标注的视频及对话数据训练，具有极佳的可扩展性。
+    2. *CE + CE Loss*（G2VLM-SR）：两专家同时通过交叉熵优化。这使得 GP 被强制微调用于空间推理，整体的高级空间推理表现最好，但在低层几何重建精度上会有所下滑。
+    3. *VG + CE Loss*：同时采用几何监督 $L_{VG}$ 与语义监督 $L_{CE}$。训练得到的参数最全面，但由于联合训练阶段需要同时具有 3D 标签与语义问答的复杂混合数据集，因此扩展难度极大。
 
 ---
 
