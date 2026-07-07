@@ -3082,6 +3082,98 @@ $$L_{depth} = \frac{1}{\sum_i M^{gt}_i} \sum_i M^{gt}_i \lvert d^{pred}_i - d^{g
 
 ---
 
+## 6.23 G2VLM (2025)
+——— 融合三维几何重建与空间语义推理的多模态大模型
+
+📄 **Paper**: [arXiv:2511.21688](https://arxiv.org/abs/2511.21688)
+
+---
+
+### 精华
+* **三维重建与空间语义桥接**：G2VLM 首次在统一的多模态大模型中，将低级三维几何重建与高级空间语义推理进行深度结合。
+* **解耦的双通路设计**：借鉴人类视觉的“双通路假说”，采用 Mixture-of-Transformer-Experts (MoT) 架构将几何感知专家（DINOv2 + 3D 几何解码头）与语义感知专家（Qwen2-VL）进行解耦与独立设计。
+* **表示层的双向交互**：引入共享自注意力机制，使底层的几何表征与高层语义特征在 Transformer block 内部进行双向检索与深度对齐。
+* **高泛化与扩展性**：在第二阶段空间推理联合微调时，即使选择冻结几何专家（仅利用廉价视频/推理数据优化语义专家），也能在下游高级空间推理任务中表现出优异的性能，展现极好的泛化前景。
+
+---
+
+### 1. 研究背景/问题
+现有的多模态大模型（VLM）在三维物理世界感知与空间几何推理任务上表现出严重的短板。以往的大模型多把多图或视频帧“扁平化”地当作一维序列，传统方法也缺失了能将 2D 特征“升维”成连贯 3D 表示的显式三维几何学习过程。而专门的 3D-VLM 架构又重度依赖高昂、难以获取的 3D 实景扫描标注，导致训练无法像通用 VLM 那样有效扩展。如何将高效的低级 3D 重建先验与通用的 VLM 语义表示相结合，且保持极佳的扩展性，是空间智能走向通用具身 AI 的关键门槛。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vlm/G2VLM-tasks.png" width="100%" />
+<figcaption>图 1：G2VLM 支持的任务：交织空间推理、单目深度预测、三维点云重建和相机位姿估计</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vlm/G2VLM-architecture.png" width="100%" />
+<figcaption>图 2：G2VLM 整体架构与专家划分：基于混合专家（MoT）设计，通过共享自注意力融合几何特征与语义表示</figcaption>
+</div>
+
+**① 整体框架概述**
+G2VLM 采用了受神经科学“双流假说”启发的 Mixture-of-Transformer-Experts (MoT) 架构，包含负责处理 3D 空间几何重构的**几何感知专家**（Geometric Perception Expert，即 where 路径）和负责多模态文本交互的**语义感知专家**（Semantic Perception Expert，即 what 路径）。两个专家在每一层通过共享自注意力（Shared Self-Attention）来进行信息穿透。
+
+**② 逐模块讲解**
+* **几何感知专家 (Geometric Perception Expert, GP)**：
+  - **输入**：接收 $N$ 张 RGB 帧，利用 DINOv2 作为低层空间几何特征编码器。
+  - **处理**：特征首先转换为隐藏状态 $h_i$，然后输入由轻量级 Transformer 组成的几何头（Geometry Heads，包括局部点云头、全局点云头和相机位姿头）。
+  - **输出**：输出绝对度量尺度的三维点云 $X_i \in \mathbb{R}^{H \times W \times 3}$ 和相机 6-DoF 相对位姿 $T_i \in SE(3)$。
+  - **设计动机**：利用 DINOv2 在边界和纹理过渡层中天然保留的空间连续性先验，加速低层重建的收敛。
+* **语义感知专家 (Semantic Perception Expert, SP)**：
+  - **输入**：用户文本问题以及来自预训练 Qwen2-VL 语义图像编码器的特征。
+  - **处理**：使用轻量化 Qwen2-VL-2B 作为基座框架，支持输入帧的多模态旋转位置编码（M-RoPE）与动态分辨率裁剪。
+  - **输出**：生成空间问题的文本回答。
+  - **设计动机**：直接复用强语义基座的能力，使其具备回答复杂位置指令和长上下文推理的常识。
+* **共享自注意力机制 (Shared Self-Attention)**：
+  - **输入**：拼接 SP 通道的文本/外观 Token 与 GP 通道的几何 Token。
+  - **处理**：两个专家生成的隐藏状态不再仅执行单向计算，而是可以在每个 Transformer block 内部执行全向自注意力计算。
+  - **输出**：交叉对齐并相互促进的联合特征。
+  - **设计动机**：允许几何专家在 3D 重建时借鉴语义类别信息；更重要的是，能让语义大模型直接使用 GP 预测的真实 3D 几何特征进行交织推理（Interleaved Reasoning）。
+
+**③ 训练目标与损失函数**
+模型在第一阶段先冻结 SP 专家，从零优化几何专家，几何损失 $L_{VG}$ 定义为：
+$$L_{VG} = L_{points} + \lambda_{cam} L_{cam} + \lambda_{normal} L_{normal}$$
+点云重建损失 $L_{points}$ 计算尺度不变的 L1 误差：
+$$L_{points} = \frac{1}{3NHW} \sum_{i=1}^N \sum_{j=1}^{H \times W} \frac{1}{z_{i,j}} \lVert s^* \hat{x}_{i,j} - x_{i,j} \rVert_1$$
+$$s^* = \arg\min_s \sum_{i=1}^N \sum_{j=1}^{H \times W} \frac{1}{z_{i,j}} \lVert s \hat{x}_{i,j} - x_{i,j} \rVert_1$$
+相机损失 $L_{cam}$ 平衡了 geodesic 旋转偏差和平移的 Huber 损失：
+$$L_{cam} = \frac{1}{N(N-1)} \sum_{i \neq j} (L_{rot}(i, j) + \lambda_{trans} L_{trans}(i, j))$$
+$$L_{rot}(i, j) = \arccos\left(\frac{\text{Tr}(R_{i\leftarrow j}^\top \hat{R}_{i\leftarrow j}) - 1}{2}\right)$$
+表面法线损失 $L_{normal}$ 保证几何的局部平滑一致性：
+$$L_{normal} = \sum_{i=1}^N \sum_{j=1}^{H \times W} \arccos(\hat{n}_{i,j} \cdot n_{i,j})$$
+在第二阶段，解冻语义专家进行联合训练，并对比了三种微调策略：*CE Loss Only*（仅对 SP 进行交叉熵微调，冻结 GP）、*CE + CE Loss*（两专家同时优化，空间推理能力最佳但几何精度略降，被命名为 G2VLM-SR）与 *VG + CE Loss*（同时更新且加入几何 $L_{VG}$ 约束）。为了保证模型的泛化可扩展性，默认采用 *CE Loss Only* 策略。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vlm/G2VLM-qualitative.png" width="100%" />
+<figcaption>图 3：G2VLM 单目和多视角三维场景重建定性可视化展示</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vlm/G2VLM-ablation.png" width="100%" />
+<figcaption>图 4：G2VLM 关键消融：(a) 单双编码器在几何与空间推理上的得分对比；(b) GP 专家采用不同自注意力掩码设计下的损失收敛速度</figcaption>
+</div>
+
+* **三维重建逼近专有模型**：在未引入专门相机 Token 且采用更精简全局自注意力的前提下，G2VLM 在 monocular depth 等多项几何任务上达到了与 SOTA 专有重建算法（如 VGGT、$\pi^3$）相当的精度，Sintel 下的 Abs Rel 降低至 0.297（优于 VGGT 的 0.335）。
+* **空间推理大幅超越闭源模型**：
+  * G2VLM-SR-2B 在主流三维高级推理基准上取得了惊人的突破。在 **SPAR-Bench** 平均精度得分上达到了 **54.87**，不仅大幅度拉开了基座模型 Qwen2-VL-2B（24.60 分），也成功击败了体量更大的商业闭源大模型 GPT-4o（36.39 分）和 Claude-3.7-Sonnet（21.77 分）。
+  * 在 MindCube 和 OmniSpatial 上同样取得同体量开源模型中最佳的表现。
+* **低级几何与高级语义的互促**：消融实验证明，随着几何专家预训练阶段的重建精度（即 $L_{VG}$ 表现）逐渐提升，联合微调后语义专家的空间推理分数呈强正相关上升，揭示了底层 3D 几何特征对高级空间智能存在至关重要的正向互促（Interplay）作用。
+
+---
+
+### 4. 局限性
+* **大参数模型联合训练的稳定性**：在 7B 或 72B 等超大型 VLM 框架下同时微调低层视觉专家与 LLM 存在收敛不稳定的问题，对学习率曲线的调整和混合 3D 重建数据集的配比提出了更高的工程要求。
+
+---
+
 # 7. 总结与展望
 
 空间智能是迈向具身通用人工智能的核心能力之一。本文系统梳理了从基础离散几何学习到最新的大模型驱动空间推理的技术路径。
