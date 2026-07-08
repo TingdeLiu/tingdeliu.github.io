@@ -1,7 +1,7 @@
 ﻿---
 layout: post
 title: "VLA综述：具身智能路线梳理"
-date:  2026-06-03
+date:  2026-07-08
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 categories: research
 comments: true
@@ -3394,7 +3394,130 @@ Express Sorting 和 In-motion Ingredient Picking 任务的成功率对比：Inte
 
 ---
 
-## 5.18 InternData-A1 (2025) {#5-17-interndata-a1-2025}
+## 5.18 InternVLA-A1.5 (2026) {#5-18-internvla-a1.5-2026}
+——Unifying Understanding, Latent Foresight, and Action for Compositional Generalization
+
+📄 **Paper**: https://arxiv.org/abs/2607.04988v1
+
+**精华**
+
+1. 提出了 InternVLA-A1.5，一个统一视觉-语言理解、物理世界动态预测（潜在预测）和连续动作生成的 Mixture-of-Transformers（MoT）机器人控制架构。
+2. 采用“潜在查询（Latent Querying）”机制将未来预测转换为轻量级的 foresight 隐空间查询，通过监督冷冻的预训练视频生成模型（WAN2.2）来吸收物理世界动力学先验，而无需在推理阶段进行像素级图像生成，保证了实时闭环控制（0.1s 延迟）。
+3. 构建了多阶段训练管线：第一阶段将机器人演示和 VQA 任务统一为 chat-template 离散 Token 自回归，保留了主干 VLM 的语义和指令遵循能力；第二阶段协同训练连续动作生成和 foresight 隐编码。
+4. 在 6 个仿真基准测试（LIBERO、RoboTwin、DOMINO、EBench、SimplerEnv、LIBERO-Plus）和真实物理世界任务中取得最先进的表现，在未见过的动作组合及长程化学实验任务（MOF 反应）中展现了卓越的泛化性和执行稳定性。
+
+---
+
+**研究背景/问题**
+
+当前的 VLA（Vision-Language-Action）模型在处理灵巧操控和动态交互时面临以下瓶颈：
+- **语义漂移与指令衰退**：在引入连续动作生成和重型生成任务后，传统的 VLA 训练往往抛弃了大规模 of VQA 或语言建模数据，导致底座 VLM 原有的语义理解和指令遵循能力逐渐退化。
+- **异构目标相互干扰**：同时优化未来图像重构、动作回归和语言预测等多种形式、尺度不同的损失函数，极易在联合训练中产生冲突。
+- **从头训练视频预测成本高昂**：现有物理世界模型倾向于从头开始训练未来图像像素的重建，未能充分利用互联网级别预训练视频生成模型（如 WAN2.2、Sora）中蕴含的丰富时空动力学先验。
+
+---
+
+**主要方法/创新点**
+
+<div align="center">
+  <img src="/images/vla/InternVLA-A1.5-overview.png" width="100%" />
+  <figcaption>InternVLA-A1.5 整体架构概述，通过将轻量级的动作/预测专家模块拼接到预训练 VLM 主干上，实现了理解、潜在预测与动作生成的统一。</figcaption>
+</div>
+
+**（1）整体框架概述**
+InternVLA-A1.5 采用了 Mixture-of-Transformers (MoT) 混合架构，由两大核心部分组成：
+1. 一个预训练的 VLM 主干（Qwen-3.5 2B），负责多模态感知和高级规划推理。
+2. 一个轻量级的统一专家模块（Unified Expert, 460M 参数），负责连续动作的流匹配预测及潜在预测查询（Foresight Tokens）。
+这两者共享部分全注意力层，实现了语义先验与精细化物理操控的深度耦合。
+
+**（2）预训练 VLM 主干（VLM Backbone）**
+- **输入**：接收 $K$ 视角的机器人相机图像 $o_t$、自然语言指令 $\ell$、控制模式 $m$（如关节控制 `<joint>`、末端控制 `<end_effector>`、问答 `<vqa>`）以及经过均匀离散化分箱的机器人本体感觉状态 $q_t$。
+- **处理**：VLM 使用标准的 Qwen3.5 视觉和文本编码器将多视角图像和文本串联转化为 Token 嵌入，并通过底座的 Transformer 块（交替的 3 个 Gated DeltaNet 线性注意力层与 1 个标准全注意力层）处理。
+- **输出**：在多阶段训练的第一阶段，VLM 输出文本类型的子任务描述 $\hat{\ell}$ 以及通过 FAST 离散化分词器编码的离散动作 Token；在第二阶段，它为统一专家提供全局的语义上下文隐特征 $H_t$。
+- **设计动机**：保留底座 VLM 对复杂指令和场景问答的强大语义泛化性，防止机器人在进行大规模运动策略训练时遭遇语义漂移（Semantic Drift）。
+
+**（3）统一专家模块与动作预测（Unified Expert & Action Prediction）**
+- **输入**：接收 VLM 主干产生的语义隐特征 $H_t$、一组可学习的潜在预测 queries（Foresight Tokens） $Q_f$，以及在流匹配（Flow Matching）去噪过程中注入的噪声动作块 $\epsilon$。
+- **处理**：专家模块采用与 Qwen-3.5-Text 相同的结构，但其隐藏通道维度更小（460M 参数）。它维护自己独立的 Gated DeltaNet 线性注意力层以处理动作细节，而通过共享 of VLM 全注意力层与 $H_t$ 进行跨模块特征融合。在此模块中，可学习的 Foresight Tokens 充当未来查询插槽，而动作预测则利用流匹配预测速度场 $v_{	heta}^{	ext{act}}$。
+- **输出**：生成当前时刻至未来 $H$ 步的连续控制轨迹动作块 $\mathbf{a}_{t:t+H}$。
+- **设计动机**：相比于离散 Token 预测，低维连续控制专家的 flow-matching 生成更适合低延迟（0.1s 闭环反馈）、高精度的实机机械臂控制。
+
+**（4）潜在未来预测机制（Latent Foresight Mechanism）**
+- **输入**：利用统一专家输出的 Foresight Tokens $Z_f^t$ 经投影后作为条件编码 $C_f^t$，以及包含当前和未来 $N$ 帧拼接所得的视频 Latent $x_1$。
+- **处理**：利用预训练且参数完全冻结（Frozen）的视频生成模型 WAN2.2-5B 充当世界模型。我们将 Foresight 隐编码 $C_f^t$ 注入到 WAN 的交叉注意力机制中。通过在视频生成模型的隐空间上施加流匹配监督损失，反向传播更新 Foresight Tokens $Q_f$ 和统一专家，而 WAN 自身参数不更新。
+- **输出**：在训练阶段输出优化过的 Foresight 隐嵌入；在推理阶段，视频生成模型完全被抛弃，不产生任何计算开销。
+- **设计动机**：将“物理世界怎么演化”的生成细节完全托管给已经具备强大泛化能力的视频大模型，而机器人策略只需要学会“想象什么（What to imagine）”而非“怎么画画”，在保留世界模型动力学先验的同时消除了实机推理时的巨额计算成本。
+
+<div align="center">
+  <img src="/images/vla/InternVLA-A1.5-framework.png" width="100%" />
+  <figcaption>InternVLA-A1.5 的 MoT 架构，展示了预训练 VLM 主干与统一专家的注意力融合方式，以及 Foresight Tokens 和连续动作生成的流程。</figcaption>
+</div>
+
+**（5）端到端数据流**
+1. **多视角多模态输入**：拼接 $K$ 视角相机图像 Token、任务描述文本、控制模式和离散状态。
+2. **多模态对齐感知**：输入通过 VLM 主干，抽取上下文表示 $H_t$ 并预测下一步的子任务语义描述 $\hat{\ell}$。
+3. **时空预测与嵌入融合**：可学习的 $Q_f$ 注入统一专家并与 $H_t$ 发生注意力交互，生成带有未来趋势信息的特征 $Z_f^t$。在训练时，这部分隐编码用于引导冻结的 WAN2.2 视频生成；在推理时则直接供下一步使用。
+4. **动作去噪生成**：将噪声 $\epsilon$ 作为输入，在以 $H_t$ 和 $Q_f$ 为条件的动作专家中，通过 Euler 积分对 Flow Matching 速度场进行逐步迭代去噪，最终输出连续动作块 $\mathbf{a}_{t:t+H}$。
+
+**（6）训练目标 / 损失函数**
+InternVLA-A1.5 的多阶段训练依赖以下核心损失函数。
+
+- **第一阶段：VLM Transferring（语义迁移）**
+  在此阶段，VQA 数据和离散化的机器人操控数据混合进行自回归预测，仅计算 Label（子任务描述 $\hat{\ell}$ 和 FAST 离散动作 Token $a$）部分的正向交叉熵损失：
+  $$L_{	ext{stage1}} = -\mathbb{E}_{(\mathbf{o}_t, \ell, \mathbf{y}) \sim \mathcal{D}} \left[ \sum_{i=1}^{M+N} \log p_{	heta}(y_i \mid \mathbf{o}_t, \ell, \mathbf{y}_{<i}) ight]$$
+  其中 $\mathbf{y} = (\hat{\ell}_1, \dots, \hat{\ell}_M, a_1, \dots, a_N)$ 是包含子任务和动作的拼接序列。
+
+- **第二阶段：Foresight and Action Joint Training（预测与动作协同）**
+  该阶段引入了视频潜在预测损失 $L_{	ext{video}}$ 和动作流匹配损失 $L_{	ext{action}}$。
+  - **潜在视频预测损失**：
+    $$L_{	ext{video}} = \mathbb{E}_{x_0, x_1, C_f^t, s} \left[ \lVert u(x_s, C_f^t, s) - v_s Vert_2^2 ight]$$
+    用于让 Foresight Tokens 从 WAN 处汲取动力学表示。
+  - **动作预测损失**：
+    $$L_{	ext{action}} = \mathbb{E}_{\mathbf{a}_{t:t+H}, \epsilon, 	au} \left[ \lVert v_{	heta}^{	ext{act}}(\mathbf{a}_{t:t+H}^{	au}, H_t, Q_f) - (\mathbf{a}_{t:t+H} - \epsilon) Vert_2^2 ight]$$
+    用于预测连续的动作插值轨迹速度场。
+  - **总联合损失**：
+    $$L_{	ext{stage2}} = L_{	ext{stage1}} + lpha L_{	ext{video}} + eta L_{	ext{action}}$$
+    在实践中，权重参数设为 $lpha = 1, eta = 10$。
+
+<div align="center">
+  <img src="/images/vla/InternVLA-A1.5-foresight-mechanism.png" width="100%" />
+  <figcaption>Foresight 预测机制数据流：通过 Foresight 隐编码在视频扩散生成模型（WAN）上计算时空回归，并将梯度回传以优化专家表示。</figcaption>
+</div>
+
+**（7）推理流程**
+在推理（实机部署）时，为了保证实时闭环控制，推理流程进行了如下修改：
+1. **舍弃视频分支**：在推理时，完全舍弃 WAN2.2-5B 视频模型及其 VAE、DiT 层，不需要任何像素级视频解码。
+2. **KV 缓存复用**：VLM 主干在提取上下文隐特征 $H_t$ 时的键值对缓存在动作去噪计算中被复用，动作专家在 Euler 积分的多步反向去噪迭代（如 5 步）中，只更新动作自身的去噪计算，保证控制指令输出的高帧率与低时延（在 RTX 5090 上约为 0.1s/步）。
+
+---
+
+**核心结果/发现**
+
+<div align="center">
+  <img src="/images/vla/InternVLA-A1.5-realworld-results.png" width="100%" />
+  <figcaption>真实世界操作任务表现：在 Sort Tubes、Insert Tubes、Move Tubes 三项指令遵循任务和 MOF 长程化学合成任务上，InternVLA-A1.5 均取得了领先成绩，尤其是在精确插入与长程控制中表现亮眼。</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vla/InternVLA-A1.5-generalization.png" width="100%" />
+  <figcaption>在 seen 与 held-out（未见过的组合泛化）指令绑定任务下的消融对比。InternVLA-A1.5 在 OOD 任务上泛化表现最为稳健。</figcaption>
+</div>
+
+- **全面超越主流 VLA 策略**：在 SimplerEnv 仿真测试中平均成功率达 **80.8%**（领先 $\pi_{0.5}$ 达 23.7个百分点），在 RoboTwin 上达 **93.2%**。
+- **强大的组合与外推泛化能力（OOD Generalization）**：在 held-out 组合实机任务（即未训练过的 tube 颜色与目标 box/hole 组合）下，InternVLA-A1.5 保持了极高的成功率。这验证了第一阶段 VQA 协同训练对 VLM 底座语义理解的成功保留。
+- **长程复杂操作显现优势（Long-Horizon Tasks）**：在长达 13 步、环境会发生非物理接触改变（如倾倒液体、插拔漏斗与塞子）的化学实验（MOF）中，InternVLA-A1.5 的成功率达到了 **76.4%**，而 $\pi_{0.5}$ 仅有 29.3%，Motus 完全失败。这要归功于两点：一是显示的子任务文本规划（让 policy 时刻知道自己在干嘛），二是时空潜在预测学习到了液面变化等物理动态因果。
+- **消融实验分析**：如表 8 所示，移除视频潜在损失（w/o video loss）或直接移除 Foresight Tokens，都会导致策略在 zero-shot（如 LIBERO-Plus、DOMINO）下的成功率大幅下滑，证明了隐空间物理世界先验蒸馏是提升鲁棒性的关键。
+
+---
+
+**局限性**
+
+1. **局限于短程动作时空的监督**：Foresight 的预测窗口仅覆盖当前动作 chunk 的时间跨度，模型虽然获得了当前姿态和短时轨迹的物理直觉，但尚不支持长视角的长程未来轨迹构想与显式规划。
+2. **世界模型动力学的上限限制**：因为 WAN 视频生成模型在训练期间完全冻结，InternVLA-A1.5 获得的先验完全取决于 WAN 本身预训练数据集对具身场景的覆盖率，面对极端或非日常 of 工业场景，物理常识可能会失效。
+
+---
+
+## 5.19 InternData-A1 (2025) {#5-17-interndata-a1-2025}
 **副标题**: Pioneering High-Fidelity Synthetic Data for Pre-training Generalist Policy
 
 📄 **Paper**: https://arxiv.org/abs/2511.16651
@@ -3504,7 +3627,7 @@ InternData-A1 在 9 个真实世界任务上的性能对比，包括 5 个常规
 - 去除 Articulation 任务（仅 11.67%）导致显著下降，说明 articulated 操作能扩展 action space 多样性
 - 核心结论：**轨迹多样性（Trajectory Diversity）是有效预训练的核心驱动**
 
-## 5.19 Isaac GR00T (2025-2026) {#5-18-gr00t-2025}
+## 5.20 Isaac GR00T (2025-2026) {#5-18-gr00t-2025}
 Generalist Robot 00 Technology ———英伟达全栈具身智能生态
 
 📄 **Paper**: [NVIDIA Isaac Blog](https://developer.nvidia.com/isaac-robotics)
@@ -3555,7 +3678,7 @@ GR00T 代表了"模型开源 + 生态锁定"的典型范式。其核心贡献在
 
 ---
 
-## 5.20 Xiaomi-Robotics-0 (2026) {#5-19-xiaomi-r0-2026}
+## 5.21 Xiaomi-Robotics-0 (2026) {#5-19-xiaomi-r0-2026}
 MoT Architecture for Real-Time Bimanual Manipulation ———国产开源 VLA 的实时性标杆
 
 📄 **Paper**: [小米机器人实验室](https://github.com/Xiaomi-Robotics)
@@ -3601,7 +3724,7 @@ Xiaomi-R0 针对 VLA 模型在实际部署中常见的推理延迟问题，提�
 - 对复杂光照和极端动态场景的鲁棒性仍有待提升。
 
 ---
-## 5.21 X-VLA (2025) {#5-20-xvla-2025}
+## 5.22 X-VLA (2025) {#5-20-xvla-2025}
 Scalable Cross-Embodied Learning with Soft Prompting ———学术界彻底开源的具身范本
 
 📄 **Paper**: [Tsinghua AIR & Shanghai AI Lab](https://github.com/X-VLA)
@@ -3647,7 +3770,7 @@ X-VLA 是由清华 AIR 和上海 AI 实验室联合推出的彻底开源项目�
 
 ---
 
-## 5.22 Motus (2025)
+## 5.23 Motus (2025)
 ——A Unified Latent Action World Model
 
 📄 **Paper**: [arXiv:2512.13030](https://arxiv.org/abs/2512.13030)
@@ -3811,7 +3934,7 @@ Motus五种统一模式的可视化展示
 当前方法需要大量计算资源(总计约18,400 GPU小时训练)。某些复杂任务(如叠毛巾)的性能仍有限,部分成功率仅为39%。尽管通过潜在动作改进了跨具身泛化,但仍需进一步研究。未来工作将探索更先进的统一模型架构,追求更通用的运动先验,并从互联网规模的通用视频中学习潜在动作。此外,需要研究如何降低部署成本并提升模型在极端条件下的鲁棒性。
 
 
-## 5.23 RoboGen (2024) {#5-23-robogen-2024}
+## 5.24 RoboGen (2024) {#5-23-robogen-2024}
 ———Towards Unleashing Infinite Data for Automated Robot Learning via Generative Simulation
 
 📄 **Paper**: [arXiv:2311.01455](https://arxiv.org/abs/2311.01455) (ICML 2024)
@@ -3931,7 +4054,7 @@ A) Task Proposal  →  B) Scene Generation  →  C) Training Supervision Generat
 
 ---
 
-## 5.24 Qwen-VLA (2026)
+## 5.25 Qwen-VLA (2026)
 ———统一操作、导航与轨迹预测的具身基础模型
 
 📄 **Paper**: https://arxiv.org/abs/2605.30280
@@ -4063,7 +4186,7 @@ ROBOINF 流水线在 IsaacLab 中自动构建场景（20 桌面场景 × 10 姿�
 具身动作数据规模远小于 VL 数据，长尾物体、接触丰富任务（如布料折叠、插槽）的鲁棒性仍有不足；操作/导航/VL 联合训练存在优化权衡，动作增强训练会轻微损伤纯 VL 和导航评测指标；当前评估以短时域、基准驱动为主，长时域真实部署（故障恢复、情景记忆）仍是未解挑战。
 
 ---
-## 5.25 Diffusion Policy (2023) 
+## 5.26 Diffusion Policy (2023) 
 ——通过动作扩散实现视觉运动策略学习
 
 📄 **Paper**: [arXiv:2303.04137](https://arxiv.org/abs/2303.04137)
