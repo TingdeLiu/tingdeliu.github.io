@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "空间智能综述：从三维感知到空间推理"
-date: 2026-07-07
+date:  2026-07-08
 tags: [Spatial Intelligence, 3D Vision, NeRF, Point Cloud, Embodied AI, Survey]
 categories: research
 comments: true
@@ -3413,6 +3413,92 @@ $$L_{normal} = \sum_{i=1}^N \sum_{j=1}^{H \times W} \arccos(\hat{n}_{i,j} \cdot 
 
 ### 4. 局限性
 * **大参数模型联合训练的稳定性**：在 7B 或 72B 等超大型 VLM 框架下同时微调低层视觉专家与 LLM 存在收敛不稳定的问题，对学习率曲线的调整和混合 3D 重建数据集的配比提出了更高的工程要求。
+## 6.24 SparseOccVLA (2026) {#6-24-sparseoccvla}
+——首个将 3D 语义占用（Occupancy）与视觉-语言模型（VLM）原生融合的具身自动驾驶规划模型
+
+📄 **Paper**: https://arxiv.org/abs/2601.06474v2
+
+### 精华
+
+- 首次实现将 3D 语义占用表示（Semantic Occupancy）与视觉-语言模型（VLM）进行高效融合，完全摆脱对稠密视觉 Token 或 BEV 特征的依赖，仅通过稀疏占用查询（Sparse Occupancy Queries）作为视觉与语言的桥梁。
+- 提出轻量化稀疏占用编码器（Sparse Occupancy Encoder），利用 SparseBEV 结构进行跨帧多尺度特征采样，通过粗到细逐层预测三维坐标并利用 Chamfer Distance 和 Focal Loss 进行监督，最终经 MLP 投影对齐得到高信息密度的占用 Token。
+- 引入特征级蒸馏损失（Feature-level Distillation），利用预训练 CLIP 视觉编码器提取单帧多尺度特征，并通过 LayerNorm 独立归一化后计算余弦相似度，拉近稀疏无序点云与语言空间的距离，有效解决 LLM 训练初期收敛慢或崩塌的问题。
+- 提出大语言模型引导的锚点扩散规划器（LLM-guided Anchor-Diffusion Planner），将轨迹锚点（Trajectory Anchors）的分类打分与去噪回归解耦。LLM 根据语义理解对 K-means 聚类的锚点进行评分，并以此作为条件引导 Diffusion 阶段生成更合理的控制轨迹。
+- 在 OmniDrive-nuScenes（CIDEr +7%）、Occ3D-nuScenes（mIoU +0.51）并 nuScenes 开环轨迹规划三个基准上全部达到 SOTA 水平，大幅压缩视觉 Token 数量（仅需 300 或 600 个 Token）的同时兼顾几何感知与高层语义推理。
+
+---
+
+### 1. 研究背景/问题
+
+自动驾驶端到端规划中，视觉语言模型（VLM）擅长高层逻辑推理，但受制于 Token 爆炸（Token Explosion）和时空三维感知能力弱的问题；而语义占用（Semantic Occupancy）提供了精细且显式的几何空间表征，但其数据过于稠密，难以直接与 VLM 整合。现有方法多是通过 BEV 编码器或 Q-Former 压缩特征，容易在此过程中丢失细粒度几何和三维时空连续性。因此，如何设计一种既保留 3D 几何与语义细节，又能保持低 Token 开销，并实现与 VLM 原生深度融合 of 具身驾驶规划框架，是领域内的重要课题。SparseOccVLA 正是为此设计。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/si/SparseOccVLA-overview.png" width="100%" />
+<!-- RENAME: figure_01.png -> SparseOccVLA-overview.png -->
+<figcaption>SparseOccVLA 整体架构：包含稀疏占用编码器、大语言模型主干和 LLM 引导的锚点扩散规划器，仅以稀疏占用查询作为视觉与语言的桥梁</figcaption>
+</div>
+
+**① 整体框架概述**
+
+SparseOccVLA 包含三个核心组件：**稀疏占用编码器（Sparse Occupancy Encoder）**、**统一大语言模型（Unified Large Language Model）** 和 **LLM 引导的锚点扩散规划器（LLM-guided Anchor-Diffusion Planner）**。它抛弃了传统的稠密视觉 Token 或 BEV 特征，仅通过稀疏占用查询（Sparse Occupancy Queries）来建立视觉和语言之间的唯一桥梁。
+
+**② 逐模块讲解**
+
+- **稀疏占用编码器（Sparse Occupancy Encoder）**：
+  - **输入**：多视角、多帧的 RGB 图像序列 $I$。
+  - **处理**：利用 ResNet-50 提取图像特征，然后采用类 SparseBEV 结构，通过 $L$ 层编码器（Feature Sampling, Adaptive Mixing, Spatial-aware MHSA, FFN）更新随机初始化的 $N$ 个三维占用查询 $Q_0$ 和三维坐标位置 $P_0$。逐层逐步增多预测 of 3D 点云点数，并在各层对预测点集与真实稀疏化占用点集 $G$ 之间计算 Chamfer Distance（CD 损失）和语义 Focal 损失进行深度监督。
+  
+  <div align="center">
+    <img src="/images/si/SparseOccVLA-occupancy-encoder.png" width="100%" />
+  <!-- RENAME: figure_02.png -> SparseOccVLA-occupancy-encoder.png -->
+  <figcaption>稀疏占用编码器（Sparse Occupancy Encoder）结构，在训练时引入特征级蒸馏分支对齐 CLIP 特征，推理时移除该分支</figcaption>
+  </div>
+
+  - **输出**：经轻量化 MLP 对齐连接器（Connector）转换得到的高维 **占用 Token（Occupancy Tokens）** $T_o = \text{MLP}(Q_L + \text{PE}(P_L))$。
+  - **特征级蒸馏（Feature-level Distillation）**：为克服无序稀疏点云与语言空间极大的对齐鸿沟、避免训练初期的崩溃，训练阶段使用预训练的 CLIP-336 视觉编码器提取单帧特征。占用 Token $T_o$ 基于其 3D 坐标投影并插值得到教师特征 $\hat{T}_o$。二者通过独立 LayerNorm 归一化并放宽对齐强度限制后，使用余弦相似度计算蒸馏损失：
+    $$L_{\mathrm{distill}} = 1 - \mathrm{cosine}(\mathrm{Norm}_1(T_o), \mathrm{Norm}_2(\hat{T}_o))$$
+
+- **统一大语言模型（Unified Large Language Model）**：
+  - **输入**：稀疏占用 Token $T_o$、通过交叉注意力生成的全局场景 Token $T_g$ 以及文本 Token $T_t$。
+  - **处理**：将输入 Token 序列拼接后送入大语言模型（Vicuna-7B）进行因果自回归推理。在推理过程中，模型基于占用 Token 的 3D 位置编码推导空间拓扑。
+  - **任务实现**：对于 **场景理解**，利用 MLE 损失自回归生成答案；对于 **占用预测（Forecasting）**，将 LLM 推理后的占用 Token $T'_o$ 与原始占用查询 $Q_L$ 进行残差线性融合：$\hat{Q}_o = \text{MLP}([T'_o, Q_L])$，并融入 Ego 车辆状态和时空位置编码，经 forecaster 逐帧预测未来 3 秒内的三维占用网格。
+
+- **LLM引导的锚点扩散规划器（LLM-guided Anchor-Diffusion Planner）**：
+  - **输入**：通过 K-means 聚类学习得到的 $K=18$ 个轨迹锚点（Trajectory Anchors） $a_k$。
+  
+  <div align="center">
+    <img src="/images/si/SparseOccVLA-diffusion-decoder.png" width="100%" />
+  <!-- RENAME: figure_03.png -> SparseOccVLA-diffusion-decoder.png -->
+  <figcaption>扩散解码器（Diffusion Decoder）的层级交叉注意力结构，依次对齐三维占用查询、本体车辆状态和来自 LLM 的决策 Token</figcaption>
+  </div>
+
+  - **处理**：将规划打分与去噪回归解耦。首先，利用 Scorer 基于车辆状态与 LLM 生成的推理决策 Token $T_r$ 对轨迹锚点进行评分，使用 BCE 损失监督（最接近 ground-truth 的锚点为正样本，其余为负样本）。然后，对所有锚点施加 Gaussian 噪声：
+    $$\tau_k^i = \sqrt{\bar{\alpha}_i} a_k + \sqrt{1 - \bar{\alpha}_i} \epsilon, \quad \epsilon \sim \mathcal{N}(0, I)$$
+    并送入扩散解码器进行去噪。扩散解码器（Diffusion Decoder）堆叠了多层层级交叉注意力，按顺序依次对齐 3D 占用查询 $Q_0$、车辆 Ego 状态和 LLM 的推理决策 Token，实现端到端的去噪轨迹生成。整个规划网络在训练时仅对正样本计算 $L_1$ 轨迹损失。
+  - **输出**：在推理时，通过 DDIM 迭代去噪（2个步长），并选择 LLM 评分最高的主锚点去噪结果作为最终输出轨迹。
+
+---
+
+### 3. 核心结果/发现
+
+- **场景理解（Scene Understanding）**：在 OmniDrive-nuScenes 基准上，SparseOccVLA 以仅 300 个 Occupancy Tokens 的轻量级开销取得了大幅超越此前 BEV/Image 稠密方法的成绩，其中 CIDEr 比 HERMES 提高了 7%（0.762 vs 0.741，600 个 Token 时达 0.796），展示出稀疏三维占用极高的语义 and 几何信息密度。
+- **占用预测（Occupancy Forecasting）**：在 Occ3D-nuScenes 预测未来 3 秒 mIoU 的任务中，相较于同样稀疏表示的 SparseWorld，mIoU 平均提升了 0.51（13.71 vs 13.20），验证了 LLM 全局高层语义和时序常识对未来感知演变的巨大增强作用。
+- **开环规划（Open-loop Planning）**：在 nuScenes 自动驾驶开环轨迹规划测试中，SparseOccVLA 以 0.23m 的平均 L2 误差和 0.19% 的碰撞率显著超越了 UniAD (0.46m / 0.37%)、VAD (0.37m / 0.33%) 以及 VLA 系列如 OpenDriveVLA (0.33m / 0.25%) 等前沿模型，达到最新的 SOTA 表现。
+- **消融研究**：去除特征级蒸馏约束会导致理解性能显著下降（CIDEr 降低 0.8）；去除 LLM 轨迹打分引导仅让 Planner 单独决策时，规划性能（L2 和碰撞率）将发生严重退化，表明解耦打分与去噪的有效性。
+
+---
+
+### 4. 局限性
+
+- 高度依赖稠密且高质量的 3D 语义占用真实标签（Occupancy Ground Truth），获取和生成此类监督标签具有极高的标注成本；
+- 仅在 nuScenes 等开环自动驾驶规划基准上完成了验证，其在闭环仿真环境下的规划与控制稳定性仍有待在未来工作中进一步探究。
+
+---
+
 
 ---
 
