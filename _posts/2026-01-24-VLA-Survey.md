@@ -3464,16 +3464,21 @@ InternVLA-A1.5 的多阶段训练依赖以下核心损失函数。
 
 - **第一阶段：VLM Transferring（语义迁移）**
   在此阶段，VQA 数据和离散化的机器人操控数据混合进行自回归预测，仅计算 Label（子任务描述 $\hat{\ell}$ 和 FAST 离散动作 Token $a$）部分的正向交叉熵损失：
-  $$L_{	ext{stage1}} = -\mathbb{E}_{(\mathbf{o}_t, \ell, \mathbf{y}) \sim \mathcal{D}} \left[ \sum_{i=1}^{M+N} \log p_{	heta}(y_i \mid \mathbf{o}_t, \ell, \mathbf{y}_{<i}) ight]$$
+  $$L_{	ext{stage1}} = -\mathbb{E}_{(\mathbf{o}_t, \ell, \mathbf{y}) \sim \mathcal{D}} \left[ \sum_{i=1}^{M+N} \log p_{	heta}(y_i \mid \mathbf{o}_t, \ell, \mathbf{y}_{<i}) 
+ight]$$
   其中 $\mathbf{y} = (\hat{\ell}_1, \dots, \hat{\ell}_M, a_1, \dots, a_N)$ 是包含子任务和动作的拼接序列。
 
 - **第二阶段：Foresight and Action Joint Training（预测与动作协同）**
   该阶段引入了视频潜在预测损失 $L_{	ext{video}}$ 和动作流匹配损失 $L_{	ext{action}}$。
   - **潜在视频预测损失**：
-    $$L_{	ext{video}} = \mathbb{E}_{x_0, x_1, C_f^t, s} \left[ \lVert u(x_s, C_f^t, s) - v_s Vert_2^2 ight]$$
+    $$L_{	ext{video}} = \mathbb{E}_{x_0, x_1, C_f^t, s} \left[ \lVert u(x_s, C_f^t, s) - v_s 
+Vert_2^2 
+ight]$$
     用于让 Foresight Tokens 从 WAN 处汲取动力学表示。
   - **动作预测损失**：
-    $$L_{	ext{action}} = \mathbb{E}_{\mathbf{a}_{t:t+H}, \epsilon, 	au} \left[ \lVert v_{	heta}^{	ext{act}}(\mathbf{a}_{t:t+H}^{	au}, H_t, Q_f) - (\mathbf{a}_{t:t+H} - \epsilon) Vert_2^2 ight]$$
+    $$L_{	ext{action}} = \mathbb{E}_{\mathbf{a}_{t:t+H}, \epsilon, 	au} \left[ \lVert v_{	heta}^{	ext{act}}(\mathbf{a}_{t:t+H}^{	au}, H_t, Q_f) - (\mathbf{a}_{t:t+H} - \epsilon) 
+Vert_2^2 
+ight]$$
     用于预测连续的动作插值轨迹速度场。
   - **总联合损失**：
     $$L_{	ext{stage2}} = L_{	ext{stage1}} + lpha L_{	ext{video}} + eta L_{	ext{action}}$$
@@ -4185,81 +4190,6 @@ ROBOINF 流水线在 IsaacLab 中自动构建场景（20 桌面场景 × 10 姿�
 
 具身动作数据规模远小于 VL 数据，长尾物体、接触丰富任务（如布料折叠、插槽）的鲁棒性仍有不足；操作/导航/VL 联合训练存在优化权衡，动作增强训练会轻微损伤纯 VL 和导航评测指标；当前评估以短时域、基准驱动为主，长时域真实部署（故障恢复、情景记忆）仍是未解挑战。
 
----
-## 5.26 Diffusion Policy (2023) 
-——通过动作扩散实现视觉运动策略学习
-
-📄 **Paper**: [arXiv:2303.04137](https://arxiv.org/abs/2303.04137)
-
-**精华**
-
-这篇论文展示了如何将扩散模型应用于机器人策略学习,值得借鉴的核心思想包括:1)利用扩散模型的梯度场表示能力来优雅地处理多模态动作分布;2)通过预测高维动作序列而非单步动作来确保时间一致性;3)将 receding horizon control 与扩散模型结合实现闭环规划;4)位置控制相比速度控制在扩散策略中表现更优;5)训练稳定性显著优于基于能量的隐式策略。
-
-**研究背景/问题**
-
-现有的机器人模仿学习方法在处理多模态动作分布、高维动作空间和训练稳定性方面面临挑战。显式策略(如 LSTM-GMM)难以表达复杂的多模态分布,而隐式策略(如 IBC)虽然理论上可以建模任意分布,但由于需要负采样估计归一化常数,导致训练不稳定。
-
-<div align="center">
-  <img src="/images/vln/DiffusionPolicy-policy-representations.png" width="100%" />
-<figcaption>
-三种策略表示方法对比:显式策略、隐式策略和 Diffusion Policy
-</figcaption>
-</div>
-
-**主要方法/创新点**
-
-Diffusion Policy 将机器人的视觉运动策略表示为条件去噪扩散过程。核心思想是通过迭代去噪过程从噪声中生成动作序列,而不是直接预测动作。
-
-**核心技术贡献:**
-
-1. **闭环动作序列预测**: 结合 receding horizon control,策略预测 Tp 步未来动作,但只执行 Ta 步,之后重新规划。这在长期规划和响应性之间取得平衡。
-
-2. **视觉条件化**: 将视觉观察作为条件而非联合分布的一部分,使得视觉特征只需提取一次,显著降低计算成本,实现实时控制。
-
-3. **时间序列扩散 Transformer**: 提出基于 Transformer 的扩散网络,减少 CNN 模型的过度平滑效应,在需要高频动作变化和速度控制的任务上达到最优性能。
-
-4. **位置控制的协同效应**: 发现位置控制相比速度控制更适合扩散策略,因为位置空间的多模态性更明显,且扩散策略能更好地利用位置控制的优势。
-
-**训练过程:**
-- 随机采样演示数据 A⁰ₜ 和去噪迭代 k
-- 添加噪声 εₖ 得到 A⁰ₜ + εₖ
-- 训练噪声预测网络 εθ 最小化 MSE(εₖ, εθ(Oₜ, A⁰ₜ + εₖ, k))
-
-**推理过程:**
-- 从高斯噪声 Aᴷₜ 开始
-- 迭代 K 次去噪: Aᵏ⁻¹ₜ = α(Aᵏₜ - γεθ(Oₜ, Aᵏₜ, k) + N(0, σ²I))
-- 使用 DDIM 加速推理,将迭代次数从 100 降至 10-16
-
-<div align="center">
-  <img src="/images/vln/DiffusionPolicy-overview.png" width="100%" />
-<figcaption>
-Diffusion Policy
-</figcaption>
-</div>
-
-
-**核心结果/发现**
-
-论文在 4 个基准测试的 15 个任务上进行了系统评估,包括模拟和真实环境:
-
-1. **显著性能提升**: 相比现有最优方法平均提升 46.9% 的成功率
-   - RoboMimic 基准:在所有 9 个变体上均显著优于 LSTM-GMM、IBC 和 BET
-   - Push-T 任务:95% 成功率(IBC 0%, LSTM-GMM 0-20%)
-   - Kitchen 环境:p4 指标提升 213%
-
-2. **多模态建模能力**: 能够准确表达短期和长期多模态行为,并在执行时稳定地选择单一模式
-
-3. **训练稳定性**: 无需负采样,训练过程稳定,评估性能曲线平滑,易于选择检查点
-
-4. **真实世界验证**: 在 7 个真实机器人任务上验证,包括:
-   - 6 自由度倒酱汁和涂抹任务(接近人类水平)
-   - 双臂协作任务(打蛋器、展开垫子、叠衬衫)
-
-5. **延迟鲁棒性**: 使用位置控制的 Diffusion Policy 对最多 4 步延迟具有鲁棒性
-
-**局限性**
-
-继承了行为克隆的局限性,在演示数据不足时性能次优。推理延迟高于简单方法(如 LSTM-GMM),尽管动作序列预测部分缓解了这一问题。未来工作可以探索将扩散策略应用于强化学习,以及利用最新的扩散模型加速技术(如一致性模型)进一步降低推理迭代次数。
 
 ---
 
