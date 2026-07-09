@@ -1,7 +1,7 @@
 ﻿---
 layout: post
 title: "VLA综述：具身智能路线梳理"
-date:  2026-07-08
+date:  2026-07-09
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 categories: research
 comments: true
@@ -4189,6 +4189,116 @@ ROBOINF 流水线在 IsaacLab 中自动构建场景（20 桌面场景 × 10 姿�
 ### 4. 局限性
 
 具身动作数据规模远小于 VL 数据，长尾物体、接触丰富任务（如布料折叠、插槽）的鲁棒性仍有不足；操作/导航/VL 联合训练存在优化权衡，动作增强训练会轻微损伤纯 VL 和导航评测指标；当前评估以短时域、基准驱动为主，长时域真实部署（故障恢复、情景记忆）仍是未解挑战。
+## 5.26 SpatialVLA (2025) {#5-26-spatialvla}
+——融合 3D 空间表征与自适应动作网格的具身智能基础模型
+
+📄 **Paper**: https://arxiv.org/abs/2501.15830
+
+### 精华
+- 提出 **SpatialVLA**，通过在 VLA（Vision-Language-Action）模型中引入 3D 空间先验，显著提升了机器人的空间感知和精细操作能力。
+- 设计了**自我中心 3D 位置编码（Ego3D Position Encoding）**，利用 ZoeDepth 预测的相对深度进行反投影，无需相机外参标定即可将 3D 空间结构融入 2D 图像特征中。
+- 提出了**自适应动作网格（Adaptive Action Grids）**，根据离线数据集中的动作高斯分布非均匀地离散化动作空间，有效提升动作表达的精度，将每步预测的 Token 数从 7 个减少到 3 个。
+- 提出了**空间嵌入适应（Spatial Embedding Adaptation）**，在下游微调时根据新数据集的分布重新离散化动作空间，并利用三线性插值初始化新 Token 的嵌入，实现高效的多机器人适配。
+- 在 24 项真实机器人任务 and SimplerEnv 等仿真环境中进行评估，展示出极强的 Zero-shot 泛化能力，特别是对高度、视点及光照变化的鲁棒性。
+
+---
+
+### 1. 研究背景/问题
+- 现有的 VLA 模型（如 OpenVLA、RT-2）主要依赖 2D 图像输入，缺乏对 3D 物理世界的精确空间理解，这限制了机器人在复杂多变的 3D 空间中执行精细操作（如动态避障、准确抓取不同高度的物体）。
+- 建立具有 3D 空间感知的通用 VLA 模型面临两大挑战：一是不同机器人平台的相机位姿和参数不一致，导致 3D 观测空间难以对齐；二是不同机器人的动作范围、控制自由度和控制器不同，难以学习统一且泛化性强的空间动作表达。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vla/SpatialVLA-highlights.png" width="100%" />
+<figcaption>SpatialVLA 概览：结合 Ego3D 位置编码与自适应动作网格，在 110 万真实机器人轨迹上进行预训练，实现出色的 3D 空间理解、零样本泛化和快速微调。</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vla/SpatialVLA-architecture.png" width="100%" />
+<figcaption>SpatialVLA 架构图：接收图像与语言指令，利用 SigLIP 提取图像特征并与 Ego3D 位置编码融合，通过 Gemma 2 自回归预测 3 个空间动作 Token（平移、旋转、夹爪）。</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vla/SpatialVLA-action-grids.png" width="100%" />
+<figcaption>自适应动作网格设计：根据数据集的动作统计拟合高斯分布，并在概率密度函数上等概率划分区间，从而非均匀地划分平移和旋转动作空间。</figcaption>
+</div>
+
+#### ① 整体框架概述
+SpatialVLA 整体框架基于多模态大模型 PaliGemma 2 构建，由 SigLIP 图像编码器、ZoeDepth 深度预测模块、Ego3D 位置编码器、Gemma 2 语言模型骨干以及自适应动作网格解码器组成。系统接收单张 RGB 图像和语言指令，首先提取并计算融合了 3D 几何特征的图像表征，再通过自回归方式预测离散的空间动作 Token，最后反离散化输出连续的控制信号。
+
+#### ② 逐模块讲解
+1. **Ego3D 空间观测模块（Ego3D Position Encoding）**：
+   - **输入**：RGB 图像 $o_t$。
+   - **处理**：利用固定的 ZoeDepth 模型预测相对深度图 $D$，并通过相机内参将其反投影到自我中心坐标系中，计算每个像素的 3D 位置 $P$。同时，利用 SigLIP 提取图像的 2D 语义特征 $X$。将 3D 位置 $P$ 传入正弦位置编码器并经过一个可学习的 MLP 投射至语义空间，得到 3D 位置编码 $P'$，最后与 2D 图像特征 $X$ 直接相加得到 $O_{3d}$：
+     $$O_{3d} = X + \text{MLP}(\gamma(P))$$
+   - **输出**：融合了 3D 几何特征和 2D 语义特征 of 图像特征。
+   - **设计动机**：在自我中心相机框架下构建 3D 坐标，避免了因相机安装位置不同而需要复杂的相机-机器人外参标定的问题，实现跨具身的通用 3D 观测空间对齐。
+
+2. **自适应动作网格（Adaptive Action Grids）**：
+   - **输入**：连续的 7 自由度动作 $a = \{x, y, z, \text{roll}, \text{pitch}, \text{yaw}, \text{grip}\}$。
+   - **处理**：为使自回归架构能有效预测连续动作，设计了离散动作空间。平移部分转为极坐标 $(\phi, \theta, r)$ 以解耦移动方向和距离。拟合数据集中每个动作分量的高斯分布 $N(\mu_a, \Sigma_a)$，在累积分布函数（CDF）概率轴上等概率切分出 $M$ 个区间，实现非均匀的动作格点划分。具体地，平移量 $(\phi, \theta, r)$ 离散为 $32 \times 16 \times 8 = 4096$ 个网格点；旋转量 $(\text{roll}, \text{pitch}, \text{yaw})$ 分别离散为 $16 \times 16 \times 16 = 4096$ 个网格点；夹爪动作离散为 2 个 bin。将这三部分线性排列组成大小为 $V = 8194$ 的动作词表 $E_a$。
+   - **输出**：离散的空间动作 Token（平移 Token、旋转 Token、夹爪 Token）。
+   - **设计动机**：使用高斯分布拟合进行非均匀分割，能在动作高频区（如原点附近）提供更高分辨率以进行精细控制。且每步预测从 RT-2 的 7 个 Token 减少到 3 个 Token，大幅加快了推理速度。
+
+3. **空间嵌入微调适配（Spatial Embedding Adaptation）**：
+   - **输入**：新机器人/场景的微调数据集。
+   - **处理**：在 post-training 微调阶段，针对新数据集重新拟合高斯分布并构建新动作格点 $G_{\text{new}}$。为了保留预训练的通用动作先验，使用三线性插值（Trilinear Interpolation）根据空间几何距离，将预训练的动作嵌入 $E_a$ 插值投射为新动作嵌入 $E_{a^{\text{new}}}$：
+     $$e_{a^{\text{new}}}^i = \sum_{j=1}^K w_j e_a^j$$
+   - **输出**：高精度对齐新动作分布的初始 Token Embedding。
+   - **设计动机**：缓解新微调场景由于动作范围差异带来的分布漂移，提供更好的微调初始化并加速动作解码层的收敛。
+
+#### ③ 端到端数据流
+在每个决策步骤，模型接收单目 RGB 图像和文本指令。图像经过 ZoeDepth 与 SigLIP 融合成 3D 观测空间表征。接着，通过 MultiModal Projector 将 3D 观测特征投射为 Gemma 2 的 Token 表示，与语言指令拼接。骨干网络自回归地一次性预测出未来 $T=4$ 步（共 12 个 Action Token）动作，并反离散化解码为连续控制序列，由控制器最终执行。
+
+#### ④ 训练目标与损失
+模型在 110 万真实轨迹数据上采用标准的自回归交叉熵（Cross-Entropy）损失函数进行联合优化：
+$$\mathcal{L}(\theta) = \mathbb{E}_{p(A_t|o_t)} [\mathcal{L}(a_t, \tilde{a}_t)]$$
+针对平移、旋转及夹爪离散 Token 进行分类预测误差计算，冻结文本嵌入以防语言泛化能力退化。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vla/SpatialVLA-zero-shot-eval.png" width="100%" />
+<figcaption>真实机器人评估：在 WidowX 平台上进行了包含语言理解、背景和姿态变化以及动态干扰的 zero-shot 测试，SpatialVLA 取得了最高的平均成功率。</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vla/SpatialVLA-franka-adaptation.png" width="100%" />
+<figcaption>Franka 机器人适配结果：展示了在单任务、指令遵循和多任务微调下的表现，SpatialVLA 作为预训练初始化模型，优于 OpenVLA、Octo 和从头训练的 Diffusion Policy。</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vla/SpatialVLA-spatial-understanding-eval.png" width="100%" />
+<figcaption>空间理解能力验证：对比不同策略在处理空间指令、高度变化等复杂空间布局任务中的表现，SpatialVLA 表现出明显优势。</figcaption>
+</div>
+
+- **SimplerEnv 零样本仿真评估（Google Robot & WidowX）**：
+  - 在 Google Robot 任务的 Visual Matching 评估中，SpatialVLA 零样本成功率达到 **71.9%**，相比 RoboVLM（56.3%）和 OpenVLA（27.7%）有显著优势，甚至超越了 55B 参数的 RT-2-X（60.7%）。
+  - 在更复杂的 Variant Aggregation（涵盖不同视角和光照）中，SpatialVLA 保持了 **68.8%** 的极高成功率。
+  - 在 WidowX 任务中，微调后的 SpatialVLA 取得了 **42.7%** 的平均成功率，并在“将茄子放入黄色篮子”任务中实现了 **100.0%** 的全胜。
+- **真实环境 WidowX & Franka 实验**：
+  - 面对人为动态干扰（如移动正在抓取的茄子/胡萝卜），SpatialVLA 能灵活跟手完成闭环抓取，鲁棒性优于 OpenVLA。
+  - 在 Franka 平台微调中，面对空间指令（“放至离机器人最近的卡车上”），SpatialVLA 凭借 3D 位置编码取得了最高的泛化成功率（**73%**）。
+- **LIBERO 仿真评估**：
+  - 在 LIBERO 所有的四个子任务套件（Spatial、Object、Goal、Long）中整体均排名第一。特别是在以物体空间相对关系为核心的 **LIBERO-Spatial** 套件中取得了 **88.2%** 的极佳成绩。
+- **消融实验结论**：
+  - **3D 位置编码作用**：去除 Ego3D 位置编码后，在 Variant Aggregation 中的成功率骤降了约 **12%**，证明 3D 信息的注入极大地帮助模型应对视点和环境材质的变化。
+  - **动作网格分辨率**：自适应网格的分辨率由 1026 增至 8194 时，提供了最佳的控制精细度；但继续增加到更大分辨率会带来边际效应递减和参数冗余。
+  - **插值适配作用**：在 LIBERO 微调中，引入 Spatial Embedding Adaptation 能额外带来 **4.6% - 5.4%** 的性能提升，验证了插值初始化对空间动作对齐的有效性。
+
+---
+
+### 4. 局限性
+- **长时序任务依赖**：尽管模型在短周期闭环控制中表现出色，但受限于单帧加历史 Token 的架构设计，在需要长期记忆和多阶段规划的任务（如 LIBERO-Long）中提升有限，未来需要开发更长效的历史感知层。
+- **高维动作扩展困难**：目前的 Gaussian 分布拟合是针对单臂 7 自由度动作设计的。如果扩展到双臂协作、灵巧手操纵等多维度高自由度任务，网格组合数会指数级增长，需要设计更高效的空间共享网格或者隐式生成解码机制。
+
+---
+
 
 
 ---
