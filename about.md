@@ -6,19 +6,17 @@ permalink: /about/
 
 # Tingde Liu
 
-I am a robotics and AI engineer with an M.Sc. in Mechatronics and Robotics from [Leibniz Universität Hannover](https://www.uni-hannover.de/) (LUH). My current research centers on vision-language navigation (VLN) and vision-language-action models (VLA) — and the broader question of what it would actually take for a robot to understand and act in the world the way we do. I am interested in genuine embodied intelligence, not just systems that appear to navigate, but ones that truly reason about space, language, and intention.
+I am a robotics and AI engineer with an M.Sc. in Mechatronics and Robotics from [Leibniz Universität Hannover](https://www.uni-hannover.de/) (LUH). My current research centers on vision-language navigation (VLN) and 3D Large Language Models (3DLLM) — and the broader question of what it would actually take for a robot to understand and act in the world the way we do. I am interested in genuine embodied intelligence, not just systems that appear to navigate, but ones that truly reason about space, language, and intention.
 
-## How I Got Here
+## Why I Created This Repository
 
-My first real encounter with 3D sensing came during my **research project** at the [Geodätisches Institut Hannover](https://www.gih.uni-hannover.de/), where I worked alongside Research Associate Jan Hartmann. The problem was deceptively simple: laser scanners are not perfect, and their errors follow physical patterns. Under Jan's guidance I learned to model that uncertainty with deep learning — reducing mean measurement error from 0.387 mm to just 0.009 mm using a PointNet++ architecture. Seeing the work eventually published in the *Journal of Applied Geodesy* ([DOI: 10.1515/jag-2023-0097](https://www.degruyterbrill.com/document/doi/10.1515/jag-2023-0097/html)) was the moment I understood that careful, rigorous research produces results worth sharing.
+This repository is my working space for collecting, organizing, and sharing the ideas that shape my research. It brings together survey posts, paper notes, and long-form reflections on embodied AI, with a focus on VLN, 3D Large Language Models (3DLLM), robotics, and the systems that connect perception, reasoning, and action.
 
-That experience led me to the **[Institut für Kartographie und Geoinformatik (IKG)](https://www.ikg.uni-hannover.de/en/)** at LUH, where I spent over a year as a research associate working with M.Sc. Leichter Artem and Dr.-Ing. Jeldrik Axmann. The environment there was both demanding and generative. Working alongside them on urban 3D reconstruction and multimodal sensor data exposed me to the gap between academic benchmarks and real-world LiDAR data — sparse, noisy, colorless — and made me want to close it. Their rigour in data quality and system design became a standard I internalized.
+I also want it to be a friendly open-source space where people feel welcome to read, contribute, discuss, and help improve the ideas here together.
 
-That question became my **Master's thesis**, supervised by [apl. Prof. Dr.-Ing. Claus Brenner](https://www.ikg.uni-hannover.de/brenner). I set out to build a multimodal large language model that could genuinely understand urban LiDAR point clouds — not synthetic, color-rich data, but the kind of sparse, intensity-only scans you get from a real city. The result was MMS-LLM ([GitHub](https://github.com/TingdeLiu/MMS-LLM)): a system combining a Point-BERT encoder with a fine-tuned Vicuna-7B, trained on the ikgc17 dataset I built from scratch (4,185 instances, 7,000+ instruction pairs). It outperformed the PointLLM baseline by 40% on classification and description tasks. Prof. Brenner's expectation of intellectual honesty — to understand not just what the numbers say but why — shaped how I think about model evaluation. The thesis was graded **1.0**.
+I created it to make my learning process visible and reusable: a place to track what I read, what I build, and how my understanding changes over time. Instead of keeping those notes scattered across documents and bookmarks, I wanted a public archive that can grow with my work and stay useful to anyone exploring the same space.
 
-After graduating, I joined **[IPH – Institut für Integrierte Produktion Hannover](https://www.iph-hannover.de/de/)** as a research assistant, where I worked with Dipl.-Ing. Marc Warnecke on deploying robots in real industrial environments. The gap between a working demo and a system that runs reliably on a factory floor turned out to be enormous. Marc's practical, problem-first mindset taught me that engineering is ultimately about what works under real constraints — and that lesson has been just as valuable as anything I learned in the lab.
-
-In 2025, after five years abroad, I returned to China — partly out of longing for family, partly drawn by the energy around embodied AI that I could feel building back home. I am now based in Beijing, working as an AI engineer focused on embodied intelligence, with VLA and VLN as my primary research directions. This blog is one way I stay connected to the ideas I care about.
+The goal is simple: turn ongoing research into something structured, searchable, and worth revisiting.
 
 ## Research Interests
 
@@ -30,7 +28,7 @@ These experiences converged around a set of questions I keep returning to:
 - How do we build a Robot OS — a coherent harness that integrates perception, memory, planning, and action into a unified system?
 - How can agentic AI give robots something closer to genuine agency: not just executing instructions, but forming intentions, adapting plans, and acting with purpose?
 
-In practice this means I work on **Vision-Language Navigation (VLN)**, **Vision-Language-Action models (VLA)**, **agentic robot systems**, and the infrastructure that makes embodied intelligence real.
+In practice this means I work on **Vision-Language Navigation (VLN)**, **3DLLM**, **agentic robot systems**, and the infrastructure that makes embodied intelligence real.
 
 ## Technical Skills
 
