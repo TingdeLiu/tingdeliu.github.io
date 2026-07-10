@@ -22,7 +22,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 | 模型 | 年份 | 基准 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 开源 | 训练数据 |
 |:-----|:----:|:----:|:----:|:-----:|:----:|:-----:|:----:|:----:|
- | [Robostral Navigate-8B (单目)](#robostral-navigate) | 2026 | R2R-CE (Val-Unseen) | **76.6** | – | – | – | 否 | 40万条轨迹（仿真） | 
+ | [Robostral Navigate-8B (单目)](#robostral-navigate) | 2026 | R2R-CE | **76.6** | – | – | – | 否 | 40万条轨迹（仿真） | 
  | [Qwen-RobotNav-8B (全景)](#qwen-robotnav) | 2026 | R2R-CE | 72.1 | **66.6** | **3.53** | **78.5** | 否 | 15.6M 混合数据 | 
  | [OmniNav-3B (多目)](#omninav) | 2026 | R2R-CE | 69.5 | 66.1 | 3.74 | 74.6 | [是](https://github.com/amap-cvlab/OmniNav) | 12.2M 混合数据 | 
  | [AstraNav-World-3B (多目)](#astranav-world) | 2025 | R2R-CE | 67.9 | 65.4 | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) | – | 
@@ -116,12 +116,12 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [VLingNav-7B (单目)](#vlingnav) | 2026 | HM3D (实例图像) | 60.8 | 37.4 | [是](https://github.com/wsakobe/VLingNav-web) | 2.9M 样本 | 
  | [EvoMemNav-8B (单目)](#evomemnav) | 2026 | GOAT-Bench | 59.6 | 38.9 | 否 | – | 
  | [EvoMemNav-8B (单目)](#evomemnav) | 2026 | HM3D-v1 | 59.2 | 33.6 | 否 | – | 
- | [OmniNav-3B (多目)](#omninav) | 2026 | HM3D-OVON (Object-Goal), Val-Unseen | 59.2 | 33.2 | [是](https://github.com/amap-cvlab/OmniNav) | 12.2M 混合数据 | 
+ | [OmniNav-3B (多目)](#omninav) | 2026 | HM3D-OVON (Object-Goal) | 59.2 | 33.2 | [是](https://github.com/amap-cvlab/OmniNav) | 12.2M 混合数据 | 
  | [VLingNav-7B (单目)](#vlingnav) | 2026 | MP3D | 58.9 | 26.5 | [是](https://github.com/wsakobe/VLingNav-web) | 2.9M 样本 | 
  | [ABot-N0-4B (单目)](#abot-n0) | 2026 | HM3D-OVON | 54.0 | – | 否 | 16.9M 专家轨迹 | 
- | [Qwen-RobotNav-4B (单目)](#qwen-robotnav) | 2026 | HM3D-OVON (Unseen) | 53.1 | 20.9 | 否 | 15.6M 混合数据 | 
+ | [Qwen-RobotNav-4B (单目)](#qwen-robotnav) | 2026 | HM3D-OVON | 53.1 | 20.9 | 否 | 15.6M 混合数据 | 
  | [VLFM (单目)](#vlfm) | 2023 | HM3D | 52.5 | 30.4 | [是](https://github.com/rai-opensource/vlfm) | – | 
- | [Qwen-RobotNav-8B (单目)](#qwen-robotnav) | 2026 | HM3D-OVON (Unseen) | 51.2 | 24.0 | 否 | 15.6M 混合数据 | 
+ | [Qwen-RobotNav-8B (单目)](#qwen-robotnav) | 2026 | HM3D-OVON | 51.2 | 24.0 | 否 | 15.6M 混合数据 | 
  | [WAM-Nav (单目)](#wam-nav) | 2026 | Clutter/Intern (Image-Goal) | 50.2 | 48.2 | 否 | – | 
  | [VLingNav-7B (单目)](#vlingnav) | 2026 | HM3D-OVON | 50.1 | 24.6 | [是](https://github.com/wsakobe/VLingNav-web) | 2.9M 样本 | 
  | [AstraNav-World-3B (多目)](#astranav-world) | 2025 | HM3D-OVON | 45.7 | – | 否 | – | 

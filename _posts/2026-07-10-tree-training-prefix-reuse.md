@@ -10,8 +10,6 @@ toc: true
 excerpt: "从 Robostral Navigate 宣称的 22× 训练 token 压缩出发，系统推导训练期共享前缀复用、DFS 序列化、树状注意力掩码、加权损失、可微分分区边界及其在 VLA/VLN 长轨迹监督训练中的实现方式。"
 ---
 
-* 目录
-{:toc}
 
 # 1. Robostral Navigate 的 22× 到底是什么？
 
