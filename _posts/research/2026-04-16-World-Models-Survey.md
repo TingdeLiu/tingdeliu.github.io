@@ -1,7 +1,7 @@
 ﻿---
 layout: post
 title: "世界模型综述：迈向通用AGI的关键"
-date: 2026-06-16
+date:  2026-07-14
 tags: [VLA, World Models, Robotics, Embodied AI, Survey]
 categories: research
 comments: true
@@ -1788,6 +1788,124 @@ Qwen-RobotWorld 由三部分构成：**架构**（双流 MMDiT + MLLM 动作编�
 ### 4. 局限性
 
 由于模型专为具身任务设计且输出分辨率低于通用视频生成器，PBench 上的美学质量（0.455）和成像质量（0.649）相对较低；WorldModelBench 上的常识维度（帧/时序质量）也因分辨率原因落后于通用模型。DreamGen Bench 的长时程行为泛化（GR1-Behavior IF 0.832）略逊于 LVP 和 GigaWorld，仍有提升空间。
+## 5.13 Wan (2025) {#5-13-wan}
+——阿里巴巴开源的高效视频生成基础模型家族
+
+📄 **Paper**: https://arxiv.org/abs/2503.20314
+
+### 精华
+
+- 提出了 **Wan2.1** 视频生成模型家族，采用主流的 Diffusion Transformer (DiT) 架构，包含 1.3B 和 14B 参数两个版本，开源了全部代码 and 权重。
+- 引入了创新的 **Spatio-Temporal VAE (Wan-VAE)**，能够将视频在时空维度上压缩 4x8x8 倍，并引入 RMSNorm 和特征缓存机制以支持任意长度的长视频流式重建与低内存推理。
+- 针对 DiT 训练，优化了特征调制（AdaLN）参数共享设计，不仅使模型参数量减少约 25%，还显著加快了收敛速度并提升了指令遵循能力。
+- 采用 **2D 上下文并行（Ulysses + Ring Attention）** 和 FSDP 混合分布式并行策略，解决了超长序列（达 1M 级别 tokens）所带来的显存和计算瓶颈。
+- 构建了统一的视频控制与编辑框架 **VACE**，通过对掩码区域和非掩码区域的“概念解耦”时空编码，实现了高质量的局部视频编辑、视频外扩等下游任务。
+
+---
+
+### 1. 研究背景/问题
+
+- 现有的视频生成模型在生成大幅度动作、高保真画面、超长视频以及复杂的文本提示词理解上仍面临巨大挑战。
+- 同时，大模型的高显存消耗和计算复杂度使得它们难以在消费级显卡（如 RTX 4090）上运行，极大地限制了开源社区的二次开发与应用。
+- 此外，时空自编码器（VAE）往往缺乏良好的时空因果性保证，且在流式长视频生成中面临内存溢出和边界不连续等缺陷。
+
+---
+
+### 2. 主要方法/创新点
+
+#### Wan-T2V (Text-to-Video) 整体架构
+
+<div align="center">
+  <img src="/images/wm/Wan-T2V-architecture.png" width="100%" />
+<figcaption>Wan 文本到视频生成（T2V）的整体架构图</figcaption>
+</div>
+
+**① 整体框架概述**
+Wan2.1 整体架构基于 Diffusion Transformer (DiT) 范式，包含三个核心模块：用于将视频/图像从像素空间压缩到低维潜空间的 **Wan-VAE**、执行流匹配去噪过程的 **Diffusion Transformer (DiT)** 以及用于文本理解的 **umT5 文本编码器**。
+
+**② 逐模块讲解**
+- **Wan-VAE (Spatio-Temporal VAE)**：
+  <div align="center">
+    <img src="/images/wm/Wan-VAE-framework.png" width="100%" />
+    <figcaption>Wan-VAE 时空压缩自编码器架构图</figcaption>
+  </div>
+
+  - **输入**：大小为 $(1+T) \times H \times W \times 3$ 的高维原始视频。
+  - **处理**：采用 3D 因果卷积结构，其中第一帧仅进行空间压缩（以保留图像先验），其余帧进行时空联合压缩。模型将所有 GroupNorm 替换为 RMSNorm 以保持严格的临时因果性，并支持特征缓存机制（Feature Cache Mechanism）。在空间上采样层中，将输入特征通道减半，以降低 33% 的推理显存。
+  - **输出**：时空维度压缩了 $4 \times 8 \times 8$ 倍、通道数为 16 的低维潜空间表征 $x \in \mathbb{R}^{(1+T/4) \times H/8 \times W/8 \times 16}$。
+  - **特征缓存推理**：在处理超长视频时，将视频按 Latent 帧拆分为 Chunks（每块最多 4 帧），在块与块之间传递和复用前一阶段的最后两帧特征缓存，确保在受限的显存内实现连续、无缝的流式重建。
+
+- **umT5 文本编码器**：
+  - **输入**：用户输入的自然语言提示词（支持中英双语以及复杂的排版描述）。
+  - **处理**：利用双向注意力机制编码，相比于单向注意力 LLM 更加注重全局语义表示 and 空间排版。
+  - **输出**：长度为 512 的语义 Token 序列 $ctxt \in \mathbb{R}^{512 \times D_{text}}$。
+
+- **Diffusion Transformer (DiT)**：
+  - **输入**：经由 3D 卷积（Patchify，核大小为 $(1, 2, 2)$，步长为 $(1, 2, 2)$）打块并展平后的潜空间序列 $x_{flat} \in \mathbb{R}^{B \times L \times D}$，以及文本 Token 和时间步 $t$。
+  - **处理**：由 $N$ 层堆叠的 Wan Transformer Block 构成。
+    <div align="center">
+      <img src="/images/wm/Wan-transformer-block.png" width="80%" />
+        <figcaption>Wan Transformer Block 结构细节</figcaption>
+    </div>
+
+    在 Block 内部，通过自注意力（Self-Attention）机制捕获时空关系，通过交叉注意力（Cross-Attention）将文本 Token 注入到图像 Token 中。时间步 $t$ 编码经由一个全局共享的 MLP (Linear + SiLU) 映射为调制参数，以调节各 LayerNorm 的尺度与偏置。
+  - **输出**：预测的去噪速度向量 $v_t$。
+
+**③ 端到端数据流**
+训练时，原始视频经 Wan-VAE 编码为 Latent 状态，与高斯噪声进行 Flow Matching（流匹配）线性插值得到 $x_t$，通过 Patchify 模块转换为 1D Token 序列；同时文本经 umT5 编码为文本 Embedding。在 DiT Blocks 中，文本与时空 Token 通过 Cross-Attention 进行交互。最后，利用预测的 Velocity $v_t$ 引导 ODE 求解去噪，生成的 Latent 再由 Wan-VAE Decoder 恢复出清晰的视频画面。
+
+**④ 训练目标 / 损失函数**
+基于 Rectified Flows (RFs) 框架，中间潜空间 $x_t$ 通过对干净视频潜特征 $x_1$ 和高斯噪声 $x_0 \sim \mathcal{N}(0, I)$ 实施线性插值获得：
+$$x_t = tx_1 + (1-t)x_0$$
+真值变化速率为 $v_t = x_1 - x_0$。模型学习参数 $\theta$ 以拟合这个变化率 $u(x_t, ctxt, t; \theta)$，损失函数采用均方误差 (MSE)：
+$$\mathcal{L} = \mathbb{E}_{x_0, x_1, ctxt, t} \left[ \lVert u(x_t, ctxt, t; \theta) - v_t \rVert^2 \right]$$
+
+#### Wan-I2V (Image-to-Video) 架构与控制框架
+
+<div align="center">
+  <img src="/images/wm/Wan-I2V-architecture.png" width="100%" />
+<figcaption>Wan-I2V 图生视频模型框架</figcaption>
+</div>
+
+**① 整体框架概述**
+为了兼容图片生成视频（I2V）、视频续写（Video Continuation）以及首尾帧过渡（First-Last Frame Transition）等多种下游任务，Wan 引入了掩码（Mask）机制和双编码器联合调节策略。
+
+**② 模块与数据流详解**
+- **双图像编码器**：同时输入第一帧像素，一方面经由 **Wan-Encoder** 编码为 Latent，作为与噪声等维度的掩码提示，并和掩码矩阵 $M$ 一起与嘈杂的潜空间特征 $x_t$ 进行 Channel-wise Concatenation（通道级拼接）作为 DiT 的主轴输入；另一方面，通过 **CLIP Image Encoder** 提取全局语义特征，在 DiT 的 **Decoupled Cross-Attention（解耦交叉注意力）** 中与 umT5 文本 Embedding 一起分别与时空特征进行交互，提供高保真视觉细节与空间语义。
+- **掩码通道设计**：对第一帧画面（或已知参考帧）赋予值为 0 的掩码（代表需要被重建的区域），对其余生成帧赋予值为 1 的掩码（代表生成区域）。该设计使用户能自由指定参考帧的空间与时间排布。
+
+#### VACE：统一的可控生成与编辑框架
+
+<div align="center">
+  <img src="/images/wm/Wan-VACE-editing-framework.png" width="100%" />
+<figcaption>VACE 可控生成与编辑模型框架与概念解耦机制</figcaption>
+</div>
+
+**① 整体框架概述**
+**VACE (Video Condition Unit)** 旨在将局部重绘（Repainting）、Canny 边缘提取、深度估计（Depth）、姿态引导（Pose）以及线稿引导（Scribble）等多种编辑和生成条件统一到同一种输入范式中。
+
+**② 数据流与概念解耦 (Concept Decoupling) 详解**
+- **概念解耦策略**：为保证在各种不同控制任务下模型能够平稳收敛，VACE 将输入视频 $F$ 和掩码 $M$ 解耦为两个相同尺寸的序列：**活性帧** $F_c = F \times M$（包含所有需要被修改的像素）与 **惰性帧** $F_k = F \times (1-M)$（保留所有需要保持原样的像素）。
+- **编码与注入**：$F_c$ 和 $F_k$ 分别通过同一个冻结的 Wan-VAE Encoder 映射到潜空间，并在通道维度与噪声拼接后输入到 DiT 中。VACE 提供两种训练模式：**Fully Fine-tuning**（全参数微调）以及 **Context Adapter Tuning**（通过外挂的 Context Block 以残差形式集成到原 DiT block 中，支持无损基础权重插拔）。
+
+---
+
+### 3. 核心结果/发现
+
+- **性能优异**：14B 模型在大规模图像与视频数据集上训练，在各项内部和外部基准测试中超越了当时的主流开源模型（如 CogVideoX、Hunyuan Video 等）及闭源商业模型。
+- **高压缩比与高质量**：Wan-VAE 的时空压缩比达到 $4 \times 8 \times 8$，潜表征维度为 16 维。在 720p 分辨率及 25 帧的视频重建测试中，重建质量（PSNR）与 Hunyuan Video 相当甚至更好，同时重建速度快了 **2.5 倍**。
+- **极低的计算硬件门槛**：1.3B 模型专门为消费级 GPU（如 RTX 4090）设计，开启 int8 甚至 TensorRT 量化后，推理时仅需 **8.19 GB** 显存，却在 T2V 任务上能产生媲美更大模型的流畅度和一致性。
+- **首创双语字符生成**：在视频中实现了中英双语的高清、正确字符排版生成能力（如生成包含 "Wan2.1" 和中文牌匾的视频）。
+
+---
+
+### 4. 局限性
+
+- 模型在处理极其复杂的极速物理交互（如破碎、流体变化等细微碰撞细节）时，依然会出现一定程度的幻觉或时空扭曲。
+- 尽管 1.3B 模型实现了消费级显卡部署，但 14B 参数模型在单卡推理时仍具有较高的计算延迟，在大规模生产部署中仍然需要多卡 Context Parallel 协同。
+
+---
+
 
 ---
 
