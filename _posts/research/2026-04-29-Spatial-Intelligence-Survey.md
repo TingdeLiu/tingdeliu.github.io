@@ -3519,7 +3519,7 @@ SparseOccVLA 包含三个核心组件：**稀疏占用编码器（Sparse Occupan
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vlm/GenCeption-overview.png" width="100%" />
+  <img src="/images/si/GenCeption-overview.png" width="100%" />
 <figcaption>GenCeption 与传统专用感知模型的对比。GenCeption 实现了从“特定任务设计”到“基于统一骨干网络、解码头与损失函数，仅由 Text Prompt 引导”的范式转变。</figcaption>
 </div>
 
@@ -3527,7 +3527,7 @@ SparseOccVLA 包含三个核心组件：**稀疏占用编码器（Sparse Occupan
 GenCeption 的核心设计极为精简，它重用了文本到视频生成模型（WAN 2.1）的预训练权重，包括 VAE 编码器-解码器、文本编码器和基于 Transformer 的潜空间扩散模型（DiT）。通过将原多步反向去噪过程重构为**单步前向传播**，并直接将不同的感知任务映射到统一的 3 通道连续像素空间（RGB），实现了共享骨干网络、解码器及损失函数的全能视觉感知器。
 
 <div align="center">
-  <img src="/images/vlm/GenCeption-architecture.png" width="100%" />
+  <img src="/images/si/GenCeption-architecture.png" width="100%" />
 <figcaption>GenCeption 整体架构图。左侧为输入视频与任务 Prompt，通过预训练的 DiT 单步前向传播，通过统一的 VAE 解码器或稀疏感知 Token 预测各种密集与稀疏视觉感知结果。</figcaption>
 </div>
 
@@ -3552,7 +3552,7 @@ GenCeption 的核心设计极为精简，它重用了文本到视频生成模型
   * **设计动机**：将高度抽象的矩阵与位姿估计转化为空间连续的图像渲染感知，保证解码器的一致性。
 
 <div align="center">
-  <img src="/images/vlm/GenCeption-raymap.png" width="80%" />
+  <img src="/images/si/GenCeption-raymap.png" width="80%" />
 <figcaption>"Rothko" 射线图编码方案。将 6 通道的相机射线（原点与方向）通过空间布局拼贴，压缩在 3 通道的连续 RGB 像素空间中，以兼容统一的 VAE 解码头。</figcaption>
 </div>
 
@@ -3579,7 +3579,7 @@ $$d' = \text{clip}(\alpha \log(d+1), 0, 1)$$
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/vlm/GenCeption-sota.png" width="100%" />
+  <img src="/images/si/GenCeption-sota.png" width="100%" />
 <figcaption>GenCeption 性能与数据效率对比。左图显示其在多项视觉感知任务中匹敌或超越了现有的各类专用 SOTA 模型；右图显示其在深度估计微调中显著优于 V-JEPA 和 VideoMAE V2 等自监督预训练方法，且数据效率高出数倍至数百倍。</figcaption>
 </div>
 
@@ -3591,7 +3591,7 @@ $$d' = \text{clip}(\alpha \log(d+1), 0, 1)$$
   2. **类别泛化**：能够直接准确泛化到完全未在训练数据中出现的动物、恐龙和人形机器人等类别上。
 
 <div align="center">
-  <img src="/images/vlm/GenCeption-generalization.png" width="100%" />
+  <img src="/images/si/GenCeption-generalization.png" width="100%" />
 <figcaption>零样本跨域与外部分布泛化结果。尽管模型完全在单人合成视频（Synthetic Humans）上训练，但却能泛化到包含多个实例的真实场景（Real Videos），并能跨类别泛化到动物、机器人等（Unseen Objects）。</figcaption>
 </div>
 
