@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "VLN综述：基于视觉语言的导航"
-date:   2026-07-10
+date:   2026-07-14
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -400,7 +400,7 @@ Global Planner → Local Policy → Action
   - [NVIDIA Cosmos](https://www.nvidia.com/en-us/ai/cosmos/) (2025, NVIDIA) — 面向物理 AI 的大规模世界基础模型
   - [Video Generation Models in Robotics -- Applications, Research Challenges, Future Directions](https://arxiv.org/abs/2601.07823) (2025)
 
-> 📖 **延伸阅读**：本节聚焦世界模型在 **VLN 任务**中的应用。关于世界模型本体的系统性综述——四大技术范式（世界规划器 / 动作模型 / 合成器 / 模拟器）、基础模型生态、评测基准与未来方向——详见 [《世界模型综述：迈向通用 VLA 智能体》]({% post_url 2026-04-16-World-Models-Survey %})。
+> 📖 **延伸阅读**：本节聚焦世界模型在 **VLN 任务**中的应用。关于世界模型本体的系统性综述——四大技术范式（世界规划器 / 动作模型 / 合成器 / 模拟器）、基础模型生态、评测基准与未来方向——详见 [《世界模型综述：迈向通用 VLA 智能体》]({% post_url /research/2026-04-16-World-Models-Survey %})。
 
 ### 3.4.1 核心思想
 
@@ -532,7 +532,7 @@ flowchart TD
 
 上述方法的共同瓶颈是**大规模高质量训练数据的稀缺**。以 **NVIDIA Cosmos**（2025）为代表的物理 AI 世界基础模型，正在成为底层基础设施：其 Predict 模块可作为**合成数据引擎**生成多样化导航轨迹，Transfer 模块可降低 sim2real gap，Reason 模块可作为 VLN 策略评估与数据筛选的推理底座，为 NWM、WMNav 等上层方法提供预训练基础。
 
-> Cosmos 的完整架构（Tokenizer、Diffusion/Autoregressive WFM、三大功能模块对比）详见 [《世界模型综述》§4.3]({% post_url 2026-04-16-World-Models-Survey %})。
+> Cosmos 的完整架构（Tokenizer、Diffusion/Autoregressive WFM、三大功能模块对比）详见 [《世界模型综述》§4.3]({% post_url /research/2026-04-16-World-Models-Survey %})。
 
 ---
 

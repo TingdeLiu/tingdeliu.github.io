@@ -33,13 +33,17 @@ This is a custom jekyll-now theme (not Chirpy). Key configuration in `_config.ym
 - Plugins: `jekyll-sitemap`, `jekyll-feed`, `jekyll-paginate`, `jekyll-seo-tag`
 - Site URL: `https://tingdeliu.github.io`, baseurl is empty
 
-**Navigation tabs** (defined in `_config.yml` under `navigation:`): Home, Archive, Tags, About.
+**Navigation tabs** (defined in `_config.yml` under `navigation:`): Project, Research, Blog, Archive, About.
 
 **Theme layout chain:** `_layouts/default.html` → `_layouts/post.html` or `_layouts/page.html`. Components are in `_includes/` (nav, footer, head, toc, gitalk, disqus, backtotop, svg-icons).
 
 ## Content Structure
 
-**Blog posts** (`_posts/`): Only 3 posts exist. Filename format: `YYYY-MM-DD-title.md`.
+**Posts** (`_posts/`): Organized by content type while remaining in Jekyll's built-in posts collection:
+- `_posts/research/`: Long-form research surveys, paper collections, and technical notes (`categories: research`)
+- `_posts/blog/`: Weekly digests and shorter blog articles (`categories: blog`)
+
+Filename format: `YYYY-MM-DD-title.md`. Keep the `categories` front matter as the source of truth; the subdirectories are for source organization.
 
 **Images** (`images/`): Post images organized by topic subdirectories (`vln/`, `vla/`, `vlm/`, `agent/`, `llm-training/`, `ros2/`, `robotics_navigation/`). The paper-summary skill moves renamed figures into these subdirectories.
 
