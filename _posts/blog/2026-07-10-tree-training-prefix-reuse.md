@@ -10,9 +10,6 @@ toc: true
 excerpt: "从 Robostral Navigate 的 22× 训练 Token 压缩出发，拆解 DFS 序列化、树状注意力、加权损失与可微分分区，并区分官方事实、论文机制和工程推断。"
 ---
 
-* 目录
-{:toc}
-
 # 1. Robostral Navigate 的 22× 到底是什么？
 
 Mistral AI 在 [Robostral Navigate 官方介绍](https://mistral.ai/news/robostral-navigate/)中公开了一种基于 prefix caching 的高效监督训练算法：把完整导航 episode 压缩成单条序列，通过 **tree-based attention masking** 在一次前向传播中训练全部时间步，同时避免时间步之间的信息泄漏。官方明确给出了三点：

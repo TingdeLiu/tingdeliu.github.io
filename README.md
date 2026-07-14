@@ -6,7 +6,12 @@
 
 这里是我的个人技术博客，专注于 **具身导航**、 **AI Agent** 与 **空间智能** 方向的中文系统性综述与技术笔记。每篇综述都会随领域进展持续更新，欢迎通过 Issue 参与共建。
 
-## 综述目录
+## 内容分区
+
+- 🔬 [**Research**](https://tingdeliu.github.io/research/)：系统性研究综述、论文集合与长篇技术笔记
+- ✍️ [**Blog**](https://tingdeliu.github.io/blog/)：研究周报、专题解析与短篇技术文章
+
+## Research：综述与研究笔记
 
 ### 🤖 具身智能与机器人
 
@@ -37,6 +42,13 @@
 | [机器学习综述](https://tingdeliu.github.io/Machine-Learning-Survey/) | 监督/无监督学习、Transformer |
 | [深度学习综述](https://tingdeliu.github.io/Deep-Learning-Survey/) | CNN、RNN、LSTM、GRU、注意力机制 |
 
+## Blog：周报与专题文章
+
+| 文章 | 主题 |
+| :--- | :--- |
+| [VLN 周报（2026-06-28 ~ 2026-07-05）](https://tingdeliu.github.io/VLN-Weekly/) | 具身导航论文与项目周度精选 |
+| [Tree Training 技术详解](https://tingdeliu.github.io/tree-training-prefix-reuse/) | Prefix Caching、Tree Attention、训练 Token 压缩 |
+
 ## 参与贡献
 
 每篇文章末尾都有"社区反馈卡片"，点击即可一键提交（自动带上结构化模板）：
@@ -56,11 +68,24 @@
 - **图表**：Mermaid
 - **评论**：Gitalk
 
+## 仓库结构
+
+```text
+_posts/
+├── research/       # 研究综述、论文集合与长篇技术笔记
+└── blog/           # 周报、专题解析与短篇文章
+paper_summary/      # 独立的中文论文摘要
+images/             # 按研究主题组织的文章图片
+```
+
+所有文章仍属于 Jekyll 内置的 `posts` 集合，`categories: research` 或 `categories: blog` 是内容分类依据；子目录仅用于整理源文件。
+
 ## 快捷入口
 
 - 🏠 [首页](https://tingdeliu.github.io/)
 - 📂 [项目](https://tingdeliu.github.io/home/)
-- 🏷️ [标签](https://tingdeliu.github.io/tags/)
+- 🔬 [Research](https://tingdeliu.github.io/research/)
+- ✍️ [Blog](https://tingdeliu.github.io/blog/)
 - 👤 [关于我](https://tingdeliu.github.io/about/)
 
 ## 联系方式
