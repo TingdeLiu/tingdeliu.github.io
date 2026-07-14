@@ -33,7 +33,7 @@ This is a custom jekyll-now theme (not Chirpy). Key configuration in `_config.ym
 - Plugins: `jekyll-sitemap`, `jekyll-feed`, `jekyll-paginate`, `jekyll-seo-tag`
 - Site URL: `https://tingdeliu.github.io`, baseurl is empty
 
-**Navigation tabs** (defined in `_config.yml` under `navigation:`): Project, Research, Blog, Archive, About.
+**Navigation tabs** (defined in `_config.yml` under `navigation:`): Project, Research, Blog, About. The `/archive/` page remains available for backward compatibility but is intentionally omitted from the primary navigation.
 
 **Theme layout chain:** `_layouts/default.html` → `_layouts/post.html` or `_layouts/page.html`. Components are in `_includes/` (nav, footer, head, toc, gitalk, disqus, backtotop, svg-icons).
 

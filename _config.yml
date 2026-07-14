@@ -29,8 +29,6 @@ navigation:
     url: /research
   - name: Blog
     url: /blog
-  - name: Archive
-    url: /archive
   - name: About
     url: /about #/ #https://kwanwaipang.github.io/
 
