@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "空间智能综述：从三维感知到空间推理"
-date:  2026-07-08
+date:  2026-07-14
 tags: [Spatial Intelligence, 3D Vision, NeRF, Point Cloud, Embodied AI, Survey]
 categories: research
 comments: true
@@ -3496,6 +3496,112 @@ SparseOccVLA 包含三个核心组件：**稀疏占用编码器（Sparse Occupan
 
 - 高度依赖稠密且高质量的 3D 语义占用真实标签（Occupancy Ground Truth），获取和生成此类监督标签具有极高的标注成本；
 - 仅在 nuScenes 等开环自动驾驶规划基准上完成了验证，其在闭环仿真环境下的规划与控制稳定性仍有待在未来工作中进一步探究。
+## 6.25 GenCeption (2026) {#6-25-genception}
+——视频生成模型是通用视觉学习器
+
+📄 **Paper**: https://arxiv.org/abs/2607.09024
+
+### 精华
+1. 本文提出了 **GenCeption**，展示了**大规模文本到视频生成模型可以作为通用的视觉表示学习器**，其中生成式预训练（类似于 NLP 中的 next-token prediction）能为感知任务赋予强大的时空先验与图文对齐能力。
+2. GenCeption 通过将多步迭代去噪的扩散模型改造为**高效的单步前向传播（Feed-Forward）感知模型**，避免了传统生成式推理极其缓慢的缺陷。
+3. 提出**在连续像素空间（RGB通道）中统一多种密集感知任务（深度、法线、分割、相机射线图等）**的方案，将任务说明直接编码在文本提示（Text Prompt）和数据表示中，实现了极简 of 无特定任务头/损失函数设计。
+4. 针对稀疏坐标回归任务（2D/3D人脸/人体关键点），设计了**可学习 Token 与 3D 旋转位置编码（3D RoPE）**的外挂机制，保证了时序位置对齐且无需破坏预训练注意力结构。
+5. GenCeption 在只用合成数据微调的情况下展现出惊人的 **Sim-to-Real 跨域泛化能力和数据效率**，仅需极少样本即可媲美甚至超越 DepthAnything 3、SAM 3 等高度定制化的专业领域模型。
+
+---
+
+### 1. 研究背景/问题
+- **核心问题**：自然语言处理已经通过大规模自回归预训练成功过渡到统一的通用大模型时代。然而，计算机视觉仍停留在"专用模型"阶段（例如 Depth Anything 用于几何、SAM 用于分割），需要针对具体任务定制网络结构、解码头与损失函数，缺乏一个能统一万千视觉感知任务的、即插即用的通用底座。
+- **核心动机**：作者认为解决视觉通用大模型的关键在于寻找一个类似于"Next-token prediction"的预训练任务。大型文本到视频生成（Text-to-Video Generation）正好满足三大黄金标准：（1）**时空演化（Spatio-Temporal Evolution）**：要求模型内化物理规律与4D几何；（2）**图文原生对齐（Vision-Language Alignment）**：天生具备指令遵循能力；（3）**大规模可扩展（Scaled up）**：视频数据无监督且商业价值大、易规模化。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vlm/GenCeption-overview.png" width="100%" />
+<figcaption>GenCeption 与传统专用感知模型的对比。GenCeption 实现了从“特定任务设计”到“基于统一骨干网络、解码头与损失函数，仅由 Text Prompt 引导”的范式转变。</figcaption>
+</div>
+
+#### ① 整体框架概述
+GenCeption 的核心设计极为精简，它重用了文本到视频生成模型（WAN 2.1）的预训练权重，包括 VAE 编码器-解码器、文本编码器和基于 Transformer 的潜空间扩散模型（DiT）。通过将原多步反向去噪过程重构为**单步前向传播**，并直接将不同的感知任务映射到统一的 3 通道连续像素空间（RGB），实现了共享骨干网络、解码器及损失函数的全能视觉感知器。
+
+<div align="center">
+  <img src="/images/vlm/GenCeption-architecture.png" width="100%" />
+<figcaption>GenCeption 整体架构图。左侧为输入视频与任务 Prompt，通过预训练的 DiT 单步前向传播，通过统一的 VAE 解码器或稀疏感知 Token 预测各种密集与稀疏视觉感知结果。</figcaption>
+</div>
+
+#### ② 逐模块讲解
+
+* **单步前向推理感知（Feed-forward Perception）**
+  * **输入**：无噪声的视频原始 Latent 表征 $x_0$（由 VAE 编码器从 RGB 视频提取）以及由任务 Prompt（例如 `"output: depth"`）转换得到的文本 Embedding。
+  * **处理**：在常规视频扩散模型中，输入是高斯噪声并通过多步迭代进行去噪。GenCeption 将去噪时间步固定为 $t = 0$（即去噪终点），并只执行单次 DiT 前向推理。由于 WAN 2.1 采用 Rectified Flow 目标进行预训练，其 DiT 模块输出为预测速度 $v = \epsilon - x_0$。
+  * **输出**：在网络最后一层直接对 DiT 输出取反，即 $-v = x_0 - \epsilon$。经验表明，这个取反操作能让预测的 Latent 极大程度地向目标感知视频靠拢。
+  * **设计动机**：彻底消除了慢速的迭代采样过程，将生成式模型低成本地转变为确定性的前向特征提取器，且完全不改动骨干网络任何中间层，保证了其提取能力的完整性。
+
+* **密集任务的像素空间统一（Unified Dense Task Representation）**
+  * **输入**：调制不同任务的文本 Prompt（如 `"Depth"`, `"Normal"`, `"Segmentation"`, `"DensePose"` 等）。
+  * **处理**：所有的密集感知结果均被映射到统一的 3 通道 RGB 空间内，取值范围规范在 $[0, 1]$。对于一维的密集任务（深度估计、视频分割），3 个 RGB 通道内容被直接复制；对于三维密集任务（表面法线、DensePose 映射），每个通道对应不同的物理维度。
+  * **输出**：在 RGB 图像空间内的感知结果视频。
+  * **设计动机**：如同大语言模型将各类异构数据格式化为纯文本一样，GenCeption 将不同的高维度、多任务几何与语义感知转换到连续像素空间。这免去了对特定解码结构的微调，最大化复用了预训练模型的视觉先验。
+
+* **相机射线图 "Rothko" 编码（Rothko Raymap for Camera Pose）**
+  * **输入**：6 通道相机射线数据（3 通道原点 Ray Origins + 3 通道方向 Ray Directions）。
+  * **处理**：提出空间分区拼贴的 "Rothko" 编码（如下图所示），将射线起点（Origins）图填充在图像中央，而将射线方向（Directions）图平铺在图像四周，从而把 6 通道的位置矩阵数据压缩封装至 3 通道 RGB 内。
+  * **输出**：3 通道 Rothko 射线图视频，后经过解析算法解算得到相机的连续位姿与轨迹。
+  * **设计动机**：将高度抽象的矩阵与位姿估计转化为空间连续的图像渲染感知，保证解码器的一致性。
+
+<div align="center">
+  <img src="/images/vlm/GenCeption-raymap.png" width="80%" />
+<figcaption>"Rothko" 射线图编码方案。将 6 通道的相机射线（原点与方向）通过空间布局拼贴，压缩在 3 通道的连续 RGB 像素空间中，以兼容统一的 VAE 解码头。</figcaption>
+</div>
+
+* **稀疏感知可学习 Token 机制（Sparse Perception with Learnable Tokens）**
+  * **输入**：除原视频 Latents 外，外挂 $T$ 个可学习的查询 Token（每个视频帧对应一个）。
+  * **处理**：为兼容预训练 DiT 内生的 3D 旋转位置编码（3D RoPE），对新增的 $T$ 个 Token 应用 3D RoPE。其空间位置初始化为可学习变量；而时序位置上，采用位置插值（Position Interpolation）对帧索引进行尺度缩放，使其处于 DiT 预训练的时序边界内。
+  * **输出**：经过 DiT 网络提取后，通过轻量级 MLP 头解码出每帧 $K$ 维的稀疏特征坐标（如人脸/人体关键点）。
+  * **设计动机**：外挂查询 Token 比引入新的 Cross-Attention 模块能更好地维护预训练注意力机制的稳定性，从而避免特征失真。
+
+#### ③ 端到端数据流
+输入 RGB 视频经过 VAE 编码 $\rightarrow$ 与任务控制文本 Embedding 拼接 $\rightarrow$ 输入 DiT 进行单步前向传播 $\rightarrow$ 密集任务特征取反 $-v$ 并经过统一 VAE 解码器生成目标感知视频；稀疏任务通过外挂 Token 经由轻量级 MLP 输出 2D/3D 坐标。
+
+#### ④ 训练目标与损失函数
+GenCeption 统一使用标准的 $L_2$ 损失函数。在数据层面上，通过对深度图等数据进行尺度中值归一化，并进行非线性映射：
+$$d' = \text{clip}(\alpha \log(d+1), 0, 1)$$
+这从源头上消除了几何感知的尺度不确定性。
+- **密集任务**直接在 VAE 的隐空间（Latent Space）计算 $L_2$ 损失：
+  $$L_{\text{dense}} = \lVert \mathbf{z}_{\text{pred}} - \mathbf{z}_{\text{gt}} \rVert_2^2$$
+- **稀疏任务**在解算出的输出坐标空间计算 $L_2$ 损失：
+  $$L_{\text{sparse}} = \lVert \mathbf{p}_{\text{pred}} - \mathbf{p}_{\text{gt}} \rVert_2^2$$
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vlm/GenCeption-sota.png" width="100%" />
+<figcaption>GenCeption 性能与数据效率对比。左图显示其在多项视觉感知任务中匹敌或超越了现有的各类专用 SOTA 模型；右图显示其在深度估计微调中显著优于 V-JEPA 和 VideoMAE V2 等自监督预训练方法，且数据效率高出数倍至数百倍。</figcaption>
+</div>
+
+* **超越专用 SOTA 模型**：在法线估计、深度估计、相机姿态与 3D 人体关键点预测上，虽然没有使用对应数据集的训练集进行有监督训练，但 GenCeption 的预测精度依然全面超越了 Lotus-2（FLUX 12B）和 NormalCrafter（SVD 1.5B），并超越或持平了 DepthAnything 3 及 D4RT。
+* **远胜自监督视频底座**：在控制微调样本数（7.5k 视频）相同的前提下，GenCeption (1.3B/14B) 模型的几何和深度预测表现显著优于 VideoMAE V2 (1B) 与 V-JEPA (0.6B)。
+* **极高的数据效率**：在深度估计任务上，GenCeption 仅依靠 7.5k 的合成视频进行多任务微调，表现就媲美了在数百万/数亿真实多源数据上训练的 D4RT 和 VGGT-Ω，使训练所需的数据规模大幅下降了 $7\times$ 至 $500\times$。
+* **零样本泛化与跨域能力**：由于继承了预训练视频生成模型中蕴含的宏大世界物理常识，GenCeption 表现出极其突出的 Sim-to-Real 与 Out-of-Distribution（OOD）泛化能力：
+  1. **实例泛化**：虽然微调时仅在**单人合成视频**上进行训练，但可以直接推理具有**多实例、高复杂度的真实场景视频**。
+  2. **类别泛化**：能够直接准确泛化到完全未在训练数据中出现的动物、恐龙和人形机器人等类别上。
+
+<div align="center">
+  <img src="/images/vlm/GenCeption-generalization.png" width="100%" />
+<figcaption>零样本跨域与外部分布泛化结果。尽管模型完全在单人合成视频（Synthetic Humans）上训练，但却能泛化到包含多个实例的真实场景（Real Videos），并能跨类别泛化到动物、机器人等（Unseen Objects）。</figcaption>
+</div>
+
+---
+
+### 4. 局限性
+* **密集与稀疏任务的联合冲突**：实验发现，在同时微调密集像素任务与稀疏坐标任务时，稀疏任务的表现会大幅下滑，且连带密集感知任务也会产生轻微退化。分析表明，外挂的可学习 Token 会在没有充分多任务微调数据的情况下，破坏 DiT 原本的注意力权重，且在几何表征层面上与连续的像素空间重构具有一定冲突。在进行微调时，应更加小心设计以保证网络骨干的“零侵入性”。
+
+---
+
 
 ---
 
