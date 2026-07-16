@@ -24,7 +24,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 |:-----|:----:|:----:| :--------: |:----:|:-----:|:----:|:-----:|:----:|:----:|
  | [Robostral Navigate(单目)](#robostral-navigate) | 2026 | R2R-CE | Mistral-8B | **76.6** | **73.7** | **3.25** | **80.8** | 否 | 40万条轨迹（仿真） | 
  | [Qwen-RobotNav(全景)](#qwen-robotnav) | 2026 | R2R-CE | Qwen3-VL-7B | 72.1 | 66.6 | 3.53 | 78.5 | 否 | 15.6M 混合数据 | 
-| [ABot-N1(三相机)](#abot-n1) | 2026 | R2R-CE | – | 70.9 | 67.5 | 3.32 | 75.2 | 否 | – |
+| [ABot-N1(三相机)](#abot-n1) | 2026 | R2R-CE | Qwen-3.5-4B + 2B | 70.9 | 67.5 | 3.32 | 75.2 | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) | 8423个3D场景，482km路径 |
  | [OmniNav(多目)](#omninav) | 2026 | R2R-CE | Qwen2.5-VL-3B | 69.5 | 66.1 | 3.74 | 74.6 | [是](https://github.com/amap-cvlab/OmniNav) | 12.2M 混合数据 | 
  | [AstraNav-World(多目)](#astranav-world) | 2025 | R2R-CE | Qwen2.5-VL-3B | 67.9 | 65.4 | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) | – | 
  | [SEDualVLN(单目)](#sedualvln) | 2026 | R2R-CE | LLaVA-Video-7B | 67.3 | 62.5 | 3.75 | 73.7 | [是](https://github.com/kim-os/SEDualVLN) | – | 
@@ -56,7 +56,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | 模型 | 年份 | 基准 | 基模 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 开源 | 训练数据 |
 |:-----|:----:|:----:| :--------: |:----:|:-----:|:----:|:-----:|:----:|:----:|
  | [Qwen-RobotNav (全景)](#qwen-robotnav) | 2026 | RxR-CE | Qwen3-VL-7B | **76.5** | **65.7** | 3.58 | – | 否 | 15.6M 混合数据 | 
-| [ABot-N1(三相机)](#abot-n1) | 2026 | RxR-CE | – | 73.9 | 63.9 | **3.13** | – | 否 | – |
+| [ABot-N1(三相机)](#abot-n1) | 2026 | RxR-CE | Qwen-3.5-4B + 2B | 73.9 | 63.9 | **3.13** | – | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) | 8423个3D场景，482km路径 |
  | [OmniNav (多目)](#omninav) | 2026 | RxR-CE | Qwen2.5-VL-3B | 73.6 | 62.0 | 3.77 | – | [是](https://github.com/amap-cvlab/OmniNav) | 12.2M 混合数据 | 
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | RxR-CE | Qwen3-VL-7B | 73.4 | 63.5 | – | – | 否 | 15.6M 混合数据 | 
  | [AstraNav-World (多目)](#astranav-world) | 2025 | RxR-CE | Qwen2.5-VL-3B | 72.9 | – | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) | – | 
@@ -100,9 +100,9 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 | 模型 | 年份 | 基准 | 基模 | SR ↑ | SPL ↑ | 开源 | 训练数据 |
 |:-----|:----:|:----:| :--------: |:----:|:-----:|:----:| :--------: |
-| [ABot-N1(三相机)](#abot-n1) | 2026 | ABotN-PointBench (Indoor) | – | **95.4** | **93.7** | 否 | – |
-| [ABot-N1(三相机)](#abot-n1) | 2026 | ABotN-PointBench (Outdoor) | – | 92.9 | 91.4 | 否 | – |
-| [ABot-N1(三相机)](#abot-n1) | 2026 | Short-Horizon OVON | – | 84.9 | 51.8 | 否 | – |
+| [ABot-N1(三相机)](#abot-n1) | 2026 | ABotN-PointBench (Indoor) | Qwen-3.5-4B + 2B | **95.4** | **93.7** | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) | 8423个3D场景，482km路径 |
+| [ABot-N1(三相机)](#abot-n1) | 2026 | ABotN-PointBench (Outdoor) | Qwen-3.5-4B + 2B | 92.9 | 91.4 | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) | 8423个3D场景，482km路径 |
+| [ABot-N1(三相机)](#abot-n1) | 2026 | Short-Horizon OVON | Qwen-3.5-4B + 2B | 84.9 | 51.8 | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) | 8423个3D场景，482km路径 |
  | [Hydra-Nav (单目)](#hydra-nav) | 2026 | HM3D | Qwen2.5-VL-7B | 84.8 | 28.8 | 否 | 56.5万 样本 | 
  | [VLFM (单目)](#vlfm) | 2023 | Gibson | – | 84.0 | 52.2 | [是](https://github.com/rai-opensource/vlfm) | – | 
  | [VLingNav (单目)](#vlingnav) | 2026 | HM3D-v2 | LLaVA-Video-7B | 83.0 | 40.5 | [是](https://github.com/wsakobe/VLingNav-web) | 2.9M 样本 | 
@@ -111,7 +111,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [3DGSNav (单目)](#3dgsnav) | 2026 | HM3D-v1 | GPT-4o | 80.0 | 51.8 | 否 | – | 
  | [VLingNav (单目)](#vlingnav) | 2026 | HM3D-v1 | LLaVA-Video-7B | 79.1 | 42.9 | [是](https://github.com/wsakobe/VLingNav-web) | 2.9M 样本 | 
  | [NavDP (单目)](#navdp) | 2025 | Clutter/Intern (Point-Goal) | – | 77.8 | 74.8 | [是](https://github.com/InternRobotics/NavDP) | 3154个场景（仿真） | 
-| [ABot-N1](#abot-n1) | 2026 | ABotN-POIBench | – | 77.3 | 72.6 | 否 | – |
+| [ABot-N1](#abot-n1) | 2026 | ABotN-POIBench | Qwen-3.5-4B + 2B | 77.3 | 72.6 | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) | 8423个3D场景，482km路径 |
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | HM3Dv2 | Qwen3-VL-2B | 75.6 | 30.6 | 否 | 15.6M 混合数据 | 
  | [3DGSNav (单目)](#3dgsnav) | 2026 | HM3D-v2 | GPT-4o | 75.0 | 44.2 | 否 | – | 
  | [GaussNav (单目)](#gaussnav) | 2025 | HM3D（实例图像） | – | 72.5 | 57.8 | [是](https://github.com/XiaohanLei/GaussNav) | – | 
@@ -6444,7 +6444,7 @@ $$R_{tot} = R_{done} + R_{nav} + R_{exp} + R_{brev}$$
 ## 61. ABot-N1 (2026) {#abot-n1}
 ———基于慢速认知与快速控制双系统架构的通用视觉语言导航基础模型
 
-📄 **Paper**: [arXiv:2607.10383](https://arxiv.org/abs/2607.10383v2) · [Project Page](https://amap-cvlab.github.io/ABot-Navigation/ABot-N1/)
+📄 **Paper**: [arXiv:2607.10383](https://arxiv.org/abs/2607.10383v2) · [Project Page](https://amap-cvlab.github.io/ABot-Navigation/ABot-N1/) · [Code](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench)
 
 ### 精华
 1. **慢速-快速双系统解耦**：将低频慢速的高维认知推理（System 2）与高频快速的低维反应性控制（System 1）进行时间尺度与计算资源解耦，消除了端到端黑盒模型的认知-控制动态错配。
