@@ -30,649 +30,442 @@ excerpt: "系统梳理视觉语言导航（VLN）的任务定义、方法演进�
 
 截至 2026 年，更准确的判断不是“端到端模型已经取代模块化系统”，而是两者正在融合：统一模型负责获得可扩展的通用能力，结构化地图、快慢分层、技能调用和安全控制则为长时序可靠性提供约束。本文据此重新梳理 VLN 的概念边界、方法演进、基准体系与仍未解决的问题。
 
-# 2. VLN基本概述
+# 2. VLN 基本概述
 
-## 2.1 什么是VLN？
+VLN 的核心不是“看懂一句话”，而是在部分可观测环境中持续完成 **语言落地、空间定位、历史记忆、动作决策和停止判断**。智能体每移动一步，视觉输入和指令进度都会变化，因此导航是一个闭环过程，而不是一次性的视觉问答。
 
-在经典 VLN 中，智能体接收一条自然语言路线指令，从未知起点出发，根据当前视觉观测与历史轨迹选择动作，并在认为到达目标时主动停止。训练与评测通常按场景划分，`val-unseen` / `test-unseen` 用于检验智能体是否真正学会跨场景语言落地，而不是记住训练房屋。
+## 2.1 任务定义：语言如何变成一条可执行轨迹
 
-形式上，可将 VLN 表述为部分可观测决策过程。时刻 $t$ 的决策依赖指令 $I$、当前观测 $o_t$、历史观测与动作 $h_t$，策略输出动作 $a_t$：
+给定自然语言指令 $I$，智能体在时刻 $t$ 接收当前观测 $o_t$，并结合历史状态 $h_t$ 预测动作 $a_t$：
 
-$$
+$
 a_t \sim \pi(a_t \mid I, o_t, h_t)
-$$
+$
 
-离散环境中的动作通常是选择相邻视点或停止；连续环境中则可能输出前进/转向、局部路点、轨迹片段或底层控制量。这一接口差异会显著改变任务难度，因此“使用同一数据源”并不等于“属于同一评测设定”。
+```mermaid
+flowchart LR
+    I["自然语言指令"] --> G["语言与场景对齐"]
+    O["当前视觉观测"] --> G
+    H["历史轨迹与空间记忆"] --> G
+    G --> D["下一步决策"]
+    D --> S{"是否应当停止"}
+    S -->|否| A["动作或局部目标"]
+    A --> E["环境状态变化"]
+    E --> O
+    E --> H
+    S -->|是| Z["任务完成"]
 
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/WX20250824-184006.png" width="80%" />
-<figcaption>
-VLN任务示意图
-</figcaption>
-</div>
+    style I fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
+    style O fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
+    style H fill:#fff4e6,stroke:#e67700,stroke-width:2px
+    style G fill:#e5dbff,stroke:#5f3dc4,stroke-width:2px
+    style D fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
+    style A fill:#ffe8cc,stroke:#d9480f,stroke-width:2px
+    style Z fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
+```
 
-### 2.1.1 VLN 在具身智能体中的角色
+离散环境通常输出相邻视点或 `STOP`；连续环境则可能输出前进/转向动作、二维路点、轨迹片段或底层控制量。动作接口不同会改变感知范围、控制难度和成功条件，因此不能仅凭“都使用 R2R 指令”就直接比较结果。
 
-近年来，VLN 越来越多地被视为通用 Vision–Language–Action 智能体的一项核心能力，而非孤立的导航任务。在此背景下，VLN 常作为复杂具身任务（如任务执行或协作导航）的子模块进行研究。
+## 2.2 看懂一个 VLN 基准：五个必要维度
 
-*相关任务*：TEACh 等具身任务执行基准
+| 维度 | 需要确认的问题 | 常见设定 | 对结果的影响 |
+|:---|:---|:---|:---|
+| **目标表达** | 智能体究竟要理解什么？ | 路线指令、目标类别、目标图像、场景描述、对话 | 决定是否需要逐步语言落地或开放词汇搜索 |
+| **观测配置** | 智能体能看到什么？ | 全景、单目、多目、RGB、RGB-D、里程计 | 决定可见范围与几何先验强度 |
+| **动作空间** | 智能体如何移动？ | 离散视点、低层动作、路点、速度、轨迹 | 决定是否真正考察避障与控制 |
+| **环境模型** | 环境是否具有物理约束？ | 导航图、可导航表面、刚体碰撞、机器人动力学 | 决定是否会碰撞、跌倒或卡住 |
+| **交互协议** | 指令能否被澄清或修正？ | 单轮、对话、主动问询、人类反馈 | 决定智能体能否消解歧义和请求帮助 |
 
-## 2.2 VLN的三个核心要素
-
-一个完整的VLN系统包含三个核心要素：
-
-1. **Instruction Source（指令源 / Oracle）**：指令源用于生成或提供自然语言导航指令，模拟人类用户对导航目标的描述。在部分交互式 VLN 设定中，智能体可向指令源请求额外信息或澄清指令，从而形成更接近真实人机交互的导航过程。
-
-2. **Agent（智能体/执行者）**：Agent 是 VLN 系统的核心执行主体，负责感知环境、理解语言指令并输出导航动作。智能体需要根据当前视觉观察、历史状态以及语言指令，与环境进行连续交互，完成从起点到目标位置的导航任务。
-
-3. **Environment（环境）**：Environment 定义了智能体执行导航任务的空间。由于真实环境中的数据采集与训练成本较高，现有研究通常依赖高保真模拟器进行训练与评测。例如，在 Room-to-Room（R2R）任务中，Matterport3D 数据集被广泛用作室内三维仿真环境。
-
-## 2.3 VLN 系统的基本组成
-
-随着具身智能的发展，VLN 系统正从单纯的“指令匹配”向 **VLA (Vision-Language-Action)** 全能模型演进。其架构通常由感知、大脑、行动三个核心模块组成，并呈现出明显的**分层控制（Hierarchical Control）**趋势：
-
-#### 1. 感知模块 (Perception Module) —— 从单一特征到语义-几何融合
-* **功能**：负责从环境中提取基于视觉和语言的观察信息。
-* **趋势**：从传统的视觉骨干网络（如 CNN）转向**视觉-语言对齐的 Transformer**（如 SigLIP），以获取更强的指令对齐能力；同时结合具有强空间先验的**几何表示模型**（如 DINOv2），以提高在复杂环境中的空间感知与操作精度。
-
-#### 2. 大脑模块 (Reasoning Module) —— 慢思考：高层逻辑与战略规划
-* **功能**：作为系统的“慢系统”，负责融合多模态输入，进行高级逻辑推理、常识判断与任务规划。
-* **交互逻辑**：**低频率输出**。大脑模块（通常基于预训练的 VLM）利用大规模互联网知识进行推理，不需要实时输出电机信号。它以较低的频率输出高层决策指令或环境中的**目标点像素坐标（Goal Point Coordinates）**。
-* **优势**：支持零样本（Zero-shot）泛化，能够将复杂的自然语言指令分解为可执行的中间目标。
-
-#### 3. 行动模块 (Action Module) —— 快行动：高频生成与物理控制
-* **功能**：作为系统的“快系统”，将大脑模块的决策指令转化为具体的物理动作。
-* **交互逻辑**：**高频率执行**。行动模块接收来自大脑的目标点坐标，利用**连续生成建模**（如扩散模型 Diffusion Model）以高频率（如 30Hz+）预测平滑、无碰撞的**运动轨迹（Trajectory）**。
-* **控制闭环**：基于生成的轨迹，利用 **MPC（模型预测控制）** 或底层控制器精准驱动电机（如输出扭矩、位移信号），实现平滑且多模态的动作分布建模。
-
-
-### 2.3.1 VLN 在 VLA 范式下的独特研究价值
-虽然 VLN 属于 VLA 体系，但它与传统的“基于 VLA 的机械臂控制（Manipulation）”在任务逻辑上有着本质区别：
-
-* **长时序环境建模 (Long-Horizon Exploration)**：机械臂控制通常关注近场操作，视角相对固定；而 VLN 涉及长距离、多房间甚至跨楼层的移动（如 LHPR-VLN），要求智能体在移动中动态维护环境记忆（如拓扑图或语义地图），处理因位移产生的空间迷失风险。
-* **指令流与视觉流的“时空动态对齐”**：在机械臂任务中，指令（如“抓起杯子”）与目标通常是静态对应的；而在 VLN 中，指令解析是随着位移**动态演进**的。
-* **分层异步协同需求**：这决定了 VLN 必须采用“大脑模块（慢系统）”与“行动模块（快系统）”的异步协作——大脑负责高层语义状态跟踪，并周期性地将抽象指令转化为行动模块所需的**像素级局部目标点**。
-* **常识推理与物理约束的博弈**：VLN 的独特之处在于如何利用生成式策略（如扩散模型）将大脑模块可能存在的“语义幻觉”转化为符合物理规律的连续轨迹，并由 **MPC（模型预测控制）** 处理碰撞与环境摩擦。
-
-### 2.3.2 VLN 区别于传统机器人导航
-VLN 与传统的机器人导航（Navigation Stack，如基于 SLAM 的系统）在核心驱动力上有显著不同：
-
-* **从“几何坐标”转向“语义路标” (Semantic vs. Geometric)**：
-    * **传统导航**：依赖预建的高精度几何地图（点云或占据栅格），通过全局坐标（XY 坐标）驱动。
-    * **VLN**：智能体通常置于**未见环境（Unseen Environment）**中，必须通过理解自然语言中的“语义地标”（如“走过红色的椅子后左转”）进行在线决策，而非单纯的坐标追踪。
-* **从“被动避障”转向“主动常识搜索”**：
-    * **传统导航**：主要解决“如何不撞到障碍物并到达 A 点”。
-    * **VLN**：要求智能体具备具身常识。当指令提到“去厨房拿咖啡”时，即便厨房不在视野内，系统也能利用 VLM 的常识预测厨房的方位并规划搜索路径，这超出了传统导航栈的范畴。
-* **端到端语义理解的集成**：
-    * **传统导航**：感知、规划、执行是解耦的模块。
-    * **VLN**：在 VLA 范式下，视觉感知与语言指令在“大脑模块”中深度融合，直接影响行动模块生成的轨迹分布，实现了从高层语义到低层物理动作的端到端映射。
-
-### 2.3.3 VLN、ObjectNav 与通用 VLA 的边界
-
-这三个概念经常出现在同一篇论文中，但评测目标不同：
+### 2.2.1 VLN、ObjectNav 与通用 VLA 的边界
 
 | 范式 | 主要输入 | 主要考察能力 | 典型输出 |
 |:---|:---|:---|:---|
-| **指令跟随 VLN** | 路线级自然语言指令 | 指令进度跟踪、地标对齐、路径忠实度 | 视点、动作或路点 |
+| **指令跟随 VLN** | 路线级自然语言指令 | 指令进度、地标对齐、路径忠实度 | 视点、动作或路点 |
 | **ObjectNav / ImageNav** | 目标类别或目标图像 | 开放词汇搜索、探索效率、目标定位 | 探索方向或局部目标 |
 | **通用 VLA** | 图像/视频、语言目标、机器人状态 | 多任务迁移与动作生成 | 动作 token、轨迹或控制量 |
 
-因此，ObjectNav 的零样本方法可以为 VLN 提供语义探索模块，VLA 也可以作为 VLN 的策略底座，但它们的结果不能自动视为标准 VLN 成绩。判断一项工作是否属于 VLN，至少要检查：输入是否包含语言指令、是否要求沿途理解指令、动作接口是否一致，以及是否在同一数据划分和传感器配置下评测。
+ObjectNav 可以为 VLN 提供语义探索模块，VLA 也可以成为 VLN 的策略底座，但它们的成绩不能自动并入标准 VLN 榜单。公平比较必须固定任务输入、传感器、动作接口、数据划分与额外训练数据。
 
----
+## 2.3 一个现代 VLN 系统如何工作
 
-## 2.4 VLN 的主要挑战
+早期模型常把 VLN 描述为“视觉编码器 + 语言编码器 + 动作分类器”。2026 年更实用的系统视图是：**感知提供语义与几何证据，状态层维护指令进度和空间记忆，规划层选择子目标，执行层将子目标转化为安全动作，并由真实观测持续纠偏。**
 
-### 2.4.1 语言–视觉–行动（Language–Vision–Action）的一致性与可控推理
+```mermaid
+flowchart TB
+    subgraph input["输入与观测"]
+        I["自然语言指令"]
+        V["第一视角视觉流"]
+        R["深度 里程计 机器人状态"]
+    end
 
-尽管大规模视觉-语言预训练模型在跨模态对齐方面取得了显著进展，但如何在导航过程中实现语言指令、视觉观测与动作决策之间的语义一致性，仍然是 VLN 的核心挑战之一。特别是在基于大语言模型的 VLN 系统中，如何保证高层语义推理结果能够被可靠地转化为可执行的低层导航动作，是当前研究亟需解决的问题。
+    subgraph cognition["语义与空间状态"]
+        P["视觉语言感知"]
+        M["拓扑图 BEV 记忆缓存"]
+        T["指令进度与失败状态"]
+    end
 
-### 2.4.2 开放世界场景下的泛化能力
+    subgraph decision["规划与决策"]
+        Q["子目标分解与候选生成"]
+        W["候选评估与重规划"]
+    end
 
-VLN 模型通常在有限数量的场景和指令分布上进行训练，但在实际应用中需要面对开放世界环境，包括未见过的空间布局、物体组合以及多样化的自然语言表达。如何提升模型在跨环境、跨任务和跨指令分布下的零样本或少样本泛化能力，是当前 VLN 研究的关键瓶颈之一。
+    subgraph control["动作与控制"]
+        L["局部路点或轨迹策略"]
+        C["控制器与安全约束"]
+        A["机器人动作"]
+    end
 
-### 2.4.3 分层规划中长期目标与短期决策的协同
+    I --> P
+    V --> P
+    R --> M
+    P --> M
+    P --> T
+    M --> Q
+    T --> Q
+    Q --> W
+    W --> L
+    L --> C
+    C --> A
+    A -.->|新观测| V
+    A -.->|位姿更新| R
+    C -.->|碰撞或卡住| T
 
-VLN 任务天然具有长时序和部分可观测的特性，智能体需要在理解全局导航目标的同时，根据局部观测进行实时决策。近年来引入的大语言模型在高层规划和子目标分解方面展现出强大的能力，但如何在分层架构中实现高层推理与低层控制策略之间的稳定协同，以及在规划失败时进行有效恢复，仍然是一个具有挑战性的问题。
+    style P fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
+    style M fill:#fff4e6,stroke:#e67700,stroke-width:2px
+    style T fill:#fff4e6,stroke:#e67700,stroke-width:2px
+    style Q fill:#e5dbff,stroke:#5f3dc4,stroke-width:2px
+    style W fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
+    style L fill:#ffe8cc,stroke:#d9480f,stroke-width:2px
+    style A fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
+```
 
-### 2.4.4 长时记忆与环境建模能力
+这张图不是要求所有方法都显式实现每个模块。端到端模型会把多个方框折叠进统一网络；双系统、地图方法和 Agent 方法则会把部分接口显式化。判断架构时，应看信息流和训练目标，而不是只看论文使用了哪个名称。
 
-在复杂室内或室外环境中，智能体需要整合跨时间的多次观测以形成对环境的整体理解。如何构建有效的记忆机制和世界模型，以支持长期导航、路径回溯和错误纠正，是提升 VLN 系统鲁棒性和效率的重要方向。
+## 2.4 VLN 的核心难点
 
-### 2.4.5 面向真实部署的可靠性与安全性
+| 难点 | 典型失败 | 为什么难 | 需要观察的证据 |
+|:---|:---|:---|:---|
+| **动态语言落地** | 把后半句地标提前执行，或错过转向点 | 指令进度随位移变化 | 细粒度轨迹对齐、错误指令测试 |
+| **部分可观测与长记忆** | 重复探索、忘记已访问区域、无法回退 | 单帧看不到全局结构 | 长路径表现、回溯和记忆消融 |
+| **语义推理与几何可达性** | VLM 选择语义正确但不可到达的目标 | 互联网知识不等于三维几何 | 深度/地图消融、可达性验证 |
+| **高层规划与低层控制** | 子目标正确但轨迹碰撞或振荡 | 两个时间尺度和接口误差叠加 | 控制频率、延迟、碰撞与重规划次数 |
+| **开放世界与真实部署** | 仿真成功、真机失效 | 视角、传感器、动力学和场景分布变化 | 跨场景、跨构型和真实机器人评测 |
+| **失败检测与恢复** | 到过目标附近却没有停下，偏航后持续累积错误 | 模型缺少不确定性和自我诊断 | OSR–SR 差距、恢复成功率、人工介入次数 |
 
-尽管大多数 VLN 方法仍主要在模拟环境中进行评测，但随着研究逐步向真实机器人系统过渡，导航过程中的安全性、稳定性以及对异常情况的应对能力变得尤为重要。如何在保证导航成功率的同时，避免潜在的危险行为，并提升系统决策过程的可解释性，是 VLN 走向真实应用必须面对的问题。
+## 2.5 从任务专用模型到导航基础模型
 
-## 2.5 VLN研究发展趋势
+```mermaid
+flowchart LR
+    A["2018–2019 序列建模"] --> B["2020–2021 跨模态预训练"]
+    B --> C["2021–2023 图规划与长历史"]
+    C --> D["2023–2024 VLM 与视频策略"]
+    D --> E["2025 快慢系统与规模化数据"]
+    E --> F["2026 Agent 世界模型与统一导航"]
 
-<div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/2025-vln-research-timeline.png" width="100%" />
-<figcaption>
-VLN Research Timeline (Refer from "Thinking-VLN")
-</figcaption>
-</div>
+    A1["Seq2Seq Speaker-Follower"] -.-> A
+    B1["PREVALENT VLN-BERT HAMT"] -.-> B
+    C1["DUET ETPNav ScaleVLN"] -.-> C
+    D1["NaVid StreamVLN NavGPT-2"] -.-> D
+    E1["DualVLN NavFoM OmniNav"] -.-> E
+    F1["AgentVLN Qwen-RobotNav NavWAM"] -.-> F
 
-从整体发展脉络来看，VLN 研究经历了从任务驱动模型到具身智能体的重要转变，其研究重心也随之不断演进。
+    style A fill:#f8f9fa,stroke:#868e96,stroke-width:2px
+    style B fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
+    style C fill:#fff4e6,stroke:#e67700,stroke-width:2px
+    style D fill:#e5dbff,stroke:#5f3dc4,stroke-width:2px
+    style E fill:#ffe8cc,stroke:#d9480f,stroke-width:2px
+    style F fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
+```
 
-### 2.5.1 早期阶段：任务驱动的多模态建模（2018–2019）
-
-该阶段的研究主要关注如何构建有效的视觉与语言联合表示，并探索基于循环神经网络或早期 Transformer 架构的导航模型，为 VLN 任务奠定了基础方法论。
-
-### 2.5.2 中期阶段：数据集与评测基准扩展（2020–2021）
-
-随着研究的深入，多个更大规模、更复杂的 VLN 数据集和评测基准被提出，推动模型从简单场景向更具挑战性的真实环境分布扩展，并促进了对泛化能力的系统性研究。
-
-### 2.5.3 过渡阶段：大规模预训练模型的引入（2022–2023）
-
-在这一阶段，预训练视觉-语言模型以及大语言模型被引入 VLN 任务，使模型具备更强的语义理解、推理与指令跟随能力。VLN 开始从任务特定模型向通用多模态模型能力迁移。
-
-### 2.5.4 当前阶段：面向具身智能体的统一建模（2024–至今）
-
-最新研究趋势表明，VLN 正逐步被视为通用具身智能体的重要能力之一，而非孤立的导航任务。研究重点从单一任务性能提升，转向统一感知、推理、规划与执行的多模态智能体框架，并探索其在更广泛现实场景中的应用潜力。
+这条演进线不是简单的“新模型替代旧模型”。预训练解决语义泛化，地图与记忆解决空间一致性，快慢系统解决推理和控制的时间尺度冲突，Agent 与世界模型则尝试提高主动感知、恢复和前瞻规划能力。它们正在汇合，而不是互相淘汰。
 
 ## 2.6 研究问题地图
 
-| 能力 | 当前常用方案 | 仍缺少的关键证据 |
+| 研究层 | 当前常用方案 | 仍缺少的关键证据 |
 |:---|:---|:---|
-| 语言—视觉对齐 | 视觉语言预训练、指令微调、进度描述监督 | 是否真正理解沿途约束，而不是只预测终点？ |
-| 长时序状态 | 拓扑图、语义地图、视频历史、缓存与检索记忆 | 记忆错误何时发生，如何遗忘与修正？ |
-| 高层规划 | VLM/LLM 子目标分解、CoT、候选轨迹打分 | 更长的推理是否稳定改善闭环控制？ |
-| 低层执行 | 路点策略、动作块、扩散轨迹、MPC | 不同机器人形态和控制频率下能否迁移？ |
-| 开放世界泛化 | 大规模合成数据、多任务联合训练、开放词汇感知 | 数据规模与场景/具身多样性的贡献如何拆分？ |
-| 真实部署 | Sim-to-Real、量化、边缘推理、安全控制器 | 仿真 SR / SPL 能否预测真实可靠性？ |
-| 交互与恢复 | 主动问询、技能调用、反思、经验检索 | 恢复策略是否在困难样本上持续有效？ |
+| 表征 | VLM 预训练、视频上下文、三维 token | 是否真正理解沿途约束，而不是只预测终点？ |
+| 状态 | 拓扑图、BEV、3D Gaussian、缓存与检索记忆 | 记忆错误何时发生，如何遗忘与修正？ |
+| 规划 | 子目标分解、CoT、候选轨迹打分 | 更长的推理是否稳定改善闭环控制？ |
+| 执行 | 路点策略、动作块、扩散轨迹、MPC | 不同机器人形态和控制频率下能否迁移？ |
+| 数据 | 合成轨迹、多任务联合训练、自动进度描述 | 数据量、场景多样性和标注质量谁更关键？ |
+| 部署 | 量化、缓存、边缘推理、安全控制器 | 仿真 SR / SPL 能否预测真实可靠性？ |
 
-## 2.7 2026 年研究状态：五个已经发生的变化
+## 2.7 2026 年的五个明显变化
 
-结合配套论文页中 2025–2026 年工作的集中变化，可以把当前阶段概括为五点：
+```mermaid
+flowchart TB
+    C["2026 VLN 系统"]
+    A["统一动作接口"] --> C
+    B["快慢分层控制"] --> C
+    M["结构化空间记忆"] --> C
+    G["Agent 主动感知与恢复"] --> C
+    W["世界预测与动作联合建模"] --> C
+    C --> R["目标: 可扩展 可解释 可实时 可部署"]
 
-1. **动作接口正在统一**：单模型开始覆盖指令跟随、目标搜索、跟踪和探索等多种模式，并通过任务模式、视觉历史长度或相机权重在推理时切换行为。
-2. **快慢双系统成为工程折中**：低频 VLM 负责理解与子目标决策，高频策略负责路点预测、避障与闭环控制。它不是固定的“两模型模板”，而是一类按时间尺度分工的系统设计。
-3. **空间记忆重新成为核心**：VLM 的语义常识不能替代几何一致性。拓扑图、BEV、3D Gaussian、显式/隐式记忆正在与基础模型重新结合。
-4. **Agent 化强调可恢复性**：技能调用、主动感知、经验检索和自我纠错开始进入导航闭环，评价重点也从“平均成功率”转向长轨迹中的错误发现与恢复。
-5. **世界模型从预测器走向策略**：研究正在把未来观测、目标进度和动作联合建模，使“想象未来”直接服务于闭环控制，而不是只生成视觉效果。
+    style C fill:#1971c2,stroke:#1971c2,stroke-width:3px,color:#ffffff
+    style A fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
+    style B fill:#e5dbff,stroke:#5f3dc4,stroke-width:2px
+    style M fill:#fff4e6,stroke:#e67700,stroke-width:2px
+    style G fill:#ffe8cc,stroke:#d9480f,stroke-width:2px
+    style W fill:#f3d9fa,stroke:#862e9c,stroke-width:2px
+    style R fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
+```
 
-这些变化共同指向一个更务实的目标：不是让单个大模型包办所有模块，而是在可扩展预训练、结构化空间约束、实时控制和安全恢复之间找到稳定接口。
+当前最值得关注的不是“某一种架构统治 VLN”，而是统一预训练、结构化状态、分层控制和失败恢复之间能否形成稳定、可复现的接口。
 
 # 3. 主流 VLN 研究路线
 
-VLN 方法很难再用“端到端或模块化”二分法解释。更有用的分析方式是同时观察三个维度：策略是否统一训练、空间状态是否显式维护、决策与控制是否按时间尺度分层。基于这三个维度，当前工作可归纳为五条互相组合的路线，而不是五个互斥类别。
+VLN 方法不应再被简单分成“端到端”和“模块化”。更有解释力的三个观察轴是：**策略是否统一训练、空间状态是否显式维护、决策与控制是否按时间尺度分层**。据此，2025–2026 年的工作可以归纳为五条可组合路线。
 
-| 路线 | 核心问题 | 典型优势 | 主要风险 | 2025–2026 代表工作 |
+```mermaid
+flowchart TB
+    D["规模化导航数据与视觉语言基模"]
+    I["指令 视觉 历史 机器人状态"]
+
+    subgraph routes["五条可组合路线"]
+        E["单系统端到端"]
+        F["快慢双系统"]
+        M["地图与空间记忆"]
+        A["Agent 与自我纠错"]
+        W["世界模型与想象规划"]
+    end
+
+    D --> E
+    D --> F
+    D --> A
+    D --> W
+    I --> E
+    I --> F
+    I --> M
+    I --> A
+    I --> W
+    M -.-> E
+    M -.-> F
+    M -.-> A
+    W -.-> F
+    A -.-> F
+
+    E --> X["动作接口"]
+    F --> X
+    M --> X
+    A --> X
+    W --> X
+    X --> C["局部控制与安全约束"]
+    C --> R["真实或仿真环境"]
+    R -.->|观测反馈| I
+
+    style D fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
+    style E fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
+    style F fill:#e5dbff,stroke:#5f3dc4,stroke-width:2px
+    style M fill:#fff4e6,stroke:#e67700,stroke-width:2px
+    style A fill:#ffe8cc,stroke:#d9480f,stroke-width:2px
+    style W fill:#f3d9fa,stroke:#862e9c,stroke-width:2px
+    style X fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
+    style R fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
+```
+
+## 3.1 方法演进：真正变化的是状态、接口与训练数据
+
+| 阶段 | 模型内部状态 | 典型动作接口 | 训练信号 | 代表方法 |
 |:---|:---|:---|:---|:---|
-| **单系统端到端** | 能否直接把视觉、语言和历史映射为动作？ | 训练接口统一、易扩展数据、部署链路短 | 长上下文成本、黑盒决策 | [StreamVLN](/VLN-Papers/#streamvln)、[Qwen-RobotNav](/VLN-Papers/#qwen-robotnav)、[LocalNav](/VLN-Papers/#localnav) |
-| **快慢双系统** | 如何兼顾高层推理与高频控制？ | 语义规划和运动执行各司其职 | 接口误差、异步协调复杂 | [DualVLN](/VLN-Papers/#dualvln)、[OmniNav](/VLN-Papers/#omninav)、[SEDualVLN](/VLN-Papers/#sedualvln)、[Robostral Navigate](/VLN-Papers/#robostral-navigate) |
-| **空间地图与记忆** | 如何在部分可观测环境中保持空间一致性？ | 可回溯、适合长程规划、可解释 | 地图漂移、动态场景更新困难 | [MapNav](/VLN-Papers/#mapnav)、[3DGSNav](/VLN-Papers/#3dgsnav)、[GSMem](/VLN-Papers/#gsmem)、[HSGM](/VLN-Papers/#hsgm) |
-| **Agent 与自我纠错** | 如何主动调用技能、发现并恢复错误？ | 模块可插拔、失败恢复能力强 | 推理延迟、技能与记忆管理复杂 | [AgentVLN](/VLN-Papers/#agentvln)、[Skill-Nav](/VLN-Papers/#skill-nav)、[SysNav](/VLN-Papers/#sysnav)、[EvoMemNav](/VLN-Papers/#evomemnav) |
-| **世界模型与想象规划** | 能否在行动前预测未来并评估候选轨迹？ | 前瞻规划、可减少盲目试错 | 生成误差、计算成本、闭环偏差 | [VLN-Imagine](/VLN-Papers/#vln-imagine)、[WorldVLN](/VLN-Papers/#worldvln)、[AstraNav-World](/VLN-Papers/#astranav-world)、[NavWAM](/VLN-Papers/#navwam) |
+| **序列策略** | RNN 隐状态 | 离散视点 / 动作 | 行为克隆、强化学习 | Seq2Seq、Speaker-Follower |
+| **预训练 Transformer** | 跨模态 token 与历史特征 | 离散候选点 | 掩码建模、指令—轨迹对齐 | PREVALENT、VLN-BERT、HAMT |
+| **图规划与显式记忆** | 拓扑图、语义图、局部地图 | 全局节点 + 局部动作 | 图监督、路径与进度目标 | DUET、ETPNav、MapNav |
+| **视频 VLM / VLA** | 视频上下文、KV cache、动作 token | 离散动作、路点或动作块 | 视觉语言数据 + 导航轨迹 | NaVid、StreamVLN、NavFoM |
+| **导航基础模型** | 多任务上下文、可配置观测、统一空间表征 | 多任务模式与参数化接口 | 大规模联合训练、指令微调 | OmniNav、OneVLA、Qwen-RobotNav |
+| **Agent / 世界动作模型** | 经验记忆、技能状态、预测未来 | 技能、子任务、未来观测与动作联合序列 | 反思数据、在线 RL、世界预测 | AgentVLN、EvoMemNav、NavWAM |
 
-表中的方法常跨越多条路线。例如 OmniNav 既是统一多任务策略，也是快慢系统；AstraNav-World 同时联合视觉预测和动作生成；AgentVLN 则在 VLM 中控之外保留感知与规划技能。阅读论文时，应重点看信息流和动作接口，而不是只看作者给出的范式名称。
+现代模型的提升往往同时来自更大的基模、更多轨迹、额外深度或地图先验以及新的系统接口。阅读论文时，应把“架构创新”和“资源增加”分开归因。
 
-## 3.1 单系统端到端 VLN 架构
-——Single-System End-to-End VLN
+## 3.2 单系统端到端：把导航变成连续的多模态生成
 
-- **演进脉络**：Seq2Seq / CMA → 预训练 Transformer → 视频 VLM / 流式 VLA → 可配置多任务导航基模
-- **代表工作**：VLN-BERT、CMA、NaVid、StreamVLN、Qwen-RobotNav、LocalNav
-
-### 3.1.1 核心思想
-
-该类方法采用 **统一的端到端模型**，直接从多模态输入（视觉观测 + 语言指令 + 历史动作）生成下一步动作，无需显式的系统分层或模块划分。
-
-以 StreamVLN 为代表的最新方法将 VLN 建模为 **多轮对话式的交错生成任务**：$$o_1 \to a_1 \to o_2 \to a_2 \to ... \to o_T \to a_T$$，通过滑动窗口 KV cache 和体素化空间剪枝实现高效的流式导航。
-
----
+单系统方法把指令、视觉历史和动作历史放入统一模型，直接预测下一步动作、路点或动作块。它的优势是训练目标统一、数据扩展直接；瓶颈则是长上下文成本、空间漂移和失败难以解释。
 
 <div align="center">
   <img src="/images/vln/StreamVLN-framework-overview.png" width="100%" />
-  <figcaption>StreamVLN 单系统架构示意：统一模型直接生成观测-动作交错序列</figcaption>
+<figcaption>StreamVLN：以交错视觉—动作序列实现流式端到端导航</figcaption>
 </div>
 
----
-### 3.1.2 典型 Pipeline
+| 关键设计 | 解决的问题 | 代表工作 |
+|:---|:---|:---|
+| 观测—动作交错生成 | 避免把整段视频压缩成一次静态判断 | [StreamVLN](/VLN-Papers/#streamvln)、[SparseVideoNav](/VLN-Papers/#sparsevideonav) |
+| 多任务共享策略 | 让指令跟随、目标搜索和探索共享空间能力 | [NavFoM](/VLN-Papers/#navfom)、[OneVLA](/VLN-Papers/#onevla-a-unified-framework-for-embodied-tasks) |
+| 可配置观测接口 | 推理时调整历史长度、相机权重和任务模式 | [Qwen-RobotNav](/VLN-Papers/#qwen-robotnav) |
+| 量化与边缘部署 | 降低大模型闭环推理延迟 | [LocalNav](/VLN-Papers/#localnav) |
 
-```
-[Instruction, o_1, a_1, ..., o_{t-1}, a_{t-1}, o_t] → Unified VLM
-↓
-Autoregressive Generation
-↓
-Action Token a_t
+**适用场景**：数据规模充足、接口相对统一、强调端到端训练和部署简洁性。若任务涉及长程回溯、动态重规划或严格安全约束，通常仍需要外部记忆或控制模块。
 
-```
+## 3.3 快慢双系统：高层语义推理与高频执行解耦
 
----
-
-### 3.1.3 优势
-
-- ✅ 端到端优化，无模块间信息损耗
-- ✅ 推理链路较短，配合缓存、稀疏历史或量化后适合实时部署
-- ✅ 训练简洁，无需多阶段训练或手工设计模块
-- ✅ 通过 KV cache 复用高效处理长对话历史
-
----
-
-### 3.1.4 关键缺陷
-
-- ❌ 决策过程黑盒，可解释性较弱
-- ❌ 需要大规模多源数据联合训练（VLA + VQA + 通用视觉数据）
-- ❌ grounding 稳定性依赖数据质量与模型规模
-- ❌ 复杂多步推理、错误归因与可控恢复通常弱于显式分层系统
-
----
-
-### 3.1.5 架构对比：双系统 vs 单系统
-
-| 维度 | 双系统（DualVLN） | 单系统（StreamVLN） |
-|:---:|:---|:---|
-| **架构设计** | System-2（VLM/LLM）+ System-1（VN System）分离 | 统一端到端 VLA |
-| **推理方式** | VLM规划（2Hz）→ VN高频执行（30Hz） | 观测-动作交错自回归生成 |
-| **训练方式** | 分阶段训练（System-2微调 + System-1监督） | 端到端联合训练 |
-| **推理延迟** | System-2: 0.7s, System-1: 0.03s | 单次推理: 0.27s |
-| **控制频率** | 高频（30 Hz）流畅轨迹 | 低频（约4 Hz）离散动作 |
-| **可解释性** | 强（显式像素目标 + 推理链） | 弱（黑盒） |
-| **复杂推理** | 强（VLM/LLM显式推理） | 弱（隐式编码） |
-| **部署复杂度** | 高（两个模型 + 异步协调） | 低（单模型 + KV cache） |
-
-
-
----
-
-## 3.2 VLN双系统架构
-——Dual-System VLN
-
-- **演进脉络**：语义规划器 + 局部策略 → 异步快慢系统 → 可动态切换模式与上下文的分层控制
-- **代表工作**：DualVLN、Hydra-Nav、R³、OmniNav、SEDualVLN、Robostral Navigate
-
-### 3.2.1 核心思想
-
-该类方法受认知科学"双过程理论"（快思考/慢思考）启发，采用 **双系统分层架构**：
-
-- **System-2（慢思考，"大脑"）**：基于 VLM/LLM 的高层推理与规划模块
-  - 负责：语言理解、指令分解、全局规划、子目标生成
-  - 频率：通常低于局部控制频率，按事件或固定周期触发
-  - 代表：Qwen-VL, GPT-4V, InternVL
-
-- **System-1（快行动，"小脑"）**：基于 VN System（Vision-Navigation）的快速轨迹执行模块
-  - 负责：高频轨迹生成、局部避障、快速导航决策
-  - 频率：按机器人控制需求高频闭环执行
-  - 代表：DD-PPO, iPlanner, ViPlanner, GNM, ViNT, NoMad, NavDP, InternVLA-N1（DiT策略）
-
-两个系统通过像素目标、局部路点、子任务、潜在特征或动作约束协作。真正影响效果的不是“是否有两个模型”，而是高层输出能否稳定落地为可达目标，以及低层失败能否及时反馈给高层重新规划。
-
----
+快慢系统按时间尺度分工：慢系统低频理解指令、检查进度并产生子目标；快系统持续把子目标转化为路点或轨迹。它并不等价于“使用两个模型”，关键在于两层之间是否具有稳定、可校验的接口。
 
 <div align="center">
   <img src="/images/vln/dualvln-framework-overview.png" width="100%" />
-  <figcaption>DualVLN 双系统架构示意：System-2（VLM）负责慢推理规划，System-1（VN）负责快轨迹执行</figcaption>
+<figcaption>DualVLN：慢系统产生语义目标，快系统生成实时轨迹</figcaption>
 </div>
-
----
-### 3.2.2 典型 Pipeline
-
-```
-Instruction + Observation → System-2 (VLM/LLM) → Pixel Goal / Subgoal
-                                ↓
-                         Latent Features
-                                ↓
-Current RGB Observation → System-1 (VN System / DiT) → High-Freq Trajectory
-                                ↓
-                         Low-Level Controller (MPC)
-                                ↓
-                            Action Execution
-
-```
-
----
-
-### 3.2.3 优势
-
-- ✅ 强语言理解与常识推理能力（System-2）
-- ✅ 高频流畅导航，低延迟实时响应（System-1）
-- ✅ 优秀的 zero-shot 泛化性能
-- ✅ 支持复杂指令分解与多步规划
-- ✅ 异步推理流水线，充分利用 KV-cache
-
----
-
-### 3.2.4 关键缺陷
-
-- ❌ 系统架构复杂，需要两个独立模型
-- ❌ 系统间信息传递需要精心设计（如像素目标、潜在特征）
-- ❌ System-2 易产生 hallucination 行为
-- ❌ 需要大规模轨迹数据训练 System-1
-
----
-
-
-## 3.3 语义地图与拓扑规划框架
-——Semantic Map & Graph-based Planning
-
-- **演进脉络**：拓扑图 / 语义地图 → 可学习的图记忆 → BEV / 3D Gaussian / 分层场景图
-- **代表工作**：DUET、ETPNav、MapNav、3DGSNav、GSMem、HSGM、GA-VLN
-
-### 3.3.1 核心思想  
-
-该类方法引入显式环境建模机制，在导航过程中构建 **拓扑图或语义地图**，将空间连通关系与语义信息存储在外部记忆中。智能体基于该地图进行全局路径规划与局部执行。
-
-以 LagMemo 为代表的方法进一步将语言中涉及的目标（如 sofa, kitchen）投影到所构建的语义地图上，实现 **language-grounded SLAM-style navigation**。
-
----
-
-<div align="center">
-  <img src="/images/vln/lagmemo-language-injection.png" width="100%" />
-  <figcaption>Semantic Map + Planning VLN 架构示意（LagMemo范式）</figcaption>
-</div>
-
----
-### 3.3.2 典型 Pipeline  
-
-```
-
-RGB / Depth → Mapping Module → Topological / Semantic Map
-↑
-Instruction → Language Parser → Goal / Constraint Projection
-↓
-Global Planner → Local Policy → Action
-
-```
-
----
-
-### 3.3.3 优势  
-
-- 支持长距离规划与路径回溯。  
-- 显式空间结构提升可解释性。  
-- 有效缓解 partial observability。  
-
----
-
-### 3.3.4 关键缺陷  
-
-- ❌ 地图构建误差会累积传播。  
-- ❌ 对动态环境与遮挡鲁棒性有限。  
-- ❌ 语义投影通常依赖检测器或规则。  
-- ❌ 缺乏高层语言推理能力。
-
----
-
-> **扩展阅读**：语义地图的构建原理（点云融合、占用栅格、拓扑图等）详见 [Spatial Intelligence Survey —— 空间感知与地图构建](https://tingdeliu.github.io/Spatial-Intelligence-Survey/)。
-
----
-
-
-## 3.4 生成式世界模型框架
-——Generative World Models for VLN
-
-- **起始时间**：2024–2025
-- **代表工作**：
-  - [Dynam3D](https://openreview.net/forum?id=s6k9l5yX8e) (NeurIPS'25 Oral)
-  - [Navigation World Models (NWM)](https://www.amirbar.net/nwm/) (CVPR'25, Best Paper Honorable Mention, Meta AI)
-  - [WMNav](https://b0b8k1ng.github.io/WMNav/) (IROS'25 Oral)
-  - [AstraNav-World](https://arxiv.org/abs/2512.21714) (2025)
-  - [NavForesee](https://arxiv.org/abs/2512.01550) (2025)
-  - [NavWAM](https://arxiv.org/abs/2606.13494) (2026)
-
-> 📖 **延伸阅读**：本节聚焦世界模型在 **VLN 任务**中的应用。关于世界模型本体的系统性综述——四大技术范式（世界规划器 / 动作模型 / 合成器 / 模拟器）、基础模型生态、评测基准与未来方向——详见 [《世界模型综述：迈向通用 VLA 智能体》]({% post_url /research/2026-04-16-World-Models-Survey %})。
-
-### 3.4.1 核心思想
-
-该类方法引入 **Predictive World Modeling**，使智能体能够：
-1. **预测未来**：在执行动作前，在"想象空间"中模拟可能的未来观测
-2. **前瞻性规划**：通过评估多条候选轨迹的未来结果，选择最优路径
-3. **减少试错**：显著降低真实环境中的碰撞和探索成本
-
-VLN 从 **reactive execution** 转向 **deliberative planning with imagination**，更接近人类"先想象后行动"的认知方式。
-
----
-
-<div align="center">
-  <img src="/images/vln/world_model_architecture.png" width="100%" />
-  <figcaption>Generative World Model 发展历史</figcaption>
-</div>
-
----
-
-### 3.4.2 典型 Pipeline
 
 ```mermaid
-flowchart TD
-    A["Current Observation\n+ Action Candidate"] --> B["World Model\n(Diffusion / Autoregressive)"]
-    B --> C["Future Visual Rollouts\n想象未来观测帧"]
-    C --> D["Trajectory Evaluation\n评估多候选轨迹"]
-    D --> E["Optimal Action Selection\n选择最优动作"]
+flowchart LR
+    I["指令与长历史"] --> S2["慢系统 语义规划"]
+    S2 --> G["像素目标 路点 子任务"]
+    O["当前视觉与机器人状态"] --> S1["快系统 局部策略"]
+    G --> S1
+    S1 --> T["高频轨迹"]
+    T --> C["控制器与安全约束"]
+    C --> R["机器人执行"]
+    R -.->|目标不可达或偏航| S2
+    R -.->|新观测| O
 
-    style A fill:#4a90d9,color:#fff,stroke:#2c6fad
-    style B fill:#7b5ea7,color:#fff,stroke:#5a3e8a
-    style C fill:#5aa67a,color:#fff,stroke:#3a7a5a
-    style D fill:#d98c4a,color:#fff,stroke:#b06820
-    style E fill:#d94a4a,color:#fff,stroke:#a82020
+    style S2 fill:#e5dbff,stroke:#5f3dc4,stroke-width:2px
+    style G fill:#fff4e6,stroke:#e67700,stroke-width:2px
+    style S1 fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
+    style C fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
+    style R fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
 ```
 
----
-
-### 3.4.3 主流技术路线
-
-#### 3D 空间建模方向
-
-> 在三维空间中显式建模环境，侧重空间记忆与动态适应。
-
-#### 1. **3D动态表示 + 世界模型**（Dynam3D）
-
-- **核心创新**：多层级 patch-instance-zone 3D 表示，动态在线更新
-- **技术特点**：
-  - 将 2D CLIP 特征投影到 3D 空间
-  - 在线编码和定位 3D 实例
-  - 动态适应环境变化，提供长期记忆
-- **性能**：SOTA on R2R-CE, REVERIE-CE, NavRAG-CE
-- **优势**：大规模探索 + 长期记忆 + 动态环境适应
-
-#### 2D 视频生成方向
-
-> 通过生成未来视觉帧进行前瞻性规划，侧重想象力与泛化能力。
-
-#### 2. **可控视频生成模型**（Navigation World Models, Meta AI）
-
-- **核心创新**：1B 参数 Conditional Diffusion Transformer (CDiT)
-- **技术特点**：
-  - 基于过去观测和导航动作预测未来视觉观测
-  - 在熟悉环境中模拟轨迹并评估是否达到目标
-  - 从单张图像想象未知环境的轨迹
-- **训练数据**：多样化的自我中心视频（人类 + 机器人）
-- **优势**：灵活的约束规划 + 单图像泛化能力
-- **荣誉**：CVPR 2025 Best Paper Honorable Mention
-
-#### 3. **多模态世界知识预测**（DreamVLA）
-
-> 代表操作侧的世界模型范式，其扩散 Transformer + 多模态推理链的设计对 VLN 具有直接迁移价值。
-
-- **核心创新**：动态区域引导的世界知识预测机制
-- **预测内容**：视觉 + 深度 + 几何 + 语义 + 分割
-- **技术特点**：
-  - 扩散 Transformer 建模动作条件分布
-  - 先形成抽象多模态推理链，再执行动作
-- **性能**：76.7% 真实机器人任务成功率
-- **应用**：操作任务，范式可迁移到 VLN
-
-#### VLM 推理 + 世界模型方向
-
-> 将语言推理能力与世界模型预测结合，侧重语义理解与零样本泛化。
-
-#### 4. **VLM + 世界模型融合**（WMNav）
-
-- **核心创新**：将 Vision-Language Models 集成到世界模型中
-- **关键组件**：
-  - PredictVLM：预测决策的可能结果
-  - Curiosity Value Map：构建记忆并提供反馈
-  - 导航策略模块：动态决策
-- **性能**：
-  - HM3D: +3.2% SR, +3.2% SPL（zero-shot SOTA）
-  - MP3D: +13.5% SR（所有方法中最优）
-- **优势**：模块化设计 + zero-shot 泛化
-
-#### 5. **具身推理世界模型**（InternVLA-A1，Shanghai AI Lab）
-
-- **核心创新**：将世界模型预测与 VLA 统一框架融合，在动作前生成链式空间推理
-- **技术特点**：
-  - 推理阶段先输出"思维链"式空间分析，再生成动作
-  - 世界模型辅助数据合成，缓解真实导航标注稀缺问题
-  - 支持导航、操作等多种具身任务，VLN 与 VLA 统一建模
-- **意义**：VLN 领域向通用具身智能体演进的重要里程碑，语言推理与世界模型预测深度融合的代表
-
-#### 6. **视觉预测与动作联合建模**（AstraNav-World / NavWAM）
-
-- **AstraNav-World**：在统一概率框架中同步更新未来视觉状态与动作序列，避免“先想象、再规划”两阶段管线中的语义和动力学脱节。
-- **NavWAM**：把未来观测、目标进度值和动作块放入共享潜在序列，使世界模型预测直接产生闭环控制，而不再依赖外部搜索器。
-- **关键变化**：世界模型的价值正在从“生成看起来合理的未来帧”转向“生成对动作选择有用、且能被真实观测校正的未来状态”。
-
----
-
-### 3.4.4 优势
-
-- ✅ 支持前瞻性规划，在行动前"想象"结果
-- ✅ 显著降低真实试错成本和碰撞率
-- ✅ 更接近人类认知导航方式（先思考再行动）
-- ✅ 可以评估多条候选轨迹，选择最优路径
-- ✅ 单图像即可想象未知环境的导航轨迹（NWM）
-
----
-
-### 3.4.5 关键缺陷
-
-- ❌ 想象误差会累积，长期预测不稳定
-- ❌ 训练成本极高（需要大规模视频数据 + 大模型）
-- ❌ 推理延迟较高（视频生成模型较慢）
-- ❌ 与语言约束的融合仍需改进（语义漂移问题）
-- ❌ sim2real gap：模拟的未来可能与真实不符
-
----
-
-### 3.4.6 基础设施与数据引擎
-
-上述方法的共同瓶颈是**大规模高质量训练数据的稀缺**。以 **NVIDIA Cosmos**（2025）为代表的物理 AI 世界基础模型，正在成为底层基础设施：其 Predict 模块可作为**合成数据引擎**生成多样化导航轨迹，Transfer 模块可降低 sim2real gap，Reason 模块可作为 VLN 策略评估与数据筛选的推理底座，为 NWM、WMNav 等上层方法提供预训练基础。
-
-> Cosmos 的完整架构（Tokenizer、Diffusion/Autoregressive WFM、三大功能模块对比）详见 [《世界模型综述》§4.3]({% post_url /research/2026-04-16-World-Models-Survey %})。
-
----
-
-
-
----
-
-## 3.5 Agent 导航框架
-——Agentic VLM Navigation
-
-- **起始时间**：2025–2026
-- **代表工作**：
-  - [AgentVLN](https://arxiv.org/abs/2603.17670)：VLM-as-Brain、插件式技能库与主动感知
-  - [Skill-Nav](/VLN-Papers/#skill-nav)：以可组合导航技能承载高层意图
-  - [VLN-Cache](/VLN-Papers/#vln-cache)：面向长历史的缓存与记忆管理
-  - [SysNav](/VLN-Papers/#sysnav)：系统化组织感知、推理与执行
-  - [EvoMemNav](/VLN-Papers/#evomemnav)：可演化记忆与经验复用
-- **延伸阅读**：[AI Agent Survey](https://tingdeliu.github.io/AI-Agent-Survey/)
-
-### 3.5.1 核心思想
-
-该框架将 **VLM 作为导航大脑 (VLM-as-Brain)**，彻底解耦高层认知推理与低层技能执行：
-
-1. **模块化技能库**：感知技能（深度估计、目标定位）与规划技能（全局路径、避障）以插件化形式挂载，VLM 按需调度
-2. **Agent 决策循环**：VLM 基于当前多模态观测和历史记忆，通过链式推理输出高层决策，再映射到具体技能调用
-3. **主动纠错**：遇到遮挡、盲点或轨迹偏离时，系统自主生成探索动作以恢复，抑制长轨迹中的误差累积
-4. **跨空间表示对齐**：将 3D 拓扑路点投影到 2D 图像平面，生成像素对齐的视觉提示，消除 VLM 固有的 2D-3D 表示鸿沟
-
-**与传统方法的关键区别**：VLM 不再是特征提取器或打分函数，而是具有自主决策能力的中控大脑，整个系统的行为随 VLM 能力提升而自动受益。
-
----
-
-### 3.5.2 典型 Pipeline
-
-```
-Language Instruction + Egocentric Observation
-        ↓
-  VLM (Central Brain) ←→ Structured Memory
-        ↓ CoT Reasoning
-  Skill Scheduling (Perception / Planning Skills)
-        ↓
-  Cross-Space Representation Mapping
-        ↓
-  Navigation Action / Self-Correction
-```
-
----
-
-### 3.5.3 代表方法详解
-
-#### 1. **VLM-as-Brain 导航**（AgentVLN）
-
-- **核心范式**：将 VLN 建模为 POSMDP，VLM 作为中央控制器
-- **技术特点**：
-  - 跨空间表示映射：3D 路点 → 像素对齐视觉提示，消除 2D-3D 表示鸿沟
-  - QD-PCoT（Query-Driven Perceptual Chain-of-Thought）：主动查询几何深度信息消解空间歧义
-  - 上下文感知自纠错：遇遮挡/轨迹偏离时自主生成细粒度探索动作
-  - AgentVLN-Instruct：动态阶段路由的大规模指令微调数据集
-  - 3B 参数，支持 Jetson 边缘设备实时推理
-- **性能**：在 RxR-CE Val-Unseen 以更小参数规模超越所有 SOTA
-
-#### 2. **记忆增强与技能编排**（Skill-Nav / SysNav / EvoMemNav）
-
-- **核心范式**：把复杂导航拆分为可组合技能，并在长期记忆中保存成功经验、失败原因和可复用的局部策略。
-- **技术特点**：
-  - 将“感知什么、何时规划、调用哪个技能”显式化，便于替换单个模块。
-  - 使用情景记忆或经验检索处理相似场景，降低重复探索。
-  - 监测指令进度、目标可见性与执行异常，在必要时触发重新定位或回退。
-- **局限**：记忆检索错误会放大历史偏差；技能接口过多也会增加调度与评测复杂度。
-
----
-
-### 3.5.4 优势
-
-- ✅ VLM 能力提升直接惠及导航性能，无需重新训练
-- ✅ 模块化设计：增加新技能无需修改核心 VLM
-- ✅ 支持边缘设备轻量部署，消除云端依赖
-- ✅ 主动纠错机制大幅提升长轨迹鲁棒性
-- ✅ 将 VLN 从"任务特定模型"扩展为"通用具身 Agent"
-
----
-
-### 3.5.5 关键挑战
-
-- ❌ VLM 推理引入额外延迟，实时控制频率受限
-- ❌ 技能库设计依赖领域专家，扩展至新环境仍需适配
-- ❌ 长上下文推理中的幻觉问题可能导致错误动作链
-- ❌ 结构化记忆与历史轨迹的有效检索机制仍待优化
-
----
-
-### 3.5.6 总结
-
-Agent 化并不是把导航包装成一串工具调用，而是把过去隐含在策略网络中的状态管理、技能选择和失败恢复变成可观察、可替换的系统组件。它适合长时序与开放任务，但仍需要低层控制器提供稳定的实时闭环。
-
----
-
-### 3.5.7 2024–2026 技术趋势
-
-| 技术趋势 | 实质变化 | 代表工作 | 仍需回答的问题 |
+| 系统接口 | 优点 | 主要风险 | 代表工作 |
 |:---|:---|:---|:---|
-| **可扩展导航基模** | 从单一 R2R 策略扩展为可切换任务、传感器与上下文配置的共享模型 | Qwen-RobotNav、OmniNav、OneVLA | 多任务增益是否来自真正共享的空间能力？ |
-| **快慢分层控制** | 高层推理按事件触发，低层策略持续闭环执行 | DualVLN、R³、SEDualVLN、Robostral Navigate | 系统切换和接口误差如何度量？ |
-| **结构化空间记忆** | 将 VLM 语义与拓扑图、BEV、3D Gaussian 或分层场景图结合 | MapNav、3DGSNav、GSMem、HSGM | 地图错误如何被检测、遗忘与修正？ |
-| **Agentic Navigation** | 主动感知、技能调用、经验检索和自我纠错进入策略闭环 | AgentVLN、Skill-Nav、SysNav、EvoMemNav | 反思是否带来稳定收益，而非更长的推理链？ |
-| **世界动作模型** | 未来观测、价值与动作从串联模块走向联合生成 | AstraNav-World、NavForesee、NavWAM | 想象质量如何与真实控制收益建立因果联系？ |
-| **数据规模化** | 合成轨迹、进度描述、通用视觉语言数据与导航数据联合训练 | ScaleVLN、InternData、Dual-Anchoring | 数据量、具身多样性和标注质量谁更关键？ |
-| **真实部署与高效推理** | 单目/多目配置、边缘量化、缓存复用和机器人跨构型迁移成为主指标 | AgentVLN、LocalNav、Qwen-RobotNav | 仿真成绩能否预测真实环境可靠性？ |
+| 像素目标 | 直观、便于视觉落地 | 深度歧义与可达性不确定 | [DualVLN](/VLN-Papers/#dualvln)、[Goal2Pixel](/VLN-Papers/#goal2pixel) |
+| 前沿或拓扑路点 | 适合全局探索与回溯 | 依赖地图质量 | [OmniNav](/VLN-Papers/#omninav)、[SEDualVLN](/VLN-Papers/#sedualvln) |
+| 共享潜在特征 | 信息密度高、可联合优化 | 可解释性和跨模型兼容性弱 | [Hydra-Nav](/VLN-Papers/#hydra-nav) |
+| 指向或候选验证 | 可以结合在线强化学习 | 训练与推理系统更复杂 | [Robostral Navigate](/VLN-Papers/#robostral-navigate) |
 
----
+## 3.4 地图与空间记忆：让历史变成可查询的环境状态
 
-### 3.5.8 如何判断一项“新范式”是否真的有效
+VLM 能识别“厨房”和“沙发”，却不天然知道它们在三维空间中的稳定位置。地图与记忆路线把历史观测组织成拓扑图、BEV、3D Gaussian、分层场景图或混合检索库，为长程规划、回溯和错误诊断提供外部状态。
 
-面对更新很快的预印本，建议检查以下四类证据：
+<div align="center">
+  <img src="/images/vln/HSGM-framework-overview.png" width="100%" />
+<figcaption>HSGM：分层场景图同时维护局部观测、对象关系与全局路径状态</figcaption>
+</div>
 
-1. **同设定提升**：是否在相同传感器、动作空间、数据划分和额外训练数据下比较？
-2. **能力归因**：收益来自架构本身，还是更大的基模、更多训练轨迹或更强的深度/地图先验？
-3. **闭环价值**：推理链、世界模型或记忆模块是否真正改善闭环 SR / SPL / 碰撞率，而不只是离线预测指标？
-4. **部署代价**：是否报告延迟、显存、控制频率、传感器要求和真实机器人测试？
+| 表示 | 擅长解决 | 典型局限 | 代表工作 |
+|:---|:---|:---|:---|
+| 拓扑图 | 长距离连通关系与回溯 | 节点语义粗、依赖路点质量 | DUET、ETPNav、[TopoGraph-VLN](/VLN-Papers/#topograph-vln) |
+| BEV / 语义地图 | 几何可达性与局部规划 | 位姿误差会持续累积 | [MapNav](/VLN-Papers/#mapnav)、[GA-VLN](/VLN-Papers/#ga-vln) |
+| 3D Gaussian 记忆 | 可渲染的连续三维语义 | 建图成本与动态更新复杂 | [3DGSNav](/VLN-Papers/#3dgsnav)、[GSMem](/VLN-Papers/#gsmem) |
+| 分层场景图 | 房间—对象—路径的多尺度推理 | 图构建和关系更新依赖感知质量 | [HSGM](/VLN-Papers/#hsgm) |
+| 检索式经验记忆 | 复用历史成功与失败经验 | 错误检索可能放大偏差 | [VLN-Cache](/VLN-Papers/#vln-cache)、[EvoMemNav](/VLN-Papers/#evomemnav) |
 
-截至 2026 年，最值得关注的不是某一架构标签“统领”VLN，而是统一模型、结构化状态和分层控制如何形成可复现的系统增益。
+地图不是天然正确的“真值”。优秀系统必须同时回答如何写入、何时更新、如何处理冲突，以及何时遗忘过时信息。
 
----
+## 3.5 通用导航 Agent：上层规划器如何编排一个共享导航基模
+
+Agentic Navigation 不只是“让 VLM 调用几个技能”。参考 [Qwen-RobotNav](https://arxiv.org/abs/2606.18112) 的系统设计，更完整的通用导航 Agent 包含两个不同时间尺度：**上层 Agent 维护全局任务并决定当前应该执行哪种导航行为；下层导航基模消费视觉历史并持续输出局部轨迹。** 二者之间通过任务模式、观测参数和压缩后的轨迹证据通信。
+
+> **关键边界**：Qwen-RobotNav 本身是可重配置的通用导航基模，而不是完整 Agent。只有当上层规划器、导航 Harness、证据笔记本与机器人闭环组合起来时，系统才具备任务分解、模式切换、长期记忆和跨回合恢复能力。
+
+<div align="center">
+  <img src="/images/vln/Qwen-RobotNav-agentic-navigation.png" width="100%" />
+<figcaption>Qwen-RobotNav 通用导航 Agent：上层规划器动态配置导航模式与视觉上下文，执行结果被压缩为轨迹证据</figcaption>
+</div>
+
+### 3.5.1 通用导航 Agent 的五层结构
+
+| 层级 | 输入与职责 | 输出接口 | Qwen-RobotNav 中的对应设计 |
+|:---|:---|:---|:---|
+| **任务规划器** | 理解开放目标，拆分当前子任务，决定何时切换行为 | 任务模式 $$\tau_i$$ 与观测配置 $$\Phi_i$$ | 上层规划器在指令跟随、目标搜索、主动追踪等模式间切换 |
+| **参数化导航工具** | 将上层意图转成导航基模可以执行的调用 | Token 预算 $B$、时间衰减 $\gamma$、相机权重 $$w_c$$ | 推理期改变视觉历史的时间跨度、分辨率与视角优先级 |
+| **共享导航基模** | 融合指令、多视角历史和机器人状态 | 未来路点或轨迹片段 | 单个 Qwen-RobotNav 跨任务复用同一感知—规划底座 |
+| **导航 Harness** | 执行轨迹、收集显著地标和目标状态、判断工具调用结果 | 紧凑轨迹证据 | 避免把完整视频反复回灌给上层大模型 |
+| **证据笔记本** | 跨回合保存已访问区域、关键发现、失败原因与子任务进度 | 全局任务记忆 | 为下一轮规划提供长期状态和恢复依据 |
+
+这里最重要的变化是：上层 Agent 不再直接逐帧输出机器人动作，而是**配置和调用一个可泛化的导航工具**。这既降低了长视频上下文成本，也允许同一底座在长程搜索时保留更多历史、在目标追踪时强调最新画面。
+
+### 3.5.2 Qwen-RobotNav 式 Agentic 导航闭环
+
+```mermaid
+sequenceDiagram
+    participant U as 用户目标
+    participant P as 上层规划器
+    participant N as 证据笔记本
+    participant H as 导航 Harness
+    participant Q as 通用导航基模
+    participant R as 机器人
+    U->>P: 提供开放导航任务
+    P->>N: 检索已访问区域与历史证据
+    N-->>P: 返回任务进度和关键地标
+    P->>P: 拆分子任务并选择任务模式
+    P->>H: 下发模式 tau 与观测配置 Phi
+    H->>Q: 按预算 衰减和相机权重编码视觉历史
+    Q-->>H: 输出未来路点或轨迹片段
+    H->>R: 执行局部轨迹
+    R-->>H: 返回新观测与执行状态
+    H->>N: 写入压缩轨迹证据
+    alt 子任务未完成
+        N-->>P: 返回新证据或失败原因
+        P->>H: 切换模式或重配上下文
+    else 子任务完成
+        N-->>P: 更新全局进度
+        P->>P: 选择下一个子任务或停止
+    end
+```
+
+### 3.5.3 三类 Agentic VLN 设计
+
+| 范式 | Agent 控制什么 | 专用模块如何使用 | 代表工作 |
+|:---|:---|:---|:---|
+| **VLM-as-Brain** | 直接选择感知、建图、规划和纠错技能 | 技能库向 VLM 返回结构化空间证据 | [AgentVLN](/VLN-Papers/#agentvln)、[Skill-Nav](/VLN-Papers/#skill-nav)、[SysNav](/VLN-Papers/#sysnav) |
+| **Planner + Generalist Navigator** | 选择子任务、导航模式和上下文消费策略 | 单一通用导航基模作为高频工具反复调用 | [Qwen-RobotNav](/VLN-Papers/#qwen-robotnav)、[OmniNav](/VLN-Papers/#omninav) |
+| **Memory-augmented Agent** | 决定何时检索、写入、回退和重新规划 | 情景记忆与空间记忆持续更新 | [VLN-Cache](/VLN-Papers/#vln-cache)、[EvoMemNav](/VLN-Papers/#evomemnav) |
+
+评价通用导航 Agent 时，除 SR / SPL 外，还应报告子任务完成率、模式切换次数、证据压缩率、Token 消耗、恢复成功率、控制频率和人工介入次数。否则很难判断性能来自真正的 Agent 协作，还是来自更大的底层导航模型。
+
+## 3.6 世界模型与世界动作模型：从预测未来到利用未来
+
+世界模型路线希望在真正执行之前预测“采取某个动作后会看到什么”。早期方法把未来视觉生成作为外部预测器；新的世界动作模型则联合建模未来观测、目标进度、价值和动作，使预测结果直接参与闭环控制。
+
+<div align="center">
+  <img src="/images/vln/AstraNav-World-architecture.png" width="100%" />
+<figcaption>AstraNav-World：在统一框架中联合更新未来视觉状态与动作序列</figcaption>
+</div>
+
+```mermaid
+flowchart LR
+    O["当前观测与历史"] --> W["世界模型"]
+    G["语言或图像目标"] --> W
+    W --> F["候选未来状态"]
+    W --> V["目标进度与价值"]
+    F --> P["动作或轨迹生成"]
+    V --> P
+    P --> R["真实环境执行"]
+    R -.->|真实观测校正| W
+
+    style W fill:#f3d9fa,stroke:#862e9c,stroke-width:2px
+    style F fill:#e5dbff,stroke:#5f3dc4,stroke-width:2px
+    style V fill:#fff4e6,stroke:#e67700,stroke-width:2px
+    style P fill:#ffe8cc,stroke:#d9480f,stroke-width:2px
+    style R fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
+```
+
+| 方向 | 关键变化 | 代表工作 |
+|:---|:---|:---|
+| 视觉想象辅助策略 | 生成候选未来视觉，为现有策略提供额外证据 | [VLN-Imagine](/VLN-Papers/#vln-imagine)、Navigation World Models |
+| 语言规划 + 预测 | 让指令分解约束短期与长期预测 | NavForesee、[WorldVLN](/VLN-Papers/#worldvln) |
+| 视觉—动作联合生成 | 同步生成未来状态与动作，减少两阶段漂移 | [AstraNav-World](/VLN-Papers/#astranav-world) |
+| 世界动作模型 | 在共享潜在序列中联合未来观测、价值和动作块 | [NavWAM](/VLN-Papers/#navwam)、[WAM-Nav](/VLN-Papers/#wam-nav) |
+
+这一方向最容易被视觉效果误导。真正有意义的证据不是生成帧“看起来合理”，而是闭环 SR / SPL、碰撞率和真实机器人控制是否改善，以及预测误差能否被新观测及时纠正。
+
+## 3.7 五条路线如何选择
+
+| 研究目标 | 优先路线 | 建议组合 | 重点报告 |
+|:---|:---|:---|:---|
+| 大规模统一训练 | 单系统端到端 | + 轻量缓存或隐式记忆 | 数据规模、参数量、延迟、跨任务迁移 |
+| 真实机器人流畅控制 | 快慢双系统 | + 安全控制器 + 局部地图 | 控制频率、碰撞、重规划、真机成功率 |
+| 长程导航与回溯 | 地图与空间记忆 | + VLM 高层规划 | 地图误差、回溯收益、长路径指标 |
+| 开放任务与自主恢复 | Agent 导航 | + 结构化记忆 + 技能库 | 调用成本、恢复率、人工介入、幻觉 |
+| 前瞻规划与低试错 | 世界模型 | + 快慢系统或价值模型 | 预测误差、闭环收益、推理成本 |
+
+### 3.7.1 阅读最新论文时的四个检查项
+
+1. **协议是否一致**：传感器、动作空间、数据划分和成功阈值是否相同？
+2. **资源是否一致**：收益来自架构，还是更大的基模、更多数据或额外深度/地图？
+3. **闭环是否受益**：推理、记忆或想象模块是否真正改善导航，而不只是离线指标？
+4. **部署代价是否透明**：是否报告延迟、显存、控制频率和真实机器人测试？
+
+配套文章 [VLN 经典论文与性能排行榜](/VLN-Papers/) 按连续环境、离散全景和目标导航分别维护结果，适合用于进一步核对同设定性能。
+
 
 # 4. VLN 任务类型
 
@@ -759,10 +552,8 @@ Agent 化并不是把导航包装成一串工具调用，而是把过去隐含�
 室内VLN主要关注家庭或办公环境内的导航。环境通常较为复杂，包含多个房间和各种家具，对智能体的空间理解能力要求较高。
 
 <div align="center">
-  <img src="/images/vln/vln_indoor.jpg" width="100%" />
-<figcaption>
-室内VLN示例
-</figcaption>
+  <img src="/images/vln/vln_indoor.jpg" width="90%" />
+<figcaption>室内 VLN：自然语言指令、第一视角观测与全局轨迹之间的关系</figcaption>
 </div>
 
 **应用示例**：
