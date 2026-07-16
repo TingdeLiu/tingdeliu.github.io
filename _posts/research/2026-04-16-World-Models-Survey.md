@@ -1,7 +1,7 @@
-﻿---
+---
 layout: post
 title: "世界模型综述：迈向通用AGI的关键"
-date:  2026-07-14
+date:  2026-07-16
 tags: [VLA, World Models, Robotics, Embodied AI, Survey]
 categories: research
 comments: true
@@ -592,7 +592,8 @@ Cosmos 平台在六个物理 AI 场景上展示了多样的适用性：
 ———Omnimodal World Models for Physical AI
 
 📄 **Cosmos 3 (2026)**: [arxiv.org/abs/2606.02800](https://arxiv.org/abs/2606.02800)  
-🔗 **代码/权重**: [github.com/nvidia/cosmos](https://github.com/nvidia/cosmos) · [huggingface.co/collections/nvidia/cosmos3](https://huggingface.co/collections/nvidia/cosmos3)（OpenMDW-1.1 License）
+🔗 **代码/权重**: [github.com/nvidia/cosmos](https://github.com/nvidia/cosmos) · [huggingface.co/collections/nvidia/cosmos3](https://huggingface.co/collections/nvidia/cosmos3)（OpenMDW-1.1 License）  
+💡 **专题详解**: 关于 Mixture-of-Transformers (MoT) 架构的详细数学拆解与分析，可参考我的专题博客 [Mixture-of-Transformers (MoT) 架构详解](/mixture-of-transformers/)。
 
 如果说 §4.1–§4.5 的 Cosmos 平台是用**一条工具链串起多个专用模型**（Predict 预测、Transfer 翻译、Reason 推理各司其职），那么 2026 年 6 月 NVIDIA 发布的 **Cosmos 3** 则把这条路线推到了终点：**用单一网络架构同时完成理解与生成、并原生覆盖语言、图像、视频、音频、动作五大模态**。它直接把本文 §3 的四大范式——视觉语言模型（VLM）、视频生成 / 前向动力学模型（世界合成器/模拟器）、世界动作模型（WAM/VLA）——**吸收进同一个模型**，是"单模型、多范式角色"趋势（参见 §3.1 的 GENE-26.5 讨论与 §9.3）最彻底的一次工程落地。
 
