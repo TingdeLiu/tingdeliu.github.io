@@ -24,7 +24,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 |:-----|:----:|:----:| :--------: |:----:|:-----:|:----:|:-----:|:----:|:----:|
  | [Robostral Navigate(单目)](#robostral-navigate) | 2026 | R2R-CE | Mistral-8B | **76.6** | **73.7** | **3.25** | **80.8** | 否 | 40万条轨迹（仿真） | 
  | [Qwen-RobotNav(全景)](#qwen-robotnav) | 2026 | R2R-CE | Qwen3-VL-7B | 72.1 | 66.6 | 3.53 | 78.5 | 否 | 15.6M 混合数据 | 
-| [ABot-N1](#abot-n1) | 2026 | R2R-CE | – | 70.9 | 67.5 | 3.32 | 75.2 | 否 | – |
+| [ABot-N1(三相机)](#abot-n1) | 2026 | R2R-CE | – | 70.9 | 67.5 | 3.32 | 75.2 | 否 | – |
  | [OmniNav(多目)](#omninav) | 2026 | R2R-CE | Qwen2.5-VL-3B | 69.5 | 66.1 | 3.74 | 74.6 | [是](https://github.com/amap-cvlab/OmniNav) | 12.2M 混合数据 | 
  | [AstraNav-World(多目)](#astranav-world) | 2025 | R2R-CE | Qwen2.5-VL-3B | 67.9 | 65.4 | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) | – | 
  | [SEDualVLN(单目)](#sedualvln) | 2026 | R2R-CE | LLaVA-Video-7B | 67.3 | 62.5 | 3.75 | 73.7 | [是](https://github.com/kim-os/SEDualVLN) | – | 
@@ -56,7 +56,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | 模型 | 年份 | 基准 | 基模 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 开源 | 训练数据 |
 |:-----|:----:|:----:| :--------: |:----:|:-----:|:----:|:-----:|:----:|:----:|
  | [Qwen-RobotNav (全景)](#qwen-robotnav) | 2026 | RxR-CE | Qwen3-VL-7B | **76.5** | **65.7** | 3.58 | – | 否 | 15.6M 混合数据 | 
-| [ABot-N1](#abot-n1) | 2026 | RxR-CE | – | 73.9 | 63.9 | **3.13** | – | 否 | – |
+| [ABot-N1(三相机)](#abot-n1) | 2026 | RxR-CE | – | 73.9 | 63.9 | **3.13** | – | 否 | – |
  | [OmniNav (多目)](#omninav) | 2026 | RxR-CE | Qwen2.5-VL-3B | 73.6 | 62.0 | 3.77 | – | [是](https://github.com/amap-cvlab/OmniNav) | 12.2M 混合数据 | 
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | RxR-CE | Qwen3-VL-7B | 73.4 | 63.5 | – | – | 否 | 15.6M 混合数据 | 
  | [AstraNav-World (多目)](#astranav-world) | 2025 | RxR-CE | Qwen2.5-VL-3B | 72.9 | – | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) | – | 
@@ -100,9 +100,9 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 | 模型 | 年份 | 基准 | 基模 | SR ↑ | SPL ↑ | 开源 | 训练数据 |
 |:-----|:----:|:----:| :--------: |:----:|:-----:|:----:| :--------: |
-| [ABot-N1](#abot-n1) | 2026 | ABotN-PointBench (Indoor) | – | **95.4** | **93.7** | 否 | – |
-| [ABot-N1](#abot-n1) | 2026 | ABotN-PointBench (Outdoor) | – | 92.9 | 91.4 | 否 | – |
-| [ABot-N1](#abot-n1) | 2026 | Short-Horizon OVON | – | 84.9 | 51.8 | 否 | – |
+| [ABot-N1(三相机)](#abot-n1) | 2026 | ABotN-PointBench (Indoor) | – | **95.4** | **93.7** | 否 | – |
+| [ABot-N1(三相机)](#abot-n1) | 2026 | ABotN-PointBench (Outdoor) | – | 92.9 | 91.4 | 否 | – |
+| [ABot-N1(三相机)](#abot-n1) | 2026 | Short-Horizon OVON | – | 84.9 | 51.8 | 否 | – |
  | [Hydra-Nav (单目)](#hydra-nav) | 2026 | HM3D | Qwen2.5-VL-7B | 84.8 | 28.8 | 否 | 56.5万 样本 | 
  | [VLFM (单目)](#vlfm) | 2023 | Gibson | – | 84.0 | 52.2 | [是](https://github.com/rai-opensource/vlfm) | – | 
  | [VLingNav (单目)](#vlingnav) | 2026 | HM3D-v2 | LLaVA-Video-7B | 83.0 | 40.5 | [是](https://github.com/wsakobe/VLingNav-web) | 2.9M 样本 | 
