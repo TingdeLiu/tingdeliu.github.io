@@ -47,7 +47,7 @@
 | 文章 | 主题 |
 | :--- | :--- |
 | [VLN 周报（2026-06-28 ~ 2026-07-05）](https://tingdeliu.github.io/VLN-Weekly/) | 具身导航论文与项目周度精选 |
-| [Tree Training 技术详解](https://tingdeliu.github.io/tree-training-prefix-reuse/) | Prefix Caching、Tree Attention、训练 Token 压缩 |
+| [树状注意力解码：加速VLN训练](https://tingdeliu.github.io/树状注意力解码：加速VLN训练/) | Prefix Caching、Tree Attention、训练 Token 压缩 |
 
 ## 参与贡献
 
