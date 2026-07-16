@@ -10,8 +10,6 @@ toc: true
 excerpt: "深入剖析 Meta AI、NVIDIA 等机构提出的 Mixture-of-Transformers (MoT) 稀疏架构。从密集模型的模态竞争难题出发，详解 MoT 核心的「模态特定参数解耦 + 全局自注意力」机制、确定性模态路由，并重点剖析 NVIDIA Cosmos 3 物理世界模型在此架构上的前沿工程落地与巨大能效比。"
 ---
 
-* 目录
-{:toc}
 
 # Mixture-of-Transformers (MoT) 架构详解：多模态基础模型的模态解耦与稀疏化演进
 
@@ -150,6 +148,11 @@ $$
 在自动驾驶、具身智能（Robotics）等物理世界模拟中，传统的方案通常是拼凑型的（Duct-taped）：由一个视觉语言模型（VLM）处理感知，一个扩散模型（Diffusion）负责视频预测，再由另外的策略网络（Policy）决定动作。这不仅导致极大的推理延迟，更阻碍了跨模态物理规律的深度融合。
 
 NVIDIA Cosmos 3 彻底打破了这一界限。它构建了一个**“双塔（Dual-Tower）”架构**，但底座完全基于统一的 **Mixture-of-Transformers (MoT)**。它将输入序列划分为自回归（AR）与扩散（DM）子序列，在每一层解码器内部，并行持有两套独立参数（推理塔 + 生成塔），二者由预训练权重共同初始化：
+
+<div align="center">
+  <img src="/images/wm/Cosmos3-Fig5-MoTArchitecture.png" width="100%" />
+<figcaption>图：Cosmos 3 的 MoT 架构。同一条序列由 AR 子序列（语言 + ViT 视觉 token，以 EOS/BOG 收尾）与 DM 子序列（VAE 视觉、音频、动作 token，训练时加噪）拼接而成；层内 AR 与 DM token 各用独立 LayerNorm 与 MLP（均由预训练 VLM 共同初始化），仅在共享自注意力处交汇。右图为注意力掩码：AR 为因果三角、DM 为全注意力。（图源：Cosmos 3）</figcaption>
+</div>
 
 *   **推理塔（Reasoner Tower，自回归）**：作为模型的“大脑”。这是一个因果自注意力（Causal Self-Attention）结构的 VLM，主要负责多模态感知输入、高层级任务规划、三维时空推理以及物理世界的意图理解。
 *   **生成塔（Generator Tower，扩散 Transformer）**：作为“执行器和物理模拟器”。这是一个扩散基础的 Transformer 架构，使用全双向注意力（Bidirectional Attention），条件化于推理塔输出的上下文，通过 Flow Matching 迭代去噪预测未来视频帧、音频和机器人执行器的连续动作轨迹（Actions）。
