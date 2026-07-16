@@ -24,6 +24,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 |:-----|:----:|:----:| :--------: |:----:|:-----:|:----:|:-----:|:----:|:----:|
  | [Robostral Navigate(单目)](#robostral-navigate) | 2026 | R2R-CE | Mistral-8B | **76.6** | **73.7** | **3.25** | **80.8** | 否 | 40万条轨迹（仿真） | 
  | [Qwen-RobotNav(全景)](#qwen-robotnav) | 2026 | R2R-CE | Qwen3-VL-7B | 72.1 | 66.6 | 3.53 | 78.5 | 否 | 15.6M 混合数据 | 
+| [ABot-N1](#abot-n1) | 2026 | R2R-CE | – | 70.9 | 67.5 | 3.32 | 75.2 | 否 | – |
  | [OmniNav(多目)](#omninav) | 2026 | R2R-CE | Qwen2.5-VL-3B | 69.5 | 66.1 | 3.74 | 74.6 | [是](https://github.com/amap-cvlab/OmniNav) | 12.2M 混合数据 | 
  | [AstraNav-World(多目)](#astranav-world) | 2025 | R2R-CE | Qwen2.5-VL-3B | 67.9 | 65.4 | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) | – | 
  | [SEDualVLN(单目)](#sedualvln) | 2026 | R2R-CE | LLaVA-Video-7B | 67.3 | 62.5 | 3.75 | 73.7 | [是](https://github.com/kim-os/SEDualVLN) | – | 
@@ -54,7 +55,8 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 | 模型 | 年份 | 基准 | 基模 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 开源 | 训练数据 |
 |:-----|:----:|:----:| :--------: |:----:|:-----:|:----:|:-----:|:----:|:----:|
- | [Qwen-RobotNav (全景)](#qwen-robotnav) | 2026 | RxR-CE | Qwen3-VL-7B | **76.5** | **65.7** | **3.58** | – | 否 | 15.6M 混合数据 | 
+ | [Qwen-RobotNav (全景)](#qwen-robotnav) | 2026 | RxR-CE | Qwen3-VL-7B | **76.5** | **65.7** | 3.58 | – | 否 | 15.6M 混合数据 | 
+| [ABot-N1](#abot-n1) | 2026 | RxR-CE | – | 73.9 | 63.9 | **3.13** | – | 否 | – |
  | [OmniNav (多目)](#omninav) | 2026 | RxR-CE | Qwen2.5-VL-3B | 73.6 | 62.0 | 3.77 | – | [是](https://github.com/amap-cvlab/OmniNav) | 12.2M 混合数据 | 
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | RxR-CE | Qwen3-VL-7B | 73.4 | 63.5 | – | – | 否 | 15.6M 混合数据 | 
  | [AstraNav-World (多目)](#astranav-world) | 2025 | RxR-CE | Qwen2.5-VL-3B | 72.9 | – | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) | – | 
@@ -98,14 +100,18 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 | 模型 | 年份 | 基准 | 基模 | SR ↑ | SPL ↑ | 开源 | 训练数据 |
 |:-----|:----:|:----:| :--------: |:----:|:-----:|:----:| :--------: |
- | [Hydra-Nav (单目)](#hydra-nav) | 2026 | HM3D | Qwen2.5-VL-7B | **84.8** | 28.8 | 否 | 56.5万 样本 | 
+| [ABot-N1](#abot-n1) | 2026 | ABotN-PointBench (Indoor) | – | **95.4** | **93.7** | 否 | – |
+| [ABot-N1](#abot-n1) | 2026 | ABotN-PointBench (Outdoor) | – | 92.9 | 91.4 | 否 | – |
+| [ABot-N1](#abot-n1) | 2026 | Short-Horizon OVON | – | 84.9 | 51.8 | 否 | – |
+ | [Hydra-Nav (单目)](#hydra-nav) | 2026 | HM3D | Qwen2.5-VL-7B | 84.8 | 28.8 | 否 | 56.5万 样本 | 
  | [VLFM (单目)](#vlfm) | 2023 | Gibson | – | 84.0 | 52.2 | [是](https://github.com/rai-opensource/vlfm) | – | 
  | [VLingNav (单目)](#vlingnav) | 2026 | HM3D-v2 | LLaVA-Video-7B | 83.0 | 40.5 | [是](https://github.com/wsakobe/VLingNav-web) | 2.9M 样本 | 
  | [SysNav (单目)](#sysnav) | 2026 | HM3D-v2 | Gemini-2.5-Flash | 80.8 | 37.2 | 否 | – | 
  | [WAM-Nav (单目)](#wam-nav) | 2026 | Clutter/Intern (Point-Goal) | – | 80.4 | 78.0 | 否 | – | 
- | [3DGSNav (单目)](#3dgsnav) | 2026 | HM3D-v1 | GPT-4o | 80.0 | **51.8** | 否 | – | 
+ | [3DGSNav (单目)](#3dgsnav) | 2026 | HM3D-v1 | GPT-4o | 80.0 | 51.8 | 否 | – | 
  | [VLingNav (单目)](#vlingnav) | 2026 | HM3D-v1 | LLaVA-Video-7B | 79.1 | 42.9 | [是](https://github.com/wsakobe/VLingNav-web) | 2.9M 样本 | 
  | [NavDP (单目)](#navdp) | 2025 | Clutter/Intern (Point-Goal) | – | 77.8 | 74.8 | [是](https://github.com/InternRobotics/NavDP) | 3154个场景（仿真） | 
+| [ABot-N1](#abot-n1) | 2026 | ABotN-POIBench | – | 77.3 | 72.6 | 否 | – |
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | HM3Dv2 | Qwen3-VL-2B | 75.6 | 30.6 | 否 | 15.6M 混合数据 | 
  | [3DGSNav (单目)](#3dgsnav) | 2026 | HM3D-v2 | GPT-4o | 75.0 | 44.2 | 否 | – | 
  | [GaussNav (单目)](#gaussnav) | 2025 | HM3D（实例图像） | – | 72.5 | 57.8 | [是](https://github.com/XiaohanLei/GaussNav) | – | 
@@ -6435,6 +6441,105 @@ $$R_{tot} = R_{done} + R_{nav} + R_{exp} + R_{brev}$$
 
 ---
 
+## 61. ABot-N1 (2026) {#abot-n1}
+———基于慢速认知与快速控制双系统架构的通用视觉语言导航基础模型
+
+📄 **Paper**: [arXiv:2607.10383](https://arxiv.org/abs/2607.10383v2) · [Project Page](https://amap-cvlab.github.io/ABot-Navigation/ABot-N1/)
+
+### 精华
+1. **慢速-快速双系统解耦**：将低频慢速的高维认知推理（System 2）与高频快速的低维反应性控制（System 1）进行时间尺度与计算资源解耦，消除了端到端黑盒模型的认知-控制动态错配。
+2. **统一的像素目标接口**：通过输出可通行像素（Affordance Pixel）和目标像素（Target Pixel），将点导航、指令导航、物体导航、POI导航和行人跟随这五类异构任务统一为“在CoT解释下跟踪图像像素锚点”的问题，实现极佳的跨任务正向迁移。
+3. **GRPO对齐与安全可达性**：首次在导航基础模型中引入基于GRPO的强化学习对齐，设计了非对称指数安全边界惩罚与基于GSNR的平衡采样策略，将模型决策直接与任务完成度和可通行安全性挂钩。
+4. **精细的可解释性与安全性审计**：人机可读的CoT文本链配合图像空间内的像素目标，使得导航决策的每一步都清晰透明，开发人员可以精准定位失败瓶颈是源于语义推理还是空间对齐。
+5. **城市级自主导航与新基准**：展示了仅依赖低精度SD地图即可在复杂城市街区实现长程避障、路口选择、人行道和红绿灯遵从的鲁棒四足机器人导航，并开源了 ABotN-PointBench 与 ABotN-POIBench。
+
+---
+
+### 1. 研究背景/问题
+传统的视觉语言导航（VLN）模型主要依赖端到端的多模态黑盒策略将观测直接映射到控制动作，但它们在向真实世界机器人部署时面临三大痛点：
+* **去往点目标导航的偏移**：在无高精地图导航时，由于地图路由或定位漂移，输入的本车局部坐标目标点常被偏移至车道、绿化带等物理不可达区域，导致常规模型停滞或违规。
+* **去往目标物导航的语义遗忘与混淆**：端到端微调容易侵蚀预训练VLM的通用语义先验，且将“搜索”和“接近”两阶段混为一谈，导致训练发散且难以进行失败归因。
+* **缺乏可解释性与安全审计**：黑盒端到端映射缺乏显式决策痕迹，开发人员难以断定失败是源于物理感知错误、逻辑推理还是底层控制。
+
+---
+
+### 2. 主要方法/创新点
+
+#### ① 整体框架概述
+ABot-N1 提出了一个模块化的慢速-快速双系统架构（Slow-Fast Architecture）。慢速系统（System 2）是一个 4B 参数的高容量 VLM（Qwen-3.5-4B），负责低频 deliberative 逻辑推理，输出显式思维链（CoT）及投影到当前三相机视角（tri-view）上的像素目标（Pixel Goal）。快速系统（System 1）是一个 2B 参数的轻量级 VLM（Qwen-3.5-2B），作为高频动作专家（Action Expert），实时融合当前的相机输入与慢速系统输出的 CoT 及像素目标，解算出机器人底层的连续控制路点（Waypoints）。
+
+<div align="center">
+  <img src="/images/vln/ABot-N1-overview.png" width="100%" />
+<figcaption>图1：ABot-N1 慢速推理与快速执行架构概览</figcaption>
+</div>
+
+#### ② 逐模块讲解
+
+##### 慢速系统（System 2 - 逻辑推理器）
+* **输入**：参考历史记忆帧（用 $$I_{1:K}^{\text{ref,mem}}$$ 表示）、当前三相机观测视角 $$I_{\text{ref,tri}}$$（包含左、前、右三个相机的 RGB 图像）、当前的任务语言指令 $g = \ell$，以及上一决策周期的推理输出 $(C_{n-1}, p_{n-1})$，输入先前的决策有助于在长程任务中维持时序一致性。
+* **处理过程**：基于 Qwen-3.5-4B 强大的预训练多模态能力，执行显式的思维链（Chain-of-Thought）推理。该推理在语义复杂的任务（如指令导航和物体搜索）中激活，解析任务指令的当前进度（例如“已完成子指令A，正在执行B”），并结合视觉语义进行空间的可通行性分析。
+* **输出**：显式自然语言 CoT 推理轨迹 $C_n$ 和一组投影在 tri-view 视角中的像素目标（Pixel Goal）$p_n$。像素目标包含两种：
+  1. **可通行像素（Affordance Pixel）**：图像中标记可安全通行区域的前方路点（在室内通常代表前方约3米，室外约5米的可达平整路面）。
+  2. **目标像素（Target Pixel）**：指示具体任务目标的图像像素点（例如目标物件的质心、POI 商铺入口的底部中点或所追踪行人的底部中点），仅在目标可见或进入最终接近阶段时激活。
+* **设计动机**：将复杂的开放词表语义识别和社交规约推理从快速控制反馈中分离开来，使大模型的庞大语义先验可以在不阻塞高频底层的实时控制循环的前提下被充分利用。另外，可通行像素与目标像素作为统一桥梁，解耦了导航的拓扑语义决策和运动学轨迹执行。
+
+##### 快速系统（System 1 - 动作专家）
+* **输入**：高频实时的相机观测 $$I_{\text{cur,tri}}$$、高频局部记忆帧 $$I_{1:K}^{\text{cur,mem}}$$、慢速系统提供的最新 CoT 轨迹 $C_n$ 与像素目标 $p_n$、慢速系统决策时的参考视图 $$I_{\text{ref,tri}}$$（用于对齐像素空间）以及全局任务目标 $g$。
+* **处理过程**：首先通过 Qwen-3.5-2B 的多模态编码器提取融合状态 $h_t$，随后设计一组可学习的动作查询（Action Queries） $q_{\text{act}}$，利用类 QFormer 的交叉注意力机制从融合特征中蒸馏导航控制表征。最后由多层感知机（MLP）头解码该表征。
+* **输出**：预测未来 $H=5$ 个步骤的连续二维控制路点 $a_{t:t+H}$。每个路点包含相对于本车的 $SE(2)$ 位姿 $(x_i, y_i, \sin\theta_i, \cos\theta_i)$ 以及一个用于指示是否到达最终终点的二分类 Arriving 标志位 $c_i$。
+* **设计动机**：由于慢速系统已经通过思维链和图像坐标点将轨迹规划模式化（例如：左转避障或右转绕行），高频的 System 1 面临的动作空间回归分布基本上退化成了单峰（unimodal）问题。这使得 System 1 能够非常稳定高效地仅通过 Smooth-$L1$ 损失进行训练，无需复杂的扩散模型（Diffusion）或高斯混合（GMM）动作头。同时，高频控制能够动态避障，并在慢速推理周期之间通过持续追踪像素点来消除控制延迟。
+
+<div align="center">
+  <img src="/images/vln/ABot-N1-architecture.png" width="100%" />
+<figcaption>图2：ABot-N1 慢速认知系统与快速控制专家双系统设计</figcaption>
+</div>
+
+#### ③ 端到端数据流
+对于任意的具身任务，如“寻找最近的绿色垃圾桶”：
+1. 慢速系统接收当前环境的 tri-view 图像以及命令，开始执行 CoT 推理（定位垃圾桶并在画面中寻找一条绕开茶几的路线），并在 tri-view 的前置相机上输出 Affordance Pixel（指向绕行通路）和 Target Pixel（标注在检测到的垃圾桶上）。
+2. 快速系统在 10Hz 频率下闭环运行，利用最新的 Affordance/Target 像素在图像上的变化，连续解算输出路点。
+3. 机器人沿避障轨迹行进，直到 slow 系统评估抵达垃圾桶，发出 Target Pixel 并将 Arriving 标志 $c_i$ 设为 1，触发 Arrive 停止。
+
+#### ④ 训练目标与损失函数
+* **模仿预训练阶段**：
+  * 慢速系统损失：交叉熵语言建模损失 $L_{\text{CE}}$，对 CoT 文本 Token 以及像素目标坐标对应的 Token 序列进行监督。
+  * 快速系统损失：Smooth-$L1$ 位置回归损失、Smooth-$L1$ 航向角正余弦值回归损失，以及二分类交叉熵到达损失 $L_{\text{arrive}}$。
+* **GRPO 强化学习对齐阶段**：
+  为了让慢速系统生成的像素目标直接符合可通行安全与真实任务成功率，使用 GRPO 算法优化慢速系统的参数：
+  $$L_{\text{GRPO}}(\theta) = \mathbb E \left[ \sum_{i,t} \min\left(\rho_t^{(i)} A^{(i)}, \text{clip}(\rho_t^{(i)}, 1\pm\epsilon)A^{(i)}\right) \right] - \beta \mathbb{D}_{\text{KL}}(\pi_\theta \parallel \pi_{\text{ref}})$$
+  奖励函数设计：$R = w_f R_{\text{format}} + w_t R_{\text{target}} + w_o R_{\text{safety}}$
+  1. 格式奖励 $R_{\text{format}}$：指示输出是否符合规定的 JSON Schema，若不符合直接零分。
+  2. 目标对齐奖励 $R_{\text{target}}$：使用指数核衡量预测像素 $\hat{p}$ 与地面真值 $p^\star$ 在三视图中的 L2 距离：
+     $$R_{\text{target}} = \sum_{\text{frame}} \alpha_t \exp\left( - \frac{\lVert \hat{p} - p^\star \rVert^2}{\text{scale}} \right)$$
+  3. 安全净空奖励 $R_{\text{safety}}$：将预测的 Affordance 像素反投影回 3D 空间，计算与最近非通行区域（如车道、花坛、障碍物）的真实距离 $d$：
+     $$R_{\text{safety}}(d) = \begin{cases} -\alpha_0, & d \ge d_{\text{safe}} \\ -\alpha_0 \exp\left( \beta(d_{\text{safe}} - d) \right), & d < d_{\text{safe}} \end{cases}$$
+  * **基于 GSNR 的平衡数据采样（Balanced Sampling）**：
+    由于安全奖励 $R_{\text{safety}}$ 在危险边缘的方差呈指数级增长，会导致梯度不稳定性。ABot-N1 通过求解 Var($R_{\text{safety}}$) 的阈值，过滤掉极度危险的 prompts，并将剩余训练样本按 GSNR（梯度信噪比）划分为 **安全区（Safe Zone, 占比 50%）**、**临界区（Critical Zone, 占比 30%）** 和 **危险区（Danger Zone, 占比 20%）** 进行 5:3:2 混合采样，以实现稳定的策略提升。
+
+#### ⑤ 推理流程与部署架构
+在实际的四足机器人部署中，为克服 Jetson 边缘计算硬件的局限性，在推理时：
+* 慢速系统模型进行了规模压缩（从 4B 压缩为 2B 参数的 Qwen-3.5-2B）。
+* 快速系统进一步平替为带 306M 参数的扩散 Transformer (DiT)，并用轻量的 DINOv2-Base 进行视觉编码。
+* 两系统异步并行运行：慢速系统在 GPU 空闲时异步生成全局决策，快速系统则以 10Hz 稳定读取最新缓存并进行高频运动控制，极大地降低了端到端控制的时延。
+
+---
+
+### 3. 核心结果/发现
+ABot-N1 在五项核心导航任务上均打破了先前的 SOTA 纪录，并且多任务联合训练模型匹配或超越了专门微调的单任务专家（Task Specialists），验证了正向跨任务迁移的优势：
+* **指令导航 (Instruction-Following)**：在 Habitat R2R-CE 验证集上实现 **70.89%** 的成功率 (SR) 和 **67.5%** 的 SPL，大幅超越以往所有基于深度/里程计的强 baseline 模型；在 RxR-CE 上亦取得 SOTA 级别的 **3.13米** 平均导航误差 (NE)。
+* **物体搜索 (Object-Goal)**：在短视距 OVON 测试中，将成功率提升至 **84.9%**，SPL 提升至 **51.8%**，且终点距目标物的平均距离 (DTG) 相比上一代 ABot-N0 缩减了一半 (0.82m vs 1.44m)，展示了极高的最后阶段逼近精度。
+* **点目标导航 (Point-Goal)**：在全新发布的城市级基准 ABotN-PointBench 户外 Split 上，ABot-N1 联合模型在最难的高阶难度下，成功率相比 ABot-N0 跃升了 **+22.7%** (达到 **88.0%**)，在所有难度下均取得了最优的成功率（整体 **92.9%**）和社交合规度；室内 Split 下同样获得了 **95.4%** 的极高成功率。
+* **POI 导航 (POI-Goal)**：在商铺环境闭环基准 ABotN-POIBench 上，成功率相较于以往最强基准大幅跃升了 **+35.0%**，达到 **77.3%**，验证了利用 slow-fast 机制将商铺招牌语义识别与入口避障路径规划结合的高效性。
+* **行人跟随 (Person-Following)**：在 EVT-Bench 上，在存在其他行人干扰 (DT split) 和遭遇频繁严重遮挡 (AT split) 的场景下，分别取得了 **84.4%** 和 **87.8%** 的卓越追踪率 (TR)。
+
+---
+
+### 4. 局限性
+1. **多任务联合下的碰撞率权衡**：在行人追踪 (EVT-Bench) 场景的复杂遮挡 (AT) 及强干扰 (DT) 任务中，虽然追踪率 (TR) 与成功率 (SR) 达到最佳，但由于受混合预训练集中较激进的动作分布影响，碰撞率 (CR) 出现了轻微抬升 (17.9%)。未来有必要在 GRPO 阶段加入更显式的安全碰撞惩罚项来进行细化。
+2. **边缘部署时的性能-资源折衷**：由于端侧算力限制，在真机部署时必须将慢速/快速模型分别进行参数压缩和架构置换（例如快速系统平替为 306M DiT）。这种异构硬件适配在一定程度上损失了原版 4B+2B Qwen 纯多模态大模型的完整表征能力。
+
+---
+
 # 参考资料
 
 ## 已发表论文（会议 / 期刊）
@@ -6512,6 +6617,7 @@ $$R_{tot} = R_{done} + R_{nav} + R_{exp} + R_{brev}$$
 56. **NavWAM** (2026). 首个将未来预测、价值评估与动作决策集成于单一具身世界模型的导航模型. arXiv: [2606.13494](https://arxiv.org/abs/2606.13494)
 57. **Robostral Navigate** (2026). Single-camera AI Navigation for Embodied Robots.
 58. **LocalNav** (2026). 基于知识蒸馏与具身强化学习的端侧轻量化三维场景图目标导航框架. arXiv: [2606.27871](https://arxiv.org/abs/2606.27871)
+59. **ABot-N1** (2026). 基于慢速认知与快速控制双系统架构的通用视觉语言导航基础模型. arXiv: [2607.10383](https://arxiv.org/abs/2607.10383)
 
 
 <script>
@@ -6576,6 +6682,7 @@ $$R_{tot} = R_{done} + R_{nav} + R_{exp} + R_{brev}$$
         { m: 'NavWAM',                t: ['世界模型', '扩散模型', '连续环境', '实机部署'] },
         { m: 'Robostral Navigate',    t: ['端到端', '强化学习', '连续环境', '加速优化'] },
         { m: 'LocalNav',              t: ['拓扑图', '强化学习', '实机部署', '加速优化'] },
+        { m: 'ABot-N1',               t: ['双系统', 'CoT', '强化学习', '实机部署'] },
     { m: 'VLN-CE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'VLN-PE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'RynnBrain',         t: ['基础工作'] },
