@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "VLN经典论文"
-date:   2026-07-16
+date:   2026-07-17
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -6229,7 +6229,7 @@ Robostral Navigate 并非从零学习空间概念。Mistral 团队将其初始�
 
 #### 2.3 基于树状注意力与前缀缓存的高效训练（Tree Training）
 
-这是 Robostral 最具技术突破性的工程贡献。为了消除监督微调（SFT）阶段对历史帧的重复前向计算，团队将导航 Episode 建模为**前缀树（Prefix Tree）**，并开发了高效的训练管线。如果希望进一步阅读关于树状注意力和前缀缓存技术的数学推导与详细实现，请参阅：[树状注意力解码：加速VLN训练](https://tingdeliu.github.io/树状注意力解码：加速VLN训练/)。
+这是 Robostral 最具技术突破性的工程贡献。为了消除监督微调（SFT）阶段对历史帧的重复前向计算，团队将导航 Episode 建模为**前缀树（Prefix Tree）**，并开发了高效的训练管线。如果希望进一步阅读关于树状注意力和前缀缓存技术的数学推导与详细实现，请参阅：[树状注意力解码：加速VLN训练](https://tingdeliu.github.io/Tree-Attention-Decoding/)。
 
 <div align="center">
   <img src="/images/llm-training/tree-training/01-baseline-vs-tree.png" width="90%" />

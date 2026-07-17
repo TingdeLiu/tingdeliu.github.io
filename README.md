@@ -22,7 +22,6 @@
 | [视觉-语言-动作（VLA）综述](https://tingdeliu.github.io/VLA-Survey/) | VLA、RT-2、π0、机器人策略学习 |
 | [机器人导航综述](https://tingdeliu.github.io/Robot-Navigation-Survey/) | SLAM、路径规划、全局/局部导航 |
 | [具身强化学习综述](https://tingdeliu.github.io/Reinforcement-Learning-Embodied-Survey/) | PPO、SAC、TD3、Diffusion Policy、RLVR |
-| [Harness 工程综述](https://tingdeliu.github.io/Harness-Engineering-Survey/) | 具身智能系统工程 |
 | [ROS2 综述](https://tingdeliu.github.io/ROS2-Survey/) | ROS2 框架、节点、话题、服务 |
 
 ### 🧠 大模型与智能体
@@ -46,8 +45,9 @@
 
 | 文章 | 主题 |
 | :--- | :--- |
+| [Harness Engineering](https://tingdeliu.github.io/Harness-Engineering/) | 具身智能系统工程 |
 | [VLN 周报（2026-06-28 ~ 2026-07-05）](https://tingdeliu.github.io/VLN-Weekly/) | 具身导航论文与项目周度精选 |
-| [树状注意力解码：加速VLN训练](https://tingdeliu.github.io/树状注意力解码：加速VLN训练/) | Prefix Caching、Tree Attention、训练 Token 压缩 |
+| [树状注意力解码：加速VLN训练](https://tingdeliu.github.io/Tree-Attention-Decoding/) | Prefix Caching、Tree Attention、训练 Token 压缩 |
 
 ## 参与贡献
 

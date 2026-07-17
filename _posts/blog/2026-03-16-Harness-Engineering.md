@@ -1,9 +1,9 @@
-﻿---
+---
 layout: post
-title: "Harness Engineering 综述"
-date: 2026-03-16
+title: "Harness Engineering"
+date: 2026-07-17
 tags: [Harness Engineering, Agent, LLM, Context Engineering, AI Engineering, Prompt Engineering]
-categories: research
+categories: blog
 comments: true
 author: Tingde Liu
 toc: true

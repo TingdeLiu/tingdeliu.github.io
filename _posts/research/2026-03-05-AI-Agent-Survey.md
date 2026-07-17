@@ -1,7 +1,7 @@
-﻿---
+---
 layout: post
 title: "AI Agent 综述：自主推理与工具调用的范式革命"
-date: 2026-03-05
+date: 2026-07-17
 tags: [Agent, LLM, Multi-Agent, Survey]
 categories: research
 comments: true
@@ -50,7 +50,7 @@ flowchart LR
 
 Agent 的核心能力在于它不仅能"说"，还能"做"——通过调用外部工具（搜索引擎、代码执行器、API、浏览器等）影响真实世界，并根据执行结果动态调整后续计划。
 
-从工程视角看，AI Agent 可以理解为 **LLM（推理核心）+ Harness（工程约束框架）** 的结合体：LLM 提供推理与生成能力，Harness 则通过上下文工程、架构约束与验证循环，决定 Agent 能可靠地做什么、不能做什么。两者缺一不可——只有 LLM 的 Agent 强大但不可控，只有 Harness 没有 LLM 则寸步难行。Harness Engineering 的工程细节详见：[Harness Engineering 综述](/Harness-Engineering-Survey/)。
+从工程视角看，AI Agent 可以理解为 **LLM（推理核心）+ Harness（工程约束框架）** 的结合体：LLM 提供推理与生成能力，Harness 则通过上下文工程、架构约束与验证循环，决定 Agent 能可靠地做什么、不能做什么。两者缺一不可——只有 LLM 的 Agent 强大但不可控，只有 Harness 没有 LLM 则寸步难行。Harness Engineering 的工程细节详见：[Harness Engineering](/Harness-Engineering/)。
 
 ## 2.2 Agent 与普通 LLM 的核心区别
 
@@ -168,7 +168,7 @@ flowchart LR
 
 「Harness Engineering」是 2026 年兴起的 Agent 工程化核心方法论——**Agent 的成败不在模型，而在工程约束框架（Harness）**：约束行动权限、结构化上下文告知、自动验证输出、错误触发重规划。LangChain 代码 Agent 仅通过改进 Harness（不换模型）在 Terminal Bench 2.0 上从 52.8% 提升至 66.5%。
 
-> 详细技术解析见：[Harness Engineering 综述](/Harness-Engineering-Survey/)
+> 详细技术解析见：[Harness Engineering](/Harness-Engineering/)
 
 *代表性工作*：「Harness Engineering」（OpenAI，2026 年 2 月）、「Effective Harnesses for Long-Running Agents」（Anthropic，2026）
 
