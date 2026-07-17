@@ -27,40 +27,25 @@ excerpt: "Loop Engineering（循环工程）是 2026 年 AI 智能体开发的�
 
 传统的手动 Prompt 模式由于需要人类时刻处于闭环中（Human-in-the-loop），极大地限制了 Agent 执行大规模、长周期任务的上限。而在 Loop Engineering 模式下，开发者编写的是“控制循环”：定义清晰的目标、环境约束、验证条件与终止规则，让系统自己在前台反复调试、运行、校验、自我纠错，直到达成目标。
 
-<div align="center">
-<svg width="720" height="200" xmlns="http://www.w3.org/2000/svg" style="font-family:sans-serif">
-  <!-- Background -->
-  <rect width="720" height="200" rx="12" fill="#0f172a" stroke="#1e293b" stroke-width="1.5"/>
-  <!-- Left Side: Manual Prompting -->
-  <rect x="20" y="20" width="310" height="160" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>
-  <text x="175" y="45" text-anchor="middle" font-size="14" font-weight="bold" fill="#f8fafc">传统单步 Prompting 模式</text>
-  <text x="175" y="65" text-anchor="middle" font-size="11" fill="#94a3b8">（Human-in-the-Loop, 极高交互成本）</text>
-  <rect x="40" y="85" width="80" height="40" rx="6" fill="#f59e0b" stroke="#d97706" stroke-width="1"/>
-  <text x="80" y="109" text-anchor="middle" font-size="12" font-weight="bold" fill="#78350f">开发者</text>
-  <!-- Right Arrow -->
-  <path d="M 130 95 L 210 95 L 210 100 L 220 92 L 210 84 L 210 89 L 130 89 Z" fill="#94a3b8"/>
-  <text x="175" y="82" text-anchor="middle" font-size="10" fill="#94a3b8">1. 手写 Prompt</text>
-  <rect x="230" y="85" width="80" height="40" rx="6" fill="#3b82f6" stroke="#2563eb" stroke-width="1"/>
-  <text x="270" y="109" text-anchor="middle" font-size="12" font-weight="bold" fill="#ffffff">LLM Agent</text>
-  <!-- Left Arrow -->
-  <path d="M 230 120 L 150 120 L 150 115 L 140 123 L 150 131 L 150 126 L 230 126 Z" fill="#94a3b8"/>
-  <text x="190" y="145" text-anchor="middle" font-size="10" fill="#94a3b8">2. 人工阅读与纠错</text>
-  <!-- Right Side: Loop Engineering -->
-  <rect x="390" y="20" width="310" height="160" rx="10" fill="#1e1b4b" stroke="#312e81" stroke-width="1"/>
-  <text x="545" y="45" text-anchor="middle" font-size="14" font-weight="bold" fill="#f8fafc">现代 Loop Engineering 模式</text>
-  <text x="545" y="65" text-anchor="middle" font-size="11" fill="#a5b4fc">（Autonomous Loop, 系统化编排）</text>
-  <rect x="405" y="85" width="70" height="60" rx="6" fill="#10b981" stroke="#059669" stroke-width="1"/>
-  <text x="440" y="110" text-anchor="middle" font-size="11" font-weight="bold" fill="#064e3b">开发者</text>
-  <text x="440" y="125" text-anchor="middle" font-size="9" fill="#064e3b">设计循环机制</text>
-  <path d="M 485 115 L 505 115" stroke="#818cf8" stroke-width="2" stroke-dasharray="3 3"/>
-  <polygon points="505,111 513,115 505,119" fill="#818cf8"/>
-  <rect x="520" y="85" width="160" height="60" rx="6" fill="#4f46e5" stroke="#4338ca" stroke-width="1"/>
-  <text x="600" y="105" text-anchor="middle" font-size="11" font-weight="bold" fill="#ffffff">Agent Execution Loop</text>
-  <text x="600" y="120" text-anchor="middle" font-size="9" fill="#c7d2fe">触发器 ➔ 执行 ➔ 判定 ➔ 记忆</text>
-  <text x="600" y="135" text-anchor="middle" font-size="9" fill="#c7d2fe">（自动化闭环运行）</text>
-</svg>
-<figcaption>图 2：单步交互与 Loop Engineering 的对比示意图</figcaption>
-</div>
+```mermaid
+graph TD
+    %%{init: {'theme': 'neutral', 'themeVariables': { 'primaryColor': '#e0f2fe', 'primaryTextColor': '#0369a1', 'primaryBorderColor': '#7dd3fc', 'lineColor': '#64748b'}}}%%
+    subgraph 传统单步 Prompting 模式 (Human-in-the-Loop)
+        A[开发者] -->|1. 手写 Prompt| B(LLM Agent)
+        B -->|2. 人工阅读与纠错| A
+    end
+
+    subgraph 现代 Loop Engineering 模式 (Autonomous Loop)
+        C[开发者] -->|设计循环机制| D(Agent Execution Loop)
+        D -->|触发 ➔ 执行 ➔ 判定 ➔ 记忆| D
+    end
+
+    style A fill:#fef3c7,stroke:#d97706,stroke-width:1px,color:#92400e
+    style B fill:#dbeafe,stroke:#2563eb,stroke-width:1px,color:#1e40af
+    style C fill:#dcfce7,stroke:#16a34a,stroke-width:1px,color:#14532d
+    style D fill:#ede9fe,stroke:#4f46e5,stroke-width:2px,color:#4338ca
+```
+<div align="center"><figcaption>图 2：单步交互与 Loop Engineering 的对比示意图</figcaption></div>
 
 ---
 
@@ -68,31 +53,24 @@ excerpt: "Loop Engineering（循环工程）是 2026 年 AI 智能体开发的�
 
 为了精确给 Loop Engineering 定位，我们必须了解现代 AI 智能体开发的技术层级栈（The Agentic Stack）。在业内，开发者通常将整个 Agent系统划分为四个核心层级：
 
-<div align="center">
-<svg width="720" height="280" xmlns="http://www.w3.org/2000/svg" style="font-family:sans-serif">
-  <!-- Background -->
-  <rect width="720" height="280" rx="12" fill="#0b0f19" stroke="#1e293b" stroke-width="1.5"/>
-  <!-- Title -->
-  <text x="360" y="35" text-anchor="middle" font-size="16" font-weight="bold" fill="#f8fafc">AI Agent 架构层级划分 (The Agentic Stack)</text>
-  <!-- Level 4: Loop Engineering -->
-  <rect x="80" y="60" width="560" height="42" rx="6" fill="#312e81" stroke="#4f46e5" stroke-width="2"/>
-  <text x="100" y="86" font-size="13" font-weight="bold" fill="#e0e7ff">④ 循环工程 (Loop Engineering)</text>
-  <text x="350" y="85" font-size="11" fill="#c7d2fe">自主流程、任务编排、Maker-Checker 机制、状态外部持久化</text>
-  <!-- Level 3: Harness Engineering -->
-  <rect x="80" y="112" width="560" height="42" rx="6" fill="#064e3b" stroke="#10b981" stroke-width="2"/>
-  <text x="100" y="138" font-size="13" font-weight="bold" fill="#d1fae5">③ 驾驭工程 (Harness Engineering)</text>
-  <text x="350" y="137" font-size="11" fill="#a7f3d0">运行环境、执行沙箱、工具与接口（MCP）、护栏与安全约束</text>
-  <!-- Level 2: Context Engineering -->
-  <rect x="80" y="164" width="560" height="42" rx="6" fill="#1e3a8a" stroke="#3b82f6" stroke-width="2"/>
-  <text x="100" y="190" font-size="13" font-weight="bold" fill="#dbeafe">② 上下文工程 (Context Engineering)</text>
-  <text x="350" y="189" font-size="11" fill="#bfdbfe">知识库、动态检索、RAG、系统级说明文件（AGENTS.md）</text>
-  <!-- Level 1: Prompt Engineering -->
-  <rect x="80" y="216" width="560" height="42" rx="6" fill="#78350f" stroke="#f59e0b" stroke-width="2"/>
-  <text x="100" y="242" font-size="13" font-weight="bold" fill="#fef3c7">① 提示工程 (Prompt Engineering)</text>
-  <text x="350" y="241" font-size="11" fill="#fde68a">指令调优、Few-shot 样本、单次问答逻辑、推理思维链控制</text>
-</svg>
-<figcaption>图 3：现代 AI Agent 架构层级栈</figcaption>
-</div>
+```mermaid
+graph TD
+    %%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '12px'}}}%%
+    L4["④ 循环工程 (Loop Engineering)<br/>自主流程、任务编排、Maker-Checker 机制、状态外部持久化"]
+    L3["③ 驾驭工程 (Harness Engineering)<br/>运行环境、执行沙箱、工具与接口 (MCP)、护栏与安全约束"]
+    L2["② 上下文工程 (Context Engineering)<br/>知识库、动态检索、RAG、系统级说明文件 (AGENTS.md)"]
+    L1["① 提示工程 (Prompt Engineering)<br/>指令调优、Few-shot 样本、单次问答逻辑、推理思维链控制"]
+
+    L4 --> L3
+    L3 --> L2
+    L2 --> L1
+
+    style L4 fill:#ede9fe,stroke:#818cf8,stroke-width:2px,color:#4338ca
+    style L3 fill:#dcfce7,stroke:#34d399,stroke-width:2px,color:#14532d
+    style L2 fill:#e0f2fe,stroke:#38bdf8,stroke-width:2px,color:#0369a1
+    style L1 fill:#fef3c7,stroke:#fbbf24,stroke-width:2px,color:#92400e
+```
+<div align="center"><figcaption>图 3：现代 AI Agent 架构层级栈</figcaption></div>
 
 1. **提示工程 (Prompt Engineering)**：研究如何优化单次向大模型输入的信息结构，以获得更准确的瞬时推理（如 Chain-of-Thought, ReAct 元指令设计）。
 2. **上下文工程 (Context Engineering)**：关注如何动态提取、缓存与更新模型在解决特定问题时所需的相关信息（例如在 IDE 中动态检索相关定义、代码片段等）。
@@ -149,59 +127,28 @@ Loop Engineering 倡导**“记忆必须留在磁盘/外部数据库，而不是
 
 在实际工程中，这五大原语与外部状态是如何联动工作的呢？我们可以看一看下面这个典型的**自动化 Bug 修复与验证循环**：
 
-<div align="center">
-<svg width="720" height="300" xmlns="http://www.w3.org/2000/svg" style="font-family:sans-serif">
-  <!-- Background -->
-  <rect width="720" height="300" rx="12" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
-  <!-- Title -->
-  <text x="360" y="30" text-anchor="middle" font-size="15" font-weight="bold" fill="#f0f6fc">Loop Engineering 典型自主执行闭环流程</text>
-  <!-- Step 1: Trigger -->
-  <rect x="30" y="60" width="100" height="50" rx="8" fill="#21262d" stroke="#f59e0b" stroke-width="1.5"/>
-  <text x="80" y="85" text-anchor="middle" font-size="11" font-weight="bold" fill="#f0f6fc">1. 触发 &amp; 检索</text>
-  <text x="80" y="98" text-anchor="middle" font-size="9" fill="#8b949e">Cron / 任务看板</text>
-  <!-- Arrow to Step 2 -->
-  <path d="M 130 85 L 170 85" stroke="#8b949e" stroke-width="1.5" fill="none"/>
-  <polygon points="170,82 178,85 170,88" fill="#8b949e"/>
-  <!-- Step 2: Worktree Isolation -->
-  <rect x="180" y="60" width="110" height="50" rx="8" fill="#21262d" stroke="#38bdf8" stroke-width="1.5"/>
-  <text x="235" y="85" text-anchor="middle" font-size="11" font-weight="bold" fill="#f0f6fc">2. 隔离工作区</text>
-  <text x="235" y="98" text-anchor="middle" font-size="9" fill="#8b949e">git worktree 创建</text>
-  <!-- Arrow to Step 3 -->
-  <path d="M 290 85 L 330 85" stroke="#8b949e" stroke-width="1.5" fill="none"/>
-  <polygon points="330,82 338,85 330,88" fill="#8b949e"/>
-  <!-- Step 3: Maker Subagent -->
-  <rect x="340" y="60" width="110" height="50" rx="8" fill="#21262d" stroke="#a855f7" stroke-width="1.5"/>
-  <text x="395" y="85" text-anchor="middle" font-size="11" font-weight="bold" fill="#f0f6fc">3. 编码执行者</text>
-  <text x="395" y="98" text-anchor="middle" font-size="9" fill="#c084fc">Subagent: Maker</text>
-  <!-- Arrow to Step 4 -->
-  <path d="M 450 85 L 490 85" stroke="#8b949e" stroke-width="1.5" fill="none"/>
-  <polygon points="490,82 498,85 490,88" fill="#8b949e"/>
-  <!-- Step 4: Checker Subagent -->
-  <rect x="500" y="60" width="110" height="50" rx="8" fill="#21262d" stroke="#10b981" stroke-width="1.5"/>
-  <text x="555" y="85" text-anchor="middle" font-size="11" font-weight="bold" fill="#f0f6fc">4. 自动化判定</text>
-  <text x="555" y="98" text-anchor="middle" font-size="9" fill="#34d399">Subagent: Checker</text>
-  <!-- Arrow to Branch -->
-  <path d="M 610 85 L 635 85 L 635 140 L 415 140 L 415 180" stroke="#8b949e" stroke-width="1.5" fill="none"/>
-  <polygon points="412,180 415,188 418,180" fill="#8b949e"/>
-  <text x="525" y="135" text-anchor="middle" font-size="10" fill="#8b949e">通过校验？</text>
-  <!-- Feedback / Loop back path (if Fail) -->
-  <path d="M 360 215 L 235 215 L 235 140 L 395 140 L 395 120" stroke="#ef4444" stroke-width="1.5" fill="none" stroke-dasharray="4"/>
-  <polygon points="392,120 395,112 398,120" fill="#ef4444"/>
-  <text x="280" y="230" text-anchor="middle" font-size="10" fill="#ef4444">未通过 ➔ 报错反馈与重试</text>
-  <!-- Step 5: Stop Condition & PR (if Pass) -->
-  <rect x="360" y="190" width="110" height="50" rx="8" fill="#1f2937" stroke="#10b981" stroke-width="2"/>
-  <text x="415" y="215" text-anchor="middle" font-size="11" font-weight="bold" fill="#f0f6fc">5. 停止与交付</text>
-  <text x="415" y="228" text-anchor="middle" font-size="9" fill="#34d399">合并代码 / 开 PR</text>
-  <!-- Arrow to Step 6 -->
-  <path d="M 470 215 L 510 215" stroke="#8b949e" stroke-width="1.5" fill="none"/>
-  <polygon points="510,212 518,215 510,218" fill="#8b949e"/>
-  <!-- Step 6: Memory State Update -->
-  <rect x="520" y="190" width="110" height="50" rx="8" fill="#21262d" stroke="#f43f5e" stroke-width="1.5"/>
-  <text x="575" y="215" text-anchor="middle" font-size="11" font-weight="bold" fill="#f0f6fc">6. 更新全局状态</text>
-  <text x="575" y="228" text-anchor="middle" font-size="9" fill="#fb7185">AGENTS.md / Linear</text>
-</svg>
-<figcaption>图 4：Loop Engineering 典型自主执行闭环流程图</figcaption>
-</div>
+```mermaid
+graph LR
+    %%{init: {'theme': 'neutral', 'themeVariables': { 'lineColor': '#64748b'}}}%%
+    T[1. 触发 & 检索<br/>Cron / 任务看板] --> W[2. 隔离工作区<br/>git worktree]
+    W --> M[3. 编码执行者<br/>Subagent: Maker]
+    M --> C{4. 自动化判定<br/>Subagent: Checker}
+    
+    C -->|未通过 Fail| F[报错反馈与重试]
+    F -.-> M
+    
+    C -->|已通过 Pass| P[5. 停止与交付<br/>合并代码 / 开 PR]
+    P --> S[6. 更新全局状态<br/>AGENTS.md / Linear]
+
+    style T fill:#fef3c7,stroke:#fbbf24,stroke-width:1px,color:#92400e
+    style W fill:#e0f2fe,stroke:#38bdf8,stroke-width:1px,color:#0369a1
+    style M fill:#f3e8ff,stroke:#c084fc,stroke-width:1px,color:#6b21a8
+    style C fill:#dcfce7,stroke:#34d399,stroke-width:2px,color:#14532d
+    style F fill:#fee2e2,stroke:#f87171,stroke-width:1px,color:#991b1b
+    style P fill:#f1f5f9,stroke:#64748b,stroke-width:1.5px,color:#334155
+    style S fill:#ffe4e6,stroke:#fda4af,stroke-width:1px,color:#9f1239
+```
+<div align="center"><figcaption>图 4：Loop Engineering 典型自主执行闭环流程图</figcaption></div>
 
 1. **触发 &amp; 检索 (Trigger &amp; Retrieval)**：事件监听发现有未结任务，触发 Loop。系统拉取对应上下文，并挂载 `SKILL.md`，使 Agent 系统掌握项目规范底盘。
 2. **工作区隔离 (Worktree Isolation)**：在本地生成临时的 `git worktree` 与新分支，以保护生产主分支代码。
