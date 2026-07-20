@@ -1,13 +1,13 @@
 ---
 layout: post
 title: "AI Agent 综述：自主推理与工具调用的范式革命"
-date: 2026-07-17
+date: 2026-07-20
 tags: [Agent, LLM, Multi-Agent, Survey]
 categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划并执行多步骤任务的 AI 系统。本文系统梳理 AI Agent 核心架构、关键技术范式（ReAct、工具调用/MCP、反思、Harness Engineering、多 Agent）、代表性工作（ReAct、Reflexion、Voyager），并深入介绍 2025–2026 年主流商业 Agent 产品（Manus、Claude Code、OpenAI Codex、Devin、NemoClaw）与主流评测基准，聚焦软件端自主智能体的研究全貌。"
+excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划并执行多步骤任务的 AI 系统。本文系统梳理 AI Agent 核心架构、关键技术范式（ReAct、工具调用/MCP、反思、Harness Engineering、Loop Engineering、多 Agent）、代表性工作（ReAct、Reflexion、Voyager），并深入介绍 2025–2026 年主流商业 Agent 产品（Manus、Claude Code、OpenAI Codex、Devin、NemoClaw）与主流评测基准，聚焦软件端自主智能体的研究全貌。"
 ---
 
 # 1. 引言
@@ -17,7 +17,7 @@ excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划�
 AI Agent 不是一个单一的模型，而是一种**系统架构**：以 LLM 为"大脑"，配备感知、记忆、工具调用和行动能力，形成一个能够在环境中持续循环推理-执行的自主系统。2025–2026 年，AI Agent 已从学术概念迅速走向产业爆发：
 
 - **OpenClaw**（2025 年 11 月发布）在 72 小时内积累 60,000+ GitHub Stars，目前已突破 **280,000 Stars**，成为史上增速最快的开源项目之一；
-- OpenAI 与 Anthropic 相继定义 **「Harness Engineering（Agent 工程化）」**，成为 2026 年工程界最热议的新范式；
+- OpenAI 与 Anthropic 定义 **「Harness Engineering（Agent 工程化）」**，随后演进出 **「Loop Engineering（循环工程）」**，共同成为 2026 年工程界最热议的新范式；
 - 代码 Agent 在 SWE-bench 上的成功率从 2024 年底的 55% 跃升至 2025 年底的 70%+，Agent 能力正在快速逼近真实工程任务的实用门槛。
 
 本文聚焦软件端 AI Agent，系统梳理其核心架构、关键技术范式、代表性工作、评测基准与最新进展。
@@ -50,7 +50,7 @@ flowchart LR
 
 Agent 的核心能力在于它不仅能"说"，还能"做"——通过调用外部工具（搜索引擎、代码执行器、API、浏览器等）影响真实世界，并根据执行结果动态调整后续计划。
 
-从工程视角看，AI Agent 可以理解为 **LLM（推理核心）+ Harness（工程约束框架）** 的结合体：LLM 提供推理与生成能力，Harness 则通过上下文工程、架构约束与验证循环，决定 Agent 能可靠地做什么、不能做什么。两者缺一不可——只有 LLM 的 Agent 强大但不可控，只有 Harness 没有 LLM 则寸步难行。Harness Engineering 的工程细节详见：[Harness Engineering](/Harness-Engineering/)。
+从工程视角看，AI Agent 可以理解为 **LLM（推理核心）+ Harness（工程约束框架）** 的结合体。随着 2026 年下半年技术的演进，更在其上催生了 **Loop Engineering（循环工程）** ——将整个交互生命周期全面闭环化与自动化。有关工程与闭环范式的细节详见 [Harness Engineering](/Harness-Engineering/) 与 [Loop Engineering](/loop-engineering/)。
 
 ## 2.2 Agent 与普通 LLM 的核心区别
 
@@ -161,6 +161,7 @@ flowchart LR
         J["OpenClaw\n通用开源 Agent OS"] --> K["Manus\n通用自主 Agent"]
         K --> L["Claude Code / Codex\n编程 Agent 商用"]
         L --> M["Harness Engineering\nAgent 工程化"]
+        M --> N["Loop Engineering\n下一代闭环范式"]
     end
 ```
 
@@ -171,6 +172,16 @@ flowchart LR
 > 详细技术解析见：[Harness Engineering](/Harness-Engineering/)
 
 *代表性工作*：「Harness Engineering」（OpenAI，2026 年 2 月）、「Effective Harnesses for Long-Running Agents」（Anthropic，2026）
+
+---
+
+## 2.8 Loop Engineering：下一代闭环范式
+
+「Loop Engineering」（循环工程）是 2026 年中后期在 Harness Engineering 基础上演进的更高层级架构方案。它主张将开发者的角色从“手写 Prompt 的打字员”转变为“设计 Agent 闭环系统的架构师”。其核心是将原本需要“人类在环”（Human-in-the-Loop）的交互，抽象为由 **自动触发器 (Automations)**、**分支工作区 (Worktrees)**、**项目技能库 (Skills)**、**外部连接器 (Connectors)**、**多代理体系 (Sub-agents)** 这五大原语驱动的自动化控制循环，并引入**全局外部持久化记忆 (State)**。
+
+> 详细技术解析见：[Loop Engineering：Agent 工程化的下一代闭环范式](/loop-engineering/)
+
+*代表性工作*：「Loop Engineering」（Codex/Claude Code, 2026 年 7 月）
 
 
 # 3. 关键推理范式
@@ -1632,7 +1643,7 @@ Agent 间通信  →  消息签名验证（ACP），结果交叉校验
 
 AI Agent 代表了人工智能从"理解"走向"行动"的核心范式转变。以 LLM 为大脑、工具调用为手脚、记忆模块为经验积累，Agent 系统正在将自然语言理解的能力延伸到真实世界的任务执行中。
 
-从技术演进看：ReAct 定义了推理-行动的基本范式（2022），Reflexion 引入了语言反思记忆（2023），MCP 协议标准化了 Agent 与外部世界的接口（2024），OpenClaw 将通用 Agent 能力推向开放生态（2025），Harness Engineering 则标志着 Agent 从实验室走向生产的工程化拐点（2026）。
+从技术演进看：ReAct 定义了推理-行动的基本范式（2022），Reflexion 引入了语言反思记忆（2023），MCP 协议标准化了 Agent 与外部世界的接口（2024），OpenClaw 将通用 Agent 能力推向开放生态（2025），Harness Engineering 则标志着 Agent 从实验室走向生产的工程化拐点，而其上层演进出的 Loop Engineering（循环工程）则成为了实现高自主、长周期任务的核心闭环范式（2026）。
 
 2026 年的核心议题正在从"Agent 能不能工作"转向"**如何让 Agent 可靠地工作**"。
 
@@ -1676,15 +1687,16 @@ AI Agent 代表了人工智能从"理解"走向"行动"的核心范式转变。�
 17. Butterfly Effect. "Manus: A General AI Agent." *manus.im*, March 2025. Accessed March 2026.
 18. Cognition AI. "Devin: The First AI Software Engineer." *cognition.ai/blog*, March 2024. Accessed March 2026.
 19. Cognition AI. "Devin 2.0: AI Software Engineer." *cognition.ai/blog*, April 2025. Accessed March 2026.
+20. Tingde Liu. "Loop Engineering: Agent 工程化的下一代闭环范式." *tingdeliu.github.io/loop-engineering/*, July 2026. Accessed July 2026.
 
 **Agent 安全**
 
-20. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
-21. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
-22. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
+21. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
+22. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
+23. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
 
 **综述与背景**
 
-23. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
-24. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
-25. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
+24. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
+25. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
+26. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
