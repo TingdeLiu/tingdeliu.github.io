@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Loop Engineering：Agent 工程化的下一代闭环范式"
-date:   2026-07-17
+date:   2026-07-20
 tags: [Loop Engineering, Agentic Workflow, Harness Engineering, AI Engineering, Claude Code, Codex]
 categories: blog
 comments: true
@@ -28,15 +28,15 @@ excerpt: "Loop Engineering（循环工程）是 2026 年 AI 智能体开发的�
 传统的手动 Prompt 模式由于需要人类时刻处于闭环中（Human-in-the-loop），极大地限制了 Agent 执行大规模、长周期任务的上限。而在 Loop Engineering 模式下，开发者编写的是“控制循环”：定义清晰的目标、环境约束、验证条件与终止规则，让系统自己在前台反复调试、运行、校验、自我纠错，直到达成目标。
 
 ```mermaid
-graph TD
+flowchart TD
     %%{init: {'theme': 'neutral', 'themeVariables': { 'primaryColor': '#e0f2fe', 'primaryTextColor': '#0369a1', 'primaryBorderColor': '#7dd3fc', 'lineColor': '#64748b'}}}%%
-    subgraph 传统单步 Prompting 模式 (Human-in-the-Loop)
-        A[开发者] -->|1. 手写 Prompt| B(LLM Agent)
+    subgraph traditional["传统单步 Prompting 模式 (Human-in-the-Loop)"]
+        A["开发者"] -->|1. 手写 Prompt| B("LLM Agent")
         B -->|2. 人工阅读与纠错| A
     end
 
-    subgraph 现代 Loop Engineering 模式 (Autonomous Loop)
-        C[开发者] -->|设计循环机制| D(Agent Execution Loop)
+    subgraph modern["现代 Loop Engineering 模式 (Autonomous Loop)"]
+        C["开发者"] -->|设计循环机制| D("Agent Execution Loop")
         D -->|触发 ➔ 执行 ➔ 判定 ➔ 记忆| D
     end
 
@@ -54,7 +54,7 @@ graph TD
 为了精确给 Loop Engineering 定位，我们必须了解现代 AI 智能体开发的技术层级栈（The Agentic Stack）。在业内，开发者通常将整个 Agent系统划分为四个核心层级：
 
 ```mermaid
-graph TD
+flowchart TD
     %%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '12px'}}}%%
     L4["④ 循环工程 (Loop Engineering)<br/>自主流程、任务编排、Maker-Checker 机制、状态外部持久化"]
     L3["③ 驾驭工程 (Harness Engineering)<br/>运行环境、执行沙箱、工具与接口 (MCP)、护栏与安全约束"]
@@ -128,17 +128,17 @@ Loop Engineering 倡导**“记忆必须留在磁盘/外部数据库，而不是
 在实际工程中，这五大原语与外部状态是如何联动工作的呢？我们可以看一看下面这个典型的**自动化 Bug 修复与验证循环**：
 
 ```mermaid
-graph LR
+flowchart LR
     %%{init: {'theme': 'neutral', 'themeVariables': { 'lineColor': '#64748b'}}}%%
-    T[1. 触发 & 检索<br/>Cron / 任务看板] --> W[2. 隔离工作区<br/>git worktree]
-    W --> M[3. 编码执行者<br/>Subagent: Maker]
-    M --> C{4. 自动化判定<br/>Subagent: Checker}
+    T["1. 触发 & 检索<br/>Cron / 任务看板"] --> W["2. 隔离工作区<br/>git worktree"]
+    W --> M["3. 编码执行者<br/>Subagent: Maker"]
+    M --> C{"4. 自动化判定<br/>Subagent: Checker"}
     
-    C -->|未通过 Fail| F[报错反馈与重试]
+    C -->|未通过 Fail| F["报错反馈与重试"]
     F -.-> M
     
-    C -->|已通过 Pass| P[5. 停止与交付<br/>合并代码 / 开 PR]
-    P --> S[6. 更新全局状态<br/>AGENTS.md / Linear]
+    C -->|已通过 Pass| P["5. 停止与交付<br/>合并代码 / 开 PR"]
+    P --> S["6. 更新全局状态<br/>AGENTS.md / Linear"]
 
     style T fill:#fef3c7,stroke:#fbbf24,stroke-width:1px,color:#92400e
     style W fill:#e0f2fe,stroke:#38bdf8,stroke-width:1px,color:#0369a1
