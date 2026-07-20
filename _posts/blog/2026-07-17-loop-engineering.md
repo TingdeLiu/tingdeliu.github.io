@@ -98,17 +98,92 @@ flowchart TD
 * **适用场景**：原子化、边界清晰、拥有明确 Boolean 类型测试反馈的子任务。
 * **设计陷阱**：如果不提供策略变化，极易陷入“使用同样错误逻辑反复重试”的自旋中。
 
+```mermaid
+flowchart TD
+    %%{init: {'theme': 'neutral', 'themeVariables': { 'lineColor': '#64748b'}}}%%
+    Start["开始任务"] --> Exec["执行尝试 (Action)"]
+    Exec --> Verify{"校验判定 (Verify)"}
+    Verify -->|通过 Pass| Done["完成 Exit"]
+    Verify -->|失败 Fail| Mutate["调整策略 (Mutate)"]
+    Mutate --> Exec
+
+    style Start fill:#f1f5f9,stroke:#cbd5e1,stroke-width:1px,color:#334155
+    style Exec fill:#f3e8ff,stroke:#c084fc,stroke-width:1px,color:#6b21a8
+    style Verify fill:#fef3c7,stroke:#fbbf24,stroke-width:1px,color:#92400e
+    style Done fill:#dcfce7,stroke:#34d399,stroke-width:2px,color:#14532d
+    style Mutate fill:#fee2e2,stroke:#f87171,stroke-width:1px,color:#991b1b
+```
+
 ### ② 计划-执行-校验循环 (The Plan-Execute-Verify Loop)
 * **核心机制**：在执行前，智能体首先进行高层级的任务拆解并生成 Plan，随后逐个步骤执行。在每个步骤结束时，由专用的验证子代理（Checker）对修改进行单步判定。若发现偏差，则动态调整计划（Plan Re-routing）而非盲目推进。
 * **适用场景**：涉及多个组件重构、API 跨文件调用等长周期、多依赖的复杂工程任务。
 * **优势**：防止早期微小错误在后期的累积与放大。
 
+```mermaid
+flowchart TD
+    %%{init: {'theme': 'neutral', 'themeVariables': { 'lineColor': '#64748b'}}}%%
+    Start["开始"] --> Plan["生成全局计划 (Plan)"]
+    Plan --> Step["执行单步任务 (Execute Step)"]
+    Step --> Verify{"单步质检 (Checker)"}
+    Verify -->|失败 Fail| ReRoute["动态调整计划 (Plan Re-routing)"]
+    ReRoute --> Step
+    Verify -->|通过 Pass| Next{"是否全部完成?"}
+    Next -->|否 No| Step
+    Next -->|是 Yes| Done["整体交付 (Verify & Exit)"]
+
+    style Start fill:#f1f5f9,stroke:#cbd5e1,stroke-width:1px,color:#334155
+    style Plan fill:#e0f2fe,stroke:#38bdf8,stroke-width:1px,color:#0369a1
+    style Step fill:#f3e8ff,stroke:#c084fc,stroke-width:1px,color:#6b21a8
+    style Verify fill:#fef3c7,stroke:#fbbf24,stroke-width:1px,color:#92400e
+    style ReRoute fill:#fee2e2,stroke:#f87171,stroke-width:1px,color:#991b1b
+    style Next fill:#e0f2fe,stroke:#38bdf8,stroke-width:1px,color:#0369a1
+    style Done fill:#dcfce7,stroke:#34d399,stroke-width:2px,color:#14532d
+```
+
 ### ③ 探索-收敛循环 (The Explore-Narrow Loop)
 * **核心机制**：面对未知错误时，智能体并行或串行地去尝试多种不同的解决通路（比如尝试方案 A 修改配置，尝试方案 B 修改代码结构），收集运行反馈，评估不同通路的成效，最终选择收敛至最优解。
 * **适用场景**：疑难 Bug 排查、未知第三方库 API 的探索性调用、性能调优等无法一步到位确定方案的场景。
 
+```mermaid
+flowchart TD
+    %%{init: {'theme': 'neutral', 'themeVariables': { 'lineColor': '#64748b'}}}%%
+    Start["定位问题"] --> Split{"分叉探索 (Path Splitting)"}
+    Split -->|尝试方案 A| TryA["执行方案 A (Run A)"]
+    Split -->|尝试方案 B| TryB["执行方案 B (Run B)"]
+    TryA --> Eval["评估与收集反馈 (Evaluate & Collect)"]
+    TryB --> Eval
+    Eval --> Narrow["选择最优方案 (Narrow Path)"]
+    Narrow --> Done["收敛并交付 (Narrow & Exit)"]
+
+    style Start fill:#f1f5f9,stroke:#cbd5e1,stroke-width:1px,color:#334155
+    style Split fill:#ffe8cc,stroke:#ff922b,stroke-width:1px,color:#d9480f
+    style TryA fill:#f3e8ff,stroke:#c084fc,stroke-width:1px,color:#6b21a8
+    style TryB fill:#f3e8ff,stroke:#c084fc,stroke-width:1px,color:#6b21a8
+    style Eval fill:#fef3c7,stroke:#fbbf24,stroke-width:1px,color:#92400e
+    style Narrow fill:#e0f2fe,stroke:#38bdf8,stroke-width:1px,color:#0369a1
+    style Done fill:#dcfce7,stroke:#34d399,stroke-width:2px,color:#14532d
+```
+
 ### ④ 人机协同循环 (Human-in-the-Loop)
 * **核心机制**：并非所有的自主循环都是越脱离人类越好。在该模式下，Agent 在遇到高度模糊的需求、缺失关键秘钥，或面临高风险操作（如合并至主分支、执行 destructive 的数据库变更）时，会主动暂停循环，将上下文提报给人类，由人类提供精准决策或授权后再恢复执行。
+
+```mermaid
+flowchart TD
+    %%{init: {'theme': 'neutral', 'themeVariables': { 'lineColor': '#64748b'}}}%%
+    Start["自主运行"] --> Check{"评估动作风险"}
+    Check -->|低风险 Low Risk| Exec["自动执行 (Auto Exec)"]
+    Check -->|高风险 / 模糊 High Risk / Vague| Pause["挂起并求助人类 (Human Escalation)"]
+    Pause --> Input["人类输入决策 (Human Decision)"]
+    Input --> Exec
+    Exec --> Done["任务结束 (Exit)"]
+
+    style Start fill:#f1f5f9,stroke:#cbd5e1,stroke-width:1px,color:#334155
+    style Check fill:#ffe8cc,stroke:#ff922b,stroke-width:1px,color:#d9480f
+    style Exec fill:#f3e8ff,stroke:#c084fc,stroke-width:1px,color:#6b21a8
+    style Pause fill:#fee2e2,stroke:#f87171,stroke-width:2px,color:#991b1b
+    style Input fill:#dcfce7,stroke:#34d399,stroke-width:1px,color:#14532d
+    style Done fill:#dcfce7,stroke:#34d399,stroke-width:2px,color:#14532d
+```
 
 ---
 
