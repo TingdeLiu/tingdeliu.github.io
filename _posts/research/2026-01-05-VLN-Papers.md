@@ -6660,7 +6660,7 @@ ReflectVLN 架构由两个独立参数化的 Agent 组成：**意图 Agent（Int
 
 ---
 
-## [CorrectNav (2025)]
+## 63. CorrectNav (2025)
 ——— 自纠错飞轮赋能的单目 RGB 视觉-语言-动作导航模型
 
 📄 **Paper**: [arXiv:2508.10416](https://arxiv.org/abs/2508.10416) · [Code](https://github.com/owlet914/CorrectNav) · [Project Page](https://correctnav.github.io)
