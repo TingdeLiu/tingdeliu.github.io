@@ -33,6 +33,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [ABot-N0(单目)](#abot-n0) | 2026 | R2R-CE | Qwen3-4B | 66.4 | – | – | – | 否 | 16.9M 专家轨迹 | 
  | [Dual-Anchoring(单目)](#dual-anchoring) | 2026 | R2R-CE | LLaVA-Video-7B | 65.6 | 62.1 | – | – | 否 | 360万 进度描述 | 
  | [AwareVLN(单目)](#awarevln) | 2026 | R2R-CE | Vicuna-7B | 65.4 | 55.1 | 4.02 | 73.5 | [是](https://github.com/GWxuan/AwareVLN) | – | 
+| [CorrectNav](#correctnav) | 2025 | R2R-CE | – | 65.1 | 62.3 | 4.24 | 67.5 | 否 | – |
  | [NavFoM(多目)](#navfom) | 2025 | R2R-CE | Qwen2-7B | 64.9 | 56.2 | – | – | 否 | 8.02M 样本 | 
  | [DGNav(单目)](#dgnav) | 2026 | R2R-CE | – | 64.82 | 50.08 | – | – | [是](https://github.com/shannanshouyin/DGNav) | – | 
  | [DualVLN(单目)](#dualvln) | 2025 | R2R-CE | Qwen2.5-VL-7B | 64.3 | 58.5 | 4.05 | 70.7 | [是](https://github.com/InternRobotics/InternNav) | 147万 样本 | 
@@ -62,6 +63,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | RxR-CE | Qwen3-VL-7B | 73.4 | 63.5 | – | – | 否 | 15.6M 混合数据 | 
  | [AstraNav-World (多目)](#astranav-world) | 2025 | RxR-CE | Qwen2.5-VL-3B | 72.9 | – | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) | – | 
  | [ABot-N0 (单目)](#abot-n0) | 2026 | RxR-CE | Qwen3-4B | 69.3 | 60.0 | – | – | 否 | 16.9M 专家轨迹 | 
+| [CorrectNav](#correctnav) | 2025 | RxR-CE | – | 69.3 | 63.3 | 4.09 | – | 否 | – |
  | [AwareVLN (单目)](#awarevln) | 2026 | RxR-CE | Vicuna-7B | 67.6 | 56.1 | 3.95 | – | [是](https://github.com/GWxuan/AwareVLN) | – | 
 | [ReflectVLN(单目)](#reflectvln) | 2026 | RxR-CE | Qwen2.5-VL-3B | 66.0 | 57.2 | 3.98 | – | [是](https://github.com/AIprogrammer/ReflectVLN) | 1.6M 专家+反思数据 |
  | [SEDualVLN (单目)](#sedualvln) | 2026 | RxR-CE | LLaVA-Video-7B | 63.9 | 52.4 | 4.12 | – | [是](https://github.com/kim-os/SEDualVLN) | – | 
@@ -6658,6 +6660,136 @@ ReflectVLN 架构由两个独立参数化的 Agent 组成：**意图 Agent（Int
 
 ---
 
+## [CorrectNav (2025)]
+——— 自纠错飞轮赋能的单目 RGB 视觉-语言-动作导航模型
+
+📄 **Paper**: [arXiv:2508.10416](https://arxiv.org/abs/2508.10416) · [Project Page](https://correctnav.github.io)
+
+---
+
+### 精华
+
+1. **变废为宝的数据范式**：不同于传统方法将模型在训练集上的预测偏差视为无效错误，CorrectNav 提出**自纠错飞轮**（Self-correction Flywheel）后训练范式，将模型评估产生的偏离轨迹转化为极具价值的自纠错训练数据。
+2. **感知与动作双重隐式纠错**：联合构建**动作纠错轨迹**（通过轨迹规划器 $\Gamma$ 重新打通至终点的路径）与基于多模态大模型的**关键帧感知分析**（描述地标与生成细节 QA），无需增加额外的推理模块或引入极耗时的思维链（CoT），将自纠错能力直接隐式内化于模型参数中。
+3. **闭环飞轮多轮迭代**：采用"模型评估 ➔ 偏离检测 ➔ 动作/感知自纠错数据自动生成 ➔ 持续训练"的闭环机制。训练后新模型产生的偏离模式会触发下一轮飞轮，性能随迭代轮次提升显著。
+4. **单目 RGB 端到端 SOTA**：仅依赖单目 RGB 视频输入与语言指令，在 R2R-CE 和 RxR-CE Val-Unseen 连续环境基准上成功率分别达到 **65.1%** 和 **69.3%**，大幅超越 prior SOTA 导航大模型 StreamVLN（+8.2% 与 +16.4%）。
+5. **强鲁棒的实机落地**：结合域随机化与通用多模态数据回放防遗忘策略，在 AgiBot 灵汐 D1 四足机器人上实现了室内外复杂场景、长指令跟随与动态避障自纠正的高成功率部署。
+
+---
+
+### 1. 研究背景/问题
+
+在视觉-语言导航（Vision-and-Language Navigation, VLN）任务中，机器人需要根据自然语言指令在未探索的连续环境中进行路径探索。然而，现有的视觉-语言-动作（VLA）导航模型在执行指令时，不可避免地会由于感知失误或指令理解偏差产生单步预测错误。
+
+这种单步错误在连续空间中会迅速累积，导致机器人严重偏离预定路线（如指令要求"向前走并右转进客厅"，若提前右转则会误入厨房）。传统模型由于缺乏**自纠错（Self-correction）与自恢复能力**，一旦偏离路径便无法重新定位，导致导航失败。先前部分研究（如 SmartWay、EnvolveNav）尝试引入闭源大模型进行回溯反思或生成长思维链，但这引入了巨大的推理延迟与复杂的外部模块，难以满足实机导航的实时性要求。
+
+---
+
+### 2. 主要方法/创新点
+
+CorrectNav 构建了一个基于单目 RGB 图像输入的 VLA 导航模型，并通过**自纠错飞轮后训练范式**隐式内化了高效的路径偏离纠正能力。
+
+<div align="center">
+  <img src="/images/vln/CorrectNav-capabilities.png" width="100%" />
+<figcaption>CorrectNav 具身导航多样化能力示意图（涵盖跨房间指令导航、地标状态变更感知、错误纠偏、漂移纠正及行人/密集障碍物避让）</figcaption>
+</div>
+
+#### ① 整体框架概述
+
+CorrectNav 系统由 **Vision Encoder**（SigLIP）、**Projector**（2层 MLP）与 **Large Language Model Backbone**（Qwen2 7B，初始化自 LLaVA-Video 7B）三个模块构成。Vision Encoder 负责抽取输入 RGB 视频多帧的视觉特征 $Z_v$，Projector 将视觉特征映射至 LLM 语义空间 $H_v$，LLM 结合语言指令文本 token 自回归预测长度为 $m=4$ 的动作块（Action Chunk $\{a_{t+1}, \dots, a_{t+m}\}$）。
+
+<div align="center">
+  <img src="/images/vln/CorrectNav-architecture.png" width="100%" />
+<figcaption>CorrectNav 整体架构与自纠错飞轮后训练范式示意图（左：导航微调与域随机化；右：自纠错飞轮 4 步循环闭环）</figcaption>
+</div>
+
+#### ② 基础导航微调（Navigation Fine-tuning）与三大数据策略
+
+在开启自纠错飞轮前，CorrectNav 首先在标准导航任务上进行多任务微调：
+- **动作预测任务（Action Prediction）**：基于 MP3D 场景提取的 R2R-CE（527K）和 RxR-CE（1.58M）共计 210 万+ 步级标准轨迹进行动作预测训练。为了大幅提升视觉鲁棒性，引入了**域随机化策略**（涵盖随机相机高度、视场角 FoV、分辨率缩放与光照条件变换）。
+- **轨迹逆向指令生成（Instruction Generation）**：利用 30K 条完整 oracle 轨迹，训练 CorrectNav 根据观测历史生成对应的导航语言指令，强化跨模态表达能力。
+- **通用多模态数据回放（General Multimodal Data Recall）**：为防止在专用导航数据集上连续训练导致通用多模态理解能力退化（Catastrophic Forgetting），按比例混入 240K 来自 LLaVA-Video（ActivityNet-QA 和 NextQA）的视频 QA 数据，保持时空感知能力。
+
+#### ③ 自纠错飞轮后训练范式（Self-correction Flywheel Post-training）
+
+为了使 CorrectNav 具备自恢复能力，作者设计了四步闭环飞轮：
+
+1. **Step 1: 训练集评估与偏离轨迹采集**  
+   虽然 CorrectNav 已在训练集上接受过监督训练，但在训练集上重新评估模型时，模型依然会产生导航错误轨迹 $T_m = (M_1, M_2, \dots, M_m)$。这些包含错误的轨迹正是最宝贵的自纠错训练数据来源。
+
+2. **Step 2: 轨迹偏离检测（Deviation Detection）**  
+   对真实参考轨迹 $T_g$ 进行均匀插值得到 $T'_g$。计算机器人位置 $M_i$ 到参考轨迹的垂距：
+   $$h_i = \min_{x \in T'_g} \lVert M_i - x \rVert_2$$
+   对应在 $T'_g$ 上的垂足定位为：
+   $$P_i = \arg\min_{P \in T'_g} \lVert M_i - P \rVert_2$$
+   当存在时间步 $t$ 满足垂距超过距离阈值 $S$（即 $h_t > S$，且之前步骤 $h_i \le S, \forall i < t$），则判定模型在 $M_t$ 处发生了偏离，并将 $M_t$ 附近的观测帧标记为纠错关键帧。
+
+3. **Step 3: 动作与感知自纠错数据构建**  
+   - **动作纠错轨迹（Action Correction Trajectory）**：若垂足 $P_t$ 位于参考线段 $G_k G_{k+1}$ 上，说明机器人正确经过了 $G_k$，但在前往 $G_{k+1}$ 时发生偏离。调用轨迹规划器 $\Gamma$ 重新生成一条从偏离点 $M_t$ 出发、经过后续参考点并最终到达终点的修补轨迹 $$T_e = (M_t, G_{k+1}, \dots, G_n)$$。在训练时，偏离点前的历史只提供观测上下文，仅在 $T_e$ 上计算动作预测损失。
+   - **关键帧感知分析（Keyframe Perception Analysis）**：抽取偏离点 $M_t$ 及其前后关键帧 $\{K_1, K_2, K_3\}$，利用多模态大模型 Qwen-VL-Plus 自动生成两类感知数据：
+     1. **地标描述** $$C_i = \text{MLLM}(K_i, L_{\text{cap}})$$：描述图像中出现的家具、建筑结构等关键地标；
+     2. **细节 QA 对** $$\{(Q_j, A_j)\}_{j=1}^x = \text{MLLM}(K_i, L_{\text{qa}})$$：聚焦于物体相对位置、颜色及机器人当前朝向等关键视觉元素。通过感知数据训练，引导模型不仅知晓"怎么纠偏"，更理解"为何偏离"。
+
+4. **Step 4: 模型持续训练与多轮飞轮迭代（Continued Training & Multi-Round Iteration）**  
+   按比例采样 $50\%$ 的自纠错轨迹/感知数据与 $25\%$ 的原始标准轨迹组合进行持续训练。当经过一轮纠错训练的模型再次在训练集上评估时，又会暴露新的偏离模式，从而驱动飞轮开启下一轮（Loop）。随着多轮迭代推进，模型的自纠错能力持续攀升。
+
+<div align="center">
+  <img src="/images/vln/CorrectNav-case-study.png" width="100%" />
+<figcaption>CorrectNav 纠错能力对比示意图（上：在走错路径失焦后迅速掉头返回正确路径；下：进入错误前门发现无目标步骤后折返并进入正确的侧门）</figcaption>
+</div>
+
+---
+
+### 3. 核心结果/发现
+
+#### ① VLN-CE 连续基准定量对比
+
+在 Habitat 3.0 仿真器中，对 R2R-CE 和 RxR-CE 的 Val-Unseen 拆分集进行了全面评估（仅输入单目 RGB）：
+
+| 模型 | 输入模态 | R2R-CE NE↓ | R2R-CE SR↑ | R2R-CE SPL↑ | RxR-CE NE↓ | RxR-CE SR↑ | RxR-CE SPL↑ | RxR-CE nDTW↑ |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| BEVBert | RGB-D + Pano | 4.57 | 59.0% | 50.0% | - | - | - | - |
+| ETPNav | RGB-D + Pano | 4.71 | 57.0% | 49.0% | 5.64 | 54.7% | 44.8% | 61.9% |
+| HNR | RGB-D + Pano | 4.42 | 61.0% | 51.0% | 5.50 | 56.3% | 46.7% | 63.5% |
+| NaVid | 单目 RGB | 5.47 | 37.0% | 35.0% | - | - | - | - |
+| Uni-NaVid | 单目 RGB | 5.58 | 47.0% | 42.7% | 6.24 | 48.7% | 40.9% | - |
+| NaVILA | 单目 RGB | 5.22 | 54.0% | 49.0% | 6.77 | 49.3% | 44.0% | 58.8% |
+| StreamVLN | 单目 RGB | 4.98 | 56.9% | 51.9% | 6.22 | 52.9% | 46.0% | 61.9% |
+| **CorrectNav (Ours)** | **单目 RGB** | **4.24** | **65.1%** | **62.3%** | **4.09** | **69.3%** | **63.3%** | **75.2%** |
+
+CorrectNav 在仅使用单目 RGB 的前提下，不仅刷新了单目 VLA 模型的最高纪录（R2R-CE SR 65.1%，RxR-CE SR 69.3%），甚至全面超越了依赖深度图（Depth）、全景图（Pano）和路点预测器（Waypoint Predictor）的传统拓扑地图方法（如 HNR、ETPNav）。
+
+#### ② 飞轮迭代与消融实验
+
+<div align="center">
+  <img src="/images/vln/CorrectNav-iterations-curve.png" width="80%" />
+<figcaption>CorrectNav 性能随自纠错飞轮迭代轮次的变化趋势</figcaption>
+</div>
+
+- **飞轮迭代效应**：随着自纠错飞轮迭代从 Iter 0 推进至 Iter 3，R2R-CE 和 RxR-CE 的成功率均表现出持续的增长，证明了自纠错数据闭环迭代的有效性。在第 4 轮出现轻微回落时止盈。
+- **关键模块消融**：移除动作纠错轨迹生成会导致成功率最显著的下降（R2R 降至 59.2%）；移除关键帧感知分析则导致成功率降至 60.1%，验证了感知引导纠错的必要性。
+
+#### ③ 真实机器人实测（AgiBot 灵汐 D1 四足机器人）
+
+在 AgiBot 灵汐 D1 四足机器人平台（配备单目 RGB 摄像头及 remote A100 GPU）上进行了 Office、Home、Campus 三大场景的定量测试：
+
+<div align="center">
+  <img src="/images/vln/CorrectNav-real-robot.png" width="100%" />
+<figcaption>CorrectNav 在室内外多场景（办公区、住宅、校园）实机部署的定性结果（涵盖动态避障、长时间跨度指令与路径偏离恢复）</figcaption>
+</div>
+
+- 在复杂的室内外长指令测试中，CorrectNav 的成功率（SR）显著优于 Baseline（如在 Office Complex 指令下 SR 达 **75%**，而 NaVid 仅为 30%，NaVILA 为 20%）。
+- 具备强劲的动态避障（动态避让行人与黄色箱子）以及偏离后自折返恢复能力。
+
+---
+
+### 4. 局限性
+
+1. **几何相对位置感知精度有限**：单目 RGB 缺乏精确深度信息，模型对机器人本体与周围障碍物之间的相对空间物理距离感知尚不够精确。
+2. **机体碰撞擦碰风险**：在四足机器人等具有复杂几何轮廓的平台上，当贴紧障碍物转弯时，机器人的后腿可能存在轻微擦碰障碍物的风险。作者指出未来需将机器人本体尺寸与状态先验融合入推理模型中。
+
+---
+
 # 参考资料
 
 ## 已发表论文（会议 / 期刊）
@@ -6737,6 +6869,7 @@ ReflectVLN 架构由两个独立参数化的 Agent 组成：**意图 Agent（Int
 58. **LocalNav** (2026). 基于知识蒸馏与具身强化学习的端侧轻量化三维场景图目标导航框架. arXiv: [2606.27871](https://arxiv.org/abs/2606.27871)
 59. **ABot-N1** (2026). 基于慢速认知与快速控制双系统架构的通用视觉语言导航基础模型. arXiv: [2607.10383](https://arxiv.org/abs/2607.10383)
 60. **ReflectVLN** (2026). 基于反思推理与双向交互机制的具身视觉语言导航. arXiv: [2607.12680](https://arxiv.org/abs/2607.12680)
+61. **CorrectNav** (2025). 自纠错飞轮赋能的单目 RGB 视觉-语言-动作导航模型. arXiv: [2508.10416](https://arxiv.org/abs/2508.10416)
 
 
 <script>
@@ -6803,6 +6936,7 @@ ReflectVLN 架构由两个独立参数化的 Agent 组成：**意图 Agent（Int
         { m: 'LocalNav',              t: ['拓扑图', '强化学习', '实机部署', '加速优化'] },
         { m: 'ABot-N1',               t: ['双系统', 'CoT', '强化学习', '实机部署'] },
         { m: 'ReflectVLN',            t: ['双系统', 'Agentic', 'CoT', '连续环境'] },
+        { m: 'CorrectNav',            t: ['端到端', '连续环境', '实机部署'] },
     { m: 'VLN-CE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'VLN-PE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'RynnBrain',         t: ['基础工作'] },
