@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "VLN经典论文"
-date:   2026-07-17
+date:   2026-07-22
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -37,6 +37,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [DGNav(单目)](#dgnav) | 2026 | R2R-CE | – | 64.82 | 50.08 | – | – | [是](https://github.com/shannanshouyin/DGNav) | – | 
  | [DualVLN(单目)](#dualvln) | 2025 | R2R-CE | Qwen2.5-VL-7B | 64.3 | 58.5 | 4.05 | 70.7 | [是](https://github.com/InternRobotics/InternNav) | 147万 样本 | 
  | [VLN-Cache(单目)](#vln-cache) | 2026 | R2R-CE | Qwen2.5-VL-7B | 63.1 | 57.6 | – | – | 否 | – | 
+| [ReflectVLN(单目)](#reflectvln) | 2026 | R2R-CE | Qwen2.5-VL-3B | 62.8 | 58.5 | 4.19 | 67.3 | [是](https://github.com/AIprogrammer/ReflectVLN) | 1.6M 专家+反思数据 |
  | [GA-VLN(单目)](#ga-vln) | 2026 | R2R-CE | LLaVA-Video-7B | 61.0 | 55.2 | 4.80 | 67.6 | [是](https://github.com/jahhaoyang/GA-VLN) | – | 
  | [JanusVLN(单目)](#janusvln) | 2026 | R2R-CE | Janus-Pro-7B | 60.5 | 56.8 | 4.78 | 65.2 | [是](https://github.com/MIV-XJTU/JanusVLN) | – | 
  | [BudVLN(单目)](#budvln) | 2026 | R2R-CE | LLaVA-1.5-7B | 57.6 | 51.1 | – | – | [是](https://github.com/Beat992/CDC2F) | – | 
@@ -62,6 +63,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [AstraNav-World (多目)](#astranav-world) | 2025 | RxR-CE | Qwen2.5-VL-3B | 72.9 | – | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) | – | 
  | [ABot-N0 (单目)](#abot-n0) | 2026 | RxR-CE | Qwen3-4B | 69.3 | 60.0 | – | – | 否 | 16.9M 专家轨迹 | 
  | [AwareVLN (单目)](#awarevln) | 2026 | RxR-CE | Vicuna-7B | 67.6 | 56.1 | 3.95 | – | [是](https://github.com/GWxuan/AwareVLN) | – | 
+| [ReflectVLN(单目)](#reflectvln) | 2026 | RxR-CE | Qwen2.5-VL-3B | 66.0 | 57.2 | 3.98 | – | [是](https://github.com/AIprogrammer/ReflectVLN) | 1.6M 专家+反思数据 |
  | [SEDualVLN (单目)](#sedualvln) | 2026 | RxR-CE | LLaVA-Video-7B | 63.9 | 52.4 | 4.12 | – | [是](https://github.com/kim-os/SEDualVLN) | – | 
  | [Dual-Anchoring (单目)](#dual-anchoring) | 2026 | RxR-CE | LLaVA-Video-7B | 61.7 | 53.3 | – | – | 否 | 360万 进度描述 | 
  | [DualVLN (单目)](#dualvln) | 2025 | RxR-CE | Qwen2.5-VL-7B | 61.4 | 51.8 | 4.58 | – | [是](https://github.com/InternRobotics/InternNav) | 147万 样本 | 
@@ -6540,6 +6542,122 @@ ABot-N1 在五项核心导航任务上均打破了先前的 SOTA 纪录，并且
 
 ---
 
+## 62. ReflectVLN (2026) {#reflectvln}
+———基于反思推理与双向交互机制的具身视觉语言导航
+
+📄 **Paper**: [arXiv:2607.12680](https://arxiv.org/abs/2607.12680) · [Code](https://github.com/AIprogrammer/ReflectVLN)
+
+### 精华
+
+- 将传统视觉语言导航（VLN）中"慢规划-快执行"的单向级联结构升级为**意图 Agent 与执行 Agent 双向闭环交互架构**。
+- 引入**触发 Token 机制**（`<VLNBOA>`, `<VLNBOR>`, `<VLNBOC>`），由执行 Agent 在导航过程中实时监测子目标完成度与偏航偏差，实现**按需触发（On-demand）高层反思与重规划**，避免了固定频率刷新的资源浪费与单向级联的语义脱节。
+- 提出 **Action-CoT**（路径条件双重查询训练机制），在预测短期动作前先预测隐式粗粒度未来路线，为局部控制引入全局拓扑路径约束。
+- 构建**单轮反思驱动的数据生成流水线**（Reflection-Driven Data Pipeline），收集策略 Rollout 失败样本并引入 Oracle 专家干预与 VLM 反思生成，经三方交叉验证生成高质纠错数据，无需大规模预训练或多轮迭代数据增强即可显著提升智能体在长程未知环境下的恢复能力。
+
+---
+
+### 1. 研究背景/问题
+
+在连续环境视觉语言导航（VLN-CE）的长程执行过程中，机器人的微小控制误差容易不断累积导致偏航。现有高低层级解耦（Slow-Fast 或 Dual-System）方法大多采用单向通信：高层以固定频率输出语言子目标，低层单向执行，缺乏执行过程中的语义进度跟踪与故障诊断闭环。当机器人发生偏航时，高层无法及时接收偏差反馈，导致重规划滞后。此外，传统方法缺乏显式的反思（Reflection）机制来识别、诊断并修正导航失败。
+
+<div align="center">
+  <img src="/images/vln/ReflectVLN-paradigm-comparison.png" width="100%" />
+<figcaption>ReflectVLN 与传统慢速-快速（Slow-Fast）/ 双系统导航框架的对比。(a) 传统级联方法单向传递子目标；(b) ReflectVLN 定义了三种触发 Token（&lt;VLNBOR&gt; 启动常规反思生成下一个子目标，&lt;VLNBOC&gt; 启动纠错反思诊断错误，&lt;VLNBBOA&gt; 维持纯动作执行）以按需闭环调控意图 Agent。</figcaption>
+</div>
+
+---
+
+### 2. 主要方法/创新点
+
+ReflectVLN 架构由两个独立参数化的 Agent 组成：**意图 Agent（Intention Agent, $\theta_{int}$）** 和 **执行 Agent（Execution Agent, $\theta_{exe}$）**，均基于 Qwen2.5-VL-3B 模型初始化。
+
+<div align="center">
+  <img src="/images/vln/ReflectVLN-architecture-overview.png" width="100%" />
+<figcaption>ReflectVLN 整体架构图。意图 Agent 作为高层反思规划器接收视觉历史、自然语言指令及执行反馈，生成反思子目标描述；执行 Agent 条件化于子目标与当前观测，输出连续运动轨迹与调控后续双 Agent 交互的状态 Token。</figcaption>
+</div>
+
+#### ① 整体框架概述
+系统由高层意图 Agent 与低层执行 Agent 构成。意图 Agent 负责全局长程指令的子任务分解与偏航反思；执行 Agent 负责在本地视场下将子目标落地为短期连续运动控制，并实时评估执行状态。两者通过显式的**状态 Token 接口**（Status Tokens）建立事件驱动的双向闭环通信，而非固定频次的单向指令下发。
+
+#### ② 逐模块讲解
+
+- **意图 Agent（Intention Agent, $\theta_{int}$）**
+  - **输入**：全局自然语言指令 $\ell$、单目 RGB 历史观测 $I_{t-H:t}$ 以及执行 Agent 发送的状态触发信号 $z_t \in \{R, C\}$。
+  - **处理过程**：基于 VLM 的多模态理解与生成能力，当接收到常规触发信号 $z_t = R$（`<VLNBOR>`）时，结合路线进度生成下一个可执行子目标描述 $c_t$；当接收到纠错触发信号 $z_t = C$（`<VLNBOC>`）时，诊断偏航原因并输出带有矫正动作的子目标描述。
+  - **输出**：结构化的自然语言子目标文本 $c_t$。
+  - **设计动机**：直接利用 VLM 的语言推理能力完成高级语义规划，避免引入额外的目标检测器或复杂的像素级目标标定。
+
+- **执行 Agent（Execution Agent with Action-CoT, $\theta_{exe}$）**
+  - **输入**：全局指令 $\ell$、当前语言子目标 $c_t$ 以及历史视觉观测 $I_{t-H:t}$。
+  - **处理过程（Action-CoT 路径条件双重查询）**：
+    1. 首先利用可学习的导航查询（Navigation Queries, $Q_{nav}$）预测较长视界的隐式粗粒度未来路线 $$\hat{P}_t = \text{MLP}_{nav}(f_{\theta_{exe}}(X, Q_{nav}))$$。
+    2. 将粗粒度路线特征 $E_{nav}$ 与动作查询（Action Queries, $Q_{act}$）拼接，预测短期控制动作 $$\hat{A}_t = \text{MLP}_{act}(f_{\theta_{exe}}(X, [E_{nav}; Q_{act}]))$$。
+    3. 同时利用语言生成头自回归预测一个离散的状态 Token $z_t \in \{A, R, C\}$。
+  - **输出**：连续运动控制量 $$\hat{A}_t$$（包含平面相对位移 $(\Delta x_t, \Delta y_t)$、朝向角 $(\cos\phi_t, \sin\phi_t)$ 和停止概率 logit $s_t$）以及交互状态 Token $z_t$。
+  - **设计动机**：打破传统的纯文本 CoT 模式，将"思考（Thought）"建模为粗粒度未来路径约束，显式提升局部动作预测的路线时空一致性。
+
+#### ③ 闭环数据流与交互逻辑
+1. 初始时刻，意图 Agent 生成首个子目标 $c_1$。
+2. 每个时间步 $t$，执行 Agent 根据 $c_t$ 与视觉历史输出短程动作 $$\hat{A}_t$$ 及状态 Token $z_t$。
+3. 若 $z_t = \langle \text{VLNBOA} \rangle$，执行 Agent 独立运行短期控制，不调用高层意图 Agent；
+4. 若 $z_t = \langle \text{VLNBOR} \rangle$，表明当前子目标已完成，触发意图 Agent 生成下一个常规子目标；
+5. 若 $z_t = \langle \text{VLNBOC} \rangle$，表明代理检测到严重偏航，触发意图 Agent 进行错误诊断并输出纠错子目标。
+
+#### ④ 训练目标与损失函数
+
+- **Stage I: Action-CoT 预训练**
+  定义单个控制点预测损失为位置损失、朝向损失和停止损失的组合：
+  $$\mathcal{L}_{traj}(\hat{U}, U^*) = \lambda_{pos} \mathcal{L}_{pos} + \lambda_{ang} \mathcal{L}_{ang} + \lambda_{stop} \mathcal{L}_{stop}$$
+  Action-CoT 预训练总损失结合了短期动作损失与粗粒度路线损失：
+  $$\mathcal{L}_{WP} = \mathcal{L}_{traj}(\hat{A}, A^*) + \beta \mathcal{L}_{traj}(\hat{P}, P^*)$$
+  其中设置权重 $\lambda_{pos} = \lambda_{ang} = \lambda_{stop} = 1.0$，路线正则权重 $\beta = 0.1$。
+
+- **Stage II: 状态感知联合微调**
+  - **意图 Agent 目标**：对常规请求与纠错请求进行自回归语言建模：
+    $$\mathcal{L}_{int}^{(z)} = -\sum_{j=1}^{T} \log p_{\theta_{int}}(y_j^* \mid y_{<j}^*, \ell, I_{t-H:t}, z)$$
+  - **执行 Agent 目标**：联合预测动作与状态 Token：
+    $$\mathcal{L}_{exe} = \mathbf{1}[z_t^* = A] \mathcal{L}_{WP} + \lambda_{status} \mathcal{L}_{status}$$
+    其中 $\mathcal{L}_{status} = -\log p_{\theta_{exe}}(z_t^* \mid \ell, c_t, I_{t-H:t})$。
+
+#### ⑤ 反思驱动的数据构建流水线
+
+<div align="center">
+  <img src="/images/vln/ReflectVLN-reflective-data-pipeline.png" width="100%" />
+<figcaption>反思驱动的数据生成流水线。(1) 专家数据收集；(2) 策略 Rollout 产生偏航失败，调用 Oracle 专家计算救援轨迹并由 VLM 生成反思文本；(3) 质量过滤与三方交叉验证，产出高质量反思纠错训练集。</figcaption>
+</div>
+
+---
+
+### 3. 核心结果/发现
+
+在 Matterport3D 上的标准连续环境视觉语言导航基准（R2R-CE 与 RxR-CE Val-Unseen）上进行了全面评估：
+
+<div align="center">
+  <img src="/images/vln/ReflectVLN-qualitative-examples.png" width="100%" />
+<figcaption>R2R Val-Unseen 上的定性可视化对比。上方：子目标落地与进度跟踪；下方：离轨偏航检测与基于闭环重规划的成功纠错恢复。</figcaption>
+</div>
+
+1. **SOTA 导航性能**：
+   - 在纯**单目 RGB** 输入（不使用全景视角、深度图或里程计）条件下，ReflectVLN 在 RxR-CE Val-Unseen 上取得了 **66.0% 的成功率（SR）** 和 **57.2% 的路径长度加权成功率（SPL）**，显著刷新单目 RGB 设定下的 SOTA 记录。
+   - 在长指令复杂的 RxR-CE 上，相比 StreamVLN 基线，SR 提升 **13.1 个百分点**，SPL 提升 **11.2 个百分点**，超越了基于 7B 模型的 DualVLN（61.4% SR, 51.8% SPL）。
+
+2. **高数据与参数效率**：
+   - 相比于 DualVLN（7B 模型、12M 训练样本、引入 ScaleVLN 额外数据）和 CorrectNav（7B 模型、多轮飞轮迭代），ReflectVLN 仅使用 **2×3B 参数架构** 和 **1.5M 专家数据 + 100k 单轮反思数据**，即取得了更优的整体表现。
+
+3. **消融实验与按需触发效率**：
+   - **Action-CoT 作用**：引入路径条件粗粒度路线预测使 SR 从 52.8% 提升至 60.0%，SPL 从 50.1% 提升至 57.2%。
+   - **按需触发（On-demand）优势**：相比于固定步长触发（如每 4 步或 12 步调用一次高层），按需触发取得了最高成功率（62.8% vs 61.8%/59.4%）。
+   - **高层调用频次**：在推理阶段，意图 Agent 平均每 **9.63 个执行步**才被触发调用一次，显著降低了慢系统高层语言推理的计算负担。
+
+---
+
+### 4. 局限性
+
+- 本文解耦双 Agent 架构独立使用 2 个 3B 模型（总参数量为 6B），与单体 7B 模型的消融对比未严格控制总参数量对齐；
+- 评价指标主要侧重于按需触发的高层调用频次（Invocation frequency），未来仍需在实际硬件设备上进一步度量端到端延迟（Latency）与实际 FLOPs 功耗开销。
+
+---
+
 # 参考资料
 
 ## 已发表论文（会议 / 期刊）
@@ -6618,6 +6736,7 @@ ABot-N1 在五项核心导航任务上均打破了先前的 SOTA 纪录，并且
 57. **Robostral Navigate** (2026). Single-camera AI Navigation for Embodied Robots.
 58. **LocalNav** (2026). 基于知识蒸馏与具身强化学习的端侧轻量化三维场景图目标导航框架. arXiv: [2606.27871](https://arxiv.org/abs/2606.27871)
 59. **ABot-N1** (2026). 基于慢速认知与快速控制双系统架构的通用视觉语言导航基础模型. arXiv: [2607.10383](https://arxiv.org/abs/2607.10383)
+60. **ReflectVLN** (2026). 基于反思推理与双向交互机制的具身视觉语言导航. arXiv: [2607.12680](https://arxiv.org/abs/2607.12680)
 
 
 <script>
@@ -6683,6 +6802,7 @@ ABot-N1 在五项核心导航任务上均打破了先前的 SOTA 纪录，并且
         { m: 'Robostral Navigate',    t: ['端到端', '强化学习', '连续环境', '加速优化'] },
         { m: 'LocalNav',              t: ['拓扑图', '强化学习', '实机部署', '加速优化'] },
         { m: 'ABot-N1',               t: ['双系统', 'CoT', '强化学习', '实机部署'] },
+        { m: 'ReflectVLN',            t: ['双系统', 'Agentic', 'CoT', '连续环境'] },
     { m: 'VLN-CE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'VLN-PE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'RynnBrain',         t: ['基础工作'] },
