@@ -6638,8 +6638,8 @@ ReflectVLN 架构由两个独立参数化的 Agent 组成：**意图 Agent（Int
 </div>
 
 1. **SOTA 导航性能**：
-   - 在纯**单目 RGB** 输入（不使用全景视角、深度图或里程计）条件下，ReflectVLN 在 RxR-CE Val-Unseen 上取得了 **66.0% 的成功率（SR）** 和 **57.2% 的路径长度加权成功率（SPL）**，显著刷新单目 RGB 设定下的 SOTA 记录。
-   - 在长指令复杂的 RxR-CE 上，相比 StreamVLN 基线，SR 提升 **13.1 个百分点**，SPL 提升 **11.2 个百分点**，超越了基于 7B 模型的 DualVLN（61.4% SR, 51.8% SPL）。
+   - **R2R-CE 基准**：在纯单目 RGB 条件下取得 **62.8% 的成功率（SR）** 和 **58.5% 的 SPL**（相比 StreamVLN 基线 SR 提升 5.9 个百分点，与 DualVLN 的 58.5% SPL 持平）。
+   - **RxR-CE 基准**：在长指令复杂的 RxR-CE 上取得 **66.0% 的成功率（SR）** 和 **57.2% 的 SPL**（相比 StreamVLN 基线 SR 提升 13.1 个百分点，超越了基于 7B 模型的 DualVLN 的 61.4% SR / 51.8% SPL）。
 
 2. **高数据与参数效率**：
    - 相比于 DualVLN（7B 模型、12M 训练样本、引入 ScaleVLN 额外数据）和 CorrectNav（7B 模型、多轮飞轮迭代），ReflectVLN 仅使用 **2×3B 参数架构** 和 **1.5M 专家数据 + 100k 单轮反思数据**，即取得了更优的整体表现。
