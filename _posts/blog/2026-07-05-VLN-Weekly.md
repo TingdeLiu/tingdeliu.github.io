@@ -1,12 +1,13 @@
 ---
 layout: post
 title: "VLN 周报（2026-06-28 ~ 2026-07-05）"
-date: 2026-07-05
+date: 2026-07-25
 tags: [VLN, VLA, Embodied Navigation, Weekly Digest, arXiv]
 categories: blog
 comments: true
 author: Tingde Liu
 toc: true
+published: false
 excerpt: "本周具身导航速览：UcON 个性化物体导航基准、M³E 持续学习 VLN 框架、NAMO 交互式导航等 9 篇地面机器人 VLN 代表性工作，以及无人机/操作方向里少数可迁移到导航架构的技巧。"
 ---
 

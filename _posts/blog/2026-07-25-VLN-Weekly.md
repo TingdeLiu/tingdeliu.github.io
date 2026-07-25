@@ -7,6 +7,7 @@ categories: blog
 comments: true
 author: Tingde Liu
 toc: true
+published: false
 excerpt: "本周精选：密歇根-清华推出室内外连续物理导航基准 NavVerse；高德发布 ABot-N1 通用导航模型基座；上海科大推出城市级纠错导航框架 DA-Nav 及 ReDA 数据集。"
 ---
 
