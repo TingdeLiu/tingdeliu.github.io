@@ -149,7 +149,7 @@ flowchart LR
     %%{init: {'theme': 'neutral', 'themeVariables': { 'fontSize': '12px', 'lineColor': '#64748b'}}}%%
     S1[("全局状态 State<br/>（只读快照）")] --> N["节点 Node<br/>普通代码 / LLM 调用 / 工具 / 子 Agent"]
     N --> D["状态增量 Delta<br/>只包含本节点改动的字段"]
-    D --> R{{"Reducer 合并策略"}}
+    D --> R(["Reducer 合并策略"])
     R --> S2[("新的全局状态 State")]
     S2 -.->|驱动下一个节点| N
 
