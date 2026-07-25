@@ -1,13 +1,13 @@
 ---
 layout: post
 title: "AI Agent 综述：自主推理与工具调用的范式革命"
-date: 2026-07-20
+date: 2026-07-25
 tags: [Agent, LLM, Multi-Agent, Survey]
 categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划并执行多步骤任务的 AI 系统。本文系统梳理 AI Agent 核心架构、关键技术范式（ReAct、工具调用/MCP、反思、Harness Engineering、Loop Engineering、多 Agent）、代表性工作（ReAct、Reflexion、Voyager），并深入介绍 2025–2026 年主流商业 Agent 产品（Manus、Claude Code、OpenAI Codex、Devin、NemoClaw）与主流评测基准，聚焦软件端自主智能体的研究全貌。"
+excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划并执行多步骤任务的 AI 系统。本文系统梳理 AI Agent 核心架构、关键技术范式（ReAct、工具调用/MCP、反思、Harness Engineering、Loop Engineering、Graph Engineering、多 Agent）、代表性工作（ReAct、Reflexion、Voyager），并深入介绍 2025–2026 年主流商业 Agent 产品（Manus、Claude Code、OpenAI Codex、Devin、NemoClaw）与主流评测基准，聚焦软件端自主智能体的研究全貌。"
 ---
 
 # 1. 引言
@@ -162,6 +162,7 @@ flowchart LR
         K --> L["Claude Code / Codex\n编程 Agent 商用"]
         L --> M["Harness Engineering\nAgent 工程化"]
         M --> N["Loop Engineering\n下一代闭环范式"]
+        N --> O["Graph Engineering\n图智能体工程"]
     end
 ```
 
@@ -182,6 +183,16 @@ flowchart LR
 > 详细技术解析见：[Loop Engineering：Agent 工程化的下一代闭环范式](/loop-engineering/)
 
 *代表性工作*：「Loop Engineering」（Codex/Claude Code, 2026 年 7 月）
+
+---
+
+## 2.9 Graph Engineering：图智能体工程
+
+「Graph Engineering」（图智能体工程）是继 Loop Engineering 之后，在 2026 年中后期迅速崛起的超大规模多智能体（Multi-Agent）与复杂工作流编排范式。如果说 Loop Engineering 解决了单 Agent 闭环的自我纠错问题，那么 Graph Engineering 则解决了**复杂、多分支、异构智能体协同与强确定性逻辑控制**的痛点。它主张将整个 Agent 系统的运行轨迹和逻辑路径建模为显式的**有向状态图（State Graph）**——节点（Nodes）代表具体的推理/执行/人类审核步骤，边（Edges）代表状态流转与条件路由（Conditional Routing），并通过集中的全局状态对象（State）进行受控读写。这一工程方法实现了非确定性大模型认知能力与传统软件工程高确定性流程控制的完美融合。
+
+> 详细技术解析见：[Graph Engineering：大模型时代的智能体图拓扑编排与设计模式](/graph-engineering/)
+
+*代表性工作*：「LangGraph: Multi-Agent Workflows」（LangChain, 2026）、LlamaIndex Workflows（2026）
 
 
 # 3. 关键推理范式
