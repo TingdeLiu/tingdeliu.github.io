@@ -1,10 +1,10 @@
-﻿---
+---
 
 layout: post
 
 title: "机器学习综述"
 
-date: 2026-04-03
+date: 2026-07-27
 
 tags: [Machine Learning, Deep Learning, Algorithm, Foundation Models]
 categories: research
@@ -24,6 +24,11 @@ excerpt: "本文系统梳理了机器学习的核心范式、经典算法与代�
 人工智能（Artificial Intelligence, AI）作为计算机科学皇冠上的明珠，正以前所未有的速度重塑人类社会。而在这场波澜壮阔的技术革命中，**机器学习（Machine Learning, ML）** 无疑是最核心的驱动引擎。传统基于规则的专家系统受限于人类先验知识的边界，而机器学习则通过让计算机从海量数据中自主"学习"规律，实现了从"授人以鱼"到"授人以渔"的范式跃迁。
 
 从早期以支持向量机（SVM）为代表的统计学习方法，到以随机森林（Random Forest）、XGBoost 为首的集成学习霸主，再到如今席卷全球的深度神经网络（DNN）和基于大语言模型（LLM）的基础模型，机器学习的边界在算力与数据的双重加持下不断拓展。
+
+<div align="center">
+  <img src="/images/ML/machine-learning-overview.jpg" width="80%" alt="机器学习核心范式与演进全景" />
+  <figcaption>图 1.1：机器学习核心范式、经典算法与前沿大模型演进全景示意图</figcaption>
+</div>
 
 本文旨在系统梳理机器学习研究进展，为学习和研究机器学习提供参考。
 

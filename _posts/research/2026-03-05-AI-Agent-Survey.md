@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "AI Agent 综述：自主推理与工具调用的范式革命"
-date: 2026-07-25
+date: 2026-07-27
 tags: [Agent, LLM, Multi-Agent, Survey]
 categories: research
 comments: true
@@ -19,6 +19,11 @@ AI Agent 不是一个单一的模型，而是一种**系统架构**：以 LLM �
 - **OpenClaw**（2025 年 11 月发布）在 72 小时内积累 60,000+ GitHub Stars，目前已突破 **280,000 Stars**，成为史上增速最快的开源项目之一；
 - OpenAI 与 Anthropic 定义 **「Harness Engineering（Agent 工程化）」**，随后演进出 **「Loop Engineering（循环工程）」**，共同成为 2026 年工程界最热议的新范式；
 - 代码 Agent 在 SWE-bench 上的成功率从 2024 年底的 55% 跃升至 2025 年底的 70%+，Agent 能力正在快速逼近真实工程任务的实用门槛。
+
+<div align="center">
+  <img src="/images/agent/ai-agent-architecture-overview.jpg" width="80%" alt="AI Agent 自主推理、工具调用与多 Agent 协同全景" />
+  <figcaption>图 1.1：AI Agent（智能体）LLM 大脑、记忆机制、工具调用与闭环 Harness 架构全景示意图</figcaption>
+</div>
 
 本文聚焦软件端 AI Agent，系统梳理其核心架构、关键技术范式、代表性工作、评测基准与最新进展。
 

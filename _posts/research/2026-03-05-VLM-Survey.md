@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "VLM综述：多模态融合方法全景"
-date: 2026-07-06
+date: 2026-07-27
 tags: [VLM, Computer Vision, Deep Learning, Multimodal]
 categories: research
 comments: true
@@ -18,6 +18,11 @@ excerpt: "视觉-语言模型（VLM）是连接视觉感知与自然语言理解
 从早期基于注意力机制的跨模态对齐，到CLIP提出的对比学习范式，再到以LLaVA、Flamingo为代表的"视觉编码器 + 语言模型"架构，VLM的技术路线不断演进。近年来，随着大语言模型能力的跃升，GPT-4V、Gemini、Qwen-VL等闭源或开源模型相继涌现，展现了强大的视觉理解与推理能力。
 
 VLM在医疗图像分析、自动驾驶、机器人感知、内容审核等领域有着广泛的应用前景。视觉理解能力是VLA（视觉-语言-动作）模型和具身智能系统的基础，VLM研究的突破直接推动了下游具身任务的进步。
+
+<div align="center">
+  <img src="/images/vlm/vlm-architecture-overview.jpg" width="80%" alt="视觉-语言模型多模态对齐与融合全景" />
+  <figcaption>图 1.1：视觉-语言模型（VLM）视觉编码、模态对齐与 LLM 跨模态融合架构示意图</figcaption>
+</div>
 
 本文旨在系统梳理VLM领域的研究进展，重点关注实现多模态的核心技术方法，为学习和研究VLM提供参考。
 

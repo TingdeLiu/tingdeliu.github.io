@@ -1,7 +1,7 @@
-﻿---
+---
 layout: post
 title: "强化学习算法全景：聚焦具身智能领域的深度演进"
-date: 2026-04-25
+date: 2026-07-27
 tags: [Reinforcement Learning, RL, Embodied AI, Robotics, World Models, Diffusion Policy, PPO, SAC, TD3, DDPG, Actor-Critic, MDP]
 categories: research
 comments: true
@@ -24,6 +24,11 @@ excerpt: "2026年深度总结：系统梳理具身智能 RL 算法体系，从 M
 | **反馈信号** | 即时的正确标签 | 延迟的稀疏奖励 |
 | **上限** | 人类标注水平 | 可超越人类（如 AlphaGo） |
 | **核心挑战** | 泛化性 | 探索-利用权衡、信用分配 |
+
+<div align="center">
+  <img src="/images/vla/embodied-rl-overview.jpg" width="80%" alt="具身强化学习交互与决策闭环全景" />
+  <figcaption>图 1.1：具身强化学习（Embodied RL）状态感知、闭环策略决策与物理环境交互全景示意图</figcaption>
+</div>
 
 本文将系统梳理具身智能中的核心 RL 算法，从数学基础到前沿方法，希望为读者构建完整的知识体系。
 
