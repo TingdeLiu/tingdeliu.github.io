@@ -1,30 +1,60 @@
+{% assign has_article_toc = false %}
+{% if page.layout == 'post' and page.toc == true %}
+  {% assign has_article_toc = true %}
+{% endif %}
 <!DOCTYPE html>
-<html>
+<html{% if page.layout == 'post' %} class="article-document"{% endif %}>
   {% include head.html %}
-  <body class="{% if page.layout == 'post' %}no-sidebar{% endif %}">
+  <body class="{% if page.layout == 'post' %}no-sidebar article-page{% endif %}{% if has_article_toc %} has-article-toc{% endif %}">
     <!-- 只在非文章页面显示导航侧边栏 -->
     {% unless page.layout == 'post' %}
       {% include nav.html %}
     {% endunless %}
 
-    <!-- 如果当前页面的toc为true，就添加目录 -->
-    {% if page.toc==true %}
+    {% if page.layout == 'post' %}
+      <div class="article-progress" aria-hidden="true">
+        <span class="article-progress-bar"></span>
+      </div>
+    {% endif %}
+
+    {% if has_article_toc %}
+      <button
+        class="article-toc-trigger"
+        type="button"
+        aria-label="打开文章目录"
+        aria-controls="article-toc"
+        aria-expanded="false"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 6h2v2H4V6Zm4 0h12v2H8V6ZM4 11h2v2H4v-2Zm4 0h12v2H8v-2ZM4 16h2v2H4v-2Zm4 0h12v2H8v-2Z"/>
+        </svg>
+        <span>目录</span>
+      </button>
+      <button class="article-toc-overlay" type="button" aria-label="关闭文章目录" tabindex="-1"></button>
+
+      <div class="article-reading-shell">
+        {% include article-toc.html %}
+    {% elsif page.toc == true %}
       <aside class="toc">
         {% include toc.html html=content h_min=1 h_max=2 %}
       </aside>
     {% endif %}
 
-    <div id="main" role="main" class="wrapper-content">
+    <div id="main" role="main" class="wrapper-content{% if has_article_toc %} withtoc{% endif %}">
       <div class="container">
         {{ content }}
       </div>
     </div>
 
+    {% if has_article_toc %}
+      </div>
+    {% endif %}
+
     <!-- Google Analytics -->
     {% include analytics.html %}
 
-    <!-- 如果当前页面的toc为true，就添加目录 -->
-    {% if page.toc==true %}
+    <!-- 保留非文章页面的旧目录布局 -->
+    {% if page.toc == true and has_article_toc == false %}
     <script>
       document.getElementById("main").classList.add("withtoc");
     </script>
@@ -35,6 +65,17 @@
         {% include footer.html %}
       </footer>
     </div>
+
+  {% if page.layout == 'post' %}
+  <dialog class="article-lightbox" id="article-lightbox" aria-label="图片预览">
+    <button class="article-lightbox-close" type="button" aria-label="关闭图片预览">×</button>
+    <figure>
+      <img src="" alt="">
+      <figcaption></figcaption>
+    </figure>
+  </dialog>
+  <script src="{{ site.baseurl }}/js/article-ui.js" defer></script>
+  {% endif %}
 
   <!-- 标签自动着色：对标签名哈希映射到调色板，同名标签颜色全站一致 -->
   <script>

@@ -1,0 +1,23 @@
+<aside class="article-toc" id="article-toc" aria-label="文章导航" aria-hidden="true">
+  <div class="article-toc-nav">
+    <nav aria-label="站点导航">
+      <a href="{{ site.baseurl }}/home">Project</a>
+      <a href="{{ site.baseurl }}/research"{% if page.categories contains "research" %} class="is-current" aria-current="page"{% endif %}>Research</a>
+      <a href="{{ site.baseurl }}/blog"{% if page.categories contains "blog" %} class="is-current" aria-current="page"{% endif %}>Blog</a>
+    </nav>
+    <button class="article-toc-close" type="button" aria-label="关闭文章目录">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m6.7 5.3 12 12-1.4 1.4-12-12 1.4-1.4Zm10.6 0 1.4 1.4-12 12-1.4-1.4 12-12Z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="article-toc-heading">
+    <span>目录</span>
+    <span class="article-toc-depth">H1—H3</span>
+  </div>
+
+  <nav class="article-toc-scroll" aria-label="文章目录">
+    {% include toc.html html=content sanitize=true h_min=1 h_max=3 class="article-toc-list" id="article-toc-list" item_class="toc-level-%level%" anchor_class="article-toc-link" %}
+  </nav>
+</aside>
