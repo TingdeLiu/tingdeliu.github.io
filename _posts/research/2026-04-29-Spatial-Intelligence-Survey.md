@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "空间智能综述：从三维感知到空间推理"
-date:  2026-07-14
+date:  2026-07-27
 tags: [Spatial Intelligence, 3D Vision, NeRF, Point Cloud, Embodied AI, Survey]
 categories: research
 comments: true
@@ -3599,12 +3599,112 @@ $$d' = \text{clip}(\alpha \log(d+1), 0, 1)$$
 
 ### 4. 局限性
 * **密集与稀疏任务的联合冲突**：实验发现，在同时微调密集像素任务与稀疏坐标任务时，稀疏任务的表现会大幅下滑，且连带密集感知任务也会产生轻微退化。分析表明，外挂的可学习 Token 会在没有充分多任务微调数据的情况下，破坏 DiT 原本的注意力权重，且在几何表征层面上与连续的像素空间重构具有一定冲突。在进行微调时，应更加小心设计以保证网络骨干的“零侵入性”。
+## 6.26 S-Agent (2026) {#6-26-s-agent}
+——空间工具调用激发具身空间智能推理
+
+📄 **Paper**: [arXiv:2606.20515](https://arxiv.org/abs/2606.20515) · [Project Page](https://ropedia.github.io/S-Agent/)
+
+### 精华
+
+1. **证据积累新范式**：将连续多视角与视频空间推理重新建模为"时空证据积累"（Spatio-Temporal Evidence Accumulation）的主动交互过程，摆脱了传统 VLM 仅依赖静态单帧图像做无状态推断的局限。
+2. **分级空间工具体系**：构建由低至高三级空间工具与专家系统（2D 视觉感知 $\rightarrow$ 2D-to-3D 几何提升 $\rightarrow$ 空间知识聚合专家），将复杂的 3D 空间计算从语言模型预测中彻底解耦。
+3. **时空持久双记忆**：设计 Scene Memory 追踪跨帧实体标识并融合几何属性，Agent Memory 记录推理轨迹与工具失败反馈，实现自洽的连续推导与自我纠错。
+4. **高质量轨迹蒸馏**：通过 GPT-5.4 老师模型自动生成并筛选 51.5K 优质推理轨迹，解耦导出 292K 样本的 S-300K 数据集，成功将强大的空间工具调用与推理能力蒸馏至 8B 轻量级模型（S-Agent-8B）。
 
 ---
 
+### 1. 研究背景/问题
+
+- **核心问题**：真实物理世界中的具身空间智能要求智能体在连续演化和多视角的 3D 环境中具备几何理解与推理能力。然而，现有视觉语言模型（VLM）和工具增强 Agent 主要局限于静态单张图像的无状态推理，无法跨视角和时间维持久维持物体状态。
+- **关键 Gap**：VLM 擅长定性语义推理，但缺乏高保真的 3D 几何表征，容易依赖文本先验而非扎实的几何证据；同时，直接将密集 3D 几何（如深度图、点云、相机位姿）输入 VLM 容易产生冗余干扰与无法直接理解的数值噪声。
 
 ---
 
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/si/S-Agent-overview.png" width="100%" />
+<figcaption>S-Agent 空间工具调用范式与传统静态 VLM / 空间 Agent 的对比概览</figcaption>
+</div>
+
+#### ① 整体框架概述
+
+S-Agent 是一种由 VLM 协调的时空推理框架。它将 VLM 扮演为**语义规划器**（Semantic Planner $\pi_{\theta}$），将空间计算与感知任务交由**分级空间工具与专家**（Hierarchical Spatial Tools & Experts）处理，并通过**持久化时空记忆**（Persistent Spatial Memory）在推理步骤和视频帧之间累积证据。
+
+给定问题 $q$ 和连续观测图像集 $\mathcal{F}$，S-Agent 在每个推理步骤 $t$ 保持两个记忆状态：用于储存物理事实的场景记忆 $\mathcal{S}_t$ 和用于储存推理历史的 Agent 记忆 $\mathcal{H}_t$。规划器生成证据请求：
+$$r_t = \pi_{\theta}(q, \mathcal{F}, \mathcal{S}_t, \mathcal{H}_t)$$
+工具或专家执行 $r_t$ 并返回观察结果 $o_t$，进而更新记忆状态：
+$$(\mathcal{S}_{t+1}, \mathcal{H}_{t+1}) = \text{Update}(\mathcal{S}_t, \mathcal{H}_t, r_t, o_t)$$
+
+<div align="center">
+  <img src="/images/si/S-Agent-pipeline.png" width="100%" />
+<figcaption>S-Agent 系统管线：分层空间证据提取与持久化双记忆系统的流转交互</figcaption>
+</div>
+
+#### ② 逐模块讲解
+
+**1. Level 1: 2D 视觉证据获取（2D Visual Evidence Acquisition）**
+- **输入**：原始视频帧或多视角图像 $\mathcal{F}$，以及规划器的目标实体请求。
+- **处理**：包含关键帧提取（`TStarKeyframeSearchTool`）、VLM 目标定位与可见性投票（`vlm_ground_objects`）、GroundingDINO 开放词汇检测（`detect_objects_tool`）以及轻量级图像深度估计（`depth_estimation_tool`）。
+- **输出**：目标物体的 2D 边界框（Bounding Box）、置信度与过滤后的关键帧。
+
+**2. Level 2: 2D-to-3D 几何提升（2D-to-3D Geometric Lifting）**
+- **输入**：Level 1 获取的 2D 目标区域与多视角图像。
+- **处理**：调用基于 Depth-Anything-3 的 3D 度量几何工具 `metric_depth3d_tool`，从多视图重建度量深度、3D 空间点云坐标、相机位姿以及鸟瞰图（BEV）表示。
+- **输出**：统一在共享 3D 度量坐标系下的空间几何基质，解决视错觉与尺度的不确定性。
+
+**3. Level 3: 空间知识聚合专家（Spatial Knowledge Aggregation Experts）**
+- **输入**：Level 1 的 2D 观测与 Level 2 的 3D 重建几何。
+- **处理与专家分工**：
+  - **度量测量专家（Metric Measurement Expert）**：确定性计算相机到物体距离、物体间绝对距离及物理尺寸。
+  - **计数专家（Counting Expert）**：执行跨帧候选检测框匹配，使用 NMS 去重并进行条件约束统计。
+  - **视觉朝向专家（Visual Orientation Expert）**：分析物体朝向表面、屏幕、开口等视觉线索，判断物体的自洽朝向与姿态。
+  - **相对位置专家（Relative Position Expert）**：在 3D 坐标系中推理以物体/相机/方位角为参照系的相对方向（如左/右、前/后）。
+  - **物体中心视角专家（Object-Centric View Expert）**：基于特定物体的局部坐标系评估周围物体的空间分布。
+- **输出**：直接可供 VLM 规划器读取的高层结构化空间知识（如："距离为 1.0m"、"数量为 3"）。
+
+**4. 时空双记忆机制（Persistent Spatial Memory）**
+- **场景记忆（Scene Memory $\mathcal{S}_t$）**：跨视角与跨帧绑定同一实体的多次观测，维护对象注册表（Object Registry）、几何先验、空间关系与帧级证据，避免重复计算与实体识别冲突。
+- **Agent 记忆（Agent Memory $\mathcal{H}_t$）**：记录规划器的中间思考（Thought）、发出的工具请求、工具成功/失败反馈及阶段性结论，支持自我修正与策略调整。
+
+<div align="center">
+  <img src="/images/si/S-Agent-dataset-stats.png" width="100%" />
+<figcaption>S-300K 数据集构造成分与工具调用统计分布</figcaption>
+</div>
+
+#### ③ 训练期轨迹蒸馏（Training-Time Distillation & S-300K）
+
+为将强大的空间推理能力部署到轻量化开馆模型中，S-Agent 提出了轨迹蒸馏管线：
+1. **数据生成**：在 SenseNova-SI-800K 数据集上用 Qwen3-VL-8B 进行预筛选，挑选学生模型表现不稳定的难例 100K 题，用 GPT-5.4 驱动的 S-Agent 生成完整的工具调用轨迹。
+2. **质量过滤**：根据题型（选择题选项严格匹配、数值题 MRA $\ge$ 0.6、文本题规范匹配）过滤出 51,596 条高质量轨迹。
+3. **轨迹分解**：拆解为 51,596 条 Final-Answer 轨迹、154,590 条 Turn-Level 规划轨迹及 86,205 条 Expert 工具调用轨迹，合成包含 292,391 个 SFT 样本的 **S-300K** 数据集。
+4. **模型微调**：使用 LLaMA-Factory 在 8$\times$B200 GPU 上对 Qwen3-VL-8B-Instruct 进行 SFT，得到轻量级空间 Agent **S-Agent-8B**。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/si/S-Agent-qualitative.png" width="100%" />
+<figcaption>S-Agent 在第一人称视频遮挡场景下的工具引导 3D 相对位置推理定性示例</figcaption>
+</div>
+
+- **多图空间推理（MMSI-Bench）**：Zero-Shot S-Agent 取得 **46.4%** 的最高平均准确率，超越闭源顶尖模型 Gemini 3 Pro（45.2%）与 GPT-5.4（41.9%）。在相机运动（46.0%）、物体运动（48.7%）和多步推理（44.4%）维度表现极其突出。蒸馏模型 S-Agent-8B 达到 **41.6%**，相比 Qwen3-VL-8B 基线（31.1%）提升了 **10.5%**。
+- **视角感知定位（ViewSpatial-Bench）**：Zero-Shot S-Agent 取得 **60.0%** 平均准确率，超出 GPT-5.4 **14.4%**。在相机相对方向（C-RD, 62.5%）和人称相对方向（P-RD, 81.1%）上均显著领先。S-Agent-8B 达到 **46.8%**。
+- **视频 3D 空间推理（ReVSI Leaderboard）**：S-Agent 取得 **58.8%** 平均分，位列榜单第二（仅次于 Gemini 3 Pro 的 60.9%），且在相对方向（66.4%）和路径规划（66.1%）等多选任务上高居榜首。S-Agent-8B 达到 **52.8%**，超越了许多更大尺寸的模型（如 InternVL3.5-38B 的 54.1% 及其 8B 变体）。
+- **消融实验（ViewSpatial）**：
+  - 纯 VLM 基线为 45.6%；
+  - 仅加入 Level-1 2D 视觉证据提升至 49.0%；
+  - 直接引入密集 Level-2 3D 几何仅微升至 49.8%（因为密集点云和深度数值容易干扰 VLM 规划器）；
+  - 结合 Level-3 空间专家后大幅提升至 56.7%；
+  - 进一步开启 Scene Memory（58.2%）与 Agent Memory 后达到完整版的 **60.0%**。这验证了分级专家与双记忆机制在空间证据提取中的核心作用。
+
+---
+
+### 4. 局限性
+
+1. **依赖底层视觉感知工具的可靠性**：若 Level-1 检测或 Level-2 3D 重建（如 Depth-Anything-3）在剧烈遮挡、低照度或极大尺度变化下发生严重偏差，专家模块可能产生错误的空间结果。
+2. **多轮调用的延迟开销**：由于涉及多轮 VLM 规划以及 2D/3D 工具的协同计算，系统在推理时相比 Single-Shot 预测具有更高的时延，目前更适合非实时的复杂空间决策与分析任务。
 
 ---
 
