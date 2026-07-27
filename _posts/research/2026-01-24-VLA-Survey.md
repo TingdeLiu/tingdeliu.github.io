@@ -1,7 +1,7 @@
 ﻿---
 layout: post
 title: "VLA综述：具身智能路线梳理"
-date:  2026-07-09
+date:  2026-07-27
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 categories: research
 comments: true
@@ -4296,6 +4296,114 @@ $$\mathcal{L}(\theta) = \mathbb{E}_{p(A_t|o_t)} [\mathcal{L}(a_t, \tilde{a}_t)]$
 ### 4. 局限性
 - **长时序任务依赖**：尽管模型在短周期闭环控制中表现出色，但受限于单帧加历史 Token 的架构设计，在需要长期记忆和多阶段规划的任务（如 LIBERO-Long）中提升有限，未来需要开发更长效的历史感知层。
 - **高维动作扩展困难**：目前的 Gaussian 分布拟合是针对单臂 7 自由度动作设计的。如果扩展到双臂协作、灵巧手操纵等多维度高自由度任务，网格组合数会指数级增长，需要设计更高效的空间共享网格或者隐式生成解码机制。
+## 5.27 Harness VLA (2026) {#5-27-harness-vla}
+📄 **Paper**: https://arxiv.org/abs/2607.08448
+
+### 精华
+
+- **发现能力不对称性并解耦控制**：揭示了端到端 Vision-Language-Action (VLA) 模型在接触密集型（contact-rich）局部动作预测上极强，但在语言理解、长时程规划与空间运输上极其脆弱。将冻结的预训练 VLA 封装为单一“接触基元”（`VLA_ACT`），将非接触操作完全交由确定性解析基元（Analytic Primitives）与高层 Agentic Planner 统筹。
+- **构建物理 REPL 闭环 Harness**：建立闭环 Agentic Harness，将机器人操控抽象为类似软件 REPL 的交互界面。结合实时 RGB-D 深度重绑定与传感器反馈，使高层 LLM/VLM 能以结构化 JSON 调用基元并实现动态试错与重置。
+- **双层记忆增强泛化与避坑**：设计任务特异性记忆（Task Specific Memory）参数化存储参考解法的 JSONL 轨迹，配合全局记忆（Global Memory）归纳跨任务通用规则（Success Rules）与失败模型（Failure Models，如空抓与伪成功过滤），消除盲目重复失败。
+- **零微调下性能大幅飞跃**：在包含空间位置置换与指令重定向的强扰动 benchmark（LIBERO-Pro, RoboCasa365, RoboTwin C2R）上，在完全不微调低层 VLA 权重的前提下，将基线成功率提升 38.6%~50.2%，展现出卓越的稳健性与分布外泛化能力。
+
+---
+
+### 1. 研究背景/问题
+
+近年端到端 Vision-Language-Action (VLA) 模型（如 OpenVLA、$\pi_0$、GR00T 等）在模仿学习和复杂接触动作上取得了显著进展。然而，当面临真实的部署扰动——例如自然语言指令重定向（Task Redirection）、空间物体位置置换（Position Swap）或非分布（OOD）场景时，这类单体式（Monolithic）VLA 模型的表现急剧恶化。其根源在于 VLA 模型的语言理解通道在端到端训练中常退化为弱条件，模型倾向于盲目记忆训练集中的视觉运动轨迹，缺乏高层语义绑定与空间运输调控能力。
+
+另一方面，基于 LLM 的 Code-as-Policies 或 Agent 工具调用框架虽具备优秀的高层规划能力，但在缺乏接触感知的精细操作（如不规则物体抓取、机构铰链操纵）上频频失效，且缺少将物理试错归纳为长期可复用经验的记忆机制。
+
+**核心问题**：如何既保留预训练冻结 VLA 强大的接触密集型操控能力，又消除其对高层语义理解与空间运输控制的盲目性，实现零微调下的高鲁棒长时程机器人操控？
+
+---
+
+### 2. 主要方法/创新点
+
+Harness VLA 提出了一个非对称分层架构，将冻结的 VLA 限制为 Agent 调用的一个接触密集型基元，把控制权交给由 LLM/VLM 驱动的 Agentic Planner 和统一基元库，并辅以双层记忆系统。
+
+<div align="center">
+  <img src="/images/vla/HarnessVLA-architecture.png" width="100%" />
+<figcaption>Harness VLA 系统整体架构与交互流程</figcaption>
+</div>
+
+#### ① 整体框架概述
+
+Harness VLA 系统由四大核心模块构成：
+1. **Agentic Planner**：高层认知决策核心，负责解析任务指令、分析实时 RGB-D 与本体感受观察、检索记忆并决策当前执行的基元；
+2. **统一基元库 (Unified Primitive Library $$ \mathcal P $$)**：包含确定性解析基元（Analytic Primitives）与被调用的冻结 VLA 基元（`VLA_ACT`）；
+3. **闭环 Harness (Agentic Harness)**：基于 REPL 形式的运行时契约，负责 JSON 指令序列化、物理引擎执行、观察刷新、错误捕获与记忆存储；
+4. **双层记忆系统**：包含 Task Specific Memory（存储参数化成功轨迹 JSONL）和 Global Memory（沉淀通用成功规则与失败模型）。
+
+<div align="center">
+  <img src="/images/vla/HarnessVLA-concept.png" width="100%" />
+<figcaption>通过记忆引导的基元组合扩展冻结 VLA 的分布外轨迹空间</figcaption>
+</div>
+
+#### ② 逐模块讲解
+
+- **闭环 Harness 与 Agentic Planner**
+  - **输入**：多模态观察 tuple $o_t = (I_{rgb}^t, I_d^t, q_t)$（包含 Agent 视角 RGB 图像、对齐的深度图 $I_d^t$ 及末端执行器/夹爪状态 $q_t$）、自然语言任务描述 $\ell$，以及从记忆系统中检索到的上下文。
+  - **处理**：Planner 观察物理状态与视觉图像，推理出下一步所需的基元，并输出对应的结构化 JSON 调用参数 $c_t \in \mathcal P$。
+  - **输出**：物理引擎直接接收 JSON 调用并驱动机器人运动，直到满足该基元的内部终止条件后，返回刷新后的观察 $o_{t+1}$ 和状态 $q_{t+1}$。
+  - **设计动机**：将机器人控制包装成类似 REPL 的闭环契约，让 LLM 无需预测低层连续关节扭矩，专注于高层组合推理与纠错。
+
+- **统一基元库 ($$ \mathcal P $$)**
+  - **解析基元（Analytic Primitives）**：基于机器人运动学和经典控制器的物理基元，无需任何训练数据。分为**复合基元**（如 `MOVE_TO`、`NAVIGATE_TO`，接收世界坐标系目标点并调用内置 IK 求解器协调多自由度运动）和**原子基元**（如 `ROTATE`、`SET_GRIPPER`、`BASE_VELOCITY`，驱动单维度设定点）。负责空间前置调整（Staging）、运输、定位与夹爪释放。
+  - **VLA 基元（`VLA_ACT`）**：将预训练冻结的 VLA 模型（如 $\pi_0$、OpenVLA、LingBot-VLA 等）封装为单一基元接口。接收提示词与实时相机视角，生成局部动作 chunk 并执行接触密集型交互（如不规则物体抓取、门/微波炉等机构操纵）。
+  - **设计动机**：利用解析基元的高确定性消除了连续移动中的姿态漂移；利用 `VLA_ACT` 的接触感知完成无法由解析解描述的复杂抓取。
+
+- **双层记忆机制（Dual-Layer Memory Architecture）**
+  - **Task Specific Memory（任务特异性记忆）**：在探索 Bootstrapping 阶段，Agent 在参考种子环境上自主交互试错，成功后将基元执行序列导出为 JSONL 文件。关键创新在于将具体 3D 坐标参数化为符号化感知查询（Perception Queries）。在部署评估阶段，Agent 读取此 JSONL 轨迹，并根据当前实时的 RGB-D 深度图重新绑定目标坐标，解决空间置换（Position Swap）问题。
+  - **Global Memory（全局记忆）**：跨任务积累通用经验。包含**成功规则**（如构建全量任务上下文的最优 Prompt 模式）与**失败模型**（针对空抓、假成功、不稳定预接触点等模式建立防御判定规则），避免 Planner 在不同任务中重复犯错。
+
+#### ③ 生命周期与执行流
+
+1. **探索阶段（Exploratory Bootstrapping Phase）**：在参考种子任务上，Planner 拥有 `RESET` 权限和宽裕的时间预算。Planner 试错不同的预接触姿态、`VLA_ACT` 触发时机和早退阈值。探索成功后生成 Task Specific Memory (JSONL) 和 Global Memory。
+2. **部署阶段（Deployment Evaluation Phase）**：在未见的分布外环境（位置置换、指令改变、随机初始 seed）中评估。禁用 `RESET` 并限制总步数。Planner 从 Task Specific Memory 提取模版，用 live RGB-D 重新绑定坐标，参照 Global Memory 避坑规则稳健执行。
+
+#### ④ 动态重试机制（Adaptive VLA Invocation & Re-staging）
+
+Planner 将 `VLA_ACT` 视为可被重新调整姿态并重试的局部基元。若执行 `VLA_ACT` 后检测到未成功抓取或接触偏离，Planner 利用解析基元（如 `MOVE_TO`）将机器人重新运动回安全且符合 VLA 视觉分布的预接触位姿（Re-staging），随后再次触发 `VLA_ACT` 进行重试，大幅提升了对执行扰动的容错率。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vla/HarnessVLA-libero-pro.png" width="100%" />
+<figcaption>LIBERO-Pro 上的分布外终端状态对比：端到端 VLA 与 Harness VLA 的行为差异</figcaption>
+</div>
+
+- **LIBERO-Pro 强扰动测试（表 2 & 表 3）**：在包含空间位置置换（SPATIAL/OBJECT/GOAL-S）和指令重定向（GOAL-T 等）的 LIBERO-Pro 评测中，Harness VLA (CC) / (Codex) 取得 **47.5% / 56.3%** 的平均成功率，相比最强基线（$$ \pi_{RLinf} $$ 仅 6.1%、$\pi_0$ 仅 1.1%）分别提升 41.4 和 50.2 个百分点。
+
+<div align="center">
+  <img src="/images/vla/HarnessVLA-vla-budget.png" width="100%" />
+<figcaption>自适应 VLA 调用次数与任务成功率的关系曲线</figcaption>
+</div>
+
+- **RoboCasa365 复杂厨房环境（表 4）**：在涵盖长时程、复合工具与铰链机构的 RoboCasa365 测试中，Harness VLA 成功率达到 **38.6% (Codex) / 36.3% (CC)**，大幅超越 Cap-X (13.2%)。
+- **RoboTwin C2R 零样本迁移（表 6）**：在 Clean-to-Randomized 迁移设定下，使用训练于 Clean 环境的 LingBot-VLA 作为 `VLA_ACT` 基础后端，直接部署该 VLA 的成功率为 50.4%，而 Harness VLA 将其提升至 **58.4%**。
+
+<div align="center">
+  <img src="/images/vla/HarnessVLA-rollout-cases.png" width="100%" />
+<figcaption>解析解拆解与接触密集型操作交替调用的典型 Rollout 案例</figcaption>
+</div>
+
+- **核心机制发现（Key Findings）**：
+  1. *语义重绑定（Key Finding 1）*：如 Figure 3 所示，当指令目标重定向时，传统 VLA 盲目重复训练轨迹，而 Harness VLA 通过 Planner 解析指令并结合 RGB-D 重新绑定目标点。
+  2. *自适应 VLA 重新布置与重试（Key Finding 2）*：如 Figure 4 所示，随着允许的 `VLA_ACT` 调用上限增加，任务成功率快速攀升后饱和，证明适度的预前置调整与重试是保证高成功率的关键。
+  3. *任务归因（Key Finding 3）*：分析显示，成功轨迹中解析基元承担了大部分空间位移与定位，而 VLA 被精准约束在局部接触阶段。
+
+---
+
+### 4. 局限性
+
+1. **依赖高层 VLM/LLM 的推理延迟**：闭环 REPL 模式依赖高层大模型的闭环推理与决策，在需要毫秒级（>50Hz）高频避障或实时连续反馈的极动态场景中仍受限于 API 响应延迟。
+2. **Bootstrapping 阶段需要试错预算**：建构 Task Specific Memory 和 Global Memory 前提是在参考种子任务上允许使用 `RESET` 并提供一定的自主探索试错时间。
+
+---
+
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "VLN经典论文"
-date:   2026-07-22
+date:   2026-07-27
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -43,6 +43,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [JanusVLN(单目)](#janusvln) | 2026 | R2R-CE | Janus-Pro-7B | 60.5 | 56.8 | 4.78 | 65.2 | [是](https://github.com/MIV-XJTU/JanusVLN) | – | 
  | [BudVLN(单目)](#budvln) | 2026 | R2R-CE | LLaVA-1.5-7B | 57.6 | 51.1 | – | – | [是](https://github.com/Beat992/CDC2F) | – | 
  | [StreamVLN(单目)](#streamvln) | 2025 | R2R-CE | LLaVA-Video-7B | 56.9 | 51.9 | 4.98 | 64.2 | [是](https://github.com/OpenRobotLab/StreamVLN) | 750K 样本 | 
+| [AgenticNav: Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness](#agenticnav-zero-shot-vision-and-language-navigation-as-a-tool-calling-harness) | 2026 | R2R-CE | – | 55.0 | 48.41 | – | – | 否 | – |
  | [Goal2Pixel(单目)](#goal2pixel) | 2025 | R2R-CE | LLaVA-1.5-7B | 54.1 | 52.5 | 4.85 | 59.9 | 否 | – | 
  | [MapNav(单目)](#mapnav) | 2025 | R2R-CE | LLaVA-Onevision-7B | 53.0 | 39.7 | – | – | [是](https://github.com/linglingxiansen/MapNav) | ~1M 样本 | 
  | [HSGM(单目)](#hsgm) | 2026 | R2R-CE | – | 47.9 | 32.8 | 5.42 | 58.7 | [是](https://github.com/Teacher-Tom/HSGM_public) | – | 
@@ -6790,6 +6791,361 @@ CorrectNav 在仅使用单目 RGB 的前提下，不仅刷新了单目 VLA 模�
 
 ---
 
+## 64. ALL-DAY MULTI-SCENE LIFELONG VISION-AND-LANGUAGE NAVIGATION WITH TUCKER ADAPTATION (2026) {#all-day-multi-scene-lifelong-vision-and-language-navigation-with-tucker-adaptation}
+———面向全天候多场景终身具身视觉语言导航的 Tucker 张量自适应
+
+📄 **Paper**: [arXiv:2603.14276](https://arxiv.org/abs/2603.14276) · 🏛️ **ICLR 2026**
+
+### 精华
+
+* **全新全天候终身导航范式 (AML-VLN)**：首次形式化提出全天候多场景终身视觉语言导航问题并构建 Benchmark，评估具身智能体在跨场景拓扑与多光照/恶劣环境（正常、低光、强光过曝、散射/雾天）下连续自适应与防忘能力。
+* **高阶张量微调 (Tucker Adaptation, TuKA)**：突破经典 LoRA/MoE-LoRA 仅能表示二维双层知识（全局共享 + 任务特定）的结构瓶颈，将微调参数提升至高维张量空间，基于 Tucker 分解显式解耦出“通用导航技能 + 场景特定拓扑 + 环境特定物理”的多层级高维知识。
+* **解耦知识增量学习 (DKIL)**：结合基于 Fisher 信息的弹性权重巩固（EWC）、已知专家一致性约束（Consistency Constraint）与新专家行空间正交优化（Orthogonal Optimization），有效防止新旧子空间领域的参数污染与灾难性遗忘。
+* **测试期无 Task-ID 自适应检索**：构建基于预训练 CLIP 视觉特征的场景与环境双层检索机制（Task-Specific Experts Search），测试阶段无需显式 Task ID 即可自动精准匹配当前视场的最优场景与环境专家。
+* **SOTA 性能与卓越泛化性**：在包含 24 项连续任务的 Benchmark 上，AlldayWalker 智能体导航成功率 SR 达到 65%（显著超越 SD-LoRA 的 56% 与 BranchLoRA 的 44%），遗忘率 F-SR 降至 11%，并在 6 项全新未见任务中实现 55% 的零样本泛化 SR。
+
+---
+
+### 1. 研究背景/问题
+
+传统的视觉语言导航（Vision-and-Language Navigation, VLN）研究通常假设智能体部署在静态且光照理想的单一场景中。然而在真实世界应用中，具身导航智能体必然需要面临**全天候环境变化**（昼夜正常光、夜间低光、强光过曝、恶劣散射/雾天）以及**跨多场景持续迁移**的挑战。当智能体按顺序连续学习多个场景与环境下的导航任务时，模型参数会被新任务急剧覆盖，导致对历史旧场景的严重灾难性遗忘（Catastrophic Forgetting）。
+
+现有的参数高效微调方法（如 Vanilla LoRA，或基于 MoE 的 HydraLoRA、BranchLoRA、SD-LoRA 等）普遍通过低秩矩阵进行微调。这些方法本质上是在二维矩阵空间内建模，仅能将知识抽象为“共享矩阵 + 专属矩阵”的双层级结构（即全局通用知识与任务专属知识）。但是在 AML-VLN 任务中，导航知识跨越了多个不同层级：通用导航移动动作、场景特定拓扑结构、以及环境特定的物理成像规律。现有的低秩矩阵微调方法无法显式表示和解耦这种多层级的高维复杂知识，导致参数重用率低下、多领域特征严重交织混淆，难以兼顾增量自适应与跨场景/环境防忘。
+
+<div align="center">
+  <img src="/images/vln/TuckerNav-overview.png" width="100%" />
+<figcaption>面向全天候多场景终身视觉语言导航（AML-VLN）的总体概念与自适应挑战</figcaption>
+</div>
+
+---
+
+### 2. 主要方法/创新点
+
+#### ① 整体框架概述
+
+针对全天候多场景终身导航（AML-VLN）的挑战，本文提出了 **Tucker Adaptation (TuKA)** 架构与 **Decoupled Knowledge Incremental Learning (DKIL)** 增量学习机制，并构建了 **AlldayWalker** 终身导航智能体。系统将 Transformer 层的自适应权重映射至高维张量空间，通过 Tucker 分解（Tucker Decomposition）将高维张量显式拆解为捕捉全局通用导航能力的 Core Tensor、编解码维度投影矩阵，以及按场景和环境解耦的向量专家库。在连续学习阶段，DKIL 策略在共享与专属子空间上施行差异化约束；在推理阶段，智能体利用基于 CLIP 视觉特征的双层匹配检索，在无需 Task-ID 的情况下自动调取最优的场景与环境专家组合。
+
+<div align="center">
+  <img src="/images/vln/TuckerNav-architecture.png" width="100%" />
+<figcaption>传统 LoRA、HydraLoRA 与本文 Tucker Adaptation (TuKA) 高维张量架构对比</figcaption>
+</div>
+
+#### ② 逐模块讲解
+
+##### 1. 高阶 Tucker 张量自适应 (Tucker Adaptation, TuKA)
+- **输入/输出与张量升维**：对于 Transformer 第 $$l$$ 层的骨干权重 $$W_0^l \in \mathbb{R}^{a_l \times b_l}$$，传统 LoRA 引入二维矩阵增量 $$\Delta W^l = B^l A^l$$。TuKA 将自适应升维至四阶高维张量 $$\mathcal{X}^l \in \mathbb{R}^{a_l \times b_l \times M \times N}$$（其中 $$M$$ 为场景总数，$$N$$ 为环境模式数）。
+- **Tucker 张量分解**：将四阶张量 $$\mathcal{X}^l$$ 进行 Tucker 分解：
+  $$\mathcal{X}^l = \mathcal{G} \times_1 U_1 \times_2 U_2 \times_3 U_3 \times_4 U_4$$
+- **子结构设计与功能**：
+  - **核心张量 $$\mathcal{G} \in \mathbb{R}^{r_1 \times r_2 \times r_3 \times r_4}$$**：捕获所有特征维度与模式间的交叉交互信息，用于学习所有导航任务共享的核心通用导航技能（Task-Shared Knowledge）。
+  - **共享解码器 $$U_1 \in \mathbb{R}^{a_l \times r_1}$$ 与编码器 $$U_2 \in \mathbb{R}^{b_l \times r_2}$$**：负责高维张量与底层 LLM 二维矩阵特征空间之间的维度转换与对齐。
+  - **场景专家矩阵 $$U_3 \in \mathbb{R}^{M \times r_3}$$**：包含 $$M$$ 组场景专家，第 $$s$$ 行 $$U_3[s, :]$$ 显式表示第 $$s$$ 个具体场景的特定拓扑与结构知识。
+  - **环境专家矩阵 $$U_4 \in \mathbb{R}^{N \times r_4}$$**：包含 $$N$$ 组环境专家，第 $$e$$ 行 $$U_4[e, :]$$ 显式表示第 $$e$$ 个退化环境（正常、低光、过曝、散射）的视觉物理感知知识。
+- **任务增量权重切片导出**：对于第 $$t$$ 个场景 $$S_s$$ 和环境 $$E_e$$ 下的导航任务 $$T_t = \{S_s, E_e\}$$，从高阶张量中抽取特定模式切片计算最终的增量权重：
+  $$\Delta W_t = U_1 \cdot \left( \mathcal{G} \times_3 U_3[s, :] \times_4 U_4[e, :] \right) \cdot (U_2)^T$$
+
+##### 2. 解耦知识增量学习 (Decoupled Knowledge Incremental Learning, DKIL)
+
+<div align="center">
+  <img src="/images/vln/TuckerNav-dkil.png" width="100%" />
+<figcaption>解耦知识增量学习 (DKIL) 策略：在共享与特定知识子空间上的继承、一致性约束与正交优化</figcaption>
+</div>
+
+- **共享知识继承与 EWC 巩固**：连续学习新任务 $$T_t$$ 时，继承已更新的全局共享参数 $$\{\mathcal{G}, U_1, U_2\}$$。为了防止更新共享部分导致对早期任务的知识破坏，引入基于 Fisher 信息矩阵的弹性权重巩固（EWC Loss）：
+  $$\mathcal{L}_{\text{ewc}, t} = \lambda_1 \left( \|F_{\mathcal{G}, t-1} \odot (\mathcal{G} - \mathcal{G}')\|_F^2 + \|F_{U_1, t-1} \odot (U_1 - U_1')\|_F^2 + \|F_{U_2, t-1} \odot (U_2 - U_2')\|_F^2 \right)$$
+  其中 Fisher 矩阵使用滑动平均公式在连续学习中平滑更新：$$F_{\theta, t} = \omega \cdot F_{\theta, t-1} + (1-\omega) \cdot F_{\theta, t}$$。
+- **已知专家一致性约束 (Consistency Loss)**：若新任务用到了此前已经学习过的场景 $$s$$ 或环境 $$e$$，对已有的专家行 $$U_3[s, :]$$ 或 $$U_4[e, :]$$ 施加一致性惩罚，防止重复训练破坏已有模式：
+  $$\mathcal{L}_{\text{co}} = \lambda_2 \left( \alpha \|U_3[s, :] - U_3'[s, :]\|_F^2 + \beta \|U_4[e, :] - U_4'[e, :]\|_F^2 \right)$$
+  其中当场景或环境此前已学过时，对应指示变量 $$\alpha$$ 或 $$\beta$$ 设为 1。
+- **未见新专家行空间正交优化 (Orthogonal Optimization)**：对于未见过的新场景或新环境，冻结其他无关专家，仅更新当前专属行 $$U_3[s, :]$$ 或 $$U_4[e, :]$$，并施加行空间正交约束，确保新旧专家子空间保持正交垂直，消除干涉：
+  $$\mathcal{L}_{\text{es}} = \lambda_3 \left( (1-\alpha) \|\hat{U}_3 \hat{U}_3^T - I\|_F^2 + (1-\beta) \|\hat{U}_4 \hat{U}_4^T - I\|_F^2 \right)$$
+
+##### 3. 测试期任务专家自适应检索 (Task-Specific Experts Search)
+- **特征库构建**：训练阶段，利用预训练 CLIP 视觉编码器 $$V(\mathcal{O})$$ 提取各个场景和环境下的观测图像特征，分别聚类构建场景特征库 $$\{F_{S_1}^e, \dots, F_{S_M}^e\}$$ 和环境特征库 $$\{F_{E_1}^e, \dots, F_{E_N}^e\}$$。
+- **无 Task-ID 两步余弦匹配**：测试阶段，智能体面临未知导航环境 $$S_q$$ 时，提取当前视野图特征 $$F_q^e = V(\mathcal{O}_q)$$，通过余弦相似度检索匹配最佳场景专家与环境专家：
+  $$s^* = \arg\max_s \text{Sim}(F_q^e, \{F_{S_m}^e\}), \quad e^* = \arg\max_e \text{Sim}(F_q^e, \{F_{E_n}^e\})$$
+  匹配到的专家向量输入 TuKA 张量生成公式，自动合成针对当前场景与光照的最佳微调权重，彻底摆脱对已知 Task-ID 的依赖。
+
+##### 4. Allday-Habitat 仿真平台与 AML-VLN Benchmark
+
+<div align="center">
+  <img src="/images/vln/TuckerNav-habitatenv.png" width="100%" />
+<figcaption>Allday-Habitat 仿真平台生成的 4 种典型环境条件（正常光照、夜间低光、强光过曝、恶劣散射/雾天）</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vln/TuckerNav-benchmark.png" width="100%" />
+<figcaption>AML-VLN 终身导航 Benchmark 的 24 项任务序列：跨场景与环境维度的连续增量学习</figcaption>
+</div>
+
+- **3 种物理退化环境合成**：
+  - **大气散射模型（雾/散射）**：$$I(x_i) = J(x_i) e^{-\beta d(x_i)} + A (1 - e^{-\beta d(x_i)})$$，其中 $$d(x_i)$$ 为深度，$$\beta$$ 为散射系数，$$A$$ 为大气光。
+  - **非线性低光模型（夜间低光）**：包含相机响应函数 (CRF)、增益曝光乘积及泊松-高斯混合噪声模型 $$N(x) = N_{\text{shot}}(x) + N_{\text{read}}(x)$$。
+  - **强光过曝模型**：在相机感光前引入传感器动态范围上限饱和截断 $$\text{clip}(\cdot, 0, S_{\text{Sat}})$$。
+- **24-Task 终身评估序列**：包含 5 个仿真场景与 2 个真实世界场景，结合 4 种环境，构建 24 项连续学习任务序列。评估指标除了包含标准 SR、SPL、OSR 外，还引入遗忘率指标 F-SR、F-SPL、F-OSR。
+
+#### ③ 训练与损失函数
+
+整体微调目标函数结合了自回归导航动作生成的交叉熵损失与三大增量正则化损失：
+$$\mathcal{L}_t = -\lambda \sum_{n=1}^N \log p_t(A_n, \hat{P}_n \mid I, \mathcal{O}_t) + \mathcal{L}_{\text{ewc}, t} + \mathcal{L}_{\text{co}} + \mathcal{L}_{\text{es}}$$
+其中权重满足 $$\lambda = 1 - (\lambda_1 + \lambda_2 + \lambda_3)$$（实验设置 $$\lambda_1=0.2, \lambda_2=0.2, \lambda_3=0.1$$）。
+
+---
+
+### 3. 核心结果/发现
+
+* **24-Task AML-VLN Benchmark 综合评估**：
+  - 在 24 项连续学习任务的完整序列测试中，基于 TuKA 的 **AlldayWalker** 取得了平均 **65% 的成功率 (SR)** 和 **58% 的 SPL**，大幅超越对比 baseline（包括 SD-LoRA 的 56%/50%、BranchLoRA 的 44%/39%、MoLA 的 33%/26% 以及 EWC-LoRA 的 15%/9%）。
+  - 在**抗遗忘性能 (Forgetting Rate)** 上，AlldayWalker 的 SR 遗忘率 F-SR 仅为 **11%**（相比之下 SD-LoRA 为 18%、BranchLoRA 为 36%、Sequential Fine-Tuning 为 87%），表现出极高的终身记忆稳定性。
+* **高阶张量阶数消融 (3rd vs 4th vs 5th order Tensor)**：
+  - 对比将场景与环境耦合在一起的三阶张量 $$\mathcal{X} \in \mathbb{R}^{a \times b \times (M \times N)}$$，四阶张量通过显式解耦场景模式与环境模式，在所有 20 项测试任务上取得全面超越的 SR 曲线。附录进一步验证了五阶张量在引入更细粒度任务模式时的良好扩展性。
+* **共享组件的作用消融 (Core Tensor & En/Decoder Sharing)**：
+  - 去掉共享 Core Tensor $$\mathcal{G}$$ 或共享编码器 $$U_2$$ 会导致 SR 显著下降（由 65% 降至 53% 与 55%），证实共享张量和编码器成功学习到了跨任务通用的基础导航技能。共享解码器 $$U_1$$ 则大幅降低了多任务存储开销（仅需 15.64M 参数）。
+* **未知场景零样本泛化 (Zero-Shot Generalization on Unseen Scenarios)**：
+  - 在 6 个完全未见的全新场景与环境（G1-G6，包含仿真与真实世界低光/正常环境）上测试，AlldayWalker 依靠 CLIP 视觉检索匹配最相似专家，取得了 **55% 的平均 SR**，超越 SD-LoRA (39%) 达 16%，证明了高阶解耦表示具有优异的零样本泛化与泛化迁移能力。
+
+---
+
+### 4. 局限性
+
+* **检索依赖 CLIP 特征质量**：推理阶段的任务专家自适应匹配高度依赖预训练 CLIP 视觉编码器的表征能力；若遇到极其异常的极端成像降质（如强重度烟雾覆盖遮挡）导致视觉特征畸变，可能发生专家误匹配。
+* **真实机械臂/移动机器人部署耗时**：目前主要在仿真平台及有限的真实场景进行验证，在大规模复杂多楼层真实移动机器人终身在线部署中，仍需进一步优化高效在线索引与实时特征抽取推理耗时。
+
+---
+
+## 65. AgenticNav: Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness (2026) {#agenticnav-zero-shot-vision-and-language-navigation-as-a-tool-calling-harness}
+———将零样本连续环境导航（VLN-CE）重构为 VLM 可调用的 Tool-Calling 架构
+
+📄 **Paper**: [arXiv:2606.10577](https://arxiv.org/abs/2606.10577)
+
+---
+
+### 精华
+1. **范式重构**：将零样本连续环境视觉语言导航（VLN-CE）重新定义为 VLM 与环境之间的 Tool-Calling 交互 Harness，打破对额外训练的航点预测器（Waypoint Predictor）的依赖。
+2. **像素级无航点动作控制**：提出 Action Tool，允许 VLM 直接在 RGB 图像中点选目标像素 $(u,v)$，由后台 Harness 完成反投影、地平面转向/步长计算与 swept-corridor 扫掠安全碰撞检查。
+3. **按需深度感知**：设计 Pixel-Depth Tool，VLM 可按需查询特定像素的真实物理深度与 $5\times 5$ 局部深度统计信息，无需全量深度图或隐式预测。
+4. **轻量化 Agentic 记忆**：构建结合鸟瞰图 Map Image 与按需 Recall Tool 的 Memory 机制，仅在必要时调取历史节点 RGB 视图，彻底解决 Prompt 上下文过载与跨 Episode 依赖问题。
+5. **SOTA 性能与实机泛化**：在 R2R-CE 基准上，以 GPT-5.5 作为 VLM 核心实现 **55% SR** 与 **48.41% SPL**（大幅超越 SmartWay 的 44% SR / 35.04% SPL）；在真实四轮机器人与复杂室内外场景中展现出极强的 Zero-Shot Sim-to-Real 泛化能力。
+
+---
+
+### 1. 研究背景/问题
+
+零样本连续环境视觉语言导航（Zero-Shot VLN-CE）要求智能体在未见过的 3D 物理场景中，无需预定义导航图（Navigation Graph）和策略微调，仅凭自然语言指令和视觉/深度感知完成连续运动控制。大语言/视觉语言模型（VLM）的飞速发展使其成为高层决策核心，但现有方法存在三大严重瓶颈：
+- **动作空间受限**：Open-Nav、SmartWay 等 SOTA 方法普遍依赖额外训练的航点预测网络（Waypoint Predictor）来推荐候选动作点。若预测器未露出指令所需的关键方向/目标，VLM 将被局限在错误的候选集内，无法选出正确路径。
+- **几何/深度感知缺失**：现有架构将深度输入当作黑盒提供给航点预测器，或强制 VLM 直接解析复杂的密集深度图，导致 VLM 难以精准评估目标物体的物理距离与空间通达性。
+- **记忆机制两难**：传统方法通过不断向 Prompt 拼接历史文本/视觉帧来维护记忆，导致 Context 迅速过载并引入大量无关干扰；或者依赖跨 Episode（Cross-episode）经验检索（如 EvoNav），削弱了严格的零样本（Zero-shot）假设。
+
+---
+
+### 2. 主要方法/创新点
+
+AgenticNav 将零样本 VLN-CE 重新构建为一种轻量级的 **Tool-Calling Harness**，将动作生成、深度感知与历史记忆解耦为 4 个可调用的工具接口（Action Tool, Depth Tool, Recall Tool, Stop Tool），在保留 VLM 语义推理与感知自由度的同时，将数值几何计算与安全检查交由确定性的物理 Harness 处理。
+
+<div align="center">
+  <img src="/images/vln/AgenticNav-overview.png" width="100%" />
+<figcaption>AgenticNav 与传统 Zero-Shot VLN-CE 架构对比：打破传统 Waypoint Predictor 的动作限制、全量深度图感知瓶颈与长 Prompt 记忆过载。</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vln/AgenticNav-architecture.png" width="100%" />
+<figcaption>AgenticNav 系统整体工作流：VLM 根据当前 RGB 与 Map Image 提出决策，可按需查询深度（Depth Tool）、调取历史视觉节点（Recall Tool），并通过点选 RGB 目标像素触发 Action Tool 执行安全运动。</figcaption>
+</div>
+
+#### ① 整体框架概述
+AgenticNav 由 **VLM 决策核心** 与 **四个确定性 Tool 接口** 组成：
+1. **Action Tool (`move_to`)**：负责将 VLM 选中的图像像素转化为安全连续控制量。
+2. **Depth Tool (`query_depth`)**：负责向 VLM 提供特定像素的精准物理距离与局部表面特征。
+3. **Agentic Memory (`Map Image` + `recall`)**：负责维系全局轨迹感知与局部细节的按需检索。
+4. **Stop Tool (`stop`)**：负责判断导航终止。
+
+#### ② 逐模块讲解
+
+##### 1. Waypoint-Free Action Tool (`move_to(k, u, v)`)
+- **输入**：VLM 选定的视角索引 $k$ 以及归一化像素坐标 $(u, v) \in [0,1]^2$。
+- **处理过程**：
+  - **几何反投影**：结合相机内参 $K$、外参 $T_k$ 及深度值 $d = D_t^k(x, y)$，将像素 $(x, y)$ 反投影为机器人坐标系下的 3D 目标点：
+    $$p_t = T_k \left( d K^{-1} [x, y, 1]^\top \right)$$
+  - **运动量计算**：提取地平面方位角 $\theta = \text{bearing}(p_{t,xz})$，并根据最大步长限制 $\rho_{\max}$、停止边距 $m$ 及步长离散化间隔 $\Delta$ 计算实际前向距离：
+    $$\rho = \Delta \left\lfloor \frac{\min\left(\rho_{\max}, \max(0, \|p_{t,xz}\| - m)\right)}{\Delta} \right\rfloor$$
+  - **Swept-Corridor 扫掠安全检查**：筛选出位于机器人身体高度区间 $[y_{\min}, y_{\max}]$ 内的所有障碍物点云集 $P_t$。沿着航向向量 $b_\theta = (-\sin\theta, \cos\theta)$ 与侧向向量 $\ell_\theta = (\cos\theta, \sin\theta)$ 检查机器人扫掠走廊内是否存在碰撞点：
+    $$\text{Safe}(\theta, \rho) = \mathbf{1} \left[ \nexists q \in P_t : 0 \lt q_{xz} \cdot b_\theta \lt \rho + r_a \land |q_{xz} \cdot \ell_\theta| \lt r_a \right]$$
+    其中 $r_a$ 为机器人半径。若检测到碰撞，返回 `Reselect` 反馈提示 VLM 重选；若安全则输出 `Execute(θ, ρ)`。
+- **设计动机**：摒弃有监督训练的航点预测器，赋予 VLM 直接选择视觉场景中任意可视可达位置（如特定门缝、走廊尽头、家具旁）的自由。
+
+##### 2. On-Demand Pixel-Depth Tool (`query_depth(P)`)
+- **输入**：候选像素点批量集合 $P = \{ p_i = (k_i, u_i, v_i) \}_{i=1}^m$。
+- **处理过程**：对每个查询点采样相位的深度图，返回结构化信息：
+  $$D(p_i) = \left( d_i, s_i^{5 \times 5}, \hat{\theta}_i, \hat{\rho}_i \right)$$
+  其中 $d_i$ 为物理深度（米），$s_i^{5 \times 5}$ 为以该像素为中心的 $5\times 5$ 窗口内的深度最小值、均值与中位数（用于判断是否落在边缘或平整表面），$\hat{\theta}_i$ 与 $\hat{\rho}_i$ 为预计算的动作预览。
+- **设计动机**：密集深度图对 VLM 而言极其难以定量解析。按需查询使 VLM 能够在决策前精准对比不同方向（如 "左侧通道是否畅通"、"前方开门处距离多远"），提供可靠的局部空间几何证据。
+
+##### 3. Agentic Memory 与 Visual Recall Tool
+- **输入与结构**：Episode 内记忆表示为 $\mathcal{M}_t = (B_t, \mathcal{C}_t)$。
+  - $B_t$ 为直接放入 Prompt 中的**拓扑 Map Image**，直观展示历史轨迹节点与当前方位。
+  - $\mathcal{C}_t$ 为过去所有观察视图的缓存。
+- **Recall 机制**：当 VLM 需要核对早期路标（如 "刚才路过路口看到的指示牌"）时，调用 `recall(p, k)`，仅提取第 $p$ 步视角 $k$ 的单帧 RGB 图 $R_t(p, k) = \mathcal{C}_t[p, k]$ 并追加到 Prompt 中。
+- **设计动机**：防止 Prompt 随导航步数暴增而溢出，避免无用视觉帧干扰 VLM 注意力，实现高效长程导航。
+
+#### ③ 推理与交互流程
+1. 初始时刻 VLM 接收语言指令、当前全景 RGB 图及初始 Map Image $B_t$。
+2. VLM 可根据需要多次调用 `query_depth` 评估感兴趣目标点的距离，或调用 `recall` 回溯特定历史视图。
+3. VLM 调用 `move_to` 输出目标像素；Harness 评估安全检查。若安全则驱动机器人移动并更新 Map Image；若不安全则反馈 `Reselect` 提示重新决策。
+4. 达到目标区域后，VLM 调用 `stop()` 完成任务。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vln/AgenticNav-realworld.png" width="100%" />
+<figcaption>真实世界机器人部署对比：AgenticNav 能够在无航点预测器约束下精准穿过狭窄门洞与长走廊，且在四视角模式下大幅超越 SmartWay。</figcaption>
+</div>
+
+#### 1. R2R-CE Simulation 评估（R2R-CEval Unseen 100 Episodes）
+在严格相同 VLM Backbone（GPT-5.5 / Gemini-2.5-Pro）下，AgenticNav 刷新了 Zero-Shot VLN-CE 性能记录：
+- **AgenticNav-GPT-5.5** 取得了 **55% SR**、**48.41% SPL**、**65% OSR** 和 **63.41 nDTW**，相较于同 Backbone 重现的 SOTA Baseline **SmartWay-GPT-5.5**（SR 44%, SPL 35.04%），SR 提升 **11%**，SPL 显著提升 **13.37%**。
+- **AgenticNav-Gemini-2.5-Pro** 取得 **49% SR**，超越了 Open-Nav（23% SR）以及依赖跨 Episode 经验检索的 EvoNav（43% SR）。
+
+#### 2. 消融实验分析（Ablation Study）
+在 R2R-CE 上对各个 Tool 模块进行剥离测试：
+- **替换 Action Tool 为 Waypoint Predictor**：SR 下降 5%（55% $\to$ 50%），SPL 下降 4.42%，证明自由选择视觉目标像素优于选择模型推荐的候选航点。
+- **移除 Depth Tool**：SR 骤降至 42%；若改为直接输入完整深度图，SR 恢复至 53%，但仍低于按需查询的 55%，证明结构化局部深度查询更契合 VLM 的推理模式。
+- **移除 Agentic Memory**：SR 跌至 41%；若仅保留 Map Image 而无 Recall Tool，SR 为 51%，证明 Visual Recall Tool 在长程/指示牌识别任务中不可或缺。
+
+#### 3. Real-World 实机测试
+在包含实验室、办公区及户外庭院的 30 个复杂真实场景中部署于四轮全向机器人：
+- **单视角模式（1-view）**：SR 达 33.3%，导航误差 NE 为 3.20m（SmartWay 为 23.3% / 3.57m）。
+- **四视角模式（4-view）**：SR 提升至 **46.7%**，NE 降至 2.67m，对比 SmartWay 成功率翻倍（在户外庭院等广角场景优势尤为显著）。
+
+---
+
+### 4. 局限性
+
+1. **对基础 VLM 决策能力强依赖**：失败分析表明，仿真中 88.9% 的失败及真实世界中 71.4% 的失败源自 VLM 本身的错误判断（如房间/分支选择错误或最终停靠偏离），硬件与控制失败仅占极小比例。
+2. **云端 API 延迟与网络依赖**：依托云端大型 VLM API 带来了明显的推理时延与网络波动风险，限制了实时高频闭环控制能力。
+3. **环境假设依赖**：依赖准确的局部定位与 RGB-D 传感器质量，在极端无特征或深度缺失区域表现受限。
+
+---
+
+## 66. ABot-AgentOS: A General Robotic Agent OS with Lifelong Multi-modal Memory (2026) {#abot-agentos-a-general-robotic-agent-os-with-lifelong-multi-modal-memory}
+———面向具身智能的通用机器人 Agent 操作系统与终身多模态记忆系统
+
+📄 **Paper**: [arXiv:2607.10350](https://arxiv.org/abs/2607.10350) · [Project Page](https://amap-cvlab.github.io/ABot-AgentOS)
+
+---
+
+### 精华
+
+1. **模块化分层解耦架构**：ABot-AgentOS 部署于底层机器人控制器与高层基础 VLM/VLA 模型之间，将高层语义推理、技能执行、多级验证与记忆检索解耦，解决了传统单一模型控制器缺乏显式终止信号与过程漂移的问题。
+2. ** Agent Harness 控制闭环**：提出包含全局 Main LLM 规划、 Skill Runner 上下文隔离局部执行以及 Verifier 运行期/技能期/结束期多阶段验证的“推理-执行-验证”闭环，显著降低长程任务中的虚假完成与盲目停滞。
+3. **通用多模态图记忆（Universal Multi-modal Graph Memory）**：将语音、图像观察、空间地点、时间关联与任务轨迹转化为强类型的多模态图节点与边，支持基于证据溯源的检索与局部子图抽取。
+4. **故障驱动终身自进化（Failure-Driven Lifelong Self-Evolution）**：构建基于 Trace 诊断的故障转 JSON DSL 资产机制，采用严格的后检查门控（Gating），在跨 Split 部署中实现零 ground-truth 泄露的累积式自我进化。
+5. **具身基准测试 EmbodiedWorldBench**：推出首个跨室内外复合场景的可执行评测基准，覆盖 16 个场景、4 个难度等级与 200+ 复合任务；并提供了基于文本沙盒与自进化奖励引擎的端到端学生策略蒸馏训练管线。
+
+---
+
+### 1. 研究背景/问题
+
+具身智能（Embodied AI）正在将人工智能从数字世界推向物理世界。近年来，视觉语言模型（VLM）与视觉语言动作（VLA）模型赋予了机器人出色的自然语言理解、视觉场景感知与动作预测能力。然而，在语义理解与可靠的物理执行之间仍存在关键鸿沟：
+1. **语义信念与环境事实脱节**：在复杂长程任务中，现有的端到端控制器或简单的 API 调用缺乏显式的中间状态验证与终止信号。机器人可能执行了导航指令但并未移动，或在局部不断碰撞却在语言层面上认为任务正正常推进。
+2. **缺少跨形态通用的 Agent 硬件抽象**：现有系统多与特定机器人形态或控制接口高度绑定，难以无缝扩展到人形机器人、四足狗等多样化硬件。
+3. **记忆难以持久与溯源自我改进**：缺少能够跨会话持久存储、源头可追溯且能从历史交互故障中自我改善的通用多模态记忆系统。
+
+为此，论文提出了 **ABot-AgentOS**，一个运行在底层控制器之上、解耦高层认知与物理动作的通用机器人 Agent 操作系统。
+
+---
+
+### 2. 主要方法/创新点
+
+ABot-AgentOS 由**边云协同双 LLM 核心**、**Agent Harness 调度闭环**、**通用多模态图记忆**以及**端到端蒸馏训练管线**四大模块协同构成。
+
+<div align="center">
+  <img src="/images/agent/ABot-AgentOS-system-architecture.png" width="100%" />
+<figcaption>ABot-AgentOS 系统整体架构：多源多模态输入通过边云协同双 LLM 核心路由，Agent Harness 闭环调度技能与多级验证，结合通用多模态图记忆与底层控制器</figcaption>
+</div>
+
+#### ① 整体框架与边云协同双核心
+
+ABot-AgentOS 在架构设计上区分了边缘轻量模型与云端大模型（Dual-LLM Core）：
+- **边缘 Tiny LLM**：部署于机器人端侧，优先处理常规会话、简单工具调用与实时控制指令，降低响应延迟。
+- **云端 Large LLM**：当任务涉及长程复杂推理、多步规划或高难度图记忆检索时，由 learned routing 策略自动升级提升至云端大模型处理。
+
+#### ② Agent Harness 闭环控制
+
+Agent Harness 改变了传统单模型控制器的设计，将 Agent 调度划分为三个明确解耦的角色：
+
+<div align="center">
+  <img src="/images/agent/ABot-AgentOS-agent-harness.png" width="100%" />
+<figcaption>Agent Harness 架构细节：Main LLM 负责全局场景感知规划，Skill Runner 隔离局部执行细节，Verifier 提供多阶段实时与终局验证</figcaption>
+</div>
+
+1. **Main LLM（语义规划器）**：接收用户指令与记忆上下文，根据当前场景生成可调整的高层计划与显式完成条件。Main LLM 不直接发出每一脚底层的微观动作，而是决定直接调用工具或将子任务委托给 Skill Runner。
+2. **Skill Runner（过程执行器）**：作为技能级 Subagent 运行在独立的局部上下文中。它处理局部反复移动、视角微调与碰撞恢复等复杂过程，仅向 Main LLM 返回压缩后的高层执行结果摘要，防止局部细节阻塞 Main LLM 的全局规划。
+3. **Verifier（多阶段验证器）**：
+   - **运行期验证（Runtime Verification）**：监控轨迹与技能状态，及时识别停滞、局部死循环与频繁碰撞。
+   - **技能期验证（Skill Verification）**：核查子任务是否真正达成语义目标，而非仅凭 Tool 返回成功。
+   - **结束期验证（Finish Verification）**：在 Main LLM 试图终止任务时，对比初始指令、最终视觉观察与环境事实，防止虚假完成。
+
+#### ③ 通用多模态图记忆与终身自进化
+
+<div align="center">
+  <img src="/images/agent/ABot-AgentOS-memory-architecture.png" width="100%" />
+<figcaption>通用多模态记忆架构与离线故障驱动自进化循环：在线写入源头可溯的类型图，离线将失败 Trace 编译为可控 JSON DSL 进化资产</figcaption>
+</div>
+
+1. **多模态记忆图（Memory Graph）**：将在线交互中的实体、事件、地点、视觉帧、时间关联与归因链（Provenance）写入强类型的节点与边，取代原始视频流或纯文本日志的堆叠。
+2. **混合图检索器（Hybrid Graph Retriever）**：结合语义嵌入、词法匹配、元数据过滤与图边拓扑展开，抽取高质量局部证据子图。
+3. **故障驱动终身自进化（Failure-Driven Lifelong Self-Evolution）**：
+   - **Split 隔离协议**：在序列 split 部署中，第 $$t$$ 个 split 仅能使用历史已晋级的进化资产 $$A_{<t}$$。
+   - **Trace 诊断与资产编译**：在 split 完成后，系统对失败样本进行 Trace 诊断，生成 JSON DSL 格式的候选进化资产（覆盖记忆写入、证据选择、帧选取、时间归一化等阶段）。
+   - **严格门控校验（Gating）**：候选资产必须在目标验证集上提升分数且在回归集上不降低性能：
+     $$\text{Accept}(a) = \mathbb{I}[\Delta S_{\text{target}}(a) \ge \tau_{\text{gain}} \land \Delta S_{\text{reg}}(a) \ge -\tau_{\text{reg}}]$$
+     检验通过后方可晋级为 $$A_{\le t}$$ 供后续 split 使用，实现无标注泄露的累积增长。
+4. **边云协同隐私管理**：边缘保留私有记忆（人脸、个人物品等），仅将公共无敏感信息的环境记忆（路障、道路地标）上云分享，隐私分类准确率达 99% 以上。
+
+#### ④ EmbodiedWorldBench 与策略蒸馏训练管线
+
+<div align="center">
+  <img src="/images/agent/ABot-AgentOS-embodied-world-bench.png" width="100%" />
+<figcaption>EmbodiedWorldBench 评测基准概览：涵盖室内外复合场景、NPC 交互与动态事件的 16 个可执行场景与 4 级难度设定</figcaption>
+</div>
+
+论文推出了 **EmbodiedWorldBench**，涵盖 16 个室内、室外及混合场景，设 4 个难度等级与 200+ 个涉及导航、NPC 交互、物品搜索与动态事件响应的复合任务。
+
+<div align="center">
+  <img src="/images/agent/ABot-AgentOS-training-pipeline.png" width="100%" />
+<figcaption>学生策略端到端训练管线：通过文本沙盒构建环境、自进化奖励引擎生成偏好数据并使用 DPO/SFT 优化边缘部署模型</figcaption>
+</div>
+
+为了将云端大模型 Agent Harness 的能力下沉到端侧小模型，论文设计了端到端蒸馏管线：
+1. **可控文本沙盒构建**：使用 LLM 自动生成具有可执行状态与复杂逻辑的文本沙盒环境。
+2. **自进化奖励引擎**：基于结构化 Trace 生成自动评分与 DPO 偏好对。
+3. **SFT + DPO 策略优化**：在沙盒环境中训练部署轻量化 Student Policy。
+
+---
+
+### 3. 核心结果/发现
+
+1. **长程具身执行**：在 EmbodiedWorldBench 初始子集评估中，ABot-AgentOS 相较于单一控制器基线在任务成功率（Success Rate）与目标完成度（Goal Completion）上均取得显著提升，Verifier 机制减少了 35% 以上的早期误终止。
+2. **多模态记忆基准全面领先**：
+   - **LoCoMo**（长程会话记忆）：Static 版本达到 **87.5**，+Self-evo 提升至 **88.7**（接近人类上限 87.7）。
+   - **OpenEQA (EM-EQA)**：8 帧预算下 Static 达到 **59.9**，+Self-evo 提升至 **60.4**（超越 SnapMem 57.2 与 GaussExplorer 57.8）。
+   - **Mem-Gallery**：Static 达到 **88.6**，+Self-evo 提升至 **89.0**（在冲突检测 CD 97.5% 与拒绝回答 AR 100% 上表现突出）。
+   - **NExT-QA**：Validation Acc@All 达到 **76.5%**（+Self-evo 提升 4.1 点），大幅领先 VideoAgent 等经典视频 Agent。
+   - **EgoLifeQA**：单帧检索设置下取得 **66.2%** 平均准确率。
+3. **终身自进化的跨任务泛化**：自进化机制在所有 5 个记忆基准上均带来了稳定增量，且性能增益完全来源于对记忆流水线（如时间规范化、关系消歧）的通用改进，而非记忆内容的暴力堆叠。
+
+---
+
+### 4. 局限性
+
+1. **复杂真实物理世界的感知与控制噪声**：目前大规模验证多在可执行仿真或半物理沙盒中进行，面对真实世界的高噪深度感知、抓取失败与网络通信时延仍需更深度的硬件实机调优。
+2. **自动化蒸馏依赖文本沙盒**：小模型策略蒸馏目前主要依赖文本状态沙盒环境，未来需要引入多模态视觉观察与更复杂的物理仿真平台（如 Isaac Sim/Habitat）。
+3. **记忆自进化需要可信的反馈信号**：离线自进化机制依赖确定性的错误诊断或人类反馈，在开放无监督环境中如何安全界定“回答错误”仍是长远挑战。
+
+---
+
 # 参考资料
 
 ## 已发表论文（会议 / 期刊）
@@ -6802,7 +7158,7 @@ CorrectNav 在仅使用单目 RGB 的前提下，不仅刷新了单目 VLA 模�
 | **ICRA** | [NoMaD](#nomad) (2024)、[VLFM](#vlfm) (2024)、[Open-Nav](#open-nav) (2025)、[StreamVLN](#streamvln) (2026) |
 | **AAAI** | [NavGPT](#navgpt) (2024)、[ODYSSEY](#odyssey) (2026)、[R³](#r3) (2026)、[PanoNav](#panonav) (2026, Poster) |
 | **CVPR** | [VLN-Imagine](#vln-imagine) (2025)、[Slow4fast-VLN](#slow4fast-vln) (2026)、[AwareVLN](#awarevln) (2026) |
-| **ICLR** | [NavFoM](#navfom) (2026)、[JanusVLN](#janusvln) (2026)、[OmniNav](#omninav) (2026, Poster) |
+| **ICLR** | [NavFoM](#navfom) (2026)、[JanusVLN](#janusvln) (2026)、[OmniNav](#omninav) (2026, Poster)、[ALL-DAY MULTI-SCENE LIFELONG VISION-AND-LANGUAGE NAVIGATION WITH TUCKER ADAPTATION](#all-day-multi-scene-lifelong-vision-and-language-navigation-with-tucker-adaptation) (2026) |
 | **ICCV** | [VLN-PE](#vln-pe) (2025) |
 | **ACL** | [MapNav](#mapnav) (2025) |
 | **期刊** | [GaussNav](#gaussnav) (IEEE TPAMI 2025)、[CausalNav](#causalnav) (IEEE RA-L)、[Skill-Nav](#skill-nav) (Vicinagearth / Springer 2025)、[CA-VLN](#ca-vln) (Sensors 2026)、[R2RIE-CE & IEDL](#r2rie-ce-iedl) (ROMAN 2024) |
@@ -6870,6 +7226,9 @@ CorrectNav 在仅使用单目 RGB 的前提下，不仅刷新了单目 VLA 模�
 59. **ABot-N1** (2026). 基于慢速认知与快速控制双系统架构的通用视觉语言导航基础模型. arXiv: [2607.10383](https://arxiv.org/abs/2607.10383)
 60. **ReflectVLN** (2026). 基于反思推理与双向交互机制的具身视觉语言导航. arXiv: [2607.12680](https://arxiv.org/abs/2607.12680)
 61. **CorrectNav** (2025). 自纠错飞轮赋能的单目 RGB 视觉-语言-动作导航模型. arXiv: [2508.10416](https://arxiv.org/abs/2508.10416)
+62. **ALL-DAY MULTI-SCENE LIFELONG VISION-AND-LANGUAGE NAVIGATION WITH TUCKER ADAPTATION** (2026). 面向全天候多场景终身具身视觉语言导航的 Tucker 张量自适应. arXiv: [2603.14276](https://arxiv.org/abs/2603.14276)
+63. **AgenticNav: Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness** (2026). 将零样本连续环境导航（VLN-CE）重构为 VLM 可调用的 Tool-Calling 架构. arXiv: [2606.10577](https://arxiv.org/abs/2606.10577)
+64. **ABot-AgentOS: A General Robotic Agent OS with Lifelong Multi-modal Memory** (2026). 面向具身智能的通用机器人 Agent 操作系统与终身多模态记忆系统. arXiv: [2607.10350](https://arxiv.org/abs/2607.10350)
 
 
 <script>
@@ -6937,6 +7296,9 @@ CorrectNav 在仅使用单目 RGB 的前提下，不仅刷新了单目 VLA 模�
         { m: 'ABot-N1',               t: ['双系统', 'CoT', '强化学习', '实机部署'] },
         { m: 'ReflectVLN',            t: ['双系统', 'Agentic', 'CoT', '连续环境'] },
         { m: 'CorrectNav',            t: ['端到端', '连续环境', '实机部署'] },
+        { m: 'ALL-DAY MULTI-SCENE LIFELONG VISION-AND-LANGUAGE NAVIGATION WITH TUCKER ADAPTATION', t: ['连续环境', '加速优化'] },
+        { m: 'AgenticNav: Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness', t: ['Agentic', '零样本', '连续环境', '实机部署'] },
+        { m: 'ABot-AgentOS: A General Robotic Agent OS with Lifelong Multi-modal Memory', t: ['Agentic', '拓扑图', '实机部署'] },
     { m: 'VLN-CE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'VLN-PE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'RynnBrain',         t: ['基础工作'] },
