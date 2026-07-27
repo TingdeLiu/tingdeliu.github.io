@@ -494,25 +494,289 @@ nav {
   }
 }
 
-// 没有侧边栏时，调整布局
-.no-sidebar .wrapper-content {
-  float: none;
-  width: 100%; // 占满全宽
-  padding: 0 20px;
-  margin: 0; // 重置 margin
+// Article reading canvas
+.article-document {
+  overflow-x: clip;
 }
 
-// 没有侧边栏时，目录固定在左侧
-.no-sidebar .toc {
-  left: 0 !important;
-  padding: 60px 20px 30px 20px;
-  width: 340px;
+.article-page {
+  background: $white;
+
+  .wrapper-content {
+    float: none;
+    width: 100%;
+    min-width: 0;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  .container {
+    max-width: 1208px;
+    padding: 52px 24px 80px;
+  }
 }
 
-// 关键：没有侧边栏时，内容区域左侧留出空间给目录
-.no-sidebar #main.withtoc {
-  padding-left: 360px !important; // 给左侧目录留空间
-  padding-right: 20px;
+.article-page.has-article-toc {
+  .container {
+    max-width: 1160px;
+    padding: 72px 0 80px;
+  }
+}
+
+.article-reading-shell {
+  width: 100%;
+  max-width: 1208px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+// Dense prose stays readable while visual material can use the full canvas.
+.article-page {
+  .posts > h1,
+  .post-meta,
+  .entry > h1,
+  .entry > h2,
+  .entry > h3,
+  .entry > h4,
+  .entry > h5,
+  .entry > h6,
+  .entry > p,
+  .entry > ul,
+  .entry > ol,
+  .entry > dl,
+  .entry > blockquote,
+  .entry > hr,
+  .footnotes,
+  #disqus_thread,
+  #gitalk-container {
+    width: 100%;
+    max-width: 920px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .pagination {
+    display: block;
+    max-width: 920px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .article-wide,
+  .entry > figure,
+  .entry > div[align="center"],
+  .entry > .mermaid {
+    width: 100%;
+    max-width: 1160px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: -2px;
+  margin-bottom: 34px;
+
+  .tag {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.article-page .entry {
+  > h1,
+  > h2,
+  > h3 {
+    position: relative;
+    scroll-margin-top: 24px;
+  }
+}
+
+.heading-anchor {
+  display: inline-flex;
+  margin-left: 0.42em;
+  color: $oc-blue-5;
+  font-family: $code-font;
+  font-size: 0.62em;
+  font-weight: 500;
+  line-height: 1;
+  vertical-align: 0.15em;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: color 140ms ease, opacity 140ms ease, transform 140ms ease;
+
+  &:focus-visible,
+  &.is-copied {
+    color: $link-color;
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.entry h1:hover > .heading-anchor,
+.entry h2:hover > .heading-anchor,
+.entry h3:hover > .heading-anchor,
+.entry h1:focus-within > .heading-anchor,
+.entry h2:focus-within > .heading-anchor,
+.entry h3:focus-within > .heading-anchor {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.article-table-scroll {
+  position: relative;
+  contain: layout paint;
+  margin-top: 1.45rem;
+  margin-bottom: 1.8rem;
+  overflow-x: auto;
+  border: 1px solid $table-border-color;
+  border-radius: 8px;
+  box-shadow: inset -12px 0 12px -14px rgba(33, 37, 41, 0.42);
+  scrollbar-width: thin;
+  scrollbar-color: $oc-gray-4 $oc-gray-1;
+
+  &:focus-visible {
+    outline: 2px solid $oc-blue-4;
+    outline-offset: 3px;
+  }
+
+  table {
+    width: max-content;
+    min-width: 100%;
+    margin: 0;
+    border: 0;
+  }
+}
+
+.article-code-shell {
+  position: relative;
+  margin-top: 1.45rem;
+  margin-bottom: 1.8rem;
+
+  > pre,
+  > .highlighter-rouge {
+    margin: 0;
+  }
+
+  &:hover .article-code-copy,
+  .article-code-copy:focus-visible {
+    opacity: 1;
+  }
+}
+
+.article-code-copy {
+  position: absolute;
+  z-index: 2;
+  top: 10px;
+  right: 10px;
+  padding: 4px 9px;
+  color: $base-lighten-color;
+  font-family: $base-font;
+  font-size: 12px;
+  line-height: 1.4;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid $table-border-color;
+  border-radius: 5px;
+  opacity: 0.35;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: color 140ms ease, border-color 140ms ease, opacity 140ms ease;
+
+  &:hover,
+  &:focus-visible,
+  &.is-copied {
+    color: $link-color;
+    border-color: $oc-blue-4;
+  }
+}
+
+.article-page .entry {
+  .mermaid {
+    margin-top: 1.5rem;
+    margin-bottom: 1.8rem;
+    overflow-x: auto;
+    text-align: center;
+  }
+
+  img.is-zoomable {
+    cursor: zoom-in;
+
+    &:focus-visible {
+      outline: 2px solid $oc-blue-4;
+      outline-offset: 4px;
+    }
+  }
+}
+
+.article-lightbox {
+  width: auto;
+  max-width: 94vw;
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+
+  &::backdrop {
+    background: rgba(18, 22, 28, 0.86);
+    backdrop-filter: blur(5px);
+  }
+
+  figure {
+    margin: 0;
+    padding: 12px;
+    background: $white;
+    border-radius: 10px;
+    box-shadow: 0 22px 80px rgba(0, 0, 0, 0.36);
+  }
+
+  img {
+    width: auto;
+    max-width: calc(94vw - 24px);
+    max-height: 86vh;
+    margin: 0 auto;
+    object-fit: contain;
+    border-radius: 6px;
+  }
+
+  figcaption {
+    max-width: 880px;
+    margin: 10px auto 2px;
+    color: $base-lighten-color;
+    font-size: 13px;
+    line-height: 1.55;
+    text-align: center;
+  }
+}
+
+.article-lightbox-close {
+  position: absolute;
+  z-index: 2;
+  top: -16px;
+  right: -16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0 0 3px;
+  color: $white;
+  font-size: 27px;
+  line-height: 1;
+  background: $base-color;
+  border: 2px solid $white;
+  border-radius: 50%;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.28);
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    background: $link-color;
+  }
 }
 
 // Posts
@@ -774,6 +1038,7 @@ nav {
 
 // TOC(目录样式)
 
+// Legacy TOC for non-article pages.
 .toc {
   width: 320px;
   top: 0;
@@ -803,24 +1068,17 @@ nav {
 }
 
 @media screen and (max-width:6600px) and (min-width:1200px){
-  .withtoc{
+  body:not(.article-page) .withtoc{
     padding-left: 340px;
   }
 
-  /* 仅添加滚动条功能，不改变布局 */
-  .toc {
-    /* 只添加滚动条相关属性 */
-    overflow-y: auto; /* 关键属性 - 启用垂直滚动 */
-    position: fixed; /* 使用固定定位 */
+  body:not(.article-page) .toc {
+    overflow-y: auto;
+    position: fixed;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+    padding-right: 5px;
 
-    /* 滚动条美化 */
-    scrollbar-width: thin; /* Firefox */
-    scrollbar-color: #888 #f1f1f1; /* Firefox */
-
-    /* 防止滚动条影响布局 */
-    padding-right: 5px; /* 给滚动条留出空间 */
-
-    /* 添加隐藏标题的样式，第一个目录会被隐藏 */
     > ul > li:first-child,
     > ol > li:first-child {
       display: none;
@@ -837,6 +1095,397 @@ nav {
   }
   .toc::-webkit-scrollbar-track {
     background: #f1f1f1;
+  }
+}
+
+// Article navigation rail and responsive drawer.
+.article-progress {
+  position: fixed;
+  z-index: 40;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 3px;
+  pointer-events: none;
+  background: rgba(24, 100, 171, 0.08);
+}
+
+.article-progress-bar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: $link-color;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 80ms linear;
+}
+
+.article-toc {
+  position: fixed;
+  z-index: 32;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  width: calc(100vw - 40px);
+  max-width: 340px;
+  height: 100vh;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(231, 245, 255, 0.52), rgba(255, 255, 255, 0) 180px),
+    #fbfcfd;
+  border-right: 1px solid $divider-color;
+  box-shadow: 14px 0 38px rgba(33, 37, 41, 0.14);
+  transform: translateX(-104%);
+  transition: transform 220ms ease;
+}
+
+.article-toc-nav {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 64px;
+  padding: 0 16px 0 20px;
+  background: rgba(255, 255, 255, 0.82);
+  border-bottom: 1px solid $divider-color;
+  backdrop-filter: blur(12px);
+
+  nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    font-size: 13px;
+  }
+
+  a {
+    margin: 0;
+    padding: 6px 8px;
+    color: $base-lighten-color;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    border-radius: 6px;
+    transition: color 150ms ease, background-color 150ms ease;
+
+    &:hover,
+    &:focus-visible,
+    &.is-current {
+      color: $link-color;
+      background: $link-bghv-color;
+    }
+  }
+}
+
+.article-toc-close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  color: $base-lighten-color;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    color: $link-color;
+    background: $link-bghv-color;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+}
+
+.article-toc-heading {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 18px;
+  padding: 22px 2px 12px;
+  color: $base-color;
+  font-size: 15px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid $divider-color;
+}
+
+.article-toc-depth {
+  color: $base-lightener-color;
+  font-family: $code-font;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+.article-toc-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: 10px 10px 28px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: $oc-gray-4 transparent;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $oc-gray-4;
+    border-radius: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+.article-toc-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  ul,
+  ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    position: relative;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.42;
+
+    &::before {
+      display: none;
+      content: none;
+    }
+  }
+
+  a {
+    position: relative;
+    display: block;
+    margin: 1px 0;
+    padding: 7px 10px 7px 14px;
+    overflow-wrap: anywhere;
+    color: $base-lighten-color;
+    border-left: 2px solid transparent;
+    border-radius: 0 7px 7px 0;
+    transition: color 140ms ease, background-color 140ms ease, border-color 140ms ease;
+
+    &:hover,
+    &:focus-visible {
+      color: $base-color;
+      background: rgba(231, 245, 255, 0.72);
+    }
+
+    &.is-active {
+      color: $link-color;
+      font-weight: 650;
+      background: linear-gradient(90deg, rgba(208, 235, 255, 0.9), rgba(231, 245, 255, 0.36));
+      border-left-color: $link-color;
+    }
+  }
+
+  .toc-level-1 {
+    > a {
+      margin-top: 7px;
+      padding-left: 14px;
+      color: $base-color;
+      font-weight: 700;
+    }
+
+    &:first-child > a {
+      margin-top: 0;
+    }
+  }
+
+  .toc-level-2 {
+    > a {
+      padding-left: 34px;
+      font-size: 13.5px;
+    }
+  }
+
+  .toc-level-3 {
+    > a {
+      padding: 5px 8px 5px 48px;
+      color: $base-lightener-color;
+      font-size: 12.5px;
+    }
+  }
+}
+
+.toc-branch-toggle {
+  position: absolute;
+  z-index: 2;
+  top: 3px;
+  left: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: $base-lightener-color;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    color: $link-color;
+    background: $link-bghv-color;
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+    transition: transform 160ms ease;
+  }
+
+  &[aria-expanded="true"] svg {
+    transform: rotate(90deg);
+  }
+}
+
+.article-toc-trigger {
+  position: fixed;
+  z-index: 27;
+  top: 14px;
+  left: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 40px;
+  padding: 0 13px;
+  color: $base-color;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid $table-border-color;
+  border-radius: 20px;
+  box-shadow: 0 5px 18px rgba(33, 37, 41, 0.12);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+
+  &:hover,
+  &:focus-visible {
+    color: $link-color;
+    border-color: $oc-blue-4;
+    box-shadow: 0 7px 22px rgba(24, 100, 171, 0.17);
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+
+  span {
+    font-size: 13px;
+    font-weight: 650;
+  }
+}
+
+.article-toc-overlay {
+  position: fixed;
+  z-index: 30;
+  inset: 0;
+  visibility: hidden;
+  padding: 0;
+  background: rgba(24, 28, 34, 0.4);
+  border: 0;
+  opacity: 0;
+  cursor: default;
+  transition: opacity 200ms ease, visibility 200ms ease;
+}
+
+.toc-drawer-open {
+  overflow: hidden;
+
+  .article-toc {
+    transform: translateX(0);
+  }
+
+  .article-toc-overlay {
+    visibility: visible;
+    opacity: 1;
+  }
+}
+
+@media screen and (min-width: 1360px) {
+  .article-reading-shell {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1160px);
+    gap: 40px;
+    max-width: 1528px;
+  }
+
+  .article-page.has-article-toc .container {
+    padding-top: 52px;
+  }
+
+  .article-toc {
+    position: sticky;
+    z-index: 4;
+    top: 0;
+    width: 280px;
+    max-width: none;
+    height: 100vh;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .article-toc-close,
+  .article-toc-trigger,
+  .article-toc-overlay {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 720px) {
+  .article-reading-shell {
+    padding: 0 18px;
+  }
+
+  .article-page {
+    .container {
+      padding: 42px 18px 64px;
+    }
+
+    &.has-article-toc .container {
+      padding: 72px 0 64px;
+    }
+
+    .posts > h1 {
+      font-size: 28px;
+      line-height: 1.35;
+    }
+  }
+
+  .article-toc {
+    width: calc(100vw - 28px);
+  }
+
+  .article-toc-trigger {
+    top: 12px;
+    left: 12px;
   }
 }
 
@@ -979,6 +1628,13 @@ nav {
   }
 }
 
+.article-page .wrapper-footer-mobile {
+  display: block;
+  width: 100%;
+  border-top: 1px solid $footer-border-color;
+  background-color: $footer-background-color;
+}
+
 footer {
   padding: 20px 0;
   text-align: center;
@@ -1021,6 +1677,17 @@ footer {
       bottom: 0;
       left: 0;
     }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article-progress-bar,
+  .article-toc,
+  .article-toc-overlay,
+  .article-toc-list a,
+  .toc-branch-toggle svg,
+  .heading-anchor {
+    transition: none;
   }
 }
 
