@@ -30,7 +30,6 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [SEDualVLN(单目)](#sedualvln) | 2026 | R2R-CE | LLaVA-Video-7B | 67.3 | 62.5 | 3.75 | 73.7 | [是](https://github.com/kim-os/SEDualVLN) | – | 
  | [AgentVLN(单目)](#agentvln) | 2026 | R2R-CE | Qwen2.5-VL-3B | 67.2 | 64.7 | – | – | [是](https://github.com/Allenxinn/AgentVLN) | – | 
  | [Qwen-RobotNav(单目)](#qwen-robotnav) | 2026 | R2R-CE | Qwen3-VL-7B | 66.9 | 60.5 | – | – | 否 | 15.6M 混合数据 | 
- | [ABot-N0(单目)](#abot-n0) | 2026 | R2R-CE | Qwen3-4B | 66.4 | – | – | – | 否 | 16.9M 专家轨迹 | 
  | [Dual-Anchoring(单目)](#dual-anchoring) | 2026 | R2R-CE | LLaVA-Video-7B | 65.6 | 62.1 | – | – | 否 | 360万 进度描述 | 
  | [AwareVLN(单目)](#awarevln) | 2026 | R2R-CE | Vicuna-7B | 65.4 | 55.1 | 4.02 | 73.5 | [是](https://github.com/GWxuan/AwareVLN) | – | 
 | [CorrectNav](#correctnav) | 2025 | R2R-CE | – | 65.1 | 62.3 | 4.24 | 67.5 | [是](https://github.com/owlet914/CorrectNav) | – |
@@ -47,7 +46,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [Goal2Pixel(单目)](#goal2pixel) | 2025 | R2R-CE | LLaVA-1.5-7B | 54.1 | 52.5 | 4.85 | 59.9 | 否 | – | 
  | [MapNav(单目)](#mapnav) | 2025 | R2R-CE | LLaVA-Onevision-7B | 53.0 | 39.7 | – | – | [是](https://github.com/linglingxiansen/MapNav) | ~1M 样本 | 
  | [HSGM(单目)](#hsgm) | 2026 | R2R-CE | – | 47.9 | 32.8 | 5.42 | 58.7 | [是](https://github.com/Teacher-Tom/HSGM_public) | – | 
- | [TopoGraph-VLN(单目)](#topograph-vln) | 2025 | R2R-CE | – | 41.0 | 25.4 | 6.12 | 55.0 | 否 | – | 
+| [NaVid](#navid) | 2024 | R2R-CE | – | 37.4 | 35.9 | – | – | 否 | – |
  | [VLN-R1(单目)](#vln-r1) | 2025 | R2R-CE | Qwen2-VL-7B | 30.2 | 21.8 | 7.0 | 41.2 | [是](https://github.com/Qi-Zhangyang/GPT4Scene-and-VLN-R1) | 1.26M 样本 | 
  | [VLN-R1(单目)](#vln-r1) | 2025 | R2R-CE | Qwen2-VL-2B | 25.6 | 20.5 | 10.2 | 37.5 | [是](https://github.com/Qi-Zhangyang/GPT4Scene-and-VLN-R1) | 1.26M 样本 | 
  | [OneVLA(单目)](#onevla-a-unified-framework-for-embodied-tasks) | 2026 | R2R-CE | Qwen2.5-VL-3B | – | – | – | 68.6 | [是](https://github.com/linglingxiansen/OneVLA) | – | 
@@ -63,7 +62,6 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [OmniNav (多目)](#omninav) | 2026 | RxR-CE | Qwen2.5-VL-3B | 73.6 | 62.0 | 3.77 | – | [是](https://github.com/amap-cvlab/OmniNav) | 12.2M 混合数据 | 
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | RxR-CE | Qwen3-VL-7B | 73.4 | 63.5 | – | – | 否 | 15.6M 混合数据 | 
  | [AstraNav-World (多目)](#astranav-world) | 2025 | RxR-CE | Qwen2.5-VL-3B | 72.9 | – | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) | – | 
- | [ABot-N0 (单目)](#abot-n0) | 2026 | RxR-CE | Qwen3-4B | 69.3 | 60.0 | – | – | 否 | 16.9M 专家轨迹 | 
 | [CorrectNav](#correctnav) | 2025 | RxR-CE | – | 69.3 | 63.3 | 4.09 | – | [是](https://github.com/owlet914/CorrectNav) | – |
  | [AwareVLN (单目)](#awarevln) | 2026 | RxR-CE | Vicuna-7B | 67.6 | 56.1 | 3.95 | – | [是](https://github.com/GWxuan/AwareVLN) | – | 
 | [ReflectVLN(单目)](#reflectvln) | 2026 | RxR-CE | Qwen2.5-VL-3B | 66.0 | 57.2 | 3.98 | – | [是](https://github.com/AIprogrammer/ReflectVLN) | 1.6M 专家+反思数据 |
@@ -76,7 +74,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [StreamVLN (单目)](#streamvln) | 2025 | RxR-CE | LLaVA-Video-7B | 52.9 | – | – | – | [是](https://github.com/OpenRobotLab/StreamVLN) | 750K 样本 | 
  | [Goal2Pixel (单目)](#goal2pixel) | 2025 | RxR-CE | LLaVA-1.5-7B | 43.8 | 40.4 | 7.50 | – | 否 | – | 
  | [HSGM (单目)](#hsgm) | 2026 | RxR-CE | – | 41.8 | 25.1 | 7.43 | – | [是](https://github.com/Teacher-Tom/HSGM_public) | – | 
- | [TopoGraph-VLN (单目)](#topograph-vln) | 2025 | RxR-CE | – | 35.7 | 21.7 | 7.56 | – | 否 | – | 
+| [NaVid](#navid) | 2024 | RxR-CE | – | 23.8 | 21.2 | – | – | 否 | – |
  | [VLN-R1 (单目)](#vln-r1) | 2025 | RxR-CE | Qwen2-VL-7B | 22.7 | 17.6 | 9.1 | 30.4 | [是](https://github.com/Qi-Zhangyang/GPT4Scene-and-VLN-R1) | 1.26M 样本 | 
  | [VLN-R1 (单目)](#vln-r1) | 2025 | RxR-CE | Qwen2-VL-2B | 20.7 | 16.9 | 10.2 | 30.1 | [是](https://github.com/Qi-Zhangyang/GPT4Scene-and-VLN-R1) | 1.26M 样本 | 
  | [OneVLA (单目)](#onevla-a-unified-framework-for-embodied-tasks) | 2026 | RxR-CE | Qwen2.5-VL-3B | – | – | – | 58.2 | [是](https://github.com/linglingxiansen/OneVLA) | – | 
@@ -94,10 +92,12 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [NavGPT-2 (全景)](#navgpt-2) | 2024 | R2R | Vicuna-7B | 71 | 60 | 3.18 | 80 | [是](https://github.com/GengzeZhou/NavGPT-2) | 10K 推理数据 | 
  | [Slow4fast-VLN (全景)](#slow4fast-vln) | 2026 | GSA-R2R (ID) | – | 70.8 | 65.0 | 2.9 | – | 否 | – | 
  | GR-DUET (全景) | 2024 | GSA-R2R (ID) | – | 69.3 | 64.3 | 3.1 | – | [是](https://github.com/cshizhe/VLN-DUET) | – | 
+| [DUET](#duet) | 2022 | R2R (Test-Unseen) | – | 69.0 | 60.0 | – | – | 否 | – |
  | [Slow4fast-VLN (全景)](#slow4fast-vln) | 2026 | GSA-R2R (OOD) | – | 58.4 | 52.9 | 4.2 | – | 否 | – | 
  | GR-DUET (全景) | 2024 | GSA-R2R (OOD) | – | 56.6 | 51.5 | 4.4 | – | [是](https://github.com/cshizhe/VLN-DUET) | – | 
+| [DUET](#duet) | 2022 | REVERIE (Test-Unseen) | – | 51.14 | 33.73 | – | – | 否 | – |
  | [CA-VLN (全景)](#ca-vln) | 2026 | REVERIE | LLaVA-7B | 51.0 | 35.5 | – | 56.3 | [是](https://github.com/ankursikarwar/Cosmic) | – | 
- | [NavGPT (零样本 GPT-4) (全景)](#navgpt) | 2024 | R2R | GPT-4 | 34 | 29 | – | 42 | [是](https://github.com/GengzeZhou/NavGPT) | – | 
+| [R2R](#r2r) | 2018 | R2R (Test-Unseen) | – | 20.4 | 18.0 | 7.85 | 26.6 | 否 | – |
 
 注：VLN-Imagine 在 DUET（基线 79.9 / 73.75）基础上于 val-unseen 约 +1.0 SR / +0.5 SPL，绝对值为估算。GSA-R2R 区分住宅（ID，Test-R-Basic）与非住宅（OOD，Test-N-Basic）场景，Slow4fast-VLN 相对 GR-DUET 性能有所提升。REVERIE 基准另用 RGS / RGSPL 指标：R³ 为 53.76 / 42.14 / 37.94 / 29.86（SR/SPL/RGS/RGSPL），Uncertainty-Aware Gaussian Map 的 RGS / RGSPL 为 37.65 / 27.01。
 
@@ -121,7 +121,6 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [3DGSNav (单目)](#3dgsnav) | 2026 | HM3D-v2 | GPT-4o | 75.0 | 44.2 | 否 | – | 
  | [GaussNav (单目)](#gaussnav) | 2025 | HM3D（实例图像） | – | 72.5 | 57.8 | [是](https://github.com/XiaohanLei/GaussNav) | – | 
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | HM3Dv2 | Qwen3-VL-7B | 71.2 | 33.0 | 否 | 15.6M 混合数据 | 
- | [LagMemo (单目)](#lagmemo) | 2025 | GOAT-Core | GPT-4o | 70.8 | – | 否 | – | 
  | [GSMem (单目)](#gsmem) | 2025 | GOAT-Bench | GPT-4o | 67.2 | 46.9 | [是](https://github.com/vulab-AI/GSMem) | – | 
  | [EvoMemNav (单目)](#evomemnav) | 2026 | HM3D-v2 | Qwen-8B | 63.8 | 39.4 | 否 | – | 
  | [VLingNav (单目)](#vlingnav) | 2026 | HM3D (实例图像) | LLaVA-Video-7B | 60.8 | 37.4 | [是](https://github.com/wsakobe/VLingNav-web) | 2.9M 样本 | 
@@ -129,7 +128,6 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [EvoMemNav (单目)](#evomemnav) | 2026 | HM3D-v1 | Qwen-8B | 59.2 | 33.6 | 否 | – | 
  | [OmniNav (多目)](#omninav) | 2026 | HM3D-OVON (Object-Goal) | Qwen2.5-VL-3B | 59.2 | 33.2 | [是](https://github.com/amap-cvlab/OmniNav) | 12.2M 混合数据 | 
  | [VLingNav (单目)](#vlingnav) | 2026 | MP3D | LLaVA-Video-7B | 58.9 | 26.5 | [是](https://github.com/wsakobe/VLingNav-web) | 2.9M 样本 | 
- | [ABot-N0 (单目)](#abot-n0) | 2026 | HM3D-OVON | Qwen3-4B | 54.0 | – | 否 | 16.9M 专家轨迹 | 
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | HM3D-OVON | Qwen3-VL-2B | 53.1 | 20.9 | 否 | 15.6M 混合数据 | 
  | [VLFM (单目)](#vlfm) | 2023 | HM3D | – | 52.5 | 30.4 | [是](https://github.com/rai-opensource/vlfm) | – | 
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | HM3D-OVON | Qwen3-VL-7B | 51.2 | 24.0 | 否 | 15.6M 混合数据 | 
@@ -150,7 +148,899 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 # 具身导航经典论文
 
-## 1. DualVLN/InternVLN (2025) {#dualvln}
+
+
+
+
+## 1. R2R (2018) {#r2r}
+
+📄 **Paper**: [arXiv:1711.07280](https://arxiv.org/abs/1711.07280) · 🏛️ **CVPR 2018 (Spotlight)**
+
+### 精华
+
+* 提出了**视觉-语言导航（Vision-and-Language Navigation, VLN）**任务，要求智能体在真实 3D 室内环境中根据自然语言指令进行多步视觉连续导航。
+* 基于 Matterport3D 数据集构建了第一个真实场景大规模 VLN 基准 **Room-to-Room (R2R)**，包含 21,567 条众包人类自然语言指令与高精度 3D 视点导航图。
+* 提出了基于注意力机制的 **Sequence-to-Sequence (Seq2Seq)** Baseline 模型，实现语言指令与视觉观察之间的动态对齐。
+* 比较了 Teacher-forcing 与 Student-forcing（在线采样/DAgger 变体）两种训练机制，证明 Student-forcing 能有效缓解分布偏移并提升鲁棒性。
+* 揭示了 VLN 模型在未见（Unseen）场景中的严重泛化瓶颈，为后续具身导航研究指明了泛化性与表征学习的核心方向。
+
+---
+
+### 1. 研究背景/问题
+
+将自然语言理解与物理世界视觉感知相结合的**具身视觉导航（Embodied Navigation）**，是智能体在真实人居环境中执行复杂任务的核心前提。在此之前，相关研究存在以下两大局限：
+
+1. **任务设定局限**：传统导航研究主要基于人工合成环境或仅依赖结构化目标点坐标（如 PointGoal），而视觉问答（VQA）与图像描述（Image Captioning）仅针对静态单张图像，缺乏具身交互与连续多步决策。
+2. **基准与模拟器缺失**：缺乏兼具高真实度 3D 视觉场景、自然语言指令以及交互式导航物理拓扑图的大规模开源平台。
+
+为了填补这一空白，本文提出了 Vision-and-Language Navigation (VLN) 任务，并配套开发了 **Matterport3D 模拟器** 与 **Room-to-Room (R2R)** 数据集。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vln/R2R-task-overview.png" width="100%" />
+<figcaption>Room-to-Room (R2R) 视觉-语言导航任务示意图。智能体根据自然语言指令从起点开始，在 3D 模拟器中选择多步动作到达目标视点。</figcaption>
+</div>
+
+#### ① 整体框架概述
+
+VLN 任务要求智能体在无先验全局地图的 3D 环境中，仅依靠局部 RGB 视觉观察 $o_t$ 和自然语言指令 $\bar{x}$，生成一系列离散导航动作到达目标位置。模型整体由 **语言指令编码器（Instruction Encoder）**、**视觉与动作特征嵌入模块（Image & Action Embeddings）**、**带注意力机制的解码器 LSTM（Decoder LSTM with Attention）** 以及 **动作预测分布产生器** 四大核心组件构成。
+
+<div align="center">
+  <img src="/images/vln/R2R-navigation-graph.png" width="100%" />
+<figcaption>Matterport3D 模拟器导航图拓扑结构示例。节点代表 360° 全景视点，边代表视点间可通达路径。</figcaption>
+</div>
+
+#### ② 逐模块讲解
+
+* **语言指令编码器 (Language Instruction Encoder)**：
+  * **输入**：自然语言指令 token 序列 $\bar{x} = \langle x_1, x_2, \dots, x_L \rangle$。
+  * **处理**：将词嵌入向量逆序（Reverse order）依次送入单层编码器 LSTM，计算隐状态 $h_i = \text{LSTM}_{\text{enc}}(x_i, h_{i-1})$。
+  * **输出**：生成编码上下文序列 $\bar{h} = \{h_1, h_2, \dots, h_L\}$，供后续注意力机制对齐。
+  * **设计动机**：逆序输入语言序列能在处理序列开头时保持较短的记忆梯度距离，提升早期导航决策质量。
+
+* **视觉与动作特征嵌入 (Image and Action Embedding)**：
+  * **输入**：当前时刻全景图像观察 $o_t$ 与上一时刻采取的动作 $a_{t-1}$。
+  * **处理**：利用预训练的 ResNet-152 CNN 提取 $o_t$ 的均值池化特征向量，与可学习的动作嵌入向量拼接，得到综合状态向量 $q_t$。
+  * **输出**：将 $q_t$ 送入解码器 LSTM 更新隐状态：
+    $$h'_t = \text{LSTM}_{\text{dec}}(q_t, h'_{t-1})$$
+  * **设计动机**：使解码器 LSTM 维持对智能体历史轨迹与视觉观察的全程内部记忆，适应部分可观察环境（POMDP）。
+
+* **注意力机制与动作预测 (Attention & Action Prediction)**：
+  * **输入**：解码器隐状态 $h'_t$ 与语言编码上下文 $\bar{h}$。
+  * **处理**：使用 Luong 全局注意力计算文本上下文向量 $c_t = f(h'_t, \bar{h})$，进而合成注意力隐状态：
+    $$\tilde{h}_t = \tanh(W_c [c_t; h'_t])$$
+  * **输出**：通过 Softmax 预测离散动作分布 $a_t = \text{softmax}(\tilde{h}_t)$。
+  * **动作空间**：在简化模型中包含 6 种离散动作：`left`（左转 30°）、`right`（右转 30°）、`up`（仰角 +30°）、`down`（俯角 -30°）、`forward`（沿视角中央最近相邻视点前进）与 `stop`（终止导航）。
+
+#### ③ 训练目标与损失函数
+
+训练采用多步交叉熵损失（Cross-Entropy Loss），最大化真值动作序列的似然度：
+
+$$L = -\sum_{t=1}^T \log P(a_t^* \mid s_0, a_0, \dots, s_t)$$
+
+其中真值目标动作 $a_t^*$ 为智能体当前状态 $s_t = \langle v_t, \psi_t, \theta_t \rangle$ 到目标视点 $v^*$ 在拓扑图 $G$ 上的最短路径下一步动作。
+
+#### ④ 训练范式对比 (Teacher-Forcing vs. Student-Forcing)
+
+<div align="center">
+  <img src="/images/vln/R2R-training-overfitting.png" width="100%" />
+<figcaption>训练过程中验证集损失、导航误差与成功率变化曲线。模型在已见场景（Seen）持续提升，但在未见场景（Unseen）迅速过拟合。</figcaption>
+</div>
+
+* **Teacher-forcing**：在训练阶段每一步强行使用真值动作 $a_t^*$ 作为下一步输入。模型仅能在真值最短路径状态上训练，一旦推理中偏离路径即产生暴露偏差（Exposure Bias）。
+* **Student-forcing**（在线采样 / DAgger 变体）：训练阶段从模型预测的分布中采样动作 $a_t$ 并让智能体实际移动。若偏离原路径，系统在线重新计算当前位置到目标的最新最短路径动作作为 $a_t^*$ 继续监督。实验表明该范式能显著提升模型对导航偏差的自愈能力。
+
+---
+
+### 3. 核心结果/发现
+
+本文在 R2R 数据集上评估了不同 Baseline 与 Seq2Seq 模型的导航性能：
+
+| 模型 / 评估设定 | 轨迹长度 (m) | 导航误差 (m) | 成功率 (%) | Oracle 成功率 (%) |
+| :--- | :---: | :---: | :---: | :---: |
+| **Val Seen (已见验证集)** | | | | |
+| RANDOM Baseline | 9.58 | 9.45 | 15.9 | 21.4 |
+| Teacher-forcing | 10.95 | 8.01 | 27.1 | 36.7 |
+| **Student-forcing** | **11.33** | **6.01** | **38.6** | **52.9** |
+| **Val Unseen (未见验证集)** | | | | |
+| RANDOM Baseline | 9.77 | 9.23 | 16.3 | 22.0 |
+| Teacher-forcing | 10.67 | 8.61 | 19.6 | 29.1 |
+| **Student-forcing** | **8.39** | **7.81** | **21.8** | **28.4** |
+| **Test Unseen (未见测试集)** | | | | |
+| Human (人类测试) | 11.90 | 1.61 | **86.4** | 90.2 |
+| **Student-forcing** | **8.13** | **7.85** | **20.4** | **26.6** |
+
+**核心发现**：
+1. **Student-forcing 优势显著**：在 Val Seen 上成功率达到 38.6%，在 Test Unseen 上达到 20.4%，均大幅超越随机基线 (13.2%) 和 Teacher-forcing。
+2. **泛化瓶颈巨大**：模型在已见环境（Val Seen 38.6%）与未见环境（Val Unseen 21.8%）存在巨大差距。如图 7 所示，即便添加 Dropout 与 Weight Decay 正则化，模型仍会快速过拟合于已见房间的特定视觉特征。
+3. **人机差距显著**：人类测试者达到了 86.4% 的成功率与 1.61m 的低误差，说明数据集指令清晰有效，但机器在跨场景泛化与指令-视觉精准对齐上仍面临重大挑战。
+
+---
+
+### 4. 局限性
+
+1. **视点拓扑限制**：依赖预先连线的离散 3D 视点图（Navigation Graph），而非真实连续物理空间的自由碰撞与平滑控制。
+2. **跨场景泛化能力弱**：标准 Seq2Seq + ResNet 特征难以建立泛化性强的视觉-语言底层语义关联，易过拟合特定场景纹理。
+3. **动作空间离散简化**：将转向与前进离散化为 6 个固定动作，无法直接无缝部署于物理机器人的低层控制接口。
+
+---
+
+
+
+
+
+
+
+
+
+## 2. VLN-CE (2020) {#vln-ce}
+——Beyond the Nav-Graph: 在连续环境中的视觉-语言导航
+
+📄 **Paper**: [arXiv:2004.02857](https://arxiv.org/abs/2004.02857) · 🏛️ **ECCV 2020**
+
+**精华**
+
+这篇论文通过将 VLN 任务从离散导航图迁移到连续 3D 环境,揭示了基于导航图的设定中隐含的强假设对性能的巨大影响。值得借鉴的核心思想包括:批判性地审视任务设定中的隐含假设、通过消除不现实的简化来提高任务的实际应用价值、深度信息在具身导航中的关键作用、以及端到端学习与低层控制结合的必要性。这种"去简化"的研究思路对构建更接近真实机器人应用的 AI 系统具有重要指导意义。
+
+**研究背景/问题**
+
+现有的 Vision-and-Language Navigation (VLN) 任务基于导航图 (nav-graph) 表示,引入了三个不现实的假设:已知环境拓扑、短距离 oracle 导航、以及完美的智能体定位。这些假设使得任务本质上退化为视觉引导的图搜索问题,与真实机器人导航场景存在巨大差距,限制了向实际机器人平台迁移的可能性。
+
+**主要方法/创新点**
+
+<div align="center">
+  <img src="/images/vln/VLN-CE-comparison.png" width="100%" />
+<figcaption>
+VLN 与 VLN-CE 的对比:VLN 基于固定拓扑的全景图节点(左),而 VLN-CE 在连续环境中使用低层动作(右)
+</figcaption>
+</div>
+
+论文提出了 Vision-and-Language Navigation in Continuous Environments (VLN-CE) 任务,在 Habitat 模拟器中实例化连续的 Matterport3D 环境。主要创新包括:
+
+1. **连续环境设定**:智能体通过低层动作(前进 0.25m、左转/右转 15°、停止)在连续 3D 空间中自由导航,而非在固定节点间传送。
+
+2. **轨迹迁移方法**:设计了将 Room-to-Room (R2R) 数据集的导航图轨迹转换为连续环境路径的算法。通过向下投射射线找到最近的可导航点,并使用 A* 算法验证路径可达性,成功转换了 77% 的 R2R 轨迹(4475 条)。
+
+3. **模型架构**:
+   - **Seq2Seq Baseline**: 使用 GRU 处理 RGB 和 Depth 观察的均值池化特征以及 LSTM 编码的指令
+   - **Cross-Modal Attention Model**: 采用双 GRU 架构,一个处理视觉观察,另一个基于注意力机制融合指令和视觉特征进行决策。使用预训练的 ResNet50 (ImageNet) 提取 RGB 特征,使用预训练的 ResNet50 (Point-Goal Navigation) 提取深度特征。
+
+4. **训练策略**:
+   - 基础模仿学习 with inflection weighting
+   - DAgger 应对 exposure bias
+   - Progress Monitor 辅助损失
+   - Speaker 模型生成的合成数据增强(~150k 条轨迹)
+
+**核心结果/发现**
+
+1. **任务难度显著增加**:VLN-CE 中平均轨迹长度为 55.88 个动作,而 VLN 仅需 4-6 个节点跳转。最佳模型在 val-unseen 上达到 32% 成功率 (SR) 和 0.30 SPL,显著低于 VLN 中的表现。
+
+2. **深度信息至关重要**:移除深度输入导致模型性能崩溃(成功率 ≤1%),而移除 RGB 或指令的影响相对较小。深度使智能体能够快速学会有效遍历环境(避免碰撞),是引导学习的关键信号。
+
+3. **训练技术的混合效果**:Cross-Modal Attention 优于 Seq2Seq;DAgger 带来 3-5% SPL 提升;但 Progress Monitor 和数据增强单独使用时效果不佳,需要组合使用(预训练 + DAgger 微调)才能达到最佳性能。
+
+4. **导航图的强先验**:将 VLN-CE 训练的智能体路径转换回导航图并在 VLN 测试集上评估,SPL 为 0.21,远低于利用导航图训练的 SOTA 方法(0.47 SPL)。这表明现有 VLN 结果可能因导航图的强先验而被高估。
+
+5. **单模态消融**:无指令模型达到 17% SR,无图像模型也达到 17% SR,表明轨迹存在共同的规律性;但完整多模态模型(20% SR)仍明显优于单模态基线。
+
+**局限性**
+
+约 23% 的 R2R 轨迹无法在连续环境中导航(环境重建的不连续性、物体移动等)。当前端到端方法的绝对性能仍较低,未来需要探索模块化方法,如将学习到的智能体与运动控制器集成。论文未详细探索所有可能改善 VLN-CE 性能的技术(如更多应对 exposure bias 和数据稀疏性的方法)。
+
+---
+
+
+
+
+
+
+
+
+
+## 3. DUET (2022) {#duet}
+
+📄 **Paper**: [arXiv:2202.11742](https://arxiv.org/abs/2202.11742) · 🏛️ **CVPR 2022**
+
+### 精华
+
+1. 针对视觉语言导航（VLN）中“细尺度局部决策缺乏全局视角易困在局部”与“粗尺度地图决策缺乏细粒度物体基元”的矛盾，提出了双尺度拓扑图 Transformer 框架（DUET）。
+2. 在粗尺度拓扑地图上引入图感知自注意力机制（GASA），将图拓扑测地线距离显示注入 Transformer 注意力计算，高效规划全局航向与回溯节点。
+3. 提出粗/细尺度动态融合策略（Dynamic Fusion），基于当前状态自适应平衡全局探索与细粒度视觉/目标定位。
+4. 引入伪交互演示器（PID）解决行为克隆中的分布偏移（Exposure Bias），在 REVERIE、SOON 和 R2R 等数据集上实现 SOTA 导航与目标定位性能。
+
+---
+
+### 1. 研究背景/问题
+
+在视觉与语言导航（VLN）任务中，智能体需要根据自然语言指令在未见的真实三维环境中导航到目标位置（如 REVERIE 任务中还需要定位特定物体）。传统方法主要面临两大瓶颈：
+
+1. **细尺度与粗尺度表示的天然矛盾**：基于一步一预测的细尺度（fine-scale）局部方法只能感知当前视点周边的局域环境，缺乏全局地图表示，遇到死胡同或偏离路线时极难高效回溯；而现有的粗尺度（coarse-scale）拓扑地图方法虽然记录了历史轨迹与未探索边界节点，但由于映射抽象度高，缺失细粒度的视觉图像与目标物体特征，难以完成需精确定位具体物体的复杂指令。
+2. **训练中的分布偏移（Distribution Shift）**：纯行为克隆（Behavior Cloning）仅在专家示范路径上训练，推理阶段一旦偏离路线就会产生严重的累积误差。
+
+针对上述难题，DUET 提出了联合粗尺度拓扑图与细尺度局部视点的双尺度 Transformer 架构，并利用图拓扑距离引导全局规划与伪交互演示算法进行策略学习。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vln/DUET-teaser.png" width="100%" />
+<figcaption>图 1：DUET 智能体在未见室内环境中根据自然语言指令构建在线拓扑地图并执行双尺度导航决策</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vln/DUET-method-comparison.png" width="100%" />
+<figcaption>图 2：不同导航记忆机制对比（局部动作 vs 粗尺度地图 vs DUET 双尺度融合）</figcaption>
+</div>
+
+#### ① 整体框架概述
+
+DUET 架构由四大核心模块构成：
+- **在线拓扑地图构建模块（Topological Mapping）**：增量式维护粗尺度拓扑图 $$G_t$$ 和当前全景细尺度视觉/物体表征。
+- **粗尺度跨模态编码器（Coarse-scale Cross-modal Encoder）**：利用图感知自注意力在全局拓扑图上推理探索与回溯候选节点。
+- **细尺度跨模态编码器（Fine-scale Cross-modal Encoder）**：聚焦当前视点视线范围内的图像与物体，完成细粒度语言-视觉关联与目标定位。
+- **动态融合预测模块（Dynamic Fusion）**：自适应融合全局与局部动作预测得分，输出全局动作空间上的下一步决策。
+
+<div align="center">
+  <img src="/images/vln/DUET-architecture.png" width="100%" />
+<figcaption>图 4：DUET 的整体网络架构，左侧为在线拓扑地图构建，右侧为粗/细尺度 Transformer 编码与动态融合预测</figcaption>
+</div>
+
+#### ② 拓扑地图构建与图更新
+
+在线拓扑图定义为 $$G_t = (V_t, E_t)$$。节点集合包含已访问节点（保存了历史全景特征与访问时间步 $$t$$）与可导航的未探索边界节点（Frontier Nodes）。此外，在图中显式加入一个特殊的“停止”节点 $$v_0$$，并与所有节点相连。
+
+<div align="center">
+  <img src="/images/vln/DUET-graph-updating.png" width="100%" />
+<figcaption>图 3：时间步 t 时的拓扑图更新过程（融合历史访问节点与最新可达的边界节点）</figcaption>
+</div>
+
+#### ③ 粗尺度跨模态编码器与图感知自注意力（GASA）
+
+粗尺度编码器接收拓扑图 $$G_t$$ 和文本指令编码 $$\hat{W}$$。节点视觉特征结合了以自我为中心的相对位置编码（方位角、仰角和距离）以及最近访问时间步编码。
+
+为了让 Transformer 能够感知图的拓扑空间结构，提出了**图感知自注意力（Graph-Aware Self-Attention, GASA）**：
+$$ \text{GASA}(X) = \text{Softmax}\left( \frac{X W_q (X W_k)^T}{\sqrt{d}} + M \right) X W_v $$
+其中 $$M = E W_e + b_e$$，$$E$$ 为节点间的最短路径测地线距离矩阵，$$W_e, b_e$$ 为可学习参数。粗尺度编码器为全局图中所有可导航边界节点和停止节点输出全局动作得分 $$s_i^c$$。
+
+#### ④ 细尺度跨模态编码器
+
+细尺度编码器仅对当前视点 $$V_t$$ 的全景图像块 $$R_t$$ 和检测到的候选物体 $$O_t$$ 进行交叉注意力编码，引入全局坐标与局部相对方位编码。输出当前视点局部邻近节点 $$N(V_t)$$ 的局部动作得分 $$s_i^f$$ 以及候选物体的预测定位得分。
+
+#### ⑤ 粗细尺度动态融合（Dynamic Fusion）
+
+由于细尺度动作空间限制在局部邻居节点 $$N(V_t)$$，无法直接与全局节点评分比对。DUET 将非邻居节点的细尺度得分统一映射为回溯得分 $$s_{\text{back}} = \sum_{v \in N(V_t)} s_v^f$$，将其转换为全局动作空间下的评分 $$s_i'^f$$。
+
+系统拼接粗尺度停止节点嵌入 $$\hat{v}_0$$ 和细尺度停止节点嵌入 $$\hat{r}_0$$，通过 FFN 计算自适应融合权重：
+$$ \sigma_t = \text{Sigmoid}(\text{FFN}([\hat{v}_0; \hat{r}_0])) $$
+最终各节点的选择概率评分为：
+$$ s_i = \sigma_t s_i^c + (1 - \sigma_t) s_i'^f $$
+
+#### ⑥ 训练目标与伪交互演示器（PID）
+
+- **预训练阶段**：使用专家示范轨迹，联合优化单步动作预测损失 $$L_{\text{SAP}}$$、目标定位损失 $$L_{\text{OG}}$$、掩码语言建模 $$L_{\text{MLM}}$$ 与掩码区域分类 $$L_{\text{MRC}}$$：
+  $$ L_{\text{SAP}} = \sum_{t=1}^T -\log p(a_t^* \mid W, P_{<t}^*) $$
+  $$ L_{\text{OG}} = -\log p(o^* \mid W, P_T) $$
+- **策略微调阶段（PID）**：在完整地图图结构已知的前提下，构造伪交互演示器（Pseudo Interactive Demonstrator, PID）$$\pi^*$$。在智能体自采样轨迹 $$P$$ 上，PID 根据当前拓扑图计算到达终点的最短路径节点作为伪专家监督标签，通过 DAgger 范式微调策略：
+  $$ L_{\text{PID}} = \sum_{t=1}^T -\log p(a_t^{\pi^*} \mid W, P_{<t}) $$
+
+---
+
+### 3. 核心结果/发现
+
+DUET 在 REVERIE、SOON 和 R2R 三大视觉语言导航基准上均刷新了 SOTA 记录：
+
+1. **REVERIE 远距离物体导航**：
+   - 在 Val Unseen 分割上，成功率 SR 达到 **46.98%**，SPL 达到 **33.73%**，遥遥领先之前的 SOTA 模型 HAMT（SR 32.95%, SPL 30.20%）。
+   - 在 Test Unseen 分割上，SR 达到 **51.14%**，相比 HAMT 提升了 **22.11%**。
+2. **SOON 复杂目标导航**：
+   - 在 Test Unseen 分割上，SR 达到 **33.44%**，SPL 达到 **21.42%**，显著优于传统的图搜索 baseline GBE（SR 12.90%, SPL 9.23%）。
+3. **R2R 细粒度指令导航**：
+   - 在 Val Unseen 和 Test Unseen 分割上的 SR 分别达到 **72%** 和 **69%**（领先 HAMT 6% 和 4%）。
+4. **消融实验关键结论**：
+   - 单独粗尺度模型具备高探索能力（High OSR），但缺乏目标定位精度；单独细尺度模型容易陷于局部；双尺度动态融合（Dynamic Fusion）取得了最优的综合表现（SPL 提升 1.79%）。
+   - 引入 GASA 图拓扑距离显著优化了导航路径长度（SPL 提升）。
+   - PID 相比传统 RL 微调更高效地缓解了偏离轨迹时的分布偏移问题。
+
+<div align="center">
+  <img src="/images/vln/DUET-qualitative-results.png" width="100%" />
+<figcaption>图 5：DUET 与 HAMT 的导航轨迹定性对比（DUET 具备高效探索与修正历史决策的能力）</figcaption>
+</div>
+
+---
+
+### 4. 局限性
+
+1. **未见环境泛化差距**：在已见环境（Seen）与未见环境（Unseen）之间仍存在一定性能差距，提示模型对未见场景泛化能力仍有提升空间。
+2. **仅限于离散拓扑图**：当前 DUET 依赖离散拓扑导航图（如 Matterport3D 模拟器中的离散节点与边），难以直接无缝迁移到连续无拓扑先验的真实物理机器人导航环境中。
+3. **隐私与安全考量**：在真实室内部署时需考虑视觉采集与实时建图带来的隐私泄漏及碰撞安全风险。
+
+---
+
+
+
+
+
+
+
+
+
+## 4. NoMaD (2023) {#nomad}
+——目标掩码扩散策略实现统一导航
+
+📄 **Paper**: [arXiv:2310.07896](https://arxiv.org/abs/2310.07896) · 🏛️ **ICRA 2024**
+
+**研究背景/问题**
+
+传统机器人导航系统通常为探索（exploration）和目标导航（goal-conditioned navigation）分别训练独立的策略模型，这不仅增加了系统复杂度，也限制了跨任务的知识共享和泛化能力。NoMaD（Nomadic Multi-task Agent with Diffusion，伯克利，ICRA2024 Best Paper）提出通过统一的扩散策略框架，使用目标掩码机制同时建模任务特定行为（目标导向）和任务无关行为（探索），实现单一策略胜任多种导航任务。
+
+**主要方法/创新点**
+
+<div align="center">
+  <img src="/images/vln/nomad-framework.png" width="100%" />
+<figcaption>
+NoMaD目标掩码扩散策略框架
+</figcaption>
+</div>
+
+### 核心思路
+
+通过统一的扩散策略，同时建模任务特定和任务无关行为
+
+### 两个关键组件
+
+**目标掩码（Goal Masking）**
+- 通过二值掩码控制策略是否关注目标图像，实现任务条件的灵活切换
+- **训练时**：目标掩码以50%概率随机设置，使模型同时学习目标导向行为和探索行为
+- **推理时**：根据任务需要设置掩码（探索时掩盖目标，导航时提供目标）
+
+**扩散策略（Diffusion Policy）**
+- 利用扩散模型生成多模态、无碰撞的动作序列
+- 从随机噪声逐步迭代生成预测动作序列
+- 动作分布既可在无目标条件下表达探索行为，也可在提供目标条件下收敛到目标导向行为
+
+### 统一框架设计
+
+- 通过Transformer编码视觉观测并结合扩散模型生成未来动作序列
+- 同时支持任务特定行为（目标导向）和任务无关行为（探索）
+- 使用大规模多样化数据集（GNM和SACSoN）进行端到端监督训练
+
+<!-- <div align="center">
+  <img src="https://r-c-group.github.io/blog_media/images/nomad-goal-masking.png" width="100%" />
+<figcaption>
+NoMaD目标掩码机制示意图
+</figcaption>
+</div> -->
+
+**核心结果/发现**
+
+- **探索未知环境**：成功率达到98%，平均碰撞数仅0.2，超过最优基线Subgoal Diffusion约25%，且参数量仅为其1/15
+- **目标导航**：在已知环境的目标导航任务中，成功率与最优基线相当，但计算资源需求更少
+- **计算效率**：比现有方法计算效率提升约15倍，是首个成功在物理机器人上部署的目标条件动作扩散模型
+- **统一策略优势**：联合训练能够学习共享表示和环境可操作性，单一策略即可胜任多种行为
+- **编码器选择**：ViNT编码器配合注意力目标掩码效果最佳，成功率98%，碰撞数最少
+- **多场景验证**：在6个复杂的室内外环境中表现优异
+
+**局限性**
+
+NoMaD的视觉编码器选择对性能影响较大，需要仔细调优以达到最佳效果。虽然ViT编码器具有更大的容量和表达能力，但其训练优化难度较高，收敛速度相对较慢。此外，目标掩码机制的随机采样比例（训练时50%）是一个关键超参数，在不同场景下可能需要针对性调整。尽管在多个室内外环境中表现优异，但在极端复杂、高度动态的场景（如密集人流、快速变化的障碍物）下的鲁棒性仍有进一步提升空间。
+
+---
+
+
+
+
+
+
+
+
+## 5. VLFM (2023) {#vlfm}
+——Vision-Language Frontier Maps for Zero-Shot Semantic Navigation
+
+📄 **Paper**: [arXiv:2312.03275](https://arxiv.org/abs/2312.03275) · 🏛️ **ICRA 2024**
+
+**研究背景/问题**
+零样本语义导航要求机器人在未见环境中高效定位目标对象，现有方法（如ESC、SemUtil）依赖物体检测器将视觉线索转化为文本后再用LLM/BERT进行语义推理，存在计算瓶颈且无法充分利用视觉-语言联合表征。如何直接从RGB观测中提取语义价值以指导前沿探索成为关键挑战。
+
+**主要方法/创新点**
+
+VLFM提出语言驱动的前沿价值图框架，实现端到端视觉-语义推理：
+
+<div align="center">
+  <img src="/images/vln/vlfm-system-overview.png" width="100%" />
+<figcaption>
+VLFM系统架构：初始化、语义前沿探索、目标导航三阶段流程
+</figcaption>
+</div>
+
+**核心机制：**
+
+1. **前沿航点生成（Frontier Waypoint Generation）**
+   - 利用深度和里程计构建2D占用地图，识别已探索与未探索区域边界作为前沿候选点
+   - 每个前沿中点作为潜在导航航点
+
+2. **价值图生成（Value Map Generation）**
+   - 使用预训练BLIP-2视觉-语言模型直接从RGB图像计算语义价值分数
+   - 文本提示："Seems like there is a <target object> ahead"
+   - 输出余弦相似度分数并投影到俯视图价值图（双通道：语义分数+置信度分数）
+
+<div align="center">
+  <img src="/images/vln/vlfm-value-map-generation.png" width="100%" />
+<figcaption>
+价值图生成流程：BLIP-2计算语义分数并投影到俯视图
+</figcaption>
+</div>
+
+1. **置信度加权更新（Confidence-Weighted Averaging）**
+   - 置信度分数基于像素相对光轴位置：$c_{i,j} = \cos^2(\theta/(\theta_{fov}/2) \times \pi/2)$
+   - 重叠区域的语义值更新：$v_{i,j}^{new} = (c_{i,j}^{curr}v_{i,j}^{curr} + c_{i,j}^{prev}v_{i,j}^{prev})/(c_{i,j}^{curr} + c_{i,j}^{prev})$
+   - 置信度更新偏向高置信值：$c_{i,j}^{new} = ((c_{i,j}^{curr})^2 + (c_{i,j}^{prev})^2)/(c_{i,j}^{curr} + c_{i,j}^{prev})$
+
+<div align="center">
+  <img src="/images/vln/vlfm-confidence-weighting.png" width="100%" />
+<figcaption>
+置信度评分机制：光轴附近像素置信度最高，边缘递减
+</figcaption>
+</div>
+
+1. **物体检测与导航**
+   - YOLOv7用于COCO类别，Grounding-DINO用于开放词汇检测
+   - Mobile-SAM提取目标轮廓，确定最近点作为目标航点
+   - 使用VER训练的PointNav策略执行航点导航（纯几何理解，不依赖语义）
+
+**关键创新：**
+- 直接视觉-语义推理：绕过物体检测器，BLIP-2直接从RGB生成语义分数
+- 空间化价值表征：将语义价值映射到俯视图网格，支持前沿选择
+- 置信度驱动融合：动态平衡当前观测与历史信息
+
+**核心结果/发现**
+- **基准测试表现**：在Gibson、HM3D、MP3D三个数据集上均达到SOTA零样本性能
+  - Gibson：SPL 52.2%、SR 84.0%（相比SemUtil提升+11.7% SPL、+14.7% SR）
+  - HM3D：SPL 30.4%、SR 52.5%（相比ESC提升+8.1% SPL、+13.3% SR）
+  - MP3D：SPL 17.5%、SR 36.4%（相比ESC提升+3.3% SPL、+7.7% SR）
+- 超越部分有监督方法：在Gibson和MP3D数据集上优于SemExp、PONI等ObjectNav训练方法
+- **消融实验**：置信度加权平均（Weighted avg.）在所有数据集上均优于简单替换（Replacement）和无权平均（Unweighted avg.）
+- **真实世界部署**：成功在Boston Dynamics Spot机器人上部署，在办公楼环境中高效导航至未见目标对象，所有模型（BLIP-2、GroundingDINO、MobileSAM、ZoeDepth）实时运行于RTX 4090 MaxQ笔记本
+
+**局限性**
+仅支持单层楼导航（缺少z坐标里程计导致价值图重置困难），HM3D和MP3D中14.6%和9.6%的跨楼层任务失败；假定目标物体在默认相机高度可见，未来可探索主动相机控制、操作式搜索（如打开抽屉）及可复用的语义地图表征以支持长时程多任务规划。
+
+
+
+
+
+
+
+
+
+## 6. R2RIE-CE & IEDL (2024) {#r2rie-ce-iedl}
+——— 首个连续导航指令错误基准测试，以及结合指令-轨迹兼容性的多模态错误检测与定位框架
+
+📄 **Paper**: [arXiv:2403.10700](https://arxiv.org/abs/2403.10700) · [Project Page](https://intelligolabs.github.io/R2RIE-CE/) · 🏛️ **ROMAN 2024**
+
+### 精华
+1. **指令容错新视角**：首次指出现有 Vision-and-Language Navigation (VLN-CE) 研究默认指令完全正确的假设在现实中极易失效，人类常因记忆模糊或混淆给出带错指令。
+2. **基准测试构建**：构建了首个包含指令错误的连续导航基准测试 R2RIE-CE，涵盖方向、房间、物体、复合及全错误五类扰动。
+3. **脆弱性验证**：实验表明，指令中仅注入至多3个错误就会导致 SOTA 导航模型的 Success Rate (SR) 发生高达 25%–30.64% 的断崖式下跌。
+4. **定位与检测框架**：提出 IEDL 框架，通过跨模态 Transformer 融合视觉轨迹与文本指令特征，实现高效的错误检测（AUC 0.79）与词级定位。
+5. **标注纠错价值**：作为半自动数据清洗工具，成功在经典的 R2R-CE 和 RxR-CE 验证集中筛查出 8 个 and 10 个存在真值标注错误或歧义的路径样本。
+
+---
+
+### 1. 研究背景/问题
+现有的视觉语言导航（VLN）方法均建立在“人类给出的指令是 100% 正确”的理想假设之上。然而在实际的人机交互中，由于人类记忆不精确、空间概念混淆（如左右不分）或认知障碍，给出的导航指令往往包含错误。
+
+如果在这种情况下智能体盲目服从指令，会导致严重的导航失败。目前缺乏在连续三维环境（VLN-CE）下评估智能体对“错误指令”鲁棒性的基准测试。因此，本文提出了以下核心问题：
+1. 现有的 SOTA 导航模型在面对带有错误的人类指令时有多脆弱？
+2. 如何有效地检测输入指令中是否包含错误，并精确定位错误发生的单词位置，以便后续采取容错或澄清机制？
+
+---
+
+### 2. 主要方法/创新点
+
+#### A. R2RIE-CE 基准测试构建
+本文基于 R2R-CE 验证集（Val Unseen），通过人工引入具有常识先验和人类混淆特征的错误，构建了 **R2RIE-CE** (R2R with Instruction Errors in Continuous Environments) 基准测试。
+
+<div align="center">
+  <img src="/images/vln/R2RIE-CE-error-example.png" width="80%" />
+    <figcaption>图1：指令错误导航示例。在自然语言指令中，仅将“向右转 (right)”替换为“向左转 (left)”，就会导致智能体偏离正确路径并在错误的位置终止探索（黄色箭头处）。</figcaption>
+</div>
+
+错误类型分为以下五类：
+1. **Direction Error (方向错误)**：将高频方向词（如 left/right、go down/go up、forward/backward 等）替换为其反义词。
+2. **Object Error (物体错误)**：考虑常识共现性，将指令中的物体词（如 sofa）随机替换为通常在同个房间共现的另一物体（如 chair）。
+3. **Room Error (房间错误)**：根据房间邻接先验，将目标房间（如 bathroom）随机替换为相邻的房间类型（如 bedroom）。
+4. **Room & Object Error (房间与物体双重错误)**：在指令中同时注入房间错误和物体错误。
+5. **All Error (全类型错误)**：在指令中同时引入方向、房间和物体三类错误（平均每个样本包含3个错误）。
+
+<div align="center">
+  <img src="/images/vln/R2RIE-CE-dataset-statistics.png" width="80%" />
+    <figcaption>表1：R2RIE-CE 基准测试在不同错误类型下的样本统计信息。</figcaption>
+</div>
+
+#### B. IEDL 错误检测与定位框架
+为了解决上述挑战，本文提出了 **IEDL** (Instruction Error Detector & Localizer) 框架。该框架是一个与底层导航策略解耦的模块，其核心思路是通过对比智能体执行导航后的“轨迹视觉特征”与“输入文本指令”的语义兼容性来捕捉不一致的错误。
+
+<div align="center">
+  <img src="/images/vln/R2RIE-CE-IEDL-architecture.png" width="100%" />
+    <figcaption>图2：IEDL 模型整体架构。冻结的导航策略 $\pi$ 输出的轨迹视觉特征 $\Gamma$ 与指令编码嵌入 $\Upsilon$ 送入多层跨模态 Transformer 进行特征对齐融合，最后由分类头分别进行错误检测（$f_d$）与词级错误定位（$f_l$）。</figcaption>
+</div>
+
+1. **整体框架概述**：
+   IEDL 模型由指令编码器、全景轨迹编码器、跨模态融合 Transformer，以及两个并行的分类预测头构成。它利用智能体的动作历史和视觉观测序列作为真值轨迹，去检验指令的语义是否与其吻合。
+
+2. **逐模块讲解**：
+   - **指令编码器 (Language Encoder)**：接收包含 $W$ ($W=80$) 个词的自然语言指令 $\mathcal{I}$。利用分词与填充后，送入预训练的 BERT 模型提取其词嵌入特征 $\Upsilon \in \mathbb{R}^{W \times D}$。
+   - **轨迹编码器 (Trajectory Encoder)**：导航智能体基于某策略 $\pi$ 在环境中导航 $T$ 步，得到图像观测序列 $\mathcal{O} = \{O_1, ..., O_T\}$。每个 $O_t$ 提取 ViT-B/16-CLIP 全景特征，再经过 Panoramic Encoder 进行时空建模，得到轨迹表示 $\Gamma = \{V_1, ..., V_T\} \in \mathbb{R}^{T \times D}$。为了引入轨迹时序，对 $\Gamma$ 加入 sine/cosine 位置编码，并在其头部拼接一个可学习的 `[CLS]` embedding。
+   - **跨模态多层 Transformer (Cross-Modal Transformer)**：包含 $k$ ($k=4$) 个堆叠层。在每一层，轨迹特征 $\Gamma$ 作为 Query ($Q$)，文本指令嵌入 $\Upsilon$ 作为 Key-Value ($KV$) 进行交叉注意力 (cross-attention) 计算，将视觉特征对齐到文本；接着用 Self-Attention 和 FFN 充分交互以融合多模态特征。
+   - **轨迹-指令匹配预测头 (Trajectory-Instruction Matching Head, $f_d$)**：输入融合后的 `[CLS]` token，通过一个多层感知机（MLP，由 $\mathbb{R}^D \to \mathbb{R}$）和 Sigmoid 函数输出匹配概率 $$d_{\pi} \in [0, 1]$$，用以识别当前指令是否包含错误。
+   - **错误定位预测头 (Error Localization Head, $f_l$)**：输入融合后的文本 token 序列，利用独立的 MLP（由 $\mathbb{R}^D \to \mathbb{R}^W$）预测每一个 token 为错误词的概率，实现细粒度的错误词定位。
+
+3. **训练目标 / 损失函数**：
+   采用多任务联合训练，损失函数由匹配分类损失 $\mathcal{L}_d$（采用二元交叉熵损失）与词级定位损失 $\mathcal{L}_l$（对指令中每个 token 计算标准交叉熵并求和）加权组成：
+   $$\mathcal{L} = \lambda_1 \mathcal{L}_d + \frac{\lambda_2}{E} \sum_{i=1}^{E} \mathcal{L}_l$$
+   其中 $E$ 是指令中实际含有的错误词数量，$\lambda_1$ 和 $\lambda_2$ 为平衡权重参数（实验中均设为 1）。
+
+---
+
+### 3. 核心结果/发现
+
+#### A. 现有导航模型在错误指令下的脆弱性
+研究人员在 R2RIE-CE 基准上测试了六种主流 VLN-CE 模型（包括 BEVBert, ETPNav 等 SOTA 算法）。
+
+<div align="center">
+  <img src="/images/vln/R2RIE-CE-success-rate-drop.png" width="80%" />
+    <figcaption>图3：主流导航模型在 R2R-CE Val Unseen 原始验证集（绿色）与带错误验证集（红色）下的 Success Rate (SR) 对比。</figcaption>
+</div>
+
+- **性能大跌**：当指令中混入错误时，所有模型的 Success Rate (SR) 均有明显的断崖式下降。在 Room & Object 错误类型下，各模型表现平均下降约 11.47%；在包含所有错误的 All 模式下，SR 下降达到 **30.64%**。
+- **错误类型敏感度差异**：方向错误 (Direction) 对导航的负面影响最大，会导致 SR 平均相对大跌 **18.64%**。智能体对方向词（如 left/right）极度依赖，一旦方向写反，智能体会迅速走偏并提前终止。
+
+#### B. IEDL 的检测与定位表现
+作者将 IEDL 与 Random (随机预测) 和 CLIP Alignment (基于词组匹配的零样本对齐基准) 进行了比较：
+
+<div align="center">
+  <img src="/images/vln/R2RIE-CE-experimental-results.png" width="80%" />
+    <figcaption>表2：在不同错误类型下，Random、CLIP Alignment 与 IEDL 的错误检测 (AUC) 与定位 (ATD) 指标对比。</figcaption>
+</div>
+
+- **SOTA 级的检测与定位**：在所有类型下，IEDL 均显著优于基线模型。尤其在全类型错误 (All) 下，IEDL 的检测 AUC 达到了 **0.94**，平均定位距离 (ATD) 缩短至 **6.14** 个 token。
+- **数据集纠错的实用价值**：作者将训练好的 IEDL 应用于经典的 R2R-CE 和 RxR-CE 原始验证集，在分类置信度超过 0.99 的样本中，通过人工复核成功识别出 **8个 R2R-CE 样本** 和 **10个 RxR-CE 样本** 的地面真值（Ground-Truth）指令本身就存在明显的人类标注错误。
+
+---
+
+### 4. 局限性
+1. **离线检测限制**：目前 IEDL 属于离线（Post-hoc）检测器，即必须等到智能体导航策略执行完毕、生成完整轨迹后才能进行错误检测。未来需要探索如何在导航执行过程中进行在线（Online）实时错误识别与纠偏。
+2. **纠错后的闭环策略缺失**：论文主要聚焦于“检测”与“定位”错误，但未详细构建智能体发现错误后，如何主动向人类用户发起交互澄清或自主尝试重新规划路线的闭环控制策略。
+
+---
+
+
+
+
+
+
+
+
+
+## 7. NAVCON (2024) {#navcon}
+——— 认知启发与语言落地的首个大规模 Vision-Language Navigation 概念数据集
+
+📄 **Paper**: [arXiv:2412.13026](https://arxiv.org/abs/2412.13026)
+
+### 精华
+
+1. 提出了首个基于认知科学与语言学理论的视觉语言导航（VLN）概念数据集 NAVCON，包含对 R2R 和 RxR 约 30,000 条指令的 23.6 万个高层导航概念标注。
+2. 定义了四种核心导航概念：定位自身（SIT）、移动路径（MOVE）、改变方向（CD）和改变区域（CR），构成了完备的导航语言原语。
+3. 利用 RxR 的时间戳信息，通过 Habitat 模拟器实现了 270 万帧图像/视频片段与导航概念词组的跨模态时间对齐。
+4. 基于该语料库微调的轻量级序列标注模型 NCC，达到了 96.53% 的概念和文本跨度预测准确率，展现出极强的泛化与落地潜力。
+5. 这一工作为打破 VLN 端到端黑盒设计提供了结构化的语义解析工具，有助于提高跨模态对齐的可解释性与实时运行效率。
+
+---
+
+### 1. 研究背景/问题
+
+传统的视觉语言导航（VLN）模型多采用黑盒端到端架构，存在视觉与文本 token 对齐不平衡、缺乏可解释性等问题。此外，现有的句法解析方法过于依赖外部嘈杂的依存句法分析器，导致在下游机器人导航任务中泛化性能差、可解释性低。因此，如何定义完备的导航概念并实现低成本、高精度的细粒度文本-视频对齐，是实现可信、透明且高效的具身智能体导航的关键瓶颈。
+
+---
+
+### 2. 主要方法/创新点
+
+NAVCON 提出了一套完整的视觉-语言导航概念自动化构建与标注流水线，实现了自然语言指令到核心导航概念（标签 + 文本跨度）以及视频片段的端到端对齐。
+
+<div align="center">
+  <img src="/images/vln/NAVCON-pipeline.png" width="100%" />
+<figcaption>NAVCON 导航概念和视频剪辑生成的处理步骤总览</figcaption>
+</div>
+
+#### ① 整体框架概述
+整个构建框架由**导航概念定义**、**语言概念提取与人工评估**以及**视频剪辑对齐与时序窗口微调**三个核心阶段组成。它通过自然语言处理管线提取指令中的动作谓词及修饰词组，并与 Habitat 模拟器导出的智能体第一视角视频流进行多模态时序关联。
+
+#### ② 逐模块讲解
+- **导航概念定义模块**：
+  - **输入**：无标注的导航指令文本。
+  - **处理**：基于动物与人类大脑空间建图的认知科学研究（如海马区位置细胞、边缘系统头部方向细胞、内嗅皮层边界细胞和自主运动系统），系统定义了四种核心导航概念：
+    - **定位自身（Situate Yourself, SIT）**：标识当前所处的位置与环境特征（如 "standing in front of that pillar"）。
+    - **移动路径（Move along a Path, MOVE）**：表示沿特定物理通道的位移（如 "step into this area with a large pool"）。
+    - **改变方向（Change Direction, CD）**：描述朝向的转动（如 "turn around from the bench"）。
+    - **改变区域（Change Region, CR）**：刻画越过物理边界进入新空间的动作（如 "enter the room that is in front of you"）。
+  - **输出**：导航概念的分类体系。
+  - **设计动机**：提供符合认知科学、且覆盖主流 VLN 指令所需的完备导航语言原语。
+
+- **语言概念提取管线**：
+  - **输入**：来自 R2R 和 RxR 数据集的 30,815 条训练指令。
+  - **处理**：利用 Stanza constituency parser 等 NLP 工具进行分词、词干化、词性标注与句法分析。首先检索出 348 个候选根动词，通过人工筛选保留 81 个无歧义映射到上述四大概念的导航根动词；然后提取这 81 个根动词的所有句法子节点，形成代表导航概念的完整谓词短语。
+  - **输出**：236,316 个自动生成的“银标（silver）”导航概念短语标注（包含概念类别与对应的文本跨度）。
+  - **设计动机**：降低人工标注的成本，同时利用 constituency trees 保证提取出的概念词组的句法完整性（包含修饰语和地标名词）。
+
+- **视频剪辑对齐与微调模块**：
+  - **输入**：带有单词级时间戳的 RxR 导航指令、 Matterport 3D 场景以及智能体运动轨迹姿态（pose traces）。
+  - **处理**：利用 Habitat 模拟器以 10 倍下采样率渲染智能体视角图像（320x240 像素），提取了 760 万帧图像。通过 RxR 词级时间戳，将提取的语言概念短语在时序上投影到对应的智能体运动视频剪辑中。针对 RxR 部分单词时间戳不准导致动作未开始或已结束的对齐偏移问题，引入了时序窗口微调策略：将每个剪辑的提取时间窗口向后延伸视频总长度的 5%。
+  - **输出**：270 万帧已实现概念-视频对齐的图像数据，覆盖 19,074 条指令。
+  - **设计动机**：解决跨模态细粒度对齐的时间错位问题，提供大规模的高质量视频-语言导航原语对齐数据。
+
+<div align="center">
+  <img src="/images/vln/NAVCON-concept-clip-alignment.png" width="100%" />
+<figcaption>NAVCON 概念与视频剪辑对齐示例（时间从左至右推移）</figcaption>
+</div>
+
+#### ③ 训练目标与分类器
+基于生成的银标数据集，论文训练了一个**导航概念分类器 (Navigation Concept Classifier, NCC)**。模型基于轻量级的 `distilbert-base-uncased`，在输入端接收分词后的指令，在输出端使用 BIO 格式进行 Token 级别分类（共 5 类：SIT、MOVE、CD、CR 的 B/I 标记，以及 O 外部词）。训练采用标准的交叉熵损失函数进行序列标注：
+$$\mathcal{L} = -\sum_{i=1}^{N} \sum_{j=1}^{C} y_{i,j} \log p_{i,j}$$
+其中 $N$ 为序列长度，$C$ 为分类类别数（$C=9$，包括 B- 和 I- 标记及 O），$y_{i,j}$ 为真实标签，$p_{i,j}$ 为预测概率。
+
+---
+
+### 3. 核心结果/发现
+
+- **数据集特征**：NAVCON 概念分布中，MOVE（移动路径）占比最大，达 42%；SIT（定位自身）占 28%；CD（改变方向）占 22%；CR（改变区域）占 9%。
+
+<div align="center">
+  <img src="/images/vln/NAVCON-concept-distribution.png" width="100%" />
+<figcaption>NAVCON 数据集中导航概念的分布统计情况</figcaption>
+</div>
+
+- **标注质量评估**：人工评估表明，银标概念分类正确率达 95.82%，对应的文本跨度覆盖正确率达 95.49%，漏检率低于 4%。在引入时序窗口延伸 5% 后，视频剪辑的精确对齐率从 73.63% 大幅提升至 88.62%。
+- **NCC 分类器表现**：NCC 分类器在 unseen 测试集上表现极佳，实现概念类别与文本跨度 100% 完美匹配（Exact Match）的比例高达 96.53%。
+- **LLM 少样本泛化能力**：使用 GPT-4o 进行 3-shot 上下文学习（In-Context Learning）进行概念提取，在 unseen 数据上实现了 82.12% 的 Exact Match，说明该导航概念对 LLM 具有高度的可学习性与泛化性。
+
+---
+
+### 4. 局限性
+
+1. **解析器依赖性**：对语言概念的提取极度依赖 Stanza constituency parser 的句法解析准确率，句法树错误会直接导致概念跨度提取不完整。
+2. **多模态对齐误差**：视频-文本对齐质量受限于原始 RxR 数据集 word-timestamp 标注的准确性，尽管采用了窗口延展，仍有约 11% 的视频片段对齐不完整。
+
+---
+
+
+
+
+
+
+
+
+
+## 8. NaVid (2024) {#navid}
+
+📄 **Paper**: [arXiv:2402.15852](https://arxiv.org/abs/2402.15852) · 🏛️ **RSS 2024** · [Project Page](https://pku-epic.github.io/NaVid/)
+
+---
+
+### 精华
+
+1. **免地图与传感器噪声依赖的新范式**：NaVid 是首个仅依赖单目 RGB 视频流、无需深度图、拓扑/度量地图或里程计输入的视觉语言导航（VLN）大模型，从根本上消除了里程计漂移与 Sim-to-Real 传感器鸿沟。
+2. **动态时空 Token 编码**：基于 LLaMA-VID 架构，当前帧分配 64 个指令无关 token 以保留高分辨率几何结构，历史帧大幅压缩至 4 个 token，结合特殊标识符 `<HIS>`、`<OBS>`、`<NAV>` 高效表征长时间序列上下文。
+3. **混合导航数据与指令推理协同训练**：结合 320k Oracle 轨迹、180k Dagger 非 Oracle 探索轨迹与 10k 路径指令推理数据，并与 763k 大规模 Web 多模态数据联合微调，保持大模型泛化能力的同时注入机器人控制能力。
+4. **卓越的跨数据集与真实机器人部署表现**：在 RxR 零样本迁移测试中，SPL 指标超越现有 SOTA 方法 236.5%（自 6.3% 提升至 21.2%）；在真实场景实车测试中实现了 84% 的简单指令与 48% 的复杂指令导航成功率。
+
+---
+
+### 1. 研究背景/问题
+
+连续环境视觉语言导航（VLN-CE）要求智能体在未知的真实物理世界中根据自然语言指令进行低层级动作控制。现有方法主要存在两大瓶颈：
+- **传感器与地图依赖性**：绝大多数传统及基于 LLM 的导航系统依赖拓扑/度量地图构建、深度相机点云或精确里程计姿态估计。在真实世界部署时，传感器噪声、点云缺失和里程计累计漂移会导致系统迅速失效。
+- **Sim-to-Real 跨域泛化差**：仿真环境中的完美深度图与无误差定位在真实世界中难以复现，极大地阻碍了导航策略从仿真向实车的迁移。
+
+NaVid 的核心动机在于模仿人类导航的本能——人类导航仅依靠眼前的单目视觉流和大脑中的历史记忆即可完成路径推理。因此，NaVid 探索纯单目 RGB 视频流驱动的 VLM 端到端导航范式。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vln/NaVid-architecture.png" width="100%" />
+<figcaption>NaVid 整体模型架构与时空 Token 编码流程</figcaption>
+</div>
+
+#### ① 整体框架概述
+NaVid 建立在通用视频语言大模型 LLaMA-VID 框架之上，由**视觉编码器（EVA-CLIP）**、**查询生成器（Q-Former-based Query Generator）**、**双模态投影器**以及**大语言模型骨干（LLM, 如 Vicuna-7B）**组成。系统接收机器人的历史观察视频流与当前单目 RGB 图像，经过指令相关与指令无关的双路 Token 编码后，直接生成包含动作类型及定量参数（如前进距离、旋转角度）的文本动作指令。
+
+#### ② 逐模块讲解
+
+- **视觉编码器与双路 Observation Token 编码**
+  - **输入**：从起始时刻 $0$ 到当前时刻 $t$ 的单目 RGB 视频帧序列 $\mathcal{O}_t = \{x_0, x_1, \dots, x_t\}$。每帧输入视觉编码器 EVA-CLIP 提取 patch 嵌入 $X_t \in \mathbb{R}^{N_x \times C}$（其中 $N_x = 256$）。
+  - **处理过程**：
+    1. **指令相关 Token（Instruction-Queried Tokens $E_t^Q$）**：利用 Q-Former 查询生成器 $G_Q$ 结合文本指令 $I$ 与图像特征 $X_t$ 生成指令感知 Query $Q_t$，通过 Cross-Attention 交叉注意力与均值池化（Pool）压缩为单 token 表达 $E_t^Q \in \mathbb{R}^{1 \times C}$。
+    2. **指令无关 Token（Instruction-Agnostic Tokens $E_t^V$）**：对图像特征 $X_t$ 执行 Grid Pooling 网格池化，将 $N_x$ 个特征压缩为 $N_v$ 个几何 token。为了兼顾计算效率与空间几何保留，当前帧 $x_t$ 设置 $N_v = 64$，而历史帧 $x_{0..t-1}$ 大幅压缩至每帧 $N_v = 4$。
+  - **输出**：当前帧与历史帧的多模态视觉 Token 序列。
+  - **设计动机**：当前帧需要高密度的几何细节来预测精确的动作定量参数（移动距离/旋转角度），而历史帧主要提供时空轨迹上下文，低密度 Token 既减轻了大模型的长上下文负担，又保留了关键轨迹记忆。
+
+- **特殊标识符与 Token 格式化（Special Token Formatting）**
+  - **输入**：历史帧 Token 序列、当前帧 Token 序列、语言指令 Token 序列。
+  - **处理过程**：引入专用界定标识符 `<HIS>`/`</HIS>`（界定历史观察）、`<OBS>`/`</OBS>`（界定当前观察）以及 `<NAV>`（触发导航动作预测）。
+  - **输出格式**：
+    $$\text{Input}: \text{<HIS>} \{\text{historical frames}\} \text{</HIS>} \text{<OBS>} \{\text{current frame}\} \text{</OBS>} \text{<NAV>} \{\text{instruction content}\}$$
+    $$\text{Output}: \{\text{action reasoning \& text action}\}$$
+  - **设计动机**：显式区分动作推理所需的不同模态与时空属性，引导 LLM 正确区分导航历史记忆与当前决策环境。
+
+- **定量动作预测（Quantitative Action Planning）**
+  - **输出格式**：NaVid 采用离散动作类型 + 连续定量参数的文本组合输出，动作集合 $\mathcal{A} \in \{\text{FORWARD}, \text{TURN-LEFT}, \text{TURN-RIGHT}, \text{STOP}\}$。例如：`The next action is move forward 75 cm` 或 `turn left 30 degrees`。
+  - **解析机制**：推理阶段通过正则匹配解析器（Regular Expression Parser）直接提取动作类型与数值参数并发送至机器人底盘执行。
+
+<div align="center">
+  <img src="/images/vln/NaVid-data-samples.png" width="100%" />
+<figcaption>NaVid 导航训练样本构造（动作规划与指令推理）</figcaption>
+</div>
+
+#### ③ 混合训练策略与辅助任务（Hybrid Training Strategy）
+1. **Non-Oracle 轨迹采集（Dagger-like Trajectory Collection）**：首先在 61 个 MP3D 室内场景中基于 Oracle 轨迹生成 320k 步骤样本；随后将初始模型部署到 VLN-CE 环境中，采集偏离正确路径的 180k 步骤非 Oracle 探索轨迹，大幅增强模型的自我纠错与鲁棒性。
+2. **多任务协同微调（Co-training of VLN-CE & Auxiliary Tasks）**：
+   - **动作规划（Action Planning）**：500k 步级导航动作预测样本。
+   - **指令推理（Instruction Reasoning）**：10k 路径反向描述样本，输入历史视频序列，要求模型反推对应的自然语言导航指令，增强图文对齐。
+   - **Web 大规模数据预训练**：融合 763k 来自 LLaMA-VID 的通用 Video-QA / Image-QA Web 数据，保持通用 VLM 的常识与推理能力，防止灾难性遗忘。
+
+#### ④ 训练目标 / 损失函数
+NaVid 采用标准自回归交叉熵损失（Autoregressive Cross-Entropy Loss）进行端到端微调：
+$$\mathcal{L}_{CE} = -\sum_{i=1}^N \log P\left(y_i \mid y_{<i}, \mathbf{X}_{obs}, \mathbf{X}_{inst}\right)$$
+其中 $y_i$ 表示输出文本序列（包含推理过程与定量动作命令）的第 $i$ 个 token，$\mathbf{X}_{obs}$ 为编码后的视频观察 token，$\mathbf{X}_{inst}$ 为指令 token。
+
+#### ⑤ 推理流程
+在在线导航过程中，机器人单目 RGB 相机实时采集视频流。系统维护滑动观察缓冲区，抽取历史帧（每帧 4 token）与当前帧（64 token），拼接文本指令后送入 NaVid。大模型自回归解码输出动作文本，经正则解析器直接转化为底层控制命令（如前进 75cm），无需构建任何显式地图。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vln/NaVid-real-results.png" width="100%" />
+<figcaption>NaVid 在真实物理环境中的视觉语言导航执行效果</figcaption>
+</div>
+
+1. **仿真环境 SOTA 表现（VLN-CE R2R & RxR）**：
+   - 在 R2R Val-Unseen 验证集上，NaVid 取得 **37.4%** 的成功率（SR）与 **35.9%** 的路径长度加权成功率（SPL），显著超越现有的纯视觉与深度图基线。
+   - 在 RxR Val-Unseen 零样本跨数据集测试中（未在 RxR 上训练），NaVid 的 SR 达到 **23.8%**，SPL 达到 **21.2%**，相比此前 SOTA 方法 A2Nav（SR 16.8%, SPL 6.3%）在 SPL 上提升了 **236.5%**。
+
+2. **基座大模型对比（LLM Baseline Comparison）**：
+   - 在 100 个随机采样的 R2R Val-Unseen 子集测试中，未针对导航数据微调的 GPT-4V 仅达到 5.0% 的 SR，且频繁输出与动作无关的描述文本；而经过导航微调的 NaVid 成功率达到 **38.0%**（SPL **35.4%**）。
+
+3. **历史轨迹表示消融（History Representation Ablation）**：
+   - 相比于纯文本历史描述（Text-based, SPL 0.0%）、俯视 2D 地图+文本（Map-text, SPL 8.97%）以及第一视角图像+文本（Ego-view-text, SPL 20.8%），NaVid 的纯 Video-based 视频流表征实现了最高的 SPL（**35.9%**），且推理延迟显著降低（无需频繁调用额外的 Captioning 模型）。
+
+4. **真实物理世界部署（Real-World Sim-to-Real Transfer）**：
+   - 在会议室（Meeting Room）、办公室（Office）、实验室（Lab）和休息室（Lounge）四个真实物理场景下，NaVid 在简单指令上的平均完成率达到 **84%**，在需要避开混淆物（如类似椅子）的复杂多步指令上达到 **48%**，远超 Seq2Seq（0%）、CMA（2%）及基于语义地图的 WS-MGMap（20%-32%）。
+
+---
+
+### 4. 局限性
+
+1. **长距离导航计算开销**：随着导航步数增加，历史视频帧数量积累会增加大模型上下文长度。虽然历史帧已压缩至 4 token/帧，但在上百步的长路径中仍会增加显存与推理耗时。
+2. **缺乏显式回溯能力**：由于采用纯自回归文本动作预测且无显式拓扑/度量地图记录，智能体在陷入死胡同或误入歧途时，难以像显式建图方法那样进行精确的全局路径重规划（Re-planning）。
+
+---
+
+
+
+
+
+
+
+
+
+## 9. NavGPT-2 (2024) {#navgpt-2}
+——释放大型视觉语言模型的导航推理能力
+
+📄 **Paper**: [arXiv:2407.12366](https://arxiv.org/abs/2407.12366) · 🏛️ **ECCV 2024**
+
+**研究背景/问题**
+
+虽然有将LLMs集成到VLN任务的努力,但存在两个极端方法的局限:(1)零样本方法依赖复杂的提示工程,存在信息损失且性能差距大(约40% SR);(2)微调方法虽然使用大规模LLMs,但性能仍落后于VLN专用模型,且丧失了LLMs的语言能力和可解释性。研究目标是在保持LLMs解释能力的同时,消除LLM-based agents与SOTA VLN专用模型之间的性能差距。
+
+**主要方法/创新点**
+
+NavGPT-2采用**冻结LLM + 导航策略网络**的混合架构,分两阶段训练:
+
+<div align="center">
+  <img src="/images/vln/navgpt2-architecture.png" width="100%" />
+<figcaption>
+NavGPT-2模型架构
+</figcaption>
+</div>
+
+**阶段一:视觉指令调优(Visual Instruction Tuning)**
+- 基于InstructBLIP架构,使用Q-former将多视图图像编码为固定长度的视觉tokens
+- 使用GPT-4V自动生成10K导航推理数据
+- 仅微调Q-former和投影层,保持LLM和视觉编码器(EVA-CLIP ViT-g/14)冻结
+
+<div align="center">
+  <img src="/images/vln/navgpt2-data-generation.png" width="100%" />
+<figcaption>
+GPT-4V导航推理数据生成流程
+</figcaption>
+</div>
+
+**阶段二:图基础导航策略学习**
+- 提取LLM隐藏层表示作为视觉-语言表征
+- 采用拓扑图导航策略网络(源自DUET),包含:
+  - 节点嵌入(Node Embedding):整合视觉特征、方向嵌入、步数嵌入
+  - 跨模态编码(Cross-Modal Encoding):图感知自注意力(GASA)机制
+  - 全局动作预测(Global Action Prediction):从整个构建的图中选择下一步
+- 使用DAgger损失训练,保持VLM冻结
+
+关键创新点:
+1. **VLM隐表示作为视觉-语言表征**:将视觉特征投影到LLM的语言空间,实现更强的跨环境对齐
+2. **数据高效**:利用LLM预训练权重,在50%数据量下即可达到DUET全量数据的性能
+3. **保留语言能力**:冻结LLM使其保持生成导航推理和与人类交互的能力
+
+**核心结果/发现**
+
+在R2R数据集上的性能(NavGPT-2FlanT5-XXL, 5B参数):
+
+| Split | SR | SPL | NE | OSR |
+|-------|----|----|-----|-----|
+| Val Unseen | 71% | 60% | 3.18 | 80% |
+| Test Unseen | 72% | 60% | 3.33 | 80% |
+
+主要发现:
+- **消除性能差距**:在相同训练规模下,超越所有LLM-based方法,与DUET(SOTA VLN专用模型)性能相当
+- **数据效率**:使用50% R2R数据即可达到DUET使用全量数据的性能
+- **泛化能力**:
+  - RxR数据集(细粒度指令):SR提升3.67%
+  - HM3D数据集(未见环境):SR提升21.6%(47.2% vs 25.6%)
+- **可解释性**:能够生成描述周围环境、识别导航进度、规划下一步的自然语言推理
+
+<div align="center">
+  <img src="/images/vln/navgpt2-reasoning-examples.png" width="100%" />
+<figcaption>
+NavGPT-2生成的导航推理示例
+</figcaption>
+</div>
+
+消融实验表明:
+- 移除导航策略网络后性能大幅下降(SR从68%降至21%)
+- FlanT5系列模型优于Vicuna系列(编码器-解码器架构优于纯解码器架构)
+- 更强的视觉编码器对性能提升有限,主要增益来自LLM隐表示
+
+**局限性**
+
+(1)导航推理基于局部观察,未在VLM中建模历史,一致性有待提高;(2)推理与动作预测未严格同步;(3)存在幻觉问题(识别不存在的物体或误判方向);(4)交互能力未经充分评估。未来工作应聚焦于推理-动作同步机制、历史建模以及交互导航能力的开发。
+
+### 系列对比总结
+
+| 维度 | NavGPT (AAAI-2024) | NavGPT-2 (ECCV-2024) |
+|------|-------------------|---------------------|
+| **核心思路** | 纯LLM零样本导航 | 冻结LLM + 微调导航策略 |
+| **训练方式** | 无需训练(零样本) | 两阶段训练(VLM微调+策略学习) |
+| **性能(R2R SR)** | 34% | 72% (test unseen) |
+| **推理能力** | 显式,基于提示工程 | 显式,基于指令调优 |
+| **主要贡献** | 揭示LLM导航推理能力 | 消除LLM-agent与SOTA的性能差距 |
+| **局限** | 性能差距大,信息损失严重 | 推理-动作同步不足,存在幻觉 |
+
+两篇工作共同展示了LLMs在具身导航中的巨大潜力,从探索性的零样本方法发展到实用的混合架构,为构建可解释、可交互的通用导航智能体指明了方向。
+
+
+---
+
+
+
+
+
+
+
+## 10. DualVLN/InternVLN (2025) {#dualvln}
 ——Ground Slow, Move Fast
 
 📄 **Paper**: [arXiv:2512.08186](https://arxiv.org/abs/2512.08186)
@@ -603,7 +1493,15 @@ DualVLN 的核心训练理念是**解耦的、渐进式两阶段训练（progres
 
 ---
 
-## 2. NavDP (2025) {#navdp}
+
+
+
+
+
+
+
+
+## 11. NavDP (2025) {#navdp}
 ——只用仿真数据训练，零样本迁移到真实机器人的导航扩散策略
 
 📄 **Paper**: [arXiv:2505.08712](https://arxiv.org/abs/2505.08712)
@@ -701,68 +1599,15 @@ NavDP 性能高度依赖高质量仿真数据；扩散模型多步去噪虽带�
 
 ---
 
-## 3. NoMaD (2023) {#nomad}
-——目标掩码扩散策略实现统一导航
 
-📄 **Paper**: [arXiv:2310.07896](https://arxiv.org/abs/2310.07896) · 🏛️ **ICRA 2024**
 
-**研究背景/问题**
 
-传统机器人导航系统通常为探索（exploration）和目标导航（goal-conditioned navigation）分别训练独立的策略模型，这不仅增加了系统复杂度，也限制了跨任务的知识共享和泛化能力。NoMaD（Nomadic Multi-task Agent with Diffusion，伯克利，ICRA2024 Best Paper）提出通过统一的扩散策略框架，使用目标掩码机制同时建模任务特定行为（目标导向）和任务无关行为（探索），实现单一策略胜任多种导航任务。
 
-**主要方法/创新点**
 
-<div align="center">
-  <img src="/images/vln/nomad-framework.png" width="100%" />
-<figcaption>
-NoMaD目标掩码扩散策略框架
-</figcaption>
-</div>
 
-### 核心思路
 
-通过统一的扩散策略，同时建模任务特定和任务无关行为
 
-### 两个关键组件
-
-**目标掩码（Goal Masking）**
-- 通过二值掩码控制策略是否关注目标图像，实现任务条件的灵活切换
-- **训练时**：目标掩码以50%概率随机设置，使模型同时学习目标导向行为和探索行为
-- **推理时**：根据任务需要设置掩码（探索时掩盖目标，导航时提供目标）
-
-**扩散策略（Diffusion Policy）**
-- 利用扩散模型生成多模态、无碰撞的动作序列
-- 从随机噪声逐步迭代生成预测动作序列
-- 动作分布既可在无目标条件下表达探索行为，也可在提供目标条件下收敛到目标导向行为
-
-### 统一框架设计
-
-- 通过Transformer编码视觉观测并结合扩散模型生成未来动作序列
-- 同时支持任务特定行为（目标导向）和任务无关行为（探索）
-- 使用大规模多样化数据集（GNM和SACSoN）进行端到端监督训练
-
-<!-- <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/nomad-goal-masking.png" width="100%" />
-<figcaption>
-NoMaD目标掩码机制示意图
-</figcaption>
-</div> -->
-
-**核心结果/发现**
-
-- **探索未知环境**：成功率达到98%，平均碰撞数仅0.2，超过最优基线Subgoal Diffusion约25%，且参数量仅为其1/15
-- **目标导航**：在已知环境的目标导航任务中，成功率与最优基线相当，但计算资源需求更少
-- **计算效率**：比现有方法计算效率提升约15倍，是首个成功在物理机器人上部署的目标条件动作扩散模型
-- **统一策略优势**：联合训练能够学习共享表示和环境可操作性，单一策略即可胜任多种行为
-- **编码器选择**：ViNT编码器配合注意力目标掩码效果最佳，成功率98%，碰撞数最少
-- **多场景验证**：在6个复杂的室内外环境中表现优异
-
-**局限性**
-
-NoMaD的视觉编码器选择对性能影响较大，需要仔细调优以达到最佳效果。虽然ViT编码器具有更大的容量和表达能力，但其训练优化难度较高，收敛速度相对较慢。此外，目标掩码机制的随机采样比例（训练时50%）是一个关键超参数，在不同场景下可能需要针对性调整。尽管在多个室内外环境中表现优异，但在极端复杂、高度动态的场景（如密集人流、快速变化的障碍物）下的鲁棒性仍有进一步提升空间。
-
----
-## 4. ODYSSEY (2025) {#odyssey}
+## 12. ODYSSEY (2025) {#odyssey}
 ——Open-World Quadrupeds Exploration and Manipulation for Long-Horizon Tasks
 
 📄 **Paper**: [arXiv:2508.08240](https://arxiv.org/abs/2508.08240) · 🏛️ **AAAI 2026**
@@ -829,7 +1674,15 @@ ODYSSEY框架整体架构
 
 ---
 
-## 5. PanoNav (2025) {#panonav}
+
+
+
+
+
+
+
+
+## 13. PanoNav (2025) {#panonav}
 ——Mapless Zero-Shot Object Navigation
 
 📄 **Paper**: [arXiv:2511.06840](https://arxiv.org/abs/2511.06840) · 🏛️ **AAAI 2026 (Poster)**
@@ -901,7 +1754,15 @@ PanoNav框架整体架构
 
 ---
 
-## 6. VLN-R1 (2025) {#vln-r1}
+
+
+
+
+
+
+
+
+## 14. VLN-R1 (2025) {#vln-r1}
 ——基于GRPO与Time-Decayed Reward的端到端导航
 
 📄 **Paper**: [arXiv:2506.17221](https://arxiv.org/abs/2506.17221)
@@ -1016,88 +1877,15 @@ VLN-R1在VLN-CE（视觉-语言导航连续环境）基准上进行了全面测�
 
 ---
 
-## 7. LagMemo (2025) {#lagmemo}
-——Language 3D Gaussian Splatting Memory for Multi-modal Open-vocabulary Multi-goal Visual Navigation
-
-📄 **Paper**: [arXiv:2510.24118](https://arxiv.org/abs/2510.24118)
-
-**研究背景/问题**
-
-传统视觉导航方法受限于单目标、单模态和封闭类别设置，无法满足实际应用中多模态开放词汇表多目标导航的需求。现有方法如端到端强化学习依赖隐式状态编码导致泛化能力差，而模块化方法基于2D语义地图仅支持预定义类别，无法适应开放词汇场景。
-
-**主要方法/创新点**
-
-LagMemo提出了首个将语言特征融入3D Gaussian Splatting（3DGS）的视觉导航系统：
-
-<div align="center">
-  <img src="/images/vln/lagmemo-framework-overview.png" width="100%" />
-<figcaption>
-LagMemo系统框架：先进行前沿探索构建语言3DGS记忆，再基于记忆进行多目标导航
-</figcaption>
-</div>
-
-**语言3DGS记忆重建：**
-
-*前沿探索与几何重建：*
-- **前沿探索策略**：智能体首先进行基于前沿的环境探索，收集RGB-D图像和姿态信息
-- **3DGS几何重建**：3D高斯由空间位置μ、颜色c、半径r和不透明度o参数化，通过颜色和深度渲染的几何损失优化
-- **关键帧检索机制**：针对导航场景中帧间重叠有限导致的遗忘和表面空洞问题，引入帧池存储历史帧，周期性渲染并按PSNR评估，优先优化低保真帧
-
-<div align="center">
-  <img src="/images/vln/lagmemo-language-injection.png" width="100%" />
-<figcaption>
-语言特征注入流程：SAM实例分割→CLIP特征提取→2D-3D特征关联→离散化码本
-</figcaption>
-</div>
-
-*语言特征注入：*
-- **实例级特征提取**：使用SAM生成实例掩码，通过特征splatting渲染逐像素语义特征，聚合掩码级特征并优化
-- **两级码本量化**：粗分区联合考虑3D位置和语言特征，细分区仅基于语言特征细化类别
-- **2D-3D特征关联**：对每个实例类别，渲染其高斯并评估与2D实例掩码的空间语义一致性，将高维CLIP实例特征分配给离散化的3D高斯语言类别
-- **码本构建**：每个码本条目对应一簇3D高斯，富含CLIP特征，支持多模态查询（文本/图像）
-
-**记忆引导的视觉导航：**
-
-<div align="center">
-  <img src="/images/vln/lagmemo-navigation-pipeline.png" width="100%" />
-<figcaption>
-记忆引导导航管线：目标定位→路径点导航→目标验证→终点导航
-</figcaption>
-</div>
-
-- **目标定位**：多模态输入目标（文本/图像）通过CLIP编码器编码，与码本计算余弦相似度定位候选实例，计算高斯质心并投影到2D障碍地图生成路径点
-- **路径点导航**：使用Fast Marching Method（FMM）从当前位置规划无碰撞路径至路径点
-- **目标验证与匹配**：到达路径点后全景扫描验证目标，对象/文本目标使用SEEM开放词汇实例分割和CLIP相似度二次验证，图像目标使用LightGlue特征匹配
-- **终点导航**：确认目标可见后，利用SEEM掩码和深度信息将目标点投影到障碍地图，再次使用FMM导航至终点并执行STOP
-
-**GOAT-Core基准数据集：**
-- 针对GOAT-Bench质量问题策划高质量核心子集：每集20个子任务（原7.88个），平均13.37个独特类别（原4.82个），子任务间平均距离6.89m（原5.18m）
-- 手动修正不准确文本描述，优先语义清晰的对象，限制所有子任务在单层楼
-- 包含480个多模态子任务（163图像、158对象、159文本目标）
-
-**核心结果/发现**
-
-**目标定位任务：**
-- 在GOAT-Core上总体成功率70.8%，显著优于VLMaps（58.8%）
-- 分模态性能：对象88.4% vs 69.7%，图像56.4% vs 43.3%，文本66.8% vs 61.0%
-- 语言3DGS保留详细3D空间上下文，实现精确定位，而VLMaps的2D网格压缩丢失关键几何信息
-
-**多模态多目标视觉导航：**
-- 平均成功率SR=56.3%，SPL=35.3%，在所有四个场景中均取得最高成功率
-- 相比次优基线CoWs*，SR提升10%，相比Modular GOAT提升18%
-- 文本导航任务优势尤为显著，充分展现丰富3D语义表示的优势
-- 消融实验验证：移除关键帧机制导致PSNR从27.20降至21.15，定位准确率从70.8%降至66.3%；移除码本定位准确率骤降至34.6%
-- 目标验证机制至关重要：无验证SR=41.3%，通用CLIP验证SR=46.7%，模态特定验证SR=56.3%
-
-**局限性**
-
-当前方法依赖静态固定容量记忆，在动态环境（重新排列、增删物体）中适应性不足。全场景3D表示内存密集，需要层次化或多分辨率高斯、不确定性感知剪枝和特征压缩。此外，目标定位能力依赖几何保真度，视角覆盖不足会留下盲区，未来需开发记忆感知的主动探索策略。
-
----
 
 
 
-## 8. GaussNav (2025) {#gaussnav}
+
+
+
+
+
+## 15. GaussNav (2025) {#gaussnav}
 ——Gaussian Splatting for Visual Navigation
 
 📄 **Paper**: [arXiv:2403.11625](https://arxiv.org/abs/2403.11625) · 🏛️ **IEEE TPAMI 2025**
@@ -1180,78 +1968,15 @@ GaussNav整体框架：前沿探索→语义高斯构建→高斯导航
 ---
 
 
-## 9. VLFM (2023) {#vlfm}
-——Vision-Language Frontier Maps for Zero-Shot Semantic Navigation
 
-📄 **Paper**: [arXiv:2312.03275](https://arxiv.org/abs/2312.03275) · 🏛️ **ICRA 2024**
 
-**研究背景/问题**
-零样本语义导航要求机器人在未见环境中高效定位目标对象，现有方法（如ESC、SemUtil）依赖物体检测器将视觉线索转化为文本后再用LLM/BERT进行语义推理，存在计算瓶颈且无法充分利用视觉-语言联合表征。如何直接从RGB观测中提取语义价值以指导前沿探索成为关键挑战。
 
-**主要方法/创新点**
 
-VLFM提出语言驱动的前沿价值图框架，实现端到端视觉-语义推理：
 
-<div align="center">
-  <img src="/images/vln/vlfm-system-overview.png" width="100%" />
-<figcaption>
-VLFM系统架构：初始化、语义前沿探索、目标导航三阶段流程
-</figcaption>
-</div>
 
-**核心机制：**
 
-1. **前沿航点生成（Frontier Waypoint Generation）**
-   - 利用深度和里程计构建2D占用地图，识别已探索与未探索区域边界作为前沿候选点
-   - 每个前沿中点作为潜在导航航点
 
-2. **价值图生成（Value Map Generation）**
-   - 使用预训练BLIP-2视觉-语言模型直接从RGB图像计算语义价值分数
-   - 文本提示："Seems like there is a <target object> ahead"
-   - 输出余弦相似度分数并投影到俯视图价值图（双通道：语义分数+置信度分数）
-
-<div align="center">
-  <img src="/images/vln/vlfm-value-map-generation.png" width="100%" />
-<figcaption>
-价值图生成流程：BLIP-2计算语义分数并投影到俯视图
-</figcaption>
-</div>
-
-1. **置信度加权更新（Confidence-Weighted Averaging）**
-   - 置信度分数基于像素相对光轴位置：$c_{i,j} = \cos^2(\theta/(\theta_{fov}/2) \times \pi/2)$
-   - 重叠区域的语义值更新：$v_{i,j}^{new} = (c_{i,j}^{curr}v_{i,j}^{curr} + c_{i,j}^{prev}v_{i,j}^{prev})/(c_{i,j}^{curr} + c_{i,j}^{prev})$
-   - 置信度更新偏向高置信值：$c_{i,j}^{new} = ((c_{i,j}^{curr})^2 + (c_{i,j}^{prev})^2)/(c_{i,j}^{curr} + c_{i,j}^{prev})$
-
-<div align="center">
-  <img src="/images/vln/vlfm-confidence-weighting.png" width="100%" />
-<figcaption>
-置信度评分机制：光轴附近像素置信度最高，边缘递减
-</figcaption>
-</div>
-
-1. **物体检测与导航**
-   - YOLOv7用于COCO类别，Grounding-DINO用于开放词汇检测
-   - Mobile-SAM提取目标轮廓，确定最近点作为目标航点
-   - 使用VER训练的PointNav策略执行航点导航（纯几何理解，不依赖语义）
-
-**关键创新：**
-- 直接视觉-语义推理：绕过物体检测器，BLIP-2直接从RGB生成语义分数
-- 空间化价值表征：将语义价值映射到俯视图网格，支持前沿选择
-- 置信度驱动融合：动态平衡当前观测与历史信息
-
-**核心结果/发现**
-- **基准测试表现**：在Gibson、HM3D、MP3D三个数据集上均达到SOTA零样本性能
-  - Gibson：SPL 52.2%、SR 84.0%（相比SemUtil提升+11.7% SPL、+14.7% SR）
-  - HM3D：SPL 30.4%、SR 52.5%（相比ESC提升+8.1% SPL、+13.3% SR）
-  - MP3D：SPL 17.5%、SR 36.4%（相比ESC提升+3.3% SPL、+7.7% SR）
-- 超越部分有监督方法：在Gibson和MP3D数据集上优于SemExp、PONI等ObjectNav训练方法
-- **消融实验**：置信度加权平均（Weighted avg.）在所有数据集上均优于简单替换（Replacement）和无权平均（Unweighted avg.）
-- **真实世界部署**：成功在Boston Dynamics Spot机器人上部署，在办公楼环境中高效导航至未见目标对象，所有模型（BLIP-2、GroundingDINO、MobileSAM、ZoeDepth）实时运行于RTX 4090 MaxQ笔记本
-
-**局限性**
-仅支持单层楼导航（缺少z坐标里程计导致价值图重置困难），HM3D和MP3D中14.6%和9.6%的跨楼层任务失败；假定目标物体在默认相机高度可见，未来可探索主动相机控制、操作式搜索（如打开抽屉）及可复用的语义地图表征以支持长时程多任务规划。
-
-## 10. LoGoPlanner (2025) {#logoplanner}
+## 16. LoGoPlanner (2025) {#logoplanner}
 ——定位接地的端到端导航策略：把度量尺度的视觉几何"植入"规划
 
 📄 **Paper**: [arXiv:2512.19629](https://arxiv.org/abs/2512.19629)
@@ -1316,490 +2041,14 @@ LoGoPlanner 在一个统一网络里端到端协同三大部分：**(A) 度量�
 受限于可用导航场景数量较少（约 2k），真实环境下的重建质量仍不理想；作者正在度量尺度的真实世界数据集上继续训练，以提升实际部署性能。
 
 ---
-## 11. NavGPT （2024） {#navgpt}
-——利用大语言模型进行视觉语言导航的显式推理
 
-📄 **Paper**: [arXiv:2305.16986](https://arxiv.org/abs/2305.16986) · 🏛️ **AAAI 2024**
 
-**研究背景/问题**
 
-现有的视觉语言导航(VLN)方法虽然性能较好,但其决策过程是隐式的、不可解释的。大语言模型(LLMs)在训练中展现出强大的推理能力和知识储备,但其在具身导航任务中的推理能力尚未被充分探索。研究的核心问题是:LLMs能否理解以文本形式描述的交互世界、动作及其后果,并利用这些信息解决导航任务?
 
-**主要方法/创新点**
 
-NavGPT是一个完全基于LLM的指令跟随导航系统,通过零样本方式执行视觉语言导航任务。系统包含四个核心组件:
 
-<div align="center">
-  <img src="/images/vln/navgpt-architecture.png" width="100%" />
-<figcaption>
-NavGPT系统架构图
-</figcaption>
-</div>
 
-1. **导航系统原则(Navigation System Principle)**: 定义VLN任务和LLM的基本推理格式与规则
-2. **视觉基础模型(Visual Foundation Models)**: 使用BLIP-2将视觉观察转换为自然语言描述,使用Faster-RCNN检测物体并提取深度信息
-3. **导航历史(Navigation History)**: 维护观察、推理和动作的三元组历史,使用GPT-3.5进行摘要以控制长度
-4. **提示管理器(Prompt Manager)**: 将所有信息整合为LLM可理解的自然语言提示
 
-关键创新在于**协同推理与动作(Synergizing Reasoning and Actions)**:
-- 扩展动作空间为 A˜ = A ∪ R,其中R为推理轨迹
-- 在每步导航前先生成推理(Thought),再做出动作决策(Action)
-- 推理不触发环境交互,但能增强LLM的问题解决能力
-
-<div align="center">
-  <img src="/images/vln/navgpt-visual-perception.png" width="100%" />
-<figcaption>
-视觉感知转换为语言描述的过程
-</figcaption>
-</div>
-
-NavGPT展现出多种高级导航规划能力:
-- 将指令分解为子目标
-- 整合与导航相关的常识知识
-- 从观察场景中识别地标
-- 跟踪导航进度
-- 处理异常情况并调整计划
-
-**核心结果/发现**
-
-在R2R val unseen数据集上的实验结果(使用GPT-4):
-- Success Rate (SR): 34%
-- SPL: 29%
-- Oracle Success Rate (OSR): 42%
-
-虽然与训练模型仍有约40%的性能差距,但NavGPT展示了LLM的强大能力:
-- **高级规划能力**: 能够分解指令、识别地标、跟踪进度、适应异常
-- **生成能力**: 可根据导航历史生成高质量的导航指令
-- **空间意识**: 能够绘制准确的俯视图轨迹
-
-人类评估显示LLM生成的推理质量可接受但仍有提升空间(准确性1.66/3.0,信息量1.93/3.0,合理性1.78/3.0)。
-
-**局限性**
-
-主要瓶颈在于:(1)视觉信号转换为自然语言时的信息损失;(2)历史观察摘要时的信息损失;(3)零样本性能与训练模型相比仍有较大差距(SR差距约40%)。未来方向建议采用多模态输入的LLMs或利用LLMs的高级推理能力来增强基于学习的模型。
-
----
-
-## 12. NavGPT-2 （2024） {#navgpt-2}
-——释放大型视觉语言模型的导航推理能力
-
-📄 **Paper**: [arXiv:2407.12366](https://arxiv.org/abs/2407.12366) · 🏛️ **ECCV 2024**
-
-**研究背景/问题**
-
-虽然有将LLMs集成到VLN任务的努力,但存在两个极端方法的局限:(1)零样本方法依赖复杂的提示工程,存在信息损失且性能差距大(约40% SR);(2)微调方法虽然使用大规模LLMs,但性能仍落后于VLN专用模型,且丧失了LLMs的语言能力和可解释性。研究目标是在保持LLMs解释能力的同时,消除LLM-based agents与SOTA VLN专用模型之间的性能差距。
-
-**主要方法/创新点**
-
-NavGPT-2采用**冻结LLM + 导航策略网络**的混合架构,分两阶段训练:
-
-<div align="center">
-  <img src="/images/vln/navgpt2-architecture.png" width="100%" />
-<figcaption>
-NavGPT-2模型架构
-</figcaption>
-</div>
-
-**阶段一:视觉指令调优(Visual Instruction Tuning)**
-- 基于InstructBLIP架构,使用Q-former将多视图图像编码为固定长度的视觉tokens
-- 使用GPT-4V自动生成10K导航推理数据
-- 仅微调Q-former和投影层,保持LLM和视觉编码器(EVA-CLIP ViT-g/14)冻结
-
-<div align="center">
-  <img src="/images/vln/navgpt2-data-generation.png" width="100%" />
-<figcaption>
-GPT-4V导航推理数据生成流程
-</figcaption>
-</div>
-
-**阶段二:图基础导航策略学习**
-- 提取LLM隐藏层表示作为视觉-语言表征
-- 采用拓扑图导航策略网络(源自DUET),包含:
-  - 节点嵌入(Node Embedding):整合视觉特征、方向嵌入、步数嵌入
-  - 跨模态编码(Cross-Modal Encoding):图感知自注意力(GASA)机制
-  - 全局动作预测(Global Action Prediction):从整个构建的图中选择下一步
-- 使用DAgger损失训练,保持VLM冻结
-
-关键创新点:
-1. **VLM隐表示作为视觉-语言表征**:将视觉特征投影到LLM的语言空间,实现更强的跨环境对齐
-2. **数据高效**:利用LLM预训练权重,在50%数据量下即可达到DUET全量数据的性能
-3. **保留语言能力**:冻结LLM使其保持生成导航推理和与人类交互的能力
-
-**核心结果/发现**
-
-在R2R数据集上的性能(NavGPT-2FlanT5-XXL, 5B参数):
-
-| Split | SR | SPL | NE | OSR |
-|-------|----|----|-----|-----|
-| Val Unseen | 71% | 60% | 3.18 | 80% |
-| Test Unseen | 72% | 60% | 3.33 | 80% |
-
-主要发现:
-- **消除性能差距**:在相同训练规模下,超越所有LLM-based方法,与DUET(SOTA VLN专用模型)性能相当
-- **数据效率**:使用50% R2R数据即可达到DUET使用全量数据的性能
-- **泛化能力**:
-  - RxR数据集(细粒度指令):SR提升3.67%
-  - HM3D数据集(未见环境):SR提升21.6%(47.2% vs 25.6%)
-- **可解释性**:能够生成描述周围环境、识别导航进度、规划下一步的自然语言推理
-
-<div align="center">
-  <img src="/images/vln/navgpt2-reasoning-examples.png" width="100%" />
-<figcaption>
-NavGPT-2生成的导航推理示例
-</figcaption>
-</div>
-
-消融实验表明:
-- 移除导航策略网络后性能大幅下降(SR从68%降至21%)
-- FlanT5系列模型优于Vicuna系列(编码器-解码器架构优于纯解码器架构)
-- 更强的视觉编码器对性能提升有限,主要增益来自LLM隐表示
-
-**局限性**
-
-(1)导航推理基于局部观察,未在VLM中建模历史,一致性有待提高;(2)推理与动作预测未严格同步;(3)存在幻觉问题(识别不存在的物体或误判方向);(4)交互能力未经充分评估。未来工作应聚焦于推理-动作同步机制、历史建模以及交互导航能力的开发。
-
-### 系列对比总结
-
-| 维度 | NavGPT (AAAI-2024) | NavGPT-2 (ECCV-2024) |
-|------|-------------------|---------------------|
-| **核心思路** | 纯LLM零样本导航 | 冻结LLM + 微调导航策略 |
-| **训练方式** | 无需训练(零样本) | 两阶段训练(VLM微调+策略学习) |
-| **性能(R2R SR)** | 34% | 72% (test unseen) |
-| **推理能力** | 显式,基于提示工程 | 显式,基于指令调优 |
-| **主要贡献** | 揭示LLM导航推理能力 | 消除LLM-agent与SOTA的性能差距 |
-| **局限** | 性能差距大,信息损失严重 | 推理-动作同步不足,存在幻觉 |
-
-两篇工作共同展示了LLMs在具身导航中的巨大潜力,从探索性的零样本方法发展到实用的混合架构,为构建可解释、可交互的通用导航智能体指明了方向。
-
-
----
-
-## 13. FSR-VLN (2025) {#fsr-vln}
-——基于层次化多模态场景图的快慢推理视觉语言导航
-
-📄 **Paper**: [arXiv:2509.13733](https://arxiv.org/abs/2509.13733v3)
-
-**研究背景/问题**
-
-视觉语言导航（VLN）是具身智能中的基础任务，但现有方法在长距离空间推理方面存在严重局限，特别是在长距离导航任务中表现出较低的成功率和较高的推理延迟。关键瓶颈在于缺乏持久的长距离空间记忆来编码、组织和检索环境知识。现有几何语义地图和3D场景图依赖预提取的视觉特征，缺乏与VLM的直接交互；而基于图像的拓扑方法虽然成功率高，但由于依赖视频字幕处理长序列而效率低下。
-
-**主要方法/创新点**
-
-<div align="center">
-  <img src="/images/vln/fsr-vln-system-overview.png" width="100%" />
-<figcaption>
-系统总览：HMSG构建与基于FSR的导航推理流程
-</figcaption>
-</div>
-
-FSR-VLN提出了结合两大核心创新的新型导航系统：
-
-**1. 层次化多模态场景图（HMSG）表示**
-
-HMSG将环境组织为四个层级：
-- **楼层节点（Floor nodes）**：存储楼层标识符、名称、最小/最大高度、PLY点云以及所含房间节点的引用
-- **房间节点（Room nodes）**：包含ID、2D多边形边界、点云、语义属性（名称、CLIP嵌入）以及关联的视图和对象节点链接
-- **视图节点（View nodes）**（新颖贡献）：表示房间内的特定视觉视角，存储CLIP嵌入、VLM生成的描述、相机位姿以及与对象的可见性关系。该层支持使用VLM对图像视图进行推理，同时增强对象级定位能力
-- **对象节点（Object nodes）**：表示离散实例，具有几何属性（3D边界框、点云）、语义嵌入以及与父房间和可见视图的链接
-
-每个节点编码多模态特征，包括几何属性、语义信息和拓扑连接。HMSG使用FAST-LIVO2 SLAM系统提取RGBD数据和位姿来构建，然后进行开放词汇实例映射。GPT-4o从图像视图推断房间名称，系统计算每个对象的平均深度以选择最佳代表视图。
-
-<div align="center">
-  <img src="/images/hmsg-representation.png" width="100%" />
-<figcaption>
-四层HMSG层次结构，每个节点包含多模态特征
-</figcaption>
-</div>
-
-**2. 快慢导航推理（FSR）**
-
-受人类认知双过程理论启发，FSR分三个阶段运行：
-
-**阶段1：基于LLM的用户指令理解**
-- 对于空间指令（如"办公室里的蓝色圆柱形凳子"）：LLM充当层次化概念解析器，将输入分解为楼层、区域和对象组件
-- 对于非空间指令（如"我累了"）：LLM充当目标推理代理，根据用户意图识别最相关的对象或区域
-
-**阶段2：快速匹配（直觉检索）**
-- 在查询文本与HMSG视图层嵌入之间进行基于CLIP的相似度匹配以识别目标视图
-- 并行进行对象级匹配，使用查询文本与对象嵌入之间的CLIP特征
-- 通过层次化特征匹配高效检索候选房间、视图和对象
-
-**阶段3：慢速推理（深思熟虑的精化）**
-- VLM（GPT-4o）验证匹配的对象是否出现在其最佳视图中
-- 如果验证失败，系统会：
-  - 使用LLM对未匹配视图的文本描述进行推理
-  - 比较快速匹配视图与LLM选择的视图
-  - 应用VLM推理确定最终最优目标图像
-  - 通过重新计算与最终视图中对象的CLIP相似度来更新目标对象
-
-<div align="center">
-  <img src="/images/fsr-navigation-reasoning.png" width="100%" />
-<figcaption>
-三阶段FSR流程：LLM指令理解、基于CLIP的快速匹配、基于VLM的慢速推理
-</figcaption>
-</div>
-
-这种多阶段架构无缝集成了高效的特征空间匹配与鲁棒的VLM驱动视觉验证。慢速推理仅在快速直觉失败时激活，大幅减少推理时间的同时提高准确性。
-
-**核心结果/发现**
-
-FSR-VLN在长距离真实室内环境中对87条机器人采集的指令进行评估，涵盖四个不同类别（无需推理、需要推理、小物体、空间目标）：
-
-- **成功率（SR）**：92%（80/87），显著优于基线方法：
-  - 比MobilityVLA（34.5%）高167%
-  - 比OK-Robot（60.9%）高51%
-  - 比HOVSG（51.7%）高77%
-
-- **检索成功率（RSR@Top1）**：在4-5米距离阈值下达到96.6%，在所有距离阈值下始终保持最佳性能
-
-- **响应时间**：使用慢速推理平均5.5秒，仅使用快速匹配平均1.5秒
-  - 与MobilityVLM（30秒）相比响应时间减少82%
-  - 通过仅在快速匹配失败时激活慢速推理，实现高效实时性能
-
-- **HM3D-SEM数据集**：RSR@Top1在1米处达到87%，显著优于HOVSG（52%）和osmAG-LLM（28%）
-
-- **消融实验**：添加空间目标（ST）指令使RSR从72.4%提升到81.6%，结合导航推理（NR）进一步提升到92%，验证了两个组件的有效性
-
-该系统已成功集成到Unitree-G1人形机器人的语音交互、规划和控制模块中，展示了具备自然语言交互能力的真实世界部署能力。
-
-**局限性**
-
-HMSG构建耗时，不适合实时建图。系统假设静态环境，限制了在动态场景中的适用性。未来工作将重点提高场景图构建效率、扩展对动态环境的鲁棒性，以及集成探索性导航能力以处理新颖或模糊的场景。
-
-
----
-
-## 14. VLingNav (2026) {#vlingnav}
-——Embodied Navigation with Adaptive Reasoning and Visual-Assisted Linguistic Memory
-
-📄 **Paper**: [arXiv:2601.08665](https://arxiv.org/abs/2601.08665)
-<div align="center">
-  <img src="/images/vln/VLingNav_architecture.png" width="100%" />
-<figcaption>
-VLingNav 整体架构概述，展示了AdaCoT推理和VLingMem记忆模块。
-</figcaption>
-</div>
-
-**精华**
-
-该论文提出了VLingNav框架，通过自适应链式思考（AdaCoT）和视觉辅助语言记忆（VLingMem）赋予具身智能体认知能力，实现了高效且可解释的具身导航。其核心亮点在于动态推理机制和跨模态记忆，使其在各种具身导航基准测试中达到SOTA性能，并展示了强大的零样本迁移能力和跨任务泛化能力，为资源受限机器人平台上的智能导航提供了启发。
-
-**研究背景/问题**
-
-当前的具身导航VLA模型在复杂、长周期任务中缺乏明确的推理能力和持久性记忆，难以泛化到不同环境和任务变体。现有模型多为被动式系统，缺少自适应推理机制，并且依赖有限的上下文窗口，导致在复杂场景下无法有效规划和避免重复探索。
-
-**主要方法/创新点**
-
-本文提出了VLingNav，一个以语言驱动的VLA框架，旨在通过两个核心组件赋予具身智能体认知能力：
-
-<div align="center">
-  <img src="/images/vln/VLingNav_framework.png" width="100%" />
-<figcaption>
-VLingNav 整体架构。
-</figcaption>
-</div>
-
-1.  **自适应链式思考 (Adaptive Chain-of-Thought, AdaCoT)**：
-受人类双进程理论启发，AdaCoT机制在必要时动态触发显式推理，使智能体能够根据任务复杂性在快速、直观执行和缓慢、深思熟虑的规划之间灵活切换。这解决了现有CoT方法中推理频率固定导致效率低下的问题。
-
-<div align="center">
-  <img src="/images/vln/VLingNav-CoT-labeling-pipeline.png" width="100%" />
-<figcaption>
-VLingNav的自适应CoT标注流程图。
-</figcaption>
-</div>
-
-2.  **视觉辅助语言记忆 (Visual-Assisted Linguistic Memory, VLingMem)**：
-为了处理长周期的空间依赖性，VLingMem构建了一个持久的、跨模态的语义记忆，使智能体能够回忆过去的观察结果，防止重复探索，并推断动态环境中的移动趋势，从而确保在长时间交互中的连贯决策。
-
-
-**训练数据和策略**：
-- **Nav-AdaCoT-2.9M数据集**：构建了目前最大的具身导航数据集，包含推理标注和自适应CoT标注。
-- **在线专家引导强化学习 (Online Expert-guided RL)**：在模仿学习（SFT）之后引入了在线专家引导RL阶段，使模型能够获得更鲁棒、自探索的导航行为，超越监督演示的局限性。
-
-<div align="center">
-  <img src="/images/vln/VLingNav-online-training.png" width="100%" />
-<figcaption>
-在线后训练的混合rollout过程。
-</figcaption>
-</div>
-
-**核心结果/发现**
-- VLingNav在多项具身导航基准测试（如ObjectNav, EVT, ImageNav）上实现了最先进的性能。
-- 在HM3Dv1 ObjectNav上，SR和SPL显著优于Uni-NaVid，展现了强大的探索和记忆能力。
-- 在HM3D OVON上，VLingNav在所有测试拆分中均表现最佳，证明了其强大的跨领域泛化能力。
-- 在EVT-Bench上，VLingNav在单目标跟踪和分心跟踪任务中均达到SOTA性能，尤其在复杂混乱场景中优势明显。
-- 在Image Goal Navigation上，VLingNav的成功率和导航效率显著高于UniGoal，表明其先进的推理和规划能力。
-- 在真实世界机器人平台上实现了零样本迁移，成功执行了未见过的导航任务，展示了强大的真实世界泛化和实用性。
-
-**局限性**
-- 当前模型主要依赖单目自我中心观测，这限制了其感知能力。未来工作可以探索多视角观测以提高导航效率。
-- 模型采用单系统架构，限制了预测频率，可能影响在高度动态环境中的快速决策和障碍物处理。未来可升级为双系统结构以支持高频动作输出。
-- 当前方法仅使用基于MPC的路点控制器，缺乏更灵活的运动模型，未来可集成更多运动能力。
-
-
-
----
-## 15. Slow4fast-VLN (2026) {#slow4fast-vln}
-——General Vision-Language Navigation via Fast-Slow Interactive Reasoning
-
-📄 **Paper**: [arXiv:2601.09111](https://arxiv.org/abs/2601.09111v1) · 🏛️ **CVPR 2026**
-
-### 精华 
-这篇论文的核心借鉴价值在于其提出的动态交互式快慢脑（Fast-Slow Interactive Reasoning）导航框架。它通过模拟人类的“快思考”（直觉决策）和“慢思考”（深度反思），实现导航策略的持续优化。其亮点在于，慢脑系统能够从历史经验中提炼出可泛化的“导航知识”，并用其“赋能”快脑，从而有效提升了智能体在未知环境（OOD场景）中的泛化能力和决策效率，解决了传统方法中快慢系统割裂、经验无法沉淀的问题。
-
-### 1. 研究背景/问题 
-传统的视觉-语言导航（VLN）方法在封闭环境下表现良好，但在面对环境和指令风格多变的开放世界时，其泛化能力严重不足。GSA-VLN任务通过引入多样化的场景和指令，对模型的场景适应性提出了更高要求。当前方法的主要挑战在于如何让智能体在导航过程中动态生成可泛化的策略，以应对前所未见的场景和指令。
-
-### 2. 主要方法/创新点 (Core content, most detailed)
-论文提出了一个名为 **slow4fast-VLN** 的动态交互式快慢推理框架，以应对开放环境下的视觉语言导航挑战。该框架包含快慢两个核心模块：
-
-*   **快推理模块 (Fast Reasoning)**：这是一个端到端的策略网络（基于DUET），负责根据实时的视觉和指令输入，快速生成导航动作。同时，它会记录导航过程中的所有执行记录（如观测、动作、度量等），形成历史记忆（History Repository）。
-
-*   **慢推理模块 (Slow Reasoning)**：该模块是整个框架的核心创新点。它利用大语言模型（LLM）对快推理模块产生的历史记忆进行深度“反思”（Reflection），从中提取出结构化、可泛化的导航经验（Structured Experience），并存入一个经验库（Experience Library）。这些经验包含了场景类型、空间上下文、空间规则、导航策略等关键信息。
-
-*   **快慢交互机制 (Interaction)**：这是区别于以往工作的关键。在导航决策时，快推理模块会从经验库中检索与当前场景最相关的经验，并将这些经验特征与实时视觉特征进行融合（通过Attention机制），从而“赋能”快脑，使其做出更精准、更泛化的决策。这种交互使得慢脑提炼的经验能够持续优化快脑的性能。
-
-*   **指令风格转换 (Instruction Style Conversion)**：为了应对多样的指令风格（如场景化、用户个性化），论文还设计了一个基于LLM的指令转换模块，通过CoT提示工程，将不同风格的指令实时转换为统一的“基础风格”指令，降低了模型对指令变化的敏感度。
-
-<div align="center">
-  <img src="/images/vln/slow4fast-VLN-framework.png" width="100%" />
-<figcaption>
-图1: slow4fast-VLN 框架概览，展示了快慢推理模块如何通过历史记忆和泛化经验进行交互，以适应不同环境。
-</figcaption>
-</div>
-
-<div align="center">
-  <img src="/images/vln/slow4fast-VLN-overview.png" width="100%" />
-<figcaption>
-图2: 方法概览。策略网络（快推理）处理实时输入并存储历史，LLM（慢推理）反思历史并生成经验，这些经验反过来指导策略网络。
-</figcaption>
-</div>
-
-### 3. 核心结果/发现 (Key findings)
-*   **环境适应性**：在GSA-R2R数据集上，使用基础指令进行测试时，slow4fast-VLN在住宅（ID）和非住宅（OOD）场景中的成功率（SR）分别比基线方法GR-DUET提升了1.5%和2.2%，证明了快慢交互框架对于提升场景泛化能力的有效性。
-*   **指令适应性**：在面对用户个性化指令和场景化指令时，该方法同样全面优于基线。例如，在用户指令测试中，其SR和SPL指标在多种角色（如Child, Keith, Moira等）下均达到SOTA水平。这得益于其指令风格转换模块和动态经验反馈循环。
-*   **消融实验**：实验证明，快慢推理（FSR）框架和指令风格转换（ISC）模块都是有效的。当两者协同工作时，模型在最具挑战的Test-N-Scene任务上达到了最佳性能。
-*   **案例研究**：通过可视化导航轨迹，论文展示了在引入慢脑反思后，智能体能够修正初始的错误路径，并基于经验（如“寻找蓝色画作”作为线索）更高效、更准确地完成导航任务，避免了不必要的探索。
-
-<div align="center">
-  <img src="/images/vln/slow4fast-VLN-casestudy.png" width="100%" />
-<figcaption>
-图3: 案例研究。左图为仅使用快推理的轨迹，右图为经过慢推理优化后的轨迹，显示出路径更优，定位更准。
-</figcaption>
-</div>
-
-### 4. 局限性 (Brief, 1-2 sentences)
-论文指出的一个局限是，慢脑推理产生的知识是隐式地编码在策略网络的权重中，这种“黑盒”形式使得学习到的经验难以解释和直接干预。未来的一个研究方向是让慢脑生成显式的、结构化的知识库（如语义地图或知识图谱），以供快脑在导航时直接查询。
-
-
----
-## 16. FantasyVLN (2026) {#fantasyvln}
-———统一多模态Chain-of-Thought推理用于视觉-语言导航
-
-📄 **Paper**: [arXiv:2601.13976](https://arxiv.org/abs/2601.13976)
-
-**精华**
-这篇论文展示了如何通过统一框架整合文本、视觉和多模态CoT推理模式,值得借鉴的点包括:(1) 训练时使用CoT监督、推理时直接预测的隐式推理范式,避免了显式CoT的token膨胀问题;(2) 使用预训练VAR模型将想象的视觉观测压缩到紧凑潜在空间,大幅降低序列长度;(3) 通过跨模态对齐约束统一不同推理模式,学习模态不变的推理表示;(4) 门控机制实现单一模型灵活切换多种推理模式。这种设计在保持推理能力的同时实现了实时导航,为具身智能任务提供了实用的解决方案。
-
-**研究背景/问题**
-现有VLN方法面临关键挑战:纯文本CoT缺乏空间理解且容易过拟合稀疏标注;多模态CoT通过生成想象的视觉观测引入严重的token膨胀,导致推理延迟增加数个数量级,无法实现实时导航。这在长时域、多阶段导航场景中尤为突出。
-
-<div align="center">
-  <img src="/images/vln/FantasyVLN-overview.png" width="100%" />
-<figcaption>
-FantasyVLN系统概览:整合文本和视觉CoT推理模式,联合建模语义规划和空间理解
-</figcaption>
-</div>
-
-**主要方法/创新点**
-
-FantasyVLN提出了统一的隐式推理框架,核心创新包括:
-
-**1. Compact Visual CoT (CompV-CoT)**
-- 使用预训练的Visual AutoRegressor (VAR)模型将想象的视觉观测编码到紧凑潜在空间
-- VAR采用next-scale预测范式,256×256图像仅需30个视觉token即可精确重建,压缩比达1/2185
-- 训练时VLM直接生成VAR潜在表示,推理时无需显式VAR解码,大幅提升效率
-
-**2. 统一多模态CoT (UM-CoT)框架**
-- 通过二元门控信号 gT 和 gV 控制文本和视觉推理的激活
-- 四种推理模式:(a) Non-CoT (gT=0, gV=0) 直接预测动作;(b) T-CoT (gT=1, gV=0) 生成文本推理步骤;(c) V-CoT (gT=0, gV=1) 生成压缩视觉想象;(d) MM-CoT (gT=1, gV=1) 联合生成文本-视觉推理
-- 单一模型共享参数,通过数据混合实现端到端联合训练
-
-<div align="center">
-  <img src="/images/vln/FantasyVLN-architecture.png" width="100%" />
-<figcaption>
-统一多模态CoT推理框架:支持四种推理模式,训练时使用CoT监督,推理时直接动作预测
-</figcaption>
-</div>
-
-**3. 跨模态对齐约束 (Cross-Mode Alignment)**
-- 将Non-CoT模式的动作预测作为软监督信号,对齐所有CoT变体的动作输出
-- 交替优化Non-CoT目标和跨模态对齐的联合目标,嵌入多样化推理模式到统一潜在策略
-- 防止不同推理模式间的冲突,学习一致的模态不变表示
-
-**4. 隐式推理机制**
-- 训练时:联合学习文本、视觉和多模态CoT模式
-- 推理时:采用Non-CoT模式直接指令到动作映射,无需生成显式CoT序列
-- 借鉴Aux-Think的"train-with-CoT, infer-without-CoT"范式,模型隐式保留推理感知表示
-
-**训练细节**
-- 基础模型:Qwen2.5-VL (7B参数)
-- 数据:LH-VLN训练集18,554个导航轨迹切片(每5步一个切片)
-- T-CoT标注:使用Qwen-VL-Max生成,包含语义规划、视觉描述、动作规划和视觉想象四部分
-- 优化:LoRA微调,AdamW优化器,学习率1e-4,64×H20 GPUs,DeepSpeed ZeRO-2
-
-<div align="center">
-  <img src="/images/vln/FantasyVLN-VAR-scale-comparison.png" width="100%" />
-<figcaption>
-不同VAR scale对ISR性能的影响:scale 4达到最佳平衡
-</figcaption>
-</div>
-
-<div align="center">
-  <img src="/images/vln/FantasyVLN-VAR-reconstruction.png" width="100%" />
-<figcaption>
-VAR模型在不同scale下的图像重建质量对比:scale越高,重建质量越好,但token数量也越多
-</figcaption>
-</div>
-
-**核心结果/发现**
-
-**导航精度 (LH-VLN benchmark)**
-- SR (成功率): 2.44% (所有基线中最佳)
-- ISR (独立成功率): 11.01% (显著优于所有方法)
-- CSR (条件成功率): 9.64%
-- CGT (加权CSR): 8.99%
-- 显著超越次优方法Aux-Think (仅T-CoT): SR提升3.75×,ISR提升3.5×
-
-**推理效率**
-- APS (每秒动作数): 1.03,与WorldVLA (1.02)和Aux-Think (0.97)相当
-- 比显式CoT方法CoT-VLA (0.19 APS)快5.4×,推理延迟降低一个数量级
-- 隐式推理每次预测仅解码单个token,而显式CoT需生成3k-5k个token
-
-**训练效率**
-- FantasyVLN在few thousand迭代内快速收敛,token预测准确率达到1.0
-- WorldVLA (像素级V-CoT)需10k+迭代才能达到0.5准确率,且训练不稳定
-- CompV-CoT通过潜在空间推理提供更强梯度信号和更稳定的学习动态
-
-<div align="center">
-  <img src="/images/vln/FantasyVLN-training-efficiency.png" width="100%" />
-<figcaption>
-FantasyVLN与WorldVLA的训练效率对比:CompV-CoT快速收敛,像素级V-CoT训练缓慢且不稳定
-</figcaption>
-</div>
-
-**消融实验**
-- 各推理模式贡献:结合任何CoT模式与Non-CoT都能提升性能,四模式联合训练效果最佳
-- VAR scale选择:scale 4最优(ISR 7.41%),更小scale信息不足,更大scale冗余
-- 跨模态对齐:关键组件,移除后SR从2.44%降至0,ISR从11.01%降至2.39%
-- 显式vs隐式推理:隐式推理在多模态设置下表现最佳(MM-CoT隐式:SR 2.44 vs 显式0.98)
-
-**局限性**
-该方法在LH-VLN这种小规模数据集(18k轨迹切片)上训练,显式CoT容易过拟合并产生累积误差;在更大规模数据集上的表现有待验证。此外,绝对成功率仍较低(SR 2.44%),表明长时域多阶段导航仍是极具挑战性的任务。
-
-
----
 ## 17. VL-Nav (2025) {#vl-nav}
 ——实时零样本 Vision-Language 导航系统，融合像素级视觉-语言特征与启发式空间推理
 
@@ -1877,6 +2126,14 @@ VL-Nav 在四个真实世界环境（Hallway、Office、Apartment、Outdoor）�
 系统在处理包含隐藏对象引用和特定文本注释的复杂语言描述时存在困难。此外，系统依赖于手动定义的阈值（如光照条件等），这些阈值可能无法在不同环境和场景中很好地泛化，需要进一步研究自适应或基于学习的阈值调整方法。
 
 ---
+
+
+
+
+
+
+
+
 ## 18. StreamVLN (2025) {#streamvln}
 
 ——— 通过慢-快上下文建模实现流式视觉-语言导航
@@ -1998,6 +2255,14 @@ KV cache 复用对多轮对话解码延迟的影响：全轮次 KV cache 保持�
 ---
 
 
+
+
+
+
+
+
+
+
 ## 19. NavFoM (2025) {#navfom}
 ——Embodied Navigation Foundation Model
 
@@ -2101,137 +2366,15 @@ NavFoM 基于 Vision-Language Model 架构,扩展为双分支系统:一个用于
 
 
 ---
-## 20. DGNav (2026) {#dgnav}
-———动态拓扑感知：打破视觉-语言导航中的粒度刚性
 
-📄 **Paper**: [arXiv:2601.21751](https://arxiv.org/abs/2601.21751)
 
-### 精华
 
-这篇论文解决了 VLN-CE 中的"粒度刚性"问题，值得借鉴的核心思想：
 
-1. **自适应结构调整**：不仅调整模型参数，还动态调整数据结构本身（拓扑图的节点密度），实现"简单场景保效率、复杂场景保安全"的自适应平衡，这一思路可迁移到其他需要精度/效率权衡的规划任务（如 SLAM、点云处理）。
-2. **条件干预设计**：引入"稳定性门槛"（中位数离散度 σ_med），只在高不确定性场景触发动态调整，而非全局自适应，有效避免了在简单场景引入不必要的噪声——这是一种极具工程实用性的设计思想。
-3. **多模态软硬约束融合**：将几何硬约束（物理可达性）与视觉语义和语言指令软约束通过可学习权重动态融合，使图连接从"物理近邻关系"升级为"语义近邻关系"，为多约束优化提供了优雅解法。
-4. **线性映射的理论优越性**：基于信息论论证了线性映射是保持最大熵属性的最优一阶近似，既优于 Sigmoid 的梯度饱和，又优于 Exponential 的保守偏差——理论驱动设计的典范。
-5. **结构与训练解耦**：Scene-Aware Adaptive Strategy 仅在推理阶段激活，训练阶段使用固定阈值，实现了稳定的特征学习与灵活的测试时推理之间的解耦。
 
----
 
-### 1. 研究背景/问题
 
-VLN-CE（连续环境中的视觉-语言导航）中，现有拓扑规划方法（如 ETPNav）依赖固定的图构建阈值 γ 和静态欧式距离边权重，导致"粒度刚性"问题：在简单低不确定性区域产生大量冗余节点，在复杂高不确定性区域图过于稀疏导致导航失败。更严重的是，纯几何边权重使智能体优先连接物理距离近但语义无关的节点（"导航性近视" Navigational Myopia），无法遵从指令中的语义意图。
 
-**主要方法/创新点**
-
-论文提出 **DGNav (Dynamic Graph Navigation)** 框架，包含两大核心模块：
-
-<div align="center">
-  <img src="/images/vln/DGNav-overall-framework.png" width="100%" />
-<!-- RENAME: figure_01.png -> DGNav-overall-framework.png -->
-<figcaption>
-DGNav 整体框架。根据估计的场景复杂度 σ 动态调整导航策略：高复杂度场景构建更密集的拓扑图，简单环境则采用更稀疏的表示。图合并阈值 γ 控制图粒度，与 σ 呈反相关，实现导航安全性与效率的自适应权衡。
-</figcaption>
-</div>
-
-**1. 场景感知自适应策略 (Scene-Aware Adaptive Strategy)**
-
-针对物理结构层面的粒度刚性问题，提出动态调整图构建阈值的方法：
-
-- **场景复杂度度量**：通过分析预测路径点的角度离散度 (angular dispersion) σ 来量化局部场景复杂度：
-  ```
-  σ_t = sqrt(1/N_c * Σ(θ_i - θ̄)²)
-  ```
-  其中 θ_i 是候选节点相对于智能体朝向的角度。高 σ 表示复杂决策边界（如交叉路口），低 σ 表示简单几何结构（如走廊）。
-
-- **条件线性映射控制律**：基于统计校准的高斯分布特性，采用线性映射动态调整合并阈值 γ：
-  ```
-  γ_t = γ_fix                                        if σ_t ≤ σ_med
-  γ_t = γ_fix - (σ_t - σ_med)/(σ_max - σ_med) * (γ_fix - γ_min)   if σ_t > σ_med
-  ```
-  
-<div align="center">
-  <img src="/images/DGNav-adaptive-strategy.png" width="100%" />
-<!-- RENAME: figure_02.png -> DGNav-adaptive-strategy.png -->
-<figcaption>
-场景感知自适应策略示意图。从深度图生成候选路径点后，根据候选节点的角度离散度 (σ) 动态调整合并阈值 γ。在简单环境中 (低 σ)，较大的 γ 产生稀疏图以提升效率；在复杂环境中 (高 σ)，较小的 γ 产生密集图以确保安全。
-</figcaption>
-</div>
-
-- **理论依据**：选择线性映射而非 Sigmoid/指数映射的原因是线性变换保持高斯源分布的最大熵特性。非线性映射会在分布尾部引入饱和区域（梯度消失），导致高不确定状态的信息丢失。条件映射策略仅在 σ > σ_med 时激活自适应机制，在稳定场景中保持拓扑稳定性。
-
-**2. 动态图 Transformer (Dynamic Graph Transformer)**
-
-针对语义逻辑层面的导航近视问题，融合多模态线索动态重构图连接性：
-
-<div align="center">
-  <img src="/images/DGNav-dynamic-edge-fusion.png" width="100%" />
-<!-- RENAME: figure_03.png -> DGNav-dynamic-edge-fusion.png -->
-<figcaption>
-多模态编码和动态边融合架构。视觉编码器和指令编码器分别提取节点特征 (V) 和词特征 (W)。动态边融合模块通过融合几何地图 (E_geo)、成对视觉相似度 (E_sem) 和指令相关性 (E_inst) 构建图连接性。生成的动态邻接矩阵 E_dynamic 指导 Graph Transformer 执行上下文感知的路径规划。
-</figcaption>
-</div>
-
-#### 1.Scene-Aware Adaptive Strategy（场景感知自适应策略）
-
-通过计算当前时刻候选节点的**角度离散度** $\sigma_t$ 来量化场景复杂度：
-
-$$\sigma_t = \sqrt{\frac{1}{N_c} \sum_{i=1}^{N_c} (\theta_i - \bar{\theta})^2}$$
-
-基于 $\sigma_t$，采用**条件线性映射**动态调整图合并阈值 $\gamma_t$：
-
-$$\gamma_t = \begin{cases} \gamma_{fix} & \text{if } \sigma_t \leq \sigma_{med} \\ \gamma_{fix} - \dfrac{\sigma_t - \sigma_{med}}{\sigma_{max} - \sigma_{med}}(\gamma_{fix} - \gamma_{min}) & \text{if } \sigma_t > \sigma_{med} \end{cases}$$
-
-- 简单场景（$\sigma_t \leq \sigma_{med}$）：$\gamma_t = \gamma_{fix} = 0.5\text{m}$，保持稀疏效率
-- 复杂场景（$\sigma_t > \sigma_{med}$）：线性降低 $\gamma_t$（最低至 $\gamma_{min} = 0.1\text{m}$），生成密集拓扑
-
-$\sigma_{med}$ 和 $\sigma_{max}$ 通过在 ETPNav 基线模型上统计推断得到（数据驱动校准），线性函数的选择基于信息论证明其是保最大熵的最优一阶近似。
-
-#### 2.Dynamic Graph Transformer（动态图 Transformer）
-
-**Dynamic Edge Fusion**：融合三种信息流构造动态邻接矩阵：
-
-$$\mathbf{E}_{dynamic} = \mathbf{E}_{geo} + \omega_1 \cdot \mathbf{E}_{sem} + \omega_2 \cdot \mathbf{E}_{inst}$$
-
-- $\mathbf{E}_{geo}$：归一化欧式距离（物理可达性硬约束）
-- $\mathbf{E}_{sem}$：CLIP-ViT 提取的视觉特征通过 MLP 计算的成对相似度
-- $\mathbf{E}_{inst}$：节点特征与全局指令 token $\mathbf{W}_L$ 的外积相关性分数，即 $w_i = \text{MLP}([v_i; \mathbf{W}_L])$，$E_{inst}^{(i,j)} = w_i \cdot w_j$
-
-**Graph-Aware Self-Attention (GASA)**：
-
-$$\text{GASA}(\mathbf{H}^l, \mathbf{E}_{dynamic}) = \text{Softmax}\!\left(\frac{(\mathbf{H}^l \mathbf{W}_Q)(\mathbf{H}^l \mathbf{W}_K)^\top}{\sqrt{d_k}} + \mathbf{E}_{dynamic}\right)\!(\mathbf{H}^l \mathbf{W}_V)$$
-
-将 $\mathbf{E}_{dynamic}$ 直接叠加到注意力分数上，强制模型关注语义相关（$\omega_1 \cdot \mathbf{E}_{sem}$）且指令对齐（$\omega_2 \cdot \mathbf{E}_{inst}$）的节点，同时 $\mathbf{E}_{geo}$ 保证物理约束不被完全忽略，实现从纯几何到语义驱动的平滑过渡。
-
-**训练策略**：采用两阶段训练，Adaptive Strategy 仅在推理阶段激活，训练阶段固定 $\gamma = 0.5\text{m}$ 确保稳定的特征学习。
-
----
-
-### 3. 核心结果/发现
-
-**R2R-CE 数据集**：
-- Val-Unseen：SR **64.82%**，SPL **50.08%**，超越 ETPNav 基线（+4.66% SR，+2.21% SPL）
-- Test-Unseen：SR 64%（+1% vs ETPNav），SPL 47%，NE 下降 0.2m
-- 超越所有 End-to-End 方法和显式地图方法（含 GridMM, Safe-VLN, OVL-MAP）
-
-**RxR-CE 数据集**（多语言，更长路径）：
-- Val-Unseen：SR **53.78%**，nDTW **62.04%**（+0.55%），SDTW **44.49%**（+0.57%）
-- 路径保真度指标全面超越 ETPNav，证明在长时域细粒度指令遵从上的优越性
-
-**消融实验关键发现**：
-- 条件线性映射 vs 全局线性映射：SR +1.52%（稳定性门槛机制的贡献）
-- 动态 $\gamma$ vs 固定 $\gamma$（0.25/0.40/0.50m）：SR 最高提升 +1.63%，且计算开销仅增加 0.4 个节点
-- 完整 $\mathbf{E}_{dynamic}$ vs 仅几何：SR 大幅提升，验证语义软约束的关键作用
-- 定性分析（Fig.9）：在"绕过木质围栏"场景中，仅几何模型因物理距离过近而提前错误转向，DGNav 正确识别指令语义并忽略了几何干扰，成功到达目标
-
----
-
-### 4. 局限性
-
-自适应策略的核心参数（$\gamma_{fix}, \gamma_{min}, \sigma_{med}, \sigma_{max}$）通过在 R2R-CE 训练集上进行统计校准获得，在分布外场景（如户外环境、高度动态场景）中的泛化能力尚未验证；同时，随着导航轨迹增长，拓扑图规模持续膨胀，论文未讨论图压缩和历史节点管理策略，在超长路径任务中可能面临内存和计算的挑战。
-
----
-## 21. MapNav (2025) {#mapnav}
+## 20. MapNav (2025) {#mapnav}
 ———A Novel Memory Representation via Annotated Semantic Maps for Vision-and-Language Navigation
 
 📄 **Paper**: [arXiv:2502.13451](https://arxiv.org/abs/2502.13451) · 🏛️ **ACL 2025**
@@ -2362,282 +2505,15 @@ VLM 直接输出自然语言动作，通过正则表达式匹配解析为 {前�
 
 ---
 
-## 22. Hydra-Nav (2026) {#hydra-nav}
-——Object Navigation via Adaptive Dual-Process Reasoning
 
-📄 **Paper**: [arXiv:2602.09972](https://arxiv.org/abs/2602.09972)
 
----
 
-**精华**
 
-Hydra-Nav 最值得借鉴的核心思想是：将"慢思考"（CoT 推理）与"快行动"（低级反应控制）统一在**单个 VLM** 内，避免了多模型架构的碎片化问题。其关键创新在于通过 **Iterative Rejection Fine-Tuning (IRFT)** 让模型自主学习"何时触发推理"，而非固定频率触发，从而在成功率与推理开销之间取得最优平衡。三阶段课程训练（空间-动作对齐 → 记忆-推理集成 → 自适应推理）的渐进式设计，为构建具身导航智能体提供了可复用的训练范式。新提出的 SOT 指标（Success weighted by Operation Time）将推理延迟纳入评估，比 SPL 更贴近实际部署需求，值得在其他具身任务中推广使用。
 
----
 
-**研究背景/问题**
 
-Object goal navigation 要求机器人仅凭自我中心感知在真实环境中主动探索并定位目标物体。当前 VLM-based 方法存在两大核心缺陷：（1）时空推理能力不足，导致对已探索区域的记忆维护失效，引发重复探索；（2）在每步推理（chain-of-thought）的做法带来大量不必要的计算开销，而在关键"停滞点"又未能及时触发推理。现有双系统架构（slow-fast paradigm）依赖独立模型，存在架构割裂和切换灵活性不足的问题。
 
----
-
-**主要方法/创新点**
-
-Hydra-Nav 将高层规划与低层元动作统一在**单一 VLM**（基于 Qwen2.5-VL-7B）内，通过输出特殊 transition token `obs` 自主触发从快系统到慢系统的切换。
-
-<div align="center">
-  <img src="/images/vln/Hydra-Nav-architecture.png" width="100%" />
-<figcaption>
-Hydra-Nav 整体架构：慢系统负责全局时空推理与高层规划，快系统负责低级元动作的高效执行，通过特殊 token obs 自适应切换。
-</figcaption>
-</div>
-
-**双过程系统（Dual-process System）**
-
-- **慢系统（Slow system）**：接收目标指令、当前全景观测（4 张 90° 间隔 RGB 图）和结构化长期记忆，生成 CoT 推理文本与高层计划，随后输出第一个元动作。
-- **快系统（Fast system）**：基于上一慢系统的对话历史，利用 KV-caching 仅编码最新自我中心帧，自回归解码低级原子动作（MoveAhead 0.25m、TurnLeft/Right 30°），避免重复处理完整历史上下文。
-- **自适应切换机制**：当智能体完成子目标或当前观测与现有计划矛盾时，输出 `obs` 触发全景扫描，构建新的地标节点并更新长期记忆，随后重新进入慢系统。
-
-<div align="center">
-  <img src="/images/vln/Hydra-Nav-context-organization.png" width="100%" />
-<figcaption>
-推理期间的上下文组织方式：短期记忆为交错图像-动作对，遇到 obs token 时更新记忆并清空短期上下文。
-</figcaption>
-</div>
-
-**三阶段课程训练（Curriculum Training Pipeline）**
-
-**Stage 1 — 空间-动作对齐（Spatial-Action Alignment）**
-
-使用 A* planner 在 HM3D、MP3D、OVON 训练集上生成 **500K 条轨迹**（20.1B tokens），训练 Qwen2.5-VL-7B 学习基本导航动作执行。每条轨迹格式化为多轮对话，通过单次前向-反向传播完成梯度计算。
-
-**Stage 2 — 推理-记忆集成（Reasoning-Memory Integration）**
-
-<div align="center">
-  <img src="/images/vln/Hydra-Nav-data-synthesis.png" width="100%" />
-<figcaption>
-Stage 2 数据合成流程：左侧为启发式路点选择的轨迹生成策略，右侧为用 Qwen3-VL-235B-Thinking 合成高质量推理文本的流程。
-</figcaption>
-</div>
-
-- 使用启发式路点选择策略生成包含探索行为的轨迹（而非仅最短路径），每条轨迹选取分数最高的两个探索路点。
-- 将轨迹分段（固定长度 16 步），在每段开头插入长期记忆和推理文本，段尾插入 `obs` token。
-- 推理文本合成：先用 Qwen3-VL-235B-Thinking 对历史图像进行记忆摘要，再结合当前视图与"未来正确视图"（信息泄漏防止）生成前瞻性规划文本。
-- 共生成 **565K 条混合样本（8.3B tokens）**，同时混入 VQA 数据防止过拟合。
-
-**Stage 3 — 自适应推理（Adaptive Reasoning via IRFT）**
-
-定义两类**停滞点（Stagnation Points）**：
-1. **重复探索**：智能体在过去 $T_{stag}=20$ 步内回到距离 $\delta_{stag}=0.5$m 内的位置。
-2. **缺乏进展**：在随机时间窗口 $\Delta t \sim \mathcal{U}(20,35)$ 内到目标距离未缩短。
-
-IRFT 流程：在快系统模式下运行，于停滞点触发慢系统；对失败轨迹（超时或目标误识别）进行"拒绝-修复"——找到干预时间戳 $t^*$，用 A* 最优路径替换后续轨迹，重新合成修正段的推理文本；使用最新 checkpoint 迭代执行，每轮生成约 60K 条轨迹（4.5B tokens）。
-
----
-
-**核心结果/发现**
-
-<div align="center">
-  <img src="/images/vln/Hydra-Nav-performance-irft.png" width="100%" />
-<figcaption>
-多轮 IRFT 训练过程中 SR 和 SOT 在 HM3D、MP3D、OVON Val-Unseen 上的提升曲线。
-</figcaption>
-</div>
-
-**与 SOTA 对比（Table 2）：**
-
-| Benchmark | 指标 | Hydra-Nav-IRFT | 第二名 | 提升 |
-|-----------|------|----------------|--------|------|
-| HM3D Val  | SR   | **84.8%**      | 73.7%  | +11.1% |
-| MP3D Val  | SR   | **64.0%**      | 46.6%  | +17.4% |
-| OVON Val-Unseen | SR | **66.3%** | 45.2%  | +21.1% |
-
-**SOT 指标分析（Table 5）：**
-
-- Hydra-Nav-IRFT 推理触发比例仅 **3.0%**（HM3D），而 VLMnav/Nav-R²/WMNav 均为 100%。
-- SOT 得分：Hydra-Nav-IRFT **24.0**（HM3D）vs Nav-R² 1.9（最高 SR 竞争者），提升约 12×。
-- 说明频繁推理虽提高 SR，但严重拖累效率；自适应推理是实际部署的关键。
-
-**消融实验关键发现：**
-- 记忆模块对 SPL 提升显著（无记忆 SPL=13.9 vs 有记忆 28.8），说明长期空间记忆是路径效率的核心。
-- 探索性轨迹数据 vs 最短路径数据：SR 下降 25.4%（HM3D），说明探索能力对高成功率不可或缺。
-- Co-training with VQA 防止导航专有数据过拟合，维持泛化性（SR: 69.1→72.9，HM3D）。
-
-<div align="center">
-  <img src="/images/vln/Hydra-Nav-realworld-demo.png" width="100%" />
-<figcaption>
-真实世界导航演示：机器人成功定位 Box、Trash Can、Oven，零样本迁移无需真实环境微调。
-</figcaption>
-</div>
-
----
-
-**局限性**
-
-评估仅在 Habitat 模拟器（HM3D/MP3D/OVON）中进行，缺乏在 Isaac Sim 等更高保真度仿真环境中的验证；当前框架专为 object navigation 设计，向移动操作等更复杂具身任务的扩展有待探索。
-
-
----
-
-
-## 23. 3DGSNav (2026) {#3dgsnav}
-———用主动 3DGS 记忆增强 VLM 空间推理，实现零样本目标导航
-
-📄 **Paper**: [arXiv:2602.12159](https://arxiv.org/abs/2602.12159)
-
----
-
-### 精华
-
-3DGSNav 最值得借鉴的核心思想：
-1. **将 3DGS 作为持久记忆**替代语义地图/文字描述，让 VLM 直接"看"到几何连续的场景，而非依赖中间抽象层，从而释放 VLM 本身的视觉空间推理能力。
-2. **主动感知（Active Perception）+ 自由视角优化**：代理不被动旋转扫描，而是通过不透明度场（opacity field）主动定位视觉盲区，再利用 3DGS Novel View Synthesis 渲染最优视角——这种"按需生成观测"的模式可推广到其他需要视角控制的具身任务。
-3. **结构化视觉提示（Structured Visual Prompts）+ CoT 融合**：在渲染图像上叠加注释（gaze point、未探索区域标注），配合 Chain-of-Thought，让 VLM 的长程规划推理能力得到充分激活，无需额外训练。
-4. **实时检测 + VLM 重验证（Re-verification）**：先用轻量检测器初筛候选目标，再用 VLM 主动切换视角确认——分两阶段解耦效率与可靠性，是目标确认模块的通用设计范式。
-
----
-
-### 研究背景/问题
-
-现有零样本目标导航（ZSON）方法通常将环境转换为语义地图或文字描述，导致高层决策被低层感知精度所制约，VLM 的视觉空间推理能力无法充分发挥。如何让 VLM 直接基于高质量视觉观测进行空间推理，而非依赖降维后的语义抽象，是本文解决的核心问题。
-
----
-div align="center">
-  <img src="/images/vln/3DGSNav-architecture.png" width="100%" />
-<figcaption>
-3DGSNav 整体架构：该系统通过主动感知，利用机器人位姿和 RGB-D 观测数据构建面向导航的环境表示。自由视角优化与结构化视觉提示引导基于 VLM（视觉语言模型）的零样本导航规划，而在线物体检测与视角重验证技术则实现了高效的目标定位。
-</figcaption>
-</div>
-
-### 主要方法/创新点
-
-3DGSNav 是一个基于 3D Gaussian Splatting 的 ZSON 框架，核心由三个模块组成：
-
-### 1. 主动感知（Active Perception）模块
-- 使用虚拟相机渲染全景不透明度场（panoramic opacity field），定量估计当前观测完整性
-- 利用 **DBSCAN** 聚类低不透明度区域，识别视觉盲区，计算最优俯仰角 θ* 和偏航角 ϕ*，驱动真实相机主动补偿缺失视角
-- 避免机械旋转带来的定位误差与冗余观测
-
-### 2. 自由视角规划（Free-Viewpoint Planning）模块
-- **前沿点提取与聚类**：在 3DGS 空间构建探索地图，提取 frontier points（已探索与未探索边界），通过距离场 + 分水岭分割（watershed segmentation）自适应聚类冗余前沿点，选代表性点降低 VLM 分析开销
-- **引导轨迹（Guidance Trajectory）**：基于 Dijkstra + 指数惩罚障碍物距离的代价函数，为每个前沿点生成安全路径，作为自由视角优化的参考基准
-- **虚拟视角初始化**：利用轨迹曲率 κ 和距离 d 加权得分选最优初始位置，确保既不过近（优化不稳定）也不过远（信息量低）
-- **多约束视角优化**：最小化复合损失函数 ℒ = λ_opa·ℒ_opa + λ_vis·ℒ_vis + λ_cos·ℒ_cos + λ_traj·ℒ_traj，包含：
-  - **Opacity Loss**：控制可见/不可见区域比例
-  - **Ray Occlusion Loss**：确保虚拟相机视线直达前沿点（无遮挡）
-  - **Cosine Loss**：约束视角方向与前沿点方向一致
-  - **Trajectory Loss**：约束相机位置在轨迹附近
-
-### 3. 结构化视觉提示 + VLM 推理
-- 渲染 Bird's-Eye View（BEV）+ 多个前沿点的 First-Person Views（FPVs）
-- 在图像上叠加结构化注释：注视点（gaze point）、未观测区域表示（unobserved region）
-- 配合 **Chain-of-Thought（CoT）提示**，驱动 planner VLM（Gemini 3）对候选前沿点进行空间语义推理，选择最优探索目标
-
-### 4. 实时检测 + VLM 主动重验证（Re-verification）
-- 导航过程中使用轻量实时检测器（**YOLOE**）初步筛选候选目标
-- 当检测置信度不足时，action-decision VLM（**GLM-4.1V-Thinking**）主动切换视角——将所选动作投影回 3DGS 渲染新视角，获取更具判别力的观测，完成目标二次确认
-- 有效降低漏检率和误停率
-
----
-
-### 核心结果/发现
-
-div align="center">
-  <img src="/images/vln/3DGSNav-comparison.png" width="100%" />
-<figcaption>
- Gemini3-Pro 与 Qwen3-235b-Thinking 在 ZSON 任务中的自我解释对比：
-</figcaption>
-</div>
-
-- 在 **HM3D**、**MP3D**、**Gibson** 等多个 ObjectNav 标准 benchmark 上取得 SOTA 或竞争性性能
-- 消融实验验证：自由视角优化、结构化注释、CoT、Re-verification 模块均对最终 Success Rate 有显著贡献
-- 不同 VLM（Gemini 3、GPT-4V、GLM-4.1V 等）可灵活替换，框架具备良好兼容性
-- 在四足机器人真实环境实验中成功复现（定位厕所等目标），验证了 sim-to-real 迁移能力
-- Runtime 分析显示主动感知显著优于被动旋转扫描，探索效率更高
-
----
-
-### 局限性
-
-3DGS 的在线增量重建和自由视角优化带来一定计算开销，在计算资源受限的嵌入式平台上实时性仍有挑战；此外，真实场景的动态物体、运动模糊和视觉感知噪声会影响 3DGS 质量，进而影响导航可靠性。
-
----
-## 24. BudVLN (2026) {#budvln}
-———Nipping the Drift in the Bud: Retrospective Rectification for Robust Vision-Language Navigation
-
-📄 **Paper**: [arXiv:2602.06356](https://arxiv.org/abs/2602.06356)
-
-### 精华
-
-1. **核心思想**：通过“回顾式纠偏”（Retrospective Rectification）解决 Vision-Language Navigation (VLN) 中的指令-状态不一致问题。
-2. **训练范式**：引入了 **Adaptive Mutual Exclusion Strategy**，将样本动态分流为效率路径和鲁棒性路径，实现了精准训练。
-3. **纠偏机制**：利用“回锚”机制合成语义一致的修正轨迹，避免了传统方法中强制回归导致的语义冲突。
-4. **极致效率**：采用 GRPO 算法（借鉴自 DeepSeek-R1），无需价值网络，训练成本仅为传统 DAgger 的约 25%。
-5. **性能卓越**：在 R2R-CE 和 RxR-CE 基准测试上刷新 SOTA，尤其在处理偏差和鲁棒性方面表现突出。
-
----
-
-### 1. 研究背景/问题
-
-当前的视觉-语言导航（VLN）系统面临严重的**曝光偏差（Exposure Bias）**问题：推理时的细微偏差会导致严重的累积误差。虽然 DAgger 类方法尝试通过纠正错误状态来缓解这一问题，但论文指出这些方法存在**指令-状态不一致（Instruction-State Misalignment）**的致命局限。如图 1 所示，强制智能体从离群状态回归往往会生成与其原始语言指令相冲突的监督信号（例如：指令要求直行，但为回归正轨必须掉头），这会损害智能体的指令遵循能力。
-
-<div align="center">
-  <img src="/images/vln/BudVLN-misalignment-illustration.png" width="100%" />
-<figcaption>
-图 1：指令-状态不一致现象的图示，展示了传统 DAgger 如何产生语义冲突的监督。
-</figcaption>
-</div>
-
----
-
-### 2. 主要方法/创新点
-
-论文提出了 **BudVLN**，一个旨在通过统一的在线回顾式纠偏框架解决上述挑战的系统。
-
-#### Adaptive Mutual Exclusion Strategy (自适应互斥策略)
-BudVLN 并不对所有样本一视同仁，而是采用一种自适应策略进行动态路由：
-- **Proficiency Pathway (效率路径)**：通过 Greedy Probe 评估。若智能体已能熟练完成任务，则利用 **GRPO (Group Relative Policy Optimization)** 进行组内相对优势学习，进一步优化路径效率。
-- **Rectification Pathway (纠偏路径)**：若智能体在任务中失败，则触发**回顾式纠偏**。
-
-<div align="center">
-  <img src="/images/vln/BudVLN-framework-overview.png" width="100%" />
-<figcaption>
-图 2：BudVLN 训练框架概览，展示了 GRPO 路径与回顾式纠偏（SFT）路径的动态分流。
-</figcaption>
-</div>
-
-#### Retrospective Rectification (回顾式纠偏)
-针对失败样本，BudVLN 执行以下操作：
-1. **回锚（Anchor Identification）**：将状态回溯到发生偏差前的最后一个有效路径点（Valid Anchor）。
-2. **语义一致性合成**：利用 Oracle 合成从该锚点出发的正确轨迹，以此作为 SFT 的监督信号。
-这种方法确保了监督信号与原始指令的语义一致性，彻底解决了 DAgger 的语义冲突问题。
-
-#### GRPO 优化
-受到大规模推理模型成功的启发，BudVLN 引入了 GRPO 算法。它通过在一个采样组内计算相对优势，摆脱了对昂贵价值网络（Value Network）的依赖，极大地降低了计算开销，同时提升了探索效率。
-
----
-
-### 3. 核心结果/发现
-
-- **SOTA 性能**：在 R2R-CE 和 RxR-CE 两个主流基准测试中，BudVLN 全面超越了现有模型。在 R2R-CE 上，成功率 (SR) 达到 **57.6%**，SPL 达到 **51.1%**。
-- **训练效率**：得益于 GRPO 算法和高效的纠偏机制，BudVLN 仅需 **27 GPU 小时** 即可完成训练，相比 DAgger 的 114 小时，效率提升了近 4 倍。
-- **消融研究**：实验证明，单独添加纠偏机制能显著提升 SR，而 GRPO 算法则对 SPL 的提升和训练效率的优化起到了关键作用。
-
-<div align="center">
-  <img src="/images/vln/BudVLN-main-results.png" width="100%" />
-<figcaption>
-表 1：BudVLN 与现有 VLN 模型在 R2R-CE 和 RxR-CE 测试集上的性能对比。
-</figcaption>
-</div>
-
----
-
-### 4. 局限性
-
-虽然 BudVLN 在离散和连续环境中均表现出色，但其鲁棒性目前仍受限于预定义 Oracle 的质量。在极度复杂的极端环境下，如何自主生成更高质量的“回顾性”知识仍是未来研究的方向。
-
----
-## 25. Open-Nav (2025) {#open-nav}
+## 21. Open-Nav (2025) {#open-nav}
 ———Zero-Shot VLN in Continuous Environment with Open-Source LLMs
 
 📄 **Paper**: [arXiv:2409.18794](https://arxiv.org/abs/2409.18794) · 🏛️ **ICRA 2025**
@@ -2755,279 +2631,15 @@ Open-Nav 在真实环境中的导航过程可视化，右侧显示 LLM Navigator
 
 ---
 
-## 26. CausalNav (2026) {#causalnav}
-———First Scene Graph-based Semantic Navigation for Dynamic Outdoor Environments
 
-📄 **Paper**: [arXiv:2601.01872](https://arxiv.org/abs/2601.01872) · 🏛️ **IEEE RA-L**
 
-### 精华
 
-CausalNav 的核心亮点在于将多层级场景图（Embodied Graph）与 RAG 机制深度结合，实现了支持开放词汇查询的长程语义导航——"图即知识库"的设计范式值得借鉴。其次，层次化 Embodied Graph 构建策略（从细粒度对象节点到粗粒度建筑物与聚类节点）展示了如何在多空间尺度上统一语义表示与检索。第三，基于时空走廊（Spatial-Temporal Corridor）的动态对象过滤机制，无需额外标注即可区分静态、准静态与动态障碍物，是处理室外动态场景的实用方案。第四，使用本地开源 LLM 替代商业 API 完成层次语义检索，证明了在自主平台上脱离云端仍可实现高质量语义推理。
 
----
 
-### 1. 研究背景/问题
 
-室外大规模动态环境中的自主语义导航面临三大挑战：开放词汇的语义理解、动态环境适应（行人、车辆等移动障碍物）以及长期稳定性。现有 VLN 研究主要聚焦于静态室内场景，依赖高精度地图或大规模训练数据，在真实室外动态场景中的长程导航鲁棒性未得到充分验证。
 
----
 
-### 2. 主要方法/创新点
-
-<div align="center">
-  <img src="/images/vln/CausalNav-overview.png" width="100%" />
-<figcaption>
-CausalNav 整体工作流：集成语义推理、动态环境适应和 Embodied Graph 规划三大模块
-</figcaption>
-</div>
-
-CausalNav 提出了一个由三个核心模块构成的语义导航框架：
-
-**模块一：开放词汇目标跟踪与自我运动估计**
-
-使用 YOLO-World 从 RGB 图像中提取开放词汇的 2D 检测框和分割掩码，通过 ByteTrack 进行多目标跟踪。结合 LiDAR 点云将 2D 检测投影至 3D 空间，获得目标的 3D 姿态 $^w\mathbf{T}_{obj}$。自车运动通过 LiDAR-IMU 里程计（FAST-LIO2）估计，提供精确的定位与坐标变换基础。
-
-**模块二：动态对象过滤与 Embodied Graph 构建**
-
-<div align="center">
-  <img src="/images/vln/CausalNav-architecture.png" width="100%" />
-<figcaption>
-CausalNav 三模块流水线架构：目标跟踪与自我运动估计 → 动态过滤与图构建 → 图更新与自然语言导航
-</figcaption>
-</div>
-
-- **时空走廊过滤**：将每个目标的历史轨迹编码为时空走廊 $\mathcal{T} = \{^w\mathbf{T}^n_{obj}, \text{3DBBox}_i, t_i\}_{i=1}^n$。若目标在 $k$ 步内位移超过阈值，则认定为动态目标并从图中移除，有效消除运动引起的虚假节点。
-
-- **Embodied Graph 层次构建**：静态环境由两类节点组成——建筑物节点 $\nu_i^{build}$ 来自离线地图，对象节点 $\nu_i^{obj}$ 来自实时感知。使用 LLM 对节点进行层次聚类（spatial-semantic similarity），形成多级抽象：对象层（Level $L-1$）→ 建筑物/Place 层（Level $L$）→ 聚类节点（Clustering Node）。每次自车移动超过距离阈值 $d$，新增自车节点 $\nu_i^l$ 记录历史轨迹。
-
-- **RAG 语义检索**：基于 LLM 打分的层次化检索，结合空间相似性 $\kappa^{spatial}$ 和语义相似性 $\kappa^{semantic}$，在图中逐层选择最匹配查询的节点路径，支持开放词汇目标定位。
-
-**模块三：Embodied Graph 动态更新与自然语言导航**
-
-<div align="center">
-  <img src="/images/vln/CausalNav-embodied-graph.png" width="100%" />
-<figcaption>
-仿真环境中构建的 Embodied Graph：粗粒度建筑物节点与细粒度对象节点（消火栓、邮箱等）的多层次融合
-</figcaption>
-</div>
-
-- **全局规划**：解析自然语言指令，通过 RAG 检索 Embodied Graph 推断目标位置，优先使用历史轨迹中的 Dijkstra 最短路径；若目标不可达，则调用离线地图或 Google Maps 生成粗粒度路线，结果表示为路点序列 $\mathcal{W} = \{w_1, w_2, \ldots, w_n\}$。
-
-- **局部规划**：采用 RH-Map 进行实时动态局部地图构建，通过 Informed-RRT* 生成初始轨迹，再使用 NMPC-CBF（Nonlinear Model Predictive Control with Control Barrier Function）进行轨迹跟踪与动态避障，保证对移动行人/车辆的安全性。
-
----
-
-### 3. 核心结果/发现
-
-<div align="center">
-  <img src="/images/vln/CausalNav-real-world-results.png" width="100%" />
-<figcaption>
-真实环境中不同距离尺度的导航实验：短程（130m 对象级指令）与长程（512m 建筑级指令）
-</figcaption>
-</div>
-
-**仿真实验**（对比 ViNT、NoMaD、GNM、CityWalker）：
-- Small 任务：SR 100%，SPL 88.9%，CC 0.2（所有方法中最优）
-- Medium 任务：SR 92%，SPL 82.2%
-- Large 任务：SR 80%，SPL 66.0%，CC 1.2，TL 141.82m
-
-**真实世界实验**：
-- 短程（130m）：ViNT 和 CausalNav 均成功，其他方法失败
-- 长程（512m）：仅 CausalNav 成功完成任务，其他方法因碰撞失败
-- CityWalker 在真实世界表现显著差于仿真，对光照变化和动态障碍物敏感
-
-**消融实验**：
-- 启用 Embodied Graph 动态更新：SR 从 78% 提升至 90%，SPL 从 54.7% 提升至 80.1%
-- 最优超参数：$\alpha=\beta=0.5$，$\gamma=1.5$（空间-语义平衡点）
-- 运行时延：105ms/cycle（10Hz），比 NoMaD 仅多 11% 开销
-
----
-
-### 4. 局限性
-
-CausalNav 在极端光照/天气条件下的鲁棒性有待提升，且长程图记忆的压缩与遗忘机制尚未完善，可能在超长时间运行后出现图膨胀和检索精度下降问题。
-
-
-## 27. SparseVideoNav (2026) {#sparsevideonav}
-———Sparse Video Generation Propels Real-World Beyond-the-View Vision-Language Navigation
-
-📄 **Paper**: [arXiv:2602.05827](https://arxiv.org/abs/2602.05827)
-
-### 精华
-
-SparseVideoNav 最值得借鉴的核心思想：**视频生成模型（VGM）天然具备长视野预测能力**，可以替代 LLM 作为导航的"大脑"，彻底解决 LLM 短视野导致的短视行为。**稀疏化**（sparse video generation）是兼顾长预测视野与计算效率的关键设计——不需要预测连续帧，只需关键时间戳处的帧即可提供有效导航指引。**四阶段渐进式训练**（T2V→I2V→历史注入→扩散蒸馏→动作学习）将大规模预训练视频模型迁移到导航领域，是一套通用的 VGM 适配范式。**Diffusion Distillation** 将推理步数从 50 步压缩到 4 步（9.6× 加速），使实时部署成为可能。此外，**Q-Former + Video-Former** 的历史压缩策略解耦了推理延迟与历史长度的关系，保证了稳定的推理效率。
-
----
-
-### 1. 研究背景/问题
-
-现有视觉-语言导航（VLN）系统依赖 LLM，受限于短视野监督（4-8步），在 Beyond-the-View Navigation（BVN）任务中表现欠佳：智能体需要在没有逐步指引的情况下，仅凭高层语义指令（如"找一张桌子并停在旁边"）定位远处不可见目标，LLM-based 方法因此频繁出现意外转向和死路困陷。简单延长监督视野会破坏 LLM 训练稳定性，而视频生成模型天然对齐长视野语言理解，成为解决 BVN 的关键突破口。
-
----
-
-### 2. 主要方法/创新点
-
-<div align="center">
-  <img src="/images/vln/SparseVideoNav-overview.png" width="100%" />
-<figcaption>
-SparseVideoNav 概览：视频生成模型提供稀疏预见（Sparse Video Foresight），相较 LLM-based 基线（StreamVLN、InternVLA-N1、UniNavid）在 BVN 任务上大幅领先，推理速度提升 27×
-</figcaption>
-</div>
-
-**核心思路：** 利用视频生成模型（VGM）预测未来稀疏帧序列作为导航预见，将预测视野延伸到 20 秒（20s × 4FPS = 80帧），而非 LLM 仅能处理的 4-8 步。稀疏间隔设为 3 时（sparse interval = 3），在预测视野与视觉保真度之间取得最优平衡。
-
-**整体架构：**
-
-<div align="center">
-  <img src="/images/vln/SparseVideoNav-architecture.png" width="100%" />
-<figcaption>
-SparseVideoNav 整体架构（上）与四阶段训练流程（下）。VGM backbone 接收当前观测、历史帧和语言指令，生成稀疏视频 latents，DiT-based action head 基于生成的未来预见和语言指令预测连续动作
-</figcaption>
-</div>
-
-架构由三个核心组件构成：
-- **VGM Backbone**（Wan 2.1-1.3B）：接收当前帧、历史嵌入（h_T）和语言指令（umT5），输出未来稀疏视频 latents
-- **Former 模块**：Q-Former 处理时间维度历史压缩，Video-Former 处理空间维度，联合生成固定维度的历史嵌入，使推理延迟不随历史长度增长
-- **DiT Action Head**：以生成的稀疏未来 latents 和语言指令为条件，通过 cross-attention 预测连续动作序列（DDIM 重建）
-
-**四阶段训练流程：**
-
-1. **Stage 1 — T2V → I2V 适配**：保留 Wan 的 flow matching 目标，将文本到视频模型适配为图像条件的视频生成（Image-to-Video），引入稀疏帧监督，以稀疏 chunk latents `[c_{T+1}, c_{T+2}, c_{T+5}, c_{T+8}, ..., c_{T+20}]` 作为训练目标
-
-2. **Stage 2 — 历史注入**：在 Wan backbone 每个 transformer block 中新增 cross-attention block，注入历史信息 h_T（Q-Former + Video-Former 编码）；新增层以零初始化保留预训练生成先验
-
-3. **Stage 3 — Diffusion Distillation**：采用 PCM（Phased Consistency Models）进行蒸馏，以 history-injected I2V 模型为 teacher，训练结构相同的 student 模型，将推理步数从 N=50 压缩至 M=4，实现 9.6× 推理加速，同时保持视觉保真度
-
-4. **Stage 4 — 动作学习**：冻结蒸馏后的 I2V 模型，采用逆动态范式（inverse dynamics paradigm），利用 DA3 对生成的稀疏未来帧重新标注动作标签，确保动作监督与合成动态精确对齐；训练 DiT action head 以去噪方式预测连续动作
-
-**数据采集：** 使用手持 DJI Osmo Action 4（RockSteady+ 稳像）采集 140 小时真实室外导航视频，处理为约 13,000 条轨迹（均值 140 帧 × 4FPS），使用 DA3 估计相机位姿提取连续动作标签；语言指令由人工专家标注——构建了目前最大规模的真实世界 VLN 数据集。
-
----
-
-### 3. 核心结果/发现
-
-<div align="center">
-  <img src="/images/vln/SparseVideoNav-video-generation.png" width="100%" />
-<figcaption>
-SparseVideoNav 在零样本 BVN 部署中的视频生成结果分析。模型从当前帧（T）预测未来稀疏帧序列至 T+20，跨室内（找桌子）、室外（找空调）、户外（找垃圾桶）多种场景
-</figcaption>
-</div>
-
-<div align="center">
-  <img src="/images/vln/SparseVideoNav-ablation.png" width="100%" />
-<figcaption>
-消融研究：a) 数据扩展随规模持续提升 FVD；b) 稀疏设计带来 1.7× 推理加速；c) Diffusion Distillation 带来 9.6× 推理加速；d) Former 历史压缩保持稳定推理延迟（无 Former 时 +54.9% 随历史长度增长）
-</figcaption>
-</div>
-
-**零样本真实世界性能：**
-- SparseVideoNav 在 6 种真实场景（室内 Room/Lab、室外 Yard/Park、夜间 Square/Mountain）上全面超越所有 LLM-based 基线
-- **IFN 任务**平均成功率 **50.0%**（vs StreamVLN 35.0%、UniNavid 10.0%）
-- **BVN 任务**平均成功率 **25.0%**（vs 所有基线几乎为 0%，StreamVLN 仅 10.0%）
-- 夜间场景成功率 **17.5%**（LLM 基线在夜间 BVN 全部失败）
-
-**效率提升：**
-- 推理延迟 **9.8s** vs 基线 **21.6s**（**27×** 加速对比未优化版本）
-- Stage 1+2 训练时间 **32h** vs 从头训练 **64h**（**2×** 加速）
-- 稀疏设计带来 **1.7×** 推理加速，Distillation 带来 **9.6×** 加速
-
-**鲁棒性：** 在训练高度（1m）与部署高度（50cm）不一致时仍能正确导航，展示出对相机高度变化的强鲁棒性；能够动态规避行人障碍（emergent ability，非显式训练）。
-
----
-
-### 4. 局限性
-
-当前 140 小时数据集相较于网络规模数据仍然有限，数据扩展是进一步提升的关键方向；推理延迟（9.8s）仍略高于现有 LLM-based 导航范式（StreamVLN），加速蒸馏与 VGM 量化是未来研究的重要课题。
-
----
-
-## 28. AgentVLN (2026) {#agentvln}
-———Towards Agentic Vision-and-Language Navigation
-
-📄 **Paper**: [arXiv:2603.17670](https://arxiv.org/abs/2603.17670)
-
-### 精华
-
-AgentVLN 最值得借鉴的思想是 **VLM-as-Brain** 范式：将 VLM 作为大脑纯做高层语义推理与技能调度，把感知、规划、控制等低层能力封装成模块化、即插即用的技能库，彻底解耦了认知与执行。跨空间表示映射（将 3D 拓扑路点反投影为像素对齐的 2D 视觉提示）是一个无需额外参数就能弥合 2D VLM 与 3D 物理世界之间鸿沟的精妙设计。QD-PCoT 展示了如何赋予模型元认知能力：当面对空间歧义时主动提问、调用感知技能获取深度信息，而非盲目输出坐标。3B 参数量在 R2R/RxR 双榜均超越 7B+ 的先前 SOTA，证明结构化分层推理远比暴力扩参数更高效。该框架可直接部署于 Jetson 嵌入式边缘平台，具备极强的落地价值。
-
----
-
-### 1. 研究背景/问题
-
-Vision-and-Language Navigation (VLN) 要求具身智能体将复杂自然语言指令转化为长时域、连续空间的导航行为。当前 VLN 系统面临三大核心瓶颈：VLM 固有的 2D 语义理解与 3D 几何感知之间的跨空间失配；单目 RGB 图像引起的尺度歧义导致局部目标定位失败；以及大参数量模型无法满足边缘设备实时推理需求。
-
----
-
-### 2. 主要方法/创新点
-
-<div align="center">
-  <img src="/images/vln/AgentVLN-framework-overview.png" width="100%" />
-<figcaption>
-AgentVLN 整体框架：VLM-as-Brain 范式将长时域导航分解为感知技能（Perception Skills）与规划技能（Planning Skills）的交替调用，辅以 QD-PCoT 处理空间歧义。
-</figcaption>
-</div>
-
-**VLM-as-Brain 范式与 POSMDP 建模**
-
-AgentVLN 将 VLN 任务形式化为 Partially Observable Semi-Markov Decision Process (POSMDP) $\mathcal{M} = \langle \mathcal{S}, \mathcal{O}, \mathcal{F}, \mathcal{T}, \mathcal{I}, \mathcal{H} \rangle$。VLM 作为中央控制器，在每个决策步 $t$ 基于历史上下文 $\mathcal{H}_t$、视觉观测 $o_t$ 和自然语言指令 $\mathcal{I}$ 生成技能调用指令：
-
-$$c_k \sim \pi_\theta(f \mid \mathcal{H}_{t_k}, o_{t_k}, \mathcal{I}), \quad f \in \mathcal{F}$$
-
-技能库 $\mathcal{F}$ 分为两类：**感知技能** $\mathcal F_{percep}$（$\tau=0$，无延时地从环境提取几何/语义特征，更新全局状态 $\mathcal{S}$）和**规划技能** $\mathcal F_{plan}$（$\tau>0$，执行多步物理动作序列）。具体包括：Back-Projection、Global Planning、Obstacle Avoidance、Incremental Exploration Map、Feasible Waypoints 等模块。这种分层设计使 VLM 完全不接触低层运动细节，专注高层语义-空间匹配。
-
-**跨空间表示映射（Cross-Space Representation Mapping）**
-
-为解决 VLM 无法直接感知 3D 几何的问题，AgentVLN 设计了一套逆透视投影机制。感知技能首先将 RGB-D 观测通过反投影构建全局占据栅格地图，生成三维路点 $\mathbf{P}^w_{path} = [X_{path}, Y_{path}, 0]^T$；随后通过相机内参矩阵 $K$ 和当前位姿 $T_t$ 将 3D 路点投影回像素坐标：
-
-$$s \cdot \mathbf{p}^{img}_{path} = KR_t^{-1}(\mathbf{P}^w_{path} - \mathbf{t}_t)$$
-
-这样 VLM 只需在 2D 像素空间中根据语义选择最匹配的路点，再由规划技能将其恢复为 3D 控制信号，实现了 2D 视觉语义与 3D 物理结构的无缝桥接。
-
-**上下文感知的细粒度自校正与主动探索**
-
-当当前观测 $o_t$ 中不存在满足指令语义的可行路点时（如遮挡、盲区、轨迹偏差），AgentVLN 不强制执行长距离盲位移，而是输出细粒度原子动作 $a_t \sim \pi_\theta(a \mid \mathcal{H}_t, o_t, \mathcal{I})$，$a \in \{\text{Forward, Left, Right}\}$，自主环顾恢复可见路点后切回宏观技能调用，有效抑制长轨迹误差累积。
-
-**Query-Driven Perceptual Chain-of-Thought (QD-PCoT)**
-
-<div align="center">
-  <img src="/images/vln/AgentVLN-performance-comparison.png" width="80%" />
-<figcaption>
-AgentVLN-3B 在 RxR-CE Val-Unseen 上的参数量-成功率对比，以 3B 参数量超越所有 7B+ 的先前方法。
-</figcaption>
-</div>
-
-针对局部目标定位阶段的单目尺度歧义，AgentVLN 引入 QD-PCoT 机制。当模型检测到空间歧义时，不盲目回归像素坐标，而是生成中间自然语言查询（如 *"How many meters is the chair in front of me?"*）并调用感知技能 $\mathcal F_{percep}$ 获取精确深度反馈。该反馈以增量文本提示形式注入上下文，引导模型最终输出准确的目标像素坐标 $\mathbf p_{target}^{img} = [u_{target}, v_{target}, 1]^T$，再经深度图反投影转换为 3D 目标坐标 $\mathbf{P}^w_{target}$，实现精准对接。
-
-**AgentVLN-Instruct 数据集**
-
-构建了大规模指令调优数据集 AgentVLN-Instruct（基于 Habitat 仿真器），包含四个关键组件：目标可见性驱动的动态阶段路由机制（模拟人类"先粗导航、再精定位"的认知模式）、可泛化技能调用标注、局部化推理数据，以及主动问答交互对。基础模型为 Qwen2.5-VL-3B，训练时冻结视觉编码器，以 AdamW 优化，使用 32 块 NVIDIA A100 GPU。
-
----
-
-### 3. 核心结果/发现
-
-<div align="center">
-  <img src="/images/vln/AgentVLN-navigation-visualization.png" width="100%" />
-<figcaption>
-AgentVLN 导航可视化：绿色点为感知技能生成的像素级视觉提示，红圈为规划技能选取的路点；遭遇视觉遮挡时自动切换为细粒度原子动作。
-</figcaption>
-</div>
-
-- **R2R-CE Val-Unseen**: AgentVLN-3B 达到 SR=67.2%, SPL=64.7%，超越同类 SOTA InternVLA-N1-8.3B（SR+9.0%，SPL+10.7%），以不到一半的参数量实现全面超越
-- **RxR-CE Val-Unseen**: SR=69.5%, SPL=61.3%, nDTW=74.6%，同样刷新 SOTA
-- **消融分析**：仅引入 VLM-as-Brain + 跨空间映射，SR 从基线 38.6% 提升至 59.7%；加入 CDFG 细粒度自校正后达 65.6%；最终集成 QD-PCoT 达 67.2%
-- **时序上下文**：最优历史帧数 K=8（SR=67.2%，SPL=64.7%），过短则短视，过长则注意力稀释
-- **真实世界部署**：基于 Unitree Go2 四足机器人 + Intel RealSense D455，结合 RTAB-Map SLAM，在室内外场景均实现准确导航，支持 Jetson 边缘实时推理
-
----
-
-### 4. 局限性
-
-AgentVLN 当前依赖深度传感器（RGB-D）支持精确的 3D 反投影，在纯 RGB 单目场景下的尺度歧义处理能力仍受限；此外，技能库的扩展和维护需要一定的工程成本，对全新场景的零样本适配能力尚待系统评估。
-
----
-
-## 29. Skill-Nav (2025) {#skill-nav}
+## 22. Skill-Nav (2025) {#skill-nav}
 ———Enhanced Navigation with Versatile Quadrupedal Locomotion via Waypoint Interface
 
 📄 **Paper**: [arXiv:2506.21853](https://arxiv.org/abs/2506.21853) · 🏛️ **Vicinagearth (Springer) 2025**
@@ -3104,182 +2716,15 @@ Omni-traverse 任务中各方法的位置访问热图：本方法（Ours）覆�
 
 高层规划器（尤其是 LLM）可能生成位于间隙中央或箱体边缘等异常 waypoint，低层控制器难以从这类极端位置恢复；未来工作将设计边缘无碰撞低层控制器，并探索运动与导航的端到端统一策略。
 
-## 30. VLN-Cache (2026) {#vln-cache}
-———Enabling Token Caching for VLN Models with Visual/Semantic Dynamics Awareness
-
-📄 **Paper**: [arXiv:2603.07080](https://arxiv.org/abs/2603.07080)
-
-### 精华
-
-VLN-Cache 的核心洞见是：现有 token caching 方案在 VLN 场景下失效的根本原因有两个相互独立的维度——视觉动态（视角偏移导致空间位置错配）和语义动态（任务阶段推进导致缓存 token 语义过时）。将 "视图对齐重映射" 与 "任务相关性语义门控" 分别针对这两种动态进行正交设计是本文最值得借鉴的思路：先用几何对应恢复可复用集合，再用语义相关性做一票否决，二者缺一不可。层自适应熵策略（layer-adaptive entropy policy）将每层的复用预算与注意力分布的不确定性挂钩，也为其他需要跨层差异化处理的 inference 优化工作提供了参考范式。整个框架训练自由、无需架构修改，可作为即插即用的推理加速包裹层，具有很强的实用价值。
-
----
-
-### 1. 研究背景/问题
-
-现代 VLN 系统依赖大型视觉-语言模型（VLM）作为规划器，每个导航步骤都需完整的前向推理，导致每步延迟成为实时部署的瓶颈。Token caching 是一种无需训练的推理加速策略，通过复用帧间稳定 token 的 KV 表示来跳过冗余计算；然而现有方法基于静态相机和固定语义的假设，在 Agent 连续平移旋转的 VLN 场景下会出现两类系统性失效：视角偏移导致位置对齐失效，任务阶段推进导致语义相关性突变，使得缓存 token 在视觉上"看起来稳定"但语义上已经过时。
-
----
-
-### 2. 主要方法/创新点
-
-<div align="center">
-  <img src="/images/vln/VLN-Cache-framework-overview.png" width="100%" />
-<figcaption>
-VLN-Cache 框架总览：左侧展示视觉动态（位置对齐失败）和语义动态（任务阶段偏移）两类挑战；右侧为对应的两个解决方案模块
-</figcaption>
-</div>
-
-VLN-Cache 是一个双感知 token caching 框架，针对视觉动态和语义动态分别设计了正交的处理机制：
-
-**A. 视觉动态感知 Token Caching**
-
-由于 Agent 连续移动，帧 t 中位置 i 的 token 对应的物理表面与帧 t-1 中同一位置 i 的表面完全不同。VLN-Cache 通过 **视图对齐重映射（View-Aligned Remapping）** 解决这一问题：
-- 利用深度图将每个 token 中心 $u_t^{(i)}$ 反投影到 3D 空间，结合相机相对位姿变换矩阵 $T_{t \to t-1}$，重新投影到上一帧图像平面，得到对应位置 $\pi_t(i)$
-- 通过 3×3 邻域细化（$\mathcal{N}$）处理连续坐标到离散 patch 索引的量化误差
-- 仅当重映射后的 token 对余弦相似度超过阈值 $\tau_{vis}$ 且在有效视野内时才标记为可复用
-
-**B. 语义动态感知 Token Caching**
-
-即便两帧间 token 在几何上完美对齐、视觉上高度相似，若 Agent 已完成当前子目标并转向下一阶段，该区域的任务相关性可能已骤降，复用其缓存状态会向语言解码器注入过时的注意力模式。VLN-Cache 引入 **任务阶段显著性过滤器（Task-Stage Saliency Filter）**：
-- 为每个 token 计算指令条件相关性分数 $s_t^{(i)}$（top-k 注意力集中区域的 Jaccard 距离衡量语义转变幅度 $D_t^{sem}$）
-- 满足以下任一条件则强制刷新：当前相关性过高（$s_t^{(i)} > \tau_{abs}$，缓存版本无法代表该区域重要性）或相关性快速变化（$\lvert s_t^{(i)} - s_{t-1}^{(i)} \rvert > \tau_\Delta$，正在经历语义转变）
-- 语义门控为 **一票否决（hard veto）**：视觉稳定性是复用的必要条件但不充分，语义过时则无条件刷新
-
-**C. 双感知融合与层自适应缓存策略**
-
-最终复用掩码采用乘法形式 $m_t^{(i)} = m_{vis,t}^{(i)} \cdot (1 - m_{sem,t}^{(i)})$，仅当几何稳定且无语义转变时才复用。
-
-<div align="center">
-  <img src="/images/vln/VLN-Cache-architecture.png" width="100%" />
-<figcaption>
-VLN-Cache 框架架构：左侧为视觉复用掩码（可见性+相似度检查），右侧为动态感知缓存的逐层复用预算分配
-</figcaption>
-</div>
-
-对于 Transformer 不同层，早期层处理低层次视觉特征（变化较慢），深层编码任务相关表示（在指令转变时变化更剧烈）。VLN-Cache 通过 **层自适应熵策略** 调节每层复用预算：
-$$\rho_t^\ell = \text{clip}(\rho_{max} - \alpha H_t^\ell, \rho_{min}, \rho_{max})$$
-其中 $H_t^\ell$ 是从现有注意力 softmax 读取的层熵代理，高熵层（不确定层）分配更保守的复用预算，低熵层可更激进地复用。
-
-<div align="center">
-  <img src="/images/vln/VLN-Cache-system-pipeline.png" width="100%" />
-<figcaption>
-VLN-Cache 系统实现流水线：视觉编码后通过 View/Sem 双门控生成掩码，复用 token 直接从缓存读取 KV，新 token 走标准前向计算
-</figcaption>
-</div>
-
-在系统实现上，VLN-Cache 不修改模型权重或注意力核，作为 drop-in 包裹层集成到任意基于 Transformer 的 VLA backbone：复用 token 从视图对齐缓存位置 $\pi_t(i)$ 直接拼接 KV 状态，新 token 经标准投影；RoPE 位置编码仅对新 token 更新，复用 token 继承原有编码。每帧缓存占用约 85.8 MB（A100 VRAM 的 0.21%），无需 CPU 卸载。
-
----
-
-### 3. 核心结果/发现
-
-在 R2R-CE `val_unseen` 基准（1,839 个 episode，基于 InternVLA-N1 / QwenVL-2.5 7B backbone）上：
-
-- **推理加速**：每步延迟从 637 ms 降至 419 ms，实现 **1.52× 步级加速**，episode 级别同样达到 **1.52× 加速**（114.7s → 75.5s）
-- **导航精度保持**：SR = 63.1（vs. 基线 64.3），SPL = 57.6（vs. 基线 58.5），SR 下降仅 1.2%
-- **Token 复用率**：平均每步 31% 的 VLA token 从缓存复用；83% 的帧完全绕过 ViT 视觉编码器
-- **消融分析**：移除视图对齐重映射后 SR/SPL 显著下降（回退到位置对齐方案），移除语义门控后精度下降（视觉相似但语义过时的 token 被错误复用），二者均为不可或缺的正交贡献
-- **效率-精度帕累托最优**：在所有 RGB-only VLN 方法（NaVid, MapNav, UniNaVid, NaVILA, StreamVLN, DualVLN）中，VLN-Cache 达到最低 NE（3.93）和最高 OS（71.4），同时具备最快推理速度
-
----
-
-### 4. 局限性
-
-VLN-Cache 目前仅针对 RGB-based 连续 VLN，不支持深度传感器或地图导航设置；四个超参数（$\tau_v, \tau_s, k, \rho_{max}$）缺乏自动调节方法，需在小型保留轨迹集上手动校准，自动超参确定方案留作未来工作。
-
----
-
-## 31. SysNav (2026) {#sysnav}
-———Multi-Level Systematic Cooperation Enables Real-World, Cross-Embodiment Object Navigation
-
-📄 **Paper**: [arXiv:2603.06914](https://arxiv.org/abs/2603.06914)
-
-### 精华
-
-SysNav 将 ObjectNav 重新定义为系统级问题，将语义推理、导航规划、运动控制三层彻底解耦，值得借鉴。核心洞见是：VLM 不应被用于细粒度的 frontier 级别决策，而应限制在房间级别的高层规划，从而在推理能力与空间可靠性之间取得最佳平衡。三层场景图（Room→Viewpoint→Object）为 VLM 提供了结构化上下文，是 VLM 高效推理的关键基础设施。Early-stop 和 Room-query 两种 VLM 调用模式按需触发，有效避免了 VLM 的冗余调用。该系统在三种机器人平台上部署，验证了模块化设计对跨平台泛化的价值。
-
----
-
-### 1. 研究背景/问题
-
-Object Navigation（ObjectNav）要求机器人在未知室内环境中自主找到目标物体，需同时处理复杂空间结构、长程规划和语义理解。现有方法将 ObjectNav 作为单一策略学习问题，端到端模型难以兼顾多个子挑战；而过度依赖 VLM 进行 frontier 级别决策会因 VLM 缺乏精确 3D 空间理解而导致频繁回溯和低效行为。
-
----
-
-### 2. 主要方法/创新点
-
-<div align="center">
-  <img src="/images/vln/SysNav-overview.png" width="100%" />
-<figcaption>
-SysNav 在多种真实环境和跨平台机器人上实现楼宇级别长程 ObjectNav
-</figcaption>
-</div>
-
-SysNav 是一个三层解耦的 ObjectNav 系统，各层专注于不同粒度的子问题：
-
-**高层——语义推理（Semantic Reasoning）**
-
-构建三层场景图表示 $\mathcal{R}$：
-- **Room Node** $v^r$：通过点云垂直分布拟合墙面并划分独立房间，每个节点存储房间类别、2D 顶视图和代表性 RGB 图像
-- **Viewpoint Node** $v^v$：在覆盖范围发生显著变化时新增，存储位置、覆盖区域和全景图像，实现高效语义存储
-- **Object Node** $v^o$：使用开放词汇检测（YOLOv8x + SAM2）实例化，每个节点存储类别、置信度、3D 点云、bounding box 及自属性
-
-边类型包括：Room-Room（门道连通）、Room-Viewpoint（包含关系）、Room-Object（包含关系）、Viewpoint-Object（可见性）、Object-Object（空间约束，按需添加）。
-
-VLM Reasoning 组件（Gemini-2.5-flash）基于上述场景图进行语义推理，提供房间级别导航指导。
-
-**中层——基于房间的导航（Room-based Navigation）**
-
-<div align="center">
-  <img src="/images/vln/SysNav-architecture.png" width="100%" />
-<figcaption>
-SysNav 系统架构：高层语义推理、中层房间导航、低层运动控制三层解耦
-</figcaption>
-</div>
-
-将房间作为最小语义规划单元，在房间内使用高效经典探索算法，仅在房间切换时调用 VLM：
-
-- **In-room Exploration**：两级规划（局部 + 全局），以覆盖分数 $w_{cov}(c_i) = \lvert \mathcal S_{cov}(c_i) \cap \hat{\mathcal S} \rvert$ 选取位姿候选，用 TSP 生成探索路径，滚动窗口机制协调局部与全局计划
-- **Early-stop 模式**：进入新房间时，VLM 根据上下文信息 $\mathcal C_{es}$（房间属性、已观测物体、任务目标）判断是否提前终止当前房间探索并切换到新房间
-- **Room-query 模式**：当前房间探索完毕仍未找到目标时，VLM 基于未探索房间信息 $\mathcal C_{rq}$ 推理最可能包含目标的下一个房间
-
-**低层——基础自主（Base Autonomy）**
-
-设计跨平台基础自主模块，将路径点转换为各平台（轮式机器人、四足 Unitree Go2、人形 Unitree G1）的具体运动控制指令，包含路径点跟随、碰撞回避和地形可通行性分析。
-
----
-
-### 3. 核心结果/发现
-
-<div align="center">
-  <img src="/images/vln/SysNav-qualitative.png" width="100%" />
-<figcaption>
-SysNav 在轮式、四足、人形三种机器人平台上的真实环境定性结果
-</figcaption>
-</div>
-
-**仿真基准**（4个benchmark，与 SOTA 对比）：
-- HM3D-v1：SR **63.7%**，SPL **30.5%**（大幅领先次优 ApexNav 的 59.6%/33.0%）
-- HM3D-v2：SR **80.8%**，SPL **37.2%**（次优 ApexNav 76.2%/38.0%）
-- MP3D：SR **50.7%**，SPL **18.1%**
-- HM3D-OVON：SR **54.9%**，SPL **26.1%**（次优 MTU3D 40.8%/12.1%，提升 14.1%/6.5%）
-
-**真实环境**（190 次实验，对比 VLFM 和 InstructNav）：
-- Hard 设置（目标在不同房间）：SR **97.5%**，SPT **71.8**，AT **67.6s**（Hard setting SR 较次优提升 61.1%，SPT 提升 51.1%，AT 减少 29.8s）
-- 导航效率较现有 ObjectNav 基线提升 **4-5×**
-
----
-
-### 4. 局限性
-
-仿真中 SPL 提升幅度小于 SR，原因是面向真实场景设计的严格覆盖策略在仿真中会造成轻微过度覆盖；此外，多房间布局对系统的额外挑战有限，因为中等难度场景中障碍物更密集反而会降低速度。
 
 
----
 
 
-## 32. VLN-Imagine (2025) {#vln-imagine}
+
+
+
+
+## 23. VLN-Imagine (2025) {#vln-imagine}
 ———用文本生成图像模型为导航智能体构建"视觉想象"
 
 📄 **Paper**: [arXiv:2503.16394](https://arxiv.org/abs/2503.16394) · 🏛️ **CVPR 2025**
@@ -3355,305 +2800,15 @@ Vision-and-Language Navigation（VLN）任务中，智能体需要根据自然�
 
 ---
 
-## 33. R³: Run, Ruminate, and Regulate (2026) {#r3}
-———一个面向视觉语言导航的双过程思考框架
 
-📄 **Paper**: [arXiv:2511.14131](https://arxiv.org/abs/2511.14131) · [Code](https://github.com/IAIII-CAS/navigation_R3) · 🏛️ **AAAI 2026**
 
----
 
-### 精华
 
-- 将 Kahneman 双过程理论落到 VLN：**Runner（快系统）**处理常规导航，**Ruminator（慢系统）**处理异常情境，**Regulator**在两者间做监督切换——解决 "LLM 方法慢但泛化强 vs. 专家模型快但迁移差" 的取舍。
-- Runner 用轻量级 transformer VLN 专家（~160 M 参数、沿用 GridMM）做反应式高频动作预测；Ruminator 用 GPT-4o + CoT 做感知-规划-预测三步推理；二者共享一个**grid-based topological memory bank**，使慢系统能直接继承快系统的历史上下文。
-- Regulator 的切换信号来自三路**critical evaluation**（looping 视点重访阈值 + scoring GNN 对轨迹图做自监督打分 + ending 对 STOP 的校验），切换后进入**critical formulation**清空误导性历史，避免 LLM 被错误上下文污染。
-- Scoring 的自监督标注策略值得借鉴：以"是否最终到达目的地 / 路径是否属于 GT 子集"作为二分类伪标签，GNN 用图注意力做消息传递，从而**无需人工标注**就能早期识别失败前兆。
-- R³ 在 REVERIE Val-Unseen 上 SPL/RGSPL 比 SOTA 高 3.28 / 3.30，推理时间仅为其他 LLM-assisted 方法的 1/5（1.10 s vs. 5~11 s），展示了"大部分步数走快系统、异常步数才调 LLM"这一思路在效率与性能上的双赢。
 
----
 
-### 1. 研究背景/问题
 
-VLN 需要智能体根据自然语言指令在复杂 3D 环境中动态导航。两条主流路线各有短板：（1）**基于 BC 的 VLN 专家**（DUET、GridMM 等）效率高但常识缺失、对未见环境泛化差；（2）**LLM-assisted 零样本方法**（NavGPT、MapGPT、DiscussNav 等）泛化好但每步调 LLM 导致延迟高（5~11 s/step），且对空间几何与场景布局的理解不够精确。作者目标是把两者的长处糅合在同一框架下——而不是简单地把 LLM 插进每一步。
 
----
-
-### 2. 主要方法/创新点
-
-#### 2.1 整体思想：双过程思考
-
-<div align="center">
-  <img src="/images/vln/R3-dual-process-overview.png" width="90%" />
-<figcaption>图 1: R³ 双过程思考示意。工作流为 (i) Runner 执行常规导航 → (ii) Regulator 评估当前状态 → (iii-a) 情况正常则 Runner 继续；(iii-b) 检测到异常则切换到 Ruminator 介入。</figcaption>
-</div>
-
-R³ 由三个模块组成：
-
-- **Runner（快系统）**：反应式 VLN 专家，常规步骤下主导。
-- **Ruminator（慢系统）**：多模态 LLM + CoT，仅在检测到异常时激活，接管直到该异常消除或片段结束。
-- **Regulator（监督者）**：每个时间步评估当前状态，决定是否切换到 Ruminator，并在切换时清洗历史。
-
-#### 2.2 整体 Pipeline
-
-<div align="center">
-  <img src="/images/vln/R3-pipeline.png" width="100%" />
-<figcaption>图 2: R³ 完整 pipeline。Regulator 接收 $V_t=\{H_t, I, O_t, D_t, R_t\}$，通过三条 critical evaluation（Looping / Scoring / Ending）判断是否异常；异常则进入 critical formulation 由 LLM 产生修正规划 $P_t$，送往 Ruminator；正常则走 Runner 直接输出 $A_t$。</figcaption>
-</div>
-
-**问题形式化**：VLN 建模为 POMDP，智能体在时刻 $t$ 观察到位姿 $R_t$ 与全景 $O_t=\{o_t^i\}_{i=1}^{36}$（36 个相对 heading/elevation 的透视图），从可导航视点集合中选一个作为动作 $A_t$。策略 $\pi(A_t \mid I, O_t, H_t; \Theta)$ 基于指令 $I$、历史 $H_t=\{O_0, A_0, ..., O_{t-1}, A_{t-1}\}$ 与当前观察预测动作，直到智能体输出 `[STOP]` 或超步数上限。
-
-#### 2.3 Runner：轻量 transformer 快速响应
-
-Runner 接收 RGB-D $O_t, D_t$ 与位姿 $R_t$，通过投影提取细粒度特征并写入**egocentric grid memory**；随后与指令嵌入一起走 cross-modal transformer encoder，最终由两层 FFN 预测动作。Runner 仅 160 M 参数，保证实时推理。其实现直接复用 GridMM 官方仓库。作者指出 Runner 的两类固有缺陷：（1）训练 teacher-forcing 分布有限导致未见场景下容易出现**短视决策**（aimless wandering / 重复徘徊）；（2）BC 学习使其**进入错误视点后难以自我纠错**——这正是 Ruminator 要补的。
-
-#### 2.4 Ruminator：GPT-4o + CoT 三步慎思
-
-Ruminator 的输入通过一段**结构化文本模板**拼接（论文 Fig. 4）：`Instruction` + 36 张全景 `Observation` + `Trajectory`（"你从 $id_0$ 出发看到 $M_0$；step 1 到 $id_1$ 看到 $M_1$..."）+ `Map`（视点连通关系）+ `Option`（候选动作）。这种系统化格式化让 LLM 能显式感知环境拓扑与历史。
-
-Ruminator 以 GPT-4o 为底座，用 CoT 组织三步：
-
-- **Perception**：根据指令 $I$ 与全景 $O_t$ 生成细粒度环境文字描述，突出指令涉及的对象。
-- **Planning**：结合历史 $H_t$、上一步规划 $P_{t-1}$ 做长视野重规划，生成新 plan $P_t$。历史在 Ruminator 状态下以"**taken action + target destination**"形式表达——动作从 `{go forward to, turn left to, turn right to, turn back to}` 根据当前朝向与目标视点的夹角生成。
-- **Prediction**：基于 $I, P_t, O'_t$（可导航视点的子集）从候选中选动作。执行后更新 $H_t$ 与相邻视点。
-
-#### 2.5 Regulator：双阶段切换机制
-
-**Stage 1 — Critical Evaluation（何时切换）** 三条互补准则：
-
-- **Looping**：当任一视点的重访次数超过 $\tau_r$，或轨迹长度超过 $\tau_l$，判定为陷入循环。
-- **Scoring**：用 **GNN**（两层 graph attention + edge encoding）给当前轨迹打分，输入是以"位置 / 最后到达时间戳 / 视觉 embedding"为节点特征、视点连通关系为边的拓扑图，未访问节点用邻居视觉嵌入均值近似。训练用**自监督伪标签**——成功到达或所有视点都属于 GT 路径的 $\mathcal T_t$ 标 0，否则标 1。推理时分数 $>\tau_g=0.35$ 触发切换。
-- **Ending**：Runner 预测 `[STOP]` 时再由 GPT-4o 根据 $I, O_t$ 判断是否真的到达目的地，避免早停。
-
-**Stage 2 — Critical Formulation（如何切换）** 切换到 Ruminator 前，Regulator 额外用 LLM 判断"从起点重启是否更可取"——这一步**重置 memory bank**以模拟真实部署；同时在其它触发下也会**剔除 Runner 积累的误导历史**，再让 Ruminator 重新推理，避免错误上下文污染 LLM。
-
-#### 2.6 共享 Memory Bank
-
-这是效率关键：Runner 的 grid-based topological memory 不仅服务快系统的长上下文决策，在切换时也**直接继承给 Ruminator**，使 LLM 无需从零重建历史（消融显示 w/o memory bank 时 SR 下降 0.87）。
-
----
-
-### 3. 核心结果/发现
-
-<div align="center">
-  <img src="/images/vln/R3-main-results.png" width="100%" />
-<figcaption>图 4: R2R 与 REVERIE Val-Unseen 主要结果。R³ 在所有指标上同时超越 BC 专家、LLM 微调方法与 LLM-assisted 方法。</figcaption>
-</div>
-
-- **R2R Val-Unseen**：SR 77 / SPL 66，较最佳 BC 基线（GridMM 75 / 64、BEVBert 75 / 64）提升 2 / 1.5 个点；NE 2.76（最低）。
-- **REVERIE Val-Unseen**：SR 53.76 / SPL 42.14 / RGS 37.94 / RGSPL 29.86，较次优方法（SUSA 51.75 / 38.86 / 35.02 / 26.56）分别 +2.01 / +3.28 / +2.92 / +3.30；REVERIE 上提升**显著大于 R2R**，表明 R³ 对高层语义理解与慎思分析要求更高的"粗粒度"指令更有优势。
-- **效率（Fig. 1）**：R³ 1.10 s/step vs. 其他 LLM-assisted 方法 5~11 s，约 1/5；且 SR 77 远超所有 LLM-assisted 基线（最高 DiscussNav 40）。证明"异常步才调 LLM"的策略可同时获得效率与性能。
-
-<div align="center">
-  <img src="/images/vln/R3-qualitative-reverie.png" width="100%" />
-<figcaption>图 5: REVERIE 可视化对比。GridMM 在起始区域长时间徘徊直至失败；R³ 由路径冗余触发 Ruminator，通过慎思识别正确路线并完成任务。</figcaption>
-</div>
-
-**消融要点**（Table 2/3，略图）：
-
-- **Regulator 三准则互补**：去掉 Scoring 掉 SR 2.05 / SPL 2.76（最大降幅），说明 GNN 打分是主要的失败早期信号；去掉 Ending 掉 RGS 2.33 / RGSPL 4.01（RGS/RGSPL 最大降幅），对物体定位影响最大；去掉 Looping 与 Critical Formulation 也都有 0.37~0.39 的 SR 下降，全部非冗余。
-- **LLM 能力 × 性能正相关**：GPT-4o > GPT-3.5 Turbo >> MiniGPT-4；有趣的是不接 Ruminator（w/o LLM）的 R³ 仍比接 MiniGPT-4 好 1.98 SR，说明**能力不足的 LLM 会破坏系统**，预示未来更强 LLM 可直接放大 R³ 收益。
-- **共享 memory 的必要性**：w/o memory bank 时 SR 52.89（-0.87）、RGSPL 28.06（-1.80），说明 Ruminator 真的依赖 Runner 积累的上下文。
-
----
-
-### 4. 局限性
-
-- Ruminator 依赖 GPT-4o API，部署成本与网络延迟仍是瓶颈（Fig. 1 中 NavGPT-2 本地部署效率更好）；在真实机器人上需要等价的本地 MLLM。
-- 仅在 Matterport3D（R2R / REVERIE）上评测，连续动作空间（R2R-CE、RxR-CE）与真实机器人泛化尚未验证。
-- Scoring GNN 的自监督伪标签依赖"GT 路径子集"这一先验，迁移到无明确路径标注的任务（如 ObjectNav）可能需要重新设计。
-  
----
-
-## 34. Uncertainty-Aware Gaussian Map for VLN (2026) {#uncertainty-aware-gaussian-map}
-———三类感知不确定性 × Semantic Gaussian Map，赋予 VLN 智能体可靠决策能力
-
-📄 **Paper**: [github.com/Gaozzzz/Uncertainty-Aware-VLN](https://github.com/Gaozzzz/Uncertainty-Aware-VLN)
-
----
-
-### 精华
-
-- 将环境表征（3D Gaussian Map）与感知不确定性（几何/语义/外观）统一到同一空间，是比单纯 map-based 方法更稳健的设计范式。
-- 几何不确定性用变分推断建模位置/尺度扰动，语义不确定性用语义属性扰动揭示歧义解释，外观不确定性用 Fisher Information 衡量渲染敏感度——三条路径正交互补，可迁移到其他 3DGS 场景表征任务。
-- 用"3D Value Map"将不确定性从特征维度编码为可导航的 affordance / constraint，是将感知置信度转化为行动先验的优雅工程。
-- 训练时让 SGM 的渲染损失和导航损失联合优化，使场景表征与决策策略协同提升，避免了两阶段分离设计的 representation gap。
-- REVERIE RGS 提升 2.94%、R2R SR 提升 2% 的边际增益表明：当前 VLN 瓶颈已从"语言理解"转移到"感知可靠性"，不确定性建模是下一个值得深耕的方向。
-
----
-
-### 1. 研究背景/问题
-
-VLN 要求智能体在 3D 环境中依据自然语言指令导航。现有智能体在推理时普遍忽略感知不确定性（如相似门洞的视觉歧义、遮挡导致的路径可通行性不确定），训练目标迫使模型对每个 step 输出确定动作，无法表达"不确定"。这在遮挡多、结构重复的场景中易造成错误停止或路径偏移。
-
-<div align="center">
-  <img src="/images/vln/UncertaintyGaussian-motivation.png" width="100%" />
-<figcaption>图1：动机示意。左：视觉相似结构（多扇门）导致智能体证据不足而停错位置；右：遮挡使路径可通行性模糊，智能体选择次优路径。本文智能体通过显式建模不确定性（亮色=高不确定性）避免上述错误。</figcaption>
-</div>
-
----
-
-### 2. 主要方法/创新点
-
-**整体框架**：SGM 构建 → 不确定性估计 → 3D Value Map → 多层 Transformer 预测动作。
-
-<div align="center">
-  <img src="/images/vln/UncertaintyGaussian-pipeline.png" width="100%" />
-<figcaption>图2：整体 Pipeline。每步从全景 RGB-D 观测构建 SGM，估计三类不确定性并嵌入形成 3D Value Map，再与语言指令拼接输入 MLT 预测动作。</figcaption>
-</div>
-
-**3.1 Semantic Gaussian Map (SGM)**
-
-每个导航点处，将多视角 RGB-D 观测反投影为稀疏伪激光点云，每个点初始化为一个可微 3D Gaussian primitive $$g_i$$，包含：均值 $$\boldsymbol{\mu}_i \in \mathbb{R}^3$$（位置）、协方差 $$\boldsymbol{\Sigma}_i$$（形状/尺度）、不透明度 $$\alpha_i$$、颜色球谐系数 $$c_i$$，以及语义属性 $$s_i$$（由 SAM2 分割区域 + CLIP 特征附加而来）。通过可微渲染优化使 SGM 与当前观测一致，并裁剪低尺度（$$\lVert e_i \rVert_2 < \tau_e$$）和低不透明度（$$\alpha_i < \tau_\alpha$$）的冗余 Gaussian。
-
-**3.2 不确定性估计（三类）**
-
-| 类型 | 建模方式 | 含义 |
-|---|---|---|
-| 几何不确定性 $$U^g$$ | 对位置/尺度施加变分扰动，最小化 ELBO，提取变分分布标准差 | 结构可靠性：Gaussian 是否在多种几何假设下保持稳定 |
-| 语义不确定性 $$U^s$$ | 对语义属性施加可学习偏移，同样 ELBO 优化 | 语义歧义程度：同一区域的语义解释有多不稳定 |
-| 外观不确定性 $$U^a$$ | 用 Fisher Information（渲染 Jacobian 的 log-determinant）近似 Hessian | 外观敏感性：纹理复杂/遮挡/光照变化是否导致渲染剧变 |
-
-$$U_i^g = \lVert \mathcal{F}^{\text{std}}(q_{\phi^\mu}(\chi_i^\mu)) \rVert_2 + \lVert \mathcal{F}^{\text{std}}(q_{\phi^e}(\chi_i^e)) \rVert_2$$
-
-$$U_i^a = \log \lvert \nabla_{\mathcal{G}} \hat{\mathcal{I}} \nabla_{\mathcal{G}} \hat{\mathcal{I}}^\top \rvert$$
-
-**3.3 3D Value Map 与动作预测**
-
-将 $$(U^g, U^s, U^a)$$ 附加到每个 Gaussian 的属性向量，扩展为 $$g_i \in \mathbb{R}^{20}$$。再通过非线性投影得到每个 Gaussian 的特征 $$F^{g_i} \in \mathbb{R}^{768}$$，聚合后与语言嵌入 $$X$$ 拼接，输入多层 Transformer $$\mathcal{F}^{\text{MLT}}$$ 预测候选 waypoint 的导航概率。
-
-<div align="center">
-  <img src="/images/vln/UncertaintyGaussian-uncertainty-vis.png" width="100%" />
-<figcaption>图5：三类不确定性可视化。几何不确定性突出结构边界/不规则面，语义不确定性揭示对象级歧义区域，外观不确定性标记纹理复杂/遮挡/光照敏感区域。亮色=高不确定性。</figcaption>
-</div>
-
----
-
-### 3. 核心结果/发现
-
-<div align="center">
-  <img src="/images/vln/UncertaintyGaussian-qualitative-r2r.png" width="100%" />
-<figcaption>图3：R2R 定性对比。左：面对多扇相似窗户，VER 误判后提前停止，本文方法正确到达；右：VER 被桌子阻挡而停止，本文方法绕行成功完成指令。</figcaption>
-</div>
-
-- **R2R val unseen**：SR 78%（vs VER 76%，+2%），SPL 66%（vs 65%，+1%）
-- **RxR val unseen**：SR 65.2%（vs BEVBert 64.1%，+1.1%），nDTW 65.6%（vs 63.9%，+1.7%）
-- **REVERIE val unseen**：RGS 37.65%（vs BEVBert 34.71%，+2.94%），RGSPL 27.01%（vs 24.44%，+2.57%）——远程目标定位能力显著提升
-- 消融：SGM 单独带来结构理解增益（REVERIE RGS 32.15% → 35.48%），不确定性单独将 R2R SR 从 72.22% 提升至 74.20%，两者叠加达到最优 78.32%
-- 三类不确定性均有独立贡献，全部使用时最优，几何+语义的提升幅度大于外观
-
----
-
-### 4. 局限性
-
-SGM 构建（尤其是 SAM2 语义抽取与不确定性估计）推理开销较大，训练阶段采用离线预计算缓解，但实时部署仍需轻量化替代（论文建议以轻量 SAM2 变体替换）；此外，框架在 Matterport3D 室内场景验证，对室外或动态环境的泛化性未知。
-
----
-
-## 35. GSMem (2026) {#gsmem}
-———3D Gaussian Splatting 作为具身探索与推理的持久空间记忆
-
-📄 **Paper**: [arXiv:2603.19137](https://arxiv.org/abs/2603.19137)
-
----
-
-### 精华
-
-GSMem 的核心洞察是将 3D Gaussian Splatting（3DGS）作为一种具备"事后重新观察"能力（post-hoc re-observability）的持久空间记忆，使 agent 无需物理回访即可从任意最优视点重新渲染已探索区域，从根本上突破了离散检测失败导致记忆永久缺失的固有瓶颈。双层检索机制（对象级场景图 + 语义级 CLIP 语言场）互为补充：场景图提供结构化定位，语言场在检测缺失时兜底召回，两者共同驱动最优视点渲染为 VLM 提供高保真视觉证据。混合探索策略将 VLM 语义相关性与基于 Fisher 信息矩阵迹近似的 3DGS 几何信息增益动态结合，在任务导向探索与全局覆盖之间自适应切换，兼顾效率与鲁棒性。将连续辐射场引入具身导航记忆是一次重要范式转移，其"写入即可重渲染"的特性对长时导航任务尤为关键。
-
----
-
-### 1. 研究背景/问题
-
-具身导航要求 agent 在未知环境中主动探索并持续积累空间知识。现有方法依赖两类表示：离散的 3D 场景图（如 ConceptGraphs）因依赖检测模块，目标漏检将导致不可恢复的记忆空洞；基于视图快照的方法（如 3D-Mem）则因视角固定、稀疏，无法从最优视角重新观察已探索区域，给 VLM 推理提供的视觉证据质量受限。上述方法均缺乏 post-hoc re-observability：agent 被锁定在初始探索时的固定观测中，无法如人类一样"从新角度回忆"过去场景。
-
----
-
-### 2. 主要方法/创新点
-
-**整体框架概览**
-
-GSMem 在主动探索过程中实时维护三个并行结构：3DGS 几何与外观地图、每个 Gaussian 附带的 CLIP 语言嵌入场、对象级场景图。查询到来时，多层检索-渲染机制定位相关区域并渲染最优视点图像，VLM 据此推理；当没有 frontier 提供足够语义线索时，切换至基于信息增益的几何探索。
-
-<div align="center">
-  <img src="/images/vln/GSMem-teaser.png" width="100%" />
-<figcaption>GSMem 系统概览：agent 在真实探索路径（黄线）之外，可通过 3DGS 记忆直接"事后重新观察"任意已探索区域（紫线），无需物理导航回访</figcaption>
-</div>
-
-**3DGS 建图与在线语言场**
-
-每个 3D Gaussian $$g_i$$ 额外携带 32 维语言嵌入（由 768 维 CLIP 特征经自编码器压缩得到）。为避免高维语言特征的优化开销，提出"权重一致逆聚合"：forward 渲染中 2D 像素特征由 3D Gaussian alpha-blending 生成，逆向时以完全相同的混合权重将 2D CLIP 特征反向分配给各 Gaussian，实现零优化开销的在线语义更新：
-
-$$\mathbf{f}_i^t = \frac{W_i^{t-1}\mathbf{f}_i^{t-1} + \sum_{k \in \mathcal{T}_t} \sum_p w_{i,p,k}^t \mathbf{f}_{p,k}^{2D}}{W_i^t}$$
-
-同时维护对象级场景图（含 3D 位置、语义标签、最高置信度检测视角）、TSDF 地图和 frontier 地图。
-
-**多层检索-渲染机制**
-
-<div align="center">
-  <img src="/images/vln/GSMem-retrieval-rendering.png" width="100%" />
-<figcaption>多层检索-渲染机制：对象级检索（场景图）与语义级检索（3DGS 语言场）并行定位 ROI，随后通过最优视点选择与 3DGS 渲染为 VLM 提供高保真视觉证据</figcaption>
-</div>
-
-给定任务查询，同时触发两条互补检索路径：
-- **对象级检索**：VLM 对场景图全部对象按语义相关性排序，选 top-$K_\text{obj}$ 候选作为 ROI
-- **语义级检索**：将查询编码为 CLIP 嵌入，在语言场中以余弦相似度 $> \tau_\text{clip}$ 召回相关 Gaussian，经 KD-Tree 聚类后保留 top-$K_\text{cluster}$ 个空间连贯群组作为 ROI
-
-对每个 ROI，在水平圆形轨迹上均匀采样 108 个候选视点（36 方位角 × 3 仰角），经两阶段打分筛选：Phase 1 以能见度分 $S_\text{vis}$（TSDF 光线投射）+ 投影面积分 $S_A$（高斯惩罚鼓励适当观察距离）选出 top-10；Phase 2 进一步以 3DGS 不透明度分 $S_\text{opa}$ 评估实际渲染质量，综合分 $S_\text{final} = S_\text{vis} + S_A + S_\text{opa}$ 选出最优视点。最终通过单步扩散模型提升渲染图像质量后送入 VLM 推理。
-
-**混合探索策略**
-
-<div align="center">
-  <img src="/images/vln/GSMem-hybrid-exploration.png" width="100%" />
-<figcaption>混合探索策略：当任一 frontier 的语义相关性超过阈值时优先导向任务目标；否则切换至基于 3DGS 信息增益（不确定性热力图）的几何覆盖探索</figcaption>
-</div>
-
-对每个候选 frontier 计算两类分数：
-- **语义相关分** $s_i^\text{sem} \in [0,1]$：VLM 评估 frontier 观测图像与任务查询的相关程度
-- **几何覆盖分** $s_i^\text{geo}$：基于 Fisher 信息矩阵（FIM）的信息增益，以 T-optimality 代理近似为 FIM 增量的迹 $$s_i^\text{geo} \approx \text{Tr}(\mathbf{I}_i)$$，可直接由渲染 Jacobian 计算，无需真值监督
-
-探索决策规则：
-
-$$i^* = \begin{cases} \arg\max_i \, s_i^\text{sem}, & \text{if } \max_i s_i^\text{sem} > \tau_s \\ \arg\max_i \, s_i^\text{geo}, & \text{otherwise} \end{cases}$$
-
----
-
-### 3. 核心结果/发现
-
-**Active Embodied QA (A-EQA) on OpenEQA**（63 个 HM3D 场景，184 问题，GPT-4o 作为 VLM）：
-
-| 方法 | LLM-Match ↑ | LLM-Match SPL ↑ |
-|------|------------|----------------|
-| Explore-EQA | 46.9 | 23.4 |
-| ConceptGraphs w/ Frontier | 47.2 | 33.3 |
-| 3D-Mem | 52.6 | 42.0 |
-| **GSMem (Ours)** | **55.4** | **43.8** |
-
-**GOAT-Bench 多模态长时导航**（36 场景 val-unseen，2600+ subtasks）：
-
-| 方法 | SR ↑ | SPL ↑ |
-|------|------|-------|
-| TANGO | 32.1 | 16.5 |
-| MTU3D | 47.2 | 27.7 |
-| 3D-Mem | 62.9 | 44.7 |
-| **GSMem (Ours)** | **67.2** | **46.9** |
-
-GSMem 在长时导航任务中的优势比 A-EQA 更显著（SR +4.3 vs LLM-Match +2.8），验证了持久记忆对长时累积任务的特殊价值。消融研究显示：去除 CLIP 语言场 −4.5 SR、去除最优视点选择 −2.7 SR、去除混合探索时 SPL 下降 −4.1，表明几何覆盖策略对探索效率贡献显著。
-
-<div align="center">
-  <img src="/images/vln/GSMem-case-analysis.png" width="100%" />
-<figcaption>案例对比（3D-Mem vs GSMem）：(a-c) 3D-Mem 因检测漏报（白色长袍、无花果树）或语义误检（白色门被识别为冰箱）导致错误，GSMem 通过语义场检索正确定位；(d) 视角受限时，GSMem 通过最优视点重渲染成功识别悬挂衣物</figcaption>
-</div>
-
----
-
-### 4. 局限性
-
-当前系统依赖 RGB-D 输入，深度噪声或高遮挡场景将影响 3DGS 建图质量，进而降低检索与渲染精度；单步扩散增强引入额外推理延迟，实时部署（当前约 1.2 s/step）仍有优化空间。
-
----
-
-
-## 36. WorldVLN (2025) {#worldvln}
+## 24. WorldVLN (2025) {#worldvln}
 ———Autoregressive World Action Model for Aerial Vision-Language Navigation
 
 📄 **Paper**: [arXiv:2605.15964](https://arxiv.org/abs/2605.15964)
@@ -3772,7 +2927,1979 @@ $$
 
 
 
-## 37. AwareVLN (2026) {#awarevln}
+
+
+
+
+
+
+
+
+## 25. VLN-PE (2025) {#vln-pe}
+———重新思考视觉-语言导航中的具身化差距:物理和视觉差异的全面研究
+
+📄 **Paper**: [arXiv:2507.13019](https://arxiv.org/abs/2507.13019v2) · 🏛️ **ICCV 2025**
+
+**精华**
+
+这篇论文通过构建物理真实的VLN平台,系统性地揭示了理想化仿真与物理部署之间的巨大差距。核心启示包括:(1) 跨具身数据融合训练可以显著提升模型泛化能力,为统一的跨机器人导航模型奠定基础;(2) 多模态感知(RGB+Depth)比单一RGB更鲁棒,尤其在光照变化环境下;(3) 物理控制器的引入对于腿足机器人至关重要,训练和评估阶段的控制器一致性直接影响性能;(4) 现有MP3D风格数据集的泛化能力有限,小规模域内数据微调即可超越大模型零样本性能;(5) diffusion policy作为连续路径点预测的新范式在VLN任务中展现潜力。
+
+**研究背景/问题**
+
+现有的VLN方法在理想化仿真环境中表现优异,但在部署到真实物理机器人时面临巨大挑战。主要问题包括:当前VLN平台忽视了机器人的物理具身特性(如视点高度、运动动力学、碰撞和跌倒等),并且缺乏对不同机器人类型(轮式、人形、四足)的跨具身支持。研究核心问题是:物理具身约束和视觉环境变化对现有VLN方法的性能影响究竟有多大?
+
+**主要方法/创新点**
+
+<div align="center">
+  <img src="/images/vln/VLN-PE-evolution.png" width="100%" />
+<figcaption>
+VLN任务的演进:从oracle-based导航(2018)到VLN-CE连续导航(2020),再到VLN-PE物理真实导航(2025)
+</figcaption>
+</div>
+
+论文提出了**VLN-PE平台**,一个基于GRUTopia构建的物理真实VLN基准测试平台,具有以下核心特性:
+
+1. **跨具身支持**:支持人形机器人(Unitree H1, G1)、四足机器人(Unitree Aliengo)和轮式机器人(Jetbot),并提供基于RL的物理控制器API,实现真实的运动动力学模拟
+
+2. **场景多样性**:除了90个MP3D场景外,新增10个高质量合成家居场景(GRScenes)和3DGS在线渲染实验室场景,支持无缝集成更多环境
+
+<div align="center">
+  <img src="/images/vln/VLN-PE-platform-overview.png" width="100%" />
+<figcaption>
+VLN-PE平台概览:支持多种机器人具身、场景类型、光照条件和控制器模式
+</figcaption>
+</div>
+
+3. **系统性评估框架**:评估三类ego-centric VLN方法
+   - **单步端到端方法**:Seq2Seq、CMA(约36M参数)和NaVid(7B参数的视频MLLM)
+   - **多步端到端方法**:首次提出RDP(Recurrent Diffusion Policy),使用transformer-based diffusion模块预测连续轨迹路径点
+   - **地图基零样本方法**:改进的VLMaps,结合LLM和语义地图进行路径规划
+
+<div align="center">
+  <img src="/images/vln/VLN-PE-RDP-framework.png" width="100%" />
+<figcaption>
+RDP(循环扩散策略)框架:使用GRU维护历史信息,交叉注意力融合视觉-语言特征,Transformer扩散模块预测连续动作序列
+</figcaption>
+</div>
+
+4. **新数据集**:
+   - **R2R-filtered**:过滤楼梯场景后保留8,679/658/1,347个训练/val-seen/val-unseen episodes
+   - **GRU-VLN10**:10个合成场景,441/111/1,287个episodes
+   - **3DGS-Lab-VLN**:3DGS渲染实验室环境,160训练/640评估episodes
+
+5. **新评估指标**:除了传统的TL、NE、SR、OS、SPL外,新增Fall Rate (FR)和Stuck Rate (StR)来衡量物理真实性挑战
+
+**核心结果/发现**
+
+<div align="center">
+  <img src="/images/vln/VLN-PE-main-results.png" width="100%" />
+<figcaption>
+使用人形机器人Unitree H1在R2R数据集上的主要实验结果对比
+</figcaption>
+</div>
+
+**零样本迁移性能大幅下降**:
+- VLN-CE模型直接迁移到VLN-PE时,SR相对下降约34%
+- Seq2Seq-Full、CMA-Full和NaVid的SR分别下降10%、16%和18%
+- 这表明现有模型严重过拟合特定仿真平台
+
+**域内微调显著提升**:
+- 在VLN-PE上从头训练的CMA(无数据增强)超越了使用175K增强数据训练的CMA-Full
+- 小模型CMA+经过微调后,在val-seen上达到SR 28.72,SPL 24.24,超越NaVid的零样本性能
+
+**跨具身敏感性**:
+- 四足机器人(相机高度约0.5m)在迁移时几乎完全失败
+- 调整相机高度到1.8m可改善人形机器人的迁移性能
+- 跨具身联合训练使单一模型在所有机器人类型上达到SoTA性能
+
+**物理控制器的重要性**:
+- 训练和评估使用相同控制器时性能最佳
+- 使用物理控制器收集数据可降低Fall Rate和Stuck Rate
+
+**多模态鲁棒性**:
+- 仅RGB的NaVid在低光照下SR下降12.47%
+- RGB+Depth的CMA和RDP受光照影响较小(下降约1-2%)
+
+**MP3D数据集泛化能力有限**:
+- 在GRU-VLN10上,RDP用6M参数仅441个训练样本,零样本超越NaVid大模型
+- 在3DGS-Lab-VLN上,NaVid完全失败(SR仅5.81),可能是3DGS渲染噪声导致
+
+**扩散策略的潜力**:
+- RDP作为首个VLN扩散策略基线,在从头训练时优于Seq2Seq和CMA
+- 预测连续密集路径点,可与MPC等控制理论方法结合
+
+**真机实验验证**:
+- 使用Unitree Go2机器人进行14个室内场景测试
+- VLN-PE微调模型在真实环境中OS达到57.14,SR达到28.57,显著优于VLN-CE训练模型
+
+**局限性**
+
+当前RL-based运动控制器无法可靠处理复杂环境中的楼梯导航,需要过滤相关场景。论文主要聚焦ego-centric视角,未评估panoramic VLN方法。MLLM在精确目标识别和停止决策上仍存在挑战。3DGS渲染引入的像素级噪声可能干扰纯RGB模型,需要进一步研究图像扰动的鲁棒性。
+
+---
+
+
+
+
+
+
+
+
+
+## 26. Goal2Pixel (2025) {#goal2pixel}
+———将导航目标接地到图像像素，以像素预测统一 VLN-CE 的决策空间
+
+📄 **Paper**: [arXiv:2606.01621](https://arxiv.org/abs/2606.01621)
+
+### 精华
+
+1. **图像平面即决策空间**：将 VLN-CE 的高层决策从离散动作预测重新定义为像素预测——VLM 只需输出一个像素坐标，消除了动作标签的歧义性，并与 VLM 的原生输出空间对齐。
+2. **辅助指令区域设计**：将转向/停止等非前进动作编码为图像平面扩展区域中的像素，使所有决策在同一坐标空间内统一处理，无需两阶段切换。
+3. **ViKeyMem 以可见性驱动关键帧**：以"未来路点可见性变化"为关键帧选取标准，仅需 3–4 帧即可编码 100+ 步轨迹，训练成本从 156 降至 70 H100 GPU 小时。
+4. **减少 VLM 调用次数**：像素预测粒度更粗（一次预测对应 5 步低层动作），使 VLM 调用次数从 46.62 降至 7.75，同时性能从 32.9% SR 提升至 54.1% SR。
+5. **跨平台可迁移性**：像素输出将高层 VLM 推理与机器人底层控制器解耦，同一模型可跨不同硬件平台复用。
+
+---
+
+### 1. 研究背景/问题
+
+VLN-CE（连续环境视觉语言导航）中，现有 VLM-based 方法多以低层动作预测（前进/左转/右转/停止）为输出接口，存在三个缺陷：监督信号模糊（同一空间目标对应多个合法动作序列）、决策视野短（每步只移动 25cm）、VLM 调用次数过多（每集需 30–47 次）。如何为 VLM 推理与机器人执行之间找到更合适的接口，成为核心问题。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vln/Goal2Pixel-architecture.png" width="100%" />
+<figcaption>Figure 1：Goal2Pixel 整体框架。上：三阶段执行流水线——VLM 预测目标像素 (u,v)，经相机几何反投影为 3D 路径点，本地规划器转化为低层动作；辅助指令区域（图像左/右/下扩展区）分别对应 Turn_Left/Turn_Right/Stop。下：VLM 以语言指令、填充后的当前 RGB 图像和 ViKeyMem 历史记忆为输入，输出坐标字符串 "XXX,YYY"；视觉语义嵌入与坐标感知损失辅助适配。</figcaption>
+</div>
+
+**① 整体框架概述**
+
+Goal2Pixel 由三个核心部分构成：**像素预测 VLM**（InternVL3 微调）、**几何反投影模块**、**本地规划器**。VLM 输出坐标字符串 → 反投影为 3D 路径点 → 规划器执行至多 5 步低层动作后再次查询 VLM，形成闭环。
+
+**② 纯像素输出接口（Pure Pixel Paradigm）**
+
+- **输入**：正方形填充的当前 RGB 图像（含三侧辅助指令区域）+ 语言指令 + ViKeyMem 历史（最多 8 帧）
+- **处理**：VLM 自回归生成 "XXX,YYY" 格式坐标字符串，坐标归一化至 [000, 999]
+- **输出判断**：坐标落在 RGB 区域 → 经相机内参反投影为 3D 路径点，由本地规划器跟踪执行；坐标落在辅助区域 → 直接执行 Turn_Left / Turn_Right / Stop
+- **设计动机**：像素坐标是 VLM 的原生输出空间，监督信号更明确；所有决策统一在同一接口，无需两阶段 action-then-pixel 切换
+
+**辅助指令区域规则**：
+- 底部区域 → Stop（距终点 ≤1m 时，GT 像素指向此区域）
+- 左/右区域 → Turn_Left / Turn_Right（当前进路点不可见时，根据接下来 5 个路点的平均自中心方向决定）
+
+**GT 像素定义**：沿 oracle 轨迹，当前帧中**最远可见可行驶像素**——鼓励更长视野决策，去除短程动作的模糊歧义。
+
+**③ ViKeyMem 关键帧历史记忆**
+
+<div align="center">
+  <img src="/images/vln/Goal2Pixel-vikeymem.png" width="100%" />
+<figcaption>Figure 4：ViKeyMem 可视化。每行为一个独立轨迹（长度 90–123 步），关键帧从左至右按时间排列，最右列为鸟瞰地图。蓝色轨迹点叠加于历史帧，提供紧凑的过去运动线索；100+ 步轨迹通常仅需 3–4 关键帧即可完整覆盖关键视角转换。</figcaption>
+</div>
+
+ViKeyMem 以**未来路点可见性变化**为关键帧选取标准，候选帧满足以下三个条件时加入关键帧集合：
+1. 候选帧视点不再被最近关键帧覆盖（核心可见性条件）
+2. 候选帧自中心图像中至少有一个后续路点可见
+3. 至少两个不同后续路点落在候选帧 45° 前向视场内
+
+每个选取的关键帧上叠加蓝色轨迹点（trajectory overlay），提供轻量级过去运动提示。R2R-CE 上平均每 100 步仅选 3–4 帧，推理时间从 0.224s 降至 0.121s，训练时间从 156 H100 小时降至 70 小时。
+
+**④ 视觉语义嵌入（Visual Semantic Embeddings）**
+
+预训练 VLM 对导航特有的视觉模式（辅助指令区域、轨迹叠加点）识别能力不足，因此引入两类可学习嵌入：
+- **指令区域嵌入（directive embedding）**：叠加在与辅助指令区域重叠的当前帧 visual token 上
+- **轨迹嵌入（trajectory embedding）**：叠加在含蓝色轨迹点的历史帧 visual token 上
+- 普通 RGB token 保持不变，参数量极小
+
+**⑤ 训练目标与坐标感知损失**
+
+$$\mathcal{L} = \mathcal{L}_{CE} + \lambda_{num}\mathcal{L}_{num} + \lambda_{ang}\mathcal{L}_{ang}$$
+
+- $$\mathcal{L}_{CE}$$：标准 token 级交叉熵，主要监督信号；$$\lambda_{CE}=1$$
+- $$\mathcal{L}_{num}$$：数值损失，通过 softmax logits 推导可微 soft 坐标，鼓励预测数值接近 GT；$$\lambda_{num}=0.3$$
+- $$\mathcal{L}_{ang}$$：角度损失，鼓励预测像素保持与 GT 相同的自中心方向；$$\lambda_{ang}=0.03$$
+
+**⑥ 推理流程**
+
+每次 VLM 调用后，本地规划器最多执行 t=5 步低层动作；若出现连续 20 步左右震荡，自动 fallback 到固定前进像素 (500,970) 以脱困。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vln/Goal2Pixel-training-cost.png" width="80%" />
+<figcaption>Figure 5：R2R-CE Val-Unseen SR 与训练成本对比（x 轴对数坐标，标记大小对应模型规模）。Goal2Pixel (2B) 以 80 H100 小时实现 54.1% SR，训练成本远低于同等性能的其他方法。</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vln/Goal2Pixel-qualitative.png" width="100%" />
+<figcaption>Figure 7：Goal2Pixel 在 R2R-CE 上的定性结果。每行为一个导航集，红点为 VLM 每步预测的目标像素，最右列为鸟瞰执行轨迹。</figcaption>
+</div>
+
+**R2R-CE Val-Unseen 主要结果**（2B 模型，零外部数据）：
+- **SR 54.1%，SPL 52.5%**，每集仅需 **7.75 次 VLM 调用**
+- 直接动作预测：SR 32.9%，需 46.62 次调用（SR 差 21.2 点，调用多 6×）
+- 与 JanusVLN 7B（SR 52.8%）相比，2B Goal2Pixel SR 高 1.3 点，参数规模仅 2/7
+
+**输出范式消融**（Table 2）：
+
+| 输出范式 | SR | SPL | # VLM Calls |
+|---------|-----|-----|-------------|
+| 1 动作预测 | 32.9% | 31.5% | 46.62 |
+| 4 动作预测 | 37.0% | 36.0% | 15.77 |
+| 混合 Action-Pixel (Seq) | 43.7% | — | ~10 |
+| **纯 Pixel（本文）** | **54.1%** | **52.5%** | **7.55** |
+
+**ViKeyMem 消融**（Table 3a）：
+- 对比 5-step 固定间隔采样：SR/SPL +8.0/+7.4（R2R），+5.1/+5.0（RxR）
+- 推理时间：0.243s → 0.121s（−50%）；训练时间：173h → 70h（−60%）
+
+**RxR-CE Val-Unseen**（2B）：SR 43.8%，SPL 40.4%，nDTW 61.1%
+
+**实物机器人**：16 次室内导航测试，Goal2Pixel 能将语言指令（门、沙发、冰箱、楼梯等）接地到有意义的像素目标，并通过本地控制器完成实际导航。
+
+---
+
+### 4. 局限性
+
+ViKeyMem 以可见性为标准可能遗漏短暂出现或远距低分辨率的细粒度地标；soft 坐标期望值在多峰数字分布下可靠性有限（但主监督仍为 token 级 CE loss，已起缓解作用）。
+
+---
+
+
+
+
+
+
+
+
+
+## 27. AstraNav-World (2025) {#astranav-world}
+———将"想象未来"与"规划未来"统一进同一个生成式概率框架
+
+📄 **Paper**: [arXiv:2512.21714](https://arxiv.org/abs/2512.21714)
+
+### 精华
+
+- 把"先想象未来场景、再据此规划动作"的松耦合 envision-then-plan 范式，改造为视觉预测与动作生成在同一概率框架内联合建模、同步 rollout 的紧耦合范式，从根本上抑制误差累积。
+- VLM 不再只做语言理解，而是同时作为视频生成器和动作策略头的统一条件编码器，用同一份"语言-视觉嵌入"驱动两条分支。
+- 双向约束是关键：动作要以可执行的未来视觉证据为依据，预测的未来画面也要被动作意图反向约束，两者互相校正而不是单向传递误差。
+- 引入 Sparse Foresight Scheduling，按固定间隔而非逐帧触发"视觉预测+动作生成"的联合推理，在几乎不掉点的情况下把推理速度提升一个数量级。
+- 消融证明：性能提升主要来自世界模型的双向约束机制，而非单纯堆参数量（3B 联合模型优于纯放大到 7B 的 VLA-only 基线）。
+
+---
+
+### 1. 研究背景/问题
+
+具身导航失败的一个核心原因是模型缺乏对物理规律和时间动态的建模：微小的预测偏差会随时间累积，最终破坏全局规划的有效性。现有方法通常把"想象未来"（world model 生成未来画面）和"规划未来"（VLA 输出动作）做成两个松耦合的串行模块，这种 envision-then-plan 流水线会放大物理不确定性和因果歧义，导致视觉预测和实际动作彼此不一致。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vln/AstraNav-World-architecture.png" width="100%" />
+<figcaption>AstraNav-World 整体架构：VLM 规划器统一驱动两种策略头变体（a）Action Former 直接预测动作；（b）Diffusion Policy 通过 MMFCA 与视频生成器双向交互</figcaption>
+</div>
+
+**① 整体框架概述**：AstraNav-World 由三个核心模块构成——VLM 规划器（高层语义推理）、基于 DiT 的视频生成器（预测未来视觉观测）、动作策略头（生成未来动作序列，有 Action Former 和 Diffusion Policy 两种实现）。VLM 编码指令和历史/当前多视角观测，生成统一的视觉-语言嵌入，同时作为视频生成器和策略头的条件输入，取代了传统视频扩散模型里的文本编码器。
+
+**② 逐模块讲解**
+
+- **VLM 规划器（τθ）**：输入是自然语言指令 I 和历史观测序列 O_hist；内部用 Qwen2.5-VL-3B 做全参数微调；输出是 C ∈ R^(L×D)（D=2048）的视觉-语言嵌入，同时包含"目标导向语义特征"（指令编码）和"空间上下文特征"（历史/当前视觉语义与空间信息）。这一表示让模型既能保持对长时序任务的整体理解，又能灵活响应环境的即时变化。
+- **VLM 条件视频生成器**：基础架构是 Wan2.2-TI2V-5B（ST-VAE + 30 层 DiT），用 LoRA（rank=128）微调。把 VLM 的视觉-语言嵌入通过 cross-attention 注入 DiT，替代原本的 umT5 文本编码器，使生成的未来帧在语义上与 VLM 的高层规划保持一致。训练时对历史/当前帧加极小噪声（σ_obs≈0.05）当作"干净"条件，对未来帧用 Flow Matching 方式加噪并学习速度场 u_t=ϵ−z_future，损失只在未来帧上计算（L_VG，式 4）。
+- **3D-RoPE 重排**：为了把当前时刻的 left/front/right 三个视角和历史帧统一编码进同一套 3D 旋转位置编码，作者把三个视角沿宽度轴"虚拟拼接"——front 保持原坐标，right 在宽度上偏移 W，left 偏移 2W，同时共享相同的时间和高度索引（式 1–3），从而显式编码多视角间的空间-时间关系，而不打乱时序对齐。
+- **动作策略头（两种实现）**：
+  - **Action Former**：用一组可学习 query 向量通过若干层 Transformer 与 VLM 嵌入交互，再经 MLP 输出确定性动作序列 A=(X,Y,cosθ,sinθ,α)，分别用 L1 位置损失、余弦角度损失、二元到达损失加权组合（式 5–8）。
+  - **Diffusion Policy**：用 Flow Matching 在噪声动作序列上做去噪生成，提供概率化的动作预测。关键创新是 **Multimodal Fusion Cross-Attention（MMFCA）**：在 Diffusion Policy 和视频生成器最后 8 个重叠的 DiT 块之间引入双向 cross-attention——动作表征作 query 去 attend 视频隐表征（确保动作以可信的未来视觉为依据），同时视频隐表征也作 query 去 attend 动作表征（确保生成画面与已规划动作保持因果一致）。MMFCA 受二元开关 γ 控制：γ=1 时两路双向融合、同步 rollout；γ=0 时两路独立运行，推理时甚至可以完全跳过视频生成器只跑策略头，大幅降低算力开销。
+- **设计动机**：核心 gap 是松耦合流水线里视觉预测和动作规划互不感知，容易各自漂移。MMFCA 和共享 VLM 条件正是为了让两条分支在训练和推理阶段都能"互相看见对方"，把误差互相校正而不是单向累积。
+
+**③ 端到端数据流**：一条样本先经 VLM 编码指令+历史/当前三视角观测得到统一嵌入；该嵌入同时条件化视频生成器（预测未来 N 步前视帧）和策略头（预测未来 N 步动作）；若启用 MMFCA，两路在重叠 DiT 块内做双向 cross-attention 实现同步 rollout；最终输出未来视觉帧序列和对应的动作（路径点）序列。
+
+**④ 训练目标**：总损失 L_Total = L_VG + λ·L_PH（λ=1.0，式 10），L_VG 是视频生成的 Flow Matching 损失（式 4），L_PH 根据策略头类型为式 8（Action Former 的位置+角度+到达损失组合）或式 9（Diffusion Policy 的 Flow Matching 损失）。训练分两阶段：**Stage 1** 冻结 VLM，先独立预训练视频生成器（L_VG）、再独立预训练策略头（L_PH），避免两个模块过早互相干扰；**Stage 2** 解冻全部组件用 L_Total 联合微调，对 Diffusion Policy 以 50% 概率随机启用 MMFCA，防止策略头过度依赖视觉反馈，保证视频生成器关闭时策略头仍能独立工作。
+
+**⑤ 推理流程（Sparse Foresight Scheduling, SFS）**：视频生成是推理速度的瓶颈，因此不在每一步都联合生成"未来帧+动作"，而是按固定间隔触发联合生成——大量导航场景里直行等简单一致行为并不需要逐帧更新世界模型。使用 Action Former 时，推理阶段直接完全关闭视频生成器，只用 query Transformer 出动作；使用 Diffusion Policy 时，视频生成器仅在固定间隔步（实现中每 10 步）激活一次，中间步骤保持关闭，在预测精度和推理速度间取得最优折中。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vln/AstraNav-World-qualitative-results.png" width="100%" />
+<figcaption>定性结果：模型同时预测未来 5 帧视觉观测和对应的 5 步路径点，生成画面与按预测路径点渲染的场景高度一致</figcaption>
+</div>
+
+- 在 R2R-CE / RxR-CE Val-Unseen 上，AstraNav-World 全面超越此前 SOTA：Action Former 版本相对此前最佳方法 SR 绝对提升 2.1%（R2R-CE）/1.1%（RxR-CE）；Diffusion Policy + MMFCA 版本进一步在 Action Former 基础上再提升 0.7%（R2R-CE）/2.5%（RxR-CE），最终 R2R-CE SR=67.9%、SPL=65.4%，RxR-CE SR=72.9%。
+- 在 HM3D-OVON 开放词表物体导航上，Diffusion Policy 相对此前最佳 MTU3D 提升 SR 4.9% 绝对值（45.7% vs 40.8%）。
+
+<div align="center">
+  <img src="/images/vln/AstraNav-World-ablation-study.png" width="100%" />
+<figcaption>消融实验：(a) 去掉视频生成器分支在三个数据集上均导致 SR 下降；(b) SFS 间隔越大推理越快（最高 6.7×），SR 几乎不掉；(c) 生成视觉序列与真实路径点的姿态一致性随角度阈值放宽迅速逼近 100%</figcaption>
+</div>
+
+- **去掉视频生成器分支**会在 R2R、RxR、OVON 三个数据集上一致地降低 SR，证明显式预测未来观测确实为规划提供了关键的视觉引导，并非冗余分支。
+- **缩放 vs. 世界建模**：把 VLA-only（无视频生成）基线的 VLM 从 3B 放大到 7B，R2R-CE SR 几乎不变（66.5%→66.6%），已触及参数缩放的天花板；而 3B 模型加上视频生成分支（L_VG 正则化）就能把 SR 推到 67.9%，说明性能增益主要来自世界模型的双向约束机制，而不是单纯堆参数。
+- **一致性分析**：用开源 VGGT 模型估计生成图像序列的相对相机位姿变化，与仿真器真实渲染的相对位姿对比，角度差 δ_a 的分布显示生成的未来视觉预测与规划动作具有很高的几何一致性。
+- **真实世界零样本迁移**：未做任何真实世界数据微调，AstraNav-World 直接部署在物理机器人上完成自然语言指令导航任务，在过门、转角等关键过渡场景上表现出对未来场景的预判能力，显著优于通常需要域适应的现有方法，验证了世界模型学到的是可迁移的物理/导航规律而非仅过拟合仿真数据分布。
+
+---
+
+### 4. 局限性
+
+视频生成本身的推理延迟和复杂场景下的算力开销仍是瓶颈（尽管 SFS 已大幅缓解）；论文也指出未来工作需要扩展到更长时间跨度和更难的任务，进一步加强物理与因果一致性建模，并提升闭环一致性与实时推理/规划能力。
+
+---
+
+
+
+
+
+
+
+
+
+## 28. CorrectNav (2025)
+——— 自纠错飞轮赋能的单目 RGB 视觉-语言-动作导航模型
+
+📄 **Paper**: [arXiv:2508.10416](https://arxiv.org/abs/2508.10416) · [Code](https://github.com/owlet914/CorrectNav) · [Project Page](https://correctnav.github.io)
+
+---
+
+### 精华
+
+1. **变废为宝的数据范式**：不同于传统方法将模型在训练集上的预测偏差视为无效错误，CorrectNav 提出**自纠错飞轮**（Self-correction Flywheel）后训练范式，将模型评估产生的偏离轨迹转化为极具价值的自纠错训练数据。
+2. **感知与动作双重隐式纠错**：联合构建**动作纠错轨迹**（通过轨迹规划器 $\Gamma$ 重新打通至终点的路径）与基于多模态大模型的**关键帧感知分析**（描述地标与生成细节 QA），无需增加额外的推理模块或引入极耗时的思维链（CoT），将自纠错能力直接隐式内化于模型参数中。
+3. **闭环飞轮多轮迭代**：采用"模型评估 ➔ 偏离检测 ➔ 动作/感知自纠错数据自动生成 ➔ 持续训练"的闭环机制。训练后新模型产生的偏离模式会触发下一轮飞轮，性能随迭代轮次提升显著。
+4. **单目 RGB 端到端 SOTA**：仅依赖单目 RGB 视频输入与语言指令，在 R2R-CE 和 RxR-CE Val-Unseen 连续环境基准上成功率分别达到 **65.1%** 和 **69.3%**，大幅超越 prior SOTA 导航大模型 StreamVLN（+8.2% 与 +16.4%）。
+5. **强鲁棒的实机落地**：结合域随机化与通用多模态数据回放防遗忘策略，在 AgiBot 灵汐 D1 四足机器人上实现了室内外复杂场景、长指令跟随与动态避障自纠正的高成功率部署。
+
+---
+
+### 1. 研究背景/问题
+
+在视觉-语言导航（Vision-and-Language Navigation, VLN）任务中，机器人需要根据自然语言指令在未探索的连续环境中进行路径探索。然而，现有的视觉-语言-动作（VLA）导航模型在执行指令时，不可避免地会由于感知失误或指令理解偏差产生单步预测错误。
+
+这种单步错误在连续空间中会迅速累积，导致机器人严重偏离预定路线（如指令要求"向前走并右转进客厅"，若提前右转则会误入厨房）。传统模型由于缺乏**自纠错（Self-correction）与自恢复能力**，一旦偏离路径便无法重新定位，导致导航失败。先前部分研究（如 SmartWay、EnvolveNav）尝试引入闭源大模型进行回溯反思或生成长思维链，但这引入了巨大的推理延迟与复杂的外部模块，难以满足实机导航的实时性要求。
+
+---
+
+### 2. 主要方法/创新点
+
+CorrectNav 构建了一个基于单目 RGB 图像输入的 VLA 导航模型，并通过**自纠错飞轮后训练范式**隐式内化了高效的路径偏离纠正能力。
+
+<div align="center">
+  <img src="/images/vln/CorrectNav-capabilities.png" width="100%" />
+<figcaption>CorrectNav 具身导航多样化能力示意图（涵盖跨房间指令导航、地标状态变更感知、错误纠偏、漂移纠正及行人/密集障碍物避让）</figcaption>
+</div>
+
+#### ① 整体框架概述
+
+CorrectNav 系统由 **Vision Encoder**（SigLIP）、**Projector**（2层 MLP）与 **Large Language Model Backbone**（Qwen2 7B，初始化自 LLaVA-Video 7B）三个模块构成。Vision Encoder 负责抽取输入 RGB 视频多帧的视觉特征 $Z_v$，Projector 将视觉特征映射至 LLM 语义空间 $H_v$，LLM 结合语言指令文本 token 自回归预测长度为 $m=4$ 的动作块（Action Chunk $\{a_{t+1}, \dots, a_{t+m}\}$）。
+
+<div align="center">
+  <img src="/images/vln/CorrectNav-architecture.png" width="100%" />
+<figcaption>CorrectNav 整体架构与自纠错飞轮后训练范式示意图（左：导航微调与域随机化；右：自纠错飞轮 4 步循环闭环）</figcaption>
+</div>
+
+#### ② 基础导航微调（Navigation Fine-tuning）与三大数据策略
+
+在开启自纠错飞轮前，CorrectNav 首先在标准导航任务上进行多任务微调：
+- **动作预测任务（Action Prediction）**：基于 MP3D 场景提取的 R2R-CE（527K）和 RxR-CE（1.58M）共计 210 万+ 步级标准轨迹进行动作预测训练。为了大幅提升视觉鲁棒性，引入了**域随机化策略**（涵盖随机相机高度、视场角 FoV、分辨率缩放与光照条件变换）。
+- **轨迹逆向指令生成（Instruction Generation）**：利用 30K 条完整 oracle 轨迹，训练 CorrectNav 根据观测历史生成对应的导航语言指令，强化跨模态表达能力。
+- **通用多模态数据回放（General Multimodal Data Recall）**：为防止在专用导航数据集上连续训练导致通用多模态理解能力退化（Catastrophic Forgetting），按比例混入 240K 来自 LLaVA-Video（ActivityNet-QA 和 NextQA）的视频 QA 数据，保持时空感知能力。
+
+#### ③ 自纠错飞轮后训练范式（Self-correction Flywheel Post-training）
+
+为了使 CorrectNav 具备自恢复能力，作者设计了四步闭环飞轮：
+
+1. **Step 1: 训练集评估与偏离轨迹采集**  
+   虽然 CorrectNav 已在训练集上接受过监督训练，但在训练集上重新评估模型时，模型依然会产生导航错误轨迹 $T_m = (M_1, M_2, \dots, M_m)$。这些包含错误的轨迹正是最宝贵的自纠错训练数据来源。
+
+2. **Step 2: 轨迹偏离检测（Deviation Detection）**  
+   对真实参考轨迹 $T_g$ 进行均匀插值得到 $T'_g$。计算机器人位置 $M_i$ 到参考轨迹的垂距：
+   $$h_i = \min_{x \in T'_g} \lVert M_i - x \rVert_2$$
+   对应在 $T'_g$ 上的垂足定位为：
+   $$P_i = \arg\min_{P \in T'_g} \lVert M_i - P \rVert_2$$
+   当存在时间步 $t$ 满足垂距超过距离阈值 $S$（即 $h_t > S$，且之前步骤 $h_i \le S, \forall i < t$），则判定模型在 $M_t$ 处发生了偏离，并将 $M_t$ 附近的观测帧标记为纠错关键帧。
+
+3. **Step 3: 动作与感知自纠错数据构建**  
+   - **动作纠错轨迹（Action Correction Trajectory）**：若垂足 $P_t$ 位于参考线段 $G_k G_{k+1}$ 上，说明机器人正确经过了 $G_k$，但在前往 $G_{k+1}$ 时发生偏离。调用轨迹规划器 $\Gamma$ 重新生成一条从偏离点 $M_t$ 出发、经过后续参考点并最终到达终点的修补轨迹 $$T_e = (M_t, G_{k+1}, \dots, G_n)$$。在训练时，偏离点前的历史只提供观测上下文，仅在 $T_e$ 上计算动作预测损失。
+   - **关键帧感知分析（Keyframe Perception Analysis）**：抽取偏离点 $M_t$ 及其前后关键帧 $\{K_1, K_2, K_3\}$，利用多模态大模型 Qwen-VL-Plus 自动生成两类感知数据：
+     1. **地标描述** $$C_i = \text{MLLM}(K_i, L_{\text{cap}})$$：描述图像中出现的家具、建筑结构等关键地标；
+     2. **细节 QA 对** $$\{(Q_j, A_j)\}_{j=1}^x = \text{MLLM}(K_i, L_{\text{qa}})$$：聚焦于物体相对位置、颜色及机器人当前朝向等关键视觉元素。通过感知数据训练，引导模型不仅知晓"怎么纠偏"，更理解"为何偏离"。
+
+4. **Step 4: 模型持续训练与多轮飞轮迭代（Continued Training & Multi-Round Iteration）**  
+   按比例采样 $50\%$ 的自纠错轨迹/感知数据与 $25\%$ 的原始标准轨迹组合进行持续训练。当经过一轮纠错训练的模型再次在训练集上评估时，又会暴露新的偏离模式，从而驱动飞轮开启下一轮（Loop）。随着多轮迭代推进，模型的自纠错能力持续攀升。
+
+<div align="center">
+  <img src="/images/vln/CorrectNav-case-study.png" width="100%" />
+<figcaption>CorrectNav 纠错能力对比示意图（上：在走错路径失焦后迅速掉头返回正确路径；下：进入错误前门发现无目标步骤后折返并进入正确的侧门）</figcaption>
+</div>
+
+---
+
+### 3. 核心结果/发现
+
+#### ① VLN-CE 连续基准定量对比
+
+在 Habitat 3.0 仿真器中，对 R2R-CE 和 RxR-CE 的 Val-Unseen 拆分集进行了全面评估（仅输入单目 RGB）：
+
+| 模型 | 输入模态 | R2R-CE NE↓ | R2R-CE SR↑ | R2R-CE SPL↑ | RxR-CE NE↓ | RxR-CE SR↑ | RxR-CE SPL↑ | RxR-CE nDTW↑ |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| BEVBert | RGB-D + Pano | 4.57 | 59.0% | 50.0% | - | - | - | - |
+| ETPNav | RGB-D + Pano | 4.71 | 57.0% | 49.0% | 5.64 | 54.7% | 44.8% | 61.9% |
+| HNR | RGB-D + Pano | 4.42 | 61.0% | 51.0% | 5.50 | 56.3% | 46.7% | 63.5% |
+| NaVid | 单目 RGB | 5.47 | 37.0% | 35.0% | - | - | - | - |
+| Uni-NaVid | 单目 RGB | 5.58 | 47.0% | 42.7% | 6.24 | 48.7% | 40.9% | - |
+| NaVILA | 单目 RGB | 5.22 | 54.0% | 49.0% | 6.77 | 49.3% | 44.0% | 58.8% |
+| StreamVLN | 单目 RGB | 4.98 | 56.9% | 51.9% | 6.22 | 52.9% | 46.0% | 61.9% |
+| **CorrectNav (Ours)** | **单目 RGB** | **4.24** | **65.1%** | **62.3%** | **4.09** | **69.3%** | **63.3%** | **75.2%** |
+
+CorrectNav 在仅使用单目 RGB 的前提下，不仅刷新了单目 VLA 模型的最高纪录（R2R-CE SR 65.1%，RxR-CE SR 69.3%），甚至全面超越了依赖深度图（Depth）、全景图（Pano）和路点预测器（Waypoint Predictor）的传统拓扑地图方法（如 HNR、ETPNav）。
+
+#### ② 飞轮迭代与消融实验
+
+<div align="center">
+  <img src="/images/vln/CorrectNav-iterations-curve.png" width="80%" />
+<figcaption>CorrectNav 性能随自纠错飞轮迭代轮次的变化趋势</figcaption>
+</div>
+
+- **飞轮迭代效应**：随着自纠错飞轮迭代从 Iter 0 推进至 Iter 3，R2R-CE 和 RxR-CE 的成功率均表现出持续的增长，证明了自纠错数据闭环迭代的有效性。在第 4 轮出现轻微回落时止盈。
+- **关键模块消融**：移除动作纠错轨迹生成会导致成功率最显著的下降（R2R 降至 59.2%）；移除关键帧感知分析则导致成功率降至 60.1%，验证了感知引导纠错的必要性。
+
+#### ③ 真实机器人实测（AgiBot 灵汐 D1 四足机器人）
+
+在 AgiBot 灵汐 D1 四足机器人平台（配备单目 RGB 摄像头及 remote A100 GPU）上进行了 Office、Home、Campus 三大场景的定量测试：
+
+<div align="center">
+  <img src="/images/vln/CorrectNav-real-robot.png" width="100%" />
+<figcaption>CorrectNav 在室内外多场景（办公区、住宅、校园）实机部署的定性结果（涵盖动态避障、长时间跨度指令与路径偏离恢复）</figcaption>
+</div>
+
+- 在复杂的室内外长指令测试中，CorrectNav 的成功率（SR）显著优于 Baseline（如在 Office Complex 指令下 SR 达 **75%**，而 NaVid 仅为 30%，NaVILA 为 20%）。
+- 具备强劲的动态避障（动态避让行人与黄色箱子）以及偏离后自折返恢复能力。
+
+---
+
+### 4. 局限性
+
+1. **几何相对位置感知精度有限**：单目 RGB 缺乏精确深度信息，模型对机器人本体与周围障碍物之间的相对空间物理距离感知尚不够精确。
+2. **机体碰撞擦碰风险**：在四足机器人等具有复杂几何轮廓的平台上，当贴紧障碍物转弯时，机器人的后腿可能存在轻微擦碰障碍物的风险。作者指出未来需将机器人本体尺寸与状态先验融合入推理模型中。
+
+---
+
+
+
+
+
+
+
+
+
+## 29. VLingNav (2026) {#vlingnav}
+——Embodied Navigation with Adaptive Reasoning and Visual-Assisted Linguistic Memory
+
+📄 **Paper**: [arXiv:2601.08665](https://arxiv.org/abs/2601.08665)
+<div align="center">
+  <img src="/images/vln/VLingNav_architecture.png" width="100%" />
+<figcaption>
+VLingNav 整体架构概述，展示了AdaCoT推理和VLingMem记忆模块。
+</figcaption>
+</div>
+
+**精华**
+
+该论文提出了VLingNav框架，通过自适应链式思考（AdaCoT）和视觉辅助语言记忆（VLingMem）赋予具身智能体认知能力，实现了高效且可解释的具身导航。其核心亮点在于动态推理机制和跨模态记忆，使其在各种具身导航基准测试中达到SOTA性能，并展示了强大的零样本迁移能力和跨任务泛化能力，为资源受限机器人平台上的智能导航提供了启发。
+
+**研究背景/问题**
+
+当前的具身导航VLA模型在复杂、长周期任务中缺乏明确的推理能力和持久性记忆，难以泛化到不同环境和任务变体。现有模型多为被动式系统，缺少自适应推理机制，并且依赖有限的上下文窗口，导致在复杂场景下无法有效规划和避免重复探索。
+
+**主要方法/创新点**
+
+本文提出了VLingNav，一个以语言驱动的VLA框架，旨在通过两个核心组件赋予具身智能体认知能力：
+
+<div align="center">
+  <img src="/images/vln/VLingNav_framework.png" width="100%" />
+<figcaption>
+VLingNav 整体架构。
+</figcaption>
+</div>
+
+1.  **自适应链式思考 (Adaptive Chain-of-Thought, AdaCoT)**：
+受人类双进程理论启发，AdaCoT机制在必要时动态触发显式推理，使智能体能够根据任务复杂性在快速、直观执行和缓慢、深思熟虑的规划之间灵活切换。这解决了现有CoT方法中推理频率固定导致效率低下的问题。
+
+<div align="center">
+  <img src="/images/vln/VLingNav-CoT-labeling-pipeline.png" width="100%" />
+<figcaption>
+VLingNav的自适应CoT标注流程图。
+</figcaption>
+</div>
+
+2.  **视觉辅助语言记忆 (Visual-Assisted Linguistic Memory, VLingMem)**：
+为了处理长周期的空间依赖性，VLingMem构建了一个持久的、跨模态的语义记忆，使智能体能够回忆过去的观察结果，防止重复探索，并推断动态环境中的移动趋势，从而确保在长时间交互中的连贯决策。
+
+
+**训练数据和策略**：
+- **Nav-AdaCoT-2.9M数据集**：构建了目前最大的具身导航数据集，包含推理标注和自适应CoT标注。
+- **在线专家引导强化学习 (Online Expert-guided RL)**：在模仿学习（SFT）之后引入了在线专家引导RL阶段，使模型能够获得更鲁棒、自探索的导航行为，超越监督演示的局限性。
+
+<div align="center">
+  <img src="/images/vln/VLingNav-online-training.png" width="100%" />
+<figcaption>
+在线后训练的混合rollout过程。
+</figcaption>
+</div>
+
+**核心结果/发现**
+- VLingNav在多项具身导航基准测试（如ObjectNav, EVT, ImageNav）上实现了最先进的性能。
+- 在HM3Dv1 ObjectNav上，SR和SPL显著优于Uni-NaVid，展现了强大的探索和记忆能力。
+- 在HM3D OVON上，VLingNav在所有测试拆分中均表现最佳，证明了其强大的跨领域泛化能力。
+- 在EVT-Bench上，VLingNav在单目标跟踪和分心跟踪任务中均达到SOTA性能，尤其在复杂混乱场景中优势明显。
+- 在Image Goal Navigation上，VLingNav的成功率和导航效率显著高于UniGoal，表明其先进的推理和规划能力。
+- 在真实世界机器人平台上实现了零样本迁移，成功执行了未见过的导航任务，展示了强大的真实世界泛化和实用性。
+
+**局限性**
+- 当前模型主要依赖单目自我中心观测，这限制了其感知能力。未来工作可以探索多视角观测以提高导航效率。
+- 模型采用单系统架构，限制了预测频率，可能影响在高度动态环境中的快速决策和障碍物处理。未来可升级为双系统结构以支持高频动作输出。
+- 当前方法仅使用基于MPC的路点控制器，缺乏更灵活的运动模型，未来可集成更多运动能力。
+
+
+
+---
+
+
+
+
+
+
+
+
+## 30. Slow4fast-VLN (2026) {#slow4fast-vln}
+——General Vision-Language Navigation via Fast-Slow Interactive Reasoning
+
+📄 **Paper**: [arXiv:2601.09111](https://arxiv.org/abs/2601.09111v1) · 🏛️ **CVPR 2026**
+
+### 精华 
+这篇论文的核心借鉴价值在于其提出的动态交互式快慢脑（Fast-Slow Interactive Reasoning）导航框架。它通过模拟人类的“快思考”（直觉决策）和“慢思考”（深度反思），实现导航策略的持续优化。其亮点在于，慢脑系统能够从历史经验中提炼出可泛化的“导航知识”，并用其“赋能”快脑，从而有效提升了智能体在未知环境（OOD场景）中的泛化能力和决策效率，解决了传统方法中快慢系统割裂、经验无法沉淀的问题。
+
+### 1. 研究背景/问题 
+传统的视觉-语言导航（VLN）方法在封闭环境下表现良好，但在面对环境和指令风格多变的开放世界时，其泛化能力严重不足。GSA-VLN任务通过引入多样化的场景和指令，对模型的场景适应性提出了更高要求。当前方法的主要挑战在于如何让智能体在导航过程中动态生成可泛化的策略，以应对前所未见的场景和指令。
+
+### 2. 主要方法/创新点 (Core content, most detailed)
+论文提出了一个名为 **slow4fast-VLN** 的动态交互式快慢推理框架，以应对开放环境下的视觉语言导航挑战。该框架包含快慢两个核心模块：
+
+*   **快推理模块 (Fast Reasoning)**：这是一个端到端的策略网络（基于DUET），负责根据实时的视觉和指令输入，快速生成导航动作。同时，它会记录导航过程中的所有执行记录（如观测、动作、度量等），形成历史记忆（History Repository）。
+
+*   **慢推理模块 (Slow Reasoning)**：该模块是整个框架的核心创新点。它利用大语言模型（LLM）对快推理模块产生的历史记忆进行深度“反思”（Reflection），从中提取出结构化、可泛化的导航经验（Structured Experience），并存入一个经验库（Experience Library）。这些经验包含了场景类型、空间上下文、空间规则、导航策略等关键信息。
+
+*   **快慢交互机制 (Interaction)**：这是区别于以往工作的关键。在导航决策时，快推理模块会从经验库中检索与当前场景最相关的经验，并将这些经验特征与实时视觉特征进行融合（通过Attention机制），从而“赋能”快脑，使其做出更精准、更泛化的决策。这种交互使得慢脑提炼的经验能够持续优化快脑的性能。
+
+*   **指令风格转换 (Instruction Style Conversion)**：为了应对多样的指令风格（如场景化、用户个性化），论文还设计了一个基于LLM的指令转换模块，通过CoT提示工程，将不同风格的指令实时转换为统一的“基础风格”指令，降低了模型对指令变化的敏感度。
+
+<div align="center">
+  <img src="/images/vln/slow4fast-VLN-framework.png" width="100%" />
+<figcaption>
+图1: slow4fast-VLN 框架概览，展示了快慢推理模块如何通过历史记忆和泛化经验进行交互，以适应不同环境。
+</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vln/slow4fast-VLN-overview.png" width="100%" />
+<figcaption>
+图2: 方法概览。策略网络（快推理）处理实时输入并存储历史，LLM（慢推理）反思历史并生成经验，这些经验反过来指导策略网络。
+</figcaption>
+</div>
+
+### 3. 核心结果/发现 (Key findings)
+*   **环境适应性**：在GSA-R2R数据集上，使用基础指令进行测试时，slow4fast-VLN在住宅（ID）和非住宅（OOD）场景中的成功率（SR）分别比基线方法GR-DUET提升了1.5%和2.2%，证明了快慢交互框架对于提升场景泛化能力的有效性。
+*   **指令适应性**：在面对用户个性化指令和场景化指令时，该方法同样全面优于基线。例如，在用户指令测试中，其SR和SPL指标在多种角色（如Child, Keith, Moira等）下均达到SOTA水平。这得益于其指令风格转换模块和动态经验反馈循环。
+*   **消融实验**：实验证明，快慢推理（FSR）框架和指令风格转换（ISC）模块都是有效的。当两者协同工作时，模型在最具挑战的Test-N-Scene任务上达到了最佳性能。
+*   **案例研究**：通过可视化导航轨迹，论文展示了在引入慢脑反思后，智能体能够修正初始的错误路径，并基于经验（如“寻找蓝色画作”作为线索）更高效、更准确地完成导航任务，避免了不必要的探索。
+
+<div align="center">
+  <img src="/images/vln/slow4fast-VLN-casestudy.png" width="100%" />
+<figcaption>
+图3: 案例研究。左图为仅使用快推理的轨迹，右图为经过慢推理优化后的轨迹，显示出路径更优，定位更准。
+</figcaption>
+</div>
+
+### 4. 局限性 (Brief, 1-2 sentences)
+论文指出的一个局限是，慢脑推理产生的知识是隐式地编码在策略网络的权重中，这种“黑盒”形式使得学习到的经验难以解释和直接干预。未来的一个研究方向是让慢脑生成显式的、结构化的知识库（如语义地图或知识图谱），以供快脑在导航时直接查询。
+
+
+---
+
+
+
+
+
+
+
+
+## 31. FantasyVLN (2026) {#fantasyvln}
+———统一多模态Chain-of-Thought推理用于视觉-语言导航
+
+📄 **Paper**: [arXiv:2601.13976](https://arxiv.org/abs/2601.13976)
+
+**精华**
+这篇论文展示了如何通过统一框架整合文本、视觉和多模态CoT推理模式,值得借鉴的点包括:(1) 训练时使用CoT监督、推理时直接预测的隐式推理范式,避免了显式CoT的token膨胀问题;(2) 使用预训练VAR模型将想象的视觉观测压缩到紧凑潜在空间,大幅降低序列长度;(3) 通过跨模态对齐约束统一不同推理模式,学习模态不变的推理表示;(4) 门控机制实现单一模型灵活切换多种推理模式。这种设计在保持推理能力的同时实现了实时导航,为具身智能任务提供了实用的解决方案。
+
+**研究背景/问题**
+现有VLN方法面临关键挑战:纯文本CoT缺乏空间理解且容易过拟合稀疏标注;多模态CoT通过生成想象的视觉观测引入严重的token膨胀,导致推理延迟增加数个数量级,无法实现实时导航。这在长时域、多阶段导航场景中尤为突出。
+
+<div align="center">
+  <img src="/images/vln/FantasyVLN-overview.png" width="100%" />
+<figcaption>
+FantasyVLN系统概览:整合文本和视觉CoT推理模式,联合建模语义规划和空间理解
+</figcaption>
+</div>
+
+**主要方法/创新点**
+
+FantasyVLN提出了统一的隐式推理框架,核心创新包括:
+
+**1. Compact Visual CoT (CompV-CoT)**
+- 使用预训练的Visual AutoRegressor (VAR)模型将想象的视觉观测编码到紧凑潜在空间
+- VAR采用next-scale预测范式,256×256图像仅需30个视觉token即可精确重建,压缩比达1/2185
+- 训练时VLM直接生成VAR潜在表示,推理时无需显式VAR解码,大幅提升效率
+
+**2. 统一多模态CoT (UM-CoT)框架**
+- 通过二元门控信号 gT 和 gV 控制文本和视觉推理的激活
+- 四种推理模式:(a) Non-CoT (gT=0, gV=0) 直接预测动作;(b) T-CoT (gT=1, gV=0) 生成文本推理步骤;(c) V-CoT (gT=0, gV=1) 生成压缩视觉想象;(d) MM-CoT (gT=1, gV=1) 联合生成文本-视觉推理
+- 单一模型共享参数,通过数据混合实现端到端联合训练
+
+<div align="center">
+  <img src="/images/vln/FantasyVLN-architecture.png" width="100%" />
+<figcaption>
+统一多模态CoT推理框架:支持四种推理模式,训练时使用CoT监督,推理时直接动作预测
+</figcaption>
+</div>
+
+**3. 跨模态对齐约束 (Cross-Mode Alignment)**
+- 将Non-CoT模式的动作预测作为软监督信号,对齐所有CoT变体的动作输出
+- 交替优化Non-CoT目标和跨模态对齐的联合目标,嵌入多样化推理模式到统一潜在策略
+- 防止不同推理模式间的冲突,学习一致的模态不变表示
+
+**4. 隐式推理机制**
+- 训练时:联合学习文本、视觉和多模态CoT模式
+- 推理时:采用Non-CoT模式直接指令到动作映射,无需生成显式CoT序列
+- 借鉴Aux-Think的"train-with-CoT, infer-without-CoT"范式,模型隐式保留推理感知表示
+
+**训练细节**
+- 基础模型:Qwen2.5-VL (7B参数)
+- 数据:LH-VLN训练集18,554个导航轨迹切片(每5步一个切片)
+- T-CoT标注:使用Qwen-VL-Max生成,包含语义规划、视觉描述、动作规划和视觉想象四部分
+- 优化:LoRA微调,AdamW优化器,学习率1e-4,64×H20 GPUs,DeepSpeed ZeRO-2
+
+<div align="center">
+  <img src="/images/vln/FantasyVLN-VAR-scale-comparison.png" width="100%" />
+<figcaption>
+不同VAR scale对ISR性能的影响:scale 4达到最佳平衡
+</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vln/FantasyVLN-VAR-reconstruction.png" width="100%" />
+<figcaption>
+VAR模型在不同scale下的图像重建质量对比:scale越高,重建质量越好,但token数量也越多
+</figcaption>
+</div>
+
+**核心结果/发现**
+
+**导航精度 (LH-VLN benchmark)**
+- SR (成功率): 2.44% (所有基线中最佳)
+- ISR (独立成功率): 11.01% (显著优于所有方法)
+- CSR (条件成功率): 9.64%
+- CGT (加权CSR): 8.99%
+- 显著超越次优方法Aux-Think (仅T-CoT): SR提升3.75×,ISR提升3.5×
+
+**推理效率**
+- APS (每秒动作数): 1.03,与WorldVLA (1.02)和Aux-Think (0.97)相当
+- 比显式CoT方法CoT-VLA (0.19 APS)快5.4×,推理延迟降低一个数量级
+- 隐式推理每次预测仅解码单个token,而显式CoT需生成3k-5k个token
+
+**训练效率**
+- FantasyVLN在few thousand迭代内快速收敛,token预测准确率达到1.0
+- WorldVLA (像素级V-CoT)需10k+迭代才能达到0.5准确率,且训练不稳定
+- CompV-CoT通过潜在空间推理提供更强梯度信号和更稳定的学习动态
+
+<div align="center">
+  <img src="/images/vln/FantasyVLN-training-efficiency.png" width="100%" />
+<figcaption>
+FantasyVLN与WorldVLA的训练效率对比:CompV-CoT快速收敛,像素级V-CoT训练缓慢且不稳定
+</figcaption>
+</div>
+
+**消融实验**
+- 各推理模式贡献:结合任何CoT模式与Non-CoT都能提升性能,四模式联合训练效果最佳
+- VAR scale选择:scale 4最优(ISR 7.41%),更小scale信息不足,更大scale冗余
+- 跨模态对齐:关键组件,移除后SR从2.44%降至0,ISR从11.01%降至2.39%
+- 显式vs隐式推理:隐式推理在多模态设置下表现最佳(MM-CoT隐式:SR 2.44 vs 显式0.98)
+
+**局限性**
+该方法在LH-VLN这种小规模数据集(18k轨迹切片)上训练,显式CoT容易过拟合并产生累积误差;在更大规模数据集上的表现有待验证。此外,绝对成功率仍较低(SR 2.44%),表明长时域多阶段导航仍是极具挑战性的任务。
+
+
+---
+
+
+
+
+
+
+
+
+## 32. DGNav (2026) {#dgnav}
+———动态拓扑感知：打破视觉-语言导航中的粒度刚性
+
+📄 **Paper**: [arXiv:2601.21751](https://arxiv.org/abs/2601.21751)
+
+### 精华
+
+这篇论文解决了 VLN-CE 中的"粒度刚性"问题，值得借鉴的核心思想：
+
+1. **自适应结构调整**：不仅调整模型参数，还动态调整数据结构本身（拓扑图的节点密度），实现"简单场景保效率、复杂场景保安全"的自适应平衡，这一思路可迁移到其他需要精度/效率权衡的规划任务（如 SLAM、点云处理）。
+2. **条件干预设计**：引入"稳定性门槛"（中位数离散度 σ_med），只在高不确定性场景触发动态调整，而非全局自适应，有效避免了在简单场景引入不必要的噪声——这是一种极具工程实用性的设计思想。
+3. **多模态软硬约束融合**：将几何硬约束（物理可达性）与视觉语义和语言指令软约束通过可学习权重动态融合，使图连接从"物理近邻关系"升级为"语义近邻关系"，为多约束优化提供了优雅解法。
+4. **线性映射的理论优越性**：基于信息论论证了线性映射是保持最大熵属性的最优一阶近似，既优于 Sigmoid 的梯度饱和，又优于 Exponential 的保守偏差——理论驱动设计的典范。
+5. **结构与训练解耦**：Scene-Aware Adaptive Strategy 仅在推理阶段激活，训练阶段使用固定阈值，实现了稳定的特征学习与灵活的测试时推理之间的解耦。
+
+---
+
+### 1. 研究背景/问题
+
+VLN-CE（连续环境中的视觉-语言导航）中，现有拓扑规划方法（如 ETPNav）依赖固定的图构建阈值 γ 和静态欧式距离边权重，导致"粒度刚性"问题：在简单低不确定性区域产生大量冗余节点，在复杂高不确定性区域图过于稀疏导致导航失败。更严重的是，纯几何边权重使智能体优先连接物理距离近但语义无关的节点（"导航性近视" Navigational Myopia），无法遵从指令中的语义意图。
+
+**主要方法/创新点**
+
+论文提出 **DGNav (Dynamic Graph Navigation)** 框架，包含两大核心模块：
+
+<div align="center">
+  <img src="/images/vln/DGNav-overall-framework.png" width="100%" />
+<!-- RENAME: figure_01.png -> DGNav-overall-framework.png -->
+<figcaption>
+DGNav 整体框架。根据估计的场景复杂度 σ 动态调整导航策略：高复杂度场景构建更密集的拓扑图，简单环境则采用更稀疏的表示。图合并阈值 γ 控制图粒度，与 σ 呈反相关，实现导航安全性与效率的自适应权衡。
+</figcaption>
+</div>
+
+**1. 场景感知自适应策略 (Scene-Aware Adaptive Strategy)**
+
+针对物理结构层面的粒度刚性问题，提出动态调整图构建阈值的方法：
+
+- **场景复杂度度量**：通过分析预测路径点的角度离散度 (angular dispersion) σ 来量化局部场景复杂度：
+  ```
+  σ_t = sqrt(1/N_c * Σ(θ_i - θ̄)²)
+  ```
+  其中 θ_i 是候选节点相对于智能体朝向的角度。高 σ 表示复杂决策边界（如交叉路口），低 σ 表示简单几何结构（如走廊）。
+
+- **条件线性映射控制律**：基于统计校准的高斯分布特性，采用线性映射动态调整合并阈值 γ：
+  ```
+  γ_t = γ_fix                                        if σ_t ≤ σ_med
+  γ_t = γ_fix - (σ_t - σ_med)/(σ_max - σ_med) * (γ_fix - γ_min)   if σ_t > σ_med
+  ```
+  
+<div align="center">
+  <img src="/images/DGNav-adaptive-strategy.png" width="100%" />
+<!-- RENAME: figure_02.png -> DGNav-adaptive-strategy.png -->
+<figcaption>
+场景感知自适应策略示意图。从深度图生成候选路径点后，根据候选节点的角度离散度 (σ) 动态调整合并阈值 γ。在简单环境中 (低 σ)，较大的 γ 产生稀疏图以提升效率；在复杂环境中 (高 σ)，较小的 γ 产生密集图以确保安全。
+</figcaption>
+</div>
+
+- **理论依据**：选择线性映射而非 Sigmoid/指数映射的原因是线性变换保持高斯源分布的最大熵特性。非线性映射会在分布尾部引入饱和区域（梯度消失），导致高不确定状态的信息丢失。条件映射策略仅在 σ > σ_med 时激活自适应机制，在稳定场景中保持拓扑稳定性。
+
+**2. 动态图 Transformer (Dynamic Graph Transformer)**
+
+针对语义逻辑层面的导航近视问题，融合多模态线索动态重构图连接性：
+
+<div align="center">
+  <img src="/images/DGNav-dynamic-edge-fusion.png" width="100%" />
+<!-- RENAME: figure_03.png -> DGNav-dynamic-edge-fusion.png -->
+<figcaption>
+多模态编码和动态边融合架构。视觉编码器和指令编码器分别提取节点特征 (V) 和词特征 (W)。动态边融合模块通过融合几何地图 (E_geo)、成对视觉相似度 (E_sem) 和指令相关性 (E_inst) 构建图连接性。生成的动态邻接矩阵 E_dynamic 指导 Graph Transformer 执行上下文感知的路径规划。
+</figcaption>
+</div>
+
+#### 1.Scene-Aware Adaptive Strategy（场景感知自适应策略）
+
+通过计算当前时刻候选节点的**角度离散度** $\sigma_t$ 来量化场景复杂度：
+
+$$\sigma_t = \sqrt{\frac{1}{N_c} \sum_{i=1}^{N_c} (\theta_i - \bar{\theta})^2}$$
+
+基于 $\sigma_t$，采用**条件线性映射**动态调整图合并阈值 $\gamma_t$：
+
+$$\gamma_t = \begin{cases} \gamma_{fix} & \text{if } \sigma_t \leq \sigma_{med} \\ \gamma_{fix} - \dfrac{\sigma_t - \sigma_{med}}{\sigma_{max} - \sigma_{med}}(\gamma_{fix} - \gamma_{min}) & \text{if } \sigma_t > \sigma_{med} \end{cases}$$
+
+- 简单场景（$\sigma_t \leq \sigma_{med}$）：$\gamma_t = \gamma_{fix} = 0.5\text{m}$，保持稀疏效率
+- 复杂场景（$\sigma_t > \sigma_{med}$）：线性降低 $\gamma_t$（最低至 $\gamma_{min} = 0.1\text{m}$），生成密集拓扑
+
+$\sigma_{med}$ 和 $\sigma_{max}$ 通过在 ETPNav 基线模型上统计推断得到（数据驱动校准），线性函数的选择基于信息论证明其是保最大熵的最优一阶近似。
+
+#### 2.Dynamic Graph Transformer（动态图 Transformer）
+
+**Dynamic Edge Fusion**：融合三种信息流构造动态邻接矩阵：
+
+$$\mathbf{E}_{dynamic} = \mathbf{E}_{geo} + \omega_1 \cdot \mathbf{E}_{sem} + \omega_2 \cdot \mathbf{E}_{inst}$$
+
+- $\mathbf{E}_{geo}$：归一化欧式距离（物理可达性硬约束）
+- $\mathbf{E}_{sem}$：CLIP-ViT 提取的视觉特征通过 MLP 计算的成对相似度
+- $\mathbf{E}_{inst}$：节点特征与全局指令 token $\mathbf{W}_L$ 的外积相关性分数，即 $w_i = \text{MLP}([v_i; \mathbf{W}_L])$，$E_{inst}^{(i,j)} = w_i \cdot w_j$
+
+**Graph-Aware Self-Attention (GASA)**：
+
+$$\text{GASA}(\mathbf{H}^l, \mathbf{E}_{dynamic}) = \text{Softmax}\!\left(\frac{(\mathbf{H}^l \mathbf{W}_Q)(\mathbf{H}^l \mathbf{W}_K)^\top}{\sqrt{d_k}} + \mathbf{E}_{dynamic}\right)\!(\mathbf{H}^l \mathbf{W}_V)$$
+
+将 $\mathbf{E}_{dynamic}$ 直接叠加到注意力分数上，强制模型关注语义相关（$\omega_1 \cdot \mathbf{E}_{sem}$）且指令对齐（$\omega_2 \cdot \mathbf{E}_{inst}$）的节点，同时 $\mathbf{E}_{geo}$ 保证物理约束不被完全忽略，实现从纯几何到语义驱动的平滑过渡。
+
+**训练策略**：采用两阶段训练，Adaptive Strategy 仅在推理阶段激活，训练阶段固定 $\gamma = 0.5\text{m}$ 确保稳定的特征学习。
+
+---
+
+### 3. 核心结果/发现
+
+**R2R-CE 数据集**：
+- Val-Unseen：SR **64.82%**，SPL **50.08%**，超越 ETPNav 基线（+4.66% SR，+2.21% SPL）
+- Test-Unseen：SR 64%（+1% vs ETPNav），SPL 47%，NE 下降 0.2m
+- 超越所有 End-to-End 方法和显式地图方法（含 GridMM, Safe-VLN, OVL-MAP）
+
+**RxR-CE 数据集**（多语言，更长路径）：
+- Val-Unseen：SR **53.78%**，nDTW **62.04%**（+0.55%），SDTW **44.49%**（+0.57%）
+- 路径保真度指标全面超越 ETPNav，证明在长时域细粒度指令遵从上的优越性
+
+**消融实验关键发现**：
+- 条件线性映射 vs 全局线性映射：SR +1.52%（稳定性门槛机制的贡献）
+- 动态 $\gamma$ vs 固定 $\gamma$（0.25/0.40/0.50m）：SR 最高提升 +1.63%，且计算开销仅增加 0.4 个节点
+- 完整 $\mathbf{E}_{dynamic}$ vs 仅几何：SR 大幅提升，验证语义软约束的关键作用
+- 定性分析（Fig.9）：在"绕过木质围栏"场景中，仅几何模型因物理距离过近而提前错误转向，DGNav 正确识别指令语义并忽略了几何干扰，成功到达目标
+
+---
+
+### 4. 局限性
+
+自适应策略的核心参数（$\gamma_{fix}, \gamma_{min}, \sigma_{med}, \sigma_{max}$）通过在 R2R-CE 训练集上进行统计校准获得，在分布外场景（如户外环境、高度动态场景）中的泛化能力尚未验证；同时，随着导航轨迹增长，拓扑图规模持续膨胀，论文未讨论图压缩和历史节点管理策略，在超长路径任务中可能面临内存和计算的挑战。
+
+---
+
+
+
+
+
+
+
+
+## 33. Hydra-Nav (2026) {#hydra-nav}
+——Object Navigation via Adaptive Dual-Process Reasoning
+
+📄 **Paper**: [arXiv:2602.09972](https://arxiv.org/abs/2602.09972)
+
+---
+
+**精华**
+
+Hydra-Nav 最值得借鉴的核心思想是：将"慢思考"（CoT 推理）与"快行动"（低级反应控制）统一在**单个 VLM** 内，避免了多模型架构的碎片化问题。其关键创新在于通过 **Iterative Rejection Fine-Tuning (IRFT)** 让模型自主学习"何时触发推理"，而非固定频率触发，从而在成功率与推理开销之间取得最优平衡。三阶段课程训练（空间-动作对齐 → 记忆-推理集成 → 自适应推理）的渐进式设计，为构建具身导航智能体提供了可复用的训练范式。新提出的 SOT 指标（Success weighted by Operation Time）将推理延迟纳入评估，比 SPL 更贴近实际部署需求，值得在其他具身任务中推广使用。
+
+---
+
+**研究背景/问题**
+
+Object goal navigation 要求机器人仅凭自我中心感知在真实环境中主动探索并定位目标物体。当前 VLM-based 方法存在两大核心缺陷：（1）时空推理能力不足，导致对已探索区域的记忆维护失效，引发重复探索；（2）在每步推理（chain-of-thought）的做法带来大量不必要的计算开销，而在关键"停滞点"又未能及时触发推理。现有双系统架构（slow-fast paradigm）依赖独立模型，存在架构割裂和切换灵活性不足的问题。
+
+---
+
+**主要方法/创新点**
+
+Hydra-Nav 将高层规划与低层元动作统一在**单一 VLM**（基于 Qwen2.5-VL-7B）内，通过输出特殊 transition token `obs` 自主触发从快系统到慢系统的切换。
+
+<div align="center">
+  <img src="/images/vln/Hydra-Nav-architecture.png" width="100%" />
+<figcaption>
+Hydra-Nav 整体架构：慢系统负责全局时空推理与高层规划，快系统负责低级元动作的高效执行，通过特殊 token obs 自适应切换。
+</figcaption>
+</div>
+
+**双过程系统（Dual-process System）**
+
+- **慢系统（Slow system）**：接收目标指令、当前全景观测（4 张 90° 间隔 RGB 图）和结构化长期记忆，生成 CoT 推理文本与高层计划，随后输出第一个元动作。
+- **快系统（Fast system）**：基于上一慢系统的对话历史，利用 KV-caching 仅编码最新自我中心帧，自回归解码低级原子动作（MoveAhead 0.25m、TurnLeft/Right 30°），避免重复处理完整历史上下文。
+- **自适应切换机制**：当智能体完成子目标或当前观测与现有计划矛盾时，输出 `obs` 触发全景扫描，构建新的地标节点并更新长期记忆，随后重新进入慢系统。
+
+<div align="center">
+  <img src="/images/vln/Hydra-Nav-context-organization.png" width="100%" />
+<figcaption>
+推理期间的上下文组织方式：短期记忆为交错图像-动作对，遇到 obs token 时更新记忆并清空短期上下文。
+</figcaption>
+</div>
+
+**三阶段课程训练（Curriculum Training Pipeline）**
+
+**Stage 1 — 空间-动作对齐（Spatial-Action Alignment）**
+
+使用 A* planner 在 HM3D、MP3D、OVON 训练集上生成 **500K 条轨迹**（20.1B tokens），训练 Qwen2.5-VL-7B 学习基本导航动作执行。每条轨迹格式化为多轮对话，通过单次前向-反向传播完成梯度计算。
+
+**Stage 2 — 推理-记忆集成（Reasoning-Memory Integration）**
+
+<div align="center">
+  <img src="/images/vln/Hydra-Nav-data-synthesis.png" width="100%" />
+<figcaption>
+Stage 2 数据合成流程：左侧为启发式路点选择的轨迹生成策略，右侧为用 Qwen3-VL-235B-Thinking 合成高质量推理文本的流程。
+</figcaption>
+</div>
+
+- 使用启发式路点选择策略生成包含探索行为的轨迹（而非仅最短路径），每条轨迹选取分数最高的两个探索路点。
+- 将轨迹分段（固定长度 16 步），在每段开头插入长期记忆和推理文本，段尾插入 `obs` token。
+- 推理文本合成：先用 Qwen3-VL-235B-Thinking 对历史图像进行记忆摘要，再结合当前视图与"未来正确视图"（信息泄漏防止）生成前瞻性规划文本。
+- 共生成 **565K 条混合样本（8.3B tokens）**，同时混入 VQA 数据防止过拟合。
+
+**Stage 3 — 自适应推理（Adaptive Reasoning via IRFT）**
+
+定义两类**停滞点（Stagnation Points）**：
+1. **重复探索**：智能体在过去 $T_{stag}=20$ 步内回到距离 $\delta_{stag}=0.5$m 内的位置。
+2. **缺乏进展**：在随机时间窗口 $\Delta t \sim \mathcal{U}(20,35)$ 内到目标距离未缩短。
+
+IRFT 流程：在快系统模式下运行，于停滞点触发慢系统；对失败轨迹（超时或目标误识别）进行"拒绝-修复"——找到干预时间戳 $t^*$，用 A* 最优路径替换后续轨迹，重新合成修正段的推理文本；使用最新 checkpoint 迭代执行，每轮生成约 60K 条轨迹（4.5B tokens）。
+
+---
+
+**核心结果/发现**
+
+<div align="center">
+  <img src="/images/vln/Hydra-Nav-performance-irft.png" width="100%" />
+<figcaption>
+多轮 IRFT 训练过程中 SR 和 SOT 在 HM3D、MP3D、OVON Val-Unseen 上的提升曲线。
+</figcaption>
+</div>
+
+**与 SOTA 对比（Table 2）：**
+
+| Benchmark | 指标 | Hydra-Nav-IRFT | 第二名 | 提升 |
+|-----------|------|----------------|--------|------|
+| HM3D Val  | SR   | **84.8%**      | 73.7%  | +11.1% |
+| MP3D Val  | SR   | **64.0%**      | 46.6%  | +17.4% |
+| OVON Val-Unseen | SR | **66.3%** | 45.2%  | +21.1% |
+
+**SOT 指标分析（Table 5）：**
+
+- Hydra-Nav-IRFT 推理触发比例仅 **3.0%**（HM3D），而 VLMnav/Nav-R²/WMNav 均为 100%。
+- SOT 得分：Hydra-Nav-IRFT **24.0**（HM3D）vs Nav-R² 1.9（最高 SR 竞争者），提升约 12×。
+- 说明频繁推理虽提高 SR，但严重拖累效率；自适应推理是实际部署的关键。
+
+**消融实验关键发现：**
+- 记忆模块对 SPL 提升显著（无记忆 SPL=13.9 vs 有记忆 28.8），说明长期空间记忆是路径效率的核心。
+- 探索性轨迹数据 vs 最短路径数据：SR 下降 25.4%（HM3D），说明探索能力对高成功率不可或缺。
+- Co-training with VQA 防止导航专有数据过拟合，维持泛化性（SR: 69.1→72.9，HM3D）。
+
+<div align="center">
+  <img src="/images/vln/Hydra-Nav-realworld-demo.png" width="100%" />
+<figcaption>
+真实世界导航演示：机器人成功定位 Box、Trash Can、Oven，零样本迁移无需真实环境微调。
+</figcaption>
+</div>
+
+---
+
+**局限性**
+
+评估仅在 Habitat 模拟器（HM3D/MP3D/OVON）中进行，缺乏在 Isaac Sim 等更高保真度仿真环境中的验证；当前框架专为 object navigation 设计，向移动操作等更复杂具身任务的扩展有待探索。
+
+
+---
+
+
+
+
+
+
+
+
+
+
+## 34. 3DGSNav (2026) {#3dgsnav}
+———用主动 3DGS 记忆增强 VLM 空间推理，实现零样本目标导航
+
+📄 **Paper**: [arXiv:2602.12159](https://arxiv.org/abs/2602.12159)
+
+---
+
+### 精华
+
+3DGSNav 最值得借鉴的核心思想：
+1. **将 3DGS 作为持久记忆**替代语义地图/文字描述，让 VLM 直接"看"到几何连续的场景，而非依赖中间抽象层，从而释放 VLM 本身的视觉空间推理能力。
+2. **主动感知（Active Perception）+ 自由视角优化**：代理不被动旋转扫描，而是通过不透明度场（opacity field）主动定位视觉盲区，再利用 3DGS Novel View Synthesis 渲染最优视角——这种"按需生成观测"的模式可推广到其他需要视角控制的具身任务。
+3. **结构化视觉提示（Structured Visual Prompts）+ CoT 融合**：在渲染图像上叠加注释（gaze point、未探索区域标注），配合 Chain-of-Thought，让 VLM 的长程规划推理能力得到充分激活，无需额外训练。
+4. **实时检测 + VLM 重验证（Re-verification）**：先用轻量检测器初筛候选目标，再用 VLM 主动切换视角确认——分两阶段解耦效率与可靠性，是目标确认模块的通用设计范式。
+
+---
+
+### 研究背景/问题
+
+现有零样本目标导航（ZSON）方法通常将环境转换为语义地图或文字描述，导致高层决策被低层感知精度所制约，VLM 的视觉空间推理能力无法充分发挥。如何让 VLM 直接基于高质量视觉观测进行空间推理，而非依赖降维后的语义抽象，是本文解决的核心问题。
+
+---
+div align="center">
+  <img src="/images/vln/3DGSNav-architecture.png" width="100%" />
+<figcaption>
+3DGSNav 整体架构：该系统通过主动感知，利用机器人位姿和 RGB-D 观测数据构建面向导航的环境表示。自由视角优化与结构化视觉提示引导基于 VLM（视觉语言模型）的零样本导航规划，而在线物体检测与视角重验证技术则实现了高效的目标定位。
+</figcaption>
+</div>
+
+### 主要方法/创新点
+
+3DGSNav 是一个基于 3D Gaussian Splatting 的 ZSON 框架，核心由三个模块组成：
+
+### 1. 主动感知（Active Perception）模块
+- 使用虚拟相机渲染全景不透明度场（panoramic opacity field），定量估计当前观测完整性
+- 利用 **DBSCAN** 聚类低不透明度区域，识别视觉盲区，计算最优俯仰角 θ* 和偏航角 ϕ*，驱动真实相机主动补偿缺失视角
+- 避免机械旋转带来的定位误差与冗余观测
+
+### 2. 自由视角规划（Free-Viewpoint Planning）模块
+- **前沿点提取与聚类**：在 3DGS 空间构建探索地图，提取 frontier points（已探索与未探索边界），通过距离场 + 分水岭分割（watershed segmentation）自适应聚类冗余前沿点，选代表性点降低 VLM 分析开销
+- **引导轨迹（Guidance Trajectory）**：基于 Dijkstra + 指数惩罚障碍物距离的代价函数，为每个前沿点生成安全路径，作为自由视角优化的参考基准
+- **虚拟视角初始化**：利用轨迹曲率 κ 和距离 d 加权得分选最优初始位置，确保既不过近（优化不稳定）也不过远（信息量低）
+- **多约束视角优化**：最小化复合损失函数 ℒ = λ_opa·ℒ_opa + λ_vis·ℒ_vis + λ_cos·ℒ_cos + λ_traj·ℒ_traj，包含：
+  - **Opacity Loss**：控制可见/不可见区域比例
+  - **Ray Occlusion Loss**：确保虚拟相机视线直达前沿点（无遮挡）
+  - **Cosine Loss**：约束视角方向与前沿点方向一致
+  - **Trajectory Loss**：约束相机位置在轨迹附近
+
+### 3. 结构化视觉提示 + VLM 推理
+- 渲染 Bird's-Eye View（BEV）+ 多个前沿点的 First-Person Views（FPVs）
+- 在图像上叠加结构化注释：注视点（gaze point）、未观测区域表示（unobserved region）
+- 配合 **Chain-of-Thought（CoT）提示**，驱动 planner VLM（Gemini 3）对候选前沿点进行空间语义推理，选择最优探索目标
+
+### 4. 实时检测 + VLM 主动重验证（Re-verification）
+- 导航过程中使用轻量实时检测器（**YOLOE**）初步筛选候选目标
+- 当检测置信度不足时，action-decision VLM（**GLM-4.1V-Thinking**）主动切换视角——将所选动作投影回 3DGS 渲染新视角，获取更具判别力的观测，完成目标二次确认
+- 有效降低漏检率和误停率
+
+---
+
+### 核心结果/发现
+
+div align="center">
+  <img src="/images/vln/3DGSNav-comparison.png" width="100%" />
+<figcaption>
+ Gemini3-Pro 与 Qwen3-235b-Thinking 在 ZSON 任务中的自我解释对比：
+</figcaption>
+</div>
+
+- 在 **HM3D**、**MP3D**、**Gibson** 等多个 ObjectNav 标准 benchmark 上取得 SOTA 或竞争性性能
+- 消融实验验证：自由视角优化、结构化注释、CoT、Re-verification 模块均对最终 Success Rate 有显著贡献
+- 不同 VLM（Gemini 3、GPT-4V、GLM-4.1V 等）可灵活替换，框架具备良好兼容性
+- 在四足机器人真实环境实验中成功复现（定位厕所等目标），验证了 sim-to-real 迁移能力
+- Runtime 分析显示主动感知显著优于被动旋转扫描，探索效率更高
+
+---
+
+### 局限性
+
+3DGS 的在线增量重建和自由视角优化带来一定计算开销，在计算资源受限的嵌入式平台上实时性仍有挑战；此外，真实场景的动态物体、运动模糊和视觉感知噪声会影响 3DGS 质量，进而影响导航可靠性。
+
+---
+
+
+
+
+
+
+
+
+## 35. BudVLN (2026) {#budvln}
+———Nipping the Drift in the Bud: Retrospective Rectification for Robust Vision-Language Navigation
+
+📄 **Paper**: [arXiv:2602.06356](https://arxiv.org/abs/2602.06356)
+
+### 精华
+
+1. **核心思想**：通过“回顾式纠偏”（Retrospective Rectification）解决 Vision-Language Navigation (VLN) 中的指令-状态不一致问题。
+2. **训练范式**：引入了 **Adaptive Mutual Exclusion Strategy**，将样本动态分流为效率路径和鲁棒性路径，实现了精准训练。
+3. **纠偏机制**：利用“回锚”机制合成语义一致的修正轨迹，避免了传统方法中强制回归导致的语义冲突。
+4. **极致效率**：采用 GRPO 算法（借鉴自 DeepSeek-R1），无需价值网络，训练成本仅为传统 DAgger 的约 25%。
+5. **性能卓越**：在 R2R-CE 和 RxR-CE 基准测试上刷新 SOTA，尤其在处理偏差和鲁棒性方面表现突出。
+
+---
+
+### 1. 研究背景/问题
+
+当前的视觉-语言导航（VLN）系统面临严重的**曝光偏差（Exposure Bias）**问题：推理时的细微偏差会导致严重的累积误差。虽然 DAgger 类方法尝试通过纠正错误状态来缓解这一问题，但论文指出这些方法存在**指令-状态不一致（Instruction-State Misalignment）**的致命局限。如图 1 所示，强制智能体从离群状态回归往往会生成与其原始语言指令相冲突的监督信号（例如：指令要求直行，但为回归正轨必须掉头），这会损害智能体的指令遵循能力。
+
+<div align="center">
+  <img src="/images/vln/BudVLN-misalignment-illustration.png" width="100%" />
+<figcaption>
+图 1：指令-状态不一致现象的图示，展示了传统 DAgger 如何产生语义冲突的监督。
+</figcaption>
+</div>
+
+---
+
+### 2. 主要方法/创新点
+
+论文提出了 **BudVLN**，一个旨在通过统一的在线回顾式纠偏框架解决上述挑战的系统。
+
+#### Adaptive Mutual Exclusion Strategy (自适应互斥策略)
+BudVLN 并不对所有样本一视同仁，而是采用一种自适应策略进行动态路由：
+- **Proficiency Pathway (效率路径)**：通过 Greedy Probe 评估。若智能体已能熟练完成任务，则利用 **GRPO (Group Relative Policy Optimization)** 进行组内相对优势学习，进一步优化路径效率。
+- **Rectification Pathway (纠偏路径)**：若智能体在任务中失败，则触发**回顾式纠偏**。
+
+<div align="center">
+  <img src="/images/vln/BudVLN-framework-overview.png" width="100%" />
+<figcaption>
+图 2：BudVLN 训练框架概览，展示了 GRPO 路径与回顾式纠偏（SFT）路径的动态分流。
+</figcaption>
+</div>
+
+#### Retrospective Rectification (回顾式纠偏)
+针对失败样本，BudVLN 执行以下操作：
+1. **回锚（Anchor Identification）**：将状态回溯到发生偏差前的最后一个有效路径点（Valid Anchor）。
+2. **语义一致性合成**：利用 Oracle 合成从该锚点出发的正确轨迹，以此作为 SFT 的监督信号。
+这种方法确保了监督信号与原始指令的语义一致性，彻底解决了 DAgger 的语义冲突问题。
+
+#### GRPO 优化
+受到大规模推理模型成功的启发，BudVLN 引入了 GRPO 算法。它通过在一个采样组内计算相对优势，摆脱了对昂贵价值网络（Value Network）的依赖，极大地降低了计算开销，同时提升了探索效率。
+
+---
+
+### 3. 核心结果/发现
+
+- **SOTA 性能**：在 R2R-CE 和 RxR-CE 两个主流基准测试中，BudVLN 全面超越了现有模型。在 R2R-CE 上，成功率 (SR) 达到 **57.6%**，SPL 达到 **51.1%**。
+- **训练效率**：得益于 GRPO 算法和高效的纠偏机制，BudVLN 仅需 **27 GPU 小时** 即可完成训练，相比 DAgger 的 114 小时，效率提升了近 4 倍。
+- **消融研究**：实验证明，单独添加纠偏机制能显著提升 SR，而 GRPO 算法则对 SPL 的提升和训练效率的优化起到了关键作用。
+
+<div align="center">
+  <img src="/images/vln/BudVLN-main-results.png" width="100%" />
+<figcaption>
+表 1：BudVLN 与现有 VLN 模型在 R2R-CE 和 RxR-CE 测试集上的性能对比。
+</figcaption>
+</div>
+
+---
+
+### 4. 局限性
+
+虽然 BudVLN 在离散和连续环境中均表现出色，但其鲁棒性目前仍受限于预定义 Oracle 的质量。在极度复杂的极端环境下，如何自主生成更高质量的“回顾性”知识仍是未来研究的方向。
+
+---
+
+
+
+
+
+
+
+
+## 36. CausalNav (2026) {#causalnav}
+———First Scene Graph-based Semantic Navigation for Dynamic Outdoor Environments
+
+📄 **Paper**: [arXiv:2601.01872](https://arxiv.org/abs/2601.01872) · 🏛️ **IEEE RA-L**
+
+### 精华
+
+CausalNav 的核心亮点在于将多层级场景图（Embodied Graph）与 RAG 机制深度结合，实现了支持开放词汇查询的长程语义导航——"图即知识库"的设计范式值得借鉴。其次，层次化 Embodied Graph 构建策略（从细粒度对象节点到粗粒度建筑物与聚类节点）展示了如何在多空间尺度上统一语义表示与检索。第三，基于时空走廊（Spatial-Temporal Corridor）的动态对象过滤机制，无需额外标注即可区分静态、准静态与动态障碍物，是处理室外动态场景的实用方案。第四，使用本地开源 LLM 替代商业 API 完成层次语义检索，证明了在自主平台上脱离云端仍可实现高质量语义推理。
+
+---
+
+### 1. 研究背景/问题
+
+室外大规模动态环境中的自主语义导航面临三大挑战：开放词汇的语义理解、动态环境适应（行人、车辆等移动障碍物）以及长期稳定性。现有 VLN 研究主要聚焦于静态室内场景，依赖高精度地图或大规模训练数据，在真实室外动态场景中的长程导航鲁棒性未得到充分验证。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vln/CausalNav-overview.png" width="100%" />
+<figcaption>
+CausalNav 整体工作流：集成语义推理、动态环境适应和 Embodied Graph 规划三大模块
+</figcaption>
+</div>
+
+CausalNav 提出了一个由三个核心模块构成的语义导航框架：
+
+**模块一：开放词汇目标跟踪与自我运动估计**
+
+使用 YOLO-World 从 RGB 图像中提取开放词汇的 2D 检测框和分割掩码，通过 ByteTrack 进行多目标跟踪。结合 LiDAR 点云将 2D 检测投影至 3D 空间，获得目标的 3D 姿态 $^w\mathbf{T}_{obj}$。自车运动通过 LiDAR-IMU 里程计（FAST-LIO2）估计，提供精确的定位与坐标变换基础。
+
+**模块二：动态对象过滤与 Embodied Graph 构建**
+
+<div align="center">
+  <img src="/images/vln/CausalNav-architecture.png" width="100%" />
+<figcaption>
+CausalNav 三模块流水线架构：目标跟踪与自我运动估计 → 动态过滤与图构建 → 图更新与自然语言导航
+</figcaption>
+</div>
+
+- **时空走廊过滤**：将每个目标的历史轨迹编码为时空走廊 $\mathcal{T} = \{^w\mathbf{T}^n_{obj}, \text{3DBBox}_i, t_i\}_{i=1}^n$。若目标在 $k$ 步内位移超过阈值，则认定为动态目标并从图中移除，有效消除运动引起的虚假节点。
+
+- **Embodied Graph 层次构建**：静态环境由两类节点组成——建筑物节点 $\nu_i^{build}$ 来自离线地图，对象节点 $\nu_i^{obj}$ 来自实时感知。使用 LLM 对节点进行层次聚类（spatial-semantic similarity），形成多级抽象：对象层（Level $L-1$）→ 建筑物/Place 层（Level $L$）→ 聚类节点（Clustering Node）。每次自车移动超过距离阈值 $d$，新增自车节点 $\nu_i^l$ 记录历史轨迹。
+
+- **RAG 语义检索**：基于 LLM 打分的层次化检索，结合空间相似性 $\kappa^{spatial}$ 和语义相似性 $\kappa^{semantic}$，在图中逐层选择最匹配查询的节点路径，支持开放词汇目标定位。
+
+**模块三：Embodied Graph 动态更新与自然语言导航**
+
+<div align="center">
+  <img src="/images/vln/CausalNav-embodied-graph.png" width="100%" />
+<figcaption>
+仿真环境中构建的 Embodied Graph：粗粒度建筑物节点与细粒度对象节点（消火栓、邮箱等）的多层次融合
+</figcaption>
+</div>
+
+- **全局规划**：解析自然语言指令，通过 RAG 检索 Embodied Graph 推断目标位置，优先使用历史轨迹中的 Dijkstra 最短路径；若目标不可达，则调用离线地图或 Google Maps 生成粗粒度路线，结果表示为路点序列 $\mathcal{W} = \{w_1, w_2, \ldots, w_n\}$。
+
+- **局部规划**：采用 RH-Map 进行实时动态局部地图构建，通过 Informed-RRT* 生成初始轨迹，再使用 NMPC-CBF（Nonlinear Model Predictive Control with Control Barrier Function）进行轨迹跟踪与动态避障，保证对移动行人/车辆的安全性。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vln/CausalNav-real-world-results.png" width="100%" />
+<figcaption>
+真实环境中不同距离尺度的导航实验：短程（130m 对象级指令）与长程（512m 建筑级指令）
+</figcaption>
+</div>
+
+**仿真实验**（对比 ViNT、NoMaD、GNM、CityWalker）：
+- Small 任务：SR 100%，SPL 88.9%，CC 0.2（所有方法中最优）
+- Medium 任务：SR 92%，SPL 82.2%
+- Large 任务：SR 80%，SPL 66.0%，CC 1.2，TL 141.82m
+
+**真实世界实验**：
+- 短程（130m）：ViNT 和 CausalNav 均成功，其他方法失败
+- 长程（512m）：仅 CausalNav 成功完成任务，其他方法因碰撞失败
+- CityWalker 在真实世界表现显著差于仿真，对光照变化和动态障碍物敏感
+
+**消融实验**：
+- 启用 Embodied Graph 动态更新：SR 从 78% 提升至 90%，SPL 从 54.7% 提升至 80.1%
+- 最优超参数：$\alpha=\beta=0.5$，$\gamma=1.5$（空间-语义平衡点）
+- 运行时延：105ms/cycle（10Hz），比 NoMaD 仅多 11% 开销
+
+---
+
+### 4. 局限性
+
+CausalNav 在极端光照/天气条件下的鲁棒性有待提升，且长程图记忆的压缩与遗忘机制尚未完善，可能在超长时间运行后出现图膨胀和检索精度下降问题。
+
+
+
+
+
+
+
+
+
+
+## 37. SparseVideoNav (2026) {#sparsevideonav}
+———Sparse Video Generation Propels Real-World Beyond-the-View Vision-Language Navigation
+
+📄 **Paper**: [arXiv:2602.05827](https://arxiv.org/abs/2602.05827)
+
+### 精华
+
+SparseVideoNav 最值得借鉴的核心思想：**视频生成模型（VGM）天然具备长视野预测能力**，可以替代 LLM 作为导航的"大脑"，彻底解决 LLM 短视野导致的短视行为。**稀疏化**（sparse video generation）是兼顾长预测视野与计算效率的关键设计——不需要预测连续帧，只需关键时间戳处的帧即可提供有效导航指引。**四阶段渐进式训练**（T2V→I2V→历史注入→扩散蒸馏→动作学习）将大规模预训练视频模型迁移到导航领域，是一套通用的 VGM 适配范式。**Diffusion Distillation** 将推理步数从 50 步压缩到 4 步（9.6× 加速），使实时部署成为可能。此外，**Q-Former + Video-Former** 的历史压缩策略解耦了推理延迟与历史长度的关系，保证了稳定的推理效率。
+
+---
+
+### 1. 研究背景/问题
+
+现有视觉-语言导航（VLN）系统依赖 LLM，受限于短视野监督（4-8步），在 Beyond-the-View Navigation（BVN）任务中表现欠佳：智能体需要在没有逐步指引的情况下，仅凭高层语义指令（如"找一张桌子并停在旁边"）定位远处不可见目标，LLM-based 方法因此频繁出现意外转向和死路困陷。简单延长监督视野会破坏 LLM 训练稳定性，而视频生成模型天然对齐长视野语言理解，成为解决 BVN 的关键突破口。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vln/SparseVideoNav-overview.png" width="100%" />
+<figcaption>
+SparseVideoNav 概览：视频生成模型提供稀疏预见（Sparse Video Foresight），相较 LLM-based 基线（StreamVLN、InternVLA-N1、UniNavid）在 BVN 任务上大幅领先，推理速度提升 27×
+</figcaption>
+</div>
+
+**核心思路：** 利用视频生成模型（VGM）预测未来稀疏帧序列作为导航预见，将预测视野延伸到 20 秒（20s × 4FPS = 80帧），而非 LLM 仅能处理的 4-8 步。稀疏间隔设为 3 时（sparse interval = 3），在预测视野与视觉保真度之间取得最优平衡。
+
+**整体架构：**
+
+<div align="center">
+  <img src="/images/vln/SparseVideoNav-architecture.png" width="100%" />
+<figcaption>
+SparseVideoNav 整体架构（上）与四阶段训练流程（下）。VGM backbone 接收当前观测、历史帧和语言指令，生成稀疏视频 latents，DiT-based action head 基于生成的未来预见和语言指令预测连续动作
+</figcaption>
+</div>
+
+架构由三个核心组件构成：
+- **VGM Backbone**（Wan 2.1-1.3B）：接收当前帧、历史嵌入（h_T）和语言指令（umT5），输出未来稀疏视频 latents
+- **Former 模块**：Q-Former 处理时间维度历史压缩，Video-Former 处理空间维度，联合生成固定维度的历史嵌入，使推理延迟不随历史长度增长
+- **DiT Action Head**：以生成的稀疏未来 latents 和语言指令为条件，通过 cross-attention 预测连续动作序列（DDIM 重建）
+
+**四阶段训练流程：**
+
+1. **Stage 1 — T2V → I2V 适配**：保留 Wan 的 flow matching 目标，将文本到视频模型适配为图像条件的视频生成（Image-to-Video），引入稀疏帧监督，以稀疏 chunk latents `[c_{T+1}, c_{T+2}, c_{T+5}, c_{T+8}, ..., c_{T+20}]` 作为训练目标
+
+2. **Stage 2 — 历史注入**：在 Wan backbone 每个 transformer block 中新增 cross-attention block，注入历史信息 h_T（Q-Former + Video-Former 编码）；新增层以零初始化保留预训练生成先验
+
+3. **Stage 3 — Diffusion Distillation**：采用 PCM（Phased Consistency Models）进行蒸馏，以 history-injected I2V 模型为 teacher，训练结构相同的 student 模型，将推理步数从 N=50 压缩至 M=4，实现 9.6× 推理加速，同时保持视觉保真度
+
+4. **Stage 4 — 动作学习**：冻结蒸馏后的 I2V 模型，采用逆动态范式（inverse dynamics paradigm），利用 DA3 对生成的稀疏未来帧重新标注动作标签，确保动作监督与合成动态精确对齐；训练 DiT action head 以去噪方式预测连续动作
+
+**数据采集：** 使用手持 DJI Osmo Action 4（RockSteady+ 稳像）采集 140 小时真实室外导航视频，处理为约 13,000 条轨迹（均值 140 帧 × 4FPS），使用 DA3 估计相机位姿提取连续动作标签；语言指令由人工专家标注——构建了目前最大规模的真实世界 VLN 数据集。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vln/SparseVideoNav-video-generation.png" width="100%" />
+<figcaption>
+SparseVideoNav 在零样本 BVN 部署中的视频生成结果分析。模型从当前帧（T）预测未来稀疏帧序列至 T+20，跨室内（找桌子）、室外（找空调）、户外（找垃圾桶）多种场景
+</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vln/SparseVideoNav-ablation.png" width="100%" />
+<figcaption>
+消融研究：a) 数据扩展随规模持续提升 FVD；b) 稀疏设计带来 1.7× 推理加速；c) Diffusion Distillation 带来 9.6× 推理加速；d) Former 历史压缩保持稳定推理延迟（无 Former 时 +54.9% 随历史长度增长）
+</figcaption>
+</div>
+
+**零样本真实世界性能：**
+- SparseVideoNav 在 6 种真实场景（室内 Room/Lab、室外 Yard/Park、夜间 Square/Mountain）上全面超越所有 LLM-based 基线
+- **IFN 任务**平均成功率 **50.0%**（vs StreamVLN 35.0%、UniNavid 10.0%）
+- **BVN 任务**平均成功率 **25.0%**（vs 所有基线几乎为 0%，StreamVLN 仅 10.0%）
+- 夜间场景成功率 **17.5%**（LLM 基线在夜间 BVN 全部失败）
+
+**效率提升：**
+- 推理延迟 **9.8s** vs 基线 **21.6s**（**27×** 加速对比未优化版本）
+- Stage 1+2 训练时间 **32h** vs 从头训练 **64h**（**2×** 加速）
+- 稀疏设计带来 **1.7×** 推理加速，Distillation 带来 **9.6×** 加速
+
+**鲁棒性：** 在训练高度（1m）与部署高度（50cm）不一致时仍能正确导航，展示出对相机高度变化的强鲁棒性；能够动态规避行人障碍（emergent ability，非显式训练）。
+
+---
+
+### 4. 局限性
+
+当前 140 小时数据集相较于网络规模数据仍然有限，数据扩展是进一步提升的关键方向；推理延迟（9.8s）仍略高于现有 LLM-based 导航范式（StreamVLN），加速蒸馏与 VGM 量化是未来研究的重要课题。
+
+---
+
+
+
+
+
+
+
+
+
+## 38. AgentVLN (2026) {#agentvln}
+———Towards Agentic Vision-and-Language Navigation
+
+📄 **Paper**: [arXiv:2603.17670](https://arxiv.org/abs/2603.17670)
+
+### 精华
+
+AgentVLN 最值得借鉴的思想是 **VLM-as-Brain** 范式：将 VLM 作为大脑纯做高层语义推理与技能调度，把感知、规划、控制等低层能力封装成模块化、即插即用的技能库，彻底解耦了认知与执行。跨空间表示映射（将 3D 拓扑路点反投影为像素对齐的 2D 视觉提示）是一个无需额外参数就能弥合 2D VLM 与 3D 物理世界之间鸿沟的精妙设计。QD-PCoT 展示了如何赋予模型元认知能力：当面对空间歧义时主动提问、调用感知技能获取深度信息，而非盲目输出坐标。3B 参数量在 R2R/RxR 双榜均超越 7B+ 的先前 SOTA，证明结构化分层推理远比暴力扩参数更高效。该框架可直接部署于 Jetson 嵌入式边缘平台，具备极强的落地价值。
+
+---
+
+### 1. 研究背景/问题
+
+Vision-and-Language Navigation (VLN) 要求具身智能体将复杂自然语言指令转化为长时域、连续空间的导航行为。当前 VLN 系统面临三大核心瓶颈：VLM 固有的 2D 语义理解与 3D 几何感知之间的跨空间失配；单目 RGB 图像引起的尺度歧义导致局部目标定位失败；以及大参数量模型无法满足边缘设备实时推理需求。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vln/AgentVLN-framework-overview.png" width="100%" />
+<figcaption>
+AgentVLN 整体框架：VLM-as-Brain 范式将长时域导航分解为感知技能（Perception Skills）与规划技能（Planning Skills）的交替调用，辅以 QD-PCoT 处理空间歧义。
+</figcaption>
+</div>
+
+**VLM-as-Brain 范式与 POSMDP 建模**
+
+AgentVLN 将 VLN 任务形式化为 Partially Observable Semi-Markov Decision Process (POSMDP) $\mathcal{M} = \langle \mathcal{S}, \mathcal{O}, \mathcal{F}, \mathcal{T}, \mathcal{I}, \mathcal{H} \rangle$。VLM 作为中央控制器，在每个决策步 $t$ 基于历史上下文 $\mathcal{H}_t$、视觉观测 $o_t$ 和自然语言指令 $\mathcal{I}$ 生成技能调用指令：
+
+$$c_k \sim \pi_\theta(f \mid \mathcal{H}_{t_k}, o_{t_k}, \mathcal{I}), \quad f \in \mathcal{F}$$
+
+技能库 $\mathcal{F}$ 分为两类：**感知技能** $\mathcal F_{percep}$（$\tau=0$，无延时地从环境提取几何/语义特征，更新全局状态 $\mathcal{S}$）和**规划技能** $\mathcal F_{plan}$（$\tau>0$，执行多步物理动作序列）。具体包括：Back-Projection、Global Planning、Obstacle Avoidance、Incremental Exploration Map、Feasible Waypoints 等模块。这种分层设计使 VLM 完全不接触低层运动细节，专注高层语义-空间匹配。
+
+**跨空间表示映射（Cross-Space Representation Mapping）**
+
+为解决 VLM 无法直接感知 3D 几何的问题，AgentVLN 设计了一套逆透视投影机制。感知技能首先将 RGB-D 观测通过反投影构建全局占据栅格地图，生成三维路点 $\mathbf{P}^w_{path} = [X_{path}, Y_{path}, 0]^T$；随后通过相机内参矩阵 $K$ 和当前位姿 $T_t$ 将 3D 路点投影回像素坐标：
+
+$$s \cdot \mathbf{p}^{img}_{path} = KR_t^{-1}(\mathbf{P}^w_{path} - \mathbf{t}_t)$$
+
+这样 VLM 只需在 2D 像素空间中根据语义选择最匹配的路点，再由规划技能将其恢复为 3D 控制信号，实现了 2D 视觉语义与 3D 物理结构的无缝桥接。
+
+**上下文感知的细粒度自校正与主动探索**
+
+当当前观测 $o_t$ 中不存在满足指令语义的可行路点时（如遮挡、盲区、轨迹偏差），AgentVLN 不强制执行长距离盲位移，而是输出细粒度原子动作 $a_t \sim \pi_\theta(a \mid \mathcal{H}_t, o_t, \mathcal{I})$，$a \in \{\text{Forward, Left, Right}\}$，自主环顾恢复可见路点后切回宏观技能调用，有效抑制长轨迹误差累积。
+
+**Query-Driven Perceptual Chain-of-Thought (QD-PCoT)**
+
+<div align="center">
+  <img src="/images/vln/AgentVLN-performance-comparison.png" width="80%" />
+<figcaption>
+AgentVLN-3B 在 RxR-CE Val-Unseen 上的参数量-成功率对比，以 3B 参数量超越所有 7B+ 的先前方法。
+</figcaption>
+</div>
+
+针对局部目标定位阶段的单目尺度歧义，AgentVLN 引入 QD-PCoT 机制。当模型检测到空间歧义时，不盲目回归像素坐标，而是生成中间自然语言查询（如 *"How many meters is the chair in front of me?"*）并调用感知技能 $\mathcal F_{percep}$ 获取精确深度反馈。该反馈以增量文本提示形式注入上下文，引导模型最终输出准确的目标像素坐标 $\mathbf p_{target}^{img} = [u_{target}, v_{target}, 1]^T$，再经深度图反投影转换为 3D 目标坐标 $\mathbf{P}^w_{target}$，实现精准对接。
+
+**AgentVLN-Instruct 数据集**
+
+构建了大规模指令调优数据集 AgentVLN-Instruct（基于 Habitat 仿真器），包含四个关键组件：目标可见性驱动的动态阶段路由机制（模拟人类"先粗导航、再精定位"的认知模式）、可泛化技能调用标注、局部化推理数据，以及主动问答交互对。基础模型为 Qwen2.5-VL-3B，训练时冻结视觉编码器，以 AdamW 优化，使用 32 块 NVIDIA A100 GPU。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vln/AgentVLN-navigation-visualization.png" width="100%" />
+<figcaption>
+AgentVLN 导航可视化：绿色点为感知技能生成的像素级视觉提示，红圈为规划技能选取的路点；遭遇视觉遮挡时自动切换为细粒度原子动作。
+</figcaption>
+</div>
+
+- **R2R-CE Val-Unseen**: AgentVLN-3B 达到 SR=67.2%, SPL=64.7%，超越同类 SOTA InternVLA-N1-8.3B（SR+9.0%，SPL+10.7%），以不到一半的参数量实现全面超越
+- **RxR-CE Val-Unseen**: SR=69.5%, SPL=61.3%, nDTW=74.6%，同样刷新 SOTA
+- **消融分析**：仅引入 VLM-as-Brain + 跨空间映射，SR 从基线 38.6% 提升至 59.7%；加入 CDFG 细粒度自校正后达 65.6%；最终集成 QD-PCoT 达 67.2%
+- **时序上下文**：最优历史帧数 K=8（SR=67.2%，SPL=64.7%），过短则短视，过长则注意力稀释
+- **真实世界部署**：基于 Unitree Go2 四足机器人 + Intel RealSense D455，结合 RTAB-Map SLAM，在室内外场景均实现准确导航，支持 Jetson 边缘实时推理
+
+---
+
+### 4. 局限性
+
+AgentVLN 当前依赖深度传感器（RGB-D）支持精确的 3D 反投影，在纯 RGB 单目场景下的尺度歧义处理能力仍受限；此外，技能库的扩展和维护需要一定的工程成本，对全新场景的零样本适配能力尚待系统评估。
+
+---
+
+
+
+
+
+
+
+
+
+## 39. VLN-Cache (2026) {#vln-cache}
+———Enabling Token Caching for VLN Models with Visual/Semantic Dynamics Awareness
+
+📄 **Paper**: [arXiv:2603.07080](https://arxiv.org/abs/2603.07080)
+
+### 精华
+
+VLN-Cache 的核心洞见是：现有 token caching 方案在 VLN 场景下失效的根本原因有两个相互独立的维度——视觉动态（视角偏移导致空间位置错配）和语义动态（任务阶段推进导致缓存 token 语义过时）。将 "视图对齐重映射" 与 "任务相关性语义门控" 分别针对这两种动态进行正交设计是本文最值得借鉴的思路：先用几何对应恢复可复用集合，再用语义相关性做一票否决，二者缺一不可。层自适应熵策略（layer-adaptive entropy policy）将每层的复用预算与注意力分布的不确定性挂钩，也为其他需要跨层差异化处理的 inference 优化工作提供了参考范式。整个框架训练自由、无需架构修改，可作为即插即用的推理加速包裹层，具有很强的实用价值。
+
+---
+
+### 1. 研究背景/问题
+
+现代 VLN 系统依赖大型视觉-语言模型（VLM）作为规划器，每个导航步骤都需完整的前向推理，导致每步延迟成为实时部署的瓶颈。Token caching 是一种无需训练的推理加速策略，通过复用帧间稳定 token 的 KV 表示来跳过冗余计算；然而现有方法基于静态相机和固定语义的假设，在 Agent 连续平移旋转的 VLN 场景下会出现两类系统性失效：视角偏移导致位置对齐失效，任务阶段推进导致语义相关性突变，使得缓存 token 在视觉上"看起来稳定"但语义上已经过时。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vln/VLN-Cache-framework-overview.png" width="100%" />
+<figcaption>
+VLN-Cache 框架总览：左侧展示视觉动态（位置对齐失败）和语义动态（任务阶段偏移）两类挑战；右侧为对应的两个解决方案模块
+</figcaption>
+</div>
+
+VLN-Cache 是一个双感知 token caching 框架，针对视觉动态和语义动态分别设计了正交的处理机制：
+
+**A. 视觉动态感知 Token Caching**
+
+由于 Agent 连续移动，帧 t 中位置 i 的 token 对应的物理表面与帧 t-1 中同一位置 i 的表面完全不同。VLN-Cache 通过 **视图对齐重映射（View-Aligned Remapping）** 解决这一问题：
+- 利用深度图将每个 token 中心 $u_t^{(i)}$ 反投影到 3D 空间，结合相机相对位姿变换矩阵 $T_{t \to t-1}$，重新投影到上一帧图像平面，得到对应位置 $\pi_t(i)$
+- 通过 3×3 邻域细化（$\mathcal{N}$）处理连续坐标到离散 patch 索引的量化误差
+- 仅当重映射后的 token 对余弦相似度超过阈值 $\tau_{vis}$ 且在有效视野内时才标记为可复用
+
+**B. 语义动态感知 Token Caching**
+
+即便两帧间 token 在几何上完美对齐、视觉上高度相似，若 Agent 已完成当前子目标并转向下一阶段，该区域的任务相关性可能已骤降，复用其缓存状态会向语言解码器注入过时的注意力模式。VLN-Cache 引入 **任务阶段显著性过滤器（Task-Stage Saliency Filter）**：
+- 为每个 token 计算指令条件相关性分数 $s_t^{(i)}$（top-k 注意力集中区域的 Jaccard 距离衡量语义转变幅度 $D_t^{sem}$）
+- 满足以下任一条件则强制刷新：当前相关性过高（$s_t^{(i)} > \tau_{abs}$，缓存版本无法代表该区域重要性）或相关性快速变化（$\lvert s_t^{(i)} - s_{t-1}^{(i)} \rvert > \tau_\Delta$，正在经历语义转变）
+- 语义门控为 **一票否决（hard veto）**：视觉稳定性是复用的必要条件但不充分，语义过时则无条件刷新
+
+**C. 双感知融合与层自适应缓存策略**
+
+最终复用掩码采用乘法形式 $m_t^{(i)} = m_{vis,t}^{(i)} \cdot (1 - m_{sem,t}^{(i)})$，仅当几何稳定且无语义转变时才复用。
+
+<div align="center">
+  <img src="/images/vln/VLN-Cache-architecture.png" width="100%" />
+<figcaption>
+VLN-Cache 框架架构：左侧为视觉复用掩码（可见性+相似度检查），右侧为动态感知缓存的逐层复用预算分配
+</figcaption>
+</div>
+
+对于 Transformer 不同层，早期层处理低层次视觉特征（变化较慢），深层编码任务相关表示（在指令转变时变化更剧烈）。VLN-Cache 通过 **层自适应熵策略** 调节每层复用预算：
+$$\rho_t^\ell = \text{clip}(\rho_{max} - \alpha H_t^\ell, \rho_{min}, \rho_{max})$$
+其中 $H_t^\ell$ 是从现有注意力 softmax 读取的层熵代理，高熵层（不确定层）分配更保守的复用预算，低熵层可更激进地复用。
+
+<div align="center">
+  <img src="/images/vln/VLN-Cache-system-pipeline.png" width="100%" />
+<figcaption>
+VLN-Cache 系统实现流水线：视觉编码后通过 View/Sem 双门控生成掩码，复用 token 直接从缓存读取 KV，新 token 走标准前向计算
+</figcaption>
+</div>
+
+在系统实现上，VLN-Cache 不修改模型权重或注意力核，作为 drop-in 包裹层集成到任意基于 Transformer 的 VLA backbone：复用 token 从视图对齐缓存位置 $\pi_t(i)$ 直接拼接 KV 状态，新 token 经标准投影；RoPE 位置编码仅对新 token 更新，复用 token 继承原有编码。每帧缓存占用约 85.8 MB（A100 VRAM 的 0.21%），无需 CPU 卸载。
+
+---
+
+### 3. 核心结果/发现
+
+在 R2R-CE `val_unseen` 基准（1,839 个 episode，基于 InternVLA-N1 / QwenVL-2.5 7B backbone）上：
+
+- **推理加速**：每步延迟从 637 ms 降至 419 ms，实现 **1.52× 步级加速**，episode 级别同样达到 **1.52× 加速**（114.7s → 75.5s）
+- **导航精度保持**：SR = 63.1（vs. 基线 64.3），SPL = 57.6（vs. 基线 58.5），SR 下降仅 1.2%
+- **Token 复用率**：平均每步 31% 的 VLA token 从缓存复用；83% 的帧完全绕过 ViT 视觉编码器
+- **消融分析**：移除视图对齐重映射后 SR/SPL 显著下降（回退到位置对齐方案），移除语义门控后精度下降（视觉相似但语义过时的 token 被错误复用），二者均为不可或缺的正交贡献
+- **效率-精度帕累托最优**：在所有 RGB-only VLN 方法（NaVid, MapNav, UniNaVid, NaVILA, StreamVLN, DualVLN）中，VLN-Cache 达到最低 NE（3.93）和最高 OS（71.4），同时具备最快推理速度
+
+---
+
+### 4. 局限性
+
+VLN-Cache 目前仅针对 RGB-based 连续 VLN，不支持深度传感器或地图导航设置；四个超参数（$\tau_v, \tau_s, k, \rho_{max}$）缺乏自动调节方法，需在小型保留轨迹集上手动校准，自动超参确定方案留作未来工作。
+
+---
+
+
+
+
+
+
+
+
+
+## 40. SysNav (2026) {#sysnav}
+———Multi-Level Systematic Cooperation Enables Real-World, Cross-Embodiment Object Navigation
+
+📄 **Paper**: [arXiv:2603.06914](https://arxiv.org/abs/2603.06914)
+
+### 精华
+
+SysNav 将 ObjectNav 重新定义为系统级问题，将语义推理、导航规划、运动控制三层彻底解耦，值得借鉴。核心洞见是：VLM 不应被用于细粒度的 frontier 级别决策，而应限制在房间级别的高层规划，从而在推理能力与空间可靠性之间取得最佳平衡。三层场景图（Room→Viewpoint→Object）为 VLM 提供了结构化上下文，是 VLM 高效推理的关键基础设施。Early-stop 和 Room-query 两种 VLM 调用模式按需触发，有效避免了 VLM 的冗余调用。该系统在三种机器人平台上部署，验证了模块化设计对跨平台泛化的价值。
+
+---
+
+### 1. 研究背景/问题
+
+Object Navigation（ObjectNav）要求机器人在未知室内环境中自主找到目标物体，需同时处理复杂空间结构、长程规划和语义理解。现有方法将 ObjectNav 作为单一策略学习问题，端到端模型难以兼顾多个子挑战；而过度依赖 VLM 进行 frontier 级别决策会因 VLM 缺乏精确 3D 空间理解而导致频繁回溯和低效行为。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vln/SysNav-overview.png" width="100%" />
+<figcaption>
+SysNav 在多种真实环境和跨平台机器人上实现楼宇级别长程 ObjectNav
+</figcaption>
+</div>
+
+SysNav 是一个三层解耦的 ObjectNav 系统，各层专注于不同粒度的子问题：
+
+**高层——语义推理（Semantic Reasoning）**
+
+构建三层场景图表示 $\mathcal{R}$：
+- **Room Node** $v^r$：通过点云垂直分布拟合墙面并划分独立房间，每个节点存储房间类别、2D 顶视图和代表性 RGB 图像
+- **Viewpoint Node** $v^v$：在覆盖范围发生显著变化时新增，存储位置、覆盖区域和全景图像，实现高效语义存储
+- **Object Node** $v^o$：使用开放词汇检测（YOLOv8x + SAM2）实例化，每个节点存储类别、置信度、3D 点云、bounding box 及自属性
+
+边类型包括：Room-Room（门道连通）、Room-Viewpoint（包含关系）、Room-Object（包含关系）、Viewpoint-Object（可见性）、Object-Object（空间约束，按需添加）。
+
+VLM Reasoning 组件（Gemini-2.5-flash）基于上述场景图进行语义推理，提供房间级别导航指导。
+
+**中层——基于房间的导航（Room-based Navigation）**
+
+<div align="center">
+  <img src="/images/vln/SysNav-architecture.png" width="100%" />
+<figcaption>
+SysNav 系统架构：高层语义推理、中层房间导航、低层运动控制三层解耦
+</figcaption>
+</div>
+
+将房间作为最小语义规划单元，在房间内使用高效经典探索算法，仅在房间切换时调用 VLM：
+
+- **In-room Exploration**：两级规划（局部 + 全局），以覆盖分数 $w_{cov}(c_i) = \lvert \mathcal S_{cov}(c_i) \cap \hat{\mathcal S} \rvert$ 选取位姿候选，用 TSP 生成探索路径，滚动窗口机制协调局部与全局计划
+- **Early-stop 模式**：进入新房间时，VLM 根据上下文信息 $\mathcal C_{es}$（房间属性、已观测物体、任务目标）判断是否提前终止当前房间探索并切换到新房间
+- **Room-query 模式**：当前房间探索完毕仍未找到目标时，VLM 基于未探索房间信息 $\mathcal C_{rq}$ 推理最可能包含目标的下一个房间
+
+**低层——基础自主（Base Autonomy）**
+
+设计跨平台基础自主模块，将路径点转换为各平台（轮式机器人、四足 Unitree Go2、人形 Unitree G1）的具体运动控制指令，包含路径点跟随、碰撞回避和地形可通行性分析。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vln/SysNav-qualitative.png" width="100%" />
+<figcaption>
+SysNav 在轮式、四足、人形三种机器人平台上的真实环境定性结果
+</figcaption>
+</div>
+
+**仿真基准**（4个benchmark，与 SOTA 对比）：
+- HM3D-v1：SR **63.7%**，SPL **30.5%**（大幅领先次优 ApexNav 的 59.6%/33.0%）
+- HM3D-v2：SR **80.8%**，SPL **37.2%**（次优 ApexNav 76.2%/38.0%）
+- MP3D：SR **50.7%**，SPL **18.1%**
+- HM3D-OVON：SR **54.9%**，SPL **26.1%**（次优 MTU3D 40.8%/12.1%，提升 14.1%/6.5%）
+
+**真实环境**（190 次实验，对比 VLFM 和 InstructNav）：
+- Hard 设置（目标在不同房间）：SR **97.5%**，SPT **71.8**，AT **67.6s**（Hard setting SR 较次优提升 61.1%，SPT 提升 51.1%，AT 减少 29.8s）
+- 导航效率较现有 ObjectNav 基线提升 **4-5×**
+
+---
+
+### 4. 局限性
+
+仿真中 SPL 提升幅度小于 SR，原因是面向真实场景设计的严格覆盖策略在仿真中会造成轻微过度覆盖；此外，多房间布局对系统的额外挑战有限，因为中等难度场景中障碍物更密集反而会降低速度。
+
+
+---
+
+
+
+
+
+
+
+
+
+
+## 41. R³: Run, Ruminate, and Regulate (2026) {#r3}
+———一个面向视觉语言导航的双过程思考框架
+
+📄 **Paper**: [arXiv:2511.14131](https://arxiv.org/abs/2511.14131) · [Code](https://github.com/IAIII-CAS/navigation_R3) · 🏛️ **AAAI 2026**
+
+---
+
+### 精华
+
+- 将 Kahneman 双过程理论落到 VLN：**Runner（快系统）**处理常规导航，**Ruminator（慢系统）**处理异常情境，**Regulator**在两者间做监督切换——解决 "LLM 方法慢但泛化强 vs. 专家模型快但迁移差" 的取舍。
+- Runner 用轻量级 transformer VLN 专家（~160 M 参数、沿用 GridMM）做反应式高频动作预测；Ruminator 用 GPT-4o + CoT 做感知-规划-预测三步推理；二者共享一个**grid-based topological memory bank**，使慢系统能直接继承快系统的历史上下文。
+- Regulator 的切换信号来自三路**critical evaluation**（looping 视点重访阈值 + scoring GNN 对轨迹图做自监督打分 + ending 对 STOP 的校验），切换后进入**critical formulation**清空误导性历史，避免 LLM 被错误上下文污染。
+- Scoring 的自监督标注策略值得借鉴：以"是否最终到达目的地 / 路径是否属于 GT 子集"作为二分类伪标签，GNN 用图注意力做消息传递，从而**无需人工标注**就能早期识别失败前兆。
+- R³ 在 REVERIE Val-Unseen 上 SPL/RGSPL 比 SOTA 高 3.28 / 3.30，推理时间仅为其他 LLM-assisted 方法的 1/5（1.10 s vs. 5~11 s），展示了"大部分步数走快系统、异常步数才调 LLM"这一思路在效率与性能上的双赢。
+
+---
+
+### 1. 研究背景/问题
+
+VLN 需要智能体根据自然语言指令在复杂 3D 环境中动态导航。两条主流路线各有短板：（1）**基于 BC 的 VLN 专家**（DUET、GridMM 等）效率高但常识缺失、对未见环境泛化差；（2）**LLM-assisted 零样本方法**（NavGPT、MapGPT、DiscussNav 等）泛化好但每步调 LLM 导致延迟高（5~11 s/step），且对空间几何与场景布局的理解不够精确。作者目标是把两者的长处糅合在同一框架下——而不是简单地把 LLM 插进每一步。
+
+---
+
+### 2. 主要方法/创新点
+
+#### 2.1 整体思想：双过程思考
+
+<div align="center">
+  <img src="/images/vln/R3-dual-process-overview.png" width="90%" />
+<figcaption>图 1: R³ 双过程思考示意。工作流为 (i) Runner 执行常规导航 → (ii) Regulator 评估当前状态 → (iii-a) 情况正常则 Runner 继续；(iii-b) 检测到异常则切换到 Ruminator 介入。</figcaption>
+</div>
+
+R³ 由三个模块组成：
+
+- **Runner（快系统）**：反应式 VLN 专家，常规步骤下主导。
+- **Ruminator（慢系统）**：多模态 LLM + CoT，仅在检测到异常时激活，接管直到该异常消除或片段结束。
+- **Regulator（监督者）**：每个时间步评估当前状态，决定是否切换到 Ruminator，并在切换时清洗历史。
+
+#### 2.2 整体 Pipeline
+
+<div align="center">
+  <img src="/images/vln/R3-pipeline.png" width="100%" />
+<figcaption>图 2: R³ 完整 pipeline。Regulator 接收 $V_t=\{H_t, I, O_t, D_t, R_t\}$，通过三条 critical evaluation（Looping / Scoring / Ending）判断是否异常；异常则进入 critical formulation 由 LLM 产生修正规划 $P_t$，送往 Ruminator；正常则走 Runner 直接输出 $A_t$。</figcaption>
+</div>
+
+**问题形式化**：VLN 建模为 POMDP，智能体在时刻 $t$ 观察到位姿 $R_t$ 与全景 $O_t=\{o_t^i\}_{i=1}^{36}$（36 个相对 heading/elevation 的透视图），从可导航视点集合中选一个作为动作 $A_t$。策略 $\pi(A_t \mid I, O_t, H_t; \Theta)$ 基于指令 $I$、历史 $H_t=\{O_0, A_0, ..., O_{t-1}, A_{t-1}\}$ 与当前观察预测动作，直到智能体输出 `[STOP]` 或超步数上限。
+
+#### 2.3 Runner：轻量 transformer 快速响应
+
+Runner 接收 RGB-D $O_t, D_t$ 与位姿 $R_t$，通过投影提取细粒度特征并写入**egocentric grid memory**；随后与指令嵌入一起走 cross-modal transformer encoder，最终由两层 FFN 预测动作。Runner 仅 160 M 参数，保证实时推理。其实现直接复用 GridMM 官方仓库。作者指出 Runner 的两类固有缺陷：（1）训练 teacher-forcing 分布有限导致未见场景下容易出现**短视决策**（aimless wandering / 重复徘徊）；（2）BC 学习使其**进入错误视点后难以自我纠错**——这正是 Ruminator 要补的。
+
+#### 2.4 Ruminator：GPT-4o + CoT 三步慎思
+
+Ruminator 的输入通过一段**结构化文本模板**拼接（论文 Fig. 4）：`Instruction` + 36 张全景 `Observation` + `Trajectory`（"你从 $id_0$ 出发看到 $M_0$；step 1 到 $id_1$ 看到 $M_1$..."）+ `Map`（视点连通关系）+ `Option`（候选动作）。这种系统化格式化让 LLM 能显式感知环境拓扑与历史。
+
+Ruminator 以 GPT-4o 为底座，用 CoT 组织三步：
+
+- **Perception**：根据指令 $I$ 与全景 $O_t$ 生成细粒度环境文字描述，突出指令涉及的对象。
+- **Planning**：结合历史 $H_t$、上一步规划 $P_{t-1}$ 做长视野重规划，生成新 plan $P_t$。历史在 Ruminator 状态下以"**taken action + target destination**"形式表达——动作从 `{go forward to, turn left to, turn right to, turn back to}` 根据当前朝向与目标视点的夹角生成。
+- **Prediction**：基于 $I, P_t, O'_t$（可导航视点的子集）从候选中选动作。执行后更新 $H_t$ 与相邻视点。
+
+#### 2.5 Regulator：双阶段切换机制
+
+**Stage 1 — Critical Evaluation（何时切换）** 三条互补准则：
+
+- **Looping**：当任一视点的重访次数超过 $\tau_r$，或轨迹长度超过 $\tau_l$，判定为陷入循环。
+- **Scoring**：用 **GNN**（两层 graph attention + edge encoding）给当前轨迹打分，输入是以"位置 / 最后到达时间戳 / 视觉 embedding"为节点特征、视点连通关系为边的拓扑图，未访问节点用邻居视觉嵌入均值近似。训练用**自监督伪标签**——成功到达或所有视点都属于 GT 路径的 $\mathcal T_t$ 标 0，否则标 1。推理时分数 $>\tau_g=0.35$ 触发切换。
+- **Ending**：Runner 预测 `[STOP]` 时再由 GPT-4o 根据 $I, O_t$ 判断是否真的到达目的地，避免早停。
+
+**Stage 2 — Critical Formulation（如何切换）** 切换到 Ruminator 前，Regulator 额外用 LLM 判断"从起点重启是否更可取"——这一步**重置 memory bank**以模拟真实部署；同时在其它触发下也会**剔除 Runner 积累的误导历史**，再让 Ruminator 重新推理，避免错误上下文污染 LLM。
+
+#### 2.6 共享 Memory Bank
+
+这是效率关键：Runner 的 grid-based topological memory 不仅服务快系统的长上下文决策，在切换时也**直接继承给 Ruminator**，使 LLM 无需从零重建历史（消融显示 w/o memory bank 时 SR 下降 0.87）。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vln/R3-main-results.png" width="100%" />
+<figcaption>图 4: R2R 与 REVERIE Val-Unseen 主要结果。R³ 在所有指标上同时超越 BC 专家、LLM 微调方法与 LLM-assisted 方法。</figcaption>
+</div>
+
+- **R2R Val-Unseen**：SR 77 / SPL 66，较最佳 BC 基线（GridMM 75 / 64、BEVBert 75 / 64）提升 2 / 1.5 个点；NE 2.76（最低）。
+- **REVERIE Val-Unseen**：SR 53.76 / SPL 42.14 / RGS 37.94 / RGSPL 29.86，较次优方法（SUSA 51.75 / 38.86 / 35.02 / 26.56）分别 +2.01 / +3.28 / +2.92 / +3.30；REVERIE 上提升**显著大于 R2R**，表明 R³ 对高层语义理解与慎思分析要求更高的"粗粒度"指令更有优势。
+- **效率（Fig. 1）**：R³ 1.10 s/step vs. 其他 LLM-assisted 方法 5~11 s，约 1/5；且 SR 77 远超所有 LLM-assisted 基线（最高 DiscussNav 40）。证明"异常步才调 LLM"的策略可同时获得效率与性能。
+
+<div align="center">
+  <img src="/images/vln/R3-qualitative-reverie.png" width="100%" />
+<figcaption>图 5: REVERIE 可视化对比。GridMM 在起始区域长时间徘徊直至失败；R³ 由路径冗余触发 Ruminator，通过慎思识别正确路线并完成任务。</figcaption>
+</div>
+
+**消融要点**（Table 2/3，略图）：
+
+- **Regulator 三准则互补**：去掉 Scoring 掉 SR 2.05 / SPL 2.76（最大降幅），说明 GNN 打分是主要的失败早期信号；去掉 Ending 掉 RGS 2.33 / RGSPL 4.01（RGS/RGSPL 最大降幅），对物体定位影响最大；去掉 Looping 与 Critical Formulation 也都有 0.37~0.39 的 SR 下降，全部非冗余。
+- **LLM 能力 × 性能正相关**：GPT-4o > GPT-3.5 Turbo >> MiniGPT-4；有趣的是不接 Ruminator（w/o LLM）的 R³ 仍比接 MiniGPT-4 好 1.98 SR，说明**能力不足的 LLM 会破坏系统**，预示未来更强 LLM 可直接放大 R³ 收益。
+- **共享 memory 的必要性**：w/o memory bank 时 SR 52.89（-0.87）、RGSPL 28.06（-1.80），说明 Ruminator 真的依赖 Runner 积累的上下文。
+
+---
+
+### 4. 局限性
+
+- Ruminator 依赖 GPT-4o API，部署成本与网络延迟仍是瓶颈（Fig. 1 中 NavGPT-2 本地部署效率更好）；在真实机器人上需要等价的本地 MLLM。
+- 仅在 Matterport3D（R2R / REVERIE）上评测，连续动作空间（R2R-CE、RxR-CE）与真实机器人泛化尚未验证。
+- Scoring GNN 的自监督伪标签依赖"GT 路径子集"这一先验，迁移到无明确路径标注的任务（如 ObjectNav）可能需要重新设计。
+  
+---
+
+
+
+
+
+
+
+
+
+## 42. Uncertainty-Aware Gaussian Map for VLN (2026) {#uncertainty-aware-gaussian-map}
+———三类感知不确定性 × Semantic Gaussian Map，赋予 VLN 智能体可靠决策能力
+
+📄 **Paper**: [github.com/Gaozzzz/Uncertainty-Aware-VLN](https://github.com/Gaozzzz/Uncertainty-Aware-VLN)
+
+---
+
+### 精华
+
+- 将环境表征（3D Gaussian Map）与感知不确定性（几何/语义/外观）统一到同一空间，是比单纯 map-based 方法更稳健的设计范式。
+- 几何不确定性用变分推断建模位置/尺度扰动，语义不确定性用语义属性扰动揭示歧义解释，外观不确定性用 Fisher Information 衡量渲染敏感度——三条路径正交互补，可迁移到其他 3DGS 场景表征任务。
+- 用"3D Value Map"将不确定性从特征维度编码为可导航的 affordance / constraint，是将感知置信度转化为行动先验的优雅工程。
+- 训练时让 SGM 的渲染损失和导航损失联合优化，使场景表征与决策策略协同提升，避免了两阶段分离设计的 representation gap。
+- REVERIE RGS 提升 2.94%、R2R SR 提升 2% 的边际增益表明：当前 VLN 瓶颈已从"语言理解"转移到"感知可靠性"，不确定性建模是下一个值得深耕的方向。
+
+---
+
+### 1. 研究背景/问题
+
+VLN 要求智能体在 3D 环境中依据自然语言指令导航。现有智能体在推理时普遍忽略感知不确定性（如相似门洞的视觉歧义、遮挡导致的路径可通行性不确定），训练目标迫使模型对每个 step 输出确定动作，无法表达"不确定"。这在遮挡多、结构重复的场景中易造成错误停止或路径偏移。
+
+<div align="center">
+  <img src="/images/vln/UncertaintyGaussian-motivation.png" width="100%" />
+<figcaption>图1：动机示意。左：视觉相似结构（多扇门）导致智能体证据不足而停错位置；右：遮挡使路径可通行性模糊，智能体选择次优路径。本文智能体通过显式建模不确定性（亮色=高不确定性）避免上述错误。</figcaption>
+</div>
+
+---
+
+### 2. 主要方法/创新点
+
+**整体框架**：SGM 构建 → 不确定性估计 → 3D Value Map → 多层 Transformer 预测动作。
+
+<div align="center">
+  <img src="/images/vln/UncertaintyGaussian-pipeline.png" width="100%" />
+<figcaption>图2：整体 Pipeline。每步从全景 RGB-D 观测构建 SGM，估计三类不确定性并嵌入形成 3D Value Map，再与语言指令拼接输入 MLT 预测动作。</figcaption>
+</div>
+
+**3.1 Semantic Gaussian Map (SGM)**
+
+每个导航点处，将多视角 RGB-D 观测反投影为稀疏伪激光点云，每个点初始化为一个可微 3D Gaussian primitive $$g_i$$，包含：均值 $$\boldsymbol{\mu}_i \in \mathbb{R}^3$$（位置）、协方差 $$\boldsymbol{\Sigma}_i$$（形状/尺度）、不透明度 $$\alpha_i$$、颜色球谐系数 $$c_i$$，以及语义属性 $$s_i$$（由 SAM2 分割区域 + CLIP 特征附加而来）。通过可微渲染优化使 SGM 与当前观测一致，并裁剪低尺度（$$\lVert e_i \rVert_2 < \tau_e$$）和低不透明度（$$\alpha_i < \tau_\alpha$$）的冗余 Gaussian。
+
+**3.2 不确定性估计（三类）**
+
+| 类型 | 建模方式 | 含义 |
+|---|---|---|
+| 几何不确定性 $$U^g$$ | 对位置/尺度施加变分扰动，最小化 ELBO，提取变分分布标准差 | 结构可靠性：Gaussian 是否在多种几何假设下保持稳定 |
+| 语义不确定性 $$U^s$$ | 对语义属性施加可学习偏移，同样 ELBO 优化 | 语义歧义程度：同一区域的语义解释有多不稳定 |
+| 外观不确定性 $$U^a$$ | 用 Fisher Information（渲染 Jacobian 的 log-determinant）近似 Hessian | 外观敏感性：纹理复杂/遮挡/光照变化是否导致渲染剧变 |
+
+$$U_i^g = \lVert \mathcal{F}^{\text{std}}(q_{\phi^\mu}(\chi_i^\mu)) \rVert_2 + \lVert \mathcal{F}^{\text{std}}(q_{\phi^e}(\chi_i^e)) \rVert_2$$
+
+$$U_i^a = \log \lvert \nabla_{\mathcal{G}} \hat{\mathcal{I}} \nabla_{\mathcal{G}} \hat{\mathcal{I}}^\top \rvert$$
+
+**3.3 3D Value Map 与动作预测**
+
+将 $$(U^g, U^s, U^a)$$ 附加到每个 Gaussian 的属性向量，扩展为 $$g_i \in \mathbb{R}^{20}$$。再通过非线性投影得到每个 Gaussian 的特征 $$F^{g_i} \in \mathbb{R}^{768}$$，聚合后与语言嵌入 $$X$$ 拼接，输入多层 Transformer $$\mathcal{F}^{\text{MLT}}$$ 预测候选 waypoint 的导航概率。
+
+<div align="center">
+  <img src="/images/vln/UncertaintyGaussian-uncertainty-vis.png" width="100%" />
+<figcaption>图5：三类不确定性可视化。几何不确定性突出结构边界/不规则面，语义不确定性揭示对象级歧义区域，外观不确定性标记纹理复杂/遮挡/光照敏感区域。亮色=高不确定性。</figcaption>
+</div>
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vln/UncertaintyGaussian-qualitative-r2r.png" width="100%" />
+<figcaption>图3：R2R 定性对比。左：面对多扇相似窗户，VER 误判后提前停止，本文方法正确到达；右：VER 被桌子阻挡而停止，本文方法绕行成功完成指令。</figcaption>
+</div>
+
+- **R2R val unseen**：SR 78%（vs VER 76%，+2%），SPL 66%（vs 65%，+1%）
+- **RxR val unseen**：SR 65.2%（vs BEVBert 64.1%，+1.1%），nDTW 65.6%（vs 63.9%，+1.7%）
+- **REVERIE val unseen**：RGS 37.65%（vs BEVBert 34.71%，+2.94%），RGSPL 27.01%（vs 24.44%，+2.57%）——远程目标定位能力显著提升
+- 消融：SGM 单独带来结构理解增益（REVERIE RGS 32.15% → 35.48%），不确定性单独将 R2R SR 从 72.22% 提升至 74.20%，两者叠加达到最优 78.32%
+- 三类不确定性均有独立贡献，全部使用时最优，几何+语义的提升幅度大于外观
+
+---
+
+### 4. 局限性
+
+SGM 构建（尤其是 SAM2 语义抽取与不确定性估计）推理开销较大，训练阶段采用离线预计算缓解，但实时部署仍需轻量化替代（论文建议以轻量 SAM2 变体替换）；此外，框架在 Matterport3D 室内场景验证，对室外或动态环境的泛化性未知。
+
+---
+
+
+
+
+
+
+
+
+
+## 43. GSMem (2026) {#gsmem}
+———3D Gaussian Splatting 作为具身探索与推理的持久空间记忆
+
+📄 **Paper**: [arXiv:2603.19137](https://arxiv.org/abs/2603.19137)
+
+---
+
+### 精华
+
+GSMem 的核心洞察是将 3D Gaussian Splatting（3DGS）作为一种具备"事后重新观察"能力（post-hoc re-observability）的持久空间记忆，使 agent 无需物理回访即可从任意最优视点重新渲染已探索区域，从根本上突破了离散检测失败导致记忆永久缺失的固有瓶颈。双层检索机制（对象级场景图 + 语义级 CLIP 语言场）互为补充：场景图提供结构化定位，语言场在检测缺失时兜底召回，两者共同驱动最优视点渲染为 VLM 提供高保真视觉证据。混合探索策略将 VLM 语义相关性与基于 Fisher 信息矩阵迹近似的 3DGS 几何信息增益动态结合，在任务导向探索与全局覆盖之间自适应切换，兼顾效率与鲁棒性。将连续辐射场引入具身导航记忆是一次重要范式转移，其"写入即可重渲染"的特性对长时导航任务尤为关键。
+
+---
+
+### 1. 研究背景/问题
+
+具身导航要求 agent 在未知环境中主动探索并持续积累空间知识。现有方法依赖两类表示：离散的 3D 场景图（如 ConceptGraphs）因依赖检测模块，目标漏检将导致不可恢复的记忆空洞；基于视图快照的方法（如 3D-Mem）则因视角固定、稀疏，无法从最优视角重新观察已探索区域，给 VLM 推理提供的视觉证据质量受限。上述方法均缺乏 post-hoc re-observability：agent 被锁定在初始探索时的固定观测中，无法如人类一样"从新角度回忆"过去场景。
+
+---
+
+### 2. 主要方法/创新点
+
+**整体框架概览**
+
+GSMem 在主动探索过程中实时维护三个并行结构：3DGS 几何与外观地图、每个 Gaussian 附带的 CLIP 语言嵌入场、对象级场景图。查询到来时，多层检索-渲染机制定位相关区域并渲染最优视点图像，VLM 据此推理；当没有 frontier 提供足够语义线索时，切换至基于信息增益的几何探索。
+
+<div align="center">
+  <img src="/images/vln/GSMem-teaser.png" width="100%" />
+<figcaption>GSMem 系统概览：agent 在真实探索路径（黄线）之外，可通过 3DGS 记忆直接"事后重新观察"任意已探索区域（紫线），无需物理导航回访</figcaption>
+</div>
+
+**3DGS 建图与在线语言场**
+
+每个 3D Gaussian $$g_i$$ 额外携带 32 维语言嵌入（由 768 维 CLIP 特征经自编码器压缩得到）。为避免高维语言特征的优化开销，提出"权重一致逆聚合"：forward 渲染中 2D 像素特征由 3D Gaussian alpha-blending 生成，逆向时以完全相同的混合权重将 2D CLIP 特征反向分配给各 Gaussian，实现零优化开销的在线语义更新：
+
+$$\mathbf{f}_i^t = \frac{W_i^{t-1}\mathbf{f}_i^{t-1} + \sum_{k \in \mathcal{T}_t} \sum_p w_{i,p,k}^t \mathbf{f}_{p,k}^{2D}}{W_i^t}$$
+
+同时维护对象级场景图（含 3D 位置、语义标签、最高置信度检测视角）、TSDF 地图和 frontier 地图。
+
+**多层检索-渲染机制**
+
+<div align="center">
+  <img src="/images/vln/GSMem-retrieval-rendering.png" width="100%" />
+<figcaption>多层检索-渲染机制：对象级检索（场景图）与语义级检索（3DGS 语言场）并行定位 ROI，随后通过最优视点选择与 3DGS 渲染为 VLM 提供高保真视觉证据</figcaption>
+</div>
+
+给定任务查询，同时触发两条互补检索路径：
+- **对象级检索**：VLM 对场景图全部对象按语义相关性排序，选 top-$K_\text{obj}$ 候选作为 ROI
+- **语义级检索**：将查询编码为 CLIP 嵌入，在语言场中以余弦相似度 $> \tau_\text{clip}$ 召回相关 Gaussian，经 KD-Tree 聚类后保留 top-$K_\text{cluster}$ 个空间连贯群组作为 ROI
+
+对每个 ROI，在水平圆形轨迹上均匀采样 108 个候选视点（36 方位角 × 3 仰角），经两阶段打分筛选：Phase 1 以能见度分 $S_\text{vis}$（TSDF 光线投射）+ 投影面积分 $S_A$（高斯惩罚鼓励适当观察距离）选出 top-10；Phase 2 进一步以 3DGS 不透明度分 $S_\text{opa}$ 评估实际渲染质量，综合分 $S_\text{final} = S_\text{vis} + S_A + S_\text{opa}$ 选出最优视点。最终通过单步扩散模型提升渲染图像质量后送入 VLM 推理。
+
+**混合探索策略**
+
+<div align="center">
+  <img src="/images/vln/GSMem-hybrid-exploration.png" width="100%" />
+<figcaption>混合探索策略：当任一 frontier 的语义相关性超过阈值时优先导向任务目标；否则切换至基于 3DGS 信息增益（不确定性热力图）的几何覆盖探索</figcaption>
+</div>
+
+对每个候选 frontier 计算两类分数：
+- **语义相关分** $s_i^\text{sem} \in [0,1]$：VLM 评估 frontier 观测图像与任务查询的相关程度
+- **几何覆盖分** $s_i^\text{geo}$：基于 Fisher 信息矩阵（FIM）的信息增益，以 T-optimality 代理近似为 FIM 增量的迹 $$s_i^\text{geo} \approx \text{Tr}(\mathbf{I}_i)$$，可直接由渲染 Jacobian 计算，无需真值监督
+
+探索决策规则：
+
+$$i^* = \begin{cases} \arg\max_i \, s_i^\text{sem}, & \text{if } \max_i s_i^\text{sem} > \tau_s \\ \arg\max_i \, s_i^\text{geo}, & \text{otherwise} \end{cases}$$
+
+---
+
+### 3. 核心结果/发现
+
+**Active Embodied QA (A-EQA) on OpenEQA**（63 个 HM3D 场景，184 问题，GPT-4o 作为 VLM）：
+
+| 方法 | LLM-Match ↑ | LLM-Match SPL ↑ |
+|------|------------|----------------|
+| Explore-EQA | 46.9 | 23.4 |
+| ConceptGraphs w/ Frontier | 47.2 | 33.3 |
+| 3D-Mem | 52.6 | 42.0 |
+| **GSMem (Ours)** | **55.4** | **43.8** |
+
+**GOAT-Bench 多模态长时导航**（36 场景 val-unseen，2600+ subtasks）：
+
+| 方法 | SR ↑ | SPL ↑ |
+|------|------|-------|
+| TANGO | 32.1 | 16.5 |
+| MTU3D | 47.2 | 27.7 |
+| 3D-Mem | 62.9 | 44.7 |
+| **GSMem (Ours)** | **67.2** | **46.9** |
+
+GSMem 在长时导航任务中的优势比 A-EQA 更显著（SR +4.3 vs LLM-Match +2.8），验证了持久记忆对长时累积任务的特殊价值。消融研究显示：去除 CLIP 语言场 −4.5 SR、去除最优视点选择 −2.7 SR、去除混合探索时 SPL 下降 −4.1，表明几何覆盖策略对探索效率贡献显著。
+
+<div align="center">
+  <img src="/images/vln/GSMem-case-analysis.png" width="100%" />
+<figcaption>案例对比（3D-Mem vs GSMem）：(a-c) 3D-Mem 因检测漏报（白色长袍、无花果树）或语义误检（白色门被识别为冰箱）导致错误，GSMem 通过语义场检索正确定位；(d) 视角受限时，GSMem 通过最优视点重渲染成功识别悬挂衣物</figcaption>
+</div>
+
+---
+
+### 4. 局限性
+
+当前系统依赖 RGB-D 输入，深度噪声或高遮挡场景将影响 3DGS 建图质量，进而降低检索与渲染精度；单步扩散增强引入额外推理延迟，实时部署（当前约 1.2 s/step）仍有优化空间。
+
+---
+
+
+
+
+
+
+
+
+
+
+## 44. AwareVLN (2026) {#awarevln}
 ———Reasoning with Self-awareness for Vision-Language Navigation
 
 📄 **Paper**: [arXiv:2605.22816](https://arxiv.org/abs/2605.22816) · [Project Page](https://gwxuan.github.io/AwareVLN/) · 🏛️ **CVPR 2026**
@@ -3875,7 +5002,15 @@ $$d, y_t = \pi_\theta\big(f_{tok}(I), f_{tok}(R'), f_{vis}(O_t)\big)$$
 
 ---
 
-## 38. Dual-Anchoring (2026) {#dual-anchoring}
+
+
+
+
+
+
+
+
+## 45. Dual-Anchoring (2026) {#dual-anchoring}
 ———用"指令进度"与"地标记忆"双重锚定，对抗 VLN 中的状态漂移（State Drift）
 
 📄 **Paper**: [arXiv:2604.17473v2](https://arxiv.org/abs/2604.17473)
@@ -3988,7 +5123,15 @@ $$\mathcal{L}_{Stage1} = \mathcal{L}_{nav} + \lambda_{prog}\mathcal{L}_{prog} + 
 
 ---
 
-## 39. WAM-Nav (2026) {#wam-nav}
+
+
+
+
+
+
+
+
+## 46. WAM-Nav (2026) {#wam-nav}
 ———非对称隐空间「世界-动作」联合建模，用一个 DiT 统一三类视觉导航
 
 📄 **Paper**: [arXiv:2606.04907](https://arxiv.org/abs/2606.04907) — WAM-Nav: Asymmetric Latent World-Action Modeling for Unified Visual Navigation
@@ -4085,7 +5228,15 @@ $$\mathcal L_{total}=\mathbb E\big[\lVert\hat u_A-u_A\rVert_2^2+\lambda_{img}\lV
 
 ---
 
-## 40. JanusVLN (2026) {#janusvln}
+
+
+
+
+
+
+
+
+## 47. JanusVLN (2026) {#janusvln}
 ——— 解耦语义与空间：使用双隐式神经内存的视觉语言导航
 
 📄 **Paper**: [arXiv:2509.22548v2](https://arxiv.org/abs/2509.22548v2) · 🏛️ **ICLR 2026**
@@ -4194,7 +5345,15 @@ $$\mathcal L_{total}=\mathbb E\big[\lVert\hat u_A-u_A\rVert_2^2+\lambda_{img}\lV
 
 ---
 
-## 41. HSGM (2026) {#hsgm}
+
+
+
+
+
+
+
+
+## 48. HSGM (2026) {#hsgm}
 ——— 层级式语义-几何地图，填补 VLM 2D 视觉与 3D 空间推理及运动规划的鸿沟
 
 📄 **Paper**: [arXiv:2606.00095](https://arxiv.org/abs/2606.00095)
@@ -4327,7 +5486,15 @@ HSGM 包含三个并行的层级，以维持高精度、长期稳定的 3D 环�
 
 ---
 
-## 42. OneVLA (2026) {#onevla-a-unified-framework-for-embodied-tasks}
+
+
+
+
+
+
+
+
+## 49. OneVLA (2026) {#onevla-a-unified-framework-for-embodied-tasks}
 OneVLA: A Unified Framework for Embodied Tasks
 ———首个在单一网络与动作头下统一具身导航和操作的 VLA 模型
 
@@ -4477,7 +5644,15 @@ OneVLA 在导航基准 **VLN-CE** (R2R & RxR) 以及操作基准 **SimplerEnv** 
 
 ---
 
-## 43. CA-VLN (2026) {#ca-vln}
+
+
+
+
+
+
+
+
+## 50. CA-VLN (2026) {#ca-vln}
 ——— 基于双智能体协作的多模态大模型具身导航框架
 
 📄 **Paper**: [Sensors 2026](https://doi.org/10.3390/s26041254)
@@ -4570,166 +5745,15 @@ CA-VLN 提出了一个由知识推理智能体（Knowledge Reasoning Agent）和
 
 
 ---
-## 44. VLN-CE (2020) {#vln-ce}
-——Beyond the Nav-Graph: 在连续环境中的视觉-语言导航
 
-📄 **Paper**: [arXiv:2004.02857](https://arxiv.org/abs/2004.02857) · 🏛️ **ECCV 2020**
 
-**精华**
 
-这篇论文通过将 VLN 任务从离散导航图迁移到连续 3D 环境,揭示了基于导航图的设定中隐含的强假设对性能的巨大影响。值得借鉴的核心思想包括:批判性地审视任务设定中的隐含假设、通过消除不现实的简化来提高任务的实际应用价值、深度信息在具身导航中的关键作用、以及端到端学习与低层控制结合的必要性。这种"去简化"的研究思路对构建更接近真实机器人应用的 AI 系统具有重要指导意义。
 
-**研究背景/问题**
 
-现有的 Vision-and-Language Navigation (VLN) 任务基于导航图 (nav-graph) 表示,引入了三个不现实的假设:已知环境拓扑、短距离 oracle 导航、以及完美的智能体定位。这些假设使得任务本质上退化为视觉引导的图搜索问题,与真实机器人导航场景存在巨大差距,限制了向实际机器人平台迁移的可能性。
 
-**主要方法/创新点**
 
-<div align="center">
-  <img src="/images/vln/VLN-CE-comparison.png" width="100%" />
-<figcaption>
-VLN 与 VLN-CE 的对比:VLN 基于固定拓扑的全景图节点(左),而 VLN-CE 在连续环境中使用低层动作(右)
-</figcaption>
-</div>
 
-论文提出了 Vision-and-Language Navigation in Continuous Environments (VLN-CE) 任务,在 Habitat 模拟器中实例化连续的 Matterport3D 环境。主要创新包括:
-
-1. **连续环境设定**:智能体通过低层动作(前进 0.25m、左转/右转 15°、停止)在连续 3D 空间中自由导航,而非在固定节点间传送。
-
-2. **轨迹迁移方法**:设计了将 Room-to-Room (R2R) 数据集的导航图轨迹转换为连续环境路径的算法。通过向下投射射线找到最近的可导航点,并使用 A* 算法验证路径可达性,成功转换了 77% 的 R2R 轨迹(4475 条)。
-
-3. **模型架构**:
-   - **Seq2Seq Baseline**: 使用 GRU 处理 RGB 和 Depth 观察的均值池化特征以及 LSTM 编码的指令
-   - **Cross-Modal Attention Model**: 采用双 GRU 架构,一个处理视觉观察,另一个基于注意力机制融合指令和视觉特征进行决策。使用预训练的 ResNet50 (ImageNet) 提取 RGB 特征,使用预训练的 ResNet50 (Point-Goal Navigation) 提取深度特征。
-
-4. **训练策略**:
-   - 基础模仿学习 with inflection weighting
-   - DAgger 应对 exposure bias
-   - Progress Monitor 辅助损失
-   - Speaker 模型生成的合成数据增强(~150k 条轨迹)
-
-**核心结果/发现**
-
-1. **任务难度显著增加**:VLN-CE 中平均轨迹长度为 55.88 个动作,而 VLN 仅需 4-6 个节点跳转。最佳模型在 val-unseen 上达到 32% 成功率 (SR) 和 0.30 SPL,显著低于 VLN 中的表现。
-
-2. **深度信息至关重要**:移除深度输入导致模型性能崩溃(成功率 ≤1%),而移除 RGB 或指令的影响相对较小。深度使智能体能够快速学会有效遍历环境(避免碰撞),是引导学习的关键信号。
-
-3. **训练技术的混合效果**:Cross-Modal Attention 优于 Seq2Seq;DAgger 带来 3-5% SPL 提升;但 Progress Monitor 和数据增强单独使用时效果不佳,需要组合使用(预训练 + DAgger 微调)才能达到最佳性能。
-
-4. **导航图的强先验**:将 VLN-CE 训练的智能体路径转换回导航图并在 VLN 测试集上评估,SPL 为 0.21,远低于利用导航图训练的 SOTA 方法(0.47 SPL)。这表明现有 VLN 结果可能因导航图的强先验而被高估。
-
-5. **单模态消融**:无指令模型达到 17% SR,无图像模型也达到 17% SR,表明轨迹存在共同的规律性;但完整多模态模型(20% SR)仍明显优于单模态基线。
-
-**局限性**
-
-约 23% 的 R2R 轨迹无法在连续环境中导航(环境重建的不连续性、物体移动等)。当前端到端方法的绝对性能仍较低,未来需要探索模块化方法,如将学习到的智能体与运动控制器集成。论文未详细探索所有可能改善 VLN-CE 性能的技术(如更多应对 exposure bias 和数据稀疏性的方法)。
-
----
-
-## 45. VLN-PE (2025) {#vln-pe}
-———重新思考视觉-语言导航中的具身化差距:物理和视觉差异的全面研究
-
-📄 **Paper**: [arXiv:2507.13019](https://arxiv.org/abs/2507.13019v2) · 🏛️ **ICCV 2025**
-
-**精华**
-
-这篇论文通过构建物理真实的VLN平台,系统性地揭示了理想化仿真与物理部署之间的巨大差距。核心启示包括:(1) 跨具身数据融合训练可以显著提升模型泛化能力,为统一的跨机器人导航模型奠定基础;(2) 多模态感知(RGB+Depth)比单一RGB更鲁棒,尤其在光照变化环境下;(3) 物理控制器的引入对于腿足机器人至关重要,训练和评估阶段的控制器一致性直接影响性能;(4) 现有MP3D风格数据集的泛化能力有限,小规模域内数据微调即可超越大模型零样本性能;(5) diffusion policy作为连续路径点预测的新范式在VLN任务中展现潜力。
-
-**研究背景/问题**
-
-现有的VLN方法在理想化仿真环境中表现优异,但在部署到真实物理机器人时面临巨大挑战。主要问题包括:当前VLN平台忽视了机器人的物理具身特性(如视点高度、运动动力学、碰撞和跌倒等),并且缺乏对不同机器人类型(轮式、人形、四足)的跨具身支持。研究核心问题是:物理具身约束和视觉环境变化对现有VLN方法的性能影响究竟有多大?
-
-**主要方法/创新点**
-
-<div align="center">
-  <img src="/images/vln/VLN-PE-evolution.png" width="100%" />
-<figcaption>
-VLN任务的演进:从oracle-based导航(2018)到VLN-CE连续导航(2020),再到VLN-PE物理真实导航(2025)
-</figcaption>
-</div>
-
-论文提出了**VLN-PE平台**,一个基于GRUTopia构建的物理真实VLN基准测试平台,具有以下核心特性:
-
-1. **跨具身支持**:支持人形机器人(Unitree H1, G1)、四足机器人(Unitree Aliengo)和轮式机器人(Jetbot),并提供基于RL的物理控制器API,实现真实的运动动力学模拟
-
-2. **场景多样性**:除了90个MP3D场景外,新增10个高质量合成家居场景(GRScenes)和3DGS在线渲染实验室场景,支持无缝集成更多环境
-
-<div align="center">
-  <img src="/images/vln/VLN-PE-platform-overview.png" width="100%" />
-<figcaption>
-VLN-PE平台概览:支持多种机器人具身、场景类型、光照条件和控制器模式
-</figcaption>
-</div>
-
-3. **系统性评估框架**:评估三类ego-centric VLN方法
-   - **单步端到端方法**:Seq2Seq、CMA(约36M参数)和NaVid(7B参数的视频MLLM)
-   - **多步端到端方法**:首次提出RDP(Recurrent Diffusion Policy),使用transformer-based diffusion模块预测连续轨迹路径点
-   - **地图基零样本方法**:改进的VLMaps,结合LLM和语义地图进行路径规划
-
-<div align="center">
-  <img src="/images/vln/VLN-PE-RDP-framework.png" width="100%" />
-<figcaption>
-RDP(循环扩散策略)框架:使用GRU维护历史信息,交叉注意力融合视觉-语言特征,Transformer扩散模块预测连续动作序列
-</figcaption>
-</div>
-
-4. **新数据集**:
-   - **R2R-filtered**:过滤楼梯场景后保留8,679/658/1,347个训练/val-seen/val-unseen episodes
-   - **GRU-VLN10**:10个合成场景,441/111/1,287个episodes
-   - **3DGS-Lab-VLN**:3DGS渲染实验室环境,160训练/640评估episodes
-
-5. **新评估指标**:除了传统的TL、NE、SR、OS、SPL外,新增Fall Rate (FR)和Stuck Rate (StR)来衡量物理真实性挑战
-
-**核心结果/发现**
-
-<div align="center">
-  <img src="/images/vln/VLN-PE-main-results.png" width="100%" />
-<figcaption>
-使用人形机器人Unitree H1在R2R数据集上的主要实验结果对比
-</figcaption>
-</div>
-
-**零样本迁移性能大幅下降**:
-- VLN-CE模型直接迁移到VLN-PE时,SR相对下降约34%
-- Seq2Seq-Full、CMA-Full和NaVid的SR分别下降10%、16%和18%
-- 这表明现有模型严重过拟合特定仿真平台
-
-**域内微调显著提升**:
-- 在VLN-PE上从头训练的CMA(无数据增强)超越了使用175K增强数据训练的CMA-Full
-- 小模型CMA+经过微调后,在val-seen上达到SR 28.72,SPL 24.24,超越NaVid的零样本性能
-
-**跨具身敏感性**:
-- 四足机器人(相机高度约0.5m)在迁移时几乎完全失败
-- 调整相机高度到1.8m可改善人形机器人的迁移性能
-- 跨具身联合训练使单一模型在所有机器人类型上达到SoTA性能
-
-**物理控制器的重要性**:
-- 训练和评估使用相同控制器时性能最佳
-- 使用物理控制器收集数据可降低Fall Rate和Stuck Rate
-
-**多模态鲁棒性**:
-- 仅RGB的NaVid在低光照下SR下降12.47%
-- RGB+Depth的CMA和RDP受光照影响较小(下降约1-2%)
-
-**MP3D数据集泛化能力有限**:
-- 在GRU-VLN10上,RDP用6M参数仅441个训练样本,零样本超越NaVid大模型
-- 在3DGS-Lab-VLN上,NaVid完全失败(SR仅5.81),可能是3DGS渲染噪声导致
-
-**扩散策略的潜力**:
-- RDP作为首个VLN扩散策略基线,在从头训练时优于Seq2Seq和CMA
-- 预测连续密集路径点,可与MPC等控制理论方法结合
-
-**真机实验验证**:
-- 使用Unitree Go2机器人进行14个室内场景测试
-- VLN-PE微调模型在真实环境中OS达到57.14,SR达到28.57,显著优于VLN-CE训练模型
-
-**局限性**
-
-当前RL-based运动控制器无法可靠处理复杂环境中的楼梯导航,需要过滤相关场景。论文主要聚焦ego-centric视角,未评估panoramic VLN方法。MLLM在精确目标识别和停止决策上仍存在挑战。3DGS渲染引入的像素级噪声可能干扰纯RGB模型,需要进一步研究图像扰动的鲁棒性。
-
----
-
-## 46. RynnBrain (2026) {#rynnbrain}
+## 51. RynnBrain (2026) {#rynnbrain}
 ———Open Spatiotemporal Foundation Model for Embodied Intelligence
 
 📄 **Paper**: [arXiv:2602.14979](https://arxiv.org/abs/2602.14979)
@@ -4804,7 +5828,15 @@ MoE 架构（30B-A3B）在 VLN 任务上未能超越 8B Dense 模型，稀疏激
 
 ---
 
-## 47. EvoMemNav (2026) {#evomemnav}
+
+
+
+
+
+
+
+
+## 52. EvoMemNav (2026) {#evomemnav}
 ——— 零样本具身导航中基于轻量化图先验与多视图反思的高效自进化细粒度拓扑记忆框架
 
 📄 **Paper**: [arXiv:2606.03509](https://arxiv.org/abs/2606.03509v1)
@@ -4919,129 +5951,15 @@ EvoMemNav 由三个核心部分构成：构建于 occupancy grid 上的层次化
 
 ---
 
-## 48. Goal2Pixel (2025) {#goal2pixel}
-———将导航目标接地到图像像素，以像素预测统一 VLN-CE 的决策空间
 
-📄 **Paper**: [arXiv:2606.01621](https://arxiv.org/abs/2606.01621)
 
-### 精华
 
-1. **图像平面即决策空间**：将 VLN-CE 的高层决策从离散动作预测重新定义为像素预测——VLM 只需输出一个像素坐标，消除了动作标签的歧义性，并与 VLM 的原生输出空间对齐。
-2. **辅助指令区域设计**：将转向/停止等非前进动作编码为图像平面扩展区域中的像素，使所有决策在同一坐标空间内统一处理，无需两阶段切换。
-3. **ViKeyMem 以可见性驱动关键帧**：以"未来路点可见性变化"为关键帧选取标准，仅需 3–4 帧即可编码 100+ 步轨迹，训练成本从 156 降至 70 H100 GPU 小时。
-4. **减少 VLM 调用次数**：像素预测粒度更粗（一次预测对应 5 步低层动作），使 VLM 调用次数从 46.62 降至 7.75，同时性能从 32.9% SR 提升至 54.1% SR。
-5. **跨平台可迁移性**：像素输出将高层 VLM 推理与机器人底层控制器解耦，同一模型可跨不同硬件平台复用。
 
----
 
-### 1. 研究背景/问题
 
-VLN-CE（连续环境视觉语言导航）中，现有 VLM-based 方法多以低层动作预测（前进/左转/右转/停止）为输出接口，存在三个缺陷：监督信号模糊（同一空间目标对应多个合法动作序列）、决策视野短（每步只移动 25cm）、VLM 调用次数过多（每集需 30–47 次）。如何为 VLM 推理与机器人执行之间找到更合适的接口，成为核心问题。
 
----
 
-### 2. 主要方法/创新点
-
-<div align="center">
-  <img src="/images/vln/Goal2Pixel-architecture.png" width="100%" />
-<figcaption>Figure 1：Goal2Pixel 整体框架。上：三阶段执行流水线——VLM 预测目标像素 (u,v)，经相机几何反投影为 3D 路径点，本地规划器转化为低层动作；辅助指令区域（图像左/右/下扩展区）分别对应 Turn_Left/Turn_Right/Stop。下：VLM 以语言指令、填充后的当前 RGB 图像和 ViKeyMem 历史记忆为输入，输出坐标字符串 "XXX,YYY"；视觉语义嵌入与坐标感知损失辅助适配。</figcaption>
-</div>
-
-**① 整体框架概述**
-
-Goal2Pixel 由三个核心部分构成：**像素预测 VLM**（InternVL3 微调）、**几何反投影模块**、**本地规划器**。VLM 输出坐标字符串 → 反投影为 3D 路径点 → 规划器执行至多 5 步低层动作后再次查询 VLM，形成闭环。
-
-**② 纯像素输出接口（Pure Pixel Paradigm）**
-
-- **输入**：正方形填充的当前 RGB 图像（含三侧辅助指令区域）+ 语言指令 + ViKeyMem 历史（最多 8 帧）
-- **处理**：VLM 自回归生成 "XXX,YYY" 格式坐标字符串，坐标归一化至 [000, 999]
-- **输出判断**：坐标落在 RGB 区域 → 经相机内参反投影为 3D 路径点，由本地规划器跟踪执行；坐标落在辅助区域 → 直接执行 Turn_Left / Turn_Right / Stop
-- **设计动机**：像素坐标是 VLM 的原生输出空间，监督信号更明确；所有决策统一在同一接口，无需两阶段 action-then-pixel 切换
-
-**辅助指令区域规则**：
-- 底部区域 → Stop（距终点 ≤1m 时，GT 像素指向此区域）
-- 左/右区域 → Turn_Left / Turn_Right（当前进路点不可见时，根据接下来 5 个路点的平均自中心方向决定）
-
-**GT 像素定义**：沿 oracle 轨迹，当前帧中**最远可见可行驶像素**——鼓励更长视野决策，去除短程动作的模糊歧义。
-
-**③ ViKeyMem 关键帧历史记忆**
-
-<div align="center">
-  <img src="/images/vln/Goal2Pixel-vikeymem.png" width="100%" />
-<figcaption>Figure 4：ViKeyMem 可视化。每行为一个独立轨迹（长度 90–123 步），关键帧从左至右按时间排列，最右列为鸟瞰地图。蓝色轨迹点叠加于历史帧，提供紧凑的过去运动线索；100+ 步轨迹通常仅需 3–4 关键帧即可完整覆盖关键视角转换。</figcaption>
-</div>
-
-ViKeyMem 以**未来路点可见性变化**为关键帧选取标准，候选帧满足以下三个条件时加入关键帧集合：
-1. 候选帧视点不再被最近关键帧覆盖（核心可见性条件）
-2. 候选帧自中心图像中至少有一个后续路点可见
-3. 至少两个不同后续路点落在候选帧 45° 前向视场内
-
-每个选取的关键帧上叠加蓝色轨迹点（trajectory overlay），提供轻量级过去运动提示。R2R-CE 上平均每 100 步仅选 3–4 帧，推理时间从 0.224s 降至 0.121s，训练时间从 156 H100 小时降至 70 小时。
-
-**④ 视觉语义嵌入（Visual Semantic Embeddings）**
-
-预训练 VLM 对导航特有的视觉模式（辅助指令区域、轨迹叠加点）识别能力不足，因此引入两类可学习嵌入：
-- **指令区域嵌入（directive embedding）**：叠加在与辅助指令区域重叠的当前帧 visual token 上
-- **轨迹嵌入（trajectory embedding）**：叠加在含蓝色轨迹点的历史帧 visual token 上
-- 普通 RGB token 保持不变，参数量极小
-
-**⑤ 训练目标与坐标感知损失**
-
-$$\mathcal{L} = \mathcal{L}_{CE} + \lambda_{num}\mathcal{L}_{num} + \lambda_{ang}\mathcal{L}_{ang}$$
-
-- $$\mathcal{L}_{CE}$$：标准 token 级交叉熵，主要监督信号；$$\lambda_{CE}=1$$
-- $$\mathcal{L}_{num}$$：数值损失，通过 softmax logits 推导可微 soft 坐标，鼓励预测数值接近 GT；$$\lambda_{num}=0.3$$
-- $$\mathcal{L}_{ang}$$：角度损失，鼓励预测像素保持与 GT 相同的自中心方向；$$\lambda_{ang}=0.03$$
-
-**⑥ 推理流程**
-
-每次 VLM 调用后，本地规划器最多执行 t=5 步低层动作；若出现连续 20 步左右震荡，自动 fallback 到固定前进像素 (500,970) 以脱困。
-
----
-
-### 3. 核心结果/发现
-
-<div align="center">
-  <img src="/images/vln/Goal2Pixel-training-cost.png" width="80%" />
-<figcaption>Figure 5：R2R-CE Val-Unseen SR 与训练成本对比（x 轴对数坐标，标记大小对应模型规模）。Goal2Pixel (2B) 以 80 H100 小时实现 54.1% SR，训练成本远低于同等性能的其他方法。</figcaption>
-</div>
-
-<div align="center">
-  <img src="/images/vln/Goal2Pixel-qualitative.png" width="100%" />
-<figcaption>Figure 7：Goal2Pixel 在 R2R-CE 上的定性结果。每行为一个导航集，红点为 VLM 每步预测的目标像素，最右列为鸟瞰执行轨迹。</figcaption>
-</div>
-
-**R2R-CE Val-Unseen 主要结果**（2B 模型，零外部数据）：
-- **SR 54.1%，SPL 52.5%**，每集仅需 **7.75 次 VLM 调用**
-- 直接动作预测：SR 32.9%，需 46.62 次调用（SR 差 21.2 点，调用多 6×）
-- 与 JanusVLN 7B（SR 52.8%）相比，2B Goal2Pixel SR 高 1.3 点，参数规模仅 2/7
-
-**输出范式消融**（Table 2）：
-
-| 输出范式 | SR | SPL | # VLM Calls |
-|---------|-----|-----|-------------|
-| 1 动作预测 | 32.9% | 31.5% | 46.62 |
-| 4 动作预测 | 37.0% | 36.0% | 15.77 |
-| 混合 Action-Pixel (Seq) | 43.7% | — | ~10 |
-| **纯 Pixel（本文）** | **54.1%** | **52.5%** | **7.55** |
-
-**ViKeyMem 消融**（Table 3a）：
-- 对比 5-step 固定间隔采样：SR/SPL +8.0/+7.4（R2R），+5.1/+5.0（RxR）
-- 推理时间：0.243s → 0.121s（−50%）；训练时间：173h → 70h（−60%）
-
-**RxR-CE Val-Unseen**（2B）：SR 43.8%，SPL 40.4%，nDTW 61.1%
-
-**实物机器人**：16 次室内导航测试，Goal2Pixel 能将语言指令（门、沙发、冰箱、楼梯等）接地到有意义的像素目标，并通过本地控制器完成实际导航。
-
----
-
-### 4. 局限性
-
-ViKeyMem 以可见性为标准可能遗漏短暂出现或远距低分辨率的细粒度地标；soft 坐标期望值在多峰数字分布下可靠性有限（但主监督仍为 token 级 CE loss，已起缓解作用）。
-
----
-
-## 49. OmniNav (2026) {#omninav}
+## 53. OmniNav (2026) {#omninav}
 ———用快慢双系统统一点目标、物体目标、指令目标导航与前沿探索
 
 📄 **Paper**: [arXiv:2509.25687](https://arxiv.org/abs/2509.25687) · 🏛️ **ICLR 2026 (Poster)**
@@ -5227,211 +6145,15 @@ flowchart TD
 
 ---
 
-## 50. AstraNav-World (2025) {#astranav-world}
-———将"想象未来"与"规划未来"统一进同一个生成式概率框架
 
-📄 **Paper**: [arXiv:2512.21714](https://arxiv.org/abs/2512.21714)
 
-### 精华
 
-- 把"先想象未来场景、再据此规划动作"的松耦合 envision-then-plan 范式，改造为视觉预测与动作生成在同一概率框架内联合建模、同步 rollout 的紧耦合范式，从根本上抑制误差累积。
-- VLM 不再只做语言理解，而是同时作为视频生成器和动作策略头的统一条件编码器，用同一份"语言-视觉嵌入"驱动两条分支。
-- 双向约束是关键：动作要以可执行的未来视觉证据为依据，预测的未来画面也要被动作意图反向约束，两者互相校正而不是单向传递误差。
-- 引入 Sparse Foresight Scheduling，按固定间隔而非逐帧触发"视觉预测+动作生成"的联合推理，在几乎不掉点的情况下把推理速度提升一个数量级。
-- 消融证明：性能提升主要来自世界模型的双向约束机制，而非单纯堆参数量（3B 联合模型优于纯放大到 7B 的 VLA-only 基线）。
 
----
 
-### 1. 研究背景/问题
 
-具身导航失败的一个核心原因是模型缺乏对物理规律和时间动态的建模：微小的预测偏差会随时间累积，最终破坏全局规划的有效性。现有方法通常把"想象未来"（world model 生成未来画面）和"规划未来"（VLA 输出动作）做成两个松耦合的串行模块，这种 envision-then-plan 流水线会放大物理不确定性和因果歧义，导致视觉预测和实际动作彼此不一致。
 
----
 
-### 2. 主要方法/创新点
-
-<div align="center">
-  <img src="/images/vln/AstraNav-World-architecture.png" width="100%" />
-<figcaption>AstraNav-World 整体架构：VLM 规划器统一驱动两种策略头变体（a）Action Former 直接预测动作；（b）Diffusion Policy 通过 MMFCA 与视频生成器双向交互</figcaption>
-</div>
-
-**① 整体框架概述**：AstraNav-World 由三个核心模块构成——VLM 规划器（高层语义推理）、基于 DiT 的视频生成器（预测未来视觉观测）、动作策略头（生成未来动作序列，有 Action Former 和 Diffusion Policy 两种实现）。VLM 编码指令和历史/当前多视角观测，生成统一的视觉-语言嵌入，同时作为视频生成器和策略头的条件输入，取代了传统视频扩散模型里的文本编码器。
-
-**② 逐模块讲解**
-
-- **VLM 规划器（τθ）**：输入是自然语言指令 I 和历史观测序列 O_hist；内部用 Qwen2.5-VL-3B 做全参数微调；输出是 C ∈ R^(L×D)（D=2048）的视觉-语言嵌入，同时包含"目标导向语义特征"（指令编码）和"空间上下文特征"（历史/当前视觉语义与空间信息）。这一表示让模型既能保持对长时序任务的整体理解，又能灵活响应环境的即时变化。
-- **VLM 条件视频生成器**：基础架构是 Wan2.2-TI2V-5B（ST-VAE + 30 层 DiT），用 LoRA（rank=128）微调。把 VLM 的视觉-语言嵌入通过 cross-attention 注入 DiT，替代原本的 umT5 文本编码器，使生成的未来帧在语义上与 VLM 的高层规划保持一致。训练时对历史/当前帧加极小噪声（σ_obs≈0.05）当作"干净"条件，对未来帧用 Flow Matching 方式加噪并学习速度场 u_t=ϵ−z_future，损失只在未来帧上计算（L_VG，式 4）。
-- **3D-RoPE 重排**：为了把当前时刻的 left/front/right 三个视角和历史帧统一编码进同一套 3D 旋转位置编码，作者把三个视角沿宽度轴"虚拟拼接"——front 保持原坐标，right 在宽度上偏移 W，left 偏移 2W，同时共享相同的时间和高度索引（式 1–3），从而显式编码多视角间的空间-时间关系，而不打乱时序对齐。
-- **动作策略头（两种实现）**：
-  - **Action Former**：用一组可学习 query 向量通过若干层 Transformer 与 VLM 嵌入交互，再经 MLP 输出确定性动作序列 A=(X,Y,cosθ,sinθ,α)，分别用 L1 位置损失、余弦角度损失、二元到达损失加权组合（式 5–8）。
-  - **Diffusion Policy**：用 Flow Matching 在噪声动作序列上做去噪生成，提供概率化的动作预测。关键创新是 **Multimodal Fusion Cross-Attention（MMFCA）**：在 Diffusion Policy 和视频生成器最后 8 个重叠的 DiT 块之间引入双向 cross-attention——动作表征作 query 去 attend 视频隐表征（确保动作以可信的未来视觉为依据），同时视频隐表征也作 query 去 attend 动作表征（确保生成画面与已规划动作保持因果一致）。MMFCA 受二元开关 γ 控制：γ=1 时两路双向融合、同步 rollout；γ=0 时两路独立运行，推理时甚至可以完全跳过视频生成器只跑策略头，大幅降低算力开销。
-- **设计动机**：核心 gap 是松耦合流水线里视觉预测和动作规划互不感知，容易各自漂移。MMFCA 和共享 VLM 条件正是为了让两条分支在训练和推理阶段都能"互相看见对方"，把误差互相校正而不是单向累积。
-
-**③ 端到端数据流**：一条样本先经 VLM 编码指令+历史/当前三视角观测得到统一嵌入；该嵌入同时条件化视频生成器（预测未来 N 步前视帧）和策略头（预测未来 N 步动作）；若启用 MMFCA，两路在重叠 DiT 块内做双向 cross-attention 实现同步 rollout；最终输出未来视觉帧序列和对应的动作（路径点）序列。
-
-**④ 训练目标**：总损失 L_Total = L_VG + λ·L_PH（λ=1.0，式 10），L_VG 是视频生成的 Flow Matching 损失（式 4），L_PH 根据策略头类型为式 8（Action Former 的位置+角度+到达损失组合）或式 9（Diffusion Policy 的 Flow Matching 损失）。训练分两阶段：**Stage 1** 冻结 VLM，先独立预训练视频生成器（L_VG）、再独立预训练策略头（L_PH），避免两个模块过早互相干扰；**Stage 2** 解冻全部组件用 L_Total 联合微调，对 Diffusion Policy 以 50% 概率随机启用 MMFCA，防止策略头过度依赖视觉反馈，保证视频生成器关闭时策略头仍能独立工作。
-
-**⑤ 推理流程（Sparse Foresight Scheduling, SFS）**：视频生成是推理速度的瓶颈，因此不在每一步都联合生成"未来帧+动作"，而是按固定间隔触发联合生成——大量导航场景里直行等简单一致行为并不需要逐帧更新世界模型。使用 Action Former 时，推理阶段直接完全关闭视频生成器，只用 query Transformer 出动作；使用 Diffusion Policy 时，视频生成器仅在固定间隔步（实现中每 10 步）激活一次，中间步骤保持关闭，在预测精度和推理速度间取得最优折中。
-
----
-
-### 3. 核心结果/发现
-
-<div align="center">
-  <img src="/images/vln/AstraNav-World-qualitative-results.png" width="100%" />
-<figcaption>定性结果：模型同时预测未来 5 帧视觉观测和对应的 5 步路径点，生成画面与按预测路径点渲染的场景高度一致</figcaption>
-</div>
-
-- 在 R2R-CE / RxR-CE Val-Unseen 上，AstraNav-World 全面超越此前 SOTA：Action Former 版本相对此前最佳方法 SR 绝对提升 2.1%（R2R-CE）/1.1%（RxR-CE）；Diffusion Policy + MMFCA 版本进一步在 Action Former 基础上再提升 0.7%（R2R-CE）/2.5%（RxR-CE），最终 R2R-CE SR=67.9%、SPL=65.4%，RxR-CE SR=72.9%。
-- 在 HM3D-OVON 开放词表物体导航上，Diffusion Policy 相对此前最佳 MTU3D 提升 SR 4.9% 绝对值（45.7% vs 40.8%）。
-
-<div align="center">
-  <img src="/images/vln/AstraNav-World-ablation-study.png" width="100%" />
-<figcaption>消融实验：(a) 去掉视频生成器分支在三个数据集上均导致 SR 下降；(b) SFS 间隔越大推理越快（最高 6.7×），SR 几乎不掉；(c) 生成视觉序列与真实路径点的姿态一致性随角度阈值放宽迅速逼近 100%</figcaption>
-</div>
-
-- **去掉视频生成器分支**会在 R2R、RxR、OVON 三个数据集上一致地降低 SR，证明显式预测未来观测确实为规划提供了关键的视觉引导，并非冗余分支。
-- **缩放 vs. 世界建模**：把 VLA-only（无视频生成）基线的 VLM 从 3B 放大到 7B，R2R-CE SR 几乎不变（66.5%→66.6%），已触及参数缩放的天花板；而 3B 模型加上视频生成分支（L_VG 正则化）就能把 SR 推到 67.9%，说明性能增益主要来自世界模型的双向约束机制，而不是单纯堆参数。
-- **一致性分析**：用开源 VGGT 模型估计生成图像序列的相对相机位姿变化，与仿真器真实渲染的相对位姿对比，角度差 δ_a 的分布显示生成的未来视觉预测与规划动作具有很高的几何一致性。
-- **真实世界零样本迁移**：未做任何真实世界数据微调，AstraNav-World 直接部署在物理机器人上完成自然语言指令导航任务，在过门、转角等关键过渡场景上表现出对未来场景的预判能力，显著优于通常需要域适应的现有方法，验证了世界模型学到的是可迁移的物理/导航规律而非仅过拟合仿真数据分布。
-
----
-
-### 4. 局限性
-
-视频生成本身的推理延迟和复杂场景下的算力开销仍是瓶颈（尽管 SFS 已大幅缓解）；论文也指出未来工作需要扩展到更长时间跨度和更难的任务，进一步加强物理与因果一致性建模，并提升闭环一致性与实时推理/规划能力。
-
----
-
-## 51. ABot-N0 (2026) {#abot-n0}
-———统一具身导航的"大脑-行动"VLA基础模型：5大任务、16.9M轨迹、Agentic部署
-
-📄 **Paper**: [arXiv:2602.11598](https://arxiv.org/abs/2602.11598)
-
-### 精华
-
-- 把 Point-Goal、Object-Goal、Instruction-Following、POI-Goal、Person-Following 五类历来彼此独立架构的导航任务，统一进同一个"Brain-Action"VLA 模型，用同一套 token 化输入接口和同一个 Flow Matching 动作头输出轨迹。
-- 高层语义推理（LLM Brain）与底层连续运动控制（Flow Matching Action Expert）解耦为"If-Else"双头并行结构，而不是串行 CoT，推理时按任务直接走对应分支，省去不必要的链式生成开销。
-- 数据是工程重点：16.9M 专家轨迹 + 5.0M 推理样本，来自 7,802 个高保真 3D 场景（10.7 km²），三种轨迹来源（网络视频伪轨迹、3D 场景合成、真实机器人遥操作）互补，解决"标注成本 vs 真实物理动态"的矛盾。
-- 三阶段课程学习（认知预热 → 统一感知运动 SFT → SAFE-GRPO 价值对齐后训练）先让模型学会"看懂、想懂"，再学"怎么动"，最后用强化学习专门纠正社会合规性，而不是一股脑端到端硬训。
-- 工程落地上用 Agentic Planner + 分层 Topo-Memory 把基础模型包装成可执行长程复合任务的系统，并通过云端规划 + 端侧 VLA/控制器的混合部署，在 Jetson Orin NX 上做到 2Hz VLA 推理 + 10Hz 闭环控制。
-
----
-
-### 1. 研究背景/问题
-
-具身导航长期处于"碎片化范式"：Point-Goal、Object-Goal、Instruction-Following 等任务各自使用专门架构，彼此难以共享数据与能力，模型无法从异构大规模数据中提炼统一的物理先验，也限制了跨任务泛化。同时，现实世界的用户指令往往是模糊、复合的（如"带我去奶茶店并占个座"），单一任务原语无法直接执行，需要更高层的任务分解与记忆机制配合。
-
----
-
-### 2. 主要方法/创新点
-
-<div align="center">
-  <img src="/images/vln/ABot-N0-architecture.png" width="100%" />
-<figcaption>图2：ABot-N0 的"大脑-行动"分层架构：统一多模态编码器将异构输入对齐为共享 token 序列，Cognitive Brain（LLM）按任务分流到 Reasoning Head 或 Action Head，Action Expert 用 Flow Matching 生成轨迹分布。</figcaption>
-</div>
-
-**① 整体框架概述**
-
-ABot-N0 由三大支柱构成：统一多模态编码器（Universal Multi-Modal Encoder）负责把异构的视觉观测、历史记忆、目标描述统一编码进共享 latent 空间；认知大脑（Cognitive Brain，基于 Qwen3-4B）做语义理解与空间推理；行动专家（Action Expert）基于 Flow Matching 生成连续轨迹。三者串联成"先理解、再决策、再执行"的层级流水线，但 Reasoning Head 和 Action Head 在推理时是按任务类型二选一的并行分支，而非强制串行的 CoT。
-
-**② 逐模块讲解**
-
-- **统一多模态编码器**：
-  - 输入：当前观测 $O_t$（支持全景三视角或单前视两种模式，分别用专属 view token 区分，避免拼接畸变）、历史视觉记忆 $M_S$（应对 POMDP 下的部分可观测性）、以及目标描述——语义目标（指令文本、物体类别、POI 名称、人物描述，统一走 LLM 文本 tokenizer）或几何目标（Point-Goal 的 BEV 坐标，经 MLP 投影为伪 token）。
-  - 处理：ViT 编码 RGB，MLP 投影几何坐标，文本目标直接复用 LLM 词表，三类输入统一拼接进同一个 token 序列。
-  - 输出：跨任务统一的 token 序列，供 LLM Brain 消费。
-  - 设计动机：解决"任务专属架构无法共享数据"的核心 gap——把所有任务的目标表示压成同一种接口，模型才能在异构数据上联合训练。
-  - 此外还引入 **Reasoning Task Encoder**，注入具体任务描述（如"Where is Luckin Coffee?"）来激活 LLM 内部对应的推理回路，作为训练期辅助监督信号。
-
-- **Cognitive Brain（认知大脑）**：
-  - 输入：上述统一 token 序列。
-  - 处理：基于预训练 LLM（Qwen3-4B），按任务 token 走 Reasoning Head（场景可通行性分析、社会规范判断、POI grounding 等显式推理）或 Action Head（为下游动作生成提供语义条件）。
-  - 输出：要么是自然语言推理结果（NTP 监督），要么是供 Action Expert 使用的语义条件向量。
-  - 设计动机：传统端到端策略缺乏显式中间推理，容易过拟合训练分布中的隐式偏置；显式推理监督能让高层语义表示与物理世界约束对齐。
-
-- **Action Expert（行动专家）**：
-  - 输入：Cognitive Brain 提供的语义条件。
-  - 处理：用 Flow Matching（而非确定性回归）建模轨迹分布，因为同样的输入条件下专家行为往往是多模态的（绕障可以向左也可以向右），确定性回归会把这些模式平均成无效路径。
-  - 输出：未来 5 个 waypoint 的连续轨迹 $W=\{(x_1,y_1,\theta_1),...,(x_5,y_5,\theta_5)\}$，同时给出位置与朝向角，保证机器人姿态的完全可控性。
-  - 设计动机：连续高精度的平移/旋转控制 + 多模态分布建模，两者都是确定性回归难以兼顾的。
-
-**③ 端到端数据流**
-
-一个样本的流转路径：原始 RGB/历史帧 + 目标描述 → 统一多模态编码器编码为共享 token 序列 → Cognitive Brain 按任务类型路由：若为推理任务则走 Reasoning Head 输出文本，若为导航任务则用语义条件去驱动 Action Expert → Action Expert 通过 Flow Matching 采样生成 5 步 BEV 轨迹 → （部署时）轨迹交给 Neural Controller 转换为机体速度指令。
-
-**④ 训练目标 / 损失函数**
-
-三阶段课程学习：
-
-- **Phase 1 认知预热**：冻结 Vision Encoder 和 Action Expert，仅用 ABot-N0 Reasoning Dataset 以 Next Token Prediction（NTP）损失微调 LLM 主干，让模型先学会"看懂场景、对齐语言与实体"。
-- **Phase 2 统一感知运动 SFT**：引入轨迹数据集，联合优化 AR Head 和 Action Expert（Dual-Head Optimization），并以约 20% 比例混入推理数据防止遗忘：
-  $$\mathcal{L}_{Phase2} = \lambda_{txt}\mathcal{L}_{NTP}(\theta_{brain}) + \lambda_{flow}\mathcal{L}_{CFM}(\theta_{action}|\theta_{brain})$$
-  其中 $\mathcal{L}_{NTP}$ 是文本生成交叉熵损失，$\mathcal{L}_{CFM}$ 是条件 Flow Matching 轨迹生成损失。
-- **Phase 3 SAFE-GRPO 后训练价值对齐**：冻结 Brain，仅微调 Action Expert，用 SocCity 环境中的专家轨迹做强化学习，优化复合奖励：
-  $$R = w_{soc}R_{social} + w_{exp}R_{expert} + w_{sm}R_{smooth} + w_{eff}R_{eff}$$
-  - $R_{social}$：依据语义占据图，若轨迹经过非通行/社会受限区域（草坪、限行车道、行人占用区）则重罚；
-  - $R_{expert}$：约束策略不偏离专家分布太远，防止 reward hacking；
-  - $R_{smooth}/R_{eff}$：惩罚抖动动作、鼓励朝目标推进。
-
-  动机：模仿学习只能学到专家行为的表面统计，无法掌握"为什么不能走草坪"这种因果层面的社会规范，需要 RL 显式纠正。
-
-**Agentic Navigation System（应用层包装）**
-
-<div align="center">
-  <img src="/images/vln/ABot-N0-agentic-system-overview.png" width="100%" />
-<figcaption>图10：Agentic Navigation System 总览：Agentic Planner、Actor（含 ABot-N0 与 Neural Controller）、短期 Episodic Memory、长期分层 Topo-Memory 四模块协同处理复合长程任务。</figcaption>
-</div>
-
-为弥合基础模型能力与实际部署之间的差距，论文在 ABot-N0 之上包装了一套 Agentic 系统，包含四个模块：Agentic Planner（高层规划器，把模糊用户指令分解为可执行子任务序列 $G=\{g_1,...,g_n\}$，$G=P(I,M_L,M_S,O_t)$）、Actor（ABot-N0 + Neural Controller，负责执行具体子任务）、短期 Episodic Memory（维持当前 episode 内的近期观测，支持即时错误恢复）、长期 Topo-Memory（持久化的分层拓扑空间记忆，支持跨尺度导航与经验积累）。
-
-Topo-Memory 按 Block（房间/街区）、Road（路口/门连通性）、Function（休息区/厨房等功能节点）、Object/POI（具体实体/店铺）四层组织空间知识，并采用"维护在环"机制：每次任务执行的观测、轨迹、交互结果都会反馈更新拓扑图，应对道路封闭、拥堵等动态环境变化。
-
-Planner 的三个关键能力：
-- **歧义消解**：利用 LLM/VLM 的常识知识把模糊自然语言指令解析为结构化子任务序列；
-- **记忆感知规划**：若 Topo-Memory 中已知"厨房在 (x,y)"，则直接生成确定性 Point-Goal(x,y) 而非盲目 Object-Goal 搜索，到达后再切换局部 Object-Goal 精确定位；
-- **由粗到细分解**：鉴于 Reaching 类任务（Object/POI-Goal）随距离增加性能衰减明显、而 Approaching（Point-Goal）更稳健，规划器把任务拆成"远程用 Point-Goal 接近 → 局部用 Object/POI-Goal 精确到达 → 最后用 Instruction-Following/Person-Following 完成交互"的可靠序列：
-  $$P(W|I,M_L,M_S) = \underbrace{P(G|I,M_L,M_S)}_{\text{Agentic Planning}} \cdot \prod_{j=1}^N \underbrace{P(W_j|g_j,M_L,M_S)}_{\text{ABot-N0}}$$
-
-<div align="center">
-  <img src="/images/vln/ABot-N0-agentic-task-pipeline.png" width="100%" />
-<figcaption>图11：Agentic 系统的任务执行流水线：全局导航用 Approaching（Point-Goal）基于拓扑记忆穿越已知空间，局部导航用 Reaching（Object/POI-Goal）+ Interaction（Instruction-Following/Person-Following）完成精确目标定位与动态交互，Neural Controller 最终把规划轨迹转化为速度指令闭环执行。</figcaption>
-</div>
-
-此外还有闭环自我反思与重规划机制：子任务结束后，基于 VLM 的 Self-Reflector $S$ 根据记忆判断完成状态与反馈 $(r,f) = S(M_L,M_S,g_i)$，若失败则用反馈触发重规划 $G' = P(I,M_L,M_S,O_t,f)$（例如货架找不到可乐则改去自动售货机）。
-
-**⑤ 推理 / 部署细节**
-
-为适配边缘端实时推理，视觉骨干换成轻量的 93M SigLIP-B/16 + MLP projector，并引入 merge size=4 的视觉 token 合并机制压缩 token 数，端侧推理速度达 2Hz、性能仅下降约 3%。高层 Agentic Planner 部署在云端 RTX 4090 服务器做复杂意图分解与自反思，ABot-N0 与基于 CE-Nav 的 Neural Controller 部署在本地 NVIDIA Jetson Orin NX 上，运行在 10Hz+ 实现高速反应式避障，这种云-边混合架构兼顾复杂推理能力与离网安全性。
-
-<div align="center">
-  <img src="/images/vln/ABot-N0-hardware-platform.png" width="100%" />
-<figcaption>图12：硬件平台基于 Unitree Go2 X 四足机器人，配三路单目 RGB 相机（270° 水平视场）、Unitree 4D LiDAR L2、RTK-GNSS 接收器与车载 NVIDIA Jetson Orin NX 推理模块。</figcaption>
-</div>
-
----
-
-### 3. 核心结果/发现
-
-ABot-N0 在 7 个权威基准上全面刷新 SOTA：
-
-- **Point-Goal**：CityWalker 开环 MAOE 11.2（前 SOTA CityWalker 15.2）；SocNav 闭环 Success Rate 88.3%（基线 47.8%），社会合规 DCR 达 85.1%（基线 36.1%），证明模型不只是"到达目标"，而是真正遵守社会规范。
-- **Instruction-Following**：VLN-CE R2R-CE Val-Unseen SR 66.4%（较 NavFoM 提升 4.7%），SPL 提升 8.6%；RxR-CE SR/SPL 达 69.3%/60.0%。
-- **Object-Goal**：HM3D-OVON Val-Unseen SR 比 MTU3D 高 13.2%，且从 Val-Seen 到 Val-Unseen 性能仅下降 1.3%（MTU3D 下降 14.2%），泛化差距显著更小。
-- **POI-Goal**：BridgeNav 最严格 0.1m 阈值下 SR 提升 70.1%（相对基线），平均轨迹偏差降低 30.5%。
-- **Person-Following**：EVT-Bench 全部三档（STT/DT/AT）均创新 SOTA，最难的 Ambiguity Tracking 档 SR 与 TR 均提升 16.1%。
-
-真实部署方面，模型在 Unitree Go2 四足机器人上验证了单任务执行（Point/Object/POI-Goal、Instruction-Following、Person-Following）以及室内外跨域长程复合任务（如"去最近的公园放松"、"去奶茶店买茶并占座"），并在 Self-Reflector 驱动下展示了失败后自动重规划的能力。
-
----
-
-### 4. 局限性
-
-论文未设独立的局限性章节讨论。从内容看，潜在局限包括：高层 Agentic Planner 依赖云端大模型推理，离网或弱网环境下的规划能力会受限；Person-Following 在 Ambiguity Tracking 等高难场景下 Collision Rate 仍高于多数基线（如 8.54% vs TrackVLA 的 1.65%），说明在复杂遮挡追踪场景下安全性与追踪性能之间仍存在权衡。
-
----
-
-## 52. Qwen-RobotNav (2026) {#qwen-robotnav}
+## 54. Qwen-RobotNav (2026) {#qwen-robotnav}
 ———首个统一的多任务、时空可重构具身导航大模型
 
 📄 **Paper**: [arxiv:2606.18112 ](https://arxiv.org/abs/2606.18112)
@@ -5574,7 +6296,15 @@ Qwen-RobotNav 部署在宇树 Unitree Go2 四足机器人以及移动底座上�
 
 ---
 
-## 53. GA-VLN (2026) {#ga-vln}
+
+
+
+
+
+
+
+
+## 55. GA-VLN (2026) {#ga-vln}
 ——— Geometry-Aware BEV Representation for Efficient Vision-Language Navigation
 
 📄 **Paper**: [arXiv:2605.22036](https://arxiv.org/abs/2605.22036)
@@ -5686,7 +6416,15 @@ GA-VLN 在 Habitat 仿真环境中的多个连续导航数据集上进行了评�
 
 ---
 
-## 54. SEDualVLN (2026) {#sedualvln}
+
+
+
+
+
+
+
+
+## 56. SEDualVLN (2026) {#sedualvln}
 ———空间增强的双系统连续环境视觉语言导航框架
 
 📄 **Paper**: [arXiv:2605.17249](https://arxiv.org/abs/2605.17249)
@@ -5806,288 +6544,15 @@ SEDualVLN 由两个子系统以及一个协同调度器构成：
 
 ---
 
-## 55. TopoGraph-VLN (2025) {#topograph-vln}
-——— 基于抽象障碍物地图航点预测与拓扑图-历史访问信息感知提示的零样本连续环境视觉语言导航
 
-📄 **Paper**: [arXiv:2509.20499](https://arxiv.org/abs/2509.20499)
 
-### 精华
-1. **输入特征抽象化**：直接从深度图投影并计算高度梯度，构建 2D 抽象障碍物地图作为航点预测模型的唯一输入，剔除无关语义噪声，训练仅需 30 epochs 即可显著提升航点在开放空间中的可行性与线性可达性。
-2. **拓扑结构化记忆**：提出一种动态更新的拓扑图，分类跟踪节点访问状态（Visited/Unvisited），并通过欧氏距离合并相近节点，解决 MLLM 导航时的局部环路死锁问题。
-3. **闭环容错纠错**：利用拓扑图的连通性在提示词中进行自然语言描述，赋予 MLLM 局部路径规划与多步回溯重探索能力，使其能高效地纠正导航偏差。
-4. **零样本性能 SOTA**：在 R2R-CE 和 RxR-CE 连续环境数据集上分别实现 41% 和 36% 的成功率，显著刷新了零样本方法的性能上限，并逼近有监督方法。
 
----
 
-### 1. 研究背景/问题
-vision-language navigation (VLN) 是机器人具身智能的核心任务之一，要求智能体理解语言指令并在 continuous environments (VLN-CE) 中进行导航。
-以往基于航点预测（waypoint prediction）的 VLN-CE 方法主要面临三个局限：
-1. **感知特征冗余与不可行航点**：常用的航点预测器输入高维的 RGB-D 图像，引入大量与空间可达性无关的语义噪点，且模型复杂；此外，生成的航点可能处于物理不可达区域或被中间障碍物遮挡。
-2. **缺乏结构化空间记忆**：LLM/MLLM 导航器在连续环境中仅使用单线性的历史轨迹表示，容易在局部区域陷入死锁循环。
-3. **纠错能力不足**：当导航发生偏差时，缺乏空间拓扑连通性认知的 MLLM 无法进行精准的局部路径规划和多步回溯重探索。
 
----
 
-### 2. 主要方法/创新点
 
-智能体的整体架构流程如图 1 所示：
-<div align="center">
-  <img src="/images/vln/TopoGraph-VLN-pipeline.png" width="100%" />
-<figcaption>图 1：基于 MLLM 导航器的零样本连续环境视觉语言导航（TopoGraph-VLN）整体架构流程</figcaption>
-</div>
 
-**① 整体框架概述**
-整个系统主要由三个核心模块构成：基于高度梯度投影的抽象障碍物地图构建与轻量化航点预测模块、动态更新的拓扑图维护模块以及拓扑与访问状态感知的 MLLM 规划器。深度图像首先被转换为 3D 点云并投影构建出局部的 2D 障碍物地图，航点预测器基于该地图生成候选航点，随后这些航点被动态整合进带有访问状态标记的拓扑图中，最后 MLLM 根据当前多视角感知、指令和拓扑提示进行下一步的动作决策。
-
-**② 逐模块讲解**
-
-- **抽象障碍物地图构建与轻量化航点预测（Abstract Obstacle Map-Based Waypoint Prediction）**：
-  - **输入**：智能体在当前位置采集到的全景深度图像 $O_t^{\mathrm{depth}}$。
-  - **处理**：首先将深度图转换为 3D 点云，投影至 $120 \times 12$ 的径向 2D 网格中（对应角分辨率 $3^\circ$，径向步长 $0.25\text{m}$，最大探测半径 $3.0\text{m}$）。在网格中计算各网格的局部最大高度，并沿径向计算高度梯度（模拟智能体“爬坡”的物理过程）。若梯度超过预设阈值则判定为障碍物（$1$），其余为自由空间（$0$）。这比单纯的绝对高度阈值能更准确地识别楼梯或斜坡。接着，将该二值障碍物地图作为唯一输入，送入一个轻量化的自注意力模型（两层 Transformer 编码器），输出候选航点热力图。最后，应用线性可达性屏蔽，将每个方向上第一个障碍物之外的网格置零，并使用非极大值抑制（NMS）提取前 $K$ 个可行候选航点。
-  - **输出**：一组在线性可达空间内的候选航点。
-  - **设计动机**：高级的 RGB-D 交叉注意力模型较为复杂，本项目直接用纯 2D 几何信息对齐航点空间与输入特征，大幅降低参数量，仅通过 30 epochs 的训练便可学到避障模式，保证生成的航点都在自由且可达的空间中。
-
-- **动态拓扑图构建与合并（Dynamic Topological Graph Updating）**：
-  - **输入**：前一时刻的拓扑图 $G_{t-1}$、当前节点位置 $n_t$ 以及当前观测到的候选航点。
-  - **处理**：系统在当前节点 $n_t$ 判断其是否曾被访问。如果是，则直接重用以往生成的航点（不重复生成航点，保证动作一致性）。如果未被访问过，则通过合并模块（Merging Module）将新预测的航点融入拓扑图 $G_t = (N_t, E_t)$：计算新航点与已有节点的欧氏距离，若小于指定阈值（如图 2 所示），则将其与已有节点合并，或将相近的多个新航点合并为一个，避免网格冗余。节点被分为 visited（已探索）和 unvisited（已观察但未去过）两类，两节点间若直线无阻碍，则建立连通边 $e_{ij}$。
-  - **输出**：更新后的拓扑图 $G_t$。
-  - **设计动机**：通过合并机制和分类跟踪节点访问状态，提供无冗余的、一致的空间拓扑结构，从而大大减少了 MLLMs 决策的推理开销。
-<div align="center">
-  <img src="/images/vln/TopoGraph-VLN-merging.png" width="100%" />
-<figcaption>图 2：拓扑图节点合并与更新机制（欧氏距离阈值合并）</figcaption>
-</div>
-
-- **拓扑图与访问状态感知的提示系统（TopoGraph-and-VisitInfo-Aware Prompting）**：
-  - **输入**：包括自然语言导航指令 $I$、由历史访问图像组成的视觉历史 $H_t$、访问节点 ID 序列构成的轨迹 $Tr_t$、表示空间连通性的拓扑图文本描述 $G_t$、当前可选动作的访问状态 $V_t$、未访问过的观察节点图像 $S_t$ 以及带四向图像的可选动作选项 $A_t$。其具体术语定义如图 3 所示：
-<div align="center">
-  <img src="/images/vln/TopoGraph-VLN-prompt-definition.png" width="100%" />
-<figcaption>图 3：提示词系统（Prompting System）中各核心术语的定义</figcaption>
-</div>
-  - **处理**：将上述结构化记忆和感知信息通过模板拼接生成 Prompt，送入 MLLM（如 GPT-5-mini API）进行推理。
-  - **输出**：下一步决定前往的节点 ID 及思考过程 $T_t, a_t$。
-  - **设计动机**：将 3D 预测航点通过相机内参反向投影回 2D 图像中，避免了像以往方法那样做耗时的 3D 像素反投影；同时，用连通图和明确的访问标志弥补单线历史轨迹记忆的不足，使智能体拥有全局和局部的空间拓扑概念。
-
-- **多步回溯重探索与避圈决策**：
-  - **处理**：在提示中明确 VisitInfo 能让智能体主动避开已访问节点以减少死循环；如果智能体根据当前图像发现走错了（如偏离指令），它能够基于 TopoGraph 的连通性，选择先回溯（Backtrack）到一个甚至多个步骤之前的节点，再尝试其他未探索的分支（如图 4 所示）。
-  - **设计动机**：为 MLLM 提供局部路径规划与重探索图谱，解决了无监督 VLN 极易陷入歧路、无法回头纠错的顽疾。
-<div align="center">
-  <img src="/images/vln/TopoGraph-VLN-prompt-example.png" width="100%" />
-<figcaption>图 4：利用拓扑图连通性回溯纠错与重新探索的提示词及决策流实例</figcaption>
-</div>
-
----
-
-### 3. 核心结果/发现
-- **零样本导航性能**：
-  - 在 **R2R-CE** 数据集上，该方法在 val-unseen 划分中取得了 **41%** 的成功率（SR）和 **25.4** 的 SPL，全面超越先前的零样本 SOTA（如 SmartWay 的 29% 和 AO-Planner 的 25%）。
-  - 在 **RxR-CE** 数据集上取得 **35.7%** 的成功率（SR）和 **21.7** 的 SPL，相较 A2Nav (16.8%) 和 AO-Planner (22.4%) 具有明显优势，甚至逼近部分有监督方法。
-- **航点预测器质量评估**：
-  - 如 Table III 所示，在 MP3D ground-truth 连通图测试中，基于纯 2D 障碍物地图输入的预测器获得了最高的自由空间落点占比（%Open = 90.18%，比 baseline 提升近 3-10%）以及最佳的 Chamfer 距离（$d_C = 1.02$），证明去除高维 RGB 语义噪声后，模型能更好地感知几何障碍并生成可行路线。
-- **消融实验与分析**：
-  - **记忆机制消融**：去除 VisitInfo 会导致成功率下降 6%，去除 TopoGraph 会导致成功率下降 9%（Table IV），证明结构化图记忆对避圈和纠错至关重要。
-  - **预测器消融**：若将本文的障碍物地图预测器替换为 DC-VLN 预测器（Table V），碰撞率由 3.85% 陡增至 9.98%，成功率降低 4%，验证了障碍物梯度地图和线性可达屏蔽的作用。
-
----
-
-### 4. 局限性
-1. 依赖高精度的深度感知来构建 2D 障碍物地图，在深度噪声极大或传感器缺失的环境中，地图质量下降会直接导致航点预测失效。
-2. 目前的闭环多步回溯重探索高度依赖外部大模型（如 GPT-5-mini）的逻辑推理能力，在实际边缘端部署时面临 API 延迟和成本问题。
-
----
-
-## 56. R2RIE-CE & IEDL (2024) {#r2rie-ce-iedl}
-——— 首个连续导航指令错误基准测试，以及结合指令-轨迹兼容性的多模态错误检测与定位框架
-
-📄 **Paper**: [arXiv:2403.10700](https://arxiv.org/abs/2403.10700) · [Project Page](https://intelligolabs.github.io/R2RIE-CE/) · 🏛️ **ROMAN 2024**
-
-### 精华
-1. **指令容错新视角**：首次指出现有 Vision-and-Language Navigation (VLN-CE) 研究默认指令完全正确的假设在现实中极易失效，人类常因记忆模糊或混淆给出带错指令。
-2. **基准测试构建**：构建了首个包含指令错误的连续导航基准测试 R2RIE-CE，涵盖方向、房间、物体、复合及全错误五类扰动。
-3. **脆弱性验证**：实验表明，指令中仅注入至多3个错误就会导致 SOTA 导航模型的 Success Rate (SR) 发生高达 25%–30.64% 的断崖式下跌。
-4. **定位与检测框架**：提出 IEDL 框架，通过跨模态 Transformer 融合视觉轨迹与文本指令特征，实现高效的错误检测（AUC 0.79）与词级定位。
-5. **标注纠错价值**：作为半自动数据清洗工具，成功在经典的 R2R-CE 和 RxR-CE 验证集中筛查出 8 个 and 10 个存在真值标注错误或歧义的路径样本。
-
----
-
-### 1. 研究背景/问题
-现有的视觉语言导航（VLN）方法均建立在“人类给出的指令是 100% 正确”的理想假设之上。然而在实际的人机交互中，由于人类记忆不精确、空间概念混淆（如左右不分）或认知障碍，给出的导航指令往往包含错误。
-
-如果在这种情况下智能体盲目服从指令，会导致严重的导航失败。目前缺乏在连续三维环境（VLN-CE）下评估智能体对“错误指令”鲁棒性的基准测试。因此，本文提出了以下核心问题：
-1. 现有的 SOTA 导航模型在面对带有错误的人类指令时有多脆弱？
-2. 如何有效地检测输入指令中是否包含错误，并精确定位错误发生的单词位置，以便后续采取容错或澄清机制？
-
----
-
-### 2. 主要方法/创新点
-
-#### A. R2RIE-CE 基准测试构建
-本文基于 R2R-CE 验证集（Val Unseen），通过人工引入具有常识先验和人类混淆特征的错误，构建了 **R2RIE-CE** (R2R with Instruction Errors in Continuous Environments) 基准测试。
-
-<div align="center">
-  <img src="/images/vln/R2RIE-CE-error-example.png" width="80%" />
-    <figcaption>图1：指令错误导航示例。在自然语言指令中，仅将“向右转 (right)”替换为“向左转 (left)”，就会导致智能体偏离正确路径并在错误的位置终止探索（黄色箭头处）。</figcaption>
-</div>
-
-错误类型分为以下五类：
-1. **Direction Error (方向错误)**：将高频方向词（如 left/right、go down/go up、forward/backward 等）替换为其反义词。
-2. **Object Error (物体错误)**：考虑常识共现性，将指令中的物体词（如 sofa）随机替换为通常在同个房间共现的另一物体（如 chair）。
-3. **Room Error (房间错误)**：根据房间邻接先验，将目标房间（如 bathroom）随机替换为相邻的房间类型（如 bedroom）。
-4. **Room & Object Error (房间与物体双重错误)**：在指令中同时注入房间错误和物体错误。
-5. **All Error (全类型错误)**：在指令中同时引入方向、房间和物体三类错误（平均每个样本包含3个错误）。
-
-<div align="center">
-  <img src="/images/vln/R2RIE-CE-dataset-statistics.png" width="80%" />
-    <figcaption>表1：R2RIE-CE 基准测试在不同错误类型下的样本统计信息。</figcaption>
-</div>
-
-#### B. IEDL 错误检测与定位框架
-为了解决上述挑战，本文提出了 **IEDL** (Instruction Error Detector & Localizer) 框架。该框架是一个与底层导航策略解耦的模块，其核心思路是通过对比智能体执行导航后的“轨迹视觉特征”与“输入文本指令”的语义兼容性来捕捉不一致的错误。
-
-<div align="center">
-  <img src="/images/vln/R2RIE-CE-IEDL-architecture.png" width="100%" />
-    <figcaption>图2：IEDL 模型整体架构。冻结的导航策略 $\pi$ 输出的轨迹视觉特征 $\Gamma$ 与指令编码嵌入 $\Upsilon$ 送入多层跨模态 Transformer 进行特征对齐融合，最后由分类头分别进行错误检测（$f_d$）与词级错误定位（$f_l$）。</figcaption>
-</div>
-
-1. **整体框架概述**：
-   IEDL 模型由指令编码器、全景轨迹编码器、跨模态融合 Transformer，以及两个并行的分类预测头构成。它利用智能体的动作历史和视觉观测序列作为真值轨迹，去检验指令的语义是否与其吻合。
-
-2. **逐模块讲解**：
-   - **指令编码器 (Language Encoder)**：接收包含 $W$ ($W=80$) 个词的自然语言指令 $\mathcal{I}$。利用分词与填充后，送入预训练的 BERT 模型提取其词嵌入特征 $\Upsilon \in \mathbb{R}^{W \times D}$。
-   - **轨迹编码器 (Trajectory Encoder)**：导航智能体基于某策略 $\pi$ 在环境中导航 $T$ 步，得到图像观测序列 $\mathcal{O} = \{O_1, ..., O_T\}$。每个 $O_t$ 提取 ViT-B/16-CLIP 全景特征，再经过 Panoramic Encoder 进行时空建模，得到轨迹表示 $\Gamma = \{V_1, ..., V_T\} \in \mathbb{R}^{T \times D}$。为了引入轨迹时序，对 $\Gamma$ 加入 sine/cosine 位置编码，并在其头部拼接一个可学习的 `[CLS]` embedding。
-   - **跨模态多层 Transformer (Cross-Modal Transformer)**：包含 $k$ ($k=4$) 个堆叠层。在每一层，轨迹特征 $\Gamma$ 作为 Query ($Q$)，文本指令嵌入 $\Upsilon$ 作为 Key-Value ($KV$) 进行交叉注意力 (cross-attention) 计算，将视觉特征对齐到文本；接着用 Self-Attention 和 FFN 充分交互以融合多模态特征。
-   - **轨迹-指令匹配预测头 (Trajectory-Instruction Matching Head, $f_d$)**：输入融合后的 `[CLS]` token，通过一个多层感知机（MLP，由 $\mathbb{R}^D \to \mathbb{R}$）和 Sigmoid 函数输出匹配概率 $$d_{\pi} \in [0, 1]$$，用以识别当前指令是否包含错误。
-   - **错误定位预测头 (Error Localization Head, $f_l$)**：输入融合后的文本 token 序列，利用独立的 MLP（由 $\mathbb{R}^D \to \mathbb{R}^W$）预测每一个 token 为错误词的概率，实现细粒度的错误词定位。
-
-3. **训练目标 / 损失函数**：
-   采用多任务联合训练，损失函数由匹配分类损失 $\mathcal{L}_d$（采用二元交叉熵损失）与词级定位损失 $\mathcal{L}_l$（对指令中每个 token 计算标准交叉熵并求和）加权组成：
-   $$\mathcal{L} = \lambda_1 \mathcal{L}_d + \frac{\lambda_2}{E} \sum_{i=1}^{E} \mathcal{L}_l$$
-   其中 $E$ 是指令中实际含有的错误词数量，$\lambda_1$ 和 $\lambda_2$ 为平衡权重参数（实验中均设为 1）。
-
----
-
-### 3. 核心结果/发现
-
-#### A. 现有导航模型在错误指令下的脆弱性
-研究人员在 R2RIE-CE 基准上测试了六种主流 VLN-CE 模型（包括 BEVBert, ETPNav 等 SOTA 算法）。
-
-<div align="center">
-  <img src="/images/vln/R2RIE-CE-success-rate-drop.png" width="80%" />
-    <figcaption>图3：主流导航模型在 R2R-CE Val Unseen 原始验证集（绿色）与带错误验证集（红色）下的 Success Rate (SR) 对比。</figcaption>
-</div>
-
-- **性能大跌**：当指令中混入错误时，所有模型的 Success Rate (SR) 均有明显的断崖式下降。在 Room & Object 错误类型下，各模型表现平均下降约 11.47%；在包含所有错误的 All 模式下，SR 下降达到 **30.64%**。
-- **错误类型敏感度差异**：方向错误 (Direction) 对导航的负面影响最大，会导致 SR 平均相对大跌 **18.64%**。智能体对方向词（如 left/right）极度依赖，一旦方向写反，智能体会迅速走偏并提前终止。
-
-#### B. IEDL 的检测与定位表现
-作者将 IEDL 与 Random (随机预测) 和 CLIP Alignment (基于词组匹配的零样本对齐基准) 进行了比较：
-
-<div align="center">
-  <img src="/images/vln/R2RIE-CE-experimental-results.png" width="80%" />
-    <figcaption>表2：在不同错误类型下，Random、CLIP Alignment 与 IEDL 的错误检测 (AUC) 与定位 (ATD) 指标对比。</figcaption>
-</div>
-
-- **SOTA 级的检测与定位**：在所有类型下，IEDL 均显著优于基线模型。尤其在全类型错误 (All) 下，IEDL 的检测 AUC 达到了 **0.94**，平均定位距离 (ATD) 缩短至 **6.14** 个 token。
-- **数据集纠错的实用价值**：作者将训练好的 IEDL 应用于经典的 R2R-CE 和 RxR-CE 原始验证集，在分类置信度超过 0.99 的样本中，通过人工复核成功识别出 **8个 R2R-CE 样本** 和 **10个 RxR-CE 样本** 的地面真值（Ground-Truth）指令本身就存在明显的人类标注错误。
-
----
-
-### 4. 局限性
-1. **离线检测限制**：目前 IEDL 属于离线（Post-hoc）检测器，即必须等到智能体导航策略执行完毕、生成完整轨迹后才能进行错误检测。未来需要探索如何在导航执行过程中进行在线（Online）实时错误识别与纠偏。
-2. **纠错后的闭环策略缺失**：论文主要聚焦于“检测”与“定位”错误，但未详细构建智能体发现错误后，如何主动向人类用户发起交互澄清或自主尝试重新规划路线的闭环控制策略。
-
----
-
-## 57. NAVCON (2024) {#navcon}
-——— 认知启发与语言落地的首个大规模 Vision-Language Navigation 概念数据集
-
-📄 **Paper**: [arXiv:2412.13026](https://arxiv.org/abs/2412.13026)
-
-### 精华
-
-1. 提出了首个基于认知科学与语言学理论的视觉语言导航（VLN）概念数据集 NAVCON，包含对 R2R 和 RxR 约 30,000 条指令的 23.6 万个高层导航概念标注。
-2. 定义了四种核心导航概念：定位自身（SIT）、移动路径（MOVE）、改变方向（CD）和改变区域（CR），构成了完备的导航语言原语。
-3. 利用 RxR 的时间戳信息，通过 Habitat 模拟器实现了 270 万帧图像/视频片段与导航概念词组的跨模态时间对齐。
-4. 基于该语料库微调的轻量级序列标注模型 NCC，达到了 96.53% 的概念和文本跨度预测准确率，展现出极强的泛化与落地潜力。
-5. 这一工作为打破 VLN 端到端黑盒设计提供了结构化的语义解析工具，有助于提高跨模态对齐的可解释性与实时运行效率。
-
----
-
-### 1. 研究背景/问题
-
-传统的视觉语言导航（VLN）模型多采用黑盒端到端架构，存在视觉与文本 token 对齐不平衡、缺乏可解释性等问题。此外，现有的句法解析方法过于依赖外部嘈杂的依存句法分析器，导致在下游机器人导航任务中泛化性能差、可解释性低。因此，如何定义完备的导航概念并实现低成本、高精度的细粒度文本-视频对齐，是实现可信、透明且高效的具身智能体导航的关键瓶颈。
-
----
-
-### 2. 主要方法/创新点
-
-NAVCON 提出了一套完整的视觉-语言导航概念自动化构建与标注流水线，实现了自然语言指令到核心导航概念（标签 + 文本跨度）以及视频片段的端到端对齐。
-
-<div align="center">
-  <img src="/images/vln/NAVCON-pipeline.png" width="100%" />
-<figcaption>NAVCON 导航概念和视频剪辑生成的处理步骤总览</figcaption>
-</div>
-
-#### ① 整体框架概述
-整个构建框架由**导航概念定义**、**语言概念提取与人工评估**以及**视频剪辑对齐与时序窗口微调**三个核心阶段组成。它通过自然语言处理管线提取指令中的动作谓词及修饰词组，并与 Habitat 模拟器导出的智能体第一视角视频流进行多模态时序关联。
-
-#### ② 逐模块讲解
-- **导航概念定义模块**：
-  - **输入**：无标注的导航指令文本。
-  - **处理**：基于动物与人类大脑空间建图的认知科学研究（如海马区位置细胞、边缘系统头部方向细胞、内嗅皮层边界细胞和自主运动系统），系统定义了四种核心导航概念：
-    - **定位自身（Situate Yourself, SIT）**：标识当前所处的位置与环境特征（如 "standing in front of that pillar"）。
-    - **移动路径（Move along a Path, MOVE）**：表示沿特定物理通道的位移（如 "step into this area with a large pool"）。
-    - **改变方向（Change Direction, CD）**：描述朝向的转动（如 "turn around from the bench"）。
-    - **改变区域（Change Region, CR）**：刻画越过物理边界进入新空间的动作（如 "enter the room that is in front of you"）。
-  - **输出**：导航概念的分类体系。
-  - **设计动机**：提供符合认知科学、且覆盖主流 VLN 指令所需的完备导航语言原语。
-
-- **语言概念提取管线**：
-  - **输入**：来自 R2R 和 RxR 数据集的 30,815 条训练指令。
-  - **处理**：利用 Stanza constituency parser 等 NLP 工具进行分词、词干化、词性标注与句法分析。首先检索出 348 个候选根动词，通过人工筛选保留 81 个无歧义映射到上述四大概念的导航根动词；然后提取这 81 个根动词的所有句法子节点，形成代表导航概念的完整谓词短语。
-  - **输出**：236,316 个自动生成的“银标（silver）”导航概念短语标注（包含概念类别与对应的文本跨度）。
-  - **设计动机**：降低人工标注的成本，同时利用 constituency trees 保证提取出的概念词组的句法完整性（包含修饰语和地标名词）。
-
-- **视频剪辑对齐与微调模块**：
-  - **输入**：带有单词级时间戳的 RxR 导航指令、 Matterport 3D 场景以及智能体运动轨迹姿态（pose traces）。
-  - **处理**：利用 Habitat 模拟器以 10 倍下采样率渲染智能体视角图像（320x240 像素），提取了 760 万帧图像。通过 RxR 词级时间戳，将提取的语言概念短语在时序上投影到对应的智能体运动视频剪辑中。针对 RxR 部分单词时间戳不准导致动作未开始或已结束的对齐偏移问题，引入了时序窗口微调策略：将每个剪辑的提取时间窗口向后延伸视频总长度的 5%。
-  - **输出**：270 万帧已实现概念-视频对齐的图像数据，覆盖 19,074 条指令。
-  - **设计动机**：解决跨模态细粒度对齐的时间错位问题，提供大规模的高质量视频-语言导航原语对齐数据。
-
-<div align="center">
-  <img src="/images/vln/NAVCON-concept-clip-alignment.png" width="100%" />
-<figcaption>NAVCON 概念与视频剪辑对齐示例（时间从左至右推移）</figcaption>
-</div>
-
-#### ③ 训练目标与分类器
-基于生成的银标数据集，论文训练了一个**导航概念分类器 (Navigation Concept Classifier, NCC)**。模型基于轻量级的 `distilbert-base-uncased`，在输入端接收分词后的指令，在输出端使用 BIO 格式进行 Token 级别分类（共 5 类：SIT、MOVE、CD、CR 的 B/I 标记，以及 O 外部词）。训练采用标准的交叉熵损失函数进行序列标注：
-$$\mathcal{L} = -\sum_{i=1}^{N} \sum_{j=1}^{C} y_{i,j} \log p_{i,j}$$
-其中 $N$ 为序列长度，$C$ 为分类类别数（$C=9$，包括 B- 和 I- 标记及 O），$y_{i,j}$ 为真实标签，$p_{i,j}$ 为预测概率。
-
----
-
-### 3. 核心结果/发现
-
-- **数据集特征**：NAVCON 概念分布中，MOVE（移动路径）占比最大，达 42%；SIT（定位自身）占 28%；CD（改变方向）占 22%；CR（改变区域）占 9%。
-
-<div align="center">
-  <img src="/images/vln/NAVCON-concept-distribution.png" width="100%" />
-<figcaption>NAVCON 数据集中导航概念的分布统计情况</figcaption>
-</div>
-
-- **标注质量评估**：人工评估表明，银标概念分类正确率达 95.82%，对应的文本跨度覆盖正确率达 95.49%，漏检率低于 4%。在引入时序窗口延伸 5% 后，视频剪辑的精确对齐率从 73.63% 大幅提升至 88.62%。
-- **NCC 分类器表现**：NCC 分类器在 unseen 测试集上表现极佳，实现概念类别与文本跨度 100% 完美匹配（Exact Match）的比例高达 96.53%。
-- **LLM 少样本泛化能力**：使用 GPT-4o 进行 3-shot 上下文学习（In-Context Learning）进行概念提取，在 unseen 数据上实现了 82.12% 的 Exact Match，说明该导航概念对 LLM 具有高度的可学习性与泛化性。
-
----
-
-### 4. 局限性
-
-1. **解析器依赖性**：对语言概念的提取极度依赖 Stanza constituency parser 的句法解析准确率，句法树错误会直接导致概念跨度提取不完整。
-2. **多模态对齐误差**：视频-文本对齐质量受限于原始 RxR 数据集 word-timestamp 标注的准确性，尽管采用了窗口延展，仍有约 11% 的视频片段对齐不完整。
-
----
-
-## 58. NavWAM (2026) {#navwam}
+## 57. NavWAM (2026) {#navwam}
 ———首个将未来预测、价值评估与动作决策集成于单一具身世界模型的导航模型
 
 📄 **Paper**: [arXiv:2606.13494](https://arxiv.org/abs/2606.13494) · [Project Page](https://dachii-azm.github.io/navwam/)
@@ -6177,7 +6642,15 @@ $$v_{t+H} = \text{clip}\left( 1 - \frac{\lVert p_{\text{end}} - p_t \rVert_2}{d_
 
 ---
 
-## 59. Robostral Navigate (2026) {#robostral-navigate}
+
+
+
+
+
+
+
+
+## 58. Robostral Navigate (2026) {#robostral-navigate}
 ———Single-camera AI Navigation for Embodied Robots
 
 📄 **Paper**: [Blog Post](https://mistral.ai/news/robostral-navigate/) · [Project Page](https://mistral.ai/news/robostral-navigate/)
@@ -6342,7 +6815,15 @@ Robostral 采用了 **CISPO (Clipped Importance Sampling Policy Optimization)** 
 
 ---
 
-## 60. LocalNav (2026) {#localnav}
+
+
+
+
+
+
+
+
+## 59. LocalNav (2026) {#localnav}
 ———基于知识蒸馏与具身强化学习的端侧轻量化三维场景图目标导航框架
 
 📄 **Paper**: [arXiv:2606.27871](https://arxiv.org/abs/2606.27871)
@@ -6446,7 +6927,15 @@ $$R_{tot} = R_{done} + R_{nav} + R_{exp} + R_{brev}$$
 
 ---
 
-## 61. ABot-N1 (2026) {#abot-n1}
+
+
+
+
+
+
+
+
+## 60. ABot-N1 (2026) {#abot-n1}
 ———基于慢速认知与快速控制双系统架构的通用视觉语言导航基础模型
 
 📄 **Paper**: [arXiv:2607.10383](https://arxiv.org/abs/2607.10383v2) · [Project Page](https://amap-cvlab.github.io/ABot-Navigation/ABot-N1/) · [Code](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench)
@@ -6545,7 +7034,15 @@ ABot-N1 在五项核心导航任务上均打破了先前的 SOTA 纪录，并且
 
 ---
 
-## 62. ReflectVLN (2026) {#reflectvln}
+
+
+
+
+
+
+
+
+## 61. ReflectVLN (2026) {#reflectvln}
 ———基于反思推理与双向交互机制的具身视觉语言导航
 
 📄 **Paper**: [arXiv:2607.12680](https://arxiv.org/abs/2607.12680) · [Code](https://github.com/AIprogrammer/ReflectVLN)
@@ -6661,137 +7158,15 @@ ReflectVLN 架构由两个独立参数化的 Agent 组成：**意图 Agent（Int
 
 ---
 
-## 63. CorrectNav (2025)
-——— 自纠错飞轮赋能的单目 RGB 视觉-语言-动作导航模型
 
-📄 **Paper**: [arXiv:2508.10416](https://arxiv.org/abs/2508.10416) · [Code](https://github.com/owlet914/CorrectNav) · [Project Page](https://correctnav.github.io)
 
----
 
-### 精华
 
-1. **变废为宝的数据范式**：不同于传统方法将模型在训练集上的预测偏差视为无效错误，CorrectNav 提出**自纠错飞轮**（Self-correction Flywheel）后训练范式，将模型评估产生的偏离轨迹转化为极具价值的自纠错训练数据。
-2. **感知与动作双重隐式纠错**：联合构建**动作纠错轨迹**（通过轨迹规划器 $\Gamma$ 重新打通至终点的路径）与基于多模态大模型的**关键帧感知分析**（描述地标与生成细节 QA），无需增加额外的推理模块或引入极耗时的思维链（CoT），将自纠错能力直接隐式内化于模型参数中。
-3. **闭环飞轮多轮迭代**：采用"模型评估 ➔ 偏离检测 ➔ 动作/感知自纠错数据自动生成 ➔ 持续训练"的闭环机制。训练后新模型产生的偏离模式会触发下一轮飞轮，性能随迭代轮次提升显著。
-4. **单目 RGB 端到端 SOTA**：仅依赖单目 RGB 视频输入与语言指令，在 R2R-CE 和 RxR-CE Val-Unseen 连续环境基准上成功率分别达到 **65.1%** 和 **69.3%**，大幅超越 prior SOTA 导航大模型 StreamVLN（+8.2% 与 +16.4%）。
-5. **强鲁棒的实机落地**：结合域随机化与通用多模态数据回放防遗忘策略，在 AgiBot 灵汐 D1 四足机器人上实现了室内外复杂场景、长指令跟随与动态避障自纠正的高成功率部署。
 
----
 
-### 1. 研究背景/问题
 
-在视觉-语言导航（Vision-and-Language Navigation, VLN）任务中，机器人需要根据自然语言指令在未探索的连续环境中进行路径探索。然而，现有的视觉-语言-动作（VLA）导航模型在执行指令时，不可避免地会由于感知失误或指令理解偏差产生单步预测错误。
 
-这种单步错误在连续空间中会迅速累积，导致机器人严重偏离预定路线（如指令要求"向前走并右转进客厅"，若提前右转则会误入厨房）。传统模型由于缺乏**自纠错（Self-correction）与自恢复能力**，一旦偏离路径便无法重新定位，导致导航失败。先前部分研究（如 SmartWay、EnvolveNav）尝试引入闭源大模型进行回溯反思或生成长思维链，但这引入了巨大的推理延迟与复杂的外部模块，难以满足实机导航的实时性要求。
-
----
-
-### 2. 主要方法/创新点
-
-CorrectNav 构建了一个基于单目 RGB 图像输入的 VLA 导航模型，并通过**自纠错飞轮后训练范式**隐式内化了高效的路径偏离纠正能力。
-
-<div align="center">
-  <img src="/images/vln/CorrectNav-capabilities.png" width="100%" />
-<figcaption>CorrectNav 具身导航多样化能力示意图（涵盖跨房间指令导航、地标状态变更感知、错误纠偏、漂移纠正及行人/密集障碍物避让）</figcaption>
-</div>
-
-#### ① 整体框架概述
-
-CorrectNav 系统由 **Vision Encoder**（SigLIP）、**Projector**（2层 MLP）与 **Large Language Model Backbone**（Qwen2 7B，初始化自 LLaVA-Video 7B）三个模块构成。Vision Encoder 负责抽取输入 RGB 视频多帧的视觉特征 $Z_v$，Projector 将视觉特征映射至 LLM 语义空间 $H_v$，LLM 结合语言指令文本 token 自回归预测长度为 $m=4$ 的动作块（Action Chunk $\{a_{t+1}, \dots, a_{t+m}\}$）。
-
-<div align="center">
-  <img src="/images/vln/CorrectNav-architecture.png" width="100%" />
-<figcaption>CorrectNav 整体架构与自纠错飞轮后训练范式示意图（左：导航微调与域随机化；右：自纠错飞轮 4 步循环闭环）</figcaption>
-</div>
-
-#### ② 基础导航微调（Navigation Fine-tuning）与三大数据策略
-
-在开启自纠错飞轮前，CorrectNav 首先在标准导航任务上进行多任务微调：
-- **动作预测任务（Action Prediction）**：基于 MP3D 场景提取的 R2R-CE（527K）和 RxR-CE（1.58M）共计 210 万+ 步级标准轨迹进行动作预测训练。为了大幅提升视觉鲁棒性，引入了**域随机化策略**（涵盖随机相机高度、视场角 FoV、分辨率缩放与光照条件变换）。
-- **轨迹逆向指令生成（Instruction Generation）**：利用 30K 条完整 oracle 轨迹，训练 CorrectNav 根据观测历史生成对应的导航语言指令，强化跨模态表达能力。
-- **通用多模态数据回放（General Multimodal Data Recall）**：为防止在专用导航数据集上连续训练导致通用多模态理解能力退化（Catastrophic Forgetting），按比例混入 240K 来自 LLaVA-Video（ActivityNet-QA 和 NextQA）的视频 QA 数据，保持时空感知能力。
-
-#### ③ 自纠错飞轮后训练范式（Self-correction Flywheel Post-training）
-
-为了使 CorrectNav 具备自恢复能力，作者设计了四步闭环飞轮：
-
-1. **Step 1: 训练集评估与偏离轨迹采集**  
-   虽然 CorrectNav 已在训练集上接受过监督训练，但在训练集上重新评估模型时，模型依然会产生导航错误轨迹 $T_m = (M_1, M_2, \dots, M_m)$。这些包含错误的轨迹正是最宝贵的自纠错训练数据来源。
-
-2. **Step 2: 轨迹偏离检测（Deviation Detection）**  
-   对真实参考轨迹 $T_g$ 进行均匀插值得到 $T'_g$。计算机器人位置 $M_i$ 到参考轨迹的垂距：
-   $$h_i = \min_{x \in T'_g} \lVert M_i - x \rVert_2$$
-   对应在 $T'_g$ 上的垂足定位为：
-   $$P_i = \arg\min_{P \in T'_g} \lVert M_i - P \rVert_2$$
-   当存在时间步 $t$ 满足垂距超过距离阈值 $S$（即 $h_t > S$，且之前步骤 $h_i \le S, \forall i < t$），则判定模型在 $M_t$ 处发生了偏离，并将 $M_t$ 附近的观测帧标记为纠错关键帧。
-
-3. **Step 3: 动作与感知自纠错数据构建**  
-   - **动作纠错轨迹（Action Correction Trajectory）**：若垂足 $P_t$ 位于参考线段 $G_k G_{k+1}$ 上，说明机器人正确经过了 $G_k$，但在前往 $G_{k+1}$ 时发生偏离。调用轨迹规划器 $\Gamma$ 重新生成一条从偏离点 $M_t$ 出发、经过后续参考点并最终到达终点的修补轨迹 $$T_e = (M_t, G_{k+1}, \dots, G_n)$$。在训练时，偏离点前的历史只提供观测上下文，仅在 $T_e$ 上计算动作预测损失。
-   - **关键帧感知分析（Keyframe Perception Analysis）**：抽取偏离点 $M_t$ 及其前后关键帧 $\{K_1, K_2, K_3\}$，利用多模态大模型 Qwen-VL-Plus 自动生成两类感知数据：
-     1. **地标描述** $$C_i = \text{MLLM}(K_i, L_{\text{cap}})$$：描述图像中出现的家具、建筑结构等关键地标；
-     2. **细节 QA 对** $$\{(Q_j, A_j)\}_{j=1}^x = \text{MLLM}(K_i, L_{\text{qa}})$$：聚焦于物体相对位置、颜色及机器人当前朝向等关键视觉元素。通过感知数据训练，引导模型不仅知晓"怎么纠偏"，更理解"为何偏离"。
-
-4. **Step 4: 模型持续训练与多轮飞轮迭代（Continued Training & Multi-Round Iteration）**  
-   按比例采样 $50\%$ 的自纠错轨迹/感知数据与 $25\%$ 的原始标准轨迹组合进行持续训练。当经过一轮纠错训练的模型再次在训练集上评估时，又会暴露新的偏离模式，从而驱动飞轮开启下一轮（Loop）。随着多轮迭代推进，模型的自纠错能力持续攀升。
-
-<div align="center">
-  <img src="/images/vln/CorrectNav-case-study.png" width="100%" />
-<figcaption>CorrectNav 纠错能力对比示意图（上：在走错路径失焦后迅速掉头返回正确路径；下：进入错误前门发现无目标步骤后折返并进入正确的侧门）</figcaption>
-</div>
-
----
-
-### 3. 核心结果/发现
-
-#### ① VLN-CE 连续基准定量对比
-
-在 Habitat 3.0 仿真器中，对 R2R-CE 和 RxR-CE 的 Val-Unseen 拆分集进行了全面评估（仅输入单目 RGB）：
-
-| 模型 | 输入模态 | R2R-CE NE↓ | R2R-CE SR↑ | R2R-CE SPL↑ | RxR-CE NE↓ | RxR-CE SR↑ | RxR-CE SPL↑ | RxR-CE nDTW↑ |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| BEVBert | RGB-D + Pano | 4.57 | 59.0% | 50.0% | - | - | - | - |
-| ETPNav | RGB-D + Pano | 4.71 | 57.0% | 49.0% | 5.64 | 54.7% | 44.8% | 61.9% |
-| HNR | RGB-D + Pano | 4.42 | 61.0% | 51.0% | 5.50 | 56.3% | 46.7% | 63.5% |
-| NaVid | 单目 RGB | 5.47 | 37.0% | 35.0% | - | - | - | - |
-| Uni-NaVid | 单目 RGB | 5.58 | 47.0% | 42.7% | 6.24 | 48.7% | 40.9% | - |
-| NaVILA | 单目 RGB | 5.22 | 54.0% | 49.0% | 6.77 | 49.3% | 44.0% | 58.8% |
-| StreamVLN | 单目 RGB | 4.98 | 56.9% | 51.9% | 6.22 | 52.9% | 46.0% | 61.9% |
-| **CorrectNav (Ours)** | **单目 RGB** | **4.24** | **65.1%** | **62.3%** | **4.09** | **69.3%** | **63.3%** | **75.2%** |
-
-CorrectNav 在仅使用单目 RGB 的前提下，不仅刷新了单目 VLA 模型的最高纪录（R2R-CE SR 65.1%，RxR-CE SR 69.3%），甚至全面超越了依赖深度图（Depth）、全景图（Pano）和路点预测器（Waypoint Predictor）的传统拓扑地图方法（如 HNR、ETPNav）。
-
-#### ② 飞轮迭代与消融实验
-
-<div align="center">
-  <img src="/images/vln/CorrectNav-iterations-curve.png" width="80%" />
-<figcaption>CorrectNav 性能随自纠错飞轮迭代轮次的变化趋势</figcaption>
-</div>
-
-- **飞轮迭代效应**：随着自纠错飞轮迭代从 Iter 0 推进至 Iter 3，R2R-CE 和 RxR-CE 的成功率均表现出持续的增长，证明了自纠错数据闭环迭代的有效性。在第 4 轮出现轻微回落时止盈。
-- **关键模块消融**：移除动作纠错轨迹生成会导致成功率最显著的下降（R2R 降至 59.2%）；移除关键帧感知分析则导致成功率降至 60.1%，验证了感知引导纠错的必要性。
-
-#### ③ 真实机器人实测（AgiBot 灵汐 D1 四足机器人）
-
-在 AgiBot 灵汐 D1 四足机器人平台（配备单目 RGB 摄像头及 remote A100 GPU）上进行了 Office、Home、Campus 三大场景的定量测试：
-
-<div align="center">
-  <img src="/images/vln/CorrectNav-real-robot.png" width="100%" />
-<figcaption>CorrectNav 在室内外多场景（办公区、住宅、校园）实机部署的定性结果（涵盖动态避障、长时间跨度指令与路径偏离恢复）</figcaption>
-</div>
-
-- 在复杂的室内外长指令测试中，CorrectNav 的成功率（SR）显著优于 Baseline（如在 Office Complex 指令下 SR 达 **75%**，而 NaVid 仅为 30%，NaVILA 为 20%）。
-- 具备强劲的动态避障（动态避让行人与黄色箱子）以及偏离后自折返恢复能力。
-
----
-
-### 4. 局限性
-
-1. **几何相对位置感知精度有限**：单目 RGB 缺乏精确深度信息，模型对机器人本体与周围障碍物之间的相对空间物理距离感知尚不够精确。
-2. **机体碰撞擦碰风险**：在四足机器人等具有复杂几何轮廓的平台上，当贴紧障碍物转弯时，机器人的后腿可能存在轻微擦碰障碍物的风险。作者指出未来需将机器人本体尺寸与状态先验融合入推理模型中。
-
----
-
-## 64. TuckerNav (2026) {#tuckernav}
+## 62. TuckerNav (2026) {#tuckernav}
 ———面向全天候多场景终身具身视觉语言导航的 Tucker 张量自适应
 
 📄 **Paper**: [arXiv:2603.14276](https://arxiv.org/abs/2603.14276) · 🏛️ **ICLR 2026**
@@ -6913,7 +7288,15 @@ $$\mathcal{L}_t = -\lambda \sum_{n=1}^N \log p_t(A_n, \hat{P}_n \mid I, \mathcal
 
 ---
 
-## 65. AgenticNav (2026) {#agenticnav}
+
+
+
+
+
+
+
+
+## 63. AgenticNav (2026) {#agenticnav}
 ———将零样本连续环境导航（VLN-CE）重构为 VLM 可调用的 Tool-Calling 架构
 
 📄 **Paper**: [arXiv:2606.10577](https://arxiv.org/abs/2606.10577)
@@ -7028,7 +7411,15 @@ AgenticNav 由 **VLM 决策核心** 与 **四个确定性 Tool 接口** 组成�
 
 ---
 
-## 66. ABot-AgentOS (2026) {#abot-agentos}
+
+
+
+
+
+
+
+
+## 64. ABot-AgentOS (2026) {#abot-agentos}
 ———面向具身智能的通用机器人 Agent 操作系统与终身多模态记忆系统
 
 📄 **Paper**: [arXiv:2607.10350](https://arxiv.org/abs/2607.10350) · [Project Page](https://amap-cvlab.github.io/ABot-AgentOS)
@@ -7146,6 +7537,8 @@ Agent Harness 改变了传统单模型控制器的设计，将 Agent 调度划�
 
 ---
 
+
+
 # 参考资料
 
 ## 已发表论文（会议 / 期刊）
@@ -7156,79 +7549,80 @@ Agent Harness 改变了传统单模型控制器的设计，将 Agent 调度划�
 |---|---|
 | **ECCV** | [VLN-CE](#vln-ce) (2020)、[NavGPT-2](#navgpt-2) (2024) |
 | **ICRA** | [NoMaD](#nomad) (2024)、[VLFM](#vlfm) (2024)、[Open-Nav](#open-nav) (2025)、[StreamVLN](#streamvln) (2026) |
-| **AAAI** | [NavGPT](#navgpt) (2024)、[ODYSSEY](#odyssey) (2026)、[R³](#r3) (2026)、[PanoNav](#panonav) (2026, Poster) |
-| **CVPR** | [VLN-Imagine](#vln-imagine) (2025)、[Slow4fast-VLN](#slow4fast-vln) (2026)、[AwareVLN](#awarevln) (2026) |
+| **AAAI** | [ODYSSEY](#odyssey) (2026)、[R³](#r3) (2026)、[PanoNav](#panonav) (2026, Poster) |
+| **CVPR** | [VLN-Imagine](#vln-imagine) (2025)、[Slow4fast-VLN](#slow4fast-vln) (2026)、[AwareVLN](#awarevln) (2026)、[R2R](#r2r) (2018, Spotlight)、[DUET](#duet) (2022) |
 | **ICLR** | [NavFoM](#navfom) (2026)、[JanusVLN](#janusvln) (2026)、[OmniNav](#omninav) (2026, Poster)、[TuckerNav](#tuckernav) (2026) |
 | **ICCV** | [VLN-PE](#vln-pe) (2025) |
 | **ACL** | [MapNav](#mapnav) (2025) |
+| **RSS** | [NaVid](#navid) (2024) |
 | **期刊** | [GaussNav](#gaussnav) (IEEE TPAMI 2025)、[CausalNav](#causalnav) (IEEE RA-L)、[Skill-Nav](#skill-nav) (Vicinagearth / Springer 2025)、[CA-VLN](#ca-vln) (Sensors 2026)、[R2RIE-CE & IEDL](#r2rie-ce-iedl) (ROMAN 2024) |
 
 ## 论文
 
-1. **DualVLN/InternVLN** (2025). Ground Slow, Move Fast: A Dual-System Foundation Model for Generalizable Vision-and-Language Navigation. arXiv: [2512.08186](https://arxiv.org/abs/2512.08186)
-2. **NavDP** (2025). Learning Sim-to-Real Navigation Diffusion Policy with Privileged Information Guidance. arXiv: [2505.08712](https://arxiv.org/abs/2505.08712)
-3. **NoMaD** (2023). Goal Masked Diffusion Policies for Navigation and Exploration. arXiv: [2310.07896](https://arxiv.org/abs/2310.07896)
-4. **ODYSSEY** (2025). Open-World Quadrupeds Exploration and Manipulation for Long-Horizon Tasks. arXiv: [2508.08240](https://arxiv.org/abs/2508.08240)
-5. **PanoNav** (2025). Mapless Zero-Shot Object Navigation with Panoramic Scene Parsing and Dynamic Memory. arXiv: [2511.06840](https://arxiv.org/abs/2511.06840)
-6. **VLN-R1** (2025). Vision-Language Navigation via Reinforcement Fine-Tuning. arXiv: [2506.17221](https://arxiv.org/abs/2506.17221)
-7. **LagMemo** (2025). Language 3D Gaussian Splatting Memory for Multi-modal Open-vocabulary Multi-goal Visual Navigation. arXiv: [2510.24118](https://arxiv.org/abs/2510.24118)
-8. **GaussNav** (2025). Gaussian Splatting for Visual Navigation. arXiv: [2403.11625](https://arxiv.org/abs/2403.11625)
-9. **VLFM** (2023). Vision-Language Frontier Maps for Zero-Shot Semantic Navigation. arXiv: [2312.03275](https://arxiv.org/abs/2312.03275)
-10. **Motus** (2025). A Unified Latent Action World Model. arXiv: [2512.13030](https://arxiv.org/abs/2512.13030)
-11. **NavGPT** (2024). Explicit Reasoning in Vision-and-Language Navigation with Large Language Models. arXiv: [2305.16986](https://arxiv.org/abs/2305.16986)
-12. **NavGPT-2** (2024). Unleashing Navigational Reasoning Capability for Large Vision-Language Models. arXiv: [2407.12366](https://arxiv.org/abs/2407.12366)
-13. **FSR-VLN** (2025). Fast and Slow Reasoning for Vision-Language Navigation with Hierarchical Multi-modal Scene Graph. arXiv: [2509.13733](https://arxiv.org/abs/2509.13733)
-14. **VLingNav** (2026). Embodied Navigation with Adaptive Reasoning and Visual-Assisted Linguistic Memory. arXiv: [2601.08665](https://arxiv.org/abs/2601.08665)
-15. **Slow4fast-VLN** (2026). Towards Open Environments and Instructions: General Vision-Language Navigation via Fast-Slow Interactive Reasoning. arXiv: [2601.09111](https://arxiv.org/abs/2601.09111)
-16. **FantasyVLN** (2026). Unified Multimodal Chain-of-Thought Reasoning for Vision-Language Navigation. arXiv: [2601.13976](https://arxiv.org/abs/2601.13976)
-17. **VL-Nav** (2025). A Neuro-Symbolic Approach for Reasoning-based Vision-Language Navigation. arXiv: [2502.00931](https://arxiv.org/abs/2502.00931)
-18. **StreamVLN** (2025). Streaming Vision-and-Language Navigation via SlowFast Context Modeling. arXiv: [2507.05240](https://arxiv.org/abs/2507.05240)
-19. **NavFoM** (2025). Embodied Navigation Foundation Model. arXiv: [2509.12129](https://arxiv.org/abs/2509.12129)
-20. **DGNav** (2026). Dynamic Topology Awareness: Breaking the Granularity Rigidity in Vision-Language Navigation. arXiv: [2601.21751](https://arxiv.org/abs/2601.21751)
-21. **MapNav** (2025). A Novel Memory Representation via Annotated Semantic Maps for VLM-based Vision-and-Language Navigation. arXiv: [2502.13451](https://arxiv.org/abs/2502.13451)
-22. **Hydra-Nav** (2026). Object Navigation via Adaptive Dual-Process Reasoning. arXiv: [2602.09972](https://arxiv.org/abs/2602.09972)
-23. **3DGSNav** (2026). Enhancing Vision-Language Model Reasoning for Object Navigation via Active 3D Gaussian Splatting. arXiv: [2602.12159](https://arxiv.org/abs/2602.12159)
-24. **BudVLN** (2026). Nipping the Drift in the Bud: Retrospective Rectification for Robust Vision-Language Navigation. arXiv: [2602.06356](https://arxiv.org/abs/2602.06356)
-25. **Open-Nav** (2025). Exploring Zero-Shot Vision-and-Language Navigation in Continuous Environment with Open-Source LLMs. arXiv: [2409.18794](https://arxiv.org/abs/2409.18794)
-26. **CausalNav** (2026). A Long-term Embodied Navigation System for Autonomous Mobile Robots in Dynamic Outdoor Scenarios. arXiv: [2601.01872](https://arxiv.org/abs/2601.01872)
-27. **SparseVideoNav** (2026). Sparse Video Generation Propels Real-World Beyond-the-View Vision-Language Navigation. arXiv: [2602.05827](https://arxiv.org/abs/2602.05827)
-28. **AgentVLN** (2026). Towards Agentic Vision-and-Language Navigation. arXiv: [2603.17670](https://arxiv.org/abs/2603.17670)
-29. **GSMem** (2025). 3D Gaussian Splatting as Persistent Spatial Memory for Zero-Shot Embodied Exploration and Reasoning. arXiv: [2603.19137](https://arxiv.org/abs/2603.19137)
-30. **Skill-Nav** (2025). Enhanced Navigation with Versatile Quadrupedal Locomotion via Waypoint Interface. arXiv: [2506.21853](https://arxiv.org/abs/2506.21853)
-31. **VLN-Cache** (2026). Enabling Token Caching for VLN Models with Visual/Semantic Dynamics Awareness. arXiv: [2603.07080](https://arxiv.org/abs/2603.07080)
-32. **VLN-CE** (2020). Beyond the Nav-Graph: Vision-and-Language Navigation in Continuous Environments. arXiv: [2004.02857](https://arxiv.org/abs/2004.02857)
-33. **VLN-PE** (2025). Rethinking the Embodied Gap in Vision-and-Language Navigation: A Holistic Study of Physical and Visual Disparities. arXiv: [2507.13019](https://arxiv.org/abs/2507.13019)
-34. **RynnBrain** (2026). Open Embodied Foundation Models. arXiv: [2602.14979](https://arxiv.org/abs/2602.14979)
-35. **LingBot-World** (2026). Advancing Open-source World Models. arXiv: [2601.20540](https://arxiv.org/abs/2601.20540)
-36. **WorldVLN** (2025). Autoregressive World Action Model for Aerial Vision-Language Navigation. arXiv: [2605.15964](https://arxiv.org/abs/2605.15964)
-37. **AwareVLN** (2026). Reasoning with Self-awareness for Vision-Language Navigation. arXiv: [2605.22816](https://arxiv.org/abs/2605.22816)
-38. **Dual-Anchoring** (2026). Addressing State Drift in Vision-Language Navigation. arXiv: [2604.17473](https://arxiv.org/abs/2604.17473)
-39. **LoGoPlanner** (2025). Localization Grounded Navigation Policy with Metric-aware Visual Geometry. arXiv: [2512.19629](https://arxiv.org/abs/2512.19629)
-40. **WAM-Nav** (2026). Asymmetric Latent World-Action Modeling for Unified Visual Navigation. arXiv: [2606.04907](https://arxiv.org/abs/2606.04907)
-41. **JanusVLN** (2026). Decoupling Semantics and Spatiality with Dual Implicit Memory for Vision-Language Navigation. arXiv: [2509.22548](https://arxiv.org/abs/2509.22548)
-42. **HSGM** (2026). Bridging the 2D-3D Gap: A Hierarchical Semantic-Geometric Map for Vision Language Navigation. arXiv: [2606.00095](https://arxiv.org/abs/2606.00095)
-43. **OneVLA** (2026). A Unified Framework for Embodied Tasks. arXiv: [2606.01241](https://arxiv.org/abs/2606.01241)
-44. **CA-VLN** (2026). Collaborative Agents in MLLM-Powered Visual-Language Navigation. [Sensors 2026](https://doi.org/10.3390/s26041254)
-45. **EvoMemNav** (2026). Efficient Self-Evolving Fine-Grained Memory for Zero-Shot Embodied Navigation. arXiv: [2606.03509](https://arxiv.org/abs/2606.03509)
-46. **Goal2Pixel** (2025). Grounding Goals to Pixels for Vision-Language Navigation. arXiv: [2606.01621](https://arxiv.org/abs/2606.01621)
-47. **OmniNav** (2026). A Unified Framework for Prospective Exploration and Visual-Language Navigation. arXiv: [2509.25687](https://arxiv.org/abs/2509.25687)
-48. **AstraNav-World** (2025). World Model for Foresight Control and Consistency. arXiv: [2512.21714](https://arxiv.org/abs/2512.21714)
-49. **ABot-N0** (2026). Technical Report on the VLA Foundation Model for Versatile Embodied Navigation. arXiv: [2602.11598](https://arxiv.org/abs/2602.11598)
-50. **Qwen-RobotNav** (2026). Technical Report: A Scalable Navigation Model Designed for an Agentic Navigation System. arXiv: [2606.18112](https://arxiv.org/abs/2606.18112)
-51. **GA-VLN** (2026). Geometry-Aware BEV Representation for Efficient Vision-Language Navigation. arXiv: [2605.22036](https://arxiv.org/abs/2605.22036)
-52. **SEDualVLN** (2026). 空间增强的双系统连续环境视觉语言导航框架. arXiv: [2605.17249](https://arxiv.org/abs/2605.17249)
-53. **TopoGraph-VLN** (2025). 基于抽象障碍物地图航点预测与拓扑图-历史访问信息感知提示的零样本连续环境视觉语言导航. arXiv: [2509.20499](https://arxiv.org/abs/2509.20499)
-54. **R2RIE-CE & IEDL** (2024). 首个连续导航指令错误基准测试，以及结合指令-轨迹兼容性的多模态错误检测与定位框架. arXiv: [2403.10700](https://arxiv.org/abs/2403.10700)
-55. **NAVCON** (2024). 认知启发与语言落地的首个大规模 Vision-Language Navigation 概念数据集. arXiv: [2412.13026](https://arxiv.org/abs/2412.13026)
-56. **NavWAM** (2026). 首个将未来预测、价值评估与动作决策集成于单一具身世界模型的导航模型. arXiv: [2606.13494](https://arxiv.org/abs/2606.13494)
-57. **Robostral Navigate** (2026). Single-camera AI Navigation for Embodied Robots.
-58. **LocalNav** (2026). 基于知识蒸馏与具身强化学习的端侧轻量化三维场景图目标导航框架. arXiv: [2606.27871](https://arxiv.org/abs/2606.27871)
-59. **ABot-N1** (2026). 基于慢速认知与快速控制双系统架构的通用视觉语言导航基础模型. arXiv: [2607.10383](https://arxiv.org/abs/2607.10383)
-60. **ReflectVLN** (2026). 基于反思推理与双向交互机制的具身视觉语言导航. arXiv: [2607.12680](https://arxiv.org/abs/2607.12680)
-61. **CorrectNav** (2025). 自纠错飞轮赋能的单目 RGB 视觉-语言-动作导航模型. arXiv: [2508.10416](https://arxiv.org/abs/2508.10416)
-62. **TuckerNav** (2026). 面向全天候多场景终身具身视觉语言导航的 Tucker 张量自适应. arXiv: [2603.14276](https://arxiv.org/abs/2603.14276)
-63. **AgenticNav** (2026). 将零样本连续环境导航（VLN-CE）重构为 VLM 可调用的 Tool-Calling 架构. arXiv: [2606.10577](https://arxiv.org/abs/2606.10577)
-64. **ABot-AgentOS** (2026). 面向具身智能的通用机器人 Agent 操作系统与终身多模态记忆系统. arXiv: [2607.10350](https://arxiv.org/abs/2607.10350)
+1. **R2R** (2018).
+2. **VLN-CE** (2020).
+3. **DUET** (2022).
+4. **NoMaD** (2023).
+5. **VLFM** (2023).
+6. **R2RIE-CE & IEDL** (2024).
+7. **NAVCON** (2024).
+8. **NaVid** (2024).
+9. **NavGPT-2** (2024).
+10. **DualVLN/InternVLN** (2025).
+11. **NavDP** (2025).
+12. **ODYSSEY** (2025).
+13. **PanoNav** (2025).
+14. **VLN-R1** (2025).
+15. **GaussNav** (2025).
+16. **LoGoPlanner** (2025).
+17. **VL-Nav** (2025).
+18. **StreamVLN** (2025).
+19. **NavFoM** (2025).
+20. **MapNav** (2025).
+21. **Open-Nav** (2025).
+22. **Skill-Nav** (2025).
+23. **VLN-Imagine** (2025).
+24. **WorldVLN** (2025).
+25. **VLN-PE** (2025).
+26. **Goal2Pixel** (2025).
+27. **AstraNav-World** (2025).
+28. **CorrectNav** (2025).
+29. **VLingNav** (2026).
+30. **Slow4fast-VLN** (2026).
+31. **FantasyVLN** (2026).
+32. **DGNav** (2026).
+33. **Hydra-Nav** (2026).
+34. **3DGSNav** (2026).
+35. **BudVLN** (2026).
+36. **CausalNav** (2026).
+37. **SparseVideoNav** (2026).
+38. **AgentVLN** (2026).
+39. **VLN-Cache** (2026).
+40. **SysNav** (2026).
+41. **R³: Run, Ruminate, and Regulate** (2026).
+42. **Uncertainty-Aware Gaussian Map for VLN** (2026).
+43. **GSMem** (2026).
+44. **AwareVLN** (2026).
+45. **Dual-Anchoring** (2026).
+46. **WAM-Nav** (2026).
+47. **JanusVLN** (2026).
+48. **HSGM** (2026).
+49. **OneVLA** (2026).
+50. **CA-VLN** (2026).
+51. **RynnBrain** (2026).
+52. **EvoMemNav** (2026).
+53. **OmniNav** (2026).
+54. **Qwen-RobotNav** (2026).
+55. **GA-VLN** (2026).
+56. **SEDualVLN** (2026).
+57. **NavWAM** (2026).
+58. **Robostral Navigate** (2026).
+59. **LocalNav** (2026).
+60. **ABot-N1** (2026).
+61. **ReflectVLN** (2026).
+62. **TuckerNav** (2026).
+63. **AgenticNav** (2026).
+64. **ABot-AgentOS** (2026).
 
 
 <script>
@@ -7240,14 +7634,11 @@ Agent Harness 改变了传统单模型控制器的设计，将 Agent 调度划�
     { m: 'ODYSSEY',           t: ['Agentic', '实机部署'] },
     { m: 'PanoNav',           t: ['Agentic', '零样本', '离散环境'] },
     { m: 'VLN-R1',            t: ['端到端', '强化学习', '连续环境'] },
-    { m: 'LagMemo',           t: ['SLAM', '离散环境','高斯表示'] },
     { m: 'GaussNav',          t: ['SLAM', '高斯表示'] },
     { m: 'VLFM',              t: ['SLAM', '零样本', '实机部署'] },
     { m: 'LoGoPlanner',       t: ['端到端', '扩散模型', '连续环境', '实机部署'] },
     { m: 'Motus',             t: ['端到端', '扩散模型', '世界模型', '强化学习'] },
     { m: 'NavGPT-2',          t: ['Agentic', '拓扑图', '离散环境', 'CoT'] },
-    { m: 'NavGPT',            t: ['Agentic', '零样本', '离散环境', 'CoT'] },
-    { m: 'FSR-VLN',           t: ['双系统', '拓扑图', 'SLAM', '实机部署'] },
     { m: 'VLingNav',          t: ['双系统', '连续环境', 'CoT'] },
     { m: 'Slow4fast-VLN',     t: ['双系统', '拓扑图', '离散环境'] },
     { m: 'FantasyVLN',        t: ['世界模型', '数据增强', '连续环境', 'CoT'] },
@@ -7283,11 +7674,9 @@ Agent Harness 改变了传统单模型控制器的设计，将 Agent 调度划�
         { m: 'Goal2Pixel',            t: ['端到端', '连续环境', '实机部署', '加速优化'] },
         { m: 'OmniNav',               t: ['双系统', 'Agentic', 'CoT', '扩散模型', '实机部署'] },
         { m: 'AstraNav-World',        t: ['世界模型', '扩散模型', '端到端', '连续环境', '实机部署'] },
-        { m: 'ABot-N0',               t: ['Agentic', '端到端', '拓扑图', '强化学习', '连续环境', '实机部署'] },
         { m: 'Qwen-RobotNav',         t: ['Agentic', '端到端', '连续环境', '实机部署'] },
         { m: 'GA-VLN',                t: ['端到端', '连续环境', '实机部署', '加速优化', 'BEV'] },
         { m: 'SEDualVLN',             t: ['双系统', 'Agentic', '连续环境'] },
-        { m: 'TopoGraph-VLN',         t: ['拓扑图', '零样本', '连续环境', 'Agentic'] },
         { m: 'R2RIE-CE & IEDL',       t: ['连续环境', '数据集'] },
         { m: 'NAVCON',                t: ['数据集', '连续环境', '离散环境'] },
         { m: 'NavWAM',                t: ['世界模型', '扩散模型', '连续环境', '实机部署'] },
@@ -7299,6 +7688,9 @@ Agent Harness 改变了传统单模型控制器的设计，将 Agent 调度划�
         { m: 'TuckerNav', t: ['连续环境', '加速优化'] },
         { m: 'AgenticNav', t: ['Agentic', '零样本', '连续环境', '实机部署'] },
         { m: 'ABot-AgentOS', t: ['Agentic', '拓扑图', '实机部署'] },
+        { m: 'R2R',                   t: ['离散环境', '数据集'] },
+        { m: 'DUET',                  t: ['拓扑图', '端到端', '离散环境'] },
+        { m: 'NaVid',                 t: ['端到端', '连续环境', '实机部署', '零样本'] },
     { m: 'VLN-CE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'VLN-PE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'RynnBrain',         t: ['基础工作'] },
