@@ -35,9 +35,11 @@ vendor/
 
 # 其他
 CLAUDE.md
+AGENTS.md
 aboutme.md
 standard.md
 fix_format.py
 
 new_paper/
 paper_summary/
+tmp/
