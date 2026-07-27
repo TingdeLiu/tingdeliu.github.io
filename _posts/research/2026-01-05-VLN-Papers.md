@@ -43,7 +43,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [JanusVLN(单目)](#janusvln) | 2026 | R2R-CE | Janus-Pro-7B | 60.5 | 56.8 | 4.78 | 65.2 | [是](https://github.com/MIV-XJTU/JanusVLN) | – | 
  | [BudVLN(单目)](#budvln) | 2026 | R2R-CE | LLaVA-1.5-7B | 57.6 | 51.1 | – | – | [是](https://github.com/Beat992/CDC2F) | – | 
  | [StreamVLN(单目)](#streamvln) | 2025 | R2R-CE | LLaVA-Video-7B | 56.9 | 51.9 | 4.98 | 64.2 | [是](https://github.com/OpenRobotLab/StreamVLN) | 750K 样本 | 
-| [AgenticNav: Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness](#agenticnav-zero-shot-vision-and-language-navigation-as-a-tool-calling-harness) | 2026 | R2R-CE | – | 55.0 | 48.41 | – | – | 否 | – |
+| [AgenticNav](#agenticnav) | 2026 | R2R-CE | – | 55.0 | 48.41 | – | – | 否 | – |
  | [Goal2Pixel(单目)](#goal2pixel) | 2025 | R2R-CE | LLaVA-1.5-7B | 54.1 | 52.5 | 4.85 | 59.9 | 否 | – | 
  | [MapNav(单目)](#mapnav) | 2025 | R2R-CE | LLaVA-Onevision-7B | 53.0 | 39.7 | – | – | [是](https://github.com/linglingxiansen/MapNav) | ~1M 样本 | 
  | [HSGM(单目)](#hsgm) | 2026 | R2R-CE | – | 47.9 | 32.8 | 5.42 | 58.7 | [是](https://github.com/Teacher-Tom/HSGM_public) | – | 
@@ -6791,7 +6791,7 @@ CorrectNav 在仅使用单目 RGB 的前提下，不仅刷新了单目 VLA 模�
 
 ---
 
-## 64. ALL-DAY MULTI-SCENE LIFELONG VISION-AND-LANGUAGE NAVIGATION WITH TUCKER ADAPTATION (2026) {#all-day-multi-scene-lifelong-vision-and-language-navigation-with-tucker-adaptation}
+## 64. TuckerNav (2026) {#tuckernav}
 ———面向全天候多场景终身具身视觉语言导航的 Tucker 张量自适应
 
 📄 **Paper**: [arXiv:2603.14276](https://arxiv.org/abs/2603.14276) · 🏛️ **ICLR 2026**
@@ -6913,7 +6913,7 @@ $$\mathcal{L}_t = -\lambda \sum_{n=1}^N \log p_t(A_n, \hat{P}_n \mid I, \mathcal
 
 ---
 
-## 65. AgenticNav: Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness (2026) {#agenticnav-zero-shot-vision-and-language-navigation-as-a-tool-calling-harness}
+## 65. AgenticNav (2026) {#agenticnav}
 ———将零样本连续环境导航（VLN-CE）重构为 VLM 可调用的 Tool-Calling 架构
 
 📄 **Paper**: [arXiv:2606.10577](https://arxiv.org/abs/2606.10577)
@@ -7028,7 +7028,7 @@ AgenticNav 由 **VLM 决策核心** 与 **四个确定性 Tool 接口** 组成�
 
 ---
 
-## 66. ABot-AgentOS: A General Robotic Agent OS with Lifelong Multi-modal Memory (2026) {#abot-agentos-a-general-robotic-agent-os-with-lifelong-multi-modal-memory}
+## 66. ABot-AgentOS (2026) {#abot-agentos}
 ———面向具身智能的通用机器人 Agent 操作系统与终身多模态记忆系统
 
 📄 **Paper**: [arXiv:2607.10350](https://arxiv.org/abs/2607.10350) · [Project Page](https://amap-cvlab.github.io/ABot-AgentOS)
@@ -7158,7 +7158,7 @@ Agent Harness 改变了传统单模型控制器的设计，将 Agent 调度划�
 | **ICRA** | [NoMaD](#nomad) (2024)、[VLFM](#vlfm) (2024)、[Open-Nav](#open-nav) (2025)、[StreamVLN](#streamvln) (2026) |
 | **AAAI** | [NavGPT](#navgpt) (2024)、[ODYSSEY](#odyssey) (2026)、[R³](#r3) (2026)、[PanoNav](#panonav) (2026, Poster) |
 | **CVPR** | [VLN-Imagine](#vln-imagine) (2025)、[Slow4fast-VLN](#slow4fast-vln) (2026)、[AwareVLN](#awarevln) (2026) |
-| **ICLR** | [NavFoM](#navfom) (2026)、[JanusVLN](#janusvln) (2026)、[OmniNav](#omninav) (2026, Poster)、[ALL-DAY MULTI-SCENE LIFELONG VISION-AND-LANGUAGE NAVIGATION WITH TUCKER ADAPTATION](#all-day-multi-scene-lifelong-vision-and-language-navigation-with-tucker-adaptation) (2026) |
+| **ICLR** | [NavFoM](#navfom) (2026)、[JanusVLN](#janusvln) (2026)、[OmniNav](#omninav) (2026, Poster)、[TuckerNav](#tuckernav) (2026) |
 | **ICCV** | [VLN-PE](#vln-pe) (2025) |
 | **ACL** | [MapNav](#mapnav) (2025) |
 | **期刊** | [GaussNav](#gaussnav) (IEEE TPAMI 2025)、[CausalNav](#causalnav) (IEEE RA-L)、[Skill-Nav](#skill-nav) (Vicinagearth / Springer 2025)、[CA-VLN](#ca-vln) (Sensors 2026)、[R2RIE-CE & IEDL](#r2rie-ce-iedl) (ROMAN 2024) |
@@ -7226,9 +7226,9 @@ Agent Harness 改变了传统单模型控制器的设计，将 Agent 调度划�
 59. **ABot-N1** (2026). 基于慢速认知与快速控制双系统架构的通用视觉语言导航基础模型. arXiv: [2607.10383](https://arxiv.org/abs/2607.10383)
 60. **ReflectVLN** (2026). 基于反思推理与双向交互机制的具身视觉语言导航. arXiv: [2607.12680](https://arxiv.org/abs/2607.12680)
 61. **CorrectNav** (2025). 自纠错飞轮赋能的单目 RGB 视觉-语言-动作导航模型. arXiv: [2508.10416](https://arxiv.org/abs/2508.10416)
-62. **ALL-DAY MULTI-SCENE LIFELONG VISION-AND-LANGUAGE NAVIGATION WITH TUCKER ADAPTATION** (2026). 面向全天候多场景终身具身视觉语言导航的 Tucker 张量自适应. arXiv: [2603.14276](https://arxiv.org/abs/2603.14276)
-63. **AgenticNav: Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness** (2026). 将零样本连续环境导航（VLN-CE）重构为 VLM 可调用的 Tool-Calling 架构. arXiv: [2606.10577](https://arxiv.org/abs/2606.10577)
-64. **ABot-AgentOS: A General Robotic Agent OS with Lifelong Multi-modal Memory** (2026). 面向具身智能的通用机器人 Agent 操作系统与终身多模态记忆系统. arXiv: [2607.10350](https://arxiv.org/abs/2607.10350)
+62. **TuckerNav** (2026). 面向全天候多场景终身具身视觉语言导航的 Tucker 张量自适应. arXiv: [2603.14276](https://arxiv.org/abs/2603.14276)
+63. **AgenticNav** (2026). 将零样本连续环境导航（VLN-CE）重构为 VLM 可调用的 Tool-Calling 架构. arXiv: [2606.10577](https://arxiv.org/abs/2606.10577)
+64. **ABot-AgentOS** (2026). 面向具身智能的通用机器人 Agent 操作系统与终身多模态记忆系统. arXiv: [2607.10350](https://arxiv.org/abs/2607.10350)
 
 
 <script>
@@ -7296,9 +7296,9 @@ Agent Harness 改变了传统单模型控制器的设计，将 Agent 调度划�
         { m: 'ABot-N1',               t: ['双系统', 'CoT', '强化学习', '实机部署'] },
         { m: 'ReflectVLN',            t: ['双系统', 'Agentic', 'CoT', '连续环境'] },
         { m: 'CorrectNav',            t: ['端到端', '连续环境', '实机部署'] },
-        { m: 'ALL-DAY MULTI-SCENE LIFELONG VISION-AND-LANGUAGE NAVIGATION WITH TUCKER ADAPTATION', t: ['连续环境', '加速优化'] },
-        { m: 'AgenticNav: Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness', t: ['Agentic', '零样本', '连续环境', '实机部署'] },
-        { m: 'ABot-AgentOS: A General Robotic Agent OS with Lifelong Multi-modal Memory', t: ['Agentic', '拓扑图', '实机部署'] },
+        { m: 'TuckerNav', t: ['连续环境', '加速优化'] },
+        { m: 'AgenticNav', t: ['Agentic', '零样本', '连续环境', '实机部署'] },
+        { m: 'ABot-AgentOS', t: ['Agentic', '拓扑图', '实机部署'] },
     { m: 'VLN-CE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'VLN-PE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'RynnBrain',         t: ['基础工作'] },
