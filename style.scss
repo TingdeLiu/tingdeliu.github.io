@@ -1156,6 +1156,7 @@ nav {
     display: flex;
     align-items: center;
     gap: 4px;
+    min-width: 0;
     margin: 0;
     font-size: 13px;
   }
@@ -1174,6 +1175,25 @@ nav {
     &.is-current {
       color: $link-color;
       background: $link-bghv-color;
+    }
+  }
+
+  a.article-toc-star {
+    margin-left: 2px;
+    padding-right: 6px;
+    padding-left: 6px;
+    color: $oc-yellow-9;
+    background: rgba($oc-yellow-0, 0.72);
+    box-shadow: inset 0 0 0 1px rgba($oc-yellow-5, 0.34);
+    white-space: nowrap;
+    transition: color 150ms ease, background-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+
+    &:hover,
+    &:focus-visible {
+      color: $oc-yellow-9;
+      background: $oc-yellow-1;
+      box-shadow: inset 0 0 0 1px rgba($oc-yellow-6, 0.48);
+      transform: translateY(-1px);
     }
   }
 }
@@ -1482,6 +1502,25 @@ nav {
 
   .article-toc {
     width: calc(100vw - 28px);
+  }
+
+  .article-toc-nav {
+    padding-right: 10px;
+    padding-left: 14px;
+
+    nav {
+      gap: 0;
+      font-size: 12px;
+    }
+
+    a {
+      padding-right: 6px;
+      padding-left: 6px;
+    }
+
+    a.article-toc-star {
+      margin-left: 0;
+    }
   }
 
   .article-toc-trigger {
