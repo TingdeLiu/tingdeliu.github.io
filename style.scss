@@ -511,27 +511,27 @@ nav {
   }
 
   .container {
-    max-width: 1208px;
+    max-width: 1128px;
     padding: 52px 24px 80px;
   }
 }
 
 .article-page.has-article-toc {
   .container {
-    max-width: 1160px;
+    max-width: 1080px;
     padding: 72px 0 80px;
   }
 }
 
 .article-reading-shell {
   width: 100%;
-  max-width: 1208px;
+  max-width: 1128px;
   min-height: 100vh;
   margin: 0 auto;
   padding: 0 24px;
 }
 
-// Dense prose stays readable while visual material can use the full canvas.
+// Keep prose and visual material on one calm, consistent reading axis.
 .article-page {
   .posts > h1,
   .post-meta,
@@ -551,14 +551,14 @@ nav {
   #disqus_thread,
   #gitalk-container {
     width: 100%;
-    max-width: 920px;
+    max-width: 1080px;
     margin-left: auto;
     margin-right: auto;
   }
 
   .pagination {
     display: block;
-    max-width: 920px;
+    max-width: 1080px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -568,7 +568,7 @@ nav {
   .entry > div[align="center"],
   .entry > .mermaid {
     width: 100%;
-    max-width: 1160px;
+    max-width: 1080px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -1433,9 +1433,9 @@ nav {
 @media screen and (min-width: 1360px) {
   .article-reading-shell {
     display: grid;
-    grid-template-columns: 280px minmax(0, 1160px);
+    grid-template-columns: 280px minmax(0, 1080px);
     gap: 40px;
-    max-width: 1528px;
+    max-width: 1448px;
   }
 
   .article-page.has-article-toc .container {
