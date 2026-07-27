@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "深度学习综述"
-date: 2026-06-24
+date: 2026-07-27
 tags: [Deep Learning, Neural Network, Optimization, Training, AI, Transformer, GNN, LLM, MoE, LoRA, Diffusion, GAN, VAE, RLHF, Mamba, SSM]
 categories: research
 comments: true
@@ -16,6 +16,11 @@ excerpt: "深度学习是当代人工智能的核心驱动力。本文系统梳�
 深度学习（Deep Learning）是以多层神经网络为核心的机器学习方法，自 2012 年 AlexNet 在 ImageNet 挑战赛上以巨大优势击败传统方法以来，深度学习席卷了计算机视觉、自然语言处理、语音识别等几乎所有人工智能领域。今天，GPT、BERT、Stable Diffusion、AlphaFold 等划时代系统，无一不建立在深度学习的基础之上。
 
 深度学习之所以强大，在于它能够从原始数据（像素、词语、信号）中自动学习多层次的抽象特征表示，无需人工设计特征工程。然而，训练一个高性能的深层网络并非易事——梯度消失、过拟合、学习率调节等问题长期困扰着研究者，由此催生了一整套系统性的训练技巧。
+
+<div align="center">
+  <img src="/images/DL/deep-learning-overview.jpg" width="80%" alt="深度学习网络架构与生态系统全景" />
+  <figcaption>图 1.1：深度学习网络架构与应用生态系统全景示意图</figcaption>
+</div>
 
 理解深度学习，需要同时把握两个层面：**架构设计**（网络如何搭建）和**训练方法**（网络如何有效优化）。两者缺一不可。只知道搭积木式地堆叠网络层，而不理解每个训练技巧解决的是什么问题，往往会陷入"加了 Dropout 反而更差"或"换了 Adam 没有任何改善"的困境。
 
