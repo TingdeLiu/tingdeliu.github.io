@@ -64,57 +64,77 @@ TTT（Yu Sun et al., 2024）提出了一个颠覆性的视角：**为什么要�
 
 ## 3. 核心机制拆解：TTT 模块如何将 History 压缩进 Fast Weights
 
-### 3.1 概念区分：Slow Weights（慢权重）与 Fast Weights（快权重）
+### 3.1 先记住一句话：把“存历史”变成“在线学习历史”
 
-RoboTTT 架构中存在两套分工明确的权重体系：
-* **Slow Weights（慢权重 $$\theta$$）**：包含 VLM 编码器、DiT 的 Attention/MLP 图层、投影矩阵 $$\theta_Q, \theta_K, \theta_V$$ 以及快权重的初始化 $$\mathbf{W}_0$$。**仅在离线训练阶段更新**，推断部署时完全冻结。
-* **Fast Weights（快权重 $$\mathbf{W}_t$$）**：嵌入在 DiT 每层后面的小型神经网络（RoboTTT 中采用 2 层 MLP $$f_{\mathbf{W}}$$）的参数。**在训练和测试部署阶段，随每个时间步 $$t$$ 的新数据流入在线实时更新**。
+传统 Transformer 的做法像是把每一帧都装进档案柜：需要回忆时，再回头翻阅越来越厚的历史记录。RoboTTT 换了一种思路：**不长期保留每一帧的原始记录，而是让一个固定大小的小网络边看边学，把历史对当前任务有用的规律写进它的参数。**
 
-### 3.2 写入/压缩（Update Step）：梯度下降作为在线自监督压缩器
+可以把两套权重想成“教科书”和“临时草稿纸”：
 
-在时间步 $$t$$，策略接收到由前级图层投影产生的 Key 向量 $$\mathbf{K}_t$$ 和 Target Value 向量 $$\mathbf{V}_t$$。TTT 模块通过计算快模型预测值与目标值之间的自监督均方误差损失（MSE Loss）：
+* **Slow Weights（慢权重 $$\theta$$）= 教科书**：包含 VLM 编码器、DiT 主干、投影层以及快权重的初始值 $$\mathbf{W}_0$$。它们在离线训练中学到通用能力，机器人部署后保持冻结。
+* **Fast Weights（快权重 $$\mathbf{W}_t$$）= 临时草稿纸**：它们是一个小型快模型（RoboTTT 使用 2 层 MLP $$f_{\mathbf{W}}$$）的参数。每来一个新的时间步，草稿纸上的数值都会被轻微改写。
+
+这张“草稿纸”的尺寸始终不变，变化的是纸上的内容。因此，走到第 8000 步时，系统持有的不是 8000 张原始画面，而是一份经过 8000 次更新的参数状态 $$\mathbf{W}_{8000}$$。
+
+> **重要边界**：快重不是逐帧无损录像，也不能保证完整复原任意一帧。它更像一份固定容量、为当前任务优化的“经验摘要”；持续写入时可能发生信息覆盖或干扰。
+
+### 3.2 写历史（Update Step）：在草稿纸上改几笔
+
+假设机器人走到第 $$t$$ 步，刚看到画面 $$x_t$$ 并获得当前动作与状态信息。模型先把这些信息投影成两组向量：
+
+* **Key（$$\mathbf{K}_t$$）**：可理解为这一条记忆的“线索”；
+* **Value（$$\mathbf{V}_t$$）**：希望快模型在看到该线索时能够表达出的“内容”。
+
+这里的 Key 和 Value 不是人类写出的自然语言问题与答案，而是主网络学习得到的高维特征。
+
+写入过程可以拆成四步：
+
+1. 把 Key $$\mathbf{K}_t$$ 输入上一步的快模型 $$f_{\mathbf{W}_{t-1}}$$；
+2. 比较模型预测与目标 Value $$\mathbf{V}_t$$ 的差距；
+3. 根据差距计算梯度；
+4. 对快权重做一次小幅更新，得到 $$\mathbf{W}_t$$。
+
+对应的自监督损失为：
 
 $$\mathcal{L}_{\text{FW}}(f_{\mathbf{W}_{t-1}}(\mathbf{K}_t), \mathbf{V}_t) = \lVert f_{\mathbf{W}_{t-1}}(\mathbf{K}_t) - \mathbf{V}_t \rVert^2$$
 
-接着，利用梯度下降（Gradient Descent）在线更新快权重：
+快权重的更新为：
 
 $$\mathbf{W}_t = \mathbf{W}_{t-1} - \eta \nabla_{\mathbf{W}} \mathcal{L}_{\text{FW}}(f_{\mathbf{W}_{t-1}}(\mathbf{K}_t), \mathbf{V}_t)$$
 
-其中 $$\eta$$ 为可学习的快学习率（Learnable Learning Rate）。
+其中 $$\eta$$ 是可学习的快学习率。完成这一步后，当前帧不需要再作为长期历史项追加到 TTT 的记忆中；它对后续决策有用的模式，已经通过这次梯度更新影响了 $$\mathbf{W}_t$$。
 
-> **💡 直观理解**：这一步的本质是把全新的键值关联 $$(\mathbf{K}_t, \mathbf{V}_t)$$ 当作一个训练样本，对快模型 $$f_{\mathbf{W}}$$ 运行一次在线梯度更新。随着时间步 $$t=1, 2, \dots, T$$ 的推进，快权重 $$\mathbf{W}_t$$ 像一块海绵一样，将过往所有时间步的交互轨迹模式“训练”并高密度压缩进了自身的 MLP 参数空间中。
+> **草稿纸比喻**：先拿旧草稿纸回答一道题，再用“答错了多少”决定该擦掉哪里、补写哪里。纸没有变厚，但纸面内容因为新经历发生了变化。这就是“把历史压缩进快重”。
 
-### 3.3 读取/检索（Apply Step）：用 Query 快速查询隐式记忆
+### 3.3 读历史（Apply Step）：拿当前问题去问草稿纸
 
-在更新完快权重生成最新的 $$\mathbf{W}_t$$ 之后，TTT 模块执行 Apply 步骤：将当前时间步的 Query 向量 $$\mathbf{Q}_t$$ 输入到更新后的快模型 $$f_{\mathbf{W}_t}$$ 中：
+写入完成后，模型还要立即使用这份最新记忆。它把当前的 Query 向量 $$\mathbf{Q}_t$$ 输入更新后的快模型：
 
 $$O_t = f_{\mathbf{W}_t}(\mathbf{Q}_t)$$
 
-这一步的本质，相当于用当前的决策提问 $$\mathbf{Q}_t$$ 向快神经网络询问：“根据你在过去数千步交互中内化压缩的所有经验，此时此刻我应该提取什么样的历史关联特征？”
+Query 可以理解为“此刻做决策需要什么信息”，输出 $$O_t$$ 则是受历史影响的特征。注意，这不是从缓存里找回某一张原始画面，而是让已经吸收历史模式的快模型，根据当前需求生成一个有用的历史条件表示。
 
-为了更直观地理解这一双重逻辑，我们可以通过下图清晰看出 TTT 在单个时间步内“写入”与“读取”数据流的分工：
+<div align="center">
+  <img src="/images/vla/RoboTTT-fast-weights-scratchpad.png" width="100%" />
+<figcaption>RoboTTT 的直观过程：新观测通过梯度更新写入固定大小的快重，再由 Query 读取历史条件特征</figcaption>
+</div>
 
-```mermaid
-graph TD
-    subgraph UpdateStep["写入 / 压缩 (Update Step)"]
-        K["Key 向量 K_t"] --> FM["快模型预测 f_W(K_t)"]
-        V["Target Value 向量 V_t"] --> Loss["自监督 MSE Loss: ||f_W(K_t) - V_t||²"]
-        FM --> Loss
-        Loss --> Grad["在线梯度下降: -η ∇_W Loss"]
-        Grad --> UpdateW["生成最新快权重 W_t"]
-    end
-    
-    subgraph ApplyStep["读取 / 检索 (Apply Step)"]
-        Q["Query 向量 Q_t"] --> FM_New["更新后的快模型 f_W_t(Q_t)"]
-        UpdateW -. "载入最新快权重 W_t" .-> FM_New
-        FM_New --> Out["历史记忆输出 O_t"]
-    end
+把两种记忆方式放在一起看，差别会更清楚：
 
-    style UpdateStep fill:#f9f9fb,stroke:#4a90e2,stroke-width:2px
-    style ApplyStep fill:#f0fff4,stroke:#38a169,stroke-width:2px
+```text
+传统 KV Cache：
+Step 1 特征 ─┐
+Step 2 特征 ─┼─> 历史缓存不断变长 ─> 每一步都要面对更长的历史
+...          │
+Step T 特征 ─┘
+
+RoboTTT：
+Step 1 ─> 更新 W₀ 得到 W₁ ─> 不把原始帧追加进长期缓存
+Step 2 ─> 更新 W₁ 得到 W₂ ─> 不把原始帧追加进长期缓存
+...
+Step T ─> 更新 Wₜ₋₁ 得到 Wₜ ─> 用 Query 读取 Wₜ
 ```
 
-由于快模型只是一个极小型的 2 层 MLP，前向传播耗时极短且完全固定，因此**无论历史交互长达 100 步还是 8000 步，检索计算延迟始终恒定在毫秒级**。
+由于快模型的参数量和网络深度是固定的，**TTT 记忆状态的大小，以及单次读写相对于历史长度的开销，不会因为历史从 100 步增长到 8000 步而继续膨胀**。这里的“固定”特指 TTT 记忆模块相对历史长度的复杂度，并不意味着整套 VLA 系统的所有计算和显存开销都为零或绝对不变。
 
 ### 3.4 为什么非线性 MLP 快模型（TTT-MLP）优于线性快模型（TTT-Linear）？
 
