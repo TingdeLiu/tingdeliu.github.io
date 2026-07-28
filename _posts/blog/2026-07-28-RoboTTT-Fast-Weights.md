@@ -148,31 +148,36 @@ RoboTTT 将空间跨模态融合与时间维度演化进行明确分工：
 下图展现了单个时间步多模态数据输入经由 Register Tokens 压缩，再到空间与时间解耦处理的完整流向：
 
 ```mermaid
-flowchart LR
-    subgraph Input["时间步 t 输入"]
-        Img["RGB 视觉帧 o_t"]
-        Prop["本体感知 q_t"]
-        Act["加噪动作 A~_t"]
-        Reg["16个 Register Tokens R_t"]
-    end
-
-    subgraph Spatial["空间多模态融合 (Spatial Attn)"]
-        Img --> VLM["VLM Encoder"] --> PatchTokens["Patch Tokens Φ_t"]
-        PatchTokens --> CrossAttn["Cross-Attention"]
-        Reg --> CrossAttn
+flowchart TD
+    subgraph Step1["阶段 1：多模态输入与 Register Tokens 空间压缩"]
+        Img["RGB 视觉帧 o_t"] --> VLM["VLM Encoder"] --> PatchTokens["Patch Tokens Φ_t"]
+        Reg["16个 Register Tokens R_t"] --> CrossAttn["Cross-Attention 空间压缩"]
+        PatchTokens --> CrossAttn
         CrossAttn --> CompressedReg["压缩后的 Register Tokens R_t"]
-        Prop & Act & CompressedReg --> DiTAttn["DiT Self/Cross-Attention"]
     end
 
-    subgraph Temporal["时间维度演化 (Temporal TTT)"]
+    subgraph Step2["阶段 2：单时间步 DiT 空间注意力融合 (Spatial Attn)"]
+        Prop["本体感知 Token q_t"]
+        Act["加噪动作 Token A~_t"]
+        CompressedReg & Prop & Act --> DiTAttn["DiT Self/Cross-Attention (空间融合)"]
+    end
+
+    subgraph Step3["阶段 3：跨时间步 TTT 演化与快权重更新 (Temporal TTT)"]
         DiTAttn --> Concat["沿时间轴 Flatten 拼接"]
-        Concat --> TTTLayer["TTT Layer (Fast Weights W_t)"]
-        TTTLayer --> Gated["Tanh 门控融合"]
+        Concat --> TTTLayer["TTT Layer (Fast Weights W_t 在线更新)"]
+        TTTLayer --> Gated["Tanh 门控融合 O_TTT + O_attn"]
     end
 
-    subgraph Output["动作预测"]
+    subgraph Step4["阶段 4：动作生成与预测 (Action Prediction)"]
         Gated --> ActionHead["Flow-Matching Action Head"] --> ActionChunk["动作 Chunk A_t"]
     end
+
+    Step1 --> Step2 --> Step3 --> Step4
+
+    style Step1 fill:#f0f4f8,stroke:#3182ce,stroke-width:2px
+    style Step2 fill:#f7fafc,stroke:#4a5568,stroke-width:2px
+    style Step3 fill:#fff5f5,stroke:#e53e3e,stroke-width:2px
+    style Step4 fill:#f0fff4,stroke:#38a169,stroke-width:2px
 ```
 
 ### 4.3 Tanh 门控机制：保护预训练 VLA 的基础能力
