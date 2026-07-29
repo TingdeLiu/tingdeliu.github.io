@@ -22,7 +22,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 | 模型 | 年份 | 基准 | 基模 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 开源 |
 |:-----|:----:|:----:| :--------: |:----:|:-----:|:----:|:-----:|:----:|
- | [Robostral Navigate(单目)](#robostral-navigate) | 2026 | R2R-CE | Mistral-8B | **76.6** | **73.7** | **3.25** | **80.8** | 否 |
+ | [Robostral Navigate(单目)](#robostral-navigate) | 2026 | R2R-CE | Mistral-8B | **77.4** | **74.2** | **3.20** | **81.3** | 否 |
  | [Qwen-RobotNav(全景)](#qwen-robotnav) | 2026 | R2R-CE | Qwen3-VL-7B | 72.1 | 66.6 | 3.53 | 78.5 | 否 |
 | [ABot-N1(三相机)](#abot-n1) | 2026 | R2R-CE | Qwen-3.5-4B + 2B | 70.9 | 67.5 | 3.32 | 75.2 | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) |
  | [OmniNav(多目)](#omninav) | 2026 | R2R-CE | Qwen2.5-VL-3B | 69.5 | 66.1 | 3.74 | 74.6 | [是](https://github.com/amap-cvlab/OmniNav) |
@@ -152,7 +152,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 | 排名 | 前列模型名称 | R2R-CE SR ↑ | 堆数据 (数据量≥1M) | 堆相机 (多目/全景) | 快慢双系统 (Decoupled) | Agentic (Agent范式) | 像素 Grounding (u,v) | 末层回归头 / 流匹配 | 强化学习 (GRPO/CISPO) | DAgger / 偏航注入 | 前缀/KV Cache 压缩 | 开源权重 / 代码 |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 1 | **Robostral Navigate** | **76.6%** | ✓ | – | – | – | ✓ | ✓ | ✓ | – | ✓ | – |
+| 1 | **Robostral Navigate** | **77.4%** | ✓ | – | – | – | ✓ | ✓ | ✓ | – | ✓ | – |
 | 2 | **Qwen-RobotNav (全景)**| **72.1%** | ✓ | ✓ | ✓ | ✓ | ✓ | – | – | – | – | – |
 | 3 | **ABot-N1 (三相机)** | **70.9%** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | – | ✓ |
 | 4 | **OmniNav (多目)** | **69.5%** | ✓ | ✓ | ✓ | ✓ | – | ✓ | – | – | ✓ | ✓ |
@@ -6691,167 +6691,187 @@ $$v_{t+H} = \text{clip}\left( 1 - \frac{\lVert p_{\text{end}} - p_t \rVert_2}{d_
 
 
 ## 58. Robostral Navigate (2026) {#robostral-navigate}
-———Single-camera AI Navigation for Embodied Robots
+———仅需单目 RGB 相机的 8B 视语言导航大模型：超高效仿真训练与在线强化学习
 
-📄 **Paper**: [Blog Post](https://mistral.ai/news/robostral-navigate/) · [Project Page](https://mistral.ai/news/robostral-navigate/)
+📄 **Paper**: [arXiv:2607.20785](https://arxiv.org/abs/2607.20785) · [Project Page](https://mistral.ai/news/robostral-navigate)
+
+---
 
 ### 精华
 
-Mistral AI 推出的 Robostral Navigate 8B 是具身智能导航领域的里程碑式工作。它向传统导航堆栈（严重依赖昂贵的激光雷达、双目相机或深度传感器）发起挑战，证明了**仅用单一普通 RGB 摄像头（单目视觉）**即可在未知连续环境（Continuous Environments）中实现超越多传感器方案的 SOTA 导航性能。
-
-其成功归功于三大支柱性技术设计：
-1. **基于图像坐标的指向性（Pointing-based）控制与局部度量位移混合决策**：通过直接预测图像空间中的像素坐标来指定目标路标（Waypoint），从而在本质上规避了对相机畸变、内参变化和物理空间尺度的敏感性；当目标位于视野外时则以自适应退化为局部局部系位移（Displacement）进行控制。
-2. **基于前缀缓存与树状注意力掩码的高效监督训练（Tree Training）**：将整个导航 Episode 压缩为单条 DFS（深度优先搜索）序列并打包（Packing），使用树状注意力掩码（Tree-based Attention Mask）和基于树深度的位置编码，在单次 Forward 前向传播中同时训练 Episode 内的所有时间步。该机制保留了完整的时序梯度信号，并消除了共享前缀（如指令与早期观测）的重复计算，实现了**22倍训练 token 的极高压缩率**。
-3. **初始化自目标定位（Grounding）专用 VLM 与在线强化学习（CISPO）微调**：将导航理解为“定位物体”与“朝物体移动”的连续统一，利用 Grounding 专用基础模型强悍的语义理解与边界框预测能力实现零样本语义冷启动；并在仿真环境中生成 40 万条轨迹后，进一步采用 CISPO 在线强化学习算法微调，使得模型获得极强的碰撞恢复、避障与行为勘探能力，大幅提高了实际部署的成功率。
-
----
-
-### 1. 研究背景与核心问题
-
-传统的机器人自主导航通常建立在传统的制图与定位框架之上（如 SLAM），或者依赖于复杂的硬件配置：
-- **硬件冗余与成本高昂**：多线 LiDAR、双目视觉和深度相机（RGB-D）不仅大幅提高了移动机器人的制造成本，其高昂的能耗也严重制约了轻量化设备（如足式机器人、微型无人机）的续航能力。
-- **经典度量式端到端方法的漏洞**：许多深度学习端到端导航模型（如基于行为克隆的模型）试图直接预测机器人的三维物理坐标控制指令。然而，这种“度量控制”（Metric Control）高度依赖精确的相机内参标定和确定的物理尺度。一旦相机产生轻微偏移、镜头被污染变形、或模型迁移到轮径与速度不同的新机器人平台上，预测精度就会断崖式下跌。
-- **长轨迹训练的算力红墙**：视觉-语言导航（VLN）和视觉-语言-动作（VLA）模型需要长程的时序序列作为输入。如果在每个时间步都将完整的“历史轨迹 + 当前观测”作为独立样本输入网络，会导致严重的前缀信息冗余。对于一个长度为 $T$ 的 Episode，传统训练方式将重复计算固定指令与早期帧的激活值，造成巨大的算力浪费和显存开销。
+1. **单目 RGB 极简感知架构**：Robostral Navigate 彻底打破对深度传感器（RGB-D）、LiDAR、多视角相机阵列或预建地图的依赖，仅以单目 RGB 图像流为输入，在图像空间直接预测 Pointing 坐标（像素坐标）与航向角变化，解耦物理几何与硬件内参约束，实现跨异构机器人的零样本迁移。
+2. **高低层解耦分级控制**：采用“8B VLM 视语言推理（0.5 Hz 预测 Waypoint）+ 121M 扩散策略（10 Hz 生成动作块）+ 机器人底盘控制器（100 Hz 输出电机指令）”的分级控制管线，兼顾高层复杂语义规划与低层连续几何避障。
+3. **Prefix-Tree 树状注意力加速 SFT (Tree Training)**：提出 Episode Packing 与前缀树 Attention Mask 机制，单 Forward Pass 计算整条轨迹损失，保留全量 action 监督信号的同时消除共享前缀的重复编码，**将训练 Token 消耗降低 22 倍**，训练时间从数月缩短至几天。
+4. **在线 RL (CISPO) 与 Hard Subsets 强化探索**：基于 2.4M 仿真轨迹完成 SFT 后，利用 CISPO 算法在 35k 困难任务子集中进行在线强化学习，配合截断目标距离奖励 $- \max(2, \text{dist\_to\_goal})$，有效解决行为克隆的 Exposure Bias 与概率偏移，显著提振复杂场景探索与错误恢复能力。
+5. **单目 RGB 刷新 SOTA**：在 R2R-CE Unseen 达到 **77.4% SR / 74.2% SPL**，RxR-CE Unseen 达到 **75.1% SR / 68.7% SPL**，不仅大幅碾压所有单相机方法，甚至全面超越了依赖深度相机及多视角全景的顶尖导航系统（如 Qwen-RobotNav-8B）。
 
 ---
 
-### 2. 主要方法与架构设计
+### 1. 研究背景/问题
 
-#### 2.1 基于指向（Pointing-based）的混合控制系统
+- **感知与硬件部署门槛**：现有顶尖具身导航（VLN/VLA）系统普遍依赖深度相机（RGB-D）、LiDAR、多视角全景相机阵列或预先构建的环境地图。额外的传感器不仅大幅增加了单机制造成本与能耗，还需要复杂精密的传感器校准，严重限制了导航策略在轮式、足式及无人机等多元异构机器人上的快速部署与大规模泛化。
+- **物理坐标强耦合的脆性**：传统的端到端导航模型试图直接预测机器人在三维物理空间中的绝对度量坐标（Metric Displacement）。然而，这种度量控制高度依赖相机内参标定与确定的物理尺度。一旦相机安装仰角改变、透镜磨损或迁移到形态不同的机器人平台上，预测精度便会断崖式下降。
+- **长轨迹训练的 Token 暴涨**：在连续环境长行程导航任务中，传统行为克隆（SFT）训练将每个时间步作为独立样本输入，导致历史帧被重复前向编码。对于长度为 $T$ 的 Episode，Token 复杂度呈 $\mathcal O(T^2)$ 级数增长，造成巨大的算力浪费；且单靠 SFT 容易陷入 Exposure Bias 与 Covariate Shift，缺乏探索与死角复原能力。
+- **核心动机**：构建一种**极简感知（单目 RGB）**、**可扩展（跨硬件形态零样本迁移）**、**高效训练（纯仿真数据 + 22x Token 压缩 + 在线 RL）** 的通用具身导航 Recipe。
 
-Robostral Navigate 的核心构想是打破绝对物理尺度的束缚，采用了一种极具创意的**双模态动作表示形式**：
+---
 
-1. **视野内指向控制（Pointing Action）**：
-   - 只要目标区域或下一个导航路标（Waypoint）处于当前相机的视野（FOV）内，模型就不会直接计算真实的物理距离。相反，它直接预测目标在当前图像坐标系下的像素位置 $(u, v)$（在 2D 图像平面上“指一指”），并预测到达那里的目标朝向 $\theta$。
-   - 图像上的点坐标被映射为特定的文本坐标 Token（例如类似 Grounding 模型中的 `[u, v]` 离散化表示）。机器人控制底盘时，可通过单目相机几何投影或局部视差估计（例如结合内部深度估计模型，或者在无深度时结合瞬时地平线投影）自适应调节运动，使得控制策略天然对相机的物理参数不敏感。
-2. **视野外度量位移控制（Displacement Action）**：
-   - 当导航路线被墙壁遮挡、需要转弯，或者目标路标完全在当前相机盲区（视野外）时，Pointing-based 控制无法使用。
-   - 模型会自动切换至**度量位移机制**，输出在机器人当前局部坐标系（Local Robot Frame）下的三维动作向量 $\Delta \mathbf{x} = (\Delta x, \Delta y, \Delta \theta)$。这一备份机制使得机器人能够平稳渡过无直接视觉路标的转弯和盲区。
+### 2. 主要方法/创新点
+
+#### ① 整体框架概述
+Robostral Navigate 采用高层语义推理与低层几何控制解耦的双系统架构。系统由 8B 参数的 Vision-Language Model (VLM) 和 121M 参数的 Diffusion Policy 组合而成。
+- **高层 8B VLM**：以 0.5 Hz 运行，负责理解自然语言指令并基于历史 RGB 观察预测下一个 Waypoint；
+- **低层 121M Diffusion Policy**：以 10 Hz 运行，根据 Waypoint 与当前 RGB 观察生成局部动作块（Action Chunk，包含 30 步相对二维位移与旋转）；
+- **底盘控制器 (Motion Controller)**：以 100 Hz 运行，将动作块转换为特定硬件底盘的电机控制指令。
+
+<div align="center">
+  <img src="/images/vln/Robostral-Navigate-architecture.png" width="100%" />
+<figcaption>Robostral Navigate 整体系统架构图：VLM 预测 Waypoint，低层 Diffusion Policy 生成 10 Hz 轨迹，运动控制器驱动底盘</figcaption>
+</div>
+
+---
+
+#### ② 逐模块讲解
+
+**模块 1：基于图像空间 Pointing 与 Degree-of-Freedom 退化控制 (Robostral Navigate VLM)**
+- **输入**：自然语言导航指令 + 历史单目 RGB 帧序列 $O_0, O_1, \dots, O_t$。
+- **处理**：基座模型初始化自一个 8B 密集的 Spatial Grounding VLM（具备指向、计数与目标定位能力）。在导航时，模型优先在图像空间预测当前视角下可见的最远轨迹点的像素坐标 $(u, v)$，以及到达该点时的航向角变化 $\Delta \theta$（相对当前帧的 Yaw 旋转）。
+- **输出**：
+  - **视野内指向控制 (Pointing Mode)**：预测 5 维元组 $a_{\mathrm{vis}} = (u, v, \Delta x, \Delta y, \Delta \theta)$，其中度量位移 $(\Delta x, \Delta y, \Delta \theta)$ 作为联合训练的辅任务。
+  - **视野外度量退化 (Displacement Fallback Mode)**：当目标不在当前视野内（如需大角度掉头或绕过墙角遮挡），模型省略图像坐标，降级预测 3 维局部位移 $a_{\mathrm{invis}} = (\Delta x, \Delta y, \Delta \theta)$。
+  - **终止控制**：到达终点时输出 STOP 标记。
+- **设计动机**：在图像空间做 Pointing 指向天然解耦了相机的物理高度、倾角与内参差异，避免绑定特定的机器人几何尺寸。同时，利用 Grounding 专用基础模型强悍的语义理解与边界框预测能力实现冷启动——“理解物体在哪里”与“知道怎么走过去”在 VLM 内部多模态表征上实现了统一。
 
 ```mermaid
 graph TD
-    A[输入: 当前图像观测 RGB + 自然语言指令] --> B[Robostral Navigate 8B VLM]
+    A[输入: 当前图像观测 RGB + 自然语言指令] --> B[Robostral Navigate 8B VLM (0.5 Hz)]
     B --> C{目标路标是否在当前视野内?}
     C -- 是 --> D[指向控制 Pointing Action]
-    D --> D1[预测 2D 图像像素坐标 u,v]
-    D --> D2[预测目标朝向 theta]
-    C -- 否 --> E[位移控制 Displacement Action]
-    E --> E1[预测局部坐标系偏移 dx,dy,dtheta]
-    D1 & D2 & E1 --> F[底盘执行器物理控制]
+    D --> D1[预测 2D 图像像素坐标 u, v]
+    D --> D2[预测目标朝向变化 Δθ]
+    C -- 否 --> E[位移退化 Displacement Fallback]
+    E --> E1[预测局部坐标系偏移 dx, dy, dθ]
+    D1 & D2 & E1 --> F[121M Diffusion Policy (10 Hz)]
+    F --> G[100 Hz 电机控制器驱动硬件底盘]
 ```
 
-#### 2.2 目标定位（Grounding）专用 VLM 的初始化
-
-Robostral Navigate 并非从零学习空间概念。Mistral 团队将其初始化自专门用于目标指向（Object Pointing）、计数（Counting）与定位（Location）的 8B Grounding VLM。
-这让模型在启动时就具备了高精度的图像区域特征关联能力（例如将名词“第二排书架”和图像中特定的像素块关联）。因此，**自主导航在 Robostral 看来只是目标定位能力在时间序列 and 空间决策上的自然延续**——“理解物体在哪里”和“知道怎么走过去”在 VLM 内部底层的多模态表征上实现了统一。
-
-#### 2.3 基于树状注意力与前缀缓存的高效训练（Tree Training）
-
-这是 Robostral 最具技术突破性的工程贡献。为了消除监督微调（SFT）阶段对历史帧的重复前向计算，团队将导航 Episode 建模为**前缀树（Prefix Tree）**，并开发了高效的训练管线。如果希望进一步阅读关于树状注意力和前缀缓存技术的数学推导与详细实现，请参阅：[树状注意力解码：加速VLN训练](https://tingdeliu.github.io/Tree-Attention-Decoding/)。
+**模块 2：低层扩散策略轨迹生成 (Diffusion Policy)**
+- **输入**：VLM 输出的 Waypoint $a \in \{a_{\mathrm{vis}}, a_{\mathrm{invis}}\}$、机器人高度与半径先验、VLM 推理时的上下文帧 $o_{t_{\mathrm{vlm}}}$ 以及最新 RGB 帧 $o_t$（解决 VLM 延迟导致的推演滞后）。
+- **处理**：基于 121M 参数的 Lightweight Diffusion Transformer，预测未来 1 秒内 30 个连续步骤的相对二维位移与旋转量 $(\mathrm d x, \mathrm d y, \mathrm d \theta)$。
+- **输出**：10 Hz 的局部动作块（Action Chunk）。
+- **设计动机**：将连续避障与高频平滑轨迹控制剥离给小参数扩散模型，大幅减轻 8B VLM 的计算负担。
 
 <div align="center">
-  <img src="/images/llm-training/tree-training/01-baseline-vs-tree.png" width="90%" />
-  <figcaption>图 1：传统逐时间步训练（重复前向计算）与 Tree Training（共享前缀一次性计算）对比</figcaption>
+  <img src="/images/vln/Robostral-Navigate-cross-robot.png" width="100%" />
+<figcaption>跨机器人形态部署（Galaxea R1 轮式机器人与 Hiwonder JetAuto）：共享相同的 VLM 与 Diffusion Policy 权重</figcaption>
 </div>
-
-##### 2.3.1 DFS 序列化与 Causal 序列打包（Packing）
-
-设一个 Episode 长度为 $T$。其历史轨迹中，每一步的上下文都以前面所有步骤的观测为前缀。
-1. 将所有时间步的上下文拼装成一棵树，根节点 $n_0$ 为静态指令（例如 `[指令 P]`），子节点 $n_t$ 为第 $t$ 步的观测 $O_t$ 与动作 $A_t$。
-2. 对该前缀树进行深度优先搜索（DFS）遍历，得到一条扁平的 packed 序列，其物理布局为：
-   $$\text{Sequence}_{\text{packed}} = [n_0, n_1, n_2, \dots, n_T]$$
-   每一个唯一的 token（包括图像的视觉 token）在整条序列中**仅前向计算一次**。
-
-##### 2.3.2 树状注意力掩码（Tree-based Attention Mask）
-
-为了防止在单条 DFS 序列内，兄弟节点（例如在分叉搜索时的不同可能动作）或未来节点之间发生非因果性信息泄露，模型采用树状注意力掩码机制。对于 token $i$ 和 $j$，其可见性规则为：
-$$
-M_{ij} = \begin{cases} 0, & j \le i \ \land \ \operatorname{node}(j) \in \operatorname{Anc}(\operatorname{node}(i)) \\ -\infty, & \text{otherwise} \end{cases}
-$$
-其中 $\operatorname{Anc}(n)$ 表示节点 $n$ 的祖先节点集合。此掩码不仅实现了常规的因果（causal）遮蔽，更精确地阻断了物理位置处于左侧、但逻辑上属于兄弟分支或未来路径的 token。
-
-<div align="center">
-  <img src="/images/llm-training/tree-training/03-tree-attention-mask.png" width="70%" />
-  <figcaption>图 2：树状注意力掩码（Tree Attention Mask）矩阵，有效屏蔽属于兄弟分支与未来状态的 token</figcaption>
-</div>
-
-##### 2.3.3 基于树深度的位置编码（Depth-based RoPE）
-
-RoPE 位置编码不能使用 DFS 序列中的物理下标，否则会导致错误的逻辑距离感。Robostral 会根据 token 在前缀树中的**逻辑深度（Logical Depth）**分配 RoPE 位置编码：
-$$
-\operatorname{pos}(t) = \sum_{n' \in \operatorname{Anc}(n) \setminus \{n\}} |T_{n'}| + j
-$$
-这保证了位置编码与独立串行 forward 时完全一致。
-
-##### 2.3.4 路径加权损失（Path-Weighted Loss）
-
-为了在单次 forward 中保持与独立训练完全一致的梯度大小，对每个监督 token 施加权重。权重由通过该节点的有效路径数量比例决定。若总共包含 $K$ 条根到叶的路径，第 $t$ 个 token 属于 $g_t$ 条路径的前缀，则损失函数乘以权重 $g_t / K$：
-$$
-L_{\text{tree}} = \sum_t \frac{g_t}{K} \ell_t(\theta)
-$$
-这一加权保证了共享前缀在 backward 反向传播时，累积的梯度方向与多个独立样本训练后的总平均梯度在数学上完全等价。
-
-<div align="center">
-  <img src="/images/llm-training/tree-training/04-loss-equivalence.png" width="90%" />
-  <figcaption>图 3：Tree Training 的加权损失设计，使得单次 forward 的梯度与独立逐样本训练等价</figcaption>
-</div>
-
-#### 2.4 在线强化学习（CISPO）算法
-
-在监督微调（SFT）之后，模型在仿真场景中难免由于行为克隆的固有缺陷（Causal Confusion / Distribution Shift）产生碰撞或陷入死胡同。
-Robostral 采用了 **CISPO (Clipped Importance Sampling Policy Optimization)** 在线强化学习方法对 8B 模型进行了端到端微调：
-- **状态探索与恢复**：CISPO 为模型引入了勘探（Exploration）奖励。当机器人遭遇未曾见过的死角或碰壁时，惩罚其前向动作，并对成功实施“后退-重新调整朝向-从视野内找新 waypoint”的策略给予奖励。
-- **重要性权重截断**：不同于 PPO 直接对目标损失函数进行 Clipped，CISPO 作用于**重要性采样权重**的梯度项上。新旧策略比率定义为：
-  $$
-  r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}
-  $$
-  CISPO 的截断目标计算为：
-  $$
-  \nabla_\theta L_{\text{CISPO}} = \hat{\mathbb{E}}_t \left[ \min\left(r_t(\theta), \operatorname{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon)\right) \nabla_\theta \log \pi_\theta(a_t|s_t) A_t \right]
-  $$
-  这极大稳定了 8B 规模的 Embodied 大模型在连续控速环境下的强化学习收敛性，使其成功率相对 SFT 阶段再次提振了 **3.2%**。
 
 ---
 
-### 3. 核心结果与发现
+#### ③ 训练算法创新：Prefix-Tree 树状注意力加速 SFT (Tree Training)
 
-在 Room-to-Room in Continuous Environments (R2R-CE) 这一业内公认最难的真实连续运动视觉导航基准上，Robostral Navigate 的表现极其优异：
+为了消除监督微调（SFT）阶段对历史帧的重复前向计算，团队将导航 Episode 建模为**前缀树（Prefix Tree）**，并开发了高效的训练管线。
 
-#### 3.1 R2R-CE 基准性能对比
+<div align="center">
+  <img src="/images/vln/Robostral-Navigate-prefix-tree.png" width="100%" />
+<figcaption>Prefix-Tree 注意力掩码与 Episode Packing 示意图：消除冗余编码并防止 Ground-truth 动作信息泄露</figcaption>
+</div>
 
-| 模型类别 | 模型名称 | 输入模态 | 未见验证集成功率 (Unseen SR) ↑ | 路径长度加权成功率 (SPL) ↑ | 平均导航误差 (NE) ↓ | 路径方向率 (OSR) ↑ |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **单目 RGB (单相机)** | **Robostral Navigate-8B (本工作)** | **仅 RGB** | **76.6%** | **73.7%** | **3.25m** | **80.8%** |
-| 单目 RGB (单相机) | Qwen-RobotNav-8B (单目) | 仅 RGB | 66.9% | 60.5% | – | – |
-| 单目 RGB (单相机) | SEDualVLN-7B | 仅 RGB | 67.3% | 62.5% | 3.75m | 73.7% |
-| 单目 RGB (单相机) | AgentVLN-3B | 仅 RGB | 67.2% | 64.7% | – | – |
-| **多目/全景视觉** | Qwen-RobotNav-8B (全景) | 全景 RGB | 72.1% | 66.6% | 3.53m | 78.5% |
-| 多目/全景视觉 | OmniNav-3B | 多目 RGB | 69.5% | 66.1% | 3.74m | 74.6% |
-| 多目/全景视觉 | AstraNav-World-3B | 多目 RGB | 67.9% | 65.4% | – | – |
-| 多目/全景视觉 | NavFoM-7B (多视角) | 多目 RGB | 64.9% | 56.2% | – | – |
+##### 2.3.1 DFS 序列化与 Causal 序列打包 (Packing)
+标准 SFT 将长度为 $T$ 的轨迹拆分为 $T$ 个独立样本，Token 复杂度呈 $\mathcal O(T^2)$。Robostral Navigate 将整个 Episode 的历史上下文拼装成一棵前缀树（根节点为静态指令 $I$，子节点为观察 $O_t$ 与动作 $a_t$），并通过深度优先搜索（DFS）遍历打包成单条序列：
+$$\text{Sequence}_{\text{packed}} = I | O_0 | a_0 | \dots | O_n | a_n$$
+整条序列中每一个唯一的 token（包括图像视觉 Token）在单次 Forward 中**仅计算一次**，将 Token 复杂度降至 $\mathcal O(T)$。
+
+##### 2.3.2 树状注意力掩码 (Tree-based Attention Mask)
+在单条打包序列中，为了防止 Causal Attention 导致模型在训练时“预知”未来步的 Ground-truth 动作（因为 Pointing 蕴含强方向信息），设计了树状注意力掩码。对于 Token $i$ 与 Token $j$，其可见性规则为：
+$$M_{ij} = \begin{cases} 0, & j < i \ \land \ (\text{token } j \text{ 在公共 Trunk} \ \lor \ \text{token } i, j \text{ 在同一 Branch}) \\ -\infty, & \text{otherwise} \end{cases}$$
+此掩码不仅实现了因果遮蔽，更精确地阻断了兄弟分支与未来状态的信息泄露。
+
+<div align="center">
+  <img src="/images/llm-training/tree-training/03-tree-attention-mask.png" width="70%" />
+  <figcaption>树状注意力掩码（Tree Attention Mask）矩阵，有效屏蔽属于兄弟分支与未来状态的 token</figcaption>
+</div>
+
+##### 2.3.3 基于树深度的位置编码 (Depth-based RoPE)
+RoPE 位置编码不能直接使用 DFS 序列中的物理下标，否则会导致错误的逻辑距离感。Robostral 根据 Token 在前缀树中的**逻辑深度（Logical Depth）**分配 RoPE 位置编码，保证位置编码与独立串行 Forward 时完全一致。
+
+##### 2.3.4 路径加权损失 (Path-Weighted Loss)
+为保证单次 Forward 中的梯度大小与独立训练一致，对每个监督 Token 施加权重。若总共包含 $K$ 条根到叶的路径，第 $t$ 个 Token 属于 $g_t$ 条路径的前缀，则损失函数乘以权重 $g_t / K$：
+$$L_{\text{tree}} = \sum_t \frac{g_t}{K} \ell_t(\theta)$$
+这一加权保证了共享前缀在 Backward 时累积的梯度方向与多个独立样本训练后的总平均梯度在数学上完全等价。在保留全部 action 监督信号的前提下，**将训练 Token 消耗降低 22 倍**，训练时间从数月缩短至几天。
+
+---
+
+#### ④ 在线强化学习 (Online RL via CISPO)
+
+在 2.4M 仿真轨迹的 SFT 之后，模型在面对未曾见过的死角或复杂干扰时仍可能产生漂移。Robostral 采用 **CISPO (Clipped Importance Sampling Policy Optimization)** 算法进行在线端到端微调。
+
+<div align="center">
+  <img src="/images/vln/Robostral-Navigate-rl-pipeline.png" width="100%" />
+<figcaption>在线强化学习管线概览：物理仿真器、vLLM 动作生成器与分布式训练 Rank 异步协同循环</figcaption>
+</div>
+
+##### 2.4.1 CISPO 算法机制与重要性采样截断
+不同于 PPO 直接对目标损失函数进行 Clipped，CISPO 作用于重要性采样权重的梯度项上。新旧策略比率为：
+$$r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}$$
+CISPO 的梯度更新目标为：
+$$\nabla_\theta L_{\text{CISPO}} = \hat{\mathbb{E}}_t \left[ \min\left(r_t(\theta), \operatorname{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon)\right) \nabla_\theta \log \pi_\theta(a_t|s_t) A_t \right]$$
+这极大稳定了 8B 规模大模型在连续环境下的强化学习收敛性。
+
+##### 2.4.2 截断目标距离奖励函数
+标量奖励函数定义为：
+$$R = - \max(2, \text{dist\_to\_goal})$$
+其中 $\text{dist\_to\_goal}$ 为最终位置到目标的测地线距离（米）。将惩罚截断在 2 米以内，防止智能体在靠近目标后做无意义的微调晃动，激励模型在到达终点时精准触发 STOP 动作。
+
+##### 2.4.3 Hard Subsets 筛选与 场景连续 Curriculum
+- **Hard Subsets (35k 任务)**：从 SFT 模型推演中筛选出 35k 困难任务子集（仅保留 SFT 失败的复杂布局、歧义指令样本），将算力集中在难点突破；
+- **Visual Curriculum**：数据采样时按 Scene 连续打包，使 Batch 内包含同一场景的多个 Episode，形成隐式视觉课程（Visual Curriculum）。
+
+---
+
+### 3. 核心结果/发现
+
+Robostral Navigate 在 Room-to-Room in Continuous Environments (R2R-CE) 和 Room-Across-Room (RxR-CE) 两个最权威的真实连续运动视觉导航基准上均刷新了世界纪录。
+
+#### 3.1 权威基准性能对比表
+
+| 模型类别 | 模型名称 | 感知模态 | R2R-CE Unseen SR ↑ | R2R-CE Unseen SPL ↑ | R2R-CE NE ↓ | RxR-CE Unseen SR ↑ | RxR-CE Unseen SPL ↑ | RxR-CE NE ↓ |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **单目 RGB** | **Robostral Navigate (Ours)** | **仅单目 RGB** | **77.4%** | **74.2%** | **3.20m** | **75.1%** | **68.7%** | **3.47m** |
+| 单目 RGB | Qwen-RobotNav-8B | 仅单目 RGB | 65.7% | 59.6% | 4.36m | 73.4% | 63.5% | 4.16m |
+| 单目 RGB | Qwen-RobotNav-4B | 仅单目 RGB | 66.9% | 60.5% | 4.22m | 71.3% | 61.5% | 4.15m |
+| 单目 RGB | Qwen-VLA-Instruct | 仅单目 RGB | 57.5% | 51.2% | 5.10m | 59.6% | 47.8% | 5.80m |
+| 单目 RGB | StreamVLN | 仅单目 RGB | 56.9% | 51.9% | 4.98m | 52.9% | 46.0% | 6.22m |
+| 单目 RGB | InternVLA-N1 | 仅单目 RGB | 55.4% | 52.1% | 4.89m | 49.5% | 41.8% | 6.41m |
+| 单目 RGB | NaVILA | 仅单目 RGB | 54.0% | 49.0% | 5.22m | 49.3% | 44.0% | 6.77m |
+| **深度/多相机** | Qwen-RobotNav-8B (Depth) | 深度 / 多相机 | 72.1% | 66.6% | 3.73m | 76.5% | 65.7% | 3.58m |
+| 深度/多相机 | OmniNav | 深度 / 多相机 | 69.5% | 66.1% | 3.74m | 73.6% | 62.0% | 3.77m |
+| 深度/多相机 | ABot-N0 | 深度 / 多相机 | 66.4% | 63.9% | 3.78m | 69.3% | 60.0% | 3.83m |
+| 深度/多相机 | NavFoM | 深度 / 多相机 | 61.7% | 55.3% | 4.61m | 64.4% | 56.2% | 4.74m |
 
 <div align="center">
   <img src="/images/vln/model-performance-comparison-(success-rate-↑) 3-1.svg" width="90%" />
-  <figcaption>图 4：Robostral Navigate 与其他导航模型在 R2R-CE 未见环境验证集上的成功率对比</figcaption>
+  <figcaption>Robostral Navigate 与其他导航模型在 R2R-CE 未见环境验证集上的成功率对比</figcaption>
 </div>
 
-- **碾压所有单相机基线**：在相同的单目 RGB 输入下，成功率相较之前最强的单目基线高出 **9.3% ~ 9.7%**。
-- **超越多目/全景及三维传感器**：出人意料的是，Robostral Navigate 依靠单目图像即可在 Unseen 场景下击败使用了全景多目拼合系统（如 Qwen-RobotNav-8B 全景版 72.1%）或搭载深度传感器辅助的模型。这体现了其“Pointing-based”控制对于深度误差的包容性。
+#### 3.2 关键结果分析
 
-#### 3.2 鲁棒性与跨构型泛化测试
-1. **多构型机器人适配**：测试直接在四足机器人（Unitree Go2）、双轮差速底盘及四旋翼无人机上部署，模型无需重新微调，只需通过底层轨迹跟随器（如 DWA 或 MPC）将预测的 waypoint $(u, v)$ 转化为机体本身的动力学输出。
-2. **硬件参数不敏感**：由于采用图像坐标指向控制，即便有意将摄像头的焦距（FOV）临时拉伸、引入鱼眼畸变、或改变安装仰角，模型的导航成功率变化也不超过 1.5%。
-
-#### 3.3 训练效率指标
-- 仿真训练场景：6,000 个不同的虚拟户型空间。
-- 轨迹总数：约 40 万条。
-- **Token 压缩率**：得益于 Tree Training 机制，消除了重复的轨迹与前缀历史计算，训练过程中前向处理的实际 token 数减少了 **22 倍**。使得 8B 模型原本需要几个月的海量 GPU 训练时间，在短短数天内即可完成收敛。
+1. **大幅碾压所有单目 RGB 基线**：
+   在相同单目 RGB 条件下，Robostral Navigate 在 R2R-CE Unseen 上成功率达到 77.4%，领先之前最好的单目模型 Qwen-RobotNav-4B (66.9%) 达 **+10.5%**；在 RxR-CE 上领先 Qwen-RobotNav-8B **+1.7% SR**，且路径效率 SPL 提升 **+5.2%**。
+2. **超越深度与多视角传感器模型**：
+   依靠单目 RGB 输入，Robostral Navigate 在 R2R-CE 上超越了搭载深度传感器与多相机的 Qwen-RobotNav-8B (72.1% SR) 达 **+5.3%**；在 RxR-CE 上 SPL (68.7% vs 65.7%) 与定位误差 (3.47m vs 3.58m) 均优于深度模型。
+3. **在线 RL 的性能跃升**：
+   - R2R-CE Unseen 成功率从 SFT Baseline 的 73.4% 提升至 **77.4%** (+4.0%)；
+   - RxR-CE Unseen 成功率从 71.2% 提升至 **75.1%** (+3.9%)。
+4. **跨构型零样本部署与鲁棒性**：
+   同一套 VLM + Diffusion Policy 权重直接在 Galaxea R1（大底盘轮式）和 Hiwonder JetAuto（小巧四轮/四足）上部署成功。即便拉伸焦距、引入鱼眼畸变或改变相机安装高度，导航成功率波幅不超过 1.5%。
 
 ---
 
 ### 4. 局限性
 
-由于完全依赖单目 RGB 相机输入，在缺乏光照的极端暗光环境或视觉纹理极度缺失的开阔未知区域中，模型的空间深度感知 and 目标定位精度可能会受到限制。
+1. **盲区视场退化**：在目标位于后方或盲区（> 90° 大角度转向）时，需要降级为度量位移（Metric Displacement Fallback）模式，在极度复杂迷宫或纹理极缺失环境中的探索效率仍有提升空间。
+2. **在线 RL 系统调度极度繁重**：在线强化学习需要物理仿真渲染、vLLM 高并发推理以及分布式权重更新三方高并发协同调度，对 GPU 算力集群与工程管线要求极高。
 
 ---
 
