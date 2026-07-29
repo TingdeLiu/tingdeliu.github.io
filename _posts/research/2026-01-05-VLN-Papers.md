@@ -6744,15 +6744,17 @@ Robostral Navigate 采用高层语义推理与低层几何控制解耦的双系�
 
 ```mermaid
 graph TD
-    A[输入: 当前图像观测 RGB + 自然语言指令] --> B[Robostral Navigate 8B VLM (0.5 Hz)]
-    B --> C{目标路标是否在当前视野内?}
-    C -- 是 --> D[指向控制 Pointing Action]
-    D --> D1[预测 2D 图像像素坐标 u, v]
-    D --> D2[预测目标朝向变化 Δθ]
-    C -- 否 --> E[位移退化 Displacement Fallback]
-    E --> E1[预测局部坐标系偏移 dx, dy, dθ]
-    D1 & D2 & E1 --> F[121M Diffusion Policy (10 Hz)]
-    F --> G[100 Hz 电机控制器驱动硬件底盘]
+    A["输入: 当前图像观测 RGB + 自然语言指令"] --> B["Robostral Navigate 8B VLM (0.5 Hz)"]
+    B --> C{"目标路标是否在当前视野内?"}
+    C -- "是" --> D["指向控制 Pointing Action"]
+    D --> D1["预测 2D 图像像素坐标 (u, v)"]
+    D --> D2["预测目标朝向变化 Δθ"]
+    C -- "否" --> E["位移退化 Displacement Fallback"]
+    E --> E1["预测局部坐标系偏移 (dx, dy, dθ)"]
+    D1 --> F["121M Diffusion Policy (10 Hz)"]
+    D2 --> F
+    E1 --> F
+    F --> G["100 Hz 电机控制器驱动硬件底盘"]
 ```
 
 **模块 2：低层扩散策略轨迹生成 (Diffusion Policy)**
