@@ -1,515 +1,242 @@
 ---
 layout: post
-title: "树状注意力解码：加速VLN训练"
+title: "树状注意力训练：Robostral Navigate 如何将 VLN 训练 Token 压缩 22×"
 date:   2026-07-17
-tags: [VLA, VLN, LLM Training, Prefix Caching, Tree Attention, Robostral]
+last_modified_at: 2026-07-29
+tags: [VLA, VLN, Robostral, Prefix Caching, Tree Attention, LLM Training]
 categories: blog
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "从 Robostral Navigate 的 22× 训练 Token 压缩出发，拆解 DFS 序列化、树状注意力、加权损失与可微分分区，并区分官方事实、论文机制和工程推断。"
+excerpt: "聚焦 Robostral Navigate 的前缀树监督训练：为什么观测构成共享主干、动作必须成为叶节点，以及 tree attention 如何在阻止 ground-truth action 泄漏的同时将训练 Token 压缩 22×。"
 ---
 
-# 1. Robostral Navigate 的 22× 到底是什么？
+# 1. 问题：导航历史为何让训练 Token 数二次增长？
 
-Mistral AI 在 [Robostral Navigate 官方介绍](https://mistral.ai/news/robostral-navigate/)中公开了一种基于 prefix caching 的高效监督训练算法：把完整导航 episode 压缩成单条序列，通过 **tree-based attention masking** 在一次前向传播中训练全部时间步，同时避免时间步之间的信息泄漏。官方明确给出了三点：
+Robostral Navigate 是 Mistral AI 提出的 8B 单目 RGB 导航 VLM。它根据自然语言指令与历史图像预测下一导航 waypoint；为了覆盖长轨迹中的全部监督信号，第 $t$ 步必须读取从 episode 开始到当前时刻的观测历史。
 
-- 相比“每个时间步构造一个独立样本”，**训练 token 数减少 22×**；
-- 所有时间步的监督信号仍被保留；
-- 原本可能持续数月的训练可缩短到数天。
+训练数据完全由仿真生成，约包含 35 万个场景和 240 万条轨迹。每个样本由自然语言指令、RGB 观测序列与导航动作组成，其中还包括跨楼层的长轨迹。数据规模越大、episode 越长，逐时间步展开造成的历史图像重复就越严重。
 
-这里最重要的限定词是 **training tokens**。22× 描述的是重复 token 的减少，不能直接等同于“端到端训练严格加速 22×”。真实速度还取决于 attention kernel、视觉编码器、通信、数据加载、序列长度和显存分区；Mistral 也没有公开足以复现这一系统的完整 profiling。
+如果把每个时间步都构造成独立样本，相同的指令和早期图像会被反复编码：长度为 $T$ 的轨迹需要处理 $O(T^2)$ 个 Token。Robostral 的关键改动，是把整段 episode 恢复为一棵**以观测历史为主干、以监督动作为叶子**的前缀树，在一次 forward 中计算所有时间步的 loss。
 
-为了说明这类方法如何实现，本文以公开论文 [Tree Training: Accelerating Agentic LLMs Training via Shared Prefix Reuse](https://arxiv.org/abs/2511.00413v5)（arXiv:2511.00413v5，2026-04-23）作为数学与工程参照。它不是 Mistral 的技术报告：下文会明确区分 **Mistral 已公开的事实**、**Tree Training 给出的机制**与**面向 Robostral 的合理推断**，不把二者视为同一套内部实现。
+论文报告，这种训练表示在不丢弃 action target 的前提下将训练 Token 数减少 **22×**，把原本以月计的训练缩短到数天。本文只聚焦这一训练机制；机器人迁移、在线强化学习和导航榜单不在讨论范围内。
 
-<div align="center"><img src="/images/llm-training/tree-training/01-baseline-vs-tree.png" width="96%" alt="传统逐时间步训练与 Tree Training 对比" /><figcaption>图 1：传统训练重复处理共享历史；Tree Training 将唯一 token 打包后一次训练。</figcaption></div>
+> 本文依据 [Robostral Navigate（arXiv:2607.20785v2）](https://arxiv.org/abs/2607.20785v2) 更新。论文明确给出了前缀树结构与注意力语义，但没有公开完整训练代码、position ID 构造和 mask kernel；下文会区分论文事实与复现时的工程要求。
 
 <!-- more -->
 
-## 1.1 先给结论：五个必要组件
+## 1.1 核心结论速览
 
-这类训练复用不是简单地“把所有帧拼起来”，而是要同时完成五件事：
+| 问题 | Robostral 的处理 |
+|---|---|
+| 重复计算 | 指令和历史观测只在共享主干中编码一次 |
+| 保留监督 | 每个时间步的 action target 都作为独立叶子保留 |
+| 标签泄漏 | 后续观测不能读取先前的 ground-truth action |
+| 训练 Token 规模 | 从逐时间步展开的 $O(T^2)$ 降到整 episode 的 $O(T)$ |
+| 论文结果 | 训练 Token 数减少 22×；训练周期从月缩短到天 |
 
-1. **恢复结构**：将共享前缀的样本组织成前缀树；
-2. **消除重复**：用 DFS 序列化，使每个唯一 token 只出现一次；
-3. **保持因果性**：用树状 attention mask 阻断兄弟分支；
-4. **保持训练目标**：用路径计数设置 loss 权重，使目标与梯度等价；
-5. **跨越显存边界**：整树放不进显存时，用可微分 gateway 传递 KV、状态和梯度。
+# 2. 前缀树监督训练：22× Token 压缩是怎么来的？
 
-## 1.2 常见误解与边界
+## 2.1 逐时间步训练的 Token 数为什么是 $O(T^2)$？
 
-| 常见说法 | 判断 | 更准确的解释 |
-|---|---:|---|
-| 直接拼接会让早期动作看到未来帧 | 部分正确 | causal mask 能阻断右侧未来 token；DFS packing 的关键问题是阻断已经位于左侧、但属于兄弟分支的 token。 |
-| 历史图像 KV 在显存中只存一份 | 方向正确但过度简化 | 唯一 token 的 K/V 和激活只计算一次，但训练还要保留反向传播所需张量，不能等同推理期只读 KV cache。 |
-| 不同 episode 因场景相同而共享视觉前缀 | 缺乏来源支持 | Mistral 原文明确的是压缩一个 episode；Tree Training 论文也强调一个 global batch 内的单 rollout tree。 |
-| 22× 是端到端训练加速 | 不准确 | Mistral 说的是训练 token 减少 22×；Tree Training 真实轨迹实验报告约 6.2×-6.3× 端到端加速。 |
-| 显存严格从 O(T²) 降为 O(T) | 不够严谨 | 去重激活随唯一 token 数增长；attention 复杂度还取决于路径深度和稀疏 kernel。 |
-
-# 2. 从独立样本到前缀树
-
-## 2.1 重复计算从哪里来？
-
-设导航 episode 有 $T$ 个决策时间步，第 $t$ 步监督样本为：
+设指令为 $I$，第 $t$ 步观测为 $O_t$，监督动作是 $a_t$。部署时不存在 expert action history，因此第 $t$ 步应在下面的上下文中预测动作：
 
 $$
-x_t=[P,H_t,O_t], \qquad y_t=A_t
+[I,O_0,\ldots,O_t]\rightarrow a_t
 $$
 
-- $P$：系统提示、导航指令、机器人能力描述等固定前缀；
-- $H_t$：过去观测、动作、位姿、摘要或记忆；
-- $O_t$：当前视觉、深度或状态观测；
-- $A_t$：当前动作标签。
-
-传统数据管线将每个时间步当成独立样本：
+传统训练会构造 $T$ 个样本：
 
 $$
-[P,O_1]\rightarrow A_1
+[I,O_0]\rightarrow a_0
 $$
 
 $$
-[P,O_1,A_1,O_2]\rightarrow A_2
+[I,O_0,O_1]\rightarrow a_1
 $$
 
 $$
-[P,O_1,A_1,O_2,A_2,O_3]\rightarrow A_3
+\cdots
 $$
 
-假设固定前缀长度为 $p$，每步新增 $\Delta$ 个 token，则逐时间步展开的总 token 数为：
-
 $$
-N_{flat}=\sum_{t=1}^{T}(p+t\Delta)=Tp+\frac{\Delta T(T+1)}{2}
+[I,O_0,\ldots,O_{T-1}]\rightarrow a_{T-1}
 $$
 
-唯一 token 数为：
+总 Token 数近似为：
 
 $$
-N_{unique}=p+T\Delta
+N_{\text{naive}}
+=\sum_{t=0}^{T-1}
+\left(
+|I|+\sum_{k=0}^{t}|O_k|+|a_t|
+\right)
 $$
 
-token 压缩比为：
+早期观测 $O_0$ 会被编码 $T$ 次，$O_1$ 会被编码 $T-1$ 次。若每帧视觉 Token 数量近似固定，主导项随 $T^2$ 增长。
+
+## 2.2 Robostral 的树：观测是主干，动作是叶子
+
+<div align="center">
+  <img src="/images/vln/Robostral-Navigate-prefix-tree.png" width="96%" alt="Robostral Navigate 的逐时间步训练、前缀缓存与树状注意力掩码" />
+  <figcaption>图 1：指令与观测构成共享主干，每个动作是独立叶节点。动作叶子只用于自身监督，后续观测不会再次读取它。</figcaption>
+</div>
+
+Robostral 将整个 episode 物理打包成：
 
 $$
-R_{token}=\frac{N_{flat}}{N_{unique}}
-=\frac{Tp+\Delta T(T+1)/2}{p+T\Delta}
+I\mid O_0\mid a_0\mid O_1\mid a_1\mid\cdots\mid O_{T-1}\mid a_{T-1}
 $$
 
-当固定前缀较短且每步增量接近时，压缩比约为 $(T+1)/2$。因此，纯前缀链中 22× 大致对应四十多个时间步；真实 VLA 还包含不等长视觉 token、历史裁剪和提示模板，不能据此反推准确 episode 长度。
-
-## 2.2 为什么要恢复为前缀树？
-
-### 2.2.1 普通长序列为什么不够？
-
-如果每个上下文永远只是上一时刻追加新 token，那么可以在普通 causal sequence 的多个位置计算动作 loss。但真实 agent/VLA 数据常出现：
-
-- 同一父状态产生多个候选动作或采样分支；
-- think-mode 删除、替换或隐藏中间推理；
-- 历史被截断、摘要或重新组织；
-- 不同时间步共享指令和历史块，却附加独立的当前观测与 action query；
-- 并行工具调用或 retokenization drift 改变后续上下文。
-
-更一般的数据结构是前缀树。每个节点 $n$ 保存 token segment $$T_n$$，每条根到叶路径是一条完整训练序列。
-
-<div align="center"><img src="/images/llm-training/tree-training/02-dfs-serialization.png" width="92%" alt="前缀树与 DFS 序列化" /><figcaption>图 2：前缀树按 DFS 序列化为 n0,n1,n3,n4,n2,n5，每个节点只出现一次。</figcaption></div>
-
-### 2.2.2 基线展开与 DFS 序列化
-
-设树有 $K$ 条根到叶路径。基线展开会为每个子树重复父节点：
+但它的**逻辑结构不是一条普通因果链**，而是：
 
 $$
-X_{base}(i)=\operatorname{Concat}[token(i),X_{base}(c_1),token(i),X_{base}(c_2),\ldots]
+I\rightarrow O_0\rightarrow O_1\rightarrow\cdots\rightarrow O_{T-1}
 $$
 
-Tree Training 改用 DFS：
+并在每个 $O_t$ 下挂一个动作叶子 $a_t$。于是唯一 Token 数变为：
 
 $$
-X_{DFS}(i)=\operatorname{Concat}[token(i),X_{DFS}(c_1),X_{DFS}(c_2),\ldots]
+N_{\text{tree}}
+=|I|+\sum_{t=0}^{T-1}\left(|O_t|+|a_t|\right)
+=O(T)
 $$
 
-每个节点只出现一次，但兄弟分支被放入同一物理 sequence，因此必须修正 attention、position id，以及混合 SSM 模型中的 recurrent state。
+这也是论文所说的 prefix caching：相同的指令和历史观测只编码一次，却能在一次 forward 中保留所有时间步的动作监督。
 
-# 3. 如何保持逐路径训练等价？
+这里的 **prefix caching 是训练期共享前缀计算，不是推理期 KV cache**。共享主干仍处于同一个 autograd graph 中，需要参与反向传播，并接收所有动作叶子汇总而来的梯度；如果将前缀 K/V 直接 `detach`，就会丢失这些训练信号。
 
-## 3.1 Tree-based Attention Mask
+## 2.3 为什么不能直接使用 causal mask？
 
-### 3.1.1 标准 causal mask 为什么不够？
-
-标准 causal mask 只检查物理位置：$i$ 可以读取所有 $j\le i$。在 DFS 顺序
+在物理序列
 
 $$
-[n_0,n_1,n_3,n_4,n_2,n_5]
+I,O_0,a_0,O_1,a_1,O_2,a_2
 $$
 
-中，$n_2$ 位于 $n_4$ 之后。普通 causal mask 会允许 $n_2$ 读取 $n_1,n_3,n_4$，但这些节点属于另一个兄弟分支。这是 DFS packing 中真正的信息泄漏。
+中，普通 causal mask 会允许 $O_1$ 读取左侧的 ground-truth action $a_0$，也会让 $O_2$ 读取 $a_0$ 和 $a_1$。训练时这些动作高度提示下一个 waypoint，但部署时模型拿不到 expert action，因此会产生严重的 train–test mismatch。
 
-### 3.1.2 可见性规则
-
-令 $node(i)$ 表示 token $i$ 所属节点，$$Anc(n)$$ 表示节点及其祖先集合：
+Tree attention 改用祖先关系定义可见性。令 $node(i)$ 表示 Token $i$ 所属树节点，$Anc(n)$ 表示节点 $n$ 及其祖先，则可写为：
 
 $$
-M_{ij}=\begin{cases}
-0,& j\le i\ \land\ node(j)\in Anc(node(i))\\
+M_{ij}=
+\begin{cases}
+0,& node(j)\in Anc(node(i))\ \text{且满足节点内因果顺序}\\
 -\infty,& \text{otherwise}
 \end{cases}
 $$
 
 $$
-Attention(Q,K,V)=Softmax\left(\frac{QK^\top}{\sqrt d}+M\right)V
+\operatorname{Attention}(Q,K,V)
+=\operatorname{Softmax}
+\left(
+\frac{QK^\top}{\sqrt d}+M
+\right)V
 $$
 
-每个 token 的可见上下文因此与独立根到叶路径运行完全一致。
+对应到 Robostral 的 episode tree：
 
-<div align="center"><img src="/images/llm-training/tree-training/03-tree-attention-mask.png" width="72%" alt="Tree Attention Mask 矩阵" /><figcaption>图 3：蓝色单元表示可见；位于 DFS 左侧的兄弟分支也会被显式阻断。</figcaption></div>
+- 查询 $O_t$ 只能读取 $I,O_0,\ldots,O_t$ 中位于它之前的 Token；
+- 查询动作叶子 $a_t$ 可以读取 $I,O_0,\ldots,O_t$；
+- 若 $a_t$ 由多个 Token 组成，它们可在同一叶子内部自回归；
+- $O_{t+1}$ **不能**读取 $a_t$；
+- $a_i$ 与 $a_j$ 位于不同叶子，彼此不可见。
 
-### 3.1.3 生产实现不能构造巨大 dense mask
+因此，图中的动作是“leaves — never re-attended”：它们提供监督，但不会进入后续决策历史。
 
-概念上 $M$ 是 $N\times N$ 矩阵，但长序列不能显式保存完整 mask。常见实现方式是：
+## 2.4 为什么一次 forward 仍与逐时间步监督等价？
 
-- 在 FlashAttention kernel 内按节点祖先关系生成 block 可见性；
-- 使用 block-sparse attention，只计算祖先路径对应 block；
-- 预计算每个节点的 DFS 区间、parent、depth 和 ancestor block table；
-- 小模型先用 PyTorch FlexAttention 的 `mask_mod` 验证，再换定制 kernel。
-
-论文实现基于 FlashAttention V3 的节点级共享前缀 mask。若先做完整 dense attention 再把非法位置乘零，语义正确但很可能没有预期加速。
-
-## 3.2 位置编码按树深度，而非 DFS 下标
-
-DFS 物理下标不等于 token 在独立路径中的逻辑位置。直接使用 packed sequence 下标会让后访问的兄弟分支获得过大的 RoPE position id。
-
-若 token $t$ 位于节点 $n$ 内部偏移 $j$，正确位置为：
+每个动作叶子 $a_t$ 看到的上下文与独立样本
 
 $$
-pos(t)=\sum_{n'\in Anc(n)\setminus\{n\}}|T_{n'}|+j
+[I,O_0,\ldots,O_t]\rightarrow a_t
 $$
 
-即位置由根到当前节点的累计长度决定。同深度、相同祖先长度的兄弟节点可以复用相同 position range，保证 RoPE 与逐路径基线一致。
-
-## 3.3 加权损失保证梯度等价
-
-### 3.3.1 逐路径基线
-
-设根到叶路径集合为 $$\mathcal P=\{p_1,\ldots,p_K\}$$：
+完全相同。所有 action target 都只出现一次，指令与观测主干则由各动作 loss 共同反向传播：
 
 $$
-L_{sep-avg}=\frac{1}{K}\sum_{k=1}^{K}\sum_{t\in p_k}\ell_t(\theta)
+L=\sum_{t=0}^{T-1}
+L_{\text{action}}
+\left(
+a_t\mid I,O_{\le t}
+\right)
 $$
 
-SFT 中：
+共享主干只执行一次 forward，但各叶子的梯度会在 autograd 图中自然汇总到共享表示。
+
+这也澄清了一个重要区别：Robostral 论文**没有**引入通用 Tree Training 中的路径计数 loss weight、DFS 树分区或可微分 gateway。对于这里的“单条观测主干 + 每步一个动作叶子”，每个 action target 本来就只计算一次，不需要额外的路径计数加权。把其他树训练系统的组件直接当作 Robostral 已公开实现，会超出论文证据。
+
+## 2.5 22× 该如何解读？
+
+论文报告，相比逐时间步样本，这种表示在训练数据上将 Token 数减少 **22×**，同时不丢弃任何动作预测目标，并把原本以月计的训练缩短到数天。RxR-CE 的指令与轨迹尤其长，因此收益更明显。
+
+22× 的准确含义是：
 
 $$
-\ell_t(\theta)=-\log p_\theta(y_t\mid x_{\le t})
+\frac{N_{\text{naive}}}{N_{\text{tree}}}\approx22
 $$
 
-policy-gradient RL 中也可令：
+它不是“端到端训练吞吐严格提高 22×”。实际 wall-clock speedup 还取决于：
 
-$$
-\ell_t(\theta)=-A_t\log p_\theta(y_t\mid x_{\le t})
-$$
+- 视觉编码器是否复用图像特征；
+- attention mask 使用 dense、block-sparse 还是定制 kernel；
+- packed sequence 长度与显存上限；
+- activation checkpointing、通信与数据加载；
+- VLM、视觉编码器和其他模块各自的耗时占比。
 
-### 3.3.2 交换求和顺序
+论文没有披露精确训练时长、GPU 数量、硬件利用率、position ID 构造或 mask kernel。因此可以确认的是 **需要处理的训练 Token 数从 $O(T^2)$ 降到 $O(T)$、实测 Token 减少 22×、训练周期从月缩短到天**，不能据此补写一个未经报告的端到端加速倍数。
 
-令 $g_t$ 是经过 token $t$ 的根到叶路径数：
+# 3. 复现时最关键的正确性检查
 
-$$
-\sum_{k=1}^{K}\sum_{t\in p_k}\ell_t
-=\sum_t g_t\ell_t
-$$
+论文给出了训练表示和 mask 语义，但没有公开完整代码与 kernel 细节。实现时至少应检查以下事项。
 
-于是：
+## 3.1 数据与标签
 
-$$
-L_{tree}=\sum_t\frac{g_t}{K}\ell_t(\theta)=L_{sep-avg}
-$$
+- 指令和 $O_0,\ldots,O_{T-1}$ 只在主干中出现一次；
+- 每个 $a_t$ 是从 $O_t$ 分出的独立叶子；
+- instruction 与 observation Token 的 label 设为 ignore；
+- action Token 只在自己的叶子内计算 loss；
+- 后续上下文中不能重新拼入 teacher-forced ground-truth action。
 
-由微分线性性：
+## 3.2 Mask 与逻辑位置
 
-$$
-\frac{\partial L_{tree}}{\partial\theta}
-=\frac{\partial L_{sep-avg}}{\partial\theta}
-$$
+- 修改 $a_t$，$O_{t+1}$ 与其他动作叶子的 logits 不应变化；
+- 修改 $O_t$，所有后续观测与对应动作 logits 应发生变化；
+- 同一动作叶子内部保持 causal autoregression；
+- attention 实现不能先计算所有非法 pair 再指望仅靠置零获得相同效率；
+- 对使用 RoPE 的模型，逻辑 position 应与独立样本一致，不能让被 mask 的动作叶子平白推高后续主干位置。
 
-共享前缀只 forward 一次，但子分支的梯度会在共享祖先处自动相加。
+最后一点是由“训练信号严格等价”推导出的工程要求；论文没有披露具体 position ID 实现。
 
-<div align="center"><img src="/images/llm-training/tree-training/04-loss-equivalence.png" width="92%" alt="加权损失等价性" /><figcaption>图 4：n0 和 n1 按 3/3、2/3 加权，得到与三条路径独立训练后平均相同的目标。</figcaption></div>
+## 3.3 最小等价性测试
 
-### 3.3.3 VLA action loss 的细节
+在一段很短的 episode 上运行两种版本：
 
-机器人模型通常只对 action token、waypoint token、坐标 token 或 stop token 计算 loss；指令、环境回传和视觉 token 的 label 设为 ignore index。此时 $$g_t/K$$ 只乘到有效监督位置。上下文 token 虽无直接 loss，仍通过后续 action loss 接收梯度。
+1. 每个时间步构造独立样本并分别 forward；
+2. 整个 episode 一次 forward，使用 tree attention mask。
 
-# 4. 工程化：训练期复用、显存分区与混合架构
+应逐项比较：
 
-## 4.1 训练期 Prefix Caching 不等于推理期 KV Cache
+- 每个 action target 的 logits；
+- 总 action loss；
+- 关键参数 gradient；
+- 一次 optimizer step 后的参数。
 
-推理时，过去 token 已确定，缓存 K/V 后只计算新 token，通常不需要对前缀反向传播。
+float32 小模型应接近数值精度；bf16 下可允许由 kernel 形状和累加顺序产生的小误差。性能测试则要分别报告 $N_{\text{naive}}/N_{\text{tree}}$、wall-clock throughput 和显存峰值，不能只用 Token 压缩比代替真实加速。
 
-训练时，共享前缀必须接收全部后续分支的梯度。如果直接把前缀 K/V 永久 `detach`，共享前缀会丢失学习信号。训练期复用的本质是：
+# 4. 总结
 
-- 同一次 packed forward 内，共享 token 的 K/V 和激活只创建一次；
-- 同一 autograd graph 内，多个后代对共享表示的梯度自动相加；
-- 跨显存分区时，可以临时 detach 成 gateway leaf，但随后必须把 leaf gradient 显式中继回父图。
+Robostral 的 Tree Attention Training 可以概括为四步：
 
-因此，“训练期 prefix caching”更准确的名字是 **可微分的共享前缀计算复用**。
+1. 把逐时间步样本恢复为一个 episode 级前缀树；
+2. 让指令与观测历史形成共享主干，每个 ground-truth action 成为独立叶子；
+3. 用树状注意力阻断动作叶子与后续观测、其他动作叶子之间的信息流；
+4. 在一次 forward 中计算全部 action loss，使需要处理的训练 Token 数从 $O(T^2)$ 降到 $O(T)$。
 
-## 4.2 整棵树放不进 GPU：Redundancy-Free Tree Partitioning
-
-### 4.2.1 朴素切分仍会重算祖先
-
-若唯一 token 数 $$N_{tree}$$ 超过容量 $C$，树必须切成多个 connected subtree。若每个子分区重新拼接祖先，边界会再次产生重复。
-
-论文示例：
-
-- 展平基线：164k token；
-- 树唯一 token：83k；
-- 普通树分区：102k；
-- 可微分边界：仍为 83k。
-
-### 4.2.2 Gateway forward 与 backward
-
-在切分节点 $$n_c$$，父分区输出：
-
-- 各层 ancestor K/V；
-- ancestor-aware attention bias；
-- 基于树深度的 position offset；
-- 混合 SSM 模型所需 recurrent state 和 causal-conv context。
-
-这些张量 `detach()` 后重新设置 `requires_grad=True`，作为子分区 gateway leaf。子分区直接读取，不重算祖先。子分区 backward 后，系统将 gateway leaf gradient 显式传回父分区原始张量，再沿父图继续反向。
-
-多个子分区共享同一 cut node 时，论文使用 float32 accumulator hook 汇总梯度，减少多次 bfloat16 累加的舍入误差。
-
-<div align="center"><img src="/images/llm-training/tree-training/05-differentiable-partition.png" width="92%" alt="可微分树分区边界" /><figcaption>图 5：父分区只前向一次；子分区读取 gateway，梯度再中继回父图。</figcaption></div>
-
-### 4.2.3 为什么沿节点边界切分？
-
-每个 partition 必须是连通子树，使 partition dependency graph 仍是一棵树，每个子分区只有一个父分区。这样反向峰值激活可约束在一条根到叶路径规模。随意混合无关子树可能让一个 partition 依赖多个父图，迫使多组祖先计算图同时驻留。
-
-## 4.3 混合 Attention + SSM 模型的额外修复
-
-对 full-attention 与 Gated Delta Net 等 SSM 层交错的模型，仅有 attention mask 不够，因为 SSM 会按物理顺序传递 recurrent state。
-
-### 4.3.1 State routing
-
-DFS 为 $n_0,n_1,n_3,n_4,n_2,n_5$ 时，朴素顺序会把 $n_4$ 状态传给 $n_2$。正确做法是让 chunk $c$ 从父节点 $$\pi(c)$$ 读取初始状态：
-
-$$
-h_c^{(0)}=h_{\pi(c)}^{(end)}
-$$
-
-### 4.3.2 Causal convolution context
-
-若 SSM 含 kernel size 为 $$K_{conv}$$ 的 causal conv1d，子节点应读取父节点保存的最后 $$K_{conv}-1$$ 个有效 token，而不是 DFS 地址上相邻的兄弟 token：
-
-$$
-y_c=Conv([ctx_{\pi(c)};x_c])[K_{conv}-1:]
-$$
-
-纯 Transformer VLA 不需要此修改；包含 Mamba、GDN 等 recurrent 模块时，这是保证 forward equivalence 的必要条件。
-
-# 5. 性能收益：从 Token 压缩到端到端加速
-
-## 5.1 用 POR 理解 22×
-
-Tree Training 定义 Potential Overlap Ratio：
-
-$$
-POR=1-\frac{N_{tree}}{N_{flat}}
-$$
-
-完全消除重复时，理论 token/计算复用上限为：
-
-$$
-S_{upper}=\frac{N_{flat}}{N_{tree}}=\frac{1}{1-POR}
-$$
-
-22× token reduction 对应：
-
-$$
-POR=1-\frac{1}{22}\approx95.45\%
-$$
-
-即传统样本中约 95.45% 的 token 是共享前缀重复，不代表 GPU 所有模块同步提速 22×。
-
-<div align="center"><img src="/images/llm-training/tree-training/06-speedup-interpretation.png" width="96%" alt="POR 与加速数字解释" /><figcaption>图 6：Mistral 的 22× token 减少与论文的端到端 speedup 是不同指标。</figcaption></div>
-
-## 5.2 公开论文的实验数字
-
-Tree Training 在 64 张 NVIDIA Hopper GPU、Megatron-Core 和 sequence packing 基线上测试：
-
-| 场景 | 模型/数据 | 结果 |
-|---|---|---:|
-| 真实 agentic rollout | Qwen3-32B Dense | 平均 6.3× 端到端加速 |
-| 真实 agentic rollout | Qwen3-30B MoE | 平均 6.2× 端到端加速 |
-| 合成高 POR，整树可放显存 | Qwen3-8B/32B | 最高 8.7× |
-| 额外 Tree Training 张量 | Qwen3-32B | 约 1.2 MB |
-| Terminal Bench 2.0 RL | Qwen3-32B | full tree avg@4 28.8，最长路径基线 20.9 |
-
-真实 rollout 的理论上限约 6.5×，实现达到 6.2×-6.3×，捕获超过 95% 的理论潜力。但这不能替代 Robostral 自身尚未公开的完整 profiling。
-
-# 6. 映射到 Robostral Navigate：事实、推断与未知项
-
-Mistral 没有公开完整的 tensor layout、mask kernel 和 loss weighting。根据官方披露的“entire episode into a single sequence”“tree-based attention-masking”“all time steps in a single forward pass”，可以得到下面的候选结构；但在代码或技术报告发布前，它仍然只是推断。
-
-## 6.1 Episode tree
-
-根节点可以包含：
-
-- system prompt 与机器人能力；
-- 自然语言导航指令；
-- 坐标系和 episode 固定元数据。
-
-各时间步节点包含：
-
-- 当前保留的历史表示；
-- 当前单目 RGB 观测对应的视觉 token；
-- 可能保留的动作、朝向与位姿历史；
-- action query 模板；
-- 需要监督的动作 token。
-
-上下文继承时合并共同 token segment；发生历史裁剪、摘要或模板变化时，从最后一个相同前缀处分叉。
-
-## 6.2 视觉 token 的三层复用机会
-
-1. 同一帧重复出现在历史中时，图像 encoder 输出可只计算一次；
-2. multimodal projector 后的视觉 token 可成为共享树节点；
-3. LLM 各层 K/V 与激活通过 tree attention 只创建一次。
-
-官方页面明确的是训练序列和 attention 层面的压缩；是否进一步缓存视觉 backbone 特征，需要代码或技术报告确认。
-
-## 6.3 必须阻止的泄漏
-
-- 时间步 $t$ 的 action query 读取 $t+1$ 观测；
-- 一个候选动作分支读取其他候选分支；
-- teacher-forced action token 泄漏到其预测位置；
-- DFS 左侧兄弟分支的视觉 token 被当前分支读取；
-- history summary 读取部署时不可见的原始 hidden reasoning。
-
-# 7. 实现、复杂度与验证
-
-## 7.1 数据结构与伪代码
-
-```python
-class TreeNode:
-    token_ids: Tensor
-    labels: Tensor             # 非监督位置为 -100
-    parent: int
-    children: list[int]
-    depth_token_offset: int
-    path_count: int            # g_n
-```
-
-DFS packing：
-
-```python
-packed_ids = concat(node.token_ids for node in dfs_nodes)
-
-position_ids = concat(
-    arange(node.depth_token_offset,
-           node.depth_token_offset + len(node.token_ids))
-    for node in dfs_nodes
-)
-
-loss_weights = concat(
-    full(len(node.token_ids), node.path_count / num_paths)
-    for node in dfs_nodes
-)
-```
-
-mask 语义原型：
-
-```python
-def tree_mask(query_token, key_token):
-    query_node = token_to_node[query_token]
-    key_node = token_to_node[key_token]
-    return key_token <= query_token and is_ancestor(key_node, query_node)
-```
-
-loss：
-
-```python
-token_loss = cross_entropy(
-    logits[:, :-1], labels[:, 1:],
-    reduction="none", ignore_index=-100,
-)
-valid_mask = labels[:, 1:].ne(-100)
-loss = (token_loss * loss_weights[:, 1:] * valid_mask).sum()
-```
-
-生产实现必须避免逐 token `is_ancestor`，将节点级 block table 融入 attention kernel。
-
-## 7.2 复杂度与显存：不要只看 token 数
-
-设 $D(t)$ 为 token $t$ 沿根到自身路径可见的 token 数。线性层、MLP、归一化等计算主要从 $N_{flat}$ 降至 $N_{tree}$；tree attention 的有效 pair 数更接近：
-
-$$
-N_{pairs}=\sum_{t\in tree}D(t)
-$$
-
-而不是简单的 $$N_{tree}^2$$。真正的 block-sparse/tree-aware kernel 可以跳过兄弟分支 pair；dense attention 加 mask 则可能无法获得预期速度。
-
-训练峰值显存仍包括 hidden activation、Q/K/V、MLP 中间量、vision encoder activation、optimizer state、通信 buffer 和 gateway 张量。Tree Training 消除共享 token 的重复激活，但不等于长上下文训练没有成本；仍需 activation checkpointing、context parallel、ZeRO/FSDP 与树分区配合。
-
-## 7.3 正确性验证清单
-
-### 7.3.1 最小等价性测试
-
-对一棵小树分别运行：
-
-1. 每条根到叶路径独立 forward，loss 求平均；
-2. DFS packed forward + tree mask + depth position + weighted loss。
-
-比较每个监督 token 的 logits、总 loss、关键参数 gradient 和 optimizer step 后参数。float32 小模型应接近机器精度；bf16 大模型允许因 GEMM 形状和浮点加法顺序产生小误差。
-
-### 7.3.2 泄漏测试
-
-- 修改兄弟分支 token，当前分支 logits 不应变化；
-- 修改祖先 token，所有后代 logits 应变化；
-- 修改未来子节点，祖先和其他分支不应变化；
-- 交换兄弟 DFS 顺序，逻辑 position 与路径 logits 应不变；
-- action label 只影响 loss，不得错误进入同位置输入。
-
-### 7.3.3 性能 profiling
-
-记录 $N_{flat}$、$N_{tree}$、POR、forward/backward 时间、attention/MLP/vision encoder/通信占比、HBM 峰值、有效 attention block 比例，以及不同树深和分支因子的收益。
-
-## 7.4 何时最值得使用？
-
-适合：
-
-- episode 长且历史持续增长；
-- 所有时间步都保留监督；
-- 固定指令和早期视觉历史占比高；
-- 同一 rollout 有候选分支或上下文重写；
-- POR 高且 kernel 能利用结构化稀疏；
-- 主要成本位于 LLM 主干。
-
-收益较小：
-
-- 每步上下文几乎完全不同；
-- 模型只看当前帧；
-- episode 很短或 POR 低；
-- 使用 dense mask，非法 attention pair 仍完整计算；
-- vision backbone 占主要时间且视觉特征未复用。
-
-# 8. 总结
-
-Robostral Navigate 的高效监督训练可以概括为：
-
-> 把“许多共享前缀的时间步样本”恢复成原本的树结构，使每个唯一 token 只参与一次前向计算，同时通过树状可见性、逻辑位置、加权损失和可微分状态中继，保留逐样本训练的因果语义与梯度。
-
-真正关键的不是“KV cache”这个词，而是训练计算图中的 **可微分共享**：
-
-- DFS 解决唯一 token 的紧凑存储；
-- tree attention mask 解决跨分支泄漏；
-- depth-based position 解决 RoPE 等价性；
-- path-count loss weight 解决目标与梯度等价性；
-- differentiable gateway 解决超长树显存约束；
-- SSM state routing 解决混合架构的状态污染。
-
-Mistral 的 22× 表明导航数据具有极高的前缀重复率。Tree Training 的实验进一步说明，当这种复用落实到 forward、backward 和显存分区中时，理论 token 节省可以高比例转化为真实训练加速。
+最容易被误解的是 22×：它表示训练 Token 的去重比例，而不是一个不受硬件、kernel 和模型结构影响的 GPU 加速倍数。真正有启发性的地方，是 Robostral 把历史前缀从“重复输入”恢复为“可微分共享结构”，既保留所有时间步的监督，又阻止部署时不可获得的 expert action 泄漏。
 
 # 参考资料
 
-1. Mistral AI. [**Robostral Navigate**](https://mistral.ai/news/robostral-navigate/), 2026-07-08.
-2. Wang et al. [**Tree Training: Accelerating Agentic LLMs Training via Shared Prefix Reuse**](https://arxiv.org/abs/2511.00413v5). arXiv:2511.00413v5, 2026-04-23.
-3. 本地论文文件：[2511.00413v5.pdf](/new_paper/2511.00413v5.pdf)。
-4. Kwon et al. [**Efficient Memory Management for Large Language Model Serving with PagedAttention**](https://arxiv.org/abs/2309.06180). SOSP 2023.
-5. Shah et al. [**FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision**](https://arxiv.org/abs/2407.08608). 2024.
+1. Mistral AI. [**Robostral Navigate**](https://arxiv.org/abs/2607.20785v2). arXiv:2607.20785v2, 2026-07-24.
+2. 本地论文文件：[2607.20785v2.pdf](/new_paper/2607.20785v2.pdf)。
+3. Mistral AI. [**Robostral Navigate 官方介绍**](https://mistral.ai/news/robostral-navigate/), 2026.
