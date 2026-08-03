@@ -40,7 +40,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [ReflectVLN(单目)](#reflectvln) | 2026 | R2R-CE | Qwen2.5-VL-3B | 62.8 | 58.5 | 4.19 | 67.3 | [是](https://github.com/AIprogrammer/ReflectVLN) |
  | [GA-VLN(单目)](#ga-vln) | 2026 | R2R-CE | LLaVA-Video-7B | 61.0 | 55.2 | 4.80 | 67.6 | [是](https://github.com/jahhaoyang/GA-VLN) |
  | [JanusVLN(单目)](#janusvln) | 2026 | R2R-CE | Janus-Pro-7B | 60.5 | 56.8 | 4.78 | 65.2 | [是](https://github.com/MIV-XJTU/JanusVLN) |
-| [MemVLN-8B](#memvln) | 2026 | R2R-CE | – | 58.4 | 51.2 | 4.98 | 65.3 | 否 | – |
+| [MemVLN-8B(单目)](#memvln) | 2026 | R2R-CE | Qwen3-VL-8B | 58.4 | 51.2 | 4.98 | 65.3 | 否 |
  | [BudVLN(单目)](#budvln) | 2026 | R2R-CE | LLaVA-1.5-7B | 57.6 | 51.1 | – | – | [是](https://github.com/Beat992/CDC2F) |
  | [StreamVLN(单目)](#streamvln) | 2025 | R2R-CE | LLaVA-Video-7B | 56.9 | 51.9 | 4.98 | 64.2 | [是](https://github.com/OpenRobotLab/StreamVLN) |
 | [AgenticNav](#agenticnav) | 2026 | R2R-CE | – | 55.0 | 48.41 | – | – | 否 |
@@ -65,7 +65,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [AstraNav-World (多目)](#astranav-world) | 2025 | RxR-CE | Qwen2.5-VL-3B | 72.9 | – | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) |
 | [CorrectNav](#correctnav) | 2025 | RxR-CE | – | 69.3 | 63.3 | 4.09 | – | [是](https://github.com/owlet914/CorrectNav) |
  | [AwareVLN (单目)](#awarevln) | 2026 | RxR-CE | Vicuna-7B | 67.6 | 56.1 | 3.95 | – | [是](https://github.com/GWxuan/AwareVLN) |
-| [MemVLN-4B](#memvln) | 2026 | RxR-CE | – | 66.5 | 57.4 | 4.22 | – | 否 | – |
+| [MemVLN-4B (单目)](#memvln) | 2026 | RxR-CE | Qwen3-VL-4B | 66.5 | 57.4 | 4.22 | – | 否 |
 | [ReflectVLN(单目)](#reflectvln) | 2026 | RxR-CE | Qwen2.5-VL-3B | 66.0 | 57.2 | 3.98 | – | [是](https://github.com/AIprogrammer/ReflectVLN) |
  | [SEDualVLN (单目)](#sedualvln) | 2026 | RxR-CE | LLaVA-Video-7B | 63.9 | 52.4 | 4.12 | – | [是](https://github.com/kim-os/SEDualVLN) |
  | [Dual-Anchoring (单目)](#dual-anchoring) | 2026 | RxR-CE | LLaVA-Video-7B | 61.7 | 53.3 | – | – | 否 |
@@ -73,7 +73,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [JanusVLN (单目)](#janusvln) | 2026 | RxR-CE | Janus-Pro-7B | 56.2 | 47.5 | 6.06 | – | [是](https://github.com/MIV-XJTU/JanusVLN) |
  | [RynnBrain-Nav (单目)](#rynnbrain) | 2026 | RxR-CE | – | 56.1 | – | 4.92 | – | [是](https://github.com/alibaba-damo-academy/RynnBrain) |
  | [GA-VLN (单目)](#ga-vln) | 2026 | RxR-CE | LLaVA-Video-7B | 55.4 | 45.2 | 5.88 | 67.0 | [是](https://github.com/jahhaoyang/GA-VLN) |
- | [StreamVLN (单目)](#streamvln) | 2025 | RxR-CE | LLaVA-Video-7B | 52.9 | – | – | – | [是](https://github.com/OpenRobotLab/StreamVLN) |
+ | [StreamVLN (单目)](#streamvln) | 2025 | RxR-CE | LLaVA-Video-7B | 52.9 | 46.0 | 6.22 | – | [是](https://github.com/OpenRobotLab/StreamVLN) |
  | [Goal2Pixel (单目)](#goal2pixel) | 2025 | RxR-CE | LLaVA-1.5-7B | 43.8 | 40.4 | 7.50 | – | 否 |
  | [HSGM (单目)](#hsgm) | 2026 | RxR-CE | – | 41.8 | 25.1 | 7.43 | – | [是](https://github.com/Teacher-Tom/HSGM_public) |
 | [NaVid](#navid) | 2024 | RxR-CE | – | 23.8 | 21.2 | – | – | 否 |
@@ -111,7 +111,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [ABot-N1(三相机)](#abot-n1) | 2026 | ABotN-PointBench (Outdoor) | Qwen-3.5-4B + 2B | 92.9 | 91.4 | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) |
 | [ABot-N1(三相机)](#abot-n1) | 2026 | Short-Horizon OVON | Qwen-3.5-4B + 2B | 84.9 | 51.8 | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) |
  | [Hydra-Nav (单目)](#hydra-nav) | 2026 | HM3D | Qwen2.5-VL-7B | 84.8 | 28.8 | 否 |
-| [X-NavDP](#x-navdp) | 2026 | IsaacLab 40-Scenes (Point-Goal) | – | 84.28 | 77.19 | 否 | – |
+| [X-NavDP](#x-navdp) | 2026 | IsaacLab 40-Scenes (Point-Goal) | – | 84.28 | 77.19 | [是](https://github.com/InternRobotics/NavDP) |
  | [VLFM (单目)](#vlfm) | 2023 | Gibson | – | 84.0 | 52.2 | [是](https://github.com/rai-opensource/vlfm) |
  | [VLingNav (单目)](#vlingnav) | 2026 | HM3D-v2 | LLaVA-Video-7B | 83.0 | 40.5 | [是](https://github.com/wsakobe/VLingNav-web) |
  | [SysNav (单目)](#sysnav) | 2026 | HM3D-v2 | Gemini-2.5-Flash | 80.8 | 37.2 | 否 |
@@ -7698,13 +7698,13 @@ $$L = -\frac{1}{T} \sum_{t=1}^{T} \log P(a_t^* \mid F_t, I; \theta)$$
     <figcaption>图 5：MemVLN 在 Habitat 仿真器中 R2R-CE 和 RxR-CE 上的定性导航结果展示</figcaption>
 </div>
 
-1. **SOTA 导航性能**：
-   - 在 **RxR-CE Val Unseen** 榜单上，MemVLN-4B 取得了 **66.5% SR** 和 **57.4 SPL**，大幅超越之前的 SOTA 方法 StreamVLN-7B（52.9% SR / 46.0 SPL）和 NaVILA-8B（49.3% SR / 44.0 SPL）。
-   - 在 **R2R-CE Val Unseen** 上，MemVLN-8B 达到了 **58.4% SR** 和 **51.2 SPL**。
-2. **推理速度与控制频率**：
-   - 相比于传统自回归解码（2 FPS），引入 Fast Action 程序记忆后，MemVLN 实现了 **14 FPS** 的实时推理速度（延迟仅 ~70ms/步），同时 SR 提高（R2R 50.8% $\rightarrow$ 52.6%）。
-3. **跨数据集零样本泛化能力**：
-   - 仅在 R2R 训练集上训练，在 RxR-CE Val Unseen 上进行 Zero-shot 评测，MemVLN-4B 达到 **38.4% SR** 和 **33.8 SPL**，相比 NaVILA-8B（34.3% SR / 28.2 SPL）提升了 12% 的成功率和 20% 的路径效率。
+1. **R2R-CE Val Unseen 主结果**：
+   - **MemVLN-4B**：NE **5.34**、OS **63.2%**、SR **56.6%**、SPL **50.0%**。
+   - **MemVLN-8B**：NE **4.98**、OS **65.3%**、SR **58.4%**、SPL **51.2%**。8B 版本取得 MemVLN 在 R2R-CE 上的最高 OS、SR 和 SPL；与 StreamVLN-7B（NE 4.98、OS 64.2%、SR 56.9%、SPL 51.9%）相比，SR 更高，但 SPL 略低。
+2. **RxR-CE Val Unseen 主结果**：
+   - **MemVLN-4B**：NE **4.22**、SR **66.5%**、SPL **57.4%**。
+   - **MemVLN-8B**：NE **4.56**、SR **66.0%**、SPL **57.3%**。4B 版本在 RxR-CE 的三项指标上均略优于 8B，并明显超过 StreamVLN-7B（NE 6.22、SR 52.9%、SPL 46.0%）和 NaVILA-8B（NE 6.77、SR 49.3%、SPL 44.0%）。该表未报告 RxR-CE 的 OS 指标。
+3. **总体发现**：MemVLN 仅使用单目 RGB（sRGB）观测，不依赖全景图、里程计或深度输入；其中 8B 版本在 R2R-CE 上更强，而 4B 版本在更长、更复杂的 RxR-CE 上表现最佳，说明模型规模增大并未在两个基准上带来一致收益。
 
 ---
 
@@ -7718,6 +7718,8 @@ $$L = -\frac{1}{T} \sum_{t=1}^{T} \log P(a_t^* \mid F_t, I; \theta)$$
 ———多构型机器人通用视觉导航的组内 Q 值重加权 Diffusion RL 强化学习微调框架
 
 📄 **Paper**: [arXiv:2607.28560](https://arxiv.org/abs/2607.28560)
+
+💻 **Code**: [InternRobotics/NavDP](https://github.com/InternRobotics/NavDP)
 
 ---
 
@@ -7767,7 +7769,16 @@ X-NavDP 采用分层控制架构：
 直观上，直接给轨迹添加高斯噪声会破坏航点的时间连续性与动力学可行性。X-NavDP 发现：**预训练策略在无目标（Goal-Agnostic）条件下的输出天然保持场景一致性且探索更激进**。
 
 因此，对同一视觉观测，算法同时采样有目标轨迹 $\tilde{\tau}_{\text{pointgoal}}$ 与无目标轨迹 $\tilde{\tau}_{\text{nogoal}}$，并进行带符号外推混合：
-$$\tau_{\text{mixed}} = \mathbf{s} \odot (\tilde{\tau}_{\text{pointgoal}} + \lambda \tilde{\tau}_{\text{nogoal}})$$
+
+$$
+\tau_{\text{mixed}}
+= \mathbf{s} \odot
+\left(
+  \tilde{\tau}_{\text{pointgoal}}
+  + \lambda \tilde{\tau}_{\text{nogoal}}
+\right)
+$$
+
 其中 $\mathbf{s} = ((-1)^{B_1}, (-1)^{B_2})$ 是由伯努利分布生成的随机符号向量，对整体 Chunk 的 $x, y$ 坐标独立按概率 $\epsilon$ 进行翻转。这种设计能够原生地生成平滑的倒车、侧向避障与侧退自救轨迹。
 
 > **举个例子（自引导扰动数据流）**：
@@ -7926,7 +7937,7 @@ graph TD
 63. **AgenticNav** (2026).
 64. **ABot-AgentOS** (2026).
 65. **MemVLN** (2026). 模拟人类双重记忆机制的高效连续环境视觉语言导航框架. arXiv: [2607.23504](https://arxiv.org/abs/2607.23504)
-66. **X-NavDP** (2026). 多构型机器人通用视觉导航的组内 Q 值重加权 Diffusion RL 强化学习微调框架. arXiv: [2607.28560](https://arxiv.org/abs/2607.28560)
+66. **X-NavDP** (2026). 多构型机器人通用视觉导航的组内 Q 值重加权 Diffusion RL 强化学习微调框架. arXiv: [2607.28560](https://arxiv.org/abs/2607.28560). Code: [InternRobotics/NavDP](https://github.com/InternRobotics/NavDP)
 
 
 <script>
