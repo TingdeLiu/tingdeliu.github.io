@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "VLN经典论文"
-date:   2026-07-28
+date:   2026-08-03
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -40,6 +40,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [ReflectVLN(单目)](#reflectvln) | 2026 | R2R-CE | Qwen2.5-VL-3B | 62.8 | 58.5 | 4.19 | 67.3 | [是](https://github.com/AIprogrammer/ReflectVLN) |
  | [GA-VLN(单目)](#ga-vln) | 2026 | R2R-CE | LLaVA-Video-7B | 61.0 | 55.2 | 4.80 | 67.6 | [是](https://github.com/jahhaoyang/GA-VLN) |
  | [JanusVLN(单目)](#janusvln) | 2026 | R2R-CE | Janus-Pro-7B | 60.5 | 56.8 | 4.78 | 65.2 | [是](https://github.com/MIV-XJTU/JanusVLN) |
+| [MemVLN-8B](#memvln) | 2026 | R2R-CE | – | 58.4 | 51.2 | 4.98 | 65.3 | 否 | – |
  | [BudVLN(单目)](#budvln) | 2026 | R2R-CE | LLaVA-1.5-7B | 57.6 | 51.1 | – | – | [是](https://github.com/Beat992/CDC2F) |
  | [StreamVLN(单目)](#streamvln) | 2025 | R2R-CE | LLaVA-Video-7B | 56.9 | 51.9 | 4.98 | 64.2 | [是](https://github.com/OpenRobotLab/StreamVLN) |
 | [AgenticNav](#agenticnav) | 2026 | R2R-CE | – | 55.0 | 48.41 | – | – | 否 |
@@ -64,6 +65,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [AstraNav-World (多目)](#astranav-world) | 2025 | RxR-CE | Qwen2.5-VL-3B | 72.9 | – | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) |
 | [CorrectNav](#correctnav) | 2025 | RxR-CE | – | 69.3 | 63.3 | 4.09 | – | [是](https://github.com/owlet914/CorrectNav) |
  | [AwareVLN (单目)](#awarevln) | 2026 | RxR-CE | Vicuna-7B | 67.6 | 56.1 | 3.95 | – | [是](https://github.com/GWxuan/AwareVLN) |
+| [MemVLN-4B](#memvln) | 2026 | RxR-CE | – | 66.5 | 57.4 | 4.22 | – | 否 | – |
 | [ReflectVLN(单目)](#reflectvln) | 2026 | RxR-CE | Qwen2.5-VL-3B | 66.0 | 57.2 | 3.98 | – | [是](https://github.com/AIprogrammer/ReflectVLN) |
  | [SEDualVLN (单目)](#sedualvln) | 2026 | RxR-CE | LLaVA-Video-7B | 63.9 | 52.4 | 4.12 | – | [是](https://github.com/kim-os/SEDualVLN) |
  | [Dual-Anchoring (单目)](#dual-anchoring) | 2026 | RxR-CE | LLaVA-Video-7B | 61.7 | 53.3 | – | – | 否 |
@@ -109,6 +111,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [ABot-N1(三相机)](#abot-n1) | 2026 | ABotN-PointBench (Outdoor) | Qwen-3.5-4B + 2B | 92.9 | 91.4 | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) |
 | [ABot-N1(三相机)](#abot-n1) | 2026 | Short-Horizon OVON | Qwen-3.5-4B + 2B | 84.9 | 51.8 | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) |
  | [Hydra-Nav (单目)](#hydra-nav) | 2026 | HM3D | Qwen2.5-VL-7B | 84.8 | 28.8 | 否 |
+| [X-NavDP](#x-navdp) | 2026 | IsaacLab 40-Scenes (Point-Goal) | – | 84.28 | 77.19 | 否 | – |
  | [VLFM (单目)](#vlfm) | 2023 | Gibson | – | 84.0 | 52.2 | [是](https://github.com/rai-opensource/vlfm) |
  | [VLingNav (单目)](#vlingnav) | 2026 | HM3D-v2 | LLaVA-Video-7B | 83.0 | 40.5 | [是](https://github.com/wsakobe/VLingNav-web) |
  | [SysNav (单目)](#sysnav) | 2026 | HM3D-v2 | Gemini-2.5-Flash | 80.8 | 37.2 | 否 |
@@ -7601,6 +7604,243 @@ Agent Harness 改变了传统单模型控制器的设计，将 Agent 调度划�
 
 
 
+## 65. MemVLN (2026) {#memvln}
+———模拟人类双重记忆机制的高效连续环境视觉语言导航框架
+
+📄 **Paper**: [arXiv:2607.23504](https://arxiv.org/abs/2607.23504)
+
+### 精华
+1. **认知驱动的双记忆解耦**：借鉴人类大脑的“情景记忆（Episodic Memory）”与“程序记忆（Procedural Memory）”，将连续环境视觉语言导航（VLN-CE）中的长时序视觉历史管理与低延迟动作决策解耦。
+2. **像素级金字塔分辨率（Pyramidal Resolution）**：基于观察注意力分布中“近强远弱”的先验，对不同时间跨度的历史帧进行像素级下采样，在保留完整拓扑感知与长程视角的前提下大幅压缩视觉 Token 序列长度。
+3. **架构无缝兼容性**：相较于在隐空间破坏 2D 均匀网格的 Token Merging 方法，金字塔分辨率在原始像素空间保留了严格的 2D 拓扑结构，天然兼容 M-RoPE 和 DeepStack 等最新 LVLM 架构。
+4. **单次自回归避让（Fast Action）**：在程序记忆中构建扩充的原子中级动作词表（$A_{aug}$），将多步/复合动作映射为单个 Token 预测，彻底消除了传统 LLM 多 Token 自回归解码带来的高延迟，实现 14 FPS 实时导航。
+
+---
+
+### 1. 研究背景/问题
+- **核心问题**：在连续环境视觉语言导航（VLN-CE）任务中，智能体既需要维持长时序的视觉历史以保证轨迹一致性、避免漂移，又需要在连续控制下具备极低的动作响应延迟（高 FPS）。
+- **主要瓶颈**：
+  1. **长时序上下文爆炸**：将所有历史高分辨率图像直接喂入 LVLM，会导致 Token 长度迅速膨胀，计算开销呈二次方增长；
+  2. **自回归解码延迟**：传统 LVLM 在预测动作时依赖多 Token 逐字自回归解码，首 Token 首帧 Prefill 与后续 Token 生成导致单步延迟超过 300ms，无法满足实时机器人控制要求。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vln/MemVLN-concept.png" width="100%" />
+    <figcaption>图 1：MemVLN 模拟人类情景记忆（金字塔分辨率视觉历史）与程序记忆（中级动作快速推理）示意图</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vln/MemVLN-architecture.png" width="100%" />
+    <figcaption>图 2：MemVLN 整体架构图。多模态输入经情景记忆模块降采样后送入 LVLM，由程序记忆模块单次预测中级动作</figcaption>
+</div>
+
+#### ① 整体框架概述
+MemVLN 框架由**情景记忆模块（Episodic Memory）**、**视觉编码与多模态 LLM 主干（Visual Encoder & LVLM Backbone）**以及**程序记忆模块（Procedural Memory）**三大核心组成。智能体在连续时间步接收单目 RGB 观察流与自然语言指令，通过情景记忆对历史帧进行金字塔分辨率重采样，拼接后经视觉编码器和 LLM 提取跨模态上下文，最终由程序记忆模块单次输出原子动作 Token，实现 14 FPS 的高效闭环控制。
+
+#### ② 逐模块讲解
+
+##### A. 情景记忆模块：金字塔分辨率（Pyramidal Resolution）
+- **输入**：从起始步到当前步的完整单目 RGB 历史观察帧序列 $H_t = \{v_0, v_1, \dots, v_{t-1}\}$。
+- **处理过程**：
+  1. **注意力先验分析**：实测表明近期的 4 帧观察占据了超过 50% 的视觉注意力分配，且距离越近注意力权重呈指数级递增；
+  2. **三级时间梯队划级**：将历史帧按时间距离划分三个阶梯（即刻 Immediate、短期 Short-term、长期 Long-term），分别设置递减的分辨率 $r_{imm} > r_{short} > r_{long}$：
+     $$v_t' = \begin{cases} \mathrm{Rescale}(v_t, r_{imm}), & T - B_{short} < t \le T - 1 \\ \mathrm{Rescale}(v_t, r_{short}), & T - B_{long} < t \le T - B_{short} \\ \mathrm{Rescale}(v_t, r_{long}), & 0 \le t \le T - B_{long} \end{cases}$$
+  3. **Token 预算分配**：精细设置 $r_{long}$ 与 $r_{short}$，使得累计的长期历史 Token 总数不超过单个即刻高分辨率帧的 Token 量。
+
+<div align="center">
+  <img src="/images/vln/MemVLN-attention-analysis.png" width="100%" />
+    <figcaption>图 3：观察帧注意力分布分析。左：近 4 帧占超 50% 注意力权重；中：最新帧权重最集中；右：注意力随帧接近呈递增趋势</figcaption>
+</div>
+
+- **输出**：经过像素级降采样的高效视觉帧集合 $S_t \subset H_t$ 及对应的视觉特征 $F_t = E_{vis}(S_t)$。
+- **设计动机与优越性**：对比 Uni-NaVid 或 StreamVLN 使用的 Token Merging（在隐空间按语义相似度聚类），Token Merging 会打乱 2D 像素阵列的规整网格，破坏现代 LVLM（如 Qwen2/3-VL）中的 M-RoPE 位置编码及 DeepStack 架构。而金字塔分辨率在原始像素空间下采样，保留了严格的 2D 拓扑物理结构，天然兼容最新的 3D/多模态位置编码。
+
+<div align="center">
+  <img src="/images/vln/MemVLN-pyramidal-vs-tokenmerging.png" width="100%" />
+    <figcaption>图 4：像素级金字塔分辨率（Pyramidal Resolution）与隐空间 Token Merging 的对比，保持 2D 网格结构以兼容 M-RoPE</figcaption>
+</div>
+
+##### B. 程序记忆模块：单次快速动作生成（Fast Action）
+- **输入**：LVLM Backbone 融合后的跨模态隐层特征。
+- **处理过程**：
+  1. **瓶颈分析**：实验表明，LLM 解码首 Token 需 Prefill（约 70ms），后续逐 Token 自回归生成线性叠加延迟（10 个 Token 需 360ms）。
+  2. **扩充中级动作词表（$A_{aug}$）**：重用 LLM 词表中的单 Token 符号，重新映射为扩充的原子中级动作集（包含不同距离的前进 $25\text{cm}/50\text{cm}/75\text{cm}$、不同角度的转向 $15^\circ/30^\circ/45^\circ$ 以及 Stop）。
+  3. **单次预测（One-shot Prediction）**：将复合动作预测转化为重用词表上的单 Token 分类任务，在单个 Forward Pass 内完成决策。
+- **输出**：单个中级动作 Token $a_t \in A_{aug}$，直接映射为底盘控制指令。
+- **设计动机**：借鉴人类程序记忆（自动化执行熟练动作技能的隐式记忆），绕过逐字自回归解码，将推理延迟从 >300ms 降低至 70ms（14 FPS）。
+
+#### ③ 端到端数据流
+1. 当前步 $t$ 获取单目 RGB 图像 $v_{t-1}$，与历史序列合并为 $H_t$；
+2. 经过情景记忆进行三级分辨率划分与 Rescale，得到像素级金字塔帧集合 $S_t$；
+3. 视觉编码器提取特征 $F_t = E_{vis}(S_t)$，与语言指令 $I$ 拼接；
+4. 送入 Qwen3-VL 4B/8B 主干，提取跨模态表示；
+5. 程序记忆 Head 输出单个动作 Token $a_t \in A_{aug}$ 并由 Habitat 仿真器/底盘执行。
+
+#### ④ 训练目标 / 损失函数
+采用监督微调（SFT）训练策略，对于长度为 $T$ 的轨迹，最小化真值动作 $a_t^*$ 的标准交叉熵损失（Cross-Entropy Loss）：
+
+$$L = -\frac{1}{T} \sum_{t=1}^{T} \log P(a_t^* \mid F_t, I; \theta)$$
+
+其中 $\theta$ 为 MemVLN 的可训练参数。
+
+#### ⑤ 推理流程
+推理时无需任何迭代自回归循环，每时间步仅进行一次 Forward 传递，输出单个 Token 动作，实现实时闭环控制。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vln/MemVLN-qualitative.png" width="100%" />
+    <figcaption>图 5：MemVLN 在 Habitat 仿真器中 R2R-CE 和 RxR-CE 上的定性导航结果展示</figcaption>
+</div>
+
+1. **SOTA 导航性能**：
+   - 在 **RxR-CE Val Unseen** 榜单上，MemVLN-4B 取得了 **66.5% SR** 和 **57.4 SPL**，大幅超越之前的 SOTA 方法 StreamVLN-7B（52.9% SR / 46.0 SPL）和 NaVILA-8B（49.3% SR / 44.0 SPL）。
+   - 在 **R2R-CE Val Unseen** 上，MemVLN-8B 达到了 **58.4% SR** 和 **51.2 SPL**。
+2. **推理速度与控制频率**：
+   - 相比于传统自回归解码（2 FPS），引入 Fast Action 程序记忆后，MemVLN 实现了 **14 FPS** 的实时推理速度（延迟仅 ~70ms/步），同时 SR 提高（R2R 50.8% $\rightarrow$ 52.6%）。
+3. **跨数据集零样本泛化能力**：
+   - 仅在 R2R 训练集上训练，在 RxR-CE Val Unseen 上进行 Zero-shot 评测，MemVLN-4B 达到 **38.4% SR** 和 **33.8 SPL**，相比 NaVILA-8B（34.3% SR / 28.2 SPL）提升了 12% 的成功率和 20% 的路径效率。
+
+---
+
+### 4. 局限性
+1. **端侧计算部署受限**：虽然实现了 14 FPS 实时推理，但模型仍依赖高性能 GPU 显存（实验环境为 H200），在功耗受限的移动机器人边缘设备（如 Jetson Orin）上部署仍需进一步量化与轻量化剪枝。
+2. **极大参数规模扩展性**：在千亿/万亿参数规模大模型的进一步扩展上，受到单卡显存与长时序训练开销的限制。
+
+---
+
+## 66. X-NavDP (2026) {#x-navdp}
+———多构型机器人通用视觉导航的组内 Q 值重加权 Diffusion RL 强化学习微调框架
+
+📄 **Paper**: [arXiv:2607.28560](https://arxiv.org/abs/2607.28560)
+
+---
+
+### 精华
+1. **解决核心痛点**：传统扩散导航策略依赖全局特权规划器模仿学习，缺乏局部视场下的自救探索与多构型适应能力，而常规 RL 算法在扩散策略微调中易面临似然计算不稳定或高斯探索破坏轨迹平滑性的难题。
+2. **自引导轨迹扰动**：利用预训练模型内部的无目标（Goal-Agnostic）预测分支与坐标翻转组合，在保留扩散模型先验与时间平滑性的同时生成侧向、倒车与绕行等高多样性探索动作。
+3. **组内 Q 值重加权（GQRM）**：提出在同状态（Same-State）候选动作组内归一化 Q 值，解决了全局 Minibatch 归一化在困难低收益状态下梯度信号被掩盖的问题，实现高效稳健的扩散 actor 更新。
+4. **轻量化构型 FiLM 调制**：通过在 Transformer 解码器输入与输出特征层注入构型 Embedding，用单套网络权重统一控制轮式、四足与人形（Dingo、Unitree Go2、G1）三种异构机器人。
+5. **大幅提升性能**：在 40 个未见模拟场景中成功率由 61.20% 提升至 84.28%，并在真实世界死胡同自救等困难场景中将成功率由 10% 提升至 65%，仅需 12 小时并行 RL 训练。
+
+---
+
+### 1. 研究背景/问题
+
+基于大规模数据预训练的扩散视觉导航策略（如 NavDP、NoMaD）具备极强的零样本泛化能力。然而，现有方法主要采用**模仿学习（Imitation Learning）**，监督数据由全局全知规划器生成。这种训练范式存在两大天然缺陷：
+1. **决策歧义与无自救能力**：真实部署时机器人仅能获取局部 Visual RGB-D 观测，全局最优轨迹与局部视觉的失配严重抑制了策略的自主探索，导致机器人面对死胡同（Dead-End）或长障碍物时无法后退或绕行自救。
+2. **构型盲目性（Embodiment-Blind）**：数据生成未考虑不同机器人的物理运动约束与动力学差异，难以直接跨机器人平台迁移。
+
+虽然**强化学习（RL）**是解决交互试错与构型适用的有效途径，但扩散策略的 RL 微调存在极高的技术瓶颈：
+- 基于策略梯度的微调方法（如 DPPO）需要穿透长扩散去噪链计算似然，导致训练极不稳定；
+- 基于隐空间的微调方法（如 DSRL）冻结去噪核心参数，极大限制了探索能力；
+- 基于重加权分段匹配的方法（如 DPMD）虽然稳定，但在全局 Minibatch 归一化下，困难状态的低绝对收益导致梯度失真。
+
+---
+
+### 2. 主要方法/创新点
+
+X-NavDP 构建了一套高性能的扩散策略强化学习后训练框架。系统由三大核心模块构成：**构型 FiLM 条件调制模块**负责跨构型感知，**自引导轨迹扰动模块**生成兼具先验与多样性的探索候选，**组内 Q 值重加权匹配（GQRM）**在同状态组内精确计算策略改进方向，最后通过**闭环时域引导（RTC）**保障部署推演的连续平滑。
+
+<div align="center">
+  <img src="/images/vln/X-NavDP-overview.png" width="100%" />
+    <figcaption>Figure 1: X-NavDP RL 后训练框架整体概览与离线/在线导航性能对比</figcaption>
+</div>
+
+#### ① 整体框架与分层控制
+X-NavDP 采用分层控制架构：
+- **高层导航策略**：输入局部 RGB-D 图像与 PointGoal 目标坐标，扩散模型输出 $H$ 步未来航点轨迹 Chunk（如 3 秒轨迹）；
+- **低层控制栈**：统一的 MPC 控制器将航点 Chunk 转化为底盘速度指令，再由机器人特定的低层足行/轮运动控制策略（25 Hz）执行。
+- **并行训练环境**：在 IsaacLab 中并行运行 500+ 个涉及轮式（Dingo）、四足（Unitree Go2）、人形（Unitree G1）机器人的仿真环境，高层策略按 3 秒宏观步（Macro-Step）收集 Replay Buffer。
+
+<div align="center">
+  <img src="/images/vln/X-NavDP-architecture.png" width="100%" />
+    <figcaption>Figure 2: X-NavDP 整体架构与三大核心模块（构型 FiLM 调制、自引导扰动、组内 Q 值重加权匹配）</figcaption>
+</div>
+
+#### ② 自引导轨迹扰动（Self-Bootstrapped Perturbation）
+直观上，直接给轨迹添加高斯噪声会破坏航点的时间连续性与动力学可行性。X-NavDP 发现：**预训练策略在无目标（Goal-Agnostic）条件下的输出天然保持场景一致性且探索更激进**。
+
+因此，对同一视觉观测，算法同时采样有目标轨迹 $\tilde{\tau}_{\text{pointgoal}}$ 与无目标轨迹 $\tilde{\tau}_{\text{nogoal}}$，并进行带符号外推混合：
+$$\tau_{\text{mixed}} = \mathbf{s} \odot (\tilde{\tau}_{\text{pointgoal}} + \lambda \tilde{\tau}_{\text{nogoal}})$$
+其中 $\mathbf{s} = ((-1)^{B_1}, (-1)^{B_2})$ 是由伯努利分布生成的随机符号向量，对整体 Chunk 的 $x, y$ 坐标独立按概率 $\epsilon$ 进行翻转。这种设计能够原生地生成平滑的倒车、侧向避障与侧退自救轨迹。
+
+> **举个例子（自引导扰动数据流）**：
+> 假设机器人陷入死胡同，有目标预测 $\tilde{\tau}_{\text{pointgoal}}$ 给出向前微动 $[+0.2, 0.0]$，单纯加高斯噪声可能得到 $[+0.2+\mathcal N, 0.0+\mathcal N]$（机器人剧烈抖动碰撞）；
+> 而无目标预测 $\tilde{\tau}_{\text{nogoal}}$ 给出大范围探索航点 $[+0.5, +0.6]$。通过外推和符号翻转 $\mathbf s = (-1, -1)$，合成轨迹变为 $[-0.2, -0.6]$——产生了一条极其平滑且符合物理约束的倒车绕行轨迹！
+
+#### ③ 组内 Q 值重加权匹配（Group Q-Score Reweighted Matching, GQRM）
+为解决标准 DPMD 在 Minibatch 全局归一化时“简单状态高收益掩盖困难状态低收益”的缺陷，GQRM 强制在**同一状态下的候选动作组 $G(s)$ 内**计算统计量：
+
+组内均值与标准差公式：
+$$\bar{Q}_G(s) = \mathbb E_{a_0 \sim \pi_{\text{old}}(\cdot \mid s)} [Q(s, a_0)], \quad \sigma_G(s) = \sqrt{\mathbb E_{a_0 \sim \pi_{\text{old}}(\cdot \mid s)} [(Q(s, a_0) - \bar{Q}_G(s))^2]}$$
+
+组内归一化优势值：
+$$\tilde{Q}_G(s, a_0) = \text{clip}\left( \frac{c (Q(s, a_0) - \bar{Q}_G(s))}{\sigma_G(s) + \varepsilon}, -h, h \right)$$
+
+GQRM 的 Actor 优化目标：
+$$\mathcal L_{\text{GQRM}}(\theta; s, t) = \mathbb E_{a_0 \sim \pi_{\text{old}}(\cdot \mid s), a_t \sim q_{t \mid 0}(\cdot \mid a_0)} \left[ \exp(\tilde{Q}_G(s, a_0) / \lambda) \left\lVert s_\theta(a_t; s, t) - \nabla_{a_t} \log q_{t \mid 0}(a_t \mid a_0) \right\rVert^2 \right]$$
+
+在实践中，每次仅保留同状态候选组中优势值大于零前 $k$ 个候选动作（Top-$k$ Positive Advantage），既削减了低质量样本噪声，又大幅节省了计算开销。
+
+| 维度 | 传统 DPMD 做法 | 本文 GQRM 做法 |
+|---|---|---|
+| 归一化范围 | 跨 Minibatch 内不同状态混合归一化 | 仅在同一状态采样的候选动作组内归一化 |
+| 困境表现 | 简单状态的大 positive return 掩盖困难状态的相对优劣 | 即使绝对 return 全为负，也能区分出局部更优的倒车自救动作 |
+| 梯度权重 | 困难状态样本权重接近于 0，无法学习自救 | 困难状态的局部相对优胜者获得指数级强化权重 |
+
+#### ④ 构型 FiLM 调制与闭环时域引导
+- **构型 FiLM 调制（Embodiment Modulation）**：将机器人 ID 转换为 Embedding $\mathbf z_e = E_{\text{emb}}(e)$，一方面作为 Action Token 前的偏置 $\mathbf u_e = \mathbf u + f_\Delta(\mathbf z_e)$，另一方面通过 FiLM 生成缩放与偏移参数 $[\Delta \gamma_e, \Delta \beta_e] = f_{\text{FiLM}}(\mathbf z_e)$ 调制解码器输出特征 $\mathbf h_e = (1 + \Delta \gamma_e) \odot \mathbf h + \Delta \beta_e$，使得单套主干模型能感知不同机器人的宽度、转弯半径及推力特性。
+- **闭环时域引导（RTC Guidance）**：推理部署时，在 DDPM 反向去噪步骤中引入前一预测轨迹的时域平滑梯度，更新公式为 $\mathbf x_t^{(k-1)} = \boldsymbol \mu_k + \sigma_k \mathbf z + \sqrt{\bar{\alpha}_k} \eta_{\text{guide}} \mathbf g$，有效消除了滚动时域预测中的轨迹抖动。
+
+```mermaid
+graph TD
+    A["输入: 局部 RGB-D + PointGoal + 机器人 ID"] --> B["构型 FiLM 模块注入 Robot Embedding"]
+    B --> C["自引导扰动策略采样同状态候选组 G(s)"]
+    C --> D["Twin Critics 评估候选组轨迹 Q(s, a0)"]
+    D --> E["同状态组内归一化计算优势值 Q_tilde_G"]
+    E --> F["保留 Top-k 正优势动作指数重加权"]
+    F --> G["优化 Diffusion Score Network 去噪目标"]
+    G --> H["MPC 追踪执行 + RTC 闭环平滑引导"]
+```
+
+---
+
+### 3. 核心结果/发现
+
+1. **仿真基准全方位超越**：在 IsaacLab 40 个未见测试场景中，X-NavDP 相比预训练基线 NavDP，平均成功率（SR）从 **61.20% 提升至 84.28%**，SPL 从 **58.95% 提升至 77.19%**。特别是在人形机器人（Unitree G1）上，Home 场景成功率从 **50.70% 骤升至 84.50%**。
+2. **真机硬核困境自救**：在无真机微调（Zero-Shot Sim-to-Real）情况下部署于 Turtlebot、Unitree Go2 和 Unitree G1，在死胡同、长墙绕行等硬核测试集中，成功率从基线的 **10% 飙升至 65%**。
+
+<div align="center">
+  <img src="/images/vln/X-NavDP-qualitative-results.png" width="100%" />
+    <figcaption>Figure 3: 定性轨迹对比：X-NavDP 在困境自救、长障碍物绕行和安全路径选择上显著优于 NavDP</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vln/X-NavDP-ablation-study.png" width="100%" />
+    <figcaption>Figure 4: 探索策略消融实验：无目标扰动与轨迹反向在策略学习中的重要性</figcaption>
+</div>
+
+3. **消融实验关键发现**：
+   - 移除自引导扰动与轨迹反向会导致 RL 训练直接崩溃（SR 跌至 6.23%）；
+   - 相比于 Soft-Prompt 拼接，FiLM 构型调制在多场景扩展时展现出更强的跨构型适应性；
+   - 相比于 DPPO 和 DSRL，GQRM 展现出极高的训练稳定性和数据效率（仅需 12 小时后训练）。
+
+---
+
+### 4. 局限性
+
+1. **短时域上下文依赖**：策略当前主要依赖短时域视觉上下文，缺少长期拓扑记忆，在极长的墙体绕行中可能因记忆消退出现重复打转。
+2. **低层控制器依赖**：跨构型泛化依赖于预先训练好的低层足行/轮式控制器，在非常规构型上的扩展需要先具备对应的基底控制器。
+3. **透明与空洞障碍物感知**：对玻璃隔断、网格孔洞面板等透明/高穿透力障碍物的 RGB-D 深度测量易失效，需引入更强语义感知。
+
+---
+
 # 参考资料
 
 ## 已发表论文（会议 / 期刊）
@@ -7685,6 +7925,8 @@ Agent Harness 改变了传统单模型控制器的设计，将 Agent 调度划�
 62. **TuckerNav** (2026).
 63. **AgenticNav** (2026).
 64. **ABot-AgentOS** (2026).
+65. **MemVLN** (2026). 模拟人类双重记忆机制的高效连续环境视觉语言导航框架. arXiv: [2607.23504](https://arxiv.org/abs/2607.23504)
+66. **X-NavDP** (2026). 多构型机器人通用视觉导航的组内 Q 值重加权 Diffusion RL 强化学习微调框架. arXiv: [2607.28560](https://arxiv.org/abs/2607.28560)
 
 
 <script>
@@ -7753,6 +7995,8 @@ Agent Harness 改变了传统单模型控制器的设计，将 Agent 调度划�
         { m: 'R2R',                   t: ['离散环境', '数据集'] },
         { m: 'DUET',                  t: ['拓扑图', '端到端', '离散环境'] },
         { m: 'NaVid',                 t: ['端到端', '连续环境', '实机部署', '零样本'] },
+        { m: 'MemVLN',                t: ['端到端', '连续环境', '加速优化'] },
+        { m: 'X-NavDP',               t: ['扩散模型', '强化学习', '连续环境', '实机部署'] },
     { m: 'VLN-CE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'VLN-PE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'RynnBrain',         t: ['基础工作'] },
