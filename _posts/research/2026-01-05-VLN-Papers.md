@@ -25,6 +25,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [Robostral Navigate(单目)](#robostral-navigate) | 2026 | R2R-CE | Mistral-8B | **77.4** | **74.2** | **3.20** | **81.3** | 否 |
  | [Qwen-RobotNav(全景)](#qwen-robotnav) | 2026 | R2R-CE | Qwen3-VL-7B | 72.1 | 66.6 | 3.53 | 78.5 | 否 |
 | [ABot-N1(三相机)](#abot-n1) | 2026 | R2R-CE | Qwen-3.5-4B + 2B | 70.9 | 67.5 | 3.32 | 75.2 | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) |
+| [Image2Nav (180° FOV)](#image2sim) | 2026 | R2R-CE | Qwen3-VL-4B | 70.3 | 65.6 | 3.71 | 76.1 | [是](https://github.com/MrZihan/Image2Sim) | – |
  | [OmniNav(多目)](#omninav) | 2026 | R2R-CE | Qwen2.5-VL-3B | 69.5 | 66.1 | 3.74 | 74.6 | [是](https://github.com/amap-cvlab/OmniNav) |
  | [AstraNav-World(多目)](#astranav-world) | 2025 | R2R-CE | Qwen2.5-VL-3B | 67.9 | 65.4 | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) |
  | [SEDualVLN(单目)](#sedualvln) | 2026 | R2R-CE | LLaVA-Video-7B | 67.3 | 62.5 | 3.75 | 73.7 | [是](https://github.com/kim-os/SEDualVLN) |
@@ -70,6 +71,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [SEDualVLN (单目)](#sedualvln) | 2026 | RxR-CE | LLaVA-Video-7B | 63.9 | 52.4 | 4.12 | – | [是](https://github.com/kim-os/SEDualVLN) |
  | [Dual-Anchoring (单目)](#dual-anchoring) | 2026 | RxR-CE | LLaVA-Video-7B | 61.7 | 53.3 | – | – | 否 |
  | [DualVLN (单目)](#dualvln) | 2025 | RxR-CE | Qwen2.5-VL-7B | 61.4 | 51.8 | 4.58 | – | [是](https://github.com/InternRobotics/InternNav) |
+| [Image2Nav (180° FOV)](#image2sim) | 2026 | RxR-CE | Qwen3-VL-4B | 59.1 | 71.8 | 3.74 | 70.7 | [是](https://github.com/MrZihan/Image2Sim) | – |
  | [JanusVLN (单目)](#janusvln) | 2026 | RxR-CE | Janus-Pro-7B | 56.2 | 47.5 | 6.06 | – | [是](https://github.com/MIV-XJTU/JanusVLN) |
  | [RynnBrain-Nav (单目)](#rynnbrain) | 2026 | RxR-CE | – | 56.1 | – | 4.92 | – | [是](https://github.com/alibaba-damo-academy/RynnBrain) |
  | [GA-VLN (单目)](#ga-vln) | 2026 | RxR-CE | LLaVA-Video-7B | 55.4 | 45.2 | 5.88 | 67.0 | [是](https://github.com/jahhaoyang/GA-VLN) |
@@ -131,6 +133,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [EvoMemNav (单目)](#evomemnav) | 2026 | HM3D-v1 | Qwen-8B | 59.2 | 33.6 | 否 |
  | [OmniNav (多目)](#omninav) | 2026 | HM3D-OVON (Object-Goal) | Qwen2.5-VL-3B | 59.2 | 33.2 | [是](https://github.com/amap-cvlab/OmniNav) |
  | [VLingNav (单目)](#vlingnav) | 2026 | MP3D | LLaVA-Video-7B | 58.9 | 26.5 | [是](https://github.com/wsakobe/VLingNav-web) |
+| [Image2Nav (180° FOV)](#image2sim) | 2026 | REVERIE-CE | Qwen3-VL-4B | 53.7 | 42.7 | [是](https://github.com/MrZihan/Image2Sim) | – |
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | HM3D-OVON | Qwen3-VL-2B | 53.1 | 20.9 | 否 |
  | [VLFM (单目)](#vlfm) | 2023 | HM3D | – | 52.5 | 30.4 | [是](https://github.com/rai-opensource/vlfm) |
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | HM3D-OVON | Qwen3-VL-7B | 51.2 | 24.0 | 否 |
@@ -7852,6 +7855,159 @@ graph TD
 
 ---
 
+## 67. Image2Sim (2026) {#image2sim}
+———解耦 3D 空间锚定与超真实图像合成的实时神经仿真引擎
+
+📄 **Paper**: [arXiv:2607.05765](https://arxiv.org/abs/2607.05765) · [Project Page](https://github.com/MrZihan/Image2Sim)
+
+### 精华
+1. **打破几何与合成的博弈**：Image2Sim 提出了“3D 空间锚定”与“超真实图像合成”解耦的神经仿真范式，利用前馈 3D 特征高斯（Feature Gaussian）提供显式度量几何约束，再由单步像素流（Pixel Flow）生成模型在 3D 几何 Alpha 掩码引导下补全未观测视野。
+2. **实时闭环高帧率仿真**：采用连续时间 MeanFlow 单步速度估计与动量自蒸馏（Momentum-based Self-Distillation），将传统扩散/流匹配模型的多步迭代采样压缩为单步映射，在全景 RGB-D 渲染上达到 45.6 FPS，首次满足具身导航在线闭环交互与 DAgger/RL 训练的实时性要求。
+3. **自动化具身数据引擎**：通过显式高斯体素化、GPU 平行光线步进碰撞查询与 collision-aware NavFn 规划，直接从无标注视频/图像构建近 2 万个交互式神经环境，并自动合成了超过 1000 万条跨视角、高保真的导航轨迹与多模态指令数据。
+4. **强跨域与 Scaling 律验证**：基于纯 Image2Sim 神经环境训练的导航策略 Image2Nav，在完全不接触真实 Habitat 建模的情况下，跨模拟器 zero-shot 泛化至 R2R-CE（SR 70.3%）、RxR-CE 和 REVERIE-CE 刷新 SOTA，并在真实物理机器人（Hello Robot Stretch 3）上展现出卓越的零样本迁移能力。
+
+---
+
+### 1. 研究背景/问题
+
+具身导航（Embodied Navigation）要求智能体在 3D 空间中准确理解多模态目标并执行物理动作。然而，构建大规模、高保真且具备物理接地（Physical Grounding）的交互式仿真环境长期存在矛盾：
+
+1. **真实扫描环境（如 Matterport3D、HM3D）**：视觉与几何真实度极高，但依赖昂贵的人工扫描与数字孪生重建，环境数量受限于数百到数千场景，无法支撑大规模策略预训练。
+2. **合成/程序化环境（如 AI2-THOR、ProcTHOR）**：极易大规模扩展，但包含大量人工 3D 资产与非真实渲染统计量，存在严重的 Sim-to-Real 跨域鸿沟。
+3. **传统生成式世界模型（World Models）**：能合成逼真视频，但缺乏显式持久的 3D 空间结构与物理碰撞面，无法支持智能体进行自由连贯的闭环导航动作交互。
+
+为了兼具**高真实度、无限扩展性与物理闭环性**，Image2Sim 提出直接从无约束的姿态 RGB-D 图像/视频序列中构建可交互的实时神经仿真环境。
+
+<div align="center">
+  <img src="/images/vln/Image2Sim-pipeline-comparison.png" width="100%" />
+<figcaption>图 1：传统导航数据流水线（需昂贵 Mesh 与人工标注）与 Image2Sim 神经仿真框架（自适应生成 2 万场景与千万级数据）对比</figcaption>
+</div>
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vln/Image2Sim-architecture.png" width="100%" />
+<figcaption>图 2：Image2Sim 整体架构：前馈 3D 特征高斯编码器（左）与单步几何感知 Pixel Flow 渲染器（右）</figcaption>
+</div>
+
+Image2Sim 的核心创新在于将神经环境建模拆分为两个解耦的模块：**前馈 3D 特征高斯几何构建**（提供持续 3D 空间锚定）与**几何感知单步 Pixel Flow 渲染**（负责未观测盲区的超真实生成补全）。
+
+#### ① 前馈 3D 特征高斯几何构建（Feed-Forward 3D Gaussian Encoder）
+- **输入**：任意姿态的 RGB-D 帧（支持针孔相机与全景相机），通过射线方向编码（Ray-Direction Encoding）统一表达。
+- **处理**：双流编码器提取特征——冻结的 DINOv3 主干捕捉高层语义特征，轻量级几何细节流保留 RGB、深度与法向量。特征融合后由预测头一次性反投影并生成 3D 特征高斯集合 $\mathcal G = \{g_j\}_{j=1}^M$。每个高斯元组包含中心 $\mathbf \mu_j \in \mathbb R^3$、缩放 $\mathbf s_j$、旋转 $\mathbf q_j$、不透明度 $\alpha_j$、颜色 $\mathbf c_j$ 及语义特征 $\mathbf f_j$。
+- **输出**：在目标位姿 $p$ 下投影得到的全景 RGB 图 $\tilde{\mathbf I}_p$、深度图 $\tilde{\mathbf D}_p$、透明度图 $\tilde{\mathbf A}_p$ 和特征图 $\mathbf C_p$。
+- **设计动机**：摒弃传统 NeRF/3DGS 逐场景优化（Per-Scene Optimization）耗时数小时的缺点，实现单次前馈毫秒级构建 3D 场景。
+
+#### ② 几何感知单步 Pixel Flow 渲染器（Geometry-Aware One-Step Pixel Flow）
+
+当智能体移动到未观测视角时，直接用 3DGS 飞溅渲染会产生大量破洞与伪影（黑洞盲区）。Image2Sim 设计了一个以概率流 ODE（Probability Flow ODE）为基础的 Pixel Flow 生成模型：
+
+1. **Alpha 门控源状态（Alpha-Gated Source State）**：利用 3DGS 渲染得到的透明度图 $\tilde{\mathbf A}_p$ 衡量 3D 投影的几何可靠度。构造空间自适应噪声尺度：
+   $$\Sigma(\tilde{\mathbf A}_p) = \tilde{\mathbf A}_p \odot \sigma_{\mathrm{small}} + (1 - \tilde{\mathbf A}_p) \odot \sigma_{\mathrm{large}}$$
+   由此生成 Alpha 门控源状态：
+   $$\mathbf z_{\mathrm{src}} = \tilde{\mathbf A}_p \odot \tilde{\mathbf X}_p + \Sigma(\tilde{\mathbf A}_p) \odot \mathbf \epsilon, \quad \mathbf \epsilon \sim \mathcal N(\mathbf 0, \mathbf I)$$
+   在 3DGS 已观测的高 Alpha 区域保持原始投影细节；在低 Alpha 盲区输入较大噪声，引导生成模型进行合理补全。
+
+2. **网络结构**：基于 UNet 架构，卷积编码器压缩源状态 $\mathbf z_{\mathrm{src}}$ 与几何条件 $\mathbf C_p$，Deep Transformer 瓶颈层引入 AdaLN 时间注入与 SPADE 式空间自适应归一化（注入 DINOv3 语义特征 $\Phi(\mathbf C_p)$）。上采样阶段采用 Alpha 金字塔门控跳跃连接（Alpha-Gated Skip Connections），保护高透明度区域的几何细节不被生成网络破坏。
+
+> **举个例子（Alpha 门控手算推演）**：
+> 假设智能体转头看向门后区域，全景图某像素在 3DGS 投影中透明度为 $\tilde{A}_p = 0.95$（已有已知几何），而旁边未被扫描到的墙角透明度为 $\tilde{A}_p = 0.05$（纯盲区）。
+> 设 $\sigma_{\mathrm{small}}=0.01$，$\sigma_{\mathrm{large}}=1.0$。
+> - 已知区域噪声标准差仅为 $0.95 \times 0.01 + 0.05 \times 1.0 = 0.0595$，网络输入近乎纯净的投影 RGB-D 证据；
+> - 盲区像素噪声标准差达到 $0.05 \times 0.01 + 0.95 \times 1.0 = 0.9505$，网络收到强噪声信号，触发 generative 扩散/流匹配机制填充合理纹理与深度。
+
+```mermaid
+graph TD
+    A["姿态 RGB-D 观测"] --> B["前馈 3D 特征高斯模型 (GS Encoder)"]
+    B --> C["全景投影: 投影 RGB-D + 透明度 Alpha 图 A_p"]
+    C --> D{"Alpha 门控分流"}
+    D -- "高 Alpha (已知几何)" --> E["保留原始 3DGS 投影 + 小噪声"]
+    D -- "低 Alpha (未观测盲区)" --> F["注入高斯噪声 Σ(A_p) ⊙ ε"]
+    E --> G["Alpha 门控源状态 z_src"]
+    F --> G
+    G --> H["MeanFlow 单步 UNet/Transformer 瓶颈"]
+    H --> I["速度场估计 V_θ (JVP 评估)"]
+    I --> J["单步生成高保真全景 RGB-D (45.6 FPS)"]
+    K["EMA TeacherPrivileged GT 条件"] -. "动量自蒸馏 L_distill" .-> H
+```
+
+#### ③ Continuous-Time MeanFlow 与动量自蒸馏（Momentum Self-Distillation）
+- **MeanFlow 单步连续映射**：传统 Flow Matching 需要 20–50 步 Euler 积分采样，速度极慢（<1 FPS）。Image2Sim 基于连续时间 MeanFlow 理论，直接预测从源状态 $\mathbf z_{\mathrm{src}}$ 到目标图像 $\mathbf X_p$ 的平均传输速度 $u_\theta = (\mathbf z_t - x_\theta)/\max(t, \varepsilon)$。结合前向 JVP（Jacobian-Vector Product）高效计算方向导数 $\frac{\mathrm d u_\theta}{\mathrm d t}$，一次 forward 即可完成生成，将渲染速度提升至 45.6 FPS。
+- **动量自蒸馏损失**：维持一个指数移动平均（EMA，衰减率 0.999）的 Teacher 网络，Teacher 接收特权 Ground-Truth 源状态 $\mathbf z_{\mathrm{gt}}$。Student 提取的解码器特征与 Teacher 强行对齐：
+  $$\mathcal L_{\mathrm{distill}} = \sum_{k \in \mathcal K} \tilde{w}_k \left( 1 - \frac{\mathbf f_k^S \cdot \mathbf f_k^T}{\lVert \mathbf f_k^S \rVert_2 \lVert \mathbf f_k^T \rVert_2} + \beta \lVert \mathbf f_k^S - \mathbf f_k^T \rVert_2^2 \right)$$
+  极大增强了单步生成的稳定性，消除了光影抖动与幻觉伪影。
+
+<div align="center">
+  <img src="/images/vln/Image2Sim-rendering-visualization.png" width="100%" />
+<figcaption>图 3：高噪声稀疏场景下 3DGS 原始渲染（左，大量破洞黑块）与 Pixel Flow 补全渲染（中）对比</figcaption>
+</div>
+
+#### ④ 物理运动仿真引擎与自动化数据流水线
+
+<div align="center">
+  <img src="/images/vln/Image2Sim-motion-engine.png" width="100%" />
+<figcaption>图 4：基于体素化碰撞查询与 NavFn 路径规划的物理运动引擎及 VLM 自动化指令标注流程</figcaption>
+</div>
+
+1. **体素化与 GPU 光线步进碰撞查询**：将 3D 高斯场景离散化为密集体素网格 $\mathcal V$，基于离地高度、表面连通性与障碍物安全间距判定可通行性。通过 GPU 并行光线步进（Ray Marching）查询机器人 Footprint 碰撞，构建可通行体素图 $\mathcal M = (\mathcal V, \mathcal E)$，支持贴墙滑动与碰撞拦截。
+2. **碰撞感知 NavFn 规划与纯追踪控制**：在 Graph $\mathcal M$ 上运行结合安全代价的 NavFn 路径规划，利用 Pure-Pursuit 纯追踪控制器将离散节点转化为光滑的连续运动轨迹。
+3. **VLM 自动化指令标注**：重放物理轨迹渲染全景视频，利用 Large Vision-Language Model 自动生成路径追踪、目标导向与人类习惯等多多样化导航文本指令。
+
+| 维度 | 传统扫描 3D Mesh (Habitat/Matterport3D) | 纯 3DGS 渲染 (AnySplat 等) | 纯生成式世界模型 (World Models) | Image2Sim 神经仿真器 (本文) |
+|---|---|---|---|---|
+| **场景扩展性** | 极低（依赖人工 3D 扫描） | 中（需逐场景优化或前馈预测） | 高（从视频/文本直接生成） | **极高（输入任意 RGB-D 视频/图像）** |
+| **未观测补全** | 不具备（依赖固定 Mesh 边界） | 极差（黑洞破洞、伪影重重） | 强（扩散/流匹配生成） | **极强（Alpha 门控 Pixel Flow 补全）** |
+| **交互渲染速度** | 极高（>100 FPS 传统渲染） | 极高（>115 FPS） | 极慢（<1 FPS 多步采样） | **实时高帧率（45.6 FPS 单步生成）** |
+| **物理闭环约束** | 具备（内置物理碰撞网格） | 缺乏（纯点云渲染无几何碰撞面） | 缺乏（无法精确阻挡机器人穿墙） | **具备（基于高斯体素与 GPU 光线步进）** |
+
+---
+
+### 3. 核心结果/发现
+
+#### ① 视角合成渲染质量与速度对比
+在 RealSee3D-Real（高噪声 LiDAR 深度）等挑战性数据集上，Image2Sim 展现出极其优异的鲁棒性与速度表现：
+
+- **渲染质量**：PSNR 达 17.43，SSIM 达 0.470，显著超越纯高斯前馈模型 AnySplat（PSNR 15.23, SSIM 0.415），有效弥补了结构缺失。
+- **渲染帧率**：全景 RGB-D 渲染速度达到 **45.6 FPS**，比传统扩散生成模型 DiT360（0.3 FPS）和 SE3DS（3.4 FPS）快一到两个数量级。
+
+#### ② 跨模拟器 Zero-Shot 具身导航性能 (R2R-CE, RxR-CE, REVERIE-CE)
+基线导航模型 Image2Nav 仅在 Image2Sim 生成的神经数据集中训练，**零样本直接在 Habitat 模拟器中评估**（打破了所有 Baseline 在 Habitat 内部训练评估的习惯）：
+
+- **R2R-CE 路径追踪导航**：在 Val Unseen 划分上，Image2Nav（180° FOV）取得 **SR 70.3%**、**SPL 65.6%**、**NE 3.71m** 的 SOTA 成绩，大幅超越在 Habitat 内训练的顶级方法 EfficientVLN（SR 64.2%, SPL 55.9%）与 DualVLN（SR 64.3%, SPL 58.5%）。
+- **RxR-CE 多语言长指令导航**：实现 **SR 59.1%**、**SPL 71.8%**、**nDTW 71.8%**。
+- **REVERIE-CE 目标导向导航**：实现 **SR 53.7%**、**SPL 42.7%**。
+
+<div align="center">
+  <img src="/images/vln/Image2Sim-scaling-law.png" width="100%" />
+<figcaption>图 5：Image2Sim 训练数据规模从 35K 扩展至 10M 时导航成功率（SR）的对数线性 Scaling 律曲线</figcaption>
+</div>
+
+#### ③ 导航数据的 Scaling Law 验证
+如上图所示，当在 R2R/RxR 基础数据上逐步叠加 Image2Sim 产生的 1M、5M 到 10M 样本时，成功率（SR）呈现出清晰且未饱和的对数线性增长（**SR 从 46.1% 飞跃至 66.3%，SPL 从 41.3% 提升至 61.5%**）。这有力证明了当前具身导航性能仍受到数据量的强烈制约，而 Image2Sim 能够作为无尽的数据引擎持续赋能预训练。
+
+#### ④ 消融实验 (Ablation Study)
+- **移除 Pixel Flow 生成模型**：PSNR 暴跌至 17.75，SSIM 降至 0.438，证明单纯 3DGS 飞溅无法处理稀疏视角空洞。
+- **移除语义特征注入**：PSNR 降至 18.36，表明 DINOv3 语义指导对于生成合理的未观测墙体与家具至关重要。
+- **移除 Alpha 门控融合**：PSNR 降至 18.57，破坏了已知 3D 几何与生成补全的平衡。
+- **移除动量自蒸馏**：PSNR 降至 19.84，证明 EMA Teacher 成功抑制了单步生成中的闪烁伪影。
+
+#### ⑤ 真实物理机器人部署 (Real-World Deployment)
+在 Hello Robot Stretch 3 移动机器人上的实机测试（20 次试练）表明：
+- **Path-following 任务**：成功率达到 11/20（显著优于 JanusVLN 的 8/20 和 DualVLN 的 8/20）。
+- **Goal-oriented 任务**：成功率达到 9/20（远高于 DualVLN 的 5/20）。
+
+---
+
+### 4. 局限性
+
+1. **轻量渲染器的容量权衡**：为了支持 45+ FPS 实时在线闭环交互及 DAgger/RL 训练，轻量级渲染模型在极度复杂的超广角光影细节上略有容量牺牲。
+2. **物理交互动态有限**：仿真器目前集中于导航层面的刚性碰撞与滑动约束，尚不支持复杂的接触力学、可移动物体与人机动态交互。
+3. **指令标注的语义偏差**：完全自动化的大语言/视觉模型指令标注虽然实现了规模化，但偶尔可能引入天然的语言偏置或少量的图文不匹配。
+
+---
+
 # 参考资料
 
 ## 已发表论文（会议 / 期刊）
@@ -7938,6 +8094,7 @@ graph TD
 64. **ABot-AgentOS** (2026).
 65. **MemVLN** (2026). 模拟人类双重记忆机制的高效连续环境视觉语言导航框架. arXiv: [2607.23504](https://arxiv.org/abs/2607.23504)
 66. **X-NavDP** (2026). 多构型机器人通用视觉导航的组内 Q 值重加权 Diffusion RL 强化学习微调框架. arXiv: [2607.28560](https://arxiv.org/abs/2607.28560). Code: [InternRobotics/NavDP](https://github.com/InternRobotics/NavDP)
+67. **Image2Sim** (2026). 解耦 3D 空间锚定与超真实图像合成的实时神经仿真引擎. arXiv: [2607.05765](https://arxiv.org/abs/2607.05765)
 
 
 <script>
@@ -8008,6 +8165,7 @@ graph TD
         { m: 'NaVid',                 t: ['端到端', '连续环境', '实机部署', '零样本'] },
         { m: 'MemVLN',                t: ['端到端', '连续环境', '加速优化'] },
         { m: 'X-NavDP',               t: ['扩散模型', '强化学习', '连续环境', '实机部署'] },
+        { m: 'Image2Sim',             t: ['世界模型', '数据增强', '高斯表示', '连续环境', '实机部署', '零样本'] },
     { m: 'VLN-CE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'VLN-PE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'RynnBrain',         t: ['基础工作'] },
