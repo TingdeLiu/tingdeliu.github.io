@@ -44,6 +44,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [MemVLN-8B(单目)](#memvln) | 2026 | R2R-CE | Qwen3-VL-8B | 58.4 | 51.2 | 4.98 | 65.3 | 否 |
  | [BudVLN(单目)](#budvln) | 2026 | R2R-CE | LLaVA-1.5-7B | 57.6 | 51.1 | – | – | [是](https://github.com/Beat992/CDC2F) |
  | [StreamVLN(单目)](#streamvln) | 2025 | R2R-CE | LLaVA-Video-7B | 56.9 | 51.9 | 4.98 | 64.2 | [是](https://github.com/OpenRobotLab/StreamVLN) |
+| [DecoVLN(单目)](#decovln) | 2026 | R2R-CE | LLaVA-Video-7B | 56.3 | 50.5 | 5.01 | 63.5 | [是](https://github.com/Allenxinn/DecoVLN) | – |
 | [AgenticNav](#agenticnav) | 2026 | R2R-CE | – | 55.0 | 48.41 | – | – | 否 |
  | [Goal2Pixel(单目)](#goal2pixel) | 2025 | R2R-CE | LLaVA-1.5-7B | 54.1 | 52.5 | 4.85 | 59.9 | 否 |
  | [MapNav(单目)](#mapnav) | 2025 | R2R-CE | LLaVA-Onevision-7B | 53.0 | 39.7 | – | – | [是](https://github.com/linglingxiansen/MapNav) |
@@ -75,6 +76,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [JanusVLN (单目)](#janusvln) | 2026 | RxR-CE | Janus-Pro-7B | 56.2 | 47.5 | 6.06 | – | [是](https://github.com/MIV-XJTU/JanusVLN) |
  | [RynnBrain-Nav (单目)](#rynnbrain) | 2026 | RxR-CE | – | 56.1 | – | 4.92 | – | [是](https://github.com/alibaba-damo-academy/RynnBrain) |
  | [GA-VLN (单目)](#ga-vln) | 2026 | RxR-CE | LLaVA-Video-7B | 55.4 | 45.2 | 5.88 | 67.0 | [是](https://github.com/jahhaoyang/GA-VLN) |
+| [DecoVLN(单目)](#decovln) | 2026 | RxR-CE | LLaVA-Video-7B | 54.2 | 46.3 | 5.73 | – | [是](https://github.com/Allenxinn/DecoVLN) | – |
  | [StreamVLN (单目)](#streamvln) | 2025 | RxR-CE | LLaVA-Video-7B | 52.9 | 46.0 | 6.22 | – | [是](https://github.com/OpenRobotLab/StreamVLN) |
  | [Goal2Pixel (单目)](#goal2pixel) | 2025 | RxR-CE | LLaVA-1.5-7B | 43.8 | 40.4 | 7.50 | – | 否 |
  | [HSGM (单目)](#hsgm) | 2026 | RxR-CE | – | 41.8 | 25.1 | 7.43 | – | [是](https://github.com/Teacher-Tom/HSGM_public) |
@@ -8008,6 +8010,138 @@ graph TD
 
 ---
 
+## 68. DecoVLN (2026) {#decovln}
+———Decoupling Observation, Reasoning, and Correction for Vision-and-Language Navigation
+
+📄 **Paper**: [arXiv:2603.13133](https://arxiv.org/abs/2603.13133) · [Project Page](https://allenxinn.github.io/DecoVLN/) · [Code](https://github.com/Allenxinn/DecoVLN)
+
+### 精华
+1. **三维彻底解耦**：打破传统流式导航“全量存内存、推理时均匀采样”的紧耦合低效模式，将观测流、推理流与纠错流在空间、时间与硬件显存上彻底分离。
+2. **自适应前置精炼（AMR）**：在流式观测进入阶段联合优化指令语义相关性、视觉多样性惩罚与时间跨度覆盖，在显存内常驻极紧凑的 $K=8$ 高信息密度记忆库。
+3. **信任域单步纠错微调（ECF）**：基于测地距离量化偏离度，仅在可控信任域内收集单步状态-动作对引导恢复，从根源杜绝长程累积复合误差与样本数据污染。
+4. **纯 RGB 单目超越多模态传感器**：在 R2R-CE 与 RxR-CE 连续基准上分别取得 56.3% 与 54.2% 的成功率，在零额外大规模预训练数据下全面超越依赖深度图与 3D 体素投影的 SOTA 模型。
+5. **端云协同真机零样本迁移**：将 4 步离散动作块（Action Chunk）端侧解析为连续相对目标位姿，在宇树 GO2 四足机器人上成功克服地面强反光与视觉混淆等真实环境扰动。
+
+---
+
+### 1. 研究背景/问题
+
+视觉语言导航（Vision-and-Language Navigation, VLN）要求具身智能体仅依据自身的第一视角（Egocentric）视觉观测与长程自然语言指令，在未知的 3D 物理环境中自主规划连续移动路径并到达目标。现有方法主要面临三大瓶颈：
+
+1. **“走走停停”（Stop-and-Think）造成的感知盲区**：智能体执行一步后停顿感知再推理，动作不连贯且在运动过程中错失关键视觉地标。
+2. **传统流式导航的上下文污染与 I/O 拥堵**：将所有历史观测帧无差别全量暂存到主机内存（RAM），推理时再被动均匀采样（Uniform Sampling）或依赖深度传感器构建 3D 体素剪枝，导致输入上下文充斥白墙、转角等无关噪声，且频繁在显存与内存之间搬运数据引发高推理延迟。
+3. **长程马尔可夫决策过程中的复合误差（Compounding Errors）**：开环自回归策略在早期产生微小漂移后会持续发散；而传统 DAgger 算法在整条轨迹严重偏离后仍强行收集修正动作，导致纠错样本严重偏离原始指令分布，造成训练数据污染。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vln/DecoVLN-architecture.png" width="100%" />
+<figcaption>DecoVLN 整体架构：流式观测与自回归推理异步解耦，通过自适应记忆精炼（AMR）动态维护显存常驻 Memory Bank，输出 4 步动作块（Action Chunk），并在信任域内收集单步状态-动作对进行纠错微调（ECF）</figcaption>
+</div>
+
+#### ① 整体框架概述
+DecoVLN 将视觉语言导航形式化为部分可观测马尔可夫决策过程（POMDP），通过三大解耦模块协同运行：
+- **流式观测流（Observation Stream）**：在机器人运动过程中连续采集第一视角 RGB 图像，由**自适应记忆精炼模块（AMR）**在线评估每帧的多维价值，将最具信息量的特征常驻在显存 Memory Bank 中；
+- **自回归推理流（Reasoning Stream）**：VLM（基于 LLaVA-Video-7B）仅接收当前指令、Memory Bank（$K=8$ 帧）与最近 4 帧即时观测，自回归输出由 4 步连续动作组成的**动作块（Action Chunk）**；
+- **自纠错微调流（Correction Stream）**：在模拟器自主探索中，利用测地距离（Geodesic Distance）划分**信任域（Trusted Region）**，动态捕获偏离轨迹下的单步纠偏状态-动作对，赋予模型闭环自愈能力。
+
+#### ② 观测与推理深度解耦：自适应记忆精炼（AMR）
+
+<div align="center">
+  <img src="/images/vln/DecoVLN-decouple-paradigm.png" width="100%" />
+<figcaption>传统流式 VLN 范式与 DecoVLN 的架构流程对比：(a) 传统流式范式将所有历史观测存入 RAM，推理时重复在 RAM 与 VRAM 间拷贝并均匀采样；(b) DecoVLN 在观测端进行前置多准则过滤，常驻显存（VRAM），实现极高的数据吞吐与信噪比</figcaption>
+</div>
+
+传统方法与 DecoVLN 在记忆维护逻辑上的本质差异如下：
+
+| 维度 | 传统流式 VLN（如 StreamVLN） | 本文 DecoVLN |
+|---|---|---|
+| 记忆管理机制 | **后验剪枝（Post-hoc）**：先全量存入 RAM，推理时盲目均匀采样或依赖深度图 3D 体素去重 | **前置精炼（Pre-hoc）**：观测帧产生时即在线评估价值，只有高信息量关键帧进入 Memory Bank |
+| 显存/内存 I/O | 每次推理都需在主机 RAM 与 GPU VRAM 间重复传输大量图像帧 | Memory Bank 全程常驻显存（VRAM），推理时零额外传输延迟 |
+| 传感器依赖 | 依赖高精度深度传感器（RGB-D / 双目）计算点云与体素 | **仅需单目第一视角 RGB 图像**，通用性强 |
+| 指令相关性 | 采样过程与任务指令完全脱节，易混入大量白墙、地面等无效视野 | 动态计算图文语义相似度，紧密对齐指令涉及的地标 |
+
+AMR 将长程记忆构建建模为显式多准则迭代优化问题。在导航过程中，智能体从候选帧池 $\mathcal C$ 中迭代选取 $K$ 帧加入精炼记忆库 $\mathcal M$，使得综合评分函数最大化：
+
+$$f^* = \arg\max_{f \in \mathcal C \setminus \mathcal M} \left[ \lambda_R \cdot \mathrm{Sim}_{Sem}(f, I) - (1 - \lambda_R) \cdot \left( w_V \cdot \mathrm{Sim}_{Vis}(f, \mathcal M) + w_T \cdot \mathrm{Sim}_{Temp}(f, \mathcal M) \right) \right]$$
+
+其中各项物理意义如下：
+1. **语义相关性（$\mathrm{Sim}_{Sem}$）**：计算候选帧视觉嵌入 $e_f$ 与导航指令全局文本嵌入 $e_I$ 的余弦相似度：
+   $$\mathrm{Sim}_{Sem}(f, I) = \frac{e_f \cdot e_I}{\lVert e_f \rVert \lVert e_I \rVert}$$
+2. **视觉多样性惩罚（$\mathrm{Sim}_{Vis}$）**：计算候选帧 $f$ 与当前记忆库 $\mathcal M$ 中所有已有帧的最大视觉余弦相似度，惩罚视场高度雷同的重复地标：
+   $$\mathrm{Sim}_{Vis}(f, \mathcal M) = \max_{m \in \mathcal M} \frac{\mathrm{embed}(f) \cdot \mathrm{embed}(m)}{\lVert \mathrm{embed}(f) \rVert \lVert \mathrm{embed}(m) \rVert}$$
+3. **时间跨度覆盖惩罚（$\mathrm{Sim}_{Temp}$）**：惩罚时间戳过近的候选帧，鼓励记忆库在整条长轨迹上保持均匀的时间覆盖度（$\epsilon$ 为防除零微小常数）：
+   $$\mathrm{Sim}_{Temp}(f, \mathcal M) = \frac{1}{\min_{m \in \mathcal M} \lvert t_f - t_m \rvert + \epsilon}$$
+
+> **举个例子（AMR 权重平衡如何选出关键地标）**：
+> 机器人执行一条 50 步的长指令：“穿过走廊，进入客厅并在黑色双人沙发旁停下”。
+> 机器人在客厅停留了 15 步，如果只看语义相关性（$\lambda_R = 1.0$），选出的 8 张记忆帧会全被客厅同一角度的沙发特写占满，导致前半段走廊的记忆完全丢失；
+> 当引入视觉多样性与时间惩罚（$\lambda_R = 0.5, w_V = 0.5, w_T = 0.5$）后，第二张客厅沙发帧因与已存沙发帧的 $\mathrm{Sim}_{Vis} > 0.95$ 且时间差极小，得分被大幅扣减；
+> 最终算法会自动保留：1 帧起始房间、2 帧走廊拐角、2 帧客厅入口、3 帧不同朝向的沙发地标，实现全时空高保真记忆。
+
+<div align="center">
+  <img src="/images/vln/DecoVLN-sampling-comparison.png" width="100%" />
+<figcaption>均匀采样（Uniform Sampling）与自适应记忆精炼（AMR）的关键帧对比：均匀采样捕捉了大量白墙与无关门角；AMR 精准提取了指令中高亮提及的开门、壁画、双人沙发等关键决策点</figcaption>
+</div>
+
+#### ③ 信任域状态-动作对纠错微调（ECF）
+
+长程导航中，微小的累积漂移常使智能体脱离专家轨迹。为解决这一难题，DecoVLN 提出基于步级状态-动作对（State-Action Pair）的信任域纠错微调策略：
+
+```mermaid
+graph TD
+    A["智能体当前位姿 s_t + 即时观测 f_t"] --> B["计算相对专家轨迹的最小测地距离 DM(s_t)"]
+    B --> C{"偏离度判定"}
+    C -- "DM(s_t) == 0 (完美在轨)" --> D["正常推进策略采样"]
+    C -- "0 < DM(s_t) <= tau (信任域内可控偏离)" --> E["查询最短路径专家策略 pi*(s_t) 得到纠偏动作 a_exp"]
+    E --> F["存储单步样本 (s_t, a_exp, f_t) 入纠错集 D_c"]
+    C -- "DM(s_t) > tau (严重越界污染区)" --> G["立即截断并终止当前 Episode (防止脏数据污染)"]
+    F --> H["执行当前策略 a_t 推进至 s_t+1"]
+    D --> H
+    H --> I["AMR 在线精炼更新 Memory Bank H"]
+```
+
+具体算法细节如下：
+- **偏离度度量**：利用环境拓扑的测地距离（Geodesic Distance）定义偏离度 $\mathrm{DM}(s_t) = \min_{s^* \in \mathcal P_{exp}} d_g(s_t, s^*)$。
+- **信任域阈值 $\tau$**：设定信任域截断阈值 $\tau = 3\text{m}$。当 $0 < \mathrm{DM}(s_t) \le \tau$ 时，智能体偏离但仍处于可感知原始目标的有效上下文范围内，此时向最短路径专家策略（SPF）查询一步返回正轨的最优动作 $a_t^{\mathrm{exp}} = \pi^*(s_t)$，存入微调数据集 $\mathcal D_c$；
+- **越界截断**：一旦 $\mathrm{DM}(s_t) > \tau$，说明已发生灾难性迷航，强行纠偏只会引入与语言指令脱节的奇异状态分布，算法立即中断该 Episode。
+- **防灾难性遗忘混合训练**：在纠错微调阶段，将 180K 导航纠错样本与 178K 的通用视频问答数据集（LLaVA-Video-178K）按比例混合，保证模型在获得闭环自愈能力的同时，维持基础多模态时空推理能力。
+
+#### ④ 动作块（Action Chunking）平滑解析与真机控制
+
+在实际物理机器人（如 Unitree GO2）部署中，VLM 在远端服务器自回归生成 4 步离散符号动作块（例如：`[forward 25cm, forward 25cm, turn left 15°, stop]`）。
+
+> **举个例子（离散动作块向连续平滑轨迹的转换）**：
+> 若四足机器人在真机上直接分步串行执行这 4 个离散指令，每走 25cm 就必须刹车减速一次，导致机身剧烈颠簸顿挫且航向极易漂移；
+> DecoVLN 在 Jetson Orin 端侧控制器中将该动作序列合成为统一的局部相对目标位姿 $(\Delta x = 0.5\text{m}, \Delta y = 0, \Delta \theta = 15^\circ)$；
+> 底层运动控制 API 基于该相对位姿规划出一条连续平滑的多项式轨迹曲线并直接下发电机力矩，实现流畅自然的连续步态。
+
+<div align="center">
+  <img src="/images/vln/DecoVLN-real-world.png" width="100%" />
+<figcaption>DecoVLN 在宇树 GO2 机器狗上的实机评测：即使面对反光瓷砖地面、复杂室内走廊以及未在训练集中出现的开放词表物体，依然表现出自主微调机身朝向以保持路标在视野正中的闭环鲁棒行为</figcaption>
+</div>
+
+---
+
+### 3. 核心结果/发现
+
+1. **基准性能全面领先**：在 R2R-CE 和 RxR-CE Val-Unseen 连续基准上，DecoVLN 仅凭单目第一视角 RGB 输入分别斩获 **56.3%** 和 **54.2%** 的成功率（SR），SPL 分别达 **50.5%** 与 **46.3%**。
+2. **力压多模态传感器 SOTA**：相比同样采用流式设计的 StreamVLN（SR: 52.8% / 48.6%），DecoVLN 在 RxR-CE 上的成功率提升高达 **+5.6%**，甚至大幅超越了使用 RGB+Depth 双模态输入的 StreamVLN 版本（SR: 52.9%）。
+3. **极高的数据与算力效率**：无需在 ScaleVLN 等数百万级额外合成数据集上进行大规模预训练，仅在 Matterport3D 收集的 360K 样本上训练约 600 GPU-hours（8 张 A800），即可超越依赖大规模预训练的航路点与地图模型。
+4. **超长路径泛化力**：在平均长度达 23 米的合成超长轨迹验证集（Long-Horizon Validation Set）上，DecoVLN 的成功率达到 **36.9%**，相比 StreamVLN 相对提升 **+12.5%**，证明了 AMR 记忆压缩对长时程抗遗忘的有效性。
+5. **真机涌现主动闭环对齐行为**：在真机测试中，机器狗在行进中自发展现出横向微调与姿态补偿行为，主动确保关键路标和最终目标始终处于视野中心，具备真实的在线闭环抗干扰能力。
+
+---
+
+### 4. 局限性
+
+1. **依赖端云协同与无线网络带宽**：模型基于 LLaVA-Video-7B 构建，7B 参数量难以直接在 Jetson Orin 等边缘计算平台实现全板载实时推理，对无线通信网络延迟和信号稳定性存在依赖。
+2. **极端地标丢失时的全局重定位能力有限**：当遇到特征极其匮乏的完全对称走廊或严重视觉混淆导致彻底迷失时，当前系统缺少基于思维链（Chain-of-Thought）的主动回溯（Backtracking）与全局重新建图重规划机制。
+
+---
+
 # 参考资料
 
 ## 已发表论文（会议 / 期刊）
@@ -8095,6 +8229,7 @@ graph TD
 65. **MemVLN** (2026). 模拟人类双重记忆机制的高效连续环境视觉语言导航框架. arXiv: [2607.23504](https://arxiv.org/abs/2607.23504)
 66. **X-NavDP** (2026). 多构型机器人通用视觉导航的组内 Q 值重加权 Diffusion RL 强化学习微调框架. arXiv: [2607.28560](https://arxiv.org/abs/2607.28560). Code: [InternRobotics/NavDP](https://github.com/InternRobotics/NavDP)
 67. **Image2Sim** (2026). 解耦 3D 空间锚定与超真实图像合成的实时神经仿真引擎. arXiv: [2607.05765](https://arxiv.org/abs/2607.05765)
+68. **DecoVLN** (2026). Decoupling Observation, Reasoning, and Correction for Vision-and-Language Navigation. arXiv: [2603.13133](https://arxiv.org/abs/2603.13133)
 
 
 <script>
@@ -8166,6 +8301,7 @@ graph TD
         { m: 'MemVLN',                t: ['端到端', '连续环境', '加速优化'] },
         { m: 'X-NavDP',               t: ['扩散模型', '强化学习', '连续环境', '实机部署'] },
         { m: 'Image2Sim',             t: ['世界模型', '数据增强', '高斯表示', '连续环境', '实机部署', '零样本'] },
+        { m: 'DecoVLN',               t: ['端到端', '连续环境', '实机部署', '加速优化', '纠错'] },
     { m: 'VLN-CE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'VLN-PE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'RynnBrain',         t: ['基础工作'] },
