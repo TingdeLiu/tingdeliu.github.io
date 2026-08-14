@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "VLM综述：多模态融合方法全景"
-date:  2026-08-03
+date:  2026-08-14
 tags: [VLM, Computer Vision, Deep Learning, Multimodal]
 categories: research
 comments: true
@@ -25,6 +25,10 @@ VLM在医疗图像分析、自动驾驶、机器人感知、内容审核等领�
 </div>
 
 本文旨在系统梳理VLM领域的研究进展，重点关注实现多模态的核心技术方法，为学习和研究VLM提供参考。
+
+> 💡 **知识体系与关联阅读**：
+> 本篇聚焦于**通用视觉-语言基座模型（2D 图像/视频理解、特征提取架构与多模态对齐训练工程）**。
+> 若您关注 **3D 点云、NeRF/3DGS 神经重建、3D 视觉定位与空间几何推理（3D-LLM / Spatial VLM / 具身感知）**，请阅读兄弟篇综述：[《空间智能综述：从三维感知到空间推理》](/Spatial-Intelligence-Survey/)。
 
 <!-- more -->
 
@@ -121,6 +125,8 @@ flowchart LR
     style N fill:#6f9,stroke:#333,stroke-width:2px
     style P fill:#f6c,stroke:#333,stroke-width:2px
 ```
+
+> 🔗 **向 3D 物理空间拓展**：随着 VLM 逐渐从 2D 像素平面迈向具身物理交互，如何将 3D 点云、深度与高斯溅射等几何表征融入 VLM 成为 2024–2026 年的重要技术主线（如 3D-LLM、LLaVA-3D、VGGT 等）。关于 3D 多模态大模型的完整体系，请参见 [《空间智能综述：4.5 空间感知语言模型》](/Spatial-Intelligence-Survey/#45-空间感知语言模型)。
 
 # 3. 大语言模型（LLM）运行原理
 
@@ -457,6 +463,52 @@ Qwen2.5-VL是阿里巴巴推出的高性能开源VLM，在多模态处理技术�
 
 **GPT-4o**（OpenAI，2024）将图像、音频、视频整合为统一的全模态（omni）模型，实现了实时多模态交互（如视频通话中的实时视觉理解）；**Gemini 2.5 Pro**（Google，2025）延续原生多模态路线，长上下文多模态处理能力尤为突出，是评测新一代开源模型时最重要的闭源参照。**OpenAI o3**（2025）则将推理模型扩展到多模态——其视觉能力不依赖独立的视觉微调，而是把视觉推理视为通用推理能力的自然延伸，这与 Qwen3-VL"更强文本基座支撑多模态推理"（见 8.8 节）的思路高度一致，共同揭示了 2025-2026 年的核心趋势：**推理能力是多模态理解的天花板，而非模态对齐技术本身**。中文生态中，智谱 GLM-4.5 代表"以工具调用和 Agent 能力为差异化"的路线，与端到端推理路线形成互补。
 
+### 统一理解与生成的解耦架构：Janus / Janus-Pro 与 Chameleon
+
+传统统一多模态生成模型（如早期的 Emu 或 GILL）在统一“图像理解”与“图像生成”时常面临**特征表示冲突**：
+- **理解任务（Understanding）**：需要高层次、抽象且语义密集的连续特征表示（如 SigLIP / CLIP 编码器提取的连续向量），以忽略像素级噪声、捕获全局语义；
+- **生成任务（Generation）**：需要细粒度、低抽象且像素保真的离散 Token（如 VQ-VAE / VQ-GAN 离散码本）或连续高斯隐变量，以便重建精细纹理与空间结构。
+
+如果强行用单一视觉编码器同时承担理解和生成，容易导致“理解能力退化”或“生成图像画质粗糙”。
+
+**Janus 与 Janus-Pro**（DeepSeek，2025）提出了**解耦视觉编码（Decoupled Visual Encoding）**的极简统一框架：
+
+```mermaid
+flowchart TD
+    subgraph Input ["多模态输入"]
+        ImgIn["输入图像"]
+        TxtIn["输入文本"]
+    end
+
+    subgraph Encoders ["解耦编码路径"]
+        SigLIP["理解编码器 (SigLIP)\n提取连续语义特征"]
+        VQ["生成 Tokenizer (VQ-VAE)\n离散图像 Token 化"]
+    end
+
+    ImgIn -->|"用于理解任务"| SigLIP
+    ImgIn -->|"用于生成/重建"| VQ
+
+    subgraph LLM ["统一自回归语言模型 (Unified LLM Backbone)"]
+        Dec["Autoregressive Transformer Decoder\n(Next-Token Prediction for Text & Image Tokens)"]
+    end
+
+    SigLIP -->|"线性投影 (MLP)"| Dec
+    TxtIn --> Dec
+    VQ --> Dec
+
+    subgraph Output ["多模态输出"]
+        Dec -->|"预测文本 Token"| TxtOut["自然语言回答 (VQA / Caption)"]
+        Dec -->|"预测图像 Token"| ImgTokens["离散视觉 Token 序列"]
+        ImgTokens --> VQDec["VQ 解码器 / Diffusion Head"]
+        VQDec --> ImgOut["生成的高清图像 (Text-to-Image)"]
+    end
+```
+
+**Janus-Pro 的核心优势**：
+1. **解耦输入路径，保留统一 Transformer**：理解任务使用 SigLIP 编码器映射连续特征，生成任务使用离散 VQ Tokenizer；统一自回归语言模型无需修改骨干结构，仅使用标准的 Next-Token 预测损失。
+2. **打破理解与生成的性能博弈**：在保持出色文生图画质（超越 DALL-E 3 和 Stable Diffusion XL）的同时，多模态理解能力（MMBench、ScienceQA）全面对齐主流纯理解 VLM。
+3. **架构通用性**：后续 **Show-o**（2024）与 **Chameleon**（Meta，2024）进一步将离散 Tokenizer 与连续扩散 Head 结合，展现了统一架构走向通用的巨大潜力。
+
 ---
 
 ## 4.6 高效多模态对齐方法
@@ -762,9 +814,11 @@ DINOv2 最令人印象深刻的涌现能力是**无需任何分割标注**即可
 
 ### 4. 视觉定位（Visual Grounding / Referring Expression Comprehension）
 
-根据自然语言描述，在图像中定位目标区域（输出边界框）。
+根据自然语言描述，在图像中定位目标区域（通常输出 2D 边界框 $[x_1, y_1, x_2, y_2]$）。
 
 *代表性数据集*：RefCOCO、RefCOCO+、Visual7W
+
+> 📌 **进阶延伸（3D 视觉定位）**：在机器人操控与具身交互场景中，视觉定位已进一步拓展至三维点云与 3D 空间定向包围盒（$[x, y, z, dx, dy, dz, r, p, y]$）。相关代表性基准（ScanRefer、EmbodiedScan）与 3D 定位模型，详见 [《空间智能综述：4.5 空间感知语言模型》](/Spatial-Intelligence-Survey/#scanrefer--scanqa)。
 
 ### 5. 文档与图表理解（Document / Chart Understanding）
 
@@ -921,6 +975,44 @@ GRPO 针对每个问题采样一组模型输出（群体），通过这组输出
 | MMStar | 综合多模态推理 | Qwen2.5-VL-72B | ~69% |
 | ScienceQA（img） | 多学科科学推理 | LLaVA-CoT-11B | ~96% |
 | MMMU（val） | 大学级多学科 | Qwen2.5-VL-72B | ~70% |
+
+### 4. 视觉慢思考（Visual Slow Thinking）与多模态测试时计算扩展 (Test-Time Compute)
+
+2025–2026 年，多模态领域经历了由 OpenAI o3、Qwen3-VL Thinking 以及 R1-V 引领的范式转移：**从单次前向直觉感知（System 1 Fast Perception）走向多步测试时慢思考（System 2 Deep Reasoning）**。
+
+```mermaid
+flowchart LR
+    classDef sys1 fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f;
+    classDef sys2 fill:#eff6ff,stroke:#2563eb,stroke-width:1.5px,color:#1e3a8a;
+    classDef act fill:#f0fdf4,stroke:#16a34a,stroke-width:1.5px,color:#14532d;
+
+    subgraph S1 ["System 1: 直觉感知 (Fast Forward)"]
+        direction TB
+        Q1["输入图像 + 简单提问"] --> V1["标准单次前向 Forward"]:::sys1
+        V1 --> Ans1["直觉输出短答案"]:::sys1
+    end
+
+    subgraph S2 ["System 2: 视觉慢思考 (Slow Thinking & Active Zoom)"]
+        direction TB
+        Q2["输入复杂图表 / 几何数学题"] --> ThinkStart["启动 <thought> 长思维链"]:::sys2
+        ThinkStart --> Decomp["1. 语义解构与假设提出"]:::sys2
+        Decomp --> ActiveCrop["2. 主动视觉局部放大 (Active Zoom) / 重读细节"]:::act
+        ActiveCrop --> Verify["3. 交叉验证与自纠错 (Self-Correction)"]:::sys2
+        Verify --> ThinkEnd["思维链收敛"]:::sys2
+        ThinkEnd --> Ans2["输出经深度验证的精确答案"]:::sys2
+    end
+```
+
+**多模态慢思考的四大核心机制**：
+1. **长思维链自主反思（Long Visual CoT）**：
+   - 模型在 `<thought>` 标签中自主展开多步推理过程，把复杂的视觉问题拆解为子目标（如几何辅助线构造、电路图节点追踪、多栏复杂报表横纵检索）。
+   - 在思考过程中若发现初始读数与物理常识矛盾，能在思维链中自主执行回溯（Rollback）与重新计算。
+2. **主动视觉局部放大与重采样（Active Visual Zoom / Tool Calling）**：
+   - 面对超高分辨率图像或密集细小文字（如 4K 架构图、高密度公式），模型在思考过程中可主动生成针对局部区域的边界框，调用内嵌工具动态裁剪并重新编码该区域的高精特征，再将新特征插回当前思考上下文，彻底克服静态全局下采样导致的细节丢失。
+3. **可验证奖励强化学习（RLVR for Multimodal Reasoning）**：
+   - 依赖 GRPO 等强化学习框架，利用数学、几何证明、代码生成及确定性坐标等**客观可验证的二元奖励（0/1 Exact Match Reward）**进行持续试错演进，无需人工密集编写 CoT 标注即可自发涌现出复杂的视觉回看与逻辑探索行为。
+4. **测试时计算扩展（Test-Time Scaling）**：
+   - 通过在推理阶段分配更多计算预算（生成更长的思维 Token 链、并行采样多条思考路径并借助多数投票或 PRM 过程奖励模型进行重排序），使得小规模多模态模型（如 7B/14B）在高难度推理任务上能够匹敌甚至超越传统百亿级单次前向模型。
 
 ---
 
@@ -1409,6 +1501,58 @@ ScienceQA要求模型结合图像和文本进行科学领域的多步推理，�
 | 特点 | 覆盖语言最广的多模态基准，同时提供纯文本版本，可精确对比"视觉输入对不同语言的增益" |
 
 MVL-SIB 揭示了多模态的"语言公平性"瓶颈：低资源语言下，即使 GPT-4o 等顶级模型的图文对齐质量也显著下降——高性能 VLM 在英文基准上的领先，并不意味着对全球语言的均等服务能力。
+
+---
+
+### MMMU & MMMU-Pro（大学级多学科多模态理解）
+
+| 属性 | 内容 |
+|------|------|
+| 发布年份 | 2024 / 2025 |
+| 规模 | 11,500 道题（涵盖 6 大领域、30 个学科、183 个细分子领域） |
+| 场景 | 大学考试、专业认证、学术图表与图解 |
+| 特点 | 专门评估具备专家级领域知识与深度多模态推理能力，MMMU-Pro 进一步过滤纯文本捷径（Text Shortcuts），要求必须深度结合图像推理 |
+
+MMMU（Massive Multi-discipline Multimodal Understanding）被公认为多模态领域的“MMLU”，涵盖艺术设计、商业、科学、医学、人文与工程等学科，包含图表、乐谱、化学分子式、医学影像、工程制图等复杂模态，是目前衡量 GPT-4o、Gemini 2.5 Pro、Qwen2.5-VL/Qwen3-VL 等前沿模型认知上限的关键基准。
+
+---
+
+### MathVista & MathVision（多模态数学与几何视觉推理）
+
+| 属性 | 内容 |
+|------|------|
+| 发布年份 | 2024 / 2025 |
+| 规模 | 6,141 / 3,040 道数学视觉题 |
+| 场景 | 函数图像、几何证明、统计图表、实物计算 |
+| 特点 | 综合评测视觉感知（Fine-grained Perception）与数学逻辑推理（Mathematical Reasoning）的交织能力 |
+
+传统纯文本数学评测（如 GSM8K、MATH）无法检验模型读取图像几何结构与坐标系的能力。MathVista 整合了来自 28 个现有数学图表数据集以及人工构造的高难度题目，要求模型不仅能读出图中数值与几何约束，还要执行严密的代数与几何多步推导，是检验 VLM 视觉推理与长思考（Visual CoT / GRPO）效果的核心标杆。
+
+---
+
+### Video-MME（综合长视频多模态评测）
+
+| 属性 | 内容 |
+|------|------|
+| 发布年份 | 2024 |
+| 规模 | 900 段高质量视频，2,700 道多轮问答 |
+| 场景 | 6 大视频领域（电影纪录片、动作体育、监控车载、知识解说等） |
+| 特点 | 涵盖短视频（<2分钟）、中视频（2–15分钟）到长视频（15–60分钟），全面考察时空推理与超长上下文检索 |
+
+随着 VLM 的输入从单张图像扩展到连续视频流，Video-MME 填补了全面长视频评测的空白。它不依赖外部字幕，重点评估模型在视频时序关联、多事件因果推断以及细粒度动作识别上的原生多模态时空建模能力。
+
+---
+
+### OSWorld & ScreenSpot（GUI Agent 计算机操作与定位基准）
+
+| 属性 | 内容 |
+|------|------|
+| 发布年份 | 2024 / 2025 |
+| 规模 | 369 个真实操作系统任务（Ubuntu / Windows / macOS） / 600+ 交互截图 |
+| 场景 | 真实桌面软件、网页浏览器、多应用协作 |
+| 特点 | 从纯文本/静态问答转向真实动态执行环境，闭环评估跨应用点击、输入、滚动与多步工作流完成率 |
+
+随着多模态大模型从“看图说话”走向“Computer Use / GUI Agent”，OSWorld 与 ScreenSpot 成为评测智能体执行力的黄金标准。模型必须在连续的屏幕截图中精准定位微小的 UI 控件并输出可执行的鼠标键盘动作，是检验 UI-TARS、Claude 3.5 Computer Use 等 Agent 性能的核心阵地。
 
 ---
 
@@ -2380,4 +2524,4 @@ graph TD
 
 当前仍待解决的核心挑战：减少幻觉（尤其是细粒度定位类幻觉）、提升低资源语言的多模态公平性（MVL-SIB揭示的差距）、降低超长视频处理成本，以及真正实现感知-推理-行动的端到端一体化。
 
-未来，VLM将成为具身智能、多模态Agent和人机交互系统的核心感知与推理模块，持续推动人工智能能力边界的扩展。
+未来，VLM将成为具身智能、多模态Agent和人机交互系统的核心感知与推理模块，并与[空间智能与3D几何感知](/Spatial-Intelligence-Survey/)、[视觉-语言-动作 (VLA) 策略](/VLA-Survey/) 深度融合，持续推动人工智能能力边界的扩展。
