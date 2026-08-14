@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "空间智能综述：从三维感知到空间推理"
-date:  2026-08-10
+date:  2026-08-14
 tags: [Spatial Intelligence, 3D Vision, NeRF, Point Cloud, Embodied AI, Survey]
 categories: research
 comments: true
@@ -106,10 +106,11 @@ graph TD
     subgraph Path_Lang ["空间语言融合 (3D + Language)"]
         L1["ScanRefer (2020)"] --> L2["3D-LLM (2023)"]
         L2 --> L3["SplatTalk / GaussianVLM (2025)"]
+        L3 --> L4["HiSpatial / VLM³ / Qwen-3D (2026)"]
     end
 
     %% 汇聚点
-    P4 & R8 & L3 --> F["通用空间智能基础模型 (Spatial Foundation Models)"]
+    P4 & R8 & L4 --> F["通用空间智能基础模型 (Spatial Foundation Models)"]
 
     style F fill:#f96,stroke:#333,stroke-width:4px
 ```
@@ -120,6 +121,7 @@ graph TD
 - **2021–2022**：Transformer 架构被引入三维感知（Point Transformer、DETR3D、BEVFormer），性能大幅提升；Instant-NGP 将 NeRF 训练时间压缩至秒级。
 - **2023**：3D Gaussian Splatting 实现实时高质量渲染；3D-LLM、EmbodiedScan 将语言模型与三维场景理解结合。
 - **2024–2025**：Depth Anything、SpatialVLM、DUSt3R、Uni3D 等工作推动空间感知基础模型形成；VGGT（CVPR 2025 Best Paper）以单次前馈同时输出相机参数、深度、点图与点轨迹，标志空间智能正式进入"前馈三维基础模型"新阶段。
+- **2026**：空间智能迈入“分层认知、原生文本微调与前向度量建图”新阶段。**HiSpatial**（CVPR 2026）建立从几何到抽象推理的分层空间认知；**VLM³**（2026）证明通用 VLM 通过焦距统一与纯文本 SFT 即可原生掌握高精度 3D 几何；**MapAnything**（2026）实现多源任意传感器前向度量地图重建；**Qwen-3D** 与 **SparseOccVLA** 则推动 3D 空间占用预测与具身决策深度耦合。
 
 ## 2.6 相机模型与投影几何基础
 
@@ -341,7 +343,7 @@ $$\mathcal{L}_{si} = \frac{1}{n}\sum_i d_i^2 - \frac{\lambda}{n^2}\left(\sum_i d
 
 ---
 
-## 4.2.5 经典立体视觉与密集匹配
+### 4.2.5 经典立体视觉与密集匹配
 
 在深度学习方法出现之前，**立体视觉（Stereo Vision）**是从图像中恢复深度的主流手段。理解其原理有助于把握 Depth Anything、Marigold 等方法究竟解决了哪些经典痛点。
 
@@ -786,6 +788,12 @@ graph LR
   - ScanRefer：点云+语言定位基准，含三维边界框与语言描述，常用于 3D Visual Grounding。
   - Nr3D / Sr3D：Nr3D（自然语言）与 Sr3D（模板化语言）用于 3D 指称与定位评测。
   - ScanQA / MSR3D / SQA3D：针对三维视觉问答与具身场景问答的扩展基准。
+
+- 空间推理与具身问答（面向 Spatial VLM、定量度量与交互）
+  - SpatialRGPT / QSpatial：专门评测 VLM 定量空间推理（如绝对/相对距离估计、水平方位判断、物体大小比较），检验模型对度量尺度的感知能力。
+  - RoboSpatial / RoboRefer：针对机器人操作场景的空间关系理解与细粒度物体指称基准，紧密关联机械臂抓取成功率。
+  - EmbodiedScan：首个基于第一人称连续 RGB-D 流的主动式具身场景理解多任务基准，覆盖 3D 检测、3D 定位与场景 QA。
+  - VSI-Bench / StreamingBench：针对连续流式视频多视角下的动态空间状态追踪与空间关系推理评测。
 
 - 三维生成与合成渲染（用于 NeRF / 3DGS 等新视角合成）
   - Synthetic-NeRF / Blender scenes：用于渲染与新视角合成的合成数据集，方便复现并量化 PSNR/SSIM/LPIPS 指标。
