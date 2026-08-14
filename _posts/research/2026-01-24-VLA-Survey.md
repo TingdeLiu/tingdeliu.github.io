@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "VLA综述：具身智能路线梳理"
 date:  2026-08-14
@@ -328,6 +328,11 @@ mindmap
 | **LingBot-VLA**| 2025.02 | - | 跨形态泛化 (9种机器人) | ✅ 权重+代码 | 蚂蚁集团真机预训练 |
 | **π₀.5** | 2025.04 | - | 异构任务协同训练 | ❌ 闭源 | 开放世界家庭长时程任务 |
 | **ACoT-VLA** | 2026.01 | - | **动作空间推理** | 📄 仅论文 | 显著减少长时域误差累积 |
+| **InternVLA-A1.5** | 2026.01 | 8B | **前瞻预测 (Foresight) + 空间定位** | ✅ 权重+代码 | 商汤/上海 AI Lab，端到端高精度坐标 |
+| **ZR-0** | 2026.06 | 2.6B | **密集 ECoT 跨本体对齐 + 推理零延迟旁路** | ✅ 权重+代码 | 智谱 AI/人大，ProcCorpus-60M 数据集 |
+| **S²-VLA** | 2026.06 | 2B | **状态空间引导自适应注意力 (SSGAA)** | 📄 仅论文 | 华东师大/上交，LIBERO 98.2% SOTA |
+| **RoboTTT** | 2026.07 | 2B+ | **测试时训练 (TTT) + 8K 上下文 Scaling** | ✅ 代码 | NVIDIA GEAR/Stanford，突破时序瓶颈 |
+| **TurboVLA** | 2026.07 | 0.2B | **直连 $V+L \to A$ / 32Hz 控制 / <1GB 显存** | ✅ 代码 | 摆脱 LLM 词表，RTX 4090 边缘高频部署 |
 
 ---
 
@@ -347,6 +352,10 @@ mindmap
 | 2025上 | 开放世界泛化 | π₀.5 | 未见家庭环境10-15分钟长时程任务 |
 | 2025下 | RL重返舞台 | π*₀.₆ | RECAP优势条件化，数据飞轮转动 |
 | 2026 | 动作空间推理 | ACoT-VLA | 动作CoT推理，长时域误差抗累积 |
+| 2026 | 密集思考链与解耦 | ZR-0 | ProcCorpus-60M 密集具身CoT跨本体对齐，推理期特征掩码零开销旁路 |
+| 2026 | 超长上下文与TTT | RoboTTT | 测试时训练快权重在线更新，突破 8K Timesteps 时序上下文 Scaling |
+| 2026 | 状态空间阶段自适应 | S²-VLA | 信念状态自发追踪执行阶段，动态门控融合攻克长程累积误差 |
+| 2026 | 极速端侧直连控制 | TurboVLA | $V+L \to A$ 直连架构，摆脱 LLM 词表在 RTX 4090 实现 32Hz 控制 |
 
 从整体发展脉络来看，VLA研究经历了从模块化系统到端到端模型，再到端到端与层级混合的重要转变。
 
@@ -356,7 +365,7 @@ mindmap
 - 基于推理的VLA（Reasoning VLA）
 - 多任务、多机器人的统一VLA
 - VLA与世界模型的结合
-- 从模仿学习到强化学习的转变
+- 从模仿学习到强化学习与测试时自适应（TTT）的转变
 
 **基于世界模型的VLA**：世界模型被认为是机器人学习的"System 2"。如果VLA是"看到就做"的条件反射（System 1），世界模型则允许机器人在脑海中"想象"行动后果后再执行。近期，世界模型正逐渐成为合成数据的终极生成器，转动了VLA的"数据飞轮"：
 - **UniSim**：首次证明可以将3D仿真、真实机器人数据和互联网视频混合训练出统一的世界模拟器
@@ -372,6 +381,7 @@ mindmap
             小米: Xiaomi-Robotics-0 / MoT架构
             蚂蚁集团: LingBot-VLA / 跨形态泛化
             阿里巴巴: 达摩院 VLA 预训练
+            智谱 AI: ZR-0 / 密集 ECoT 跨本体对齐
         创业精英派
             智元机器人: Agibot GO-1 / 真机部署
             自变量机器人: 空间推理 / 灵巧操作
@@ -379,7 +389,9 @@ mindmap
             星动纪元: ERA-42 / 人形机器人控制
         学术开源派
             清华 AIR: X-VLA / 软提示技术
-            上海 AI Lab: 联合推出 X-VLA / 标准化评测
+            上海 AI Lab: InternVLA / InternData / 标准化评测
+            中国人民大学: ZR-0 / ProcCorpus-60M 数据集
+            华东师大 / 上交: S²-VLA / 状态空间长程操控
 ```
 
 ## 1.7 VLA开源生态
@@ -1032,6 +1044,7 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 
 | 数据集 | 类型 | 规模 | 机器人/平台 | 发布年份 |
 |--------|------|------|-------------|---------|
+| ProcCorpus-60M | 真实+密集ECoT | 6000万帧 (40万轨迹) | 跨具身 (单/双臂/人形) | 2026 |
 | Open X-Embodiment | 真实+跨具身 | 970k 轨迹 | 22种机器人 | 2023 |
 | RT-1 Dataset | 真实 | 130k 轨迹 | Everyday Robot | 2022 |
 | DROID | 真实，In-the-Wild | 76k 轨迹 | Franka Panda | 2024 |
@@ -1054,6 +1067,30 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 | VLABench | 评测基准 | 多维评测 | 仿真 | 2025 |
 
 ## 3.1 大规模跨机器人数据集
+
+### ProcCorpus-60M Dataset
+
+**基本信息**：
+- **发布时间**：2026年6月（中国人民大学 & 智谱 AI）
+- **数据规模**：约 6,000 万帧（约 1,000 小时、40 万条轨迹）
+- **机器人平台**：单臂（Franka、xArm）、双臂（AgiBot G1、Agilex）、移动操作及人形机器人（RoboCasa GR-1）
+- **采集与标注方式**：聚合 DROID、RH20T、Open X-Embodiment、Bridge 等顶尖开源真实与仿真数据集，并通过自动化 VLM 流水线对全量数据进行具身思考链标注
+
+**数据特点**：
+- **密集具身思考链覆盖（96.8%）**：区别于传统仅标注动作的数据集，ProcCorpus-60M 几乎对每帧提供六层结构化认知标注：
+  1. *Scene Description*（场景与关键物体描述）
+  2. *Progress Assessment*（任务进度与完成判定）
+  3. *Future Plan*（宏观未来规划语言推理）
+  4. *To-Do Actions*（动宾格式规范化原子动作分解）
+  5. *Target Objects*（关键操控物体 2D BBox 视觉定位）
+  6. *Discrete Actions*（FAST Tokenizer 紧凑动作表征）
+- **硬件无关的跨本体语义对齐**：高层认知标注完全独立于具体的机械臂自由度与控制接口，为不同机器人形态提供了统一的语义学习桥梁。
+- **协同图文增强**：混入 CapsFusion 与 Pixmo 通用多模态图文数据，保障跨领域开放词表常识不退化。
+
+**应用模型**：
+- [ZR-0 (2026)](#5-29-zr-0)：基于该数据集完成跨单臂/双臂/人形预训练的 2.6B VLA 基础模型
+
+---
 
 ### Open X-Embodiment Dataset
 
@@ -4820,19 +4857,19 @@ $$\hat{A}_{t:t+K-1} = \text{LN}(H^{(L_{\mathrm{out}})}) W_{\mathrm{out}}^\top + 
 
 Vision-Language-Action (VLA) 模型代表了机器人技术的重要范式转变，通过统一视觉、语言和行动三个模态，实现了从自然语言指令到机器人控制的端到端学习。自2022年RT-1和2023年RT-2开创这一方向以来，VLA研究取得了爆发式进展。
 
-VLA领域在架构、规模、能力和生态四个维度均取得了显著进展：动作表示从离散token演进到Flow Matching；模型参数从130M (RT-1) 扩展到billion级 (RDT-1B)；数据从130k轨迹增长到1.5M+ (EO-Data)；开源生态（OpenVLA, LeRobot）和评测基准（LIBERO, SimplerEnv）逐步成熟。
+VLA领域在架构、规模、能力和生态四个维度均取得了显著进展：动作表示从离散token演进到Flow Matching与测试时训练（TTT）；模型参数从130M (RT-1) 扩展到多B/十亿级；数据从130k轨迹增长到60M+帧 (ProcCorpus-60M) 与1.5M+轨迹 (EO-Data)；开源生态（OpenVLA, LeRobot）和评测基准（LIBERO, SimplerEnv）逐步成熟。
 
 五大核心挑战的现状与展望如下：
 
 | 挑战 | 当前进展 | 未来方向 |
 |------|----------|----------|
-| **表示** | 多模态对齐成熟；3D空间表示（点云/体素）；世界模型快速发展 | 原生多模态统一token化；因果世界模型 |
-| **执行** | CoT/ACoT推理增强；层级规划成熟；FAST等轻量化方案 | 自适应架构；see-think-act一体化 |
-| **泛化** | 跨机器人预训练为标准；Sim-to-Real差距缩小；在线RL结合（π*0.6） | 形态无关表示；自主开放式进化闭环 |
+| **表示** | 多模态对齐成熟；Dense ECoT跨本体语义对齐；3D空间表示（点云/体素/占用）；世界模型快速发展 | 原生多模态统一token化；因果世界模型 |
+| **执行** | CoT/ACoT/TTT超长时序推理增强；SSGAA状态空间动态门控；FAST/TurboVLA等端侧极速直连方案 | 自适应架构；see-think-act一体化 |
+| **泛化** | 跨机器人预训练为标准；Sim-to-Real差距缩小；在线RL与测试时自适应结合（π*0.6, RoboTTT） | 形态无关表示；自主开放式进化闭环 |
 | **安全** | 约束+学习对齐双范式；可学习拒绝机制（RationalVLA） | 不确定性感知；主动风险规避；共享心智模型 |
-| **数据与评测** | OXE/EO-Data大规模数据集；SimplerEnv/VLABench标准化评测 | Simulation-First；Failure-Centric评测 |
+| **数据与评测** | OXE/EO-Data/ProcCorpus-60M大规模数据集；SimplerEnv/VLABench标准化评测 | Simulation-First；Failure-Centric评测 |
 
-从[RT-1](#5-1-rt-1-2022)到[ACoT-VLA](#5-13-acot-vla-2026)，VLA的演进代表了具身智能研究范式的根本转变：从手工设计到数据驱动，从任务特定到通用能力，从离线学习到在线适应。ICLR 2026收录164篇VLA论文，标志着这一领域正步入爆发期。
+从[RT-1](#5-1-rt-1-2022)到[S²-VLA](#5-31-s-vla)，VLA的演进代表了具身智能研究范式的根本转变：从手工设计到数据驱动，从任务特定到通用能力，从离线学习到在线自适应与持续进化。ICLR/CVPR/ICML 2026收录数百篇VLA论文，标志着这一领域正步入爆发期。
 
 ---
 
@@ -4844,6 +4881,10 @@ VLA领域在架构、规模、能力和生态四个维度均取得了显著进�
 
 - **[An Anatomy of Vision-Language-Action Models (2512.11362v3)](https://arxiv.org/abs/2512.11362)** - IEEE TPAMI 2025，本文核心参考综述，提出挑战驱动的分类法
 - [VLA-Survey-Anatomy GitHub](https://github.com/SuyuZ1/VLA-Survey-Anatomy) - 上述综述配套项目页面
+- [ZR-0: Training Vision-Language-Action Models with Dense Embodied Chain-of-Thought Supervision](https://arxiv.org/abs/2606.30552) - 智谱 AI & 中国人民大学，ProcCorpus-60M
+- [RoboTTT: Scaling Embodied Policy Attention Context to 8K Timesteps via Test-Time Training](https://arxiv.org/abs/2607.15275) - NVIDIA GEAR Lab & Stanford
+- [S²-VLA: State-Space Guided Vision-Language-Action Models for Long-Horizon Manipulation](https://arxiv.org/abs/2606.27872) - 华东师大 & 上交 (IJCAI 2026)
+- [TurboVLA: Real-Time Vision-Language-Action Model at 32 Hz on an RTX 4090](https://arxiv.org/abs/2607.27205) - 直连 $V+L \to A$ 高频轻量化 VLA
 - [Vision-Language-Action Models for Robotics: A Review Towards Real-World Applications](https://vla-survey.github.io/)
 - [10 Open Challenges Steering the Future of Vision-Language-Action Models](https://arxiv.org/abs/2511.05936)
 - [State of VLA Research at ICLR 2026](https://mbreuss.github.io/blog_post_iclr_26_vla.html) - 分析164篇ICLR 2026 VLA论文
