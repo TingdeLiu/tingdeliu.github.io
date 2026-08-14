@@ -1,7 +1,7 @@
 ﻿---
 layout: post
 title: "VLA综述：具身智能路线梳理"
-date:  2026-08-03
+date:  2026-08-14
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 categories: research
 comments: true
@@ -4520,6 +4520,289 @@ $$\hat{A}_n = D_{\theta}(Q_a, [Z^{vl}_n; Z^s_n]) \in \mathbb{R}^{H \times d_a}$$
 
 - **缺少高层任务规划能力**：TurboVLA 专为执行级别的具体指令（Concrete Execution-level Instructions）设计，去除了 LLM 后失去了开放式常识推理与长序列高层任务分解能力。
 - **复杂跨模态推理受限**：对于需要多步隐式推理（如“先找到开瓶器再打开最左边的饮料瓶”）的复杂任务，仍需上层大语言模型进行高层规划并输出子目标指令，与 TurboVLA 的高效执行路径相结合。
+## 5.29 ZR-0 (2026) {#5-29-zr-0}
+——基于密集具身思考链 (ECoT) 监督与跨本体推理/执行解耦的 2.6B 端到端 VLA 模型
+
+📄 **Paper**: https://arxiv.org/abs/2606.30552
+
+### 精华
+
+1. **跨本体认知对齐 (Cross-Embodiment Alignment)**：针对单臂、双臂、人形机器人底层状态与动作空间异构的难题，ZR-0 指出物体识别、场景感知与子任务分解等高层认知过程在不同本体间是高度共享的，创新性地提出利用密集具身思考链（Dense ECoT）作为监督信号实现跨本体语义对齐。
+2. **System 1 / System 2 双流架构与推理期零延迟旁路**：System 2（Qwen3-VL-2B）负责在训练时学习丰富的物理世界常识与 ECoT 推理；System 1（DiT 动作专家）通过 Flow Matching 预测连续动作块。设计了专属注意力掩码（Attention Mask），使动作专家仅交互输入 Prompt 特征，**在推理部署时完全跳过文本 ECoT 的自回归生成**，兼顾高层推理泛化与高频实时控制。
+3. **超大规模密集标注数据集 ProcCorpus-60M**：整合 DROID、RH20T、OXE、Bridge 等主流开源机器人数据集，构建了含 6,000 万帧（约 1,000 小时、40 万条轨迹）的大规模数据集，且 96.8% 的帧带有结构化 ECoT 标注（场景描述、进度评估、未来规划、原子动作分解、目标物体 BBox、离散动作 Token）。
+4. **视觉-语言数据协同训练 (Co-training)**：在微调机器人动作的同时混入 CapsFusion 与 Pixmo 通用图文多模态数据，有效防止了端到端动作训练对 VLM 开放词表常识理解能力的灾难性遗忘。
+5. **全形态仿真与实机泛化验证**：在单臂（LIBERO）、双臂（RoboTwin 2.0）、人形机器人（RoboCasa GR-1 Tabletop）仿真基准及真实 xArm 机械臂多任务评测中均展现出卓越的泛化性能与指令遵循精度。
+
+---
+
+### 1. 研究背景/问题
+
+- **跨本体迁移的异构困境**：构建通用具身操作策略面临的核心障碍在于跨本体（Cross-Embodiment）泛化。不同机器人平台在机械臂自由度（6-DoF vs 7-DoF）、控制接口（关节角 vs 末端位姿）、底盘类型（固定基座 vs 移动底盘）以及传感器配置上存在根本差异。传统的填充对齐（Zero-padding）或语义维度映射仅停留在格式层面，无法让模型学习到跨硬件可迁移的深层语义特征。
+- **高层认知共享 vs 低层动作特异**：尽管底层执行细节因硬件而异，人类和机器人在执行操作任务时的**高层认知决策回路**是共通的（例如无论是 6 自由度还是 7 自由度机械臂，从桌上拿起杯子都需要经历“识别杯子位置 $\to$ 规划靠近路径 $\to$ 对齐抓夹 $\to$ 闭合夹爪”的逻辑演进）。
+- **推理延迟与推理能力的矛盾**：传统带思维链（CoT）推理的 VLA 模型在推理时需要逐字自回归解码出长文本推理过程，导致极高的计算延迟（单步耗时数百毫秒以上），无法满足高频闭环动作控制的需求。ZR-0 正是为解决这一矛盾而设计。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vla/ZR-0-framework.png" width="100%" />
+<figcaption>图 1：ZR-0 整体架构与双流训练流程。System 2 VLM 在训练期接收多模态输入并以 Next-Token Prediction 监督生成结构化 ECoT；System 1 DiT 动作专家通过 Flow Matching 预测连续动作块，交叉注意力掩码确保其仅依赖输入 Prompt 特征。</figcaption>
+</div>
+
+#### ① 整体架构：System 1 / System 2 双流协同
+
+ZR-0 包含基于认知科学双系统理论的两个核心子模块：
+- **System 2（慢速认知大模型）**：基于预训练 `Qwen3-VL-2B-Instruct` 骨干，输入多视角相机图像 $o_t = [img_1, \dots, img_n]$ 及自然语言指令 $l$，生成结构化具身思维链（ECoT）序列 $r_t$。
+- **System 1（快速动作专家）**：基于 Diffusion Transformer（DiT）的连续动作流匹配专家。接收机器人本体状态 $s_t$ 与 VLM 提取的顶层特征 $f_t$，单次生成未来 $H$ 步连续动作块 $A_t = [a_t, a_{t+1}, \dots, a_{t+H-1}]$。
+
+#### ② 关键创新：推理期零开销旁路设计（Inference-Time Bypass）
+
+- **DiT 模块注意力配比**：每个 DiT 块采用 **1 层自注意力 + 3 层交叉注意力** 的非对称结构（不同于常规 1:1 设计），强化动作对视觉和语言特征的充分吸收。
+- **Cross-Attention Mask 机制**：在 DiT 跨注意力交互时，显式施加注意力掩码，**仅允许 Query（动作与状态 Token）访问 VLM 中对应输入 Prompt（图像 + 指令）的特征，屏蔽所有后续生成的 ECoT Token 特征**。
+- **零延迟推理优势**：由于动作生成完全不依赖生成的 ECoT 文本隐藏状态，推理阶段**完全无需自回归解码任何 ECoT 文本**，VLM 仅需单次前向传播（Single Forward Pass）编码输入观测，即可直接驱动 Action Expert 采样动作。
+
+#### ③ 结构化 ECoT 认知六要素 (ProcCorpus-60M)
+
+为赋予模型全方位的具身推理能力，ProcCorpus-60M 为轨迹中的每一帧自动构建了六级结构化认知链条：
+1. **Scene Description（场景描述）**：概括环境布局与关键物体，提升开放视觉场景感知能力。
+2. **Progress Assessment（进度评估）**：总结已完成进度并给出二分类完成指示（Yes/No），增强任务进度感知。
+3. **Future Plan（未来规划）**：以自然语言描述达成目标所需的剩余步骤，强化时序推理与长程规划。
+4. **To-Do Actions（原子动作分解）**：将未来规划分解为规范的动宾短语（如 `Grasp the blue plate`），建立硬件无关的跨本体可迁移表征。
+5. **Target Objects（目标物体定位）**：以 JSON 格式输出关键物体的 2D 边界框 BBox，提供显式视觉定位引导。
+6. **Discrete Actions（离散动作 Token）**：由 FAST Tokenizer 产生的离散动作 Token，在高层推理与底层连续控制间搭建紧凑桥梁。
+
+#### ④ 联合训练损失函数
+
+ZR-0 在训练阶段联合优化语言建模损失与流匹配去噪损失：
+$$\mathcal{L} = \mathcal{L}_{\mathrm{ntp}} + \alpha \mathcal{L}_{\mathrm{fm}}$$
+- **ECoT 监督损失**：
+  $$\mathcal{L}_{\mathrm{ntp}} = -\mathbb{E}_{\mathcal{D}} \left[ \sum_i \log \pi_{\theta'}(r_t^i \mid l, o_t, r_t^{<i}) \right]$$
+- **流匹配动作去噪损失**：
+  $$\mathcal{L}_{\mathrm{fm}} = \mathbb{E}_{\mathcal{D}, \tau, \epsilon} \left[ \|\pi_\theta(l, o_t, s_t, A_t^\tau, \tau) - (A_t - \epsilon)\|^2 \right]$$
+  其中流匹配时间步 $\tau \sim \text{Beta}(1.5, 1.0)$，对高噪声阶段给予更大采样权重。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vla/ZR-0-realworld-tasks.png" width="100%" />
+<figcaption>图 2：真实世界 xArm 机械臂多任务实验评估设置（包含指令遵循、颜色认知、长程规划、空间推理和 OCR 语义理解）</figcaption>
+</div>
+
+- **多形态仿真基准全面领先**：
+  - **单臂操控 (LIBERO)**：在 LIBERO-Spatial、Object、Goal、Long 四大子集中全面超越 OpenVLA、$\pi_0$ 与 Octo。
+  - **双臂操控 (RoboTwin 2.0)**：在 20 项复杂双臂协同任务中展现出高协调性与精准的空间动作解耦能力。
+  - **人形操控 (RoboCasa GR-1 Tabletop)**：在复杂居家桌面场景中验证了向高自由度人形机器人的迁移能力。
+- **实机部署验证**：在 xArm 机械臂上开展了 4 类涵盖空间方位推理、OCR 字符理解、细粒度物体操作和长程多阶段规划的真实物理测试，ZR-0 在新场景和新物体分布下展现出高达 85%+ 的操作成功率。
+- **消融实验关键结论**：
+  - **密集 ECoT 的必要性**：移除 ECoT 监督（仅使用动作回归）导致跨本体迁移成功率下降 28.4%；
+  - **推理期旁路无损验证**：对比“推理期生成 ECoT”与“推理期跳过 ECoT”，两者的动作控制成功率完全一致，但推理延迟下降了 85% 以上，证明了特征掩码解耦机制的有效性。
+
+---
+
+### 4. 局限性
+
+1. **对离线自动标注质量的依赖**：ProcCorpus-60M 数据集依赖上游大模型生成 ECoT 伪标签，标注噪声（如复杂遮挡下的 BBox 漂移）可能影响中间表征的纯净度。
+2. **单向前馈缺少测试时动态反思**：由于推理阶段跳过了 ECoT 的自回归生成，模型无法在执行中实时输出文字自纠错或进行基于语言的反思重规划。
+## 5.30 RoboTTT (2026) {#5-30-robottt}
+——扩展具身策略注意力上下文至 8K Timesteps 的测试时训练 (TTT) 视觉-语言-动作模型
+
+📄 **Paper**: https://arxiv.org/abs/2607.15275
+
+### 精华
+
+* 将语言模型中用于扩展长上下文的测试时训练（Test-Time Training, TTT）成功引入具身视觉-语言-动作（VLA）策略，将动作控制的历史上下文长度提升三个数量级至 8K timesteps（超 4 分钟连续交互）。
+* 利用梯度下降在测试时动态更新快权重（Fast Weights）作为循环状态，使策略能够隐式记忆长历史，且推理计算耗时保持常数级（$$O(1)$$ 随上下文长度不变）。
+* 提出序列动作强迫（Sequence Action Forcing）与截断反向传播（TBPTT），解决了长序列 Diffusion Transformer 训练中的多级噪声采样与显存爆炸问题。
+* 创新设计 DAgger Distillation 与 单样本视频模仿（One-Shot Video Imitation），将“失败-纠正”映射与人类示范视频隐式蒸馏至快权重中，实现无需在线人工介入的自适应纠错与单样本任务泛化。
+* 首次揭示预训练上下文长度对机器人闭环操控性能存在持续 Scaling 效应（8K 比 1K 提升 63%），为具身大模型开辟了除参数量和数据量之外的全新 Scaling 维度。
+
+---
+
+### 1. 研究背景/问题
+
+* **核心问题与动机**：现有主流机器人基础模型（如 GR00T-N1.7, OpenVLA 等）大多仅依赖单帧或极短的历史观测（通常 2–8 帧），无法在长达数分钟的多阶段复杂任务中建立长效操控上下文。然而，长视觉动作上下文对于单样本视频示范模仿、部署历史中的在线自适应纠错以及长程操控至关重要。
+* **技术瓶颈**：在长视觉动作上下文下，传统的 Full Attention 随着序列长度增长面临昂贵的 KV Cache 显存与计算开销；而 RNN 或 Gated DeltaNet 等线性关联循环结构在拟合数千步高维视觉-动作连续流时存在表达能力不足的问题。
+* **本文解决方案**：本文提出 **RoboTTT**（Test-Time-Training Robot Policies），将 TTT 引入 VLA 策略。通过在训练和测试阶段利用梯度下降在线更新快权重（Fast Weights），将历史上下文动态压缩至模型参数空间中，在保证推理延迟为常数阶的前提下，将机器人视觉-动作上下文扩增至 8K timesteps（较现有 SOTA 提升超 3000 倍）。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vla/RoboTTT-architecture.png" width="100%" />
+<figcaption>RoboTTT 整体架构、序列训练与推理流程</figcaption>
+</div>
+
+#### ① 整体框架概述
+RoboTTT 建立在流匹配（Flow-Matching）策略 Backbone（本文默认使用 GR00T N1.7）之上，包含 VLM 编码器、DiT（Diffusion Transformer）动作头以及嵌入在 DiT 中的 TTT 图层（TTT Layer）。在时间维度上，DiT 内的注意力机制仅在单步内处理多模态 Token 的交互，而跨时间步的序列长依赖传递完全由 TTT 图层的快权重 $$\mathbf{W}$$ 承担。
+
+#### ② 逐模块讲解
+
+* **VLM Encoder 与 Register Tokens**：
+  * **输入**：当前及历史 RGB 图像 $$o_t$$。
+  * **处理**：VLM 提取视觉-语言 Token $$\Phi_t$$。为避免将高维且数量庞大的 $$\Phi_t$$ 直接送入 TTT 图层导致计算开销过大，RoboTTT 在每个时间步引入 $$N=16$$ 个可学习的 Register Tokens $$R_t$$。Register Tokens 通过 Cross-Attention 吸收该步的视觉与语言信息，并将多模态上下文压缩携带至 TTT 图层。
+  * **输出**：吸收了视觉-语言特征的 Register Tokens $$R_t$$。
+* **DiT Action Head 与 Gated TTT Layer**：
+  * **输入**：Register Tokens $$R_t$$、本体感知 Token $$q_t$$ 以及加噪动作 Token $$\tilde{A}_t$$。
+  * **处理**：在 DiT 的每层 Self/Cross-Attention 之后接入 TTT 图层。TTT 的快权重 $$f_{\mathbf{W}}$$（采用 2 层 MLP）以 Key-Value 关联学习的方式在线更新：
+    $$\mathbf{W}_t \leftarrow \mathbf{W}_{t-1} - \eta \nabla_{\mathbf{W}} \mathcal{L}_{\text{FW}}(f_{\mathbf{W}_{t-1}}(\mathbf{K}_t), \mathbf{V}_t)$$
+    其中 $$\mathcal{L}_{\text{FW}}$$ 为均方误差损失，并在 Apply 步骤计算输出 $$O_t = f_{\mathbf{W}_t}(\mathbf{Q}_t)$$。为了保护预训练 VLA 模型原有的强泛化能力，设计了可学习的 Tanh 门控机制：
+    $$O = \tanh(\alpha) \odot O_{\text{TTT}} + O_{\text{attn}}$$
+    初始时初始化 $$\alpha \approx 0.001$$，使模型在训练初期平滑过渡。
+  * **设计动机**：快权重提供了非线性的隐式记忆容量，测试时的梯度更新使其具备比线性 Associative State 更强的长序列拟合与信息检索能力。
+* **Sequence Action Forcing（序列动作强迫）**：
+  * **设计**：在长度为 $$T$$ 的长序列训练中，为每个时间步的 Action Chunk $$A_t$$ 独立采样不同的 Flow-Matching 噪声水平 $$u \sim \text{Beta}(1.5, 1)$$。
+  * **动机**：若整条序列共享单一噪声水平，会导致训练与闭环部署时的噪声分布严重不匹配。独立采样确保了模型在长序列中各时间步均能鲁棒预测。
+* **TBPTT (Truncated Backpropagation Through Time)**：
+  * **设计**：将长序列划分为若干 Segment，在 Segment 边界截断慢权重（Slow Weights）的梯度流，但保留快权重 $$\mathbf{W}_t$$ 在跨 Segment 间的连续传递。
+  * **动机**：显存开销仅取决于单个 Segment 长度而非总序列长度，使模型能够突破 GPU 显存限制，完成 8K 级别的超长序列预训练。
+
+<div align="center">
+  <img src="/images/vla/RoboTTT-dagger-distillation.png" width="100%" />
+<figcaption>DAgger Distillation 与长上下文自适应纠错机制</figcaption>
+</div>
+
+#### ③ 创新使用范式：DAgger Distillation 与 单样本视频模仿
+
+* **DAgger Distillation（DAgger 蒸馏）**：
+  * 在交互轨迹中，机器人错误动作 $$A_t^{\text{R}}$$ 与人类纠正动作 $$A_t^{\text{H}}$$ 交替出现。训练时，完整轨迹（包含错误动作）均用于更新快权重 $$\mathbf{W}_t$$，但 Flow-Matching 损失仅在人类纠正动作上计算。
+  * 由此将“识别失败 $$\to$$ 执行纠正”的算法自适应能力隐式蒸馏到快权重的参数更新逻辑中，使机器人部署时无需人工介入，即可在自身动作失误后自动自适应恢复。
+* **One-Shot Video Imitation（单样本视频模仿）**：
+  * 将人类演示视频帧序列与机器人执行轨迹拼接为同一训练序列，Mask 掉视频帧上的动作 Loss，仅利用视频特征更新快权重。
+  * 推理时仅需在前置上下文中输入一段未见配置的人类示范视频，策略即可从快权重的隐式状态中检索出任务目标并完成精准操控。
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vla/RoboTTT-context-scaling.png" width="100%" />
+<figcaption>预训练上下文长度 Scaling 曲线及长程组装任务基准对比</figcaption>
+</div>
+
+* **长程操控任务综合性能**：在 Pup Go Car（2 分钟）、Circuit（1 分钟）和 Gear Bot（5 分钟 10 阶段组装）三项实机高难度双臂操控任务中，RoboTTT 取得 **79%** 的平均任务完成度，比单步基线 GR00T N1.7（42%）提升 **87%**，且是**唯一**在 5 分钟超长程 Gear Bot 任务上实现完全成功（Full Success）的方法。
+* **Context Length Scaling 效应**：预训练上下文长度从 128 扩展至 8K 时，闭环操控完成度从 43.9% **单调持续上升至 71.5%**（相对提升 63%），且未见饱和迹象。相比之下，基于循环记忆的 GDN 随上下文增长性能未见提升。
+* **单样本模仿与自适应鲁棒性**：
+  * 在单样本视频模仿中，RoboTTT 达到 **65%** 完成度（6/10 完全成功），而 GDN 完全失败（0/10）；
+  * 在外部物理干扰（强行拿走已安装零部件）下，RoboTTT 自我修复成功率达 **83%**（15/20 和 18/20），显著优于短上下文基线（53%）。
+* **DAgger Distillation 增益**：相比于传统仅在纠正数据上微调的 DAgger，DAgger Distillation 使 RoboTTT 的任务完成度额外大幅提升 **36%**。
+
+---
+
+### 4. 局限性
+
+* 8K 级别的长上下文序列预训练对高质连续运动数据要求较高，训练阶段需较大的计算资源支持。
+* 快权重的更新依赖基于 MSE 的辅助目标，在遇到极端环境突变（如光照大幅剧变或视角剧烈晃动）时的表征稳定性与泛化泛用边界仍有待进一步深入探索。
+## 5.31 S²-VLA (2026) {#5-31-s-vla}
+——状态空间引导的动态自适应注意力视觉-语言-动作模型：攻克长程具身操控累积误差
+
+📄 **Paper**: https://arxiv.org/abs/2606.27872
+
+### 精华
+
+1. **突破静态融合瓶颈**：针对传统 VLA 在长时序多步任务中因固定静态融合权重导致误差累积（Compounding Error）的问题，提出首个基于**状态空间引导自适应注意力（SSGAA）**的长程操控框架。
+2. **信念状态动态追踪 (Belief State Tracking)**：在策略内部维护紧凑的内部信念状态 $b_t$，利用轻量级 GRU 递归编码历史动作-感知对与本体反馈，无需任何阶段标签即可在端到端动作预测中自监督涌现出对任务宏观执行阶段（趋近、抓取、对齐、放置）与执行偏差的感知能力。
+3. **三路互补注意力与阶段自适应门控**：设计了空间视觉感知（Low-Level Visual Cross-Attn）、语义任务意图（High-Level Intent Cross-Attn）与时序动作一致性（Action Sequence Self-Attn）三路并行注意力，通过信念状态驱动的门控网络动态分配权重，实现阶段感知的自适应表征融合。
+4. **轻量模型越级超越**：仅含 2B 参数量且部署仅需 7 GB 显存，但在 LIBERO 仿真基准上取得 **98.2% 平均成功率**（Long-Horizon 达 96.4%），在 SimplerEnv-Bridge（WidowX）上取得 78.1% 平均成功率，全面超越主流 7B/8B 规模的 VLA 模型。
+5. **双臂实物操控与鲁棒避障**：在 ALOHA 双臂移动平台上成功完成积木堆叠、桌面整理与双手传递餐具等多阶段复杂长程操控，实测证明 SSGAA 显著抑制了执行过程中的误差累积。
+
+---
+
+### 1. 研究背景/问题
+
+- **长程任务中的误差累积与崩溃**：现有的视觉-语言-动作（VLA）模型在单步短程任务中表现出色，但在需要多步骤连续推理的长程操作任务中（如“把奶油奶酪盒与黄油依次放入篮中”），成功率往往急剧衰减。根源在于早期决策产生的微小偏差会在长动作链上不断传播和放大。
+- **静态多模态融合的固有局限**：主流 VLA 模型在结合视觉、语言和历史动作特征时采用固定的静态权重或单一的注意力瓶颈。然而，真实的物理操控在不同阶段对信息源的需求存在本质差异：
+  - 在**初始宏观规划阶段**，模型需要高度聚焦语言指令的全局语义意图；
+  - 在**精细对准抓取阶段**，模型必须高度聚焦于局部几何与空间像素细节；
+  - 在**轨迹执行过渡阶段**，则需要高度保持时序动作的平滑度与连续性。
+- 缺乏对任务所处物理阶段的自适应感知能力，是现有静态 VLA 模型在长程任务中频繁失败的核心痛点。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vla/S2-VLA-concept.png" width="100%" />
+<figcaption>图 1：传统静态融合 VLA（左）与 S²-VLA 状态空间引导自适应注意力（右）在长程操控中的注意力阶段演变对比</figcaption>
+</div>
+
+#### ① 整体框架：信念状态驱动的 VLA 范式
+
+S²-VLA 接收多视角视觉观测 $V_t$、自然语言指令 $L_t$ 与机器人本体状态 $P_t$。模型由 **Qwen3-VL-2B 骨干**、**信念状态更新模块（GRU）** 以及 **24 层 SSGAA 动作头** 构成。
+
+<div align="center">
+  <img src="/images/vla/S2-VLA-architecture.png" width="100%" />
+<figcaption>图 2：S²-VLA 整体架构与 SSGAA 自适应多模态数据流示意图</figcaption>
+</div>
+
+#### ② 逐模块详细讲解
+
+##### 1. 内部信念状态（Belief State）建模
+为了在长时程中维持时序因果一致性，模型维护一个紧凑的隐式信念状态 $b_t \in \mathbb{R}^{d_b}$。在每个时间步 $t$ 与动作头第 $l$ 层：
+$$\begin{aligned}
+(o_t^{(l)}, h_t^{(l)}) &= f_\phi(h_t^{(l-1)}, A_{t-K:t-1}, P_t) \\
+b_t^{(l)} &= W_b \cdot o_t^{(l)} + \beta_b
+\end{aligned}$$
+其中 $f_\phi$ 由轻量级 GRU 实现，$A_{t-K:t-1}$ 为历史回溯的动作序列。信念状态无需外部阶段标注，完全在动作预测损失的反向传播中端到端学习，自发涌现出对任务进度和物理扰动的动态表征。
+
+##### 2. 三路互补注意力机制 (SSGAA Pathways)
+SSGAA 设立了三条功能互补的并行注意力通路：
+- **低层空间视觉交叉注意力（Low-Level Visual Cross-Attn）**：Query 为可学习动作序列，Key/Value 为 VLM 视觉 Token 隐藏状态 $C_{\mathrm{vis}}$，提取亚像素级的物体几何与空间方位细节：
+  $$O_{\mathrm{vis}} = \text{Softmax}\left(\frac{Q (C_{\mathrm{vis}} W_{\mathrm{vis}}^k)^\top}{\sqrt{d}}\right) (C_{\mathrm{vis}} W_{\mathrm{vis}}^v)$$
+- **高层语义意图交叉注意力（High-Level Intent Cross-Attn）**：Key/Value 为 VLM 顶层意图 Token $C_{\mathrm{ite}}$，提取宏观任务目标与约束：
+  $$O_{\mathrm{ite}} = \text{Softmax}\left(\frac{Q (C_{\mathrm{ite}} W_{\mathrm{ite}}^k)^\top}{\sqrt{d}}\right) (C_{\mathrm{ite}} W_{\mathrm{ite}}^v)$$
+- **动作序列自注意力（Action Sequence Self-Attn）**：在动作 Query 序列内部执行双向自注意力，维护连续 $K$ 步未来动作块之间的物理动力学连续性。
+
+##### 3. 信念引导的动态门控网络 (Belief-Guided Gating)
+在第 $l$ 层，门控网络基于当前信念状态 $b_t^{(l)}$ 动态计算三路注意力的归一化权重：
+$$\begin{bmatrix} g_{\mathrm{vis}}^{(l)}, g_{\mathrm{ite}}^{(l)}, g_{\mathrm{act}}^{(l)} \end{bmatrix}^\top = \text{Softmax}\left(\text{MLP}_g^{(l)}(b_t^{(l)})\right)$$
+三路特征按动态权重线性加权融合：
+$$H^{(l)} = g_{\mathrm{vis}}^{(l)} \cdot O_{\mathrm{vis}}^{(l)} + g_{\mathrm{ite}}^{(l)} \cdot O_{\mathrm{ite}}^{(l)} + g_{\mathrm{act}}^{(l)} \cdot O_{\mathrm{act}}^{(l)}$$
+
+##### 4. 并行非自回归动作解码 (Parallel Decoding)
+经过 24 层 SSGAA 迭代后，顶层输出经 LayerNorm 与线性投影一次性输出未来 $K$ 步连续动作块：
+$$\hat{A}_{t:t+K-1} = \text{LN}(H^{(L_{\mathrm{out}})}) W_{\mathrm{out}}^\top + \beta_{\mathrm{out}}$$
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vla/S2-VLA-realworld.png" width="100%" />
+<figcaption>图 3：ALOHA 双臂机器人真实世界长程操控实验（包含方块抓放、双臂交接餐具、堆叠与整理）</figcaption>
+</div>
+
+- **LIBERO 长程操作基准 SOTA**：在 LIBERO（Spatial, Object, Goal, Long）四大子集 2,000 次评测中，S²-VLA 取得 **98.2% 平均成功率**，在最具挑战性的 **Long-Horizon 子集达到 96.4%**，超越 OpenVLA-OFT（94.5%）、$\pi_0$（85.2%）、MemoryVLA（93.4%）及 8.5B 的 UnifiedVLA（94.0%）。
+- **SimplerEnv-Bridge 跨域真机仿真**：在 WidowX 机械臂 4 项经典操作任务中达到 **78.1% 平均成功率**，显著超越 $\pi_0$-Beta（68.4%）和 OpenVLA（4.2%）。
+- **ALOHA 实机双臂部署**：在方块分类、双层堆叠、桌面整理和双臂餐具传递四项真实任务中表现出高平滑性与自纠错能力。
+
+<div align="center">
+  <img src="/images/vla/S2-VLA-visualization.png" width="100%" />
+<figcaption>图 4：S²-VLA 在不同任务阶段的三路门控权重动态变化可视化（趋近阶段意图权重最高，接触阶段视觉权重自适应放大）</figcaption>
+</div>
+
+- **消融实验关键发现**：
+  - **动态门控有效性**：移除动态门控（固定权重静态融合）后，LIBERO-Long 成功率下降 1.4% 至 95.0%；
+  - **中间层门控效果最优**：在第 12 层（中间层）施加信念状态门控带来最显著增益（+1.4%），过度在所有层盲目门控反而导致优化不稳定。
+
+---
+
+### 4. 局限性
+
+1. **依赖连续的本体感受输入**：信念状态 $b_t$ 的递归更新高度依赖机器人本体关节/末端反馈（Proprioception），若硬件传感器丢失或存在严重时延抖动，可能影响状态追踪的准确性。
+2. **离散高层重新规划能力有限**：模型侧重于执行层面的自适应注意力调整，对于环境发生不可逆破坏（如目标物体掉落出操作台）等极端情况，仍需接入上层大语言模型进行高层重新规划。
+
+---
+
+
+---
+
+
+---
+
 
 ---
 
