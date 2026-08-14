@@ -29,7 +29,7 @@
 | 机器人导航 | SLAM、定位建图、路径规划、运动控制与 ROS 2 | [导航综述](https://tingdeliu.github.io/Robot-Navigation-Survey/) · [ROS 2](https://tingdeliu.github.io/ROS2-Survey/) |
 | 多模态与空间智能 | VLM、三维场景理解、点云、深度估计、Gaussian Splatting | [VLM 综述](https://tingdeliu.github.io/VLM-Survey/) · [空间智能](https://tingdeliu.github.io/Spatial-Intelligence-Survey/) |
 | 世界模型与智能体 | 世界建模、AI Agent、规划、记忆、工具调用与闭环执行 | [世界模型](https://tingdeliu.github.io/World-Models-Survey/) · [AI Agent](https://tingdeliu.github.io/AI-Agent-Survey/) |
-| 学习与训练方法 | LLM 训练、深度学习、机器学习、具身强化学习 | [LLM 训练](https://tingdeliu.github.io/LLM-Training-Survey/) · [具身强化学习](https://tingdeliu.github.io/Reinforcement-Learning-Embodied-Survey/) |
+| 学习与训练方法 | LLM 训练、深度学习、机器学习、强化学习 | [LLM 训练](https://tingdeliu.github.io/LLM-Training-Survey/) · [强化学习](https://tingdeliu.github.io/Reinforcement-Learning-Survey/) |
 
 完整内容可在 [Research](https://tingdeliu.github.io/research/) 和 [Blog](https://tingdeliu.github.io/blog/) 页面浏览。
 
