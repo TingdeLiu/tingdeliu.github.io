@@ -7488,6 +7488,7 @@ graph TD
     { n: '6. VL-Nav (2025)', a: 'vl-nav', t: ['端到端', '零样本', '实机部署'] },
     { n: '7. LoGoPlanner (2025)', a: 'logoplanner', t: ['端到端', '扩散模型', '连续环境', '实机部署'] },
     { n: '8. NAVCON (2024)', a: 'navcon', t: ['数据集', '连续环境', '离散环境'] },
+    { n: '9. Agentic Embodied Control (2026)', a: 'agentic-embodied-control', t: ['Agentic', '零样本', '连续环境', '实机部署'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',
