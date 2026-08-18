@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "VLN经典论文"
-date:   2026-08-17
+date:   2026-08-18
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -3751,8 +3751,7 @@ DGNav 整体框架。根据估计的场景复杂度 σ 动态调整导航策略�
   ```
   
 <div align="center">
-  <img src="/images/DGNav-adaptive-strategy.png" width="100%" loading="lazy" decoding="async" />
-<!-- RENAME: figure_02.png -> DGNav-adaptive-strategy.png -->
+  <img src="/images/vln/DGNav-adaptive-strategy.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:714/599" />
 <figcaption>
 场景感知自适应策略示意图。从深度图生成候选路径点后，根据候选节点的角度离散度 (σ) 动态调整合并阈值 γ。在简单环境中 (低 σ)，较大的 γ 产生稀疏图以提升效率；在复杂环境中 (高 σ)，较小的 γ 产生密集图以确保安全。
 </figcaption>
@@ -3765,8 +3764,7 @@ DGNav 整体框架。根据估计的场景复杂度 σ 动态调整导航策略�
 针对语义逻辑层面的导航近视问题，融合多模态线索动态重构图连接性：
 
 <div align="center">
-  <img src="/images/DGNav-dynamic-edge-fusion.png" width="100%" loading="lazy" decoding="async" />
-<!-- RENAME: figure_03.png -> DGNav-dynamic-edge-fusion.png -->
+  <img src="/images/vln/DGNav-dynamic-edge-fusion.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:715/629" />
 <figcaption>
 多模态编码和动态边融合架构。视觉编码器和指令编码器分别提取节点特征 (V) 和词特征 (W)。动态边融合模块通过融合几何地图 (E_geo)、成对视觉相似度 (E_sem) 和指令相关性 (E_inst) 构建图连接性。生成的动态邻接矩阵 E_dynamic 指导 Graph Transformer 执行上下文感知的路径规划。
 </figcaption>
