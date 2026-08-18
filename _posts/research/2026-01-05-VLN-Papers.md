@@ -7475,6 +7475,20 @@ graph TD
     { m: 'RynnBrain',         t: ['基础工作'] },
   ];
 
+  // 另一篇文章的论文清单。两篇的 .paper-section 各自只在本页存在，
+  // 所以这些条目不参与显示/隐藏，只在结果面板里作为跨页链接列出。
+  var REMOTE_PAGE = { url: '/VLN-Papers-New/', label: '增补篇' };
+  var REMOTE_PAPERS = [
+    { n: '1. ABot-AgentOS (2026)', a: 'abot-agentos', t: ['Agentic', '拓扑图', '实机部署'] },
+    { n: '2. NavWAM (2026)', a: 'navwam', t: ['世界模型', '扩散模型', '连续环境', '实机部署'] },
+    { n: '3. SparseVideoNav (2026)', a: 'sparsevideonav', t: ['端到端', '扩散模型', '世界模型'] },
+    { n: '4. FantasyVLN (2026)', a: 'fantasyvln', t: ['世界模型', '数据增强', '连续环境', 'CoT'] },
+    { n: '5. WorldVLN (2025)', a: 'worldvln', t: ['世界模型', '强化学习', '端到端', '实机部署'] },
+    { n: '6. VL-Nav (2025)', a: 'vl-nav', t: ['端到端', '零样本', '实机部署'] },
+    { n: '7. LoGoPlanner (2025)', a: 'logoplanner', t: ['端到端', '扩散模型', '连续环境', '实机部署'] },
+    { n: '8. NAVCON (2024)', a: 'navcon', t: ['数据集', '连续环境', '离散环境'] },
+  ];
+
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',
                   '强化学习', '零样本', '世界模型', '数据增强',
                   '连续环境', '离散环境', '实机部署', '加速优化', '数据集', '基础工作', 'BEV'];
@@ -7526,19 +7540,26 @@ graph TD
       if (visible) matchedSections.push(s);
     });
 
-    // Update count
+    // 另一篇的匹配项：只列出，不参与本页的显示/隐藏
+    var matchedRemote = REMOTE_PAPERS.filter(function (p) {
+      return activeTags.length === 0 || sectionMatches(p.t);
+    });
+
+    // Update count（两篇合计）
+    var totalAll = sections.length + REMOTE_PAPERS.length;
+    var matchedAll = matchedSections.length + matchedRemote.length;
     var countEl = bar.querySelector('.filter-count');
     if (countEl) {
       countEl.textContent = activeTags.length === 0
-        ? '共 ' + sections.length + ' 篇'
-        : matchedSections.length + ' / ' + sections.length + ' 篇';
+        ? '共 ' + totalAll + ' 篇'
+        : matchedAll + ' / ' + totalAll + ' 篇';
     }
 
     // Update results panel
-    updateResultsPanel(matchedSections, sections.length);
+    updateResultsPanel(matchedSections, matchedRemote);
   }
 
-  function updateResultsPanel(matchedSections, total) {
+  function updateResultsPanel(matchedSections, matchedRemote) {
     if (!resultsPanel) return;
     if (activeTags.length === 0) {
       resultsPanel.style.display = 'none';
@@ -7547,15 +7568,31 @@ graph TD
     resultsPanel.style.display = 'block';
     var list = resultsPanel.querySelector('.results-list');
     list.innerHTML = '';
+
     matchedSections.forEach(function (s) {
       var h2 = s.querySelector('h2');
       if (!h2) return;
       var li = document.createElement('li');
       var a = document.createElement('a');
       a.href = '#' + h2.id;
-      // Clean title: strip leading number like "1. "
-      a.textContent = h2.textContent.trim();
+      // 主题会在标题末尾插一个 '#' 锚链，去掉它，否则和跨页条目显示不一致
+      a.textContent = h2.textContent.trim().replace(/#$/, '').trim();
       li.appendChild(a);
+      list.appendChild(li);
+    });
+
+    // 另一篇的匹配论文：跳到对应页面的锚点
+    matchedRemote.forEach(function (p) {
+      var li = document.createElement('li');
+      li.className = 'results-remote';
+      var a = document.createElement('a');
+      a.href = REMOTE_PAGE.url + '#' + p.a;
+      a.textContent = p.n;
+      li.appendChild(a);
+      var badge = document.createElement('span');
+      badge.className = 'results-badge';
+      badge.textContent = REMOTE_PAGE.label;
+      li.appendChild(badge);
       list.appendChild(li);
     });
   }

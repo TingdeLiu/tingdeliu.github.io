@@ -859,6 +859,72 @@ $$\mathcal{L} = -\sum_{i=1}^{N} \sum_{j=1}^{C} y_{i,j} \log p_{i,j}$$
     { m: 'NAVCON',             t: ['数据集', '连续环境', '离散环境'] },
   ];
 
+  // 另一篇文章的论文清单。两篇的 .paper-section 各自只在本页存在，
+  // 所以这些条目不参与显示/隐藏，只在结果面板里作为跨页链接列出。
+  var REMOTE_PAGE = { url: '/VLN-Papers/', label: '主篇' };
+  var REMOTE_PAPERS = [
+    { n: '1. R2R (2018)', a: 'r2r', t: ['离散环境', '数据集'] },
+    { n: '2. VLN-CE (2020)', a: 'vln-ce', t: ['数据集', '连续环境', '基础工作'] },
+    { n: '3. DUET (2022)', a: 'duet', t: ['拓扑图', '端到端', '离散环境'] },
+    { n: '4. NoMaD (2023)', a: 'nomad', t: ['端到端', '扩散模型', '零样本', '实机部署'] },
+    { n: '5. VLFM (2023)', a: 'vlfm', t: ['SLAM', '零样本', '实机部署'] },
+    { n: '6. R2RIE-CE & IEDL (2024)', a: 'r2rie-ce-iedl', t: ['连续环境', '数据集'] },
+    { n: '7. NaVid (2024)', a: 'navid', t: ['端到端', '连续环境', '实机部署', '零样本'] },
+    { n: '8. NavGPT-2 (2024)', a: 'navgpt-2', t: ['Agentic', '拓扑图', '离散环境', 'CoT'] },
+    { n: '9. DualVLN/InternVLN (2025)', a: 'dualvln', t: ['双系统', '扩散模型', '连续环境', '实机部署'] },
+    { n: '10. NavDP (2025)', a: 'navdp', t: ['端到端', '扩散模型', '连续环境', '零样本', '实机部署'] },
+    { n: '11. ODYSSEY (2025)', a: 'odyssey', t: ['Agentic', '实机部署'] },
+    { n: '12. PanoNav (2025)', a: 'panonav', t: ['Agentic', '零样本', '离散环境'] },
+    { n: '13. VLN-R1 (2025)', a: 'vln-r1', t: ['端到端', '强化学习', '连续环境'] },
+    { n: '14. GaussNav (2025)', a: 'gaussnav', t: ['SLAM', '高斯表示'] },
+    { n: '15. StreamVLN (2025)', a: 'streamvln', t: ['端到端', '加速优化', '连续环境', '实机部署'] },
+    { n: '16. NavFoM (2025)', a: 'navfom', t: ['端到端', '连续环境'] },
+    { n: '17. MapNav (2025)', a: 'mapnav', t: ['拓扑图', 'SLAM', '加速优化', '连续环境'] },
+    { n: '18. Open-Nav (2025)', a: 'open-nav', t: ['Agentic', '零样本', '连续环境'] },
+    { n: '19. Skill-Nav (2025)', a: 'skill-nav', t: ['端到端', '强化学习', '实机部署'] },
+    { n: '20. VLN-Imagine (2025)', a: 'vln-imagine', t: ['数据增强', '离散环境'] },
+    { n: '21. VLN-PE (2025)', a: 'vln-pe', t: ['数据集', '连续环境', '基础工作'] },
+    { n: '22. Goal2Pixel (2025)', a: 'goal2pixel', t: ['端到端', '连续环境', '实机部署', '加速优化'] },
+    { n: '23. AstraNav-World (2025)', a: 'astranav-world', t: ['世界模型', '扩散模型', '端到端', '连续环境', '实机部署'] },
+    { n: '24. CorrectNav (2025)', a: 'correctnav', t: ['端到端', '连续环境', '实机部署'] },
+    { n: '25. VLingNav (2026)', a: 'vlingnav', t: ['双系统', '连续环境', 'CoT'] },
+    { n: '26. Slow4fast-VLN (2026)', a: 'slow4fast-vln', t: ['双系统', '拓扑图', '离散环境'] },
+    { n: '27. DGNav (2026)', a: 'dgnav', t: ['拓扑图', 'SLAM', '连续环境'] },
+    { n: '28. Hydra-Nav (2026)', a: 'hydra-nav', t: ['双系统', '强化学习'] },
+    { n: '29. 3DGSNav (2026)', a: 'nav-3dgs', t: ['SLAM', '高斯表示', '零样本', '实机部署'] },
+    { n: '30. BudVLN (2026)', a: 'budvln', t: ['端到端', '强化学习', '连续环境'] },
+    { n: '31. CausalNav (2026)', a: 'causalnav', t: ['Agentic', '拓扑图'] },
+    { n: '32. AgentVLN (2026)', a: 'agentvln', t: ['Agentic', '连续环境', '实机部署'] },
+    { n: '33. VLN-Cache (2026)', a: 'vln-cache', t: ['加速优化'] },
+    { n: '34. SysNav (2026)', a: 'sysnav', t: ['Agentic', '拓扑图'] },
+    { n: '35. R³: Run, Ruminate, and Regulate (2026)', a: 'r3', t: ['双系统', '加速优化', 'CoT'] },
+    { n: '36. Uncertainty-Aware Gaussian Map for VLN (2026)', a: 'uncertainty-aware-gaussian-map', t: ['高斯表示', '拓扑图', '离散环境'] },
+    { n: '37. GSMem (2026)', a: 'gsmem', t: ['Agentic', '高斯表示', '零样本'] },
+    { n: '38. AwareVLN (2026)', a: 'awarevln', t: ['端到端', '连续环境', '实机部署', '数据增强', 'CoT'] },
+    { n: '39. Dual-Anchoring (2026)', a: 'dual-anchoring', t: ['端到端', '世界模型', '连续环境', '实机部署'] },
+    { n: '40. WAM-Nav (2026)', a: 'wam-nav', t: ['世界模型', '扩散模型', '零样本', '实机部署'] },
+    { n: '41. JanusVLN (2026)', a: 'janusvln', t: ['双系统', '连续环境', '实机部署', '加速优化'] },
+    { n: '42. HSGM (2026)', a: 'hsgm', t: ['Agentic', '拓扑图', '零样本', '连续环境', 'BEV'] },
+    { n: '43. OneVLA (2026)', a: 'onevla-a-unified-framework-for-embodied-tasks', t: ['端到端', '扩散模型', '连续环境', '实机部署'] },
+    { n: '44. CA-VLN (2026)', a: 'ca-vln', t: ['Agentic', '拓扑图', '离散环境'] },
+    { n: '45. RynnBrain (2026)', a: 'rynnbrain', t: ['基础工作'] },
+    { n: '46. EvoMemNav (2026)', a: 'evomemnav', t: ['Agentic', '拓扑图', '零样本'] },
+    { n: '47. OmniNav (2026)', a: 'omninav', t: ['双系统', 'Agentic', 'CoT', '扩散模型', '实机部署'] },
+    { n: '48. Qwen-RobotNav (2026)', a: 'qwen-robotnav', t: ['Agentic', '端到端', '连续环境', '实机部署'] },
+    { n: '49. GA-VLN (2026)', a: 'ga-vln', t: ['端到端', '连续环境', '实机部署', '加速优化', 'BEV'] },
+    { n: '50. SEDualVLN (2026)', a: 'sedualvln', t: ['双系统', '扩散模型', '连续环境', '实机部署'] },
+    { n: '51. Robostral Navigate (2026)', a: 'robostral-navigate', t: ['端到端', '强化学习', '连续环境', '加速优化'] },
+    { n: '52. LocalNav (2026)', a: 'localnav', t: ['拓扑图', '强化学习', '实机部署', '加速优化'] },
+    { n: '53. ABot-N1 (2026)', a: 'abot-n1', t: ['双系统', 'CoT', '强化学习', '实机部署'] },
+    { n: '54. ReflectVLN (2026)', a: 'reflectvln', t: ['双系统', 'Agentic', 'CoT', '连续环境'] },
+    { n: '55. TuckerNav (2026)', a: 'tuckernav', t: ['连续环境', '加速优化'] },
+    { n: '56. AgenticNav (2026)', a: 'agenticnav', t: ['Agentic', '零样本', '连续环境', '实机部署'] },
+    { n: '57. MemVLN (2026)', a: 'memvln', t: ['端到端', '连续环境', '加速优化'] },
+    { n: '58. X-NavDP (2026)', a: 'x-navdp', t: ['端到端', '扩散模型', '连续环境', '零样本', '实机部署'] },
+    { n: '59. Image2Sim (2026)', a: 'image2sim', t: ['世界模型', '数据增强', '高斯表示', '连续环境', '实机部署', '零样本'] },
+    { n: '60. DecoVLN (2026)', a: 'decovln', t: ['端到端', '连续环境', '实机部署', '加速优化', '纠错'] },
+  ];
+
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',
                   '强化学习', '零样本', '世界模型', '数据增强',
                   '连续环境', '离散环境', '实机部署', '加速优化', '数据集', '基础工作', 'BEV'];
@@ -910,19 +976,26 @@ $$\mathcal{L} = -\sum_{i=1}^{N} \sum_{j=1}^{C} y_{i,j} \log p_{i,j}$$
       if (visible) matchedSections.push(s);
     });
 
-    // Update count
+    // 另一篇的匹配项：只列出，不参与本页的显示/隐藏
+    var matchedRemote = REMOTE_PAPERS.filter(function (p) {
+      return activeTags.length === 0 || sectionMatches(p.t);
+    });
+
+    // Update count（两篇合计）
+    var totalAll = sections.length + REMOTE_PAPERS.length;
+    var matchedAll = matchedSections.length + matchedRemote.length;
     var countEl = bar.querySelector('.filter-count');
     if (countEl) {
       countEl.textContent = activeTags.length === 0
-        ? '共 ' + sections.length + ' 篇'
-        : matchedSections.length + ' / ' + sections.length + ' 篇';
+        ? '共 ' + totalAll + ' 篇'
+        : matchedAll + ' / ' + totalAll + ' 篇';
     }
 
     // Update results panel
-    updateResultsPanel(matchedSections, sections.length);
+    updateResultsPanel(matchedSections, matchedRemote);
   }
 
-  function updateResultsPanel(matchedSections, total) {
+  function updateResultsPanel(matchedSections, matchedRemote) {
     if (!resultsPanel) return;
     if (activeTags.length === 0) {
       resultsPanel.style.display = 'none';
@@ -931,15 +1004,31 @@ $$\mathcal{L} = -\sum_{i=1}^{N} \sum_{j=1}^{C} y_{i,j} \log p_{i,j}$$
     resultsPanel.style.display = 'block';
     var list = resultsPanel.querySelector('.results-list');
     list.innerHTML = '';
+
     matchedSections.forEach(function (s) {
       var h2 = s.querySelector('h2');
       if (!h2) return;
       var li = document.createElement('li');
       var a = document.createElement('a');
       a.href = '#' + h2.id;
-      // Clean title: strip leading number like "1. "
-      a.textContent = h2.textContent.trim();
+      // 主题会在标题末尾插一个 '#' 锚链，去掉它，否则和跨页条目显示不一致
+      a.textContent = h2.textContent.trim().replace(/#$/, '').trim();
       li.appendChild(a);
+      list.appendChild(li);
+    });
+
+    // 另一篇的匹配论文：跳到对应页面的锚点
+    matchedRemote.forEach(function (p) {
+      var li = document.createElement('li');
+      li.className = 'results-remote';
+      var a = document.createElement('a');
+      a.href = REMOTE_PAGE.url + '#' + p.a;
+      a.textContent = p.n;
+      li.appendChild(a);
+      var badge = document.createElement('span');
+      badge.className = 'results-badge';
+      badge.textContent = REMOTE_PAGE.label;
+      li.appendChild(badge);
       list.appendChild(li);
     });
   }
