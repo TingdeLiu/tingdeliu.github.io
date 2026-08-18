@@ -78,7 +78,7 @@ $$
 ## 2.2 Robostral 的树：观测是主干，动作是叶子
 
 <div align="center">
-  <img src="/images/vln/Robostral-Navigate-prefix-tree.png" width="96%" alt="Robostral Navigate 的逐时间步训练、前缀缓存与树状注意力掩码" />
+  <img src="/images/vln/Robostral-Navigate-prefix-tree.webp" width="96%" alt="Robostral Navigate 的逐时间步训练、前缀缓存与树状注意力掩码" />
   <figcaption>图 1：指令与观测构成共享主干，每个动作是独立叶节点。动作叶子只用于自身监督，后续观测不会再次读取它。</figcaption>
 </div>
 

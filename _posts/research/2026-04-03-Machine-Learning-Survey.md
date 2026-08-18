@@ -98,7 +98,7 @@ excerpt: "本文系统梳理了机器学习的核心范式、经典算法与代�
 - **代表算法**：Q-Learning、DQN、PPO、SAC。
 
 <div align="center">
-  <img src="/images/ML/RL.png" width="60%" />
+  <img src="/images/ML/RL.webp" width="60%" />
 <figcaption>图：强化学习算法示意图</figcaption>
 </div>
 
@@ -355,7 +355,7 @@ $$P(y=1 \mid \mathbf{x}) = \sigma(\mathbf{w}^T \mathbf{x} + b) = \frac{1}{1 + e^
 
 <div align="center">
 
-  <img src="/images/ML/random_forest.png" width="60%" />
+  <img src="/images/ML/random_forest.webp" width="60%" />
 <figcaption>图：随机森林算法示意图</figcaption>
 </div>
 
@@ -382,7 +382,7 @@ $$P(y=1 \mid \mathbf{x}) = \sigma(\mathbf{w}^T \mathbf{x} + b) = \frac{1}{1 + e^
 
 <div align="center">
 
-  <img src="/images/ML/gradient_boosting.png" width="60%" />
+  <img src="/images/ML/gradient_boosting.webp" width="60%" />
 <figcaption>图：梯度提升决策树 (GBDT) 示意图</figcaption>
 </div>
 
@@ -409,7 +409,7 @@ KNN 是一种典型的"懒惰学习（Lazy Learning）"算法，它在训练阶�
 
 <div align="center">
 
-  <img src="/images/ML/knn.png" width="60%" />
+  <img src="/images/ML/knn.webp" width="60%" />
 <figcaption>图：K近邻 (KNN) 算法示意图</figcaption>
 </div>
 
@@ -437,7 +437,7 @@ KNN 是一种典型的"懒惰学习（Lazy Learning）"算法，它在训练阶�
 > **直觉理解**：就像法官凭多条"独立线索"判案——假设每条线索互不影响，把各线索的支持度相乘，哪个结论得分最高就选哪个。这个独立性假设在现实中几乎不成立，但实践中往往够用。
 
 <div align="center">
-  <img src="/images/ML/naive_bayes.png" width="60%" />
+  <img src="/images/ML/naive_bayes.webp" width="60%" />
 <figcaption>图：朴素贝叶斯 (Naive Bayes) 分类器示意图</figcaption>
 </div>
 
@@ -471,7 +471,7 @@ HMM 是一种用于处理序列数据的概率图模型，包含一个不可见�
 > **直觉理解**：就像医生通过观察症状（发烧、咳嗽，这是可见的"观测"）推断内部病因（病毒感染还是细菌感染，这是不可见的"隐状态"）。病因本身看不见，但可以从症状序列反推最可能的病因序列。
 
 <div align="center">
-  <img src="/images/ML/hmm.png" width="60%" />
+  <img src="/images/ML/hmm.webp" width="60%" />
 <figcaption>图：隐马尔可夫模型 (HMM) 状态转移示意图</figcaption>
 </div>
 
@@ -502,7 +502,7 @@ HMM 是一种用于处理序列数据的概率图模型，包含一个不可见�
 > **直觉理解**：想象两群点分布在平面上，SVM 要在中间画一条线，使两群点离这条线都尽可能远——就像在两军之间挖一条尽可能宽的"护城河"。只有边界上最靠近分界线的那几个点（支持向量）决定了这条线的位置，其他点都不影响结果。
 
 <div align="center">
-  <img src="/images/ML/svm.png" width="60%" />
+  <img src="/images/ML/svm.webp" width="60%" />
 <figcaption>图：支持向量机 (SVM) 分类面与间隔示意图</figcaption>
 </div>
 
@@ -528,7 +528,7 @@ HMM 是一种用于处理序列数据的概率图模型，包含一个不可见�
 > **直觉理解**：就像选 $K$ 个班长——先随机指定班长，全班同学各自靠近最近的班长；再把每个小组的中心重选为新班长……如此反复，直到班长位置稳定不动。
 
 <div align="center">
-  <img src="/images/ML/kmeans.png" width="60%" />
+  <img src="/images/ML/kmeans.webp" width="60%" />
 <figcaption>图：K-Means 聚类过程示意图</figcaption>
 </div>
 
@@ -560,7 +560,7 @@ HMM 是一种用于处理序列数据的概率图模型，包含一个不可见�
   > **直觉理解**：就像给一个三维物体拍照——选一个最能保留信息的"拍摄角度"，让投影后的 2D 图像信息量最大（方差最大）。PCA 自动找到这个最佳角度。
 
 <div align="center">
-  <img src="/images/ML/pca.png" width="60%" />
+  <img src="/images/ML/pca.webp" width="60%" />
 <figcaption>图：主成分分析 (PCA) 降维示意图</figcaption>
 </div>
 
@@ -569,7 +569,7 @@ HMM 是一种用于处理序列数据的概率图模型，包含一个不可见�
   > **直觉理解**：就像把一团高维"橡皮泥"压扁到桌面上，尽量让原来靠近的点压平后仍然靠近、原来远离的点压平后仍然远离。PCA 保全局结构，t-SNE 保局部结构，两者互补。
 
 <div align="center">
-  <img src="/images/ML/tsne.png" width="60%" />
+  <img src="/images/ML/tsne.webp" width="60%" />
 <figcaption>图：t-SNE 降维可视化示意图</figcaption>
 </div>
 
@@ -672,7 +672,7 @@ RNN 专门用于处理文本、语音、时间序列等变长序列数据。与�
 > **直觉理解**：就像一个边读边记的阅读者——每步都把"当前输入 + 上一步记忆"合并成新的记忆传给下一步。
 
 <div align="center">
-  <img src="/images/ML/RNN.png" width="80%" />
+  <img src="/images/ML/RNN.webp" width="80%" />
 <figcaption>图：RNN & LSTM/GRU 结构对比</figcaption>
 </div>
 
@@ -723,7 +723,7 @@ Transformer（Vaswani et al., 2017, "Attention Is All You Need"）彻底抛弃�
 
 <div align="center">
 
-  <img src="/images/DL/transformer-architecture.png" width="80%" />
+  <img src="/images/DL/transformer-architecture.webp" width="80%" />
 <figcaption>图：Transformer 模型架构（来源：Vaswani et al., 2017）</figcaption>
 </div>
 
@@ -853,7 +853,7 @@ GAN（Generative Adversarial Network）开创了生成式 AI 的新纪元，其�
 > **直觉理解**：就像造假币者（生成器 G）和验钞员（判别器 D）的博弈——G 不断提升造假水平，D 不断提升鉴别能力。两者相互竞争、共同进化，直到 G 造出的"假币"真假难辨（判别器输出 0.5）。
 
 <div align="center">
-  <img src="/images/ML/gan.png" width="60%" />
+  <img src="/images/ML/gan.webp" width="60%" />
 <figcaption>图：生成对抗网络 (GAN) 架构示意图</figcaption>
 </div>
 
@@ -901,7 +901,7 @@ $$ \min_G \max_D \; \mathbb{E}_{\mathbf{x} \sim p_{data}}[\log D(\mathbf{x})] + 
 > **直觉理解**：就像"压缩文件再解压"——把一张图片先压缩成几十个数字（编码），再从这几十个数字还原出图片（解码）。瓶颈结构迫使网络把最精华的信息塞进少数几个数字里，自动学会数据的本质特征。
 
 <div align="center">
-  <img src="/images/ML/ae.png" width="60%" />
+  <img src="/images/ML/ae.webp" width="60%" />
 <figcaption>图：自编码器 (AE) 架构示意图</figcaption>
 </div>
 
@@ -984,7 +984,7 @@ $$ \mathcal{L} = \underbrace{\|\mathbf{x} - \hat{\mathbf{x}}\|^2}_{\text{重构�
 
 <div align="center">
 
-  <img src="/images/ML/diffusion_models.png" width="60%" />
+  <img src="/images/ML/diffusion_models.webp" width="60%" />
 <figcaption>图：扩散模型 (Diffusion Model) 前向与反向过程示意图</figcaption>
 </div>
 

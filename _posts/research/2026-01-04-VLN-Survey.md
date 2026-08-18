@@ -285,7 +285,7 @@ flowchart TB
 单系统方法把指令、视觉历史和动作历史放入统一模型，直接预测下一步动作、路点或动作块。它的优势是训练目标统一、数据扩展直接；瓶颈则是长上下文成本、空间漂移和失败难以解释。
 
 <div align="center">
-  <img src="/images/vln/StreamVLN-framework-overview.png" width="100%" />
+  <img src="/images/vln/StreamVLN-framework-overview.webp" width="100%" />
 <figcaption>StreamVLN：以交错视觉—动作序列实现流式端到端导航</figcaption>
 </div>
 
@@ -303,7 +303,7 @@ flowchart TB
 快慢系统按时间尺度分工：慢系统低频理解指令、检查进度并产生子目标；快系统持续把子目标转化为路点或轨迹。它并不等价于“使用两个模型”，关键在于两层之间是否具有稳定、可校验的接口。
 
 <div align="center">
-  <img src="/images/vln/dualvln-framework-overview.png" width="100%" />
+  <img src="/images/vln/dualvln-framework-overview.webp" width="100%" />
 <figcaption>DualVLN：慢系统产生语义目标，快系统生成实时轨迹</figcaption>
 </div>
 
@@ -338,7 +338,7 @@ flowchart LR
 VLM 能识别“厨房”和“沙发”，却不天然知道它们在三维空间中的稳定位置。地图与记忆路线把历史观测组织成拓扑图、BEV、3D Gaussian、分层场景图或混合检索库，为长程规划、回溯和错误诊断提供外部状态。
 
 <div align="center">
-  <img src="/images/vln/HSGM-framework-overview.png" width="100%" />
+  <img src="/images/vln/HSGM-framework-overview.webp" width="100%" />
 <figcaption>HSGM：分层场景图同时维护局部观测、对象关系与全局路径状态</figcaption>
 </div>
 
@@ -359,7 +359,7 @@ Agentic Navigation 不只是“让 VLM 调用几个技能”。参考 [Qwen-Robo
 > **关键边界**：Qwen-RobotNav 本身是可重配置的通用导航基模，而不是完整 Agent。只有当上层规划器、导航 Harness、证据笔记本与机器人闭环组合起来时，系统才具备任务分解、模式切换、长期记忆和跨回合恢复能力。
 
 <div align="center">
-  <img src="/images/vln/Qwen-RobotNav-agentic-navigation.png" width="100%" />
+  <img src="/images/vln/Qwen-RobotNav-agentic-navigation.webp" width="100%" />
 <figcaption>Qwen-RobotNav 通用导航 Agent：上层规划器动态配置导航模式与视觉上下文，执行结果被压缩为轨迹证据</figcaption>
 </div>
 
@@ -419,7 +419,7 @@ sequenceDiagram
 世界模型路线希望在真正执行之前预测“采取某个动作后会看到什么”。早期方法把未来视觉生成作为外部预测器；新的世界动作模型则联合建模未来观测、目标进度、价值和动作，使预测结果直接参与闭环控制。
 
 <div align="center">
-  <img src="/images/vln/AstraNav-World-architecture.png" width="100%" />
+  <img src="/images/vln/AstraNav-World-architecture.webp" width="100%" />
 <figcaption>AstraNav-World：在统一框架中联合更新未来视觉状态与动作序列</figcaption>
 </div>
 
@@ -585,7 +585,7 @@ flowchart LR
 空中VLN涉及无人机等飞行器的导航控制。
 
 <div align="center">
-  <img src="/images/vln/vln_aerial.png" width="100%" />
+  <img src="/images/vln/vln_aerial.webp" width="100%" />
 <figcaption>
 室外VLN示例
 </figcaption>
@@ -773,7 +773,7 @@ RxR/
 📄 **Paper**: https://arxiv.org/abs/2004.02857
 
 <div align="center">
-  <img src="/images/vln/VLN-CE-comparison.png" width="100%" />
+  <img src="/images/vln/VLN-CE-comparison.webp" width="100%" />
 <figcaption>
 VLN 与 VLN-CE 的对比: VLN 基于固定拓扑的全景图节点(左)，而 VLN-CE 在连续环境中使用低层动作(右)
 </figcaption>
@@ -905,7 +905,7 @@ VLN-CE 采用与 R2R 一致的评估指标，但在连续空间中重新定义�
 📄 **Paper**: https://arxiv.org/abs/2507.13019v2
 
 <div align="center">
-  <img src="/images/vln/VLN-PE-evolution.png" width="100%" />
+  <img src="/images/vln/VLN-PE-evolution.webp" width="100%" />
 <figcaption>
 VLN 任务的演进: 从 oracle-based 导航(2018)到 VLN-CE 连续导航(2020)，再到 VLN-PE 物理真实导航(2025)
 </figcaption>

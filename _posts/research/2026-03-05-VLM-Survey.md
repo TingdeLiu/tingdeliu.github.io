@@ -39,7 +39,7 @@ VLM在医疗图像分析、自动驾驶、机器人感知、内容审核等领�
 视觉-语言模型（VLM）是指能够同时处理图像（或视频）与文本两种模态、在视觉和语言之间建立语义对齐的深度学习模型。广义的VLM涵盖从判别式（discriminative）任务到生成式（generative）任务的多种架构，核心目标是让模型"看懂"图像并用语言表达，或根据语言描述理解图像内容。
 
 <div align="center">
-  <img src="/images/vlm/LLaVA-overview.png" width="80%" />
+  <img src="/images/vlm/LLaVA-overview.webp" width="80%" />
   <figcaption>图：LLaVA视觉语言模型架构示意图（来源：HuggingFace Blog）</figcaption>
 </div>
 
@@ -314,7 +314,7 @@ BLIP提出了**多目标联合预训练**框架，同时优化三个目标：
 BLIP还引入了**CapFilt**（Caption Filtering）机制：用已有模型对噪声网络数据生成伪标题，再过滤低质量样本，从而实现数据自举（bootstrapping）——以较少的高质量数据提升超大规模噪声数据的效果。
 
 <div align="center">
-  <img src="/images/vlm/BLIP.png" width="80%" />
+  <img src="/images/vlm/BLIP.webp" width="80%" />
   <figcaption>图：BLIP多目标预训练框架——ITC、ITM、ITG三个目标联合优化（来源：Salesforce Research）</figcaption>
 </div>
 
@@ -345,7 +345,7 @@ $$y = y_{LLM} + \tanh(\alpha) \cdot \text{CrossAttn}(y_{LLM}, X_{visual})$$
 Flamingo冻结原始LLM参数，仅训练Perceiver Resampler和Cross-Attention层，实现了高效的多模态扩展，并在少样本（few-shot）视觉问答任务上取得了突破性性能。
 
 <div align="center">
-  <img src="/images/vlm/Flamingo-overview.png" width="80%" />
+  <img src="/images/vlm/Flamingo-overview.webp" width="80%" />
   <figcaption>图：Flamingo跨模态注意力架构（来源：DeepMind）</figcaption>
 </div>
 
@@ -1066,7 +1066,7 @@ VLM 是"拼装"出来的模型——随机初始化的连接模块、预训练�
 一个实用的直觉：**学习率应与"参数当前的质量"成反比**。对齐阶段投影层的学习率（1e-3）是 SFT 阶段 LLM 学习率（2e-5）的 50 倍，正是因为前者从零开始、后者只需"轻微修正"。"ViT 学习率低于 LLM"有明确出处：LLaVA-OneVision 论文写明视觉编码器学习率取 LLM 的 1/5（2e-6 vs 1e-5），NVILA 给出的区间更宽（比 LLM 低 5~50 倍）。Qwen-VL 还对 ViT 使用**逐层学习率衰减**（layer-wise lr decay 0.95；初代 InternVL 用 0.9）：越靠近输入的层学到的特征越通用，越应该少动。有趣的是 InternVL2.5 反其道而行——为保持配方简单，刻意全模型统一学习率。两条路线都能训出强模型，说明核心收益来自"随机新模块 vs 预训练主干"的区分，ViT 内部是否再细分属于锦上添花。
 
 <div align="center">
-  <img src="/images/vlm/vlm-training-module-lr.png" width="100%" />
+  <img src="/images/vlm/vlm-training-module-lr.webp" width="100%" />
   <figcaption>图：三阶段训练中各模块的差异化学习率调度（示意图，数值为社区典型量级；每个阶段内部均为线性 warmup + 余弦衰减）</figcaption>
 </div>
 
@@ -1197,7 +1197,7 @@ VLM 训练动辄几天到几周，**及时从曲线中读出问题**远比事后
 | 验证 loss + 下游评测 | 能力是否真的在提升 | train/val 分叉、评测得分饱和或回落 |
 
 <div align="center">
-  <img src="/images/vlm/vlm-training-dashboard.png" width="100%" />
+  <img src="/images/vlm/vlm-training-dashboard.webp" width="100%" />
   <figcaption>图：VLM 训练监控面板——① 训练 loss 永远看平滑曲线；② grad norm 是尖刺的先行指标；③ 学习率核对调度配置；④ 下游评测提供 loss 之外的真信号（示意图，数据为模拟生成）</figcaption>
 </div>
 
@@ -1233,7 +1233,7 @@ $$\mathcal{L}_0 \approx \ln |V|$$
 **形态上**，健康的 loss 是幂律下降——前期快、后期慢，在双对数坐标下近似直线；训练末期随学习率余弦衰减还会小幅下探。三个阶段的曲线各有特点：
 
 <div align="center">
-  <img src="/images/vlm/vlm-training-3stage-loss.png" width="100%" />
+  <img src="/images/vlm/vlm-training-3stage-loss.webp" width="100%" />
   <figcaption>图：三阶段训练的典型 loss 曲线形态——阶段一起点较高、陡降后受冻结 LLM 上限约束收敛于 ~2.0；阶段二因新增更难任务起点回升、随后缓慢幂律下降；阶段三 SFT 数据格式统一，loss 绝对值最低（示意图，数据为模拟生成）</figcaption>
 </div>
 
@@ -1246,7 +1246,7 @@ $$\mathcal{L}_0 \approx \ln |V|$$
 ### 3. 四种异常模式与处置
 
 <div align="center">
-  <img src="/images/vlm/vlm-training-loss-anomalies.png" width="100%" />
+  <img src="/images/vlm/vlm-training-loss-anomalies.webp" width="100%" />
   <figcaption>图：四种典型的 loss 曲线异常模式——(a) 学习率过大/过小的形态对比；(b) 良性与恶性 loss 尖刺；(c) 过早进入平台期；(d) 多 epoch 过拟合时 train/val 分叉（示意图，数据为模拟生成）</figcaption>
 </div>
 
@@ -1816,7 +1816,7 @@ $$H_v = W \cdot Z_v, \quad Z_v = f_{\text{CLIP}}(X_v)$$
 仅用**一个线性投影矩阵 $W$** 将 CLIP ViT 输出的视觉特征映射到 LLM 的词嵌入空间。视觉 token 与文本指令直接拼接后输入 LLM，结构极为简洁。
 
 <div align="center">
-  <img src="/images/vlm/llava-architecture.png" width="85%" />
+  <img src="/images/vlm/llava-architecture.webp" width="85%" />
   <figcaption>图：LLaVA 架构——CLIP 视觉编码器通过线性投影层与 LLaMA 语言模型连接，实现视觉指令微调（来源：LLaVA 项目）</figcaption>
 </div>
 
@@ -1973,7 +1973,7 @@ InternVL2 的成功验证了**扩大视觉编码器规模**（相较于 CLIP ViT
 InternVL2.5 在 InternVL2 基础上引入**多阶段动态分辨率训练**策略——从低分辨率到高分辨率渐进训练，配合混合课程学习（Curriculum Learning）平衡不同难度的视觉任务。InternVL2.5-78B 在 MMBench、MathVista 等基准上全面超越 GPT-4V，成为 2024 年底开源 VLM 的综合性能标杆。其训练配方（MLP 预热 → ViT 增量学习 → 全参数微调，全程统一学习率、总计仅约 1200 亿 token）详见 6.4 节。
 
 <div align="center">
-  <img src="/images/vlm/internvl2.5-overview.png" width="100%" />
+  <img src="/images/vlm/internvl2.5-overview.webp" width="100%" />
   <figcaption>图：InternVL 模型家族演进——从 InternVL2 到 InternVL2.5，视觉编码器规模与语言骨干持续扩大（来源：InternVL 官方）</figcaption>
 </div>
 
@@ -2006,7 +2006,7 @@ InternVL2.5 在 InternVL2 基础上引入**多阶段动态分辨率训练**策�
 InternVL3.5沿用InternVL系列的"ViT–MLP–LLM"范式（语言模型基于Qwen3 / GPT-OSS，视觉编码器为InternViT-300M / InternViT-6B），并在此基础上引入三项核心技术：**Cascade RL**（提升推理能力）、**Visual Resolution Router, ViR**（降低视觉token开销）、**Decoupled Vision-Language Deployment, DvD**（解耦部署提升推理吞吐）。
 
 <div align="center">
-  <img src="/images/vlm/InternVL3.5-architecture.png" width="100%" />
+  <img src="/images/vlm/InternVL3.5-architecture.webp" width="100%" />
 <figcaption>图：InternVL3.5整体架构。(a) 数据预处理：基于预定义宽高比将图像切分为448×448的tile加缩略图；(b) 整体模型架构：ViT编码视觉tile，经MLP Projector接入Qwen3/GPT-OSS语言模型；(c) Connector架构：InternVL3.5-Flash在标准Pixel Shuffle基础上新增Visual Resolution Router，按patch语义内容动态选择1/4或1/16的压缩率。</figcaption>
 </div>
 
@@ -2015,7 +2015,7 @@ InternVL3.5沿用InternVL系列的"ViT–MLP–LLM"范式（语言模型基于Qw
 **② 训练流程（四阶段递进）**：
 
 <div align="center">
-  <img src="/images/vlm/InternVL3.5-training-recipe.png" width="100%" />
+  <img src="/images/vlm/InternVL3.5-training-recipe.webp" width="100%" />
 <figcaption>图：InternVL3.5训练流程，依次为原生预训练、监督微调、Cascade RL（含MPO与GSPO两个子阶段）、ViCO（含一致性训练与路由器训练，用于产出InternVL3.5-Flash）。</figcaption>
 </div>
 
@@ -2035,7 +2035,7 @@ InternVL3.5沿用InternVL系列的"ViT–MLP–LLM"范式（语言模型基于Qw
 **③ Decoupled Vision-Language Deployment（DvD）**：
 
 <div align="center">
-  <img src="/images/vlm/InternVL3.5-DvD-deployment.png" width="100%" />
+  <img src="/images/vlm/InternVL3.5-DvD-deployment.webp" width="100%" />
 <figcaption>图：DvD解耦部署示意图。(a) 原始部署：ViT、MLP、LLM在同一服务器上串行执行，因体量与计算特性差异巨大导致严重的相互阻塞；(b) DvD：ViT+MLP部署在独立的视觉服务器，LLM部署在语言服务器，二者异步并行，视觉特征以BF16通过TCP（可选RDMA）单向传输，三阶段流水线重叠执行。</figcaption>
 </div>
 
@@ -2086,7 +2086,7 @@ Qwen2.5-VL 最核心的思路是"让模型看到和人类一样的原始输入"�
 Qwen2.5-VL 由三个核心部分构成：重新设计的 Vision Encoder（负责多分辨率图像和动态 FPS 视频的 token 化）、MRoPE 位置编码（负责图像空间 + 视频时间的统一对齐）、以及 Qwen2.5 LM Decoder（负责多模态理解与生成）。
 
 <div align="center">
-  <img src="/images/vlm/Qwen2.5-VL-architecture.png" width="100%" />
+  <img src="/images/vlm/Qwen2.5-VL-architecture.webp" width="100%" />
 <figcaption>Qwen2.5-VL 整体架构：Vision Encoder 以原始分辨率处理图像/视频，通过 MRoPE 编码空间与时间位置后送入 Qwen2.5 LM Decoder。右侧展示了重构后的 ViT Block（SwiGLU FFN、RMSNorm、窗口注意力 + 全局注意力、Conv3D 2×2）。</figcaption>
 </div>
 
@@ -2116,12 +2116,12 @@ Qwen2.5-VL 由三个核心部分构成：重新设计的 Vision Encoder（负责
 - 视频支持不同 FPS 输入，模型无需假设固定帧率；低帧率视频不会因插值引入伪影
 
 <div align="center">
-  <img src="/images/vlm/Qwen2.5-VL-text-benchmarks.png" width="80%" />
+  <img src="/images/vlm/Qwen2.5-VL-text-benchmarks.webp" width="80%" />
 <figcaption>Qwen2.5-VL-72B 与同量级语言模型（Llama-3.1-70B、Qwen2-72B、Qwen2.5-72B）在纯文本基准上的对比：HumanEval、HumanPref、CSMRK、MATH、CPQA、LiveBench、MMELindar、MMELive，展示 VLM 在保留强语言能力方面的表现。</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vlm/Qwen2.5-VL-visual-benchmarks.png" width="80%" />
+  <img src="/images/vlm/Qwen2.5-VL-visual-benchmarks.webp" width="80%" />
 <figcaption>Qwen2.5-VL-72B 与 Claude-3.5-Sonnet、GPT-4o-0513、Qwen2-72B 在视觉基准上的对比（MMU、AnthroWorld、VideoMME、InfoVQA、DocVQA、MMStar、MMBench、MathVista），Qwen2.5-VL-72B 全面领先。</figcaption>
 </div>
 
@@ -2172,7 +2172,7 @@ $$\mathcal{L} = -\sum_{t} \log P(y_t \mid y_{<t}, x_{\text{visual}}, x_{\text{te
 **主要方法/创新点**
 
 <div align="center">
-  <img src="/images/vln/Qwen3-VL-architecture.png" width="100%" />
+  <img src="/images/vln/Qwen3-VL-architecture.webp" width="100%" />
 <figcaption>
 Qwen3-VL整体架构:集成视觉编码器和语言模型解码器处理文本、图像和视频等多模态输入。视觉编码器支持动态原生分辨率,通过DeepStack机制将多层视觉特征注入到LLM的对应层中。采用Interleaved MRoPE编码位置信息,并引入文本时间戳标记捕获视频的时序结构
 </figcaption>
@@ -2292,7 +2292,7 @@ Qwen3-VL提出了一个完整的视觉-语言模型系列,包括4个dense模型(
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vlm/DINOv3-overview.png" width="100%" />
+  <img src="/images/vlm/DINOv3-overview.webp" width="100%" />
 <figcaption>DINOv3 线性评估表现的演进、密集预测任务上的相对提升以及在自然与航拍图像上的 PCA 特征图可视化</figcaption>
 </div>
 
@@ -2316,22 +2316,22 @@ $$L_{Gram} = \lVert X_S \cdot X_S^\top - X_G \cdot X_G^\top \rVert_F^2$$
 这里 $X_S$ 和 $X_G$ 分别为学生模型和 Gram 教师模型经过 $L_2$ 归一化后的 $P \times d$ 维局部特征矩阵（$P$ 为 patch 数量，$d$ 为特征通道数）。为了进一步利用高分辨率特征的平滑度，DINOv3 提出了 $L_{HRef}$，即让 Gram 教师接收两倍分辨率（512×512）的图像输入，并将输出的特征图通过双三次插值降采样对齐学生的分辨率后计算 Gram 矩阵。
 
 <div align="center">
-  <img src="/images/vlm/DINOv3-dense-feature-degradation.png" width="100%" />
+  <img src="/images/vlm/DINOv3-dense-feature-degradation.webp" width="100%" />
 <figcaption>常规长周期自监督预训练中，CLS 与局部 patch 相似度上升以及密集任务表现退化（中、右）的关联性分析</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vlm/DINOv3-gram-ablation.png" width="100%" />
+  <img src="/images/vlm/DINOv3-gram-ablation.webp" width="100%" />
 <figcaption>不同输入分辨率下计算的 Gram 矩阵，以及不同 Gram 教师与分辨率的消融研究结果</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vlm/DINOv3-gram-qualitative.png" width="100%" />
+  <img src="/images/vlm/DINOv3-gram-qualitative.webp" width="100%" />
 <figcaption>使用 Gram 锚定微调前后，图像局部 patch Cosine 相似度图的定性对比（在 1024×1024 分辨率下评估）</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vlm/DINOv3-gram-anchoring-evolution.png" width="100%" />
+  <img src="/images/vlm/DINOv3-gram-anchoring-evolution.webp" width="100%" />
 <figcaption>引入 Gram 锚定（LRef 与 LHRef）之后，模型在 PASCAL VOC、ADE20k 与 ObjectNet 基准上的性能演进曲线</figcaption>
 </div>
 
@@ -2339,7 +2339,7 @@ $$L_{Gram} = \lVert X_S \cdot X_S^\top - X_G \cdot X_G^\top \rVert_F^2$$
 推理时，主干网络完全冻结，只输出 dense patch features 用于下游任务。为了更好地处理极高分辨率，DINOv3进行 10k 步的高分辨率自适应，利用包含全局和局部各种尺寸 Crop 的混合分辨率 batch 进行微调，期间同样施加 Gram 锚定损失以维持多分辨率下的一致性，使得模型能直接支持 4096×4096 及更高分辨率的稳定推理。
 
 <div align="center">
-  <img src="/images/vlm/DINOv3-resolution-adaptation.png" width="100%" />
+  <img src="/images/vlm/DINOv3-resolution-adaptation.webp" width="100%" />
 <figcaption>高分辨率自适应前（Pre-HR）后（Post-HR）模型在分类、分割和分割跟踪任务上随推理分辨率提升的表现对比</figcaption>
 </div>
 
@@ -2348,7 +2348,7 @@ $$L_{Gram} = \lVert X_S \cdot X_S^\top - X_G \cdot X_G^\top \rVert_F^2$$
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/vlm/DINOv3-benchmarks.png" width="100%" />
+  <img src="/images/vlm/DINOv3-benchmarks.webp" width="100%" />
 <figcaption>DINOv3 家族与其它自监督/弱监督模型在不同基准（分割、匹配、分类）上的表现对比</figcaption>
 </div>
 
@@ -2360,7 +2360,7 @@ $$L_{Gram} = \lVert X_S \cdot X_S^\top - X_G \cdot X_G^\top \rVert_F^2$$
   - 在 GEO-Bench 的 12 项分类和分割任务中，冻结的 DINOv3 仅使用 RGB 输入，就超越了利用 Sentinel-2/Landsat 所有波段（6+ bands）的专门模型（如 Prithvi-v2、DOFA）以及针对特定任务的微调方法。
 
 <div align="center">
-  <img src="/images/vlm/DINOv3-satellite-height.png" width="100%" />
+  <img src="/images/vlm/DINOv3-satellite-height.webp" width="100%" />
 <figcaption>DINOv3 Geospatial 7B 模型与 Tolan 等方法在 Open Canopy 树冠高度预测任务上的定性对比</figcaption>
 </div>
 
@@ -2393,7 +2393,7 @@ $$L_{Gram} = \lVert X_S \cdot X_S^\top - X_G \cdot X_G^\top \rVert_F^2$$
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vlm/Mage-VL-overview.png" width="100%" />
+  <img src="/images/vlm/Mage-VL-overview.webp" width="100%" />
 <figcaption>Mage-VL 总体架构与编解码器原生 Token 筛选开销对比</figcaption>
 </div>
 
@@ -2412,7 +2412,7 @@ Mage-VL 是一个统一的多模态流式基础模型，包含三大核心组件
 - **设计动机**：编解码器的比特分配天然反映了视觉运动与空间变化，在视觉前端直接裁剪冗余背景，无需语言模型重复计算。
 
 <div align="center">
-  <img src="/images/vlm/Mage-ViT-patchifier.png" width="100%" />
+  <img src="/images/vlm/Mage-ViT-patchifier.webp" width="100%" />
 <figcaption>Mage-ViT 的编解码器驱动补丁化机制（支持传统 HEVC 与神经编解码器 DCVC-RT）</figcaption>
 </div>
 
@@ -2428,7 +2428,7 @@ Mage-VL 是一个统一的多模态流式基础模型，包含三大核心组件
 - **设计动机**：避免每一帧都调用庞大的 LLM，大幅降低连续流式感知的常驻计算功耗。
 
 <div align="center">
-  <img src="/images/vlm/Mage-VL-streaming-framework.png" width="100%" />
+  <img src="/images/vlm/Mage-VL-streaming-framework.webp" width="100%" />
 <figcaption>Mage-VL 的双系统主动流式感知框架（System 1 门控与 System 2 解码器）</figcaption>
 </div>
 
@@ -2436,7 +2436,7 @@ Mage-VL 是一个统一的多模态流式基础模型，包含三大核心组件
 在训练阶段，利用带时间戳的高密度视频字幕（Timestamped Captions）自动构建流式监督信号。视频被划分为多个窗口，在字幕起始点标注为 SPEAK 目标，其余静止或背景时间段标注为 SILENT 目标，协同训练门控分类损失与语言生成交叉熵损失。
 
 <div align="center">
-  <img src="/images/vlm/Mage-VL-streaming-supervision.png" width="100%" />
+  <img src="/images/vlm/Mage-VL-streaming-supervision.webp" width="100%" />
 <figcaption>基于带时间戳视频字幕自动构建主动流式监督信号的过程</figcaption>
 </div>
 

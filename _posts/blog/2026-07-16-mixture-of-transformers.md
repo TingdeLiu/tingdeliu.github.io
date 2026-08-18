@@ -150,7 +150,7 @@ $$
 NVIDIA Cosmos 3 彻底打破了这一界限。它构建了一个**“双塔（Dual-Tower）”架构**，但底座完全基于统一的 **Mixture-of-Transformers (MoT)**。它将输入序列划分为自回归（AR）与扩散（DM）子序列，在每一层解码器内部，并行持有两套独立参数（推理塔 + 生成塔），二者由预训练权重共同初始化：
 
 <div align="center">
-  <img src="/images/wm/Cosmos3-Fig5-MoTArchitecture.png" width="100%" />
+  <img src="/images/wm/Cosmos3-Fig5-MoTArchitecture.webp" width="100%" />
 <figcaption>图：Cosmos 3 的 MoT 架构。同一条序列由 AR 子序列（语言 + ViT 视觉 token，以 EOS/BOG 收尾）与 DM 子序列（VAE 视觉、音频、动作 token，训练时加噪）拼接而成；层内 AR 与 DM token 各用独立 LayerNorm 与 MLP（均由预训练 VLM 共同初始化），仅在共享自注意力处交汇。右图为注意力掩码：AR 为因果三角、DM 为全注意力。（图源：Cosmos 3）</figcaption>
 </div>
 

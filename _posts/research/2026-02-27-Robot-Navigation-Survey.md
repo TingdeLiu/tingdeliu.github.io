@@ -76,7 +76,7 @@ flowchart LR
 ```
 
 <div align="center">
-  <img src="/images/robotics_navigation/传统机器人导航流程.png" width="50%" />
+  <img src="/images/robotics_navigation/传统机器人导航流程.webp" width="50%" />
   <figcaption>图：传统机器人导航流程图：基于传感器采集的数据进行建图与定位（SLAM），并在构建的环境地图中自动导航（规划+控制）</figcaption>
 </div>
 
@@ -154,14 +154,14 @@ RGB-D 相机（如 Intel RealSense D435、Microsoft Kinect）通过**结构光**
 **体素滤波（Voxel Grid Filter）**：将点云空间划分为规则的小立方体（体素），每个体素内的点用质心替代。这样既保留了点云的整体形状，又大幅降低了点云密度，提升后续处理速度。
 
 <div align="center">
-  <img src="/images/robotics_navigation/Voxel_Grid.png" width="70%" />
+  <img src="/images/robotics_navigation/Voxel_Grid.webp" width="70%" />
   <figcaption>图：体素滤波效果——原始稠密点云（左）经体素降采样后得到均匀稀疏点云（右）</figcaption>
 </div>
 
 **半径滤波（Radius Outlier Removal）**：对每个点，检查其半径 r 范围内的邻近点数量。若邻近点数不足阈值，则认为该点是噪声并删除。适合去除孤立噪点。
 
 <div align="center">
-  <img src="/images/robotics_navigation/半径滤波.png" width="70%" />
+  <img src="/images/robotics_navigation/半径滤波.webp" width="70%" />
   <figcaption>图：半径滤波效果——邻域点数不足的孤立点（红）被识别为噪声并删除</figcaption>
 </div>
 
@@ -172,7 +172,7 @@ RGB-D 相机（如 Intel RealSense D435、Microsoft Kinect）通过**结构光**
 基于激光雷达点云进行**障碍物框估计**：将聚类后的障碍物点云拟合为最小外接矩形（Minimum Bounding Rectangle），从而估计障碍物的长宽、朝向和中心位置。这是自动驾驶中障碍物感知的经典方法，常用于车辆检测。
 
 <div align="center">
-  <img src="/images/robotics_navigation/Rectangle_Fitting_Detection.png" width="55%" style="margin:4px"/>
+  <img src="/images/robotics_navigation/Rectangle_Fitting_Detection.webp" width="55%" style="margin:4px"/>
   <img src="/images/robotics_navigation/point_cloud_rectangle_fitting.gif" width="38%" style="margin:4px"/>
   <figcaption>图：点云矩形拟合——聚类点云（左）拟合为最小外接矩形（右动图）</figcaption>
 </div>
@@ -186,7 +186,7 @@ RGB-D 相机（如 Intel RealSense D435、Microsoft Kinect）通过**结构光**
 - **线特征**（Line）：用于结构化室内环境（走廊、墙壁）
 
 <div align="center">
-  <img src="/images/robotics_navigation/Corner.png" width="65%" />
+  <img src="/images/robotics_navigation/Corner.webp" width="65%" />
   <figcaption>图：角点特征检测——图像中的角点（交叉点）是视觉 SLAM 的关键匹配元素</figcaption>
 </div>
 
@@ -206,7 +206,7 @@ RGB-D 相机（如 Intel RealSense D435、Microsoft Kinect）通过**结构光**
 多传感器系统除了空间标定（外参）之外，**时间同步**同样至关重要。如果不同传感器的数据时间戳未对齐，会导致数据"不同步"——例如用 0.1 秒前的 IMU 姿态去处理当前帧激光点云，在机器人高速运动时误差不可忽略。
 
 <div align="center">
-  <img src="/images/robotics_navigation/时间同步.png" width="40%" />
+  <img src="/images/robotics_navigation/时间同步.webp" width="40%" />
   <figcaption>图：时间同步</figcaption>
 </div>
 
@@ -380,7 +380,7 @@ flowchart TD
 ✅ 是自动驾驶定位（HDMap-based Localization）的主流方法之一
 
 <div align="center">
-  <img src="/images/robotics_navigation/NDT.png" width="72%" />
+  <img src="/images/robotics_navigation/NDT.webp" width="72%" />
   <figcaption>图：NDT 匹配原理——参考地图（网格+正态分布）与当前扫描点云对齐示意</figcaption>
 </div>
 
@@ -394,7 +394,7 @@ flowchart TD
 ❌ 在重复结构（如走廊）中容易退化
 
 <div align="center">
-  <img src="/images/robotics_navigation/ICP.png" width="72%" />
+  <img src="/images/robotics_navigation/ICP.webp" width="72%" />
   <figcaption>图：ICP 迭代过程——绿色当前帧点云逐步与红色参考点云对齐，每次迭代最近点对距离缩小</figcaption>
 </div>
 
@@ -433,7 +433,7 @@ flowchart TD
 </div>
 
 <div align="center">
-  <img src="/images/robotics_navigation/二值占据栅格地图.png" width="60%" style="margin:4px"/>
+  <img src="/images/robotics_navigation/二值占据栅格地图.webp" width="60%" style="margin:4px"/>
   <figcaption>图：成品地图——白色=可通行，黑色=障碍，灰色=未探索</figcaption>
 </div>
 
@@ -447,7 +447,7 @@ flowchart TD
 </div>
 
 <div align="center">
-  <img src="/images/robotics_navigation/Costmap.png" width="38%" style="margin:4px"/>
+  <img src="/images/robotics_navigation/Costmap.webp" width="38%" style="margin:4px"/>
   <figcaption>图：成品代价地图——蓝色=低代价，红色=高代价（障碍附近）</figcaption>
 </div>
 
@@ -456,7 +456,7 @@ flowchart TD
 将目标点视为"势能最低点"，障碍物视为"斥力源"，整个空间形成一个势能场。机器人沿梯度下降方向运动即可找到路径。直觉上类似于球在斜面上自然滚向最低点。主要缺点：容易陷入局部极小值（Local Minimum）。
 
 <div align="center">
-  <img src="/images/robotics_navigation/势场地图.png" width="65%" />
+  <img src="/images/robotics_navigation/势场地图.webp" width="65%" />
   <figcaption>图：势场地图——目标（蓝色低谷）产生引力，障碍（红色高峰）产生斥力，梯度方向指向机器人运动方向</figcaption>
 </div>
 
@@ -596,7 +596,7 @@ Google 开源的激光 SLAM 系统，支持 2D 和 3D 建图。核心思想：
 ✅ ROS 2 支持完善（`cartographer_ros`）
 
 <div align="center">
-  <img src="/images/robotics_navigation/The-workflow-of-the-Google-Cartographer.png" width="65%" />
+  <img src="/images/robotics_navigation/The-workflow-of-the-Google-Cartographer.webp" width="65%" />
   <figcaption>图：Cartographer地图构建流程图</figcaption>
 </div>
 
@@ -626,7 +626,7 @@ Ji Zhang 等人于 2014 年提出，是 3D 激光 SLAM 的里程碑工作。核�
 - 分离出高频里程计（Odometry）和低频建图（Mapping）两个线程并行运行
 
 <div align="center">
-  <img src="/images/robotics_navigation/LOAM.png" width="65%" />
+  <img src="/images/robotics_navigation/LOAM.webp" width="65%" />
   <figcaption>图：LOAM 软件系统</figcaption>
 </div>
 
@@ -640,7 +640,7 @@ Ji Zhang 等人于 2014 年提出，是 3D 激光 SLAM 的里程碑工作。核�
 LOAM 的轻量化版本，专为**地面移动机器人**优化。利用地面分割，只使用地面点和非地面点中提取的特征，大幅降低计算量，可在嵌入式平台（如 Jetson）实时运行。
 
 <div align="center">
-  <img src="/images/robotics_navigation/LeGO-LOAM.png" width="65%" />
+  <img src="/images/robotics_navigation/LeGO-LOAM.webp" width="65%" />
   <figcaption>图：LeGO-LOAM系统</figcaption>
 </div>
 
@@ -651,7 +651,7 @@ LOAM 的轻量化版本，专为**地面移动机器人**优化。利用地面�
 **紧耦合**激光惯性里程计，将 LiDAR 和 IMU 数据在**因子图**框架下联合优化。通过 IMU 预积分提供点云去畸变和初始位姿估计，再用激光匹配修正，精度和鲁棒性均优于松耦合方案。
 
 <div align="center">
-  <img src="/images/robotics_navigation/LIO-SAM.png" width="65%" />
+  <img src="/images/robotics_navigation/LIO-SAM.webp" width="65%" />
   <figcaption>图：LIO-SAM系统</figcaption>
 </div>
 
@@ -775,7 +775,7 @@ flowchart TB
 ✅ 支持在线外参标定
 
 <div align="center">
-  <img src="/images/robotics_navigation/vins_pipeline.png" width="65%" />
+  <img src="/images/robotics_navigation/vins_pipeline.webp" width="65%" />
   <figcaption>图：Visual Inertial System (VINS) with Stereo Vision</figcaption>
 </div>
 
@@ -976,7 +976,7 @@ SLAM 前端给出每帧的位姿初始估计，但由于噪声累积，长时间
 
 
 <div align="center">
-  <img src="/images/robotics_navigation/光束平差法.png" width="65%" />
+  <img src="/images/robotics_navigation/光束平差法.webp" width="65%" />
   <figcaption>图：光束平差法</figcaption>
 </div>
 
@@ -1014,7 +1014,7 @@ graph LR
 回环检测的任务：判断机器人是否回到了之前探索过的地方，从而添加回环约束消除累积误差。整个流程分为两个阶段：**外观检索**（快速召回候选帧）和**几何验证**（剔除误召回）。
 
 <div align="center">
-  <img src="/images/robotics_navigation/回环检测算法流程.png" width="65%" />
+  <img src="/images/robotics_navigation/回环检测算法流程.webp" width="65%" />
   <figcaption>图：回环检测两阶段流程</figcaption>
 </div>
 
@@ -1136,7 +1136,7 @@ flowchart LR
 SLAM 系统在实验室环境下往往表现良好，但在真实部署中会遭遇各种退化场景，导致定位失败或地图错误。理解这些场景并有针对性地选择算法，是工程化的关键。
 
 <div align="center">
-  <img src="/images/robotics_navigation/棘手场景.png" width="65%" />
+  <img src="/images/robotics_navigation/棘手场景.webp" width="65%" />
   <figcaption>图：棘手场景</figcaption>
 </div>
 
@@ -1322,13 +1322,13 @@ $$f(n) = g(n) + h(n)$$
    针对精简后的关键点，利用 **B-样条（B-Spline）** 或五次多项式进行拟合。这能将 A* 的折线路径转化为连续、高阶可导的平滑弧线，确保其符合底盘的动力学约束（如向心加速度限制）。
 
 <div align="center">
-  <img src="/images/robotics_navigation/astar_optimization.png" width="75%" />
+  <img src="/images/robotics_navigation/astar_optimization.webp" width="75%" />
   <figcaption>图：A* 路径优化流程——原始栅格路径（左）→ DP 精简关键点（中）→ B-样条平滑轨迹（右）</figcaption>
 </div>
 
 
 <div align="center">
-  <img src="/images/robotics_navigation/astar_optimization_campare.png" width="75%" />
+  <img src="/images/robotics_navigation/astar_optimization_campare.webp" width="75%" />
   <figcaption>图：优化前的A*算法搜索点密集（图2a），路径拐点多；优化后不仅搜索点数量锐减（图2b），路径也更简洁平滑，搜索效率和路径质量实现双重提升。</figcaption>
 </div>
 
@@ -1337,7 +1337,7 @@ $$f(n) = g(n) + h(n)$$
 **思路**：FMM 由 J.A. Sethian 于 1996 年提出，将路径规划问题建模为**波前传播**问题。从目标点出发向四周传播"时间波前"，记录波到达每个栅格的最短时间 $T(\mathbf{x})$，构建一张全局**到达时间场**；规划时，从起点沿 $-\nabla T$ 方向梯度下降，即可得到全局最优路径。
 
 <div align="center">
-  <img src="/images/robotics_navigation/fmm.png" width="90%" />
+  <img src="/images/robotics_navigation/fmm.webp" width="90%" />
   <figcaption>图：FMM 规划过程——速度势场 W(x)（左，障碍物附近速度低）→ 到达时间场 T(x)（中，蓝色区域代价低）→ 梯度下降路径（右）</figcaption>
 </div>
 
@@ -1389,7 +1389,7 @@ $$|\nabla T(\mathbf{x})| = \frac{1}{F(\mathbf{x})}$$
 FM² 由 Garrido 等人（2006）在 FMM 基础上提出，核心思想是**两次串联的 FMM**，通过构造一个与障碍物距离成正比的速度场，让波前自动"绕开"危险区域，规划出天然安全的平滑路径。
 
 <div align="center">
-  <img src="/images/robotics_navigation/fm2.png" width="90%" />
+  <img src="/images/robotics_navigation/fm2.webp" width="90%" />
   <figcaption>图：FM² 规划过程——原始二值地图（左一）→ 膨胀地图 Dilated Map（左二）→ 到达时间场 T(x)（右二）→ 安全路径（右一），路径自然远离障碍物边缘</figcaption>
 </div>
 
@@ -1540,7 +1540,7 @@ $$G(v, \omega) = \sigma\bigl(\alpha \cdot \text{heading}(v,\omega) + \beta \cdot
 传统 DWA 的评价权重（$\alpha, \beta, \gamma$）是固定的，难以兼顾”高速行驶”与”狭窄避障”。**模糊 DWA** 引入模糊推理机，以**目标距离**和**最近障碍物距离**为输入，动态调整采样权重。例如：当障碍物极近时，大幅提高 $\beta$（避障权重）并降低 $\gamma$（速度权重），使避障行为更丝滑、不生硬。
 
 <div align="center">
-  <img src="/images/robotics_navigation/DWA.png" width="65%" />
+  <img src="/images/robotics_navigation/DWA.webp" width="65%" />
   <figcaption>图：动态窗口法</figcaption>
 </div>
 
@@ -1574,7 +1574,7 @@ $$\min_{\mathcal{B}} \sum_k \gamma_k f_k(\mathcal{B})$$
 ❌ 对初始路径质量敏感，全局规划结果差时局部可能陷入局部最优
 
 <div align="center">
-  <img src="/images/robotics_navigation/TEB.png" width="65%" />
+  <img src="/images/robotics_navigation/TEB.webp" width="65%" />
   <figcaption>图：时间弹力带</figcaption>
 </div>
 

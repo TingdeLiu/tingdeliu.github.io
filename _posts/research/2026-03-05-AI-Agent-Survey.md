@@ -215,7 +215,7 @@ Action:  finish("建议穿短袖")
 ```
 
 <div align="center">
-  <img src="/images/agent/react-figure1.png" width="90%" />
+  <img src="/images/agent/react-figure1.webp" width="90%" />
   <figcaption>Figure 1：ReAct 与 CoT-only、Act-only 的推理对比（左：HotpotQA 问答；右：AlfWorld 决策）</figcaption>
 </div>
 
@@ -237,7 +237,7 @@ Action:  finish("建议穿短袖")
 ```
 
 <div align="center">
-  <img src="/images/agent/reflexion-figure2.png" width="85%" />
+  <img src="/images/agent/reflexion-figure2.webp" width="85%" />
   <figcaption>Reflexion 架构：Actor、Evaluator 与 Self-Reflection 构成的语言强化循环</figcaption>
 </div>
 
@@ -299,7 +299,7 @@ flowchart LR
 ```
 
 <div align="center">
-  <img src="/images/agent/tot-figure1.png" width="90%" />
+  <img src="/images/agent/tot-figure1.webp" width="90%" />
   <figcaption>Figure 1：IO、CoT 与 ToT 三种推理结构对比——ToT 在每一步维护多条候选思维路径并可回溯</figcaption>
 </div>
 
@@ -325,7 +325,7 @@ flowchart LR
 Voyager 是首个在复杂开放世界中实现终身学习的 LLM Agent，其「代码技能 + 自动课程」架构对通用 Agent 的持续学习设计具有重要参考价值。
 
 <div align="center">
-  <img src="/images/agent/voyager-components.png" width="90%" />
+  <img src="/images/agent/voyager-components.webp" width="90%" />
   <figcaption>Voyager 三大核心组件：自动课程（Automatic Curriculum）、技能库（Skill Library）与迭代提示（Iterative Prompting）</figcaption>
 </div>
 
@@ -477,14 +477,14 @@ flowchart LR
 **Generative Agents**（Park et al., Stanford，2023）是首个将完整记忆体系应用于模拟人类社会行为的工作。25 个 LLM 驱动的虚拟人物在沙盒世界中自然生活，通过**记忆流（Memory Stream）**记录所有经历：
 
 <div align="center">
-  <img src="/images/agent/generative-agents-architecture.png" width="88%" />
+  <img src="/images/agent/generative-agents-architecture.webp" width="88%" />
   <figcaption>Generative Agents 整体架构：观察 → 记忆流 → 检索 + 反思 + 规划 → 行动</figcaption>
 </div>
 
 检索时综合三个维度打分，取加权和：
 
 <div align="center">
-  <img src="/images/agent/generative-agents-memory.png" width="85%" />
+  <img src="/images/agent/generative-agents-memory.webp" width="85%" />
   <figcaption>记忆检索机制：时近度 × 重要性 × 相关性加权打分，触发阈值后自动生成高层反思</figcaption>
 </div>
 

@@ -245,7 +245,7 @@ flowchart LR
 - **激活函数**：GELU、SwiGLU、GeGLU
 
 <div align="center">
-  <img src="/images/llm-training/transformer-architecture.png" width="75%" alt="Transformer架构" />
+  <img src="/images/llm-training/transformer-architecture.webp" width="75%" alt="Transformer架构" />
   <figcaption>图：Transformer架构详解（来源："Attention is All You Need" 论文 Figure 1）</figcaption>
 </div>
 
@@ -616,7 +616,7 @@ graph LR
 ```
 
 <div align="center">
-  <img src="/images/llm-training/learning-rate-schedule.png" width="85%" alt="预训练学习率调度曲线" />
+  <img src="/images/llm-training/learning-rate-schedule.webp" width="85%" alt="预训练学习率调度曲线" />
   <figcaption>图：预训练学习率调度实际曲线 - Warmup-Peak-Decay三阶段（来源：Chinchilla 论文 Figure 1）</figcaption>
 </div>
 
@@ -1199,7 +1199,7 @@ Magpie 是一种新颖的指令生成方法。传统的 Self-Instruct 需要提�
 | **其他任务** | 5-10% | 翻译、格式转换等 |
 
 <div align="center">
-  <img src="/images/llm-training/instruction-distribution.png" width="80%" alt="SFT指令类型分布" />
+  <img src="/images/llm-training/instruction-distribution.webp" width="80%" alt="SFT指令类型分布" />
   <figcaption>图：高质量SFT数据集的指令类型分布示例（来源：Self-Instruct 论文 Figure 2）</figcaption>
 </div>
 
@@ -1492,7 +1492,7 @@ trainer.train()
 ### 4.1.1 RLHF 三阶段流程
 
 <div align="center">
-  <img src="/images/llm-training/rlhf-three-steps.png" width="90%" alt="RLHF 三阶段流程图" />
+  <img src="/images/llm-training/rlhf-three-steps.webp" width="90%" alt="RLHF 三阶段流程图" />
   <figcaption>图：RLHF 完整训练流程（来源：InstructGPT 论文 Figure 2）</figcaption>
 </div>
 
@@ -1531,7 +1531,7 @@ trainer.train()
 ### 4.2.1 DPO vs RLHF 对比
 
 <div align="center">
-  <img src="/images/llm-training/dpo-vs-rlhf.png" width="85%" alt="DPO 与 RLHF 对比" />
+  <img src="/images/llm-training/dpo-vs-rlhf.webp" width="85%" alt="DPO 与 RLHF 对比" />
   <figcaption>图：DPO 简化了 RLHF 流程（来源：DPO 论文 Figure 1）</figcaption>
 </div>
 
@@ -1575,7 +1575,7 @@ $$
 **论文来源**：[RLAIF: Scaling Reinforcement Learning from Human Feedback with AI Feedback](https://arxiv.org/abs/2309.00267)
 
 <div align="center">
-  <img src="/images/llm-training/rlaif-workflow.png" width="85%" alt="RLAIF 工作流程" />
+  <img src="/images/llm-training/rlaif-workflow.webp" width="85%" alt="RLAIF 工作流程" />
   <figcaption>图：RLAIF 使用 AI 模型替代人类标注（来源：RLAIF 论文）</figcaption>
 </div>
 
@@ -1605,7 +1605,7 @@ $$
 **论文来源**：[Constitutional AI: Harmlessness from AI Feedback](https://arxiv.org/abs/2212.08073)
 
 <div align="center">
-  <img src="/images/llm-training/constitutional-ai.png" width="85%" alt="Constitutional AI 流程" />
+  <img src="/images/llm-training/constitutional-ai.webp" width="85%" alt="Constitutional AI 流程" />
   <figcaption>图：Constitutional AI 的自我批评和修正流程（来源：Anthropic Constitutional AI 论文）</figcaption>
 </div>
 
@@ -2262,7 +2262,7 @@ flowchart LR
 - 对于超过单卡显存容量的超大模型（如 7B 及以上），DDP 会直接导致 OOM (Out of Memory)，无法独立运行。
 
 <div align="center">
-  <img src="/images/llm-training/data-parallelism.png" width="80%" alt="数据并行架构" />
+  <img src="/images/llm-training/data-parallelism.webp" width="80%" alt="数据并行架构" />
   <figcaption>图：数据并行(DP)架构 - 每个GPU持有完整模型副本（来源：PyTorch Distributed 论文 Figure 1）</figcaption>
 </div>
 
@@ -2343,7 +2343,7 @@ flowchart LR
 - **局限**：TP 的通信频率极高（每个 Block 前反向共有 4 次 All-Reduce），网络传输必须极快。因此，TP 通常局限在**单节点内的 NVLink 通信**，TP 度数通常设为 2, 4 或 8，极少进行跨节点 TP。
 
 <div align="center">
-  <img src="/images/llm-training/tensor-parallelism.png" width="85%" alt="张量并行架构" />
+  <img src="/images/llm-training/tensor-parallelism.webp" width="85%" alt="张量并行架构" />
   <figcaption>图：张量并行(TP)架构 - Transformer层的列/行切分策略（来源：Megatron-LM 论文 Figure 3）</figcaption>
 </div>
 
@@ -2430,7 +2430,7 @@ flowchart TD
 - 每个 GPU 卡被虚拟分配负责非连续的多个 Stage（例如，GPU 0 负责第 1 层和第 9 层）。这能够进一步将 Bubble 时间减少达约 **2×**，但付出的代价是略微增加了点对点（P2P）的通信频率。
 
 <div align="center">
-  <img src="/images/llm-training/pipeline-parallelism.png" width="85%" alt="流水线并行架构" />
+  <img src="/images/llm-training/pipeline-parallelism.webp" width="85%" alt="流水线并行架构" />
   <figcaption>图：流水线并行(PP)架构与1F1B调度策略（来源：GPipe 论文 Figure 1、PipeDream 论文 Figure 3）</figcaption>
 </div>
 
@@ -2950,7 +2950,7 @@ HBM（主显存）= 仓库
 标准 Attention 每步计算都需把中间矩阵写回 HBM，再从 HBM 读回，造成大量低效的数据搬运。Flash Attention 的核心目标：**尽量让数据留在 SRAM，减少往返 HBM 的次数**。
 
 <div align="center">
-  <img src="/images/llm-training/FlashAttention.png" width="90%" />
+  <img src="/images/llm-training/FlashAttention.webp" width="90%" />
   <figcaption>图：GPU 内存层次（左）、FlashAttention 分块计算机制（中）、与标准 PyTorch 实现的速度对比（右）。来源：Dao et al., FlashAttention, NeurIPS 2022</figcaption>
 </div>
 
@@ -4023,7 +4023,7 @@ $$\text{KV Cache大小} = 2 \times L \times H \times d \times n \times \text{byt
 比量化更根本的优化：减少 KV 头的数量。
 
 <div align="center">
-  <img src="/images/llm-training/GQA.png" width="85%" />
+  <img src="/images/llm-training/GQA.webp" width="85%" />
   <figcaption>图：MHA（左）、GQA（中）、MQA（右）三种注意力机制的 KV 头共享方式对比。来源：Ainslie et al., GQA, EMNLP 2023</figcaption>
 </div>
 
@@ -4086,7 +4086,7 @@ $$
 > "Garbage in, garbage out"——数据质量直接决定模型上限。本章介绍数据采集、质量评估、去重、配比、Tokenization等完整数据处理流程。**核心理念**：高质量 > 大规模，多样性 > 单一来源。数据工程往往被低估，但它是训练成功的关键。
 
 <div align="center">
-  <img src="/images/llm-training/data-processing-pipeline.png" width="90%" alt="数据处理完整流程" />
+  <img src="/images/llm-training/data-processing-pipeline.webp" width="90%" alt="数据处理完整流程" />
   <figcaption>图：预训练数据处理完整流程 - 从采集到训练（来源：RefinedWeb 论文 Figure 1）</figcaption>
 </div>
 
@@ -4169,7 +4169,7 @@ $$
 - 工具：datasketch库
 
 <div align="center">
-  <img src="/images/llm-training/minhash-deduplication.png" width="85%" alt="MinHash去重原理" />
+  <img src="/images/llm-training/minhash-deduplication.webp" width="85%" alt="MinHash去重原理" />
   <figcaption>图：MinHash + LSH去重工作原理示意图（来源：CCNet 论文 Figure 1）</figcaption>
 </div>
 
@@ -4511,7 +4511,7 @@ $$
   - 可视化排行榜
 
 <div align="center">
-  <img src="/images/llm-training/benchmark-comparison.png" width="90%" alt="主流模型评估对比" />
+  <img src="/images/llm-training/benchmark-comparison.webp" width="90%" alt="主流模型评估对比" />
   <figcaption>图：主流大模型在各基准测试上的性能对比（MMLU/GSM8K/HumanEval等）</figcaption>
 </div>
 
@@ -4674,7 +4674,7 @@ GPU配置：1 × A100 (80GB)
 ## 11.3 训练监控与调试
 
 <div align="center">
-  <img src="/images/llm-training/training-loss-curve.png" width="85%" alt="训练loss曲线示例" />
+  <img src="/images/llm-training/training-loss-curve.webp" width="85%" alt="训练loss曲线示例" />
   <figcaption>图：健康的训练loss曲线（平滑下降，无spike）（来源：LLaMA 论文 Figure 2）</figcaption>
 </div>
 
@@ -4994,7 +4994,7 @@ MiniMind 是一个极简的开源 LLM 训练项目，旨在让开发者在**单�
 | **梯度爆炸** | 伴随grad norm飙升 | 降低LR，启用gradient clipping |
 
 <div align="center">
-  <img src="/images/llm-training/loss-spike-example.png" width="80%" alt="Loss Spike案例" />
+  <img src="/images/llm-training/loss-spike-example.webp" width="80%" alt="Loss Spike案例" />
   <figcaption>图：Loss Spike现象与恢复策略示意图（来源：OPT 论文 Figure 3）</figcaption>
 </div>
 

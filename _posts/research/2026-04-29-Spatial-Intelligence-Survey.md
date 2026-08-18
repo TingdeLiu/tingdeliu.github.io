@@ -13,7 +13,7 @@ excerpt: "空间智能是 AI 系统感知、理解、推理和交互三维物理
 # 1. 引言
 
 <div align="center">
-  <img src="/images/si/SI.png" width="90%" />
+  <img src="/images/si/SI.webp" width="90%" />
 <figcaption>  </figcaption>
 </div>
 
@@ -127,7 +127,7 @@ graph TD
 
 空间智能的数学基础之一是**针孔相机模型（Pinhole Camera Model）**，它精确描述了三维世界中的点如何透过镜头中心投影到二维图像平面。理解相机投影是理解 SfM、立体视觉、NeRF 位姿输入以及 VGGT 相机参数输出的必要前提。
 
-<div align="center"><img src="/images/si/pcv_camera_projection.png" width="85%"/><figcaption>图：相机投影矩阵的分解 P = K · R<sup>T</sup> · [Id | -X₀]，将外参（旋转 R、投影中心 X₀）与内参矩阵 K 显式分离。（图源：作者 LUH Photogrammetric Computer Vision 课程课件）</figcaption></div>
+<div align="center"><img src="/images/si/pcv_camera_projection.webp" width="85%"/><figcaption>图：相机投影矩阵的分解 P = K · R<sup>T</sup> · [Id | -X₀]，将外参（旋转 R、投影中心 X₀）与内参矩阵 K 显式分离。（图源：作者 LUH Photogrammetric Computer Vision 课程课件）</figcaption></div>
 
 ### 针孔相机投影
 
@@ -219,7 +219,7 @@ $$R = I + \sin\theta [\mathbf{n}]_\times + (1-\cos\theta) [\mathbf{n}]_\times^2$
 - 奠定了点云深度学习"点独立处理+对称聚合"的基本范式。
 
 <div align="center">
-  <img src="/images/si/PointNet-architecture.png" width="90%" />
+  <img src="/images/si/PointNet-architecture.webp" width="90%" />
 <figcaption>PointNet 网络架构：对每个点独立应用共享 MLP 提取特征，通过 Max Pooling 对称聚合得到全局特征向量，T-Net 分别对输入点坐标（3×3）和特征空间（64×64）学习对齐变换。</figcaption>
 </div>
 
@@ -240,7 +240,7 @@ $$R = I + \sin\theta [\mathbf{n}]_\times + (1-\cos\theta) [\mathbf{n}]_\times^2$
 - 奠定了"采样+分组+聚合"的点云学习标准范式，后续工作（DGCNN、Point Transformer 等）均在此框架下扩展。
 
 <div align="center">
-  <img src="/images/si/PointNet2-architecture.png" width="90%" />
+  <img src="/images/si/PointNet2-architecture.webp" width="90%" />
 <figcaption>PointNet++ 层级化特征学习：通过 FPS 采样 → Ball Query 分组 → PointNet 局部特征提取的反复堆叠，逐层扩大感受野；分割任务额外使用插值上采样将特征传回原始点集。</figcaption>
 </div>
 
@@ -275,7 +275,7 @@ $$y_i = \sum_{x_j \in \mathcal{N}(x_i)} \rho\!\left(\gamma\!\left(\phi(x_i) - \p
 - 确立了点云 Transformer 的标准架构，后续 Point Transformer v3（2024）进一步在大规模数据上预训练。
 
 <div align="center">
-  <img src="/images/si/PointTransformer-attention.png" width="85%" />
+  <img src="/images/si/PointTransformer-attention.webp" width="85%" />
 <figcaption>Point Transformer 向量自注意力：为每个特征维度分配独立注意力权重（区别于标量注意力），位置编码 δ 基于近邻点坐标差学习，同时注入注意力权重和值向量，捕捉局部几何关系。</figcaption>
 </div>
 
@@ -305,7 +305,7 @@ $$\mathcal{L}_{si} = \frac{1}{n}\sum_i d_i^2 - \frac{\lambda}{n^2}\left(\sum_i d
 - 在相对深度零样本迁移中具有很强的跨数据集泛化性。
 
 <div align="center">
-  <img src="/images/si/DPT-architecture.png" width="90%" />
+  <img src="/images/si/DPT-architecture.webp" width="90%" />
 <figcaption>DPT 架构：以 ViT 为骨干提取多层 patch token，通过 Reassemble 操作恢复空间分辨率得到多尺度特征图，再经 Fusion 解码器逐步上采样融合，输出高分辨率密集深度预测。</figcaption>
 </div>
 
@@ -322,7 +322,7 @@ $$\mathcal{L}_{si} = \frac{1}{n}\sum_i d_i^2 - \frac{\lambda}{n^2}\left(\sum_i d
 - V2 版本的细节质量（边缘清晰度、薄结构）得到显著改善。
 
 <div align="center">
-  <img src="/images/si/DepthAnything-pipeline.png" width="90%" />
+  <img src="/images/si/DepthAnything-pipeline.webp" width="90%" />
 <figcaption>Depth Anything 半监督数据引擎：以 150 万有标注图像训练教师模型，对 6200 万无标注图像生成伪标签，再以强数据增强（色彩畸变、CutMix 等）训练学生模型，强迫其学习更鲁棒的深度先验。</figcaption>
 </div>
 
@@ -337,7 +337,7 @@ $$\mathcal{L}_{si} = \frac{1}{n}\sum_i d_i^2 - \frac{\lambda}{n^2}\left(\sum_i d
 - 生成的深度图具有丰富的细节和清晰的边界，在弱纹理/重复纹理区域表现尤为突出。
 
 <div align="center">
-  <img src="/images/si/Marigold-pipeline.png" width="85%" />
+  <img src="/images/si/Marigold-pipeline.webp" width="85%" />
 <figcaption>Marigold 推理流程：将 RGB 图像编码至 Stable Diffusion 潜在空间，通过迭代去噪步骤生成深度图潜变量，最后解码为相对深度图。</figcaption>
 </div>
 
@@ -359,7 +359,7 @@ $$E = K_2^T F K_1 = [\mathbf{t}]_\times R$$
 
 $E$ 仅编码外参旋转 $R$ 和（归一化）平移方向 $\mathbf{t}$，可通过 SVD 分解恢复相对位姿。对极约束将二维搜索空间降至**对极线（Epipolar Line）**上的一维搜索，是所有立体匹配算法的核心加速手段。
 
-<div align="center"><img src="/images/si/pcv_epipolar_geometry.png" width="70%"/><figcaption>图：对极几何。投影中心 X₀′、X₀″ 与物点 X 张成对极平面，与两像平面相交得对极线 k′、k″，所有对极线交于对极点 e′、e″。（图源：作者 LUH Photogrammetric Computer Vision 课程课件）</figcaption></div>
+<div align="center"><img src="/images/si/pcv_epipolar_geometry.webp" width="70%"/><figcaption>图：对极几何。投影中心 X₀′、X₀″ 与物点 X 张成对极平面，与两像平面相交得对极线 k′、k″，所有对极线交于对极点 e′、e″。（图源：作者 LUH Photogrammetric Computer Vision 课程课件）</figcaption></div>
 
 ### 立体纠正与视差深度
 
@@ -369,7 +369,7 @@ $$Z = \frac{f \cdot B}{d}$$
 
 其中 $f$ 为焦距，$B$ 为**基线（Baseline）**（双目间距），$Z$ 为深度。视差越大，距离越近；视差趋向零，深度趋向无穷——这正是单目深度估计存在**尺度歧义**的几何本质。
 
-<div align="center"><img src="/images/si/pcv_stereo_rectification.png" width="80%"/><figcaption>图：极线影像生成（立体纠正）。通过两个单应变换 H′、H″ 将原始像平面重投影到与基线平行的公共平面，使对极线对齐为水平扫描线。（图源：作者 LUH Photogrammetric Computer Vision 课程课件）</figcaption></div>
+<div align="center"><img src="/images/si/pcv_stereo_rectification.webp" width="80%"/><figcaption>图：极线影像生成（立体纠正）。通过两个单应变换 H′、H″ 将原始像平面重投影到与基线平行的公共平面，使对极线对齐为水平扫描线。（图源：作者 LUH Photogrammetric Computer Vision 课程课件）</figcaption></div>
 
 ### 半全局匹配（SGM）
 
@@ -379,7 +379,7 @@ $$E(D) = \sum_{\mathbf{p}} \left( C(\mathbf{p}, D_\mathbf{p}) + \sum_{\mathbf{q}
 
 其中 $C(\mathbf{p}, d)$ 为像素 $\mathbf{p}$ 在视差 $d$ 下的匹配代价，$P_1, P_2$ 分别为小/大视差跳变的惩罚项。SGM 通过 8 个方向的路径累积（Left/Right/Top/Bottom 及对角线），以接近 $O(WH)$ 的线性复杂度逼近全局能量最小化。
 
-<div align="center"><img src="/images/si/pcv_sgm_cost.png" width="80%"/><figcaption>图：SGM 代价聚合能量函数（Hirschmüller, PAMI 2008）。第一项为逐像素匹配代价，第二、三项分别对小幅（1 像素）与大幅视差跳变施加惩罚 P₁、P₂，实现局部平滑约束。（图源：作者 LUH Photogrammetric Computer Vision 课程课件）</figcaption></div>
+<div align="center"><img src="/images/si/pcv_sgm_cost.webp" width="80%"/><figcaption>图：SGM 代价聚合能量函数（Hirschmüller, PAMI 2008）。第一项为逐像素匹配代价，第二、三项分别对小幅（1 像素）与大幅视差跳变施加惩罚 P₁、P₂，实现局部平滑约束。（图源：作者 LUH Photogrammetric Computer Vision 课程课件）</figcaption></div>
 
 **Census 变换**是 SGM 常用的匹配代价，将像素邻域中每个位置与中心像素的大小关系编码为二进制串，再以汉明距离度量相似性——对光照变化具有天然的鲁棒性，避免了直接使用像素灰度差（SAD/SSD）时对绝对亮度敏感的缺陷。
 
@@ -432,7 +432,7 @@ $$\hat{C}(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\,\sigma\!\left(\mathbf{r}(t)\right
 - 局限：训练缓慢（数小时/场景）、仅表示静态场景、不同场景间无泛化性。
 
 <div align="center">
-  <img src="/images/wm/NeRF-Pipeline.png" width="90%" />
+  <img src="/images/wm/NeRF-Pipeline.webp" width="90%" />
 <figcaption>NeRF 渲染原理：沿相机光线均匀采样后用 Coarse MLP 估计密度分布，再对高密度区域重要性采样后送入 Fine MLP，最终通过体积渲染方程积分得到像素颜色，与真实图像的光度损失反向传播优化网络权重。</figcaption>
 </div>
 
@@ -458,7 +458,7 @@ $$\hat{C}(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\,\sigma\!\left(\mathbf{r}(t)\right
 - 局限：高斯基元数量庞大（数百万），存储开销较大；对无纹理平滑区域建模较弱。
 
 <div align="center">
-  <img src="/images/wm/3DGS-pipeline-overview.png" width="90%" />
+  <img src="/images/wm/3DGS-pipeline-overview.webp" width="90%" />
 <figcaption>3D Gaussian Splatting 概览：从 SfM 稀疏点云初始化高斯基元，将三维高斯投影至图像平面后按深度排序进行 α-混合渲染，梯度驱动的自适应密度控制（Clone/Split）自动增殖或修剪高斯。</figcaption>
 </div>
 
@@ -518,7 +518,7 @@ graph TD
 - **大规模混合训练**：在多种真实与合成 3D-annotated 数据集（包含 ScanNet、CO3D、ARKitScenes、MegaDepth、BlendedMVS 等）上联合预训练，吸收跨域几何先验。
 
 <div align="center">
-  <img src="/images/si/VGGT-architecture.png" width="92%" />
+  <img src="/images/si/VGGT-architecture.webp" width="92%" />
 <figcaption>VGGT 架构概览（图源：Wang et al., CVPR 2025, Fig. 2）：DINO 将各帧图像 Patchify 为视觉 token，并附加可学习的相机 token；网络主体由全局自注意力（Global Attention）与逐帧自注意力（Frame Attention）交替堆叠 L 次组成；最终 Camera Head 输出相机内外参，DPT Head 输出每帧深度图、稠密点图与跟踪特征——所有几何量在一次前馈中并行得到，无需 Bundle Adjustment 等后处理。</figcaption>
 </div>
 
@@ -541,14 +541,14 @@ graph TD
 **MapAnything**（Keetha et al., Meta Reality Labs & CMU, arXiv:2509.13414）将 VGGT 的"统一前馈"范式进一步推向**通用化**与**度量化**。VGGT 只吃图像、输出 up-to-scale 几何，而 MapAnything 补上两个关键缺口：**(1)** 灵活接受任意几何先验（相机内参、位姿、深度）作为**可选输入**；**(2)** 直接输出**度量级（metric-scale）**三维与相机。单个模型由此覆盖无标定 SfM、标定 MVS、单目/多视角深度估计、相机定位、度量深度补全等 **12+ 种任务、64 种输入组合**。
 
 <div align="center">
-  <img src="/images/si/MapAnything-teaser.png" width="92%" />
+  <img src="/images/si/MapAnything-teaser.webp" width="92%" />
 <figcaption>MapAnything 接受 N 张图像并可选附带相机位姿、内参、深度等几何输入，单次前馈即输出带相机信息的度量级三维重建，统一覆盖相机定位、SfM、MVS、度量深度补全等 12+ 种任务。</figcaption>
 </div>
 
 **核心设计——因子化场景表示（Factored Scene Representation）**：MapAnything 的关键洞察是不直接回归 pointmap，而是把每个视角的几何拆解为四个解耦分量——逐像素 **ray 方向**（等价相机标定）、沿 ray 的**深度**、视角在首帧系下的**全局位姿**（四元数 + up-to-scale 平移），以及全场景**单一 metric scale 因子** $m$。由这些因子可逐级还原局部点图 $$\tilde{L}_i = R_i \cdot \tilde{D}_i$$、世界系点图直至度量三维 $$X_i^{\text{metric}} = m \cdot \tilde{X}_i$$。这套因子表示同时充当**可选输入**与**最终输出**：有先验时按同一参数化喂入，无先验时退化为纯图像重建。
 
 <div align="center">
-  <img src="/images/si/MapAnything-architecture.png" width="92%" />
+  <img src="/images/si/MapAnything-architecture.webp" width="92%" />
 <figcaption>MapAnything 架构总览：N 路图像与可选几何输入各自编码进共享隐空间并逐视角相加，拼上一个可学习 scale token 后送入交替注意力 Transformer；单个 DPT 头解码每视角稠密量（ray 方向、深度、mask、置信度），pose 头预测各视角位姿，scale token 经 MLP 给出全场景 metric scale 因子。</figcaption>
 </div>
 
@@ -563,7 +563,7 @@ graph TD
 - 用等同两个专用模型的算力一次训成 12+ 任务，性能却媲美甚至超过多个 bespoke 专家模型，验证多任务训练的高效性；在 2–500 视角下推理速度与峰值显存均优于 VGGT、Depth-Anything-3 等并发模型。
 
 <div align="center">
-  <img src="/images/si/MapAnything-vs-VGGT.png" width="90%" />
+  <img src="/images/si/MapAnything-vs-VGGT.webp" width="90%" />
 <figcaption>仅用 in-the-wild 图像输入时 MapAnything 与 VGGT 的定性对比（两者施加相同的法向边缘 mask 与天空 mask）。MapAnything 在大视差变化、季节差异、无纹理表面、水体与大场景上明显更稳健。</figcaption>
 </div>
 
@@ -591,7 +591,7 @@ graph TD
 **VoxelNet**（Zhou & Tuzel, CVPR 2018）是第一个端到端直接从激光雷达点云学习三维目标检测的框架。它将点云体素化，在每个非空体素内用 VFE（Voxel Feature Encoding）层提取局部特征，再通过三维卷积骨干网络和 RPN 完成检测，消除了人工特征工程。然而，由于使用常规稠密三维卷积，其计算与显存开销极大，限制了其实时性。
 
 <div align="center">
-  <img src="/images/si/voxelnet_architecture.png" width="90%" />
+  <img src="/images/si/voxelnet_architecture.webp" width="90%" />
 <figcaption>VoxelNet 架构 </figcaption>
 </div>
 
@@ -666,7 +666,7 @@ graph LR
 **ScanRefer**（Chen et al., ECCV 2020）提出了**三维视觉定位（3D Visual Grounding）**任务：给定自然语言描述（如"靠近门口的那张棕色椅子"），在三维点云场景中定位目标物体（输出三维边界框）。ScanRefer 数据集包含 51,583 条对 ScanNet 扫描中物体的语言描述，是三维语言定位方向的核心基准。ScanRefer 之后，**Nr3D/Sr3D**（Achlioptas et al., 2020）和 **ScanQA**（Azuma et al., CVPR 2022）进一步扩展了三维语言理解的评测维度。
 
 <div align="center">
-  <img src="/images/si/ScanRefer-grounding.png" width="85%" />
+  <img src="/images/si/ScanRefer-grounding.webp" width="85%" />
 <figcaption>ScanRefer 三维视觉定位示例：给定自然语言描述（如"靠近门口的棕色椅子"），模型在三维点云场景中定位目标并输出三维边界框，需同时理解语言中的空间关系线索并在点云中消解歧义。</figcaption>
 </div>
 
@@ -711,7 +711,7 @@ graph LR
 - 引入多粒度空间语言对齐，支持细粒度物体级和场景级描述。
 
 <div align="center">
-  <img src="/images/si/EmbodiedScan-overview.png" width="90%" />
+  <img src="/images/si/EmbodiedScan-overview.webp" width="90%" />
 <figcaption>EmbodiedScan 框架概览：以智能体主动探索的第一人称 RGB-D 视角流为输入，统一支持三维目标检测、三维视觉定位和场景问答等多任务评测。</figcaption>
 </div>
 
@@ -737,7 +737,7 @@ graph LR
 这两个重建头与文本监督联合训练，使模型在不改变输入形态（仍是视频帧 + 指令）的前提下获得三维感知能力。Ross3D 在多个三维场景理解基准上取得当时的 SOTA；更关键的是其**半监督实验**表明，借助大量"纯视觉、无语言标注"的三维数据即可显著提升性能——这为缓解三维视觉-语言数据瓶颈提供了一条可扩展的路径，与 Depth Anything（§4.2）"用海量无标注数据驱动基础模型"的思路一脉相承。
 
 <div align="center">
-  <img src="/images/si/Ross3D-architecture.png" width="95%" />
+  <img src="/images/si/Ross3D-architecture.webp" width="95%" />
 <figcaption>Ross3D 的两类 3D 感知重建目标（图源：Ross3D 官方仓库 Haochen-Wang409/ross3d）。左：跨视角重建——掩码部分视频帧后，由 LLM 聚合重叠视角恢复被掩码视图；右：全局视角重建——聚合全部视角重建场景鸟瞰图（BEV）。两路重建均与文本监督联合训练，将三维感知隐式注入为 2D 内容设计的多模态大模型。</figcaption>
 </div>
 
@@ -861,7 +861,7 @@ NeRF 是神经渲染（Neural Rendering）领域的开创性工作，其核心�
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/wm/NeRF-Overview.png" width="100%" />
+  <img src="/images/wm/NeRF-Overview.webp" width="100%" />
 <figcaption>
 NeRF 概览：从稀疏 2D 图像集中优化出连续的 5D 神经辐射场，并渲染出全新视角的图像。
 </figcaption>
@@ -871,7 +871,7 @@ NeRF 的核心管线包含以下关键技术：
 
 1. **5D 神经场景表示**：
 <div align="center">
-  <img src="/images/wm/NeRF-Architecture.png" width="100%" />
+  <img src="/images/wm/NeRF-Architecture.webp" width="100%" />
 <figcaption>
 NeRF 网络架构：空间位置 $x$ 先经过 8 层 MLP 生成体积密度 $\sigma$ 和特征向量，再结合视角方向 $d$ 经过额外层输出视角相关的 RGB 颜色。
 </figcaption>
@@ -880,7 +880,7 @@ NeRF 网络架构：空间位置 $x$ 先经过 8 层 MLP 生成体积密度 $\si
 
 2. **可微渲染管线**：
 <div align="center">
-  <img src="/images/wm/NeRF-Pipeline.png" width="100%" />
+  <img src="/images/wm/NeRF-Pipeline.webp" width="100%" />
 <figcaption>
 NeRF 训练管线：沿光线采样 -> 查询 MLP -> 体渲染合成像素 -> 与真值计算损失并反向传播。
 </figcaption>
@@ -898,7 +898,7 @@ $$\gamma(p) = \left( \sin(2^0\pi p), \cos(2^0\pi p), \dots, \sin(2^{L-1}\pi p), 
 
 - **定量与定性超越**：在合成数据集（如 Lego, Drums）和真实场景中，NeRF 的 PSNR 和 SSIM 指标均大幅超越了当时的 SOTA（如 LLFF, SRN）。
 <div align="center">
-  <img src="/images/wm/NeRF-Comparison.png" width="100%" />
+  <img src="/images/wm/NeRF-Comparison.webp" width="100%" />
 <figcaption>
 对比实验：NeRF 在恢复复杂几何（如乐高积木内部、显微镜网格）和非朗伯反射方面表现出显著优势。
 </figcaption>
@@ -934,7 +934,7 @@ Neural Radiance Field（NeRF）方法通过体积光线投射实现了高质量 
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/wm/3DGS-pipeline-overview.png" width="100%" />
+  <img src="/images/wm/3DGS-pipeline-overview.webp" width="100%" />
 <figcaption>
 3DGS 整体流水线：从 SfM 稀疏点云初始化 3D Gaussians，经投影和可微 Tile Rasterizer 渲染图像，梯度回传后通过自适应密度控制调整 Gaussian 数量
 </figcaption>
@@ -959,7 +959,7 @@ $$G(x) = e^{-\frac{1}{2}x^T \Sigma^{-1} x}$$
 **可微 Tile-based Rasterizer**
 
 <div align="center">
-  <img src="/images/wm/3DGS-adaptive-densification.png" width="80%" />
+  <img src="/images/wm/3DGS-adaptive-densification.webp" width="80%" />
 <figcaption>
 自适应 Gaussian 密度控制方案：欠重建区域（上）通过克隆小 Gaussian 填充细节；过重建区域（下）将大 Gaussian 分裂为两个更小的 Gaussian
 </figcaption>
@@ -987,14 +987,14 @@ $$\mathcal{L} = (1-\lambda)\mathcal{L}_1 + \lambda \mathcal{L}_\text{D-SSIM}, \q
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/wm/3DGS-comparison-teaser.png" width="100%" />
+  <img src="/images/wm/3DGS-comparison-teaser.webp" width="100%" />
 <figcaption>
 3DGS 与主要基线方法的速度-质量对比：仅需 6min 训练即可达到与 InstantNGP 相当的质量，训练 51min 后质量超过 Mip-NeRF360（48h 训练），且渲染帧率达到 93-135 fps
 </figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/wm/3DGS-qualitative-comparison.png" width="100%" />
+  <img src="/images/wm/3DGS-qualitative-comparison.webp" width="100%" />
 <figcaption>
 在 Mip-NeRF360、Tanks&Temples、Deep Blending 多个数据集上的视觉质量对比，3DGS 在保留细节和减少伪影方面表现优异
 </figcaption>
@@ -1042,12 +1042,12 @@ $$\mathcal{L} = (1-\lambda)\mathcal{L}_1 + \lambda \mathcal{L}_\text{D-SSIM}, \q
 SplatTalk 的流水线分三阶段：特征 autoencoder 训练、自监督 3D-Language Gaussian Splatting 训练、3D VQA 推理。
 
 <div align="center">
-  <img src="/images/si/SplatTalk-pipeline.png" width="100%" />
+  <img src="/images/si/SplatTalk-pipeline.webp" width="100%" />
 <figcaption>图1：SplatTalk 整体流水线。多视角 RGB 图经预训练 2D VLM 编码为 Visual-Language Feature Map，再通过前馈 3D Gaussian Splatting 模型构建 3D-Language Gaussian Field；推理时直接将 Gaussian 语言特征送入 LLM 完成 3D VQA。</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/si/SplatTalk-architecture.png" width="100%" />
+  <img src="/images/si/SplatTalk-architecture.webp" width="100%" />
 <figcaption>图2：SplatTalk 详细架构。左侧训练 feature autoencoder 将 LLaVA-OV 高维 visual token 压缩至 256 维紧致超球面；中间联合训练 RGB 渲染与语言特征渲染（共享 Gaussian 参数）；右侧推理时从 3D Gaussian 提取语言特征并采样后送入 LLM。</figcaption>
 </div>
 
@@ -1066,7 +1066,7 @@ SplatTalk 的流水线分三阶段：特征 autoencoder 训练、自监督 3D-La
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/si/SplatTalk-qualitative.png" width="100%" />
+  <img src="/images/si/SplatTalk-qualitative.webp" width="100%" />
 <figcaption>图3：ScanQA 定性对比（SplatTalk vs LLaVA-OV vs Ground Truth）。SplatTalk 正确识别了跨越大距离的物体空间关系（如门与窗的相对位置），而 LLaVA-OV 在这类问题上频繁出错。</figcaption>
 </div>
 
@@ -1099,7 +1099,7 @@ LangSplatV2 解决了 3D 语言场在高分辨率下推理慢的核心痛点。�
 尽管 LangSplat 相比之前的 NeRF 方法大幅提升了速度，但在处理高分辨率图像时，其推理速度仅为 8.2 FPS（A100），远未达到实时性要求。分析发现，其瓶颈在于必须使用一个重量级的 **MLP 解码器**，将渲染出的低维潜变量还原为高维 CLIP 特征。直接渲染高维特征又会导致内存崩溃和渲染效率直线下降，这种“精度与速度”的矛盾限制了 3D 语言场在实时机器人交互中的应用。
 
 <div align="center">
-  <img src="/images/vln/LangSplatV2-bottleneck-analysis.png" width="80%" />
+  <img src="/images/vln/LangSplatV2-bottleneck-analysis.webp" width="80%" />
 <figcaption>LangSplat 渲染耗时随特征维度增加而剧增，且低端显卡难以承受高维特征带来的内存开销</figcaption>
 </div>
 
@@ -1112,12 +1112,12 @@ LangSplatV2 的核心思想是利用语义分布的**稀疏性**（一个场景�
 *   **高效稀疏 Splatting (Efficient Sparse Splatting)**：开发了专门的 CUDA 内核，利用系数的稀疏性，仅对非零通道进行 Alpha-blending。这使得渲染 1536 维特征图的成本等同于渲染极低维特征，极大地降低了计算复杂度。
 
 <div align="center">
-  <img src="/images/vln/LangSplatV2-framework.png" width="100%" />
+  <img src="/images/vln/LangSplatV2-framework.webp" width="100%" />
 <figcaption>LangSplatV2 架构：通过学习稀疏系数和全局码本，将高维特征渲染转化为低维系数渲染 + 矩阵乘法</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vln/LangSplatV2-sparse-splatting.png" width="80%" />
+  <img src="/images/vln/LangSplatV2-sparse-splatting.webp" width="80%" />
 <figcaption>高效稀疏 Splatting 原理：仅对 Top-K 非零系数进行混合计算</figcaption>
 </div>
 
@@ -1188,12 +1188,12 @@ LangSplatV2 的核心思想是利用语义分布的**稀疏性**（一个场景�
 *   **显存友好**：成功在 RTX 3090/4090 等消费级显卡上运行高维 3D 语言场建模。
 
 <div align="center">
-  <img src="/images/vln/LangSplatV2-localization-results.png" width="100%" />
+  <img src="/images/vln/LangSplatV2-localization-results.webp" width="100%" />
 <figcaption>在 LERF 数据集上的 3D 物体定位效果对比，LangSplatV2 的预测点更精准且边界更清晰</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vln/LangSplatV2-segmentation-results.png" width="100%" />
+  <img src="/images/vln/LangSplatV2-segmentation-results.webp" width="100%" />
 <figcaption>语义分割定性对比：LangSplatV2 生成的掩码噪声更少，物体轮廓更准确</figcaption>
 </div>
 
@@ -1231,12 +1231,12 @@ LangSplat 通过将 CLIP 特征 splatting 到 3D Gaussian 上实现了精确的�
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vlm/4DLangSplat-teaser.png" width="100%" />
+  <img src="/images/vlm/4DLangSplat-teaser.webp" width="100%" />
 <figcaption>图1：4D LangSplat 学到的时变语义场可视化。上半部分展示咖啡逐渐扩散（颜色随时间变化），下半部分展示鸡肉盒在开/关状态之间切换，时不变对象（桌面、杯子）的颜色始终稳定。</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vlm/4DLangSplat-framework.png" width="100%" />
+  <img src="/images/vlm/4DLangSplat-framework.webp" width="100%" />
 <figcaption>图2：4D LangSplat 整体框架。上半部分为 Multimodal Object-Wise Video Prompting 流程（SAM 分割 → MLLM 生成 caption → LLM 提取嵌入作为 2D 监督）；下半部分为 Status Deformable Network（HexPlane 时空特征 → MLP 预测状态权重 → 线性组合状态原型 → Splatting 监督）。</figcaption>
 </div>
 
@@ -1294,12 +1294,12 @@ MLP 与状态原型联合训练，同时利用 HexPlane 的空间和时间维度
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/vlm/4DLangSplat-timesensitive-scores.png" width="100%" />
+  <img src="/images/vlm/4DLangSplat-timesensitive-scores.webp" width="100%" />
 <figcaption>图3：time-sensitive 查询的帧级相似度曲线对比。4D LangSplat（橙色）能精准识别状态切换时刻，而 Deformable CLIP（蓝色）的相似度曲线平坦甚至错位，无法可靠定位相关帧段。</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vlm/4DLangSplat-mask-comparison.png" width="100%" />
+  <img src="/images/vlm/4DLangSplat-mask-comparison.webp" width="100%" />
 <figcaption>图4：time-sensitive 查询掩码对比。针对"complete cookie"和"empty glass cup"查询，Deformable CLIP 在状态过渡帧处出现大量误判（尤其边界处），4D LangSplat 的掩码与 GT 高度吻合。</figcaption>
 </div>
 
@@ -1357,7 +1357,7 @@ MLP 与状态原型联合训练，同时利用 HexPlane 的空间和时间维度
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vlm/GaussianVLM-teaser.png" width="100%" />
+  <img src="/images/vlm/GaussianVLM-teaser.webp" width="100%" />
 <figcaption>GaussianVLM 支持的六类任务：Embodied Reasoning、Embodied Planning、Embodied Dialogue、Scene Captioning、Question Answering、Object Captioning，覆盖场景级与物体级理解。</figcaption>
 </div>
 
@@ -1366,7 +1366,7 @@ MLP 与状态原型联合训练，同时利用 HexPlane 的空间和时间维度
 GaussianVLM 由三个核心模块构成：**(A) Language-aligned Gaussian Backbone**（SceneSplat）将 3D 场景编码为 40k 密集语言特征；**(B) Dual Sparsifier**（位置引导 + 任务引导）将密集表示压缩为稀疏 token；**(C) LLM**（OPT-1.3B + LoRA）接收稀疏 token 与任务文本并生成回复。
 
 <div align="center">
-  <img src="/images/vlm/GaussianVLM-architecture.png" width="100%" />
+  <img src="/images/vlm/GaussianVLM-architecture.webp" width="100%" />
 <figcaption>GaussianVLM 完整架构：左侧为整体数据流（3D场景→SceneSplat→双稀疏化器→LLM），右侧分别展示位置引导稀疏化（A）和任务引导稀疏化（B）的内部结构。</figcaption>
 </div>
 
@@ -1442,7 +1442,7 @@ $$\mathcal{L}_\text{contrast} = -\log \frac{\exp(s_i^\top l_i / \tau)}{\sum_{j=1
 消融研究表明：去除任务引导 sparsifier（改用无文本指导的可学习 query）或去除 depth-wise cross-attention（仅用最终解码器输出）均导致性能大幅下降，证明这两个设计是性能增益的主要来源。
 
 <div align="center">
-  <img src="/images/vlm/GaussianVLM-qualitative-results.png" width="100%" />
+  <img src="/images/vlm/GaussianVLM-qualitative-results.webp" width="100%" />
 <figcaption>场景级任务定性结果对比：GaussianVLM（左）与 LEO/LL3DA 基线（右）。GaussianVLM 在 Situated QA、Embodied Planning、Dialogue 和 Scene Captioning 四类任务上均生成更准确、语义更丰富的回复，体现了 scene-centric 全局上下文理解的优势。</figcaption>
 </div>
 
@@ -1491,7 +1491,7 @@ GaussianVLM 依赖 3DGS pipeline 重建场景，在光照不均或反射材质�
 - **Revision based Prompting**: 将已有的粗略 3D 描述进行重写和优化，提升语义丰富度。
 
 <div align="center">
-  <img src="/images/si/3D-LLM-data-generation.png" width="100%" />
+  <img src="/images/si/3D-LLM-data-generation.webp" width="100%" />
 <figcaption>图 1：三种 3D-语言数据生成管线</figcaption>
 </div>
 
@@ -1509,7 +1509,7 @@ GaussianVLM 依赖 3DGS pipeline 重建场景，在光照不均或反射材质�
   - **位置 Token**: 在词表中增加数个离散的位置 token（如 `<loc123>`），表示 AABB 框的坐标。LLM 通过输出这些 token 实现物体的定位（Grounding）。
 
 <div align="center">
-  <img src="/images/si/3D-LLM-architecture.png" width="100%" />
+  <img src="/images/si/3D-LLM-architecture.webp" width="100%" />
 <figcaption>图 2：3D-LLM 整体架构，包括特征提取和对齐流程</figcaption>
 </div>
 
@@ -1517,7 +1517,7 @@ GaussianVLM 依赖 3DGS pipeline 重建场景，在光照不均或反射材质�
 生成的 300k+ 数据涵盖了 3D Captioning, Grounding, QA, Task Decomposition, 3D-Assisted Dialog 以及导航等。
 
 <div align="center">
-  <img src="/images/si/3D-LLM-task-examples.png" width="100%" />
+  <img src="/images/si/3D-LLM-task-examples.webp" width="100%" />
 <figcaption>图 3：3D-LLM 生成的数据涵盖的多样化 3D 相关任务</figcaption>
 </div>
 
@@ -1529,7 +1529,7 @@ GaussianVLM 依赖 3DGS pipeline 重建场景，在光照不均或反射材质�
 - **定性分析**: 模型能够根据 3D 场景提供合理的导航路径建议 和 任务执行步骤，展现出初步的具身智能潜力。
 
 <div align="center">
-  <img src="/images/si/3D-LLM-qualitative-results.png" width="100%" />
+  <img src="/images/si/3D-LLM-qualitative-results.webp" width="100%" />
 <figcaption>图 4：3D-LLM 在 3D 问答和场景描述任务中的定性预测结果</figcaption>
 </div>
 
@@ -1563,7 +1563,7 @@ PointLLM-V2 通过引入首个自动化的点云指令微调数据生成流水�
 PointLLM-V2 是一个能够理解彩色点云的多模态大语言模型，具有强大的物体类别、几何形状、外观特征理解能力，并支持精细的局部坐标感知。
 
 <div align="center">
-  <img src="/images/si/PointLLM-V2-overview.png" width="100%" />
+  <img src="/images/si/PointLLM-V2-overview.webp" width="100%" />
 <figcaption>图 1：PointLLM-V2 能力概览</figcaption>
 </div>
 
@@ -1571,7 +1571,7 @@ PointLLM-V2 是一个能够理解彩色点云的多模态大语言模型，具�
 作者提出了一种创新的数据生成流程，将 3D 点云转化为 LLM 可理解的指令数据。
 
 <div align="center">
-  <img src="/images/si/PointLLM-V2-data-pipeline.png" width="100%" />
+  <img src="/images/si/PointLLM-V2-data-pipeline.webp" width="100%" />
 <figcaption>图 2：自动化数据生成流水线流程图</figcaption>
 </div>
 
@@ -1585,7 +1585,7 @@ PointLLM-V2 是一个能够理解彩色点云的多模态大语言模型，具�
 PointLLM-V2 采用了典型的端到端训练架构。
 
 <div align="center">
-  <img src="/images/si/PointLLM-V2-architecture.png" width="100%" />
+  <img src="/images/si/PointLLM-V2-architecture.webp" width="100%" />
 <figcaption>图 3：PointLLM-V2 整体架构图</figcaption>
 </div>
 
@@ -1604,7 +1604,7 @@ PointLLM-V2 采用了典型的端到端训练架构。
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/si/PointLLM-V2-evaluation-framework.png" width="100%" />
+  <img src="/images/si/PointLLM-V2-evaluation-framework.webp" width="100%" />
 <figcaption>图 4：评估框架概览</figcaption>
 </div>
 
@@ -1645,7 +1645,7 @@ PointLLM-V2 采用了典型的端到端训练架构。
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vlm/OpenGaussian-pipeline.png" width="100%" />
+  <img src="/images/vlm/OpenGaussian-pipeline.webp" width="100%" />
 <figcaption>OpenGaussian 整体流程：(a) 实例特征学习，(b) 两级码本离散化，(c) 3D-2D 特征关联</figcaption>
 </div>
 
@@ -1669,7 +1669,7 @@ OpenGaussian 放弃了直接在 3D 空间训练高维 CLIP 特征的思路。它
 #### ④ 实例级 3D-2D 特征关联 (Sec 3.3)
 
 <div align="center">
-  <img src="/images/vlm/OpenGaussian-association.png" width="100%" />
+  <img src="/images/vlm/OpenGaussian-association.webp" width="100%" />
 <figcaption>基于 IoU 和特征相似度的 3D-2D 关联机制</figcaption>
 </div>
 
@@ -1683,7 +1683,7 @@ OpenGaussian 放弃了直接在 3D 空间训练高维 CLIP 特征的思路。它
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/vlm/OpenGaussian-lerf-results.png" width="100%" />
+  <img src="/images/vlm/OpenGaussian-lerf-results.webp" width="100%" />
 <figcaption>在 LERF 数据集上的定性对比。OpenGaussian 在 3D 空间选择物体的准确度远超 LangSplat 和 LEGaussians</figcaption>
 </div>
 
@@ -1691,7 +1691,7 @@ OpenGaussian 放弃了直接在 3D 空间训练高维 CLIP 特征的思路。它
 2. **特征区分度**：通过可视化发现，OpenGaussian 的 3D 特征具有极高的边界清晰度和语义一致性，能够精确区分细小物体。
 
 <div align="center">
-  <img src="/images/vlm/OpenGaussian-feature-viz.png" width="100%" />
+  <img src="/images/vlm/OpenGaussian-feature-viz.webp" width="100%" />
 <figcaption>3D 特征可视化对比：展现了 OpenGaussian 更细的粒度和更高的判别性</figcaption>
 </div>
 
@@ -1718,7 +1718,7 @@ OpenGaussian 放弃了直接在 3D 空间训练高维 CLIP 特征的思路。它
 4. **小模型打大模型**：仅 3B 参数即在多个空间基准上超越 GPT-5、Gemini-2.5-Pro，印证了空间推理更多是"数据与训练范式"问题，而非"参数规模"问题。
 
 <div align="center">
-  <img src="/images/si/HiSpatial-overview.png" width="100%" />
+  <img src="/images/si/HiSpatial-overview.webp" width="100%" />
 <figcaption>图1（论文 Fig. 1）：HiSpatial 总览。左侧自上而下展示 Level 0→3 四级空间能力（几何感知 / 物体级 / 物体间关系 / 抽象推理）及其真实场景问答示例；右上为多基准性能雷达图（HiSpatial-3B 显著外扩于 Gemini-2.5-Pro、GPT-5），右下为"层级依赖"消融——去除低层训练任务会使 Level 2/3 性能明显下滑。</figcaption>
 </div>
 
@@ -1748,14 +1748,14 @@ graph TD
 **（2）全自动数据引擎**：无需人工标注，从约 **500 万图像 / 4500 万+ 物体**（KosMos-2、Objects365、CA-1M）自动合成 **20 亿+** 条空间 VQA，覆盖自由问答、选择题、判断题三种形式（Level 3 的问题求解改用 GPT 生成而非模板）。流水线分三步：先用 MoGe-2 估计逐像素点图、RAM/GroundingDINO/SAM 完成检测分割、OrientAnything-v2 估朝向、Perspective Fields 建立重力对齐世界坐标，得到结构化空间信息；再由 Describe Anything + Qwen2.5/3-VL 生成带 VLM 校验的文本引用；最后按各层级任务模板合成 QA：
 
 <div align="center">
-  <img src="/images/si/HiSpatial-taxonomy-pipeline.png" width="100%" />
+  <img src="/images/si/HiSpatial-taxonomy-pipeline.webp" width="100%" />
 <figcaption>图2（论文 Fig. 2）：左为空间 VQA 构建流水线——从现有带 3D 标注的数据自动估计空间信息、生成文本引用并合成海量 QA；右为三维空间理解的分层任务体系，逐级列出 Level 0（点查询 / 深度排序）、Level 1（定位 / 朝向 / 尺寸）、Level 2（相对方向 / 距离 / 比较）、Level 3（视角变换 / 空间计数 / 问题求解）的代表性问答示例。</figcaption>
 </div>
 
 **（3）注入度量点图的 RGB-D VLM**：以 PaliGemma-2（SigLIP 视觉编码器 + Gemma-2，约 3B 参数）为底座。除 RGB 外，额外输入一张**度量尺度 3D 点图**（$H\times W\times4$：XYZ 坐标 + 有效性掩码，由 MoGe-2 估计或深度传感器提供），经正弦位置编码与可学习 Conv2D patchify 后得到与图像 patch 对齐的特征，与 RGB token 拼接、投影为融合 token 送入 LLM。关键区别在于使用**度量尺度**而非相对深度，从而提供绝对距离、真实物体尺寸等量纲信息。
 
 <div align="center">
-  <img src="/images/si/HiSpatial-architecture.png" width="85%" />
+  <img src="/images/si/HiSpatial-architecture.webp" width="85%" />
 <figcaption>图3（论文 Fig. 3）：RGB-D VLM 架构。度量尺度点图（估计或真值）经正弦位置编码与 Patch Embedding 编码，RGB 图经视觉编码器编码，两路特征拼接后经线性投影送入语言模型；模型据此回答"电视与门哪个离相机更近"等需要绝对 3D 信息的空间问题。</figcaption>
 </div>
 
@@ -1812,12 +1812,12 @@ graph TD
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/si/LLaVA-3D-overview.png" width="100%" />
+  <img src="/images/si/LLaVA-3D-overview.webp" width="100%" />
 <figcaption>LLaVA-3D 框架概览，实现高效的 3D 场景理解、更快的收敛速度和推理效率</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/si/LLaVA-3D-architecture.png" width="100%" />
+  <img src="/images/si/LLaVA-3D-architecture.webp" width="100%" />
 <figcaption>LLaVA-3D 架构设计，包含 3D Patch 的构建、池化、以及 3D 坐标编解码与 Grounding Decoder</figcaption>
 </div>
 
@@ -1855,12 +1855,12 @@ LLaVA-3D 框架基于 LLaVA-Video 改进，由 CLIP 图像编码器、2D-to-3D �
 推理时除了支持标准的文本和图像问答外，模型还支持交互式理解。用户可在 2D 图像或视频帧中点击特定像素，点击位置通过相机几何投影至 3D 空间生成 3D Coordinate Token，指导模型对特定物体生成 3D 边界框及详细的描述文本。
 
 <div align="center">
-  <img src="/images/si/LLaVA-3D-dataset.png" width="100%" />
+  <img src="/images/si/LLaVA-3D-dataset.webp" width="100%" />
 <figcaption>LLaVA-3D-Instruct-86K 混合 3D 语料的数据分布与细节</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/si/LLaVA-3D-interaction.png" width="100%" />
+  <img src="/images/si/LLaVA-3D-interaction.webp" width="100%" />
 <figcaption>LLaVA-3D 支持的点击式（Click-based）三维问答和描述交互示例</figcaption>
 </div>
 
@@ -1914,7 +1914,7 @@ LLaVA-3D 框架基于 LLaVA-Video 改进，由 CLIP 图像编码器、2D-to-3D �
 **① 视频源与动态筛选**
 
 <div align="center">
-  <img src="/images/vlm/LLaVA-Video-sources.png" width="100%" />
+  <img src="/images/vlm/LLaVA-Video-sources.webp" width="100%" />
 <figcaption>左：40 余个现有视频-语言数据集实际上主要源自 10 个视频源；右：动态视频的过滤逻辑</figcaption>
 </div>
 
@@ -1925,7 +1925,7 @@ LLaVA-3D 框架基于 LLaVA-Video 改进，由 CLIP 图像编码器、2D-to-3D �
 **② 递归式三层详细字幕生成**
 
 <div align="center">
-  <img src="/images/vlm/LLaVA-Video-caption-pipeline.png" width="100%" />
+  <img src="/images/vlm/LLaVA-Video-caption-pipeline.webp" width="100%" />
 <figcaption>三层递归字幕生成 pipeline：level-1 每 10s、level-2 每 30s、level-3 全片，每层均以历史描述为条件</figcaption>
 </div>
 
@@ -1938,14 +1938,14 @@ LLaVA-3D 框架基于 LLaVA-Video 改进，由 CLIP 图像编码器、2D-to-3D �
 **设计动机**：与 Video ReCap 等先逐段独立描述再汇总的方案不同，这里每条 level-1 描述生成时就携带历史上下文，保证时间线上前后事件的关联（如跨时段识别同一人物）。下图消融展示了历史上下文的作用：
 
 <div align="center">
-  <img src="/images/vlm/LLaVA-Video-historical-context.png" width="100%" />
+  <img src="/images/vlm/LLaVA-Video-historical-context.webp" width="100%" />
 <figcaption>有/无历史上下文的字幕对比：有历史上下文时能正确将不同时段出现的人物识别为同一人</figcaption>
 </div>
 
 **③ 16 类问题引导的 QA 生成**
 
 <div align="center">
-  <img src="/images/vlm/LLaVA-Video-question-types.png" width="100%" />
+  <img src="/images/vlm/LLaVA-Video-question-types.webp" width="100%" />
 <figcaption>参考公开视频 QA 基准定义的 16 类问题类型及示例</figcaption>
 </div>
 
@@ -1956,7 +1956,7 @@ LLaVA-3D 框架基于 LLaVA-Video 改进，由 CLIP 图像编码器、2D-to-3D �
 一条视频数据最终包含三种标注：
 
 <div align="center">
-  <img src="/images/vlm/LLaVA-Video-data-example.png" width="100%" />
+  <img src="/images/vlm/LLaVA-Video-data-example.webp" width="100%" />
 <figcaption>数据样例：详细描述、开放式 QA、多选 QA 三类标注</figcaption>
 </div>
 
@@ -1967,7 +1967,7 @@ LLaVA-3D 框架基于 LLaVA-Video 改进，由 CLIP 图像编码器、2D-to-3D �
 模型沿用 LLaVA-OneVision 架构：SigLIP 视觉编码器 + 两层 MLP projector + Qwen2 LLM，从 LLaVA-OneVision 单图（SI）阶段 checkpoint 出发微调。核心问题是 token 预算：T=100 帧、每帧 M=729 token 时共 67,600 个视觉 token，72B 模型在 128 张 H100 上也只能塞 8 帧。
 
 <div align="center">
-  <img src="/images/vlm/LLaVA-Video-slowfast.png" width="100%" />
+  <img src="/images/vlm/LLaVA-Video-slowfast.webp" width="100%" />
 <figcaption>SlowFast 视频表示：slow 帧（每 s 帧取一帧）用较小池化保留更多 token，fast 帧用较大池化压缩，交错排列</figcaption>
 </div>
 
@@ -2037,7 +2037,7 @@ $$
 ROSS3D 由三部分构成：视频编码器 $\mathcal E_\phi$（提取多视角视频帧特征）、大语言模型 $\mathcal P_\theta$（处理视觉token+文本指令，自回归输出）、去噪器 $\mathcal J_\pi$（一个轻量的基于 DiT 的去噪网络，负责把 LMM 的视觉输出"翻译"回图像潜在空间，从而对视觉输出施加监督）。三者协作：视频编码器产生视觉前缀 token 输入 LLM，LLM 在生成文本的同时也输出一段"视觉token"，去噪器以这些视觉token为条件，去噪重建出指定的目标图像（被遮挡视角或BEV图）。
 
 <div align="center">
-  <img src="/images/vlm/ROSS3D-paradigm-comparison.png" width="100%" />
+  <img src="/images/vlm/ROSS3D-paradigm-comparison.webp" width="100%" />
 <figcaption>与已有3D LMM范式的对比。(a)(b)(c)是输入层面的3D感知设计（点云特征融合、3D patch pooling、多视角当视频处理），(d)是ROSS3D的核心思路——通过cross-view重建（左）和global-view重建（右）两种视觉重建任务，把3D感知信号注入到视觉输出的监督中。</figcaption>
 </div>
 
@@ -2061,7 +2061,7 @@ ROSS3D 由三部分构成：视频编码器 $\mathcal E_\phi$（提取多视角�
   - **输出**：预测的噪声，用于和真实噪声计算 MSE，从而反传梯度优化LLM的视觉输出。
 
 <div align="center">
-  <img src="/images/vlm/ROSS3D-pipeline-denoiser.png" width="100%" />
+  <img src="/images/vlm/ROSS3D-pipeline-denoiser.webp" width="100%" />
 <figcaption>(a) ROSS3D整体流程——视频帧经过masking输入LLM，去噪器以视觉输出为条件分别重建masked视角和BEV图像；(b) 去噪器内部结构，基于DiT，通过cross-attention融合可学习查询、视觉输出与时间步信息。</figcaption>
 </div>
 
@@ -2126,7 +2126,7 @@ ROSS3D 基于 LLaVA-Video-7B 微调，在五个ScanNet系3D基准上全面超越
 三维重建长期由「视觉几何 + 迭代优化」主导：经典 SfM/MVS 管线（COLMAP 等）依赖特征匹配、三角化与 Bundle Adjustment，复杂且计算昂贵。近年 DUSt3R / MASt3R 用前馈网络直接回归对齐点图，迈出去优化的一步，但它们一次只能处理**两张图像**，多图必须靠成对重建 + 全局对齐（global alignment）融合，仍残留昂贵的测试时优化。本文要回答的核心问题是：**网络能否足够强大，以至于直接、一次性地预测一组图像的全部三维属性，几乎完全抛弃几何后处理？**
 
 <div align="center">
-  <img src="/images/si/VGGT-teaser.png" width="100%" />
+  <img src="/images/si/VGGT-teaser.webp" width="100%" />
 <figcaption>VGGT 一次前馈即可从最多数百张图像同时预测相机、点图、深度图与点轨迹，耗时不到 1 秒，且常优于需后处理优化的方法。</figcaption>
 </div>
 
@@ -2143,7 +2143,7 @@ $$f\,(I_i)_{i=1}^{N} = (g_i, D_i, P_i, T_i)_{i=1}^{N}$$
 把 N 张 RGB 图映射为每帧的相机参数 $g_i$、深度图 $D_i$、点图 $P_i$ 与跟踪特征 $T_i$。
 
 <div align="center">
-  <img src="/images/si/VGGT-architecture.png" width="100%" />
+  <img src="/images/si/VGGT-architecture.webp" width="100%" />
 <figcaption>VGGT 架构概览（Fig. 2）：DINO 把各帧图像 Patchify 为视觉 token 并附加相机 token；主体由全局自注意力与逐帧自注意力交替堆叠 L 次；Camera Head 输出相机内外参，DPT Head 输出每帧深度图、稠密点图与跟踪特征——全部几何量在一次前馈中并行产生。</figcaption>
 </div>
 
@@ -2220,7 +2220,7 @@ $$L = L_{camera} + L_{depth} + L_{pmap} + \lambda L_{track}$$
 - **效率**：特征主干处理 1→200 帧，从 0.04 秒/1.88GB 扩展到 8.75 秒/40.63GB；Camera Head 仅占约 5% 运行时与 2% 显存。
 
 <div align="center">
-  <img src="/images/si/VGGT-qualitative.png" width="100%" />
+  <img src="/images/si/VGGT-qualitative.webp" width="100%" />
 <figcaption>与 DUSt3R 在 in-the-wild 图像上的定性对比：VGGT 能正确重建油画（DUSt3R 给出略扭曲平面）、零重叠双视角场景（DUSt3R 失败）与重复纹理场景；DUSt3R 超过 32 帧即显存溢出，而 VGGT 速度快两到三个数量级。</figcaption>
 </div>
 
@@ -2261,7 +2261,7 @@ $$L = L_{camera} + L_{depth} + L_{pmap} + \lambda L_{track}$$
 传统 image-based 3D 重建被拆成特征匹配、两视图位姿、相机标定、BA、MVS、单目深度等一系列独立子任务串联求解。近期前馈方法（DUSt3R、MASt3R、VGGT、π³ 等）虽把部分子任务统一进一个 transformer，但仍有三大局限：**(a)** 只吃图像输入、无法利用机器人场景常有的内参/位姿先验；**(b)** 多预测耦合的 pointmap，需昂贵后处理才能恢复相机与几何，且常有冗余分支；**(c)** 视角数受限、只建模简单针孔相机、且多数无法输出 metric scale。本文要解决的核心问题是：**能否用一个前馈主干，吃任意数量视角 + 任意几何先验子集，直接输出度量级三维重建与相机？**
 
 <div align="center">
-  <img src="/images/si/MapAnything-teaser.png" width="100%" />
+  <img src="/images/si/MapAnything-teaser.webp" width="100%" />
 <figcaption>MapAnything 接受 N 张图像并可选附带相机位姿、内参、深度等几何输入，单次前馈即输出带相机信息的度量级三维重建，统一覆盖相机定位、SfM、MVS、度量深度补全等 12+ 种任务。</figcaption>
 </div>
 
@@ -2270,7 +2270,7 @@ $$L = L_{camera} + L_{depth} + L_{pmap} + \lambda L_{track}$$
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/si/MapAnything-architecture.png" width="100%" />
+  <img src="/images/si/MapAnything-architecture.webp" width="100%" />
 <figcaption>MapAnything 架构总览。N 路图像与可选几何输入先各自编码进共享隐空间并逐视角相加，拼上一个可学习 scale token 后送入交替注意力 transformer；单个 DPT 头解码出每视角稠密量，pose 头预测各视角位姿，scale token 经 MLP 给出全场景 metric scale 因子。</figcaption>
 </div>
 
@@ -2328,7 +2328,7 @@ $$\mathcal{L} = 10\,\mathcal{L}_{\text{pointmap}} + \mathcal{L}_{\text{rays}} + 
 - **速度/显存**：相比 VGGT、Depth-Anything-3 等并发模型，MapAnything 在 2–500 视角下速度与峰值显存均最优；mem-efficient 变体把稠密头按视角小批循环，几乎不损速度而大幅降显存。
 
 <div align="center">
-  <img src="/images/si/MapAnything-vs-VGGT.png" width="100%" />
+  <img src="/images/si/MapAnything-vs-VGGT.webp" width="100%" />
 <figcaption>仅用 in-the-wild 图像输入时 MapAnything 与 VGGT 的定性对比（两者施加相同的法向边缘 mask 与天空 mask）。MapAnything 在大视差变化、季节差异、无纹理表面、水体与大场景上明显更稳健。</figcaption>
 </div>
 
@@ -2375,7 +2375,7 @@ DA3 通过引入“深度-射线（Depth-Ray）”表征与输入自适应自注
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vln/DepthAnything3-pipeline.png" width="100%" />
+  <img src="/images/vln/DepthAnything3-pipeline.webp" width="100%" />
 <figcaption>Depth Anything 3 整体架构：基于 Plain Transformer 骨干网络（如 DINOv2），支持相机位姿条件输入，通过自适应跨视图注意力进行视图内与视图间交互，并使用双 DPT 头联合预测一致的深度与射线图。</figcaption>
 </div>
 
@@ -2393,7 +2393,7 @@ $$P = t + D(u, v) \cdot d$$
 #### ④ 共享特征的双 DPT 头（Dual-DPT Head）
 
 <div align="center">
-  <img src="/images/vln/DepthAnything3-dual-dpt.png" width="80%" />
+  <img src="/images/vln/DepthAnything3-dual-dpt.webp" width="80%" />
 <figcaption>Dual-DPT Head 结构：深度与射线估计任务共享高阶特征重组模块（Reassemble），仅在最终 the 融合输出阶段分离，提升联合估计的效率和一致性。</figcaption>
 </div>
 
@@ -2405,7 +2405,7 @@ $$(s^*, t^*) = \arg\min_{s > 0, t} \sum_{p \in \Omega} m_p \left\lvert s \tilde{
 最后用对齐后的稠密标签 $D_{T \to M}$ 监督学生网络，使学生模型不仅继承了真实位姿的准确性，还获得了极致清晰的深度边缘细节。
 
 <div align="center">
-  <img src="/images/vln/DepthAnything3-teacher-supervision.png" width="90%" />
+  <img src="/images/vln/DepthAnything3-teacher-supervision.webp" width="90%" />
 <figcaption>Teacher 监督的消融对比：相比没有 Teacher 监督，使用 Teacher 伪标签监督训练出的模型能够捕获更丰富的三维微观结构和边缘细节。</figcaption>
 </div>
 
@@ -2420,7 +2420,7 @@ $$L_{\mathrm{grad}}(\hat{D}, D) = \lVert \nabla_x \hat{D} - \nabla_x D \rVert_1 
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/vln/DepthAnything3-teaser.png" width="100%" />
+  <img src="/images/vln/DepthAnything3-teaser.webp" width="100%" />
 <figcaption>Depth Anything 3 teaser：输入任意视图（有或无位姿），模型重建出一致的高精度几何与高保真 3D 高斯泼溅表现。</figcaption>
 </div>
 
@@ -2429,12 +2429,12 @@ $$L_{\mathrm{grad}}(\hat{D}, D) = \lVert \nabla_x \hat{D} - \nabla_x D \rVert_1 
 - **向下游 3DGS 强力泛化**：在大大规模前馈 3D 像素级高斯预测（FF-NVS）任务中，以 DA3 为先验骨干微调的 GS-DPT 头，在 DL3DV、Tanks and Temples 以及 MegaDepth 上的 PSNR/SSIM 渲染质量全面击败了专门设计的端端新视角合成模型。
 
 <div align="center">
-  <img src="/images/vln/DepthAnything3-pointcloud-comparison.png" width="100%" />
+  <img src="/images/vln/DepthAnything3-pointcloud-comparison.webp" width="100%" />
 <figcaption>重建点云质量对比：DA3 生成的点云结构极其规整、几乎无背景杂讯，相比同类方法具有更高的精度和完整度。</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vln/DepthAnything3-depth-comparison.png" width="100%" />
+  <img src="/images/vln/DepthAnything3-depth-comparison.webp" width="100%" />
 <figcaption>与其他方法（VGGT, Pi3, Fast3R）的深度图质量对比：DA3 预测的深度图细节清晰、语义边界干净，展现出极强的几何逼真度。</figcaption>
 </div>
 
@@ -2479,7 +2479,7 @@ $$L_{\mathrm{grad}}(\hat{D}, D) = \lVert \nabla_x \hat{D} - \nabla_x D \rVert_1 
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vlm/MuM-architecture.png" width="100%" />
+  <img src="/images/vlm/MuM-architecture.webp" width="100%" />
 <figcaption>MuM SSL 预训练流程图：多张属于同一场景的输入图像经过统一的掩码处理，独立通过 ViT-L 编码器提取特征，再由轻量的交替自注意力 ViT-B 解码器进行联合处理和像素重建。</figcaption>
 </div>
 
@@ -2500,7 +2500,7 @@ MuM 将经典的单图掩码自编码器（MAE）直接推广到了包含任意�
 在训练阶段，每个批次（Batch）内随机采样一个序列长度 $n \in [2, 24]$（且有 10% 的概率回退至单视角 $n=1$ 的普通 ImageNet-1K 数据）。将序列送入编码器进行特征压缩后，再在解码器中利用交替自注意力将多视图的未掩码 Patch 信息“广播”至其他视图的掩码区域，利用跨视角相似度和视差线索补全丢失的纹理，最后由预测头输出重建图像并计算损失。
 
 <div align="center">
-  <img src="/images/vlm/MuM-reconstruction-examples.png" width="100%" />
+  <img src="/images/vlm/MuM-reconstruction-examples.webp" width="100%" />
 <figcaption>数据样本及重建结果可视化：即使在非常剧烈的视角漂移和极低的共视重叠度下，MuM 依然能够生成一致且清晰的像素级重建结果。</figcaption>
 </div>
 
@@ -2516,7 +2516,7 @@ $$L_{\text{distill}}(\theta) = \sum_{i=1}^{n} ( \lVert P_i^t - P_i^s \rVert^2 + 
 在应用于特征匹配（如 RoMa 框架）或相对姿态估计等下游任务时，我们通常**只保留预训练好的 ViT-L 编码器**作为冻结的几何特征提取器，并丢弃解码器部分。直接将 high 分辨率图像送入编码器提取局部稠密特征，即可即插即用地输送给下游的轻量化预测头（如匹配解码器或姿态解算器）。
 
 <div align="center">
-  <img src="/images/vlm/MuM-attention-correspondence.png" width="100%" />
+  <img src="/images/vlm/MuM-attention-correspondence.webp" width="100%" />
 <figcaption>解码器中查询 Patch 的全局注意力图可视化：在跨帧全局注意力中，注意力权重最高的值精准地落在了另一视图中对应的共视特征点上，验证了模型具备隐式学习多视角几何对应的能力。</figcaption>
 </div>
 
@@ -2537,7 +2537,7 @@ $$L_{\text{distill}}(\theta) = \sum_{i=1}^{n} ( \lVert P_i^t - P_i^s \rVert^2 + 
    - 在单目深度估计（NYUd/KITTI）与表面法线估计（NYUv2）中，MuM 超过了 CroCo v2 和 MAE，但落后于拥有强语义先验的 DINOv3（如 NYUd 深度 RMSE：MuM 0.41 vs DINOv3 0.34）。这说明像素重建目标有利于几何对应，但高层语义分类任务（如 ImageNet 图像分类）依然是语义蒸馏模型（DINOv3）占优（ImageNet 准确率：DINOv3 86.9% vs MuM 70.8%）。
 
 <div align="center">
-  <img src="/images/vlm/MuM-dense-warp.png" width="100%" />
+  <img src="/images/vlm/MuM-dense-warp.webp" width="100%" />
 <figcaption>基于冻结特征进行线性探针（Linear Probe）稠密匹配的 Warp 结果对比：MuM 估计出的变换场相较于 CroCo v2 和 DINOv3 更加平滑、连续，细节对齐度显著提升。</figcaption>
 </div>
 
@@ -2582,7 +2582,7 @@ $$L_{\text{distill}}(\theta) = \sum_{i=1}^{n} ( \lVert P_i^t - P_i^s \rVert^2 + 
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vlm/VLM3-pipeline.png" width="100%" />
+  <img src="/images/vlm/VLM3-pipeline.webp" width="100%" />
   <figcaption>图 1：VLM³ 极简框架图与先前 3D 空间理解方法的对比</figcaption>
 </div>
 
@@ -2612,7 +2612,7 @@ VLM³ 是一个极简且高度可扩展的 3D 空间理解框架。整个系统�
 #### ③ 任务分支与端到端数据流
 
 <div align="center">
-  <img src="/images/vlm/VLM3-tasks-comparison.png" width="90%" />
+  <img src="/images/vlm/VLM3-tasks-comparison.webp" width="90%" />
   <figcaption>图 2：VLM³ 涵盖的四大 3D 理解任务（3D 物体识别、度量深度估计、像素点匹配、相机位姿估计）</figcaption>
 </div>
 
@@ -2644,7 +2644,7 @@ $$L_{\text{SFT}} = -\sum_{i=1}^M \log P(t_i \mid t_{<i}, I)$$
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/vlm/VLM3-visualizations.png" width="100%" />
+  <img src="/images/vlm/VLM3-visualizations.webp" width="100%" />
   <figcaption>图 3：VLM³ 模型在多种三维理解任务下的定性可视化分析（点云重建与多视角估计）</figcaption>
 </div>
 
@@ -2698,7 +2698,7 @@ $$L_{\text{SFT}} = -\sum_{i=1}^M \log P(t_i \mid t_{<i}, I)$$
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vlm/DepthLM-overview.png" width="100%" />
+  <img src="/images/vlm/DepthLM-overview.webp" width="100%" />
 <figcaption>图 1：DepthLM与GPT-5等大模型及纯视觉模型在点云和深度估计精度上的对比</figcaption>
 </div>
 
@@ -2706,7 +2706,7 @@ $$L_{\text{SFT}} = -\sum_{i=1}^M \log P(t_i \mid t_{<i}, I)$$
 DepthLM 采用标准的 VLM 架构和自回归文本生成范式。其核心思想是，在输入端通过**相机焦距归一化**消除三维绝对尺度的多相机歧义，在图像空间通过**视觉提示渲染**引导模型关注特定像素，再通过**极稀疏的文本 SFT** 训练模型自回归输出距离数值。
 
 <div align="center">
-  <img src="/images/vlm/DepthLM-architecture.png" width="100%" />
+  <img src="/images/vlm/DepthLM-architecture.webp" width="100%" />
 <figcaption>图 2：DepthLM 的处理流程：相机焦距统一化图像缩放、视觉标记渲染以及标准的自回归文本 SFT 训练</figcaption>
 </div>
 
@@ -2737,7 +2737,7 @@ DepthLM 采用标准的 VLM 架构和自回归文本生成范式。其核心思�
 - **多任务联合预测**：由于没有绑定深度分支，DepthLM 可以在同一个 VLM 框架下，联合训练并执行主轴距离预测（Principal axis distance）、两点之间绝对距离预测、到达时间预测、到达速度预测以及两帧图像间的相机平移估计（Pose）等任务。
 
 <div align="center">
-  <img src="/images/vlm/DepthLM-tasks.png" width="100%" />
+  <img src="/images/vlm/DepthLM-tasks.webp" width="100%" />
 <figcaption>图 3：DepthLM 统一架构下扩展的多种 3D 任务及其预测结果示例</figcaption>
 </div>
 
@@ -2791,7 +2791,7 @@ DepthLM 采用标准的 VLM 架构和自回归文本生成范式。其核心思�
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vlm/RoboRefer-teaser.png" width="100%" />
+  <img src="/images/vlm/RoboRefer-teaser.webp" width="100%" />
 <figcaption>多步空间推理任务与 RoboRefer 的实机部署应用示意图</figcaption>
 </div>
 
@@ -2799,7 +2799,7 @@ DepthLM 采用标准的 VLM 架构和自回归文本生成范式。其核心思�
 RoboRefer 接收包含 RGB(D) 的传感器观测与一段具有多重空间约束的文本指令，首先在自回归解码中显式地输出逻辑推理步骤（如定位各个空间参照锚点并计算相对方向），然后输出最终的目标三维/二维定位坐标点。整个系统在推理时采用类似思维链的格式，先推理再预测动作点。
 
 <div align="center">
-  <img src="/images/vlm/RoboRefer-architecture.png" width="100%" />
+  <img src="/images/vlm/RoboRefer-architecture.webp" width="100%" />
 <figcaption>RoboRefer 架构与 SFT+RFT 两阶段训练流程概览</figcaption>
 </div>
 
@@ -2847,7 +2847,7 @@ $$A_i = \frac{r_i - \mathrm{mean}(\{r_j\})}{\mathrm{std}(\{r_j\})}$$
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/vlm/RoboRefer-refspatial-dataset.png" width="100%" />
+  <img src="/images/vlm/RoboRefer-refspatial-dataset.webp" width="100%" />
 <figcaption>RefSpatial 数据集构成、三类数据管道及空间关系统计分布</figcaption>
 </div>
 
@@ -2862,7 +2862,7 @@ $$A_i = \frac{r_i - \mathrm{mean}(\{r_j\})}{\mathrm{std}(\{r_j\})}$$
 - **三源数据融合机制**：如上图所示，RefSpatial 数据集融合了 2D 网页数据（丰富感知常识）、3D 具身视频（细化室内深度理解）和仿真生成数据（标注多步 CoT 推理轨迹）。消融研究表明，去除其中任何一部分都会导致模型在特定场景（如户外或多步推理）下性能大幅滑坡。
 
 <div align="center">
-  <img src="/images/vlm/RoboRefer-robot-evaluation.png" width="100%" />
+  <img src="/images/vlm/RoboRefer-robot-evaluation.webp" width="100%" />
 <figcaption>UR5 机械臂与 G1 人形机器人在真实世界中的闭环操作与导航任务定性展示</figcaption>
 </div>
 
@@ -2910,7 +2910,7 @@ $$A_i = \frac{r_i - \mathrm{mean}(\{r_j\})}{\mathrm{std}(\{r_j\})}$$
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/si/Stream3D-VLM-framework.png" width="100%" />
+  <img src="/images/si/Stream3D-VLM-framework.webp" width="100%" />
 <figcaption>图 1. Stream3D-VLM 的整体框架图：包含自回归流式决策、VSFI 几何先验融合和 GAVC 视觉 token 压缩三大核心模块。</figcaption>
 </div>
 
@@ -2959,7 +2959,7 @@ $$L = \lambda L_{stream} + L_{LM}$$
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/si/Stream3D-VLM-data-generation.png" width="100%" />
+  <img src="/images/si/Stream3D-VLM-data-generation.webp" width="100%" />
 <figcaption>图 2. 数据生成管道流程：利用 ScanNet、ScanNet++ 和 ARKitScenes 的元数据与 GPT-5 验证构建 Stream3D-1M 数据集与 Stream3D-Bench。</figcaption>
 </div>
 
@@ -3001,7 +3001,7 @@ $$L = \lambda L_{stream} + L_{LM}$$
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vla/MDM-teaser.png" width="100%" />
+  <img src="/images/vla/MDM-teaser.webp" width="100%" />
 <figcaption>图 1：通过遮蔽深度建模（MDM）预训练，LingBot-Depth 能够修复商业 RGB-D 传感器由于高反光、透明或无纹理表面导致的深度缺失，为下游 3D 轨迹跟踪和灵巧抓取提供高质量的空间几何先验。</figcaption>
 </div>
 
@@ -3010,7 +3010,7 @@ $$L = \lambda L_{stream} + L_{LM}$$
 MDM（Masked Depth Modeling）框架采用 Encoder-Decoder 结构，使用 Vision Transformer（ViT-Large）作为骨干编码器，并结合分层卷积解码器（ConvStack）进行稠密几何预测。它的核心流程是：分别提取 RGB 图像和带缺失值的 Sensor Depth 的 patch token，将它们混合后输入 ViT 编码器学习跨模态的联合特征，最后在解码阶段丢弃深度 latent token，仅利用 RGB token 和全局上下文恢复出完整、密集的绝对度量深度图。
 
 <div align="center">
-  <img src="/images/vla/MDM-architecture.png" width="100%" />
+  <img src="/images/vla/MDM-architecture.webp" width="100%" />
 <figcaption>图 2：Masked Depth Modeling (MDM) 框架架构。输入 RGB 图像与带缺失值的 Sensor Depth 分别投影为 Token，添加空间和模态位置编码。ViT Encoder 提取联合表示，随后丢弃深度 latent token，仅保留 RGB 相关的上下文 token，输入至分层卷积解码器（ConvStack）中重建出稠密、完整的度量深度图。</figcaption>
 </div>
 
@@ -3067,7 +3067,7 @@ $$L_{depth} = \frac{1}{\sum_i M^{gt}_i} \sum_i M^{gt}_i \lvert d^{pred}_i - d^{g
   - 在 MoGe-2 架构中，将初始化的 DINOv2 替换为 MDM 预训练的 ViT 权重，在不修改解码器结构的前提下，测试的 10 个跨域基准指标获得全面提升。这证明了经过 Masked Depth 训练的编码器已经能够很好地将度量几何先验吸收进语义 token 中，从而显著增强了纯单目 RGB 的空间感知上限。
 
 <div align="center">
-  <img src="/images/vla/MDM-point-tracking.png" width="100%" />
+  <img src="/images/vla/MDM-point-tracking.webp" width="100%" />
 <figcaption>图 3：在视频深度补全与 3D 点跟踪上的应用效果：(a) 在包含大面积玻璃幕墙的室内场景中估计稳定的相机轨迹与三维重建几何；(b) 配合 SpatialTrackerV2 针对动态物体（滑板车、划船机、健身器材、引体向上）进行鲁棒的 3D 点轨迹跟踪。</figcaption>
 </div>
 
@@ -3078,12 +3078,12 @@ $$L_{depth} = \frac{1}{\sum_i M^{gt}_i} \sum_i M^{gt}_i \lvert d^{pred}_i - d^{g
   - 将 LingBot-Depth 结合基于点云输入的 3D 扩散策略（DP3 架构），在六自由度 Rokae XMate-SR5 机械臂与灵巧手（X Hand-1）系统上进行物体抓取。在面对不锈钢杯、透明玻璃杯、透明收纳盒、玩具车四类高反射/透明挑战性物体时，利用 LingBot-Depth 提供的稠密点云，抓取成功率相比原始传感器深度显著提升（例如：透明收纳盒在原始传感器深度下完全无法建立点云导致 N/A 失败，而使用 LingBot-Depth 后抓取成功率达到了 50%）。
 
 <div align="center">
-  <img src="/images/vla/MDM-grasp-qualitative.png" width="100%" />
+  <img src="/images/vla/MDM-grasp-qualitative.webp" width="100%" />
 <figcaption>图 4：抓取实验定性对比。右侧展示了不锈钢杯、玻璃杯、收纳盒与玩具车四类物体在 RGB、原始 Sensor 深度以及 LingBot-Depth 重构深度下的表现。明显可见，LingBot-Depth 彻底消除了高透/反光表面的大量缺失深度值并平滑了结构特征。</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vla/MDM-grasp-execution.png" width="100%" />
+  <img src="/images/vla/MDM-grasp-execution.webp" width="100%" />
 <figcaption>图 5：在预测的三维点云上进行灵巧手抓取姿态生成（上排）并由机械臂在实体环境中物理执行（下排）。</figcaption>
 </div>
 
@@ -3119,12 +3119,12 @@ $$L_{depth} = \frac{1}{\sum_i M^{gt}_i} \sum_i M^{gt}_i \lvert d^{pred}_i - d^{g
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vlm/G2VLM-tasks.png" width="100%" />
+  <img src="/images/vlm/G2VLM-tasks.webp" width="100%" />
 <figcaption>图 1：G2VLM 支持的任务：交织空间推理、单目深度预测、三维点云重建和相机位姿估计</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vlm/G2VLM-architecture.png" width="100%" />
+  <img src="/images/vlm/G2VLM-architecture.webp" width="100%" />
 <figcaption>图 2：G2VLM 整体架构与专家划分：基于混合专家（MoT）设计，通过共享自注意力融合几何特征与语义表示</figcaption>
 </div>
 
@@ -3408,12 +3408,12 @@ $$L_{normal} = \sum_{i=1}^N \sum_{j=1}^{H \times W} \arccos(\hat{n}_{i,j} \cdot 
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/vlm/G2VLM-qualitative.png" width="100%" />
+  <img src="/images/vlm/G2VLM-qualitative.webp" width="100%" />
 <figcaption>图 3：G2VLM 单目和多视角三维场景重建定性可视化展示</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vlm/G2VLM-ablation.png" width="100%" />
+  <img src="/images/vlm/G2VLM-ablation.webp" width="100%" />
 <figcaption>图 4：G2VLM 关键消融：(a) 单双编码器在几何与空间推理上的得分对比；(b) GP 专家采用不同自注意力掩码设计下的损失收敛速度</figcaption>
 </div>
 
@@ -3451,7 +3451,7 @@ $$L_{normal} = \sum_{i=1}^N \sum_{j=1}^{H \times W} \arccos(\hat{n}_{i,j} \cdot 
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/si/SparseOccVLA-overview.png" width="100%" />
+  <img src="/images/si/SparseOccVLA-overview.webp" width="100%" />
 <!-- RENAME: figure_01.png -> SparseOccVLA-overview.png -->
 <figcaption>SparseOccVLA 整体架构：包含稀疏占用编码器、大语言模型主干和 LLM 引导的锚点扩散规划器，仅以稀疏占用查询作为视觉与语言的桥梁</figcaption>
 </div>
@@ -3467,7 +3467,7 @@ SparseOccVLA 包含三个核心组件：**稀疏占用编码器（Sparse Occupan
   - **处理**：利用 ResNet-50 提取图像特征，然后采用类 SparseBEV 结构，通过 $L$ 层编码器（Feature Sampling, Adaptive Mixing, Spatial-aware MHSA, FFN）更新随机初始化的 $N$ 个三维占用查询 $Q_0$ 和三维坐标位置 $P_0$。逐层逐步增多预测 of 3D 点云点数，并在各层对预测点集与真实稀疏化占用点集 $G$ 之间计算 Chamfer Distance（CD 损失）和语义 Focal 损失进行深度监督。
   
   <div align="center">
-    <img src="/images/si/SparseOccVLA-occupancy-encoder.png" width="100%" />
+    <img src="/images/si/SparseOccVLA-occupancy-encoder.webp" width="100%" />
   <!-- RENAME: figure_02.png -> SparseOccVLA-occupancy-encoder.png -->
   <figcaption>稀疏占用编码器（Sparse Occupancy Encoder）结构，在训练时引入特征级蒸馏分支对齐 CLIP 特征，推理时移除该分支</figcaption>
   </div>
@@ -3485,7 +3485,7 @@ SparseOccVLA 包含三个核心组件：**稀疏占用编码器（Sparse Occupan
   - **输入**：通过 K-means 聚类学习得到的 $K=18$ 个轨迹锚点（Trajectory Anchors） $a_k$。
   
   <div align="center">
-    <img src="/images/si/SparseOccVLA-diffusion-decoder.png" width="100%" />
+    <img src="/images/si/SparseOccVLA-diffusion-decoder.webp" width="100%" />
   <!-- RENAME: figure_03.png -> SparseOccVLA-diffusion-decoder.png -->
   <figcaption>扩散解码器（Diffusion Decoder）的层级交叉注意力结构，依次对齐三维占用查询、本体车辆状态和来自 LLM 的决策 Token</figcaption>
   </div>
@@ -3533,7 +3533,7 @@ SparseOccVLA 包含三个核心组件：**稀疏占用编码器（Sparse Occupan
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/si/GenCeption-overview.png" width="100%" />
+  <img src="/images/si/GenCeption-overview.webp" width="100%" />
 <figcaption>GenCeption 与传统专用感知模型的对比。GenCeption 实现了从“特定任务设计”到“基于统一骨干网络、解码头与损失函数，仅由 Text Prompt 引导”的范式转变。</figcaption>
 </div>
 
@@ -3541,7 +3541,7 @@ SparseOccVLA 包含三个核心组件：**稀疏占用编码器（Sparse Occupan
 GenCeption 的核心设计极为精简，它重用了文本到视频生成模型（WAN 2.1）的预训练权重，包括 VAE 编码器-解码器、文本编码器和基于 Transformer 的潜空间扩散模型（DiT）。通过将原多步反向去噪过程重构为**单步前向传播**，并直接将不同的感知任务映射到统一的 3 通道连续像素空间（RGB），实现了共享骨干网络、解码器及损失函数的全能视觉感知器。
 
 <div align="center">
-  <img src="/images/si/GenCeption-architecture.png" width="100%" />
+  <img src="/images/si/GenCeption-architecture.webp" width="100%" />
 <figcaption>GenCeption 整体架构图。左侧为输入视频与任务 Prompt，通过预训练的 DiT 单步前向传播，通过统一的 VAE 解码器或稀疏感知 Token 预测各种密集与稀疏视觉感知结果。</figcaption>
 </div>
 
@@ -3566,7 +3566,7 @@ GenCeption 的核心设计极为精简，它重用了文本到视频生成模型
   * **设计动机**：将高度抽象的矩阵与位姿估计转化为空间连续的图像渲染感知，保证解码器的一致性。
 
 <div align="center">
-  <img src="/images/si/GenCeption-raymap.png" width="80%" />
+  <img src="/images/si/GenCeption-raymap.webp" width="80%" />
 <figcaption>"Rothko" 射线图编码方案。将 6 通道的相机射线（原点与方向）通过空间布局拼贴，压缩在 3 通道的连续 RGB 像素空间中，以兼容统一的 VAE 解码头。</figcaption>
 </div>
 
@@ -3593,7 +3593,7 @@ $$d' = \text{clip}(\alpha \log(d+1), 0, 1)$$
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/si/GenCeption-sota.png" width="100%" />
+  <img src="/images/si/GenCeption-sota.webp" width="100%" />
 <figcaption>GenCeption 性能与数据效率对比。左图显示其在多项视觉感知任务中匹敌或超越了现有的各类专用 SOTA 模型；右图显示其在深度估计微调中显著优于 V-JEPA 和 VideoMAE V2 等自监督预训练方法，且数据效率高出数倍至数百倍。</figcaption>
 </div>
 
@@ -3605,7 +3605,7 @@ $$d' = \text{clip}(\alpha \log(d+1), 0, 1)$$
   2. **类别泛化**：能够直接准确泛化到完全未在训练数据中出现的动物、恐龙和人形机器人等类别上。
 
 <div align="center">
-  <img src="/images/si/GenCeption-generalization.png" width="100%" />
+  <img src="/images/si/GenCeption-generalization.webp" width="100%" />
 <figcaption>零样本跨域与外部分布泛化结果。尽管模型完全在单人合成视频（Synthetic Humans）上训练，但却能泛化到包含多个实例的真实场景（Real Videos），并能跨类别泛化到动物、机器人等（Unseen Objects）。</figcaption>
 </div>
 
@@ -3637,7 +3637,7 @@ $$d' = \text{clip}(\alpha \log(d+1), 0, 1)$$
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/si/S-Agent-overview.png" width="100%" />
+  <img src="/images/si/S-Agent-overview.webp" width="100%" />
 <figcaption>S-Agent 空间工具调用范式与传统静态 VLM / 空间 Agent 的对比概览</figcaption>
 </div>
 
@@ -3651,7 +3651,7 @@ $$r_t = \pi_{\theta}(q, \mathcal{F}, \mathcal{S}_t, \mathcal{H}_t)$$
 $$(\mathcal{S}_{t+1}, \mathcal{H}_{t+1}) = \text{Update}(\mathcal{S}_t, \mathcal{H}_t, r_t, o_t)$$
 
 <div align="center">
-  <img src="/images/si/S-Agent-pipeline.png" width="100%" />
+  <img src="/images/si/S-Agent-pipeline.webp" width="100%" />
 <figcaption>S-Agent 系统管线：分层空间证据提取与持久化双记忆系统的流转交互</figcaption>
 </div>
 
@@ -3682,7 +3682,7 @@ $$(\mathcal{S}_{t+1}, \mathcal{H}_{t+1}) = \text{Update}(\mathcal{S}_t, \mathcal
 - **Agent 记忆（Agent Memory $\mathcal{H}_t$）**：记录规划器的中间思考（Thought）、发出的工具请求、工具成功/失败反馈及阶段性结论，支持自我修正与策略调整。
 
 <div align="center">
-  <img src="/images/si/S-Agent-dataset-stats.png" width="100%" />
+  <img src="/images/si/S-Agent-dataset-stats.webp" width="100%" />
 <figcaption>S-300K 数据集构造成分与工具调用统计分布</figcaption>
 </div>
 
@@ -3699,7 +3699,7 @@ $$(\mathcal{S}_{t+1}, \mathcal{H}_{t+1}) = \text{Update}(\mathcal{S}_t, \mathcal
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/si/S-Agent-qualitative.png" width="100%" />
+  <img src="/images/si/S-Agent-qualitative.webp" width="100%" />
 <figcaption>S-Agent 在第一人称视频遮挡场景下的工具引导 3D 相对位置推理定性示例</figcaption>
 </div>
 
@@ -3745,7 +3745,7 @@ $$(\mathcal{S}_{t+1}, \mathcal{H}_{t+1}) = \text{Update}(\mathcal{S}_t, \mathcal
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/si/Qwen-3D-teaser-overview.png" width="100%" />
+  <img src="/images/si/Qwen-3D-teaser-overview.webp" width="100%" />
 <figcaption>图 1：Qwen-3D 与传统 2D VLM 的范式对比及全能 2D/3D 多任务能力雷达图</figcaption>
 </div>
 
@@ -3756,7 +3756,7 @@ Qwen-3D 基于 Qwen2.5-VL 基础模型构建，由**几何感知场景表征**�
 - **双分支解码模块**：文本分支负责自回归开放式问答，掩码解码分支直接以全量上下文特征引导可学习 Object Queries，直接输出 2D/3D 分割掩码与文本跨度关联。
 
 <div align="center">
-  <img src="/images/si/Qwen-3D-architecture.png" width="100%" />
+  <img src="/images/si/Qwen-3D-architecture.webp" width="100%" />
 <figcaption>图 2：Qwen-3D 总体网络架构与端到端数据流向</figcaption>
 </div>
 
@@ -3826,7 +3826,7 @@ graph TD
 ```
 
 <div align="center">
-  <img src="/images/si/Qwen-3D-decoding-paradigms.png" width="100%" />
+  <img src="/images/si/Qwen-3D-decoding-paradigms.webp" width="100%" />
 <figcaption>图 3：四种 3D LMM 物体信息解码范式的结构对比</figcaption>
 </div>
 

@@ -839,7 +839,7 @@ graph TD
 ---
 
 <div align="center">
-  <img src="/images/vla/DQN-atari-screenshots.png" width="95%" />
+  <img src="/images/vla/DQN-atari-screenshots.webp" width="95%" />
   <figcaption>图 14.1：DQN 评测的 Atari 2600 经典游戏截图（Pong, Breakout, Space Invaders, Beam Rider, Seaquest）</figcaption>
 </div>
 
@@ -912,7 +912,7 @@ DQN 虽在离散游戏上取得巨大成功，但机器人操作、多足步态�
 ---
 
 <div align="center">
-  <img src="/images/vla/DDPG-environments.png" width="95%" />
+  <img src="/images/vla/DDPG-environments.webp" width="95%" />
   <figcaption>图 14.2：DDPG 求解的 MuJoCo 与物理仿真连续控制环境示例（机械臂抓取、双足行走、车辆驾驶等）</figcaption>
 </div>
 
@@ -989,7 +989,7 @@ TRPO 虽通过二阶 KL 散度约束解决了稳定性，但计算 Fisher 信息
 ---
 
 <div align="center">
-  <img src="/images/vla/PPO-clipped-objective.png" width="85%" />
+  <img src="/images/vla/PPO-clipped-objective.webp" width="85%" />
   <figcaption>图 14.3：PPO 裁剪代理目标 L^CLIP 示意图：在优势为正（左）和优势为负（右）时分别通过截断防止过激更新</figcaption>
 </div>
 
@@ -1062,7 +1062,7 @@ $$
 ---
 
 <div align="center">
-  <img src="/images/vla/SAC-training-curves.png" width="95%" />
+  <img src="/images/vla/SAC-training-curves.webp" width="95%" />
   <figcaption>图 14.4：SAC 在 MuJoCo 连续控制基准（HalfCheetah, Hopper, Walker2d, Ant, Humanoid）上的训练收敛曲线对比</figcaption>
 </div>
 
@@ -1140,7 +1140,7 @@ $$
 ---
 
 <div align="center">
-  <img src="/images/vla/TD3-overestimation-bias.png" width="85%" />
+  <img src="/images/vla/TD3-overestimation-bias.webp" width="85%" />
   <figcaption>图 14.5：DDPG（红线）在训练中 Q 值严重偏离真实累积回报并发生恶性高估，而 TD3（蓝线）的价值估计始终与真实 Returns 紧密重合</figcaption>
 </div>
 
@@ -1211,7 +1211,7 @@ $$
 ---
 
 <div align="center">
-  <img src="/images/wm/WorldModels-flow-diagram.png" width="95%" />
+  <img src="/images/wm/WorldModels-flow-diagram.webp" width="95%" />
   <figcaption>图 14.6：World Models 完整数据流：图像经 V 压缩为潜向量 z_t，与 M 模型的循环隐状态 h_t 拼接输入 C 控制器生成动作 a_t</figcaption>
 </div>
 
@@ -1284,7 +1284,7 @@ $$
 ---
 
 <div align="center">
-  <img src="/images/wm/DreamerV3-training-architecture.png" width="95%" />
+  <img src="/images/wm/DreamerV3-training-architecture.webp" width="95%" />
   <figcaption>图 14.7：DreamerV3 训练流水线：(a) 真实经验学习 RSSM 世界模型；(b) 潜空间展开轨迹；(c) 在想象中优化 Actor-Critic 策略</figcaption>
 </div>
 
@@ -1348,7 +1348,7 @@ $$
 ---
 
 <div align="center">
-  <img src="/images/wm/TD-MPC2-architecture.png" width="95%" />
+  <img src="/images/wm/TD-MPC2-architecture.webp" width="95%" />
   <figcaption>图 14.8：TD-MPC2 架构图：包含编码器、潜动力学模型、奖励预测、双 Q 价值头与策略先验，支持联合多任务训练与在线 MPPI 潜空间推演</figcaption>
 </div>
 
@@ -1417,7 +1417,7 @@ $$
 ---
 
 <div align="center">
-  <img src="/images/vla/Diffusion-Policy-overview.png" width="95%" />
+  <img src="/images/vla/Diffusion-Policy-overview.webp" width="95%" />
   <figcaption>图 14.9：Diffusion Policy 整体架构：输入观测视界 T_o，预测时序动作块 T_p，执行前 T_a 步动作并滚动闭环更新</figcaption>
 </div>
 
@@ -1484,7 +1484,7 @@ Diffusion Policy 在模仿学习上效果惊艳，但完全依赖人类演示数
 ---
 
 <div align="center">
-  <img src="/images/vla/DPPO-augmented-mdp.png" width="95%" />
+  <img src="/images/vla/DPPO-augmented-mdp.webp" width="95%" />
   <figcaption>图 14.10：DPPO 将扩散去噪链建模为内层 MDP 子决策步，外层推进环境真实时间步并接收外部奖励</figcaption>
 </div>
 
@@ -1556,7 +1556,7 @@ $$
 ---
 
 <div align="center">
-  <img src="/images/vla/pistar06-teaser.png" width="90%" />
+  <img src="/images/vla/pistar06-teaser.webp" width="90%" />
   <figcaption>图 14.11：π*₀.₆ 专家干预与强化学习联合后训练体系概览</figcaption>
 </div>
 
@@ -1619,7 +1619,7 @@ graph LR
 ---
 
 <div align="center">
-  <img src="/images/vln/X-NavDP-overview.png" width="95%" />
+  <img src="/images/vln/X-NavDP-overview.webp" width="95%" />
   <figcaption>图 14.12：X-NavDP 整体框架：多构型机器人自引导扰动与组内 Q 值重加权强化后训练</figcaption>
 </div>
 

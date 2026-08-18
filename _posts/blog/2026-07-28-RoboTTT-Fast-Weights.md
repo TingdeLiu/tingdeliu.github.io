@@ -17,7 +17,7 @@ excerpt: "详细剖析 NVIDIA 发布的 RoboTTT 架构。深入探讨测试时�
 然而，在机器人具身智能（Embodied AI）与视觉-语言-动作（VLA）策略领域，绝大多数 SOTA 模型（如 OpenVLA、GR00T-N1.7、Octo 等）依然严重受限于**单帧**或**极短历史帧（通常仅 2–8 帧）**的视觉操控上下文。
 
 <div align="center">
-  <img src="/images/vla/RoboTTT-architecture.png" width="100%" />
+  <img src="/images/vla/RoboTTT-architecture.webp" width="100%" />
 <figcaption>RoboTTT 整体架构、序列训练与推理流程</figcaption>
 </div>
 
@@ -114,7 +114,7 @@ $$O_t = f_{\mathbf{W}_t}(\mathbf{Q}_t)$$
 Query 可以理解为“此刻做决策需要什么信息”，输出 $$O_t$$ 则是受历史影响的特征。注意，这不是从缓存里找回某一张原始画面，而是让已经吸收历史模式的快模型，根据当前需求生成一个有用的历史条件表示。
 
 <div align="center">
-  <img src="/images/vla/RoboTTT-fast-weights-scratchpad.png" width="100%" />
+  <img src="/images/vla/RoboTTT-fast-weights-scratchpad.webp" width="100%" />
 <figcaption>RoboTTT 的直观过程：新观测通过梯度更新写入固定大小的快重，再由 Query 读取历史条件特征</figcaption>
 </div>
 
@@ -141,7 +141,7 @@ Step T ─> 更新 Wₜ₋₁ 得到 Wₜ ─> 用 Query 读取 Wₜ
 RoboTTT 在消融实验中对比了将快模型设计为线性层（TTT-Linear）与 2 层非线性 MLP（TTT-MLP）的性能差异：
 
 <div align="center">
-  <img src="/images/vla/RoboTTT-context-scaling.png" width="100%" />
+  <img src="/images/vla/RoboTTT-context-scaling.webp" width="100%" />
 <figcaption>预训练上下文长度 Scaling 曲线及长程组装任务基准对比</figcaption>
 </div>
 
@@ -256,7 +256,7 @@ flowchart LR
 凭借基于 Fast Weights 的超长上下文存储与检索能力，RoboTTT 涌现出了传统短上下文策略无法具备的高级具身智能：
 
 <div align="center">
-  <img src="/images/vla/RoboTTT-dagger-distillation.png" width="100%" />
+  <img src="/images/vla/RoboTTT-dagger-distillation.webp" width="100%" />
 <figcaption>DAgger Distillation 与长上下文自适应纠错机制</figcaption>
 </div>
 

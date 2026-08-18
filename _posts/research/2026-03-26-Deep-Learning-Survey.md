@@ -171,9 +171,9 @@ $$h^{(l)} = f\left(W^{(l)} h^{(l-1)} + b^{(l)}\right)$$
 | SiLU/Swish | $x \cdot \sigma(x)$ | (-∞, ∞) | 自门控；效果与 GELU 类似 | — | LLaMA、Qwen 等大语言模型 |
 
 <div align="center">
-  <img src="/images/DL/activation-sigmoid.png" width="28%" alt="Sigmoid 激活函数曲线" />
-  <img src="/images/DL/activation-tanh.png" width="28%" alt="Tanh 激活函数曲线" />
-  <img src="/images/DL/activation-relu.png" width="28%" alt="ReLU 激活函数曲线" />
+  <img src="/images/DL/activation-sigmoid.webp" width="28%" alt="Sigmoid 激活函数曲线" />
+  <img src="/images/DL/activation-tanh.webp" width="28%" alt="Tanh 激活函数曲线" />
+  <img src="/images/DL/activation-relu.webp" width="28%" alt="ReLU 激活函数曲线" />
   <figcaption>左：Sigmoid &nbsp;|&nbsp; 中：Tanh &nbsp;|&nbsp; 右：ReLU（当前最常用）</figcaption>
 </div>
 
@@ -486,7 +486,7 @@ BERT 的 MLM（Masked Language Model）可以看作 Transformer 对"双向建模
 **Transformer**（Vaswani et al.，2017）彻底改变了 NLP 乃至整个深度学习格局。它完全放弃了循环和卷积，仅通过**自注意力机制（Self-Attention）**直接建模序列中任意两个位置之间的全局依赖关系。
 
 <div align="center">
-  <img src="/images/DL/Self-Attention.png" width="80%" alt="Self-Attention 架构示意图" />
+  <img src="/images/DL/Self-Attention.webp" width="80%" alt="Self-Attention 架构示意图" />
   <figcaption>Self-Attention 架构：Query、Key、Value 经线性投影后，通过缩放点积计算注意力权重并加权求和得到输出</figcaption>
 </div>
 
@@ -574,7 +574,7 @@ flowchart LR
 Transformer 的核心——自注意力机制是**置换不变的（Permutation Invariant）**。在计算 $O = \sum \alpha_i V_i$ 时，由于加法满足交换律，模型无法分辨输入顺序。如果没有位置信息，句子"你打我"和"我打你"在模型看来是完全一样的。因此，必须将位置信息注入 Input Embedding 中。
 
 <div align="center">
-  <img src="/images/DL/绝对位置编码.png" width="85%" alt="绝对位置编码示意图" />
+  <img src="/images/DL/绝对位置编码.webp" width="85%" alt="绝对位置编码示意图" />
   <figcaption>绝对位置编码</figcaption>
 </div>
 
@@ -584,22 +584,22 @@ $$PE_{(pos, 2i)} = \sin\left(\frac{pos}{10000^{2i/d_{model}}}\right)$$
 $$PE_{(pos, 2i+1)} = \cos\left(\frac{pos}{10000^{2i/d_{model}}}\right)$$
 
 <div align="center">
-  <img src="/images/DL/positional-encoding.png" width="85%" alt="位置编码方式示意图" />
+  <img src="/images/DL/positional-encoding.webp" width="85%" alt="位置编码方式示意图" />
   <figcaption>位置编码方式</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/DL/positional-encoding-visual.png" width="85%" alt="位置编码可视化" />
+  <img src="/images/DL/positional-encoding-visual.webp" width="85%" alt="位置编码可视化" />
   <figcaption>位置编码可视化：不同维度对应不同周期的正余弦波，构成独特的位置指纹</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/DL/Clock-Hands1.png" width="85%" alt="位置编码多频指针示意（一）" />
+  <img src="/images/DL/Clock-Hands1.webp" width="85%" alt="位置编码多频指针示意（一）" />
   <figcaption>多频指针（一）：低维度对应高频指针（"秒针"），每几个 Token 就转完一圈</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/DL/Clock-Hands2.png" width="85%" alt="位置编码多频指针示意（二）" />
+  <img src="/images/DL/Clock-Hands2.webp" width="85%" alt="位置编码多频指针示意（二）" />
   <figcaption>多频指针（二）：高维度对应低频指针（"时针"），共同构成精确定位的位置指纹</figcaption>
 </div>
 
@@ -619,7 +619,7 @@ $$PE_{pos+r} = M_r \cdot PE_{pos}$$
 绝对位置编码把位置信息加在 Input Embedding 上，间接影响 Attention；ALiBi 则在 Attention Score 上强行减去距离偏差。RoPE 选择了另一条路：**在 Q 与 K 做内积之前，直接把位置信息以旋转的方式编码进向量本身**。
 
 <div align="center">
-  <img src="/images/DL/RoPE.png" width="85%" alt="RoPE 旋转位置编码示意图" />
+  <img src="/images/DL/RoPE.webp" width="85%" alt="RoPE 旋转位置编码示意图" />
   <figcaption>RoPE位置编码：每两个维度为一组，根据位置 m 旋转 mθ 角度，将位置信息编码为旋转量</figcaption>
 </div>
 
@@ -648,7 +648,7 @@ $$\langle \text{Q}^{(m)}, \text{K}^{(n)} \rangle = \text{Q}^T \cdot R((m-n)\thet
 内积结果**只依赖相对距离 $m-n$**，而非绝对坐标。这正是 RoPE 最精妙之处——无需像 Relative PE 那样显式建模相对距离，旋转的几何性质自动保证了这一点。
 
 <div align="center">
-  <img src="/images/DL/RoPE1.png" width="85%" alt="RoPE 相对位置性质示意图" />
+  <img src="/images/DL/RoPE1.webp" width="85%" alt="RoPE 相对位置性质示意图" />
   <figcaption>RoPE 的相对位置性质：Q、K 同步旋转，内积仅依赖相对距离 m-n，与绝对位置无关</figcaption>
 </div>
 
@@ -723,7 +723,7 @@ Attention 的最大魅力之一是**可解释性**——每一层每一个头的
 BertViz（Vig, 2019）、attention-flow（Abnar & Zuidema, 2020）等工具能交互式展示这些模式。Clark et al., 2019 "What Does BERT Look At?" 系统分析了 BERT 的 144 个头，发现**大量头捕获了清晰可解释的语法/语义功能**——这是 Transformer 超越"黑盒"标签的重要证据。
 
 <div align="center">
-  <img src="/images/DL/transformer-architecture.png" width="80%" alt="Transformer 架构图" />
+  <img src="/images/DL/transformer-architecture.webp" width="80%" alt="Transformer 架构图" />
   <figcaption>Transformer 架构（Vaswani et al., 2017 "Attention Is All You Need"）</figcaption>
 </div>
 
@@ -1214,7 +1214,7 @@ $$\mathcal{L}_{\text{InfoNCE}} = -\log \frac{\exp(\text{sim}(q, k^+)/\tau)}{\sum
 **Dropout**（Srivastava et al.，2014）：训练时以概率 $p$ 随机将神经元输出置零，测试时关闭 Dropout、所有神经元激活并将输出乘以 $(1-p)$ 缩放。
 
 <div align="center">
-  <img src="/images/DL/dropout.png" width="70%" alt="Dropout 示意图" />
+  <img src="/images/DL/dropout.webp" width="70%" alt="Dropout 示意图" />
   <figcaption>Dropout 示意：训练时随机丢弃神经元（×），相当于对大量子网络取集成</figcaption>
 </div>
 
