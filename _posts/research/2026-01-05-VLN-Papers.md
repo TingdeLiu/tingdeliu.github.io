@@ -7477,6 +7477,7 @@ graph TD
 
   // 另一篇文章的论文清单。两篇的 .paper-section 各自只在本页存在，
   // 所以这些条目不参与显示/隐藏，只在结果面板里作为跨页链接列出。
+  // 由 vln-paper-insert/scripts/sync_remote.py 生成，勿手工编辑。
   var REMOTE_PAGE = { url: '/VLN-Papers-New/', label: '增补篇' };
   var REMOTE_PAPERS = [
     { n: '1. ABot-AgentOS (2026)', a: 'abot-agentos', t: ['Agentic', '拓扑图', '实机部署'] },
