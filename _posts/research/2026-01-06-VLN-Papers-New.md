@@ -1114,6 +1114,131 @@ $$FR = \frac{100}{N} \sum_{i=1}^N \mathbb{I}[F_i = 1]$$
 
 ---
 
+## 11. Route2Step (2026) {#route2step}
+———解耦语义进度与局部执行，通过显式步级接口赋能具身导航纠偏
+
+📄 **Paper**: [arXiv:2608.03143](https://arxiv.org/abs/2608.03143) · [Project Page](https://sisyphus-hxy.github.io/Route2Step/)
+
+### 精华
+1. **解耦语义跟踪与物理执行**：将连续视觉语言导航（VLN-CE）分解为负责全局语义进度的指令分析模块（$\mathcal{M}_{\text{IA}}$）与负责局部运动控制的动作生成模块（$\mathcal{M}_{\text{AG}}$），通过“活动子指令 + 执行状态（Normal/Recovering）”显式接口解耦两者的优化目标与时序感受野。
+2. **免人工标注的几何航路点对齐（E-SPA）**：利用融合视觉语义、动作意图、时长正则及垂直楼梯硬锚点的多模态动态规划，自动将路线级演示切分为有序子指令轨迹段，并将各段终点位姿提取为物理空间中的语义航路点。
+3. **分层纠偏消除错误耦合**：在固定子指令下采样策略 rollout，将离轨与环回轨迹统一转化为物理接地的“状态级监督”（190K 样本），而将专家动作标签严格限制在反复失败的 Recovering 区间（仅 11.5K 样本），根治了传统 DAgger 将偏离统一归咎于动作预测失误的缺陷。
+4. **极高数据效率与即插即用迁移性**：仅用 11.5K 动作监督即超越 200K 传统 DAgger 样本，在 R2R-CE 取得 55.3% SR / 48.2% SPL；预测的活动子指令还能直接注入给 StreamVLN、NaVILA、Uni-NaVid 等冻结模型实现零样本性能跃升。
+
+---
+
+### 1. 研究背景/问题
+现有基于多模态大模型（VLM）的具身导航策略通常采用端到端统一架构，直接从全局长指令和视觉历史预测低层控制动作。然而，当智能体在连续环境中偏离参考路径时，这种统一策略无法区分两种本质不同的错误来源：**语义进度错误**（智能体选错了当前活动的子指令）与**局部执行错误**（智能体明确当前子目标但操作失误，如卡在门框）。
+
+传统的 DAgger 纠偏机制为所有离轨状态直接赋予专家下一步动作标签。这种做法虽然能让机器人暂时回到路线上，但并未显式纠正智能体内部紊乱的语义进度估计；智能体依然在错误的子目标下继续决策，导致后续动作持续失准。如何在无需人工密集标注的前提下，将语义进度跟踪与局部执行解耦，并为不同时序层次精准分配纠偏监督，是实现鲁棒长程具身导航的核心瓶颈。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vln/Route2Step-concept-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:677/682" />
+<figcaption>图 1：Route2Step 将路线级理解与步级局部执行解耦。$\mathcal{M}_{\text{IA}}$ 负责确定当前活跃的子指令，$\mathcal{M}_{\text{AG}}$ 则依据局部观测窗口负责具体执行。</figcaption>
+</div>
+
+#### ① 整体框架概述
+Route2Step 摒弃了传统的端到端直接预测动作模式，构建了由**离线步级对齐引擎 E-SPA**、**指令分析模块 $\mathcal{M}_{\text{IA}}$** 与**动作生成模块 $\mathcal{M}_{\text{AG}}$** 组成的分层架构。$\mathcal{M}_{\text{IA}}$ 依据全局长指令与全量视觉历史确定“当前处于哪个子步骤且是否需要恢复”，$\mathcal{M}_{\text{AG}}$ 则根据显式接口与近期局部观测窗口自回归生成动作块（Action Chunks）。
+
+<div align="center">
+  <img src="/images/vln/Route2Step-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1418/685" />
+<figcaption>图 2：Route2Step 整体架构。$\mathcal{M}_{\text{IA}}$ 输出显式接口 $(s_t, m_t)$，$\mathcal{M}_{\text{AG}}$ 结合全局指令、接口与近期观测输出动作块；离线由 E-SPA 引擎提供步级对齐与物理航路点。</figcaption>
+</div>
+
+#### ② 显式语义-执行接口（MIA 与 MAG）
+系统将导航决策拆分为两个独立优化且具有不同时间感受野的模块：
+- **指令分析模块 $\mathcal{M}_{\text{IA}}$**：
+  $$(s_t, m_t) = \mathcal{M}_{\text{IA}}(I, V_{1:t})$$
+  输入全局指令 $I$ 与全局视觉历史 $V_{1:t}$（按幂律采样至多 13 帧历史 + 3 帧最新观测），输出当前活动的子指令 $s_t$（如 `"Exit the bedroom"`）以及二值执行状态 $m_t \in \{\text{Normal}, \text{Recovering}\}$。
+- **动作生成模块 $\mathcal{M}_{\text{AG}}$**：
+  $$a_{t:t+h} = \mathcal{M}_{\text{AG}}(I, s_t, m_t, V_{t-k:t})$$
+  输入全局指令 $I$、显式接口 $(s_t, m_t)$ 以及短时局部观测窗口 $V_{t-k:t}$（从最新 40 帧中采样 8 帧），自回归预测至多 3 步基元动作块 $a_{t:t+h} \in \{\text{Forward}, \text{Left}, \text{Right}, \text{Stop}\}$。
+
+两模块均基于 Qwen2.5-VL-3B 构建，中间接口通过自然语言文本序列化传递（例如 `Recovering: go through the white door.`）。**两模块之间不跨接口反传梯度**，彻底杜绝了局部动作更新对全局语义进度估计的隐式破坏。
+
+| 比较维度 | 传统统一端到端策略（Unified DAgger） | Route2Step 分层解耦框架 |
+|---|---|---|
+| **决策机制** | $(I, V_{1:t}) \to \text{Actions}$（端到端黑盒隐式推理） | $\mathcal{M}_{\text{IA}}$ 管进度 $(s_t, m_t)$，$\mathcal{M}_{\text{AG}}$ 管执行 $a_{t:t+h}$ |
+| **偏离路线后** | 仅赋予专家动作，语义进度易发生错乱漂移 | 物理航路点锁定 $s_t$ 不变，标记 $m_t=\text{Recovering}$ 专注脱困 |
+| **时序感受野** | 全局历史与局部动作在同一网络内相互干扰 | $\mathcal{M}_{\text{IA}}$ 看宏观历史，$\mathcal{M}_{\text{AG}}$ 专看近 8 帧局部视野 |
+| **纠偏数据分配** | 全量 200K 状态均强行灌入专家动作标签 | 190K 状态级修正 $\mathcal{M}_{\text{IA}}$ + 仅 11.5K 动作级精准纠偏 |
+
+#### ③ E-SPA 离线步级对齐机制
+标准 R2R 数据集仅包含路线级全文，缺乏细粒度时间步标注。E-SPA（Energy-minimizing Semantic Path Alignment）通过四维代价动态规划实现无监督步级切分：
+
+```mermaid
+graph TD
+    A["全局路线指令 I + 专家轨迹 T 帧"] --> B["指令重写为 n 个子指令序列 S = {s1, ..., sn}"]
+    B --> C["构建候选段多模态代价矩阵 C(sk, i, j)"]
+    C --> D["垂直高度差 >= 0.08m 楼梯硬锚点剪枝"]
+    D --> E["动态规划回溯全局最优边界 B* = {b1, ..., bn+1}"]
+    E --> F["提取各段终点位姿作为语义航路点 wk = (pk, thetak)"]
+```
+
+候选段 $[i, j]$ 分配给子指令 $s_k$ 的总代价定义为：
+$$C(s_k, i, j) = \lambda_{\text{sem}} C_{\text{sem}}(s_k, i, j) + \lambda_{\text{act}} C_{\text{act}}(s_k, i, j) + \lambda_{\text{dur}} C_{\text{dur}}(i, j) + \lambda_{\text{anchor}} C_{\text{anchor}}(s_k, i, j)$$
+
+其中：
+1. **语义匹配代价 $C_{\text{sem}}$**：提取 CLIP 归一化特征，通过温度缩放 Softmax 计算负对数似然；
+2. **动作一致性代价 $C_{\text{act}}$**：将子指令的离线动作意图与轨迹实际运动向量求距离；
+3. **时长正则代价 $C_{\text{dur}}$**：$C_{\text{dur}}(i, j) = (L_{i:j} - T/n)^2$，惩罚偏离均匀步长的切分；
+4. **几何锚点约束 $C_{\text{anchor}}$**：检测连续高度变化 $\ge 0.08\text{m}$ 的楼梯区域，作为硬约束分块。
+
+> **举个例子**：一条包含 30 帧的专家轨迹，对应 3 个子指令（理想每段平均长 10 帧）。
+> 若某候选切分把第 1 个子指令切在第 1–3 帧（仅 3 帧），其时长惩罚为 $(3 - 10)^2 = 49$；
+> 动态规划在全局权衡 CLIP 图像相似度、动作意图与时长代价后，自动将其校准在语义与转弯特征最契合的第 1–9 帧区间，并提取第 9 帧机器人的三维坐标与偏航角作为物理语义航路点 $w_1 = (p_1, \theta_1)$。
+
+<div align="center">
+  <img src="/images/vln/Route2Step-geometry-supervision.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:683/504" />
+<figcaption>图 3：几何接地的分层监督机制。(a) 专家参考路径；(b) 步级对齐提取的语义航路点；(c) 固定子指令的策略 rollout 与专家介入式恢复（蓝色实线为 Normal，红色实线为 Recovering，蓝色虚线为失败探索）。</figcaption>
+</div>
+
+#### ④ 几何接地的分层纠偏训练
+模型训练分为两阶段：
+1. **专家路径初始化**：在对齐的专家轨迹上分别初始化 $\mathcal{M}_{\text{IA}}$（标注 $m_t = \text{Normal}$）与 $\mathcal{M}_{\text{AG}}$。
+2. **固定子指令 Rollout 与选择性专家介入**：
+   - 保持当前活动的子指令 $s_k$ 恒定不变，让 $\mathcal{M}_{\text{AG}}$ 以温度 0.5 多次采样 rollout；
+   - 设定物理完成判定：当进入航路点物理范围（$\lVert p_t - p_k \rVert_2 \le 1.5\text{m}$ 且角度误差 $\le 45^\circ$）视为达标；
+   - 若某子指令下多次尝试均告失败，则触发**专家介入**（当偏离距离超阈值时接管引回轨迹）。接管期间标记 $m_t = \text{Recovering}$，引回后交还控制权。整个过程中子目标 $s_k$ 保持不变！
+
+**监督分配法则**：
+- **状态级监督（$\mathcal{D}_S$，190K 样本）**：所有常规与介入 rollout 的历史观测均用来训练 $\mathcal{M}_{\text{IA}}$，让其在各种迷路、环回状态下依然能认清真实语义进度与恢复状态；
+- **动作级监督（$\mathcal{D}_A$，仅 11.5K 样本）**：仅提取反复失败组中 Recovering 区间的专家动作块训练 $\mathcal{M}_{\text{AG}}$，专注于局部避障与脱困。
+
+**损失函数**：
+$$\mathcal{L}_{\text{IA}} = -\mathbb{E}_{\mathcal{D}_E \cup \mathcal{D}_S} \left[ \log p_{\theta_{\text{IA}}}(s_t, m_t \mid I, V_{1:t}) \right]$$
+$$\mathcal{L}_{\text{AG}} = -\mathbb{E}_{\mathcal{D}_E \cup \mathcal{D}_A} \left[ \log p_{\theta_{\text{AG}}}(a_{t:t+h} \mid I, s_t, m_t, V_{t-k:t}) \right]$$
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vln/Route2Step-realworld-trace.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1418/704" />
+<figcaption>图 4：在复杂室内真实环境中的实机导航轨迹。观测图像下方标注了 $\mathcal{M}_{\text{IA}}$ 预测的活动子指令，展现长程任务中清晰可解释的语义进度跟踪。</figcaption>
+</div>
+
+1. **主榜单表现出色**：在连续环境基准 R2R-CE Val-Unseen 上，Route2Step 在仅使用单目 RGB 且无额外数据预训练的条件下，取得了 **55.3% 成功率（SR）** 与 **48.2% SPL**，较专家基线（48.1% SR / 43.3% SPL）提升了 7.2 个百分点；在 RxR-CE Val-Unseen 亦取得 54.8% SR 与 42.6% SPL。
+2. **纠偏监督分配极高能效**：
+   - 传统 DAgger 使用 200K 动作监督仅提升至 49.8% SR；
+   - Route2Step 采用 190K 状态级修正 + **仅 11.5K 动作级监督** 即跃升至 55.3% SR，动作监督量缩减至 1/17，但效果超出 5.5 个百分点。
+3. **偏离状态下语义跟踪准确率跃升**：在 FG-R2R 人工对齐验证集上，面对人为注入的航向偏离、横向绕行、倒车及回环扰动，状态级修正使 $\mathcal{M}_{\text{IA}}$ 的严格子指令跟踪准确率从 43.54% 大幅提升至 **54.05%**（+10.51%）。
+4. **优于 7B 统一端到端大模型**：使用完全相同训练数据的单体 Qwen2.5-VL-7B 统一策略仅取得 50.7% SR / 44.1% SPL，证明显式分层解耦的结构优势显著优于隐式统一策略。
+5. **即插即用的跨策略泛化能力**：将 $\mathcal{M}_{\text{IA}}$ 预测的活动子指令作为外部文本提示直接注入冻结的 NaVid、Uni-NaVid、NaVILA 与 StreamVLN，无需任何二次训练，四款模型的 SR 分别直接提升 **+4.9%、+2.5%、+1.1%、+0.6%**。
+6. **实机部署验证（Unitree GO2 四足机器人）**：搭载 Intel RealSense D455 单目 RGB，在包含实验室、咖啡馆、居民区、公园及停车场等 9 种跨场景测试中取得 19/33 成功率；在 120 词超长复杂室内任务中取得 3/5 成功（平均完成 5.0/7 个子目标），而基线 StreamVLN 成功率为 0/5（仅推进 2.2/7）。
+
+---
+
+### 4. 局限性
+1. 物理语义航路点依赖环境局部连通性假设，当遇到门被完全锁闭或严重遮挡等不可行拓扑时，系统尚缺乏主动重规划全局路线的高层机制。
+2. 采用双 3B VLM 独立运行在端侧推理时带来了双倍的前向计算开销，未来可探索多任务权重共享或轻量化蒸馏压缩。
+
+---
+
 # 参考资料
 
 ## 论文
@@ -1128,6 +1253,7 @@ $$FR = \frac{100}{N} \sum_{i=1}^N \mathbb{I}[F_i = 1]$$
 8. **NAVCON** (2024).
 9. **Agentic Embodied Control** (2026). 极简接口下的通用智能体直接掌控具身交互循环，零样本性能比肩工业级训练策略. arXiv: [2607.26148](https://arxiv.org/abs/2607.26148)
 10. **HumanoidVLN** (2026). 首个面向多样化双足人形机器人的物理真实 VLN 仿真平台与基准. arXiv: [2608.12860](https://arxiv.org/abs/2608.12860)
+11. **Route2Step** (2026). 解耦语义进度与局部执行，通过显式步级接口赋能具身导航纠偏. arXiv: [2608.03143](https://arxiv.org/abs/2608.03143)
 
 
 <script>
@@ -1143,6 +1269,7 @@ $$FR = \frac{100}{N} \sum_{i=1}^N \mathbb{I}[F_i = 1]$$
     { m: 'NAVCON',             t: ['数据集', '连续环境', '离散环境'] },
     { m: 'Agentic Embodied Control', t: ['Agentic', '零样本', '连续环境', '实机部署'] },
     { m: 'HumanoidVLN',           t: ['数据集', '强化学习', '实机部署', '高斯表示'] },
+    { m: 'Route2Step',            t: ['双系统', '连续环境', '实机部署'] },
   ];
 
   // 另一篇文章的论文清单。两篇的 .paper-section 各自只在本页存在，
