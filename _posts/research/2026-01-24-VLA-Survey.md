@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "VLA综述：具身智能路线梳理"
+title: "VLA 综述"
 date:  2026-08-14
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 categories: research

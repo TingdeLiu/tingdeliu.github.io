@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "AI Agent 综述：自主推理与工具调用的范式革命"
+title: "AI Agent 综述"
 date: 2026-08-21
 tags: [Agent, LLM, Multi-Agent, Survey]
 categories: research

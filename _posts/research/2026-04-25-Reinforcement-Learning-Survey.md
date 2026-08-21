@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "强化学习算法全景：从理论基础到具身智能深度演进"
+title: "强化学习综述"
 date: 2026-07-27
 tags: [Reinforcement Learning, RL, Embodied AI, Robotics, World Models, Diffusion Policy, PPO, SAC, TD3, DDPG, Actor-Critic, MDP]
 categories: research

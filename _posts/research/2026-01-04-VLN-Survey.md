@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "VLN 综述（2026）：从指令跟随到具身导航智能体"
+title: "VLN 综述"
 date:   2026-07-27
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research

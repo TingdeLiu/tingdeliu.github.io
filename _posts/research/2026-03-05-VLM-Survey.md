@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "VLM综述：多模态融合方法全景"
+title: "VLM 综述"
 date:  2026-08-14
 tags: [VLM, Computer Vision, Deep Learning, Multimodal]
 categories: research

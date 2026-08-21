@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "VLN最新论文"
+title: "VLN 最新论文"
 date:   2026-08-19
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research

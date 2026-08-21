@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "空间智能综述：从三维感知到空间推理"
+title: "空间智能综述"
 date:  2026-08-14
 tags: [Spatial Intelligence, 3D Vision, NeRF, Point Cloud, Embodied AI, Survey]
 categories: research
