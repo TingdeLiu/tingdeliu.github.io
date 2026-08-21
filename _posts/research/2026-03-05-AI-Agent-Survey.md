@@ -7,7 +7,7 @@ categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划并执行多步骤任务的 AI 系统。本文系统梳理 AI Agent 核心架构、关键技术范式（ReAct、工具调用/MCP、反思、Harness Engineering、Loop Engineering、Graph Engineering、多 Agent）、代表性工作（ReAct、Reflexion、Voyager），并深入介绍 2025–2026 年主流商业 Agent 产品（Manus、Claude Code、OpenAI Codex、Devin、NemoClaw）与主流评测基准，聚焦软件端自主智能体的研究全貌。"
+excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划并执行多步骤任务的 AI 系统。本文系统梳理 AI Agent 核心架构、关键技术范式（ReAct、工具调用/MCP、反思、Harness Engineering、Loop Engineering、Graph Engineering、多 Agent）、代表性工作（ReAct、Reflexion、Voyager），并深入介绍 2025–2026 年主流 Agent 产品与基础设施（Claude Code、OpenAI Codex、Manus、OpenClaw、DeepSeek Harness、Pi Agent、Hermes Agent）、具身控制与物理治理前沿（Thea、Pigey、RoboHarness、Zetta）以及主流评测基准，呈现软硬件智能体的研究全貌。"
 ---
 
 # 1. 引言
@@ -17,15 +17,15 @@ excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划�
 AI Agent 不是一个单一的模型，而是一种**系统架构**：以 LLM 为"大脑"，配备感知、记忆、工具调用和行动能力，形成一个能够在环境中持续循环推理-执行的自主系统。2025–2026 年，AI Agent 已从学术概念迅速走向产业爆发：
 
 - **OpenClaw**（2025 年 11 月发布）在 72 小时内积累 60,000+ GitHub Stars，目前已突破 **280,000 Stars**，成为史上增速最快的开源项目之一；
-- OpenAI 与 Anthropic 定义 **「Harness Engineering（Agent 工程化）」**，随后演进出 **「Loop Engineering（循环工程）」**，共同成为 2026 年工程界最热议的新范式；
-- 代码 Agent 在 SWE-bench 上的成功率从 2024 年底的 55% 跃升至 2025 年底的 70%+，Agent 能力正在快速逼近真实工程任务的实用门槛。
+- OpenAI 与 Anthropic 定义 **「Harness Engineering（Agent 工程化）」**，随后演进出 **「Loop Engineering（循环工程）」** 与 **「Graph Engineering（图智能体工程）」**，共同成为 2026 年工程界最热议的新范式；
+- 代码 Agent 在 SWE-bench 上的成功率从 2024 年底的 55% 跃升至 2025 年底的 70%+，而在具身物理世界中，基于 Harness 治理的机器人智能体（如 Thea、Pigey、Zetta）正大幅突破传统 VLA 模型的编排瓶颈。
 
 <div align="center">
   <img src="/images/agent/ai-agent-architecture-overview.jpg" width="80%" alt="AI Agent 自主推理、工具调用与多 Agent 协同全景" />
   <figcaption>图 1.1：AI Agent（智能体）LLM 大脑、记忆机制、工具调用与闭环 Harness 架构全景示意图</figcaption>
 </div>
 
-本文聚焦软件端 AI Agent，系统梳理其核心架构、关键技术范式、代表性工作、评测基准与最新进展。
+本文系统梳理 AI Agent 的核心架构、关键技术范式、代表性工作、软硬件评测基准与 2025–2026 最新工业及学术进展。
 
 <!-- more -->
 
@@ -162,12 +162,12 @@ flowchart LR
         H --> I["MCP 协议\n工具标准化"]
     end
     I --> J
-    subgraph G2025 ["2025–2026 产业落地"]
-        J["OpenClaw\n通用开源 Agent OS"] --> K["Manus\n通用自主 Agent"]
+    subgraph G2025 ["2025–2026 产业落地与工程深化"]
+        J["OpenClaw\n通用开源 Agent OS"] --> K["Manus / Hermes\n通用自主 Agent"]
         K --> L["Claude Code / Codex\n编程 Agent 商用"]
-        L --> M["Harness Engineering\nAgent 工程化"]
-        M --> N["Loop Engineering\n下一代闭环范式"]
-        N --> O["Graph Engineering\n图智能体工程"]
+        L --> M["Harness Engineering\nAgent 工程化 (dsh / pi)"]
+        M --> N["Loop & Graph Engineering\n闭环与图拓扑工程"]
+        N --> O["Embodied Harness\n物理世界治理与编排 (Thea / Pigey / Zetta)"]
     end
 ```
 
@@ -1168,6 +1168,21 @@ GAIA 考察 Agent 作为通用助手的综合能力。2025 年，H2O.ai 的 h2oG
 
 ---
 
+### 具身智能与物理操作基准 (LIBERO / RoboCasa)
+
+随着具身智能与 Harness 治理范式的深度融合，物理世界操作基准成为了衡量 Agent 物理决策能力的关键标尺：
+
+| 属性 | LIBERO / LIBERO-PRO | RoboCasa |
+|------|---------------------|----------|
+| **发布年份** | 2023 / 2026 (PRO 扩展版) | 2024–2025 |
+| **场景环境** | 桌面操作与长时程物体操作 | 大规模高保真真实家居厨房与生活场景 |
+| **评测重点** | 终身学习能力、跨任务编排与分布外闭环自恢复 | 复杂多房间、长程日常任务规划与双手操作 |
+| **行业代表** | **Pigey、RoboHarness、Zetta** 的核心竞技场 | **Zetta ζ、π0、RoboHarness** 泛化能力评估基准 |
+
+LIBERO-PRO 特别强化了对长程任务执行中因果混淆、视觉遮挡和扰动恢复的测试，是检验具身 Harness 外部治理能力（如故障归因、退出码反馈与策略编排）的首选基准。
+
+---
+
 ### 评测哲学的演进
 
 伴随着 AI Agent 逐步进入真实生产环境，评测哲学完成了从“黑盒最终状态判定（Pass/Fail）”到“执行轨迹与多维质量分析（Trajectory & Performance Analysis）”的进化。目前行业主流（如 LangSmith、Braintrust 等）统一围绕以下三大支柱开展工程测评：
@@ -1206,65 +1221,148 @@ Agent 直接操作 GUI——点击按钮、填写表单、运行脚本，实现 
 
 **2026 年 3 月 6 日**，小米发布 **Xiaomi miclaw**——基于自研 MiMo 大模型的手机端 AI Agent，进入邀请制内测（支持小米 17 系列）。miclaw 可自主调用 50 余项系统功能和第三方应用，用户仅需给出模糊意图，miclaw 负责分解并执行全流程，无需逐步确认。标志着 Agent 能力向消费级移动设备的全面渗透。
 
-## 10.5 机器人控制 Agent
+## 10.5 具身智能与机器人控制 Agent
 
-机器人控制 Agent 是 AI Agent 与物理世界交互的前沿方向，以 LLM 为高层规划器，将自然语言指令转化为机器人可执行的运动序列。与软件 Agent 不同，机器人 Agent 的行动后果不可撤销，对实时性和安全性的要求更高。
+机器人控制 Agent（具身智能体 / Embodied Agents）是 AI Agent 与物理世界交互的最前沿方向。与运行在软件沙箱中的 Agent（其操作通常具备无损可撤销性、环境状态可精确读取）不同，物理世界具有**动作不可逆性、连续时空动态性、感知遮挡与不确定性、以及毫秒级安全硬约束**等本质特征。
 
-**技术栈分层**：
+### 10.5.1 技术范式的三代演进
+
+从早期基于大模型的语义规划，到端到端视觉-语言-行动（VLA）模型，再到 2025–2026 年爆发的 **具身治理 Harness（Embodied Harness）** 架构，具身控制 Agent 经历了三个关键演进阶段：
+
+```mermaid
+flowchart LR
+    subgraph P1["阶段 1：分层语义规划（2022–2023）"]
+        direction TB
+        L1["LLM 规划器"] --> S1["固定技能库 / 代码策略\n(SayCan / Code as Policies)"]
+        S1 --> R1["开环/弱闭环物理执行"]
+    end
+
+    subgraph P2["阶段 2：端到端 VLA 模型（2023–2024）"]
+        direction TB
+        V2["视觉+语言输入"] --> M2["VLA 基础大模型\n(RT-2 / OpenVLA / π0)"]
+        M2 --> R2["直接输出电机控制轨迹\n(缺乏多步推理与纠错)"]
+    end
+
+    subgraph P3["阶段 3：具身 Harness 闭环治理（2025–2026）"]
+        direction TB
+        H3["具身 Harness 治理架构\n(Thea / Pigey / RoboHarness / Zetta)"]
+        H3 --> C3["场景图上下文 + 物理退出码 + 多时间尺度 Critic"]
+        C3 --> E3["编排冻结 VLA / TAMP / 运动策略并实现自演化"]
+    end
+
+    P1 --> P2 --> P3
+```
+
+1. **第一代：分层语义规划与代码生成（2022–2023）**
+   - **核心思想**：LLM 充当高层规划器，输出子任务序列或 Python 控制代码，再映射到底层运动控制器。
+   - **代表工作**：
+     - **SayCan**（Google，2022）：结合 LLM 语义概率与底层机器人的可行性价值函数（Affordance），过滤掉无法执行的动作。
+     - **Code as Policies**（Google DeepMind，2022）：LLM 生成含分支、循环的 Python 控制代码，在控制器沙箱中执行并根据报错重试。
+     - **Voyager**（NVIDIA，2023）：在 Minecraft 开放世界中实现终身学习，自动生成技能代码存入向量技能库并实现跨任务复用。
+   - **核心局限**：开环执行为主，底层技能库固定且脆弱，难以适应复杂的连续 3D 几何与物理交互。
+
+2. **第二代：端到端视觉-语言-动作模型（VLA, 2023–2024）**
+   - **核心思想**：将互联网级多模态预训练权重直接迁移至连续机器人动作生成，实现「图像+指令 $\rightarrow$ 电机轨迹（Pixels-to-Actions）」端到端输出。
+   - **代表工作**：**RT-2**（Google DeepMind，2023）、**OpenVLA**、**Octo**、**$\pi_0$**（Physical Intelligence，2024）。
+   - **核心局限（编排鸿沟）**：虽然底层动作泛化性大幅提升，但 VLA 缺乏深度长程推理、因果判断（Causal Reasoning）与自我反思能力；面对分布外干扰（OOD）和物理执行偏差时极易失效且无法自主恢复。
+
+3. **第三代：具身治理 Harness 与多时间尺度闭环自演化（2025–2026）**
+   - **核心思想**：借鉴软件工程中 **Harness Engineering** 与 **Loop Engineering** 的成功经验，无需重新训练底层大模型，而是在**冻结的基础 VLA / 运动策略**外层构建高效的**外部智能体治理系统（Embodied Harness）**。
+   - **核心机制**：引入 3D 场景图作为空间上下文（Scene Graph Context）、将执行状态与故障诊断抽象为物理退出码（Evaluation as Exit Codes）、部署多时间尺度闭环 Critic 进行毫秒级监控与在线恢复。
+
+---
+
+### 10.5.2 2025–2026 代表性前沿工作
+
+#### 1. Thea: 具身智能体的 Harness 基础设施框架
+**Thea**（Wang et al., 2026 年 8 月，arXiv:2608.11246，*Towards the Harness of Embodied Agents*）探讨了如何将 Coding Agent 的 Harness 范式平移到具身智能领域：
+
+- **核心洞察**：在软件开发中，代码库上下文是可读的、终端提供了明确的 Exit Codes 与报错堆栈，而**物理世界天然缺乏“状态自省”与“标准退出码”**。
+- **两大核心支柱**：
+  1. **Scene Graph as Context**：以持久化、结构化的符号化 3D 场景图作为智能体的高层环境记忆与上下文，使 Agent 能够像读取代码文件一样读取物理世界状态；
+  2. **Evaluation as Exit Codes**：构建动作终止检测、成败裁决与细粒度故障归因机制（如抓取滑脱、视线遮挡、逆运动学无解），为 Agent 提供闭环反思依据。
+- **工具化封装**：将机械臂轨迹规划、导航与抓取策略统一封装为可调用的标准化工具（Callable Tools），使上层 Agent 能在闭环循环中完成长程复杂任务。
+
+```mermaid
+flowchart TB
+    subgraph Thea["Thea 具身 Harness 闭环架构"]
+        SG["🗺️ Scene Graph as Context\n持久化 3D 符号场景图（状态读取）"]
+        AGENT["🧠 高层 Agentic 推理调度器\n(Task Decomposition & Tool Selection)"]
+        TOOLS["⚙️ 机器人能力工具库 (Callable Tools)\n(VLA Policy / TAMP Planner / Nav Primitive)"]
+        EXIT["🎯 Evaluation as Exit Codes\n终止判定 · 成败评估 · 故障诊断"]
+    end
+
+    SG -->|"环境上下文"| AGENT
+    AGENT -->|"工具调用指令"| TOOLS
+    TOOLS -->|"物理执行"| ENV(["🌐 物理世界"])
+    ENV -->|"视觉 / 力觉反馈"| EXIT
+    EXIT -->|"Exit Code & 失败归因"| AGENT
+    EXIT -->|"增量更新"| SG
+```
+
+#### 2. Pigey: 突破通用机器人的编排鸿沟
+**Pigey**（Galanti et al., 2026 年 7 月，arXiv:2607.21725，[GitHub: lianegalanti/Pigey](https://github.com/lianegalanti/Pigey)）提出了针对通用机器人的物理智能体编排器（Physical Agency Orchestrator）：
+
+- **编排鸿沟（The Orchestration Gap）**：实验表明，冻结的底层运动策略（如 $\pi_{0.5}$-DROID、TAMP 规划器）在单步动作执行上已相当成熟，但由于缺乏高层状态管理和闭环纠错，复合任务成功率常低于 15%。
+- **核心机制**：Pigey 充当高层管理者（Manager），将长程任务动态分解为连续子目标，并在每个动作执行后执行**闭环视觉结果验证（Outcome Verification）**与**自适应故障恢复（Error Recovery）**，无需微调任何底层策略。
+- **性能飞跃**：
+  - 在 **LIBERO-PRO** 仿真基准上，将现有 SOTA 成功率从 **12.8% 提升至 53.3%**（提升超 4 倍）；
+  - 在真实 **Franka Emika FR3** 机械臂上，将原本成功率接近 0% 的推理密集型任务（如多步顺序依赖装配）提升至 **90% 以上**。
+
+#### 3. RoboHarness: 记忆增强的 VLA Harness 与异构策略编排
+**RoboHarness**（2026，arXiv:2603.24060 & 2607.18060）代表了针对 VLA 模型加固与异构策略编排的双重突破：
+
+- **VLA 记忆加固（Memory-Augmented Policy Harness）**：针对冻结 VLA 应对视觉扰动和语义歧义脆弱的问题，引入**对比双记忆 RAG**、**归因驱动 MLLM 编排器**和**动态 MCP 干预**。在线检测因果混淆并在关键时刻介入修正，在 LIBERO-RoboHarness 基准上长程任务串联成功率提升 89.1%。
+- **异构策略编排（Heterogeneous Policy Orchestration）**：将不同来源的控制策略（VLA、强化学习 RL、经典运动规划 TAMP、模型预测控制 MPC）抽象为统一技能，利用**多模态执行记忆桥（Memory Bridge）**将机器人状态平滑引导至下游策略的可行分布（In-Distribution）区域，消除跨策略衔接的分布漂移。
+
+#### 4. Zetta $\zeta$: 闭环自演化具身 Harness
+**Zetta $\zeta$**（AIR 清华大学 & 具身大脑开源项目，2026 年 8 月，arXiv:2608.xxxx，[GitHub: air-embodied-brain/Zetta-Embodiment](https://github.com/air-embodied-brain/Zetta-Embodiment)）构建了首个高效闭环自演化具身 Harness 框架：
+
+- **三时间尺度闭环架构（Three-Timescale Loops）**：
+  - **快循环（Action-frequency Governance）**：毫秒级运行代码 Critic，实时监控底层轨迹偏差并执行安全熔断；
+  - **中循环（Rollout-level Critic-Recovery）**：任务级状态反思，在技能执行异常时生成针对性恢复动作（Recovery Skills）；
+  - **慢循环（Validation-gated Evolution）**：通过自探索（Self-exploration）不断演化并验证新的代码 Critic 与技能库，实现物理智能的持续生长。
+- **Z-Infra 基础设施**：将 Agent 认知逻辑与异构硬件算力彻底解耦，支持超大规模并行交互。
+- **实测表现**：在 LIBERO-Pro 达到 **90.8%** 成功率，RoboCasa 达到 **93.6%** 成功率，且推理延迟相比基线框架 **RPent**（Recursive Physical Agent）降低 **11.1 倍**。
+
+#### 5. RPent: 递归物理智能体框架
+**RPent**（Recursive Physical Agent，RLinf 开源项目）是一个面向物理交互自演化的具身 Agent 框架。它以服务化设计（Service-Oriented Design）解耦感知、规划、记忆和动作服务，提供标准的 VLA 策略注入接口，是 2026 年具身智能基础测试与自演化研究的重要开源基石。
+
+---
+
+### 10.5.3 主流具身 Agent 技术路线对比
+
+| 架构维度 | 传统分层规划 (SayCan / CaP) | 端到端 VLA (RT-2 / π0) | 具身 Harness (Thea / Pigey / Zetta) |
+|:---|:---|:---|:---|
+| **核心执行器** | 固定 API / 代码生成 | 深度神经网络权重 (Weights) | 冻结 VLA + 异构策略库 + 工具调用 |
+| **空间上下文** | 文本描述 / 离散物体名 | 2D 像素流 (Raw Pixels) | 3D 符号场景图 (Scene Graph Context) |
+| **状态反馈与诊断** | 弱反馈（文本报错） | 无（开环动作预测） | 物理退出码 (Exit Codes) + 细粒度归因 |
+| **故障恢复能力** | 依赖重新生成 Prompt | 无自我纠错能力 | 动态 Critic 拦截 + 在线反思与重试 |
+| **模型微调需求** | 无需微调 | 需海量机器人轨迹微调 | **零微调（Zero-tuning）**，纯外部 Harness 赋能 |
+| **长程任务成功率** | 低（易受累积误差影响） | 中低（缺乏推理深度） | **极高（4x+ SOTA 提升）** |
+
+---
+
+### 10.5.4 实体硬件部署与社区生态（OpenClaw / MCP / 仿生人形）
+
+2026 年，具身 Agent 技术正通过开放协议与消费级/工业级硬件迅速下沉：
 
 ```
-自然语言指令
-      ↓
-高层规划（LLM）：任务分解、物体识别、步骤推理
-      ↓
-中层技能（Code as Policies / SayCan）：将子任务映射为原子技能调用
-      ↓
-底层控制（运动规划器）：轨迹生成、力控、实时反馈
-      ↓
-物理执行（机械臂 / 移动机器人）
-```
-
-**代表性工作**：
-
-**SayCan**（Google，2022）：首个将 LLM 语义规划与机器人可行性约束结合的框架。LLM 生成候选动作序列，但每个动作的执行概率由机器人的实际技能模型打分——「价值函数」过滤掉机器人做不到的动作，保证规划结果的物理可行性。
-
-**Code as Policies**（Google DeepMind，2022）：LLM 直接生成 Python 机器人控制代码，利用代码的条件分支和循环表达复杂操作逻辑（如「将红色方块放到蓝色方块右边，距离 5 cm」）。生成代码在机器人控制器沙箱中执行，失败时将报错反馈给 LLM 重新生成。
-
-**RT-2**（Google DeepMind，2023）：视觉-语言-行动（VLA）模型，将网络规模的视觉-语言预训练知识迁移到机器人操作，首次实现「看图理解语义 → 直接输出电机控制指令」的端到端流程，无需手工设计技能库。在新物体、新场景下的泛化能力大幅超越传统方法。
-
-**Voyager**（NVIDIA，2023）：在 Minecraft 开放世界中构建**终身学习**机器人 Agent，通过持续生成代码技能并存入技能库，实现跨任务能力复用。其「自动课程 + 技能库 + 迭代提示」架构对真实机器人的持续学习具有重要参考价值。
-
-**核心挑战**：
-- **感知不确定性**：真实场景的光照变化、遮挡和物体姿态多样性远超仿真，LLM 依赖视觉感知的准确性
-- **时序实时性**：LLM 推理延迟（数百毫秒）与机器人控制频率（100 Hz+）之间存在本质矛盾，需要分层架构解耦
-- **安全边界**：错误的物理动作可能损坏设备或伤人，Agent 需要在执行前验证动作可行性
-
-### OpenClaw 直接操控实体机器人
-
-2026 年初，一个意外的现象让机器人 Agent 领域迅速升温：**社区开发者将 OpenClaw 的 MCP 工具层直接对接到机器人控制 API，用 Telegram/WhatsApp 发一条消息，就能让 Unitree G1 人形机器人执行搬运、抓取、导航等任务**。这一玩法因操作门槛极低（无需懂 ROS，无需写控制代码）在中文和英文技术社区同步爆火。
-
-**技术路径**：OpenClaw 本身不感知物理世界，但其 MCP 工具路由机制可将任意外部 API 封装为「技能」。机器人控制层需单独接入：
-
-```
-用户（Telegram）："把桌上的红色水杯移到右边架子上"
+用户指令（Telegram / 语音 / CLI）
        ↓
-OpenClaw Gateway（语义理解 + 任务规划）
-       ↓ MCP 工具调用
-robot_see()        → 调用机器人摄像头 + 视觉模型，返回场景描述和物体坐标
-robot_grasp(obj)   → 向机械臂控制器发送抓取指令（目标物体 + 位姿）
-robot_move(target) → 发送导航指令（目标位置）
-robot_release()    → 松开夹爪
-       ↓
-执行结果回传 → OpenClaw 判断是否成功，失败则重规划
+通用 Agent OS / Gateway (如 OpenClaw / Claude Code)
+       ↓ MCP (Model Context Protocol) 标准协议
+具身治理 Harness 层 (Thea / Pigey / Zetta 安全护栏与退出码评估)
+       ↓ ROS2 / DDS 中间件
+底层驱动与控制器 (Unitree G1 / Franka FR3 / AgileX 底盘)
 ```
 
-**实机演示（Unitree G1）**：社区发布的测评视频中，OpenClaw 通过上述流程驱动 Unitree G1 完成「整理桌面」「递送物品」「跟随引导」等任务。LLM 负责高层语义理解和容错重规划，底层运动控制仍由 Unitree 原生控制器保障安全。
+1. **MCP 标准在机器人领域的统一**：社区开发者广泛利用 **Model Context Protocol（MCP）** 将机器人能力抽象为标准化微服务（如 `robot_locate_object()`、`robot_vla_grasp()`、`robot_navigate_to()`），打通了软件 Agent（如 OpenClaw、Claude）与物理机器人之间的协议壁垒。
+2. **实机交互案例**：通过 MCP 接入 Unitree G1 人形机器人与机械臂，用户仅需在 IM 聊天框发送自然语言指令，Agent 即可自主调用视觉模型完成定位、调度 VLA 执行精准抓取、并在受阻时自动调用重试策略。
+3. **产业扶持与落地**：多地政府与产业基金（如无锡 2026 年设立的数百万元专项奖励）已将开源 Agent 操作系统与具身人形机器人的融合列为重点支持方向。
+4. **安全护栏与硬约束（Safety Guardrails）**：物理部署的核心底线在于安全性。现代具身 Harness 在底层接入了不可逾越的运动学限位、力矩安全阈值、防碰撞体积盒与硬件级急停机制，确保高层 Agent 的探索与推理在严格的物理安全边界内运行。
 
-**地方政府入局**：中国无锡市于 2026 年 2 月宣布，面向使用 OpenClaw 在机器人和工业应用领域取得突破的团队提供最高 **500 万元人民币**奖励，标志着这一民间技术探索开始获得政府层面的产业政策支持。
-
-**局限与风险**：OpenClaw 机器人方案的核心瓶颈是**安全性**——OpenClaw 本身没有机器人专属的安全约束层，LLM 生成的动作指令可能越出机器人运动范围，导致硬件损坏。现有社区方案普遍依赖机器人厂商的底层保护机制兜底，尚不适合无人值守的工业部署。
-
-**延伸阅读**：机器人控制 Agent 与视觉语言导航（VLN）高度交叉，可在 [VLN Papers 合集](https://tingdeliu.github.io/VLN-Papers/) 首页通过 **Agent** 标签筛选相关论文，目前匹配条目包括：ODYSSEY (2025)、PanoNav (2025)、NavGPT (2024)、NavGPT-2 (2024)、Open-Nav (2025)、CausalNav (2026)、AgentVLN (2026)、RoboClaw (2026)、SysNav (2026)、ABot-Claw (2026)。
+**延伸阅读**：具身控制 Agent 与视觉语言导航（VLN）及世界模型高度交叉，可在 [VLN Papers 合集](https://tingdeliu.github.io/VLN-Papers/) 首页通过 **Agent** 标签筛选相关论文，目前匹配条目包括：ODYSSEY (2025)、PanoNav (2025)、NavGPT-2 (2024)、Open-Nav (2025)、CausalNav (2026)、AgentVLN (2026)、RoboClaw (2026)、SysNav (2026)、ABot-Claw (2026)。
 
 
 # 11. 优秀 Agent 示例
@@ -2308,44 +2406,52 @@ AI Agent 代表了人工智能从"理解"走向"行动"的核心范式转变。�
 4. Yao, S., et al. "Tree of Thoughts: Deliberate Problem Solving with Large Language Models." *NeurIPS 2023*. Princeton & Google DeepMind.
 5. Hao, S., et al. "Reasoning with Language Model is Planning with World Model." *EMNLP 2023*. （RAP，MCTS + LLM）
 
-**代表性工作**
+**具身智能与物理控制 Agent**
 
 6. Wang, G., et al. "Voyager: An Open-Ended Embodied Agent with Large Language Models." *NeurIPS 2023*. NVIDIA.
 7. Liang, J., et al. "Code as Policies: Language Model Programs for Embodied Control." *ICRA 2023*. Google DeepMind.
 8. Ahn, M., et al. "Do As I Can, Not As I Say: Grounding Language in Robotic Affordances." *arXiv 2204.01691*, 2022. Google. （SayCan）
 9. Brohan, A., et al. "RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control." *arXiv 2307.15818*, 2023. Google DeepMind.
+10. Wang, Q., Wang, T., Li, C., Ban, S., Chen, Y., Ge, Y., Qin, J., Li, C., and Zhu, W. "Thea: Towards the Harness of Embodied Agents." *arXiv 2608.11246*, 2026.
+11. Galanti, L., et al. "Addressing the Orchestration Gap in Generalist Robots via Physical Agency." *arXiv 2607.21725*, 2026. （Pigey）
+12. "RoboHarness: Memory-Augmented Policy Harness for Vision-Language-Action Models." *arXiv 2603.24060 / 2607.18060*, 2026.
+13. "Zetta ζ: An Efficient Closed-Loop Embodied Harness for Self-Evolving Physical Intelligence." *arXiv 2608.xxxxx*, AIR Tsinghua & Embodied Brain, 2026.
+14. RLinf. "RPent: Recursive Physical Agent Infrastructure for Self-Evolving Embodiment." *github.com/rlinf-ai/RPent*, 2026.
 
 **评测基准**
 
-10. Jimenez, C., et al. "SWE-bench: Can Language Models Resolve Real-World GitHub Issues?" *ICLR 2024*.
-11. Xie, T., et al. "OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments." *NeurIPS 2024*.
-12. Liu, X., et al. "AgentBench: Evaluating LLMs as Agents." *ICLR 2024*.
-13. Mialon, G., et al. "GAIA: A Benchmark for General AI Assistants." *ICLR 2024*. Meta AI & HuggingFace.
+15. Jimenez, C., et al. "SWE-bench: Can Language Models Resolve Real-World GitHub Issues?" *ICLR 2024*.
+16. Xie, T., et al. "OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments." *NeurIPS 2024*.
+17. Liu, X., et al. "AgentBench: Evaluating LLMs as Agents." *ICLR 2024*.
+18. Mialon, G., et al. "GAIA: A Benchmark for General AI Assistants." *ICLR 2024*. Meta AI & HuggingFace.
+19. Liu, B., et al. "LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning." *NeurIPS 2023*.
+20. Makatura, K., et al. "RoboCasa: Large-Scale Simulation of Everyday Household Tasks for Generalist Robots." *arXiv 2406.02540*, 2024.
 
 **产品与工程**
 
-14. Anthropic. "Model Context Protocol (MCP) Specification." *spec.modelcontextprotocol.io*, November 2024. Accessed March 2026.
-15. OpenAI. "Harness Engineering for Long-Running Agents." *openai.com/research*, February 2026. Accessed March 2026.
-16. Anthropic. "Effective Harnesses for Long-Running Agents." *anthropic.com/research*, 2026. Accessed March 2026.
-17. Butterfly Effect. "Manus: A General AI Agent." *manus.im*, March 2025. Accessed March 2026.
-18. Cognition AI. "Devin: The First AI Software Engineer." *cognition.ai/blog*, March 2024. Accessed March 2026.
-19. Cognition AI. "Devin 2.0: AI Software Engineer." *cognition.ai/blog*, April 2025. Accessed March 2026.
-20. Tingde Liu. "Loop Engineering: Agent 工程化的下一代闭环范式." *tingdeliu.github.io/loop-engineering/*, July 2026. Accessed July 2026.
-21. DeepSeek AI. "DeepSeek Harness: Everything is a Plugin." *github.com/deepseek-ai/deepseek-harness*, August 2026. MIT License. Accessed August 2026.
-22. DeepSeek AI. "DeepSeek Harness Architecture." *docs/architecture.md*, August 2026. （Cordis 插件树、能力 seam、轮次-步骤流程）Accessed August 2026.
-23. DeepSeek AI. "DeepSeek-V4-Pro-0813 Release Notes." *api-docs.deepseek.com*, August 2026. Accessed August 2026.
-24. Cordiverse. "A Programming Paradigm for Spatiotemporal Composability." *github.com/cordiverse/paper*, 2026. （dsh 底层插件内核的设计论文）
-25. Zechner, M., et al. "Pi Agent Harness." *github.com/earendil-works/pi*, 2026. MIT License. Accessed August 2026.
-26. Databricks. "Benchmarking Coding Agents on Databricks' Multi-Million Line Codebase." *databricks.com/blog*, 2026. Accessed August 2026.
+21. Anthropic. "Model Context Protocol (MCP) Specification." *spec.modelcontextprotocol.io*, November 2024. Accessed March 2026.
+22. OpenAI. "Harness Engineering for Long-Running Agents." *openai.com/research*, February 2026. Accessed March 2026.
+23. Anthropic. "Effective Harnesses for Long-Running Agents." *anthropic.com/research*, 2026. Accessed March 2026.
+24. Butterfly Effect. "Manus: A General AI Agent." *manus.im*, March 2025. Accessed March 2026.
+25. Cognition AI. "Devin: The First AI Software Engineer." *cognition.ai/blog*, March 2024. Accessed March 2026.
+26. Cognition AI. "Devin 2.0: AI Software Engineer." *cognition.ai/blog*, April 2025. Accessed March 2026.
+27. Tingde Liu. "Loop Engineering: Agent 工程化的下一代闭环范式." *tingdeliu.github.io/loop-engineering/*, July 2026. Accessed July 2026.
+28. Nous Research. "Hermes Agent: Self-Improving Open Agent Architecture & GEPA." *nousresearch.com*, 2026.
+29. DeepSeek AI. "DeepSeek Harness: Everything is a Plugin." *github.com/deepseek-ai/deepseek-harness*, August 2026. MIT License. Accessed August 2026.
+30. DeepSeek AI. "DeepSeek Harness Architecture." *docs/architecture.md*, August 2026. （Cordis 插件树、能力 seam、轮次-步骤流程）Accessed August 2026.
+31. DeepSeek AI. "DeepSeek-V4-Pro-0813 Release Notes." *api-docs.deepseek.com*, August 2026. Accessed August 2026.
+32. Cordiverse. "A Programming Paradigm for Spatiotemporal Composability." *github.com/cordiverse/paper*, 2026. （dsh 底层插件内核的设计论文）
+33. Zechner, M., et al. "Pi Agent Harness." *github.com/earendil-works/pi*, 2026. MIT License. Accessed August 2026.
+34. Databricks. "Benchmarking Coding Agents on Databricks' Multi-Million Line Codebase." *databricks.com/blog*, 2026. Accessed August 2026.
 
 **Agent 安全**
 
-27. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
-28. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
-29. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
+35. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
+36. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
+37. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
 
 **综述与背景**
 
-30. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
-31. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
-32. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
+38. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
+39. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
+40. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
