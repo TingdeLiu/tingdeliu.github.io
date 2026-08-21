@@ -1316,7 +1316,7 @@ flowchart TB
 - **异构策略编排（Heterogeneous Policy Orchestration）**：将不同来源的控制策略（VLA、强化学习 RL、经典运动规划 TAMP、模型预测控制 MPC）抽象为统一技能，利用**多模态执行记忆桥（Memory Bridge）**将机器人状态平滑引导至下游策略的可行分布（In-Distribution）区域，消除跨策略衔接的分布漂移。
 
 #### 4. Zetta $\zeta$: 闭环自演化具身 Harness
-**Zetta $\zeta$**（AIR 清华大学 & 具身大脑开源项目，2026 年 8 月，arXiv:2608.xxxx，[GitHub: air-embodied-brain/Zetta-Embodiment](https://github.com/air-embodied-brain/Zetta-Embodiment)）构建了首个高效闭环自演化具身 Harness 框架：
+**Zetta $\zeta$**（AIR 清华大学 & 具身大脑开源项目，2026 年 8 月，arXiv:2608.16590，[GitHub: air-embodied-brain/Zetta-Embodiment](https://github.com/air-embodied-brain/Zetta-Embodiment)）构建了首个高效闭环自演化具身 Harness 框架：
 
 - **三时间尺度闭环架构（Three-Timescale Loops）**：
   - **快循环（Action-frequency Governance）**：毫秒级运行代码 Critic，实时监控底层轨迹偏差并执行安全熔断；
@@ -1327,6 +1327,58 @@ flowchart TB
 
 #### 5. RPent: 递归物理智能体框架
 **RPent**（Recursive Physical Agent，RLinf 开源项目）是一个面向物理交互自演化的具身 Agent 框架。它以服务化设计（Service-Oriented Design）解耦感知、规划、记忆和动作服务，提供标准的 VLA 策略注入接口，是 2026 年具身智能基础测试与自演化研究的重要开源基石。
+
+
+#### 6. 具身导航 Agent：同一套思想在导航域的独立收敛
+
+上述五项工作全部聚焦**桌面操作**（机械臂抓取、装配），基准也集中在 LIBERO 与 RoboCasa。而在**具身导航**这条平行赛道上，2026 年出现了几乎同构的演进——同样是「冻结底层策略 + 外层 Agent 治理」，同样把环境抽象为结构化场景图、把执行结果抽象为可判读的反馈信号。两条赛道彼此几乎没有互相引用，却收敛到了同一套架构直觉：
+
+- **ABot-AgentOS**（高德 CVLab，2026 年 7 月，[arXiv:2607.10350](https://arxiv.org/abs/2607.10350)）：定位为「通用机器人 Agent 操作系统」，**部署在底层机器人控制器与高层 VLM/VLA 之间**，由边云协同双 LLM 核心、**Agent Harness 调度闭环**、通用多模态图记忆与端到端蒸馏管线四部分构成。它解决的问题与 Thea 完全一致——传统单一模型控制器缺乏显式终止信号、执行过程会漂移。其边云协同还额外承担隐私分级：人脸、私人物品等私有记忆留在边缘，仅路障、地标等公共环境记忆上云共享，隐私分类准确率 **99% 以上**。
+- **AgenticNav**（2026 年 6 月，[arXiv:2606.10577](https://arxiv.org/abs/2606.10577)）：把零样本连续环境导航（VLN-CE）**重新定义为 VLM 与环境之间的 Tool-Calling 交互 Harness**，从而摆脱对额外训练的航点预测器（Waypoint Predictor）的依赖。这与 Thea 的「Callable Tools」是同一思路在导航域的独立实现。
+- **AgentVLN**（2026 年 3 月，[arXiv:2603.17670](https://arxiv.org/abs/2603.17670)）：提出 **VLM-as-Brain** 范式，VLM 只做高层语义推理与技能调度，感知、规划、控制封装为即插即用技能库。其 **QD-PCoT** 机制赋予模型元认知能力——遇到空间歧义时主动生成自然语言查询（如「前方椅子有几米？」）调用感知技能获取深度，而非盲目回归坐标。**3B 参数量在 R2R/RxR 双榜超越 7B+ 的先前 SOTA**，且可部署于 Jetson 边缘平台。
+- **SysNav**（2026 年 3 月，[arXiv:2603.06914](https://arxiv.org/abs/2603.06914)）：构建 **Room → Viewpoint → Object 三层场景图**作为 VLM 的结构化上下文，与 Thea 的 Scene Graph as Context 高度一致。其核心洞见是**限制 VLM 的决策粒度**——不用于细粒度 frontier 决策，只做房间级高层规划，并通过 Early-stop 与 Room-query 两种模式按需触发，避免冗余调用。系统在三种机器人平台上完成跨本体部署。
+
+```mermaid
+flowchart LR
+    subgraph MANIP["🦾 操作域（Thea / Pigey / Zetta）"]
+        direction TB
+        M1["3D 符号场景图\nScene Graph as Context"]
+        M2["机器人能力工具库\nVLA / TAMP / Nav Primitive"]
+        M3["物理退出码\nEvaluation as Exit Codes"]
+        M4["多时间尺度 Critic\n拦截 · 恢复 · 演化"]
+    end
+
+    subgraph NAV["🧭 导航域（ABot-AgentOS / AgenticNav / SysNav）"]
+        direction TB
+        N1["三层拓扑场景图\nRoom → Viewpoint → Object"]
+        N2["导航技能工具库\nTool-Calling 接口"]
+        N3["多级验证与终止信号\n显式终止判定"]
+        N4["图记忆与失败反思\n边云协同记忆"]
+    end
+
+    M1 <-.->|"同构"| N1
+    M2 <-.->|"同构"| N2
+    M3 <-.->|"同构"| N3
+    M4 <-.->|"同构"| N4
+```
+
+#### 7. 人形与全身控制：物理真实性带来的新约束
+
+上述工作大多默认底盘或机械臂「一定能走到 / 一定能动」。一旦换成**双足人形机器人**，这个假设立刻崩塌——高层规划再正确，底层步态失稳也会直接摔倒。
+
+- **HumanoidVLN**（2026 年 8 月，[arXiv:2608.12860](https://arxiv.org/abs/2608.12860)，[项目主页](https://humanoid-vln.github.io/)）是**首个面向多样化双足人形机器人的物理真实 VLN 仿真平台与基准**。它基于 NVIDIA Isaac Sim 建立全物理仿真，**打破了以往 VLN 评测中普遍存在的「运动学传送」假设**（智能体决策后直接瞬移到目标位姿），将高层 VLN 规划与底层强化学习步态控制解耦评测，从而暴露出传统无物理仿真所掩盖的跌倒与步态失稳问题。基准含 **933 个**经人工 100% 复核的评测 Episode；在四种主流 VLN 模型的零样本评测中，引入显式 3D 空间记忆的 JanusVLN 取得最高平均成功率（SR **43.55%**、nDTW **48.38**）——**这个数字远低于同类模型在传送式基准上的表现，说明「物理可行性」是此前被系统性高估的一环**。
+
+#### 8. 一个反例：Harness 的收益并非在所有具身任务上都成立
+
+**Agentic Embodied Control**（2026 年 7 月，[arXiv:2607.26148](https://arxiv.org/abs/2607.26148)）给出了一个值得警惕的实验结果。该工作证明：**冻结权重的通用大模型，仅凭通用代码 Agent 框架（Harness）加最极简的感知-动作接口**——单目 RGB + 位姿反馈，外加 4 个离散动作原语（前进 0.25 m、左转 15°、右转 15°、停止）——即可完全自主掌控具身交互循环，前沿推理模型在 R2R-CE 连续导航基准上达到 **70.7%～78%** 成功率，直接比肩工业级规模训练的专用导航策略。
+
+但真正关键的是它的消融实验：
+
+> **底层基础模型的能力起决定性支配作用**（更换模型导致成功率跨度高达 **5%～72%**），而**不同通用 Agent Harness 之间的差异微乎其微，仅 1.7%～7.3%**。
+
+这与 2.7 节引用的 Databricks 编码域结论（同模型换 harness，每任务成本相差 2 倍以上）恰好相反。合理的解释是：**编码任务的瓶颈在上下文组织，而具身导航的瓶颈在空间推理本身**——前者可由 Harness 显著改善，后者只能靠模型能力。这提示「Harness 决定成败」并非普适定律，其收益高度依赖任务的瓶颈所在。
+
+该工作还有一个耐人寻味的发现：强制智能体使用航点预测器反而限制了强模型；而把航点作为**可选工具**开放时，智能体自主涌现出「远距离选航点快速巡航 + 目标附近切原语精细微调」的混合策略，以 **50% 的步数**和不足四分之一的耗时达到 **76.7%** 成功率。
 
 ---
 
@@ -1340,6 +1392,7 @@ flowchart TB
 | **故障恢复能力** | 依赖重新生成 Prompt | 无自我纠错能力 | 动态 Critic 拦截 + 在线反思与重试 |
 | **模型微调需求** | 无需微调 | 需海量机器人轨迹微调 | **零微调（Zero-tuning）**，纯外部 Harness 赋能 |
 | **长程任务成功率** | 低（易受累积误差影响） | 中低（缺乏推理深度） | **极高（4x+ SOTA 提升）** |
+| **导航域对应工作** | NavGPT-2 / Open-Nav | NaVid / StreamVLN / NavFoM | AgentVLN / SysNav / AgenticNav / ABot-AgentOS |
 
 ---
 
@@ -1347,14 +1400,14 @@ flowchart TB
 
 2026 年，具身 Agent 技术正通过开放协议与消费级/工业级硬件迅速下沉：
 
-```
-用户指令（Telegram / 语音 / CLI）
-       ↓
-通用 Agent OS / Gateway (如 OpenClaw / Claude Code)
-       ↓ MCP (Model Context Protocol) 标准协议
-具身治理 Harness 层 (Thea / Pigey / Zetta 安全护栏与退出码评估)
-       ↓ ROS2 / DDS 中间件
-底层驱动与控制器 (Unitree G1 / Franka FR3 / AgileX 底盘)
+```mermaid
+flowchart TB
+    U["💬 用户指令\nTelegram / 语音 / CLI"]
+    U --> GW["🖥️ 通用 Agent OS / Gateway\nOpenClaw · Claude Code · dsh"]
+    GW -->|"MCP 标准协议"| HN["🛡️ 具身治理 Harness 层\nThea · Pigey · Zetta · ABot-AgentOS\n安全护栏 · 退出码评估 · 失败归因"]
+    HN -->|"ROS2 / DDS 中间件"| CTL["⚙️ 底层驱动与控制器\nUnitree G1 · Franka FR3 · AgileX 底盘"]
+    CTL -->|"视觉 / 力觉 / 位姿反馈"| HN
+    HN -->|"任务结果与状态回报"| GW
 ```
 
 1. **MCP 标准在机器人领域的统一**：社区开发者广泛利用 **Model Context Protocol（MCP）** 将机器人能力抽象为标准化微服务（如 `robot_locate_object()`、`robot_vla_grasp()`、`robot_navigate_to()`），打通了软件 Agent（如 OpenClaw、Claude）与物理机器人之间的协议壁垒。
@@ -1362,7 +1415,7 @@ flowchart TB
 3. **产业扶持与落地**：多地政府与产业基金（如无锡 2026 年设立的数百万元专项奖励）已将开源 Agent 操作系统与具身人形机器人的融合列为重点支持方向。
 4. **安全护栏与硬约束（Safety Guardrails）**：物理部署的核心底线在于安全性。现代具身 Harness 在底层接入了不可逾越的运动学限位、力矩安全阈值、防碰撞体积盒与硬件级急停机制，确保高层 Agent 的探索与推理在严格的物理安全边界内运行。
 
-**延伸阅读**：具身控制 Agent 与视觉语言导航（VLN）及世界模型高度交叉，可在 [VLN Papers 合集](https://tingdeliu.github.io/VLN-Papers/) 首页通过 **Agent** 标签筛选相关论文，目前匹配条目包括：ODYSSEY (2025)、PanoNav (2025)、NavGPT-2 (2024)、Open-Nav (2025)、CausalNav (2026)、AgentVLN (2026)、RoboClaw (2026)、SysNav (2026)、ABot-Claw (2026)。
+**延伸阅读**：具身控制 Agent 与视觉语言导航（VLN）及世界模型高度交叉，可在 [VLN Papers 合集](https://tingdeliu.github.io/VLN-Papers/) 与 [VLN Papers 增补篇](https://tingdeliu.github.io/VLN-Papers-New/) 中通过 **Agentic** 标签筛选相关论文，当前匹配条目包括：NavGPT-2 (2024)、ODYSSEY (2025)、PanoNav (2025)、Open-Nav (2025)、CausalNav (2026)、AgentVLN (2026)、SysNav (2026)、GSMem (2026)、HSGM (2026)、CA-VLN (2026)、EvoMemNav (2026)、OmniNav (2026)、ReflectVLN (2026)、AgenticNav (2026)、Agentic Embodied Control (2026)、ABot-AgentOS (2026) 等。
 
 
 # 11. 优秀 Agent 示例
@@ -2415,43 +2468,49 @@ AI Agent 代表了人工智能从"理解"走向"行动"的核心范式转变。�
 10. Wang, Q., Wang, T., Li, C., Ban, S., Chen, Y., Ge, Y., Qin, J., Li, C., and Zhu, W. "Thea: Towards the Harness of Embodied Agents." *arXiv 2608.11246*, 2026.
 11. Galanti, L., et al. "Addressing the Orchestration Gap in Generalist Robots via Physical Agency." *arXiv 2607.21725*, 2026. （Pigey）
 12. "RoboHarness: Memory-Augmented Policy Harness for Vision-Language-Action Models." *arXiv 2603.24060 / 2607.18060*, 2026.
-13. "Zetta ζ: An Efficient Closed-Loop Embodied Harness for Self-Evolving Physical Intelligence." *arXiv 2608.xxxxx*, AIR Tsinghua & Embodied Brain, 2026.
+13. "Zetta ζ: An Efficient Closed-Loop Embodied Harness for Self-Evolving Physical Intelligence." *arXiv 2608.16590*, AIR Tsinghua & Embodied Brain, 2026.
 14. RLinf. "RPent: Recursive Physical Agent Infrastructure for Self-Evolving Embodiment." *github.com/rlinf-ai/RPent*, 2026.
+15. "ABot-AgentOS: A General Robot Agent Operating System with Lifelong Multimodal Memory." *arXiv 2607.10350*, Amap CVLab, 2026.
+16. "AgenticNav: Recasting Zero-Shot VLN-CE as a VLM Tool-Calling Harness." *arXiv 2606.10577*, 2026.
+17. "AgentVLN: Towards Agentic Vision-and-Language Navigation." *arXiv 2603.17670*, 2026.
+18. "SysNav: Multi-Level Systematic Cooperation Enables Real-World, Cross-Embodiment Object Navigation." *arXiv 2603.06914*, 2026.
+19. "HumanoidVLN: A Physically Realistic VLN Simulation Platform and Benchmark for Diverse Bipedal Humanoids." *arXiv 2608.12860*, 2026.
+20. "Agentic Embodied Control: Generalist Agents Directly Closing the Embodied Interaction Loop under a Minimal Interface." *arXiv 2607.26148*, 2026.
 
 **评测基准**
 
-15. Jimenez, C., et al. "SWE-bench: Can Language Models Resolve Real-World GitHub Issues?" *ICLR 2024*.
-16. Xie, T., et al. "OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments." *NeurIPS 2024*.
-17. Liu, X., et al. "AgentBench: Evaluating LLMs as Agents." *ICLR 2024*.
-18. Mialon, G., et al. "GAIA: A Benchmark for General AI Assistants." *ICLR 2024*. Meta AI & HuggingFace.
-19. Liu, B., et al. "LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning." *NeurIPS 2023*.
-20. Makatura, K., et al. "RoboCasa: Large-Scale Simulation of Everyday Household Tasks for Generalist Robots." *arXiv 2406.02540*, 2024.
+21. Jimenez, C., et al. "SWE-bench: Can Language Models Resolve Real-World GitHub Issues?" *ICLR 2024*.
+22. Xie, T., et al. "OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments." *NeurIPS 2024*.
+23. Liu, X., et al. "AgentBench: Evaluating LLMs as Agents." *ICLR 2024*.
+24. Mialon, G., et al. "GAIA: A Benchmark for General AI Assistants." *ICLR 2024*. Meta AI & HuggingFace.
+25. Liu, B., et al. "LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning." *NeurIPS 2023*.
+26. Makatura, K., et al. "RoboCasa: Large-Scale Simulation of Everyday Household Tasks for Generalist Robots." *arXiv 2406.02540*, 2024.
 
 **产品与工程**
 
-21. Anthropic. "Model Context Protocol (MCP) Specification." *spec.modelcontextprotocol.io*, November 2024. Accessed March 2026.
-22. OpenAI. "Harness Engineering for Long-Running Agents." *openai.com/research*, February 2026. Accessed March 2026.
-23. Anthropic. "Effective Harnesses for Long-Running Agents." *anthropic.com/research*, 2026. Accessed March 2026.
-24. Butterfly Effect. "Manus: A General AI Agent." *manus.im*, March 2025. Accessed March 2026.
-25. Cognition AI. "Devin: The First AI Software Engineer." *cognition.ai/blog*, March 2024. Accessed March 2026.
-26. Cognition AI. "Devin 2.0: AI Software Engineer." *cognition.ai/blog*, April 2025. Accessed March 2026.
-27. Tingde Liu. "Loop Engineering: Agent 工程化的下一代闭环范式." *tingdeliu.github.io/loop-engineering/*, July 2026. Accessed July 2026.
-28. Nous Research. "Hermes Agent: Self-Improving Open Agent Architecture & GEPA." *nousresearch.com*, 2026.
-29. DeepSeek AI. "DeepSeek Harness: Everything is a Plugin." *github.com/deepseek-ai/deepseek-harness*, August 2026. MIT License. Accessed August 2026.
-30. DeepSeek AI. "DeepSeek Harness Architecture." *docs/architecture.md*, August 2026. （Cordis 插件树、能力 seam、轮次-步骤流程）Accessed August 2026.
-31. DeepSeek AI. "DeepSeek-V4-Pro-0813 Release Notes." *api-docs.deepseek.com*, August 2026. Accessed August 2026.
-32. Cordiverse. "A Programming Paradigm for Spatiotemporal Composability." *github.com/cordiverse/paper*, 2026. （dsh 底层插件内核的设计论文）
-33. Zechner, M., et al. "Pi Agent Harness." *github.com/earendil-works/pi*, 2026. MIT License. Accessed August 2026.
-34. Databricks. "Benchmarking Coding Agents on Databricks' Multi-Million Line Codebase." *databricks.com/blog*, 2026. Accessed August 2026.
+27. Anthropic. "Model Context Protocol (MCP) Specification." *spec.modelcontextprotocol.io*, November 2024. Accessed March 2026.
+28. OpenAI. "Harness Engineering for Long-Running Agents." *openai.com/research*, February 2026. Accessed March 2026.
+29. Anthropic. "Effective Harnesses for Long-Running Agents." *anthropic.com/research*, 2026. Accessed March 2026.
+30. Butterfly Effect. "Manus: A General AI Agent." *manus.im*, March 2025. Accessed March 2026.
+31. Cognition AI. "Devin: The First AI Software Engineer." *cognition.ai/blog*, March 2024. Accessed March 2026.
+32. Cognition AI. "Devin 2.0: AI Software Engineer." *cognition.ai/blog*, April 2025. Accessed March 2026.
+33. Tingde Liu. "Loop Engineering: Agent 工程化的下一代闭环范式." *tingdeliu.github.io/loop-engineering/*, July 2026. Accessed July 2026.
+34. Nous Research. "Hermes Agent: Self-Improving Open Agent Architecture & GEPA." *nousresearch.com*, 2026.
+35. DeepSeek AI. "DeepSeek Harness: Everything is a Plugin." *github.com/deepseek-ai/deepseek-harness*, August 2026. MIT License. Accessed August 2026.
+36. DeepSeek AI. "DeepSeek Harness Architecture." *docs/architecture.md*, August 2026. （Cordis 插件树、能力 seam、轮次-步骤流程）Accessed August 2026.
+37. DeepSeek AI. "DeepSeek-V4-Pro-0813 Release Notes." *api-docs.deepseek.com*, August 2026. Accessed August 2026.
+38. Cordiverse. "A Programming Paradigm for Spatiotemporal Composability." *github.com/cordiverse/paper*, 2026. （dsh 底层插件内核的设计论文）
+39. Zechner, M., et al. "Pi Agent Harness." *github.com/earendil-works/pi*, 2026. MIT License. Accessed August 2026.
+40. Databricks. "Benchmarking Coding Agents on Databricks' Multi-Million Line Codebase." *databricks.com/blog*, 2026. Accessed August 2026.
 
 **Agent 安全**
 
-35. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
-36. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
-37. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
+41. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
+42. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
+43. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
 
 **综述与背景**
 
-38. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
-39. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
-40. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
+44. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
+45. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
+46. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
