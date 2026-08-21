@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "AI Agent 综述：自主推理与工具调用的范式革命"
-date: 2026-07-27
+date: 2026-08-21
 tags: [Agent, LLM, Multi-Agent, Survey]
 categories: research
 comments: true
@@ -175,9 +175,11 @@ flowchart LR
 
 「Harness Engineering」是 2026 年兴起的 Agent 工程化核心方法论——**Agent 的成败不在模型，而在工程约束框架（Harness）**：约束行动权限、结构化上下文告知、自动验证输出、错误触发重规划。LangChain 代码 Agent 仅通过改进 Harness（不换模型）在 Terminal Bench 2.0 上从 52.8% 提升至 66.5%。
 
+2026 年 8 月，DeepSeek 开源 **DeepSeek Harness**（`dsh`），把这套方法论第一次以完整、可审计、每一层都可替换的工程形态交付出来——连 Agent Loop 自身都是一个可换掉的插件，并同步公开了自家模型评测所用的 Harness 配置。详见 [11.9 DeepSeek Harness](#119-deepseek-harness)。
+
 > 详细技术解析见：[Harness Engineering](/Harness-Engineering/)
 
-*代表性工作*：「Harness Engineering」（OpenAI，2026 年 2 月）、「Effective Harnesses for Long-Running Agents」（Anthropic，2026）
+*代表性工作*：「Harness Engineering」（OpenAI，2026 年 2 月）、「Effective Harnesses for Long-Running Agents」（Anthropic，2026）、DeepSeek Harness（DeepSeek AI，2026 年 8 月）
 
 ---
 
@@ -1482,39 +1484,7 @@ OpenClaw Gateway（Node.js）
 
 ---
 
-## 11.7 Xiaomi miclaw：消费级移动端 Agent
-
-**Xiaomi miclaw**（小米，2026 年 3 月，基于自研 MiMo 大模型）代表了 AI Agent 向消费级移动设备渗透的标志性事件——Agent 不再是开发者专属工具，而是手机系统的内置能力。
-
-### 工作流程
-
-```
-用户语音/文字：「帮我订明天去上海的高铁，选早上 8 点前出发的，买二等座，
-                然后提醒我提前一小时出门」
-
-miclaw 执行过程：
-1. 意图理解：解析出「订高铁」「条件筛选」「日历提醒」三个子任务
-2. 调用系统 API：打开 12306/携程 App，搜索符合条件的车次
-3. 展示选项给用户确认（涉及支付的操作必须用户二次确认）
-4. 完成购票后，自动在日历中创建提醒（出发时间 − 1 小时）
-5. 向用户汇报：「已订 G102 次，07:23 出发，已设置 06:23 出门提醒」
-```
-
-### 技术关键点
-
-**系统级权限集成**：miclaw 作为 MIUI 系统组件运行，拥有普通 App 无法获得的系统级 API 访问权限，可直接调用 **50 余项**系统功能（通话、短信、日历、相册、设置等）和第三方应用。
-
-**边缘-云端混合计算**：简单意图理解和基础任务在设备端 MiMo 模型完成（低延迟、离线可用），复杂推理和跨 App 协调任务在云端处理，用户数据不用于训练，隐私数据不离开设备。
-
-**渐进式授权**：涉及支付、发送消息、删除文件等高风险操作，miclaw 必须逐步请求用户确认，不能全程无监督执行，平衡了自主性与安全性。
-
-### 意义
-
-miclaw 的意义不在于技术突破，而在于**验证了 Agent 的消费级可行性**：绝大多数用户既不懂 API 也不会写代码，但他们有完整的任务需求。当 Agent 内嵌进手机系统，自然语言成为操作系统的新界面，AI Agent 才真正触达了最广泛的用户群体。
-
----
-
-## 11.8 Devin
+## 11.7 Devin
 
 **Devin**（Cognition AI，2024 年 3 月发布，2025 年 4 月发布 2.0）是首个以「AI 软件工程师」为定位的商业产品，将自己置于团队中的一个**异步协作成员**而非工具。
 
@@ -1552,7 +1522,7 @@ Devin 在 SWE-bench 上端到端解决 GitHub Issue 的成功率约 **13.86%**�
 
 ---
 
-## 11.9 Hermes Agent
+## 11.8 Hermes Agent
 
 **Hermes Agent**（Nous Research，2026 年 2 月首发）是目前最受关注的开源 Agent 框架，核心设计哲学是：**Agent 应该像人一样从经验中学习，而不是每次任务都从零出发**。发布七周内 GitHub stars 突破 **95,600**，截至 2026 年 4 月已超过 **103,000**，是增长最快的 Agent 开源项目之一。与 Claude Code 的编程聚焦或 Devin 的云端异步模式不同，Hermes 定位为**通用自主 Agent**——它既能写代码，也能管理文件、操控浏览器、发送消息，且每次执行都在积累可复用的经验。
 
@@ -1626,6 +1596,306 @@ YC-Bench 的设计尤为独特——它测试的不是代码能力，而是 Agen
 ### 意义
 
 Hermes Agent 的核心价值在于将「持续学习」从研究概念落地为开源可部署的工程现实。它回答了一个关键问题：**如何让 Agent 在同一用户、同一场景下越用越快、越用越准？** 其开源性质（兼容任意模型后端）、快速增长的社区（10 万+ stars），以及面向研究者开放的 Atropos 强化学习训练基础设施，使其成为 Agent 自改进领域最重要的实验平台之一。
+
+
+---
+
+## 11.9 DeepSeek Harness
+
+**DeepSeek Harness**（命令行名 `dsh`，DeepSeek AI，2026 年 8 月 13 日开源）是 2026 年下半年最重要的 Agent 工程事件。它不是又一个编码 Agent 产品，而是一次**对 Harness 本身的彻底解构**——把 2.7 节所述的 Harness Engineering 方法论，第一次以完整、可审计、可替换的开源工程形态交付出来。
+
+DeepSeek 在发布文档中给出的核心命题极为直白：
+
+> **Agent = Model + Harness**。Harness 是「模型与它所作用的环境之间的那一层——工具、文件、沙箱和控制循环」。
+
+这句话本身并不新鲜，新鲜的是 DeepSeek 对它的执行力度：既然 Harness 是一层，那这一层的**每一个零件都应该可以被换掉**，包括模型适配器、工具注册表、会话日志，乃至 **Agent Loop 自身**。这就是仓库首页那句唯一的标语——**Everything is a Plugin（一切皆插件）**。
+
+项目采用 MIT 协议、TypeScript 编写，底层由插件内核 **Cordis** 驱动（其设计出自论文 *A Programming Paradigm for Spatiotemporal Composability*）。开源后 GitHub Stars 在 48 小时内突破 **95,000**，截至 2026 年 8 月 21 日已达 **175,800+ Stars / 19,000+ Forks**，是 OpenClaw 之后增速最猛的 Agent 开源项目。
+
+### 设计哲学：没有需要打补丁的特权内核
+
+绝大多数 Agent 框架（LangChain、AutoGen、乃至 Claude Code 的插件体系）遵循同一套结构：一个硬编码的内核负责跑循环，四周开若干个**预留的扩展钩子**，你只能在设计者事先想到的地方插入代码。想改循环本身？只能 fork。
+
+dsh 把这个结构整个翻转了过来。用官方架构文档的原话：
+
+> **不存在需要打补丁的特权内核**：扩展 dsh 的方式是把插件挂载到其他插件旁边，而各项注册都是副作用，会在其插件卸载时撤销。
+
+```mermaid
+flowchart TB
+    subgraph TRAD["传统框架：特权内核 + 预留钩子"]
+        direction TB
+        H1["钩子 A"] -.-> K["🔒 硬编码内核\nAgent Loop / 上下文 / 工具分发\n想改它？只能 fork"]
+        H2["钩子 B"] -.-> K
+        H3["钩子 C"] -.-> K
+    end
+
+    TRAD ==>|"结构翻转：内核消失，一切平级"| DSH
+
+    subgraph DSH["dsh：无特权内核的插件树"]
+        direction TB
+        P1["模型适配器\n插件"] --> CTX["🌐 共享 Context\nCordis"]
+        P2["工具注册表\n插件"] --> CTX
+        P3["会话日志\n插件"] --> CTX
+        P4["Agent Loop\n插件"] --> CTX
+        P5["你的插件\n与上述平级"] --> CTX
+    end
+```
+
+这个差别不是审美问题，而是能力问题：当 Agent Loop 本身是一个可替换的插件行时，「换一种循环策略」和「换一个模型」在工程上属于同一类操作——都只是改一行配置。
+
+### 组装模型：Profile / Bundle / Patch 三层叠加
+
+一个运行中的 `dsh` 进程，本质是一棵**按序叠加而成的插件树**。dsh 用三个概念描述这个组装过程：
+
+- **Bundle（组合包）**：Cordis 配置项及其挂载代码的分发格式。`dsh-base` 提供模型适配器、工具、持久化、沙箱与审批策略、设置、凭据、遥测；`dsh-web-app` 在其上叠加浏览器应用；`dsh-headless` 则叠加一次性运行器且完全不带服务器。
+- **Profile**：一份具名组装，声明自己叠哪些 bundle、装哪些树外插件，并保存用户自己的 `cordis.patch.yml`。发行版自带 `web` 和 `headless` 两个模板。
+- **Patch**：按条目 id 定位并替换其整个 config，或插入新条目。后叠加的层可以 patch 先前所有层插入的任何东西。
+
+```mermaid
+flowchart TB
+    E["空条目列表"] --> B1["① dsh-base\n模型 / 工具 / 持久化 / 沙箱 / 凭据 / 遥测"]
+    B1 --> B2["② dsh-web-app 或 dsh-headless\n浏览器应用 / 一次性运行器"]
+    B2 --> P1["③ Profile 级 cordis.patch.yml"]
+    P1 --> P2["④ Harness home 级 patch"]
+    P2 --> P3["⑤ 命令行 --patch overlay"]
+    P3 --> T["🌳 最终插件树\ndsh --profile web --dump-config 可完整导出"]
+```
+
+`dsh --profile web --dump-config` 会打印出机器上实际启动的整棵配置树——而**它打印出的任何一个条目，都可以被你自己的 patch 替换**。这条性质是「一切皆插件」从口号变成可验证事实的关键：可替换性不是文档承诺，而是可以被一条命令穷举出来的清单。
+
+### 轮次与步骤：一个处处可拦截的 Agent 循环
+
+dsh 对 Agent 循环做了明确的概念切分，这是理解其扩展模型的前提：
+
+- **步骤（Step）** = 一次模型请求 + 它调用的工具。
+- **轮次（Turn）** = 零个或多个步骤；它在领取首条输入之前打开，在不再欠下任何工作时关闭。
+
+「零个步骤的轮次」不是边界情况而是刻意设计——当拦截器拒绝了本次请求时，轮次依然会被记录并关闭，因此**这次尝试本身在日志里留下了痕迹**。
+
+```mermaid
+sequenceDiagram
+    participant U as 用户
+    participant D as Agent Loop 驱动器
+    participant HK as 插件拦截器
+    participant PR as ctx.systemPrompt
+    participant M as ctx.llm
+    participant T as ctx.tools
+    participant S as 会话日志
+
+    U->>D: followup 消息进入 inbox
+    D->>S: turn/start
+    Note over D: 领取待处理输入 + 一条排队消息
+    D->>HK: agent/pre-step 瀑布式
+    alt 拦截器 reject
+        HK-->>D: 拒绝，轮次不消耗任何步骤
+        D->>S: turn/end
+    else 拦截器 enter
+        D->>S: step/start
+        D->>S: user/message
+        D->>PR: system-prompt/assemble 瀑布式
+        D->>M: agent/request 然后 llm/stream 瀑布式
+        M-->>D: StreamChunk 流
+        D->>S: assistant/chunk 逐块落盘
+        D->>S: assistant/message
+        loop 工具调用，含屏障与有界滚动并发池
+            D->>T: tools/pre-execute 有序
+            D->>T: tools/execute 并发
+            D->>T: tools/post-execute 有序
+            D->>S: tool/call 与 tool/result
+        end
+        D->>S: step/end
+        opt 自然停止且 inbox 已空
+            D->>HK: agent/turn-stopping 串行终点检查
+        end
+        D->>S: turn/end
+    end
+```
+
+图中标注的三类事件对应三个不同的扩展域，选对哪个域是大多数改动的第一个决定：
+
+| 事件域 | 语义 | 典型用途 |
+|--------|------|----------|
+| **会话事件**（`turn/*`、`step/*`、`user/message`、`assistant/*`、`tool/*`） | 追加到日志的**持久事实**，通过 `session/event` 广播 | 该事实必须在重新加载后仍然存在时使用 |
+| **Agent 事件**（`agent/*`） | 携带活跃 Agent 的**实时控制面**：inbox、步骤、状态、请求、续跑 | 观察或拦截进行中的工作 |
+| **能力事件**（`fs/*`、`tools/*`、`telemetry/*`） | 无需导入循环即可向某个 seam 附加策略与适配器 | 权限策略、审计、遥测 |
+
+其中 `agent/pre-step`、`agent/request`、`llm/stream` 和三个 `tools/*` 是 **waterfall（瀑布式事件）**——监听器必须显式调用 `next()` 才能把控制权委托下去，因此任何一个监听器都可以改写、替换或直接截断下游数据。这是 dsh 最锋利的一处设计：**`agent/pre-step` 决定模型看到什么**，一个几十行的插件就能重写整个上下文构造策略，而不必碰循环一行代码。
+
+上下文压缩正是这样实现的——`dsh-compaction-basic` 通过 `agent/pre-step` 在派生请求**之前**处理上下文压力，而 `agent/request-error` 只用于规范的上下文溢出兜底。触发后先执行可选的工具结果剪枝，再选择摘要；只有当剪枝或摘要真正推进了替换代际，才会开启一个全新的重试轮次，否则仍以原始错误为准。
+
+### 会话日志：「模型可见即已记录」
+
+如果说插件树是 dsh 的骨架，那么会话日志就是它的中枢神经。dsh 用一条**运行时不变量**来约束整个系统：
+
+> **模型可见即已记录（model-visible ⟺ logged）**。抵达模型请求的一切都必须能从日志重建，并由一项运行时不变量断言这一点。
+
+这条不变量的工程后果是刚性的：**新增一项模型可见输入，就必须新增一个会话事件**——扩展 `SessionEventMap` 并从日志渲染，没有旁路可走。
+
+```mermaid
+flowchart LR
+    subgraph LOG["📜 仅追加的 SessionEvent 日志"]
+        direction TB
+        L1["turn/start · step/start"]
+        L2["user/message"]
+        L3["assistant/chunk · assistant/message"]
+        L4["tool/call · tool/result"]
+        L5["agent-preset/selected …"]
+    end
+
+    LOG -->|"deriveMessages 投影"| MH["🧠 模型历史\n本次请求真正看到的内容"]
+    LOG -->|"原始 chunk 保真"| UI["🖥️ UI 与回放"]
+    LOG -->|"边界切分"| FK["🌿 Fork\n从任意点分叉新会话"]
+    LOG -->|"重建"| RS["⏯️ Resume\n跨进程恢复"]
+    LOG -->|"索引"| SQ["🔍 Search\nsession-query-sqlite"]
+    LOG -->|"导出"| TM["📊 Transcript 与遥测\nOTel"]
+```
+
+对比其他 Agent 产品，这一点的价值在长任务中会被急剧放大：当 Agent 跑了三个小时、烧掉两百万 token 之后出错，「它到底看到了什么」在多数框架里只能靠日志推测；在 dsh 里这是一个**可以精确回放的确定性事实**。`assistant/message` 事件甚至会记录返回空内容或以 `max-tokens` 结束的调用——空内容不进入派生历史，但该持久事件仍保留 token 用量，并通过 `sourceEventSeqs` 精确列出对应的 `assistant/chunk`。
+
+### 能力 Seam：换一个提供方，换掉半个产品
+
+dsh 把「可替换能力」形式化为 **seam（接缝）**，每条 seam 包含三种角色：
+
+```mermaid
+flowchart LR
+    SD["📐 Service Definition\n声明接口\n例：ctx.fs"] --> SP["🔌 Service Provider\n实现接口\nfs-local / fs-sandbox / e2b"]
+    SP --> CS["🛠️ Consumer\n使用接口\n通常是面向模型的工具"]
+    CS -.->|"模型只看到工具，看不到背后是谁在实现"| SD
+```
+
+官方文档特别强调：**单一角色本身不是 seam**，添加一项能力意味着把三者一并设计。而 seam 的威力在于它的连锁效应——
+
+> 文件系统与进程提供方共享同一个执行世界，因此把它们指向远程沙箱，也就把 Bash、PTY 和 LSP 一并搬了过去，无需提供方专用 fork。
+
+也就是说，把 `ctx.fs` 和 `ctx.subprocess` 换成远程实现（仓库自带 `e2b` 提供方），Agent 的**整个执行世界**就迁移到了云端沙箱，而 Bash 工具、持久化终端、语言服务器导航这些消费方一行代码都不用改。
+
+截至 v0.1.0-rc.5，dsh 共声明了 **58 条能力 seam**，覆盖面如下：
+
+| 层 | 代表性 seam（各列举 4 条） | 可替换意味着什么 |
+|----|--------------------------|------------------|
+| **模型与推理** | `ctx.llm`、`ctx.compaction`、`ctx.toolResultPruner`、`ctx.tokenMeter` | 换模型提供方、换压缩策略、换计费口径 |
+| **循环与调度** | `ctx.agentLoop`、`ctx.agents`、`ctx.agentPresets`、`ctx.workflowEngine` | **换掉 Agent 循环本身**、换编排引擎 |
+| **工具与提示** | `ctx.tools`、`ctx.systemPrompt`、`ctx.skills`、`ctx.codeRuntime` | 重组工具面、重写提示词组装、接入技能源 |
+| **执行世界** | `ctx.fs`、`ctx.shell`、`ctx.subprocess`、`ctx.sandbox` | 本地 ⇄ 容器 ⇄ 远程沙箱整体切换 |
+| **会话与存储** | `ctx.sessions`、`ctx.sessionPersistence`、`ctx.sessionQuery`、`ctx.storage` | JSONL ⇄ SQLite、接入 OTel、接管大对象溢写 |
+| **协作与审批** | `ctx.subagents`、`ctx.agentTeams`、`ctx.approval`、`ctx.permissionPresets` | 换委派后端、换权限模型、换人机交互形态 |
+| **界面与宿主** | `ctx.webServer`、`ctx.apiProxy`、`ctx.credentials`、`ctx.invariants` | 换 UI、换网关、换凭据存储、换断言注册表 |
+
+（另有 `ctx.terminals`、`ctx.lsp`、`ctx.jobs`、`ctx.goals`、`ctx.planMode`、`ctx.spillStore`、`ctx.attachments`、`ctx.sessionTelemetry`、`ctx.userQuestions` 等未列出，完整图谱见仓库 `docs/capability-seams.md`。）
+
+值得单独一提的是 `ctx.invariants`——**不变量注册表本身也是一条 seam**。一个把「运行时正确性断言」做成可插拔服务的框架，其工程自觉程度是罕见的。
+
+### Subagent 提供方：把 Claude Code 和 Codex 当成子 Agent
+
+dsh 最出人意料的一处设计藏在 `ctx.subagents` 这条 seam 背后。官方文档写道：subagent 提供方在同一个接口之后同样千差万别，从新建一个子 agent，到**把一个轮次委派给另一个产品**。
+
+仓库中随附的提供方包直接兑现了这句话：
+
+```mermaid
+flowchart TB
+    ROOT["🎯 dsh 主 Agent\n持有会话日志与编排权"]
+    ROOT --> SEAM["🔌 ctx.subagents\n统一委派接口"]
+
+    SEAM --> S1["subagent-spawn-in-process\n进程内新建子 Agent"]
+    SEAM --> S2["subagent-fork-in-process\n从当前会话分叉"]
+    SEAM --> S3["subagent-dsh-sdk\n经 SDK 委派给另一 dsh 实例"]
+    SEAM --> S4["subagent-claude-code\n调用官方 Claude Agent SDK"]
+    SEAM --> S5["subagent-codex\n委派给 OpenAI Codex"]
+    SEAM --> S6["subagent-acp\n任意 ACP 协议 Agent"]
+
+    S4 --> CC["🟠 Claude Code CLI\n带自身设置与沙箱运行"]
+    S5 --> CX["🟢 Codex\n独立执行"]
+```
+
+以 `dsh-subagent-claude-code` 为例，它的实现相当严谨，而非简单的进程封装：
+
+- **进程所有权明确**：仅当官方 SDK 的 `spawnClaudeCodeProcess` 钩子已交出由 `dsh-subprocess` 管理的活动 CLI 句柄之后，此次运行才会发布；发布前失败或取消，则关闭 query、终止整棵进程树并等待其退出。
+- **严格的成功判据**：只接受 `subtype: "success"`、`is_error: false` 且结果非空白的 `result` 消息，且迭代器须正常结束。其余全部映射为分类错误——`invalid-success`、`missing-result`、`process-exit`、`unknown`，并注明失败发生在 `query-start` / `query-run` / `process` / `teardown` 哪个阶段。
+- **无人值守语义**：每次 query 设置 `persistSession: false` 并禁用 `AskUserQuestion`；除 bypass 模式外，`canUseTool` 会立即拒绝仍需人工审批的请求；Plan 模式还会把 `ExitPlanMode` 放入 `disallowedTools`，强制模型把完整计划作为最终答案返回。
+- **上下文隔离**：该提供方报告 `inheritsParentContext: false`——子 Agent 只接收独立文本任务和父会话的 cwd，拿不到父会话的对话、角色设定、工具筛选器与深度策略。
+
+除此之外，`dsh-hooks-claude-code` 与 `dsh-hooks-codex` 两个包还能**直接读取用户现有的 Claude Code / Codex hook 配置**（`hooks.json` 或 settings 的 `hooks` key），在 dsh 的规范拦截点上运行，并完成 `${CLAUDE_PLUGIN_ROOT}` / `${CLAUDE_PROJECT_DIR}` 替换与结果映射。官方明确将其定位为**兼容路径**而非推荐方案：定制行为应当用同一扩展点上的原生 Cordis 插件，因为后者有类型化返回、没有序列化边界。
+
+这一层设计使 dsh 的定位相当特殊：它既是 Claude Code 的**竞品**，又是 Claude Code 的**宿主**。
+
+### 四种运行模式
+
+dsh 通过 preset 提供四套预置的工具面与提示词组合：
+
+| 模式 | 定位 | 工具面 |
+|------|------|--------|
+| **Standard** | 完整编码 Agent | 文件编辑、shell、搜索、skill、planning、goals、subagent、workflow |
+| **Code** | Code Mode SDK | 标准能力经 TypeScript 绑定暴露，线级只有单个工具，多步操作合并进一段程序 |
+| **Minimal** | 跑分参考实现 | **仅两个工具**：持久化 bash + `str_replace_editor` |
+| **Creator** | 工坊 / 插件实验 | 标准能力 + 运行时 inspect + preset 创作 |
+
+**Minimal 模式即官方跑分口径**——DeepSeek-V4-Pro-0813 与 V4-Flash-0731 的代码 Agent 评测都在这套配置下完成，`BENCHMARK.md` 记录了经 Python SDK、每任务独立工作区的完整复现路径。把评测所用的 Harness 与产品一并开源，实际上等于把「模型分数里有多少是 Harness 的功劳」这个长期无法证伪的问题变成了可复现实验。这与 2.7 节提到的 LangChain 结论互为印证：**同一模型仅换 Harness，Terminal Bench 2.0 成绩就能从 52.8% 提升到 66.5%**。
+
+### 底层模型：DeepSeek-V4-Pro-0813
+
+Harness 与模型同日发布并非巧合——DeepSeek 的主张恰恰是二者必须协同设计。V4-Pro-0813 保持 **100 万 token 上下文窗口**，官方在自家 Harness 上的评测结果：
+
+| 基准 | V4-Pro-0813 | 4 月预览版 | 说明 |
+|------|-------------|-----------|------|
+| **Terminal-Bench 2.1** | **87.9** | 72.1 | 终端环境端到端任务 |
+| **DeepSWE** | **62.7** | 12.8 | 软件工程，提升近 5 倍 |
+| **CyberGym** | 83.3 | — | 安全 / 漏洞类任务 |
+| **Toolathlon-Verified** | 74.1 | — | 多工具协同 |
+| **AutomationBench**（public split） | 31.8 | — | 长程自动化 |
+| **Humanity's Last Exam** | 42.7%（无工具）/ **60.0%**（带工具） | — | 工具使用带来 17.3 个百分点增益 |
+
+在 Artificial Analysis 智能指数上，该模型从 45 升至 **53**，与 GLM-5.2 持平，仍落后于 Claude Opus 5 的 63。**定价同步上调并首次引入峰谷计价**（2026 年 8 月 16 日 16:00 UTC 生效）：
+
+| 计费项 | 谷时 | 峰时 | 调整前 |
+|--------|------|------|--------|
+| 输入 | $0.66 / M tokens | 2× 谷时 | $0.435 |
+| 输出 | $1.98 / M tokens | 2× 谷时 | $0.87 |
+| 缓存命中 | $0.022 / M tokens | 2× 谷时 | $0.003625 |
+
+峰时段为 UTC 01:00–04:00 与 06:00–10:00。缓存价格上调约 **6 倍**这一项尤其值得注意：它直接改变了长会话 Agent 的成本模型，使上下文压缩策略从「优化项」变成了「必选项」——而这恰好解释了 dsh 为何要把 `ctx.compaction` 做成一条独立的可替换 seam。
+
+### 与 Claude Code / OpenClaw 的定位对比
+
+| 维度 | DeepSeek Harness | Claude Code | OpenClaw |
+|------|------------------|-------------|----------|
+| 定位 | Agent **框架 / 基础设施** | 编码 Agent **产品** | 自托管 Agent **操作系统** |
+| 可替换粒度 | 58 条 seam，含 Agent Loop 本身 | 工具层（MCP）+ 子 Agent | 技能与模型后端 |
+| 模型绑定 | 提供商无关：DeepSeek / Anthropic / OpenAI / Bedrock / Vertex / Azure / 兼容端点 | 绑定 Claude | 任意模型 |
+| 会话可观测性 | 仅追加事件流，可 resume / fork / search / replay | 会话续跑与压缩 | 会话持久化 |
+| 与竞品关系 | **可将 Claude Code / Codex 作为子 Agent 调用** | — | 可接任意模型作推理内核 |
+| 交付形态 | 本地 Web UI（`127.0.0.1:3080`）、headless CLI、Python SDK | 终端 / 桌面 / IDE / Web | 自托管服务 |
+| 协议 | MIT | 商业 | 开源 |
+| 生态钩子 | 兼容读取 Claude Code / Codex 的 hook 配置 | 自有 hooks | ClawHub 技能市场 |
+
+上手成本极低——装好 Node.js（要求 22.19+ 或 24+）后一条命令即可：
+
+```sh
+npx @deepseek-ai/dsh web
+```
+
+默认在 `http://127.0.0.1:3080` 启动 Web UI。凭据以**只写**方式存放在 `$DSH_HOME/.credentials.yaml`。
+
+### 能力边界与局限
+
+| 擅长 | 局限 |
+|------|------|
+| 需要深度定制 Agent 行为的研究与内部工具场景 | **开发者预览阶段**，官方明确预告将有破坏性变更 |
+| 可复现的 Agent 评测（Minimal 模式为官方跑分口径） | 版本仅 `0.1.0-rc.5`，仓库无任何 release tag |
+| 完整可回放的会话审计与事后归因 | 无官方托管服务，全部自托管自运维 |
+| 多模型 / 多产品异构编排（含调度 Claude Code、Codex） | 学习曲线陡峭：需先理解 Cordis 的插件与事件模型 |
+| 执行世界整体迁移（本地 ⇄ 沙箱 ⇄ 远程） | 定位偏基础设施，开箱产品化程度弱于 Claude Code |
+
+官方对适用范围的表述也很克制：**面向内部工具与研究环境，而非生产级 Agent 产品**。
+
+### 意义
+
+DeepSeek Harness 的价值不在跑分，而在于它把一个长期含混的行业共识**证据化**了。
+
+过去两年，「Agent 的成败在 Harness 而不在模型」更像一句工程圈口口相传的经验；LangChain 那个 52.8% → 66.5% 的实验给了它第一个量化支点，但对照组的 Harness 始终是闭源的。dsh 则把整条链路——模型适配、上下文组装、工具流水线、沙箱策略、会话日志、评测配置——一并摊在 MIT 协议下，且每一层都标注了替换接口。这使得「换掉某一层会发生什么」第一次成为一个**任何人都能在自己机器上做的对照实验**。
+
+它同时给出了 Harness Engineering 的一个极端解：如果 Harness 的每个零件都可替换，那么 Agent 框架的竞争就不再是「谁的循环写得更好」，而是「谁的接缝切得更准」。这与 2.9 节 Graph Engineering 用显式状态图约束非确定性的思路殊途同归——**都在用软件工程的确定性，去驯服大模型的不确定性**。
+
+至于那个略带讽刺的事实：一个中国实验室开源的 Agent 框架，把 Claude Code 和 Codex 一起做成了自己的可插拔子 Agent——它恰好说明 Agent 竞争的战场正在从模型本身，上移到编排层。
 
 
 # 12. Agent 安全
@@ -1715,7 +1985,7 @@ Agent 间通信  →  消息签名验证（ACP），结果交叉校验
 
 AI Agent 代表了人工智能从"理解"走向"行动"的核心范式转变。以 LLM 为大脑、工具调用为手脚、记忆模块为经验积累，Agent 系统正在将自然语言理解的能力延伸到真实世界的任务执行中。
 
-从技术演进看：ReAct 定义了推理-行动的基本范式（2022），Reflexion 引入了语言反思记忆（2023），MCP 协议标准化了 Agent 与外部世界的接口（2024），OpenClaw 将通用 Agent 能力推向开放生态（2025），Harness Engineering 则标志着 Agent 从实验室走向生产的工程化拐点，而其上层演进出的 Loop Engineering（循环工程）则成为了实现高自主、长周期任务的核心闭环范式（2026）。
+从技术演进看：ReAct 定义了推理-行动的基本范式（2022），Reflexion 引入了语言反思记忆（2023），MCP 协议标准化了 Agent 与外部世界的接口（2024），OpenClaw 将通用 Agent 能力推向开放生态（2025），Harness Engineering 则标志着 Agent 从实验室走向生产的工程化拐点，而其上层演进出的 Loop Engineering（循环工程）则成为了实现高自主、长周期任务的核心闭环范式（2026 年上半年）。2026 年 8 月 DeepSeek Harness 的开源是这条线索的又一个节点：它把 Harness 的每一层都拆成可替换的接缝并连同评测配置一并公开，使「模型分数里有多少是 Harness 的功劳」第一次成为可复现的对照实验。
 
 2026 年的核心议题正在从"Agent 能不能工作"转向"**如何让 Agent 可靠地工作**"。
 
@@ -1760,15 +2030,19 @@ AI Agent 代表了人工智能从"理解"走向"行动"的核心范式转变。�
 18. Cognition AI. "Devin: The First AI Software Engineer." *cognition.ai/blog*, March 2024. Accessed March 2026.
 19. Cognition AI. "Devin 2.0: AI Software Engineer." *cognition.ai/blog*, April 2025. Accessed March 2026.
 20. Tingde Liu. "Loop Engineering: Agent 工程化的下一代闭环范式." *tingdeliu.github.io/loop-engineering/*, July 2026. Accessed July 2026.
+21. DeepSeek AI. "DeepSeek Harness: Everything is a Plugin." *github.com/deepseek-ai/deepseek-harness*, August 2026. MIT License. Accessed August 2026.
+22. DeepSeek AI. "DeepSeek Harness Architecture." *docs/architecture.md*, August 2026. （Cordis 插件树、能力 seam、轮次-步骤流程）Accessed August 2026.
+23. DeepSeek AI. "DeepSeek-V4-Pro-0813 Release Notes." *api-docs.deepseek.com*, August 2026. Accessed August 2026.
+24. Cordiverse. "A Programming Paradigm for Spatiotemporal Composability." *github.com/cordiverse/paper*, 2026. （dsh 底层插件内核的设计论文）
 
 **Agent 安全**
 
-21. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
-22. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
-23. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
+25. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
+26. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
+27. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
 
 **综述与背景**
 
-24. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
-25. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
-26. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
+28. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
+29. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
+30. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
