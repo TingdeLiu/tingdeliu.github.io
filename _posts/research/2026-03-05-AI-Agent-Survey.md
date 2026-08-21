@@ -177,11 +177,11 @@ flowchart LR
 
 2026 年 Databricks 在其数百万行内部代码库上的评测进一步量化了这一点：**同一模型、同样的思考档位，仅更换 harness，每任务成本可相差 2 倍以上而质量基本不变**。
 
-这一方法论目前分化出两个方向：DeepSeek 于 2026 年 8 月开源的 **DeepSeek Harness**（`dsh`）把每一层都做成可替换插件——连 Agent Loop 自身也不例外（详见 [11.9 DeepSeek Harness](#119-deepseek-harness)）；而 **Pi** 则反向收缩核心，用不到 1,000 token 的系统提示与 4 个内置工具换取上下文效率（详见 [11.10 Pi](#1110-pi)）。
+这一方法论目前分化出两个方向：DeepSeek 于 2026 年 8 月开源的 **DeepSeek Harness**（`dsh`）把每一层都做成可替换插件——连 Agent Loop 自身也不例外（详见 [11.9 DeepSeek Harness](#119-deepseek-harness)）；而 **Pi Agent** 则反向收缩核心，用不到 1,000 token 的系统提示与 4 个默认工具换取上下文效率（详见 [11.10 Pi Agent](#1110-pi-agent)）。
 
 > 详细技术解析见：[Harness Engineering](/Harness-Engineering/)
 
-*代表性工作*：「Harness Engineering」（OpenAI，2026 年 2 月）、「Effective Harnesses for Long-Running Agents」（Anthropic，2026）、DeepSeek Harness（DeepSeek AI，2026 年 8 月）、Pi（earendil-works，2026）
+*代表性工作*：「Harness Engineering」（OpenAI，2026 年 2 月）、「Effective Harnesses for Long-Running Agents」（Anthropic，2026）、DeepSeek Harness（DeepSeek AI，2026 年 8 月）、Pi Agent（earendil-works，2026）
 
 ---
 
@@ -1902,30 +1902,57 @@ DeepSeek Harness 的价值不在跑分，而在于它把一个长期含混的行
 
 ---
 
-## 11.10 Pi
+## 11.10 Pi Agent
 
-**Pi**（`earendil-works/pi`，Mario Zechner 主导，Armin Ronacher 为第二大贡献者）是一个**极简终端编码 harness**，MIT 协议、TypeScript 编写，GitHub Stars **94,500+**。如果说 11.9 的 DeepSeek Harness 是「把每个零件都做成可替换插件」，那么 Pi 走的是相反方向：**核心小到几乎没有零件可拆，其余全部交给用户扩展**。
+**Pi Agent**（`earendil-works/pi`，Mario Zechner 主导，Armin Ronacher 为第二大贡献者）是一个**极简终端编码 Agent**，MIT 协议、TypeScript 编写，GitHub Stars **94,500+**，2026 年 8 月已迭代至 v0.84.x。
 
-它的口号是「Adapt pi to your workflows, not the other way around」——不需要 fork、不需要改内部实现，就能把它掰成你想要的形状。
+它的定位可以用官方那句口号概括：**Adapt pi to your workflows, not the other way around**——不需要 fork、不需要改任何内部实现，就能把它掰成你想要的形状。如果说 11.9 的 DeepSeek Harness 是「把每个零件都做成可替换插件」，那么 Pi Agent 走的是相反方向：**核心小到几乎没有零件可拆，其余能力全部交给用户扩展**。
+
+### 工作流程
+
+Pi Agent 是纯终端工具，交互形态接近 Claude Code，但启动后的第一件事是选择模型提供方——它本身不绑定任何模型厂商：
+
+```
+$ pi
+/login                     # 订阅登录（Claude Pro/Max、ChatGPT Plus/Pro、GitHub Copilot）或填 API key
+/model                     # 或 Ctrl+L，从该提供方的模型目录中选择
+
+> 把 src/api 下所有路由的错误处理统一成 Result 类型，并补齐测试
+
+pi 执行过程：
+1. read / grep 定位 src/api 下的路由文件与现有 Result 定义
+2. edit 逐文件改写错误处理分支
+3. bash 运行测试套件，读取失败输出
+4. 依据失败信息继续 edit → 再次运行，直到通过
+5. 汇报改动摘要
+
+/tree                      # 回看整棵会话树，可从任意历史节点另开分支重试
+/compact                   # 上下文吃紧时手动压缩（默认也会自动触发）
+/export report.html        # 把整段会话导出为 HTML 或 JSONL
+```
+
+默认情况下 Pi Agent 只给模型 **4 个工具**：`read`、`write`、`edit`、`bash`。内置工具实际有 7 个（另有 `grep`、`find`、`ls`），可用 `--tools` 白名单精确指定，或用 `--no-builtin-tools` 全部关掉只保留自定义工具。**其余一切能力——子 Agent、Plan 模式、权限确认、MCP——都不在默认包里，需要你自己加。**
 
 ### 设计哲学：靠「不做什么」来定义自己
 
-Pi 官方文档最独特的一段，是一份**明确拒绝的功能清单**：
+Pi Agent 官方文档最独特的一段，是一份**明确拒绝的功能清单**——每一条都配了理由和替代方案：
 
-| 拒绝的功能 | Pi 的理由与替代方案 |
-|-----------|--------------------|
-| **不支持 MCP** | 写带 README 的 CLI 工具即可；需要就自己写扩展加上 |
+| 拒绝的功能 | 理由与替代方案 |
+|-----------|---------------|
+| **不支持 MCP** | 写带 README 的 CLI 工具即可；确实需要就自己写扩展加上 |
 | **不做子 Agent** | 实现方式太多，用 tmux 拉起多个 pi 实例，或自己写扩展 |
-| **不做权限弹窗** | 跑在容器里，或按你自己的安全要求写确认流程 |
+| **不做权限弹窗** | 跑在容器里，或按你自己的环境与安全要求写确认流程 |
 | **不做 Plan 模式** | 把计划写进文件，或用扩展实现 |
 | **不做内置 To-Do** | 「它们会让模型犯迷糊」，用 `TODO.md` 就好 |
 | **不做后台 Bash** | 用 tmux，可观测性更好，也能直接交互 |
 
-这份清单不是能力缺失，而是一种**上下文预算纪律**：Pi 的系统提示词加全部工具定义**不到 1,000 token**，开箱只带 **4 个工具**，不做任何隐式上下文注入——省下来的窗口全部留给真正的代码和项目信息。
+这份清单不是能力缺失，而是一种**上下文预算纪律**：Pi Agent 的系统提示词加全部工具定义**不到 1,000 token**，且不做任何隐式上下文注入——省下来的窗口全部留给真正的代码和项目信息。
+
+被砍掉的功能则统一由四类扩展承接，并可打包成 **Pi Package** 经 npm 或 git 分享：
 
 ```mermaid
 flowchart TB
-    CORE["🎯 极小核心：系统提示 + 工具定义 < 1000 token\n4 个内置工具 · pi-agent-core 循环 · pi-ai 多提供方接入\n其余能力一律交给用户扩展 ↓"]
+    CORE["🎯 极小核心：系统提示 + 工具定义 < 1000 token\n默认 4 个工具 read/write/edit/bash · pi-agent-core 循环 · pi-ai 多提供方接入\n其余能力一律交给用户扩展 ↓"]
     CORE ==> E1 & E2 & E3 & E4
     E1["🧩 Extensions\nTypeScript"] --> PKG
     E2["📚 Skills\nAgent Skills 标准"] --> PKG
@@ -1938,15 +1965,31 @@ flowchart TB
 
 **五个独立包**：`pi-coding-agent`（交互式 CLI）、`pi-agent-core`（工具调用与状态管理的运行时）、`pi-ai`（统一多提供方 LLM API）、`pi-tui`（差分渲染的终端 UI 库）、`pi-telemetry`（厂商中立的遥测契约）。每个包都可单独用于自建 Agent——**DeepSeek Harness 的默认多提供方 LLM 适配器 `dsh-llm-pi-ai` 正是构建在 `pi-ai` 之上**，这是两个理念相反的项目之间一处有趣的实际交集。
 
-**会话树而非会话线**：`/tree` 可就地浏览整棵会话树，从任意历史节点继续或在分支间切换；`/fork` 从某条用户消息派生新会话文件，`/clone` 复制当前分支。**全部历史保存在单个 JSONL 文件中**——压缩是有损的，但原始记录始终在文件里，随时可回到任意节点。
+**提供方中立，且支持订阅登录**：除 API key 外，Pi Agent 支持直接用 **Claude Pro/Max、ChatGPT Plus/Pro、GitHub Copilot 的订阅**认证，无需另外购买 API 额度。API key 一侧覆盖 30 余家提供方（Anthropic、OpenAI、Azure、DeepSeek、Gemini、Vertex、Bedrock、Mistral、Groq、Cerebras、xAI、OpenRouter、Kimi、MiniMax、小米 MiMo 等），并支持本地 llama.cpp router 服务。模型目录自动刷新，`/model` 或 Ctrl+L 随时切换——**同一个会话中途换模型是常规操作**。
 
-**四种运行模式**：交互式、print/JSON（脚本化）、RPC（进程集成）、SDK（嵌入自有应用）。
+**会话树而非会话线**：`/tree` 可就地浏览整棵会话树，从任意历史节点继续或在分支间切换，支持按输入搜索、折叠、书签标注；`/fork` 从某条用户消息派生新会话文件，`/clone` 复制当前分支。**全部历史保存在单个 JSONL 文件中**——压缩是有损的，但原始记录始终在文件里，随时可回到任意节点重来。`/export` 可导出 HTML/JSONL，`/share` 上传为私有 GitHub gist 生成可分享链接。
+
+**上下文文件与系统提示均可接管**：启动时按「全局 `~/.pi/agent/AGENTS.md` → 逐级父目录 → 当前目录」的顺序加载并拼接 `AGENTS.md`（或 `CLAUDE.md`）；某个目录放 `AGENTS.override.md` 即可只对该层覆盖。更进一步，`.pi/SYSTEM.md` 能**整体替换默认系统提示词**，`APPEND_SYSTEM.md` 则只追加不替换——这在其他编码 Agent 中相当少见。
+
+**扩展就是一个 TypeScript 函数**：扩展的默认导出接收一个 `ExtensionAPI`，即可注册工具、注册命令、挂载事件钩子：
+
+```typescript
+export default function (pi: ExtensionAPI) {
+  pi.registerTool({ name: "deploy", ... });
+  pi.registerCommand("stats", { ... });
+  pi.on("tool_call", async (event, ctx) => { ... });
+}
+```
+
+官方列出的可能性包括：自定义工具（乃至整体替换内置工具）、子 Agent 与 Plan 模式、自定义压缩与摘要、权限闸门与路径保护、自定义编辑器与 UI 组件、Git 检查点与自动提交、SSH 与沙箱执行、MCP 集成——甚至「把 pi 变成 Claude Code 的样子」，以及等待模型响应时玩 Doom。
+
+**四种运行模式**：交互式、print/JSON（脚本化）、RPC（经 stdin/stdout 的 JSONL 协议，供非 Node 环境集成）、SDK（`createAgentSession()` 嵌入自有应用）。
 
 **供应链硬化**：直接依赖锁定精确版本，`.npmrc` 设 `min-release-age=2` 规避当日发布的依赖，发布的 CLI 包附带 shrinkwrap 锁定传递依赖，安装与自更新一律 `--ignore-scripts`。对一个把「安装即执行任意代码」当作默认风险的工具类项目，这套配置比大多数同类项目认真。
 
 ### 「Harness 才是成本杠杆」：Databricks 的实测
 
-Pi 最有说服力的背书来自 Databricks 在其**数百万行内部代码库**上做的 Agent 评测。结论对整个 11 节都有参考意义：
+Pi Agent 最有说服力的背书来自 Databricks 在其**数百万行内部代码库**上做的 Agent 评测。结论对整个 11 节都有参考意义：
 
 > 同一个模型、同样的思考档位，只是换一个 harness 调用，**每任务成本可以相差 2 倍以上，而质量基本不变**。
 
@@ -1960,14 +2003,16 @@ Pi 最有说服力的背书来自 Databricks 在其**数百万行内部代码库
 |------|------|
 | 上下文与成本敏感的长任务（每轮上下文约为同类的 1/3） | **没有内置权限系统**，默认以启动者的完整权限运行 |
 | 深度定制工作流（扩展 / 技能 / 模板 / 主题四条路径） | 开箱即用程度低，子 Agent、Plan 模式等需自建或装第三方包 |
-| 会话树分支与完整历史回溯 | 不支持 MCP，无法直接复用现有 MCP 生态 |
-| 多提供方自由切换，支持订阅制登录 | 纯终端，无图形界面与云端托管 |
+| 会话树分支、完整历史回溯与会话导出分享 | 不支持 MCP，无法直接复用现有 MCP 生态 |
+| 提供方中立，可直接用订阅认证，支持本地模型 | 纯终端，无图形界面与云端托管，不适合非开发者 |
 
-其中「没有内置权限系统」是使用前必须明确的一点：官方给出的边界方案是容器化——Gondolin 扩展（把工具与 `!` 命令路由进本地 Linux 微虚拟机，而 pi 与凭据留在宿主）、直接 Docker，或策略沙箱 OpenShell。
+其中「没有内置权限系统」是使用前必须明确的一点——官方文档直言 Pi Agent 默认以启动它的用户和进程的权限运行，并给出三种容器化边界方案：**Gondolin 扩展**（把内置工具与 `!` 命令路由进本地 Linux 微虚拟机，而 pi 与提供方凭据留在宿主机）、直接 **Docker**，或策略沙箱 **OpenShell**。此外，项目对新贡献者的 issue 与 PR 默认自动关闭、再由维护者每日复审，这套流程也说明它目前更接近「作者主导的工具」而非社区共治项目。
 
 ### 意义
 
-Pi 与 DeepSeek Harness 恰好构成 2026 年 Harness 工程的两个极点：一个把可替换性做到极致（58 条 seam），一个把功能面收缩到极致（4 个工具、1,000 token）。而 Databricks 的评测说明，在真实的大型代码库上，**后者的收益可能比前者更直接**——因为对当前的模型而言，上下文仍然是最稀缺的资源，克制比丰富更值钱。
+Pi Agent 与 DeepSeek Harness 恰好构成 2026 年 Harness 工程的两个极点：一个把可替换性做到极致（58 条能力 seam），一个把功能面收缩到极致（4 个默认工具、1,000 token 系统提示）。有意思的是二者殊途同归——都认为 Agent 的产品形态不该由框架作者替用户决定，只是一个通过「什么都能换」实现，另一个通过「什么都不给」实现。
+
+而 Databricks 的评测给出了一个现阶段的答案：在真实的大型代码库上，**收缩的收益可能比可替换性更直接**——因为对当前的模型而言，上下文仍然是最稀缺的资源，克制比丰富更值钱。
 
 # 12. Agent 安全
 
