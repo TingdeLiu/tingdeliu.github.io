@@ -175,11 +175,13 @@ flowchart LR
 
 「Harness Engineering」是 2026 年兴起的 Agent 工程化核心方法论——**Agent 的成败不在模型，而在工程约束框架（Harness）**：约束行动权限、结构化上下文告知、自动验证输出、错误触发重规划。LangChain 代码 Agent 仅通过改进 Harness（不换模型）在 Terminal Bench 2.0 上从 52.8% 提升至 66.5%。
 
-2026 年 8 月，DeepSeek 开源 **DeepSeek Harness**（`dsh`），把这套方法论第一次以完整、可审计、每一层都可替换的工程形态交付出来——连 Agent Loop 自身都是一个可换掉的插件，并同步公开了自家模型评测所用的 Harness 配置。详见 [11.9 DeepSeek Harness](#119-deepseek-harness)。
+2026 年 Databricks 在其数百万行内部代码库上的评测进一步量化了这一点：**同一模型、同样的思考档位，仅更换 harness，每任务成本可相差 2 倍以上而质量基本不变**。
+
+这一方法论目前分化出两个方向：DeepSeek 于 2026 年 8 月开源的 **DeepSeek Harness**（`dsh`）把每一层都做成可替换插件——连 Agent Loop 自身也不例外（详见 [11.9 DeepSeek Harness](#119-deepseek-harness)）；而 **Pi** 则反向收缩核心，用不到 1,000 token 的系统提示与 4 个内置工具换取上下文效率（详见 [11.10 Pi](#1110-pi)）。
 
 > 详细技术解析见：[Harness Engineering](/Harness-Engineering/)
 
-*代表性工作*：「Harness Engineering」（OpenAI，2026 年 2 月）、「Effective Harnesses for Long-Running Agents」（Anthropic，2026）、DeepSeek Harness（DeepSeek AI，2026 年 8 月）
+*代表性工作*：「Harness Engineering」（OpenAI，2026 年 2 月）、「Effective Harnesses for Long-Running Agents」（Anthropic，2026）、DeepSeek Harness（DeepSeek AI，2026 年 8 月）、Pi（earendil-works，2026）
 
 ---
 
@@ -1898,6 +1900,75 @@ DeepSeek Harness 的价值不在跑分，而在于它把一个长期含混的行
 至于那个略带讽刺的事实：一个中国实验室开源的 Agent 框架，把 Claude Code 和 Codex 一起做成了自己的可插拔子 Agent——它恰好说明 Agent 竞争的战场正在从模型本身，上移到编排层。
 
 
+---
+
+## 11.10 Pi
+
+**Pi**（`earendil-works/pi`，Mario Zechner 主导，Armin Ronacher 为第二大贡献者）是一个**极简终端编码 harness**，MIT 协议、TypeScript 编写，GitHub Stars **94,500+**。如果说 11.9 的 DeepSeek Harness 是「把每个零件都做成可替换插件」，那么 Pi 走的是相反方向：**核心小到几乎没有零件可拆，其余全部交给用户扩展**。
+
+它的口号是「Adapt pi to your workflows, not the other way around」——不需要 fork、不需要改内部实现，就能把它掰成你想要的形状。
+
+### 设计哲学：靠「不做什么」来定义自己
+
+Pi 官方文档最独特的一段，是一份**明确拒绝的功能清单**：
+
+| 拒绝的功能 | Pi 的理由与替代方案 |
+|-----------|--------------------|
+| **不支持 MCP** | 写带 README 的 CLI 工具即可；需要就自己写扩展加上 |
+| **不做子 Agent** | 实现方式太多，用 tmux 拉起多个 pi 实例，或自己写扩展 |
+| **不做权限弹窗** | 跑在容器里，或按你自己的安全要求写确认流程 |
+| **不做 Plan 模式** | 把计划写进文件，或用扩展实现 |
+| **不做内置 To-Do** | 「它们会让模型犯迷糊」，用 `TODO.md` 就好 |
+| **不做后台 Bash** | 用 tmux，可观测性更好，也能直接交互 |
+
+这份清单不是能力缺失，而是一种**上下文预算纪律**：Pi 的系统提示词加全部工具定义**不到 1,000 token**，开箱只带 **4 个工具**，不做任何隐式上下文注入——省下来的窗口全部留给真正的代码和项目信息。
+
+```mermaid
+flowchart TB
+    CORE["🎯 极小核心：系统提示 + 工具定义 < 1000 token\n4 个内置工具 · pi-agent-core 循环 · pi-ai 多提供方接入\n其余能力一律交给用户扩展 ↓"]
+    CORE ==> E1 & E2 & E3 & E4
+    E1["🧩 Extensions\nTypeScript"] --> PKG
+    E2["📚 Skills\nAgent Skills 标准"] --> PKG
+    E3["📝 Prompt Templates"] --> PKG
+    E4["🎨 Themes"] --> PKG
+    PKG["📦 Pi Package\n经 npm / git 分享给他人"]
+```
+
+### 技术关键点
+
+**五个独立包**：`pi-coding-agent`（交互式 CLI）、`pi-agent-core`（工具调用与状态管理的运行时）、`pi-ai`（统一多提供方 LLM API）、`pi-tui`（差分渲染的终端 UI 库）、`pi-telemetry`（厂商中立的遥测契约）。每个包都可单独用于自建 Agent——**DeepSeek Harness 的默认多提供方 LLM 适配器 `dsh-llm-pi-ai` 正是构建在 `pi-ai` 之上**，这是两个理念相反的项目之间一处有趣的实际交集。
+
+**会话树而非会话线**：`/tree` 可就地浏览整棵会话树，从任意历史节点继续或在分支间切换；`/fork` 从某条用户消息派生新会话文件，`/clone` 复制当前分支。**全部历史保存在单个 JSONL 文件中**——压缩是有损的，但原始记录始终在文件里，随时可回到任意节点。
+
+**四种运行模式**：交互式、print/JSON（脚本化）、RPC（进程集成）、SDK（嵌入自有应用）。
+
+**供应链硬化**：直接依赖锁定精确版本，`.npmrc` 设 `min-release-age=2` 规避当日发布的依赖，发布的 CLI 包附带 shrinkwrap 锁定传递依赖，安装与自更新一律 `--ignore-scripts`。对一个把「安装即执行任意代码」当作默认风险的工具类项目，这套配置比大多数同类项目认真。
+
+### 「Harness 才是成本杠杆」：Databricks 的实测
+
+Pi 最有说服力的背书来自 Databricks 在其**数百万行内部代码库**上做的 Agent 评测。结论对整个 11 节都有参考意义：
+
+> 同一个模型、同样的思考档位，只是换一个 harness 调用，**每任务成本可以相差 2 倍以上，而质量基本不变**。
+
+在 Opus 4.8 的 xhigh 思考档位下，**Pi 取得了所有受测 harness 中最高的通过率，且成本显著低于 Claude Code 与 Codex**——原因正是它每轮发送的上下文约少 **3 倍**，因而用更少的轮次跑完任务。该评测的其他发现同样值得记录：Opus 4.8 完成率 87%、$1.94/任务；GLM 5.2 在质量上与之统计持平，成本仅 **$1.28/任务**；Sonnet 5 虽然单 token 更便宜，却因多消耗 **1.9 倍** token 而使每任务成本升至 $2.09。
+
+这组数据是 2.7 节「Agent 的成败不在模型，而在 Harness」最硬的一份外部证据。
+
+### 能力边界与局限
+
+| 擅长 | 局限 |
+|------|------|
+| 上下文与成本敏感的长任务（每轮上下文约为同类的 1/3） | **没有内置权限系统**，默认以启动者的完整权限运行 |
+| 深度定制工作流（扩展 / 技能 / 模板 / 主题四条路径） | 开箱即用程度低，子 Agent、Plan 模式等需自建或装第三方包 |
+| 会话树分支与完整历史回溯 | 不支持 MCP，无法直接复用现有 MCP 生态 |
+| 多提供方自由切换，支持订阅制登录 | 纯终端，无图形界面与云端托管 |
+
+其中「没有内置权限系统」是使用前必须明确的一点：官方给出的边界方案是容器化——Gondolin 扩展（把工具与 `!` 命令路由进本地 Linux 微虚拟机，而 pi 与凭据留在宿主）、直接 Docker，或策略沙箱 OpenShell。
+
+### 意义
+
+Pi 与 DeepSeek Harness 恰好构成 2026 年 Harness 工程的两个极点：一个把可替换性做到极致（58 条 seam），一个把功能面收缩到极致（4 个工具、1,000 token）。而 Databricks 的评测说明，在真实的大型代码库上，**后者的收益可能比前者更直接**——因为对当前的模型而言，上下文仍然是最稀缺的资源，克制比丰富更值钱。
+
 # 12. Agent 安全
 
 具备工具调用和代码执行能力的 Agent 一旦被攻击者操控，后果远比普通 LLM 严重——它不只是说错话，而是会删文件、泄数据、发邮件、调用付费 API。2025–2026 年，Agent 安全已从边缘议题演变为独立研究方向，形成三类核心威胁。
@@ -2034,15 +2105,17 @@ AI Agent 代表了人工智能从"理解"走向"行动"的核心范式转变。�
 22. DeepSeek AI. "DeepSeek Harness Architecture." *docs/architecture.md*, August 2026. （Cordis 插件树、能力 seam、轮次-步骤流程）Accessed August 2026.
 23. DeepSeek AI. "DeepSeek-V4-Pro-0813 Release Notes." *api-docs.deepseek.com*, August 2026. Accessed August 2026.
 24. Cordiverse. "A Programming Paradigm for Spatiotemporal Composability." *github.com/cordiverse/paper*, 2026. （dsh 底层插件内核的设计论文）
+25. Zechner, M., et al. "Pi Agent Harness." *github.com/earendil-works/pi*, 2026. MIT License. Accessed August 2026.
+26. Databricks. "Benchmarking Coding Agents on Databricks' Multi-Million Line Codebase." *databricks.com/blog*, 2026. Accessed August 2026.
 
 **Agent 安全**
 
-25. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
-26. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
-27. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
+27. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
+28. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
+29. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
 
 **综述与背景**
 
-28. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
-29. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
-30. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
+30. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
+31. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
+32. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
