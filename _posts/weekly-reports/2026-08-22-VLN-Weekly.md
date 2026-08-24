@@ -1,0 +1,192 @@
+---
+layout: post
+title: "具身导航周报（2026-08-13 ~ 2026-08-20）"
+date:   2026-08-22
+permalink: /vln-weekly-2026-08-22/
+tags: [VLN, VLA, Embodied Navigation, Weekly Digest, arXiv]
+categories: weekly
+comments: true
+author: Tingde Liu
+toc: true
+excerpt: "本期 46 篇新增工作中导航为主仅 5 篇，R2R/RxR 榜单供给持续变稀：Embodied-Navigator 是唯一给出 R2R-CE 数字的工作（66.2% SR）；CondVLN 用条件分支指令揭示 SR/SPL 评测口径对指令理解能力的高估；RP1、Remember Smarter 等可插拔的记忆压缩与规划模块，对地面长程导航的迁移价值高于任何单篇操作类 SOTA。"
+---
+
+* 目录
+{:toc}
+
+
+## 一、本期结论
+
+- **本期 46 篇新增工作中，只有 1 篇报告了 R2R 系列指标，0 篇报告 RxR。** 唯一命中的是 [Embodied-Navigator / TAMP-Nav](https://arxiv.org/abs/2608.17512v1)，摘要称在 R2R-CE 上达到 66.2% SR。其余导航工作分别选用 AI2-THOR、RoboTHOR、Matterport3D、Gibson 或自建真机场景，没有一篇以 R2R/RxR 排行榜为主战场。本报告判断：以 R2R/RxR 榜单增益为核心卖点的论文供给正在变稀，标准 benchmark 上的可比数字需要主动去 arXiv 全文核对。
+- **导航类工作占比很低：46 篇里导航为主 5 篇，操作为主 23 篇。** 本期 arXiv 命中集合被 VLA 操作（尤其是 LIBERO 家族）主导，地面 VLN 的新方法供给不足。本报告判断：本周不适合做"VLN 方法横向对比"选题，更适合做评测方法或可迁移机制的选题。
+- **VLN 评测的关注点从"走到没走到"转向"是否按正确条件走"。** [CondVLN](https://arxiv.org/abs/2608.17318v1) 指出智能体可以在路径看起来合理的同时选错逻辑分支，而标准成功率和路径长度无法暴露这一失败。对地面 VLN 的影响：现有以 SR/SPL 为主的评测口径可能高估了指令理解能力，值得在自有评测里补条件分支类指令。
+- **多篇工作把"记忆压缩"和"可学习规划"做成了可插拔模块**，且至少一篇（[RP1](https://arxiv.org/abs/2608.18669v1)）在摘要中明确包含 visual navigation 实验。本报告判断：这类模块是本期对地面长程导航最有直接迁移价值的部分，优先级高于任何单篇操作类 SOTA。
+
+## 二、优先阅读清单
+
+| 优先级 | 工作 | 任务/场景 | 核心贡献 | 关键证据 | 阅读理由 |
+|---|---|---|---|---|---|
+| A1 | [Embodied-Navigator / TAMP-Nav](https://arxiv.org/abs/2608.17512v1) | 连续环境 VLN | 像素到 3D 动作表述 + 选择性推理记忆 + GRPO 两级对齐 | 摘要称 R2R-CE 66.2% SR，训练用 90k 轨迹 | 本期唯一报 R2R 系指标的工作，且样本效率有明确数字 |
+| A2 | [CondVLN（If, Then, Otherwise）](https://arxiv.org/abs/2608.17318v1) | VLN 条件分支评测 | 场景图接地的条件指令 benchmark + 分支专用指标 | 摘要称 11,500+ 条指令，覆盖 AI2-THOR/MP3D/Gibson/ReplicaCAD，评测 VLN-Zero、NaVid、NaVILA、Open-Nav；神经符号分支选择器提升 2 倍 | 直接冲击现有 SR/SPL 评测口径，可复用为自有诊断集 |
+| A3 | [Graph-MambaNav](https://arxiv.org/abs/2608.13723v1) | ObjectNav | 目标相关性驱动的节点排序 + 时空 Graph-Mamba | 摘要称在 AI2-THOR 与 RoboTHOR 上导航性能提升，并有真机部署验证；未给出可核验数值 | 图结构 + 状态空间模型在 ObjectNav 上的具体用法 |
+| A4 | [DevGRU](https://arxiv.org/abs/2608.18470v1) | 点目标视觉导航（室内避障） | 深度引导 + 碰撞感知的轨迹预测 | 摘要称 9 个场景对比 ViNT/NoMaD/NavDP，模型体积为 NavDP 的 1/7、推理时间 1/17；未给出标准 benchmark 数值 | 关注真机窄通道避障与推理开销时值得读 |
+| A5 | [RP1（Reinforced Planning with Latent World Models）](https://arxiv.org/abs/2608.18669v1) | 视觉导航 / 机械臂 / 操作 | 完全离线学习"如何改进多步计划"的规划器，可挂接任意预训练潜世界模型 | 摘要称跨两个世界模型骨干优于手工搜索算法，世界模型 rollout 用量减少 1000 倍、最快 67 倍；未按任务拆分数值 | 含导航实验且模块可插拔，是本期迁移价值最高的规划工作 |
+| B1 | [Remember Smarter](https://arxiv.org/abs/2608.15269v1) | 长程机器人记忆 | 视觉历史压缩 + 双曲经验空间，双分支即插即用 | 摘要称接入 pi0 后 LIBERO-Plus 总成功率 53.6% → 70.6% | 长程导航历史压缩的可直接借鉴结构 |
+| B2 | [Calibrated Predictive Safety](https://arxiv.org/abs/2608.17496v1) | 异构机器人安全执行 | 动作条件 JEPA 预测风险与进度 + 确定性安全护盾 | 摘要称在 LIBERO-Long 600 回合配置下优于仅用护盾的基线，并在匹配召回下降低碰撞漏检；真机实验仍为未来工作 | 导航避障可借鉴"学习排序 + 确定性兜底"的分工 |
+| B3 | [The Embodiment Gap in Robot Foundation Models](https://arxiv.org/abs/2608.18433v1) | 跨本体综述 | 提出本体差距的两轴图谱与适配工作量报告框架 | 综述类，无实验数值 | 换机器人平台时评估复用成本的框架性参考 |
+
+## 三、重点工作分析
+
+### 1. Embodied-Navigator / TAMP-Nav：本期唯一给出 R2R-CE 数字的工作，路线是让 VLM 只做它擅长的 2D 选点
+
+| 维度 | 分析 |
+|---|---|
+| 问题 | 摘要称现有方法把 VLM 塞进不自然的动作空间，与其 2D 预训练先验错位，同时推理调度僵硬、记忆管理低效。 |
+| 方法 | 三段机制：Point 把导航重述为 2D 视觉提示，VLM 只选像素，再投影成 3D 坐标交给底层 SLAM 控制器；Think/Memorize 在关键节点才触发思维链并保留高保真记忆，其余轨迹压成轻量时空指示符；Align 用 GRPO 叠加全局结果奖励与细粒度过程奖励做两级对齐。 |
+| 证据 | 摘要称 R2R-CE 上 66.2% SR，训练仅需 90k 轨迹。注意是 R2R-CE（连续环境）而非离散 R2R，与离散 R2R 排行榜不可直接比较。摘要未给出 SPL、NE 等其他指标，也未列出对照方法的具体数值，因此 state-of-the-art 这一表述在条目内无法独立核验。 |
+| 价值 | 对地面 VLN 有直接价值：像素选点 + SLAM 控制器的分工与真实地面平台的既有导航栈契合度高，不需要 VLM 直接输出低层动作。样本效率数字（90k 轨迹）对复现成本估算有参考意义。 |
+| 局限 | 依赖底层 SLAM 控制器质量，摘要未说明其在里程计漂移或动态障碍下的表现；未给出真机结果；标题名（Embodied-Navigator）与方法名（TAMP-Nav）不一致，检索与引用时需留意。 |
+| 建议 | 优先精读，重点看 R2R-CE 的对照表和 GRPO 过程奖励的具体设计；若要与自有结果对比，务必确认对方用的是 R2R-CE 划分而非离散 R2R。 |
+
+### 2. CondVLN：把选错分支从成功率里拆出来，是本期对评测口径冲击最大的工作
+
+| 维度 | 分析 |
+|---|---|
+| 问题 | 摘要称现有 VLN 评测多为朝固定目标的路线式指令，而真实指令常带条件（若条件成立则走 A，否则走 B）；现有评测对分支执行缺乏控制，无法区分失败源自感知、接地、导航还是逻辑决策。 |
+| 方法 | 程序化生成条件指令，分支条件接地在可验证的 3D 场景图谓词上，并对分支深度、依赖链长度、空间组合、证据可观测性和指令时长做受控变化。除标准 VLN 指标外，新增 Branch Selection Accuracy 与 Conditional Success Rate 两项诊断指标。另提出一个把条件接地与导航执行分离的轻量神经符号分支选择模型。 |
+| 证据 | 摘要称包含 11,500+ 条生成指令，覆盖 AI2-THOR、Matterport3D、Gibson、ReplicaCAD；评测 VLN-Zero、NaVid、NaVILA、Open-Nav 四个方法，结论是智能体可能路径看似合理但分支与观测到的场景条件不一致；分支选择模型使性能提升 2 倍。摘要未给出四个被测方法各自的具体数值，2x 未说明基于哪一项指标。 |
+| 价值 | 直接价值在评测侧：本报告判断，若自有系统仅报 SR/SPL，很可能掩盖了条件理解失败。该 benchmark 覆盖 MP3D 与 Gibson，与常见地面 VLN 设置兼容，可作为现有评测的补充集。 |
+| 局限 | 指令为程序化生成，与人类自然条件指令的分布差异未在摘要中说明；四个被测方法均为较新的 VLM 式导航器，未覆盖经典 R2R 微调模型，因此结论能否外推到传统 VLN 模型未知。 |
+| 建议 | 建议精读并考虑纳入自有 benchmark 跟踪；重点看条件指令的生成模板与 Branch Selection Accuracy 的定义是否可直接移植。 |
+
+### 3. Graph-MambaNav：把 Graph-Mamba 的节点排序机制引入 ObjectNav
+
+| 维度 | 分析 |
+|---|---|
+| 问题 | 摘要称现有基于图的 ObjectNav 方法在特征或注意力层引入目标感知，但仍是置换不变的，缺乏显式控制信息传播顺序的机制，限制了对目标相关重要性和长程依赖的建模。 |
+| 方法 | 按物体与目标的相关性做启发式排序，让更有信息量的物体在序列中靠后处理以聚合更丰富上下文；节点顺序与边权均由 LLM 导出的常识物体关系初始化。空间模块结合局部消息传递与 GraphMamba 全局选择性扫描，时间模块对物体级时间顺序做 Mamba 序列建模。 |
+| 证据 | 摘要称在 AI2-THOR 与 RoboTHOR 上导航性能与泛化性提升，并有真实机器人部署验证。摘要未给出任何 SR/SPL 数值或对照方法，因此有效性在条目内无法核验。 |
+| 价值 | 对地面 ObjectNav 有参考价值：用 LLM 常识初始化图先验、再用排序控制传播顺序，这一组合可迁移到自有语义地图模块。 |
+| 局限 | 无可核验数字；AI2-THOR/RoboTHOR 为合成室内场景，与真实地面平台差距较大；启发式排序对目标类别之外的开放词表目标是否成立，摘要未说明。 |
+| 建议 | 中优先级跟踪，读全文时优先确认实验表中的绝对数值与基线选择。 |
+
+### 4. DevGRU：面向窄通道碰撞问题的轻量点目标导航模型
+
+| 维度 | 分析 |
+|---|---|
+| 问题 | 摘要称现有视觉导航基础模型在复杂室内环境（尤其结构化布局与窄通道）中易发生碰撞。 |
+| 方法 | 深度图与点目标共同条件化的导航系统，动作预测器生成碰撞感知的未来轨迹；配合碰撞预测器，动作预测器还补偿目标位姿估计的累积误差并主动抑制未来偏移。 |
+| 证据 | 摘要称在 9 个场景上对比 ViNT、NoMaD、NavDP 及 ViNT/NoMaD 的四个变体，导航性能大幅优于 ViNT 与 NoMaD；模型体积为 NavDP 的 1/7，推理时间为 1/17。未给出具体成功率或碰撞率数值，也未说明 9 个场景是仿真还是真机。 |
+| 价值 | 对真实地面平台有价值的是效率数字：在边缘算力受限时，1/17 的推理时间意味着可显著提高控制频率。 |
+| 局限 | 依赖深度输入与点目标，不涉及语言指令，因此不能直接替代 VLN 模块；缺少标准 benchmark 数值使横向比较困难；对 NavDP 只报了效率优势而未报性能优势，需在全文确认是否存在性能折损。 |
+| 建议 | 若关注真机避障与推理开销可精读；作为 VLN 工作对比对象则相关性有限。 |
+
+## 四、可迁移方法
+
+| 来源方向 | 工作 | 可迁移机制 | 可接入地面导航的位置 | 风险/前提 |
+|---|---|---|---|---|
+| 潜世界模型规划 | [RP1](https://arxiv.org/abs/2608.18669v1) | 完全离线从想象 rollout 学习改进多步计划的优化器 + 评价器，可挂接任意预训练潜世界模型 | 长程导航的高层路径规划器，替代手工搜索 | 摘要虽含 visual navigation 实验但未拆分该任务数值；需自有潜世界模型 |
+| 长程记忆 | [Remember Smarter](https://arxiv.org/abs/2608.15269v1) | 双向空间 Mamba + 因果时间 Mamba 压缩多视角历史，经残差交叉注意力接入动作侧隐状态，不改动 VLM 视觉 token 流 | VLN 的观测历史编码，缓解长指令下的上下文膨胀 | 证据来自 LIBERO-Plus 操作任务（53.6%→70.6%），导航场景未验证 |
+| 执行安全 | [Calibrated Predictive Safety](https://arxiv.org/abs/2608.17496v1) | 学习排序只重排可行候选，强制性保证交给确定性安全护盾与回退阶梯 | 导航局部避障：VLM 提议路径 + 几何护盾过滤 | 仅 LIBERO-Long 仿真验证，真机实验作者列为未来工作 |
+| 过程奖励 | [Robo-Dopamine 2.0](https://arxiv.org/abs/2608.15680v1) | 历史条件化的成对过程奖励 + 区分有效进展/鲁棒/失败/恢复的带符号进度空间 | 导航 RL 的稠密奖励设计，缓解稀疏成功信号 | 数值来自操作任务（RoboTwin 86.8%、真机插入 71/80），导航需重建奖励语义 |
+| 测试时增强 | [Reuse Before You Retrieve](https://arxiv.org/abs/2608.17484v1) | 用可恢复余量与检索互补性两个可测因子决定该重采样还是该检索 | 冻结导航策略的部署期增强决策 | 证据在 LIBERO 上（最高 +21.0 成功率点），导航的 retry 语义不同、回退代价更高 |
+| 跨本体复用 | [The Embodiment Gap](https://arxiv.org/abs/2608.18433v1) | 两轴图谱区分可共享结构类型与需适配阶段，并给出适配工作量报告框架 | 更换地面平台时评估复用成本与需重做的部分 | 综述性质，无实验证据，仅作分析框架 |
+
+## 五、分类速览
+
+### 5.1 地面 VLN / ObjectNav / 语义导航
+
+| 工作 | 主题 | 一句话贡献 | 相关度 | 链接 |
+|---|---|---|---|---|
+| Embodied-Navigator / TAMP-Nav | 连续环境 VLN | 见重点分析 | A | [2608.17512](https://arxiv.org/abs/2608.17512v1) |
+| CondVLN | VLN 条件分支评测 | 见重点分析 | A | [2608.17318](https://arxiv.org/abs/2608.17318v1) |
+| Graph-MambaNav | ObjectNav | 见重点分析 | A | [2608.13723](https://arxiv.org/abs/2608.13723v1) |
+| DevGRU | 点目标视觉导航 | 见重点分析 | A | [2608.18470](https://arxiv.org/abs/2608.18470v1) |
+| Exposing the Long-tail in Embodied Urban Navigation | 城市点目标导航 | 从野外第一视角视频自动标注度量轨迹与导航语义，训练可解释 VLA 规划策略并系统暴露长尾失败模式 | A | [2608.16476](https://arxiv.org/abs/2608.16476v1) |
+
+### 5.2 记忆、地图、规划与评测
+
+| 工作 | 主题 | 一句话贡献 | 相关度 | 链接 |
+|---|---|---|---|---|
+| RP1 | 可学习规划器 | 见可迁移方法 | B | [2608.18669](https://arxiv.org/abs/2608.18669v1) |
+| Remember Smarter | 长程记忆压缩 | 见可迁移方法 | B | [2608.15269](https://arxiv.org/abs/2608.15269v1) |
+| Calibrated Predictive Safety | 预测式安全 | 见可迁移方法 | B | [2608.17496](https://arxiv.org/abs/2608.17496v1) |
+| Robo-Dopamine 2.0 | 过程奖励建模 | 见可迁移方法 | B | [2608.15680](https://arxiv.org/abs/2608.15680v1) |
+| Reuse Before You Retrieve | 测试时增强诊断 | 见可迁移方法 | B | [2608.17484](https://arxiv.org/abs/2608.17484v1) |
+| The Embodiment Gap | 跨本体综述 | 见可迁移方法 | B | [2608.18433](https://arxiv.org/abs/2608.18433v1) |
+| LIBERO-VIFO | 视觉线索遵循评测 | 针对 VLA 视觉线索遵循能力与安全性的 benchmark，基于场景实例化实验 | C | [2608.17600](https://arxiv.org/abs/2608.17600v1) |
+
+### 5.3 具身 VLA / 移动操作
+
+| 工作 | 主题 | 一句话贡献 | 相关度 | 链接 |
+|---|---|---|---|---|
+| GigaBrain-0.7 | 基础模型 | 三系统架构扩展具身基础模型以获得涌现能力 | C | [2608.15875](https://arxiv.org/abs/2608.15875v1) |
+| τ_0-VLA | 分层基础模型 | 世界模型引导的测试时计算 | C | [2608.16885](https://arxiv.org/abs/2608.16885v1) |
+| Teach and Grow | 通用机器人学习 | 以智能体为中心的架构 | C | [2608.17209](https://arxiv.org/abs/2608.17209v1) |
+| EXIMO | 策略探索 | 用 VLM 引导 VLA 策略的探索 | C | [2608.19891](https://arxiv.org/abs/2608.19891v1) |
+| StructRL | 流式 VLA 的 RL | 结构化动作空间探索 | C | [2608.15139](https://arxiv.org/abs/2608.15139v1) |
+| Prism-GRPO | 策略优化效率 | 拆分同结果分组以加速 VLA 策略优化 | C | [2608.17423](https://arxiv.org/abs/2608.17423v1) |
+| PACE | 长程信用分配 | 阶段进度感知的信用分配 | C | [2608.15026](https://arxiv.org/abs/2608.15026v1) |
+| Q-Learning With World Models | 世界模型 RL | 在降低模型偏差的同时结合 Q 学习 | C | [2608.17163](https://arxiv.org/abs/2608.17163v1) |
+| Don't Drop the BATON | 长程操作 | 智能体式子任务探索 + 转移感知记忆 | C | [2608.16889](https://arxiv.org/abs/2608.16889v1) |
+| Imagining Recovery | 推理期纠错 | 反事实重对齐实现推理时恢复 | C | [2608.14822](https://arxiv.org/abs/2608.14822v1) |
+| FabriMAE | 自评估 | 用马尔可夫注意力熵自评估 VLA 动作生成 | C | [2608.16697](https://arxiv.org/abs/2608.16697v1) |
+| SparkVLA | 长程操作 | 停止感知的分层 VLA 与自适应动作分块 | C | [2608.16172](https://arxiv.org/abs/2608.16172v1) |
+| NebulaVLA | 双频架构 | 引入引导动作的双频 VLA | C | [2608.16503](https://arxiv.org/abs/2608.16503v1) |
+| Reflex | 实时性 | 面向反应关键任务的快速预测式 VLA | C | [2608.14379](https://arxiv.org/abs/2608.14379v1) |
+| PhaseLoRA | 参数高效微调 | 控制机制条件化的低秩适配 | C | [2608.15285](https://arxiv.org/abs/2608.15285v1) |
+| Role-Conditioned Sub-Token Routing | 推理效率 | 角色条件化的子 token 路由 | C | [2608.18410](https://arxiv.org/abs/2608.18410v1) |
+| Algorithm-Architecture Co-Design | 推理加速 | 投机推理与验证的算法架构协同设计 | C | [2608.15636](https://arxiv.org/abs/2608.15636v1) |
+| EcoVLA | 端边协同 | 实时约束下的能效端边协同推理 | C | [2608.15502](https://arxiv.org/abs/2608.15502v1) |
+| GS-VLA | 视角鲁棒性 | 用高斯泼溅做视角规范化，无需改动冻结策略 | C | [2608.19066](https://arxiv.org/abs/2608.19066v1) |
+| EATR-Stereo | 人形视觉 | 成对立体证据的本体感知 token 路由 | C | [2608.17453](https://arxiv.org/abs/2608.17453v3) |
+| HAF | 人形全身操作 | 分层动作流 + 谱潜空间 RL 适配通用 VLA | C | [2608.16837](https://arxiv.org/abs/2608.16837v1) |
+| ViTaR | 视触觉 | 面向基础 VLA 操作的视触觉残差适配 | C | [2608.15816](https://arxiv.org/abs/2608.15816v1) |
+| AdvDex | 灵巧操作 | 关节对齐动作 + 对抗学习从人类演示学习 | C | [2608.14028](https://arxiv.org/abs/2608.14028v1) |
+| CompCPZ | 语言引导操作 | 保留多模态意图 | C | [2608.17717](https://arxiv.org/abs/2608.17717v1) |
+| Fine-Tuning VLAs with Self-Demonstrated Generative Control | 多任务微调 | 自演示生成式控制 | C | [2608.19490](https://arxiv.org/abs/2608.19490v1) |
+| OrthoSkillVLA | 持续学习 | 梯度引导的技能子空间适配 | C | [2608.19589](https://arxiv.org/abs/2608.19589v1) |
+| Bit-Flip Attacks on VLA | 安全性 | 动作解码架构影响位翻转攻击脆弱性 | C | [2608.15475](https://arxiv.org/abs/2608.15475v1) |
+
+### 5.4 无人机、自动驾驶与其他低相关方向
+
+| 工作 | 主题 | 一句话贡献 | 相关度 | 链接 |
+|---|---|---|---|---|
+| BrainWAM | 自动驾驶 | 语义先验与预测动力学的动作空间协调 | C | [2608.12854](https://arxiv.org/abs/2608.12854v2) |
+| Planning-Oriented End-to-End Autonomous Driving | 自动驾驶综述 | 架构、评测与新兴范式梳理 | C | [2608.20111](https://arxiv.org/abs/2608.20111v1) |
+| Plug-and-Play Traffic Element Awareness | 自动驾驶 | 即插即用的交通元素感知 | C | [2608.18035](https://arxiv.org/abs/2608.18035v1) |
+| Inference-Time Attention Steering | 自动驾驶 VLA | 推理期注意力引导 | C | [2608.17095](https://arxiv.org/abs/2608.17095v1) |
+| SSP | 自动驾驶评测 | 事件匹配的 Syn2Sim2Phy 跨域评测框架 | C | [2608.14024](https://arxiv.org/abs/2608.14024v1) |
+| ForceU-VLA | 医疗超声 | 力感知的超声扫查 VLA | C | [2608.15009](https://arxiv.org/abs/2608.15009v1) |
+| US-VLA | 医疗超声 | 面向腹部扫查的超声 VLA | C | [2608.16074](https://arxiv.org/abs/2608.16074v1) |
+
+### 5.5 资讯与非论文
+
+| 日期 | 事件 | 类型 | 与研究的关系 | 链接 |
+|---|---|---|---|---|
+| — | 本期未抓取公众号源，无非论文条目 | — | — | — |
+
+## 六、趋势判断与行动建议
+
+### 趋势
+
+- **VLN 评测正在从终点成功率转向过程正确性。** CondVLN 引入分支选择准确率与条件成功率，Robo-Dopamine 2.0 构造带符号进度空间区分有效进展/鲁棒/失败/恢复，Reuse Before You Retrieve 提出可恢复余量作为可测量诊断因子。三者方向一致：单一终点指标不足以刻画策略质量。
+- **冻结大模型 + 可插拔轻量模块成为主流工程形态。** Remember Smarter、GS-VLA、Reuse Before You Retrieve、RP1 都强调不改动主干、即插即用。本报告判断：这降低了在自有导航栈上做增量实验的成本，是本期最值得跟进的工程范式。
+- **本体差距被显式问题化。** The Embodiment Gap 提出跨本体复用的分析框架，EATR-Stereo 与 HAF 分别针对人形做适配，Calibrated Predictive Safety 用本体嵌入条件化世界模型。共同信号是：跨平台迁移的隐性工作量开始被要求显式报告。
+
+### 研究空白
+
+- **连续环境 VLN 缺少统一可比的公开数字。** 本期唯一的 R2R-CE 结果（66.2% SR）没有配套 SPL/NE，其余导航工作各用各的场景集，横向比较无法进行。
+- **记忆压缩与过程奖励的证据几乎全部来自操作任务。** Remember Smarter、Robo-Dopamine 2.0 的数值都在 LIBERO/RoboTwin 上取得，导航长时序、部分可观测、回退代价高的特性未被验证。
+- **条件性与逻辑性指令理解尚无对应的训练方法。** CondVLN 暴露了问题并给出轻量分支选择器，但本期没有任何一篇从训练侧系统解决条件指令接地。
+
+### 建议动作
+
+| 动作 | 目标 | 优先级 |
+|---|---|---|
+| 精读全文 | Embodied-Navigator / TAMP-Nav：核对 R2R-CE 对照表、SPL/NE 是否给出，确认 GRPO 过程奖励设计 | 高 |
+| 精读并评估纳入评测 | CondVLN：确认条件指令生成模板与两项分支指标能否移植到自有 MP3D/Gibson 评测 | 高 |
+| 精读并评估复现 | RP1：确认 visual navigation 子任务的实际设置与数值，判断能否挂接自有潜世界模型 | 高 |
+| 借鉴结构 | Remember Smarter 的双 Mamba 历史压缩分支，在自有 VLN 模型上做导航场景验证 | 中 |
+| 跟踪 | Graph-MambaNav：等待或查阅全文数值后再判断 ObjectNav 上的实际增益 | 中 |
+| 暂缓 | 5.3 与 5.4 中的操作类、自动驾驶类与医疗超声类工作，本期无地面导航直接相关性 | 低 |
