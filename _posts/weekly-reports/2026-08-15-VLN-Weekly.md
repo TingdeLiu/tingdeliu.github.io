@@ -1,4 +1,20 @@
-# 具身导航周报（2026-08-15，覆盖 2026-08-01 ~ 2026-08-15）
+---
+layout: post
+title: "具身导航周报（2026-08-01 ~ 2026-08-15）"
+date:   2026-08-15
+permalink: /vln-weekly-2026-08-15/
+tags: [VLN, VLA, Embodied Navigation, Weekly Digest, arXiv]
+categories: weekly
+comments: true
+author: Tingde Liu
+toc: true
+published: false
+excerpt: "地面导航的记忆从「单次 episode 内的地图」转向「跨 episode 复用的持久结构」，SSTG-Nav、LifelongCrossNav、SAIN 三项互不相关的工作指向同一目标；VLN-CE 执行范式由开环转向闭环并显式拆出纠错点（SC²-WM、WNM-3D、Route2Step）；跨本体导航的核心设计变量收敛到「用什么中间接口连接语义与本体」。"
+---
+
+* 目录
+{:toc}
+
 
 ## 一、本期结论
 

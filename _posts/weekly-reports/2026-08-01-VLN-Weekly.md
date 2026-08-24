@@ -1,4 +1,20 @@
-# 具身导航周报（2026-08-01，覆盖 2026-07-22 ~ 2026-08-01）
+---
+layout: post
+title: "具身导航周报（2026-07-22 ~ 2026-08-01）"
+date:   2026-08-01
+permalink: /vln-weekly-2026-08-01/
+tags: [VLN, VLA, Embodied Navigation, Weekly Digest, arXiv]
+categories: weekly
+comments: true
+author: Tingde Liu
+toc: true
+published: false
+excerpt: "同济 IEEE TASE 综述首次在真机上系统量化 sim-to-real 落差：分层方法成功率 66%→51%，端到端 61%→22%；EA-Nav 与 X-NavDP 把「本体几何」从隐含假设变成显式条件变量；MemVLN、BrainNav 绕开逐 token 自回归解码做长历史压缩；CheckVLA、RoboBRIDGE 等外挂式运行时验证正在成为独立于主策略的标准组件。"
+---
+
+* 目录
+{:toc}
+
 
 ## 一、本期结论
 
