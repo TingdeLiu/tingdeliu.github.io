@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "VLA 综述"
-date:  2026-08-14
+date:   2026-08-24
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 categories: research
 comments: true
@@ -3878,12 +3878,12 @@ Motus提出了统一的潜在动作世界模型,通过以下创新实现五种�
 
 **5. 三阶段训练流程:**
 
-<!-- <div align="center">
-  <img src="/images/motus-training-pipeline.png" width="100%" />
+<div align="center">
+  <img src="/images/vln/motus-training-pipeline.webp" width="70%" />
 <figcaption>
 Motus三阶段训练流程与数据金字塔
 </figcaption>
-</div> -->
+</div>
 
 - **阶段1(视频生成)**:使用多机器人轨迹、自我中心人类视频和合成数据适配VGM(仅训练VGM,约8000 GPU小时)
 - **阶段2(潜在动作统一训练)**:冻结VLM,在视频、语言和潜在动作上预训练整个Motus模型(约10000 GPU小时)
@@ -3912,12 +3912,12 @@ Motus三阶段训练流程与数据金字塔
 - 在50个任务上评估,包含强背景和环境随机化(随机背景、杂乱桌面、桌高扰动、随机光照)
 - 清洁场景成功率:88.66%(Motus) vs 72.80%(X-VLA) vs 42.98%(π0.5)
 
-<!-- <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/motus-robotwin-results.png" width="100%" />
+<div align="center">
+  <img src="/images/vln/motus-robotwin-results.webp" width="100%" />
 <figcaption>
 RoboTwin 2.0仿真基准测试结果对比
 </figcaption>
-</div> -->
+</div>
 
 **真实世界实验:**
 - **两个平台**:AC-One和Agilex-Aloha-2双臂机器人
@@ -3930,12 +3930,12 @@ RoboTwin 2.0仿真基准测试结果对比
 - **Agilex-Aloha-2平台**:平均59.30%(Motus) vs 26.60%(无预训练) vs 48.60%(π0.5)
   - 突出任务:从饮水机取水96% vs 8%(无预训练),叠毛巾39% vs 0%
 
-<!-- <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/motus-real-world-tasks.png" width="100%" />
+<div align="center">
+  <img src="/images/vln/motus-real-world-tasks.webp" width="60%" />
 <figcaption>
 Motus在真实世界复杂任务上的执行展示
 </figcaption>
-</div> -->
+</div>
 
 **其他基准测试:**
 - **LIBERO-Long**:97.6%成功率(与X-VLA并列最优,达到state-of-the-art)
@@ -3964,12 +3964,12 @@ $$
 4. VGM: p(o_{t+1:t+k} | o_t, ℓ) - 从观察和语言生成未来视频
 5. 视频-动作联合预测: p(o_{t+1:t+k}, a_{t+1:t+k} | o_t, ℓ) - 同时生成视频和动作 -->
 
-<!-- <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/motus-unified-modes-visualization.png" width="100%" />
+<div align="center">
+  <img src="/images/vln/motus-vgm-mode-visualization.webp" width="90%" />
 <figcaption>
-Motus五种统一模式的可视化展示
+Motus VGM 模式（从观察和语言生成未来视频）在 Agilex-Aloha-2 上的可视化：每组上排为真实执行，下排为模型生成
 </figcaption>
-</div> -->
+</div>
 
 **局限性**
 

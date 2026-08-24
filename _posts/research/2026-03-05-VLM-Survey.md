@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "VLM 综述"
-date:  2026-08-14
+date:   2026-08-24
 tags: [VLM, Computer Vision, Deep Learning, Multimodal]
 categories: research
 comments: true
@@ -738,7 +738,7 @@ DINOv2 ViT-L（307M）在仅添加线性探测头（无卷积解码器）的情�
 DINOv2 最令人印象深刻的涌现能力是**无需任何分割标注**即可产生语义一致的 patch 分组。对 patch 特征做简单的 PCA 或 k-means 聚类，就可以得到语义一致的物体分割结果：
 
 <div align="center">
-  <img src="/images/vlm/dinov2-segmentation.png" width="90%" />
+  <img src="/images/vlm/dinov2-segmentation.webp" width="90%" />
   <figcaption>图：DINOv2 的涌现分割能力——对 patch 特征做 PCA 可视化，第一主成分自然对应前景物体（来源：DINOv2 论文）</figcaption>
 </div>
 

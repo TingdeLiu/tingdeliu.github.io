@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "VLN 经典论文"
-date:   2026-08-19
+date:   2026-08-24
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -558,12 +558,12 @@ NoMaD目标掩码扩散策略框架
 - 同时支持任务特定行为（目标导向）和任务无关行为（探索）
 - 使用大规模多样化数据集（GNM和SACSoN）进行端到端监督训练
 
-<!-- <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/nomad-goal-masking.png" width="100%" loading="lazy" decoding="async" />
+<div align="center">
+  <img src="/images/vln/nomad-goal-masking.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1416/479" />
 <figcaption>
 NoMaD目标掩码机制示意图
 </figcaption>
-</div> -->
+</div>
 
 **核心结果/发现**
 
@@ -1606,12 +1606,12 @@ ODYSSEY框架整体架构
 - 基准测试包括10个真实场景（室内家居、超市、餐厅、室外庭院等）
 - 长期任务包含246个室内和58个室外变化，涉及抓取、重新定向、容器放置、关节操作等多种技能
 
-<!-- <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/odyssey-results-comparison.png" width="100%" loading="lazy" decoding="async" />
+<div align="center">
+  <img src="/images/vln/odyssey-results-comparison.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:677/343" />
 <figcaption>
 与基线方法的性能对比
 </figcaption>
-</div> -->
+</div>
 
 **核心结果/发现**
 
@@ -1788,12 +1788,12 @@ VLN-R1两阶段训练流程
 - **作用机制**：使模型能够更关注近期的动作，同时考虑长期目标
 - **优势**：用于评估多步动作预测的长期效果，优化长时程导航性能
 
-<!-- <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/vln-r1-tdr-mechanism.png" width="100%" loading="lazy" decoding="async" />
+<div align="center">
+  <img src="/images/vln/vln-r1-tdr-mechanism.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/665" />
 <figcaption>
 时间衰减奖励（TDR）机制示意图
 </figcaption>
-</div> -->
+</div>
 
 **模型架构：**
 - **输入**：自我中心视频流和指令
