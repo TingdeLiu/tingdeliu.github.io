@@ -1141,7 +1141,98 @@ VL-Nav 在四个真实世界环境（Hallway、Office、Apartment、Outdoor）�
 
 
 
-## 11. NAVCON (2024) {#navcon}
+## 11. GaussNav (2025) {#gaussnav}
+——Gaussian Splatting for Visual Navigation
+
+📄 **Paper**: [arXiv:2403.11625](https://arxiv.org/abs/2403.11625) · 🏛️ **IEEE TPAMI 2025**
+
+**研究背景/问题**
+
+Instance ImageGoal Navigation (IIN)要求智能体在未探索环境中定位并导航至目标图像所描绘的特定对象实例，需要跨视角识别目标对象同时忽略干扰物。现有基于BEV地图的导航方法缺乏详细纹理表示，难以胜任实例级任务，无法保留场景的实例感知特征，不足以区分同类别的多个对象。
+
+**主要方法/创新点**
+
+GaussNav首次将3D Gaussian Splatting（3DGS）引入具身视觉导航，提出语义高斯地图表示：
+
+<div align="center">
+  <img src="/images/vln/gaussnav-framework-overview.webp" width="60%" loading="lazy" decoding="async" style="aspect-ratio:918/937" />
+<figcaption>
+GaussNav整体框架：前沿探索→语义高斯构建→高斯导航
+</figcaption>
+</div>
+
+**前沿探索（Frontier Exploration）：**
+- 智能体同时维护探索地图和障碍地图，探索地图标记已探索区域，障碍地图标记场景中的障碍物
+- 检测探索地图轮廓并排除障碍地图区域，将最近的前沿点设为路径点，迭代覆盖整个环境
+
+**语义高斯构建（Semantic Gaussian Construction）：**
+
+*几何重建：*
+- **3DGS简化表示**：每个高斯由9个参数特征化：RGB颜色向量c、质心µ∈R³、半径r、不透明度o∈[0,1]、类别标签l
+- **可微渲染**：通过alpha合成渲染RGB、深度和轮廓图像，支持新视角合成（NVS）
+- **关键帧检索机制**：针对导航场景帧间重叠有限问题，存储历史帧并周期性渲染评估PSNR，优先优化低保真帧，采用两阶段优化（p1=30迭代新视点，p2=60迭代关键帧视点）
+
+<div align="center">
+  <img src="/images/vln/gaussnav-semantic-gaussian-construction.webp" width="60%" loading="lazy" decoding="async" style="aspect-ratio:817/1138" />
+<figcaption>
+语义高斯构建流程：高斯密集化与语义高斯更新交替进行
+</figcaption>
+</div>
+
+*语义特征注入：*
+- **实例分割**：使用Mask-RCNN为每个高斯分配语义标签
+- **特征优化**：通过特征splatting渲染逐像素语义特征，优化特征损失以鼓励实例内一致性和实例间可分性
+- **高斯聚类**：基于语义标签和3D位置聚类高斯，将场景中的对象分割为不同语义类别下的不同实例
+
+**高斯导航（Gaussian Navigation）：**
+
+<div align="center">
+  <img src="/images/vln/gaussnav-navigation-pipeline.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:798/1035" />
+<figcaption>
+高斯导航流程：分类器→渲染描述性图像→匹配与定位→路径规划
+</figcaption>
+</div>
+
+- **分类器**：使用ResNet50对目标图像分类预测语义标签ˆlg，显著缩小搜索空间（如场景CrMo8WxCyVb从648个潜在观测减少到33个）
+- **匹配与定位**：
+  - 为每个候选实例通过NVS生成描述性图像（nv=1/3/5，θ=±15°/±30°水平和垂直旋转）
+  - 使用DISK提取关键点和特征描述符，通过LightGlue匹配，选择匹配关键点数最多的候选对象
+  - 使用DBSCAN聚类去除语义分割误差导致的离群点，精确定位目标实例
+- **路径规划**：将语义高斯转换为点云并体素化投影到2D BEV网格，使用FMM生成最短距离场并规划路径
+
+**创新要点：**
+- 统一几何、语义和实例感知特征的地图表示，首次将3DGS应用于具身视觉导航
+- 通过渲染描述性图像直接定位目标对象，无需额外探索或验证步骤
+- 关键帧检索机制有效缓解导航场景中的遗忘和表面空洞问题
+
+**核心结果/发现**
+
+- **HM3D数据集性能**：SPL从0.347大幅提升至0.578（提升66.6%），成功率达72.5%，显著超越所有基线方法
+- **效率优势**：运行帧率超过20 FPS，在模块化方法中效率最高，搜索空间优化显著（如CrMo8WxCyVb场景从648个观测点减少至33个）
+- **消融实验验证**：
+  - 移除分类器导致Success降至37.5%，SPL降至29.1%，但使用分类器后匹配时间减少2.5倍
+  - 移除匹配模块Success降至44.4%，SPL降至35.3%
+  - NVS对识别成功率有益，GT NVS可进一步提升性能（Success从72.3%升至74.7%）
+  - 使用GT匹配模块Success提升至85.0%，GT目标定位Success达94.6%
+- **渲染质量分析**：在HM3D验证集上PSNR最高可达40，深度渲染误差接近零，但部分高纹理场景重建质量欠佳
+- **跨场景泛化**：在36个验证场景中表现稳定，语义高斯可视化展示了对多种场景复杂度和对象组成的鲁棒性
+
+**局限性**
+
+当前方法在高纹理环境中重建质量欠佳，导致NVS可能产生孔洞等伪影。错误源分析显示匹配失败和目标定位不准确仍有改进空间。语义高斯不适合直接路径规划，需转换为2D BEV网格，增加了计算开销。
+
+---
+
+
+
+
+
+
+
+
+
+
+## 12. NAVCON (2024) {#navcon}
 ——— 认知启发与语言落地的首个大规模 Vision-Language Navigation 概念数据集
 
 📄 **Paper**: [arXiv:2412.13026](https://arxiv.org/abs/2412.13026)
@@ -1253,7 +1344,8 @@ $$\mathcal{L} = -\sum_{i=1}^{N} \sum_{j=1}^{C} y_{i,j} \log p_{i,j}$$
 8. **FantasyVLN** (2026).
 9. **LoGoPlanner** (2025).
 10. **VL-Nav** (2025).
-11. **NAVCON** (2024).
+11. **GaussNav** (2025).
+12. **NAVCON** (2024).
 
 
 <script>
@@ -1270,6 +1362,7 @@ $$\mathcal{L} = -\sum_{i=1}^{N} \sum_{j=1}^{C} y_{i,j} \log p_{i,j}$$
     { m: 'LoGoPlanner',              t: ['端到端', '扩散模型', '连续环境', '实机部署'] },
     { m: 'VL-Nav',                   t: ['端到端', '零样本', '实机部署'] },
     { m: 'NAVCON',                   t: ['数据集', '连续环境', '离散环境'] },
+    { m: 'GaussNav',          t: ['SLAM', '高斯表示'] },
   ];
 
   // 另一篇文章的论文清单。两篇的 .paper-section 各自只在本页存在，
@@ -1290,53 +1383,53 @@ $$\mathcal{L} = -\sum_{i=1}^{N} \sum_{j=1}^{C} y_{i,j} \log p_{i,j}$$
     { n: '11. ODYSSEY (2025)', a: 'odyssey', t: ['Agentic', '实机部署'] },
     { n: '12. PanoNav (2025)', a: 'panonav', t: ['Agentic', '零样本', '离散环境'] },
     { n: '13. VLN-R1 (2025)', a: 'vln-r1', t: ['端到端', '强化学习', '连续环境'] },
-    { n: '14. GaussNav (2025)', a: 'gaussnav', t: ['SLAM', '高斯表示'] },
-    { n: '15. StreamVLN (2025)', a: 'streamvln', t: ['端到端', '加速优化', '连续环境', '实机部署'] },
-    { n: '16. NavFoM (2025)', a: 'navfom', t: ['端到端', '连续环境'] },
-    { n: '17. MapNav (2025)', a: 'mapnav', t: ['拓扑图', 'SLAM', '加速优化', '连续环境'] },
-    { n: '18. Open-Nav (2025)', a: 'open-nav', t: ['Agentic', '零样本', '连续环境'] },
-    { n: '19. Skill-Nav (2025)', a: 'skill-nav', t: ['端到端', '强化学习', '实机部署'] },
-    { n: '20. VLN-Imagine (2025)', a: 'vln-imagine', t: ['数据增强', '离散环境'] },
-    { n: '21. VLN-PE (2025)', a: 'vln-pe', t: ['数据集', '连续环境', '基础工作'] },
-    { n: '22. Goal2Pixel (2025)', a: 'goal2pixel', t: ['端到端', '连续环境', '实机部署', '加速优化'] },
-    { n: '23. AstraNav-World (2025)', a: 'astranav-world', t: ['世界模型', '扩散模型', '端到端', '连续环境', '实机部署'] },
-    { n: '24. CorrectNav (2025)', a: 'correctnav', t: ['端到端', '连续环境', '实机部署'] },
-    { n: '25. VLingNav (2026)', a: 'vlingnav', t: ['双系统', '连续环境', 'CoT'] },
-    { n: '26. Slow4fast-VLN (2026)', a: 'slow4fast-vln', t: ['双系统', '拓扑图', '离散环境'] },
-    { n: '27. DGNav (2026)', a: 'dgnav', t: ['拓扑图', 'SLAM', '连续环境'] },
-    { n: '28. Hydra-Nav (2026)', a: 'hydra-nav', t: ['双系统', '强化学习'] },
-    { n: '29. 3DGSNav (2026)', a: 'nav-3dgs', t: ['SLAM', '高斯表示', '零样本', '实机部署'] },
-    { n: '30. BudVLN (2026)', a: 'budvln', t: ['端到端', '强化学习', '连续环境'] },
-    { n: '31. CausalNav (2026)', a: 'causalnav', t: ['Agentic', '拓扑图'] },
-    { n: '32. AgentVLN (2026)', a: 'agentvln', t: ['Agentic', '连续环境', '实机部署'] },
-    { n: '33. VLN-Cache (2026)', a: 'vln-cache', t: ['加速优化'] },
-    { n: '34. SysNav (2026)', a: 'sysnav', t: ['Agentic', '拓扑图'] },
-    { n: '35. R³: Run, Ruminate, and Regulate (2026)', a: 'r3', t: ['双系统', '加速优化', 'CoT'] },
-    { n: '36. Uncertainty-Aware Gaussian Map for VLN (2026)', a: 'uncertainty-aware-gaussian-map', t: ['高斯表示', '拓扑图', '离散环境'] },
-    { n: '37. GSMem (2026)', a: 'gsmem', t: ['Agentic', '高斯表示', '零样本'] },
-    { n: '38. AwareVLN (2026)', a: 'awarevln', t: ['端到端', '连续环境', '实机部署', '数据增强', 'CoT'] },
-    { n: '39. Dual-Anchoring (2026)', a: 'dual-anchoring', t: ['端到端', '世界模型', '连续环境', '实机部署'] },
-    { n: '40. WAM-Nav (2026)', a: 'wam-nav', t: ['世界模型', '扩散模型', '零样本', '实机部署'] },
-    { n: '41. JanusVLN (2026)', a: 'janusvln', t: ['双系统', '连续环境', '实机部署', '加速优化'] },
-    { n: '42. HSGM (2026)', a: 'hsgm', t: ['Agentic', '拓扑图', '零样本', '连续环境', 'BEV'] },
-    { n: '43. OneVLA (2026)', a: 'onevla-a-unified-framework-for-embodied-tasks', t: ['端到端', '扩散模型', '连续环境', '实机部署'] },
-    { n: '44. CA-VLN (2026)', a: 'ca-vln', t: ['Agentic', '拓扑图', '离散环境'] },
-    { n: '45. RynnBrain (2026)', a: 'rynnbrain', t: ['基础工作'] },
-    { n: '46. EvoMemNav (2026)', a: 'evomemnav', t: ['Agentic', '拓扑图', '零样本'] },
-    { n: '47. OmniNav (2026)', a: 'omninav', t: ['双系统', 'Agentic', 'CoT', '扩散模型', '实机部署'] },
-    { n: '48. Qwen-RobotNav (2026)', a: 'qwen-robotnav', t: ['Agentic', '端到端', '连续环境', '实机部署'] },
-    { n: '49. GA-VLN (2026)', a: 'ga-vln', t: ['端到端', '连续环境', '实机部署', '加速优化', 'BEV'] },
-    { n: '50. SEDualVLN (2026)', a: 'sedualvln', t: ['双系统', '扩散模型', '连续环境', '实机部署'] },
-    { n: '51. Robostral Navigate (2026)', a: 'robostral-navigate', t: ['端到端', '强化学习', '连续环境', '加速优化'] },
-    { n: '52. LocalNav (2026)', a: 'localnav', t: ['拓扑图', '强化学习', '实机部署', '加速优化'] },
-    { n: '53. ABot-N1 (2026)', a: 'abot-n1', t: ['双系统', 'CoT', '强化学习', '实机部署'] },
-    { n: '54. ReflectVLN (2026)', a: 'reflectvln', t: ['双系统', 'Agentic', 'CoT', '连续环境'] },
-    { n: '55. TuckerNav (2026)', a: 'tuckernav', t: ['连续环境', '加速优化'] },
-    { n: '56. AgenticNav (2026)', a: 'agenticnav', t: ['Agentic', '零样本', '连续环境', '实机部署'] },
-    { n: '57. MemVLN (2026)', a: 'memvln', t: ['端到端', '连续环境', '加速优化'] },
-    { n: '58. X-NavDP (2026)', a: 'x-navdp', t: ['端到端', '扩散模型', '连续环境', '零样本', '实机部署'] },
-    { n: '59. Image2Sim (2026)', a: 'image2sim', t: ['世界模型', '数据增强', '高斯表示', '连续环境', '实机部署', '零样本'] },
-    { n: '60. DecoVLN (2026)', a: 'decovln', t: ['端到端', '连续环境', '实机部署', '加速优化', '纠错'] },
+    { n: '14. StreamVLN (2025)', a: 'streamvln', t: ['端到端', '加速优化', '连续环境', '实机部署'] },
+    { n: '15. NavFoM (2025)', a: 'navfom', t: ['端到端', '连续环境'] },
+    { n: '16. MapNav (2025)', a: 'mapnav', t: ['拓扑图', 'SLAM', '加速优化', '连续环境'] },
+    { n: '17. Open-Nav (2025)', a: 'open-nav', t: ['Agentic', '零样本', '连续环境'] },
+    { n: '18. Skill-Nav (2025)', a: 'skill-nav', t: ['端到端', '强化学习', '实机部署'] },
+    { n: '19. VLN-Imagine (2025)', a: 'vln-imagine', t: ['数据增强', '离散环境'] },
+    { n: '20. VLN-PE (2025)', a: 'vln-pe', t: ['数据集', '连续环境', '基础工作'] },
+    { n: '21. Goal2Pixel (2025)', a: 'goal2pixel', t: ['端到端', '连续环境', '实机部署', '加速优化'] },
+    { n: '22. AstraNav-World (2025)', a: 'astranav-world', t: ['世界模型', '扩散模型', '端到端', '连续环境', '实机部署'] },
+    { n: '23. CorrectNav (2025)', a: 'correctnav', t: ['端到端', '连续环境', '实机部署'] },
+    { n: '24. VLingNav (2026)', a: 'vlingnav', t: ['双系统', '连续环境', 'CoT'] },
+    { n: '25. Slow4fast-VLN (2026)', a: 'slow4fast-vln', t: ['双系统', '拓扑图', '离散环境'] },
+    { n: '26. DGNav (2026)', a: 'dgnav', t: ['拓扑图', 'SLAM', '连续环境'] },
+    { n: '27. Hydra-Nav (2026)', a: 'hydra-nav', t: ['双系统', '强化学习'] },
+    { n: '28. 3DGSNav (2026)', a: 'nav-3dgs', t: ['SLAM', '高斯表示', '零样本', '实机部署'] },
+    { n: '29. BudVLN (2026)', a: 'budvln', t: ['端到端', '强化学习', '连续环境'] },
+    { n: '30. CausalNav (2026)', a: 'causalnav', t: ['Agentic', '拓扑图'] },
+    { n: '31. AgentVLN (2026)', a: 'agentvln', t: ['Agentic', '连续环境', '实机部署'] },
+    { n: '32. VLN-Cache (2026)', a: 'vln-cache', t: ['加速优化'] },
+    { n: '33. SysNav (2026)', a: 'sysnav', t: ['Agentic', '拓扑图'] },
+    { n: '34. R³: Run, Ruminate, and Regulate (2026)', a: 'r3', t: ['双系统', '加速优化', 'CoT'] },
+    { n: '35. Uncertainty-Aware Gaussian Map for VLN (2026)', a: 'uncertainty-aware-gaussian-map', t: ['高斯表示', '拓扑图', '离散环境'] },
+    { n: '36. GSMem (2026)', a: 'gsmem', t: ['Agentic', '高斯表示', '零样本'] },
+    { n: '37. AwareVLN (2026)', a: 'awarevln', t: ['端到端', '连续环境', '实机部署', '数据增强', 'CoT'] },
+    { n: '38. Dual-Anchoring (2026)', a: 'dual-anchoring', t: ['端到端', '世界模型', '连续环境', '实机部署'] },
+    { n: '39. WAM-Nav (2026)', a: 'wam-nav', t: ['世界模型', '扩散模型', '零样本', '实机部署'] },
+    { n: '40. JanusVLN (2026)', a: 'janusvln', t: ['双系统', '连续环境', '实机部署', '加速优化'] },
+    { n: '41. HSGM (2026)', a: 'hsgm', t: ['Agentic', '拓扑图', '零样本', '连续环境', 'BEV'] },
+    { n: '42. OneVLA (2026)', a: 'onevla-a-unified-framework-for-embodied-tasks', t: ['端到端', '扩散模型', '连续环境', '实机部署'] },
+    { n: '43. CA-VLN (2026)', a: 'ca-vln', t: ['Agentic', '拓扑图', '离散环境'] },
+    { n: '44. RynnBrain (2026)', a: 'rynnbrain', t: ['基础工作'] },
+    { n: '45. EvoMemNav (2026)', a: 'evomemnav', t: ['Agentic', '拓扑图', '零样本'] },
+    { n: '46. OmniNav (2026)', a: 'omninav', t: ['双系统', 'Agentic', 'CoT', '扩散模型', '实机部署'] },
+    { n: '47. Qwen-RobotNav (2026)', a: 'qwen-robotnav', t: ['Agentic', '端到端', '连续环境', '实机部署'] },
+    { n: '48. GA-VLN (2026)', a: 'ga-vln', t: ['端到端', '连续环境', '实机部署', '加速优化', 'BEV'] },
+    { n: '49. SEDualVLN (2026)', a: 'sedualvln', t: ['双系统', '扩散模型', '连续环境', '实机部署'] },
+    { n: '50. Robostral Navigate (2026)', a: 'robostral-navigate', t: ['端到端', '强化学习', '连续环境', '加速优化'] },
+    { n: '51. LocalNav (2026)', a: 'localnav', t: ['拓扑图', '强化学习', '实机部署', '加速优化'] },
+    { n: '52. ABot-N1 (2026)', a: 'abot-n1', t: ['双系统', 'CoT', '强化学习', '实机部署'] },
+    { n: '53. ReflectVLN (2026)', a: 'reflectvln', t: ['双系统', 'Agentic', 'CoT', '连续环境'] },
+    { n: '54. TuckerNav (2026)', a: 'tuckernav', t: ['连续环境', '加速优化'] },
+    { n: '55. AgenticNav (2026)', a: 'agenticnav', t: ['Agentic', '零样本', '连续环境', '实机部署'] },
+    { n: '56. MemVLN (2026)', a: 'memvln', t: ['端到端', '连续环境', '加速优化'] },
+    { n: '57. X-NavDP (2026)', a: 'x-navdp', t: ['端到端', '扩散模型', '连续环境', '零样本', '实机部署'] },
+    { n: '58. Image2Sim (2026)', a: 'image2sim', t: ['世界模型', '数据增强', '高斯表示', '连续环境', '实机部署', '零样本'] },
+    { n: '59. DecoVLN (2026)', a: 'decovln', t: ['端到端', '连续环境', '实机部署', '加速优化', '纠错'] },
+    { n: '60. TAMP-Nav (2026)', a: 'tamp-nav', t: ['CoT', '强化学习', '连续环境', '实机部署'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',
