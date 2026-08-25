@@ -7578,6 +7578,7 @@ graph TD
     { n: '10. VL-Nav (2025)', a: 'vl-nav', t: ['端到端', '零样本', '实机部署'] },
     { n: '11. GaussNav (2025)', a: 'gaussnav', t: ['SLAM', '高斯表示'] },
     { n: '12. NAVCON (2024)', a: 'navcon', t: ['数据集', '连续环境', '离散环境'] },
+    { n: '13. CONDVLN (2026)', a: 'condvln', t: ['数据集', '连续环境', '拓扑图'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',
