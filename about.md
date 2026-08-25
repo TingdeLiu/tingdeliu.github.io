@@ -6,7 +6,7 @@ permalink: /about/
 
 # Tingde Liu
 
-I am a robotics and AI engineer with an M.Sc. in Mechatronics and Robotics from [Leibniz Universität Hannover](https://www.uni-hannover.de/) (LUH). My current research centers on vision-language navigation (VLN) and 3D Large Language Models (3DLLM) — and the broader question of what it would actually take for a robot to understand and act in the world the way we do. I am interested in genuine embodied intelligence, not just systems that appear to navigate, but ones that truly reason about space, language, and intention.
+I am a robotics and AI engineer with an M.Sc. in Robotics from [Leibniz Universität Hannover](https://www.uni-hannover.de/) (LUH). My current research centers on vision-language navigation (VLN) and 3D Large Language Models (3DLLM) — and the broader question of what it would actually take for a robot to understand and act in the world the way we do. I am interested in genuine embodied intelligence, not just systems that appear to navigate, but ones that truly reason about space, language, and intention.
 
 ## Why I Created This Repository
 
