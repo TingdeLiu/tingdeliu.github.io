@@ -7566,18 +7566,18 @@ graph TD
   // 由 vln-paper-insert/scripts/sync_remote.py 生成，勿手工编辑。
   var REMOTE_PAGE = { url: '/VLN-Papers-Extended/', label: '扩展篇' };
   var REMOTE_PAPERS = [
-    { n: '1. HumanoidVLN (2026)', a: 'humanoidvln', t: ['数据集', '强化学习', '实机部署', '高斯表示'] },
-    { n: '2. Route2Step (2026)', a: 'route2step', t: ['双系统', '连续环境', '实机部署'] },
-    { n: '3. Agentic Embodied Control (2026)', a: 'agentic-embodied-control', t: ['Agentic', '零样本', '连续环境', '实机部署'] },
-    { n: '4. ABot-AgentOS (2026)', a: 'abot-agentos', t: ['Agentic', '拓扑图', '实机部署'] },
-    { n: '5. NavWAM (2026)', a: 'navwam', t: ['世界模型', '扩散模型', '连续环境', '实机部署'] },
-    { n: '6. WorldVLN (2026)', a: 'worldvln', t: ['世界模型', '强化学习', '端到端', '实机部署'] },
-    { n: '7. SparseVideoNav (2026)', a: 'sparsevideonav', t: ['端到端', '扩散模型', '世界模型'] },
-    { n: '8. FantasyVLN (2026)', a: 'fantasyvln', t: ['世界模型', '数据增强', '连续环境', 'CoT'] },
-    { n: '9. LoGoPlanner (2025)', a: 'logoplanner', t: ['端到端', '扩散模型', '连续环境', '实机部署'] },
-    { n: '10. VL-Nav (2025)', a: 'vl-nav', t: ['端到端', '零样本', '实机部署'] },
-    { n: '11. GaussNav (2025)', a: 'gaussnav', t: ['SLAM', '高斯表示'] },
-    { n: '12. NAVCON (2024)', a: 'navcon', t: ['数据集', '连续环境', '离散环境'] },
+    { n: '1. NAVCON (2024)', a: 'navcon', t: ['数据集', '连续环境', '离散环境'] },
+    { n: '2. LoGoPlanner (2025)', a: 'logoplanner', t: ['端到端', '扩散模型', '连续环境', '实机部署'] },
+    { n: '3. VL-Nav (2025)', a: 'vl-nav', t: ['端到端', '零样本', '实机部署'] },
+    { n: '4. GaussNav (2025)', a: 'gaussnav', t: ['SLAM', '高斯表示'] },
+    { n: '5. FantasyVLN (2026)', a: 'fantasyvln', t: ['世界模型', '数据增强', '连续环境', 'CoT'] },
+    { n: '6. SparseVideoNav (2026)', a: 'sparsevideonav', t: ['端到端', '扩散模型', '世界模型'] },
+    { n: '7. WorldVLN (2026)', a: 'worldvln', t: ['世界模型', '强化学习', '端到端', '实机部署'] },
+    { n: '8. NavWAM (2026)', a: 'navwam', t: ['世界模型', '扩散模型', '连续环境', '实机部署'] },
+    { n: '9. ABot-AgentOS (2026)', a: 'abot-agentos', t: ['Agentic', '拓扑图', '实机部署'] },
+    { n: '10. Agentic Embodied Control (2026)', a: 'agentic-embodied-control', t: ['Agentic', '零样本', '连续环境', '实机部署'] },
+    { n: '11. Route2Step (2026)', a: 'route2step', t: ['双系统', '连续环境', '实机部署'] },
+    { n: '12. HumanoidVLN (2026)', a: 'humanoidvln', t: ['数据集', '强化学习', '实机部署', '高斯表示'] },
     { n: '13. CONDVLN (2026)', a: 'condvln', t: ['数据集', '连续环境', '拓扑图'] },
   ];
 
