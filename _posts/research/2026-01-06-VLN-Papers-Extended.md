@@ -1,20 +1,20 @@
 ---
 layout: post
-title: "VLN 最新论文"
+title: "VLN 论文精读（扩展篇）"
 date:   2026-08-25
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "VLN 论文精读的增补篇，收录尚未进入性能排行榜、也未见于会议期刊的工作，多为近期预印本。"
+excerpt: "VLN 论文精读的扩展篇，收录尚未进入性能排行榜、也未见于会议期刊的工作，多为近期预印本。"
 ---
 
-> 本文是 [VLN经典论文](/VLN-Papers/) 的增补篇。主篇收录已发表于会议期刊、或已进入性能排行榜的 60 篇工作；本文收录其余论文，以近期预印本为主，按年份倒序排列。
+> 本文是 [VLN经典论文](/VLN-Papers/) 的扩展篇。主篇收录已发表于会议期刊、或已进入性能排行榜的 60 篇工作；本文收录其余论文，以近期预印本为主，按年份倒序排列。
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
-# 具身导航论文增补
+# 具身导航论文扩展
 
 ## 1. HumanoidVLN (2026) {#humanoidvln}
 ———首个面向多样化双足人形机器人的物理真实 VLN 仿真平台与基准

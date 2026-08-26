@@ -1415,7 +1415,7 @@ flowchart TB
 3. **产业扶持与落地**：多地政府与产业基金（如无锡 2026 年设立的数百万元专项奖励）已将开源 Agent 操作系统与具身人形机器人的融合列为重点支持方向。
 4. **安全护栏与硬约束（Safety Guardrails）**：物理部署的核心底线在于安全性。现代具身 Harness 在底层接入了不可逾越的运动学限位、力矩安全阈值、防碰撞体积盒与硬件级急停机制，确保高层 Agent 的探索与推理在严格的物理安全边界内运行。
 
-**延伸阅读**：具身控制 Agent 与视觉语言导航（VLN）及世界模型高度交叉，可在 [VLN Papers 合集](https://tingdeliu.github.io/VLN-Papers/) 与 [VLN Papers 增补篇](https://tingdeliu.github.io/VLN-Papers-New/) 中通过 **Agentic** 标签筛选相关论文，当前匹配条目包括：NavGPT-2 (2024)、ODYSSEY (2025)、PanoNav (2025)、Open-Nav (2025)、CausalNav (2026)、AgentVLN (2026)、SysNav (2026)、GSMem (2026)、HSGM (2026)、CA-VLN (2026)、EvoMemNav (2026)、OmniNav (2026)、ReflectVLN (2026)、AgenticNav (2026)、Agentic Embodied Control (2026)、ABot-AgentOS (2026) 等。
+**延伸阅读**：具身控制 Agent 与视觉语言导航（VLN）及世界模型高度交叉，可在 [VLN Papers 合集](https://tingdeliu.github.io/VLN-Papers/) 与 [VLN Papers 扩展篇](https://tingdeliu.github.io/VLN-Papers-Extended/) 中通过 **Agentic** 标签筛选相关论文，当前匹配条目包括：NavGPT-2 (2024)、ODYSSEY (2025)、PanoNav (2025)、Open-Nav (2025)、CausalNav (2026)、AgentVLN (2026)、SysNav (2026)、GSMem (2026)、HSGM (2026)、CA-VLN (2026)、EvoMemNav (2026)、OmniNav (2026)、ReflectVLN (2026)、AgenticNav (2026)、Agentic Embodied Control (2026)、ABot-AgentOS (2026) 等。
 
 
 # 11. 优秀 Agent 示例

@@ -30,7 +30,7 @@
 | --- | --- | --- |
 | **视觉语言导航** | [VLN 综述](https://tingdeliu.github.io/VLN-Survey/) | 任务定义、数据集与基准，从模块化流水线到端到端导航智能体的演进 |
 | | [VLN 经典论文](https://tingdeliu.github.io/VLN-Papers/) | 60 篇已发表或已上榜工作的精读，附三类任务设定的性能排行榜 |
-| | [VLN 最新论文](https://tingdeliu.github.io/VLN-Papers-New/) | 尚未进入排行榜的近期预印本增补，按年份倒序 |
+| | [VLN 扩展论文](https://tingdeliu.github.io/VLN-Papers-Extended/) | 尚未进入排行榜的近期预印本与扩展增补，按年份倒序 |
 | **视觉语言动作模型** | [VLA 综述](https://tingdeliu.github.io/VLA-Survey/) | 机器人策略学习、动作生成、模仿学习与强化学习的路线梳理 |
 | **机器人导航系统** | [传统导航综述](https://tingdeliu.github.io/Robot-Navigation-Survey/) | SLAM、定位建图、路径规划与运动控制等经典方法 |
 | | [ROS 2 完全指南](https://tingdeliu.github.io/ROS2-Survey/) | 通信模型、生命周期节点、QoS 与真实机器人部署实战 |

@@ -12,7 +12,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 > 本文是 [VLN综述：基于视觉语言的导航](/VLN-Survey/) 的配套论文精读，收录 VLN 经典论文与依赖基础工作。
 >
-> 本篇收录已发表于会议期刊、或已进入性能排行榜的 60 篇工作；其余论文见增补篇 [VLN最新论文](/VLN-Papers-New/)。
+> 本篇收录已发表于会议期刊、或已进入性能排行榜的 60 篇工作；其余论文见扩展篇 [VLN 论文精读（扩展篇）](/VLN-Papers-Extended/)。
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
@@ -130,7 +130,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [ABot-N1](#abot-n1) | 2026 | ABotN-POIBench | Qwen-3.5-4B + 2B | 77.3 | 72.6 | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) |
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | HM3Dv2 | Qwen3-VL-2B | 75.6 | 30.6 | 否 |
  | [3DGSNav (单目)](#nav-3dgs) | 2026 | HM3D-v2 | GPT-4o | 75.0 | 44.2 | 否 |
- | [GaussNav (单目)](/VLN-Papers-New/#gaussnav) | 2025 | HM3D（实例图像） | – | 72.5 | 57.8 | [是](https://github.com/XiaohanLei/GaussNav) |
+ | [GaussNav (单目)](/VLN-Papers-Extended/#gaussnav) | 2025 | HM3D（实例图像） | – | 72.5 | 57.8 | [是](https://github.com/XiaohanLei/GaussNav) |
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | HM3Dv2 | Qwen3-VL-7B | 71.2 | 33.0 | 否 |
  | [GSMem (单目)](#gsmem) | 2025 | GOAT-Bench | GPT-4o | 67.2 | 46.9 | [是](https://github.com/vulab-AI/GSMem) |
  | [EvoMemNav (单目)](#evomemnav) | 2026 | HM3D-v2 | Qwen-8B | 63.8 | 39.4 | 否 |
@@ -7428,7 +7428,7 @@ graph TD
 | **ICCV** | [VLN-PE](#vln-pe) (2025) |
 | **ACL** | [MapNav](#mapnav) (2025) |
 | **RSS** | [NaVid](#navid) (2024) |
-| **期刊** | [GaussNav](/VLN-Papers-New/#gaussnav) (IEEE TPAMI 2025)、[CausalNav](#causalnav) (IEEE RA-L)、[Skill-Nav](#skill-nav) (Vicinagearth / Springer 2025)、[CA-VLN](#ca-vln) (Sensors 2026)、[R2RIE-CE & IEDL](#r2rie-ce-iedl) (ROMAN 2024) |
+| **期刊** | [GaussNav](/VLN-Papers-Extended/#gaussnav) (IEEE TPAMI 2025)、[CausalNav](#causalnav) (IEEE RA-L)、[Skill-Nav](#skill-nav) (Vicinagearth / Springer 2025)、[CA-VLN](#ca-vln) (Sensors 2026)、[R2RIE-CE & IEDL](#r2rie-ce-iedl) (ROMAN 2024) |
 
 ## 论文
 
@@ -7564,7 +7564,7 @@ graph TD
   // 另一篇文章的论文清单。两篇的 .paper-section 各自只在本页存在，
   // 所以这些条目不参与显示/隐藏，只在结果面板里作为跨页链接列出。
   // 由 vln-paper-insert/scripts/sync_remote.py 生成，勿手工编辑。
-  var REMOTE_PAGE = { url: '/VLN-Papers-New/', label: '增补篇' };
+  var REMOTE_PAGE = { url: '/VLN-Papers-Extended/', label: '扩展篇' };
   var REMOTE_PAPERS = [
     { n: '1. HumanoidVLN (2026)', a: 'humanoidvln', t: ['数据集', '强化学习', '实机部署', '高斯表示'] },
     { n: '2. Route2Step (2026)', a: 'route2step', t: ['双系统', '连续环境', '实机部署'] },
