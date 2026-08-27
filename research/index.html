@@ -4,33 +4,59 @@ title: Research
 permalink: /research/
 ---
 
+<style>
+.blog-section {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #444;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.4rem;
+  margin: 1.8rem 0 0.8rem;
+}
+
+.blog-section:first-of-type {
+  margin-top: 0.5rem;
+}
+
+.blog-section .count {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: #999;
+  margin-left: 0.45rem;
+}
+</style>
+
 {% assign research_posts = site.posts | where: "categories", "research" %}
 
 {% if research_posts.size == 0 %}
   <h2>No post found</h2>
 {% endif %}
 
-{% assign group_names = "🧭 具身导航（VLN）|🤖 具身智能与世界模型|🧠 大模型与智能体|📚 机器学习基础|⚙️ 机器人系统与传统导航" | split: "|" %}
+{% assign group_names = "具身导航（VLN）|具身智能与世界模型|大模型与智能体|机器学习基础|机器人系统与传统导航" | split: "|" %}
 {% assign group_slugs = "VLN-Survey,VLN-Papers,VLN-Papers-Extended|VLA-Survey,World-Models-Survey,Spatial-Intelligence-Survey|VLM-Survey,AI-Agent-Survey,LLM-Training-Survey|Deep-Learning-Survey,Machine-Learning-Survey,Reinforcement-Learning-Survey|ROS2-Survey,Robot-Navigation-Survey" | split: "|" %}
 {% assign all_grouped_slugs = group_slugs | join: "," | split: "," %}
 
 {% for group_name in group_names %}
   {% assign slugs = group_slugs[forloop.index0] | split: "," %}
-  <h2>{{ group_name }}</h2>
+  {% assign group_posts = "" | split: "" %}
+  {% for post in research_posts %}
+    {% if slugs contains post.slug %}
+      {% assign group_posts = group_posts | push: post %}
+    {% endif %}
+  {% endfor %}
+  <h2 class="blog-section">{{ group_name }}<span class="count">{{ group_posts.size }}</span></h2>
   <ul class="archive">
-    {% for post in research_posts %}
-      {% if slugs contains post.slug %}
-        <li>
-          {% if post.link %}
-          <a href="{{ post.link }}">
-          {% else %}
-          <a href="{{ site.baseurl }}{{ post.url }}">
-          {% endif %}
-            {{ post.title }}
-          </a>
-          <time>{{ post.date | date: "%Y-%m-%d" }}</time>
-        </li>
-      {% endif %}
+    {% for post in group_posts %}
+      <li>
+        {% if post.link %}
+        <a href="{{ post.link }}">
+        {% else %}
+        <a href="{{ site.baseurl }}{{ post.url }}">
+        {% endif %}
+          {{ post.title }}
+        </a>
+        <time>{{ post.date | date: "%Y-%m-%d" }}</time>
+      </li>
     {% endfor %}
   </ul>
 {% endfor %}
@@ -44,7 +70,7 @@ permalink: /research/
 {% endfor %}
 
 {% if ungrouped_posts.size > 0 %}
-  <h2>其他</h2>
+  <h2 class="blog-section">其他<span class="count">{{ ungrouped_posts.size }}</span></h2>
   <ul class="archive">
     {% for post in ungrouped_posts %}
       <li>
