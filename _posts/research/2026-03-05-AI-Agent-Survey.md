@@ -7,7 +7,7 @@ categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划并执行多步骤任务的 AI 系统。本文系统梳理 AI Agent 核心架构、关键技术范式（ReAct、工具调用/MCP、反思、Harness Engineering、Loop Engineering、Graph Engineering、多 Agent）、代表性工作（ReAct、Reflexion、Voyager），并深入介绍 2025–2026 年主流 Agent 产品与基础设施（Claude Code、OpenAI Codex、Manus、OpenClaw、DeepSeek Harness、Pi Agent、Hermes Agent）、具身控制与物理治理前沿（Thea、Pigey、RoboHarness、Zetta）以及主流评测基准，呈现软硬件智能体的研究全貌。"
+excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划并执行多步骤任务的 AI 系统。本文系统梳理 AI Agent 核心架构、关键技术范式（ReAct、工具调用/MCP/WebMCP、反思、Harness Engineering、Loop Engineering、Graph Engineering、多 Agent）、代表性工作（ReAct、Reflexion、Voyager），并深入介绍 2025–2026 年主流 Agent 产品与基础设施（Claude Code、OpenAI Codex、Manus、OpenClaw、DeepSeek Harness、Pi Agent、Hermes Agent）、具身控制与物理治理前沿（Thea、Pigey、RoboHarness、Zetta）以及主流评测基准，呈现软硬件智能体的研究全貌。"
 ---
 
 # 1. 引言
@@ -167,7 +167,7 @@ flowchart LR
         K --> L["Claude Code / Codex\n编程 Agent 商用"]
         L --> M["Harness Engineering\nAgent 工程化 (dsh / pi)"]
         M --> N["Loop & Graph Engineering\n闭环与图拓扑工程"]
-        N --> O["Embodied Harness\n物理世界治理与编排 (Thea / Pigey / Zetta)"]
+        N --> O["WebMCP / Embodied Harness\n端侧协议与物理治理 (OpenAI / W3C / Thea)"]
     end
 ```
 
@@ -712,7 +712,7 @@ flowchart LR
 
 工具调用是 AI Agent 区别于普通 LLM 的**核心能力边界**：LLM 的知识存在训练截止日期，无法实时获取信息、无法执行代码、无法操作文件系统，也无法调用外部服务。工具调用打破了这些限制，使 Agent 能够真正影响外部世界。
 
-本章从底层机制到上层标准，依次介绍工具调用的整体架构与分类（Tool Use）、LLM 与工具之间的核心协议（Function Calling）、以及标准化外部集成的行业开放协议（MCP）。
+本章从底层机制、通用服务端协议到端侧/浏览器端前沿标准，依次介绍工具调用的整体架构与分类（Tool Use）、LLM 与工具之间的核心协议（Function Calling）、标准化后端与本地系统集成的行业开放协议（MCP），以及 2026 年由 OpenAI、Google 与 W3C 共同力推的浏览器端智能体交互新协议（WebMCP）。
 
 ---
 
@@ -1053,6 +1053,361 @@ MCP 的快速普及也带来了新的安全威胁，2025 年安全研究社区�
 
 *代表性工作*：MCP 规范（Anthropic，2024 年 11 月）、MCP November 2025 Spec（2025 年 11 月）、MCP July 2026 Spec（2026 年 7 月）
 
+---
+
+## 8.4 WebMCP 协议详解（Web Model Context Protocol）
+
+### 8.4.1 背景：Web 智能体的「三次代际演进」
+
+Web 浏览器是人类数字活动与企业应用最密集的前端承载平台。然而，让 AI Agent 自主操控 Web 页面一直面临极其严重的工程与可靠性挑战。从早期基于 DOM 解析到视觉大模型驱动，再到 2026 年下半年由 OpenAI、Google 与 W3C 共同力推的 **WebMCP（Web Model Context Protocol）**，Web 端智能体交互经历了三次关键代际跃迁：
+
+```mermaid
+flowchart TB
+    subgraph G1["初代：DOM 抓取与规则选择器（2022–2023）"]
+        direction LR
+        D1["HTML / DOM 树"] --> D2["XPath / CSS Selector"] --> D3["Playwright / Puppeteer 模拟点击"]
+        D4["⚠️ 痛点：DOM 庞大冗余、SPA 动态类名混淆、极度脆弱易碎"]
+    end
+
+    subgraph G2["二代：视觉 Computer Use / 截图定位（2024–2025）"]
+        direction LR
+        V1["页面渲染截图"] --> V2["VLM 视觉定位坐标 (x,y)"] --> V3["OS 级鼠标点击与键盘敲击"]
+        V4["⚠️ 痛点：高 Token 消耗 (1k~2k/步)、高延迟、弹窗/动效误判、不可逆误操作"]
+    end
+
+    subgraph G3["三代：浏览器原生 WebMCP 语义工具（2026）"]
+        direction LR
+        W1["页面结构化能力注册"] --> W2["document.modelContext\n声明式 / 命令式 API"] --> W3["类型化工具直接调用\n(Typed Tool Invocation)"]
+        W4["✅ 优势：低 Token (毫秒级)、复用用户已有登录态、零解析幻觉、强类型安全"]
+    end
+
+    G1 --> G2 --> G3
+```
+
+#### 三代技术路线全维度对比
+
+| 维度 | 第一代：DOM 树解析 / 脚本自动化 | 第二代：视觉 Computer Use / 截图 | 第三代：WebMCP 浏览器原生语义协议 |
+|:-----|:-----------------------------|:---------------------------------|:----------------------------------|
+| **交互媒介** | 原始 HTML DOM 树、XPath、CSS Selector | 连续页面截图像素流（Pixels） | 强类型 JSON Schema 语义工具（Tools） |
+| **单步 Token 消耗** | 极高（数万 Token 的臃肿 DOM 树） | 很高（单张高分辨率截图 1,000~2,500 Token） | **极低**（单次工具调用仅需 50~150 Token） |
+| **执行延迟** | 1~3 秒（受限于 DOM 序列化与解析） | 3~8 秒（包含截图、VLM 推理、坐标拟合） | **50~200 毫秒**（原生 JS 运行时直接执行） |
+| **执行成功率** | 脆弱（页面 CSS/class/DOM 结构一变即失效） | 中等（易受弹窗遮挡、滚动位置偏差、动效干扰） | **确定性极高**（契约化 Schema 与运行时错误捕获） |
+| **身份凭证安全** | 需把账密/Cookie 暴露给后端自动化脚本 | 需通过视觉界面登录，易在录屏/日志中泄露敏感信息 | **零凭证泄露**（天然复用当前标签页的登录态/Cookie） |
+| **动态 SPA 适应性** | 差（难以感知 React/Vue 内部状态变更） | 中等（需等待前端动画与渲染稳定） | **完美**（直接绑定前端响应式状态与数据流） |
+
+---
+
+### 8.4.2 WebMCP 核心架构：双层 Web（Dual-Layer Web）设计
+
+WebMCP 的核心设计理念是将现代 Web 应用划分为**两个并行解耦的交互层**：
+1. **人类视觉层（Human Layer）**：由传统的 HTML、CSS、Canvas、SVG 与动效构成，负责呈现给人眼欣赏与交互；
+2. **智能体机器层（Machine Layer）**：通过浏览器原生对象 `document.modelContext`（早期草案曾用 `navigator.modelContext`）暴露结构化、类型化的可调用工具集（Capabilities & Tools）。
+
+```mermaid
+flowchart TB
+    subgraph Browser["🌐 智能体原生浏览器（如 ChatGPT Desktop / Chrome Agent Enabled）"]
+        subgraph WebPage["📄 运行中网页（Web Application）"]
+            direction TB
+            subgraph HumanLayer["👁️ 人类视觉层 (Human Layer)"]
+                DOM["DOM 树 / CSS 样式 / Canvas 视图"]
+                USER_ACT["人类鼠标点击 / 键盘输入"]
+            end
+            
+            subgraph MachineLayer["🤖 智能体语义层 (Machine Layer)"]
+                MC["document.modelContext\n工具注册中心 (Tool Registry)"]
+                T1["Tool 1: searchProducts()"]
+                T2["Tool 2: addToCart()"]
+                T3["Tool 3: checkoutOrder()"]
+                MC --> T1 & T2 & T3
+            end
+            
+            APP_STATE["⚛️ 前端应用状态 (React / Vue / Redux / Local State)"]
+            DOM <--> APP_STATE
+            T1 & T2 & T3 <--> APP_STATE
+        end
+
+        subgraph AgentEngine["🧠 Agent 推理与执行引擎 (LLM / Host)"]
+            AGENT_PLAN["Agent 任务规划器"]
+            SITE_TOOLS["Site Tools 发现与权限检查"]
+            TOOL_INVOKE["JSON-RPC / 内存调用器"]
+        end
+    end
+
+    subgraph Backend["☁️ 业务服务端 (Web Backend)"]
+        API["业务 API / 数据库 (带用户 Cookie & Session)"]
+    end
+
+    AGENT_PLAN --> SITE_TOOLS
+    SITE_TOOLS -->|"1. 发现工具 getTools()"| MC
+    MC -->|"2. 返回 JSON Schema 列表"| SITE_TOOLS
+    SITE_TOOLS -->|"3. 决策调用 execute(args)"| TOOL_INVOKE
+    TOOL_INVOKE -->|"4. 原生 JS 函数触发"| T2
+    T2 -->|"5. 带登录凭证请求"| API
+    API -->|"6. 返回数据"| T2
+    T2 -->|"7. 结构化返回值"| TOOL_INVOKE
+    TOOL_INVOKE -->|"8. 更新上下文继续推理"| AGENT_PLAN
+
+    style MachineLayer fill:#e8f4fd,stroke:#2b7de9,stroke-width:2px
+    style HumanLayer fill:#fff7e6,stroke:#d46b08,stroke-width:2px
+    style AgentEngine fill:#f6ffed,stroke:#52c41a,stroke-width:2px
+```
+
+#### 为什么 WebMCP 必须运行在浏览器客户端？
+与传统的云端后端 MCP Server 不同，WebMCP 部署在**用户浏览器端（Client-Side / In-Browser）**，带来了无可替代的三大核心优势：
+- **用户身份与会话自然复用**：Agent 操作时直接继承用户在当前浏览器中的登录 Session、Cookie、LocalStorage 和 IndexedDB，无需向第三方 Agent 平台提供账号密码或 API Token；
+- **前端临时状态精准捕获**：SPA 单页应用中的未提交表单、富文本编辑器草稿、客户端筛选与本地缓存状态，无需上传云端即可直接被 Agent 调度；
+- **零额外基础设施成本**：网站开发者无需为 Agent 额外开发、托管和维护公开公网 API，只需在前端静态脚本中暴露几行 JS 注册函数即可完成「Agent-Ready」改造。
+
+---
+
+### 8.4.3 核心 API 规范与实战开发
+
+WebMCP 在 W3C 标准草案中定义了两种集成范式：**声明式 HTML 属性（Declarative）** 与 **命令式 JavaScript API（Imperative）**。
+
+```mermaid
+flowchart LR
+    subgraph DEC["1. 声明式 API (HTML Form)"]
+        direction TB
+        HTML["<form toolname='...' tooldescription='...'>\n  <input toolparamdescription='...'>\n</form>"]
+        AUTO_SCHEMA["浏览器内核自动推导\nJSON Schema"]
+        HTML --> AUTO_SCHEMA
+    end
+
+    subgraph IMP["2. 命令式 API (JavaScript)"]
+        direction TB
+        JS["document.modelContext.registerTool({\n  name, description, inputSchema, execute\n})"]
+        MANUAL_SCHEMA["开发者自定义 Schema\n+ 异步业务函数"]
+        JS --> MANUAL_SCHEMA
+    end
+
+    AUTO_SCHEMA --> POOL["🗃️ 页面上下文工具池\ndocument.modelContext.getTools()"]
+    MANUAL_SCHEMA --> POOL
+    POOL --> LLM_CALL["🤖 Agent 发现并按需触发调用"]
+```
+
+#### 1. 声明式 API（Declarative API）
+对于普通的静态或 SSR 网页，开发者仅需在现有 `<form>` 和 `<input>` 标签上添加 WebMCP 专属属性，浏览器即会自动将其转换为 Agent 可调用的工具定义：
+
+```html
+<!-- 航班查询声明式表单 -->
+<form toolname="searchFlights"
+      tooldescription="根据出发地、目的地及日期查询可用航班与实时票价"
+      toolautosubmit>
+  
+  <label>出发城市：</label>
+  <input name="origin" 
+         type="text" 
+         toolparamdescription="出发地城市名称或三字代码（如 PEK, SHA, SFO）" 
+         required />
+
+  <label>目的城市：</label>
+  <input name="destination" 
+         type="text" 
+         toolparamdescription="目的地城市名称或三字代码（如 HND, LHR, JFK）" 
+         required />
+
+  <label>出发日期：</label>
+  <input name="departDate" 
+         type="date" 
+         toolparamdescription="出发日期，格式为 YYYY-MM-DD" 
+         required />
+
+  <button type="submit">搜索航班</button>
+</form>
+```
+
+- **`toolname`**：工具的唯一标识符；
+- **`tooldescription`**：面向 Agent 大模型的自然语言功能描述；
+- **`toolautosubmit`**：布尔属性，指示 Agent 在填入参数后是否可自动触发提交；
+- **`toolparamdescription`**：为特定输入字段补充详细的参数语义提示。
+
+#### 2. 命令式 API（Imperative JavaScript API）
+在复杂的前端单页应用（React、Vue、Svelte 等）中，开发者使用 `document.modelContext.registerTool()` 动态注册带复杂输入校验、异步处理和安全注解的高级工具：
+
+```javascript
+// 检查浏览器是否支持 WebMCP
+if (typeof document.modelContext?.registerTool === "function") {
+  // 使用 AbortController 精确管理工具生命周期（如在 React 组件卸载时注销）
+  const controller = new AbortController();
+
+  await document.modelContext.registerTool({
+    name: "add_to_cart_and_estimate_shipping",
+    description: "将指定 SKU 商品加入用户购物车，并实时计算预估运费与预计送达时间",
+    
+    // 输入参数的严格 JSON Schema 定义
+    inputSchema: {
+      type: "object",
+      properties: {
+        skuId: {
+          type: "string",
+          description: "商品的唯一样式编码，如 'SKU-8848-BLK'"
+        },
+        quantity: {
+          type: "integer",
+          minimum: 1,
+          maximum: 10,
+          description: "购买数量，默认为 1"
+        },
+        shippingPostalCode: {
+          type: "string",
+          description: "配送目的地的 6 位邮政编码"
+        }
+      },
+      required: ["skuId", "shippingPostalCode"],
+      additionalProperties: false
+    },
+
+    // 关键安全注解（Annotations）
+    annotations: {
+      readOnlyHint: false,          // 提示 Agent 该操作会产生修改状态的副作用
+      untrustedContentHint: false   // 提示返回值来自可信的第一方系统
+    },
+
+    // 实际在用户浏览器上下文中执行的异步业务函数
+    execute: async ({ skuId, quantity = 1, shippingPostalCode }) => {
+      // 1. 调用前端全局 Store 或直接触发 fetch（天然附带当前用户的 Cookie）
+      const response = await window.cartStore.addItem({
+        sku: skuId,
+        qty: quantity,
+        zip: shippingPostalCode
+      });
+
+      // 2. 向 Agent 返回清洗后的结构化结果（Token 极其经济）
+      return {
+        success: true,
+        cartItemId: response.itemId,
+        newCartTotal: response.totalAmount,
+        estimatedDelivery: response.deliveryEstimateDate,
+        shippingFee: response.shippingCost
+      };
+    }
+  }, { signal: controller.signal });
+
+  // 监听工具池变化事件
+  document.modelContext.addEventListener("toolchange", () => {
+    console.log("当前页面可用 Agent 工具列表已更新:", document.modelContext.getTools());
+  });
+}
+```
+
+---
+
+### 8.4.4 OpenAI 与产业界生态推进
+
+WebMCP 不仅是一项纯粹的技术标准，更是 2026 年下半年由 OpenAI 官方发起、并迅速席卷主流浏览器与 Web 云厂商的**产业级战略行动**。
+
+```mermaid
+flowchart TB
+    subgraph OPENAI["🚀 OpenAI 核心推进"]
+        DESKTOP["ChatGPT Desktop\n内置浏览器『Site Tools』"]
+        OPERATOR["OpenAI Operator\n自主网页智能体\n(WebMCP 优先 + 视觉兜底)"]
+        CHALLENGE["OpenAI WebMCP Challenge\n(2026 年 8 月全球开发者黑客松)"]
+    end
+
+    subgraph STANDARDS["🏛️ 国际标准组织与浏览器厂商"]
+        W3C["W3C Web Machine Learning CG\n标准工作组规范制定"]
+        CHROME["Google Chrome / Chromium\n#enable-webmcp-testing 实验支持"]
+        MS["Microsoft Edge / Windows Agent"]
+    end
+
+    subgraph PLATFORMS["☁️ 框架与云基础设施合作伙伴"]
+        V["Vercel / Next.js"]
+        CF["Cloudflare Workers & Browser Rendering"]
+        SH["Shopify Agentic Storefronts"]
+        POLY["社区 Polyfill (@mcp-b/webmcp-polyfill)"]
+    end
+
+    OPENAI <--> STANDARDS
+    STANDARDS <--> PLATFORMS
+```
+
+1. **ChatGPT Desktop「Site Tools」**：
+   - 2026 年年中，OpenAI 在 ChatGPT 桌面版内置浏览器中深度集成 WebMCP。当用户访问支持该协议的站点时，地址栏会点亮 **「Site Tools」** 徽标，用户可直观查看 Agent 在当前页面获批调用的工具清单；
+   - 用户只需在聊天框输入 *"帮我在当前页面预订明天上午 10 点上海飞北京的最便宜航班"*，ChatGPT 会优先直接调用页面暴露的 `searchFlights` WebMCP 工具，而无需对整个界面逐像素截屏分析。
+
+2. **OpenAI WebMCP Challenge（2026 年 8 月）**：
+   - 2026 年 8 月 25 日至 9 月 3 日，OpenAI 官方主办首届 **WebMCP Challenge** 全球黑客松，联合 Google Chrome、Cloudflare、Shopify、Vercel、Netlify 与 Render 等提供百万级算力与奖金支持；
+   - 这一赛事旨在推动全球主流 SaaS、电商、文档与协同平台迅速改造为 **「Agent-Native Web」**，推动 WebMCP 从实验室规范走向百万级网站的生产落地。
+
+3. **W3C 标准化进程**：
+   - WebMCP 规范由 **W3C Web Machine Learning Community Group** 正式主导孵化，Google Chromium 团队深度参与，并在 Chrome 146+ Canary 中通过实验性 Flag 提供原生支持。
+
+---
+
+### 8.4.5 核心对比：WebMCP vs MCP vs Computer Use
+
+理解 WebMCP 在整个 Agent 技术栈中的位置，关键在于理清它与 Anthropic 发起的 **MCP** 以及 **Computer Use** 的边界与分工：
+
+| 对比维度 | Anthropic MCP (Model Context Protocol) | OpenAI / W3C WebMCP (Web Model Context Protocol) | Anthropic / OpenAI Computer Use (视觉 GUI 控制) |
+|:---------|:---------------------------------------|:------------------------------------------------|:------------------------------------------------|
+| **部署与运行层** | **服务端 / 宿主操作系统层** (Node/Python/Go) | **浏览器客户端层** (Browser JS Runtime) | **操作系统桌面 / 虚拟机截图层** (OS Display) |
+| **主要通信协议** | JSON-RPC 2.0 (stdio / SSE / HTTP) | 浏览器内部 JS 对象方法 (`document.modelContext`) | 视觉截图输入 + 虚拟鼠标键盘事件模拟 |
+| **目标连接对象** | 数据库、本地文件系统、企业内部微服务、云端 SaaS API | 当前用户正在浏览的动态网页、SPA 应用、前端表单 | 任何未经改造的遗留软件、桌面 Native App、任意网页 |
+| **登录与鉴权** | 需配置 OAuth 2.0 / API 密钥 / 连接配置 | **天然继承当前浏览器标签页的登录态与 Cookie** | 依赖 Agent 在界面上手动输入账密或人工接管登录 |
+| **Token 与耗时** | 低消耗、低延迟 | **极低消耗（数十 Token）、毫秒级执行** | 高消耗（每步数千 Token）、秒级延迟 |
+| **对应用的改造要求** | 需独立开发并部署 MCP Server 服务 | **极轻量（仅需前端 HTML 属性或少许 JS 注册）** | **零改造**（完全从外部模拟人类视觉交互） |
+| **典型代表场景** | Claude Code 查数据库、OpenClaw 发 Slack、Cursor 读本地代码 | ChatGPT 在电商站下单、在飞书网页版创建文档、在 GitHub 网页一键提 PR | 复杂专业桌面软件操作（Photoshop、CAD、旧版 ERP） |
+
+```mermaid
+flowchart TB
+    subgraph USER_LAYER["👤 用户交互与任务输入"]
+        USER["用户自然语言任务\n『帮我把本地分析报告同步到后台，并在网页版完成审批』"]
+    end
+
+    subgraph LLM_CORE["🧠 LLM 推理与编排内核"]
+        LLM["GPT-4.5 / Claude 3.7 / DeepSeek-V4\n(支持 Function Calling & Tool Orchestration)"]
+    end
+
+    subgraph SYSTEM_PROTOCOLS["⚙️ 全栈工具协议协同体系"]
+        subgraph MCP_SERVER["🖥️ 操作系统与服务端层：MCP"]
+            MCP_CORE["Anthropic MCP\n(JSON-RPC 2.0 / stdio / HTTP)"]
+            F1["📁 本地文件系统 Server"]
+            F2["🗄️ 企业数据库 Server"]
+            F3["💬 企业 Slack / 邮件 Server"]
+            MCP_CORE --> F1 & F2 & F3
+        end
+
+        subgraph WEBMCP_BROWSER["🌐 浏览器与前端应用层：WebMCP"]
+            WEBMCP_CORE["OpenAI / W3C WebMCP\n(document.modelContext)"]
+            W1["🛒 电商网页 (购物车/结算 Tool)"]
+            W2["📊 SaaS 仪表盘 (报表生成 Tool)"]
+            W3["📝 协作文档 (草稿保存 Tool)"]
+            WEBMCP_CORE --> W1 & W2 & W3
+        end
+
+        subgraph FALLBACK_VISION["👁️ 遗留系统兜底层：Computer Use"]
+            VISION["视觉截图 + 坐标模拟点击\n(用于未接入 MCP/WebMCP 的黑盒系统)"]
+        end
+    end
+
+    USER --> LLM
+    LLM -->|"读写本地文件 / 调用微服务"| MCP_CORE
+    LLM -->|"操控已打开的网页应用"| WEBMCP_CORE
+    LLM -->|"遇到无协议系统时自动回退"| VISION
+```
+
+> **架构启示**：未来的现代 Agent 架构绝非单选题。最佳实践是构建 **「WebMCP（前端轻交互）+ MCP（后端深连接）+ Computer Use（长尾黑盒兜底）」** 的三位一体全栈工具链体系。
+
+---
+
+### 8.4.6 安全模型与权限护栏
+
+由于 WebMCP 工具拥有直接访问用户当前会话并触发前端业务逻辑的特权，其安全模型构筑在多重防御纵深之上：
+
+1. **零凭证泄露模型（Zero Credential Exposure）**：
+   - 传统浏览器自动化需要把用户的账户名、密码或 Session Token 共享给云端 Agent 服务，极易造成数据泄露；
+   - WebMCP 运行在浏览器受控沙箱中，Agent **仅发送结构化参数，不接触任何私密凭证**，网络请求仍由浏览器标准网络栈发出并遵循 CORS 与 Cookie 作用域。
+
+2. **语义安全注解（Annotations as Guardrails）**：
+   - **`readOnlyHint`**：显式声明工具是否具有破坏性或写操作。对于 `readOnlyHint: false` 的关键操作（如下单支付、批量删除数据），浏览器和 Host 强制拦截并弹出 **人在环中（Human-in-the-Loop）** 确认弹窗；
+   - **`untrustedContentHint`**：当工具返回来自第三方用户生成的内容（UGC）时，打上不可信标记，指示 Agent 推理引擎启动严格的指令与数据隔离，防范 **间接提示注入（Indirect Prompt Injection）**。
+
+3. **同源沙箱与 Permissions Policy**：
+   - WebMCP 工具严格受制于浏览器的 **同源策略（Same-Origin Policy）**。第三方嵌入的 iframe 默认**无法**跨域注册或监听父页面的工具；
+   - 页面可通过 HTTP 响应头中的 `Permissions-Policy: model-context=(self)` 精确控制哪些子域或嵌入组件有权启用 WebMCP。
+
+*代表性工作*：W3C WebML WebMCP Specification Draft（2026）、OpenAI WebMCP Challenge & Site Tools（OpenAI，2026 年 8 月）、Google Chrome WebMCP Origin Trial（2026）
+
 
 # 9. 主流评测基准
 
@@ -1207,11 +1562,13 @@ Agent 驱动代码生成、Bug 修复、PR 提交全流程，是目前 AI Agent 
 | **GitHub Copilot Workspace** | Microsoft/GitHub | PR 全流程 Agent | 网页 + VS Code 集成 |
 | **Cursor** | Anysphere | AI-first 代码编辑器 | 编辑器内嵌 Agent |
 
-## 10.2 计算机控制 Agent
+## 10.2 计算机与网页控制 Agent
 
-Agent 直接操作 GUI——点击按钮、填写表单、运行脚本，实现 RPA（机器人流程自动化）的智能化升级。与传统 RPA 不同，AI Agent 能处理动态页面和非结构化输入，泛化能力远超规则脚本。
+Agent 直接操作 GUI 与网页——通过视觉点击按钮、填写表单，或通过 **WebMCP / MCP 协议**直接调用网页与操作系统底层能力，实现 RPA（机器人流程自动化）的智能化升级。与传统 RPA 相比，现代 Agent 具备理解非结构化输入、处理动态页面、以及在视觉操作与结构化工具之间自适应回退的强大能力。
 
-代表产品：Claude Computer Use（Anthropic）、OpenAI CUA、微软 Windows Agent（Windows 11 原生集成）。
+代表产品与方案：
+- **Web 结构化交互与端侧工具**：OpenAI Site Tools（基于 WebMCP）、OpenAI Operator（WebMCP + 视觉混合驱动）；
+- **系统 GUI 与视觉控制**：Claude Computer Use（Anthropic）、OpenAI CUA、微软 Windows Agent（Windows 11 原生集成）。
 
 ## 10.3 通用对话与任务助手
 
@@ -2437,7 +2794,7 @@ Agent 间通信  →  消息签名验证（ACP），结果交叉校验
 
 AI Agent 代表了人工智能从"理解"走向"行动"的核心范式转变。以 LLM 为大脑、工具调用为手脚、记忆模块为经验积累，Agent 系统正在将自然语言理解的能力延伸到真实世界的任务执行中。
 
-从技术演进看：ReAct 定义了推理-行动的基本范式（2022），Reflexion 引入了语言反思记忆（2023），MCP 协议标准化了 Agent 与外部世界的接口（2024），OpenClaw 将通用 Agent 能力推向开放生态（2025），Harness Engineering 则标志着 Agent 从实验室走向生产的工程化拐点，而其上层演进出的 Loop Engineering（循环工程）则成为了实现高自主、长周期任务的核心闭环范式（2026 年上半年）。2026 年 8 月 DeepSeek Harness 的开源是这条线索的又一个节点：它把 Harness 的每一层都拆成可替换的接缝并连同评测配置一并公开，使「模型分数里有多少是 Harness 的功劳」第一次成为可复现的对照实验。
+从技术演进看：ReAct 定义了推理-行动的基本范式（2022），Reflexion 引入了语言反思记忆（2023），MCP 协议标准化了 Agent 与外部世界的接口（2024），OpenClaw 将通用 Agent 能力推向开放生态（2025），Harness Engineering 则标志着 Agent 从实验室走向生产的工程化拐点，而其上层演进出的 Loop Engineering（循环工程）则成为了实现高自主、长周期任务的核心闭环范式（2026 年上半年）。2026 年 8 月 DeepSeek Harness 的开源是这条线索的又一个节点：它把 Harness 的每一层都拆成可替换的接缝并连同评测配置一并公开，使「模型分数里有多少是 Harness 的功劳」第一次成为可复现的对照实验。与此呼应，OpenAI、Google 与 W3C 推出的 WebMCP 标准则将工具协议从后端直插浏览器前端，共同构成了现代智能体全栈连接与工程治理的基础设施。
 
 2026 年的核心议题正在从"Agent 能不能工作"转向"**如何让 Agent 可靠地工作**"。
 
@@ -2502,15 +2859,18 @@ AI Agent 代表了人工智能从"理解"走向"行动"的核心范式转变。�
 38. Cordiverse. "A Programming Paradigm for Spatiotemporal Composability." *github.com/cordiverse/paper*, 2026. （dsh 底层插件内核的设计论文）
 39. Zechner, M., et al. "Pi Agent Harness." *github.com/earendil-works/pi*, 2026. MIT License. Accessed August 2026.
 40. Databricks. "Benchmarking Coding Agents on Databricks' Multi-Million Line Codebase." *databricks.com/blog*, 2026. Accessed August 2026.
+41. W3C Web Machine Learning Community Group. "Web Model Context Protocol (WebMCP) Specification Draft." *webmachinelearning.github.io/webmcp*, 2026.
+42. OpenAI. "WebMCP & The WebMCP Challenge: Building Agent-Ready Web Applications." *openai.com/blog*, August 2026. Accessed August 2026.
+43. Google Chrome. "WebMCP in Chromium: Exposing Structured Tools to Web AI Agents." *developer.chrome.com*, 2026. Accessed August 2026.
 
 **Agent 安全**
 
-41. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
-42. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
-43. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
+44. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
+45. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
+46. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
 
 **综述与背景**
 
-44. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
-45. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
-46. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
+47. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
+48. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
+49. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
