@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "AI Agent 综述"
-date: 2026-08-21
+date: 2026-08-27
 tags: [Agent, LLM, Multi-Agent, Survey]
 categories: research
 comments: true
