@@ -1,13 +1,13 @@
 ---
 layout: post
 title: "AI Agent 综述"
-date: 2026-08-27
+date: 2026-08-29
 tags: [Agent, LLM, Multi-Agent, Survey]
 categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划并执行多步骤任务的 AI 系统。本文系统梳理 AI Agent 核心架构、关键技术范式（ReAct、工具调用/MCP/WebMCP、反思、Harness Engineering、Loop Engineering、Graph Engineering、多 Agent）、代表性工作（ReAct、Reflexion、Voyager），并深入介绍 2025–2026 年主流 Agent 产品与基础设施（Claude Code、OpenAI Codex、Manus、OpenClaw、DeepSeek Harness、Pi Agent、Hermes Agent）、具身控制与物理治理前沿（Thea、Pigey、RoboHarness、Zetta）以及主流评测基准，呈现软硬件智能体的研究全貌。"
+excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划并执行多步骤任务的 AI 系统。本文系统梳理 AI Agent 核心架构、关键技术范式（ReAct、工具调用/MCP/WebMCP/MHS、反思、Harness Engineering、Loop Engineering、Graph Engineering、多 Agent）、代表性工作（ReAct、Reflexion、Voyager），并深入介绍 2025–2026 年主流 Agent 产品与基础设施（Claude Code、OpenAI Codex、Manus、OpenClaw、DeepSeek Harness、Pi Agent、Hermes Agent）、具身控制与物理治理前沿（Thea、Pigey、RoboHarness、Zetta）、连接物理设备的 Model Hardware Standard（MHS）以及主流评测基准，呈现软硬件智能体的研究全貌。"
 ---
 
 # 1. 引言
@@ -18,7 +18,8 @@ AI Agent 不是一个单一的模型，而是一种**系统架构**：以 LLM �
 
 - **OpenClaw**（2025 年 11 月发布）在 72 小时内积累 60,000+ GitHub Stars，目前已突破 **280,000 Stars**，成为史上增速最快的开源项目之一；
 - OpenAI 与 Anthropic 定义 **「Harness Engineering（Agent 工程化）」**，随后演进出 **「Loop Engineering（循环工程）」** 与 **「Graph Engineering（图智能体工程）」**，共同成为 2026 年工程界最热议的新范式；
-- 代码 Agent 在 SWE-bench 上的成功率从 2024 年底的 55% 跃升至 2025 年底的 70%+，而在具身物理世界中，基于 Harness 治理的机器人智能体（如 Thea、Pigey、Zetta）正大幅突破传统 VLA 模型的编排瓶颈。
+- 代码 Agent 在 SWE-bench 上的成功率从 2024 年底的 55% 跃升至 2025 年底的 70%+，而在具身物理世界中，基于 Harness 治理的机器人智能体（如 Thea、Pigey、Zetta）正大幅突破传统 VLA 模型的编排瓶颈；
+- **协议层面**，Agent 连接世界的接口标准已形成三层家族：**MCP**（连接软件与数据，2024）、**WebMCP**（连接 Web 前端，2026）与 **MHS（Model Hardware Standard，连接物理设备，2026 年 8 月）**，后者标志着 Anthropic 正式将 Agent 版图推入**物理 AI（Physical AI）** 领域。
 
 <div align="center">
   <img src="/images/agent/ai-agent-architecture-overview.jpg" width="80%" alt="AI Agent 自主推理、工具调用与多 Agent 协同全景" />
@@ -712,7 +713,7 @@ flowchart LR
 
 工具调用是 AI Agent 区别于普通 LLM 的**核心能力边界**：LLM 的知识存在训练截止日期，无法实时获取信息、无法执行代码、无法操作文件系统，也无法调用外部服务。工具调用打破了这些限制，使 Agent 能够真正影响外部世界。
 
-本章从底层机制、通用服务端协议到端侧/浏览器端前沿标准，依次介绍工具调用的整体架构与分类（Tool Use）、LLM 与工具之间的核心协议（Function Calling）、标准化后端与本地系统集成的行业开放协议（MCP），以及 2026 年由 OpenAI、Google 与 W3C 共同力推的浏览器端智能体交互新协议（WebMCP）。
+本章从底层机制、通用服务端协议到端侧/浏览器端前沿标准，依次介绍工具调用的整体架构与分类（Tool Use）、LLM 与工具之间的核心协议（Function Calling）、标准化后端与本地系统集成的行业开放协议（MCP），、2026 年由 OpenAI、Google 与 W3C 共同力推的浏览器端智能体交互新协议（WebMCP），以及 2026 年 8 月 Anthropic 发布、把 Agent 接入物理机器的硬件侧标准（MHS）。
 
 ---
 
@@ -1408,6 +1409,175 @@ flowchart TB
 
 *代表性工作*：W3C WebML WebMCP Specification Draft（2026）、OpenAI WebMCP Challenge & Site Tools（OpenAI，2026 年 8 月）、Google Chrome WebMCP Origin Trial（2026）
 
+---
+
+## 8.5 MHS 协议详解（Model Hardware Standard，模型硬件标准）
+
+2026 年 8 月 27 日，Anthropic 发布 **MHS（Model Hardware Standard，模型硬件标准）** 研究预览版——一套让 AI Agent **安全操作物理设备**的共享规范，首批面向科研实验室与先进制造企业开放。
+
+如果说 MCP 解决的是「Agent ↔ 软件与数据」的连接，WebMCP 解决的是「Agent ↔ Web 前端」的连接，那么 MHS 补上的正是最后一块拼图：**「Agent ↔ 物理机器」**。Anthropic 技术团队成员 Alek Kemeny 的比喻是：MCP 相当于「AI 连接软件的 USB」，而 MHS 把同一条思路延伸到了显微镜、移液工作站、机械臂与激光器上。这也是 Anthropic 首次正式将产品版图推入**物理 AI（Physical AI）** 领域。
+
+### 8.5.1 背景：科学与制造业的「集成税」
+
+现代实验室与先进制造车间的核心痛点并非缺少自动化设备，而是设备之间**互不通话**：
+
+- 每台仪器都有各自的私有 SDK、串口协议、厂商上位机软件与只存在于 PDF 手册里的隐性知识；
+- 把一条工作流（例如「移液 → 离心 → 读板 → 成像」）串起来，通常需要专职集成工程师为每一对设备编写一次性的「翻译器」胶水程序；
+- 一个中等规模实验室完成硬件整合，**耗时以周甚至月计**；更换设备或厂商升级固件后往往需要推倒重来；
+- 最终结果是严重的**厂商锁定（Vendor Lock-in）**。Anthropic 合作负责人 Jonah Cool 直言，科研设备领域长期「深受私有方案之苦」，MHS 的首要目标正是消除这种锁定。
+
+MHS 的价值主张非常直接：把这份「集成税」从**数周压缩到数小时甚至数分钟**，从而让实验室与产线得以运行 **7×24 小时无人值守的自主实验与工作流**——Agent 可以逐步推理、实时调参，并在部分场景下**不经人工介入自行排除硬件故障**。
+
+### 8.5.2 核心架构：标准化驱动 + 自然语言标签 + 三通道接入
+
+MHS 的架构可以概括为「**一层驱动、两个原语、三条通道**」：用统一的驱动层抹平厂商差异，用 `read` / `write` 两个原语覆盖绝大多数设备交互，再通过 MCP / CLI / 代码 API 三条通道供不同粒度的 Agent 调用。
+
+```mermaid
+flowchart TB
+    subgraph AgentLayer["🧠 Agent 编排层（模型无关 Model-Agnostic）"]
+        A1["Claude · GPT · 开源模型"]
+        A2["任意 Agent Harness\nClaude Code · dsh · 自研编排器"]
+        A1 --- A2
+    end
+
+    subgraph AccessLayer["🔌 三通道接入层"]
+        C1["MCP Server\n语义化工具调用，适合高层任务编排"]
+        C2["CLI 命令行\n适合脚本化批处理与运维"]
+        C3["Code / API 文件\n适合精细时序与实时控制"]
+    end
+
+    subgraph DriverLayer["⚙️ MHS 标准化驱动层"]
+        D1["read 原语\n读温度 / 读位姿 / 读激光功率"]
+        D2["write 原语\n设泵速 / 设电机角度 / 设波长"]
+        D3["自然语言标签 Tags\n机械臂重量 · 量程 · 安全限位 · 手册隐性知识"]
+        D4["设备参考文件\n可测量项 / 可调参数 / 硬性安全边界"]
+        D5["标准格式网络发现\n设备与 Agent 相互可见，无需定制翻译器"]
+    end
+
+    subgraph HW["🔬 异构物理设备"]
+        H1["移液工作站 · 机械臂"]
+        H2["酶标仪 · 显微镜 · 监控相机"]
+        H3["离心机 · qPCR 热循环仪"]
+        H4["激光系统 · 位移台"]
+    end
+
+    AgentLayer --> AccessLayer
+    AccessLayer --> DriverLayer
+    DriverLayer --> HW
+    HW -.->|"传感读数 / 错误码 / 异常事件"| DriverLayer
+    DriverLayer -.->|"结构化状态回报"| AgentLayer
+```
+
+**1）标准化驱动（Standardized Driver）**
+
+驱动是操作系统与硬件设备之间的翻译软件。MHS 并不发明新的物理总线，而是规定了一套**统一的驱动接口形态**：任何具备可编程接口的设备，只要按 MHS 规范实现驱动，就能以**标准格式在网络中被发现**，让设备与 Agent 彼此「看得见、说得通」，从而免去中间那层为每一对设备定制的翻译程序。
+
+**2）两个读写原语（read / write）**
+
+MHS 把千差万别的厂商指令集收敛为两个极简原语：
+
+| 原语 | 语义 | 典型示例 |
+|:-----|:-----|:---------|
+| **`read`** | 从设备**读取**一个测量值或状态 | 读取培养箱温度、机械臂当前位姿、激光器输出功率、板位是否就位 |
+| **`write`** | 向设备**写入**一个参数设定 | 设定泵的流速、设定电机转角、设定激光波长、设定离心转速 |
+
+这种收敛的意义在于：**Agent 不需要为每台新设备学习一套新 API**，只需理解「这台设备能读什么、能写什么、边界在哪里」，即可组合出完整工作流。
+
+**3）三条控制通道（MCP / CLI / Code）**
+
+MHS 明确支持三种控制机制协同工作，以适配不同的任务粒度：
+
+- **MCP**：把设备能力暴露为语义化工具，适合 Agent 做**跨设备的高层编排**（这也是 MHS 与本章前述协议家族的衔接点）；
+- **CLI**：命令行接口，适合可复现的脚本化批处理与运维调试；
+- **代码文件 / API**：程序化接口，适合对时序、实时性要求苛刻的精细控制。
+
+MHS 本身是**模型无关（model-agnostic）** 的——任何 Agent Harness 都可以通过 MCP 这类标准协议接入，开发者不会被绑定在 Claude 上。
+
+### 8.5.3 自然语言标签：把 PDF 手册里的隐性知识搬进驱动
+
+MHS 最具特色的设计，是允许开发者在驱动中**直接用自然语言写标签（Tags）**，描述那些「从代码里看不出来、但对安全操作至关重要」的机器特性——例如机械臂的自重（决定了它能被如何安全地搬运与摆位）、样品板的允许倾角、激光器的功率上限。这些信息传统上散落在厂商 PDF 手册与老工程师的经验里，模型无从获取。
+
+驱动会据此**自动生成一份设备参考文件**，向 Agent 声明三件事：这台设备**能测量什么**、**接受哪些调整**、以及**受到哪些安全限制**。对一台从未见过的设备，Agent 因此获得了「开箱即用」的操作先验。
+
+```yaml
+# 示意性伪代码：MHS 驱动中的自然语言标签
+# （MHS 规范当前处于研究预览阶段，尚未公开发布，以下仅用于说明设计理念）
+device: liquid_handler_a1
+tags:
+  - "这是一台 8 通道移液工作站，位于 B 区第二张实验台"
+  - "机械头自重约 4.2 kg，转运板时加速度不得超过 0.5 m/s²"
+  - "粘性液体（如 BSA）必须使用低速吸液，否则会形成气泡导致体积偏差"
+readable:
+  - tip_present        # 吸头是否装载
+  - liquid_level       # 液面检测
+  - head_position      # 机械头位姿
+writable:
+  - aspirate_rate      # 吸液流速
+  - dispense_volume    # 排液体积
+safety_limits:
+  aspirate_rate: { max: 200, unit: "uL/s" }
+  plate_rotation_check: required   # 板位缺失或旋转错位时拒绝执行
+```
+
+### 8.5.4 协议家族对比：MCP vs WebMCP vs MHS
+
+至此，Anthropic 与产业界围绕「Agent 如何连接世界」形成了一个三层协议家族。三者共享同一套语义化工具调用哲学，但连接对象、失败代价与安全模型截然不同：
+
+| 维度 | **MCP**（2024.11） | **WebMCP**（2026） | **MHS**（2026.08） |
+|:-----|:------------------|:------------------|:------------------|
+| **连接对象** | 后端服务、数据库、本地文件系统 | 浏览器中运行的 Web 应用前端 | 具备可编程接口的**物理设备** |
+| **主导方** | Anthropic（已开源，社区共治） | OpenAI · Google · W3C | Anthropic（研究预览，计划开源） |
+| **核心抽象** | Tools / Resources / Prompts | `document.modelContext` 类型化工具 | 标准化驱动 + `read` / `write` 原语 |
+| **发现机制** | MCP 注册表 / 配置声明 | 页面运行时注册 | **网络内标准格式自描述发现** |
+| **传输载体** | stdio / Streamable HTTP | 浏览器原生 JS 运行时 | MCP / CLI / 代码 API 三通道 |
+| **典型时延** | 百毫秒 ~ 秒级 | 50~200 毫秒 | 受物理执行器约束（秒 ~ 分钟级） |
+| **失败代价** | 数据错误、脏写入，**可回滚** | 误下单、误删除，**部分可回滚** | **样品损毁、设备碰撞、人身伤害，通常不可逆** |
+| **核心安全机制** | 权限最小化、沙箱、工具描述审查 | 同源策略、`readOnlyHint` 人在环中确认 | **设备级硬性安全限位（动作发生前拦截）+ 急停** |
+| **成熟度** | 生产可用，生态成熟 | 规范草案 + Origin Trial | 限定伙伴研究预览 |
+
+三者的关系并非替代，而是**互补堆叠**：一个完整的科研自动化 Agent，很可能同时用 MCP 读文献库与 LIMS 系统、用 WebMCP 在厂商门户下试剂订单、用 MHS 驱动实验台上的仪器完成实验。
+
+### 8.5.5 研究预览实证：来自首批合作方的量化结果
+
+MHS 的研究预览与生物医药、科研基础设施、量子计算三个方向的伙伴同时展开，公开披露的数据集中体现了「集成提速」与「自主调优」两类收益：
+
+| 合作方 | 场景 | 关键结果 |
+|:-------|:-----|:---------|
+| **Genentech** | BCA 蛋白定量实验自动化 | Claude 自主优化移液参数：水约 **140 µL/s**（RMSE 0.016）、高粘度 BSA 约 **10 µL/s**（RMSE 0.181）；可自主从吸头拾取失败、液面检测失败中恢复 |
+| **卡内基梅隆大学（CMU）** | 剂量-反应曲线测定 | 从裸设备到完成实验仅 **8 小时**，而厂商定制方案通常需数周；Agent 自主重跑后得到 **R² > 0.98** 的剂量-反应曲线 |
+| **QuEra Computing** | 中性原子量子计算机激光重锁定 | 成功率从 **58% → 99.3%**（700 次试验），平均恢复时间从 **150 秒 → 6 秒** |
+| **华盛顿大学 Baker & Pinglay 实验室** | 蛋白质设计高通量筛选 | 接入 **6 台仪器耗时不到一周**（含编写驱动的时间） |
+| **Tetsuwan Scientific** | qPCR 工作流 | 参数编译器在留出集上的精度预测比厂商技术规格书**准约 12%** |
+| **HHMI Janelia 研究园区** | 显微成像集成 | MHS 的最初共同设计方，贡献了跨仪器成像工作流的实践约束 |
+
+产业侧同步宣布支持的厂商与平台包括 **AWS（Strands Robots）、Automata（LINQ 平台）、Danaher、Doosan Robotics、MBF Bioscience、QIAGEN、Tecan、Universal Robots、Hugging Face（LeRobot）与 Raspberry Pi**——覆盖从工业机械臂、实验室自动化到开源机器人与嵌入式开发板的完整谱系。
+
+### 8.5.6 安全模型：在机器动作之前拦截
+
+与软件协议不同，物理世界的错误通常**不可回滚**。MHS 因此把安全约束下沉到**设备级安全限位（device-level safety limits）**——校验发生在**机械开始运动之前**，而非事后报错：
+
+1. **碰撞预防**：转运样品板时校验轨迹与占位，阻止机械臂与其他仪器发生碰撞；
+2. **能量上限**：拒绝超出安全阈值的激光功率写入，避免烧毁样品或损伤光学元件；
+3. **状态前置校验**：检测板位缺失、板体旋转错位等异常状态，条件不满足即拒绝执行；
+4. **异常急停（Emergency Stop）**：运行期检测到异常读数时触发硬件级急停；
+5. **保守默认与人在环中**：在实测的夜间无人值守运行中，Claude 在遇到自身判断有风险的操作时**主动暂停并等待人工确认**，宁可牺牲吞吐也不冒险——这与 8.4.6 节 WebMCP 的 `readOnlyHint` 人在环中拦截属于同一设计哲学，只是代价函数被物理世界放大了若干量级。
+
+### 8.5.7 定位、局限与开放路线
+
+**与既有工业标准的关系。** MHS 并不试图取代 SiLA 2、OPC UA、ROS 2 这类既有的实验室/工业通信标准与机器人中间件——它们解决的是**机器与机器之间**的可靠通信与实时性问题。MHS 补的是另一层：**让「模型」读得懂这台机器**，把量程、自重、工艺禁忌这些原本只存在于手册与老师傅经验中的隐性知识，编码成 Agent 可消费的结构化上下文。二者是「总线层」与「语义层」的分工关系。
+
+**当前局限**（Anthropic 在预览中明确承认）：
+
+- **物理常识缺口**：模型对物理、化学、生物约束的理解仍然薄弱，容易提出在化学上不成立的方案；
+- **空间与物理推理不足**：难以对硬件故障做机理性排查——例如无法从「产生了气泡」推断出流速与液体粘度的因果链；
+- **必须专家监督**：现阶段仍需领域专家在环，不适合完全无人化的关键实验；
+- **接口前提**：只能接入**已具备可编程接口**的设备，纯手动或纯模拟仪表无法纳入；
+- **可得性**：目前仅对限定伙伴开放研究预览，规范尚未开源，感兴趣的团队需通过 `modelhardwarestandard.com` 提交申请。
+
+**开放路线。** Anthropic 表示将先与科学、机器人、电子与制造业伙伴共建**安全评测集与最佳实践**，再走 MCP 走过的老路——**开源**。这条路径与其推动 MCP 的策略如出一辙：以开放标准换取生态位，而非以私有接口换取锁定。
+
+*代表性工作*：Anthropic. "Previewing the Model Hardware Standard"（2026 年 8 月 27 日）、`modelhardwarestandard.com`、MHS 研究预览合作网络（Genentech / HHMI Janelia / CMU / QuEra / UW / Tetsuwan Scientific）
+
 
 # 9. 主流评测基准
 
@@ -1762,15 +1932,16 @@ flowchart TB
     U["💬 用户指令\nTelegram / 语音 / CLI"]
     U --> GW["🖥️ 通用 Agent OS / Gateway\nOpenClaw · Claude Code · dsh"]
     GW -->|"MCP 标准协议"| HN["🛡️ 具身治理 Harness 层\nThea · Pigey · Zetta · ABot-AgentOS\n安全护栏 · 退出码评估 · 失败归因"]
-    HN -->|"ROS2 / DDS 中间件"| CTL["⚙️ 底层驱动与控制器\nUnitree G1 · Franka FR3 · AgileX 底盘"]
+    HN -->|"MHS 标准驱动 · ROS2 / DDS 中间件"| CTL["⚙️ 底层驱动与控制器\nUnitree G1 · Franka FR3 · AgileX 底盘"]
     CTL -->|"视觉 / 力觉 / 位姿反馈"| HN
     HN -->|"任务结果与状态回报"| GW
 ```
 
 1. **MCP 标准在机器人领域的统一**：社区开发者广泛利用 **Model Context Protocol（MCP）** 将机器人能力抽象为标准化微服务（如 `robot_locate_object()`、`robot_vla_grasp()`、`robot_navigate_to()`），打通了软件 Agent（如 OpenClaw、Claude）与物理机器人之间的协议壁垒。
-2. **实机交互案例**：通过 MCP 接入 Unitree G1 人形机器人与机械臂，用户仅需在 IM 聊天框发送自然语言指令，Agent 即可自主调用视觉模型完成定位、调度 VLA 执行精准抓取、并在受阻时自动调用重试策略。
-3. **产业扶持与落地**：多地政府与产业基金（如无锡 2026 年设立的数百万元专项奖励）已将开源 Agent 操作系统与具身人形机器人的融合列为重点支持方向。
-4. **安全护栏与硬约束（Safety Guardrails）**：物理部署的核心底线在于安全性。现代具身 Harness 在底层接入了不可逾越的运动学限位、力矩安全阈值、防碰撞体积盒与硬件级急停机制，确保高层 Agent 的探索与推理在严格的物理安全边界内运行。
+2. **MHS 补齐硬件侧标准（2026 年 8 月）**：MCP 统一了「Agent ↔ 软件」的语义接口，但机器人本体、传感器与实验仪器的驱动层长期各自为政。Anthropic 的 **Model Hardware Standard（MHS）** 用统一的 `read` / `write` 原语与自然语言设备标签抹平厂商差异，并将设备级安全限位下沉到动作发生之前，首批合作方已覆盖 Universal Robots、Doosan Robotics、Hugging Face LeRobot 与 Raspberry Pi 等机器人与嵌入式生态（详见 [8.5 节](#85-mhs-协议详解model-hardware-standard模型硬件标准)）。
+3. **实机交互案例**：通过 MCP 接入 Unitree G1 人形机器人与机械臂，用户仅需在 IM 聊天框发送自然语言指令，Agent 即可自主调用视觉模型完成定位、调度 VLA 执行精准抓取、并在受阻时自动调用重试策略。
+4. **产业扶持与落地**：多地政府与产业基金（如无锡 2026 年设立的数百万元专项奖励）已将开源 Agent 操作系统与具身人形机器人的融合列为重点支持方向。
+5. **安全护栏与硬约束（Safety Guardrails）**：物理部署的核心底线在于安全性。现代具身 Harness 在底层接入了不可逾越的运动学限位、力矩安全阈值、防碰撞体积盒与硬件级急停机制，确保高层 Agent 的探索与推理在严格的物理安全边界内运行；MHS 则把这类硬约束进一步标准化为设备驱动自带的、动作前拦截的安全声明。
 
 **延伸阅读**：具身控制 Agent 与视觉语言导航（VLN）及世界模型高度交叉，可在 [VLN Papers 合集](https://tingdeliu.github.io/VLN-Papers/) 与 [VLN Papers 扩展篇](https://tingdeliu.github.io/VLN-Papers-Extended/) 中通过 **Agentic** 标签筛选相关论文，当前匹配条目包括：NavGPT-2 (2024)、ODYSSEY (2025)、PanoNav (2025)、Open-Nav (2025)、CausalNav (2026)、AgentVLN (2026)、SysNav (2026)、GSMem (2026)、HSGM (2026)、CA-VLN (2026)、EvoMemNav (2026)、OmniNav (2026)、ReflectVLN (2026)、AgenticNav (2026)、Agentic Embodied Control (2026)、ABot-AgentOS (2026) 等。
 
@@ -2794,7 +2965,7 @@ Agent 间通信  →  消息签名验证（ACP），结果交叉校验
 
 AI Agent 代表了人工智能从"理解"走向"行动"的核心范式转变。以 LLM 为大脑、工具调用为手脚、记忆模块为经验积累，Agent 系统正在将自然语言理解的能力延伸到真实世界的任务执行中。
 
-从技术演进看：ReAct 定义了推理-行动的基本范式（2022），Reflexion 引入了语言反思记忆（2023），MCP 协议标准化了 Agent 与外部世界的接口（2024），OpenClaw 将通用 Agent 能力推向开放生态（2025），Harness Engineering 则标志着 Agent 从实验室走向生产的工程化拐点，而其上层演进出的 Loop Engineering（循环工程）则成为了实现高自主、长周期任务的核心闭环范式（2026 年上半年）。2026 年 8 月 DeepSeek Harness 的开源是这条线索的又一个节点：它把 Harness 的每一层都拆成可替换的接缝并连同评测配置一并公开，使「模型分数里有多少是 Harness 的功劳」第一次成为可复现的对照实验。与此呼应，OpenAI、Google 与 W3C 推出的 WebMCP 标准则将工具协议从后端直插浏览器前端，共同构成了现代智能体全栈连接与工程治理的基础设施。
+从技术演进看：ReAct 定义了推理-行动的基本范式（2022），Reflexion 引入了语言反思记忆（2023），MCP 协议标准化了 Agent 与外部世界的接口（2024），OpenClaw 将通用 Agent 能力推向开放生态（2025），Harness Engineering 则标志着 Agent 从实验室走向生产的工程化拐点，而其上层演进出的 Loop Engineering（循环工程）则成为了实现高自主、长周期任务的核心闭环范式（2026 年上半年）。2026 年 8 月 DeepSeek Harness 的开源是这条线索的又一个节点：它把 Harness 的每一层都拆成可替换的接缝并连同评测配置一并公开，使「模型分数里有多少是 Harness 的功劳」第一次成为可复现的对照实验。与此呼应，OpenAI、Google 与 W3C 推出的 WebMCP 标准将工具协议从后端直插浏览器前端；而 2026 年 8 月 Anthropic 发布的 MHS（Model Hardware Standard）则把同一套语义化接口延伸到显微镜、机械臂与激光器等物理设备上，把实验室与产线的硬件集成周期从数周压缩到数小时。至此，MCP（软件与数据）、WebMCP（Web 前端）与 MHS（物理机器）构成了 Agent 连接世界的三层协议家族，共同构成现代智能体全栈连接与工程治理的基础设施。
 
 2026 年的核心议题正在从"Agent 能不能工作"转向"**如何让 Agent 可靠地工作**"。
 
@@ -2804,6 +2975,7 @@ AI Agent 代表了人工智能从"理解"走向"行动"的核心范式转变。�
 - **持续学习**：从每次任务执行中积累经验，技能库持续扩充，而非仅依赖训练时的权重
 - **多 Agent 协作**：异构 Agent 团队如何高效分工、协调与通信
 - **安全与可解释性**：具有执行能力的 Agent 如何保持安全边界，并让人类可以理解和干预其决策过程
+- **物理世界落地**：在错误不可回滚的实验室与产线场景中，如何补齐模型的物理/化学常识与空间推理能力，让 MHS 这类硬件协议真正走向无人值守
 
 
 # 14. 参考资料
@@ -2862,15 +3034,17 @@ AI Agent 代表了人工智能从"理解"走向"行动"的核心范式转变。�
 41. W3C Web Machine Learning Community Group. "Web Model Context Protocol (WebMCP) Specification Draft." *webmachinelearning.github.io/webmcp*, 2026.
 42. OpenAI. "WebMCP & The WebMCP Challenge: Building Agent-Ready Web Applications." *openai.com/blog*, August 2026. Accessed August 2026.
 43. Google Chrome. "WebMCP in Chromium: Exposing Structured Tools to Web AI Agents." *developer.chrome.com*, 2026. Accessed August 2026.
+44. Anthropic. "Previewing the Model Hardware Standard." *anthropic.com/news/model-hardware-standard-research-preview*, August 27, 2026. Accessed August 2026.
+45. Anthropic. "Model Hardware Standard (MHS) Research Preview." *modelhardwarestandard.com*, 2026. Accessed August 2026.
 
 **Agent 安全**
 
-44. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
-45. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
-46. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
+46. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
+47. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
+48. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
 
 **综述与背景**
 
-47. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
-48. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
-49. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
+49. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
+50. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
+51. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
