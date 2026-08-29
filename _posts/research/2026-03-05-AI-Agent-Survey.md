@@ -21,6 +21,8 @@ AI Agent 不是一个单一的模型，而是一种**系统架构**：以 LLM �
 - 代码 Agent 在 SWE-bench 上的成功率从 2024 年底的 55% 跃升至 2025 年底的 70%+，而在具身物理世界中，基于 Harness 治理的机器人智能体（如 Thea、Pigey、Zetta）正大幅突破传统 VLA 模型的编排瓶颈；
 - **协议层面**，Agent 连接世界的接口标准已形成三层家族：**MCP**（连接软件与数据，2024）、**WebMCP**（连接 Web 前端，2026）与 **MHS（Model Hardware Standard，连接物理设备，2026 年 8 月）**，后者标志着 Anthropic 正式将 Agent 版图推入**物理 AI（Physical AI）** 领域。
 
+**图 1.1** 概括了本文将要展开的系统全貌：以 LLM 为推理核心，向外连接记忆、技能与工具，并由 Harness 在外层闭环治理——后续各章即沿着这张图逐块拆解。
+
 <div align="center">
   <img src="/images/agent/ai-agent-architecture-overview.jpg" width="80%" alt="AI Agent 自主推理、工具调用与多 Agent 协同全景" />
   <figcaption>图 1.1：AI Agent（智能体）LLM 大脑、记忆机制、工具调用与闭环 Harness 架构全景示意图</figcaption>
@@ -221,6 +223,8 @@ Thought: 天气较热，建议穿轻薄衣物
 Action:  finish("建议穿短袖")
 ```
 
+ReAct 原论文的对照实验说明了这种交织为何有效——**图 3.1** 左侧的 HotpotQA 问答中，纯推理（CoT-only）因缺少外部检索而产生事实幻觉，纯行动（Act-only）因缺少推理而无法规划检索顺序，只有二者交织才同时具备事实性与规划能力。
+
 <div align="center">
   <img src="/images/agent/react-figure1.webp" width="90%" />
   <figcaption>图 3.1：ReAct 与 CoT-only、Act-only 的推理对比（左：HotpotQA 问答；右：AlfWorld 决策）</figcaption>
@@ -242,6 +246,8 @@ Action:  finish("建议穿短袖")
 执行失败 → 分析失败原因（生成 Reflection） → 写入记忆
 下次尝试 → 读取历史 Reflection → 规避已知错误 → 重新执行
 ```
+
+这一循环的完整分工见 **图 3.2**：Actor 负责执行、Evaluator 负责给出成败信号、Self-Reflection 负责把失败转写成可复用的自然语言经验，三者构成一个不更新权重的「语言强化学习」闭环。
 
 <div align="center">
   <img src="/images/agent/reflexion-figure2.webp" width="85%" />
@@ -305,6 +311,8 @@ flowchart LR
     end
 ```
 
+**图 3.3** 取自 ToT 原论文，把三种推理结构的分支形态并排放在一起：IO 是一步直达，CoT 是一条不可回头的链，而 ToT 在每一层都保留多个候选并允许回溯。
+
 <div align="center">
   <img src="/images/agent/tot-figure1.webp" width="90%" />
   <figcaption>图 3.3：IO、CoT 与 ToT 三种推理结构对比——ToT 在每一步维护多条候选思维路径并可回溯</figcaption>
@@ -329,7 +337,7 @@ flowchart LR
 - **技能库**（Skill Library）：将成功执行的代码技能向量化存储，新任务时检索复用
 - **迭代提示**（Iterative Prompting）：执行失败时将报错和环境状态反馈给 LLM，持续改进代码
 
-Voyager 是首个在复杂开放世界中实现终身学习的 LLM Agent，其「代码技能 + 自动课程」架构对通用 Agent 的持续学习设计具有重要参考价值。
+Voyager 是首个在复杂开放世界中实现终身学习的 LLM Agent，其「代码技能 + 自动课程」架构对通用 Agent 的持续学习设计具有重要参考价值——三者的协作关系见 **图 3.4**。
 
 <div align="center">
   <img src="/images/agent/voyager-components.webp" width="90%" />
@@ -481,14 +489,14 @@ flowchart LR
 
 ## 5.3 代表性工作
 
-**Generative Agents**（Park et al., Stanford，2023）是首个将完整记忆体系应用于模拟人类社会行为的工作。25 个 LLM 驱动的虚拟人物在沙盒世界中自然生活，通过**记忆流（Memory Stream）**记录所有经历：
+**Generative Agents**（Park et al., Stanford，2023）是首个将完整记忆体系应用于模拟人类社会行为的工作。25 个 LLM 驱动的虚拟人物在沙盒世界中自然生活，通过**记忆流（Memory Stream）**记录所有经历，整体架构如 **图 5.1** 所示：
 
 <div align="center">
   <img src="/images/agent/generative-agents-architecture.webp" width="88%" />
   <figcaption>图 5.1：Generative Agents 整体架构——观察 → 记忆流 → 检索 + 反思 + 规划 → 行动</figcaption>
 </div>
 
-检索时综合三个维度打分，取加权和：
+检索时综合三个维度打分，取加权和（**图 5.2**）：
 
 <div align="center">
   <img src="/images/agent/generative-agents-memory.webp" width="85%" />
@@ -1430,7 +1438,7 @@ flowchart TB
 - 即使设备连通了，**仍然没有统一的方式把数据交给 Agent，也没有统一的方式让 Agent 安全地操作它们**；
 - 最终结果是严重的**厂商锁定（Vendor Lock-in）**。Anthropic 合作负责人 Jonah Cool 直言，科研设备领域长期「深受私有方案之苦」。
 
-Anthropic 官方给出的三类实验室对比，清晰刻画了 MHS 想占据的生态位——它试图同时拿走「学术实验室的灵活性」与「自动化实验室的低人力投入」，而绕开后者数百万美元的门槛：
+Anthropic 官方给出的三类实验室对比（**图 8.1**），清晰刻画了 MHS 想占据的生态位——它试图同时拿走「学术实验室的灵活性」与「自动化实验室的低人力投入」，而绕开后者数百万美元的门槛：
 
 <div align="center">
   <img src="/images/agent/mhs-lab-comparison.webp" width="95%" alt="学术实验室、自动化实验室与 MHS 实验室的三方对比" />
@@ -1453,7 +1461,7 @@ MHS 的价值主张由此非常直接：把这份「集成税」从**数周压�
 
 MHS 的架构可以概括为「**一层驱动、两个原语、三条通道**」：用统一的驱动层抹平厂商差异，用 `read` / `write` 两个原语覆盖绝大多数设备交互，再通过 MCP / CLI / 代码 API 三条通道供不同粒度的 Agent 调用。
 
-Anthropic 官方给出的端到端工作流图，完整展示了一次自动化实验中「意图 → 编排 → 驱动 → 反馈」的全链路：
+Anthropic 官方给出的端到端工作流图（**图 8.2**）完整展示了一次自动化实验中「意图 → 编排 → 驱动 → 反馈」的全链路：
 
 <div align="center">
   <img src="/images/agent/mhs-workflow.webp" width="95%" alt="MHS 让单个 Agent 通过统一接口驱动整套实验室自动化系统" />
@@ -1464,7 +1472,7 @@ Anthropic 官方给出的端到端工作流图，完整展示了一次自动化�
 
 驱动是操作系统与硬件设备之间的翻译软件。MHS 并不发明新的物理总线，而是规定了一套**统一的驱动接口形态**：任何具备可编程接口的设备，只要按 MHS 规范实现驱动，就能以**标准格式在网络中被发现**，让设备与 Agent 彼此「看得见、说得通」，从而免去中间那层为每一对设备定制的翻译程序。
 
-值得注意的是，MHS 的驱动粒度是**部件级而非整机级**。以 QuEra 的激光系统为例，激光器、波长计、伺服各自拥有独立驱动，由 MHS 统一聚合后再暴露给 Agent：
+值得注意的是，MHS 的驱动粒度是**部件级而非整机级**。以 QuEra 的激光系统为例（**图 8.3**），激光器、波长计、伺服各自拥有独立驱动，由 MHS 统一聚合后再暴露给 Agent：
 
 <div align="center">
   <img src="/images/agent/mhs-quera-laser-path.webp" width="95%" alt="QuEra 激光系统通过 MHS 暴露给 Claude 的完整路径" />
@@ -1536,7 +1544,7 @@ flowchart TB
 
 驱动会据此**自动生成一份设备参考文件**，向 Agent 声明三件事：这台设备**能测量什么**、**接受哪些调整**、以及**受到哪些安全限制**。对一台从未见过的设备，Agent 因此获得了「开箱即用」的操作先验。
 
-**跨主机设备发现。** MHS 的发现机制是网络级的：多台实验室主机（`lab-pc-01` / `lab-pc-02` / `lab-pc-03`）各自挂载若干设备，统一汇聚到 MHS，研究者既可以用仪表盘逐个 slot 查看实时值，也可以直接用自然语言问 Agent：
+**跨主机设备发现。** MHS 的发现机制是网络级的：多台实验室主机（`lab-pc-01` / `lab-pc-02` / `lab-pc-03`）各自挂载若干设备，统一汇聚到 MHS，研究者既可以用仪表盘逐个 slot 查看实时值，也可以直接用自然语言问 Agent——两条路径并列在 **图 8.4** 中：
 
 <div align="center">
   <img src="/images/agent/mhs-dashboard.webp" width="92%" alt="MHS 仪表盘与 AI Agent 两条监控路径及跨主机设备拓扑" />
@@ -1571,7 +1579,7 @@ safety_limits:
 
 MHS 架构中一个容易被忽略、却极为关键的设计，是**推理与执行的分层解耦**。官方明确指出：当 Agent 需要执行长时任务、或需要以**快于在线推理**的速度操作设备时，它可以把一台或多台设备的驱动命令**串成代码文件**，让设备自行执行整段操作，而无需 Agent 在每一步都参与推理。
 
-这在 QuEra 的隔夜自主调优实验中体现得最为彻底：整个循环里真正跑硬件的那一段**完全没有 AI 参与**，Claude 只出现在「提出假设 → 写成脚本 → 分析结果」三个环节上。
+这在 QuEra 的隔夜自主调优实验中体现得最为彻底：整个循环里真正跑硬件的那一段**完全没有 AI 参与**，Claude 只出现在「提出假设 → 写成脚本 → 分析结果」三个环节上（**图 8.5**）。
 
 <div align="center">
   <img src="/images/agent/mhs-quera-overnight-loop.webp" width="95%" alt="QuEra 隔夜运行的四阶段自改进循环，硬件执行段无 AI 参与" />
@@ -1618,7 +1626,7 @@ MHS 的研究预览与生物医药、科研基础设施、量子计算三个方�
 | **Tetsuwan Scientific** | qPCR 水体粪源污染溯源 | 自研 ResearchOS 把自然语言协议编译为自动化代码；参数编译器在留出集上的精度预测比厂商技术规格书**准约 12%** |
 | **HHMI Janelia 研究园区** | 双光子显微成像 | MHS 的最初共同设计方；斑马鱼后脑成像数据流式写入 MHS slot，实时神经活动可供下游流程即时消费 |
 
-**CMU：自主判定「这条曲线不能要」并重跑。** 最能体现 Agent 自主性的，是 CMU 的系列稀释实验。第一次运行以 200 µg/mL 为最高浓度，高浓度端出现信号饱和，拟合优度 R² 低于 0.9；模型**自行判定该结果不可接受，弃板并把浓度上限压到 100 µg/mL 重跑**，最终得到 4PL 拟合 R² = 0.981、CV = 3.4% 的合格曲线——整个过程无人干预。
+**CMU：自主判定「这条曲线不能要」并重跑。** 最能体现 Agent 自主性的，是 CMU 的系列稀释实验。第一次运行以 200 µg/mL 为最高浓度，高浓度端出现信号饱和，拟合优度 R² 低于 0.9；模型**自行判定该结果不可接受，弃板并把浓度上限压到 100 µg/mL 重跑**，最终得到 4PL 拟合 R² = 0.981、CV = 3.4% 的合格曲线——整个过程无人干预。**图 8.6** 把被拒绝的 Run 1 与被接受的 Run 2 并排放在一起，饱和段的差异一目了然。
 
 <div align="center">
   <img src="/images/agent/mhs-cmu-run1.webp" width="48%" alt="CMU 第一次运行：高浓度饱和导致拟合失败被拒绝" />
@@ -1626,14 +1634,14 @@ MHS 的研究预览与生物医药、科研基础设施、量子计算三个方�
   <figcaption>图 8.6：Agent 自主拒绝并重跑（Anthropic 官方图）。<b>左（Run 1）</b>：最高浓度 200 µg/mL，高浓度端测量饱和、信号不再有效增长，曲线不可靠，<b>被系统拒绝</b>；<b>右（Run 2）</b>：自动把上限压缩到 100 µg/mL 重跑，响应变化被清晰捕捉，4PL 拟合 R² = 0.981、CV = 3.4%、EC50 = 19 µg/mL，<b>无需人工干预即被接受</b></figcaption>
 </div>
 
-**QuEra：四个角色、各自独立上下文的隔夜自改进。** QuEra 把「激光重锁定」交给 Claude 的方式颇具工程巧思：先给定目标（写一个独立的 Python 重锁定脚本）与成功定义（首次尝试即重锁定，并稳定保持 30 秒），再人为制造扰动（挡光束、切断仪器电源模拟电涌、把频率推离目标不同幅度）。而**循环本身由四个角色构成，每个角色都是一个全新的 Claude 实例**：一个提出加快或稳定恢复的假设，一个把改动写进恢复脚本，一个执行实机运行，一个分析结果——这正是本文 [第 4 章多 Agent 系统](#4-多-agent-系统) 中「角色分工 + 上下文隔离」模式在物理实验中的落地。最终 Claude 把原先的线性恢复流程**重写成了一棵决策树**，不再用一条路径应对所有扰动。
+**QuEra：四个角色、各自独立上下文的隔夜自改进。** QuEra 把「激光重锁定」交给 Claude 的方式颇具工程巧思：先给定目标（写一个独立的 Python 重锁定脚本）与成功定义（首次尝试即重锁定，并稳定保持 30 秒），再人为制造扰动（挡光束、切断仪器电源模拟电涌、把频率推离目标不同幅度）。而**循环本身由四个角色构成，每个角色都是一个全新的 Claude 实例**：一个提出加快或稳定恢复的假设，一个把改动写进恢复脚本，一个执行实机运行，一个分析结果——这正是本文 [第 4 章多 Agent 系统](#4-多-agent-系统) 中「角色分工 + 上下文隔离」模式在物理实验中的落地。最终 Claude 把原先的线性恢复流程**重写成了一棵决策树**，不再用一条路径应对所有扰动；**图 8.7** 记录了这一夜里耗时与成功率的收敛轨迹。
 
 <div align="center">
   <img src="/images/agent/mhs-quera-convergence.webp" width="92%" alt="QuEra 隔夜 760 次实验中恢复耗时与成功率的收敛曲线" />
   <figcaption>图 8.7：隔夜收敛（Anthropic 官方 Figure 5）。约 760 次实验中，重锁定耗时从起始脚本的 150 秒依次降至 22 秒、7 秒、6 秒，同期在靶成功率从 58% 升至 78%、90%、93%、96%——从「又慢又不可靠」走到「又快又可靠」。图中 96% 为开发运行数据，正文所述 99.3% 来自后续盲测</figcaption>
 </div>
 
-**实时监控与人在环中。** 在 qPCR 场景中，MHS 暴露的工具被明确区分为 **MONITOR**（只读，如 `read_status(agent_status.json)`）与 **CONTROL**（可写，如 `run_protocol()`、`abort()`）两类语义，Agent 每个循环回传扩增曲线，并在关键判断点主动向研究者请示：
+**实时监控与人在环中。** 在 qPCR 场景中，MHS 暴露的工具被明确区分为 **MONITOR**（只读，如 `read_status(agent_status.json)`）与 **CONTROL**（可写，如 `run_protocol()`、`abort()`）两类语义，Agent 每个循环回传扩增曲线，并在关键判断点主动向研究者请示（**图 8.8**）：
 
 <div align="center">
   <img src="/images/agent/mhs-qpcr-realtime.webp" width="95%" alt="Claude Code 经 MHS 实时监控并控制 qPCR 实验的完整对话流" />
