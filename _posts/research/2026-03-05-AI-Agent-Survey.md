@@ -168,7 +168,9 @@ flowchart LR
         K --> L["Claude Code / Codex\n编程 Agent 商用"]
         L --> M["Harness Engineering\nAgent 工程化 (dsh / pi)"]
         M --> N["Loop & Graph Engineering\n闭环与图拓扑工程"]
-        N --> O["WebMCP / Embodied Harness\n端侧协议与物理治理 (OpenAI / W3C / Thea)"]
+        N --> O["WebMCP\n浏览器端语义协议 (OpenAI / Google / W3C)"]
+        O --> P["MHS\n物理设备标准 (Anthropic, 2026.08)"]
+        P --> Q["具身 Harness\n物理世界治理 (Thea / Pigey / Zetta)"]
     end
 ```
 
@@ -221,7 +223,7 @@ Action:  finish("建议穿短袖")
 
 <div align="center">
   <img src="/images/agent/react-figure1.webp" width="90%" />
-  <figcaption>Figure 1：ReAct 与 CoT-only、Act-only 的推理对比（左：HotpotQA 问答；右：AlfWorld 决策）</figcaption>
+  <figcaption>图 3.1：ReAct 与 CoT-only、Act-only 的推理对比（左：HotpotQA 问答；右：AlfWorld 决策）</figcaption>
 </div>
 
 **实验结果**：在 ALFWorld（文本游戏）和 WebShop（电商操作）上显著优于纯推理（CoT）和纯行动基线，推理过程透明可解释，成为现代 Agent 框架的事实标准推理模式。
@@ -243,7 +245,7 @@ Action:  finish("建议穿短袖")
 
 <div align="center">
   <img src="/images/agent/reflexion-figure2.webp" width="85%" />
-  <figcaption>Reflexion 架构：Actor、Evaluator 与 Self-Reflection 构成的语言强化循环</figcaption>
+  <figcaption>图 3.2：Reflexion 架构——Actor、Evaluator 与 Self-Reflection 构成的语言强化循环</figcaption>
 </div>
 
 **核心优势**：反思记忆以自然语言存储，LLM 可直接理解；无需改变模型权重即可持续改进。在编程（HumanEval +22%）、决策（AlfWorld +20%）等任务上大幅超越 ReAct 基线。
@@ -305,7 +307,7 @@ flowchart LR
 
 <div align="center">
   <img src="/images/agent/tot-figure1.webp" width="90%" />
-  <figcaption>Figure 1：IO、CoT 与 ToT 三种推理结构对比——ToT 在每一步维护多条候选思维路径并可回溯</figcaption>
+  <figcaption>图 3.3：IO、CoT 与 ToT 三种推理结构对比——ToT 在每一步维护多条候选思维路径并可回溯</figcaption>
 </div>
 
 **与 ReAct 的关系**：ReAct 是单路径推理；ToT 是多路径并行搜索，适合**需要前瞻与回溯**的高难度规划任务（数学证明、代码架构设计、博弈策略）。LLM 自身充当评估器，对每个候选思维打分（sure / maybe / impossible）。RAP 进一步将 MCTS 引入 LLM 推理，在数学竞赛题上显著优于 CoT。
@@ -331,7 +333,7 @@ Voyager 是首个在复杂开放世界中实现终身学习的 LLM Agent，其�
 
 <div align="center">
   <img src="/images/agent/voyager-components.webp" width="90%" />
-  <figcaption>Voyager 三大核心组件：自动课程（Automatic Curriculum）、技能库（Skill Library）与迭代提示（Iterative Prompting）</figcaption>
+  <figcaption>图 3.4：Voyager 三大核心组件——自动课程（Automatic Curriculum）、技能库（Skill Library）与迭代提示（Iterative Prompting）</figcaption>
 </div>
 
 *代表性工作*：Code as Policies（Liang et al., Google DeepMind, 2022）、Voyager（Wang et al., NVIDIA, 2023）
@@ -483,14 +485,14 @@ flowchart LR
 
 <div align="center">
   <img src="/images/agent/generative-agents-architecture.webp" width="88%" />
-  <figcaption>Generative Agents 整体架构：观察 → 记忆流 → 检索 + 反思 + 规划 → 行动</figcaption>
+  <figcaption>图 5.1：Generative Agents 整体架构——观察 → 记忆流 → 检索 + 反思 + 规划 → 行动</figcaption>
 </div>
 
 检索时综合三个维度打分，取加权和：
 
 <div align="center">
   <img src="/images/agent/generative-agents-memory.webp" width="85%" />
-  <figcaption>记忆检索机制：时近度 × 重要性 × 相关性加权打分，触发阈值后自动生成高层反思</figcaption>
+  <figcaption>图 5.2：记忆检索机制——时近度 × 重要性 × 相关性加权打分，触发阈值后自动生成高层反思</figcaption>
 </div>
 
 ```
@@ -606,7 +608,7 @@ flowchart LR
 
 **上下文工程**是 2025 年 AI Agent 工程实践中最重要的新范式之一。Karpathy 提出这一概念时指出：工业级 LLM 应用的核心瓶颈早已不是提示词本身，而是**如何在有限的上下文窗口里，为模型在每一步推理中装入恰好合适的信息**。
 
-### Prompt Engineering vs Context Engineering
+## 7.1 Prompt Engineering vs Context Engineering
 
 | 维度 | Prompt Engineering | Context Engineering |
 |------|-------------------|---------------------|
@@ -615,7 +617,7 @@ flowchart LR
 | 适用层级 | 单次调用优化 | 整个 Agent 生命周期的信息管理 |
 | 核心问题 | "怎么说才能让模型理解？" | "模型此刻需要知道什么？" |
 
-### 上下文窗口的内容构成
+## 7.2 上下文窗口的内容构成
 
 ```mermaid
 flowchart TB
@@ -632,7 +634,7 @@ flowchart TB
 
 关键约束：上下文窗口是**有限资源**（通常 128K–1M tokens）。装入太少，模型缺乏关键信息；装入太多，模型注意力被稀释，性能反而下降——这正是上下文工程"艺术性"所在。
 
-### 四大核心操作（LangChain，2025）
+## 7.3 四大核心操作（LangChain，2025）
 
 上下文工程的核心是对上下文窗口内容的精细管理，LangChain 将其归纳为四种操作：
 
@@ -682,7 +684,7 @@ Claude Code 的 auto-compact 机制：
 
 Anthropic 的多 Agent 研究者实验证明：**多个上下文隔离的子 Agent 整体表现优于拥有相同信息的单 Agent**，因为每个子窗口可以精准聚焦在更窄的子任务上。
 
-### 三类上下文失效模式
+## 7.4 三类上下文失效模式
 
 ```mermaid
 flowchart LR
@@ -697,7 +699,7 @@ flowchart LR
 | **上下文干扰（Context Distraction）** | 无关内容过多稀释注意力 | 相关性过滤、语义检索精准注入 |
 | **上下文混淆（Context Confusion）** | 矛盾信息并存（如旧记忆 vs 新检索结果） | 记忆冲突消解、时序优先级管理 |
 
-### 上下文工程与其他模块的关系
+## 7.5 上下文工程与其他模块的关系
 
 上下文工程不是独立技术，而是贯穿 Agent 所有模块的**横切关注点**：
 
@@ -719,7 +721,7 @@ flowchart LR
 
 ## 8.1 工具调用（Tool Use）概述
 
-### 为什么需要工具调用？
+### 8.1.1 为什么需要工具调用？
 
 | LLM 内生局限 | 工具解决方案 |
 |-------------|-------------|
@@ -729,7 +731,7 @@ flowchart LR
 | 无法操作文件系统或 GUI | 文件读写工具、浏览器控制 |
 | 无法调用第三方服务 | REST API、消息/邮件发送 |
 
-### 工具类型分类
+### 8.1.2 工具类型分类
 
 ```mermaid
 flowchart LR
@@ -765,7 +767,7 @@ flowchart LR
     TOOLS --> INFO & EXEC & DATA & COMM & A2A
 ```
 
-### 工具调用生命周期
+### 8.1.3 工具调用生命周期
 
 ```mermaid
 sequenceDiagram
@@ -793,7 +795,7 @@ sequenceDiagram
 4. **执行与返回（Execution & Result）**：应用层解析 LLM 的工具调用请求并实际执行，返回结果
 5. **结果整合（Result Integration）**：LLM 将工具结果与原始任务上下文整合，继续推理或生成最终回答
 
-### 代表性工作：Toolformer
+### 8.1.4 代表性工作：Toolformer
 
 **Toolformer**（Meta AI，2023）是首个让模型**自主学习何时调用哪个工具**的研究。在此之前，工具调用的时机和方式需要手工设计规则或 few-shot 示例。Toolformer 通过自监督学习，让模型在预训练阶段就内化工具调用时机：
 
@@ -807,13 +809,13 @@ sequenceDiagram
 
 ## 8.2 Function Calling 详解
 
-### 什么是 Function Calling？
+### 8.2.1 什么是 Function Calling？
 
 **Function Calling（函数调用）**是目前主流 LLM API 实现工具调用的**核心标准协议**。与 ReAct 的自由文本格式不同，Function Calling 要求模型以**结构化 JSON 格式**输出工具调用请求，由应用层解析并执行。
 
 OpenAI 于 2023 年 6 月在 GPT-4/GPT-3.5-Turbo 中率先实现，随后被 Claude（`tool_use`）、Gemini（`functionDeclarations`）等主流 LLM 广泛采纳，成为事实标准。
 
-### 工作流程
+### 8.2.2 工作流程
 
 ```mermaid
 sequenceDiagram
@@ -829,7 +831,7 @@ sequenceDiagram
     LLM->>App: 最终自然语言回答
 ```
 
-### JSON Schema 工具定义示例
+### 8.2.3 JSON Schema 工具定义示例
 
 ```json
 {
@@ -871,7 +873,7 @@ sequenceDiagram
 }
 ```
 
-### 并行工具调用（Parallel Tool Calls）
+### 8.2.4 并行工具调用（Parallel Tool Calls）
 
 现代 LLM 支持在**单次响应中输出多个工具调用**，应用层并发执行，大幅降低延迟：
 
@@ -892,7 +894,7 @@ flowchart LR
 - 3–5 个并行调用可将响应延迟**降低 60–80%**
 - `parallel_tool_calls: false` 参数可强制串行（适用于有顺序依赖的场景）
 
-### Structured Outputs（结构化输出）
+### 8.2.5 Structured Outputs（结构化输出）
 
 GPT-4o 引入 `"strict": true` 参数，通过**约束解码（Constrained Decoding）**在推理阶段强制 Schema 合规，保证模型输出 **100% 符合 JSON Schema**，消除解析失败风险：
 
@@ -901,7 +903,7 @@ GPT-4o 引入 `"strict": true` 参数，通过**约束解码（Constrained Decod
 Structured Outputs    → 约束解码保证 Schema 合规              → 零解析失败
 ```
 
-### ReAct vs Function Calling 对比
+### 8.2.6 ReAct vs Function Calling 对比
 
 | 维度 | ReAct | Function Calling |
 |------|-------|-----------------|
@@ -914,7 +916,7 @@ Structured Outputs    → 约束解码保证 Schema 合规              → 零�
 
 > 实践中两者常**结合使用**：外层用 Function Calling 确保调用格式稳定，内层用 Thought 字段记录推理过程。o3/o4-mini 已将推理链与工具调用**原生统一**，模型内部推理 token 可直接触发工具调用，无需手工设计 ReAct 循环。
 
-### 各主流模型支持情况
+### 8.2.7 各主流模型支持情况
 
 | 模型系列 | Function Calling 接口 | 并行调用 | 结构化输出 |
 |---------|----------------------|---------|----------|
@@ -929,7 +931,7 @@ Structured Outputs    → 约束解码保证 Schema 合规              → 零�
 
 ## 8.3 MCP 协议详解
 
-### 背景：碎片化困境
+### 8.3.1 背景：碎片化困境
 
 在 MCP 出现之前，AI Agent 生态面临严重的**碎片化困境**：每个 Agent 框架（LangChain、AutoGen、CrewAI……）需要为每个外部工具（GitHub、Slack、PostgreSQL……）单独实现连接器，形成 M×N 集成矩阵。
 
@@ -945,7 +947,7 @@ AutoGen   ──── Slack
 
 **MCP（Model Context Protocol）**是 Anthropic 于 **2024 年 11 月**发布的开放协议，实现了 AI 领域的"USB-C 标准化"：任何 MCP Client 可无缝连接任何 MCP Server，无需定制适配器。
 
-### 行业采纳时间线
+### 8.3.2 行业采纳时间线
 
 | 时间 | 里程碑 |
 |------|--------|
@@ -958,7 +960,7 @@ AutoGen   ──── Slack
 | 2026 年 1 月 | 10,000+ MCP 服务器；月均 SDK 下载量达 9,700 万次 |
 | 2026 年 7 月 | MCP 规范发布 2026-07-28 候选版本，引入无状态核心（Stateless Core）并扩展长程 Task 支持 |
 
-### 三层架构
+### 8.3.3 三层架构
 
 ```mermaid
 flowchart TB
@@ -988,7 +990,7 @@ flowchart TB
 - **Client（客户端）**：Host 内部组件，与单个 Server 保持 **1:1 连接**，将 LLM 的调用请求转为 MCP 协议格式
 - **Server（服务器）**：轻量服务进程，暴露工具/资源/提示，支持本地（stdio）或远程部署（HTTP/SSE）
 
-### 三大核心原语
+### 8.3.4 三大核心原语
 
 | 原语 | 作用 | 典型示例 | 副作用 |
 |------|------|---------|--------|
@@ -996,7 +998,7 @@ flowchart TB
 | **Resources（资源）** | 只读数据访问 | 读文件内容、查询数据库记录 | ❌ 无 |
 | **Prompts（提示）** | 可复用的提示模板与工作流 | 预定义分析流程、标准操作 SOP | ❌ 无 |
 
-### 传输协议
+### 8.3.5 传输协议
 
 MCP 基于 **JSON-RPC 2.0** 传输消息，借鉴了语言服务协议（LSP）的消息流设计：
 
@@ -1004,7 +1006,7 @@ MCP 基于 **JSON-RPC 2.0** 传输消息，借鉴了语言服务协议（LSP）�
 - **SSE/HTTP 模式**：支持远程 MCP Server，适合云端服务和多用户场景
 - **消息类型**：Request（期待响应）、Notification（单向通知）、Response（请求的返回）
 
-### 2025 年 11 月规范重大更新
+### 8.3.6 2025 年 11 月规范重大更新
 
 发布一周年之际，MCP 规范进行了面向生产环境的重大升级：
 
@@ -1015,7 +1017,7 @@ MCP 基于 **JSON-RPC 2.0** 传输消息，借鉴了语言服务协议（LSP）�
 | **服务器身份认证** | 标准化 OAuth 2.0 授权流程，解决企业级安全合规需求 |
 | **官方 MCP 注册表** | 社区驱动的服务器目录，支持发现、版本管理与安全验证 |
 
-### 2026 年中期规范演进（2026-07-28 升级）
+### 8.3.7 2026 年中期规范演进（2026-07-28 升级）
 
 2026 年 7 月底推出的 MCP 规范新版本（Release Candidate），标志着 MCP 在企业分布式架构中的进一步成熟：
 
@@ -1026,7 +1028,7 @@ MCP 基于 **JSON-RPC 2.0** 传输消息，借鉴了语言服务协议（LSP）�
 | **MCP Apps (服务器渲染 UI)** | 支持 MCP Server 直接向宿主 Host 返回定制化的交互式 UI 卡片，免去了纯文本数据交互的展现受限。 |
 | **高级联邦认证** | 深度结合 OAuth 2.0 与 OpenID Connect，实现细粒度的企业级 SSO 单点登录与工具级执行审计。 |
 
-### 安全挑战
+### 8.3.8 安全挑战
 
 MCP 的快速普及也带来了新的安全威胁，2025 年安全研究社区对此进行了大量披露：
 
@@ -1432,7 +1434,7 @@ Anthropic 官方给出的三类实验室对比，清晰刻画了 MHS 想占据�
 
 <div align="center">
   <img src="/images/agent/mhs-lab-comparison.webp" width="95%" alt="学术实验室、自动化实验室与 MHS 实验室的三方对比" />
-  <figcaption>图 8.5.1：三类实验室架构对比（Anthropic 官方 Figure 1）。<b>学术实验室</b>：无中央调度器，灵活但极度依赖人力，AI 仅停留在人机问答；<b>自动化实验室</b>：仪器统一挂在调度器下接近无人化，但需 6–24 个月部署、200 万~1000 万美元以上投入且架构锁死；<b>MHS 实验室</b>：所有仪器经 MHS 统一调度，单台仪器接入不到一周、增量成本为零（开源），且 Agent 可作为一等公民主动参与实验回路</figcaption>
+  <figcaption>图 8.1：三类实验室架构对比（Anthropic 官方 Figure 1）。<b>学术实验室</b>：无中央调度器，灵活但极度依赖人力，AI 仅停留在人机问答；<b>自动化实验室</b>：仪器统一挂在调度器下接近无人化，但需 6–24 个月部署、200 万~1000 万美元以上投入且架构锁死；<b>MHS 实验室</b>：所有仪器经 MHS 统一调度，单台仪器接入不到一周、增量成本为零（开源），且 Agent 可作为一等公民主动参与实验回路</figcaption>
 </div>
 
 三类实验室的关键指标对照：
@@ -1455,7 +1457,7 @@ Anthropic 官方给出的端到端工作流图，完整展示了一次自动化�
 
 <div align="center">
   <img src="/images/agent/mhs-workflow.webp" width="95%" alt="MHS 让单个 Agent 通过统一接口驱动整套实验室自动化系统" />
-  <figcaption>图 8.5.2：MHS 端到端自动化工作流（Anthropic 官方图）。<b>A</b> 科学家用自然语言描述实验，无需编写机器人代码；<b>B</b> Claude 调用可复用技能与知识库规划并编排整个流程；<b>C</b> 每一条指令都经由 MHS——每台设备的标准接口——下发；<b>D</b> MHS 驱动移液工作站、机械臂与酶标仪，并把状态流式回传给 Claude。橙色回路是 Claude 自主完成的闭环：设定流速并转移染色液 ①，将板送入读数器测吸光度 ②③，再用 RMSE 与专家基线比对并调参 ④，最终收敛到水约 140 µL/s（RMSE 0.016）、高粘度 BSA 约 10 µL/s（RMSE 0.181）</figcaption>
+  <figcaption>图 8.2：MHS 端到端自动化工作流（Anthropic 官方图）。<b>A</b> 科学家用自然语言描述实验，无需编写机器人代码；<b>B</b> Claude 调用可复用技能与知识库规划并编排整个流程；<b>C</b> 每一条指令都经由 MHS——每台设备的标准接口——下发；<b>D</b> MHS 驱动移液工作站、机械臂与酶标仪，并把状态流式回传给 Claude。橙色回路是 Claude 自主完成的闭环：设定流速并转移染色液 ①，将板送入读数器测吸光度 ②③，再用 RMSE 与专家基线比对并调参 ④，最终收敛到水约 140 µL/s（RMSE 0.016）、高粘度 BSA 约 10 µL/s（RMSE 0.181）</figcaption>
 </div>
 
 **1）标准化驱动（Standardized Driver）**
@@ -1466,7 +1468,7 @@ Anthropic 官方给出的端到端工作流图，完整展示了一次自动化�
 
 <div align="center">
   <img src="/images/agent/mhs-quera-laser-path.webp" width="95%" alt="QuEra 激光系统通过 MHS 暴露给 Claude 的完整路径" />
-  <figcaption>图 8.5.3：部件级驱动与 Agent 接入路径（QuEra 案例，Anthropic 官方 Figure 3）。左侧是物理光路——可调谐激光器、波长计（绝对频率）、超稳参考腔与 PID 伺服锁定环；右侧 Laser / Wavemeter / Servo 三个独立驱动统一挂载到 MHS，Agent 经 SSH 隧道从操作员工作站接入。蓝线为光束、红线为电子锁定信号、黑线为数字控制与遥测、橙线为 Agent 链路</figcaption>
+  <figcaption>图 8.3：部件级驱动与 Agent 接入路径（QuEra 案例，Anthropic 官方 Figure 3）。左侧是物理光路——可调谐激光器、波长计（绝对频率）、超稳参考腔与 PID 伺服锁定环；右侧 Laser / Wavemeter / Servo 三个独立驱动统一挂载到 MHS，Agent 经 SSH 隧道从操作员工作站接入。蓝线为光束、红线为电子锁定信号、黑线为数字控制与遥测、橙线为 Agent 链路</figcaption>
 </div>
 
 **2）两个读写原语（read / write）**
@@ -1538,7 +1540,7 @@ flowchart TB
 
 <div align="center">
   <img src="/images/agent/mhs-dashboard.webp" width="92%" alt="MHS 仪表盘与 AI Agent 两条监控路径及跨主机设备拓扑" />
-  <figcaption>图 8.5.4：MHS 的两条监控路径与跨主机拓扑（Anthropic 官方 Figure 2）。<b>左</b>：仪表盘按 Slots / Time Series / Images 三个视图逐一展开 slot——<code>block_temperature</code>、<code>current_cycle</code>、<code>curve_png</code>、<code>lid_temperature</code>、<code>run_state</code>、<code>time_remaining</code> 等，每个 slot 标注数据格式（<code>io.shmdict/int</code>、<code>io.shmdict/str</code>）与说明（注意 <code>run_state</code> 的备注：不能叫 <code>state</code>，因为 <code>MhsDriver</code> 保留了 <code>self.state</code>）；<b>右</b>：Agent 读取 <code>agent_status.json</code> 后用自然语言直接回答「qPCR 在跑吗？还要多久？」；<b>下</b>：MHS 统一发现挂在三台主机上的 qPCR、两台移液工作站与酶标仪</figcaption>
+  <figcaption>图 8.4：MHS 的两条监控路径与跨主机拓扑（Anthropic 官方 Figure 2）。<b>左</b>：仪表盘按 Slots / Time Series / Images 三个视图逐一展开 slot——<code>block_temperature</code>、<code>current_cycle</code>、<code>curve_png</code>、<code>lid_temperature</code>、<code>run_state</code>、<code>time_remaining</code> 等，每个 slot 标注数据格式（<code>io.shmdict/int</code>、<code>io.shmdict/str</code>）与说明（注意 <code>run_state</code> 的备注：不能叫 <code>state</code>，因为 <code>MhsDriver</code> 保留了 <code>self.state</code>）；<b>右</b>：Agent 读取 <code>agent_status.json</code> 后用自然语言直接回答「qPCR 在跑吗？还要多久？」；<b>下</b>：MHS 统一发现挂在三台主机上的 qPCR、两台移液工作站与酶标仪</figcaption>
 </div>
 
 ```yaml
@@ -1573,7 +1575,7 @@ MHS 架构中一个容易被忽略、却极为关键的设计，是**推理与�
 
 <div align="center">
   <img src="/images/agent/mhs-quera-overnight-loop.webp" width="95%" alt="QuEra 隔夜运行的四阶段自改进循环，硬件执行段无 AI 参与" />
-  <figcaption>图 8.5.5：推理外循环 + 确定性内循环（Anthropic 官方 Figure 4）。<b>假设</b>（提出成因与候选恢复策略）→ <b>实现</b>（写成确定性脚本）→ <b>[实机运行 → 结果采集]</b>（灰框内标注 <i>NO AI IN THE LOOP</i>，由确定性脚本经 MHS 驱动实机）→ <b>分析</b>（什么奏效、什么失败、为什么）→ 精炼假设并重跑，隔夜循环数百次。带星标的三个环节才是 Claude 在环的位置</figcaption>
+  <figcaption>图 8.5：推理外循环 + 确定性内循环（Anthropic 官方 Figure 4）。<b>假设</b>（提出成因与候选恢复策略）→ <b>实现</b>（写成确定性脚本）→ <b>[实机运行 → 结果采集]</b>（灰框内标注 <i>NO AI IN THE LOOP</i>，由确定性脚本经 MHS 驱动实机）→ <b>分析</b>（什么奏效、什么失败、为什么）→ 精炼假设并重跑，隔夜循环数百次。带星标的三个环节才是 Claude 在环的位置</figcaption>
 </div>
 
 这一分层带来三重收益：
@@ -1621,21 +1623,21 @@ MHS 的研究预览与生物医药、科研基础设施、量子计算三个方�
 <div align="center">
   <img src="/images/agent/mhs-cmu-run1.webp" width="48%" alt="CMU 第一次运行：高浓度饱和导致拟合失败被拒绝" />
   <img src="/images/agent/mhs-cmu-run2.webp" width="48%" alt="CMU 第二次运行：压缩浓度范围后拟合合格被接受" />
-  <figcaption>图 8.5.6：Agent 自主拒绝并重跑（Anthropic 官方图）。<b>左（Run 1）</b>：最高浓度 200 µg/mL，高浓度端测量饱和、信号不再有效增长，曲线不可靠，<b>被系统拒绝</b>；<b>右（Run 2）</b>：自动把上限压缩到 100 µg/mL 重跑，响应变化被清晰捕捉，4PL 拟合 R² = 0.981、CV = 3.4%、EC50 = 19 µg/mL，<b>无需人工干预即被接受</b></figcaption>
+  <figcaption>图 8.6：Agent 自主拒绝并重跑（Anthropic 官方图）。<b>左（Run 1）</b>：最高浓度 200 µg/mL，高浓度端测量饱和、信号不再有效增长，曲线不可靠，<b>被系统拒绝</b>；<b>右（Run 2）</b>：自动把上限压缩到 100 µg/mL 重跑，响应变化被清晰捕捉，4PL 拟合 R² = 0.981、CV = 3.4%、EC50 = 19 µg/mL，<b>无需人工干预即被接受</b></figcaption>
 </div>
 
 **QuEra：四个角色、各自独立上下文的隔夜自改进。** QuEra 把「激光重锁定」交给 Claude 的方式颇具工程巧思：先给定目标（写一个独立的 Python 重锁定脚本）与成功定义（首次尝试即重锁定，并稳定保持 30 秒），再人为制造扰动（挡光束、切断仪器电源模拟电涌、把频率推离目标不同幅度）。而**循环本身由四个角色构成，每个角色都是一个全新的 Claude 实例**：一个提出加快或稳定恢复的假设，一个把改动写进恢复脚本，一个执行实机运行，一个分析结果——这正是本文 [第 4 章多 Agent 系统](#4-多-agent-系统) 中「角色分工 + 上下文隔离」模式在物理实验中的落地。最终 Claude 把原先的线性恢复流程**重写成了一棵决策树**，不再用一条路径应对所有扰动。
 
 <div align="center">
   <img src="/images/agent/mhs-quera-convergence.webp" width="92%" alt="QuEra 隔夜 760 次实验中恢复耗时与成功率的收敛曲线" />
-  <figcaption>图 8.5.7：隔夜收敛（Anthropic 官方 Figure 5）。约 760 次实验中，重锁定耗时从起始脚本的 150 秒依次降至 22 秒、7 秒、6 秒，同期在靶成功率从 58% 升至 78%、90%、93%、96%——从「又慢又不可靠」走到「又快又可靠」。图中 96% 为开发运行数据，正文所述 99.3% 来自后续盲测</figcaption>
+  <figcaption>图 8.7：隔夜收敛（Anthropic 官方 Figure 5）。约 760 次实验中，重锁定耗时从起始脚本的 150 秒依次降至 22 秒、7 秒、6 秒，同期在靶成功率从 58% 升至 78%、90%、93%、96%——从「又慢又不可靠」走到「又快又可靠」。图中 96% 为开发运行数据，正文所述 99.3% 来自后续盲测</figcaption>
 </div>
 
 **实时监控与人在环中。** 在 qPCR 场景中，MHS 暴露的工具被明确区分为 **MONITOR**（只读，如 `read_status(agent_status.json)`）与 **CONTROL**（可写，如 `run_protocol()`、`abort()`）两类语义，Agent 每个循环回传扩增曲线，并在关键判断点主动向研究者请示：
 
 <div align="center">
   <img src="/images/agent/mhs-qpcr-realtime.webp" width="95%" alt="Claude Code 经 MHS 实时监控并控制 qPCR 实验的完整对话流" />
-  <figcaption>图 8.5.8：经 MHS 实时监控与控制 qPCR（Anthropic 官方 Figure 3）。Agent 先用 <code>read_status</code>（MONITOR）确认仪器空闲、盖温 87 °C 尚热、盖子关闭并提示需先开盖；装板后调用 <code>run_protocol</code>（CONTROL）启动并逐循环回传扩增曲线，标注 <i>flat baseline → rising → log phase → plateau shoulder</i> 的相位判读；研究者在第 12 循环下达 stop，Agent 调用 <code>abort()</code> 停止并保留数据，随后主动追问是否启动 4 °C 保温以保护样品</figcaption>
+  <figcaption>图 8.8：经 MHS 实时监控与控制 qPCR（Anthropic 官方 Figure 3）。Agent 先用 <code>read_status</code>（MONITOR）确认仪器空闲、盖温 87 °C 尚热、盖子关闭并提示需先开盖；装板后调用 <code>run_protocol</code>（CONTROL）启动并逐循环回传扩增曲线，标注 <i>flat baseline → rising → log phase → plateau shoulder</i> 的相位判读；研究者在第 12 循环下达 stop，Agent 调用 <code>abort()</code> 停止并保留数据，随后主动追问是否启动 4 °C 保温以保护样品</figcaption>
 </div>
 
 ### 8.5.7 安全模型：在机器动作之前拦截
@@ -1680,6 +1682,48 @@ Anthropic 同时表示，正在制定一份**物理安全路线图（physical sa
 
 # 9. 主流评测基准
 
+Agent 评测基准的演进本身就是一部能力扩张史：从 2021 年的受控玩具环境，到 2023–2024 年的真实软件工程与操作系统任务，再到 2025–2026 年把「过程质量」与「故障恢复」纳入考量。下表按**考察能力维度**给出主流基准的覆盖矩阵——可以清楚看到，没有任何单一基准能覆盖全部维度，这正是综合评测必须组合多个基准的原因：
+
+| 基准 | 年份 | 语言规划 | 工具调用 | 代码工程 | GUI/视觉操作 | 长程记忆 | 故障恢复 | 物理执行 |
+|:-----|:----:|:--------:|:--------:|:--------:|:------------:|:--------:|:--------:|:--------:|
+| **ALFWorld** | 2021 | ✅ | ✅ | ➖ | ➖ | ◐ | ➖ | ➖ |
+| **WebShop** | 2022 | ✅ | ✅ | ➖ | ◐ | ➖ | ➖ | ➖ |
+| **AgentBench** | 2023 | ✅ | ✅ | ◐ | ➖ | ➖ | ➖ | ➖ |
+| **GAIA** | 2023 | ✅ | ✅ | ➖ | ◐ | ✅ | ➖ | ➖ |
+| **SWE-bench** | 2023 | ◐ | ✅ | ✅ | ➖ | ✅ | ◐ | ➖ |
+| **OSWorld** | 2024 | ✅ | ✅ | ◐ | ✅ | ◐ | ➖ | ➖ |
+| **τ-bench** | 2024 | ✅ | ✅ | ➖ | ➖ | ✅ | ◐ | ➖ |
+| **STATE-Bench** | 2026 | ✅ | ✅ | ➖ | ➖ | ✅ | ✅ | ➖ |
+| **ReactBench / KernelBench** | 2026 | ➖ | ◐ | ✅ | ◐ | ➖ | ◐ | ➖ |
+| **LIBERO / LIBERO-PRO** | 2023 / 2026 | ◐ | ◐ | ➖ | ✅ | ✅ | ✅ | ✅ |
+| **RoboCasa** | 2024–2025 | ✅ | ◐ | ➖ | ✅ | ✅ | ◐ | ✅ |
+
+<small>✅ 核心考察维度 ｜ ◐ 部分涉及 ｜ ➖ 基本不涉及</small>
+
+```mermaid
+flowchart LR
+    subgraph B1["一代：受控玩具环境（2021–2022）"]
+        X1["ALFWorld · WebShop"]
+        X2["✅ 可复现、易打分
+⚠️ 与真实任务分布差距大"]
+    end
+    subgraph B2["二代：真实任务与真实环境（2023–2024）"]
+        Y1["SWE-bench · GAIA · OSWorld · τ-bench"]
+        Y2["✅ 直面生产级复杂度
+⚠️ 仅看终态 Pass/Fail"]
+    end
+    subgraph B3["三代：过程质量与容错（2025–2026）"]
+        Z1["STATE-Bench · LIBERO-PRO · 垂直基准"]
+        Z2["✅ 评轨迹、评恢复、评 Token 成本
+⚠️ 打分体系尚未统一"]
+    end
+    B1 --> B2 --> B3
+```
+
+---
+
+## 9.1 环境交互与多步任务基准
+
 ### ALFWorld
 
 | 属性 | 内容 |
@@ -1718,6 +1762,8 @@ WebShop 评测 Agent 在真实网页环境中的操作能力，是工具调用�
 AgentBench 是目前最全面的 Agent 能力综合评测框架，揭示了当前顶级 LLM 在 Agent 任务上与人类仍存在显著差距。
 
 ---
+
+## 9.2 真实世界任务与软件工程基准
 
 ### GAIA（General AI Assistants）
 
@@ -1758,6 +1804,8 @@ GAIA 考察 Agent 作为通用助手的综合能力。2025 年，H2O.ai 的 h2oG
 
 ---
 
+## 9.3 对话状态与垂直领域基准
+
 ### τ-bench (Tau Bench)
 
 | 属性 | 内容 |
@@ -1784,7 +1832,7 @@ GAIA 考察 Agent 作为通用助手的综合能力。2025 年，H2O.ai 的 h2oG
 
 ---
 
-### 细分专业基准 (ReactBench & KernelBench)
+### 垂直细分基准（ReactBench & KernelBench）
 
 随着 Agent 在专业工程师团队中进一步落地，涌现了垂直领域的定制化基准：
 - **ReactBench**：针对前端工程，评测 Agent 撰写、排错与重构生产级 React 应用（含 CSS、状态流、交互事件）的综合工程质量。
@@ -1792,7 +1840,9 @@ GAIA 考察 Agent 作为通用助手的综合能力。2025 年，H2O.ai 的 h2oG
 
 ---
 
-### 具身智能与物理操作基准 (LIBERO / RoboCasa)
+## 9.4 具身智能与物理操作基准
+
+### LIBERO / LIBERO-PRO 与 RoboCasa
 
 随着具身智能与 Harness 治理范式的深度融合，物理世界操作基准成为了衡量 Agent 物理决策能力的关键标尺：
 
@@ -1807,7 +1857,15 @@ LIBERO-PRO 特别强化了对长程任务执行中因果混淆、视觉遮挡和
 
 ---
 
-### 评测哲学的演进
+### 评测空白：物理硬件 Agent 尚无公开基准
+
+值得注意的是，LIBERO 与 RoboCasa 评测的都是**仿真环境中的机器人操作**。而 [8.5 节](#85-mhs-协议详解model-hardware-standard模型硬件标准) 所述的 MHS 这类**真实实验仪器控制**场景，目前**尚无公开的标准化基准**——现有证据全部来自各合作方自行设计的单点实验（如 CMU 的六项故障注入、QuEra 的激光重锁定成功率），彼此之间无法横向比较。
+
+这构成了一个明显的评测缺口：物理设备 Agent 的核心指标（安全拦截率、故障自恢复率、单位实验的 Token 与耗时成本）既没有统一定义，也没有公共测试床。Anthropic 已表示将与研究预览伙伴共建安全评测集，这可能是该方向第一批标准化基准的雏形。
+
+---
+
+## 9.5 评测哲学的演进
 
 伴随着 AI Agent 逐步进入真实生产环境，评测哲学完成了从“黑盒最终状态判定（Pass/Fail）”到“执行轨迹与多维质量分析（Trajectory & Performance Analysis）”的进化。目前行业主流（如 LangSmith、Braintrust 等）统一围绕以下三大支柱开展工程测评：
 
@@ -2055,7 +2113,7 @@ flowchart TB
 
 **Claude Code**（Anthropic，2025 年 2 月）是目前代码库理解能力最强的本地编程 Agent，其核心设计哲学是：**Agent 应该像一个真正在你机器上工作的工程师**，而不是远程代劳的云服务。
 
-### 工作流程
+### Claude Code 工作流程
 
 用户在终端输入一个高层任务（如"把所有 REST 接口改成 async/await 风格并补全测试"），Claude Code 随即进入自主执行循环：
 
@@ -2070,7 +2128,7 @@ flowchart TB
 
 整个循环无需人工介入，Agent 将测试失败视为环境反馈，反复迭代直到通过或主动告知用户无法解决。
 
-### 技术关键点
+### Claude Code 技术关键点
 
 **上下文管理**：Claude Code 会主动控制自身消耗的 token 数——读文件时优先读相关模块，而非盲目加载整个仓库。对超大代码库，它使用 Grep 工具先定位关键文件，再精细阅读。
 
@@ -2080,7 +2138,7 @@ flowchart TB
 
 **子 Agent 架构**（2025 年 7 月新增）：对于超长任务，主 Agent 可 spawn 多个专业化子 Agent 并行处理独立子任务（如同时重构多个模块），主 Agent 汇总结果后做最终整合，突破单会话上下文窗口的限制。
 
-### 能力边界与局限
+### Claude Code 能力边界与局限
 
 | 擅长 | 局限 |
 |------|------|
@@ -2097,7 +2155,7 @@ flowchart TB
 
 **OpenAI Codex**（2025 年 6 月）与 2021 年的代码补全模型同名，但定位完全不同。这是一个**云端异步多 Agent 软件工程平台**，核心设计哲学是：**开发者不需要等待 AI，提交任务后继续做其他事，完成后审查结果即可**。
 
-### 工作流程
+### OpenAI Codex 工作流程
 
 ```
 1. 用户在 ChatGPT 界面提交任务（如"修复 Issue #142，单元测试覆盖率要达到 80%"）
@@ -2110,7 +2168,7 @@ flowchart TB
 
 用户可以**同时提交多个 Issue**，每个 Issue 都在独立沙箱并行处理，相互不干扰。
 
-### 技术关键点
+### OpenAI Codex 技术关键点
 
 **codex-1 模型**：不是通用 o3，而是 o3 针对软件工程任务专门做了强化学习微调的版本——训练数据为真实 GitHub PR 和代码评审记录，优化目标是「生成可合并的 PR，而非仅仅能运行的代码」。
 
@@ -2138,7 +2196,7 @@ flowchart TB
 
 **Manus**（Butterfly Effect / Monica 团队，2025 年 3 月）是第一批让普通用户真正感受到「AI 能自主完成一整件事」的通用 Agent 产品，因发布演示视频在全球范围内迅速刷屏，内测邀请码一码难求。**2026 年 Meta 以约 20 亿美元收购 Manus AI**，成为 AI Agent 领域迄今最大的战略并购。
 
-### 工作流程
+### Manus 工作流程
 
 以典型任务「调研竞品市场，输出 Excel 对比报告」为例：
 
@@ -2156,7 +2214,7 @@ Manus 执行过程：
 
 整个过程运行在云端隔离虚拟机中，用户仅需等待结果，中途无需任何操作。
 
-### 技术关键点
+### Manus 技术关键点
 
 **CodeAct 机制**：Manus 不将行动描述为自然语言（「点击搜索按钮」），而是直接生成可执行的 Python 代码（`browser.click('#search-btn')`）。代码表达比自然语言更精确，天然支持条件分支和循环，是通用 Agent 处理复杂工作流的关键设计。
 
@@ -2164,7 +2222,7 @@ Manus 执行过程：
 
 **动态底层模型切换**：Manus 不绑定单一 LLM，根据子任务类型动态选择最适合的模型——复杂规划用 Claude 3.7，快速信息提取用 Qwen，代码生成用专用代码模型。所有工具通过 MCP 协议统一接入。
 
-### 局限
+### Manus 局限
 
 - **延迟高**：复杂任务通常需要 5–30 分钟；
 - **成本高**：大量 LLM 调用和浏览器操作带来较高的云端执行成本；
@@ -2191,13 +2249,13 @@ Loop      →  ReAct 循环（Reason → Act → Observe）
 
 五个模块一一对应本文第 2–6 章的概念：工具调用（§8）、记忆（§5）、规划（§3.3）、执行、ReAct 循环（§3.1）。
 
-### 技术选型
+### MiniAgent 技术选型
 
 - **LLM 后端**：支持本地 Ollama 部署，也支持 OpenAI 兼容接口（DeepSeek、Qwen 等），无需付费 API 即可上手
 - **工具安全**：计算器使用 Python AST 解析而非 `eval()`，文件操作内置路径穿越防护
 - **零依赖框架**：不依赖 LangChain / AutoGen，所有逻辑裸写在 Python 函数中，便于逐行理解
 
-### 定位
+### MiniAgent 定位
 
 MiniAgent 适合在读完本文后作为**动手验证**的第一步——在几百行代码里亲手跑一遍 ReAct 循环，比阅读任何文档都更有助于建立对 Agent 架构的直觉。在此基础上，再去使用 LangChain、AutoGen 或直接调用 Claude API 构建生产级 Agent，会清晰得多。
 
@@ -2209,7 +2267,7 @@ MiniAgent 适合在读完本文后作为**动手验证**的第一步——在几
 
 **OpenClaw**（奥地利开发者 Peter Steinberger，2025 年 11 月发布）是目前增速最快的开源 AI Agent 框架，GitHub Stars 突破 **280,000**，ClawHub 技能市场收录 **13,700+ 技能**。其定位是**自托管的 Agent 操作系统**——任何大模型（Claude、GPT-4o、DeepSeek、本地 Ollama 等）都可作为其推理内核。
 
-### 架构设计
+### OpenClaw 架构设计
 
 OpenClaw 的核心是一个 Node.js 网关，负责消息路由、会话管理、MCP 工具分发和安全审计，将「用什么模型」和「有什么工具」解耦：
 
@@ -2225,7 +2283,7 @@ OpenClaw Gateway（Node.js）
 技能系统（SKILL.md 定义，ClawHub 下载）
 ```
 
-### 核心特性
+### OpenClaw 核心特性
 
 **Memory Hot Swapping**：Agent 运行时可动态切换记忆模块（如从本地向量库切换到云端知识库），无需重启服务，适合需要在多个知识领域间切换的场景。
 
@@ -2256,7 +2314,7 @@ OpenClaw Gateway（Node.js）
 | LLM 后端 | 任意 | 优先 NVIDIA NIM 微服务 |
 | 生态集成 | ClawHub 社区技能 | Salesforce、Cisco、Adobe、CrowdStrike |
 
-### 核心设计
+### NVIDIA NemoClaw 核心设计
 
 **NIM 微服务架构**：NemoClaw 的 Agent 能力以 NVIDIA NIM（推理微服务）为执行单元，每个 NIM 封装一个专业化模型（代码生成、文档理解、数据分析等），通过标准 API 组合，使企业可以在自己的基础设施上运行，数据不出私有云。
 
@@ -2268,7 +2326,7 @@ OpenClaw Gateway（Node.js）
 
 **Devin**（Cognition AI，2024 年 3 月发布，2025 年 4 月发布 2.0）是首个以「AI 软件工程师」为定位的商业产品，将自己置于团队中的一个**异步协作成员**而非工具。
 
-### 工作流程
+### Devin 工作流程
 
 Devin 的交互模式类似于向一个初级工程师分配任务：用户在 Slack 或 Devin 界面提交任务，Devin 在独立沙箱中自主执行，完成后汇报进展，需要决策时主动询问。
 
@@ -2284,7 +2342,7 @@ Devin 执行过程：
 6. 在 Slack 回报：「已完成，PR #89，测试全绿，请审查」
 ```
 
-### 技术关键点
+### Devin 技术关键点
 
 **长期任务状态管理**：Devin 为每个任务维护独立的执行环境（包含完整的 git 状态、终端历史、浏览器会话），任务可跨越数小时甚至数天，不受会话超时影响。
 
@@ -2292,11 +2350,11 @@ Devin 执行过程：
 
 **Devin 2.0 改进**（2025 年 4 月）：执行速度提升 **4 倍**，PR 合并率从 34% 大幅提升至 **67%**，定价从 500 美元/月降至 **20 美元/月**，首次使 AI 软件工程师对个人开发者可负担。
 
-### 企业落地
+### Devin 企业落地
 
 **高盛（Goldman Sachs）**于 2025 年 7 月启动 Devin 试点，覆盖 **12,000 名人类开发者**，将 Devin 作为团队中的异步协作成员处理积压工单，目标实现整体 **20% 效率提升**，探索「人机混合开发团队」的生产模式。Santander、Nubank 等金融机构也在数千家企业中部署 Devin。
 
-### 能力边界
+### Devin 能力边界
 
 Devin 在 SWE-bench 上端到端解决 GitHub Issue 的成功率约 **13.86%**——这个数字看似不高，但相较此前最优 AI 系统的 1.96% 提升超 **7 倍**，更重要的是 Devin 在企业实测中 PR 合并率高达 67%，说明它在处理真实、有限范围的工程任务时已进入实用区间。
 
@@ -2364,7 +2422,7 @@ Hermes Agent 与其他框架最本质的区别在于其**自改进机制**：
 
 YC-Bench 的设计尤为独特——它测试的不是代码能力，而是 Agent 在多轮决策、资源管理和不确定性下的战略规划能力，是目前为数不多的长时程 Agent 评估基准。
 
-### 能力边界与局限
+### Hermes Agent 能力边界与局限
 
 | 擅长 | 局限 |
 |------|------|
@@ -2373,7 +2431,7 @@ YC-Bench 的设计尤为独特——它测试的不是代码能力，而是 Agen
 | 完全本地/私有部署（六种后端灵活适配） | 技能库膨胀：长期使用后需定期清理低质量技能文件 |
 | MCP 生态双向兼容（消费 + 提供工具） | GEPA 自改进机制在跨任务泛化能力上仍是开放研究问题 |
 
-### 意义
+### Hermes Agent 意义
 
 Hermes Agent 的核心价值在于将「持续学习」从研究概念落地为开源可部署的工程现实。它回答了一个关键问题：**如何让 Agent 在同一用户、同一场景下越用越快、越用越准？** 其开源性质（兼容任意模型后端）、快速增长的社区（10 万+ stars），以及面向研究者开放的 Atropos 强化学习训练基础设施，使其成为 Agent 自改进领域最重要的实验平台之一。
 
@@ -2655,7 +2713,7 @@ npx @deepseek-ai/dsh web
 
 默认在 `http://127.0.0.1:3080` 启动 Web UI。凭据以**只写**方式存放在 `$DSH_HOME/.credentials.yaml`。
 
-### 能力边界与局限
+### DeepSeek Harness 能力边界与局限
 
 | 擅长 | 局限 |
 |------|------|
@@ -2667,7 +2725,7 @@ npx @deepseek-ai/dsh web
 
 官方对适用范围的表述也很克制：**面向内部工具与研究环境，而非生产级 Agent 产品**。
 
-### 意义
+### DeepSeek Harness 意义
 
 DeepSeek Harness 的价值不在跑分，而在于它把一个长期含混的行业共识**证据化**了。
 
@@ -2686,7 +2744,7 @@ DeepSeek Harness 的价值不在跑分，而在于它把一个长期含混的行
 
 它的定位可以用官方那句口号概括：**Adapt pi to your workflows, not the other way around**——不需要 fork、不需要改任何内部实现，就能把它掰成你想要的形状。如果说 11.9 的 DeepSeek Harness 是「把每个零件都做成可替换插件」，那么 Pi Agent 走的是相反方向：**核心小到几乎没有零件可拆，其余能力全部交给用户扩展**。
 
-### 端到端工作流程
+### Pi Agent 端到端工作流程
 
 Pi Agent 是纯终端工具，交互形态接近 Claude Code，但其底层架构遵循「配置零开销、上下文强纪律、历史全保真」的生命周期。
 
@@ -2941,7 +2999,7 @@ Pi Agent 最有说服力的背书来自 Databricks 在其**数百万行内部代
 
 这组数据是 2.7 节「Agent 的成败不在模型，而在 Harness」最硬的一份外部证据。
 
-### 能力边界与局限
+### Pi Agent 能力边界与局限
 
 | 擅长领域 | 固有局限与边界 | 官方应对建议 |
 |---|---|---|
