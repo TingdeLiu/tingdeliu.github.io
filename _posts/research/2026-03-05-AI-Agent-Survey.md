@@ -7,7 +7,7 @@ categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划并执行多步骤任务的 AI 系统。本文系统梳理 AI Agent 核心架构、关键技术范式（ReAct、工具调用/MCP/WebMCP/MHS、反思、Harness Engineering、Loop Engineering、Graph Engineering、多 Agent）、代表性工作（ReAct、Reflexion、Voyager），并深入介绍 2025–2026 年主流 Agent 产品与基础设施（Claude Code、OpenAI Codex、Manus、OpenClaw、DeepSeek Harness、Pi Agent、Hermes Agent）、具身控制与物理治理前沿（Thea、Pigey、RoboHarness、Zetta）、连接物理设备的 Model Hardware Standard（MHS）以及主流评测基准，呈现软硬件智能体的研究全貌。"
+excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划并执行多步骤任务的 AI 系统。本文系统梳理 AI Agent 核心架构、关键技术范式（ReAct、工具调用/MCP/A2A/WebMCP/MHS、反思、Harness Engineering、Loop Engineering、Graph Engineering）、代表性工作（ReAct、Reflexion、Voyager），系统梳理多 Agent 协作拓扑、Agent Team 组织范式（CrewAI、MetaGPT、ChatDev、AutoGen、LangGraph）与单/多 Agent 路线之争，并深入介绍 2025–2026 年主流 Agent 产品与基础设施（Claude Code、OpenAI Codex、Manus、OpenClaw、DeepSeek Harness、Pi Agent、Hermes Agent）、具身控制与物理治理前沿（Thea、Pigey、RoboHarness、Zetta）、连接物理设备的 Model Hardware Standard（MHS）以及主流评测基准，呈现软硬件智能体的研究全貌。"
 ---
 
 # 1. 引言
@@ -19,7 +19,7 @@ AI Agent 不是一个单一的模型，而是一种**系统架构**：以 LLM �
 - **OpenClaw**（2025 年 11 月发布）在 72 小时内积累 60,000+ GitHub Stars，目前已突破 **280,000 Stars**，成为史上增速最快的开源项目之一；
 - OpenAI 与 Anthropic 定义 **「Harness Engineering（Agent 工程化）」**，随后演进出 **「Loop Engineering（循环工程）」** 与 **「Graph Engineering（图智能体工程）」**，共同成为 2026 年工程界最热议的新范式；
 - 代码 Agent 在 SWE-bench 上的成功率从 2024 年底的 55% 跃升至 2025 年底的 70%+，而在具身物理世界中，基于 Harness 治理的机器人智能体（如 Thea、Pigey、Zetta）正大幅突破传统 VLA 模型的编排瓶颈；
-- **协议层面**，Agent 连接世界的接口标准已形成三层家族：**MCP**（连接软件与数据，2024）、**WebMCP**（连接 Web 前端，2026）与 **MHS（Model Hardware Standard，连接物理设备，2026 年 8 月）**，后者标志着 Anthropic 正式将 Agent 版图推入**物理 AI（Physical AI）** 领域。
+- **协议层面**，Agent 连接世界的接口标准已形成四层家族：连接外部世界的 **MCP**（软件与数据，2024）、**WebMCP**（Web 前端，2026）与 **MHS**（Model Hardware Standard，物理设备，2026 年 8 月），以及连接 Agent 与 Agent 的 **A2A**（Agent2Agent，2025）；其中 MHS 标志着 Anthropic 正式将 Agent 版图推入**物理 AI（Physical AI）** 领域。
 
 **图 1.1** 概括了本文将要展开的系统全貌：以 LLM 为推理核心，向外连接记忆、技能与工具，并由 Harness 在外层闭环治理——后续各章即沿着这张图逐块拆解。
 
@@ -167,7 +167,8 @@ flowchart LR
     I --> J
     subgraph G2025 ["2025–2026 产业落地与工程深化"]
         J["OpenClaw\n通用开源 Agent OS"] --> K["Manus / Hermes\n通用自主 Agent"]
-        K --> L["Claude Code / Codex\n编程 Agent 商用"]
+        K --> KA["A2A 协议\nAgent 间通信标准 (Google)"]
+        KA --> L["Claude Code / Codex\n编程 Agent 商用"]
         L --> M["Harness Engineering\nAgent 工程化 (dsh / pi)"]
         M --> N["Loop & Graph Engineering\n闭环与图拓扑工程"]
         N --> O["WebMCP\n浏览器端语义协议 (OpenAI / Google / W3C)"]
@@ -378,11 +379,76 @@ flowchart TB
     W1 & W2 & W3 & W4 <--> MEM
 ```
 
-*代表性工作*：AutoGen（Microsoft，2023）、AutoGen 0.4 异步事件驱动架构（2025 年 1 月）、OpenAI Swarm（2024）
+本章先给出协作拓扑的分类（4.1）与以角色分工组织的 Agent Team（4.2），再依次介绍动态派生的 Subagent（4.3）、Agent 之间的连接标准 A2A（4.4）、跨厂商的 Bridge 层（4.5），最后讨论一个常被跳过的问题：**何时不该用多 Agent**（4.6）。
 
 ---
 
-## 4.1 Subagent：子 Agent 派生模式
+## 4.1 五种协作拓扑
+
+上图是最常见的**中心化编排**，但它只是多 Agent 协作的一种形态。按「谁决定下一步由谁做」这一维度，主流拓扑可归为五类——本文其他章节出现的多 Agent 案例，基本都能落进其中某一格：
+
+```mermaid
+flowchart TB
+    subgraph T1["① 中心化编排 Orchestrator-Worker"]
+        O1(("O")) --> A1(("A")) & B1(("B")) & C1(("C"))
+        A1 & B1 & C1 --> O1
+    end
+    subgraph T2["② 层级分治 Hierarchical"]
+        O2(("O")) --> M1(("M1")) & M2(("M2"))
+        M1 --> X1(("a")) & X2(("b"))
+        M2 --> X3(("c"))
+    end
+    subgraph T3["③ 流水线 Pipeline / SOP"]
+        P1(("需求")) --> P2(("设计")) --> P3(("编码")) --> P4(("测试"))
+    end
+    subgraph T4["④ 群聊与辩论 Group Chat / Debate"]
+        G1(("A")) <--> G2(("B"))
+        G2 <--> G3(("C"))
+        G1 <--> G3
+        GM["Manager 选择发言者"] -.-> G1 & G2 & G3
+    end
+    subgraph T5["⑤ 状态图 Graph / State Machine"]
+        S1(("n1")) -->|"cond A"| S2(("n2"))
+        S1 -->|"cond B"| S3(("n3"))
+        S2 --> S4(("n4"))
+        S3 -->|"回边"| S1
+        ST[("共享 State")] -.-> S1 & S2 & S3 & S4
+    end
+```
+
+| 拓扑 | 谁决定下一步 | 终止条件 | 典型失效 | 代表框架 / 本文案例 |
+|:-----|:-------------|:---------|:---------|:--------------------|
+| **① 中心化编排** | Orchestrator 统一路由 | 汇总完成 | 编排者成为瓶颈与单点信任风险 | OpenAI Swarm；[Maker-Checker 评测架构](#95-评测哲学的演进) |
+| **② 层级分治** | 每层各自的编排者 | 逐层回溯汇总 | 层数一多，上下文在传递中失真 | Claude Code 嵌套 Subagent；CrewAI `hierarchical` |
+| **③ 流水线 / SOP** | 预先固定的阶段顺序 | 走完全部阶段 | 前序阶段的错误会被后续放大 | MetaGPT、ChatDev；[QuEra 四角色循环](#856-研究预览实证来自首批合作方的量化结果) |
+| **④ 群聊 / 辩论** | Manager 或轮转规则选发言者 | 达成共识或轮次上限 | 无限对话、成本失控、共识≠正确 | AutoGen `GroupChat` |
+| **⑤ 状态图** | 边上的条件函数 | 到达终止节点 | 图一复杂就难以调试与验证 | LangGraph；[2.9 Graph Engineering](#29-graph-engineering图智能体工程) |
+
+一个实用判据：**前四种拓扑都可以看作状态图的特例**。当协作关系简单时，用①③④这类现成抽象开发更快；当分支条件复杂、需要回边与断点续跑时，⑤才是唯一能撑住的形态——这也是 LangGraph 在生产系统里占比持续上升的原因。
+
+---
+
+## 4.2 Agent Team：以角色分工组织协作
+
+「多 Agent」强调的是数量，「**Agent Team**」强调的则是**组织方式**：给每个 Agent 一个角色（Role）、一份职责（Goal）、一段人设（Backstory），让它们像一支团队那样分工。这一思路在 2023 年后分化出四种截然不同的组织哲学。
+
+| 框架 | 核心隐喻 | 组织方式 | 通信形态 | 主要短板 |
+|:-----|:---------|:---------|:---------|:---------|
+| **CrewAI** | 组建一支**小队（Crew）** | Agent 声明 role / goal / backstory，Task 声明期望产出，按 `sequential` 或 `hierarchical` 执行 | 任务委派（delegation） | 抽象好上手，但从「跑通」到「稳定跑」的距离比 LangGraph 远 |
+| **MetaGPT** | 一家**软件公司的 SOP** | 把标准作业流程编码进流水线：产品经理 → 架构师 → 工程师 → QA | **结构化文档**而非自由对话 | SOP 固定，偏离预设流程的任务难以适配 |
+| **ChatDev** | 一家公司的**瀑布式研发** | 设计 → 编码 → 测试 → 文档四阶段，每阶段由 instructor / assistant 双人对话推进 | 两两对话 | 阶段划分刚性，仅适合软件研发这一类任务 |
+| **AutoGen** | 一场**群聊** | `GroupChat` + `GroupChatManager`，由 Manager 决定下一个发言者 | 会话式消息 | 仅支持顺序与群聊两种拓扑，轮次与成本不易封顶 |
+| **LangGraph** | 一台**状态机** | 节点即 Agent，边即条件转移，全局共享 `State` | 状态读写 | 开发心智负担最重，简单任务上属于过度设计 |
+
+**结构化产出 vs 自由对话，是这里最关键的分野。** MetaGPT 的核心主张是：让角色之间交付 PRD、架构图、接口定义这类**标准化文档**，而不是让它们「聊」——因为自由对话会把误解一层层传下去，而结构化产出天然带有格式约束，错误更容易在交接处被发现。这与本文 [13.2 节](#132-一个反复浮现的结构推理在外确定性在内) 归纳的「推理在外、确定性在内」是同一条思路：**把协作接口固化成契约，而不是留给模型即兴发挥**。
+
+角色设计上有一条被反复验证的经验：**至少要有一个不负责生产、只负责挑错的角色**（Critic / Reviewer / QA）。原因在 4.6 节会讲——多 Agent 最危险的失效不是某个 Agent 做错，而是没有任何角色的职责是「怀疑」。
+
+---
+
+---
+
+## 4.3 Subagent：子 Agent 派生模式
 
 **Subagent** 是指由主 Agent（Orchestrator）在运行时**动态派生**的子 Agent 实例——主 Agent 将一个子任务连同所需上下文一并传递给 Subagent，Subagent 在独立的上下文窗口中执行，完成后将结果返回，整个过程对主 Agent 透明。
 
@@ -410,7 +476,76 @@ Subagent 模式与静态 Worker 池的核心区别：
 
 ---
 
-## 4.2 Bridge：跨系统 Agent 桥接
+## 4.4 A2A 协议：Agent 之间的连接标准
+
+本文第 8 章介绍了 Agent 连接外部世界的三层协议——MCP（软件与数据）、WebMCP（Web 前端）、MHS（物理设备）。但它们有一个共同前提：**连接的对象是工具，不是另一个 Agent**。工具是输入输出明确、通常无状态的原语；而 Agent 会推理、会规划、会跨多轮维持状态，把它硬塞进工具接口，等于丢掉它的自主性。
+
+**A2A（Agent2Agent Protocol）** 正是为这一层设计的：由 Google 联合 50 余家技术伙伴发起，到 2026 年已有超过 150 家组织采纳，CrewAI 等框架也已接入。官方对二者关系的表述很精炼：**A2A 关注 Agent 之间「结伴完成任务」，MCP 关注 Agent「使用能力」**。
+
+```mermaid
+flowchart TB
+    subgraph L4["Agent ↔ Agent"]
+        A2A["A2A（Google, 2025）\nAgent Card 发现 · Task 生命周期 · Artifact 交付"]
+    end
+    subgraph L3["Agent ↔ 外部世界"]
+        MCP["MCP\n软件与数据"]
+        WEB["WebMCP\nWeb 前端"]
+        MHS["MHS\n物理设备"]
+    end
+    AG1["🤖 Agent A\n(自有 Harness)"] <-->|"A2A"| AG2["🤖 Agent B\n(异构框架)"]
+    AG1 --> MCP
+    AG1 --> WEB
+    AG2 --> MHS
+    A2A -.->|"规范"| AG1
+    A2A -.->|"规范"| AG2
+```
+
+### 4.4.1 Agent Card：让 Agent 可被发现
+
+A2A 的发现机制建立在 **Agent Card** 上——一份由服务方发布的 JSON 元数据，声明「我是谁、我能做什么、怎么调我、怎么认证我」：
+
+| 字段 | 作用 |
+|:-----|:-----|
+| `id` / `name` / `provider` | 身份与提供方信息 |
+| `skills` | 该 Agent 对外提供的能力清单 |
+| `capabilities` | 特性声明：`streaming`、`pushNotifications`、`extendedAgentCard` |
+| `interfaces` | 支持哪些传输绑定 |
+| `securitySchemes` | 支持的认证方式 |
+| `signature` | 卡片完整性签名（规范支持 Ed25519 / RSA 对规范化 JSON 签名） |
+
+Agent Card 可签名这一点很关键：它让「这张卡确实来自声称的那个提供方」成为可验证事实，直接对应 [12.2 节 Agent 劫持](#122-agent-劫持agent-hijacking) 中「Orchestrator 默认信任 Worker 返回值」的风险。此外规范还提供 `GetExtendedAgentCard`，允许客户端认证之后再取到更详细的能力清单。
+
+### 4.4.2 传输、方法与 Task 生命周期
+
+A2A 定义了三种**功能等价**的传输绑定：**JSON-RPC 2.0**、**gRPC**、**HTTP+JSON/REST**——实现方任选其一，语义保持一致。核心方法可分四组：
+
+```text
+消息      SendMessage · SendStreamingMessage
+任务      GetTask · ListTasks · CancelTask · SubscribeToTask
+推送通知  CreateTaskPushNotificationConfig · Get… · List… · Delete…
+发现      GetExtendedAgentCard
+```
+
+与 MCP 的一次性工具调用不同，A2A 把每次协作建模为一个**有生命周期的 Task**，共八种状态：
+
+| 状态 | 含义 |
+|:-----|:-----|
+| `SUBMITTED` | 任务已受理 |
+| `WORKING` | 处理中 |
+| `INPUT_REQUIRED` | **中断**，等待补充输入 |
+| `AUTH_REQUIRED` | **中断**，等待认证 |
+| `COMPLETED` / `FAILED` / `CANCELED` | 三种终态 |
+| `REJECTED` | 终态：Agent 主动决定不执行 |
+
+其中 `INPUT_REQUIRED`、`AUTH_REQUIRED` 与 `REJECTED` 三态是 A2A 相对工具协议的关键增量——它们承认了对方是一个**可以反问、可以要求授权、也可以拒绝**的自主体，而不是一个必须服从的函数。
+
+数据模型上，A2A 刻意区分 **Message**（协作过程中的沟通）与 **Artifact**（任务真正的产出），二者都由 `Part` 承载文本、文件或结构化数据。规范明确建议结果**应当以 Artifact 返回**——这条规定的价值在于把「过程噪声」与「最终交付」分开，下游 Agent 不必从对话流里猜哪一段才是结果。
+
+流式与异步则由两条路径覆盖：`SendStreamingMessage` / `SubscribeToTask` 建立长连接推送 `TaskStatusUpdateEvent` 与 `TaskArtifactUpdateEvent`（任务进入终态时流必须关闭）；长时任务则可注册 Webhook，由服务方主动回调。安全方面支持 API Key、HTTP Auth、OAuth 2.0、OpenID Connect 与双向 TLS 五类方案，并规定服务端**不得泄露客户端无权访问的资源是否存在**。
+
+---
+
+## 4.5 Bridge：跨系统 Agent 桥接
 
 真实生产中，不同任务往往需要调用**不同 AI 提供商的能力**（如 Claude 擅长推理与代码理解、Gemini 擅长多模态、Codex 擅长大规模代码补全）。**Bridge 层**承担协议转换、上下文序列化与跨 Agent 路由的职责，使异构 Agent 系统能够协作。
 
@@ -445,7 +580,47 @@ Bridge 模式的核心价值：
 - **成本优化**：轻量任务路由至更小/更便宜的模型
 - **故障隔离**：某一下游 Agent 不可用时，Bridge 可自动切换备用模型
 
-*代表性工作*：AutoGen（Microsoft，2023）、OpenAI Swarm（2024）、CCB / Claude Code Bridge（2025）
+**Bridge 与 A2A 解决的是同一个诉求的两种形态**：Bridge 是为特定几家厂商手工编写的私有适配层，接一家新厂商就要写一个新 Adapter；A2A 则试图把这件事标准化，让任意 Agent 通过 Agent Card 被发现、按统一的 Task 语义被调用。在 A2A 生态尚未覆盖全部厂商之前，两者会长期并存——**Bridge 补今天的缺口，A2A 定明天的契约**。
+
+---
+
+## 4.6 何时不该用多 Agent：一场尚未终结的路线之争
+
+多 Agent 常被默认为「更高级」的架构，但 2025–2026 年业界两家最有发言权的团队，在这个问题上给出了**完全相反**的结论——而且各自都有硬数据支撑。
+
+**Cognition（Devin 团队）的反对意见。** 2025 年 3 月，Cognition 发表《Don't Build Multi-Agent Systems》，主张多 Agent 编排增加了复杂度、破坏了可调试性，而它试图解决的问题**本可以由良好的上下文工程解决**。其核心论证是：当你把工作扇出给并行子 Agent 时，每个子 Agent 只看到任务的**局部视图**，并各自对代码风格、边界情况、需求解释做出隐式决策；这些决策彼此冲突，于是你不得不再加一道工序去调和——**而这些分歧完全是架构自己制造出来的**。
+
+**Anthropic 的相反证据。** 同期 Anthropic 公布了其多 Agent 研究系统的结果：由 Claude Opus 4 编排 Claude Sonnet 4 子 Agent，在复杂研究任务上比单个 Opus 4 高出 **90.2%**。其设计要点恰恰是**不让子 Agent 协商**——每个子 Agent 拿到一份自包含的任务描述、一个规定的输出格式和一个全新的上下文窗口，它们**互相不知道对方存在，也无法在执行途中协调**。
+
+两者并不真正矛盾，因为任务性质不同：
+
+| | **依赖紧耦合的任务**（编码、重构） | **可并行的任务**（研究、检索、扫描） |
+|:---|:---|:---|
+| **信息特征** | 各部分强依赖，改一处牵动多处 | 各部分弱依赖，信息量超出单个上下文窗口 |
+| **冲突成本** | 高——风格与接口分歧必须调和 | 低——结果可直接汇总 |
+| **推荐架构** | **单 Agent + 长上下文 + 上下文工程** | **多 Agent 分治 + 上下文隔离** |
+| **代表实践** | Devin、Claude Code 主循环 | Anthropic 研究系统、Claude Code 的 Subagent 扇出 |
+
+值得注意的是，两派在一件事上完全一致：**上下文工程才是决定性因素**。Cognition 认为好的上下文工程让多 Agent 变得不必要，Anthropic 则认为多 Agent 的价值正在于它是一种上下文工程手段（用隔离的窗口换取更聚焦的注意力）。分歧只在于同一个目标该用哪条路达成。
+
+**三条实用判据。** 在动手拆分之前，值得先问：
+
+1. **子任务之间会不会产生需要调和的隐式决策？** 会，就倾向单 Agent；不会（如「各自读一批文献并按固定格式汇报」），才适合扇出。
+2. **单个上下文窗口装得下吗？** 装得下就别拆——拆分的收益是缓解上下文压力，没有压力就只剩成本。
+3. **有没有一个角色负责怀疑？** 如果拆出的全是生产者、没有 Critic，多 Agent 只会让错误传播得更快、更自信。
+
+**四种典型失效模式**，也是拆分前应当预先设防的地方：
+
+| 失效模式 | 表现 | 缓解方向 |
+|:---------|:-----|:---------|
+| **错误放大** | 上游 Agent 的错误结论被下游当作事实继续加工 | 结构化产出 + 独立 Critic 角色交叉校验 |
+| **上下文分裂** | 各子 Agent 基于不一致的局部视图做出冲突决策 | 自包含任务描述 + 统一输出格式契约 |
+| **成本爆炸** | 群聊或辩论拓扑无自然终止条件，轮次失控 | 硬性轮次上限 + Token 预算熔断 |
+| **责任扩散** | 出错后无法定位是哪个 Agent、哪一步的问题 | 全链路轨迹留痕（参见 [11.9 会话日志设计](#119-deepseek-harness)） |
+
+一句话总结这一节：**多 Agent 不是能力的升级，而是一次架构上的取舍**——用协调成本换取上下文容量与并行度。当你并不缺上下文容量时，这笔交易就是亏的。
+
+*代表性工作*：AutoGen（Microsoft，2023；含 0.4 异步事件驱动架构，2025 年 1 月）、OpenAI Swarm（2024）、CrewAI（2024）、MetaGPT（Hong et al., 2023）、ChatDev（Qian et al., 2023）、LangGraph（LangChain，2024–2026）、A2A Protocol（Google et al., 2025）、CCB / Claude Code Bridge（2025）、「Don't Build Multi-Agent Systems」（Cognition，2025 年 3 月）、Anthropic 多 Agent 研究系统（2025）
 
 
 # 5. 记忆机制（Memory）
@@ -1596,7 +1771,7 @@ MHS 架构中一个容易被忽略、却极为关键的设计，是**推理与�
 
 ### 8.5.5 协议家族对比：MCP vs WebMCP vs MHS
 
-至此，Anthropic 与产业界围绕「Agent 如何连接世界」形成了一个三层协议家族。三者共享同一套语义化工具调用哲学，但连接对象、失败代价与安全模型截然不同：
+至此，Anthropic 与产业界围绕「Agent 如何连接世界」形成了一个三层协议家族（若把 Agent 之间的连接也算进来，则是四层——见 [4.4 A2A 协议](#44-a2a-协议agent-之间的连接标准)）。三者共享同一套语义化工具调用哲学，但连接对象、失败代价与安全模型截然不同：
 
 | 维度 | **MCP**（2024.11） | **WebMCP**（2026） | **MHS**（2026.08） |
 |:-----|:------------------|:------------------|:------------------|
@@ -3126,25 +3301,26 @@ Agent 间通信  →  消息签名验证（ACP），结果交叉校验
 
 ---
 
-## 12.5 协议层安全对照：三层连接、三种代价
+## 12.5 协议层安全对照：四层连接，四种代价
 
-本章讨论的三类威胁（注入、劫持、逃逸）是**跨协议通用**的攻击模式，而第 8 章介绍的 MCP / WebMCP / MHS 三层协议各自面对的攻击面与可承受代价并不相同。三者的安全设计因此走向了不同侧重——把它们并排看，能看出一条清晰的演进逻辑：
+本章讨论的三类威胁（注入、劫持、逃逸）是**跨协议通用**的攻击模式，而本文介绍的四层连接协议——[A2A](#44-a2a-协议agent-之间的连接标准)（Agent↔Agent）与 MCP / WebMCP / MHS（Agent↔外部世界）——各自面对的攻击面与可承受代价并不相同。它们的安全设计因此走向了不同侧重，把它们并排看，能看出一条清晰的演进逻辑：
 
-| 维度 | **MCP**（软件与数据） | **WebMCP**（Web 前端） | **MHS**（物理设备） |
-|:-----|:---------------------|:----------------------|:-------------------|
-| **主要攻击面** | 工具描述投毒、Rug Pull、返回值注入 | 跨域 iframe 越权注册、UGC 间接注入 | 越限动作、状态误判、资源冲突 |
-| **失败可逆性** | 多数可回滚（数据可恢复） | 部分可逆（订单可取消，删除未必） | **通常不可逆**（样品损毁、设备碰撞） |
-| **防线位置** | 事后审计 + 运行时过滤 | 调用前确认 + 同源隔离 | **动作前拦截**（机械未动即拒绝） |
-| **关键机制** | 权限最小化、描述哈希校验、沙箱 | 同源策略、`readOnlyHint` 人在环、`Permissions-Policy` | 设备级安全限位、前置状态校验、硬件急停 |
-| **人在环中的触发条件** | 高危工具调用 | 写操作（`readOnlyHint: false`） | **Agent 自判有风险即暂停**（保守默认） |
-| **详见** | [8.3.8 安全挑战](#838-安全挑战) | [8.4.6 安全模型与权限护栏](#846-安全模型与权限护栏) | [8.5.7 安全模型：在机器动作之前拦截](#857-安全模型在机器动作之前拦截) |
+| 维度 | **A2A**（Agent↔Agent） | **MCP**（软件与数据） | **WebMCP**（Web 前端） | **MHS**（物理设备） |
+|:-----|:----------------------|:---------------------|:----------------------|:-------------------|
+| **主要攻击面** | 伪造 Agent Card、恶意 Agent 冒充、跨 Agent 指令注入 | 工具描述投毒、Rug Pull、返回值注入 | 跨域 iframe 越权注册、UGC 间接注入 | 越限动作、状态误判、资源冲突 |
+| **失败可逆性** | **取决于对端**（可级联到下游任意一层） | 多数可回滚（数据可恢复） | 部分可逆（订单可取消，删除未必） | **通常不可逆**（样品损毁、设备碰撞） |
+| **防线位置** | 委派前身份验证 + 结果溯源 | 事后审计 + 运行时过滤 | 调用前确认 + 同源隔离 | **动作前拦截**（机械未动即拒绝） |
+| **关键机制** | Agent Card 签名（Ed25519 / RSA）、五类认证方案、不泄露无权资源 | 权限最小化、描述哈希校验、沙箱 | 同源策略、`readOnlyHint` 人在环、`Permissions-Policy` | 设备级安全限位、前置状态校验、硬件急停 |
+| **人在环中的触发条件** | 跨信任域委派 | 高危工具调用 | 写操作（`readOnlyHint: false`） | **Agent 自判有风险即暂停**（保守默认） |
+| **详见** | [4.4 A2A 协议](#44-a2a-协议agent-之间的连接标准) | [8.3.8 安全挑战](#838-安全挑战) | [8.4.6 安全模型与权限护栏](#846-安全模型与权限护栏) | [8.5.7 安全模型：在机器动作之前拦截](#857-安全模型在机器动作之前拦截) |
 
-三者对照后，有两点值得单独强调：
+四者对照后，有三点值得单独强调：
 
 1. **防线随失败代价前移。** MCP 时代可以接受「先执行、后审计」，因为脏数据能回滚；到了 MHS，机械臂一旦撞上去就没有撤销键，所以校验必须发生在电机通电之前。这不是安全强度的差别，而是**安全检查在时间轴上的位置**发生了迁移。
-2. **保守默认的代价发生了反转。** 在软件侧，过度频繁的人工确认会毁掉 Agent 的可用性；而在物理侧，QuEra 的实测中 Claude 因过度谨慎整夜等待批准，团队的评价却是「过度谨慎的 Agent 总好过不够谨慎的」——**当失败不可逆时，误报的成本远低于漏报**。
+2. **A2A 是唯一「代价不确定」的一层。** 前三层的失败代价由协议本身决定，而 A2A 的代价取决于**对端 Agent 接了什么**——一个看似只在交换文本的 Agent 委派，可能在对端触发一次 MHS 物理动作。因此 A2A 的安全重心不在动作本身，而在**身份**（Agent Card 签名）与**溯源**（结果可追责）。
+3. **保守默认的代价发生了反转。** 在软件侧，过度频繁的人工确认会毁掉 Agent 的可用性；而在物理侧，QuEra 的实测中 Claude 因过度谨慎整夜等待批准，团队的评价却是「过度谨慎的 Agent 总好过不够谨慎的」——**当失败不可逆时，误报的成本远低于漏报**。
 
-需要提醒的是，这三层协议在真实部署中往往**同时在线**（一个科研 Agent 可能同时接着 LIMS 的 MCP、厂商门户的 WebMCP 与实验台的 MHS）。此时攻击面不是三者的并集而是三者的**乘积**：一次经 WebMCP 页面注入的恶意指令，完全可能顺着同一个 Agent 的上下文流到 MHS 那一侧，最终表现为一个物理动作。[12.4 节](#124-整体防御框架)的分层防御框架之所以必须逐层设防，原因正在于此。
+需要提醒的是，这四层协议在真实部署中往往**同时在线**（一个科研 Agent 可能同时接着 LIMS 的 MCP、厂商门户的 WebMCP、实验台的 MHS，并经 A2A 把子任务委派给合作方的 Agent）。此时攻击面不是四者的并集而是四者的**乘积**：一次经 WebMCP 页面注入的恶意指令，完全可能顺着同一个 Agent 的上下文流到 MHS 那一侧，最终表现为一个物理动作；而 A2A 的加入意味着这条链路还能**跨越组织边界**。[12.4 节](#124-整体防御框架)的分层防御框架之所以必须逐层设防，原因正在于此。
 
 
 # 13. 总结与展望
@@ -3157,7 +3333,7 @@ AI Agent 代表了人工智能从「理解」走向「行动」的核心范式�
 
 **第一条是推理范式。** ReAct 确立了「思考—行动—观察」的基本循环（2022），Reflexion 让失败变成可积累的语言经验（2023），ReWOO 把观察结果从推理循环里摘出去以节省 Token（2023），Tree of Thoughts 引入了可回溯的分支搜索（2023），Voyager 则证明了技能可以被固化、检索与复用（2023）。这条线在 2024 年后趋于稳定——**近两年的进步几乎都不来自新的推理范式，而来自后两条线**。
 
-**第二条是连接协议。** MCP 统一了 Agent 与软件和数据的接口（2024.11），WebMCP 把语义化工具直接嵌进浏览器前端（2026），MHS 则把同一套抽象延伸到显微镜、机械臂与激光器等物理设备（2026.08）。三者共同构成 Agent 连接世界的三层协议家族——软件、Web、物理机器。协议层的意义常被低估：它决定了 Agent 的能力边界不再由模型权重决定，而由**它能接上什么**决定。
+**第二条是连接协议。** MCP 统一了 Agent 与软件和数据的接口（2024.11），A2A 让 Agent 之间可以跨框架发现与委派（2025），WebMCP 把语义化工具直接嵌进浏览器前端（2026），MHS 则把同一套抽象延伸到显微镜、机械臂与激光器等物理设备（2026.08）。四者共同构成 Agent 的连接协议家族——软件、同伴、Web、物理机器。协议层的意义常被低估：它决定了 Agent 的能力边界不再由模型权重决定，而由**它能接上什么**决定。
 
 **第三条是工程化。** Harness Engineering 标志着 Agent 从实验室走向生产的拐点，其上演进出 Loop Engineering（循环工程）与 Graph Engineering（图智能体工程）。2026 年 8 月 DeepSeek Harness 的开源是这条线的关键节点：它把 Harness 的每一层都拆成可替换的接缝，并连同评测配置一并公开，使「模型分数里有多少是 Harness 的功劳」第一次成为可复现的对照实验。而 Pi Agent 从相反方向给出了另一个答案——用不到 1,000 token 的系统提示与 4 个默认工具，证明**克制本身也是一种工程能力**。
 
@@ -3258,14 +3434,25 @@ AI Agent 代表了人工智能从「理解」走向「行动」的核心范式�
 44. Anthropic. "Previewing the Model Hardware Standard." *anthropic.com/news/model-hardware-standard-research-preview*, August 27, 2026. Accessed August 2026.
 45. Anthropic. "Model Hardware Standard (MHS) Research Preview." *modelhardwarestandard.com*, 2026. Accessed August 2026.
 
+**多 Agent 协作与 Agent 间协议**
+
+46. Wu, Q., et al. "AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation Framework." *arXiv 2308.08155*, 2023. Microsoft.
+47. Hong, S., et al. "MetaGPT: Meta Programming for a Multi-Agent Collaborative Framework." *ICLR 2024*. （SOP 编码为角色流水线）
+48. Qian, C., et al. "ChatDev: Communicative Agents for Software Development." *ACL 2024*. （软件公司隐喻的瀑布式协作）
+49. CrewAI. "CrewAI: Framework for Orchestrating Role-Playing Autonomous AI Agents." *github.com/crewAIInc/crewAI*, 2024.
+50. LangChain. "LangGraph: Stateful Multi-Agent Applications with Graphs." *langchain-ai.github.io/langgraph*, 2024–2026.
+51. Google, et al. "Agent2Agent (A2A) Protocol Specification." *a2a-protocol.org*, 2025. Accessed August 2026. （Agent Card、Task 生命周期、三种传输绑定）
+52. Cognition AI. "Don't Build Multi-Agent Systems." *cognition.ai/blog*, March 2025. （单 Agent 长上下文一方的核心论证）
+53. Anthropic. "How We Built Our Multi-Agent Research System." *anthropic.com/engineering*, 2025. （Opus 4 编排 Sonnet 4 子 Agent，较单 Agent 提升 90.2%）
+
 **Agent 安全**
 
-46. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
-47. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
-48. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
+54. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
+55. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
+56. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
 
 **综述与背景**
 
-49. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
-50. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
-51. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
+57. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
+58. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
+59. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
