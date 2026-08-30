@@ -20,7 +20,7 @@
 
 本站以系统梳理和持续更新为目标：既关注模型与数据的发展脉络，也关注训练方法、系统架构、评测基准和真实机器人部署。长篇综述用于建立完整的技术脉络，短篇文章用于记录阶段性观察与专题分析。
 
-目前收录 **14 篇研究综述**（约 4.3 万行 Markdown）、**6 篇技术博客**与 **800 余张**论文与概念配图，仍在持续维护。
+目前收录 **14 篇研究综述**（约 4.5 万行 Markdown）、**6 篇技术博客**、**按周更新的具身导航周报**与 **900 余张**论文与概念配图，仍在持续维护。
 
 ## 研究方向
 
@@ -37,7 +37,7 @@
 | **多模态与空间智能** | [VLM 综述](https://tingdeliu.github.io/VLM-Survey/) | 视觉语言模型的多模态融合方法全景 |
 | | [空间智能综述](https://tingdeliu.github.io/Spatial-Intelligence-Survey/) | 三维场景理解、点云、深度估计与 Gaussian Splatting |
 | **世界模型与智能体** | [世界模型综述](https://tingdeliu.github.io/World-Models-Survey/) | 环境建模与预测、视频生成式世界模型及其在具身任务中的应用 |
-| | [AI Agent 综述](https://tingdeliu.github.io/AI-Agent-Survey/) | 自主推理、规划、记忆、工具调用与闭环执行 |
+| | [AI Agent 综述](https://tingdeliu.github.io/AI-Agent-Survey/) | 推理范式、记忆与技能、上下文工程、多智能体协作，以及 MCP / WebMCP / A2A / MHS 四层连接协议与安全 |
 | **学习与训练方法** | [LLM 训练综述](https://tingdeliu.github.io/LLM-Training-Survey/) | 预训练、后训练、对齐、并行策略与推理加速 |
 | | [强化学习综述](https://tingdeliu.github.io/Reinforcement-Learning-Survey/) | 从理论基础到具身智能场景的算法全景 |
 | | [深度学习综述](https://tingdeliu.github.io/Deep-Learning-Survey/) | 网络结构、优化方法与训练技巧的系统梳理 |
@@ -50,9 +50,20 @@
 | [RoboTTT 深度解析](https://tingdeliu.github.io/RoboTTT-Fast-Weights/) | TTT 模块如何把历史压缩进 Fast Weights，实现长时程存储与实时检索 |
 | [Graph Engineering](https://tingdeliu.github.io/graph-engineering/) | 大模型时代的智能体图拓扑编排与设计模式 |
 | [Loop Engineering](https://tingdeliu.github.io/loop-engineering/) | Agent 工程化的下一代闭环范式 |
-| [树状注意力训练](https://tingdeliu.github.io/Tree-Attention-Decoding/) | Robostral Navigate 如何将 VLN 训练 Token 压缩 22× |
 | [Mixture-of-Transformers](https://tingdeliu.github.io/mixture-of-transformers/) | 多模态基础模型的模态解耦与稀疏化演进 |
+| [树状注意力训练](https://tingdeliu.github.io/Tree-Attention-Decoding/) | Robostral Navigate 如何将 VLN 训练 Token 压缩 22× |
 | [Harness Engineering](https://tingdeliu.github.io/Harness-Engineering/) | 面向智能体的执行环境与工具链设计 |
+
+### 具身导航周报
+
+按周汇总 arXiv 新论文与中文社区解读，按「本期结论 → 优先阅读清单 → 重点工作分析 → 可迁移方法 → 分类速览 → 趋势判断」六段组织。只保留结论、证据与阅读优先级，不做论文清单堆砌；无法核实的数字会明确标注来源与口径。
+
+| 期号 | 覆盖区间 |
+| --- | --- |
+| [2026-08-30](https://tingdeliu.github.io/vln-weekly-2026-08-30/) | 2026-08-20 ~ 2026-08-29 |
+| [2026-08-22](https://tingdeliu.github.io/vln-weekly-2026-08-22/) | 2026-08-13 ~ 2026-08-20 |
+
+往期周报见 [Blog 页](https://tingdeliu.github.io/blog/) 的「具身导航周报」分区。
 
 ### 推荐阅读路径
 
@@ -60,16 +71,18 @@
 2. 阅读 [VLA 综述](https://tingdeliu.github.io/VLA-Survey/) 了解视觉、语言与机器人动作的统一建模。
 3. 通过 [空间智能综述](https://tingdeliu.github.io/Spatial-Intelligence-Survey/) 和 [世界模型综述](https://tingdeliu.github.io/World-Models-Survey/) 扩展到三维理解与环境预测。
 4. 需要动手实现时，再进入 [ROS 2 完全指南](https://tingdeliu.github.io/ROS2-Survey/) 与 [LLM 训练综述](https://tingdeliu.github.io/LLM-Training-Survey/) 的工程部分。
+5. 想持续跟进最新进展，直接看[具身导航周报](https://tingdeliu.github.io/blog/)，每期只给结论与阅读优先级。
 
 ## 内容组织
 
 ```text
 .
 ├── _posts/
-│   ├── research/          # 长篇综述、论文精读与技术笔记（categories: research）
-│   └── blog/              # 专题解析、工程文章与周报（categories: blog）
+│   ├── research/          # 长篇综述与论文精读（categories: research）
+│   ├── blog/              # 专题解析与工程文章（categories: blog）
+│   └── weekly-reports/    # 具身导航周报（categories: weekly）
 ├── images/                # 按研究主题分目录：vln / vla / vlm / wm / si / agent / llm-training ...
-├── paper_summary/         # 论文摘要草稿，供正文引用，不单独发布
+├── paper_summary/         # 论文摘要草稿，供正文引用（本地目录，未纳入版本控制）
 ├── _layouts/              # 页面布局：default / post / page
 ├── _includes/             # 导航、目录、反馈、页脚等页面组件
 ├── _sass/                 # 主题样式模块
@@ -78,10 +91,13 @@
 ├── tags/ · archive/       # 标签检索页与历史归档页
 ├── .github/workflows/     # GitHub Actions 部署流水线
 ├── _config.yml            # 站点、导航与插件配置
-└── AGENTS.md              # 仓库写作与维护规范
+└── AGENTS.md              # 仓库写作与维护规范（本地文件，未纳入版本控制）
 ```
 
-文章使用 Jekyll 内置的 `posts` 集合，永久链接为 `/:title/`。`categories: research` 与 `categories: blog` 是内容分类依据，子目录仅用于维护源文件。
+文章使用 Jekyll 内置的 `posts` 集合，永久链接为 `/:title/`。`categories` 取 `research` / `blog` / `weekly` 三值，是聚合页分区的唯一依据，`_posts/` 下的子目录仅用于维护源文件。
+
+- Research 页按「具身导航（VLN）／具身智能与大模型／机器学习基础／机器人系统与传统导航」四组展示，未归组的新文章自动落入「其他」
+- Blog 页分为「技术随笔」与「具身导航周报」两个分区
 
 ## 技术实现
 
@@ -138,7 +154,7 @@ ruby -S bundle exec jekyll build
 
 ### 内容维护约定
 
-新增或修改文章前，请先阅读 [AGENTS.md](AGENTS.md)，其中记录了 front matter 字段、图片归档目录、Mermaid 与公式写法等约定。其中一条硬性规则：**修改 `_posts/` 下任何已有文章后，必须把 front matter 的 `date:` 更新为当天日期**，以保证列表按最近更新排序。
+新增或修改文章前，请先阅读仓库根目录的 `AGENTS.md`（本地维护文档，未纳入版本控制），其中记录了 front matter 字段、图片归档目录、Mermaid 与公式写法等约定。其中一条硬性规则：**修改 `_posts/` 下任何已有文章后，必须把 front matter 的 `date:` 更新为当天日期**，以保证列表按最近更新排序。
 
 ## 内容反馈
 
