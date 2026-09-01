@@ -1195,29 +1195,31 @@ if __name__ == "__main__":
 在编写技能时，不同任务的容错率与边界差异极大。业界提出了**自由度权衡设计框架（Degrees of Freedom）**，指导开发者根据任务属性决定技能的实现形式：
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '13px'}}}%%
-flowchart LR
-    subgraph HF ["🕊️ 高自由度 (High Freedom)"]
-        direction TB
-        HF_T["纯文本指导 / 启发式原则"]
-        HF_U["适用：架构方案设计、文案润色、头脑风暴"]
-    end
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '14px', 'fontFamily': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'}}}%%
+flowchart TD
+    HF["<b>🕊️ 高自由度 (High Freedom) · 纯文本与启发式指导</b><br/>• <b>指导形式</b>：自然语言原则、评审标准、经验法则 (Heuristics)<br/>• <b>适用场景</b>：系统架构设计、开放式头脑风暴、创意文案润色<br/>• <b>模型空间</b>：解空间巨大，给予大模型充分的推理与探索自主权"]
 
-    subgraph MF ["⚖️ 中自由度 (Medium Freedom)"]
-        direction TB
-        MF_T["伪代码逻辑 / 参数化脚本模版"]
-        MF_U["适用：代码重构、测试用例编写、数据清洗"]
-    end
+    MF["<b>⚖️ 中自由度 (Medium Freedom) · 参数化脚本与操作管道</b><br/>• <b>指导形式</b>：结构化伪代码、带参数可执行脚本模板、标准流程骨架<br/>• <b>适用场景</b>：单元测试编写、模块化代码重构、特定格式数据清洗<br/>• <b>模型空间</b>：在预设管道框架内由模型自主填补具体实现细节"]
 
-    subgraph LF ["🔒 低自由度 (Low Freedom)"]
-        direction TB
-        LF_T["严格确定性脚本 / 强类型断言验证"]
-        LF_U["适用：生产部署打包、财务核算、硬件闭环控制"]
-    end
+    LF["<b>🔒 低自由度 (Low Freedom) · 确定性脚本与强约束断言</b><br/>• <b>指导形式</b>：不可跳步的硬编码脚本、环境安全护栏、强类型断言验证<br/>• <b>适用场景</b>：生产构建发布、敏感数据库迁移、跨环境凭证管理、硬件闭环<br/>• <b>模型空间</b>：对错误零容忍，彻底剥离模型非确定性，由脚本强制接管"]
 
-    HF -->|"容错要求提高 / 规则固化"| MF
-    MF -->|"零容忍错误 / 流程高度标准化"| LF
+    HF ==>|任务容错要求提高 / 规则逐步固化| MF
+    MF ==>|零容忍偶发幻觉 / 流程完全标准化| LF
+
+    classDef clsHF fill:#f0fdf4,stroke:#22c55e,stroke-width:2px,color:#14532d;
+    classDef clsMF fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#1e3a8a;
+    classDef clsLF fill:#fff1f2,stroke:#f43f5e,stroke-width:2px,color:#881337;
+
+    class HF clsHF;
+    class MF clsMF;
+    class LF clsLF;
 ```
+
+| 自由度层级 | 核心表征形式 | 约束强度 | 适用任务特征 | 典型示例 |
+|:---|:---|:---|:---|:---|
+| **🕊️ 高自由度**<br/>(High Freedom) | 自然语言原则<br/>启发式经验规则 | **弱约束**<br/>仅限定目标与边界 | 解空间发散、无唯一标准解、强依赖多变上下文 | 架构方案设计、PR 评审建议、产品需求探索 |
+| **⚖️ 中自由度**<br/>(Medium Freedom) | 参数化脚本模板<br/>结构化伪代码管道 | **中约束**<br/>限定流程骨架与接口 | 有明确模式但具体实现各异、需要部分动态适配 | 单测生成、复杂重构、特定格式数据提取 |
+| **🔒 低自由度**<br/>(Low Freedom) | 确定性脚本流水线<br/>强类型断言与护栏 | **强约束**<br/>不可跳步、全自动接管 | 偶发错误代价极高（数据丢失/破坏性操作）、流程高度确定 | 生产环境发布打包、Git 分支强制合并、财务核算 |
 
 - **高自由度（High Freedom）**：仅提供自然语言指导原则、评审标准与经验法则（Heuristics）。当解空间巨大、没有唯一标准答案、强依赖上下文语境时（如系统设计、技术选型方案），给予模型充分的推理空间；
 - **中自由度（Medium Freedom）**：提供执行骨架、参数化脚本模版与推荐最佳实践。Agent 在固定工作流管道中根据任务细节填补实现细节（如编写单测、API 重构）；
@@ -1230,28 +1232,39 @@ flowchart LR
 技能库不是静态的代码库，而是智能体自主进化的有机系统。学术界与工业界形成了以下四大技能获取与演变范式（参考《Agent Skill Evaluation and Evolution》, arXiv:2606.02705）：
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '13px'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '14px', 'fontFamily': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'}}}%%
 flowchart TB
     subgraph ACQUISITION ["1. 技能习得途径 (Skill Acquisition)"]
+        direction LR
         H1["✍️ 人工专家编写\n(SOP 知识工程)"]
         H2["🔁 成功轨迹蒸馏\n(Voyager / ExpeL)"]
         H3["🤖 自动探索合成\n(CRAFT / AdaPlanner)"]
     end
 
     subgraph EVOLUTION ["2. 技能生命周期演进 (Skill Evolution)"]
+        direction LR
         E1["⚡ 执行反馈循环\n(Execution Feedback)"]
         E2["✂️ 冗余压缩与泛化\n(Skill Compression)"]
         E3["🎯 强化学习对齐\n(Skill-RL)"]
     end
 
     subgraph EVALUATION ["3. 评测与治理 (Evaluation & Governance)"]
-        V1["📊 SkillsBench 基准测试"]
-        V2["🛡️ 恶意注入与安全沙箱防护"]
+        direction LR
+        V1["📊 SkillsBench 基准测试\n(成对评估 / 轨迹验证)"]
+        V2["🛡️ 恶意注入与安全沙箱\n(Worktree / Prompt Audit)"]
     end
 
-    ACQUISITION --> EVOLUTION
-    EVOLUTION --> EVALUATION
-    EVALUATION -->|"技能退化/报错 → 反馈修订"| EVOLUTION
+    ACQUISITION ==>|持续注入| EVOLUTION
+    EVOLUTION ==>|质量检验| EVALUATION
+    EVALUATION -.->|报错/退化反馈重构| EVOLUTION
+
+    classDef clsAcq fill:#fefce8,stroke:#eab308,stroke-width:1.5px,color:#713f12;
+    classDef clsEvo fill:#eff6ff,stroke:#3b82f6,stroke-width:1.5px,color:#1e3a8a;
+    classDef clsEva fill:#fdf2f8,stroke:#ec4899,stroke-width:1.5px,color:#831843;
+
+    class H1,H2,H3 clsAcq;
+    class E1,E2,E3 clsEvo;
+    class V1,V2 clsEva;
 ```
 
 1. **经典经验蒸馏（Voyager 范式）**：
