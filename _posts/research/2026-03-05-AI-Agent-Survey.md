@@ -695,149 +695,257 @@ Bridge 模式的核心价值：
 
 # 5. 记忆机制（Memory）
 
-记忆是 Agent 跨任务积累经验、维持长期状态的核心能力。普通 LLM 每次对话独立、无法记住过去——Agent 的记忆机制打破了这一限制，使其能够像人一样「从经历中学习」。
+记忆是 Agent 跨任务积累经验、维持长期状态与实现自我演化（Self-Evolution）的核心底座。普通大语言模型每次调用相互独立、会话结束即失忆；而 Agent 的记忆机制打破了单次对话上下文的物理边界，使其具备时间连续性，能够真正像人类一样「从过往经历中学习与成长」。
 
-## 5.1 四类记忆（CoALA 框架）
-
-CoALA（Cognitive Architectures for Language Agents，Princeton，2023）从认知科学出发，将 Agent 的记忆划分为四类：
-
-| 记忆类型 | 存储内容 | 实现方式 | 特点 |
-|---------|---------|---------|------|
-| **工作记忆**（Working Memory） | 当前任务上下文、最近对话 | LLM 上下文窗口（Context Window） | 容量有限（token 上限），任务结束即清空 |
-| **情节记忆**（Episodic Memory） | 过去交互事件、操作日志 | 向量数据库 / 时间序列存储 | 记录「发生了什么」，支持时序检索 |
-| **语义记忆**（Semantic Memory） | 事实性知识、用户偏好、领域知识 | 向量数据库 + RAG | 记录「知道什么」，支持语义相似度检索 |
-| **程序记忆**（Procedural Memory） | 任务执行步骤、系统提示、决策逻辑 | 系统提示（System Prompt）/ 代码 | 记录「如何做」，通常以代码或模板形式固化 |
+2025–2026 年，Agent 记忆机制的研究与工程实践经历了一场深刻的范式迁移：从早期的「原始轨迹存储与长上下文拼接」，升级为**多层级时态知识图谱（Temporal Knowledge Graphs）**、**卡片盒笔记网络（Zettelkasten Note Networks）** 与 **海马体联想索引（Hippocampal Indexing）**。ACL 2026 演化综述（Luo et al., 2026）将这一进程总结为：**从「静态存储（Storage）」走向「自省反思（Reflection）」，最终升华到「经验抽象与自演化（Experience & Self-Evolution）」**。
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '13px'}}}%%
 flowchart LR
-    subgraph SHORT["短期（任务内）"]
-        WM["🧠 工作记忆\n上下文窗口\n容量有限"]
+    subgraph S1 ["阶段一：存储级 (Storage)"]
+        direction TB
+        S1_1["原始交互日志保存\n(Raw Logs / Trajectories)"]
+        S1_2["朴素向量切块 RAG\n(Naive Chunk Embedding)"]
     end
 
-    subgraph LONG["长期（跨任务）"]
-        EP["📅 情节记忆\n事件日志\n时序检索"]
-        SEM["📚 语义记忆\n知识/偏好\n语义检索"]
-        PROC["⚙️ 程序记忆\n操作步骤\n系统提示"]
+    subgraph S2 ["阶段二：反思级 (Reflection)"]
+        direction TB
+        S2_1["事后语言自省\n(Generative Agents / Reflexion)"]
+        S2_2["启发式重要度加权\n(Recency × Importance × Relevance)"]
     end
 
-    TASK["当前任务"] --> WM
-    WM -->|"重要信息写入"| EP & SEM
-    EP & SEM & PROC -->|"检索增强"| WM
+    subgraph S3 ["阶段三：经验自演化级 (Experience)"]
+        direction TB
+        S3_1["时态知识图谱与卡片网络\n(Zep Graphiti / A-MEM)"]
+        S3_2["记忆动态演化、遗忘与冲突消解\n(Bi-temporal & Hippocampal Indexing)"]
+    end
+
+    S1 ==>|提炼与反省| S2
+    S2 ==>|拓扑结构化与抽象自演化| S3
 ```
 
-## 5.2 记忆的核心操作
+---
 
-- **写入（Write）**：将重要信息存入长期记忆，可由 Agent 自主决策或由规则触发
-- **检索（Retrieve）**：根据当前任务从长期记忆中提取相关内容，注入工作记忆
-- **更新（Update）**：修正或合并矛盾的记忆（如用户偏好发生变化）
-- **遗忘（Forget）**：删除过时或低价值记忆，避免噪声干扰
+## 5.1 认知科学与工程架构的四类记忆（CoALA 范式）
 
-## 5.3 代表性工作
+CoALA（Cognitive Architectures for Language Agents，Princeton，2023）借鉴认知心理学，将 Agent 的记忆系统在系统工程层面严谨地解构为四大类型：
 
-**Generative Agents**（Park et al., Stanford，2023）是首个将完整记忆体系应用于模拟人类社会行为的工作。25 个 LLM 驱动的虚拟人物在沙盒世界中自然生活，通过**记忆流（Memory Stream）**记录所有经历，整体架构如 **图 5.1** 所示：
+| 记忆类型 | 认知心理学对应 | 核心承载介质 | 读写延迟与生命周期 | 典型存储内容与工程应用 |
+|:---|:---|:---|:---|:---|
+| **工作记忆**<br/>(Working Memory) | 瞬时感觉与短期记忆 | LLM 上下文窗口<br/>(Context Window / KV Cache) | **毫秒级**<br/>随单次会话或任务结束即销毁 | 当前对话上下文、Scratchpad 思维链、刚刚观察到的工具返回原始数据 |
+| **情节记忆**<br/>(Episodic Memory) | 自传体情景记忆 | 向量库 + 时间序列时态库<br/>(Time-series Vector DB) | **数十毫秒**<br/>持久化保留，时序检索 | “智能体在何时、何地、执行了何种动作、遭遇了什么错误”的完整历史轨迹日志 |
+| **语义记忆**<br/>(Semantic Memory) | 事实与常识性概念网 | 外部知识库 / 知识图谱<br/>(Knowledge Graph / RAG) | **百毫秒级**<br/>长期持久化，支持图谱多跳与关系查询 | 用户长期偏好画像、领域专业事实、系统实体关系网络、业务规则知识 |
+| **程序记忆**<br/>(Procedural Memory) | 潜意识与运动技能 | 系统提示词 (Prompt) /<br/>固化代码脚本 (Skills) | **微秒/执行级**<br/>由工程静态定义或动态技能库注入 | “如何写单测”、“如何做代码审查”的操作 SOP 与可执行代码技能库 |
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '13px'}}}%%
+flowchart TB
+    ENV["🌐 环境输入与用户交互 (Environment & User)"]
+
+    subgraph WORKING ["🧠 工作记忆 (Working Memory - LLM 上下文窗口)"]
+        direction LR
+        CTX["当前上下文 / Task State"] <--> SCRATCH["Scratchpad 思维推理轨迹"]
+    end
+
+    subgraph LONG_TERM ["🗄️ 长期记忆外挂底座 (Long-Term Memory Substrate)"]
+        direction LR
+        subgraph EP_BOX ["📅 情节记忆 (Episodic)"]
+            EP["操作日志 / 历史交互时序"]
+        end
+        subgraph SEM_BOX ["📚 语义记忆 (Semantic)"]
+            SEM["用户画像 / 实体关系图谱"]
+        end
+        subgraph PROC_BOX ["⚙️ 程序记忆 (Procedural)"]
+            PROC["操作 SOP / 技能库 (Skills)"]
+        end
+    end
+
+    ENV -->|"感知输入"| CTX
+    CTX -->|"重要度筛选写入"| EP & SEM
+    EP & SEM & PROC -->|"混合多路检索注入"| CTX
+    CTX -->|"执行动作"| ENV
+```
+
+从记忆主体划分，现代记忆架构还划分为：
+- **以用户为中心（User-centric Memory）**：追踪用户跨会话的习惯偏好、历史项目、身份特征；
+- **以智能体为中心（Agent-centric Memory）**：追踪 Agent 自我能力边界、历史工具调用成功率、失败反思教训与自我演化出的技能资产。
+
+---
+
+## 5.2 记忆生命周期动力学：形成、组织、检索与遗忘
+
+记忆不仅是简单的“写入-读取”，而是一个拥有复杂**生命周期动力学（Memory Dynamics）**的闭环控制系统：
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '13px'}}}%%
+flowchart LR
+    M_ENC["① 形成与编码\n(Encoding)\n重要度过滤 / 实体提取"] --> M_ORG["② 组织与整合\n(Consolidation)\n向量索引 / 知识图谱链接"]
+    M_ORG --> M_RET["③ 检索与唤醒\n(Retrieval)\n混合召回 / 时近度重排"]
+    M_RET --> M_FORGET["④ 遗忘与更新\n(Forgetting & Decay)\n双时间轴失效 / 冲突消解"]
+    M_FORGET -.->|"更新状态"| M_ORG
+```
+
+### ① 形成与编码（Memory Encoding）
+并非所有的交互都值得被永久铭记。如果把每一句无意义的客套或中间调试报错都塞入长期数据库，记忆库会迅速被噪声污染。
+- **被动规则触发**：仅在任务完成节点、发生特定错误或用户显式指令（如“请记住我的偏好”）时捕获；
+- **模型自适应评分**：利用轻量模型对交互内容打分，仅当重要性超过阈值时才进入存储管道。
+
+### ② 组织与整合（Memory Consolidation）
+从简单的散装文本向**结构化拓扑网络**演进：
+- 将非结构化文本拆解为实体（Entities）、关系（Relations）与带时间戳的事实三元组 $(Subject, Predicate, Object, [t_{start}, t_{end}])$；
+- 模仿人类睡眠中的“记忆巩固”机制：在后台异步任务中，定期对历史记忆进行聚类、去重与高层抽象，将分散的情节事实提炼为抽象的语义常识。
+
+### ③ 检索与唤醒（Memory Retrieval）
+面对当前任务，如何以最低的延迟和最高的精度把最相关的前序记忆召回？
+- **三路混合检索（Hybrid Retrieval）**：**稠密语义向量（Dense Embedding）** 负责捕捉模糊意图；**稀疏词法索引（BM25）** 确保精准匹配专有名词与函数名；**知识图谱拓扑多跳（Graph Traversal）** 挖掘深层实体关联；
+- **认知加权评分公式**（源自 Stanford Generative Agents 并经工业界改良）：
+  $$\text{Score} = \alpha \cdot \text{Recency} + \beta \cdot \text{Importance} + \gamma \cdot \text{Relevance} + \delta \cdot \text{Frequency}$$
+  - **时近度（Recency）**：随时间推移呈指数衰减（$e^{-\lambda \Delta t}$）；
+  - **重要度（Importance）**：LLM 或评分网络初次写入时评定（1–10 分）；
+  - **相关度（Relevance）**：当前 Query 嵌入向量与记忆向量的余弦相似度；
+  - **频次（Frequency）**：该记忆被检索并成功采纳的累计次数（越常用的记忆越容易被快速激活）。
+
+### ④ 遗忘与更新（Decay & Forgetting）
+遗忘不是系统的缺陷，而是维持系统健康运行不可或缺的**主动调节机制**：
+- **容量治理**：根据访问热度与时效性自动剔除陈旧记忆，防止向量库无上限膨胀与检索延迟退化；
+- **知识冲突消解（Conflict Resolution）**：当新事实与已有事实矛盾时，触发仲裁更新流程。
+
+---
+
+## 5.3 代表性经典工作与工业级框架演进
+
+### 经典奠基工作
+
+**Generative Agents（Park et al., Stanford，2023）**：
+首次在沙盒虚拟城镇中验证了人类社会的记忆与自省机制。25 个自主智能体依靠**记忆流（Memory Stream）**感知环境、加权检索、反思提炼并制定日程，整体架构如 **图 5.1** 所示：
 
 <div align="center">
-  <img src="/images/agent/generative-agents-architecture.webp" width="88%" />
+  <img src="/images/agent/generative-agents-architecture.webp" width="88%" alt="Generative Agents 整体架构" />
   <figcaption>图 5.1：Generative Agents 整体架构——观察 → 记忆流 → 检索 + 反思 + 规划 → 行动</figcaption>
 </div>
 
-检索时综合三个维度打分，取加权和（**图 5.2**）：
+记忆检索机制采用经典的“时近度 × 重要性 × 相关性”加权决策机制（**图 5.2**），并引入了每当近期记忆累积重要性超标便自动触发的**高阶反思树（Reflection Tree）**：
 
 <div align="center">
-  <img src="/images/agent/generative-agents-memory.webp" width="85%" />
+  <img src="/images/agent/generative-agents-memory.webp" width="85%" alt="Generative Agents 记忆检索机制" />
   <figcaption>图 5.2：记忆检索机制——时近度 × 重要性 × 相关性加权打分，触发阈值后自动生成高层反思</figcaption>
 </div>
 
-```
-检索分 = α·时近度（Recency） + β·重要性（Importance） + γ·相关性（Relevance）
-```
-- **时近度**：指数衰减，越近的记忆分越高
-- **重要性**：由 LLM 自评（1–10 分），"刷牙"=1，"与老友重逢"=9
-- **相关性**：当前情境与记忆的语义相似度（嵌入向量余弦距离）
+**MemGPT / Letta（Packer et al., UC Berkeley，2023–2025）**：
+将操作系统的虚拟内存分页机制引入 LLM 记忆治理。主上下文（Main Context）类比为物理 RAM，外部归档存储（Archival Memory）与回忆存储（Recall Memory）类比为磁盘。Agent 通过自主调用内置工具（`core_memory_append`、`archival_memory_search`）实现分页加载与持久化保存。
 
-每当近期事件重要性之和超过阈值，Agent 自动触发**反思（Reflection）**——提炼高层洞察并写入记忆，形成跨事件的抽象认知。
+### 主流记忆框架全景横向对比（2025–2026）
 
-**MemGPT**（Packer et al., UC Berkeley，2023，现已更名 Letta）借鉴操作系统的内存分层管理思想，将上下文窗口类比为 RAM、外部存储类比为磁盘：
-
-```
-主上下文（Main Context）  ←→  工作记忆（受 token 限制）
-外部上下文（External）    ←→  无限长期存储（向量/文件）
-```
-
-Agent 通过**显式工具调用**（`append_to_memory`、`search_memory`）自主管理两层之间的数据搬运，突破了 LLM 上下文窗口的物理限制，使 Agent 能处理任意长度的长期任务。
-
-**主流记忆框架对比**：
-
-| 框架 | 核心特性 | 适用场景 | 已知短板 |
-|:-----|:---------|:---------|:---------|
-| **Letta / MemGPT** | OS 式内存层次，Agent 通过工具调用自主分页 | 超长任务、需跨会话持久化 | 依赖递归摘要与层级压缩，延迟波动大且有保真损失 |
-| **Mem0** | user / session / agent 三层作用域，向量 + 图 + 键值三路索引 | 个人助手类 Agent，偏好持续学习 | 事实以纯文本句存储，多跳关联能力弱 |
-| **Zep / Graphiti** | 双时间轴时态知识图谱，事实带有效期而非直接删除 | 企业级多用户 Agent，强时序一致性 | 图构建成本高，写入链路比纯向量方案重 |
-| **A-MEM** | Zettelkasten 式笔记网，链接生成 + 记忆演化 | 需要多跳推理与记忆自我精炼的场景 | 每次写入都要调用 LLM，写入成本高 |
-| **LangMem** | 热路径（实时）+ 后台（异步提炼）双模式 | LangChain 生态，通用场景 | 异步提炼有可见延迟，一致性依赖调度 |
-
-*代表性工作*：CoALA（Sumers et al., Princeton, 2023）、Generative Agents（Park et al., Stanford, 2023）、MemGPT（Packer et al., UC Berkeley, 2023）
+| 框架 / 系统 | 核心架构范式 | 核心技术亮点 | 典型适用场景 | 局限性与工程代价 |
+|:---|:---|:---|:---|:---|
+| **Letta**<br/>(原 MemGPT) | OS 分页内存模型 | 上下文分层（Core / Recall / Archival），Agent 自主换页工具 | 超长程任务、跨会话持久伴侣 Agent | 依赖递归自摘要与换页工具，延迟波动大且摘要有语义损耗 |
+| **Mem0** | 多级作用域 + 三路索引 | user / session / agent 三层作用域划分，向量 + 图 + 键值三路混合索引 | 个人助理、SaaS 多租户偏好系统 | 事实默认以纯文本或轻量实体存储，深层复杂多跳推理较弱 |
+| **Zep / Graphiti** | 双时间轴时态知识图谱 | 实体/事实带生命周期区间，双时间轴（事件时间 vs 摄入时间） | 强依赖事实演进的企业级客户服务与审计 | 图构建与实体对齐计算开销大，写入链路比纯向量方案重 |
+| **A-MEM** | 卡片盒笔记网 (Zettelkasten) | 结构化卡片构建、自动链接生成、记忆双向演化与反向触发更新 | 复杂科学研究、长程多跳推理与认知演进 | 写入阶段需频繁调用 LLM 构建链接与重构，写入成本较高 |
+| **HippoRAG** | 仿生海马体联想索引 | 模仿海马体模式分离与联想补全，通过个性化 PageRank（PPR）图遍历 | 知识密集型非结构化推理、隐蔽关联挖掘 | 依赖外部实体抽取模型与图拓扑算法，冷启动构建耗时 |
+| **LangMem** | 双流双时相架构 | 热路径（实时极速注入）+ 异步冷路径（后台批处理蒸馏合并） | LangGraph 生态企业通用应用 | 异步提炼存在时延，高并发下需精细设计一致性与锁机制 |
 
 ---
 
-## 5.4 从向量检索到图记忆：2025–2026 的范式转向
+## 5.4 从向量匹配到知识图谱：混合记忆引擎的演化深化
 
-上表中的四个框架都建立在同一个基础假设上：**把记忆切成片段、向量化、按相似度召回**。这套做法在「回忆单条事实」时够用，但在两类场景下会失效——**多跳推理**（回答需要串联三条分散的记忆）与**时序推理**（同一事实在不同时间点的取值不同）。因为向量检索只知道「像不像」，不知道「谁和谁有关」，更不知道「哪条是后来被推翻的」。
+传统记忆系统大多建立在「分块 $\rightarrow$ 向量化 $\rightarrow$ 余弦相似度召回」的 RAG 链路上。这在处理简单的事实查询时尚能胜任，但在两类核心任务中存在致命硬伤：
+1. **多跳拓扑推理（Multi-hop Reasoning）**：回答问题需要跨越三段在字面上毫不相似、但在逻辑链条上环环相扣的历史交互；
+2. **时态演进推理（Temporal Reasoning）**：同一属性随着时间演化发生过多次变更（例如：张三在 2024 年担任算法工程师，2025 年晋升为架构师，2026 年转岗产品总监）。纯向量匹配只能返回一堆相似但冲突的文本块，无法判定当前有效状态。
 
-2025 年后，生产级记忆系统的主流架构因此收敛到**向量表示 + 结构化知识图谱的混合形态**：向量负责模糊召回，图负责关系与时序。三个代表性方向如下。
+因此，2025–2026 年的生产级 Agent 记忆系统已全面转向**「稠密向量 + 时态知识图谱 + 结构化属性缓存」的三位一体混合记忆引擎**。
 
-### A-MEM：把记忆组织成一张可自我演化的笔记网
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '13px'}}}%%
+flowchart TD
+    subgraph INGESTION ["📥 多源摄入流水线"]
+        RAW["原始对话 / 任务轨迹 / 工具输出"]
+        EXT["LLM 实体抽取器 + 关系解析器"]
+        RAW --> EXT
+    end
 
-**A-MEM（Agentic Memory，2025）** 借鉴了卡片盒笔记法（Zettelkasten），核心主张是：记忆不该是一条条孤立的事实句，而应是**互相链接、并随新信息持续重构的笔记网络**。它由三个 LLM 驱动的阶段构成：
+    subgraph TRI_STORAGE ["🗄️ 三位一体混合记忆底座"]
+        VEC[("🔍 向量索引 (Vector Store)\n语义模糊相似度召回\n(Dense Embeddings)")]
+        TKG[("🕸️ 时态知识图谱 (Temporal KG)\n实体-关系-时态网络\n(Entities, Relations, Timestamps)")]
+        KVC[("⚡ 精确键值缓存 (KV Store)\n固定属性/全局状态/偏好字典\n(Key-Value Scope)")]
+    end
 
-1. **笔记构建（Note Construction）**：把对话内容抽取成带关键词、上下文与标签的**结构化笔记**，而不是 Mem0 那样的纯文本事实句；
-2. **链接生成（Link Generation）**：检索相关历史笔记，由 LLM 判断新笔记是否应与它们建立有意义的连接；
-3. **记忆演化（Memory Evolution）**：新记忆可以**反向触发已有笔记的上下文与属性更新**，让记忆库持续自我精炼。
+    subgraph RETRIEVAL ["🔍 认知图遍历与融合推理"]
+        QUERY["用户新指令 / 任务目标"]
+        PPR["海马体联想拓扑遍历\n(Personalized PageRank / PPR)"]
+        FUSE["多路召回重排器 (Reranker)\n时近度衰减 + 冲突消解"]
+    end
 
-第三步是它与传统 RAG 式记忆最本质的差别——**写入不再是只追加的动作**。论文报告在复杂多跳推理任务上最高取得约 6 倍提升，同时记忆操作的 Token 消耗比基线降低 85%–93%。
+    EXT --> VEC & TKG & KVC
+    QUERY --> VEC & PPR & KVC
+    VEC & PPR & KVC --> FUSE
+    FUSE --> FINAL["🎯 精准上下文注入 (To Context Window)"]
+```
 
-### Mem0：三层作用域 + 三路索引
+### 1. A-MEM：卡片盒网络与自主演化（Zettelkasten）
+A-MEM（Agentic Memory，2025）彻底抛弃了孤立的事实句存储，将记忆组织为类似人类学术卡片盒的**动态笔记网**：
+- **结构化卡片（Note Construction）**：每张卡片记录原子观点、时间戳、上下文关联与语义标签；
+- **智能建链（Link Generation）**：新记忆进入时，LLM 自动检索潜在相关的存量笔记，建立强弱有向关联边；
+- **反向演化（Memory Evolution）**：与只增不改的传统向量库不同，A-MEM 允许新记忆**反向触发并重构存量记忆**的内容、标签与关联强度。论文实测在复杂多跳推理任务上性能提升高达 6 倍，并显著削减重复存储冗余达 85% 以上。
 
-**Mem0** 的设计重点不在推理而在**工程可用性**，它把记忆按作用域切成三层——**用户级（user）、会话级（session）、Agent 级（agent）**，再叠加三路索引：向量检索（语义相似）、图存储（实体关系）与键值索引（精确查表）。这套结构解决的是一个很实际的问题：同一个用户偏好，该记在哪一层、什么时候该跨会话生效、什么时候只在本次会话内有效。
+### 2. Zep / Graphiti：双时间轴与时间旅行
+Zep 记忆引擎的核心突破在于**双时间轴（Bi-temporal Modeling）**机制，将现实世界发生时间与知识录入时间清晰解耦：
+- **事件时间（Event Time, $T_{event}$）**：事实在真实世界中成立的起始与终止时间 $[t_{start}, t_{end}]$；
+- **摄入时间（Ingestion Time, $T_{ingest}$）**：智能体系统首次观测到该信息的时间戳。
 
-### Zep / Graphiti：双时间轴的时态知识图谱
+```text
+(张三) --[居住在 {Event: 2023.01~2024.12, Ingest: 2023.02, Valid: False}]--> (北京)
+(张三) --[居住在 {Event: 2025.01~Present, Ingest: 2025.01, Valid: True}]---> (上海)
+```
 
-**Zep** 的记忆引擎 **Graphiti** 是当前对「时间」处理得最彻底的方案，其核心是**双时间轴（Bi-temporal）**——每条事实同时记录两条时间线：
+当用户搬家至上海时，系统并不抹去北京的记录，而是将旧关系的有效区间截断并标记为非活跃。这赋予了 Agent **「时间旅行（Time Travel）」** 的能力——既能确凿知晓当前张三住在上海，又能在被问及“张三前年住哪”时调取历史切片进行准确溯源。
 
-| 时间轴 | 含义 | 用途 |
-|:-------|:-----|:-----|
-| **事件时间（Event Time, T）** | 这件事**在现实世界中**何时发生 | 回答「他去年住在哪」这类时序问题 |
-| **摄入时间（Ingestion Time, T′）** | 系统**何时观察到**这条信息 | 保留完整的来源与写入谱系，可追责 |
-
-图本身分三层子图：**情节子图**（原始事件）、**语义实体子图**（抽取出的实体与关系）、**社区子图**（聚类形成的高层概念）。当新事实与旧事实冲突时，Graphiti **不删除旧边，而是将其标记为失效**——旧事实仍可被查询「在某个时间点它曾经成立」。在 LongMemEval 上，Zep 报告准确率最高提升 18.5%，同时响应延迟降低约 90%。
-
-**这三条路线并不互斥**：A-MEM 解决「记忆之间如何关联并自我更新」，Mem0 解决「记忆归谁、何时生效」，Zep 解决「事实何时成立、何时失效」。生产系统往往需要同时回答这三个问题。
+### 3. HippoRAG：仿生海马体联想索引
+HippoRAG（NeurIPS 2024/2025）借鉴大脑海马体与新大脑皮层的互补学习系统（CLS 理论），将大语言模型类比为具有常识的新皮层，将外部图谱类比为海马体索引：
+- 面对复杂问题，先提取种子实体（Seed Entities）；
+- 利用**个性化 PageRank 算法（Personalized PageRank, PPR）**在知识网络上模拟生物突触的激活扩散，几毫秒内即可发现隐藏在 3–4 跳之外的关键线索，有效避免了朴素向量召回中的“断章取义”问题。
 
 ---
 
-## 5.5 记忆的时效性：写入容易，失效很难
+## 5.5 记忆失效与时效性治理：从软失效到级联清理
 
-5.2 节列出的四个操作里，**遗忘（Forget）是最难、也最少被认真实现的一个**。这与本文 [13.3 节](#133-五个尚未解决的问题) 指出的「技能会过时」是同一类问题：写入机制已经相当成熟，而**判定一条记忆何时不再成立，至今没有通用解法**。
+在现代记忆工程中，**写入容易，失效极难**。若记忆只存不删，必然引发**记忆膨胀（Memory Bloat）**与**认知幻觉污染（Hallucination Cascade）**。业界将记忆失效划分为三类形态并建立了严格的治理管线：
 
-记忆失效至少有三种彼此不同的形态，混为一谈是很多系统出问题的根源：
+| 失效形态 | 现实诱因示例 | 正确处理范式 | 错误灾难模式 |
+|:---|:---|:---|:---|
+| **被取代 (Superseded)** | 用户从北京搬迁至上海 | 闭合旧关系时间戳，写入新关系并标记为当前活跃状态 | 物理直接删除旧记忆，导致历史回溯时序断裂 |
+| **陈旧过期 (Stale)** | 依赖的外部第三方 API 接口在 v3 版本变更 | 绑定数据源版本哈希，源端变更时自动触发失效与复核 | 永久盲目信任，持续给出已废弃的代码与错误参数 |
+| **幻觉污染 (Erroneous)** | Agent 在早期任务中因幻觉自行生成并写入了错误结论 | **级联溯源清理**：依谱系追踪并同步抹除衍生洞察 | 仅删除表面单条记录，派生的高层洞察继续在记忆库中扩散毒素 |
 
-| 失效形态 | 例子 | 正确处理方式 | 常见错误做法 |
-|:---------|:-----|:-------------|:-------------|
-| **被覆盖（Superseded）** | 用户去年住北京，今年搬到上海 | 旧事实标记失效但**保留**，附上有效期区间 | 直接删除旧记忆，从此无法回答「他去年住哪」 |
-| **过期（Stale）** | 某 API 的调用方式在 v3 版本改了 | 绑定来源版本，来源变化时触发复核 | 无限期信任，静默给出已失效的用法 |
-| **错误（Erroneous）** | 一条基于幻觉写入的「事实」 | 溯源删除，并清理由它派生的下游记忆 | 只删这一条，派生结论仍留在库里继续传播 |
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '13px'}}}%%
+flowchart LR
+    ERR["❌ 发现源头错误记忆\n(Root Hallucination)"] --> TRACK["🔍 依赖谱系溯源\n(Lineage Tracing)"]
+    TRACK --> D1["🗑️ 级联清理派生画像\n(Derived User Profile)"]
+    TRACK --> D2["✂️ 截断错误图谱边\n(Sever False Graph Edges)"]
+    TRACK --> D3["🔄 触发高层反思重算\n(Recalculate Reflection)"]
+```
 
-三者中最危险的是第三类。因为 Agent 的记忆会**派生**——一条错误事实可能已被反思机制提炼成高层洞察、被写进用户画像、被其他记忆引用。删掉源头而不清理下游，等于留下了没有出处的错误结论。Zep 的双时间轴之所以有价值，正在于它保留了完整的摄入谱系，使这类溯源清理成为可能。
+> **级联污染治理法则**：Agent 的记忆具备“衍生能力”——一条错误的虚假事实往往已被后台的反思机制提取成高层偏好，甚至作为上下文前提生成了多条后续决策记录。治理系统必须基于**数据谱系追踪（Data Lineage）**，在发现源头错误时递归清理所有下游派生产物，否则会导致“幽灵偏好”在长程交互中长期潜伏。
 
 ---
 
-## 5.6 记忆评测：为什么长上下文不等于长期记忆
+## 5.6 长期记忆专业评测基准体系（2025–2026）
 
-一个常见的误解是：上下文窗口够大就不需要记忆系统了。**长期记忆基准恰恰是为了证伪这一点而设计的**——它们刻意构造出跨越几十上百个会话、总量远超单窗口容量的历史，并考察模型能否在其中做多跳与时序推理、能否用新信息覆盖旧信息、以及在信息确实不存在时能否**拒绝作答**。
+长上下文窗口（如 1M–2M tokens）的普及曾让部分开发者误以为外部记忆已死。然而，2025–2026 年的一系列权威基准实验证实：**长窗口根本无法等同于长期记忆**。长窗口在处理百万 Token 时不仅存在严重的「中间迷失（Lost in the Middle）」和注意力稀释，而且成本高昂、无法支持跨会话状态沉淀。
 
-目前严格意义上的记忆基准主要有三个：**LoCoMo**（跨约 35 个会话、300–600 轮的双人长对话，涵盖单跳/多跳/时序/开放域四类问题）、**LongMemEval**（500 道人工构造题，考察信息抽取、跨会话推理、时序推理、知识更新与拒答五项能力）与 **BEAM**。三者的详细对比见 [9.3 长期记忆基准](#长期记忆基准locomo--longmemeval--beam)。
+当前工业界与学术界主流的记忆基准涵盖：
 
-值得注意的是，**这些基准全部在良性条件下测量记忆保真度，没有任何对抗性成分**——它们能告诉你记忆系统记得准不准，却完全无法告诉你它有多容易被污染。这个缺口由第 12 章讨论的[记忆投毒](#124-记忆投毒跨会话的持久化攻击面)一类工作补上。
+| 评测基准 | 主导机构 / 会议 | 核心评测维度 | 测试集规模与设计特色 |
+|:---|:---|:---|:---|
+| **LongMemEval** | ICLR 2025/2026 | ① 信息提取能力<br/>② 跨会话多跳关联<br/>③ 时态演进追踪<br/>④ 知识冲突更新<br/>⑤ 不存在信息的拒答能力 | 500 道高难度人工精心设计的跨会话问题，包含大量时间陷阱与冲突更新用例，是当前时态记忆测试的黄金标准 |
+| **LoCoMo** | Academic Consortium | 超长会话理解与多跳关联 | 涵盖 ~35 个长会话、300–600 轮多角色长程对话，专测复杂剧情与线索拼合 |
+| **MemoryAgentBench** | 2026 产业联合测试 | 长程智能体任务持续自演化能力 | 考察 Agent 在多轮连续编码、长线自动化运维中的记忆沉淀、错误规避与检索效率 |
+| **BEAM** | Multi-Agent Benchmark | 多 Agent 共享记忆与通信保真度 | 评估异构 Agent 之间在协同读取、改写同一共享记忆库时的一致性与并发冲突 |
+
+> **评测前沿洞察**：最新基准不仅考察「召回准确率（Accuracy）」，更引入了**「拒绝作答率（Abstention Rate）」**与**「检索能效比（Retrieval Token Efficiency）」**。一个成熟的记忆系统必须清晰知晓自己“没有记住什么”，在证据不足时果断拒答，而非依赖长窗口在泛泛的旧文本中强行拼凑幻觉答案。
+
+*代表性工作*：CoALA（Sumers et al., Princeton, 2023）、Generative Agents（Park et al., Stanford, 2023）、MemGPT / Letta（Packer et al., UC Berkeley, 2023–2025）、Mem0（2024–2025）、Zep / Graphiti（2024–2025）、A-MEM（2025）、HippoRAG（NeurIPS 2024/2025）、LongMemEval（ICLR 2025/2026）、*From Storage to Experience: A Survey on the Evolution of LLM Agent Memory Mechanisms*（Luo et al., Findings of ACL 2026）
 
 ---
 
