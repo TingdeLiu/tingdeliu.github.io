@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "VLN 经典论文"
-date:   2026-08-24
+date:   2026-09-01
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -29,6 +29,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [ABot-N1(三相机)](#abot-n1) | 2026 | R2R-CE | Qwen-3.5-4B + 2B | 70.9 | 67.5 | 3.32 | 75.2 | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) |
 | [Image2Nav (180° FOV)](#image2sim) | 2026 | R2R-CE | Qwen3-VL-4B | 70.3 | 65.6 | 3.71 | 76.1 | [是](https://github.com/MrZihan/Image2Sim) | – |
  | [OmniNav(多目)](#omninav) | 2026 | R2R-CE | Qwen2.5-VL-3B | 69.5 | 66.1 | 3.74 | 74.6 | [是](https://github.com/amap-cvlab/OmniNav) |
+| [LightNav-0(单目)](#lightnav-0) | 2026 | R2R-CE | Qwen3-VL-4B | 68.5 | 62.8 | 3.91 | 73.7 | 否 |
  | [AstraNav-World(多目)](#astranav-world) | 2025 | R2R-CE | Qwen2.5-VL-3B | 67.9 | 65.4 | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) |
  | [SEDualVLN(单目)](#sedualvln) | 2026 | R2R-CE | LLaVA-Video-7B | 67.3 | 62.5 | 3.75 | 73.7 | [是](https://github.com/kim-os/SEDualVLN) |
  | [AgentVLN(单目)](#agentvln) | 2026 | R2R-CE | Qwen2.5-VL-3B | 67.2 | 64.7 | – | – | [是](https://github.com/Allenxinn/AgentVLN) |
@@ -66,6 +67,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [Qwen-RobotNav (全景)](#qwen-robotnav) | 2026 | RxR-CE | Qwen3-VL-7B | **76.5** | **65.7** | 3.58 | – | 否 |
 | [ABot-N1(三相机)](#abot-n1) | 2026 | RxR-CE | Qwen-3.5-4B + 2B | 73.9 | 63.9 | **3.13** | – | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) |
  | [OmniNav (多目)](#omninav) | 2026 | RxR-CE | Qwen2.5-VL-3B | 73.6 | 62.0 | 3.77 | – | [是](https://github.com/amap-cvlab/OmniNav) |
+| [LightNav-0(单目)](#lightnav-0) | 2026 | RxR-CE | Qwen3-VL-4B | 73.6 | 64.5 | 3.66 | – | 否 |
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | RxR-CE | Qwen3-VL-7B | 73.4 | 63.5 | – | – | 否 |
  | [AstraNav-World (多目)](#astranav-world) | 2025 | RxR-CE | Qwen2.5-VL-3B | 72.9 | – | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) |
 | [CorrectNav](#correctnav) | 2025 | RxR-CE | – | 69.3 | 63.3 | 4.09 | – | [是](https://github.com/owlet914/CorrectNav) |
@@ -125,6 +127,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [SysNav (单目)](#sysnav) | 2026 | HM3D-v2 | Gemini-2.5-Flash | 80.8 | 37.2 | 否 |
  | [WAM-Nav (单目)](#wam-nav) | 2026 | Clutter/Intern (Point-Goal) | – | 80.4 | 78.0 | 否 |
  | [3DGSNav (单目)](#nav-3dgs) | 2026 | HM3D-v1 | GPT-4o | 80.0 | 51.8 | 否 |
+| [LightNav-0(单目)](#lightnav-0) | 2026 | HM3D v2 | Qwen3-VL-4B | 79.5 | 43.7 | 否 |
  | [VLingNav (单目)](#vlingnav) | 2026 | HM3D-v1 | LLaVA-Video-7B | 79.1 | 42.9 | [是](https://github.com/wsakobe/VLingNav-web) |
  | [NavDP (单目)](#navdp) | 2025 | Clutter/Intern (Point-Goal) | – | 77.8 | 74.8 | [是](https://github.com/InternRobotics/NavDP) |
 | [ABot-N1](#abot-n1) | 2026 | ABotN-POIBench | Qwen-3.5-4B + 2B | 77.3 | 72.6 | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) |
@@ -132,7 +135,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [3DGSNav (单目)](#nav-3dgs) | 2026 | HM3D-v2 | GPT-4o | 75.0 | 44.2 | 否 |
  | [GaussNav (单目)](/VLN-Papers-Extended/#gaussnav) | 2025 | HM3D（实例图像） | – | 72.5 | 57.8 | [是](https://github.com/XiaohanLei/GaussNav) |
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | HM3Dv2 | Qwen3-VL-7B | 71.2 | 33.0 | 否 |
- | [GSMem (单目)](#gsmem) | 2025 | GOAT-Bench | GPT-4o | 67.2 | 46.9 | [是](https://github.com/vulab-AI/GSMem) |
+ | [GSMem (单目)](/VLN-Papers-Extended/#gsmem) | 2025 | GOAT-Bench | GPT-4o | 67.2 | 46.9 | [是](https://github.com/vulab-AI/GSMem) |
  | [EvoMemNav (单目)](#evomemnav) | 2026 | HM3D-v2 | Qwen-8B | 63.8 | 39.4 | 否 |
  | [VLingNav (单目)](#vlingnav) | 2026 | HM3D (实例图像) | LLaVA-Video-7B | 60.8 | 37.4 | [是](https://github.com/wsakobe/VLingNav-web) |
  | [EvoMemNav (单目)](#evomemnav) | 2026 | GOAT-Bench | Qwen-8B | 59.6 | 38.9 | 否 |
@@ -145,6 +148,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | HM3D-OVON | Qwen3-VL-7B | 51.2 | 24.0 | 否 |
  | [WAM-Nav (单目)](#wam-nav) | 2026 | Clutter/Intern (Image-Goal) | – | 50.2 | 48.2 | 否 |
  | [VLingNav (单目)](#vlingnav) | 2026 | HM3D-OVON | LLaVA-Video-7B | 50.1 | 24.6 | [是](https://github.com/wsakobe/VLingNav-web) |
+| [LightNav-0(单目)](#lightnav-0) | 2026 | HM3D-OVON Val Unseen | Qwen3-VL-4B | 47.0 | 24.1 | 否 |
  | [AstraNav-World (多目)](#astranav-world) | 2025 | HM3D-OVON | Qwen2.5-VL-3B | 45.7 | – | 否 |
  | [NavFoM (多目)](#navfom) | 2025 | HM3D-OVON | Qwen2-7B | 45.2 | – | 否 |
  | [JanusVLN (单目)](#janusvln) | 2026 | HM3D-OVON | Janus-Pro-7B | 44.9 | 31.7 | [是](https://github.com/MIV-XJTU/JanusVLN) |
@@ -4055,212 +4059,7 @@ Ruminator 以 GPT-4o 为底座，用 CoT 组织三步：
 
 
 
-## 35. Uncertainty-Aware Gaussian Map for VLN (2026) {#uncertainty-aware-gaussian-map}
-———三类感知不确定性 × Semantic Gaussian Map，赋予 VLN 智能体可靠决策能力
-
-📄 **Paper**: [github.com/Gaozzzz/Uncertainty-Aware-VLN](https://github.com/Gaozzzz/Uncertainty-Aware-VLN)
-
----
-
-### 精华
-
-- 将环境表征（3D Gaussian Map）与感知不确定性（几何/语义/外观）统一到同一空间，是比单纯 map-based 方法更稳健的设计范式。
-- 几何不确定性用变分推断建模位置/尺度扰动，语义不确定性用语义属性扰动揭示歧义解释，外观不确定性用 Fisher Information 衡量渲染敏感度——三条路径正交互补，可迁移到其他 3DGS 场景表征任务。
-- 用"3D Value Map"将不确定性从特征维度编码为可导航的 affordance / constraint，是将感知置信度转化为行动先验的优雅工程。
-- 训练时让 SGM 的渲染损失和导航损失联合优化，使场景表征与决策策略协同提升，避免了两阶段分离设计的 representation gap。
-- REVERIE RGS 提升 2.94%、R2R SR 提升 2% 的边际增益表明：当前 VLN 瓶颈已从"语言理解"转移到"感知可靠性"，不确定性建模是下一个值得深耕的方向。
-
----
-
-### 1. 研究背景/问题
-
-VLN 要求智能体在 3D 环境中依据自然语言指令导航。现有智能体在推理时普遍忽略感知不确定性（如相似门洞的视觉歧义、遮挡导致的路径可通行性不确定），训练目标迫使模型对每个 step 输出确定动作，无法表达"不确定"。这在遮挡多、结构重复的场景中易造成错误停止或路径偏移。
-
-<div align="center">
-  <img src="/images/vln/UncertaintyGaussian-motivation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/493" />
-<figcaption>图1：动机示意。左：视觉相似结构（多扇门）导致智能体证据不足而停错位置；右：遮挡使路径可通行性模糊，智能体选择次优路径。本文智能体通过显式建模不确定性（亮色=高不确定性）避免上述错误。</figcaption>
-</div>
-
----
-
-### 2. 主要方法/创新点
-
-**整体框架**：SGM 构建 → 不确定性估计 → 3D Value Map → 多层 Transformer 预测动作。
-
-<div align="center">
-  <img src="/images/vln/UncertaintyGaussian-pipeline.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1132/508" />
-<figcaption>图2：整体 Pipeline。每步从全景 RGB-D 观测构建 SGM，估计三类不确定性并嵌入形成 3D Value Map，再与语言指令拼接输入 MLT 预测动作。</figcaption>
-</div>
-
-**3.1 Semantic Gaussian Map (SGM)**
-
-每个导航点处，将多视角 RGB-D 观测反投影为稀疏伪激光点云，每个点初始化为一个可微 3D Gaussian primitive $$g_i$$，包含：均值 $$\boldsymbol{\mu}_i \in \mathbb{R}^3$$（位置）、协方差 $$\boldsymbol{\Sigma}_i$$（形状/尺度）、不透明度 $$\alpha_i$$、颜色球谐系数 $$c_i$$，以及语义属性 $$s_i$$（由 SAM2 分割区域 + CLIP 特征附加而来）。通过可微渲染优化使 SGM 与当前观测一致，并裁剪低尺度（$$\lVert e_i \rVert_2 < \tau_e$$）和低不透明度（$$\alpha_i < \tau_\alpha$$）的冗余 Gaussian。
-
-**3.2 不确定性估计（三类）**
-
-| 类型 | 建模方式 | 含义 |
-|---|---|---|
-| 几何不确定性 $$U^g$$ | 对位置/尺度施加变分扰动，最小化 ELBO，提取变分分布标准差 | 结构可靠性：Gaussian 是否在多种几何假设下保持稳定 |
-| 语义不确定性 $$U^s$$ | 对语义属性施加可学习偏移，同样 ELBO 优化 | 语义歧义程度：同一区域的语义解释有多不稳定 |
-| 外观不确定性 $$U^a$$ | 用 Fisher Information（渲染 Jacobian 的 log-determinant）近似 Hessian | 外观敏感性：纹理复杂/遮挡/光照变化是否导致渲染剧变 |
-
-$$U_i^g = \lVert \mathcal{F}^{\text{std}}(q_{\phi^\mu}(\chi_i^\mu)) \rVert_2 + \lVert \mathcal{F}^{\text{std}}(q_{\phi^e}(\chi_i^e)) \rVert_2$$
-
-$$U_i^a = \log \lvert \nabla_{\mathcal{G}} \hat{\mathcal{I}} \nabla_{\mathcal{G}} \hat{\mathcal{I}}^\top \rvert$$
-
-**3.3 3D Value Map 与动作预测**
-
-将 $$(U^g, U^s, U^a)$$ 附加到每个 Gaussian 的属性向量，扩展为 $$g_i \in \mathbb{R}^{20}$$。再通过非线性投影得到每个 Gaussian 的特征 $$F^{g_i} \in \mathbb{R}^{768}$$，聚合后与语言嵌入 $$X$$ 拼接，输入多层 Transformer $$\mathcal{F}^{\text{MLT}}$$ 预测候选 waypoint 的导航概率。
-
-<div align="center">
-  <img src="/images/vln/UncertaintyGaussian-uncertainty-vis.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1115/335" />
-<figcaption>图5：三类不确定性可视化。几何不确定性突出结构边界/不规则面，语义不确定性揭示对象级歧义区域，外观不确定性标记纹理复杂/遮挡/光照敏感区域。亮色=高不确定性。</figcaption>
-</div>
-
----
-
-### 3. 核心结果/发现
-
-<div align="center">
-  <img src="/images/vln/UncertaintyGaussian-qualitative-r2r.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/475" />
-<figcaption>图3：R2R 定性对比。左：面对多扇相似窗户，VER 误判后提前停止，本文方法正确到达；右：VER 被桌子阻挡而停止，本文方法绕行成功完成指令。</figcaption>
-</div>
-
-- **R2R val unseen**：SR 78%（vs VER 76%，+2%），SPL 66%（vs 65%，+1%）
-- **RxR val unseen**：SR 65.2%（vs BEVBert 64.1%，+1.1%），nDTW 65.6%（vs 63.9%，+1.7%）
-- **REVERIE val unseen**：RGS 37.65%（vs BEVBert 34.71%，+2.94%），RGSPL 27.01%（vs 24.44%，+2.57%）——远程目标定位能力显著提升
-- 消融：SGM 单独带来结构理解增益（REVERIE RGS 32.15% → 35.48%），不确定性单独将 R2R SR 从 72.22% 提升至 74.20%，两者叠加达到最优 78.32%
-- 三类不确定性均有独立贡献，全部使用时最优，几何+语义的提升幅度大于外观
-
----
-
-### 4. 局限性
-
-SGM 构建（尤其是 SAM2 语义抽取与不确定性估计）推理开销较大，训练阶段采用离线预计算缓解，但实时部署仍需轻量化替代（论文建议以轻量 SAM2 变体替换）；此外，框架在 Matterport3D 室内场景验证，对室外或动态环境的泛化性未知。
-
----
-
-
-
-
-
-
-
-
-
-## 36. GSMem (2026) {#gsmem}
-———3D Gaussian Splatting 作为具身探索与推理的持久空间记忆
-
-📄 **Paper**: [arXiv:2603.19137](https://arxiv.org/abs/2603.19137)
-
----
-
-### 精华
-
-GSMem 的核心洞察是将 3D Gaussian Splatting（3DGS）作为一种具备"事后重新观察"能力（post-hoc re-observability）的持久空间记忆，使 agent 无需物理回访即可从任意最优视点重新渲染已探索区域，从根本上突破了离散检测失败导致记忆永久缺失的固有瓶颈。双层检索机制（对象级场景图 + 语义级 CLIP 语言场）互为补充：场景图提供结构化定位，语言场在检测缺失时兜底召回，两者共同驱动最优视点渲染为 VLM 提供高保真视觉证据。混合探索策略将 VLM 语义相关性与基于 Fisher 信息矩阵迹近似的 3DGS 几何信息增益动态结合，在任务导向探索与全局覆盖之间自适应切换，兼顾效率与鲁棒性。将连续辐射场引入具身导航记忆是一次重要范式转移，其"写入即可重渲染"的特性对长时导航任务尤为关键。
-
----
-
-### 1. 研究背景/问题
-
-具身导航要求 agent 在未知环境中主动探索并持续积累空间知识。现有方法依赖两类表示：离散的 3D 场景图（如 ConceptGraphs）因依赖检测模块，目标漏检将导致不可恢复的记忆空洞；基于视图快照的方法（如 3D-Mem）则因视角固定、稀疏，无法从最优视角重新观察已探索区域，给 VLM 推理提供的视觉证据质量受限。上述方法均缺乏 post-hoc re-observability：agent 被锁定在初始探索时的固定观测中，无法如人类一样"从新角度回忆"过去场景。
-
----
-
-### 2. 主要方法/创新点
-
-**整体框架概览**
-
-GSMem 在主动探索过程中实时维护三个并行结构：3DGS 几何与外观地图、每个 Gaussian 附带的 CLIP 语言嵌入场、对象级场景图。查询到来时，多层检索-渲染机制定位相关区域并渲染最优视点图像，VLM 据此推理；当没有 frontier 提供足够语义线索时，切换至基于信息增益的几何探索。
-
-<div align="center">
-  <img src="/images/vln/GSMem-teaser.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:975/739" />
-<figcaption>GSMem 系统概览：agent 在真实探索路径（黄线）之外，可通过 3DGS 记忆直接"事后重新观察"任意已探索区域（紫线），无需物理导航回访</figcaption>
-</div>
-
-**3DGS 建图与在线语言场**
-
-每个 3D Gaussian $$g_i$$ 额外携带 32 维语言嵌入（由 768 维 CLIP 特征经自编码器压缩得到）。为避免高维语言特征的优化开销，提出"权重一致逆聚合"：forward 渲染中 2D 像素特征由 3D Gaussian alpha-blending 生成，逆向时以完全相同的混合权重将 2D CLIP 特征反向分配给各 Gaussian，实现零优化开销的在线语义更新：
-
-$$\mathbf{f}_i^t = \frac{W_i^{t-1}\mathbf{f}_i^{t-1} + \sum_{k \in \mathcal{T}_t} \sum_p w_{i,p,k}^t \mathbf{f}_{p,k}^{2D}}{W_i^t}$$
-
-同时维护对象级场景图（含 3D 位置、语义标签、最高置信度检测视角）、TSDF 地图和 frontier 地图。
-
-**多层检索-渲染机制**
-
-<div align="center">
-  <img src="/images/vln/GSMem-retrieval-rendering.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:983/587" />
-<figcaption>多层检索-渲染机制：对象级检索（场景图）与语义级检索（3DGS 语言场）并行定位 ROI，随后通过最优视点选择与 3DGS 渲染为 VLM 提供高保真视觉证据</figcaption>
-</div>
-
-给定任务查询，同时触发两条互补检索路径：
-- **对象级检索**：VLM 对场景图全部对象按语义相关性排序，选 top-$K_\text{obj}$ 候选作为 ROI
-- **语义级检索**：将查询编码为 CLIP 嵌入，在语言场中以余弦相似度 $> \tau_\text{clip}$ 召回相关 Gaussian，经 KD-Tree 聚类后保留 top-$K_\text{cluster}$ 个空间连贯群组作为 ROI
-
-对每个 ROI，在水平圆形轨迹上均匀采样 108 个候选视点（36 方位角 × 3 仰角），经两阶段打分筛选：Phase 1 以能见度分 $S_\text{vis}$（TSDF 光线投射）+ 投影面积分 $S_A$（高斯惩罚鼓励适当观察距离）选出 top-10；Phase 2 进一步以 3DGS 不透明度分 $S_\text{opa}$ 评估实际渲染质量，综合分 $S_\text{final} = S_\text{vis} + S_A + S_\text{opa}$ 选出最优视点。最终通过单步扩散模型提升渲染图像质量后送入 VLM 推理。
-
-**混合探索策略**
-
-<div align="center">
-  <img src="/images/vln/GSMem-hybrid-exploration.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:983/604" />
-<figcaption>混合探索策略：当任一 frontier 的语义相关性超过阈值时优先导向任务目标；否则切换至基于 3DGS 信息增益（不确定性热力图）的几何覆盖探索</figcaption>
-</div>
-
-对每个候选 frontier 计算两类分数：
-- **语义相关分** $s_i^\text{sem} \in [0,1]$：VLM 评估 frontier 观测图像与任务查询的相关程度
-- **几何覆盖分** $s_i^\text{geo}$：基于 Fisher 信息矩阵（FIM）的信息增益，以 T-optimality 代理近似为 FIM 增量的迹 $$s_i^\text{geo} \approx \text{Tr}(\mathbf{I}_i)$$，可直接由渲染 Jacobian 计算，无需真值监督
-
-探索决策规则：
-
-$$i^* = \begin{cases} \arg\max_i \, s_i^\text{sem}, & \text{if } \max_i s_i^\text{sem} > \tau_s \\ \arg\max_i \, s_i^\text{geo}, & \text{otherwise} \end{cases}$$
-
----
-
-### 3. 核心结果/发现
-
-**Active Embodied QA (A-EQA) on OpenEQA**（63 个 HM3D 场景，184 问题，GPT-4o 作为 VLM）：
-
-| 方法 | LLM-Match ↑ | LLM-Match SPL ↑ |
-|------|------------|----------------|
-| Explore-EQA | 46.9 | 23.4 |
-| ConceptGraphs w/ Frontier | 47.2 | 33.3 |
-| 3D-Mem | 52.6 | 42.0 |
-| **GSMem (Ours)** | **55.4** | **43.8** |
-
-**GOAT-Bench 多模态长时导航**（36 场景 val-unseen，2600+ subtasks）：
-
-| 方法 | SR ↑ | SPL ↑ |
-|------|------|-------|
-| TANGO | 32.1 | 16.5 |
-| MTU3D | 47.2 | 27.7 |
-| 3D-Mem | 62.9 | 44.7 |
-| **GSMem (Ours)** | **67.2** | **46.9** |
-
-GSMem 在长时导航任务中的优势比 A-EQA 更显著（SR +4.3 vs LLM-Match +2.8），验证了持久记忆对长时累积任务的特殊价值。消融研究显示：去除 CLIP 语言场 −4.5 SR、去除最优视点选择 −2.7 SR、去除混合探索时 SPL 下降 −4.1，表明几何覆盖策略对探索效率贡献显著。
-
-<div align="center">
-  <img src="/images/vln/GSMem-case-analysis.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:983/702" />
-<figcaption>案例对比（3D-Mem vs GSMem）：(a-c) 3D-Mem 因检测漏报（白色长袍、无花果树）或语义误检（白色门被识别为冰箱）导致错误，GSMem 通过语义场检索正确定位；(d) 视角受限时，GSMem 通过最优视点重渲染成功识别悬挂衣物</figcaption>
-</div>
-
----
-
-### 4. 局限性
-
-当前系统依赖 RGB-D 输入，深度噪声或高遮挡场景将影响 3DGS 建图质量，进而降低检索与渲染精度；单步扩散增强引入额外推理延迟，实时部署（当前约 1.2 s/step）仍有优化空间。
-
----
-
-
-
-
-
-
-
-
-
-
-## 37. AwareVLN (2026) {#awarevln}
+## 35. AwareVLN (2026) {#awarevln}
 ———Reasoning with Self-awareness for Vision-Language Navigation
 
 📄 **Paper**: [arXiv:2605.22816](https://arxiv.org/abs/2605.22816) · [Project Page](https://gwxuan.github.io/AwareVLN/) · 🏛️ **CVPR 2026**
@@ -4371,7 +4170,7 @@ $$d, y_t = \pi_\theta\big(f_{tok}(I), f_{tok}(R'), f_{vis}(O_t)\big)$$
 
 
 
-## 38. Dual-Anchoring (2026) {#dual-anchoring}
+## 36. Dual-Anchoring (2026) {#dual-anchoring}
 ———用"指令进度"与"地标记忆"双重锚定，对抗 VLN 中的状态漂移（State Drift）
 
 📄 **Paper**: [arXiv:2604.17473v2](https://arxiv.org/abs/2604.17473)
@@ -4492,7 +4291,7 @@ $$\mathcal{L}_{Stage1} = \mathcal{L}_{nav} + \lambda_{prog}\mathcal{L}_{prog} + 
 
 
 
-## 39. WAM-Nav (2026) {#wam-nav}
+## 37. WAM-Nav (2026) {#wam-nav}
 ———非对称隐空间「世界-动作」联合建模，用一个 DiT 统一三类视觉导航
 
 📄 **Paper**: [arXiv:2606.04907](https://arxiv.org/abs/2606.04907) — WAM-Nav: Asymmetric Latent World-Action Modeling for Unified Visual Navigation
@@ -4597,7 +4396,7 @@ $$\mathcal L_{total}=\mathbb E\big[\lVert\hat u_A-u_A\rVert_2^2+\lambda_{img}\lV
 
 
 
-## 40. JanusVLN (2026) {#janusvln}
+## 38. JanusVLN (2026) {#janusvln}
 ——— 解耦语义与空间：使用双隐式神经内存的视觉语言导航
 
 📄 **Paper**: [arXiv:2509.22548v2](https://arxiv.org/abs/2509.22548v2) · 🏛️ **ICLR 2026**
@@ -4714,7 +4513,7 @@ $$\mathcal L_{total}=\mathbb E\big[\lVert\hat u_A-u_A\rVert_2^2+\lambda_{img}\lV
 
 
 
-## 41. HSGM (2026) {#hsgm}
+## 39. HSGM (2026) {#hsgm}
 ——— 层级式语义-几何地图，填补 VLM 2D 视觉与 3D 空间推理及运动规划的鸿沟
 
 📄 **Paper**: [arXiv:2606.00095](https://arxiv.org/abs/2606.00095)
@@ -4855,7 +4654,7 @@ HSGM 包含三个并行的层级，以维持高精度、长期稳定的 3D 环�
 
 
 
-## 42. OneVLA (2026) {#onevla-a-unified-framework-for-embodied-tasks}
+## 40. OneVLA (2026) {#onevla-a-unified-framework-for-embodied-tasks}
 OneVLA: A Unified Framework for Embodied Tasks
 ———首个在单一网络与动作头下统一具身导航和操作的 VLA 模型
 
@@ -5013,7 +4812,7 @@ OneVLA 在导航基准 **VLN-CE** (R2R & RxR) 以及操作基准 **SimplerEnv** 
 
 
 
-## 43. CA-VLN (2026) {#ca-vln}
+## 41. CA-VLN (2026) {#ca-vln}
 ——— 基于双智能体协作的多模态大模型具身导航框架
 
 📄 **Paper**: [Sensors 2026](https://doi.org/10.3390/s26041254)
@@ -5114,7 +4913,7 @@ CA-VLN 提出了一个由知识推理智能体（Knowledge Reasoning Agent）和
 
 
 
-## 44. RynnBrain (2026) {#rynnbrain}
+## 42. RynnBrain (2026) {#rynnbrain}
 ———Open Spatiotemporal Foundation Model for Embodied Intelligence
 
 📄 **Paper**: [arXiv:2602.14979](https://arxiv.org/abs/2602.14979)
@@ -5197,7 +4996,7 @@ MoE 架构（30B-A3B）在 VLN 任务上未能超越 8B Dense 模型，稀疏激
 
 
 
-## 45. EvoMemNav (2026) {#evomemnav}
+## 43. EvoMemNav (2026) {#evomemnav}
 ——— 零样本具身导航中基于轻量化图先验与多视图反思的高效自进化细粒度拓扑记忆框架
 
 📄 **Paper**: [arXiv:2606.03509](https://arxiv.org/abs/2606.03509v1)
@@ -5320,7 +5119,7 @@ EvoMemNav 由三个核心部分构成：构建于 occupancy grid 上的层次化
 
 
 
-## 46. OmniNav (2026) {#omninav}
+## 44. OmniNav (2026) {#omninav}
 ———用快慢双系统统一点目标、物体目标、指令目标导航与前沿探索
 
 📄 **Paper**: [arXiv:2509.25687](https://arxiv.org/abs/2509.25687) · 🏛️ **ICLR 2026 (Poster)**
@@ -5514,7 +5313,7 @@ flowchart TD
 
 
 
-## 47. Qwen-RobotNav (2026) {#qwen-robotnav}
+## 45. Qwen-RobotNav (2026) {#qwen-robotnav}
 ———首个统一的多任务、时空可重构具身导航大模型
 
 📄 **Paper**: [arxiv:2606.18112 ](https://arxiv.org/abs/2606.18112)
@@ -5665,7 +5464,7 @@ Qwen-RobotNav 部署在宇树 Unitree Go2 四足机器人以及移动底座上�
 
 
 
-## 48. GA-VLN (2026) {#ga-vln}
+## 46. GA-VLN (2026) {#ga-vln}
 ——— Geometry-Aware BEV Representation for Efficient Vision-Language Navigation
 
 📄 **Paper**: [arXiv:2605.22036](https://arxiv.org/abs/2605.22036)
@@ -5785,7 +5584,7 @@ GA-VLN 在 Habitat 仿真环境中的多个连续导航数据集上进行了评�
 
 
 
-## 49. SEDualVLN (2026) {#sedualvln}
+## 47. SEDualVLN (2026) {#sedualvln}
 ———空间增强的双系统连续环境视觉语言导航框架
 
 📄 **Paper**: [arXiv:2605.17249](https://arxiv.org/abs/2605.17249)
@@ -5913,7 +5712,7 @@ SEDualVLN 由两个子系统以及一个协同调度器构成：
 
 
 
-## 50. Robostral Navigate (2026) {#robostral-navigate}
+## 48. Robostral Navigate (2026) {#robostral-navigate}
 ———仅需单目 RGB 相机的 8B 视语言导航大模型：超高效仿真训练与在线强化学习
 
 📄 **Paper**: [arXiv:2607.20785](https://arxiv.org/abs/2607.20785) · [Project Page](https://mistral.ai/news/robostral-navigate)
@@ -6108,7 +5907,7 @@ Robostral Navigate 在 Room-to-Room in Continuous Environments (R2R-CE) 和 Room
 
 
 
-## 51. LocalNav (2026) {#localnav}
+## 49. LocalNav (2026) {#localnav}
 ———基于知识蒸馏与具身强化学习的端侧轻量化三维场景图目标导航框架
 
 📄 **Paper**: [arXiv:2606.27871](https://arxiv.org/abs/2606.27871)
@@ -6220,7 +6019,7 @@ $$R_{tot} = R_{done} + R_{nav} + R_{exp} + R_{brev}$$
 
 
 
-## 52. ABot-N1 (2026) {#abot-n1}
+## 50. ABot-N1 (2026) {#abot-n1}
 ———基于慢速认知与快速控制双系统架构的通用视觉语言导航基础模型
 
 📄 **Paper**: [arXiv:2607.10383](https://arxiv.org/abs/2607.10383v2) · [Project Page](https://amap-cvlab.github.io/ABot-Navigation/ABot-N1/) · [Code](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench)
@@ -6327,7 +6126,7 @@ ABot-N1 在五项核心导航任务上均打破了先前的 SOTA 纪录，并且
 
 
 
-## 53. ReflectVLN (2026) {#reflectvln}
+## 51. ReflectVLN (2026) {#reflectvln}
 ———基于反思推理与双向交互机制的具身视觉语言导航
 
 📄 **Paper**: [arXiv:2607.12680](https://arxiv.org/abs/2607.12680) · [Code](https://github.com/AIprogrammer/ReflectVLN)
@@ -6451,7 +6250,7 @@ ReflectVLN 架构由两个独立参数化的 Agent 组成：**意图 Agent（Int
 
 
 
-## 54. TuckerNav (2026) {#tuckernav}
+## 52. TuckerNav (2026) {#tuckernav}
 ———面向全天候多场景终身具身视觉语言导航的 Tucker 张量自适应
 
 📄 **Paper**: [arXiv:2603.14276](https://arxiv.org/abs/2603.14276) · 🏛️ **ICLR 2026**
@@ -6581,7 +6380,7 @@ $$\mathcal{L}_t = -\lambda \sum_{n=1}^N \log p_t(A_n, \hat{P}_n \mid I, \mathcal
 
 
 
-## 55. AgenticNav (2026) {#agenticnav}
+## 53. AgenticNav (2026) {#agenticnav}
 ———将零样本连续环境导航（VLN-CE）重构为 VLM 可调用的 Tool-Calling 架构
 
 📄 **Paper**: [arXiv:2606.10577](https://arxiv.org/abs/2606.10577)
@@ -6704,7 +6503,7 @@ AgenticNav 由 **VLM 决策核心** 与 **四个确定性 Tool 接口** 组成�
 
 
 
-## 56. MemVLN (2026) {#memvln}
+## 54. MemVLN (2026) {#memvln}
 ———模拟人类双重记忆机制的高效连续环境视觉语言导航框架
 
 📄 **Paper**: [arXiv:2607.23504](https://arxiv.org/abs/2607.23504)
@@ -6814,7 +6613,7 @@ $$L = -\frac{1}{T} \sum_{t=1}^{T} \log P(a_t^* \mid F_t, I; \theta)$$
 
 ---
 
-## 57. X-NavDP (2026) {#x-navdp}
+## 55. X-NavDP (2026) {#x-navdp}
 ———多构型机器人通用视觉导航的组内 Q 值重加权 Diffusion RL 强化学习微调框架
 
 📄 **Paper**: [arXiv:2607.28560](https://arxiv.org/abs/2607.28560)
@@ -6952,7 +6751,7 @@ graph TD
 
 ---
 
-## 58. Image2Sim (2026) {#image2sim}
+## 56. Image2Sim (2026) {#image2sim}
 ———解耦 3D 空间锚定与超真实图像合成的实时神经仿真引擎
 
 📄 **Paper**: [arXiv:2607.05765](https://arxiv.org/abs/2607.05765) · [Project Page](https://github.com/MrZihan/Image2Sim)
@@ -7105,7 +6904,7 @@ graph TD
 
 ---
 
-## 59. DecoVLN (2026) {#decovln}
+## 57. DecoVLN (2026) {#decovln}
 ———Decoupling Observation, Reasoning, and Correction for Vision-and-Language Navigation
 
 📄 **Paper**: [arXiv:2603.13133](https://arxiv.org/abs/2603.13133) · [Project Page](https://allenxinn.github.io/DecoVLN/) · [Code](https://github.com/Allenxinn/DecoVLN)
@@ -7237,7 +7036,7 @@ graph TD
 
 ---
 
-## 60. TAMP-Nav (2026) {#tamp-nav}
+## 58. TAMP-Nav (2026) {#tamp-nav}
 ———Point, Think, Memorize, and Align for Efficient Navigation
 
 📄 **Paper**: [arXiv:2608.17512](https://arxiv.org/abs/2608.17512)
@@ -7412,6 +7211,312 @@ graph TD
 
 ---
 
+## 59. LightNav-0 (2026) {#lightnav-0}
+———把 VLM 已有的空间智能"引出来"，而不是给它外挂一个导航模块
+
+📄 **Paper**: [arXiv:2608.30935](https://arxiv.org/abs/2608.30935)
+
+### 精华
+
+1. 全文的立场是"eliciting"而非"adding"：不加任何任务专用预测头、本体专家或航点预测器，只给 Qwen3-VL-4B 扩了词表，让导航能力从预训练 VLM 自己的空间先验里长出来。
+2. 双通道 pointing（affordance 点 + object 点）是整篇论文的枢纽——用图像平面上的一个栅格 token 同时表达"往哪走"与"目标在哪"，天然与任务、场景、机器人本体解耦，所以同一套监督能覆盖指令跟随、物体搜索、视觉跟踪三类任务。
+3. 残差向量量化（RVQ）把 10 步 SE(2) 轨迹压成 3 个 token，让"连续控制精度"与"语言模型 token 概率"第一次同时成立，这是它能原样套用 GRPO、而不必把扩散去噪重写成 MDP 的关键。
+4. 显式空间推理不一定要写成一长串文字 CoT：定长 2 个 token 的视觉 trace 既保住了可解释性，又躲开了变长解码的延迟。
+5. Scaling 实验给出一个反直觉却实用的结论——在这个量级上，扩环境多样性比扩数据量、也比把 backbone 从 4B 堆到 8B 更可靠。
+
+<div align="center">
+  <img src="/images/vln/LightNav-0-teaser.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1446/827" />
+<figcaption>LightNav-0 总览：仿真数据引擎（2K+ 场景、4K+ 小时）→ 三阶段训练 → 零样本部署到人形 / 四足 / 无人机 / 轮式四类本体；下方为 10 个公开仿真设置上的单目成功率对比，蓝色为本文方法</figcaption>
+</div>
+
+---
+
+### 1. 研究背景/问题
+
+具身导航要求同一个智能体把异构目标（一句自然语言指令、一个物体类别、一个移动的人）和视觉观测翻译成动作，并且要跨任务、跨场景、跨机器人本体。但现有系统几乎都为单一任务或单一 benchmark 优化，依赖航点预测器、拓扑地图、任务专用动作头这些"backbone 之外的结构"，把感知、推理、行动割裂开，一旦任务、传感器配置或机器人换掉就迁移不动。
+
+与此同时，现代 VLM 其实已经编码了导航所需的大部分能力——开放词表识别、空间推理、指令理解、时序视频理解——只是这些能力很少被直接调用来做机器人控制。论文要回答的问题是：能不能让一个紧凑 VLM 直接充当通用具身导航的共享推理骨干？
+
+---
+
+### 2. 主要方法/创新点
+
+#### ① 整体框架概述
+
+LightNav-0 把所有导航任务统一成"条件 token 生成"。在决策步 $t$，模型吃进语言指令 $I$ 和第一人称 RGB 历史 $O_{1:t}$，吐出一段固定格式的 token：**先 2 个 pointing token（空间推理痕迹），紧跟 3 个 RVQ 动作 token（轨迹）**。整个系统只有三个自研部件挂在一个冻结架构的 Qwen3-VL-4B-Instruct 上——**慢快历史压缩器**负责把无限增长的视觉历史塞进固定 token 预算，**双通道 pointing** 负责把"空间意图"表达成与本体无关的图像栅格坐标，**RVQ 动作 tokenizer** 负责把这个意图翻译成精确的、本体相关的轨迹。三者共用同一个原生自回归语言模型头，没有任何额外预测头。
+
+<div align="center">
+  <img src="/images/vln/LightNav-0-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1446/884" />
+<figcaption>LightNav-0 架构总览：压缩后的第一人称 RGB 历史与语言目标进入预训练 VLM，先输出 pointing 前缀作为显式空间推理痕迹，再输出 3 个 RVQ 动作 token，解码成 10 个未来 SE(2) 航点交给各本体的底层控制器</figcaption>
+</div>
+
+读者版的端到端数据流（论文原图是作者视角、信息密集，这张只讲一件事：一个决策步里数据怎么流）：
+
+```mermaid
+graph TD
+    A["单目 RGB 历史 O_1:t ＋ 语言指令 I"] --> B["原生分辨率 ViT 逐帧编码"]
+    B --> C["Slow-Fast 历史压缩：越老的帧采样越稀、池化越粗"]
+    C --> D["拼成一条因果序列送进 Qwen3-VL-4B"]
+    D --> E["Token 1：affordance 点（可走的自由空间栅格）"]
+    E --> F["Token 2：object 点（目标物体 / 终点栅格）"]
+    F --> G["Token 3-5：RVQ 的 L0 / L1 / L2 码字"]
+    G --> H["码字求和 ＋ SE(2) 积分 ⇒ 10 个未来航点"]
+    H --> I["各本体共用的 Trajectory Follower"]
+    I --> J["机器人自带的底层运动策略"]
+```
+
+#### ② 时序感知的视觉历史压缩
+
+- **输入**：任意长度的第一人称 RGB 流。
+- **处理**：按"时间越久、记得越糊"来压——论文明说这是照着艾宾浩斯遗忘曲线的定性形状设计的。对时刻 $t_i$ 采集的历史帧，定义其"年龄" $\Delta T_i = t - t_i$，采样率随年龄指数衰减，空间池化步长随年龄指数增大：
+
+$$f_s(i) = f_s^{\max}\exp\!\left(-\frac{\Delta T_i}{\tau_s}\right), \qquad s_i = \max\!\left(1,\ \exp\frac{\Delta T_i}{\tau_p}\right)$$
+
+  被选中的帧各自过原生分辨率 ViT，再按 $s_i$ 做网格池化；池化后靠时间戳 token 保住先后顺序。
+- **输出**：一组"近处细、远处粗"的视觉 token，总量落在 256K / 576K / 1M 三档可配置像素预算内，按长期 / 中期 / 短期三层分配。
+- **设计动机**：导航既需要当前帧的几何细节（脚下能不能走），也需要长时程语境（我刚才是不是来过这儿）。全量原生分辨率编码会让 token 数无界增长；反过来把整段历史塌缩成一个定长表示又丢掉近处细节。分层分配是这两者之间的折中。
+
+#### ③ 双通道 pointing：把空间推理写成两个栅格 token
+
+- **输入**：当前视图 + 自动标注管线投影下来的两个目标点。
+- **处理**：把当前视图切成 $H_g$ 行 $W_g$ 列的栅格，一个归一化点 $p=(u,v)\in[0,1]^2$ 被拍平成一个整数索引：
+
+$$r(p) = \min\{H_g - 1,\ \lfloor H_g v\rfloor\},\quad c(p) = \min\{W_g - 1,\ \lfloor W_g u\rfloor\},\quad i(p) = r(p)\,W_g + c(p)$$
+
+  affordance 点编码成 `<apos_i>`，object 点编码成 `<opos_i>`，两族 token 共享同一个栅格但索引空间独立。原地转向、停止、目标不可见这些"没有合法栅格"的情况，由各自 token 族里预留的索引表示。
+- **输出**：每步恰好 2 个 token，接在动作 token 前面。
+- **设计动机**：VLM 本来就把视觉证据摊在一个 2D token 阵列上，用**一个**栅格 token 表达一个点，正好踩在 backbone 预训练的 grounding 能力上；而且这个阵列定义在图像平面而非某个具体机器人的控制空间里，所以同一套表示能跨任务、跨本体复用。因果注意力让这段前缀自动变成一个条件化后续动作生成的显式空间痕迹。
+
+> **举个例子**（为什么是"一个 token"而不是"两个坐标 token"）：假设栅格是 4 行 × 4 列，模型判断可走方向落在归一化坐标 $p = (u, v) = (0.6, 0.4)$。
+> 列 $c = \lfloor 4 \times 0.6 \rfloor = 2$，行 $r = \lfloor 4 \times 0.4 \rfloor = 1$，拍平后 $i = 1 \times 4 + 2 = 6$ ——输出就是单个 token `<apos_6>`。
+> 换成"横坐标 token + 纵坐标 token"的写法，同一个点要花 2 个 token，模型还得自己学会这两个 token 是绑定的一对。栅格索引把这层耦合直接编进词表：**每步的推理前缀恒定 2 个 token（一个 affordance、一个 object），不随场景复杂度变长**，这正是它比自由文本 CoT 省的地方——文字 CoT 的解码长度是不可控的。
+
+<div align="center">
+  <img src="/images/vln/LightNav-0-pointing-annotation.webp" width="90%" loading="lazy" decoding="async" style="aspect-ratio:715/528" />
+<figcaption>双通道 pointing 的自动标注：affordance 通道通过 3D-2D 投影标出自由空间里可行的落脚点，object 通道用 3D 包围盒投影标出被指代的目标物体</figcaption>
+</div>
+
+#### ④ RVQ 动作 tokenizer：3 个 token 换 10 个航点
+
+- **输入**：一个动作块，即 10 个未来 SE(2) 航点拉平成的向量 $z_t \in \mathbb R^{10\times 3}$。
+- **处理**：三级残差量化，每级一个 256 词条的码本 $C^{(0)}, C^{(1)}, C^{(2)}$。第一级抓粗轨迹，后两级依次量化上一级留下的残差：
+
+$$k_\ell = \arg\min_k d_J\!\left(r^{(\ell)},\ e_k^{(\ell)}\right), \qquad r^{(\ell+1)} = r^{(\ell)} - e_{k_\ell}^{(\ell)},\qquad r^{(0)} = z_t$$
+
+  其中 $d_J$ 是拟合码本时用的 Jacobian 加权轨迹距离，在积分后的轨迹空间里加权，好让平移误差和朝向误差在量纲上平衡。指派轨迹时用的是
+
+$$d_{traj}(z, \hat z) = \mathrm{ADE}(z, \hat z) + \lambda\,\lvert \Delta\theta(z) - \Delta\theta(\hat z)\rvert, \qquad \lambda = 0.3$$
+
+- **输出**：三个层级化的动作 token `<act_L0_k>` `<act_L1_k>` `<act_L2_k>`。解码时对任意非空前缀求和再做 SE(2) 积分：
+
+$$\hat z_t^{(L)} = \sum_{\ell=0}^{L-1} e_{k_\ell}^{(\ell)}, \qquad L \in \{1, 2, 3\}$$
+
+- **设计动机**：语言模型头直接吐连续控制量，会在"token 预测"和"几何精度"之间打架。RVQ 的巧妙之处在于**任何非空前缀都能解码成一条可执行轨迹**，而不是一个残缺的动作表示——所以算力或延迟吃紧时可以只生成 1 个或 2 个 token 执行粗轨迹，需要最高精度时才补齐第三级。
+
+> **举个例子**（为什么残差比"一次性大码本"划算）：想象你要把一条轨迹口述给别人。
+> L0 相当于先说"大致朝这个方向走一段"——256 选 1，粒度约 **0.9 m**；L1 再补一句"比刚才那条再往左偏一点"，把残差压到约 **7 cm**；L2 最后微调到约 **4 cm**。
+> 三句话（3 个 token）组合出 $256^3 \approx 1670$ 万条不同轨迹，最终平均位移误差 **0.72 cm**。
+> 对照组是 VADv2 式的单层 $K=4096$ 规划词表——码本大了 16 倍、一次报完不做残差细化，误差反而是 **2.48 cm**（约 3.4 倍差）。省 token 的同时精度还更高，靠的正是"由粗到细"这个结构。
+
+<div align="center">
+  <img src="/images/vln/LightNav-0-rvq-tokenizer.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1446/674" />
+<figcaption>层级化残差向量量化动作 tokenizer：左侧展示 L0/L1/L2 三级各自的 256 条候选轨迹与被选中的码字（尺度从 1 m 收到 10 cm 再收到 5 cm），中间是残差编码流程，右侧是码字求和后经 SE(2) 积分重建出的轨迹</figcaption>
+</div>
+
+#### ⑤ 统一的自回归训练目标
+
+导航样本和辅助 VQA 样本走同一个因果语言模型损失，$M$ 是被监督的输出位置集合：
+
+$$\mathcal L_{CE} = -\sum_{j \in M} \log p_\theta\!\left(y_j \mid x,\ y_{<j}\right)$$
+
+导航样本的监督序列就是 1 个 `<apos_i>` + 1 个 `<opos_i>` + 3 个 RVQ token；pointing 或空间 VQA 样本则是对应的索引 token 或语言回答。因为所有任务共享同一个 token 空间和同一个预测头，训练时不需要为导航损失单独配平衡权重，所有样本能挤进同一个打包的自回归训练循环——论文把约 8.6 个变长样本动态打包进每条 8,192 token 的训练序列。
+
+#### ⑥ 三阶段训练配方
+
+**Stage I — 具身推理（ER）中期训练。** 先不碰动作，专门把 backbone 的空间能力调出来。从 36 个数据源构建 13.0M 样本的混合集，采样质量分配为 pointing 35.14%、单图 VQA 25.05%、视频推理 19.81%、通用视觉与抽象推理 20.00%。产出的 checkpoint 叫 **LightNav-ER**，用作后续导航对齐的初始化。约 170 H100 GPU-hours。
+
+**Stage II — 监督微调（SFT）。** 把 LightNav-ER 对齐到统一导航 token 空间。任务平衡后的优化混合里，77.6% 的样本带导航动作监督，22.4% 是复习 ER 阶段能力的感知 / 推理样本——论文称之为"先特化、再保持"（specialize-then-retain）课程，防止专业化把 backbone 继承来的通用视觉语言能力挤没了。混合中含 DAgger 采集的样本，让策略见到自己动作诱导出的状态。约 950 H100 GPU-hours。
+
+**Stage III — 在线 RL 后训练。** DAgger 虽然补上了策略诱导状态，但目标仍是 token 级模仿，并不直接优化决定任务成败的闭环行为。于是用 GRPO 做在线优化，同一套 backbone、token 接口和 rollout 机制支撑三类任务，**只有奖励函数不同**：
+
+$$A^{(g)} = \frac{R(\tau^{(g)}) - \mu_R}{\sigma_R + \epsilon_{num}}$$
+
+组内标准化把"场景难度"这个偏置消掉，只有同一起始状态下 $G$ 次尝试之间的排序才产生梯度。每个任务只给**一个终局标量**，并广播到轨迹的每个决策步（$r_t = R(\tau)$ 对所有 $t$）——论文的理由很实在：要做逐步 reward shaping，就得在三种互不兼容的几何上手工设计三次势函数。超参为 $G=8$、每轮 $B=32$ 个种子（即每次更新 256 条 episode）、$\varepsilon=0.2$、$\beta=0.01$，单节点 8×H100。
+
+<div align="center">
+  <img src="/images/vln/LightNav-0-rl-pipeline.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1446/623" />
+<figcaption>在线多任务强化学习管线：从 SFT 策略出发大规模采样 rollout，跟踪任务按可见性/位置/持续性打分，指令跟随按对齐/到达/终止打分，物体搜索按发现/效率/进度打分，组内归一化后做 GRPO 更新</figcaption>
+</div>
+
+三个任务的终局奖励各自为政。指令跟随把路径保真度写进奖励，防止"抄近道到了终点但没按指令走"：
+
+$$R_{VLN} = \left(1 + \mathrm{nDTW}\right)\mathbf 1[\text{success}] + \exp\!\left(-\frac{\max(d_T, d_{clip})^2}{\sigma_d^2}\right) - 0.25\cdot\mathbf 1[\text{timeout}]$$
+
+物体导航则换成路径效率 $PL = d_0 / \max(d_0, \tilde\ell)$（即 SPL 的逐 episode 版本），因为它只给类别不给路线，路径保真度无从谈起；那个高斯邻近项承担了全部失败样本的区分度——没有它，所有失败都是同一个奖励值，对组内方差毫无贡献。视觉跟踪最特殊：目标是移动的，没有终点可"到达"，于是奖励改成"逐步质量的时间平均"，且早停（跟丢或碰撞）时按固定时域 $T_0 = 300$ 步归一化，把没执行的步数记为零质量——不然一个早早撞墙的跟随者反而因为"平均值高"而占便宜。
+
+> **举个例子**（RL 训练集为什么要先筛一遍）：一个 episode 种子要跑 $G=8$ 条 rollout。
+> 若 8 条全成功，8 个奖励几乎相同，$\sigma_R \approx 0$，标准化后 8 个优势全是 0 —— 这 8 条仿真白跑，梯度贡献为零；全失败同理。
+> 只有"8 条里成功 3 条"这种骑在决策边界上的 episode 才有非零方差。
+> 所以论文先用 SFT checkpoint 对每个候选跑 $K$ 次，分箱成 always-solved / mixed / never-solved，只留 mixed。同理，采样保留哪些决策步也不能均匀抽——首末决策、以及带停止 / 卡住 / 碰撞 / 大角度转向这类离散事件的决策及其邻居必须保留，因为终局奖励恰恰是在这些稀有时刻挣到的，均匀抽样会按稀有度把它们丢掉。
+
+#### ⑦ 一张表看清"到底改了什么"
+
+| 维度 | 主流导航 VLA | LightNav-0 |
+|---|---|---|
+| 空间中间表征 | 无，或自由文本 CoT，或独立航点预测器 | 双通道 pointing，定长 2 个图像栅格 token |
+| 动作输出 | 离散原子指令，或外挂扩散 / 流匹配 / 回归动作头 | 原生 LM 头直出 3 个 RVQ token → 10 个 SE(2) 航点 |
+| 任务与本体标识 | task identifier token、embodiment expert | 无，任务语义全由指令文本和监督格式指定 |
+| 感知输入 | 常需全景 / 多相机 / 深度 / 里程计 | 仅单目前视 RGB |
+| RL 可用性 | 连续动作头须先把去噪重写成 MDP 才能上 policy gradient | token 对数概率精确可得，GRPO 原样套用 |
+
+#### ⑧ 推理与部署
+
+推理时 ViT 和语言模型跑在同一个进程里（避免视觉特征的跨进程传输），自回归解码由 vLLM 承接，在一张 RTX 4090 上每 token 约 4 ms。每个决策步只需 2 个 pointing token 加至多 3 个 RVQ token。真机侧则用一个共享的 Trajectory Follower 把轨迹翻译成各平台的里程计与速度指令，交给机器人自带的运动策略——高层 RGB-to-trajectory 策略本身完全不动。
+
+#### ⑨ 顺带产出：INSIGHT-Bench
+
+论文还构建了一个新基准，把网格化仿真场景和 3D 高斯泼溅场景统一到同一套轨迹格式下：训练集 1,683 场景 / 53,090 episode，评测集 210 场景 / 1,097 episode。它按两个正交轴做诊断——场景轴（公寓 / 住宅 / 商业 / 机构 / 户外）和指令轴（Base / Direction / Relation / Extremum / Ordinal），后者对应解析目标所需的空间机制。标注管线用 Molmo2 做开集 pointing、靠度量深度抬升到 3D，并要求一个实例被至少两个不同视点的两次观测支持、3D 定位散度低于 0.6 m 才予保留。
+
+---
+
+### 3. 核心结果/发现
+
+**具身推理（LightNav-ER，8 个基准）。** 4B 的 LightNav-ER 拿到 67.4 的完整集宏平均，4 项第一、4 项第二。相比自己的初始化 Qwen3-VL-4B（63.1）高 4.3 分，比 8B 的 Molmo2-ER（62.8）高 4.6 分且只用一半参数。增益最大的两项恰是最贴导航的能力——Where2Place +12.6、RefSpatial +11.9，分别对应自由空间 grounding 和多步空间指代。
+
+**指令跟随（VLN-CE val-unseen）。** R2R 上单目四项指标全线最优：SR 66.9 → 68.5，SPL 62.3 → 62.8，NE 4.05 → 3.91 m，OS 73.7。RxR 上 NE / SR / SPL 同为单目最佳（NE 4.09 → 3.66 m，降幅 10.5%；SR 73.6；SPL 64.5）。**但 nDTW 只有 67.4，低于 DualVLN 的 70.0**——论文自己点出：更高的成功率与终点精度并没有均匀地转化成轨迹保真度。
+
+**物体目标导航。** 不用深度也不用里程计，三个闭集设置的单目 SR 与 SPL 全部最优：MP3D SR 46.6 → 53.3、SPL 17.5 → 21.2；HM3D v1 SR 74.5 / SPL 43.9；HM3D v2 SR 79.5 / SPL 43.7。这套纯 RGB 策略甚至越过了列出的多视角系统——HM3D v1 上比带深度和里程计的 WMNav 高 16.4 SR、12.7 SPL，等于排除了"视野更宽或几何信息更特权"这个解释。开放词表的 HM3D-OVON 上模式一致，且**分布越偏增益越大**：seen +0.3 SR，synonyms +8.3，unseen +6.2；SPL 分别 +6.8 / +7.5 / +4.3。
+
+**具身视觉跟踪（EVT-Bench）。** STT 上 SR 91.7 / TR 87.7 / CR 1.87，DT 上 SR 82.6 / TR 80.1 / CR 4.62，单目设置下全面领先，DT 上比次优的 ReferTrack 还高 9.3 SR。
+
+**INSIGHT-Bench。** 在统一部署协议下（同样 1,097 episode、120° 前视 480×270 RGB、300 步预算），SR 27.4 → 43.7、SPL 24.0 → 41.5、NE 4.25 → 3.88 m，全部聚合指标最优。指令轴上最大增益出现在 Direction（29.7 → 57.7），而且**这是唯一一类 LightNav-0 超过自己 Base 分（45.1）的指令，6 个开源基线在加入第一人称方位词后分数一律低于各自的 Base**——这与它的路线条件化监督（模板里显式写出第一人称方位并在改写中保留）直接对应。最难的仍是 Extremum（37.2），因为选"最左 / 第二个"必须先检出多个候选再比较位置。场景轴上公寓最强（61.1），户外相对增益最大（16.7 → 34.2，翻倍），机构类最弱（29.2）。
+
+**消融。** 两个部件都被验证是必需的，而且**双通道 pointing 的贡献远大于 ER 初始化**：ER 初始化把 8 个设置的平均 SR 从 60.8 抬到 63.1、平均 SPL 从 39.0 抬到 40.0；而移除 pointing 监督后平均 SR 从 63.1 掉到 54.7、平均 SPL 从 40.0 掉到 34.3（约 3.7 倍于 ER 初始化的效果）。ER 初始化对 SR 的改善在 8 个设置上一致，但对 SPL 的改善小且不均匀，说明它主要改善语义与空间决策，路径效率更依赖下游导航对齐。
+
+<div align="center">
+  <img src="/images/vln/LightNav-0-scaling.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1450/601" />
+<figcaption>连续 VLN 上的模型、数据、环境三轴 scaling：backbone 从 2B 到 4B 提升明显，到 8B 则出现混合甚至下降；数据量单调增长但接近全量时收益递减；环境覆盖度是三条轴里最稳定的一条</figcaption>
+</div>
+
+**Scaling 的三条轴给出不同结论。** 模型轴：2B → 4B 在 R2R / RxR 上涨 6.6–9.6 分，但 4B → 8B 不再一致有益（R2R SR/SPL 反降 1.6/0.5，RxR SR 降 0.5，仅 RxR SPL 升 2.0）——4B 是这批 checkpoint 里性价比最优的。数据轴：1/16 → 全量涨 15.0–17.4 分，但 1/2 → 全量只再添 0.4–1.4 分，收益明显递减。环境轴：1/8 → 全量在 R2R 上涨 16.7/16.2、RxR 上涨 21.1/19.1，且每个中间档都在改善全部四项指标；在对齐的 1/8-到-全量区间上，环境扩展的增益超过数据扩展。**结论是扩环境多样性最可靠。**
+
+**零样本迁移。** 同一个 checkpoint 不做任何适配就迁到 Counter-Strike 1.6、VizDoom、Minecraft、Trigger Rally 四个游戏域，分别做指令跟随、目标跟踪和检查点驾驶——说明学到的 pointing-轨迹接口没有绑死在训练仿真器的外观统计或运动学上。
+
+<div align="center">
+  <img src="/images/vln/LightNav-0-game-zeroshot.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1443/605" />
+<figcaption>跨游戏域的零样本泛化：同一个 checkpoint 在 CS 1.6 与 VizDoom 中跟随语言指令、在 Minecraft 中跟踪移动目标、在 Trigger Rally 中做检查点驾驶；青色与品红色标记分别是预测的 affordance 点与 object 点</figcaption>
+</div>
+
+真机上同样零样本跨四种本体（人形 LightBot-0、四足 Unitree Go2、自研四旋翼、轮式 LIMX TRON 1）。最严苛的一项测试是跟踪：**训练数据里的跟踪目标只有人**，但模型能直接跟随从没见过的动态目标类别——人形机器人、轮式机器人、手推车——在视角、背景杂乱和光照变化下保持目标身份。
+
+<div align="center">
+  <img src="/images/vln/LightNav-0-real-world.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1446/1437" />
+<figcaption>真机零样本泛化：从上到下依次为泛化跟踪（含未见过的机器人与手推车目标）、室内指令跟随、户外指令跟随与物体搜索；每组同时给出机器人外部视角与策略实际使用的第一人称观测</figcaption>
+</div>
+
+---
+
+### 4. 局限性
+
+作者自陈两点。其一，模型只有**单一决策通路**，没有把高频局部控制和慢速语义思考分开——理想形态应是一个轻量反应式策略负责避障与频繁轨迹修正，配一个慢速 VLM 规划器负责长时程推理。其二，预训练仍限于精选的具身数据集，若能在互联网规模视频上做更强预训练，可望覆盖更罕见的场景、交互与运动模式。
+
+从实验本身还能读出两处未被作者列为局限的软肋：RxR 上的 nDTW（67.4）低于 DualVLN，说明成功率的提升没有同步转化为轨迹保真度；INSIGHT-Bench 的绝对成功率只有 43.7%，Extremum 类指令（37.2）和机构类场景（29.2）离可用还很远。
+
+---
+
+## 60. Uncertainty-Aware Gaussian Map for VLN (2026) {#uncertainty-aware-gaussian-map}
+———三类感知不确定性 × Semantic Gaussian Map，赋予 VLN 智能体可靠决策能力
+
+📄 **Paper**: [github.com/Gaozzzz/Uncertainty-Aware-VLN](https://github.com/Gaozzzz/Uncertainty-Aware-VLN)
+
+---
+
+### 精华
+
+- 将环境表征（3D Gaussian Map）与感知不确定性（几何/语义/外观）统一到同一空间，是比单纯 map-based 方法更稳健的设计范式。
+- 几何不确定性用变分推断建模位置/尺度扰动，语义不确定性用语义属性扰动揭示歧义解释，外观不确定性用 Fisher Information 衡量渲染敏感度——三条路径正交互补，可迁移到其他 3DGS 场景表征任务。
+- 用"3D Value Map"将不确定性从特征维度编码为可导航的 affordance / constraint，是将感知置信度转化为行动先验的优雅工程。
+- 训练时让 SGM 的渲染损失和导航损失联合优化，使场景表征与决策策略协同提升，避免了两阶段分离设计的 representation gap。
+- REVERIE RGS 提升 2.94%、R2R SR 提升 2% 的边际增益表明：当前 VLN 瓶颈已从"语言理解"转移到"感知可靠性"，不确定性建模是下一个值得深耕的方向。
+
+---
+
+### 1. 研究背景/问题
+
+VLN 要求智能体在 3D 环境中依据自然语言指令导航。现有智能体在推理时普遍忽略感知不确定性（如相似门洞的视觉歧义、遮挡导致的路径可通行性不确定），训练目标迫使模型对每个 step 输出确定动作，无法表达"不确定"。这在遮挡多、结构重复的场景中易造成错误停止或路径偏移。
+
+<div align="center">
+  <img src="/images/vln/UncertaintyGaussian-motivation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/493" />
+<figcaption>图1：动机示意。左：视觉相似结构（多扇门）导致智能体证据不足而停错位置；右：遮挡使路径可通行性模糊，智能体选择次优路径。本文智能体通过显式建模不确定性（亮色=高不确定性）避免上述错误。</figcaption>
+</div>
+
+---
+
+### 2. 主要方法/创新点
+
+**整体框架**：SGM 构建 → 不确定性估计 → 3D Value Map → 多层 Transformer 预测动作。
+
+<div align="center">
+  <img src="/images/vln/UncertaintyGaussian-pipeline.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1132/508" />
+<figcaption>图2：整体 Pipeline。每步从全景 RGB-D 观测构建 SGM，估计三类不确定性并嵌入形成 3D Value Map，再与语言指令拼接输入 MLT 预测动作。</figcaption>
+</div>
+
+**3.1 Semantic Gaussian Map (SGM)**
+
+每个导航点处，将多视角 RGB-D 观测反投影为稀疏伪激光点云，每个点初始化为一个可微 3D Gaussian primitive $$g_i$$，包含：均值 $$\boldsymbol{\mu}_i \in \mathbb{R}^3$$（位置）、协方差 $$\boldsymbol{\Sigma}_i$$（形状/尺度）、不透明度 $$\alpha_i$$、颜色球谐系数 $$c_i$$，以及语义属性 $$s_i$$（由 SAM2 分割区域 + CLIP 特征附加而来）。通过可微渲染优化使 SGM 与当前观测一致，并裁剪低尺度（$$\lVert e_i \rVert_2 < \tau_e$$）和低不透明度（$$\alpha_i < \tau_\alpha$$）的冗余 Gaussian。
+
+**3.2 不确定性估计（三类）**
+
+| 类型 | 建模方式 | 含义 |
+|---|---|---|
+| 几何不确定性 $$U^g$$ | 对位置/尺度施加变分扰动，最小化 ELBO，提取变分分布标准差 | 结构可靠性：Gaussian 是否在多种几何假设下保持稳定 |
+| 语义不确定性 $$U^s$$ | 对语义属性施加可学习偏移，同样 ELBO 优化 | 语义歧义程度：同一区域的语义解释有多不稳定 |
+| 外观不确定性 $$U^a$$ | 用 Fisher Information（渲染 Jacobian 的 log-determinant）近似 Hessian | 外观敏感性：纹理复杂/遮挡/光照变化是否导致渲染剧变 |
+
+$$U_i^g = \lVert \mathcal{F}^{\text{std}}(q_{\phi^\mu}(\chi_i^\mu)) \rVert_2 + \lVert \mathcal{F}^{\text{std}}(q_{\phi^e}(\chi_i^e)) \rVert_2$$
+
+$$U_i^a = \log \lvert \nabla_{\mathcal{G}} \hat{\mathcal{I}} \nabla_{\mathcal{G}} \hat{\mathcal{I}}^\top \rvert$$
+
+**3.3 3D Value Map 与动作预测**
+
+将 $$(U^g, U^s, U^a)$$ 附加到每个 Gaussian 的属性向量，扩展为 $$g_i \in \mathbb{R}^{20}$$。再通过非线性投影得到每个 Gaussian 的特征 $$F^{g_i} \in \mathbb{R}^{768}$$，聚合后与语言嵌入 $$X$$ 拼接，输入多层 Transformer $$\mathcal{F}^{\text{MLT}}$$ 预测候选 waypoint 的导航概率。
+
+<div align="center">
+  <img src="/images/vln/UncertaintyGaussian-uncertainty-vis.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1115/335" />
+<figcaption>图5：三类不确定性可视化。几何不确定性突出结构边界/不规则面，语义不确定性揭示对象级歧义区域，外观不确定性标记纹理复杂/遮挡/光照敏感区域。亮色=高不确定性。</figcaption>
+</div>
+
+---
+
+### 3. 核心结果/发现
+
+<div align="center">
+  <img src="/images/vln/UncertaintyGaussian-qualitative-r2r.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/475" />
+<figcaption>图3：R2R 定性对比。左：面对多扇相似窗户，VER 误判后提前停止，本文方法正确到达；右：VER 被桌子阻挡而停止，本文方法绕行成功完成指令。</figcaption>
+</div>
+
+- **R2R val unseen**：SR 78%（vs VER 76%，+2%），SPL 66%（vs 65%，+1%）
+- **RxR val unseen**：SR 65.2%（vs BEVBert 64.1%，+1.1%），nDTW 65.6%（vs 63.9%，+1.7%）
+- **REVERIE val unseen**：RGS 37.65%（vs BEVBert 34.71%，+2.94%），RGSPL 27.01%（vs 24.44%，+2.57%）——远程目标定位能力显著提升
+- 消融：SGM 单独带来结构理解增益（REVERIE RGS 32.15% → 35.48%），不确定性单独将 R2R SR 从 72.22% 提升至 74.20%，两者叠加达到最优 78.32%
+- 三类不确定性均有独立贡献，全部使用时最优，几何+语义的提升幅度大于外观
+
+---
+
+### 4. 局限性
+
+SGM 构建（尤其是 SAM2 语义抽取与不确定性估计）推理开销较大，训练阶段采用离线预计算缓解，但实时部署仍需轻量化替代（论文建议以轻量 SAM2 变体替换）；此外，框架在 Matterport3D 室内场景验证，对室外或动态环境的泛化性未知。
+
+---
+
+
+
+
+
+
+
+
+
 # 参考资料
 
 ## 已发表论文（会议 / 期刊）
@@ -7466,38 +7571,39 @@ graph TD
 32. **VLN-Cache** (2026).
 33. **SysNav** (2026).
 34. **R³: Run, Ruminate, and Regulate** (2026).
-35. **Uncertainty-Aware Gaussian Map for VLN** (2026).
-36. **GSMem** (2026).
-37. **AwareVLN** (2026).
-38. **Dual-Anchoring** (2026).
-39. **WAM-Nav** (2026).
-40. **JanusVLN** (2026).
-41. **HSGM** (2026).
-42. **OneVLA** (2026).
-43. **CA-VLN** (2026).
-44. **RynnBrain** (2026).
-45. **EvoMemNav** (2026).
-46. **OmniNav** (2026).
-47. **Qwen-RobotNav** (2026).
-48. **GA-VLN** (2026).
-49. **SEDualVLN** (2026).
-50. **Robostral Navigate** (2026).
-51. **LocalNav** (2026).
-52. **ABot-N1** (2026).
-53. **ReflectVLN** (2026).
-54. **TuckerNav** (2026).
-55. **AgenticNav** (2026).
-56. **MemVLN** (2026). 模拟人类双重记忆机制的高效连续环境视觉语言导航框架. arXiv: [2607.23504](https://arxiv.org/abs/2607.23504)
-57. **X-NavDP** (2026). 多构型机器人通用视觉导航的组内 Q 值重加权 Diffusion RL 强化学习微调框架. arXiv: [2607.28560](https://arxiv.org/abs/2607.28560). Code: [InternRobotics/NavDP](https://github.com/InternRobotics/NavDP)
-58. **Image2Sim** (2026). 解耦 3D 空间锚定与超真实图像合成的实时神经仿真引擎. arXiv: [2607.05765](https://arxiv.org/abs/2607.05765)
-59. **DecoVLN** (2026). Decoupling Observation, Reasoning, and Correction for Vision-and-Language Navigation. arXiv: [2603.13133](https://arxiv.org/abs/2603.13133)
-60. **TAMP-Nav** (2026). Point, Think, Memorize, and Align for Efficient Navigation. arXiv: [2608.17512](https://arxiv.org/abs/2608.17512)
+35. **AwareVLN** (2026).
+36. **Dual-Anchoring** (2026).
+37. **WAM-Nav** (2026).
+38. **JanusVLN** (2026).
+39. **HSGM** (2026).
+40. **OneVLA** (2026).
+41. **CA-VLN** (2026).
+42. **RynnBrain** (2026).
+43. **EvoMemNav** (2026).
+44. **OmniNav** (2026).
+45. **Qwen-RobotNav** (2026).
+46. **GA-VLN** (2026).
+47. **SEDualVLN** (2026).
+48. **Robostral Navigate** (2026).
+49. **LocalNav** (2026).
+50. **ABot-N1** (2026).
+51. **ReflectVLN** (2026).
+52. **TuckerNav** (2026).
+53. **AgenticNav** (2026).
+54. **MemVLN** (2026). 模拟人类双重记忆机制的高效连续环境视觉语言导航框架. arXiv: [2607.23504](https://arxiv.org/abs/2607.23504)
+55. **X-NavDP** (2026). 多构型机器人通用视觉导航的组内 Q 值重加权 Diffusion RL 强化学习微调框架. arXiv: [2607.28560](https://arxiv.org/abs/2607.28560). Code: [InternRobotics/NavDP](https://github.com/InternRobotics/NavDP)
+56. **Image2Sim** (2026). 解耦 3D 空间锚定与超真实图像合成的实时神经仿真引擎. arXiv: [2607.05765](https://arxiv.org/abs/2607.05765)
+57. **DecoVLN** (2026). Decoupling Observation, Reasoning, and Correction for Vision-and-Language Navigation. arXiv: [2603.13133](https://arxiv.org/abs/2603.13133)
+58. **TAMP-Nav** (2026). Point, Think, Memorize, and Align for Efficient Navigation. arXiv: [2608.17512](https://arxiv.org/abs/2608.17512)
+59. **LightNav-0** (2026). 把 VLM 已有的空间智能"引出来"，而不是给它外挂一个导航模块. arXiv: [2608.30935](https://arxiv.org/abs/2608.30935)
+60. **Uncertainty-Aware Gaussian Map for VLN** (2026).
 
 
 <script>
 (function () {
   var TAG_MAP = [
-    { m: 'DualVLN',          t: ['双系统', '扩散模型', '连续环境', '实机部署'] },
+    { m: 'DualVLN/InternVLN', t: ['双系统', '扩散模型', '连续环境', '实机部署'] },
+    { m: 'X-NavDP',               t: ['扩散模型', '强化学习', '连续环境', '实机部署'] },
     { m: 'NavDP',             t: ['端到端', '扩散模型', '连续环境', '零样本', '实机部署'] },
     { m: 'NoMaD',             t: ['端到端', '扩散模型', '零样本', '实机部署'] },
     { m: 'ODYSSEY',           t: ['Agentic', '实机部署'] },
@@ -7522,9 +7628,7 @@ graph TD
     { m: 'VLN-Cache',         t: ['加速优化'] },
     { m: 'SysNav',            t: ['Agentic', '拓扑图'] },
     { m: 'VLN-Imagine',       t: ['数据增强', '离散环境'] },
-    { m: 'Uncertainty-Aware', t: ['高斯表示', '拓扑图', '离散环境'] },
-    { m: 'GSMem',             t: ['Agentic', '高斯表示', '零样本'] },
-    { m: 'R³',                t: ['双系统', '加速优化', 'CoT'] },
+    { m: 'R³: Run, Ruminate, and Regulate', t: ['双系统', '加速优化', 'CoT'] },
         { m: 'LingBot-World',         t: ['世界模型', '扩散模型', 'Agentic', '加速优化'] },
         { m: 'AwareVLN',              t: ['端到端', '连续环境', '实机部署', '数据增强', 'CoT'] },
         { m: 'Dual-Anchoring',        t: ['端到端', '世界模型', '连续环境', '实机部署'] },
@@ -7552,13 +7656,14 @@ graph TD
         { m: 'DUET',                  t: ['拓扑图', '端到端', '离散环境'] },
         { m: 'NaVid',                 t: ['端到端', '连续环境', '实机部署', '零样本'] },
         { m: 'MemVLN',                t: ['端到端', '连续环境', '加速优化'] },
-        { m: 'X-NavDP',               t: ['扩散模型', '强化学习', '连续环境', '实机部署'] },
         { m: 'Image2Sim',             t: ['世界模型', '数据增强', '高斯表示', '连续环境', '实机部署', '零样本'] },
         { m: 'DecoVLN',               t: ['端到端', '连续环境', '实机部署', '加速优化', '纠错'] },
         { m: 'TAMP-Nav',              t: ['CoT', '强化学习', '连续环境', '实机部署'] },
+        { m: 'LightNav-0',            t: ['端到端', '连续环境', '实机部署', '强化学习', '零样本', 'CoT'] },
     { m: 'VLN-CE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'VLN-PE',            t: ['数据集', '连续环境', '基础工作'] },
     { m: 'RynnBrain',         t: ['基础工作'] },
+    { m: 'Uncertainty-Aware Gaussian Map for VLN', t: ['高斯表示', '拓扑图', '离散环境'] },
   ];
 
   // 另一篇文章的论文清单。两篇的 .paper-section 各自只在本页存在，
@@ -7581,6 +7686,7 @@ graph TD
     { n: '13. CONDVLN (2026)', a: 'condvln', t: ['数据集', '连续环境', '拓扑图'] },
     { n: '14. ReMEmbR (2024)', a: 'remembr', t: ['Agentic', '实机部署', '数据集', '连续环境'] },
     { n: '15. SuperMap (2026)', a: 'supermap', t: ['SLAM', '拓扑图', '零样本', '实机部署', 'Agentic'] },
+    { n: '16. GSMem (2026)', a: 'gsmem', t: ['Agentic', '高斯表示', '零样本'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',
