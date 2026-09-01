@@ -843,75 +843,372 @@ Agent 通过**显式工具调用**（`append_to_memory`、`search_memory`）自�
 
 # 6. 技能系统（Skill）
 
-如果说记忆让 Agent「记住经历」，技能（Skill）则让 Agent「固化能力」——将成功完成过的任务封装为可复用的能力单元，供未来调用，实现真正的持续学习与能力积累。
+如果说记忆让 Agent「记住经历」，技能（Skill）则让 Agent「固化能力」——将成功完成过的任务、行业专属业务逻辑与高阶操作规程封装为可复用的能力单元，实现真正的持续学习与能力积累。
 
-## 6.1 什么是技能？
+2025–2026 年，随着 **Anthropic SKILL.md 规范** 的确立、**agentskills.io** 开放标准的推广、以及 **OpenClaw ClawHub**（收录 13,700+ 社区技能）的爆发，技能系统已从最初学术界的单点探索演化为工业级 AI Agent 架构的标准基础设施，并在 2026 年诞生了专门的技能能力评测基准 **SkillsBench**（arXiv:2602.12670）与技能生命周期演化方法论（arXiv:2606.02705）。
 
-技能是**封装了特定任务执行逻辑的可复用能力单元**，核心特征：
+---
 
-- **可调用**：接受输入参数，产生确定性输出
-- **可组合**：复杂技能由简单技能组合而来
-- **可检索**：通过语义相似度从技能库中找到最匹配的技能
-- **可进化**：失败时可修订，成功时可扩充
+## 6.1 什么是技能？从原子工具到业务规程
 
-## 6.2 技能的四种获取方式
+长期以来，开发者容易混淆 Prompt、Tool、Skill 与 Subagent 的边界。在现代 Agent 架构中，技能（Skill）本质上是**过程性知识（Procedural Knowledge）与确定性执行资源的模块化封装包**：
+
+| 概念 | 抽象层级 | 关注核心 | 上下文消耗特征 | 典型示例 |
+|:---|:---|:---|:---|:---|
+| **Prompt** | 单次交互 | “如何措辞引导模型推理” | 直接占用当前窗口 | Few-shot 示例、角色设定、CoT 引导语 |
+| **Tool / MCP** | 原子能力层 | “能做什么”：提供与外部环境交互的基础接口 | Tool Schema 常驻或动态注入 | `read_file`、`execute_bash`、`sql_query` |
+| **Skill** | 业务规程层 | “按什么 SOP 与标准做”：复合业务规程、工作流、配套脚本与模板 | **三层渐进式披露**（零初始开销） | `docx-editor`、`vln-paper-insert`、`code-reviewer` |
+| **Subagent** | 执行主体层 | “谁在独立环境里执行”：运行时派生的隔离智能体 | 专属独立上下文窗口 | 代码重构 Worker、论文调研 Researcher |
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '13px'}}}%%
 flowchart LR
-    subgraph ACQ["技能习得路径"]
-        E["🔁 经验提取\n从成功执行中蒸馏\nVoyager / ExpeL"]
-        H["✍️ 人工编写\n开发者直接定义\nOpenClaw SKILL.md"]
-        S["🤖 自动合成\nLLM 按需生成并验证\nCodex Skills"]
-        T["📚 迁移学习\n从预训练模型中蒸馏\nRobot Foundation Models"]
+    subgraph AGENT ["🤖 AI Agent 运行时"]
+        THK["🧠 LLM 推理核心\n(规划与决策)"]
     end
 
-    ACQ --> LIB["📦 技能库\n（Skill Library）"]
-    LIB -->|"语义检索"| USE["⚡ 任务执行"]
-    USE -->|"成功 → 写入"| LIB
+    subgraph SKILL_PKG ["📦 技能包 (Skill Package)"]
+        direction TB
+        SOP["📋 SOP 业务工作流\n(SKILL.md)"]
+        SCR["⚙️ 确定性脚本\n(scripts/)"]
+        REF["📚 领域知识库\n(references/)"]
+        AST["🎨 模板资产\n(assets/)"]
+    end
+
+    subgraph INFRA ["🛠️ 基础设施与环境"]
+        TOOLS["🔌 原子工具 / MCP 协议\n(Bash / File / Web / API)"]
+        ENV["🌐 真实运行环境\n(操作系统 / 代码仓库 / 数据库)"]
+    end
+
+    THK -->|"命中语义触发器"| SOP
+    SOP -->|"编排调用"| SCR
+    SOP -->|"按需查阅"| REF
+    SOP -->|"填充生成"| AST
+    SCR & SOP -->|"通过工具执行"| TOOLS
+    TOOLS -->|"产生副作用"| ENV
 ```
 
-## 6.3 技能库架构（Voyager 范式）
+> **核心价值**：普通 LLM 拥有通识与代码编写能力，但在面临特定业务（如“按照公司合规规范合并代码”、“按照特定排版生成会议纪要”）时，若每次都让 LLM 从头编写脚本或反复提示格式，不仅消耗海量 tokens，而且极易出现“幻觉漂移”与非确定性报错。**技能系统将经验沉淀为结构化代码与文件资产，把 Agent 从不稳定、易遗忘的“通才打工人”，装备成精准可信的“领域专家”。**
 
-**Voyager**（NVIDIA，2023）建立了 LLM Agent 技能库的标准范式：
+---
 
-1. **技能生成**：LLM 为每个子目标生成可执行的 JavaScript 代码
-2. **技能验证**：在环境中实际运行，通过则写入技能库
-3. **技能向量化**：用 LLM 为技能生成文档嵌入，存入向量数据库
-4. **技能检索**：新任务到来时，用任务描述检索 Top-K 最相关技能作为上下文示例
+## 6.2 标准技能文件结构规范（agentskills.io / SKILL.md）
 
-这一「生成→验证→向量化→检索」循环使 Voyager 在 Minecraft 中掌握的技能数量随游戏时间**指数增长**，相比无技能库的基线，探索效率提升 3.3×，解锁科技树进度提升 15.3×。
+2025 年底至 2026 年，以 Anthropic Claude Code、OpenAI Codex、Google Antigravity 与 OpenClaw 为代表的生态共同推动了统一的技能组织标准（`agentskills.io` 规范）。一个标准的技能包以独立目录组织，文件结构如下：
 
-## 6.4 从代码技能到自然语言技能
-
-Voyager 的技能以**可执行代码**形式存储，适合程序性强的任务。更广泛的 Agent 场景中，技能以**自然语言描述**形式定义（如 OpenClaw 的 SKILL.md）：
-
-```markdown
-# 技能：发送每日简报
-触发条件：用户提到"早报"、"日报"或"新闻摘要"
-工具调用：
-  1. web_search("今日科技新闻 top 5")
-  2. web_search("今日 A 股行情")
-  3. llm_summarize(results, style="简洁要点")
-  4. send_message(summary, channel="telegram")
-输出格式：Markdown 要点列表，不超过 300 字
+```text
+skill-name/                          # 技能根目录（必须与 SKILL.md 中的 name 严格一致）
+├── SKILL.md                         # 【必须】技能核心入口：YAML 元数据声明 + Markdown SOP
+├── scripts/                         # 【可选】可执行代码库（Python / Bash / Node.js 等）
+│   ├── process_data.py              # 高性能数据转换 / 矩阵运算 / 格式解析
+│   ├── lint_checker.sh              # 确定性格式化与静态检查脚本
+│   └── test_runner.py               # 自动化回归与质量断言脚本
+├── references/                      # 【可选】深度参考文档与领域知识（按需载入）
+│   ├── api_schema.json              # 接口参数协议与定义
+│   ├── company_policy.md            # 业务规范与合规红线
+│   └── error_codes.md               # 常见异常与排查故障树
+├── assets/                          # 【可选】产物模板与静态资源（不加载进上下文）
+│   ├── report_template.docx         # 预置 Word / PPT / Excel 模版
+│   ├── company_logo.png             # 品牌设计资源
+│   └── react_boilerplate/           # 前端样板脚手架代码
+└── examples/                        # 【可选】端到端运行示例
+    ├── sample_input.json            # 标杆输入数据
+    └── expected_output.md           # 标杆交付成果
 ```
 
-这种声明式技能定义使非技术用户也能通过编写 Markdown 文件扩展 Agent 能力，ClawHub 技能市场已收录 **13,700+ 社区技能**。
+### 文件角色与设计哲学
 
-## 6.5 技能与记忆的协作
+1. **`SKILL.md`（核心神经中枢）**：
+   - 顶部由 **YAML Frontmatter** 构成，包含 `name`（技能唯一标识）与 `description`（语义触发器，模型判断何时激活的关键依据）；
+   - 主体为精炼的 Markdown 操作说明，主要负责**任务分解、工具路由与条件分支决策**，推荐字数控制在 500 行以内以避免上下文臃肿。
+2. **`scripts/`（确定性力量倍增器）**：
+   - 存放高频、复杂或容易出错的确定性逻辑代码（如处理大型 PDF、旋转图片、提取 Excel 表格、执行 Git 子模块更新）；
+   - **执行模式**：Agent 可以在终端或代码沙箱中直接通过命令行（如 `python scripts/process_data.py --input raw.csv`）调用执行，**完全无需将几百行脚本代码读入上下文窗口**，既节省 token，又保证 100% 确定性。
+3. **`references/`（按需知识外挂）**：
+   - 避免将动辄数万字的领域文档、法规条文或 API 字典塞入 `SKILL.md`。仅在 Agent 执行过程中遇到特定子分支时，引导其通过读取工具（如 `view_file` 或 `grep`）定向查阅。
+4. **`assets/`（输出专用资产）**：
+   - 专供 Agent 在生成交付物时进行文件复制、模板填充或静态嵌入（如套用幻灯片母版、套用样式模板），不参与 LLM 认知推理过程。
 
-技能系统与记忆机制深度协作：记忆提供**情境感知**（"上次用户喜欢简洁风格"），技能提供**执行能力**（"如何生成报告"）——Agent 调用技能时，先从语义记忆中检索用户偏好，再用程序记忆中固化的执行逻辑完成任务。
+---
+
+## 6.3 渐进式披露机制（Progressive Disclosure Principle）
+
+上下文窗口是 Agent 系统的核心公共资源。若系统将数十个甚至上百个技能的全部实现细节、脚本代码与参考文档一次性加载到模型窗口中，不仅会瞬间耗尽上下文预算，还会造成严重的**上下文干扰（Context Distraction）**，导致模型推理能力大幅下降。
+
+现代技能系统采用**三层渐进式披露机制**（Progressive Disclosure），将 token 消耗控制到极致：
 
 ```mermaid
-flowchart LR
-    TASK["新任务"] --> MEM["📚 语义记忆\n检索用户偏好\n历史上下文"]
-    TASK --> SKILL["📦 技能库\n语义检索\n最相关技能"]
-    MEM & SKILL --> EXEC["⚡ 执行\n（技能 + 上下文）"]
-    EXEC -->|"成功"| WRITE["写入技能库 + 情节记忆"]
-    EXEC -->|"失败"| FIX["修订技能\n写入反思记忆"]
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '13px'}}}%%
+flowchart TD
+    subgraph L1 ["第一层：常驻元数据 (Level 1: Metadata)"]
+        M1["name: pdf-processor\ndescription: 提取 PDF 复杂表格、合并多页并修复扫描件..."]
+        COST1["🪙 极低消耗：~50–100 tokens（伴随每次对话）"]
+    end
+
+    subgraph L2 ["第二层：激活规程正文 (Level 2: SKILL.md Body)"]
+        M2["📋 工作流 SOP + 参数规范 + 工具路由决策\n(仅在用户意图命中 description 时动态注入)"]
+        COST2["🪙 适度消耗：<500 行 / ~1,000–3,000 tokens"]
+    end
+
+    subgraph L3 ["第三层：外挂捆绑资源 (Level 3: Bundled Resources)"]
+        direction LR
+        S_SCR["⚙️ scripts/\n终端静默执行\n0 Token 读入"]
+        S_REF["📚 references/\n工具定向查阅\n按需切片注入"]
+        S_AST["🎨 assets/\n文件系统直接操作\n完全零消耗"]
+        COST3["🪙 零/按需消耗：理论无限扩展资源容量"]
+    end
+
+    L1 -->|"用户触发相关任务"| L2
+    L2 -->|"任务需要确定性计算"| S_SCR
+    L2 -->|"任务需要查询专业规范"| S_REF
+    L2 -->|"任务需要生成样式成果"| S_AST
 ```
 
-*代表性工作*：Voyager（Wang et al., NVIDIA, 2023）、Generative Agents（Park et al., Stanford, 2023）、ExpeL（Zhao et al., 2024）
+- **Level 1（元数据层）**：系统启动或对话开始时，仅提取所有已安装技能的 YAML 前置元数据（名称与描述），汇总为简短的技能索引清单装入 System Prompt。未被调用的技能不会对上下文造成任何额外负担；
+- **Level 2（指令规程层）**：当用户提出的任务意图语义匹配某项技能的 `description` 时，宿主系统自动将该技能的 `SKILL.md` 正文动态装载入工作上下文，使 Agent 获得该领域的全套标准作业程序（SOP）；
+- **Level 3（捆绑资源层）**：执行规程期间，Agent 自主决定是否调用 `scripts/`（通过命令行执行，无需读取脚本源码）或检索 `references/`（通过 grep/view 定向读取特定片段），打破了“技能功能越强、消耗 token 越多”的传统瓶颈。
+
+---
+
+## 6.4 生产级技能实战：以科研论文自动化分析为例
+
+为直观呈现现代 Agent 技能包的组织方式，以下展示一个真实的自动化论文处理技能（`paper-analyzer`）的目录结构与核心实现。
+
+### 目录结构
+
+```text
+paper-analyzer/
+├── SKILL.md
+├── scripts/
+│   ├── extract_tables.py        # 基于 pdfplumber 的确定性表格坐标与文字提取
+│   └── compress_pdf.py          # Ghostscript 确定性 PDF 压缩
+├── references/
+│   ├── taxonomy.md              # 计算机视觉与具身智能领域细分分类法
+│   └── output_schema.json       # 规范化 JSON 摘要数据结构
+└── assets/
+    └── summary_card_template.html# 用于渲染小红书/推特卡片的 HTML 模板
+```
+
+### 核心规程：`SKILL.md`
+
+````markdown
+---
+name: paper-analyzer
+description: 专门用于 arXiv 论文 PDF 的深度解析与结构化总结。当用户提供 PDF 文件路径或 arXiv 链接、要求“提取论文表格”、“总结这篇论文核心贡献”或“生成论文快讯卡片”时自动激活。
+license: MIT
+compatibility: python3, ghostscript
+---
+
+# 论文深度分析规程 (Paper Analyzer SOP)
+
+你将以领域顶级审稿人的标准处理用户提供的科研论文。请严格遵循以下步骤：
+
+## 步骤 1：预处理与体量检测
+如果输入的 PDF 文件超过 15MB，不要直接进行多模态 OCR，避免超出 API 限制。请直接在终端调用压缩脚本：
+```bash
+python scripts/compress_pdf.py --input "path/to/paper.pdf" --dpi 150
+```
+
+## 步骤 2：核心表格与实验数据精准抽取
+不要试图让 LLM 猜测复杂的跨页对比表格数值。请运行确定性抽取脚本：
+```bash
+python scripts/extract_tables.py --input "path/to/paper.pdf" --pages "7,8" --format markdown
+```
+解析脚本返回的标准 Markdown 表格将作为事实依据（Ground Truth）。
+
+## 步骤 3：分类体系对齐与结构化总结
+在起草总结前，请根据分类标准核对领域标签：
+- 查阅 [分类体系索引](references/taxonomy.md) 确定一二级研究方向
+- 严格遵循 [输出格式约束](references/output_schema.json) 输出：
+  1. **核心痛点 (Pain Point)**：前人工作为何失效？
+  2. **核心方法 (Key Method)**：引入了什么新机制？
+  3. **量化结论 (Quantitative Results)**：主实验提升百分比（引用抽取出的表格数据）
+
+## 步骤 4：生成卡片预览
+如果用户要求生成“可视化摘要”或“社交平台快讯”，请读取 `assets/summary_card_template.html`，将上述提炼结果填入对应占位符并保存至工作区。
+````
+
+### 确定性支撑脚本：`scripts/extract_tables.py`
+
+```python
+#!/usr/bin/env python3
+"""
+表格提取确定性脚本：通过 pdfplumber 解析精确表格，避免大模型幻觉与数值错误。
+调用方式：python scripts/extract_tables.py --input <pdf_path> --pages <page_numbers> --format <markdown|json>
+"""
+import argparse
+import json
+import sys
+import pdfplumber
+
+def extract_tables_from_pages(pdf_path: str, pages_str: str, fmt: str):
+    target_pages = [int(p.strip()) for p in pages_str.split(",") if p.strip().isdigit()]
+    extracted = []
+    
+    with pdfplumber.open(pdf_path) as pdf:
+        for p_num in target_pages:
+            if p_num < 1 or p_num > len(pdf.pages):
+                continue
+            page = pdf.pages[p_num - 1]
+            tables = page.extract_tables()
+            for t_idx, table in enumerate(tables):
+                clean_table = [[cell.replace('\n', ' ') if cell else "" for cell in row] for row in table]
+                extracted.append({"page": p_num, "table_id": t_idx + 1, "data": clean_table})
+                
+    if fmt == "json":
+        print(json.dumps(extracted, ensure_ascii=False, indent=2))
+    else:
+        # 输出为干净的 Markdown 格式，便于 Agent 直接注入回答
+        for item in extracted:
+            print(f"\n#### Page {item['page']} Table {item['table_id']}\n")
+            if not item['data']:
+                continue
+            headers = item['data'][0]
+            print("| " + " | ".join(headers) + " |")
+            print("| " + " | ".join(["---"] * len(headers)) + " |")
+            for row in item['data'][1:]:
+                print("| " + " | ".join(row) + " |")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Deterministic table extractor")
+    parser.add_argument("--input", required=True, help="Path to PDF")
+    parser.add_argument("--pages", required=True, help="Target pages (e.g. 7,8)")
+    parser.add_argument("--format", default="markdown", choices=["markdown", "json"])
+    args = parser.parse_args()
+    extract_tables_from_pages(args.input, args.pages, args.format)
+```
+
+> **技术启示**：通过将“表格边界检测与文字坐标提取”交由专用的 `pdfplumber` 脚本处理，Agent 无需消耗上万 token 去看整页模糊的图片，也无需在终端解释器中反复临时编写调试脚本，以最极简的命令即可获取完全准确的结构化 Markdown 数据。
+
+---
+
+## 6.5 自由度设计框架（Degrees of Freedom Framework）
+
+在编写技能时，不同任务的容错率与边界差异极大。业界提出了**自由度权衡设计框架（Degrees of Freedom）**，指导开发者根据任务属性决定技能的实现形式：
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '13px'}}}%%
+flowchart LR
+    subgraph HF ["🕊️ 高自由度 (High Freedom)"]
+        direction TB
+        HF_T["纯文本指导 / 启发式原则"]
+        HF_U["适用：架构方案设计、文案润色、头脑风暴"]
+    end
+
+    subgraph MF ["⚖️ 中自由度 (Medium Freedom)"]
+        direction TB
+        MF_T["伪代码逻辑 / 参数化脚本模版"]
+        MF_U["适用：代码重构、测试用例编写、数据清洗"]
+    end
+
+    subgraph LF ["🔒 低自由度 (Low Freedom)"]
+        direction TB
+        LF_T["严格确定性脚本 / 强类型断言验证"]
+        LF_U["适用：生产部署打包、财务核算、硬件闭环控制"]
+    end
+
+    HF -->|"容错要求提高 / 规则固化"| MF
+    MF -->|"零容忍错误 / 流程高度标准化"| LF
+```
+
+- **高自由度（High Freedom）**：仅提供自然语言指导原则、评审标准与经验法则（Heuristics）。当解空间巨大、没有唯一标准答案、强依赖上下文语境时（如系统设计、技术选型方案），给予模型充分的推理空间；
+- **中自由度（Medium Freedom）**：提供执行骨架、参数化脚本模版与推荐最佳实践。Agent 在固定工作流管道中根据任务细节填补实现细节（如编写单测、API 重构）；
+- **低自由度（Low Freedom）**：将操作完全固化为不可跳步的确定性脚本与强约束断言（Assertion）。如果某一步骤容易因为偶发幻觉引发严重事故（如删除未提交的 Git 分支、跨云环境部署发布），必须通过低自由度脚本与安全护栏直接接管。
+
+---
+
+## 6.6 技能的获取、合成与生命周期（Lifecycle & Evolution）
+
+技能库不是静态的代码库，而是智能体自主进化的有机系统。学术界与工业界形成了以下四大技能获取与演变范式（参考《Agent Skill Evaluation and Evolution》, arXiv:2606.02705）：
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '13px'}}}%%
+flowchart TB
+    subgraph ACQUISITION ["1. 技能习得途径 (Skill Acquisition)"]
+        H1["✍️ 人工专家编写\n(SOP 知识工程)"]
+        H2["🔁 成功轨迹蒸馏\n(Voyager / ExpeL)"]
+        H3["🤖 自动探索合成\n(CRAFT / AdaPlanner)"]
+    end
+
+    subgraph EVOLUTION ["2. 技能生命周期演进 (Skill Evolution)"]
+        E1["⚡ 执行反馈循环\n(Execution Feedback)"]
+        E2["✂️ 冗余压缩与泛化\n(Skill Compression)"]
+        E3["🎯 强化学习对齐\n(Skill-RL)"]
+    end
+
+    subgraph EVALUATION ["3. 评测与治理 (Evaluation & Governance)"]
+        V1["📊 SkillsBench 基准测试"]
+        V2["🛡️ 恶意注入与安全沙箱防护"]
+    end
+
+    ACQUISITION --> EVOLUTION
+    EVOLUTION --> EVALUATION
+    EVALUATION -->|"技能退化/报错 → 反馈修订"| EVOLUTION
+```
+
+1. **经典经验蒸馏（Voyager 范式）**：
+   - **生成**：Agent 为当前子目标编写代码函数并执行；
+   - **验证**：通过环境反馈与单元测试断言检验成功性；
+   - **入库**：生成语义 Docstring 与向量嵌入，持久化存入技能库；
+   - **检索复用**：新任务到来时，通过语义相似度提取 Top-$K$ 技能注入上下文，探索速度提升 3.3×。
+2. **执行反馈驱动修订（Execution Feedback Loop）**：
+   - 当现有技能在新的运行环境下失败时（如依赖版本冲突、返回格式变化），Harness 捕获堆栈报错并反馈给规划模块，动态打上修订补丁（Patching），就地更新 `SKILL.md` 或修改 `scripts/` 代码。
+3. **轨迹蒸馏与技能压缩（Trajectory Distillation & Compression）**：
+   - 早期通过自主探索生成的技能往往充斥冗长推理轨迹与重复尝试。通过类似 ExpeL（Zhao et al., 2024）的提炼算法，剔除无效探索分支，抽取抽象可执行骨干代码，降低后续调用时的 token 消耗达 60% 以上。
+4. **技能强化学习（Skill-RL）**：
+   - 2025–2026 年的前沿方向是将技能的选择与组合建模为层级强化学习（Hierarchical RL）的策略网络，通过任务奖励信号直接微调技能调度器，使复杂长程任务的调度成功率达到工业生产标准。
+
+---
+
+## 6.7 技能发现、层级优先级与生态市场
+
+为了让开发者、团队与企业能够无缝共享和覆盖技能，主流系统普遍建立了**三级优先级发现机制（Loading & Priority Hierarchy）**：
+
+```
+优先级顺序：工作区局部配置 > 用户全局配置 > 系统平台内置
+```
+
+1. **工作区级技能（Workspace Level，最高优先级）**：
+   - 存放在项目根目录下的 `./.skills/`、`./.claude/skills/` 或 `./.gemini/skills/`；
+   - 针对当前代码仓库定制（如特定项目的部署脚本、私有框架规范），允许覆盖同名全局技能；
+2. **用户全局级技能（User Global Level）**：
+   - 存放在用户主目录（如 `~/.config/skills/` 或 `~/.gemini/config/skills/`）；
+   - 属于开发者个人的常用工具箱（如个人习惯的代码审查风格、多语言翻译脚本），在任意工程中均可全局唤起；
+3. **系统/平台级技能（System Built-in Level）**：
+   - 随 Agent 平台附带的官方基础技能包，提供通用的开箱即用能力。
+
+### 技能市场与打包分发生态
+
+2026 年，技能生态形成了类似 npm / Docker Hub 的分发市场体系：
+- **ClawHub**（OpenClaw 官方市场）：拥有超过 13,700+ 社区开源技能，涵盖办公自动化、智能家居控制、金融量化交易与多模态创作；
+- **`.skill` 打包格式**：将包含 `SKILL.md`、`scripts/`、`references/` 与 `assets/` 的完整目录压缩校验，配合签名机制与元数据哈希，实现跨平台（Claude Code、Codex、OpenClaw、Antigravity）一键导入分发。
+
+---
+
+## 6.8 技能评测基准与安全治理（SkillsBench & Security）
+
+随着技能系统成为复杂 Agent 系统的标配，学术界与工业界在 2026 年正式建立了首批技能专业评测标准与安全防御框架：
+
+### 专门基准：SkillsBench (arXiv:2602.12670, 2026)
+
+以往的 Agent 评测基准（如 SWE-bench、OSWorld）主要测量模型的裸机端到端表现，无法量化“技能”本身的增益。**SkillsBench** 填补了这一空白：
+- **成对评估（Paired Evaluation）**：跨 8 个垂直领域、87 项复杂长程任务，严格对比 Agent 在「裸模型配置」与「挂载 Curated Skills」下的任务完成率；
+- **核心实验发现**：
+  - 挂载优质技能后，中等参数规模模型（如 Sonnet / 32B 开源模型）在复杂领域的任务成功率可跃升 **40%–70%**，逼近甚至超越高阶闭源旗舰模型的裸机水平；
+  - 任务解决轨迹中的平均 Token 消耗与反复重试轮次降低了 **45% 以上**；
+  - **轨迹评估（Trajectory Evaluation）优于结果评估**：SkillsBench 引入确定性验证器，确保模型是通过规范执行技能 SOP 达成目标，而非依赖偶然搜索或硬编码作弊。
+
+### 核心安全治理挑战
+
+技能包具备强大的脚本执行与系统交互能力，这使其成为极具隐蔽性的新型攻击向量：
+
+| 攻击威胁 | 攻击机制 | 防御手段 |
+|:---|:---|:---|
+| **恶意技能注入 (Malicious Skill Injection)** | 在 `SKILL.md` 中暗藏提示注入（Prompt Injection），诱导模型泄露工作区凭证或越权访问 | 严格的静态元数据扫描、Prompt 隔离沙箱与指令纯度审计 |
+| **脚本未受控执行 (Unsandboxed Scripts Execution)** | 第三方技能的 `scripts/` 中包含未经验证的系统调用（如恶意的 `rm -rf`、反向 Shell 连接） | 必须在只读 Worktree / Docker 隔离沙箱中执行脚本，限制网络与敏感端口 |
+| **技能漂移与依赖污染 (Skill Drift & Dependency Poisoning)** | 外部 API 或 Python 库更新导致技能脚本失效，或第三方恶意篡改公共技能库 | 引入 `.skill` 完整性哈希校验、锁死依赖版本（Lockfiles）与 CI 自动化回归测试 |
+
+*代表性工作*：Voyager（Wang et al., NVIDIA, 2023）、ExpeL（Zhao et al., 2024）、SkillsBench（arXiv:2602.12670, 2026）、Agent Skill Evaluation and Evolution（arXiv:2606.02705, 2026）、agentskills.io Specification（2025–2026）
 
 ---
 
