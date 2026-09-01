@@ -246,7 +246,7 @@ flowchart TD
 <div align="center">
   <img src="/images/wm/World_Planner.webp" width="80%" />
 <figcaption>图：InternVLA·N1 的端到端双系统架构：前向动力学规划器提供未来潜特征引导策略执行。（图源：Intern Robotics）</figcaption>
-</div> 
+</div>
 
 **定义**：该范式采用世界模型 $$\mathcal{W}_\phi$$ 作为前向动力学模型，以显式未来观测帧 $$\hat{o}_{t+1}$$ 或隐式潜特征 $$z_{t+1}$$ 的形式合成前瞻引导信号，为下游策略 $$\pi_\theta$$ 提供强语义与物理条件：
 
@@ -463,7 +463,7 @@ flowchart TB
 
 ---
 
-# 4. Cosmos：物理AI世界基础模型平台 
+# 4. Cosmos：物理 AI 世界基础模型平台
 ———World Simulation with Video Foundation Models for Physical AI
 
 📄 **Cosmos-Predict1 (2025)**: [arxiv.org/abs/2501.03575](https://arxiv.org/abs/2501.03575)  
@@ -851,26 +851,26 @@ Cosmos 3 是本文叙事的一个**收敛点**。GENE-26.5（§3.1）已展示"�
 
 | 论文 / 模型 | 年份 | 所属技术范式 | 核心技术机制 | 关键性能 / 评测表现 | 跳转锚点 |
 |:---|:---:|:---|:---|:---|:---:|
-| **Lyra 2.0** | 2026 | 世界模拟器 / 空间智能 | 几何记忆解耦 + 空间记忆检索路由 + 自增强去漂移 | 长时程 3DGS 场景一致性重建，回看零伪影 | [查看详情](#5-1-lyra) |
-| **Genie** | 2024 | 世界合成器 / 基础环境生成 | 潜在动作模型 (LAM) + 11B 自回归动力学模型 | 2D 平台游戏单图/文本可控交互式生成 | [查看详情](#5-2-genie) |
-| **VLA-World** | 2026 | 世界规划器 / 端到端自动驾驶 | 单帧未来生成 + 反思推理（Think with Generated future）+ GRPO | nuScenes 碰撞率 1.09% → 0.94%，FID 更优 | [查看详情](#5-3-vla-world) |
-| **WorldVLA** | 2025 | 世界动作模型 (WAM) | 统一自回归骨干 + 因果注意力掩码 + 视频预测预训练 | LIBERO Avg 81.8%，多视角时空一致生成 | [查看详情](#5-4-worldvla) |
-| **WoVR** | 2026 | 世界模拟器 (RL) | 梦境内部强化学习 + 关键帧初始化 (KIR) + 策略协同演化 (PACE) | 纯虚实结合策略学习，大幅消除物理幻觉漂移 | [查看详情](#5-5-wovr) |
-| **Janus-Pro** | 2025 | 多模态统一骨干 | 理解与生成解耦表征 + 纯自回归 Transformer | MMBench / GenEval 多模态理解与高质量图像生成 | [查看详情](#5-6-janus-pro) |
-| **VideoGen Survey** | 2026 | 机器人视频生成体系 | 视频生成在具身控制中的应用分类体系与评测全景 | 系统梳理数据、模型架构与下游策略评测基准 | [查看详情](#5-7-videogen) |
-| **AIM** | 2026 | 世界动作模型 (WAM) | 空间价值图 (ASVM) + 意图因果注意力 + 价值自蒸馏 RL | RoboTwin 2.0 Avg SR 93.1% (SOTA) | [查看详情](#5-8-aim) |
-| **LingBot-World** | 2026 | 世界模拟器 / 交互生成 | 开源实时交互 + 分层语义数据引擎 + 60s 长程记忆 | 16 fps 实时推演（亚秒级延迟），60s 场景重访结构高度一致 | [查看详情](#5-9-lingbot-world) |
-| **Marble (World Labs)** | 2025/2026 | 大型世界模型 (LWM) / 空间智能 | 3DGS 空间持久宇宙 + Chisel 结构解耦 + World API | Forbes AI 50，单图/文本生成无限可探索 3D 世界 | [查看详情](#5-10-marble) |
-| **SANA-WM** | 2026 | 世界模拟器 / 高效分钟级生成 | 混合线性 GDN/Softmax + 双分支相机控制 (UCPE+Plücker) + 两阶段精化 | VBench Overall 80.62/81.89；RTX 5090 上 34s 生成 60s 720p | [查看详情](#5-11-sana-wm) |
-| **Qwen-RobotWorld** | 2026 | 基础世界模型 / 空间智能 | 双流 MMDiT + 空间-物理-时序三位一体训练 + 跨本体接地 | EWMBench 4.60 (#1)，WorldModelBench 8.99 | [查看详情](#5-12-qwen-robotworld) |
-| **Wan2.1** | 2025 | 视频扩散基础模型 | Spatio-Temporal VAE (4x8x8) + AdaLN 共享 + VACE 框架 | 开源 T2V/I2V 基础底座，消费级 4090 可跑 | [查看详情](#5-13-wan) |
-| **Motus** | 2025/2026 | 世界动作模型 (WAM) | MoT 三专家解耦 FFN + 光流潜动作 VAE + 六层数据金字塔 | RoboTwin 2.0 Avg 87.8%，单步 80ms 极速闭环 | [查看详情](#5-14-motus) |
-| **NavWAM & WAM-Nav** | 2026 | 世界动作模型 / 具身导航 | 统一潜时空画布 + 零 CEM 在线搜索 + 双流特征融合 | 消除在线规划延迟，真机实时端到端视觉导航 | [查看详情](#5-15-navwam) |
-| **Image2Sim** | 2026 | 世界模拟器 / 空间智能 | 单图生成可交互物理沙盒 + 神经渲染与可微仿真 | 从单张 RGB 图像全自动构建机器人仿真资产与环境 | [查看详情](#5-16-image2sim) |
+| **Lyra 2.0** | 2026 | 世界模拟器 / 空间智能 | 几何记忆解耦 + 空间记忆检索路由 + 自增强去漂移 | 800 帧以上长程生成仍保持几何一致，3DGS 重建近乎无浮点伪影 | [查看详情](#sec-5-1-lyra) |
+| **Genie** | 2024 | 世界合成器 / 基础环境生成 | 潜在动作模型 (LAM) + ST-Transformer + MaskGIT 动力学（11B） | 无动作标注即挖掘出 8 维可控动作空间，任意图像转可玩环境（160×90） | [查看详情](#sec-5-2-genie) |
+| **VLA-World** | 2026 | 世界规划器 / 端到端自动驾驶 | 单帧未来生成 + 反思推理（Think with Generated future）+ GRPO | nuScenes 碰撞率 1.09% → 0.94%，FID 更优 | [查看详情](#sec-5-3-vla-world) |
+| **WorldVLA** | 2025 | 世界动作模型 (WAM) | 统一自回归骨干 + 因果注意力掩码 + 视频预测预训练 | LIBERO Avg 81.8%，多视角时空一致生成 | [查看详情](#sec-5-4-worldvla) |
+| **WoVR** | 2026 | 世界模拟器 (RL) | 梦境内部强化学习 + 关键帧初始化 (KIR) + 策略协同演化 (PACE) | LIBERO 平均 SR 39.95% → 69.2%；真机 61.7% → 91.7%；生成 23 FPS | [查看详情](#sec-5-5-wovr) |
+| **Janus-Pro** | 2025 | 多模态统一骨干 | 理解与生成解耦表征 + 纯自回归 Transformer | MMBench 79.2、GenEval 0.80、DPG-Bench 84.19（7B） | [查看详情](#sec-5-6-janus-pro) |
+| **VideoGen Survey** | 2026 | 机器人视频生成体系 | 视频生成在具身控制中的应用分类体系与评测全景 | 系统梳理数据、模型架构与下游策略评测基准 | [查看详情](#sec-5-7-videogen) |
+| **AIM** | 2026 | 世界动作模型 (WAM) | 空间价值图 (ASVM) + 意图因果注意力 + 价值自蒸馏 RL | RoboTwin 2.0 Avg SR 93.1% (SOTA) | [查看详情](#sec-5-8-aim) |
+| **LingBot-World** | 2026 | 世界模拟器 / 交互生成 | 开源实时交互 + 分层语义数据引擎 + 60s 长程记忆 | 16 fps 实时推演（亚秒级延迟），60s 场景重访结构高度一致 | [查看详情](#sec-5-9-lingbot-world) |
+| **Marble (World Labs)** | 2025/2026 | 大型世界模型 (LWM) / 空间智能 | 3DGS 空间持久宇宙 + Chisel 结构解耦 + World API | Forbes AI 50，单图/文本生成无限可探索 3D 世界 | [查看详情](#sec-5-10-marble) |
+| **SANA-WM** | 2026 | 世界模拟器 / 高效分钟级生成 | 混合线性 GDN/Softmax + 双分支相机控制 (UCPE+Plücker) + 两阶段精化 | VBench Overall 80.62/81.89；RTX 5090 上 34s 生成 60s 720p | [查看详情](#sec-5-11-sana-wm) |
+| **Qwen-RobotWorld** | 2026 | 基础世界模型 / 空间智能 | 双流 MMDiT + 空间-物理-时序三位一体训练 + 跨本体接地 | EWMBench 4.60 (#1)，WorldModelBench 8.99 | [查看详情](#sec-5-12-qwen-robotworld) |
+| **Wan2.1** | 2025 | 视频扩散基础模型 | Spatio-Temporal VAE (4x8x8) + AdaLN 共享 + VACE 框架 | 开源 T2V/I2V 基础底座，消费级 4090 可跑 | [查看详情](#sec-5-13-wan) |
+| **Motus** | 2025/2026 | 世界动作模型 (WAM) | MoT 三专家解耦 FFN + 光流潜动作 VAE + 六层数据金字塔 | RoboTwin 2.0 Avg 87.8%，单步 80ms 极速闭环 | [查看详情](#sec-5-14-motus) |
+| **NavWAM & WAM-Nav** | 2026 | 世界动作模型 / 具身导航 | 统一潜时空画布 + 零 CEM 在线搜索 + 双流特征融合 | 推理 205.7 ms（5Hz），较 NWM 快 1100×；真机成功率 79.2% / 85% | [查看详情](#sec-5-15-navwam) |
+| **Image2Sim** | 2026 | 世界模拟器 / 空间智能 | 前馈 3D 特征高斯锚定 + 单步 Pixel Flow (MeanFlow) 渲染 | 全景 RGB-D 45.6 FPS；自动构建 2 万个环境，R2R-CE 零样本 70.3% | [查看详情](#sec-5-16-image2sim) |
 
 ---
 
-## 5.1 Lyra 2.0 (2026) {#5-1-lyra}
+## 5.1 Lyra 2.0 (2026) {#sec-5-1-lyra}
 ———Explorable Generative 3D Worlds at Scale
 
 📄 **Paper**: [https://arxiv.org/abs/2604.13036](https://arxiv.org/abs/2604.13036)
@@ -948,7 +948,7 @@ Lyra 2.0 的核心是一个基于"检索-生成-更新"的自回归循环：
 
 ---
 
-## 5.2 Genie (2024) {#5-2-genie}
+## 5.2 Genie (2024) {#sec-5-2-genie}
 ———Generative Interactive Environments
 
 📄 **Paper**: [arXiv:2402.15391](https://arxiv.org/abs/2402.15391)
@@ -1024,7 +1024,7 @@ Genie 提出了 **ST-ViViT** 架构：
 
 ---
 
-## 5.3 VLA-World (2026) {#5-3-vla-world}
+## 5.3 VLA-World (2026) {#sec-5-3-vla-world}
 ———Learning Vision-Language-Action World Models for Autonomous Driving
 
 📄 **Paper**: [https://vlaworld.github.io](https://vlaworld.github.io)
@@ -1083,7 +1083,7 @@ VLA-World 提出了一个结合了感知、动作衍生预测、图像生成、�
 
 ---
 
-## 5.4 WorldVLA (2025) {#5-4-worldvla}
+## 5.4 WorldVLA (2025) {#sec-5-4-worldvla}
 ———Towards Autoregressive Action World Model
 
 📄 **Paper**: [https://arxiv.org/abs/2506.21539](https://arxiv.org/abs/2506.21539)
@@ -1159,7 +1159,7 @@ WorldVLA 采用自回归架构，集成了图像、文本和动作三种模态�
 
 ---
 
-## 5.5 WoVR (2026) {#5-5-wovr}
+## 5.5 WoVR (2026) {#sec-5-5-wovr}
 ———World Models as Reliable Simulators for Post-Training VLA Policies with RL
 
 📄 **Paper**: [https://arxiv.org/abs/2602.13977](https://arxiv.org/abs/2602.13977)
@@ -1220,7 +1220,7 @@ WoVR 引入了一种增强型 DiT（Diffusion Transformer）世界模型，通�
 
 ---
 
-## 5.6 Janus-Pro (2025) {#5-6-janus-pro}
+## 5.6 Janus-Pro (2025) {#sec-5-6-janus-pro}
 ———Unified Multimodal Understanding and Generation with Data and Model Scaling
 
 📄 **Paper**: https://arxiv.org/abs/2501.17811
@@ -1342,7 +1342,7 @@ Janus 与 Janus-Pro 均采用三阶段训练范式，下图（取自原 Janus �
 
 ---
 
-## 5.7 Video Generation Models in Robotics (2026) {#5-7-videogen}
+## 5.7 Video Generation Models in Robotics (2026) {#sec-5-7-videogen}
 ———Applications, Research Challenges, Future Directions
 
 📄 **Paper**: [arXiv:2601.07823](https://arxiv.org/abs/2601.07823)
@@ -1420,7 +1420,7 @@ Janus 与 Janus-Pro 均采用三阶段训练范式，下图（取自原 Janus �
 
 ---
 
-## 5.8 AIM (2026) {#5-8-aim}
+## 5.8 AIM (2026) {#sec-5-8-aim}
 ———Intent-Aware Unified World Action Modeling with Spatial Value Maps
 
 📄 **Paper**: https://arxiv.org/abs/2604.11135
@@ -1507,7 +1507,7 @@ $$\mathcal L_{GRPO}(\phi) = \mathbb E_t\left[\min\!\Big(\rho_t(\phi)\hat A_t,\, 
 
 ---
 
-## 5.9 LingBot-World (2026) {#5-9-lingbot-world}
+## 5.9 LingBot-World (2026) {#sec-5-9-lingbot-world}
 ———首个开源、支持实时交互的长程世界模型
 
 📄 **Paper**: [arXiv:2601.20540](https://arxiv.org/abs/2601.20540)
@@ -1579,7 +1579,7 @@ LingBot-World 基于 DiT (Diffusion Transformer) 架构。动作信号（离散�
 
 ---
 
-## 5.10 Marble & World Labs (2025–2026) {#5-10-marble}
+## 5.10 Marble & World Labs (2025–2026) {#sec-5-10-marble}
 ———大型世界模型 (LWM) 与空间智能
 
 > [!TIP]
@@ -1723,7 +1723,7 @@ flowchart LR
 
 ---
 
-## 5.11 SANA-WM (2026) {#5-11-sana-wm}
+## 5.11 SANA-WM (2026) {#sec-5-11-sana-wm}
 ———Efficient Minute-Scale World Modeling with Hybrid Linear Diffusion Transformer
 
 📄 **Paper**: [arXiv:2605.15178](https://arxiv.org/abs/2605.15178)  
@@ -1833,7 +1833,7 @@ SANA-WM 受限于规模（2.6B 参数与 213K 片段），在动态场景、罕�
 
 ---
 
-## 5.12 Qwen-RobotWorld (2026) {#5-12-qwen-robotworld}
+## 5.12 Qwen-RobotWorld (2026) {#sec-5-12-qwen-robotworld}
 ———用自然语言统一具身世界模型：机械臂操作、自动驾驶、室内导航和人到机器人迁移
 
 📄 **Paper**: [arXiv:2606.17030](https://arxiv.org/abs/2606.17030)
@@ -1910,7 +1910,7 @@ Qwen-RobotWorld 由三部分构成：**架构**（双流 MMDiT + MLLM 动作编�
 
 ---
 
-## 5.13 Wan2.1 (2025) {#5-13-wan}
+## 5.13 Wan2.1 (2025) {#sec-5-13-wan}
 ———阿里巴巴开源的高效视频生成基础模型家族
 
 📄 **Paper**: https://arxiv.org/abs/2503.20314
@@ -1948,16 +1948,15 @@ Wan2.1 整体架构基于 Diffusion Transformer (DiT) 范式，包含三个核�
 **② 逐模块讲解**
 
 - **Wan-VAE (Spatio-Temporal VAE)**：
+  - **输入**：大小为 $(1+T) \times H \times W \times 3$ 的高维原始视频。
+  - **处理**：采用 3D 因果卷积结构，其中第一帧仅进行空间压缩（以保留图像先验），其余帧进行时空联合压缩。模型将所有 GroupNorm 替换为 RMSNorm 以保持严格的临时因果性，并支持特征缓存机制（Feature Cache Mechanism）。在空间上采样层中，将输入特征通道减半，以降低 33% 的推理显存。
+  - **输出**：时空维度压缩了 $4 \times 8 \times 8$ 倍、通道数为 16 的低维潜空间表征 $x \in \mathbb{R}^{(1+T/4) \times H/8 \times W/8 \times 16}$。
+  - **特征缓存推理**：在处理超长视频时，将视频按 Latent 帧拆分为 Chunks（每块最多 4 帧），在块与块之间传递和复用前一阶段的最后两帧特征缓存，确保在受限的显存内实现连续、无缝的流式重建。
 
 <div align="center">
   <img src="/images/wm/Wan-VAE-framework.webp" width="100%" />
 <figcaption>图：Wan-VAE 时空压缩自编码器架构图。（图源：Wan2.1, 2025）</figcaption>
 </div>
-
-  - **输入**：大小为 $(1+T) \times H \times W \times 3$ 的高维原始视频。
-  - **处理**：采用 3D 因果卷积结构，其中第一帧仅进行空间压缩（以保留图像先验），其余帧进行时空联合压缩。模型将所有 GroupNorm 替换为 RMSNorm 以保持严格的临时因果性，并支持特征缓存机制（Feature Cache Mechanism）。在空间上采样层中，将输入特征通道减半，以降低 33% 的推理显存。
-  - **输出**：时空维度压缩了 $4 \times 8 \times 8$ 倍、通道数为 16 的低维潜空间表征 $x \in \mathbb{R}^{(1+T/4) \times H/8 \times W/8 \times 16}$。
-  - **特征缓存推理**：在处理超长视频时，将视频按 Latent 帧拆分为 Chunks（每块最多 4 帧），在块与块之间传递和复用前一阶段的最后两帧特征缓存，确保在受限的显存内实现连续、无缝的流式重建。
 
 - **umT5 文本编码器**：
   - **输入**：用户输入的自然语言提示词（支持中英双语以及复杂的排版描述）。
@@ -1966,15 +1965,13 @@ Wan2.1 整体架构基于 Diffusion Transformer (DiT) 范式，包含三个核�
 
 - **Diffusion Transformer (DiT)**：
   - **输入**：经由 3D 卷积（Patchify，核大小为 $(1, 2, 2)$，步长为 $(1, 2, 2)$）打块并展平后的潜空间序列 $x_{flat} \in \mathbb{R}^{B \times L \times D}$，以及文本 Token 和时间步 $t$。
-  - **处理**：由 $N$ 层堆叠的 Wan Transformer Block 构成。
+  - **处理**：由 $N$ 层堆叠的 Wan Transformer Block 构成。在 Block 内部，通过自注意力（Self-Attention）机制捕获时空关系，通过交叉注意力（Cross-Attention）将文本 Token 注入到图像 Token 中。时间步 $t$ 编码经由一个全局共享的 MLP (Linear + SiLU) 映射为调制参数，以调节各 LayerNorm 的尺度与偏置。
+  - **输出**：预测的去噪速度向量 $v_t$。
 
 <div align="center">
   <img src="/images/wm/Wan-transformer-block.webp" width="80%" />
 <figcaption>图：Wan Transformer Block 结构细节。（图源：Wan2.1, 2025）</figcaption>
 </div>
-
-    在 Block 内部，通过自注意力（Self-Attention）机制捕获时空关系，通过交叉注意力（Cross-Attention）将文本 Token 注入到图像 Token 中。时间步 $t$ 编码经由一个全局共享的 MLP (Linear + SiLU) 映射为调制参数，以调节各 LayerNorm 的尺度与偏置。
-  - **输出**：预测的去噪速度向量 $v_t$。
 
 **③ 端到端数据流**
 训练时，原始视频经 Wan-VAE 编码为 Latent 状态，与高斯噪声进行 Flow Matching（流匹配）线性插值得到 $x_t$，通过 Patchify 模块转换为 1D Token 序列；同时文本经 umT5 编码为文本 Embedding。在 DiT Blocks 中，文本与时空 Token 通过 Cross-Attention 进行交互。最后，利用预测的 Velocity $v_t$ 引导 ODE 求解去噪，生成的 Latent 再由 Wan-VAE Decoder 恢复出清晰的视频画面。
@@ -2031,7 +2028,7 @@ $$\mathcal{L} = \mathbb{E}_{x_0, x_1, ctxt, t} \left[ \lVert u(x_t, ctxt, t; \th
 
 ---
 
-## 5.14 Motus (2025/2026) {#5-14-motus}
+## 5.14 Motus (2025/2026) {#sec-5-14-motus}
 ———统一隐动作世界模型：Mixture-of-Transformers 与光流动作金字塔
 
 📄 **Paper**: [arXiv:2512.18876](https://arxiv.org/abs/2512.18876) · [Project Page](https://motubrain.com) · [Code](https://github.com/PKU-YuanGroup/Motus) · 清华大学 & 生数科技
@@ -2111,7 +2108,7 @@ Motus 在每个 Transformer Block 内部引入了分流设计：
 
 ---
 
-## 5.15 NavWAM & WAM-Nav (2026) {#5-15-navwam}
+## 5.15 NavWAM & WAM-Nav (2026) {#sec-5-15-navwam}
 ———导航世界动作模型：潜在画布（Latent Canvas）与非对称时空视界
 
 📄 **NavWAM (2026)**: [arXiv:2606.13494](https://arxiv.org/abs/2606.13494) · [Project Page](https://dachii-azm.github.io/navwam/)  
@@ -2196,7 +2193,7 @@ NavWAM 基于预训练 Cosmos-Predict2（2B）底座，构建了一个统一的 
 
 ---
 
-## 5.16 Image2Sim (2026) {#5-16-image2sim}
+## 5.16 Image2Sim (2026) {#sec-5-16-image2sim}
 ———解耦 3D 空间锚定与单步像素流的实时神经仿真引擎
 
 📄 **Paper**: [arXiv:2607.05765](https://arxiv.org/abs/2607.05765) · [Project Page](https://github.com/MrZihan/Image2Sim) · 清华大学 & 智源研究院
@@ -2536,7 +2533,7 @@ graph TD
 5. **布局 3D 显式表示与空间智能基础**：2D 像素是 3D 物理世界的降维投影，长期来看，深度融合 3DGS、点云及度量几何的 Large World Models（LWM）将成为破解空间泛化鸿沟的终极路径。
 
 
-## 9.3 从想象到验证再到规划：技术路线演进与综合研判 {#9-3-future-roadmap}
+## 9.3 从想象到验证再到规划：技术路线演进与综合研判 {#sec-9-3-future-roadmap}
 
 具身智能世界模型的发展历程，折射出 AI 对物理世界认知能力的根本跃迁。纵观 2018 至 2026 年的技术演化，我们可以清晰地梳理出三条交织演进的技术主线：
 
@@ -2586,7 +2583,7 @@ flowchart TD
 
 ---
 
-# 10. 参考资料与延伸阅读 {#10-references}
+# 10. 参考资料与延伸阅读 {#sec-10-references}
 
 1. Tan, Z., et al. (2026). *Towards Generalist Embodied AI: A Survey on World Models for VLA Agents*. TechRxiv. [arXiv/TechRxiv 链接](https://www.techrxiv.org/)
 2. Li, X., et al. (2025/2026). *A Comprehensive Survey on World Models for Embodied AI*. [arXiv:2510.16732](https://arxiv.org/abs/2510.16732) · [AwesomeWorldModels](https://github.com/Li-Zn-H/AwesomeWorldModels)
