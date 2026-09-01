@@ -4,7 +4,7 @@ title: Tingde Liu
 permalink: /about/
 ---
 
-I am a robotics and AI engineer with an M.Sc. in Mechatronics and Robotics from [Leibniz Universität Hannover](https://www.uni-hannover.de/) (LUH), now based in Beijing and working on embodied intelligence. My current research centers on vision-language navigation (VLN), embodied agent frameworks, and 3D Large Language Models (3DLLM) — and the broader question of what it would actually take for a robot to understand and act in the world the way we do. I am interested in genuine embodied intelligence, not just systems that appear to navigate, but ones that truly reason about space, language, and intention.
+I am a robotics and AI engineer with an M.Sc. in Mechatronics and Robotics from [Leibniz Universität Hannover](https://www.uni-hannover.de/) (LUH), now based in Beijing and working on embodied intelligence. My current research centers on Vision-Language Navigation (VLN), Embodied Agent Frameworks, and 3D Large Language Models (3DLLM) — and the broader question of what it would actually take for a robot to understand and act in the world the way we do. I am interested in genuine embodied intelligence, not just systems that appear to navigate, but ones that truly reason about space, language, and intention.
 
 ## Experience
 
@@ -28,7 +28,7 @@ These experiences converged around a set of questions I keep returning to:
 - How do we build a general-purpose agentic navigation framework — one that integrates perception, memory, planning, and action well enough to carry a robot through very different long-horizon navigation tasks?
 - How can agentic AI give robots something closer to genuine agency: not just executing instructions, but forming intentions, adapting plans, and acting with purpose?
 
-In practice this means I work on **Vision-Language Navigation (VLN)**, **embodied agent frameworks**, **3DLLM**, and the infrastructure that makes embodied intelligence real.
+In practice this means I work on **Vision-Language Navigation (VLN)**, **Embodied Agent Frameworks**, **3DLLM**, and the infrastructure that makes embodied intelligence real.
 
 ## Technical Skills
 
