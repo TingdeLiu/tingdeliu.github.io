@@ -25,7 +25,7 @@ These experiences converged around a set of questions I keep returning to:
 - How can language models reason meaningfully about 3D space?
 - What does it take for a robot to navigate using natural instructions?
 - How do we bridge the gap between simulation and real-world perception?
-- How do we build a  Robot OS — a coherent harness that integrates perception, memory, planning, and action into a unified system?
+- How do we build a general-purpose agentic navigation framework — one that integrates perception, memory, planning, and action well enough to carry a robot through very different long-horizon navigation tasks?
 - How can agentic AI give robots something closer to genuine agency: not just executing instructions, but forming intentions, adapting plans, and acting with purpose?
 
 In practice this means I work on **Vision-Language Navigation (VLN)**, **Vision-Language-Action models (VLA)**, **3DLLM**, **agentic robot systems**, and the infrastructure that makes embodied intelligence real.
