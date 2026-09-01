@@ -149,33 +149,103 @@ flowchart LR
 ## 2.6 研究发展时间线
 
 ```mermaid
-flowchart LR
-    subgraph G2022 ["2022 Agent 萌芽"]
-        A["ReAct\n推理+行动"] --> B["Code as Policies\nLLM 写代码执行"]
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '14px', 'fontFamily': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'}}}%%
+flowchart TD
+    %% ================= 阶段一：2022 萌芽期 =================
+    subgraph G2022 ["🌱 2022 年 · Agent 萌芽期：推理与代码行动"]
+        direction LR
+        A1["<b>ReAct (Yao et al.)</b><br/>推理与行动交织范式<br/>(Thought ⇄ Action ⇄ Obs)"]
+        A2["<b>Code as Policies</b><br/>代码作为行动媒介<br/>(LLM 生成控制程序)"]
+        A1 --> A2
     end
-    B --> C
-    subgraph G2023 ["2023 框架爆发"]
-        C["LangChain\nAgent 框架"] --> D["AutoGPT\n自主 Agent"]
-        D --> E["Reflexion\n反思与自我修正"]
-        E --> F["Voyager\n终身学习 Agent"]
+
+    %% ================= 阶段二：2023 框架爆发期 =================
+    subgraph G2023 ["⚡ 2023 年 · 框架爆发期：自主循环与经验积累"]
+        direction LR
+        B1["<b>LangChain / AutoGPT</b><br/>首批开源 Agent 框架<br/>自主多步骤任务循环"]
+        B2["<b>Reflexion</b><br/>自然语言反思记忆<br/>跨尝试自我修正"]
+        B3["<b>Voyager (NVIDIA)</b><br/>开放世界终身学习<br/>可复用代码技能库"]
+        B1 --> B2 --> B3
     end
-    F --> G
-    subgraph G2024 ["2024 能力跃升"]
-        G["OpenAI Swarm\n多 Agent"] --> H["Tree of Thoughts\n树形搜索规划"]
-        H --> I["MCP 协议\n工具标准化"]
+
+    %% ================= 阶段三：2024 架构跃升期 =================
+    subgraph G2024 ["🚀 2024 年 · 架构跃升期：系统二慢思考、多 Agent 与标准化协议"]
+        direction LR
+        C1["<b>Tree of Thoughts (ToT)</b><br/>树形搜索与前瞻回溯<br/>系统二慢思考规划"]
+        C2["<b>OpenAI Swarm / AutoGen</b><br/>多智能体协作与交接<br/>轻量 Handoff 路由范式"]
+        C3["<b>MCP 协议 (Anthropic)</b><br/>模型上下文协议<br/>工具生态行业标准化"]
+        C1 --> C2 --> C3
     end
-    I --> J
-    subgraph G2025 ["2025–2026 产业落地与工程深化"]
-        J["OpenClaw\n通用开源 Agent OS"] --> K["Manus / Hermes\n通用自主 Agent"]
-        K --> KA["A2A 协议\nAgent 间通信标准 (Google)"]
-        KA --> L["Claude Code / Codex\n编程 Agent 商用"]
-        L --> M["Harness Engineering\nAgent 工程化 (dsh / pi)"]
-        M --> N["Loop & Graph Engineering\n闭环与图拓扑工程"]
-        N --> O["WebMCP\n浏览器端语义协议 (OpenAI / Google / W3C)"]
-        O --> P["MHS\n物理设备标准 (Anthropic, 2026.08)"]
-        P --> Q["具身 Harness\n物理世界治理 (Thea / Pigey / Zetta)"]
+    %% ================= 阶段四：2025-2026 产业落地与工程深化 =================
+    subgraph G2025 ["🏭 2025–2026 年 · 产业落地与工程深化：产品化、体系化与物理治理"]
+        direction TB
+
+        subgraph G2025_App ["【产品化落地与互联】通用 Agent OS、编程智能体与 A2A 通信"]
+            direction LR
+            D1["<b>OpenClaw / Manus / Hermes</b><br/>通用开源 Agent OS · 桌面全自主操作"]
+            D2["<b>Claude Code / OpenAI Codex</b><br/>商用级编程智能体 · 独立 Worktree 架构"]
+            D2_proto["<b>A2A 协议 (Google)</b><br/>Agent 间互联通信与跨系统协作"]
+            D1 <--> D2
+            D2 --> D2_proto
+        end
+
+        subgraph G2025_Eng ["【工程方法论】从单步 Prompt 到全局受控工程体系"]
+            direction LR
+            D3["<b>Harness Engineering</b><br/>工程约束优于模型本身<br/>(DeepSeek Harness / Pi Agent)"]
+            D4["<b>Loop & Graph Engineering</b><br/>五大原语自主闭环自动化<br/>有向状态图拓扑全局路由与回溯"]
+            D3 --> D4
+        end
+
+        subgraph G2025_Emb ["【协议演进 & 具身治理】从虚拟端侧走向真实物理世界"]
+            direction LR
+            D5["<b>WebMCP (OpenAI / Google / W3C)</b><br/>浏览器端原生 Agent 语义交互协议"]
+            D6["<b>MHS (Anthropic) & 具身治理</b><br/>物理硬件接口规范与具身 Harness 治理<br/>(Thea / Pigey / Zetta)"]
+            D5 <--> D6
+        end
+
+        D1 --> D3
+        D2_proto --> D4
+        D3 --> D5
+        D4 --> D6
     end
+
+    %% 阶段主干流转
+    A2 ==>|沉淀推理与执行范式| B1
+    B3 ==>|演进搜索、协作与协议| C1
+    C3 ==>|迈向系统化工程与工业落地| G2025_App
+
+    %% 节点样式定义
+    classDef cls2022 fill:#fffbeb,stroke:#f59e0b,stroke-width:1.5px,color:#92400e;
+    classDef cls2023 fill:#f0f9ff,stroke:#0284c7,stroke-width:1.5px,color:#075985;
+    classDef cls2024 fill:#faf5ff,stroke:#8b5cf6,stroke-width:1.5px,color:#5b21b6;
+    classDef cls2025app fill:#ecfdf5,stroke:#10b981,stroke-width:1.5px,color:#065f46;
+    classDef cls2025eng fill:#eef2ff,stroke:#6366f1,stroke-width:1.5px,color:#3730a3;
+    classDef cls2025emb fill:#fff1f2,stroke:#f43f5e,stroke-width:1.5px,color:#9f1239;
+
+    class A1,A2 cls2022;
+    class B1,B2,B3 cls2023;
+    class C1,C2,C3 cls2024;
+    class D1,D2,D2_proto cls2025app;
+    class D3,D4 cls2025eng;
+    class D5,D6 cls2025emb;
+
+    style G2022 fill:#fefce8,stroke:#fef08a,stroke-width:1.5px;
+    style G2023 fill:#f0f9ff,stroke:#e0f2fe,stroke-width:1.5px;
+    style G2024 fill:#faf5ff,stroke:#f3e8ff,stroke-width:1.5px;
+    style G2025 fill:#f8fafc,stroke:#e2e8f0,stroke-width:1.5px;
+    style G2025_App fill:#ffffff,stroke:#a7f3d0,stroke-width:1px,stroke-dasharray: 4 4;
+    style G2025_Eng fill:#ffffff,stroke:#c7d2fe,stroke-width:1px,stroke-dasharray: 4 4;
+    style G2025_Emb fill:#ffffff,stroke:#fecdd3,stroke-width:1px,stroke-dasharray: 4 4;
 ```
+
+### 发展阶段与关键里程碑速览
+
+| 年份阶段 | 演进核心 | 代表性工作 / 架构 | 关键突破与技术范式 |
+|:---|:---|:---|:---|
+| **2022 年**<br/>**萌芽期** | 推理与行动交织<br/>代码化策略 | **ReAct**（Yao et al.）<br/>**Code as Policies**（Google） | • 提出 Thought-Action-Observation 显式闭环<br/>• LLM 从“纯文本对话”走向“可执行代码与机器人调用” |
+| **2023 年**<br/>**框架爆发期** | 自主目标循环<br/>反思与技能进化 | **LangChain** / **AutoGPT**<br/>**Reflexion**（Shinn et al.）<br/>**Voyager**（NVIDIA） | • 开源 Agent 框架与自主目标循环探索<br/>• 语言反思记忆使 Agent 无需微调即可跨任务自我修正<br/>• 建立终身学习与代码技能库标准范式 |
+| **2024 年**<br/>**架构跃升期** | 系统二慢思考<br/>多智能体与协议标准化 | **Tree of Thoughts** (ToT)<br/>**OpenAI Swarm** / **AutoGen**<br/>**MCP 协议**（Anthropic） | • 引入树形搜索、前瞻回溯与 MCTS 慢思考规划<br/>• 多 Agent 协同、Orchestrator-Worker 与轻量 Handoff<br/>• 发布 Model Context Protocol，终结工具接口碎片化 |
+| **2025–2026 年**<br/>**产业落地与工程深化** | Agent OS 与编程商用<br/>Harness / Loop / Graph<br/>A2A / WebMCP / 物理治理 | **OpenClaw** / **Manus** / **Hermes**<br/>**Claude Code** / **OpenAI Codex**<br/>**A2A**（Google） / **WebMCP**<br/>**Harness Engineering** (`dsh`/`pi`)<br/>**Loop & Graph Engineering**<br/>**MHS** / **Embodied Harness** | • 通用开源 Agent OS 爆发（OpenClaw 280k+ Stars）<br/>• 商业级编程 Agent 落地（Subagent 独立 Worktree 隔离）<br/>• Google 推出 A2A 通信协议，标准化跨系统智能体互联<br/>• 提出“约束工程优于模型本身”，分化出插件化与极简化<br/>• 闭环控制原语与状态图拓扑编排成为新一代复杂系统基座<br/>• W3C/OpenAI 推进 WebMCP；Anthropic MHS 与具身 Harness 治理拓展至物理机器人 |
 
 ## 2.7 Harness Engineering：Agent 工程化
 
