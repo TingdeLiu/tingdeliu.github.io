@@ -43,3 +43,7 @@ fix_format.py
 new_paper/
 paper_summary/
 tmp/
+
+# 字幕提取产物
+*_subtitles_whisper.txt
+*_subtitles.txt
