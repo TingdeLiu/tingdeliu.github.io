@@ -700,28 +700,28 @@ Bridge 模式的核心价值：
 2025–2026 年，Agent 记忆机制的研究与工程实践经历了一场深刻的范式迁移：从早期的「原始轨迹存储与长上下文拼接」，升级为**多层级时态知识图谱（Temporal Knowledge Graphs）**、**卡片盒笔记网络（Zettelkasten Note Networks）** 与 **海马体联想索引（Hippocampal Indexing）**。ACL 2026 演化综述（Luo et al., 2026）将这一进程总结为：**从「静态存储（Storage）」走向「自省反思（Reflection）」，最终升华到「经验抽象与自演化（Experience & Self-Evolution）」**。
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '13px'}}}%%
-flowchart LR
-    subgraph S1 ["阶段一：存储级 (Storage)"]
-        direction TB
-        S1_1["原始交互日志保存\n(Raw Logs / Trajectories)"]
-        S1_2["朴素向量切块 RAG\n(Naive Chunk Embedding)"]
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '14px', 'fontFamily': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'}}}%%
+flowchart TD
+    subgraph S1 ["📦 阶段一：存储级 (Storage)"]
+        direction LR
+        S1_1["📝 原始交互日志保存<br/>(Raw Logs / Trajectories)"]
+        S1_2["🔍 朴素向量切块 RAG<br/>(Naive Chunk Embedding)"]
     end
 
-    subgraph S2 ["阶段二：反思级 (Reflection)"]
-        direction TB
-        S2_1["事后语言自省\n(Generative Agents / Reflexion)"]
-        S2_2["启发式重要度加权\n(Recency × Importance × Relevance)"]
+    subgraph S2 ["🧠 阶段二：反思级 (Reflection)"]
+        direction LR
+        S2_1["🪞 事后语言自省<br/>(Generative Agents / Reflexion)"]
+        S2_2["⚖️ 启发式重要度加权<br/>(Recency × Importance × Relevance)"]
     end
 
-    subgraph S3 ["阶段三：经验自演化级 (Experience)"]
-        direction TB
-        S3_1["时态知识图谱与卡片网络\n(Zep Graphiti / A-MEM)"]
-        S3_2["记忆动态演化、遗忘与冲突消解\n(Bi-temporal & Hippocampal Indexing)"]
+    subgraph S3 ["🌱 阶段三：经验自演化级 (Experience & Self-Evolution)"]
+        direction LR
+        S3_1["🕸️ 时态知识图谱与卡片网络<br/>(Zep Graphiti / A-MEM)"]
+        S3_2["🔄 记忆动态演化与冲突消解<br/>(Bi-temporal & Hippocampal Indexing)"]
     end
 
-    S1 ==>|提炼与反省| S2
-    S2 ==>|拓扑结构化与抽象自演化| S3
+    S1 ==>|"提炼与自省 (Distillation & Reflection)"| S2
+    S2 ==>|"拓扑结构化与抽象自演化 (Structure & Evolution)"| S3
 ```
 
 ---
