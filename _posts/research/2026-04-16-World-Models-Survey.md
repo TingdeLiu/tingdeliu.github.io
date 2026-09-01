@@ -28,7 +28,7 @@ excerpt: "本文系统梳理具身智能世界模型（World Models）的完整�
 <figcaption>图：具身智能世界模型全景总览。世界模型（交互性、未来预测、物理接地）与 VLA（通用策略、开放指令、多模态推理）的深度融合，赋予智能体前瞻规划、虚拟仿真、联合决策和数据飞轮四大核心能力。（图源：Tan et al., 2026）</figcaption>
 </div>
 
-本文立足于国际最新学术前沿与工业级落地实践（涵盖 Tan et al., 2026; Li et al., 2025/2026 等权威综述），系统梳理具身智能世界模型的理论根基、四大核心技术范式、物理基础模型平台、经典里程碑代表作、评测基准与指标体系，以及未来的关键挑战与演进方向。
+本文立足于国际最新学术前沿与工业级落地实践（涵盖 Tan et al., 2026 [[1]](#ref-1); Li et al., 2025/2026 等权威综述），系统梳理具身智能世界模型的理论根基、四大核心技术范式、物理基础模型平台、经典里程碑代表作、评测基准与指标体系，以及未来的关键挑战与演进方向。
 
 ---
 
@@ -73,7 +73,7 @@ $$
 
 ### 里程碑 1：World Models（Ha & Schmidhuber, NeurIPS 2018）——潜空间“预知梦”奠基
 
-David Ha 与 Jürgen Schmidhuber 提出的 **World Models** 首次在深度学习框架下完整实现了认知科学中的 **V-M-C 三位一体架构**：
+David Ha 与 Jürgen Schmidhuber 提出的 **World Models** [[3]](#ref-3) 首次在深度学习框架下完整实现了认知科学中的 **V-M-C 三位一体架构**：
 
 <div align="center">
   <img src="/images/wm/WorldModels-vmc-overview.webp" width="90%" />
@@ -100,7 +100,7 @@ David Ha 与 Jürgen Schmidhuber 提出的 **World Models** 首次在深度学�
 
 ### 里程碑 2：Dreamer 系列与 RSSM（Hafner et al., Nature 2025 / 2023）——通用离散状态空间与 Minecraft 破局
 
-Danijar Hafner 等人开创的 **Dreamer 系列**（DreamerV1 $\to$ V2 $\to$ V3，技术成果于 2025 年正式发表于 *Nature*，题目为 *Mastering Diverse Domains through World Models*）将有模型 RL 推向了通用化的高峰。
+Danijar Hafner 等人开创的 **Dreamer 系列** [[4]](#ref-4)（DreamerV1 $\to$ V2 $\to$ V3，技术成果于 2025 年正式发表于 *Nature*，题目为 *Mastering Diverse Domains through World Models*）将有模型 RL 推向了通用化的高峰。
 
 <div align="center">
   <img src="/images/wm/DreamerV3-training-architecture.webp" width="95%" />
@@ -121,7 +121,7 @@ Dreamer 解决了连续世界模型长期存在的表示坍缩与数值不稳定
 
 ### 里程碑 3：TD-MPC 与 TD-MPC2（Hansen et al., ICLR 2024 Oral）——无需像素重构的任务驱动隐式规划
 
-以往的世界模型（如 World Models、Dreamer）大多依赖逐像素的图像重建损失，大量网络算力被浪费在与下游控制无关的背景视觉细节上。Nicklas Hansen 等人提出的 **TD-MPC 系列** 实现了关键的技术转向：
+以往的世界模型（如 World Models、Dreamer）大多依赖逐像素的图像重建损失，大量网络算力被浪费在与下游控制无关的背景视觉细节上。Nicklas Hansen 等人提出的 **TD-MPC 系列** [[5]](#ref-5) 实现了关键的技术转向：
 
 <div align="center">
   <img src="/images/wm/TD-MPC2-architecture.webp" width="90%" />
@@ -193,7 +193,7 @@ flowchart TD
 
 ## 2.4 具身世界模型的多维分类学 (Multidimensional Taxonomy)
 
-根据 Tan et al. (2026) 与 Li et al. (arXiv:2510.16732) 的最新理论，具身世界模型可从**四大应用技术范式**与**三大正交建模轴**进行多维解构：
+根据 Tan et al. (2026) 与 Li et al. (arXiv:2510.16732) [[2]](#ref-2) 的最新理论，具身世界模型可从**四大应用技术范式**与**三大正交建模轴**进行多维解构：
 
 ### 四大应用技术范式（The Four Paradigms）
 1. **世界规划器（World Planner）**：世界模型作为前向动力学引擎，预测显式未来帧或隐式潜嵌入，为下游策略提供前瞻性条件引导；
@@ -285,11 +285,11 @@ flowchart LR
 | **主要劣势** | 扩散反向去噪采样耗时大、易在细小接触面出现像素级变形 | 缺乏直观可解释性、下游策略需与特定潜空间强对齐 |
 | **动作推导机制** | 逆动力学模型（IDM）从帧间变化解算动作，或由策略网络条件读取 | 策略网络直接在潜空间 cross-attend 读取前瞻潜特征 |
 
-**演进路径**：早期工作（UniPi、SuSIE、GR-MG、Vidar、3D-VLA、FLIP）将规划视为高保真条件视频生成任务，通过视频扩散模型合成像素级未来状态，再经逆动力学模型导出动作。然而，像素级生成面临严重的推理延迟与细微物理接触模糊。近期 V-JEPA 2、PIVOT-R 和 TriVLA 转向隐式规划，直接在自监督潜空间预测未来特征，彻底摆脱了动力学无关背景细节的干扰，大幅提升了引导信号的信噪比与计算吞吐量。MoWM 则融合多模态动力学先验形成混合方案，进一步降低动作推导误差。
+**演进路径**：早期工作（UniPi [[27]](#ref-27)、SuSIE [[28]](#ref-28)、GR-MG、Vidar、3D-VLA [[31]](#ref-31)、FLIP）将规划视为高保真条件视频生成任务，通过视频扩散模型合成像素级未来状态，再经逆动力学模型导出动作。然而，像素级生成面临严重的推理延迟与细微物理接触模糊。近期 V-JEPA 2 [[30]](#ref-30)、PIVOT-R [[32]](#ref-32) 和 TriVLA 转向隐式规划，直接在自监督潜空间预测未来特征，彻底摆脱了动力学无关背景细节的干扰，大幅提升了引导信号的信噪比与计算吞吐量。MoWM 则融合多模态动力学先验形成混合方案，进一步降低动作推导误差。
 
 ### 工业落地案例：GENE-26.5（Genesis AI, 2026）
 
-[Genesis AI 于 2026 年发布的 GENE-26.5](https://www.genesis.ai/blog/gene-26-5-advancing-robotic-manipulation-to-human-level) 是世界规划器范式在工业级灵巧操作领域的标杆落地。它最核心的技术突破在于：**新任务仅需 < 1 小时（约 200 episodes、< 20 秒技能）的真机数据即可完成微调**，而支撑这一极高样本效率的，正是“以世界模型为低层动作策略注入物理常识先验”的设计哲学。
+[Genesis AI 于 2026 年发布的 GENE-26.5](https://www.genesis.ai/blog/gene-26-5-advancing-robotic-manipulation-to-human-level)  [[52]](#ref-52) 是世界规划器范式在工业级灵巧操作领域的标杆落地。它最核心的技术突破在于：**新任务仅需 < 1 小时（约 200 episodes、< 20 秒技能）的真机数据即可完成微调**，而支撑这一极高样本效率的，正是“以世界模型为低层动作策略注入物理常识先验”的设计哲学。
 
 **三个功能角色，一个统一模型**
 
@@ -372,14 +372,14 @@ flowchart LR
 
 | 建模范式 | 核心机制 | 代表性方法 | 核心技术亮点 |
 |:---|:---|:---|:---|
-| **自回归（AR）** | 视频预训练 | GR-1, HMA, UniVLA, GR-2 | 大规模视频先验转化为端到端动作预测 |
-| **自回归（AR）** | 统一序列建模 | WorldVLA, RynnVLA-002, UP-VLA | 将图像、动作、文本离散化为统一 Token 流 |
-| **自回归（AR）** | 前瞻与思维链推理 | Seer, FlowVLA, CoT-VLA, DreamVLA | 引入多模态思维链与未来光流引导结构化决策 |
-| **扩散 / 流匹配** | 混合专家（MoT） | Motus, Cosmos 3 | 共享自注意力 + 解耦 FFN，UniDiffuser 多模式切换 |
-| **扩散 / 流匹配** | 空间价值接口 | AIM | 空间价值图（ASVM）显式解耦意图，自蒸馏 RL 优化 |
-| **扩散 / 流匹配** | 潜在画布（Canvas） | NavWAM | 9帧世界-动作潜在画布，消除 CEM 实现 5Hz 实时导航 |
-| **扩散 / 流匹配** | 非对称视界 | WAM-Nav | 动作长视界（24步）+ 视觉短视界（1步），防止视角剧变漂移 |
-| **扩散 / 流匹配** | 语言统一动作接口 | Qwen-RobotWorld | 冻结 MLLM 将 20+ 本体、500+ 动作映射为自然语言指令 |
+| **自回归（AR）** | 视频预训练 | GR-1 [[29]](#ref-29), HMA, UniVLA [[36]](#ref-36), GR-2 | 大规模视频先验转化为端到端动作预测 |
+| **自回归（AR）** | 统一序列建模 | WorldVLA [[22]](#ref-22), RynnVLA-002, UP-VLA | 将图像、动作、文本离散化为统一 Token 流 |
+| **自回归（AR）** | 前瞻与思维链推理 | Seer, FlowVLA [[35]](#ref-35), CoT-VLA [[33]](#ref-33), DreamVLA [[34]](#ref-34) | 引入多模态思维链与未来光流引导结构化决策 |
+| **扩散 / 流匹配** | 混合专家（MoT） | Motus [[12]](#ref-12), Cosmos 3 [[9]](#ref-9) | 共享自注意力 + 解耦 FFN，UniDiffuser 多模式切换 |
+| **扩散 / 流匹配** | 空间价值接口 | AIM [[13]](#ref-13) | 空间价值图（ASVM）显式解耦意图，自蒸馏 RL 优化 |
+| **扩散 / 流匹配** | 潜在画布（Canvas） | NavWAM [[14]](#ref-14) | 9帧世界-动作潜在画布，消除 CEM 实现 5Hz 实时导航 |
+| **扩散 / 流匹配** | 非对称视界 | WAM-Nav [[15]](#ref-15) | 动作长视界（24步）+ 视觉短视界（1步），防止视角剧变漂移 |
+| **扩散 / 流匹配** | 语言统一动作接口 | Qwen-RobotWorld [[19]](#ref-19) | 冻结 MLLM 将 20+ 本体、500+ 动作映射为自然语言指令 |
 
 ---
 
@@ -414,10 +414,10 @@ flowchart LR
 **细粒度分类与核心路径**：
 
 1. **动作条件生成路径（Action-Conditioned Rollouts）**：
-   - *代表方法*：Ctrl-World, Genie Envisioner, WristWorld；
+   - *代表方法*：Ctrl-World [[40]](#ref-40), Genie Envisioner, WristWorld [[39]](#ref-39)；
    - *机制*：基于真实采集的轨迹动作序列作为输入条件，通过世界模型生成对应视角的未来演变视频（如 WristWorld 生成 4D 手腕视角动态），实现对现有数据的视角扩充与背景泛化；
 2. **无动作合成与逆动力学标注路径（Action-Free Video Synthesis + IDM）**：
-   - *代表方法*：DreamGen, GigaWorld-0, Image2Sim；
+   - *代表方法*：DreamGen [[37]](#ref-37), GigaWorld-0 [[38]](#ref-38), Image2Sim [[16]](#ref-16)；
    - *机制*：彻底摆脱对真机动作标签的依赖！直接利用大规模视频生成底座（如 Wan2.1、Sora、Image2Sim）在给定任务指令下合成视觉上物理合理的交互视频轨迹，随后通过高精度逆动力学模型（IDM）从生成的视频帧差中反推出机器人关节控制动作 $$\hat{a}_t$$。该路径能够无缝吸收互联网规模的视频知识，是突破机器人长尾数据瓶颈的最具潜力的方向。
 
 ---
@@ -458,15 +458,15 @@ flowchart TB
 **最新破局技术方案**：
 - **关键帧初始化回放（Keyframe-Initialized Rollouts, KIR，如 WoVR）**：从专家演示的关键帧（如抓取前夕、对准瞬间）附近初始化短程探索，将预测时域限制在 3–5 步内，从根源上截断误差累积；
 - **策略对齐协同演化（Policy-Aligned Co-Evolution, PACE，如 WoVR）**：在 RL 策略演化过程中，定期收集当前策略生成的动作轨迹，对世界模型进行在线增量微调，动态保持模拟器与策略动作分布的同步对齐；
-- **基于 MLLM 的可验证与稠密进度奖励（Verified & Dense Progress Rewards，如 VLA-RFT, PRBench, SRPO）**：利用经过专门物理推理训练的 VLM（如 Cosmos-Reason1）或空间价值图（ASVM）提供每一步的稠密进度奖励，而非易受欺骗的简单图像相似度；
-- **测试时适应（Test-Time Adaptation, TTA，如 VLA-Reasoner, AdaPower）**：在真实部署测试阶段，允许策略根据环境反馈动态微调世界模型参数，实现在线即时校准。
+- **基于 MLLM 的可验证与稠密进度奖励（Verified & Dense Progress Rewards，如 VLA-RFT [[41]](#ref-41), PRBench, SRPO [[43]](#ref-43)）**：利用经过专门物理推理训练的 VLM（如 Cosmos-Reason1）或空间价值图（ASVM）提供每一步的稠密进度奖励，而非易受欺骗的简单图像相似度；
+- **测试时适应（Test-Time Adaptation, TTA，如 VLA-Reasoner [[45]](#ref-45), AdaPower [[46]](#ref-46)）**：在真实部署测试阶段，允许策略根据环境反馈动态微调世界模型参数，实现在线即时校准。
 
 ---
 
 # 4. Cosmos：物理 AI 世界基础模型平台
 ———World Simulation with Video Foundation Models for Physical AI
 
-📄 **Cosmos-Predict1 (2025)**: [arxiv.org/abs/2501.03575](https://arxiv.org/abs/2501.03575)  
+📄 **Cosmos-Predict1 (2025)**: [arxiv.org/abs/2501.03575](https://arxiv.org/abs/2501.03575) · [[6]](#ref-6)  
 📄 **Cosmos-Predict2.5 (2025/2026)**: [arxiv.org/abs/2511.00062](https://arxiv.org/abs/2511.00062)  
 🔗 **代码**: [nvidia-cosmos](https://github.com/nvidia-cosmos)
 
@@ -566,7 +566,7 @@ Cosmos-Predict 是平台的**世界前向动力学模型**——给定文本或�
 
 Cosmos-Transfer 不是"凭空预测未来"，而是将**结构化世界表示**翻译成**感官真实的视频**——典型用途是将仿真器（Isaac Sim、CARLA 等）的几何/语义输出提升为照片级真实画面（Sim2Real）。
 
-📄 **Cosmos-Transfer1 (2025)**: [arXiv:2503.14492](https://arxiv.org/abs/2503.14492)
+📄 **Cosmos-Transfer1 (2025)**: [arXiv:2503.14492](https://arxiv.org/abs/2503.14492) · [[7]](#ref-7)
 
 **Cosmos-Transfer1** 在 Cosmos-Predict1（7B 扩散模型）基础上后训练而来，核心创新是**自适应多模态 ControlNet** 架构：
 
@@ -607,7 +607,7 @@ Cosmos-Transfer 不是"凭空预测未来"，而是将**结构化世界表示**�
 
 Cosmos-Reason 是一个专为物理 AI 强化推理能力的视觉语言模型，输出带 **Chain-of-Thought** 的自然语言回答。
 
-📄 **Cosmos-Reason1 (2025)**: [arXiv:2503.15558](https://arxiv.org/abs/2503.15558)
+📄 **Cosmos-Reason1 (2025)**: [arXiv:2503.15558](https://arxiv.org/abs/2503.15558) · [[8]](#ref-8)
 
 #### 两套本体论（Ontology）
 
@@ -731,7 +731,7 @@ Cosmos 平台在六个物理 AI 场景上展示了多样的适用性：
 
 ## 4.5 开源生态：Cosmos Cookbook
 
-官方仓库 [nvidia-cosmos/cosmos-cookbook](https://github.com/nvidia-cosmos/cosmos-cookbook) 提供端到端、可直接跑通的 recipes 集合：
+官方仓库 [nvidia-cosmos/cosmos-cookbook](https://github.com/nvidia-cosmos/cosmos-cookbook) [[53]](#ref-53) 提供端到端、可直接跑通的 recipes 集合：
 
 - **推理脚本**：Predict（Text2World / Image2World / Video2World）、Transfer（多模态控制信号混合）、Reason 三产品线的最小可运行示例；
 - **后训练模板**：相机控制、机器人操纵、自动驾驶下游任务的标准微调配置（含 LoRA / 全量微调策略与超参）；
@@ -751,7 +751,7 @@ Cosmos 平台在六个物理 AI 场景上展示了多样的适用性：
 ## 4.6 Cosmos 3：全模态统一世界模型（2026）
 ———Omnimodal World Models for Physical AI
 
-📄 **Cosmos 3 (2026)**: [arxiv.org/abs/2606.02800](https://arxiv.org/abs/2606.02800)  
+📄 **Cosmos 3 (2026)**: [arxiv.org/abs/2606.02800](https://arxiv.org/abs/2606.02800) · [[9]](#ref-9)  
 🔗 **代码/权重**: [github.com/nvidia/cosmos](https://github.com/nvidia/cosmos) · [huggingface.co/collections/nvidia/cosmos3](https://huggingface.co/collections/nvidia/cosmos3)（OpenMDW-1.1 License）  
 💡 **专题详解**: 关于 Mixture-of-Transformers (MoT) 架构的详细数学拆解与分析，可参考我的专题博客 [Mixture-of-Transformers (MoT) 架构详解](/mixture-of-transformers/)。
 
@@ -873,7 +873,7 @@ Cosmos 3 是本文叙事的一个**收敛点**。GENE-26.5（§3.1）已展示"�
 ## 5.1 Lyra 2.0 (2026) {#sec-5-1-lyra}
 ———Explorable Generative 3D Worlds at Scale
 
-📄 **Paper**: [https://arxiv.org/abs/2604.13036](https://arxiv.org/abs/2604.13036)
+📄 **Paper**: [https://arxiv.org/abs/2604.13036](https://arxiv.org/abs/2604.13036) · [[10]](#ref-10)
 
 ### 精华
 
@@ -951,7 +951,7 @@ Lyra 2.0 的核心是一个基于"检索-生成-更新"的自回归循环：
 ## 5.2 Genie (2024) {#sec-5-2-genie}
 ———Generative Interactive Environments
 
-📄 **Paper**: [arXiv:2402.15391](https://arxiv.org/abs/2402.15391)
+📄 **Paper**: [arXiv:2402.15391](https://arxiv.org/abs/2402.15391) · [[11]](#ref-11)
 
 ### 精华
 
@@ -1027,7 +1027,7 @@ Genie 提出了 **ST-ViViT** 架构：
 ## 5.3 VLA-World (2026) {#sec-5-3-vla-world}
 ———Learning Vision-Language-Action World Models for Autonomous Driving
 
-📄 **Paper**: [https://vlaworld.github.io](https://vlaworld.github.io)
+📄 **Paper**: [https://vlaworld.github.io](https://vlaworld.github.io) · [[21]](#ref-21)
 
 ### 精华
 
@@ -1086,7 +1086,7 @@ VLA-World 提出了一个结合了感知、动作衍生预测、图像生成、�
 ## 5.4 WorldVLA (2025) {#sec-5-4-worldvla}
 ———Towards Autoregressive Action World Model
 
-📄 **Paper**: [https://arxiv.org/abs/2506.21539](https://arxiv.org/abs/2506.21539)
+📄 **Paper**: [https://arxiv.org/abs/2506.21539](https://arxiv.org/abs/2506.21539) · [[22]](#ref-22)
 
 ### 精华
 
@@ -1162,7 +1162,7 @@ WorldVLA 采用自回归架构，集成了图像、文本和动作三种模态�
 ## 5.5 WoVR (2026) {#sec-5-5-wovr}
 ———World Models as Reliable Simulators for Post-Training VLA Policies with RL
 
-📄 **Paper**: [https://arxiv.org/abs/2602.13977](https://arxiv.org/abs/2602.13977)
+📄 **Paper**: [https://arxiv.org/abs/2602.13977](https://arxiv.org/abs/2602.13977) · [[23]](#ref-23)
 
 ### 精华
 
@@ -1223,7 +1223,7 @@ WoVR 引入了一种增强型 DiT（Diffusion Transformer）世界模型，通�
 ## 5.6 Janus-Pro (2025) {#sec-5-6-janus-pro}
 ———Unified Multimodal Understanding and Generation with Data and Model Scaling
 
-📄 **Paper**: https://arxiv.org/abs/2501.17811
+📄 **Paper**: https://arxiv.org/abs/2501.17811 · [[24]](#ref-24)
 
 ### 精华
 
@@ -1345,7 +1345,7 @@ Janus 与 Janus-Pro 均采用三阶段训练范式，下图（取自原 Janus �
 ## 5.7 Video Generation Models in Robotics (2026) {#sec-5-7-videogen}
 ———Applications, Research Challenges, Future Directions
 
-📄 **Paper**: [arXiv:2601.07823](https://arxiv.org/abs/2601.07823)
+📄 **Paper**: [arXiv:2601.07823](https://arxiv.org/abs/2601.07823) · [[26]](#ref-26)
 
 ### 精华
 
@@ -1406,7 +1406,7 @@ Janus 与 Janus-Pro 均采用三阶段训练范式，下图（取自原 Janus �
 
 ### 3. 核心结果/发现
 
-- **性能评估标准**：除了传统的视觉指标（PSNR, SSIM, FVD），机器人领域更关注物理一致性（Physics-IQ）、指令遵循度（VBench）和策略部署后的成功率。
+- **性能评估标准**：除了传统的视觉指标（PSNR, SSIM, FVD），机器人领域更关注物理一致性（Physics-IQ）、指令遵循度（VBench [[51]](#ref-51)）和策略部署后的成功率。
 - **跨模态优势**：视频模型能整合文本指令、参考图像和动作序列，生成的视频轨迹可直接用于训练 VLA（Vision-Language-Action）策略。
 - **成本效益**：通过视频生成进行大规模策略评估，可减少对真实物理站点的依赖，降低硬件损耗和人工成本。
 
@@ -1423,7 +1423,7 @@ Janus 与 Janus-Pro 均采用三阶段训练范式，下图（取自原 Janus �
 ## 5.8 AIM (2026) {#sec-5-8-aim}
 ———Intent-Aware Unified World Action Modeling with Spatial Value Maps
 
-📄 **Paper**: https://arxiv.org/abs/2604.11135
+📄 **Paper**: https://arxiv.org/abs/2604.11135 · [[13]](#ref-13)
 
 ### 精华
 
@@ -1510,7 +1510,7 @@ $$\mathcal L_{GRPO}(\phi) = \mathbb E_t\left[\min\!\Big(\rho_t(\phi)\hat A_t,\, 
 ## 5.9 LingBot-World (2026) {#sec-5-9-lingbot-world}
 ———首个开源、支持实时交互的长程世界模型
 
-📄 **Paper**: [arXiv:2601.20540](https://arxiv.org/abs/2601.20540)
+📄 **Paper**: [arXiv:2601.20540](https://arxiv.org/abs/2601.20540) · [[18]](#ref-18)
 
 ### 精华
 1. **LingBot-World** 是一个开源的实时交互世界模型，支持分钟级的长程生成一致性。
@@ -1586,7 +1586,7 @@ LingBot-World 基于 DiT (Diffusion Transformer) 架构。动作信号（离散�
 > 💡 **姊妹篇导读**：关于 3D 几何表征（如 3D Gaussian Splatting、NeRF、点云）与具身感知的深度融合，可进一步参阅本站的 **[空间智能全景综述：从 3D 几何表征、多模态时空推演到具身物理世界交互](/Spatial-Intelligence-Survey/)**。
 
 🔗 **产品**: [marble.worldlabs.ai](https://marble.worldlabs.ai)  
-🔗 **技术博客**: [Marble: A Multimodal World Model](https://www.worldlabs.ai/blog/marble-world-model)  
+🔗 **技术博客**: [Marble: A Multimodal World Model](https://www.worldlabs.ai/blog/marble-world-model) · [[25]](#ref-25)  
 🔗 **API**: [World Labs API](https://www.worldlabs.ai)
 
 ### 精华
@@ -1726,7 +1726,7 @@ flowchart LR
 ## 5.11 SANA-WM (2026) {#sec-5-11-sana-wm}
 ———Efficient Minute-Scale World Modeling with Hybrid Linear Diffusion Transformer
 
-📄 **Paper**: [arXiv:2605.15178](https://arxiv.org/abs/2605.15178)  
+📄 **Paper**: [arXiv:2605.15178](https://arxiv.org/abs/2605.15178) · [[17]](#ref-17)  
 🔗 **项目主页**: [nvlabs.github.io/Sana/WM](https://nvlabs.github.io/Sana/WM/)
 
 ### 精华
@@ -1836,7 +1836,7 @@ SANA-WM 受限于规模（2.6B 参数与 213K 片段），在动态场景、罕�
 ## 5.12 Qwen-RobotWorld (2026) {#sec-5-12-qwen-robotworld}
 ———用自然语言统一具身世界模型：机械臂操作、自动驾驶、室内导航和人到机器人迁移
 
-📄 **Paper**: [arXiv:2606.17030](https://arxiv.org/abs/2606.17030)
+📄 **Paper**: [arXiv:2606.17030](https://arxiv.org/abs/2606.17030) · [[19]](#ref-19)
 
 ### 精华
 
@@ -1913,7 +1913,7 @@ Qwen-RobotWorld 由三部分构成：**架构**（双流 MMDiT + MLLM 动作编�
 ## 5.13 Wan2.1 (2025) {#sec-5-13-wan}
 ———阿里巴巴开源的高效视频生成基础模型家族
 
-📄 **Paper**: https://arxiv.org/abs/2503.20314
+📄 **Paper**: https://arxiv.org/abs/2503.20314 · [[20]](#ref-20)
 
 ### 精华
 
@@ -2031,7 +2031,7 @@ $$\mathcal{L} = \mathbb{E}_{x_0, x_1, ctxt, t} \left[ \lVert u(x_t, ctxt, t; \th
 ## 5.14 Motus (2025/2026) {#sec-5-14-motus}
 ———统一隐动作世界模型：Mixture-of-Transformers 与光流动作金字塔
 
-📄 **Paper**: [arXiv:2512.18876](https://arxiv.org/abs/2512.18876) · [Project Page](https://motubrain.com) · [Code](https://github.com/PKU-YuanGroup/Motus) · 清华大学 & 生数科技
+📄 **Paper**: [arXiv:2512.18876](https://arxiv.org/abs/2512.18876) · [Project Page](https://motubrain.com) · [Code](https://github.com/PKU-YuanGroup/Motus) · 清华大学 & 生数科技 · [[12]](#ref-12)
 
 ### 精华
 
@@ -2111,8 +2111,8 @@ Motus 在每个 Transformer Block 内部引入了分流设计：
 ## 5.15 NavWAM & WAM-Nav (2026) {#sec-5-15-navwam}
 ———导航世界动作模型：潜在画布（Latent Canvas）与非对称时空视界
 
-📄 **NavWAM (2026)**: [arXiv:2606.13494](https://arxiv.org/abs/2606.13494) · [Project Page](https://dachii-azm.github.io/navwam/)  
-📄 **WAM-Nav (2026)**: [arXiv:2606.04907](https://arxiv.org/abs/2606.04907) · WAM-Nav: Asymmetric Latent World-Action Modeling for Unified Visual Navigation
+📄 **NavWAM (2026)**: [arXiv:2606.13494](https://arxiv.org/abs/2606.13494) · [Project Page](https://dachii-azm.github.io/navwam/) · [[14]](#ref-14)  
+📄 **WAM-Nav (2026)**: [arXiv:2606.04907](https://arxiv.org/abs/2606.04907) · WAM-Nav: Asymmetric Latent World-Action Modeling for Unified Visual Navigation · [[15]](#ref-15)
 
 ### 精华
 
@@ -2196,7 +2196,7 @@ NavWAM 基于预训练 Cosmos-Predict2（2B）底座，构建了一个统一的 
 ## 5.16 Image2Sim (2026) {#sec-5-16-image2sim}
 ———解耦 3D 空间锚定与单步像素流的实时神经仿真引擎
 
-📄 **Paper**: [arXiv:2607.05765](https://arxiv.org/abs/2607.05765) · [Project Page](https://github.com/MrZihan/Image2Sim) · 清华大学 & 智源研究院
+📄 **Paper**: [arXiv:2607.05765](https://arxiv.org/abs/2607.05765) · [Project Page](https://github.com/MrZihan/Image2Sim) · 清华大学 & 智源研究院 · [[16]](#ref-16)
 
 ### 精华
 
@@ -2277,7 +2277,7 @@ Image2Sim 将神经环境仿真解耦为两级级联结构：
 | **LTX-Video / LTX-2** | 2B / 17B | DiT + Flow Matching | SANA-WM 两阶段精化器底座，超高帧率视频生成 |
 | **HunyuanVideo** | 13B | 双流 DiT | 高视觉保真度与精细动作先验建模 |
 | **Stable Video Diffusion** | 1.5B | UNet 扩散模型 | Ctrl-World, MoWM, HMA, VPP 等早期探索 |
-| **iVideoGPT / NOVA** | 0.6B | 自回归 Transformer | VLA-RFT, WMPO 等轻量级仿真评估 |
+| **iVideoGPT / NOVA** | 0.6B | 自回归 Transformer | VLA-RFT, WMPO [[42]](#ref-42) 等轻量级仿真评估 |
 
 ## 6.2 统一理解与生成模型（Unified Multimodal Foundations）
 
@@ -2298,7 +2298,7 @@ Image2Sim 将神经环境仿真解耦为两级级联结构：
 
 | 模型 | 参数规模 | 预训练目标 | 典型应用与具身角色 |
 |:---|:---:|:---|:---|
-| **V-JEPA 2** | 1B | 联合嵌入预测 (JEPA) | NORA-1.5, MoWM, SRPO 隐式潜空间规划与稠密奖励提取 |
+| **V-JEPA 2** | 1B | 联合嵌入预测 (JEPA) | NORA-1.5 [[44]](#ref-44), MoWM, SRPO 隐式潜空间规划与稠密奖励提取 |
 | **DINOv2 / DINOv3** | 300M / 1B | 自监督视觉特征 | WAM-Nav, Image2Sim 空间几何与物体语义记忆检索 |
 | **SigLIP / SigLIP-2** | 400M / 1B | Sigmoid 对比学习 | Janus-Pro, OpenVLA 多模态高层指令对齐与场景语义解析 |
 
@@ -2308,7 +2308,7 @@ Image2Sim 将神经环境仿真解耦为两级级联结构：
 
 | 模型 / 技术 | 空间表示 | 核心能力 | 典型应用与具身角色 |
 |:---|:---|:---|:---|
-| **3D Gaussian Splatting (3DGS)** | 显式高斯粒子 | 毫秒级可微渲染、跨设备漫游 | Lyra 2.0, Marble, Image2Sim 场景持久化资产与碰撞检测 |
+| **3D Gaussian Splatting (3DGS)** [[50]](#ref-50) | 显式高斯粒子 | 毫秒级可微渲染、跨设备漫游 | Lyra 2.0, Marble, Image2Sim 场景持久化资产与碰撞检测 |
 | **Depth Anything 2 / 3** | 单目深度 / 点云 | 极高精度的度量几何估计 | Cosmos-Transfer1, SANA-WM 几何条件图与相机姿态恢复 |
 | **VGGT / MapAnything** | 3D 几何拓扑 | 大范围度量地图与 3D 场景重建 | 长程具身导航地图构建与物理边界约束 |
 
@@ -2326,9 +2326,9 @@ Image2Sim 将神经环境仿真解耦为两级级联结构：
 
 | 基准 | 场景类型 | 任务特点 | 机器人本体 | 轨迹数 | 任务数 | 适用评估范式 |
 |:---|:---|:---:|:---|---:|---:|:---|
-| **RoboTwin 2.0** | 桌面/台面 | 双臂协调、接触密集、空间价值热图 | 双臂 Franka / 移动底座 | 30k+ | 50 | 世界动作模型 (WAM)、空间意图评估 |
-| **LIBERO** | 桌面 | 空间、目标、长程多任务知识迁移 | Franka Panda | 6.5k | 130 | 策略规划器、自回归 WAM |
-| **CALVIN** | 桌面 | 连续 5 步子任务链、开环/闭环测试 | Franka Panda | 24k | 34 | 长程前瞻与思维链推理 |
+| **RoboTwin 2.0** [[49]](#ref-49) | 桌面/台面 | 双臂协调、接触密集、空间价值热图 | 双臂 Franka / 移动底座 | 30k+ | 50 | 世界动作模型 (WAM)、空间意图评估 |
+| **LIBERO** [[47]](#ref-47) | 桌面 | 空间、目标、长程多任务知识迁移 | Franka Panda | 6.5k | 130 | 策略规划器、自回归 WAM |
+| **CALVIN** [[48]](#ref-48) | 桌面 | 连续 5 步子任务链、开环/闭环测试 | Franka Panda | 24k | 34 | 长程前瞻与思维链推理 |
 | **WorldArena 2.0** | 多场景 | 物理常识与牛顿定律符合性 | 多种实体 | — | 100+ | 物理一致性与因果逻辑审计 |
 | **RoboCasa** | 厨房/室内 | 大规模日常复杂家务、移动操控 | Franka（移动） | 100k+ | 100 | 长航程任务分解与策略泛化 |
 | **SimplerEnv** | 真实渲染 | 逼真 Sim2Real 评估环境 | Google Robot, WidowX | — | 8 | 真机部署策略前置验证 |
@@ -2585,59 +2585,61 @@ flowchart TD
 
 # 10. 参考资料与延伸阅读 {#sec-10-references}
 
-1. Tan, Z., et al. (2026). *Towards Generalist Embodied AI: A Survey on World Models for VLA Agents*. TechRxiv. [arXiv/TechRxiv 链接](https://www.techrxiv.org/)
-2. Li, X., et al. (2025/2026). *A Comprehensive Survey on World Models for Embodied AI*. [arXiv:2510.16732](https://arxiv.org/abs/2510.16732) · [AwesomeWorldModels](https://github.com/Li-Zn-H/AwesomeWorldModels)
-3. Ha, D., & Schmidhuber, J. (2018). *World Models*. NeurIPS 2018. [arXiv:1803.10122](https://arxiv.org/abs/1803.10122) · [Project Page](https://worldmodels.github.io/)
-4. Hafner, D., Pasukonis, J., Ba, J., & Lillicrap, T. (2025). *Mastering Diverse Control Tasks through World Models (DreamerV3)*. Nature 640, 647–653. [Nature 论文](https://www.nature.com/articles/s41586-025-08744-2) · [arXiv:2301.04104](https://arxiv.org/abs/2301.04104)
-5. Hansen, N., et al. (2024). *TD-MPC2: Scalable, Robust World Models for Continuous Control*. ICLR 2024 (Oral). [arXiv:2310.16828](https://arxiv.org/abs/2310.16828) · [Project Page](https://tdmpc2.github.io/)
-6. NVIDIA. (2025). *Cosmos World Foundation Model Platform for Physical AI*. [arXiv:2501.03575](https://arxiv.org/abs/2501.03575)
-7. NVIDIA. (2025). *Cosmos-Transfer1: Conditional World Generation with Adaptive Multimodal Control*. [arXiv:2503.14492](https://arxiv.org/abs/2503.14492)
-8. NVIDIA. (2025). *Cosmos-Reason1: From Physical Common Sense To Embodied Reasoning*. [arXiv:2503.15558](https://arxiv.org/abs/2503.15558)
-9. NVIDIA. (2026). *Cosmos 3: Omnimodal World Models for Physical AI*. [arXiv:2606.02800](https://arxiv.org/abs/2606.02800) · [GitHub](https://github.com/nvidia-cosmos)
-10. NVIDIA. (2026). *Lyra 2.0: Explorable Generative 3D Worlds at Scale*. [arXiv:2604.13036](https://arxiv.org/abs/2604.13036)
-11. Bruce, J., et al. (2024). *Genie: Generative Interactive Environments*. Google DeepMind. [arXiv:2402.15391](https://arxiv.org/abs/2402.15391)
-12. *Motus: A Unified Latent Action World Model for Robotic Manipulation* (2025/2026). 清华大学 & 生数科技. [arXiv:2512.18876](https://arxiv.org/abs/2512.18876) · [Code](https://github.com/PKU-YuanGroup/Motus)
-13. *AIM: Intent-Aware Unified World Action Modeling with Spatial Value Maps* (2026). [arXiv:2604.11135](https://arxiv.org/abs/2604.11135)
-14. *NavWAM: Navigation World Action Models for Autonomous Embodied Agents* (2026). [arXiv:2606.13494](https://arxiv.org/abs/2606.13494) · [Project Page](https://dachii-azm.github.io/navwam/)
-15. *WAM-Nav: Asymmetric Latent World-Action Modeling for Unified Visual Navigation* (2026). [arXiv:2606.04907](https://arxiv.org/abs/2606.04907)
-16. *Image2Sim: Decoupled 3D Gaussian Geometry and One-Step Pixel Flow for Real-Time Neural Simulation* (2026). [arXiv:2607.05765](https://arxiv.org/abs/2607.05765)
-17. Zhu, H., et al. (2026). *SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diffusion Transformer*. [arXiv:2605.15178](https://arxiv.org/abs/2605.15178) · [Project Page](https://nvlabs.github.io/Sana/WM/)
-18. *LingBot-World: Open-Source Minute-Scale Interactive World Model* (2026). [arXiv:2601.20540](https://arxiv.org/abs/2601.20540)
-19. Alibaba. (2026). *Qwen-RobotWorld: Unifying Embodied World Models via Natural Language*. [arXiv:2606.17030](https://arxiv.org/abs/2606.17030)
-20. Alibaba. (2025). *Wan: Open and Advanced Large-Scale Video Generative Models*. [arXiv:2503.20314](https://arxiv.org/abs/2503.20314)
-21. *VLA-World: Learning Vision-Language-Action World Models for Autonomous Driving* (2026). [项目主页](https://vlaworld.github.io)
-22. Cen, J., et al. (2025). *WorldVLA: Towards Autoregressive Action World Model*. [arXiv:2506.21539](https://arxiv.org/abs/2506.21539)
-23. *WoVR: World Models as Reliable Simulators for Post-Training VLA Policies with RL* (2026). [arXiv:2602.13977](https://arxiv.org/abs/2602.13977)
-24. Chen, X., et al. (2025). *Janus-Pro: Unified Multimodal Understanding and Generation with Data and Model Scaling*. [arXiv:2501.17811](https://arxiv.org/abs/2501.17811)
-25. World Labs. (2025/2026). *Marble: A Multimodal Large World Model*. [worldlabs.ai](https://www.worldlabs.ai/blog/marble-world-model)
-26. *Video Generation Models in Robotics: Applications, Research Challenges, Future Directions* (2026). [arXiv:2601.07823](https://arxiv.org/abs/2601.07823)
-27. Du, Y., et al. (2023). *Learning Universal Policies via Text-Guided Video Generation (UniPi)*. NeurIPS 2023.
-28. Black, K., et al. (2024). *Zero-Shot Robotic Manipulation with Pre-trained Image-Editing Diffusion Models (SuSIE)*. ICLR 2024.
-29. Wu, H., et al. (2023). *Unleashing Large-Scale Video Generative Pre-training for Visual Robot Manipulation (GR-1)*. ICLR 2024.
-30. Assran, M., et al. (2025). *V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning*. Meta AI.
-31. Zhen, H., et al. (2024). *3D-VLA: A 3D Vision-Language-Action Generative World Model*. ICML 2024.
-32. Gao, C., et al. (2024). *PIVOT-R: Primitive-Driven Waypoint-Aware World Model for Robotic Manipulation*.
-33. Liu, J., et al. (2025). *CoT-VLA: Visual Chain-of-Thought Reasoning for Vision-Language-Action Models*.
-34. Zhang, W., et al. (2025). *DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge*.
-35. Zhang, Z., et al. (2025). *FlowVLA: Thinking in Flow for Vision-Language-Action Models*.
-36. Bu, Q., et al. (2025). *UniVLA: Learning to Act Anywhere with Task-centric Latent Actions*.
-37. Zhao, J., et al. (2025). *DreamGen: Unlocking Generalization in Robot Learning through Neural Trajectories*. NVIDIA.
-38. *GigaWorld-0: World Models as Data Engine to Empower VLA Models* (2025).
-39. *WristWorld: Generating Wrist-Views via 4D World Models for Robotic Manipulation* (2025).
-40. *Ctrl-World: A Controllable Generative Framework for Robotic Manipulation* (2025).
-41. *VLA-RFT: Vision-Language-Action Reinforcement Fine-tuning with Verified Rewards in World Simulators* (2025).
-42. *WMPO: World Model-based Policy Optimization for Vision-Language-Action Models* (2025).
-43. *SRPO: Scaffolded Reinforcement Policy Optimization for Robotic Manipulation* (2025).
-44. *NORA-1.5: A Small Open Vision-Language-Action Model for Embodied Tasks with Flow-Matching Action Expert* (2025).
-45. *VLA-Reasoner: Empowering Vision-Language-Action Models for Complex Tasks with Future Imagination* (2025).
-46. *AdaPower: Adaptive Test-Time Scaling for Vision-Language-Action Models* (2025).
-47. Liu, B., et al. (2023). *LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning*. [libero-project.github.io](https://libero-project.github.io/)
-48. Mees, O., et al. (2022). *CALVIN: A Benchmark for Language-Conditioned Policy Learning for Long-Horizon Robot Manipulation Tasks*. [github.com/mees/calvin](https://github.com/mees/calvin)
-49. *RoboTwin 2.0: Dual-Arm Benchmark for Scalable Embodied Manipulation* (2025). Tsinghua University.
-50. Kerbl, B., et al. (2023). *3D Gaussian Splatting for Real-Time Radiance Field Rendering*. SIGGRAPH 2023.
-51. Huang, Z., et al. (2024). *VBench: Comprehensive Benchmark Suite for Video Generative Models*.
-52. Genesis AI. (2026). *GENE-26.5: Advancing Robotic Manipulation to Human-Level*. [genesis.ai](https://www.genesis.ai/blog/gene-26-5-advancing-robotic-manipulation-to-human-level)
-53. NVIDIA Cosmos Cookbook — [github.com/nvidia-cosmos/cosmos-cookbook](https://github.com/nvidia-cosmos/cosmos-cookbook).
+正文中的 [[n]](#sec-10-references) 角标可直接跳转至下方对应条目。
+
+1. <span id="ref-1"></span>Tan, Z., et al. (2026). *Towards Generalist Embodied AI: A Survey on World Models for VLA Agents*. TechRxiv. [arXiv/TechRxiv 链接](https://www.techrxiv.org/)
+2. <span id="ref-2"></span>Li, X., et al. (2025/2026). *A Comprehensive Survey on World Models for Embodied AI*. [arXiv:2510.16732](https://arxiv.org/abs/2510.16732) · [AwesomeWorldModels](https://github.com/Li-Zn-H/AwesomeWorldModels)
+3. <span id="ref-3"></span>Ha, D., & Schmidhuber, J. (2018). *World Models*. NeurIPS 2018. [arXiv:1803.10122](https://arxiv.org/abs/1803.10122) · [Project Page](https://worldmodels.github.io/)
+4. <span id="ref-4"></span>Hafner, D., Pasukonis, J., Ba, J., & Lillicrap, T. (2025). *Mastering Diverse Control Tasks through World Models (DreamerV3)*. Nature 640, 647–653. [Nature 论文](https://www.nature.com/articles/s41586-025-08744-2) · [arXiv:2301.04104](https://arxiv.org/abs/2301.04104)
+5. <span id="ref-5"></span>Hansen, N., et al. (2024). *TD-MPC2: Scalable, Robust World Models for Continuous Control*. ICLR 2024 (Oral). [arXiv:2310.16828](https://arxiv.org/abs/2310.16828) · [Project Page](https://tdmpc2.github.io/)
+6. <span id="ref-6"></span>NVIDIA. (2025). *Cosmos World Foundation Model Platform for Physical AI*. [arXiv:2501.03575](https://arxiv.org/abs/2501.03575)
+7. <span id="ref-7"></span>NVIDIA. (2025). *Cosmos-Transfer1: Conditional World Generation with Adaptive Multimodal Control*. [arXiv:2503.14492](https://arxiv.org/abs/2503.14492)
+8. <span id="ref-8"></span>NVIDIA. (2025). *Cosmos-Reason1: From Physical Common Sense To Embodied Reasoning*. [arXiv:2503.15558](https://arxiv.org/abs/2503.15558)
+9. <span id="ref-9"></span>NVIDIA. (2026). *Cosmos 3: Omnimodal World Models for Physical AI*. [arXiv:2606.02800](https://arxiv.org/abs/2606.02800) · [GitHub](https://github.com/nvidia-cosmos)
+10. <span id="ref-10"></span>NVIDIA. (2026). *Lyra 2.0: Explorable Generative 3D Worlds at Scale*. [arXiv:2604.13036](https://arxiv.org/abs/2604.13036)
+11. <span id="ref-11"></span>Bruce, J., et al. (2024). *Genie: Generative Interactive Environments*. Google DeepMind. [arXiv:2402.15391](https://arxiv.org/abs/2402.15391)
+12. <span id="ref-12"></span>*Motus: A Unified Latent Action World Model for Robotic Manipulation* (2025/2026). 清华大学 & 生数科技. [arXiv:2512.18876](https://arxiv.org/abs/2512.18876) · [Code](https://github.com/PKU-YuanGroup/Motus)
+13. <span id="ref-13"></span>*AIM: Intent-Aware Unified World Action Modeling with Spatial Value Maps* (2026). [arXiv:2604.11135](https://arxiv.org/abs/2604.11135)
+14. <span id="ref-14"></span>*NavWAM: Navigation World Action Models for Autonomous Embodied Agents* (2026). [arXiv:2606.13494](https://arxiv.org/abs/2606.13494) · [Project Page](https://dachii-azm.github.io/navwam/)
+15. <span id="ref-15"></span>*WAM-Nav: Asymmetric Latent World-Action Modeling for Unified Visual Navigation* (2026). [arXiv:2606.04907](https://arxiv.org/abs/2606.04907)
+16. <span id="ref-16"></span>*Image2Sim: Decoupled 3D Gaussian Geometry and One-Step Pixel Flow for Real-Time Neural Simulation* (2026). [arXiv:2607.05765](https://arxiv.org/abs/2607.05765)
+17. <span id="ref-17"></span>Zhu, H., et al. (2026). *SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diffusion Transformer*. [arXiv:2605.15178](https://arxiv.org/abs/2605.15178) · [Project Page](https://nvlabs.github.io/Sana/WM/)
+18. <span id="ref-18"></span>*LingBot-World: Open-Source Minute-Scale Interactive World Model* (2026). [arXiv:2601.20540](https://arxiv.org/abs/2601.20540)
+19. <span id="ref-19"></span>Alibaba. (2026). *Qwen-RobotWorld: Unifying Embodied World Models via Natural Language*. [arXiv:2606.17030](https://arxiv.org/abs/2606.17030)
+20. <span id="ref-20"></span>Alibaba. (2025). *Wan: Open and Advanced Large-Scale Video Generative Models*. [arXiv:2503.20314](https://arxiv.org/abs/2503.20314)
+21. <span id="ref-21"></span>*VLA-World: Learning Vision-Language-Action World Models for Autonomous Driving* (2026). [项目主页](https://vlaworld.github.io)
+22. <span id="ref-22"></span>Cen, J., et al. (2025). *WorldVLA: Towards Autoregressive Action World Model*. [arXiv:2506.21539](https://arxiv.org/abs/2506.21539)
+23. <span id="ref-23"></span>*WoVR: World Models as Reliable Simulators for Post-Training VLA Policies with RL* (2026). [arXiv:2602.13977](https://arxiv.org/abs/2602.13977)
+24. <span id="ref-24"></span>Chen, X., et al. (2025). *Janus-Pro: Unified Multimodal Understanding and Generation with Data and Model Scaling*. [arXiv:2501.17811](https://arxiv.org/abs/2501.17811)
+25. <span id="ref-25"></span>World Labs. (2025/2026). *Marble: A Multimodal Large World Model*. [worldlabs.ai](https://www.worldlabs.ai/blog/marble-world-model)
+26. <span id="ref-26"></span>*Video Generation Models in Robotics: Applications, Research Challenges, Future Directions* (2026). [arXiv:2601.07823](https://arxiv.org/abs/2601.07823)
+27. <span id="ref-27"></span>Du, Y., et al. (2023). *Learning Universal Policies via Text-Guided Video Generation (UniPi)*. NeurIPS 2023.
+28. <span id="ref-28"></span>Black, K., et al. (2024). *Zero-Shot Robotic Manipulation with Pre-trained Image-Editing Diffusion Models (SuSIE)*. ICLR 2024.
+29. <span id="ref-29"></span>Wu, H., et al. (2023). *Unleashing Large-Scale Video Generative Pre-training for Visual Robot Manipulation (GR-1)*. ICLR 2024.
+30. <span id="ref-30"></span>Assran, M., et al. (2025). *V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning*. Meta AI.
+31. <span id="ref-31"></span>Zhen, H., et al. (2024). *3D-VLA: A 3D Vision-Language-Action Generative World Model*. ICML 2024.
+32. <span id="ref-32"></span>Gao, C., et al. (2024). *PIVOT-R: Primitive-Driven Waypoint-Aware World Model for Robotic Manipulation*.
+33. <span id="ref-33"></span>Liu, J., et al. (2025). *CoT-VLA: Visual Chain-of-Thought Reasoning for Vision-Language-Action Models*.
+34. <span id="ref-34"></span>Zhang, W., et al. (2025). *DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge*.
+35. <span id="ref-35"></span>Zhang, Z., et al. (2025). *FlowVLA: Thinking in Flow for Vision-Language-Action Models*.
+36. <span id="ref-36"></span>Bu, Q., et al. (2025). *UniVLA: Learning to Act Anywhere with Task-centric Latent Actions*.
+37. <span id="ref-37"></span>Zhao, J., et al. (2025). *DreamGen: Unlocking Generalization in Robot Learning through Neural Trajectories*. NVIDIA.
+38. <span id="ref-38"></span>*GigaWorld-0: World Models as Data Engine to Empower VLA Models* (2025).
+39. <span id="ref-39"></span>*WristWorld: Generating Wrist-Views via 4D World Models for Robotic Manipulation* (2025).
+40. <span id="ref-40"></span>*Ctrl-World: A Controllable Generative Framework for Robotic Manipulation* (2025).
+41. <span id="ref-41"></span>*VLA-RFT: Vision-Language-Action Reinforcement Fine-tuning with Verified Rewards in World Simulators* (2025).
+42. <span id="ref-42"></span>*WMPO: World Model-based Policy Optimization for Vision-Language-Action Models* (2025).
+43. <span id="ref-43"></span>*SRPO: Scaffolded Reinforcement Policy Optimization for Robotic Manipulation* (2025).
+44. <span id="ref-44"></span>*NORA-1.5: A Small Open Vision-Language-Action Model for Embodied Tasks with Flow-Matching Action Expert* (2025).
+45. <span id="ref-45"></span>*VLA-Reasoner: Empowering Vision-Language-Action Models for Complex Tasks with Future Imagination* (2025).
+46. <span id="ref-46"></span>*AdaPower: Adaptive Test-Time Scaling for Vision-Language-Action Models* (2025).
+47. <span id="ref-47"></span>Liu, B., et al. (2023). *LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning*. [libero-project.github.io](https://libero-project.github.io/)
+48. <span id="ref-48"></span>Mees, O., et al. (2022). *CALVIN: A Benchmark for Language-Conditioned Policy Learning for Long-Horizon Robot Manipulation Tasks*. [github.com/mees/calvin](https://github.com/mees/calvin)
+49. <span id="ref-49"></span>*RoboTwin 2.0: Dual-Arm Benchmark for Scalable Embodied Manipulation* (2025). Tsinghua University.
+50. <span id="ref-50"></span>Kerbl, B., et al. (2023). *3D Gaussian Splatting for Real-Time Radiance Field Rendering*. SIGGRAPH 2023.
+51. <span id="ref-51"></span>Huang, Z., et al. (2024). *VBench: Comprehensive Benchmark Suite for Video Generative Models*.
+52. <span id="ref-52"></span>Genesis AI. (2026). *GENE-26.5: Advancing Robotic Manipulation to Human-Level*. [genesis.ai](https://www.genesis.ai/blog/gene-26-5-advancing-robotic-manipulation-to-human-level)
+53. <span id="ref-53"></span>NVIDIA Cosmos Cookbook — [github.com/nvidia-cosmos/cosmos-cookbook](https://github.com/nvidia-cosmos/cosmos-cookbook).
 
 ---
 
