@@ -1629,8 +1629,8 @@ Marble 支持四类输入模态，真正实现了多模态 → 3D 世界的生�
 | 粗糙 3D 布局（Coarse 3D Layout） | 通过 Chisel 工具手绘草图或导入 3D 资产作为结构框架 |
 
 <div align="center">
-  <img src="/images/wm/i2w-living-room.webp" width="48%" />
-  <img src="/images/wm/i2w-mushroom-forest.webp" width="48%" />
+  <img src="/images/wm/i2w-living-room.jpg" width="48%" />
+  <img src="/images/wm/i2w-mushroom-forest.jpg" width="48%" />
 <figcaption>图：Image-to-World 示例：单张室内照片（左）和蘑菇森林插画（右）被 Marble 外推为完整可探索的 3D 世界。（图源：World Labs）</figcaption>
 </div>
 
@@ -1639,7 +1639,7 @@ Marble 支持四类输入模态，真正实现了多模态 → 3D 世界的生�
 Marble 的核心技术选型为 **3D 高斯泼溅（3D Gaussian Splatting, 3DGS）**。3DGS 将 3D 场景表示为一组半透明粒子集合，在世界模型场景下具有显著优势：
 
 <div align="center">
-  <img src="/images/wm/streaming-3dgs-worlds.webp" width="90%" />
+  <img src="/images/wm/streaming-3dgs-worlds.jpg" width="90%" />
 <figcaption>图：Marble 的流式 3DGS 渲染：生成的 3D 世界以高斯粒子表示，支持跨平台（手机到 VR 头显）实时渲染与自由视角探索。（图源：World Labs）</figcaption>
 </div>
 
@@ -1654,7 +1654,7 @@ Marble 的核心技术选型为 **3D 高斯泼溅（3D Gaussian Splatting, 3DGS�
 **四大核心功能模块**
 
 <div align="center">
-  <img src="/images/wm/3d-as-code.webp" width="90%" />
+  <img src="/images/wm/3d-as-code.jpg" width="90%" />
 <figcaption>图：Chisel 工具：用户通过盒子、平面等基础 3D 形状或导入现有 3D 资产确定世界结构，文本 prompt 控制整体风格，实现结构与风格的解耦。（图源：World Labs）</figcaption>
 </div>
 
