@@ -2549,6 +2549,11 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 - **发布时间**：2018年
 - **开源地址**：[GitHub](https://github.com/peteanderson80/Matterport3DSimulator)
 
+<div align="center">
+  <img src="/images/vln/matterport3d-simulator.webp" width="95%" alt="Matterport3D Simulator 导航视点图与仿真界面" />
+  <figcaption>图 7.1：Matterport3D Simulator 真实室内场景 3D 网格扫描与离散全景视点导航图结构</figcaption>
+</div>
+
 **核心特点：**
 - **真实场景扫描**：基于Matterport3D数据集，包含90个真实室内环境的高精度3D扫描
 - **全景视图**：提供360度全景RGB-D图像
@@ -2579,6 +2584,11 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 - **开发者**：Facebook AI Research (FAIR)
 - **发布时间**：2019年（最新3.1版本2024–2025年更新）
 - **开源地址**：[GitHub](https://github.com/facebookresearch/habitat-lab)
+
+<div align="center">
+  <img src="/images/vln/habitat-simulator.webp" width="95%" alt="AI Habitat 具身智能仿真环境" />
+  <figcaption>图 7.2：AI Habitat 高性能具身智能仿真平台（支持多传感器渲染、连续物理动作与人机协同交互）</figcaption>
+</div>
 
 **核心特点：**
 - **高性能仿真**：超快速渲染（10,000+ FPS）
@@ -2618,42 +2628,94 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
   - **Isaac Sim**：基于 NVIDIA Omniverse 的高保真机器人仿真环境
   - **Isaac Lab**：基于 Isaac Sim 的模块化机器人学习与强化学习框架（GPU 加速）
 - **开源地址**：
-  - Isaac Lab 文档： https://isaac-sim.github.io/IsaacLab/main/index.html :contentReference[oaicite:0]{index=0}
-  - Isaac Sim 官方页面： https://developer.nvidia.com/isaac-sim :contentReference[oaicite:1]{index=1}
+  - [Isaac Sim 官网](https://developer.nvidia.com/isaac-sim)
+  - [Isaac Lab 文档与开源代码](https://isaac-sim.github.io/IsaacLab/main/index.html)
+
+<div align="center">
+  <img src="/images/vln/isaac-sim-simulator.webp" width="95%" alt="NVIDIA Isaac Sim / Isaac Lab 机器人仿真平台" />
+  <figcaption>图 7.3：NVIDIA Isaac Sim / Isaac Lab 基于 RTX 光线追踪与 GPU 并行加速的高保真具身动力学仿真平台</figcaption>
+</div>
 
 **核心特点：**
-- **高保真物理与渲染**：基于 RTX 加速的 PhysX 物理引擎与真实感渲染，可模拟碰撞、摩擦、传感器噪声等真实物理特性 :contentReference[oaicite:2]{index=2}
-- **机器人学习集成**：Isaac Lab 提供强化学习、模仿学习、策略训练等端到端机器人学习工作流，可批量训练数千个并行环境 :contentReference[oaicite:3]{index=3}
-- **多机平台资产库**：包括四旋翼、差分驱动机器人、步态机器人、机械臂等多种机器人模型，可自定义场景与任务 :contentReference[oaicite:4]{index=4}
+- **高保真物理与渲染**：基于 RTX 光线追踪加速的 PhysX 物理引擎与照片级真实感渲染，可高精度模拟刚体碰撞、复杂接触摩擦与多传感器物理噪声
+- **机器人学习集成**：Isaac Lab 提供强化学习、模仿学习与端到端策略训练工作流，支持数千个 GPU 并行环境的大规模采样
+- **跨形态机器人资产库**：涵盖双足人形机器人（如 Unitree H1/G1）、四足机械狗、差分/阿克曼轮式底盘及机械臂等多样化平台
 - **导航与控制支持**：
-  - 支持 ROS2、Nav2 等机器人导航栈集成，可用于路径规划与多机器人导航测试 :contentReference[oaicite:5]{index=5}
-  - 虽主要用于强化学习与策略训练，但同样可用于评估视觉导航策略、连续控制与视觉感知组合任务
-- **数据生成与 Sim‑to‑Real**：结合 Omniverse Replicator，可生成训练用合成数据并辅助现实迁移训练 :contentReference[oaicite:6]{index=6}
+  - 深度支持 ROS 2 与 Nav2 机器人导航技术栈，实现实时建图、全局路径规划与多机器人协同仿真
+  - 支撑高低层解耦导航框架（如 HumanoidVLN、VLN-PE），评估真实运动学与步态动态约束下的视觉导航策略
+- **数据生成与 Sim-to-Real**：结合 Omniverse Replicator，支持自动化生成域随机化多模态合成数据，大幅缩小仿真与真机鸿沟
 
 **应用场景：**
 - 连续控制与导航策略训练（强化学习 / 模仿学习）
-- 多传感器 SLAM、视觉感知与导航策略评估
-- 多机器人协作与动态环境测试
-- 合成数据生成与 Sim‑to‑Real 迁移训练
+- 双足人形与四足机器人物理接地导航（解决传送瞬移隐患）
+- 多传感器融合 SLAM、视觉感知与导航策略端到端评估
+- 多机器人协同与动态环境测试
+- 合成数据生成与 Sim-to-Real 迁移验证
 
 **优势：**
-- **高保真模拟**：比传统离散图导航能更真实模拟连续物理行为与多传感器数据
-- **学习框架支持**：内置强化学习训练工作流，可扩展到大规模并行环境
-- **集成生态**：与 Omniverse、ROS、RTX GPU 加速等生态联动良好
+- **极高渲染与物理保真度**：提供目前最接近真实物理光照与动力学行为的仿真环境
+- **大并发训练支持**：Isaac Lab 原生 GPU 加速，支持大规模并行强化学习采样
+- **生态链路完整**：与 Omniverse、ROS 2、Cosmos 基础模型以及英伟达端侧计算芯片紧密联动
 
 **局限性：**
-- **复杂度高**：上手门槛比简易模拟器如 Habitat、AI2‑THOR 更陡峭
-- **计算资源要求高**：需要强 GPU 才能充分利用高保真渲染与物理仿真
-- **目前在视觉导航（VLN）Benchmark 领域的专用数据集支持较少**：相比 Matterport/Habitat 等，社区内 VLN benchmark 评测还不如它们成熟
+- **上手门槛高**：配置较为复杂，对开发者掌握 Omniverse / USD 工作流的要求高
+- **硬件资源开销大**：依赖高性能 NVIDIA RTX GPU 方能流畅运行高保真多传感器推演
+- **传统离散 VLN 数据集支持较少**：相比 Habitat 与 Matterport3D，社区标准 VLN 基准测试集尚处于早期接入阶段
 
 ---
 
-## 7.4 AI2-THOR
+## 7.4 MuJoCo / MJX
+
+**基本信息：**
+- **开发者**：Google DeepMind（原由 Emo Todorov / Roboti LLC 开发，2021 年开源并由 DeepMind 长期维护）
+- **核心组件**：
+  - **MuJoCo (Multi-Joint dynamics with Contact)**：高精度多刚体接触动力学物理引擎
+  - **MJX (MuJoCo XLA)**：基于 JAX 的硬件加速（GPU/TPU）物理仿真实现，支持大规模端到端并行推演
+  - **MuJoCo Menagerie**：官方维护的标准机器人资产库（包含宇树 H1/G1、ANYmal、Spot、Go2、Franka Panda 等经过真机物理标定的模型）
+  - **MuJoCo MPC (MJPC)**：实时交互式预测控制与在线轨迹优化工具
+- **开源地址**：
+  - [MuJoCo GitHub 代码库](https://github.com/google-deepmind/mujoco)
+  - [MJX 官方文档](https://mujoco.readthedocs.io/en/latest/mjx.html)
+  - [MuJoCo Menagerie 资产库](https://github.com/google-deepmind/mujoco_menagerie)
+
+<div align="center">
+  <img src="/images/vln/mujoco-simulator.webp" width="95%" alt="MuJoCo 与 MJX / Menagerie 机器人资产库" />
+  <figcaption>图 7.4：MuJoCo / MJX 高精度接触动力学引擎与 Menagerie 标准化足式/人形机器人模型库</figcaption>
+</div>
+
+**核心特点：**
+- **极高精度的接触动力学**：采用基于现代凸优化数学理论的连续多接触约束求解器，在复杂碰撞接触、微滑移摩擦锥和闭链多关节动力学上计算极其精确稳定，是足式移动控制（Locomotion）的公认黄金物理基准
+- **MJX 极致 GPU/TPU 并发吞吐**：通过 JAX JIT 纯函数式原语编译，单张消费级 GPU（如 RTX 4090）即可并发推演数万至数十万个仿真环境，单卡吞吐量达每秒数百万物理步，将传统底层运动策略训练周期从数天缩短至数十分钟
+- **工业级机器人资产即插即用**：Menagerie 资产库提供了经严格实测标定的四足狗、双足人形机器人、轮足底盘和灵巧机械手 MJCF/URDF 模型，结构参数与关节力矩极限高度保真
+- **架构轻量、依赖极简**：底层 C/C++ 核心代码精简无冗余依赖，原生支持 Python 绑定，并已深度融入 Brax、Gymnasium、RoboHive、Orbit 等机器人强化学习框架
+
+**在 VLN 与具身导航中的应用场景：**
+- **高低层解耦具身导航架构的底层步态控制（Locomotion Tracking）**：高层 VLM/VLA 负责语义场景理解与局部路点（Waypoints）决策，底层 MuJoCo/MJX 负责全动力学步态跟踪，解决传统无物理传送造成的滑步、卡顿与跌倒失稳
+- **足式与轮足机器人复杂地形越障导航**：在碎石地面、楼梯、斜坡与突发外力扰动场景下的高频自平衡抗倾覆与避障控制
+- **复合移动操作任务（Mobile Manipulation）**：移动底盘导航与机械臂末端精细交互（如开门、推车、抓取搬运）的统一动力学协同演练
+
+**优势：**
+- **接触力学严谨精准**：数学求解器极度稳健，极少发生穿模、物体虚假弹飞或数值积分崩溃
+- **MJX 超高训练效率**：端到端 GPU/TPU 加速显著缩短强化学习迭代耗时，极大降低算力实验门槛
+- **轻量透明，易于部署**：跨平台兼容性优异，容器化（Docker）与服务器无头环境（Headless）运行极其轻便
+
+**局限性：**
+- **视觉渲染逼真度相对基础**：原生渲染器基于基础 OpenGL，缺乏类似 UE5 或 Omniverse 的光线追踪与真实感 PBR 材质
+- **缺乏内置的大规模真实室内 3D 扫描场景**：区别于 Habitat 自带的 HM3D / Matterport3D 等大体量真实建筑场景，通常需单独导入网格或与外部视觉引擎混合驱动
+
+---
+
+## 7.5 AI2-THOR
 
 **基本信息：**
 - **开发者**：Allen Institute for AI
 - **发布时间**：2017年（持续更新，最新4.0版本）
 - **开源地址**：[官网](https://ai2thor.allenai.org/)
+
+<div align="center">
+  <img src="/images/vln/ai2thor-simulator.webp" width="90%" alt="AI2-THOR 交互式室内环境" />
+  <figcaption>图 7.5：AI2-THOR 基于 Unity 引擎的可交互 3D 室内环境（支持物体状态改变与精细物理交互）</figcaption>
+</div>
 
 **核心特点：**
 - **物理交互**：基于Unity3D，支持完整物理模拟
@@ -2683,13 +2745,18 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 
 ---
 
-## 7.5 Gibson / iGibson
+## 7.6 Gibson / iGibson
 
 **基本信息：**
 - **开发者**：Stanford University
 - **Gibson发布时间**：2018年
 - **iGibson发布时间**：2021–2024（最新3.0版本）
 - **开源地址**：[iGibson GitHub](https://github.com/StanfordVL/iGibson)
+
+<div align="center">
+  <img src="/images/vln/igibson-simulator.webp" width="75%" alt="iGibson 交互式家庭服务机器人仿真平台" />
+  <figcaption>图 7.6：Stanford iGibson 具身家庭环境物理模拟与真实光照 PBR 渲染</figcaption>
+</div>
 
 **核心特点：**
 
@@ -2726,12 +2793,17 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 
 ---
 
-## 7.6 AirSim
+## 7.7 AirSim
 
 **基本信息：**
 - **开发者**：Microsoft
 - **发布时间**：2017年（持续更新）
 - **开源地址**：[GitHub](https://github.com/microsoft/AirSim)
+
+<div align="center">
+  <img src="/images/vln/airsim-simulator.webp" width="85%" alt="Microsoft AirSim 三维空中与无人机导航仿真平台" />
+  <figcaption>图 7.7：Microsoft AirSim 基于虚幻引擎（Unreal Engine）的高保真飞行器与室外场景物理仿真环境</figcaption>
+</div>
 
 **核心特点：**
 - **无人机/车辆仿真**：面向飞行器和地面车辆
@@ -2758,12 +2830,17 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 
 ---
 
-## 7.7 InternUtopia
+## 7.8 InternUtopia
 
 **基本信息：**
 - **开发者**：Shanghai AI Laboratory (上海人工智能实验室)
 - **发布时间**：2024年
 - **开源地址**：[GitHub](https://github.com/OpenGVLab/InternUtopia)
+
+<div align="center">
+  <img src="/images/vln/internutopia-simulator.webp" width="95%" alt="InternUtopia / GRUtopia 开放世界与多智能体具身仿真平台" />
+  <figcaption>图 7.8：InternUtopia / GRUTopia 面向开放世界超大规模城市级具身多智能体协同导航平台</figcaption>
+</div>
 
 **核心特点：**
 - **大规模开放世界**：支持超大规模城市场景模拟（10+ km²）
@@ -2800,13 +2877,14 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 
 ---
 
-## 7.8 模拟器对比
+## 7.9 模拟器对比
 
-| 模拟器 | 环境类型 | 动作空间 | 物理交互 | 渲染速度 | 主要应用 | 场景数量 | 新增特性 (2024–2025) |
+| 模拟器 | 环境类型 | 动作空间 | 物理交互 | 渲染速度 | 主要应用 | 场景数量 | 新增特性 (2024–2026) |
 |--------|----------|----------|----------|----------|----------|----------|---------------------|
 | Matterport3D | 室内 | 离散 | 有限 | 快 | R2R/R4R | 90 | 保持经典基准 |
 | Habitat 3.1 | 室内/空中/户外 | 连续 | 基础 | 极快 | VLN-CE, LHPR-VLN | 800+ (HM3D) | 动态物体、空中/长程导航、Sim2Real强化 |
-| Isaac Sim / Lab | 室内/室外/空中 | 连续 | 强 | 高 | 强化学习、连续VLN | 可定制 | 高保真物理、动态环境、多机协作、Sim2Real |
+| Isaac Sim / Lab | 室内/室外/空中 | 连续 | 强 | 高 | 强化学习、连续VLN、物理接地人形 | 可定制 | 高保真物理、动态环境、多机协作、Sim2Real |
+| MuJoCo / MJX | 室内/复杂地形 | 连续力矩/速度 | 极强（精准接触动力学） | 极快（MJX GPU/TPU并发） | 腿足运动控制、物理底层导航、移动操作 | 可定制/Menagerie | MJX 极速并行、Menagerie 标准化资产、MJPC 预测控制 |
 | AI2-THOR 4.0 | 室内 | 离散/连续 | 强 | 中等 | 交互任务 | 200+ | 多智能体、可定制交互、家庭场景扩大 |
 | iGibson 3.0 | 室内 | 连续 | 强 | 快 | 综合任务 | 1000+ | 动态人群、社交导航、Sim2Real强化 |
 | AirSim | 室内外 | 连续 | 强 | 中等 | 无人机/车辆 | 可定制 | 城市航拍、大规模航程、多机协作 |
@@ -2815,15 +2893,17 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 
 ---
 
-## 7.9 选择建议
+## 7.10 选择建议
 
 - **经典VLN基准（R2R/R4R）**：Matterport3D Simulator
 - **连续环境与长程任务**：Habitat 3.1
-- **需要物理交互任务**：AI2-THOR 4.0 / iGibson 3.0
+- **高保真照片级渲染与大并发物理仿真**：Isaac Sim / Isaac Lab
+- **足式机器人/精准接触动力学与超大规模 RL 并行加速**：MuJoCo / MJX（结合 Menagerie 标准化模型与 GPU 加速，是分层具身导航底层步态物理执行的首选）
+- **需要物理交互任务（家务/操作）**：AI2-THOR 4.0 / iGibson 3.0
 - **无人机/空中导航**：AirSim / Isaac Sim
 - **大规模场景训练**：Gibson/iGibson 或 Habitat + HM3D
 - **大规模城市/开放世界导航**：InternUtopia
-- **Sim-to-Real部署**：Habitat 3.1 / iGibson 3.0 / Isaac Sim
+- **Sim-to-Real部署**：Habitat 3.1 / iGibson 3.0 / Isaac Sim / MuJoCo
 
 
 # 8. 评估指标
@@ -3355,27 +3435,29 @@ $$
 
 50. **Isaac Sim / Isaac Lab** — NVIDIA, 2024. [[Docs]](https://isaac-sim.github.io/IsaacLab/main/index.html)
 
-51. **InternUtopia** — Shanghai AI Laboratory, 2024. [[GitHub]](https://github.com/OpenGVLab/InternUtopia)
+51. **MuJoCo / MJX** — Todorov et al. (IROS 2012) / Google DeepMind, 2024. [[GitHub]](https://github.com/google-deepmind/mujoco) / [[Docs]](https://mujoco.readthedocs.io/)
+
+52. **InternUtopia** — Shanghai AI Laboratory, 2024. [[GitHub]](https://github.com/OpenGVLab/InternUtopia)
 
 ---
 
 ## 10.4 综述论文
 
-52. **VLN Survey** — Gu et al., *Vision-and-Language Navigation: A Survey of Tasks, Methods, and Future Directions*, ACL 2022.
+53. **VLN Survey** — Gu et al., *Vision-and-Language Navigation: A Survey of Tasks, Methods, and Future Directions*, ACL 2022.
 
-53. **VLN Survey (IJCV)** — *Vision-and-Language Navigation: A Survey*, International Journal of Computer Vision 2023. [[Paper]](https://arxiv.org/abs/2203.12667)
+54. **VLN Survey (IJCV)** — *Vision-and-Language Navigation: A Survey*, International Journal of Computer Vision 2023. [[Paper]](https://arxiv.org/abs/2203.12667)
 
-54. **Thinking-VLN** — *Thinking Before Acting: Unified Human-Embodied Alignment for VLN*, 2025.
+55. **Thinking-VLN** — *Thinking Before Acting: Unified Human-Embodied Alignment for VLN*, 2025.
 
 ---
 
 ## 10.5 学习资源与代码库
 
-55. **VLN-Survey-with-Foundation-Models** — 专注 LLM/VLM 时代 VLN 方法的 GitHub 资源仓库（持续更新）. [[GitHub]](https://github.com/zhangyuejoslin/VLN-Survey-with-Foundation-Models)
+56. **VLN-Survey-with-Foundation-Models** — 专注 LLM/VLM 时代 VLN 方法的 GitHub 资源仓库（持续更新）. [[GitHub]](https://github.com/zhangyuejoslin/VLN-Survey-with-Foundation-Models)
 
-56. **Awesome-Embodied-AI** — 涵盖 VLN、VLA、机器人操作的全栈具身智能资源. [[GitHub]](https://github.com/jonyzhang2023/awesome-embodied-vla-va-vln)
+57. **Awesome-Embodied-AI** — 涵盖 VLN、VLA、机器人操作的全栈具身智能资源. [[GitHub]](https://github.com/jonyzhang2023/awesome-embodied-vla-va-vln)
 
-57. **Embodied-AI-Guide** — 具身 AI 入门教程与实践指南. [[GitHub]](https://github.com/TianxingChen/Embodied-AI-Guide)
+58. **Embodied-AI-Guide** — 具身 AI 入门教程与实践指南. [[GitHub]](https://github.com/TianxingChen/Embodied-AI-Guide)
 
 ---
 
