@@ -3209,7 +3209,7 @@ $$
 flowchart TB
     subgraph Baseline["基准设定: 起点 S 到 终点 G (理论最短距离 l* = 10m, 容差半径 τ = 3m)"]
         direction LR
-        S(["起点 S"]) ===|理论最短路 l* = 10m|===> G(["终点 G (半径 3m)"])
+        S(["起点 S"]) ==>|"理论最短路 l* = 10m"| G(["终点 G (半径 3m)"])
     end
 
     subgraph Cases["四类典型轨迹的 SPL 响应机制"]
