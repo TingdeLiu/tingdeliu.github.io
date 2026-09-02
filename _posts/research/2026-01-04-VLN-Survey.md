@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "VLN 综述"
-date:   2026-07-27
+date:   2026-09-03
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -10,12 +10,13 @@ toc: true
 excerpt: "系统梳理视觉语言导航（VLN）的任务定义、方法演进、数据集、模拟器与评测体系，并总结 2025–2026 年端到端 VLA、快慢双系统、空间记忆、Agent 与世界模型等前沿路线。"
 ---
 
-> **2026 年 7 月重构说明**：本文不再按论文逐篇罗列，而是围绕“任务设定—系统架构—训练数据—真实部署”四条主线组织内容。最新模型成绩与论文精读统一维护在配套文章 [VLN 经典论文](/VLN-Papers/) 中，避免综述正文因榜单快速变化而失效。
+> **修订说明（2026 年 7 月重构，9 月修订）**：本文不再按论文逐篇罗列，而是围绕“任务设定—系统架构—训练数据—真实部署”四条主线组织内容。最新模型成绩与论文精读统一维护在配套文章 [VLN 经典论文](/VLN-Papers/) 中，避免综述正文因榜单快速变化而失效。
 
 
 ## 阅读导航
 
 - **第一次接触 VLN**：先读第 1–2 节，建立任务边界与核心问题。
+- **界定任务设定**：第 4–5 节按推理复杂度、交互方式、物理真实性与应用场景划分任务，避免把不可比的设定放进同一张表。
 - **做模型研究**：重点读第 3 节的方法谱系，以及第 8 节的评测口径。
 - **准备实验**：从第 6–7 节选择数据集与模拟器，不要跨任务设定直接比较 SR / SPL。
 - **追踪最新工作**：查看 [VLN 经典论文与性能排行榜](/VLN-Papers/)，其中按连续环境、离散全景和目标导航分别维护结果。
@@ -41,9 +42,9 @@ VLN 的核心不是“看懂一句话”，而是在部分可观测环境中持�
 
 给定自然语言指令 $I$，智能体在时刻 $t$ 接收当前观测 $o_t$，并结合历史状态 $h_t$ 预测动作 $a_t$：
 
-$
+$$
 a_t \sim \pi(a_t \mid I, o_t, h_t)
-$
+$$
 
 ```mermaid
 flowchart LR
@@ -285,13 +286,13 @@ flowchart TB
 单系统方法把指令、视觉历史和动作历史放入统一模型，直接预测下一步动作、路点或动作块。它的优势是训练目标统一、数据扩展直接；瓶颈则是长上下文成本、空间漂移和失败难以解释。
 
 <div align="center">
-  <img src="/images/vln/StreamVLN-framework-overview.webp" width="100%" />
+  <img src="/images/vln/StreamVLN-framework-overview.webp" width="100%" alt="StreamVLN 流式端到端导航框架" />
 <figcaption>StreamVLN：以交错视觉—动作序列实现流式端到端导航</figcaption>
 </div>
 
 | 关键设计 | 解决的问题 | 代表工作 |
 |:---|:---|:---|
-| 观测—动作交错生成 | 避免把整段视频压缩成一次静态判断 | [StreamVLN](/VLN-Papers/#streamvln)、[SparseVideoNav](/VLN-Papers/#sparsevideonav) |
+| 观测—动作交错生成 | 避免把整段视频压缩成一次静态判断 | [StreamVLN](/VLN-Papers/#streamvln)、[SparseVideoNav](/VLN-Papers-Extended/#sparsevideonav) |
 | 多任务共享策略 | 让指令跟随、目标搜索和探索共享空间能力 | [NavFoM](/VLN-Papers/#navfom)、[OneVLA](/VLN-Papers/#onevla-a-unified-framework-for-embodied-tasks) |
 | 可配置观测接口 | 推理时调整历史长度、相机权重和任务模式 | [Qwen-RobotNav](/VLN-Papers/#qwen-robotnav) |
 | 量化与边缘部署 | 降低大模型闭环推理延迟 | [LocalNav](/VLN-Papers/#localnav) |
@@ -303,7 +304,7 @@ flowchart TB
 快慢系统按时间尺度分工：慢系统低频理解指令、检查进度并产生子目标；快系统持续把子目标转化为路点或轨迹。它并不等价于“使用两个模型”，关键在于两层之间是否具有稳定、可校验的接口。
 
 <div align="center">
-  <img src="/images/vln/dualvln-framework-overview.webp" width="100%" />
+  <img src="/images/vln/dualvln-framework-overview.webp" width="100%" alt="DualVLN 快慢双系统框架" />
 <figcaption>DualVLN：慢系统产生语义目标，快系统生成实时轨迹</figcaption>
 </div>
 
@@ -338,15 +339,15 @@ flowchart LR
 VLM 能识别“厨房”和“沙发”，却不天然知道它们在三维空间中的稳定位置。地图与记忆路线把历史观测组织成拓扑图、BEV、3D Gaussian、分层场景图或混合检索库，为长程规划、回溯和错误诊断提供外部状态。
 
 <div align="center">
-  <img src="/images/vln/HSGM-framework-overview.webp" width="100%" />
+  <img src="/images/vln/HSGM-framework-overview.webp" width="100%" alt="HSGM 分层场景图记忆框架" />
 <figcaption>HSGM：分层场景图同时维护局部观测、对象关系与全局路径状态</figcaption>
 </div>
 
 | 表示 | 擅长解决 | 典型局限 | 代表工作 |
 |:---|:---|:---|:---|
-| 拓扑图 | 长距离连通关系与回溯 | 节点语义粗、依赖路点质量 | DUET、ETPNav、[TopoGraph-VLN](/VLN-Papers/#topograph-vln) |
+| 拓扑图 | 长距离连通关系与回溯 | 节点语义粗、依赖路点质量 | DUET、ETPNav |
 | BEV / 语义地图 | 几何可达性与局部规划 | 位姿误差会持续累积 | [MapNav](/VLN-Papers/#mapnav)、[GA-VLN](/VLN-Papers/#ga-vln) |
-| 3D Gaussian 记忆 | 可渲染的连续三维语义 | 建图成本与动态更新复杂 | [3DGSNav](/VLN-Papers/#3dgsnav)、[GSMem](/VLN-Papers/#gsmem) |
+| 3D Gaussian 记忆 | 可渲染的连续三维语义 | 建图成本与动态更新复杂 | [3DGSNav](/VLN-Papers/#nav-3dgs)、[GSMem](/VLN-Papers-Extended/#gsmem) |
 | 分层场景图 | 房间—对象—路径的多尺度推理 | 图构建和关系更新依赖感知质量 | [HSGM](/VLN-Papers/#hsgm) |
 | 检索式经验记忆 | 复用历史成功与失败经验 | 错误检索可能放大偏差 | [VLN-Cache](/VLN-Papers/#vln-cache)、[EvoMemNav](/VLN-Papers/#evomemnav) |
 
@@ -359,7 +360,7 @@ Agentic Navigation 不只是“让 VLM 调用几个技能”。参考 [Qwen-Robo
 > **关键边界**：Qwen-RobotNav 本身是可重配置的通用导航基模，而不是完整 Agent。只有当上层规划器、导航 Harness、证据笔记本与机器人闭环组合起来时，系统才具备任务分解、模式切换、长期记忆和跨回合恢复能力。
 
 <div align="center">
-  <img src="/images/vln/Qwen-RobotNav-agentic-navigation.webp" width="100%" />
+  <img src="/images/vln/Qwen-RobotNav-agentic-navigation.webp" width="100%" alt="Qwen-RobotNav 通用导航 Agent 系统" />
 <figcaption>Qwen-RobotNav 通用导航 Agent：上层规划器动态配置导航模式与视觉上下文，执行结果被压缩为轨迹证据</figcaption>
 </div>
 
@@ -419,7 +420,7 @@ sequenceDiagram
 世界模型路线希望在真正执行之前预测“采取某个动作后会看到什么”。早期方法把未来视觉生成作为外部预测器；新的世界动作模型则联合建模未来观测、目标进度、价值和动作，使预测结果直接参与闭环控制。
 
 <div align="center">
-  <img src="/images/vln/AstraNav-World-architecture.webp" width="100%" />
+  <img src="/images/vln/AstraNav-World-architecture.webp" width="100%" alt="AstraNav-World 世界模型架构" />
 <figcaption>AstraNav-World：在统一框架中联合更新未来视觉状态与动作序列</figcaption>
 </div>
 
@@ -444,9 +445,9 @@ flowchart LR
 | 方向 | 关键变化 | 代表工作 |
 |:---|:---|:---|
 | 视觉想象辅助策略 | 生成候选未来视觉，为现有策略提供额外证据 | [VLN-Imagine](/VLN-Papers/#vln-imagine)、Navigation World Models |
-| 语言规划 + 预测 | 让指令分解约束短期与长期预测 | NavForesee、[WorldVLN](/VLN-Papers/#worldvln) |
+| 语言规划 + 预测 | 让指令分解约束短期与长期预测 | NavForesee、[WorldVLN](/VLN-Papers-Extended/#worldvln) |
 | 视觉—动作联合生成 | 同步生成未来状态与动作，减少两阶段漂移 | [AstraNav-World](/VLN-Papers/#astranav-world) |
-| 世界动作模型 | 在共享潜在序列中联合未来观测、价值和动作块 | [NavWAM](/VLN-Papers/#navwam)、[WAM-Nav](/VLN-Papers/#wam-nav) |
+| 世界动作模型 | 在共享潜在序列中联合未来观测、价值和动作块 | [NavWAM](/VLN-Papers-Extended/#navwam)、[WAM-Nav](/VLN-Papers/#wam-nav) |
 
 这一方向最容易被视觉效果误导。真正有意义的证据不是生成帧“看起来合理”，而是闭环 SR / SPL、碰撞率和真实机器人控制是否改善，以及预测误差能否被新观测及时纠正。
 
@@ -472,15 +473,7 @@ flowchart LR
 
 # 4. VLN 任务类型
 
-任务名称相近并不意味着结果可比。理解 VLN 基准时，至少需要同时标注 **目标表达、动作空间、观测配置、交互方式和物理模型** 五个维度。
-
-| 维度 | 常见设定 | 对难度的主要影响 |
-|:---|:---|:---|
-| **目标表达** | 路线指令、目标类别、目标图像、场景描述、对话 | 决定是否需要逐步语言落地或开放词汇搜索 |
-| **动作空间** | 离散视点、离散低层动作、连续速度/路点/轨迹 | 决定是否需要避障、控制与停止判断 |
-| **观测配置** | 全景、单目、多目、RGB、RGB-D、里程计 | 直接影响可见范围与几何信息强度 |
-| **交互方式** | 单轮指令、多轮对话、主动问询、人类反馈 | 决定智能体能否消解歧义或请求帮助 |
-| **具身与物理** | 无动力学、轮式、四足、人形、无人机 | 决定碰撞、跌倒、卡住和 6-DoF 控制难度 |
+任务名称相近并不意味着结果可比。第 2.2 节已经给出理解一个 VLN 基准所需的五个维度（目标表达、观测配置、动作空间、环境模型、交互协议），本节在此基础上从 **推理复杂度、交互方式、动作与物理真实性** 三个角度给出常用的任务分类，并标出每类的代表性基准。需要特别留意具身形态：无动力学的虚拟智能体、轮式、四足、人形与无人机在碰撞、跌倒、卡住和 6-DoF 控制上的难度完全不同，同名任务在不同具身下的结果也不应直接比较。
 
 ## 4.1 按推理与决策复杂度划分
 
@@ -547,61 +540,53 @@ flowchart LR
 ---
 
 
+# 5. VLN 的应用场景
 
-# 5. VLN的应用场景
+应用场景决定了传感器配置、动作空间、地图先验与安全约束，也决定了应选用哪一类数据集与模拟器。下表先给出三类场景的整体对照，随后分别展开。
+
+| 场景 | 典型平台 | 主要观测与先验 | 核心难点 | 代表基准 | 常用模拟器 |
+|:---|:---|:---|:---|:---|:---|
+| **室内** | 轮式 / 四足 / 人形机器人 | 单目或全景 RGB-D、里程计 | 多房间拓扑、遮挡、家具级语义、精确停止 | R2R / RxR / VLN-CE / REVERIE / VLN-PE | Matterport3D Simulator、Habitat、Isaac Sim |
+| **室外街景** | 轮式配送机器人、辅助出行设备 | 街景全景、GPS、OpenStreetMap 地图 | 尺度大、地标稀疏且相似、动态交通与天气 | Touchdown / StreetLearn / map2seq | Street View 图节点环境、CARLA（语言条件驾驶） |
+| **空中** | 多旋翼无人机 | 斜视 / 俯视 RGB、高度计、GPS | 6-DoF 控制、高度与视角变化、地标消歧、飞行安全约束 | AerialVLN / CityNav / OpenFly | AirSim、Unreal Engine、Isaac Sim |
 
 ## 5.1 室内场景
 
-室内VLN主要关注家庭或办公环境内的导航。环境通常较为复杂，包含多个房间和各种家具，对智能体的空间理解能力要求较高。
+室内 VLN 主要关注家庭、办公与公共建筑内部的导航。环境由多个房间和大量家具构成，指令通常以房间与物体作为地标（"穿过厨房，在沙发旁停下"），因此对房间级拓扑理解、物体级语义落地与精确停止能力的要求最高。室内也是数据与基准最成熟的场景：第 6 节中绝大多数数据集都建立在 Matterport3D、HM3D 等真实扫描或 ProcTHOR、GRScenes 等合成场景之上。
 
 <div align="center">
-  <img src="/images/vln/vln_indoor.jpg" width="90%" />
+  <img src="/images/vln/vln_indoor.jpg" width="90%" alt="室内 VLN 示例：自然语言指令、第一视角观测与全局轨迹" />
 <figcaption>室内 VLN：自然语言指令、第一视角观测与全局轨迹之间的关系</figcaption>
 </div>
 
-**应用示例**：
-- 家庭服务机器人
-- 室内物流配送
-- 智能导览系统
+**应用示例**：家庭服务机器人、室内物流配送、医院与商场导览、四足 / 人形机器人巡检。
 
 ## 5.2 室外场景
 
-室外VLN面临更大的环境复杂度，需要处理动态障碍物、天气变化等因素。
+室外 VLN 面临更大的空间尺度与更强的环境不确定性：地标在数百米尺度上稀疏分布且外观相似，光照、天气和动态交通持续变化，GPS 与地图先验的可用性也因场景而异。经典的街景导航基准 Touchdown（Chen et al., CVPR 2019）与 StreetLearn 将 Google Street View 全景组织为图节点，要求智能体沿街区跟随长指令并完成空间推理；map2seq 则进一步引入地图辅助。这一分支正与自动驾驶中的语言条件规划、户外服务机器人的语义导航逐步汇合。
 
 <div align="center">
-  <img src="/images/vln/vln_outdoor.png" width="100%" />
-<figcaption>
-室外VLN示例
-</figcaption>
+  <img src="/images/vln/vln_outdoor.png" width="100%" alt="室外街景 VLN 示例" />
+<figcaption>室外街景 VLN 示例：智能体在街景全景图节点之间依据指令移动</figcaption>
 </div>
 
-**应用示例**：
-- 自动驾驶
-- 户外服务机器人
-- 城市导航系统
+**应用示例**：园区与城市配送机器人、导盲与辅助出行、语言条件的自动驾驶规划。
 
 ## 5.3 空中场景
 
-空中VLN涉及无人机等飞行器的导航控制。
+空中 VLN 面向多旋翼无人机等飞行平台。与地面导航相比，它需要同时控制水平位置与高度，观测视角在俯视与斜视之间连续变化，同一地标在不同高度下的外观差异极大；飞行安全约束（禁飞区、最低高度、避障）也必须在动作层显式处理。第 6.6 节的 AerialVLN、CityNav 与 OpenFly 分别代表了仿真城市、真实航拍与多引擎大规模数据三条路线。
 
 <div align="center">
-  <img src="/images/vln/vln_aerial.webp" width="100%" />
-<figcaption>
-室外VLN示例
-</figcaption>
+  <img src="/images/vln/vln_aerial.webp" width="100%" alt="空中 VLN 示例：无人机依据指令在城市场景中飞行" />
+<figcaption>空中 VLN 示例：无人机依据自然语言指令在三维城市场景中导航</figcaption>
 </div>
-**应用示例**：
-- 无人机巡检
-- 空中搜救
-- 航拍导航
+
+**应用示例**：无人机巡检与测绘、空中搜救、城市低空物流、语言指挥的航拍取景。
 
 
+# 6. VLN 主流数据集
 
-# 6. VLN主流数据集
-
-VLN研究依赖高质量的数据集来训练和评估导航模型。以下是VLN领域最具影响力的主流数据集（含最新进展）：
-
-在查看规模之前，应先按研究问题选择基准：
+VLN 研究依赖高质量的数据集来训练和评估导航模型。本节整理 VLN 领域最具影响力的主流数据集（含最新进展）。在查看规模之前，应先按研究问题选择基准：
 
 | 研究问题 | 优先基准 | 建议主要指标 |
 |:---|:---|:---|
@@ -612,6 +597,7 @@ VLN研究依赖高质量的数据集来训练和评估导航模型。以下是VL
 | 对话与人机协作 | CVDN / TEACh | 任务成功、交互效率、对话质量 |
 | 动态人群与社交安全 | HA-VLN | SR / SPL + 人体碰撞与社交约束指标 |
 | 具身动力学与真实部署 | VLN-PE / 真实机器人 | SR / SPL + 跌倒、卡住、碰撞、延迟 |
+| 室外街景导航 | Touchdown / StreetLearn / map2seq | TC、SPD、SED、nDTW |
 | 空中 6-DoF 导航 | AerialVLN / CityNav / OpenFly | 成功率、路径效率、三维轨迹误差 |
 
 训练数据集与评测数据集也应分开看。ScaleVLN、InternData 等大规模数据主要用于预训练或联合训练；它们扩大了覆盖范围，但不能替代在标准未见场景划分上的公平评测。
@@ -620,42 +606,42 @@ VLN研究依赖高质量的数据集来训练和评估导航模型。以下是VL
 
 ## 6.1 数据集对比总览
 
-随着具身智能与大模型技术的发展，VLN数据集的演进呈现出以下三大核心趋势：
+随着具身智能与大模型技术的发展，VLN 数据集的演进呈现出以下三大核心趋势：
 
 1. **动作与环境的物理保真度提升**：从早期的离散拓扑图瞬间移动（Discrete Topo-Graph），到基于连续动作控制的物理避障（Continuous Environment），再到支持人形/四足/轮式机器人等多具身动力学的真实物理仿真（Physically Realistic Dynamics），评估指标也从纯粹的成功率扩展到跌倒率（FR）和卡住率（StR）。
 2. **任务与交互逻辑的语义复杂度提升**：从单向的静态文字指令跟随，到多轮的人机协同对话（Dialog-based）与主动问询，再到根据抽象的人类需求（Demand-driven）进行具身常识推理，任务的难度正逐步向开放世界与高层认知迈进。
 3. **空间尺度与视角的跨越**：从室内单房间/单楼层的近场导航（Indoor Navigation），拓展至长程多阶段（Long-Horizon）复杂任务，并进一步跨越到三维空中（UAVs）乃至真实城市尺度（Cambridge/Birmingham）的航拍地标导航。
 
-以下是VLN领域主流数据集的详细对比总览：
+以下是 VLN 领域主流数据集的详细对比总览：
 
 | 数据集 | 年份 | 场景数 | 环境/模拟器 | 动作空间 | 轨迹数 / Episodes | 指令数 / 对话数 | 任务类别 | 核心特征与创新点 |
 | :--- | :---: | :---: | :--- | :---: | :---: | :---: | :---: | :--- |
-| **R2R** | 2018 | 90 | Matterport3D | 离散拓扑图 | 7,189 | 21,567 | 指令导航 | 首个真实扫描室内三维导航数据集，奠定VLN研究基石 |
-| **R4R** | 2019 | 90 | Matterport3D | 离散拓扑图 | 13,607 | 278,692 | 指令导航 | 拼接R2R长路径，侧重于评估路径遵循的忠诚度 (CLS指标) |
-| **CVDN** | 2019 | 83 | Matterport3D | 离散拓扑图 | 7,490 | 2,050 (对话) | 对话导航 | 引入人机协作多轮对话机制，智能体可向Oracle主动提问 |
+| **R2R** | 2018 | 90 | Matterport3D | 离散拓扑图 | 7,189 | 21,567 | 指令导航 | 首个真实扫描室内三维导航数据集，奠定 VLN 研究基石 |
+| **R4R** | 2019 | 90 | Matterport3D | 离散拓扑图 | 13,607 | 278,692 | 指令导航 | 拼接 R2R 长路径，侧重于评估路径遵循的忠诚度 (CLS 指标) |
+| **CVDN** | 2019 | 83 | Matterport3D | 离散拓扑图 | 7,490 | 2,050 (对话) | 对话导航 | 引入人机协作多轮对话机制，智能体可向 Oracle 主动提问 |
 | **RxR** | 2020 | 90 | Matterport3D | 离散拓扑图 | 16,522 | 126,069 | 多语言导航 | 多语言支持（英/印地/泰卢固），提供词-视点细粒度对齐 (Pose Trace) |
-| **VLN-CE** | 2020 | 90 | Matterport3D (Habitat) | 连续动作 | 7,844 | 21,567 | 连续导航 | 移除离散导航图，使用前进/转向等物理控制指令，消除瞬移假设 |
-| **RxR-CE** | 2021 | 90 | Matterport3D (Habitat) | 连续动作 | 16,522 | 126,069 (多语言) | 连续导航 | 大规模多语言RxR数据集移植至Habitat，支持连续物理运动与细粒度对齐 |
+| **VLN-CE** | 2020 | 90 | Matterport3D (Habitat) | 连续动作 | 4,475 | ≈13.4k | 连续导航 | 移除离散导航图，使用前进/转向等物理控制指令，消除瞬移假设；保留可转换的 77% R2R 路径 |
+| **RxR-CE** | 2021 | 90 | Matterport3D (Habitat) | 连续动作 | 16,522 | 126,069 (多语言) | 连续导航 | 大规模多语言 RxR 数据集移植至 Habitat，支持连续物理运动与细粒度对齐 |
 | **REVERIE** | 2020 | 90 | Matterport3D | 离散拓扑图 | 2,783 | 21,702 | 目标指代导航 | 融合导航与指代消解 (RefExp)，需在房间内识别并定位目标物体 |
 | **REVERIE-CE** | 2022 | 90 | Matterport3D (Habitat) | 连续动作 | 2,783 | 21,702 | 目标指代连续 | 在连续环境中进行指代消解与物理导航，需在终点识别并定位物体 |
-| **SOON** | 2021 | 90 | Matterport3D | 离散/连续 | 3,060 | 3,848 | 场景描述导航 | 无逐步指令，仅提供抽象场景关系描述，支持任意起点物体导航 |
-| **TEACh** | 2022 | 120 | AI2-THOR | 连续+操作 | 3,000+ | 3,000+ (对话) | 交互对话导航 | 引入20+种家政物体交互动作，支持物品状态改变（如煮咖啡、切菜） |
-| **AerialVLN** | 2023 | 25 | 3D City Simulator | 3D连续 | 8,446 | 8,446 | 空中无人机 | 首个三维空中导航数据集，结合高度控制，覆盖870+种地标物体 |
-| **ScaleVLN** | 2023 | 1,200+ | HM3D / Gibson | 离散拓扑图 | 4.94M (R2R) / 830k (REVERIE) | 4.94M / 830k (合成) | 导航与指代定位预训练 | 超大规模合成数据集，包含R2R式路径跟随与REVERIE式物体定位，解决泛化性问题 |
+| **SOON** | 2021 | 90 | Matterport3D | 离散拓扑图 | 3,060 | 3,848 | 场景描述导航 | 无逐步指令，仅提供抽象场景关系描述，支持任意起点物体导航 |
+| **TEACh** | 2022 | 120 | AI2-THOR | 连续 + 操作 | 3,000+ | 3,000+ (对话) | 交互对话导航 | 引入 20+ 种家政物体交互动作，支持物品状态改变（如煮咖啡、切菜） |
+| **AerialVLN** | 2023 | 25 | 3D City Simulator | 3D 连续 | 8,446 | 8,446 | 空中无人机 | 首个三维空中导航数据集，结合高度控制，覆盖 870+ 种地标物体 |
+| **ScaleVLN** | 2023 | 1,200+ | HM3D / Gibson | 离散拓扑图 | 4.94M (R2R) / 830k (REVERIE) | 4.94M / 830k (合成) | 导航与指代定位预训练 | 超大规模合成数据集，包含 R2R 式路径跟随与 REVERIE 式物体定位，解决泛化性问题 |
 | **DDN** | 2023-24 | 1,692 | ProcThor (AI2-THOR) | 连续动作 | 1,692 | 1,692 | 需求导向导航 | 依据抽象人类需求（如“我需要清洁”）推理目标，结合常识寻找物体 |
-| **LHPR-VLN** | 2025 | 216 | Habitat-Sim | 连续动作 | 3,260 | 3,260 | 长程多阶段 | 动作长度超150步的长时序导航，要求智能体具备多阶段规划记忆 |
+| **LHPR-VLN** | 2025 | 216 | Habitat-Sim | 连续动作 | 3,260 | 3,260 | 长程多阶段 | 动作长度超 150 步的长时序导航，要求智能体具备多阶段规划记忆 |
 | **HA-VLN 2.0**| 2025 | 90+ | Matterport3D / Habitat | 离散/连续 | 16,844 | 16,844 | 社交感知导航 | 引入动态人群和个人空间约束，评估机器人在有人环境下的社交安全 |
 | **VLN-PE** | 2025 | 101 | GRUTopia (Isaac Sim) | 真实物理动力学 | 12,000+ | 12,000+ | 真实物理导航 | 首个物理动力学平台，支持人形/四足/轮式机器人，带跌倒/卡住评估 |
 | **VLNVerse**| 2025 | 263 | 3D Scenes (263 scenes) | 全运动学连续控制 | 35,000+ | 35,000+ (三种风格) | 物理多任务导航 | 统一多种导航任务，引入物理刚体碰撞检测与全运动学约束 |
-| **CityNav** | 2025 | 2个城市 | 真实城市航拍 | 3D连续 | 32,637 | 32,637 | 空中航拍导航 | 使用真实剑桥/伯明翰航拍图像，融入地理语义地图与GPS坐标 |
-| **OpenFly** | 2025 | 18 | UE5 / GTA5 / Google Earth | 3D连续 | 100,000 | 100,000 | 大规模空中 | 规模最大的空中导航数据集，GPT-4o生成指令，倡导关键帧感知 |
-| **InternData**| 2025 | 1,000+ | Habitat / Isaac Sim | 连续动作 | 240,000+ | 830,000+ | 导航大模型预训练 | 包含50M+图像 and 4,800+公里导航里程，用于多模态导航大模型预训练 |
+| **CityNav** | 2025 | 2 个城市 | 真实城市航拍 | 3D 连续 | 32,637 | 32,637 | 空中航拍导航 | 使用真实剑桥/伯明翰航拍图像，融入地理语义地图与 GPS 坐标 |
+| **OpenFly** | 2025 | 18 | UE5 / GTA5 / Google Earth | 3D 连续 | 100,000 | 100,000 | 大规模空中 | 规模最大的空中导航数据集，GPT-4o 生成指令，倡导关键帧感知 |
+| **InternData-N1** | 2025 | 1,000+ | Habitat / Isaac Sim | 连续动作 | 240,000+ | 830,000+ | 导航大模型预训练 | 包含 50M+ 图像与 4,800+ 公里导航里程，用于多模态导航大模型预训练 |
 
 ---
 
 ## 6.2 指令导向与连续导航数据集
 
-指令导向任务（Instruction-guided）与连续环境导航（Continuous Environments）是整个VLN领域的基石。其重点在于如何将视觉输入与复杂的自然语言指令进行多模态对齐，并在不同精度的运动模拟器中输出动作序列。
+指令导向任务（Instruction-guided）与连续环境导航（Continuous Environments）是整个 VLN 领域的基石。其重点在于如何将视觉输入与复杂的自然语言指令进行多模态对齐，并在不同精度的运动模拟器中输出动作序列。
 
 ---
 
@@ -727,7 +713,7 @@ R2R 的 JSON 不仅仅是文本，它包含了导航初始化的关键位姿信�
 
 ### 6.2.2 R4R (Room-for-Room)
 
-* **发布时间**：2019 (EMNLP)
+* **发布时间**：2019 (ACL)
 * **核心特点**：通过拼接 R2R 路径形成更长的轨迹。
 * **技术突破**：引入了 **CLS (Coverage weighted by Length Score)** 指标，要求模型必须“严格遵循指令路径”而不仅仅是到达终点。
 
@@ -773,7 +759,7 @@ RxR/
 📄 **Paper**: https://arxiv.org/abs/2004.02857
 
 <div align="center">
-  <img src="/images/vln/VLN-CE-comparison.webp" width="100%" />
+  <img src="/images/vln/VLN-CE-comparison.webp" width="100%" alt="VLN 离散全景图导航与 VLN-CE 连续环境导航对比" />
 <figcaption>
 VLN 与 VLN-CE 的对比: VLN 基于固定拓扑的全景图节点(左)，而 VLN-CE 在连续环境中使用低层动作(右)
 </figcaption>
@@ -786,11 +772,11 @@ data/
 ├── datasets/
 │   ├── R2R_VLNCE_v1-3/              # R2R 数据集转换版本
 │   │   ├── train/
-│   │   │   └── train.json.gz        # 训练集（4,475 条轨迹）
+│   │   │   └── train.json.gz        # 训练集：10,819 个 episode
 │   │   ├── val_seen/
-│   │   │   └── val_seen.json.gz     # 已见环境验证集
+│   │   │   └── val_seen.json.gz     # 已见环境验证集：778 个 episode
 │   │   └── val_unseen/
-│   │       └── val_unseen.json.gz   # 未见环境验证集
+│   │       └── val_unseen.json.gz   # 未见环境验证集：1,839 个 episode
 │   │
 │   ├── RxR_VLNCE_v0/                # RxR 多语言版本
 │   │   ├── train/
@@ -853,7 +839,7 @@ VLN-CE 保留 R2R 的指令和路径信息，但将离散节点路径转换为�
 
 **[关键技术特性]**
 
-* **轨迹转换方法**：通过射线投射和 A* 路径验证，将 77% 的 R2R 离散路径成功转换为连续环境轨迹
+* **轨迹转换方法**：通过射线投射和 A* 路径验证，将 77% 的 R2R 离散路径成功转换为连续环境轨迹（共 4,475 条轨迹、约 13.4k 条指令）
 * **动作空间**：`MOVE_FORWARD (0.25m)`, `TURN_LEFT (15°)`, `TURN_RIGHT (15°)`, `STOP`
 * **观测空间**：RGB (480×640) + Depth (480×640)，视场角 (FoV) 79°
 * **物理约束**：支持碰撞检测、可导航网格 (NavMesh)、Agent 高度 1.5m
@@ -905,7 +891,7 @@ VLN-CE 采用与 R2R 一致的评估指标，但在连续空间中重新定义�
 📄 **Paper**: https://arxiv.org/abs/2507.13019v2
 
 <div align="center">
-  <img src="/images/vln/VLN-PE-evolution.webp" width="100%" />
+  <img src="/images/vln/VLN-PE-evolution.webp" width="100%" alt="VLN 任务演进：从 R2R、VLN-CE 到 VLN-PE" />
 <figcaption>
 VLN 任务的演进: 从 oracle-based 导航(2018)到 VLN-CE 连续导航(2020)，再到 VLN-PE 物理真实导航(2025)
 </figcaption>
@@ -1017,9 +1003,11 @@ VLN-PE 保留传统指标并新增物理真实性指标：
 ### 6.2.7 ScaleVLN (超大规模导航预训练增强数据集)
 ————Scaling Data Generation in Vision-and-Language Navigation
 
-* **发布时间**：2023 (CVPR / ICCV)
+* **发布时间**：2023 (ICCV)
 * **环境表示**：**离散拓扑图 (Discrete Graph)**。基于 HM3D 和 Gibson 扫描的真实室内场景。
 * **核心挑战**：克服人工标注数据稀缺问题，提升导航智能体在未见环境中的零样本/少样本泛化性能。
+
+📄 **Paper**: https://arxiv.org/abs/2307.15644
 
 **[数据集规模与构成]**
 * **总规模**：总共生成约 **4.94 Million (4,941,710)** 条轨迹-指令对，在 HM3D 与 Gibson 上分别采样生成。针对不同下游任务，其具体构成如下：
@@ -1035,20 +1023,22 @@ VLN-PE 保留传统指标并新增物理真实性指标：
 
 ---
 
-### 6.2.8 InternData (VLN-N1 导航预训练数据)
-————Synthetic Data for InternVLA-N1
+### 6.2.8 InternData-N1 (InternVLA-N1 导航预训练数据)
+————Synthetic Navigation Data for InternVLA-N1
 
 * **发布时间**：2025
+* **数据地址**：[Hugging Face](https://huggingface.co/datasets/InternRobotics/InternData-N1) · [InternNav](https://github.com/InternRobotics/InternNav)
 * **环境表示**：**连续环境 (Continuous Environment)**。基于 VLN-CE 等导航数据集转换，采用统一的 LeRobotDataset 格式。
 * **核心特点**：标准化的机器人学习数据格式，支持视频、指令、动作和元数据的结构化存储，兼容多种导航基准测试。
 
-### 6.2.8.1 数据集组成与特性分析
+#### 数据集组成与特性分析
 
 本项目采用的多模态数据集涵盖了从大规模真实扫描到高质量人工合成的多种室内场景。每个数据集均提供 **d435i**（主动红外立体）与 **zed**（被动双目）两种传感器仿真配置，以适配不同的硬件特性。
 
 ---
 
-#### 1. 真实世界扫描类 (Real-world Scanned Scenes)
+**（1）真实世界扫描类 (Real-world Scanned Scenes)**
+
 *重点用于验证算法在真实物理环境噪声下的鲁棒性。*
 
 * **HM3D (Habitat-Matterport 3D)**
@@ -1067,7 +1057,8 @@ VLN-PE 保留传统指标并新增物理真实性指标：
     * **定位：** 机器人导航的经典验证环境。
     * **价值：** 经过广泛验证的真实建筑扫描数据，便于与现有 SOTA（领域最优）算法进行性能对标。
 
-#### 2. 程序化合成类 (Synthetic & Procedural Scenes)
+**（2）程序化合成类 (Synthetic & Procedural Scenes)**
+
 *重点用于空间布局理解及逻辑泛化能力的提升。*
 
 * **HSSD (Habitat Synthetic Scene Dataset)**
@@ -1079,9 +1070,9 @@ VLN-PE 保留传统指标并新增物理真实性指标：
 
 ---
 
-> **📌 传感器说明：** > * **_d435i 系列**：模拟主动红外立体视觉，适合对接 Gemini 336L 等相似原理硬件。
-> * **_zed 系列**：模拟被动双目视觉，侧重于光照充足环境下的视觉特征提取。
->
+> **📌 传感器说明**
+> * **_d435i 系列**：模拟主动红外立体视觉（Intel RealSense D435i），适合对接 Gemini 336L 等相似原理硬件。
+> * **_zed 系列**：模拟被动双目视觉（Stereolabs ZED），侧重于光照充足环境下的视觉特征提取。
 
 
 **[数据合成流程]**
@@ -1247,7 +1238,6 @@ InternNav 保留 VLN-CE 的标准指标，同时支持 LeRobot 框架的训练�
 * **SPL (Success weighted by Path Length)**: 路径效率加权成功率
 * **Oracle Success Rate**: 轨迹中任意点接近目标的比例
 * **DtG (Distance to Goal)**: 最终距离目标的平均距离
-* 
 
 ---
 
@@ -1369,7 +1359,7 @@ REVERIE 使用 **三级评估体系**：
 ### 6.3.3 SOON (Scenario Oriented Object Navigation)
 
 * **发布时间**：2021 (CVPR)
-* **环境表示**：基于 Matterport3D 的连续 3D 环境
+* **环境表示**：基于 Matterport3D 的离散拓扑图（与 R2R 共享模拟器，后续工作也有连续环境移植）
 * **核心挑战**：场景级描述理解 + 任意起点导航（From Anywhere to Object）
 
 **[任务定义与创新点]**
@@ -1449,7 +1439,7 @@ SOON 引入了富含语义信息的场景描述，避免目标歧义：
 
 * **发布时间**：2025 (CVPR)
 * **环境表示**：Habitat Simulator + 连续 3D 环境（216 个复杂场景）
-* **核心挑战**：超长程规划（150步） + 多阶段任务分解 + 决策一致性
+* **核心挑战**：超长程规划（150 步） + 多阶段任务分解 + 决策一致性
 
 **[任务定义与创新点]**
 
@@ -1786,7 +1776,7 @@ TEACh 数据包含 **完整的任务执行过程** 和 **对话交互**：
 
 ### 6.4.3 HA-VLN 2.0 (Human-Aware Vision-Language Navigation)
 
-* **发布时间**：2025 (NeurIPS 2024 Datasets and Benchmarks Track, HA-VLN 2.0 发布于 2025年3月)
+* **发布时间**：2025 (NeurIPS 2024 Datasets and Benchmarks Track, HA-VLN 2.0 发布于 2025 年 3 月)
 * **环境表示**：离散（Matterport3D）+ 连续（Habitat）双模式支持
 * **核心挑战**：社交感知导航 + 人群避让 + 个人空间保护 + Sim2Real 迁移
 
@@ -1889,7 +1879,7 @@ HA-VLN 2.0 引入了 **社交感知评估体系**：
 2. **社交规范建模**：不同文化和场景下的个人空间定义可能不同
 3. **实时性**：需要在运动的人群中快速做出导航决策
 4. **Sim2Real Gap**：模拟器中的人类行为与真实世界存在差异
-6. **多目标优化**：在导航效率和社交安全之间权衡
+5. **多目标优化**：在导航效率和社交安全之间权衡
 
 **[真实世界验证]**
 
@@ -2008,7 +1998,7 @@ DDN 数据强调 **需求到物体的映射**：
 2. **常识知识集成**：需要大量常识知识（物体功能、常见位置、使用场景）
 3. **零样本泛化**：对未见过的需求类型进行推理
 4. **多目标决策**：当多个物体都可满足需求时，如何选择最优目标
-6. **知识库构建**：如何构建和维护需求-物体-位置的知识图谱
+5. **知识库构建**：如何构建和维护需求-物体-位置的知识图谱
 
 **[与 VLN 的区别]**
 
@@ -2023,7 +2013,7 @@ DDN 数据强调 **需求到物体的映射**：
 
 ## 6.6 空中航拍与特殊场景数据集
 
-随着VLN应用空间的拓展，研究界开始打破室内地面二维平面导航的限制，推出了面向无人机（UAVs）三维控制的空中视觉导航数据集，以及针对大型城市场景乃至真实高分辨率航拍数据的宏观尺度导航基准。
+随着 VLN 应用空间的拓展，研究界开始打破室内地面二维平面导航的限制，推出了面向无人机（UAVs）三维控制的空中视觉导航数据集，以及针对大型城市场景乃至真实高分辨率航拍数据的宏观尺度导航基准。
 
 ---
 
@@ -2145,7 +2135,7 @@ AerialVLN 需要处理 **三维空间的飞行路径**：
 2. **视角变化**：不同高度和俯仰角下，同一地标的外观差异巨大
 3. **地标消歧**：城市中可能有多个相似的建筑物（如多个蓝色屋顶）
 4. **安全约束**：需要避免碰撞、保持安全高度、遵守飞行限制区域
-6. **长距离导航**：城市环境尺度大，导航距离远超室内场景
+5. **长距离导航**：城市环境尺度大，导航距离远超室内场景
 
 **[与室内 VLN 的对比]**
 
@@ -2318,7 +2308,7 @@ CityNav 结合了 **真实航拍图像** 和 **地理信息**：
    * 不同城市的建筑风格、道路布局差异大
    * 需要泛化到未见过的城市
 
-6. **多模态融合**：
+5. **多模态融合**：
    * 如何有效融合视觉观测和地理语义地图
    * 在 GPS 不可用时如何纯视觉导航
 
@@ -2527,7 +2517,7 @@ OpenFly 提出了 **关键帧感知（Keyframe-Aware）** 的 VLN 模型：
    * GPT-4o 生成的指令可能包含幻觉或不一致
    * 需要自动化验证和过滤机制
 
-6. **计算效率**：
+5. **计算效率**：
    * 100,000 条轨迹的训练规模巨大
    * 需要高效的数据加载和模型训练策略
 
@@ -2538,15 +2528,15 @@ OpenFly 提出了 **关键帧感知（Keyframe-Aware）** 的 VLN 模型：
 * **多引擎支持**：可以研究跨领域迁移和鲁棒性
 * **关键帧创新**：引入新的建模思路，提高长轨迹导航效率
 
-# 7. VLN主流模拟器
+# 7. VLN 主流模拟器
 
-VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下是VLN领域最常用的主流模拟器（含最新更新和趋势）：
+VLN 研究需要高质量的 3D 仿真环境来训练和测试导航模型。以下是 VLN 领域最常用的主流模拟器（含最新更新和趋势）：
 
 ## 7.1 Matterport3D Simulator
 
 **基本信息：**
 - **开发者**：Peter Anderson et al.
-- **发布时间**：2018年
+- **发布时间**：2018 年
 - **开源地址**：[GitHub](https://github.com/peteanderson80/Matterport3DSimulator)
 
 <div align="center">
@@ -2555,26 +2545,26 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 </div>
 
 **核心特点：**
-- **真实场景扫描**：基于Matterport3D数据集，包含90个真实室内环境的高精度3D扫描
-- **全景视图**：提供360度全景RGB-D图像
+- **真实场景扫描**：基于 Matterport3D 数据集，包含 90 个真实室内环境的高精度 3D 扫描
+- **全景视图**：提供 360 度全景 RGB-D 图像
 - **离散导航**：采用预定义的导航图，智能体在固定视点间移动
 - **高效渲染**：优化的渲染引擎，支持快速视觉观测生成
-- **经典基准**：R2R、R4R等经典数据集的官方模拟器
+- **经典基准**：R2R、R4R 等经典数据集的官方模拟器
 
 **应用场景：**
 - 指令导向的室内导航任务（R2R、R4R）
-- 离散动作空间的VLN研究
+- 离散动作空间的 VLN 研究
 - 基于真实场景的导航模型训练
 
 **优势：**
 - 真实感强，场景来自实际建筑扫描
-- 与经典VLN数据集无缝集成
+- 与经典 VLN 数据集无缝集成
 - 社区支持完善，大量研究基于此平台
 
 **局限性：**
 - 仅支持离散导航，灵活性受限
 - 物理交互能力有限
-- 场景数量相对较少（90个环境）
+- 场景数量相对较少（90 个环境）
 
 ---
 
@@ -2582,7 +2572,7 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 
 **基本信息：**
 - **开发者**：Facebook AI Research (FAIR)
-- **发布时间**：2019年（最新3.1版本2024–2025年更新）
+- **发布时间**：2019 年（Habitat 2.0 于 2021 年、Habitat 3.0 于 2023 年发布，habitat-lab 持续更新）
 - **开源地址**：[GitHub](https://github.com/facebookresearch/habitat-lab)
 
 <div align="center">
@@ -2593,30 +2583,30 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 **核心特点：**
 - **高性能仿真**：超快速渲染（10,000+ FPS）
 - **连续环境**：支持连续动作空间和自由移动
-- **多数据集支持**：兼容Matterport3D、Gibson、HM3D、LHPR-VLN等
+- **多数据集支持**：兼容 Matterport3D、Gibson、HM3D、HSSD、ReplicaCAD 等场景资产
 - **模块化设计**：灵活的任务定义和传感器配置
-- **Sim2Real支持**：提供真实机器人部署工具链
-- **新特性**：
-  - 动态环境支持（移动物体/人群）
-  - 空中和户外环境支持
-  - 长程任务和复杂子任务支持
+- **Sim2Real 支持**：提供真实机器人部署工具链
+- **Habitat 3.0 新特性**：
+  - 可控人形化身（Humanoid Avatar）与动态人群，支持社交导航与人机协作重排任务
+  - 人在环路（Human-in-the-loop）交互评测工具
+  - 长程任务与复杂子任务支持（LHPR-VLN 即基于 Habitat 构建）
 
 **应用场景：**
 - 连续动作空间导航研究（VLN-CE）
 - 长视距任务（LHPR-VLN）
 - 目标导航（ObjectNav）、语义导航（SemanticNav）
-- 具身AI和Sim2Real研究
+- 具身 AI 和 Sim2Real 研究
 
 **优势：**
 - 仿真速度极快，训练效率高
 - 支持连续导航，更贴近真实机器人控制
-- 大规模数据集（HM3D 800+场景）
-- 动态场景、空中任务支持
+- 大规模场景资产（HM3D 1,000 个场景，训练集 800 个；另有 HSSD 合成场景）
+- 动态人群与社交导航支持
 - 强大的扩展性和社区生态
 
 **局限性：**
 - 配置复杂，学习曲线陡
-- 对硬件要求较高（GPU加速）
+- 对硬件要求较高（GPU 加速）
 
 ---
 
@@ -2709,7 +2699,7 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 
 **基本信息：**
 - **开发者**：Allen Institute for AI
-- **发布时间**：2017年（持续更新，最新4.0版本）
+- **发布时间**：2017 年（持续更新；衍生 RoboTHOR、ProcTHOR、Holodeck 等扩展）
 - **开源地址**：[官网](https://ai2thor.allenai.org/)
 
 <div align="center">
@@ -2718,25 +2708,25 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 </div>
 
 **核心特点：**
-- **物理交互**：基于Unity3D，支持完整物理模拟
+- **物理交互**：基于 Unity3D，支持完整物理模拟
 - **可交互对象**：环境中的物体可抓取、移动、操作
-- **多样化场景**：厨房、卧室、客厅、浴室等200+场景
+- **多样化场景**：iTHOR 提供 120 个手工构建的厨房、卧室、客厅与浴室场景，RoboTHOR 提供 89 套公寓，ProcTHOR 可程序化生成 10k+ 完整房屋
 - **语义分割**：内置语义标注和实例分割
 - **多智能体支持**：支持同时多个智能体任务
 - **新特性**：
   - 多智能体协作
   - 可定制动作和交互
-  - 可与VLN-CE、TEACh、EQA数据集结合
+  - ALFRED、TEACh、DDN、EQA 等交互与导航基准的官方环境
 
 **应用场景：**
 - 具身问答（EQA）
-- 视觉语言导航+操作任务
+- 视觉语言导航 + 操作任务
 - 家庭服务机器人研究
 
 **优势：**
 - 强大的物理引擎和真实物体交互
 - 可多模态任务训练
-- API友好，易上手
+- API 友好，易上手
 
 **局限性：**
 - 渲染速度较慢
@@ -2749,8 +2739,8 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 
 **基本信息：**
 - **开发者**：Stanford University
-- **Gibson发布时间**：2018年
-- **iGibson发布时间**：2021–2024（最新3.0版本）
+- **Gibson 发布时间**：2018 年
+- **iGibson 发布时间**：iGibson 1.0 / 2.0 于 2021 年发布；后续演进为基于 Isaac Sim 的 OmniGibson（BEHAVIOR-1K，2023 年起）
 - **开源地址**：[iGibson GitHub](https://github.com/StanfordVL/iGibson)
 
 <div align="center">
@@ -2760,32 +2750,31 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 
 **核心特点：**
 
-**Gibson 1.0**：
-- 基于真实建筑扫描（1000+）
-- 快速光栅化渲染
+**Gibson**：
+- 基于真实建筑扫描（572 栋建筑、1,400+ 楼层），Gibson 4+ 子集常用于导航训练
+- 快速光栅化渲染，也是 Habitat 的常用场景来源
 - 支持基础物理模拟
 
-**iGibson 3.0**：
-- **交互式场景**：完整物理交互和对象操作
-- **逼真渲染**：PBR物理渲染
-- **语义信息**：丰富的语义标注和物体属性
-- **大规模场景**：完整房屋、办公楼等
-- **任务多样性**：导航、操作、家务任务
-- **新特性**：
-  - 动态物体与人群模拟
-  - 多智能体与社交导航约束
-  - Sim2Real优化
+**iGibson 2.0**：
+- **交互式场景**：15 个完整可交互家居场景、数百种可操作物体，支持开关门、抽屉与容器
+- **扩展物体状态**：温度、湿度、清洁度、切分等物理状态，支撑家务类任务
+- **逼真渲染**：PBR 物理渲染与多模态传感器（RGB-D、法线、光流、LiDAR）
+- **任务多样性**：导航、操作、家务任务，配套 BEHAVIOR-100 家务基准
+
+**OmniGibson（BEHAVIOR-1K）**：
+- 基于 NVIDIA Isaac Sim 重构，支持流体、布料与可变形物体
+- 50 个场景、1,000 项日常活动，覆盖长程移动操作任务
 
 **应用场景：**
 - 大规模室内导航
-- 导航+操作任务
-- Sim2Real迁移研究
+- 导航 + 操作任务
+- Sim2Real 迁移研究
 - 家庭服务机器人仿真
 
 **优势：**
 - 场景数量多，环境多样性高
 - 真实感强，基于实际建筑扫描
-- iGibson 3.0功能全面，支持复杂交互
+- iGibson 2.0 / OmniGibson 功能全面，支持复杂交互与家务级任务
 
 **局限性：**
 - 安装复杂
@@ -2797,7 +2786,7 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 
 **基本信息：**
 - **开发者**：Microsoft
-- **发布时间**：2017年（持续更新）
+- **发布时间**：2017 年（微软官方仓库已于 2022 年归档，社区分支 [Colosseum](https://github.com/CodexLabsLLC/Colosseum) 持续维护并支持 UE5）
 - **开源地址**：[GitHub](https://github.com/microsoft/AirSim)
 
 <div align="center">
@@ -2807,15 +2796,14 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 
 **核心特点：**
 - **无人机/车辆仿真**：面向飞行器和地面车辆
-- **高保真物理**：基于Unreal或Unity
+- **高保真物理**：基于 Unreal 或 Unity
 - **多传感器支持**：相机、LiDAR、IMU、GPS
-- **新特性**：
-  - 城市大规模航拍场景
-  - 长航程导航、多机协作
-  - 与CityNav/OpenFly数据集配合
+- **与 VLN 数据集的关系**：
+  - AerialVLN 的官方仿真后端（AirSim + Unreal Engine 城市场景）
+  - 支持多机协同与长航程任务脚本化
 
 **应用场景：**
-- 空中VLN（AerialVLN）
+- 空中 VLN（AerialVLN）
 - 无人机导航与控制
 - 自动驾驶与户外导航任务
 
@@ -2827,15 +2815,16 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 **局限性：**
 - 室内导航支持有限
 - 配置复杂，对硬件要求高
+- 官方已停止维护，新版引擎需依赖社区分支
 
 ---
 
 ## 7.8 InternUtopia
 
 **基本信息：**
-- **开发者**：Shanghai AI Laboratory (上海人工智能实验室)
-- **发布时间**：2024年
-- **开源地址**：[GitHub](https://github.com/OpenGVLab/InternUtopia)
+- **开发者**：上海人工智能实验室（InternRobotics / OpenRobotLab），前身为 GRUtopia
+- **发布时间**：2024 年（GRUtopia），2025 年更名为 InternUtopia 并与 InternNav / InternVLA 工具链整合
+- **开源地址**：[GitHub](https://github.com/InternRobotics/InternUtopia)
 
 <div align="center">
   <img src="/images/vln/internutopia-simulator.webp" width="95%" alt="InternUtopia / GRUtopia 具身智能任务评测情景" />
@@ -2843,37 +2832,28 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 </div>
 
 **核心特点：**
-- **大规模开放世界**：支持超大规模城市场景模拟（10+ km²）
-- **高保真渲染**：基于Unreal Engine 5的照片级真实感渲染
-- **物理交互**：完整的物理引擎，支持动态物体和环境交互
-- **多智能体支持**：支持多智能体协同导航和交互任务
-- **丰富的动态元素**：包含动态交通流、行人、天气变化等
-- **语义信息**：提供详细的场景语义标注和3D边界框
-- **多模态感知**：支持RGB、深度、语义分割、LiDAR等多种传感器
-- **新特性**：
-  - 大规模城市场景的自动生成
-  - 实时物理模拟与照片级渲染
-  - 支持VLN、具身智能、自动驾驶等多种任务
-  - 可扩展的任务定义框架
+- **基于 Isaac Sim 构建**：继承 Omniverse 的 RTX 渲染与 PhysX 动力学，支持人形、四足、轮式等多种机器人本体的真实物理运动
+- **GRScenes 大规模场景库**：100k+ 可交互室内场景、89 类场景类型（住宅、超市、办公室、医院等），物体带部件级交互属性
+- **GRResidents NPC 系统**：由大模型驱动的虚拟居民，可进行场景感知、任务分配与多轮对话，为社交导航与人机协作提供动态交互
+- **GRBench 基准**：物体导向运动导航（Object Loco-Navigation）、社交运动导航（Social Loco-Navigation）与运动操作（Loco-Manipulation）三类任务
+- **VLN 直接支持**：VLN-PE 与 InternData-N1 均在其上构建，提供 R2R / RxR 到物理具身环境的转换、跨具身控制器与统一评测接口
+- **多模态感知**：RGB、深度、语义分割、LiDAR 等传感器与 ROS 2 接口
 
 **应用场景：**
-- 大规模城市导航任务
-- 开放世界具身智能研究
-- 多智能体协作与社交导航
-- 自动驾驶与户外导航
-- 长距离导航规划
+- 物理真实的具身导航（VLN-PE）与跨具身策略评测
+- 社交导航、人机对话与协作任务
+- 移动操作与长程家务任务
+- 大规模导航数据合成（InternData-N1）
 
 **优势：**
-- 超大规模场景支持，适合长程导航研究
-- 高保真视觉渲染，接近真实世界
-- 动态环境模拟，更贴近实际应用
-- 灵活的任务定义和可扩展性
-- 多模态传感器支持
+- 场景规模大、交互属性丰富，覆盖住宅之外的公共场景
+- 与 VLN-PE、InternNav、InternVLA-N1 等训练评测链路直接打通
+- 动态 NPC 使评测更接近真实的人机共处环境
 
 **局限性：**
-- 计算资源需求极高（需要高性能GPU）
-- 配置和使用复杂度较高
-- 社区生态相对较新，文档和资源仍在完善
+- 依赖 Isaac Sim，对 NVIDIA RTX GPU 与显存要求高
+- 安装与资产下载体量大，配置复杂度高于 Habitat
+- 社区生态相对较新，文档与第三方示例仍在完善
 
 ---
 
@@ -2882,14 +2862,13 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 | 模拟器 | 支持操作系统 (OS) | 环境类型 | 动作空间 | 物理交互 | 渲染速度 | 主要应用 | 场景数量 | 新增特性 (2024–2026) |
 |--------|------------------|----------|----------|----------|----------|----------|----------|---------------------|
 | Matterport3D | Linux (官方首选) / macOS / Windows (需 WSL2/Docker) | 室内 | 离散 | 有限 | 快 | R2R/R4R | 90 | 保持经典基准 |
-| Habitat 3.1 | Linux (Ubuntu) / macOS / Windows (需 WSL2/Docker) | 室内/空中/户外 | 连续 | 基础 | 极快 | VLN-CE, LHPR-VLN | 800+ (HM3D) | 动态物体、空中/长程导航、Sim2Real强化 |
-| Isaac Sim / Lab | Windows 10/11 / Linux (Ubuntu) 原生支持 (需 NVIDIA RTX) | 室内/室外/空中 | 连续 | 强 | 高 | 强化学习、连续VLN、物理接地人形 | 可定制 | 高保真物理、动态环境、多机协作、Sim2Real |
-| MuJoCo / MJX | Windows / Linux / macOS (原生跨平台；MJX GPU加速推演推荐 Linux/WSL2) | 室内/复杂地形 | 连续力矩/速度 | 极强（精准接触动力学） | 极快（MJX GPU/TPU并发） | 腿足运动控制、物理底层导航、移动操作 | 可定制/Menagerie | MJX 极速并行、Menagerie 标准化资产、MJPC 预测控制 |
-| AI2-THOR 4.0 | Windows / Linux / macOS (原生跨平台，Unity一键打包) | 室内 | 离散/连续 | 强 | 中等 | 交互任务 | 200+ | 多智能体、可定制交互、家庭场景扩大 |
-| iGibson 3.0 | Linux (推荐) / Windows (OmniGibson需RTX或WSL2) | 室内 | 连续 | 强 | 快 | 综合任务 | 1000+ | 动态人群、社交导航、Sim2Real强化 |
+| Habitat 3.0 | Linux (Ubuntu) / macOS / Windows (需 WSL2/Docker) | 室内 (真实扫描 + 合成) | 连续 | 基础 | 极快 | VLN-CE, RxR-CE, LHPR-VLN, ObjectNav | 1,000 (HM3D) + HSSD | 人形化身、社交导航、人在环路评测 |
+| Isaac Sim / Lab | Windows 10/11 / Linux (Ubuntu) 原生支持 (需 NVIDIA RTX) | 室内/室外/空中 | 连续 | 强 | 高 | 强化学习、连续 VLN、物理接地人形 | 可定制 | 高保真物理、动态环境、多机协作、Sim2Real |
+| MuJoCo / MJX | Windows / Linux / macOS (原生跨平台；MJX GPU 加速推演推荐 Linux/WSL2) | 室内/复杂地形 | 连续力矩/速度 | 极强（精准接触动力学） | 极快（MJX GPU/TPU 并发） | 腿足运动控制、物理底层导航、移动操作 | 可定制/Menagerie | MJX 极速并行、Menagerie 标准化资产、MJPC 预测控制 |
+| AI2-THOR | Windows / Linux / macOS (原生跨平台，Unity 一键打包) | 室内 | 离散/连续 | 强 | 中等 | 交互任务、ALFRED / TEACh / DDN | 120 (iTHOR) + 89 (RoboTHOR) + 10k+ (ProcTHOR) | ProcTHOR 程序化生成、Holodeck 语言生成场景、多智能体 |
+| iGibson 2.0 / OmniGibson | Linux (推荐) / Windows (OmniGibson 需 RTX 或 WSL2) | 室内 | 连续 | 强 | 快 (iGibson) / 中等 (OmniGibson) | 导航 + 操作、家务任务 | 15 (iGibson 2.0) / 50 (OmniGibson) | BEHAVIOR-1K、流体与可变形物体、Sim2Real |
 | AirSim | Windows 10/11 / Linux (原生支持，微软官方首选 Windows + UE) | 室内外 | 连续 | 强 | 中等 | 无人机/车辆 | 可定制 | 城市航拍、大规模航程、多机协作 |
-| InternUtopia | Linux (Ubuntu) / Windows (基于 Isaac Sim 架构 / WSL2) | 开放世界/城市 | 连续 | 强 | 中等 | 大规模城市导航 | 可定制 | 超大规模场景、照片级渲染、动态环境 |
-| iThorAir / Aerial Sim | Windows / Linux | 室外/空中 | 连续 | 基础 | 中等 | 空中VLN | 可定制 | 多机协作、长程规划、动态障碍物 |
+| InternUtopia | Linux (Ubuntu) / Windows (基于 Isaac Sim) | 室内 (住宅 + 公共场景) | 连续 (物理动力学) | 强 | 中等 | VLN-PE、社交导航、移动操作 | 100k+ (GRScenes) | LLM 驱动 NPC、跨具身控制器、InternData 数据合成 |
 
 ---
 
@@ -2898,26 +2877,26 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 ### 7.10.1 按开发宿主操作系统（Windows vs. Linux）选型
 
 - **Windows 纯原生开发（无需配置虚拟机或 WSL2）**：
-  - **Isaac Sim / Isaac Lab**：NVIDIA 官方提供完整的 Windows 版 Omniverse Launcher，一键安装驱动、Nucleus 与仿真资产，原生支持 RTX 光线追踪与 PhysX 动力学。
+  - **Isaac Sim / Isaac Lab**：NVIDIA 官方提供 Windows 原生安装包（4.5 起改为独立发行包与 pip 安装，不再依赖 Omniverse Launcher），原生支持 RTX 光线追踪与 PhysX 动力学。
   - **MuJoCo**：DeepMind 官方提供完整的 Windows 原生预编译库，`pip install mujoco` 开箱即用，自带原生 OpenGL 交互窗口 `simulate`；如需调用 MJX 进行大规模 GPU 并行推演，推荐使用 WSL2 安装 JAX CUDA 后端。
   - **AI2-THOR**：基于 Unity 构建，Python 脚本首次运行自动检测并下载 Windows 独立二进制，免任何底层编译。
   - **AirSim**：微软基于 Unreal Engine 与 Visual Studio 开发，Windows 为最成熟的第一支持平台，官方提供打包好的 Windows 可执行场景。
 - **依赖 Linux 或推荐 Windows WSL2 环境**：
   - **Habitat (Habitat-Sim / Habitat-Lab)**：底层高度依赖 Linux 下的 C++17 编译器链、Corrade/Magnum 引擎与专属图形后端，官方无原生 Windows 轮子。Windows 开发者建议使用 **WSL2 (Ubuntu 20.04/22.04) + WSLg** 运行。
   - **Matterport3D Simulator**：依赖传统 OpenGL/EGL 静态库与 C++ 绑定，推荐直接部署在 Linux 或 Docker 容器中。
-  - **iGibson 3.0 / InternUtopia**：因涉及 ROS 2 机器人通信节点与复杂多模态管线，Linux 环境下的稳定性显著优于 Windows。
+  - **iGibson / OmniGibson / InternUtopia**：涉及 ROS 2 通信节点与复杂多模态管线，Linux 环境下的稳定性显著优于 Windows；OmniGibson 与 InternUtopia 均基于 Isaac Sim，Windows 原生可运行，但官方示例与社区经验以 Linux 为主。
 
 ### 7.10.2 按研究任务类型选型
 
-- **经典VLN基准（R2R/R4R）**：Matterport3D Simulator
-- **连续环境与长程任务**：Habitat 3.1
+- **经典 VLN 基准（R2R/R4R）**：Matterport3D Simulator
+- **连续环境与长程任务**：Habitat 3.0
 - **高保真照片级渲染与大并发物理仿真**：Isaac Sim / Isaac Lab
 - **足式机器人/精准接触动力学与超大规模 RL 并行加速**：MuJoCo / MJX（结合 Menagerie 标准化模型与 GPU 加速，是分层具身导航底层步态物理执行的首选）
-- **需要物理交互任务（家务/操作）**：AI2-THOR 4.0 / iGibson 3.0
+- **需要物理交互任务（家务/操作）**：AI2-THOR / iGibson 2.0 / OmniGibson
 - **无人机/空中导航**：AirSim / Isaac Sim
-- **大规模场景训练**：Gibson/iGibson 或 Habitat + HM3D
-- **大规模城市/开放世界导航**：InternUtopia
-- **Sim-to-Real部署**：Habitat 3.1 / iGibson 3.0 / Isaac Sim / MuJoCo
+- **大规模场景训练**：Habitat + HM3D / HSSD，或 InternUtopia + GRScenes
+- **物理真实的跨具身导航与社交导航**：InternUtopia（VLN-PE 官方平台）
+- **Sim-to-Real 部署**：Habitat 3.0 / OmniGibson / Isaac Sim / MuJoCo
 
 
 # 8. 评估指标与评测体系
@@ -3441,14 +3420,14 @@ VLN 的灵魂在于**跨场景的开集空间泛化能力**。几乎所有标准
 - [ ] **传感器视野与模态**：是全向拼接无死角全景图（Panoramic $360^\circ$），还是单目前向第一人称视场角（First-Person FOV $90^\circ$）？是否使用了完美深度图（Depth）？
 - [ ] **动作空间粒度**：是离散拓扑瞬移节点，还是带物理动力学与滑移的连续局部路点/底层速度向量？
 - [ ] **环境拓扑先验**：测试阶段是否允许预先建图、是否预加载了未见环境的连接图（Connectivity Graph）或全局坐标里程计（Ground-truth Odometry）？
-- [ ] **外部数据与训练规模**：是否引入了大规模外部合成数据（如 EnvDrop, RxR-Marky, VLN-300K）或海量 Web 数据预训练的视觉骨干？
-- [ ] **推理时外部大模型**：推理阶段是否接入了闭源商用前沿大模型（如 GPT-4o, Claude 3.5 Sonnet, Gemini）进行测试时思维链推理或重规划？
+- [ ] **外部数据与训练规模**：是否引入了大规模外部合成数据（如 EnvDrop、Marky、ScaleVLN、InternData-N1）或海量 Web 数据预训练的视觉骨干？
+- [ ] **推理时外部大模型**：推理阶段是否接入了闭源商用前沿大模型（如 GPT、Claude、Gemini 系列）进行测试时思维链推理或重规划？
 
 ### 8.5.3 评测体系的历史演进与代际跃迁
 
 | 发展阶段 | 代表时期 | 代表基准与工作 | 核心指标演进 | 核心关注点与范式跃迁 |
 |:---:|:---:|:---|:---|:---|
-| **1.0 几何到达** | 2018–2019 | R2R, R4R | SR, NE, OSR, SPL | 确立未见室内建筑泛化基准，初次建立“成功+效率”双重度量体系 |
+| **1.0 几何到达** | 2018–2019 | R2R, R4R | SR, NE, OSR, SPL | 确立未见室内建筑泛化基准，初次建立“成功 + 效率”双重度量体系 |
 | **2.0 时序保真** | 2019–2021 | RxR, nDTW, VLN-CE | + CLS, nDTW, SDTW, CR | 摆脱离散瞬移拓扑图，引入连续物理碰撞，强化多语言长指令的全程细节贴合 |
 | **3.0 交互拓展** | 2022–2024 | REVERIE-CE, HA-VLN, CVDN | + Remote-OSR, RGS, HCR | 从纯寻路拓展至远距离目标检测指代、多轮对话主动澄清与动态人群社交避障 |
 | **4.0 物理具身** | 2025–2026 | VLN-PE, VLNVerse, 真机部署 | + FR, StR, 频率(Hz), 延迟(ms) | 迈向四足/双足真实动力学平衡、实时快慢分层调度与软硬件一体系统级鲁棒性 |
@@ -3463,27 +3442,34 @@ VLN 的灵魂在于**跨场景的开集空间泛化能力**。几乎所有标准
 
 - [VLN 经典论文与性能排行榜](/VLN-Papers/)：按任务设定维护论文精读、性能和开源状态。
 - [空间智能综述](/Spatial-Intelligence-Survey/)：补充 3D 表征、地图与空间推理基础。
-- [世界模型综述]({% post_url /research/2026-04-16-World-Models-Survey %})：补充预测模型、世界动作模型与数据引擎。
+- [世界模型综述](/World-Models-Survey/)：补充预测模型、世界动作模型与数据引擎。
+- [传统机器人导航算法综述](/Robot-Navigation-Survey/)：补充 SLAM、全局 / 局部规划与控制器基础，对应第 3.3 节的快系统与第 8.4 节的部署指标。
+- [VLA 综述](/VLA-Survey/)：补充视觉-语言-动作模型的训练范式与动作接口设计。
 
 **[VLN-Survey-with-Foundation-Models](https://github.com/zhangyuejoslin/VLN-Survey-with-Foundation-Models)** ⭐⭐⭐⭐⭐
-- **类型**：GitHub资源仓库
-- **重点**：专注于LLM/VLM时代的VLN方法（2023-至今），持续更新最新论文
-- **适合**：想了解大模型如何革新VLN领域的研究者
+- **类型**：GitHub 资源仓库
+- **重点**：专注于 LLM/VLM 时代的 VLN 方法（2023-至今），持续更新最新论文
+- **适合**：想了解大模型如何革新 VLN 领域的研究者
 
 **[Awesome-Embodied-AI](https://github.com/jonyzhang2023/awesome-embodied-vla-va-vln)** ⭐⭐⭐⭐⭐
 - **类型**：全栈资源合集
-- **重点**：涵盖VLN、VLA、机器人操作等完整具身智能技术栈
-- **适合**：系统学习具身AI全貌的研究者
+- **重点**：涵盖 VLN、VLA、机器人操作等完整具身智能技术栈
+- **适合**：系统学习具身 AI 全貌的研究者
 
 **[Embodied-AI-Guide](https://github.com/TianxingChen/Embodied-AI-Guide)** ⭐⭐⭐⭐⭐
 - **类型**：入门教程 + 实践指南
 - **重点**：提供代码实践、论文解读、学习路径规划
 - **适合**：零基础入门或需要结构化学习路径的新人
 
-**[Vision-and-Language Navigation: A Survey](https://arxiv.org/abs/2203.12667)** ⭐⭐⭐⭐
-- **类型**：综述论文（IJCV 2023）
-- **重点**：系统梳理VLN发展脉络，截至2022年的方法总结
-- **适合**：需要全面了解VLN历史演进的研究者
+**[Vision-and-Language Navigation: A Survey of Tasks, Methods, and Future Directions](https://arxiv.org/abs/2203.12667)** ⭐⭐⭐⭐
+- **类型**：综述论文（Gu et al., ACL 2022）
+- **重点**：系统梳理 VLN 发展脉络，覆盖 2018–2022 年的任务、方法与评测
+- **适合**：需要全面了解 VLN 历史演进的研究者
+
+**[Vision-and-Language Navigation Today and Tomorrow: A Survey in the Era of Foundation Models](https://arxiv.org/abs/2407.07035)** ⭐⭐⭐⭐⭐
+- **类型**：综述论文（Zhang et al., 2024，与上方 VLN-Survey-with-Foundation-Models 仓库配套）
+- **重点**：以基础模型为主线重新组织 VLN 方法，讨论世界模型、人类模型与 VLA 的交汇
+- **适合**：从大模型视角切入 VLN 的研究者
 
 ---
 
@@ -3491,9 +3477,9 @@ VLN 的灵魂在于**跨场景的开集空间泛化能力**。几乎所有标准
 ## 9.1 重要会议与研讨会
 
 **具身智能专项会议：**
-- **[Embodied AI Workshop](https://embodied-ai.org/)** - CVPR官方Workshop，最新趋势和挑战赛发布地
-- **[CoRL](https://www.corl.org/)** (Conference on Robot Learning) - VLN向真实机器人迁移的主要阵地
-- **[RSS](https://roboticsconference.org/)** (Robotics: Science and Systems) - 顶级机器人会议，强调Sim-to-Real
+- **[Embodied AI Workshop](https://embodied-ai.org/)** - CVPR 官方 Workshop，最新趋势和挑战赛发布地
+- **[CoRL](https://www.corl.org/)** (Conference on Robot Learning) - VLN 向真实机器人迁移的主要阵地
+- **[RSS](https://roboticsconference.org/)** (Robotics: Science and Systems) - 顶级机器人会议，强调 Sim-to-Real
 
 **主流会议分布：**
 
@@ -3508,192 +3494,120 @@ VLN 的灵魂在于**跨场景的开集空间泛化能力**。几乎所有标准
 
 # 10. 参考资料
 
-> **论文精读**：经典论文与基石论文详见 [VLN经典论文与基石论文](/VLN-Papers/)
+> **论文精读**：经典论文与基石论文详见 [VLN 经典论文](/VLN-Papers/) 与 [VLN 论文精读（扩展篇）](/VLN-Papers-Extended/)。本节只收录正文直接涉及的数据集、方法、模拟器与综述，按主题分组、全文连续编号；预印本的发表状态与榜单数字以论文主页及配套论文页为准。
 
 ---
 
 ## 10.1 数据集与基准
 
-### 10.1.1 指令导向数据集
+### 10.1.1 指令导向与连续环境数据集
 
-1. **R2R** — Anderson et al., *Vision-and-Language Navigation: Interpreting Visually-Grounded Navigation Instructions in Real Environments*, CVPR 2018.
-
-2. **R4R** — Jain et al., *Stay on the Path: Instruction Fidelity in Vision-and-Language Navigation*, ACL 2019.
-
-3. **RxR** — Anderson et al., *RxR: Multilingual Vision-and-Language Navigation Beyond English*, EMNLP 2020.
-
+1. **R2R** — Anderson et al., *Vision-and-Language Navigation: Interpreting Visually-Grounded Navigation Instructions in Real Environments*, CVPR 2018. [[Paper]](https://arxiv.org/abs/1711.07280)
+2. **R4R** — Jain et al., *Stay on the Path: Instruction Fidelity in Vision-and-Language Navigation*, ACL 2019. [[Paper]](https://arxiv.org/abs/1905.12255)
+3. **RxR** — Ku et al., *Room-Across-Room: Multilingual Vision-and-Language Navigation with Dense Spatiotemporal Grounding*, EMNLP 2020. [[Paper]](https://arxiv.org/abs/2010.07954)
 4. **VLN-CE** — Krantz et al., *Beyond the Nav-Graph: Vision-and-Language Navigation in Continuous Environments*, ECCV 2020. [[Paper]](https://arxiv.org/abs/2004.02857)
+5. **RxR-CE** — RxR 在 Habitat 连续环境中的移植，随 VLN-CE 代码库发布，用于 RxR-Habitat 挑战赛（CVPR Embodied AI Workshop）。[[Code]](https://github.com/jacobkrantz/VLN-CE)
+6. **ScaleVLN** — Wang et al., *Scaling Data Generation in Vision-and-Language Navigation*, ICCV 2023. [[Paper]](https://arxiv.org/abs/2307.15644)
+7. **VLN-PE** — Wang et al., *Rethinking the Embodied Gap in Vision-and-Language Navigation: A Holistic Study of Physical and Visual Disparities*, ICCV 2025. [[Paper]](https://arxiv.org/abs/2507.13019)
+8. **InternData-N1** — InternRobotics（上海人工智能实验室），面向 InternVLA-N1 的大规模合成导航数据（LeRobot 格式），2025. [[Dataset]](https://huggingface.co/datasets/InternRobotics/InternData-N1) [[Code]](https://github.com/InternRobotics/InternNav)
+9. **VLNVerse** — Lin et al., *VLNVerse: A Benchmark for Vision-Language Navigation with Versatile, Embodied, Realistic Simulation and Evaluation*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2512.19021)
 
-5. **RxR-CE** — *Room-Across-Room in Continuous Environments*, continuous navigation adaptation of RxR in Habitat-Sim.
+### 10.1.2 目标导向与长程规划数据集
 
-6. **VLN-PE** — Wang et al., *Rethinking the Embodied Gap: Physical and Visual Disparities in VLN*, ICCV 2025. [[Paper]](https://arxiv.org/abs/2507.13019v2)
+10. **REVERIE** — Qi et al., *REVERIE: Remote Embodied Visual Referring Expression in Real Indoor Environments*, CVPR 2020. [[Paper]](https://arxiv.org/abs/1904.10151)
+11. **REVERIE-CE** — REVERIE 在 Habitat 连续环境中的移植，保留远程物体指代与定位任务。
+12. **SOON** — Zhu et al., *SOON: Scenario Oriented Object Navigation with Graph-based Exploration*, CVPR 2021. [[Paper]](https://arxiv.org/abs/2103.17138)
+13. **LHPR-VLN** — Song et al., *Towards Long-Horizon Vision-Language Navigation: Platform, Benchmark and Method*, CVPR 2025. [[Paper]](https://arxiv.org/abs/2412.09082)
 
-7. **ScaleVLN** — Wang et al., *Scaling Data Generation in Vision-and-Language Navigation*, ICCV 2023. [[Paper]](https://arxiv.org/abs/2307.12335)
+### 10.1.3 对话式与社交感知数据集
 
-8. **VLNVerse** — Lin et al., *VLNVerse: A Benchmark for Vision-Language Navigation with Versatile, Embodied, Realistic Simulation and Evaluation*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2512.19021)
+14. **CVDN** — Thomason et al., *Vision-and-Dialog Navigation*, CoRL 2019. [[Paper]](https://arxiv.org/abs/1907.04957)
+15. **TEACh** — Padmakumar et al., *TEACh: Task-driven Embodied Agents that Chat*, AAAI 2022. [[Paper]](https://arxiv.org/abs/2110.00534)
+16. **HA-VLN** — Li et al., *Human-Aware Vision-and-Language Navigation: Bridging Simulation to Reality with Dynamic Human Interactions*, NeurIPS 2024 Datasets and Benchmarks Track. [[Paper]](https://arxiv.org/abs/2406.19236)
+17. **HA-VLN 2.0** — Dong et al., *HA-VLN 2.0: An Open Benchmark and Leaderboard for Human-Aware Navigation in Discrete and Continuous Environments*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2503.14229)
 
-### 10.1.2 目标导向数据集
+### 10.1.4 需求导向、室外街景与空中数据集
 
-9. **REVERIE** — Qi et al., *REVERIE: Remote Embodied Visual Referring Expression in Real Indoor Environments*, CVPR 2020.
-
-10. **REVERIE-CE** — *REVERIE in Continuous Environments*, continuous navigation and remote object grounding adaptation of REVERIE in Habitat-Sim.
-
-11. **SOON** — Zhu et al., *SOON: Scenario Oriented Object Navigation with Graph-based Exploration*, CVPR 2021.
-
-12. **LHPR-VLN** — *Long-Horizon Planning and Reasoning in Vision-Language Navigation*, CVPR 2025.
-
-### 10.1.3 对话式导航数据集
-
-13. **CVDN** — Thomason et al., *Vision-and-Dialog Navigation*, CoRL 2019.
-
-14. **TEACh** — Padmakumar et al., *TEACh: Task-driven Embodied Agents that Chat*, AAAI 2022.
-
-15. **HA-VLN** — Wei et al., *Human-Aware Vision-Language Navigation*, NeurIPS 2024 Datasets and Benchmarks Track.
-
-### 10.1.4 需求导向与特殊场景数据集
-
-16. **DDN** — *Demand-driven Navigation*, AI2-THOR + ProcThor, 2023–2024.
-
-17. **AerialVLN** — *Vision-and-Language Navigation for UAVs*, ICCV 2023.
-
-18. **CityNav** — *Language-Goal Aerial Navigation Dataset with Geographic Information*, ICCV 2025.
-
-19. **OpenFly** — *A Comprehensive Platform for Aerial Vision-Language Navigation*, arXiv 2025.
+18. **DDN** — Wang et al., *Find What You Want: Learning Demand-conditioned Object Attribute Space for Demand-driven Navigation*, NeurIPS 2023. [[Paper]](https://arxiv.org/abs/2309.08138)
+19. **Touchdown** — Chen et al., *Touchdown: Natural Language Navigation and Spatial Reasoning in Visual Street Environments*, CVPR 2019. [[Paper]](https://arxiv.org/abs/1811.12354)
+20. **StreetLearn** — Mirowski et al., *The StreetLearn Environment and Dataset*, arXiv 2019. [[Paper]](https://arxiv.org/abs/1903.01292)
+21. **AerialVLN** — Liu et al., *AerialVLN: Vision-and-Language Navigation for UAVs*, ICCV 2023. [[Paper]](https://arxiv.org/abs/2308.06735)
+22. **CityNav** — Lee et al., *CityNav: A Large-Scale Dataset for Real-World Aerial Navigation*, ICCV 2025（arXiv 2024）. [[Paper]](https://arxiv.org/abs/2406.14240)
+23. **OpenFly** — Gao et al., *OpenFly: A Comprehensive Platform for Aerial Vision-Language Navigation*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2502.18041)
 
 ---
 
 ## 10.2 核心模型与方法
 
-### 10.2.1 跨模态对齐基线
+### 10.2.1 跨模态对齐与预训练
 
-20. **VLN-BERT** — Majumdar et al., *Improving Vision-and-Language Navigation with Image-Text Pairs from the Web*, ECCV 2020.
+24. **PREVALENT** — Hao et al., *Towards Learning a Generic Agent for Vision-and-Language Navigation via Pre-training*, CVPR 2020. [[Paper]](https://arxiv.org/abs/2002.10638)
+25. **VLN-BERT** — Majumdar et al., *Improving Vision-and-Language Navigation with Image-Text Pairs from the Web*, ECCV 2020. [[Paper]](https://arxiv.org/abs/2004.14973)
+26. **Recurrent VLN-BERT** — Hong et al., *A Recurrent Vision-and-Language BERT for Navigation*, CVPR 2021. [[Paper]](https://arxiv.org/abs/2011.13922)
+27. **HAMT** — Chen et al., *History Aware Multimodal Transformer for Vision-and-Language Navigation*, NeurIPS 2021. [[Paper]](https://arxiv.org/abs/2110.13309)
 
-21. **Recurrent VLN-BERT** — Hong et al., *A Recurrent Vision-and-Language BERT for Navigation*, CVPR 2021.
+### 10.2.2 拓扑图、语义地图与空间记忆
 
-22. **PREVALENT** — Hao et al., *Towards Learning a Generic Agent for Vision-and-Language Navigation via Pre-training*, CVPR 2020.
+28. **DUET** — Chen et al., *Think Global, Act Local: Dual-scale Graph Transformer for Vision-and-Language Navigation*, CVPR 2022. [[Paper]](https://arxiv.org/abs/2202.11742)
+29. **ETPNav** — An et al., *ETPNav: Evolving Topological Planning for Vision-Language Navigation in Continuous Environments*, IEEE TPAMI 2024. [[Paper]](https://arxiv.org/abs/2304.03047)
+30. **LagMemo** — Zhou et al., *LagMemo: Language 3D Gaussian Splatting Memory for Multi-modal Open-vocabulary Multi-goal Visual Navigation*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2510.24118)
 
-### 10.2.2 语义地图与拓扑规划
+### 10.2.3 快慢双系统与导航基础模型
 
-23. **DUET** — Chen et al., *Think Global, Act Local: Dual-scale Graph Transformer for Vision-and-Language Navigation*, CVPR 2022.
+31. **DualVLN** — Wei et al., *Ground Slow, Move Fast: A Dual-System Foundation Model for Generalizable Vision-and-Language Navigation*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2512.08186)
+32. **NaVILA** — Cheng et al., *NaVILA: Legged Robot Vision-Language-Action Model for Navigation*, RSS 2025. [[Paper]](https://arxiv.org/abs/2412.04453)
+33. **NavDP** — Cai et al., *NavDP: Learning Sim-to-Real Navigation Diffusion Policy with Privileged Information Guidance*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2505.08712)
+34. **InternVLA-N1** — InternRobotics（上海人工智能实验室），*InternVLA-N1: An Open Dual-System Vision-Language Navigation Foundation Model with Learned Latent Plans*, 2025. [[Code]](https://github.com/InternRobotics/InternNav)
+35. **OmniNav** — Xue et al., *OmniNav: A Unified Framework for Prospective Exploration and Visual-Language Navigation*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2509.25687)
+36. **Qwen-RobotNav** — Zhang et al., *Qwen-RobotNav Technical Report: A Scalable Navigation Model Designed for an Agentic Navigation System*, arXiv 2026. [[Paper]](https://arxiv.org/abs/2606.18112)
 
-24. **ETPNav** — An et al., *ETPNav: Evolving Topological Planning for Vision-Language Navigation in Continuous Environments*, IEEE TPAMI 2024.
+### 10.2.4 端到端视频 VLM 与连续环境策略
 
-25. **LagMemo** — *Language-grounded Memory for Vision-and-Language Navigation*, 2024.
-
-### 10.2.3 双系统架构
-
-26. **DualVLN** — Wei et al., *Ground Slow, Move Fast: A Dual-System Foundation Model for Generalizable Vision-and-Language Navigation*, 2025. [[Paper]](https://arxiv.org/abs/2512.08186)
-
-27. **NaVILA** — *NaVILA: Legged Robot Vision-Language-Action Model for Navigation*, CVPR 2025.
-
-28. **NavDP** — *NavDP: Navigation with Diffusion Policy*, 2025.
-
-29. **InternVLA-N1** — Shanghai AI Laboratory, *InternVLA-N1*, 2025.
-
-### 10.2.4 端到端方法
-
-30. **CMA** — Krantz et al., *Waypoint Models for Instruction-guided Navigation in Continuous Environments*, ICCV 2021.
-
-31. **StreamVLN** — *StreamVLN: Streaming Vision-Language Navigation via Interleaved Multimodal Sequence Modeling*, NeurIPS 2024.
-
-32. **NaVid** — Zhang et al., *NaVid: Video-based VLM Plans the Next Step for Vision-and-Language Navigation*, RSS 2024.
+37. **Waypoint Models** — Krantz et al., *Waypoint Models for Instruction-guided Navigation in Continuous Environments*, ICCV 2021. [[Paper]](https://arxiv.org/abs/2110.02207)
+38. **NaVid** — Zhang et al., *NaVid: Video-based VLM Plans the Next Step for Vision-and-Language Navigation*, RSS 2024. [[Paper]](https://arxiv.org/abs/2402.15852)
+39. **StreamVLN** — Wei et al., *StreamVLN: Streaming Vision-and-Language Navigation via SlowFast Context Modeling*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2507.05240)
 
 ### 10.2.5 底层视觉导航策略
 
-33. **DD-PPO** — Wijmans et al., *DD-PPO: Learning Near-Perfect PointGoal Navigators from 2.5 Billion Frames*, ICLR 2020.
+40. **DD-PPO** — Wijmans et al., *DD-PPO: Learning Near-Perfect PointGoal Navigators from 2.5 Billion Frames*, ICLR 2020. [[Paper]](https://arxiv.org/abs/1911.00357)
+41. **GNM** — Shah et al., *GNM: A General Navigation Model to Drive Any Robot*, ICRA 2023. [[Paper]](https://arxiv.org/abs/2210.03370)
+42. **ViNT** — Shah et al., *ViNT: A Foundation Model for Visual Navigation*, CoRL 2023. [[Paper]](https://arxiv.org/abs/2306.14846)
+43. **NoMaD** — Sridhar et al., *NoMaD: Goal Masked Diffusion Policies for Navigation and Exploration*, ICRA 2024. [[Paper]](https://arxiv.org/abs/2310.07896)
+44. **ViPlanner** — Roth et al., *ViPlanner: Visual Semantic Imperative Learning for Local Navigation*, ICRA 2024. [[Paper]](https://arxiv.org/abs/2310.00982)
 
-34. **GNM** — Shah et al., *GNM: A General Navigation Model to Drive Any Robot*, CoRL 2023.
+### 10.2.6 世界模型与世界动作模型
 
-35. **ViNT** — Shah et al., *ViNT: A Foundation Model for Visual Navigation*, CoRL 2023.
+45. **Navigation World Models (NWM)** — Bar et al., *Navigation World Models*, CVPR 2025. [[Paper]](https://arxiv.org/abs/2412.03572) [[Project]](https://www.amirbar.net/nwm/)
+46. **Dynam3D** — Wang et al., *Dynam3D: Dynamic Layered 3D Tokens Empower VLM for Vision-and-Language Navigation*, NeurIPS 2025. [[Paper]](https://arxiv.org/abs/2505.11383)
+47. **WMNav** — Nie et al., *WMNav: Integrating Vision-Language Models into World Models for Object Goal Navigation*, IROS 2025. [[Paper]](https://arxiv.org/abs/2503.02247) [[Project]](https://b0b8k1ng.github.io/WMNav/)
+48. **AstraNav-World** — Chen et al., *AstraNav-World: World Model for Foresight Control and Consistency*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2512.21714)
+49. **NavWAM** — Azuma et al., *NavWAM: A Navigation World Action Model for Goal-Conditioned Visual Navigation*, arXiv 2026. [[Paper]](https://arxiv.org/abs/2606.13494)
+50. **DreamVLA** — Zhang et al., *DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge*, NeurIPS 2025. [[Paper]](https://arxiv.org/abs/2507.04447) [[Project]](https://zhangwenyao1.github.io/DreamVLA/)
+51. **NVIDIA Cosmos** — NVIDIA, *Cosmos World Foundation Model Platform for Physical AI*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2501.03575) [[Project]](https://www.nvidia.com/en-us/ai/cosmos/)
 
-36. **NoMad** — Sridhar et al., *NoMaD: Goal Masked Diffusion Policies for Navigation and Exploration*, ICRA 2024.
+### 10.2.7 Agent、自我进化与通用 VLA
 
-37. **ViPlanner** — Roth et al., *ViPlanner: Visual Semantic Imperative Learning for Local Navigation*, ICRA 2024.
-
-### 10.2.6 生成式世界模型
-
-38. **Dynam3D** — *Dynam3D: Dynamic 3D World Models for Vision-Language Navigation*, NeurIPS 2025 Oral. [[Paper]](https://openreview.net/forum?id=s6k9l5yX8e)
-
-39. **Navigation World Models (NWM)** — Bar et al., *Navigation World Models*, CVPR 2025 (Best Paper Honorable Mention), Meta AI. [[Project]](https://www.amirbar.net/nwm/)
-
-40. **DreamVLA** — Zhang et al., *DreamVLA: Dreaming Visual-Language-Action Models for Robot Manipulation*, NeurIPS 2025. [[Project]](https://zhangwenyao1.github.io/DreamVLA/)
-
-41. **WMNav** — *WMNav: Integrating Vision Language Models into World Models for Object Goal Navigation*, IROS 2025 Oral. [[Project]](https://b0b8k1ng.github.io/WMNav/)
-
-42. **InternVLA-A1** — Shanghai AI Lab, *InternVLA-A1: Reasoning World Model for Embodied Intelligence*, 2025. [[Project]](https://internvla.github.io/)
-
-43. **NVIDIA Cosmos** — NVIDIA, *Cosmos World Foundation Model Platform for Physical AI*, 2025. [[Project]](https://www.nvidia.com/en-us/ai/cosmos/)
-
-### 10.2.7 自我进化与通用 VLA
-
-42. **SE-VLN** — Dong et al., *SE-VLN: A Self-Evolving Vision-Language Navigation Framework Based on Multimodal Large Language Models*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2507.13152)
-
-43. **OpenVLA** — Kim et al., *OpenVLA: An Open-Source Vision-Language-Action Model*, arXiv 2024.
-
-44. **RT-2** — Brohan et al., *RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control*, CoRL 2023.
-
-### 10.2.8 2025–2026 导航基础模型与系统
-
-- **OmniNav** — Xue et al., *OmniNav: A Unified Framework for Prospective Exploration and Visual-Language Navigation*, 2025. [[Paper]](https://arxiv.org/abs/2509.25687)
-
-- **AstraNav-World** — Hu et al., *AstraNav-World: World Model for Foresight Control and Consistency*, 2025. [[Paper]](https://arxiv.org/abs/2512.21714)
-
-- **AgentVLN** — Xin et al., *AgentVLN: Towards Agentic Vision-and-Language Navigation*, 2026. [[Paper]](https://arxiv.org/abs/2603.17670) [[Code]](https://github.com/Allenxinn/AgentVLN)
-
-- **NavWAM** — Azuma et al., *NavWAM: A Navigation World Action Model for Goal-Conditioned Visual Navigation*, 2026. [[Paper]](https://arxiv.org/abs/2606.13494)
-
-- **Qwen-RobotNav** — Zhang et al., *Qwen-RobotNav Technical Report: A Scalable Navigation Model Designed for an Agentic Navigation System*, 2026. [[Paper]](https://arxiv.org/abs/2606.18112)
-
-> 上述条目以预印本为主，发表状态和榜单数字可能继续变化；最新状态以论文主页及 [配套论文页](/VLN-Papers/) 为准。
+52. **AgentVLN** — Xin et al., *AgentVLN: Towards Agentic Vision-and-Language Navigation*, arXiv 2026. [[Paper]](https://arxiv.org/abs/2603.17670) [[Code]](https://github.com/Allenxinn/AgentVLN)
+53. **SE-VLN** — Dong et al., *SE-VLN: A Self-Evolving Vision-Language Navigation Framework Based on Multimodal Large Language Models*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2507.13152)
+54. **RT-2** — Brohan et al., *RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control*, CoRL 2023. [[Paper]](https://arxiv.org/abs/2307.15818)
+55. **OpenVLA** — Kim et al., *OpenVLA: An Open-Source Vision-Language-Action Model*, CoRL 2024. [[Paper]](https://arxiv.org/abs/2406.09246)
 
 ---
 
-## 10.3 模拟器
+## 10.3 模拟器与场景资产
 
-45. **Matterport3D Simulator** — Anderson et al., CVPR 2018. [[GitHub]](https://github.com/peteanderson80/Matterport3DSimulator)
-
-46. **Habitat** — Savva et al., *Habitat: A Platform for Embodied AI Research*, ICCV 2019. [[GitHub]](https://github.com/facebookresearch/habitat-lab)
-
-47. **AI2-THOR** — Kolve et al., *AI2-THOR: An Interactive 3D Environment for Visual AI*, arXiv 2017. [[Website]](https://ai2thor.allenai.org/)
-
-48. **iGibson** — Shen et al., *iGibson 2.0: Object-Centric Simulation for Robot Learning of Everyday Household Tasks*, CoRL 2021. [[GitHub]](https://github.com/StanfordVL/iGibson)
-
-49. **AirSim** — Shah et al., *AirSim: High-Fidelity Visual and Physical Simulation for Autonomous Vehicles*, 2018. [[GitHub]](https://github.com/microsoft/AirSim)
-
-50. **Isaac Sim / Isaac Lab** — NVIDIA, 2024. [[Docs]](https://isaac-sim.github.io/IsaacLab/main/index.html)
-
-51. **MuJoCo / MJX** — Todorov et al. (IROS 2012) / Google DeepMind, 2024. [[GitHub]](https://github.com/google-deepmind/mujoco) / [[Docs]](https://mujoco.readthedocs.io/)
-
-52. **InternUtopia** — Shanghai AI Laboratory, 2024. [[GitHub]](https://github.com/OpenGVLab/InternUtopia)
+56. **Matterport3D Simulator** — Anderson et al., CVPR 2018（随 R2R 发布）. [[GitHub]](https://github.com/peteanderson80/Matterport3DSimulator)
+57. **Habitat** — Savva et al., *Habitat: A Platform for Embodied AI Research*, ICCV 2019 [[Paper]](https://arxiv.org/abs/1904.01201)；Szot et al., *Habitat 2.0: Training Home Assistants to Rearrange their Habitat*, NeurIPS 2021 [[Paper]](https://arxiv.org/abs/2106.14405)；Puig et al., *Habitat 3.0: A Co-Habitat for Humans, Avatars and Robots*, ICLR 2024 [[Paper]](https://arxiv.org/abs/2310.13724). [[GitHub]](https://github.com/facebookresearch/habitat-lab)
+58. **AI2-THOR / ProcTHOR** — Kolve et al., *AI2-THOR: An Interactive 3D Environment for Visual AI*, arXiv 2017 [[Paper]](https://arxiv.org/abs/1712.05474)；Deitke et al., *ProcTHOR: Large-Scale Embodied AI Using Procedural Generation*, NeurIPS 2022 [[Paper]](https://arxiv.org/abs/2206.06994). [[Website]](https://ai2thor.allenai.org/)
+59. **Gibson / iGibson / OmniGibson** — Xia et al., *Gibson Env: Real-World Perception for Embodied Agents*, CVPR 2018 [[Paper]](https://arxiv.org/abs/1808.10654)；Li et al., *iGibson 2.0: Object-Centric Simulation for Robot Learning of Everyday Household Tasks*, CoRL 2021 [[Paper]](https://arxiv.org/abs/2108.03272)；Li et al., *BEHAVIOR-1K*, CoRL 2022（arXiv 2024 扩展版）[[Paper]](https://arxiv.org/abs/2403.09227). [[GitHub]](https://github.com/StanfordVL/iGibson)
+60. **AirSim** — Shah et al., *AirSim: High-Fidelity Visual and Physical Simulation for Autonomous Vehicles*, FSR 2017. [[GitHub]](https://github.com/microsoft/AirSim)（已归档）/ [[Colosseum]](https://github.com/CodexLabsLLC/Colosseum)
+61. **Isaac Sim / Isaac Lab** — NVIDIA；Mittal et al., *Orbit: A Unified Simulation Framework for Interactive Robot Learning Environments*（Isaac Lab 前身）, IEEE RA-L 2023 [[Paper]](https://arxiv.org/abs/2301.04195). [[Docs]](https://isaac-sim.github.io/IsaacLab/main/index.html)
+62. **MuJoCo / MJX** — Todorov et al., *MuJoCo: A Physics Engine for Model-based Control*, IROS 2012；Google DeepMind 维护. [[GitHub]](https://github.com/google-deepmind/mujoco) / [[Docs]](https://mujoco.readthedocs.io/)
+63. **InternUtopia (GRUtopia)** — Wang et al., *GRUtopia: Dream General Robots in a City at Scale*, arXiv 2024. [[Paper]](https://arxiv.org/abs/2407.10943) [[GitHub]](https://github.com/InternRobotics/InternUtopia)
 
 ---
 
 ## 10.4 综述论文
 
-53. **VLN Survey** — Gu et al., *Vision-and-Language Navigation: A Survey of Tasks, Methods, and Future Directions*, ACL 2022.
-
-54. **VLN Survey (IJCV)** — *Vision-and-Language Navigation: A Survey*, International Journal of Computer Vision 2023. [[Paper]](https://arxiv.org/abs/2203.12667)
-
-55. **Thinking-VLN** — *Thinking Before Acting: Unified Human-Embodied Alignment for VLN*, 2025.
-
----
-
-## 10.5 学习资源与代码库
-
-56. **VLN-Survey-with-Foundation-Models** — 专注 LLM/VLM 时代 VLN 方法的 GitHub 资源仓库（持续更新）. [[GitHub]](https://github.com/zhangyuejoslin/VLN-Survey-with-Foundation-Models)
-
-57. **Awesome-Embodied-AI** — 涵盖 VLN、VLA、机器人操作的全栈具身智能资源. [[GitHub]](https://github.com/jonyzhang2023/awesome-embodied-vla-va-vln)
-
-58. **Embodied-AI-Guide** — 具身 AI 入门教程与实践指南. [[GitHub]](https://github.com/TianxingChen/Embodied-AI-Guide)
-
----
-
-## 10.6 重要会议与研讨会
-
-| 会议 / 研讨会 | 侧重点 |
-|:---|:---|
-| **CVPR / ICCV / ECCV** | 视觉-语言方法创新 |
-| **NeurIPS / ICLR** | 基础模型、强化学习与理论创新 |
-| **CoRL** (Conference on Robot Learning) | VLN 向真实机器人迁移 |
-| **ICRA / IROS** | 导航算法工程化与真实部署 |
-| **[Embodied AI Workshop @ CVPR](https://embodied-ai.org/)** | 最新趋势与挑战赛发布 |
+64. Gu et al., *Vision-and-Language Navigation: A Survey of Tasks, Methods, and Future Directions*, ACL 2022. [[Paper]](https://arxiv.org/abs/2203.12667)
+65. Zhang et al., *Vision-and-Language Navigation Today and Tomorrow: A Survey in the Era of Foundation Models*, arXiv 2024. [[Paper]](https://arxiv.org/abs/2407.07035) [[GitHub]](https://github.com/zhangyuejoslin/VLN-Survey-with-Foundation-Models)
