@@ -117,7 +117,7 @@ $$\mathcal{L} = -\sum_{i=1}^{N} \sum_{j=1}^{C} y_{i,j} \log p_{i,j}$$
 ## 2. LoGoPlanner (2025) {#logoplanner}
 ——定位接地的端到端导航策略：把度量尺度的视觉几何"植入"规划
 
-📄 **Paper**: [arXiv:2512.19629](https://arxiv.org/abs/2512.19629)
+📄 **Paper**: [arXiv:2512.19629](https://arxiv.org/abs/2512.19629) · 🏛️ **ICRA 2026**
 
 **研究背景/问题**
 
@@ -190,7 +190,7 @@ LoGoPlanner 在一个统一网络里端到端协同三大部分：**(A) 度量�
 ## 3. VL-Nav (2025) {#vl-nav}
 ——实时零样本 Vision-Language 导航系统，融合像素级视觉-语言特征与启发式空间推理
 
-📄 **Paper**: [arXiv:2502.00931](https://arxiv.org/abs/2502.00931)
+📄 **Paper**: [arXiv:2502.00931](https://arxiv.org/abs/2502.00931) · 🏛️ **IROS 2026**
 
 **精华**
 
@@ -1095,7 +1095,7 @@ graph TD
 ## 11. Route2Step (2026) {#route2step}
 ———解耦语义进度与局部执行，通过显式步级接口赋能具身导航纠偏
 
-📄 **Paper**: [arXiv:2608.03143](https://arxiv.org/abs/2608.03143) · [Project Page](https://sisyphus-hxy.github.io/Route2Step/)
+📄 **Paper**: [arXiv:2608.03143](https://arxiv.org/abs/2608.03143) · 🏛️ **ECCV 2026** · [Project Page](https://sisyphus-hxy.github.io/Route2Step/)
 
 ### 精华
 1. **解耦语义跟踪与物理执行**：将连续视觉语言导航（VLN-CE）分解为负责全局语义进度的指令分析模块（$$\mathcal{M}_{\text{IA}}$$）与负责局部运动控制的动作生成模块（$$\mathcal{M}_{\text{AG}}$$），通过“活动子指令 + 执行状态（Normal/Recovering）”显式接口解耦两者的优化目标与时序感受野。
@@ -1220,7 +1220,7 @@ $$\mathcal{L}_{\text{AG}} = -\mathbb{E}_{\mathcal{D}_E \cup \mathcal{D}_A} \left
 ## 12. HumanoidVLN (2026) {#humanoidvln}
 ———首个面向多样化双足人形机器人的物理真实 VLN 仿真平台与基准
 
-📄 **Paper**: [arXiv:2608.12860](https://arxiv.org/abs/2608.12860) · [Project Page](https://humanoid-vln.github.io/)
+📄 **Paper**: [arXiv:2608.12860](https://arxiv.org/abs/2608.12860) · 🏛️ **IEEE RA-L** · [Project Page](https://humanoid-vln.github.io/)
 
 ### 精华
 1. **打破运动学传送假设**：首次针对双足人形机器人建立基于 NVIDIA Isaac Sim 的全物理仿真评测平台，将高层 VLN 规划与底层强化学习（RL）步态控制相解耦，揭示了传统无物理仿真掩盖的跌倒与步态失稳问题。
@@ -1456,7 +1456,7 @@ CONDVLN 目前仅支持 VLN-CE 兼容的室内离散/连续仿真环境，评测
 ## 14. ReMEmbR (2024) {#remembr}
 ———基于检索增强长程时空记忆的机器人导航问答与物理目标生成
 
-📄 **Paper**: [arXiv:2409.13682](https://arxiv.org/abs/2409.13682) · [Project Page](https://nvidia-ai-iot.github.io/remembr)
+📄 **Paper**: [arXiv:2409.13682](https://arxiv.org/abs/2409.13682) · 🏛️ **ICRA 2025** · [Project Page](https://nvidia-ai-iot.github.io/remembr)
 
 ### 精华
 1. **长程时空记忆解耦**：针对移动机器人在数十分钟至数小时连续作业中面对的庞大历史数据，提出将记忆构建（Memory Building）与查询推理（Querying）阶段解耦，解决传统多模态大模型面对超长上下文时的显存爆炸与计算延迟难题。
