@@ -2920,325 +2920,538 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 - **Sim-to-Real部署**：Habitat 3.1 / iGibson 3.0 / Isaac Sim / MuJoCo
 
 
-# 8. 评估指标
+# 8. 评估指标与评测体系
 
-VLN 评测至少要回答四个问题：**是否到达、是否高效、是否遵循指令路径、是否安全稳定**。单独报告 SR 容易奖励绕路探索，单独报告 SPL 又无法判断智能体是否真正沿语言描述的路线前进，因此标准实验通常需要组合指标。
+> **核心评测准则**：VLN 评测不是简单的标量回归或分类，而是在部分可观测物理/拓扑空间中，对**目标到达、行动效率、指令保真与具身安全**的四维协同检验。脱离统一协议（传感器视角、动作空间粒度、是否使用深度/先验地图、测试时大模型 API 介入程度）而单纯比拼排行榜数字，往往会掩盖策略的真实本质。
 
-> **先统一协议，再比较数字**：必须同时注明数据划分、成功阈值、动作空间、相机配置、是否使用深度/地图/里程计、额外训练数据和测试时大模型。配套论文页已将离散全景、连续环境与目标导航分表维护。
+## 8.1 评测体系总览与设计哲学
 
-## 8.1 导航精度指标
+视觉语言导航（VLN）的评测之所以极具挑战性，根源在于它是一个**高自由度、部分可观测、长时序闭环且受细粒度自然语言多级约束的具身决策任务**。在经典 NLP 或 CV 任务中，评测往往是预测分布与静态标签之间的静态距离度量；而在 VLN 中，智能体的每一次动作都不可逆地改变未来视点与几何相对位姿，错误会随时间步急剧累积。
 
-### 8.1.1 Success Rate (SR)
+这种具身特性导致评测体系长期面临**“古德哈特定律（Goodhart's Law）”的严峻考验——“当一个指标变成目标，它就不再是一个好指标”**。在实践中，任何单一标量指标都极易被某种具有病态特性的策略攻破：
+1. **纯目标导向的盲区（SR 陷阱）**：如果只考核终点是否落入阈值（SR），策略就会倾向于在终点附近发起激进的“撞大运式”扩散漫游，甚至在房间内打转试错，用极高步数与路径长度代价换取虚高的成功率；
+2. **纯几何效率的盲区（SPL 捷径）**：如果片面强调路径效率与最短路径比（SPL），模型便可能学会“语言走捷径（Language Shortcut）”——彻底忽略指令中细致的沿途地标引导（如“绕过客厅长桌，穿过第二道拱门并在走廊第三个门右转”），直接走一条欧氏距离最短的穿行路线；
+3. **感知与执行的脱节（OSR–SR 鸿沟）**：智能体虽然成功探索并途经了目标物体旁，却因为缺乏精准的停止准则（STOP policy）或空间确认机制，导致其“过门而不入”，造成极高的潜在成功率与极低实际成功率的巨大落差；
+4. **仿真与物理具身的断层（Sim-to-Real 鸿沟）**：在理想化的离散拓扑图或无物理接触仿真中获得高分的策略，一旦进入具有连续刚体碰撞、累积打滑、四足/双足运动平衡与控制延迟的现实世界，可能因疯狂撞墙、关节过热、跌倒（Fall）或卡死（Stuck）而瞬间瘫痪。
 
-**定义：**
-成功到达目标位置的episode比例。
+因此，现代 VLN 评测体系绝非单一榜单排名的玩具，而是被解构为一个由**目标达成度（Goal Reaching）**、**执行效率度（Path Efficiency）**、**指令保真度（Instruction Fidelity）**和**具身安全与鲁棒性（Embodied Safety & Robustness）**构成的四维正交张量空间。
 
-**计算方法：**
+```mermaid
+flowchart TB
+    Root["VLN 具身评测空间四维基柱"]
+
+    subgraph D1["1. 目标达成度 (Goal Reaching)"]
+        SR["SR: 终点成功率"]
+        NE["NE: 终点定位误差"]
+        OSR["OSR: 途经/先知成功率"]
+    end
+
+    subgraph D2["2. 执行效率度 (Path Efficiency)"]
+        SPL["SPL: 路径长度加权成功率"]
+        TL["TL: 实际轨迹物理长度"]
+        Steps["Steps: 决策步数消耗"]
+    end
+
+    subgraph D3["3. 指令保真度 (Instruction Fidelity)"]
+        CLS["CLS: 路径覆盖度评分"]
+        nDTW["nDTW: 归一化时序对齐度"]
+        SDTW["SDTW: 成功加权轨迹对齐度"]
+    end
+
+    subgraph D4["4. 具身安全度 (Embodied Safety)"]
+        CR["CR: 连续环境碰撞率"]
+        HCR["HCR: 动态人群碰撞率"]
+        FR["FR / StR: 物理跌倒与卡死率"]
+    end
+
+    Root --> D1
+    Root --> D2
+    Root --> D3
+    Root --> D4
+
+    style Root fill:#1971c2,stroke:#1864ab,stroke-width:3px,color:#ffffff
+    style D1 fill:#e7f5ff,stroke:#339af0,stroke-width:2px
+    style D2 fill:#d3f9d8,stroke:#40c057,stroke-width:2px
+    style D3 fill:#fff4e6,stroke:#ff922b,stroke-width:2px
+    style D4 fill:#ffe3e3,stroke:#fa5252,stroke-width:2px
+    style SR fill:#ffffff,stroke:#339af0
+    style NE fill:#ffffff,stroke:#339af0
+    style OSR fill:#ffffff,stroke:#339af0
+    style SPL fill:#ffffff,stroke:#40c057
+    style TL fill:#ffffff,stroke:#40c057
+    style Steps fill:#ffffff,stroke:#40c057
+    style CLS fill:#ffffff,stroke:#ff922b
+    style nDTW fill:#ffffff,stroke:#ff922b
+    style SDTW fill:#ffffff,stroke:#ff922b
+    style CR fill:#ffffff,stroke:#fa5252
+    style HCR fill:#ffffff,stroke:#fa5252
+    style FR fill:#ffffff,stroke:#fa5252
+```
+
+### 8.1.1 典型轨迹形态与多维指标响应矩阵
+
+为了直观展示为何单一指标必然失效，下图对比了四种具有代表性的智能体导航轨迹以及各类指标的反馈差异：
+
+```mermaid
+flowchart LR
+    subgraph CaseA["模式 A: 忠实循径 (Ideal Follower)"]
+        direction TB
+        A1["指令要求: 穿过厨房经过走廊停在卧室"]
+        A2["实际轨迹: 严格沿描述走廊行进并精准停在床前"]
+        A3["指标表现: SR ↑ | SPL ↑ | CLS ↑ | nDTW ↑"]
+    end
+
+    subgraph CaseB["模式 B: 走捷径 (Shortcut Taker)"]
+        direction TB
+        B1["指令要求: 绕过大厅展台穿过长走廊右拐"]
+        B2["实际轨迹: 翻越矮墙/抄近道直接冲向终点"]
+        B3["指标表现: SR ↑ | SPL 极高 | CLS ↓ | nDTW ↓"]
+    end
+
+    subgraph CaseC["模式 C: 漫游试错 (Wandering Explorer)"]
+        direction TB
+        C1["指令要求: 出门左转进入第二间会议室"]
+        C2["实际轨迹: 各房间盲目搜寻多圈后碰巧到达"]
+        C3["指标表现: SR ↑ | SPL 极低 | TL 极大 | CLS ↓"]
+    end
+
+    subgraph CaseD["模式 D: 过门未停 (Pass-by / False Stop)"]
+        direction TB
+        D1["指令要求: 走到饮水机旁停下"]
+        D2["实际轨迹: 成功到达饮水机旁但未发出 STOP 继而远离"]
+        D3["指标表现: OSR ↑ | SR=0 | SPL=0 | NE 偏大"]
+    end
+
+    style CaseA fill:#ebfbee,stroke:#2b8a3e,stroke-width:2px
+    style CaseB fill:#fff9db,stroke:#f59f00,stroke-width:2px
+    style CaseC fill:#fff5f5,stroke:#e03131,stroke-width:2px
+    style CaseD fill:#f3f0ff,stroke:#7950f2,stroke-width:2px
+    style A3 fill:#d3f9d8,stroke:#2f9e44,stroke-width:1px
+    style B3 fill:#ffe8cc,stroke:#e67700,stroke-width:1px
+    style C3 fill:#ffe3e3,stroke:#c92a2a,stroke-width:1px
+    style D3 fill:#e5dbff,stroke:#5f3dc4,stroke-width:1px
+```
+
+### 8.1.2 场景化指标选型决策树
+
+在具体科研与工程实践中，盲目罗列所有指标不仅浪费算力，还会分散分析重心。应当依据**仿真连续性、指令粒度、动态环境与物理控制**四个层级自上而下选择基准指标组合：
+
+```mermaid
+flowchart TB
+    Start["确定 VLN 任务设定与仿真环境"] --> Q1{"动作空间与环境建模"}
+
+    Q1 -->|离散拓扑图<br>如 R2R / REVERIE| M1["必须报告: SR + SPL + NE<br>辅助探针: OSR (诊断停止能力)"]
+    Q1 -->|连续物理空间<br>如 VLN-CE| M2["必须报告: SR + SPL + CR (碰撞率)<br>关注连续控制下的平滑性与累积漂移"]
+
+    M1 --> Q2{"指令类型与细粒度"}
+    M2 --> Q3{"动态交互与物理动力学"}
+
+    Q2 -->|细粒度长指令如 RxR / R4R| M1_A["追加保真度指标: CLS + nDTW / SDTW<br>严防模型走几何捷径导致语言失真"]
+    Q2 -->|高层目标指代如 REVERIE| M1_B["追加目标检测指标: Remote-OSR / RGS<br>考察远距离视角落地与目标框预测"]
+
+    Q3 -->|含动态人群如 Social-VLN| M2_A["追加社交合规指标: HCR 动态避障率<br>结合人际舒适距离与社交路径扰动"]
+    Q3 -->|四足/双足仿真如 VLN-PE| M2_B["追加物理稳定性指标: FR 跌倒率 + StR 卡死率<br>结合关节力矩、能耗与控制频率"]
+
+    style Start fill:#1971c2,stroke:#1864ab,stroke-width:2px,color:#ffffff
+    style Q1 fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
+    style Q2 fill:#fff4e6,stroke:#e67700,stroke-width:2px
+    style Q3 fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
+    style M1 fill:#f8f9fa,stroke:#495057,stroke-width:1px
+    style M2 fill:#f8f9fa,stroke:#495057,stroke-width:1px
+    style M1_A fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
+    style M1_B fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
+    style M2_A fill:#f3d9fa,stroke:#862e9c,stroke-width:2px
+    style M2_B fill:#ffe8cc,stroke:#d9480f,stroke-width:2px
+```
+
+### 8.1.3 核心评估指标全景矩阵
+
+| 指标 | 英文全称 | 核心考察维度 | 核心数学定义/逻辑 | 取值/方向 | 核心盲区与设计权衡 | 适用场景 |
+|:---:|:---|:---:|:---|:---:|:---|:---|
+| **SR** | Success Rate | 目标达成 | 终止位置误差 $d < \tau$ 的比例 | 0–100% (↑) | 不惩罚绕路探索；对成功阈值 $\tau$ 极敏感 | 全场景第一通用基准 |
+| **SPL** | Success weighted by Path Length | 综合效率 | $SR \times \frac{l^*}{\max(p, l^*)}$ | 0–1 (↑) | 失败直接计 0；偏爱几何捷径忽视语言沿途引导 | 全场景核心平衡指标 |
+| **NE** | Navigation Error | 定位精度 | 终止位置与真实终点的平均欧氏距离 | $[0, +\infty)$ m (↓) | 易受大场景离群值扰动；无法度量过程合理性 | 定位基线评估 |
+| **OSR** | Oracle Success Rate | 探索上限 | 轨迹中任意点曾达 $d \le \tau$ 的比例 | 0–100% (↑) | 不反映实际停止表现；仅作潜在定位能力探针 | 诊断停止策略缺陷 |
+| **CLS** | Coverage weighted by Length Score | 路径保真 | 软路径覆盖率 $PC \times$ 相对长度分 $LS$ | 0–1 (↑) | 高度依赖参考路径标注质量；计算开销较大 | 细粒度长指令 (RxR/R4R) |
+| **nDTW** | normalized Dynamic Time Warping | 轨迹形态对齐 | 动态时间规整距离的时序指数衰减 | 0–1 (↑) | 对局部平移较宽容，但无法独立惩罚未到达 | 轨迹相似度与跟踪研究 |
+| **SDTW** | Success weighted by nDTW | 保真与成功综合 | $SR \times nDTW$ | 0–1 (↑) | 严苛双重惩罚，区分度极高 | 严格遵循指令评测 |
+| **CR** | Collision Rate | 几何物理安全 | 发生几何碰撞的动作步数占总步数比例 | 0–100% (↓) | 离散拓扑图通常为 0；在连续物理空间极为关键 | 连续环境 (VLN-CE) |
+| **HCR** | Human Collision Rate | 社交安全规范 | 与动态行人发生接触的步数比例/次数 | 0–100% (↓) | 依赖动态人群仿真行为树的真实度 | 社交导航 (Social-VLN) |
+| **FR / StR** | Fall Rate / Stuck Rate | 物理动力学稳定性 | 机器人翻倒 (FR) 或无法自主脱困 (StR) 比例 | 0–100% (↓) | 传统刚体无质量仿真不体现 | 物理仿真 (VLN-PE) / 真机 |
+
+---
+
+### 8.1.4 常见指标反差与模型病理诊断表
+
+在模型调优过程中，**指标之间的反差（Discrepancy）往往比绝对数值更能揭示算法的内在缺陷**：
+
+| 现象与指标反差 | 潜在策略病理 | 根因机制剖析 | 改进与针对性调优方向 |
+|:---|:---|:---|:---|
+| **$OSR \gg SR$**<br>(高 OSR，极低 SR) | **“过门不入”综合征** | 空间感知已将智能体引导至目标附近，但缺乏置信度校准或显式 `STOP` 终止判定；智能体在目标点未及时制动导致滑出容差圈 | 强化停止头（Stop Predictor）特征判别；引入目标视线角与到达置信度门控机制；训练到达停留惩罚 |
+| **$SR$ 尚可但 $SPL$ 极低** | **“无头苍蝇”漫游探索** | 策略缺乏全局拓扑记忆与指令进度感知，依赖大步数上限在局部区域做布朗运动漫游，偶然碰入成功圈 | 引入长程拓扑记忆图（Topological Map）；增强语言进度回溯对齐（Progress Monitor）；加大步数惩罚 |
+| **$SPL$ 极高但 $CLS / nDTW$ 偏低** | **“走捷径”偏见 (Shortcut Gaming)** | 模型过度学习了环境空间连通性几何先验，学会了直奔目标房间，却完全忽略了指令中具体的沿途地标引导 | 引入交叉注意力忠实度损失；在数据增强中加入对抗性负样本路线；加入中间航路点（Waypoints）一致性约束 |
+| **$SR$ 很高但连续 $CR$ 极高** | **激进“穿墙撞障”策略** | 策略在高层航路点规划上合理，但缺乏底层几何可通行性验证或安全包络约束，导致持续靠撞击物理碰撞体积前移 | 引入 BEV 几何占据网格与局部避障代价地图；在强化学习中施加高额碰撞负奖励；快慢分层中引入局部反应式避障控制器 |
+| **$Val\text{-}Seen$ 极高但 $Val\text{-}Unseen$ 暴跌** | **场景环境过拟合** | 严重记忆了训练集具体建筑的纹理特征、房间名称分布或固定视点 ID，未学会抽象的空间语义拓扑泛化 | 扩大跨场景预训练多样性；引入环境泛化数据增强（色彩抖动、物体随机替换、拓扑扰动）；冻结底层基础视觉骨干 |
+
+---
+
+## 8.2 目标达成与定位精度指标
+
+### 8.2.1 Success Rate (SR)
+
+**定义与核心计算：**
+衡量智能体最终能否成功停留在目标容差半径内的 episode 比例：
+
 $$
 SR = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}[d_i < \tau]
 $$
 
 其中：
-- $N$ 是测试episode的总数
-- $d_i$ 是第 $i$ 个episode结束时智能体与目标位置的距离
-- $\tau$ 是成功阈值（通常设为3米）
-- $\mathbb{1}[\cdot]$ 是指示函数，条件满足时为1，否则为0
+- $N$ 为测试 episode 的总数；
+- $d_i$ 为第 $i$ 个 episode 终止时（发出 `STOP` 动作或达到最大允许步数），机器人基座坐标与目标点之间的欧氏距离；
+- $\tau$ 为成功判定阈值。在标准室内 VLN 基准（如 R2R、RxR）中默认统一固定为 **3.0 米**；在室外大尺度自动驾驶或大场景园区巡检中，通常按比例放宽为 5.0–10.0 米；
+- $\mathbb{1}[\cdot]$ 为指示函数，条件满足时取 1，否则取 0。
 
-**取值范围：**
-- 0 到 1（或0%到100%）
-- 越高越好
+**特性与权衡分析：**
+- **核心价值**：直观明确，反映任务的最终交付能力，是学术界与产业界最主要的第一比较基准；
+- **核心盲区**：SR 属于离散的“全有或全无”度量，完全无法感知智能体是“沿最短路径高效到达”还是“漫游试错 50 步后撞大运到达”；同时，对阈值 $\tau$ 高度敏感（$2.99\text{m}$ 计满分，而 $3.01\text{m}$ 则直接归零）。
 
-**优点：**
-- 直观易懂，反映任务完成率
-- 最常用的主要评估指标
+### 8.2.2 Navigation Error (NE)
 
-**缺点：**
-- 忽略了导航效率（路径长度）
-- 对成功阈值敏感
+**定义与核心计算：**
+智能体终止导航时与真实目标点之间的平均几何欧氏距离（以米为单位）：
 
-### 8.1.2 Navigation Error (NE)
-
-**定义：**
-智能体停止时与目标位置的平均距离误差（米）。
-
-**计算方法：**
 $$
 NE = \frac{1}{N} \sum_{i=1}^{N} d_i
 $$
 
-其中：
-- $d_i$ 是第 $i$ 个episode结束时智能体与目标的欧氏距离
+**特性与权衡分析：**
+- **核心价值**：提供了一个连续平滑的定位误差分布，即使在非常艰难的未见大场景中，NE 也能敏锐反映不同模型在“缩短目标距离”上的进展梯度；
+- **核心盲区**：数值尺度受测试建筑物理空间跨度的直接影响（在豪华大别墅中走丢的 NE 往往显著大于紧凑型公寓），在跨数据集横向比较时可比性较弱。
 
-**取值范围：**
-- $[0, +\infty)$ 米
-- 越低越好
+### 8.2.3 Oracle Success Rate (OSR)
 
-**优点：**
-- 提供连续的性能度量
-- 不依赖成功阈值的设定
-
-**缺点：**
-- 受场景规模影响较大
-- 难以跨数据集比较
-
-### 8.1.3 Oracle Success Rate (OSR)
-
-**定义：**
-在整个导航轨迹中，智能体曾经距离目标最近的位置是否满足成功条件。
-
-**计算方法：**
-$$
-OSR = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}[\min_{t} d_i^{(t)} < \tau]
-$$
-
-其中：
-- $d_i^{(t)}$ 是第 $i$ 个episode在时间步 $t$ 时智能体与目标的距离
-- $\min_{t} d_i^{(t)}$ 是整个轨迹中与目标的最小距离
-
-**取值范围：**
-- 0 到 1（或0%到100%）
-- 越高越好
-
-**优点：**
-- 评估智能体是否"到过"目标附近
-- 反映路径规划的潜在能力
-- 有助于区分"到达但没停"和"从未到达"两种失败情况
-
-**缺点：**
-- 不能反映最终导航结果
-- 通常作为辅助指标使用
-
-## 8.2 导航效率指标
-
-### 8.2.1 Success weighted by Path Length (SPL)
-
-**定义：**
-考虑路径效率的成功率，同时衡量成功率和路径长度。
-
-**计算方法：**
-$$
-SPL = \frac{1}{N} \sum_{i=1}^{N} S_i \frac{l_i^*}{\max(p_i, l_i^*)}
-$$
-
-其中：
-- $S_i$ 是成功指示符（到达目标为1，否则为0）
-- $l_i^*$ 是最短路径长度（从起点到终点的理论最短距离）
-- $p_i$ 是智能体实际走过的路径长度
-- $\max(p_i, l_i^*)$ 确保分母不小于最短路径
-
-**取值范围：**
-- 0 到 1
-- 越高越好
-- SPL = 1 表示以最短路径成功到达目标
-
-**优点：**
-- **最重要的综合指标**，同时考虑成功率和效率
-- 惩罚绕路行为，鼓励高效导航
-- 被广泛用作主要性能指标（与SR并列）
-
-**缺点：**
-- 需要计算最短路径（需要环境图信息）
-- 对失败的episode惩罚较重（直接计为0）
-
-### 8.2.2 Coverage weighted by Length Score (CLS)
-
-**定义：**
-衡量预测轨迹对参考路径的覆盖程度，并用长度一致性抑制过度绕行。CLS 不是简单的“经过参考节点比例”，而是由软路径覆盖率 PC 与长度分数 LS 共同构成。
-
-**计算方法：**
-$$
-PC(P,R) = \frac{1}{|R|}\sum_{r \in R}\exp\left(-\frac{d(r,P)}{d_{th}}\right)
-$$
+**定义与核心计算：**
+在整个导航时序轨迹中，智能体**曾经距离目标最近的位置**是否满足成功判定阈值：
 
 $$
-EPL(P,R)=PC(P,R)\cdot PL(R)
+OSR = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}\left[\min_{t \in \{1, \dots, T_i\}} d_i^{(t)} < \tau\right]
 $$
 
-$$
-LS(P,R)=\frac{EPL(P,R)}{EPL(P,R)+|EPL(P,R)-PL(P)|}
-$$
+其中 $d_i^{(t)}$ 为智能体在时间步 $t$ 时的即时位置与目标的距离。
+
+**特性与权衡分析：**
+- **核心价值（模型调试探针）**：OSR 反映了策略的空间寻路与探索上限能力。它能将“空间寻路失败（从未找到过目标）”与“停止决策失败（路过了但停不下来）”两种完全不同的错误解耦；
+- **指标张力**：若模型的 OSR 显著高于 SR（例如 OSR 达 80% 而 SR 仅 50%），说明策略的感知和路径探索已经十分优秀，瓶颈完全卡在目标细粒度验证（Goal Verification）和终止准则（STOP policy）上。
+
+```mermaid
+flowchart LR
+    subgraph Legend["目标判定圈 (Goal Zone)"]
+        T["目标终点 G<br>容差半径 τ = 3.0m"]
+    end
+
+    subgraph Timeline["智能体轨迹时序演变过程"]
+        direction TB
+        Step0["t = 0: 起点出发<br>(距终点 15.0m)"]
+        Step1["t = 8: 穿过走廊进入容差圈<br>当前距离 d = 1.8m < 3.0m<br>★ 满足 OSR 条件 (OSR = 1)"]
+        Step2["t = 9: 策略未发出 STOP 决策<br>智能体继续向前漫游探索"]
+        Step3["t = 12: 滑出 3.0m 目标容差圈<br>当前距离 d = 4.5m > 3.0m"]
+        Step4["t = 25: 达到最大步数被强制制动<br>最终终止距离 d = 6.8m<br>✗ 未满足 SR 条件 (SR = 0)"]
+
+        Step0 --> Step1 --> Step2 --> Step3 --> Step4
+    end
+
+    subgraph Result["诊断结论: '过门不入' 综合征"]
+        direction TB
+        R1["OSR = 1.0<br>(具备良好空间定位与寻路能力)"]
+        R2["SR = 0.0<br>(缺乏停止准则与目标确认自信)"]
+        R3["SPL = 0.0<br>(最终任务判定失败，效率归零)"]
+    end
+
+    Legend -.-> Timeline
+    Timeline --> Result
+
+    style Legend fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
+    style Timeline fill:#f8f9fa,stroke:#495057,stroke-width:1px
+    style Result fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
+    style Step1 fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
+    style Step3 fill:#fff4e6,stroke:#e67700,stroke-width:1px
+    style Step4 fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
+    style R1 fill:#ffffff,stroke:#2f9e44
+    style R2 fill:#ffffff,stroke:#c92a2a
+    style R3 fill:#ffffff,stroke:#c92a2a
+```
+
+---
+
+## 8.3 路径效率与指令保真度指标
+
+### 8.3.1 Success weighted by Path Length (SPL)
+
+**定义与核心计算：**
+将成功率与实际行进路径长度进行加权惩罚，是评估导航效率的行业通用黄金指标：
 
 $$
-CLS(P,R)=PC(P,R)\cdot LS(P,R)
-$$
-
-其中 $P$ 为预测路径，$R$ 为参考路径，$d(r,P)$ 表示参考节点 $r$ 到预测路径的最短距离，$$d_{th}$$ 为距离阈值，$$PL(\cdot)$$ 为路径长度。
-
-**取值范围：**
-- 0 到 1
-- 越高越好
-
-**优点：**
-- 评估轨迹与参考路径的匹配度
-- 适合评估指令跟随能力
-
-**缺点：**
-- 依赖参考路径的质量
-- 计算相对复杂
-
-## 8.3 轨迹质量指标
-
-### 8.3.1 normalized Dynamic Time Warping (nDTW)
-
-**定义：**
-衡量智能体轨迹与参考路径之间的相似度，使用动态时间规整算法。
-
-**计算方法：**
-$$
-nDTW = e^{-\frac{DTW(\mathcal{P}_{agent}, \mathcal{P}_{ref})}{\sigma}}
+SPL = \frac{1}{N} \sum_{i=1}^{N} S_i \cdot \frac{l_i^*}{\max(p_i, l_i^*)}
 $$
 
 其中：
-- $DTW(\cdot, \cdot)$ 是动态时间规整距离
-- $\mathcal{P}_{agent}$ 是智能体的实际轨迹
-- $\mathcal{P}_{ref}$ 是参考路径
-- 标准 VLN 定义中，归一化项通常取参考路径长度与成功阈值的乘积，即 $$\sigma=|\mathcal{P}_{ref}|\,d_{th}$$
+- $S_i \in \{0, 1\}$ 为成功指示符（到达目标为 1，未到达为 0）；
+- $l_i^*$ 为从起点到目标点的理论最短路径长度（在离散拓扑图中基于 Dijkstra 最短路，在连续物理环境中基于导航网格的测地线距离 Geodesic Distance）；
+- $p_i$ 为智能体实际行驶的物理路径总长度；
+- 分母项 $\max(p_i, l_i^*)$ 确保当智能体偶因切角走出的轨迹微小于网格理论最短路时，效率加权因子严格不超过 1.0。
 
-**取值范围：**
-- 0 到 1
-- 越高越好
-- nDTW = 1 表示轨迹完全匹配
+#### 配图详解：SPL 加权计算机理与四类典型用例图解
 
-**优点：**
-- 评估轨迹的时序一致性
-- 对轨迹的局部偏差容忍度高
-- 考虑了路径的整体形状
+为了直观理解 SPL 如何对不同导航行为实施奖惩，下图给出了设定在理论最短距离 $l^* = 10\text{m}$、成功阈值 $\tau = 3.0\text{m}$ 下的四类典型轨迹反馈机制：
 
-**缺点：**
-- 计算复杂度较高
-- 需要时序对齐，计算开销大
+```mermaid
+flowchart TB
+    subgraph Baseline["基准设定: 起点 S 到 终点 G (理论最短距离 l* = 10m, 容差半径 τ = 3m)"]
+        direction LR
+        S(["起点 S"]) ===|理论最短路 l* = 10m|===> G(["终点 G (半径 3m)"])
+    end
 
-### 8.3.2 Success weighted by normalized Dynamic Time Warping (SDTW)
+    subgraph Cases["四类典型轨迹的 SPL 响应机制"]
+        direction TB
 
-**定义：**
-结合成功率和轨迹相似度的综合指标。
+        subgraph C1["用例 1: 完美循径到达 (Ideal Path)"]
+            direction LR
+            P1["实际路径 p = 10m<br>精准停在目标 1m 处 (S = 1)"]
+            F1["SPL = 1 × 10 / max(10, 10)<br>= 1.0 (满分)"]
+        end
 
-**计算方法：**
+        subgraph C2["用例 2: 漫游试错到达 (Wandering Path)"]
+            direction LR
+            P2["实际路径 p = 20m<br>绕路后停在目标 2m 处 (S = 1)"]
+            F2["SPL = 1 × 10 / max(20, 10)<br>= 0.5 (长度折半惩罚)"]
+        end
+
+        subgraph C3["用例 3: 走捷径/连续切角 (Continuous Shortcut)"]
+            direction LR
+            P3["实际路径 p = 8m<br>切角穿行停在目标 1m 处 (S = 1)"]
+            F3["SPL = 1 × 10 / max(8, 10)<br>= 1.0 (截断保护不超1)"]
+        end
+
+        subgraph C4["用例 4: 近在咫尺但未停准 (Failed / Near Miss)"]
+            direction LR
+            P4["实际路径 p = 10m<br>停在目标 3.5m 处 (S = 0)"]
+            F4["SPL = 0 × 10 / max(10, 10)<br>= 0.0 (一票否决直接归零)"]
+        end
+    end
+
+    Baseline --> Cases
+
+    style Baseline fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
+    style C1 fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
+    style C2 fill:#fff4e6,stroke:#e67700,stroke-width:2px
+    style C3 fill:#e5dbff,stroke:#5f3dc4,stroke-width:2px
+    style C4 fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
+    style F1 fill:#ffffff,stroke:#2f9e44
+    style F2 fill:#ffffff,stroke:#e67700
+    style F3 fill:#ffffff,stroke:#5f3dc4
+    style F4 fill:#ffffff,stroke:#c92a2a
+```
+
+**空间几何轨迹形态对照：**
+
+```text
+起点 S ========================[ 理论最短路 l* = 10m ]========================> 终点 G (τ=3m)
+
+用例 1 (完美满分):   S ----------------------------------------------------------> G (进入容差圈, S=1)  => SPL = 10/10 = 1.0
+用例 2 (探索折半):   S ~~~~~~\_______/~~~~~~~\____________/~~~~~~~~~~~~~~~~~~~> G (进入容差圈, S=1)  => SPL = 10/20 = 0.5
+用例 3 (切角保护):   S ........................[切角穿行 p=8m]...................> G (进入容差圈, S=1)  => SPL = 10/10 = 1.0
+用例 4 (一票否决):   S -----------------------------------------------------> X   (未入圈停在3.5m, S=0) => SPL = 0 × 10/10 = 0.0
+```
+
+**算例数值对照表：**
+
+| 典型用例场景 | 理论最短路 $l^*$ | 实际行走长度 $p$ | 终点距离误差 $d$ | 成功指示符 $S$ | 路径效率因子 $\frac{l^*}{\max(p, l^*)}$ | **最终 SPL** | 策略表现诊断与评价 |
+|:---|:---:|:---:|:---:|:---:|:---:|:---:|:---|
+| **用例 1：最优路径直达** | $10\text{m}$ | $10\text{m}$ | $0.8\text{m}$ | 1 | $\frac{10}{10} = 1.0$ | **1.00** | 极佳的空间拓扑理解与高效规划 |
+| **用例 2：多次回退绕路** | $10\text{m}$ | $20\text{m}$ | $1.5\text{m}$ | 1 | $\frac{10}{20} = 0.5$ | **0.50** | 探索机制冗余，存在多次无效折返 |
+| **用例 3：连续空间切角** | $10\text{m}$ | $8\text{m}$ | $0.5\text{m}$ | 1 | $\frac{10}{\max(8, 10)} = 1.0$ | **1.00** | 切角走最短线，受分母保护截断不溢出 |
+| **用例 4：近距未停准** | $10\text{m}$ | $10\text{m}$ | $3.5\text{m}$ | 0 | $\frac{10}{10} = 1.0$ | **0.00** | 路径规划优秀，但因停止决策失误被全盘清零 |
+
+#### 深入剖析：SPL 的四大设计机制与“捷径漏洞”
+
+1. **成功门控的一票否决机制（Binary Success Gate）**：
+   $S_i$ 的乘积项赋予了任务成功绝对的主导权。即使智能体走出了与理论最短路 $100\%$ 重合的极佳轨迹，但只要停在距离终点 $3.01\text{m}$ 处，该 episode 的 SPL 即直接归零。这迫使模型在提升路径效率的同时，绝不能放松对终点精准制动的要求。
+2. **反比线性惩罚机制（Inverse Length Penalty）**：
+   只要任务成功（$S_i = 1$），分母对实际行进长度 $p_i$ 施加反比惩罚。如果智能体在未见环境中靠“地毯式随机搜索”漫游了理论距离 3 倍的长度才碰巧到达，其效率因子仅为 $\frac{1}{3} \approx 0.33$。
+3. **捷径截断保护机制（Ceiling Protection）**：
+   在连续物理环境（VLN-CE）中，智能体可能走出略短于图网络离散折线的最短路径（$p_i < l_i^*$）。分母中的 $\max(p_i, l_i^*)$ 确保效率因子严格上限为 1.0，防止指标失真。
+4. **潜在“捷径漏洞”与语言忽视（The Shortcut Bias）**：
+   **SPL 隐含假设“几何最短路径即最佳路径”**。然而，VLN 的核心本质是“指令跟随（Instruction Following）”。当指令明确要求“穿过客厅，绕过厨房岛台并在后方走廊右拐”时，智能体若抄近道直接横穿客厅，虽然在物理上走出了更短的路径并获得了极高 SPL，但却在认知上彻底违背了人类指令约束。这正是后续提出 CLS 与 nDTW/SDTW 指标的直接原因。
+
+---
+
+### 8.3.2 Coverage weighted by Length Score (CLS)
+
+**定义与核心计算：**
+针对长指令与复杂轨迹（如 RxR、R4R），CLS 专门衡量预测轨迹与人工参考路径之间的细节重合度，由软路径覆盖率（Path Coverage, PC）与长度衰减分数（Length Score, LS）联合构成：
+
+$$
+PC(P, R) = \frac{1}{|R|} \sum_{r \in R} \exp\left(-\frac{d(r, P)}{d_{th}}\right)
+$$
+
+$$
+EPL(P, R) = PC(P, R) \cdot PL(R)
+$$
+
+$$
+LS(P, R) = \frac{EPL(P, R)}{EPL(P, R) + |EPL(P, R) - PL(P)|}
+$$
+
+$$
+CLS(P, R) = PC(P, R) \cdot LS(P, R)
+$$
+
+其中：
+- $P$ 为智能体实际预测轨迹，$R$ 为人类标注者给出的参考路径；
+- $d(r, P)$ 表示参考轨迹上的关键节点 $r$ 到预测轨迹线段的最短空间欧氏距离，$d_{th}$ 为距离容差阈值；
+- $PL(\cdot)$ 表示折线轨迹的总物理长度。
+
+#### 配图详解：CLS 软路径覆盖（PC）与长度分数（LS）几何对齐机理
+
+```mermaid
+flowchart TB
+    subgraph Ref["人类参考路径与沿途关键地标 (Reference Path R)"]
+        direction LR
+        R1["r1: 厨房门口"] --> R2["r2: 穿过中央走廊"] --> R3["r3: 绕过餐桌岛台"] --> R4["r4: 停在卧室床旁"]
+    end
+
+    subgraph Agents["两类策略的行为与 CLS 评分对比"]
+        direction TB
+
+        subgraph Good["策略 A: 忠实循径智能体 (High CLS)"]
+            direction LR
+            A_Path["严格沿 r1→r2→r3→r4 依次推进<br>所有参考点到轨迹距离 d 均小于容差 d_th"]
+            A_Score["软覆盖率 PC ≈ 1.0<br>长度偏差 |EPL - PL| ≈ 0 (LS ≈ 1.0)<br>★ CLS ≈ 1.0 (忠实执行语言细节)"]
+        end
+
+        subgraph Bad["策略 B: 投机走捷径智能体 (Low CLS)"]
+            direction LR
+            B_Path["从 r1 翻过矮柜径直冲向 r4<br>完全漏掉中间地标 r2 与 r3 (距离 d 极大)"]
+            B_Score["软覆盖率 PC 暴跌 (exp(-d/dth) ≈ 0)<br>即便 SR=1, SPL 很高<br>✗ CLS 极低 (严重忽视语言约束)"]
+        end
+    end
+
+    Ref --> Agents
+
+    style Ref fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
+    style Good fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
+    style Bad fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
+    style A_Score fill:#ffffff,stroke:#2f9e44
+    style B_Score fill:#ffffff,stroke:#c92a2a
+```
+
+**特性与权衡分析：**
+- **核心价值**：$PC$ 确保智能体如实拜访了指令中描述的各个沿途路标，$LS$ 则惩罚冗余多余的绕路；两者相乘能精准惩罚那些“成功到达但中间抄了捷径”的模型；
+- **计算约束**：强依赖人工参考路径的质量，且连续轨迹的最近点距离计算在超大规模测试时存在一定的算力开销。
+
+---
+
+### 8.3.3 normalized Dynamic Time Warping (nDTW & SDTW)
+
+**定义与核心计算：**
+利用动态时间规整（Dynamic Time Warping）算法度量预测轨迹 $\mathcal{P}_{agent}$ 与人类参考轨迹 $\mathcal{P}_{ref}$ 的时序对齐形状差异：
+
+$$
+nDTW = \exp\left(-\frac{DTW(\mathcal{P}_{agent}, \mathcal{P}_{ref})}{\sigma}\right)
+$$
+
+其中 $DTW(\cdot, \cdot)$ 为两条轨迹在最优时序对齐下的累积点对距离。归一化参数通常定义为参考路径长度与容差阈值的乘积：$\sigma = |\mathcal{P}_{ref}| \cdot d_{th}$。
+
+为了将终点成功与全程轨迹保真度紧密耦合，学术界进一步提出了 **SDTW (Success weighted by nDTW)**：
+
 $$
 SDTW = \frac{1}{N} \sum_{i=1}^{N} S_i \cdot nDTW_i
 $$
 
-**优点：**
-- 同时考虑成功率和轨迹质量
-- 更全面的性能评估
+#### 配图详解：DTW 时序弹性对齐 vs 刚性时步匹配原理
 
-## 8.4 其他辅助指标
+```mermaid
+flowchart LR
+    subgraph Rigid["刚性逐时步对齐 (Rigid Timestep Matching)"]
+        direction TB
+        E1["时刻 t=1 匹配 参考 t=1"]
+        E2["时刻 t=2 匹配 参考 t=2"]
+        E3["时刻 t=3 匹配 参考 t=3"]
+        EFail["致命缺陷: 机器人中途若避障或减速<br>时步错位将导致欧氏距离误差虚假暴增"]
+    end
 
-### 8.4.1 Trajectory Length (TL)
+    subgraph DTW["动态时间规整非线性弹性对齐 (Dynamic Time Warping)"]
+        direction TB
+        D1["允许 1对多、多对1 的时序弹性拉伸"]
+        D2["构建 M × N 点对空间转移代价矩阵"]
+        D3["动态规划搜寻最小单调累积距离路径"]
+        DSuccess["核心优势: 容忍行进加减速与局部驻留<br>精准衡量空间几何形状与地标访问顺序"]
+    end
 
-**定义：**
-智能体实际走过的平均路径长度。
-
-**用途：**
-- 分析导航效率
-- 检测模型是否过度探索或原地打转
-
-### 8.4.2 Steps Taken
-
-**定义：**
-智能体完成任务所需的平均步数。
-
-**用途：**
-- 评估导航速度
-- 分析决策效率
-
-### 8.4.3 Collision Rate
-
-**定义：**
-发生碰撞的步数占总步数的比例。
-
-**用途：**
-- 评估导航安全性（在连续环境中）
-- 检测路径规划质量
-
-### 8.4.4 Human Collision Rate
-
-**定义：**
-与动态行人发生碰撞的次数（用于社交导航）。
-
-**用途：**
-- 评估社交导航能力
-- 测试动态避障性能
-
-## 8.5 评估指标速查表
-
-### 8.5.1 核心指标总览
-
-| 指标 | 英文全称 | 定义 | 取值范围 | 方向 | 首次提出 | 备注 |
-|:----:|:---------|:-----|:--------:|:----:|:--------:|:-----|
-| **SR** | **Success Rate** | **终点距目标≤3m的任务比例** | **0-100%** | **↑** | **Anderson et al., 2018** | **最核心指标，反映任务完成率** |
-| **SPL** | **Success weighted by Path Length** | **SR × (最短路径/实际路径)** | **0-100%** | **↑** | **Anderson et al., 2018** | **综合成功率和路径效率** |
-| **NE** | **Navigation Error** | **智能体终点与目标点的距离（米）** | **0-∞** | **↓** | **Anderson et al., 2018** | **衡量定位精度** |
-| **OSR** | **Oracle Success Rate** | **轨迹中任意点距目标≤3m的比例** | 0-100% | ↑ | Anderson et al., 2018 | 评估是否路过正确位置 |
-| nDTW | normalized Dynamic Time Warping | 预测轨迹与真实轨迹的归一化对齐距离 | 0-1 | ↑ | Ilharco et al., 2019 | 评估轨迹相似度 |
-| SDTW | Success weighted by normalized DTW | nDTW × 成功指示 | 0-1 | ↑ | Ilharco et al., 2019 | 同时考虑成功和轨迹质量 |
-| CLS | Coverage weighted by Length Score | 指令覆盖率 × 路径效率 | 0-100% | ↑ | Jain et al., 2019 | 评估指令跟随细粒度 |
-| TL | Trajectory Length | 实际行走的路径长度（米） | 0-∞ | - | - | 分析路径效率 |
-| **CR** | **Collision Rate** | **发生碰撞的任务比例** | **0-100%** | **↓** | **Krantz et al., 2020** | **VLN-CE核心安全指标** |
-| **HCR** | **Human Collision Rate** | **与人类碰撞的任务比例** | **0-100%** | **↓** | **Wei et al., 2025** | **Social-VLN关键指标** |
-| FR | Fall Rate | 机器人跌倒的任务比例 | 0-100% | ↓ | Wang et al., 2025 | VLN-PE物理仿真指标 |
-| StR | Stuck Rate | 机器人卡住无法移动的比例 | 0-100% | ↓ | Wang et al., 2025 | VLN-PE鲁棒性指标 |
-
----
-
-### 8.5.2 指标选择速查
-
-**标准评估（必须报告）：**
-- **SR + SPL**（所有VLN任务）
-- **NE**（定位精度要求高时）
-
-**特定场景补充：**
-- **连续环境（VLN-CE）**：+ CR
-- **物理仿真（VLN-PE）**：+ FR + StR + TL
-- **社交导航（Social-VLN）**：+ HCR
-- **轨迹质量研究**：+ nDTW / SDTW
-- **指令跟随研究**：+ CLS
-
----
-
-### 8.5.3 指标权衡关系
-
-**常见矛盾：**
-- **SR ↑ vs SPL ↑**：高成功率可能伴随低效路径
-- **SR ↑ vs CR ↓**：激进策略提高成功率但增加碰撞
-- **SR ↑ vs FR/StR ↓**：探索更多区域增加失败风险
-
-不存在跨基准通用的“理想阈值”。更可靠的做法是在同一协议下比较 SR 与 SPL 的差距、OSR 与 SR 的差距，以及安全指标变化：较大的 OSR–SR 差距通常意味着停止判断或最终定位存在问题，较大的 SR–SPL 差距则提示绕路较多。
-
----
-
-### 8.5.4 评估最佳实践
-
-**报告规范：**
-
-```markdown
-1. 必须分别报告 Val-Seen 和 Val-Unseen
-2. 标注成功阈值（默认3m，如有不同需说明）
-3. 说明是否使用 ground truth 路径（OSR计算）
-4. 标注传感器配置（RGB-only / RGB-D / Panoramic）
+    style Rigid fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
+    style DTW fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
+    style EFail fill:#ffffff,stroke:#c92a2a
+    style DSuccess fill:#ffffff,stroke:#2f9e44
 ```
 
-**公平对比检查清单：**
-- ✅ 相同数据集划分
-- ✅ 相同成功阈值
-- ✅ 相同传感器输入
-- ✅ 相同评估环境（Habitat / 真实世界）
+**特性与权衡分析：**
+- **核心价值**：nDTW 考虑了轨迹的时序演进先后顺序，且对智能体的局部平移噪声具备极佳的弹性容忍度；
+- **SDTW 的严苛性**：SDTW 要求模型既要成功到达终点，又要全程如影随形地贴合指令参考路径，是检验高级空间语言对齐能力的终极标尺之一。
 
 ---
 
-### 8.5.5 历史演进
+## 8.4 具身安全、物理交互与部署级指标
 
-| 阶段 | 年份 | 代表工作 | 核心指标 | 新增关注点 |
-|:----:|:----:|:---------|:---------|:-----------|
-| 1.0 | 2018–2019 | R2R、R4R | SR、SPL、NE、CLS | 到达目标与路径忠实度 |
-| 2.0 | 2019–2021 | nDTW、RxR、VLN-CE | + nDTW / SDTW、碰撞统计 | 多语言、轨迹质量与连续环境 |
-| 3.0 | 2022–2024 | REVERIE-CE、HA-VLN | + 目标定位与社交安全指标 | 目标指代、交互与动态人群 |
-| 4.0 | 2025–2026 | VLN-PE、VLNVerse、真实机器人测试 | + FR、StR、延迟与控制频率 | 物理具身、系统效率与真实可靠性 |
+当 VLN 的前沿研究从离散仿真全面转向连续环境（VLN-CE）、物理引擎（Isaac Sim / VLN-PE）以及真实四足/双足与轮式机器人真机时，纯几何指标已无法保障现实可用性。
 
-**未来趋势：**
-- 真实世界部署指标（能耗、时间）
-- 长期任务鲁棒性评估
-- 人机交互质量指标
+### 8.4.1 几何避障与社交安全指标
+- **Collision Rate (CR)**：
+  在连续物理空间中，发生刚体几何碰撞的步数占总步数的比例：
+  $$
+  CR = \frac{N_{collision\_steps}}{N_{total\_steps}}
+  $$
+  在真机上，碰撞意味着电机瞬间过流、传感器震动漂移甚至车体损坏。高 SR 但伴随高 CR 的模型在工业落地中具有极高的破坏风险。
+- **Human Collision Rate (HCR)**：
+  在社交导航（Social-VLN）与人机混行场景中，衡量与动态行人发生碰撞的频率，或侵犯人类个人舒适空间（Personal Space，通常设为半径 0.8 米的警戒圆）的步数占比，是服务机器人安全合规的核心底线。
+
+### 8.4.2 动力学稳定性与不可逆故障指标
+- **Fall Rate (FR, 跌倒率)**：
+  针对四足机器狗、人形双足机器人或不平坦地形（如楼梯、斜坡），因动态失稳、地面打滑或过大冲击力导致机身翻倒的任务比例；
+- **Stuck Rate (StR, 卡死率)**：
+  智能体在连续多个时间步内位移低于极小阈值且持续输出无效驱动指令（如被障碍物卡死、车轮悬空空转）的死锁任务比例。反映了系统的主动脱困与后退恢复能力。
+
+### 8.4.3 系统级效率与控制实时性指标
+- **Trajectory Length (TL) 与 步数消耗（Steps Taken）**：直接对应机器人的电池能耗、轮胎机械磨损与任务耗时；
+- **端到端控制频率与推断延迟（Frequency & Latency）**：现代分层架构中，高层 VLM 语义规划（通常在 0.5–2 Hz）与低层反应式安全动作（通常在 10–50 Hz）的端到端延迟，直接决定了真机最大安全行驶巡航速度。
+
+---
+
+## 8.5 评测协议规范与演进趋势
+
+### 8.5.1 Val-Seen 与 Val-Unseen 的划分铁律
+
+VLN 的灵魂在于**跨场景的开集空间泛化能力**。几乎所有标准数据集都会显式划分两套验证集：
+- **Val-Seen（已见环境验证集）**：位于模型训练期间见过的 3D 建筑物内，但配置了全新的起始位姿、目标终点与语言指令。主要检验策略对语言理解、指令跟踪以及局部场景泛化的基本拟合上限；
+- **Val-Unseen（未见环境验证集）**：处于模型训练期间从未经历过的全新建筑物、房间拓扑与装潢风格中。**这才是学术界公认衡量 VLN 模型真实通用能力的试金石**。若一个模型在 Val-Seen 达到 80% SR，而在 Val-Unseen 骤降至 30%，则表明其发生了严重的场景表面记忆过拟合。
+
+### 8.5.2 公平对比检查清单 (Fair Comparison Checklist)
+
+在对比不同论文的评测数据或向排行榜提交结果前，必须严格确认以下五项协议的一致性：
+- [ ] **传感器视野与模态**：是全向拼接无死角全景图（Panoramic $360^\circ$），还是单目前向第一人称视场角（First-Person FOV $90^\circ$）？是否使用了完美深度图（Depth）？
+- [ ] **动作空间粒度**：是离散拓扑瞬移节点，还是带物理动力学与滑移的连续局部路点/底层速度向量？
+- [ ] **环境拓扑先验**：测试阶段是否允许预先建图、是否预加载了未见环境的连接图（Connectivity Graph）或全局坐标里程计（Ground-truth Odometry）？
+- [ ] **外部数据与训练规模**：是否引入了大规模外部合成数据（如 EnvDrop, RxR-Marky, VLN-300K）或海量 Web 数据预训练的视觉骨干？
+- [ ] **推理时外部大模型**：推理阶段是否接入了闭源商用前沿大模型（如 GPT-4o, Claude 3.5 Sonnet, Gemini）进行测试时思维链推理或重规划？
+
+### 8.5.3 评测体系的历史演进与代际跃迁
+
+| 发展阶段 | 代表时期 | 代表基准与工作 | 核心指标演进 | 核心关注点与范式跃迁 |
+|:---:|:---:|:---|:---|:---|
+| **1.0 几何到达** | 2018–2019 | R2R, R4R | SR, NE, OSR, SPL | 确立未见室内建筑泛化基准，初次建立“成功+效率”双重度量体系 |
+| **2.0 时序保真** | 2019–2021 | RxR, nDTW, VLN-CE | + CLS, nDTW, SDTW, CR | 摆脱离散瞬移拓扑图，引入连续物理碰撞，强化多语言长指令的全程细节贴合 |
+| **3.0 交互拓展** | 2022–2024 | REVERIE-CE, HA-VLN, CVDN | + Remote-OSR, RGS, HCR | 从纯寻路拓展至远距离目标检测指代、多轮对话主动澄清与动态人群社交避障 |
+| **4.0 物理具身** | 2025–2026 | VLN-PE, VLNVerse, 真机部署 | + FR, StR, 频率(Hz), 延迟(ms) | 迈向四足/双足真实动力学平衡、实时快慢分层调度与软硬件一体系统级鲁棒性 |
 
 ---
 
