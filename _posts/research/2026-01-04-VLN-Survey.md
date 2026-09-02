@@ -2550,8 +2550,8 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 - **开源地址**：[GitHub](https://github.com/peteanderson80/Matterport3DSimulator)
 
 <div align="center">
-  <img src="/images/vln/matterport3d-simulator.webp" width="95%" alt="Matterport3D Simulator 导航视点图与仿真界面" />
-  <figcaption>图 7.1：Matterport3D Simulator 真实室内场景 3D 网格扫描与离散全景视点导航图结构</figcaption>
+  <img src="/images/vln/matterport3d-simulator.webp" width="95%" alt="Matterport3D Simulator 导航仿真运行界面" />
+  <figcaption>图 7.1：Matterport3D Simulator 导航仿真运行界面（第一人称全景视点、地面离散航路点圆盘标定与自然语言导航指令）</figcaption>
 </div>
 
 **核心特点：**
@@ -2586,8 +2586,8 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 - **开源地址**：[GitHub](https://github.com/facebookresearch/habitat-lab)
 
 <div align="center">
-  <img src="/images/vln/habitat-simulator.webp" width="95%" alt="AI Habitat 具身智能仿真环境" />
-  <figcaption>图 7.2：AI Habitat 高性能具身智能仿真平台（支持多传感器渲染、连续物理动作与人机协同交互）</figcaption>
+  <img src="/images/vln/habitat-simulator.webp" width="95%" alt="AI Habitat 仿真运行与控制界面" />
+  <figcaption>图 7.2：AI Habitat 仿真运行界面（左侧终端实时步长与朝向角控制推演，右侧高保真场景视觉观测渲染窗口）</figcaption>
 </div>
 
 **核心特点：**
@@ -2632,8 +2632,8 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
   - [Isaac Lab 文档与开源代码](https://isaac-sim.github.io/IsaacLab/main/index.html)
 
 <div align="center">
-  <img src="/images/vln/isaac-sim-simulator.webp" width="95%" alt="NVIDIA Isaac Sim / Isaac Lab 机器人仿真平台" />
-  <figcaption>图 7.3：NVIDIA Isaac Sim / Isaac Lab 基于 RTX 光线追踪与 GPU 并行加速的高保真具身动力学仿真平台</figcaption>
+  <img src="/images/vln/isaac-sim-simulator.webp" width="95%" alt="NVIDIA Isaac Sim / Isaac Lab 机器人工作台界面" />
+  <figcaption>图 7.3：NVIDIA Isaac Sim / Isaac Lab 完整工作台界面（包含 Omniverse 菜单、RTX 视口控制栏，以及多台 ANYmal 机械狗在复杂阶梯地形上的大规模并行导航仿真）</figcaption>
 </div>
 
 **核心特点：**
@@ -2679,8 +2679,8 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
   - [MuJoCo Menagerie 资产库](https://github.com/google-deepmind/mujoco_menagerie)
 
 <div align="center">
-  <img src="/images/vln/mujoco-simulator.webp" width="95%" alt="MuJoCo 与 MJX / Menagerie 机器人资产库" />
-  <figcaption>图 7.4：MuJoCo / MJX 高精度接触动力学引擎与 Menagerie 标准化足式/人形机器人模型库</figcaption>
+  <img src="/images/vln/mujoco-simulator.webp" width="95%" alt="MuJoCo MPC 交互式仿真软件界面" />
+  <figcaption>图 7.4：MuJoCo MPC (MJPC) 交互式仿真与轨迹优化软件界面（左侧智能体求解器控制面板、中间双足动力学步态与规划轨迹、右侧实时代价收敛与动作预测时序图）</figcaption>
 </div>
 
 **核心特点：**
@@ -2713,8 +2713,8 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 - **开源地址**：[官网](https://ai2thor.allenai.org/)
 
 <div align="center">
-  <img src="/images/vln/ai2thor-simulator.webp" width="90%" alt="AI2-THOR 交互式室内环境" />
-  <figcaption>图 7.5：AI2-THOR 基于 Unity 引擎的可交互 3D 室内环境（支持物体状态改变与精细物理交互）</figcaption>
+  <img src="/images/vln/ai2thor-simulator.webp" width="90%" alt="AI2-THOR 室内场景与交互作业环境" />
+  <figcaption>图 7.5：AI2-THOR 具身交互室内仿真情景（包含全景 3D 公寓结构，以及智能体在厨房、卧室、卫浴执行细粒度物体操作与导航的特写视口）</figcaption>
 </div>
 
 **核心特点：**
@@ -2754,8 +2754,8 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 - **开源地址**：[iGibson GitHub](https://github.com/StanfordVL/iGibson)
 
 <div align="center">
-  <img src="/images/vln/igibson-simulator.webp" width="75%" alt="iGibson 交互式家庭服务机器人仿真平台" />
-  <figcaption>图 7.6：Stanford iGibson 具身家庭环境物理模拟与真实光照 PBR 渲染</figcaption>
+  <img src="/images/vln/igibson-simulator.webp" width="85%" alt="iGibson 桌面端仿真交互软件界面" />
+  <figcaption>图 7.6：Stanford iGibson 桌面端仿真交互界面（包含多模态相机配置面板、主视口导航轨迹与碰撞网格，以及第一人称与第三人称实时悬浮视口）</figcaption>
 </div>
 
 **核心特点：**
@@ -2801,8 +2801,8 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 - **开源地址**：[GitHub](https://github.com/microsoft/AirSim)
 
 <div align="center">
-  <img src="/images/vln/airsim-simulator.webp" width="85%" alt="Microsoft AirSim 三维空中与无人机导航仿真平台" />
-  <figcaption>图 7.7：Microsoft AirSim 基于虚幻引擎（Unreal Engine）的高保真飞行器与室外场景物理仿真环境</figcaption>
+  <img src="/images/vln/airsim-simulator.webp" width="85%" alt="Microsoft AirSim 飞行仿真 HUD 界面" />
+  <figcaption>图 7.7：Microsoft AirSim 飞行仿真 HUD 界面（左上角飞行遥测数据、主视口无人机空中巡航，下方画中画实时输出深度图、语义分割图与第一人称 RGB 航拍画面）</figcaption>
 </div>
 
 **核心特点：**
@@ -2838,8 +2838,8 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 - **开源地址**：[GitHub](https://github.com/OpenGVLab/InternUtopia)
 
 <div align="center">
-  <img src="/images/vln/internutopia-simulator.webp" width="95%" alt="InternUtopia / GRUtopia 开放世界与多智能体具身仿真平台" />
-  <figcaption>图 7.8：InternUtopia / GRUTopia 面向开放世界超大规模城市级具身多智能体协同导航平台</figcaption>
+  <img src="/images/vln/internutopia-simulator.webp" width="95%" alt="InternUtopia / GRUtopia 具身智能任务评测情景" />
+  <figcaption>图 7.8：InternUtopia / GRUTopia 具身智能基准评测情景（涵盖物体导向导航、人机对话社交导航及移动抓取操作三大典型任务的多智能体环境与航向规划）</figcaption>
 </div>
 
 **核心特点：**
