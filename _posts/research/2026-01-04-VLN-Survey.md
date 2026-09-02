@@ -2879,21 +2879,35 @@ VLN研究需要高质量的3D仿真环境来训练和测试导航模型。以下
 
 ## 7.9 模拟器对比
 
-| 模拟器 | 环境类型 | 动作空间 | 物理交互 | 渲染速度 | 主要应用 | 场景数量 | 新增特性 (2024–2026) |
-|--------|----------|----------|----------|----------|----------|----------|---------------------|
-| Matterport3D | 室内 | 离散 | 有限 | 快 | R2R/R4R | 90 | 保持经典基准 |
-| Habitat 3.1 | 室内/空中/户外 | 连续 | 基础 | 极快 | VLN-CE, LHPR-VLN | 800+ (HM3D) | 动态物体、空中/长程导航、Sim2Real强化 |
-| Isaac Sim / Lab | 室内/室外/空中 | 连续 | 强 | 高 | 强化学习、连续VLN、物理接地人形 | 可定制 | 高保真物理、动态环境、多机协作、Sim2Real |
-| MuJoCo / MJX | 室内/复杂地形 | 连续力矩/速度 | 极强（精准接触动力学） | 极快（MJX GPU/TPU并发） | 腿足运动控制、物理底层导航、移动操作 | 可定制/Menagerie | MJX 极速并行、Menagerie 标准化资产、MJPC 预测控制 |
-| AI2-THOR 4.0 | 室内 | 离散/连续 | 强 | 中等 | 交互任务 | 200+ | 多智能体、可定制交互、家庭场景扩大 |
-| iGibson 3.0 | 室内 | 连续 | 强 | 快 | 综合任务 | 1000+ | 动态人群、社交导航、Sim2Real强化 |
-| AirSim | 室内外 | 连续 | 强 | 中等 | 无人机/车辆 | 可定制 | 城市航拍、大规模航程、多机协作 |
-| InternUtopia | 开放世界/城市 | 连续 | 强 | 中等 | 大规模城市导航 | 可定制 | 超大规模场景、照片级渲染、动态环境 |
-| iThorAir / Aerial Sim | 室外/空中 | 连续 | 基础 | 中等 | 空中VLN | 可定制 | 多机协作、长程规划、动态障碍物 |
+| 模拟器 | 支持操作系统 (OS) | 环境类型 | 动作空间 | 物理交互 | 渲染速度 | 主要应用 | 场景数量 | 新增特性 (2024–2026) |
+|--------|------------------|----------|----------|----------|----------|----------|----------|---------------------|
+| Matterport3D | Linux (官方首选) / macOS / Windows (需 WSL2/Docker) | 室内 | 离散 | 有限 | 快 | R2R/R4R | 90 | 保持经典基准 |
+| Habitat 3.1 | Linux (Ubuntu) / macOS / Windows (需 WSL2/Docker) | 室内/空中/户外 | 连续 | 基础 | 极快 | VLN-CE, LHPR-VLN | 800+ (HM3D) | 动态物体、空中/长程导航、Sim2Real强化 |
+| Isaac Sim / Lab | Windows 10/11 / Linux (Ubuntu) 原生支持 (需 NVIDIA RTX) | 室内/室外/空中 | 连续 | 强 | 高 | 强化学习、连续VLN、物理接地人形 | 可定制 | 高保真物理、动态环境、多机协作、Sim2Real |
+| MuJoCo / MJX | Windows / Linux / macOS (原生跨平台；MJX GPU加速推演推荐 Linux/WSL2) | 室内/复杂地形 | 连续力矩/速度 | 极强（精准接触动力学） | 极快（MJX GPU/TPU并发） | 腿足运动控制、物理底层导航、移动操作 | 可定制/Menagerie | MJX 极速并行、Menagerie 标准化资产、MJPC 预测控制 |
+| AI2-THOR 4.0 | Windows / Linux / macOS (原生跨平台，Unity一键打包) | 室内 | 离散/连续 | 强 | 中等 | 交互任务 | 200+ | 多智能体、可定制交互、家庭场景扩大 |
+| iGibson 3.0 | Linux (推荐) / Windows (OmniGibson需RTX或WSL2) | 室内 | 连续 | 强 | 快 | 综合任务 | 1000+ | 动态人群、社交导航、Sim2Real强化 |
+| AirSim | Windows 10/11 / Linux (原生支持，微软官方首选 Windows + UE) | 室内外 | 连续 | 强 | 中等 | 无人机/车辆 | 可定制 | 城市航拍、大规模航程、多机协作 |
+| InternUtopia | Linux (Ubuntu) / Windows (基于 Isaac Sim 架构 / WSL2) | 开放世界/城市 | 连续 | 强 | 中等 | 大规模城市导航 | 可定制 | 超大规模场景、照片级渲染、动态环境 |
+| iThorAir / Aerial Sim | Windows / Linux | 室外/空中 | 连续 | 基础 | 中等 | 空中VLN | 可定制 | 多机协作、长程规划、动态障碍物 |
 
 ---
 
-## 7.10 选择建议
+## 7.10 平台系统与选型建议
+
+### 7.10.1 按开发宿主操作系统（Windows vs. Linux）选型
+
+- **Windows 纯原生开发（无需配置虚拟机或 WSL2）**：
+  - **Isaac Sim / Isaac Lab**：NVIDIA 官方提供完整的 Windows 版 Omniverse Launcher，一键安装驱动、Nucleus 与仿真资产，原生支持 RTX 光线追踪与 PhysX 动力学。
+  - **MuJoCo**：DeepMind 官方提供完整的 Windows 原生预编译库，`pip install mujoco` 开箱即用，自带原生 OpenGL 交互窗口 `simulate`；如需调用 MJX 进行大规模 GPU 并行推演，推荐使用 WSL2 安装 JAX CUDA 后端。
+  - **AI2-THOR**：基于 Unity 构建，Python 脚本首次运行自动检测并下载 Windows 独立二进制，免任何底层编译。
+  - **AirSim**：微软基于 Unreal Engine 与 Visual Studio 开发，Windows 为最成熟的第一支持平台，官方提供打包好的 Windows 可执行场景。
+- **依赖 Linux 或推荐 Windows WSL2 环境**：
+  - **Habitat (Habitat-Sim / Habitat-Lab)**：底层高度依赖 Linux 下的 C++17 编译器链、Corrade/Magnum 引擎与专属图形后端，官方无原生 Windows 轮子。Windows 开发者建议使用 **WSL2 (Ubuntu 20.04/22.04) + WSLg** 运行。
+  - **Matterport3D Simulator**：依赖传统 OpenGL/EGL 静态库与 C++ 绑定，推荐直接部署在 Linux 或 Docker 容器中。
+  - **iGibson 3.0 / InternUtopia**：因涉及 ROS 2 机器人通信节点与复杂多模态管线，Linux 环境下的稳定性显著优于 Windows。
+
+### 7.10.2 按研究任务类型选型
 
 - **经典VLN基准（R2R/R4R）**：Matterport3D Simulator
 - **连续环境与长程任务**：Habitat 3.1
