@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "世界模型（World Models）全景综述：从认知理论、四大技术范式到物理基础模型与前沿评测"
+title: "世界模型（具身智能方向）全景综述"
 date:  2026-09-01
 tags: [VLA, World Models, Robotics, Embodied AI, Survey]
 categories: research
