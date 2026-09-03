@@ -7692,6 +7692,7 @@ SGM 构建（尤其是 SAM2 语义抽取与不确定性估计）推理开销较�
     { n: '15. SuperMap (2026)', a: 'supermap', t: ['SLAM', '拓扑图', '零样本', '实机部署', 'Agentic'] },
     { n: '16. GSMem (2026)', a: 'gsmem', t: ['Agentic', '高斯表示', '零样本'] },
     { n: '17. PROSPECT (2026)', a: 'prospect', t: ['端到端', '世界模型', '连续环境', '实机部署'] },
+    { n: '18. Qwen-Drive (2026)', a: 'qwen-drive', t: ['端到端', '扩散模型', '强化学习', '连续环境'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',
