@@ -1,13 +1,13 @@
 ---
 layout: post
 title: "AI Agent 综述"
-date: 2026-08-29
+date: 2026-09-04
 tags: [Agent, LLM, Multi-Agent, Survey]
 categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划并执行多步骤任务的 AI 系统。本文系统梳理 AI Agent 核心架构、关键技术范式（ReAct、工具调用/MCP/A2A/WebMCP/MHS、反思、Harness Engineering、Loop Engineering、Graph Engineering）、代表性工作（ReAct、Reflexion、Voyager），系统梳理多 Agent 协作拓扑、Agent Team 组织范式（CrewAI、MetaGPT、ChatDev、AutoGen、LangGraph）与单/多 Agent 路线之争，并深入介绍 2025–2026 年主流 Agent 产品与基础设施（Claude Code、OpenAI Codex、Manus、OpenClaw、DeepSeek Harness、Pi Agent、Hermes Agent）、具身控制与物理治理前沿（Thea、Pigey、RoboHarness、Zetta）、连接物理设备的 Model Hardware Standard（MHS）以及主流评测基准，呈现软硬件智能体的研究全貌。"
+excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划并执行多步骤任务的 AI 系统。本文系统梳理 AI Agent 的核心架构、关键推理范式（ReAct、Reflexion、ReWOO、Tree of Thoughts、Voyager）、记忆与技能系统、上下文工程、工具调用与连接协议（Function Calling、MCP、WebMCP、MHS、A2A）以及 Harness / Loop / Graph Engineering 三代工程化方法论；梳理多 Agent 协作拓扑、Agent Team 组织范式（CrewAI、MetaGPT、ChatDev、AutoGen、LangGraph）与单/多 Agent 路线之争；并深入介绍 2025–2026 年主流 Agent 产品与基础设施（Claude Code、OpenAI Codex、Manus、OpenClaw、Devin、Hermes Agent、DeepSeek Harness、Pi Agent）、具身控制与物理治理前沿（Thea、Pigey、RoboHarness、Zetta）、连接物理设备的 Model Hardware Standard（MHS）、主流评测基准与 Agent 安全，呈现软硬件智能体的研究全貌。"
 ---
 
 # 1. 引言
@@ -18,7 +18,7 @@ AI Agent 不是一个单一的模型，而是一种**系统架构**：以 LLM �
 
 - **OpenClaw**（2025 年 11 月发布）在 72 小时内积累 60,000+ GitHub Stars，目前已突破 **280,000 Stars**，成为史上增速最快的开源项目之一；
 - OpenAI 与 Anthropic 定义 **「Harness Engineering（Agent 工程化）」**，随后演进出 **「Loop Engineering（循环工程）」** 与 **「Graph Engineering（图智能体工程）」**，共同成为 2026 年工程界最热议的新范式；
-- 代码 Agent 在 SWE-bench 上的成功率从 2024 年底的 55% 跃升至 2025 年底的 70%+，而在具身物理世界中，基于 Harness 治理的机器人智能体（如 Thea、Pigey、Zetta）正大幅突破传统 VLA 模型的编排瓶颈；
+- 代码 Agent 在 SWE-bench Verified 上的成功率从 2024 年底的约 55% 跃升至 2025 年底的 80%+（Claude Opus 4.5 报告 80.9%），而在具身物理世界中，基于 Harness 治理的机器人智能体（如 Thea、Pigey、Zetta）正大幅突破传统 VLA 模型的编排瓶颈；
 - **协议层面**，Agent 连接世界的接口标准已形成四层家族：连接外部世界的 **MCP**（软件与数据，2024）、**WebMCP**（Web 前端，2026）与 **MHS**（Model Hardware Standard，物理设备，2026 年 8 月），以及连接 Agent 与 Agent 的 **A2A**（Agent2Agent，2025）；其中 MHS 标志着 Anthropic 正式将 Agent 版图推入**物理 AI（Physical AI）** 领域。
 
 **图 1.1** 概括了本文将要展开的系统全貌：以 LLM 为推理核心，向外连接记忆、技能与工具，并由 Harness 在外层闭环治理——后续各章即沿着这张图逐块拆解。
@@ -58,7 +58,7 @@ flowchart LR
 
 Agent 的核心能力在于它不仅能"说"，还能"做"——通过调用外部工具（搜索引擎、代码执行器、API、浏览器等）影响真实世界，并根据执行结果动态调整后续计划。
 
-从工程视角看，AI Agent 可以理解为 **LLM（推理核心）+ Harness（工程约束框架）** 的结合体。随着 2026 年下半年技术的演进，更在其上催生了 **Loop Engineering（循环工程）** ——将整个交互生命周期全面闭环化与自动化。有关工程与闭环范式的细节详见 [Harness Engineering](/Harness-Engineering/) 与 [Loop Engineering](/loop-engineering/)。
+从工程视角看，AI Agent 可以理解为 **LLM（推理核心）+ Harness（工程约束框架）** 的结合体。随着 2026 年年中技术的演进，更在其上催生了 **Loop Engineering（循环工程）** ——将整个交互生命周期全面闭环化与自动化。有关工程与闭环范式的细节详见 [Harness Engineering](/Harness-Engineering/) 与 [Loop Engineering](/loop-engineering/)。
 
 ## 2.2 Agent 与普通 LLM 的核心区别
 
@@ -160,19 +160,20 @@ flowchart TD
     end
 
     %% ================= 阶段二：2023 框架爆发期 =================
-    subgraph G2023 ["⚡ 2023 年 · 框架爆发期：自主循环与经验积累"]
+    subgraph G2023 ["⚡ 2023 年 · 框架爆发期：自主循环、树搜索与经验积累"]
         direction LR
-        B1["<b>LangChain / AutoGPT</b><br/>首批开源 Agent 框架<br/>自主多步骤任务循环"]
+        B1["<b>LangChain / AutoGPT / AutoGen</b><br/>首批开源 Agent 框架<br/>自主多步骤任务循环"]
         B2["<b>Reflexion</b><br/>自然语言反思记忆<br/>跨尝试自我修正"]
-        B3["<b>Voyager (NVIDIA)</b><br/>开放世界终身学习<br/>可复用代码技能库"]
-        B1 --> B2 --> B3
+        B3["<b>Tree of Thoughts (ToT)</b><br/>树形搜索与前瞻回溯<br/>系统二慢思考规划"]
+        B4["<b>Voyager (NVIDIA)</b><br/>开放世界终身学习<br/>可复用代码技能库"]
+        B1 --> B2 --> B3 --> B4
     end
 
     %% ================= 阶段三：2024 架构跃升期 =================
-    subgraph G2024 ["🚀 2024 年 · 架构跃升期：系统二慢思考、多 Agent 与标准化协议"]
+    subgraph G2024 ["🚀 2024 年 · 架构跃升期：代码 Agent 产品化、多 Agent 与标准化协议"]
         direction LR
-        C1["<b>Tree of Thoughts (ToT)</b><br/>树形搜索与前瞻回溯<br/>系统二慢思考规划"]
-        C2["<b>OpenAI Swarm / AutoGen</b><br/>多智能体协作与交接<br/>轻量 Handoff 路由范式"]
+        C1["<b>Devin / SWE-agent</b><br/>首批 AI 软件工程师<br/>SWE-bench 成为代码 Agent 标尺"]
+        C2["<b>OpenAI Swarm / Computer Use</b><br/>轻量 Handoff 多 Agent 交接<br/>视觉 GUI 操作 Agent"]
         C3["<b>MCP 协议 (Anthropic)</b><br/>模型上下文协议<br/>工具生态行业标准化"]
         C1 --> C2 --> C3
     end
@@ -211,7 +212,7 @@ flowchart TD
 
     %% 阶段主干流转
     A2 ==>|沉淀推理与执行范式| B1
-    B3 ==>|演进搜索、协作与协议| C1
+    B4 ==>|走向产品化、协作与协议| C1
     C3 ==>|迈向系统化工程与工业落地| G2025_App
 
     %% 节点样式定义
@@ -223,7 +224,7 @@ flowchart TD
     classDef cls2025emb fill:#fff1f2,stroke:#f43f5e,stroke-width:1.5px,color:#9f1239;
 
     class A1,A2 cls2022;
-    class B1,B2,B3 cls2023;
+    class B1,B2,B3,B4 cls2023;
     class C1,C2,C3 cls2024;
     class D1,D2,D2_proto cls2025app;
     class D3,D4 cls2025eng;
@@ -243,8 +244,8 @@ flowchart TD
 | 年份阶段 | 演进核心 | 代表性工作 / 架构 | 关键突破与技术范式 |
 |:---|:---|:---|:---|
 | **2022 年**<br/>**萌芽期** | 推理与行动交织<br/>代码化策略 | **ReAct**（Yao et al.）<br/>**Code as Policies**（Google） | • 提出 Thought-Action-Observation 显式闭环<br/>• LLM 从“纯文本对话”走向“可执行代码与机器人调用” |
-| **2023 年**<br/>**框架爆发期** | 自主目标循环<br/>反思与技能进化 | **LangChain** / **AutoGPT**<br/>**Reflexion**（Shinn et al.）<br/>**Voyager**（NVIDIA） | • 开源 Agent 框架与自主目标循环探索<br/>• 语言反思记忆使 Agent 无需微调即可跨任务自我修正<br/>• 建立终身学习与代码技能库标准范式 |
-| **2024 年**<br/>**架构跃升期** | 系统二慢思考<br/>多智能体与协议标准化 | **Tree of Thoughts** (ToT)<br/>**OpenAI Swarm** / **AutoGen**<br/>**MCP 协议**（Anthropic） | • 引入树形搜索、前瞻回溯与 MCTS 慢思考规划<br/>• 多 Agent 协同、Orchestrator-Worker 与轻量 Handoff<br/>• 发布 Model Context Protocol，终结工具接口碎片化 |
+| **2023 年**<br/>**框架爆发期** | 自主目标循环<br/>树形搜索、反思与技能进化 | **LangChain** / **AutoGPT** / **AutoGen**<br/>**Reflexion**（Shinn et al.）<br/>**Tree of Thoughts**（Yao et al.）<br/>**Voyager**（NVIDIA） | • 开源 Agent 框架与自主目标循环探索<br/>• 语言反思记忆使 Agent 无需微调即可跨任务自我修正<br/>• 树形搜索、前瞻回溯与 MCTS（RAP）把线性 CoT 扩展为可回溯的多路径规划<br/>• 建立终身学习与代码技能库标准范式 |
+| **2024 年**<br/>**架构跃升期** | 代码 Agent 产品化<br/>多智能体与协议标准化 | **Devin** / **SWE-agent**<br/>**OpenAI Swarm** / **Computer Use**<br/>**MCP 协议**（Anthropic） | • 首批「AI 软件工程师」产品化，SWE-bench 成为代码 Agent 的标尺<br/>• 多 Agent 协同、Orchestrator-Worker 与轻量 Handoff；Computer Use 开启视觉 GUI 操作<br/>• 发布 Model Context Protocol，终结工具接口碎片化 |
 | **2025–2026 年**<br/>**产业落地与工程深化** | Agent OS 与编程商用<br/>Harness / Loop / Graph<br/>A2A / WebMCP / 物理治理 | **OpenClaw** / **Manus** / **Hermes**<br/>**Claude Code** / **OpenAI Codex**<br/>**A2A**（Google） / **WebMCP**<br/>**Harness Engineering** (`dsh`/`pi`)<br/>**Loop & Graph Engineering**<br/>**MHS** / **Embodied Harness** | • 通用开源 Agent OS 爆发（OpenClaw 280k+ Stars）<br/>• 商业级编程 Agent 落地（Subagent 独立 Worktree 隔离）<br/>• Google 推出 A2A 通信协议，标准化跨系统智能体互联<br/>• 提出“约束工程优于模型本身”，分化出插件化与极简化<br/>• 闭环控制原语与状态图拓扑编排成为新一代复杂系统基座<br/>• W3C/OpenAI 推进 WebMCP；Anthropic MHS 与具身 Harness 治理拓展至物理机器人 |
 
 ## 2.7 Harness Engineering：Agent 工程化
@@ -257,7 +258,7 @@ flowchart TD
 
 > 详细技术解析见：[Harness Engineering](/Harness-Engineering/)
 
-*代表性工作*：「Harness Engineering」（OpenAI，2026 年 2 月）、「Effective Harnesses for Long-Running Agents」（Anthropic，2026）、DeepSeek Harness（DeepSeek AI，2026 年 8 月）、Pi Agent（earendil-works，2026）
+*代表性工作*：「Harness Engineering」（OpenAI，2026 年 2 月）、「Effective Harnesses for Long-Running Agents」（Anthropic，2025 年 11 月）、DeepSeek Harness（DeepSeek AI，2026 年 8 月）、Pi Agent（earendil-works，2026）
 
 ---
 
@@ -297,7 +298,7 @@ Action:  finish("建议穿短袖")
 ReAct 原论文的对照实验说明了这种交织为何有效——**图 3.1** 左侧的 HotpotQA 问答中，纯推理（CoT-only）因缺少外部检索而产生事实幻觉，纯行动（Act-only）因缺少推理而无法规划检索顺序，只有二者交织才同时具备事实性与规划能力。
 
 <div align="center">
-  <img src="/images/agent/react-figure1.webp" width="90%" />
+  <img src="/images/agent/react-figure1.webp" width="90%" alt="ReAct 与 CoT-only、Act-only 在 HotpotQA 与 AlfWorld 上的推理轨迹对比" />
   <figcaption>图 3.1：ReAct 与 CoT-only、Act-only 的推理对比（左：HotpotQA 问答；右：AlfWorld 决策）</figcaption>
 </div>
 
@@ -321,7 +322,7 @@ ReAct 原论文的对照实验说明了这种交织为何有效——**图 3.1**
 这一循环的完整分工见 **图 3.2**：Actor 负责执行、Evaluator 负责给出成败信号、Self-Reflection 负责把失败转写成可复用的自然语言经验，三者构成一个不更新权重的「语言强化学习」闭环。
 
 <div align="center">
-  <img src="/images/agent/reflexion-figure2.webp" width="85%" />
+  <img src="/images/agent/reflexion-figure2.webp" width="85%" alt="Reflexion 架构：Actor、Evaluator 与 Self-Reflection 构成的语言强化循环" />
   <figcaption>图 3.2：Reflexion 架构——Actor、Evaluator 与 Self-Reflection 构成的语言强化循环</figcaption>
 </div>
 
@@ -385,7 +386,7 @@ flowchart LR
 **图 3.3** 取自 ToT 原论文，把三种推理结构的分支形态并排放在一起：IO 是一步直达，CoT 是一条不可回头的链，而 ToT 在每一层都保留多个候选并允许回溯。
 
 <div align="center">
-  <img src="/images/agent/tot-figure1.webp" width="90%" />
+  <img src="/images/agent/tot-figure1.webp" width="90%" alt="IO、CoT 与 ToT 三种推理结构的分支形态对比" />
   <figcaption>图 3.3：IO、CoT 与 ToT 三种推理结构对比——ToT 在每一步维护多条候选思维路径并可回溯</figcaption>
 </div>
 
@@ -401,7 +402,7 @@ flowchart LR
 
 让 Agent **直接生成可执行代码**而非自然语言动作序列。代码天然支持条件分支、循环和变量，表达能力远超自然语言指令，也可直接作为反馈闭环的输入。
 
-**Code as Policies**（Google DeepMind，2022）：LLM 生成 Python 机器人控制代码，将高层语言指令（"把红色方块放到蓝色方块右边 5 cm"）转化为精确的运动控制程序，失败时将报错反馈给 LLM 重新生成。
+**Code as Policies**（Google，2022）：LLM 生成 Python 机器人控制代码，将高层语言指令（"把红色方块放到蓝色方块右边 5 cm"）转化为精确的运动控制程序，失败时将报错反馈给 LLM 重新生成。
 
 **Voyager**（NVIDIA，2023）是这一范式在开放世界中的极致应用。在 Minecraft 游戏中，Voyager 通过持续生成代码技能并存入**可复用技能库**，实现无需重新训练的终身学习。三个核心组件协同工作：
 - **自动课程**（Automatic Curriculum）：根据当前技能水平自动选择下一个学习目标
@@ -411,11 +412,11 @@ flowchart LR
 Voyager 是首个在复杂开放世界中实现终身学习的 LLM Agent，其「代码技能 + 自动课程」架构对通用 Agent 的持续学习设计具有重要参考价值——三者的协作关系见 **图 3.4**。
 
 <div align="center">
-  <img src="/images/agent/voyager-components.webp" width="90%" />
+  <img src="/images/agent/voyager-components.webp" width="90%" alt="Voyager 三大核心组件：自动课程、技能库与迭代提示" />
   <figcaption>图 3.4：Voyager 三大核心组件——自动课程（Automatic Curriculum）、技能库（Skill Library）与迭代提示（Iterative Prompting）</figcaption>
 </div>
 
-*代表性工作*：Code as Policies（Liang et al., Google DeepMind, 2022）、Voyager（Wang et al., NVIDIA, 2023）
+*代表性工作*：Code as Policies（Liang et al., Google, 2022）、Voyager（Wang et al., NVIDIA, 2023）
 
 
 # 4. 多 Agent 系统
@@ -513,8 +514,6 @@ flowchart TB
 **结构化产出 vs 自由对话，是这里最关键的分野。** MetaGPT 的核心主张是：让角色之间交付 PRD、架构图、接口定义这类**标准化文档**，而不是让它们「聊」——因为自由对话会把误解一层层传下去，而结构化产出天然带有格式约束，错误更容易在交接处被发现。这与本文 [13.2 节](#132-一个反复浮现的结构推理在外确定性在内) 归纳的「推理在外、确定性在内」是同一条思路：**把协作接口固化成契约，而不是留给模型即兴发挥**。
 
 角色设计上有一条被反复验证的经验：**至少要有一个不负责生产、只负责挑错的角色**（Critic / Reviewer / QA）。原因在 4.6 节会讲——多 Agent 最危险的失效不是某个 Agent 做错，而是没有任何角色的职责是「怀疑」。
-
----
 
 ---
 
@@ -658,7 +657,7 @@ Bridge 模式的核心价值：
 
 多 Agent 常被默认为「更高级」的架构，但 2025–2026 年业界两家最有发言权的团队，在这个问题上给出了**完全相反**的结论——而且各自都有硬数据支撑。
 
-**Cognition（Devin 团队）的反对意见。** 2025 年 3 月，Cognition 发表《Don't Build Multi-Agent Systems》，主张多 Agent 编排增加了复杂度、破坏了可调试性，而它试图解决的问题**本可以由良好的上下文工程解决**。其核心论证是：当你把工作扇出给并行子 Agent 时，每个子 Agent 只看到任务的**局部视图**，并各自对代码风格、边界情况、需求解释做出隐式决策；这些决策彼此冲突，于是你不得不再加一道工序去调和——**而这些分歧完全是架构自己制造出来的**。
+**Cognition（Devin 团队）的反对意见。** 2025 年 6 月，Cognition 发表《Don't Build Multi-Agents》，主张多 Agent 编排增加了复杂度、破坏了可调试性，而它试图解决的问题**本可以由良好的上下文工程解决**。其核心论证是：当你把工作扇出给并行子 Agent 时，每个子 Agent 只看到任务的**局部视图**，并各自对代码风格、边界情况、需求解释做出隐式决策；这些决策彼此冲突，于是你不得不再加一道工序去调和——**而这些分歧完全是架构自己制造出来的**。
 
 **Anthropic 的相反证据。** 同期 Anthropic 公布了其多 Agent 研究系统的结果：由 Claude Opus 4 编排 Claude Sonnet 4 子 Agent，在复杂研究任务上比单个 Opus 4 高出 **90.2%**。其设计要点恰恰是**不让子 Agent 协商**——每个子 Agent 拿到一份自包含的任务描述、一个规定的输出格式和一个全新的上下文窗口，它们**互相不知道对方存在，也无法在执行途中协调**。
 
@@ -690,7 +689,7 @@ Bridge 模式的核心价值：
 
 一句话总结这一节：**多 Agent 不是能力的升级，而是一次架构上的取舍**——用协调成本换取上下文容量与并行度。当你并不缺上下文容量时，这笔交易就是亏的。
 
-*代表性工作*：AutoGen（Microsoft，2023；含 0.4 异步事件驱动架构，2025 年 1 月）、OpenAI Swarm（2024）、CrewAI（2024）、MetaGPT（Hong et al., 2023）、ChatDev（Qian et al., 2023）、LangGraph（LangChain，2024–2026）、A2A Protocol（Google et al., 2025）、CCB / Claude Code Bridge（2025）、「Don't Build Multi-Agent Systems」（Cognition，2025 年 3 月）、Anthropic 多 Agent 研究系统（2025）
+*代表性工作*：AutoGen（Microsoft，2023；含 0.4 异步事件驱动架构，2025 年 1 月）、OpenAI Swarm（2024）、CrewAI（2024）、MetaGPT（Hong et al., 2023）、ChatDev（Qian et al., 2023）、LangGraph（LangChain，2024–2026）、A2A Protocol（Google et al., 2025）、CCB / Claude Code Bridge（2025）、「Don't Build Multi-Agents」（Cognition，2025 年 6 月）、Anthropic 多 Agent 研究系统（2025）
 
 
 # 5. 记忆机制（Memory）
@@ -886,7 +885,7 @@ flowchart TD
 A-MEM（Agentic Memory，2025）彻底抛弃了孤立的事实句存储，将记忆组织为类似人类学术卡片盒的**动态笔记网**：
 - **结构化卡片（Note Construction）**：每张卡片记录原子观点、时间戳、上下文关联与语义标签；
 - **智能建链（Link Generation）**：新记忆进入时，LLM 自动检索潜在相关的存量笔记，建立强弱有向关联边；
-- **反向演化（Memory Evolution）**：与只增不改的传统向量库不同，A-MEM 允许新记忆**反向触发并重构存量记忆**的内容、标签与关联强度。论文实测在复杂多跳推理任务上性能提升高达 6 倍，并显著削减重复存储冗余达 85% 以上。
+- **反向演化（Memory Evolution）**：与只增不改的传统向量库不同，A-MEM 允许新记忆**反向触发并重构存量记忆**的内容、标签与关联强度。论文在六种基础模型上的实验均显著优于既有记忆基线，其中多跳推理类问题的增益最为明显。
 
 ### 2. Zep / Graphiti：双时间轴与时间旅行
 Zep 记忆引擎的核心突破在于**双时间轴（Bi-temporal Modeling）**机制，将现实世界发生时间与知识录入时间清晰解耦：
@@ -901,7 +900,7 @@ Zep 记忆引擎的核心突破在于**双时间轴（Bi-temporal Modeling）**�
 当用户搬家至上海时，系统并不抹去北京的记录，而是将旧关系的有效区间截断并标记为非活跃。这赋予了 Agent **「时间旅行（Time Travel）」** 的能力——既能确凿知晓当前张三住在上海，又能在被问及“张三前年住哪”时调取历史切片进行准确溯源。
 
 ### 3. HippoRAG：仿生海马体联想索引
-HippoRAG（NeurIPS 2024/2025）借鉴大脑海马体与新大脑皮层的互补学习系统（CLS 理论），将大语言模型类比为具有常识的新皮层，将外部图谱类比为海马体索引：
+HippoRAG（Gutiérrez et al., NeurIPS 2024；2025 年扩展为 HippoRAG 2）借鉴大脑海马体与新大脑皮层的互补学习系统（CLS 理论），将大语言模型类比为具有常识的新皮层，将外部图谱类比为海马体索引：
 - 面对复杂问题，先提取种子实体（Seed Entities）；
 - 利用**个性化 PageRank 算法（Personalized PageRank, PPR）**在知识网络上模拟生物突触的激活扩散，几毫秒内即可发现隐藏在 3–4 跳之外的关键线索，有效避免了朴素向量召回中的“断章取义”问题。
 
@@ -938,14 +937,14 @@ flowchart LR
 
 | 评测基准 | 主导机构 / 会议 | 核心评测维度 | 测试集规模与设计特色 |
 |:---|:---|:---|:---|
-| **LongMemEval** | ICLR 2025/2026 | ① 信息提取能力<br/>② 跨会话多跳关联<br/>③ 时态演进追踪<br/>④ 知识冲突更新<br/>⑤ 不存在信息的拒答能力 | 500 道高难度人工精心设计的跨会话问题，包含大量时间陷阱与冲突更新用例，是当前时态记忆测试的黄金标准 |
-| **LoCoMo** | Academic Consortium | 超长会话理解与多跳关联 | 涵盖 ~35 个长会话、300–600 轮多角色长程对话，专测复杂剧情与线索拼合 |
-| **MemoryAgentBench** | 2026 产业联合测试 | 长程智能体任务持续自演化能力 | 考察 Agent 在多轮连续编码、长线自动化运维中的记忆沉淀、错误规避与检索效率 |
-| **BEAM** | Multi-Agent Benchmark | 多 Agent 共享记忆与通信保真度 | 评估异构 Agent 之间在协同读取、改写同一共享记忆库时的一致性与并发冲突 |
+| **LongMemEval** | Wu et al., ICLR 2025 | ① 信息提取能力<br/>② 跨会话多跳关联<br/>③ 时态演进追踪<br/>④ 知识冲突更新<br/>⑤ 不存在信息的拒答能力 | 500 道高难度人工精心设计的跨会话问题，包含大量时间陷阱与冲突更新用例，是当前时态记忆测试的黄金标准 |
+| **LoCoMo** | Maharana et al., ACL 2024 | 超长对话中的问答、事件摘要与多模态对话生成 | 10 段由 LLM Agent 生成、人工校验的双人超长对话，每段平均约 300 轮、9K token，最多跨 35 个会话 |
+| **MemoryAgentBench** | Hu et al., 2025（arXiv 2507.05257） | ① 精确检索<br/>② 测试时学习<br/>③ 长程理解<br/>④ 选择性遗忘 | 把既有长上下文数据集与新构造数据集改造成增量式多轮交互，是首个同时覆盖上述四项记忆核心能力的基准 |
+| **BEAM** | Tavakoli et al., 2025（arXiv 2510.27246） | 超长对话（最长 1,000 万 token）中的多类记忆能力 | 自动生成 100 段连贯、题材多样的长对话，配 2,000 道经验证的探测题；即便 1M 上下文窗口的模型（无论是否加检索）也随对话变长而明显退化 |
 
 > **评测前沿洞察**：最新基准不仅考察「召回准确率（Accuracy）」，更引入了**「拒绝作答率（Abstention Rate）」**与**「检索能效比（Retrieval Token Efficiency）」**。一个成熟的记忆系统必须清晰知晓自己“没有记住什么”，在证据不足时果断拒答，而非依赖长窗口在泛泛的旧文本中强行拼凑幻觉答案。
 
-*代表性工作*：CoALA（Sumers et al., Princeton, 2023）、Generative Agents（Park et al., Stanford, 2023）、MemGPT / Letta（Packer et al., UC Berkeley, 2023–2025）、Mem0（2024–2025）、Zep / Graphiti（2024–2025）、A-MEM（2025）、HippoRAG（NeurIPS 2024/2025）、LongMemEval（ICLR 2025/2026）、*From Storage to Experience: A Survey on the Evolution of LLM Agent Memory Mechanisms*（Luo et al., Findings of ACL 2026）
+*代表性工作*：CoALA（Sumers et al., Princeton, 2023）、Generative Agents（Park et al., Stanford, 2023）、MemGPT / Letta（Packer et al., UC Berkeley, 2023–2025）、Mem0（2024–2025）、Zep / Graphiti（2024–2025）、A-MEM（Xu et al., 2025）、HippoRAG（Gutiérrez et al., NeurIPS 2024）/ HippoRAG 2（2025）、LongMemEval（Wu et al., ICLR 2025）、LoCoMo（Maharana et al., ACL 2024）、MemoryAgentBench（Hu et al., 2025）、BEAM（Tavakoli et al., 2025）、*From Storage to Experience: A Survey on the Evolution of LLM Agent Memory Mechanisms*（Luo et al., Findings of ACL 2026）
 
 ---
 
@@ -953,7 +952,7 @@ flowchart LR
 
 如果说记忆让 Agent「记住经历」，技能（Skill）则让 Agent「固化能力」——将成功完成过的任务、行业专属业务逻辑与高阶操作规程封装为可复用的能力单元，实现真正的持续学习与能力积累。
 
-2025–2026 年，随着 **Anthropic SKILL.md 规范** 的确立、**agentskills.io** 开放标准的推广、以及 **OpenClaw ClawHub**（收录 13,700+ 社区技能）的爆发，技能系统已从最初学术界的单点探索演化为工业级 AI Agent 架构的标准基础设施，并在 2026 年诞生了专门的技能能力评测基准 **SkillsBench**（arXiv:2602.12670）与技能生命周期演化方法论（arXiv:2606.02705）。
+2025–2026 年，随着 **Anthropic SKILL.md 规范** 的确立、**agentskills.io** 开放标准的推广、以及 **OpenClaw ClawHub**（收录 13,700+ 社区技能）的爆发，技能系统已从最初学术界的单点探索演化为工业级 AI Agent 架构的标准基础设施，并在 2026 年诞生了专门的技能能力评测基准 **SkillsBench**（arXiv:2602.12670）与技能生命周期演化综述（arXiv:2606.11435）。
 
 ---
 
@@ -1229,7 +1228,7 @@ flowchart TD
 
 ## 6.6 技能的获取、合成与生命周期（Lifecycle & Evolution）
 
-技能库不是静态的代码库，而是智能体自主进化的有机系统。学术界与工业界形成了以下四大技能获取与演变范式（参考《Agent Skill Evaluation and Evolution》, arXiv:2606.02705）：
+技能库不是静态的代码库，而是智能体自主进化的有机系统。学术界与工业界形成了以下四大技能获取与演变范式（参考《Agent Skill Evaluation and Evolution: Frameworks and Benchmarks》，Ding et al., arXiv:2606.11435）：
 
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '14px', 'fontFamily': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'}}}%%
@@ -1313,11 +1312,12 @@ flowchart TB
 ### 专门基准：SkillsBench (arXiv:2602.12670, 2026)
 
 以往的 Agent 评测基准（如 SWE-bench、OSWorld）主要测量模型的裸机端到端表现，无法量化“技能”本身的增益。**SkillsBench** 填补了这一空白：
-- **成对评估（Paired Evaluation）**：跨 8 个垂直领域、87 项复杂长程任务，严格对比 Agent 在「裸模型配置」与「挂载 Curated Skills」下的任务完成率；
-- **核心实验发现**：
-  - 挂载优质技能后，中等参数规模模型（如 Sonnet / 32B 开源模型）在复杂领域的任务成功率可跃升 **40%–70%**，逼近甚至超越高阶闭源旗舰模型的裸机水平；
-  - 任务解决轨迹中的平均 Token 消耗与反复重试轮次降低了 **45% 以上**；
-  - **轨迹评估（Trajectory Evaluation）优于结果评估**：SkillsBench 引入确定性验证器，确保模型是通过规范执行技能 SOP 达成目标，而非依赖偶然搜索或硬编码作弊。
+- **成对评估（Paired Evaluation）**：跨 8 个领域、87 项任务，每项任务配有人工整理的技能包与确定性验证器，在「无技能」与「挂载 Curated Skills」两种条件下对 18 组模型-Harness 配置逐一对比；
+- **核心实验发现**（论文报告的汇总数据）：
+  - 挂载技能后，平均通过率从 **33.9% 提升至 50.5%**（+16.6 个百分点，归一化增益 25.5%），不同配置的增益介于 +4.1 到 +25.7 个百分点；
+  - **小而聚焦的技能更有效**：模块数不超过 3 个的技能包，表现优于更大或「面面俱到」的技能捆绑；
+  - **技能可以弥补模型规模差距**：较小模型挂载技能后，能够追平未挂载技能的更大模型；
+  - **确定性验证器裁决通过与否**：不依赖 LLM 评审，避免偶然搜索或硬编码作弊被计为成功。
 
 ### 核心安全治理挑战
 
@@ -1329,7 +1329,7 @@ flowchart TB
 | **脚本未受控执行 (Unsandboxed Scripts Execution)** | 第三方技能的 `scripts/` 中包含未经验证的系统调用（如恶意的 `rm -rf`、反向 Shell 连接） | 必须在只读 Worktree / Docker 隔离沙箱中执行脚本，限制网络与敏感端口 |
 | **技能漂移与依赖污染 (Skill Drift & Dependency Poisoning)** | 外部 API 或 Python 库更新导致技能脚本失效，或第三方恶意篡改公共技能库 | 引入 `.skill` 完整性哈希校验、锁死依赖版本（Lockfiles）与 CI 自动化回归测试 |
 
-*代表性工作*：Voyager（Wang et al., NVIDIA, 2023）、ExpeL（Zhao et al., 2024）、SkillsBench（arXiv:2602.12670, 2026）、Agent Skill Evaluation and Evolution（arXiv:2606.02705, 2026）、agentskills.io Specification（2025–2026）
+*代表性工作*：Voyager（Wang et al., NVIDIA, 2023）、ExpeL（Zhao et al., 2024）、SkillsBench（arXiv:2602.12670, 2026）、Agent Skill Evaluation and Evolution（Ding et al., arXiv:2606.11435, 2026）、agentskills.io Specification（2025–2026）
 
 ---
 
@@ -1448,7 +1448,7 @@ flowchart LR
 
 工具调用是 AI Agent 区别于普通 LLM 的**核心能力边界**：LLM 的知识存在训练截止日期，无法实时获取信息、无法执行代码、无法操作文件系统，也无法调用外部服务。工具调用打破了这些限制，使 Agent 能够真正影响外部世界。
 
-本章从底层机制、通用服务端协议到端侧/浏览器端前沿标准，依次介绍工具调用的整体架构与分类（Tool Use）、LLM 与工具之间的核心协议（Function Calling）、标准化后端与本地系统集成的行业开放协议（MCP），、2026 年由 OpenAI、Google 与 W3C 共同力推的浏览器端智能体交互新协议（WebMCP），以及 2026 年 8 月 Anthropic 发布、把 Agent 接入物理机器的硬件侧标准（MHS）。
+本章从底层机制、通用服务端协议到端侧/浏览器端前沿标准，依次介绍工具调用的整体架构与分类（Tool Use）、LLM 与工具之间的核心协议（Function Calling）、标准化后端与本地系统集成的行业开放协议（MCP）、2026 年由 OpenAI、Google 与 W3C 共同力推的浏览器端智能体交互新协议（WebMCP），以及 2026 年 8 月 Anthropic 发布、把 Agent 接入物理机器的硬件侧标准（MHS）。
 
 ---
 
@@ -1689,7 +1689,8 @@ AutoGen   ──── Slack
 | 2025 年 4 月 | Google DeepMind 宣布 Gemini 系列支持 MCP |
 | 2025 年 5 月 | 微软 Build 2025：Windows 11 宣布原生支持 MCP |
 | 2025 年 6 月 | MCP 服务器生态突破 5,800+ |
-| 2025 年 11 月 | MCP 规范重大更新（异步/无状态/身份认证）；官方注册表上线 |
+| 2025 年 9 月 | 官方 MCP Registry 预览版上线，服务器进入统一目录发现阶段 |
+| 2025 年 11 月 | 发布一周年：MCP 规范重大更新（异步任务 / 无状态 / 服务器身份认证） |
 | 2026 年 1 月 | 10,000+ MCP 服务器；月均 SDK 下载量达 9,700 万次 |
 | 2026 年 7 月 | MCP 规范发布 2026-07-28 候选版本，引入无状态核心（Stateless Core）并扩展长程 Task 支持 |
 
@@ -1713,7 +1714,7 @@ flowchart TB
         S5["🔍 Web Search MCP Server"]
     end
 
-    C1 -->|"JSON-RPC 2.0\n(stdio / SSE)"| S1
+    C1 -->|"JSON-RPC 2.0\n(stdio / Streamable HTTP)"| S1
     C2 -->|"JSON-RPC 2.0"| S2
     C3 -->|"JSON-RPC 2.0"| S3 & S4 & S5
 ```
@@ -1721,7 +1722,7 @@ flowchart TB
 **三个核心角色**：
 - **Host（宿主）**：用户直接使用的 AI 应用（Claude Desktop、Cursor、VS Code Copilot 等），负责管理所有 Client 连接
 - **Client（客户端）**：Host 内部组件，与单个 Server 保持 **1:1 连接**，将 LLM 的调用请求转为 MCP 协议格式
-- **Server（服务器）**：轻量服务进程，暴露工具/资源/提示，支持本地（stdio）或远程部署（HTTP/SSE）
+- **Server（服务器）**：轻量服务进程，暴露工具/资源/提示，支持本地（stdio）或远程部署（Streamable HTTP）
 
 ### 8.3.4 三大核心原语
 
@@ -1736,7 +1737,7 @@ flowchart TB
 MCP 基于 **JSON-RPC 2.0** 传输消息，借鉴了语言服务协议（LSP）的消息流设计：
 
 - **stdio 模式**：本地进程间通信，零网络开销，适合本地 MCP Server（如文件系统、本地数据库）
-- **SSE/HTTP 模式**：支持远程 MCP Server，适合云端服务和多用户场景
+- **Streamable HTTP 模式**：支持远程 MCP Server，适合云端服务和多用户场景；2025 年 3 月规范起取代早期的 HTTP+SSE 传输，单一端点即可承载请求与流式响应
 - **消息类型**：Request（期待响应）、Notification（单向通知）、Response（请求的返回）
 
 ### 8.3.6 2025 年 11 月规范重大更新
@@ -1748,7 +1749,7 @@ MCP 基于 **JSON-RPC 2.0** 传输消息，借鉴了语言服务协议（LSP）�
 | **异步操作支持** | 支持长时间运行的工具调用，不再强制同步阻塞 |
 | **无状态模式** | 服务器可无状态部署，支持水平扩展和负载均衡 |
 | **服务器身份认证** | 标准化 OAuth 2.0 授权流程，解决企业级安全合规需求 |
-| **官方 MCP 注册表** | 社区驱动的服务器目录，支持发现、版本管理与安全验证 |
+| **官方 MCP 注册表**（同年 9 月已先行预览） | 社区驱动的服务器目录，支持发现、版本管理与安全验证 |
 
 ### 8.3.7 2026 年中期规范演进（2026-07-28 升级）
 
@@ -2077,7 +2078,7 @@ flowchart TB
 | 对比维度 | Anthropic MCP (Model Context Protocol) | OpenAI / W3C WebMCP (Web Model Context Protocol) | Anthropic / OpenAI Computer Use (视觉 GUI 控制) |
 |:---------|:---------------------------------------|:------------------------------------------------|:------------------------------------------------|
 | **部署与运行层** | **服务端 / 宿主操作系统层** (Node/Python/Go) | **浏览器客户端层** (Browser JS Runtime) | **操作系统桌面 / 虚拟机截图层** (OS Display) |
-| **主要通信协议** | JSON-RPC 2.0 (stdio / SSE / HTTP) | 浏览器内部 JS 对象方法 (`document.modelContext`) | 视觉截图输入 + 虚拟鼠标键盘事件模拟 |
+| **主要通信协议** | JSON-RPC 2.0 (stdio / Streamable HTTP) | 浏览器内部 JS 对象方法 (`document.modelContext`) | 视觉截图输入 + 虚拟鼠标键盘事件模拟 |
 | **目标连接对象** | 数据库、本地文件系统、企业内部微服务、云端 SaaS API | 当前用户正在浏览的动态网页、SPA 应用、前端表单 | 任何未经改造的遗留软件、桌面 Native App、任意网页 |
 | **登录与鉴权** | 需配置 OAuth 2.0 / API 密钥 / 连接配置 | **天然继承当前浏览器标签页的登录态与 Cookie** | 依赖 Agent 在界面上手动输入账密或人工接管登录 |
 | **Token 与耗时** | 低消耗、低延迟 | **极低消耗（数十 Token）、毫秒级执行** | 高消耗（每步数千 Token）、秒级延迟 |
@@ -2317,7 +2318,7 @@ MHS 架构中一个容易被忽略、却极为关键的设计，是**推理与�
 2. **成本**：隔夜数百次试验若每步都调用模型，Token 开销不可承受；
 3. **可复现**：确定性脚本天然可版本化、可审计，符合科研的可重复性要求。
 
-更有意思的是**技能沉淀**的闭环。官方描述 Claude 在对准激光时的行为是「探索式的、像科学家一样」：调一下激光、用相机观察光束移动、再调、再看，直到理解因果序列——**然后把学到的东西打包成代码文件，写出一个确定性脚本，此后整个对准过程只需一条命令**。Genentech 那边也是同样的路径：把气泡处理的经验「固化成可复用的移液技能（reusable liquid handling skills）」，使 Claude 之后能为不同物性的液体自动选择合理默认参数。这与本文 [6.3 技能库架构](#63-技能库架构voyager-范式) 中 Voyager 的「探索 → 验证 → 入库 → 复用」范式在结构上完全同构，只不过技能库里存的不再是 Minecraft 的 JavaScript，而是驱动真实仪器的控制脚本。
+更有意思的是**技能沉淀**的闭环。官方描述 Claude 在对准激光时的行为是「探索式的、像科学家一样」：调一下激光、用相机观察光束移动、再调、再看，直到理解因果序列——**然后把学到的东西打包成代码文件，写出一个确定性脚本，此后整个对准过程只需一条命令**。Genentech 那边也是同样的路径：把气泡处理的经验「固化成可复用的移液技能（reusable liquid handling skills）」，使 Claude 之后能为不同物性的液体自动选择合理默认参数。这与本文 [6.6 技能的获取、合成与生命周期](#66-技能的获取合成与生命周期lifecycle--evolution) 中 Voyager 的「探索 → 验证 → 入库 → 复用」范式在结构上完全同构，只不过技能库里存的不再是 Minecraft 的 JavaScript，而是驱动真实仪器的控制脚本。
 
 ### 8.5.5 协议家族对比：MCP vs WebMCP vs MHS
 
@@ -2504,8 +2505,8 @@ AgentBench 是目前最全面的 Agent 能力综合评测框架，揭示了当�
 
 | 属性 | 内容 |
 |------|------|
-| 发布年份 | 2023（NeurIPS） |
-| 规模 | 三级难度，涵盖推理、检索、代码、工具调用 |
+| 发布年份 | 2023（arXiv）/ ICLR 2024 |
+| 规模 | 466 道三级难度题目，涵盖推理、检索、代码、工具调用 |
 | 场景 | 通用助手能力评测 |
 | 特点 | 多步骤推理+工具调用+信息整合，难度接近真实用户需求 |
 
@@ -2522,7 +2523,7 @@ GAIA 考察 Agent 作为通用助手的综合能力。2025 年，H2O.ai 的 h2oG
 | 场景 | Python 开源仓库软件工程任务 |
 | 特点 | Agent 需阅读代码、定位 Bug、生成并验证修复补丁 |
 
-代码 Agent 的标准评测。顶级 Agent 成功率从 2024 年 12 月的 55% 快速提升至 2025 年底的 70%+，是 AI Agent 能力进步最快的基准之一。
+代码 Agent 的标准评测。顶级 Agent 成功率从 2024 年底的约 55% 快速提升至 2025 年底的 80%+（Claude Opus 4.5 报告 80.9%，见 11.1 节），是 AI Agent 能力进步最快的基准之一。
 
 ---
 
@@ -2545,7 +2546,7 @@ GAIA 考察 Agent 作为通用助手的综合能力。2025 年，H2O.ai 的 h2oG
 
 | 属性 | 内容 |
 |------|------|
-| 发布年份 | 2025 |
+| 发布年份 | 2024（Sierra；2025 年扩展为 τ²-bench） |
 | 规模 | 涵盖机票预订、零售等多行业复杂业务数据库 |
 | 场景 | 模拟真实企业多轮 API 对话及多重数据库冲突 |
 | 特点 | 评测 Agent 解决实际商业业务流程、应对报错故障和恢复（Recovery）的能力 |
@@ -2581,9 +2582,9 @@ GAIA 考察 Agent 作为通用助手的综合能力。2025 年，H2O.ai 的 h2oG
 
 | 基准 | 规模 | 考察能力 |
 |:-----|:-----|:---------|
-| **LoCoMo** | 双人长对话，约 35 个会话、300–600 轮、9k–16k token | 单跳 / 多跳 / 时序 / 开放域四类问答 |
+| **LoCoMo** | 10 段双人长对话，每段最多 35 个会话、平均约 300 轮 / 9K token | 单跳 / 多跳 / 时序 / 开放域四类问答 |
 | **LongMemEval** | 500 道人工构造题；`_S` 约 40 会话 / 11.5 万 token，`_M` 扩展至约 500 会话 | 信息抽取、跨会话推理、时序推理、**知识更新**、**拒答** |
-| **BEAM** | 多会话连续性长程评测 | 长程一致性与记忆保持 |
+| **BEAM** | 100 段自动生成的连贯长对话，长度最高 1,000 万 token，配 2,000 道验证过的探测题 | 超出单窗口后的多类记忆能力；1M 窗口模型（含检索增强）亦随对话变长而退化 |
 
 两点值得注意：
 
@@ -2630,7 +2631,7 @@ LIBERO-PRO 特别强化了对长程任务执行中因果混淆、视觉遮挡和
 
 ## 10.1 软件工程 Agent
 
-Agent 驱动代码生成、Bug 修复、PR 提交全流程，是目前 AI Agent 商业化落地最成熟的场景。SWE-bench 成功率从 2024 年底的 55% 跃升至 2025 年底的 70%+，代码 Agent 正在从"有时候能用"走向"生产可用"。
+Agent 驱动代码生成、Bug 修复、PR 提交全流程，是目前 AI Agent 商业化落地最成熟的场景。SWE-bench Verified 成功率从 2024 年底的约 55% 跃升至 2025 年底的 80%+，代码 Agent 正在从"有时候能用"走向"生产可用"。
 
 典型工作流：Agent 读取 Issue → 定位相关代码 → 生成修复 → 运行测试 → 提交 PR，全程无需人工介入。
 
@@ -2693,7 +2694,7 @@ flowchart LR
    - **核心思想**：LLM 充当高层规划器，输出子任务序列或 Python 控制代码，再映射到底层运动控制器。
    - **代表工作**：
      - **SayCan**（Google，2022）：结合 LLM 语义概率与底层机器人的可行性价值函数（Affordance），过滤掉无法执行的动作。
-     - **Code as Policies**（Google DeepMind，2022）：LLM 生成含分支、循环的 Python 控制代码，在控制器沙箱中执行并根据报错重试。
+     - **Code as Policies**（Google，2022）：LLM 生成含分支、循环的 Python 控制代码，在控制器沙箱中执行并根据报错重试。
      - **Voyager**（NVIDIA，2023）：在 Minecraft 开放世界中实现终身学习，自动生成技能代码存入向量技能库并实现跨任务复用。
    - **核心局限**：开环执行为主，底层技能库固定且脆弱，难以适应复杂的连续 3D 几何与物理交互。
 
@@ -2759,11 +2760,10 @@ flowchart TB
   - **中循环（Rollout-level Critic-Recovery）**：任务级状态反思，在技能执行异常时生成针对性恢复动作（Recovery Skills）；
   - **慢循环（Validation-gated Evolution）**：通过自探索（Self-exploration）不断演化并验证新的代码 Critic 与技能库，实现物理智能的持续生长。
 - **Z-Infra 基础设施**：将 Agent 认知逻辑与异构硬件算力彻底解耦，支持超大规模并行交互。
-- **实测表现**：在 LIBERO-Pro 达到 **90.8%** 成功率，RoboCasa 达到 **93.6%** 成功率，且推理延迟相比基线框架 **RPent**（Recursive Physical Agent）降低 **11.1 倍**。
+- **实测表现**：在 LIBERO-Pro 达到 **90.8%** 成功率，RoboCasa 达到 **93.6%** 成功率，且推理延迟降至基线框架 **RPent**（Recursive Physical Agent）的约 **1/11**（11.1×）。
 
 #### 5. RPent: 递归物理智能体框架
 **RPent**（Recursive Physical Agent，RLinf 开源项目）是一个面向物理交互自演化的具身 Agent 框架。它以服务化设计（Service-Oriented Design）解耦感知、规划、记忆和动作服务，提供标准的 VLA 策略注入接口，是 2026 年具身智能基础测试与自演化研究的重要开源基石。
-
 
 #### 6. 具身导航 Agent：同一套思想在导航域的独立收敛
 
@@ -2905,7 +2905,7 @@ flowchart TB
 
 ## 11.2 OpenAI Codex
 
-**OpenAI Codex**（2025 年 6 月）与 2021 年的代码补全模型同名，但定位完全不同。这是一个**云端异步多 Agent 软件工程平台**，核心设计哲学是：**开发者不需要等待 AI，提交任务后继续做其他事，完成后审查结果即可**。
+**OpenAI Codex**（2025 年 5 月）与 2021 年的代码补全模型同名，但定位完全不同。这是一个**云端异步多 Agent 软件工程平台**，核心设计哲学是：**开发者不需要等待 AI，提交任务后继续做其他事，完成后审查结果即可**。
 
 ### OpenAI Codex 工作流程
 
@@ -2946,7 +2946,7 @@ flowchart TB
 
 ## 11.3 Manus
 
-**Manus**（Butterfly Effect / Monica 团队，2025 年 3 月）是第一批让普通用户真正感受到「AI 能自主完成一整件事」的通用 Agent 产品，因发布演示视频在全球范围内迅速刷屏，内测邀请码一码难求。**2026 年 Meta 以约 20 亿美元收购 Manus AI**，成为 AI Agent 领域迄今最大的战略并购。
+**Manus**（Butterfly Effect / Monica 团队，2025 年 3 月）是第一批让普通用户真正感受到「AI 能自主完成一整件事」的通用 Agent 产品，因发布演示视频在全球范围内迅速刷屏，内测邀请码一码难求。**2025 年 12 月，Meta 宣布以逾 20 亿美元收购 Manus**，成为 AI Agent 领域迄今最大的战略并购。
 
 ### Manus 工作流程
 
@@ -3104,7 +3104,7 @@ Devin 执行过程：
 
 ### Devin 企业落地
 
-**高盛（Goldman Sachs）**于 2025 年 7 月启动 Devin 试点，覆盖 **12,000 名人类开发者**，将 Devin 作为团队中的异步协作成员处理积压工单，目标实现整体 **20% 效率提升**，探索「人机混合开发团队」的生产模式。Santander、Nubank 等金融机构也在数千家企业中部署 Devin。
+**高盛（Goldman Sachs）**于 2025 年 7 月启动 Devin 试点，覆盖 **12,000 名人类开发者**，将 Devin 作为团队中的异步协作成员处理积压工单，目标实现整体 **20% 效率提升**，探索「人机混合开发团队」的生产模式。Santander、Nubank 等金融机构也已部署 Devin，企业客户规模达数千家。
 
 ### Devin 能力边界
 
@@ -3157,9 +3157,9 @@ Hermes Agent 与其他框架最本质的区别在于其**自改进机制**：
 
 ### 底层模型：Hermes 4.3
 
-配套推荐模型 **Hermes 4.3 36B Psyche**（2025 年 8 月 25 日）有两点值得关注：
+配套推荐模型 **Hermes 4.3 36B**（2025 年 12 月发布）有两点值得关注：
 
-1. **ByteDance Seed 36B 基座 + 专项对齐**：针对 JSON Schema 遵从进行强化训练，结构化工具调用可靠性显著高于通用模型。
+1. **ByteDance Seed-OSS 36B 基座 + 专项对齐**：针对 JSON Schema 遵从进行强化训练，结构化工具调用可靠性显著高于通用模型。
 2. **去中心化训练**：首次采用 Nous Research 自研的 **Psyche 去中心化训练网络**，而非传统集中式 GPU 集群，验证了分散算力训练生产级模型的可行性。
 
 **Hermes 4.3 36B 基准**（模型层面）：MATH-500 **93.8%**、MMLU **87.7%**、AIME 24 **71.9%**、GPQA Diamond **65.5%**，在多项基准上超越参数更大的 Hermes 4 70B。
@@ -3806,7 +3806,7 @@ flowchart LR
 
 间接注入是 Agent 特有的攻击面——普通 LLM 聊天无此风险，但一旦 Agent 能「读网页、读文件」，任何外部数据都成为潜在注入载体。
 
-**2025 年真实案例**：研究人员在 Bing 搜索结果页中植入不可见白色文字注入指令，驱动 Copilot Agent 在用户不知情的情况下转发隐私邮件。
+**早期真实案例（Greshake et al., 2023）**：研究人员在网页中植入不可见文字注入指令，接入该网页的 Bing Chat 随即在用户不知情的情况下改变行为，诱导用户交出个人信息——这是间接注入首次在真实产品上被公开验证。
 
 **防御方向**：
 - **输入/输出过滤**：对 Agent 读取的外部内容进行沙箱化处理，区分「数据」与「指令」
@@ -3960,7 +3960,7 @@ AI Agent 代表了人工智能从「理解」走向「行动」的核心范式�
 | 出处 | 模型负责（外层） | 确定性组件负责（内层） |
 |:-----|:-----------------|:----------------------|
 | [ReWOO](#33-rewoo先规划再执行) | 一次性规划出完整工具调用图 | 批量执行工具，不回灌中间观察 |
-| [Voyager 技能库](#63-技能库架构voyager-范式) | 探索并验证新行为 | 固化成代码技能后直接调用，不再重新推理 |
+| [Voyager 技能库](#66-技能的获取合成与生命周期lifecycle--evolution) | 探索并验证新行为 | 固化成代码技能后直接调用，不再重新推理 |
 | [上下文工程](#74-三类上下文失效模式) | 判断此刻需要知道什么 | 检索、压缩、隔离由确定性策略执行 |
 | [DeepSeek Harness](#119-deepseek-harness) | 在 seam 之间做选择 | 插件树、事件瀑布、会话日志按契约运行 |
 | [Pi Agent](#1110-pi-agent) | 用 4 个工具完成一切决策 | 不内置待办、不内置子 Agent，交给文件与人 |
@@ -3991,92 +3991,116 @@ AI Agent 代表了人工智能从「理解」走向「行动」的核心范式�
 
 # 14. 参考资料
 
-**核心范式**
+**核心推理范式与工具调用**
 
 1. Yao, S., et al. "ReAct: Synergizing Reasoning and Acting in Language Models." *ICLR 2023*. Princeton & Google Brain.
 2. Shinn, N., et al. "Reflexion: Language Agents with Verbal Reinforcement Learning." *NeurIPS 2023*.
 3. Xu, B., et al. "ReWOO: Decoupling Reasoning from Observations for Efficient Augmented Language Models." *arXiv 2305.18323*, 2023.
 4. Yao, S., et al. "Tree of Thoughts: Deliberate Problem Solving with Large Language Models." *NeurIPS 2023*. Princeton & Google DeepMind.
 5. Hao, S., et al. "Reasoning with Language Model is Planning with World Model." *EMNLP 2023*. （RAP，MCTS + LLM）
+6. Schick, T., et al. "Toolformer: Language Models Can Teach Themselves to Use Tools." *NeurIPS 2023*. arXiv 2302.04761. Meta AI.
 
-**具身智能与物理控制 Agent**
+**记忆机制、技能系统与上下文工程**
 
-6. Wang, G., et al. "Voyager: An Open-Ended Embodied Agent with Large Language Models." *NeurIPS 2023*. NVIDIA.
-7. Liang, J., et al. "Code as Policies: Language Model Programs for Embodied Control." *ICRA 2023*. Google DeepMind.
-8. Ahn, M., et al. "Do As I Can, Not As I Say: Grounding Language in Robotic Affordances." *arXiv 2204.01691*, 2022. Google. （SayCan）
-9. Brohan, A., et al. "RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control." *arXiv 2307.15818*, 2023. Google DeepMind.
-10. Wang, Q., Wang, T., Li, C., Ban, S., Chen, Y., Ge, Y., Qin, J., Li, C., and Zhu, W. "Thea: Towards the Harness of Embodied Agents." *arXiv 2608.11246*, 2026.
-11. Galanti, L., et al. "Addressing the Orchestration Gap in Generalist Robots via Physical Agency." *arXiv 2607.21725*, 2026. （Pigey）
-12. "RoboHarness: Memory-Augmented Policy Harness for Vision-Language-Action Models." *arXiv 2603.24060 / 2607.18060*, 2026.
-13. "Zetta ζ: An Efficient Closed-Loop Embodied Harness for Self-Evolving Physical Intelligence." *arXiv 2608.16590*, AIR Tsinghua & Embodied Brain, 2026.
-14. RLinf. "RPent: Recursive Physical Agent Infrastructure for Self-Evolving Embodiment." *github.com/rlinf-ai/RPent*, 2026.
-15. "ABot-AgentOS: A General Robot Agent Operating System with Lifelong Multimodal Memory." *arXiv 2607.10350*, Amap CVLab, 2026.
-16. "AgenticNav: Recasting Zero-Shot VLN-CE as a VLM Tool-Calling Harness." *arXiv 2606.10577*, 2026.
-17. "AgentVLN: Towards Agentic Vision-and-Language Navigation." *arXiv 2603.17670*, 2026.
-18. "SysNav: Multi-Level Systematic Cooperation Enables Real-World, Cross-Embodiment Object Navigation." *arXiv 2603.06914*, 2026.
-19. "HumanoidVLN: A Physically Realistic VLN Simulation Platform and Benchmark for Diverse Bipedal Humanoids." *arXiv 2608.12860*, 2026.
-20. "Agentic Embodied Control: Generalist Agents Directly Closing the Embodied Interaction Loop under a Minimal Interface." *arXiv 2607.26148*, 2026.
-
-**评测基准**
-
-21. Jimenez, C., et al. "SWE-bench: Can Language Models Resolve Real-World GitHub Issues?" *ICLR 2024*.
-22. Xie, T., et al. "OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments." *NeurIPS 2024*.
-23. Liu, X., et al. "AgentBench: Evaluating LLMs as Agents." *ICLR 2024*.
-24. Mialon, G., et al. "GAIA: A Benchmark for General AI Assistants." *ICLR 2024*. Meta AI & HuggingFace.
-25. Liu, B., et al. "LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning." *NeurIPS 2023*.
-26. Makatura, K., et al. "RoboCasa: Large-Scale Simulation of Everyday Household Tasks for Generalist Robots." *arXiv 2406.02540*, 2024.
-
-**产品与工程**
-
-27. Anthropic. "Model Context Protocol (MCP) Specification." *spec.modelcontextprotocol.io*, November 2024. Accessed March 2026.
-28. OpenAI. "Harness Engineering for Long-Running Agents." *openai.com/research*, February 2026. Accessed March 2026.
-29. Anthropic. "Effective Harnesses for Long-Running Agents." *anthropic.com/research*, 2026. Accessed March 2026.
-30. Butterfly Effect. "Manus: A General AI Agent." *manus.im*, March 2025. Accessed March 2026.
-31. Cognition AI. "Devin: The First AI Software Engineer." *cognition.ai/blog*, March 2024. Accessed March 2026.
-32. Cognition AI. "Devin 2.0: AI Software Engineer." *cognition.ai/blog*, April 2025. Accessed March 2026.
-33. Tingde Liu. "Loop Engineering: Agent 工程化的下一代闭环范式." *tingdeliu.github.io/loop-engineering/*, July 2026. Accessed July 2026.
-34. Nous Research. "Hermes Agent: Self-Improving Open Agent Architecture & GEPA." *nousresearch.com*, 2026.
-35. DeepSeek AI. "DeepSeek Harness: Everything is a Plugin." *github.com/deepseek-ai/deepseek-harness*, August 2026. MIT License. Accessed August 2026.
-36. DeepSeek AI. "DeepSeek Harness Architecture." *docs/architecture.md*, August 2026. （Cordis 插件树、能力 seam、轮次-步骤流程）Accessed August 2026.
-37. DeepSeek AI. "DeepSeek-V4-Pro-0813 Release Notes." *api-docs.deepseek.com*, August 2026. Accessed August 2026.
-38. Cordiverse. "A Programming Paradigm for Spatiotemporal Composability." *github.com/cordiverse/paper*, 2026. （dsh 底层插件内核的设计论文）
-39. Zechner, M., et al. "Pi Agent Harness." *github.com/earendil-works/pi*, 2026. MIT License. Accessed August 2026.
-40. Databricks. "Benchmarking Coding Agents on Databricks' Multi-Million Line Codebase." *databricks.com/blog*, 2026. Accessed August 2026.
-41. W3C Web Machine Learning Community Group. "Web Model Context Protocol (WebMCP) Specification Draft." *webmachinelearning.github.io/webmcp*, 2026.
-42. OpenAI. "WebMCP & The WebMCP Challenge: Building Agent-Ready Web Applications." *openai.com/blog*, August 2026. Accessed August 2026.
-43. Google Chrome. "WebMCP in Chromium: Exposing Structured Tools to Web AI Agents." *developer.chrome.com*, 2026. Accessed August 2026.
-44. Anthropic. "Previewing the Model Hardware Standard." *anthropic.com/news/model-hardware-standard-research-preview*, August 27, 2026. Accessed August 2026.
-45. Anthropic. "Model Hardware Standard (MHS) Research Preview." *modelhardwarestandard.com*, 2026. Accessed August 2026.
+7. Sumers, T. R., et al. "Cognitive Architectures for Language Agents." *TMLR 2024*. arXiv 2309.02427. Princeton. （CoALA）
+8. Park, J. S., et al. "Generative Agents: Interactive Simulacra of Human Behavior." *UIST 2023*. arXiv 2304.03442. Stanford.
+9. Packer, C., et al. "MemGPT: Towards LLMs as Operating Systems." *arXiv 2310.08560*, 2023. UC Berkeley. （后续演化为 Letta）
+10. Xu, W., et al. "A-MEM: Agentic Memory for LLM Agents." *arXiv 2502.12110*, 2025. （Zettelkasten 式笔记网与记忆演化）
+11. Rasmussen, P., et al. "Zep: A Temporal Knowledge Graph Architecture for Agent Memory." *arXiv 2501.13956*, 2025. （Graphiti 双时间轴时态知识图谱）
+12. Gutiérrez, B. J., et al. "HippoRAG: Neurobiologically Inspired Long-Term Memory for Large Language Models." *NeurIPS 2024*. arXiv 2405.14831.
+13. Gutiérrez, B. J., et al. "From RAG to Memory: Non-Parametric Continual Learning for Large Language Models." *arXiv 2502.14802*, 2025. （HippoRAG 2）
+14. Mem0. "Mem0: Scalable Long-Term Memory for AI Agents." *github.com/mem0ai/mem0*, 2024–2026. （user / session / agent 三层作用域）
+15. Luo, J., et al. "From Storage to Experience: A Survey on the Evolution of LLM Agent Memory Mechanisms." *arXiv 2605.06716*, 2026.
+16. Zhao, A., et al. "ExpeL: LLM Agents Are Experiential Learners." *AAAI 2024*. arXiv 2308.10144.
+17. Li, X., et al. "SkillsBench: Benchmarking How Well Agent Skills Work Across Diverse Tasks." *arXiv 2602.12670*, 2026.
+18. Ding, K., et al. "Agent Skill Evaluation and Evolution: Frameworks and Benchmarks." *arXiv 2606.11435*, 2026.
+19. Agent Skills. "Agent Skills Specification." *agentskills.io*, 2025–2026. Accessed August 2026.
+20. LangChain. "Context Engineering for Agents." *blog.langchain.com*, June 2025. Accessed March 2026.
 
 **多 Agent 协作与 Agent 间协议**
 
-46. Wu, Q., et al. "AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation Framework." *arXiv 2308.08155*, 2023. Microsoft.
-47. Hong, S., et al. "MetaGPT: Meta Programming for a Multi-Agent Collaborative Framework." *ICLR 2024*. （SOP 编码为角色流水线）
-48. Qian, C., et al. "ChatDev: Communicative Agents for Software Development." *ACL 2024*. （软件公司隐喻的瀑布式协作）
-49. CrewAI. "CrewAI: Framework for Orchestrating Role-Playing Autonomous AI Agents." *github.com/crewAIInc/crewAI*, 2024.
-50. LangChain. "LangGraph: Stateful Multi-Agent Applications with Graphs." *langchain-ai.github.io/langgraph*, 2024–2026.
-51. Google, et al. "Agent2Agent (A2A) Protocol Specification." *a2a-protocol.org*, 2025. Accessed August 2026. （Agent Card、Task 生命周期、三种传输绑定）
-52. Cognition AI. "Don't Build Multi-Agent Systems." *cognition.ai/blog*, March 2025. （单 Agent 长上下文一方的核心论证）
-53. Anthropic. "How We Built Our Multi-Agent Research System." *anthropic.com/engineering*, 2025. （Opus 4 编排 Sonnet 4 子 Agent，较单 Agent 提升 90.2%）
+21. Wu, Q., et al. "AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation." *arXiv 2308.08155*, 2023. Microsoft.
+22. Hong, S., et al. "MetaGPT: Meta Programming for a Multi-Agent Collaborative Framework." *ICLR 2024*. （SOP 编码为角色流水线）
+23. Qian, C., et al. "ChatDev: Communicative Agents for Software Development." *ACL 2024*. （软件公司隐喻的瀑布式协作）
+24. CrewAI. "CrewAI: Framework for Orchestrating Role-Playing Autonomous AI Agents." *github.com/crewAIInc/crewAI*, 2024.
+25. LangChain. "LangGraph: Stateful Multi-Agent Applications with Graphs." *langchain-ai.github.io/langgraph*, 2024–2026.
+26. Google, et al. "Agent2Agent (A2A) Protocol Specification." *a2a-protocol.org*, 2025. Accessed August 2026. （Agent Card、Task 生命周期、三种传输绑定）
+27. Yan, W. "Don't Build Multi-Agents." *cognition.com/blog*, June 2025. （单 Agent 长上下文一方的核心论证）
+28. Anthropic. "How We Built Our Multi-Agent Research System." *anthropic.com/engineering*, June 2025. （Opus 4 编排 Sonnet 4 子 Agent，较单 Agent 提升 90.2%）
 
-**Agent 记忆：架构、评测与安全**
+**连接协议：MCP / WebMCP / MHS**
 
-54. Xu, W., et al. "A-MEM: Agentic Memory for LLM Agents." *arXiv 2502.12110*, 2025. （Zettelkasten 式笔记网与记忆演化）
-55. Rasmussen, P., et al. "Zep: A Temporal Knowledge Graph Architecture for Agent Memory." *arXiv 2501.13956*, 2025. （Graphiti 双时间轴时态知识图谱）
-56. Mem0. "Mem0: Scalable Long-Term Memory for AI Agents." *github.com/mem0ai/mem0*, 2024–2026. （user / session / agent 三层作用域）
-57. Maharana, A., et al. "Evaluating Very Long-Term Conversational Memory of LLM Agents." *ACL 2024*. （LoCoMo 基准）
-58. Wu, D., et al. "LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory." *arXiv 2410.10813*, 2024.
-59. "MemSecBench: Tracking Agent Memory Poisoning from Persistence to Consequence and Repair." *arXiv 2607.27080*, 2026. （310 案例 / 48 场景 / 24 配置）
-60. "From Untrusted Input to Trusted Memory: A Systematic Study of Memory Poisoning Attacks in LLM Agents." *arXiv 2606.04329*, 2026.
+29. Anthropic. "Model Context Protocol (MCP) Specification." *modelcontextprotocol.io*, November 2024（2025-03-26、2025-11-25 与 2026-07-28 修订版）. Accessed August 2026.
+30. W3C Web Machine Learning Community Group. "Web Model Context Protocol (WebMCP) Specification Draft." *webmachinelearning.github.io/webmcp*, 2026.
+31. OpenAI. "WebMCP & The WebMCP Challenge: Building Agent-Ready Web Applications." *openai.com/blog*, August 2026. Accessed August 2026.
+32. Google Chrome. "WebMCP in Chromium: Exposing Structured Tools to Web AI Agents." *developer.chrome.com*, 2026. Accessed August 2026.
+33. Anthropic. "Previewing the Model Hardware Standard." *anthropic.com/news/model-hardware-standard-research-preview*, August 27, 2026. Accessed August 2026.
+34. Anthropic. "Model Hardware Standard (MHS) Research Preview." *modelhardwarestandard.com*, 2026. Accessed August 2026.
+
+**Harness 工程与 Agent 产品**
+
+35. OpenAI. "Harness Engineering for Long-Running Agents." *openai.com/research*, February 2026. Accessed March 2026.
+36. Young, J. "Effective Harnesses for Long-Running Agents." *anthropic.com/engineering*, November 26, 2025. Accessed March 2026.
+37. Databricks. "Benchmarking Coding Agents on Databricks' Multi-Million Line Codebase." *databricks.com/blog*, 2026. Accessed August 2026.
+38. Tingde Liu. "Loop Engineering: Agent 工程化的下一代闭环范式." *tingdeliu.github.io/loop-engineering/*, July 2026. Accessed July 2026.
+39. Anthropic. "Claude Code: Best Practices for Agentic Coding." *anthropic.com/engineering*, 2025. Accessed March 2026.
+40. OpenAI. "Introducing Codex." *openai.com/index/introducing-codex*, May 2025. Accessed March 2026.
+41. Butterfly Effect. "Manus: A General AI Agent." *manus.im*, March 2025. Accessed March 2026.
+42. Cognition AI. "Devin: The First AI Software Engineer." *cognition.ai/blog*, March 2024. Accessed March 2026.
+43. Cognition AI. "Devin 2.0: AI Software Engineer." *cognition.ai/blog*, April 2025. Accessed March 2026.
+44. Nous Research. "Hermes Agent: Self-Improving Open Agent Architecture & GEPA." *nousresearch.com*, 2026.
+45. Nous Research. "Introducing Hermes 4.3: Local Intelligence Globally Trained." *nousresearch.com*, December 2025.
+46. DeepSeek AI. "DeepSeek Harness: Everything is a Plugin." *github.com/deepseek-ai/deepseek-harness*, August 2026. MIT License. Accessed August 2026.
+47. DeepSeek AI. "DeepSeek Harness Architecture." *docs/architecture.md*, August 2026. （Cordis 插件树、能力 seam、轮次-步骤流程）Accessed August 2026.
+48. DeepSeek AI. "DeepSeek-V4-Pro-0813 Release Notes." *api-docs.deepseek.com*, August 2026. Accessed August 2026.
+49. Cordiverse. "A Programming Paradigm for Spatiotemporal Composability." *github.com/cordiverse/paper*, 2026. （dsh 底层插件内核的设计论文）
+50. Zechner, M., et al. "Pi Agent Harness." *github.com/earendil-works/pi*, 2026. MIT License. Accessed August 2026.
+
+**具身智能与物理控制 Agent**
+
+51. Wang, G., et al. "Voyager: An Open-Ended Embodied Agent with Large Language Models." *NeurIPS 2023*. NVIDIA.
+52. Liang, J., et al. "Code as Policies: Language Model Programs for Embodied Control." *ICRA 2023*. Google.
+53. Ahn, M., et al. "Do As I Can, Not As I Say: Grounding Language in Robotic Affordances." *arXiv 2204.01691*, 2022. Google. （SayCan）
+54. Brohan, A., et al. "RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control." *arXiv 2307.15818*, 2023. Google DeepMind.
+55. Wang, Q., et al. "Towards the Harness of Embodied Agents." *arXiv 2608.11246*, 2026. （Thea）
+56. Galanti, L., et al. "Addressing the Orchestration Gap in Generalist Robots via Physical Agency." *arXiv 2607.21725*, 2026. （Pigey）
+57. Li, Z., et al. "RoboHarness: A Memory-Augmented Policy Harness for Vision-Language-Action Model Robustness via In-Context Adaptation." *arXiv 2603.24060*, 2026.
+58. Huang, J., et al. "RoboHarness: Memory-Driven Orchestration of Heterogeneous Robot Policies for Long-Horizon Planning." *arXiv 2607.18060*, 2026.
+59. Ding, X., et al. "Zetta ζ: An Efficient Closed-Loop Embodied Harness for Self-Evolving Physical Intelligence." *arXiv 2608.16590*, 2026. AIR Tsinghua & Embodied Brain.
+60. RLinf. "RPent: Recursive Physical Agent Infrastructure for Self-Evolving Embodiment." *github.com/rlinf-ai/RPent*, 2026.
+61. Tian, J., et al. "ABot-AgentOS: A General Robotic Agent OS with Lifelong Multi-modal Memory." *arXiv 2607.10350*, 2026. Amap CVLab.
+62. Li, Y., et al. "AgenticNav: Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness." *arXiv 2606.10577*, 2026.
+63. Xin, Z., et al. "AgentVLN: Towards Agentic Vision-and-Language Navigation." *arXiv 2603.17670*, 2026.
+64. Zhu, H., et al. "SysNav: Multi-Level Systematic Cooperation Enables Real-World, Cross-Embodiment Object Navigation." *arXiv 2603.06914*, 2026.
+65. Pham, Q.-D., et al. "HumanoidVLN: A Physics-Grounded Simulator and Benchmark for Vision-Language Navigation Across Diverse Humanoid Embodiments." *arXiv 2608.12860*, 2026.
+66. Zhou, J., et al. "Embodied Agents Take Control: Minimal-Interface Zero-Shot Agents Rival Industrial-Scale Policies in Vision-and-Language Navigation." *arXiv 2607.26148*, 2026. （正文称 Agentic Embodied Control）
+
+**评测基准**
+
+67. Shridhar, M., et al. "ALFWorld: Aligning Text and Embodied Environments for Interactive Learning." *ICLR 2021*. arXiv 2010.03768.
+68. Yao, S., et al. "WebShop: Towards Scalable Real-World Web Interaction with Grounded Language Agents." *NeurIPS 2022*. arXiv 2207.01206.
+69. Liu, X., et al. "AgentBench: Evaluating LLMs as Agents." *ICLR 2024*.
+70. Mialon, G., et al. "GAIA: A Benchmark for General AI Assistants." *ICLR 2024*. Meta AI & Hugging Face.
+71. Jimenez, C., et al. "SWE-bench: Can Language Models Resolve Real-World GitHub Issues?" *ICLR 2024*.
+72. Xie, T., et al. "OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments." *NeurIPS 2024*.
+73. Yao, S., et al. "τ-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains." *arXiv 2406.12045*, 2024. Sierra.
+74. Maharana, A., et al. "Evaluating Very Long-Term Conversational Memory of LLM Agents." *ACL 2024*. arXiv 2402.17753. （LoCoMo）
+75. Wu, D., et al. "LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory." *ICLR 2025*. arXiv 2410.10813.
+76. Hu, Y., et al. "Evaluating Memory in LLM Agents via Incremental Multi-Turn Interactions." *arXiv 2507.05257*, 2025. （MemoryAgentBench）
+77. Tavakoli, M., et al. "Beyond a Million Tokens: Benchmarking and Enhancing Long-Term Memory in LLMs." *arXiv 2510.27246*, 2025. （BEAM 基准与 LIGHT 框架）
+78. Liu, B., et al. "LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning." *NeurIPS 2023*.
+79. Nasiriany, S., et al. "RoboCasa: Large-Scale Simulation of Everyday Tasks for Generalist Robots." *RSS 2024*. arXiv 2406.02523.
 
 **Agent 安全**
 
-61. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
-62. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
-63. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
+80. Greshake, K., et al. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." *AISec Workshop, CCS 2023*.
+81. OWASP. "OWASP Top 10 for Large Language Model Applications." *owasp.org*, 2025.
+82. Perez, F., and Ribeiro, I. "Ignore Previous Prompt: Attack Techniques for Language Models." *NeurIPS ML Safety Workshop*, 2022.
+83. Chen, X., et al. "MemSecBench: Tracking Agent Memory Poisoning from Persistence to Consequence and Repair." *arXiv 2607.27080*, 2026. （310 案例 / 48 场景 / 24 配置）
+84. Dash, P., et al. "From Untrusted Input to Trusted Memory: A Systematic Study of Memory Poisoning Attacks in LLM Agents." *arXiv 2606.04329*, 2026.
 
 **综述与背景**
 
-64. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
-65. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
-66. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
+85. IBM. "What are AI agents?" *ibm.com/think/topics/ai-agents*. Accessed March 2026.
+86. Google Cloud. "What are AI agents?" *cloud.google.com/discover/what-are-ai-agents*. Accessed March 2026.
+87. AWS. "What is an AI agent?" *aws.amazon.com/what-is/ai-agents*. Accessed March 2026.
