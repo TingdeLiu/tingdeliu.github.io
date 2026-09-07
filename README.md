@@ -20,7 +20,7 @@
 
 本站以系统梳理和持续更新为目标：既关注模型与数据的发展脉络，也关注训练方法、系统架构、评测基准和真实机器人部署。长篇综述用于建立完整的技术脉络，短篇文章用于记录阶段性观察与专题分析。
 
-目前收录 **14 篇研究综述**（约 4.5 万行 Markdown）、**6 篇技术博客**、**按周更新的具身导航周报**与 **900 余张**论文与概念配图，仍在持续维护。
+目前收录 **15 篇研究综述与论文精读**（约 4.6 万行 Markdown）、**6 篇技术博客**、**按周更新的具身导航周报**与 **900 余张**论文与概念配图，仍在持续维护。
 
 ## 研究方向
 
@@ -38,6 +38,7 @@
 | | [空间智能综述](https://tingdeliu.github.io/Spatial-Intelligence-Survey/) | 三维场景理解、点云、深度估计与 Gaussian Splatting |
 | **世界模型与智能体** | [世界模型综述](https://tingdeliu.github.io/World-Models-Survey/) | 环境建模与预测、视频生成式世界模型及其在具身任务中的应用 |
 | | [AI Agent 综述](https://tingdeliu.github.io/AI-Agent-Survey/) | 推理范式、记忆与技能、上下文工程、多智能体协作，以及 MCP / WebMCP / A2A / MHS 四层连接协议与安全 |
+| | [Embodied Agent 经典论文](https://tingdeliu.github.io/Embodied-Agent-Papers/) | 具身智能体闭环运行时（AgentOS / Harness）、类型化动作抽象、物理编排、场景图退出码评估与自演化治理 |
 | **学习与训练方法** | [LLM 训练综述](https://tingdeliu.github.io/LLM-Training-Survey/) | 预训练、后训练、对齐、并行策略与推理加速 |
 | | [强化学习综述](https://tingdeliu.github.io/Reinforcement-Learning-Survey/) | 从理论基础到具身智能场景的算法全景 |
 | | [深度学习综述](https://tingdeliu.github.io/Deep-Learning-Survey/) | 网络结构、优化方法与训练技巧的系统梳理 |
@@ -60,6 +61,7 @@
 
 | 期号 | 覆盖区间 |
 | --- | --- |
+| [2026-09-05](https://tingdeliu.github.io/vln-weekly-2026-09-05/) | 2026-08-26 ~ 2026-09-03 |
 | [2026-08-30](https://tingdeliu.github.io/vln-weekly-2026-08-30/) | 2026-08-20 ~ 2026-08-29 |
 | [2026-08-22](https://tingdeliu.github.io/vln-weekly-2026-08-22/) | 2026-08-13 ~ 2026-08-20 |
 
@@ -105,7 +107,7 @@
 - **内容渲染**：kramdown（GFM）+ Rouge 代码高亮 + MathJax 3 公式 + Mermaid 10 图表，Mermaid 仅在页面含图表时按需加载 CDN
 - **Jekyll 插件**：`jekyll-sitemap`、`jekyll-feed`、`jekyll-paginate`、`jekyll-seo-tag`
 - **阅读体验**：章节目录抽屉（随滚动高亮当前小节）、顶部阅读进度条、代码块一键复制、标题锚点复制、配图点击放大、宽表格横向滚动、返回顶部
-- **论文检索**：两篇 VLN 论文精读内置筛选栏，支持按标签过滤并跨篇联动
+- **论文检索**：VLN 与 Embodied Agent 论文精读内置交互式标签筛选栏，支持按多维技术特征实时过滤（VLN 篇支持跨篇联动）
 - **图片资源**：正文配图统一转为无损 WebP 交付，兼顾清晰度与加载速度
 - **内容反馈**：文章末尾一键提交 Issue（报告错误 / 推荐论文 / 修改建议），并回显相关 Issue 状态
 - **部署**：推送 `main` 分支后由 GitHub Actions 构建并发布到 GitHub Pages
