@@ -10,7 +10,7 @@ toc: true
 excerpt: "本文系统梳理具身智能体（Embodied Agent）领域的经典与前沿论文，涵盖具身闭环运行时（AgentOS / Harness）、标准化类型化技能抽象（Typed Skills）、物理编排与双后端（Pigey）、场景图与退出码评估（Thea）、自演化物理治理（Zetta）以及真机跨本体协同。"
 ---
 
-> 本文是 [AI Agent 综述](/AI-Agent-Survey/) 与底层工程指南 [具身智能 Agent 软件系统架构、分布式通信与微服务工程全景指南](/Embodied-Agent-Architecture-Survey/) 的配套具身论文精读，系统收录 Embodied Agent（具身智能体）领域的代表性工作与前沿突破。
+> 本文是 [AI Agent 综述](/AI-Agent-Survey/) 与底层工程指南 [具身Agent架构综述](/Embodied-Agent-Architecture-Survey/) 的配套具身论文精读，系统收录 Embodied Agent（具身智能体）领域的代表性工作与前沿突破。
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 

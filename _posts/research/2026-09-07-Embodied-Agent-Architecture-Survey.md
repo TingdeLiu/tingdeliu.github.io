@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "具身智能 Agent 软件系统架构、分布式通信与微服务工程全景指南"
+title: "具身Agent架构综述"
 date: 2026-09-07
 tags: [Embodied-AI, Agent, System-Architecture, ZeroMQ, WebSocket, Distributed-Systems, Microservices, Python]
 categories: research
