@@ -10,6 +10,8 @@ toc: true
 excerpt: "AI Agent（AI 智能体）是能够自主感知环境、推理规划并执行多步骤任务的 AI 系统。本文系统梳理 AI Agent 的核心架构、关键推理范式（ReAct、Reflexion、ReWOO、Tree of Thoughts、Voyager）、记忆与技能系统、上下文工程、工具调用与连接协议（Function Calling、MCP、WebMCP、MHS、A2A）以及 Harness / Loop / Graph Engineering 三代工程化方法论；梳理多 Agent 协作拓扑、Agent Team 组织范式（CrewAI、MetaGPT、ChatDev、AutoGen、LangGraph）与单/多 Agent 路线之争；并深入介绍 2025–2026 年主流 Agent 产品与基础设施（Claude Code、OpenAI Codex、Manus、OpenClaw、Devin、Hermes Agent、DeepSeek Harness、Pi Agent）、具身控制与物理治理前沿（Thea、Pigey、RoboHarness、Zetta）、连接物理设备的 Model Hardware Standard（MHS）、主流评测基准与 Agent 安全，呈现软硬件智能体的研究全貌。"
 ---
 
+> 本文是 AI Agent 核心架构、工程范式与前沿演进全景综述；配套的具身智能体经典工作深度解析详见 [Embodied Agent 经典论文](/Embodied-Agent-Papers/)。
+
 # 1. 引言
 
 2022 年以来，以 ChatGPT 为代表的大语言模型（LLM）使 AI 在文本生成和对话方面达到了接近人类的水平。然而，"对话"只是 AI 能力的冰山一角——真正改变生产力的，是 AI 能否**自主地完成任务**：搜索信息、调用 API、写代码并执行、操作浏览器、管理文件……这便催生了 AI 领域的下一个核心概念：**AI Agent（AI 智能体）**。
