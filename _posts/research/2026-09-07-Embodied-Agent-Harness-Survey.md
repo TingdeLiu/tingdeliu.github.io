@@ -731,19 +731,36 @@ gantt
 本节提供一套完整的、生产级微服务解耦的具身系统最小可运行实战代码骨架，全方位展示上层 Harness 与底层系统的协同落地：
 
 ```mermaid
-flowchart LR
-    WebClient["Web 驾驶舱 (浏览器)"] <== "WebSocket + JSON" ==> TelemetryGateway["遥测与干预网关 (telemetry_gateway.py)"]
-    
-    subgraph CentralBroker["ZeroMQ 核心调度网关 (broker.py)"]
-        RouterPort["ROUTER: 5555 (面向控制与规划端)"]
-        DealerPort["DEALER: 5556 (面向后端工作节点)"]
-        RouterPort <==>|"zmq.proxy"| DealerPort
+flowchart TD
+    subgraph UI_Layer["1. 远程人机交互层 (HMI & Telemetry Layer)"]
+        direction LR
+        WebClient["Web 驾驶舱 (浏览器前端)"] <== "WebSocket + JSON (全双工低延迟遥测)" ==> TelemetryGateway["遥测网关 (telemetry_gateway.py)<br/>FastAPI / WebSocket: 8000"]
     end
 
-    AgentHarness["上层 Agent Harness 运行时 (agent_harness.py)<br/>(SceneGraph, Typed Skills, Exit Code 评估)"] <== "ZMQ DEALER" ==> DealerPort
-    MotionService["底层运控与快循环 (motion_service.py)<br/>(50Hz 避障监视, MPPI, 紧急打断)"] <== "ZMQ REQ / PUB" ==> RouterPort
+    subgraph Broker_Layer["2. 异步消息交换中枢 (Central Message Broker)"]
+        Broker["ZeroMQ 核心调度网关 (broker.py)<br/>ROUTER: 5555 (面向控制/客户端) ⟷ [zmq.proxy] ⟷ DEALER: 5556 (面向后端 Worker)"]
+    end
 
-    TelemetryGateway <== "IPC / 状态流" ==> MotionService
+    subgraph Service_Layer["3. 机载分布式微服务集群 (On-Robot Microservices)"]
+        direction LR
+        AgentHarness["<b>【认知决策】agent_harness.py</b><br/>• 3D 场景图黑板 (HMSG)<br/>• Typed Skills 契约抽象<br/>• Thea 退出码判定<br/>• 物理工作空间安全断言"]
+        MotionService["<b>【底层运控】motion_service.py</b><br/>• 50Hz 局部避障快循环<br/>• Lazy Pirate 容错防死锁<br/>• 200ms 死亡之手失步保护<br/>• 毫秒级就地紧急制动"]
+        Ros2Bridge["<b>【生态桥接】ros2_zmq_bridge.py</b><br/>• ROS 2 Nav2 导航堆栈对接<br/>• Action 状态 ⟷ ZMQ PUB<br/>• 进程级隔离彻底消除 GIL 锁"]
+    end
+
+    TelemetryGateway -.->|"IPC / 状态流广播"| MotionService
+    
+    MotionService <== "ZMQ REQ (端口 5555 异步申请 Subgoal)" ==> Broker
+    Broker <== "ZMQ DEALER (端口 5556 双向派发与回传)" ==> AgentHarness
+    Broker <== "ZMQ DEALER (端口 5556 下发物理动作)" ==> Ros2Bridge
+
+    style UI_Layer fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px
+    style Broker_Layer fill:#fefce8,stroke:#eab308,stroke-width:2px
+    style Broker fill:#fef08a,stroke:#ca8a04,stroke-width:2px
+    style Service_Layer fill:#eff6ff,stroke:#3b82f6,stroke-width:2px
+    style AgentHarness fill:#ffffff,stroke:#2563eb,stroke-width:1.5px
+    style MotionService fill:#ffffff,stroke:#16a34a,stroke-width:1.5px
+    style Ros2Bridge fill:#ffffff,stroke:#9333ea,stroke-width:1.5px
 ```
 
 ---
