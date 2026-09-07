@@ -39,7 +39,7 @@
 | **世界模型与智能体** | [世界模型综述](https://tingdeliu.github.io/World-Models-Survey/) | 环境建模与预测、视频生成式世界模型及其在具身任务中的应用 |
 | | [AI Agent 综述](https://tingdeliu.github.io/AI-Agent-Survey/) | 推理范式、记忆与技能、上下文工程、多智能体协作，以及 MCP / WebMCP / A2A / MHS 四层连接协议与安全 |
 | | [Embodied Agent 经典论文](https://tingdeliu.github.io/Embodied-Agent-Papers/) | 具身智能体闭环运行时（AgentOS / Harness）、类型化动作抽象、物理编排、场景图退出码评估与自演化治理 |
-| | [具身Agent架构综述](https://tingdeliu.github.io/Embodied-Agent-Architecture-Survey/) | 软件系统架构、微服务解耦、ZeroMQ 并发通信、快慢双循环异步调度与工业级落地实战 |
+| | [具身Harness架构综述](https://tingdeliu.github.io/Embodied-Agent-Architecture-Survey/) | 软件系统架构、微服务解耦、ZeroMQ 并发通信、快慢双循环异步调度与工业级落地实战 |
 | **学习与训练方法** | [LLM 训练综述](https://tingdeliu.github.io/LLM-Training-Survey/) | 预训练、后训练、对齐、并行策略与推理加速 |
 | | [强化学习综述](https://tingdeliu.github.io/Reinforcement-Learning-Survey/) | 从理论基础到具身智能场景的算法全景 |
 | | [深度学习综述](https://tingdeliu.github.io/Deep-Learning-Survey/) | 网络结构、优化方法与训练技巧的系统梳理 |
