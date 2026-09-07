@@ -22,48 +22,25 @@ excerpt: "全景剖析现代具身智能体（Embodied Agent）的双模块协�
 
 在过去的几年中，学术界在具身导航（VLN/VLA）、大语言模型（LLM）与多模态大模型（VLM）领域取得了突飞猛进的发展。然而，当工程师试图将最顶尖的视觉-语言-动作模型部署到物理世界的真实机器人（如轮式底盘、机械臂、四足或双足人形机器人）上时，往往会遭遇巨大的**“工程断层（Engineering Chasm）”**。
 
-```mermaid
-flowchart TB
-    subgraph Traditional["学术实验代码的单体陷阱 (Monolithic Trap)"]
-        direction TB
-        Mono["main.py (单进程 / 阻塞 while 循环)"]
-        Mono --> S1["RGB-D 相机捕获 (30Hz)"]
-        Mono --> S2["VLM 认知决策 (0.5Hz, 耗显存, 耗时 2s)"]
-        Mono --> S3["局部避障与轨迹追踪 (50Hz)"]
-        Mono --> S4["底层电机驱动通信 (100Hz)"]
-        W1["致命弊端：VLM 推理阻塞 2 秒期间，底盘无法避障直接撞墙；PyTorch CUDA OOM 导致全机失控崩溃"]
-    end
-
-    subgraph DualModule["现代具身智能体双模块协同架构 (Dual-Module Architecture)"]
-        direction TB
-        subgraph Upper["【上层】Embodied Agent Harness (认知驾驭层)"]
-            H1["SceneGraph as Context (空间记忆即上下文)"]
-            H2["Typed Skills 契约抽象 (Command Schema + 心跳流)"]
-            H3["Evaluation as Exit Codes (三态退出码与诊断跟踪)"]
-            H4["Runtime Critics (高频在线裁判与自演化治理)"]
-        end
-
-        subgraph Interlink["【核心枢纽】上下层咬合与协同总线 (Bidirectional Binding)"]
-            B1["Pydantic 强类型契约 ⟷ ZeroMQ 异步网关"]
-            B2["状态黑板 (Blackboard) ⟷ 零拷贝多级缓存"]
-            B3["高频 Critic 事件中断 ⟷ asyncio Task 毫秒级打断"]
-        end
-
-        subgraph Lower["【下层】软件系统工程与分布式架构 (分布式运控底座)"]
-            L1["微服务进程级故障隔离 (Blast Radius 约束)"]
-            L2["通信矩阵：ZeroMQ (ROUTER/DEALER) + WebSocket + ROS2/Zenoh"]
-            L3["快慢双循环调度 (Fast Loop 50Hz ⟷ Slow Loop 0.5Hz)"]
-            L4["高可用容错：Dead-man's Switch (200ms) + 熔断降级"]
-        end
-
-        Upper <===> Interlink
-        Interlink <===> Lower
-    end
-```
-
 ## 1.1 具身智能的系统级困境与三大断层
 
 当具身智能体从虚拟仿真（Habitat / Isaac Sim）走向物理世界时，传统的单体软件架构暴露出三大不可逾越的鸿沟：
+
+```mermaid
+flowchart LR
+    subgraph Mono["传统单体进程 (main.py) - 强耦合死锁陷阱"]
+        direction LR
+        S1["4K 视觉流捕获<br/>(30Hz)"] --> S2["VLM 认知推理<br/><b>(0.5Hz, 耗时 1~3s)</b>"]
+        S2 --> S3["局部避障追踪<br/>(50Hz)"]
+        S3 --> S4["电机底层驱动<br/>(1000Hz)"]
+    end
+
+    Trap["⚠️ 致命缺陷<br/>• 慢思考期间底盘失控撞墙<br/>• CUDA OOM 导致全机殉爆崩溃"]
+    Mono -.->|"同步阻塞与内存溢出"| Trap
+
+    style Mono fill:#fef2f2,stroke:#f87171,stroke-width:1.5px
+    style Trap fill:#fee2e2,stroke:#ef4444,stroke-width:2px,color:#991b1b
+```
 
 1. **多时钟域撕裂（Multi-Clock Domain Conflict）**：
    - **快反射（Fast Loop）**：底层硬件伺服（1000Hz）、位姿估计（EKF/LIO @ 50Hz）、局部路径动态避障（MPPI/TEB @ 30~50Hz）属于强实时物理控制，计算延迟必须严格控制在微秒至毫秒级。
@@ -86,6 +63,41 @@ flowchart TB
   将前沿大模型的概率性输出转化为可控、可信的物理世界行为。负责**上下文构建、动作规约、过程监控、成败评估与自演化恢复**。
 - **下层软件系统工程与分布式架构（系统运行底座）**：
   通过**微服务解耦、零拷贝共享内存、ZeroMQ/Zenoh 异步并发网关、快慢双循环调度与高可用韧性设计**，为上层认知提供亚毫秒级、强确定性、高吞吐的物理世界支撑底座。
+
+```mermaid
+flowchart TD
+    subgraph Upper["【上层】Embodied Agent Harness (认知驾驭层)"]
+        direction LR
+        H1["<b>空间记忆即上下文</b><br/>SceneGraph as Context"]
+        H2["<b>标准化技能契约</b><br/>Typed Skills & Schemas"]
+        H3["<b>退出码与保守校验</b><br/>Evaluation as Exit Codes"]
+        H4["<b>高频在线裁判</b><br/>Runtime Critics (20~50Hz)"]
+    end
+
+    subgraph Bridge["【核心枢纽】上下层咬合总线 (Bidirectional Binding)"]
+        direction LR
+        B1["<b>强类型契约 RPC</b><br/>Pydantic ⟷ ZMQ 网关"]
+        B2["<b>状态黑板共享</b><br/>零拷贝 SHM / 向量过滤"]
+        B3["<b>毫秒级异常打断</b><br/>Critic 中断 ⟷ asyncio 取消"]
+    end
+
+    subgraph Lower["【下层】软件系统工程与分布式架构 (分布式运控底座)"]
+        direction LR
+        L1["<b>微服务故障隔离</b><br/>限制 CUDA OOM 爆炸半径"]
+        L2["<b>多协议通信矩阵</b><br/>ZeroMQ + WebSocket + ROS2"]
+        L3["<b>快慢双循环调度</b><br/>快反射 50Hz ⟷ 慢思考 0.5Hz"]
+        L4["<b>系统韧性工程</b><br/>200ms 失步刹车 + 指数熔断"]
+    end
+
+    Upper ==>|"① 意图编译 / 退出码判定"| Bridge
+    Bridge ==>|"② 局部规划 / 硬件驱动"| Lower
+    Lower ==>|"③ 状态流心跳 / 50Hz 异常打断"| Bridge
+    Bridge ==>|"④ 上下文注水 / 纠偏触发"| Upper
+
+    style Upper fill:#eff6ff,stroke:#3b82f6,stroke-width:2px
+    style Bridge fill:#fefce8,stroke:#eab308,stroke-width:2px
+    style Lower fill:#f0fdf4,stroke:#22c55e,stroke-width:2px
+```
 
 ---
 
