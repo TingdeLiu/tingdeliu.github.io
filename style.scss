@@ -703,6 +703,35 @@ nav {
     text-align: center;
   }
 
+  details {
+    margin: 1.2rem 0 1.6rem;
+    padding: 0 1rem;
+    background: $oc-gray-0;
+    border: 1px solid $table-border-color;
+    border-radius: 8px;
+
+    > summary {
+      padding: 0.7rem 0;
+      color: $link-color;
+      font-weight: 600;
+      cursor: pointer;
+
+      &:focus-visible {
+        outline: 2px solid $oc-blue-4;
+        outline-offset: 2px;
+      }
+    }
+
+    &[open] {
+      padding-bottom: 0.4rem;
+
+      > summary {
+        margin-bottom: 0.4rem;
+        border-bottom: 1px solid $table-border-color;
+      }
+    }
+  }
+
   img.is-zoomable {
     cursor: zoom-in;
 

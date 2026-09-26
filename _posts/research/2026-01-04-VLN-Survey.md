@@ -1,25 +1,35 @@
 ---
 layout: post
 title: "VLN 综述"
-date:   2026-09-03
+date:   2026-09-26
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "系统梳理视觉语言导航（VLN）的任务定义、方法演进、数据集、模拟器与评测体系，并总结 2025–2026 年端到端 VLA、快慢双系统、空间记忆、Agent 与世界模型等前沿路线。"
+excerpt: "从任务、状态与动作接口、训练信号和闭环评测梳理 VLN；比较流式策略、快慢控制、空间记忆、Agent 与世界模型，给出带来源的数据集选型与开放问题分析。"
 ---
 
-> **修订说明（2026 年 7 月重构，9 月修订）**：本文不再按论文逐篇罗列，而是围绕“任务设定—系统架构—训练数据—真实部署”四条主线组织内容。最新模型成绩与论文精读统一维护在配套文章 [VLN 经典论文](/VLN-Papers/) 中，避免综述正文因榜单快速变化而失效。
+> **修订于 2026-09-26**：本文围绕任务、机制、训练与评测组织内容；关键规模和协议链接至原始来源，跨论文分析注明证据边界。详细论文解读见 [VLN 经典论文](/VLN-Papers/)与[扩展篇](/VLN-Papers-Extended/)，覆盖范围见[第 9.4 节](#survey-scope)。
 
 
 ## 阅读导航
 
-- **第一次接触 VLN**：先读第 1–2 节，建立任务边界与核心问题。
-- **界定任务设定**：第 4–5 节按推理复杂度、交互方式、物理真实性与应用场景划分任务，避免把不可比的设定放进同一张表。
-- **做模型研究**：重点读第 3 节的方法谱系，以及第 8 节的评测口径。
-- **准备实验**：从第 6–7 节选择数据集与模拟器，不要跨任务设定直接比较 SR / SPL。
-- **追踪最新工作**：查看 [VLN 经典论文与性能排行榜](/VLN-Papers/)，其中按连续环境、离散全景和目标导航分别维护结果。
+**本文回答三个问题：VLN 在解决什么任务，模型靠什么完成导航，以及怎样证明改进有效。** 阅读时可沿着“任务设定 → 状态与动作接口 → 训练信号 → 闭环评测”这条线展开；数据集目录和模拟器细节适合在确定实验目标后按需查阅。
+
+| 你现在的问题 | 本文入口 | 配套论文阅读 |
+|:---|:---|:---|
+| 指令如何变成机器人动作？ | [任务与系统闭环](#survey-basics) | [StreamVLN](/VLN-Papers/#streamvln)、[DualVLN](/VLN-Papers/#dualvln) |
+| 长历史应该留在上下文还是写进地图？ | [地图与空间记忆](#survey-memory) | [MapNav](/VLN-Papers/#mapnav)、[MemVLN](/VLN-Papers/#memvln) |
+| 架构之外，还能怎样训练策略？ | [数据与训练范式](#survey-training) | [StreamVLN](/VLN-Papers/#streamvln)、[ReflectVLN](/VLN-Papers/#reflectvln) |
+| 应该选什么数据与实验环境？ | [数据集](#survey-datasets)、[模拟器](#survey-simulators) | 先确定观测、动作和划分，再查同设定结果 |
+| SR 提高是否意味着导航更好？ | [评测体系](#survey-evaluation) | [分任务性能表](/VLN-Papers/)与原论文实验协议 |
+| 方法之间的真正差异是什么？ | [跨论文比较](#survey-comparison) | 按状态、接口和预算比较机制 |
+| 哪些问题仍未解决？ | [证据与开放问题](#survey-open-questions) | 区分论文结论和本文研究建议 |
+| 怎样从论文走到可复现实验？ | [实验与部署流程](#survey-practice) | 按论文版本固定代码、权重和数据配置 |
+
+**先记住四点**：到达终点与遵循沿途指令是两种能力；连续环境与完整机器人动力学是两个层次；缓存计算状态与记忆空间经验有不同用途；模型的推理速度需要放到完整控制闭环中评估。
+
 
 # 1. 引言
 
@@ -33,6 +43,8 @@ excerpt: "系统梳理视觉语言导航（VLN）的任务定义、方法演进�
   <img src="/images/vln/vln-system-overview.jpg" width="80%" alt="视觉语言导航（VLN）具身闭环系统全景" />
   <figcaption>图 1.1：视觉语言导航（VLN）指令接地、空间记忆、拓扑建图与闭环动作决策全景示意图</figcaption>
 </div>
+
+<a id="survey-basics"></a>
 
 # 2. VLN 基本概述
 
@@ -57,7 +69,7 @@ flowchart LR
     A --> E["环境状态变化"]
     E --> O
     E --> H
-    S -->|是| Z["任务完成"]
+    S -->|是| Z["结束轨迹并评估是否成功"]
 
     style I fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
     style O fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
@@ -85,7 +97,7 @@ flowchart LR
 | 范式 | 主要输入 | 主要考察能力 | 典型输出 |
 |:---|:---|:---|:---|
 | **指令跟随 VLN** | 路线级自然语言指令 | 指令进度、地标对齐、路径忠实度 | 视点、动作或路点 |
-| **ObjectNav / ImageNav** | 目标类别或目标图像 | 开放词汇搜索、探索效率、目标定位 | 探索方向或局部目标 |
+| **ObjectNav / ImageNav** | 目标类别或目标图像 | 目标搜索、探索效率、目标定位（是否开放词汇依协议而定） | 探索方向或局部目标 |
 | **通用 VLA** | 图像/视频、语言目标、机器人状态 | 多任务迁移与动作生成 | 动作 token、轨迹或控制量 |
 
 ObjectNav 可以为 VLN 提供语义探索模块，VLA 也可以成为 VLN 的策略底座，但它们的成绩不能自动并入标准 VLN 榜单。公平比较必须固定任务输入、传感器、动作接口、数据划分与额外训练数据。
@@ -164,13 +176,13 @@ flowchart LR
     B --> C["2021–2023 图规划与长历史"]
     C --> D["2023–2024 VLM 与视频策略"]
     D --> E["2025 快慢系统与规模化数据"]
-    E --> F["2026 Agent 世界模型与统一导航"]
+    E --> F["2026 Agent 与统一导航持续探索"]
 
     A1["Seq2Seq Speaker-Follower"] -.-> A
     B1["PREVALENT VLN-BERT HAMT"] -.-> B
     C1["DUET ETPNav ScaleVLN"] -.-> C
-    D1["NaVid StreamVLN NavGPT-2"] -.-> D
-    E1["DualVLN NavFoM OmniNav"] -.-> E
+    D1["NaVid NavGPT-2"] -.-> D
+    E1["StreamVLN DualVLN NavFoM OmniNav"] -.-> E
     F1["AgentVLN Qwen-RobotNav NavWAM"] -.-> F
 
     style A fill:#f8f9fa,stroke:#868e96,stroke-width:2px
@@ -194,28 +206,11 @@ flowchart LR
 | 数据 | 合成轨迹、多任务联合训练、自动进度描述 | 数据量、场景多样性和标注质量谁更关键？ |
 | 部署 | 量化、缓存、边缘推理、安全控制器 | 仿真 SR / SPL 能否预测真实可靠性？ |
 
-## 2.7 2026 年的五个明显变化
+<a id="27-2026-年的五个明显变化"></a>
 
-```mermaid
-flowchart TB
-    C["2026 VLN 系统"]
-    A["统一动作接口"] --> C
-    B["快慢分层控制"] --> C
-    M["结构化空间记忆"] --> C
-    G["Agent 主动感知与恢复"] --> C
-    W["世界预测与动作联合建模"] --> C
-    C --> R["目标: 可扩展 可解释 可实时 可部署"]
+## 2.7 近期研究的交汇点
 
-    style C fill:#1971c2,stroke:#1971c2,stroke-width:3px,color:#ffffff
-    style A fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
-    style B fill:#e5dbff,stroke:#5f3dc4,stroke-width:2px
-    style M fill:#fff4e6,stroke:#e67700,stroke-width:2px
-    style G fill:#ffe8cc,stroke:#d9480f,stroke-width:2px
-    style W fill:#f3d9fa,stroke:#862e9c,stroke-width:2px
-    style R fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
-```
-
-当前最值得关注的不是“某一种架构统治 VLN”，而是统一预训练、结构化状态、分层控制和失败恢复之间能否形成稳定、可复现的接口。
+本文将近期工作归纳为五个可组合方向：统一策略、分层控制、空间记忆、Agent 编排与未来预测。这是帮助比较机制的分析框架，不是五个互斥类别，也不意味着这些思想都始于 2026 年。具体设计见第 3 节，证据边界见第 9.3 节。
 
 # 3. 主流 VLN 研究路线
 
@@ -277,7 +272,8 @@ flowchart TB
 | **图规划与显式记忆** | 拓扑图、语义图、局部地图 | 全局节点 + 局部动作 | 图监督、路径与进度目标 | DUET、ETPNav、MapNav |
 | **视频 VLM / VLA** | 视频上下文、KV cache、动作 token | 离散动作、路点或动作块 | 视觉语言数据 + 导航轨迹 | NaVid、StreamVLN、NavFoM |
 | **导航基础模型** | 多任务上下文、可配置观测、统一空间表征 | 多任务模式与参数化接口 | 大规模联合训练、指令微调 | OmniNav、OneVLA、Qwen-RobotNav |
-| **Agent / 世界动作模型** | 经验记忆、技能状态、预测未来 | 技能、子任务、未来观测与动作联合序列 | 反思数据、在线 RL、世界预测 | AgentVLN、EvoMemNav、NavWAM |
+| **Agent 编排** | 任务进度、技能返回与经验状态 | 工具调用或子任务 | 依实现使用监督、提示或环境反馈，不必在线训练 | AgentVLN、Qwen-RobotNav 系统 |
+| **世界动作模型** | 未来观测与动作的联合表示 | 轨迹或动作块 | 世界预测、动作及可选的进度监督 | AstraNav-World、NavWAM（图像目标导航） |
 
 现代模型的提升往往同时来自更大的基模、更多轨迹、额外深度或地图先验以及新的系统接口。阅读论文时，应把“架构创新”和“资源增加”分开归因。
 
@@ -286,8 +282,8 @@ flowchart TB
 单系统方法把指令、视觉历史和动作历史放入统一模型，直接预测下一步动作、路点或动作块。它的优势是训练目标统一、数据扩展直接；瓶颈则是长上下文成本、空间漂移和失败难以解释。
 
 <div align="center">
-  <img src="/images/vln/StreamVLN-framework-overview.webp" width="100%" alt="StreamVLN 流式端到端导航框架" />
-<figcaption>StreamVLN：以交错视觉—动作序列实现流式端到端导航</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/StreamVLN-framework-overview.webp" width="100%" alt="StreamVLN 流式端到端导航框架" />
+<figcaption>StreamVLN：以交错视觉—动作序列实现流式导航，参见<a href="https://arxiv.org/abs/2507.05240v2">原论文 v2</a>。</figcaption>
 </div>
 
 | 关键设计 | 解决的问题 | 代表工作 |
@@ -297,15 +293,15 @@ flowchart TB
 | 可配置观测接口 | 推理时调整历史长度、相机权重和任务模式 | [Qwen-RobotNav](/VLN-Papers/#qwen-robotnav) |
 | 量化与边缘部署 | 降低大模型闭环推理延迟 | [LocalNav](/VLN-Papers/#localnav) |
 
-**适用场景**：数据规模充足、接口相对统一、强调端到端训练和部署简洁性。若任务涉及长程回溯、动态重规划或严格安全约束，通常仍需要外部记忆或控制模块。
+**本文选型建议**：数据规模充足、接口相对统一、强调端到端训练和部署简洁性。若任务涉及长程回溯、动态重规划或严格安全约束，通常仍需要外部记忆或控制模块。
 
 ## 3.3 快慢双系统：高层语义推理与高频执行解耦
 
 快慢系统按时间尺度分工：慢系统低频理解指令、检查进度并产生子目标；快系统持续把子目标转化为路点或轨迹。它并不等价于“使用两个模型”，关键在于两层之间是否具有稳定、可校验的接口。
 
 <div align="center">
-  <img src="/images/vln/dualvln-framework-overview.webp" width="100%" alt="DualVLN 快慢双系统框架" />
-<figcaption>DualVLN：慢系统产生语义目标，快系统生成实时轨迹</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/dualvln-framework-overview.webp" width="100%" alt="DualVLN 快慢双系统框架" />
+<figcaption>DualVLN：慢系统提供目标与特征，快系统生成轨迹，参见<a href="https://arxiv.org/abs/2512.08186v1">原论文</a>。</figcaption>
 </div>
 
 ```mermaid
@@ -329,17 +325,19 @@ flowchart LR
 
 | 系统接口 | 优点 | 主要风险 | 代表工作 |
 |:---|:---|:---|:---|
-| 像素目标 | 直观、便于视觉落地 | 深度歧义与可达性不确定 | [DualVLN](/VLN-Papers/#dualvln)、[Goal2Pixel](/VLN-Papers/#goal2pixel) |
+| 像素目标（可结合潜在特征） | 直观、便于视觉落地 | 深度歧义与可达性不确定 | [DualVLN](/VLN-Papers/#dualvln)、[Goal2Pixel](/VLN-Papers/#goal2pixel) |
 | 前沿或拓扑路点 | 适合全局探索与回溯 | 依赖地图质量 | [OmniNav](/VLN-Papers/#omninav)、[SEDualVLN](/VLN-Papers/#sedualvln) |
 | 共享潜在特征 | 信息密度高、可联合优化 | 可解释性和跨模型兼容性弱 | [Hydra-Nav](/VLN-Papers/#hydra-nav) |
 | 指向或候选验证 | 可以结合在线强化学习 | 训练与推理系统更复杂 | [Robostral Navigate](/VLN-Papers/#robostral-navigate) |
+
+<a id="survey-memory"></a>
 
 ## 3.4 地图与空间记忆：让历史变成可查询的环境状态
 
 VLM 能识别“厨房”和“沙发”，却不天然知道它们在三维空间中的稳定位置。地图与记忆路线把历史观测组织成拓扑图、BEV、3D Gaussian、分层场景图或混合检索库，为长程规划、回溯和错误诊断提供外部状态。
 
 <div align="center">
-  <img src="/images/vln/HSGM-framework-overview.webp" width="100%" alt="HSGM 分层场景图记忆框架" />
+  <img loading="lazy" decoding="async" src="/images/vln/HSGM-framework-overview.webp" width="100%" alt="HSGM 分层场景图记忆框架" />
 <figcaption>HSGM：分层场景图同时维护局部观测、对象关系与全局路径状态</figcaption>
 </div>
 
@@ -349,79 +347,79 @@ VLM 能识别“厨房”和“沙发”，却不天然知道它们在三维空�
 | BEV / 语义地图 | 几何可达性与局部规划 | 位姿误差会持续累积 | [MapNav](/VLN-Papers/#mapnav)、[GA-VLN](/VLN-Papers/#ga-vln) |
 | 3D Gaussian 记忆 | 可渲染的连续三维语义 | 建图成本与动态更新复杂 | [3DGSNav](/VLN-Papers/#nav-3dgs)、[GSMem](/VLN-Papers-Extended/#gsmem) |
 | 分层场景图 | 房间—对象—路径的多尺度推理 | 图构建和关系更新依赖感知质量 | [HSGM](/VLN-Papers/#hsgm) |
-| 检索式经验记忆 | 复用历史成功与失败经验 | 错误检索可能放大偏差 | [VLN-Cache](/VLN-Papers/#vln-cache)、[EvoMemNav](/VLN-Papers/#evomemnav) |
+| 经验与图先验记忆 | 利用历史访问结果调整探索与决策 | 过时或错误经验可能放大偏差 | [EvoMemNav](/VLN-Papers/#evomemnav)（目标导航与多模态目标设定） |
+
+**计算缓存与任务记忆需要区分。** [VLN-Cache](https://arxiv.org/abs/2603.07080) 通过跨帧复用 token 计算降低推理成本，并处理视角移动与任务阶段变化造成的缓存失效；它不等同于保存成功/失败经验的检索库。评估前者应观察加速与精度损失，评估后者应观察长程决策、回溯和恢复收益。
 
 地图不是天然正确的“真值”。优秀系统必须同时回答如何写入、何时更新、如何处理冲突，以及何时遗忘过时信息。
 
-## 3.5 通用导航 Agent：上层规划器如何编排一个共享导航基模
+<a id="35-通用导航-agent上层规划器如何编排一个共享导航基模"></a>
 
-Agentic Navigation 不只是“让 VLM 调用几个技能”。参考 [Qwen-RobotNav](https://arxiv.org/abs/2606.18112) 的系统设计，更完整的通用导航 Agent 包含两个不同时间尺度：**上层 Agent 维护全局任务并决定当前应该执行哪种导航行为；下层导航基模消费视觉历史并持续输出局部轨迹。** 二者之间通过任务模式、观测参数和压缩后的轨迹证据通信。
+## 3.5 通用导航 Agent：任务编排与可调用的导航能力
 
-> **关键边界**：Qwen-RobotNav 本身是可重配置的通用导航基模，而不是完整 Agent。只有当上层规划器、导航 Harness、证据笔记本与机器人闭环组合起来时，系统才具备任务分解、模式切换、长期记忆和跨回合恢复能力。
+Agent 路线关注的核心是**谁维护任务状态、谁选择下一项能力、执行反馈如何改变后续决策**。它与快慢控制可以共存，但高层生成一段推理文本，并不足以说明系统能够编排工具或从失败中恢复。
+
+| 组织方式 | 代表设计 | 与其他路线的关系 | 应单独验证什么 |
+|:---|:---|:---|:---|
+| VLM 调用感知与规划技能 | [AgentVLN](https://arxiv.org/abs/2603.17670) 将高层语义推理与技能库解耦 | 可以使用拓扑记忆与局部控制 | 工具选择和纠错的收益，是否超出技能本身的收益 |
+| 上层规划器调用共享导航基模 | [Qwen-RobotNav](https://arxiv.org/abs/2606.18112v3) 提供任务模式、token 预算和相机权重等可配置接口 | 共享策略承担具体导航，上层选择模式与观测配置 | 动态配置是否优于固定配置，调用代价是否可接受 |
+| 用访问反馈更新空间经验 | [EvoMemNav](/VLN-Papers/#evomemnav) 提供相邻目标导航任务中的设计参考 | 显式记忆参与探索与后续选择 | 经验有效期、错误写入、跨回合信息是否符合评测协议 |
+
+<a id="351-通用导航-agent-的五层结构"></a>
+
+### 3.5.1 基模能力与 Agent 能力分别评测
+
+Qwen-RobotNav 是可用于 Agent 系统的导航模型。评价时应区分底层导航成绩与加入上层编排后的系统成绩：前者反映模型及其输入配置，后者还包含任务分解、模式切换和运行时反馈。不能把整个系统的收益全部记在基模或规划器任一方上。
 
 <div align="center">
-  <img src="/images/vln/Qwen-RobotNav-agentic-navigation.webp" width="100%" alt="Qwen-RobotNav 通用导航 Agent 系统" />
-<figcaption>Qwen-RobotNav 通用导航 Agent：上层规划器动态配置导航模式与视觉上下文，执行结果被压缩为轨迹证据</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/Qwen-RobotNav-agentic-navigation.webp" width="100%" alt="Qwen-RobotNav 在上层规划器驱动的导航系统中的应用" />
+<figcaption>Qwen-RobotNav 系统示例：导航模型通过可配置接口参与上层任务编排。具体实现见<a href="https://arxiv.org/abs/2606.18112v3">技术报告</a>。</figcaption>
 </div>
 
-### 3.5.1 通用导航 Agent 的五层结构
+<a id="352-qwen-robotnav-式-agentic-导航闭环"></a>
 
-| 层级 | 输入与职责 | 输出接口 | Qwen-RobotNav 中的对应设计 |
-|:---|:---|:---|:---|
-| **任务规划器** | 理解开放目标，拆分当前子任务，决定何时切换行为 | 任务模式 $$\tau_i$$ 与观测配置 $$\Phi_i$$ | 上层规划器在指令跟随、目标搜索、主动追踪等模式间切换 |
-| **参数化导航工具** | 将上层意图转成导航基模可以执行的调用 | Token 预算 $B$、时间衰减 $\gamma$、相机权重 $$w_c$$ | 推理期改变视觉历史的时间跨度、分辨率与视角优先级 |
-| **共享导航基模** | 融合指令、多视角历史和机器人状态 | 未来路点或轨迹片段 | 单个 Qwen-RobotNav 跨任务复用同一感知—规划底座 |
-| **导航 Harness** | 执行轨迹、收集显著地标和目标状态、判断工具调用结果 | 紧凑轨迹证据 | 避免把完整视频反复回灌给上层大模型 |
-| **证据笔记本** | 跨回合保存已访问区域、关键发现、失败原因与子任务进度 | 全局任务记忆 | 为下一轮规划提供长期状态和恢复依据 |
+### 3.5.2 一个可检查的 Agent 闭环
 
-这里最重要的变化是：上层 Agent 不再直接逐帧输出机器人动作，而是**配置和调用一个可泛化的导航工具**。这既降低了长视频上下文成本，也允许同一底座在长程搜索时保留更多历史、在目标追踪时强调最新画面。
+本文采用的通用分析框架是：任务状态 → 选择子任务与工具 → 执行 → 读取结果 → 更新任务状态。每个转换都应能在日志中检查：工具失败是否被识别、是否换了策略、是否重复调用无效动作、何时终止。这个框架是对系统职责的归纳，不是要求所有论文采用同一套模块。
 
-### 3.5.2 Qwen-RobotNav 式 Agentic 导航闭环
+下图是用于分析系统的通用闭环示意，不要求所有论文采用同名模块。关键区别在于：导航工具返回执行证据后，上层是否更新任务状态，以及失败后是否真的改变决策。
 
 ```mermaid
 sequenceDiagram
-    participant U as 用户目标
-    participant P as 上层规划器
-    participant N as 证据笔记本
-    participant H as 导航 Harness
-    participant Q as 通用导航基模
-    participant R as 机器人
-    U->>P: 提供开放导航任务
-    P->>N: 检索已访问区域与历史证据
-    N-->>P: 返回任务进度和关键地标
-    P->>P: 拆分子任务并选择任务模式
-    P->>H: 下发模式 tau 与观测配置 Phi
-    H->>Q: 按预算 衰减和相机权重编码视觉历史
-    Q-->>H: 输出未来路点或轨迹片段
-    H->>R: 执行局部轨迹
-    R-->>H: 返回新观测与执行状态
-    H->>N: 写入压缩轨迹证据
-    alt 子任务未完成
-        N-->>P: 返回新证据或失败原因
-        P->>H: 切换模式或重配上下文
-    else 子任务完成
-        N-->>P: 更新全局进度
-        P->>P: 选择下一个子任务或停止
+    participant Planner as 任务规划器
+    participant Memory as 状态与记忆
+    participant Navigator as 导航策略
+    participant Env as 环境与执行器
+    Planner->>Memory: 查询已完成子任务与已探索区域
+    Memory-->>Planner: 返回状态及其观测依据
+    Planner->>Navigator: 下发当前子目标与约束
+    Navigator->>Env: 执行动作或局部轨迹
+    Env-->>Navigator: 新观测、位姿或执行反馈
+    Navigator-->>Planner: 子目标进展与失败证据
+    alt 证据支持子目标完成
+        Planner->>Memory: 记录完成状态与关键观测
+    else 未完成或执行受阻
+        Planner->>Memory: 记录尝试与失败条件
+        Planner->>Navigator: 调整子目标或重试策略
     end
 ```
 
-### 3.5.3 三类 Agentic VLN 设计
+例如，“穿过走廊去厨房找杯子”至少包含到达厨房与确认杯子两个判定。检测到一个杯子不能证明房间条件已满足；输出“重新规划”也不能证明恢复有效。日志需要对应到实际观测、工具调用及之后的轨迹，才能分析失败发生在任务拆解、空间记忆还是执行层。
 
-| 范式 | Agent 控制什么 | 专用模块如何使用 | 代表工作 |
-|:---|:---|:---|:---|
-| **VLM-as-Brain** | 直接选择感知、建图、规划和纠错技能 | 技能库向 VLM 返回结构化空间证据 | [AgentVLN](/VLN-Papers/#agentvln)、[Skill-Nav](/VLN-Papers/#skill-nav)、[SysNav](/VLN-Papers/#sysnav) |
-| **Planner + Generalist Navigator** | 选择子任务、导航模式和上下文消费策略 | 单一通用导航基模作为高频工具反复调用 | [Qwen-RobotNav](/VLN-Papers/#qwen-robotnav)、[OmniNav](/VLN-Papers/#omninav) |
-| **Memory-augmented Agent** | 决定何时检索、写入、回退和重新规划 | 情景记忆与空间记忆持续更新 | [VLN-Cache](/VLN-Papers/#vln-cache)、[EvoMemNav](/VLN-Papers/#evomemnav) |
+<a id="353-三类-agentic-vln-设计"></a>
 
-评价通用导航 Agent 时，除 SR / SPL 外，还应报告子任务完成率、模式切换次数、证据压缩率、Token 消耗、恢复成功率、控制频率和人工介入次数。否则很难判断性能来自真正的 Agent 协作，还是来自更大的底层导航模型。
+### 3.5.3 恢复能力的证据边界
+
+建议在相同底层技能、模型和预算下，比较固定执行流程与自适应编排，并分别统计任务成功、恢复率、工具调用、延迟及人工介入。若系统以更多重试换来更高成功率，这也是有用结果，但需要同时呈现成本，才能判断是否适合部署。
+
 
 ## 3.6 世界模型与世界动作模型：从预测未来到利用未来
 
-世界模型路线希望在真正执行之前预测“采取某个动作后会看到什么”。早期方法把未来视觉生成作为外部预测器；新的世界动作模型则联合建模未来观测、目标进度、价值和动作，使预测结果直接参与闭环控制。
+世界模型路线希望在执行前预测动作的后果。有的方法将预测交给外部规划器，有的方法将预测与动作联合学习，部分方法还加入目标进度或价值监督。下面的图是功能归纳，不表示每篇论文都实现了其中全部模块。
 
 <div align="center">
-  <img src="/images/vln/AstraNav-World-architecture.webp" width="100%" alt="AstraNav-World 世界模型架构" />
-<figcaption>AstraNav-World：在统一框架中联合更新未来视觉状态与动作序列</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/AstraNav-World-architecture.webp" width="100%" alt="AstraNav-World 世界模型架构" />
+<figcaption>AstraNav-World：联合更新未来视觉状态与动作序列，参见<a href="https://arxiv.org/abs/2512.21714v2">原论文 v2</a>。</figcaption>
 </div>
 
 ```mermaid
@@ -451,7 +449,11 @@ flowchart LR
 
 这一方向最容易被视觉效果误导。真正有意义的证据不是生成帧“看起来合理”，而是闭环 SR / SPL、碰撞率和真实机器人控制是否改善，以及预测误差能否被新观测及时纠正。
 
+**任务边界**：[NavWAM](https://arxiv.org/abs/2606.13494)评估的是图像目标导航。它为预测与控制结合提供参考，不能将其结果直接并入路线指令 VLN 榜单。NWM 等视觉导航世界模型也应先核对目标条件，再讨论与语言导航的联系。
+
 ## 3.7 五条路线如何选择
+
+以下是基于系统职责的选型建议，不是统一条件下的性能排名。
 
 | 研究目标 | 优先路线 | 建议组合 | 重点报告 |
 |:---|:---|:---|:---|
@@ -471,6 +473,51 @@ flowchart LR
 配套文章 [VLN 经典论文与性能排行榜](/VLN-Papers/) 按连续环境、离散全景和目标导航分别维护结果，适合用于进一步核对同设定性能。
 
 
+<a id="survey-training"></a>
+
+## 3.8 数据与训练范式：策略如何学会导航与纠错
+
+前面的五条路线描述系统如何组织信息，训练范式则决定模型从什么反馈中学习。两者是独立的选择：单系统和快慢系统都可以使用模仿学习、数据增强或强化学习；使用反思文本也不意味着模型在部署时会更新权重。
+
+| 训练方式 | 学习信号 | 主要用途 | 需要单独验证的风险 |
+|:---|:---|:---|:---|
+| 行为克隆 / 监督微调 | 专家轨迹中的观测—动作配对 | 建立指令与动作之间的基础映射 | 专家状态上的预测准确率不能说明偏航后能恢复 |
+| 策略采样与纠错数据 | 模型实际访问状态上的专家纠正或恢复轨迹 | 覆盖训练轨迹之外的状态 | 专家是否使用部署时不可获得的地图或目标信息 |
+| 跨模态预训练与联合训练 | 图文、视频、指令—轨迹及多任务数据 | 迁移语义知识与共享空间表征 | 数据增加与架构改动的收益是否分开比较 |
+| 合成指令与场景扩展 | 自动生成的路径、描述和任务 | 扩大语言、场景与路径覆盖 | 指令是否可执行，是否包含歧义或场景泄漏 |
+| 强化学习 | 到达、进度、路径成本等环境反馈 | 优化闭环行为与长期收益 | 奖励是否鼓励捷径、反复探索或不合理停止 |
+| 辅助预测与反思监督 | 进度、几何、未来状态或错误解释 | 为策略提供中间学习信号 | 辅助任务更准是否真的带来导航改善 |
+
+可结合 [StreamVLN](/VLN-Papers/#streamvln) 的训练数据组织、[ReflectVLN](/VLN-Papers/#reflectvln) 的反思数据构建阅读本节；具体训练阶段、数据配比和监督形式以各自论文为准。
+
+**一个贯穿训练与评测的例子**：指令要求“经过沙发后左转，在第二扇门前停下”。成功轨迹可以教会模型顺序和动作，但不足以覆盖“错过左转路口”的状态。要验证纠错能力，可以在固定位置引入同等程度的偏航，检查策略能否发现进度不符、返回正确路口并继续任务，同时报告额外路径、恢复率与最终成功率。只增加成功示范或更长的推理文本，并不能直接证明这种能力。
+
+建议用三个层次组织消融：先固定数据和基模比较模块，再固定架构比较数据，最后在相同硬件和推理预算下比较完整系统。若无法控制某项条件，应明确说明差异，避免把所有提升归因于一种设计。
+
+<a id="survey-comparison"></a>
+
+## 3.9 跨论文比较：相似名称背后的不同设计
+
+以下比较依据原论文中的机制描述；“需要验证”一栏是本文提出的实验建议，不是这些论文已经完成的统一对照实验。各论文的训练数据、传感器和控制接口不同，因此本表不做总排名。
+
+| 工作 | 核心设计事实 | 与其他方法比较时的关键区别 | 需要验证的边界 |
+|:---|:---|:---|:---|
+| [DUET](https://arxiv.org/abs/2202.11742) | 联合全局拓扑与局部观测决策 | 全局/局部空间尺度不等于高低频机器人控制 | 离散导航图上的收益能否迁移到自建图和连续执行 |
+| [ETPNav](https://arxiv.org/abs/2304.03047v3) | 在线路点拓扑建图、高层规划与避障控制 | 将图规划和连续环境执行结合 | 路点误差、地图更新与控制器分别贡献多少 |
+| [StreamVLN](https://arxiv.org/abs/2507.05240v2) | 流式上下文、慢更新记忆及缓存复用 | SlowFast 主要描述上下文更新机制 | 相同历史和计算预算下，压缩是否保留关键地标 |
+| [DualVLN](https://arxiv.org/abs/2512.08186v1) | VLM 产生中期目标，轻量策略利用像素目标及潜在特征生成轨迹 | 快慢分工发生在语义规划与动作执行之间 | 上层目标偏差和延迟能否被下层吸收 |
+| [AgentVLN](https://arxiv.org/abs/2603.17670) | VLM 与技能库协作，并加入纠错与探索 | 显式编排感知和规划能力 | 固定技能库后，自适应编排还有多少收益 |
+| [NWM](https://arxiv.org/abs/2412.03572v2) | 用动作条件的未来视觉预测支持轨迹规划或排序 | 是视觉导航世界模型，并非标准 VLN 路线指令评测的同义词 | 未来预测如何转化为语言约束下的闭环收益 |
+
+**比较一：上下文管理与控制分层解决不同瓶颈。** StreamVLN 的快慢上下文主要处理历史信息与计算成本；DualVLN 的快慢系统把语义决策和局部轨迹执行分开。二者都涉及时间尺度，但并非同一个架构轴。一个系统原则上可以同时采用流式记忆与分层控制；是否值得组合，要以同预算消融验证。
+
+**比较二：地图把历史组织为空间结构，同时引入新的误差来源。** DUET 与 ETPNav 提供了全局状态参与决策的实例；从已知离散图到在线建图时，可达性与连接关系本身需要估计。因此，地图路线与隐式记忆的比较应同时报告地图输入权限和建图代价，不能把高质量深度、位姿带来的收益全部归因于表示形式。
+
+**比较三：生成未来与选择好动作之间仍隔着一个决策问题。** NWM 的预测用于规划或候选排序，而 [AstraNav-World](https://arxiv.org/abs/2512.21714v2)探索视觉与动作联合更新。本文的判断是：这两类设计都需要证明，在固定计算预算时，预测模块比增加候选搜索或加强直接策略更有用；视觉生成质量只能作为辅助证据。
+
+**比较四：大规模数据会改变架构比较的起点。** ScaleVLN 展示了扩展训练环境与监督对既有模型的作用。因此，比较新旧方法至少要拆开“同数据的机制改进”和“完整资源条件下的系统改进”。后者也有研究价值，但支持的是系统结论，不能单独证明某个模块更优。
+
+
 # 4. VLN 任务类型
 
 任务名称相近并不意味着结果可比。第 2.2 节已经给出理解一个 VLN 基准所需的五个维度（目标表达、观测配置、动作空间、环境模型、交互协议），本节在此基础上从 **推理复杂度、交互方式、动作与物理真实性** 三个角度给出常用的任务分类，并标出每类的代表性基准。需要特别留意具身形态：无动力学的虚拟智能体、轮式、四足、人形与无人机在碰撞、跌倒、卡住和 6-DoF 控制上的难度完全不同，同名任务在不同具身下的结果也不应直接比较。
@@ -479,7 +526,7 @@ flowchart LR
 
 **1. 指令跟随型 VLN（Instruction-Following VLN）**
 
-该类任务要求智能体根据给定的自然语言指令，在环境中完成从起点到目标位置的导航，通常不涉及显式目标搜索或复杂语义推理。此类任务主要用于评估模型的语言理解能力和基本导航能力。
+该类任务要求智能体根据给定的自然语言指令，在环境中完成从起点到目标位置的导航，不必额外执行开放目标搜索，但仍可能要求地标消歧、顺序推理与长期记忆。此类任务的重点是把沿途语言约束落到轨迹上。
 
 *代表性数据集*：Room-to-Room（R2R）、Room-for-Room（R4R）
 
@@ -513,7 +560,7 @@ flowchart LR
 
 该类任务允许智能体在导航过程中与用户进行多轮交互，通过提问或反馈不断优化导航目标，更接近真实人机协作场景。
 
-*代表性数据集*：CVDN
+*代表性数据集*：CVDN（须区分已有对话历史与在线问询协议）
 
 ## 4.3 按动作与物理真实性划分
 
@@ -525,9 +572,9 @@ flowchart LR
 
 **2. 连续环境导航**
 
-智能体通过前进、转向或局部路点在可导航表面运动，不再沿人工导航图“瞬移”。连续设定引入相机视角限制、累计位姿误差、碰撞和停止控制。
+智能体通过前进、转向或局部路点在可导航表面运动，不再沿人工导航图“瞬移”。连续设定需要处理可通行空间和停止控制；视角限制、定位噪声与动力学是否启用，取决于具体配置。
 
-*代表性基准*：R2R-CE、RxR-CE、REVERIE-CE
+*代表性基准*：R2R-CE、RxR-CE；其他移植设定须注明具体实现
 
 **3. 物理具身导航**
 
@@ -548,14 +595,14 @@ flowchart LR
 |:---|:---|:---|:---|:---|:---|
 | **室内** | 轮式 / 四足 / 人形机器人 | 单目或全景 RGB-D、里程计 | 多房间拓扑、遮挡、家具级语义、精确停止 | R2R / RxR / VLN-CE / REVERIE / VLN-PE | Matterport3D Simulator、Habitat、Isaac Sim |
 | **室外街景** | 轮式配送机器人、辅助出行设备 | 街景全景、GPS、OpenStreetMap 地图 | 尺度大、地标稀疏且相似、动态交通与天气 | Touchdown / StreetLearn / map2seq | Street View 图节点环境、CARLA（语言条件驾驶） |
-| **空中** | 多旋翼无人机 | 斜视 / 俯视 RGB、高度计、GPS | 6-DoF 控制、高度与视角变化、地标消歧、飞行安全约束 | AerialVLN / CityNav / OpenFly | AirSim、Unreal Engine、Isaac Sim |
+| **空中** | 多旋翼无人机 | 斜视 / 俯视 RGB、高度计、GPS | 三维运动、高度与视角变化、地标消歧、飞行安全约束 | AerialVLN / CityNav / OpenFly | AirSim、Unreal Engine、Isaac Sim |
 
 ## 5.1 室内场景
 
 室内 VLN 主要关注家庭、办公与公共建筑内部的导航。环境由多个房间和大量家具构成，指令通常以房间与物体作为地标（"穿过厨房，在沙发旁停下"），因此对房间级拓扑理解、物体级语义落地与精确停止能力的要求最高。室内也是数据与基准最成熟的场景：第 6 节中绝大多数数据集都建立在 Matterport3D、HM3D 等真实扫描或 ProcTHOR、GRScenes 等合成场景之上。
 
 <div align="center">
-  <img src="/images/vln/vln_indoor.jpg" width="90%" alt="室内 VLN 示例：自然语言指令、第一视角观测与全局轨迹" />
+  <img loading="lazy" decoding="async" src="/images/vln/vln_indoor.jpg" width="90%" alt="室内 VLN 示例：自然语言指令、第一视角观测与全局轨迹" />
 <figcaption>室内 VLN：自然语言指令、第一视角观测与全局轨迹之间的关系</figcaption>
 </div>
 
@@ -563,10 +610,10 @@ flowchart LR
 
 ## 5.2 室外场景
 
-室外 VLN 面临更大的空间尺度与更强的环境不确定性：地标在数百米尺度上稀疏分布且外观相似，光照、天气和动态交通持续变化，GPS 与地图先验的可用性也因场景而异。经典的街景导航基准 Touchdown（Chen et al., CVPR 2019）与 StreetLearn 将 Google Street View 全景组织为图节点，要求智能体沿街区跟随长指令并完成空间推理；map2seq 则进一步引入地图辅助。这一分支正与自动驾驶中的语言条件规划、户外服务机器人的语义导航逐步汇合。
+室外 VLN 面临更大的空间尺度与更强的环境不确定性：地标在数百米尺度上稀疏分布且外观相似，光照、天气和动态交通持续变化，GPS 与地图先验的可用性也因场景而异。Touchdown（Chen et al., CVPR 2019）研究街景中的语言导航与空间定位；StreetLearn 提供街景学习环境，本身不应等同于路线指令数据集；map2seq 则涉及地图辅助的导航指令。这一分支正与自动驾驶中的语言条件规划、户外服务机器人的语义导航逐步汇合。
 
 <div align="center">
-  <img src="/images/vln/vln_outdoor.png" width="100%" alt="室外街景 VLN 示例" />
+  <img loading="lazy" decoding="async" src="/images/vln/vln_outdoor.png" width="100%" alt="室外街景 VLN 示例" />
 <figcaption>室外街景 VLN 示例：智能体在街景全景图节点之间依据指令移动</figcaption>
 </div>
 
@@ -577,2862 +624,821 @@ flowchart LR
 空中 VLN 面向多旋翼无人机等飞行平台。与地面导航相比，它需要同时控制水平位置与高度，观测视角在俯视与斜视之间连续变化，同一地标在不同高度下的外观差异极大；飞行安全约束（禁飞区、最低高度、避障）也必须在动作层显式处理。第 6.6 节的 AerialVLN、CityNav 与 OpenFly 分别代表了仿真城市、真实航拍与多引擎大规模数据三条路线。
 
 <div align="center">
-  <img src="/images/vln/vln_aerial.webp" width="100%" alt="空中 VLN 示例：无人机依据指令在城市场景中飞行" />
+  <img loading="lazy" decoding="async" src="/images/vln/vln_aerial.webp" width="100%" alt="空中 VLN 示例：无人机依据指令在城市场景中飞行" />
 <figcaption>空中 VLN 示例：无人机依据自然语言指令在三维城市场景中导航</figcaption>
 </div>
 
 **应用示例**：无人机巡检与测绘、空中搜救、城市低空物流、语言指挥的航拍取景。
 
 
+<a id="survey-datasets"></a>
+
 # 6. VLN 主流数据集
 
-VLN 研究依赖高质量的数据集来训练和评估导航模型。本节整理 VLN 领域最具影响力的主流数据集（含最新进展）。在查看规模之前，应先按研究问题选择基准：
-
-| 研究问题 | 优先基准 | 建议主要指标 |
-|:---|:---|:---|
-| 语言—地标对齐与历史建模 | R2R / RxR | SR、SPL、nDTW / SDTW |
-| 连续控制与真实视角 | R2R-CE / RxR-CE | SR、SPL、NE、碰撞相关指标 |
-| 目标指代与语义搜索 | REVERIE / SOON | SR、SPL、目标定位指标 |
-| 长时序规划与记忆 | R4R / LHPR-VLN | CLS、nDTW、SR、恢复表现 |
-| 对话与人机协作 | CVDN / TEACh | 任务成功、交互效率、对话质量 |
-| 动态人群与社交安全 | HA-VLN | SR / SPL + 人体碰撞与社交约束指标 |
-| 具身动力学与真实部署 | VLN-PE / 真实机器人 | SR / SPL + 跌倒、卡住、碰撞、延迟 |
-| 室外街景导航 | Touchdown / StreetLearn / map2seq | TC、SPD、SED、nDTW |
-| 空中 6-DoF 导航 | AerialVLN / CityNav / OpenFly | 成功率、路径效率、三维轨迹误差 |
-
-训练数据集与评测数据集也应分开看。ScaleVLN、InternData 等大规模数据主要用于预训练或联合训练；它们扩大了覆盖范围，但不能替代在标准未见场景划分上的公平评测。
-
----
+选择基准时先确定要验证的能力，再看规模。**场景资产、任务数据、训练增强数据是三种不同对象**：Matterport3D 提供环境，R2R 提供指令与路径，ScaleVLN 提供合成训练样本。共享环境不代表共享动作接口或评测协议。
 
 ## 6.1 数据集对比总览
 
-随着具身智能与大模型技术的发展，VLN 数据集的演进呈现出以下三大核心趋势：
+| 研究问题 | 代表基准 | 必须区分的设定 | 主要评测维度 |
+|:---|:---|:---|:---|
+| 路线指令跟随 | R2R / R4R / RxR | 短路径、组合路径、多语言 | 到达、效率、路径忠实度 |
+| 连续环境执行 | R2R-CE / RxR-CE | 观测视场、低层动作或路点、滑动设置 | 到达、停止、实际行走路径 |
+| 目标指代与搜索 | REVERIE / SOON | 到达目标附近与正确识别目标 | 导航成功 + 目标定位 |
+| 长时序多子任务 | LHPR-VLN | 独立子任务成功与连续执行成功 | 子任务完成、错误传播 |
+| 对话协作 | CVDN / TEACh | 对话历史输入与在线问答；导航与操作 | 任务进度、交互与执行 |
+| 社交与物理约束 | HA-VLN 2.0 / VLN-PE / VLNVerse | 人群、形态、动力学及任务子集 | 到达 + 社交或具身失败 |
+| 需求推理 | DDN | 需求满足与固定类别搜索 | 找到满足需求的物体 |
+| 空中语言导航 | AerialVLN / CityNav / OpenFly | 地图输入、飞行自由度、环境来源 | 到达、三维路径、执行约束 |
 
-1. **动作与环境的物理保真度提升**：从早期的离散拓扑图瞬间移动（Discrete Topo-Graph），到基于连续动作控制的物理避障（Continuous Environment），再到支持人形/四足/轮式机器人等多具身动力学的真实物理仿真（Physically Realistic Dynamics），评估指标也从纯粹的成功率扩展到跌倒率（FR）和卡住率（StR）。
-2. **任务与交互逻辑的语义复杂度提升**：从单向的静态文字指令跟随，到多轮的人机协同对话（Dialog-based）与主动问询，再到根据抽象的人类需求（Demand-driven）进行具身常识推理，任务的难度正逐步向开放世界与高层认知迈进。
-3. **空间尺度与视角的跨越**：从室内单房间/单楼层的近场导航（Indoor Navigation），拓展至长程多阶段（Long-Horizon）复杂任务，并进一步跨越到三维空中（UAVs）乃至真实城市尺度（Cambridge/Birmingham）的航拍地标导航。
+下表仅列有明确计数对象的规模。年份采用首次公开年份；会议年份另注。**路径、指令、对话与 episode 不能互换**，转换到连续环境后的样本数也不能直接照搬离散版本。
 
-以下是 VLN 领域主流数据集的详细对比总览：
-
-| 数据集 | 年份 | 场景数 | 环境/模拟器 | 动作空间 | 轨迹数 / Episodes | 指令数 / 对话数 | 任务类别 | 核心特征与创新点 |
-| :--- | :---: | :---: | :--- | :---: | :---: | :---: | :---: | :--- |
-| **R2R** | 2018 | 90 | Matterport3D | 离散拓扑图 | 7,189 | 21,567 | 指令导航 | 首个真实扫描室内三维导航数据集，奠定 VLN 研究基石 |
-| **R4R** | 2019 | 90 | Matterport3D | 离散拓扑图 | 13,607 | 278,692 | 指令导航 | 拼接 R2R 长路径，侧重于评估路径遵循的忠诚度 (CLS 指标) |
-| **CVDN** | 2019 | 83 | Matterport3D | 离散拓扑图 | 7,490 | 2,050 (对话) | 对话导航 | 引入人机协作多轮对话机制，智能体可向 Oracle 主动提问 |
-| **RxR** | 2020 | 90 | Matterport3D | 离散拓扑图 | 16,522 | 126,069 | 多语言导航 | 多语言支持（英/印地/泰卢固），提供词-视点细粒度对齐 (Pose Trace) |
-| **VLN-CE** | 2020 | 90 | Matterport3D (Habitat) | 连续动作 | 4,475 | ≈13.4k | 连续导航 | 移除离散导航图，使用前进/转向等物理控制指令，消除瞬移假设；保留可转换的 77% R2R 路径 |
-| **RxR-CE** | 2021 | 90 | Matterport3D (Habitat) | 连续动作 | 16,522 | 126,069 (多语言) | 连续导航 | 大规模多语言 RxR 数据集移植至 Habitat，支持连续物理运动与细粒度对齐 |
-| **REVERIE** | 2020 | 90 | Matterport3D | 离散拓扑图 | 2,783 | 21,702 | 目标指代导航 | 融合导航与指代消解 (RefExp)，需在房间内识别并定位目标物体 |
-| **REVERIE-CE** | 2022 | 90 | Matterport3D (Habitat) | 连续动作 | 2,783 | 21,702 | 目标指代连续 | 在连续环境中进行指代消解与物理导航，需在终点识别并定位物体 |
-| **SOON** | 2021 | 90 | Matterport3D | 离散拓扑图 | 3,060 | 3,848 | 场景描述导航 | 无逐步指令，仅提供抽象场景关系描述，支持任意起点物体导航 |
-| **TEACh** | 2022 | 120 | AI2-THOR | 连续 + 操作 | 3,000+ | 3,000+ (对话) | 交互对话导航 | 引入 20+ 种家政物体交互动作，支持物品状态改变（如煮咖啡、切菜） |
-| **AerialVLN** | 2023 | 25 | 3D City Simulator | 3D 连续 | 8,446 | 8,446 | 空中无人机 | 首个三维空中导航数据集，结合高度控制，覆盖 870+ 种地标物体 |
-| **ScaleVLN** | 2023 | 1,200+ | HM3D / Gibson | 离散拓扑图 | 4.94M (R2R) / 830k (REVERIE) | 4.94M / 830k (合成) | 导航与指代定位预训练 | 超大规模合成数据集，包含 R2R 式路径跟随与 REVERIE 式物体定位，解决泛化性问题 |
-| **DDN** | 2023-24 | 1,692 | ProcThor (AI2-THOR) | 连续动作 | 1,692 | 1,692 | 需求导向导航 | 依据抽象人类需求（如“我需要清洁”）推理目标，结合常识寻找物体 |
-| **LHPR-VLN** | 2025 | 216 | Habitat-Sim | 连续动作 | 3,260 | 3,260 | 长程多阶段 | 动作长度超 150 步的长时序导航，要求智能体具备多阶段规划记忆 |
-| **HA-VLN 2.0**| 2025 | 90+ | Matterport3D / Habitat | 离散/连续 | 16,844 | 16,844 | 社交感知导航 | 引入动态人群和个人空间约束，评估机器人在有人环境下的社交安全 |
-| **VLN-PE** | 2025 | 101 | GRUTopia (Isaac Sim) | 真实物理动力学 | 12,000+ | 12,000+ | 真实物理导航 | 首个物理动力学平台，支持人形/四足/轮式机器人，带跌倒/卡住评估 |
-| **VLNVerse**| 2025 | 263 | 3D Scenes (263 scenes) | 全运动学连续控制 | 35,000+ | 35,000+ (三种风格) | 物理多任务导航 | 统一多种导航任务，引入物理刚体碰撞检测与全运动学约束 |
-| **CityNav** | 2025 | 2 个城市 | 真实城市航拍 | 3D 连续 | 32,637 | 32,637 | 空中航拍导航 | 使用真实剑桥/伯明翰航拍图像，融入地理语义地图与 GPS 坐标 |
-| **OpenFly** | 2025 | 18 | UE5 / GTA5 / Google Earth | 3D 连续 | 100,000 | 100,000 | 大规模空中 | 规模最大的空中导航数据集，GPT-4o 生成指令，倡导关键帧感知 |
-| **InternData-N1** | 2025 | 1,000+ | Habitat / Isaac Sim | 连续动作 | 240,000+ | 830,000+ | 导航大模型预训练 | 包含 50M+ 图像与 4,800+ 公里导航里程，用于多模态导航大模型预训练 |
-
----
+| 数据资源 | 可核对的规模 | 统计口径与来源 |
+|:---|:---|:---|
+| R2R（2018） | 7,189 条路径，21,567 条指令 | 每条路径 3 条指令；[原论文](https://arxiv.org/abs/1711.07280) |
+| RxR（2020） | 约 126k 条指令及约 126k 条跟随示范 | 英语、印地语、泰卢固语；Guide 与 Follower 分开发布；[官方数据仓库](https://github.com/google-research-datasets/RxR) |
+| CVDN（2019） | 2,000 余段对话 | 对话数不是从历史切出的导航实例数；[原论文](https://arxiv.org/abs/1907.04957) |
+| TEACh（2021；AAAI 2022） | 3,000 余段对话 | 家务任务交互对话，派生评测实例另计；[论文 v3](https://arxiv.org/abs/2110.00534v3) |
+| AerialVLN（2023） | 25 个场景，8,446 条路径，25,338 条指令 | 标准版本每路径 3 条指令；[原论文表 1](https://arxiv.org/html/2308.06735v1) |
+| ScaleVLN（2023） | 1,200 余环境，约 490 万指令—轨迹对 | 合成训练增强数据；[论文 v2](https://arxiv.org/abs/2307.15644v2) |
+| LHPR-VLN（2024；CVPR 2025） | 3,260 个任务，平均约 150 个任务步 | “平均”不能写成所有任务的最小长度；[论文 v3](https://arxiv.org/abs/2412.09082v3) |
+| CityNav（2024；ICCV 2025） | 32,637 条人类示范轨迹 | 覆盖 Cambridge / Birmingham 两座城市；[论文 v3](https://arxiv.org/abs/2406.14240v3) |
+| OpenFly（2025；ICLR 2026） | 18 个场景，100k 条轨迹 | 多引擎数据，不能由轨迹量推出语言多样性；[论文 v7](https://arxiv.org/abs/2502.18041v7) |
+| HA-VLN 2.0（2025；IROS 2026） | 16,844 条社交情境指令 | 以版本化协议确认离散/连续子集；[论文 v5](https://arxiv.org/abs/2503.14229v5) |
+| InternData-N1 | 240k 余轨迹、3,000 余场景 | 数据卡汇总口径，包含多个子集；[官方数据卡](https://huggingface.co/datasets/InternRobotics/InternData-N1)，查阅于 2026-09-26 |
 
 ## 6.2 指令导向与连续导航数据集
 
-指令导向任务（Instruction-guided）与连续环境导航（Continuous Environments）是整个 VLN 领域的基石。其重点在于如何将视觉输入与复杂的自然语言指令进行多模态对齐，并在不同精度的运动模拟器中输出动作序列。
-
----
-
 ### 6.2.1 R2R (Room-to-Room)
 
-* **发布时间**：2018 (CVPR)
-* **环境表示**：**离散拓扑图 (Discrete Graph)**。基于 Matterport3D 扫描的真实场景。
-* **核心挑战**：跨模态对齐（Cross-modal Alignment），要求智能体在复杂的真实图像中识别指令提及的地标。
+R2R 在 Matterport3D 扫描环境的导航图上，将自然语言与起终点间的参考路径配对。它适合研究地标对齐与跨场景泛化；图上的可通行边已经简化了局部避障问题，因而不能用 R2R 成功率代表机器人控制能力。参见 [原论文](https://arxiv.org/abs/1711.07280) 与 [官方模拟器](https://github.com/peteanderson80/Matterport3DSimulator)。
 
-**[数据集目录结构]**
+**如何理解一个样本**：指令描述沿途地标和转向，参考路径由离散视点组成。智能体从初始视点与朝向出发，逐步选择相邻可达视点，最终决定停止。路径本身不是逐帧视频，同一路径的不同指令也不能当成不同建筑中的独立样本。
 
-```text
-R2R/
-├── data/
-│   ├── R2R_train.json          # 训练集：14,025 条指令
-│   ├── R2R_val_seen.json       # 已见环境：与训练集场景重合，考量记忆力
-│   ├── R2R_val_unseen.json     # 未见环境：全新场景，考量泛化性 (最关键指标)
-│   └── R2R_test.json           # 测试集：榜单评测专用，隐藏 GT 路径
-├── connectivity/               # 拓扑连接图 (定义 Agent 可移动的范围)
-│   └── <Scan_ID>_connectivity.json 
-└── img_features/               # 视觉特征 (主流采用 ViT-B/16 或 ResNet 离线提取)
-    └── <Scan_ID>.tsv           # 存储各视点 (viewpoint) 的全景特征向量
+**研究价值与局限**：R2R 适合作为语言对齐和规划方法的共同起点。解释 Val-Unseen 成绩时，应检查训练视觉特征和额外数据是否涉及测试环境；解释真实部署能力时，则需要另外验证窄视场观测、定位误差和低层执行。
 
-```
+<details markdown="1">
+<summary>展开：R2R 原始字段与数据读取要点</summary>
 
-**[数据条目与底层逻辑解析]**
-R2R 的 JSON 不仅仅是文本，它包含了导航初始化的关键位姿信息：
+以下是原始任务数据中常见字段的阅读指南，具体格式以 [R2R 官方任务目录](https://github.com/peteanderson80/Matterport3DSimulator/tree/master/tasks/R2R) 为准。
 
-```json
-{
-  "scan": "2n8P_example",          // 场景 ID (对应 Matterport3D 中的房屋)
-  "path": ["vp_1", "vp_2", "vp_3"],// 离散路径节点序列 (Ground Truth)
-  "heading": 1.57,                 // 初始水平偏航角 (Radians)，决定 Agent 第一眼看哪
-  "instructions": [                // 每条路径对应的 3 条独立人类标注 (多样性)
-    "Leave the bedroom and go into the hallway...",
-    "Walk past the bathroom and stop near the stairs.",
-    "Go through the door and walk to the end of the hall."
-  ],
-  "instr_id": "1234_0"             // 格式：{path_id}_{instruction_index}
-}
+| 字段 | 含义 | 读取时容易混淆的地方 |
+|:---|:---|:---|
+| `scan` | 场景标识 | 场景资产需另行获取 |
+| `path_id` | 参考路径标识 | 不是单条语言指令的唯一标识 |
+| `path` | 有序视点 ID 列表 | 不是三维坐标列表 |
+| `heading` | 初始朝向 | 保留原始单位和坐标约定 |
+| `instructions` | 同一路径的指令列表 | 训练器可能将列表展开为多个实例 |
 
-```
+连通关系来自独立的 connectivity 数据；图像特征也是另一层输入。复现时分别固定任务标注、连通图与视觉特征版本，不应把某个模型整理后的缓存目录当成 R2R 的统一标准。
 
-**[关键技术细节：拓扑连接文件]**
-这是离散 VLN 的核心，`connectivity.json` 定义了智能体在每个点位可以看到的邻居节点：
-
-```json
-// <Scan_ID>_connectivity.json 内部逻辑示例
-{
-  "image_id": "vp_1",
-  "rel_heading": 0.52,             // 目标点相对于当前的水平夹角
-  "rel_elevation": 0.1,            // 目标点相对于当前的俯仰角
-  "distance": 2.1,                 // 节点间欧氏距离 (米)
-  "unobstructed": true             // 路径是否通畅 (无墙壁阻隔)
-}
-
-```
-
-**[核心评估指标 (Metrics)]**
-在整理 R2R 时，必须包含这四个核心指标：
-
-* **NE (Navigation Error)**: 预测终点与真值终点的平均距离 (m)，越低越好。
-* **SR (Success Rate)**: 终点误差小于 3m 的比例，越高越好。
-* **SPL (Success weighted by Path Length)**: **核心指标**。权衡导航效率与准确度，避免智能体通过“乱绕路”碰巧到达终点。
-* **OSR (Oracle Success Rate)**: 路径中任意一点靠近过目标的比例，衡量模型是否曾“经过”正确答案。
-
-
----
+</details>
 
 ### 6.2.2 R4R (Room-for-Room)
 
-* **发布时间**：2019 (ACL)
-* **核心特点**：通过拼接 R2R 路径形成更长的轨迹。
-* **技术突破**：引入了 **CLS (Coverage weighted by Length Score)** 指标，要求模型必须“严格遵循指令路径”而不仅仅是到达终点。
+R4R 拼接 R2R 路径与指令，使“按描述走完路线”和“直接到达终点”的差异更加明显。适合研究沿途约束与长路径跟随，需结合 CLS / nDTW，而不能仅报告 SR。[原论文](https://arxiv.org/abs/1905.12255)同时提出了 CLS。
 
-**[数据格式差异]**
+**为什么需要更长的参考路线**：教学示例中，指令要求“经过餐厅，再绕回客厅”，终点却离起点很近。直接走到客厅可能获得很高的终点成功率，却没有遵循中间约束。R4R 把这种矛盾显式化：最短到达路径与语言要求的路线不一定相同。
 
-* **路径构成**：将两条 R2R 路径首尾相连，平均路径步数从 4-6 步增加到 10-15 步。
-* **JSON 补充**：增加了 `path_id` 追踪原始 R2R 路径来源。
-
----
+分析结果时可同时记录终点成功、沿途覆盖和访问顺序。长路径还会放大错误积累，但仅增加历史窗口不足以证明模型能处理任务状态；需要观察它是否知道哪些路段已完成、哪些地标尚未经过。
 
 ### 6.2.3 RxR (Room-across-Room)
 
-* **发布时间**：2020 (EMNLP)
-* **核心特点**：多语言支持（英语、印地语、泰卢固语）及**细粒度对齐**。
+RxR 提供多语言指令及与观测关联的时空标注。复现时应明确语言子集、Guide / Follower 使用方式及测试划分；只在英语子集上评测，不能称为验证了多语言能力。[官方数据与字段说明](https://github.com/google-research-datasets/RxR)。
 
-**[数据集目录结构]**
+**标注机制**：Guide 描述路线，Follower 根据描述实际跟随。两者轨迹可能不同，这使数据不仅能用于模仿参考路径，也能用于分析语言歧义及人类跟随误差。词语时间信息与相机姿态提供了更细的视觉—语言对齐线索。[官方标注说明](https://github.com/google-research-datasets/RxR)。
 
-```text
-RxR/
-├── annotations/
-│   ├── en-US/                  # 英语指令文件夹
-│   ├── hi-IN/                  # 印地语指令文件夹
-│   └── te-IN/                  # 泰卢固语指令文件夹
-├── poses/                      # 指令与视点的细粒度对齐数据 (Pose Trace)
-└── rxr_train_guide.json        # 训练引导文件
+<details markdown="1">
+<summary>展开：RxR 四类数据、关联键与对齐边界</summary>
 
-```
+| 组成 | 主要用途 | 关联与检查 |
+|:---|:---|:---|
+| Guide annotations | 指令与参考路径 | `instruction_id`、`language`、`path` |
+| Follower annotations | 实际跟随示范 | `demonstration_id`；用 `instruction_id` 关联 Guide |
+| Pose traces | 相机姿态和时间序列 | 区分 Guide 与 Follower，核对时间基准 |
+| Text features | 预计算语言表示 | 核对语言、分词器及特征版本 |
 
-**[关键技术点：Pose Trace]**
+`timed_instruction` 记录词语及时间区间，但少量词没有起止时间，不能假设每个词都能直接配到图像帧。基础导航实验可只使用 Guide 标注；一旦加入 Follower、稠密对齐或合成指令，应在训练数据说明中列出。
 
-* **对齐数据**：RxR 不仅提供指令，还记录了标注员在写指令时视线停留的时间戳。
-* **JSON 字段**：包含 `pose_trace` 数组，记录了 `(time, view_index)`，允许进行多模态的时间序列对齐训练。
-
----
+</details>
 
 ### 6.2.4 VLN-CE (连续环境导航)
-————Beyond the Nav-Graph: Vision-and-Language Navigation in Continuous Environments
 
-* **发布时间**：2020 (ECCV)
-* **环境表示**：**连续环境 (Continuous Environment)**。基于 Habitat 模拟器渲染 Matterport3D 场景，使用低层动作控制（0.25m 前进，15° 转向）。
-* **核心特点**：将离散拓扑图导航转换为连续空间导航，移除了预先构建导航图、完美定位和瞬移假设，更贴近真实机器人场景。
+VLN-CE 将指令导航移到 Habitat 的可导航空间中，取消沿导航图边移动的限制。**连续的是环境位置，策略动作仍可采用有限集合**，例如前进和转向。它增加执行难度，但并不自动包含腿足动力学。[原论文](https://arxiv.org/abs/2004.02857)。
 
-📄 **Paper**: https://arxiv.org/abs/2004.02857
+原始基线仓库推荐 `R2R_VLNCE_v1-3`，并固定了对应 Habitat 版本。论文模型若使用不同传感器、路点控制器或修改过的模拟器，必须重新检查协议；数据名称相同不足以证明实验可比。[官方实现与版本说明](https://github.com/jacobkrantz/VLN-CE)。
 
 <div align="center">
-  <img src="/images/vln/VLN-CE-comparison.webp" width="100%" alt="VLN 离散全景图导航与 VLN-CE 连续环境导航对比" />
-<figcaption>
-VLN 与 VLN-CE 的对比: VLN 基于固定拓扑的全景图节点(左)，而 VLN-CE 在连续环境中使用低层动作(右)
-</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/VLN-CE-comparison.webp" width="95%" alt="离散视点导航与连续空间执行的对比" />
+<figcaption>离散导航在图视点间选择下一步；VLN-CE 需要在连续空间中执行移动。两者的动作与碰撞条件不同。</figcaption>
 </div>
 
-**[数据集目录结构]**
+**从“选对节点”到“走到位置”**：在离散图上，一个合法邻接节点通常意味着可以直接转移；在连续环境中，即使高层选对门口，局部执行仍可能偏航、卡住或越过停止位置。因此，路点预测器、控制器和导航策略应分别记录，不能把整条系统的提升都归因于语言模型。
 
-```text
-data/
-├── datasets/
-│   ├── R2R_VLNCE_v1-3/              # R2R 数据集转换版本
-│   │   ├── train/
-│   │   │   └── train.json.gz        # 训练集：10,819 个 episode
-│   │   ├── val_seen/
-│   │   │   └── val_seen.json.gz     # 已见环境验证集：778 个 episode
-│   │   └── val_unseen/
-│   │       └── val_unseen.json.gz   # 未见环境验证集：1,839 个 episode
-│   │
-│   ├── RxR_VLNCE_v0/                # RxR 多语言版本
-│   │   ├── train/
-│   │   │   ├── train_guide.json.gz           # Guide 轨迹
-│   │   │   ├── train_guide_gt.json.gz        # Ground Truth
-│   │   │   ├── train_follower.json.gz        # Follower 轨迹
-│   │   │   └── train_follower_gt.json.gz
-│   │   ├── val_seen/
-│   │   ├── val_unseen/
-│   │   └── text_features/                    # BERT 预编码特征
-│   │
-├── scene_datasets/
-│   └── mp3d/                        # Matterport3D 场景资源
-│       ├── <scan_id>.glb            # 场景网格模型
-│       └── <scan_id>.navmesh        # 可导航网格
-│
-└── ddppo-models/                    # 预训练强化学习模型
-```
+| 层面 | 离散图导航 | VLN-CE 常见设置 |
+|:---|:---|:---|
+| 位置表示 | 预定义视点 ID | 场景中的位置与朝向 |
+| 可行动作 | 邻接节点选择、停止 | 前进、转向、停止，或经控制器执行路点 |
+| 可通行性 | 导航图预先约束 | 受可导航表面、碰撞与滑动配置影响 |
+| 典型额外失败 | 选错路径或停止点 | 窄门执行、局部偏差、连续动作累积误差 |
 
-**[数据格式示例]**
+<details markdown="1">
+<summary>展开：R2R_VLNCE_v1-3 的划分与字段示意</summary>
 
-VLN-CE 保留 R2R 的指令和路径信息，但将离散节点路径转换为连续轨迹：
+[官方数据页](https://jacobkrantz.github.io/vlnce/data)列出的 v1-3 基础划分为 train 10,819、val_seen 778、val_unseen 1,839、test 3,408 个 episode。预处理包中的 EnvDrop 增强集另计。v1-3 修正了初始朝向，不能仅根据同名任务混用旧版本缓存。
+
+以下为**字段类型示意**：场景名、文本及坐标均为教学占位值，省略词表与部分字段，不能作为可运行 episode。旋转采用该格式的 `[x, y, z, w]` 四元数表示，示例为单位旋转。
 
 ```json
 {
-  "episode_id": 1234,
-  "scene_id": "2n8kARJN3HM",
-  "trajectory_id": "4321",
-  "instruction": {
-    "instruction_text": "Walk past the bathroom and stop near the stairs.",
-    "instruction_tokens": ["walk", "past", "the", "bathroom", ...]
-  },
-  "reference_path": [              // 离散参考路径（来自 R2R）
-    "viewpoint_1",
-    "viewpoint_2",
-    "viewpoint_3"
-  ],
-  "start_position": [1.2, 0.15, 3.4],  // 连续空间起始坐标 (x, y, z)
-  "start_rotation": [0, 1.57, 0, 0],   // 四元数表示的初始朝向
-  "goals": [                           // 目标位置（可能有多个）
-    {
-      "position": [5.6, 0.15, 8.2],
-      "radius": 3.0                    // 成功判定半径（米）
-    }
-  ],
-  "shortest_paths": [                  // 预计算的最短路径动作序列
-    [
-      {"action": "MOVE_FORWARD", "rotation": 0},
-      {"action": "TURN_LEFT", "rotation": 15},
-      {"action": "MOVE_FORWARD", "rotation": 0},
-      ...
-    ]
-  ],
-  "info": {
-    "geodesic_distance": 9.89,         // 最短路径长度（米）
-    "euclidean_distance": 7.32
-  }
+  "episode_id": 1,
+  "trajectory_id": 4,
+  "scene_id": "mp3d/SCENE/SCENE.glb",
+  "instruction": {"instruction_text": "Walk forward to the doorway."},
+  "start_position": [0.0, 0.0, 0.0],
+  "start_rotation": [0.0, 0.0, 0.0, 1.0],
+  "goals": [{"position": [0.0, 0.0, -4.0], "radius": 3.0}],
+  "reference_path": [[0.0, 0.0, 0.0], [0.0, 0.0, -4.0]]
 }
 ```
 
-**[关键技术特性]**
+`reference_path` 是三维点列表；训练/验证包的 `{split}_gt.json.gz` 另存动作和位置监督。测试集隐藏目标与参考真值，不能按训练样本的可见字段假定测试输入。`goals.radius` 也不能代替对实际成功评测器的检查。
 
-* **轨迹转换方法**：通过射线投射和 A* 路径验证，将 77% 的 R2R 离散路径成功转换为连续环境轨迹（共 4,475 条轨迹、约 13.4k 条指令）
-* **动作空间**：`MOVE_FORWARD (0.25m)`, `TURN_LEFT (15°)`, `TURN_RIGHT (15°)`, `STOP`
-* **观测空间**：RGB (480×640) + Depth (480×640)，视场角 (FoV) 79°
-* **物理约束**：支持碰撞检测、可导航网格 (NavMesh)、Agent 高度 1.5m
-* **Habitat 集成**：利用 Habitat-Sim 高性能渲染（1000+ FPS），支持分布式训练
-
-**[核心评估指标]**
-
-VLN-CE 采用与 R2R 一致的评估指标，但在连续空间中重新定义：
-
-* **NE (Navigation Error)**: 最终位置与目标的欧式距离（米），越低越好
-* **SR (Success Rate)**: 终点误差 < 3m 的轨迹比例，越高越好
-* **SPL (Success weighted by Path Length)**: 路径效率加权成功率 = SR × (最短路径长度 / 实际路径长度)
-* **OSR (Oracle Success Rate)**: 轨迹中任意位置曾接近目标（< 3m）的比例
-
-**[性能基准]**
-
-| 模型 | Val Unseen SR | Val Unseen SPL | 备注 |
-|------|--------------|----------------|------|
-| Seq2Seq | 18% | 0.16 | 基础模型 |
-| CMA (Cross-Modal Attention) | 32% | 0.30 | 最佳基线 |
-| 无深度输入 | ≤1% | - | 性能崩溃 |
-| 无指令输入 | 17% | - | 单模态基线 |
-
-**核心发现**：深度信息对 VLN-CE 至关重要，移除深度导致性能崩溃；平均轨迹长度从 VLN 的 4-6 步增加到 55.88 步。
-
----
+</details>
 
 ### 6.2.5 RxR-CE (多语言连续环境导航)
-————Room-Across-Room in Continuous Environments
 
-* **发布时间**：2021 (基于 Habitat-Sim 仿真平台)
-* **环境表示**：**连续三维环境 (Continuous Environment)**。基于 Habitat-Sim 模拟器渲染 Matterport3D 场景，使用低层动作控制。
-* **核心挑战**：多语言指令对齐（英语、印地语、泰卢固语）与长路径连续动作生成的协同。
+RxR 的连续环境移植随 VLN-CE 发布。RxR-Habitat 挑战赛对 RGB-D 观测和动作步长、转角作了明确限制，采用全景观测的结果不能直接当作同一挑战赛成绩。[官方挑战赛配置说明](https://github.com/jacobkrantz/VLN-CE#required-task-configurations)。
 
-**[数据集特征与格式]**
-* **路径与指令**：延续了 RxR 拥有的 **16,522 条路径**和 **126,069 条多语言指令**。
-* **轨迹特征**：平均连续控制动作步长远超 R2R-CE，轨迹长度更长、路线更迂回，对智能体的局部定位和长时序状态追踪提出了更高的要求。
-* **对齐标注**：保留了原 RxR 数据集中细粒度的“单词-相机视点时间戳对齐 (Pose Trace)”，为智能体在连续位移过程中进行时空跨模态对齐提供了高质量监督信号。
-
----
+**多语言与执行误差需要分开看**：某语言上的下降可能来自语义理解，也可能来自较长路径引发的动作误差。本文建议按语言、路径长度和终点误差分组，并在相同相机与控制器下比较。若加入机器翻译或额外文本特征，应说明模型直接理解原语言，还是借助翻译系统完成导航。
 
 ### 6.2.6 VLN-PE (真实物理具身导航)
-————Rethinking the Embodied Gap: Physical and Visual Disparities in VLN
 
-* **发布时间**：2025 (ICCV)
-* **环境表示**：**物理真实连续环境 (Physically Realistic Environment)**。基于 GRUTopia 物理模拟器 (Isaac Sim)，支持真实的运动动力学和物理交互。
-* **核心特点**：首个支持多种机器人具身（人形/四足/轮式）的 VLN 平台，引入物理控制器和真机部署验证，揭示了仿真到真实的具身化差距。
-
-📄 **Paper**: https://arxiv.org/abs/2507.13019v2
+VLN-PE 支持人形、四足和轮式机器人，研究相机视角、光照、碰撞和跌倒等因素造成的具身差距。这里的“真实物理”指更接近机器人约束的仿真评测，并不表示全部数据来自真机。应按机器人形态和控制器分别报告结果。[论文 v2](https://arxiv.org/abs/2507.13019v2)。
 
 <div align="center">
-  <img src="/images/vln/VLN-PE-evolution.webp" width="100%" alt="VLN 任务演进：从 R2R、VLN-CE 到 VLN-PE" />
-<figcaption>
-VLN 任务的演进: 从 oracle-based 导航(2018)到 VLN-CE 连续导航(2020)，再到 VLN-PE 物理真实导航(2025)
-</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/VLN-PE-evolution.webp" width="95%" alt="图导航、连续导航与物理具身导航的关系示意" />
+<figcaption>任务约束逐步扩展：图上的决策、连续空间执行与带机器人形态的物理评测。更丰富的仿真约束仍需真机实验验证迁移效果。</figcaption>
 </div>
 
-**[数据集目录结构]**
+**物理具身带来的新变量**：相同语义子目标不保证对所有机器人都可执行。相机高度会改变可见地标，机身尺寸会改变门口通过条件，运动控制器则影响跟踪和稳定性。分析时应将“理解了目的地但没有走过去”与“目标理解错误”分开。
 
-```text
-VLN-PE/
-├── datasets/
-│   ├── R2R-filtered/                # 过滤楼梯场景的 R2R
-│   │   ├── train/                   # 8,679 个 episodes
-│   │   ├── val_seen/                # 658 个 episodes
-│   │   └── val_unseen/              # 1,347 个 episodes
-│   │
-│   ├── GRU-VLN10/                   # 新增合成家居场景
-│   │   ├── train/                   # 441 个 episodes
-│   │   ├── val_seen/                # 111 个 episodes
-│   │   └── val_unseen/              # 1,287 个 episodes
-│   │
-│   └── 3DGS-Lab-VLN/                # 3D Gaussian Splatting 渲染实验室
-│       ├── train/                   # 160 个 episodes
-│       └── val/                     # 640 个 episodes
-│
-├── scenes/
-│   ├── mp3d/                        # 90 个 Matterport3D 场景
-│   ├── GRScenes/                    # 10 个高质量合成场景
-│   └── 3DGS/                        # 3DGS 在线渲染场景
-│
-├── robots/
-│   ├── humanoid/                    # 人形机器人配置
-│   │   ├── unitree_h1/              # Unitree H1 (相机高度 ~1.5m)
-│   │   └── unitree_g1/              # Unitree G1
-│   ├── quadruped/                   # 四足机器人
-│   │   └── unitree_aliengo/         # Unitree Aliengo (相机高度 ~0.5m)
-│   └── wheeled/                     # 轮式机器人
-│       └── jetbot/                  # NVIDIA Jetbot
-│
-└── controllers/
-    ├── physical_controller/         # RL-based 物理控制器
-    └── simple_controller/           # 简化运动控制器
-```
-
-**[数据格式特点]**
-
-VLN-PE 扩展了 VLN-CE 数据格式，新增机器人具身和物理状态信息：
-
-```json
-{
-  "episode_id": 5678,
-  "scene_id": "GRScene_001",
-  "instruction": "Walk to the living room and find the red pillow.",
-  "robot_type": "humanoid_h1",           // 机器人类型
-  "controller_type": "physical",         // 控制器类型
-  "camera_height": 1.5,                  // 相机高度（米）
-  "start_position": [2.3, 0.0, 4.1],
-  "start_rotation": [0, 0.785, 0, 0],
-  "goal_position": [8.7, 0.0, 9.2],
-  "goal_radius": 3.0,
-  "lighting_condition": "normal",        // 光照条件: normal/low/high
-  "sensor_config": {
-    "rgb": true,
-    "depth": true,                       // 是否包含深度
-    "resolution": [270, 480]
-  }
-}
-```
-
-**[关键技术特性]**
-
-* **跨具身支持**：统一接口支持人形（H1, G1）、四足（Aliengo）和轮式（Jetbot）机器人，各具身可独立训练或联合训练
-* **物理控制器**：基于 RL 训练的低层控制器，模拟真实运动动力学（步态、平衡、碰撞响应）
-* **多场景融合**：101 个场景（90 MP3D + 10 GRScene + 1 定制），支持光照变化和 3DGS 渲染
-* **真机验证**：在 Unitree Go2 四足机器人上进行 14 个室内场景的实际部署测试
-* **标准化格式**：兼容 LeRobot v2.1 格式（InternData-N1），便于跨平台使用
-
-**[核心评估指标]**
-
-VLN-PE 保留传统指标并新增物理真实性指标：
-
-* **TL (Trajectory Length)**: 轨迹总长度（米）
-* **NE (Navigation Error)**: 最终距离目标的误差（米）
-* **SR (Success Rate)**: 成功率（< 3m）
-* **SPL (Success weighted by Path Length)**: 路径效率加权成功率
-* **OSR (Oracle Success Rate)**: 曾接近目标的比例
-* **FR (Fall Rate)**: 机器人跌倒的比例（物理真实性指标）⭐
-* **StR (Stuck Rate)**: 机器人卡住的比例（碰撞/动力学失败）⭐
-
-**[性能基准 - Humanoid H1 on R2R-filtered Val Unseen]**
-
-| 模型 | 参数量 | SR (%) | SPL | FR (%) | StR (%) | 备注 |
-|------|--------|--------|-----|--------|---------|------|
-| Seq2Seq-Full (VLN-CE) | 36M | 15.2 | 0.13 | 8.3 | 12.1 | 零样本迁移 |
-| CMA-Full (VLN-CE) | 36M | 18.7 | 0.16 | 7.5 | 10.8 | 零样本迁移 |
-| NaVid (零样本) | 7B | 22.4 | 0.19 | 6.2 | 9.3 | 大模型 |
-| CMA (VLN-PE 训练) | 36M | 25.8 | 0.22 | 3.8 | 5.2 | 域内训练 |
-| RDP (Diffusion Policy) | 6M | 27.1 | 0.23 | 2.9 | 4.7 | 新方法 |
-| CMA+ (跨具身训练) | 36M | **28.7** | **0.24** | **2.1** | **3.9** | 最佳性能 |
-
-**核心发现**：
-1. **零样本迁移失败**：VLN-CE 模型迁移到 VLN-PE 时 SR 相对下降 34%
-2. **跨具身泛化**：联合训练单一模型可在所有机器人类型上达到 SOTA
-3. **多模态鲁棒性**：RGB+Depth 在低光照下性能下降仅 1-2%，而纯 RGB 下降 12.47%
-4. **真机验证成功**：VLN-PE 训练模型在真实 Unitree Go2 上 SR 达到 28.57%
-
-
----
+本文建议保留三层日志：高层目标与路点、低层实际轨迹、碰撞或姿态异常。跨机器人比较除 SR 外，还应报告所用控制器与失效类别；若同时换了相机、控制器和策略，结果不能单独解释为形态泛化。
 
 ### 6.2.7 ScaleVLN (超大规模导航预训练增强数据集)
-————Scaling Data Generation in Vision-and-Language Navigation
 
-* **发布时间**：2023 (ICCV)
-* **环境表示**：**离散拓扑图 (Discrete Graph)**。基于 HM3D 和 Gibson 扫描的真实室内场景。
-* **核心挑战**：克服人工标注数据稀缺问题，提升导航智能体在未见环境中的零样本/少样本泛化性能。
+ScaleVLN 的作用是扩充训练覆盖，而非提供一个可与 R2R 并列排名的新任务。其结果说明扩大环境与合成监督可能显著改变既有模型表现；比较架构时需列明是否用了此类额外数据。[原论文](https://arxiv.org/abs/2307.15644)。
 
-📄 **Paper**: https://arxiv.org/abs/2307.15644
+**数据扩容改变了什么**：更多场景有助于扩大视觉和几何覆盖，更多合成指令则增加监督样本，两种作用应分别讨论。合成语言也可能重复模板，路径采样可能偏向容易走的区域，因此“样本更多”不自动等于“任务更丰富”。
 
-**[数据集规模与构成]**
-* **总规模**：总共生成约 **4.94 Million (4,941,710)** 条轨迹-指令对，在 HM3D 与 Gibson 上分别采样生成。针对不同下游任务，其具体构成如下：
-  * **R2R/CVDN 样式（路径跟随导航）**：共 **4,941,710** 条轨迹-指令对（包含来自 HM3D 的 **2,890,267** 条和来自 Gibson 的 **2,051,443** 条），是传统 R2R 训练集的 352 倍以上。
-  * **REVERIE 样式（远程物体指代定位）**：共 **830,209** 条轨迹-指令对（包含来自 HM3D 的 **518,233** 条和来自 Gibson 的 **311,976** 条），主要用于物体级跨模态定位（Object Grounding）预训练，其规模约为原始 REVERIE 训练集的 38 倍。
-* **场景环境**：涵盖 1,200+ 个来自 HM3D (800 个) 和 Gibson (491 个) 的高保真三维真实室内扫描场景，总可导航面积超过 15 万平方米（约为 Matterport3D 的 7.5 倍）。
-* **生成机制**：通过在无标注的 3D 扫描网格上采样 viewpoints 并使用凝聚聚类（Agglomerative Clustering）构建三维导航拓扑图，设计无冲突的物理路径，再使用预训练的 Speaker 模型（如 EnvDrop Speaker）及微调的 GPT-2 生成对应风格的自然语言指令。
-
-**[核心技术突破]**
-* **预训练范式变革**：为大模型时代的多模态导航智能体 (VLA/VLM Agent) 提供了海量且高质量的弱监督预训练语料，降低了模型在下游任务 (如 R2R, REVERIE, CVDN) 上微调的泛化误差。
-* **三维路径采样策略**：设计了能够覆盖各种房屋结构、连通关系和长短距离的全局路径规划采样算法，确保了合成轨迹的空间多样性。
-* **Speak-to-Navigate 闭环**：通过高质量的 Speaker 将轨迹转化为富含地标和动作的描述，提高了语言-视觉-动作 (Vision-Language-Action) 的深层对齐。
-
----
+本文建议用相同模型比较原始数据、增加场景、增加指令和完整增强四种条件；同时报告训练步数或算力预算。这样才能判断增益主要来自数据覆盖、语言变化还是更多优化计算。
 
 ### 6.2.8 InternData-N1 (InternVLA-N1 导航预训练数据)
-————Synthetic Navigation Data for InternVLA-N1
 
-* **发布时间**：2025
-* **数据地址**：[Hugging Face](https://huggingface.co/datasets/InternRobotics/InternData-N1) · [InternNav](https://github.com/InternRobotics/InternNav)
-* **环境表示**：**连续环境 (Continuous Environment)**。基于 VLN-CE 等导航数据集转换，采用统一的 LeRobotDataset 格式。
-* **核心特点**：标准化的机器人学习数据格式，支持视频、指令、动作和元数据的结构化存储，兼容多种导航基准测试。
+InternData-N1 将 VLN-CE、VLN-PE、VLN-N1 子集统一为 LeRobot 格式。统一存储格式便于训练，但不会消除原任务的观测、动作和成功标准差异；取用时需记录子集、筛选和采样配比。[官方数据卡](https://huggingface.co/datasets/InternRobotics/InternData-N1)。
 
-#### 数据集组成与特性分析
+**统一格式之后仍需统一语义**：视频、状态与动作可以共享存储接口，但不同子集的动作尺度、相机设置和机器人状态未必相同。混合训练应明确如何归一化动作、如何编码任务条件，以及如何避免大子集在采样时压过小子集。
 
-本项目采用的多模态数据集涵盖了从大规模真实扫描到高质量人工合成的多种室内场景。每个数据集均提供 **d435i**（主动红外立体）与 **zed**（被动双目）两种传感器仿真配置，以适配不同的硬件特性。
+<details markdown="1">
+<summary>展开：InternData-N1 子集目录与数据版本记录</summary>
 
----
-
-**（1）真实世界扫描类 (Real-world Scanned Scenes)**
-
-*重点用于验证算法在真实物理环境噪声下的鲁棒性。*
-
-* **HM3D (Habitat-Matterport 3D)**
-    * **定位：** 目前规模最大、精细度最高的 3D 扫描数据集。
-    * **价值：** 包含 1000 个超高分辨率场景，是训练长距离导航与具身智能（Embodied AI）的主流基准。
-* **Matterport3D / MP3D**
-    * **定位：** 视觉导航领域的基石数据集。
-    * **价值：** 涵盖 90 个大型建筑的完整扫描，常用于全景视觉处理及跨层区域的复杂导航任务。
-* **ScanNet**
-    * **定位：** 侧重于语义标注的室内房间集合。
-    * **价值：** 包含 1500+ 扫描房间，拥有密集的语义分割与物体实例标注，适合感知层的算法训练。
-* **Replica**
-    * **定位：** 极致精细的少样本数据集。
-    * **价值：** 虽然仅 18 个场景，但其网格密度与重建质量极高，是测试 **高精度 SLAM** 轨迹误差的黄金标准。
-* **Gibson**
-    * **定位：** 机器人导航的经典验证环境。
-    * **价值：** 经过广泛验证的真实建筑扫描数据，便于与现有 SOTA（领域最优）算法进行性能对标。
-
-**（2）程序化合成类 (Synthetic & Procedural Scenes)**
-
-*重点用于空间布局理解及逻辑泛化能力的提升。*
-
-* **HSSD (Habitat Synthetic Scene Dataset)**
-    * **定位：** Meta 开发的高质量合成数据集。
-    * **价值：** 场景布局遵循真实的居家逻辑（如家具对齐与功能分区），能有效提升算法在复杂布局下的泛化性。
-* **3D-FRONT**
-    * **定位：** 基于专业室内设计的合成数据集。
-    * **价值：** 包含大量多样化的家具组合与布局变体，是物体识别与空间拓扑关系训练的理想来源。
-
----
-
-> **📌 传感器说明**
-> * **_d435i 系列**：模拟主动红外立体视觉（Intel RealSense D435i），适合对接 Gemini 336L 等相似原理硬件。
-> * **_zed 系列**：模拟被动双目视觉（Stereolabs ZED），侧重于光照充足环境下的视觉特征提取。
-
-
-**[数据合成流程]**
-
-| 阶段 | 流程名称 | 核心操作与技术实现 |
-| :--- | :--- | :--- |
-| **01** | **轨迹数据渲染合成** | 基于场景资产、全局地图和本体信息，利用传统运动控制方法（Motion Control）设置规则，自动化合成机器人移动轨迹。 |
-| **02** | **语料标注与改写** | 利用大语言模型（LLM）对轨迹视频进行语义解析，生成初版导航指令；随后根据特定任务需求进行指令微调与润色。 |
-| **03** | **数据质量筛选** | 基于轨迹中包含的有意义语义信息及物体数量进行分档打分，强制滤除 0 分数据。 |
-
----
-
-**详细阶段说明**
-
-**（1）轨迹数据渲染合成 (Trajectory Rendering)**
-* **输入支撑**：场景资产 (Assets)、全局地图 (Global Map)、机器人本体参数 (Robot Configuration)。
-* **合成逻辑**：通过预设规则的运动控制算法，在仿真环境中生成符合物理规律的导航路径。
-* **自定义建议**：在此阶段可配置自定义相机内参（如 $f_x, f_y, c_x, c_y$）以匹配实际硬件。
-
-**（2）语料标注和改写 (Instruction Generation)**
-* **描述生成**：调用 LLM 对合成的轨迹视频进行“视觉到语言”的转换，形成初始自然语言指令。
-* **指令优化**：针对复杂场景进行语言改写，提升指令的丰富度与对环境特征的覆盖率。
-
-**（3）数据筛选 (Data Filtering & Quality Control)**
-* **量化评分**：
-  - 依据轨迹内涉及的有效语义信息、地标物体数量进行打分。
-  - 评分体系分为三档，设定阈值过滤无效样本。
-* **成效总结**：
-  - **效率提升**：最终滤除 23% 的低质量数据，显著降低训练成本。
-  - **性能表现**：筛选后的高质量、多元化场景数据确保了模型性能的可扩展性（Scalability）。
-
-
-**[数据集目录结构]**
+下图概括[官方数据卡](https://huggingface.co/datasets/InternRobotics/InternData-N1)中的 CE 轨迹目录，省略场景级压缩包与其他子集，不是所有版本共有的完整清单。下载前固定分支或 revision；数据卡列有 full / mini 等版本。
 
 ```text
-<datasets_root>/
-│
-├── <sub_dataset_1>/              # 环境级数据集 (如 3dfront_zed)
-│   ├── <scene_dataset_1>/        # 场景级数据集
-│   │   ├── <traj_dataset_1>/     # 轨迹级数据集
-│   │   │   ├── data/             # 结构化 episode 数据 (.parquet)
-│   │   │   │   └── chunk-000/
-│   │   │   │       └── episode_000000.parquet
-│   │   │   │
-│   │   │   ├── meta/             # 元数据与统计信息
-│   │   │   │   ├── episodes_stats.jsonl  # 每个 episode 的特征统计
-│   │   │   │   ├── episodes.jsonl        # Episode 元数据 (任务、指令等)
-│   │   │   │   ├── info.json             # 数据集级别配置信息
-│   │   │   │   └── tasks.jsonl           # 任务定义
-│   │   │   │
-│   │   │   └── videos/           # 观测视频
-│   │   │       └── chunk-000/
-│   │   │           ├── observation.images.depth/    # 深度图序列
-│   │   │           │   ├── 0.png
-│   │   │           │   ├── 1.png
-│   │   │           │   └── ...
-│   │   │           ├── observation.images.rgb/      # RGB 图像序列
-│   │   │           │   ├── 0.jpg
-│   │   │           │   ├── 1.jpg
-│   │   │           │   └── ...
-│   │   │           ├── observation.video.depth/     # 深度视频
-│   │   │           │   └── episode_000000.mp4
-│   │   │           └── observation.video.trajectory/# RGB 轨迹视频
-│   │   │               └── episode_000000.mp4
-│   │   │
-│   │   ├── <traj_dataset_2>/
-│   │   └── ...
-│   │
-│   ├── <scene_dataset_2>/
-│   └── ...
-│
-├── <sub_dataset_2>/
-└── ...
+vln_ce/
+├── raw_data/                 # 原任务标注
+└── traj_data/
+    └── <场景数据集>/<场景>/
+        ├── data/chunk-000/   # episode 的 Parquet 数据
+        ├── meta/            # info、tasks、episodes 等元数据
+        └── videos/          # 按相机和模态组织的观测
 ```
 
-**[核心元数据文件解析]**
+取一个 episode，先核对表格时间索引、视频帧、相机名称与动作字段能否对应，再开始批量训练。目录能读取不代表动作已被正确解释；应将一次动作解码和轨迹回放纳入数据接入检查。VLN-PE、VLN-N1 的内容与目录以各自子集说明为准。
 
-**1. episodes_stats.jsonl** - 每个 episode 的特征统计
-
-```json
-{
-  "episode_index": 0,
-  "stats": {
-    "observation.images.rgb": {
-      "min": [[[x]], [[x]], [[x]]],      // 最小像素值
-      "max": [[[x]], [[x]], [[x]]],      // 最大像素值
-      "mean": [[[x]], [[x]], [[x]]],     // 平均值
-      "std": [[[x]], [[x]], [[x]]],      // 标准差
-      "count": [300]                      // 帧数
-    },
-    "observation.images.depth": {...},
-    "action": {...}
-  }
-}
-```
-
-**2. episodes.jsonl** - Episode 索引与任务描述
-
-```json
-{
-  "episode_index": 0,
-  "tasks": [
-    "Go straight down the hall and up the stairs. When you reach the door to the gym, go left into the gym and stop..."
-  ],
-  "length": 57                           // 该 episode 的总帧数
-}
-```
-
-**3. info.json** - 数据集全局配置
-
-```json
-{
-  "codebase_version": "v2.1",            // LeRobot 格式版本
-  "robot_type": "unknown",               // 机器人平台类型
-  "total_episodes": 1,
-  "total_frames": 152,
-  "fps": 30,                             // 视频与状态采集帧率
-  "splits": {"train": "0:503"},          // 数据集划分
-  "features": {                          // 特征模式定义
-    "observation.images.rgb": {
-      "dtype": "image",
-      "shape": [270, 480, 3],            // [height, width, channels]
-      "names": ["height", "width", "channel"]
-    },
-    "observation.camera_intrinsic": {    // 相机内参矩阵 (3×3)
-      "dtype": "float32",
-      "shape": [3, 3]
-    },
-    "observation.path_points": {         // 轨迹点云 (N×3)
-      "dtype": "float64",
-      "shape": [36555, 3],
-      "names": ["x", "y", "z"]
-    },
-    "action": {                          // 动作变换矩阵 (4×4)
-      "dtype": "float32",
-      "shape": [4, 4]
-    }
-  }
-}
-```
-
-**4. tasks.jsonl** - 任务自然语言描述
-
-```json
-{
-  "task_index": 0,
-  "task": "Go straight to the hallway and then turn left. Go past the bed. Veer to the right and go through the white door. Stop when you're in the doorway."
-}
-```
-
-**[关键技术特性]**
-
-* **格式统一化**：将离散节点路径转换为连续的相机轨迹 + 动作序列
-* **多模态融合**：同时存储 RGB、深度图、点云、相机参数
-* **高效存储**：Parquet 格式支持快速索引，MP4 视频便于可视化
-* **扩展性强**：通过继承 `NavDataset` 和 `NavDatasetMetadata` 类适配导航任务特性
-
-**[核心评估指标]**
-
-InternNav 保留 VLN-CE 的标准指标，同时支持 LeRobot 框架的训练评估：
-
-* **SR (Success Rate)**: 终点误差 < 3m 的成功率
-* **SPL (Success weighted by Path Length)**: 路径效率加权成功率
-* **Oracle Success Rate**: 轨迹中任意点接近目标的比例
-* **DtG (Distance to Goal)**: 最终距离目标的平均距离
-
----
+</details>
 
 ### 6.2.9 VLNVerse (物理多任务统一导航基准)
-————VLNVerse: A Benchmark for Vision-Language Navigation with Versatile, Embodied, Realistic Simulation and Evaluation
 
-* **发布时间**：2025 (arXiv 2512.19021)
-* **环境表示**：**高精度三维连续环境 (High-Fidelity Continuous Environment)**。基于高真实感的 263 个独特 3D 真实室内重建场景。
-* **核心挑战**：克服传统“幽灵式（Ghost-style）”无碰撞体、无物理动力学的导航简化假设，实现多任务统一与全运动学物理约束导航。
+VLNVerse 将多种任务、具身仿真和评测置于统一框架。它适合检查跨任务能力，但“使用同一平台”仍不等于“所有任务可合成一个 SR”。应展开各任务及各具身设置，而不是仅给总体均值。[原论文](https://arxiv.org/abs/2512.19021)。
 
-**[任务分类与数据规模]**
-* **任务大一统**：首次将分散的 VLN 任务整合在一个大模型统一框架中，包括：
-  * **细粒度导航 (Fine-grained)**：3,963 训练 / 423 验证 / 825 测试
-  * **长程规划导航 (Long-horizon)**：11,946 训练 / 1,329 验证 / 2,475 测试
-  * **对话导航 (Dialogue)**：11,895 训练 / 1,269 验证 / 2,505 测试
-* **语言风格多样性**：在粗粒度指令中引入了三种语言风格——**正式（Formal）、自然（Natural）与休闲（Casual）**，显着增强了指令描述的语义多样性。
-
-**[核心技术突破与物理刚体仿真]**
-* **全运动学仿真评估**：在仿真中引入完整的智能体刚体碰撞体积，当智能体在连续空间中发生碰撞、跌落或卡住时会收到真实的物理动力学反馈，对评估 Sim2Real 物理部署具有重要价值。
-* **多模态数据闭环**：提供标准化的全运动学视频、指令、深度、语义及雷达输入，支持构建通用导航大模型（VLM/VLA）。
-
----
+**统一基准应怎样读**：共同平台便于复用传感器和执行器，但任务成功可能分别指到达、目标确认或多阶段完成。本文建议同时给出“任务 × 具身设置”的结果矩阵，标明哪些模型共享权重、哪些进行了任务微调。仅有综合均值时，很难判断系统是否在部分任务上失效。
 
 ## 6.3 目标导向与长程规划数据集
 
-目标导向任务（Object-grounded）及长程规划（Long-Horizon）在路径导航的基础上，增加了物体定位、属性理解、语义关系推理的要求，更接近真实的智能体应用场景。
-
 ### 6.3.1 REVERIE (Remote Embodied Visual Referring Expression in Real Indoor Environments)
 
-* **发布时间**：2020 (CVPR)
-* **环境表示**：基于 Matterport3D 的离散拓扑图
-* **核心挑战**：远程物体定位 + 跨模态指代消解（Referring Expression + Navigation）
+REVERIE 要求依据高层描述导航并识别目标物体。到达可见目标的位置与正确完成物体指代是不同结果，因此需区分导航指标与远程指代定位指标。[原论文](https://arxiv.org/abs/1904.10151)。
 
-**[任务定义与创新点]**
+原论文统计为 90 栋建筑中的 10,567 个全景视点、4,140 个目标物体和 21,702 条众包指令（平均 18 词）；指令通常只描述目标所在区域和物体，不逐段描述路线。导航成功要求停在能观察到目标物体的视点（物体在 3 m 内视为可见）。原论文附录用输出框与真值框 IoU ≥ 0.5 判定指代成功；后续工作通常在给定物体候选中做选择，并报告 **RGS**（Remote Grounding Success，选中正确目标的比例）与按路径长度加权的 **RGSPL**。比较 REVERIE 结果时，应确认使用的是哪种定位判据和候选来源。
 
-REVERIE 是 VLN 领域首个将 **导航** 与 **物体定位** 深度融合的数据集，智能体需要：
-1. 根据自然语言指令导航到目标房间
-2. 在全景视图中识别并定位指令中提及的远程目标物体（目标物体在初始位置不可见）
-3. 物体候选来自所有可能视点的全景图像，而非单张图片
+**两个阶段、两类错误**：以“去楼上卧室找到窗边的台灯”为教学例子，智能体先要探索到能够观察目标的位置，再从候选物体中选择符合描述的实例。抵达正确房间但选错台灯，是指代错误；一直未进入可观察区域，则需要检查搜索与导航。
 
-**[数据集目录结构]**
-
-```text
-REVERIE/
-├── data/
-│   ├── REVERIE_train.json       # 10,466 条训练指令
-│   ├── REVERIE_val_seen.json    # 已见环境验证集
-│   └── REVERIE_val_unseen.json  # 未见环境验证集
-├── annotations/
-│   └── bbox/                     # Matterport3D 物体边界框标注
-│       └── <Scan_ID>_bbox.json  # 每个场景的物体实例信息
-└── img_features/                # 物体区域特征（Faster R-CNN 提取）
-    └── <Scan_ID>_obj.tsv
-
-```
-
-**[核心数据解析]**
-
-REVERIE 在 R2R 基础上扩展了物体接地（grounding）标注：
-
-```json
-{
-  "id": 1234,
-  "scan": "2n8P_example",
-  "path": ["vp_1", "vp_2", "vp_3"],       // 导航路径（与 R2R 相同）
-  "heading": 1.57,
-  "instructions": [
-    "Walk to the living room and find the red pillow on the couch."
-  ],
-  "objId": 78,                            // 目标物体 ID（关键新增字段）
-  "obj_name": "pillow",                   // 物体类别名称
-  "viewpoint": "vp_3",                    // 目标物体所在的最佳观测视点
-  "bbox": {                               // 物体边界框（像素坐标）
-    "image_id": "vp_3_idx_12",            // 全景图中的视角索引
-    "x": 120, "y": 200, "w": 50, "h": 60
-  }
-}
-
-```
-
-**[关键技术点：物体标注机制]**
-
-* **物体库**：每个 Matterport3D 场景包含预标注的物体实例（来自 Matterport3D Object Annotations），共涉及 4,140 个不同物体实例，21,702 条指令。
-* **全景视图挑战**：与传统 RefExp 任务在单张图片中选择不同，REVERIE 要求从 **所有可能视点的 36 个方向** 中定位物体。
-* **视点依赖性**：同一物体从不同视点观察外观会显著变化（遮挡、光照、角度），增加了视觉识别难度。
-
-**[核心评估指标]**
-
-REVERIE 使用 **三级评估体系**：
-
-* **RGS (Remote Grounding Success)**：**核心指标**。同时满足两个条件：
-  1. 导航成功（终点与目标视点距离 < 3m）
-  2. 物体定位成功（预测物体 ID 与真实 objId 一致）
-* **RGSPL (RGS weighted by Path Length)**：在 RGS 基础上加入路径效率惩罚。
-* **SR (Success Rate)**：仅评估导航部分，与 R2R 中的 SR 定义相同（终点误差 < 3m）。
-
-**[技术难点]**
-
-1. **长距离指代消解**：物体在初始位置不可见，需要结合语言推理和空间记忆。
-2. **多模态对齐**：需要同时理解"房间级导航指令"（如"去客厅"）和"物体级描述"（如"沙发上的红色枕头"）。
-3. **视点选择**：智能体需要学会在目标房间选择最佳观测角度来识别物体。
-
----
+这也解释了为什么目标检测器、候选框与物体特征属于实验设置的一部分。比较导航策略时，如果一方获得更好的目标候选，不能把最终指代成功率的全部差异都归于规划能力。
 
 ### 6.3.2 REVERIE-CE (目标指代连续动作导航)
-————REVERIE in Continuous Environments
 
-* **发布时间**：2022 (基于 Habitat-Sim 仿真平台)
-* **环境表示**：**连续三维环境 (Continuous Environment)**。基于 Habitat-Sim 模拟器渲染 Matterport3D 场景，使用低层动作控制。
-* **核心挑战**：在连续环境物理导航的同时，克服视野遮挡和动态视角变化，在终点精确定位指代物体（目标定位成功率要求较高）。
+REVERIE-CE 是一类连续环境移植设定的统称，目前没有找到像 VLN-CE 那样由原作者维护、固定版本与规模的统一官方协议，因此本文不给出发布年份和样本数。引用此类结果时，应直接给出论文、转换脚本、样本过滤和物体成功判据，不沿用离散 REVERIE 的统计数。
 
-**[任务特征与对比]**
-* **任务继承**：保留了 REVERIE 的 **2,783 条路径**、**21,702 条指令**以及 **4,140 个目标物体**。
-* **动作连续化**：将原本在离散节点图上的宏观跳跃转换为真实的低层步进控制（前进/旋转），由于引入了碰撞体和避障，远程指代消解的寻路阶段难度呈指数级增加。
-* **定位精度**：智能体到达终点后，需要预测包围框 (Bounding Box) 或输出相应的多全景图像候选集中的物体 ID 来完成 Grounding 任务，极大考验了连续场景中主动视觉搜寻与目标指代对齐的能力。
-
----
+连续移植至少涉及三项额外工作：将离散目标映射到连续场景、明确可观察目标的位置集合、定义停止后如何提交物体预测。本文建议报告过滤了多少原始样本，以及过滤原因。未经核对的转换不能默认保持原基准的难度和目标分布。
 
 ### 6.3.3 SOON (Scenario Oriented Object Navigation)
 
-* **发布时间**：2021 (CVPR)
-* **环境表示**：基于 Matterport3D 的离散拓扑图（与 R2R 共享模拟器，后续工作也有连续环境移植）
-* **核心挑战**：场景级描述理解 + 任意起点导航（From Anywhere to Object）
+SOON 根据目标及周围场景描述，从不同起点搜索并定位目标。它将路径级指令跟随转为场景条件下的探索，适合研究语义搜索与图规划；所用 FAO 数据中的描述、目标与起点组合不应混算成一种样本数。[原论文](https://arxiv.org/abs/2103.17138)。
 
-**[任务定义与创新点]**
+**与路线跟随的不同**：路线指令告诉智能体“怎么走”，场景描述更多告诉它“去哪里找什么”。缺少逐段路线监督时，系统必须决定先搜索哪些区域、什么时候放弃一个假设，以及如何依据新观测更新搜索方向。
 
-SOON 突破了传统 ObjectNav 固定起点的限制，提出了更贴近真实场景的任务设定：
-* **场景描述导航**：不提供逐步指令，仅给出目标物体及其周围环境的语义描述（如"客厅角落的书架旁边有一个蓝色花瓶"）
-* **任意起点**：智能体可以从场景中的任意位置开始导航，而非固定起点
-* **零样本泛化**：强调对未见过的物体类别和场景布局的理解能力
-
-**[数据集目录结构]**
-
-```text
-SOON/
-├── data/
-│   └── FAO/                      # From Anywhere to Object 数据集
-│       ├── train.json            # 训练集
-│       ├── val_seen.json         # 已见场景验证集
-│       └── val_unseen.json       # 未见场景验证集
-├── scene_datasets/               # Matterport3D 场景文件
-└── semantic_annotations/         # 语义场景图标注
-    └── <Scan_ID>_semantic.json  # 物体关系与属性标注
-
-```
-
-**[核心数据解析]**
-
-SOON 引入了富含语义信息的场景描述，避免目标歧义：
-
-```json
-{
-  "episode_id": "FAO_001",
-  "scene_id": "17DRP5sb8fy",
-  "target_object": {
-    "object_id": "obj_42",
-    "category": "vase",
-    "attributes": "blue, ceramic"          // 物体属性
-  },
-  "scene_description": "In the corner of the living room, next to the bookshelf, there is a blue ceramic vase on a small round table.",
-  "description_components": {               // 结构化描述
-    "object_attribute": "blue ceramic vase",
-    "object_relationship": "next to the bookshelf",
-    "region_description": "corner of the living room",
-    "nearby_region": "near the fireplace"
-  },
-  "start_position": [x, y, z],              // 任意起点（非固定）
-  "start_rotation": [qw, qx, qy, qz]
-}
-
-```
-
-**[关键技术点：语义场景图]**
-
-* **四级描述体系**：
-  1. **物体属性**（Object Attribute）：颜色、材质、尺寸等
-  2. **物体关系**（Object Relationship）：空间关系（旁边、上方、里面）
-  3. **区域描述**（Region Description）：所在房间或区域
-  4. **邻近区域**（Nearby Region）：周围地标或参考物
-
-* **FAO 数据集规模**：3,848 条指令，词汇量 1,649 个单词，覆盖多种物体类别和场景配置。
-
-**[核心评估指标]**
-
-* **Success Rate (SR)**：智能体到达目标物体 1m 范围内的成功率。
-* **SPL (Success weighted by Path Length)**：结合路径效率的成功率。
-* **DTS (Distance To Success)**：失败案例中，终点与目标的平均距离。
-* **Zero-shot Generalization**：在未见物体类别上的成功率，评估语义理解能力。
-
-**[技术难点]**
-
-1. **语义推理**：需要理解物体属性、空间关系等高层语义概念。
-2. **场景记忆**：由于起点不固定，智能体需要快速建立场景的全局认知。
-3. **描述消歧**：在包含多个相似物体的场景中，精确定位符合描述的目标。
-
----
+本文建议将未找到目标区域、目标已可见但未识别、识别后停止失败分别统计。这样能区分语义先验是否有效，以及探索预算究竟花在了哪些区域。
 
 ### 6.3.4 LHPR-VLN (Long-Horizon Planning and Reasoning in VLN)
 
-* **发布时间**：2025 (CVPR)
-* **环境表示**：Habitat Simulator + 连续 3D 环境（216 个复杂场景）
-* **核心挑战**：超长程规划（150 步） + 多阶段任务分解 + 决策一致性
+LHPR-VLN 关注连续子任务中的规划一致性。除总体完成情况，还使用 ISR、CSR、CGT 等指标分析子任务成功与前序失败的影响。与 R4R 的区别在于，多阶段执行需要跟踪任务状态，不能只用总路径长度刻画难度。[论文 v3](https://arxiv.org/abs/2412.09082v3)。
 
-**[任务定义与创新点]**
+**长程失败会传播**：若前一阶段停在错误位置，下一阶段就不再从预设状态开始；单独重置后测试每个子任务，会掩盖这种累积效应。本文建议同时保留独立子任务评测和连续执行评测，记录首次失败阶段、已完成进度与恢复开销。
 
-LHPR-VLN 是首个专门针对 **长视距导航** 设计的数据集，填补了 VLN 领域在长程规划研究上的空白：
-* **超长路径**：平均 150 个动作步（相比 R2R 的 4-6 步，增长 25 倍）
-* **多阶段任务**：指令包含多个连贯的子任务（如"先去厨房拿杯子，然后去客厅，最后到卧室"）
-* **决策一致性**：要求智能体在长时间导航过程中保持对任务目标的记忆和理解
-
-**[数据集目录结构]**
-
-```text
-LHPR-VLN/
-├── episodes/
-│   ├── train/                   # 3,260 个长视距任务
-│   │   └── episode_*.json.gz
-│   ├── val_seen/
-│   └── val_unseen/
-├── scenes/                      # 216 个复杂 3D 场景
-│   └── <Scene_ID>/
-│       ├── mesh.ply             # 场景网格
-│       └── semantic.ply         # 语义标注
-└── data_generation/             # NavGen 自动生成平台配置
-    └── config.yaml
-
-```
-
-**[核心数据解析]**
-
-LHPR-VLN 引入了多阶段任务结构和细粒度步骤标注：
-
-```json
-{
-  "episode_id": "LHPR_001",
-  "scene_id": "scene_complex_42",
-  "instruction": "First, go to the kitchen and pick up a cup from the counter. Then, walk to the living room and place it on the coffee table. Finally, head to the bedroom and sit on the bed.",
-  "instruction_length": 18.17,              // 平均指令长度（单词数）
-  "num_steps": 152,                         // 总步数（平均 150 步）
-  "sub_tasks": [                            // 多阶段任务分解
-    {
-      "task_id": 1,
-      "description": "Go to kitchen, pick up cup",
-      "start_step": 0,
-      "end_step": 45,
-      "goal_position": [x1, y1, z1]
-    },
-    {
-      "task_id": 2,
-      "description": "Walk to living room, place cup",
-      "start_step": 46,
-      "end_step": 98,
-      "goal_position": [x2, y2, z2]
-    },
-    {
-      "task_id": 3,
-      "description": "Head to bedroom, sit on bed",
-      "start_step": 99,
-      "end_step": 152,
-      "goal_position": [x3, y3, z3]
-    }
-  ],
-  "start_position": [x0, y0, z0],
-  "start_rotation": [qw, qx, qy, qz],
-  "action_sequence": [                      // 完整的动作序列
-    "MOVE_FORWARD", "TURN_LEFT", ...        // 150 个动作
-  ]
-}
-
-```
-
-**[关键技术点：NavGen 数据生成平台]**
-
-* **双向生成**：结合 top-down（从场景语义生成任务）和 bottom-up（从路径生成指令）两种策略
-* **多粒度标注**：包含任务级、子任务级、步骤级三层标注
-* **复杂场景构建**：216 个场景专门设计为包含多个房间和复杂空间结构
-
-**[核心评估指标]**
-
-* **SR (Success Rate)**：完成所有子任务并到达最终目标的成功率（< 3m）
-* **PSPL (Progressive Success weighted by Path Length)**：**新指标**。评估每个子任务的完成情况和路径效率
-* **Task Completion Rate (TCR)**：完成的子任务占总子任务的比例
-* **Decision Consistency Score (DCS)**：衡量智能体在长程导航中是否保持对目标的一致理解
-
-**[技术难点]**
-
-1. **记忆管理**：在 150 步的导航过程中保持对初始指令和中间目标的记忆
-2. **层次化规划**：需要将长指令分解为多个子目标，并协调执行
-3. **累积误差**：长路径中的小错误会累积，导致偏离正确轨迹
-4. **计算资源**：训练和推理成本显著高于短路径任务
-
----
+记忆机制也应围绕任务状态验证：模型是否记住已经完成的目标，是否重复访问已排除区域，执行失败后是否错误地把子任务标为完成。这些证据比单纯展示更长的上下文窗口更能说明长程能力。
 
 ## 6.4 对话式与社交感知导航数据集
 
-对话式与社交感知导航数据集（Dialog-based & Social-Aware Navigation）探索更贴近现实人机协作与动态复杂环境的导航任务。智能体需要通过主动对话交互消除指令歧义，或在包含动态行人的环境（Social Navigation）中遵守人类社交礼仪进行安全移动。
-
----
-
 ### 6.4.1 CVDN (Cooperative Vision-and-Dialog Navigation)
 
-* **发布时间**：2019 (CoRL - Conference on Robot Learning)
-* **环境表示**：Matterport3D 离散拓扑图（基于 R2R 环境）
-* **核心挑战**：主动问询 + 对话历史建模 + 不确定性下的导航决策
+CVDN 的人类数据采集包含 Navigator 与 Oracle 对话；其 Navigation from Dialog History 任务是依据已有对话历史继续导航。**使用对话历史不等于允许模型在线向人求助**，评测主动提问能力须另行明确交互协议。[原论文](https://arxiv.org/abs/1907.04957)。
 
-**[任务定义与创新点]**
+**历史理解与主动交互是两个问题**：给定“刚才那个门口左转”的历史回复，模型需要把它与已走路径对齐；允许实时询问“是红色门还是白色门”，还需要设计何时提问、如何使用回答及交互代价。两种设置的输入信息不同，应分别报告结果。
 
-CVDN 引入了 **人机协作** 的导航范式，智能体（Navigator）可以在导航过程中向 Oracle 提问：
-* **Navigator**：只能看到当前视觉观测，需要通过提问获取导航帮助
-* **Oracle**：拥有最短路径的特权信息，但不能主动提供，只能回答 Navigator 的问题
-* **对话交互**：平均 4.5 轮对话，Navigator 需要学会何时提问、问什么问题
-
-**[数据集目录结构]**
-
-```text
-CVDN/
-├── data/
-│   ├── train/
-│   │   ├── dialogs.json         # 2,050+ 条人类对话标注
-│   │   └── navigation.json      # 对应的导航路径
-│   ├── val_seen/
-│   └── val_unseen/
-├── tasks/
-│   └── NDH/                      # Navigation from Dialog History 任务
-│       ├── train.json            # 基于对话历史的导航数据
-│       └── val.json
-└── pretrained/
-    └── oracle_model/             # 预训练的 Oracle 模型
-
-```
-
-**[核心数据解析]**
-
-CVDN 数据包含 **完整的对话过程** 和 **导航轨迹**：
-
-```json
-{
-  "dialog_id": "CVDN_001",
-  "scan": "2n8P_example",
-  "target": {
-    "object": "blue chair",
-    "viewpoint": "vp_final"
-  },
-  "start_viewpoint": "vp_1",
-  "start_heading": 0.0,
-  "dialog_history": [              // 人类标注的对话过程
-    {
-      "turn": 1,
-      "message": "I'm in a bedroom. Where should I go?",
-      "speaker": "navigator",
-      "viewpoint_at_turn": "vp_1"
-    },
-    {
-      "turn": 2,
-      "message": "Go through the door and turn right.",
-      "speaker": "oracle",
-      "oracle_action": "vp_2"       // Oracle 知道的最佳下一步
-    },
-    {
-      "turn": 3,
-      "message": "I see a hallway. Am I close?",
-      "speaker": "navigator",
-      "viewpoint_at_turn": "vp_2"
-    },
-    {
-      "turn": 4,
-      "message": "Yes, the chair is in the next room on your left.",
-      "speaker": "oracle",
-      "oracle_action": "vp_final"
-    }
-  ],
-  "trajectory": ["vp_1", "vp_2", "vp_final"],
-  "success": true
-}
-
-```
-
-**[关键技术点：NDH 任务]**
-
-CVDN 提出了 **Navigation from Dialog History (NDH)** 子任务：
-* 给定目标物体和人类对话历史
-* 智能体需要理解对话内容，推断目标位置
-* 在未探索的环境中执行导航
-* 核心难点：对话指代消解（"那个房间"、"左边"等指代如何映射到环境）
-
-**[核心评估指标]**
-
-* **Goal Progress (GP)**：智能体是否向目标位置移动（距离减少）
-* **SR (Success Rate)**：到达目标 3m 范围内的成功率
-* **SPL (Success weighted by Path Length)**：路径效率惩罚的成功率
-* **Dialog Efficiency**：平均需要多少轮对话才能成功导航（越少越好）
-* **Question Quality**：提问是否有效（是否获得了有用信息）
-
-**[技术难点]**
-
-1. **主动学习**：智能体需要学会在何时提问（不确定性高时）以及提问策略
-2. **对话历史建模**：需要记忆和理解多轮对话的上下文
-3. **指代消解**：对话中的"这里"、"那边"等指代需要映射到视觉环境
-4. **Oracle 建模**：训练时需要模拟 Oracle 的回答策略
-
----
+若研究主动求助，本文建议增加提问次数、有效回答比例与每次交互后的导航改善；若只做 NDH，则重点分析历史长度、指代消解与下一段路径的完成情况。
 
 ### 6.4.2 TEACh (Task-driven Embodied Agents that Chat)
 
-* **发布时间**：2022 (AAAI)（arXiv 首次发布于 2021 年 10 月）
-* **环境表示**：AI2-THOR 模拟器 + 可交互家居环境
-* **核心挑战**：任务级对话 + 物体交互 + 状态变化（如切菜、煮咖啡）
+TEACh 包含对话、导航和物体交互，属于更广义的具身任务。其 EDH 等派生任务有不同输入和完成条件，应与纯导航基准分开讨论。[论文 v3](https://arxiv.org/abs/2110.00534v3)还说明了测试集评估对象的修订。
 
-**[任务定义与创新点]**
+**为什么不能只看走到哪里**：教学例子“拿一个干净的杯子放到桌上”涉及物体定位、状态判断和操作后条件。智能体即使走到杯子附近，也没有完成任务。
 
-TEACh 是首个支持 **物体交互和状态变化** 的对话式导航数据集：
-* **Commander（指挥者）**：拥有任务的完整信息，通过对话指导 Follower
-* **Follower（执行者）**：从第一人称视角观察环境，执行导航和物体操作动作
-* **任务复杂度**：从简单的"煮咖啡"到复杂的"准备早餐"（包含多个子任务）
-* **物体交互**：支持拾取（PickUp）、放置（Place）、切片（Slice）、加热（Heat）等 20+ 种动作
-
-**[数据集目录结构]**
-
-```text
-TEACh/
-├── data/
-│   ├── train/                   # 3,000+ 人类对话任务
-│   │   ├── edh_instances/       # Execution from Dialog History
-│   │   └── tfd_instances/       # Talk-through, then Follow-through Demonstration
-│   ├── valid_seen/
-│   └── valid_unseen/
-├── images/                      # 第一人称视角图像序列
-│   └── <episode_id>/
-│       └── frame_*.jpg
-├── object_states/               # 物体状态变化追踪
-│   └── <episode_id>.json
-└── evaluation/
-    └── metrics/                 # 任务完成度评估脚本
-
-```
-
-**[核心数据解析]**
-
-TEACh 数据包含 **完整的任务执行过程** 和 **对话交互**：
-
-```json
-{
-  "instance_id": "TEACh_train_001",
-  "task_type": "Coffee",                   // 任务类型
-  "task_description": "Make a cup of coffee and place it on the dining table.",
-  "scene_id": "FloorPlan1",
-  "dialog": [
-    {
-      "turn": 1,
-      "utterance": "First, go to the coffee machine on the counter.",
-      "speaker": "commander",
-      "timestamp": 0.0
-    },
-    {
-      "turn": 2,
-      "utterance": "I see the coffee machine. Should I press the button?",
-      "speaker": "follower",
-      "timestamp": 5.2
-    },
-    {
-      "turn": 3,
-      "utterance": "Yes, fill the mug with coffee, then take it to the table.",
-      "speaker": "commander",
-      "timestamp": 7.5
-    }
-  ],
-  "actions": [                             // 执行的动作序列
-    {
-      "action": "MoveAhead",
-      "success": true,
-      "position": [x, y, z],
-      "rotation": [rx, ry, rz],
-      "frame": "frame_001.jpg"
-    },
-    {
-      "action": "PickupObject",
-      "object_id": "Mug_001",
-      "success": true,
-      "frame": "frame_015.jpg"
-    },
-    {
-      "action": "PourInto",                // 状态变化动作
-      "object_id": "Mug_001",
-      "receptacle": "CoffeeMachine_001",
-      "success": true,
-      "frame": "frame_032.jpg"
-    },
-    {
-      "action": "PutObject",
-      "object_id": "Mug_001",
-      "receptacle": "DiningTable_001",
-      "success": true,
-      "frame": "frame_078.jpg"
-    }
-  ],
-  "initial_state": {                       // 初始环境状态
-    "Mug_001": {"isFilled": false, "isHot": false, "position": [x1, y1, z1]}
-  },
-  "goal_state": {                          // 目标状态
-    "Mug_001": {"isFilled": true, "isHot": true, "receptacle": "DiningTable_001"}
-  }
-}
-
-```
-
-**[关键技术点：EDH 与 TFD 任务]**
-
-* **EDH (Execution from Dialog History)**：
-  * 给定 Commander 和 Follower 的对话历史
-  * Follower 需要理解对话并执行任务
-  * 类似于 CVDN 的 NDH 任务，但增加了物体交互
-
-* **TFD (Two-stage Task)**：
-  1. **Talk-through**：Commander 先演示任务，边做边讲解
-  2. **Follow-through**：Follower 根据之前的讲解在新场景中执行相同任务
-  * 测试从演示中学习的能力
-
-**[核心评估指标]**
-
-* **GC (Goal-Condition Success Rate)**：**核心指标**。所有目标状态是否达成：
-  * 正确的物体被放置在正确的位置
-  * 物体状态正确（如咖啡是热的、面包被切片）
-* **Task Success Rate (TSR)**：主要任务目标是否完成
-* **Dialog Score**：对话质量和效率
-* **Action Efficiency**：完成任务所需的动作步数
-* **State Change Accuracy**：物体状态变化的准确性
-
-**[技术难点]**
-
-1. **长期依赖**：任务平均包含 50+ 个动作步骤，需要长期规划
-2. **状态追踪**：需要记忆物体的当前状态（杯子是否装满、炉子是否开启等）
-3. **多模态融合**：结合对话、视觉、动作历史做决策
-4. **任务泛化**：在未见过的场景和物体配置上执行相同任务类型
-
----
+EDH（Execution from Dialog History）研究从给定交互历史继续执行，TfD（Trajectory from Dialog）则依据对话推断并执行任务轨迹；两者的起始信息不同。阅读论文时要先确定评测任务，再比较任务成功与目标条件完成情况。[TEACh 论文](https://arxiv.org/abs/2110.00534v3)。
 
 ### 6.4.3 HA-VLN 2.0 (Human-Aware Vision-Language Navigation)
 
-* **发布时间**：2025 (NeurIPS 2024 Datasets and Benchmarks Track, HA-VLN 2.0 发布于 2025 年 3 月)
-* **环境表示**：离散（Matterport3D）+ 连续（Habitat）双模式支持
-* **核心挑战**：社交感知导航 + 人群避让 + 个人空间保护 + Sim2Real 迁移
+HA-VLN 2.0 将动态多人交互与个人空间约束纳入导航评测。到达与社交合规需要同时观察，并固定人群行为及运行种子；单次成功视频不能反映多次遇人情况下的稳定性。[论文 v5](https://arxiv.org/abs/2503.14229v5)。
 
-**[任务定义与创新点]**
+**动态环境下的成功有条件**：遇到行人时，等待、绕行与紧贴人群穿过可能都到达同一目标，却具有不同的社交后果。仅用 SPL 可能把合理等待或绕行表现为效率下降，因此需要与碰撞、个人空间侵犯及任务时限共同解释。
 
-HA-VLN 是首个将 **人类社交行为约束** 引入 VLN 的数据集：
-* **社交感知**：智能体需要尊重人类的个人空间（personal space），避免碰撞和过近接触
-* **动态人群**：环境中包含移动的人类，执行各种日常活动（walking, sitting, talking）
-* **真实验证**：包含真实机器人实验数据，验证 Sim2Real 迁移能力
-* **统一基准**：同时支持离散和连续环境，便于不同方法对比
-
-**[数据集目录结构]**
-
-```text
-HA-VLN/
-├── data/
-│   ├── HAPS_2.0/                # Human Activity Pose Sequences 2.0
-│   │   ├── motion_sequences/    # 172 种活动的 3D 人体运动序列
-│   │   │   └── activity_*/
-│   │   │       ├── frames/      # 58,320 帧精确对齐的姿态
-│   │   │       └── annotations.json
-│   │   └── descriptions/        # 486 个详细的动作描述
-│   ├── episodes/
-│   │   ├── discrete/            # 离散环境（Matterport3D）
-│   │   │   ├── train.json       # 16,844 条社交导航指令
-│   │   │   └── val_*.json
-│   │   └── continuous/          # 连续环境（Habitat）
-│   │       └── episodes.json.gz
-│   └── real_world/              # 真实机器人实验数据
-│       ├── robot_trajectories/
-│       └── human_tracking/
-└── simulators/
-    ├── HA3D_discrete/           # 离散环境模拟器
-    └── HA3D_continuous/         # 连续环境模拟器
-
-```
-
-**[核心数据解析]**
-
-HA-VLN 在导航指令中增加了 **社交约束** 和 **人群信息**：
-
-```json
-{
-  "episode_id": "HA-VLN_001",
-  "scan": "2n8P_example",
-  "instruction": "Walk through the living room to the kitchen, but avoid getting too close to the person sitting on the couch.",
-  "path": ["vp_1", "vp_2", "vp_3"],
-  "humans": [                              // 动态人类信息
-    {
-      "human_id": "person_01",
-      "activity": "sitting on couch",      // 当前活动
-      "motion_sequence": "HAPS_sitting_01", // 对应的运动序列
-      "trajectory": [                      // 时空轨迹
-        {"time": 0.0, "position": [x1, y1, z1], "orientation": [r1]},
-        {"time": 1.0, "position": [x2, y2, z2], "orientation": [r2]},
-        ...
-      ],
-      "personal_space_radius": 1.2         // 个人空间半径（米）
-    },
-    {
-      "human_id": "person_02",
-      "activity": "walking to kitchen",
-      "motion_sequence": "HAPS_walking_03",
-      "trajectory": [...]
-    }
-  ],
-  "social_constraints": {                  // 社交约束
-    "min_distance_to_humans": 1.0,         // 最小保持距离
-    "avoid_blocking_paths": true,          // 避免阻挡他人路径
-    "priority_to_humans": true             // 人类优先通行
-  }
-}
-
-```
-
-**[关键技术点：HAPS 2.0 数据集]**
-
-* **活动类别**：172 种日常活动（walking, sitting, reaching, talking, reading 等）
-* **精确对齐**：486 个高质量 3D 人体运动模型，经过人工验证确保动作-描述对齐
-* **时空标注**：58,320 帧姿态数据，包含精确的时间戳和空间坐标
-* **多人交互**：支持多人协同活动（如对话、传递物品）
-
-**[核心评估指标]**
-
-HA-VLN 2.0 引入了 **社交感知评估体系**：
-
-* **SA-SR (Social-Aware Success Rate)**：**核心新指标**。同时满足：
-  1. 导航成功（到达目标 < 3m）
-  2. 无社交违规（未进入他人个人空间）
-  3. 无碰撞（与人类保持安全距离）
-
-* **Personal Space Violation Rate (PSVR)**：违反个人空间的频率
-* **Collision Rate (CR)**：与人类发生碰撞的次数
-* **Path Efficiency with Social Cost (PESC)**：结合路径长度和社交代价的综合指标
-* **Sim2Real Transfer Success**：真实机器人实验的成功率
-
-**[技术难点]**
-
-1. **动态预测**：需要预测人类未来的移动轨迹，提前规划避让路径
-2. **社交规范建模**：不同文化和场景下的个人空间定义可能不同
-3. **实时性**：需要在运动的人群中快速做出导航决策
-4. **Sim2Real Gap**：模拟器中的人类行为与真实世界存在差异
-5. **多目标优化**：在导航效率和社交安全之间权衡
-
-**[真实世界验证]**
-
-HA-VLN 2.0 包含真实机器人实验：
-* 在实际室内环境部署导航机器人
-* 与真实人类交互，验证算法的安全性和有效性
-* 提供了宝贵的 Sim2Real 迁移数据
-
----
+本文建议固定或配对运行种子，重复测试不同人群交互情形；报告成功样本中的社交违规，以及失败样本是否因超时、碰撞或迷路结束。不要仅展示最顺利的一次轨迹。
 
 ## 6.5 需求导向与常识推理数据集
 
-需求导向导航（Demand-driven Navigation）将传统的显式“地标指令跟随”提升为高层语义“需求消解”。智能体不再接收具体的寻找指令，而是被赋予抽象的人类日常需求（如“我需要洗手”），要求其通过整合具身常识，推理并寻找可满足功能的对应实体目标。
-
----
-
 ### 6.5.1 DDN (Demand-driven Navigation)
 
-* **发布时间**：2023-2024（基于 ProcThor 数据集）
-* **环境表示**：AI2-THOR + ProcThor 程序化生成的室内环境
-* **核心挑战**：需求理解 + 常识推理 + 物体功能性映射
+DDN 从用户需求推断满足需求的物体，例如将“我需要清洁”映射为具有合适用途的目标。原工作在 AI2-THOR / ProcTHOR 上研究这一问题，属于需求条件的目标导航；它不要求逐段遵循路线描述。[原论文](https://arxiv.org/abs/2309.08138)。
 
-**[任务定义与创新点]**
+**需求到目标存在多解**：同一需求可能由多个物体满足，但可接受答案取决于任务标注和场景。教学例子“我想坐下休息”可能引出椅子或沙发，不能只凭语言常识就判定任意候选都成功。
 
-DDN 突破了传统"明确物体导航"的限制，模拟真实场景中的高层需求：
-* **抽象需求输入**：用户不说"找到咖啡机"，而是说"我想喝咖啡"或"我需要清洁工具"
-* **物体功能推理**：智能体需要理解哪些物体可以满足需求（咖啡机、速溶咖啡、法式压壶都能满足"喝咖啡"的需求）
-* **常识知识**：需要丰富的常识知识库（如"咖啡机通常在厨房""清洁工具可能在储藏室"）
-
-**[数据集目录结构]**
-
-```text
-DDN/
-├── data/
-│   ├── train.json               # 1,692 条需求导向指令
-│   ├── val.json                 # 241 条验证指令
-│   └── test.json                # 485 条测试指令
-├── scenes/
-│   ├── train/                   # 600 个场景（200个/split）
-│   │   └── <Scene_ID>.json      # ProcThor 场景配置
-│   ├── val/
-│   └── test/
-├── demand_ontology/             # 需求本体（知识图谱）
-│   ├── demand_categories.json   # 需求分类（饮食、清洁、娱乐等）
-│   └── object_functions.json    # 物体-功能映射表
-└── object_categories/           # 109 个物体类别定义
-    └── category_definitions.json
-
-```
-
-**[核心数据解析]**
-
-DDN 数据强调 **需求到物体的映射**：
-
-```json
-{
-  "episode_id": "DDN_001",
-  "scene_id": "ProcThor_train_042",
-  "demand": "I want to make coffee.",        // 用户需求（自然语言）
-  "demand_category": "food_beverage",        // 需求类别
-  "acceptable_objects": [                    // 可接受的目标物体（多个）
-    "CoffeeMachine",
-    "InstantCoffee",
-    "FrenchPress"
-  ],
-  "preferred_object": "CoffeeMachine",       // 首选物体
-  "required_properties": {                   // 物体需满足的属性
-    "functional": true,                      // 必须可用
-    "accessible": true                       // 必须可触及
-  },
-  "common_locations": [                      // 常见位置（常识）
-    "Kitchen",
-    "DiningRoom"
-  ],
-  "start_position": [x, y, z],
-  "start_rotation": [rx, ry, rz],
-  "ground_truth_path": [...]                 // 参考路径（到首选物体）
-}
-
-```
-
-**[关键技术点：需求本体]**
-
-* **需求分类体系**：
-  * 饮食需求（Food & Beverage）：喝咖啡、吃饭、切菜
-  * 清洁需求（Cleaning）：打扫、擦地、洗碗
-  * 娱乐需求（Entertainment）：看电视、读书
-  * 工作需求（Work）：打电话、使用电脑
-
-* **物体-功能映射**：
-  ```json
-  {
-    "demand": "clean floor",
-    "objects": [
-      {"name": "VacuumCleaner", "priority": 1, "effectiveness": 0.9},
-      {"name": "Mop", "priority": 2, "effectiveness": 0.7},
-      {"name": "Broom", "priority": 3, "effectiveness": 0.5}
-    ]
-  }
-  ```
-
-* **常识推理链**：
-  * 需求："我想喝咖啡" → 物体推理："需要咖啡机或速溶咖啡" → 位置推理："通常在厨房" → 导航规划
-
-**[核心评估指标]**
-
-* **DSR (Demand Success Rate)**：**核心指标**。找到任意可满足需求的物体（< 1m）
-* **PSR (Preferred Success Rate)**：找到首选物体的成功率
-* **Reasoning Accuracy**：需求→物体映射的准确性
-* **Location Prediction Accuracy**：预测物体位置的准确性
-* **SPL (Success weighted by Path Length)**：结合路径效率
-
-**[技术难点]**
-
-1. **需求歧义消解**：同一需求可能对应多个物体，需要根据场景选择最合适的
-2. **常识知识集成**：需要大量常识知识（物体功能、常见位置、使用场景）
-3. **零样本泛化**：对未见过的需求类型进行推理
-4. **多目标决策**：当多个物体都可满足需求时，如何选择最优目标
-5. **知识库构建**：如何构建和维护需求-物体-位置的知识图谱
-
-**[与 VLN 的区别]**
-
-| 维度 | 传统 VLN | DDN |
-|------|----------|-----|
-| 输入 | "去厨房找咖啡机" | "我想喝咖啡" |
-| 目标 | 明确的物体/位置 | 抽象的需求 |
-| 推理 | 语言→路径映射 | 需求→物体→路径多级映射 |
-| 知识 | 视觉-语言对齐 | 常识知识 + 物体功能性 |
-
----
+本文建议把需求推断与空间搜索分开诊断：模型是否提出了可接受目标，目标是否在当前环境可用，随后是否找到并正确停止。将需求预先改写成固定物体类别再导航时，也应说明这一步使用了什么额外模型或监督。
 
 ## 6.6 空中航拍与特殊场景数据集
 
-随着 VLN 应用空间的拓展，研究界开始打破室内地面二维平面导航的限制，推出了面向无人机（UAVs）三维控制的空中视觉导航数据集，以及针对大型城市场景乃至真实高分辨率航拍数据的宏观尺度导航基准。
-
----
-
 ### 6.6.1 AerialVLN (Vision-and-Language Navigation for UAVs)
 
-* **发布时间**：2023 (ICCV)
-* **环境表示**：3D 模拟器 + 近真实感城市场景渲染（25 个城市场景）
-* **核心挑战**：三维空间推理 + 高度控制 + 城市地标识别
+AerialVLN 使用 UE4 / AirSim 城市场景，增加高度和空间关系推理。原论文表 1 将标准任务列为 **4 DoF**，不应笼统称为完整 6-DoF 飞控。[原论文](https://arxiv.org/html/2308.06735v1)。
 
-**[任务定义与创新点]**
+**高度改变语言参照**：“绕过楼顶再下降”同时包含水平路径和垂直关系；俯视观测中的地标尺度也随高度变化。分析模型时应说明可控自由度、相机方向和飞行步长，并检查是否依赖训练城市中特定建筑外观。
 
-AerialVLN 是首个专为 **无人机（UAV）** 设计的 VLN 数据集：
-* **三维导航**：需要同时控制水平位置和飞行高度
-* **空中视角**：俯视和斜视视角与地面导航完全不同
-* **城市环境**：包含建筑物、道路、公园、工厂等多样化城市场景
-* **高密度物体**：870+ 种不同物体类别，远超室内数据集
-
-**[数据集目录结构]**
-
-```text
-AerialVLN/
-├── data/
-│   ├── AerialVLN-S/             # AerialVLN-Simulator 数据集
-│   │   ├── train.json           # 8,446 条飞行轨迹
-│   │   ├── val_seen.json
-│   │   └── val_unseen.json
-│   └── trajectories/
-│       └── <Episode_ID>/
-│           ├── waypoints.json   # 轨迹关键点
-│           └── actions.json     # 飞行动作序列
-├── scenes/
-│   ├── downtown/                # 市中心场景
-│   ├── factory/                 # 工厂区场景
-│   ├── park/                    # 公园场景
-│   └── village/                 # 乡村场景
-├── annotations/
-│   ├── landmarks/               # 地标标注（建筑名称、特征）
-│   └── objects/                 # 870+ 物体类别标注
-└── pilot_data/                  # AOPA 持证飞行员标注数据
-    └── human_trajectories.json
-
-```
-
-**[核心数据解析]**
-
-AerialVLN 需要处理 **三维空间的飞行路径**：
-
-```json
-{
-  "episode_id": "AerialVLN_001",
-  "scene_id": "downtown_city_01",
-  "instruction": "Fly over the blue rooftop building, then descend to 15 meters and head towards the park with the fountain.",
-  "instruction_length": 22,
-  "trajectory": [                          // 三维轨迹
-    {
-      "waypoint_id": 0,
-      "position": [x0, y0, z0],            // z 轴为高度
-      "heading": 90.0,                     // 水平朝向（度）
-      "pitch": -15.0,                      // 俯仰角（负值为向下看）
-      "altitude": 30.0,                    // 海拔高度（米）
-      "timestamp": 0.0
-    },
-    {
-      "waypoint_id": 1,
-      "position": [x1, y1, z1],
-      "heading": 120.0,
-      "pitch": -20.0,
-      "altitude": 25.0,
-      "timestamp": 5.3
-    },
-    ...
-  ],
-  "landmarks_mentioned": [                 // 指令中提及的地标
-    {
-      "name": "blue rooftop building",
-      "category": "building",
-      "position": [xb, yb, zb],
-      "visibility_range": 50.0             // 可见距离（米）
-    },
-    {
-      "name": "park with fountain",
-      "category": "outdoor_area",
-      "position": [xp, yp, zp]
-    }
-  ],
-  "action_space": {                        // 飞行动作空间
-    "horizontal": ["MOVE_FORWARD", "TURN_LEFT", "TURN_RIGHT", "HOVER"],
-    "vertical": ["ASCEND", "DESCEND", "MAINTAIN_ALTITUDE"]
-  },
-  "pilot_certified": true                  // 是否由持证飞行员标注
-}
-
-```
-
-**[关键技术点：AOPA 认证飞行员标注]**
-
-* **专业性**：所有轨迹由 AOPA（Aircraft Owners and Pilots Association）持证飞行员记录
-* **安全性**：轨迹符合飞行安全规范（避障、高度控制、速度限制）
-* **真实性**：飞行模式符合真实无人机的物理特性
-
-**[多样化场景类型]**
-
-* **Downtown（市中心）**：高楼林立，需要在建筑间导航
-* **Factory（工厂区）**：大型工业设施，烟囱、仓库等地标
-* **Park（公园）**：开阔区域，树木、池塘、雕塑等自然地标
-* **Village（乡村）**：低密度建筑，农田、道路等特征
-
-**[核心评估指标]**
-
-* **SR (Success Rate)**：到达目标位置的成功率（3D 欧氏距离 < 5m）
-* **ALT-E (Altitude Error)**：**新指标**。高度控制误差（米）
-* **SPL (Success weighted by Path Length)**：3D 路径长度惩罚
-* **Landmark Recognition Accuracy**：地标识别准确率
-* **Collision Rate**：与建筑物或障碍物的碰撞率
-
-**[技术难点]**
-
-1. **三维空间推理**：需要同时理解"向前飞"和"上升/下降"的空间关系
-2. **视角变化**：不同高度和俯仰角下，同一地标的外观差异巨大
-3. **地标消歧**：城市中可能有多个相似的建筑物（如多个蓝色屋顶）
-4. **安全约束**：需要避免碰撞、保持安全高度、遵守飞行限制区域
-5. **长距离导航**：城市环境尺度大，导航距离远超室内场景
-
-**[与室内 VLN 的对比]**
-
-| 维度 | 室内 VLN (R2R) | AerialVLN |
-|------|----------------|-----------|
-| 空间维度 | 2D（平面移动） | 3D（含高度） |
-| 视角 | 第一人称水平视角 | 俯视 + 斜视 |
-| 地标密度 | 稀疏（房间、家具） | 密集（870+ 物体） |
-| 场景尺度 | 小（单个建筑） | 大（城市街区） |
-| 动作空间 | 前进 + 旋转 | 前进 + 旋转 + 升降 |
-
----
+本文建议分开记录水平偏差、高度偏差和停止位置，不能仅凭二维地图上的投影接近目标就判断三维导航成功。
 
 ### 6.6.2 CityNav (Language-Goal Aerial Navigation Dataset with Geographic Information)
 
-* **发布时间**：2025 (ICCV)（arXiv 于 2024 年 6 月首次发布）
-* **环境表示**：真实城市航拍图像 + 地理语义地图（GSM）
-* **核心挑战**：真实世界泛化 + 地标空间关系理解 + 地理信息融合
+CityNav 使用真实城市地理环境及语言配对的人类示范，研究视觉与地理信息结合的空中导航。“真实城市数据”不能直接等同于真实无人机的自主飞行测试；比较时还需说明地理信息和地图是否可用。[论文 v3](https://arxiv.org/abs/2406.14240v3)。
 
-**[任务定义与创新点]**
-
-CityNav 是首个基于 **真实城市** 的大规模空中 VLN 数据集：
-* **真实场景**：覆盖 4.65 km² 实际城市区域（英国剑桥和伯明翰）
-* **人类演示**：32,637 条人类飞行员标注的真实轨迹
-* **地理语义地图（GSM）**：结合地理信息（地标位置、道路网络）辅助导航
-* **零样本挑战**：需要在真实世界的复杂性和不确定性下导航
-
-**[数据集目录结构]**
-
-```text
-CityNav/
-├── data/
-│   ├── trajectories/
-│   │   ├── cambridge/           # 剑桥市轨迹（16,000+ 条）
-│   │   │   ├── train.json
-│   │   │   ├── val.json
-│   │   │   └── test.json
-│   │   └── birmingham/          # 伯明翰市轨迹（16,000+ 条）
-│   │       └── ...
-│   └── geographic_maps/
-│       ├── GSM_cambridge.json   # 剑桥地理语义地图
-│       └── GSM_birmingham.json  # 伯明翰地理语义地图
-├── aerial_images/               # 真实航拍图像序列
-│   └── <Episode_ID>/
-│       ├── frame_*.jpg          # 第一人称视角航拍图像
-│       └── metadata.json        # GPS 坐标、时间戳
-├── landmarks/                   # 城市地标数据库
-│   ├── landmark_database.json   # 地标名称、类别、GPS 坐标
-│   └── landmark_images/         # 地标参考图像
-└── annotations/
-    ├── spatial_relations.json   # 地标间的空间关系标注
-    └── instruction_annotations.json
-
-```
-
-**[核心数据解析]**
-
-CityNav 结合了 **真实航拍图像** 和 **地理信息**：
-
-```json
-{
-  "episode_id": "CityNav_Cambridge_001",
-  "city": "Cambridge",
-  "instruction": "Fly from the market square towards King's College Chapel, then turn left at the River Cam and follow it northward.",
-  "instruction_length": 25,
-  "trajectory": [
-    {
-      "waypoint_id": 0,
-      "gps": {"lat": 52.2053, "lon": 0.1218, "alt": 50.0},  // GPS 坐标
-      "heading": 45.0,
-      "image": "frame_000.jpg",
-      "timestamp": "2024-06-15T10:30:00Z"
-    },
-    {
-      "waypoint_id": 1,
-      "gps": {"lat": 52.2042, "lon": 0.1167, "alt": 48.0},
-      "heading": 38.0,
-      "image": "frame_015.jpg",
-      "timestamp": "2024-06-15T10:30:23Z"
-    },
-    ...
-  ],
-  "landmarks_in_instruction": [            // 指令中的地标
-    {
-      "name": "Market Square",
-      "type": "public_space",
-      "gps": {"lat": 52.2054, "lon": 0.1190},
-      "osm_id": "way/123456789"            // OpenStreetMap ID
-    },
-    {
-      "name": "King's College Chapel",
-      "type": "historic_building",
-      "gps": {"lat": 52.2042, "lon": 0.1165},
-      "osm_id": "way/987654321"
-    },
-    {
-      "name": "River Cam",
-      "type": "waterway",
-      "gps": {"lat": 52.2035, "lon": 0.1180},  // 中心线坐标
-      "osm_id": "way/111222333"
-    }
-  ],
-  "geographic_semantic_map": {             // 地理语义地图信息
-    "landmark_locations": [...],           // 地标位置列表
-    "road_network": [...],                 // 道路网络拓扑
-    "spatial_relations": [                 // 地标间的空间关系
-      {
-        "landmark_1": "Market Square",
-        "landmark_2": "King's College Chapel",
-        "relation": "southwest_of",
-        "distance": 580.0                  // 米
-      },
-      {
-        "landmark_1": "King's College Chapel",
-        "landmark_2": "River Cam",
-        "relation": "east_of",
-        "distance": 120.0
-      }
-    ]
-  }
-}
-
-```
-
-**[关键技术点：地理语义地图（GSM）]**
-
-* **地标定位**：提供城市中所有主要地标的精确 GPS 坐标
-* **空间关系**：预计算的地标间方位关系（north_of, southwest_of 等）
-* **道路网络**：城市道路的拓扑结构，辅助路径规划
-* **多模态输入**：GSM 可作为额外的输入模态，与视觉观测结合
-
-**[GSM 的作用]**
-
-```json
-// GSM 提供的辅助信息示例
-{
-  "query": "Where is King's College Chapel relative to Market Square?",
-  "gsm_response": {
-    "direction": "southwest",
-    "distance": 580.0,
-    "intermediate_landmarks": ["Senate House", "Great St Mary's Church"]
-  }
-}
-```
-
-**[核心评估指标]**
-
-* **SR (Success Rate)**：到达目标区域的成功率（GPS 误差 < 10m）
-* **GPS-DTG (GPS Distance To Goal)**：终点与目标的 GPS 距离（米）
-* **SPL (Success weighted by Path Length)**：基于 GPS 路径长度的 SPL
-* **Landmark Recognition Accuracy**：正确识别指令中地标的准确率
-* **Spatial Relation Understanding**：理解地标间空间关系的准确率
-
-**[技术难点]**
-
-1. **真实世界复杂性**：
-   * 天气变化（阴天、晴天、雨天）
-   * 光照变化（不同时间、季节）
-   * 遮挡（树木、云层、建筑阴影）
-
-2. **地标歧义**：
-   * 城市中可能有多个相似建筑
-   * 地标外观随视角变化显著
-
-3. **长距离导航**：
-   * 覆盖 4.65 km²，导航距离可达数千米
-   * 需要全局路径规划能力
-
-4. **跨城市泛化**：
-   * 不同城市的建筑风格、道路布局差异大
-   * 需要泛化到未见过的城市
-
-5. **多模态融合**：
-   * 如何有效融合视觉观测和地理语义地图
-   * 在 GPS 不可用时如何纯视觉导航
-
-**[CityNav vs AerialVLN]**
-
-| 维度 | AerialVLN | CityNav |
-|------|-----------|---------|
-| 场景 | 模拟场景（近真实感） | 真实城市航拍 |
-| 规模 | 25 个场景, 8,446 轨迹 | 2 个城市, 32,637 轨迹 |
-| 覆盖面积 | 相对较小 | 4.65 km² |
-| 地理信息 | 无 | GSM（地标、道路网络） |
-| 挑战重点 | 三维空间推理 | 真实世界泛化 |
-| 数据来源 | 持证飞行员标注 | 真实飞行数据 |
-
-**[应用场景]**
-
-* 城市无人机配送导航
-* 无人机巡检（基础设施、建筑）
-* 搜索救援任务（根据语言描述的位置快速定位）
-* 航空摄影（根据拍摄需求规划飞行路径）
-
----
+**地图信息是一种额外输入**：地理坐标、地图或先验位置可能显著改变搜索问题。本文建议对比视觉与语言输入、加入地理信息、加入地图的不同条件，并报告城市划分。跨城市评测更能检验空间语义能否迁移，但也需控制资产和数据重叠。
 
 ### 6.6.3 OpenFly (A Comprehensive Platform for Aerial Vision-Language Navigation)
 
-* **发布时间**：2025 (arXiv 首次发布于 2025 年 2 月)
-* **环境表示**：多引擎集成（Unreal Engine + GTA V + Google Earth + 3D Gaussian Splatting）
-* **核心挑战**：大规模数据 + 多样化场景 + 自动化工具链 + 关键帧感知
+OpenFly 将多种渲染引擎、自动采集工具链与空中导航基准结合。研究价值在于数据生产和环境覆盖；跨引擎泛化仍需要隔离训练与测试引擎、场景和资产来验证。[论文 v7](https://arxiv.org/abs/2502.18041v7)。
 
-**[任务定义与创新点]**
+**跨引擎不只是换画面风格**：渲染、坐标系、深度定义和动作执行都可能变化。本文建议先对齐这些接口，再区分同场景换渲染、同引擎换场景和跨引擎跨场景三类实验。自动生成大量轨迹后，还应抽查语言是否描述了实际可见地标及真正执行的路线。
 
-OpenFly 是迄今为止 **最大规模** 的空中 VLN 平台：
-* **海量数据**：100,000 条飞行轨迹，是 AerialVLN 和 CityNav 总和的 3 倍
-* **多引擎支持**：整合 4 种不同的渲染引擎，覆盖从游戏级到照片级的真实感
-* **自动化工具链**：高度自动化的数据采集、场景分割、轨迹生成、指令标注流程
-* **18 个场景**：覆盖城市、乡村、山区、海岸等多种地形
-* **多样化高度和长度**：轨迹高度从 10m 到 200m，长度从 50m 到 5km
+## 6.7 复现时需要记录的数据口径
 
-**[数据集目录结构]**
+保留原始数据版本、场景清单、episode 数与唯一指令数、语言子集、Guide/Follower 类型，以及丢弃样本的规则。说明额外训练数据是否接触测试建筑或其衍生资产。对私有预训练数据无法确认的重叠，应标注“未披露”，不能自动视为无重叠。
 
-```text
-OpenFly/
-├── data/
-│   ├── trajectories/
-│   │   ├── unreal_engine/       # Unreal Engine 渲染场景（30,000 条）
-│   │   ├── gta_v/               # GTA V 场景（25,000 条）
-│   │   ├── google_earth/        # Google Earth 真实场景（25,000 条）
-│   │   └── 3d_gaussian/         # 3D Gaussian Splatting 场景（20,000 条）
-│   └── split/
-│       ├── train.json           # 训练集（80,000 条）
-│       ├── val.json             # 验证集（10,000 条）
-│       └── test.json            # 测试集（10,000 条）
-├── scenes/                      # 18 个多样化场景
-│   ├── urban_downtown/
-│   ├── suburban_residential/
-│   ├── rural_countryside/
-│   ├── mountain_region/
-│   ├── coastal_area/
-│   └── ...
-├── toolchain/                   # 自动化数据生成工具链
-│   ├── point_cloud_processor/   # 点云获取与处理
-│   ├── semantic_segmentation/   # 场景语义分割
-│   ├── trajectory_generator/    # 飞行轨迹创建
-│   └── instruction_generator/   # GPT-4o 指令生成
-├── keyframe_annotations/        # 关键帧标注
-│   └── <Episode_ID>_keyframes.json
-└── openfly_agent/               # OpenFly-Agent 模型代码
-    ├── model/
-    └── configs/
+上文将数据字段与目录说明折叠在对应基准下，方便按需查阅。下面补充跨数据集的实验记录模板；官方格式、本文示意与实际运行配置应分开保存。下载和安装命令以所用版本的官方仓库为准。
 
+<details markdown="1">
+<summary>展开：实验数据与评测配置记录模板</summary>
+
+这是**本文建议的记录模板**，不是 Habitat、LeRobot 或任何基准可直接加载的配置。`null` 表示待填写，不能作为实验默认值。
+
+```yaml
+dataset:
+  name: null
+  revision: null
+  split: null
+  episode_count_after_filtering: null
+  scene_list_hash: null
+  languages: []
+  extra_training_sources: []
+environment:
+  simulator_commit: null
+  scene_assets_version: null
+  robot_and_controller: null
+  camera_modalities_and_fov: null
+  action_space_and_units: null
+  collision_and_sliding: null
+evaluation:
+  evaluator_commit: null
+  distance_definition: null
+  success_threshold_and_stop_rule: null
+  max_steps_or_time: null
+  trajectory_sampling: null
+  seeds: []
 ```
 
-**[核心数据解析]**
+保存过滤前后数量及原因，避免把“不支持加载”“没有可行路径”“模型执行失败”混成同一类丢弃。评测失败的 episode 应按协议计入统计，不能从结果文件中静默删除。
 
-OpenFly 引入了 **关键帧（Keyframe）** 的概念：
+</details>
 
-```json
-{
-  "episode_id": "OpenFly_UE_12345",
-  "engine": "unreal_engine",            // 渲染引擎
-  "scene": "urban_downtown_02",
-  "instruction": "Take off from the parking lot, fly north along Main Street, ascend to 50 meters when you reach the clock tower, then circle around the stadium and land on the rooftop helipad.",
-  "instruction_source": "GPT-4o",       // 指令由 GPT-4o 生成
-  "trajectory_stats": {
-    "length_meters": 1250.0,
-    "duration_seconds": 180.0,
-    "max_altitude": 52.0,
-    "min_altitude": 5.0,
-    "num_waypoints": 85
-  },
-  "keyframes": [                        // 关键帧（重点观测点）
-    {
-      "keyframe_id": 0,
-      "waypoint_id": 0,
-      "description": "parking lot - takeoff point",
-      "importance": 0.95,               // 重要性评分（0-1）
-      "reason": "navigation_start",
-      "position": [x0, y0, z0],
-      "image": "frame_000.jpg"
-    },
-    {
-      "keyframe_id": 1,
-      "waypoint_id": 22,
-      "description": "clock tower - altitude reference",
-      "importance": 0.88,
-      "reason": "landmark_mentioned",   // 指令中提及的地标
-      "position": [x1, y1, z1],
-      "image": "frame_022.jpg"
-    },
-    {
-      "keyframe_id": 2,
-      "waypoint_id": 57,
-      "description": "stadium - circling point",
-      "importance": 0.92,
-      "reason": "action_change",        // 动作模式变化（直飞→盘旋）
-      "position": [x2, y2, z2],
-      "image": "frame_057.jpg"
-    },
-    {
-      "keyframe_id": 3,
-      "waypoint_id": 84,
-      "description": "rooftop helipad - landing zone",
-      "importance": 0.98,
-      "reason": "navigation_goal",
-      "position": [x3, y3, z3],
-      "image": "frame_084.jpg"
-    }
-  ],
-  "full_trajectory": [
-    {"waypoint_id": 0, "position": [x0, y0, z0], ...},
-    {"waypoint_id": 1, "position": [...], ...},
-    ...
-    {"waypoint_id": 84, "position": [x84, y84, z84], ...}
-  ],
-  "engine_metadata": {
-    "rendering_quality": "high",
-    "weather": "clear",
-    "time_of_day": "noon"
-  }
-}
-
-```
-
-**[关键技术点：自动化工具链]**
-
-OpenFly 的核心创新是 **高度自动化** 的数据生成流程：
-
-1. **点云获取（Point Cloud Acquisition）**：
-   * 从不同引擎提取 3D 场景点云
-   * 支持多种格式（.pcd, .ply, .las）
-
-2. **场景语义分割（Semantic Segmentation）**：
-   * 自动识别建筑物、道路、树木、水体等类别
-   * 生成语义标签用于地标识别
-
-3. **飞行轨迹创建（Trajectory Generation）**：
-   * 基于场景拓扑自动生成可行飞行路径
-   * 考虑安全高度、避障、平滑度等约束
-
-4. **指令生成（Instruction Generation）**：
-   * 将轨迹和第一人称图像输入 GPT-4o
-   * 生成自然语言描述："从...起飞，沿着...飞行，到达..."
-   * 确保指令与视觉观测一致
-
-**[OpenFly-Agent：关键帧感知模型]**
-
-OpenFly 提出了 **关键帧感知（Keyframe-Aware）** 的 VLN 模型：
-* **动机**：长轨迹中并非所有帧都同等重要，关键帧包含更多导航信息
-* **方法**：
-  * 自动识别关键观测帧（地标出现、动作变化、导航节点）
-  * 对关键帧赋予更高的注意力权重
-  * 减少计算开销（只处理关键帧而非所有帧）
-
-**[多引擎对比]**
-
-| 引擎 | 真实感 | 物理准确性 | 场景多样性 | 数据量 |
-|------|--------|-----------|-----------|--------|
-| Unreal Engine | 高 | 高 | 中 | 30,000 |
-| GTA V | 中-高 | 中 | 高（城市） | 25,000 |
-| Google Earth | 照片级 | 低（静态） | 最高（全球） | 25,000 |
-| 3D Gaussian | 照片级 | 低 | 中 | 20,000 |
-
-**[核心评估指标]**
-
-* **SR (Success Rate)**：标准成功率（< 5m）
-* **KF-SR (Keyframe Success Rate)**：**新指标**。在关键帧位置的导航准确性
-* **SPL (Success weighted by Path Length)**：路径效率
-* **Keyframe Attention Score**：模型对关键帧的注意力分配准确性
-* **Cross-Engine Generalization**：跨引擎泛化能力（在一个引擎训练，在另一个测试）
-
-**[技术难点]**
-
-1. **跨引擎泛化**：
-   * 不同引擎的渲染风格、物理特性差异大
-   * 需要学习引擎无关的导航策略
-
-2. **关键帧识别**：
-   * 如何自动识别哪些帧是关键帧
-   * 关键帧的重要性如何量化
-
-3. **长距离规划**：
-   * 轨迹长度跨度大（50m - 5km）
-   * 需要多尺度的规划策略
-
-4. **指令质量控制**：
-   * GPT-4o 生成的指令可能包含幻觉或不一致
-   * 需要自动化验证和过滤机制
-
-5. **计算效率**：
-   * 100,000 条轨迹的训练规模巨大
-   * 需要高效的数据加载和模型训练策略
-
-**[OpenFly 的独特价值]**
-
-* **规模最大**：100k 轨迹是目前空中 VLN 数据集中最大的
-* **工具开源**：提供完整的数据生成工具链，便于社区扩展
-* **多引擎支持**：可以研究跨领域迁移和鲁棒性
-* **关键帧创新**：引入新的建模思路，提高长轨迹导航效率
+<a id="survey-simulators"></a>
 
 # 7. VLN 主流模拟器
 
-VLN 研究需要高质量的 3D 仿真环境来训练和测试导航模型。以下是 VLN 领域最常用的主流模拟器（含最新更新和趋势）：
+模拟器决定观测如何生成、动作怎样执行和成功如何判定。比较时应分别考虑**渲染、碰撞、动力学、任务实现和数据资产**；画面逼真或物理引擎功能丰富，都不能单独证明某个 VLN 协议更接近真实部署。
 
 ## 7.1 Matterport3D Simulator
 
-**基本信息：**
-- **开发者**：Peter Anderson et al.
-- **发布时间**：2018 年
-- **开源地址**：[GitHub](https://github.com/peteanderson80/Matterport3DSimulator)
+以扫描全景和导航图为核心，适合复现 R2R、R4R、RxR 等离散任务。图节点之间的合法连接为策略提供了可通行性约束，不能据此评价真实机器人避障。环境安装与图像资产获取分别遵循 [官方仓库](https://github.com/peteanderson80/Matterport3DSimulator)及数据许可。
+
+**工作机制与优势**：策略在扫描视点构成的图上观察和移动，便于固定视觉输入并复用经典基准。预计算视觉特征能将研究重点集中到语言对齐、历史建模和图搜索。
+
+**局限与选型**：视点间的转移隐藏了中间路段的控制过程；高层规划成功不代表机器人能穿过窄门或处理碰撞。若研究问题主要是离散规划，可以先用它建立基线；若关心动作误差，应在连续环境中另外验证。
 
 <div align="center">
-  <img src="/images/vln/matterport3d-simulator.webp" width="95%" alt="Matterport3D Simulator 导航仿真运行界面" />
-  <figcaption>图 7.1：Matterport3D Simulator 导航仿真运行界面（第一人称全景视点、地面离散航路点圆盘标定与自然语言导航指令）</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/matterport3d-simulator.webp" width="95%" alt="Matterport3D Simulator 平台示例配图" />
+<figcaption>Matterport3D Simulator 平台示例配图，用于辅助理解平台形态；具体功能、界面及实验配置以相应官方版本为准。</figcaption>
 </div>
-
-**核心特点：**
-- **真实场景扫描**：基于 Matterport3D 数据集，包含 90 个真实室内环境的高精度 3D 扫描
-- **全景视图**：提供 360 度全景 RGB-D 图像
-- **离散导航**：采用预定义的导航图，智能体在固定视点间移动
-- **高效渲染**：优化的渲染引擎，支持快速视觉观测生成
-- **经典基准**：R2R、R4R 等经典数据集的官方模拟器
-
-**应用场景：**
-- 指令导向的室内导航任务（R2R、R4R）
-- 离散动作空间的 VLN 研究
-- 基于真实场景的导航模型训练
-
-**优势：**
-- 真实感强，场景来自实际建筑扫描
-- 与经典 VLN 数据集无缝集成
-- 社区支持完善，大量研究基于此平台
-
-**局限性：**
-- 仅支持离散导航，灵活性受限
-- 物理交互能力有限
-- 场景数量相对较少（90 个环境）
-
----
 
 ## 7.2 Habitat
 
-**基本信息：**
-- **开发者**：Facebook AI Research (FAIR)
-- **发布时间**：2019 年（Habitat 2.0 于 2021 年、Habitat 3.0 于 2023 年发布，habitat-lab 持续更新）
-- **开源地址**：[GitHub](https://github.com/facebookresearch/habitat-lab)
+Habitat-Sim 提供仿真后端，Habitat-Lab 组织任务、传感器、动作和评测。经典 VLN-CE 使用其中的导航配置；平台后来支持的交互、物理或人机共存功能，并不自动存在于旧基准中。参见 [Habitat-Sim](https://github.com/facebookresearch/habitat-sim) 与 [Habitat-Lab](https://github.com/facebookresearch/habitat-lab)。
+
+复现论文优先匹配它指定的版本。升级引擎可能改变碰撞与滑动行为；应先确认基线结果，再将升级后的实验作为单独配置报告。
+
+**工作机制与优势**：通过传感器观测、导航空间和任务评测器组成实验闭环，适合研究 RGB-D 输入、局部路点和连续空间中的指令执行。场景资产、导航网格与任务代码需要共同固定。
+
+**局限与选型**：默认导航代理不等同于完整动力学机器人。相机高度、视场、转角、步长与滑动行为会改变结果；先对齐论文配置，再讨论模型差异。新增物理或交互功能后，应把它视为新的实验条件。
 
 <div align="center">
-  <img src="/images/vln/habitat-simulator.webp" width="95%" alt="AI Habitat 仿真运行与控制界面" />
-  <figcaption>图 7.2：AI Habitat 仿真运行界面（左侧终端实时步长与朝向角控制推演，右侧高保真场景视觉观测渲染窗口）</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/habitat-simulator.webp" width="95%" alt="Habitat 平台示例配图" />
+<figcaption>Habitat 平台示例配图，用于辅助理解平台形态；具体功能、界面及实验配置以相应官方版本为准。</figcaption>
 </div>
-
-**核心特点：**
-- **高性能仿真**：超快速渲染（10,000+ FPS）
-- **连续环境**：支持连续动作空间和自由移动
-- **多数据集支持**：兼容 Matterport3D、Gibson、HM3D、HSSD、ReplicaCAD 等场景资产
-- **模块化设计**：灵活的任务定义和传感器配置
-- **Sim2Real 支持**：提供真实机器人部署工具链
-- **Habitat 3.0 新特性**：
-  - 可控人形化身（Humanoid Avatar）与动态人群，支持社交导航与人机协作重排任务
-  - 人在环路（Human-in-the-loop）交互评测工具
-  - 长程任务与复杂子任务支持（LHPR-VLN 即基于 Habitat 构建）
-
-**应用场景：**
-- 连续动作空间导航研究（VLN-CE）
-- 长视距任务（LHPR-VLN）
-- 目标导航（ObjectNav）、语义导航（SemanticNav）
-- 具身 AI 和 Sim2Real 研究
-
-**优势：**
-- 仿真速度极快，训练效率高
-- 支持连续导航，更贴近真实机器人控制
-- 大规模场景资产（HM3D 1,000 个场景，训练集 800 个；另有 HSSD 合成场景）
-- 动态人群与社交导航支持
-- 强大的扩展性和社区生态
-
-**局限性：**
-- 配置复杂，学习曲线陡
-- 对硬件要求较高（GPU 加速）
-
----
 
 ## 7.3 Isaac Sim / Isaac Lab
 
-**基本信息：**
-- **开发者**：NVIDIA
-- **核心组件**：
-  - **Isaac Sim**：基于 NVIDIA Omniverse 的高保真机器人仿真环境
-  - **Isaac Lab**：基于 Isaac Sim 的模块化机器人学习与强化学习框架（GPU 加速）
-- **开源地址**：
-  - [Isaac Sim 官网](https://developer.nvidia.com/isaac-sim)
-  - [Isaac Lab 文档与开源代码](https://isaac-sim.github.io/IsaacLab/main/index.html)
+Isaac Sim 提供机器人仿真与传感器环境，Isaac Lab 在其上提供机器人学习工作流。适合显式研究机器人形态、接触和控制，但需额外实现或接入 VLN 数据与任务。官方提供 Windows / Linux 安装路径；Python、驱动与 Isaac Sim 版本须配套。[官方安装文档](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/index.html)。
+
+**工作机制与优势**：机器人本体、关节、接触、传感器与控制器共同决定执行结果，适合研究从导航目标到真实运动约束的衔接。可以把高层导航与底层运动控制分层分析。
+
+**局限与选型**：资产导入、碰撞体、惯性参数和控制接口都会影响结果；高质量渲染也会增加资源开销。先验证一个机器人在一个场景中的观测与动作闭环，再扩大并行环境数量；不要把物理步吞吐当作多模态系统吞吐。
 
 <div align="center">
-  <img src="/images/vln/isaac-sim-simulator.webp" width="95%" alt="NVIDIA Isaac Sim / Isaac Lab 机器人工作台界面" />
-  <figcaption>图 7.3：NVIDIA Isaac Sim / Isaac Lab 完整工作台界面（包含 Omniverse 菜单、RTX 视口控制栏，以及多台 ANYmal 机械狗在复杂阶梯地形上的大规模并行导航仿真）</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/isaac-sim-simulator.webp" width="95%" alt="Isaac Sim / Isaac Lab 平台示例配图" />
+<figcaption>Isaac Sim / Isaac Lab 平台示例配图，用于辅助理解平台形态；具体功能、界面及实验配置以相应官方版本为准。</figcaption>
 </div>
-
-**核心特点：**
-- **高保真物理与渲染**：基于 RTX 光线追踪加速的 PhysX 物理引擎与照片级真实感渲染，可高精度模拟刚体碰撞、复杂接触摩擦与多传感器物理噪声
-- **机器人学习集成**：Isaac Lab 提供强化学习、模仿学习与端到端策略训练工作流，支持数千个 GPU 并行环境的大规模采样
-- **跨形态机器人资产库**：涵盖双足人形机器人（如 Unitree H1/G1）、四足机械狗、差分/阿克曼轮式底盘及机械臂等多样化平台
-- **导航与控制支持**：
-  - 深度支持 ROS 2 与 Nav2 机器人导航技术栈，实现实时建图、全局路径规划与多机器人协同仿真
-  - 支撑高低层解耦导航框架（如 HumanoidVLN、VLN-PE），评估真实运动学与步态动态约束下的视觉导航策略
-- **数据生成与 Sim-to-Real**：结合 Omniverse Replicator，支持自动化生成域随机化多模态合成数据，大幅缩小仿真与真机鸿沟
-
-**应用场景：**
-- 连续控制与导航策略训练（强化学习 / 模仿学习）
-- 双足人形与四足机器人物理接地导航（解决传送瞬移隐患）
-- 多传感器融合 SLAM、视觉感知与导航策略端到端评估
-- 多机器人协同与动态环境测试
-- 合成数据生成与 Sim-to-Real 迁移验证
-
-**优势：**
-- **极高渲染与物理保真度**：提供目前最接近真实物理光照与动力学行为的仿真环境
-- **大并发训练支持**：Isaac Lab 原生 GPU 加速，支持大规模并行强化学习采样
-- **生态链路完整**：与 Omniverse、ROS 2、Cosmos 基础模型以及英伟达端侧计算芯片紧密联动
-
-**局限性：**
-- **上手门槛高**：配置较为复杂，对开发者掌握 Omniverse / USD 工作流的要求高
-- **硬件资源开销大**：依赖高性能 NVIDIA RTX GPU 方能流畅运行高保真多传感器推演
-- **传统离散 VLN 数据集支持较少**：相比 Habitat 与 Matterport3D，社区标准 VLN 基准测试集尚处于早期接入阶段
-
----
 
 ## 7.4 MuJoCo / MJX
 
-**基本信息：**
-- **开发者**：Google DeepMind（原由 Emo Todorov / Roboti LLC 开发，2021 年开源并由 DeepMind 长期维护）
-- **核心组件**：
-  - **MuJoCo (Multi-Joint dynamics with Contact)**：高精度多刚体接触动力学物理引擎
-  - **MJX (MuJoCo XLA)**：基于 JAX 的硬件加速（GPU/TPU）物理仿真实现，支持大规模端到端并行推演
-  - **MuJoCo Menagerie**：官方维护的标准机器人资产库（包含宇树 H1/G1、ANYmal、Spot、Go2、Franka Panda 等经过真机物理标定的模型）
-  - **MuJoCo MPC (MJPC)**：实时交互式预测控制与在线轨迹优化工具
-- **开源地址**：
-  - [MuJoCo GitHub 代码库](https://github.com/google-deepmind/mujoco)
-  - [MJX 官方文档](https://mujoco.readthedocs.io/en/latest/mjx.html)
-  - [MuJoCo Menagerie 资产库](https://github.com/google-deepmind/mujoco_menagerie)
+MuJoCo 适合接触动力学和控制研究；MJX 提供加速器上的批量物理计算。它们可以承载 VLN 系统的运动执行层，但不会自动提供语言指令、室内资产和导航评测器。批量物理步吞吐与包含图像渲染、VLM 推理的训练吞吐应分开测量。[MuJoCo / MJX 文档](https://mujoco.readthedocs.io/en/stable/mjx.html)。
+
+**工作机制与优势**：显式建模运动状态和接触，适合检验局部控制器、轨迹跟踪及稳定性。对于分层 VLN，可将上层输出的目标或速度交给运动层执行，再把实际到达误差反馈给上层。
+
+**局限与选型**：要构成视觉语言导航实验，还需要场景资产、语言任务、相机观测及评测器。MJX 的批量计算收益受模型和硬件配置影响；需要单独测量物理、渲染和策略推理各部分耗时。
 
 <div align="center">
-  <img src="/images/vln/mujoco-simulator.webp" width="95%" alt="MuJoCo MPC 交互式仿真软件界面" />
-  <figcaption>图 7.4：MuJoCo MPC (MJPC) 交互式仿真与轨迹优化软件界面（左侧智能体求解器控制面板、中间双足动力学步态与规划轨迹、右侧实时代价收敛与动作预测时序图）</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/mujoco-simulator.webp" width="95%" alt="MuJoCo 平台示例配图" />
+<figcaption>MuJoCo 平台示例配图，用于辅助理解平台形态；具体功能、界面及实验配置以相应官方版本为准。</figcaption>
 </div>
-
-**核心特点：**
-- **极高精度的接触动力学**：采用基于现代凸优化数学理论的连续多接触约束求解器，在复杂碰撞接触、微滑移摩擦锥和闭链多关节动力学上计算极其精确稳定，是足式移动控制（Locomotion）的公认黄金物理基准
-- **MJX 极致 GPU/TPU 并发吞吐**：通过 JAX JIT 纯函数式原语编译，单张消费级 GPU（如 RTX 4090）即可并发推演数万至数十万个仿真环境，单卡吞吐量达每秒数百万物理步，将传统底层运动策略训练周期从数天缩短至数十分钟
-- **工业级机器人资产即插即用**：Menagerie 资产库提供了经严格实测标定的四足狗、双足人形机器人、轮足底盘和灵巧机械手 MJCF/URDF 模型，结构参数与关节力矩极限高度保真
-- **架构轻量、依赖极简**：底层 C/C++ 核心代码精简无冗余依赖，原生支持 Python 绑定，并已深度融入 Brax、Gymnasium、RoboHive、Orbit 等机器人强化学习框架
-
-**在 VLN 与具身导航中的应用场景：**
-- **高低层解耦具身导航架构的底层步态控制（Locomotion Tracking）**：高层 VLM/VLA 负责语义场景理解与局部路点（Waypoints）决策，底层 MuJoCo/MJX 负责全动力学步态跟踪，解决传统无物理传送造成的滑步、卡顿与跌倒失稳
-- **足式与轮足机器人复杂地形越障导航**：在碎石地面、楼梯、斜坡与突发外力扰动场景下的高频自平衡抗倾覆与避障控制
-- **复合移动操作任务（Mobile Manipulation）**：移动底盘导航与机械臂末端精细交互（如开门、推车、抓取搬运）的统一动力学协同演练
-
-**优势：**
-- **接触力学严谨精准**：数学求解器极度稳健，极少发生穿模、物体虚假弹飞或数值积分崩溃
-- **MJX 超高训练效率**：端到端 GPU/TPU 加速显著缩短强化学习迭代耗时，极大降低算力实验门槛
-- **轻量透明，易于部署**：跨平台兼容性优异，容器化（Docker）与服务器无头环境（Headless）运行极其轻便
-
-**局限性：**
-- **视觉渲染逼真度相对基础**：原生渲染器基于基础 OpenGL，缺乏类似 UE5 或 Omniverse 的光线追踪与真实感 PBR 材质
-- **缺乏内置的大规模真实室内 3D 扫描场景**：区别于 Habitat 自带的 HM3D / Matterport3D 等大体量真实建筑场景，通常需单独导入网格或与外部视觉引擎混合驱动
-
----
 
 ## 7.5 AI2-THOR
 
-**基本信息：**
-- **开发者**：Allen Institute for AI
-- **发布时间**：2017 年（持续更新；衍生 RoboTHOR、ProcTHOR、Holodeck 等扩展）
-- **开源地址**：[官网](https://ai2thor.allenai.org/)
+AI2-THOR 的重点是可交互物体和环境状态变化，适合导航与操作结合的任务。其官方 README 列出的系统要求为 macOS / Ubuntu，**不能从底层 Unity 可跨平台推出 Python 仿真栈原生支持 Windows**。部署以目标版本的构建与渲染后端要求为准。[官方仓库](https://github.com/allenai/ai2thor#requirements)。
+
+**工作机制与优势**：可交互对象及其状态使“走到物体旁”和“完成操作条件”能够在同一环境中衔接。适合讨论导航、物体搜索与任务执行之间的关系。
+
+**局限与选型**：可见、可达和可交互是不同状态；靠近物体不一定满足交互前提。分析 TEACh 等任务时，应同时记录导航失败和操作失败，并固定对象状态与任务初始化，避免只用终点距离评价整个任务。
 
 <div align="center">
-  <img src="/images/vln/ai2thor-simulator.webp" width="90%" alt="AI2-THOR 室内场景与交互作业环境" />
-  <figcaption>图 7.5：AI2-THOR 具身交互室内仿真情景（包含全景 3D 公寓结构，以及智能体在厨房、卧室、卫浴执行细粒度物体操作与导航的特写视口）</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/ai2thor-simulator.webp" width="95%" alt="AI2-THOR 平台示例配图" />
+<figcaption>AI2-THOR 平台示例配图，用于辅助理解平台形态；具体功能、界面及实验配置以相应官方版本为准。</figcaption>
 </div>
-
-**核心特点：**
-- **物理交互**：基于 Unity3D，支持完整物理模拟
-- **可交互对象**：环境中的物体可抓取、移动、操作
-- **多样化场景**：iTHOR 提供 120 个手工构建的厨房、卧室、客厅与浴室场景，RoboTHOR 提供 89 套公寓，ProcTHOR 可程序化生成 10k+ 完整房屋
-- **语义分割**：内置语义标注和实例分割
-- **多智能体支持**：支持同时多个智能体任务
-- **新特性**：
-  - 多智能体协作
-  - 可定制动作和交互
-  - ALFRED、TEACh、DDN、EQA 等交互与导航基准的官方环境
-
-**应用场景：**
-- 具身问答（EQA）
-- 视觉语言导航 + 操作任务
-- 家庭服务机器人研究
-
-**优势：**
-- 强大的物理引擎和真实物体交互
-- 可多模态任务训练
-- API 友好，易上手
-
-**局限性：**
-- 渲染速度较慢
-- 场景规模相对较小
-- 资源消耗大
-
----
 
 ## 7.6 Gibson / iGibson
 
-**基本信息：**
-- **开发者**：Stanford University
-- **Gibson 发布时间**：2018 年
-- **iGibson 发布时间**：iGibson 1.0 / 2.0 于 2021 年发布；后续演进为基于 Isaac Sim 的 OmniGibson（BEHAVIOR-1K，2023 年起）
-- **开源地址**：[iGibson GitHub](https://github.com/StanfordVL/iGibson)
+Gibson、iGibson 与 OmniGibson 相关但不等同：使用扫描场景资产与使用交互式物理平台是不同选择。涉及家务任务和对象状态时，应确认使用的具体平台、资产版本与行为定义；OmniGibson 的入口现位于 [BEHAVIOR-1K 项目](https://github.com/StanfordVL/BEHAVIOR-1K)，iGibson 另见 [官方仓库](https://github.com/StanfordVL/iGibson)。
+
+**工作机制与优势**：交互式环境允许把家具、物体和机器人接触纳入任务，适合研究导航与家务操作的联动。具体可用能力取决于使用的是 Gibson、iGibson 还是 OmniGibson。
+
+**局限与选型**：这些项目的资产、依赖和任务定义不能直接互换。先确认论文所依赖的平台，再验证物体状态与成功条件；从另一平台迁移场景时，需要重新检查碰撞和交互语义。
 
 <div align="center">
-  <img src="/images/vln/igibson-simulator.webp" width="85%" alt="iGibson 桌面端仿真交互软件界面" />
-  <figcaption>图 7.6：Stanford iGibson 桌面端仿真交互界面（包含多模态相机配置面板、主视口导航轨迹与碰撞网格，以及第一人称与第三人称实时悬浮视口）</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/igibson-simulator.webp" width="95%" alt="iGibson 平台示例配图" />
+<figcaption>iGibson 平台示例配图，用于辅助理解平台形态；具体功能、界面及实验配置以相应官方版本为准。</figcaption>
 </div>
-
-**核心特点：**
-
-**Gibson**：
-- 基于真实建筑扫描（572 栋建筑、1,400+ 楼层），Gibson 4+ 子集常用于导航训练
-- 快速光栅化渲染，也是 Habitat 的常用场景来源
-- 支持基础物理模拟
-
-**iGibson 2.0**：
-- **交互式场景**：15 个完整可交互家居场景、数百种可操作物体，支持开关门、抽屉与容器
-- **扩展物体状态**：温度、湿度、清洁度、切分等物理状态，支撑家务类任务
-- **逼真渲染**：PBR 物理渲染与多模态传感器（RGB-D、法线、光流、LiDAR）
-- **任务多样性**：导航、操作、家务任务，配套 BEHAVIOR-100 家务基准
-
-**OmniGibson（BEHAVIOR-1K）**：
-- 基于 NVIDIA Isaac Sim 重构，支持流体、布料与可变形物体
-- 50 个场景、1,000 项日常活动，覆盖长程移动操作任务
-
-**应用场景：**
-- 大规模室内导航
-- 导航 + 操作任务
-- Sim2Real 迁移研究
-- 家庭服务机器人仿真
-
-**优势：**
-- 场景数量多，环境多样性高
-- 真实感强，基于实际建筑扫描
-- iGibson 2.0 / OmniGibson 功能全面，支持复杂交互与家务级任务
-
-**局限性：**
-- 安装复杂
-- 部分场景质量参差不齐
-
----
 
 ## 7.7 AirSim
 
-**基本信息：**
-- **开发者**：Microsoft
-- **发布时间**：2017 年（微软官方仓库已于 2022 年归档，社区分支 [Colosseum](https://github.com/CodexLabsLLC/Colosseum) 持续维护并支持 UE5）
-- **开源地址**：[GitHub](https://github.com/microsoft/AirSim)
+AirSim 用于无人机与车辆仿真，也是部分空中 VLN 项目的底层依赖。复现时固定 Unreal / AirSim 及项目场景版本；迁移到社区分支后，需要重新验证控制接口和评测行为，不能默认为同一环境。[原始仓库](https://github.com/microsoft/AirSim)。
+
+**工作机制与优势**：飞行状态、相机观测与动作接口能支持空中路线执行，便于检查高度变化和城市尺度导航。用于 VLN 时，语言数据和成功评测通常由上层研究工程提供。
+
+**局限与选型**：调用位姿或路点接口，与在底层控制约束下飞行，是不同难度的任务。复现时应写清是否存在瞬移、速度限制、碰撞终止及超时条件，同时固定场景地图和引擎版本。
 
 <div align="center">
-  <img src="/images/vln/airsim-simulator.webp" width="85%" alt="Microsoft AirSim 飞行仿真 HUD 界面" />
-  <figcaption>图 7.7：Microsoft AirSim 飞行仿真 HUD 界面（左上角飞行遥测数据、主视口无人机空中巡航，下方画中画实时输出深度图、语义分割图与第一人称 RGB 航拍画面）</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/airsim-simulator.webp" width="95%" alt="AirSim 平台示例配图" />
+<figcaption>AirSim 平台示例配图，用于辅助理解平台形态；具体功能、界面及实验配置以相应官方版本为准。</figcaption>
 </div>
-
-**核心特点：**
-- **无人机/车辆仿真**：面向飞行器和地面车辆
-- **高保真物理**：基于 Unreal 或 Unity
-- **多传感器支持**：相机、LiDAR、IMU、GPS
-- **与 VLN 数据集的关系**：
-  - AerialVLN 的官方仿真后端（AirSim + Unreal Engine 城市场景）
-  - 支持多机协同与长航程任务脚本化
-
-**应用场景：**
-- 空中 VLN（AerialVLN）
-- 无人机导航与控制
-- 自动驾驶与户外导航任务
-
-**优势：**
-- 专业飞行器仿真平台
-- 高精度物理模拟
-- 支持大规模户外环境
-
-**局限性：**
-- 室内导航支持有限
-- 配置复杂，对硬件要求高
-- 官方已停止维护，新版引擎需依赖社区分支
-
----
 
 ## 7.8 InternUtopia
 
-**基本信息：**
-- **开发者**：上海人工智能实验室（InternRobotics / OpenRobotLab），前身为 GRUtopia
-- **发布时间**：2024 年（GRUtopia），2025 年更名为 InternUtopia 并与 InternNav / InternVLA 工具链整合
-- **开源地址**：[GitHub](https://github.com/InternRobotics/InternUtopia)
+InternUtopia 在 Isaac Sim 上组织场景、机器人与具身任务。查阅时，官方安装前提列出 Ubuntu 20.04 / 22.04 与 Isaac Sim 4.5.0；因此不能沿用 Isaac Sim 的跨平台说明，直接宣称整套 InternUtopia 支持 Windows。具体要求见 [官方安装前提](https://github.com/InternRobotics/InternUtopia#prerequisites)（查阅于 2026-09-26）。
+
+**工作机制与优势**：在统一环境组织中接入场景、机器人与不同任务，有利于比较高层能力在多种具身设置下的表现。具体实验仍由所选任务配置与机器人控制器决定。
+
+**局限与选型**：框架支持某类任务，不表示任意机器人和场景组合都已完成评测。本文建议先运行官方最小示例，确认任务重置、观测、执行和成功判定，再移植自己的导航策略。
 
 <div align="center">
-  <img src="/images/vln/internutopia-simulator.webp" width="95%" alt="InternUtopia / GRUtopia 具身智能任务评测情景" />
-  <figcaption>图 7.8：InternUtopia / GRUTopia 具身智能基准评测情景（涵盖物体导向导航、人机对话社交导航及移动抓取操作三大典型任务的多智能体环境与航向规划）</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/internutopia-simulator.webp" width="95%" alt="InternUtopia 平台示例配图" />
+<figcaption>InternUtopia 平台示例配图，用于辅助理解平台形态；具体功能、界面及实验配置以相应官方版本为准。</figcaption>
 </div>
-
-**核心特点：**
-- **基于 Isaac Sim 构建**：继承 Omniverse 的 RTX 渲染与 PhysX 动力学，支持人形、四足、轮式等多种机器人本体的真实物理运动
-- **GRScenes 大规模场景库**：100k+ 可交互室内场景、89 类场景类型（住宅、超市、办公室、医院等），物体带部件级交互属性
-- **GRResidents NPC 系统**：由大模型驱动的虚拟居民，可进行场景感知、任务分配与多轮对话，为社交导航与人机协作提供动态交互
-- **GRBench 基准**：物体导向运动导航（Object Loco-Navigation）、社交运动导航（Social Loco-Navigation）与运动操作（Loco-Manipulation）三类任务
-- **VLN 直接支持**：VLN-PE 与 InternData-N1 均在其上构建，提供 R2R / RxR 到物理具身环境的转换、跨具身控制器与统一评测接口
-- **多模态感知**：RGB、深度、语义分割、LiDAR 等传感器与 ROS 2 接口
-
-**应用场景：**
-- 物理真实的具身导航（VLN-PE）与跨具身策略评测
-- 社交导航、人机对话与协作任务
-- 移动操作与长程家务任务
-- 大规模导航数据合成（InternData-N1）
-
-**优势：**
-- 场景规模大、交互属性丰富，覆盖住宅之外的公共场景
-- 与 VLN-PE、InternNav、InternVLA-N1 等训练评测链路直接打通
-- 动态 NPC 使评测更接近真实的人机共处环境
-
-**局限性：**
-- 依赖 Isaac Sim，对 NVIDIA RTX GPU 与显存要求高
-- 安装与资产下载体量大，配置复杂度高于 Habitat
-- 社区生态相对较新，文档与第三方示例仍在完善
-
----
 
 ## 7.9 模拟器对比
 
-| 模拟器 | 支持操作系统 (OS) | 环境类型 | 动作空间 | 物理交互 | 渲染速度 | 主要应用 | 场景数量 | 新增特性 (2024–2026) |
-|--------|------------------|----------|----------|----------|----------|----------|----------|---------------------|
-| Matterport3D | Linux (官方首选) / macOS / Windows (需 WSL2/Docker) | 室内 | 离散 | 有限 | 快 | R2R/R4R | 90 | 保持经典基准 |
-| Habitat 3.0 | Linux (Ubuntu) / macOS / Windows (需 WSL2/Docker) | 室内 (真实扫描 + 合成) | 连续 | 基础 | 极快 | VLN-CE, RxR-CE, LHPR-VLN, ObjectNav | 1,000 (HM3D) + HSSD | 人形化身、社交导航、人在环路评测 |
-| Isaac Sim / Lab | Windows 10/11 / Linux (Ubuntu) 原生支持 (需 NVIDIA RTX) | 室内/室外/空中 | 连续 | 强 | 高 | 强化学习、连续 VLN、物理接地人形 | 可定制 | 高保真物理、动态环境、多机协作、Sim2Real |
-| MuJoCo / MJX | Windows / Linux / macOS (原生跨平台；MJX GPU 加速推演推荐 Linux/WSL2) | 室内/复杂地形 | 连续力矩/速度 | 极强（精准接触动力学） | 极快（MJX GPU/TPU 并发） | 腿足运动控制、物理底层导航、移动操作 | 可定制/Menagerie | MJX 极速并行、Menagerie 标准化资产、MJPC 预测控制 |
-| AI2-THOR | Windows / Linux / macOS (原生跨平台，Unity 一键打包) | 室内 | 离散/连续 | 强 | 中等 | 交互任务、ALFRED / TEACh / DDN | 120 (iTHOR) + 89 (RoboTHOR) + 10k+ (ProcTHOR) | ProcTHOR 程序化生成、Holodeck 语言生成场景、多智能体 |
-| iGibson 2.0 / OmniGibson | Linux (推荐) / Windows (OmniGibson 需 RTX 或 WSL2) | 室内 | 连续 | 强 | 快 (iGibson) / 中等 (OmniGibson) | 导航 + 操作、家务任务 | 15 (iGibson 2.0) / 50 (OmniGibson) | BEHAVIOR-1K、流体与可变形物体、Sim2Real |
-| AirSim | Windows 10/11 / Linux (原生支持，微软官方首选 Windows + UE) | 室内外 | 连续 | 强 | 中等 | 无人机/车辆 | 可定制 | 城市航拍、大规模航程、多机协作 |
-| InternUtopia | Linux (Ubuntu) / Windows (基于 Isaac Sim) | 室内 (住宅 + 公共场景) | 连续 (物理动力学) | 强 | 中等 | VLN-PE、社交导航、移动操作 | 100k+ (GRScenes) | LLM 驱动 NPC、跨具身控制器、InternData 数据合成 |
-
----
+| 目标 | 常见入口 | 还需补齐的部分 |
+|:---|:---|:---|
+| 复现离散语言导航 | Matterport3D Simulator | 指令划分、图连接与特征版本 |
+| 复现连续 VLN | Habitat + 对应 VLN-CE 实现 | 相机、动作、滑动与停止协议 |
+| 研究多具身执行 | Isaac Sim / Isaac Lab / InternUtopia | 机器人控制器、形态参数、VLN 任务 |
+| 研究局部运动与接触 | MuJoCo / MJX | 视觉环境、上层策略、语言评测 |
+| 研究导航与操作 | AI2-THOR / iGibson / OmniGibson | 对象状态、任务完成条件与交互成本 |
+| 复现空中 VLN | 论文指定 AirSim 或其他引擎 | 飞行接口、城市资产、地理输入和划分 |
 
 ## 7.10 平台系统与选型建议
 
 ### 7.10.1 按开发宿主操作系统（Windows vs. Linux）选型
 
-- **Windows 纯原生开发（无需配置虚拟机或 WSL2）**：
-  - **Isaac Sim / Isaac Lab**：NVIDIA 官方提供 Windows 原生安装包（4.5 起改为独立发行包与 pip 安装，不再依赖 Omniverse Launcher），原生支持 RTX 光线追踪与 PhysX 动力学。
-  - **MuJoCo**：DeepMind 官方提供完整的 Windows 原生预编译库，`pip install mujoco` 开箱即用，自带原生 OpenGL 交互窗口 `simulate`；如需调用 MJX 进行大规模 GPU 并行推演，推荐使用 WSL2 安装 JAX CUDA 后端。
-  - **AI2-THOR**：基于 Unity 构建，Python 脚本首次运行自动检测并下载 Windows 独立二进制，免任何底层编译。
-  - **AirSim**：微软基于 Unreal Engine 与 Visual Studio 开发，Windows 为最成熟的第一支持平台，官方提供打包好的 Windows 可执行场景。
-- **依赖 Linux 或推荐 Windows WSL2 环境**：
-  - **Habitat (Habitat-Sim / Habitat-Lab)**：底层高度依赖 Linux 下的 C++17 编译器链、Corrade/Magnum 引擎与专属图形后端，官方无原生 Windows 轮子。Windows 开发者建议使用 **WSL2 (Ubuntu 20.04/22.04) + WSLg** 运行。
-  - **Matterport3D Simulator**：依赖传统 OpenGL/EGL 静态库与 C++ 绑定，推荐直接部署在 Linux 或 Docker 容器中。
-  - **iGibson / OmniGibson / InternUtopia**：涉及 ROS 2 通信节点与复杂多模态管线，Linux 环境下的稳定性显著优于 Windows；OmniGibson 与 InternUtopia 均基于 Isaac Sim，Windows 原生可运行，但官方示例与社区经验以 Linux 为主。
+先核对**完整论文工程**的支持平台，再核对底层引擎。Windows 用户可选择原生提供支持的 Isaac Sim / Isaac Lab；其他工程应按官方配置使用 Linux 主机、容器或经过验证的 WSL 环境。WSL 能运行 Linux 程序并不保证 EGL、Vulkan、CUDA、窗口系统和仿真资产均可直接工作。
 
 ### 7.10.2 按研究任务类型选型
 
-- **经典 VLN 基准（R2R/R4R）**：Matterport3D Simulator
-- **连续环境与长程任务**：Habitat 3.0
-- **高保真照片级渲染与大并发物理仿真**：Isaac Sim / Isaac Lab
-- **足式机器人/精准接触动力学与超大规模 RL 并行加速**：MuJoCo / MJX（结合 Menagerie 标准化模型与 GPU 加速，是分层具身导航底层步态物理执行的首选）
-- **需要物理交互任务（家务/操作）**：AI2-THOR / iGibson 2.0 / OmniGibson
-- **无人机/空中导航**：AirSim / Isaac Sim
-- **大规模场景训练**：Habitat + HM3D / HSSD，或 InternUtopia + GRScenes
-- **物理真实的跨具身导航与社交导航**：InternUtopia（VLN-PE 官方平台）
-- **Sim-to-Real 部署**：Habitat 3.0 / OmniGibson / Isaac Sim / MuJoCo
+本文建议：复现已有结果时使用原任务环境；研究动力学时才增加机器人形态和接触模型；研究交互时增加可操作对象。每多一层仿真能力，都应明确它对应哪个研究问题，并为新增变量建立基线。不要用跨硬件、跨场景的“快/慢”标签排列平台优劣。
 
+<details markdown="1">
+<summary>展开：开始大规模实验前的最小仿真检查</summary>
+
+| 检查项 | 建议保存的证据 | 能排除的问题 |
+|:---|:---|:---|
+| 加载一个固定场景 | 场景版本与加载日志 | 资产缺失、路径错误 |
+| 获取一帧观测 | RGB / 深度样本和相机参数 | 相机朝向、深度单位或视场不一致 |
+| 执行一次前进和转向 | 动作前后位姿 | 坐标轴、角度单位或动作尺度错误 |
+| 在障碍前执行动作 | 碰撞与实际位移记录 | 滑动、穿透或接触行为不一致 |
+| 执行一次停止 | 停止标志与评测器输出 | 将超时或接近目标误当成功 |
+| 固定种子重复运行 | 轨迹与结果差异 | 未控制的环境或策略随机性 |
+
+吞吐测试记录硬件、并行环境数、图像分辨率、传感器数量和是否包含策略推理。实时部署还应报告端到端延迟及尾部延迟，不能用单独渲染 FPS 代替。
+
+</details>
+
+<a id="survey-evaluation"></a>
 
 # 8. 评估指标与评测体系
 
-> **核心评测准则**：VLN 评测不是简单的标量回归或分类，而是在部分可观测物理/拓扑空间中，对**目标到达、行动效率、指令保真与具身安全**的四维协同检验。脱离统一协议（传感器视角、动作空间粒度、是否使用深度/先验地图、测试时大模型 API 介入程度）而单纯比拼排行榜数字，往往会掩盖策略的真实本质。
+一次导航至少有四个评价维度：**是否完成目标、付出了多少路径成本、是否遵循指令、执行是否可靠**。前三者在经典 VLN 中已有常用指标，最后一项需要结合机器人与场景补充定义。不存在一个能够替代全部维度的通用分数。
 
-## 8.1 评测体系总览与设计哲学
-
-视觉语言导航（VLN）的评测之所以极具挑战性，根源在于它是一个**高自由度、部分可观测、长时序闭环且受细粒度自然语言多级约束的具身决策任务**。在经典 NLP 或 CV 任务中，评测往往是预测分布与静态标签之间的静态距离度量；而在 VLN 中，智能体的每一次动作都不可逆地改变未来视点与几何相对位姿，错误会随时间步急剧累积。
-
-这种具身特性导致评测体系长期面临**“古德哈特定律（Goodhart's Law）”的严峻考验——“当一个指标变成目标，它就不再是一个好指标”**。在实践中，任何单一标量指标都极易被某种具有病态特性的策略攻破：
-1. **纯目标导向的盲区（SR 陷阱）**：如果只考核终点是否落入阈值（SR），策略就会倾向于在终点附近发起激进的“撞大运式”扩散漫游，甚至在房间内打转试错，用极高步数与路径长度代价换取虚高的成功率；
-2. **纯几何效率的盲区（SPL 捷径）**：如果片面强调路径效率与最短路径比（SPL），模型便可能学会“语言走捷径（Language Shortcut）”——彻底忽略指令中细致的沿途地标引导（如“绕过客厅长桌，穿过第二道拱门并在走廊第三个门右转”），直接走一条欧氏距离最短的穿行路线；
-3. **感知与执行的脱节（OSR–SR 鸿沟）**：智能体虽然成功探索并途经了目标物体旁，却因为缺乏精准的停止准则（STOP policy）或空间确认机制，导致其“过门而不入”，造成极高的潜在成功率与极低实际成功率的巨大落差；
-4. **仿真与物理具身的断层（Sim-to-Real 鸿沟）**：在理想化的离散拓扑图或无物理接触仿真中获得高分的策略，一旦进入具有连续刚体碰撞、累积打滑、四足/双足运动平衡与控制延迟的现实世界，可能因疯狂撞墙、关节过热、跌倒（Fall）或卡死（Stuck）而瞬间瘫痪。
-
-因此，现代 VLN 评测体系绝非单一榜单排名的玩具，而是被解构为一个由**目标达成度（Goal Reaching）**、**执行效率度（Path Efficiency）**、**指令保真度（Instruction Fidelity）**和**具身安全与鲁棒性（Embodied Safety & Robustness）**构成的四维正交张量空间。
+只盯住一个维度，策略就可能用另一个维度的退化来换分：只看 SR，可能靠大范围试探“碰”到终点；只看 SPL，可能忽略指令要求的绕行而走最短路；只看途中是否接近目标，会掩盖不会停下的问题；只在无接触仿真中评测，则看不到碰撞、跌倒与卡住。因此下面的指标应按维度成组报告。
 
 ```mermaid
 flowchart TB
-    Root["VLN 具身评测空间四维基柱"]
+    Q["一次导航需要回答的四个问题"]
 
-    subgraph D1["1. 目标达成度 (Goal Reaching)"]
-        SR["SR: 终点成功率"]
-        NE["NE: 终点定位误差"]
-        OSR["OSR: 途经/先知成功率"]
+    subgraph D1["目标达成"]
+        SR["SR 终点成功率"]
+        NE["NE 终点误差"]
+        OSR["OSR 途中是否进入成功范围"]
     end
 
-    subgraph D2["2. 执行效率度 (Path Efficiency)"]
-        SPL["SPL: 路径长度加权成功率"]
-        TL["TL: 实际轨迹物理长度"]
-        Steps["Steps: 决策步数消耗"]
+    subgraph D2["路径成本"]
+        SPL["SPL 路径长度加权成功率"]
+        TL["TL 实际轨迹长度"]
+        ST["步数或耗时"]
     end
 
-    subgraph D3["3. 指令保真度 (Instruction Fidelity)"]
-        CLS["CLS: 路径覆盖度评分"]
-        nDTW["nDTW: 归一化时序对齐度"]
-        SDTW["SDTW: 成功加权轨迹对齐度"]
+    subgraph D3["指令忠实"]
+        CLS["CLS 覆盖与长度匹配"]
+        NDTW["nDTW 顺序对齐"]
+        SDTW["SDTW 成功加权对齐"]
     end
 
-    subgraph D4["4. 具身安全度 (Embodied Safety)"]
-        CR["CR: 连续环境碰撞率"]
-        HCR["HCR: 动态人群碰撞率"]
-        FR["FR / StR: 物理跌倒与卡死率"]
+    subgraph D4["执行可靠"]
+        CR["碰撞 环境或行人"]
+        FS["跌倒与卡住 如 VLN-PE 的 FR StR"]
+        HI["人工介入与端到端延迟"]
     end
 
-    Root --> D1
-    Root --> D2
-    Root --> D3
-    Root --> D4
+    Q --> D1
+    Q --> D2
+    Q --> D3
+    Q --> D4
 
-    style Root fill:#1971c2,stroke:#1864ab,stroke-width:3px,color:#ffffff
-    style D1 fill:#e7f5ff,stroke:#339af0,stroke-width:2px
-    style D2 fill:#d3f9d8,stroke:#40c057,stroke-width:2px
-    style D3 fill:#fff4e6,stroke:#ff922b,stroke-width:2px
-    style D4 fill:#ffe3e3,stroke:#fa5252,stroke-width:2px
-    style SR fill:#ffffff,stroke:#339af0
-    style NE fill:#ffffff,stroke:#339af0
-    style OSR fill:#ffffff,stroke:#339af0
-    style SPL fill:#ffffff,stroke:#40c057
-    style TL fill:#ffffff,stroke:#40c057
-    style Steps fill:#ffffff,stroke:#40c057
-    style CLS fill:#ffffff,stroke:#ff922b
-    style nDTW fill:#ffffff,stroke:#ff922b
-    style SDTW fill:#ffffff,stroke:#ff922b
-    style CR fill:#ffffff,stroke:#fa5252
-    style HCR fill:#ffffff,stroke:#fa5252
-    style FR fill:#ffffff,stroke:#fa5252
+    style Q fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
+    style D1 fill:#f1f8ff,stroke:#339af0,stroke-width:2px
+    style D2 fill:#f0fbf2,stroke:#40c057,stroke-width:2px
+    style D3 fill:#fff8f0,stroke:#ff922b,stroke-width:2px
+    style D4 fill:#fff5f5,stroke:#fa5252,stroke-width:2px
 ```
+
+前三组指标的定义在各基准间较为统一；第四组的计数单位、阈值和是否中断 episode 依基准而定，见第 8.4 节。
+
+<a id="81-评测体系总览与设计哲学"></a>
+
+## 8.1 先固定评测协议，再解释指标
+
+记录任务与划分、传感器和视场、深度/位姿/地图权限、动作接口、停止与超时规则、距离函数、成功阈值、额外训练数据以及推理预算。R2R 的导航图、Habitat 的可导航表面与空中场景不是同一种距离空间。
+
+| 想证明什么 | 至少报告 | 不能由此直接推出 |
+|:---|:---|:---|
+| 更容易到达目标 | SR、NE、OSR | 是否遵循了沿途指令 |
+| 行走更高效 | SR、SPL、实际路径长度 | 推理更快或能耗更低 |
+| 更忠实地执行指令 | nDTW / SDTW，必要时 CLS | 语言理解的全部能力 |
+| 更准确地找到物体 | 导航指标 + 对应目标定位指标 | 一般 ObjectNav 与指代导航同等困难 |
+| 更适合真实机器人 | 真机完成率、碰撞、介入、延迟与失败类型 | 在其他机器人和环境同样可靠 |
 
 ### 8.1.1 典型轨迹形态与多维指标响应矩阵
 
-为了直观展示为何单一指标必然失效，下图对比了四种具有代表性的智能体导航轨迹以及各类指标的反馈差异：
+以下是用于理解指标的示意，不是某篇论文的实验结果。设指令要求经过地标后再到终点：
 
-```mermaid
-flowchart LR
-    subgraph CaseA["模式 A: 忠实循径 (Ideal Follower)"]
-        direction TB
-        A1["指令要求: 穿过厨房经过走廊停在卧室"]
-        A2["实际轨迹: 严格沿描述走廊行进并精准停在床前"]
-        A3["指标表现: SR ↑ | SPL ↑ | CLS ↑ | nDTW ↑"]
-    end
+| 执行情况 | SR | SPL | nDTW / CLS | 应如何解读 |
+|:---|:---|:---|:---|:---|
+| 按指令到达并正确结束 | 成功 | 取决于与最短路的差异 | 通常较高 | 完成了路径与终点要求 |
+| 绕开地标，走捷径到达 | 仍可能成功 | 可能较高 | 通常下降 | 到达不等于路径忠实 |
+| 反复进出多个房间后才到达 | 仍可能成功 | 明显偏低 | 通常下降 | 成功可能由过量探索换来，需结合 TL 看代价 |
+| 遵循大部分路线但终点失败 | 失败 | 为 0 | 仍可能较高 | 路径相似不等于完成；SDTW 为 0 |
+| 路过目标后继续远离 | 可能失败 | 失败时为 0 | 依轨迹而定 | OSR 与 SR 的差距提示检查停止与执行 |
 
-    subgraph CaseB["模式 B: 走捷径 (Shortcut Taker)"]
-        direction TB
-        B1["指令要求: 绕过大厅展台穿过长走廊右拐"]
-        B2["实际轨迹: 翻越矮墙/抄近道直接冲向终点"]
-        B3["指标表现: SR ↑ | SPL 极高 | CLS ↓ | nDTW ↓"]
-    end
+<a id="812-场景化指标选型决策树"></a>
 
-    subgraph CaseC["模式 C: 漫游试错 (Wandering Explorer)"]
-        direction TB
-        C1["指令要求: 出门左转进入第二间会议室"]
-        C2["实际轨迹: 各房间盲目搜寻多圈后碰巧到达"]
-        C3["指标表现: SR ↑ | SPL 极低 | TL 极大 | CLS ↓"]
-    end
+### 8.1.2 场景化指标选型
 
-    subgraph CaseD["模式 D: 过门未停 (Pass-by / False Stop)"]
-        direction TB
-        D1["指令要求: 走到饮水机旁停下"]
-        D2["实际轨迹: 成功到达饮水机旁但未发出 STOP 继而远离"]
-        D3["指标表现: OSR ↑ | SR=0 | SPL=0 | NE 偏大"]
-    end
+路线跟随优先同时看终点和路径；目标搜索优先看搜索成功与目标验证；对话任务还需说明是否允许主动提问；物理机器人需额外报告执行失败。不同任务的成功判据应沿用各自官方定义，不能把“离终点 3 米”套用于全部 VLN。
 
-    style CaseA fill:#ebfbee,stroke:#2b8a3e,stroke-width:2px
-    style CaseB fill:#fff9db,stroke:#f59f00,stroke-width:2px
-    style CaseC fill:#fff5f5,stroke:#e03131,stroke-width:2px
-    style CaseD fill:#f3f0ff,stroke:#7950f2,stroke-width:2px
-    style A3 fill:#d3f9d8,stroke:#2f9e44,stroke-width:1px
-    style B3 fill:#ffe8cc,stroke:#e67700,stroke-width:1px
-    style C3 fill:#ffe3e3,stroke:#c92a2a,stroke-width:1px
-    style D3 fill:#e5dbff,stroke:#5f3dc4,stroke-width:1px
-```
-
-### 8.1.2 场景化指标选型决策树
-
-在具体科研与工程实践中，盲目罗列所有指标不仅浪费算力，还会分散分析重心。应当依据**仿真连续性、指令粒度、动态环境与物理控制**四个层级自上而下选择基准指标组合：
+下图帮助确定指标组合。分支可以同时成立，例如物理环境中的指代导航既需要目标识别，也需要执行安全评测。
 
 ```mermaid
 flowchart TB
-    Start["确定 VLN 任务设定与仿真环境"] --> Q1{"动作空间与环境建模"}
-
-    Q1 -->|离散拓扑图<br>如 R2R / REVERIE| M1["必须报告: SR + SPL + NE<br>辅助探针: OSR (诊断停止能力)"]
-    Q1 -->|连续物理空间<br>如 VLN-CE| M2["必须报告: SR + SPL + CR (碰撞率)<br>关注连续控制下的平滑性与累积漂移"]
-
-    M1 --> Q2{"指令类型与细粒度"}
-    M2 --> Q3{"动态交互与物理动力学"}
-
-    Q2 -->|细粒度长指令如 RxR / R4R| M1_A["追加保真度指标: CLS + nDTW / SDTW<br>严防模型走几何捷径导致语言失真"]
-    Q2 -->|高层目标指代如 REVERIE| M1_B["追加目标检测指标: Remote-OSR / RGS<br>考察远距离视角落地与目标框预测"]
-
-    Q3 -->|含动态人群如 Social-VLN| M2_A["追加社交合规指标: HCR 动态避障率<br>结合人际舒适距离与社交路径扰动"]
-    Q3 -->|四足/双足仿真如 VLN-PE| M2_B["追加物理稳定性指标: FR 跌倒率 + StR 卡死率<br>结合关节力矩、能耗与控制频率"]
-
-    style Start fill:#1971c2,stroke:#1864ab,stroke-width:2px,color:#ffffff
-    style Q1 fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
-    style Q2 fill:#fff4e6,stroke:#e67700,stroke-width:2px
-    style Q3 fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
-    style M1 fill:#f8f9fa,stroke:#495057,stroke-width:1px
-    style M2 fill:#f8f9fa,stroke:#495057,stroke-width:1px
-    style M1_A fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
-    style M1_B fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
-    style M2_A fill:#f3d9fa,stroke:#862e9c,stroke-width:2px
-    style M2_B fill:#ffe8cc,stroke:#d9480f,stroke-width:2px
+    Q["任务要求验证什么能力？"]
+    Q --> G["到达指定位置"]
+    Q --> R["遵循沿途路线"]
+    Q --> O["识别或操作目标"]
+    Q --> E["物理与社交执行"]
+    G --> GM["SR、NE、OSR<br/>结合 SPL 看行走效率"]
+    R --> RM["CLS 看软覆盖<br/>nDTW / SDTW 看顺序对齐"]
+    O --> OM["导航结果 + 目标定位<br/>或任务后条件完成"]
+    E --> EM["到达 + 碰撞 / 跌倒 / 违规<br/>结合时间与控制延迟"]
+    classDef metric fill:#e8f1fb,stroke:#426a91,color:#18354f;
+    class GM,RM,OM,EM metric;
 ```
+
+选完指标后，还要保存逐 episode 结果。总体均值可能掩盖长路径、多语言、特定机器人或特定失败条件下的显著退化。
 
 ### 8.1.3 核心评估指标全景矩阵
 
-| 指标 | 英文全称 | 核心考察维度 | 核心数学定义/逻辑 | 取值/方向 | 核心盲区与设计权衡 | 适用场景 |
-|:---:|:---|:---:|:---|:---:|:---|:---|
-| **SR** | Success Rate | 目标达成 | 终止位置误差 $d < \tau$ 的比例 | 0–100% (↑) | 不惩罚绕路探索；对成功阈值 $\tau$ 极敏感 | 全场景第一通用基准 |
-| **SPL** | Success weighted by Path Length | 综合效率 | $SR \times \frac{l^*}{\max(p, l^*)}$ | 0–1 (↑) | 失败直接计 0；偏爱几何捷径忽视语言沿途引导 | 全场景核心平衡指标 |
-| **NE** | Navigation Error | 定位精度 | 终止位置与真实终点的平均欧氏距离 | $[0, +\infty)$ m (↓) | 易受大场景离群值扰动；无法度量过程合理性 | 定位基线评估 |
-| **OSR** | Oracle Success Rate | 探索上限 | 轨迹中任意点曾达 $d \le \tau$ 的比例 | 0–100% (↑) | 不反映实际停止表现；仅作潜在定位能力探针 | 诊断停止策略缺陷 |
-| **CLS** | Coverage weighted by Length Score | 路径保真 | 软路径覆盖率 $PC \times$ 相对长度分 $LS$ | 0–1 (↑) | 高度依赖参考路径标注质量；计算开销较大 | 细粒度长指令 (RxR/R4R) |
-| **nDTW** | normalized Dynamic Time Warping | 轨迹形态对齐 | 动态时间规整距离的时序指数衰减 | 0–1 (↑) | 对局部平移较宽容，但无法独立惩罚未到达 | 轨迹相似度与跟踪研究 |
-| **SDTW** | Success weighted by nDTW | 保真与成功综合 | $SR \times nDTW$ | 0–1 (↑) | 严苛双重惩罚，区分度极高 | 严格遵循指令评测 |
-| **CR** | Collision Rate | 几何物理安全 | 发生几何碰撞的动作步数占总步数比例 | 0–100% (↓) | 离散拓扑图通常为 0；在连续物理空间极为关键 | 连续环境 (VLN-CE) |
-| **HCR** | Human Collision Rate | 社交安全规范 | 与动态行人发生接触的步数比例/次数 | 0–100% (↓) | 依赖动态人群仿真行为树的真实度 | 社交导航 (Social-VLN) |
-| **FR / StR** | Fall Rate / Stuck Rate | 物理动力学稳定性 | 机器人翻倒 (FR) 或无法自主脱困 (StR) 比例 | 0–100% (↓) | 传统刚体无质量仿真不体现 | 物理仿真 (VLN-PE) / 真机 |
-
----
-
-### 8.1.4 常见指标反差与模型病理诊断表
-
-在模型调优过程中，**指标之间的反差（Discrepancy）往往比绝对数值更能揭示算法的内在缺陷**：
-
-| 现象与指标反差 | 潜在策略病理 | 根因机制剖析 | 改进与针对性调优方向 |
+| 指标 | 主要问题 | 方向 | 关键限制 |
 |:---|:---|:---|:---|
-| **$OSR \gg SR$**<br>(高 OSR，极低 SR) | **“过门不入”综合征** | 空间感知已将智能体引导至目标附近，但缺乏置信度校准或显式 `STOP` 终止判定；智能体在目标点未及时制动导致滑出容差圈 | 强化停止头（Stop Predictor）特征判别；引入目标视线角与到达置信度门控机制；训练到达停留惩罚 |
-| **$SR$ 尚可但 $SPL$ 极低** | **“无头苍蝇”漫游探索** | 策略缺乏全局拓扑记忆与指令进度感知，依赖大步数上限在局部区域做布朗运动漫游，偶然碰入成功圈 | 引入长程拓扑记忆图（Topological Map）；增强语言进度回溯对齐（Progress Monitor）；加大步数惩罚 |
-| **$SPL$ 极高但 $CLS / nDTW$ 偏低** | **“走捷径”偏见 (Shortcut Gaming)** | 模型过度学习了环境空间连通性几何先验，学会了直奔目标房间，却完全忽略了指令中具体的沿途地标引导 | 引入交叉注意力忠实度损失；在数据增强中加入对抗性负样本路线；加入中间航路点（Waypoints）一致性约束 |
-| **$SR$ 很高但连续 $CR$ 极高** | **激进“穿墙撞障”策略** | 策略在高层航路点规划上合理，但缺乏底层几何可通行性验证或安全包络约束，导致持续靠撞击物理碰撞体积前移 | 引入 BEV 几何占据网格与局部避障代价地图；在强化学习中施加高额碰撞负奖励；快慢分层中引入局部反应式避障控制器 |
-| **$Val\text{-}Seen$ 极高但 $Val\text{-}Unseen$ 暴跌** | **场景环境过拟合** | 严重记忆了训练集具体建筑的纹理特征、房间名称分布或固定视点 ID，未学会抽象的空间语义拓扑泛化 | 扩大跨场景预训练多样性；引入环境泛化数据增强（色彩抖动、物体随机替换、拓扑扰动）；冻结底层基础视觉骨干 |
+| SR | 最终是否成功 | ↑ | 成功条件依任务而定 |
+| NE | 停止时距离目标多远 | ↓，通常为米 | 必须说明距离函数 |
+| OSR | 途中是否曾进入目标成功范围 | ↑ | 是到达机会的诊断量，不是可实现策略的保证 |
+| SPL | 成功时路径是否高效 | ↑，0–1 或百分数 | 最短路效率不等于指令忠实度 |
+| CLS | 对参考路径的覆盖与长度匹配如何 | ↑，0–1 或百分数 | 不显式做顺序对齐 |
+| nDTW | 轨迹在顺序约束下多接近参考路线 | ↑，0–1 或百分数 | 受采样、距离函数与参考标注影响 |
+| SDTW | 是否成功且与参考路线接近 | ↑，0–1 或百分数 | 失败轨迹记 0，需搭配 nDTW 分析 |
+| TL | 实际走了多长 | 无固定优劣方向，通常为米 | 需结合 SR 与参考路径长度解读，过短可能是过早停止 |
+| RGS / RGSPL | 是否选中了指令所指的目标物体 | ↑ | REVERIE 类任务专用；需说明候选物体来源与判定方式 |
 
----
+### 8.1.4 常见指标反差与排查方向
+
+| 观察 | 可能原因 | 用什么验证 |
+|:---|:---|:---|
+| OSR 明显高于 SR | 停止判断、目标验证、控制漂移、超时 | 回放首次进入成功范围后的行为 |
+| SR 提升但 SPL 下降 | 更充分的探索换来更长路径 | 配对比较成功集合与实际路径长度 |
+| SPL 高而 nDTW 低 | 捷径或沿途地标被忽略 | 查看参考路径是否故意偏离最短路 |
+| Seen 与 Unseen 差距大 | 场景过拟合或任务分布差异 | 按路径长度、指令类型和场景难度分组 |
+| 仿真好、真机差 | 感知、时间同步、动力学或环境偏移 | 分层测量感知、规划与执行误差 |
+
+这些是待验证的解释。某个指标反差可以由多个机制产生，不应直接给模型下“缺乏推理”或“只会记忆”的结论。
 
 ## 8.2 目标达成与定位精度指标
 
 ### 8.2.1 Success Rate (SR)
 
-**定义与核心计算：**
-衡量智能体最终能否成功停留在目标容差半径内的 episode 比例：
+设第 $i$ 个 episode 的官方成功指示为 $S_i\in\{0,1\}$，共 $N$ 条评测轨迹：
 
 $$
-SR = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}[d_i < \tau]
+\mathrm{SR}=\frac{1}{N}\sum_{i=1}^{N}S_i.
 $$
 
-其中：
-- $N$ 为测试 episode 的总数；
-- $d_i$ 为第 $i$ 个 episode 终止时（发出 `STOP` 动作或达到最大允许步数），机器人基座坐标与目标点之间的欧氏距离；
-- $\tau$ 为成功判定阈值。在标准室内 VLN 基准（如 R2R、RxR）中默认统一固定为 **3.0 米**；在室外大尺度自动驾驶或大场景园区巡检中，通常按比例放宽为 5.0–10.0 米；
-- $\mathbb{1}[\cdot]$ 为指示函数，条件满足时取 1，否则取 0。
-
-**特性与权衡分析：**
-- **核心价值**：直观明确，反映任务的最终交付能力，是学术界与产业界最主要的第一比较基准；
-- **核心盲区**：SR 属于离散的“全有或全无”度量，完全无法感知智能体是“沿最短路径高效到达”还是“漫游试错 50 步后撞大运到达”；同时，对阈值 $\tau$ 高度敏感（$2.99\text{m}$ 计满分，而 $3.01\text{m}$ 则直接归零）。
+成功条件可能包含终点距离、主动停止、目标可见性或物体识别。报告时保留这些条件；被超时截断是否算成功，也由评测器决定。
 
 ### 8.2.2 Navigation Error (NE)
 
-**定义与核心计算：**
-智能体终止导航时与真实目标点之间的平均几何欧氏距离（以米为单位）：
+设 $x_i^{\mathrm{end}}$ 为终止位置，$g_i$ 为目标，$d$ 为基准的距离函数：
 
 $$
-NE = \frac{1}{N} \sum_{i=1}^{N} d_i
+\mathrm{NE}=\frac{1}{N}\sum_{i=1}^{N}d(x_i^{\mathrm{end}},g_i).
 $$
 
-**特性与权衡分析：**
-- **核心价值**：提供了一个连续平滑的定位误差分布，即使在非常艰难的未见大场景中，NE 也能敏锐反映不同模型在“缩短目标距离”上的进展梯度；
-- **核心盲区**：数值尺度受测试建筑物理空间跨度的直接影响（在豪华大别墅中走丢的 NE 往往显著大于紧凑型公寓），在跨数据集横向比较时可比性较弱。
+经典图导航一般采用最短图距离，连续导航的目标距离通常采用可导航表面的测地距离，不能统一改写成欧氏距离。存在多个有效目标位置时，还须说明目标集合的处理方式。[RxR 官方指标说明](https://github.com/google-research-datasets/RxR)。
 
 ### 8.2.3 Oracle Success Rate (OSR)
 
-**定义与核心计算：**
-在整个导航时序轨迹中，智能体**曾经距离目标最近的位置**是否满足成功判定阈值：
+对于使用目标距离阈值 $\tau$ 的任务，OSR 检查轨迹中是否曾进入成功范围：
 
 $$
-OSR = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}\left[\min_{t \in \{1, \dots, T_i\}} d_i^{(t)} < \tau\right]
+\mathrm{OSR}=\frac{1}{N}\sum_{i=1}^{N}\mathbb{1}\!\left[\min_t d(x_i^t,g_i)<\tau\right].
 $$
 
-其中 $d_i^{(t)}$ 为智能体在时间步 $t$ 时的即时位置与目标的距离。
+严格或非严格阈值遵循官方实现。OSR 不能替代真实停止策略：途中偶然经过终点也可能提高 OSR。SR 与 OSR 的距离与采样口径一致时，两者差距可用于定位停止相关问题。
 
-**特性与权衡分析：**
-- **核心价值（模型调试探针）**：OSR 反映了策略的空间寻路与探索上限能力。它能将“空间寻路失败（从未找到过目标）”与“停止决策失败（路过了但停不下来）”两种完全不同的错误解耦；
-- **指标张力**：若模型的 OSR 显著高于 SR（例如 OSR 达 80% 而 SR 仅 50%），说明策略的感知和路径探索已经十分优秀，瓶颈完全卡在目标细粒度验证（Goal Verification）和终止准则（STOP policy）上。
+**教学示例：路过目标与正确停止不同。** 下图假设成功只取决于停止时到目标的距离，阈值为 3 m；所有距离采用同一评测定义。
 
 ```mermaid
 flowchart LR
-    subgraph Legend["目标判定圈 (Goal Zone)"]
-        T["目标终点 G<br>容差半径 τ = 3.0m"]
-    end
-
-    subgraph Timeline["智能体轨迹时序演变过程"]
-        direction TB
-        Step0["t = 0: 起点出发<br>(距终点 15.0m)"]
-        Step1["t = 8: 穿过走廊进入容差圈<br>当前距离 d = 1.8m < 3.0m<br>★ 满足 OSR 条件 (OSR = 1)"]
-        Step2["t = 9: 策略未发出 STOP 决策<br>智能体继续向前漫游探索"]
-        Step3["t = 12: 滑出 3.0m 目标容差圈<br>当前距离 d = 4.5m > 3.0m"]
-        Step4["t = 25: 达到最大步数被强制制动<br>最终终止距离 d = 6.8m<br>✗ 未满足 SR 条件 (SR = 0)"]
-
-        Step0 --> Step1 --> Step2 --> Step3 --> Step4
-    end
-
-    subgraph Result["诊断结论: '过门不入' 综合征"]
-        direction TB
-        R1["OSR = 1.0<br>(具备良好空间定位与寻路能力)"]
-        R2["SR = 0.0<br>(缺乏停止准则与目标确认自信)"]
-        R3["SPL = 0.0<br>(最终任务判定失败，效率归零)"]
-    end
-
-    Legend -.-> Timeline
-    Timeline --> Result
-
-    style Legend fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
-    style Timeline fill:#f8f9fa,stroke:#495057,stroke-width:1px
-    style Result fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
-    style Step1 fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
-    style Step3 fill:#fff4e6,stroke:#e67700,stroke-width:1px
-    style Step4 fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
-    style R1 fill:#ffffff,stroke:#2f9e44
-    style R2 fill:#ffffff,stroke:#c92a2a
-    style R3 fill:#ffffff,stroke:#c92a2a
+    A["起点"] --> B["途中距目标 1 m<br/>已进入成功范围"]
+    B --> C["继续走，最终距目标 5 m<br/>此处停止"]
+    B -.-> D["该轨迹 Oracle success = 1"]
+    C -.-> E["该轨迹 Success = 0"]
+    classDef pass fill:#e4f2e8,stroke:#548565,color:#21452e;
+    classDef fail fill:#fbe9e5,stroke:#b66b58,color:#612f25;
+    class B,D pass;
+    class C,E fail;
 ```
 
----
+这个差距提示检查停止判断、目标识别和路径回退，但不能仅凭 OSR 高就断言模型“定位准确”。轨迹可能偶然路过目标，或者模型根本没有意识到目标已被看到。
 
 ## 8.3 路径效率与指令保真度指标
 
 ### 8.3.1 Success weighted by Path Length (SPL)
 
-**定义与核心计算：**
-将成功率与实际行进路径长度进行加权惩罚，是评估导航效率的行业通用黄金指标：
+设 $l_i$ 为起点到目标的最短可行路径长度，$p_i$ 为实际行走长度，则：
 
 $$
-SPL = \frac{1}{N} \sum_{i=1}^{N} S_i \cdot \frac{l_i^*}{\max(p_i, l_i^*)}
+\mathrm{SPL}=\frac{1}{N}\sum_{i=1}^{N}S_i\frac{l_i}{\max(l_i,p_i)}.
 $$
 
-其中：
-- $S_i \in \{0, 1\}$ 为成功指示符（到达目标为 1，未到达为 0）；
-- $l_i^*$ 为从起点到目标点的理论最短路径长度（在离散拓扑图中基于 Dijkstra 最短路，在连续物理环境中基于导航网格的测地线距离 Geodesic Distance）；
-- $p_i$ 为智能体实际行驶的物理路径总长度；
-- 分母项 $\max(p_i, l_i^*)$ 确保当智能体偶因切角走出的轨迹微小于网格理论最短路时，效率加权因子严格不超过 1.0。
+分数逐轨迹计算后平均，不能写成 SR 乘以全体轨迹的平均效率。零长度等退化情况遵循基准实现。[SPL 原始评测建议](https://arxiv.org/abs/1807.06757)。
 
-#### 配图详解：SPL 加权计算机理与四类典型用例图解
+例如两条轨迹中，一条成功且效率为 0.5，另一条失败，则 SR 为 0.5、SPL 为 0.25。SPL 衡量行走效率，额外生成 token、网络等待或原地计算时间不会自动进入它的分母。
 
-为了直观理解 SPL 如何对不同导航行为实施奖惩，下图给出了设定在理论最短距离 $l^* = 10\text{m}$、成功阈值 $\tau = 3.0\text{m}$ 下的四类典型轨迹反馈机制：
+**四类轨迹的计算例子**：设同一直走廊中，起点到精确目标的最短距离为 10 m，成功阈值为 3 m，均主动停止。下图表示行为类别，不按空间比例绘制。
 
 ```mermaid
 flowchart TB
-    subgraph Baseline["基准设定: 起点 S 到 终点 G (理论最短距离 l* = 10m, 容差半径 τ = 3m)"]
-        direction LR
-        S(["起点 S"]) ==>|"理论最短路 l* = 10m"| G(["终点 G (半径 3m)"])
-    end
-
-    subgraph Cases["四类典型轨迹的 SPL 响应机制"]
-        direction TB
-
-        subgraph C1["用例 1: 完美循径到达 (Ideal Path)"]
-            direction LR
-            P1["实际路径 p = 10m<br>精准停在目标 1m 处 (S = 1)"]
-            F1["SPL = 1 × 10 / max(10, 10)<br>= 1.0 (满分)"]
-        end
-
-        subgraph C2["用例 2: 漫游试错到达 (Wandering Path)"]
-            direction LR
-            P2["实际路径 p = 20m<br>绕路后停在目标 2m 处 (S = 1)"]
-            F2["SPL = 1 × 10 / max(20, 10)<br>= 0.5 (长度折半惩罚)"]
-        end
-
-        subgraph C3["用例 3: 走捷径/连续切角 (Continuous Shortcut)"]
-            direction LR
-            P3["实际路径 p = 8m<br>切角穿行停在目标 1m 处 (S = 1)"]
-            F3["SPL = 1 × 10 / max(8, 10)<br>= 1.0 (截断保护不超1)"]
-        end
-
-        subgraph C4["用例 4: 近在咫尺但未停准 (Failed / Near Miss)"]
-            direction LR
-            P4["实际路径 p = 10m<br>停在目标 3.5m 处 (S = 0)"]
-            F4["SPL = 0 × 10 / max(10, 10)<br>= 0.0 (一票否决直接归零)"]
-        end
-    end
-
-    Baseline --> Cases
-
-    style Baseline fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
-    style C1 fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
-    style C2 fill:#fff4e6,stroke:#e67700,stroke-width:2px
-    style C3 fill:#e5dbff,stroke:#5f3dc4,stroke-width:2px
-    style C4 fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
-    style F1 fill:#ffffff,stroke:#2f9e44
-    style F2 fill:#ffffff,stroke:#e67700
-    style F3 fill:#ffffff,stroke:#5f3dc4
-    style F4 fill:#ffffff,stroke:#c92a2a
+    S["共同起点：到精确目标最短距离 10 m"]
+    S --> A["直接到目标<br/>行走 10 m，终点误差 0 m"]
+    S --> B["绕行后到目标<br/>行走 20 m，终点误差 0 m"]
+    S --> C["进入成功范围后停止<br/>行走 8 m，终点误差 2 m"]
+    S --> D["过早停止<br/>行走 6.5 m，终点误差 3.5 m"]
+    A --> AS["成功，SPL = 1"]
+    B --> BS["成功，SPL = 0.5"]
+    C --> CS["成功，SPL = 1"]
+    D --> DS["失败，SPL = 0"]
+    classDef pass fill:#e4f2e8,stroke:#548565,color:#21452e;
+    classDef fail fill:#fbe9e5,stroke:#b66b58,color:#612f25;
+    class AS,BS,CS pass;
+    class DS fail;
 ```
 
-**空间几何轨迹形态对照：**
+| 行为 | $S_i$ | 效率项 $l_i / \max(l_i,p_i)$ | 单条 SPL |
+|:---|:---:|:---:|:---:|
+| 直接到达 | 1 | $10/10=1$ | 1 |
+| 绕行到达 | 1 | $10/20=0.5$ | 0.5 |
+| 在目标前 2 m 停止 | 1 | $10/10=1$ | 1 |
+| 在目标前 3.5 m 停止 | 0 | $10/10=1$ | 0 |
 
-```text
-起点 S ========================[ 理论最短路 l* = 10m ]========================> 终点 G (τ=3m)
+四条一起评测时，SR 为 0.75，SPL 为 0.625。第三条的行走长度小于到**精确目标**的最短距离，是因为在成功范围内提前停止，不是走出了比同一几何中的最短路径更短的路线；`max` 将效率上限限制为 1。若基准把 $l_i$ 定义到目标区域，应按其实现重新计算。
 
-用例 1 (完美满分):   S ----------------------------------------------------------> G (进入容差圈, S=1)  => SPL = 10/10 = 1.0
-用例 2 (探索折半):   S ~~~~~~\_______/~~~~~~~\____________/~~~~~~~~~~~~~~~~~~~> G (进入容差圈, S=1)  => SPL = 10/20 = 0.5
-用例 3 (切角保护):   S ........................[切角穿行 p=8m]...................> G (进入容差圈, S=1)  => SPL = 10/10 = 1.0
-用例 4 (一票否决):   S -----------------------------------------------------> X   (未入圈停在3.5m, S=0) => SPL = 0 × 10/10 = 0.0
-```
-
-**算例数值对照表：**
-
-| 典型用例场景 | 理论最短路 $l^*$ | 实际行走长度 $p$ | 终点距离误差 $d$ | 成功指示符 $S$ | 路径效率因子 $\frac{l^*}{\max(p, l^*)}$ | **最终 SPL** | 策略表现诊断与评价 |
-|:---|:---:|:---:|:---:|:---:|:---:|:---:|:---|
-| **用例 1：最优路径直达** | $10\text{m}$ | $10\text{m}$ | $0.8\text{m}$ | 1 | $\frac{10}{10} = 1.0$ | **1.00** | 极佳的空间拓扑理解与高效规划 |
-| **用例 2：多次回退绕路** | $10\text{m}$ | $20\text{m}$ | $1.5\text{m}$ | 1 | $\frac{10}{20} = 0.5$ | **0.50** | 探索机制冗余，存在多次无效折返 |
-| **用例 3：连续空间切角** | $10\text{m}$ | $8\text{m}$ | $0.5\text{m}$ | 1 | $\frac{10}{\max(8, 10)} = 1.0$ | **1.00** | 切角走最短线，受分母保护截断不溢出 |
-| **用例 4：近距未停准** | $10\text{m}$ | $10\text{m}$ | $3.5\text{m}$ | 0 | $\frac{10}{10} = 1.0$ | **0.00** | 路径规划优秀，但因停止决策失误被全盘清零 |
-
-#### 深入剖析：SPL 的四大设计机制与“捷径漏洞”
-
-1. **成功门控的一票否决机制（Binary Success Gate）**：
-   $S_i$ 的乘积项赋予了任务成功绝对的主导权。即使智能体走出了与理论最短路 $100\%$ 重合的极佳轨迹，但只要停在距离终点 $3.01\text{m}$ 处，该 episode 的 SPL 即直接归零。这迫使模型在提升路径效率的同时，绝不能放松对终点精准制动的要求。
-2. **反比线性惩罚机制（Inverse Length Penalty）**：
-   只要任务成功（$S_i = 1$），分母对实际行进长度 $p_i$ 施加反比惩罚。如果智能体在未见环境中靠“地毯式随机搜索”漫游了理论距离 3 倍的长度才碰巧到达，其效率因子仅为 $\frac{1}{3} \approx 0.33$。
-3. **捷径截断保护机制（Ceiling Protection）**：
-   在连续物理环境（VLN-CE）中，智能体可能走出略短于图网络离散折线的最短路径（$p_i < l_i^*$）。分母中的 $\max(p_i, l_i^*)$ 确保效率因子严格上限为 1.0，防止指标失真。
-4. **潜在“捷径漏洞”与语言忽视（The Shortcut Bias）**：
-   **SPL 隐含假设“几何最短路径即最佳路径”**。然而，VLN 的核心本质是“指令跟随（Instruction Following）”。当指令明确要求“穿过客厅，绕过厨房岛台并在后方走廊右拐”时，智能体若抄近道直接横穿客厅，虽然在物理上走出了更短的路径并获得了极高 SPL，但却在认知上彻底违背了人类指令约束。这正是后续提出 CLS 与 nDTW/SDTW 指标的直接原因。
-
----
+SPL 对失败轨迹直接计零，对成功但过长的路径施加反比惩罚。它不要求遵循指令的所有中间地标：当指令要求绕行时，忠实执行可能反而降低 SPL，因此还需路径保真度指标。
 
 ### 8.3.2 Coverage weighted by Length Score (CLS)
 
-**定义与核心计算：**
-针对长指令与复杂轨迹（如 RxR、R4R），CLS 专门衡量预测轨迹与人工参考路径之间的细节重合度，由软路径覆盖率（Path Coverage, PC）与长度衰减分数（Length Score, LS）联合构成：
+给定参考路径 $R$ 和预测路径 $P$，定义节点到路径的距离 $d(r,P)=\min_{p\in P}d(r,p)$。CLS 结合软覆盖与长度匹配：
 
 $$
-PC(P, R) = \frac{1}{|R|} \sum_{r \in R} \exp\left(-\frac{d(r, P)}{d_{th}}\right)
-$$
-
-$$
-EPL(P, R) = PC(P, R) \cdot PL(R)
+\mathrm{PC}=\frac{1}{|R|}\sum_{r\in R}\exp\!\left(-\frac{d(r,P)}{d_{th}}\right),\qquad
+\mathrm{EPL}=\mathrm{PC}\cdot L(R),
 $$
 
 $$
-LS(P, R) = \frac{EPL(P, R)}{EPL(P, R) + |EPL(P, R) - PL(P)|}
+\mathrm{CLS}=\mathrm{PC}\cdot\frac{\mathrm{EPL}}{\mathrm{EPL}+|\mathrm{EPL}-L(P)|}.
 $$
 
-$$
-CLS(P, R) = PC(P, R) \cdot LS(P, R)
-$$
+其中 $L$ 表示路径长度，$d_{th}$ 是距离尺度。它鼓励覆盖沿途节点，但没有显式约束访问顺序；评估先后次序时还需看 nDTW。[CLS 原论文](https://arxiv.org/abs/1905.12255)。
 
-其中：
-- $P$ 为智能体实际预测轨迹，$R$ 为人类标注者给出的参考路径；
-- $d(r, P)$ 表示参考轨迹上的关键节点 $r$ 到预测轨迹线段的最短空间欧氏距离，$d_{th}$ 为距离容差阈值；
-- $PL(\cdot)$ 表示折线轨迹的总物理长度。
-
-#### 配图详解：CLS 软路径覆盖（PC）与长度分数（LS）几何对齐机理
+**把公式拆成两步**：PC 问“参考路线各处离实际走过的地方有多远”，长度项 LS 问“实际长度是否与已覆盖部分相称”。节点到路径取最小距离，因此仅靠 PC 不会检查访问顺序。
 
 ```mermaid
 flowchart TB
-    subgraph Ref["人类参考路径与沿途关键地标 (Reference Path R)"]
-        direction LR
-        R1["r1: 厨房门口"] --> R2["r2: 穿过中央走廊"] --> R3["r3: 绕过餐桌岛台"] --> R4["r4: 停在卧室床旁"]
-    end
-
-    subgraph Agents["两类策略的行为与 CLS 评分对比"]
-        direction TB
-
-        subgraph Good["策略 A: 忠实循径智能体 (High CLS)"]
-            direction LR
-            A_Path["严格沿 r1→r2→r3→r4 依次推进<br>所有参考点到轨迹距离 d 均小于容差 d_th"]
-            A_Score["软覆盖率 PC ≈ 1.0<br>长度偏差 |EPL - PL| ≈ 0 (LS ≈ 1.0)<br>★ CLS ≈ 1.0 (忠实执行语言细节)"]
-        end
-
-        subgraph Bad["策略 B: 投机走捷径智能体 (Low CLS)"]
-            direction LR
-            B_Path["从 r1 翻过矮柜径直冲向 r4<br>完全漏掉中间地标 r2 与 r3 (距离 d 极大)"]
-            B_Score["软覆盖率 PC 暴跌 (exp(-d/dth) ≈ 0)<br>即便 SR=1, SPL 很高<br>✗ CLS 极低 (严重忽视语言约束)"]
-        end
-    end
-
-    Ref --> Agents
-
-    style Ref fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
-    style Good fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
-    style Bad fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
-    style A_Score fill:#ffffff,stroke:#2f9e44
-    style B_Score fill:#ffffff,stroke:#c92a2a
+    R["参考路径中的每个节点"] --> D["计算到预测路径的最近距离"]
+    D --> PC["距离经指数衰减后取平均<br/>得到软覆盖 PC"]
+    PC --> EPL["EPL = PC × 参考路径长度"]
+    EPL --> LS["比较 EPL 与实际路径长度<br/>得到长度得分 LS"]
+    PC --> C["CLS = PC × LS"]
+    LS --> C
+    classDef score fill:#e8f1fb,stroke:#426a91,color:#18354f;
+    class PC,LS,C score;
 ```
 
-**特性与权衡分析：**
-- **核心价值**：$PC$ 确保智能体如实拜访了指令中描述的各个沿途路标，$LS$ 则惩罚冗余多余的绕路；两者相乘能精准惩罚那些“成功到达但中间抄了捷径”的模型；
-- **计算约束**：强依赖人工参考路径的质量，且连续轨迹的最近点距离计算在超大规模测试时存在一定的算力开销。
+| 教学算例：$L(R)=20$ m | 假设 PC | $L(P)$ | EPL | LS | CLS |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| 完整覆盖且长度匹配 | 1 | 20 m | 20 m | 1 | 1 |
+| 完整覆盖但有额外绕行 | 1 | 30 m | 20 m | $2/3$ | $2/3$ |
+| 软覆盖不足但长度与 EPL 匹配 | 0.5 | 10 m | 10 m | 1 | 0.5 |
 
----
+表中 PC 为便于演算设定的值，不是从某张路线图测得，也不表示“恰好走了半数节点”。即使每个参考点都在距离尺度 $d_{th}$ 内，PC 也不必接近 1：距离恰好为 $d_{th}$ 的点，其贡献只有 $e^{-1}\approx0.368$。
+
+CLS 可以揭示“到达终点却漏掉沿途路线”，但相同覆盖集合仍可能对应不同访问顺序；这正是下面引入 DTW 对齐的原因。
 
 ### 8.3.3 normalized Dynamic Time Warping (nDTW & SDTW)
 
-**定义与核心计算：**
-利用动态时间规整（Dynamic Time Warping）算法度量预测轨迹 $\mathcal{P}_{agent}$ 与人类参考轨迹 $\mathcal{P}_{ref}$ 的时序对齐形状差异：
+DTW 寻找满足顺序约束的路径对齐，允许两条轨迹具有不同采样点数。常见归一化与成功加权形式为：
 
 $$
-nDTW = \exp\left(-\frac{DTW(\mathcal{P}_{agent}, \mathcal{P}_{ref})}{\sigma}\right)
+\mathrm{nDTW}(R,P)=\exp\!\left(-\frac{\mathrm{DTW}(R,P)}{|R|d_{th}}\right),\qquad
+\mathrm{SDTW}=\frac{1}{N}\sum_{i=1}^{N}S_i\,\mathrm{nDTW}(R_i,P_i).
 $$
 
-其中 $DTW(\cdot, \cdot)$ 为两条轨迹在最优时序对齐下的累积点对距离。归一化参数通常定义为参考路径长度与容差阈值的乘积：$\sigma = |\mathcal{P}_{ref}| \cdot d_{th}$。
+数据集 nDTW 同样逐 episode 计算后平均。其顺序对齐比单纯路径覆盖更适合检查沿途约束，但仍依赖参考轨迹质量。[nDTW 原论文](https://arxiv.org/abs/1907.05446)。
 
-为了将终点成功与全程轨迹保真度紧密耦合，学术界进一步提出了 **SDTW (Success weighted by nDTW)**：
+**实现边界**：用于 NE 的目标距离与 DTW 的点对距离不应想当然地视为相同。连续环境实现还涉及轨迹采样、去重、近似 DTW 等选择；复现应固定评测代码，而非只复制公式。参见 [VLN-CE 指标实现](https://github.com/jacobkrantz/VLN-CE/blob/master/habitat_extensions/measures.py)。
 
-$$
-SDTW = \frac{1}{N} \sum_{i=1}^{N} S_i \cdot nDTW_i
-$$
-
-#### 配图详解：DTW 时序弹性对齐 vs 刚性时步匹配原理
+**为什么不直接逐步相减**：参考序列为 A→B→C，预测序列为 A→A→B→C。若按相同下标比较，第二步会把 B 与 A 错配；DTW 允许在保持顺序的前提下，让多个采样点对应同一个参考点。
 
 ```mermaid
-flowchart LR
-    subgraph Rigid["刚性逐时步对齐 (Rigid Timestep Matching)"]
-        direction TB
-        E1["时刻 t=1 匹配 参考 t=1"]
-        E2["时刻 t=2 匹配 参考 t=2"]
-        E3["时刻 t=3 匹配 参考 t=3"]
-        EFail["致命缺陷: 机器人中途若避障或减速<br>时步错位将导致欧氏距离误差虚假暴增"]
+flowchart TB
+    subgraph Ref["参考路径"]
+        direction LR
+        R1["A"] --> R2["B"] --> R3["C"]
     end
-
-    subgraph DTW["动态时间规整非线性弹性对齐 (Dynamic Time Warping)"]
-        direction TB
-        D1["允许 1对多、多对1 的时序弹性拉伸"]
-        D2["构建 M × N 点对空间转移代价矩阵"]
-        D3["动态规划搜寻最小单调累积距离路径"]
-        DSuccess["核心优势: 容忍行进加减速与局部驻留<br>精准衡量空间几何形状与地标访问顺序"]
+    subgraph Pred["预测路径"]
+        direction LR
+        P1["A"] --> P2["A"] --> P3["B"] --> P4["C"]
     end
-
-    style Rigid fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
-    style DTW fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
-    style EFail fill:#ffffff,stroke:#c92a2a
-    style DSuccess fill:#ffffff,stroke:#2f9e44
+    R1 -. "对齐" .-> P1
+    R1 -. "对齐" .-> P2
+    R2 -. "对齐" .-> P3
+    R3 -. "对齐" .-> P4
 ```
 
-**特性与权衡分析：**
-- **核心价值**：nDTW 考虑了轨迹的时序演进先后顺序，且对智能体的局部平移噪声具备极佳的弹性容忍度；
-- **SDTW 的严苛性**：SDTW 要求模型既要成功到达终点，又要全程如影随形地贴合指令参考路径，是检验高级空间语言对齐能力的终极标尺之一。
+在这个重复位置完全相同的教学例子中，对齐代价可以为零；真实轨迹中的位移、采样方式和噪声仍会改变 DTW，不能泛化为“对速度与采样完全不敏感”。如果改走 A→C→B→C，即使访问过同样地标，也通常无法获得同样的零代价顺序对齐。
 
----
+DTW 累积代价可以写为下列递推，其中 $D(a,b)$ 是两条路径前缀的最小对齐代价，边界按标准 DTW 初始化：
+
+$$
+D(a,b)=d(r_a,p_b)+\min\{D(a-1,b),D(a,b-1),D(a-1,b-1)\}.
+$$
+
+例如 $|R|=4$、$d_{th}=3$ m、DTW 为 6 m，则 nDTW 为 $e^{-0.5}\approx0.607$；若最终失败，该条 SDTW 为 0。另一条成功且 nDTW 为 0.8 时，两条轨迹的平均 nDTW 约 0.704，而 SDTW 为 0.4。成功加权必须先作用于每条轨迹，不能用总体 SR 乘总体 nDTW 替代。
 
 ## 8.4 具身安全、物理交互与部署级指标
 
-当 VLN 的前沿研究从离散仿真全面转向连续环境（VLN-CE）、物理引擎（Isaac Sim / VLN-PE）以及真实四足/双足与轮式机器人真机时，纯几何指标已无法保障现实可用性。
-
 ### 8.4.1 几何避障与社交安全指标
-- **Collision Rate (CR)**：
-  在连续物理空间中，发生刚体几何碰撞的步数占总步数的比例：
-  $$
-  CR = \frac{N_{collision\_steps}}{N_{total\_steps}}
-  $$
-  在真机上，碰撞意味着电机瞬间过流、传感器震动漂移甚至车体损坏。高 SR 但伴随高 CR 的模型在工业落地中具有极高的破坏风险。
-- **Human Collision Rate (HCR)**：
-  在社交导航（Social-VLN）与人机混行场景中，衡量与动态行人发生碰撞的频率，或侵犯人类个人舒适空间（Personal Space，通常设为半径 0.8 米的警戒圆）的步数占比，是服务机器人安全合规的核心底线。
+
+碰撞可以按动作步、接触事件或 episode 计数，三者分母不同。报告 Collision Rate / Human Collision Rate 时写出定义，并同时给出任务完成情况，避免“原地不动所以碰撞少”的误读。个人空间侵犯也不能简化为身体接触。
 
 ### 8.4.2 动力学稳定性与不可逆故障指标
-- **Fall Rate (FR, 跌倒率)**：
-  针对四足机器狗、人形双足机器人或不平坦地形（如楼梯、斜坡），因动态失稳、地面打滑或过大冲击力导致机身翻倒的任务比例；
-- **Stuck Rate (StR, 卡死率)**：
-  智能体在连续多个时间步内位移低于极小阈值且持续输出无效驱动指令（如被障碍物卡死、车轮悬空空转）的死锁任务比例。反映了系统的主动脱困与后退恢复能力。
+
+跌倒、卡住、急停与人工复位应分别记录。需要给出姿态或时间阈值、恢复预算，以及复位是否中断 episode。不同机器人形态的失败模式不同，不能合并为一个不带条件的具身成功率。
 
 ### 8.4.3 系统级效率与控制实时性指标
-- **Trajectory Length (TL) 与 步数消耗（Steps Taken）**：直接对应机器人的电池能耗、轮胎机械磨损与任务耗时；
-- **端到端控制频率与推断延迟（Frequency & Latency）**：现代分层架构中，高层 VLM 语义规划（通常在 0.5–2 Hz）与低层反应式安全动作（通常在 10–50 Hz）的端到端延迟，直接决定了真机最大安全行驶巡航速度。
 
----
+报告相机到动作执行的端到端延迟，注明均值与尾部延迟、硬件、批大小、输入分辨率、历史长度和模型调用方式。另列控制频率、显存、调用/token 成本、任务耗时与人工介入。模型单次前向 FPS 不等于机器人的有效控制频率。
 
 ## 8.5 评测协议规范与演进趋势
 
-### 8.5.1 Val-Seen 与 Val-Unseen 的划分铁律
+### 8.5.1 Val-Seen 与 Val-Unseen 的划分与边界
 
-VLN 的灵魂在于**跨场景的开集空间泛化能力**。几乎所有标准数据集都会显式划分两套验证集：
-- **Val-Seen（已见环境验证集）**：位于模型训练期间见过的 3D 建筑物内，但配置了全新的起始位姿、目标终点与语言指令。主要检验策略对语言理解、指令跟踪以及局部场景泛化的基本拟合上限；
-- **Val-Unseen（未见环境验证集）**：处于模型训练期间从未经历过的全新建筑物、房间拓扑与装潢风格中。**这才是学术界公认衡量 VLN 模型真实通用能力的试金石**。若一个模型在 Val-Seen 达到 80% SR，而在 Val-Unseen 骤降至 30%，则表明其发生了严重的场景表面记忆过拟合。
+Seen / Unseen 通常按基准场景划分，衡量同一任务内的场景泛化。它不自动保证大规模预训练时从未见过同源建筑、图像或衍生资产，也不等价于跨机器人、跨语言或真机泛化。
 
 ### 8.5.2 公平对比检查清单 (Fair Comparison Checklist)
 
-在对比不同论文的评测数据或向排行榜提交结果前，必须严格确认以下五项协议的一致性：
-- [ ] **传感器视野与模态**：是全向拼接无死角全景图（Panoramic $360^\circ$），还是单目前向第一人称视场角（First-Person FOV $90^\circ$）？是否使用了完美深度图（Depth）？
-- [ ] **动作空间粒度**：是离散拓扑瞬移节点，还是带物理动力学与滑移的连续局部路点/底层速度向量？
-- [ ] **环境拓扑先验**：测试阶段是否允许预先建图、是否预加载了未见环境的连接图（Connectivity Graph）或全局坐标里程计（Ground-truth Odometry）？
-- [ ] **外部数据与训练规模**：是否引入了大规模外部合成数据（如 EnvDrop、Marky、ScaleVLN、InternData-N1）或海量 Web 数据预训练的视觉骨干？
-- [ ] **推理时外部大模型**：推理阶段是否接入了闭源商用前沿大模型（如 GPT、Claude、Gemini 系列）进行测试时思维链推理或重规划？
+- **输入相同**：相机数量、视场、深度、位姿与地图权限。
+- **任务相同**：数据版本、语言子集、episode、目标与停止判据。
+- **执行相同**：动作空间、控制器、步数与时间预算、滑动和碰撞配置。
+- **资源透明**：额外训练数据、基模、工具调用、搜索/重试次数与计算预算。
+- **统计可检查**：报告成功数与总数；随机任务给出多次运行或置信区间，并说明采样方法。
 
-### 8.5.3 评测体系的历史演进与代际跃迁
+<a id="853-评测体系的历史演进与代际跃迁"></a>
 
-| 发展阶段 | 代表时期 | 代表基准与工作 | 核心指标演进 | 核心关注点与范式跃迁 |
-|:---:|:---:|:---|:---|:---|
-| **1.0 几何到达** | 2018–2019 | R2R, R4R | SR, NE, OSR, SPL | 确立未见室内建筑泛化基准，初次建立“成功 + 效率”双重度量体系 |
-| **2.0 时序保真** | 2019–2021 | RxR, nDTW, VLN-CE | + CLS, nDTW, SDTW, CR | 摆脱离散瞬移拓扑图，引入连续物理碰撞，强化多语言长指令的全程细节贴合 |
-| **3.0 交互拓展** | 2022–2024 | REVERIE-CE, HA-VLN, CVDN | + Remote-OSR, RGS, HCR | 从纯寻路拓展至远距离目标检测指代、多轮对话主动澄清与动态人群社交避障 |
-| **4.0 物理具身** | 2025–2026 | VLN-PE, VLNVerse, 真机部署 | + FR, StR, 频率(Hz), 延迟(ms) | 迈向四足/双足真实动力学平衡、实时快慢分层调度与软硬件一体系统级鲁棒性 |
+### 8.5.3 从榜单成绩到可复现证据
 
----
+先确认结果属于论文哪个版本和哪张表，再核对官方评测器。VLN-CE 官方仓库曾明确说明，同一基线在论文与榜单上的 SPL 差异与硬件和 Habitat 构建有关；这说明协议与实现本身也是实验的一部分。[官方复现说明](https://github.com/jacobkrantz/VLN-CE#baseline-performance)。
+
+配套[论文篇](/VLN-Papers/)用于检索候选方法和原始结果。跨文章、跨版本的成绩在完成上述核对前，只能作为阅读索引，不能直接用于架构优劣的因果结论。
+
 
 # 9. 学习资源与框架
 
@@ -3446,27 +1452,27 @@ VLN 的灵魂在于**跨场景的开集空间泛化能力**。几乎所有标准
 - [传统机器人导航算法综述](/Robot-Navigation-Survey/)：补充 SLAM、全局 / 局部规划与控制器基础，对应第 3.3 节的快系统与第 8.4 节的部署指标。
 - [VLA 综述](/VLA-Survey/)：补充视觉-语言-动作模型的训练范式与动作接口设计。
 
-**[VLN-Survey-with-Foundation-Models](https://github.com/zhangyuejoslin/VLN-Survey-with-Foundation-Models)** ⭐⭐⭐⭐⭐
+**[VLN-Survey-with-Foundation-Models](https://github.com/zhangyuejoslin/VLN-Survey-with-Foundation-Models)**
 - **类型**：GitHub 资源仓库
 - **重点**：专注于 LLM/VLM 时代的 VLN 方法（2023-至今），持续更新最新论文
 - **适合**：想了解大模型如何革新 VLN 领域的研究者
 
-**[Awesome-Embodied-AI](https://github.com/jonyzhang2023/awesome-embodied-vla-va-vln)** ⭐⭐⭐⭐⭐
+**[Awesome-Embodied-AI](https://github.com/jonyzhang2023/awesome-embodied-vla-va-vln)**
 - **类型**：全栈资源合集
 - **重点**：涵盖 VLN、VLA、机器人操作等完整具身智能技术栈
 - **适合**：系统学习具身 AI 全貌的研究者
 
-**[Embodied-AI-Guide](https://github.com/TianxingChen/Embodied-AI-Guide)** ⭐⭐⭐⭐⭐
+**[Embodied-AI-Guide](https://github.com/TianxingChen/Embodied-AI-Guide)**
 - **类型**：入门教程 + 实践指南
 - **重点**：提供代码实践、论文解读、学习路径规划
 - **适合**：零基础入门或需要结构化学习路径的新人
 
-**[Vision-and-Language Navigation: A Survey of Tasks, Methods, and Future Directions](https://arxiv.org/abs/2203.12667)** ⭐⭐⭐⭐
+**[Vision-and-Language Navigation: A Survey of Tasks, Methods, and Future Directions](https://arxiv.org/abs/2203.12667)**
 - **类型**：综述论文（Gu et al., ACL 2022）
 - **重点**：系统梳理 VLN 发展脉络，覆盖 2018–2022 年的任务、方法与评测
 - **适合**：需要全面了解 VLN 历史演进的研究者
 
-**[Vision-and-Language Navigation Today and Tomorrow: A Survey in the Era of Foundation Models](https://arxiv.org/abs/2407.07035)** ⭐⭐⭐⭐⭐
+**[Vision-and-Language Navigation Today and Tomorrow: A Survey in the Era of Foundation Models](https://arxiv.org/abs/2407.07035)**
 - **类型**：综述论文（Zhang et al., 2024，与上方 VLN-Survey-with-Foundation-Models 仓库配套）
 - **重点**：以基础模型为主线重新组织 VLN 方法，讨论世界模型、人类模型与 VLA 的交汇
 - **适合**：从大模型视角切入 VLN 的研究者
@@ -3492,6 +1498,54 @@ VLN 的灵魂在于**跨场景的开集空间泛化能力**。几乎所有标准
 
 ---
 
+<a id="survey-practice"></a>
+
+## 9.2 从论文到实验：一条可复现的实施路径
+
+以下流程是本文的实验组织建议，适合将配套论文中的方法落实为可比较的系统。
+
+| 阶段 | 先完成什么 | 应留下的可检查产物 |
+|:---|:---|:---|
+| 固定任务 | 确定指令类型、观测、动作接口、具身形态与成功条件 | 配置表，包含数据版本、划分、传感器与停止规则 |
+| 跑通基线 | 使用论文对应版本的代码和权重，复现标准验证集 | 逐 episode 结果、配置、代码版本与汇总指标 |
+| 定位短板 | 回看失败轨迹，区分理解、记忆、规划、执行和停止错误 | 失败分类及代表轨迹，避免只记录平均 SR |
+| 验证改动 | 每次控制一个变量；保持 episode 集合与预算一致 | 配对结果、模块消融、不同运行种子下的波动 |
+| 检查泛化 | 在未见场景与明确指定的扰动条件下评测 | 分场景、分路径长度及分扰动类型的结果 |
+| 接入机器人 | 检查坐标系、时间戳、动作尺度、轨迹有效期与执行反馈 | 端到端延迟、碰撞、恢复、介入次数及真机失败记录 |
+
+**推理完成不等于动作仍然有效。** 相机采集、编码、模型生成、通信和控制执行共同决定闭环延迟。慢系统返回子目标时，机器人可能已经离开对应视点，因此需要明确旧目标何时失效、何时重新规划，以及快系统在等待期间采取什么行为。报告模型 FPS 时，应同时说明测量边界、硬件、批大小与控制频率。
+
+**选择研究切入点时，从失败证据反推方法。** 长路径上反复访问同一区域，适合检查记忆与地图更新；到过目标附近却未成功，适合检查停止判定与目标验证；语义目标正确却经常碰撞，适合检查可达性、动作接口和控制器。指标差距只提供线索，最终仍要用轨迹回放和受控实验验证原因。
+
+<a id="survey-open-questions"></a>
+
+## 9.3 已有证据、开放问题与研究判断
+
+从本文讨论的工作可以得到几条**有明确适用范围的结论**：R4R 与路径指标说明到达和指令忠实度需要分别衡量；ETPNav、DualVLN 展示了规划与执行分工的具体实现；ScaleVLN 说明训练资源是解释性能的重要变量；VLN-PE 则提供了视觉与物理差距会影响导航表现的实验证据。这些结论分别来自[路径跟随研究](https://arxiv.org/abs/1905.12255)、[连续图规划](https://arxiv.org/abs/2304.03047)、[双系统设计](https://arxiv.org/abs/2512.08186)、[数据扩展](https://arxiv.org/abs/2307.15644)和[物理具身评测](https://arxiv.org/abs/2507.13019)，尚不足以推出一种通用于所有任务的最优架构。
+
+下表是本文据此归纳的开放问题与建议验证方式，**属于研究判断，不是领域已形成的统一结论**。
+
+| 开放问题 | 为什么现有结果还不足 | 更有区分力的验证 |
+|:---|:---|:---|
+| 何时值得显式建图？ | 地图模型与隐式模型常使用不同传感器和位姿先验 | 固定输入，在路径长度、遮挡、位姿噪声上分组比较 |
+| 模型究竟使用了哪些语言信息？ | 高 SR 可能主要来自终点线索 | 保持目标不变，改动沿途顺序、否定和转向约束，检查轨迹响应 |
+| 记忆能否修正自身错误？ | 静态环境上的长期保存不代表动态更新能力 | 移动物体、阻断通路、注入错误观测，检查纠正与遗忘 |
+| 反思是否带来可靠恢复？ | 更长推理和更多重试可能同时增加成功率 | 固定调用预算和失败注入，比较恢复率、额外路径及失败升级 |
+| 世界模型何时优于直接策略？ | 生成质量和真实执行收益不等价 | 同预算比较无预测、候选排序和联合生成，报告长滚动失真 |
+| “通用”能力能迁移多远？ | 同一平台的多任务成绩不代表跨形态迁移 | 留出语言、资产、机器人与控制接口，分别报告适配量 |
+| 仿真进步能否预测部署收益？ | 真机试验环境和介入规则常不统一 | 固定任务集、起点与恢复预算，公开失败轨迹和介入记录 |
+
+**本文的研究建议**是优先建立可回放、可归因的失败分析，再选择模型改动。若已有系统主要失败于局部执行，扩大语言模型未必是最直接的路径；若停止和沿途约束是主要问题，单看平均 SR 又可能遮蔽有效改进。值得追求的进展，是能够说明“在什么条件下、解决了哪类失败、付出了多少代价”。
+
+<a id="survey-scope"></a>
+
+## 9.4 本文覆盖范围与维护方式
+
+本文是按问题组织的叙述性综述，覆盖路线指令导航及与之相关的目标导航、交互和具身控制工作，不是具有穷尽检索与排除流程的系统综述。不同任务作为机制参考时已注明边界；通用 VLA 与操作论文不作为标准 VLN 的直接性能证据。
+
+最近一次核验日期为 **2026-09-26**，重点核对数据口径、平台支持、核心指标和跨论文设计差异。正文为易变数据注明论文版本或数据卡来源；无法确认独立协议的条目保留不确定性说明。其余工作通过配套论文篇供进一步阅读，本文不声称已独立复现所有实验或验证全部排行榜结果。
+
+
 # 10. 参考资料
 
 > **论文精读**：经典论文与基石论文详见 [VLN 经典论文](/VLN-Papers/) 与 [VLN 论文精读（扩展篇）](/VLN-Papers-Extended/)。本节只收录正文直接涉及的数据集、方法、模拟器与综述，按主题分组、全文连续编号；预印本的发表状态与榜单数字以论文主页及配套论文页为准。
@@ -3515,7 +1569,7 @@ VLN 的灵魂在于**跨场景的开集空间泛化能力**。几乎所有标准
 ### 10.1.2 目标导向与长程规划数据集
 
 10. **REVERIE** — Qi et al., *REVERIE: Remote Embodied Visual Referring Expression in Real Indoor Environments*, CVPR 2020. [[Paper]](https://arxiv.org/abs/1904.10151)
-11. **REVERIE-CE** — REVERIE 在 Habitat 连续环境中的移植，保留远程物体指代与定位任务。
+11. **REVERIE-CE** — 连续环境移植设定的统称，尚无统一官方协议；引用时以具体论文的转换实现为准，参见第 6.3.2 节。
 12. **SOON** — Zhu et al., *SOON: Scenario Oriented Object Navigation with Graph-based Exploration*, CVPR 2021. [[Paper]](https://arxiv.org/abs/2103.17138)
 13. **LHPR-VLN** — Song et al., *Towards Long-Horizon Vision-Language Navigation: Platform, Benchmark and Method*, CVPR 2025. [[Paper]](https://arxiv.org/abs/2412.09082)
 
@@ -3524,7 +1578,7 @@ VLN 的灵魂在于**跨场景的开集空间泛化能力**。几乎所有标准
 14. **CVDN** — Thomason et al., *Vision-and-Dialog Navigation*, CoRL 2019. [[Paper]](https://arxiv.org/abs/1907.04957)
 15. **TEACh** — Padmakumar et al., *TEACh: Task-driven Embodied Agents that Chat*, AAAI 2022. [[Paper]](https://arxiv.org/abs/2110.00534)
 16. **HA-VLN** — Li et al., *Human-Aware Vision-and-Language Navigation: Bridging Simulation to Reality with Dynamic Human Interactions*, NeurIPS 2024 Datasets and Benchmarks Track. [[Paper]](https://arxiv.org/abs/2406.19236)
-17. **HA-VLN 2.0** — Dong et al., *HA-VLN 2.0: An Open Benchmark and Leaderboard for Human-Aware Navigation in Discrete and Continuous Environments*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2503.14229)
+17. **HA-VLN 2.0** — Dong et al., *HA-VLN 2.0: An Open Benchmark and Leaderboard for Human-Aware Navigation in Discrete and Continuous Environments*, IROS 2026（arXiv 首发 2025；核对 v5）. [[Paper]](https://arxiv.org/abs/2503.14229v5)
 
 ### 10.1.4 需求导向、室外街景与空中数据集
 
@@ -3533,7 +1587,7 @@ VLN 的灵魂在于**跨场景的开集空间泛化能力**。几乎所有标准
 20. **StreetLearn** — Mirowski et al., *The StreetLearn Environment and Dataset*, arXiv 2019. [[Paper]](https://arxiv.org/abs/1903.01292)
 21. **AerialVLN** — Liu et al., *AerialVLN: Vision-and-Language Navigation for UAVs*, ICCV 2023. [[Paper]](https://arxiv.org/abs/2308.06735)
 22. **CityNav** — Lee et al., *CityNav: A Large-Scale Dataset for Real-World Aerial Navigation*, ICCV 2025（arXiv 2024）. [[Paper]](https://arxiv.org/abs/2406.14240)
-23. **OpenFly** — Gao et al., *OpenFly: A Comprehensive Platform for Aerial Vision-Language Navigation*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2502.18041)
+23. **OpenFly** — Gao et al., *OpenFly: A Comprehensive Platform for Aerial Vision-Language Navigation*, ICLR 2026（arXiv 首发 2025；核对 v7）. [[Paper]](https://arxiv.org/abs/2502.18041v7)
 
 ---
 
@@ -3565,7 +1619,7 @@ VLN 的灵魂在于**跨场景的开集空间泛化能力**。几乎所有标准
 
 37. **Waypoint Models** — Krantz et al., *Waypoint Models for Instruction-guided Navigation in Continuous Environments*, ICCV 2021. [[Paper]](https://arxiv.org/abs/2110.02207)
 38. **NaVid** — Zhang et al., *NaVid: Video-based VLM Plans the Next Step for Vision-and-Language Navigation*, RSS 2024. [[Paper]](https://arxiv.org/abs/2402.15852)
-39. **StreamVLN** — Wei et al., *StreamVLN: Streaming Vision-and-Language Navigation via SlowFast Context Modeling*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2507.05240)
+39. **StreamVLN** — Wei et al., *StreamVLN: Streaming Vision-and-Language Navigation via SlowFast Context Modeling*, ICRA 2026（arXiv 首发 2025；核对 v2）. [[Paper]](https://arxiv.org/abs/2507.05240v2)
 
 ### 10.2.5 底层视觉导航策略
 
@@ -3600,7 +1654,7 @@ VLN 的灵魂在于**跨场景的开集空间泛化能力**。几乎所有标准
 57. **Habitat** — Savva et al., *Habitat: A Platform for Embodied AI Research*, ICCV 2019 [[Paper]](https://arxiv.org/abs/1904.01201)；Szot et al., *Habitat 2.0: Training Home Assistants to Rearrange their Habitat*, NeurIPS 2021 [[Paper]](https://arxiv.org/abs/2106.14405)；Puig et al., *Habitat 3.0: A Co-Habitat for Humans, Avatars and Robots*, ICLR 2024 [[Paper]](https://arxiv.org/abs/2310.13724). [[GitHub]](https://github.com/facebookresearch/habitat-lab)
 58. **AI2-THOR / ProcTHOR** — Kolve et al., *AI2-THOR: An Interactive 3D Environment for Visual AI*, arXiv 2017 [[Paper]](https://arxiv.org/abs/1712.05474)；Deitke et al., *ProcTHOR: Large-Scale Embodied AI Using Procedural Generation*, NeurIPS 2022 [[Paper]](https://arxiv.org/abs/2206.06994). [[Website]](https://ai2thor.allenai.org/)
 59. **Gibson / iGibson / OmniGibson** — Xia et al., *Gibson Env: Real-World Perception for Embodied Agents*, CVPR 2018 [[Paper]](https://arxiv.org/abs/1808.10654)；Li et al., *iGibson 2.0: Object-Centric Simulation for Robot Learning of Everyday Household Tasks*, CoRL 2021 [[Paper]](https://arxiv.org/abs/2108.03272)；Li et al., *BEHAVIOR-1K*, CoRL 2022（arXiv 2024 扩展版）[[Paper]](https://arxiv.org/abs/2403.09227). [[GitHub]](https://github.com/StanfordVL/iGibson)
-60. **AirSim** — Shah et al., *AirSim: High-Fidelity Visual and Physical Simulation for Autonomous Vehicles*, FSR 2017. [[GitHub]](https://github.com/microsoft/AirSim)（已归档）/ [[Colosseum]](https://github.com/CodexLabsLLC/Colosseum)
+60. **AirSim** — Shah et al., *AirSim: High-Fidelity Visual and Physical Simulation for Autonomous Vehicles*, FSR 2017. [[GitHub]](https://github.com/microsoft/AirSim)（维护与兼容性以仓库说明为准）/ [[Colosseum]](https://github.com/CodexLabsLLC/Colosseum)
 61. **Isaac Sim / Isaac Lab** — NVIDIA；Mittal et al., *Orbit: A Unified Simulation Framework for Interactive Robot Learning Environments*（Isaac Lab 前身）, IEEE RA-L 2023 [[Paper]](https://arxiv.org/abs/2301.04195). [[Docs]](https://isaac-sim.github.io/IsaacLab/main/index.html)
 62. **MuJoCo / MJX** — Todorov et al., *MuJoCo: A Physics Engine for Model-based Control*, IROS 2012；Google DeepMind 维护. [[GitHub]](https://github.com/google-deepmind/mujoco) / [[Docs]](https://mujoco.readthedocs.io/)
 63. **InternUtopia (GRUtopia)** — Wang et al., *GRUtopia: Dream General Robots in a City at Scale*, arXiv 2024. [[Paper]](https://arxiv.org/abs/2407.10943) [[GitHub]](https://github.com/InternRobotics/InternUtopia)
