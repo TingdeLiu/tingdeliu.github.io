@@ -170,6 +170,8 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 > **说明**：以下论文因评测于真实世界 / 自建或非标准基准（如 Open-Nav、SparseVideoNav、CausalNav、VL-Nav 等），或属运动控制 / 操作 / 生成等非导航指标任务（Skill-Nav、RoboClaw、ABot-Claw 等），或为依赖性基础工作，未列入上述指标表。详见各自章节。
 
+# 前列模型技术方案分析
+
 ## 前列模型技术方案组合统计与要素打勾矩阵
 
 为了清晰揭示 **R2R-CE SR ≥ 60% 前列模型的技术 Recipe（解法组合）**，下表对排行榜 ① 中 SR ≥ 60% 的全部 23 个条目（22 个模型，Qwen-RobotNav 的全景与单目配置分列）逐篇核对原文后打勾（✓）。
@@ -243,7 +245,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
    - 这些奖励几乎都是**几何量**：像素 L2 距离与安全净空（ABot-N1）、横向偏离 / 路线进度差 / 执行端点误差（GroundingVLN）、截断目标距离（Robostral）。能这样设计奖励，前提是模型输出本身可度量，这正好引出下一条。
 2. **输出接口从离散文本动作转向可度量的空间目标**：
    - 第一梯队 7 个里有 6 个输出像素目标（Robostral、ABot-N1、GroundingVLN、LightNav-0）或连续航点（Qwen-RobotNav、OmniNav），唯一的离散动作模型 Image2Nav 靠的是 10M 合成轨迹加 180° 视场。
-   - 第二梯队这一比例降到 9/16：Dual-Anchoring、AwareVLN、CorrectNav、GA-VLN、JanusVLN 等离散动作模型全部落在 60%–66% 之间。
+   - 第二梯队这一比例降到 9/16：其余 7 个都是离散动作模型（SEDualVLN、Dual-Anchoring、AwareVLN、CorrectNav、DGNav、GA-VLN、JanusVLN），最高的 SEDualVLN 为 67.3%，没有一个进入第一梯队。
    - 像素目标与 RL 经常同时出现：可度量的接口让奖励从"动作对 / 错"升级为"离目标差多少米"。
 3. **堆数据是高分的常见条件，但不是必要条件**：
    - 第一梯队 6/7 用了 ≥ 1M 样本：ABot-N1 30M、Qwen-RobotNav 15.6M、Image2Nav 10M、OmniNav 9.2M、Robostral 2.4M、LightNav-0 4K+ 小时仿真数据。Image2Sim 的 Scaling 曲线也显示 35K → 10M 时 SR 从 46.1% 升到 66.3%，仍未饱和。
@@ -257,6 +259,9 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 6. **DAgger 与上下文压缩已成为入场标配，不再拉开档位**：
    - DAgger / 纠偏数据（48%）与上下文压缩（65%）在两档中都很普遍，第二梯队的 DAgger 采纳率（50%）甚至略高于第一梯队（43%）。
    - 上下文压缩的具体形式正在分化：JanusVLN 的初始窗口加滑动窗口 KV、GA-VLN 的 BEV 网格池化（每步约 4000 → 514 Token）、TAMP-Nav 的关键帧锚点加定长 STI Token、LightNav-0 的慢快历史压缩、NavFoM 按遗忘曲线采样历史帧，以及 HarnessVLN 的有界工作记忆加图检索 top-K。
+7. **第一梯队多数未开源，可复现的前列基线在 68%–70% 一带**：
+   - 开源率第一梯队反而低于第二梯队（3/7 vs 9/16）：Robostral (77.4%)、Qwen-RobotNav (72.1%)、ABot-N1 (70.9%)、GroundingVLN (69.9%) 截至 2026 年 9 月都没有公开模型代码或权重，ABot-N1 只开源了评测基准。
+   - 想在开源代码上复现或做对比，目前最高的起点是 Image2Nav (70.3%)、OmniNav (69.5%) 与 LightNav-0 (68.5%)。
 
 **小结**：从这 23 个条目看，冲进 68%+ 的共性是"可度量的输出接口（像素目标 / 连续航点）+ 基于几何量的 RL 后训练"，数据规模与多相机是放大器；快慢双系统、DAgger 与上下文压缩更像是工程上的入场条件。
 
