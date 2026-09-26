@@ -101,7 +101,6 @@
 
 .rc-excerpt {
   text-align: left;
-  flex: 1;
   margin: 0 0 0.6rem;
   font-size: 0.84rem;
   line-height: 1.6;
@@ -112,7 +111,9 @@
   overflow: hidden;
 }
 
+/* 用 margin-top 把元信息压到卡片底部；不让摘要 flex 拉伸，否则会露出被截断的第三行 */
 .rc-meta {
+  margin-top: auto;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -128,6 +129,20 @@
   font-size: 0.72rem;
   line-height: 1.6;
 }
+
+/* 分类标签：首页混排时区分研究 / 周报 / 随笔 */
+.rc-label {
+  padding: 0 0.45rem;
+  border-radius: 4px;
+  background: #f1f3f5;
+  color: #495057;
+  font-size: 0.72rem;
+  line-height: 1.6;
+}
+
+.rc-label-research { background: #e7f5ff; color: #1864ab; }
+.rc-label-weekly   { background: #fff4e6; color: #d9480f; }
+.rc-label-blog     { background: #f3f0ff; color: #5f3dc4; }
 
 @media screen and (max-width: 720px) {
   .rc-jump {

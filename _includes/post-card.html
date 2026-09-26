@@ -6,6 +6,7 @@
   <h3 class="rc-title">{{ rc_title }}</h3>
   <p class="rc-excerpt">{{ rp.excerpt | strip_html | strip_newlines | truncate: 160 }}</p>
   <div class="rc-meta">
+    {% if include.label %}<span class="rc-label rc-label-{{ rp.categories.first }}">{{ include.label }}</span>{% endif %}
     <time datetime="{{ rp.date | date_to_xmlschema }}">更新于 {{ rp.date | date: "%Y-%m-%d" }}</time>
     {% if age < 1209600 %}<span class="rc-new">近期更新</span>{% endif %}
   </div>

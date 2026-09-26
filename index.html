@@ -2,21 +2,50 @@
 layout: default
 ---
 
-<ul class="archive">
-  {% for post in site.posts %}
-    {% unless post.next %}
-      <h2>{{ post.date | date: '%Y' }}</h2>
-    {% else %}
-      {% capture year %}{{ post.date | date: '%Y' }}{% endcapture %}
-      {% capture nyear %}{{ post.next.date | date: '%Y' }}{% endcapture %}
-      {% if year != nyear %}
-        <h2>{{ post.date | date: '%Y' }}</h2>
-      {% endif %}
-    {% endunless %}
+{% comment %} 不设 page.title，浏览器标题保持站点名；结构与 page 布局一致，便于复用 Research 页的卡片样式 {% endcomment %}
+{% include card-grid-style.html %}
 
-    <li>
-      <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
-      <time>{{ post.date | date: "%Y-%m-%d" }}</time>
-    </li>
+<style>
+.rc-intro a {
+  color: #1864ab;
+}
+</style>
+
+{% assign research_count = site.posts | where: "categories", "research" | size %}
+{% assign weekly_count = site.posts | where: "categories", "weekly" | size %}
+{% assign blog_count = site.posts | where: "categories", "blog" | size %}
+{% assign months = site.posts | group_by_exp: "post", "post.date | date: '%Y-%m'" %}
+
+<article class="page">
+
+  <h1>Latest</h1>
+
+  <div class="entry">
+
+<p class="rc-intro">共 {{ site.posts.size }} 篇文章，按更新时间倒序：<a href="{{ site.baseurl }}/research/">研究 {{ research_count }}</a> · <a href="{{ site.baseurl }}/blog/#weekly">周报 {{ weekly_count }}</a> · <a href="{{ site.baseurl }}/blog/#notes">随笔 {{ blog_count }}</a></p>
+
+<nav class="rc-jump" aria-label="按月份跳转">
+  {% for month in months %}
+    {% assign first_post = month.items | first %}
+    <a href="#m-{{ month.name }}">{{ first_post.date | date: "%Y 年 %-m 月" }}<span class="n">{{ month.size }}</span></a>
   {% endfor %}
-</ul>
+</nav>
+
+{% for month in months %}
+  {% assign first_post = month.items | first %}
+  <h2 class="rc-group" id="m-{{ month.name }}">{{ first_post.date | date: "%Y 年 %-m 月" }}<span class="count">{{ month.size }} 篇</span></h2>
+  <div class="rc-grid">
+    {% for post in month.items %}
+      {% case post.categories.first %}
+        {% when "research" %}{% assign post_label = "研究" %}
+        {% when "weekly" %}{% assign post_label = "周报" %}
+        {% when "blog" %}{% assign post_label = "随笔" %}
+        {% else %}{% assign post_label = nil %}
+      {% endcase %}
+      {% include post-card.html post=post label=post_label %}
+    {% endfor %}
+  </div>
+{% endfor %}
+
+  </div>
+</article>
