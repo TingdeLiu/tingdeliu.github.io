@@ -74,6 +74,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [LightNav-0(单目)](#lightnav-0) | 2026 | RxR-CE | Qwen3-VL-4B | 73.6 | 64.5 | 3.66 | – | [是](https://github.com/lightorigins/LightNav-0) |
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | RxR-CE | Qwen3-VL-7B | 73.4 | 63.5 | – | – | 否 |
  | [AstraNav-World (多目)](#astranav-world) | 2025 | RxR-CE | Qwen2.5-VL-3B | 72.9 | – | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) |
+| [Image2Nav (180° FOV)](#image2sim) | 2026 | RxR-CE | Qwen3-VL-4B | 70.7 | 59.1 | 3.74 | – | [是](https://github.com/MrZihan/Image2Sim) |
 | [CorrectNav](#correctnav) | 2025 | RxR-CE | – | 69.3 | 63.3 | 4.09 | – | [是](https://github.com/owlet914/CorrectNav) |
  | [AwareVLN (单目)](#awarevln) | 2026 | RxR-CE | Vicuna-7B | 67.6 | 56.1 | 3.95 | – | [是](https://github.com/GWxuan/AwareVLN) |
 | [MemVLN-4B (单目)](#memvln) | 2026 | RxR-CE | Qwen3-VL-4B | 66.5 | 57.4 | 4.22 | – | 否 |
@@ -83,7 +84,6 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [SEDualVLN (单目)](#sedualvln) | 2026 | RxR-CE | LLaVA-Video-7B | 63.9 | 52.4 | 4.12 | – | [是](https://github.com/kim-os/SEDualVLN) |
  | [Dual-Anchoring (单目)](#dual-anchoring) | 2026 | RxR-CE | LLaVA-Video-7B | 61.7 | 53.3 | – | – | 否 |
  | [DualVLN (单目)](#dualvln) | 2025 | RxR-CE | Qwen2.5-VL-7B | 61.4 | 51.8 | 4.58 | – | [是](https://github.com/InternRobotics/InternNav) |
-| [Image2Nav (180° FOV)](#image2sim) | 2026 | RxR-CE | Qwen3-VL-4B | 59.1 | 71.8 | 3.74 | 70.7 | [是](https://github.com/MrZihan/Image2Sim) | – |
  | [JanusVLN (单目)](#janusvln) | 2026 | RxR-CE | Janus-Pro-7B | 56.2 | 47.5 | 6.06 | – | [是](https://github.com/MIV-XJTU/JanusVLN) |
  | [RynnBrain-Nav (单目)](#rynnbrain) | 2026 | RxR-CE | – | 56.1 | – | 4.92 | – | [是](https://github.com/alibaba-damo-academy/RynnBrain) |
  | [GA-VLN (单目)](#ga-vln) | 2026 | RxR-CE | LLaVA-Video-7B | 55.4 | 45.2 | 5.88 | 67.0 | [是](https://github.com/jahhaoyang/GA-VLN) |
@@ -6552,7 +6552,7 @@ graph TD
 基线导航模型 Image2Nav 仅在 Image2Sim 生成的神经数据集中训练，**零样本直接在 Habitat 模拟器中评估**（打破了所有 Baseline 在 Habitat 内部训练评估的习惯）：
 
 - **R2R-CE 路径追踪导航**：在 Val Unseen 划分上，Image2Nav（180° FOV）取得 **SR 70.3%**、**SPL 65.6%**、**NE 3.71m** 的 SOTA 成绩，大幅超越在 Habitat 内训练的顶级方法 EfficientVLN（SR 64.2%, SPL 55.9%）与 DualVLN（SR 64.3%, SPL 58.5%）。
-- **RxR-CE 多语言长指令导航**：实现 **SR 59.1%**、**SPL 71.8%**、**nDTW 71.8%**。
+- **RxR-CE 多语言长指令导航**：实现 **SR 70.7%**、**SPL 59.1%**、**NE 3.74m**、**nDTW 71.8%**。
 - **REVERIE-CE 目标导向导航**：实现 **SR 53.7%**、**SPL 42.7%**。
 
 <div align="center">
