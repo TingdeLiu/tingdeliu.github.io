@@ -4021,6 +4021,89 @@ graph TD
 
 ---
 
+## 30. BudVLN (2026) {#budvln}
+———Nipping the Drift in the Bud: Retrospective Rectification for Robust Vision-Language Navigation
+
+📄 **Paper**: [arXiv:2602.06356](https://arxiv.org/abs/2602.06356)
+
+### 精华
+
+1. **核心思想**：通过“回顾式纠偏”（Retrospective Rectification）解决 Vision-Language Navigation (VLN) 中的指令-状态不一致问题。
+2. **训练范式**：引入了 **Adaptive Mutual Exclusion Strategy**，将样本动态分流为效率路径和鲁棒性路径，实现了精准训练。
+3. **纠偏机制**：利用“回锚”机制合成语义一致的修正轨迹，避免了传统方法中强制回归导致的语义冲突。
+4. **极致效率**：采用 GRPO 算法（借鉴自 DeepSeek-R1），无需价值网络，训练成本仅为传统 DAgger 的约 25%。
+5. **性能卓越**：在 R2R-CE 和 RxR-CE 基准测试上刷新 SOTA，尤其在处理偏差和鲁棒性方面表现突出。
+
+---
+
+### 1. 研究背景/问题
+
+当前的视觉-语言导航（VLN）系统面临严重的**曝光偏差（Exposure Bias）**问题：推理时的细微偏差会导致严重的累积误差。虽然 DAgger 类方法尝试通过纠正错误状态来缓解这一问题，但论文指出这些方法存在**指令-状态不一致（Instruction-State Misalignment）**的致命局限。如图 1 所示，强制智能体从离群状态回归往往会生成与其原始语言指令相冲突的监督信号（例如：指令要求直行，但为回归正轨必须掉头），这会损害智能体的指令遵循能力。
+
+<div align="center">
+  <img src="/images/vln/BudVLN-misalignment-illustration.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1421/819" />
+<figcaption>
+图 1：指令-状态不一致现象的图示，展示了传统 DAgger 如何产生语义冲突的监督。
+</figcaption>
+</div>
+
+---
+
+### 2. 主要方法/创新点
+
+论文提出了 **BudVLN**，一个旨在通过统一的在线回顾式纠偏框架解决上述挑战的系统。
+
+#### Adaptive Mutual Exclusion Strategy (自适应互斥策略)
+BudVLN 并不对所有样本一视同仁，而是采用一种自适应策略进行动态路由：
+- **Proficiency Pathway (效率路径)**：通过 Greedy Probe 评估。若智能体已能熟练完成任务，则利用 **GRPO (Group Relative Policy Optimization)** 进行组内相对优势学习，进一步优化路径效率。
+- **Rectification Pathway (纠偏路径)**：若智能体在任务中失败，则触发**回顾式纠偏**。
+
+<div align="center">
+  <img src="/images/vln/BudVLN-framework-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1418/800" />
+<figcaption>
+图 2：BudVLN 训练框架概览，展示了 GRPO 路径与回顾式纠偏（SFT）路径的动态分流。
+</figcaption>
+</div>
+
+#### Retrospective Rectification (回顾式纠偏)
+针对失败样本，BudVLN 执行以下操作：
+1. **回锚（Anchor Identification）**：将状态回溯到发生偏差前的最后一个有效路径点（Valid Anchor）。
+2. **语义一致性合成**：利用 Oracle 合成从该锚点出发的正确轨迹，以此作为 SFT 的监督信号。
+这种方法确保了监督信号与原始指令的语义一致性，彻底解决了 DAgger 的语义冲突问题。
+
+#### GRPO 优化
+受到大规模推理模型成功的启发，BudVLN 引入了 GRPO 算法。它通过在一个采样组内计算相对优势，摆脱了对昂贵价值网络（Value Network）的依赖，极大地降低了计算开销，同时提升了探索效率。
+
+---
+
+### 3. 核心结果/发现
+
+- **SOTA 性能**：在 R2R-CE 和 RxR-CE 两个主流基准测试中，BudVLN 全面超越了现有模型。在 R2R-CE 上，成功率 (SR) 达到 **57.6%**，SPL 达到 **51.1%**。
+- **训练效率**：得益于 GRPO 算法和高效的纠偏机制，BudVLN 仅需 **27 GPU 小时** 即可完成训练，相比 DAgger 的 114 小时，效率提升了近 4 倍。
+- **消融研究**：实验证明，单独添加纠偏机制能显著提升 SR，而 GRPO 算法则对 SPL 的提升和训练效率的优化起到了关键作用。
+
+<div align="center">
+  <img src="/images/vln/BudVLN-main-results.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1416/929" />
+<figcaption>
+表 1：BudVLN 与现有 VLN 模型在 R2R-CE 和 RxR-CE 测试集上的性能对比。
+</figcaption>
+</div>
+
+---
+
+### 4. 局限性
+
+虽然 BudVLN 在离散和连续环境中均表现出色，但其鲁棒性目前仍受限于预定义 Oracle 的质量。在极度复杂的极端环境下，如何自主生成更高质量的“回顾性”知识仍是未来研究的方向。
+
+---
+
+
+
+
+
+
+
+
 # 参考资料
 
 ## 论文引用
@@ -4054,6 +4137,7 @@ graph TD
 27. **Harness Robotic OS** (2026). 把四足巡检从「导航栈」升级为「具身智能体运行时」. arXiv: [2609.11225](https://arxiv.org/abs/2609.11225)
 28. **EgoPathBench** (2026). 把「导航决策」压成第一人称图上的一串编号，对错交给场景几何裁定. arXiv: [2609.16610](https://arxiv.org/abs/2609.16610)
 29. **AdaGeoVLN** (2026). 沿「表征深度」与「导航时间」两条轴做几何取舍. arXiv: [2609.18789](https://arxiv.org/abs/2609.18789)
+30. **BudVLN** (2026). Nipping the Drift in the Bud: Retrospective Rectification for Robust Vision-Language Navigation. arXiv: [2602.06356](https://arxiv.org/abs/2602.06356)
 
 
 <script>
@@ -4088,6 +4172,7 @@ graph TD
     { m: 'EgoPathBench',          t: ['数据集', '零样本', 'CoT', '连续环境'] },
     { m: 'NavGPT-2',          t: ['Agentic', '拓扑图', '离散环境', 'CoT'] },
     { m: 'AdaGeoVLN',             t: ['端到端', '连续环境', '实机部署', '加速优化'] },
+    { m: 'BudVLN',            t: ['端到端', '强化学习', '连续环境'] },
   ];
 
   // 另一篇文章的论文清单。两篇的 .paper-section 各自只在本页存在，
@@ -4121,40 +4206,40 @@ graph TD
     { n: '24. DGNav (2026)', a: 'dgnav', t: ['拓扑图', 'SLAM', '连续环境'] },
     { n: '25. Hydra-Nav (2026)', a: 'hydra-nav', t: ['双系统', '强化学习'] },
     { n: '26. 3DGSNav (2026)', a: 'nav-3dgs', t: ['SLAM', '高斯表示', '零样本', '实机部署'] },
-    { n: '27. BudVLN (2026)', a: 'budvln', t: ['端到端', '强化学习', '连续环境'] },
-    { n: '28. CausalNav (2026)', a: 'causalnav', t: ['Agentic', '拓扑图'] },
-    { n: '29. AgentVLN (2026)', a: 'agentvln', t: ['Agentic', '连续环境', '实机部署'] },
-    { n: '30. VLN-Cache (2026)', a: 'vln-cache', t: ['加速优化'] },
-    { n: '31. SysNav (2026)', a: 'sysnav', t: ['Agentic', '拓扑图'] },
-    { n: '32. R³: Run, Ruminate, and Regulate (2026)', a: 'r3', t: ['双系统', '加速优化', 'CoT'] },
-    { n: '33. AwareVLN (2026)', a: 'awarevln', t: ['端到端', '连续环境', '实机部署', '数据增强', 'CoT'] },
-    { n: '34. Dual-Anchoring (2026)', a: 'dual-anchoring', t: ['端到端', '世界模型', '连续环境', '实机部署'] },
-    { n: '35. WAM-Nav (2026)', a: 'wam-nav', t: ['世界模型', '扩散模型', '零样本', '实机部署'] },
-    { n: '36. JanusVLN (2026)', a: 'janusvln', t: ['双系统', '连续环境', '实机部署', '加速优化'] },
-    { n: '37. HSGM (2026)', a: 'hsgm', t: ['Agentic', '拓扑图', '零样本', '连续环境', 'BEV'] },
-    { n: '38. OneVLA (2026)', a: 'onevla-a-unified-framework-for-embodied-tasks', t: ['端到端', '扩散模型', '连续环境', '实机部署'] },
-    { n: '39. CA-VLN (2026)', a: 'ca-vln', t: ['Agentic', '拓扑图', '离散环境'] },
-    { n: '40. RynnBrain (2026)', a: 'rynnbrain', t: ['基础工作'] },
-    { n: '41. EvoMemNav (2026)', a: 'evomemnav', t: ['Agentic', '拓扑图', '零样本'] },
-    { n: '42. OmniNav (2026)', a: 'omninav', t: ['双系统', 'Agentic', 'CoT', '扩散模型', '实机部署'] },
-    { n: '43. Qwen-RobotNav (2026)', a: 'qwen-robotnav', t: ['Agentic', '端到端', '连续环境', '实机部署'] },
-    { n: '44. GA-VLN (2026)', a: 'ga-vln', t: ['端到端', '连续环境', '实机部署', '加速优化', 'BEV'] },
-    { n: '45. SEDualVLN (2026)', a: 'sedualvln', t: ['双系统', 'Agentic', '连续环境'] },
-    { n: '46. Robostral Navigate (2026)', a: 'robostral-navigate', t: ['端到端', '强化学习', '连续环境', '加速优化'] },
-    { n: '47. LocalNav (2026)', a: 'localnav', t: ['拓扑图', '强化学习', '实机部署', '加速优化'] },
-    { n: '48. ABot-N1 (2026)', a: 'abot-n1', t: ['双系统', 'CoT', '强化学习', '实机部署', '数据集'] },
-    { n: '49. ReflectVLN (2026)', a: 'reflectvln', t: ['双系统', 'Agentic', 'CoT', '连续环境'] },
-    { n: '50. TuckerNav (2026)', a: 'tuckernav', t: ['连续环境', '加速优化'] },
-    { n: '51. AgenticNav (2026)', a: 'agenticnav', t: ['Agentic', '零样本', '连续环境', '实机部署'] },
-    { n: '52. MemVLN (2026)', a: 'memvln', t: ['端到端', '连续环境', '加速优化'] },
-    { n: '53. X-NavDP (2026)', a: 'x-navdp', t: ['扩散模型', '强化学习', '连续环境', '实机部署'] },
-    { n: '54. Image2Sim (2026)', a: 'image2sim', t: ['世界模型', '数据增强', '高斯表示', '连续环境', '实机部署', '零样本'] },
-    { n: '55. DecoVLN (2026)', a: 'decovln', t: ['端到端', '连续环境', '实机部署', '加速优化', '纠错'] },
-    { n: '56. TAMP-Nav (2026)', a: 'tamp-nav', t: ['CoT', '强化学习', '连续环境', '实机部署'] },
-    { n: '57. LightNav-0 (2026)', a: 'lightnav-0', t: ['端到端', '连续环境', '实机部署', '强化学习', '零样本', 'CoT', '数据集'] },
-    { n: '58. Uncertainty-Aware Gaussian Map for VLN (2026)', a: 'uncertainty-aware-gaussian-map', t: ['高斯表示', '拓扑图', '离散环境'] },
-    { n: '59. HarnessVLN (2026)', a: 'harnessvln', t: ['Agentic', '零样本', '实机部署', '拓扑图'] },
-    { n: '60. GroundingVLN (2026)', a: 'groundingvln', t: ['双系统', 'CoT', '强化学习', '连续环境', '实机部署', '数据集'] },
+    { n: '27. CausalNav (2026)', a: 'causalnav', t: ['Agentic', '拓扑图'] },
+    { n: '28. AgentVLN (2026)', a: 'agentvln', t: ['Agentic', '连续环境', '实机部署'] },
+    { n: '29. VLN-Cache (2026)', a: 'vln-cache', t: ['加速优化'] },
+    { n: '30. SysNav (2026)', a: 'sysnav', t: ['Agentic', '拓扑图'] },
+    { n: '31. R³: Run, Ruminate, and Regulate (2026)', a: 'r3', t: ['双系统', '加速优化', 'CoT'] },
+    { n: '32. AwareVLN (2026)', a: 'awarevln', t: ['端到端', '连续环境', '实机部署', '数据增强', 'CoT'] },
+    { n: '33. Dual-Anchoring (2026)', a: 'dual-anchoring', t: ['端到端', '世界模型', '连续环境', '实机部署'] },
+    { n: '34. WAM-Nav (2026)', a: 'wam-nav', t: ['世界模型', '扩散模型', '零样本', '实机部署'] },
+    { n: '35. JanusVLN (2026)', a: 'janusvln', t: ['双系统', '连续环境', '实机部署', '加速优化'] },
+    { n: '36. HSGM (2026)', a: 'hsgm', t: ['Agentic', '拓扑图', '零样本', '连续环境', 'BEV'] },
+    { n: '37. OneVLA (2026)', a: 'onevla-a-unified-framework-for-embodied-tasks', t: ['端到端', '扩散模型', '连续环境', '实机部署'] },
+    { n: '38. CA-VLN (2026)', a: 'ca-vln', t: ['Agentic', '拓扑图', '离散环境'] },
+    { n: '39. RynnBrain (2026)', a: 'rynnbrain', t: ['基础工作'] },
+    { n: '40. EvoMemNav (2026)', a: 'evomemnav', t: ['Agentic', '拓扑图', '零样本'] },
+    { n: '41. OmniNav (2026)', a: 'omninav', t: ['双系统', 'Agentic', 'CoT', '扩散模型', '实机部署'] },
+    { n: '42. Qwen-RobotNav (2026)', a: 'qwen-robotnav', t: ['Agentic', '端到端', '连续环境', '实机部署'] },
+    { n: '43. GA-VLN (2026)', a: 'ga-vln', t: ['端到端', '连续环境', '实机部署', '加速优化', 'BEV'] },
+    { n: '44. SEDualVLN (2026)', a: 'sedualvln', t: ['双系统', 'Agentic', '连续环境'] },
+    { n: '45. Robostral Navigate (2026)', a: 'robostral-navigate', t: ['端到端', '强化学习', '连续环境', '加速优化'] },
+    { n: '46. LocalNav (2026)', a: 'localnav', t: ['拓扑图', '强化学习', '实机部署', '加速优化'] },
+    { n: '47. ABot-N1 (2026)', a: 'abot-n1', t: ['双系统', 'CoT', '强化学习', '实机部署', '数据集'] },
+    { n: '48. ReflectVLN (2026)', a: 'reflectvln', t: ['双系统', 'Agentic', 'CoT', '连续环境'] },
+    { n: '49. TuckerNav (2026)', a: 'tuckernav', t: ['连续环境', '加速优化'] },
+    { n: '50. AgenticNav (2026)', a: 'agenticnav', t: ['Agentic', '零样本', '连续环境', '实机部署'] },
+    { n: '51. MemVLN (2026)', a: 'memvln', t: ['端到端', '连续环境', '加速优化'] },
+    { n: '52. X-NavDP (2026)', a: 'x-navdp', t: ['扩散模型', '强化学习', '连续环境', '实机部署'] },
+    { n: '53. Image2Sim (2026)', a: 'image2sim', t: ['世界模型', '数据增强', '高斯表示', '连续环境', '实机部署', '零样本'] },
+    { n: '54. DecoVLN (2026)', a: 'decovln', t: ['端到端', '连续环境', '实机部署', '加速优化', '纠错'] },
+    { n: '55. TAMP-Nav (2026)', a: 'tamp-nav', t: ['CoT', '强化学习', '连续环境', '实机部署'] },
+    { n: '56. LightNav-0 (2026)', a: 'lightnav-0', t: ['端到端', '连续环境', '实机部署', '强化学习', '零样本', 'CoT', '数据集'] },
+    { n: '57. Uncertainty-Aware Gaussian Map for VLN (2026)', a: 'uncertainty-aware-gaussian-map', t: ['高斯表示', '拓扑图', '离散环境'] },
+    { n: '58. HarnessVLN (2026)', a: 'harnessvln', t: ['Agentic', '零样本', '实机部署', '拓扑图'] },
+    { n: '59. GroundingVLN (2026)', a: 'groundingvln', t: ['双系统', 'CoT', '强化学习', '连续环境', '实机部署', '数据集'] },
+    { n: '60. GPT-6-Astra (2026)', a: 'gpt-6-astra', t: ['Agentic', '零样本', '连续环境'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',
