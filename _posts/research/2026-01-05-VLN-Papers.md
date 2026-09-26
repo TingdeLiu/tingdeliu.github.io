@@ -66,7 +66,8 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 | 模型 | 年份 | 基准 | 基模 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 开源 |
 |:-----|:----:|:----:| :--------: |:----:|:-----:|:----:|:-----:|:----:|
- | [Qwen-RobotNav (全景)](#qwen-robotnav) | 2026 | RxR-CE | Qwen3-VL-7B | **76.5** | **65.7** | 3.58 | – | 否 |
+ | [Qwen-RobotNav (全景)](#qwen-robotnav) | 2026 | RxR-CE | Qwen3-VL-7B | **76.5** | 65.7 | 3.58 | – | 否 |
+ | [Robostral Navigate (单目)](#robostral-navigate) | 2026 | RxR-CE | Mistral-8B | 75.1 | **68.7** | 3.47 | – | 否 |
 | [GroundingVLN(三相机)](#groundingvln) | 2026 | RxR-CE | Qwen3.5-4B | 75.1 | 62.0 | 3.54 | – | 否 |
 | [ABot-N1(三相机)](#abot-n1) | 2026 | RxR-CE | Qwen-3.5-4B + 2B | 73.9 | 63.9 | **3.13** | – | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) |
  | [OmniNav (多目)](#omninav) | 2026 | RxR-CE | Qwen2.5-VL-3B | 73.6 | 62.0 | 3.77 | – | [是](https://github.com/amap-cvlab/OmniNav) |
