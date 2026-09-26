@@ -7,200 +7,166 @@ categories: blog
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "TypeSafe AI 发布的 Jev 自称首个“System One 模型”：不生成文本，只对状态上的类型化问题一次性返回带校准概率的选择、评分或是非判断。本文先讲清 Jev 是什么、为什么快、如何用 RLCD 训练、独立评测说了什么；再梳理它原生不支持多模态之后社区与 arXiv 上长出的派生模型——Laya、AnyJev、Open-Jev、Laya Vision、Visual Jev、PixelJev、PlayJev 等；最后结合 ROS 2 导航 demo 与近期导航论文，讨论这一类模型在具身导航栈中的位置、已有 demo 的证据等级，以及一套可复现的 latency–accuracy–safety 评测方案。"
+excerpt: "Jev 将自由生成替换为类型化判断，但其速度、校准与泛化需要分开检验。本文先厘清接口和证据边界，再比较候选读出、任务训练、视觉共享与外挂感知等开源路线；最后围绕具身导航的行动决策、记忆管理与 Agent 内部协作，提出研究问题及可归因的实验方案。"
 ---
 
 * 目录
 {:toc}
 
-## 1. 引言
+## 1. 引言：导航中的每一次判断都需要生成吗
 
-过去两年，VLN 社区在“大模型该在导航里做什么”这个问题上逐渐收敛出一个共识：**不要让语言模型直接输出坐标、角度或连续控制量**，而是让它在控制器构造好的候选之间做比较，把几何、执行和安全交回确定性代码。
+具身导航既需要理解指令、整合历史和重新规划，也包含大量较短的判断：哪个候选路点更合适、当前地标是否匹配、哪条记忆与任务相关、是否需要再看一眼。**这些环节是否都需要逐步生成文本？能否将有界判断与开放式推理分开，让不同计算承担不同职责？**
 
-一旦大模型在导航栈里只剩下“在几个选项里挑一个”“判断是否该停”这类**短、频繁、有界**的判断，一个问题就变得很自然：这件事还需要一个会写文章的生成式模型吗？
+这不是预设某一种导航范式必然更优。端到端动作模型、分层规划和候选比较各有适用条件；本文关注其中一条可检验的路线：在机器人已经提供证据、候选与执行约束时，用专门的决策模型处理部分选择与验证。
 
-2026-09-15，TypeSafe AI 发布的 **Jev** 恰好给出了另一种答案：一个**不生成任何文本**、只返回带概率的类型化决策的模型。它发布后迅速在社区引发大量复刻与派生——有人用开源模型重现它，有人给它装上视觉编码器，有人把它接进无人机和机械臂。
+TypeSafe AI 于 2026-09-15 发布的 **Jev** 提供了这种接口：输入文本状态与预先定义的问题，返回类型化结果和概率，而非自由生成的回答。官方将其称为“System One 模型”，强调快速、聚焦的判断。[官方发布文](https://typesafe.ai/blog/introducing-system-one-models-and-jev)
 
-本文按三步展开：
+Jev 是否适合导航，不能只看调用速度。其原生输入只有文本，内部训练细节未完整公开；社区替代实现虽然扩展到视觉，也需要区分接口、训练与执行优化各自带来的收益。本文因此按以下顺序展开：
 
-1. **Jev 是什么**：接口、速度来源、训练方法、独立评测与失效模式；
-2. **派生模型**：Jev 原生只收文本，社区如何复刻它、如何让它“看见”和“听见”；
-3. **具身导航**：这一类 System One 模型应该放在导航栈的哪一层，已有证据有多硬，该如何验证。
+1. **第 2 章：接口与证据。** Jev 返回什么，速度与校准主张如何理解，已知局限是什么。
+2. **第 3 章：技术路线。** 从候选读出、决策头训练到视觉适配，开源方法分别改变了什么。
+3. **第 4 章：导航研究机会。** 沿行动决策、记忆管理与 Agent 内部协作展开，区分已有结果与迁移设想。
+4. **第 5 章：验证方法。** 用可归因的对照实验检验质量、延迟、成本与执行风险。
+
+全文将厂商声明、论文 / 项目自报结果和本文提出的方案分别标明。核心目标是找到值得研究的机制，而不是把产品宣传或单个演示外推成通用导航能力。
 
 <!-- more -->
 
-## 2. Jev 是什么
+## 2. Jev 是什么：接口、机制与证据边界
 
-### 2.1 从 System 1 / System 2 说起
+**Jev 是一种专门做判断的模型：你提供当前情况和问题，它直接返回选项、评分或命题概率，供程序使用。**
 
-“System One”一词借自 Kahneman：**系统 1** 是快速、直觉式的判断，**系统 2** 是缓慢、逐步的推理。TypeSafe 的立场是，今天的 LLM 本质上都是“系统 2 形态”——无论问题多简单，都要一个 token 一个 token 地把答案“写”出来；而软件里大量的调用其实只需要一个判断：这封邮件是不是投诉、这条工单该派给谁、这个候选动作安不安全。
+先看一个例子。机器人接到指令：“到会议室门口停下。”感知模块识别到左侧门牌写着“会议室”，右侧走廊通向茶水间；规划器已经给出三个可执行选项：**前往左侧门口、沿右侧走廊前进、原地补看**。
 
-TypeSafe AI 是一家位于旧金山的实验室，2026-09-15 带着 4000 万美元种子轮走出隐身状态，Jev 是其首个公开模型；创始人此前在 OpenAI 工作，参与过 ChatGPT 与 RLHF 相关工作。[TypeSafe 发布文](https://typesafe.ai/blog/introducing-system-one-models-and-jev)；[MindStudio 解读](https://www.mindstudio.ai/blog/jev-system-one-model-launch)
+程序把这些信息整理成文字，交给 Jev 问：“下一步选哪个？”Jev 可以返回一个选项及各候选的概率，程序读取结果，再交给执行模块处理。下面用一组构造的数值说明这个过程，**并非实际调用结果**。
 
-官方对 Jev 的一句话定义是：**前沿智能的函数调用——非结构化状态进，类型化概率决策出**。
+<div align="center">
+<svg viewBox="0 0 780 410" width="100%" style="max-width:780px;font-family:sans-serif" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="jev-contract-title jev-contract-desc">
+  <title id="jev-contract-title">一个例子看懂 Jev：根据当前证据，选择下一步</title>
+  <desc id="jev-contract-desc">任务是到会议室门口停下。应用输入文字状态：左侧门牌为会议室，右侧通向茶水间，并提供左侧门口、右侧走廊和原地补看三个候选。Jev 返回左侧门口，示例概率分别为 0.85、0.05、0.10。程序检查后执行。所有概率均为示意，非实测结果。</desc>
+  <defs><marker id="jevExampleArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker></defs>
+  <rect x="1" y="1" width="778" height="408" rx="12" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="390" y="29" text-anchor="middle" font-size="17" font-weight="bold" fill="#1e293b">一个例子看懂 Jev：下一步选哪个？</text>
+  <text x="390" y="54" text-anchor="middle" font-size="14" fill="#475569">任务：到会议室门口停下</text>
+  <rect x="20" y="76" width="280" height="230" rx="10" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="38" y="104" font-size="15" font-weight="bold" fill="#9a3412">① 应用提供文字状态与候选</text>
+  <text x="38" y="136" font-size="14" fill="#334155">左侧门牌：“会议室”</text>
+  <text x="38" y="160" font-size="14" fill="#334155">右侧走廊：通向茶水间</text>
+  <line x1="38" y1="177" x2="282" y2="177" stroke="#fed7aa"/>
+  <text x="38" y="204" font-size="14" fill="#334155">A　前往左侧门口</text>
+  <text x="38" y="232" font-size="14" fill="#334155">B　沿右侧走廊前进</text>
+  <text x="38" y="260" font-size="14" fill="#334155">C　原地补看</text>
+  <text x="38" y="289" font-size="12" fill="#9a3412">问题：哪个选项有助于完成任务？</text>
+  <path d="M308,190 L334,190" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#jevExampleArrow)"/>
+  <rect x="342" y="151" width="106" height="80" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="395" y="183" text-anchor="middle" font-size="24" font-weight="bold" fill="#1e40af">Jev</text>
+  <text x="395" y="210" text-anchor="middle" font-size="13" fill="#1e40af">② 比较选项</text>
+  <path d="M456,190 L482,190" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#jevExampleArrow)"/>
+  <rect x="490" y="76" width="270" height="230" rx="10" fill="#ffffff" stroke="#93c5fd"/>
+  <text x="508" y="104" font-size="15" font-weight="bold" fill="#1e40af">③ 返回选项及候选概率</text>
+  <text x="508" y="133" font-size="15" font-weight="bold" fill="#166534">选中：A · 左侧门口</text>
+  <text x="508" y="163" font-size="13" fill="#334155">A　左侧门口</text>
+  <text x="741" y="163" text-anchor="end" font-size="13" fill="#166534">0.85</text>
+  <rect x="508" y="173" width="232" height="9" rx="4" fill="#f1f5f9"/>
+  <rect x="508" y="173" width="197.2" height="9" rx="4" fill="#22c55e"/>
+  <text x="508" y="209" font-size="13" fill="#334155">B　右侧走廊</text>
+  <text x="741" y="209" text-anchor="end" font-size="13" fill="#475569">0.05</text>
+  <rect x="508" y="219" width="232" height="9" rx="4" fill="#f1f5f9"/>
+  <rect x="508" y="219" width="11.6" height="9" rx="4" fill="#94a3b8"/>
+  <text x="508" y="255" font-size="13" fill="#334155">C　原地补看</text>
+  <text x="741" y="255" text-anchor="end" font-size="13" fill="#475569">0.10</text>
+  <rect x="508" y="265" width="232" height="9" rx="4" fill="#f1f5f9"/>
+  <rect x="508" y="265" width="23.2" height="9" rx="4" fill="#94a3b8"/>
+  <text x="625" y="293" text-anchor="middle" font-size="11" fill="#64748b">示意结果，非实测；非完整 API 响应</text>
+  <path d="M625,309 L625,332" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#jevExampleArrow)"/>
+  <rect x="490" y="340" width="270" height="50" rx="10" fill="#dcfce7" stroke="#86efac"/>
+  <text x="625" y="361" text-anchor="middle" font-size="14" font-weight="bold" fill="#166534">④ 程序检查后执行</text>
+  <text x="625" y="381" text-anchor="middle" font-size="12" fill="#166534">由规划与控制模块前往左侧门口</text>
+  <text x="24" y="354" font-size="14" fill="#334155">感知提供证据，规划器提供候选，</text>
+  <text x="24" y="380" font-size="14" font-weight="bold" fill="#1e40af">Jev 判断选哪个，执行模块负责移动。</text>
+</svg>
+<figcaption>图 1　从文字状态到程序可用的判断：以“到会议室门口停下”为例。候选概率为构造示意。</figcaption>
+</div>
 
-### 2.2 接口：状态 + 类型化问题 → 有界概率决策
+**Jev 负责根据证据比较选项；感知模块提供环境信息，规划器提供候选，执行模块负责实际移动。** 这个例子展示的是 Choice；评分和命题判断则分别由 Score 与 Noul 表达，下面再展开它们的接口。
 
-调用 Jev 需要两样东西：
+### 2.1 从生成回答到返回有界决策
 
-- **`state`**：一段文本，或含文本字段的 JSON，描述“当前情况”；
-- **一组类型化问题**：每个问题事先声明好答案空间。
+“System One”借用了快思考 / 慢思考的比喻。在这里，它首先描述一种软件接口和任务分工，不应理解为已经证实的认知机制，也不意味着所有生成式 LLM 都只能做慢推理。
 
-Jev 对每个问题返回一个答案及其概率。公开的原语只有三种：[官方 Primitives](https://docs.typesafe.ai/primitives)
+调用 Jev 时，应用提供 `state`，并通过问题定义可能的答案。模型返回结果，代码再决定如何使用。其三种原语如下：
 
-| 原语 | 答案空间 | 返回 | 示例 |
+| 原语 | 问题形式 | 主要返回值 | 导航中的示意用途 |
 |---|---|---|---|
-| `Choice` | 2–255 个离散选项 | 选中项、各项概率、confidence | 这条工单属于哪个部门？ |
-| `Score` | 有序等级（rubric） | 等级、各级概率、confidence | 这段回复的礼貌程度是 1–5 中哪一级？ |
-| `Noul` | 是 / 否 | 命题为真的概率 | 用户是否在要求退款？ |
+| `Choice` | 在给定选项中选一个，最多 255 项 | 选中项、完整概率分布、`confidence` | 比较候选观察点 |
+| `Score` | 按有序、带文字描述的等级评分，最多 10 级 | 等级位置的概率加权均值、各级概率、`confidence` | 按预定义等级评估进展 |
+| `Noul` | 判断一个命题 | 命题为真的概率；无独立 `confidence` 字段 | 判断观测是否支持到达条件 |
 
-一个请求的形态大致如下（示意，字段名以官方文档为准）：
+`Score` 可以位于两个等级之间。例如等级位置为 0、1、2，概率为 0、0.6、0.4，则 `score = 1.4`，而非必须选中整数等级 1 或 2。这是模型在等级上的分布摘要，不是物理测量值。[Choice](https://docs.typesafe.ai/primitives/choice)；[Score](https://docs.typesafe.ai/primitives/score)；[Noul](https://docs.typesafe.ai/primitives/noul)
+
+同一个会议室场景，按官方字段组织成请求如下。它与图 1 对应，用于说明接口，未实际调用。
 
 ```json
 {
   "model": "jev-1.13.0",
-  "state": "机器人位于走廊尽头，左侧是开着门的卧室，右侧是楼梯。指令：去二楼的书房。",
-  "questions": [
-    {"type": "choice", "question": "下一步应前往哪个候选？",
-     "options": ["左侧卧室门口", "右侧楼梯口", "原地转身回看"]},
-    {"type": "noul",  "question": "机器人是否已到达目标房间？"}
-  ]
+  "state": "目标是在会议室门口外停下。当前仍在走廊，感知模块识别到左侧门牌为会议室，右侧走廊通向茶水间。三个候选均由规划器提供并通过当前可行性检查。",
+  "questions": {
+    "next_step": {
+      "type": "choice",
+      "instructions": "哪个候选最有助于当前目标？证据不足时选择补看。",
+      "criteria": {
+        "left_door": "前往左侧会议室门口外",
+        "right_corridor": "沿右侧走廊前进",
+        "observe": "原地暂停前进并补充观测"
+      }
+    }
+  }
 }
 ```
 
-返回的是每个问题的答案与概率分布，而不是一段话。图 1 把这一次调用从输入到“代码怎么用”完整画了出来：
+同一 `state` 上的问题可合并请求并分别求值；这里的“独立”指不需要依赖其他问题的返回结果，不表示它们在统计上互不相关。需要先读取上一步结果或获取新观测的问题，应分步处理。类型约束减少自由文本解析问题，但不免除请求失败处理、结果校验和执行条件检查。
+
+### 2.2 为什么可能更快：接口事实与内部架构要分开
+
+普通生成式调用读入上下文后，再逐 token 输出回答；如果需要长推理或解释，这部分串行计算会增加延迟。Jev 的公开接口不返回生成式解释，官方描述其通过并行采样在同一请求中给出多个类型化结果。[发布文](https://typesafe.ai/blog/introducing-system-one-models-and-jev)
+
+**“一次请求返回全部结果”不等于已经公开证明“内部只有一次前向传播”。** 目前本文核查的材料未完整披露 Jev 的网络结构和执行路径。因此可以讨论省去自由文本解码与多问题并行的意义，却不能把社区编码器、决策头或 logits 读出的实现直接当作 Jev 的真实内部结构。
 
 <div align="center">
-<svg viewBox="0 0 780 420" width="100%" style="max-width:780px;font-family:sans-serif" xmlns="http://www.w3.org/2000/svg">
-  <defs><marker id="jevA2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker></defs>
-  <rect width="780" height="420" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
-  <text x="390" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">一次 Jev 调用：输入、输出与代码分支（数值为示意）</text>
-  <rect x="20" y="48" width="240" height="150" rx="8" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.5"/>
-  <text x="34" y="70" font-size="12" font-weight="bold" fill="#92400e">state（文本 / JSON）</text>
-  <text x="34" y="94" font-size="11" fill="#78350f">位置：走廊尽头</text>
-  <text x="34" y="114" font-size="11" fill="#78350f">左侧：开着门的卧室</text>
-  <text x="34" y="134" font-size="11" fill="#78350f">右侧：楼梯</text>
-  <text x="34" y="154" font-size="11" fill="#78350f">指令：去二楼的书房</text>
-  <text x="34" y="174" font-size="11" fill="#78350f">已行进：12 m，转向 3 次</text>
-  <rect x="20" y="212" width="240" height="130" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/>
-  <text x="34" y="234" font-size="12" font-weight="bold" fill="#4c1d95">questions（预先声明答案空间）</text>
-  <text x="34" y="260" font-size="11" fill="#5b21b6">Q1 Choice：下一步去哪个候选？</text>
-  <text x="34" y="284" font-size="11" fill="#5b21b6">Q2 Score：当前风险属 1–5 哪级？</text>
-  <text x="34" y="308" font-size="11" fill="#5b21b6">Q3 Noul：是否已到达目标？</text>
-  <text x="34" y="330" font-size="10" fill="#7c3aed">三个问题相互独立、并行求值</text>
-  <line x1="262" y1="123" x2="300" y2="180" stroke="#64748b" stroke-width="1.5" marker-end="url(#jevA2)"/>
-  <line x1="262" y1="277" x2="300" y2="220" stroke="#64748b" stroke-width="1.5" marker-end="url(#jevA2)"/>
-  <rect x="302" y="165" width="100" height="70" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
-  <text x="352" y="196" text-anchor="middle" font-size="15" font-weight="bold" fill="#1e3a8a">Jev</text>
-  <text x="352" y="216" text-anchor="middle" font-size="10" fill="#1e40af">一次前向</text>
-  <line x1="404" y1="185" x2="438" y2="105" stroke="#64748b" stroke-width="1.5" marker-end="url(#jevA2)"/>
-  <line x1="404" y1="200" x2="438" y2="215" stroke="#64748b" stroke-width="1.5" marker-end="url(#jevA2)"/>
-  <line x1="404" y1="215" x2="438" y2="305" stroke="#64748b" stroke-width="1.5" marker-end="url(#jevA2)"/>
-  <rect x="440" y="48" width="320" height="112" rx="8" fill="#ffffff" stroke="#3b82f6"/>
-  <text x="452" y="68" font-size="12" font-weight="bold" fill="#1e40af">Q1 Choice：分布 + confidence</text>
-  <text x="452" y="92" font-size="11" fill="#334155">左侧卧室门口</text>
-  <rect x="560" y="82" width="23" height="13" rx="2" fill="#93c5fd"/><text x="590" y="93" font-size="10" fill="#475569">0.12</text>
-  <text x="452" y="116" font-size="11" font-weight="bold" fill="#1e3a8a">右侧楼梯口</text>
-  <rect x="560" y="106" width="154" height="13" rx="2" fill="#2563eb"/><text x="720" y="117" font-size="10" font-weight="bold" fill="#1e3a8a">0.81</text>
-  <text x="452" y="140" font-size="11" fill="#334155">原地转身回看</text>
-  <rect x="560" y="130" width="13" height="13" rx="2" fill="#93c5fd"/><text x="580" y="141" font-size="10" fill="#475569">0.07</text>
-  <rect x="440" y="170" width="320" height="100" rx="8" fill="#ffffff" stroke="#3b82f6"/>
-  <text x="452" y="190" font-size="12" font-weight="bold" fill="#1e40af">Q2 Score：各等级概率</text>
-  <line x1="470" y1="250" x2="740" y2="250" stroke="#cbd5e1"/>
-  <rect x="480" y="241" width="30" height="9" fill="#93c5fd"/><rect x="535" y="206" width="30" height="44" fill="#2563eb"/><rect x="590" y="228" width="30" height="22" fill="#93c5fd"/><rect x="645" y="243" width="30" height="7" fill="#93c5fd"/><rect x="700" y="247" width="30" height="3" fill="#93c5fd"/>
-  <text x="495" y="264" text-anchor="middle" font-size="10" fill="#475569">1</text><text x="550" y="264" text-anchor="middle" font-size="10" font-weight="bold" fill="#1e3a8a">2</text><text x="605" y="264" text-anchor="middle" font-size="10" fill="#475569">3</text><text x="660" y="264" text-anchor="middle" font-size="10" fill="#475569">4</text><text x="715" y="264" text-anchor="middle" font-size="10" fill="#475569">5</text>
-  <rect x="440" y="280" width="320" height="62" rx="8" fill="#ffffff" stroke="#3b82f6"/>
-  <text x="452" y="300" font-size="12" font-weight="bold" fill="#1e40af">Q3 Noul：p(命题为真)</text>
-  <rect x="452" y="314" width="240" height="14" rx="7" fill="#e2e8f0"/>
-  <rect x="452" y="314" width="19" height="14" rx="7" fill="#2563eb"/>
-  <text x="700" y="325" font-size="11" font-weight="bold" fill="#1e3a8a">0.08</text>
-  <rect x="20" y="356" width="740" height="52" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
-  <text x="34" y="377" font-size="12" font-weight="bold" fill="#14532d">你的代码：</text>
-  <text x="110" y="377" font-size="11" fill="#166534">若 p(Q1) ≥ τ 且 Q2 ≤ 2 且几何安全检查通过 → 前往右侧楼梯口；Q3 低 → 继续导航</text>
-  <text x="110" y="397" font-size="11" fill="#166534">否则：回看 / 升级到 VLM / 请求人工 —— 阈值 τ 需在目标任务上用少量标注校准</text>
-</svg>
-<figcaption>图 1　Jev 的输出不是“一句话”，而是三组可以直接写进 if 语句的概率</figcaption>
+<svg viewBox="0 0 780 270" width="100%" style="max-width:780px;font-family:sans-serif" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="jev-output-title"><title id="jev-output-title">生成式调用与类型化决策：比较的是输出路径</title><rect x="1" y="1" width="778" height="268" rx="12" fill="#f8fafc" stroke="#e2e8f0"/><text x="390" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">生成式调用与类型化决策：比较的是输出路径</text><text x="92" y="89" text-anchor="middle" font-size="13" font-weight="bold" fill="#334155">生成式调用</text><rect x="170" y="60" width="145" height="55" rx="8" fill="#fff" stroke="#94a3b8"/><text x="242" y="92" text-anchor="middle" font-size="12" font-weight="normal" fill="#334155">读入上下文</text><text x="335" y="93" text-anchor="middle" font-size="24" font-weight="bold" fill="#64748b">→</text><rect x="355" y="60" width="205" height="55" rx="8" fill="#fff" stroke="#94a3b8"/><text x="457" y="83" text-anchor="middle" font-size="12" font-weight="normal" fill="#334155">逐 token 输出答案</text><text x="457" y="103" text-anchor="middle" font-size="10" font-weight="normal" fill="#334155">是否有长推理取决于设置</text><text x="580" y="93" text-anchor="middle" font-size="24" font-weight="bold" fill="#64748b">→</text><rect x="600" y="60" width="160" height="55" rx="8" fill="#fff" stroke="#94a3b8"/><text x="680" y="91" text-anchor="middle" font-size="12" font-weight="normal" fill="#334155">解析与任务校验</text><text x="92" y="171" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e40af">Jev 接口</text><rect x="170" y="140" width="145" height="55" rx="8" fill="#dbeafe" stroke="#2563eb"/><text x="242" y="171" text-anchor="middle" font-size="12" font-weight="normal" fill="#334155">状态 + 多个问题</text><text x="335" y="173" text-anchor="middle" font-size="24" font-weight="bold" fill="#64748b">→</text><rect x="355" y="140" width="205" height="55" rx="8" fill="#dbeafe" stroke="#2563eb"/><text x="457" y="163" text-anchor="middle" font-size="12" font-weight="normal" fill="#334155">类型化结果并行返回</text><text x="457" y="183" text-anchor="middle" font-size="10" font-weight="normal" fill="#334155">不披露内部前向次数</text><text x="580" y="173" text-anchor="middle" font-size="24" font-weight="bold" fill="#64748b">→</text><rect x="600" y="140" width="160" height="55" rx="8" fill="#dcfce7" stroke="#16a34a"/><text x="680" y="171" text-anchor="middle" font-size="11" font-weight="normal" fill="#334155">结构读取与任务校验</text><text x="390" y="225" text-anchor="middle" font-size="12" font-weight="normal" fill="#334155">输入处理、通信、排队与结果验证仍可能占用时间</text><text x="390" y="247" text-anchor="middle" font-size="11" font-weight="normal" fill="#334155">公平对照：短答案生成 / 候选读出 / 分类器；统一任务与计时范围</text></svg>
+<figcaption>图 2　两种输出路径的对照。任务校验与端到端开销应纳入比较。</figcaption>
 </div>
 
-几个设计要点：
+官方发布时报告端到端响应 70–500 ms，并给出针对其 System One 任务的加速对比。这些数字依赖输入、问题数量、网络与对照模型设置；不能拿长推理模型的耗时，推导 Jev 对所有短答案基线都具有相同倍数优势。[官方速度说明](https://typesafe.ai/blog/introducing-system-one-models-and-jev)
 
-- **同一请求中的多个问题共享同一 `state`、彼此独立、并行求值**；
-- 官方建议把复杂问题拆成原子判断，再由调用方代码组合，而不是让模型自己做长链规划；
-- Jev **不接受微调或 LoRA**，定制只能通过 `state` 与问题描述完成。[官方 Models](https://docs.typesafe.ai/models)
+后文开源方法可以直接检查是否单次读出、是否多次去偏、是否共享前缀。公平评测应分别记录输入编码、模型计算、通信与后处理，并包含短答案生成、候选读出和分类器基线。无需生成长解释，不代表完全不需要理解输入，也不意味着模型一定更准确。
 
-### 2.3 为什么快：不做自回归生成
+### 2.3 概率、confidence 与校准不是一回事
 
-LLM 回答一个选择题，至少要经历“读完输入 → 逐 token 生成答案（往往还有推理链）→ 调用方解析字符串”三步；推理模型的前两步可能长达数秒到数分钟。
+先区分三个概念，否则后文的阈值和调度容易混淆：
 
-Jev 的做法是 **非自回归**：读完 `state` 与问题后，**一次性并行地**给出所有问题的类型化输出，不存在“生成”这一步，也就不需要解析。官方称之为“并行采样（parallel sampling）”。
+| 概念 | 表示什么 | 不能直接推导什么 |
+|---|---|---|
+| 候选 / 命题概率 | 模型在给定状态与问题下对答案的支持程度 | 真实环境中的碰撞概率或任务必然成功 |
+| API 的 `confidence` | 由 Choice / Score 的概率分布计算的集中程度摘要 | 该数值就是所选项概率，或就是实际正确率 |
+| 校准 | 在一组预测中，预测概率与实际结果频率是否匹配 | 每个高概率答案都正确，或换场景后仍然校准 |
 
-<div align="center">
-<svg viewBox="0 0 760 300" width="100%" style="max-width:760px;font-family:sans-serif" xmlns="http://www.w3.org/2000/svg">
-  <defs><marker id="jevA1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker></defs>
-  <rect width="760" height="300" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
-  <text x="380" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">同一组选择题：自回归 LLM vs. Jev</text>
-  <text x="24" y="92" font-size="13" font-weight="bold" fill="#475569">自回归 LLM</text>
-  <rect x="130" y="68" width="105" height="40" rx="6" fill="#e2e8f0" stroke="#94a3b8"/>
-  <text x="182" y="93" text-anchor="middle" font-size="11" fill="#334155">读入 prompt</text>
-  <rect x="245" y="68" width="245" height="40" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-dasharray="4"/>
-  <g fill="#cbd5e1"><rect x="255" y="80" width="14" height="16" rx="2"/><rect x="274" y="80" width="14" height="16" rx="2"/><rect x="293" y="80" width="14" height="16" rx="2"/><rect x="312" y="80" width="14" height="16" rx="2"/><rect x="331" y="80" width="14" height="16" rx="2"/><rect x="350" y="80" width="14" height="16" rx="2"/></g>
-  <text x="425" y="93" text-anchor="middle" font-size="11" fill="#475569">思考 token × N</text>
-  <rect x="500" y="68" width="80" height="40" rx="6" fill="#e2e8f0" stroke="#94a3b8"/>
-  <text x="540" y="93" text-anchor="middle" font-size="11" fill="#334155">答案 token</text>
-  <rect x="590" y="68" width="150" height="40" rx="6" fill="#fef2f2" stroke="#ef4444" stroke-dasharray="4"/>
-  <text x="665" y="86" text-anchor="middle" font-size="11" fill="#991b1b">解析字符串</text>
-  <text x="665" y="101" text-anchor="middle" font-size="10" fill="#b91c1c">可能格式错误、需重试</text>
-  <text x="435" y="130" text-anchor="middle" font-size="11" fill="#64748b">每个 token 都要一次前向，严格串行；问题越多、推理越长，越慢</text>
-  <line x1="20" y1="148" x2="740" y2="148" stroke="#e2e8f0"/>
-  <text x="24" y="204" font-size="13" font-weight="bold" fill="#1d4ed8">Jev</text>
-  <rect x="130" y="168" width="140" height="64" rx="6" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
-  <text x="200" y="195" text-anchor="middle" font-size="11" fill="#1e3a8a">读入 state + 全部问题</text>
-  <text x="200" y="212" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a8a">一次前向</text>
-  <line x1="272" y1="200" x2="300" y2="200" stroke="#64748b" stroke-width="1.5" marker-end="url(#jevA1)"/>
-  <rect x="305" y="166" width="150" height="20" rx="4" fill="#eff6ff" stroke="#3b82f6"/>
-  <text x="380" y="180" text-anchor="middle" font-size="10" fill="#1e40af">Q1 Choice → 分布</text>
-  <rect x="305" y="190" width="150" height="20" rx="4" fill="#eff6ff" stroke="#3b82f6"/>
-  <text x="380" y="204" text-anchor="middle" font-size="10" fill="#1e40af">Q2 Score → 分布</text>
-  <rect x="305" y="214" width="150" height="20" rx="4" fill="#eff6ff" stroke="#3b82f6"/>
-  <text x="380" y="228" text-anchor="middle" font-size="10" fill="#1e40af">Q3 Noul → 概率</text>
-  <line x1="458" y1="200" x2="490" y2="200" stroke="#64748b" stroke-width="1.5" marker-end="url(#jevA1)"/>
-  <rect x="495" y="176" width="150" height="48" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
-  <text x="570" y="197" text-anchor="middle" font-size="11" fill="#14532d">代码直接使用</text>
-  <text x="570" y="213" text-anchor="middle" font-size="10" fill="#166534">无需解析，类型必然合法</text>
-  <text x="435" y="252" text-anchor="middle" font-size="11" fill="#64748b">所有问题共享同一 state，并行给出类型化结果；没有“生成”这一步</text>
-  <rect x="120" y="264" width="520" height="24" rx="6" fill="#fff7ed" stroke="#fdba74"/>
-  <text x="380" y="280" text-anchor="middle" font-size="11" fill="#9a3412">延迟：前沿 LLM 3–329 s（厂商口径）· Jev 70–500 ms · 第三方测得服务端约 105 ms</text>
-</svg>
-<figcaption>图 2　Jev 省掉的不是“思考”，而是“把答案写出来”这整条串行链路</figcaption>
-</div>
+官方明确说明 `confidence` 由已返回的分布计算；Noul 不另外携带这一字段。实际系统可以读取完整分布，并评估何种不确定性统计量适合本任务。[Confidence 文档](https://docs.typesafe.ai/confidence)
 
-据此，官方宣称：
-
-- 端到端响应 **70–500 ms**，而前沿 LLM 为 3–329 s，对“System One 形态的问题”快 **40–200 倍**；
-- 因为没有逐 token 生成，**输出免费**，只按输入计费。
-
-[TypeSafe 发布文](https://typesafe.ai/blog/introducing-system-one-models-and-jev)
-
-官方没有公开网络结构与参数规模。但从接口形态和社区复刻（见第 3 节）来看，一种合理的理解是：**一个编码器读入“状态 + 问题 + 候选”，一次前向传播后由类型化输出头直接给出每个问题在其答案空间上的分布**——这是推测，而非官方描述。
-
-### 2.4 怎么训练：RLCD 与“校准”
-
-官方披露的训练信息只有一个名字和一个目标：
-
-- 方法叫 **RLCD（Reinforcement Learning for Calibrated Decisions）**，被刻意拿来与 LLM 的 RLHF 对照；
-- 目标是 **校准的决策**：概率“针对真实结果优化，以反映不确定性”，即“认识论上诚实的概率”。[官方 System One](https://docs.typesafe.ai/concepts/system-one)
-
-这里的关键词是**校准（calibration）**。RLHF 优化的是“人类更喜欢哪个回答”，这会让模型倾向于说得自信、说得好听；RLCD 优化的是“说 70% 的时候是否真有七成是对的”。衡量校准常用两个指标。设有 $n$ 个预测，按置信度分成 $M$ 个桶：
+以多分类的 top-label 校准为例，用每个样本最高的候选概率分桶，比较桶内平均概率与准确率：
 
 $$
-\mathrm{ECE} = \sum_{m=1}^{M} \frac{|B_m|}{n}\,\bigl|\mathrm{acc}(B_m) - \mathrm{conf}(B_m)\bigr|
+\mathrm{ECE}=\sum_{m=1}^{M}\frac{|B_m|}{n}
+\left|\mathrm{acc}(B_m)-\overline{p}_{\max}(B_m)\right|
 $$
 
+这里的 $\overline{p}_{\max}$ 是所选项概率的平均值，**不是未经定义转换的 API `confidence`**。对二元命题，也可用预测为真的概率 $p_i$ 和标签 $y_i\in\{0,1\}$ 计算：
+
 $$
-\mathrm{Brier} = \frac{1}{n}\sum_{i=1}^{n} (p_i - y_i)^2
+\mathrm{Brier}=\frac{1}{n}\sum_{i=1}^{n}(p_i-y_i)^2
 $$
 
-ECE 衡量“置信度与实际正确率的平均偏差”，Brier 分数是概率预测的均方误差，两者都越低越好。把每个置信度桶的实际正确率画出来，就得到**可靠性图（reliability diagram）**：
+ECE 依赖分桶方式和样本量；Brier 衡量概率预测误差，也受区分能力影响，不是只测校准。多分类与二元任务的定义应明确，不能跨论文直接排列数值大小。
 
 <div align="center">
 <svg viewBox="0 0 660 390" width="100%" style="max-width:660px;font-family:sans-serif" xmlns="http://www.w3.org/2000/svg">
@@ -216,485 +182,616 @@ ECE 衡量“置信度与实际正确率的平均偏差”，Brier 分数是概�
   <g fill="#2563eb"><circle cx="121" cy="291" r="4"/><circle cx="189" cy="229" r="4"/><circle cx="257" cy="182" r="4"/><circle cx="325" cy="114" r="4"/><circle cx="393" cy="70" r="4"/></g>
   <g font-size="10" fill="#64748b" text-anchor="middle"><text x="70" y="346">0</text><text x="138" y="346">0.2</text><text x="206" y="346">0.4</text><text x="274" y="346">0.6</text><text x="342" y="346">0.8</text><text x="410" y="346">1.0</text></g>
   <g font-size="10" fill="#64748b" text-anchor="end"><text x="62" y="334">0</text><text x="62" y="278">0.2</text><text x="62" y="222">0.4</text><text x="62" y="166">0.6</text><text x="62" y="110">0.8</text><text x="62" y="54">1.0</text></g>
-  <text x="240" y="370" text-anchor="middle" font-size="12" fill="#334155">模型给出的置信度</text>
+  <text x="240" y="370" text-anchor="middle" font-size="12" fill="#334155">所选项的预测概率</text>
   <text x="24" y="190" text-anchor="middle" font-size="12" fill="#334155" transform="rotate(-90 24 190)">该桶的实际正确率</text>
   <line x1="430" y1="70" x2="460" y2="70" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
   <text x="468" y="74" font-size="11" fill="#334155">理想校准：说 70% 就对 70%</text>
   <line x1="430" y1="108" x2="460" y2="108" stroke="#ef4444" stroke-width="2.5"/>
-  <text x="468" y="104" font-size="11" fill="#991b1b">过度自信：置信度高于</text>
-  <text x="468" y="120" font-size="11" fill="#991b1b">实际正确率（RLHF 常见）</text>
+  <text x="468" y="104" font-size="11" fill="#991b1b">过度自信：预测概率高于</text>
+  <text x="468" y="120" font-size="11" fill="#991b1b">实际正确率（示意）</text>
   <line x1="430" y1="150" x2="460" y2="150" stroke="#2563eb" stroke-width="2.5"/>
   <text x="468" y="146" font-size="11" fill="#1e3a8a">校准良好：贴着对角线</text>
-  <text x="468" y="162" font-size="11" fill="#1e3a8a">（RLCD 的优化目标）</text>
+  <text x="468" y="162" font-size="11" fill="#1e3a8a">（不代表 Jev 实测结果）</text>
   <line x1="438" y1="190" x2="438" y2="214" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="3 3"/>
   <text x="450" y="200" font-size="11" fill="#334155">红色虚线长度按样本数</text>
   <text x="450" y="216" font-size="11" fill="#334155">加权平均 ≈ ECE</text>
   <rect x="428" y="238" width="216" height="88" rx="8" fill="#fff7ed" stroke="#fdba74"/>
   <text x="440" y="258" font-size="11" font-weight="bold" fill="#9a3412">对机器人意味着什么</text>
-  <text x="440" y="278" font-size="11" fill="#9a3412">只有校准好，“p ≥ 0.9 才执行”</text>
-  <text x="440" y="296" font-size="11" fill="#9a3412">这类阈值规则才有意义；</text>
+  <text x="440" y="278" font-size="11" fill="#9a3412">阈值需用目标任务数据检验</text>
+  <text x="440" y="296" font-size="11" fill="#9a3412">概率不能代替执行安全检查；</text>
   <text x="440" y="314" font-size="11" fill="#9a3412">换任务就要重新画这张图</text>
 </svg>
-<figcaption>图 3　RLHF 优化“回答让人满意”，RLCD 优化“概率与现实对得上”</figcaption>
+<figcaption>图 3　所选项概率与实际正确率的关系示意。曲线不代表某种训练方法或 Jev 的实测结果。</figcaption>
 </div>
 
-能让模型在最优时如实报告概率的奖励函数叫**严格恰当评分规则（strictly proper scoring rule）**，对数损失与 Brier 分数都属于此类。
+对导航而言，“更集中”与“更可靠”需要用目标任务数据建立联系。选路、到达和恢复的错误代价不同，不能共用一个未经检验的阈值；校准良好也不能替代对地图、障碍与命令有效性的检查。
 
-官方**没有**公开的内容包括：基座模型、参数规模、训练数据、RLCD 的奖励设计与优化算法、权重、技术报告。发布文只说明训练数据不是为了让自家模型占优而专门构造的。因此，“新架构 + 新训练法”目前应视为**厂商技术主张**，外部无法复现。
+### 2.4 RLCD：训练目标已说明，完整配方仍未知
 
-一个有用的参照来自开源复刻 Laya（见 3.2）：它把 RLCD 具体实现为“**以严格恰当评分规则为奖励、用 GRPO 式策略梯度训练**”，再做分题型的温度缩放校准。这是社区对 RLCD 的一种可运行解读，不代表 TypeSafe 的实际做法，但足以说明这条路线在工程上是走得通的。[Laya](https://github.com/NandhaKishorM/laya)
+TypeSafe 将其训练方法称为 **RLCD（Reinforcement Learning for Calibrated Decisions）**，公开强调输出决策与概率，并使概率对应实际结果。相较于 RLHF 的偏好目标，这体现了不同的优化重点；但不能把 RLHF 简化成必然过度自信，也不能因为采用 RLCD 名称就断言输出已经可靠。[官方 AI primer](https://docs.typesafe.ai/introduction/machine-learning-primer)
 
-### 2.5 规格与价格
+在本文核查的公开材料中，尚无法重建 Jev 的完整训练配方：基座、数据组成、奖励细节和优化过程都缺乏足够信息。“新架构 + 新训练方法”应作为厂商主张呈现，不能借社区实现反向补全。
 
-| 项 | 值 |
-|---|---|
-| 版本 | `jev-1.13.0`（别名 `jev-latest`、`jev-preview` 当前均指向它） |
-| 上下文 | 请求总计 64k；`state + 最长问题` 不超过 32k |
-| 模态 | **仅文本**，不支持图像、音频、视频 |
-| 语言 | 英文最佳；中日韩等语言可处理但效果不及英文 |
-| 价格 | 输入 $0.042 / 百万 token，输出免费 |
-| 限流 | 250k tokens/s，1,200 requests/min |
+对数损失与 Brier 损失属于严格恰当评分规则：在相应统计条件下，其期望最优预测对应真实分布。这提供了概率学习的理论动机，**不保证有限数据、有限模型和分布迁移后的实际校准**。Laya 提供了可检查的概率训练与温度校准实现，属于独立路线，不是 TypeSafe 配方的复现证据。[Laya](https://github.com/NandhaKishorM/laya)
 
-[官方 Models](https://docs.typesafe.ai/models)
+### 2.5 如何阅读评测：速度、准确率、校准与稳定性
 
-两个工程细节值得记住：别名会随版本移动，**若在机器人系统中使用校准阈值，必须固定版本号并记录每次返回的 model ID**；中文效果不及英文，**中文指令场景需要单独评测**。
+Jev 的公开评测来自不同任务、不同标签来源和不同运行环境。本文不据此给它一个统一“模型档位”，而是分别检查四个问题：
 
-### 2.6 证据：厂商数字与独立评测
-
-**厂商数字。** 官网最醒目的 **193.6× faster / 444.6× cheaper** 来自公司自己的四个业务 workflow eval，示例汇总为 TypeSafe 0.114 s / $0.000081 对比 LLM 8.566 s / $0.013880。[TypeSafe 首页](https://typesafe.ai/) 官方同时坦率列出了偏差：这是现实收益的**高端值**；workflow 由自家团队制作；参考标签不是人类真值，而是 GPT-6 Astra 与 Claude Fable 5.1 高思考输出的平均；对比 LLM 经过 TypeSafe 自己的结构化适配器；演示特意采用**短、密集**的 `state`，这种输入让 Jev 占优。[Workflow eval 方法](https://evals.typesafe.ai/)
-
-**独立评测。** 发布十天内社区已出现一批第三方评测，结论并不一致，恰好说明“Jev 好不好”高度依赖任务：
-
-| 评测 | 任务 | 报告结果 |
+| 维度 | 应比较什么 | 常见混淆 |
 |---|---|---|
-| [八天独立测试](https://dev.to/aws-builders/jev-after-eight-days-of-independent-tests-level-with-mid-price-llms-behind-the-frontier-1c60) | 多个公开基准，共 23,703 次调用 | 均值 72.5%，与中档 LLM 持平、落后前沿 6.5–11.5 分；零非法输出；相同请求重复调用有 1.33–2.2% 答案改变；**仅交换选项名称就改变 32.5% 的答案**；开箱 ECE 中位 0.071，50–300 条标注拟合温度后降 74%；服务端延迟约 105 ms |
-| [Convex Decision Evals](https://github.com/get-convex/convex-evals) | 108 道四选一平台问答，打乱选项跑 3 次 | 84.6% ± 0.7，中位 199 ms；每轮 $0.0088，对比最强模型 $1.59 |
-| [Jev vs Laya 对照](https://anth.us/blog/jev-vs-laya/) | 600 条留出情感样本，同标签同问题 | Jev 76.8% / ECE 0.151，Laya 72.2% / ECE 0.107；用同样 140 条标注微调 Laya 后达 89.6% |
-| [Nautilus 校准研究](https://github.com/chunxiaoxx/nautilus-compass) | 240 道带种子的问题，公开原始数据 | 准确率 92.2%，Brier 0.048，ECE 0.041 |
-| [Laya 对比](https://github.com/NandhaKishorM/laya) | 2,000 个类型化决策 | Jev 准确率 0.727，ECE 0.246；77 类高基数选择上 Jev 0.870 |
-| [jev-orderby-bench](https://github.com/yodablocks/jev-orderby-bench) | 用 Score 做排序 | 20 Newsgroups 通过；306 对人工标注购物相关性中 6 项检验挂 4 项 |
-| [Jev Does Not Play Dice](https://github.com/KantaHayashiAI/jev-does-not-play-dice) | 已知概率的骰子 / 硬币 / 转盘 | 概率输出与真实随机分布明显不符 |
+| 速度与成本 | 同输入、同输出任务的延迟分布、调用数和价格 | 服务端耗时与网络端到端耗时混用；以长推理作为唯一基线 |
+| 准确率 | 同一测试集、同一候选空间与参考标签下的结果 | 教师模型一致率当成人类真值；领域适配与零样本混比 |
+| 校准与选择性预测 | 固定定义下的概率误差，以及拒绝部分样本后的风险 / 覆盖率 | 分布尖锐当作校准；不同任务 ECE 直接比较 |
+| 稳定性与鲁棒性 | 选项换序、改名、重复调用、语言和状态长度变化 | 格式始终合法被当作语义判断始终可靠 |
 
-可以读出四点：
+官方 workflow eval 使用外部强模型的参考预测评估业务流程；厂商也说明宣传中的高倍数收益处于预期收益的较高端。这有助于理解其目标使用方式，但不等同于人类标注基准或导航闭环实验。[发布文中的评测说明](https://typesafe.ai/blog/introducing-system-one-models-and-jev)
 
-1. **速度优势基本被独立复现**：服务端约 0.1 s，含网络的中位延迟多在 0.2–0.3 s；
-2. **准确率是“中档 LLM”水平**：与 Kimi K3、MiniMax M3、DeepSeek V4.1 Flash 一档，落后前沿模型；
-3. **校准因任务而异**：ECE 从 0.04 到 0.25 不等，而且误差方向随数据改变；少量标注拟合温度是必要步骤，“calibrated”不能默认成立；
-4. **对表面形式敏感**：选项改名改变三分之一答案、非英文掉分、在缺乏支撑证据时仍给出高置信——这对导航中“候选怎么命名”有直接影响。另外，它的概率是“判断置信度”，不是世界模型：面对真正的随机事件，它不会给出正确的分布。
+第三方材料也应带着协议阅读：
 
-### 2.7 学术论文中的 Jev
+- **Convex Decision Evals** 使用 108 道领域四选一题，并采用匹配的选项排列。它测领域决策知识，作者明确区分这与编写或调试真实应用的能力。[评测仓库](https://github.com/get-convex/convex-evals)
+- **Anthus 的 Jev / Laya 对照**在相同 600 条留出样本上报告原始 ECE 分别为 0.151 和 0.107，但作者没有把这个差值单独当作 Laya 胜出；其 Brier 比较反而有利于 Jev。这说明准确率、校准与概率预测质量应一起解释。[实验报告](https://anth.us/blog/jev-vs-laya/)
+- **Laya 的项目对照**有领域适配、温度拟合以及候选数量设置差异，适合研究训练收益和限制，不是统一条件下的通用排名，详见 3.3。[项目结果](https://github.com/NandhaKishorM/laya)
 
-发布两周内，arXiv 上已出现一批把 Jev 当作“System One 决策层”的论文，它们共同的结构是**Jev 做高频有界判断，强 LLM 只在需要时出场**：
+这些证据支持继续测试 Jev 的有界决策用途，但不足以推出“普遍达到某档 LLM”“所有任务都需要相同校准方法”或“某种错误绝不会发生”。可复现比较需要保存模型版本、问题文本、候选集合、标注来源和运行环境。
 
-| 论文 | 领域 | Jev 负责什么 | 主要结果 |
+### 2.6 能力边界与使用条件
+
+“无类型错误”是输出契约上的主张，与事实正确、逻辑一致或行动安全不同。官方列出的弱项包括数值精度、多层间接推理、无关信息过多的长状态、对抗内容与矛盾条件。[Jev 1.13 局限](https://docs.typesafe.ai/model-jaggedness/jev-1.13)
+
+这对导航产生几条直接约束：精确坐标与碰撞计算留给几何模块；历史应按问题检索与裁剪；需要新计划或解释时保留生成式模块。**代码拥有否决权能阻止部分错误执行，但增加判断层也可能带来误拒绝、延迟和任务停滞，不能称为“最坏等同没有它”。**
+
+下表为 **2026-09-26 核查的官方配置快照**；别名、价格与限流可能变化。[Models](https://docs.typesafe.ai/models)
+
+| 项目 | 官方配置 |
+|---|---|
+| 模型 | `jev-1.13.0`；当时 `jev-latest`、`jev-preview` 均指向该版本 |
+| 输入 | 仅文本；支持字符串、JSON 对象或文本数组 |
+| 上下文 | 每请求总计 64k；state 加最长问题不超过 32k |
+| 计费 | 输入 $0.042 / 百万 token，输出免费 |
+| 限流 | 250k tokens/s、1,200 requests/min；官方提示可能动态调整 |
+
+价格是服务计费政策，不能仅由“没有生成文本”推导。做研究时应固定版本并记录实际返回的模型 ID；输入语言与场景变化也应单独评测。
+
+### 2.7 从单次判断到 Agent：已有应用提供的线索
+
+已有论文展示了 Jev 可以怎样嵌入系统。本节只保留角色与证据边界，记忆机制和导航迁移在第 4 章展开。
+
+| 工作 | Jev 承担的角色 | 对后文的启发与限制 |
+|---|---|---|
+| [Jev-Mem](https://arxiv.org/abs/2609.23986) | 记忆组织、检索路由、候选评分与停止判断 | 支持研究“查什么证据”；实验是长期对话记忆，详见 4.3 |
+| [REFLEX](https://arxiv.org/abs/2609.26532) | 有界行动选择，不确定或需要生成时升级 | 在其 100 任务基准中报告 95% 成功率、强模型调用减少 72.7%；相对廉价生成式级联的优势有限 |
+| [渗透测试 Harness](https://arxiv.org/abs/2609.28940) | 对确认、分级和流程控制做判断 | 提供约束决策层的系统例子；不能据此证明机器人安全或反推 Jev 的训练配方 |
+
+这些工作的共同线索是**判断模块与生成 / 执行模块分工**，而不是用 Jev 包办整个 Agent。REFLEX 的有限优势尤其提醒：后续导航实验需要与规则、小模型和廉价级联比较，而不只与“每一步都调用最强模型”比较。
+
+## 3. 从 Jev 接口到开源实现：四类技术路线
+
+托管 Jev 只收文本，但“有限候选 → 类型化结果”并不限定某一种骨干。社区方法可以改变读出方式、训练部分参数、复用共享计算，也可以接入视觉与音频。**相似接口不代表相同模型，更不代表已经复现 TypeSafe 的训练与能力。**
+
+本章按技术路线组织项目，而不把它们排成一张性能榜。以下结果均来自论文或项目作者报告，本文未独立复现；不同硬件、数据与训练条件下的延迟和准确率不能直接比较。
+
+### 3.1 路线总览：改变读出、训练能力、共享计算或接入感知
+
+<div align="center">
+<svg viewBox="0 0 780 300" width="100%" style="max-width:780px;font-family:sans-serif" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="jev-routes-title"><title id="jev-routes-title">开源实现的四个可组合维度（不是性能排名）</title><rect x="1" y="1" width="778" height="298" rx="12" fill="#f8fafc" stroke="#e2e8f0"/><text x="390" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">开源实现的四个可组合维度（不是性能排名）</text><rect x="20" y="54" width="360" height="91" rx="8" fill="#dbeafe" stroke="#2563eb"/><text x="200" y="79" text-anchor="middle" font-size="13" font-weight="bold" fill="#334155">改变读出</text><text x="200" y="103" text-anchor="middle" font-size="11" font-weight="normal" fill="#334155">AnyJev / PixelJev 冻结模式</text><text x="200" y="127" text-anchor="middle" font-size="11" font-weight="normal" fill="#334155">生成短答案 → 候选条件分布</text><rect x="400" y="54" width="360" height="91" rx="8" fill="#f5f3ff" stroke="#7c3aed"/><text x="580" y="79" text-anchor="middle" font-size="13" font-weight="bold" fill="#334155">引入任务训练</text><text x="580" y="103" text-anchor="middle" font-size="11" font-weight="normal" fill="#334155">minojev / Laya / Open-Jev</text><text x="580" y="127" text-anchor="middle" font-size="11" font-weight="normal" fill="#334155">小头、LoRA 或更广泛参数适配</text><rect x="20" y="166" width="360" height="91" rx="8" fill="#dcfce7" stroke="#16a34a"/><text x="200" y="191" text-anchor="middle" font-size="13" font-weight="bold" fill="#334155">复用共享计算</text><text x="200" y="215" text-anchor="middle" font-size="11" font-weight="normal" fill="#334155">Visual Jev 等</text><text x="200" y="239" text-anchor="middle" font-size="11" font-weight="normal" fill="#334155">同一视觉前缀 → 多问题执行</text><rect x="400" y="166" width="360" height="91" rx="8" fill="#fff7ed" stroke="#f59e0b"/><text x="580" y="191" text-anchor="middle" font-size="13" font-weight="bold" fill="#334155">接入模态证据</text><text x="580" y="215" text-anchor="middle" font-size="11" font-weight="normal" fill="#334155">视觉模型 / 外挂感知 / 音频编码器</text><text x="580" y="239" text-anchor="middle" font-size="11" font-weight="normal" fill="#334155">直接读模态特征，或先转结构化状态</text><text x="390" y="282" text-anchor="middle" font-size="11" font-weight="normal" fill="#334155">分别测量：质量、校准、延迟、计算量、显存与迁移；不能由训练程度推断速度</text></svg>
+<figcaption>图 4　项目可同时使用多种机制；候选读出、领域训练、执行复用和新增模态应分别消融。</figcaption>
+</div>
+
+| 技术路线 | 代表实现 | 主要改变 | 对研究最有价值的比较 |
 |---|---|---|---|
-| [Jev-Mem](https://arxiv.org/abs/2609.23986)（UT Dallas） | Agent 长期记忆 | 记忆类型判定、关系构建、查询路由、证据充分性判断与自适应停止；强 LLM 只做最终回答 | LoCoMo 上 LLM-judge 0.777（最佳基线 0.700）；构建时间快 6.6 倍；查询延迟降 36.7% |
-| [REFLEX](https://arxiv.org/abs/2609.26532) | LLM Agent 选择性控制 | 动作选择；置信度低或需要生成时升级到强模型 | 100 个任务成功率 95%，强模型调用减少 72.7%；但当廉价生成式级联已很准时优势有限 |
-| [渗透测试 Harness](https://arxiv.org/abs/2609.28940) | 自动化渗透测试 | 漏洞确认、严重度重评、子 Agent 剪枝、确认循环（SPRT 边界） | Jev p50 236–276 ms，Laya 33–40 ms，LLM 1.5–3 s；单次运行，作者承认收益部分来自 harness 修复 |
+| 冻结骨干、候选读出与去偏 | AnyJev raw / L0 / L1、PixelJev 冻结模式 | 输出限制到合法候选；可加排列去偏与校准 | 同一模型生成短答案 vs 直接读出 |
+| 决策头或任务适配 | minojev、Laya、Open-Jev、AnyJev L2 | 学习任务相关表征 / 读出，训练范围各不相同 | 冻结读出 vs 小头 vs 适配骨干 |
+| 视觉决策与共享上下文 | Visual Jev、PixelJev、Laya Vision、PlayJev | 使用视觉证据；部分方法复用视觉前缀 | 视觉适配、读出方式、共享执行分别消融 |
+| 外挂感知或其他模态 | jev-vision、Prosodia 等 | 图像 / 音频先转换为状态，或直接从模态编码器读出 | 信息保留程度与整个流程成本 |
 
-渗透测试这篇有两点值得借鉴到机器人上：
+这些路线可以组合，不是由上到下越来越先进的阶梯。AnyJev 同时包含无标签与拟合读出头的模式；Visual Jev 同时包含任务适配与执行共享。因此，“是否训练”“是否生成”“是否多模态”和“是否复用前缀”应作为独立维度记录。
 
-- **加性架构**：System One 层只能降低置信度或标记复核，**不能推翻确定性校验器的否决**——最坏情况等同于没有它。这与导航里“安全盾可否决决策头”是同一原则；
-- 它把 RLCD 明确解读为“**以 Brier 分数等恰当评分规则为奖励**，校准由构造保证”，与 RLHF、RLAIF 对照，并提出用校验器判决作为训练信号的 RLHV 变体。
+### 3.2 不训练骨干：候选读出能带来什么
 
-REFLEX 的负面结论同样重要：**如果一个廉价的生成式级联已经足够准，Jev 的额外收益会很小**。这提示导航评测里必须包含“小 LLM 级联”这一基线。
+生成式 LLM 原本会在词表上预测下一个 token。如果把答案限制为少量标签，就可以只读取这些标签的 logits，再归一化为候选分布。通常需要先把候选映射到可直接读出的标签 token；若标签跨多个 token，则需另行定义序列评分或读出方式。这样避免生成解释，也减少答案格式不合法的问题，但**候选条件分布不自动等于经过目标任务校准的概率**。
 
-### 2.8 失效模式与“零幻觉”
+AnyJev 提供了几个可分开考察的层次：raw 直接读出；L0 使用选项循环移位与标签先验修正；L1 再拟合温度；L2 则从隐状态拟合读出头，已不属于完全无标注的方法。在作者的 BANKING77 **20-way、300 测试项**设置中，raw 到 L1 的准确率由 0.747 变为 0.807，ECE 由 0.240 变为 0.095；不能把它写成完整 77 类任务的通用结果。[AnyJev](https://github.com/nokia-applied-research/AnyJev)
 
-官方宣传的“零幻觉”只应理解为 **不会返回 schema 之外的字符串或类型错误**，不代表判断正确。官方 Jaggedness 文档列出了明确的弱项：字面理解、多跳推理、**数字精度**、日期、**长且无关的状态**、对抗内容、互相矛盾的条件。[官方 Jaggedness](https://docs.typesafe.ai/model-jaggedness/jev-1.13)
+这里有两个容易遗漏的代价。第一，L0 的排列去偏涉及多个输入排列，单个读出不生成文本，并不意味着完成整次去偏只需一次模型计算。第二，温度和读出头需要数据，其拟合与测试应分离。即使服务端将这些计算批处理，也应报告总计算量与端到端延迟。
 
-对机器人应用而言，其中两条几乎就是设计约束：**不要把原始坐标交给它，也不要把完整历史塞给它**。
+这条路线最适合作为**接口收益的基线**：如果不训练就能明显减少格式错误与生成成本，便可以先研究读出；若准确率仍受限，再研究训练。它不能凭空补上模型缺失的视觉知识、长程规划或正确候选。选项顺序与标签偏差也应单独检查，相关问题早于 Jev 已被研究。[PriDe](https://arxiv.org/abs/2309.03882)
 
-## 3. 原生不支持多模态：Jev 的派生模型
+### 3.3 引入训练：小决策头与骨干适配解决不同问题
 
-Jev 只接受文本。对需要“看”的任务，社区走出了两条路：
+**冻结骨干、训练小头**保留大部分预训练表示，只学习怎样将这些表示转成任务答案。minojev 采用冻结 Qwen3-1.7B 与小型决策头，其作者报告领域内收益，同时公开未见领域准确率 31.7%、低于生成式基线 40.0% 的结果。它说明任务专精和跨域泛化必须分别测，不能由少量领域内结果推断通用能力。[minojev](https://github.com/zeredy879/minojev)
 
-- **外挂感知**：视觉 / 语音模型先把观测转成文本或结构化状态，Jev 只做语义判断；
-- **原生多模态派生**：抛开托管的 Jev，用开源 VLM / 音频编码器复刻“单次前向 + 类型化输出头 + 校准”这一 System One 形态。
+**训练编码器决策模型**允许更广泛地适配表示。Laya 基于 ModernBERT 等预训练编码器构建决策模型，不宜称为从随机初始化“从头训练”。在其 2,000 个 typed-decisions 上，领域适配 checkpoint 报告准确率 0.766，基础英文 checkpoint 为 0.362，Jev 对照为 0.727。这里最直接的证据是同一项目适配前后的变化；其其他对比还涉及温度拟合、输入预算和候选数量差异，不能统一解释为超过 Jev 的通用能力。[Laya](https://github.com/NandhaKishorM/laya)
 
-后一条路的前提，是 System One 形态本身能被开源模型复现。所以先看文本复刻。
+**微调已有 LLM 的候选读出**则保留语言骨干结构，通过 LoRA 等方式适配任务。Open-Jev 在合成诈骗通话的 41 个留出场景、577 次逐轮判断上报告 AUROC 0.974，单次决策 64.5 ms，比同骨干生成式微调低 4.9 倍延迟；作者同时指出，微调 ModernBERT 并未显著更差，配方选择接触过测试集。这是一项有具体应用和局限的研究，不支持“专用读出必然提高准确率”。[Open-Jev](https://arxiv.org/abs/2609.23959)
 
-### 3.1 总览
+| 训练选择 | 可能得到什么 | 主要代价或风险 |
+|---|---|---|
+| 仅拟合温度 | 调整概率尖锐程度 | 通常不改变 argmax，不能修复错误表征或遗漏候选 |
+| 冻结骨干、拟合小头 | 较低训练成本下获得任务专精 | 表征不足与跨域退化仍可能存在 |
+| LoRA / 更广泛参数适配 | 让表征更适合目标任务 | 数据成本、遗忘与过拟合，需要保留独立测试集 |
+| 单独训练领域分类器 | 简单任务上较低成本的基线 | 泛化与可配置性需与通用模型公平比较 |
 
-按“能处理什么模态”和“需要多少训练”两个维度，可以把目前的派生模型放进一张图里：
+所以，训练是否必要取决于任务，不能总结成“准确率只来自微调”。接口约束可能改善合法输出，标签设计和候选集合也会影响结果；训练的贡献需要在匹配条件下测出来。
+
+### 3.4 接入视觉：图像信息、任务适配与执行复用要分别分析
+
+#### 3.4.1 视觉证据不应被误算成接口收益
+
+PixelJev 将图像、指令和动态候选集接到开源多模态骨干，并分别测试冻结推理、少样本适配和校准。在 Pets 上，其 2B 模型从 60.13% 提升至 92.40%；匹配对照将主要收益归因于适配。作者同时报告专用 DINOv2 探针仍更强，部分任务上冻结 4B 优于适配 2B，准确率提升也不保证迁移后的概率校准。[PixelJev](https://arxiv.org/abs/2609.29283)
+
+对导航的启发是：从“感知摘要 + 文本模型”切换到“图像 + VLM”，同时改变了输入证据与模型能力。要证明有界接口的作用，应在同一视觉骨干、同一候选集下比较生成与读出，另行测量视觉信息相对文本摘要的收益。
+
+#### 3.4.2 同一图像上的多道题，可以共享部分计算
+
+Visual Jev 将图像与公共上下文编码一次，再批量执行隔离的问题后缀，从现有 LM 头读取候选概率。作者在每图 32 个问题的设置中报告暖态摊销时间相对独立串行快 8.9 倍、相对重复前缀的批处理快 3.4 倍；代价是更高峰值显存。匹配的类型化头对照没有显示一致准确率优势。[Visual Jev](https://arxiv.org/abs/2609.25845)
+
+它支持的是**共享输入下的执行优化**，不是每一步机器人控制都能获得同样加速。每张新图是否可以复用、问题是否相互依赖、批次能否及时凑齐，都会影响实际收益。摊销每题时间也不能直接当作一次完整决策的响应时间。
+
+这使“在哪一层共享”成为独立研究变量：多个问题共享图像，多个候选共享状态，或者多个模块共享提取出的证据。共享减少重复计算，但不改变证据本身是否正确。
+
+#### 3.4.3 从视觉问答到动作策略，还需要闭环数据
+
+Laya Vision 基于 SmolVLM-256M 进行视觉决策训练，报告 L4 上约 34 ms 的中位延迟，同时观察到游戏能力和视觉推理之间的训练取舍。PlayJev 使用 Qwen3.5-0.8B，通过行为克隆与 DAgger 学习游戏动作选择，训练还打乱动作顺序以降低位置捷径。[Laya Vision](https://github.com/r33drichards/laya-vision)；[PlayJev](https://github.com/OmniJev/PlayJev)
+
+二者说明视觉输入可以接入有限动作决策，也提示离线问答准确率不足以描述行动能力：策略会进入自己选择造成的新状态，错误会累积。游戏结果不能直接外推为真实机器人导航性能，设备上的短延迟也不等于机载功耗、显存与可靠性均满足要求。
+
+工程上，[Jev Visual](https://github.com/hr98w/jev-visual)展示了共享图像与候选打分；[jev_navigation](https://github.com/NOPLAB/jev_navigation)将 decider-2b-vision 接入 ROS 2 路径选择。它们有助于研究接口，但“能看图并选择”与“已验证的导航策略”之间仍有距离，具体证据见 4.5。
+
+### 3.5 外挂感知与其他模态：保留了什么，又丢失了什么
+
+对于托管 Jev，图像或语音需要先转换为文本或结构化字段。例如 [jev-vision](https://github.com/JeremyEltho/jev-vision)用检测结果与场景上下文做消歧；[typesafe-computer-use](https://github.com/awlevin/typesafe-computer-use)使用 OCR；[jev-canvas](https://github.com/gaborishka/jev-canvas)结合转写与位置选择操作。这条路线的优点是职责明确，但未提取出的视觉细节不会因为后面接了 Jev 而恢复。
+
+另一种做法是直接从模态编码器读出决策。[Prosodia](https://github.com/alperiox/audio-jevlike)以冻结 Whisper 编码器处理语音属性，避免先转写再判断。它说明生成文本不是所有模态任务的必要中间步骤，但具体任务需要的信息可能不同：声学属性与语言内容并不等价。
+
+因此，多模态扩展不能概括为“换一个编码器即可”。还需要任务数据、模态对齐、候选定义、概率评估和部署验证。图像压缩成语义状态有信息损失，直接看图则有视觉计算开销，取舍应通过目标任务测量。
+
+### 3.6 综合判断：性能究竟来自哪里
+
+前述工作可以归纳为四类来源，但每一类都需要自己的消融：
+
+| 来源 | 可以合理期待的作用 | 还需要验证什么 |
+|---|---|---|
+| 有界接口与候选读出 | 限制输出、减少文本解码和解析开销 | 是否保持判断质量，能否识别候选不足 |
+| 任务数据与参数适配 | 改善目标任务表征和读出 | 未见场景、未见标签与长期闭环泛化 |
+| 共享前缀与批处理 | 减少重复编码，提高特定负载下吞吐 | 单请求延迟、显存、异步状态时效 |
+| 校准与选择性决策 | 使概率更适合门控或拒绝 | 留出数据、分布漂移与风险 / 覆盖率 |
+
+现有研究不要求所有方法都使用专门决策头，也不支持“只要不生成就一定更快、更准、更可信”。比较时应固定能固定的变量，明确优化的是延迟、准确率还是概率质量，且单独核对代码与权重许可。
+
+对具身导航而言，本地视觉决策模型是一条可研究的实现路线，而不是已经成立的“机载 Jev”。下一章将这些机制放到具体职责中：**行动比较能否减少无效生成，记忆控制能否找到更有用的证据，模块调度能否把有限计算用在更需要的时刻。**
+
+
+## 4. Jev 与具身导航：从行动决策到 Agent 协作的研究机会
+
+Jev 对具身导航的价值，不能只用“每次调用快了多少”来衡量。更值得追问的是：**导航系统中哪些环节需要生成和推理，哪些环节只需要在已有证据上做判断？如果将两者分开，能否在保留任务能力的同时，减少不必要的计算与错误？**
+
+本章围绕三类问题展开：**行动决策、记忆管理、Agent 内部协作**。前两者分别决定“怎么走”和“查什么”，第三者指单个导航 Agent 对感知、记忆、规划与推理模块的调度，决定“现在应该行动、回忆、补看，还是深度推理”，不涉及多 Agent 通信与协商。贯穿例子是“回到刚才看见杯子的房间，在门口停下”，用它说明三类能力如何共同完成长期导航。
+
+需要先划清证据边界：导航论文为接口设计提供依据，Jev-Mem 提供通用 Agent 记忆实验，社区项目展示部分机器人接入。**下文将这些工作迁移到导航的方案属于研究设想，尚不是 Jev 已验证的导航能力。**
+
+### 4.1 为什么导航值得引入 System One 决策模型
+
+#### 4.1.1 一次长程导航包含许多不同难度的判断
+
+理解“穿过厨房，再到客厅窗边”可能需要指令解析和场景推理；但当机器人已处于通往客厅的走廊时，每一步未必都需要重新生成一段完整计划。它可能只需比较两个路点、判断地标是否匹配，或确认当前子目标是否已完成。
+
+采用逐步生成式决策的导航系统，会在这些难度不同的问题上反复付出读上下文、生成和解析的成本。VerNav 与 AdaNav 分别从“用验证替代常规生成”和“按不确定性触发推理”切入，说明研究重点已经从单纯增强推理，转向**把推理用在有收益的时刻**。[VerNav](https://arxiv.org/abs/2609.00920)；[AdaNav](https://arxiv.org/abs/2509.24387)
+
+Jev 为这一方向提供了一种具体的决策接口：给定状态和有限答案空间，直接返回判断与概率。研究中要同时记录调用耗时与判断错误引起的走错路、回退和重复调用。
+
+#### 4.1.2 长期任务的成本不只来自动作选择
+
+“回到刚才看见杯子的房间”至少包含三类不确定性：
+
+| 不确定性 | 机器人需要解决的问题 | 潜在的 System One 职责 |
+|---|---|---|
+| 行动不确定性 | 目标已知，当前几个方向哪个更合适？ | 候选比较、进展验证、到达判断 |
+| 记忆不确定性 | 哪次观测中的杯子、哪个房间才是指令所指？ | 记忆相关性、证据筛选、检索停止 |
+| 过程不确定性 | 当前信息不够，下一步应查历史还是换个视角？ | 模块选择、计算预算分配、升级判断 |
+
+这三类问题不能全部压成“选一个动作”。目标房间不确定时，立即选路可能放大记忆错误；目标明确但被遮挡时，继续检索历史未必有用；路径暂时受阻时，也不一定需要重新理解整条指令。
+
+因此，一个有意义的研究目标是：**用低开销的有界判断，减少导航过程中的无效行动、无效检索和无效推理。** 除调用延迟外，还应关注绕路、重复探索、错误停止与总任务耗时。
+
+#### 4.1.3 区分 Jev、System One 接口与导航模型能力
+
+本文使用“Jev”时，指 TypeSafe 的托管文本决策模型；“视觉 System One”则指第 3 章的视觉派生或同类方法。原生 Jev 需要上游先把视觉观测转成语义状态，本地视觉模型可以直接处理图像，两者可用的信息与部署成本不同。
+
+研究中至少要分开三个变量：**接口是否从生成改成判断，模型是否经过导航训练，以及输入是否增加了视觉证据。** 如果同时更换这三者，实验即使变好，也无法知道收益从何而来。“System One”本身不会自动提供空间理解、导航记忆或领域校准。
+
+### 4.2 行动决策：从生成动作到比较与验证
+
+#### 4.2.1 候选比较改变的是模型与机器人的分工
+
+一种做法是让大模型直接描述下一步动作，甚至输出坐标；另一种做法是由机器人先构造可执行候选，再让模型比较。后者把度量计算、动作幅度和执行约束留给机器人，把语义判断交给模型。
+
+**C²Nav** 对此进行了直接研究：空间选择、指令阶段转换和终止判断都采用比较式接口。在 OpenNav R2R-CE 100 协议上，Qwen3-VL-8B-Instruct 版本的 SR 为 31.0%；将三个决策位置分别改回数值式 / 绝对式问法后，SR 降至 12.0%、28.0%、21.0%。结果支持“问题形式会影响导航表现”，但并不证明模型能力可以被接口替代。[C²Nav](https://arxiv.org/abs/2609.15142)
+
+对 Jev 而言，这类任务可以自然表达为 `Choice`：在“前往左侧门口”“继续走廊”“停下补看”中选择。但候选必须来自地图、感知或规划器。**候选集中没有正确行动，模型选得再准也无法完成任务。**
+
+**O2C-Nav** 则提供视觉候选的参照：将带历史信息的候选路点投影到 RGB 图像，由 MLLM 选点，低层 FMM 规划器执行；候选不足时还可生成备用目标框。若迁移到闭集视觉决策模型，需要保留或重做这个备用分支，不能只替换选点模块就假定整个方法等价。[O2C-Nav](https://arxiv.org/abs/2609.06476)
+
+由此形成第一个研究问题：**在相同感知和候选集下，非生成式选择能否保留生成式模型的导航质量？** 难点不仅在平均准确率，还在困难场景中是否能识别“这些候选都不足以解决问题”。
+
+#### 4.2.2 比较哪个更好，与验证能否接受，可以分开
+
+候选比较回答“哪一个相对更好”；动作验证回答“它是否值得执行”。当所有候选都不好时，最高概率选项依然存在，因此还需要拒绝或补证据机制。
+
+VerNav 用批量动作验证替代常规逐步生成，在不确定时再由生成器提供紧凑证据。其 verifier-only 路径在离散 R2R 上实现超过 10 倍的平均单步决策阶段 LLM 延迟降低；同时，验证器经过偏好对齐和逐步强化训练。**这支持验证优先的路线，不能直接推导出零样本 Jev 替换后的效果。** [VerNav](https://arxiv.org/abs/2609.00920)
+
+对 Jev 的迁移可以研究两种分工：直接从候选中选择，或先对候选做有界验证，再由程序决定接受、重选或升级。后一种分工有利于暴露“拒绝行动”的条件，但也可能增加调用成本。值得验证的是，在相同预算下，多一次验证能否减少更昂贵的执行错误。
+
+#### 4.2.3 进展和到达判断，比普通选路更容易积累错误
+
+导航不是独立选择题的集合。一次错误转向可能通过后续观测纠正；一次错误到达判断却可能直接结束任务。C²Nav 将进展与终止判断也纳入比较式设计，提示它们需要单独建模，而不是附在选路问题之后。[C²Nav](https://arxiv.org/abs/2609.15142)
+
+| 决策 | 杯子房间例子中的问题 | 可研究的接口 | 必须观察的失败 |
+|---|---|---|---|
+| 局部选择 | 哪个观察点更有助于接近目标门口？ | 有限候选比较 | 正确候选缺失、被相似地标误导 |
+| 阶段转换 | 仍在找房间，还是已进入门口复核阶段？ | 相邻任务阶段比较 | 提前跳过尚未满足的子目标 |
+| 到达复核 | 当前门口是否对应目标地点，且停在要求的位置？ | 条件判断 + 必要的补看 | 错误停止、反复犹豫、过度接近 |
+| 异常判断 | 杯子暂时不可见，还是此前的目标关联有误？ | 遮挡 / 歧义 / 信息不足判断 | 把暂时遮挡当作目标不存在 |
+
+这里的“停止”要区分安全停车、等待信息与任务完成。它们可能都产生零速度，但只有最后一种意味着任务结束；到达复核因此需要同时核对当前观测、目标条件和位置证据。
+
+这一方向的创新可以落在**决策粒度与验证时机**上：哪些判断共享状态即可一起完成，哪些必须等待行动后的新证据；到达错误的代价更高时，是否值得采用不同于普通选路的复核策略。
+
+#### 4.2.4 什么情况下值得引入 Jev
+
+若任务只是比较距离、检查障碍或判断是否落入固定区域，几何计算与规则已经给出了明确依据。若场景和标签长期固定、标注数据充足，小型分类器也应是直接的对照。Jev 更值得检验的情形是：**候选随环境变化，而选择标准来自当前指令，需要把语义条件与候选证据对应起来。**
+
+例如，同样面对两个门口，“去有杯子的房间”和“回到刚才见过杯子的房间”要求使用不同的证据。这里可以测试有界接口能否在调整问题与候选描述后继续工作，以及这种适配是否比重新训练分类器更省成本。对于小 LLM，则要在相同输入和候选下比较决策质量、延迟与拒绝能力。
+
+因而，研究对象应是**具有变化语义条件的有限选择**。候选质量不足时应改进上游；任务需要创造新方案时应保留规划或生成。只有在这些职责明确后，才能判断 Jev 是否增加了有效能力。
+
+### 4.3 记忆管理：从保存历史到检索与更新证据
+
+#### 4.3.1 Jev-Mem 提供了什么新的分工
+
+长期 Agent 不仅要保存历史，还要决定如何组织历史、检索哪些证据，以及何时停止查找。Jev-Mem 将这些高频有界判断交给 System One，再由 System Two 综合证据回答问题。其共享记忆保留原始观测，并组织语义、时间、因果与实体关系；控制器参与查询路由、预算分配、候选评分与停止。[Jev-Mem](https://arxiv.org/html/2609.23986v1)
+
+作者在 LoCoMo 上使用 GPT-4o-mini 作为回答模型，报告总体 LLM-as-a-Judge 得分 0.777（MAGMA 为 0.700）、构建耗时 158 s（Nemori 为 1,044 s）、平均查询延迟 0.93 s（MAGMA 为 1.47 s）。查询延迟包含检索与答案生成，不同指标对应不同基线。**这验证的是对话记忆系统，尚不是导航实验。** [作者结果表](https://github.com/libingzheren/Jev-Mem#results-on-locomo)
+
+对导航的启发在于：记忆不必只是每一步固定附加的历史摘要；它可以成为一个根据当前任务调整检索范围和深度的过程。是否值得查更多历史，本身也是一个决策。
+
+#### 4.3.2 导航记忆比对话记忆多了空间落地与环境变化
+
+“曾看见杯子”只有与地点、时间和来源关联，才能支持“返回那个房间”。文本相关性高的记录，未必对应同一个空间位置；过去可通行的路线，也未必现在仍可通行。
+
+| 导航记忆的特点 | 只做文本相似检索可能出现的问题 | 值得研究的扩展 |
+|---|---|---|
+| 地点与物体会重复 | 多个房间都有杯子，召回内容相关但地点错误 | 结合地点 ID、轨迹上下文与原始观测 |
+| 环境会变化 | 把旧的开门状态当作当前可通行条件 | 区分稳定地点知识与短期环境状态 |
+| 观测受视角影响 | 没看见被理解成不存在，相似外观被认为同一地点 | 保留观测条件与不确定性，必要时请求新视角 |
+| 行动会产生新证据 | 检索结果不随失败反馈更新，重复走同一条无效路线 | 将执行结果作为后续检索和重规划的上下文 |
+
+这里应明确边界：Jev 可以帮助判断某条记忆与任务是否相关，**地点匹配、坐标一致性和可通行关系仍需要定位与地图依据**。语义关系不能自动变成拓扑连通边，推断的失败原因也不能未经验证就被当作事实长期保存。
+
+因此，从 Jev-Mem 迁移到导航，研究贡献不应只是“把聊天记录换成导航日志”，而应处理**记忆的空间关联、时间有效性与行动反馈**。
+
+#### 4.3.3 从被动召回，走向任务驱动的证据选择
+
+以杯子房间为例，固定 top-k 可能找出若干包含“杯子”的记录；任务驱动检索还要回答：哪条符合“刚才”？两条记录是否属于同一地点？当前信息能否支持返回目标，还是需要回查图像或相邻轨迹？
+
+一个待验证的流程是：
+
+1. 用向量、关键词、时间和地点信息找到有限候选；
+2. 由 Jev 筛选支持当前任务的记录，并判断是否存在歧义；
+3. 证据不足时扩大检索或回查来源，而不是立即选路；
+4. 确定目标后交给规划模块，同时保留证据来源；
+5. 行动产生新观测后，再检查旧判断是否需要更新。
+
+**停止检索不等于证据充分。** Jev-Mem 的停止也可能来自继续查找收益低或预算限制；导航系统需要保留这个区别，避免把“没必要再查”误写成“目标已经确定”。[方法说明](https://arxiv.org/html/2609.23986v1)
+
+这一方向有两个不同的收益目标：一是用更少计算找到同等质量的证据；二是通过更准确的证据选择减少错误返回、重复探索和绕路。两者应分别测量。即使检索速度更快，只要漏掉关键地点记录，闭环导航仍可能更慢。
+
+#### 4.3.4 新观测如何更新记忆：保留事实，修正关联
+
+主动检索还需要回答一个反向问题：行动之后，新证据怎样改变可供下一轮检索的记忆？以下是本文提出的导航扩展，区别于前面介绍的 Jev-Mem 原始实验。
+
+| 新事件 | 应保留的观测事实 | 待更新或复核的关联 |
+|---|---|---|
+| 在另一门口又看到杯子 | 两次观测各自的时间、位置估计、视角与图像来源 | 是否同一房间或同一物体，不能仅凭语义相似合并 |
+| 原先打开的门现在关闭 | 过去打开、当前关闭的两条观测 | 当前通行状态应更新；房间身份与稳定地标不随之删除 |
+| 到达候选房间后未找到目标 | 本次访问路径、可见范围和未检出的结果 | 是遮挡、目标移动，还是此前地点关联有误，需要进一步证据 |
+| 某条返回路线执行失败 | 失败时间、位置及执行模块报告 | 降低该路线当前可用性的判断；一次失败不等于永久不可达 |
+
+这里可以把记忆分成**观测记录、关联假设和当前状态**。观测记录保存来源；关联假设允许被修正；当前状态按时效更新，并能追溯依据。Jev 可作为判断“相关、冲突、需要复核”的候选模块，定位、几何一致性与数据库写入规则则负责约束更新。模型推测的原因应留在假设层，直到有新观测支持。
+
+杯子房间案例中，一次错误返回不应让系统直接删除原始杯子记录。更有价值的处理是记录此次访问结果，重新检查“这条记录属于哪个房间”的关联，并在后续检索中区分已核实地点与待复核地点。这样，行动反馈才能改变下一次选择，而不是被追加成无人使用的日志。
+
+#### 4.3.5 何时需要语义记忆控制
+
+若指令明确给出地点 ID 和时间区间，结构化查询或规则过滤就可能足够。值得引入 Jev 的问题是：**多个候选都符合表面关键词，但需要结合任务关系、观测来源和冲突证据判定哪条有用**，例如区分“刚才经过的房间”与“更早看过、外观相似的房间”。
+
+这种判断应放在有限候选上检验。若正确记录根本没有被检索出来，就应先改善索引和召回；若相关证据需要跨多条记录重新解释，也应允许生成式模块参与。记忆控制的潜在价值在于减少无效查询和错误关联，其代价包括额外调用、提前停止和错误更新。检索与更新应分别消融，避免把更好的记忆库误归因为更好的查询控制。
+
+
+### 4.4 Agent 内部协作：何时行动、回忆、观察与推理
+
+#### 4.4.1 不确定时，调用更强模型只是一个选项
+
+在长程任务中，困难可能来自不同原因：场景没看清、目标记错了、路线失效了，或者指令本身有歧义。只根据一个低置信信号升级到强模型，可能花费更多计算，却没有补齐真正缺失的信息。
+
+AdaNav 通过不确定性相关信号学习何时触发显式推理，为按需计算提供了导航中的依据。但“是否推理”之外，还有更宽的选择空间：**继续行动、检索记忆、主动观察、重新规划或请求澄清**。将这些操作视为有限候选，是本文提出的 Jev Agent 调度方向，尚待验证。[AdaNav](https://arxiv.org/abs/2509.24387)
+
+| 当前问题 | 更可能有价值的下一步 | 为什么不能一律升级模型 |
+|---|---|---|
+| 候选明确，证据一致 | 执行已验证的局部行动 | 更多推理可能只增加等待 |
+| 两个历史房间都符合“见过杯子” | 回查时间、轨迹或图像记录 | 更强模型也不能凭空消除来源歧义 |
+| 目标门口被视角遮挡 | 移到安全观察点，获取新观测 | 旧输入中没有所需视觉信息 |
+| 目标明确，但途中通路失效 | 调用规划器寻找替代路线 | 问题是可达性，不是语言理解 |
+| 新证据与任务解释冲突 | 交给 LLM / VLM 重审计划，必要时澄清 | 需要综合多个条件或生成新方案 |
+
+表中的对应关系只是启发式起点，不是已知最优调度规则。真正的研究问题是：Jev 能否根据状态与有限反馈，选择比固定流程更有价值的下一次计算或观察？
+
+#### 4.4.2 把三类决策放进同一个 Agent
+
+图 5 给出研究层面的分工。任务规划器维护目标，感知和记忆提供证据，Jev 式决策层决定下一步操作，执行结果再成为新证据。感知、地图与检索器仍由各自模块实现；“控制检索”不意味着 Jev 自身存储或读取数据库。
 
 <div align="center">
-<svg viewBox="0 0 780 400" width="100%" style="max-width:780px;font-family:sans-serif" xmlns="http://www.w3.org/2000/svg">
-  <defs><marker id="jevA4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker></defs>
-  <rect width="780" height="400" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
-  <text x="390" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">Jev 派生模型全景：模态 × 训练程度</text>
-  <g font-size="12" font-weight="bold" text-anchor="middle"><text x="285" y="52" fill="#1e40af">文本</text><text x="505" y="52" fill="#9a3412">视觉</text><text x="690" y="52" fill="#6b21a8">语音</text></g>
-  <g fill="#ffffff" stroke="#e2e8f0"><rect x="190" y="60" width="190" height="66" rx="6"/><rect x="390" y="60" width="230" height="66" rx="6"/><rect x="630" y="60" width="130" height="66" rx="6"/><rect x="190" y="134" width="190" height="66" rx="6"/><rect x="390" y="134" width="230" height="66" rx="6"/><rect x="630" y="134" width="130" height="66" rx="6"/><rect x="190" y="208" width="190" height="66" rx="6"/><rect x="390" y="208" width="230" height="66" rx="6"/><rect x="630" y="208" width="130" height="66" rx="6"/><rect x="190" y="282" width="190" height="66" rx="6"/><rect x="390" y="282" width="230" height="66" rx="6"/><rect x="630" y="282" width="130" height="66" rx="6"/></g>
-  <g font-size="11" fill="#334155"><text x="40" y="89" font-weight="bold">托管 Jev</text><text x="40" y="105">+ 外挂感知</text><text x="40" y="163" font-weight="bold">零训练读出</text><text x="40" y="179">开源模型 + 去偏</text><text x="40" y="237" font-weight="bold">冻结骨干 + 小头</text><text x="40" y="253">或 LoRA 微调</text><text x="40" y="311" font-weight="bold">完整训练</text><text x="40" y="327">专用决策模型</text></g>
-  <line x1="24" y1="70" x2="24" y2="340" stroke="#64748b" stroke-width="1.5" marker-end="url(#jevA4)"/>
-  <g font-size="10.5">
-    <rect x="200" y="76" width="170" height="34" rx="6" fill="#2563eb"/><text x="285" y="91" text-anchor="middle" fill="#ffffff" font-weight="bold">Jev（官方，仅文本）</text><text x="285" y="104" text-anchor="middle" fill="#dbeafe">零样本泛化最强</text>
-    <rect x="400" y="68" width="210" height="22" rx="5" fill="#ffedd5" stroke="#f59e0b"/><text x="505" y="83" text-anchor="middle" fill="#7c2d12">jev-vision（YOLO → Jev）</text>
-    <rect x="400" y="96" width="210" height="22" rx="5" fill="#ffedd5" stroke="#f59e0b"/><text x="505" y="111" text-anchor="middle" fill="#7c2d12">computer-use（OCR → Jev）</text>
-    <rect x="640" y="82" width="110" height="22" rx="5" fill="#f3e8ff" stroke="#a855f7"/><text x="695" y="97" text-anchor="middle" fill="#581c87">jev-canvas（ASR）</text>
-    <rect x="200" y="156" width="170" height="22" rx="5" fill="#dbeafe" stroke="#3b82f6"/><text x="285" y="171" text-anchor="middle" fill="#1e3a8a">AnyJev（Nokia）</text>
-    <rect x="400" y="156" width="210" height="22" rx="5" fill="#ffedd5" stroke="#f59e0b"/><text x="505" y="171" text-anchor="middle" fill="#7c2d12">PixelJev 冻结模式</text>
-    <text x="695" y="171" text-anchor="middle" fill="#94a3b8">—</text>
-    <rect x="200" y="216" width="80" height="22" rx="5" fill="#dbeafe" stroke="#3b82f6"/><text x="240" y="231" text-anchor="middle" fill="#1e3a8a">minojev</text>
-    <rect x="290" y="216" width="80" height="22" rx="5" fill="#dbeafe" stroke="#3b82f6"/><text x="330" y="231" text-anchor="middle" fill="#1e3a8a">Open-Jev</text>
-    <rect x="400" y="216" width="100" height="22" rx="5" fill="#ffedd5" stroke="#f59e0b"/><text x="450" y="231" text-anchor="middle" fill="#7c2d12">Visual Jev</text>
-    <rect x="510" y="216" width="100" height="22" rx="5" fill="#ffedd5" stroke="#f59e0b"/><text x="560" y="231" text-anchor="middle" fill="#7c2d12">PixelJev LoRA</text>
-    <rect x="640" y="230" width="110" height="22" rx="5" fill="#f3e8ff" stroke="#a855f7"/><text x="695" y="245" text-anchor="middle" fill="#581c87">Prosodia</text>
-    <text x="285" y="258" text-anchor="middle" fill="#64748b">Qwen3-1.7B / 4B 骨干</text>
-    <text x="505" y="258" text-anchor="middle" fill="#64748b">Qwen3-VL-4B / Qwen3.5</text>
-    <rect x="200" y="304" width="170" height="22" rx="5" fill="#dbeafe" stroke="#3b82f6"/><text x="285" y="319" text-anchor="middle" fill="#1e3a8a">Laya（ModernBERT 421M）</text>
-    <rect x="400" y="290" width="100" height="22" rx="5" fill="#ffedd5" stroke="#f59e0b"/><text x="450" y="305" text-anchor="middle" fill="#7c2d12">Laya Vision</text>
-    <rect x="510" y="290" width="100" height="22" rx="5" fill="#ffedd5" stroke="#f59e0b"/><text x="560" y="305" text-anchor="middle" fill="#7c2d12">PlayJev</text>
-    <rect x="400" y="318" width="210" height="22" rx="5" fill="#fee2e2" stroke="#ef4444"/><text x="505" y="333" text-anchor="middle" fill="#7f1d1d">decider-2b-vision（已接入 ROS 2 导航）</text>
-    <text x="695" y="319" text-anchor="middle" fill="#94a3b8">—</text>
+<svg viewBox="0 0 800 440" width="100%" style="max-width:800px;font-family:sans-serif" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="jev-research-title jev-research-desc">
+  <title id="jev-research-title">行动、记忆与模块调度组成的导航 Agent 研究框架</title>
+  <desc id="jev-research-desc">任务规划、当前观测和历史证据进入有界决策层。决策层选择行动、检索、补充观察或深度推理；新观测与执行结果用于更新任务状态和复核记忆关联，再成为下一轮证据。所有运动经过本地规划和安全检查。</desc>
+  <defs><marker id="jevResearchArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker></defs>
+  <rect x="1" y="1" width="798" height="438" rx="12" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="400" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#1e293b">研究设想：让有界判断协调行动、证据与计算</text>
+  <g fill="#ffffff" stroke="#94a3b8">
+    <rect x="30" y="52" width="225" height="68" rx="8"/>
+    <rect x="287" y="52" width="226" height="68" rx="8"/>
+    <rect x="545" y="52" width="225" height="68" rx="8"/>
   </g>
-  <rect x="190" y="358" width="570" height="30" rx="6" fill="#fff7ed" stroke="#fdba74"/>
-  <text x="475" y="378" text-anchor="middle" font-size="11" fill="#9a3412">越往下：本地延迟越低（30–65 ms）、可机载、但越依赖领域数据；越往上：零样本越强、依赖网络</text>
+  <g text-anchor="middle" fill="#334155">
+    <text x="142" y="78" font-size="13" font-weight="bold">当前观测与地图</text>
+    <text x="142" y="102" font-size="11">感知、定位、可行候选</text>
+    <text x="400" y="78" font-size="13" font-weight="bold">任务目标与计划</text>
+    <text x="400" y="102" font-size="11">任务程序 / LLM / VLM</text>
+    <text x="657" y="78" font-size="13" font-weight="bold">历史记忆与来源</text>
+    <text x="657" y="102" font-size="11">地点、时间、观测与执行记录</text>
+  </g>
+  <g fill="none" stroke="#64748b" stroke-width="1.5" marker-end="url(#jevResearchArrow)">
+    <path d="M142,122 L142,140 L320,140 L320,158"/>
+    <path d="M400,122 L400,158"/>
+    <path d="M657,122 L657,140 L480,140 L480,158"/>
+  </g>
+  <rect x="225" y="160" width="350" height="66" rx="9" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="400" y="185" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e3a8a">Jev 式有界决策层</text>
+  <text x="400" y="208" text-anchor="middle" font-size="12" fill="#1e40af">比较候选 · 评估证据 · 选择下一步操作</text>
+  <g fill="none" stroke="#64748b" stroke-width="1.5" marker-end="url(#jevResearchArrow)">
+    <path d="M400,228 L400,245 L117,245 L117,265"/>
+    <path d="M400,245 L305,245 L305,265"/>
+    <path d="M400,245 L495,245 L495,265"/>
+    <path d="M400,245 L683,245 L683,265"/>
+  </g>
+  <g stroke-width="1.3">
+    <rect x="30" y="267" width="175" height="62" rx="8" fill="#dcfce7" stroke="#16a34a"/>
+    <rect x="218" y="267" width="175" height="62" rx="8" fill="#f5f3ff" stroke="#7c3aed"/>
+    <rect x="407" y="267" width="175" height="62" rx="8" fill="#fff7ed" stroke="#f59e0b"/>
+    <rect x="595" y="267" width="175" height="62" rx="8" fill="#f1f5f9" stroke="#64748b"/>
+  </g>
+  <g text-anchor="middle" fill="#334155">
+    <text x="117" y="291" font-size="13" font-weight="bold">行动与验证</text>
+    <text x="117" y="314" font-size="10">本地规划、安全检查、执行</text>
+    <text x="305" y="291" font-size="13" font-weight="bold">检索与回查</text>
+    <text x="305" y="314" font-size="10">外部记忆库与原始证据</text>
+    <text x="495" y="291" font-size="13" font-weight="bold">补充观察</text>
+    <text x="495" y="314" font-size="10">先验证观察动作，再获取信息</text>
+    <text x="683" y="291" font-size="13" font-weight="bold">推理与重规划</text>
+    <text x="683" y="314" font-size="10">强模型 / 规划器 / 人工澄清</text>
+  </g>
+  <g fill="none" stroke="#64748b" stroke-width="1.4">
+    <path d="M117,331 L117,349 L683,349 L683,331"/>
+    <path d="M305,331 L305,349 M495,331 L495,349"/>
+    <path d="M400,349 L400,368" marker-end="url(#jevResearchArrow)"/>
+  </g>
+  <rect x="225" y="370" width="350" height="38" rx="8" fill="#ffffff" stroke="#94a3b8"/>
+  <text x="400" y="394" text-anchor="middle" font-size="11" fill="#334155">新观测 / 执行结果 → 复核记忆关联、更新状态</text>
+  <path d="M225,390 L15,390 L15,193 L223,193" fill="none" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#jevResearchArrow)"/>
+  <text x="400" y="428" text-anchor="middle" font-size="11" fill="#64748b">三类职责分别验证，再研究组合；模型判断不直接成为运动命令</text>
 </svg>
-<figcaption>图 4　托管 Jev 只占左上角一格；视觉一列是具身导航最需要、也最活跃的方向</figcaption>
+<figcaption>图 5　导航 Agent 的研究框架。反馈同时支持任务状态更新与记忆关联复核；三类职责先独立检验，再研究组合。</figcaption>
 </div>
 
-| 类别 | 代表 | 骨干 | 是否训练 | 模态 |
-|---|---|---|---|---|
-| 从头训练的开源替代 | Laya | ModernBERT-large（421M） | RLCD + 温度校准 | 文本 |
-| 零训练读出 | AnyJev（Nokia） | 任意开源 LLM（示例为 Qwen3） | 否（可选轻量校准） | 文本 |
-| 冻结骨干 + 小头 | minojev | Qwen3-1.7B（冻结）+ 约 0.8M 头 | 只训头 | 文本 |
-| 解码器读出 + 微调（论文） | Open-Jev | Qwen3-4B + LoRA | CE + Brier 损失 + 温度 | 文本 |
-| 视觉派生 | Laya Vision | SmolVLM-256M | RLCD + 温度校准 | 图像 + 文本 |
-| 视觉派生（论文） | Visual Jev（CMU） | Qwen3-VL-4B + LoRA | 答案监督 | 图像 + 多问题 |
-| 视觉派生（论文） | PixelJev（MSRA） | Qwen3.5-2B / 4B | 冻结 / 少样本 LoRA / 温度 | 图像 + 候选 |
-| 视觉策略派生 | PlayJev | Qwen3.5-0.8B | 行为克隆 + DAgger | 图像（游戏帧） |
-| 视觉导航派生 | decider-2b-vision | 未公开（约 2B，BF16 4.1 GB） | 未公开 | 相机图像 |
-| 语音派生 | Prosodia | Whisper 编码器（冻结） | 训头 | 语音 |
-| 外挂感知 | jev-vision 等 | YOLO / OCR / ASR + 托管 Jev | 否 | 经由文本 |
+下面用一段构造的任务过程说明三类判断如何衔接。它用于解释研究问题，不是实验轨迹或模型实测输出。
 
-以下均为社区独立项目，与 TypeSafe 无隶属关系，数字为项目自报。
+| 当前证据 | 尚未解决的问题 | 选择的操作 | 新证据怎样改变下一步 |
+|---|---|---|---|
+| 历史中两个房间都出现过杯子 | “刚才”对应哪次观测？ | 检索时间与相邻轨迹 | 若一条记录明确对应最近经过的房间，则形成暂定目标；否则保留歧义 |
+| 已确定暂定目标，地图提供多个可达路点 | 哪条候选更符合返回目标？ | 比较候选并交由规划、执行模块处理 | 到达目标附近后，使用新观测复核地点，不能沿用出发时的判断直接宣布完成 |
+| 两个门口外观相似，关键地标被遮挡 | 当前门口是否就是目标地点？ | 前往可行观察点补看 | 旧图像缺少区分线索时，重复推理无法增加视觉证据；新视角可能提供区分依据 |
+| 补看后仍无法确认，当前线索与历史关联冲突 | 错在地点关联，还是任务解释？ | 回查原始记录，必要时由强模型重审关联与计划 | 若来源证据支持另一目标，则修正关联并重规划；不能靠更强模型把缺失事实补出来 |
+| 来源记录也无法消除歧义，剩余预算有限 | 继续搜索是否仍可能有用？ | 按预设规则澄清或结束本次尝试，并记录未完成 | 保留待复核状态，避免检索、补看与推理无限循环 |
+| 另一路径中，新观测确认了目标门口 | 是否满足“在门口停下”的完成条件？ | 单独复核地点与停止位置 | 条件满足才结束任务，并把本次观测与核实结果写回记忆 |
 
-### 3.2 文本复刻：System One 形态可以用开源模型做出来
+这段过程中的规则可以作为初始基线。研究调度器时，需要比较它在何处作出不同选择，以及这种差异是否减少了错误返回、无效调用或任务耗时。**调度器的价值在于选择有用的下一步；调用更强模型本身不构成成功。**
 
-**Laya：从头训练的开源替代。** Laya 由 Convai Innovations 以 Apache-2.0 发布，结构是 **ModernBERT-large 编码器 + 2 层 Transformer 决策头**，共 421M 参数，另有基于 mmBERT-base 的 322M 多语言版本和一个按文字脚本自动分发的 Router。候选项与问题和状态一起编码，输出头分别对应 choice / score / noul。训练采用前述“严格恰当评分规则 + GRPO 式策略梯度”的 RLCD 解读，再按题型和选项数分桶做温度缩放。[Laya](https://github.com/NandhaKishorM/laya)
+ABot-N1 的慢 VLM 与快动作专家说明任务推理和运动生成可以分工，但其中快系统输出连续路点，职责不同于 Jev 的类型化判断。因此，本文的协作设想是拆出适合比较或验证的环节，而不是用 Jev 替代整个动作专家。[ABot-N1](https://arxiv.org/abs/2607.10383)
 
-它的自报结果很有信息量：
+#### 4.4.3 调度要同时考虑收益、代价与时间
 
-- 在 2,000 个类型化决策上，领域微调后的 Laya 准确率 0.766，高于 Jev 的 0.727；ECE 0.081，而 Jev 为 0.246；
-- 但在 77 类高基数选择上，Laya 只有 0.425，Jev 为 0.870；
-- **未微调的基础 checkpoint 零样本接近随机**，且出厂时严重过度自信（ECE 0.466，重拟合温度后降到 0.081）；
-- T4 上单问题 32.8 ms，批量 10 题时每题 7.2 ms。
+是否值得再查一轮记忆、再拍一个视角或再调用强模型，取决于它可能减少多少不确定性，以及为此付出多少时间和行动成本。作为研究目标，可以写成：
 
-这说明：**一个 4 亿参数的编码器在窄领域内可以追平甚至超过 Jev，但通用零样本能力是 Jev 真正的护城河。**
+$$
+m_t^{*}=\arg\max_{m\in\mathcal{M}_t}
+\left[
+\mathbb{E}(\Delta Q_{\mathrm{task}}\mid S_t,m)
+-\lambda T_m-\mu C_m
+\right]
+$$
 
-**AnyJev：零训练地把任意 LLM 变成 Jev。** AnyJev 由 Nokia 应用研究团队以 Apache-2.0 开源。[MarkTechPost](https://www.marktechpost.com/2026/09/23/nokia-open-sources-anyjev-a-training-free-layer-that-turns-any-open-llm-into-a-calibrated-decision-model/) 它不训练模型，而是从开源 LLM **单次 prefill 的下一 token 分布**里读出答案：把选项标成字母，只在这些字母 token 上做 softmax。关键问题是**位置偏差**——同一道题换个选项顺序，答案就可能翻转。它的处理分几级：[AnyJev](https://github.com/MorrisZJ/AnyJev)
+这里，$m$ 是当前允许的操作，$\Delta Q_{\mathrm{task}}$ 表示对任务结果的预期改善，$T_m$ 和 $C_m$ 分别表示时间与其他成本。**这是用于界定问题的目标表达，并不是 Jev 已具备的价值估计器**；如何获取收益标签、如何处理未知模块耗时，都是研究的一部分。涉及运动的操作还须先满足独立的可行性约束。
 
-- **L0（零标注）**：对 K 个选项做 K 次循环移位，把位置偏差平均掉，并除去标签先验；
-- **L1（100–500 条标注）**：在 L0 上加温度缩放；
-- **L2（100–300 条标注）**：在中间层隐状态上闭式求解一个线性头。
+时间也会改变证据价值。Slow Brain, Fast Planner 通过几何相似度与时间衰减，将迟到的 VLM 选择融合进实时规划，说明“如何使用晚到结果”与“让模型更快”同样重要。Jev 即使降低调用延迟，仍需研究旧观测、旧候选和新状态之间的关系，不能默认异步结果一直有效。[Slow Brain, Fast Planner](https://arxiv.org/abs/2606.20458)
 
-在 Qwen3-8B / BANKING77 上，选项顺序翻转率从 0.230 降到 0.073，准确率从 0.747 升到 0.807，ECE 从 0.240 降到 0.095；在风险 ≤ 5% 的约束下可自动决策的样本比例从 7.7% 升到 52.0%。局限在于其准确率是相对教师 LLM 而非人类真值，字母读出最多 26 个选项。
+从概率判断到操作收益，还需要目标任务上的验证。[VLA 校准研究](https://arxiv.org/abs/2507.17383)与[VLM 口头置信度研究](https://arxiv.org/abs/2609.18453)研究的是不同信号；[KnowNo](https://arxiv.org/abs/2307.01928)的统计保证也有其校准与分布假设。对 Jev 的具体问题是：这些概率能否帮助判断“何时继续、何时拒绝、何时求助”，以及在场景变化后是否仍有效。
 
-**minojev：冻结骨干 + 小决策头。** minojev 冻结 Qwen3-1.7B，只训练一个约 0.8M 参数的决策头：每条“状态 + 问题 + 候选”路径前向一次并缓存末层隐状态，由“共享打分器 + 集合注意力”读出分布，再按原语拟合温度。在 120 个平衡决策上，准确率 95.8%（同骨干生成式基线 80.0%），ECE 0.024，p95 延迟约 0.6 s（基线约 3.3 s）。但在**未见过的领域上只有 31.7%，低于生成式基线的 40%**——作者的总结是“训练头带来专精，不能替代数据广度”。[minojev](https://github.com/zeredy879/minojev)
+#### 4.4.4 调度模型应该处理哪些规则难以覆盖的状态
 
-**Open-Jev：一篇把话说透的论文。** Scam.ai 团队在 CallScreenBench（每轮来电者发言后重新判断是否诈骗，41 个留出场景、577 个决策）上，用 LoRA 微调 Qwen3-4B，**只在声明的答案标签上**施加交叉熵与 Brier 损失，读出首个位置的标签 logits，再做温度缩放。结果：三种子集成 AUROC 97.4%（LLM 判官 94.7%），ECE 5.2%，合法来电误报 0%（判官 17.7%），中位延迟 64.5 ms（判官 1,946 ms），比同骨干生成式训练快 4.9 倍。作者的核心结论是 **“买到准确率的是微调，不是接口”**；并承认配方选择接触过测试集、同等辅助监督的 ModernBERT 编码器并不显著更差、对改写攻击与选项顺序敏感。[Open-Jev, arXiv:2609.23959](https://arxiv.org/abs/2609.23959)
+超时、预算耗尽、命令无效等条件具有明确边界，适合由程序直接处理。对于“已找到目标但暂时受阻”，固定调用规划器也可能足够。模型调度更值得检验的状态，是**同一种失败表象可能对应不同的信息缺口**：没有找到杯子，既可能需要换视角，也可能需要回查地点，或重新解释指令。
 
-四者合起来说明：**System One 的核心形态——单次前向、候选集读出、事后校准——可以在开源模型上复现；差距主要在零样本泛化，而不在架构。**
+调度输入因此不能只有一个置信度数值，还应包含已有证据、未满足的任务条件、近期操作与结果、可用模块及剩余预算。Jev 是否能利用这些信息选择下一步，是与规则、轻量路由器和小 LLM 比较的核心；输出格式相同并不意味着路由能力相同。
 
-### 3.3 视觉派生：让 System One 模型“看见”
+难点在于“最有价值的下一步”通常不是现成标签。离线可以根据标注的信息缺口检查选择是否合理，闭环则要考察一次操作是否实际带来进展。若模型只是更频繁地调用全部模块，成功率提高也必须连同额外时间和观察成本解释。
 
-**Laya Vision：把文本编码器换成 VLM。** Laya Vision 是 Laya 的独立 fork，把 ModernBERT 换成 **SmolVLM-256M**（推荐 checkpoint 只保留 30 层语言层中的 20 层），输入为“图像 + 可选文本 + 问题”，一次前向返回 choice / noul / score。训练数据包括 The Cauldron 的 19 个子集、4 个 rubric 评分集和游戏帧，沿用 RLCD 目标与温度校准。[Laya Vision](https://github.com/r33drichards/laya-vision)
+### 4.5 已有工作与证据边界
 
-- 34 个验证集、59,427 个问题上总体准确率 69.1%，ECE 0.041；
-- L4 GPU 上中位延迟约 **34 ms**；
-- 直接看游戏画面做决策：ViZDoom 0.99、Atari Freeway 0.81（0 为随机、1 为专家），但 Breakout 只有 0.20、Snake 0.17；
-- 作者观察到：**训练视觉塔能提升游戏表现，但会损害视觉推理**；
-- 权重因训练数据许可为 CC BY-NC-SA 4.0，**不可商用**。
+围绕以上三条路线，已有材料可以分为三类。它们回答的问题不同，不能把指标放在一起当作同一种能力。
 
-**PlayJev：视觉 System One 策略。** PlayJev 基于 **Qwen3.5-0.8B-Base**，输入一张 448 px 游戏帧和可选动作列表（2–7 个），输出动作上的概率分布。训练数据为 11,416 局、217 万个决策，流程是：[PlayJev](https://github.com/OmniJev/PlayJev)
+| 证据类型 | 代表工作 | 已支持的判断 | 尚未支持的判断 |
+|---|---|---|---|
+| 导航方法研究 | C²Nav、VerNav、O2C-Nav、AdaNav、Slow Brain, Fast Planner、ABot-N1 | 比较、验证、按需推理与分层执行值得研究 | 换成 Jev 后保留原方法性能 |
+| 通用 Agent 的 Jev 应用 | Jev-Mem；第 2.7 节的 REFLEX | Jev 已被用于记忆控制与选择性调用 | 这些收益自动迁移到空间记忆和导航闭环 |
+| 社区具身实现 | ROS 2 导航监督、视觉路径选择、驾驶与无人机项目 | 某些接口能够接通，存在可借鉴的实现 | 标准 VLN 泛化能力、真机可靠性或普遍性能优势 |
 
-1. 从教师策略做行为克隆（注入 2–30% 随机动作）；
-2. 三轮 DAgger，用模型自己玩出来的状态请教师重新标注；
-3. 回放阶段混入 20% 通用图像问答与 20% 文本数据，防止遗忘；**每个样本都打乱动作顺序**，使位置不携带信息。
+社区项目中，与本章关系最直接的实现如下。结果为作者报告，本文未独立复现；仓库仍在更新。
 
-结果：H200 上 **43 ms / 步**；十个游戏平均达到教师水平的 0.57（Space Invaders、Racer 追平教师，Tetris 仅 0.37）；低置信度时交给人类接管可达到教师水平。它最值得注意的地方是**置信度有意义**：模型越确定，与教师动作一致的比例越高。
-
-**Visual Jev（论文）：一张图、多道题、只编码一次。** CMU 的 Visual Jev 针对“同一张图要回答多个独立的选择题”这一场景：图像只编码一次并缓存 KV，各问题的后缀作为一个批次并行执行，从语言模型头上对合法选项做归一化读出概率；在 Qwen3-VL-4B 上做答案监督的 LoRA 微调。[Visual Jev, arXiv:2609.25845](https://arxiv.org/abs/2609.25845)
-
-- GQA、SNLI-VE、TextVQA、TallyQA 四个基准宏平均准确率从 0.706 提升到 0.761（后两者为留出任务）；
-- 每张图 32 个问题时，比串行执行快 **8.9 倍**（摊销每题 5.7 ms），比不复用前缀的批处理快 3.4 倍，峰值显存从 8.40 GiB 增至 10.10 GiB；
-- 一个很关键的对照：**专门的类型化输出头相对 LM 头读出并无一致优势**。
-
-**PixelJev（论文）：视觉选择到底从哪里获益。** MSRA 与南京大学的研究把 Qwen3.5 2B / 4B 包装成“图像 + 指令 + 候选 schema → 选择 + 候选条件概率”的接口，分别评测冻结推理、少样本 LoRA 与温度校准三种模式。[PixelJev, arXiv:2609.29283](https://arxiv.org/abs/2609.29283)
-
-- Pets 从冻结 2B 的 60.13% 提升到适配后的 92.40%，EuroSAT 从 49.63% 到 88.31%，但专门的 DINOv2 探针仍更强（Pets 95.67%）；
-- 冻结的 4B 在若干迁移任务上优于适配后的 2B；
-- 匹配的“只改 prompt”对照显示：**Pets 上的收益完全来自 adapter，而不是读出方式**；ScienceQA 上直接读出只比生成高 1.88 个点，主要因为强制了合法输出；
-- 温度校准并未在所有留出集上改善指标，**准确率提升不保证目标域概率校准**；接口没有学习到的拒识选项，也未评测动作选择。
-
-**Jev Visual** 则是工程实现：用 MLX 上的 Qwen VLM 共享图像上下文、对候选逐一打分，作者明确说明其概率未经校准。[Jev Visual](https://github.com/hr98w/jev-visual)
-
-**decider-2b-vision：已经被接进导航。** Mapika 发布的 decider-2b-vision 是一个不生成文本、通过 `prepare()` / `slot_logits()` 直接读出候选槽位概率的视觉决策模型（BF16 权重约 4.1 GB，Apache-2.0），架构与训练未公开。它已被 `jev_navigation` 用于 ROS 2 局部路径选择（见 4.5）。[jev_navigation](https://github.com/NOPLAB/jev_navigation)
-
-### 3.4 语音派生与外挂感知
-
-**Prosodia** 用冻结的 Whisper 编码器直接从语音得到类型化决策（情绪、情感、声学属性），**中间不经过 ASR 转写和文本生成**。[Prosodia](https://github.com/alperiox/audio-jevlike)
-
-外挂感知式项目则保留托管 Jev，只在前面加感知模块：
-
-- **jev-vision**：YOLO 检测后按 top-1 分数分流——≥ 0.85 直接采纳，0.15–0.85 交给 Jev 结合场景上下文消歧（如“摄像头装在狗舍里”），< 0.15 升级人工；一帧内所有歧义框合并为一次调用，约 150 ms。[jev-vision](https://github.com/JeremyEltho/jev-vision)
-- **jev-canvas**：语音转写 + 指尖检测，Jev 从转写与位置中选择动作、目标与落点，阈值由确定性代码执行。[jev-canvas](https://github.com/gaborishka/jev-canvas)
-- **typesafe-computer-use**：macOS OCR 后由 Jev 做有界动作选择。[typesafe-computer-use](https://github.com/awlevin/typesafe-computer-use)
-
-### 3.5 派生模型告诉我们什么
-
-1. **System One 是一种形态，而不是一个模型。** “编码器 / VLM 骨干 + 候选集读出 + 校准”可以在 0.25B–4B 的开源模型上复现，并且能在本地 GPU 上做到 **30–65 ms**，比托管 Jev 的网络往返快一个量级。
-2. **速度来自“不生成 + 共享前缀”，不来自特殊的头。** Visual Jev 发现类型化头相对 LM 头读出没有一致优势；真正的加速来自一次编码、KV 复用、多问题批处理。
-3. **准确率来自领域微调，不来自接口。** Open-Jev 与 PixelJev 两篇论文独立得出同一结论：接口换来的是合法输出、可用概率与速度，而准确率要靠目标域数据。
-4. **多模态化的方式很直接**：把文本编码器换成 VLM 或音频编码器即可；难点在训练数据和能力取舍（Laya Vision 的“游戏 vs 视觉推理”冲突）。
-5. **校准不是免费的**：几乎所有开源复刻出厂时都过度自信，需要在目标领域用少量标注重拟合温度，且校准不一定能跨域迁移。
-6. **泛化是分水岭**：窄领域可以追平甚至超过 Jev，跨领域零样本明显落后（minojev 在未见领域 31.7% 对 40%）。
-7. **许可证要看清**：部分视觉派生权重为非商用许可。
-
-对具身导航而言，第 2、3 点合起来意味着：**一个在导航数据上 LoRA 微调、共享视觉前缀、对候选读出概率的开源 VLM，就是一个可机载的“视觉 Jev”**——不需要等 TypeSafe 发布多模态版本。
-
-## 4. 具身导航：System One 模型放在哪一层
-
-### 4.1 分层架构
-
-结合 Jev 的接口与局限，最合理的系统切分如下：
-
-<div align="center">
-<svg viewBox="0 0 760 420" width="100%" style="max-width:760px;font-family:sans-serif" xmlns="http://www.w3.org/2000/svg">
-  <defs><marker id="jevA5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker><marker id="jevA5r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/></marker></defs>
-  <rect width="760" height="420" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
-  <text x="380" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">System One 决策头在导航栈中的位置</text>
-  <text x="680" y="52" text-anchor="middle" font-size="11" font-weight="bold" fill="#475569">典型频率</text>
-  <rect x="60" y="44" width="430" height="44" rx="8" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
-  <text x="275" y="71" text-anchor="middle" font-size="12" fill="#334155">传感器：相机 · 深度 · 激光雷达 · 里程计</text>
-  <text x="680" y="71" text-anchor="middle" font-size="11" fill="#475569">15–30 Hz</text>
-  <line x1="275" y1="90" x2="275" y2="106" stroke="#64748b" stroke-width="1.5" marker-end="url(#jevA5)"/>
-  <rect x="60" y="108" width="430" height="60" rx="8" fill="#ffedd5" stroke="#f59e0b" stroke-width="1.5"/>
-  <text x="275" y="132" text-anchor="middle" font-size="12" font-weight="bold" fill="#7c2d12">感知与几何（本地模型 + 确定性代码）</text>
-  <text x="275" y="152" text-anchor="middle" font-size="11" fill="#9a3412">定位 · 地图 / 记忆 · 候选生成 · 几何可行性过滤</text>
-  <text x="680" y="142" text-anchor="middle" font-size="11" fill="#475569">约 15 Hz</text>
-  <line x1="275" y1="170" x2="275" y2="200" stroke="#64748b" stroke-width="1.5" marker-end="url(#jevA5)"/>
-  <text x="285" y="190" font-size="10.5" fill="#64748b">紧凑状态：语义描述 + 已过滤候选（不给原始坐标）</text>
-  <rect x="60" y="202" width="430" height="64" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
-  <text x="275" y="228" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e3a8a">System One 决策头（Jev / 视觉派生）</text>
-  <text x="275" y="250" text-anchor="middle" font-size="11" fill="#1e40af">候选比较 · 风险分级 · 停止 / 重规划 · 升级路由</text>
-  <text x="680" y="230" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e40af">2–5 Hz</text>
-  <text x="680" y="246" text-anchor="middle" font-size="10" fill="#1e40af">异步，不阻塞控制</text>
-  <line x1="492" y1="234" x2="528" y2="234" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#jevA5)"/>
-  <rect x="530" y="210" width="84" height="48" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-dasharray="4"/>
-  <text x="572" y="230" text-anchor="middle" font-size="11" font-weight="bold" fill="#4c1d95">低置信升级</text>
-  <text x="572" y="247" text-anchor="middle" font-size="10" fill="#5b21b6">VLM / 人工</text>
-  <line x1="275" y1="268" x2="275" y2="304" stroke="#64748b" stroke-width="1.5" marker-end="url(#jevA5)"/>
-  <text x="285" y="286" font-size="10.5" fill="#64748b">离散选择 + 概率；结果未到则沿用上一决策</text>
-  <rect x="60" y="306" width="430" height="60" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
-  <text x="275" y="330" text-anchor="middle" font-size="12" font-weight="bold" fill="#14532d">安全盾 + 几何规划器 + 局部控制器（确定性）</text>
-  <text x="275" y="350" text-anchor="middle" font-size="11" fill="#166534">碰撞 / 足迹检查 · 路径跟踪 · 执行</text>
-  <text x="680" y="336" text-anchor="middle" font-size="11" fill="#475569">20–500 Hz</text>
-  <path d="M58,336 C20,336 20,234 56,234" fill="none" stroke="#dc2626" stroke-width="2" marker-end="url(#jevA5r)"/>
-  <text x="18" y="290" font-size="11" font-weight="bold" fill="#dc2626">否决</text>
-  <rect x="60" y="378" width="640" height="30" rx="6" fill="#fff7ed" stroke="#fdba74"/>
-  <text x="380" y="398" text-anchor="middle" font-size="11" fill="#9a3412">置信度低 / 分布过平 / 分布外输入 → 升级到 VLM 或人工；安全永远由绿色层保证，而不是由概率保证</text>
-</svg>
-<figcaption>图 5　决策头夹在“感知与几何”和“安全与控制”之间：只在已验证的候选里选，且随时可被否决</figcaption>
-</div>
-
-三条硬约束：
-
-1. **决策头只在已验证的候选之间选**，不输出坐标、角度或连续控制量；
-2. **安全层对决策头拥有否决权**；
-3. **高频闭环不等决策头**：结果未返回时，控制器继续执行上一次决定或规则策略。
-
-### 4.2 两条接入路径
-
-第 3 节的派生模型让“System One 决策头”有了两种实现：
-
-| | 路径 A：托管 Jev + 文本化场景 | 路径 B：本地视觉 System One |
+| 项目 | 研究上的参考价值 | 结果与局限 |
 |---|---|---|
-| 形态 | 感知模块 → 场景图 / JSON → Jev API | 图像 + 候选 → 本地 VLM 骨干 + 类型化头 |
-| 延迟 | 网络往返 0.1–0.5 s | 本地 GPU 约 30–50 ms |
-| 优势 | 零样本泛化最强，免训练 | 无网络依赖，可上机载，能直接看图 |
-| 劣势 | 依赖网络与厂商；视觉→文本转换有信息损失；中文效果打折 | 需要导航数据训练与领域校准；泛化弱 |
-| 适合 | 研究原型、低频语义判断 | 机载部署、断网场景、高频战术判断 |
+| [JEV_SMARTROBOTCONTROL](https://github.com/mahajanparth/JEV_SMARTROBOTCONTROL) | 让 Jev 监督 Nav2，选择恢复与重规划，保留独立控制权和障碍过滤 | ROS 2 + Gazebo 仿真；相似房间中仍会错误定位。127 项测试通过、2 项跳过不是导航成功率 |
+| [jev_navigation](https://github.com/NOPLAB/jev_navigation) | 本地 decider-2b-vision 从 5 条弧线、停止、到达共 7 项中选择 | 有异步与过期处理，但缺少独立激光避障和足迹碰撞检查，不能等同于完整安全导航 |
+| [jev_fsd](https://github.com/BrendanH18/jev_fsd) | 规则与 Jev 共用候选生成和前向模拟，较适合研究选择模块的贡献 | 已提供自建驾驶仿真 benchmark；不能等同标准 VLN 或真实驾驶验证 |
+| [jev-drone](https://github.com/RomanSlack/jev-drone) | 将低频战术判断与高频几何控制分离 | 成功课程为单次运行，中位调用延迟约 0.11 s；早期三种子对比未显示优势 |
+| [Embodied Jev](https://github.com/FBddcz/embodied-jev) | 分层子目标与局部操作选择，可观察决策粒度的影响 | Meta-World 三项任务、各两个种子中，Jev 与 GPT-6 Astra 均为 5/6；这是小样本操作结果 |
+| [JevPilot](https://github.com/standardagents/jevpilot) | 展示驾驶仿真中的候选路径与速度选择 | 演示不能单独证明通用导航收益 |
 
-一个务实的组合是**级联**：机载的小型视觉 System One 模型做高频首判，置信度低时升级到托管 Jev 或 VLM，再不行就交给人类或停车。
+尤其需要检查对照策略的能力是否一致。例如，jev-drone 成功示例中的规则基线无法表达越障机动，收益就不能全部归因于 Jev 判断更准。[作者结果与限制](https://github.com/RomanSlack/jev-drone)
 
-### 4.3 适合与不适合的职责
+目前最明确的缺口是：**在固定感知、候选、记忆与执行模块后，分别检验 Jev 的行动判断、记忆控制和模块调度，观察收益是否延续到导航任务结果。** 这也是下一节提出研究问题的依据。
 
-适合 System One 决策头的五类窄职责：
+### 4.6 值得开展的研究问题：从模块替换走向机制验证
 
-1. **候选路点 / 视角比较**：对控制器构造、已通过几何可行性检查的选项做 `Choice`；
-2. **语义风险与异常判断**：目标是暂时遮挡还是确实丢失、当前情景是否需要重规划；
-3. **停止与进展门控**：用 `Noul` / `Score` 给出概率，由代码按阈值决定继续、回看、回退或升级；
-4. **级联路由**：把 confidence 当作**路由信号**，而不是安全保证。
-5. **Agent 记忆控制**：判断哪些历史观测与当前子目标相关、是否需要继续检索，再把选出的证据交给规划器；Jev-Mem 提供了通用 Agent 上的先例，导航迁移见 4.6。
+前面的分析指向三个可以独立研究的贡献。它们都是待验证的方向，不意味着已有方法未研究过类似问题；相关工作提供的依据与局限统一见 4.5。
 
-不适合交给它的事：
+| 方向 | 本文关注的缺口 | 可能形成的贡献 | 核心难点 |
+|---|---|---|---|
+| 候选验证与拒绝 | 相对最优选项仍可能不值得执行；普通选路与终止判断的错误代价不同 | 按任务阶段组织接受、拒绝与复核，并识别候选不足 | 拒绝错误行动的同时，避免过度保守导致停滞 |
+| 空间与时间约束下的记忆 | 语义相关记录未必属于正确地点，旧状态与错误关联会影响后续任务 | 以来源可追溯的证据选择和关联更新支持返回与长期任务 | 区分新事实、暂时不可见与原有假设出错，避免错误写入被反复强化 |
+| 感知、记忆与推理的预算分配 | 低置信只能提示困难，不能直接说明缺少哪类信息 | 根据证据缺口选择下一次观察、检索、规划或推理 | 缺少操作收益标签，且调度本身会增加延迟并改变后续状态 |
 
-| 任务 | 原因 |
+**行动路线适合作为起点**：接口与错误类型较容易界定。**记忆路线值得进一步深入**：它将 Jev-Mem 的启发落到导航特有的地点、时间与行动反馈上。**模块调度适合在模块能力明确后展开**：只有知道每个模块能解决什么，才能评价调用是否有价值。这是本文对研究顺序的建议，而非效果排名。
+
+三条路线可逐步组合，但单模块有效不保证组合有效。例如，检索控制提前停止会影响后续行动；调度器增加补看也可能改变记忆质量。第 5 章先设计独立实验，再讨论这些交互。
+
+## 5. 如何验证：三个最小实验与联合评测
+
+### 5.1 共同协议：先定义什么结果算有收益
+
+三个实验分别只改变行动判断、记忆控制和模块调度。它们共用一套记录原则，但不把所有模型、输入和接口组合成全因子实验。
+
+**先分清两种比较。** 托管 Jev 与规则、分类器或小 LLM 的比较，衡量同输入条件下的系统收益；由于骨干和训练未知，不能将差异归因为某种内部架构。研究“生成改为候选读出”的机制，则另选可检查的开源骨干，固定权重与输入做配对比较。原生 Jev 的文本状态构建成本必须计入，原始 RGB 只用于单独的视觉实验。
+
+**质量和效率分别判定。** 对强调提速的实验，在验证集上预先确定任务质量允许下降的范围，并在测试前锁定阈值、预算和评价规则。若质量损失超出范围，即使更快也不支持“保留能力的提速”；若质量合格但端到端耗时没有改善，则不支持效率主张。若质量提高但更慢，应报告为质量与时间的取舍。
+
+**采用配对任务与完整成本。** 各方法使用同一组场景、指令和随机种子，报告样本数、失败样本与置信区间。数据按场景或轨迹划分训练、校准和测试，避免把同一段历史拆入两侧。计时覆盖状态构建、模型调用、通信、检索及回退；同时报告总任务耗时，不能只看一次成功 API 调用的平均值。未完成和超时任务按预设规则计入，并单列其耗时，防止提前失败看起来更快。
+
+需要训练的分类器或路由器，应报告可用标注量与适配成本；提示词调整和阈值选择也限定在训练、验证数据上。这样才能区分固定任务表现与迁移到新任务的成本。
+
+下列指标按实验需要选择，不要求每个实验全部测量：
+
+| 层次 | 指标及用途 |
 |---|---|
-| RGB / 视频感知（托管 Jev） | 不支持非文本输入 |
-| SLAM、度量几何、精确计数 | 数字精度是官方列出的弱项 |
-| 长链全局规划 | 多跳推理是弱项，应拆成原子问题 |
-| 电机 / 底盘高频闭环 | 延迟与可靠性都不满足 |
+| 导航任务 | 成功率 SR；按路径效率加权的成功率 SPL；终点到目标距离 NE；错误停止与碰撞率 |
+| 系统效率 | P50 / P95 端到端延迟、每回合调用数与成本、总任务耗时、超时与过期结果比例 |
+| 决策可靠性 | 接受率、接受后的错误率及风险—覆盖率曲线；AURC 为该曲线下的面积；ECE 与 Brier 的定义见 2.3 |
+| 记忆与调度 | 证据召回、地点识别、错误关联；模块调用数、补看次数、无进展轮数与预算耗尽比例 |
 
-由此得出一条实践原则：**导航状态在送进决策头之前，必须先做几何计算、命名分桶、检索和裁剪**。与其写“障碍物在 (2.37, −0.84) 处”，不如写“左前方近距离（< 1 m）有障碍物”。
+### 5.2 实验一：到达判断与拒绝
 
-### 4.4 近期导航研究的支撑
+**研究问题：** 在相同目标与观测证据下，有界判断能否减少决策耗时，同时避免更多错误停止？先选“是否完成任务”这一个决策位置，能够把终止错误与选路错误分开。
 
-截至本文核查的公开资料，尚未找到直接评测 Jev 的 VLN 基准论文；2.7 的 Jev-Mem 与 REFLEX 属于通用 Agent 研究，不能算作导航验证。近期三项导航工作从不同角度支持“**模型只做有界比较 / 验证，几何与执行留给机器人**”这一接口：
-
-- **C²Nav** 让 VLM 比较控制器构造的候选；matched role inversion 实验把比较式问题改回基数 / 绝对式问题后，空间、转移、终止三个决策位置的 SR 分别降到 **12.0%、28.0%、21.0%**。同一模型，问法从“报数值”换成“比候选”，差距巨大——`Choice` 天然是后者。[C²Nav, arXiv:2609.15142](https://arxiv.org/abs/2609.15142)
-- **VerNav** 用批量动作验证替代逐步自回归生成，仅在不确定时调用生成器，在离散 R2R 上决策阶段单步延迟降低 **10 倍以上**。“验证优先 + 不确定时升级”正是 System One 决策头的用法，但结果来自离散 R2R，不能外推到 VLN-CE 或真机。[VerNav, arXiv:2609.00920](https://arxiv.org/abs/2609.00920)
-- **O2C-Nav** 在连续环境中把每步大模型调用压到一次：免训练生成候选路点并画到 RGB 上，由 MLLM 选点、FMM 执行。它对应的恰好是 4.2 中的路径 B——把“画了候选的图像”直接交给一个视觉 System One 模型选点，是比“转成文本再交给 Jev”更自然的接法。[O2C-Nav, arXiv:2609.06476](https://arxiv.org/abs/2609.06476)
-
-另有几项工作分别回答了“慢判断如何接入快控制”“何时升级”“置信度能不能信”这三个问题：
-
-- **Slow Brain, Fast Planner** 与 System One 决策头的位置几乎完全相同：学习型规划器实时生成多条候选轨迹，但在困难场景中“选不对”；VLM 从候选中做选择，再通过一个**免训练、抗延迟的轨迹级融合层**，按几何相似度与指数衰减把延迟到达的 VLM 选择转成实时打分。在约 2,000 个真实困难场景上，VLM 选择使 ADE 比规划器自身最佳选择降低 30%；仿真中延迟高达 5 s 时仍保持 80% 以上成功率。[Slow Brain, Fast Planner, arXiv:2606.20458](https://arxiv.org/abs/2606.20458) 这正是处理“过期决策”的现成方案：Jev 把延迟从 1–3 s 降到 0.1–0.3 s，融合层则保证即便决策迟到也不会出错。
-- **AdaNav** 以动作熵为先验、用启发式到 RL 的训练得到一个轻量的不确定性自适应推理模块，只在需要时才触发显式推理；仅用 6,000 个训练样本，在 R2R val-unseen、RxR-CE 和真实场景上成功率分别提升 20%、11.7%、11.4%。[AdaNav, arXiv:2509.24387](https://arxiv.org/abs/2509.24387) 它说明“置信度门控升级”在 VLN 中本身就能提升性能，而不仅是省算力。
-- **ABot-N1** 采用慢系统（带 CoT、输出像素级目标锚点的 VLM）+ 快系统（原生控制频率输出连续路点的动作专家）的双系统导航基础模型。[ABot-N1, arXiv:2607.10383](https://arxiv.org/abs/2607.10383) 若把其中的慢系统拆出一部分“判断”交给 System One 模型，是一个自然的延伸方向。
-- **置信度能不能信？** Zollo 与 Zemel 对 OpenVLA、MolmoAct、UniVLA、NORA 的首个 VLA 校准研究发现：置信度在任务约 50% 进度时最准、之后又变差；20 个同义指令的 prompt ensemble 可使 ECE 平均降低 20% 以上；不同自由度间校准差异可达 200%，应逐维做 Platt 缩放。[Confidence Calibration in VLA, arXiv:2507.17383](https://arxiv.org/abs/2507.17383) 另一篇 EMNLP 2026 论文发现 VLM 的口头置信度与其推理轨迹几乎无关——反复自我纠正、最终答错，仍报告高置信，而 ECE、AUROC 检测不到这一问题。[The Mirage of Calibrated Confidence, arXiv:2609.18453](https://arxiv.org/abs/2609.18453) 两者都提醒：**置信度必须在目标任务、目标阶段上单独校准和检验**。
-- 更早的两项经典工作仍是必读：**KnowNo** 用共形预测为 LLM 规划器的多选动作构造预测集，在集合不唯一时向人求助，给出统计意义上的成功率保证 [KnowNo, arXiv:2307.01928](https://arxiv.org/abs/2307.01928)；**PriDe** 系统揭示了 LLM 做选择题时的选项 ID 偏差，并提出无标注的先验去偏方法 [PriDe, arXiv:2309.03882](https://arxiv.org/abs/2309.03882)——AnyJev 的循环移位与先验除法正是这一思路的延续。
-
-这些工作共同指向：**减少自由生成，把度量与安全交回代码，用经过校准的置信度决定何时升级**。System One 模型是这个方向的下一步——连“做判断”的模型也不再需要生成能力。
-
-### 4.5 已有的具身 demo
-
-目前所有 Jev 机器人 / 驾驶用例都来自社区项目，证据等级低，但架构上有参考价值。
-
-| 项目 | 平台 | Jev 负责什么 | 报告结果 | 局限 |
-|---|---|---|---|---|
-| [JEV_SMARTROBOTCONTROL](https://github.com/mahajanparth/JEV_SMARTROBOTCONTROL) | ROS 2 Humble + Gazebo，TurtleBot3，AMCL + Nav2 | 约 5 Hz 监督 Nav2：继续 / 暂停 / 重规划 / 定位恢复（原地转 / 全局重定位 / 后退再转）/ 求助 | 定位恢复与安全兜底可演示；129 项测试中 127 项通过 | 相似房间中 AMCL 仍会收敛错误；未上真机 |
-| [jev_navigation](https://github.com/NOPLAB/jev_navigation) | ROS 2 Humble，差速底盘 | 本地视觉决策模型 decider-2b-vision 在 7 个候选（5 条弧线 + 停止 + 到达）中选择 | 20 Hz 控制，指令 0.8 s 过期 | **无激光避障、无足迹碰撞检查**；GPU 与实机未验证 |
-| [jev_fsd](https://github.com/BrendanH18/jev_fsd) | OpenStreetMap 城市驾驶仿真 | 在最多 16 个经 3 秒前向模拟过滤的机动中选择 | 约 130 ms、$0.00008 / 决策 | 作者自称 demo；无基准、无复现 |
-| [jev-drone](https://github.com/RomanSlack/jev-drone) | MuJoCo 四旋翼 | 约 2.5–3 Hz：绕左 / 绕右 / 爬升 / 刹车 / 重捕获，风险与目标丢失概率 | 中位约 0.11 s；单次运行跑完课程 | 单次运行；三种子对比中无优势 |
-| [Embodied Jev](https://github.com/FBddcz/embodied-jev) | MuJoCo Franka 机械臂 | 分层选择子目标与 XYZ 方向 / 步长 / 夹爪 | Meta-World 层 Jev 5/6，与 GPT-6 持平；精细放置不稳 | 单种子；仅仿真 |
-| [JevPilot](https://github.com/standardagents/jevpilot) | Three.js 驾驶仿真 | 选择候选路径与速度 | — | 动力学由本地代码负责 |
-
-**JEV_SMARTROBOTCONTROL** 是目前与室内导航最贴近的 Jev 项目，也把“谁拥有运动控制权”这件事做得最清楚：[项目 README](https://github.com/mahajanparth/JEV_SMARTROBOTCONTROL)
-
-- Jev 读 JSON 状态快照，回答一个 `action` Choice（每个动作附带判据说明），有安全局部目标时再回答一个 `target` Choice；动作置信度低于 20% 不执行；
-- 一个**命令桥**强制运动控制权互斥（`NAV` / `RECOVERY` / `NONE`），并让过期命令自动失效；Jev 监督 Nav2 但**不能越权驾驶**，只能决定暂停、恢复或重规划；
-- 定位丢失时取消导航，请 Jev 选择恢复动作，恢复后由 Jev 判断是否继续；定位质量连续 2 s 达标（不确定度 < 0.35、扫描与地图一致度 ≥ 0.85）即提前结束恢复；
-- 20 Hz 障碍过滤独立于 Jev：包络被挡、激光覆盖无效或里程计过期时减速或停车，阻塞 15 s 请求人工。
-
-**jev_navigation** 则是路径 B 的第一个实例：单个 ROS 节点把相机帧发给本地推理服务，decider-2b-vision 在 5 条预设弧线（直行、半径 1 m 的两条缓弯、半径 0.5 m 的两条急弯）、停止和到达共 7 个候选中选择，候选路径锚定到当前里程计位姿，用 0.2 m 前视距离的纯追踪跟踪；同一时间只有一个推理请求在途，新帧替换旧帧，0.8 s 无新结果则指令失效。[项目 README](https://github.com/NOPLAB/jev_navigation) 作者直言其缺陷：**没有 `/scan` 检查和独立避障，模型概率不是碰撞概率，弧线未做足迹与盲区检查**——这恰好是一份“视觉 System One 决策头必须配什么”的反面清单。
-
-**jev_fsd** 最完整地展示了一套可迁移的架构：代码负责感知并提出候选，向前模拟 3 秒剔除碰撞、越界、闯灯的候选，Jev 在幸存候选中选择；超时、无效输出或请求失败时回退到规则驾驶，等待网络期间车辆继续执行上一次选择。
-
-**jev-drone** 的分层最接近可辩护的机器人架构：
-
-| 层 | 频率 | 职责 |
-|---|---|---|
-| 几何控制 | 500 Hz | 姿态与推力 |
-| 引导与安全反射 | 50 Hz | 避障，可否决 Jev |
-| 相机 → 符号场景 | 15 Hz | 深度 / 分割 → JSON |
-| Jev 战术判断 | 约 2.5–3 Hz | 离散机动选择 + 概率 |
-
-作者同样保留了关键的不利证据：Jev 那一列只是**单次运行**，早期三种子对比中 **Jev 没有优势**，运行方差很大；更激进的隧道实验中位延迟 0.118 s、p90 0.164 s，但仍不能稳定通过全程。
-
-**Embodied Jev** 把 Jev 用在操作任务上，结果提示了一个重要边界：在“预设技能”层面 Jev 与 GPT-6 相当，但让它逐步选择 XYZ 小步移动时，两次搬运虽到达终点却在释放时掉落物体——**离散化越细、越接近连续控制，System One 决策头越吃力**。
-
-这些 demo 支持的结论是：System One 模型可以作为实时系统中的**低频战术判断器**，“异步 + 回退 + 安全否决”的架构可行。它们**不**支持：Jev 能做视觉导航、可替代经典控制器，或已证明能提升通用机器人性能。
-
-### 4.6 从 Jev-Mem 到导航 Agent：让 Jev 管理记忆
-
-前面的导航讨论主要关注“下一步选哪个动作”，但长期运行的 Agent 还要决定“下一步查什么历史”。**Jev-Mem 把记忆管理中的高频判断交给 Jev，再由 System Two 综合证据回答问题**。它是使用 Jev 的 Agent 记忆架构，未提供具身导航验证。[论文](https://arxiv.org/abs/2609.23986)；[作者代码](https://github.com/libingzheren/Jev-Mem)
-
-其核心分工是：写入时保留原始观测及来源，由 Jev 判断记忆类型和候选关系；读取时由 Jev 路由查询、分配检索预算、评估候选及证据，决定是否继续扩展。共享记忆包含语义、时间、因果和实体四类关系。**“停止检索”并不等于“证据充分”**，也可能是继续搜索收益低或预算耗尽。[方法说明](https://arxiv.org/html/2609.23986v1)
-
-作者在 LoCoMo 长期对话问答上使用 GPT-4o-mini 作为回答模型，报告总体 LLM-as-a-Judge 得分 0.777（MAGMA 为 0.700）；构建耗时 158 s（Nemori 为 1,044 s）；平均查询延迟 0.93 s（MAGMA 为 1.47 s）。其中查询延迟包含检索与答案生成，三项比较也并非都针对同一基线。它们衡量的是对话记忆系统，不能换算成导航成功率或控制频率。[作者结果表](https://github.com/libingzheren/Jev-Mem#results-on-locomo)
-
-**以下是本文提出的导航迁移方案，尚待实验验证。** 可以把一次导航经历保存为带时间、地点 ID 和观测来源的记录，再让 Jev 在有限候选中判断相关性：
-
-| 导航 Agent 面临的问题 | 可交给 Jev 的有界判断 | 仍由其他模块负责 |
-|---|---|---|
-| “刚才在哪个房间见过杯子？” | 哪些观测与杯子及当前任务相关，是否要查更早记录 | 视觉识别、定位与原始观测保存 |
-| “这个门口是不是已经来过？” | 候选历史记录是否有语义关联 | 地点匹配、回环检测与拓扑一致性 |
-| “上次绕路的原因还成立吗？” | 旧记录是否与本次重规划相关，是否缺少新证据 | 当前障碍检测、地图更新与可通行性验证 |
-| “历史信息够不够支持下一子目标？” | 继续检索、请求新观测，或升级给 VLM / LLM | 子目标规划、候选生成与执行 |
-
-例如，机器人接到“回到刚才看见杯子的房间”时，可以先从记忆库找出候选观测，再让 Jev 筛选与任务相关的记录；规划器结合当前地图生成返程候选，最后经过安全检查执行。这样，Jev 既可参与**行动前的证据选择**，也可参与**候选动作比较**，两处调用应分别记录成本与错误。
-
-迁移时尤其要保留时间戳与来源：十分钟前的“门开着”只能作为历史证据，不能替代当前可通行性检查。预算耗尽也必须显式返回“证据不足”，避免把记忆检索的停止信号误接成导航的到达信号。
-
-## 5. 如何验证：latency–accuracy–safety 联合评测
-
-### 5.1 核心假设与反证条件
-
-> **在相同的感知、候选生成、安全盾和控制器下，用 System One 决策头替代自回归 VLM / LLM 做闭集战术决策，能否在可接受的 SR / SPL 损失内，显著改善 P50 / P95 决策延迟、成本、超时率与长回合稳定性？**
-
-反证条件：若在控制感知与候选生成后，System One 决策头的 SR / SPL 显著低于非推理 LLM，且延迟收益被感知与通信开销淹没，则假设不成立。
-
-### 5.2 最小实验矩阵
-
-| 维度 | 设置 |
+| 项目 | 最小设置 |
 |---|---|
-| 决策头 | 规则 / 托管 Jev / 本地视觉 System One（Visual Jev 式：开源 VLM + 导航数据 LoRA + 前缀共享读出）/ AnyJev 读出 / 小型分类器 / 小 LLM 生成式级联 / 推理 VLM |
-| 延迟处理 | 阻塞等待 / 沿用上一决策 / Slow Brain 式轨迹级衰减融合 |
-| 接口 | 绝对坐标或角度 / 候选比较 / verifier-first |
-| 输入 | 纯几何 JSON / 几何 + 语义标签 / 再加压缩历史 / 画了候选的 RGB（仅视觉决策头） |
-| 记忆控制（独立消融） | 无记忆 / 固定 top-k 检索 / LLM 控制检索 / Jev 控制检索；固定观测库、感知与动作策略 |
-| 决策位 | waypoint、转向、进展、停止、目标丢失、重规划 |
-| 任务指标 | SR、SPL、NE、碰撞率、错误停止率 |
-| 系统指标 | P50 / P95 端到端延迟；每 episode 调用数与成本；fallback 率与 stale-decision 率 |
-| 校准指标 | ECE、Brier、AURC |
+| 任务材料 | 从 R2R-CE 回放中提取接近目标、相似地点与证据不足的片段；分别标注客观完成状态与给定输入下的证据充分性 |
+| 固定项 | 指令、当前语义状态、历史窗口、状态生成器；闭环阶段固定选路策略与控制器 |
+| 改变项 | 规则、小型分类器、小 LLM、Jev 的判断模块；统一使用“完成 / 未完成 / 证据不足”的输出契约 |
+| 拒绝后的处理 | 证据不足统一进入预设复核流程；仍不能确认时继续原策略，超过预算记为未完成，不由各模型自由增加工具 |
+| 主要观察 | 错误停止率、到达后漏判与额外步数、复核率、端到端延迟；闭环再测 SR / SPL 和总耗时 |
+| 不支持主张的情形 | 错误停止超过预设容忍范围；频繁复核导致无法完成；或额外状态构建与调用抵消提速 |
 
-三个基线尤其重要：**小型分类器**——如果它就能达到 Jev 的准确率和延迟，Jev 的优势只剩“免训练”；**AnyJev 读出**——它回答“托管 Jev 的专门训练到底比‘开源 LLM + 去偏读出’多带来多少”；**小 LLM 生成式级联**——REFLEX 已显示，当廉价级联本身足够准时，Jev 的额外收益很小。
+客观完成状态由任务条件与环境真值确定，真值仅供评价，不进入模型输入。证据充分性由独立标注者按预定义依据判定，不使用待测模型自标。即使机器人实际上已经到达，给定图像或语义状态也可能不足以确认；这类样本用于检查拒绝是否合理，不能只按“未输出完成”统计为普通分类错误。闭环中则仍需统计拒绝造成的延误与未完成。
 
-### 5.3 必做的压力测试
+Jev 可以用包含“证据不足”的 Choice 表达这一契约。若另测 Noul 加阈值的版本，应作为独立接口消融，在验证集上选阈值；不能把 Choice 的最大概率和 Noul 概率直接套用同一阈值。
 
-- **状态长度与无关噪声**：逐步加长历史与无关字段，测准确率退化曲线；
-- **候选顺序与命名**：打乱顺序、更换标签（如“候选 A”与“左侧门口”），检验位置与命名偏差——独立测试中仅改选项名就改变了 32.5% 的答案；
-- **无证据时的置信度**：删去关键观测字段，检查模型是否仍高置信作答；
-- **否定与双重否定**：“不要进厨房”一类指令；
-- **中英文指令对照**：Jev 官方承认中文效果打折；
-- **对抗文本**：标牌 OCR、指令中的注入内容；
-- **网络抖动与断网**：验证 fallback 与 stale-decision 处理；
-- **模型版本漂移与重复调用稳定性**；
-- **记忆过期与矛盾**：门的开闭变化、物体被移动、相似房间误关联；测相关证据召回率、错误关联率、检索耗时，以及对 SR / SPL 的影响；
-- **置信度阈值迁移**：一个场景集上定的阈值能否迁移到另一个。
+先在回放中检查错误类型，再用同一组闭环任务检验是否改变最终结果。下一步才扩展到候选路点比较：固定 3–8 个经几何过滤的候选，比较选择与拒绝。不要在首个实验中同时改变终止判断、候选生成和选路模型。
 
-最后一条原则需要单独强调：**不能把 `confidence` 直接解释为“碰撞安全概率”**，它只是输出分布的统计量，第 2.6 节的独立评测也显示其校准因任务而异。安全保证必须来自确定性的安全盾。
+### 5.3 实验二：固定记忆库上的目标证据检索
 
-### 5.4 从哪里开始
+**研究问题：** 对“回到刚才见过杯子的房间”这类指令，Jev 控制检索能否在保持证据质量的同时减少查询开销，或减少目标地点关联错误？
 
-在 Habitat R2R-CE 或 OpenNav 子集上实现统一候选接口，先做两个最小实验：
+| 项目 | 最小设置 |
+|---|---|
+| 任务材料 | 带地点、时间、视角与来源的固定导航历史；包含相似房间、重复物体、过期状态和无答案查询 |
+| 固定项 | 观测库、索引、检索工具、最大访问预算及相同查询的返回结果；首轮候选一致，后续允许在同一工具与预算内自适应查询 |
+| 改变项 | 固定 top-k、时间 / 地点规则流程、小 LLM 与 Jev 的查询选择、证据筛选和继续检索判断 |
+| 参考标注 | 目标地点、支持记录、冲突记录与是否有足够答案；无答案项单独统计 |
+| 主要观察 | 证据召回、目标地点识别、无答案误判、查询次数与端到端成本；后续闭环测错误返回与任务耗时 |
+| 分层判定 | 关键证据遗漏导致质量越过容忍范围，不支持保持质量；查询开销未降低，不支持提效；只有检索改进而没有目标识别或返回收益，只能支持检索层结论 |
 
-1. **停止判断**：`Noul("是否已到达指令描述的目标")`；
-2. **候选比较**：给定 3–8 个经几何过滤的候选路点及其语义描述（或画在图上），做 `Choice`。
+结果应区分两层：找到支持记录是检索收益，正确返回才是导航收益。闭环阶段固定行动模块，并把所有查询的开销计入任务总成本。记忆构建成本与查询成本分别记录，长期任务再按实际使用次数汇总。
 
-这两个决策位输入短、输出闭集，正是 System One 模型最应占优的场景；如果在这里都看不到收益，就没有必要往复杂场景推进。同时以固定种子复现 `jev_fsd` 与 `jev-drone` 的基线，而不是只看演示视频。
+**记忆更新作为后续独立实验。** 首轮冻结记忆库，是为了先识别检索控制的贡献。更新实验固定检索与动作策略，重放同一批新观测，比较规则更新与模型辅助关联更新；检查错误合并、过期状态引用、证据来源保留，以及下一轮检索表现。再进行闭环测试，避免用不同机器人轨迹产生的记忆库直接比较更新能力。
+
+### 5.4 实验三：固定模块下的下一步操作选择
+
+**研究问题：** 当前信息不足时，根据证据缺口选择下一操作，能否比固定流程和单一置信度门控更有效？
+
+| 项目 | 最小设置 |
+|---|---|
+| 起始任务 | 从导航回放构造视觉遮挡、历史地点歧义、通路失效与指令冲突片段；保留近期操作与结果 |
+| 固定项 | 行动、检索、补看、重规划 / 深度推理模块及其实现；相同可用证据、超时规则与总预算 |
+| 改变项 | 固定流程、规则门控、轻量学习型路由器、小 LLM 与 Jev 调度 |
+| 控制权限 | 调度器只选允许的下一操作；不能临时增加工具或更换更强执行模块 |
+| 主要观察 | 闭环成功率与总耗时、各模块调用数、无进展轮数、预算耗尽比例 |
+| 不支持主张的情形 | 收益只在增加预算或工具后出现；调度调用抵消节省；或循环检索、推理导致停滞 |
+
+离线标注可说明某种信息缺口适合哪些操作，但**不应强行指定唯一最优下一步**。例如，地点歧义可能通过回查图像或获得新视角解决；是否有效还取决于代价与实际观测。离线结果用于筛查明显错误，最终以相同预算下的闭环结果判断。
+
+预算既包括调用与 token，也包括观察动作和运动耗时。补看能获得新信息，但并非免费；同样的工具调用次数也未必代表相同成本。主实验先固定一组预算，再在扩展实验中绘制质量随预算变化的曲线。
+
+### 5.5 扩展实验：压力测试与模块组合
+
+三个最小实验中，已经暴露的失败可以用对应压力测试定位，不必一开始就覆盖所有组合。
+
+| 适用方向 | 扰动或扩展 | 需要解释的问题 |
+|---|---|---|
+| 共同 | 候选换序、保持语义的标签改名、中英文、否定指令、无关历史与 OCR 注入 | 判断依赖有效证据，还是位置、措辞与无关内容？ |
+| 行动 | 删除关键观测、相似目标、跨场景阈值迁移 | 模型能否识别证据不足，拒绝是否导致过度停滞？ |
+| 记忆 | 门状态变化、物体移动、相似房间、矛盾来源 | 是召回失败、错误关联，还是使用了过期状态？ |
+| 调度 | 连续无进展、模块失败、不同预算 | 能否改变无效策略，并在预算耗尽时按协议退出？ |
+| 系统 | 网络抖动、断网、版本变化与重复调用 | 回退与过期结果处理是否改变任务质量和总延迟？ |
+
+异步轨迹融合、原始 RGB 与语义状态的对照、导航数据适配，以及不同机载设备上的部署，应在基础结果明确后分别开展。复现 4.5 的社区项目可帮助检查接口与执行实现，但不作为完成三个最小实验的前置条件。
+
+最后再组合模块。若某个单模块有效，先加入下一个模块，并保留“仅行动判断”“仅记忆控制”等对照；只有需要解释交互时，再扩大组合消融。重点检查收益是否依赖额外证据、调用或预算，以及错误记忆是否经调度和行动反复放大。
 
 ## 6. 结论
 
-1. **Jev 是一种新的调用形态，而不只是一个更快的模型。** 它把“短、频繁、有界”的判断从生成式模型里剥离出来，变成单次前向的概率接口；速度优势已被第三方基本复现，校准质量则因任务而异。
-2. **训练细节不透明，但形态可复现。** RLCD 只有名字与目标；Laya、AnyJev、minojev 与 Open-Jev 论文证明，“骨干 + 候选集读出 + 校准”在开源模型上可做到窄领域追平甚至超过，差距在零样本泛化；而且准确率来自领域微调，不来自接口本身。
-3. **多模态由派生模型补上。** Laya Vision、PlayJev、Visual Jev、PixelJev 把 System One 形态搬到了视觉上，本地延迟 30–65 ms，多问题共享视觉前缀还能再快数倍；decider-2b-vision 已被接进 ROS 2 局部路径选择。这对机载部署比托管 Jev 更有吸引力。
-4. **在具身导航中，它的位置是战术 / 语义层，也可探索 Agent 记忆控制。** 感知、几何、候选生成、安全与控制留在本地；System One 决策头比较已验证的候选、判断风险、决定是否升级。C²Nav、VerNav、O2C-Nav 支持候选比较与验证接口；Jev-Mem 则提供了记忆管理的通用 Agent 先例，其导航收益仍需独立验证。
-5. **架构上合理，证据上未知。** 现有具身 demo 都是单次或单种子仿真，没有 VLN 基准结果。它值得的是一组对照严格的 latency–accuracy–safety 实验，而不是对厂商倍数的复述。
+**最适合先验证的是边界明确的行动判断。** 从到达与拒绝开始，固定证据和执行模块，才能检验 Jev 是否在保留任务质量时减少开销。有界接口便于程序使用，但实际收益取决于判断质量、状态构建和复核成本。
 
-## 7. 后续跟踪
+**值得进一步深入的是带空间、时间与来源约束的记忆控制。** Jev-Mem 提供了通用 Agent 的先例；导航中的关键扩展是正确关联地点、区分历史与当前状态，并让行动反馈修正后续检索。研究贡献需要体现在证据质量与返回任务上，而不止于更快地检索文本。
 
-- TypeSafe 是否公开技术报告、模型卡、RLCD 与并行采样细节，以及是否推出多模态版本；
-- 视觉 System One 派生模型是否出现导航 / 具身数据上的训练与评测；
-- 独立的校准、顺序偏差、命名偏差与重复稳定性研究；
-- `jev_fsd`、`jev-drone`、Embodied Jev 的固定种子复现；
-- R2R-CE / OpenNav 上停止判断与候选比较两个最小实验的结果。
+**完整 Agent 最难的是判断下一次操作是否值得。** 感知、记忆、规划与推理应提供互补证据；调度器需要在预算内促成进展，并处理错误传播和无效循环。本文因此建议按行动、记忆、调度逐步验证，再研究组合，而不是由接口演示直接推断完整导航能力。
+
+### 持续跟踪
+
+- TypeSafe 的架构、RLCD、模型版本与多模态进展，以及独立的校准和鲁棒性证据。
+- 固定协议下的导航实验与社区复现，尤其是状态构建、通信和回退计入后的端到端结果。
+- 空间记忆更新与模块调度在长期任务中的效果，以及单模块收益能否延续到组合系统。
 
 ## 参考资料
 
-**官方**
+**官方资料与入门解读**
 
 1. TypeSafe AI. *Introducing System One Models and Jev*. [typesafe.ai/blog](https://typesafe.ai/blog/introducing-system-one-models-and-jev)
 2. TypeSafe AI. 官网与 workflow eval：[typesafe.ai](https://typesafe.ai/)；[evals.typesafe.ai](https://evals.typesafe.ai/)
 3. TypeSafe Docs：[Introduction](https://docs.typesafe.ai/introduction)、[Models](https://docs.typesafe.ai/models)、[Primitives](https://docs.typesafe.ai/primitives)、[State](https://docs.typesafe.ai/concepts/state)、[System One](https://docs.typesafe.ai/concepts/system-one)、[Jaggedness: jev-1.13](https://docs.typesafe.ai/model-jaggedness/jev-1.13)
-4. MindStudio. *Jev Explained*. [mindstudio.ai](https://www.mindstudio.ai/blog/jev-system-one-model-launch)
+4. 第三方入门解读：MindStudio. *Jev Explained*. [mindstudio.ai](https://www.mindstudio.ai/blog/jev-system-one-model-launch)
 
 **派生模型**
 
 5. Laya. [NandhaKishorM/laya](https://github.com/NandhaKishorM/laya)
-6. AnyJev. [MorrisZJ/AnyJev](https://github.com/MorrisZJ/AnyJev)
+6. AnyJev. [nokia-applied-research/AnyJev](https://github.com/nokia-applied-research/AnyJev)
 7. minojev. [zeredy879/minojev](https://github.com/zeredy879/minojev)
 8. Laya Vision. [r33drichards/laya-vision](https://github.com/r33drichards/laya-vision)
 9. PlayJev. [OmniJev/PlayJev](https://github.com/OmniJev/PlayJev)
@@ -719,9 +816,9 @@ Jev 只接受文本。对需要“看”的任务，社区走出了两条路：
 21. Wu, Lim. *REFLEX with Jev for Efficient Selective Control in LLM Agents*. [arXiv:2609.26532](https://arxiv.org/abs/2609.26532)
 22. dos Santos. *Calibrated Decision Models for Autonomous Penetration-Testing Harnesses: JEV and Laya as System One Decision Layers*. [arXiv:2609.28940](https://arxiv.org/abs/2609.28940)
 
-**独立评测**
+**独立评测与资料汇总**
 
-23. [Jev After Eight Days of Independent Tests](https://dev.to/aws-builders/jev-after-eight-days-of-independent-tests-level-with-mid-price-llms-behind-the-frontier-1c60)
+23. 多来源评测综述（非单项实验）：[Jev After Eight Days of Independent Tests](https://dev.to/aws-builders/jev-after-eight-days-of-independent-tests-level-with-mid-price-llms-behind-the-frontier-1c60)
 24. [Convex Decision Evals](https://github.com/get-convex/convex-evals)
 25. [Jev vs Laya: Same Labels, Same Questions](https://anth.us/blog/jev-vs-laya/)
 26. [Nautilus 校准研究](https://github.com/chunxiaoxx/nautilus-compass)
