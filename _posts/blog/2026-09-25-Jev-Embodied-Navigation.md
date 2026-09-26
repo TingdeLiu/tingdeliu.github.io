@@ -34,61 +34,61 @@ Jev 是否适合导航，不能只看调用速度。其原生输入只有文本�
 
 ## 2. Jev 是什么：接口、机制与证据边界
 
-**Jev 是一种专门做判断的模型：你提供当前情况和问题，它直接返回选项、评分或命题概率，供程序使用。**
+**Jev 是面向程序的决策模型：给它信息和预先定义的问题，它返回可直接使用的判断结果及概率。**
 
-先看一个例子。机器人接到指令：“到会议室门口停下。”感知模块识别到左侧门牌写着“会议室”，右侧走廊通向茶水间；规划器已经给出三个可执行选项：**前往左侧门口、沿右侧走廊前进、原地补看**。
+先看一个客服工单分类的例子。用户发来消息：“**订单显示已经送达，但我没有收到包裹。**”系统需要判断这条消息属于哪一类：**物流问题、退款申请、商品咨询**。
 
-程序把这些信息整理成文字，交给 Jev 问：“下一步选哪个？”Jev 可以返回一个选项及各候选的概率，程序读取结果，再交给执行模块处理。下面用一组构造的数值说明这个过程，**并非实际调用结果**。
+程序把用户消息和三个类别交给 Jev，询问：“这条消息的主要诉求属于哪一类？”Jev 返回选中的类别及各类别概率，程序据此将工单转交相应客服。下面用一组构造的数值说明这个过程，**并非实际调用结果**。
 
 <div align="center">
 <svg viewBox="0 0 780 410" width="100%" style="max-width:780px;font-family:sans-serif" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="jev-contract-title jev-contract-desc">
-  <title id="jev-contract-title">一个例子看懂 Jev：根据当前证据，选择下一步</title>
-  <desc id="jev-contract-desc">任务是到会议室门口停下。应用输入文字状态：左侧门牌为会议室，右侧通向茶水间，并提供左侧门口、右侧走廊和原地补看三个候选。Jev 返回左侧门口，示例概率分别为 0.85、0.05、0.10。程序检查后执行。所有概率均为示意，非实测结果。</desc>
+  <title id="jev-contract-title">一个例子看懂 Jev：判断客服工单属于哪一类</title>
+  <desc id="jev-contract-desc">用户消息为：订单显示已经送达，但我没有收到包裹。程序提供物流问题、退款申请、商品咨询三个类别。Jev 返回物流问题，示例概率分别为 0.85、0.05、0.10。程序据此将工单转交物流客服。所有概率均为示意，非实测结果。</desc>
   <defs><marker id="jevExampleArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker></defs>
   <rect x="1" y="1" width="778" height="408" rx="12" fill="#f8fafc" stroke="#e2e8f0"/>
-  <text x="390" y="29" text-anchor="middle" font-size="17" font-weight="bold" fill="#1e293b">一个例子看懂 Jev：下一步选哪个？</text>
-  <text x="390" y="54" text-anchor="middle" font-size="14" fill="#475569">任务：到会议室门口停下</text>
+  <text x="390" y="29" text-anchor="middle" font-size="17" font-weight="bold" fill="#1e293b">一个例子看懂 Jev：这条工单分到哪一类？</text>
+  <text x="390" y="54" text-anchor="middle" font-size="14" fill="#475569">用户消息 + 预设类别 → Jev 判断 → 程序分流</text>
   <rect x="20" y="76" width="280" height="230" rx="10" fill="#fff7ed" stroke="#fdba74"/>
-  <text x="38" y="104" font-size="15" font-weight="bold" fill="#9a3412">① 应用提供文字状态与候选</text>
-  <text x="38" y="136" font-size="14" fill="#334155">左侧门牌：“会议室”</text>
-  <text x="38" y="160" font-size="14" fill="#334155">右侧走廊：通向茶水间</text>
+  <text x="38" y="104" font-size="15" font-weight="bold" fill="#9a3412">① 输入用户消息与预设类别</text>
+  <text x="38" y="136" font-size="14" fill="#334155">“订单显示已经送达，</text>
+  <text x="38" y="160" font-size="14" fill="#334155">但我没有收到包裹。”</text>
   <line x1="38" y1="177" x2="282" y2="177" stroke="#fed7aa"/>
-  <text x="38" y="204" font-size="14" fill="#334155">A　前往左侧门口</text>
-  <text x="38" y="232" font-size="14" fill="#334155">B　沿右侧走廊前进</text>
-  <text x="38" y="260" font-size="14" fill="#334155">C　原地补看</text>
-  <text x="38" y="289" font-size="12" fill="#9a3412">问题：哪个选项有助于完成任务？</text>
+  <text x="38" y="204" font-size="14" fill="#334155">A　物流问题</text>
+  <text x="38" y="232" font-size="14" fill="#334155">B　退款申请</text>
+  <text x="38" y="260" font-size="14" fill="#334155">C　商品咨询</text>
+  <text x="38" y="289" font-size="12" fill="#9a3412">问题：这条消息主要属于哪一类？</text>
   <path d="M308,190 L334,190" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#jevExampleArrow)"/>
   <rect x="342" y="151" width="106" height="80" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
   <text x="395" y="183" text-anchor="middle" font-size="24" font-weight="bold" fill="#1e40af">Jev</text>
-  <text x="395" y="210" text-anchor="middle" font-size="13" fill="#1e40af">② 比较选项</text>
+  <text x="395" y="210" text-anchor="middle" font-size="13" fill="#1e40af">② 判断类别</text>
   <path d="M456,190 L482,190" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#jevExampleArrow)"/>
   <rect x="490" y="76" width="270" height="230" rx="10" fill="#ffffff" stroke="#93c5fd"/>
-  <text x="508" y="104" font-size="15" font-weight="bold" fill="#1e40af">③ 返回选项及候选概率</text>
-  <text x="508" y="133" font-size="15" font-weight="bold" fill="#166534">选中：A · 左侧门口</text>
-  <text x="508" y="163" font-size="13" fill="#334155">A　左侧门口</text>
+  <text x="508" y="104" font-size="15" font-weight="bold" fill="#1e40af">③ 返回类别及各类别概率</text>
+  <text x="508" y="133" font-size="15" font-weight="bold" fill="#166534">选中：A · 物流问题</text>
+  <text x="508" y="163" font-size="13" fill="#334155">A　物流问题</text>
   <text x="741" y="163" text-anchor="end" font-size="13" fill="#166534">0.85</text>
   <rect x="508" y="173" width="232" height="9" rx="4" fill="#f1f5f9"/>
   <rect x="508" y="173" width="197.2" height="9" rx="4" fill="#22c55e"/>
-  <text x="508" y="209" font-size="13" fill="#334155">B　右侧走廊</text>
+  <text x="508" y="209" font-size="13" fill="#334155">B　退款申请</text>
   <text x="741" y="209" text-anchor="end" font-size="13" fill="#475569">0.05</text>
   <rect x="508" y="219" width="232" height="9" rx="4" fill="#f1f5f9"/>
   <rect x="508" y="219" width="11.6" height="9" rx="4" fill="#94a3b8"/>
-  <text x="508" y="255" font-size="13" fill="#334155">C　原地补看</text>
+  <text x="508" y="255" font-size="13" fill="#334155">C　商品咨询</text>
   <text x="741" y="255" text-anchor="end" font-size="13" fill="#475569">0.10</text>
   <rect x="508" y="265" width="232" height="9" rx="4" fill="#f1f5f9"/>
   <rect x="508" y="265" width="23.2" height="9" rx="4" fill="#94a3b8"/>
   <text x="625" y="293" text-anchor="middle" font-size="11" fill="#64748b">示意结果，非实测；非完整 API 响应</text>
   <path d="M625,309 L625,332" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#jevExampleArrow)"/>
   <rect x="490" y="340" width="270" height="50" rx="10" fill="#dcfce7" stroke="#86efac"/>
-  <text x="625" y="361" text-anchor="middle" font-size="14" font-weight="bold" fill="#166534">④ 程序检查后执行</text>
-  <text x="625" y="381" text-anchor="middle" font-size="12" fill="#166534">由规划与控制模块前往左侧门口</text>
-  <text x="24" y="354" font-size="14" fill="#334155">感知提供证据，规划器提供候选，</text>
-  <text x="24" y="380" font-size="14" font-weight="bold" fill="#1e40af">Jev 判断选哪个，执行模块负责移动。</text>
+  <text x="625" y="361" text-anchor="middle" font-size="14" font-weight="bold" fill="#166534">④ 程序按类别分流</text>
+  <text x="625" y="381" text-anchor="middle" font-size="12" fill="#166534">将工单转交物流客服</text>
+  <text x="24" y="354" font-size="14" fill="#334155">程序提供消息和可选类别，</text>
+  <text x="24" y="380" font-size="14" font-weight="bold" fill="#1e40af">Jev 返回判断，程序据此分配工单。</text>
 </svg>
-<figcaption>图 1　从文字状态到程序可用的判断：以“到会议室门口停下”为例。候选概率为构造示意。</figcaption>
+<figcaption>图 1　用户消息与预设类别输入 Jev，返回的分类结果供程序分流。概率为构造示意。</figcaption>
 </div>
 
-**Jev 负责根据证据比较选项；感知模块提供环境信息，规划器提供候选，执行模块负责实际移动。** 这个例子展示的是 Choice；评分和命题判断则分别由 Score 与 Noul 表达，下面再展开它们的接口。
+**在这个例子中，Jev 负责判断工单类别，程序负责分配工单。** 分类只是其中一种用法：Jev 还支持按预设等级评分、判断命题是否成立，分别对应下面的 Choice、Score 与 Noul。第 4 章再讨论这些判断如何用于导航。
 
 ### 2.1 从生成回答到返回有界决策
 
@@ -96,28 +96,28 @@ Jev 是否适合导航，不能只看调用速度。其原生输入只有文本�
 
 调用 Jev 时，应用提供 `state`，并通过问题定义可能的答案。模型返回结果，代码再决定如何使用。其三种原语如下：
 
-| 原语 | 问题形式 | 主要返回值 | 导航中的示意用途 |
+| 原语 | 问题形式 | 主要返回值 | 客服场景中的示意用途 |
 |---|---|---|---|
-| `Choice` | 在给定选项中选一个，最多 255 项 | 选中项、完整概率分布、`confidence` | 比较候选观察点 |
-| `Score` | 按有序、带文字描述的等级评分，最多 10 级 | 等级位置的概率加权均值、各级概率、`confidence` | 按预定义等级评估进展 |
-| `Noul` | 判断一个命题 | 命题为真的概率；无独立 `confidence` 字段 | 判断观测是否支持到达条件 |
+| `Choice` | 在给定选项中选一个，最多 255 项 | 选中项、完整概率分布、`confidence` | 判断工单类别 |
+| `Score` | 按有序、带文字描述的等级评分，最多 10 级 | 等级位置的概率加权均值、各级概率、`confidence` | 按预定义等级评估处理紧急程度 |
+| `Noul` | 判断一个命题 | 命题为真的概率；无独立 `confidence` 字段 | 判断用户是否明确提出退款 |
 
 `Score` 可以位于两个等级之间。例如等级位置为 0、1、2，概率为 0、0.6、0.4，则 `score = 1.4`，而非必须选中整数等级 1 或 2。这是模型在等级上的分布摘要，不是物理测量值。[Choice](https://docs.typesafe.ai/primitives/choice)；[Score](https://docs.typesafe.ai/primitives/score)；[Noul](https://docs.typesafe.ai/primitives/noul)
 
-同一个会议室场景，按官方字段组织成请求如下。它与图 1 对应，用于说明接口，未实际调用。
+同一个工单分类场景，按官方字段组织成请求如下。它与图 1 对应，用于说明接口，未实际调用。
 
 ```json
 {
   "model": "jev-1.13.0",
-  "state": "目标是在会议室门口外停下。当前仍在走廊，感知模块识别到左侧门牌为会议室，右侧走廊通向茶水间。三个候选均由规划器提供并通过当前可行性检查。",
+  "state": "用户消息：订单显示已经送达，但我没有收到包裹。",
   "questions": {
-    "next_step": {
+    "ticket_category": {
       "type": "choice",
-      "instructions": "哪个候选最有助于当前目标？证据不足时选择补看。",
+      "instructions": "根据用户明确表达的主要诉求，将工单归入最匹配的类别。",
       "criteria": {
-        "left_door": "前往左侧会议室门口外",
-        "right_corridor": "沿右侧走廊前进",
-        "observe": "原地暂停前进并补充观测"
+        "logistics": "物流问题：配送进度、送达状态或包裹未收到",
+        "refund": "退款申请：用户明确要求退还款项",
+        "product": "商品咨询：商品规格、功能或使用方式"
       }
     }
   }
