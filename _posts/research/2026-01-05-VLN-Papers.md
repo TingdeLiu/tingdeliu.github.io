@@ -26,8 +26,8 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 |:-----|:----:|:----:| :--------: |:----:|:-----:|:----:|:-----:|:----:|
  | [Robostral Navigate(单目)](#robostral-navigate) | 2026 | R2R-CE | Mistral-8B | **77.4** | **74.2** | **3.20** | **81.3** | 否 |
  | [Qwen-RobotNav(全景)](#qwen-robotnav) | 2026 | R2R-CE | Qwen3-VL-7B | 72.1 | 66.6 | 3.53 | 78.5 | 否 |
-| [ABot-N1(三相机)](#abot-n1) | 2026 | R2R-CE | Qwen-3.5-4B + 2B | 70.9 | 67.5 | 3.32 | 75.2 | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) |
-| [Image2Nav (180° FOV)](#image2sim) | 2026 | R2R-CE | Qwen3-VL-4B | 70.3 | 65.6 | 3.71 | 76.1 | [是](https://github.com/MrZihan/Image2Sim) | – |
+| [ABot-N1(三相机)](#abot-n1) | 2026 | R2R-CE | Qwen-3.5-4B + 2B | 70.9 | 67.5 | 3.32 | 75.2 | 否 |
+| [Image2Nav (180° FOV)](#image2sim) | 2026 | R2R-CE | Qwen3-VL-4B | 70.3 | 65.6 | 3.71 | 76.1 | [是](https://github.com/MrZihan/Image2Sim) |
 | [GroundingVLN(三相机)](#groundingvln) | 2026 | R2R-CE | Qwen3.5-4B | 69.9 | 64.1 | 3.66 | 74.8 | 否 |
  | [OmniNav(多目)](#omninav) | 2026 | R2R-CE | Qwen2.5-VL-3B | 69.5 | 66.1 | 3.74 | 74.6 | [是](https://github.com/amap-cvlab/OmniNav) |
 | [LightNav-0(单目)](#lightnav-0) | 2026 | R2R-CE | Qwen3-VL-4B | 68.5 | 62.8 | 3.91 | 73.7 | [是](https://github.com/lightorigins/LightNav-0) |
@@ -50,7 +50,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [MemVLN-8B(单目)](#memvln) | 2026 | R2R-CE | Qwen3-VL-8B | 58.4 | 51.2 | 4.98 | 65.3 | 否 |
  | [BudVLN(单目)](#budvln) | 2026 | R2R-CE | LLaVA-1.5-7B | 57.6 | 51.1 | – | – | [是](https://github.com/Beat992/CDC2F) |
  | [StreamVLN(单目)](#streamvln) | 2025 | R2R-CE | LLaVA-Video-7B | 56.9 | 51.9 | 4.98 | 64.2 | [是](https://github.com/OpenRobotLab/StreamVLN) |
-| [DecoVLN(单目)](#decovln) | 2026 | R2R-CE | LLaVA-Video-7B | 56.3 | 50.5 | 5.01 | 63.5 | [是](https://github.com/Allenxinn/DecoVLN) | – |
+| [DecoVLN(单目)](#decovln) | 2026 | R2R-CE | LLaVA-Video-7B | 56.3 | 50.5 | 5.01 | 63.5 | [是](https://github.com/Allenxinn/DecoVLN) |
 | [AgenticNav](#agenticnav) | 2026 | R2R-CE | – | 55.0 | 48.41 | – | – | 否 |
  | [Goal2Pixel(单目)](#goal2pixel) | 2025 | R2R-CE | LLaVA-1.5-7B | 54.1 | 52.5 | 4.85 | 59.9 | 否 |
  | [MapNav(单目)](#mapnav) | 2025 | R2R-CE | LLaVA-Onevision-7B | 53.0 | 39.7 | – | – | [是](https://github.com/linglingxiansen/MapNav) |
@@ -69,7 +69,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [Qwen-RobotNav (全景)](#qwen-robotnav) | 2026 | RxR-CE | Qwen3-VL-7B | **76.5** | 65.7 | 3.58 | – | 否 |
  | [Robostral Navigate (单目)](#robostral-navigate) | 2026 | RxR-CE | Mistral-8B | 75.1 | **68.7** | 3.47 | – | 否 |
 | [GroundingVLN(三相机)](#groundingvln) | 2026 | RxR-CE | Qwen3.5-4B | 75.1 | 62.0 | 3.54 | – | 否 |
-| [ABot-N1(三相机)](#abot-n1) | 2026 | RxR-CE | Qwen-3.5-4B + 2B | 73.9 | 63.9 | **3.13** | – | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) |
+| [ABot-N1(三相机)](#abot-n1) | 2026 | RxR-CE | Qwen-3.5-4B + 2B | 73.9 | 63.9 | **3.13** | – | 否 |
  | [OmniNav (多目)](#omninav) | 2026 | RxR-CE | Qwen2.5-VL-3B | 73.6 | 62.0 | 3.77 | – | [是](https://github.com/amap-cvlab/OmniNav) |
 | [LightNav-0(单目)](#lightnav-0) | 2026 | RxR-CE | Qwen3-VL-4B | 73.6 | 64.5 | 3.66 | – | [是](https://github.com/lightorigins/LightNav-0) |
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | RxR-CE | Qwen3-VL-7B | 73.4 | 63.5 | – | – | 否 |
@@ -87,7 +87,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [JanusVLN (单目)](#janusvln) | 2026 | RxR-CE | Janus-Pro-7B | 56.2 | 47.5 | 6.06 | – | [是](https://github.com/MIV-XJTU/JanusVLN) |
  | [RynnBrain-Nav (单目)](#rynnbrain) | 2026 | RxR-CE | – | 56.1 | – | 4.92 | – | [是](https://github.com/alibaba-damo-academy/RynnBrain) |
  | [GA-VLN (单目)](#ga-vln) | 2026 | RxR-CE | LLaVA-Video-7B | 55.4 | 45.2 | 5.88 | 67.0 | [是](https://github.com/jahhaoyang/GA-VLN) |
-| [DecoVLN(单目)](#decovln) | 2026 | RxR-CE | LLaVA-Video-7B | 54.2 | 46.3 | 5.73 | – | [是](https://github.com/Allenxinn/DecoVLN) | – |
+| [DecoVLN(单目)](#decovln) | 2026 | RxR-CE | LLaVA-Video-7B | 54.2 | 46.3 | 5.73 | – | [是](https://github.com/Allenxinn/DecoVLN) |
 | [HarnessVLN](#harnessvln) | 2026 | RxR-CE | GPT-5.5 | 53.9 | 38.0 | 6.42 | – | 否 |
  | [StreamVLN (单目)](#streamvln) | 2025 | RxR-CE | LLaVA-Video-7B | 52.9 | 46.0 | 6.22 | – | [是](https://github.com/OpenRobotLab/StreamVLN) |
  | [Goal2Pixel (单目)](#goal2pixel) | 2025 | RxR-CE | LLaVA-1.5-7B | 43.8 | 40.4 | 7.50 | – | 否 |
@@ -123,9 +123,9 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 
 | 模型 | 年份 | 基准 | 基模 | SR ↑ | SPL ↑ | 开源 |
 |:-----|:----:|:----:| :--------: |:----:|:-----:|:----:|
-| [ABot-N1(三相机)](#abot-n1) | 2026 | ABotN-PointBench (Indoor) | Qwen-3.5-4B + 2B | **95.4** | **93.7** | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) |
-| [ABot-N1(三相机)](#abot-n1) | 2026 | ABotN-PointBench (Outdoor) | Qwen-3.5-4B + 2B | 92.9 | 91.4 | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) |
-| [ABot-N1(三相机)](#abot-n1) | 2026 | Short-Horizon OVON | Qwen-3.5-4B + 2B | 84.9 | 51.8 | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) |
+| [ABot-N1(三相机)](#abot-n1) | 2026 | ABotN-PointBench (Indoor) | Qwen-3.5-4B + 2B | **95.4** | **93.7** | 否 |
+| [ABot-N1(三相机)](#abot-n1) | 2026 | ABotN-PointBench (Outdoor) | Qwen-3.5-4B + 2B | 92.9 | 91.4 | 否 |
+| [ABot-N1(三相机)](#abot-n1) | 2026 | Short-Horizon OVON | Qwen-3.5-4B + 2B | 84.9 | 51.8 | 否 |
  | [Hydra-Nav (单目)](#hydra-nav) | 2026 | HM3D | Qwen2.5-VL-7B | 84.8 | 28.8 | 否 |
 | [X-NavDP](#x-navdp) | 2026 | IsaacLab 40-Scenes (Point-Goal) | – | 84.28 | 77.19 | [是](https://github.com/InternRobotics/NavDP) |
  | [VLFM (单目)](#vlfm) | 2023 | Gibson | – | 84.0 | 52.2 | [是](https://github.com/rai-opensource/vlfm) |
@@ -136,7 +136,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [LightNav-0(单目)](#lightnav-0) | 2026 | HM3D v2 | Qwen3-VL-4B | 79.5 | 43.7 | [是](https://github.com/lightorigins/LightNav-0) |
  | [VLingNav (单目)](#vlingnav) | 2026 | HM3D-v1 | LLaVA-Video-7B | 79.1 | 42.9 | [是](https://github.com/wsakobe/VLingNav-web) |
  | [NavDP (单目)](/VLN-Papers-Extended/#navdp) | 2025 | Clutter/Intern (Point-Goal) | – | 77.8 | 74.8 | [是](https://github.com/InternRobotics/NavDP) |
-| [ABot-N1](#abot-n1) | 2026 | ABotN-POIBench | Qwen-3.5-4B + 2B | 77.3 | 72.6 | [是](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench) |
+| [ABot-N1](#abot-n1) | 2026 | ABotN-POIBench | Qwen-3.5-4B + 2B | 77.3 | 72.6 | 否 |
 | [HarnessVLN](#harnessvln) | 2026 | HM3D-v2 | GPT-5.6-luna | 76.0 | 37.9 | 否 |
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | HM3Dv2 | Qwen3-VL-2B | 75.6 | 30.6 | 否 |
  | [3DGSNav (单目)](#nav-3dgs) | 2026 | HM3D-v2 | GPT-4o | 75.0 | 44.2 | 否 |
@@ -150,7 +150,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [EvoMemNav (单目)](#evomemnav) | 2026 | HM3D-v1 | Qwen-8B | 59.2 | 33.6 | [是](https://github.com/caicaiya123/EvoMemNav) |
  | [OmniNav (多目)](#omninav) | 2026 | HM3D-OVON (Object-Goal) | Qwen2.5-VL-3B | 59.2 | 33.2 | [是](https://github.com/amap-cvlab/OmniNav) |
  | [VLingNav (单目)](#vlingnav) | 2026 | MP3D | LLaVA-Video-7B | 58.9 | 26.5 | [是](https://github.com/wsakobe/VLingNav-web) |
-| [Image2Nav (180° FOV)](#image2sim) | 2026 | REVERIE-CE | Qwen3-VL-4B | 53.7 | 42.7 | [是](https://github.com/MrZihan/Image2Sim) | – |
+| [Image2Nav (180° FOV)](#image2sim) | 2026 | REVERIE-CE | Qwen3-VL-4B | 53.7 | 42.7 | [是](https://github.com/MrZihan/Image2Sim) |
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | HM3D-OVON | Qwen3-VL-2B | 53.1 | 20.9 | 否 |
  | [VLFM (单目)](#vlfm) | 2023 | HM3D | – | 52.5 | 30.4 | [是](https://github.com/rai-opensource/vlfm) |
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | HM3D-OVON | Qwen3-VL-7B | 51.2 | 24.0 | 否 |
@@ -193,7 +193,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | 1 | [**Robostral Navigate**](#robostral-navigate) (单目) | **77.4%** | ✓ | – | ✓ | – | ✓ | ✓ | ✓ | – | ✓ | – |
 | 2 | [**Qwen-RobotNav**](#qwen-robotnav) (全景) | **72.1%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | – |
-| 3 | [**ABot-N1**](#abot-n1) (三相机) | **70.9%** | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | – | ✓ |
+| 3 | [**ABot-N1**](#abot-n1) (三相机) | **70.9%** | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | – | – |
 | 4 | [**Image2Nav**](#image2sim) (180° FOV) | **70.3%** | ✓ | ✓ | – | – | – | – | – | ✓ | ✓ | ✓ |
 | 5 | [**GroundingVLN**](#groundingvln) (三相机) | **69.9%** | – | ✓ | ✓ | – | ✓ | – | ✓ | – | – | – |
 | 6 | [**OmniNav**](#omninav) (多目) | **69.5%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | ✓ |
@@ -214,7 +214,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | 21 | [**GA-VLN**](#ga-vln) (单目) | **61.0%** | – | – | – | – | – | – | – | – | ✓ | ✓ |
 | 22 | [**HarnessVLN**](#harnessvln) (单目 RGB-D) | **60.8%** | – | – | ✓ | ✓ | ✓ | – | – | – | ✓ | – |
 | 23 | [**JanusVLN**](#janusvln) (单目) | **60.5%** | ✓ | – | – | – | – | – | – | ✓ | ✓ | ✓ |
-| **统计** | **各要素采纳频次** | **最高 77.4%** | **14/23 (61%)** | **9/23 (39%)** | **10/23 (43%)** | **3/23 (13%)** | **9/23 (39%)** | **10/23 (43%)** | **5/23 (22%)** | **11/23 (48%)** | **15/23 (65%)** | **15/23 (65%)** |
+| **统计** | **各要素采纳频次** | **最高 77.4%** | **14/23 (61%)** | **9/23 (39%)** | **10/23 (43%)** | **3/23 (13%)** | **9/23 (39%)** | **10/23 (43%)** | **5/23 (22%)** | **11/23 (48%)** | **15/23 (65%)** | **14/23 (61%)** |
 
 注：VLN-Cache 是套在 DualVLN 上的免训练 Token 缓存层，其余要素随 DualVLN 继承；OmniNav 的 R2R / RxR 评测只走快系统（VLM + 航点回归头），慢系统的前沿探索只用于 OVON，故双系统记 –；Qwen-RobotNav 与上层规划 Agent 的协作只用于 EQA 等长程任务，R2R-CE 成绩来自模型本体；Dual-Anchoring 与 SEDualVLN 的系统 1 均以 StreamVLN 为骨干，继承其滑动窗口 KV 与体素剪枝；HarnessVLN 是表中唯一的训练无关方法，其像素 Grounding 指 `ground_target` 工具把子目标落到图像区域后再查深度。ABot-N1 的 30M 预训练样本与 DAgger rollout、Image2Nav 的离散动作输出与在线 DAgger、DGNav 的全景 RGB-D 输入，均依据各自 arXiv 原文补充。
 
@@ -233,7 +233,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | **强化学习** | **4/7 (57%)** | **1/16 (6%)** | 5/23 (22%) |
 | DAgger / 纠偏数据 | 3/7 (43%) | 8/16 (50%) | 11/23 (48%) |
 | 上下文压缩 | 5/7 (71%) | 10/16 (62%) | 15/23 (65%) |
-| 开源 | 4/7 (57%) | 11/16 (69%) | 15/23 (65%) |
+| 开源 | 3/7 (43%) | 11/16 (69%) | 14/23 (61%) |
 
 > 以下是前列模型内部的采纳率对比，只能说明相关性；某个要素能带来多少增益，要以各论文的消融为准。
 
@@ -5702,7 +5702,7 @@ $$R_{tot} = R_{done} + R_{nav} + R_{exp} + R_{brev}$$
 ## 48. ABot-N1 (2026) {#abot-n1}
 ———基于慢速认知与快速控制双系统架构的通用视觉语言导航基础模型
 
-📄 **Paper**: [arXiv:2607.10383](https://arxiv.org/abs/2607.10383v2) · [Project Page](https://amap-cvlab.github.io/ABot-Navigation/ABot-N1/) · [Code](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench)
+📄 **Paper**: [arXiv:2607.10383](https://arxiv.org/abs/2607.10383v2) · [Project Page](https://amap-cvlab.github.io/ABot-Navigation/ABot-N1/) · [Benchmark](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench)（仅开源评测基准与数据集，模型权重与训练代码未公开）
 
 ### 精华
 1. **慢速-快速双系统解耦**：将低频慢速的高维认知推理（System 2）与高频快速的低维反应性控制（System 1）进行时间尺度与计算资源解耦，消除了端到端黑盒模型的认知-控制动态错配。
@@ -7675,7 +7675,7 @@ $$R_y = \alpha_a R_{act} + \alpha_t R_{task} + \alpha_g R_{goal} + \lambda_g R_{
 45. **SEDualVLN** (2026). 空间增强的双系统连续环境视觉语言导航框架. arXiv: [2605.17249](https://arxiv.org/abs/2605.17249) · Code: [kim-os/SEDualVLN](https://github.com/kim-os/SEDualVLN)
 46. **Robostral Navigate** (2026). 仅需单目 RGB 相机的 8B 视语言导航大模型：超高效仿真训练与在线强化学习. arXiv: [2607.20785](https://arxiv.org/abs/2607.20785)
 47. **LocalNav** (2026). 基于知识蒸馏与具身强化学习的端侧轻量化三维场景图目标导航框架. arXiv: [2606.27871](https://arxiv.org/abs/2606.27871)
-48. **ABot-N1** (2026). 基于慢速认知与快速控制双系统架构的通用视觉语言导航基础模型. arXiv: [2607.10383v2](https://arxiv.org/abs/2607.10383v2) · Code: [amap-cvlab/ABot-Navigation](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench)
+48. **ABot-N1** (2026). 基于慢速认知与快速控制双系统架构的通用视觉语言导航基础模型. arXiv: [2607.10383v2](https://arxiv.org/abs/2607.10383v2) · Benchmark: [amap-cvlab/ABot-Navigation (ABotN-Bench)](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench)
 49. **ReflectVLN** (2026). 基于反思推理与双向交互机制的具身视觉语言导航. arXiv: [2607.12680](https://arxiv.org/abs/2607.12680) · IROS 2026 · Code: [AIprogrammer/ReflectVLN](https://github.com/AIprogrammer/ReflectVLN)
 50. **TuckerNav** (2026). 面向全天候多场景终身具身视觉语言导航的 Tucker 张量自适应. arXiv: [2603.14276](https://arxiv.org/abs/2603.14276) · ICLR 2026
 51. **AgenticNav** (2026). 将零样本连续环境导航（VLN-CE）重构为 VLM 可调用的 Tool-Calling 架构. arXiv: [2606.10577](https://arxiv.org/abs/2606.10577)
