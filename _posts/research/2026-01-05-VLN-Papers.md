@@ -33,7 +33,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
 | [LightNav-0(单目)](#lightnav-0) | 2026 | R2R-CE | Qwen3-VL-4B | 68.5 | 62.8 | 3.91 | 73.7 | [是](https://github.com/lightorigins/LightNav-0) |
  | [AstraNav-World(多目)](#astranav-world) | 2025 | R2R-CE | Qwen2.5-VL-3B | 67.9 | 65.4 | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) |
  | [SEDualVLN(单目)](#sedualvln) | 2026 | R2R-CE | LLaVA-Video-7B | 67.3 | 62.5 | 3.75 | 73.7 | 否 |
- | [AgentVLN(单目)](#agentvln) | 2026 | R2R-CE | Qwen2.5-VL-3B | 67.2 | 64.7 | – | – | [是](https://github.com/Allenxinn/AgentVLN) |
+ | [AgentVLN(单目)](#agentvln) | 2026 | R2R-CE | Qwen2.5-VL-3B | 67.2 | 64.7 | 3.88 | 73.5 | [是](https://github.com/Allenxinn/AgentVLN) |
  | [Qwen-RobotNav(单目)](#qwen-robotnav) | 2026 | R2R-CE | Qwen3-VL-7B | 66.9 | 60.5 | – | – | 否 |
 | [TAMP-Nav(多目)](#tamp-nav) | 2026 | R2R-CE | Qwen2.5-VL-7B | 66.2 | 58.8 | 3.85 | 74.5 | [是](https://github.com/ZJU-OmniAI/Embodied-Omni) |
  | [Dual-Anchoring(单目)](#dual-anchoring) | 2026 | R2R-CE | LLaVA-Video-7B | 65.6 | 62.1 | – | – | 否 |
@@ -75,6 +75,7 @@ excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN
  | [Qwen-RobotNav (单目)](#qwen-robotnav) | 2026 | RxR-CE | Qwen3-VL-7B | 73.4 | 63.5 | – | – | 否 |
  | [AstraNav-World (多目)](#astranav-world) | 2025 | RxR-CE | Qwen2.5-VL-3B | 72.9 | – | – | – | [是](https://github.com/amap-cvlab/AstraNav-World) |
 | [Image2Nav (180° FOV)](#image2sim) | 2026 | RxR-CE | Qwen3-VL-4B | 70.7 | 59.1 | 3.74 | – | [是](https://github.com/MrZihan/Image2Sim) |
+| [AgentVLN (单目)](#agentvln) | 2026 | RxR-CE | Qwen2.5-VL-3B | 69.5 | 61.3 | 3.92 | – | [是](https://github.com/Allenxinn/AgentVLN) |
 | [CorrectNav](#correctnav) | 2025 | RxR-CE | – | 69.3 | 63.3 | 4.09 | – | [是](https://github.com/owlet914/CorrectNav) |
  | [AwareVLN (单目)](#awarevln) | 2026 | RxR-CE | Vicuna-7B | 67.6 | 56.1 | 3.95 | – | [是](https://github.com/GWxuan/AwareVLN) |
 | [MemVLN-4B (单目)](#memvln) | 2026 | RxR-CE | Qwen3-VL-4B | 66.5 | 57.4 | 4.22 | – | 否 |
@@ -3345,7 +3346,7 @@ CausalNav 在极端光照/天气条件下的鲁棒性有待提升，且长程图
 ## 29. AgentVLN (2026) {#agentvln}
 ———Towards Agentic Vision-and-Language Navigation
 
-📄 **Paper**: [arXiv:2603.17670](https://arxiv.org/abs/2603.17670)
+📄 **Paper**: [arXiv:2603.17670](https://arxiv.org/abs/2603.17670) · 🏛️ **ECCV 2026** · [Project Page](https://allenxinn.github.io/AgentVLN/) · [Code](https://github.com/Allenxinn/AgentVLN)
 
 ### 精华
 
@@ -7622,7 +7623,7 @@ $$R_y = \alpha_a R_{act} + \alpha_t R_{task} + \alpha_g R_{goal} + \lambda_g R_{
 | **CVPR** | [VLN-Imagine](#vln-imagine) (2025)、[Slow4fast-VLN](#slow4fast-vln) (2026)、[AwareVLN](#awarevln) (2026)、[GA-VLN](#ga-vln) (2026)、[Image2Sim](#image2sim) (2026)、[DecoVLN](#decovln) (2026)、[R2R](#r2r) (2018, Spotlight)、[DUET](#duet) (2022) |
 | **ICLR** | [NavFoM](#navfom) (2026)、[JanusVLN](#janusvln) (2026)、[OmniNav](#omninav) (2026, Poster)、[TuckerNav](#tuckernav) (2026)、[Uncertainty-Aware Gaussian Map](#uncertainty-aware-gaussian-map) (2026) |
 | **ICRA** | [NoMaD](#nomad) (2024)、[VLFM](#vlfm) (2024)、[Open-Nav](#open-nav) (2025)、[NavDP](/VLN-Papers-Extended/#navdp) (2026)、[StreamVLN](#streamvln) (2026) |
-| **ECCV** | [VLN-CE](#vln-ce) (2020)、[NavGPT-2](/VLN-Papers-Extended/#navgpt-2) (2024)、[RynnBrain](#rynnbrain) (2026) |
+| **ECCV** | [VLN-CE](#vln-ce) (2020)、[NavGPT-2](/VLN-Papers-Extended/#navgpt-2) (2024)、[RynnBrain](#rynnbrain) (2026)、[AgentVLN](#agentvln) (2026) |
 | **AAAI** | [ODYSSEY](#odyssey) (2026)、[CorrectNav](#correctnav) (2026)、[R³](#r3) (2026)、[PanoNav](#panonav) (2026, Poster) |
 | **ICCV** | [VLN-PE](#vln-pe) (2025) |
 | **ACL** | [MapNav](#mapnav) (2025) |
@@ -7661,7 +7662,7 @@ $$R_y = \alpha_a R_{act} + \alpha_t R_{task} + \alpha_g R_{goal} + \lambda_g R_{
 26. **3DGSNav** (2026). 用主动 3DGS 记忆增强 VLM 空间推理，实现零样本目标导航. arXiv: [2602.12159](https://arxiv.org/abs/2602.12159)
 27. **BudVLN** (2026). Nipping the Drift in the Bud: Retrospective Rectification for Robust Vision-Language Navigation. arXiv: [2602.06356](https://arxiv.org/abs/2602.06356)
 28. **CausalNav** (2026). First Scene Graph-based Semantic Navigation for Dynamic Outdoor Environments. arXiv: [2601.01872](https://arxiv.org/abs/2601.01872) · IEEE RA-L
-29. **AgentVLN** (2026). Towards Agentic Vision-and-Language Navigation. arXiv: [2603.17670](https://arxiv.org/abs/2603.17670) · Code: [Allenxinn/AgentVLN](https://github.com/Allenxinn/AgentVLN)
+29. **AgentVLN** (2026). Towards Agentic Vision-and-Language Navigation. arXiv: [2603.17670](https://arxiv.org/abs/2603.17670) · ECCV 2026 · Code: [Allenxinn/AgentVLN](https://github.com/Allenxinn/AgentVLN)
 30. **VLN-Cache** (2026). Enabling Token Caching for VLN Models with Visual/Semantic Dynamics Awareness. arXiv: [2603.07080](https://arxiv.org/abs/2603.07080)
 31. **SysNav** (2026). Multi-Level Systematic Cooperation Enables Real-World, Cross-Embodiment Object Navigation. arXiv: [2603.06914](https://arxiv.org/abs/2603.06914) · Code: [zwandering/SysNav](https://github.com/zwandering/SysNav)
 32. **R³: Run, Ruminate, and Regulate** (2026). 一个面向视觉语言导航的双过程思考框架. arXiv: [2511.14131](https://arxiv.org/abs/2511.14131) · AAAI 2026 · Code（待发布）: [IAII-CAS/navigation_R3](https://github.com/IAII-CAS/navigation_R3)
