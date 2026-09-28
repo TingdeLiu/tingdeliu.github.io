@@ -1,0 +1,26 @@
+<section class="vla-guide" aria-label="综述阅读指南">
+  <p class="vla-guide-intro">从视觉与语言到机器人动作，串起模型架构、数据、评测与论文实践。</p>
+  <nav class="vla-reading-paths" aria-label="按阅读目的浏览">
+    <a href="#vla-basics"><strong>建立全貌</strong><span>概念、架构与技术演进</span></a>
+    <a href="#vla-model-comparison"><strong>比较方案</strong><span>主流模型横向对比</span></a>
+    <a href="#vla-datasets"><strong>寻找数据</strong><span>数据集与评测基准</span></a>
+    <a href="#vla-learning-path"><strong>动手实践</strong><span>从入门到真机部署</span></a>
+  </nav>
+  <div class="vla-paper-index" hidden>
+    <div class="vla-index-heading">
+      <label for="vla-paper-query">论文速查</label>
+      <a href="#vla-papers">进入论文解析</a>
+    </div>
+    <div class="vla-search-fields">
+      <input id="vla-paper-query" type="search" placeholder="搜索模型、方法或关键词，如 OpenVLA、扩散" aria-controls="vla-paper-results" autocomplete="off">
+      <label class="vla-year-label" for="vla-paper-year">年份
+        <select id="vla-paper-year" aria-controls="vla-paper-results"><option value="">全部年份</option></select>
+      </label>
+    </div>
+    <p class="vla-result-count" role="status" aria-live="polite" aria-atomic="true"></p>
+    <ul id="vla-paper-results" class="vla-paper-results" aria-label="匹配的论文"></ul>
+    <p class="vla-empty" hidden>没有找到匹配的论文。试试模型英文名、其他关键词，或清除筛选。</p>
+    <button class="vla-reset" type="button" hidden>清除筛选</button>
+  </div>
+  <noscript><p><a href="#vla-papers">浏览全部论文解析</a>，或通过目录跳转到相应章节。</p></noscript>
+</section>

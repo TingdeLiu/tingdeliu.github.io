@@ -1,0 +1,59 @@
+/* Scoped to the VLA survey; shared article layouts keep their existing styles. */
+.vla-survey {
+  --vla-ink: #243447;
+  --vla-blue: #1864ab;
+  --vla-muted: #526579;
+  --vla-line: #d9e3ed;
+  --vla-tint: #f3f7fb;
+}
+.vla-survey .vla-guide { margin: 0 0 3rem; color: var(--vla-ink); }
+.vla-survey .vla-guide-intro { margin: 0 0 1.25rem; color: var(--vla-muted); font-size: 1.1rem; }
+.vla-survey .vla-reading-paths { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; border-block: 1px solid var(--vla-line); }
+.vla-survey .vla-reading-paths a { display: flex; flex-direction: column; gap: .35rem; margin: 0; padding: 1rem .75rem; text-align: left; letter-spacing: normal; font-weight: 400; transition: none; }
+.vla-survey .vla-reading-paths a + a { border-left: 1px solid var(--vla-line); }
+.vla-survey .vla-reading-paths a:hover { background: var(--vla-tint); }
+.vla-survey .vla-reading-paths strong { font-size: 1rem; }
+.vla-survey .vla-reading-paths span { color: var(--vla-muted); font-size: .8rem; line-height: 1.6; }
+.vla-survey .vla-paper-index { margin-top: 1.5rem; }
+.vla-survey .vla-index-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: .6rem; }
+.vla-survey .vla-index-heading > label { font-weight: 650; }
+.vla-survey .vla-index-heading > a { font-size: .85rem; }
+.vla-survey .vla-search-fields { display: flex; align-items: center; gap: .75rem; }
+.vla-survey .vla-search-fields input,
+.vla-survey .vla-search-fields select { min-height: 44px; border: 1px solid #a7bacd; border-radius: 5px; background: #fff; color: var(--vla-ink); font: inherit; font-size: .9rem; padding: .6rem .75rem; }
+.vla-survey .vla-search-fields input { flex: 1; min-width: 0; width: 100%; }
+.vla-survey .vla-search-fields input::placeholder { color: var(--vla-muted); }
+.vla-survey .vla-year-label { display: flex; align-items: center; gap: .5rem; white-space: nowrap; font-size: .85rem; }
+.vla-survey .vla-result-count { margin: .6rem 0; font-size: .8rem; color: var(--vla-muted); }
+.vla-survey .vla-paper-results { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1rem; max-height: 250px; overflow-y: auto; overscroll-behavior: contain; margin: 0; padding: 0 .5rem 0 0; scrollbar-width: thin; }
+.vla-survey .vla-paper-results > li { margin: 0; min-width: 0; list-style: none; border-top: 1px solid var(--vla-line); }
+.vla-survey .vla-paper-results > li::before { content: none; }
+.vla-survey .vla-paper-results a { display: block; min-height: 44px; padding: .65rem .35rem; line-height: 1.5; font-size: .87rem; overflow-wrap: anywhere; transition: none; }
+.vla-survey .vla-paper-results a:hover { background: var(--vla-tint); }
+.vla-survey .vla-empty { margin: 1rem 0 .5rem; color: var(--vla-muted); font-size: .9rem; }
+.vla-survey .vla-reset { min-height: 44px; margin-top: .5rem; padding: .4rem .8rem; border: 1px solid var(--vla-line); border-radius: 5px; background: var(--vla-tint); color: var(--vla-blue); font: inherit; font-size: .85rem; cursor: pointer; }
+.vla-survey .vla-guide :focus-visible { outline: 2px solid var(--vla-blue); outline-offset: 3px; }
+.vla-survey [hidden] { display: none !important; }
+.article-page .vla-survey .entry > h1 { margin-top: 3.25rem; padding-bottom: .65rem; border-bottom: 2px solid var(--vla-line); line-height: 1.45; }
+.article-page .vla-survey .entry > h2 { margin-top: 2.5rem; line-height: 1.5; }
+.article-page .vla-survey .entry > p,
+.article-page .vla-survey .entry > ul,
+.article-page .vla-survey .entry > ol { line-height: 1.85; }
+.vla-survey .entry > p { overflow-wrap: anywhere; }
+.vla-survey .entry img { height: auto; }
+.vla-survey .vla-anchor-alias { display: block; scroll-margin-top: 24px; }
+@media (max-width: 600px) {
+  .vla-survey .vla-reading-paths { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vla-survey .vla-reading-paths a:nth-child(3) { border-left: 0; }
+  .vla-survey .vla-reading-paths a:nth-child(n+3) { border-top: 1px solid var(--vla-line); }
+  .vla-survey .vla-search-fields { flex-direction: column; align-items: stretch; }
+  .vla-survey .vla-year-label { justify-content: space-between; }
+  .vla-survey .vla-year-label select { flex: 1; }
+  .vla-survey .vla-paper-results { grid-template-columns: minmax(0, 1fr); max-height: 220px; }
+  .vla-survey .vla-guide-intro { font-size: 1rem; }
+  .article-page .vla-survey .entry > h1 { font-size: 1.6rem; }
+  .article-page .vla-survey .entry > h2 { font-size: 1.3rem; }
+}
+@media print {
+  .vla-survey .vla-guide { display: none; }
+}

@@ -7,6 +7,8 @@ categories: research
 comments: true
 author: Tingde Liu
 toc: true
+vla_survey: true
+toc_depth: 2
 excerpt: "视觉-语言-动作（VLA）模型是机器人领域的前沿研究方向。本文结合「两年三次范式跃迁」的发展脉络，全面梳理VLA的基本概念、核心技术（如Action Chunking、Diffusion Policy、Flow Matching）以及强化学习（RL）重返舞台的最新进展，并提供完整的具身智能入门路线。"
 ---
 
@@ -20,12 +22,14 @@ VLA模型在服务机器人、工业自动化、智能制造等领域有着广�
 
 # 1. VLA核心技术体系
 
+<span id="vla-basics" class="vla-anchor-alias" aria-hidden="true"></span>
+
 ## 1.1 什么是VLA？
 
 VLA（Vision-Language-Action）模型是一类端到端的多模态学习模型，能够直接从视觉输入（相机图像）和语言指令中预测机器人的控制动作。与传统的模块化机器人系统不同，VLA将感知、推理和控制统一在单一的神经网络架构中。
 
 <div align="center">
-  <img src="/images/vla/openvla_approach.webp" width="80%" />
+  <img src="/images/vla/openvla_approach.webp" alt="VLA模型架构示意图（来源：OpenVLA）" width="1118" height="750" style="width: 80%;" loading="lazy" decoding="async" />
 <figcaption>
 VLA模型架构示意图（来源：OpenVLA）
 </figcaption>
@@ -219,7 +223,7 @@ flowchart LR
 | **Hi Robot** | VLM规划器 | VLA执行器 | 两层显式分离 |
 | **LoHoVLA** | 端到端学习的层级 | - | 隐式层级结构 |
 
-最新研究表明，纯端到端和纯层级架构各有优劣，混合方法成为新趋势：ACoT-VLA在动作层面进行显式推理，保持统一架构（[详见第5.13节](#5-13-acot-vla-2026)）。
+最新研究表明，纯端到端和纯层级架构各有优劣，混合方法成为新趋势：ACoT-VLA在动作层面进行显式推理，保持统一架构（[详见第5.14节](#5-13-acot-vla-2026)）。
 
 ## 1.3 VLA与传统机器人控制的区别
 
@@ -312,6 +316,8 @@ mindmap
 | **桌面操作** | 固定视角图像 | 工作台范围动作 | 大多数VLA | 场景相对简单，是VLA的主要测试场景 |
 | **厨房任务** | 多视角图像 | 复合操作序列 | π₀.5 | 多样物体和工具，应用于服务机器人 |
 | **移动操作** | 导航+操作图像 | 移动+抓取动作 | π₀.5家庭任务 | 结合导航与操作，大范围工作空间 |
+
+<span id="vla-model-comparison" class="vla-anchor-alias" aria-hidden="true"></span>
 
 ## 1.5 主流VLA模型横向对比汇总
 
@@ -447,6 +453,8 @@ OXE 是开源阵营最宝贵的资源，它打破了实验室之间的数据孤�
 **2. 模型、数据、工具的"生态联动"**：开源阵营之所以能挑战谷歌、特斯拉，靠的是 **OXE (数据) + LeRobot (工具链) + Genesis (极速仿真) + $100 硬件 (SO-100)** 形成的闭环。这种"组合拳"将具身智能的研究门槛从百万美元降低到了数百美元，让全球研究者能共同参与测试与改进。
 
 **3. 开源与闭源的模糊边界**：RT-2-X 虽然是谷歌的闭源模型，但其训练依赖了 OXE 开源数据集；英伟达的 GR00T 介于开源与闭源之间（代码开放但深度绑定芯片生态）。这说明未来的博弈不在于单纯的代码是否公开，而在于**谁能定义机器人行业的基础设施标准**。
+
+<span id="vla-learning-path" class="vla-anchor-alias" aria-hidden="true"></span>
 
 ## 1.8 具身智能学习与入门路线
 
@@ -660,7 +668,7 @@ flowchart LR
 - **π₀.5**：增强的推理能力，支持多步骤规划（详见[经典论文第5.11节](#5-11-pi05-2025)）
 - **Hi Robot**：显式的两层层级架构
 - **CoT-VLA**：视觉子目标作为思维链
-- **ACoT-VLA**：动作空间推理（详见[经典论文第5.13节](#5-13-acot-vla-2026)）
+- **ACoT-VLA**：动作空间推理（详见[经典论文第5.14节](#5-13-acot-vla-2026)）
 - **DexVLA**：billion参数的灵巧操作专家
 
 #### 2.2.3 错误检测与自主恢复
@@ -1036,6 +1044,8 @@ flowchart LR
 
 ---
 
+<span id="vla-datasets" class="vla-anchor-alias" aria-hidden="true"></span>
+
 # 3. VLA主流数据集
 
 VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域最具影响力的数据集。
@@ -1095,7 +1105,7 @@ VLA模型的性能高度依赖于高质量的训练数据。以下是VLA领域�
 ### Open X-Embodiment Dataset
 
 <div align="center">
-  <img src="/images/vla/oxe_figure.webp" width="90%" />
+  <img src="/images/vla/oxe_figure.webp" alt="Open X-Embodiment: 22种机器人，60+数据集，970k轨迹的跨具身形态数据集（来源：RT-X官网）" width="1416" height="508" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
 Open X-Embodiment: 22种机器人，60+数据集，970k轨迹的跨具身形态数据集（来源：<a href="https://robotics-transformer-x.github.io/">RT-X官网</a>）
 </figcaption>
@@ -1700,9 +1710,11 @@ VLA模型使仓储机器人能够处理更复杂、更灵活的物流任务。
 
 ---
 
+<span id="vla-papers" class="vla-anchor-alias" aria-hidden="true"></span>
+
 # 5. 经典论文深度解析
 
-为了帮助读者深入理解VLA领域的关键突破，本章精选11篇奠基性和前沿论文进行详细解读。这些论文代表了VLA研究从诞生（2022年RT-1）到快速发展（2026年最新工作）的完整脉络，涵盖了架构创新、训练范式、推理增强、开放世界泛化等核心方向。
+为了帮助读者深入理解VLA领域的关键突破，本章精选奠基性和前沿论文进行详细解读，可通过页首论文索引按关键词与年份查找。这些论文代表了VLA研究从诞生（2022年RT-1）到快速发展（2026年最新工作）的完整脉络，涵盖了架构创新、训练范式、推理增强、开放世界泛化等核心方向。
 
 **论文选择标准**：
 - **奠基性工作**：开创新方向或范式（RT-1, RT-2, Diffusion Policy）
@@ -1714,13 +1726,16 @@ VLA模型使仓储机器人能够处理更复杂、更灵活的物流任务。
 
 ---
 
-## 5.1 RT-1 (2022) {#5-1-rt-1-2022}
+<span id="51-rt-1-2022-5-1-rt-1-2022" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.1 RT-1 (2022)
+{: id="5-1-rt-1-2022"}
 Robotics Transformer for Real-World Control at Scale
 
 📄 **Paper**: https://arxiv.org/abs/2212.06817
 
 <div align="center">
-  <img src="/images/vla/rt1_arch.webp" width="90%" />
+  <img src="/images/vla/rt1_arch.webp" alt="RT-1 架构图：基于 EfficientNet 视觉编码器和 Token Learner 的 Transformer 策略（来源：RT-1 Project）" width="1118" height="776" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
 RT-1 架构图：基于 EfficientNet 视觉编码器和 Token Learner 的 Transformer 策略（来源：RT-1 Project）
 </figcaption>
@@ -1781,13 +1796,16 @@ RT-1 的核心贡献在于证明了 Transformer 架构结合大规模真实机�
 
 ---
 
-## 5.2 RT-2 (2023) {#5-2-rt-2-2023}
+<span id="52-rt-2-2023-5-2-rt-2-2023" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.2 RT-2 (2023)
+{: id="5-2-rt-2-2023"}
 Vision-Language-Action Models Transfer Web Knowledge to Robotic Control
 
 📄 **Paper**: https://arxiv.org/abs/2307.15818
 
 <div align="center">
-  <img src="/images/vla/rt2_overview.webp" width="90%" />
+  <img src="/images/vla/rt2_overview.webp" alt="RT-2 架构概述：直接微调预训练 VLM 输出动作 Token（来源：RT-2 Project）" width="1322" height="702" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
 RT-2 架构概述：直接微调预训练 VLM 输出动作 Token（来源：RT-2 Project）
 </figcaption>
@@ -1855,13 +1873,16 @@ RT-2方式: 视觉 + 语言 → VLA → 动作token序列（直接控制）
 
 ---
 
-## 5.3 RT-X / Open X-Embodiment Dataset (2023) {#5-3-rt-x-2023}
+<span id="53-rt-x--open-x-embodiment-dataset-2023-5-3-rt-x-2023" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.3 RT-X / Open X-Embodiment Dataset (2023)
+{: id="5-3-rt-x-2023"}
 Scaling Up and Distilling Down: Language-Guided Robot Skill Acquisition
 
 📄 **Paper**: https://arxiv.org/abs/2310.08864
 
 <div align="center">
-  <img src="/images/vla/oxe_figure.webp" width="90%" />
+  <img src="/images/vla/oxe_figure.webp" alt="Open X-Embodiment 数据集：涵盖 22 种机器人、60+ 数据集、970k 条轨迹的多样化分布（来源：RT-X Project）" width="1416" height="508" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
 Open X-Embodiment 数据集：涵盖 22 种机器人、60+ 数据集、970k 条轨迹的多样化分布（来源：RT-X Project）
 </figcaption>
@@ -1921,7 +1942,10 @@ OXE 和 RT-X 共同验证了一个重要假设：**来自不同机器人的数�
 
 ---
 
-## 5.4 ACT (2023) {#5-4-act-2023}
+<span id="54-act-2023-5-4-act-2023" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.4 ACT (2023)
+{: id="5-4-act-2023"}
 ———Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware
 
 📄 **Paper**: [https://arxiv.org/abs/2304.13705](https://arxiv.org/abs/2304.13705)
@@ -1945,7 +1969,7 @@ OXE 和 RT-X 共同验证了一个重要假设：**来自不同机器人的数�
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vla/ALOHA-overview.webp" width="100%" />
+  <img src="/images/vla/ALOHA-overview.webp" alt="ALOHA 系统概览：低成本双臂遥操作与精细操作技能展示" width="1446" height="558" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 ALOHA 系统概览：低成本双臂遥操作与精细操作技能展示
 </figcaption>
@@ -1955,7 +1979,7 @@ ALOHA 系统概览：低成本双臂遥操作与精细操作技能展示
 论文设计了一套名为 **ALOHA** 的低成本开源双臂系统。
 
 <div align="center">
-  <img src="/images/vla/ALOHA-hardware-details.webp" width="100%" />
+  <img src="/images/vla/ALOHA-hardware-details.webp" alt="ALOHA 硬件细节：多视角相机布局、3D 打印遥操作机构及机器人规格" width="1446" height="442" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 ALOHA 硬件细节：多视角相机布局、3D 打印遥操作机构及机器人规格
 </figcaption>
@@ -1969,7 +1993,7 @@ ALOHA 硬件细节：多视角相机布局、3D 打印遥操作机构及机器�
 为了解决模仿学习中的误差积累问题，论文提出了 **Action Chunking with Transformers (ACT)**。
 
 <div align="center">
-  <img src="/images/vla/ACT-architecture.webp" width="100%" />
+  <img src="/images/vla/ACT-architecture.webp" alt="ACT 算法架构：基于 CVAE 和 Transformer 的动作序列预测" width="1446" height="471" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 ACT 算法架构：基于 CVAE 和 Transformer 的动作序列预测
 </figcaption>
@@ -1978,7 +2002,7 @@ ACT 算法架构：基于 CVAE 和 Transformer 的动作序列预测
 1. **动作块 (Action Chunking)**：不同于传统方法预测单步动作 $a_t$，ACT 在每个观测点 $s_t$ 预测未来 $k$ 步的动作序列 $a_{t:t+k}$。这大大缩短了任务的有效时序跨度（减少了 $k$ 倍），从而缓解复利误差。
 
 <div align="center">
-  <img src="/images/vla/Action-Chunking-Temporal-Ensemble.webp" width="100%" />
+  <img src="/images/vla/Action-Chunking-Temporal-Ensemble.webp" alt="时间集成：通过重叠的动作块平滑机器人运动" width="715" height="433" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 时间集成：通过重叠的动作块平滑机器人运动
 </figcaption>
@@ -1987,7 +2011,7 @@ ACT 算法架构：基于 CVAE 和 Transformer 的动作序列预测
 2. **CVAE 建模**：使用条件变分自编码器 (CVAE) 处理人类演示中的多峰性（即同一场景下可能有多种有效路径）。
 
 <div align="center">
-  <img src="/images/vla/CVAE.webp" width="100%" />
+  <img src="/images/vla/CVAE.webp" alt="CVAE架构：非常适合轨迹生成" width="1800" height="544" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 CVAE架构：非常适合轨迹生成
 </figcaption>
@@ -2000,14 +2024,14 @@ CVAE架构：非常适合轨迹生成
 4. **时间集成 (Temporal Ensembling)**：在推理时，系统在每一帧都进行预测，并对重叠的动作块进行加权平均。这种方式不仅提高了预测的鲁棒性，还消除了“动作块”切换时的动作不连续感。
 
 <div align="center">
-  <img src="/images/vla/ACT-detailed-training.webp" width="100%" />
+  <img src="/images/vla/ACT-detailed-training.webp" alt="ACT 详细训练流程 (Training)" width="1212" height="1047" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 ACT 详细训练流程 (Training)
 </figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vla/ACT-detailed-testing.webp" width="100%" />
+  <img src="/images/vla/ACT-detailed-testing.webp" alt="ACT 详细推理/测试流程 (Testing)" width="1112" height="574" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 ACT 详细推理/测试流程 (Testing)
 </figcaption>
@@ -2031,13 +2055,16 @@ ACT 详细推理/测试流程 (Testing)
 
 ---
 
-## 5.5 Diffusion Policy (2023) {#5-5-diffusion-policy-2023}
+<span id="55-diffusion-policy-2023-5-5-diffusion-policy-2023" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.5 Diffusion Policy (2023)
+{: id="5-5-diffusion-policy-2023"}
 Visuomotor Policy Learning via Action Diffusion
 
 📄 **Paper**: https://arxiv.org/abs/2303.04137
 
 <div align="center">
-  <img src="/images/vla/diffusion_policy_teaser.webp" width="90%" />
+  <img src="/images/vla/diffusion_policy_teaser.webp" alt="Diffusion Policy：基于扩散过程的多模态动作建模（来源：Columbia University）" width="1360" height="610" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
 Diffusion Policy：基于扩散过程的多模态动作建模（来源：Columbia University）
 </figcaption>
@@ -2114,7 +2141,10 @@ $$\mathcal{L} = \mathbb{E}_{t, a_0, \epsilon}\left[\|\epsilon - \epsilon_\theta(
 
 ---
 
-## 5.6 UMI (2024) {#5-6-umi-2024}
+<span id="56-umi-2024-5-6-umi-2024" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.6 UMI (2024)
+{: id="5-6-umi-2024"}
 ———Universal Manipulation Interface: In-The-Wild Robot Teaching Without In-The-Wild Robots
 
 📄 **Paper**: [https://arxiv.org/abs/2402.10329](https://arxiv.org/abs/2402.10329)
@@ -2142,7 +2172,7 @@ UMI 采用了“手持夹爪”这一中间形态，既保留了人类操作的�
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vla/UMI-overview.webp" width="100%" />
+  <img src="/images/vla/UMI-overview.webp" alt="UMI 框架：从户外演示到机器人策略的 Zero-shot 迁移" width="1438" height="579" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 UMI 框架：从户外演示到机器人策略的 Zero-shot 迁移
 </figcaption>
@@ -2164,7 +2194,7 @@ UMI 框架：从户外演示到机器人策略的 Zero-shot 迁移
 ### 3. 核心实验结果
 
 <div align="center">
-  <img src="/images/vla/UMI-tasks.webp" width="100%" />
+  <img src="/images/vla/UMI-tasks.webp" alt="UMI 挑战任务：咖啡杯排列、动态抛物、双臂叠衣服、洗碗" width="1446" height="1153" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 UMI 挑战任务：咖啡杯排列、动态抛物、双臂叠衣服、洗碗
 </figcaption>
@@ -2188,7 +2218,10 @@ UMI 证明了**数据多样性优于模型微调**。与其在单一环境下费
 ---
 
 
-## 5.7 DP3 (2024) {#5-7-dp3-2024}
+<span id="57-dp3-2024-5-7-dp3-2024" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.7 DP3 (2024)
+{: id="5-7-dp3-2024"}
 ———3D Diffusion Policy: Generalizable Visuomotor Policy Learning via Simple 3D Representations
 
 📄 **Paper**: [https://arxiv.org/abs/2403.03954](https://arxiv.org/abs/2403.03954)
@@ -2217,7 +2250,7 @@ DP3 旨在通过引入 3D 视觉表征，让模型“天生”理解三维空间
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vla/DP3-overview.webp" width="100%" />
+  <img src="/images/vla/DP3-overview.webp" alt="DP3 架构概览：从单视角点云到 3D 表征，再到基于扩散模型的决策过程" width="1446" height="775" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 DP3 架构概览：从单视角点云到 3D 表征，再到基于扩散模型的决策过程
 </figcaption>
@@ -2237,7 +2270,7 @@ DP3 架构概览：从单视角点云到 3D 表征，再到基于扩散模型的
 ### 3. 核心实验结果
 
 <div align="center">
-  <img src="/images/vla/DP3-tasks.webp" width="100%" />
+  <img src="/images/vla/DP3-tasks.webp" alt="DP3 在仿真任务和真实世界灵巧手操作任务中的表现" width="1443" height="658" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 DP3 在仿真任务和真实世界灵巧手操作任务中的表现
 </figcaption>
@@ -2260,7 +2293,10 @@ DP3 的成功再次强调了**感知表征 (Visual Representation)** 在机器�
 
 ---
 
-## 5.8 UniSim (2024) {#5-8-unisim-2024}
+<span id="58-unisim-2024-5-8-unisim-2024" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.8 UniSim (2024)
+{: id="5-8-unisim-2024"}
 ———Learning Interactive Real-World Simulators
 
 📄 **Paper**: [https://arxiv.org/abs/2310.06114](https://arxiv.org/abs/2310.06114)
@@ -2285,7 +2321,7 @@ UniSim 是 Google DeepMind 在 ICLR 2024 上提出的一项重要工作，旨在
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vla/UniSim-overview.webp" width="100%" />
+  <img src="/images/vla/UniSim-overview.webp" alt="UniSim 概览：整合互联网场景、机器人操作、人类活动、导航、全景扫描及仿真渲染数据" width="1118" height="576" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 UniSim 概览：整合互联网场景、机器人操作、人类活动、导航、全景扫描及仿真渲染数据
 </figcaption>
@@ -2300,7 +2336,7 @@ UniSim 概览：整合互联网场景、机器人操作、人类活动、导航�
 UniSim 被建模为一个条件概率模型 $p(o_t | h_{t-1}, a_{t-1})$，即给定历史观察 $h_{t-1}$ 和当前动作 $a_{t-1}$，预测下一段观察帧 $o_t$。
 
 <div align="center">
-  <img src="/images/vla/UniSim-training-inference.webp" width="100%" />
+  <img src="/images/vla/UniSim-training-inference.webp" alt="UniSim 的训练与推理流程：基于条件视频扩散模型，支持多种模态的动作输入" width="1118" height="515" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 UniSim 的训练与推理流程：基于条件视频扩散模型，支持多种模态的动作输入
 </figcaption>
@@ -2317,14 +2353,14 @@ UniSim 的训练与推理流程：基于条件视频扩散模型，支持多种�
 UniSim 不仅能模拟简单的移动，还能根据语言指令模拟复杂的交互。
 
 <div align="center">
-  <img src="/images/vla/UniSim-action-rich.webp" width="100%" />
+  <img src="/images/vla/UniSim-action-rich.webp" alt="UniSim 的动作丰富度演示：从同一初始帧模拟“洗手”、“切胡萝卜”、“导航”等不同任务" width="566" height="294" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 UniSim 的动作丰富度演示：从同一初始帧模拟“洗手”、“切胡萝卜”、“导航”等不同任务
 </figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vla/UniSim-long-horizon.webp" width="100%" />
+  <img src="/images/vla/UniSim-long-horizon.webp" alt="长程模拟演示：自回归模拟 8 步交互，模型能够成功保持物体的状态（如橙子被放入抽屉后依然存在）" width="1118" height="745" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 长程模拟演示：自回归模拟 8 步交互，模型能够成功保持物体的状态（如橙子被放入抽屉后依然存在）
 </figcaption>
@@ -2355,7 +2391,10 @@ UniSim 最强大的地方在于它能作为一个“训练场”：
 ---
 
 
-## 5.9 OpenVLA (2024) {#5-9-openvla-2024}
+<span id="59-openvla-2024-5-9-openvla-2024" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.9 OpenVLA (2024)
+{: id="5-9-openvla-2024"}
 ———开源视觉-语言-动作模型
 
 📄 **Paper**: https://arxiv.org/abs/2406.09246v3
@@ -2388,7 +2427,7 @@ OpenVLA是一个7B参数的开源视觉-语言-动作模型,在Open X-Embodiment
 3. **语言模型骨干（"诸葛亮"大脑）**: 基于Llama 2 7B，作为统一决策中心，融合空间信息与语义信息进行指令推理。
 
 <div align="center">
-  <img src="/images/vla/openvla_architecture.webp" width="100%" />
+  <img src="/images/vla/openvla_architecture.webp" alt="OpenVLA模型架构图：从图像观察和语言指令到7维机器人动作的端到端预测流程（来源：OpenVLA arXiv）" width="1118" height="750" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 OpenVLA模型架构图：从图像观察和语言指令到7维机器人动作的端到端预测流程（来源：<a href="https://arxiv.org/abs/2406.09246">OpenVLA arXiv</a>）
 </figcaption>
@@ -2497,14 +2536,17 @@ print(f"Predicted Action: {action}")
 
 
 
-## 5.10 π₀ (2024) {#5-10-pi0-2024}
+<span id="510-π-2024-5-10-pi0-2024" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.10 π₀ (2024)
+{: id="5-10-pi0-2024"}
 : A Vision-Language-Action Flow Model for General Robot Control 
 ———首个基于 Flow Matching 的通用机器人策略基础模型
 
 📄 **Paper**: https://arxiv.org/abs/2410.24164
 
 <div align="center">
-  <img src="/images/vla/pi0_architecture.webp" width="100%" />
+  <img src="/images/vla/pi0_architecture.webp" alt="π₀ 架构：结合 PaliGemma 骨干与 Flow Matching 动作专家（来源：Physical Intelligence）" width="1446" height="957" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 π₀ 架构：结合 PaliGemma 骨干与 Flow Matching 动作专家（来源：Physical Intelligence）
 </figcaption>
@@ -2695,7 +2737,10 @@ $$x_t = (1 - t)x_0 + tx_1$$
 
 
 ---
-## 5.11 π₀.5 (2025) {#5-11-pi05-2025}
+<span id="511-π5-2025-5-11-pi05-2025" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.11 π₀.5 (2025)
+{: id="5-11-pi05-2025"}
 ———a Vision-Language-Action Model with Open-World Generalization
 
 📄 **Paper**: [https://arxiv.org/abs/2504.16054](https://arxiv.org/abs/2504.16054)
@@ -2726,7 +2771,7 @@ $$x_t = (1 - t)x_0 + tx_1$$
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vla/pi05-overview.webp" width="100%" />
+  <img src="/images/vla/pi05-overview.webp" alt="π0.5 架构与训练数据来源：整合了网络多模态数据、物体检测、高层子任务指令以及多种机器人动作数据，使其能够开箱即用地部署在新家庭中" width="1446" height="891" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 π0.5 架构与训练数据来源：整合了网络多模态数据、物体检测、高层子任务指令以及多种机器人动作数据，使其能够开箱即用地部署在新家庭中
 </figcaption>
@@ -2750,7 +2795,7 @@ $$x_t = (1 - t)x_0 + tx_1$$
 ### 3. 核心实验结果
 
 <div align="center">
-  <img src="/images/vla/pi05-kitchen-cleaning.webp" width="100%" />
+  <img src="/images/vla/pi05-kitchen-cleaning.webp" alt="π0.5 在一个从未见过的厨房中执行清理任务，能够依次执行“关上柜门”、“将物品放入抽屉”、“擦拭溢出物”等复杂指令" width="1446" height="352" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 π0.5 在一个从未见过的厨房中执行清理任务，能够依次执行“关上柜门”、“将物品放入抽屉”、“擦拭溢出物”等复杂指令
 </figcaption>
@@ -2770,7 +2815,10 @@ $$x_t = (1 - t)x_0 + tx_1$$
 
 
 
-## 5.12 π₀.6 (2025) {#5-12-pi06-2025}
+<span id="512-π6-2025-5-12-pi06-2025" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.12 π₀.6 (2025)
+{: id="5-12-pi06-2025"}
 ———a VLA That Learns From Experience
 
 📄 **Paper**: [https://arxiv.org/abs/2511.14759](https://arxiv.org/abs/2511.14759)
@@ -2800,7 +2848,7 @@ $$x_t = (1 - t)x_0 + tx_1$$
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vla/pistar06-recap.webp" width="100%" />
+  <img src="/images/vla/pistar06-recap.webp" alt="RECAP 工作流：从预训练的 VLA 开始，通过部署采集自主轨迹和人类修正，更新价值函数，并通过优势对齐训练策略" width="1438" height="678" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 RECAP 工作流：从预训练的 VLA 开始，通过部署采集自主轨迹和人类修正，更新价值函数，并通过优势对齐训练策略
 </figcaption>
@@ -2821,7 +2869,7 @@ RECAP 工作流：从预训练的 VLA 开始，通过部署采集自主轨迹和
 ### 3. 核心实验结果
 
 <div align="center">
-  <img src="/images/vla/pistar06-teaser.webp" width="100%" />
+  <img src="/images/vla/pistar06-teaser.webp" alt="π*0.6 挑战任务：折叠各种材质的衣物、组装工业纸箱、使用专业咖啡机制作双倍浓缩咖啡" width="1446" height="585" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 π*0.6 挑战任务：折叠各种材质的衣物、组装工业纸箱、使用专业咖啡机制作双倍浓缩咖啡
 </figcaption>
@@ -2867,7 +2915,7 @@ RECAP 工作流：从预训练的 VLA 开始，通过部署采集自主轨迹和
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vla/pi0.7-overview.webp" width="100%" />
+  <img src="/images/vla/pi0.7-overview.webp" alt="π0.7 整体框架：通过结合机器人演示、自主数据、人类视频及网络多模态数据进行训练，利用详细的 Prompt（指令、子目标、元数据）实现对动作的精准引导。" width="1446" height="1014" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>π0.7 整体框架：通过结合机器人演示、自主数据、人类视频及网络多模态数据进行训练，利用详细的 Prompt（指令、子目标、元数据）实现对动作的精准引导。</figcaption>
 </div>
 
@@ -2875,7 +2923,7 @@ RECAP 工作流：从预训练的 VLA 开始，通过部署采集自主轨迹和
 π0.7 是一个 50 亿参数的 VLA 模型，其核心架构由 4B 参数的视觉-语言模型（VLM）主干、一个 MEM 风格的视频历史编码器（400M 参数）以及一个轻量级的动作专家模块（860M 参数）组成。该系统通过接收当前的视觉观测、历史信息以及一组丰富的上下文信息（Prompt），直接生成连续的动作块。
 
 <div align="center">
-  <img src="/images/vla/pi0.7-architecture.webp" width="100%" />
+  <img src="/images/vla/pi0.7-architecture.webp" alt="π0.7 网络架构：包含 Gemma3 VLM 主干、视频历史编码器和基于流匹配（Flow Matching）的动作专家。" width="1448" height="812" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>π0.7 网络架构：包含 Gemma3 VLM 主干、视频历史编码器和基于流匹配（Flow Matching）的动作专家。</figcaption>
 </div>
 
@@ -2888,7 +2936,7 @@ RECAP 工作流：从预训练的 VLA 开始，通过部署采集自主轨迹和
 - **情节元数据（Episode Metadata）**：显式标记该段数据的质量（1-5分）、速度（执行步数）以及是否有错误。这使得模型能从失败数据中学习（标记为“错误”），并在推理时通过设定“高质量、无错误”来引导生成最优动作。
 
 <div align="center">
-  <img src="/images/vla/pi0.7-prompt-modalities.webp" width="100%" />
+  <img src="/images/vla/pi0.7-prompt-modalities.webp" alt="Prompt 多模态示意图：包含子任务、视觉子目标和元数据，共同消除大规模异构数据集中的歧义。" width="1446" height="904" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>Prompt 多模态示意图：包含子任务、视觉子目标和元数据，共同消除大规模异构数据集中的歧义。</figcaption>
 </div>
 
@@ -2906,7 +2954,7 @@ RECAP 工作流：从预训练的 VLA 开始，通过部署采集自主轨迹和
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/vla/pi0.7-dexterity-results.webp" width="100%" />
+  <img src="/images/vla/pi0.7-dexterity-results.webp" alt="开箱即用的灵巧任务性能：π0.7 在叠衣服、做咖啡、拼装盒子等任务上，其性能与经过强化学习专门微调的专家模型相当甚至更优。" width="1446" height="1096" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>开箱即用的灵巧任务性能：π0.7 在叠衣服、做咖啡、拼装盒子等任务上，其性能与经过强化学习专门微调的专家模型相当甚至更优。</figcaption>
 </div>
 
@@ -2914,14 +2962,14 @@ RECAP 工作流：从预训练的 VLA 开始，通过部署采集自主轨迹和
 - **卓越的跨构型泛化**：在完全没有 UR5e 叠衣服数据的情况下，模型成功将军舰机械臂上学到的技能迁移到了 UR5e，性能接近经验丰富的人类远程操作员。
 
 <div align="center">
-  <img src="/images/vla/pi0.7-cross-embodiment.webp" width="100%" />
+  <img src="/images/vla/pi0.7-cross-embodiment.webp" alt="跨机器人构型迁移结果：即使形态和动力学差异巨大，π0.7 也能生成适配目标机器人的新策略（如从双臂协作变为单臂操作）。" width="1448" height="843" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>跨机器人构型迁移结果：即使形态和动力学差异巨大，π0.7 也能生成适配目标机器人的新策略（如从双臂协作变为单臂操作）。</figcaption>
 </div>
 
 - **组合式新任务执行**：通过语言“教练”，用户可以现场教会机器人完成全新的任务，如使用从未见过的空气炸锅。
 
 <div align="center">
-  <img src="/images/vla/pi0.7-language-coaching.webp" width="100%" />
+  <img src="/images/vla/pi0.7-language-coaching.webp" alt="语言教练示例：通过分步语言指令教导机器人完成“加载空气炸锅”任务。" width="1446" height="330" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>语言教练示例：通过分步语言指令教导机器人完成“加载空气炸锅”任务。</figcaption>
 </div>
 
@@ -2934,14 +2982,17 @@ RECAP 工作流：从预训练的 VLA 开始，通过部署采集自主轨迹和
 
 ---
 
-## 5.14 ACoT-VLA (2026) {#5-13-acot-vla-2026}
+<span id="514-acot-vla-2026-5-13-acot-vla-2026" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.14 ACoT-VLA (2026)
+{: id="5-13-acot-vla-2026"}
 **副标题**: Action Chain-of-Thought for Vision-Language-Action Models
 **中文标题**: 在动作空间中进行推理的视觉-语言-动作模型
 
 📄 **Paper**: [arXiv:2601.11404](https://arxiv.org/abs/2601.11404)
 
 <div align="center">
-  <img src="/images/vla/acot_vla_teaser.webp" width="90%" />
+  <img src="/images/vla/acot_vla_teaser.webp" alt="ACoT-VLA：直接在动作空间进行思维链推理，生成粗粒度参考轨迹指导最终去噪动作（来源：ACoT-VLA Project）" width="673" height="782" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
 ACoT-VLA：直接在动作空间进行思维链推理，生成粗粒度参考轨迹指导最终去噪动作（来源：ACoT-VLA Project）
 </figcaption>
@@ -3044,14 +3095,17 @@ noisy action├─→ IAR (Implicit Action Reasoner)
 
 ---
 ---
-## 5.15 VLM4VLA (2026) {#5-14-vlm4vla-2026}
+<span id="515-vlm4vla-2026-5-14-vlm4vla-2026" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.15 VLM4VLA (2026)
+{: id="5-14-vlm4vla-2026"}
 **副标题**: Revisiting Vision-Language Models in Vision-Language-Action Models
 **中文标题**: 重新审视视觉-语言-动作模型中的视觉-语言模型
 
 📄 **Paper**: [arXiv:2601.03309](https://arxiv.org/abs/2601.03309)
 
 <div align="center">
-  <img src="/images/vla/vlm4vla_network.webp" width="90%" />
+  <img src="/images/vla/vlm4vla_network.webp" alt="VLM4VLA 最小化适配架构图：引入可学习的 Action Query Token 从冻结 VLM 中提取具身知识（来源：VLM4VLA Project）" width="1118" height="924" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
 VLM4VLA 最小化适配架构图：引入可学习的 Action Query Token 从冻结 VLM 中提取具身知识（来源：VLM4VLA Project）
 </figcaption>
@@ -3183,14 +3237,17 @@ VLA任务最优区域 ←──────┘
 
 
 ---
-## 5.16 TwinBrainVLA (2026) {#5-15-twinbrain-vla-2026}
+<span id="516-twinbrainvla-2026-5-15-twinbrain-vla-2026" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.16 TwinBrainVLA (2026)
+{: id="5-15-twinbrain-vla-2026"}
 **副标题**: Unleashing VLM Potential in Embodied Tasks via Asymmetric Dual-Transformer Mixture
 **中文标题**: 通过非对称双Transformer混合机制释放通用VLM在具身任务中的潜力
 
 📄 **Paper**: [arXiv:2601.14133](https://arxiv.org/abs/2601.14133)
 
 <div align="center">
-  <img src="/images/vla/twinbrain_framework.webp" width="90%" />
+  <img src="/images/vla/twinbrain_framework.webp" alt="TwinBrainVLA：模拟左右脑分工的非对称双流架构， Left Brain 负责语义锚点，Right Brain 负责动作推理（来源：TwinBrainVLA Project）" width="541" height="491" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
 TwinBrainVLA：模拟左右脑分工的非对称双流架构， Left Brain 负责语义锚点，Right Brain 负责动作推理（来源：TwinBrainVLA Project）
 </figcaption>
@@ -3312,13 +3369,16 @@ Left Brain (冻结通才VLM)          Right Brain (可训练专才VLM)
 
 ---
 
-## 5.17 InternVLA-A1 (2026) {#5-16-internvla-a1-2026}
+<span id="517-internvla-a1-2026-5-16-internvla-a1-2026" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.17 InternVLA-A1 (2026)
+{: id="5-16-internvla-a1-2026"}
 ——Unifying Understanding, Generation and Action for Robotic Manipulation
 
 📄 **Paper**: https://arxiv.org/abs/2601.02456
 
 <div align="center">
-  <img src="/images/vla/internvla_a1_teaser.webp" width="90%" />
+  <img src="/images/vla/internvla_a1_teaser.webp" alt="InternVLA-A1 架构图：基于 MoT 的统一理解、生成与动作架构（来源：InternVLA-A1 Project）" width="1326" height="868" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
 InternVLA-A1 架构图：基于 MoT 的统一理解、生成与动作架构（来源：InternVLA-A1 Project）
 </figcaption>
@@ -3347,7 +3407,7 @@ InternVLA-A1 采用 **Mixture-of-Transformers (MoT)** 架构，协调三个专�
 受 Janus Pro 启发，采用**解耦视觉编码**策略——理解用 ViT（高层语义），生成用 VAE（像素级保真）。具体使用 Cosmos CI8×8 连续 VAE tokenizer 将输入图像编码为 latent features `z_t`，再经卷积层压缩空间维度至 4×4（每帧仅 16 个 tokens），对齐 Transformer 隐维度后送入生成专家。生成专家在历史帧 `z_{t-m}` 和当前帧 `z_t` 基础上，以 `h_und` 为条件，预测未来帧的 latent `ẑ_{t+m}`，最终经反卷积和 Cosmos decoder 重建预测图像。
 
 <div align="center">
-  <img src="/images/vla/InternVLA-A1-architecture.webp" width="100%" />
+  <img src="/images/vla/InternVLA-A1-architecture.webp" alt="InternVLA-A1 架构详图：三专家通过 Unified Masked Self-Attention 交互，理解专家输出语义上下文，生成专家预测未来视觉状态，动作专家基于两者产生控制指令" width="1330" height="952" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 InternVLA-A1 架构详图：三专家通过 Unified Masked Self-Attention 交互，理解专家输出语义上下文，生成专家预测未来视觉状态，动作专家基于两者产生控制指令
 </figcaption>
@@ -3377,7 +3437,7 @@ $$\mathcal{L}_{\text{total}} = \lambda \cdot \mathcal{L}_{\text{gen}} + \mathcal
 **（6）层级数据金字塔**
 
 <div align="center">
-  <img src="/images/vla/InternVLA-A1-data-pyramid.webp" width="100%" />
+  <img src="/images/vla/InternVLA-A1-data-pyramid.webp" alt="层级数据金字塔：底层为大规模开源示范数据（AgiBot-World），中层为仿真合成数据（InternData-A1），顶层为专项真实数据" width="1187" height="636" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 层级数据金字塔：底层为大规模开源示范数据（AgiBot-World），中层为仿真合成数据（InternData-A1），顶层为专项真实数据
 </figcaption>
@@ -3409,7 +3469,7 @@ $$\mathcal{L}_{\text{total}} = \lambda \cdot \mathcal{L}_{\text{gen}} + \mathcal
 **动态场景专项任务（Figure 6）**：
 
 <div align="center">
-  <img src="/images/vla/InternVLA-A1-dynamic-results.webp" width="100%" />
+  <img src="/images/vla/InternVLA-A1-dynamic-results.webp" alt="Express Sorting 和 In-motion Ingredient Picking 任务的成功率对比：InternVLA-A1（3B）以 80% 和 93.3% 大幅领先基线" width="1326" height="498" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 Express Sorting 和 In-motion Ingredient Picking 任务的成功率对比：InternVLA-A1（3B）以 80% 和 93.3% 大幅领先基线
 </figcaption>
@@ -3432,7 +3492,10 @@ Express Sorting 和 In-motion Ingredient Picking 任务的成功率对比：Inte
 
 ---
 
-## 5.18 InternVLA-A1.5 (2026) {#5-18-internvla-a1.5-2026}
+<span id="518-internvla-a15-2026-5-18-internvla-a15-2026" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.18 InternVLA-A1.5 (2026)
+{: id="5-18-internvla-a1.5-2026"}
 ——Unifying Understanding, Latent Foresight, and Action for Compositional Generalization
 
 📄 **Paper**: https://arxiv.org/abs/2607.04988v1
@@ -3458,7 +3521,7 @@ Express Sorting 和 In-motion Ingredient Picking 任务的成功率对比：Inte
 **主要方法/创新点**
 
 <div align="center">
-  <img src="/images/vla/InternVLA-A1.5-overview.webp" width="100%" />
+  <img src="/images/vla/InternVLA-A1.5-overview.webp" alt="InternVLA-A1.5 整体架构概述，通过将轻量级的动作/预测专家模块拼接到预训练 VLM 主干上，实现了理解、潜在预测与动作生成的统一。" width="1323" height="1114" style="width: 100%;" loading="lazy" decoding="async" />
   <figcaption>InternVLA-A1.5 整体架构概述，通过将轻量级的动作/预测专家模块拼接到预训练 VLM 主干上，实现了理解、潜在预测与动作生成的统一。</figcaption>
 </div>
 
@@ -3487,7 +3550,7 @@ InternVLA-A1.5 采用了 Mixture-of-Transformers (MoT) 混合架构，由两大�
 - **设计动机**：将“物理世界怎么演化”的生成细节完全托管给已经具备强大泛化能力的视频大模型，而机器人策略只需要学会“想象什么（What to imagine）”而非“怎么画画”，在保留世界模型动力学先验的同时消除了实机推理时的巨额计算成本。
 
 <div align="center">
-  <img src="/images/vla/InternVLA-A1.5-framework.webp" width="100%" />
+  <img src="/images/vla/InternVLA-A1.5-framework.webp" alt="InternVLA-A1.5 的 MoT 架构，展示了预训练 VLM 主干与统一专家的注意力融合方式，以及 Foresight Tokens 和连续动作生成的流程。" width="1326" height="641" style="width: 100%;" loading="lazy" decoding="async" />
   <figcaption>InternVLA-A1.5 的 MoT 架构，展示了预训练 VLM 主干与统一专家的注意力融合方式，以及 Foresight Tokens 和连续动作生成的流程。</figcaption>
 </div>
 
@@ -3523,7 +3586,7 @@ ight]$$
     在实践中，权重参数设为 $lpha = 1, eta = 10$。
 
 <div align="center">
-  <img src="/images/vla/InternVLA-A1.5-foresight-mechanism.webp" width="100%" />
+  <img src="/images/vla/InternVLA-A1.5-foresight-mechanism.webp" alt="Foresight 预测机制数据流：通过 Foresight 隐编码在视频扩散生成模型（WAN）上计算时空回归，并将梯度回传以优化专家表示。" width="1326" height="534" style="width: 100%;" loading="lazy" decoding="async" />
   <figcaption>Foresight 预测机制数据流：通过 Foresight 隐编码在视频扩散生成模型（WAN）上计算时空回归，并将梯度回传以优化专家表示。</figcaption>
 </div>
 
@@ -3537,12 +3600,12 @@ ight]$$
 **核心结果/发现**
 
 <div align="center">
-  <img src="/images/vla/InternVLA-A1.5-realworld-results.webp" width="100%" />
+  <img src="/images/vla/InternVLA-A1.5-realworld-results.webp" alt="真实世界操作任务表现：在 Sort Tubes、Insert Tubes、Move Tubes 三项指令遵循任务和 MOF 长程化学合成任务上，InternVLA-A1.5 均取得了领先成绩，尤其是在精确插入与长程控制中表现亮眼。" width="1328" height="555" style="width: 100%;" loading="lazy" decoding="async" />
   <figcaption>真实世界操作任务表现：在 Sort Tubes、Insert Tubes、Move Tubes 三项指令遵循任务和 MOF 长程化学合成任务上，InternVLA-A1.5 均取得了领先成绩，尤其是在精确插入与长程控制中表现亮眼。</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vla/InternVLA-A1.5-generalization.webp" width="100%" />
+  <img src="/images/vla/InternVLA-A1.5-generalization.webp" alt="在 seen 与 held-out（未见过的组合泛化）指令绑定任务下的消融对比。InternVLA-A1.5 在 OOD 任务上泛化表现最为稳健。" width="1328" height="536" style="width: 100%;" loading="lazy" decoding="async" />
   <figcaption>在 seen 与 held-out（未见过的组合泛化）指令绑定任务下的消融对比。InternVLA-A1.5 在 OOD 任务上泛化表现最为稳健。</figcaption>
 </div>
 
@@ -3560,13 +3623,16 @@ ight]$$
 
 ---
 
-## 5.19 InternData-A1 (2025) {#5-17-interndata-a1-2025}
+<span id="519-interndata-a1-2025-5-17-interndata-a1-2025" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.19 InternData-A1 (2025)
+{: id="5-17-interndata-a1-2025"}
 **副标题**: Pioneering High-Fidelity Synthetic Data for Pre-training Generalist Policy
 
 📄 **Paper**: https://arxiv.org/abs/2511.16651
 
 <div align="center">
-  <img src="/images/vla/interndata_a1_teaser.webp" width="90%" />
+  <img src="/images/vla/interndata_a1_teaser.webp" alt="InternData-A1：大规模高保真合成数据集生成 Pipeline（来源：InternData-A1 Project）" width="1328" height="823" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
 InternData-A1：大规模高保真合成数据集生成 Pipeline（来源：InternData-A1 Project）
 </figcaption>
@@ -3589,7 +3655,7 @@ InternData-A1：大规模高保真合成数据集生成 Pipeline（来源：Inte
 InternData-A1 是一个包含 630k 轨迹、7,433 小时、覆盖 4 种机器人体态（AgiBot Genie-1、Franka Emika Panda、AgileX Split Aloha、ARX Lift-2）、18 种技能、70 个任务、227 个室内场景的大规模高保真合成数据集。
 
 <div align="center">
-  <img src="/images/vla/InternData-A1-data-statistics.webp" width="100%" />
+  <img src="/images/vla/InternData-A1-data-statistics.webp" alt="InternData-A1 数据统计概览：4 种体态、70 个任务、3185 个 rigid 物体、321 个 articulation 物体、20 件服装，共 630k episodes、401.4M 帧、7433.9 小时" width="1326" height="636" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 InternData-A1 数据统计概览：4 种体态、70 个任务、3185 个 rigid 物体、321 个 articulation 物体、20 件服装，共 630k episodes、401.4M 帧、7433.9 小时
 </figcaption>
@@ -3598,7 +3664,7 @@ InternData-A1 数据统计概览：4 种体态、70 个任务、3185 个 rigid �
 ### 数据合成 Pipeline（4 阶段全自动）
 
 <div align="center">
-  <img src="/images/vla/InternData-A1-pipeline.webp" width="100%" />
+  <img src="/images/vla/InternData-A1-pipeline.webp" alt="InternData-A1 数据合成 pipeline，包含环境构建、技能组合、Domain Randomization 和轨迹生成与存储四个阶段" width="1326" height="987" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 InternData-A1 数据合成 pipeline，包含环境构建、技能组合、Domain Randomization 和轨迹生成与存储四个阶段
 </figcaption>
@@ -3640,7 +3706,7 @@ InternData-A1 数据合成 pipeline，包含环境构建、技能组合、Domain
 
 **与 π-dataset 对比（9 个真实世界任务）**
 <div align="center">
-  <img src="/images/vla/InternData-A1-realworld-comparison.webp" width="100%" />
+  <img src="/images/vla/InternData-A1-realworld-comparison.webp" alt="InternData-A1 在 9 个真实世界任务上的性能对比，包括 5 个常规任务和 4 个灵巧任务，平均超越 π-dataset 6.2%" width="1328" height="515" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 InternData-A1 在 9 个真实世界任务上的性能对比，包括 5 个常规任务和 4 个灵巧任务，平均超越 π-dataset 6.2%
 </figcaption>
@@ -3655,7 +3721,7 @@ InternData-A1 在 9 个真实世界任务上的性能对比，包括 5 个常规
 
 **Sim-to-Real 迁移**
 <div align="center">
-  <img src="/images/vla/InternData-A1-sim2real-results.webp" width="100%" />
+  <img src="/images/vla/InternData-A1-sim2real-results.webp" alt="6 个 sim-to-real 任务仅使用 500 条仿真 episodes 即可实现超过 50% 的成功率" width="1330" height="527" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 6 个 sim-to-real 任务仅使用 500 条仿真 episodes 即可实现超过 50% 的成功率
 </figcaption>
@@ -3670,17 +3736,15 @@ InternData-A1 在 9 个真实世界任务上的性能对比，包括 5 个常规
 - 去除 Articulation 任务（仅 11.67%）导致显著下降，说明 articulated 操作能扩展 action space 多样性
 - 核心结论：**轨迹多样性（Trajectory Diversity）是有效预训练的核心驱动**
 
-## 5.20 Isaac GR00T (2025-2026) {#5-18-gr00t-2025}
+<span id="520-isaac-gr00t-2025-2026-5-18-gr00t-2025" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.20 Isaac GR00T (2025-2026)
+{: id="5-18-gr00t-2025"}
 Generalist Robot 00 Technology ———英伟达全栈具身智能生态
 
 📄 **Paper**: [NVIDIA Isaac Blog](https://developer.nvidia.com/isaac-robotics)
 
-<div align="center">
-  <img src="/images/vla/gr00t_architecture.webp" width="90%" />
-<figcaption>
-GR00T N1.6 双系统架构图：System 2 (慢思考 VLM) + System 1 (快思考 DiT)（来源：NVIDIA Isaac Docs）
-</figcaption>
-</div>
+> 架构资料：[NVIDIA Isaac 官方资源](https://developer.nvidia.com/isaac-robotics)。
 
 **精华**
 
@@ -3721,13 +3785,16 @@ GR00T 代表了"模型开源 + 生态锁定"的典型范式。其核心贡献在
 
 ---
 
-## 5.21 Xiaomi-Robotics-0 (2026) {#5-19-xiaomi-r0-2026}
+<span id="521-xiaomi-robotics-0-2026-5-19-xiaomi-r0-2026" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.21 Xiaomi-Robotics-0 (2026)
+{: id="5-19-xiaomi-r0-2026"}
 MoT Architecture for Real-Time Bimanual Manipulation ———国产开源 VLA 的实时性标杆
 
 📄 **Paper**: [小米机器人实验室](https://github.com/Xiaomi-Robotics)
 
 <div align="center">
-  <img src="/images/vla/xiaomi_r0_architecture.webp" width="90%" />
+  <img src="/images/vla/xiaomi_r0_architecture.webp" alt="Xiaomi-R0：基于 Mixture-of-Transformers (MoT) 的低延迟双臂操作架构（来源：Xiaomi Robotics）" width="1328" height="826" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
 Xiaomi-R0：基于 Mixture-of-Transformers (MoT) 的低延迟双臂操作架构（来源：Xiaomi Robotics）
 </figcaption>
@@ -3767,13 +3834,16 @@ Xiaomi-R0 针对 VLA 模型在实际部署中常见的推理延迟问题，提�
 - 对复杂光照和极端动态场景的鲁棒性仍有待提升。
 
 ---
-## 5.22 X-VLA (2025) {#5-20-xvla-2025}
+<span id="522-x-vla-2025-5-20-xvla-2025" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.22 X-VLA (2025)
+{: id="5-20-xvla-2025"}
 Scalable Cross-Embodied Learning with Soft Prompting ———学术界彻底开源的具身范本
 
 📄 **Paper**: [Tsinghua AIR & Shanghai AI Lab](https://github.com/X-VLA)
 
 <div align="center">
-  <img src="/images/vla/xvla_architecture.webp" width="90%" />
+  <img src="/images/vla/xvla_architecture.webp" alt="X-VLA：基于软提示 (Soft Prompting) 的跨具身自适应架构，低成本适配异构硬件（来源：X-VLA Project）" width="1372" height="869" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
 X-VLA：基于软提示 (Soft Prompting) 的跨具身自适应架构，低成本适配异构硬件（来源：X-VLA Project）
 </figcaption>
@@ -3825,7 +3895,7 @@ X-VLA 是由清华 AIR 和上海 AI 实验室联合推出的彻底开源项目�
 **主要方法/创新点**
 
 <div align="center">
-  <img src="/images/vln/motus-architecture-overview.webp" width="90%" />
+  <img src="/images/vln/motus-architecture-overview.webp" alt="Motus整体架构:Mixture-of-Transformer结构整合理解专家、视频生成专家和动作专家" width="874" height="762" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
 Motus整体架构:Mixture-of-Transformer结构整合理解专家、视频生成专家和动作专家
 </figcaption>
@@ -3859,7 +3929,7 @@ Motus提出了统一的潜在动作世界模型,通过以下创新实现五种�
 **3. 潜在动作(Latent Actions) - 像素级"增量动作":**
 
 <div align="center">
-  <img src="/images/vln/motus-latent-action-vae.webp" width="60%" />
+  <img src="/images/vln/motus-latent-action-vae.webp" alt="潜在动作VAE架构:从光流到潜在动作表示" width="598" height="838" style="width: 60%;" loading="lazy" decoding="async" />
 <figcaption>
 潜在动作VAE架构:从光流到潜在动作表示
 </figcaption>
@@ -3880,7 +3950,7 @@ Motus提出了统一的潜在动作世界模型,通过以下创新实现五种�
 **5. 三阶段训练流程:**
 
 <div align="center">
-  <img src="/images/vln/motus-training-pipeline.webp" width="70%" />
+  <img src="/images/vln/motus-training-pipeline.webp" alt="Motus三阶段训练流程与数据金字塔" width="675" height="783" style="width: 70%;" loading="lazy" decoding="async" />
 <figcaption>
 Motus三阶段训练流程与数据金字塔
 </figcaption>
@@ -3899,7 +3969,7 @@ Motus三阶段训练流程与数据金字塔
 - **Level 6**: 目标机器人任务轨迹数据(In-house: 2,000样本)
 
 <div align="center">
-  <img src="/images/vln/motus-embodied-data-pyramid.webp" width="100%" />
+  <img src="/images/vln/motus-embodied-data-pyramid.webp" alt="具身数据金字塔:从Level 1到Level 6数据量递减但质量递增" width="1126" height="838" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 具身数据金字塔:从Level 1到Level 6数据量递减但质量递增
 </figcaption>
@@ -3914,7 +3984,7 @@ Motus三阶段训练流程与数据金字塔
 - 清洁场景成功率:88.66%(Motus) vs 72.80%(X-VLA) vs 42.98%(π0.5)
 
 <div align="center">
-  <img src="/images/vln/motus-robotwin-results.webp" width="100%" />
+  <img src="/images/vln/motus-robotwin-results.webp" alt="RoboTwin 2.0仿真基准测试结果对比" width="1064" height="779" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
 RoboTwin 2.0仿真基准测试结果对比
 </figcaption>
@@ -3932,7 +4002,7 @@ RoboTwin 2.0仿真基准测试结果对比
   - 突出任务:从饮水机取水96% vs 8%(无预训练),叠毛巾39% vs 0%
 
 <div align="center">
-  <img src="/images/vln/motus-real-world-tasks.webp" width="60%" />
+  <img src="/images/vln/motus-real-world-tasks.webp" alt="Motus在真实世界复杂任务上的执行展示" width="675" height="1320" style="width: 60%;" loading="lazy" decoding="async" />
 <figcaption>
 Motus在真实世界复杂任务上的执行展示
 </figcaption>
@@ -3966,7 +4036,7 @@ $$
 5. 视频-动作联合预测: p(o_{t+1:t+k}, a_{t+1:t+k} | o_t, ℓ) - 同时生成视频和动作 -->
 
 <div align="center">
-  <img src="/images/vln/motus-vgm-mode-visualization.webp" width="90%" />
+  <img src="/images/vln/motus-vgm-mode-visualization.webp" alt="Motus VGM 模式（从观察和语言生成未来视频）在 Agilex-Aloha-2 上的可视化：每组上排为真实执行，下排为模型生成" width="1249" height="1018" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
 Motus VGM 模式（从观察和语言生成未来视频）在 Agilex-Aloha-2 上的可视化：每组上排为真实执行，下排为模型生成
 </figcaption>
@@ -3977,7 +4047,10 @@ Motus VGM 模式（从观察和语言生成未来视频）在 Agilex-Aloha-2 上
 当前方法需要大量计算资源(总计约18,400 GPU小时训练)。某些复杂任务(如叠毛巾)的性能仍有限,部分成功率仅为39%。尽管通过潜在动作改进了跨具身泛化,但仍需进一步研究。未来工作将探索更先进的统一模型架构,追求更通用的运动先验,并从互联网规模的通用视频中学习潜在动作。此外,需要研究如何降低部署成本并提升模型在极端条件下的鲁棒性。
 
 
-## 5.24 RoboGen (2024) {#5-23-robogen-2024}
+<span id="524-robogen-2024-5-23-robogen-2024" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.24 RoboGen (2024)
+{: id="5-23-robogen-2024"}
 ———Towards Unleashing Infinite Data for Automated Robot Learning via Generative Simulation
 
 📄 **Paper**: [arXiv:2311.01455](https://arxiv.org/abs/2311.01455) (ICML 2024)
@@ -3994,7 +4067,7 @@ RoboGen 是 CMU、清华、MIT、UMass 等团队提出的"生成式仿真"（Gen
 - **Genesis 仿真平台的发源工程**：RoboGen 内部版即 Genesis 的雏形——一个支持多材质耦合、可微分的统一仿真平台，后由原班人马商业化为 Genesis AI，并孕育出 2026 年的 Gene 26.5 通用操作基础模型。
 
 <div align="center">
-  <img src="/images/vla/RoboGen-overview.webp" width="100%" />
+  <img src="/images/vla/RoboGen-overview.webp" alt="RoboGen 自动生成的 25 个代表性任务与对应技能：覆盖刚体、铰接体、软体（揉面/塑形/卷面/弯面条）以及双足/四足运动" width="1367" height="869" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>RoboGen 自动生成的 25 个代表性任务与对应技能：覆盖刚体、铰接体、软体（揉面/塑形/卷面/弯面条）以及双足/四足运动</figcaption>
 </div>
 
@@ -4017,7 +4090,7 @@ A) Task Proposal  →  B) Scene Generation  →  C) Training Supervision Generat
 ```
 
 <div align="center">
-  <img src="/images/vla/RoboGen-architecture.webp" width="100%" />
+  <img src="/images/vla/RoboGen-architecture.webp" alt="RoboGen 四阶段全自动管线：Task Proposal / Scene Generation / Training Supervision Generation / Skill Learning" width="1369" height="627" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>RoboGen 四阶段全自动管线：Task Proposal / Scene Generation / Training Supervision Generation / Skill Learning</figcaption>
 </div>
 
@@ -4076,7 +4149,7 @@ A) Task Proposal  →  B) Scene Generation  →  C) Training Supervision Generat
 - "Retrieve a gold bar from the safe"、"Heat up a bowl of soup using the microwave"、"Put the toy into the storage"、"Move the toy out of the box" 均能被自动拆解、自动赋奖、自动学成完整序列。
 
 <div align="center">
-  <img src="/images/vla/RoboGen-skills.webp" width="100%" />
+  <img src="/images/vla/RoboGen-skills.webp" alt="4 个长程任务的策略快照：每条任务由 LLM 自动拆解为 5–7 个子任务，并按 RL/动作原语/运动规划自适应分配学习算法" width="1148" height="631" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>4 个长程任务的策略快照：每条任务由 LLM 自动拆解为 5–7 个子任务，并按 RL/动作原语/运动规划自适应分配学习算法</figcaption>
 </div>
 
@@ -4092,7 +4165,7 @@ A) Task Proposal  →  B) Scene Generation  →  C) Training Supervision Generat
 
 **意义与后续影响**：
 - **范式价值**：RoboGen 是首个把"任务–场景–监督–策略"四阶段全部交给基础模型的系统，奠定了"生成式仿真"作为继真机遥操作、互联网视频之后的第三条数据来源。
-- **工程遗产**：论文中提到的内部版 Genesis 仿真器，正是后来开源 Genesis（CMU 主导，每秒 4300 万帧，见 [§1.7](#1-7-vla开源生态)）以及 Genesis AI 商业化版本 Genesis World 的基础。
+- **工程遗产**：论文中提到的内部版 Genesis 仿真器，正是后来开源 Genesis（CMU 主导，每秒 4300 万帧，见 [§1.7](#17-vla开源生态)）以及 Genesis AI 商业化版本 Genesis World 的基础。
 - **通向 Gene 26.5**：Genesis AI 在 2026 年 5 月发布的 Gene 26.5 系统将这一范式推向真实世界——以 Genesis World 做大规模仿真预训练 + 200k+ 小时真实多模态数据微调，产出能完成烹饪、移液、魔方、钢琴等长程灵巧任务的统一 Flow Matching 基础模型，新任务仅需 20–30 分钟数据即可微调。可以认为：**RoboGen 提出的 propose-generate-learn 循环 + Genesis 的可微极速仿真，正是 Gene 26.5 数据飞轮的学术原型**。
 
 ---
@@ -4123,7 +4196,7 @@ A) Task Proposal  →  B) Scene Generation  →  C) Training Supervision Generat
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vla/QwenVLA-architecture-overview.webp" width="100%" />
+  <img src="/images/vla/QwenVLA-architecture-overview.webp" alt="Qwen-VLA 整体架构：Qwen3.5 VLM 主干 + DiT flow-matching 动作专家，同时支持 VLA（操作）、VLN（导航）和 VL（语言理解）三类任务" width="1278" height="658" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>Qwen-VLA 整体架构：Qwen3.5 VLM 主干 + DiT flow-matching 动作专家，同时支持 VLA（操作）、VLN（导航）和 VL（语言理解）三类任务</figcaption>
 </div>
 
@@ -4182,7 +4255,7 @@ $$\mathcal{L}_\text{vl} = -\sum_i \log p_\theta(w_i \mid w_{<i}, o_{1:t})$$
 **⑤ 四阶段渐进式训练**
 
 <div align="center">
-  <img src="/images/vla/QwenVLA-training-recipe.webp" width="100%" />
+  <img src="/images/vla/QwenVLA-training-recipe.webp" alt="四阶段训练：Stage I（T2A，冻结 VLM 仅训练 DiT）→ Stage II/III（CPT &amp; SFT，解冻双模块引入图像）→ Stage IV（RL，环境稀疏奖励优化闭环成功率）" width="1277" height="603" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>四阶段训练：Stage I（T2A，冻结 VLM 仅训练 DiT）→ Stage II/III（CPT & SFT，解冻双模块引入图像）→ Stage IV（RL，环境稀疏奖励优化闭环成功率）</figcaption>
 </div>
 
@@ -4194,7 +4267,7 @@ $$\mathcal{L}_\text{vl} = -\sum_i \log p_\theta(w_i \mid w_{<i}, o_{1:t})$$
 **大规模合成数据（ROBOINF 流水线）**
 
 <div align="center">
-  <img src="/images/vla/QwenVLA-synthetic-data.webp" width="100%" />
+  <img src="/images/vla/QwenVLA-synthetic-data.webp" alt="ROBOINF 生成的合成数据示例：短时域任务（放置订书机、旋转蛋糕铲）和长时域任务（整理饮料+海绵），包含子任务分割监督" width="1282" height="1057" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>ROBOINF 生成的合成数据示例：短时域任务（放置订书机、旋转蛋糕铲）和长时域任务（整理饮料+海绵），包含子任务分割监督</figcaption>
 </div>
 
@@ -4227,7 +4300,10 @@ ROBOINF 流水线在 IsaacLab 中自动构建场景（20 桌面场景 × 10 姿�
 ### 4. 局限性
 
 具身动作数据规模远小于 VL 数据，长尾物体、接触丰富任务（如布料折叠、插槽）的鲁棒性仍有不足；操作/导航/VL 联合训练存在优化权衡，动作增强训练会轻微损伤纯 VL 和导航评测指标；当前评估以短时域、基准驱动为主，长时域真实部署（故障恢复、情景记忆）仍是未解挑战。
-## 5.26 SpatialVLA (2025) {#5-26-spatialvla}
+<span id="526-spatialvla-2025-5-26-spatialvla" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.26 SpatialVLA (2025)
+{: id="5-26-spatialvla"}
 ——融合 3D 空间表征与自适应动作网格的具身智能基础模型
 
 📄 **Paper**: https://arxiv.org/abs/2501.15830
@@ -4250,17 +4326,17 @@ ROBOINF 流水线在 IsaacLab 中自动构建场景（20 桌面场景 × 10 姿�
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vla/SpatialVLA-highlights.webp" width="100%" />
+  <img src="/images/vla/SpatialVLA-highlights.webp" alt="SpatialVLA 概览：结合 Ego3D 位置编码与自适应动作网格，在 110 万真实机器人轨迹上进行预训练，实现出色的 3D 空间理解、零样本泛化和快速微调。" width="1446" height="779" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>SpatialVLA 概览：结合 Ego3D 位置编码与自适应动作网格，在 110 万真实机器人轨迹上进行预训练，实现出色的 3D 空间理解、零样本泛化和快速微调。</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vla/SpatialVLA-architecture.webp" width="100%" />
+  <img src="/images/vla/SpatialVLA-architecture.webp" alt="SpatialVLA 架构图：接收图像与语言指令，利用 SigLIP 提取图像特征并与 Ego3D 位置编码融合，通过 Gemma 2 自回归预测 3 个空间动作 Token（平移、旋转、夹爪）。" width="1446" height="660" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>SpatialVLA 架构图：接收图像与语言指令，利用 SigLIP 提取图像特征并与 Ego3D 位置编码融合，通过 Gemma 2 自回归预测 3 个空间动作 Token（平移、旋转、夹爪）。</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vla/SpatialVLA-action-grids.webp" width="100%" />
+  <img src="/images/vla/SpatialVLA-action-grids.webp" alt="自适应动作网格设计：根据数据集的动作统计拟合高斯分布，并在概率密度函数上等概率划分区间，从而非均匀地划分平移和旋转动作空间。" width="715" height="744" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>自适应动作网格设计：根据数据集的动作统计拟合高斯分布，并在概率密度函数上等概率划分区间，从而非均匀地划分平移和旋转动作空间。</figcaption>
 </div>
 
@@ -4301,17 +4377,17 @@ $$\mathcal{L}(\theta) = \mathbb{E}_{p(A_t|o_t)} [\mathcal{L}(a_t, \tilde{a}_t)]$
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/vla/SpatialVLA-zero-shot-eval.webp" width="100%" />
+  <img src="/images/vla/SpatialVLA-zero-shot-eval.webp" alt="真实机器人评估：在 WidowX 平台上进行了包含语言理解、背景和姿态变化以及动态干扰的 zero-shot 测试，SpatialVLA 取得了最高的平均成功率。" width="1446" height="574" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>真实机器人评估：在 WidowX 平台上进行了包含语言理解、背景和姿态变化以及动态干扰的 zero-shot 测试，SpatialVLA 取得了最高的平均成功率。</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vla/SpatialVLA-franka-adaptation.webp" width="100%" />
+  <img src="/images/vla/SpatialVLA-franka-adaptation.webp" alt="Franka 机器人适配结果：展示了在单任务、指令遵循和多任务微调下的表现，SpatialVLA 作为预训练初始化模型，优于 OpenVLA、Octo 和从头训练的 Diffusion Policy。" width="715" height="517" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>Franka 机器人适配结果：展示了在单任务、指令遵循和多任务微调下的表现，SpatialVLA 作为预训练初始化模型，优于 OpenVLA、Octo 和从头训练的 Diffusion Policy。</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vla/SpatialVLA-spatial-understanding-eval.webp" width="100%" />
+  <img src="/images/vla/SpatialVLA-spatial-understanding-eval.webp" alt="空间理解能力验证：对比不同策略在处理空间指令、高度变化等复杂空间布局任务中的表现，SpatialVLA 表现出明显优势。" width="1446" height="536" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>空间理解能力验证：对比不同策略在处理空间指令、高度变化等复杂空间布局任务中的表现，SpatialVLA 表现出明显优势。</figcaption>
 </div>
 
@@ -4334,7 +4410,10 @@ $$\mathcal{L}(\theta) = \mathbb{E}_{p(A_t|o_t)} [\mathcal{L}(a_t, \tilde{a}_t)]$
 ### 4. 局限性
 - **长时序任务依赖**：尽管模型在短周期闭环控制中表现出色，但受限于单帧加历史 Token 的架构设计，在需要长期记忆和多阶段规划的任务（如 LIBERO-Long）中提升有限，未来需要开发更长效的历史感知层。
 - **高维动作扩展困难**：目前的 Gaussian 分布拟合是针对单臂 7 自由度动作设计的。如果扩展到双臂协作、灵巧手操纵等多维度高自由度任务，网格组合数会指数级增长，需要设计更高效的空间共享网格或者隐式生成解码机制。
-## 5.27 Harness VLA (2026) {#5-27-harness-vla}
+<span id="527-harness-vla-2026-5-27-harness-vla" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.27 Harness VLA (2026)
+{: id="5-27-harness-vla"}
 📄 **Paper**: https://arxiv.org/abs/2607.08448
 
 ### 精华
@@ -4361,7 +4440,7 @@ $$\mathcal{L}(\theta) = \mathbb{E}_{p(A_t|o_t)} [\mathcal{L}(a_t, \tilde{a}_t)]$
 Harness VLA 提出了一个非对称分层架构，将冻结的 VLA 限制为 Agent 调用的一个接触密集型基元，把控制权交给由 LLM/VLM 驱动的 Agentic Planner 和统一基元库，并辅以双层记忆系统。
 
 <div align="center">
-  <img src="/images/vla/HarnessVLA-architecture.webp" width="100%" />
+  <img src="/images/vla/HarnessVLA-architecture.webp" alt="Harness VLA 系统整体架构与交互流程" width="1320" height="1109" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>Harness VLA 系统整体架构与交互流程</figcaption>
 </div>
 
@@ -4374,7 +4453,7 @@ Harness VLA 系统由四大核心模块构成：
 4. **双层记忆系统**：包含 Task Specific Memory（存储参数化成功轨迹 JSONL）和 Global Memory（沉淀通用成功规则与失败模型）。
 
 <div align="center">
-  <img src="/images/vla/HarnessVLA-concept.webp" width="100%" />
+  <img src="/images/vla/HarnessVLA-concept.webp" alt="通过记忆引导的基元组合扩展冻结 VLA 的分布外轨迹空间" width="1320" height="893" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>通过记忆引导的基元组合扩展冻结 VLA 的分布外轨迹空间</figcaption>
 </div>
 
@@ -4409,14 +4488,14 @@ Planner 将 `VLA_ACT` 视为可被重新调整姿态并重试的局部基元。�
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/vla/HarnessVLA-libero-pro.webp" width="100%" />
+  <img src="/images/vla/HarnessVLA-libero-pro.webp" alt="LIBERO-Pro 上的分布外终端状态对比：端到端 VLA 与 Harness VLA 的行为差异" width="1320" height="548" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>LIBERO-Pro 上的分布外终端状态对比：端到端 VLA 与 Harness VLA 的行为差异</figcaption>
 </div>
 
 - **LIBERO-Pro 强扰动测试（表 2 & 表 3）**：在包含空间位置置换（SPATIAL/OBJECT/GOAL-S）和指令重定向（GOAL-T 等）的 LIBERO-Pro 评测中，Harness VLA (CC) / (Codex) 取得 **47.5% / 56.3%** 的平均成功率，相比最强基线（$$ \pi_{RLinf} $$ 仅 6.1%、$\pi_0$ 仅 1.1%）分别提升 41.4 和 50.2 个百分点。
 
 <div align="center">
-  <img src="/images/vla/HarnessVLA-vla-budget.webp" width="100%" />
+  <img src="/images/vla/HarnessVLA-vla-budget.webp" alt="自适应 VLA 调用次数与任务成功率的关系曲线" width="1320" height="699" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>自适应 VLA 调用次数与任务成功率的关系曲线</figcaption>
 </div>
 
@@ -4424,7 +4503,7 @@ Planner 将 `VLA_ACT` 视为可被重新调整姿态并重试的局部基元。�
 - **RoboTwin C2R 零样本迁移（表 6）**：在 Clean-to-Randomized 迁移设定下，使用训练于 Clean 环境的 LingBot-VLA 作为 `VLA_ACT` 基础后端，直接部署该 VLA 的成功率为 50.4%，而 Harness VLA 将其提升至 **58.4%**。
 
 <div align="center">
-  <img src="/images/vla/HarnessVLA-rollout-cases.webp" width="100%" />
+  <img src="/images/vla/HarnessVLA-rollout-cases.webp" alt="解析解拆解与接触密集型操作交替调用的典型 Rollout 案例" width="1320" height="761" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>解析解拆解与接触密集型操作交替调用的典型 Rollout 案例</figcaption>
 </div>
 
@@ -4439,7 +4518,10 @@ Planner 将 `VLA_ACT` 视为可被重新调整姿态并重试的局部基元。�
 
 1. **依赖高层 VLM/LLM 的推理延迟**：闭环 REPL 模式依赖高层大模型的闭环推理与决策，在需要毫秒级（>50Hz）高频避障或实时连续反馈的极动态场景中仍受限于 API 响应延迟。
 2. **Bootstrapping 阶段需要试错预算**：建构 Task Specific Memory 和 Global Memory 前提是在参考种子任务上允许使用 `RESET` 并提供一定的自主探索试错时间。
-## 5.28 TurboVLA (2026) {#5-28-turbovla}
+<span id="528-turbovla-2026-5-28-turbovla" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.28 TurboVLA (2026)
+{: id="5-28-turbovla"}
 ——实时视语言动作模型：在 RTX 4090 上实现 32 Hz 控制与低于 1 GB 显存占用
 
 📄 **Paper**: https://arxiv.org/abs/2607.27205
@@ -4465,7 +4547,7 @@ Planner 将 `VLA_ACT` 视为可被重新调整姿态并重试的局部基元。�
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vla/TurboVLA-vs-LLMcentric-VLA.webp" width="100%" />
+  <img src="/images/vla/TurboVLA-vs-LLMcentric-VLA.webp" alt="图 1：传统 LLM-centric VLA 架构（左）与 TurboVLA 直接视语言交互架构（右）对比及 LIBERO 性能-延迟前沿" width="1122" height="745" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>图 1：传统 LLM-centric VLA 架构（左）与 TurboVLA 直接视语言交互架构（右）对比及 LIBERO 性能-延迟前沿</figcaption>
 </div>
 
@@ -4484,7 +4566,7 @@ Planner 将 `VLA_ACT` 视为可被重新调整姿态并重试的局部基元。�
 > **举个例子**：传统 VLA 模型如 $\pi_{0.5}$ 拥有 3.4B 参数，预测一个动作块需 93.6 ms 且占用 12.8 GB 显存；而 TurboVLA 总参数量仅 0.2B（仅为 $\pi_{0.5}$ 的 6%），推断一次仅需 31.2 ms，显存占用低于 0.9 GB。这使得策略控制频率从 11 Hz 跃升至 32 Hz，可在单张消费级 RTX 4090 显卡上实现高频闭环操控。
 
 <div align="center">
-  <img src="/images/vla/TurboVLA-architecture-overview.webp" width="100%" />
+  <img src="/images/vla/TurboVLA-architecture-overview.webp" alt="图 2：TurboVLA 整体架构（a）与双向视语言交互模块细节（b）" width="1118" height="810" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>图 2：TurboVLA 整体架构（a）与双向视语言交互模块细节（b）</figcaption>
 </div>
 
@@ -4531,7 +4613,7 @@ $$\hat{A}_n = D_{\theta}(Q_a, [Z^{vl}_n; Z^s_n]) \in \mathbb{R}^{H \times d_a}$$
 训练过程采用行为克隆（Behavior Cloning）下的 $\ell_1$ 损失函数，无需任何辅助语言建模损失。
 
 <div align="center">
-  <img src="/images/vla/TurboVLA-deployment-comparison.webp" width="100%" />
+  <img src="/images/vla/TurboVLA-deployment-comparison.webp" alt="图 3：边缘终端直接推断与远程服务器推断对比及 TurboVLA 实时动作生成流水线" width="981" height="557" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>图 3：边缘终端直接推断与远程服务器推断对比及 TurboVLA 实时动作生成流水线</figcaption>
 </div>
 
@@ -4540,7 +4622,7 @@ $$\hat{A}_n = D_{\theta}(Q_a, [Z^{vl}_n; Z^s_n]) \in \mathbb{R}^{H \times d_a}$$
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/vla/TurboVLA-realworld-evaluation.webp" width="100%" />
+  <img src="/images/vla/TurboVLA-realworld-evaluation.webp" alt="图 4：基于 AgileX Piper 机械臂的真实世界评估场景与实验成功率对比" width="1118" height="533" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>图 4：基于 AgileX Piper 机械臂的真实世界评估场景与实验成功率对比</figcaption>
 </div>
 
@@ -4558,7 +4640,10 @@ $$\hat{A}_n = D_{\theta}(Q_a, [Z^{vl}_n; Z^s_n]) \in \mathbb{R}^{H \times d_a}$$
 
 - **缺少高层任务规划能力**：TurboVLA 专为执行级别的具体指令（Concrete Execution-level Instructions）设计，去除了 LLM 后失去了开放式常识推理与长序列高层任务分解能力。
 - **复杂跨模态推理受限**：对于需要多步隐式推理（如“先找到开瓶器再打开最左边的饮料瓶”）的复杂任务，仍需上层大语言模型进行高层规划并输出子目标指令，与 TurboVLA 的高效执行路径相结合。
-## 5.29 ZR-0 (2026) {#5-29-zr-0}
+<span id="529-zr-0-2026-5-29-zr-0" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.29 ZR-0 (2026)
+{: id="5-29-zr-0"}
 ——基于密集具身思考链 (ECoT) 监督与跨本体推理/执行解耦的 2.6B 端到端 VLA 模型
 
 📄 **Paper**: https://arxiv.org/abs/2606.30552
@@ -4584,7 +4669,7 @@ $$\hat{A}_n = D_{\theta}(Q_a, [Z^{vl}_n; Z^s_n]) \in \mathbb{R}^{H \times d_a}$$
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vla/ZR-0-framework.webp" width="100%" />
+  <img src="/images/vla/ZR-0-framework.webp" alt="图 1：ZR-0 整体架构与双流训练流程。System 2 VLM 在训练期接收多模态输入并以 Next-Token Prediction 监督生成结构化 ECoT；System 1 DiT 动作专家通过 Flow Matching 预测连续动作块，交叉注意力掩码确保其仅依赖输入 Prompt 特征。" width="1118" height="621" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>图 1：ZR-0 整体架构与双流训练流程。System 2 VLM 在训练期接收多模态输入并以 Next-Token Prediction 监督生成结构化 ECoT；System 1 DiT 动作专家通过 Flow Matching 预测连续动作块，交叉注意力掩码确保其仅依赖输入 Prompt 特征。</figcaption>
 </div>
 
@@ -4625,7 +4710,7 @@ $$\mathcal{L} = \mathcal{L}_{\mathrm{ntp}} + \alpha \mathcal{L}_{\mathrm{fm}}$$
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/vla/ZR-0-realworld-tasks.webp" width="100%" />
+  <img src="/images/vla/ZR-0-realworld-tasks.webp" alt="图 2：真实世界 xArm 机械臂多任务实验评估设置（包含指令遵循、颜色认知、长程规划、空间推理和 OCR 语义理解）" width="1118" height="541" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>图 2：真实世界 xArm 机械臂多任务实验评估设置（包含指令遵循、颜色认知、长程规划、空间推理和 OCR 语义理解）</figcaption>
 </div>
 
@@ -4644,7 +4729,10 @@ $$\mathcal{L} = \mathcal{L}_{\mathrm{ntp}} + \alpha \mathcal{L}_{\mathrm{fm}}$$
 
 1. **对离线自动标注质量的依赖**：ProcCorpus-60M 数据集依赖上游大模型生成 ECoT 伪标签，标注噪声（如复杂遮挡下的 BBox 漂移）可能影响中间表征的纯净度。
 2. **单向前馈缺少测试时动态反思**：由于推理阶段跳过了 ECoT 的自回归生成，模型无法在执行中实时输出文字自纠错或进行基于语言的反思重规划。
-## 5.30 RoboTTT (2026) {#5-30-robottt}
+<span id="530-robottt-2026-5-30-robottt" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.30 RoboTTT (2026)
+{: id="5-30-robottt"}
 ——扩展具身策略注意力上下文至 8K Timesteps 的测试时训练 (TTT) 视觉-语言-动作模型
 
 📄 **Paper**: https://arxiv.org/abs/2607.15275
@@ -4670,7 +4758,7 @@ $$\mathcal{L} = \mathcal{L}_{\mathrm{ntp}} + \alpha \mathcal{L}_{\mathrm{fm}}$$
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vla/RoboTTT-architecture.webp" width="100%" />
+  <img src="/images/vla/RoboTTT-architecture.webp" alt="RoboTTT 整体架构、序列训练与推理流程" width="1328" height="716" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>RoboTTT 整体架构、序列训练与推理流程</figcaption>
 </div>
 
@@ -4699,7 +4787,7 @@ RoboTTT 建立在流匹配（Flow-Matching）策略 Backbone（本文默认使�
   * **动机**：显存开销仅取决于单个 Segment 长度而非总序列长度，使模型能够突破 GPU 显存限制，完成 8K 级别的超长序列预训练。
 
 <div align="center">
-  <img src="/images/vla/RoboTTT-dagger-distillation.webp" width="100%" />
+  <img src="/images/vla/RoboTTT-dagger-distillation.webp" alt="DAgger Distillation 与长上下文自适应纠错机制" width="1326" height="760" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>DAgger Distillation 与长上下文自适应纠错机制</figcaption>
 </div>
 
@@ -4717,7 +4805,7 @@ RoboTTT 建立在流匹配（Flow-Matching）策略 Backbone（本文默认使�
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/vla/RoboTTT-context-scaling.webp" width="100%" />
+  <img src="/images/vla/RoboTTT-context-scaling.webp" alt="预训练上下文长度 Scaling 曲线及长程组装任务基准对比" width="1333" height="765" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>预训练上下文长度 Scaling 曲线及长程组装任务基准对比</figcaption>
 </div>
 
@@ -4734,7 +4822,10 @@ RoboTTT 建立在流匹配（Flow-Matching）策略 Backbone（本文默认使�
 
 * 8K 级别的长上下文序列预训练对高质连续运动数据要求较高，训练阶段需较大的计算资源支持。
 * 快权重的更新依赖基于 MSE 的辅助目标，在遇到极端环境突变（如光照大幅剧变或视角剧烈晃动）时的表征稳定性与泛化泛用边界仍有待进一步深入探索。
-## 5.31 S²-VLA (2026) {#5-31-s-vla}
+<span id="531-s-vla-2026-5-31-s-vla" class="vla-anchor-alias" aria-hidden="true"></span>
+
+## 5.31 S²-VLA (2026)
+{: id="5-31-s-vla"}
 ——状态空间引导的动态自适应注意力视觉-语言-动作模型：攻克长程具身操控累积误差
 
 📄 **Paper**: https://arxiv.org/abs/2606.27872
@@ -4763,7 +4854,7 @@ RoboTTT 建立在流匹配（Flow-Matching）策略 Backbone（本文默认使�
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vla/S2-VLA-concept.webp" width="100%" />
+  <img src="/images/vla/S2-VLA-concept.webp" alt="图 1：传统静态融合 VLA（左）与 S²-VLA 状态空间引导自适应注意力（右）在长程操控中的注意力阶段演变对比" width="694" height="591" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>图 1：传统静态融合 VLA（左）与 S²-VLA 状态空间引导自适应注意力（右）在长程操控中的注意力阶段演变对比</figcaption>
 </div>
 
@@ -4772,7 +4863,7 @@ RoboTTT 建立在流匹配（Flow-Matching）策略 Backbone（本文默认使�
 S²-VLA 接收多视角视觉观测 $V_t$、自然语言指令 $L_t$ 与机器人本体状态 $P_t$。模型由 **Qwen3-VL-2B 骨干**、**信念状态更新模块（GRU）** 以及 **24 层 SSGAA 动作头** 构成。
 
 <div align="center">
-  <img src="/images/vla/S2-VLA-architecture.webp" width="100%" />
+  <img src="/images/vla/S2-VLA-architecture.webp" alt="图 2：S²-VLA 整体架构与 SSGAA 自适应多模态数据流示意图" width="1418" height="640" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>图 2：S²-VLA 整体架构与 SSGAA 自适应多模态数据流示意图</figcaption>
 </div>
 
@@ -4809,7 +4900,7 @@ $$\hat{A}_{t:t+K-1} = \text{LN}(H^{(L_{\mathrm{out}})}) W_{\mathrm{out}}^\top + 
 ### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/vla/S2-VLA-realworld.webp" width="100%" />
+  <img src="/images/vla/S2-VLA-realworld.webp" alt="图 3：ALOHA 双臂机器人真实世界长程操控实验（包含方块抓放、双臂交接餐具、堆叠与整理）" width="692" height="550" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>图 3：ALOHA 双臂机器人真实世界长程操控实验（包含方块抓放、双臂交接餐具、堆叠与整理）</figcaption>
 </div>
 
@@ -4818,7 +4909,7 @@ $$\hat{A}_{t:t+K-1} = \text{LN}(H^{(L_{\mathrm{out}})}) W_{\mathrm{out}}^\top + 
 - **ALOHA 实机双臂部署**：在方块分类、双层堆叠、桌面整理和双臂餐具传递四项真实任务中表现出高平滑性与自纠错能力。
 
 <div align="center">
-  <img src="/images/vla/S2-VLA-visualization.webp" width="100%" />
+  <img src="/images/vla/S2-VLA-visualization.webp" alt="图 4：S²-VLA 在不同任务阶段的三路门控权重动态变化可视化（趋近阶段意图权重最高，接触阶段视觉权重自适应放大）" width="1410" height="537" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>图 4：S²-VLA 在不同任务阶段的三路门控权重动态变化可视化（趋近阶段意图权重最高，接触阶段视觉权重自适应放大）</figcaption>
 </div>
 

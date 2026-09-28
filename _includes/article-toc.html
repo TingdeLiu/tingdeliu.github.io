@@ -15,10 +15,11 @@
 
   <div class="article-toc-heading">
     <span>目录</span>
-    <span class="article-toc-depth">H1—H3</span>
+    <span class="article-toc-depth">{% if page.vla_survey %}章节与论文{% else %}H1—H3{% endif %}</span>
   </div>
 
   <nav class="article-toc-scroll" aria-label="文章目录">
-    {% include toc.html html=content sanitize=true h_min=1 h_max=3 class="article-toc-list" id="article-toc-list" item_class="toc-level-%level%" anchor_class="article-toc-link" %}
+    {% assign article_toc_depth = page.toc_depth | default: 3 %}
+    {% include toc.html html=content sanitize=true h_min=1 h_max=article_toc_depth class="article-toc-list" id="article-toc-list" item_class="toc-level-%level%" anchor_class="article-toc-link" %}
   </nav>
 </aside>
