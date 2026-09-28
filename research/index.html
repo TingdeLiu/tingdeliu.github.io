@@ -12,9 +12,9 @@ permalink: /research/
   <h2>No post found</h2>
 {% endif %}
 
-{% assign group_names = "具身导航（VLN）|具身智能|大模型与 Agent|机器学习基础|机器人系统与传统导航|工程实践" | split: "|" %}
-{% assign group_ids = "vln|embodied|llm|ml|robotics|engineering" | split: "|" %}
-{% assign group_slugs = "VLN-Survey,VLN-Papers,VLN-Papers-Extended|VLA-Survey,World-Models-Survey,Spatial-Intelligence-Survey,Embodied-Agent-Papers,Embodied-Agent-Harness-Survey|VLM-Survey,AI-Agent-Survey,LLM-Training-Survey|Deep-Learning-Survey,Machine-Learning-Survey,Reinforcement-Learning-Survey|ROS2-Survey,Robot-Navigation-Survey|Python-Engineering-Survey" | split: "|" %}
+{% assign group_names = "具身导航（VLN）|具身智能|大模型与 Agent|机器学习基础|工程实践" | split: "|" %}
+{% assign group_ids = "vln|embodied|llm|ml|engineering" | split: "|" %}
+{% assign group_slugs = "VLN-Survey,VLN-Papers,VLN-Papers-Extended,Robot-Navigation-Survey|VLA-Survey,World-Models-Survey,Spatial-Intelligence-Survey,Embodied-Agent-Papers,Embodied-Agent-Harness-Survey|VLM-Survey,AI-Agent-Survey,LLM-Training-Survey|Deep-Learning-Survey,Machine-Learning-Survey,Reinforcement-Learning-Survey|Python-Engineering-Survey,ROS2-Survey" | split: "|" %}
 {% assign all_grouped_slugs = group_slugs | join: "," | split: "," %}
 
 {% comment %} 兜底：未归入任何分组的新文章统一显示在"其他" {% endcomment %}
