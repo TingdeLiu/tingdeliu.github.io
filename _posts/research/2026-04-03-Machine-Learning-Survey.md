@@ -4,8 +4,7 @@ layout: post
 
 title: "机器学习综述"
 
-date: 2026-07-27
-
+date: 2026-09-28
 tags: [Machine Learning, Deep Learning, Algorithm, Foundation Models]
 categories: research
 
@@ -19,18 +18,21 @@ excerpt: "本文系统梳理了机器学习的核心范式、经典算法与代�
 
 ---
 
+* 目录
+{:toc}
+
 # 1. 引言
 
-人工智能（Artificial Intelligence, AI）作为计算机科学皇冠上的明珠，正以前所未有的速度重塑人类社会。而在这场波澜壮阔的技术革命中，**机器学习（Machine Learning, ML）** 无疑是最核心的驱动引擎。传统基于规则的专家系统受限于人类先验知识的边界，而机器学习则通过让计算机从海量数据中自主"学习"规律，实现了从"授人以鱼"到"授人以渔"的范式跃迁。
+人工智能（Artificial Intelligence, AI）已经成为计算机科学的重要研究方向。其中，**机器学习（Machine Learning, ML）** 通过从数据中学习统计规律，使计算机能够完成预测、分类、生成与决策等任务。与依赖人工编写规则的专家系统相比，机器学习可以根据数据和反馈持续调整模型参数。
 
-从早期以支持向量机（SVM）为代表的统计学习方法，到以随机森林（Random Forest）、XGBoost 为首的集成学习霸主，再到如今席卷全球的深度神经网络（DNN）和基于大语言模型（LLM）的基础模型，机器学习的边界在算力与数据的双重加持下不断拓展。
+机器学习方法经历了从统计学习、集成学习，到深度神经网络和基础模型的演进。数据规模、计算能力与模型结构的共同发展，持续扩展了机器学习能够处理的任务范围。
 
 <div align="center">
   <img src="/images/ML/machine-learning-overview.jpg" width="80%" alt="机器学习核心范式与演进全景" />
   <figcaption>图 1.1：机器学习核心范式、经典算法与前沿大模型演进全景示意图</figcaption>
 </div>
 
-本文旨在系统梳理机器学习研究进展，为学习和研究机器学习提供参考。
+本文按“学习范式—经典算法—深度网络—基础模型—生成式模型”的路径组织内容，重点说明各类方法的基本假设、工作机制、适用场景与局限，为学习和研究机器学习提供一份可检索的概览。
 
 <!-- more -->
 
@@ -71,7 +73,7 @@ excerpt: "本文系统梳理了机器学习的核心范式、经典算法与代�
 
 ## 2.2 学习范式与分类体系
 
-根据训练数据是否带有标签以及模型与环境的交互方式，机器学习主要分为以下四大范式：
+根据监督信号的来源以及模型是否与环境交互，机器学习通常可概括为以下四类常见设置：
 
 ### 2.2.1 监督学习 (Supervised Learning)
 
@@ -98,7 +100,7 @@ excerpt: "本文系统梳理了机器学习的核心范式、经典算法与代�
 - **代表算法**：Q-Learning、DQN、PPO、SAC。
 
 <div align="center">
-  <img src="/images/ML/RL.webp" width="60%" />
+  <img src="/images/ML/RL.webp" width="60%" alt="强化学习算法示意图" />
 <figcaption>图：强化学习算法示意图</figcaption>
 </div>
 
@@ -106,17 +108,17 @@ excerpt: "本文系统梳理了机器学习的核心范式、经典算法与代�
 
 - **半监督学习**：利用少量有标签数据和大量无标签数据进行训练，降低标注成本。
 
-- **自监督学习**：一种特殊的无监督学习，通过数据本身自动构造伪标签（如预测句子中的下一个词，或图像的部分遮挡恢复），是目前预训练大语言模型（如 GPT）的核心范式。
+- **自监督学习**：从数据自身构造监督信号（如预测下一个词或恢复被遮挡的图像区域），是现代语言模型和许多视觉预训练模型的重要训练方式。
 
 ## 2.3 核心要素与系统架构
 
-一个完整的机器学习系统通常包含以下五个核心要素：
+一个典型的机器学习流程通常包括以下五个核心要素：
 
-1. **数据 (Data)**：模型的燃料，决定了学习的上限。包括特征提取与预处理。
+1. **数据 (Data)**：模型学习的基础资源，质量、覆盖范围与标注可靠性直接影响上限；通常还包括数据清洗与预处理。
 
 2. **特征工程 (Feature Engineering)**：将原始数据转化为模型可理解的特征向量，传统 ML 强依赖于此。
 
-3. **模型假设 (Hypothesis Space)**：决定了模型能表达的函数集合（如线性组合、决策树边界或神经网络流形）。
+3. **模型假设 (Hypothesis Space)**：规定模型能够表达的函数集合，例如线性组合、树模型划分或神经网络表示。
 
 4. **目标函数 (Objective Function)**：定义"好"与"坏"的度量标准，通常由损失函数（Loss Function）和正则化项（Regularization）组成。
 
@@ -144,7 +146,7 @@ graph LR
         C
         D
     end
-    subgraph era3 ["2010-2020年代 深度学习爆发"]
+    subgraph era3 ["2010—2020年代 深度学习发展"]
         E
         F
     end
@@ -158,13 +160,15 @@ graph LR
 
 尽管成果丰硕，机器学习在实际落地中仍面临诸多挑战：
 
-- **过拟合与泛化 (Overfitting & Generalization)**：模型在训练集上表现优异，但在未见过的测试集上表现糟糕。
+- **过拟合与分布外泛化**：模型在训练集上表现良好，但在未见过的数据或分布变化后可能失效。
 
-- **数据维度灾难 (Curse of Dimensionality)**：特征维度过高导致样本稀疏，计算复杂度呈指数级增长。
+- **数据质量与数据泄漏**：噪声、偏差、重复样本以及训练集与测试集之间的信息泄漏，都会导致评测结果失真。
 
-- **可解释性黑盒问题 (Interpretability)**：尤其是深度学习模型，往往难以解释其决策的具体逻辑，阻碍了其在医疗、金融等高风险领域的应用。
+- **高维与计算成本**：高维特征会带来样本稀疏和计算开销；大模型训练与推理还需要大量 GPU/TPU 资源。
 
-- **计算资源瓶颈**：大模型时代，训练和推理成本极高，对 GPU/TPU 集群提出了严苛要求。
+- **可解释性与公平性**：复杂模型的决策依据难以追溯，数据偏差还可能放大不同群体之间的不公平。
+
+- **评测与安全**：离线指标未必代表真实使用效果，可靠性、隐私、鲁棒性和对齐仍需持续验证。
 
 ## 2.6 关键技术方向与未来展望
 
@@ -225,7 +229,7 @@ graph LR
 
 - **TensorFlow**：Google 开源的深度学习框架，工业界部署生态完善。
 
-- **PyTorch**：Meta 开源的深度学习框架，凭借动态计算图和极佳的易用性，已成为目前学术界绝对的主流，并逐渐统治工业界大模型训练底座。
+- **PyTorch**：Meta 开源的深度学习框架，因动态图机制和易用性被广泛用于研究与大模型训练，并拥有成熟的部署生态。
 
 - **HuggingFace**：大模型时代的开源基建，提供了海量的预训练模型权重与快捷的 `transformers` 库调用接口。
 
@@ -244,7 +248,7 @@ graph LR
 | **传统统计/概率** | SVM、KNN、朴素贝叶斯、HMM | 理论严谨、适合小样本任务 | 文本分类、语音识别、生物信息 |
 | **聚类与降维** | K-Means、PCA、t-SNE | 无监督、发现数据潜在结构 | 用户画像、数据压缩、可视化 |
 | **深度神经网络** | CNN、RNN、LSTM、MLP | 强大的非线性拟合与特征提取能力 | 图像识别、自然语言处理 |
-| **大模型基石** | Transformer、BERT、GPT | 并行能力强、捕捉长距离依赖、涌现能力 | 聊天机器人、通用人工智能 |
+| **大模型基石** | Transformer、BERT、GPT | 擅长建模长距离依赖，支持大规模预训练 | 文本生成、问答、多模态理解 |
 | **生成式模型** | GAN、VAE、Diffusion Models | 学习数据分布、生成高质量新样本 | AI 绘画、视频生成、分子设计 |
 
 ---
@@ -260,7 +264,7 @@ graph LR
 > **直觉理解**：就像在散点图上画一条"最佳拟合线"——目标是找到那根让所有点到线的距离（误差）平方和最小的直线。正则化则相当于在"拟合好"的基础上再加一条约束：别让权重长得太大。
 
 <div align="center">
-  <img src="/images/ML/linear_regression.jpg" width="60%" />
+  <img src="/images/ML/linear_regression.jpg" width="60%" alt="线性回归算法示意图" />
 <figcaption>图：线性回归算法示意图</figcaption>
 </div>
 
@@ -293,8 +297,7 @@ graph LR
 > **直觉理解**：逻辑回归是在线性回归外面套了一个"挤压器"——把任意实数得分挤压到 0 到 1 之间，然后把这个值直接当作"属于正类的概率"。得分越高，概率越接近 1；得分越低，概率越接近 0。
 
 <div align="center">
-
-  <img src="/images/ML/logistic_regression.png" width="60%" />
+  <img src="/images/ML/logistic_regression.png" width="60%" alt="逻辑回归算法示意图" />
 <figcaption>图：逻辑回归算法示意图</figcaption>
 </div>
 
@@ -324,7 +327,7 @@ $$P(y=1 \mid \mathbf{x}) = \sigma(\mathbf{w}^T \mathbf{x} + b) = \frac{1}{1 + e^
 > **直觉理解**：就像小时候玩的"猜人游戏"——"这个水果是红色的吗？→ 是 → 圆的吗？→ 是 → 苹果！"每个分叉点都问一个最能区分当前数据的问题，层层缩小范围，最终做出判断。
 
 <div align="center">
-  <img src="/images/ML/decision_tree.webp" width="60%" />
+  <img src="/images/ML/decision_tree.webp" width="60%" alt="决策树结构示意图" />
 <figcaption>图：决策树结构示意图</figcaption>
 </div>
 
@@ -349,13 +352,12 @@ $$P(y=1 \mid \mathbf{x}) = \sigma(\mathbf{w}^T \mathbf{x} + b) = \frac{1}{1 + e^
 
 > **核心要点**：Bagging 并行集成多棵独立决策树，投票/平均输出；降低方差、抗噪强、可评估特征重要性。
 
-**Bagging（Bootstrap Aggregating）** 是一种并行的集成学习范式，核心思想是"三个臭皮匠，顶个诸葛亮"。随机森林是 Bagging 的代表作。
+**Bagging（Bootstrap Aggregating）** 是一种并行的集成学习范式，通过对数据进行有放回采样并训练多个基学习器，再聚合它们的结果以降低方差。随机森林是 Bagging 的代表方法。
 
 > **直觉理解**：相当于组建一个"专家委员会"——每位专家（决策树）只看部分数据和部分特征，各自做出判断，最后投票决定。单个专家可能偏颇，但集体的平均意见往往更准确、更稳健。
 
 <div align="center">
-
-  <img src="/images/ML/random_forest.webp" width="60%" />
+  <img src="/images/ML/random_forest.webp" width="60%" alt="随机森林算法示意图" />
 <figcaption>图：随机森林算法示意图</figcaption>
 </div>
 
@@ -374,25 +376,24 @@ $$P(y=1 \mid \mathbf{x}) = \sigma(\mathbf{w}^T \mathbf{x} + b) = \frac{1}{1 + e^
 
 ## 3.6 梯度提升树
 
-> **核心要点**：Boosting 串行拟合前一棵树的残差/负梯度；XGBoost、LightGBM 是结构化表格数据的工业"卷王"。
+> **核心要点**：Boosting 串行拟合前一轮模型的残差或负梯度；XGBoost、LightGBM 是结构化数据中的常用高性能实现。
 
 **Boosting** 是一种串行的集成学习范式，核心思想是"不断纠错"。后续的模型重点关注前序模型预测错误的样本，将其加权累积。
 
 > **直觉理解**：就像学生做错题集——第一轮做完后，第二轮重点练上次做错的题，第三轮再练上次还错的……每一轮专注于弥补前一轮的弱点，最终形成一个各方面都强的模型。
 
 <div align="center">
-
-  <img src="/images/ML/gradient_boosting.webp" width="60%" />
+  <img src="/images/ML/gradient_boosting.webp" width="60%" alt="梯度提升决策树 (GBDT) 示意图" />
 <figcaption>图：梯度提升决策树 (GBDT) 示意图</figcaption>
 </div>
 
 - **GBDT (Gradient Boosting Decision Tree)**：以 CART 回归树为基分类器，每次迭代通过拟合上一步模型的**负梯度**（在平方损失下即为残差）来不断逼近真实值。
 
-- **XGBoost (eXtreme Gradient Boosting)**：GBDT 的工程极致优化版。它不仅在目标函数中引入了二阶导数信息（泰勒展开）以加速收敛，还加入了 L1 和 L2 正则化项以控制模型复杂度。此外，支持缺失值自动处理和特征并行计算，曾在 Kaggle 竞赛中统治了表格数据的预测任务。
+- **XGBoost (eXtreme Gradient Boosting)**：GBDT 的工程极致优化版。它不仅在目标函数中引入了二阶导数信息（泰勒展开）以加速收敛，还加入了 L1 和 L2 正则化项以控制模型复杂度。此外，支持缺失值自动处理和特征并行计算，曾长期作为 Kaggle 表格数据竞赛中的强基线。
 
 - **LightGBM**：微软推出的更高效的 Boosting 框架。通过引入基于直方图（Histogram）的决策树算法、单边梯度采样（GOSS）和互斥特征捆绑（EFB），在保证精度的前提下大幅降低了内存消耗和计算时间。
 
-> **一句话记忆**：GBDT 串行纠错、逐步逼近真实值；XGBoost 是其工程极致版，LightGBM 是速度极致版，是 Kaggle 表格数据竞赛的历史统治者。
+> **一句话记忆**：GBDT 通过串行纠错逐步提升预测；XGBoost 和 LightGBM 在工程效率、正则化与大规模训练方面进行了重要优化。
 
 | 适合用 | 不适合用 |
 |:---|:---|
@@ -408,8 +409,7 @@ KNN 是一种典型的"懒惰学习（Lazy Learning）"算法，它在训练阶�
 > **直觉理解**：就像在陌生城市问路——不靠任何地图（不需要训练），直接问你周围最近的 $K$ 个路人，取多数人的意见。完全依赖"物以类聚、人以群分"的朴素假设。
 
 <div align="center">
-
-  <img src="/images/ML/knn.webp" width="60%" />
+  <img src="/images/ML/knn.webp" width="60%" alt="K近邻 (KNN) 算法示意图" />
 <figcaption>图：K近邻 (KNN) 算法示意图</figcaption>
 </div>
 
@@ -437,7 +437,7 @@ KNN 是一种典型的"懒惰学习（Lazy Learning）"算法，它在训练阶�
 > **直觉理解**：就像法官凭多条"独立线索"判案——假设每条线索互不影响，把各线索的支持度相乘，哪个结论得分最高就选哪个。这个独立性假设在现实中几乎不成立，但实践中往往够用。
 
 <div align="center">
-  <img src="/images/ML/naive_bayes.webp" width="60%" />
+  <img src="/images/ML/naive_bayes.webp" width="60%" alt="朴素贝叶斯 (Naive Bayes) 分类器示意图" />
 <figcaption>图：朴素贝叶斯 (Naive Bayes) 分类器示意图</figcaption>
 </div>
 
@@ -471,7 +471,7 @@ HMM 是一种用于处理序列数据的概率图模型，包含一个不可见�
 > **直觉理解**：就像医生通过观察症状（发烧、咳嗽，这是可见的"观测"）推断内部病因（病毒感染还是细菌感染，这是不可见的"隐状态"）。病因本身看不见，但可以从症状序列反推最可能的病因序列。
 
 <div align="center">
-  <img src="/images/ML/hmm.webp" width="60%" />
+  <img src="/images/ML/hmm.webp" width="60%" alt="隐马尔可夫模型 (HMM) 状态转移示意图" />
 <figcaption>图：隐马尔可夫模型 (HMM) 状态转移示意图</figcaption>
 </div>
 
@@ -491,18 +491,18 @@ HMM 是一种用于处理序列数据的概率图模型，包含一个不可见�
 
 - **应用场景**：早期语音识别、词性标注（POS tagging）、基因序列分析。现已大量被深度序列模型（RNN/Transformer）替代。
 
-> **一句话记忆**：HMM = "隐状态 → 观测"的序列概率模型；理论优雅，现已基本被 RNN/Transformer 取代，了解其三大问题（评估、解码、学习）即可。
+> **一句话记忆**：HMM = “隐状态 → 观测”的序列概率模型；虽然许多任务已采用 RNN/Transformer，但 HMM 的评估、解码和学习问题仍是理解序列建模的基础。
 
 ## 3.9 支持向量机 (SVM)
 
-> **核心要点**：寻找最大间隔的分类超平面；核技巧把低维线性不可分问题映射到高维可分空间，深度学习前的分类王者。
+> **核心要点**：寻找最大间隔的分类超平面；核技巧把低维线性不可分问题映射到高维可分空间，适合小样本、高维数据。
 
-在深度学习爆发之前，SVM（Support Vector Machines）被认为是机器学习中分类效果最好的算法之一。
+在深度学习广泛应用之前，SVM（Support Vector Machines）曾是小样本、高维分类任务中的重要基线。
 
 > **直觉理解**：想象两群点分布在平面上，SVM 要在中间画一条线，使两群点离这条线都尽可能远——就像在两军之间挖一条尽可能宽的"护城河"。只有边界上最靠近分界线的那几个点（支持向量）决定了这条线的位置，其他点都不影响结果。
 
 <div align="center">
-  <img src="/images/ML/svm.webp" width="60%" />
+  <img src="/images/ML/svm.webp" width="60%" alt="支持向量机 (SVM) 分类面与间隔示意图" />
 <figcaption>图：支持向量机 (SVM) 分类面与间隔示意图</figcaption>
 </div>
 
@@ -512,7 +512,7 @@ HMM 是一种用于处理序列数据的概率图模型，包含一个不可见�
 
 - **核技巧 (Kernel Trick)**：当数据在原始空间线性不可分时，SVM 通过核函数（如线性核、多项式核、高斯 RBF 核）巧妙地将低维特征隐式映射到高维（甚至是无限维）空间，使其变得线性可分，从而解决了非线性分类问题，且避免了高维计算的维度灾难。
 
-> **一句话记忆**：SVM 追求"最宽护城河"分类；核技巧让它能处理非线性问题；在小样本、高维数据（如基因、文本）场景中仍有竞争力。
+> **一句话记忆**：SVM 通过最大化分类间隔提升泛化能力；核技巧使其能够处理非线性边界，在小样本、高维数据场景中仍有竞争力。
 
 | 适合用 | 不适合用 |
 |:---|:---|
@@ -528,7 +528,7 @@ HMM 是一种用于处理序列数据的概率图模型，包含一个不可见�
 > **直觉理解**：就像选 $K$ 个班长——先随机指定班长，全班同学各自靠近最近的班长；再把每个小组的中心重选为新班长……如此反复，直到班长位置稳定不动。
 
 <div align="center">
-  <img src="/images/ML/kmeans.webp" width="60%" />
+  <img src="/images/ML/kmeans.webp" width="60%" alt="K-Means 聚类过程示意图" />
 <figcaption>图：K-Means 聚类过程示意图</figcaption>
 </div>
 
@@ -560,7 +560,7 @@ HMM 是一种用于处理序列数据的概率图模型，包含一个不可见�
   > **直觉理解**：就像给一个三维物体拍照——选一个最能保留信息的"拍摄角度"，让投影后的 2D 图像信息量最大（方差最大）。PCA 自动找到这个最佳角度。
 
 <div align="center">
-  <img src="/images/ML/pca.webp" width="60%" />
+  <img src="/images/ML/pca.webp" width="60%" alt="主成分分析 (PCA) 降维示意图" />
 <figcaption>图：主成分分析 (PCA) 降维示意图</figcaption>
 </div>
 
@@ -569,7 +569,7 @@ HMM 是一种用于处理序列数据的概率图模型，包含一个不可见�
   > **直觉理解**：就像把一团高维"橡皮泥"压扁到桌面上，尽量让原来靠近的点压平后仍然靠近、原来远离的点压平后仍然远离。PCA 保全局结构，t-SNE 保局部结构，两者互补。
 
 <div align="center">
-  <img src="/images/ML/tsne.webp" width="60%" />
+  <img src="/images/ML/tsne.webp" width="60%" alt="t-SNE 降维可视化示意图" />
 <figcaption>图：t-SNE 降维可视化示意图</figcaption>
 </div>
 
@@ -588,7 +588,7 @@ HMM 是一种用于处理序列数据的概率图模型，包含一个不可见�
 > **直觉理解**：就像一条流水线——原料（输入特征）经过多道加工工序（隐藏层），每道工序用激活函数引入"弯折"，让流水线能加工出任意复杂的形状（函数）。层越深，能表达的"加工逻辑"越复杂。
 
 <div align="center">
-  <img src="/images/DL/neural-network.svg" width="60%" />
+  <img src="/images/DL/neural-network.svg" width="60%" alt="典型深度神经网络结构示意图" />
 <figcaption>图：典型深度神经网络结构示意图</figcaption>
 </div>
 
@@ -638,7 +638,7 @@ CNN 是专门为处理网格状拓扑数据（如图像的 2D 像素网格）而
 > **直觉理解**：CNN 的卷积核像一个滑动的"放大镜"，在图像上逐区域扫描——浅层识别边缘和颜色，中层识别纹理和形状，深层组合出"耳朵""眼睛"等高级语义。层层抽象，最终认出"这是一只猫"。
 
 <div align="center">
-  <img src="/images/DL/lenet.svg" width="80%" />
+  <img src="/images/DL/lenet.svg" width="80%" alt="LeNet-5 经典卷积神经网络架构" />
 <figcaption>图：LeNet-5 经典卷积神经网络架构</figcaption>
 </div>
 
@@ -672,13 +672,13 @@ RNN 专门用于处理文本、语音、时间序列等变长序列数据。与�
 > **直觉理解**：就像一个边读边记的阅读者——每步都把"当前输入 + 上一步记忆"合并成新的记忆传给下一步。
 
 <div align="center">
-  <img src="/images/ML/RNN.webp" width="80%" />
+  <img src="/images/ML/RNN.webp" width="80%" alt="RNN & LSTM/GRU 结构对比" />
 <figcaption>图：RNN & LSTM/GRU 结构对比</figcaption>
 </div>
 
 - **隐状态机制**：每个时间步的计算为 $h_t = \tanh(W_h h_{t-1} + W_x x_t + b)$，其中 $h_{t-1}$ 是上一步的隐状态，$x_t$ 是当前输入。
 
-- **致命缺陷——梯度消失**：时间维度上的反向传播（BPTT）需要将梯度连乘数百次，梯度指数级缩小（消失）或膨胀（爆炸），导致 RNN 几乎无法学习句子中相距较远词之间的依赖关系。
+- **长距离依赖困难**：时间维度上的反向传播（BPTT）需要多次连乘梯度，容易出现梯度消失或爆炸，使基础 RNN 难以稳定学习相距较远的依赖关系。
 
 ### LSTM — 门控记忆
 
@@ -688,9 +688,9 @@ RNN 专门用于处理文本、语音、时间序列等变长序列数据。与�
 
 - **遗忘门**：$f_t = \sigma(W_f [h_{t-1}, x_t] + b_f)$，输出 0~1 决定旧细胞状态中哪些被保留（0 = 完全遗忘，1 = 完全保留）。
 
-- **输入门**：$i_t = \sigma(W_i [h_{t-1}, x_t] + b_i)$，决定哪些新信息写入；候选内容为 $\tilde{C}_t = \tanh(W_C [h_{t-1}, x_t] + b_C)$。
+- **输入门**：$i_t = \sigma(W_i [h_{t-1}, x_t] + b_i)$，决定哪些新信息写入；候选内容为 $$\tilde{C}_t = \tanh(W_C [h_{t-1}, x_t] + b_C)$$。
 
-- **细胞状态更新**：$C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t$，旧记忆选择性遗忘后加入选择性新信息（$\odot$ 为逐元素乘）。
+- **细胞状态更新**：$$C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t$$，旧记忆选择性遗忘后加入选择性新信息（$\odot$ 为逐元素乘）。
 
 - **输出门**：$o_t = \sigma(W_o [h_{t-1}, x_t] + b_o)$，最终输出 $h_t = o_t \odot \tanh(C_t)$，决定当前步对外输出什么。
 
@@ -702,9 +702,9 @@ RNN 专门用于处理文本、语音、时间序列等变长序列数据。与�
 
 - **重置门**：$r_t = \sigma(W_r [h_{t-1}, x_t])$，控制上一步隐状态对候选状态的影响，接近 0 时相当于"重新开始"。
 
-- **更新门**：$z_t = \sigma(W_z [h_{t-1}, x_t])$，同时扮演遗忘门和输入门：$h_t = (1-z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t$。
+- **更新门**：$z_t = \sigma(W_z [h_{t-1}, x_t])$，同时扮演遗忘门和输入门：$$h_t = (1-z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t$$。
 
-- **选型建议**：序列较长、数据充足 → LSTM；追求训练速度或资源受限 → GRU；两者性能差异通常小于 1%，可优先试 GRU。
+- **选型建议**：序列较长或需要更强记忆能力时可尝试 LSTM；追求训练速度或资源受限时可优先尝试 GRU。两者效果取决于任务和数据，建议通过验证集比较。
 
 > **一句话记忆**：RNN 有记忆但健忘（梯度消失）；LSTM 用三个门精细管理长期记忆；GRU 用两个门做同样的事，更快更轻。三者现已被 Transformer 大量取代，但在边缘设备和实时序列任务中仍有价值。
 
@@ -715,15 +715,14 @@ RNN 专门用于处理文本、语音、时间序列等变长序列数据。与�
 
 ## 3.15 Transformer 架构
 
-> **核心要点**：完全基于 Self-Attention，并行捕捉全局长距离依赖；是当前所有大模型（LLM、Diffusion、VLA）的底层基石架构。
+> **核心要点**：以 Self-Attention 为核心，并行建模全局长距离依赖；Transformer 已成为许多语言、多模态和生成模型的基础架构。
 
-Transformer（Vaswani et al., 2017, "Attention Is All You Need"）彻底抛弃了 RNN 和 CNN 的结构，完全基于注意力机制，是当前大模型时代的最底层基石架构。
+Transformer（Vaswani et al., 2017, "Attention Is All You Need"）以自注意力和前馈网络为核心，摆脱了循环结构的串行依赖，成为许多现代基础模型的重要架构。
 
 > **直觉理解**：Transformer 就像一个"全局会议室"——每个词都能直接与所有其他词对话（自注意力），不需要像 RNN 那样靠"传话"来传递信息。因此它能并行处理、高效捕捉任意距离的上下文依赖。
 
 <div align="center">
-
-  <img src="/images/DL/transformer-architecture.webp" width="80%" />
+  <img src="/images/DL/transformer-architecture.webp" width="80%" alt="Transformer 模型架构（来源：Vaswani et al., 2017）" />
 <figcaption>图：Transformer 模型架构（来源：Vaswani et al., 2017）</figcaption>
 </div>
 
@@ -767,7 +766,7 @@ Self-Attention 本身对输入顺序不敏感（打乱词序结果不变），�
 
 RNN 必须按时间步串行处理（$O(n)$ 串行依赖），无法充分利用 GPU 并行；Self-Attention 一次并行计算所有 token 对的关系（训练复杂度 $O(n^2 d)$），在中等长度序列上训练效率远超 RNN，且不存在梯度消失问题。
 
-> **一句话记忆**：Transformer = 纯注意力机制，并行高效、全局依赖；是 LLM、图像生成（DiT）、机器人（VLA）等一切大模型的底层基石。
+> **一句话记忆**：Transformer 以注意力机制建模全局依赖并支持并行计算，是 LLM、DiT 和许多 VLA 模型的重要基础。
 
 | 适合用 | 不适合用 |
 |:---|:---|
@@ -853,7 +852,7 @@ GAN（Generative Adversarial Network）开创了生成式 AI 的新纪元，其�
 > **直觉理解**：就像造假币者（生成器 G）和验钞员（判别器 D）的博弈——G 不断提升造假水平，D 不断提升鉴别能力。两者相互竞争、共同进化，直到 G 造出的"假币"真假难辨（判别器输出 0.5）。
 
 <div align="center">
-  <img src="/images/ML/gan.webp" width="60%" />
+  <img src="/images/ML/gan.webp" width="60%" alt="生成对抗网络 (GAN) 架构示意图" />
 <figcaption>图：生成对抗网络 (GAN) 架构示意图</figcaption>
 </div>
 
@@ -885,7 +884,7 @@ $$ \min_G \max_D \; \mathbb{E}_{\mathbf{x} \sim p_{data}}[\log D(\mathbf{x})] + 
 
 - **应用场景**：图像生成、超分辨率重建（SRGAN）、图像修复（Inpainting）、风格迁移、数据增强。
 
-> **一句话记忆**：GAN = 生成器与判别器博弈对抗；生成质量高，但训练不稳定、易模式崩溃，已逐渐被 Diffusion 模型取代。
+> **一句话记忆**：GAN = 生成器与判别器的对抗训练；生成速度快、质量高，但训练不稳定且容易模式崩溃，在许多高保真视觉生成任务中已被 Diffusion 模型取代。
 
 | 适合用 | 不适合用 |
 |:---|:---|
@@ -901,7 +900,7 @@ $$ \min_G \max_D \; \mathbb{E}_{\mathbf{x} \sim p_{data}}[\log D(\mathbf{x})] + 
 > **直觉理解**：就像"压缩文件再解压"——把一张图片先压缩成几十个数字（编码），再从这几十个数字还原出图片（解码）。瓶颈结构迫使网络把最精华的信息塞进少数几个数字里，自动学会数据的本质特征。
 
 <div align="center">
-  <img src="/images/ML/ae.webp" width="60%" />
+  <img src="/images/ML/ae.webp" width="60%" alt="自编码器 (AE) 架构示意图" />
 <figcaption>图：自编码器 (AE) 架构示意图</figcaption>
 </div>
 
@@ -943,7 +942,7 @@ $$ \mathcal{L} = \|\mathbf{x} - \hat{\mathbf{x}}\|^2 = \|\mathbf{x} - g_\phi(f_\
 > **直觉理解**：AE 把图片压缩成隐空间里的一个固定点；VAE 则把它压缩成一个"模糊区域"（概率分布）。生成时从这个区域随机采一个点解码——由于区域是连续的，采到的任意点都能解码出合理图片，隐空间还可以平滑插值（如从微笑人脸渐变到大笑人脸）。
 
 <div align="center">
-  <img src="/images/ML/vae.png" width="60%" />
+  <img src="/images/ML/vae.png" width="60%" alt="变分自编码器 (VAE) 架构示意图" />
 <figcaption>图：变分自编码器 (VAE) 架构示意图</figcaption>
 </div>
 
@@ -976,15 +975,14 @@ $$ \mathcal{L} = \underbrace{\|\mathbf{x} - \hat{\mathbf{x}}\|^2}_{\text{重构�
 
 ## 3.20 扩散模型 (Diffusion Models)
 
-> **核心要点**：把"生成"转化为"多步去噪"；训练稳定、质量极高，Stable Diffusion / Sora / DALL-E 3 均基于此构建，已是当前图像/视频生成的 SOTA。
+> **核心要点**：把“生成”转化为“多步去噪”；训练稳定、质量高，已成为图像、视频和音频生成中的主流范式。
 
-扩散模型（Diffusion Models）是近年来在图像和音频生成领域全面超越 GAN 的新一代生成模型（Stable Diffusion、Midjourney、DALL-E 系列均基于此构建）。其核心灵感来源于热力学中的扩散过程。
+扩散模型（Diffusion Models）近年来在图像、音频和视频生成中取得了领先表现，Stable Diffusion、Midjourney、DALL-E 等系统均采用或借鉴了扩散式生成过程。其核心灵感来源于热力学中的扩散过程。
 
 > **直觉理解**：就像雕刻家的创作过程——不直接雕出成品，而是从一块大理石（纯噪声）开始，一刀一刀地精心雕刻（每步去噪），最终呈现出清晰的作品。每一刀都很小、很可控，整体过程稳定可靠。
 
 <div align="center">
-
-  <img src="/images/ML/diffusion_models.webp" width="60%" />
+  <img src="/images/ML/diffusion_models.webp" width="60%" alt="扩散模型 (Diffusion Model) 前向与反向过程示意图" />
 <figcaption>图：扩散模型 (Diffusion Model) 前向与反向过程示意图</figcaption>
 </div>
 
@@ -1024,7 +1022,7 @@ $$ \mathcal{L} = \mathbb{E}_{t, \mathbf{x}_0, \boldsymbol{\epsilon}} \left[ \|\b
 
 - **应用场景**：文本到图像生成（Stable Diffusion、DALL-E 3）、图像编辑与修复（Inpainting）、视频生成（Sora）、音频合成、3D 内容生成、蛋白质结构预测。
 
-> **一句话记忆**：Diffusion = 多步去噪生成；训练稳定、生成质量极高、多样性强，已全面超越 GAN，是当前图像/视频/音频生成的 SOTA 范式。
+> **一句话记忆**：Diffusion = 多步去噪生成；通常具有较好的训练稳定性、生成质量和条件可控性，但推理需要多步采样，速度与成本仍是重要权衡。
 
 | 适合用 | 不适合用 |
 |:---|:---|
@@ -1035,7 +1033,7 @@ $$ \mathcal{L} = \mathbb{E}_{t, \mathbf{x}_0, \boldsymbol{\epsilon}} \left[ \|\b
 
 > **进阶阅读**：以下两节（§3.20.1 DiT、§3.20.2 Diffusion Policy）内容较深，适合已对扩散模型基础有所了解的读者延伸阅读，初学者可跳过。
 
-### 3.20.1 架构演进：传统 U-Net Diffusion vs DiT (Diffusion Transformer)
+### 3.20.1 架构演进：传统 U-Net Diffusion 与 DiT (Diffusion Transformer)
 
 扩散模型的骨干网络（Backbone）主要经历了从 **U-Net** 到 **DiT (Diffusion Transformer)** 的演进。两者使用同样的扩散训练范式（前向加噪 + 反向去噪），但在**噪声预测网络** $$\boldsymbol{\epsilon}_\theta$$ 的架构设计上有本质差异。
 
@@ -1099,7 +1097,7 @@ $$\boldsymbol{\epsilon}_\theta(\mathbf{a}^k_{t:t+H}, k, \mathbf{o}_t) \rightarro
 | **Scaling Law** | 成熟（GPT 系列验证） | 逐步成熟（DiT、Sora 验证） |
 | **代表模型** | GPT、LLaMA、PaLM；VQ-VAE + AR（DALL-E 1） | Stable Diffusion、Sora、Diffusion Policy |
 
-- **文本生成**：AR 几乎是唯一主流（LLM 全家桶）；但近期 Diffusion-LM、LLaDA 等尝试将扩散用于文本，展示了并行解码、可控编辑的潜力。
+- **文本生成**：自回归模型仍是主流；Diffusion-LM、LLaDA 等工作尝试将扩散过程用于文本，探索并行解码与可控编辑。
 - **图像/视频生成**：Diffusion 已成为主流；AR 路线（如 Parti、VAR）通过 Tokenizer + AR 也能取得竞争力，但推理延迟高。
 - **机器人动作**：Diffusion Policy 凭借多模态分布建模占优；AR-based VLA（如 OpenVLA）则在与 LLM 统一架构上更自然。
 - **融合趋势**：近期出现 **MAR (Masked AR)**、**Transfusion**（Zhou et al., 2024）等混合架构，在单一 Transformer 中统一 AR（文本）与 Diffusion（图像），是通往真正多模态基础模型的潜在路径。
@@ -1108,7 +1106,7 @@ $$\boldsymbol{\epsilon}_\theta(\mathbf{a}^k_{t:t+H}, k, \mathbf{o}_t) \rightarro
 
 # 4. 总结
 
-机器学习是一场关于数据与算法的演化史。从早期的专家规则，到严谨的统计概率模型，再到大力出奇迹的深度神经网络和基础大模型，其核心始终是**寻找更优的表示和更高效的优化路径**。
+机器学习的发展经历了从专家规则、统计模型到深度神经网络和基础模型的演进。不同方法虽然假设和训练方式各异，但核心都在于学习更有效的数据表示，并以更可靠、更高效的方式完成预测或决策。
 
 对于研究者和工程师而言，了解每一种算法的边界与假设至关重要：在海量非结构化数据（图、文、音）面前，深度学习与 Transformer 无可替代；但在中小规模的结构化表格数据中，XGBoost 等树模型依然具有极高的性价比和解释性。未来，随着算法、算力和数据的进一步交融，机器学习必将朝着通用性（AGI）和可信性稳步迈进。
 
