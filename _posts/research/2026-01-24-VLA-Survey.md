@@ -144,28 +144,36 @@ flowchart LR
 ### 3. 动作解码器（Action Decoder）：从语言 Token 到高频连续轨迹
 **功能**：将模型的高层决策转化为具体的机器人控制信号。
 
+<div class="vla-decoder-diagram" markdown="1" role="region" aria-label="动作解码器三代演进图，可横向滚动" tabindex="0">
+
 ```mermaid
-graph LR
-    subgraph "第一代: 离散 Token (2022-2023)"
+%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 24, "rankSpacing": 36}}}%%
+graph TB
+    subgraph Tokens["第一代: 离散 Token (2022-2023)"]
+    direction LR
     T1[动作离散化 bins] --> T2[语言模型自回归生成]
     T2 --> T3[执行频率: 1-5Hz]
     end
     
-    subgraph "第二代: 扩散模型 (2023-2024)"
+    subgraph Diffusion["第二代: 扩散模型 (2023-2024)"]
+    direction LR
     D1[高斯噪声] --> D2[迭代去噪 Diffusion]
     D2 --> D3[多模态分布建模]
     D3 --> D4[执行频率: 10-20Hz]
     end
     
-    subgraph "第三代: 流匹配 Flow Matching (2024-2026)"
+    subgraph Flow["第三代: 流匹配 Flow Matching (2024-2026)"]
+    direction LR
     F1[概率路径学习] --> F2[直接生成连续轨迹]
     F2 --> F3[极精细控制: 折纸/扑克]
     F3 --> F4[执行频率: 50Hz+]
     end
     
-    T3 -.-> D1
-    D4 -.-> F1
+    Tokens -.-> Diffusion
+    Diffusion -.-> Flow
 ```
+
+</div>
 
 **主流范式比较**：
 - **离散动作建模（RT-2/OpenVLA）**：将动作视为语言 Token 预测。优点是架构统一，缺点是难以生成连续流畅的高频动作。
