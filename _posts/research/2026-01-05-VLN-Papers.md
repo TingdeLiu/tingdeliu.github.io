@@ -1,18 +1,18 @@
 ---
 layout: post
-title: "VLN 经典论文"
-date:   2026-09-28
+title: "VLN 论文精读：指令跟随篇"
+date:   2026-09-29
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "本文系统梳理VLN领域的经典论文，涵盖DualVLN、StreamVLN等最新研究成果，以及Diffusion Policy等VLN项目所依赖的基础工作。"
+excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、StreamVLN 等最新研究成果，以及 Diffusion Policy 等 VLN 项目所依赖的基础工作。"
 ---
 
-> 本文是 [VLN综述：基于视觉语言的导航](/VLN-Survey/) 的配套论文精读，收录 VLN 经典论文与依赖基础工作。
+> 本文是 [VLN综述：基于视觉语言的导航](/VLN-Survey/) 的配套论文精读，聚焦 VLN 指令跟随任务与其依赖的基础工作。
 >
-> 本篇收录 55 篇工作，均已发表于会议期刊或进入了指令跟随排行榜；目标导航排行榜与其余论文见扩展篇 [VLN 论文精读（扩展篇）](/VLN-Papers-Extended/)。
+> 本篇收录 55 篇工作，均已发表于会议期刊或进入了指令跟随排行榜；目标导航排行榜与其余论文见 [VLN 论文精读：目标导航与扩展篇](/VLN-Papers-Extended/)。
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 

@@ -59,7 +59,7 @@
 | [#17](https://github.com/TingdeLiu/tingdeliu.github.io/issues/17) | @feigemicer-cloud | 错误反馈 | 《深度学习综述》RoPE 章节表格未被解析，渲染成纯文字 | 2026-09-01 → 09-02 | 1 天 | ✅ 已修复（定位为表格首行前缺空行导致 kramdown 未解析） |
 | [#8](https://github.com/TingdeLiu/tingdeliu.github.io/issues/8) | @cbcbHH | 论文推荐 | 推荐收录 OnFly（无人机零样本 VLN） | 2026-06-22 → 06-25 | 3 天 | ⚖️ **未采纳，已说明理由**：本篇聚焦室内机器人 VLN，暂不覆盖 UAV VLN |
 | [#7](https://github.com/TingdeLiu/tingdeliu.github.io/issues/7) | @11klow | 修改建议 | 建议补全论文全称与发表会议/期刊；建议按方法论关键词分类 | 2026-06-17 → 06-18 | 1 天 | ✅ 部分采纳 —— 已上线「已发表论文（会议/期刊）」对照表与交互式标签筛选栏 |
-| [#6](https://github.com/TingdeLiu/tingdeliu.github.io/issues/6) | @jiangqs472-sketch | 错误反馈 | 《VLN 经典论文》排行榜中 AwareVLN 的 SR/SPL/OS 数值与原论文不符 | 2026-06-08 → 06-11 | 3 天 | ✅ 已核对原论文并修正 |
+| [#6](https://github.com/TingdeLiu/tingdeliu.github.io/issues/6) | @jiangqs472-sketch | 错误反馈 | 《VLN 论文精读：指令跟随篇》排行榜中 AwareVLN 的 SR/SPL/OS 数值与原论文不符 | 2026-06-08 → 06-11 | 3 天 | ✅ 已核对原论文并修正 |
 | [#5](https://github.com/TingdeLiu/tingdeliu.github.io/issues/5) | @DAHM7048 | 错误反馈 | 《机器学习综述》3.20 扩散模型一节 MathJax 公式渲染失败 | 2026-04-14 → 04-17 | 3 天 | ✅ 已修复 |
 
 **汇总**
@@ -81,8 +81,8 @@
 
 1. **能否核验** —— 回到原始论文/官方文档确认。无法核验的会要求补充来源，而不是
    凭印象修改
-2. **是否在收录范围内** —— 每篇综述有既定的主题边界（例如 VLN 经典论文聚焦室内
-   机器人导航）。超出范围的会明确说明并拒绝
+2. **是否在收录范围内** —— 每篇综述有既定的主题边界（例如 VLN 论文精读：指令跟随篇
+   聚焦指令跟随类机器人导航）。超出范围的会明确说明并拒绝
 3. **是否值得单独成节** —— 重要工作做深度精读，增量改进并入已有小节
 4. **无论采纳与否都要答复** —— 不静默关闭
 

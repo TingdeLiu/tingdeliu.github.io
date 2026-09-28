@@ -1,16 +1,16 @@
 ---
 layout: post
-title: "VLN 论文精读（扩展篇）"
-date:   2026-09-28
+title: "VLN 论文精读：目标导航与扩展篇"
+date:   2026-09-29
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "VLN 论文精读的扩展篇：目标导航（ObjectNav、HM3D-OVON、图像 / 点目标）性能排行榜，以及主篇之外的其余论文，多为近期预印本。"
+excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav、HM3D-OVON、图像 / 点目标）性能排行榜，以及指令跟随主篇之外的其余论文，多为近期预印本。"
 ---
 
-> 本文是 [VLN经典论文](/VLN-Papers/) 的扩展篇。主篇收录 55 篇工作，均已发表于会议期刊或进入了指令跟随排行榜；本文收录目标导航性能排行榜与其余论文，论文以近期预印本为主，按年份正序排列。
+> 本文是 [VLN 论文精读：指令跟随篇](/VLN-Papers/) 的扩展篇。主篇收录 55 篇工作，均已发表于会议期刊或进入了指令跟随排行榜；本文收录目标导航性能排行榜与其余论文，论文以近期预印本为主，按年份正序排列。
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
