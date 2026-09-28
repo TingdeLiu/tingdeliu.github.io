@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "深度学习综述：从基础原理到大模型训练与部署"
-date: 2026-09-28
+title: "深度学习综述"
+date: 2026-09-29
 tags: [Deep Learning, Neural Network, Optimization, Training, AI, Transformer, GNN, LLM, MoE, LoRA, Diffusion, GAN, VAE, RLHF, Mamba, SSM]
 categories: research
 comments: true
