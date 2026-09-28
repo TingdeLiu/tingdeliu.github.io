@@ -1,19 +1,19 @@
 ---
 layout: post
-title: "深度学习综述"
-date: 2026-07-27
+title: "深度学习综述：从基础原理到大模型训练与部署"
+date: 2026-09-28
 tags: [Deep Learning, Neural Network, Optimization, Training, AI, Transformer, GNN, LLM, MoE, LoRA, Diffusion, GAN, VAE, RLHF, Mamba, SSM]
 categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "深度学习是当代人工智能的核心驱动力。本文系统梳理深度学习的基本原理、经典网络架构、训练优化技术与正则化方法，涵盖 CNN、RNN、LSTM、Transformer（MHA/MQA/GQA/MLA）、GNN、Adam、Batch Normalization、Dropout、Flash Attention、MoE、LoRA/PEFT、量化、RLHF、生成模型（VAE/GAN/Diffusion）、Mamba/SSM 等关键技术，配有大量图表对比，为学习和研究深度学习提供全面参考。"
+excerpt: "从机器学习三步骤框架出发，系统梳理神经网络、CNN、RNN/LSTM、Transformer、GNN、优化与正则化、生成模型、MoE、PEFT、量化和 Mamba/SSM，并提供训练排错与基准选择的实用参考。"
 ---
 
 
 # 1. 引言
 
-深度学习（Deep Learning）是以多层神经网络为核心的机器学习方法，自 2012 年 AlexNet 在 ImageNet 挑战赛上以巨大优势击败传统方法以来，深度学习席卷了计算机视觉、自然语言处理、语音识别等几乎所有人工智能领域。今天，GPT、BERT、Stable Diffusion、AlphaFold 等划时代系统，无一不建立在深度学习的基础之上。
+深度学习（Deep Learning）是以多层神经网络为核心的机器学习方法。2012 年 AlexNet 在 ImageNet 挑战赛上的突破，加速了深度学习在计算机视觉、自然语言处理、语音识别和科学计算等领域的普及。GPT、BERT、Stable Diffusion、AlphaFold 等代表性系统，也都建立在深度神经网络之上。
 
 深度学习之所以强大，在于它能够从原始数据（像素、词语、信号）中自动学习多层次的抽象特征表示，无需人工设计特征工程。然而，训练一个高性能的深层网络并非易事——梯度消失、过拟合、学习率调节等问题长期困扰着研究者，由此催生了一整套系统性的训练技巧。
 
@@ -24,7 +24,7 @@ excerpt: "深度学习是当代人工智能的核心驱动力。本文系统梳�
 
 理解深度学习，需要同时把握两个层面：**架构设计**（网络如何搭建）和**训练方法**（网络如何有效优化）。两者缺一不可。只知道搭积木式地堆叠网络层，而不理解每个训练技巧解决的是什么问题，往往会陷入"加了 Dropout 反而更差"或"换了 Adam 没有任何改善"的困境。
 
-本文旨在系统梳理深度学习的核心原理与关键技术进展，为学习和研究深度学习提供参考。全文按以下脉络展开：
+本文旨在系统梳理深度学习的核心原理与关键技术，为学习、复现和研究提供一份可检索的地图。全文按以下脉络展开：
 
 - **§2–3 基础**：机器学习三步骤框架、神经元与反向传播
 - **§4 架构**：MLP → CNN → RNN/LSTM → Transformer 的演进主线，并补充图神经网络（GNN）
@@ -36,13 +36,15 @@ excerpt: "深度学习是当代人工智能的核心驱动力。本文系统梳�
 - **§10 模型压缩与适配**：MoE、LoRA/PEFT、量化、知识蒸馏等部署向轻量化方法
 - **§11 前沿架构与大模型**：RLHF、生成模型（AE/VAE/GAN）、扩散模型、Mamba/SSM、LLM 等近年重大范式
 
+**阅读建议**：初学者可按 §2–§6 顺序阅读；正在训练模型时，优先查看 §5–§7 和 §9；关注大模型时，可重点阅读 §4.3、§10 和 §11。文中的精度、参数量和年份用于说明历史脉络，受模型版本、数据处理和评测协议影响，复现实验时应以原论文或官方报告为准。
+
 ---
 
 # 2. 深度学习基础概述
 
 ## 2.1 什么是深度学习？
 
-深度学习是机器学习的一个分支，以**人工神经网络（Artificial Neural Network，ANN）**为基本模型。"深度"指网络的层数多（通常超过 3 层），多层堆叠使网络能够逐层提取越来越抽象的特征。
+深度学习是机器学习的一个分支，以**人工神经网络（Artificial Neural Network，ANN）**为基本模型。"深度"通常指模型包含多层非线性变换；它没有一个适用于所有任务的固定层数阈值。多层堆叠使网络能够逐层提取越来越抽象的特征。
 
 一个神经网络的基本运算单元是**神经元（Neuron）**：
 
@@ -57,25 +59,25 @@ $$a = f\left(\sum_i w_i x_i + b\right)$$
 
 ### 通用近似定理（Universal Approximation Theorem）
 
-神经网络能处理一切任务的理论基石是 **通用近似定理**（Cybenko 1989、Hornik 1991）：
+神经网络表达能力的重要理论依据之一是 **通用近似定理**（Cybenko 1989、Hornik 1991）：
 
-> 只要隐藏层神经元数量足够多，一个**单隐层前馈网络**（配合任意非多项式激活函数）就能以任意精度逼近**定义在紧集上的任意连续函数**。
+> 在满足连续性、非多项式激活函数等条件时，一个**单隐层前馈网络**只要宽度足够，就能在紧集上以任意精度逼近任意连续函数。
 
 这一结论回答了"神经网络为什么能 work"的根本问题，但也有两层关键的限制必须澄清：
 
 | 限制 | 含义 |
 |:---|:---|
 | **只保证存在性** | 定理只说"存在一组参数可以逼近"，不保证 SGD 能学到这组参数 |
-| **宽度可能指数级增长** | 单隐层达到目标精度可能需要指数级神经元；**加深**比"加宽"更有效 |
+| **宽度可能很大** | 单隐层达到目标精度可能需要大量神经元；在部分函数上，加深比单纯加宽更高效 |
 | **只保证拟合，不保证泛化** | 训练集上完美拟合不等于验证集上表现好 — 这正是 Generalization 问题的由来 |
 
-**深度的优势**：理论上（Telgarsky 2016）存在一类函数，深层网络用 $O(n)$ 个神经元即可表达，单隐层网络则需要 $O(2^n)$ 个神经元。**宽是够用的，深是高效的**——这是现代网络动辄几十上百层的理论动机。
+**深度的优势**：理论上（Telgarsky 2016）存在一类函数，深层网络可以用远少于浅层网络的单元表达。需要注意，定理说明的是表达能力与参数效率，不保证优化过程一定找到这些参数，也不直接保证泛化性能。
 
 ### 深度学习爆发的三大驱动因素
 
 | 因素 | 内容 | 代表事件 |
 |:---|:---|:---|
-| **算法突破** | ReLU 激活函数解决梯度消失；残差连接使百层网络可训练 | AlexNet 2012、ResNet 2015 |
+| **算法突破** | ReLU 激活函数缓解梯度消失；残差连接使百层网络可训练 | AlexNet 2012、ResNet 2015 |
 | **数据爆炸** | 互联网产生海量标注数据；深度学习数据越多性能越好 | ImageNet 120 万张图像 |
 | **算力革命** | GPU 并行计算将训练时间从数周压缩至数小时 | NVIDIA GPU + CUDA |
 
@@ -87,7 +89,7 @@ $$a = f\left(\sum_i w_i x_i + b\right)$$
 2. **步骤二——确定函数搜索空间（Model Architecture）**：选择网络结构，划定候选函数的范围，即"在哪里搜索"
 3. **步骤三——Optimization（优化）**：在搜索空间内找到使 Loss 最低的最优函数，即"如何高效搜索"
 
-训练的最终目标是找到一个函数，它在**训练集（Training Set）**上 Loss 低，在**验证集（Validation Set）**上 Loss 同样低。前者称为 **Optimization** 问题，两者的差距称为 **Generalization** 问题。
+训练的最终目标是找到一个函数，它在**训练集（Training Set）**上 Loss 低，在**验证集（Validation Set）**上也保持较低。训练误差能否降下来主要体现 **Optimization**，训练误差与验证误差之间的差距则体现 **Generalization**；两者在实践中会相互影响。
 
 ## 2.3 两大核心目标
 
@@ -98,7 +100,7 @@ $$a = f\left(\sum_i w_i x_i + b\right)$$
 | **Optimization** | 训练 Loss 降不下去 | 优化过程出问题 | Adam、Skip Connection、Batch Norm |
 | **Generalization** | 训练 Loss 低，验证 Loss 高 | 过拟合（Overfitting） | Dropout、Data Augmentation、正则化 |
 
-> **判断原则**：先看训练 Loss。若训练 Loss 本身降不下去，是 Optimization 问题，此时加 Dropout 或数据增强无效；若训练 Loss 够低但验证 Loss 高，才是 Generalization 问题。
+> **判断原则**：先看训练 Loss，再看训练与验证曲线的差距。训练 Loss 降不下去时，优先检查学习率、初始化、归一化和数据管线；训练 Loss 已较低而验证 Loss 明显更高时，再考虑正则化和数据增强。实际问题可能同时包含两类因素。
 
 ## 2.4 发展时间线
 
@@ -241,7 +243,7 @@ $$\frac{\partial \mathcal{L}}{\partial w_1} = \frac{\partial \mathcal{L}}{\parti
 
 **Receptive Field（感受野）**：每个神经元只观察输入的局部区域（如 3×3 的 kernel），而非整张图像。图像中的局部模式（边缘、纹理）只需局部感知即可检测，无需全局视野。
 
-**Parameter Sharing（参数共享）**：不同位置的同类神经元共享同一组参数（filter/卷积核）。同一模式（如水平边缘）出现在图像任何位置，应由相同的检测器处理——这一约束引入了**平移不变性（Translation Invariance）**。
+**Parameter Sharing（参数共享）**：不同位置的同类神经元共享同一组参数（filter/卷积核）。同一模式（如水平边缘）出现在图像任何位置，应由相同的检测器处理——这一约束带来**平移等变性（Translation Equivariance）**；池化或全局聚合后，模型才会获得一定的平移不变性。
 
 ### 卷积层的核心超参数
 
@@ -298,7 +300,7 @@ $$\text{out} = \left\lfloor \frac{\text{in} + 2p - d(k-1) - 1}{s} \right\rfloor 
 | VGG-16 | 2014 | 138M | ~71.5% | 统一 3×3 卷积，网络更深 |
 | GoogLeNet | 2014 | 6.8M | ~69.8% | Inception 模块，大幅减少参数 |
 | ResNet-50 | 2015 | 25M | ~76.0% | 残差连接，使极深网络可训练 |
-| ResNet-152 | 2015 | 60M | ~77.8% | **超越人类水平**（Top-5 3.57%）|
+| ResNet-152 | 2015 | 60M | ~77.8% | 经典论文报告的 Top-5 错误率约 3.57% |
 | SENet-154 | 2017 | ~115M | ~82.7% | 通道注意力（Squeeze-Excitation）|
 | EfficientNet-B0 | 2019 | 5.3M | 77.1% | 复合缩放（NAS 搜索最优比例）|
 | EfficientNet-B7 | 2019 | 66M | 84.4% | 参数效率最佳 |
@@ -467,7 +469,7 @@ BERT 的 MLM（Masked Language Model）可以看作 Transformer 对"双向建模
 | 策略 | 第 $t$ 步输入 | 优点 | 缺点 |
 |:---|:---|:---|:---|
 | **Teacher Forcing** | **真实标签** $y_{t-1}$ | 训练稳定、收敛快 | 训练-推理分布不一致（推理用自己的预测）|
-| **Free Running** | **模型预测** $\hat{y}_{t-1}$ | 与推理完全一致 | 训练初期模型预测很差，错误级联，难以收敛 |
+| **Free Running** | **模型预测** $$\hat{y}_{t-1}$$ | 与推理完全一致 | 训练初期模型预测很差，错误级联，难以收敛 |
 | **Scheduled Sampling** | 按概率 $p$ 采样真实或预测（Bengio et al., 2015）| 折中方案，逐步切换 | 需调 schedule 超参 |
 
 **Teacher Forcing 的问题**——**Exposure Bias**：训练时模型从未"见过"自己的错误预测，推理时一旦某步预测偏了就会越错越远（错误累积 / hallucination 的雏形）。
@@ -501,7 +503,7 @@ $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)
 
 **一个具体例子：句子 "The cat sat on the mat"**
 
-假设模型正在处理动词 "sat"，它需要找到"谁坐下"（主语）：
+假设模型正在处理动词 "sat"，它需要找到"谁坐下"（主语）。下面的权重仅用于直观说明，并不是某个真实模型的输出：
 
 | Token | Q（在找什么？）| K（我是什么？）| V（我能提供什么？）|
 |:---|:---|:---|:---|
@@ -562,7 +564,7 @@ flowchart LR
     end
 ```
 
-**为什么 GQA 成为主流**：MQA 过于激进（压到 1 组），质量损失明显；MHA 显存太重。GQA 在质量与显存间取得平衡——LLaMA-2 70B 用 8 组、64 Q 头，KV Cache 仅为 MHA 的 1/8，而性能几乎无损，是当前开源大模型的事实标准。
+**为什么 GQA 常被采用**：MQA 将 K/V 压到 1 组，可能带来质量损失；MHA 的 KV Cache 又较大。GQA 在质量与显存之间折中——例如 LLaMA-2 70B 使用 8 组、64 个 Q 头，KV Cache 约为 MHA 的 1/8；实际收益仍取决于模型和任务。
 
 **MLA 的创新**：DeepSeek 将 K/V 用低秩矩阵压缩至 $\sim$128 维的 latent space，推理时只缓存 latent 向量，需要时再恢复完整 K/V。在极长上下文下显存优势显著。
 
@@ -571,7 +573,7 @@ flowchart LR
 **1. 位置编码（Positional Encoding）**
 
 **为什么需要位置编码？**
-Transformer 的核心——自注意力机制是**置换不变的（Permutation Invariant）**。在计算 $O = \sum \alpha_i V_i$ 时，由于加法满足交换律，模型无法分辨输入顺序。如果没有位置信息，句子"你打我"和"我打你"在模型看来是完全一样的。因此，必须将位置信息注入 Input Embedding 中。
+Transformer 的核心——自注意力机制在没有位置编码时对输入排列是**置换等变的（Permutation Equivariant）**：输入 token 的顺序改变，输出也会按同样方式重排。在计算 $O = \sum \alpha_i V_i$ 时，模型没有额外线索判断顺序，因此句子"你打我"和"我打你"无法被可靠区分，必须注入位置信息。
 
 <div align="center">
   <img src="/images/DL/绝对位置编码.webp" width="85%" alt="绝对位置编码示意图" />
@@ -681,7 +683,7 @@ RoPE 只修改了 Q 和 K 本身，Attention 的计算流程与原版完全相�
 | **Absolute PE** | 正余弦或可学习 Embedding | 简单，但外推性差（无法处理比训练更长的序列）| BERT、原始 Transformer |
 | **Relative PE** | 建模 $i$ 和 $j$ 的相对距离 | 关注距离而非绝对坐标 | T5 |
 | **ALiBi** | 在 Attention Score 上减去距离偏差 | 外推性极强，计算极其简单 | MPT、Bloom |
-| **RoPE** | 将 $Q, K$ 旋转特定角度（旋转位置嵌入）| **当前 SOTA**，结合了绝对与相对的优点 | LLaMA、Qwen、Gemma |
+| **RoPE** | 将 $Q, K$ 旋转特定角度（旋转位置嵌入）| 兼顾相对位置信息与工程兼容性，已被广泛采用 | LLaMA、Qwen、Gemma |
 
 **2. 逐点前馈网络（Point-wise FFN）**
 在每个注意力层后，接一个全连接块（通常是 $d_{model} \to 4d_{model} \to d_{model}$），引入非线性变换：
@@ -690,7 +692,7 @@ $$\text{FFN}(x) = \text{max}(0, xW_1 + b_1)W_2 + b_2$$
 **3. 残差连接与归一化（Add & Norm）**
 每个子层均采用残差连接，并配合层归一化（LayerNorm）。目前存在两种主流布局：
 - **Post-LN**（原始版）：先计算子层再加残差做 LN。性能好但深层难以训练。
-- **Pre-LN**（现代大模型标配）：先做 LN 再计算子层。训练更稳定，无需复杂的 Warmup 策略（如 GPT-2/3、LLaMA）。
+- **Pre-LN**（现代大模型常用）：先做 LN 再计算子层，通常更易稳定训练；是否需要 Warmup 仍取决于模型、优化器和训练设置。
 
 ### Encoder 与 Decoder 的差异
 
@@ -916,6 +918,8 @@ $$m_t = \beta_1 m_{t-1} + (1-\beta_1)g_t \quad \text{(一阶矩)}$$
 
 $$v_t = \beta_2 v_{t-1} + (1-\beta_2)g_t^2 \quad \text{(二阶矩)}$$
 
+$$\hat{m}_t = \frac{m_t}{1-\beta_1^t}, \qquad \hat{v}_t = \frac{v_t}{1-\beta_2^t}$$
+
 $$\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t}+\epsilon}\hat{m}_t$$
 
 标准超参数：$\beta_1=0.9$，$\beta_2=0.999$，$\epsilon=10^{-8}$。Adam 的 $m_t$ 负责方向（可越过 saddle point）；$v_t$ 负责大小（自适应调整各参数学习率）。两者互补，共同解决了梯度下降的两大核心难题。
@@ -973,7 +977,7 @@ $$W \sim \mathcal{N}\left(0, \frac{2}{n_{in}}\right)$$
 
 ReLU 会把一半输入置零，Xavier 的方差假设不再成立，因此 Kaiming 将方差放大 2 倍以补偿。这一初始化使几十层的 ReLU 网络训练初期激活值方差保持稳定，避免爆炸或消失。
 
-**选择原则**：Sigmoid/Tanh 用 Xavier，ReLU 及其变体用 Kaiming。现代主流架构以 ReLU/GELU 为主，Kaiming 是事实标准。
+**选择原则**：Sigmoid/Tanh 常用 Xavier，ReLU 及其变体常用 Kaiming；实际初始化还要结合残差结构、归一化和框架默认实现。
 
 **预训练作为初始化（Pre-training）**：在大规模数据上先训练，再将参数迁移至目标任务。同时改善 Optimization（更好的起点）和 Generalization（学到通用特征）。
 
@@ -989,7 +993,7 @@ ReLU 会把一半输入置零，Xavier 的方差假设不再成立，因此 Kaim
 | **Layer Norm (LN)** | 2016 | 单样本、所有特征 | ✗ | Transformer、序列模型 | BERT、GPT 系列 |
 | Group Norm | 2018 | 单样本、分组特征 | ✗ | 小 batch CV（目标检测）| Mask R-CNN |
 | Instance Norm | 2017 | 单样本、单通道 | ✗ | 图像风格迁移 | StyleGAN |
-| **RMSNorm** | 2019 | 单样本（仅方差）| ✗ | LLM 高效训练 | LLaMA、Qwen、GPT-4 |
+| **RMSNorm** | 2019 | 单样本（均方根缩放）| ✗ | LLM 高效训练 | LLaMA、Qwen 等 |
 
 **Batch Normalization（BN，Ioffe & Szegedy，2015）**：
 
@@ -1014,7 +1018,7 @@ BN 有三个致命短板，恰好对应 Transformer 选择 LN 的三个理由：
 
 | 问题 | BN 表现 | LN 表现 |
 |:---|:---|:---|
-| **Batch 太小** | batch=1 时方差为 0，完全失效 | 与 batch 无关，batch=1 也正常 |
+| **Batch 太小** | 统计量噪声变大，极小 batch 时不稳定 | 与 batch 无关，batch=1 也可用 |
 | **序列长度变化** | 不同样本不同长度，padding 污染统计量 | 每个样本独立归一化 |
 | **分布式训练** | 需跨设备同步 batch 统计（SyncBN）| 完全局部计算，无通信开销 |
 
@@ -1037,7 +1041,7 @@ LN 在**每个样本的所有特征维度**上归一化，与 batch size、序�
 
 $$\text{RMSNorm}(x) = \frac{x}{\sqrt{\frac{1}{d}\sum_i x_i^2 + \epsilon}} \cdot \gamma$$
 
-计算量比 LN 少 $\sim 7\%$，且经验上质量几乎无损，被 LLaMA、Qwen、GPT-4 等主流大模型采用。
+计算量通常比 LN 略低，且在许多语言模型中效果接近；是否采用取决于架构和训练配方。
 
 ## 5.5 残差连接
 
@@ -1087,7 +1091,7 @@ $$\mathcal{L}_{MSE} = \frac{1}{N}\sum_{i=1}^N (y_i - \hat{y}_i)^2$$
 $$\mathcal{L}_{MAE} = \frac{1}{N}\sum_{i=1}^N |y_i - \hat{y}_i|$$
 
 - **优点**：对异常值更鲁棒（线性惩罚而非平方）
-- **缺点**：在 $y_i = \hat{y}_i$ 处不可微（需用 Huber Loss 折中）
+- **缺点**：在 $$y_i = \hat{y}_i$$ 处不可微（需用 Huber Loss 折中）
 
 ### Huber Loss
 
@@ -1107,7 +1111,7 @@ $$p_i = \frac{e^{z_i}}{\sum_j e^{z_j}}$$
 
 $$\mathcal{L}_{CE} = -\sum_i \hat{p}_i \log p_i = -\log p_{y^*}$$
 
-其中 $y^*$ 为真实类别，$\hat{p}_i$ 为 one-hot 标签。
+其中 $y^*$ 为真实类别，$$\hat{p}_i$$ 为 one-hot 标签。
 
 > **为什么不用准确率（Accuracy）作为 Loss？** 准确率是阶跃函数，参数轻微变化时 Loss 几乎恒为零，梯度无法计算，Gradient Descent 无从进行。Cross-Entropy 处处可微，且值越小对应 Accuracy 越高。
 
@@ -1119,7 +1123,7 @@ $$\mathcal{L}_{CE} = -\sum_i \hat{p}_i \log p_i = -\log p_{y^*}$$
 
 **动机**：one-hot 标签要求模型对正确类别预测 1.0、其他为 0——这迫使模型把 logit 推到无穷大才能完全拟合，导致 **过度自信**（overconfidence）、泛化差、蒸馏效果弱。
 
-**做法**：将硬标签 $\hat{p}_i$ 软化为：
+**做法**：将硬标签 $$\hat{p}_i$$ 软化为：
 
 $$\hat{p}_i^{\text{LS}} = \begin{cases} 1 - \epsilon & i = y^* \\ \epsilon/(K-1) & i \neq y^* \end{cases}$$
 
@@ -1212,7 +1216,7 @@ $$\mathcal{L}_{\text{InfoNCE}} = -\log \frac{\exp(\text{sim}(q, k^+)/\tau)}{\sum
 
 ## 6.2 Dropout
 
-**Dropout**（Srivastava et al.，2014）：训练时以概率 $p$ 随机将神经元输出置零，测试时关闭 Dropout、所有神经元激活并将输出乘以 $(1-p)$ 缩放。
+**Dropout**（Srivastava et al.，2014）：设 $p$ 为丢弃率，训练时以概率 $p$ 将神经元输出置零，并对保留下来的激活除以 $1-p$（inverted dropout）。推理时关闭 Dropout，直接使用完整网络，因此无需额外缩放。
 
 <div align="center">
   <img src="/images/DL/dropout.webp" width="70%" alt="Dropout 示意图" />
@@ -1221,7 +1225,7 @@ $$\mathcal{L}_{\text{InfoNCE}} = -\log \frac{\exp(\text{sim}(q, k^+)/\tau)}{\sum
 
 直觉：迫使网络在部分神经元缺席的情况下仍能正确预测，防止神经元之间的过度共适性（Co-adaptation），相当于同时训练了大量不同结构的子网络并取集成效果。
 
-**使用时机**：仅在观察到 Overfitting 后使用；训练 Loss 降不下去时，加 Dropout 只会更糟。
+**使用时机**：当训练与验证误差之间出现明显差距时，可将 Dropout 作为正则化选项；若训练 Loss 本身降不下去，应先排查优化设置，过强的 Dropout 可能进一步减慢收敛。
 
 ## 6.3 数据增强
 
@@ -1242,7 +1246,7 @@ $$\mathcal{L}_{\text{InfoNCE}} = -\log \frac{\exp(\text{sim}(q, k^+)/\tau)}{\sum
 
 **注意**：数据增强的变换必须保持标签语义。若任务是判断鸟头朝向，则不能做左右翻转；若任务是说话人识别，则不能做语者转换。
 
-**使用时机**：仅在 Overfitting 时有效；Training Loss 降不下去时，增加数据反而使优化更困难。
+**使用时机**：数据增强通常用于提升泛化和分布鲁棒性，但增强强度必须与任务匹配。若 Training Loss 降不下去，应先确认增强没有破坏标签语义，再检查优化设置。
 
 ## 6.4 L2 正则化与 AdamW
 
@@ -1309,21 +1313,33 @@ flowchart TD
 | LR Scheduling | 步骤三 | Optimization | Warmup+Cosine 为大模型标配 |
 | Kaiming Init | 步骤三 | Optimization | ReLU 网络的标准初始化 |
 | Pre-training | 步骤三 | Opt + Gen | 两者同时改善，现代大模型核心 |
-| CNN | 步骤二 | Generalization | 引入图像 Inductive Bias |
+| CNN | 步骤二 | Opt + Gen | 通过归纳偏置提升样本效率 |
 | Skip Connection | 步骤二 | Optimization | 使深层网络可训练 |
 | Batch Norm | 步骤二 | Optimization（+Gen）| 依赖 batch 统计量 |
 | Layer Norm | 步骤二 | Optimization（+Gen）| Transformer 标配 |
 | Cross-Entropy | 步骤一 | 使 Opt 可行 | 分类/生成任务标准损失 |
-| Dropout | 步骤三* | Generalization | 训练 Loss 会升高 |
-| Data Augmentation | 步骤一 | Generalization | Overfitting 时才有效 |
+| Dropout | 步骤一 | Generalization | 训练阶段的噪声正则化 |
+| Data Augmentation | 步骤一 | Generalization | 需保持标签语义 |
 | L2 Reg / AdamW | 步骤一/三 | Generalization | 偏好参数值更小的函数 |
 | Semi-supervised | 步骤一 | Generalization | 利用无标注数据 |
+
+### 7.1 训练排错速查
+
+遇到训练异常时，先根据曲线判断问题，再选择改动。一次只改变少量因素，并记录数据、随机种子和评测协议，结果才便于比较。
+
+| 现象 | 优先检查 | 可尝试的改动 |
+|:---|:---|:---|
+| 训练 Loss 几乎不下降 | 数据与标签、学习率、初始化、梯度是否为零 | 降低或提高学习率，检查归一化与激活函数，先用小数据集过拟合测试 |
+| Loss 快速变成 NaN 或剧烈尖峰 | 学习率、混合精度溢出、梯度爆炸 | 使用 BF16/损失缩放，开启梯度裁剪，检查异常样本 |
+| 训练 Loss 很低但验证 Loss 高 | 数据量、数据划分、标签泄漏、过拟合 | 增强数据、加入权重衰减或 Dropout，减少模型容量 |
+| 训练与验证都差 | 表示能力、输入预处理、任务定义或标注质量 | 增大模型或训练步数，改进特征与标签，确认评测指标合理 |
+| 训练很慢或显存不足 | 序列长度、batch size、数据加载和算子利用率 | 混合精度、梯度累积、检查点、Flash Attention 或参数高效微调 |
 
 ---
 
 # 8. 常用实验基准
 
-评测基准是衡量进步的标尺。本节按领域梳理各阶段代表性 Benchmark——CV 的 MNIST/ImageNet、NLP 的 GLUE/MMLU，以及代码、数学推理、长上下文等近年新战场。一条反复出现的规律是：**旧基准被攻克（接近饱和）→ 催生更难的新基准**，这场"基准军备竞赛"本身就是领域进展的缩影，可一边浏览下方表格一边对照这条主线。
+评测基准是衡量进步的工具。本节按领域梳理经典 Benchmark——CV 的 MNIST/ImageNet、NLP 的 GLUE/MMLU，以及代码、数学推理、长上下文等任务。不同论文的模型、数据、提示词和评测脚本可能不同，表中的规模与历史成绩适合用于建立概念，不应直接当作跨论文排行榜。
 
 ## 8.1 计算机视觉基准
 
@@ -1357,7 +1373,7 @@ Dropout、Batch Normalization、ResNet、Data Augmentation 的效果均在此基
 | 类别数 | 1,000 |
 | 特点 | 深度学习工业级基准，CNN 发展史的主战场 |
 
-**ImageNet Top-1 精度演进（见第四节表格）**：AlexNet（56.5%）→ VGG（71.5%）→ ResNet（76.0%）→ EfficientNet（84.4%）→ 当前 SOTA ≈ 91%，12 年内提升约 35 个百分点。
+**ImageNet Top-1 精度演进（见第四节表格）**：AlexNet（56.5%）→ VGG（71.5%）→ ResNet（76.0%）→ EfficientNet（84.4%）。这些数字来自不同年代的经典模型与训练配方，主要用于说明架构演进。
 
 ## 8.2 自然语言处理基准
 
@@ -1366,9 +1382,9 @@ Dropout、Batch Normalization、ResNet、Data Augmentation 的效果均在此基
 | 基准 | 发布 | 任务数 | 用途 |
 |:---|:---:|:---:|:---|
 | GLUE | 2018 | 9 | 文本分类、推理、相似度等 NLU 任务综合评测 |
-| SuperGLUE | 2019 | 8 | GLUE 饱和后的更难版，BERT 超越人类促成升级 |
+| SuperGLUE | 2019 | 8 | GLUE 饱和后的更难版，覆盖更具挑战性的 NLU 任务 |
 
-BERT（2018）发布时在 GLUE 上大幅超越人类水平，直接推动了 SuperGLUE 的设立。
+BERT（2018）发布时在 GLUE 上取得了当时领先成绩；随着基准逐渐饱和，研究者随后推出了更难的 SuperGLUE。
 
 ### MMLU（Massive Multitask Language Understanding）
 
@@ -1380,11 +1396,11 @@ BERT（2018）发布时在 GLUE 上大幅超越人类水平，直接推动了 Su
 | 用途 | 评测 LLM 的知识广度与推理能力 |
 | 人类水平 | 约 89.8%（专家）|
 
-GPT-4（2023）在 MMLU 上达到 86.4%，Claude 3 Opus 达到 88.7%（2024），接近专家人类水平。
+MMLU 适合观察模型的知识覆盖与多学科推理，但分数会受到提示词、校准方式和训练数据污染的影响，比较时应固定评测协议。
 
 ### 语言模型困惑度（Perplexity）
 
-Penn Treebank（PTB）/ WikiText 是传统语言模型的标准基准，评测指标为**困惑度（Perplexity，PPL）**——越低越好，表示模型对下一个 token 的预测越确定。现已被 MMLU、HumanEval 等综合 Benchmark 取代。
+Penn Treebank（PTB）/ WikiText 是传统语言模型的标准基准，评测指标为**困惑度（Perplexity，PPL）**——越低越好，表示模型对下一个 token 的预测越确定。PPL 仍适合比较同一语料、分词和建模目标下的语言模型，但不能单独代表知识、代码或推理能力。
 
 ### 代码能力基准
 
@@ -1399,7 +1415,7 @@ Penn Treebank（PTB）/ WikiText 是传统语言模型的标准基准，评测�
 | **SWE-bench** | 2023 | 2294 题 | 真实 GitHub 仓库 bug 修复 | 运行测试套件 |
 | **SWE-bench Verified** | 2024 | 500 题 | 人工验证子集 | 更可靠评测 |
 
-**演进**：GPT-4（67%）→ Claude 3.5 Sonnet（92% HumanEval）→ 最新模型已接近饱和；SWE-bench 成为 2024 年之后的主战场（Claude Sonnet 4 / GPT-5 solve rate ~60–70%）。
+**使用建议**：HumanEval/MBPP 适合测函数级代码生成，SWE-bench 更接近真实仓库修复；报告成绩时应同时说明采样次数、测试集版本和是否允许工具调用。
 
 ### 数学推理基准
 
@@ -1410,7 +1426,7 @@ Penn Treebank（PTB）/ WikiText 是传统语言模型的标准基准，评测�
 | **AIME** | 每年更新 | 美国数学邀请赛 | 防训练污染，前沿模型主战场 |
 | **Putnam** | — | 大学生数学竞赛 | 极端难度，测试顶尖推理 |
 
-GSM8K 已被前沿模型基本攻克（>95%）；MATH 进入饱和期；AIME 成为 o1、DeepSeek-R1 等推理模型的主要评测场。
+GSM8K 更偏基础多步算术，MATH 和 AIME 对竞赛数学推理要求更高。随着模型能力提升，训练数据污染、采样策略和答案验证方式会显著影响成绩，不能只看单一分数。
 
 ### 长上下文基准
 
@@ -1420,11 +1436,11 @@ GSM8K 已被前沿模型基本攻克（>95%）；MATH 进入饱和期；AIME 成
 |:---|:---:|:---|:---|
 | **Needle-in-a-Haystack** | 2023 | 在长文档中藏一句关键信息，要求模型召回 | 定位精度随位置与长度变化 |
 | **LongBench** | 2023 | 21 个任务、6 大类（QA、摘要、代码等）| 多维度综合评测 |
-| **RULER** | 2024 | 13 种合成任务，难度可控扩展 | **当前最严格的长上下文基准** |
+| **RULER** | 2024 | 13 种合成任务，难度可控扩展 | 检验长上下文的多种能力 |
 | **∞BENCH** | 2024 | 平均 200K tokens | 测试真实超长场景 |
 | **LOFT** | 2024 | 长文档 RAG、工具调用 | 真实 Agent 场景 |
 
-**Needle-in-a-Haystack 的发现**：多数声称支持 128K 的模型在 90K+ 位置召回率显著下降；Claude、Gemini-1.5 Pro 等在 1M 上下文中仍能保持 >99% 召回，体现了长上下文工程的实际差异。
+**使用建议**：Needle-in-a-Haystack 主要检验定位能力，不能替代真实长文档问答。实际评测还应关注位置、文档长度、问题类型、检索干扰和答案引用的准确性。
 
 ---
 
@@ -1474,7 +1490,7 @@ $$g \leftarrow g \cdot \min\left(1, \frac{\tau}{\|g\|_2}\right)$$
 | Flash Attention 2 | 2023 | 4–9× | 改进并行化与 warp 分区，达 70% A100 FLOP/s |
 | Flash Attention 3 | 2024 | 6–18×（vs FA1）| 针对 H100 Hopper 架构；异步流水线；FP8 支持，达 75% H100 FLOP/s（约 1.2 PFLOP/s）|
 
-Flash Attention 在保持**精确计算**（非近似）的同时大幅降低显存和加速计算，已成为所有主流大模型的标配。
+Flash Attention 在保持**精确计算**（非近似）的同时降低显存访问开销并加速计算；是否可用取决于硬件、序列长度和算子实现。
 
 ---
 
@@ -1516,13 +1532,12 @@ flowchart LR
 | GShard | 2020 | 600B | — | top-2 路由 |
 | **Mixtral 8×7B** | 2023 | 47B | 13B | 8 专家、top-2 |
 | **DeepSeek-V3** | 2024 | 671B | 37B | 256 共享专家 + 细粒度路由 |
-| GPT-4（推测）| 2023 | $\sim$1.8T | $\sim$280B | MoE 架构（未官方公开）|
 
-**关键挑战**：**负载均衡**（防止所有 token 涌向少数专家）——通常加入辅助损失惩罚极端路由分布。
+**关键挑战**：**负载均衡**（防止所有 token 涌向少数专家）——通常加入辅助损失或容量约束，避免少数专家过载。总参数量与激活参数量的统计口径并不统一，跨模型比较时应同时查看路由策略和 FFN 规模。
 
 ## 10.2 参数高效微调（PEFT）
 
-随着预训练模型参数量膨胀至百亿、千亿，**全参数微调（Full Fine-tuning）** 的显存与存储成本变得不可接受。**Parameter-Efficient Fine-Tuning（PEFT）** 只训练极少量额外参数（通常 <1%），即可逼近全参微调效果。
+随着预训练模型参数量膨胀至百亿、千亿，**全参数微调（Full Fine-tuning）** 的显存与存储成本往往很高。**Parameter-Efficient Fine-Tuning（PEFT）** 只训练极少量额外参数（通常 <1%），即可逼近全参微调效果。
 
 ### 主流 PEFT 方法对比
 
@@ -1531,7 +1546,7 @@ flowchart LR
 | **Adapter** | 2019 | ~3% | 每层插入小 bottleneck MLP | 推理时引入额外计算 |
 | **Prefix Tuning** | 2021 | <1% | 在输入前添加可学习的"软 prompt" | 不改原模型；效果对任务敏感 |
 | **Prompt Tuning** | 2021 | <0.1% | 仅在 Embedding 层加软 prompt | 最轻量；只在超大模型上效果好 |
-| **LoRA** | 2021 | 0.1–1% | 对权重矩阵注入低秩更新 $\Delta W = BA$ | **当前 PEFT 事实标准** |
+| **LoRA** | 2021 | 0.1–1% | 对权重矩阵注入低秩更新 $\Delta W = BA$ | 广泛使用的强基线 |
 | **QLoRA** | 2023 | 与 LoRA 同 | 4bit 量化底模 + LoRA 微调 | 可在单张 24GB GPU 微调 65B 模型 |
 | **DoRA** | 2024 | 与 LoRA 略多 | 将权重拆解为方向+幅度分别更新 | 在低秩设定下质量优于 LoRA |
 
@@ -1549,7 +1564,7 @@ $$W = W_0 + \Delta W = W_0 + BA$$
 - **推理**：可将 $BA$ 合并进 $W_0$，推理零开销
 - **切换任务**：加载不同 LoRA 权重即可秒级切换场景
 
-LoRA 与 QLoRA 几乎是当前所有开源大模型微调（SFT、DPO）的默认选择。
+LoRA/QLoRA 是开源大模型微调中常见的强基线，但最佳方案仍取决于任务、底模、量化方式和可用显存。
 
 ## 10.3 模型量化（Quantization）
 
@@ -1573,7 +1588,7 @@ LoRA 与 QLoRA 几乎是当前所有开源大模型微调（SFT、DPO）的默�
 | **bitsandbytes** | 2022 | INT8/NF4 | HuggingFace 生态标准库，支持 QLoRA |
 | **FP8** | 2022 | FP8 | H100 硬件原生支持，训练推理通用 |
 
-**经验**：对 7B+ 规模的 LLM，INT4 量化通常带来 <1% 质量损失，但模型大小从 14GB 压至 4GB——可在消费级显卡（24GB）上运行 70B 模型。
+**经验**：INT4 往往能显著降低显存占用，但质量损失取决于模型、校准数据、量化粒度和推理内核；部署前应在目标任务上实测延迟、吞吐和准确率。
 
 ## 10.4 知识蒸馏（Knowledge Distillation）
 
@@ -1607,10 +1622,9 @@ $$\mathcal{L}_{KD} = \alpha \cdot \mathcal{L}_{CE}(y^*, p_s) + (1-\alpha) \cdot 
 | **DistilBERT** | 2019 | BERT-base → 6 层 | 参数减 40%，保留 97% 性能 |
 | **TinyBERT** | 2019 | BERT → 4 层 | 参数减 87%，速度 9× |
 | **MobileBERT** | 2020 | BERT-large → 紧凑模型 | 移动端推理 |
-| **Gemini Flash** | 2024 | Gemini Pro → 小模型 | 当前 LLM 蒸馏典型 |
-| **Claude Haiku** | 2024 | Claude Opus → 小模型 | 快速推理、低成本 |
+| **MiniLM** | 2020 | BERT → 小型 Transformer | 蒸馏注意力与隐藏表示 |
 
-**当前 LLM 实践**：前沿厂商先训练最大的"旗舰"模型，再通过蒸馏（+ RLHF）得到更小、更快、更便宜的系列模型（如 Claude 3 Opus/Sonnet/Haiku）。蒸馏 + 量化 + MoE 是现代大模型部署优化的三驾马车。
+在 LLM 中，蒸馏可作用于 logits、隐藏表示、偏好数据或生成轨迹。它通常与量化、剪枝或参数共享组合使用，但教师模型与学生模型之间的能力差距、数据分布和生成温度都会影响最终效果。
 
 ---
 
@@ -1647,7 +1661,7 @@ flowchart LR
 | **RLAIF** | 2023 | 用 AI（如 Claude）代替人类标注偏好 |
 | **Constitutional AI** | 2022 | Anthropic 提出，用一组"宪法"原则指导模型自我批评 |
 
-> DPO 因训练稳定、无需 RM，已在开源社区取代 PPO 成为主流对齐方法。但前沿闭源模型（GPT-4o、Claude）仍多采用 PPO 或其改进版。
+> DPO 因训练流程较简单、无需单独训练奖励模型，成为常见的偏好优化方法。PPO、DPO、拒绝采样和其他方法也可以组合使用；闭源模型的具体训练流程通常没有完全公开。
 
 ## 11.2 生成模型：从 AE 到 GAN
 
@@ -1726,7 +1740,7 @@ $$\mathcal{L} = \mathbb{E}_{t, x_0, \epsilon}\left[\|\epsilon - \epsilon_\theta(
 |:---|:---|:---|
 | **训练稳定性** | 两网络博弈，易 mode collapse | 单网络回归，非常稳定 |
 | **样本多样性** | 模式崩塌（只生成少数样本类型）| 覆盖数据分布完整 |
-| **生成质量** | SOTA 较难保持 | 当前 SOTA |
+| **生成质量** | 单次采样质量高但训练不稳定 | 通常能取得高质量且覆盖更广 |
 | **推理速度** | 单次前向（快）| 多步迭代（慢）|
 | **可控生成** | 条件控制较复杂 | 天然适配 Classifier-Free Guidance |
 
@@ -1785,7 +1799,7 @@ S4 的局限：$A, B, C$ 矩阵对所有时间步固定（**time-invariant**）�
 
 $$\Delta, B, C = \text{Linear}(x_t)$$
 
-这使模型能根据当前 token 的内容动态决定"保留多少过去状态"（$\Delta$ 大 → 更新状态，$\Delta$ 小 → 忽略当前输入，类似注意力机制）。
+这使模型能根据当前 token 的内容动态调节状态更新与遗忘速度；在常见参数化下，$\Delta$ 会影响离散化后的状态衰减和输入注入强度，不能简单等同于一个固定的"记忆开关"。
 
 **硬件感知并行扫描**：直接对 $h_t = \bar{A} h_{t-1} + \bar{B} x_t$ 的递推做并行前缀扫描（parallel prefix scan），全程在 GPU SRAM 中完成，避免频繁写回 HBM，显存复杂度 $O(N)$，训练速度与 Transformer 相当。
 
