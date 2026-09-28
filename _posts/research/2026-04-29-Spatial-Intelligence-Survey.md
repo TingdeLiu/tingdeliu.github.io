@@ -1,20 +1,20 @@
 ---
 layout: post
 title: "空间智能综述"
-date:  2026-08-14
+date:  2026-09-29
 tags: [Spatial Intelligence, 3D Vision, NeRF, Point Cloud, Embodied AI, Survey]
 categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "空间智能是 AI 系统感知、理解、推理和交互三维物理世界的综合能力，是具身智能与通用人工智能的重要基础。本文系统梳理空间智能的核心技术体系，涵盖点云处理、深度估计、神经三维重建、三维目标检测与空间感知语言模型等方向的经典代表性工作，并梳理主流数据集、评测基准与 2023–2025 年最新进展，为学习和研究空间智能提供全面参考。"
+excerpt: "空间智能是 AI 系统感知、理解、推理和交互三维物理世界的综合能力，是具身智能与通用人工智能的重要基础。本文系统梳理空间智能的核心技术体系，涵盖点云处理、深度估计、神经三维重建、三维目标检测与空间感知语言模型等方向的经典代表性工作，并梳理主流数据集、评测基准与 2023–2026 年最新进展，为学习和研究空间智能提供全面参考。"
 ---
 
 # 1. 引言
 
 <div align="center">
   <img src="/images/si/SI.webp" width="90%" />
-<figcaption>  </figcaption>
+<figcaption>空间智能研究方向概览</figcaption>
 </div>
 
 空间智能（Spatial Intelligence）是指 AI 系统感知、理解、推理和交互三维物理世界的综合能力。与人类从婴幼儿期便开始发展的空间认知类似，空间智能涵盖了对物体形状、场景布局、三维空间关系以及动态变化的全面理解。作为具身智能（Embodied AI）的核心基础，空间智能的研究近年来随着深度学习、神经渲染以及大型多模态模型的飞速发展而进入了全新阶段。
@@ -74,7 +74,7 @@ excerpt: "空间智能是 AI 系统感知、理解、推理和交互三维物理
 | **几何精度** | CD (Chamfer Distance) | 点集间的平均欧氏距离 | 点云配准、形状重建 |
 | | EMD (Earth Mover's Distance) | 两个分布间的推土机距离 | 形状生成、点云生成 |
 | | AbsRel / RMSE | 深度预测的绝对误差与均方根误差 | 深度估计 |
-| **理解精度** | mIoU (Mean IoU) | 预测框与真值的交并比均值 | 语义/实例分割、检测 |
+| **理解精度** | mIoU (Mean IoU) | 预测区域与真值区域的交并比均值 | 语义/实例分割、占用预测 |
 | | mAP (Mean Average Precision) | 平均精度均值（多阈值下的召回/精确度） | 三维目标检测 |
 | **推理/对话** | CIDEr / BLEU-4 | 生成文本与参考答案的共现相似度 | 3D Captioning / 3D VQA |
 | | EM (Exact Match) | 答案完全匹配的比例 | 3D 视觉问答 |
@@ -120,7 +120,7 @@ graph TD
 - **2018–2020**：VoxelNet、SECOND、PointPillars 推动了自动驾驶 LiDAR 感知商业化；NeRF 的提出彻底改变了三维重建技术范式。
 - **2021–2022**：Transformer 架构被引入三维感知（Point Transformer、DETR3D、BEVFormer），性能大幅提升；Instant-NGP 将 NeRF 训练时间压缩至秒级。
 - **2023**：3D Gaussian Splatting 实现实时高质量渲染；3D-LLM、EmbodiedScan 将语言模型与三维场景理解结合。
-- **2024–2025**：Depth Anything、SpatialVLM、DUSt3R、Uni3D 等工作推动空间感知基础模型形成；VGGT（CVPR 2025 Best Paper）以单次前馈同时输出相机参数、深度、点图与点轨迹，标志空间智能正式进入"前馈三维基础模型"新阶段。
+- **2024–2025**：Depth Anything、SpatialVLM、DUSt3R、Uni3D 等工作推动空间感知基础模型形成；VGGT（CVPR 2025 Best Paper）以单次前馈同时输出相机参数、深度、点图与点轨迹，标志空间智能正式进入“前馈三维基础模型”新阶段。
 - **2026**：空间智能迈入“分层认知、原生文本微调与前向度量建图”新阶段。**HiSpatial**（CVPR 2026）建立从几何到抽象推理的分层空间认知；**VLM³**（2026）证明通用 VLM 通过焦距统一与纯文本 SFT 即可原生掌握高精度 3D 几何；**MapAnything**（2026）实现多源任意传感器前向度量地图重建；**Qwen-3D** 与 **SparseOccVLA** 则推动 3D 空间占用预测与具身决策深度耦合。
 
 ## 2.6 相机模型与投影几何基础
@@ -206,7 +206,7 @@ $$R = I + \sin\theta [\mathbf{n}]_\times + (1-\cos\theta) [\mathbf{n}]_\times^2$
 ## 4.1 离散几何表示与点云处理
 
 ### PointNet
-**PointNet**（Qi et al., CVPR 2017）是第一个直接在无序三维点云上端到端学习的深度神经网络，彻底改变了三维深度学习的研究范式。其核心设计思想是：对点集的任意排列保持**置换不变性**，对刚体变换保持**变换不变性**。
+**PointNet**（Qi et al., CVPR 2017）是第一个直接在无序三维点云上端到端学习的深度神经网络，彻底改变了三维深度学习的研究范式。其核心设计思想是：对点集的任意排列保持**置换不变性**，并通过 T-Net 学习输入对齐变换，从而提升对刚体变换的鲁棒性。
 
 **核心设计**：
 - 对每个点独立应用共享 MLP，将点坐标映射到高维特征空间。
@@ -281,7 +281,7 @@ $$y_i = \sum_{x_j \in \mathcal{N}(x_i)} \rho\!\left(\gamma\!\left(\phi(x_i) - \p
 
 ---
 
-### 三维感知基础模型 (2024-2025 最新进展)
+### 三维感知基础模型（2024–2026 最新进展）
 **Uni3D**（Zhou et al., ICLR 2024）是首个大规模统一三维感知基础模型。通过在 1000 万以上三维对象上进行对比预训练，Uni3D 学习到跨类别、跨数据集的通用三维点云特征，在零样本三维理解和跨模态检索（点云↔图像↔文本）等任务上取得突破性进展。
 
 **OpenShape**（Liu et al., NeurIPS 2023）利用文本-三维形状对进行大规模多模态对比学习，将 CLIP 的开放词汇理解能力迁移至三维领域，支持零样本三维分类（ModelNet40 上约 85% top-1 准确率，无需三维训练数据）。
@@ -343,7 +343,7 @@ $$\mathcal{L}_{si} = \frac{1}{n}\sum_i d_i^2 - \frac{\lambda}{n^2}\left(\sum_i d
 
 ---
 
-### 4.2.5 经典立体视觉与密集匹配
+### 经典立体视觉与密集匹配
 
 在深度学习方法出现之前，**立体视觉（Stereo Vision）**是从图像中恢复深度的主流手段。理解其原理有助于把握 Depth Anything、Marigold 等方法究竟解决了哪些经典痛点。
 
@@ -393,7 +393,7 @@ $$E(D) = \sum_{\mathbf{p}} \left( C(\mathbf{p}, D_\mathbf{p}) + \sum_{\mathbf{q}
 
 ## 4.3 神经三维重建：从隐式到显式
 
-### 4.3.0 经典 SfM/MVS 管线
+### 经典 SfM/MVS 管线
 
 在神经渲染出现之前，**运动恢复结构（Structure from Motion, SfM）**是从无约束图像集中重建三维场景的标准框架。理解经典管线是理解 DUSt3R、VGGT 等端到端前馈方法"革命性"的前提。
 
@@ -464,7 +464,7 @@ $$\hat{C}(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\,\sigma\!\left(\mathbf{r}(t)\right
 
 ---
 
-### 端到端稠密三维重建 (2024-2025)
+### 端到端稠密三维重建（2024–2026）
 
 **DUSt3R**（Wang et al., CVPR 2024）提出端到端稠密三维重建新范式，将传统 SfM 管线（特征匹配→位姿估计→密集重建）统一为单一 Transformer 网络：输入任意图像对（无需已知相机参数），直接预测稠密点图（Pointmap），再通过全局优化融合多图。DUSt3R 突破了传统方法对高重叠度图像对的依赖，在极端视角变换下依然稳健。
 
@@ -717,7 +717,7 @@ graph LR
 
 ---
 
-### 空间智能大模型进展 (2024-2025)
+### 空间智能大模型进展（2024–2026）
 
 **SpatialBot**（Cai et al., 2024）专门针对机器人空间理解任务，整合深度图与 RGB 图像，增强 VLM 在物体空间布局与距离估计等任务上的能力，并构建了相应的评测基准。**RoboSpatial**（2024）提出面向机器人操控的空间理解数据集与模型，系统研究了 VLM 空间推理能力与机器人任务成功率之间的关联。**Chat-3D v2**（Wang et al., 2024）通过对象感知的三维特征注入，支持多轮对话式三维场景理解，可回答"帮我找一把椅子放在桌子旁边"等具身交互指令。
 
@@ -823,7 +823,7 @@ graph LR
 - 自动驾驶端到端：nuScenes + Waymo（多传感器、场景多样、长尾）
 - 具身智能与导航：Habitat/Gibson + Matterport3D（与实际部署场景更贴近）
 
-## 5.5 结语与未来展望
+## 5.5 小结：如何选择基准
 
 近年来随着多模态与大模型的发展，三维数据集逐渐从孤立任务基准向**多任务、跨模态、具身交互**的综合基准演化（如 EmbodiedScan、HM3D 扩展集）。未来优先方向包括：
 - 标注尺度化（更细粒度的物体属性、物理状态与关系标注）；
@@ -921,7 +921,7 @@ NeRF 的主要局限在于训练和推理速度极慢（训练单个场景需一
 
 ### 精华
 
-3DGS 证明了显式、非连续的场景表示（无需神经网络）同样可以达到 SOTA 的 novel view synthesis 质量，打破了 NeRF 系隐式连续表示是高质量渲染必须条件的固有认知。各向异性协方差（通过旋转矩阵 R 和缩放矩阵 S 分解 $$\Sigma = RSS^T R^T$$）使每个 Gaussian 能够自适应地拟合场景中任意形状的几何结构，是高质量紧凑表示的关键。自适应密度控制中的 Clone（欠重建）+ Split（过重建）策略提供了一个简洁有效的几何增殖机制，可迁移应用于其他点云优化场景。Tile-based GPU Radix sort 排序 + $$\alpha$$-blending 的渲染流水线完全可微，实现了无限制梯度回传，是实现实时渲染同时保持训练质量的工程核心。
+3DGS 证明了显式、非连续的场景表示（无需神经网络）同样可以达到 SOTA 的 novel view synthesis 质量，打破了 NeRF 系隐式连续表示是高质量渲染必须条件的固有认知。各向异性协方差（通过旋转矩阵 R 和缩放矩阵 S 分解 $\Sigma = RSS^T R^T$）使每个 Gaussian 能够自适应地拟合场景中任意形状的几何结构，是高质量紧凑表示的关键。自适应密度控制中的 Clone（欠重建）+ Split（过重建）策略提供了一个简洁有效的几何增殖机制，可迁移应用于其他点云优化场景。Tile-based GPU Radix sort 排序 + $\alpha$-blending 的渲染流水线完全可微，实现了无限制梯度回传，是实现实时渲染同时保持训练质量的工程核心。
 
 ---
 
@@ -943,9 +943,9 @@ Neural Radiance Field（NeRF）方法通过体积光线投射实现了高质量 
 **3D Gaussian 表示**
 
 场景由一组 3D Gaussian 基元表示，每个 Gaussian 由以下参数描述：
-- **位置（均值）** $$\mu \in \mathbb{R}^3$$
-- **各向异性协方差** $$\Sigma = RSS^T R^T$$，其中 R 为旋转矩阵（四元数 q 参数化），S 为缩放矩阵（向量 s 参数化）
-- **不透明度** $$\alpha \in [0,1]$$（sigmoid 激活）
+- **位置（均值）** $\mu \in \mathbb{R}^3$
+- **各向异性协方差** $\Sigma = RSS^T R^T$，其中 R 为旋转矩阵（四元数 q 参数化），S 为缩放矩阵（向量 s 参数化）
+- **不透明度** $\alpha \in [0,1]$（sigmoid 激活）
 - **球谐函数（SH）系数** 表示与视角相关的颜色外观（4 bands，共 48 个系数）
 
 3D Gaussian 函数定义为：
@@ -954,7 +954,7 @@ $$G(x) = e^{-\frac{1}{2}x^T \Sigma^{-1} x}$$
 
 **从 3D 投影到 2D**
 
-渲染时将 3D Gaussian 投影到图像平面，利用仿射近似的 Jacobian J 计算相机坐标系下的 2D 协方差 $$\Sigma' = JW\Sigma W^T J^T$$（去掉第三行列后为 2×2 矩阵），从而支持高效的各向异性 splatting。
+渲染时将 3D Gaussian 投影到图像平面，利用仿射近似的 Jacobian J 计算相机坐标系下的 2D 协方差 $\Sigma' = JW\Sigma W^T J^T$（去掉第三行列后为 2×2 矩阵），从而支持高效的各向异性 splatting。
 
 **可微 Tile-based Rasterizer**
 
@@ -965,18 +965,18 @@ $$G(x) = e^{-\frac{1}{2}x^T \Sigma^{-1} x}$$
 </figcaption>
 </div>
 
-渲染器将图像分割为 16×16 的 Tile，对每个 Gaussian 计算其覆盖的 Tile 数量并分配 64-bit key（低 32 位为深度，高 32 位为 Tile ID），通过单次 GPU Radix Sort 全局排序后进行 front-to-back $$\alpha$$-blending：
+渲染器将图像分割为 16×16 的 Tile，对每个 Gaussian 计算其覆盖的 Tile 数量并分配 64-bit key（低 32 位为深度，高 32 位为 Tile ID），通过单次 GPU Radix Sort 全局排序后进行 front-to-back $\alpha$-blending：
 
 $$C = \sum_{i \in \mathcal{N}} c_i \alpha_i \prod_{j=1}^{i-1}(1 - \alpha_j)$$
 
-反向传播时通过从最后一个影响像素的点开始 back-to-front 遍历重建中间 $$\alpha$$ 值，无需显式存储每像素的混合列表，内存开销仅为常数级别。
+反向传播时通过从最后一个影响像素的点开始 back-to-front 遍历重建中间 $\alpha$ 值，无需显式存储每像素的混合列表，内存开销仅为常数级别。
 
 **自适应密度控制**
 
 每 100 次迭代执行一次密度控制：
-- **欠重建**（位置梯度 $$\lVert \nabla_p L \rVert > \tau_{pos} = 0.0002$$，且 Gaussian 体积小）→ **Clone**：复制 Gaussian 并沿位置梯度方向移动
-- **过重建**（位置梯度大，且 Gaussian 体积大）→ **Split**：替换为 2 个缩小 $$\phi=1.6$$ 倍的子 Gaussian
-- 每 N=3000 次迭代将 $$\alpha < \epsilon_\alpha$$ 的 Gaussian 剪枝
+- **欠重建**（位置梯度 $\lVert \nabla_p L \rVert > \tau_{pos} = 0.0002$，且 Gaussian 体积小）→ **Clone**：复制 Gaussian 并沿位置梯度方向移动
+- **过重建**（位置梯度大，且 Gaussian 体积大）→ **Split**：替换为 2 个缩小 $\phi=1.6$ 倍的子 Gaussian
+- 每 N=3000 次迭代将 $\alpha < \epsilon_\alpha$ 的 Gaussian 剪枝
 
 训练损失结合 $$\mathcal{L}_1$$ 和 D-SSIM：
 
@@ -1055,9 +1055,9 @@ SplatTalk 的流水线分三阶段：特征 autoencoder 训练、自监督 3D-La
 
 **特征降维**：将 3584 维稀疏 LLM 特征通过单一全局 autoencoder 压缩至 256 维超球面（归一化约束），显著优于先前工作压缩至 3–16 维的有损方案，同时避免高维特征在 CUDA 可微渲染中的不稳定性。Encoder/Decoder 结构均为多层线性 + BatchNorm + GeLU。
 
-**联合训练 RGB 与语言**：在 FreeSplat 前馈框架基础上，Gaussian decoder 新增一个语义特征预测头，与 RGB 渲染参数共同优化。训练损失为光度损失（MSE + LPIPS）与语义损失（MSE + cosine distance）之和：$$\mathcal{L} = \lVert I - \hat{I} \rVert^2 + 0.05 \cdot \text{LPIPS} + \lVert F - \hat{F} \rVert^2 + 1 - \cos(F, \hat{F})$$
+**联合训练 RGB 与语言**：在 FreeSplat 前馈框架基础上，Gaussian decoder 新增一个语义特征预测头，与 RGB 渲染参数共同优化。训练损失为光度损失（MSE + LPIPS）与语义损失（MSE + cosine distance）之和：$\mathcal{L} = \lVert I - \hat{I} \rVert^2 + 0.05 \cdot \text{LPIPS} + \lVert F - \hat{F} \rVert^2 + 1 - \cos(F, \hat{F})$
 
-**均值特征提取（EM 对应）**：推理时每个 Gaussian 的语义特征 $$f_i^*$$ 定义为其对所有视图渲染贡献的加权平均，与 EM 算法的 E-step 对应，理论上保证场景语义被全局捕获而非局部点。
+**均值特征提取（EM 对应）**：推理时每个 Gaussian 的语义特征 $f_i^*$ 定义为其对所有视图渲染贡献的加权平均，与 EM 算法的 E-step 对应，理论上保证场景语义被全局捕获而非局部点。
 
 **熵自适应采样**：对每个 Gaussian 计算语言特征熵，优先选择熵最高（信息量最大）的 top-k Gaussians 送入 LLM，无需额外训练即可提升空间推理质量（对比随机采样、点密度采样、FPS 均有优势）。
 
@@ -1400,7 +1400,7 @@ GaussianVLM 由三个核心模块构成：**(A) Language-aligned Gaussian Backbo
 
 **③ 端到端数据流**
 
-给定任务 prompt（如"What is at <x,y,z>?"） and 40k Gaussian 场景：SceneSplat 编码器提取 per-Gaussian 语言特征 → 解码器逐层精化（589→2.4k→40k token）→ 位置引导稀疏化在 `<xyz>` 周围提取 4 个 ROI token → 任务引导稀疏化对三层 decoder 输出逐层 cross-attend 压缩至 128 scene token → 两路 token 与任务 token 拼接送入 LLM → LLM 自回归生成回复。
+给定任务 prompt（如 “What is at <x,y,z>?”）和 40k Gaussian 场景：SceneSplat 编码器提取 per-Gaussian 语言特征 → 解码器逐层精化（589→2.4k→40k token）→ 位置引导稀疏化在 `<xyz>` 周围提取 4 个 ROI token → 任务引导稀疏化对三层 decoder 输出逐层 cross-attend 压缩至 128 scene token → 两路 token 与任务 token 拼接送入 LLM → LLM 自回归生成回复。
 
 **④ 训练目标 / 损失函数**
 
@@ -1581,7 +1581,7 @@ PointLLM-V2 是一个能够理解彩色点云的多模态大语言模型，具�
 - **点云传播（Point Propagation）**：利用相机参数将锚点投影回 3D 空间，并进一步传播到所有 20 个视图中，实现 3D 坐标与多视图像素的精确对应。
 - **GPT-4o 提问与过滤**：将渲染图输入 GPT-4o，结合点云对应的局部描述生成问答对。通过专门的过滤机制剔除幻觉内容，确保数据质量。
 
-#### ② 模型架构（Architecture）
+#### ③ 模型架构（Architecture）
 PointLLM-V2 采用了典型的端到端训练架构。
 
 <div align="center">
@@ -1594,7 +1594,7 @@ PointLLM-V2 采用了典型的端到端训练架构。
 - **Projector**：一个简单的 MLP，将点云特征映射到 LLM 的特征空间。
 - **LLM Backbone**：采用 Llama-3-8B-Instruct 作为核心推理引擎，接收点云 token 和用户指令 token，输出文本响应。
 
-#### ③ 训练策略
+#### ④ 训练策略
 采用两阶段训练方案：
 1. **特征对齐阶段**：冻结点云编码器和 LLM，只训练 Projector，使模型学会将点云特征与语言空间对齐。
 2. **指令微调阶段**：联合微调 Projector 和 LLM，使其能够遵循复杂的人类指令进行交互。
@@ -1610,13 +1610,13 @@ PointLLM-V2 采用了典型的端到端训练架构。
 
 - **性能飞跃**：在 Generative 3D Object Classification 和 3D Object Captioning 两个新提出的基准上，PointLLM-V2 均取得了 SOTA 性能。
 - **超越人类标注**：在物体描述（Captioning）任务中，GPT-4o 评估结果显示 PointLLM-V2 的描述质量在 50% 以上的样本中优于人类标注。
-- **幻觉降低**：通过高质量的数据对齐 and 过滤，模型在描述中的幻觉显著减少，得分（Hallucination Score）优于 3D-LLM 等竞争对手。
+- **幻觉降低**：通过高质量的数据对齐与过滤，模型在描述中的幻觉显著减少，得分（Hallucination Score）优于 3D-LLM 等竞争对手。
 
 ---
 
 ### 4. 局限性
 1. **场景理解受限**：目前训练数据主要集中在物体级（Object-level）点云，对复杂室内/室外大场景（Scene-level）的理解仍有提升空间。
-2. **计算效率**：随着点云规模增加（如超过 8192 个点），计算开销 and 内存占用会显著增长。
+2. **计算效率**：随着点云规模增加（如超过 8192 个点），计算开销与内存占用会显著增长。
 
 ---
 
@@ -2071,13 +2071,13 @@ ROSS3D 由三部分构成：视频编码器 $\mathcal E_\phi$（提取多视角�
 
 **④ 训练目标 / 损失函数**
 
-$$\mathcal L_{text} = -\frac{1}{T-N}\sum_{i=N+1}^{T} \log p_\Theta(x_i \vert x_{<i}, v)$$ 标准文本交叉熵，仅监督文本token。
+$\mathcal L_{text} = -\frac{1}{T-N}\sum_{i=N+1}^{T} \log p_\Theta(x_i \vert x_{<i}, v)$ 标准文本交叉熵，仅监督文本token。
 
-$$\mathcal L_{3D}^{cross} = \frac{1}{\gamma M}\sum_{j=1}^{M}(1-M_j)\cdot \mathcal D(\mathcal J_\pi \circ \mathcal P_\theta(v), \mathcal F(I_j))$$ 仅对被mask的视角计算重建损失。
+$\mathcal L_{3D}^{cross} = \frac{1}{\gamma M}\sum_{j=1}^{M}(1-M_j)\cdot \mathcal D(\mathcal J_\pi \circ \mathcal P_\theta(v), \mathcal F(I_j))$ 仅对被mask的视角计算重建损失。
 
-$$\mathcal L_{3D}^{global} = \mathcal D(\mathcal J_\pi \circ \mathcal P_\theta(v), \mathcal F(I_{BEV}))$$ 对BEV重建目标计算损失。
+$\mathcal L_{3D}^{global} = \mathcal D(\mathcal J_\pi \circ \mathcal P_\theta(v), \mathcal F(I_{BEV}))$ 对BEV重建目标计算损失。
 
-距离度量 $\mathcal D$ 默认采用扩散去噪过程：$$\mathcal D = \mathbb E_{t,\epsilon}\left[\Vert \mathcal J_\pi(z_t \vert \mathcal P_\theta(v), t) - \epsilon \Vert^2\right]$$，其中 $z_t = \sqrt{\bar\alpha_t} z_0 + \sqrt{1-\bar\alpha_t}\,\epsilon$，$z_0$ 由FLUX提供的连续VAE（KL正则）编码得到。3D visual grounding任务额外使用InfoNCE grounding损失（基于物体级特征与`<ground>` token的相似度）。
+距离度量 $\mathcal D$ 默认采用扩散去噪过程：$\mathcal D = \mathbb E_{t,\epsilon}\left[\Vert \mathcal J_\pi(z_t \vert \mathcal P_\theta(v), t) - \epsilon \Vert^2\right]$，其中 $z_t = \sqrt{\bar\alpha_t} z_0 + \sqrt{1-\bar\alpha_t}\,\epsilon$，$z_0$ 由FLUX提供的连续VAE（KL正则）编码得到。3D visual grounding任务额外使用InfoNCE grounding损失（基于物体级特征与`<ground>` token的相似度）。
 
 **⑤ 推理流程**
 
@@ -2152,7 +2152,7 @@ $$f\,(I_i)_{i=1}^{N} = (g_i, D_i, P_i, T_i)_{i=1}^{N}$$
 **(a) DINOv2 图像 Tokenizer**
 - **输入**：每张图像 $I \in \mathbb{R}^{3\times H\times W}$。
 - **处理**：用预训练 DINOv2 把图像 Patchify 为 K 个 token（K 随分辨率而变），并加位置编码。论文实验表明，相比 14×14 卷积，DINOv2 不仅性能更好，训练（尤其初期）也更稳定、对学习率/动量更不敏感。
-- **输出**：所有帧的图像 token 集合 $$t^I = \bigcup_{i=1}^{N}\{t^I_i\}$$。
+- **输出**：所有帧的图像 token 集合 $t^I = \bigcup_{i=1}^{N}\{t^I_i\}$。
 - **动机**：用自监督视觉基础模型提供强语义先验，避免从零学习低层特征。
 
 **(b) 相机 token 与 register token 增强**
@@ -2168,13 +2168,13 @@ $$f\,(I_i)_{i=1}^{N} = (g_i, D_i, P_i, T_i)_{i=1}^{N}$$
 - **动机**：全局注意力负责跨视角信息融合（隐式完成多视三角化推理），逐帧注意力负责单帧内 token 激活的归一化；二者交替在「融合」与「稳定」间取得平衡。消融显示 AA 明显优于「仅全局注意力」和「cross-attention」两种变体。
 
 **(d) Camera Head**
-- **输入**：每帧的相机输出 token $$\hat{t}^g_i$$。
+- **输入**：每帧的相机输出 token $\hat{t}^g_i$。
 - **处理**：4 层额外自注意力 + 1 个线性层。
 - **输出**：相机参数 $g=[q,t,f]$，即旋转四元数 $q\in\mathbb{R}^4$、平移 $t\in\mathbb{R}^3$、视场角 $f\in\mathbb{R}^2$（假设主点在图像中心）。
 - **动机**：以回归方式直接得到内外参，免去 PnP / BA。
 
 **(e) DPT 稠密预测头**
-- **输入**：每帧图像输出 token $$\hat{t}^I_i$$（取主干第 4/11/17/23 层特征）。
+- **输入**：每帧图像输出 token $\hat{t}^I_i$（取主干第 4/11/17/23 层特征）。
 - **处理**：DPT 上采样为稠密特征图，再经 3×3 卷积分别映射。
 - **输出**：深度图 $D_i$、点图 $P_i$、跟踪特征 $T_i$，并额外预测**偶然不确定性（aleatoric uncertainty）** 图 $\Sigma^D_i$、$\Sigma^P_i$（训练后正比于模型置信度）。点图与 DUSt3R 一样是**视点不变**的——所有 3D 点都表达在第一帧坐标系中。
 - **动机**：把「几何量」与「置信度」一并输出，置信度进入损失加权，也可用于下游过滤。
@@ -2284,11 +2284,11 @@ MapAnything 由三大部分构成：**多模态编码器**把图像与几何先�
 
 #### ③ 多模态编码器（输入 → 处理 → 输出）
 
-- **图像分支**：用 DINOv2 ViT-G 第 24 层归一化 patch 特征 $$F_I \in \mathbb{R}^{1536 \times H/14 \times W/14}$$。作者对比 CroCov2、DUSt3R encoder、RADIO 等后发现 DINOv2 在下游性能、收敛速度与泛化上最优。
+- **图像分支**：用 DINOv2 ViT-G 第 24 层归一化 patch 特征 $F_I \in \mathbb{R}^{1536 \times H/14 \times W/14}$。作者对比 CroCov2、DUSt3R encoder、RADIO 等后发现 DINOv2 在下游性能、收敛速度与泛化上最优。
 - **稠密几何分支（ray 方向、归一化 ray 深度）**：用浅层卷积编码器 + pixel-unshuffle（步长 14）投影到与 DINOv2 同样的空间与隐维度。
-- **全局非像素量（旋转、平移方向、深度尺度、位姿尺度）**：用 4 层 GeLU-MLP 投到 $$\mathbb{R}^{1536}$$ 后**广播**到所有 patch。
+- **全局非像素量（旋转、平移方向、深度尺度、位姿尺度）**：用 4 层 GeLU-MLP 投到 $\mathbb{R}^{1536}$ 后**广播**到所有 patch。
 - **关键解耦**：旋转与平移分开编码（兼容只有 IMU/GPS 单独先验的情形）；深度与位姿的归一化分开（不假设二者总是成对给入）。尺度因可能极大且跨场景剧变，先做 log 变换再编码。只有当给入的位姿/深度本身是 metric 时才使用其尺度信息。
-- **输出**：所有编码量经 LayerNorm → 求和 → LayerNorm，得到每视角 token $$F_E \in \mathbb{R}^{1536 \times (HW/256)}$$。
+- **输出**：所有编码量经 LayerNorm → 求和 → LayerNorm，得到每视角 token $F_E \in \mathbb{R}^{1536 \times (HW/256)}$。
 
 #### ④ 多视角交替注意力 Transformer
 
@@ -2306,7 +2306,7 @@ MapAnything 由三大部分构成：**多模态编码器**把图像与几何先�
 
 #### ⑦ 训练目标
 
-ray 方向与四元数不依赖尺度，直接回归（四元数取 $$\min(\lVert \hat{Q}_i - Q_i \rVert,\ \lVert -\hat{Q}_i - Q_i \rVert)$$ 以处理双覆盖）。对 up-to-scale 的深度、平移、点图，沿用 DUSt3R 的尺度归一化做 scale-invariant 监督，并对深度/点图/尺度施加 **log 空间损失** $$f_{\log}: x \mapsto (x/\lVert x \rVert)\cdot \log(1+\lVert x \rVert)$$。为防尺度梯度污染几何，用 stop-grad 把度量范数因子写成 $z^{\text{metric}} = m \cdot \text{sg}(\tilde{z})$。总损失（上调全局点图、下调 mask）：
+ray 方向与四元数不依赖尺度，直接回归（四元数取 $$\min(\lVert \hat{Q}_i - Q_i \rVert,\ \lVert -\hat{Q}_i - Q_i \rVert)$$ 以处理双覆盖）。对 up-to-scale 的深度、平移、点图，沿用 DUSt3R 的尺度归一化做 scale-invariant 监督，并对深度/点图/尺度施加 **log 空间损失** $f_{\log}: x \mapsto (x/\lVert x \rVert)\cdot \log(1+\lVert x \rVert)$。为防尺度梯度污染几何，用 stop-grad 把度量范数因子写成 $z^{\text{metric}} = m \cdot \text{sg}(\tilde{z})$。总损失（上调全局点图、下调 mask）：
 
 $$\mathcal{L} = 10\,\mathcal{L}_{\text{pointmap}} + \mathcal{L}_{\text{rays}} + \mathcal{L}_{\text{rot}} + \mathcal{L}_{\text{translation}} + \mathcal{L}_{\text{depth}} + \mathcal{L}_{\text{lpm}} + \mathcal{L}_{\text{scale}} + \mathcal{L}_{\text{normal}} + \mathcal{L}_{\text{GM}} + 0.1\,\mathcal{L}_{\text{mask}}$$
 
@@ -2388,7 +2388,7 @@ $$P = t + D(u, v) \cdot d$$
 在推理阶段，若需要显式恢复相机参数，则通过求 ray 起点的均值来估计相机中心 $t_c$，并建立与单位相机射线的 homography 矩阵 $H = KR$，使用直接线性变换（DLT）算法求解并进行 RQ 分解，即可高效地分离出相机的内参 $K$ 与旋转矩阵 $R$。
 
 #### ③ 视图自适应交替自注意力
-为了适配从单张（单目）到十数张（多视角）不等的输入视图数量，DA3 采用了一种输入自适应的 Token 排列策略。网络分为 $L_s$ 层内部注意力模块（Within-view Attention，捕获单图细节） and $L_g$ 层交替注意力模块（交替在所有视图 of tokens 间进行 Cross-view Attention），通过简单的张量轴置换实现了跨视图的信息交换。若输入只有单张图像，则跨视图模块自动退化，没有额外开销。
+为了适配从单张（单目）到十数张（多视角）不等的输入视图数量，DA3 采用了一种输入自适应的 Token 排列策略。网络分为 $L_s$ 层内部注意力模块（Within-view Attention，捕获单图细节）和 $L_g$ 层交替注意力模块（在所有视图 token 之间交替执行 Cross-view Attention），通过简单的张量轴置换实现了跨视图的信息交换。若输入只有单张图像，则跨视图模块自动退化，没有额外开销。
 
 #### ④ 共享特征的双 DPT 头（Dual-DPT Head）
 
@@ -2426,7 +2426,7 @@ $$L_{\mathrm{grad}}(\hat{D}, D) = \lVert \nabla_x \hat{D} - \nabla_x D \rVert_1 
 
 - **更强的相机位姿估计**：在 HiRoom、ETH3D、DTU、7Scenes 和 ScanNet++ 五大评测数据集上，DA3-Giant 的位姿 AUC 指标显著超越 DUSt3R、MapAnything、Pi3、VGGT 等基线。在 ScanNet++ 室内场景中，其 Auc3 比 VGGT 领先约 35.7%。
 - **极高的重建质量与效率**：DA3 在有/无相机位姿输入下均取得了 SOTA 重建 F1 评分。且其参数仅 0.36B 的 DA3-Large 在多个基准上击败了 1.19B 参数量的 VGGT，推理吞吐量（A100 上 78 FPS 对比 VGGT 的 34 FPS）快了 2 倍以上。
-- **向下游 3DGS 强力泛化**：在大大规模前馈 3D 像素级高斯预测（FF-NVS）任务中，以 DA3 为先验骨干微调的 GS-DPT 头，在 DL3DV、Tanks and Temples 以及 MegaDepth 上的 PSNR/SSIM 渲染质量全面击败了专门设计的端端新视角合成模型。
+- **向下游 3DGS 强力泛化**：在大规模前馈 3D 像素级高斯预测（FF-NVS）任务中，以 DA3 为先验骨干微调的 GS-DPT 头，在 DL3DV、Tanks and Temples 以及 MegaDepth 上的 PSNR/SSIM 渲染质量全面击败了专门设计的端到端新视角合成模型。
 
 <div align="center">
   <img src="/images/vln/DepthAnything3-pointcloud-comparison.webp" width="100%" />
@@ -2488,7 +2488,7 @@ MuM 将经典的单图掩码自编码器（MAE）直接推广到了包含任意�
 
 #### ② 逐模块讲解
 - **统一掩码与 ViT-L 编码器**：
-  对于属于同一三维场景的 $n$ 张输入图像序列 $$I = \{I_1, I_2, \dots, I_n\}$$，每一张图均被划分为 $N$ 个不重合的 Patch。设定掩码比例 $$\gamma = 0.75$$（即保留 25% 的可见 Token），对所有视图独立地进行掩码处理，仅将可见 Token 送入 ViT-L 编码器（层数 24，通道宽 1024）。所有的视图在编码器阶段使用**完全相同的共享权重**进行独立前向计算，在此阶段没有跨视图的信息交互。
+  对于属于同一三维场景的 $n$ 张输入图像序列 $I = \{I_1, I_2, \dots, I_n\}$，每一张图均被划分为 $N$ 个不重合的 Patch。设定掩码比例 $\gamma = 0.75$（即保留 25% 的可见 Token），对所有视图独立地进行掩码处理，仅将可见 Token 送入 ViT-L 编码器（层数 24，通道宽 1024）。所有的视图在编码器阶段使用**完全相同的共享权重**进行独立前向计算，在此阶段没有跨视图的信息交互。
 
 - **多视图 ViT-B 解码器（Multi-view Decoder）**：
   进入解码器前，将包含可见 Token 特征的序列与对应丢失位置的可学习掩码 Token（Mask Tokens）重新按原空间顺序拼接，并加入现代的二维轴向旋转位置编码（Axial RoPE）。解码器为轻量化的 ViT-B 结构（层数 6，通道宽 768），核心在于其使用的**交替注意力机制（Alternating Attention）**：每一个交替注意力块内，模型先进行**帧内自注意力（Frame-wise Attention）**（仅在单张视图内部的 Token 之间进行自注意力，限制了跨帧信息的盲目混淆，利于单帧细节保留），紧接着进行**全局自注意力（Global Attention）**（允许序列中所有视图的所有 Token 进行联合自注意力交互，实现跨视角几何约束传播和多视距离解算）。这种对称式的注意力机制避免了像 CroCo 那样显式指定或锚定某一个“参考帧”，对帧的输入顺序满足置换等变性。
@@ -2507,7 +2507,7 @@ MuM 将经典的单图掩码自编码器（MAE）直接推广到了包含任意�
 #### ④ 训练目标与损失函数
 MuM 的自监督预训练损失是定义在各视图掩码区域上的 L2 像素重建损失。形式化地，对于掩码向量记为 $M^i$（掩码区域为 1，可见区域为 0）的第 $i$ 张图，损失函数为：
 $$L(\theta) = \sum_{i=1}^{n} \lVert M^i \odot (\phi_\theta(\tilde{I}^i) - f(I^i)) \rVert^2$$
-其中 $$\tilde{I}^i$$ 表示第 $i$ 张图的可见补丁，$$\phi_\theta$$ 为 MuM 模型，$$f(I^i)$$ 为归一化的真实 Patch 目标。
+其中 $\tilde{I}^i$ 表示第 $i$ 张图的可见补丁，$\phi_\theta$ 为 MuM 模型，$f(I^i)$ 为归一化的真实 Patch 目标。
 在下游任务的蒸馏微调中，模型通过监督 VGGT 输出的 3D 世界点坐标 $P$、相机参数 $C$ 和深度图 $D$ 进行学习，损失函数定义为：
 $$L_{\text{distill}}(\theta) = \sum_{i=1}^{n} ( \lVert P_i^t - P_i^s \rVert^2 + \lVert C_i^t - C_i^s \rVert^2 + \lVert D_i^t - D_i^s \rVert^2 )$$
 其中上标 $t$ 和 $s$ 分别表示教师模型（VGGT）和学生模型（MuM-distilled）。
@@ -2546,7 +2546,7 @@ $$L_{\text{distill}}(\theta) = \sum_{i=1}^{n} ( \lVert P_i^t - P_i^s \rVert^2 + 
 ### 4. 局限性
 
 1. 目前 MuM 采用的像素级重建损失在语义特征的刻画上依然偏弱，未来与类似于 DINOv3 的特征自蒸馏（Self-Distillation）目标相结合是进一步提升单目语义理解的有前景的方向。
-2. 受到计算资源限制，该工作尚无法对预训练数据 and 网络规模做进一步放大，且未能全尺寸复刻 VGGT 或 MapAnything 的前馈重建训练规模。
+2. 受到计算资源限制，该工作尚无法对预训练数据与网络规模做进一步放大，且未能全尺寸复刻 VGGT 或 MapAnything 的前馈重建训练规模。
 
 ---
 
@@ -2587,7 +2587,7 @@ $$L_{\text{distill}}(\theta) = \sum_{i=1}^{n} ( \lVert P_i^t - P_i^s \rVert^2 + 
 </div>
 
 #### ① 整体框架概述
-VLM³ 是一个极简且高度可扩展的 3D 空间理解框架。整个系统不改变标准 VLM（如 Qwen3-VL-4B）的任何模型 structure 与预测头，而是将所有单视图/多视图 3D 空间任务统一在**焦距统一（Focal Length Unification）**、**文本像素参考（Text-based Pixel/Region Reference）**与**多任务数据混合（Data Mixture & Weighting）**三大核心设计中，以自回归式的文本生成方式（Next-token Prediction）端到端地解决所有细粒度和粗粒度 3D 空间任务。
+VLM³ 是一个极简且高度可扩展的 3D 空间理解框架。整个系统不改变标准 VLM（如 Qwen3-VL-4B）的模型结构与预测头，而是将所有单视图/多视图 3D 空间任务统一在**焦距统一（Focal Length Unification）**、**文本像素参考（Text-based Pixel/Region Reference）**与**多任务数据混合（Data Mixture & Weighting）**三大核心设计中，以自回归式的文本生成方式（Next-token Prediction）端到端地解决所有细粒度和粗粒度 3D 空间任务。
 
 #### ② 逐模块讲解
 
@@ -2599,7 +2599,7 @@ VLM³ 是一个极简且高度可扩展的 3D 空间理解框架。整个系统�
 
 **B. 文本像素/区域参考模块（Text-based Pixel/Region Reference）**
 *   **输入**：在文本 Prompt 中指定需要查询的像素或区域，例如 "How far is the pixel at (x, y) from the camera?"。
-*   **处理**：将图像的分辨率在水平 and 垂直方向均独立归一化到 `[0, 2000)` 的整数坐标空间。无论是输入的像素 $(x, y)$，还是目标的匹配像素 $(x_2, y_2)$，均直接表示为该空间下的文本数字 token。
+*   **处理**：将图像的分辨率在水平和垂直方向均独立归一化到 `[0, 2000)` 的整数坐标空间。无论是输入的像素 $(x, y)$，还是目标的匹配像素 $(x_2, y_2)$，均直接表示为该空间下的文本数字 token。
 *   **输出**：将点坐标或目标框直接在文本 Prompt 中表征或由模型直接生成对应的坐标 token。
 *   **设计动机**：先前的 DepthLM 使用了在图像上画标记（visual prompting）的方案，这意味着每询问 2 个不同的像素深度，就需要把同一张图像复制多份并分别画上不同标记输入模型，这导致训练 16M 样本时极其昂贵。而 VLM³ 采用 `[0, 2000)` 像素空间归一化的文本坐标指示法，移除了视觉标记渲染，支持在单个 Prompt 中打包数十个问题（如同时询问 10 个像素的深度），将图像编码开销降低了数个数量级，使其能轻松扩展到多像素、多任务的大规模 SFT。
 
@@ -2713,7 +2713,7 @@ DepthLM 采用标准的 VLM 架构和自回归文本生成范式。其核心思�
 #### ② 逐模块讲解
 - **相机焦距重采样 (Intrinsic-conditioned Augmentation)**：
   - **输入**：原始输入图像 $I$ 及其相机的焦距内参 $f_x$、$f_y$。
-  - **处理**：为解决不同相机镜头带来的三维尺度模糊，模型根据预设的统一焦距 $f_{uni} = 1000$ 像素对图像进行缩放重采样，缩放后的宽度 and 高度分别为：
+  - **处理**：为解决不同相机镜头带来的三维尺度模糊，模型根据预设的统一焦距 $f_{uni} = 1000$ 像素对图像进行缩放重采样，缩放后的宽度和高度分别为：
     $$W' = \frac{f_{uni}}{f_x} W$$
     $$H' = \frac{f_{uni}}{f_y} H$$
     在训练时，缩放后的图像还会经过随机裁剪（宽度 $1000 \sim 1400$ 像素，高度 $700 \sim 1200$ 像素）以防止尺寸过拟合。在评估阶段则不需要裁剪。
@@ -2823,7 +2823,7 @@ RoboRefer 接收包含 RGB(D) 的传感器观测与一段具有多重空间约�
 **第一阶段：监督微调 (Supervised Fine-tuning, SFT)**
 SFT 阶段包含两个步骤：
 1. **深度对齐（Depth Alignment）**：在 RefSpatial 图像-深度数据集上，仅更新深度投影器，将深度特征空间映射并对齐到大模型的文本语义空间。
-2. **空间增强微调（Spatial Understanding Enhancement）**：放开全参数微调，混合 RefSpatial 数据集、指令微调数据集（LLaVA 1.5 等） and 通用 Referring 数据集进行联合训练，使模型初步建立 3D 深度感知与多步推理的“冷启动”能力。其损失函数公式为：
+2. **空间增强微调（Spatial Understanding Enhancement）**：放开全参数微调，混合 RefSpatial 数据集、指令微调数据集（LLaVA 1.5 等）和通用 Referring 数据集进行联合训练，使模型初步建立 3D 深度感知与多步推理的“冷启动”能力。其损失函数公式为：
 $$\mathcal{L}_{\mathrm{SFT}} = -\mathbb{E}_{(\mathcal{O}, \mathcal{Q}, \mathcal{A}) \sim \mathcal{D}} \sum_{t=1}^T \log \pi_\theta(y_t \mid \mathcal{O}, \mathcal{Q}, y_{<t})$$
 
 **第二阶段：强化学习微调 (Reinforcement Fine-tuning, RFT)**
@@ -2926,23 +2926,23 @@ Stream3D-VLM 将流式视频处理为时间有序的帧序列输入。它基于�
     *   **设计动机**：避免了离线模型每次新输入帧都要对全部历史做一次重新前向推理的高延迟，使得模型能够像人类一样，边看边想，在信息不充足时保持沉默等待，在信息足够时立刻应答。
 
 *   **视觉-空间特征集成 (Visual-Spatial Feature Integration, VSFI)**
-    *   **输入**：原始 RGB 帧图像 $$I_t$$。
+    *   **输入**：原始 RGB 帧图像 $I_t$。
     *   **处理**：
         1. 使用大模型原生的 2D 视觉编码器提取 2D 视觉特征 $$H^{2D}_t$$。
-        2. 并行使用流式三维重建网络 StreamVGGT 提取当前帧对应的三维几何特征 $$G_t$$ 和全局相机 Token $$c_t$$。
+        2. 并行使用流式三维重建网络 StreamVGGT 提取当前帧对应的三维几何特征 $G_t$ 和全局相机 Token $c_t$。
         3. 利用一个 2 层 MLP 将三维特征投影至大模型嵌入空间以对齐特征维度：
         $$H^{3D}_t = \text{MLP}([c_t; G_t])$$
         4. 以 2D 视觉特征 $$H^{2D}_t$$ 作为 Query (Q)，投影后的 3D 几何特征 $$H^{3D}_t$$ 作为 Key (K) 和 Value (V)，通过堆叠的交叉注意力（Cross-Attention）块进行融合，并使用残差连接保留 2D 语义信息：
         $$H^f_t = \text{softmax}\left(\frac{(W_Q H^{2D}_t)(W_K H^{3D}_t)^\top}{\sqrt{d_k}}\right) (W_V H^{3D}_t) + H^{2D}_t$$
-    *   **输出**：几何增强的视觉特征 $$H^f_t$$。
+    *   **输出**：几何增强的视觉特征 $H^f_t$。
     *   **设计动机**：将 3D 重建模型的隐式三维结构先验动态注入到 2D 图像特征中，使得模型在无需真实 3D 雷达/点云输入的情况下，仅凭单目视频也能实现精准的三维测距和空间感知。
 
 *   **几何自适应体素压缩 (Geometry-Adaptive Voxel Compression, GAVC)**
-    *   **输入**：几何增强的视觉特征 $$H^f_t$$、深度估计图 $$D_t$$、相机内外参 $$(K_t, E_t)$$。
+    *   **输入**：几何增强的视觉特征 $H^f_t$、深度估计图 $D_t$、相机内外参 $(K_t, E_t)$。
     *   **处理**：
-        1. **三维体素构建**：将 2D 图像块的坐标 $$(u_j, v_j)$$ 通过深度 $$D_t(u_j, v_j)$$ 和相机参数投影到三维空间，计算其 3D 位置 $$p_{t,j}$$。使用正弦位置编码将其与特征融合，构建带有三维坐标的体素：$$v_{t,j} = H^f_{t,j} + \text{PE}(p_{t,j})$$。
-        2. **动态空间聚类**：在 GPU 上对三维点云坐标进行并行的空间 K-Means 聚类，将 $$N$$ 个体素划分到 $$K$$ 个空间紧邻的聚类簇中。
-        3. **双重注意力聚合**：在每个簇内部，根据特征相似度（余弦相似度）和空间邻近度（高斯径向基函数距离）计算加权权重 $$w_j$$，对簇内体素做加权值聚合，得到代表该簇的压缩后视觉 Token。
+        1. **三维体素构建**：将 2D 图像块的坐标 $(u_j, v_j)$ 通过深度 $D_t(u_j, v_j)$ 和相机参数投影到三维空间，计算其 3D 位置 $p_{t,j}$。使用正弦位置编码将其与特征融合，构建带有三维坐标的体素：$v_{t,j} = H^f_{t,j} + \text{PE}(p_{t,j})$。
+        2. **动态空间聚类**：在 GPU 上对三维点云坐标进行并行的空间 K-Means 聚类，将 $N$ 个体素划分到 $K$ 个空间紧邻的聚类簇中。
+        3. **双重注意力聚合**：在每个簇内部，根据特征相似度（余弦相似度）和空间邻近度（高斯径向基函数距离）计算加权权重 $w_j$，对簇内体素做加权值聚合，得到代表该簇的压缩后视觉 Token。
     *   **输出**：空间压缩后的高拟真三维体素 Token。
     *   **设计动机**：流式推理会导致视觉 Token 随着帧数累积呈线性增长。传统的 2D 压缩忽略了三维场景的空间关联（例如桌子的多个局部图像块在空间上是连通的），GAVC 利用 3D 几何邻近性将空间聚集的斑块融合成单个体素，既保护了三维结构，又极大地降低了长视频推理的延迟与显存占用。
 
@@ -2952,7 +2952,7 @@ Stream3D-VLM 将流式视频处理为时间有序的帧序列输入。它基于�
 #### ④ 训练目标 / 损失函数
 为了使模型能够同时学会“何时应答”与“如何应答”，采用了混合训练损失。在训练过程中，对控制 Token 和文本 Token 进行了联合监督：
 $$L = \lambda L_{stream} + L_{LM}$$
-其中，$$L_{stream}$$ 是针对决策控制 Token（`<SEP>` 与 `<END>`）交叉熵损失的平均值，而 $$L_{LM}$$ 是大模型标准自回归文本生成的交叉熵损失，比例因子 $$\lambda$$ 经验上设定为 2.0。
+其中，$L_{stream}$ 是针对决策控制 Token（`<SEP>` 与 `<END>`）交叉熵损失的平均值，而 $L_{LM}$ 是大模型标准自回归文本生成的交叉熵损失，比例因子 $\lambda$ 经验上设定为 2.0。
 
 ---
 
@@ -3499,7 +3499,7 @@ SparseOccVLA 包含三个核心组件：**稀疏占用编码器（Sparse Occupan
 
 ### 3. 核心结果/发现
 
-- **场景理解（Scene Understanding）**：在 OmniDrive-nuScenes 基准上，SparseOccVLA 以仅 300 个 Occupancy Tokens 的轻量级开销取得了大幅超越此前 BEV/Image 稠密方法的成绩，其中 CIDEr 比 HERMES 提高了 7%（0.762 vs 0.741，600 个 Token 时达 0.796），展示出稀疏三维占用极高的语义 and 几何信息密度。
+- **场景理解（Scene Understanding）**：在 OmniDrive-nuScenes 基准上，SparseOccVLA 以仅 300 个 Occupancy Tokens 的轻量级开销取得了大幅超越此前 BEV/Image 稠密方法的成绩，其中 CIDEr 比 HERMES 提高了 7%（0.762 vs 0.741，600 个 Token 时达 0.796），展示出稀疏三维占用极高的语义与几何信息密度。
 - **占用预测（Occupancy Forecasting）**：在 Occ3D-nuScenes 预测未来 3 秒 mIoU 的任务中，相较于同样稀疏表示的 SparseWorld，mIoU 平均提升了 0.51（13.71 vs 13.20），验证了 LLM 全局高层语义和时序常识对未来感知演变的巨大增强作用。
 - **开环规划（Open-loop Planning）**：在 nuScenes 自动驾驶开环轨迹规划测试中，SparseOccVLA 以 0.23m 的平均 L2 误差和 0.19% 的碰撞率显著超越了 UniAD (0.46m / 0.37%)、VAD (0.37m / 0.33%) 以及 VLA 系列如 OpenDriveVLA (0.33m / 0.25%) 等前沿模型，达到最新的 SOTA 表现。
 - **消融研究**：去除特征级蒸馏约束会导致理解性能显著下降（CIDEr 降低 0.8）；去除 LLM 轨迹打分引导仅让 Planner 单独决策时，规划性能（L2 和碰撞率）将发生严重退化，表明解耦打分与去噪的有效性。
@@ -3688,7 +3688,7 @@ $$(\mathcal{S}_{t+1}, \mathcal{H}_{t+1}) = \text{Update}(\mathcal{S}_t, \mathcal
 
 #### ③ 训练期轨迹蒸馏（Training-Time Distillation & S-300K）
 
-为将强大的空间推理能力部署到轻量化开馆模型中，S-Agent 提出了轨迹蒸馏管线：
+为将强大的空间推理能力部署到轻量化开源模型中，S-Agent 提出了轨迹蒸馏管线：
 1. **数据生成**：在 SenseNova-SI-800K 数据集上用 Qwen3-VL-8B 进行预筛选，挑选学生模型表现不稳定的难例 100K 题，用 GPT-5.4 驱动的 S-Agent 生成完整的工具调用轨迹。
 2. **质量过滤**：根据题型（选择题选项严格匹配、数值题 MRA $\ge$ 0.6、文本题规范匹配）过滤出 51,596 条高质量轨迹。
 3. **轨迹分解**：拆解为 51,596 条 Final-Answer 轨迹、154,590 条 Turn-Level 规划轨迹及 86,205 条 Expert 工具调用轨迹，合成包含 292,391 个 SFT 样本的 **S-300K** 数据集。
@@ -3837,7 +3837,7 @@ graph TD
 | **文本空间解码 (Text-space)** | 3D-LLM | 自回归直接生成边界框文本坐标字符串 | 3D 场景缺乏规范坐标系，文本生成离散数值误差大且存在严重多义性 |
 | **两阶段候选选择 (Proposal-selection)** | Video-3D-LLM, LEO, Chat-Scene | 先用 3D 检测器生成候选框，再由 LLM 进行打分匹配 | 定位能力被外部检测器召回率与框质量死死卡住，无法召回漏检物体 |
 | **特殊标记解码 (Special `<REF>` Token)** | LLaVA-3D, Grounded-3D-LLM, Reason3D | LLM 生成单一特殊 `<REF>` 标记，单独送入解码头 | 单一 token 成为极其狭窄的信息瓶颈，损失大量主干细粒度几何视觉细节 |
-| **Qwen-3D 全特征掩码解码 (Ours)** | **Qwen-3D** | 主干全量视觉-语言上下文特征直连 Mask2Former Query 解码器 | **无信息瓶颈**，支持多物体密集预测，端到端统合 2D/3D 分割与接地 |
+| **Qwen-3D 全特征掩码解码 (Ours)** | **Qwen-3D** | 主干全量视觉-语言上下文特征直连 Mask2Former Query 解码器 | **无信息瓶颈**，支持多物体密集预测，端到端统一 2D/3D 分割与接地 |
 
 #### ④ 训练目标与实现细节
 模型采用三项多任务联合损失函数进行监督：
