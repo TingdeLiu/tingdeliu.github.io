@@ -6,6 +6,8 @@
 name: "Tingde Liu"
 # Short bio or description (displayed in the header)
 description: "Personal Blog & Research Notes"
+# 文章日期按北京时间维护；允许当天的文章在 GitHub Pages 的 UTC 构建中正常发布。
+future: true
 # Job title and company (displayed in sidebar)
 tagline: "AI Engineer"
 company: "Tyndall Labs"
