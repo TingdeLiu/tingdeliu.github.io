@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "AI Agent 综述"
-date: 2026-09-28
+date: 2026-09-29
 tags: [Agent, LLM, Multi-Agent, Survey]
 categories: research
 comments: true
@@ -10,7 +10,7 @@ toc: true
 excerpt: "围绕“Agent 如何决策、如何行动、如何可靠完成任务”，梳理推理规划、多 Agent 协作、记忆与技能、上下文工程、工具与连接协议，并结合产品案例、具身应用、评测和安全讨论系统设计的适用条件与取舍。"
 ---
 
-> 本文聚焦 **LLM 驱动的 Agent 系统**，从基础概念到工程设计，再到应用与评测。具身智能体经典工作的深度解析见 [Embodied Agent 经典论文](/Embodied-Agent-Papers/)。
+> 本文聚焦 **LLM 驱动的 Agent 系统**，从基础概念到工程设计，再到应用与评测。具身智能体经典工作的深度解析见 [Embodied Agent 论文精读](/Embodied-Agent-Papers/)。
 
 **阅读路线**
 

@@ -10,7 +10,7 @@ toc: true
 excerpt: "本文按系统运行时、物理编排、场景图评估、自演化治理、语义动作接口与动作分块六条路线，精读 Embodied Agent 领域的代表性论文。"
 ---
 
-> 本文是 [AI Agent 综述](/AI-Agent-Survey/) 与底层系统架构指南 [具身 Agent Harness 架构综述](/Embodied-Agent-Harness-Survey/) 的配套具身论文精读，系统收录 Embodied Agent（具身智能体）领域的代表性工作与前沿突破。
+> 本文是 [AI Agent 综述](/AI-Agent-Survey/) 与底层系统架构指南 [Embodied Agent 综述](/Embodied-Agent-Harness-Survey/) 的配套具身论文精读，系统收录 Embodied Agent（具身智能体）领域的代表性工作与前沿突破。
 
 # 具身智能体论文精读
 

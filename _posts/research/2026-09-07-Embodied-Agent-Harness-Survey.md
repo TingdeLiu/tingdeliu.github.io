@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "具身Agent Harness 综述"
-date: 2026-09-28
+title: "Embodied Agent 综述"
+date: 2026-09-29
 permalink: /Embodied-Agent-Harness-Survey/
 tags: [Embodied-AI, Agent, Harness-Engineering, System-Architecture, Distributed-Systems, ZeroMQ, ROS2, Python]
 categories: research
@@ -17,7 +17,7 @@ excerpt: "从空间记忆、技能契约、执行评估与运行时监控出发�
 
 > **阅读范围与证据边界**：论文机制以链接的原文为依据；分层方式、消息字段、状态机和代码示例属于本文的工程归纳，不是统一行业标准。文中的频率与时间预算若标为示例，仅用于说明设计方法，不能直接视为硬件性能或安全参数。
 >
-> 配套阅读：[《Embodied Agent 经典论文》](/Embodied-Agent-Papers/) 聚焦论文细节，[《Harness Engineering》](/Harness-Engineering/) 讨论通用 Agent 工程。本文侧重二者在机器人系统中的连接方式。
+> 配套阅读：[《Embodied Agent 论文精读》](/Embodied-Agent-Papers/) 聚焦论文细节，[《Harness Engineering》](/Harness-Engineering/) 讨论通用 Agent 工程。本文侧重二者在机器人系统中的连接方式。
 
 # 1. 引言：从模型能力到系统闭环
 
