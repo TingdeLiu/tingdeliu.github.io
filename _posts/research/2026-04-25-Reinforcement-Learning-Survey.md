@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "强化学习综述"
-date: 2026-07-27
+date: 2026-09-28
 tags: [Reinforcement Learning, RL, Embodied AI, Robotics, World Models, Diffusion Policy, PPO, SAC, TD3, DDPG, Actor-Critic, MDP]
 categories: research
 comments: true
@@ -30,7 +30,9 @@ excerpt: "2026年深度总结：系统梳理强化学习与具身智能算法体
   <figcaption>图 1.1：具身强化学习（Embodied RL）状态感知、闭环策略决策与物理环境交互全景示意图</figcaption>
 </div>
 
-本文将系统梳理具身智能中的核心 RL 算法，从数学基础到前沿方法，希望为读者构建完整的知识体系。
+本文按“理论基础 → 无模型控制 → 世界模型 → 扩散策略 → 稀疏奖励与后训练 → 仿真评测”的顺序展开。读者可以先阅读第 2–7 节建立算法主线，再根据任务类型跳转到第 10–13 节；第 14 节提供代表性论文的统一拆解，便于进一步深入。
+
+<!-- more -->
 
 ---
 
@@ -104,8 +106,8 @@ graph TD
     C --> G[演员-评论员<br/>SAC, A2C, DDPG]
 ```
 
-- **有模型 RL**：智能体学习环境的状态转移模型 $P(s'|s,a)$，再利用该模型进行规划，**样本效率高**但依赖模型精度。
-- **免模型 RL**：直接与真实环境交互学习策略，不显式建模环境，**更通用**但需要大量样本。
+- **有模型 RL**：智能体学习环境的状态转移模型 $P(s'|s,a)$，再利用该模型进行规划，通常具有更高的样本效率，但依赖模型精度。
+- **免模型 RL**：直接与环境交互学习策略，不显式建模环境，通常更易迁移到复杂任务，但需要更多交互数据。
 
 ---
 
@@ -215,7 +217,7 @@ $$
 
 # 6. PPO：具身控制的基石算法 🛡️
 
-**近端策略优化（Proximal Policy Optimization, PPO）** 是目前 OpenAI 默认的 RL 算法，也是 Isaac Lab 等具身仿真平台最常用的算法。其设计目标是在保持策略更新稳定性的同时，提升采样效率。
+**近端策略优化（Proximal Policy Optimization, PPO）** 是工程实践中广泛采用的策略优化算法，也是 Isaac Lab 等具身仿真平台的常用基线。其设计目标是在保持策略更新稳定性的同时，提高样本利用率与训练稳定性。
 
 ## 6.1 从同策略到异策略：重要性采样
 
@@ -469,7 +471,7 @@ sequenceDiagram
 
 ## 8.2 DreamerV3：潜空间的"梦境修炼"
 
-**DreamerV3** 是目前最先进的世界模型之一，在具身 RL 中实现了显著的样本效率提升。
+**DreamerV3** 是世界模型强化学习的代表性方法之一，在多种控制任务上展示了较高的样本效率与跨任务鲁棒性。
 
 **核心机制**：
 
@@ -626,11 +628,11 @@ graph LR
 
 ---
 
-# 11. 2026 尖端：逻辑推理与残差学习 ⚡
+# 11. 2026 前沿方向：逻辑推理与残差学习 ⚡
 
 ## 11.1 RLVR：可验证奖励的强化学习
 
-**RLVR（Reinforcement Learning from Verifiable Rewards）** 的核心思想：将**可形式化验证的物理常识**作为奖励信号，而非依赖稀疏的任务成功奖励。
+**RLVR（Reinforcement Learning from Verifiable Rewards）** 可将**可形式化验证的物理约束**纳入奖励设计，用于补充稀疏的任务成功信号。对于具身任务，这一方向仍需要结合真实动力学、传感器噪声与安全约束验证其有效性。
 
 **什么是"可验证奖励"？**
 
@@ -1011,8 +1013,8 @@ L^{\mathrm{CLIP}}(\theta) = \hat{\mathbb{E}}_t \left[ \min\left( r_t(\theta)\hat
 $$
 
 其中 $r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\mathrm{old}}}(a_t|s_t)}$。裁剪逻辑如下：
-- 当优势 $\hat{A}_t > 0$（动作好于平均）：目标随 $r_t$ 增加，但当 $r_t > 1+\epsilon$ 时被截断，防止策略因单个好样本过分贪婪；
-- 当优势 $\hat{A}_t < 0$（动作差于平均）：目标随 $r_t$ 减小，但当 $r_t < 1-\epsilon$ 时被截断，防止梯度过激修正。
+- 当优势 $$\hat{A}_t > 0$$（动作好于平均）：目标随 $r_t$ 增加，但当 $r_t > 1+\epsilon$ 时被截断，防止策略因单个好样本过分贪婪；
+- 当优势 $$\hat{A}_t < 0$$（动作差于平均）：目标随 $r_t$ 减小，但当 $r_t < 1-\epsilon$ 时被截断，防止梯度过激修正。
 
 #### ② 联合目标与 GAE（广义优势估计）
 在实际具身控制工程中，通常联合优化策略损失、Critic 价值损失与策略熵正则化项：
@@ -1439,7 +1441,7 @@ $$
 \mathcal{L}_{\mathrm{Diffusion}}(\theta) = \mathbb{E}_{k, A^0, \epsilon, O_t}\left[ \left\lVert \epsilon - \epsilon_\theta(A^k, k, O_t) \right\rVert^2 \right]
 $$
 
-其中 $A^k = \sqrt{\bar{\alpha}_k} A^0 + \sqrt{1 - \bar{\alpha}_k} \epsilon$。
+其中 $$A^k = \sqrt{\bar{\alpha}_k} A^0 + \sqrt{1 - \bar{\alpha}_k} \epsilon$$。
 
 #### ② 滚动时域控制（Receding Horizon Planning）
 每次预测未来 $T_p$ 步动作，但在实际执行时仅向底层控制器发送前 $T_a$ 步（$T_a < T_p$），并在下一控制循环中重新基于最新观测闭环去噪，兼顾长程前瞻与实时扰动纠偏。
