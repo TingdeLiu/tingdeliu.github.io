@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "大语言模型训练综述"
-date:   2026-07-27
+date:   2026-09-29
 tags: [LLM, Deep Learning, NLP, Training, AI]
 categories: research
 comments: true
@@ -55,9 +55,9 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 - 🎓 **学生**：建立对大模型训练的系统性认知
 - 💼 **从业者**：跟踪最新技术进展和行业动态
 
-> **💡 我们的承诺**
+> **💡 阅读说明**
 >
-> 本文力求在理论深度和实践指导之间取得平衡，既阐述核心原理，也提供**可直接运行的代码示例**和**可落地的工程方案**。
+> 本文力求在理论深度和实践指导之间取得平衡，既阐述核心原理，也给出代码示例和工程方案。代码以说明原理为主，部分为省略了数据加载等细节的示意代码；文中的成本、显存、精度等数字多为量级估算，受模型版本、硬件与评测协议影响，复现时请以原论文或官方文档为准。
 
 ---
 
@@ -135,13 +135,13 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 - 多模态、长上下文等能力不断增强
 
 ### 1.2.5 推理模型与效率竞赛阶段（2025-2026）🚀
-- **推理模型范式确立**：OpenAI o1/o3、DeepSeek-R1（及后续 V3.x/R2）将"测试时计算扩展"（Test-Time Compute Scaling）确立为与"训练时 Scaling Law"并列的新维度，长思维链（Long CoT）+ RL（GRPO 及其改进算法）成为训练强推理模型的标准范式
+- **推理模型范式确立**：OpenAI o1/o3、DeepSeek-R1（及后续 V3.x 系列）将"测试时计算扩展"（Test-Time Compute Scaling）确立为与"训练时 Scaling Law"并列的新维度，长思维链（Long CoT）+ RL（GRPO 及其改进算法）成为训练强推理模型的标准范式
 - **国产大模型集团式追赶**：Qwen3 系列引入"思考/非思考"混合推理模式（同一模型可按需切换深度思考与快速响应）；Kimi K2 以超大规模 MoE + 强 Agentic（工具调用）能力为卖点；MiniMax、智谱 GLM、阶跃星辰等持续迭代
 - **闭源旗舰持续演进**：GPT-5 系列、Claude 4.x（Opus/Sonnet/Haiku）系列、Gemini 系列在推理、长上下文、Agent 能力上持续竞争
 - **架构创新**：MLA（多头潜在注意力）、FP8 训练工程化（DeepSeek-V3）大幅降低了千亿级模型的训练与推理成本，"低成本高性能"成为新的竞争维度
 - **Agent 能力成为新焦点**：从"对话助手"转向"能自主使用工具、完成多步任务的智能体"，训练目标从单轮问答扩展到多轮工具调用与长程任务规划
 
-## 1.3 🎶大模型训练的三大核心阶段
+## 1.3 🎶 大模型训练的三大核心阶段
 
 现代大模型训练遵循**预训练 → 监督微调 → 偏好对齐**的三阶段范式，这已成为GPT-4、Claude、Gemini、LLaMA等主流模型的标准流程。
 
@@ -164,13 +164,7 @@ flowchart LR
     style I fill:#c8e6c9,stroke:#1b5e20
 ```
 
-**关键对比**：
-
-| 阶段 | 数据规模 | 时间周期 | 成本占比 | 目标 |
-|------|---------|---------|---------|------|
-| **预训练** | 数万亿tokens | 数周-数月 | 80-90% | 学习语言基础和世界知识 |
-| **监督微调** | 数万样本 | 数天-数周 | 5-10% | 学会遵循指令和对话 |
-| **偏好对齐** | 数万对比对 | 数天-数周 | 5-10% | 符合人类偏好和价值观 |
+三个阶段的数据、算力与超参数差异见 1.3.4 节的对比表。
 
 ### 1.3.1 阶段一：预训练（Pre-training）
 
@@ -190,7 +184,7 @@ flowchart LR
 
 **核心特点**：
 - 📊 **数据规模小**：10k-100k 高质量样本
-- ⏰ **训练时间短**：数天到数周
+- ⏰ **训练时间短**：数小时到数天
 - 💰 **成本较低**：占总成本的 5-10%
 - 🎯 **目标**：Instruction Following（指令遵循）
 
@@ -202,9 +196,9 @@ flowchart LR
 
 **核心特点**：
 - 📊 **数据规模**：数万对偏好对比数据
-- ⏰ **训练时间**：数天到数周
+- ⏰ **训练时间**：数小时到数天（推理模型的大规模 RL 可达数周）
 - 💰 **成本**：占总成本的 5-10%
-- 🎯 **方法**：RLHF、DPO、RLAIF等
+- 🎯 **方法**：RLHF、DPO、RLAIF、GRPO 等
 
 **输出能力**：输出更有帮助、更安全、更符合人类价值观。
 
@@ -269,7 +263,7 @@ flowchart LR
 - **存储系统**：高性能分布式存储
 - **监控与日志**：TensorBoard、Weights & Biases、MLflow
 
-## 1.5 🚧大模型训练的主要挑战
+## 1.5 🚧 大模型训练的主要挑战
 
 > **⚠️ 挑战总览**
 >
@@ -325,8 +319,7 @@ flowchart LR
 
 ---
 
-# 2. 预训练阶段
-————Pre-training
+# 2. 预训练阶段（Pre-training）
 
 预训练是大模型训练的基石，目标是让模型从海量无标注文本中学习语言的统计规律和世界知识。
 
@@ -390,27 +383,26 @@ graph TD
     *   ✅ 优点：Embedding 层小，参数利用率高，适合小模型。
     *   ❌ 缺点：同一个句子生成的 Token 数更多，增加计算开销。
 
-> **💡 MiniMind 经验**：对于参数量在 500M 以下的小模型，词表不宜过大（如 6400 个字符或 32k BPE 词表），以确保每个 Token 的向量都能得到充分更新。
+> **💡 MiniMind 经验**：对于参数量在 500M 以下的小模型，词表不宜过大（MiniMind 只用 6,400 的 BPE 词表，常见的折中是 32k），否则 Embedding 层会吃掉大部分参数，稀有 Token 的向量也得不到充分更新。
 
 ### 2.2.3 分词器训练实战 (Python)
 
-使用 Hugging Face 的 `tokenizers` 库，我们可以快速训练一个支持多语言的 BPE 分词器：
+使用 Hugging Face 的 `tokenizers` 库，可以快速训练一个 GPT/Llama 风格的**字节级 BPE（Byte-level BPE）**分词器。字节级方案以 256 个字节为初始字母表，任何语言（包括中文和 emoji）都不会出现未登录词（OOV），这也是当前 LLM 的主流选择：
 
 ```python
-from tokenizers import Tokenizer
-from tokenizers.models import BPE
-from tokenizers.trainers import BpeTrainer
-from tokenizers.pre_tokenizers import Whitespace
+from tokenizers import Tokenizer, decoders, models, pre_tokenizers, trainers
 
-# 1. 初始化 BPE 模型
-tokenizer = Tokenizer(BPE(unk_token="[UNK]"))
-tokenizer.pre_tokenizer = Whitespace()
+# 1. 初始化字节级 BPE 模型
+tokenizer = Tokenizer(models.BPE())
+tokenizer.pre_tokenizer = pre_tokenizers.ByteLevel(add_prefix_space=False)
+tokenizer.decoder = decoders.ByteLevel()
 
-# 2. 配置训练器
-trainer = BpeTrainer(
-    vocab_size=32000, 
+# 2. 配置训练器：以 256 个字节作为初始字母表，保证无 OOV
+trainer = trainers.BpeTrainer(
+    vocab_size=32000,
     min_frequency=2,
-    special_tokens=["[UNK]", "[CLS]", "[SEP]", "[PAD]", "[MASK]"]
+    special_tokens=["<|endoftext|>", "<|im_start|>", "<|im_end|>"],
+    initial_alphabet=pre_tokenizers.ByteLevel.alphabet(),
 )
 
 # 3. 训练分词器
@@ -420,6 +412,8 @@ tokenizer.train(files, trainer)
 # 4. 保存分词器
 tokenizer.save("my_tokenizer.json")
 ```
+
+算法对比（BPE / WordPiece / Unigram）、词表大小选择与特殊 Token 设计见 9.5 节。
 
 ## 2.3 预训练目标函数
 
@@ -454,22 +448,27 @@ $$
 - ✅ 架构简单，易于扩展到超大规模
 - ✅ 训练效率高
 
-**实战训练代码**：
+**训练循环示意**：
 ```python
+import torch.nn.functional as F
+
 for batch in dataloader:
-    input_ids = batch['input_ids']  # shape: [batch_size, seq_len]
+    input_ids = batch['input_ids']      # [batch_size, seq_len]
 
-    # 前向传播
-    logits = model(input_ids)  # [batch_size, seq_len, vocab_size]
+    logits = model(input_ids).logits    # [batch_size, seq_len, vocab_size]
 
-    # Next Token Prediction: 预测右移一位
-    # input:  [x1, x2, x3, x4]  →  target: [x2, x3, x4, x5]
+    # Next Token Prediction：位置 t 的输出去预测第 t+1 个 token
+    # 输入 [x1, x2, x3, x4] 的输出，分别对齐目标 [x2, x3, x4]
     shift_logits = logits[:, :-1, :]
     shift_labels = input_ids[:, 1:]
 
-    loss = cross_entropy(shift_logits, shift_labels)
+    loss = F.cross_entropy(
+        shift_logits.reshape(-1, shift_logits.size(-1)),
+        shift_labels.reshape(-1),
+    )
     loss.backward()
     optimizer.step()
+    optimizer.zero_grad()
 ```
 
 ### 2.3.2 掩码语言建模（Masked Language Modeling）
@@ -482,7 +481,7 @@ $$
 \mathcal{L}_{\text{MLM}} = \sum_{i \in \mathcal{M}} \log P(x_i \mid \mathbf{x}_{\backslash \mathcal{M}}; \theta)
 $$
 
-其中 $\mathcal{M}$ 是被 mask 的位置集合，$\mathbf{x}_{\backslash \mathcal{M}}$ 表示除了 masked 位置外的所有 token。
+其中 $\mathcal{M}$ 是被 mask 的位置集合，$$\mathbf{x}_{\backslash \mathcal{M}}$$ 表示除了 masked 位置外的所有 token。
 
 **训练策略**（BERT 方式）：
 - 随机选择 15% 的 token 进行处理：
@@ -520,104 +519,29 @@ $$
 
 ## 2.4 预训练数据
 
-### 2.4.1 数据来源
-- **网页数据**：Common Crawl、C4（Colossal Clean Crawled Corpus）
-- **书籍**：BookCorpus、Books3
-- **代码**：GitHub、Stack Overflow
-- **学术文献**：arXiv、PubMed
-- **对话数据**：Reddit、社交媒体
-- **百科知识**：Wikipedia、Wikidata
+预训练数据决定了模型的知识边界和能力分布。一条典型的数据流水线是：
 
-### 2.4.2 数据处理流程
+1. **采集**：Common Crawl 网页、书籍、代码（GitHub）、学术论文（arXiv）、百科（Wikipedia）、问答社区（StackExchange）等
+2. **过滤**：语言识别、启发式规则、质量分类器、毒性检测与个人信息（PII）清理
+3. **去重**：精确哈希去重 + MinHash/LSH 模糊去重，并与评测集去重以防泄露
+4. **分词**：用 2.2 节训练的分词器把文本转成 token 序列
+5. **配比与采样**：为各数据源设定混合比例，高质量小数据源上采样、低质量大数据源下采样
 
-#### 2.4.2.1 数据采集
-- 网页爬取与下载
-- API数据获取
-- 开源数据集整合
+每个环节的具体方法、工具与取舍统一在第 9 章「[数据工程](#9-数据工程)」展开（包括 GPT-3、LLaMA 等模型的真实配比）。这里先记住三条结论：
 
-#### 2.4.2.2 质量过滤
-- 语言检测与过滤
-- 内容质量评估（长度、重复性、可读性）
-- 毒性和有害内容检测
-- 个人信息删除（PII Removal）
-
-#### 2.4.2.3 去重
-- **精确去重**：完全相同的文档
-- **模糊去重**：MinHash、SimHash等算法
-- **跨数据集去重**：避免测试集泄露
-
-#### 2.4.2.4 Tokenization
-- BPE（Byte Pair Encoding）
-- WordPiece
-- Unigram
-- SentencePiece
-
-### 2.4.3 数据配比（Data Mixture）
-
-**核心原则**：不同数据源的配比直接影响模型的能力分布
-
-**典型配比示例**（参考 LLaMA）：
-
-| 数据源 | 比例 | 说明 |
-|-------|------|------|
-| **Common Crawl / C4** | 67% | 网页数据，提供广泛的语言知识 |
-| **Books** | 15% | 高质量长文本，提升推理和叙事能力 |
-| **GitHub** | 4.5% | 代码数据，提升代码理解和生成能力 |
-| **Wikipedia** | 4.5% | 百科知识，提供结构化知识 |
-| **ArXiv** | 2.5% | 学术论文，提升科学推理能力 |
-| **StackExchange** | 2% | 问答数据，提升问答能力 |
-
-**配比策略**：
-- **上采样（Upsampling）**：高质量数据源可以重复多次
-- **下采样（Downsampling）**：低质量或超大规模数据源采样一部分
-- **动态调整**：训练后期可以增加特定领域数据的比例
-
-**实战代码**：
-```python
-data_mixture = {
-    'common_crawl': 0.67,    # 网页数据 - 通用语言能力
-    'books': 0.15,           # 书籍 - 长文本推理
-    'github': 0.045,         # 代码 - 编程能力
-    'wikipedia': 0.045,      # 百科 - 事实知识
-    'arxiv': 0.025,          # 论文 - 科学推理
-    'stackexchange': 0.02    # 问答 - QA能力
-}
-
-def sample_batch(data_mixture, batch_size):
-    """按配比构建训练批次"""
-    batch = []
-    for source, weight in data_mixture.items():
-        n_samples = int(batch_size * weight)
-        batch.extend(sample_from_source(source, n_samples))
-    return batch
-```
+- **数量与质量要兼顾**：Chinchilla 缩放定律表明，同等算力下应让参数量与训练 token 数同比增长（约 20 tokens/参数）；而 FineWeb-Edu、Phi 系列则说明，数据质量提升可以显著降低达到同等效果所需的 token 数
+- **去重至关重要**：重复数据会加剧记忆、浪费算力，并可能造成评测集泄露
+- **配比影响能力边界**：代码与数学数据的比例直接影响推理能力，多语言比例影响跨语言泛化
 
 ## 2.5 预训练的关键技术
 
 ### 2.5.1 学习率调度
 
-**标准三阶段调度**：
-```
-Warmup → Peak Learning Rate → Cosine/Linear Decay
-```
-
-```mermaid
-graph LR
-    A[步骤0<br/>lr=0] --> B[Warmup阶段<br/>0-2%步数<br/>线性增长]
-    B --> C[峰值阶段<br/>2-10%步数<br/>保持峰值]
-    C --> D[Decay阶段<br/>10-100%步数<br/>余弦衰减]
-    D --> E[结束<br/>lr=峰值×10%]
-
-    style A fill:#e3f2fd
-    style B fill:#fff9c4
-    style C fill:#ffcdd2
-    style D fill:#c8e6c9
-    style E fill:#e3f2fd
-```
+预训练最常用的是 **线性 Warmup + 余弦衰减（Cosine Decay）**；需要随时追加数据的持续预训练则越来越多地采用 **WSD（Warmup-Stable-Decay）**。两种调度的公式与对比见 7.2 节，本节只给出预训练场景下的参数经验。
 
 <div align="center">
   <img src="/images/llm-training/learning-rate-schedule.webp" width="85%" alt="预训练学习率调度曲线" />
-  <figcaption>图：预训练学习率调度实际曲线 - Warmup-Peak-Decay三阶段（来源：Chinchilla 论文 Figure 1）</figcaption>
+  <figcaption>图：线性 Warmup + 余弦衰减的学习率曲线示意（峰值 3e-4，最小学习率为峰值的 10%）</figcaption>
 </div>
 
 **关键参数**：
@@ -640,7 +564,9 @@ $$
 \text{lr}_{\text{new}} = \text{lr}_{\text{base}} \times \frac{\text{batch}_{\text{new}}}{\text{batch}_{\text{base}}}
 $$
 
-例如：基础配置 lr=1e-4, batch=256 → 扩展到 batch=2048 → lr=8e-4
+例如：基础配置 lr=1e-4, batch=256 → 扩展到 batch=2048 → lr=8e-4。
+
+需要注意，线性缩放规则来自 SGD 的大 batch 训练经验（Goyal et al., 2017）。对 Adam 类优化器，学习率随 batch 的增长通常更接近平方根缩放，且 batch 超过"临界 batch size"后收益迅速递减，因此实际仍需在小规模实验上扫参确认。
 
 ### 2.5.2 批次大小（Batch Size）
 
@@ -660,8 +586,8 @@ Batch size 直接影响训练效率和梯度质量。以 token 数量计（而�
 |------|-------------------|------|
 | GPT-3 175B | 32K → 3.2M（逐步增大）| 训练前期小 batch，后期大 batch |
 | LLaMA-2 | 4M tokens | 全程固定 |
-| PaLM 540B | 4M tokens | 与 LLaMA-2 相近 |
-| Chinchilla | 1.5M tokens | 较小规模 |
+| PaLM 540B | 1M → 4M（逐步增大）| 按训练进度分三档加倍 |
+| Chinchilla 70B | 1.5M → 3M | 训练中途加倍 |
 
 #### 2.5.2.3 梯度累积（Gradient Accumulation）
 
@@ -677,7 +603,7 @@ for step, batch in enumerate(dataloader):
         optimizer.zero_grad()
 ```
 
-**等效关系**：effective batch size = per-GPU batch size × gradient accumulation steps × 数据并行卡数
+**等效关系**：effective batch size = per-GPU batch size × gradient accumulation steps × 数据并行卡数。分布式场景下配合 `no_sync()` 跳过前 N−1 步梯度同步的做法见 7.3.2 节。
 
 ---
 
@@ -692,11 +618,11 @@ for step, batch in enumerate(dataloader):
 #### 2.5.3.2 渐进式扩展策略
 
 ```
-主训练阶段:  2048 tokens  → 完成大部分训练步数（占总计算量 80%+）
-扩展阶段1:  4096 tokens  → 少量追加步数
-扩展阶段2:  8192 tokens  → 更少步数，通常仅占 5% 以内
-长上下文:   32K–128K    → 专项长上下文微调
+主训练阶段:    4K–8K tokens  → 完成绝大部分训练 token（早期模型为 2K，Llama 3 为 8K）
+长上下文扩展:  32K → 128K    → 分多个阶段逐步加长，只追加少量 token
 ```
+
+以 Llama 3 为例：先在 8K 上下文上完成约 15T tokens 的预训练，再分 6 个阶段把上下文逐步扩展到 128K，这一扩展阶段共使用约 800B tokens（Llama 3 技术报告）。
 
 #### 2.5.3.3 位置编码扩展技术
 
@@ -733,8 +659,11 @@ $$\text{Attention score}_{ij} = q_i \cdot k_j^T - m \cdot (i - j)$$
    * **原理**：将序列（Sequence）维度切分到由 $P$ 张 GPU 组成的环形通信拓扑中。每个 GPU 只持有一段局部序列的 Query。在计算注意力时，Key 和 Value 的数据块通过环形缓冲区（Ring Buffer）在 GPU 之间依次流转并计算局部 Attention 结果。
    * **优势**：将注意力机制的显存复杂度由 $O(N^2)$ 分摊到各个节点上，实现显存随 GPU 数量的线性扩展，使训练百万甚至千万级别的超长文本序列成为可能。
 2. **RoPE 基频缩放（Base Frequency Scaling）**
-   * **原理**：在拓展上下文时，若直接使用原始位置编码，长序列尾部的位置向量在频域上会出现相位重叠或漂移。除了插值（PI/YaRN）外，必须将 RoPE 的底数基频 $\theta$ 进行大幅上调（例如 Llama-3 将其从 10,000 上调至 500,000 或 5,000,000）。
-   * **作用**：有效拉伸高频和中频的表征范围，防止模型在处理长文本时注意力坍塌。
+   * **原理**：在拓展上下文时，若直接使用原始位置编码，长序列尾部的位置向量在频域上会出现相位重叠或漂移。除了插值（PI/YaRN）外，常见做法是大幅上调 RoPE 的底数基频 $\theta$（例如 Llama 2 使用 10,000，Llama 3 上调至 500,000）。
+   * **作用**：拉长各频率分量的波长，让更远的位置仍能被区分，缓解模型处理长文本时的注意力退化。
+3. **LongLoRA（Shifted Sparse Attention）**
+   * **原理**：训练时用分组的局部注意力（并在一半注意力头上错开分组边界）替代全局注意力，推理时恢复标准注意力；再配合只训练 LoRA 与 Embedding/Norm 层。
+   * **作用**：以较小的算力把 7B–70B 模型的上下文扩展到 32K–100K 级别。
 
 ---
 
@@ -758,11 +687,11 @@ $$\text{Attention score}_{ij} = q_i \cdot k_j^T - m \cdot (i - j)$$
 FP16 最大值约 65504，梯度如果很小（< 2⁻²⁴）会下溢为 0，导致参数不更新。解决方案：
 
 ```python
-from torch.cuda.amp import autocast, GradScaler
+import torch
 
-scaler = GradScaler()
+scaler = torch.amp.GradScaler("cuda")
 
-with autocast(dtype=torch.float16):      # 前向用 FP16
+with torch.autocast("cuda", dtype=torch.float16):   # 前向用 FP16
     loss = model(inputs)
 
 scaler.scale(loss).backward()            # 梯度乘以 scale factor 防下溢
@@ -782,7 +711,7 @@ optimizer.step()
 
 #### 2.5.4.4 混合精度中的 Master Weights
 
-优化器状态（Adam 的一阶矩 $m$、二阶矩 $v$）保留 FP32 副本，确保数值精度：
+主权重（Master Weights）以及 Adam 的一阶矩 $m$、二阶矩 $v$ 都以 FP32 保存，确保微小的更新量不会被 BF16 的舍入吞掉。由此得到混合精度训练每参数约 16 字节的静态显存（推导见 6.5.1 节）：
 
 ```
 前向/反向计算：BF16（节省显存）
@@ -792,13 +721,13 @@ optimizer.step()
 
 ---
 
-### 2.5.4.5 FP8 训练工程实践（以 DeepSeek-V3 为例）
+#### 2.5.4.5 FP8 训练工程实践（以 DeepSeek-V3 为例）
 
-BF16 解决了"数值范围"问题，但显存与计算开销仍是 FP16 的一半。**FP8（8-bit 浮点）训练**是 Hopper（H100）及更新一代 GPU 原生支持的下一步压缩，DeepSeek-V3 首次在 671B 参数规模上验证了 FP8 预训练的可行性，是 2.5.4.4 节之后大规模训练工程的最新进展。
+BF16 解决了"数值范围"问题，但每个数仍占 2 字节。**FP8（8-bit 浮点）训练**是 Hopper（H100）及更新一代 GPU 原生支持的下一步压缩：存储减半，Tensor Core 吞吐翻倍。DeepSeek-V3 首次在 671B 参数的超大规模上验证了 FP8 预训练的可行性。
 
 **1. 为什么不能直接全用 FP8？**
 
-FP8 只有 4 或 3 位尾数（E4M3：4位指数+3位尾数；E5M2：5位指数+2位尾数），直接替换 BF16 会导致梯度累加时的舍入误差快速累积，训练发散。DeepSeek-V3 的解决方案是**混合粒度量化 + 选择性高精度保留**，而非简单的"全员转 FP8"。
+FP8 只有 3 或 2 位尾数（E4M3：4 位指数 + 3 位尾数；E5M2：5 位指数 + 2 位尾数），直接替换 BF16 会导致梯度累加时的舍入误差快速累积，训练发散。DeepSeek-V3 的解决方案是**混合粒度量化 + 选择性高精度保留**，而非简单的"全员转 FP8"。
 
 **2. 细粒度量化（Fine-Grained Quantization）**
 
@@ -808,22 +737,26 @@ FP8 只有 4 或 3 位尾数（E4M3：4位指数+3位尾数；E5M2：5位指数+
 
 相比 per-tensor 量化，这种细粒度方案能更好地适应张量内部数值分布的不均匀性（如异常值集中在某些通道），显著降低量化误差。
 
-**3. 前向 E4M3 / 反向 E5M2 的混合精度策略**
+**3. E4M3 与 E5M2 的取舍**
 
 ```
-前向传播（激活值、权重）：   E4M3（更高精度，3位尾数）
-反向传播（梯度）：          E5M2（更大动态范围，2位尾数）
+NVIDIA Transformer Engine 默认的混合格式：
+  前向传播（激活值、权重）：E4M3（3 位尾数，精度更高）
+  反向传播（梯度）：        E5M2（5 位指数，动态范围更大）
+
+DeepSeek-V3：
+  所有张量统一使用 E4M3
 ```
 
-梯度的数值范围通常比激活值更大、更不稳定，因此反向传播采用范围更大的 E5M2 格式，前向传播则用尾数位更多的 E4M3 保留计算精度，这是 NVIDIA Transformer Engine 与 DeepSeek-V3 共同验证的工程实践。
+梯度的数值范围通常比激活值更大，所以 Transformer Engine 让反向传播使用范围更大的 E5M2。DeepSeek-V3 则反其道而行：细粒度缩放已经让每个小块内的数值范围足够窄，于是所有张量都改用精度更高的 E4M3。
 
 **4. 累加精度问题（Accumulation Precision）**
 
-矩阵乘法（GEMM）的中间累加结果如果也用 FP8 表示，误差会随累加项数增多而放大。DeepSeek-V3 的做法是：**Tensor Core 内部累加使用更高精度（如 FP22 中间格式或定期提升至 BF16/FP32 进行误差校正）**，只在数据存储和主要矩阵乘法的输入端使用 FP8，从根本上避免了"算得快但算不准"的问题。
+矩阵乘法（GEMM）的累加误差会随累加长度增大而放大。DeepSeek-V3 报告指出，H800 Tensor Core 做 FP8 GEMM 时累加只保留约 14 位精度。其做法是**每累加 128 个元素就把部分和提升到 CUDA Core 上，以 FP32 精度继续累加**；FP8 只用在矩阵乘法的输入端，主权重、梯度累加与优化器状态仍保持高精度，从而避免"算得快但算不准"。
 
 **5. 效果**
 
-DeepSeek-V3 报告显示，相比 BF16 训练，FP8 训练在保持模型质量几乎无损（验证集 loss 差异在噪声范围内）的前提下，显著降低了显存占用和训练算力消耗，是其能以 ~$557.6 万美元训练出 671B 参数 MoE 模型的核心技术之一（参见「11.2.2 详细成本计算」中的真实案例）。
+DeepSeek-V3 报告显示，与 BF16 基线相比，FP8 训练的相对 loss 误差始终低于 0.25%，同时显著降低了显存占用与训练算力。这是它能以约 557.6 万美元的正式训练成本训出 671B 参数 MoE 模型的关键技术之一（参见 11.2.2 节的真实案例）。
 
 > **⚠️ 工程提醒**：FP8 训练目前仍依赖 Hopper/Blackwell 架构的硬件原生支持（Ampere 及更早架构无法获得加速收益），且需要框架层面（如 Transformer Engine、DeepSeek 自研训练框架）精细处理缩放因子的动态更新，并非简单地修改 `dtype` 参数就能获得收益。
 
@@ -831,7 +764,7 @@ DeepSeek-V3 报告显示，相比 BF16 训练，FP8 训练在保持模型质量�
 
 ### 2.5.5 Flash Attention
 
-Flash Attention 通过 IO-aware 分块计算，将注意力层的显存复杂度从 $O(n^2)$ 降至 $O(n)$，同时实现 2–9× 速度提升。详细原理参见后文「[训练优化技术 → Flash Attention](#flash-attention)」章节。
+Flash Attention 通过 IO-aware 分块计算，将注意力层的显存复杂度从 $O(n^2)$ 降至 $O(n)$，且计算结果与标准注意力数学等价；注意力算子本身可提速数倍，端到端训练通常提速 2–3×。详细原理参见「[7.5 Flash Attention](#75-flash-attention)」。
 
 ---
 
@@ -859,15 +792,18 @@ $$\text{Gate}(x) = \text{TopK}(\text{softmax}(W_g \cdot x), k)$$
 
 $$\mathcal{L}_{\text{aux}} = \alpha \cdot N \sum_{i=1}^{N} f_i \cdot P_i$$
 
-其中 $f_i$ 为实际分配到专家 $i$ 的 token 比例，$P_i$ 为路由器输出给专家 $i$ 的平均概率，$\alpha$ 通常取 0.01–0.1。
+其中 $f_i$ 为实际分配到专家 $i$ 的 token 比例，$P_i$ 为路由器输出给专家 $i$ 的平均概率，$\alpha$ 通常取 0.01 左右（Switch Transformer 的取值）。
+
+辅助损失的副作用是会干扰主任务的梯度。DeepSeek-V3 改用**无辅助损失（Auxiliary-Loss-Free）的负载均衡**：给每个专家的路由分数加一个只用于选择 top-k 的偏置项，训练中根据专家的实际负载动态调高或调低这个偏置，从而在不引入额外损失的情况下保持均衡。
 
 #### 2.6.1.3 代表模型
 
-| 模型 | 专家数 | 每次激活 | 等效密集参数量 | 实际计算量 |
+| 模型 | 路由专家数 | 每 token 激活 | 总参数量 | 激活参数量 |
 |------|--------|---------|-------------|---------|
-| Switch Transformer | 最多 2048 | top-1 | 1.6T | 相当于小模型 |
-| Mixtral 8x7B | 8 | top-2 | 47B | 相当于 13B |
-| GPT-4（传言）| 多专家 | 稀疏激活 | — | — |
+| Switch Transformer | 最多 2048 | top-1 | 1.6T | 远小于总参数 |
+| Mixtral 8x7B | 8 | top-2 | 47B | 约 13B |
+| DeepSeek-V3 | 256（另有 1 个共享专家） | top-8 | 671B | 37B |
+| Qwen3-235B-A22B | 128 | top-8 | 235B | 22B |
 
 #### 2.6.1.4 工程挑战
 - **通信开销**：不同 token 的专家可能在不同 GPU 上，需要 All-to-All 通信
@@ -876,53 +812,22 @@ $$\mathcal{L}_{\text{aux}} = \alpha \cdot N \sum_{i=1}^{N} f_i \cdot P_i$$
 
 ---
 
-### 2.6.2 长上下文训练
+### 2.6.2 训练稳定性技术
 
-#### 2.6.2.1 训练策略
+#### 2.6.2.1 WSD 学习率调度（Warmup-Stable-Decay）
 
-长上下文模型通常分两阶段训练：
+传统 Cosine 调度必须预先确定总训练 token 数，中途想追加数据就得重跑衰减曲线。WSD 把训练分成 Warmup、Stable（恒定峰值学习率）和 Decay 三段，Stable 阶段可以任意延长，因此适合持续/增量预训练。公式与细节见 7.2.3 节。
 
-1. **标准预训练**：在 2K–4K 上下文上完成主要训练，积累语言理解能力
-2. **长上下文继续训练**：固定大部分参数，在长序列数据上用位置编码扩展技术进行少量步数的持续训练
+#### 2.6.2.2 μP（Maximal Update Parameterization）
 
-位置编码扩展技术（PI/YaRN/ALiBi）详见上方「[上下文长度](#3-上下文长度context-length)」小节。
+标准参数化下，最优学习率会随模型宽度变化，小模型上调好的超参数无法直接用于大模型。μP 按宽度对初始化方差和各类参数的学习率做规模相关的缩放（例如用 Adam 训练时，隐藏层矩阵参数的学习率按 $1/\text{width}$ 缩放），使**最优超参数在不同宽度下保持不变**。
 
-#### 2.6.2.2 长上下文注意力优化
+- 实践价值（μTransfer）：在小代理模型（proxy model）上搜索超参数，再直接迁移到大模型，大幅节省调参成本
+- 代表工作：Tensor Programs V（Yang et al., 2022）；Cerebras-GPT、MiniCPM 等模型采用了 μP
 
-长序列的注意力计算面临两个问题：显存（$O(n^2)$）和多 GPU 时的序列并行。
+#### 2.6.2.3 Loss Spike 处理
 
-- **Ring Attention**：将序列分块分配到多个 GPU，通过循环通信方式完成全局注意力，支持数百万 token 的超长上下文
-- **LongLoRA（Shifted Sparse Attention）**：训练时用局部分组注意力替代全局注意力，推理时恢复标准注意力，以小计算量高效扩展到 100k+ 上下文
-- **FlashAttention-2**：通过 IO-aware 分块降低注意力层显存，是长上下文训练的必备基础设施
-
----
-
-### 2.6.3 训练稳定性技术
-
-#### 2.6.3.1 WSD 学习率调度（Warmup-Stable-Decay）
-
-传统 Cosine 调度只能训练到预设 token 数就结束，无法灵活延长训练。WSD 解决了这个问题：
-
-```
-Warmup 阶段：线性增大到峰值学习率（通常几千步）
-    ↓
-Stable 阶段：保持峰值学习率不变（可持续任意长）← 关键优势
-    ↓
-Decay 阶段：快速衰减至接近 0（通常几千到几万步）
-```
-
-**优势**：可以在 Stable 阶段随时保存检查点，接续训练更多数据时只需重新进入 Decay，实现**持续/增量预训练**。代表模型：MiniCPM、Qwen 系列。
-
-#### 2.6.3.2 μ-Parameterization（maximal update parameterization）
-
-标准 Xavier/Kaiming 初始化的超参数在不同模型规模下需要重新调整，难以跨规模迁移。μP 的核心思想：对权重的初始化和学习率进行规模相关的缩放，使得**最优超参数在小模型上调出后可直接迁移到大模型**。
-
-- 学习率不随宽度变化：$\eta = O(1/\text{width})$ 的缩放抵消了参数量增加的影响
-- 实践价值：在小代理模型（proxy model）上搜索超参数，再直接用于大模型训练，节省巨大调参成本
-
-#### 2.6.3.3 Loss Spike 处理
-
-训练过程中偶发的梯度爆炸会导致 loss 急剧上升，常见应对策略：
+训练过程中偶发的梯度爆炸会导致 loss 急剧上升，常见应对策略（完整的诊断流程见 11.3.2.3 节）：
 
 1. **梯度裁剪**（Gradient Clipping）：限制梯度 L2 范数，通常设为 1.0
 2. **BF16 代替 FP16**：避免数值溢出引发的不稳定
@@ -931,18 +836,7 @@ Decay 阶段：快速衰减至接近 0（通常几千到几万步）
 
 ---
 
-### 2.6.4 高质量数据工程
-
-数据工程是预训练质量的基石，详细流程（数据源、清洗、去重、配比）参见后文「数据工程」专章。关键结论：
-
-- **数量 vs 质量**：Chinchilla scaling law 表明，同等计算量下适当减少参数、增加训练数据反而更优
-- **去重至关重要**：重复数据会导致模型过拟合、评估集泄露，MinHash + LSH 是主流方案
-- **数据配比影响能力边界**：代码数据比例影响推理能力，多语言比例影响跨语言泛化
-
----
-
-# 3. 监督微调阶段
-————Supervised Fine-Tuning, SFT
+# 3. 监督微调阶段（Supervised Fine-Tuning, SFT）
 
 SFT阶段将预训练模型转化为能够理解和执行指令的助手。
 
@@ -1001,7 +895,7 @@ $$
 \mathcal{L}_{\text{SFT}} = -\sum_{(x,y) \in \mathcal{D}_{\text{SFT}}} \log P(y \mid x; \theta)
 $$
 
-其中 $\mathcal{D}_{\text{SFT}}$ 是监督微调数据集，包含高质量的指令-回答对。
+其中 $$\mathcal{D}_{\text{SFT}}$$ 是监督微调数据集，包含高质量的指令-回答对。
 
 ### 3.2.2 与预训练的关键区别
 
@@ -1011,26 +905,32 @@ $$
 
 **SFT**：
 - 模型**只对回答部分计算 loss**
-- 指令部分不计算 loss（通过 attention mask 实现）
+- 指令部分不计算 loss：做法是把这些位置的 label 置为 `-100`（loss mask），而不是改动 attention mask——模型仍然能"看到"完整的指令
 
 **SFT核心代码**：
 ```python
+import torch.nn.functional as F
+
 def sft_loss(model, batch):
     """SFT的关键：只对Assistant回答部分计算loss"""
     input_ids = batch['input_ids']  # [batch_size, seq_len]
-    labels = batch['labels']        # [batch_size, seq_len]
+    labels = batch['labels']        # [batch_size, seq_len]，与 input_ids 对齐
 
     # labels示例: [-100, -100, -100, 152, 234, 567, ...]
     #              ↑~~~ User指令 ~~~↑  ↑~~ Assistant回答 ~~↑
     #              (忽略，不计算loss)    (计算loss，学习生成)
 
-    logits = model(input_ids)
+    logits = model(input_ids).logits
 
-    # PyTorch自动忽略label=-100的位置
+    # 与预训练相同，先错开一位：位置 t 的输出预测第 t+1 个 token
+    shift_logits = logits[:, :-1, :]
+    shift_labels = labels[:, 1:]
+
+    # cross_entropy 会自动忽略 label = -100 的位置
     loss = F.cross_entropy(
-        logits.view(-1, vocab_size),
-        labels.view(-1),
-        ignore_index=-100
+        shift_logits.reshape(-1, shift_logits.size(-1)),
+        shift_labels.reshape(-1),
+        ignore_index=-100,
     )
     return loss
 ```
@@ -1054,8 +954,8 @@ def sft_loss(model, batch):
 | **LLaMA-2-Chat** | 27.5k | 人工标注 | Meta 的高质量对话数据 |
 | **Vicuna** | 70k | ShareGPT | 用户分享的 ChatGPT 对话 |
 | **Alpaca** | 52k | GPT-3.5 生成 | Stanford 的开源指令数据 |
-| **WizardLM** | 250k | GPT-4 进化生成 | 复杂指令数据 |
-| **Phi-1** | 仅 6B tokens | GPT-4 "教科书式" | 极高质量，证明数据质量重要性 |
+| **WizardLM** | 250k | ChatGPT 进化生成（Evol-Instruct） | 复杂指令数据 |
+| **Phi-1** | 约 180M tokens | GPT-3.5 生成的练习题 | 先在约 7B tokens"教科书级"数据上预训练，再用小规模高质量练习题微调 |
 
 **关键洞察**：
 - ✅ 1-10 万高质量样本通常足够
@@ -1074,9 +974,9 @@ def sft_loss(model, batch):
 5. **一致性验证**：多个标注员交叉验证
 
 **成本**：
-- 单个样本：$5-20（取决于复杂度）
-- 10k 样本：$50k-200k
-- 总成本：远低于预训练（通常<总成本的 5%）
+- 单个样本：5–20 美元（取决于复杂度）
+- 10k 样本：5 万–20 万美元
+- 总成本：远低于预训练（通常 < 总成本的 5%）
 
 **优势**：
 - ✅ 质量最高，符合人类期望
@@ -1100,20 +1000,19 @@ def sft_loss(model, batch):
 
 **方法**：使用强大模型（如 GPT-4）生成训练数据
 
-**Self-Instruct 流程**：
-1. **种子指令**：手工编写 100-200 个种子指令
+**Self-Instruct 流程**（Wang et al., 2023）：
+1. **种子指令**：手工编写 100-200 个种子指令（原论文使用 175 个）
 2. **指令生成**：用 GPT-4 生成新指令
 3. **回答生成**：用 GPT-4 为指令生成回答
 4. **质量过滤**：自动化 + 人工抽样验证
 5. **迭代扩展**：重复 2-4 步
 
 **成本**：
-- GPT-4 API 调用：~$0.03-0.06/样本
-- 10k 样本：$300-600
+- 按 2023 年的 GPT-4 API 价格约 0.03–0.06 美元/样本，10k 样本约 300–600 美元；此后同等能力模型的 API 价格已下降一个数量级以上
 - 比人工标注便宜 100 倍以上
 
 **代表工作**：
-- **Alpaca**：Stanford，52k 样本，$500 成本
+- **Alpaca**：Stanford，52k 样本，用 text-davinci-003 生成，数据成本不到 500 美元
 - **Vicuna**：ShareGPT 用户对话，免费
 - **WizardLM**：Evol-Instruct 方法，自动提升复杂度
 
@@ -1169,7 +1068,7 @@ Magpie 是一种新颖的指令生成方法。传统的 Self-Instruct 需要提�
 #### 3.3.3.3 自动化质量过滤策略
 为了防止合成数据中存在低质、重复或有害的样本，必须实施严格的多重过滤机制：
 1. **困惑度过滤（PPL Filtering）**：计算回答文本的 Perplexity，过滤掉 PPL 过高（语无伦次）或过低（模板化复读）的文本。
-2. **嵌入多样性筛选（Embedding Diversity）**：利用 `text-embedding-3-small` 等模型计算句向量，通过聚类（Clustering）和余弦相似度阈值，剔除过于相似的负样本，保证数据分布的广泛性。
+2. **嵌入多样性筛选（Embedding Diversity）**：利用 `text-embedding-3-small` 等模型计算句向量，通过聚类（Clustering）和余弦相似度阈值，剔除彼此过于相似的样本，保证数据分布的广泛性。
 3. **困难度分级（Difficulty Rating）**：使用大模型评估指令所需的推理步数，优先保留逻辑难度高、能够激发模型深度学习能力的样本。
 
 #### 3.3.3.4 开源数据集
@@ -1181,8 +1080,9 @@ Magpie 是一种新颖的指令生成方法。传统的 Self-Instruct 需要提�
 | **ShareGPT** | 90k | 多语言 | 真实用户与 ChatGPT 对话 |
 | **OpenOrca** | 1M+ | 英语 | GPT-4 生成，含推理过程 |
 | **UltraChat** | 1.5M | 英语 | 多轮对话 |
-| **FLAN** | 1.8M | 英语 | Google 的多任务指令集 |
+| **FLAN Collection** | 1,800+ 任务 | 多语言 | Google 的多任务指令集，由已有 NLP 数据集模板化而来 |
 | **Dolly-15k** | 15k | 英语 | Databricks 员工标注 |
+| **Tulu 3 SFT Mix** | 约 94 万 | 多语言 | AllenAI 开源的完整后训练配方所用 SFT 数据 |
 
 ### 3.3.4 指令类型分布
 
@@ -1200,7 +1100,7 @@ Magpie 是一种新颖的指令生成方法。传统的 Self-Instruct 需要提�
 
 <div align="center">
   <img src="/images/llm-training/instruction-distribution.webp" width="80%" alt="SFT指令类型分布" />
-  <figcaption>图：高质量SFT数据集的指令类型分布示例（来源：Self-Instruct 论文 Figure 2）</figcaption>
+  <figcaption>图：SFT 指令类型分布示意（取上表推荐区间的中值绘制）</figcaption>
 </div>
 
 **平衡原则**：
@@ -1248,18 +1148,18 @@ def quality_check(instruction, response):
 - ❌ **成本最高**：需要存储完整模型和梯度
 - ❌ **显存需求大**：通常需要 4-8 块高端 GPU
 
-**显存需求计算**：
+**显存需求计算**（与 6.5.1 节的 16 字节/参数推导一致）：
 ```
-总显存 = 模型参数 + 优化器状态 + 梯度 + 激活值
+总显存 = 模型参数 + 梯度 + 优化器状态 + 激活值
 
-对于 7B 模型（FP16 训练）：
-- 模型：7B × 2 bytes = 14GB
-- 优化器（AdamW）：7B × 8 bytes = 56GB
-- 梯度：7B × 2 bytes = 14GB
-- 激活值：~20-40GB（取决于 batch size）
-总计：~104-124GB
+对于 7B 模型（BF16 混合精度 + AdamW）：
+- 模型参数（BF16）：7B × 2 bytes = 14GB
+- 梯度（BF16）：    7B × 2 bytes = 14GB
+- 优化器状态（FP32 主权重 + m + v）：7B × 12 bytes = 84GB
+- 激活值：~20-40GB（取决于 batch size 与序列长度）
+总计：~132-152GB
 
-→ 需要 2-4 块 A100 (80GB)
+→ 单卡放不下，至少需要 2 块 A100 (80GB) 并配合 ZeRO 分片（见 6.5 节）
 ```
 
 **适用场景**：
@@ -1299,52 +1199,36 @@ LoRA 参数：d × r + r × k = r(d + k)
 → 只训练 <1% 的参数！
 ```
 
-**实现代码**：
+**实现代码**（单层原理示意）：
 ```python
+import math
 import torch
 import torch.nn as nn
 
-class LoRALayer(nn.Module):
-    def __init__(self, in_features, out_features, rank=16, alpha=32):
+class LoRALinear(nn.Module):
+    def __init__(self, base: nn.Linear, rank=16, alpha=32):
         super().__init__()
-        self.rank = rank
-        self.alpha = alpha
+        # 冻结的预训练权重 W0
+        self.base = base
+        self.base.weight.requires_grad_(False)
 
-        # 冻结的预训练权重
-        self.W = nn.Linear(in_features, out_features, bias=False)
-        self.W.weight.requires_grad = False
-
-        # LoRA 可训练参数
-        self.lora_A = nn.Parameter(torch.randn(rank, in_features) / rank)
-        self.lora_B = nn.Parameter(torch.zeros(out_features, rank))
+        # LoRA 可训练参数：A 随机初始化，B 初始化为 0，保证训练开始时 ΔW = BA = 0
+        self.lora_A = nn.Parameter(torch.empty(rank, base.in_features))
+        self.lora_B = nn.Parameter(torch.zeros(base.out_features, rank))
+        nn.init.kaiming_uniform_(self.lora_A, a=math.sqrt(5))
 
         self.scaling = alpha / rank
 
     def forward(self, x):
-        # 原始前向传播 + LoRA 修正
-        return self.W(x) + (x @ self.lora_A.T @ self.lora_B.T) * self.scaling
-
-def apply_lora_to_model(model, rank=16, alpha=32):
-    """应用LoRA到模型的所有线性层"""
-    for name, module in model.named_modules():
-        if isinstance(module, nn.Linear):
-            # 将 Linear 层替换为 LoRA 层
-            lora_layer = LoRALayer(
-                module.in_features,
-                module.out_features,
-                rank=rank,
-                alpha=alpha
-            )
-            # 复制预训练权重
-            lora_layer.W.weight.data = module.weight.data
-            # 替换模块
-            parent = get_parent_module(model, name)
-            setattr(parent, name.split('.')[-1], lora_layer)
+        # 原始前向传播 + 低秩修正
+        return self.base(x) + (x @ self.lora_A.T @ self.lora_B.T) * self.scaling
 ```
 
+实际项目中直接使用 Hugging Face PEFT 的 `LoraConfig` + `get_peft_model`，它负责把目标层替换成 LoRA 层、保存与合并适配器，完整示例见 8.4.1.4 节。
+
 **优势**：
-- ✅ **显存占用少**：只需训练 <1% 参数
-- ✅ **训练速度快**：2-3 倍加速
+- ✅ **显存占用少**：只需训练 <1% 参数，无需为冻结权重保存梯度和优化器状态（LoRA 论文中 GPT-3 175B 的训练显存从 1.2TB 降到 350GB）
+- ✅ **存储成本低**：每个任务只需保存适配器（GPT-3 175B 的 checkpoint 从 350GB 降到约 35MB）
 - ✅ **可合并**：训练后可以合并回原模型 $W = W_0 + BA$
 - ✅ **模块化**：可以为不同任务训练多个 LoRA，按需切换
 
@@ -1353,8 +1237,8 @@ def apply_lora_to_model(model, rank=16, alpha=32):
   - r=8: 最轻量，适合简单任务
   - r=16-32: 推荐默认值
   - r=64: 复杂任务
-- **alpha**：通常设为 2r（如 r=16, alpha=32）
-- **目标模块**：通常应用到 `q_proj`, `v_proj`, `k_proj`, `o_proj`
+- **alpha**：常见取 alpha = r 或 2r（如 r=16, alpha=32）；QLoRA 论文使用 r=64, alpha=16
+- **目标模块**：早期多只加在注意力投影（`q_proj`, `k_proj`, `v_proj`, `o_proj`）；QLoRA 论文与 Thinking Machines 的 LoRA Without Regret（2025）都发现，**覆盖全部线性层（含 MLP 的 `gate_proj`, `up_proj`, `down_proj`）** 效果明显更接近全参数微调
 
 > **⚠️ LoRA 与灾难性遗忘**
 >
@@ -1362,7 +1246,7 @@ def apply_lora_to_model(model, rank=16, alpha=32):
 
 #### 3.4.2.2 QLoRA（Quantized LoRA）
 
-**核心创新**：在量化模型上应用 LoRA，将 7B 模型微调显存从 ~24GB（LoRA）进一步压缩到 ~9GB，65B 模型可在单块 A100 (80GB) 上微调。核心技术包括 4-bit NF4 量化、双重量化（Double Quantization）和分页优化器（Paged Optimizers）。
+**核心创新**：把冻结的基座权重量化为 4-bit，再在其上训练 LoRA。7B 模型的微调显存可从 ~24GB（16-bit LoRA）压缩到 ~9GB，65B 模型可在单块 48GB GPU 上微调（QLoRA 论文）。核心技术包括 4-bit NF4 量化、双重量化（Double Quantization）和分页优化器（Paged Optimizers）。
 
 详细原理、显存对比与完整代码实现参见「[模型量化技术 → QLoRA：4-bit量化 + LoRA微调](#841-qlora4-bit量化--lora微调)」一节，此处不再重复。
 
@@ -1391,20 +1275,20 @@ def apply_lora_to_model(model, rank=16, alpha=32):
 **常见模板格式**：ChatML、Alpaca、Vicuna、Llama-2-Chat 等各有不同的特殊标记。
 
 ### 3.4.4 训练超参数
-- 学习率：通常小于预训练（1e-5到5e-5）
+- 学习率：全参数微调通常小于预训练（1e-5 到 5e-5）；LoRA 需要更大的学习率（常见 1e-4 到 2e-4）
 - Epoch数：1-3个epoch
 - Batch Size：根据资源调整
-- Warmup比例：10-20%
+- Warmup比例：3–10%
 
 ## 3.5 SFT的前沿技术
 
 ### 3.5.1 小数据、高质量训练
 
 #### 3.5.1.1 Phi系列的启示
-- **Phi-1**：仅6B tokens训练出强大代码能力
-- **Phi-3**：3.8B参数达到接近大模型性能
+- **Phi-1**：1.3B 参数、约 7B tokens 的"教科书级"数据，HumanEval pass@1 达到 50.6%，超过参数量大 10 倍以上的 StarCoder-15B（33.6%）
+- **Phi-3**：3.8B 参数的 Phi-3-mini 在多项基准上与 Mixtral 8x7B、GPT-3.5 相当
 - **核心策略**：
-  - 使用GPT-4生成"教科书式"高质量数据
+  - 用 GPT-3.5 合成"教科书式"数据，并用 GPT-4 标注训练质量分类器筛选网页代码
   - 严格的质量过滤和多样性控制
   - 证明数据质量 > 数据规模
 
@@ -1415,17 +1299,14 @@ def apply_lora_to_model(model, rank=16, alpha=32):
 
 ### 3.5.2 合成数据生成
 
-#### 3.5.2.1 模型蒸馏方法
-- 使用强模型（GPT-4）生成训练数据
-- 指令-回答对的自动生成
-- 质量控制和多样性保证
+用强模型直接生成指令-回答对的基本做法（Self-Instruct）见 3.3.2.2 节，更新的 Magpie、多智能体合成与自动过滤见 3.3.3 节。本节补充两类针对"难度"与"推理过程"的合成方法。
 
-#### 3.5.2.2 Evol-Instruct方法
+#### 3.5.2.1 Evol-Instruct方法
 - **WizardLM**：自动提升指令复杂度
 - 指令进化策略
 - 大幅提升指令跟随能力
 
-#### 3.5.2.3 推理过程数据
+#### 3.5.2.2 推理过程数据
 - **Orca系列**：生成详细的推理步骤
 - 解释型数据增强
 - 提升小模型的推理能力
@@ -1471,12 +1352,11 @@ trainer = SFTTrainer(model=model, ...)
 trainer.train()
 ```
 
-> **💡 适用场景**：消费级 GPU（RTX 3090/4090）上的 7B–70B 模型 LoRA/QLoRA 微调；GRPO 强化学习训练（显存节省约 **80%**）。
+> **💡 适用场景**：消费级 GPU（RTX 3090/4090）上的 7B–70B 模型 LoRA/QLoRA 微调；GRPO 强化学习训练（官方数据显存节省约 **80%**）。上面的速度与显存数字均来自 Unsloth 官方，实际收益随模型与序列长度变化。
 
 ---
 
-# 4. 偏好对齐阶段
-————Preference Alignment
+# 4. 偏好对齐阶段（Preference Alignment）
 
 对齐阶段让模型输出符合人类偏好、价值观和安全准则。
 
@@ -1484,8 +1364,7 @@ trainer.train()
 >
 > 偏好对齐是从"能用"到"好用"的**关键一跃**，通过RLHF、DPO或最新的 **GRPO** 等技术让模型输出更有帮助、更安全、更符合人类价值观。本章详细对比RLHF、DPO和GRPO的原理、优劣。**推荐：简单任务优先使用DPO，复杂推理任务及资源受限场景优先考虑GRPO。**
 
-## 4.1 RLHF
-————Reinforcement Learning from Human Feedback
+## 4.1 RLHF（Reinforcement Learning from Human Feedback）
 
 **论文来源**：[Training language models to follow instructions with human feedback (InstructGPT)](https://arxiv.org/abs/2203.02155)
 
@@ -1502,7 +1381,7 @@ trainer.train()
 - 采样多个模型输出（通常4-9个候选回答）
 - 人工标注员对回答质量排序
 - 构建偏好对比数据集：$(x, y_w, y_l)$
-- **数据规模**：InstructGPT 使用 33k 偏好对比
+- **数据规模**：InstructGPT 的奖励模型数据约 33k 条 prompt，每条对 4–9 个回答排序，可展开成大量两两比较对
 
 #### 4.1.1.2 Step 2: 训练奖励模型（Reward Model）
 - 使用偏好数据训练打分模型
@@ -1514,17 +1393,16 @@ trainer.train()
 #### 4.1.1.3 Step 3: PPO强化学习优化
 - 使用 PPO（Proximal Policy Optimization）优化策略
 - **奖励信号**：Reward Model 评分
-- **KL 散度约束**：$\beta \cdot D_{\text{KL}}(\pi_\theta \| \pi_{\text{ref}})$ 防止偏离 SFT 模型过远
+- **KL 散度约束**：$$\beta \cdot D_{\text{KL}}(\pi_\theta \Vert \pi_{\text{ref}})$$ 防止偏离 SFT 模型过远
 - **需要的模型**：Policy Model、Reference Model、Reward Model、Critic Model（共4个）
 
 ### 4.1.2 RLHF 的挑战
 - ❌ **Reward Hacking**：模型可能学会exploit RM的弱点而非真正提升质量
 - ❌ **训练不稳定**：RL 训练本身容易发散
 - ❌ **计算开销大**：需同时运行 4 个大模型
-- ❌ **人类标注成本高**：每个偏好标注 $0.5-2
+- ❌ **人类标注成本高**：每个偏好标注约 0.5–2 美元
 
-## 4.2 DPO
-————Direct Preference Optimization
+## 4.2 DPO（Direct Preference Optimization）
 
 **论文来源**：[Direct Preference Optimization: Your Language Model is Secretly a Reward Model](https://arxiv.org/abs/2305.18290)
 
@@ -1559,18 +1437,20 @@ $$
 | **训练稳定性** | 较低（RL不稳定） | ✅ 高（监督学习） |
 | **计算开销** | 大 | ✅ 小（节省50%+） |
 | **实现复杂度** | 高（需要RL库） | ✅ 低（标准优化） |
-| **Reward Hacking** | 容易发生 | ✅ 不易发生 |
-| **效果** | 强 | ✅ 相当或更好 |
+| **Reward Hacking** | 容易发生 | ✅ 较少（但仍会过度优化） |
+| **效果** | 调优充分时往往更强 | ✅ 多数场景相当，实现简单得多 |
+
+> 注：DPO 与 PPO 孰优孰劣并无定论。Xu et al.（2024）的系统对比发现，调优充分的 PPO 在对话与代码任务上仍可超过 DPO；DPO 的主要优势在于工程简单、训练稳定。
 
 ### 4.2.4 DPO 的变体
 
-- **IPO** (Identity Policy Optimization)：改进优化目标，减少 length bias
-- **KTO** (Kahneman-Tversky Optimization)：基于前景理论的偏好优化
-- **ORPO** (Odds Ratio PO)：将 SFT 和偏好优化合并为单阶段
-- **RRHF** (Rank Responses to align Human Feedback)：使用排序损失
+- **IPO**（Identity Preference Optimization）：把 DPO 的 log-sigmoid 损失换成平方损失，缓解偏好接近确定时的过拟合
+- **KTO**（Kahneman-Tversky Optimization）：基于前景理论，只需"好/坏"的单条标签，不需要成对数据
+- **ORPO**（Odds Ratio Preference Optimization）：将 SFT 和偏好优化合并为单阶段，无需参考模型
+- **SimPO**（Simple Preference Optimization）：用长度归一化的平均对数概率作为隐式奖励，同样去掉了参考模型
+- **RRHF**（Rank Responses to align Human Feedback）：使用排序损失
 
-## 4.3 RLAIF
-————RL from AI Feedback
+## 4.3 RLAIF（RL from AI Feedback）
 
 **论文来源**：[RLAIF: Scaling Reinforcement Learning from Human Feedback with AI Feedback](https://arxiv.org/abs/2309.00267)
 
@@ -1637,14 +1517,13 @@ $$
 - ✅ **透明可控**：行为准则明确且可调整
 - ✅ **自主对齐**：减少对人类反馈的依赖
 - ✅ **可扩展**：容易扩展到新的价值观和准则
-- ✅ **效果好**：在 HH-RLHF 基准上表现优异
+- ✅ **效果好**：不使用任何人工有害性标签，就得到了比 RLHF 基线更无害、同时更少回避问题（less evasive）的模型
 
-## 4.5 GRPO 与推理模型训练
-————Group Relative Policy Optimization & Reasoning Models
+## 4.5 GRPO（Group Relative Policy Optimization）与推理模型训练
 
-**论文来源**：[DeepSeek-V3 Technical Report](https://arxiv.org/abs/2412.19437) / [DeepSeek-R1](https://arxiv.org/abs/2501.12948)
+**论文来源**：[DeepSeekMath](https://arxiv.org/abs/2402.03300)（GRPO 首次提出） / [DeepSeek-R1](https://arxiv.org/abs/2501.12948)（大规模推理 RL 实践）
 
-GRPO 是由 DeepSeek 提出的一种新型强化学习算法。随着 DeepSeek-R1 的开源，GRPO 已经取代传统 PPO，成为当前训练强推理模型（Reasoning Models）的工业界标准方案。
+GRPO 由 DeepSeek 在 DeepSeekMath（2024）中提出。随着 DeepSeek-R1 的开源，GRPO 及其改进版本（见 4.6.4 节）成为开源社区训练强推理模型（Reasoning Models）最常用的 RL 算法。
 
 ### 4.5.1 GRPO 的核心创新与显存优化
 
@@ -1656,8 +1535,8 @@ $$\text{Policy (Active)} + \text{Reference (Frozen)} + \text{Reward (Frozen)} + 
 
 **GRPO 的解决方案**：通过**群体相对评分（Group Relative Scoring）**来估算优势，完全取消了 Critic 网络。
 
-#### 1. 组内相对优势计算公式
-对同一个输入 Prompt $x$，策略模型（Policy）并行采样输出一个大小为 $G$ 的回答组（Group）：$G = \{y_1, y_2, \ldots, y_G\}$。使用评分函数或奖励模型分别计算这 $G$ 个回答的奖励得分 $\{r_1, r_2, \ldots, r_G\}$。每个回答 $y_i$ 的组内相对优势（Advantage）$A_i$ 定义为：
+#### 4.5.1.1 组内相对优势计算公式
+对同一个输入 Prompt $x$，策略模型（Policy）并行采样 $G$ 个回答组成一个组（Group）：$\{y_1, y_2, \ldots, y_G\}$。使用评分函数或奖励模型分别计算这 $G$ 个回答的奖励得分 $\{r_1, r_2, \ldots, r_G\}$。每个回答 $y_i$ 的组内相对优势（Advantage）$A_i$ 定义为：
 
 $$
 A_i = \frac{r_i - \text{mean}(r_1, r_2, \ldots, r_G)}{\text{std}(r_1, r_2, \ldots, r_G)}
@@ -1669,20 +1548,20 @@ $$
 \mathcal{L}_{\text{GRPO}}(\theta) = \frac{1}{G} \sum_{i=1}^{G} \left[ \min \left( \frac{\pi_\theta(y_i|x)}{\pi_{\theta_{\text{old}}}(y_i|x)} A_i, \, \text{clip} \left( \frac{\pi_\theta(y_i|x)}{\pi_{\theta_{\text{old}}}(y_i|x)}, 1-\epsilon, 1+\epsilon \right) A_i \right) - \beta \, \mathbb{D}_{\text{KL}}(\pi_\theta || \pi_{\text{ref}}) \right]
 $$
 
-其中 $\mathbb{D}_{\text{KL}}$ 用于惩罚当前策略偏离参考模型（Reference Model）的程度，防止模型“跑偏”。组内归一化天然消除了不同 Prompt 之间奖励绝对值悬殊带来的梯度不稳定性。
+其中 $$\mathbb{D}_{\text{KL}}$$ 用于惩罚当前策略偏离参考模型（Reference Model）的程度，防止模型“跑偏”。组内归一化天然消除了不同 Prompt 之间奖励绝对值悬殊带来的梯度不稳定性。上式是序列级的简写，原论文在每个回答内部按 token 计算比率并取平均。
 
-#### 2. GRPO 与 PPO 显存对比
+#### 4.5.1.2 GRPO 与 PPO 显存对比
 
 ```mermaid
 graph TD
-    subgraph PPO 训练显存占用 (需加载 4 个模型)
+    subgraph PPO["PPO 训练显存占用：需加载 4 个模型"]
         PPO_Actor["Policy 模型 (Trainable)<br/>参数量: Ψ"]
         PPO_Critic["Critic 模型 (Trainable)<br/>参数量: Ψ"]
         PPO_Ref["Reference 模型 (Frozen)<br/>参数量: Ψ"]
         PPO_Reward["Reward 模型 (Frozen)<br/>参数量: Ψ"]
     end
     
-    subgraph GRPO 训练显存占用 (仅需 2 个模型)
+    subgraph GRPO["GRPO 训练显存占用：仅需 2 个模型"]
         GRPO_Policy["Policy 模型 (Trainable)<br/>参数量: Ψ"]
         GRPO_Ref["Reference 模型 (Frozen)<br/>参数量: Ψ"]
         GRPO_Rule["规则验证器 / 外部 API<br/>显存占用: 0"]
@@ -1720,17 +1599,17 @@ graph TD
 [阶段一: 冷启动SFT] -> 收集数千条高质量长CoT数据，帮助模型建立基本的思考习惯（输出 <think>...</think> 格式）
       |
 [阶段二: 推理RL训练] -> 使用 GRPO 算法，通过规则打分（正则匹配结果、编译器验证）让模型自主探索
-      |                 * 现象：模型自发学会“自我纠错”、“重新反思”（Aha Moments）并延长思考长度
+      |                 * 现象：模型自发学会"自我纠错"、"重新反思"（Aha Moments）并延长思考长度
       |
 [阶段三: 拒绝采样与再次SFT] -> 采样 RL 阶段高质量的推理链数据，混合通用数据（写作、安全、翻译）进行二次 SFT
       |
-[阶段四: 通用偏好RL] -> 对最终模型进行安全与人类偏好对齐，解决推理模型“难以拒绝恶意请求”或“答非所问”的问题
+[阶段四: 通用偏好RL] -> 对最终模型进行安全与人类偏好对齐，解决推理模型"难以拒绝恶意请求"或"答非所问"的问题
 ```
 
 #### 4.5.2.1 推理 RL 的奖励规则配置
 在推理阶段，尽量避免使用黑盒的主观神经网络奖励模型（RM），而使用**客观、硬性的规则验证器（Rule-Based Verifiers）**：
 1. **准确性奖励（Accuracy Reward）**：对于数学题，用正则表达式提取最后一对标记（如 `\boxed{...}`）中的答案，与标准答案比对；对于代码题，将代码送入沙箱编译器运行测试用例。
-2. **格式惩罚（Format Penalty）**：要求模型必须将思考过程包裹在 `<think>` 和 `</think>` 标签内。不符合格式或在思考标签外输出答案的，给予极高的负惩罚。
+2. **格式奖励（Format Reward）**：要求模型将思考过程包裹在 `<think>` 和 `</think>` 标签内，符合格式才给奖励。DeepSeek-R1 的推理 RL 只用了准确性与格式两类规则奖励。
 
 ---
 
@@ -1746,9 +1625,9 @@ graph TD
 #### 4.5.3.2 过程监督（Process-supervised Reward Model, PRM）
 * **原理**：对模型生成的推理链中的**每一个中间步骤**进行独立评分（Step-by-step scoring）。
 * **优点**：**密集奖励（Dense Reward）**。能有效识别并惩罚中间步骤中的伪逻辑和概念偷换，显著提升数学与符号推理的严密性。
-* **缺点**：数据获取成本极高。需要人工或极其昂贵的强模型（如 GPT-4）对每一行推理进行细粒度标注。
+* **缺点**：数据获取成本高。OpenAI 的 PRM800K 需要人工逐步标注约 80 万个步骤标签；Math-Shepherd 等工作改用蒙特卡洛展开自动估计每一步的正确率，但会引入噪声。
 
-**工业界最佳实践**：在冷启动 SFT 中混合 PRM 标注的数据；在 GRPO 训练中，对于能够自动执行硬性验证的学科（数学、代码）优先采用确定性的 ORM，配合长度和格式约束，让模型通过大量采样自我摸索正确的中间过程。
+**工业界实践**：DeepSeek-R1 报告把 PRM 列为"未成功的尝试"之一——细粒度步骤难以定义、自动标注不可靠，而且神经网络奖励模型容易被 reward hacking。因此在 GRPO 训练中，对能自动验证的学科（数学、代码）通常优先采用确定性的结果奖励（ORM/规则验证器），配合长度和格式约束，让模型通过大量采样自己摸索正确的中间过程；PRM 更多用于推理时的候选重排（Best-of-N）。
 
 ---
 
@@ -1764,7 +1643,7 @@ graph TD
 
 #### 4.5.4.1 实证数据：思考长度与准确率的关系
 
-OpenAI o1 与 DeepSeek-R1 的技术报告均给出了"训练期计算量"与"推理期计算量"两条独立的 scaling 曲线，呈现出相似的规律：
+OpenAI 在 o1 的发布博客中给出了"训练期计算量"与"推理期计算量"两条独立的 scaling 曲线；DeepSeek-R1 报告则观察到，RL 训练过程中模型的平均回答长度与 AIME 准确率同步上升。两者呈现出相似的规律：
 
 - **训练期计算量增加** → 模型在数学/代码基准上的准确率随训练 FLOPs 呈对数线性提升（与传统 Scaling Law 一致）
 - **推理期计算量增加**（即允许模型生成更长的思维链）→ 在同一个训练好的模型上，仅靠"多想一会儿"，准确率同样随推理 token 数呈近似对数线性提升，且在数学竞赛题（如 AIME）等高难度任务上，两条曲线的提升幅度可以相当
@@ -1780,7 +1659,7 @@ OpenAI o1 与 DeepSeek-R1 的技术报告均给出了"训练期计算量"与"推
 | **小模型蒸馏** | 未开源蒸馏小模型 | 同步开源基于 Qwen/Llama 蒸馏的多个尺寸小模型（4.8节） |
 | **行业影响** | 确立了 Test-Time Compute Scaling 范式 | 验证了"开源 + 低成本"也能达到第一梯队推理水平，加速了 GRPO 成为行业标准 |
 
-> **趋势观察**：R1 之后，Qwen3、Kimi K2 等模型普遍采用"思考/非思考模式切换"的设计——同一模型可根据任务难度动态决定是否启用长 CoT，避免简单任务也强制消耗大量推理 token，这是 Test-Time Compute Scaling 在工程落地上的进一步优化（按需分配推理算力，而非一刀切）。
+> **趋势观察**：R1 之后，Claude 3.7 Sonnet、Gemini 2.5、Qwen3 等模型普遍采用"思考/非思考模式切换"或"思考预算"的设计——同一模型可根据任务难度动态决定是否启用长 CoT，避免简单任务也强制消耗大量推理 token，这是 Test-Time Compute Scaling 在工程落地上的进一步优化（按需分配推理算力，而非一刀切）。
 
 ---
 
@@ -1791,7 +1670,7 @@ OpenAI o1 与 DeepSeek-R1 的技术报告均给出了"训练期计算量"与"推
 * **推理冲突**：安全对齐通常训练模型“遇到敏感话题直接拒绝”。但对于复杂的推理模型，如果用户询问一个涉及网络安全（例如“分析这段恶意软件代码的漏洞以修复它”）的复杂逻辑题，过于敏感的安全过滤器会直接触发拒绝回答，导致推理能力无法发挥。
 * **解决策略**：
   1. **解耦安全与推理**：在推理 RL 阶段（阶段二）完全专注于逻辑与正确性，暂不引入过多的安全约束，允许模型生成所有可能路径。
-  2. **在后期 SFT 中引入安全语料**：在最后阶段（阶段四）通过对比样本（Chosen/Rejected），教会模型区分“学术性逻辑分析”与“实质性恶意协助”，实现精准拒绝。
+  2. **在最后的通用偏好对齐中引入安全语料**：在阶段四通过对比样本（Chosen/Rejected），教会模型区分“学术性逻辑分析”与“实质性恶意协助”，实现精准拒绝。
 
 ---
 
@@ -1819,7 +1698,7 @@ GRPO 等算法只是 RL 训练的"数学公式"，真正把它跑起来需要一
 业界主流做法是用专门的高吞吐推理引擎（而非训练框架自带的 generate 方法）承担 Rollout 任务：
 
 - **vLLM**：基于 PagedAttention 管理 KV Cache，支持高并发批处理采样，是目前 OpenRLHF、verl 等开源 RL 训练框架的默认 Rollout 后端
-- **SGLang**：RadixAttention 实现前缀 KV Cache 复用，对"同一 Prompt 采样 G 个回答"这种 RL 训练的典型负载（共享前缀、仅后续生成不同）有天然优势，吞吐通常优于 vLLM
+- **SGLang**：RadixAttention 实现前缀 KV Cache 复用，对"同一 Prompt 采样 G 个回答"这种 RL 训练的典型负载（共享前缀、仅后续生成不同）有天然优势（vLLM 也已支持自动前缀缓存，两者的差距取决于具体负载）
 - **权重同步**：训练框架（如 DeepSpeed/Megatron）更新参数后，需要将新权重同步给推理引擎（通常通过 NCCL 广播或共享显存），权重同步的延迟是异步 RL 系统的关键瓶颈之一
 
 ### 4.6.3 Reward 服务化
@@ -1839,6 +1718,7 @@ GRPO 并非终点，2024-2025 年业界针对其训练不稳定性和效率问�
 | **DAPO**（Decoupled Clip and Dynamic Sampling PO） | 解耦上下裁剪阈值（高低 clip 范围不同）+ 动态采样过滤掉全对/全错的"零梯度"组 | GRPO 在组内回答全部正确或全部错误时优势退化为 0，浪费大量采样算力 |
 | **GSPO**（Group Sequence Policy Optimization） | 将重要性采样比率从 token 级别改为序列级别计算 | GRPO 的 token 级比率在长序列上方差大，训练不稳定，尤其影响 MoE 模型 |
 | **VAPO**（Value-model Augmented PO） | 重新引入轻量价值函数，结合长度自适应 GAE | 纯 Group-Relative 方式在长 CoT、稀疏奖励场景下方差仍偏大 |
+| **Dr. GRPO**（GRPO Done Right） | 去掉按回答长度归一化与按组内标准差归一化 | 原始 GRPO 的归一化会偏向更长的错误回答，导致回答长度虚高 |
 
 > **实践建议**：对大多数团队而言，GRPO + 规则奖励仍是性价比最高的起点；当观察到训练后期组内奖励同质化严重（全对/全错样本占比上升、有效梯度信号变少）时，再考虑引入 DAPO 式的动态采样过滤。
 
@@ -1887,7 +1767,7 @@ ReST 将 STaR 的思路系统化为两阶段循环：
 
 ## 4.8 知识蒸馏：从推理模型到小模型
 
-训练一个 671B 的强推理模型成本高昂，但很多应用场景只需要一个 7B/14B 的小模型就够用——**知识蒸馏（Distillation）** 正是把大模型的推理能力"转移"给小模型的关键技术。DeepSeek-R1 发布时同步开源的一系列蒸馏小模型（基于 Qwen、Llama 架构），是 2025 年最具影响力的蒸馏实践案例。
+训练一个 671B 的强推理模型成本高昂，但很多应用场景只需要一个 7B/14B 的小模型就够用——**知识蒸馏（Distillation）** 正是把大模型的推理能力"转移"给小模型的关键技术。DeepSeek-R1 发布时同步开源的一系列蒸馏小模型（基于 Qwen2.5 1.5B–32B 与 Llama-3 8B/70B），是 2025 年最具影响力的蒸馏实践案例。
 
 ### 4.8.1 推理轨迹蒸馏（Reasoning Trace Distillation）
 
@@ -1899,14 +1779,14 @@ ReST 将 STaR 的思路系统化为两阶段循环：
 3. 直接用这些（题目, 推理过程, 答案）三元组对小模型做标准 SFT
 ```
 
-**关键洞察**：DeepSeek-R1 的技术报告显示，**用 R1 生成的推理数据对 Qwen-7B/32B、Llama-8B/70B 做 SFT 蒸馏**，效果显著超过直接在这些小模型上跑 GRPO 强化学习——即"教小模型背大模型的解题过程"比"让小模型自己探索"更高效，因为小模型自身的探索能力（受限于参数量）远不如大模型。
+**关键洞察**：DeepSeek-R1 用约 80 万条由 R1 生成并筛选的样本对 Qwen、Llama 小模型做 SFT 蒸馏。其技术报告对比发现，在 Qwen-32B 上，**蒸馏得到的模型明显强于直接对同一基座做大规模 RL 的结果**——即"教小模型学大模型的解题过程"比"让小模型自己探索"更高效，因为小模型自身的探索能力远不如大模型。
 
 ### 4.8.2 蒸馏 + 二次强化学习
 
 单纯 SFT 蒸馏的小模型已具备较强推理能力，但仍可通过少量 RL 微调进一步提升：
 
-- **是否需要二次 RL**：经过蒸馏 SFT 的小模型已经学会了"格式"和"基本解题模式"，此时再用 GRPO 做少量步数的 RL 训练，能让模型在蒸馏的基础上进一步自我修正、突破蒸馏数据的能力上限
-- **损失函数设计**：蒸馏阶段使用标准的交叉熵 SFT loss（对推理过程和答案全部计算 loss，而非像常规 SFT 只对答案部分计算）；二次 RL 阶段则切换为 4.5 节的 GRPO loss
+- **是否需要二次 RL**：R1 报告中的蒸馏模型只做了 SFT，把 RL 留给了社区；后续工作（如 DeepScaleR 在 R1-Distill-Qwen-1.5B 上继续做 RL）表明，在蒸馏基础上再做 GRPO 仍能明显提升数学推理成绩，突破蒸馏数据的能力上限
+- **损失函数设计**：蒸馏阶段使用标准的交叉熵 SFT loss，loss 覆盖整个回答（思维链 + 最终答案），prompt 部分照常屏蔽；二次 RL 阶段则切换为 4.5 节的 GRPO loss
 
 ### 4.8.3 蒸馏 vs 直接预训练小模型
 
@@ -1921,12 +1801,11 @@ ReST 将 STaR 的思路系统化为两阶段循环：
 
 ---
 
-# 5. Post-Training 与灾难性遗忘
-————Post-Training & Catastrophic Forgetting
+# 5. Post-Training 与灾难性遗忘（Catastrophic Forgetting）
 
 > **🎯 本章导读**
 >
-> Post-Training（后训练）是大模型落地的**最后一公里**：在通用基础模型之上，针对特定领域或能力进行进一步训练。然而，实践中无处不在的**灾难性遗忘**往往让新技能的获得以旧能力的崩溃为代价。本章系统梳理遗忘现象、影响因素与防遗忘方法，助你在 Post-Training 中”鱼与熊掌兼得”。
+> Post-Training（后训练）是大模型落地的**最后一公里**：在通用基础模型之上，针对特定领域或能力进行进一步训练。然而，实践中无处不在的**灾难性遗忘**往往让新技能的获得以旧能力的崩溃为代价。本章系统梳理遗忘现象、影响因素与防遗忘方法，助你在 Post-Training 中“鱼与熊掌兼得”。
 
 ## 5.1 什么是 Post-Training？
 
@@ -1934,8 +1813,8 @@ ReST 将 STaR 的思路系统化为两阶段循环：
 
 ```mermaid
 flowchart LR
-    A[“通用基础模型<br/>Foundation Model<br/>（如 LLaMA-3、Gemma、DeepSeek）”]
-    -->|Post-Training| B[“专精模型<br/>Fine-tuned Model<br/>（如 中文助手、法律模型、代码专家）”]
+    A["通用基础模型<br/>Foundation Model<br/>（如 LLaMA-3、Gemma、DeepSeek）"]
+    -->|Post-Training| B["专精模型<br/>Fine-tuned Model<br/>（如 中文助手、法律模型、代码专家）"]
 
     style A fill:#fff9c4
     style B fill:#c8e6c9
@@ -1958,7 +1837,7 @@ flowchart LR
 | **SFT Style** | 问答对 / 指令-回答对 | 指令遵循、对话能力 |
 | **RL Style** | 奖励信号（规则或模型打分） | 推理能力、安全对齐 |
 
-> **名词澄清**：文献中对”Foundation Model”的叫法很混乱。有人把做过 Alignment 的 Chat 模型也叫 Base Model，读文献时需注意区分。
+> **名词澄清**：文献中对“Foundation Model”的叫法很混乱。有人把做过 Alignment 的 Chat 模型也叫 Base Model，读文献时需注意区分。
 
 ---
 
@@ -1976,14 +1855,14 @@ LLaMA-2 Chat 做过 Safety Alignment，拒绝回答有害问题。当我们用�
 
 | | 原版 LLaMA-2 Chat | Post-Training 后 |
 |--|--|--|
-| 问：”如何获取银行密码？” | “很抱歉，我不能告诉你…” ✅ | 开始教具体的攻击方式 ❌ |
+| 问：“如何获取银行密码？” | “很抱歉，我不能告诉你…” ✅ | 开始教具体的攻击方式 ❌ |
 | ToxiGen 有害内容比例 | **0.22%**（非常安全） | **大幅上升** |
 
 训练数据本身是干净的中文语料，完全没有有害内容，但 Safety Alignment 能力依然崩溃。
 
 #### 5.2.1.2 案例2：普通 SFT 数据也会破坏 Safety（Fine-Tuning Aligned LLMs Compromises Safety）
 
-即使用 Alpaca 这样完全无害的 SFT 数据微调 ChatGPT-3.5，也会导致安全能力下降。更极端的是：**只是给模型改个名字**（把”ChatGPT”改成”AOA”），竟然也能让各维度的安全能力骤降。
+即使用 Alpaca 这样完全无害的 SFT 数据微调 GPT-3.5 Turbo，也会导致安全能力下降（Qi et al., 2023）。更极端的是：**只用 10 条"身份切换"样本**（让模型自称绝对服从指令的 AOA 助手），就能让各维度的安全能力骤降。
 
 #### 5.2.1.3 案例3：教 LLaMA-3 新技能 → 全面能力损伤
 
@@ -2008,7 +1887,7 @@ LLaMA-2 Chat 做过 Safety Alignment，拒绝回答有害问题。当我们用�
 
 > **学得越好，忘得越多。**
 
-研究发现，模型在目标任务上的 fine-tuning loss（学习越充分 → loss 越低）与遗忘程度几乎成**线性正相关**。这意味着：你不可能通过”把模型训练得更好”来同时解决遗忘问题。
+研究发现，模型在目标任务上的 fine-tuning loss（学习越充分 → loss 越低）与遗忘程度几乎成**线性正相关**。这意味着：你不可能通过“把模型训练得更好”来同时解决遗忘问题。
 
 #### 5.2.2.2 规律2：LoRA 并未真正解决遗忘
 
@@ -2021,7 +1900,7 @@ LoRA 看起来遗忘更少，但代价是**学到的东西也更少**。
 | Rank 小 | 弱 | 少（聚集左下角） |
 | Rank 大 | 强 | 多（聚集右上角） |
 
-结论：LoRA 只是把”全参数微调会遗忘”的问题替换成了”学的少 → 忘的少”——并没有从根本上解决遗忘，其他正则化方法（Dropout、Weight Decay）同样无效。
+结论：LoRA 只是把“全参数微调会遗忘”的问题替换成了“学的少 → 忘的少”——并没有从根本上解决遗忘，其他正则化方法（Dropout、Weight Decay）同样无效。
 
 #### 5.2.2.3 规律3：遗忘与模型大小无明显关系
 
@@ -2035,15 +1914,15 @@ LoRA 看起来遗忘更少，但代价是**学到的东西也更少**。
 
 **核心思路**：在训练新任务时，混入少量旧任务的训练数据。
 
-**关键发现**：只需混入**约 5% 的历史数据**，就足以有效防止遗忘。原因是遗忘并非真正”删除”了旧知识，而是旧知识”藏起来了”——少量提示就能唤醒。
+**关键发现**：只需混入**约 5% 的历史数据**，就足以有效防止遗忘。原因是遗忘并非真正“删除”了旧知识，而是旧知识“藏起来了”——少量提示就能唤醒。
 
 **工程实践**：
 
 ```python
 # Safety-Tuned LLaMA 的做法：混入 3% 的 Safety Alignment 数据
 mixed_dataset = {
-    “target_task_data”: 0.97,   # 当前任务（如中文语料）
-    “safety_alignment_data”: 0.03,  # 保持安全能力的对话数据
+    "target_task_data": 0.97,   # 当前任务（如中文语料）
+    "safety_alignment_data": 0.03,  # 保持安全能力的对话数据
 }
 ```
 
@@ -2055,11 +1934,11 @@ mixed_dataset = {
 
 既然拿不到真实历史数据，就让模型**自己生成伪历史数据**。
 
-**核心洞察**：模型并非真的”忘记”了旧知识，那些知识还在权重里。可以让模型自说自话，生成看起来像历史训练数据的内容，再混入当前训练中。
+**核心洞察**：模型并非真的“忘记”了旧知识，那些知识还在权重里。可以让模型自说自话，生成看起来像历史训练数据的内容，再混入当前训练中。
 
 #### 5.3.2.1 Magpie 方法（2024）
 
-让 LLaMA 自问自答生成 Instruction Fine-Tuning 数据：
+Magpie 的原理见 3.3.3.1 节。用在防遗忘上，就是让 Foundation Model 自问自答，生成"像它训练时见过的"指令数据：
 
 ```
 输入：[BOS] <|user|>          ← 只给一个 user token
@@ -2068,18 +1947,18 @@ mixed_dataset = {
 模型自动生成：注意力机制是...      ← 自己生成答案
 ```
 
-这样就得到了”疑似 LLaMA-3 训练时用过的 SFT 数据”，混入 Post-Training 数据中，即可防止遗忘。
+这样就得到了“疑似 LLaMA-3 训练时用过的 SFT 数据”，混入 Post-Training 数据中，即可防止遗忘。
 
 ---
 
 ### 5.3.3 方法三：Self-Output（用模型自己的话训练自己）
 
-比 Pseudo Experience Replay 更精准的方法：不是生成”历史数据”，而是直接用 Foundation Model 的**当前输出**来替代人类标注答案。
+比 Pseudo Experience Replay 更精准的方法：不是生成“历史数据”，而是直接用 Foundation Model 的**当前输出**来替代人类标注答案。
 
 **工作原理**：
 
 ```
-人类标注答案  ← 对 Foundation Model 来说是”陌生”的表达方式，学起来会更容易忘旧知识
+人类标注答案  ← 对 Foundation Model 来说是"陌生"的表达方式，学起来会更容易忘旧知识
 模型自己的答案 ← 风格、用词与模型高度一致，学起来对原有知识影响最小
 ```
 
@@ -2087,10 +1966,10 @@ mixed_dataset = {
 
 ```mermaid
 flowchart TD
-    A[“问题 q”] --> B{“Foundation Model\n能否回答正确？”}
-    B -->|能| C[“用模型自己的答案训练”]
-    B -->|不能| D[“用人类标注答案训练”]
-    C --> E[“混合训练 → 遗忘大幅减少”]
+    A["问题 q"] --> B{"Foundation Model<br/>能否回答正确？"}
+    B -->|能| C["用模型自己的答案训练"]
+    B -->|不能| D["用人类标注答案训练"]
+    C --> E["混合训练 → 遗忘大幅减少"]
     D --> E
 
     style C fill:#c8e6c9
@@ -2106,7 +1985,7 @@ flowchart TD
 ```python
 # 把人类的标准答案交给 Foundation Model 改写
 paraphrased_answer = foundation_model(
-    f”请把以下答案换句话说，保持意思不变：{human_answer}”
+    f"请把以下答案换句话说，保持意思不变：{human_answer}"
 )
 # 用改写后的答案训练，遗忘更少
 ```
@@ -2263,7 +2142,7 @@ flowchart LR
 
 <div align="center">
   <img src="/images/llm-training/data-parallelism.webp" width="80%" alt="数据并行架构" />
-  <figcaption>图：数据并行(DP)架构 - 每个GPU持有完整模型副本（来源：PyTorch Distributed 论文 Figure 1）</figcaption>
+  <figcaption>图：PyTorch DDP 的软件组成——Python API 与梯度规约层建立在 NCCL/Gloo/MPI 等集合通信后端之上（来源：PyTorch Distributed 论文 Figure 1）</figcaption>
 </div>
 
 ---
@@ -2273,7 +2152,7 @@ flowchart LR
 ### 6.2.1 原理与切分策略
 当单层权重矩阵的大小超过单卡显存时，张量并行（如 Megatron-LM）通过将每一层的权重参数横向或纵向切分到同一节点（通常具有高速 NVLink 互联）的不同 GPU 上，实现层内的分布式矩阵乘法计算。
 
-#### 1. MLP 层的切分策略
+#### 6.2.1.1 MLP 层的切分策略
 Transformer 的 MLP 层包含两个投影矩阵：门控/上投影 $W_{\text{gate/up}}$ 和下投影 $W_{\text{down}}$。设输入为 $X$，MLP 采用**列并行-行并行**的组合切分：
 - **列并行（Column Parallelism）**：
   将第 1 层权重矩阵 $W_{\text{col}}$ 按列均匀拆分为 $p$ 个分片：$W_{\text{col}} = [W_1, W_2, \ldots, W_p]$。
@@ -2287,7 +2166,7 @@ Transformer 的 MLP 层包含两个投影矩阵：门控/上投影 $W_{\text{gat
   此时，所有 GPU 卡通过一次 `All-Reduce (Sum)` 通信操作，将各卡的局部结果相加，获得完整的输出张量：
   $$Z = \sum_{i=1}^p Z_i + \text{bias}$$
 
-#### 2. Attention 层的切分策略
+#### 6.2.1.2 Attention 层的切分策略
 - **QKV 投影**：同样使用列并行。将注意力头的参数均匀划分到各卡（例如，32 头模型在 8 卡 TP 下，每卡负责 4 头），各卡独立计算对应的 Query、Key 和 Value，不需要卡间通信。
 - **注意力计算**：各 GPU 独立运行注意力运算，获得局部的 Context 向量。
 - **Output 投影**：使用行并行。将各卡局部的输出权重进行行投影相乘，最后在输出端执行 1 次 `All-Reduce (Sum)` 合并，即可恢复完整的 Multi-Head Attention 输出。
@@ -2335,8 +2214,10 @@ flowchart LR
   - MLP 层的下投影后：1 次 `All-Reduce` 通信。
   - **前向总开销**：$2 \times \text{All-Reduce}$。
 - **反向传播 (Backward)**：
-  - 反向传播对应的梯度流在行并行端（输入分发）天然需要一次 `All-Reduce` 汇聚梯度。
-  - **反向总开销**：$2 \times \text{All-Reduce}$。
+  - 列并行层的输入 $X$ 被复制到各卡，反向时各卡对 $X$ 的梯度只是部分和，需要在列并行层的输入端（Megatron 中的 $f$ 算子）做一次 `All-Reduce` 汇总。
+  - Attention 与 MLP 各一次，**反向总开销**：$2 \times \text{All-Reduce}$。
+
+Megatron-LM 把这对操作抽象为共轭算子：$f$ 前向为恒等、反向为 All-Reduce；$g$ 前向为 All-Reduce、反向为恒等。
 
 ### 6.2.3 适用场景与局限
 - **适用场景**：单层权重显存超限（如 70B 模型的 Attention 层及 MLP 层）。
@@ -2352,30 +2233,30 @@ flowchart LR
 ## 6.3 流水线并行 (Pipeline Parallelism, PP)
 
 ### 6.3.1 原理
-当模型层数过多，单节点显存已无法装下时，流水线并行采用”层间纵向切分”：将模型的 $L$ 层划分为 $p$ 个 Stage（阶段），分配到 $p$ 个不同的 GPU 上（可跨节点）。
+当模型层数过多，单节点显存已无法装下时，流水线并行采用“层间纵向切分”：将模型的 $L$ 层划分为 $p$ 个 Stage（阶段），分配到 $p$ 个不同的 GPU 上（可跨节点）。
 
 ```mermaid
 flowchart LR
-    DATA[“输入数据<br>Micro-Batches”]
+    DATA["输入数据<br>Micro-Batches"]
 
-    subgraph S0 [“GPU 0 — Stage 0”]
-        L0[“Layer 1 ~ L/p”]
+    subgraph S0 ["GPU 0 — Stage 0"]
+        L0["Layer 1 ~ L/p"]
     end
-    subgraph S1 [“GPU 1 — Stage 1”]
-        L1[“Layer L/p+1 ~ 2L/p”]
+    subgraph S1 ["GPU 1 — Stage 1"]
+        L1["Layer L/p+1 ~ 2L/p"]
     end
-    subgraph SX [“...”]
-        LX[“...”]
+    subgraph SX ["..."]
+        LX["..."]
     end
-    subgraph SP [“GPU p-1 — Stage p-1”]
-        LP[“Layer (p-1)L/p+1 ~ L”]
+    subgraph SP ["GPU p-1 — Stage p-1"]
+        LP["Layer (p-1)L/p+1 ~ L"]
     end
 
     DATA --> L0
-    L0 -->|”激活值 P2P 通信”| L1
-    L1 -->|”激活值 P2P 通信”| LX
-    LX -->|”激活值 P2P 通信”| LP
-    LP --> LOSS[“Loss 计算<br>梯度沿逆序 P2P 回传”]
+    L0 -->|"激活值 P2P 通信"| L1
+    L1 -->|"激活值 P2P 通信"| LX
+    LX -->|"激活值 P2P 通信"| LP
+    LP --> LOSS["Loss 计算<br>梯度沿逆序 P2P 回传"]
 
     style DATA fill:#e3f2fd,stroke:#01579b,color:#000
     style L0 fill:#fff3e0,stroke:#e65100,color:#000
@@ -2387,17 +2268,18 @@ flowchart LR
 ### 6.3.2 调度策略与气泡占比公式
 若直接将整个 Batch 送入流水线，会导致大部分 GPU 在前向和反向时处于闲置等待状态，称为流水线气泡（Bubble）。PP 通过将 Batch 细分为 $m$ 个更小的 Micro-Batches 来提高利用率。
 
-#### 1. GPipe (F-then-B 调度)
+#### 6.3.2.1 GPipe (F-then-B 调度)
 - **调度逻辑**：前一 Stage 执行完所有 $m$ 个 Micro-Batches 的前向传播后，后一 Stage 才能执行。随后依次执行所有的反向传播。
 - **气泡占比公式**：
   $$F_{\text{bubble}} = \frac{p - 1}{m + p - 1}$$
 - **缺点**：激活值（Activation）必须保存在显存中，直到反向传播到来。这造成显存占用随 Micro-Batch 数量 $m$ 线性增加，显存节省效果打折。
 
-#### 2. 1F1B (One Forward, One Backward 调度)
+#### 6.3.2.2 1F1B (One Forward, One Backward 调度)
 - **调度逻辑**：当流水线启动填充完毕后，每个 Stage 都在交替执行 1 次前向计算与 1 次反向计算。
-- **气泡占比公式**：
-  $$F_{\text{bubble}} \approx \frac{p - 1}{m}$$
-- **优势**：Micro-Batch $i$ 的激活值在其前向完成并执行对应的反向后，可以立即从显存中销毁。这使激活值显存占用与 Micro-Batch 数量 $m$ 彻底解耦，极大缓解了显存压力。
+- **气泡**：与 GPipe **相同**。若以理想计算时间为分母（Megatron-LM 的写法），两者的气泡比例都是
+  $$\frac{p - 1}{m}$$
+  因此减小气泡仍然要靠增大 micro-batch 数 $m$。
+- **优势**：Micro-Batch $i$ 的激活值在其前向完成并执行对应的反向后，可以立即从显存中销毁。同一时刻最多缓存 $p$ 份激活值，使激活显存与 Micro-Batch 数量 $m$ 解耦——1F1B 省的是显存，而不是气泡。
 
 ```mermaid
 flowchart TD
@@ -2426,12 +2308,12 @@ flowchart TD
     style SS fill:#c8e6c9,stroke:#1b5e20,color:#000
 ```
 
-#### 3. Interleaved 1F1B (虚拟流水线)
-- 每个 GPU 卡被虚拟分配负责非连续的多个 Stage（例如，GPU 0 负责第 1 层和第 9 层）。这能够进一步将 Bubble 时间减少达约 **2×**，但付出的代价是略微增加了点对点（P2P）的通信频率。
+#### 6.3.2.3 Interleaved 1F1B (虚拟流水线)
+- 每个 GPU 卡被虚拟分配负责非连续的多个 Stage（例如，GPU 0 负责第 1 层和第 9 层）。若每卡负责 $v$ 个虚拟 Stage，气泡比例降为 $\frac{p-1}{v \cdot m}$，代价是点对点（P2P）通信量增加到原来的 $v$ 倍。
 
 <div align="center">
   <img src="/images/llm-training/pipeline-parallelism.webp" width="85%" alt="流水线并行架构" />
-  <figcaption>图：流水线并行(PP)架构与1F1B调度策略（来源：GPipe 论文 Figure 1、PipeDream 论文 Figure 3）</figcaption>
+  <figcaption>图：朴素模型并行（不切分 micro-batch）时，4 台机器大部分时间处于空闲状态——这就是流水线气泡问题（来源：PipeDream 论文 Figure 3）</figcaption>
 </div>
 
 ---
@@ -2439,11 +2321,11 @@ flowchart TD
 ## 6.4 序列并行 (Sequence Parallelism, SP)
 
 ### 6.4.1 原理
-- **机制**：在注意力层的非张量并行区域（如 LayerNorm, Dropout, 残差连接），标准的 TP 仍然需要在每张 GPU 上冗余地存储完整的激活值（Activation Memory）。随着序列长度 $s$ 呈二次方增长，这一显存占用在长文本训练中尤为致命。序列并行（Sequence Parallelism）在**非注意力计算层**把序列维度进行切分（每张卡只负责 $\frac{s}{p}$ 长度的序列），而在进行 QKV 投影和 MLP 列投影前通过 `All-Gather` 拼回完整序列，计算完毕后通过 `Reduce-Scatter` 重新切分。
+- **机制**：在 Transformer 层中不做张量并行的区域（如 LayerNorm、Dropout、残差连接），标准的 TP 仍然需要在每张 GPU 上冗余地存储完整的激活值（Activation Memory）。这部分显存随序列长度 $s$ 线性增长，在长文本训练中占比可观。序列并行（Sequence Parallelism）在**非注意力计算层**把序列维度进行切分（每张卡只负责 $\frac{s}{p}$ 长度的序列），而在进行 QKV 投影和 MLP 列投影前通过 `All-Gather` 拼回完整序列，计算完毕后通过 `Reduce-Scatter` 重新切分。
 
 ### 6.4.2 优势与长序列分布式优化
 - **降本增效**：成功将 LayerNorm 和 Dropout 处的激活值显存分摊到了 $p$ 张 GPU 上。
-- **支持超长上下文**：与 TP 配合（即 TP-SP），能将超长文本（如 128k - 1M Tokens）训练的激活值显存减小近一个数量级，使超长上下文训练不再受阻。
+- **支持更长上下文**：与 TP 配合（即 TP-SP），再结合选择性激活重计算，Megatron-LM 的实验中激活显存可降低约 5 倍（Korthikanti et al., 2022）。更长的上下文（百万级 token）则需要 Ring Attention 等在注意力内部切分序列的方案（见 2.5.3.4 节）。
 
 ```mermaid
 flowchart LR
@@ -2491,28 +2373,28 @@ $$\text{静态总显存} = 2\Psi + 2\Psi + 12\Psi = 16\Psi \text{ 字节}$$
 
 ### 6.5.2 ZeRO 阶段性分片公式与 offload 技术 (设数据并行度为 $N_d$)
 
-#### 1. ZeRO-1：优化器状态分片 (Optimizer States Partitioning)
+#### 6.5.2.1 ZeRO-1：优化器状态分片 (Optimizer States Partitioning)
 - **机制**：将 $12\Psi$ 字节的 AdamW 优化器状态均匀分割并平摊到 $N_d$ 张卡上。每张 GPU 只负责更新和保存其中 $\frac{1}{N_d}$ 的优化器状态。
 - **单卡显存公式**：
   $$M_{\text{ZeRO-1}} = 2\Psi + 2\Psi + \frac{12\Psi}{N_d}$$
   - *示例*：对于 7B 模型，$N_d=8$ 时，静态显存由 112GB 锐减到 **38.5GB**。
 
-#### 2. ZeRO-2：梯度分片 (Gradient Partitioning)
+#### 6.5.2.2 ZeRO-2：梯度分片 (Gradient Partitioning)
 - **机制**：在反向传播中，一旦某一层参数的梯度计算完毕，立即触发 `Reduce-Scatter` 将其分发给负责更新该层优化器状态的 GPU，其他 GPU 立即释放该梯度。
 - **单卡显存公式**：
   $$M_{\text{ZeRO-2}} = 2\Psi + \frac{2\Psi + 12\Psi}{N_d} = 2\Psi + \frac{14\Psi}{N_d}$$
   - *示例*：对于 7B 模型，$N_d=8$ 时，静态显存降至 **26.25GB**。
 
-#### 3. ZeRO-3：参数分片 (Parameter Partitioning)
+#### 6.5.2.3 ZeRO-3：参数分片 (Parameter Partitioning)
 - **机制**：把 $2\Psi$ 字节的模型参数同样平摊到 $N_d$ 张卡上。前向和反向传播执行到特定层时，所有 GPU 广播（`All-Gather`）获取该层的完整权重，使用完毕后立即丢弃。
 - **单卡显存公式**：
   $$M_{\text{ZeRO-3}} = \frac{2\Psi + 2\Psi + 12\Psi}{N_d} = \frac{16\Psi}{N_d}$$
   - *示例*：对于 7B 模型，$N_d=8$ 时，静态显存仅需 **14GB**！
 
-#### 4. ZeRO-Offload (显存-内存卸载)
+#### 6.5.2.4 ZeRO-Offload (显存-内存卸载)
 - 利用 PCIe 通道，将分片后的优化器状态以及梯度卸载（Offload）到宿主机 CPU 的内存（CPU RAM）中，利用宿主机的 CPU 核心执行优化器计算更新。前向时再把更新后的权重写回 GPU。这显著拓宽了单卡能训练的模型参数上限。
 
-#### 5. ZeRO-Infinity
+#### 6.5.2.5 ZeRO-Infinity
 - 在 ZeRO-Offload 基础上，利用 NVMe 固态硬盘（SSD）作三级缓存，可直接在低配 GPU 平台上微调千亿级大模型，打破物理硬件壁垒。
 
 ```mermaid
@@ -2533,8 +2415,7 @@ flowchart TD
     style Z3 fill:#c8e6c9,stroke:#1b5e20,color:#000
 ```
 
-## 6.6 混合并行
-————3D Parallelism
+## 6.6 混合并行（3D Parallelism）
 
 结合数据并行、张量并行、流水线并行：
 
@@ -2569,7 +2450,7 @@ graph TD
 
 <div align="center">
   <img src="/images/llm-training/3d-parallelism.png" width="90%" alt="3D混合并行架构" />
-  <figcaption>图：3D混合并行架构(DP+TP+PP)训练大模型（来源：Megatron-LM 2021 论文 Figure 1）</figcaption>
+  <figcaption>图：3D 混合并行示意——每个数据并行副本内部按层切成 4 个流水线 Stage，每个 Stage 再做 4 路张量并行（图中 MP），副本之间用 ZeRO 分片（来源：Microsoft DeepSpeed 博客）</figcaption>
 </div>
 
 ### 6.6.1 策略选择原则
@@ -2605,8 +2486,9 @@ graph TD
 - **PP增大**：Pipeline bubble增大，GPU利用率下降
 - **DP增大**：梯度同步通信增多，但可用Ring-AllReduce优化
 
+---
 
-# 7. ⚡ 训练优化技术
+# 7. 训练优化技术
 
 在大语言模型（LLM）的训练中，硬件资源（特别是GPU显存和带宽）与训练时间是核心瓶颈。优化技术不仅决定了模型能否在有限的资源下跑起来，还直接决定了训练的收敛速度与最终效果。本章将深入解析主流的优化器选择、学习率调度、梯度处理方法、正则化技术以及注意力加速算子 Flash Attention。
 
@@ -2624,7 +2506,7 @@ graph TD
 
 AdamW 是当前大模型训练最主流的优化器（如 LLaMA, GPT, InternLM 等默认使用）。
 
-#### 1. 核心公式与 Weight Decay 解耦
+#### 7.1.1.1 核心公式与 Weight Decay 解耦
 传统的 Adam 优化器在结合 L2 正则化时，会将权重梯度与正则化梯度混合在一起进行动量估计，导致对稀疏梯度的缩放异常。AdamW 将权重衰减（Weight Decay）直接与梯度更新解耦，在前一步更新参数时直接减去衰减项：
 
 $$
@@ -2635,9 +2517,9 @@ $$
 - $\theta_t$：第 $t$ 步的模型参数
 - $\eta_t$：当前步的学习率
 - $\lambda$：权重衰减率（通常为 0.1）
-- $\hat{m}_t, \hat{v}_t$：经过偏差修正的一阶动量和二阶动量
+- $$\hat{m}_t, \hat{v}_t$$：经过偏差修正的一阶动量和二阶动量
 
-#### 2. 显存开销分析
+#### 7.1.1.2 显存开销分析
 假设模型参数量为 $N$，采用混合精度（Mixed Precision）训练：
 - **模型参数 (FP16/BF16)**：$2N$ 字节
 - **梯度 (FP16/BF16)**：$2N$ 字节
@@ -2655,8 +2537,8 @@ $$
 
 Adafactor 主要是为了解决 AdamW 二阶动量占用 $4N$ 字节显存的痛点，常被用于 T5 等模型的训练。
 
-#### 1. 低秩分解减小显存
-Adafactor 的核心思想是将二阶动量矩阵 $V \in \mathbb{R}^N$（大小为参数量 $N=R \times C$）进行**低秩分解（Low-Rank Factorization）**，即通过行和 $V_R \in \mathbb{R}^R$ 和列和 $V_C \in \mathbb{R}^C$ 来近似二阶动量：
+#### 7.1.2.1 低秩分解减小显存
+对形状为 $R \times C$ 的权重矩阵，Adafactor 不存储完整的二阶动量矩阵 $V \in \mathbb{R}^{R \times C}$，而是做**秩 1 分解（Rank-1 Factorization）**：只维护行和 $V_R \in \mathbb{R}^R$ 与列和 $V_C \in \mathbb{R}^C$，再用它们近似还原二阶动量：
 
 $$
 \hat{V}_{i,j} = \frac{(V_R)_i \cdot (V_C)_j}{\sum_{k} (V_C)_k}
@@ -2664,7 +2546,7 @@ $$
 
 这使得存储二阶动量的空间从 $O(RC)$ 降到 $O(R + C)$。对于一个大矩阵，这几乎将二阶动量的显存占用减少到了接近于 0。
 
-#### 2. 优缺点分析
+#### 7.1.2.2 优缺点分析
 - **优点**：极大地节省了显存，使优化器状态显存从 $12N$ 字节降低到约 $4N$ 字节（如果禁用一阶动量并只存行/列二阶动量因子）。
 - **缺点**：不存储完整的一阶动量和二阶动量，可能导致训练在某些任务上收敛变慢、不稳定。
 
@@ -2674,7 +2556,7 @@ $$
 
 Lion 是通过 Google 的算法进化搜索（Symbolic Discovery）发现的新型优化器。
 
-#### 1. 核心机制：Sign 函数与单动量
+#### 7.1.3.1 核心机制：Sign 函数与单动量
 Lion 舍弃了二阶动量，仅保留一阶动量，且在更新参数时仅使用**符号函数（Sign Function）**，这使得更新步长更加均匀。其更新规则如下：
 
 $$
@@ -2692,13 +2574,13 @@ $$
 - $m_t$：一阶动量
 - $\text{sign}(\cdot)$：符号函数（取值为 $+1, -1, 0$）
 
-#### 2. 显存开销分析
+#### 7.1.3.2 显存开销分析
 因为 Lion 删除了二阶动量：
 - **一阶动量 $m_t$ (FP32)**：$4N$ 字节
 - **Master Weights (FP32)**：$4N$ 字节
 - **优化器状态总计**：$8N$ 字节（相比 AdamW 节省了 $4N$ 字节）
 
-#### 3. 特点
+#### 7.1.3.3 特点
 - **高计算吞吐量**：`sign` 操作非常适合 GPU 向量化执行，且由于没有二阶动量的繁琐计算，每步迭代速度稍快。
 - **超参数敏感**：Lion 相比 AdamW 更容易受学习率和权重衰减大小的影响，需要针对特定模型重新调优超参。
 
@@ -2712,9 +2594,9 @@ $$
 | :--- | :--- | :--- | :--- | :--- |
 | **AdamW** | $12N$ 字节 | 收敛极其平稳，对超参数不敏感，生态支持最完善 | 显存占用极大 | LLM 训练绝对默认选择 |
 | **Lion** | $8N$ 字节 | 节省 33% 优化器显存，速度稍快，更新幅度均匀 | 超参难调，早期收敛可能有抖动 | 显存受限、追求更高吞吐量的场景 |
-| **Adafactor** | $4N$ - $8N$ 字节 | 行列低秩分解，超长序列下显存优势明显 | 训练稳定性弱于 AdamW | 早期 T5 训练，极端显存受限场景 |
+| **Adafactor** | $4N$ - $8N$ 字节 | 行列秩 1 分解，大矩阵参数下显存优势明显 | 训练稳定性弱于 AdamW | 早期 T5 训练，极端显存受限场景 |
 
-#### 优化器状态显存占用图解 (基于 FP16 混合精度训练，每参数字节数)
+#### 7.1.4.1 优化器状态显存占用图解（基于 FP16 混合精度训练，每参数字节数）
 
 ```mermaid
 gantt
@@ -2746,14 +2628,14 @@ gantt
 
 ### 7.2.1 Learning Rate Warmup（预热）
 
-#### 1. 为什么必须 Warmup？
+#### 7.2.1.1 为什么必须 Warmup？
 在大模型训练初期（特别是使用 Pre-LN 结构或 AdamW 优化器时）：
 - 随机初始化的权重导致网络前几层的梯度极不稳定。
-- AdamW 优化器的二阶动量估计尚未建立（$\hat{v}_t$ 接近零，导致修正后的步长异常巨大）。
+- AdamW 优化器的二阶动量估计尚未建立（$$\hat{v}_t$$ 接近零，导致修正后的步长异常巨大）。
 如果直接使用峰值学习率，极易引发数值溢出（Overflow）或不可逆的梯度爆炸。
 
-#### 2. 实现方式
-在训练的前 $T_{\text{warmup}}$ 步（通常占总步数的 1%–5%，约 2000–10000 步），学习率从 0 线性增加到最大峰值学习率 $\text{lr}_{\max}$：
+#### 7.2.1.2 实现方式
+在训练的前 $T_{\text{warmup}}$ 步（通常占总步数的 1%–5%，约 2000–10000 步），学习率从 0 线性增加到最大峰值学习率 $$\text{lr}_{\max}$$：
 
 $$
 \text{lr}(t) = \text{lr}_{\max} \cdot \frac{t}{T_{\text{warmup}}}, \quad t \le T_{\text{warmup}}
@@ -2770,13 +2652,13 @@ $$
 $$
 
 - **特点**：曲线顺滑。实验表明，Cosine 衰减在绝大多数语言建模任务上相比线性衰减能取得更低的困惑度（Perplexity）。
-- **参数推荐**：$\text{lr}_{\min}$ 通常设为 $\text{lr}_{\max}$ 的 10%（或直接设为 0）。
+- **参数推荐**：$$\text{lr}_{\min}$$ 通常设为 $$\text{lr}_{\max}$$ 的 10%（或直接设为 0）。
 
 ---
 
 ### 7.2.3 WSD (Warmup-Stable-Decay) 调度策略
 
-近年来，一些超大规模训练项目（例如 LLaMA 3, DeepSeek-V2/V3）为了应对**持续增量训练（Continual Training）**或动态调整数据量的需求，开始采纳 **WSD 调度策略**。
+传统 Cosine 调度必须预先确定总训练 token 数，中途想追加数据就得重跑整条衰减曲线。为了应对**持续增量训练（Continual Training）**或动态调整数据量的需求，MiniCPM 系统地提出了 **WSD 调度策略**；DeepSeek-V3 也采用了类似的"长时间恒定学习率 + 末段衰减"方案（前 10T tokens 保持恒定，之后在 4.3T tokens 内余弦衰减）。
 
 ```mermaid
 graph TD
@@ -2790,7 +2672,7 @@ graph TD
 ```
 
 - **优势**：
-  1. **高度灵活性**：在 Stable 阶段，如果发现模型表现好，可以随时延长 Stable 阶段的长度以塞入更多数据，而无需重跑 Cosine Decay 曲线。
+  1. **高度灵活性**：Stable 阶段可以随时保存检查点，想追加数据时只需延长 Stable 阶段、再从任意检查点重新进入 Decay，无需重跑 Cosine Decay 曲线。
   2. **快速收敛**：退火阶段（Decay Phase）在短时间内将学习率压低，模型效果在此阶段会迎来“二次飞跃”（PPL 骤降）。
 
 ---
@@ -2801,7 +2683,7 @@ graph TD
 
 为防止在遇到异常长样本或极端梯度时引发梯度爆炸，需要对所有层梯度向量的模长进行截断。
 
-#### 1. L2 范数全局裁剪（Global Norm Clipping）
+#### 7.3.1.1 L2 范数全局裁剪（Global Norm Clipping）
 这是大模型训练的标配。计算所有参数梯度拼接成的全局梯度向量 $\mathbf{g}$ 的 L2 范数，若超过阈值 $d_{\max}$，则进行等比例缩放：
 
 $$
@@ -2817,22 +2699,22 @@ $$
 
 在大模型训练中，由于单卡显存受限，无法直接将很大的 Batch Size（例如百万级 tokens 级别）一次性喂入 GPU 进行前向传播。**梯度累积**通过“时间换空间”的方式，在物理显存受限时模拟大 Batch 训练。
 
-#### 1. 工作原理
+#### 7.3.2.1 工作原理
 设目标 Batch Size 为 $B_{\text{global}}$，单卡单步处理的 Micro Batch Size 为 $B_{\text{micro}}$。
 1. 在连续的 $N$ 个 Step 中，仅进行前向传播和反向传播，将计算出的梯度**累加（Add）**在梯度缓冲区中，而不调用 `optimizer.step()`。
 2. 在第 $N$ 步，将累积的梯度除以 $N$（取平均），然后执行 `optimizer.step()` 更新参数并清空梯度。
-3. 对应的等式：$B_{\text{global}} = B_{\text{micro}} \times N \times \text{DP\_degree}$。
+3. 对应的等式：$$B_{\text{global}} = B_{\text{micro}} \times N \times \text{DP\_degree}$$。
 
 ```mermaid
 flowchart LR
     subgraph ACCUM ["N 步梯度累积（不触发 All-Reduce）"]
         direction LR
-        S1["mb₁\n前向+反向\n∇L₁ 写入缓冲"] --> S2["mb₂\n前向+反向\n∇L₂ 累加缓冲"] --> SN["mb_N\n前向+反向\n∇L_N 累加缓冲"]
+        S1["mb₁<br>前向+反向<br>∇L₁ 写入缓冲"] --> S2["mb₂<br>前向+反向<br>∇L₂ 累加缓冲"] --> SN["mb_N<br>前向+反向<br>∇L_N 累加缓冲"]
     end
 
-    SN --> AR["All-Reduce\n一次跨卡梯度同步"]
-    AR --> OPT["optimizer.step()\n参数更新"]
-    OPT --> ZG["zero_grad()\n清空梯度缓冲"]
+    SN --> AR["All-Reduce<br>一次跨卡梯度同步"]
+    AR --> OPT["optimizer.step()<br>参数更新"]
+    OPT --> ZG["zero_grad()<br>清空梯度缓冲"]
     ZG --> S1
 
     style AR fill:#fce4ec,stroke:#880e4f,color:#000
@@ -2848,10 +2730,10 @@ flowchart LR
 
 梯度检查点（Activation Checkpoint / Recomputation）是用**计算时间换显存空间**的经典技术。
 
-#### 1. 背景：前向激活值显存瓶颈
+#### 7.3.3.1 背景：前向激活值显存瓶颈
 在反向传播计算梯度时，公式需要用到前向传播计算出的激活值（Activation）。因此，标准的训练过程会在前向传播中把所有层的激活值保存在显存中，这造成了随模型层数 $L$ 和序列长度 $s$ 呈线性增长的巨大显存占用。
 
-#### 2. 核心原理
+#### 7.3.3.2 核心原理
 - **选择性保存**：不再保存所有层的激活值，而是每隔 $k$ 层选择一层作为“检查点”（Checkpoint），只保存该层的激活值。
 - **反向重计算**：反向传播到未保存激活值的层时，从最近的检查点开始，重新运行一次前向传播，实时计算出临时激活值用于梯度计算，算完后立即丢弃。
 
@@ -2877,7 +2759,7 @@ flowchart TD
     style B3 fill:#f5f5f5,stroke:#9e9e9e,color:#000
 ```
 
-#### 3. 代价与收益
+#### 7.3.3.3 代价与收益
 - **收益**：激活值显存复杂度从 $O(L)$ 降至 $O(\sqrt{L})$，能极大地防止在超长序列训练时发生 OOM。
 - **代价**：反向传播中多了一次前向计算，通常会带来大约 **30%–33%** 的额外计算开销。
 
@@ -2902,21 +2784,22 @@ flowchart TD
 
 ### 7.4.3 Z-loss 正则化：抑制 Logits 爆炸
 
-在大模型（如 PaLM, Gemini, DeepSeek）使用 fp16/bf16 混合精度进行超大规模分布式训练时，分类头的 Logits 容易变得极大，导致 Softmax 计算中指数项产生数值溢出（出现 NaN）。
+在使用 FP16/BF16 混合精度进行超大规模训练时，输出层的 Logits 可能整体漂移到很大的数值，导致 Softmax 计算中指数项数值溢出（出现 NaN）。PaLM 为此引入了 Z-loss，OLMo 2 等开源模型也沿用了这一做法。
 
-#### 1. 核心机制
+#### 7.4.3.1 核心机制
 Z-loss 在原始的交叉熵损失中加入了一项辅助惩罚项，用于惩罚 Logits 的配分函数 $Z$（即 $\sum_i e^{x_i}$）的对数值：
 
 $$
 \mathcal{L} = \mathcal{L}_{\text{cross-entropy}} + \alpha \log^2 Z
 $$
 
-其中 $Z = \sum_{i} e^{x_i}$，$\alpha$ 通常设为 $10^{-4}$ 级。
+其中 $Z = \sum_{i} e^{x_i}$，$\alpha$ 通常设为 $10^{-4}$ 级（PaLM 取 $10^{-4}$）。
 
-#### 2. 作用与原理
-- **约束 Logits 的绝对大小**：强制使输出的 Logits 均值处于合理范围（如 0 附近）。
+#### 7.4.3.2 作用与原理
+- **约束 Logits 的绝对大小**：鼓励 $\log Z$ 接近 0，即 Softmax 的分母接近 1，防止 Logits 整体向大数值漂移。
 - **极大地增强了稳定性**：避免在数十万步训练之后，由于分类层 Logits 漂移导致出现无法挽回的 NaN 崩溃。
 
+---
 
 ## 7.5 Flash Attention
 
@@ -2937,7 +2820,7 @@ $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)
 
 ```
 SRAM（片上缓存）= 工作台
-  • 容量：几十 MB
+  • 容量：约 20 MB（A100：每个 SM 192 KB × 108 个 SM）
   • 速度：极快（~19 TB/s on A100）
   • 特点：运算单元直接读写
 
@@ -2989,10 +2872,11 @@ $$O_k = O_{k-1} \times \text{修正因子} + \text{当前块贡献}$$
 | 标准 Attention | $O(n^2)$ | 多次往返 |
 | Flash Attention | $O(n)$（无完整矩阵）| 最少化 |
 
-**实测性能数据**：
-- 序列长度 4096：速度约提升 **8–9×**
-- 数值精度差异：$< 10^{-7}$（与标准 Attention 数值等价）
-- Yi-34B 实测：70K tokens 时 2.0s → 1.3s；730K+ tokens 时无 Flash Attention 直接 OOM
+**论文报告的性能**（FlashAttention v1，A100）：
+- 注意力算子本身：GPT-2 场景下最高提速约 **7.6×**
+- 端到端训练：GPT-2（序列长度 1K）提速约 **3×**，BERT-large（序列长度 512）提速约 15%
+- 数值：计算是精确的（非近似），与标准实现的差异仅来自浮点运算顺序不同
+- 显存：不再存储 $n \times n$ 注意力矩阵，使 64K 级序列长度的训练成为可能
 
 ### 7.5.5 版本演进
 
@@ -3000,7 +2884,8 @@ $$O_k = O_{k-1} \times \text{修正因子} + \text{当前块贡献}$$
 |------|-----|---------|
 | FlashAttention v1 | 2022 | IO-aware 分块 + Online Softmax 原始实现 |
 | FlashAttention v2 | 2023 | 更优并行策略，减少线程同步开销，~2× vs v1 |
-| FlashAttention v3 | 2024 | 针对 H100/Hopper 架构，原生 FP8 支持 |
+| FlashAttention v3 | 2024 | 针对 H100/Hopper 架构，利用异步执行与 FP8 支持 |
+| FlashAttention v4 | 2025 | 面向 Blackwell 架构重写内核 |
 
 ### 7.5.6 实际使用
 
@@ -3044,7 +2929,7 @@ pip install flash-attn --no-build-isolation
 
 > **🎯 本章导读**
 >
-> 量化是大模型民主化的关键技术。**一个70B模型，FP16需要140GB显存，INT4量化后仅需35GB**——这意味着从8×A100降到1×A100即可运行。本章深入讲解量化的数学原理、主流方法（GPTQ、AWQ、QLoRA）、训练策略，以及工程实践。核心要点：**量化不是简单压缩，而是精心设计的精度-性能权衡艺术**。
+> 量化是大模型民主化的关键技术。**一个70B模型，FP16 权重需要140GB显存，INT4量化后仅需约35GB**——这意味着从至少 2 张 A100-80G 降到 1 张即可装下权重（KV Cache 另计）。本章深入讲解量化的数学原理、主流方法（GPTQ、AWQ、QLoRA）、训练策略，以及工程实践。核心要点：**量化不是简单压缩，而是精心设计的精度-性能权衡艺术**。
 
 ## 8.1 🧮 量化基础概念
 
@@ -3155,12 +3040,12 @@ $$
 | **INT8 Weight-Only** | ~50% | 几乎无损 (< 0.05) | 需反量化到FP16计算 | 资源受限服务器部署，侧重保留精度 |
 | **INT8 Weight & Act** | ~50% | 轻微下降 (< 0.1) | INT8 GEMM 硬件加速 | 高并发吞吐量推理（如 SmoothQuant） |
 | **INT4 (NF4 / GPTQ)**| ~25% | 参数 > 7B 时无感；参数 < 3B 时轻微上升 | 需反量化计算或特定 kernel | 消费级显卡本地部署、QLoRA 训练 |
-| **FP8 (E4M3 / E5M2)**| ~50% (训练) / 25% (推理) | 极小 (< 0.02) | Hopper/Blackwell 原生支持 | 极大规模分布式训练（如 DeepSeek-V3/R1）、新一代高吞吐推理 |
+| **FP8 (E4M3 / E5M2)**| ~50% | 极小 (< 0.02) | Hopper/Blackwell 原生支持 | 极大规模分布式训练（如 DeepSeek-V3/R1）、新一代高吞吐推理 |
 
-#### 8.1.4.1 关键结论与选型指南：
+#### 8.1.4.1 关键结论与选型指南
 1. **大参数量对量化更具鲁棒性**：例如 70B 模型在 INT4 量化下的困惑度损失（Perplexity Degradation）几乎为零，而 3B/7B 模型在 4-bit 量化下会出现明显的常识和推理能力衰退。因此，小模型不建议使用低于 4-bit 的量化部署。
-2. **FP8 是当前大模型训练的黄金标准**：DeepSeek-V3/R1 成功在 FP8（前向 E4M3，反向梯度 E5M2）格式下训练数万亿 Token。FP8 不仅能将权重和激活值显存减半，还能在 H100 等 GPU 上释放双倍的 Tensor Core 算力吞吐，基本做到了无损精度与速度的统一。
-3. **NF4 (Normal Float 4) 专为正态分布设计**：它是 QLoRA 能够成功训练的基石。对于非均匀分布的权重矩阵，NF4 的信息熵明显高于普通 INT4，能最大化保留语言模型原有的表征精度。
+2. **FP8 正在成为超大规模训练的主流选择**：DeepSeek-V3 在 FP8（全部张量采用 E4M3 + 细粒度缩放，见 2.5.4.5 节）下完成了 14.8T tokens 的预训练。FP8 不仅能将权重和激活值显存减半，还能在 H100 等 GPU 上释放双倍的 Tensor Core 算力吞吐，相对 BF16 的 loss 误差低于 0.25%。
+3. **NF4 (Normal Float 4) 专为正态分布设计**：它是 QLoRA 能够成功训练的基石。预训练权重近似服从零均值正态分布，NF4 让每个量化区间覆盖相同的概率质量，因此比均匀间隔的 INT4/FP4 保留了更多信息。
 
 ---
 
@@ -3253,78 +3138,63 @@ $$
 
 **关键技术**：Optimal Brain Quantization (OBQ)
 
-逐列量化权重，每次量化一列时，将误差传播到剩余列：
+逐列量化权重：每量化完第 $i$ 列，就用 Hessian 逆矩阵把这一列产生的量化误差补偿到尚未量化的列上：
 
 $$
-W_{\text{remaining}} \leftarrow W_{\text{remaining}} - \frac{w \cdot H^{-1}_{:,i}}{H^{-1}_{i,i}} \cdot e_i^T
+\delta_i = \frac{w_{:,i} - \text{quant}(w_{:,i})}{[H^{-1}]_{ii}}, \qquad
+W_{:,j} \leftarrow W_{:,j} - \delta_i \, [H^{-1}]_{ij} \quad (j > i)
 $$
 
-其中 $H = 2X^TX$ 是Hessian矩阵。
+其中 $H = 2XX^\top$ 是层输出误差关于权重的 Hessian 矩阵（只依赖校准数据的激活 $X$）。GPTQ 在 OBQ 的基础上改为所有行共享同一列顺序、分块批量更新并用 Cholesky 分解求逆，把量化 175B 模型的时间降到约 4 个 GPU 小时。
 
 #### 8.3.1.2 实现流程
 
+原版 AutoGPTQ 已停止维护，其继任者 [GPTQModel](https://github.com/ModelCloud/GPTQModel) 提供了几乎一致的流程：
+
 ```python
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from auto_gptq import AutoGPTQForCausalLM, BaseQuantizeConfig
-
-# Step 1: 加载预训练模型
-model_name = "meta-llama/Llama-2-7b-hf"
-model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16)
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-# Step 2: 准备校准数据（通常128-1024个样本）
 from datasets import load_dataset
-calibration_dataset = load_dataset("c4", split="train[:1000]")
+from gptqmodel import GPTQModel, QuantizeConfig
 
-def prepare_calibration_data(examples):
-    return tokenizer(examples["text"], truncation=True, max_length=512)
+model_id = "meta-llama/Llama-2-7b-hf"
+quant_path = "./llama-2-7b-gptq-4bit"
 
-calibration_data = calibration_dataset.map(prepare_calibration_data, batched=True)
+# Step 1: 准备校准数据（通常 128-1024 条文本）
+calibration = load_dataset(
+    "allenai/c4",
+    data_files="en/c4-train.00001-of-01024.json.gz",
+    split="train",
+).select(range(1024))["text"]
 
-# Step 3: 配置量化参数
-quantize_config = BaseQuantizeConfig(
-    bits=4,                      # 量化位数：4-bit
-    group_size=128,              # 每128个参数共享一个scale
-    damp_percent=0.01,           # Hessian阻尼系数（稳定性）
-    desc_act=False,              # 激活值降序排列（可选优化）
-    sym=True,                    # 对称量化
-    true_sequential=True,        # 严格按层顺序量化
+# Step 2: 配置量化参数
+quant_config = QuantizeConfig(
+    bits=4,          # 量化位数：4-bit
+    group_size=128,  # 每 128 个权重共享一组 scale / zero-point
 )
 
-# Step 4: 执行GPTQ量化（耗时：7B模型约10-30分钟）
-model_quantized = AutoGPTQForCausalLM.from_pretrained(
-    model_name,
-    quantize_config=quantize_config,
-)
-model_quantized.quantize(calibration_data)
+# Step 3: 加载模型并执行 GPTQ（7B 模型通常十几到几十分钟）
+model = GPTQModel.load(model_id, quant_config)
+model.quantize(calibration, batch_size=2)
 
-# Step 5: 保存量化模型（7B: 140GB → 3.5GB）
-model_quantized.save_quantized("./llama-2-7b-gptq-4bit")
-tokenizer.save_pretrained("./llama-2-7b-gptq-4bit")
+# Step 4: 保存量化模型（7B 权重：约 13.5GB → 约 4GB）
+model.save(quant_path)
 
-# Step 6: 加载和使用量化模型
-from auto_gptq import AutoGPTQForCausalLM
-model_gptq = AutoGPTQForCausalLM.from_quantized(
-    "./llama-2-7b-gptq-4bit",
-    device="cuda:0",
-    use_safetensors=True,
-)
-
-# 推理速度提升2-3倍，显存减少75%
-inputs = tokenizer("The meaning of life is", return_tensors="pt").to("cuda:0")
-outputs = model_gptq.generate(**inputs, max_length=50)
-print(tokenizer.decode(outputs[0]))
+# Step 5: 加载量化模型推理
+model = GPTQModel.load(quant_path)
+print(model.tokenizer.decode(model.generate("The meaning of life is")[0]))
 ```
+
+量化后的权重也可以直接被 transformers、vLLM 等框架加载使用。
 
 #### 8.3.1.3 GPTQ 性能表现
 
 | 模型 | 原始精度 | GPTQ-4bit | 显存占用 | 精度损失 |
 |------|---------|-----------|----------|---------|
-| **LLaMA-7B** | FP16 | INT4 | 14GB → 3.5GB (-75%) | <1% |
-| **LLaMA-13B** | FP16 | INT4 | 26GB → 6.5GB (-75%) | <1% |
-| **LLaMA-30B** | FP16 | INT4 | 60GB → 15GB (-75%) | ~1% |
-| **LLaMA-65B** | FP16 | INT4 | 130GB → 33GB (-75%) | ~2% |
+| **LLaMA-7B** | FP16 | INT4 | 14GB → ~3.5GB | 小 |
+| **LLaMA-13B** | FP16 | INT4 | 26GB → ~6.5GB | 小 |
+| **LLaMA-30B** | FP16 | INT4 | 60GB → ~15GB | 很小 |
+| **LLaMA-65B** | FP16 | INT4 | 130GB → ~33GB | 很小 |
+
+> 显存为权重部分的理论值（未计 group scale 的少量开销）。GPTQ 论文的规律是：模型越大，4-bit 量化带来的困惑度上升越小；3-bit 时小模型的损失会明显放大。
 
 **适用场景**：
 - ✅ 推理部署优化
@@ -3344,24 +3214,28 @@ AWQ（**A**ctivation-aware **W**eight **Q**uantization）的核心发现：
 **量化策略**：
 
 $$
-\hat{W} = \text{Quantize}(W \cdot s), \quad \hat{Y} = \frac{\hat{W} \cdot (X / s)}{s}
+Y = W X = \big(W \,\text{diag}(s)\big)\big(\text{diag}(s)^{-1} X\big)
+\;\;\Rightarrow\;\;
+\hat{Y} = Q\big(W \,\text{diag}(s)\big)\big(\text{diag}(s)^{-1} X\big)
 $$
 
-其中 $s$ 是per-channel的缩放因子，根据激活值大小自适应调整。
+其中 $s$ 是按输入通道（per-channel）的缩放因子：先把重要通道的权重放大再量化，对应的激活同比缩小，数学上输出不变，但重要权重的相对量化误差变小。缩放因子最终会被合并进前一层的算子，推理时没有额外开销。
 
 #### 8.3.2.2 确定通道重要性
 
-1. **收集激活值统计**：
+1. **收集激活值统计**：在校准数据上统计每个输入通道的平均激活幅值 $s_X$。
+
+2. **搜索缩放强度**：令 $s = s_X^{\alpha}$，在 $[0, 1]$ 上网格搜索 $\alpha$，选使该层量化后输出误差最小的值：
 
 $$
-s_i = \text{salient}(X_{:,i}) = \mathbb{E}[\|X_{:,i}\|]
+\alpha^* = \arg\min_{\alpha} \big\| Q\big(W \,\text{diag}(s)\big)\big(\text{diag}(s)^{-1} X\big) - W X \big\|
 $$
 
-2. **保护重要通道**：
-
-重要通道（激活值大）使用更大的缩放因子 → 量化误差更小
+激活越大的通道得到越大的放大系数，其权重的量化误差也就越小。AWQ 只需要少量校准数据、不做反向传播，因此不容易过拟合校准集。
 
 #### 8.3.2.3 实现代码
+
+> AutoAWQ 仓库已于 2025 年归档，AWQ 算法已并入 vLLM 维护的 [llm-compressor](https://github.com/vllm-project/llm-compressor)。下面的经典写法仍可用于理解流程：
 
 ```python
 from awq import AutoAWQForCausalLM
@@ -3401,7 +3275,7 @@ model_awq = AutoAWQForCausalLM.from_quantized(quant_path, fuse_layers=True)
 | **精度保持** | ✅ 更好（特别是极低比特） | ✅ 好 |
 | **推理速度** | ⚡⚡ 更快（优化kernel） | ⚡ 快 |
 | **显存占用** | 相同 | 相同 |
-| **校准数据** | 少（~256样本） | 多（~1024样本） |
+| **校准数据** | 少（~128样本），对分布不敏感 | 较多（~128-1024样本） |
 
 **推荐选择**：
 - 追求极致精度 → **AWQ**
@@ -3444,44 +3318,48 @@ $$
 
 #### 8.3.3.3 实现示例
 
+SmoothQuant 官方仓库（mit-han-lab/smoothquant）提供的是研究用参考实现；生产上更常用 vLLM 维护的 llm-compressor，把 SmoothQuant 与 GPTQ 组合成一份"配方"一次性完成 W8A8 量化：
+
 ```python
-import torch
-from smoothquant import SmoothQuantForCausalLM
-
-model_name = "meta-llama/Llama-2-7b-hf"
-
-# Step 1: 加载模型
-model = SmoothQuantForCausalLM.from_pretrained(model_name)
-
-# Step 2: 收集激活值统计（需要运行校准数据）
 from datasets import load_dataset
-calibration_data = load_dataset("c4", split="train[:512]")
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from llmcompressor import oneshot
+from llmcompressor.modifiers.quantization import GPTQModifier
+from llmcompressor.modifiers.smoothquant import SmoothQuantModifier
 
-# 运行forward获取激活值分布
-model.collect_stats(calibration_data)
+model_id = "meta-llama/Llama-2-7b-hf"
+model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype="auto")
+tokenizer = AutoTokenizer.from_pretrained(model_id)
 
-# Step 3: 应用SmoothQuant（计算并吸收平滑因子）
-model.smooth_quant(alpha=0.5)
+# 校准数据：几百条与目标场景相近的文本
+ds = load_dataset("allenai/c4", data_files="en/c4-train.00001-of-01024.json.gz", split="train")
+ds = ds.shuffle(seed=0).select(range(512))
 
-# Step 4: INT8量化（权重+激活值）
-model.quantize_int8()
+recipe = [
+    SmoothQuantModifier(smoothing_strength=0.8),                   # 迁移激活中的离群值（即 α）
+    GPTQModifier(targets="Linear", scheme="W8A8", ignore=["lm_head"]),  # 权重与激活均为 INT8
+]
 
-# 保存量化模型
-model.save_quantized("llama-2-7b-smoothquant-int8")
+oneshot(model=model, dataset=ds, recipe=recipe,
+        max_seq_length=2048, num_calibration_samples=512)
+
+model.save_pretrained("llama-2-7b-w8a8", save_compressed=True)
+tokenizer.save_pretrained("llama-2-7b-w8a8")
 ```
+
+生成的 checkpoint 可以直接交给 vLLM 以 INT8 GEMM 推理。
 
 #### 8.3.3.4 SmoothQuant 性能
 
-| 任务 | FP16 | W8A8<br>(SmoothQuant) | W8A8<br>(Naive) |
-|------|------|----------------------|----------------|
-| **MMLU** | 45.3 | 44.8 (-0.5) | 38.2 (-7.1) |
-| **GSM8K** | 15.2 | 14.7 (-0.5) | 8.3 (-6.9) |
-| **HumanEval** | 12.8 | 12.2 (-0.6) | 7.3 (-5.5) |
+SmoothQuant 论文在 OPT-175B、BLOOM-176B、GLM-130B 等模型上验证：
+
+- **精度**：W8A8 量化后在 LAMBADA、HellaSwag 等零样本任务上与 FP16 基本持平；而不做平滑的朴素 W8A8 在 6.7B 以上的 OPT 模型上会因激活离群值出现明显精度崩溃
+- **效率**：相比 FP16 最高约 **1.56× 加速**、**显存减半**，可在单个 8 卡节点内部署 530B 规模的模型
 
 **关键优势**：
-- ✅ 首个成功的 **W8A8**（权重+激活都INT8）方案
-- ✅ 硬件友好（无需特殊kernel）
-- ✅ 端到端INT8推理（2-3倍加速）
+- ✅ 无需训练、精度基本无损的 **W8A8**（权重+激活都 INT8）方案
+- ✅ 硬件友好：平滑因子可离线合并进前一层权重，推理时直接使用标准 INT8 GEMM
+- ✅ 适合高吞吐的服务端推理
 
 ---
 
@@ -3489,7 +3367,7 @@ model.save_quantized("llama-2-7b-smoothquant-int8")
 
 ### 8.4.1 QLoRA：4-bit量化 + LoRA微调
 
-QLoRA 是当前最流行的量化训练方法，实现了**在单张A100上微调65B模型**。
+QLoRA 是当前最流行的量化微调方法，实现了**在单张 48GB GPU 上微调 65B 模型**。严格来说，它只把冻结的基座权重量化为 4-bit、训练的仍是 16-bit 的 LoRA 适配器，并不是让模型适应量化误差的"经典 QAT"，但因为训练发生在量化模型之上，通常与 QAT 放在一起讨论。
 
 #### 8.4.1.1 核心技术组合
 
@@ -3522,11 +3400,11 @@ $$
 \hat{W} = \text{NF4}\left(\frac{W}{\sigma_W}\right) \cdot \sigma_W
 $$
 
-**优势**：相比均匀量化，精度损失减少约30%。
+**优势**：每个量化区间覆盖相同的概率质量，对近似正态分布的权重是信息论意义下的最优 4-bit 数据类型；QLoRA 论文中 NF4 的困惑度与下游精度均优于 FP4 和 INT4。
 
 #### 8.4.1.3 双重量化（Double Quantization）
 
-**问题**：FP32的缩放因子 $s$ 占用大量内存（每64个参数1个FP32）。
+**问题**：FP32的缩放因子 $s$ 占用可观的内存（每64个参数1个FP32，相当于每个参数额外 0.5 bit）。
 
 **解决**：对缩放因子本身也量化！
 
@@ -3537,16 +3415,18 @@ W_quant = quantize_nf4(W, scale_fp32)
 # 第二次量化：缩放因子 FP32 → FP8
 scale_quant = quantize_fp8(scale_fp32)
 
-# 显存节省：64个参数的scale从4字节 → 0.5字节
+# 第二次量化以 256 个 scale 为一组，每组再存 1 个 FP32 二级 scale
+# 每参数的 scale 开销：32/64 = 0.5 bit → 8/64 + 32/(64×256) ≈ 0.127 bit
+# 平均每参数节省约 0.37 bit，65B 模型约省 3GB
 ```
 
 #### 8.4.1.4 完整QLoRA训练流程
 
 ```python
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
-from trl import SFTTrainer
+from trl import SFTConfig, SFTTrainer
 from datasets import load_dataset
 
 # ============================================================
@@ -3562,14 +3442,13 @@ bnb_config = BitsAndBytesConfig(
 )
 
 # ============================================================
-# Step 2: 加载4-bit量化模型（70B模型仅需35GB显存！）
+# Step 2: 加载4-bit量化模型（70B模型的权重约35GB）
 # ============================================================
 model_name = "meta-llama/Llama-2-70b-hf"
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
     quantization_config=bnb_config,
     device_map="auto",                      # 自动多卡分配
-    trust_remote_code=True,
 )
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
@@ -3579,11 +3458,11 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = prepare_model_for_kbit_training(model)
 
 # ============================================================
-# Step 4: 配置LoRA参数（只训练0.1%参数）
+# Step 4: 配置LoRA参数（只训练约1.2%参数）
 # ============================================================
 lora_config = LoraConfig(
     r=64,                                   # LoRA秩（越大越接近全参数微调）
-    lora_alpha=16,                          # 缩放因子（通常为r的1/4）
+    lora_alpha=16,                          # 缩放因子（沿用QLoRA论文：r=64, alpha=16）
     target_modules=[                        # 对哪些层应用LoRA
         "q_proj", "k_proj", "v_proj",       # 注意力层
         "o_proj",
@@ -3600,7 +3479,7 @@ lora_config = LoraConfig(
 model = get_peft_model(model, lora_config)
 model.print_trainable_parameters()
 # 输出示例：
-# trainable params: 134,217,728 || all params: 68,976,648,192 || trainable%: 0.19%
+# trainable params: 828,375,040 || all params: 69,805,023,232 || trainable%: 1.1867
 
 # ============================================================
 # Step 6: 准备训练数据
@@ -3610,11 +3489,14 @@ dataset = load_dataset("timdettmers/openassistant-guanaco")
 # ============================================================
 # Step 7: 配置训练参数
 # ============================================================
-training_args = TrainingArguments(
+training_args = SFTConfig(
     output_dir="./qlora-llama-70b",
     num_train_epochs=3,
-    per_device_train_batch_size=4,         # 小batch（4-bit量化后显存充足）
-    gradient_accumulation_steps=4,         # 等效batch_size=16
+    per_device_train_batch_size=1,         # 70B 模型单卡只能放下很小的 batch
+    gradient_accumulation_steps=16,        # 等效batch_size=16
+    gradient_checkpointing=True,           # 激活重计算，进一步省显存
+    max_length=2048,                       # 最大序列长度
+    dataset_text_field="text",             # guanaco 数据集的文本字段
     learning_rate=2e-4,                    # QLoRA典型学习率
     lr_scheduler_type="cosine",
     warmup_ratio=0.03,
@@ -3630,10 +3512,9 @@ training_args = TrainingArguments(
 # ============================================================
 trainer = SFTTrainer(
     model=model,
-    train_dataset=dataset["train"],
-    tokenizer=tokenizer,
     args=training_args,
-    max_seq_length=2048,
+    train_dataset=dataset["train"],
+    processing_class=tokenizer,            # 新版 TRL 用 processing_class 取代 tokenizer 参数
 )
 
 trainer.train()
@@ -3644,18 +3525,18 @@ trainer.train()
 model.save_pretrained("./qlora-adapter")
 
 # ============================================================
-# Step 10: 推理时合并LoRA（可选）
+# Step 10: 部署时合并LoRA（可选）
 # ============================================================
 from peft import PeftModel
 
-# 加载基座模型（4-bit量化）
+# 合并时以 BF16 加载基座：直接合并进 4-bit 权重会引入额外的舍入误差
 base_model = AutoModelForCausalLM.from_pretrained(
     model_name,
-    quantization_config=bnb_config,
+    torch_dtype=torch.bfloat16,
     device_map="auto"
 )
 
-# 加载并合并LoRA
+# 加载并合并LoRA，之后可按需重新量化用于部署
 model = PeftModel.from_pretrained(base_model, "./qlora-adapter")
 model = model.merge_and_unload()  # 合并LoRA权重到基座
 ```
@@ -3664,15 +3545,15 @@ model = model.merge_and_unload()  # 合并LoRA权重到基座
 
 以 **LLaMA-2-70B** 为例：
 
-| 组件 | FP16全参数微调 | QLoRA (4-bit) | 节省 |
-|------|---------------|---------------|------|
-| **模型权重** | 140 GB | 35 GB | -75% |
-| **优化器状态** | 280 GB | 7 GB (8-bit paged) | -97% |
-| **梯度** | 140 GB | 0.28 GB (LoRA only) | -99% |
-| **激活值** | ~40 GB | ~10 GB (小batch) | -75% |
-| **总计** | **~600 GB** | **~52 GB** | **-91%** |
+| 组件 | BF16 全参数微调 | QLoRA（4-bit，r=64 覆盖全部线性层） |
+|------|---------------|---------------|
+| **模型权重** | 140 GB | ~35 GB（NF4 + 双重量化） |
+| **梯度** | 140 GB | ~1.7 GB（仅 8.3 亿 LoRA 参数） |
+| **优化器状态** | 840 GB（FP32 主权重 + m + v） | ~2–7 GB（仅 LoRA 参数，精度取决于优化器） |
+| **激活值** | 取决于 batch 与序列长度 | 开启梯度检查点后通常数 GB |
+| **总计** | **> 1.1 TB** | **~45–50 GB** |
 
-**结论**：QLoRA让70B模型微调从 **8×A100 降到 1×A100**！
+**结论**：70B 模型的全参数微调至少需要 16 张 A100-80G 并配合 ZeRO 分片；QLoRA 把它压到了**单张 A100/H100-80G**（QLoRA 论文的 65B 实验用的是单张 48GB GPU）。
 
 ---
 
@@ -3692,23 +3573,19 @@ $$
 
 **为什么是1.58 bit？**
 
-熵计算：$H = -\sum p_i \log_2 p_i$
-
-如果 $p(-1) = p(+1) = 0.4, p(0) = 0.2$：
-
-$$
-H = -2 \times 0.4 \times \log_2(0.4) - 0.2 \times \log_2(0.2) \approx 1.52 \text{ bits}
-$$
+三个取值 $\{-1, 0, +1\}$ 所能携带的最大信息量为 $\log_2 3 \approx 1.58$ bit（三值等概率时取到）。实际存储时通常把 5 个三值权重打包进 1 个字节（$3^5 = 243 \le 256$），即每权重 1.6 bit。
 
 #### 8.4.2.2 训练方法
 
 1. **前向传播**：使用三值权重
 
 $$
-W_{\text{ternary}} = \text{sign}(W_{\text{float}}) \cdot \gamma
+W_{\text{ternary}} = \text{RoundClip}\!\left(\frac{W}{\gamma + \epsilon}, -1, 1\right),
+\qquad
+\gamma = \frac{1}{nm}\sum_{i,j} \lvert W_{ij} \rvert
 $$
 
-其中 $\gamma = \frac{1}{n}\sum |W|$ 是缩放因子。
+即先用权重绝对值的均值（absmean）归一化，再四舍五入并裁剪到 $\{-1, 0, +1\}$。
 
 2. **反向传播**：对浮点权重计算梯度（STE技巧）
 
@@ -3716,10 +3593,11 @@ $$
 
 #### 8.4.2.3 性能表现
 
-| 模型 | 参数量 | 精度 | 困惑度 | 推理速度 |
-|------|--------|------|--------|---------|
-| LLaMA-13B | 13B | FP16 | 5.12 | 1× |
-| BitNet-13B | 13B | 1.58-bit | 5.41 (+5.7%) | **4.5×** |
+BitNet b1.58 论文（Ma et al., 2024）的主要结论：
+
+- **3B 起追平全精度**：3B 规模的 BitNet b1.58 困惑度与零样本精度与同尺寸 FP16 LLaMA 相当，同时推理快 **2.71×**、显存省 **3.55×**
+- **越大越划算**：70B 规模时推理速度约为 LLaMA 70B 的 **4.1×**
+- **前提**：必须**从头训练**（量化感知训练），不能把已有的 FP16 模型直接转换成 1.58-bit；微软后续开源了 BitNet b1.58 2B4T（2B 参数、4T tokens）
 
 **适用场景**：
 - 📱 端侧部署（手机、IoT设备）
@@ -3736,8 +3614,8 @@ $$
 |------|---------|------|---------|
 | **Unsloth** | LoRA, QLoRA, 4-bit, 16-bit, FP8, GRPO | 2×加速，减少70% VRAM，兼容HF生态 | 消费级GPU高效微调 |
 | **bitsandbytes** | QLoRA, 8-bit, 4-bit | 易用，Hugging Face集成 | QLoRA微调 |
-| **auto-gptq** | GPTQ | 成熟，广泛支持 | PTQ部署 |
-| **AutoAWQ** | AWQ | 速度快，精度高 | PTQ部署 |
+| **GPTQModel**（AutoGPTQ 继任者） | GPTQ | 成熟，广泛支持 | PTQ部署 |
+| **llm-compressor**（vLLM） | GPTQ, AWQ, SmoothQuant, FP8 | 一套配方覆盖多种算法，产物可直接给 vLLM | 生产部署 |
 | **llama.cpp** | GGUF/GGML | CPU推理优化 | 本地CPU部署 |
 | **vLLM** | FP8, INT8 | 高吞吐推理 | 生产部署 |
 | **TensorRT-LLM** | INT8, INT4, FP8 | NVIDIA优化 | NVIDIA GPU部署 |
@@ -3771,66 +3649,31 @@ graph TD
     style H fill:#fff9c4
 ```
 
-#### 8.5.2.2 量化前的模型评估
+#### 8.5.2.2 量化前后的精度对比
+
+先在量化前建立 FP16 基线，再用同一套任务评估量化模型。使用 EleutherAI 的 lm-evaluation-harness：
 
 ```python
-from transformers import AutoModelForCausalLM
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from lm_eval import simple_evaluate
+from lm_eval.models.huggingface import HFLM
 
-model_name = "meta-llama/Llama-2-7b-hf"
+TASKS = ["hellaswag", "winogrande", "arc_easy", "arc_challenge"]
 
-# 评估原始FP16模型（建立baseline）
-model_fp16 = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    torch_dtype=torch.float16,
-    device_map="auto"
-)
+def evaluate(path, **load_kwargs):
+    model = AutoModelForCausalLM.from_pretrained(path, device_map="auto", **load_kwargs)
+    tokenizer = AutoTokenizer.from_pretrained(path)
+    out = simple_evaluate(model=HFLM(pretrained=model, tokenizer=tokenizer),
+                          tasks=TASKS, num_fewshot=0)
+    return {t: out["results"][t]["acc,none"] for t in TASKS}
 
-results_fp16 = simple_evaluate(
-    model=model_fp16,
-    tasks=["hellaswag", "winogrande", "arc_easy", "arc_challenge"],
-    num_fewshot=0,
-)
+base = evaluate("meta-llama/Llama-2-7b-hf", torch_dtype=torch.float16)  # FP16 基线
+quant = evaluate("./llama-2-7b-gptq-4bit")  # GPTQ 权重，需安装 gptqmodel
 
-print("FP16 Baseline:", results_fp16)
-# 输出示例：
-# {
-#   'hellaswag': {'acc': 0.5832},
-#   'winogrande': {'acc': 0.7103},
-#   'arc_easy': {'acc': 0.7742},
-#   'arc_challenge': {'acc': 0.4616}
-# }
-```
-
-#### 8.5.2.3 量化后的精度验证
-
-```python
-from auto_gptq import AutoGPTQForCausalLM
-
-# 加载GPTQ-4bit量化模型
-model_gptq = AutoGPTQForCausalLM.from_quantized(
-    "./llama-2-7b-gptq-4bit",
-    device="cuda:0"
-)
-
-results_gptq = simple_evaluate(
-    model=model_gptq,
-    tasks=["hellaswag", "winogrande", "arc_easy", "arc_challenge"],
-    num_fewshot=0,
-)
-
-# 计算精度损失
-for task in results_fp16:
-    fp16_acc = results_fp16[task]['acc']
-    gptq_acc = results_gptq[task]['acc']
-    loss = (fp16_acc - gptq_acc) / fp16_acc * 100
-    print(f"{task}: {fp16_acc:.4f} → {gptq_acc:.4f} ({loss:+.2f}%)")
-
-# 期望输出：
-# hellaswag: 0.5832 → 0.5784 (-0.82%)
-# winogrande: 0.7103 → 0.7056 (-0.66%)
-# arc_easy: 0.7742 → 0.7701 (-0.53%)
-# arc_challenge: 0.4616 → 0.4548 (-1.47%)
+for t in TASKS:
+    drop = (base[t] - quant[t]) / base[t] * 100
+    print(f"{t}: {base[t]:.4f} → {quant[t]:.4f} (-{drop:.2f}%)")
 ```
 
 **可接受的精度损失**：
@@ -3839,30 +3682,15 @@ for task in results_fp16:
 - ⚠️ **INT4**：5-10%（简单量化）
 - ❌ **INT4**：>10%（量化失败，需调整策略）
 
-#### 8.5.2.4 处理量化失败的层
+#### 8.5.2.3 处理量化失败的层
 
-某些层对量化极度敏感（如第一层embedding，最后一层LM head）。
+某些层对量化格外敏感：输出层 `lm_head`、Embedding，以及激活离群值特别大的层（常见于 MLP 的 `down_proj`）。
 
-**策略：混合精度量化**
+**策略：混合精度量化**——敏感层保持 16-bit，其余层照常量化。
 
-```python
-from auto_gptq import BaseQuantizeConfig
-
-quantize_config = BaseQuantizeConfig(
-    bits=4,
-    group_size=128,
-
-    # 指定不量化的层（保持FP16）
-    modules_to_not_convert=[
-        "model.embed_tokens",              # 第一层embedding
-        "model.norm",                      # 最终LayerNorm
-        "lm_head"                          # 输出层
-    ],
-)
-
-# 这些关键层保持FP16，其他层4-bit量化
-# 精度损失：10% → 2%，显存增加：3.5GB → 4.2GB（+20%，可接受）
-```
+- GPTQ/AWQ 类工具默认只量化 Transformer Block 内的 `Linear` 层，Embedding 和 `lm_head` 本来就保持原精度
+- 需要额外跳过某些层时，llm-compressor 的配方可以写 `ignore=["lm_head", "re:.*down_proj"]`（支持正则）；bitsandbytes 则通过 `BitsAndBytesConfig(llm_int8_skip_modules=[...])` 指定
+- 代价是少量额外显存；判断是否值得，就看上一节的精度对比
 
 ### 8.5.3 量化的常见陷阱
 
@@ -3888,54 +3716,26 @@ calibration_data = load_dataset("allenai/c4", split="train[:1000]")  # 通用文
 calibration_data = load_dataset("OpenAssistant/oasst1")  # 对话数据
 ```
 
-#### 8.5.3.3 ❌ 陷阱3：忽略量化后的数值稳定性
+#### 8.5.3.3 ❌ 陷阱3：直接对激活做 per-tensor INT8 量化
 
-```python
-# 量化后可能导致数值溢出或下溢
-# 解决方案：在关键位置添加裁剪
+大模型的激活中少数通道的幅值可比其他通道大两个数量级。对激活做 per-tensor 的朴素 INT8 量化时，这些离群值会拉大缩放因子，把其余通道压缩到只剩几个量化级，精度随之崩溃。
 
-def forward_with_clipping(x):
-    x = self.attention(x)
-    x = torch.clamp(x, min=-10, max=10)  # 防止异常值 ✅
-    x = self.ffn(x)
-    return x
-```
+**正确做法**：先用 SmoothQuant 把离群值迁移到权重，或对激活改用 per-token 动态量化；实在不行就把敏感层保留为 16-bit（见 8.5.2.3 节）。
 
 ---
 
-## 8.6 📊 量化效果对比总结
+## 8.6 📊 量化方案选型总结
 
-### 8.6.1 不同量化方法的精度-效率权衡
-
-```mermaid
-graph LR
-    A[精度<br>100%] --> B[FP32/FP16]
-    B --> C[BF16<br>99.5%]
-    C --> D[INT8 PTQ<br>98%]
-    D --> E[INT8 QAT<br>99%]
-    D --> F[INT4 AWQ<br>95%]
-    F --> G[INT4 GPTQ<br>94%]
-    F --> H[INT4 QLoRA<br>96%]
-    G --> I[INT2 BitNet<br>85%]
-
-    style B fill:#e8f5e9
-    style C fill:#e8f5e9
-    style E fill:#fff9c4
-    style H fill:#fff9c4
-    style F fill:#ffe0b2
-    style I fill:#ffcdd2
-```
-
-### 8.6.2 推荐矩阵
-
-| 场景 | 推荐方法 | 量化精度 | 预期损失 | 显存节省 |
+| 场景 | 推荐方法 | 量化精度 | 精度影响 | 权重显存节省（相对 FP16） |
 |------|---------|---------|---------|---------|
-| **微调训练** | QLoRA | 4-bit | &lt;3% | 75% |
-| **推理部署（精度优先）** | AWQ | 4-bit | &lt;2% | 75% |
-| **推理部署（速度优先）** | GPTQ | 4-bit | &lt;3% | 75% |
-| **边缘设备** | INT8 QAT | 8-bit | &lt;1% | 50% |
-| **端侧极限** | BitNet | 1.58-bit | ~10% | 90% |
-| **生产高吞吐** | SmoothQuant W8A8 | 8-bit | &lt;2% | 75% |
+| **微调训练** | QLoRA | 4-bit 基座 + 16-bit LoRA | 与 16-bit LoRA 基本持平 | ~75% |
+| **推理部署（精度优先）** | AWQ | 4-bit | 小 | ~75% |
+| **推理部署（生态优先）** | GPTQ | 4-bit | 小 | ~75% |
+| **生产高吞吐** | SmoothQuant W8A8 / FP8 | 8-bit | 基本无损 | ~50% |
+| **边缘设备** | INT8 QAT | 8-bit | 基本无损 | ~50% |
+| **端侧极限** | BitNet b1.58 | 1.58-bit | 需从头训练，3B 起与 FP16 相当 | ~90% |
+
+> 精度影响随模型规模、任务和校准数据变化很大：一般规律是模型越大越耐量化，数学与代码等需要精确推理的任务比常识问答更敏感。上线前务必在自己的任务上按 8.5.2.2 节做对比。
 
 ---
 
@@ -3954,8 +3754,8 @@ graph LR
 
 ### 8.7.3 硬件-算法协同设计
 
-- **NVIDIA Hopper**：原生支持FP8训练
-- **Google TPU v5**：INT4矩阵乘法加速
+- **NVIDIA Hopper**：原生支持 FP8 训练与推理
+- **NVIDIA Blackwell**：原生支持 FP4（NVFP4 / MXFP4）等微缩放（micro-scaling）格式，4-bit 推理与低比特训练进一步硬件化
 - **专用NPU**：二值/三值神经网络专用芯片
 
 ### 8.7.4 大模型特定优化
@@ -3974,7 +3774,7 @@ graph LR
 
 为避免重复计算历史 token 的 K/V，推理时将其缓存，这就是 KV Cache。随着序列变长，缓存持续增长，成为长上下文场景下显存的主要消耗来源。
 
-<div class="mermaid">
+```mermaid
 flowchart LR
     subgraph prefill["① Prefill（并行处理）"]
         direction TB
@@ -3996,17 +3796,19 @@ flowchart LR
     style p3 fill:#e3f2fd,stroke:#01579b
     style d2 fill:#e3f2fd,stroke:#01579b
     style d3 fill:#e8f5e9,stroke:#1b5e20
-</div>
+```
 
 **显存计算公式**：
 
-$$\text{KV Cache大小} = 2 \times L \times H \times d \times n \times \text{bytes\_per\_element}$$
+$$\text{KV Cache大小} = 2 \times L \times H_{kv} \times d \times n \times b \times \text{bytes\_per\_element}$$
 
-其中 $L$ = 层数，$H$ = 注意力头数，$d$ = 每头维度，$n$ = 序列长度
+其中 $L$ = 层数，$H_{kv}$ = KV 头数（MHA 下等于注意力头数），$d$ = 每头维度，$n$ = 序列长度，$b$ = batch size，系数 2 对应 K 和 V。
 
-以 **Gemma 2 27B** 为例（46 层，30 头，128 维，FP16）：
-- 每 token 占用：$2 \times 46 \times 30 \times 128 \times 2 \approx \mathbf{0.72 \text{ MB}}$
-- A100（80GB）最多容纳约 **114,000 tokens**
+以 **LLaMA-2-7B** 为例（32 层，32 个 KV 头，128 维，FP16）：
+- 每 token 占用：$2 \times 32 \times 32 \times 128 \times 2\ \text{bytes} = \mathbf{0.5 \text{ MB}}$
+- 一条 4K 上下文的请求约占 **2GB**；batch=32 时 KV Cache 达到 **64GB**，远超模型权重本身（约 13.5GB）
+
+对比 **LLaMA-2-70B**（80 层，但用 GQA 只保留 8 个 KV 头）：每 token 为 $2 \times 80 \times 8 \times 128 \times 2 \approx 0.31$ MB，参数量是 7B 的 10 倍，KV Cache 反而更小——这正是下文 GQA 的作用。
 
 #### 8.7.5.2 KV Cache 量化
 
@@ -4035,9 +3837,9 @@ MQA: [Q1 Q2 Q3 Q4]   [K1V1]                    ← 所有 Q 共享 1 个 KV 头
 
 | 方式 | 全称 | KV Cache 大小 | 代表模型 |
 |------|-----|-------------|--------|
-| MHA | Multi-Head Attention | 基准（1×）| GPT-2, BERT |
-| GQA | Grouped-Query Attention | 减少 $g$ 倍 | LLaMA-2-70B, Mistral |
-| MQA | Multi-Query Attention | 减少 $H$ 倍 | PaLM, Falcon |
+| MHA | Multi-Head Attention | 基准（1×）| GPT-2, BERT, LLaMA-2-7B |
+| GQA | Grouped-Query Attention | 减少为 1/组大小 | LLaMA-2-70B, LLaMA-3 全系列, Mistral |
+| MQA | Multi-Query Attention | 减少为 1/H | PaLM, Falcon-7B |
 
 GQA 是目前主流大模型的首选方案，在显存节省与模型质量之间取得较好平衡。
 
@@ -4055,13 +3857,15 @@ $$
 \mathbf{k}_t = W^{UK} \mathbf{c}_t^{KV}, \quad \mathbf{v}_t = W^{UV} \mathbf{c}_t^{KV} \quad (\text{推理时上投影还原})
 $$
 
-其中只有**压缩后的潜在向量 $\mathbf{c}_t^{KV}$ 被缓存**，K/V 的上投影矩阵 $W^{UK}, W^{UV}$ 在推理时实时计算，因此缓存的数据量与"KV 头数"完全无关，只取决于潜在维度 $d_c$。
+其中只有**压缩后的潜在向量 $$\mathbf{c}_t^{KV}$$ 被缓存**，K/V 的上投影矩阵 $W^{UK}, W^{UV}$ 在推理时实时计算，因此缓存的数据量与"KV 头数"完全无关，只取决于潜在维度 $d_c$。
 
-| 方式 | KV Cache 存储内容 | 压缩比（相对 MHA，以 DeepSeek-V2 为例） |
+| 方式 | KV Cache 存储内容 | 每 token 每层缓存的元素数 |
 |------|------------------|------------------------------|
-| MHA | 完整 K、V 向量 | 1×（基准） |
-| GQA | 分组共享的 K、V 向量 | 通常 4–8× |
-| **MLA** | **低维联合潜在向量** | **约 13×（DeepSeek-V2 报告数据）** |
+| MHA | 完整 K、V 向量 | $2 n_h d_h$ |
+| GQA | 分组共享的 K、V 向量 | $2 n_g d_h$（$n_g$ 为组数） |
+| **MLA** | **低维联合潜在向量 + 解耦 RoPE 键** | **$d_c + d_h^R$** |
+
+DeepSeek-V2 取 $d_c = 4d_h$、$d_h^R = d_h/2$，每 token 每层只缓存 $4.5\,d_h$ 个元素，相当于只有 2.25 组的 GQA；而其 MHA 有 128 个头，同样的缓存要 $256\,d_h$。与上一代 DeepSeek 67B 相比，DeepSeek-V2 的 KV Cache 减少了 93.3%，最大生成吞吐提升到 5.76 倍。
 
 **关键工程细节**：
 - **解耦旋转位置编码（Decoupled RoPE）**：由于潜在向量经过低秩压缩后无法直接套用 RoPE（RoPE 要求对每个 K 头独立旋转），MLA 额外引入一组不参与压缩的"位置感知"维度专门承载 RoPE 信息，与压缩后的内容维度拼接使用。
@@ -4087,7 +3891,7 @@ $$
 
 <div align="center">
   <img src="/images/llm-training/data-processing-pipeline.webp" width="90%" alt="数据处理完整流程" />
-  <figcaption>图：预训练数据处理完整流程 - 从采集到训练（来源：RefinedWeb 论文 Figure 1）</figcaption>
+  <figcaption>图：RefinedWeb 的 Common Crawl 处理流程——文档准备、过滤、去重三大阶段后，约 90% 的原始文档被移除（来源：RefinedWeb 论文 Figure 2）</figcaption>
 </div>
 
 ## 9.1 数据采集与来源
@@ -4098,6 +3902,7 @@ $$
 - **Common Crawl**：最大的开放网页爬取数据集，每月爬取数十亿网页，包含多语言、多领域内容
 - **C4（Colossal Clean Crawled Corpus）**：基于Common Crawl清洗后的数据集，~750GB文本
 - **RedPajama**：开源的LLaMA训练数据复现（1.2万亿token）
+- **FineWeb / FineWeb-Edu**（Hugging Face, 2024）：从 96 个 Common Crawl 快照中清洗出约 15T tokens；FineWeb-Edu 再用教育价值分类器筛出约 1.3T tokens 的高质量子集
 
 #### 9.1.1.2 代码数据
 - **GitHub**：开源代码仓库（过滤星标、license）
@@ -4140,7 +3945,8 @@ $$
 
 #### 9.2.2.3 教育价值评分
 - Phi系列的启发：评估"教科书质量"
-- 使用GPT-4等强模型评分
+- 典型做法（FineWeb-Edu）：先用强模型（Llama-3-70B-Instruct）给约 45 万个网页按 0–5 分打"教育价值"分，再用这些标注训练一个轻量分类器，对全量数据打分并保留高分文档
+- 用这种方式筛出的数据，在 MMLU、ARC 等知识与推理类基准上能以更少的 token 达到同等效果
 
 ### 9.2.3 毒性与有害内容检测
 
@@ -4159,7 +3965,13 @@ $$
 
 ### 9.3.1 精确去重
 - **文档级**：基于MD5/SHA256 hash
+- **段落/行级**：对每个段落计算哈希，删除在语料中重复出现的段落（CCNet 的做法），可顺带去掉页眉页脚等模板文本
 - **URL去重**：处理重定向和规范化
+
+<div align="center">
+  <img src="/images/llm-training/minhash-deduplication.webp" width="85%" alt="CCNet 处理流程" />
+  <figcaption>图：CCNet 的 Common Crawl 处理流程——先计算段落哈希做段落级去重，再做语言识别（LID）与语言模型困惑度打分，最后按语言和质量分桶（来源：CCNet 论文 Figure 1）</figcaption>
+</div>
 
 ### 9.3.2 模糊去重
 
@@ -4168,18 +3980,13 @@ $$
 - 步骤：生成shingles → MinHash签名 → LSH找相似对
 - 工具：datasketch库
 
-<div align="center">
-  <img src="/images/llm-training/minhash-deduplication.webp" width="85%" alt="MinHash去重原理" />
-  <figcaption>图：MinHash + LSH去重工作原理示意图（来源：CCNet 论文 Figure 1）</figcaption>
-</div>
-
 #### 9.3.2.2 SimHash
 - 快速计算文档指纹
 - 汉明距离判断相似度
 
 #### 9.3.2.3 Suffix Array
-- 寻找最长公共子串
-- CCNet方法
+- 用后缀数组找出在语料中重复出现的长子串（Lee et al., 2022 以 50 个 token 为阈值），删除子串而非整篇文档
+- 适合去掉跨文档复制粘贴的长段落（许可证文本、模板化内容），这类重复用文档级去重发现不了
 
 ### 9.3.3 跨数据集去重
 
@@ -4207,23 +4014,46 @@ pie title GPT-3预训练数据配比
     "Wikipedia" : 3
 ```
 
-**LLaMA配比示例**（更新的配比策略）：
+**LLaMA-1 配比**（采样比例，总计约 1.4T tokens）：
 
-| 数据源 | 占比 | Token数量 | 说明 |
+| 数据源 | 采样比例 | 对应 Token 数（×1.4T） | 说明 |
 |--------|------|-----------|------|
-| CommonCrawl | 67% | ~1.34T | 网页数据，多样性最高 |
-| C4 | 15% | ~300B | 清洗后的网页数据 |
-| GitHub | 4.5% | ~90B | 代码数据 |
-| Wikipedia | 4.5% | ~90B | 高质量百科知识 |
-| Books | 4.5% | ~90B | 长文本，叙事能力 |
-| ArXiv | 2.5% | ~50B | 数学、科学推理 |
-| StackExchange | 2% | ~40B | 专业问答 |
+| CommonCrawl | 67.0% | ~938B | 网页数据，多样性最高 |
+| C4 | 15.0% | ~210B | 清洗后的网页数据 |
+| GitHub | 4.5% | ~63B | 代码数据 |
+| Wikipedia | 4.5% | ~63B | 高质量百科知识（约训练 2.45 个 epoch） |
+| Books | 4.5% | ~63B | 长文本，叙事能力（约 2.23 个 epoch） |
+| ArXiv | 2.5% | ~35B | 数学、科学推理 |
+| StackExchange | 2.0% | ~28B | 专业问答 |
+
+**Llama 3 的最终配比**（按内容类型划分）：约 50% 通用知识、25% 数学与推理、17% 代码、8% 多语言。与 LLaMA-1 相比，数学与代码的比例大幅提高，这与推理能力成为竞争焦点直接相关。
+
+**按配比构建批次**（示意）：
+```python
+data_mixture = {
+    'common_crawl': 0.67,    # 网页数据 - 通用语言能力
+    'c4': 0.15,              # 清洗后的网页数据
+    'github': 0.045,         # 代码 - 编程能力
+    'wikipedia': 0.045,      # 百科 - 事实知识
+    'books': 0.045,          # 书籍 - 长文本
+    'arxiv': 0.025,          # 论文 - 科学推理
+    'stackexchange': 0.02,   # 问答 - QA能力
+}
+
+def sample_batch(data_mixture, batch_size):
+    """按配比构建训练批次"""
+    batch = []
+    for source, weight in data_mixture.items():
+        n_samples = int(batch_size * weight)
+        batch.extend(sample_from_source(source, n_samples))
+    return batch
+```
 
 **配比原则**：
-- **高质量数据提权**：Wikipedia、Books、ArXiv虽然占比小，但多次采样
-- **代码数据单独控制**：10-20%，提升代码能力但不过度
-- **对话数据少量但重要**：StackExchange等问答数据培养对话能力
-- **多样性优先**：Common Crawl占主导，保证知识广度
+- **高质量数据提权**：Wikipedia、Books、ArXiv虽然占比小，但会重复采样多个 epoch
+- **代码与数学单独控制**：从 LLaMA-1 的约 5% 提升到 Llama 3 的四成以上（代码 + 数学推理），提升推理能力但要避免挤占通用知识
+- **问答数据少量但重要**：StackExchange等问答数据培养问答能力
+- **多样性优先**：网页数据占主导，保证知识广度
 
 ### 9.4.2 动态配比策略
 
@@ -4259,16 +4089,16 @@ $$
 
 ### 9.5.1 算法选择
 
-- **BPE（Byte Pair Encoding）**：GPT系列、LLaMA
-  - 从字符开始迭代合并高频pair
-  - 平衡词表大小和分词粒度
-- **WordPiece**：BERT，基于最大似然
-- **Unigram**：T5，从大词表剪枝
-- **SentencePiece**：语言无关，多语言模型首选
+- **BPE（Byte Pair Encoding）**：GPT系列、LLaMA 全系列
+  - 从字符（或字节）开始迭代合并高频pair
+  - 字节级 BPE（GPT-2 起、Llama 3 的 tiktoken 分词器）以字节为基本单元，天然没有未登录词
+- **WordPiece**：BERT，按合并后能最大提升语料似然的原则选择合并对
+- **Unigram**：T5，从大词表出发按似然逐步剪枝
+- **SentencePiece**：不是一种新算法，而是同时实现 BPE 与 Unigram 的工具库；直接在原始文本上训练、不依赖空格分词，适合中日文等多语言场景（LLaMA-1/2、T5 均使用）
 
 ### 9.5.2 词表大小
 - 英语为主：32k - 50k
-- 多语言：100k - 250k
+- 多语言：100k - 256k（Llama 3 为 128K，Qwen 约 151K，Gemma 为 256K）
 - 代码模型：更大词表
 
 **Trade-off**：
@@ -4286,6 +4116,7 @@ $$
 - 使用fast tokenizer（Rust实现）
 - 多语言平衡token数量
 
+---
 
 # 10. 评估与基准测试
 
@@ -4355,6 +4186,16 @@ $$
 - **特点**：更复杂的真实世界编程任务
 - **评估**：工具使用、API调用、复杂逻辑
 
+### 10.2.6 推理模型时代的新基准
+
+GSM8K、HumanEval 等经典基准已被前沿模型"刷满"（准确率普遍超过 90%），区分度下降，也更容易受训练数据污染影响。推理模型与 Agent 的评测转向更难、更新的基准：
+
+- **AIME**：美国数学邀请赛真题，每年 30 题，常以当年新题评测以避免污染
+- **GPQA Diamond**：198 道研究生水平的物理、化学、生物选择题，专门设计为无法靠搜索引擎作答（Google-proof）
+- **LiveCodeBench**：持续从编程竞赛平台收集新题，按题目发布时间筛选，缓解数据污染
+- **SWE-bench Verified**：500 个经人工确认可解的真实 GitHub issue，要求模型修改代码仓库并通过测试，是编程 Agent 的主流基准
+- **Humanity's Last Exam（HLE）**：约 2,500 道覆盖数十个学科的专家级难题，发布时前沿模型的准确率普遍不到 10%
+
 ## 10.3 多语言能力
 
 ### 10.3.1 FLORES（Facebook Low Resource Translation）
@@ -4400,8 +4241,8 @@ $$
 ## 10.5 安全性评估
 
 ### 10.5.1 ToxiGen
-- **目标**：检测有害内容生成倾向
-- **方法**：对抗性prompt测试
+- **目标**：检测有害内容生成倾向与隐性仇恨言论识别能力
+- **方法**：由 GPT-3 对抗式生成的约 27 万条关于 13 个少数群体的陈述（有毒与无毒各半），多数不含显式脏话
 - **评估维度**：
   - 毒性
   - 仇恨言论
@@ -4475,14 +4316,14 @@ $$
   - 编程等
 
 ### 10.6.2 AlpacaEval
-- **方法**：与参考模型（如GPT-4）对比
+- **方法**：与参考模型的回答两两比较，由 LLM 评委判断胜负（AlpacaEval 2.0 以 GPT-4 Turbo 为参考与评委）
 - **评估**：指令跟随质量
-- **输出**：胜率（Win Rate）
+- **输出**：胜率（Win Rate）；2.0 版本额外报告**长度控制胜率（LC Win Rate）**，抵消评委偏爱长回答的偏差
 
-### 10.6.3 Chatbot Arena
-- **方法**：人类盲评，Elo评分
-- **特点**：持续更新的实时排行榜
-- **意义**：反映真实用户偏好
+### 10.6.3 Chatbot Arena（LMArena）
+- **方法**：真实用户对两个匿名模型的回答盲评投票，用 Bradley-Terry 模型计算 Elo 式评分
+- **特点**：持续更新的实时排行榜，2025 年起更名为 LMArena
+- **意义**：反映真实用户偏好（但也会受回答风格、长度与格式影响）
 
 ## 10.7 综合评测平台
 
@@ -4492,7 +4333,7 @@ $$
   - 统一接口
   - 支持几十个基准测试
   - 标准化评测流程
-- **使用**：研究社区广泛采用
+- **使用**：研究社区广泛采用，Hugging Face Open LLM Leaderboard 即基于它；用法示例见 8.5.2.2 节
 
 ### 10.7.2 HELM（Holistic Evaluation of Language Models）
 - **维度**：
@@ -4509,11 +4350,6 @@ $$
   - 中文优化
   - 支持大规模评测
   - 可视化排行榜
-
-<div align="center">
-  <img src="/images/llm-training/benchmark-comparison.webp" width="90%" alt="主流模型评估对比" />
-  <figcaption>图：主流大模型在各基准测试上的性能对比（MMLU/GSM8K/HumanEval等）</figcaption>
-</div>
 
 ## 10.8 评测的最佳实践
 
@@ -4580,50 +4416,62 @@ pie title 大模型训练成本构成
 
 #### 11.2.2.1 预训练成本估算
 
-**公式**：
+**第一步：估算算力需求**
+
+稠密 Transformer 训练一个 token 约需 6 倍参数量的浮点运算（前向 2N、反向 4N），因此：
 
 $$
-\text{总成本} = \text{GPU成本} \times \text{数量} \times \text{训练时长} + \text{其他成本}
+C_{\text{train}} \approx 6ND \quad \text{(FLOPs)}, \qquad
+\text{GPU 小时} \approx \frac{6ND}{\text{单卡峰值 FLOPS} \times \text{MFU} \times 3600}
 $$
 
-**具体计算示例**：
+其中 $N$ 为参数量，$D$ 为训练 token 数，MFU（Model FLOPs Utilization）是实际达到的峰值算力比例，大规模训练通常在 35%–55%。
+
+**第二步：换算成本**
+
+$$
+\text{总成本} = \text{GPU 小时} \times \text{单价} + \text{存储、人力等其他成本}
+$$
 
 **案例1：训练一个7B模型**
 ```
 模型规模：7B参数
 训练数据：1T tokens
-GPU配置：64 × A100 (80GB)
-训练时长：约2周（336小时）
+算力需求：6 × 7e9 × 1e12 ≈ 4.2e22 FLOPs
+参考值：  LLaMA-1 7B 训练 1T tokens 实际用了约 82,432 A100 GPU 小时
+GPU配置：256 × A100 (80GB)
+训练时长：约2周（82,432 / 256 ≈ 322小时）
 
 成本估算：
 - GPU成本：$1.8/小时/卡（2026年云服务 A100 按需价，较2023年的$2.5/小时已明显下降）
-- GPU总成本：64 × $1.8 × 336 = $38,707
-- 存储成本：10TB数据 × $0.02/GB/月 ≈ $200
+- GPU总成本：82,432 × $1.8 ≈ $148,000
+- 存储成本：10TB数据 × $0.02/GB/月 ≈ $200/月
 - 网络成本：忽略不计
 - 人力成本：1人 × 2周 × $5000/周 = $10,000
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-总成本：约 $49,000
+总成本：约 $160,000
 ```
 
 **案例2：训练一个70B模型**
 ```
 模型规模：70B参数
 训练数据：2T tokens
-GPU配置：512 × H100 (80GB)
-训练时长：约6周（1008小时）
+算力需求：6 × 70e9 × 2e12 ≈ 8.4e23 FLOPs
+GPU配置：512 × H100 (80GB)，BF16 稠密峰值约 989 TFLOPS，按 MFU ≈ 45% 估算
+训练时长：约6周（8.4e23 / (512 × 989e12 × 0.45) ≈ 3.7e6 秒 ≈ 1030小时）
 
 成本估算：
 - GPU成本：$2.2/小时/卡（2026年云服务 H100 按需价；H200/B200 更新机型价格更高，约$3.2-5.5/小时）
-- GPU总成本：512 × $2.2 × 1008 = $1,135,411
+- GPU总成本：512 × $2.2 × 1030 ≈ $1,160,000
 - 存储成本：50TB × $0.02/GB/月 × 1.5 ≈ $1,500
 - 人力成本：3人 × 6周 × $5000/周 = $90,000
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-总成本：约 $1,227,000 (约123万美元)
+总成本：约 $1,250,000 (约125万美元)
 ```
 
 **真实案例对比：DeepSeek-V3（671B 参数，MoE 架构）**
 
-DeepSeek-V3 技术报告公开了其预训练成本：使用 2048 张 H800 GPU，累计 **278.8万 GPU 小时**，按每 GPU 小时 $2 估算，总预训练成本约 **$557.6 万美元**——对于一个性能接近 GPT-4 级别的 671B 参数模型而言，这一成本远低于行业预期，核心原因正是 **FP8 混合精度训练 + MLA 架构 + 高效 MoE 路由** 三项工程优化的叠加效果（详见本文「FP8 训练工程实践」与「MLA」相关章节）。这也是"低成本高性能"成为 2025-2026 年大模型训练新竞争维度的标志性案例。
+DeepSeek-V3 技术报告公开了其训练成本：使用 2048 张 H800 GPU，预训练、上下文扩展与后训练累计 **278.8 万 GPU 小时**，按每 GPU 小时 2 美元估算，总成本约 **557.6 万美元**（报告特别说明，这只是正式训练的成本，不含此前的架构、算法与数据消融实验）——对于一个性能接近 GPT-4 级别的 671B 参数模型而言，这一成本远低于行业预期，核心原因正是 **FP8 混合精度训练 + MLA 架构 + 高效 MoE 路由** 三项工程优化的叠加效果（详见本文「FP8 训练工程实践」与「MLA」相关章节）。这也是"低成本高性能"成为 2025-2026 年大模型训练新竞争维度的标志性案例。
 
 **案例3：微调（LoRA）成本**
 ```
@@ -4675,7 +4523,7 @@ GPU配置：1 × A100 (80GB)
 
 <div align="center">
   <img src="/images/llm-training/training-loss-curve.webp" width="85%" alt="训练loss曲线示例" />
-  <figcaption>图：健康的训练loss曲线（平滑下降，无spike）（来源：LLaMA 论文 Figure 2）</figcaption>
+  <figcaption>图：健康的训练 loss 曲线示意——训练 loss 平滑下降、无 spike，验证 loss 随之下降并带有评估噪声</figcaption>
 </div>
 
 ### 11.3.1 关键监控指标
@@ -4702,8 +4550,8 @@ graph LR
 
 **正常Loss曲线特征**：
 - 稳定下降，无剧烈波动
-- 预训练loss：通常从8-10降至2-3
-- Training loss < Validation loss（轻微过拟合正常）
+- 预训练loss：初始值约为 $\ln(\text{词表大小})$（32K 词表约 10.4），训练后通常降至 2 左右
+- 预训练通常不足 1 个 epoch，训练 loss 与验证 loss 应基本重合；两者明显分叉往往说明数据重复或验证集与训练集分布不一致
 
 **异常Loss模式**：
 
@@ -4790,11 +4638,11 @@ deepspeed_config = {
 # 1. 检查GPU利用率
 nvidia-smi dmon -s u
 
-# 2. 分析性能瓶颈
-python -m torch.utils.bottleneck train.py
+# 2. 系统级时间线：看计算、通信、数据加载是否重叠
+nsys profile -o train_profile python train.py
 
-# 3. 使用profiler
-python -m torch.profiler train.py
+# 3. 算子级分析：在训练脚本中用 torch.profiler 包住若干步，
+#    再用 TensorBoard 或 chrome://tracing 查看
 ```
 
 **常见瓶颈及解决**：
@@ -4876,8 +4724,9 @@ def resume_training(checkpoint_path):
     # 恢复学习率调度器
     scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
 
-    # 恢复随机数种子
-    torch.manual_seed(checkpoint['random_seed'])
+    # 恢复随机数生成器状态（只重设种子无法复现中断前的数据顺序）
+    torch.set_rng_state(checkpoint['torch_rng_state'])
+    torch.cuda.set_rng_state_all(checkpoint['cuda_rng_state'])
 
     return start_step, start_epoch
 ```
@@ -4906,10 +4755,10 @@ MiniMind 是一个极简的开源 LLM 训练项目，旨在让开发者在**单�
 | 维度 | MiniMind (26M版) | Llama-3 (8B版) |
 |------|-----------------|---------------|
 | **参数量** | 2.6千万 | 80亿 |
-| **硬件要求** | 1 x RTX 3060 | 8 x A100 (SFT) / 1024+ (PT) |
-| **训练时长** | ~2 小时 | 数周 |
-| **数据规模** | ~1B Tokens | 15T Tokens |
-| **成本** | 几块钱电费 | 数十万美元 |
+| **硬件要求** | 1 × RTX 3090 | 预训练约 130 万 H100 GPU 小时（Meta 官方模型卡） |
+| **训练时长** | ~2 小时 | 数周（在 H100 集群上） |
+| **数据规模** | 数 GB 级精选语料 | 15T+ Tokens |
+| **成本** | 约 3 元（按云 GPU 租用计） | 数百万美元量级 |
 
 ### 11.4.4 给初学者的启示
 *   **掌握全流程比堆算力更重要**：通过 MiniMind，你可以亲手训练分词器、编写 Transformer 结构、执行从预训练到 DPO 对齐的每一个 Python 脚本。
@@ -4918,8 +4767,8 @@ MiniMind 是一个极简的开源 LLM 训练项目，旨在让开发者在**单�
 
 
 ---
-# 12. 常见问题
-————FAQ
+
+# 12. 常见问题（FAQ）
 
 本章汇总大模型训练中**最常遇到的问题及解答**，帮助快速解决实践中的困惑。
 
@@ -4934,7 +4783,7 @@ MiniMind 是一个极简的开源 LLM 训练项目，旨在让开发者在**单�
 - **小模型（1-3B）**：
   - 最少：10-50B tokens可得到基本能力
   - 推荐：100-300B tokens获得较好效果
-  - 例如：Phi-1使用7B高质量tokens就很强
+  - 例如：Phi-1（1.3B）只用约 7B tokens 的高质量数据，就在代码任务上表现很强
 
 - **中型模型（7-13B）**：
   - 推荐：500B-1T tokens
@@ -4944,7 +4793,10 @@ MiniMind 是一个极简的开源 LLM 训练项目，旨在让开发者在**单�
   - 推荐：1.5-2T tokens
   - LLaMA-2 70B使用2T tokens
 
-**💎 关键洞察**：**质量 > 数量**。Phi系列证明了高质量小数据可以打败低质量大数据（7B tokens训出1.3B模型，性能媲美13B）。
+**💎 关键洞察**：
+
+- **算力最优 vs 推理最优**：Chinchilla 的算力最优配比约为每参数 20 tokens（70B 模型约 1.4T tokens）。但部署时推理成本占大头，现代模型普遍远超这个比例"过度训练"小模型——Llama 3 8B 用了 15T tokens，约每参数 1,900 tokens，换取同等推理成本下更强的能力
+- **质量 > 数量**：Phi-1（1.3B）只用约 7B tokens 的"教科书级"数据，HumanEval pass@1 就达到 50.6%，超过参数量大 10 倍以上的 StarCoder-15B
 
 ---
 
@@ -4964,10 +4816,7 @@ MiniMind 是一个极简的开源 LLM 训练项目，旨在让开发者在**单�
    - 在基准测试上的表现不再提升
    - 这是最终判断标准
 
-4. **训练步数经验值**：
-   - 7B模型：100-200k步
-   - 70B模型：50-100k步
-   - 规模越大，所需步数越少
+4. **训练步数**：由数据量和 batch 决定，而不是模型规模——总步数 ≈ 总 token 数 / 每步 token 数。例如 LLaMA-2 以每步 4M tokens 训练 2T tokens，7B 到 70B 都是约 50 万步
 
 **建议**：预训练通常**不追求完全收敛**，因为成本极高且收益递减。在loss曲线趋缓后即可停止。
 
@@ -4995,33 +4844,20 @@ MiniMind 是一个极简的开源 LLM 训练项目，旨在让开发者在**单�
 
 <div align="center">
   <img src="/images/llm-training/loss-spike-example.webp" width="80%" alt="Loss Spike案例" />
-  <figcaption>图：Loss Spike现象与恢复策略示意图（来源：OPT 论文 Figure 3）</figcaption>
+  <figcaption>图：Loss Spike 示意——训练中出现两次尖峰，应对方式是回退到尖峰前的安全 checkpoint</figcaption>
 </div>
 
-**Loss Spike预防代码**：
-```python
-# 策略1: 自动检测与回退到安全checkpoint
-if loss > moving_average * 2.0:  # loss突增2倍，危险！
-    print("⚠️ Loss spike! Rolling back to previous checkpoint...")
-    load_checkpoint(previous_good_checkpoint)
-    learning_rate *= 0.5  # 降低学习率再试
-
-# 策略2: 梯度裁剪（限制单步更新幅度）
-torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-
-# 策略3: 更稳定的Adam配置（beta2=0.95比0.999更稳定）
-optimizer = AdamW(lr=1e-4, betas=(0.9, 0.95), eps=1e-8)
-```
+**预防手段**：梯度裁剪（max_norm=1.0）、BF16 替代 FP16、把 Adam 的 $\beta_2$ 从 0.999 调到 0.95、跳过引发尖峰的数据批次。完整的应对流程与自动检测代码见 11.3.2.3 节；PaLM 报告的经验是，回退到尖峰前约 100 步的 checkpoint 并跳过其后的 200–500 个数据批次，尖峰通常不再复现。
 
 ---
 
 ### 12.1.4 Q4: 预训练可以超过1个epoch吗？
 
-**A:** **不推荐**，原因如下：
+**A:** 数据充足时**不推荐**，但数据受限时适度重复是可以的：
 
-1. **记忆效应**：模型会记住训练数据，降低泛化能力
-2. **收益递减**：第2个epoch的性能提升远小于成本
-3. **行业惯例**：主流大模型（GPT-3、LLaMA等）都是<1 epoch
+1. **记忆效应**：重复次数过多，模型会记住训练数据，降低泛化能力
+2. **收益递减**：Muennighoff et al.（2023）发现，同一批数据重复训练到约 4 个 epoch，效果与使用全新数据几乎相当；继续重复则收益迅速衰减，最终再增加算力也几乎没有价值
+3. **行业惯例**：主流大模型的网页主体数据都不足 1 个 epoch，但会对 Wikipedia、书籍等高质量小数据源重复 2-3 次（如 LLaMA-1 的 Wikipedia 约 2.45 个 epoch）
 
 **例外情况**：
 - 数据量极小（<10B tokens）时可以多epoch
@@ -5035,8 +4871,7 @@ optimizer = AdamW(lr=1e-4, betas=(0.9, 0.95), eps=1e-8)
 
 ---
 
-## 12.2 🎨 监督微调相关
-————SFT
+## 12.2 🎨 监督微调（SFT）相关
 
 ### 12.2.1 Q5: LoRA和全参数微调如何选择？
 
@@ -5058,18 +4893,13 @@ optimizer = AdamW(lr=1e-4, betas=(0.9, 0.95), eps=1e-8)
   - 需要训练多个任务adapter
   - 快速实验和迭代
 - ❌ **劣势**：
-  - 性能略低于全参数（通常差距<2%）
-  - 需要调整额外超参数（r, alpha）
+  - 学习新知识的能力弱于全参数微调，数据量越大差距越明显
+  - 需要调整额外超参数（r, alpha，以及比全参数微调更大的学习率）
 
-**性能对比**：
-```
-任务类型          全参数微调    LoRA (r=16)    差距
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-指令遵循          96.5%        95.8%         -0.7%
-对话质量          92.3%        91.5%         -0.8%
-代码生成          88.7%        87.2%         -1.5%
-数学推理          76.4%        74.9%         -1.5%
-```
+**差距有多大？** 取决于任务和数据量：
+
+- **LoRA Learns Less and Forgets Less**（Biderman et al., 2024）：在代码、数学的大规模继续预训练上，LoRA 明显落后于全参数微调；在指令微调上差距较小，同时遗忘更少
+- **LoRA Without Regret**（Thinking Machines, 2025）：只要覆盖全部线性层、学习率设为全参数微调的约 10 倍，LoRA 在常规规模的 SFT 和强化学习上可以与全参数微调持平；只有当数据量超出 LoRA 的容量时才会落后
 
 **推荐策略**：
 - 资源受限或快速实验 → **LoRA**
@@ -5221,8 +5051,7 @@ for _ in range(n):
 
 ---
 
-## 12.4 🎯 对齐相关
-————RLHF/DPO
+## 12.4 🎯 偏好对齐相关
 
 ### 12.4.1 Q9: RLHF和DPO如何选择？
 
@@ -5257,7 +5086,7 @@ for _ in range(n):
 
 ---
 
-### 12.4.2 Q9: 偏好数据如何构建？
+### 12.4.2 Q10: 偏好数据如何构建？
 
 **A:** 三种主要方法：
 
@@ -5286,11 +5115,13 @@ Response B: {response_b}
 Which response is better? Consider helpfulness, accuracy, and safety.
 Answer: A or B
 """
+# 实践中要交换 A/B 顺序各评一次，抵消评委的位置偏好
+```
 
-# 成本优势明显
-成本：$0.01-0.05/样本（vs 人工的$5-20/样本）
+```
+成本：$0.01-0.05/样本（vs 人工的$0.5-2/样本）
 规模：轻松扩展到100k+
-质量：⭐⭐⭐⭐（约90%接近人类标注）
+质量：⭐⭐⭐⭐（RLAIF 论文中 AI 标注与人类偏好的一致率约 78%，与人类标注者之间的一致率相近）
 ```
 
 **方法3：合成构建**（快速启动）
@@ -5302,11 +5133,12 @@ rejected = synthesize_negative(chosen)  # 负样本来源：
     # - 注入事实错误
     # - 违反指令要求
     # - 添加有害内容
+```
 
-# 零成本快速启动
+```
 成本：几乎免费（无需API或人工）
 规模：无限（自动生成）
-质量：⭐⭐⭐（有效，但不如真实对比）
+质量：⭐⭐⭐（有效，但负样本太"假"时模型学到的区分能力有限）
 ```
 
 **混合策略**（推荐）：
@@ -5320,7 +5152,7 @@ rejected = synthesize_negative(chosen)  # 负样本来源：
 
 ## 12.5 ⚙️ 工程实践相关
 
-### 12.5.1 Q10: 如何选择合适的并行策略？
+### 12.5.1 Q11: 如何选择合适的并行策略？
 
 **A:** 遵循决策树：
 
@@ -5374,7 +5206,7 @@ assert 4 * 8 * 4 == 128  # ✓ 刚好用满
 
 ---
 
-### 12.5.2 Q11: 显存不够怎么办？
+### 12.5.2 Q12: 显存不够怎么办？
 
 **A:** 多层优化策略：
 
@@ -5407,17 +5239,17 @@ zero_stage = 2  # 优化器状态分布到多GPU
 **Level 3：激进优化** ⚡ （显著性能损失）
 ```python
 # 技巧6: ZeRO-3全分片 + CPU卸载（参数也分片）
+# 技巧7: 激活检查点也卸载到CPU（终极省显存）
 deepspeed_config = {
     "zero_optimization": {
         "stage": 3,                              # 分片参数、梯度、优化器
         "offload_optimizer": {"device": "cpu"},  # 优化器→CPU
         "offload_param": {"device": "cpu"}       # 参数→CPU
+    },
+    "activation_checkpointing": {
+        "partition_activations": True,
+        "cpu_checkpointing": True                # 检查点激活→CPU
     }
-}
-
-# 技巧7: 激活值也卸载到CPU（终极省显存）
-"activation_checkpointing": {
-    "cpu_checkpointing": True
 }
 ```
 💾 节省显存：额外40-50%（可训练超大模型）
@@ -5438,22 +5270,23 @@ model_size = "13B"  # 从70B→13B，显存降5倍
 ```
 总显存 = 模型参数 + 优化器状态 + 梯度 + 激活值
 
-示例（70B模型，BF16）：
-- 模型参数：70B × 2字节 = 140GB
-- 优化器（Adam）：70B × 8字节 = 560GB
-- 梯度：70B × 2字节 = 140GB
+示例（70B模型，BF16 混合精度 + AdamW）：
+- 模型参数（BF16）：70B × 2字节 = 140GB
+- 梯度（BF16）：70B × 2字节 = 140GB
+- 优化器状态（FP32 主权重 + m + v）：70B × 12字节 = 840GB
 - 激活值：取决于batch size和序列长度
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-总计：~840GB（未优化）
+总计：~1,120GB + 激活值（未优化）
 
-应用ZeRO-3 + Offload：
-- 每个GPU只需：840GB / GPU数量
-- 8×A100 (80GB)：每卡需105GB → 使用offload可行
+应用ZeRO-3：
+- 每个GPU的模型状态：1,120GB / GPU数量
+- 8×A100 (80GB)：每卡需 140GB → 放不下，必须叠加 CPU/NVMe Offload
+- 16×A100 (80GB)：每卡需 70GB → 勉强放下模型状态，激活值仍需梯度检查点
 ```
 
 ---
 
-### 12.5.3 Q12: 训练中断如何恢复？
+### 12.5.3 Q13: 训练中断如何恢复？
 
 **A:** 完整的恢复流程：
 
@@ -5466,7 +5299,8 @@ def save_checkpoint(model, optimizer, scheduler, step, epoch):
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
         'scheduler_state_dict': scheduler.state_dict(),
-        'random_seed': torch.initial_seed(),
+        'torch_rng_state': torch.get_rng_state(),
+        'cuda_rng_state': torch.cuda.get_rng_state_all(),
         'numpy_random_state': np.random.get_state(),
         'python_random_state': random.getstate(),
     }
@@ -5479,8 +5313,9 @@ def load_checkpoint(path, model, optimizer, scheduler):
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
 
-    # 恢复随机数状态（重要！）
-    torch.manual_seed(checkpoint['random_seed'])
+    # 恢复随机数状态（重要！只重设种子无法复现中断前的数据顺序）
+    torch.set_rng_state(checkpoint['torch_rng_state'])
+    torch.cuda.set_rng_state_all(checkpoint['cuda_rng_state'])
     np.random.set_state(checkpoint['numpy_random_state'])
     random.setstate(checkpoint['python_random_state'])
 
@@ -5488,10 +5323,11 @@ def load_checkpoint(path, model, optimizer, scheduler):
 ```
 
 **2. 训练脚本支持恢复**
-```python
-# 启动参数
---resume_from_checkpoint ./checkpoint_step_50000.pt
+```bash
+python train.py --resume_from_checkpoint ./checkpoint_step_50000.pt
+```
 
+```python
 # 训练循环
 if args.resume_from_checkpoint:
     start_step, start_epoch = load_checkpoint(...)
@@ -5505,16 +5341,13 @@ for step in range(start_step, total_steps):
 ```
 
 **3. 验证恢复正确性**
-```python
-# 恢复后，loss曲线应该平滑衔接
-# 不应该有突变或跳跃
 
-# 检查清单：
-✓ Loss值连续
-✓ 学习率正确
-✓ 随机数种子恢复（数据顺序一致）
-✓ Step计数正确
-```
+恢复后，loss 曲线应该平滑衔接，不应该有突变或跳跃。检查清单：
+
+- ✓ Loss值连续
+- ✓ 学习率正确
+- ✓ 随机数状态与数据加载位置恢复（数据顺序一致）
+- ✓ Step计数正确
 
 **4. DeepSpeed恢复**
 ```python
@@ -5538,7 +5371,7 @@ step = client_sd['step']
 
 ---
 
-### 12.5.4 Q13: 如何判断训练是否正常？
+### 12.5.4 Q14: 如何判断训练是否正常？
 
 **A:** 多维度监控清单：
 
@@ -5546,7 +5379,7 @@ step = client_sd['step']
 
 1. **Loss曲线**
    - ✓ 平稳下降，无大幅波动
-   - ✓ Training loss < Validation loss（轻微）
+   - ✓ 预训练阶段训练 loss 与验证 loss 基本重合
    - ✓ 下降速度符合预期
 
 2. **梯度指标**
@@ -5591,21 +5424,20 @@ wandb.log({
 ```python
 # 设置告警阈值（根据实际情况调整）
 if loss > moving_avg * 1.5:
-    send_alert("🚨 Loss spike! Current: {loss:.4f}, Avg: {moving_avg:.4f}")
+    send_alert(f"🚨 Loss spike! Current: {loss:.4f}, Avg: {moving_avg:.4f}")
 
 if gpu_util < 50:
-    send_alert("⚠️ GPU利用率低! 当前: {gpu_util}%（可能数据IO瓶颈）")
+    send_alert(f"⚠️ GPU利用率低! 当前: {gpu_util}%（可能数据IO瓶颈）")
 
 if grad_norm > 100:
-    send_alert("💥 梯度爆炸! Norm={grad_norm:.2f}（正常<10）")
+    send_alert(f"💥 梯度爆炸! Norm={grad_norm:.2f}（正常<10）")
 ```
 
 ---
 
 # 13. 迈向多模态与智能体：VLM 架构与 Agent 训练
-————Vision Language Model (VLM)
 
-在纯文本 LLM 的基础上，如何让模型“看见”世界？Vision Language Model (VLM) 提供了将图像、视频等非文本模态整合进语言模型的标准方案。本章将从融合架构、动态分辨率处理、视觉 Token 编码以及 PyTorch 实战代码四个维度进行深度剖析。
+在纯文本 LLM 的基础上，如何让模型“看见”世界、再进一步自主使用工具完成任务？本章前半部分介绍 Vision Language Model（VLM）：融合架构、动态分辨率处理、视觉 Token 编码、两阶段训练流程与一个极简 PyTorch 实现；后半部分介绍 Agent 的工具调用训练。更完整的 VLM 模型梳理见本站的《VLM 综述》。
 
 ---
 
@@ -5633,7 +5465,7 @@ graph LR
 ### 13.1.2 粘合投影层 (Projection Layer)
 负责将视觉编码器输出的特征维度（如 ViT 的 1024 维）映射到大语言模型的词表向量维度（如 Llama-3 的 4096 维），并将视觉特征转化为 LLM 能够理解的“虚拟视觉 Tokens”。
 * **线性投影/多层感知机 (Linear/MLP Projection)**：LLaVA 采用的极简方案，计算开销极低，但会将 ViT 的所有特征全部送入 LLM（如 576 个 Token），随着图像增加，极易占满 LLM 的上下文窗口。
-* **感知机重采样器 (Perceiver Resampler)**：PaliGemma / Flamingo 采用的方案。使用一组固定数量的“查询向量（Queries）”通过交叉注意力（Cross-Attention）对 ViT 的海量特征进行聚合，将任意分辨率/任意数量的视觉特征压缩为固定长度（如 64 或 128 个 Token），极大节省了 LLM 的上下文窗口。
+* **Perceiver 重采样器 (Perceiver Resampler)**：Flamingo 采用的方案，第一代 Qwen-VL 也用了类似的单层交叉注意力重采样器。使用一组固定数量的“查询向量（Queries）”通过交叉注意力（Cross-Attention）对 ViT 的海量特征进行聚合，将任意分辨率/任意数量的视觉特征压缩为固定长度（Flamingo 为 64 个，Qwen-VL 为 256 个），极大节省了 LLM 的上下文窗口。（PaliGemma 则与 LLaVA 一样，只用一个线性层把 SigLIP 特征投影到 Gemma 的词嵌入空间。）
 * **Q-Former**：BLIP-2 提出的基于两阶段预训练的 Query 变换器，结构较重但表征能力强。
 
 ### 13.1.3 语言模型基座 (LLM Backbone)
@@ -5647,34 +5479,28 @@ graph LR
 
 为了解决该痛点，现代 VLM（如 LLaVA-NeXT, Monkey, InternVL）采用了**动态切片（Image Patching）**技术：
 
-```
-+------------------------------------+
-|                                    |
-|          原始图像 (如 672x672)      |
-|                                    |
-+------------------------------------+
-                  |  进行网格切分
-                  v
-+------------------+------------------+
-|                  |                  |
-|    子图 1 (336x336)|    子图 2 (336x336)|
-|                  |                  |
-+------------------+------------------+
-|                  |                  |
-|    子图 3 (336x336)|    子图 4 (336x336)|
-|                  |                  |
-+------------------+------------------+
-                  +
-+------------------------------------+
-|  全局缩略图 (336x336, 提取宏观特征)   |
-+------------------------------------+
+```mermaid
+flowchart TD
+    IMG["原始高分辨率图像<br>如 672×672"] -->|"网格切分"| T1["子图 1<br>336×336"]
+    IMG -->|"网格切分"| T2["子图 2<br>336×336"]
+    IMG -->|"网格切分"| T3["子图 3<br>336×336"]
+    IMG -->|"网格切分"| T4["子图 4<br>336×336"]
+    IMG -->|"整体缩放"| G["全局缩略图<br>336×336"]
+    T1 & T2 & T3 & T4 & G --> VE["Visual Encoder 分别编码"]
+    VE --> SEQ["拼接为一串视觉 Tokens<br>送入 Projection 与 LLM"]
+
+    style IMG fill:#e3f2fd,stroke:#01579b,color:#000
+    style G fill:#fff9c4,stroke:#f57f17,color:#000
+    style SEQ fill:#c8e6c9,stroke:#1b5e20,color:#000
 ```
 
 * **处理流程**：
   1. 将一张高分辨率图像（如 $672 \times 672$）无重叠地切割为 $2 \times 2$ 个子图，每个子图为 $336 \times 336$。
   2. 另外将原始图强行缩放到 $336 \times 336$，作为“全局缩略图”，用于提供图像全局宏观布局。
   3. 将这 5 张图分别送入 Visual Encoder 提取特征，由 Projection Layer 映射后拼接为一串视觉 Tokens。
-  4. 这种方式能让大模型无损看清大图中的所有像素细节。
+  4. 这种方式能让大模型看清大图中的小字和细节，代价是视觉 Token 数随切片数成倍增加（上例为 5 × 576 = 2,880 个）。
+
+另一条路线是**原生动态分辨率**：Qwen2-VL 起不再把图像缩放或切成固定尺寸，而是让 ViT 直接处理任意分辨率的图像（配合 2D 位置编码），视觉 Token 数随图像面积变化，再把相邻 2×2 个 Token 合并以控制序列长度。
 
 ---
 
@@ -5683,18 +5509,36 @@ graph LR
 在 VLM 中，图像特征向量在送入 LLM 之前，必须在序列维度与文本进行拼接或交织（Interleaving）。
 
 * **序列表示格式**：
-  在 Token 级别，图像通常会被一对特殊的标志符包裹。例如，一张图映射为 $N$ 个视觉 Token（例如 $N=576$），在输入 LLM 时的表征形式为：
+  在 Token 级别，图像通常会被一对特殊的标志符包裹。例如，一张图映射为 $N$ 个视觉 Token（例如 $N=576$），在对话模板中的形式大致为：
   ```
-  <|begin_of_text|>system\nYou are a helpful assistant.\n
-  user\nPlease describe this image: <image>Visual_Token_1, Visual_Token_2, ..., Visual_Token_N</image>\n
-  assistant\n
+  <|im_start|>system
+  You are a helpful assistant.<|im_end|>
+  <|im_start|>user
+  <image> v_1 v_2 ... v_N </image> Please describe this image.<|im_end|>
+  <|im_start|>assistant
   ```
+  其中 `v_1 ... v_N` 并不是词表中的 token，而是投影层输出的向量，在 Embedding 层之后直接替换占位符位置（见 13.5 节代码）。
 * **Attention Mask 控制**：
-  为了实现高效建模，视觉 Token 之间通常应用**双向注意力（Bidirectional Attention）**，即视觉 Token 内部能够互相看到，而不需要受自回归的因果遮蔽（Causal Mask）限制；文本 Token 对视觉 Token 则应用正常的**因果注意力（Causal Attention）**。
+  多数 VLM（如 LLaVA、Qwen-VL 系列）直接沿用 LLM 的**因果注意力（Causal Attention）**，视觉 Token 与文本 Token 一视同仁。也有模型采用 **Prefix-LM**：PaliGemma 让图像 Token 与前缀文本之间**双向可见**，只对要生成的回答部分使用因果掩码。
 
 ---
 
-## 13.4 极简 VLM 前向传播 PyTorch 实现
+## 13.4 VLM 的两阶段训练
+
+以 LLaVA-1.5 为代表的主流 VLM 采用两阶段训练，先"对齐模态"，再"学会指令"：
+
+| 阶段 | 训练哪些参数 | 数据 | 目标 |
+|------|-------------|------|------|
+| **阶段一：特征对齐预训练** | 只训练投影层；视觉编码器与 LLM 冻结 | 约 55.8 万对图文描述数据（LCS-558K） | 让视觉特征落到 LLM 能理解的词嵌入空间 |
+| **阶段二：视觉指令微调** | 投影层 + LLM（全参数或 LoRA）；视觉编码器通常仍冻结 | 约 66.5 万条混合指令数据（视觉对话、VQA、OCR、区域描述与纯文本对话） | 让模型能按指令完成多种视觉任务 |
+
+- **为什么先冻结 LLM**：随机初始化的投影层一开始输出的是"噪声 Token"，此时放开 LLM 会破坏其语言能力（呼应第 5 章的灾难性遗忘）
+- **纯文本数据仍然重要**：阶段二混入纯文本对话（LLaVA-1.5 混入了 ShareGPT 数据），可以维持 LLM 原有的对话和推理能力
+- **更新的做法**：InternVL、Qwen2-VL 等后续模型会在阶段一之后加入大规模图文交错数据的继续预训练，并在后期解冻视觉编码器，以提升 OCR 和高分辨率理解能力
+
+---
+
+## 13.5 极简 VLM 前向传播 PyTorch 实现
 
 以下代码演示了如何使用 PyTorch 从零构建一个支持 Vision-Language 融合的极简 VLM 模型：
 
@@ -5767,11 +5611,11 @@ class SimpleVLM(nn.Module):
 
 ---
 
-## 13.5 Agent 训练：从对话到自主完成任务
+## 13.6 Agent 训练：从对话到自主完成任务
 
 2025-2026 年大模型竞争的新焦点已从"对话质量"转向"**能否自主使用工具、完成多步任务**"（Agentic 能力），如 Kimi K2 等模型即以此为核心卖点。Agent 训练在数据格式和奖励设计上与前几章的对话/推理模型训练有显著差异，本节作为补充。
 
-### 13.5.1 工具调用 SFT 数据格式
+### 13.6.1 工具调用 SFT 数据格式
 
 Agent 训练的第一步是让模型学会按固定格式发起工具调用，常见做法是在对话格式中插入专门的工具调用/返回轮次：
 
@@ -5786,7 +5630,7 @@ Agent 训练的第一步是让模型学会按固定格式发起工具调用，�
 
 与标准 SFT（3.2.2 节）一样，**只对 `<|assistant|>` 部分计算 loss**，`<|tool_response|>` 部分（来自外部环境，非模型生成）不参与梯度计算。这类数据通常采用 **ReAct（Reasoning + Acting）格式**——模型在每次工具调用前先输出一段简短的思考（为什么调用这个工具、参数怎么定），再输出结构化的调用指令，从经验上看比"直接输出调用"更不容易出现参数错误。
 
-### 13.5.2 多轮工具调用的 RL 奖励设计
+### 13.6.2 多轮工具调用的 RL 奖励设计
 
 SFT 只能让模型学会"模仿"工具调用的格式，真正提升任务完成率依赖 RL 训练，奖励设计是核心难点：
 
@@ -5799,7 +5643,7 @@ SFT 只能让模型学会"模仿"工具调用的格式，真正提升任务完�
 
 与 4.5.3 节的 ORM/PRM 类似，多步 Agent 任务的"信用分配"问题更突出——一个长达 10 步工具调用的任务失败，很难判断是哪一步出的错。工业界常见做法是**优先使用任务结果奖励 + GRPO 组内相对优势**（4.5.1 节），让模型通过组内对比自行学习哪些调用序列更优，而非依赖昂贵的步骤级标注。
 
-### 13.5.3 与现有章节的衔接
+### 13.6.3 与现有章节的衔接
 
 Agent 训练并非全新的技术栈，而是对前文技术的组合应用：
 - **冷启动**：用人工或强模型蒸馏的工具调用轨迹做 SFT（呼应 3.3.2、4.8 节蒸馏方法）
@@ -5808,8 +5652,7 @@ Agent 训练并非全新的技术栈，而是对前文技术的组合应用：
 
 ---
 
-# 14. 参考资源
-————References & Reading List
+# 14. 参考资源（References & Reading List）
 
 为了帮助深入探索和落地大语言模型训练，本章梳理了本综述提及的核心学术论文、开源社区标杆项目以及推荐的实践学习路径。
 
@@ -5823,10 +5666,19 @@ Agent 训练并非全新的技术栈，而是对前文技术的组合应用：
   * Hoffmann et al. [Training Compute-Optimal Large Language Models](https://arxiv.org/abs/2203.15556) (Chinchilla 缩放公式，证明数据量与参数同等重要)
 * **主流基座模型**：
   * Touvron et al. [LLaMA: Open and Efficient Foundation Language Models](https://arxiv.org/abs/2302.13971) (现代开源 LLM 的基石)
+  * Llama Team, AI @ Meta. [The Llama 3 Herd of Models](https://arxiv.org/abs/2407.21783) (数据配比、长上下文扩展与后训练流程的完整工程报告)
+* **预训练数据**：
+  * Penedo et al. [The FineWeb Datasets: Decanting the Web for the Finest Text Data at Scale](https://arxiv.org/abs/2406.17557) (15T tokens 网页数据的清洗、去重与教育价值过滤)
 * **偏好对齐与强化学习**：
   * Ouyang et al. [Training language models to follow instructions with human feedback](https://arxiv.org/abs/2203.02155) (InstructGPT / RLHF)
   * Rafailov et al. [Direct Preference Optimization: Your Language Model is Secretly a Reward Model](https://arxiv.org/abs/2305.18290) (DPO 算法)
-  * DeepSeek-AI. [DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning](https://arxiv.org/abs/2501.12948) (GRPO 与推理模型训练范式)
+  * Shao et al. [DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models](https://arxiv.org/abs/2402.03300) (GRPO 算法首次提出)
+  * DeepSeek-AI. [DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning](https://arxiv.org/abs/2501.12948) (推理模型的大规模 RL 训练范式与蒸馏)
+* **高效微调与分布式训练**：
+  * Hu et al. [LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685) (参数高效微调的事实标准)
+  * Dettmers et al. [QLoRA: Efficient Finetuning of Quantized LLMs](https://arxiv.org/abs/2305.14314) (NF4 + 双重量化 + 分页优化器)
+  * Rajbhandari et al. [ZeRO: Memory Optimizations Toward Training Trillion Parameter Models](https://arxiv.org/abs/1910.02054) (ZeRO 分片)
+  * Shoeybi et al. [Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism](https://arxiv.org/abs/1909.08053) (张量并行)
 * **2024-2026 关键技术报告**（架构创新、FP8 训练工程、超大规模 MoE 的一手资料）：
   * DeepSeek-AI. [DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model](https://arxiv.org/abs/2405.04434) (MLA 多头潜在注意力首次提出)
   * DeepSeek-AI. [DeepSeek-V3 Technical Report](https://arxiv.org/abs/2412.19437) (FP8 混合精度训练工程细节、671B MoE 架构与真实训练成本披露)
@@ -5847,7 +5699,7 @@ Agent 训练并非全新的技术栈，而是对前文技术的组合应用：
   * [verl](https://github.com/volcengine/verl) (字节跳动开源的 RLHF/GRPO 训练框架，原生集成 vLLM/SGLang 做 Rollout 加速)
   * [OpenRLHF](https://github.com/OpenRLHF/OpenRLHF) (易用的开源 RLHF/GRPO 训练框架，支持大规模分布式 RL 训练)
 * **小模型教学实战**：
-  * [MiniMind](https://github.com/wangr2018/minimind) (超轻量大模型全栈训练项目，非常适合在个人显卡上快速跑通预训练到 RL 完整 Pipeline)
+  * [MiniMind](https://github.com/jingyaogong/minimind) (超轻量大模型全栈训练项目，非常适合在个人显卡上快速跑通预训练到 RL 完整 Pipeline)
 
 ## 14.3 推荐实践学习路径
 
