@@ -660,7 +660,7 @@ graph LR
 
 ## 4.5 空间感知语言模型
 
-> 💡 **架构背景提示**：空间感知语言模型（3D MLLM / Spatial VLM）通常基于 2D 通用多模态大模型扩展而来（例如通过引入 3D 几何编码器、点云 Tokenizer 或空间位置 Prompt）。关于通用多模态融合的核心机制（线性投影/交叉注意力/Q-Former）与完整训练调优流水线，请参考前置基座篇：[《VLM综述：4. 实现多模态的核心方法》](/VLM-Survey/#4-实现多模态的核心方法) 与 [《6. VLM训练流程与关键技术》](/VLM-Survey/#6-vlm训练流程与关键技术)。
+> 💡 **架构背景提示**：空间感知语言模型（3D MLLM / Spatial VLM）通常基于 2D 通用多模态大模型扩展而来（例如通过引入 3D 几何编码器、点云 Tokenizer 或空间位置 Prompt）。关于通用多模态融合的核心机制（线性投影/交叉注意力/Q-Former）与完整训练调优流水线，请参考前置基座篇：[《VLM综述：4. 实现多模态的核心方法》](/VLM-Survey/#vlm-methods) 与 [《6. VLM训练流程与关键技术》](/VLM-Survey/#vlm-training)。
 
 ### ScanRefer & ScanQA
 **ScanRefer**（Chen et al., ECCV 2020）提出了**三维视觉定位（3D Visual Grounding）**任务：给定自然语言描述（如"靠近门口的那张棕色椅子"），在三维点云场景中定位目标物体（输出三维边界框）。ScanRefer 数据集包含 51,583 条对 ScanNet 扫描中物体的语言描述，是三维语言定位方向的核心基准。ScanRefer 之后，**Nr3D/Sr3D**（Achlioptas et al., 2020）和 **ScanQA**（Azuma et al., CVPR 2022）进一步扩展了三维语言理解的评测维度。
