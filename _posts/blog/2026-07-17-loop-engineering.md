@@ -25,7 +25,7 @@ excerpt: "Loop Engineering（循环工程）是 2026 年 AI 智能体开发的�
 
 这种将智能体置于自主、迭代式的执行周期中，使其能够自我决策、自我纠错并逐步逼近目标的系统性设计方法，被称为 **Loop Engineering（循环工程）**。
 
-<div align="center"><img src="/images/agent/loop-engineering-hero.jpg" width="90%" alt="Loop Engineering Hero" /><figcaption>图 1：Loop Engineering 核心概念——从“手动 Prompt”转向“为 Agent 编写自动化闭环系统”</figcaption></div>
+<div align="center"><img src="/images/agent/loop-engineering-hero.webp" width="90%" alt="Loop Engineering Hero" /><figcaption>图 1：Loop Engineering 核心概念——从“手动 Prompt”转向“为 Agent 编写自动化闭环系统”</figcaption></div>
 
 <!-- more -->
 

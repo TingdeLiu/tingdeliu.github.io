@@ -20,7 +20,7 @@ excerpt: "从 CLIP 的图文对齐到 LLM 驱动的多模态理解，梳理 VLM 
 VLM在医疗图像分析、自动驾驶、机器人感知、内容审核等领域有着广泛的应用前景。视觉理解能力是VLA（视觉-语言-动作）模型和具身智能系统的基础，VLM研究的突破直接推动了下游具身任务的进步。
 
 <div align="center">
-  <img src="/images/vlm/vlm-architecture-overview.jpg" width="80%" alt="视觉-语言模型多模态对齐与融合全景" />
+  <img src="/images/vlm/vlm-architecture-overview.webp" width="80%" alt="视觉-语言模型多模态对齐与融合全景" />
   <figcaption>图 1.1：视觉-语言模型（VLM）视觉编码、模态对齐与 LLM 跨模态融合架构示意图</figcaption>
 </div>
 
@@ -556,7 +556,7 @@ MiniGPT-4证明了极简对齐方案的可行性：仅用一个**线性投影层
 实现高质量多模态融合的前提是强大的视觉表示。VLM中视觉编码器的设计经历了从早期CNN区域特征提取到Transformer全局特征建模，再到大尺度对比学习和动态高分辨率适配的重大转变。
 
 <div align="center">
-  <img src="/images/vlm/vit-encoder-evolution.jpg" width="100%" />
+  <img src="/images/vlm/vit-encoder-evolution.webp" width="100%" />
   <figcaption>图 4.7.1：VLM 视觉编码器的演进历程：从 CNN 区域特征到 ViT，再到对比学习对齐与动态高分辨率方案</figcaption>
 </div>
 
@@ -636,7 +636,7 @@ Qwen 系列不切 tile，而是让 ViT 直接处理整张变尺寸图像：
 - **Token 压缩（Patch Merger）**：ViT 之后用"归一化层 + 两层 MLP"把相邻 $2 \times 2$ 个视觉 token 合并为 1 个，使 LLM 端的视觉 token 数降为 patch 数的 1/4。
 
 <div align="center">
-  <img src="/images/vlm/vit-dynamic-patching.jpg" width="100%" />
+  <img src="/images/vlm/vit-dynamic-patching.webp" width="100%" />
   <figcaption>图 4.7.2：任意分辨率 ViT 动态切片与 Token 拼接机制示意图</figcaption>
 </div>
 
@@ -1683,12 +1683,12 @@ Q-Former（Querying Transformer）是 BLIP-2 的核心创新。它包含两个�
 Q-Former 整体仅有 **188M 参数**，而 ViT-g 约 1B、OPT-6.7B 有 6.7B、FlanT5-XXL 有 11B——Q-Former 以极小的可训练参数量，成为这些大模型之间的"翻译器"。
 
 <div align="center">
-  <img src="/images/vlm/blip2-framework.png" width="90%" />
+  <img src="/images/vlm/blip2-framework.webp" width="90%" />
   <figcaption>图：BLIP-2 整体框架——冻结的视觉编码器与冻结的 LLM 由 Q-Former 桥接（来源：论文原图）</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vlm/blip2-qformer.png" width="85%" />
+  <img src="/images/vlm/blip2-qformer.webp" width="85%" />
   <figcaption>图：Q-Former 内部架构——Image Transformer 与 Text Transformer 共享 Self-Attention 层，32个可学习 Query Token 通过 Cross-Attention 提取视觉特征（来源：论文原图）</figcaption>
 </div>
 
@@ -1844,7 +1844,7 @@ InternVL2 大模型的关键差异化在于使用了 **InternViT-6B**（最初�
 - **与 CLIP ViT-L 的对比**：CLIP ViT-L 仅有 307M 参数，InternViT-6B 参数量是其约19倍，能提取更丰富的细粒度视觉特征
 
 <div align="center">
-  <img src="/images/vlm/internvl2-overview.png" width="100%" />
+  <img src="/images/vlm/internvl2-overview.webp" width="100%" />
   <figcaption>图：InternVL2 模型家族概览——从1B到76B的完整系列，共享 InternViT 视觉编码器，替换不同规模的语言骨干（来源：InternVL 官方博客）</figcaption>
 </div>
 

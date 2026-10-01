@@ -17,7 +17,7 @@ excerpt: "从学习范式、数据划分与模型评估出发，梳理经典算�
 本文从学习范式与建模流程出发，依次介绍传统机器学习、深度神经网络、预训练模型和生成式模型。各类方法并非简单的替代关系：线性模型便于解释与诊断，树模型适合许多表格任务，深度网络擅长学习复杂表示；选择哪一种，需要结合数据、评价指标和部署成本。
 
 <div align="center">
-  <img src="/images/ML/machine-learning-overview.jpg" width="80%" alt="机器学习核心范式与代表性模型概览" />
+  <img src="/images/ML/machine-learning-overview.webp" width="80%" alt="机器学习核心范式与代表性模型概览" />
   <figcaption>图 1.1：机器学习核心范式与代表性模型概览</figcaption>
 </div>
 
@@ -273,7 +273,7 @@ $$
 > **直觉理解**：就像在散点图上画一条"最佳拟合线"——目标是找到那根让所有点在目标变量方向上的残差平方和最小的直线。正则化则相当于在"拟合好"的基础上再加一条约束：别让权重长得太大。
 
 <div align="center">
-  <img src="/images/ML/linear_regression.jpg" width="60%" alt="线性回归算法示意图" />
+  <img src="/images/ML/linear_regression_diagram.webp" width="60%" alt="线性回归算法示意图" />
 <figcaption>图：线性回归算法示意图</figcaption>
 </div>
 

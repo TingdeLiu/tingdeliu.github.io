@@ -26,7 +26,7 @@ excerpt: "2026年深度总结：系统梳理强化学习与具身智能算法体
 | **核心挑战** | 泛化性 | 探索-利用权衡、信用分配 |
 
 <div align="center">
-  <img src="/images/vla/embodied-rl-overview.jpg" width="80%" alt="具身强化学习交互与决策闭环全景" />
+  <img src="/images/vla/embodied-rl-overview.webp" width="80%" alt="具身强化学习交互与决策闭环全景" />
   <figcaption>图 1.1：具身强化学习（Embodied RL）状态感知、闭环策略决策与物理环境交互全景示意图</figcaption>
 </div>
 

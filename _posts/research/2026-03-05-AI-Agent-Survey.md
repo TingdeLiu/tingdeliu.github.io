@@ -40,7 +40,7 @@ excerpt: "围绕“Agent 如何决策、如何行动、如何可靠完成任务�
 **图 1.1** 概括了本文将要展开的系统全貌：以 LLM 为推理核心，向外连接记忆、技能与工具，并由 Harness 在外层闭环治理——后续各章即沿着这张图逐块拆解。
 
 <div align="center">
-  <img src="/images/agent/ai-agent-architecture-overview.jpg" width="80%" alt="AI Agent 自主推理、工具调用与多 Agent 协同全景" />
+  <img src="/images/agent/ai-agent-architecture-overview.webp" width="80%" alt="AI Agent 自主推理、工具调用与多 Agent 协同全景" />
   <figcaption>图 1.1：AI Agent（智能体）LLM 大脑、记忆机制、工具调用与闭环 Harness 架构全景示意图</figcaption>
 </div>
 

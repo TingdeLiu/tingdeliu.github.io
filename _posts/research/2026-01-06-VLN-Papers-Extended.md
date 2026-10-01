@@ -817,7 +817,7 @@ PanoNav框架整体架构
 ODYSSEY提出了一个统一的移动操作框架，包含分层规划和全身控制两大核心模块：
 
 <div align="center">
-  <img src="/images/vln/odyssey-framework-overview.png" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1163/385" />
+  <img src="/images/vln/odyssey-framework-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1163/385" />
 <figcaption>
 ODYSSEY框架整体架构
 </figcaption>

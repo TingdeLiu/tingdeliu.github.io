@@ -18,7 +18,7 @@ excerpt: "从机器学习三步骤框架出发，系统梳理神经网络、CNN�
 深度学习之所以强大，在于它能够从原始数据（像素、词语、信号）中自动学习多层次的抽象特征表示，无需人工设计特征工程。然而，训练一个高性能的深层网络并非易事——梯度消失、过拟合、学习率调节等问题长期困扰着研究者，由此催生了一整套系统性的训练技巧。
 
 <div align="center">
-  <img src="/images/DL/deep-learning-overview.jpg" width="80%" alt="深度学习网络架构与生态系统全景" />
+  <img src="/images/DL/deep-learning-overview.webp" width="80%" alt="深度学习网络架构与生态系统全景" />
   <figcaption>图 1.1：深度学习网络架构与应用生态系统全景示意图</figcaption>
 </div>
 

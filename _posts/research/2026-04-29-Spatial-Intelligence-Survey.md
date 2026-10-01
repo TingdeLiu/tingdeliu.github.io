@@ -696,7 +696,7 @@ graph LR
 - 在机器人操控等空间推理密集型下游任务中显著提升性能。
 
 <div align="center">
-  <img src="/images/si/SpatialVLM-pipeline.png" width="85%" />
+  <img src="/images/si/SpatialVLM-pipeline.webp" width="85%" />
 <figcaption>SpatialVLM 数据生成管线：利用三维传感器数据自动生成距离估计、方位判断、大小比较等定量空间推理问答对，对 VLM 进行空间推理专项微调，显著提升模型在定量空间问题上的准确率。</figcaption>
 </div>
 

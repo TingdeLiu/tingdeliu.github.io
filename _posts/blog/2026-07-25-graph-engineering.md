@@ -26,7 +26,7 @@ excerpt: "Graph Engineering（图智能体工程）是继 Loop Engineering 之�
 为了应对这些挑战，**Graph Engineering（图智能体工程）** 在 2026 年中后期迅速崛起。它继承了 Loop Engineering 的自动化闭环思想，但将视野放大到了整个系统的**逻辑拓扑结构**。Graph Engineering 主张：**将 AI 智能体的交互、规划、执行与协作逻辑建模为显式的有向状态图（State Graph），用强确定性的图拓扑结构去规范非确定性大模型的行为疆界。**
 
 <div align="center">
-<img src="/images/agent/graph-engineering-hero.jpg" width="80%" />
+<img src="/images/agent/graph-engineering-hero.webp" width="80%" />
 <figcaption>图 1：Graph Engineering 核心概念——将 AI 智能体编排建模为受控的有向状态图</figcaption>
 </div>
 

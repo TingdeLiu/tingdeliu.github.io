@@ -33,7 +33,7 @@ excerpt: "深入剖析 Meta AI、NVIDIA 等机构提出的 Mixture-of-Transforme
 ### 1.2 梯度冲突（Gradient Conflict）
 在联合训练过程中，文本损失函数产生的梯度和图像损失函数产生的梯度，在更新同一组参数时常常会发生反向拉扯。更新参数以拟合文本，可能会损害图像的表征质量，反之亦然。这种负面的干扰导致了多模态模型在扩大规模（Scaling Up）时，收敛效率极低，甚至出现表现停滞（Performance Plateau）。
 
-<div align="center"><img src="/images/llm-training/mixture-of-transformers/modality_interference.jpg" width="90%" /><figcaption>图 1：传统密集模型中的模态梯度冲突 vs. MoT 中的模态隔离</figcaption></div>
+<div align="center"><img src="/images/llm-training/mixture-of-transformers/modality_interference.webp" width="90%" /><figcaption>图 1：传统密集模型中的模态梯度冲突 vs. MoT 中的模态隔离</figcaption></div>
 
 为了解决这一冲突，最直接的想法是引入稀疏性，让不同的参数处理不同的信号。这就自然引出了 MoE 与 MoT 的对比。
 
@@ -54,7 +54,7 @@ excerpt: "深入剖析 Meta AI、NVIDIA 等机构提出的 Mixture-of-Transforme
 * **确定性路由（Deterministic Routing）**：由于每个 token 属于什么模态在数据输入时是已知且固定的（例如，文本 token 还是图像 token），MoT 抛弃了可学习的门控 Router，直接使用预定义的模态掩码（`modality_masks`）进行**静态分流**。这消除了路由计算开销，彻底避免了表征塌陷和负载不均，极大地稳定了训练。
 * **全局融合的桥梁：全局自注意力**：虽然投影矩阵是模态特定的，但投影出来的 $$Q, K, V$$ 向量会被重新拼回全局序列，进行统一 of 的自注意力计算。这保证了模型依然具备全序列的跨模态交互能力。
 
-<div align="center"><img src="/images/llm-training/mixture-of-transformers/mot_architecture.jpg" width="90%" /><figcaption>图 2：Dense、MoE 与 MoT 的架构对比（MoT 实现了非嵌入参数的全面解耦）</figcaption></div>
+<div align="center"><img src="/images/llm-training/mixture-of-transformers/mot_architecture.webp" width="90%" /><figcaption>图 2：Dense、MoE 与 MoT 的架构对比（MoT 实现了非嵌入参数的全面解耦）</figcaption></div>
 
 ---
 
