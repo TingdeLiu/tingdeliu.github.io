@@ -275,3 +275,5 @@ excerpt: "R2R-CE 零样本出现 79.0% SR 的新声明（GPT-6-Astra，Codex har
 
 - **跟踪** NaviScale 数据集是否公开。
 - **暂缓**次池 VLA 量化与推理加速类工作：机制可借鉴，但均未在 VLN-CE 上验证。
+
+> **更新（2026-10-01）**：GPT-6-Astra Lights Up 已于 2026-09-25 发布 v2，本报告所引 79.0% / 76.0% 为 v1 的单次运行结果；v2 改为每档三次运行取均值，ultra 为 81.3±2.5%（SPL 71.5±1.7），medium 为 75.7±1.5%（SPL 65.6±2.1），仍只在 R2R-CE-100 上评测。详见 [VLN-Papers 的 GPT-6-Astra 条目](/VLN-Papers/#gpt-6-astra)。
