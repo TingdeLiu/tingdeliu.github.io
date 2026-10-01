@@ -38,36 +38,45 @@ excerpt: "VLA 配套论文精读，链接 RoboDojo 官方统一榜，并提供�
 
 # 性能排行榜
 
+<p class="vla-ranking-lead">先看统一协议下的跨模型成绩，再看论文内的受控实验。两类结果回答的问题不同；切换榜单时，请同时核对平台、训练数据和成功判据。</p>
+
+<nav class="vla-ranking-nav" aria-label="性能榜单快速跳转">
+  <a href="#vla-ranking-robodojo"><strong>RoboDojo 官方榜</strong><span>跨模型 · 仿真快照与真机入口</span></a>
+  <a href="#vla-ranking-actionpiece"><strong>动作编码</strong><span>LIBERO / LIBERO-Plus</span></a>
+  <a href="#vla-ranking-gm100"><strong>跨机器人操作</strong><span>GM-100 · 双平台分别排序</span></a>
+  <a href="#vla-ranking-tau0"><strong>长任务搜索</strong><span>固定低层策略 · 真机</span></a>
+  <a href="#vla-ranking-expo"><strong>动态操作</strong><span>四项真机任务 · 30 次试验</span></a>
+  <a href="#vla-ranking-bee"><strong>人工纠正</strong><span>同预算对照 · 分任务读数</span></a>
+</nav>
+
 ## RoboDojo：官方统一评测榜
 {: id="vla-ranking-robodojo"}
 
-[RoboDojo 官方榜单](https://robodojo-benchmark.com/leaderboard)是跨模型统一评测：基准含 **42 项仿真任务和 18 项真机任务**；仿真按泛化、记忆、精细操作、长任务和开放指令五类能力报告结果。[论文](https://arxiv.org/abs/2607.04434)说明，仿真每项任务评测 50 次，**SR** 是完整任务成功率，**Score** 还计入部分任务进度；仿真和真机应分别查看。官方榜持续更新，以下仅摘录[官网首页](https://robodojo-benchmark.com/)展示的**仿真前五名**，查阅于 2026-10-01。
+[RoboDojo](https://robodojo-benchmark.com/leaderboard)在统一协议下比较不同策略，包含 **42 项仿真任务与 18 项真机任务**。仿真覆盖泛化、记忆、精细操作、长任务和开放指令五类能力；其[论文](https://arxiv.org/abs/2607.04434)说明每项仿真任务评测 50 次。**Score** 计入部分任务进度，**SR** 只计完整任务成功。下表按官网的 Score 排序，摘录[官方首页 Top 10](https://robodojo-benchmark.com/)；这是 **2026-10-01 查阅的静态快照**，名次更新和真机结果请以[官方实时榜](https://robodojo-benchmark.com/leaderboard)为准。
 
-| 官网名次 | 模型 | 仿真 Score ↑ | 仿真 SR ↑ |
-|---:|---|---:|---:|
-| 1 | DM0.5 | 24.90 | 19.34% |
-| 2 | GalaxeaVLA (G0.5) | 20.23 | 14.88% |
-| 3 | Xiaomi-Robotics-1 | 20.07 | 13.93% |
-| 4 | OpenWAM-α | 17.18 | 11.92% |
-| 5 | Meituan-Robotics-0 | 14.95 | 9.53% |
-{: .vla-leaderboard-table }
+<p class="vla-table-hint">左右滑动表格查看完整指标 →</p>
 
-**看榜方式**：这些是 RoboDojo 仿真协议下的名次，不能与下方 LIBERO、GM-100 或真机实验分数比较。完整模型列表、五类能力拆分及真机榜请直接查看[官方实时榜](https://robodojo-benchmark.com/leaderboard)。
+| 仿真模型（Score 名次） | Score ↑ | SR ↑ |
+|---|---:|---:|
+| **1** · DM0.5 | <span class="vla-score-meter" style="--vla-meter:100%"><strong>24.90</strong></span> | **19.34%** |
+| **2** · GalaxeaVLA (G0.5) | <span class="vla-score-meter" style="--vla-meter:81%">20.23</span> | 14.88% |
+| **3** · Xiaomi-Robotics-1 | <span class="vla-score-meter" style="--vla-meter:81%">20.07</span> | 13.93% |
+| **4** · OpenWAM-α | <span class="vla-score-meter" style="--vla-meter:69%">17.18</span> | 11.92% |
+| **5** · Meituan-Robotics-0 | <span class="vla-score-meter" style="--vla-meter:60%">14.95</span> | 9.53% |
+| **6** · Hy-Embodied-0.5-VLA | <span class="vla-score-meter" style="--vla-meter:52%">13.07</span> | 8.80% |
+| **7** · Spatial Forcing | <span class="vla-score-meter" style="--vla-meter:50%">12.38</span> | 8.04% |
+| **8** · Pi-05 | <span class="vla-score-meter" style="--vla-meter:46%">11.41</span> | 6.91% |
+| **9** · InternVLA-A1.5 | <span class="vla-score-meter" style="--vla-meter:45%">11.15</span> | 7.14% |
+| **10** · StarVLA-PI_v3 | <span class="vla-score-meter" style="--vla-meter:43%">10.81</span> | 7.51% |
+{: .vla-leaderboard-table .vla-official-table }
+
+**读表**：浅蓝条以本表最高 Score 为参照，只辅助比较分差。名次按 Score 排，SR 不一定按同一顺序变化。例如第 9、10 名的 SR 高于第 8 名，但包含部分进度的 Score 较低。仿真分数也不代表真机表现；完整模型列表、五类能力拆分与真机榜均在[官方页面](https://robodojo-benchmark.com/leaderboard)。
 
 ## 论文内同设置对照
 
-下面展示五篇近期论文中的可核查对照。**每张表只比较该论文报告的实验，不是跨论文总榜。**粗体表示该列最高成功率或进度；任务、训练数据和成功判定不同的数字不能直接比较。
+以下五组数据来自各自论文的实验表。**每张表只在自己的评测设置内排序**；粗体表示该列最佳结果。某些表是同骨干的受控消融，另一些是同任务协议下不同训练配方的系统比较，不能统称为模型总榜。
 
-| 分榜 | 比较范围 | 主要指标 |
-|---|---|---|
-| [动作编码：LIBERO / LIBERO-Plus](#vla-ranking-actionpiece) | 相同 VLA 骨干、数据和训练预算 | 成功率 |
-| [跨机器人操作：GM-100](#vla-ranking-gm100) | 相同平台的九项双臂任务 | 成功率、任务进度 |
-| [长任务搜索：τ₀-VLA](#vla-ranking-tau0) | 固定低层策略的真机对照 | 整任务成功次数 |
-| [动态操作：Real-Time EXPO-FT](#vla-ranking-expo) | 四项真机任务、在线数据上限 10 分钟 | 成功次数 |
-| [人工纠正：Bee](#vla-ranking-bee) | 相同初始 VLA 与机器人数据预算 | 各任务成功率、干预率 |
-{: .vla-leaderboard-table }
-
-## ① 动作编码：LIBERO / LIBERO-Plus
+## 动作编码：LIBERO / LIBERO-Plus
 {: id="vla-ranking-actionpiece"}
 
 [ActionPiece 论文 Table 1](https://arxiv.org/abs/2609.18487)使用相同的 Qwen3-VL-4B 骨干、演示数据、提示、全局批量、训练预算及 8 步预测和执行协议；LIBERO-Plus 不参与训练。按 **LIBERO-Plus 成功率**排序，数值均为百分比。
@@ -84,7 +93,7 @@ excerpt: "VLA 配套论文精读，链接 RoboDojo 官方统一榜，并提供�
 
 \* FASTerVQ 是该论文依照公开方法自行实现的版本。比较控制了策略设置，但不同 tokenizer 保留各自的输出长度和词表；此表不能推断它们的推理延迟相同。
 
-## ② 跨机器人操作：GM-100
+## 跨机器人操作：GM-100
 {: id="vla-ranking-gm100"}
 
 [LingBot-VLA 2.0 论文 Table 5](https://arxiv.org/abs/2607.06403)在 *generalist mixed-training* 设置下，对每个平台的九项双臂任务分别取平均。进度衡量中间里程碑，成功率要求任务终态完成。**两台机器人分别成榜**；各模型训练数据和配方不完全一致，因此名次不能单独归因于架构。
@@ -109,7 +118,7 @@ excerpt: "VLA 配套论文精读，链接 RoboDojo 官方统一榜，并提供�
 | [GR00T N1.7](#5-18-gr00t-2025) | 5.6 | 16.4 |
 {: .vla-leaderboard-table }
 
-## ③ 长任务搜索：τ₀-VLA
+## 长任务搜索：τ₀-VLA
 {: id="vla-ranking-tau0"}
 
 [τ₀-VLA 论文 Table III](https://arxiv.org/abs/2608.16885)固定低层策略，只比较高层直接规划（Plan Once）与测试时搜索（TTC）。每项真机任务各评测 10 次；表中为**整任务成功次数**，不与论文中“直接执行 vs 层级分解”的另一组实验混用。
@@ -120,7 +129,7 @@ excerpt: "VLA 配套论文精读，链接 RoboDojo 官方统一榜，并提供�
 | Plan Once | 5/10 | 6/10 | 5/10 |
 {: .vla-leaderboard-table }
 
-## ④ 动态操作：Real-Time EXPO-FT
+## 动态操作：Real-Time EXPO-FT
 {: id="vla-ranking-expo"}
 
 [Real-Time EXPO-FT 论文 Table I](https://arxiv.org/abs/2609.18207)在四项动态真机任务上各评测 30 次，在线机器人数据采集上限为每项 10 分钟。按四任务平均成功次数排序；不同算法的更新方式与梯度步数不相同，表格体现的是该论文报告的**系统级对照**。
@@ -137,7 +146,7 @@ excerpt: "VLA 配套论文精读，链接 RoboDojo 官方统一榜，并提供�
 | RLPD | 0/30 | 12/30 | 0/30 | 6/30 | 4.5/30 |
 {: .vla-leaderboard-table }
 
-## ⑤ 人工纠正：Bee
+## 人工纠正：Bee
 {: id="vla-ranking-bee"}
 
 [Bee 论文 Table I](https://arxiv.org/abs/2609.27450)从同一微调后的 VLA 出发，并匹配约 20 条预收集纠正片段及各任务在线数据预算。下表只列三项真机任务的成功率（%）；**电话充电和布料对齐只考核精细阶段，零食挂架考核整任务**，因此不计算跨任务总名次。
