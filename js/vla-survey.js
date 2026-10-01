@@ -5,6 +5,7 @@
     var article = document.querySelector('.vla-survey');
     if (!article) return;
     var index = article.querySelector('.vla-paper-index');
+    if (!index) return;
     var query = index.querySelector('input');
     var year = index.querySelector('select');
     var results = index.querySelector('.vla-paper-results');
