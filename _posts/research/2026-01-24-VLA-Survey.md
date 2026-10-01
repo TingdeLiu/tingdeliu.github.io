@@ -3045,7 +3045,7 @@ noisy action├─→ IAR (Implicit Action Reasoner)
 **1. Explicit Action Reasoner (EAR)**
 - 设计为轻量级Transformer，以noisy action sequence作为输入
 - 通过self-attention捕获时序依赖，cross-attention从VLM的key-value cache注入多模态上下文
-- 采用flow matching训练，自主生成粗粒度参考轨迹 $a^{ref}_{t:t+H^{ref}-1}$
+- 采用flow matching训练，自主生成粗粒度参考轨迹 $$a^{ref}_{t:t+H^{ref}-1}$$
 - 参考轨迹编码后形成显式动作空间指导 $Z^{ex}$
 
 **2. Implicit Action Reasoner (IAR)**
@@ -3057,7 +3057,7 @@ noisy action├─→ IAR (Implicit Action Reasoner)
 **3. Action-Guided Prediction (AGP)**
 - 将noisy action embedding视为query $Q_{action}$，与 $Z^{ex}$ 和 $Z^{im}$ 进行dual cross-attention
 - 通过self-attention融合显式与隐式指导：$\bar{h} = \text{Self-Attn}([S^{ex}; S^{im}])$
-- 最终action head $\pi^{head}_\theta$ 基于聚合表征预测去噪动作序列
+- 最终action head $$\pi^{head}_\theta$$ 基于聚合表征预测去噪动作序列
 
 **训练策略**：
 - Flow matching损失同时优化EAR和action head
@@ -3548,7 +3548,7 @@ InternVLA-A1.5 采用了 Mixture-of-Transformers (MoT) 混合架构，由两大�
 **（3）统一专家模块与动作预测（Unified Expert & Action Prediction）**
 - **输入**：接收 VLM 主干产生的语义隐特征 $H_t$、一组可学习的潜在预测 queries（Foresight Tokens） $Q_f$，以及在流匹配（Flow Matching）去噪过程中注入的噪声动作块 $\epsilon$。
 - **处理**：专家模块采用与 Qwen-3.5-Text 相同的结构，但其隐藏通道维度更小（460M 参数）。它维护自己独立的 Gated DeltaNet 线性注意力层以处理动作细节，而通过共享 of VLM 全注意力层与 $H_t$ 进行跨模块特征融合。在此模块中，可学习的 Foresight Tokens 充当未来查询插槽，而动作预测则利用流匹配预测速度场 $v_{	heta}^{	ext{act}}$。
-- **输出**：生成当前时刻至未来 $H$ 步的连续控制轨迹动作块 $\mathbf{a}_{t:t+H}$。
+- **输出**：生成当前时刻至未来 $H$ 步的连续控制轨迹动作块 $$\mathbf{a}_{t:t+H}$$。
 - **设计动机**：相比于离散 Token 预测，低维连续控制专家的 flow-matching 生成更适合低延迟（0.1s 闭环反馈）、高精度的实机机械臂控制。
 
 **（4）潜在未来预测机制（Latent Foresight Mechanism）**
@@ -3566,7 +3566,7 @@ InternVLA-A1.5 采用了 Mixture-of-Transformers (MoT) 混合架构，由两大�
 1. **多视角多模态输入**：拼接 $K$ 视角相机图像 Token、任务描述文本、控制模式和离散状态。
 2. **多模态对齐感知**：输入通过 VLM 主干，抽取上下文表示 $H_t$ 并预测下一步的子任务语义描述 $\hat{\ell}$。
 3. **时空预测与嵌入融合**：可学习的 $Q_f$ 注入统一专家并与 $H_t$ 发生注意力交互，生成带有未来趋势信息的特征 $Z_f^t$。在训练时，这部分隐编码用于引导冻结的 WAN2.2 视频生成；在推理时则直接供下一步使用。
-4. **动作去噪生成**：将噪声 $\epsilon$ 作为输入，在以 $H_t$ 和 $Q_f$ 为条件的动作专家中，通过 Euler 积分对 Flow Matching 速度场进行逐步迭代去噪，最终输出连续动作块 $\mathbf{a}_{t:t+H}$。
+4. **动作去噪生成**：将噪声 $\epsilon$ 作为输入，在以 $H_t$ 和 $Q_f$ 为条件的动作专家中，通过 Euler 积分对 Flow Matching 速度场进行逐步迭代去噪，最终输出连续动作块 $$\mathbf{a}_{t:t+H}$$。
 
 **（6）训练目标 / 损失函数**
 InternVLA-A1.5 的多阶段训练依赖以下核心损失函数。
@@ -3575,7 +3575,7 @@ InternVLA-A1.5 的多阶段训练依赖以下核心损失函数。
   在此阶段，VQA 数据和离散化的机器人操控数据混合进行自回归预测，仅计算 Label（子任务描述 $\hat{\ell}$ 和 FAST 离散动作 Token $a$）部分的正向交叉熵损失：
   $$L_{	ext{stage1}} = -\mathbb{E}_{(\mathbf{o}_t, \ell, \mathbf{y}) \sim \mathcal{D}} \left[ \sum_{i=1}^{M+N} \log p_{	heta}(y_i \mid \mathbf{o}_t, \ell, \mathbf{y}_{<i}) 
 ight]$$
-  其中 $\mathbf{y} = (\hat{\ell}_1, \dots, \hat{\ell}_M, a_1, \dots, a_N)$ 是包含子任务和动作的拼接序列。
+  其中 $$\mathbf{y} = (\hat{\ell}_1, \dots, \hat{\ell}_M, a_1, \dots, a_N)$$ 是包含子任务和动作的拼接序列。
 
 - **第二阶段：Foresight and Action Joint Training（预测与动作协同）**
   该阶段引入了视频潜在预测损失 $L_{	ext{video}}$ 和动作流匹配损失 $L_{	ext{action}}$。
@@ -4605,7 +4605,7 @@ graph TD
 - **指令特征**：自然语言指令 $x$ 经过轻量级 BERT 模型抽取 Token 级特征，并通过投影层 $P_l$ 变换至策略维度 $d = 256$：
   $$Z^l = P_l(f_{\mathrm{text}}(x)) \in \mathbb{R}^{N_l \times d}$$
   保持完整 Token 序列而非标量池化向量，能够为后续视觉注意力提供物体、属性及空间关系的细粒度引导。
-- **视觉特征**：对于 $K$ 个相机的 RGB 图像观测 $I^{(i)}_n$，采用预训练 DINOv3 抽取空间视觉特征，叠加视图嵌入与位置编码后拼接：
+- **视觉特征**：对于 $K$ 个相机的 RGB 图像观测 $$I^{(i)}_n$$，采用预训练 DINOv3 抽取空间视觉特征，叠加视图嵌入与位置编码后拼接：
   $$Z^{v,(i)}_n = P_v(f_{\mathrm{img}}(I^{(i)}_n)) + E^{(i)}_{\mathrm{pos}} + e^{(i)}_{\mathrm{view}}, \quad Z^v_n = [Z^{v,(1)}_n; \dots; Z^{v,(K)}_n]$$
 - **本体状态特征**：机器人关节角、末端姿态等状态 $s_n$ 独立经轻量投影层编码为 $Z^s_n = f_{\mathrm{state}}(s_n)$，直接送入末端动作解码器，避免干扰上游场景视觉-语言的语义匹配。
 
@@ -4613,10 +4613,10 @@ graph TD
 独立编码的视觉与语言特征尚未明确彼此的关联。TurboVLA 引入 $N = 6$ 层交替的双向交叉注意力模块：
 - **视觉到语言注意力（Visual-to-Instruction Cross-Attn）**：以指令特征为 Query、视觉特征为 Key/Value，将当前物理场景上下文注入指令表示中。
 - **语言到视觉注意力（Instruction-to-Visual Cross-Attn）**：以视觉特征为 Query、指令特征为 Key/Value，让任务语义直接调制相关视觉 Patch。
-- 经过双向交互后，两路特征在末级拼接为视语言融合表征 $Z^{vl}_n = [V^N_n; L^N_n]$，高效建立物体与指令语义的对应关系。
+- 经过双向交互后，两路特征在末级拼接为视语言融合表征 $$Z^{vl}_n = [V^N_n; L^N_n]$$，高效建立物体与指令语义的对应关系。
 
 ##### ③ 连续动作块解码器 (Continuous Action Chunk Prediction)
-基于 ACT 风格的 Transformer 解码器，利用 $H$ 个可学习的动作 Query $Q_a = [q_1, \dots, q_H]$，结合视语言表征 $Z^{vl}_n$ 与机器人状态 $Z^s_n$，单次前向传播直接预测未来 $H$ 步的连续动作块：
+基于 ACT 风格的 Transformer 解码器，利用 $H$ 个可学习的动作 Query $Q_a = [q_1, \dots, q_H]$，结合视语言表征 $$Z^{vl}_n$$ 与机器人状态 $Z^s_n$，单次前向传播直接预测未来 $H$ 步的连续动作块：
 $$\hat{A}_n = D_{\theta}(Q_a, [Z^{vl}_n; Z^s_n]) \in \mathbb{R}^{H \times d_a}$$
 训练过程采用行为克隆（Behavior Cloning）下的 $\ell_1$ 损失函数，无需任何辅助语言建模损失。
 

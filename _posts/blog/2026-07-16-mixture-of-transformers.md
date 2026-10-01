@@ -92,7 +92,7 @@ $$
 通过这种方式，文本 token 使用模态特定的投影参数，图像 token 使用其专属参数，各行其道，参数之间不再干扰。
 
 #### 第二步：全局注意力机制（Global Attention）
-将各模态分别计算得到的 $\mathbf{q}_i, \mathbf{k}_i, \mathbf{v}_i$ 按原始的序列索引重新排列，拼接为全局的矩阵：
+将各模态分别计算得到的 $$\mathbf{q}_i, \mathbf{k}_i, \mathbf{v}_i$$ 按原始的序列索引重新排列，拼接为全局的矩阵：
 
 $$
 \mathbf{Q} = [\mathbf{q}_1; \mathbf{q}_2; \dots; \mathbf{q}_N], \quad \mathbf{K} = [\mathbf{k}_1; \mathbf{k}_2; \dots; \mathbf{k}_N], \quad \mathbf{V} = [\mathbf{v}_1; \mathbf{v}_2; \dots; \mathbf{v}_N]
@@ -108,7 +108,7 @@ $$
 > 这一步非常关键。虽然 $$Q, K, V$$ 的**生成阶段**是模态解耦的（使得不同模态可以使用最适合自身的映射空间），但是**计算注意力阶段**是全局的。这使得文本能够关注到图像的内容，图像也能融合上下文的文本语义，确保了跨模态表征的“融会贯通”。
 
 #### 第三步：模态特定输出投影与残差连接（Output Projection & Residual）
-注意力机制计算得出的全局表征向量 $\mathbf{H} = [\mathbf{h}_1, \mathbf{h}_2, \dots, \mathbf{h}_N]$ 会再次根据每个位置 of 的模态进行分流，并通过模态特定的输出投影矩阵与残差连接进行处理：
+注意力机制计算得出的全局表征向量 $$\mathbf{H} = [\mathbf{h}_1, \mathbf{h}_2, \dots, \mathbf{h}_N]$$ 会再次根据每个位置 of 的模态进行分流，并通过模态特定的输出投影矩阵与残差连接进行处理：
 
 $$
 y_i = x_i + \mathbf{h}_i \mathbf{W}_{O,m_i}

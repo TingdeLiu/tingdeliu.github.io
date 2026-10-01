@@ -566,7 +566,7 @@ Zetta 提出了一个**在线高频治理与离线自主演化**相咬合的双�
 Zetta 将系统清晰划分为两大不可变实体与一个核心演化载体：
 - **两项不可变实体**：底层动作策略 $\pi$（冻结的 VLA/WAM 参数，$\nabla_\theta = 0$）与高层编排 Agent $A_{orch}$（多模态决策算子，判定逻辑恒定）；
 - **核心演化载体 Harness（$H = \{C, R, T\}$）**：
-  - **运行时裁判（Runtime Critics, $C$）**：运行频率高于低层动作策略的高频监控函数，持续扫描实时轨迹片段并生成带故障证据与状态建议的提议 $P_t = \langle e_t, \hat{\sigma}_t \rangle$；
+  - **运行时裁判（Runtime Critics, $C$）**：运行频率高于低层动作策略的高频监控函数，持续扫描实时轨迹片段并生成带故障证据与状态建议的提议 $$P_t = \langle e_t, \hat{\sigma}_t \rangle$$；
   - **恢复动作库（Recovery Playbook, $R$）**：针对特定故障因果机制的参数化微动作集合；
   - **异构工具集（Heterogeneous Toolset, $T$）**：运动规划器、6-DoF 抓取生成器（GraspGen）与放置稳定器。
 

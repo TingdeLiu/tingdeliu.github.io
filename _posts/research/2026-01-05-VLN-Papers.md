@@ -6798,7 +6798,7 @@ BudVLN 并不对所有样本一视同仁，而是采用一种自适应策略进�
 
 <div align="center">
   <img src="/images/vln/Route2Step-concept-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:677/682" />
-<figcaption>图 1：Route2Step 将路线级理解与步级局部执行解耦。$\mathcal{M}_{\text{IA}}$ 负责确定当前活跃的子指令，$\mathcal{M}_{\text{AG}}$ 则依据局部观测窗口负责具体执行。</figcaption>
+<figcaption>图 1：Route2Step 将路线级理解与步级局部执行解耦。$$\mathcal{M}_{\text{IA}}$$ 负责确定当前活跃的子指令，$$\mathcal{M}_{\text{AG}}$$ 则依据局部观测窗口负责具体执行。</figcaption>
 </div>
 
 #### ① 整体框架概述
@@ -6806,7 +6806,7 @@ Route2Step 摒弃了传统的端到端直接预测动作模式，构建了由**�
 
 <div align="center">
   <img src="/images/vln/Route2Step-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1418/685" />
-<figcaption>图 2：Route2Step 整体架构。$\mathcal{M}_{\text{IA}}$ 输出显式接口 $(s_t, m_t)$，$\mathcal{M}_{\text{AG}}$ 结合全局指令、接口与近期观测输出动作块；离线由 E-SPA 引擎提供步级对齐与物理航路点。</figcaption>
+<figcaption>图 2：Route2Step 整体架构。$$\mathcal{M}_{\text{IA}}$$ 输出显式接口 $(s_t, m_t)$，$$\mathcal{M}_{\text{AG}}$$ 结合全局指令、接口与近期观测输出动作块；离线由 E-SPA 引擎提供步级对齐与物理航路点。</figcaption>
 </div>
 
 #### ② 显式语义-执行接口（MIA 与 MAG）
@@ -6879,7 +6879,7 @@ $$\mathcal{L}_{\text{AG}} = -\mathbb{E}_{\mathcal{D}_E \cup \mathcal{D}_A} \left
 
 <div align="center">
   <img src="/images/vln/Route2Step-realworld-trace.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1418/704" />
-<figcaption>图 4：在复杂室内真实环境中的实机导航轨迹。观测图像下方标注了 $\mathcal{M}_{\text{IA}}$ 预测的活动子指令，展现长程任务中清晰可解释的语义进度跟踪。</figcaption>
+<figcaption>图 4：在复杂室内真实环境中的实机导航轨迹。观测图像下方标注了 $$\mathcal{M}_{\text{IA}}$$ 预测的活动子指令，展现长程任务中清晰可解释的语义进度跟踪。</figcaption>
 </div>
 
 1. **主榜单表现出色**：在连续环境基准 R2R-CE Val-Unseen 上，Route2Step 在仅使用单目 RGB 且无额外数据预训练的条件下，取得了 **55.3% 成功率（SR）** 与 **48.2% SPL**，较专家基线（48.1% SR / 43.3% SPL）提升了 7.2 个百分点；在 RxR-CE Val-Unseen 亦取得 54.8% SR 与 42.6% SPL。

@@ -281,7 +281,7 @@ $$\hat{\mathbf{x}}_{t|t-1} = f(\mathbf{x}_{t-1}, \mathbf{u}_t)$$
 
 $$\mathbf{x}_t = \hat{\mathbf{x}}_{t|t-1} + \mathbf{K}_t (\mathbf{z}_t - h(\hat{\mathbf{x}}_{t|t-1}))$$
 
-其中 $\mathbf{K}_t$ 是**卡尔曼增益**，决定了相信预测还是相信观测。
+其中 $$\mathbf{K}_t$$ 是**卡尔曼增益**，决定了相信预测还是相信观测。
 
 **卡尔曼增益 K 的直觉理解**：想象你朋友告诉你"你现在在图书馆门口"，但你的步数估计说你在图书馆里面。你该信谁？K 的大小决定了这个权衡：
 
@@ -1455,11 +1455,11 @@ FM² 由 Garrido 等人（2006）在 FMM 基础上提出，核心思想是**两�
 
 RRT 的改进版，在标准 RRT 基础上增加了两个关键步骤：**近邻选父（Choose Parent）** 和 **重连（Rewiring）**。
 
-**Choose Parent**：不再直接用最近邻作为父节点，而是在半径 $r$ 的近邻集合 $\mathcal{X}_{near}$ 中，选择**到起点代价最低**的节点作为父节点：
+**Choose Parent**：不再直接用最近邻作为父节点，而是在半径 $r$ 的近邻集合 $$\mathcal{X}_{near}$$ 中，选择**到起点代价最低**的节点作为父节点：
 
 $$x_{parent} = \arg\min_{x \in \mathcal{X}_{near}} \left[ \text{cost}(x) + d(x, x_{new}) \right]$$
 
-**Rewiring**：将 $x_{new}$ 加入树后，检查 $\mathcal{X}_{near}$ 中的每个节点 $x_{near}$：若经过 $x_{new}$ 能降低 $x_{near}$ 的路径代价，则断开 $x_{near}$ 的旧父边，改由 $x_{new}$ 作为父节点。
+**Rewiring**：将 $x_{new}$ 加入树后，检查 $$\mathcal{X}_{near}$$ 中的每个节点 $x_{near}$：若经过 $x_{new}$ 能降低 $x_{near}$ 的路径代价，则断开 $x_{near}$ 的旧父边，改由 $x_{new}$ 作为父节点。
 
 搜索半径 $r$ 随采样点数 $n$ 缩小：$r(n) = \gamma \left(\frac{\log n}{n}\right)^{1/d}$（$d$ 为空间维度），保证渐近最优的同时控制计算量。
 
@@ -1476,12 +1476,12 @@ $$x_{parent} = \arg\min_{x \in \mathcal{X}_{near}} \left[ \text{cost}(x) + d(x, 
 
 ### 双向 RRT*（Bidirectional RRT*）
 
-从起点 $x_{start}$ 和终点 $x_{goal}$ 各生长一棵 RRT* 树（$\mathcal{T}_a$、$\mathcal{T}_b$），每次迭代交替扩展两棵树：
+从起点 $x_{start}$ 和终点 $x_{goal}$ 各生长一棵 RRT* 树（$$\mathcal{T}_a$$、$$\mathcal{T}_b$$），每次迭代交替扩展两棵树：
 
-1. 对 $\mathcal{T}_a$ 执行一步 RRT* 扩展，得到新节点 $x_{new}$
-2. 尝试将 $x_{new}$ 连接到 $\mathcal{T}_b$ 中距其最近且路径无碰撞的节点 $x_{b,near}$
+1. 对 $$\mathcal{T}_a$$ 执行一步 RRT* 扩展，得到新节点 $x_{new}$
+2. 尝试将 $x_{new}$ 连接到 $$\mathcal{T}_b$$ 中距其最近且路径无碰撞的节点 $x_{b,near}$
 3. 若连接成功，合并两条子路径得到候选完整路径；保留代价最小的完整路径
-4. 两棵树角色互换（$\mathcal{T}_a \leftrightarrow \mathcal{T}_b$），继续迭代优化
+4. 两棵树角色互换（$$\mathcal{T}_a \leftrightarrow \mathcal{T}_b$$），继续迭代优化
 
 **优势来源**：两棵树"对向生长"，有效避免了单向树在宽阔空间中的盲目扩散，搜索体积从 $O(r^d)$ 降为 $O(2 \cdot (r/2)^d)$，收敛速度比单向 RRT* 快约一个数量级。
 
@@ -1518,7 +1518,7 @@ $$b = \frac{1}{2}\sqrt{c_{best}^2 - \|x_{goal} - x_{start}\|^2}$$
 **动态窗口的构造**：速度空间 $(v, \omega)$ 需同时满足三个约束，取交集：
 
 - **速度限制**：$v \in [v_{min}, v_{max}]$，$\omega \in [\omega_{min}, \omega_{max}]$
-- **动态窗口**（加速度限制）：$v \in [v_c - \dot{v}_{max} \cdot \Delta t,\ v_c + \dot{v}_{max} \cdot \Delta t]$，$\omega$ 类似
+- **动态窗口**（加速度限制）：$$v \in [v_c - \dot{v}_{max} \cdot \Delta t,\ v_c + \dot{v}_{max} \cdot \Delta t]$$，$\omega$ 类似
 - **可达性约束**：轨迹上距离最近障碍物的距离 $> 0$（且机器人能在到达障碍物前制动）
 
 **评分函数**：
@@ -1548,7 +1548,7 @@ $$G(v, \omega) = \sigma\bigl(\alpha \cdot \text{heading}(v,\omega) + \beta \cdot
 
 **思路**：将路径视为一段"橡皮筋"，加入时间维度后变成"时间弹性带"。TEB 将局部规划问题建模为一个**稀疏非线性最小二乘优化**：
 
-**状态表示**：路径由一系列带时间戳的位姿序列表示 $\mathcal{B} = \{x_i, \Delta T_i\}_{i=1}^{n}$，其中 $x_i = (p_x, p_y, \theta)$，$\Delta T_i$ 是相邻路点间的时间间隔。
+**状态表示**：路径由一系列带时间戳的位姿序列表示 $$\mathcal{B} = \{x_i, \Delta T_i\}_{i=1}^{n}$$，其中 $x_i = (p_x, p_y, \theta)$，$\Delta T_i$ 是相邻路点间的时间间隔。
 
 **优化目标**（多约束加权求和）：
 
@@ -2007,7 +2007,7 @@ $$\delta = \psi_e + \arctan\left(\frac{k \cdot e}{v}\right)$$
 
 $$J = \sum_{t=0}^{\infty} \left( \mathbf{e}_t^T \mathbf{Q} \mathbf{e}_t + u_t^T \mathbf{R} u_t \right)$$
 
-其中 $\mathbf{e}_t$ 是跟踪误差（横向偏差 + 航向误差），$u_t$ 是控制输入（转向角），$\mathbf{Q}$ 和 $\mathbf{R}$ 是权重矩阵（调参关键：$\mathbf{Q}$ 大表示"更重视减小误差"，$\mathbf{R}$ 大表示"更重视平稳控制"）。
+其中 $$\mathbf{e}_t$$ 是跟踪误差（横向偏差 + 航向误差），$u_t$ 是控制输入（转向角），$\mathbf{Q}$ 和 $\mathbf{R}$ 是权重矩阵（调参关键：$\mathbf{Q}$ 大表示"更重视减小误差"，$\mathbf{R}$ 大表示"更重视平稳控制"）。
 
 ✅ 理论上最优，精度高
 ✅ 系统响应平滑

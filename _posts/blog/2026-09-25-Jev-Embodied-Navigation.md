@@ -158,7 +158,7 @@ $$
 \left|\mathrm{acc}(B_m)-\overline{p}_{\max}(B_m)\right|
 $$
 
-这里的 $\overline{p}_{\max}$ 是所选项概率的平均值，**不是未经定义转换的 API `confidence`**。对二元命题，也可用预测为真的概率 $p_i$ 和标签 $y_i\in\{0,1\}$ 计算：
+这里的 $$\overline{p}_{\max}$$ 是所选项概率的平均值，**不是未经定义转换的 API `confidence`**。对二元命题，也可用预测为真的概率 $p_i$ 和标签 $y_i\in\{0,1\}$ 计算：
 
 $$
 \mathrm{Brier}=\frac{1}{n}\sum_{i=1}^{n}(p_i-y_i)^2

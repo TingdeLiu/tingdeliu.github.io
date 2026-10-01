@@ -131,7 +131,7 @@ graph TD
 
 ### 针孔相机投影
 
-给定世界坐标系中的齐次点 $\widetilde{\mathbf{X}}_w = (X, Y, Z, 1)^T$，其图像齐次坐标 $\widetilde{\mathbf{x}} = (u, v, 1)^T$ 由完整投影矩阵 $P \in \mathbb{R}^{3\times4}$ 给出：
+给定世界坐标系中的齐次点 $$\widetilde{\mathbf{X}}_w = (X, Y, Z, 1)^T$$，其图像齐次坐标 $\widetilde{\mathbf{x}} = (u, v, 1)^T$ 由完整投影矩阵 $P \in \mathbb{R}^{3\times4}$ 给出：
 
 $$\lambda \begin{pmatrix} u \\ v \\ 1 \end{pmatrix} = P \, \widetilde{\mathbf{X}}_w = K [R \mid \mathbf{t}] \begin{pmatrix} X \\ Y \\ Z \\ 1 \end{pmatrix}$$
 
@@ -183,7 +183,7 @@ $$\mathbf{p}' = \mathbf{q} \otimes \mathbf{p} \otimes \mathbf{q}^{-1}$$
 3DGS 中每个高斯椭球的朝向用四元数参数化（确保梯度优化在旋转流形上的连续性），VGGT 输出的相机外参也使用四元数表示。**Rodrigues 公式**提供了旋转矩阵与轴角之间的转换桥梁，是 SfM 和 Bundle Adjustment 中常用的微分工具：
 $$R = I + \sin\theta [\mathbf{n}]_\times + (1-\cos\theta) [\mathbf{n}]_\times^2$$
 
-其中 $[\mathbf{n}]_\times$ 为旋转轴 $\mathbf{n}$ 的反对称矩阵。
+其中 $$[\mathbf{n}]_\times$$ 为旋转轴 $\mathbf{n}$ 的反对称矩阵。
 
 ---
 
@@ -349,7 +349,7 @@ $$\mathcal{L}_{si} = \frac{1}{n}\sum_i d_i^2 - \frac{\lambda}{n^2}\left(\sum_i d
 
 ### 对极几何
 
-**对极几何（Epipolar Geometry）**描述同一场景在两张图像中的几何约束关系，是立体匹配的理论基础。给定两幅图像中的对应点 $\mathbf{x}_1$ 和 $\mathbf{x}_2$（齐次坐标），它们满足：
+**对极几何（Epipolar Geometry）**描述同一场景在两张图像中的几何约束关系，是立体匹配的理论基础。给定两幅图像中的对应点 $$\mathbf{x}_1$$ 和 $$\mathbf{x}_2$$（齐次坐标），它们满足：
 
 $$\mathbf{x}_2^T F \mathbf{x}_1 = 0$$
 
@@ -401,10 +401,10 @@ $$E(D) = \sum_{\mathbf{p}} \left( C(\mathbf{p}, D_\mathbf{p}) + \sum_{\mathbf{q}
 
 1. **特征提取**：**SIFT**（Scale-Invariant Feature Transform，Lowe, IJCV 2004）通过高斯差分（DoG）检测尺度空间极值点，提取 128 维方向梯度直方图（HOG）描述子，实现尺度、旋转与光照不变性，是两十年来最稳健的图像匹配特征。
 2. **特征匹配 + RANSAC**：对图像对进行描述子最近邻匹配，使用 **RANSAC（Random Sample Consensus）** 鲁棒估计基础矩阵 $F$，以迭代随机采样的方式自动剔除误匹配（outliers）。
-3. **相对位姿估计**：从本质矩阵 $E = [\mathbf{t}]_\times R$ 通过 SVD 分解恢复两相机间的旋转 $R$ 和平移方向 $\mathbf{t}$（4个候选解，通过正深度约束确定唯一解）。
-4. **三角化（Triangulation）**：已知两相机位姿后，对匹配点对用线性最小二乘（DLT）恢复 3D 点坐标 $\mathbf{X}$，解方程组 $\mathbf{x}_i \times (P_i \mathbf{X}) = 0$。
+3. **相对位姿估计**：从本质矩阵 $$E = [\mathbf{t}]_\times R$$ 通过 SVD 分解恢复两相机间的旋转 $R$ 和平移方向 $\mathbf{t}$（4个候选解，通过正深度约束确定唯一解）。
+4. **三角化（Triangulation）**：已知两相机位姿后，对匹配点对用线性最小二乘（DLT）恢复 3D 点坐标 $\mathbf{X}$，解方程组 $$\mathbf{x}_i \times (P_i \mathbf{X}) = 0$$。
 5. **增量式重建**：以最佳匹配图像对为种子，通过 PnP+RANSAC 将新图像注册进已重建的点云，持续扩展稀疏 3D 结构。
-6. **光束法平差（Bundle Adjustment, BA）**：联合优化所有相机位姿 $\{R_i, \mathbf{t}_i\}$ 与 3D 点坐标 $\{X_j\}$，最小化**重投影误差**：
+6. **光束法平差（Bundle Adjustment, BA）**：联合优化所有相机位姿 $$\{R_i, \mathbf{t}_i\}$$ 与 3D 点坐标 $\{X_j\}$，最小化**重投影误差**：
 $$\min_{\{R_i,\mathbf{t}_i\},\{X_j\}} \sum_{i,j} \rho\!\left(\left\|\mathbf{x}_{ij} - \pi(R_i X_j + \mathbf{t}_i)\right\|^2\right)$$
 其中 $\pi(\cdot)$ 为透视投影，$\rho(\cdot)$ 为鲁棒核函数（Huber）。BA 是 SfM 精度的核心，通常用 Ceres Solver 实现。
 7. **稠密重建（MVS）**：在稀疏 SfM 位姿基础上，通过 **PatchMatch MVS** 等算法逐像素恢复稠密深度图，再融合为稠密点云或体素。
@@ -1847,7 +1847,7 @@ LLaVA-3D 框架基于 LLaVA-Video 改进，由 CLIP 图像编码器、2D-to-3D �
 
 **④ 训练目标 / 损失函数**
 - 训练分为两阶段：
-  - **第一阶段：多任务联合微调（Multi-Task Instruction Tuning）**：混合 3D QA、3D Captioning 等 3D 数据（LLaVA-3D-Instruct-86K）与原 LLaVA-Video 的 2D 视频微调数据。整体损失包含文本自回归损失 $\mathcal{L}_{text}$ 以及 3D 边界框预测损失（GIoU 损失与 $L_1$ 框回归损失之和 $\mathcal{L}_{box}$）：
+  - **第一阶段：多任务联合微调（Multi-Task Instruction Tuning）**：混合 3D QA、3D Captioning 等 3D 数据（LLaVA-3D-Instruct-86K）与原 LLaVA-Video 的 2D 视频微调数据。整体损失包含文本自回归损失 $$\mathcal{L}_{text}$$ 以及 3D 边界框预测损失（GIoU 损失与 $L_1$ 框回归损失之和 $$\mathcal{L}_{box}$$）：
     $$\mathcal{L} = \mathcal{L}_{text} + \lambda \mathcal{L}_{box}$$
   - **第二阶段：仅微调解码器（Decoder-only Fine-tuning）**：冻结 LLM 和位置编码层，仅在 3D 视觉定位数据上继续训练 Grounding Decoder 几个 epoch，以加速边界框预测部分的收敛。
 
@@ -3053,7 +3053,7 @@ MDM（Masked Depth Modeling）框架采用 Encoder-Decoder 结构，使用 Visio
 
 $$L_{depth} = \frac{1}{\sum_i M^{gt}_i} \sum_i M^{gt}_i \lvert d^{pred}_i - d^{gt}_i \rvert$$
 
-其中 $d^{pred}_i$ 和 $d^{gt}_i$ 分别表示第 $i$ 个像素的预测深度值与真实深度值，而 $M^{gt}_i \in \{0, 1\}$ 是指示真值深度在第 $i$ 个像素是否有效的二值掩码。
+其中 $$d^{pred}_i$$ 和 $$d^{gt}_i$$ 分别表示第 $i$ 个像素的预测深度值与真实深度值，而 $$M^{gt}_i \in \{0, 1\}$$ 是指示真值深度在第 $i$ 个像素是否有效的二值掩码。
 
 ---
 
@@ -3473,13 +3473,13 @@ SparseOccVLA 包含三个核心组件：**稀疏占用编码器（Sparse Occupan
   </div>
 
   - **输出**：经轻量化 MLP 对齐连接器（Connector）转换得到的高维 **占用 Token（Occupancy Tokens）** $T_o = \text{MLP}(Q_L + \text{PE}(P_L))$。
-  - **特征级蒸馏（Feature-level Distillation）**：为克服无序稀疏点云与语言空间极大的对齐鸿沟、避免训练初期的崩溃，训练阶段使用预训练的 CLIP-336 视觉编码器提取单帧特征。占用 Token $T_o$ 基于其 3D 坐标投影并插值得到教师特征 $\hat{T}_o$。二者通过独立 LayerNorm 归一化并放宽对齐强度限制后，使用余弦相似度计算蒸馏损失：
+  - **特征级蒸馏（Feature-level Distillation）**：为克服无序稀疏点云与语言空间极大的对齐鸿沟、避免训练初期的崩溃，训练阶段使用预训练的 CLIP-336 视觉编码器提取单帧特征。占用 Token $T_o$ 基于其 3D 坐标投影并插值得到教师特征 $$\hat{T}_o$$。二者通过独立 LayerNorm 归一化并放宽对齐强度限制后，使用余弦相似度计算蒸馏损失：
     $$L_{\mathrm{distill}} = 1 - \mathrm{cosine}(\mathrm{Norm}_1(T_o), \mathrm{Norm}_2(\hat{T}_o))$$
 
 - **统一大语言模型（Unified Large Language Model）**：
   - **输入**：稀疏占用 Token $T_o$、通过交叉注意力生成的全局场景 Token $T_g$ 以及文本 Token $T_t$。
   - **处理**：将输入 Token 序列拼接后送入大语言模型（Vicuna-7B）进行因果自回归推理。在推理过程中，模型基于占用 Token 的 3D 位置编码推导空间拓扑。
-  - **任务实现**：对于 **场景理解**，利用 MLE 损失自回归生成答案；对于 **占用预测（Forecasting）**，将 LLM 推理后的占用 Token $T'_o$ 与原始占用查询 $Q_L$ 进行残差线性融合：$\hat{Q}_o = \text{MLP}([T'_o, Q_L])$，并融入 Ego 车辆状态和时空位置编码，经 forecaster 逐帧预测未来 3 秒内的三维占用网格。
+  - **任务实现**：对于 **场景理解**，利用 MLE 损失自回归生成答案；对于 **占用预测（Forecasting）**，将 LLM 推理后的占用 Token $T'_o$ 与原始占用查询 $Q_L$ 进行残差线性融合：$$\hat{Q}_o = \text{MLP}([T'_o, Q_L])$$，并融入 Ego 车辆状态和时空位置编码，经 forecaster 逐帧预测未来 3 秒内的三维占用网格。
 
 - **LLM引导的锚点扩散规划器（LLM-guided Anchor-Diffusion Planner）**：
   - **输入**：通过 K-means 聚类学习得到的 $K=18$ 个轨迹锚点（Trajectory Anchors） $a_k$。
@@ -3645,7 +3645,7 @@ $$d' = \text{clip}(\alpha \log(d+1), 0, 1)$$
 
 S-Agent 是一种由 VLM 协调的时空推理框架。它将 VLM 扮演为**语义规划器**（Semantic Planner $\pi_{\theta}$），将空间计算与感知任务交由**分级空间工具与专家**（Hierarchical Spatial Tools & Experts）处理，并通过**持久化时空记忆**（Persistent Spatial Memory）在推理步骤和视频帧之间累积证据。
 
-给定问题 $q$ 和连续观测图像集 $\mathcal{F}$，S-Agent 在每个推理步骤 $t$ 保持两个记忆状态：用于储存物理事实的场景记忆 $\mathcal{S}_t$ 和用于储存推理历史的 Agent 记忆 $\mathcal{H}_t$。规划器生成证据请求：
+给定问题 $q$ 和连续观测图像集 $\mathcal{F}$，S-Agent 在每个推理步骤 $t$ 保持两个记忆状态：用于储存物理事实的场景记忆 $$\mathcal{S}_t$$ 和用于储存推理历史的 Agent 记忆 $$\mathcal{H}_t$$。规划器生成证据请求：
 $$r_t = \pi_{\theta}(q, \mathcal{F}, \mathcal{S}_t, \mathcal{H}_t)$$
 工具或专家执行 $r_t$ 并返回观察结果 $o_t$，进而更新记忆状态：
 $$(\mathcal{S}_{t+1}, \mathcal{H}_{t+1}) = \text{Update}(\mathcal{S}_t, \mathcal{H}_t, r_t, o_t)$$
@@ -3678,8 +3678,8 @@ $$(\mathcal{S}_{t+1}, \mathcal{H}_{t+1}) = \text{Update}(\mathcal{S}_t, \mathcal
 - **输出**：直接可供 VLM 规划器读取的高层结构化空间知识（如："距离为 1.0m"、"数量为 3"）。
 
 **4. 时空双记忆机制（Persistent Spatial Memory）**
-- **场景记忆（Scene Memory $\mathcal{S}_t$）**：跨视角与跨帧绑定同一实体的多次观测，维护对象注册表（Object Registry）、几何先验、空间关系与帧级证据，避免重复计算与实体识别冲突。
-- **Agent 记忆（Agent Memory $\mathcal{H}_t$）**：记录规划器的中间思考（Thought）、发出的工具请求、工具成功/失败反馈及阶段性结论，支持自我修正与策略调整。
+- **场景记忆（Scene Memory $$\mathcal{S}_t$$）**：跨视角与跨帧绑定同一实体的多次观测，维护对象注册表（Object Registry）、几何先验、空间关系与帧级证据，避免重复计算与实体识别冲突。
+- **Agent 记忆（Agent Memory $$\mathcal{H}_t$$）**：记录规划器的中间思考（Thought）、发出的工具请求、工具成功/失败反馈及阶段性结论，支持自我修正与策略调整。
 
 <div align="center">
   <img src="/images/si/S-Agent-dataset-stats.webp" width="100%" />
