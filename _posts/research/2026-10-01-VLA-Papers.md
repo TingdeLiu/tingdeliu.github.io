@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "VLA 论文精读：代表方法与近期进展"
+title: "VLA 论文精读"
 date: 2026-10-01
 last_modified_at: 2026-10-01
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
@@ -156,7 +156,7 @@ excerpt: "VLA 配套论文精读，链接 RoboDojo 官方统一榜，并提供�
 
 <span id="vla-papers" class="vla-anchor-alias" aria-hidden="true"></span>
 
-# 5. 代表论文精读
+# 5. 论文精读
 
 本文收录 36 项代表工作，包括 VLA 模型、动作策略、采集方法与世界模型。它们共同解释技术来源，但并非都属于 VLA，也不是穷尽全部工作的排行榜。可通过上方搜索或侧边目录跳转到相应论文。
 

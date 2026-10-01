@@ -38,6 +38,7 @@
 | | [VLN 论文精读：指令跟随篇](https://tingdeliu.github.io/VLN-Papers/) | 已发表或已上榜工作的精读，附三类指令跟随任务设定的性能排行榜 |
 | | [VLN 论文精读：目标导航与扩展篇](https://tingdeliu.github.io/VLN-Papers-Extended/) | 目标导航性能排行榜，以及指令跟随主篇之外的近期预印本与扩展论文 |
 | **视觉语言动作模型** | [VLA 综述](https://tingdeliu.github.io/VLA-Survey/) | 机器人策略学习、动作生成、模仿学习与强化学习的路线梳理 |
+| | [VLA 论文精读](https://tingdeliu.github.io/VLA-Papers/) | 独立论文解析、RoboDojo 排行榜入口与同设置实验对照 |
 | **机器人导航系统** | [传统导航综述](https://tingdeliu.github.io/Robot-Navigation-Survey/) | SLAM、定位建图、路径规划与运动控制等经典方法 |
 | | [ROS 2 完全指南](https://tingdeliu.github.io/ROS2-Survey/) | 通信模型、生命周期节点、QoS 与真实机器人部署实战 |
 | **多模态与空间智能** | [VLM 综述](https://tingdeliu.github.io/VLM-Survey/) | 视觉语言模型的多模态融合方法全景 |

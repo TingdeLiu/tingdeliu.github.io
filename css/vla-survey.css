@@ -41,7 +41,49 @@
 .article-page .vla-survey .entry > ol { line-height: 1.85; }
 .vla-survey .entry > p { overflow-wrap: anywhere; }
 .vla-survey .entry img { height: auto; }
+.vla-survey .vla-process-figure,
+.vla-survey .vla-signal-figure,
+.vla-survey .vla-reliability-figure,
+.vla-survey .vla-evidence-figure { margin: 1.7rem 0 2rem; padding: 1.25rem 0; border-top: 1px solid var(--vla-line); border-bottom: 1px solid var(--vla-line); color: var(--vla-ink); }
+.vla-survey .vla-process-figure figcaption,
+.vla-survey .vla-signal-figure figcaption,
+.vla-survey .vla-reliability-figure figcaption,
+.vla-survey .vla-evidence-figure figcaption { margin: .9rem 0 0; color: var(--vla-muted); font-size: .84rem; line-height: 1.65; text-align: left; }
+.vla-survey .vla-process-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); counter-reset: vla-step; gap: 1px; padding: 0; margin: 0; list-style: none; background: var(--vla-line); }
+.vla-survey .vla-process-steps li { counter-increment: vla-step; min-width: 0; padding: 1rem .9rem 1.1rem; background: #f8fbfe; list-style: none; }
+.vla-survey .vla-process-steps li::before { content: counter(vla-step, decimal-leading-zero); display: block; margin-bottom: .55rem; color: var(--vla-blue); font-size: .8rem; font-weight: 750; }
+.vla-survey .vla-process-steps strong,
+.vla-survey .vla-process-steps span { display: block; }
+.vla-survey .vla-process-steps strong { margin-bottom: .3rem; font-size: 1rem; }
+.vla-survey .vla-process-steps span { color: var(--vla-muted); font-size: .86rem; line-height: 1.6; }
+.vla-survey .vla-chunk-example { margin-top: 1rem; }
+.vla-survey .vla-chunk-heading,
+.vla-survey .vla-chunk-notes { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; font-size: .83rem; }
+.vla-survey .vla-chunk-heading { margin-bottom: .45rem; }
+.vla-survey .vla-chunk-heading span,
+.vla-survey .vla-chunk-notes span { color: var(--vla-muted); }
+.vla-survey .vla-chunk-cells { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 3px; }
+.vla-survey .vla-chunk-cells span { padding: .4rem 0; background: #e8eef4; color: var(--vla-muted); font-size: .9rem; text-align: center; }
+.vla-survey .vla-chunk-cells .vla-chunk-executed { background: var(--vla-blue); color: #fff; font-weight: 700; }
+.vla-survey .vla-chunk-notes { margin-top: .35rem; }
+.vla-survey .vla-chunk-notes strong { color: var(--vla-blue); }
+.vla-survey .vla-signal-row { display: grid; grid-template-columns: minmax(8.5rem, 1fr) minmax(10rem, 1.45fr) minmax(11rem, 1.6fr); align-items: baseline; gap: 1rem; padding: .8rem .4rem; border-bottom: 1px solid var(--vla-line); }
+.vla-survey .vla-signal-row:first-child { border-top: 1px solid var(--vla-line); }
+.vla-survey .vla-signal-row strong { color: var(--vla-blue); font-size: .91rem; }
+.vla-survey .vla-signal-row span { font-size: .9rem; }
+.vla-survey .vla-signal-row small { color: var(--vla-muted); font-size: .84rem; }
+.vla-survey .vla-reliability-row { display: grid; grid-template-columns: 3.8rem minmax(0, 1fr) 3.3rem; align-items: center; gap: .75rem; margin: .55rem 0; font-size: .9rem; }
+.vla-survey .vla-reliability-row strong { text-align: right; font-variant-numeric: tabular-nums; }
+.vla-survey .vla-reliability-track { height: 1.2rem; background: #e8eef4; }
+.vla-survey .vla-reliability-track i { display: block; height: 100%; background: #3381b6; }
+.vla-survey .vla-reliability-row:last-of-type .vla-reliability-track i { background: #b05c43; }
+.vla-survey .vla-evidence-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; margin: 0; padding: 0; list-style: none; counter-reset: vla-evidence; }
+.vla-survey .vla-evidence-steps li { counter-increment: vla-evidence; min-width: 0; padding: .75rem .7rem .8rem; border-top: 3px solid var(--vla-blue); background: #f8fbfe; list-style: none; }
+.vla-survey .vla-evidence-steps li::before { content: counter(vla-evidence); display: inline-block; width: 1.45rem; height: 1.45rem; margin-right: .35rem; border-radius: 50%; background: var(--vla-blue); color: #fff; text-align: center; line-height: 1.45rem; font-size: .78rem; font-weight: 700; }
+.vla-survey .vla-evidence-steps strong { font-size: .94rem; }
+.vla-survey .vla-evidence-steps span { display: block; margin-top: .5rem; color: var(--vla-muted); font-size: .84rem; line-height: 1.55; }
 .vla-survey .vla-leaderboard-table { display: block; max-width: 100%; overflow-x: auto; }
+.vla-survey .entry pre { max-width: 100%; overflow-x: auto; }
 .vla-survey .vla-leaderboard-table th,
 .vla-survey .vla-leaderboard-table td { white-space: nowrap; }
 .vla-survey .vla-decoder-diagram { overflow-x: auto; margin: 1.5rem 0; }
@@ -57,8 +99,17 @@
   .vla-survey .vla-year-label select { flex: 1; }
   .vla-survey .vla-paper-results { grid-template-columns: minmax(0, 1fr); max-height: 220px; }
   .vla-survey .vla-guide-intro { font-size: 1rem; }
+  .vla-survey .vla-process-steps,
+  .vla-survey .vla-evidence-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vla-survey .vla-signal-row { grid-template-columns: minmax(0, 1fr); gap: .15rem; }
+  .vla-survey .vla-signal-row small { margin-top: .1rem; }
+  .vla-survey .vla-chunk-notes { font-size: .72rem; }
   .article-page .vla-survey .entry > h1 { font-size: 1.6rem; }
   .article-page .vla-survey .entry > h2 { font-size: 1.3rem; }
+}
+@media (max-width: 330px) {
+  .vla-survey .vla-process-steps,
+  .vla-survey .vla-evidence-steps { grid-template-columns: minmax(0, 1fr); }
 }
 @media print {
   .vla-survey .vla-guide { display: none; }
