@@ -41,6 +41,9 @@
 .article-page .vla-survey .entry > ol { line-height: 1.85; }
 .vla-survey .entry > p { overflow-wrap: anywhere; }
 .vla-survey .entry img { height: auto; }
+.vla-survey .vla-leaderboard-table { display: block; max-width: 100%; overflow-x: auto; }
+.vla-survey .vla-leaderboard-table th,
+.vla-survey .vla-leaderboard-table td { white-space: nowrap; }
 .vla-survey .vla-decoder-diagram { overflow-x: auto; margin: 1.5rem 0; }
 .vla-survey .vla-decoder-diagram .mermaid { min-width: 920px; margin: 0; }
 .vla-survey .vla-decoder-diagram:focus-visible { outline: 2px solid var(--vla-blue); outline-offset: 3px; }

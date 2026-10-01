@@ -4,6 +4,11 @@
   document.addEventListener('DOMContentLoaded', function () {
     var article = document.querySelector('.vla-survey');
     if (!article) return;
+    // Preserve bookmarks to paper sections moved from the survey.
+    if (/\/VLA-Survey\/?$/.test(window.location.pathname) && /^#5(?:-\d+|\d{1,2}-)/.test(window.location.hash)) {
+      window.location.replace('/VLA-Papers/' + window.location.hash);
+      return;
+    }
     var index = article.querySelector('.vla-paper-index');
     if (!index) return;
     var query = index.querySelector('input');
