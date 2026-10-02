@@ -21,9 +21,10 @@ excerpt: "从空间记忆、技能契约、执行评估与运行时监控出发�
 
 # 1. 引言：从模型能力到系统闭环
 
-![具身 Agent 系统闭环：上层 Agent Harness 经接口契约向下层机器人运行系统下发带 ID 与有效期的指令，回执与观测证据返回结果评估，本地保护在执行侧独立生效。](/images/agent/Embodied-Agent-Harness-intro.webp)
-
-*图 1｜从模型能力到系统闭环：以“去厨房拿杯子”为例，上层 Harness 构成规划 → 执行 → 评估的慢回路，下层运行系统在本地闭合感知 → 控制 → 执行的快回路，两者通过接口契约交换指令、回执与观测证据。①②③ 对应 1.1 节的三个问题。*
+<figure class="survey-intro-figure">
+  <img src="/images/agent/embodied-agent-survey-intro.webp" width="1672" height="941" alt="具身 Agent 双层闭环：上层规划、技能调用与结果评估通过接口契约和下层感知、控制、执行协作，回执与观测用于结果判断，本地保护在机器人侧独立生效。" loading="lazy" decoding="async" />
+  <figcaption>图 1｜以“去厨房拿杯子”为例，上层组织规划、技能调用与结果评估，下层在本地闭合感知、控制与执行。两层通过接口契约交换指令、回执与观测证据；本地保护独立生效，任务成功仍需依据观测确认。</figcaption>
+</figure>
 
 ## 1.1 三个需要分别处理的问题
 

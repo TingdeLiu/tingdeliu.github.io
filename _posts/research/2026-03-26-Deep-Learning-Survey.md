@@ -17,10 +17,10 @@ excerpt: "从机器学习三步骤框架出发，系统梳理神经网络、CNN�
 
 深度学习之所以强大，在于它能够从原始数据（像素、词语、信号）中自动学习多层次的抽象特征表示，无需人工设计特征工程。然而，训练一个高性能的深层网络并非易事——梯度消失、过拟合、学习率调节等问题长期困扰着研究者，由此催生了一整套系统性的训练技巧。
 
-<div align="center">
-  <img src="/images/DL/deep-learning-overview.webp" width="80%" alt="深度学习网络架构与生态系统全景" />
-  <figcaption>图 1.1：深度学习网络架构与应用生态系统全景示意图</figcaption>
-</div>
+<figure class="survey-intro-figure">
+  <img src="/images/DL/deep-learning-survey-intro.webp" width="1672" height="941" alt="深度学习用网络学习数据表示；CNN、RNN 与 Transformer 是可选架构，训练目标指导参数更新。" loading="lazy" decoding="async" />
+  <figcaption>图：深度学习从数据中学习表示并完成任务。CNN、RNN 与 Transformer 是可选且可组合的架构；下方的目标与参数更新属于训练过程。</figcaption>
+</figure>
 
 理解深度学习，需要同时把握两个层面：**架构设计**（网络如何搭建）和**训练方法**（网络如何有效优化）。两者缺一不可。只知道搭积木式地堆叠网络层，而不理解每个训练技巧解决的是什么问题，往往会陷入"加了 Dropout 反而更差"或"换了 Adam 没有任何改善"的困境。
 

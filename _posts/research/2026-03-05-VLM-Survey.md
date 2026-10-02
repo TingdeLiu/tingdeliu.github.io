@@ -19,10 +19,10 @@ excerpt: "从 CLIP 的图文对齐到 LLM 驱动的多模态理解，梳理 VLM 
 
 VLM在医疗图像分析、自动驾驶、机器人感知、内容审核等领域有着广泛的应用前景。视觉理解能力是VLA（视觉-语言-动作）模型和具身智能系统的基础，VLM研究的突破直接推动了下游具身任务的进步。
 
-<div align="center">
-  <img src="/images/vlm/vlm-architecture-overview.webp" width="80%" alt="视觉-语言模型多模态对齐与融合全景" />
-  <figcaption>图 1.1：视觉-语言模型（VLM）视觉编码、模态对齐与 LLM 跨模态融合架构示意图</figcaption>
-</div>
+<figure class="survey-intro-figure">
+  <img src="/images/vlm/vlm-survey-intro.webp" width="1672" height="941" alt="一种典型生成式 VLM：图像经视觉编码与跨模态连接，与文本问题共同输入语言模型并生成回答。" loading="lazy" decoding="async" />
+  <figcaption>图：一种典型生成式 VLM 用视觉编码与跨模态连接，让图像信息参与语言建模。其他 VLM 可用于检索或表征学习，回答形式也不限于自然语言。</figcaption>
+</figure>
 
 本文围绕三个问题展开：**视觉信息如何进入语言模型，模型如何通过训练学会使用这些信息，以及如何验证它确实看懂了输入。** 第 2～4 章建立原理框架，第 5～7 章连接任务、训练与评测，第 8 章提供代表论文的详细解读。
 

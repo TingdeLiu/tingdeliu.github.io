@@ -39,10 +39,10 @@ excerpt: "从任务、状态与动作接口、训练信号和闭环评测梳理 
 
 截至 2026 年，更准确的判断不是“端到端模型已经取代模块化系统”，而是两者正在融合：统一模型负责获得可扩展的通用能力，结构化地图、快慢分层、技能调用和安全控制则为长时序可靠性提供约束。本文据此重新梳理 VLN 的概念边界、方法演进、基准体系与仍未解决的问题。
 
-<div align="center">
-  <img src="/images/vln/vln-system-overview.webp" width="80%" alt="视觉语言导航（VLN）具身闭环系统全景" />
-  <figcaption>图 1.1：视觉语言导航（VLN）指令接地、空间记忆、拓扑建图与闭环动作决策全景示意图</figcaption>
-</div>
+<figure class="survey-intro-figure">
+  <img src="/images/vln/vln-survey-intro.webp" width="1672" height="941" alt="VLN 根据语言指令、第一视角观测及历史信息进行导航决策，通过移动、停止与新观测形成闭环。" loading="lazy" decoding="async" />
+  <figcaption>图：VLN 把语言目标与持续变化的视觉观测联系起来，反复决策、移动并判断何时停止。历史与空间记忆可辅助导航，地图不是所有方法的必选模块。</figcaption>
+</figure>
 
 <a id="survey-basics"></a>
 

@@ -16,10 +16,10 @@ excerpt: "从学习范式、数据划分与模型评估出发，梳理经典算�
 
 本文从学习范式与建模流程出发，依次介绍传统机器学习、深度神经网络、预训练模型和生成式模型。各类方法并非简单的替代关系：线性模型便于解释与诊断，树模型适合许多表格任务，深度网络擅长学习复杂表示；选择哪一种，需要结合数据、评价指标和部署成本。
 
-<div align="center">
-  <img src="/images/ML/machine-learning-overview.webp" width="80%" alt="机器学习核心范式与代表性模型概览" />
-  <figcaption>图 1.1：机器学习核心范式与代表性模型概览</figcaption>
-</div>
+<figure class="survey-intro-figure">
+  <img src="/images/ML/machine-learning-survey-intro.webp" width="1672" height="941" alt="机器学习的四种常见学习信号：监督标签、无监督结构、自监督目标和强化学习的交互奖励。" loading="lazy" decoding="async" />
+  <figcaption>图：按学习信号理解监督、无监督、自监督与强化学习。它们并非完全互斥；深度学习与基础模型属于另一划分维度，可以结合不同训练范式。</figcaption>
+</figure>
 
 <!-- more -->
 

@@ -25,10 +25,10 @@ excerpt: "2026年深度总结：系统梳理强化学习与具身智能算法体
 | **上限** | 人类标注水平 | 可超越人类（如 AlphaGo） |
 | **核心挑战** | 泛化性 | 探索-利用权衡、信用分配 |
 
-<div align="center">
-  <img src="/images/vla/embodied-rl-overview.webp" width="80%" alt="具身强化学习交互与决策闭环全景" />
-  <figcaption>图 1.1：具身强化学习（Embodied RL）状态感知、闭环策略决策与物理环境交互全景示意图</figcaption>
-</div>
+<figure class="survey-intro-figure">
+  <img src="/images/vla/reinforcement-learning-survey-intro.webp" width="1672" height="941" alt="强化学习的交互闭环：智能体选择动作，环境返回观测与奖励，交互经验用于策略更新。" loading="lazy" decoding="async" />
+  <figcaption>图：智能体通过动作影响环境，接收新的观测与奖励，并利用交互经验改进策略；优化目标通常考虑长期回报，部署时不一定继续更新参数。</figcaption>
+</figure>
 
 本文按“理论基础 → 无模型控制 → 世界模型 → 扩散策略 → 稀疏奖励与后训练 → 仿真评测”的顺序展开。读者可以先阅读第 2–7 节建立算法主线，再根据任务类型跳转到第 10–13 节；第 14 节提供代表性论文的统一拆解，便于进一步深入。
 

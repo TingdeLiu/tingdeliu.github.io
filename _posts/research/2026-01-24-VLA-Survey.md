@@ -21,6 +21,11 @@ excerpt: "围绕视觉、语言与动作的统一建模，梳理 VLA 的动作�
 
 本文以**机器人操作及移动操作**为主，兼顾支撑 VLA 的动作策略、世界模型和数据工具。ACT、Diffusion Policy、UMI、UniSim 与 VLA 密切相关，但分别承担策略学习、数据采集或环境预测的角色，阅读时需要区分。文中比较以各论文的实验设置为边界；基准成功率、演示视频和真实部署可靠性提供的是不同层次的证据。逐篇方法、图示及实验局限集中在配套的 [VLA 论文精读](/VLA-Papers/)。
 
+<figure class="survey-intro-figure">
+  <img src="/images/vla/vla-survey-intro.webp" width="1672" height="941" alt="VLA 闭环：视觉、语言和本体状态输入动作策略，预测动作块，经机器人执行后获取新观测。" loading="lazy" decoding="async" />
+  <figcaption>图：VLA 将视觉观测、语言指令与本体状态转化为动作预测；执行后获取新观测，形成持续修正的闭环。</figcaption>
+</figure>
+
 # 1. VLA核心技术体系
 
 <span id="vla-basics" class="vla-anchor-alias" aria-hidden="true"></span>

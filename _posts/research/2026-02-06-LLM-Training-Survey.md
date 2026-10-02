@@ -14,10 +14,10 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 
 大语言模型（Large Language Model, LLM）的兴起标志着人工智能进入了新的发展阶段。从2018年BERT和GPT的出现，到2020年GPT-3展现出令人惊讶的少样本学习能力，再到2022年ChatGPT引爆全球对话式AI浪潮，大模型在短短几年间实现了质的飞跃。这些模型不仅在传统NLP任务上达到了接近人类的水平，更展现出了代码生成、数学推理、创意写作等广泛的能力。
 
-<div align="center">
-  <img src="/images/llm-training/llm-training-pipeline-overview.webp" width="80%" alt="大语言模型全流程训练 Pipeline" />
-  <figcaption>图 1：大语言模型（LLM）预训练、SFT、偏好对齐与 Post-Training 全流程全景图</figcaption>
-</div>
+<figure class="survey-intro-figure">
+  <img src="/images/llm-training/llm-training-survey-intro.webp" width="1672" height="941" alt="大语言模型流程：准备数据、预训练得到基础模型，按需进行指令微调和偏好优化，并评测与部署。" loading="lazy" decoding="async" />
+  <figcaption>图：预训练建立基础模型，后训练可包含指令微调与偏好优化。图中是常见环节示意，具体顺序因配方而异；压缩、推理与交付单独属于部署工程。</figcaption>
+</figure>
 
 ## 🎯 为什么关注大模型训练？
 

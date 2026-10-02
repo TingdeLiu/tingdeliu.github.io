@@ -12,10 +12,10 @@ excerpt: "空间智能是 AI 系统感知、理解、推理和交互三维物理
 
 # 1. 引言
 
-<div align="center">
-  <img src="/images/si/SI.webp" width="90%" />
-<figcaption>空间智能研究方向概览</figcaption>
-</div>
+<figure class="survey-intro-figure">
+  <img src="/images/si/spatial-intelligence-survey-intro.webp" width="1672" height="941" alt="空间智能的四项相互关联能力：三维感知、空间表示、关系推理与空间交互，由几何和语义共同约束。" loading="lazy" decoding="async" />
+  <figcaption>图：空间智能把三维感知、空间表示、关系推理与行动联系起来。四块是相互关联的能力划分，算法可以组合使用，不表示单一技术演进路线。</figcaption>
+</figure>
 
 空间智能（Spatial Intelligence）是指 AI 系统感知、理解、推理和交互三维物理世界的综合能力。与人类从婴幼儿期便开始发展的空间认知类似，空间智能涵盖了对物体形状、场景布局、三维空间关系以及动态变化的全面理解。作为具身智能（Embodied AI）的核心基础，空间智能的研究近年来随着深度学习、神经渲染以及大型多模态模型的飞速发展而进入了全新阶段。
 

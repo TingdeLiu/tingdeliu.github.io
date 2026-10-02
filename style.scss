@@ -270,6 +270,33 @@ img {
   border-radius: 5px;
 }
 
+.survey-intro-figure {
+  margin: 1.5rem auto 2rem;
+
+  img {
+    width: 100%;
+    height: auto;
+    margin: 0;
+  }
+
+  figcaption {
+    margin: .75rem auto 0;
+    color: $oc-gray-7;
+    font-size: .9rem;
+    line-height: 1.65;
+    text-align: left;
+  }
+}
+
+@media (max-width: 640px) {
+  .survey-intro-figure figcaption::after {
+    content: "点击配图可放大查看";
+    display: block;
+    margin-top: .35rem;
+    font-size: .8rem;
+  }
+}
+
 // Fixes images in popup boxes from Google Translate
 .gmnoprint img {
   max-width: none;

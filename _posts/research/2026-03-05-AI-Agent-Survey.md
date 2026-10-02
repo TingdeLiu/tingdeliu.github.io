@@ -39,10 +39,10 @@ excerpt: "围绕“Agent 如何决策、如何行动、如何可靠完成任务�
 
 **图 1.1** 概括了本文将要展开的系统全貌：以 LLM 为推理核心，向外连接记忆、技能与工具，并由 Harness 在外层闭环治理——后续各章即沿着这张图逐块拆解。
 
-<div align="center">
-  <img src="/images/agent/ai-agent-architecture-overview.webp" width="80%" alt="AI Agent 自主推理、工具调用与多 Agent 协同全景" />
-  <figcaption>图 1.1：AI Agent（智能体）LLM 大脑、记忆机制、工具调用与闭环 Harness 架构全景示意图</figcaption>
-</div>
+<figure class="survey-intro-figure">
+  <img src="/images/agent/ai-agent-survey-intro.webp" width="1672" height="941" alt="AI Agent 围绕任务目标规划决策、调用工具并检查结果，通过反馈和上下文持续调整。" loading="lazy" decoding="async" />
+  <figcaption>图：AI Agent 围绕目标组织决策、工具调用与结果检查，利用上下文和反馈继续执行；是否需要长期记忆或多 Agent 协作取决于任务。</figcaption>
+</figure>
 
 第 2–4 章讨论决策与协作，第 5–8 章讨论支撑执行的机制，第 9–12 章讨论评测、应用、实现案例与安全，第 13 章归纳设计取舍与开放问题。
 

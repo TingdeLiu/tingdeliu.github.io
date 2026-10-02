@@ -16,10 +16,10 @@ excerpt: "系统梳理传统机器人导航算法栈：从感知、定位与建�
 ## 1.1 为什么需要自主导航？
 
 想象一个仓库机器人——它需要在货架之间穿梭，精准取货，同时避开突然出现的叉车和行人。或者一辆无人驾驶汽车，需要在复杂交通中安全行驶数百公里。这些场景的背后，都依赖一套精心设计的**自主导航系统（Autonomous Navigation System）**。
-<div align="center">
-  <img src="/images/robotics_navigation/Nav.jpg" width="65%" />
-  <figcaption>图：机器人自主导航</figcaption>
-</div>
+<figure class="survey-intro-figure">
+  <img src="/images/robotics_navigation/robot-navigation-survey-intro.webp" width="1672" height="941" alt="传统机器人导航通过感知与定位、地图与规划、局部控制与执行实现目标移动，并持续接收传感器反馈。" loading="lazy" decoding="async" />
+  <figcaption>图：传统导航围绕目标位置，组合感知定位、地图规划与局部控制，并通过传感器反馈修正运动；实际系统可采用不同模块划分与地图形式。</figcaption>
+</figure>
 自主导航解决的核心问题，可以简单概括为三个问题：
 
 1. **我在哪？**（Localization，定位）
