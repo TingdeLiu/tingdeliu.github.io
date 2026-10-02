@@ -17,23 +17,6 @@ excerpt: "VLA 配套论文精读，链接 RoboDojo 官方统一榜，并提供�
 
 论文编号沿用综述原第 5 章，便于已有引用与交叉阅读。下方先列跨模型的 RoboDojo 官方统一评测榜，再列各论文同设置的实验对照；两类榜单的分数不能混排。
 
-<div class="vla-guide">
-  <div class="vla-paper-index" hidden>
-    <div class="vla-index-heading">
-      <label for="vla-paper-search">查找论文</label>
-      <a href="/VLA-Survey/">返回 VLA 综述</a>
-    </div>
-    <div class="vla-search-fields">
-      <input id="vla-paper-search" type="search" placeholder="按模型、方法或关键词搜索" autocomplete="off" />
-      <label class="vla-year-label" for="vla-paper-year">年份 <select id="vla-paper-year"><option value="">全部</option></select></label>
-    </div>
-    <p class="vla-result-count" aria-live="polite"></p>
-    <ul class="vla-paper-results"></ul>
-    <p class="vla-empty" hidden>没有匹配的论文。</p>
-    <button class="vla-reset" type="button" hidden>清除筛选</button>
-  </div>
-</div>
-
 <span id="vla-leaderboard" class="vla-anchor-alias" aria-hidden="true"></span>
 
 # 性能排行榜
