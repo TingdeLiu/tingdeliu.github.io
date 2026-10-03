@@ -7,6 +7,9 @@ Errors (exit 1):
   div-blank-line blank line inside <div align="center"> ... </div>
   math-underscore single-$ inline math containing `}_` (must be $$...$$)
   missing-image  local /images/... reference that does not exist
+  control-char   control character (BEL, backspace, lone CR, ...) or a TAB glued to a LaTeX
+                 command tail on a math line: a `\t`/`\a`/`\b`/`\r` command was pasted as the
+                 control character and the formula is broken
 Warnings (exit 0 unless --strict):
   gif            GIF referenced; use mp4 via <video>
   big-image      referenced image over 300KB
@@ -34,6 +37,13 @@ INLINE_CODE = re.compile(r"`[^`\n]*`")
 # alphanumeric), so two of them in one paragraph swallow the text between them.
 BRACE_UNDERSCORE = re.compile(r"[})\]]_")
 IMG_REF = re.compile(r'src="(/images/[^"]+)"|\]\((/images/[^)\s]+)\)')
+# C0 control characters except TAB and LF. CRLF is normalised before linting, so any CR left over is a lone one.
+CONTROL_CHAR = re.compile(r"[\x00-\x08\x0b-\x1f]")
+# A TAB right before the tail of a command that starts with `t` (\text \theta \tau \times \tilde \top \tag \to
+# \triangle \tfrac \tan), on a line that has math delimiters, after non-indent text: the backslash was lost.
+TAB_IN_MATH = re.compile(
+    r"^(?=[^\n]*(?:\$|" + re.escape(BS) + r"\(|" + re.escape(BS) + r"\[))[^\n]*?\S[ ]*\t(?:ext|heta|au|imes|ilde|op|ag|o|riangle|frac|an)\b",
+    re.M)
 
 
 def mask_code(text):
@@ -66,9 +76,17 @@ def lint(path):
             if not re.search(rf"^{key}:", fm.group(1), re.M):
                 errs.append((1, "front-matter", f"missing `{key}`"))
 
+    for m in CONTROL_CHAR.finditer(raw):
+        errs.append((lineno(raw, m.start()), "control-char",
+                     f"control character {m.group()!r}; a LaTeX command such as \\a, \\b or \\r was pasted as a control character"))
+
     text = mask_code(raw)
     body = text[body_start:]
     off = body_start
+
+    for m in TAB_IN_MATH.finditer(body):
+        errs.append((lineno(text, off + m.start()), "control-char",
+                     "TAB glued to a LaTeX command tail (e.g. `<TAB>ext{...}`); a `\\t...` command lost its backslash"))
 
     for m in TAG_CURLY.finditer(body):
         errs.append((lineno(text, off + m.start()), "curly-quote",
