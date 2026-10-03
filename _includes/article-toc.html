@@ -2,7 +2,7 @@
   <div class="article-toc-nav">
     <nav aria-label="{{ ui.site_navigation }}">
       {% if page_lang == 'en' %}
-      <a href="{{ '/en/' | relative_url }}">Home</a>
+      <a href="{{ '/home/' | relative_url }}" lang="zh-CN">Project</a>
       <a href="{{ '/en/research/' | relative_url }}"{% if page.categories contains "research" %} class="is-current" aria-current="page"{% endif %}>Research</a>
       <a href="{{ '/en/blog/' | relative_url }}"{% if page.categories contains "blog" or page.categories contains "weekly" %} class="is-current" aria-current="page"{% endif %}>Blog</a>
       <a href="{{ '/about/' | relative_url }}" lang="zh-CN">About</a>

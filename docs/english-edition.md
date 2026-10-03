@@ -48,8 +48,9 @@ results. English entry pages live in `en/`. UI strings live in `_data/ui.yml`;
 JavaScript interaction labels are in `js/article-ui.js`.
 
 The English Research index shows article cards without an extra reading-path,
-companion-link, or author section. Its sidebar contains Home, Research, Blog,
-and About; Blog links to `/en/blog/`, and About links to the existing `/about/` page.
+companion-link, or author section. Its sidebar contains Project, Research, Blog,
+and About; Project links to the existing `/home/` page, Blog links to `/en/blog/`,
+and About links to the existing `/about/` page.
 Language switching stays in the page's language selector.
 
 Each article declares `lang`, `translation_id`, `permalink`, `source_path`,
