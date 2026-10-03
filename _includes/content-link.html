@@ -1,4 +1,5 @@
-{%- assign translated_target = site.translations | where: 'source_url', include.path | first -%}
+{%- assign published_translations = site.translations | where_exp: 'item', 'item.published != false' -%}
+{%- assign translated_target = published_translations | where: 'source_url', include.path | first -%}
 {%- if page.lang == 'en' and translated_target -%}
 <a href="{{ translated_target.url | relative_url }}{{ include.fragment }}">{{ include.label }}</a>
 {%- else -%}

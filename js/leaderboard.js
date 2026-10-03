@@ -4,13 +4,17 @@
 (function () {
   'use strict';
 
+  var english = document.documentElement.lang === 'en';
+  function label(zh, en) { return english ? en : zh; }
+
   var FILTERS = [
-    { key: 'paradigm', label: '范式', opts: [['all', '全部'], ['训练', '训练'], ['免训练', '免训练']] },
-    { key: 'input', label: '输入', opts: [['all', '全部'], ['mono', '单目'], ['multi', '多目 / 全景']] },
-    { key: 'open', label: '开源', opts: [['all', '全部'], ['yes', '仅开源']] },
-    { key: 'nonstd', label: '非标准口径', opts: [['show', '显示'], ['hide', '隐藏']] }
+    { key: 'paradigm', label: label('范式', 'Paradigm'), opts: [['all', label('全部', 'All')], ['trained', label('训练', 'Trained')], ['training-free', label('免训练', 'Training-free')]] },
+    { key: 'input', label: label('输入', 'Input'), opts: [['all', label('全部', 'All')], ['mono', label('单目', 'Monocular')], ['multi', label('多目 / 全景', 'Multi-view / panoramic')]] },
+    { key: 'open', label: label('开源', 'Open source'), opts: [['all', label('全部', 'All')], ['yes', label('仅开源', 'Open source only')]] },
+    { key: 'nonstd', label: label('非标准口径', 'Nonstandard evaluation'), opts: [['show', label('显示', 'Show')], ['hide', label('隐藏', 'Hide')]] }
   ];
-  var MULTI_KEYS = ['全景', '多目', '三相机', '四视角', '180°'];
+  var MULTI_KEYS = ['全景', '多目', '三相机', '四视角', '180°', 'panoramic', 'multi-view', 'three cameras', 'four views'];
+  var COLUMNS = { Model: '模型', Paradigm: '范式', Open: '开源', Benchmark: '基准' };
   var METRICS = { SR: 'max', SPL: 'max', NE: 'min', OSR: 'max' };
   var FOLLOWING = 4; // Node.DOCUMENT_POSITION_FOLLOWING
 
@@ -40,7 +44,7 @@
     document.querySelectorAll('table').forEach(function (t) {
       if (!after(bar, t) || (nextH1 && !after(t, nextH1))) return;
       var first = t.querySelector('thead th');
-      if (first && text(first) === '模型') out.push(t);
+      if (first && (text(first) === '模型' || text(first) === 'Model')) out.push(t);
     });
     return out;
   }
@@ -48,7 +52,8 @@
   function parseTable(tbl) {
     var cols = {};
     tbl.querySelectorAll('thead th').forEach(function (th, i) {
-      cols[text(th).split(' ')[0]] = i;
+      var key = text(th).split(' ')[0];
+      cols[COLUMNS[key] || key] = i;
     });
     var ncol = tbl.querySelectorAll('thead th').length;
     var rows = [];
@@ -59,8 +64,8 @@
       var name = text(modelCell);
       if (flag) name = name.replace(text(flag), '');
       var input = 'unknown';
-      if (MULTI_KEYS.some(function (k) { return name.indexOf(k) !== -1; })) input = 'multi';
-      else if (name.indexOf('单目') !== -1) input = 'mono';
+      if (MULTI_KEYS.some(function (k) { return name.toLowerCase().indexOf(k) !== -1; })) input = 'multi';
+      else if (name.indexOf('单目') !== -1 || name.toLowerCase().indexOf('monocular') !== -1) input = 'mono';
       if (flag) tr.classList.add('lb-nonstd');
       var metrics = {};
       Object.keys(METRICS).forEach(function (m) {
@@ -73,8 +78,8 @@
         tr: tr,
         flag: !!flag,
         input: input,
-        paradigm: cols['范式'] != null ? text(tds[cols['范式']]) : '',
-        open: cols['开源'] != null && text(tds[cols['开源']]).indexOf('是') === 0,
+        paradigm: cols['范式'] != null ? ({'训练': 'trained', '免训练': 'training-free', 'Trained': 'trained', 'Training-free': 'training-free'}[text(tds[cols['范式']])] || '') : '',
+        open: cols['开源'] != null && /^(是|Yes)/.test(text(tds[cols['开源']])),
         group: cols['基准'] != null ? text(tds[cols['基准']]) : '',
         metrics: metrics
       });
@@ -83,7 +88,7 @@
     empty.className = 'lb-empty';
     var cell = document.createElement('td');
     cell.colSpan = ncol;
-    cell.textContent = '没有符合当前筛选条件的行';
+    cell.textContent = label('没有符合当前筛选条件的行', 'No rows match the selected filters');
     empty.appendChild(cell);
     empty.style.display = 'none';
     tbl.querySelector('tbody').appendChild(empty);
@@ -151,7 +156,7 @@
       totalAll += t.rows.length;
       rebold(t.rows);
     });
-    countEl.textContent = '显示 ' + shownAll + ' / ' + totalAll + ' 行';
+    countEl.textContent = english ? 'Showing ' + shownAll + ' / ' + totalAll + ' rows' : '显示 ' + shownAll + ' / ' + totalAll + ' 行';
   }
 
   function build(bar) {
@@ -160,7 +165,7 @@
       group.className = 'lb-group';
       var label = document.createElement('span');
       label.className = 'filter-label';
-      label.textContent = f.label + '：';
+      label.textContent = f.label + (english ? ': ' : '：');
       group.appendChild(label);
       f.opts.forEach(function (o) {
         var btn = document.createElement('button');

@@ -1,0 +1,250 @@
+{
+  "source": "_posts/research/2026-01-05-VLN-Papers.md",
+  "translation": "_translations/en/research/VLN-Papers.md",
+  "stage": "complete",
+  "updated_on": "2026-10-03",
+  "total_papers": 55,
+  "completed_papers": {
+    "r2r": {
+      "source_hash": "5df534b80c984ad9599046180a2fa4ac74915a79f7b6e1865cfd62c694c236f8",
+      "status": "translated-and-content-parity-validated"
+    },
+    "vln-ce": {
+      "source_hash": "ce0e8ab6c316552daba9eebf4cc61dd004a3c30e95636d2cbf508277250b6553",
+      "status": "translated-and-content-parity-validated"
+    },
+    "duet": {
+      "source_hash": "fabd5fd17ed7cfdbde40b79f3605cfd5cbd953de9d94e31b1bee8efb08c773bb",
+      "status": "translated-and-content-parity-validated"
+    },
+    "r2rie-ce-iedl": {
+      "source_hash": "fec98c1061c35d112c7145315cfbe7fb5c00b451868778456b777bea8d84916c",
+      "status": "translated-and-content-parity-validated"
+    },
+    "navid": {
+      "source_hash": "203a33033b1e647e2e63032389307bc02866123e47344833c5c83ee13bed36cb",
+      "status": "translated-and-content-parity-validated"
+    },
+    "navgpt-2": {
+      "source_hash": "3925b1f42d9292520c17866150dd3dd1bfba708e36ec683780c61106a2e20dc1",
+      "status": "translated-and-content-parity-validated"
+    },
+    "dualvln": {
+      "source_hash": "eb18f4e933bbe0983ec3130f461eb4bbc35be3ad504a0b1f0c5b280812bc513e",
+      "status": "translated-and-content-parity-validated"
+    },
+    "vln-r1": {
+      "source_hash": "e645c56650e0b37482d7f5624c9efb118704a9d973d7820bd80aec0f2e3ce2e2",
+      "status": "translated-and-content-parity-validated"
+    },
+    "streamvln": {
+      "source_hash": "5c455bd1d03603d94b192a7e108852fc1ceb486d366541ff9ca3826ea7d47deb",
+      "status": "translated-and-content-parity-validated"
+    },
+    "navfom": {
+      "source_hash": "f290b85cdfec06f8ba0659c648b7b8ba5e4b53619fec31fd79ede4da3cb9e03f",
+      "status": "translated-and-content-parity-validated"
+    },
+    "mapnav": {
+      "source_hash": "44730cacc8882c160d6048fb0c464510b45ce7621987d44498c653455d540279",
+      "status": "translated-and-content-parity-validated"
+    },
+    "open-nav": {
+      "source_hash": "a2aa6239f8a89a27ebd1a0dbcd501fa6b0efff0ce1e4a7f34225fe9d6c8661bf",
+      "status": "translated-and-content-parity-validated"
+    },
+    "vln-imagine": {
+      "source_hash": "12ac4ecee197ed04c44283b3804de3a497f767927b4d8dfa0bae9f3644e3ceef",
+      "status": "translated-and-content-parity-validated"
+    },
+    "vln-pe": {
+      "source_hash": "a0b302e27ffd0047943477d51e8338ec13a4d00c1a2158ce5f2f6b6d4f5e4976",
+      "status": "translated-and-content-parity-validated"
+    },
+    "goal2pixel": {
+      "source_hash": "a79244ffdc9d20be5c6cf44acd8236d3d5d06d50c859993cc54eca70c8c89a5b",
+      "status": "translated-and-content-parity-validated"
+    },
+    "astranav-world": {
+      "source_hash": "85e92619954c9e6f76dbfc67e2aeab3abafc150024ca12eb6e10b1524d38e857",
+      "status": "translated-and-content-parity-validated"
+    },
+    "correctnav": {
+      "source_hash": "8c13a68efbf40ca87f8e534255f15ff833ed7df04bb43d17b52d0b48948665b5",
+      "status": "translated-and-content-parity-validated"
+    },
+    "slow4fast-vln": {
+      "source_hash": "2a13a2afb0127069683d577bc133682d6abd4129a171100b452c672a8dc3b1a2",
+      "status": "translated-and-content-parity-validated"
+    },
+    "dgnav": {
+      "source_hash": "c6045fa1d2281f85664c874d4f6803f669a88b5d987824873e27e1077eb62301",
+      "status": "translated-and-content-parity-validated"
+    },
+    "causalnav": {
+      "source_hash": "219ad119e1f0d3fc4fbbbd539e74835c29cd5297c22e162a2e14ed6f2b54214f",
+      "status": "translated-and-content-parity-validated"
+    },
+    "agentvln": {
+      "source_hash": "9d0966e74eaf9d4f005520a6fc38f94d4fc92e3a7b9214db50d34810f0f6e88b",
+      "status": "translated-and-content-parity-validated"
+    },
+    "vln-cache": {
+      "source_hash": "06a84e68bfaa0031d616e81430cbc2bf65babbe5a467a3adadb06ab61248503d",
+      "status": "translated-and-content-parity-validated"
+    },
+    "r3": {
+      "source_hash": "cf78a91201701dd723c3165c74015dfd874742cd24b6d53b2e9ae9cba6c22365",
+      "status": "translated-and-content-parity-validated"
+    },
+    "awarevln": {
+      "source_hash": "59f1b0901168bacd8747605569dfd0c52620c219d197e02238d42a74fbd98027",
+      "status": "translated-and-content-parity-validated"
+    },
+    "dual-anchoring": {
+      "source_hash": "06e1c7029e05ae603be6766bb8acc4ab1bc7ca30ba7936e680ee262e7a89e47e",
+      "status": "translated-and-content-parity-validated"
+    },
+    "janusvln": {
+      "source_hash": "4ba699ef81e40cf03784ef142ebe8a29fad9846a66fa1e559bc28f971a04feaa",
+      "status": "translated-and-content-parity-validated"
+    },
+    "hsgm": {
+      "source_hash": "1e63530618aad4b90cfec9f2256a1ea6a81b78f352ed043c63c79343bcf00e1d",
+      "status": "translated-and-content-parity-validated"
+    },
+    "onevla-a-unified-framework-for-embodied-tasks": {
+      "source_hash": "41cadffc507ad9048bcd73752cd03458f1cb0ae160c5d97407971c947f66c096",
+      "status": "translated-and-content-parity-validated"
+    },
+    "ca-vln": {
+      "source_hash": "5296500b3f422ee78aaf6da1548ea6eac8359a6692b74ba2cc05fcad31fb2b86",
+      "status": "translated-and-content-parity-validated"
+    },
+    "rynnbrain": {
+      "source_hash": "ce8e08ac4fd97449f30d95bdfcff9dfddfadc9f4c15e8891d83ac2e8fbbf591c",
+      "status": "translated-and-content-parity-validated"
+    },
+    "omninav": {
+      "source_hash": "1c2ed18d1b5a65824c529ca7d257bc981c551680b33104b67a0bd41a7c14bfda",
+      "status": "translated-and-content-parity-validated"
+    },
+    "qwen-robotnav": {
+      "source_hash": "cd995d7792eebea52143d2d8a0503056ebd30073599861210975ac5f6e48446d",
+      "status": "translated-and-content-parity-validated"
+    },
+    "ga-vln": {
+      "source_hash": "1d8a6fd1261e248cd97da7fb5b3287f58af02e0cae01373791150a5c9fe28611",
+      "status": "translated-and-content-parity-validated"
+    },
+    "sedualvln": {
+      "source_hash": "2c13f16bf3c6f3b2ca9806c5288eea3630fd338c896504e3766b15d74e2f79e8",
+      "status": "translated-and-content-parity-validated"
+    },
+    "robostral-navigate": {
+      "source_hash": "4ecfa94c75a0d0568a917e24b2af3e2f6803e2d4b474396789333410ec682e0e",
+      "status": "translated-and-content-parity-validated"
+    },
+    "abot-n1": {
+      "source_hash": "6e7964c729f0e4d88f3ab56aa8a0c9be3e453dde72605793576211836dc8ffb4",
+      "status": "translated-and-content-parity-validated"
+    },
+    "reflectvln": {
+      "source_hash": "1d2a06e65a54a94de821396c1ede153e2494d337ddea5e7054bcaa1887bfc685",
+      "status": "translated-and-content-parity-validated"
+    },
+    "tuckernav": {
+      "source_hash": "300823f13a9a82cf1c6cf52963197f91ce9d20a54af11229aacb73b4b5d1b41d",
+      "status": "translated-and-content-parity-validated"
+    },
+    "agenticnav": {
+      "source_hash": "090ad83756801c3e9f02d11b25eb97e8811215ea4f11570ab1883a15efbdf526",
+      "status": "translated-and-content-parity-validated"
+    },
+    "memvln": {
+      "source_hash": "9d632ed0a5b11d86367becbd2aac322e3ba5a9e8a258f9182330ee8b3270faac",
+      "status": "translated-and-content-parity-validated"
+    },
+    "x-navdp": {
+      "source_hash": "21e698969aeb97b59368fea3bcf0c1e6482abf48cf6b3ac01f6393f60676032f",
+      "status": "translated-and-content-parity-validated"
+    },
+    "image2sim": {
+      "source_hash": "534080f43bcae5b7f196bf190d836695c34aa774f87111d7a8d20a1ab8b60690",
+      "status": "translated-and-content-parity-validated"
+    },
+    "decovln": {
+      "source_hash": "b8a1c15173b11b62b0b4267a177c557052a30f9e6eb655797454e47ce2b51818",
+      "status": "translated-and-content-parity-validated"
+    },
+    "tamp-nav": {
+      "source_hash": "79ded8c160878217c9f7b48aa7f61c560b393350df489ea87c560151216bc722",
+      "status": "translated-and-content-parity-validated"
+    },
+    "lightnav-0": {
+      "source_hash": "9cbbc49919da99a650412005a9030c52dd11cdad936d11c5ba515617074323c3",
+      "status": "translated-and-content-parity-validated"
+    },
+    "uncertainty-aware-gaussian-map": {
+      "source_hash": "03e97674aec0f671ba71e38d4a9dcf7d895bf6a0c142141d6fbfadcbd2de2b48",
+      "status": "translated-and-content-parity-validated"
+    },
+    "harnessvln": {
+      "source_hash": "ee081379a6aeda4bc10808d3e83d9fc43dc9fb73e524f523542a327c4bc46823",
+      "status": "translated-and-content-parity-validated"
+    },
+    "groundingvln": {
+      "source_hash": "6087fa04a781a182d8b8b4337e8141770bfe3a472976a5fcaf4485be93da5156",
+      "status": "translated-and-content-parity-validated"
+    },
+    "gpt-6-astra": {
+      "source_hash": "fd58338f69f379321d15eed1cd1469f4fd0a9ed469faaf0e5d31c1dbe744116f",
+      "status": "translated-and-content-parity-validated"
+    },
+    "budvln": {
+      "source_hash": "8efe3bc02d838541847db278421741747a190732c60cad9d54ea4534e08d3ca1",
+      "status": "translated-and-content-parity-validated"
+    },
+    "route2step": {
+      "source_hash": "a7c994523ed6ce16f5e073e04e0b2d70b785715ab68bebfb77da45179abc1119",
+      "status": "translated-and-content-parity-validated"
+    },
+    "prospect": {
+      "source_hash": "df28097735c523abb44ecc3ac2d457933caec1129564265b4c14be70e957098e",
+      "status": "translated-and-content-parity-validated"
+    },
+    "macroaction-vln": {
+      "source_hash": "829be9b8aa2411e954d8402996d78747e9dcb5550b5ff76d1c5382d79c48d40c",
+      "status": "translated-and-content-parity-validated"
+    },
+    "humanoidvln": {
+      "source_hash": "7be6434f10a6e512ac1afca6c8a832f840155b85f8a934ebc41a14c5867d19b7",
+      "status": "translated-and-content-parity-validated"
+    },
+    "adageovln": {
+      "source_hash": "92d230cfb2b9b5f613054cd017658426aba310773d26b3b10ce7558001cb050c",
+      "status": "translated-and-content-parity-validated"
+    }
+  },
+  "next_batch": [],
+  "remaining_work": [],
+  "review_notes": [
+    "Four earlier reviewed sections retained; remaining prose translated with machine assistance and reviewed for terminology and source parity.",
+    "Original formulas, numerical results, citations, figures, code, and heading IDs protected during translation.",
+    "Diagram labels translated separately; paper filters localized, extended-collection links explicitly labeled Chinese-only.",
+    "DualVLN illustrative training code corrected against Appendix A.2; real-world RGB-D and odometry distinguished from RGB-only simulation.",
+    "MapNav R2R OS/SR headers corrected against arXiv v5 Table 1."
+  ],
+  "validation": {
+    "papers": 55,
+    "headings": 524,
+    "tables": 52,
+    "figures": 233,
+    "code_blocks": 23,
+    "rendered_math": 1243,
+    "mermaid_diagrams": 19,
+    "desktop_viewport": "1440x1000",
+    "browser_errors": 0,
+    "review": "Assisted translation with terminology, numerical, negation, structure, and targeted technical review; not a new verification of every underlying paper."
+  }
+}

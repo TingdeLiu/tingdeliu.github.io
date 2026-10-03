@@ -1,7 +1,9 @@
 ---
 layout: post
+lang: zh-CN
+translation_id: vln-papers
 title: "VLN 论文精读：指令跟随篇"
-date:   2026-09-29
+date:   2026-10-03
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -978,7 +980,7 @@ DualVLN 模型架构细节：左侧 System 2 输入指令、历史观察与当�
   $$X_u = (1 - (1 - \sigma_{min})u) X_0 + u \epsilon, \quad \epsilon \sim \mathcal{N}(0, I)$$
   网络 $f_\theta$ 负责预测速度向量场，并以最小化流匹配损失进行训练：
   $$\mathcal{L}_{flow} = \mathbb{E}_{u, X_0, \epsilon} \left[ \left\| f_\theta(X_u, u, Z' \oplus F) - \dot{X}_u \right\|_2^2 \right]$$
-  单次去噪前向传播即可直接生成包含 **32 个密集路点**的机器人局部坐标系轨迹（Horizon 约 2~3 米），无缝交付给底层 **200Hz MPC 控制器**完成电机差速/足端控制。
+  单次去噪前向传播即可直接生成包含 **32 个密集路点**的轨迹（Horizon 约 2~3 米），无缝交付给底层 **200Hz MPC 控制器**完成电机差速/足端控制；实机执行时通过里程计转换到世界坐标。
 
 #### ③ 异步流水线与推理加速机制
 
@@ -1037,11 +1039,12 @@ flowchart LR
   inputs_embeds = QwenVL.embed_tokens(input_ids)
   traj_idx = (input_ids == TRAJ_TOKEN)           # 锁定 4 个 <TRAJ> 位置
   inputs_embeds[traj_idx] = latent_queries       # 替换为可学习 Query (Prompt Tuning)
-  with torch.no_grad():
-      hidden = QwenVL.forward(inputs_embeds)     # 冻结的 VLM 前向传播
+  QwenVL.requires_grad_(False)                  # 冻结模型参数，保留对输入 Query 的梯度
+  hidden = QwenVL.forward(inputs_embeds)         # 训练时不能用 no_grad 截断 Query 梯度
   pixel_goal_latents = hidden[-1][:, -4:, :]     # 抽取末层最后 4 个位置特征
   noise_pred = DiT(traj_encoder(gt_poses), timestep, pixel_goal_latents, rgb_feats)
   ```
+  这是机制示意代码。冻结 VLM 参数不等于关闭整个前向计算图；可学习 Query 仍需梯度，[原文附录 A.2](https://arxiv.org/html/2512.08186v1#A2) 的示例也没有使用 `torch.no_grad()`。
 * **纯净样本过滤**：Stage 2 **仅使用包含有效像素目标的样本**进行轨迹拟合，完全剔除纯转向样本，保证扩散策略专注学习“向目标平滑巡航与避障”。
 
 #### ③ 为什么必须解耦训练？（方法学核心思考）
@@ -1103,7 +1106,7 @@ Social-VLN 仿真与真机避障实测：在 Habitat 3.0 仿真环境中注入�
 
 #### ④ 真实世界跨形态机器人部署
 
-* **硬件配置**：测试覆盖三种异构形态机器人：**轮式（Turtlebot4）**、**四足（Unitree Go2）** 与 **人形（Unitree G1）**。机载单目 Intel RealSense D455（下俯 15°），通过 Wi-Fi 流式传输图像至配有一块 RTX 4090 的远端服务器进行异步双系统推理，MPC 控制器部署于机载工控机。
+* **硬件配置**：测试覆盖三种异构形态机器人：**轮式（Turtlebot4）**、**四足（Unitree Go2）** 与 **人形（Unitree G1）**。Intel RealSense D455（下俯 15°）向配有一块 RTX 4090 的远端服务器传输同步 RGB-D 图像，进行异步双系统推理；轨迹通过里程计转换到世界坐标后交给 MPC 跟踪。实机执行链使用深度和里程计，不能将仿真中的纯 RGB 设定直接推广到整个实机系统。
 * **实测表现（3 种跨房间难度场景，每场景 20 次测试）**：
   - **走廊（简单）**：DualVLN 达到 **100% SR**（平均误差 0.2m，基线仅 25%~80%）；
   - **单间卧室（中等）**：DualVLN 达到 **100% SR**（平均误差 0.3m，基线仅 0%~70%）；
@@ -1637,7 +1640,7 @@ VLM 直接输出自然语言动作，通过正则表达式匹配解析为 {前�
 
 **模拟环境（R2R-CE & RxR-CE Val-Unseen）**
 
-| 方法 | R2R SR↑ | R2R SPL↑ | RxR SR↑ | RxR SPL↑ |
+| 方法 | R2R OS↑ | R2R SR↑ | RxR SR↑ | RxR SPL↑ |
 |------|---------|----------|---------|----------|
 | NaVid (All RGB Frames) | 49.1 | 37.4 | 23.8 | 21.2 |
 | MapNav (w/o ASM + Cur. RGB) | 41.2 | 27.1 | 15.6 | 12.2 |
@@ -1645,7 +1648,9 @@ VLM 直接输出自然语言动作，通过正则表达式匹配解析为 {前�
 | MapNav (w/ ASM + Cur. + 2 His. RGB) | 53.0 | 39.7 | 32.6 | 27.7 |
 
 - 仅用 ASM + 单帧 RGB，性能即可媲美使用全部历史帧的 NaVid
-- 加入 2 帧历史 RGB 后超越所有 SOTA，R2R SPL 提升 1.3%，RxR SPL 提升 6.5%
+- 加入 2 帧历史 RGB 后，相对 NaVid (All RGB Frames)，R2R SPL 提升 1.3 个百分点，RxR SPL 提升 6.5 个百分点；此处比较的是论文中的历史帧方法，不代表超过所有不同输入设定的方法。
+
+注：上表按 [MapNav arXiv v5 的 Table 1](https://arxiv.org/html/2502.13451v5#S4.T1) 核对；R2R 两列是 OS 和 SR，原稿误标为 SR 和 SPL。MapNav 三种配置的 R2R SPL 分别为 23.5、34.3、37.2；NaVid 的 R2R SPL 为 35.9。RxR 两列为 SR 和 SPL，维持原数值。
 
 **效率对比（关键优势）**
 

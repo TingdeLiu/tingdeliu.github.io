@@ -145,4 +145,5 @@ exclude:
   - docs
   - scripts
   - translations
+  - _site-drafts
 

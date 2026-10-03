@@ -38,7 +38,7 @@ def section_hashes(path):
     metadata = '\n'.join(line for line in metadata.splitlines()
                          if not re.match(r'^(lang|translation_id):', line))
     sections = {'metadata': digest(metadata.strip())}
-    key, lines, fence = 'introduction', [], None
+    key, lines, fence, paper = 'introduction', [], None, None
     for line in body.splitlines():
         marker = re.match(r'^\s*(`{3,}|~{3,})', line)
         if marker:
@@ -50,7 +50,14 @@ def section_hashes(path):
         heading = re.match(r'^#{1,6}\s+(.+)', line) if not fence else None
         if heading:
             sections[key] = digest('\n'.join(lines).strip())
-            key = heading[1]
+            if re.match(r'^#\s', line):
+                paper = None
+            paper_heading = re.match(r'^##\s+\d+\.\s.*\{#([^}]+)\}', line)
+            if paper_heading:
+                paper = paper_heading[1]
+            # Repeated labels such as 精华 belong to a specific paper. A paper's
+            # stable anchor prevents unrelated additions from renumbering keys.
+            key = f'paper:{paper} / {heading[1]}' if paper else heading[1]
             if key in sections:
                 raise ValueError(f'{path}: duplicate source heading {key}')
             lines = []
@@ -88,6 +95,9 @@ def main():
     statuses, seen = {}, set()
     for target in sorted((ROOT / '_translations').rglob('*.md')):
         fields, _, _ = read_document(target)
+        if fields.get('published', '').lower() == 'false':
+            print(f'{target.relative_to(ROOT).as_posix()}: unpublished draft (not synchronized)')
+            continue
         identity = fields.get('translation_id')
         if not identity or identity in seen:
             raise ValueError(f'{target}: missing or duplicate translation_id')

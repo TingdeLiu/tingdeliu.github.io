@@ -15,7 +15,7 @@ excerpt: "English surveys and research notes on vision-language navigation and e
 
 <h2 id="vln" class="rc-group">Vision-language navigation</h2>
 <div class="rc-grid">
-{% assign english_research = site.translations | where: 'lang', 'en' | sort: 'date' | reverse %}
+{% assign english_research = site.translations | where: 'lang', 'en' | where_exp: 'item', 'item.published != false' | sort: 'date' | reverse %}
 {% for article in english_research %}
   {% include post-card.html post=article %}
 {% endfor %}
@@ -30,7 +30,7 @@ excerpt: "English surveys and research notes on vision-language navigation and e
   </ol>
 
   <h2 id="companion-readings">Companion paper readings</h2>
-  <p>The detailed paper collections and interactive leaderboards are currently in Chinese. Their English editions will be added progressively.</p>
+  <p>The instruction-following collection includes 55 detailed paper readings, benchmark leaderboards, and technical comparisons in English. The goal-navigation and extensions collection is currently available in Chinese.</p>
   <ul>
     <li>{% include content-link.html path='/VLN-Papers/' label='VLN Papers: Instruction Following' %}</li>
     <li>{% include content-link.html path='/VLN-Papers-Extended/' label='VLN Papers: Goal Navigation and Extensions' %}</li>

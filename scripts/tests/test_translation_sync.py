@@ -36,6 +36,15 @@ class TranslationSyncTests(unittest.TestCase):
         self.assertEqual(before, paired)
         self.assertEqual(compare_sections(updated, before)['changed'], ['metadata'])
 
+    def test_repeated_labels_are_scoped_to_stable_paper_anchors(self):
+        body = '# Papers\n## 1. A {#a}\n### 精华\nOne\n## 2. B {#b}\n### 精华\nTwo\n# References\nEnd\n'
+        before = self.snapshot(body)
+        after = self.snapshot(body.replace('Two', 'Changed'))
+        self.assertEqual(compare_sections(after, before)['changed'], ['paper:b / 精华'])
+        self.assertIn('References', before)
+        inserted = self.snapshot(body.replace('## 1.', '## 0. New {#new}\n### 精华\nNew\n## 1.'))
+        self.assertEqual(compare_sections(inserted, before)['changed'], [])
+
 
 if __name__ == '__main__':
     unittest.main()

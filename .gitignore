@@ -7,6 +7,7 @@ new_paper/
 
 # Jekyll 生成的文件
 _site/
+_site-drafts/
 .sass-cache/
 .jekyll-cache/
 .jekyll-metadata

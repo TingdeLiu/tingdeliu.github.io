@@ -12,7 +12,7 @@
   {%- endfor -%}
   {%- assign language_candidates = site.translations | concat: site.pages -%}
   {%- for candidate in language_candidates -%}
-    {%- if candidate.translation_id == page.translation_id and candidate.lang == 'en' -%}
+    {%- if candidate.translation_id == page.translation_id and candidate.lang == 'en' and candidate.published != false -%}
       {%- assign language_translation = candidate -%}
       {%- break -%}
     {%- endif -%}

@@ -1,9 +1,9 @@
 # English edition: scope and maintenance
 
-The first release contains the complete VLN Survey, `/en/`, and `/en/research/`.
-The two VLN Papers collections and other surveys remain Chinese-only until
-their English translations are complete. Shared filters and leaderboard data
-will be localized when those collections are translated.
+The English edition contains the complete VLN Survey and VLN Papers: Instruction
+Following (all 55 readings), plus `/en/` and `/en/research/`. The extensions
+collection and other surveys remain Chinese-only until their translations are
+complete. The instruction-following paper filters and leaderboards are localized.
 
 ## Content contract
 
@@ -25,14 +25,15 @@ English articles are grouped by content type under `_translations/en/`:
 ```text
 _translations/en/
 ├── research/
-│   └── VLN-Survey.md
+│   ├── VLN-Survey.md
+│   └── VLN-Papers.md
 └── blog/
     └── .gitkeep
 ```
 
 Research surveys and paper readings belong in `research/`; technical blog posts
-belong in `blog/`. Future `VLN-Papers.md` and `VLN-Papers-Extended.md` translations
-will go in `research/` when complete. Set `categories` to match the content type
+belong in `blog/`. The future `VLN-Papers-Extended.md` translation belongs in
+`research/` when complete. Set `categories` to match the content type
 and declare an explicit `/en/.../` permalink so moving files does not change URLs.
 When moving an existing translation, update its `translation` path in the
 snapshot under `translations/`; preserve the reviewed source hashes and dates.
@@ -55,6 +56,52 @@ each language has its own canonical URL. URL language determines rendering.
 
 ## Update workflow
 
+### VLN Papers completion and draft workflow
+
+`_translations/en/research/VLN-Papers.md` contains the complete 55-paper
+instruction-following collection, including leaderboards, the component matrix,
+analysis, references, captions, and interactive controls. The four earlier
+reviewed readings were retained. Remaining prose used machine assistance,
+followed by terminology, negation, numerical, markup, and targeted technical
+review. This is a translation of the source article, not a new independent
+verification of every underlying paper.
+
+`translations/vln-papers.en.progress.json` records completion and validation.
+`translations/vln-papers.en.json` is the authoritative synchronization snapshot.
+Repeated section labels are scoped by each paper's stable anchor so additions
+elsewhere do not renumber their keys. Source checks cover per-paper equations,
+figures, external citations, and table values; the opening leaderboards and
+comparison tables are included in numerical checks too.
+
+Desktop is the primary reading and validation target. At 1440×1000, the complete
+page has 524 matching heading IDs, 52 tables, 233 captioned figures, 23 code
+blocks, 1,243 rendered mathematical expressions, and 19 Mermaid diagrams.
+All 55 paper wrappers, AND tag filters, Chinese-only extended-collection links,
+three leaderboards, best-value bolding, contents links, figure enlargement, and
+code copying were checked. No page errors or formula/diagram errors occurred.
+
+MapNav's R2R OS/SR headers were corrected in both editions against
+[arXiv v5, Table 1](https://arxiv.org/html/2502.13451v5#S4.T1). DualVLN's
+illustrative code now preserves query gradients through a frozen VLM, matching
+[Appendix A.2](https://arxiv.org/html/2512.08186v1#A2), and its real-world RGB-D
+and odometry pipeline is distinguished from RGB-only simulation.
+
+Future incomplete drafts use `published: false` and `translation_scope: partial`.
+They are excluded from normal output, language pairs, cards, and translated
+companion links. Record section-level progress without claiming a reviewed
+whole-source snapshot. Validate with `python scripts/check_translation_drafts.py
+--strict`. To review them locally:
+
+```text
+bundle exec jekyll build --unpublished --destination _site-drafts
+python -m http.server 4174 --bind 127.0.0.1 --directory _site-drafts
+```
+
+Never upload `_site-drafts`. When a translation is complete, remove the draft
+metadata, pair its Chinese source, and record its synchronized source snapshot.
+
+### Published translations
+
 1. Update the Chinese source as usual.
 2. Run `python scripts/check_translations.py` to see changed, added, or removed
    sections. This generates `_data/translation_status.json` for the build.
@@ -66,7 +113,7 @@ each language has its own canonical URL. URL language determines rendering.
    `python scripts/check_translations.py --record vln-survey --date YYYY-MM-DD`.
    Commit the resulting `translations/vln-survey.en.json` with the translation.
    Recording accepts the current source as reviewed; it does not translate it.
-6. Run the checks below and inspect desktop and mobile rendering.
+6. Run the checks below and inspect desktop rendering; mobile is a secondary check.
 
 Snapshots contain per-section SHA-256 hashes, including source metadata, and
 report additions/removals as well as modifications. They never modify English
