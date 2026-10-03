@@ -32,9 +32,9 @@ You do not need to write a full article to contribute. Even one correction can h
 
 ## About Me
 
-I am Tingde Liu, a robotics and AI engineer based in Beijing, with an M.Sc. in Robotics from [LUH](https://www.uni-hannover.de/). My work focuses on embodied intelligence, especially Vision-Language Navigation (VLN), embodied agent frameworks, and Vision-Language Models (VLM).
+I am Tingde Liu, an embodied AI engineer at [XYZ Embodied AI](https://xyz-eai.com/en/index.html), based in Beijing, with an M.Sc. in Robotics from [LUH](https://www.uni-hannover.de/). My work focuses on embodied intelligence, especially Vision-Language Navigation (VLN), embodied agent frameworks, and Vision-Language Models (VLM).
 
-Since 2025, I have worked as an AI engineer on embodied navigation systems, connecting perception, memory, planning, and control so that a robot can carry out navigation tasks in the real world. I am particularly interested in how robots reason about space, understand natural instructions, and adapt their plans over long tasks.
+Since 2025, I have been developing a general-purpose embodied navigation framework for real robots, with perception, memory, planning, and control as its core components. I am particularly interested in how robots reason about space, understand natural instructions, and adapt their plans over long tasks.
 
 Previously, I worked as a Research Engineer at [IPH gGmbH](https://www.iph-hannover.de/de/) on robot navigation, 3D reconstruction, and semantic mapping in industrial environments. As a research associate at LUH's [IKG](https://www.ikg.uni-hannover.de/en/), I spent nearly two years developing multimodal large language models for urban LiDAR point clouds.
 
