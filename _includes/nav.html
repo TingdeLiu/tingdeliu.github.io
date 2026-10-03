@@ -47,6 +47,29 @@
         <span id="busuanzi_value_site_pv"></span> {{ ui.views }}
       </span>
     </div>
+    {% assign base_uv = site.visitor_baseline.visitors | default: 0 | plus: 0 %}
+    {% assign base_pv = site.visitor_baseline.views | default: 0 | plus: 0 %}
+    {% if base_uv > 0 or base_pv > 0 %}
+    <script>
+      // 访客统计基线：Vercount 往数字 span 里写入计数后，把 _config.yml 的 visitor_baseline 加上去。
+      // 接口返回值和本地缓存值都经过同一个写入点，所以两条路径都会被覆盖。
+      (function () {
+        [['busuanzi_value_site_uv', {{ base_uv }}], ['busuanzi_value_site_pv', {{ base_pv }}]].forEach(function (t) {
+          var el = document.getElementById(t[0]);
+          if (!el || !t[1] || !window.MutationObserver) return;
+          var shown = null;   // 我们自己写入的值，用来跳过自己触发的变动
+          new MutationObserver(function () {
+            var txt = el.textContent;
+            if (txt === shown) return;
+            var n = parseInt(txt, 10);
+            if (isNaN(n)) return;
+            shown = String(n + t[1]);
+            el.textContent = shown;
+          }).observe(el, { childList: true, characterData: true, subtree: true });
+        });
+      })();
+    </script>
+    {% endif %}
   </div>
 
   <div class="wrapper-footer-desktop">

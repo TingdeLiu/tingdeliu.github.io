@@ -88,6 +88,14 @@ disqus: # fromendworld
 # Enter your Google Analytics web tracking code (e.g. UA-2110908-2) to activate tracking
 google_analytics: G-KXKFYB0T0H
 
+# 侧栏访客统计的基线（见 _includes/nav.html）。
+# 站点在 2026-10-03 从不蒜子换到 Vercount，Vercount 的计数从 0 重新开始；
+# 把迁移前的累计值填在这里，页面显示 = Vercount 计数 + 基线。两项都为 0 时不启用，页面行为不变。
+# 当前值是站长凭记忆填的近似值（迁移前约 16000 访客 / 31000 浏览），不是精确统计；有更准的数字时直接改这里。
+visitor_baseline:
+  visitors: 16000   # 访客数（site_uv）
+  views: 31000      # 浏览数（site_pv）
+
 # Your website URL (e.g. http://barryclark.github.io or http://www.barryclark.co)
 # Used for Sitemap.xml and your RSS feed
 url: https://tingdeliu.github.io
