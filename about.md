@@ -1,52 +1,43 @@
 ---
 layout: page
-title: Tingde Liu
+title: About
 permalink: /about/
 ---
 
-I am a robotics and AI engineer with an M.Sc. in Mechatronics and Robotics from [Leibniz Universität Hannover](https://www.uni-hannover.de/) (LUH), now based in Beijing and working on embodied intelligence. My current research centers on Vision-Language Navigation (VLN), Embodied Agent Frameworks, and 3D Large Language Models (3DLLM) — and the broader question of what it would actually take for a robot to understand and act in the world the way we do. I am interested in genuine embodied intelligence, not just systems that appear to navigate, but ones that truly reason about space, language, and intention.
-
-## Experience
-
-- **AI Engineer, Embodied Intelligence** — Beijing, China (2025 – present). I work at a robotics company focused on *embodied navigation*. My main responsibility is the embodied navigation system framework — the harness that binds perception, memory, planning, and control into a stack a real robot can run — with Vision-Language Navigation (VLN) and agentic navigation as my research directions.
-- **Research Assistant** — [IPH – Institut für Integrierte Produktion Hannover](https://www.iph-hannover.de/de/). Deploying robots in real industrial environments — navigation, 3D reconstruction, semantic mapping — where the gap between a working demo and a system that runs reliably on a factory floor turned out to be enormous.
-- **Research Associate** — [Institut für Kartographie und Geoinformatik (IKG)](https://www.ikg.uni-hannover.de/en/), LUH. Nearly two years on spatial intelligence, developing multimodal large language models for point clouds — teaching them to read urban LiDAR as it actually comes: sparse, noisy, colorless.
-
 ## About This Blog
 
-This blog is my working space for collecting, organizing, and sharing the ideas that shape my research: survey posts, paper notes, and long-form reflections on embodied AI. I keep it public to make my learning process visible and reusable — a place to track what I read, what I build, and how my understanding changes over time, instead of letting those notes scatter across documents and bookmarks. The goal is simple: turn ongoing research into something structured, searchable, and worth revisiting.
+I started this blog to help researchers and engineers make sense of embodied AI, share what they learn, and move the field forward. Its focus is embodied intelligence, navigation, and robot learning: how ideas connect, what methods actually do, and what it takes to put them into practice.
 
-I also want it to be a friendly open-source space where people feel welcome to read, contribute, discuss, and help improve the ideas here together.
+I believe the AI era could widen the gap between people who use AI effectively and those who have yet to develop that ability. Finding reliable information and knowing how to apply it can be difficult in this fast-moving field. I hope this blog can help narrow that information gap and support more equitable access to knowledge, giving more people the opportunity to understand AI, use it well, and contribute to its progress.
 
-## Research Interests
+AI draws on many fields at once. Understanding a navigation system may require knowledge of robotics, computer vision, language models, geometry, planning, and learning. Papers, tools, and benchmarks also change quickly. Even after studying a topic carefully, it is easy to forget the details or lose track of the reasoning behind a method. Writing things down, connecting them, and revisiting them helps turn scattered reading into knowledge we can use again.
 
-These experiences converged around a set of questions I keep returning to:
+That is why this site brings together research surveys, detailed paper readings, technical notes, and weekly updates. Readers should be able to find a starting point, trace ideas to their sources, compare approaches, and refresh their understanding before building on them.
 
-- How can language models reason meaningfully about 3D space?
-- What does it take for a robot to navigate using natural instructions?
-- How do we bridge the gap between simulation and real-world perception?
-- How do we build a general-purpose agentic navigation framework — one that integrates perception, memory, planning, and action well enough to carry a robot through very different long-horizon navigation tasks?
-- How can agentic AI give robots something closer to genuine agency: not just executing instructions, but forming intentions, adapting plans, and acting with purpose?
+### A Resource We Can Build Together
 
-In practice this means I work on **Vision-Language Navigation (VLN)**, **Embodied Agent Frameworks**, **3DLLM**, and the infrastructure that makes embodied intelligence real.
+The scope of this field is too broad, and its pace too fast, for one person to keep every topic complete and up to date. These pages began as my research notes. My hope is that they grow into a shared reference maintained by the community, with the breadth and care that many people's experience can bring.
 
-## Technical Skills
+The goal is documentation that is technically rigorous, comprehensive, accurate, and easy to read. That takes ongoing work: checking explanations against original papers, recording the conditions behind reported results, correcting mistakes, filling gaps, and updating material as the field develops. Different research interests and practical experience can make this reference more useful.
 
-**Languages:** Python, C++, MATLAB
-**Frameworks & Systems:** PyTorch, ROS2, LangChain, CUDA
-**Vision-Language & Multimodal:** CLIP, BLIP, LLaVA, Vision-Language Modeling, Multimodal LLMs
-**3D Vision & Perception:** LiDAR processing, PCL, 3D Gaussian Splatting, YOLO
-**Robotics:** Robot Perception, Motion Planning, INS, SLAM, Imitation Learning, Reinforcement Learning, Policy Learning
-**Simulation:** Gazebo, Isaac Sim, Habitat
-**Tools:** Claude Code, Openclaw, Docker, Git
+### Contribute
 
-## Links
+If something here could be clearer, more accurate, or more useful, you are welcome to help:
 
-- **GitHub:** [TingdeLiu](https://github.com/TingdeLiu)
-- **LinkedIn:** [Tingde Liu](https://www.linkedin.com/in/tingde-liu-379818270/)
-- **Blog:** [Archive](https://tingdeliu.github.io/archive/)
-- **Email:** [tingde.liu.luh@gmail.com](mailto:tingde.liu.luh@gmail.com)
+- **Open an [issue](https://github.com/TingdeLiu/tingdeliu.github.io/issues)** to report an error, ask about an explanation, suggest a missing topic, or point out an outdated result. Please include a page link and supporting details.
+- **Submit a [pull request](https://github.com/TingdeLiu/tingdeliu.github.io/pulls)** to improve an explanation, add a reference, update a comparison, or refine a translation. Small corrections are welcome too.
+- **Share what you learn in practice**, including limitations, implementation details, and results that help others understand when a method works.
 
----
+You do not need to write a full article to contribute. Even one correction can help the next reader. Where possible, please cite original sources and distinguish reported findings from interpretation. Together, we can build a reference that researchers can trust and continue improving.
 
-*Continuously learning and exploring the infinite possibilities of AI and Robotics!*
+## About Me
+
+I am Tingde Liu, a robotics and AI engineer based in Beijing, with an M.Sc. in Robotics from [LUH](https://www.uni-hannover.de/). My work focuses on embodied intelligence, especially Vision-Language Navigation (VLN), embodied agent frameworks, and Vision-Language Models (VLM).
+
+Since 2025, I have worked as an AI engineer on embodied navigation systems, connecting perception, memory, planning, and control so that a robot can carry out navigation tasks in the real world. I am particularly interested in how robots reason about space, understand natural instructions, and adapt their plans over long tasks.
+
+Previously, I worked as a Research Engineer at [IPH gGmbH](https://www.iph-hannover.de/de/) on robot navigation, 3D reconstruction, and semantic mapping in industrial environments. As a research associate at LUH's [IKG](https://www.ikg.uni-hannover.de/en/), I spent nearly two years developing multimodal large language models for urban LiDAR point clouds.
+
+These experiences shape both my research and the questions I explore here. I use this blog to organize what I learn and share it with others working on similar problems.
+
+[GitHub](https://github.com/TingdeLiu) · [LinkedIn](https://www.linkedin.com/in/tingde-liu-379818270/) · [Email](mailto:tingde.liu.luh@gmail.com)
