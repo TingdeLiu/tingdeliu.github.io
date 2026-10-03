@@ -1,0 +1,29 @@
+{
+  "source": "_posts/weekly-reports/2026-08-15-VLN-Weekly.md",
+  "translation": "_translations/en/blog/vln-weekly-2026-08-15.md",
+  "reviewed_on": "2026-10-03",
+  "source_revision_date": "2026-09-27",
+  "sections": {
+    "metadata": "be9f9d439235df8870fbeb4023a54879cb9ee72b1ab6eacfed447cba5956f070",
+    "introduction": "9b261774e3352ecb0ef7587be125f73d6a4e600356dd053c394933c392ecbbee",
+    "一、本期结论": "59365ac86972ff9a4428369bb33c14accf5e529b98fccc75786fa4d5cb5fe496",
+    "二、优先阅读清单": "1d89c4c8b55e1527b7067576dc952933d83326434883bfe8d9a5a2b0be5c3ca1",
+    "三、重点工作分析": "b26cb281b71f3cac0e2af05d0abe4a9d888a91ad9e8922498a6853a1c0bd9fd9",
+    "1. SSTG-Nav：把 ObjectNav 从\"每次重探索\"改写为\"一次测绘、多次检索\"": "84443e46a8a2738834858a6ad4c8a20841bbf3b718715b45c609ee6412834355",
+    "2. LifelongCrossNav：持久记忆与跨楼层被合并成同一个问题": "367fd9e4d2e8815392bc3e96a286b3ab8a6293d8a891732da2ccd666bcbe4042",
+    "3. WNM-3D：给世界-动作模型补上几何条件": "c417a599be713b6a5f5623a5762eec64a84f891eb9a949245825163c0ecfae90",
+    "4. Route2Step：把\"走错了\"和\"理解错了\"分开监督": "609b1b751cac286e84d440914477e33df6c881098aedcb63c1bdfeae3fd9e713",
+    "5. SAP-Nav：把\"看不清就换个角度再确认\"写进策略": "c4af9d722ced17323a334d0baec6a2e44f1fc28e07c44cf1ced0583434dabfd3",
+    "四、可迁移方法": "14e3230b4353d2f68d0928c455ed5e1fdae43b89eb613d9b263f034c8f1b5efd",
+    "五、分类速览": "7435efcf06fb27630e40fc436268fa560d87de4d6729555761f359c2e9e9bbcc",
+    "5.1 地面 VLN / ObjectNav / 语义导航": "b8f4c66b281c9db2126b4c94ce37af8a053d860515081e0e22488a26b0d32b03",
+    "5.2 记忆、地图、规划与评测": "e701ac126414a7b1c9374498d22c7fd72723718b22bc3bacc260faf010a34aa7",
+    "5.3 具身 VLA / 移动操作": "7a14317b57d97ea26678cfda2c6b04b86a49922ef2c70d9f8364c3ec131365ef",
+    "5.4 无人机、自动驾驶与其他低相关方向": "67e96d4999f99aefc8986f41f5ee360a3c70c9b15bc1a2f4dbbb0cbfe8f472c2",
+    "5.5 资讯与非论文": "41ca4a89de944cbf377518a1488723bcb49c805b27262f87a0dbe0ccd6629764",
+    "六、趋势判断与行动建议": "fc00737faecc1684002148b05ade49c41e5145506ec0ceb26d93fca92c7f8bb1",
+    "趋势": "af99bf9a7073d5d1f2954099b8579e0b6758ecf379f9e56bcf4033298f229adc",
+    "研究空白": "36e3be57c4bb331d3f7f1494149a78506230addad7fc3f104e2ce098ebabcef9",
+    "建议动作": "972c5f144d06a2f2ea12df313da333843f3a94114851cb26038f1aa67894a743"
+  }
+}

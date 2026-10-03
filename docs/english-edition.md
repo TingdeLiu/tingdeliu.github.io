@@ -2,8 +2,9 @@
 
 The English edition contains the complete VLN Survey, VLN Papers: Instruction
 Following (55 readings), and VLN Papers: Goal Navigation and Extensions
-(34 main readings and 3 related readings, 37 total), plus `/en/` and
-`/en/research/`. Both paper collections have localized filters, leaderboards,
+(34 main readings and 3 related readings, 37 total), and all eight existing
+embodied-navigation weekly digests (six published and two unpublished), plus `/en/`, `/en/research/`, and
+`/en/blog/`. Both paper collections have localized filters, leaderboards,
 and reciprocal English companion links. Other surveys remain Chinese-only.
 
 ## Content contract
@@ -30,11 +31,13 @@ _translations/en/
 │   ├── VLN-Papers.md
 │   └── VLN-Papers-Extended.md
 └── blog/
-    └── .gitkeep
+    ├── vln-weekly-2026-08-01.md
+    └── ... (eight weekly digests through 2026-09-27)
 ```
 
 Research surveys and paper readings belong in `research/`; technical blog posts
-belong in `blog/`. Set `categories` to match the content type
+and weekly digests belong in `blog/`. Digests retain `categories: weekly`.
+Set `categories` to match the content type
 and declare an explicit `/en/.../` permalink so moving files does not change URLs.
 When moving an existing translation, update its `translation` path in the
 snapshot under `translations/`; preserve the reviewed source hashes and dates.
@@ -46,7 +49,7 @@ JavaScript interaction labels are in `js/article-ui.js`.
 
 The English Research index shows article cards without an extra reading-path,
 companion-link, or author section. Its sidebar contains Home, Research, Blog,
-and About; Blog and About link to the existing `/blog/` and `/about/` pages.
+and About; Blog links to `/en/blog/`, and About links to the existing `/about/` page.
 Language switching stays in the page's language selector.
 
 Each article declares `lang`, `translation_id`, `permalink`, `source_path`,
@@ -61,6 +64,33 @@ Only genuine equivalent pages receive reciprocal `hreflang` annotations;
 each language has its own canonical URL. URL language determines rendering.
 
 ## Update workflow
+
+### Blog and weekly digests
+
+The English Blog lists the six published weekly digests in reverse publication order,
+with explicit `issue_number`, `period_start`, and `period_end` metadata. Each
+digest preserves the original publication date; `source_revision_date` reflects
+the last source commit before translation, not the translation date. The latest
+issue includes the source's 2026-10-01 correction and links to the English
+GPT-6-Astra paper reading. The two early source drafts (2026-08-01 and
+2026-08-15) also have complete English translations but retain `published: false`.
+
+Public source prose used machine translation assistance followed by terminology,
+conclusion, limitation, numerical, and Markdown review. Links and numeric values
+were protected during translation. Each issue has a synchronization snapshot
+under `translations/vln-weekly-*.en.json`; the shared site validator checks the
+complete issue set, heading IDs, source links, numerical values, language pairs,
+card order, and exclusion from Chinese feeds and Research cards. Technical essays
+remain untranslated and are not shown as English articles.
+
+Desktop validation at 1440×1000 passed for the six published issues: card order,
+article contents links, section-preserving language switching, Blog navigation,
+and exclusion from the three-card Research collection. No horizontal overflow,
+unrendered emphasis, or page errors occurred. The built-site validator reports
+12 English pages with zero errors. Both unpublished translations also passed
+rendered source-link and heading-ID checks (19 matching headings each) and are
+absent from the production output. All 16 source/translation weekly files pass
+the post linter, and the 11 existing regression tests pass.
 
 ### VLN Papers completion and draft workflow
 

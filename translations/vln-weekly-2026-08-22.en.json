@@ -1,0 +1,28 @@
+{
+  "source": "_posts/weekly-reports/2026-08-22-VLN-Weekly.md",
+  "translation": "_translations/en/blog/vln-weekly-2026-08-22.md",
+  "reviewed_on": "2026-10-03",
+  "source_revision_date": "2026-09-27",
+  "sections": {
+    "metadata": "84d6498690c21c4b8075da498146c5d74177ff4f0885ea37357587aa6b270933",
+    "introduction": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "一、本期结论": "12351d777732b6bcb1d4d1e8c959eeb650c88d39e8cfa4c201813690d4bcf80d",
+    "二、优先阅读清单": "dd66859b82c99fb4711390a564ed13cbb0d728f46d2be73d11479dde1f07dd10",
+    "三、重点工作分析": "b26cb281b71f3cac0e2af05d0abe4a9d888a91ad9e8922498a6853a1c0bd9fd9",
+    "1. Embodied-Navigator / TAMP-Nav：本期唯一给出 R2R-CE 数字的工作，路线是让 VLM 只做它擅长的 2D 选点": "e60539fb0b5d0523fa1e807b36f5b6f25c2acef7a075ba3e1142b5c097297c9b",
+    "2. CondVLN：把选错分支从成功率里拆出来，是本期对评测口径冲击最大的工作": "0f960868edab642fb849c6ccac523eb504872913ca7312e8de160b622f726390",
+    "3. Graph-MambaNav：把 Graph-Mamba 的节点排序机制引入 ObjectNav": "fdafdcbbb72dc4bc8555853e424d159ad7e76082a12c264e2cbb0cf16bb580d3",
+    "4. DevGRU：面向窄通道碰撞问题的轻量点目标导航模型": "0ccdccea786aa9d6e1e73a9471471bebfd0630bb8eabc8b67248c8f5d9d5c301",
+    "四、可迁移方法": "65657ec2717517f06ca0f00b4fc2e03d04467d76cb3db746b5523ff914c6cc9d",
+    "五、分类速览": "7435efcf06fb27630e40fc436268fa560d87de4d6729555761f359c2e9e9bbcc",
+    "5.1 地面 VLN / ObjectNav / 语义导航": "9af507deabd019925f8f84448ff5ea16d634416f47e2dad351662cc2a9de62fe",
+    "5.2 记忆、地图、规划与评测": "f5c1c44b20d306693dc3217f38d43ccf8f807d01f740f5bfee4116263c6fb22c",
+    "5.3 具身 VLA / 移动操作": "df3a5a248c18b8a4263ec7d97f4428bb5d8ab47e12a1b4ca92bddc34884ed5a8",
+    "5.4 无人机、自动驾驶与其他低相关方向": "2edefb5278a5eb3e1e37791765aa312966ac1ac625b684fdf8ef06cffb1a79cf",
+    "5.5 资讯与非论文": "ea46ba78d1387da73b3e67db65cad625a9c384f3a05e4eaa950db31c482b7ec3",
+    "六、趋势判断与行动建议": "fc00737faecc1684002148b05ade49c41e5145506ec0ceb26d93fca92c7f8bb1",
+    "趋势": "a4445291efa43fab8e8d1c59afb9835d39a5a100435e91833e904ce44669f83d",
+    "研究空白": "07e4015a628dc6f02514d0061e8484114e18fb725486b2ac80b321b17e07e123",
+    "建议动作": "e594a4f643140701c62738b00a0746a81082cadf09248beb8043ed793b74ad83"
+  }
+}

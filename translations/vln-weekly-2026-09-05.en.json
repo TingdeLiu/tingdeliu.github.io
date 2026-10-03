@@ -1,0 +1,28 @@
+{
+  "source": "_posts/weekly-reports/2026-09-05-VLN-Weekly.md",
+  "translation": "_translations/en/blog/vln-weekly-2026-09-05.md",
+  "reviewed_on": "2026-10-03",
+  "source_revision_date": "2026-09-27",
+  "sections": {
+    "metadata": "92109cb241c8e109f0c06cee5f4e75daf84115e8cdac4b0103d63c50a82eafe6",
+    "introduction": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "一、本期结论": "9432966d88d47a718824ed2dd928eecde51d14cc9c026247b88e72bae692278f",
+    "二、优先阅读清单": "f7ee3ae6c578feb002251f081d5b70a67f486d908f5570a9ef70182be49da68b",
+    "三、重点工作分析": "b26cb281b71f3cac0e2af05d0abe4a9d888a91ad9e8922498a6853a1c0bd9fd9",
+    "1. Revisiting Topological Graphs：把 VLN-CE 的决策视界压到 RL 能训练的尺度": "587f78df594cb6fdfe16b70a4bab620031741edc1f421dcb5b0fdf753bd03ea1",
+    "2. LookStep：用语言标签替代认知地图，压低 VLN-CE 的记忆与数据成本": "31a392f181f65436bdf0872abf6ac04cb4bd637e5204f794557b9927bb092643",
+    "3. LightNav-0：单一 VLM 骨干覆盖多任务与多本体": "c4af089628d5ac2a8539fa099cbb53c144f5a626ebae02c15b95bd6f854b615b",
+    "4. CGFM-Nav：显式语义记忆与语义引导探索的闭环耦合": "d6541135755a42e956d876fe9bea81173452675932113821ce0f9db2f5273e10",
+    "四、可迁移方法": "8dd2aa1dfd79afbb5cfaa685ec826fffb9a6dfc772f0ccd0df87d6c46440f83d",
+    "五、分类速览": "7435efcf06fb27630e40fc436268fa560d87de4d6729555761f359c2e9e9bbcc",
+    "5.1 地面 VLN / ObjectNav / 语义导航": "76acc988171275e499b2248603cbb873162373f7a87d39709bed53fe3e7fff06",
+    "5.2 记忆、地图、规划与评测": "d46c92b0eee6770c93667d76af76e1b7ef08fda3d8c750e660d8ea61dd76ff66",
+    "5.3 具身 VLA / 移动操作": "25babbd5828a12f36a83426b36b3b0b81a22131aae03e3518c7eb0c8219e67b8",
+    "5.4 无人机、自动驾驶与其他低相关方向": "3e2ee0b299d4dcdaafbe1d0c006be05e77e736dde49056c6bc118a061d570eff",
+    "5.5 资讯与非论文": "2f95572f0a5884ad2fbf5e4429c0d495bc3ad70277925c530c3f0e572d807d60",
+    "六、趋势判断与行动建议": "fc00737faecc1684002148b05ade49c41e5145506ec0ceb26d93fca92c7f8bb1",
+    "趋势": "60cf57c3be081329a489d701bb90334f68f1982348562b1bdd0b08c0941342fc",
+    "研究空白": "bb1575082a2f34b34b5e81bf378b92f77ca8db3e6a3a79293146c4dba775cd06",
+    "建议动作": "6d5cab0dac49e6d7ea6ebd3101ef64e2690921d0ad6d115323fc5a38db31793f"
+  }
+}

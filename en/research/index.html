@@ -14,7 +14,7 @@ excerpt: "English surveys and research notes on vision-language navigation and e
 </div>
 <h2 id="vln" class="rc-group">Vision-language navigation</h2>
 <div class="rc-grid">
-{% assign english_research = site.translations | where: 'lang', 'en' | where_exp: 'item', 'item.published != false' | sort: 'date' | reverse %}
+{% assign english_research = site.translations | where: 'lang', 'en' | where_exp: 'item', 'item.categories contains "research"' | where_exp: 'item', 'item.published != false' | sort: 'date' | reverse %}
 {% for article in english_research %}
   {% include post-card.html post=article %}
 {% endfor %}

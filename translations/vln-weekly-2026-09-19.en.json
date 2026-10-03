@@ -1,0 +1,28 @@
+{
+  "source": "_posts/weekly-reports/2026-09-19-VLN-Weekly.md",
+  "translation": "_translations/en/blog/vln-weekly-2026-09-19.md",
+  "reviewed_on": "2026-10-03",
+  "source_revision_date": "2026-09-27",
+  "sections": {
+    "metadata": "55dda758774f725dd46c7a7bfc23337966da068f8b776dead4dd0d301a980416",
+    "introduction": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "一、本期结论": "088cc9543743839d2bc09d74c188748ecffe269c6047cb139f7d89387fde91cf",
+    "二、优先阅读清单": "af386b15137eaf3b34d7cd1df723e348eeaaa0f803b77d826b36708bfdd5abe4",
+    "三、重点工作分析": "b26cb281b71f3cac0e2af05d0abe4a9d888a91ad9e8922498a6853a1c0bd9fd9",
+    "1. EgoPathBench 与 GPT-6-Astra 对读：基础模型的空间能力，和导航系统的成绩，是两件事": "3796c7c09850375d3831d5ced0047d9b4c614f32fddc9b052bece51cc8f5f330",
+    "2. GroundingVLN：把 grounding 当接口而非中间产物，样本效率出现量级差": "0a303156ac218abe230c674ed0f336c20bac3226141d2d67556a0f54dfcdda85",
+    "3. C2Nav：把 VLM 的回答形式从「报数」改成「比较」，本身就是性能来源": "18b9dc0e974c54d319e1c920a1e2a40f422e02b488f82e297c1b370ad55c6bdb",
+    "4. Harness Robotic OS：具身 Agent 运行时第一次给出完整真机闭环数据": "bc2b2437f20e24e71a8c230d4eb8520bf973d419dce27be9a33334cac020970d",
+    "5. GLAM 与 Memory as Plans：空间记忆的第三条路线": "bd7d96a0c8d6b39c549eefe585693f37108630a85be241db7b6dcc00210100bb",
+    "四、可迁移方法": "0bf2ebd26d8dbdd32bb85e97bd811726c147f70971044159487397ab2f0ef13d",
+    "五、分类速览": "d6da8d6016d1bdac4a4e31a62fcb3ed8d0adc62f7fce2fa1e8d144a1851de8bc",
+    "5.1 地面 VLN / ObjectNav / 语义导航": "6b85c2dc0c2540e9094aa4fb47c2ef710fb8caa605ff2c029b0a10624a8976e6",
+    "5.2 具身 Agent / AgentOS（本期新覆盖方向）": "3518265c231cf1099afa60281ce29470164a1367ec222adf725418255b6ffc37",
+    "5.3 记忆、地图、规划与评测": "7bd737e65857bb0619bdaef79f8e9a3bc84069a0ad33b8995979b87d94b37d3e",
+    "5.4 次池速览（VLA·操作 / 自动驾驶 / 其他）": "97cb8ffa627d99b681d7480b935543435b565095e1fc764386bdd25f1123c253",
+    "六、趋势判断与行动建议": "fc00737faecc1684002148b05ade49c41e5145506ec0ceb26d93fca92c7f8bb1",
+    "趋势": "e773bbb08a73e0de5f43fc7fcacc33c634e0aef01e5db3ac3c8f4a90ee22ae59",
+    "研究空白": "8e7482df04959536a63ff55fda650babdeb9590e41c74af076538e787f9a302b",
+    "建议动作": "637c93aaa4d58a310f5f1d1bd95bbc03c0876e7b69459bcaa3f9c50c2050161d"
+  }
+}

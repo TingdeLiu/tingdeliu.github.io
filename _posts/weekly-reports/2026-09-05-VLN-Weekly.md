@@ -1,5 +1,7 @@
 ---
 layout: post
+lang: zh-CN
+translation_id: vln-weekly-2026-09-05
 title: "具身导航周报（2026-08-26 ~ 2026-09-03）"
 date:   2026-09-05
 permalink: /vln-weekly-2026-09-05/

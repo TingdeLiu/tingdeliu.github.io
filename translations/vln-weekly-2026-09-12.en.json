@@ -1,0 +1,29 @@
+{
+  "source": "_posts/weekly-reports/2026-09-12-VLN-Weekly.md",
+  "translation": "_translations/en/blog/vln-weekly-2026-09-12.md",
+  "reviewed_on": "2026-10-03",
+  "source_revision_date": "2026-09-27",
+  "sections": {
+    "metadata": "7c6e09ba7f26e99c0d336cc588cc7533db6305e55629f735cc1b01d7fab027f4",
+    "introduction": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "一、本期结论": "730885f23b2389555c8985264ff61c2b28ac2555e948125d318d8f8239b435d1",
+    "二、优先阅读清单": "e3e0e089f1f7a8d5d4e35df526688ad47b4fd524dd232323fdab1ece175e280b",
+    "三、重点工作分析": "b26cb281b71f3cac0e2af05d0abe4a9d888a91ad9e8922498a6853a1c0bd9fd9",
+    "1. O2C-Nav：把零样本 VLN-CE 的每步大模型调用压到一次": "0f9afa2cc66df262f44461b3ccd3e6ea9a5e05831a285647fa78b4c90e6ae815",
+    "2. OmniNav：把「记忆会过期」写进导航状态推断": "37c9ed88ae8c2e3bf7d1178a46d807ad960d03ecff03703dd83c543112c344af",
+    "3. OVMAN：把「场景变化」本身作为导航目标": "aa196cde10fd6c6270cafcfdcc5da7bf7e80bc00a5253fd4b417e362d662abd4",
+    "4. TANGO：把人形导航从 2D 路径规划改写为全身几何适配": "559224c9e994d56e957f2bb051ba265cc2808f5c0eb46dd13a66ff654e5a6051",
+    "5. NavArena：把 3DGS 重建变成可闭环评测的导航基准": "f7f14d01ba90d176bab4be919a9e54b85a5da9892d318afb9de4c7ad1ddca5ba",
+    "四、可迁移方法": "0bc0e6818e8d040269fd0f681a16c1beb62aabaaa3aff59b9e47bc759cd8353b",
+    "五、分类速览": "7435efcf06fb27630e40fc436268fa560d87de4d6729555761f359c2e9e9bbcc",
+    "5.1 地面 VLN / ObjectNav / 语义导航": "d7304a7cc459323d88d2fd6978ce2b7579e2e891f3246b7c44aabfe581734b5a",
+    "5.2 记忆、地图、规划与评测": "32e7784c55f95893eab47fe9f997310e51432b7df27db5e2b272030d0d59e45e",
+    "5.3 具身 VLA / 移动操作": "154b7ce220834e6f1f4f42f6ea28f4bce2f965f8137331ccd55a9396ba14223e",
+    "5.4 无人机、通信与其他低相关方向": "278977bee2903efc48d8688c3be15da1bb41db1ac40b85333ab80b543cd74c12",
+    "5.5 资讯与非论文": "79da314e009c733ec19717e9c7a5d9d858e5a993e10db445c2fcbe7ee19c1918",
+    "六、趋势判断与行动建议": "fc00737faecc1684002148b05ade49c41e5145506ec0ceb26d93fca92c7f8bb1",
+    "趋势": "2e7360a097796f43810ecc1d6798768b6f6f4f1717e35da078aa95fbc1e4d863",
+    "研究空白": "84d1f78be724229bc8f90797a25dd7de7a017869675dad0080b3f03e18c2c15f",
+    "建议动作": "488c5d3f5b399b2e639f3524ef9f7982df1cee4df6eb7dd40f51a36f786fd7b8"
+  }
+}

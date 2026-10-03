@@ -1,0 +1,29 @@
+{
+  "source": "_posts/weekly-reports/2026-08-01-VLN-Weekly.md",
+  "translation": "_translations/en/blog/vln-weekly-2026-08-01.md",
+  "reviewed_on": "2026-10-03",
+  "source_revision_date": "2026-09-27",
+  "sections": {
+    "metadata": "43202a61d9b6b625f8bc69f1457adeb9b22eb59b61a22a17e47c3e287fb35746",
+    "introduction": "9b261774e3352ecb0ef7587be125f73d6a4e600356dd053c394933c392ecbbee",
+    "一、本期结论": "b38688314586c707559ea92087f829d72240af44ca3ef121c1201b785016f819",
+    "二、优先阅读清单": "ed60326c61b8b428e2c00e1cf692c08eaf517460dff26ca6bfc3720e920cb666",
+    "三、重点工作分析": "b26cb281b71f3cac0e2af05d0abe4a9d888a91ad9e8922498a6853a1c0bd9fd9",
+    "1. VLN 综述与真实世界系统评测：量化仿真到现实的落差": "6c715e525964466a3083b8a2a325e4adf3af2a9c2be921f5429cc70ed176b044",
+    "2. X-NavDP：用分组 Q 值加权匹配稳定扩散导航策略的 RL 后训练": "84f69384e4e3654bbdc9ad8b38c70adf9e7bf3ca83949eb933549e7354d0f52f",
+    "3. EA-Nav：把本体几何作为显式条件变量的安全导航": "309b898fee1da62e2c99ff077fb3aaea2d7e4970eb46e7e823b04ed9edd6e4bd",
+    "4. IMPRINT：利用网络图像富化语义地图的长尾 ObjectNav": "d51996a929ea0ce631005194fcfd74bfa8f059c20cafa71d7526eff35727e4c3",
+    "5. TEA-AgriVLN：非结构化农业场景中的可通行性估计警报": "f538b1e33c601877533bec840bacdee108cef2e8461a705c4efa9a18d5637df3",
+    "四、可迁移方法": "1f03e6f0708a697022cf3057d115c349a7079b1f0c0663e05edb981a6770eed7",
+    "五、分类速览": "7435efcf06fb27630e40fc436268fa560d87de4d6729555761f359c2e9e9bbcc",
+    "5.1 地面 VLN / ObjectNav / 语义导航": "b29abc8f2f865a328245fbf6394049ae28b83523b44145b4905fa15f51b884d4",
+    "5.2 记忆、地图、规划与评测": "dea2715aeef662dfdbbf7176a021f5c1543f02b37b11f220d090101ee94e44c6",
+    "5.3 具身 VLA / 移动操作": "8229db546903113ddeaac9be2a578b23cc0acbd86f696d7403d9b22a7737fdda",
+    "5.4 无人机、自动驾驶与其他低相关方向": "751ebba34c531d4020d383d66c6cc4818b9263491d53b5e2f5d66e9edd774e39",
+    "5.5 资讯与非论文": "cc8436a4a59f3e87f931567fdd2ce209107b55f5fb53115d02f26b023e1e6b35",
+    "六、趋势判断与行动建议": "fc00737faecc1684002148b05ade49c41e5145506ec0ceb26d93fca92c7f8bb1",
+    "趋势": "03aaf37096b66cdb2502d7352d5ea01cb5db34bf4c88982e9e28d3824349737d",
+    "研究空白": "cffd0b112286bca5d53ba1e8bd38fbf0f07235fa9e7d93478307378d1aaa3cae",
+    "建议动作": "84e38c0aa29741f77f46c55c9abde5680cc61c4f7d9db06956644597354ebc21"
+  }
+}

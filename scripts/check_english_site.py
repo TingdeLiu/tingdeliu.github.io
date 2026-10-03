@@ -148,6 +148,51 @@ def main():
     check('/en/VLN-Survey/' not in (SITE / 'feed.xml').read_text(encoding='utf-8'), 'Translation leaked into Chinese feed')
     for slug in ('VLN-Papers', 'VLN-Papers-Extended'):
         check(f'/en/{slug}/' not in (SITE / 'feed.xml').read_text(encoding='utf-8'), f'{slug}: translation leaked into Chinese feed')
+    weekly_targets = [p for p in sorted((ROOT / '_translations/en/blog').glob('vln-weekly-*.md'))
+                      if read_document(p)[0].get('published', '').lower() != 'false']
+    if weekly_targets:
+        from check_translation_drafts import features
+        weekly_urls = []
+        def prose_numbers(body):
+            from decimal import Decimal
+            body = re.sub(r'\{: id="[^"]+"\}', '', body)
+            body = re.sub(r'\]\([^)]*\)|https?://\S+', '', body)
+            body = re.sub(r'^## .+$', '', body, flags=re.M)
+            body = re.sub(r'\bSection \d+\b|第[一二三四五六七八九十]+节|3D|三维', '', body, flags=re.I)
+            def scale(m):
+                factors = {'万':10000, '亿':100000000, 'thousand':1000, 'million':1000000, 'billion':1000000000}
+                return str(Decimal(m[1].replace(',', '')) * factors[m[2].lower()])
+            body = re.sub(r'(\d+(?:,\d{3})*(?:\.\d+)?)\s*(万|亿|thousand\b|million\b|billion\b)', scale, body, flags=re.I)
+            return Counter(Decimal(n.replace(',', '')) for n in re.findall(r'\d+(?:,\d{3})*(?:\.\d+)?', body))
+        for target in weekly_targets:
+            fields, _, english_body = read_document(target)
+            _, _, source_body = read_document(ROOT / fields['source_path'])
+            route, original_route = fields['permalink'], fields['source_url']
+            weekly_urls.append(route)
+            translated = load(SITE / route.strip('/') / 'index.html')
+            original = load(SITE / original_route.strip('/') / 'index.html')
+            check('**' not in ''.join(translated.visible), f'{route}: unrendered emphasis markup')
+            def heading_ids(doc):
+                return [n['attrs'].get('id') for n in doc.nodes if n['entry'] and re.fullmatch('h[1-6]', n['tag'])]
+            check(heading_ids(translated) == heading_ids(original), f'{route}: weekly heading structure/IDs differ')
+            check(external(translated) == external(original), f'{route}: weekly source links differ')
+            check(features(source_body) == features(english_body), f'{route}: weekly protected content differs')
+            check(prose_numbers(source_body) == prose_numbers(english_body), f'{route}: weekly numerical values differ')
+            for doc in (translated, original):
+                switches = [n['attrs']['data-language-switch'] for n in doc.select('a') if 'data-language-switch' in n['attrs']]
+                check(switches == ['article'], f'{route}: weekly language switch does not preserve sections')
+                alternates = {n['attrs'].get('hreflang'): n['attrs'].get('href') for n in doc.select('link') if n['attrs'].get('hreflang')}
+                check(alternates == {'en': 'https://tingdeliu.github.io' + route, 'zh-CN': 'https://tingdeliu.github.io' + original_route}, f'{route}: weekly language alternates differ')
+            check(route not in (SITE / 'feed.xml').read_text(encoding='utf-8'), f'{route}: weekly translation leaked into Chinese feed')
+        english_blog = load(SITE / 'en/blog/index.html')
+        cards = [n['attrs'].get('href') for n in english_blog.select('a') if 'rc-card' in n['attrs'].get('class', '').split()]
+        check(cards == list(reversed(weekly_urls)), 'English Blog issue order or cards differ')
+        chinese_blog = load(SITE / 'blog/index.html')
+        chinese_cards = [n['attrs'].get('href') for n in chinese_blog.select('a') if 'rc-card' in n['attrs'].get('class', '').split()]
+        check(not any(url in chinese_cards for url in weekly_urls), 'Weekly translations duplicated in Chinese Blog')
+        research_cards = [n['attrs'].get('href') for n in load(SITE / 'en/research/index.html').select('a') if 'rc-card' in n['attrs'].get('class', '').split()]
+        check(not any(url in research_cards for url in weekly_urls), 'Weekly digests mixed into English Research')
+        print(f'Blog: {len(weekly_targets)} complete weekly digest translations')
     zh_research = load(SITE / 'research/index.html')
     check(not any('/en/VLN-Survey/' == n['attrs'].get('href') for n in zh_research.select('a')), 'Translation duplicated in Chinese research cards')
     for directory in ('translations', 'docs', 'scripts', 'tmp', '_site-drafts'):

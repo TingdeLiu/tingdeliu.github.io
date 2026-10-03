@@ -1,0 +1,30 @@
+{
+  "source": "_posts/weekly-reports/2026-09-27-VLN-Weekly.md",
+  "translation": "_translations/en/blog/vln-weekly-2026-09-27.md",
+  "reviewed_on": "2026-10-03",
+  "source_revision_date": "2026-10-01",
+  "sections": {
+    "metadata": "4f51cdae315f9f3f461ee06ba346a14e36e58d2ccd2dacc5e99249e49d633eee",
+    "introduction": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "一、本期结论": "959bb5e81e7468ed6d07768eba981670d9d091dc1325238470dd0c9bb85a8a0f",
+    "二、优先阅读清单": "187c3099327d493433bf2779faca5b14a34d909cd72dd2559916855b584c22d0",
+    "三、重点工作分析": "b26cb281b71f3cac0e2af05d0abe4a9d888a91ad9e8922498a6853a1c0bd9fd9",
+    "1. GPT-6-Astra 两篇对读：79.0% 与 52.0% 之间，没有一个变量是被控制的": "f7883c02fb2da821ea0dc3a02888613ba823873fb6897f925ecd9be096045ca3",
+    "2. SparseNav：少感知一点，反而是更可复现的零样本路线": "388fe4954e23710f1d5bdd5ca578ac33c100a18b02c84c39fd1909793fd51689",
+    "3. Talk2Escape：检测器比对话更值得带走": "7909e8b9e7261d64933f0c4c7ac37ac26fcb46e18c5fed8adc7e24d454440317",
+    "4. VNT-PA：让注意力看位姿差，而不是看时间顺序": "8b4dec60a703a2bf658521c24d9a80dfe378cc1632992fb12a74ed80cb9cd100",
+    "5. AdaHVLA：本期唯一给出导航侧数字的 harness 工作": "3dd442fda73fb4ef36ce47bc9308f4acefc5349c09d9c5b462868494d83e8b99",
+    "四、可迁移方法": "bd06179d589817e6d97bc741aa55183cd6f2622d30288947debbff2fb3a6ffcd",
+    "五、分类速览": "7435efcf06fb27630e40fc436268fa560d87de4d6729555761f359c2e9e9bbcc",
+    "5.1 地面 VLN / ObjectNav / 语义导航": "c412f79cc6a189cdbe8150111f99e387621e36dbf63527177edfaa2c07345104",
+    "5.2 具身 Agent、记忆与规划": "163c2c3f673cd37d5e5ddc653b9f5a25228f00cb7f32a6475529e9fd24028fc0",
+    "5.3 社会导航、越野与户外": "9edb907e71ee1484d26cad1b96258723e74fc4fb3faa906309950839ca9c3a9b",
+    "5.4 水面、水下与无人机": "b14aeeeb32dda76385b7da4b7e38bdd59b5d7ead95812430236f37ec26f90773",
+    "5.5 次池速览（VLA·操作 / 自动驾驶 / 其他）": "ba202bdb1fdfe83ce618ebf7e8c78bd41b31523efb02da8ae049e5de57bba921",
+    "5.6 资讯与非论文": "e56514befce9bb30fefb112b9d3745f611b9b9c1e97fd04decf1675f2ede2f55",
+    "六、趋势判断与行动建议": "fc00737faecc1684002148b05ade49c41e5145506ec0ceb26d93fca92c7f8bb1",
+    "趋势": "a21513ad38366c10f1fcdf22f6135cdd07c670c8efe068e1b76e620aa07f3dca",
+    "研究空白": "fd8f5fec54c3a31f3cfe4a11e7d7c872cba782bc9b48622e4162f785a3904fd4",
+    "建议动作": "cb29df64710eecfa79335162b879ac04ada175a3b2ceb8ec9c6e717e6c3be13d"
+  }
+}

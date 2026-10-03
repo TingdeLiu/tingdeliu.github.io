@@ -1,0 +1,29 @@
+{
+  "source": "_posts/weekly-reports/2026-08-30-VLN-Weekly.md",
+  "translation": "_translations/en/blog/vln-weekly-2026-08-30.md",
+  "reviewed_on": "2026-10-03",
+  "source_revision_date": "2026-09-27",
+  "sections": {
+    "metadata": "dfbc564b515936a1e927d014ab4337d4f48c209953d785089d2dceb2c9f576c8",
+    "introduction": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "一、本期结论": "9e82931ec4dce7cb07d5cf8450144dcc15671ce68fef4d5428ea6e6fd0cd0b05",
+    "二、优先阅读清单": "ef8b6daaabe5a797dcad8ab9cd172294ba26ce28e449a1e970ea41c21e119597",
+    "三、重点工作分析": "b26cb281b71f3cac0e2af05d0abe4a9d888a91ad9e8922498a6853a1c0bd9fd9",
+    "1. VTInstructor：本期唯一的连续环境数字，来自 Speaker 而非跟随器": "df9b0e88fbca53065ed7f56f6e074d7132f08ac9fd0c798ab5043b5ba25f5b7e",
+    "2. RTNav：把 wall-clock 时间放进任务预算，既有零样本 ObjectNav 方法普遍掉点": "a784f4774364b39e0ff5c6cfe303d87d8cf7214c2bb1ade1ab460f0b5fb14d5e",
+    "3. WILD-Nav：把互联网街拍视频变成导航监督，并把失败归因到具体推理环节": "58e29bbc1f450e5294a1bb847f05ffd631664489938e90de3141ec816dab25d0",
+    "4. Latent World Model：用潜特征兼容性替代观测重建，免动作标注学导航策略": "d3f98db5311d6412a0e3a96eecdcdb91ebcc15f2371344ab891435d1515d7c6f",
+    "5. UrbanGround：城市尺度上\"原子能力不等于持续目标导向行为\"的系统性证据": "068a2e081077bcc6351fdbb5c5e780bce288226fa3bcca0c610b0223b87ce4ed",
+    "四、可迁移方法": "83b06e1f9f1c06fefe22787720959cd75c856c600fb7a2511a533c6fb3464c4d",
+    "五、分类速览": "7435efcf06fb27630e40fc436268fa560d87de4d6729555761f359c2e9e9bbcc",
+    "5.1 地面 VLN / ObjectNav / 语义导航": "27b691b86078845e19c7cbdae851996e0100b239686efa47b4a51c0240cbed33",
+    "5.2 记忆、地图、规划与评测": "68b5b6c0203eae3c59779b92d0a2a2e3ba30f002d21ff0a8ccad90c379c7c242",
+    "5.3 具身 VLA / 移动操作": "e1f26d86923168974b31732584bb615ae552ba9629beeac45203d4af1c711a8a",
+    "5.4 无人机、自动驾驶与其他低相关方向": "eb4fe9c92a1d33615dbb6d8af028d6b19d6dcf85b46a444c018818f2817d4421",
+    "5.5 资讯与非论文": "30672e5a66002c4be6c67bd14e2d74366876b016403af2cca5d3ea8fd34be3cb",
+    "六、趋势判断与行动建议": "fc00737faecc1684002148b05ade49c41e5145506ec0ceb26d93fca92c7f8bb1",
+    "趋势": "b19ac6608f2b694765bae4ef062ff065c626e19ca0f77bb5bec3cdf018d6d59a",
+    "研究空白": "46dec997567e6b8cbbb40ac6cbcfcf33025fd0a4a8441a5f6b35b06a0d627810",
+    "建议动作": "b10f0a392f327e5bc17650fe580c877ad316a65afe8d1ac14e52dbe997743172"
+  }
+}
