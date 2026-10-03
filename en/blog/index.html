@@ -12,9 +12,9 @@ excerpt: "Weekly embodied-navigation digests and technical notes by Tingde Liu."
 {% assign weekly_posts = site.translations | where: 'lang', 'en' | where_exp: 'item', 'item.categories contains "weekly"' | where_exp: 'item', 'item.published != false' | sort: 'date' | reverse %}
 {% assign blog_posts = site.translations | where: 'lang', 'en' | where_exp: 'item', 'item.categories contains "blog"' | where_exp: 'item', 'item.published != false' | sort: 'date' | reverse %}
 
-<p class="rc-intro">Weekly embodied-navigation digests and technical notes, with the latest issues first.</p>
+<p class="rc-intro">Weekly embodied-navigation digests and technical notes, with the latest issues first. Issue dates indicate the end of the period covered.</p>
 
-<h2 class="rc-group" id="weekly">Embodied navigation weekly<span class="count">{{ weekly_posts.size }} issues</span></h2>
+<h2 class="rc-group" id="weekly">Embodied Navigation Weekly<span class="count">{{ weekly_posts.size }} issues</span></h2>
 <div class="rc-grid">
   {% for post in weekly_posts %}
     {% capture weekly_title %}Issue {{ post.issue_number }}: {{ post.period_end }}{% endcapture %}
