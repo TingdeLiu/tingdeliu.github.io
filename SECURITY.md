@@ -14,7 +14,7 @@ Google Analytics 统计和跳转到 GitHub Issues 的反馈链接。
 | 风险面 | 具体内容 |
 | --- | --- |
 | **构建供应链** | `.github/workflows/deploy.yml` 中的 GitHub Actions、`Gemfile` 中的 Ruby 依赖 |
-| **第三方 CDN** | 页面从 `cdn.jsdelivr.net` 加载 MathJax 3、Mermaid 10、Gitalk（CDN 被投毒或劫持会导致任意脚本执行） |
+| **第三方 CDN** | 页面从 `cdn.jsdelivr.net` 加载 MathJax 3、Mermaid 10、Gitalk，从 `events.vercount.one` 加载访客统计脚本（CDN 被投毒或劫持会导致任意脚本执行；统计脚本是无版本号的固定地址，因此无法加 SRI 校验） |
 | **前端注入** | `_layouts/`、`_includes/`、`js/` 中处理文章内容的逻辑，若存在未转义的 HTML 注入点 |
 | **仓库与部署配置** | Actions 权限范围、Pages 部署配置、分支保护 |
 
@@ -88,7 +88,9 @@ Google Analytics 统计和跳转到 GitHub Issues 的反馈链接。
 This is a **static Jekyll site** deployed to GitHub Pages. There is no backend,
 no database, no user input handling, and no stored user data. The real attack
 surface is limited to: the build supply chain (GitHub Actions, Ruby gems),
-third-party CDN assets (MathJax, Mermaid, Gitalk via jsDelivr), front-end
+third-party CDN assets (MathJax, Mermaid, Gitalk via jsDelivr; the Vercount
+visitor-counter script, which is unversioned and therefore cannot carry an SRI
+hash), front-end
 injection points in layouts and scripts, and repository/deployment configuration.
 
 **Do not report vulnerabilities in public issues.** Use

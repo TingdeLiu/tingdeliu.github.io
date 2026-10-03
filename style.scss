@@ -463,6 +463,12 @@ img {
     color: $divider-color;
   }
 
+  // 统计脚本（Vercount）拿到数据前容器是 display:none，分隔点随之隐藏，
+  // 避免请求失败时侧栏只剩一个孤零零的"·"
+  #busuanzi_container_site_uv[style*="none"] + .stats-divider {
+    display: none;
+  }
+
   svg {
     vertical-align: middle;
     opacity: 0.6;
