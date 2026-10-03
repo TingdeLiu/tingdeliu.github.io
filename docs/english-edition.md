@@ -44,6 +44,11 @@ They do not become extra Chinese posts, feed entries, or tag/archive
 results. English entry pages live in `en/`. UI strings live in `_data/ui.yml`;
 JavaScript interaction labels are in `js/article-ui.js`.
 
+The English Research index shows article cards without an extra reading-path,
+companion-link, or author section. Its sidebar contains Home, Research, Blog,
+and About; Blog and About link to the existing `/blog/` and `/about/` pages.
+Language switching stays in the page's language selector.
+
 Each article declares `lang`, `translation_id`, `permalink`, `source_path`,
 `source_url`, `source_revision_date`, and `translation_updated`. Its source has
 the same `translation_id`. The same ID pairs equivalent index pages, too.
@@ -205,7 +210,7 @@ English except language selectors, legacy IDs, and explicitly marked links.
 ## First-release checklist
 
 - [x] Full survey translation with original structure, equations, and references
-- [x] English entry pages and author introduction
+- [x] English entry pages and links to the existing Blog and About pages
 - [x] Shared language switching, localized reading controls, and feedback
 - [x] Explicit labels for Chinese-only companion articles
 - [x] Per-section source snapshots and visible stale notices
