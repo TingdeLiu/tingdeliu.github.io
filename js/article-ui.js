@@ -120,7 +120,7 @@
       // Keep standalone equations on the wide canvas alongside figures and tables.
       var text = paragraph.textContent.trim();
       var mathOnly = /^\\\([\s\S]*\\\)$/.test(text) || /^\\\[[\s\S]*\\\]$/.test(text);
-      if (mathOnly || (paragraph.children.length === 1 && paragraph.firstElementChild.tagName === 'MJX-CONTAINER')) {
+      if (mathOnly) {
         paragraph.classList.add('article-wide');
       }
     });

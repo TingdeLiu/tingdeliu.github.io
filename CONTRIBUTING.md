@@ -91,7 +91,11 @@ _posts/weekly-reports/  # 具身导航周报         →  categories: weekly
 #### 写法约定
 
 - Markdown 解析器是 kramdown（GFM 模式）
-- 公式用 MathJax 3 语法
+- 公式用 KaTeX 渲染，写法是 LaTeX 的子集，写新公式前可查[支持的函数列表](https://katex.org/docs/supported.html)；
+  行内 `$...$`、`\(...\)`，独立公式 `$$...$$`、`\[...\]`。
+  文字里要带下划线时写 `\mathrm{a\_b}`，不要写 `\text{a\_b}`；下标是命令时写 `P_{\min}`，不要写 `P_\min`。
+  **不要把 `\t`、`\r`、`\b` 这类开头的 LaTeX 命令粘贴成控制字符**（从聊天窗口或脚本里复制公式时容易发生），
+  `python scripts/lint_posts.py` 会拦下来
 - 图表用 Mermaid 10，**仅在页面含图表时才会加载 CDN**
 - Mermaid 节点文字里避免出现 `{{` 和 `}}`，Jekyll 的 Liquid 模板会先把它吃掉，
   本地能 parse 不代表线上不报错；需要花括号时用 HTML 实体或改写表述

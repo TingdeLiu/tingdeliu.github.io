@@ -126,7 +126,7 @@
 ## 技术实现
 
 - **静态站点生成**：Jekyll 4.3，Ruby 3.2，定制主题（源自 Jekyll Now）
-- **内容渲染**：kramdown（GFM）+ Rouge 代码高亮 + MathJax 3 公式 + Mermaid 10 图表，Mermaid 仅在页面含图表时按需加载 CDN
+- **内容渲染**：kramdown（GFM）+ Rouge 代码高亮 + KaTeX 公式 + Mermaid 10 图表，KaTeX 与 Mermaid 仅在页面含公式或图表时按需加载 CDN（KaTeX 固定版本并带 SRI 校验）
 - **Jekyll 插件**：`jekyll-sitemap`、`jekyll-feed`、`jekyll-paginate`、`jekyll-seo-tag`
 - **阅读体验**：章节目录抽屉（随滚动高亮当前小节）、顶部阅读进度条、代码块一键复制、标题锚点复制、配图点击放大、宽表格横向滚动、返回顶部
 - **论文检索**：VLN 与 Embodied Agent 论文精读内置交互式标签筛选栏，支持按多维技术特征实时过滤（VLN 篇支持跨篇联动）

@@ -29,10 +29,7 @@
 html[lang="en"] .entry { overflow-wrap: break-word; }
 html[lang="en"] .entry p,
 html[lang="en"] .translation-note p { text-align: left; }
-html[lang="en"] .entry mjx-container[display="true"] {
-  max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
+html[lang="en"] .entry .katex-display {
   padding: .3em 0;
 }
 html[lang="en"] .article-toc-trigger span { white-space: nowrap; }
