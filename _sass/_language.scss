@@ -1,0 +1,39 @@
+.language-switch {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  margin: .75rem 0 1.25rem;
+  font-size: .9rem;
+  a { padding: .25rem .4rem; border-radius: 4px; }
+  a[aria-current="page"] { font-weight: 700; background: #edf2f7; color: #25364a; }
+}
+.translation-note {
+  border-left: 3px solid #7c95aa;
+  background: #f4f7fa;
+  padding: .75rem 1rem;
+  margin: 1.25rem 0 2rem;
+  font-size: .85rem;
+  line-height: 1.65;
+  p { margin: .35rem 0; }
+}
+.translation-stale { color: #875714; font-weight: 600; }
+.language-label {
+  font-size: .75rem;
+  color: #5b6470;
+  white-space: nowrap;
+  font-weight: 400;
+}
+.english-intro { max-width: 760px; }
+.english-intro p { line-height: 1.8; }
+.english-section { margin-top: 2.5rem; }
+html[lang="en"] .entry { overflow-wrap: break-word; }
+html[lang="en"] .entry p,
+html[lang="en"] .translation-note p { text-align: left; }
+html[lang="en"] .entry mjx-container[display="true"] {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: .3em 0;
+}
+html[lang="en"] .article-toc-trigger span { white-space: nowrap; }
+html[lang="en"] .tag li > span { display: inline-block; padding: 2px 8px; border-radius: 4px; background: #edf2f7; font-size: .8rem; }

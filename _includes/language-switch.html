@@ -1,0 +1,10 @@
+{% if language_source and language_translation %}
+{% assign switch_mode = 'index' %}
+{% assign switch_status = site.data.translation_status[page.translation_id] %}
+{% if page.layout == 'post' and switch_status.stale == false %}{% assign switch_mode = 'article' %}{% endif %}
+<nav class="language-switch" aria-label="{{ ui.language }}">
+  <a href="{{ language_source.url | relative_url }}" lang="zh-CN" hreflang="zh-CN"{% if page_lang != 'en' %} aria-current="page"{% else %} data-language-switch="{{ switch_mode }}"{% endif %}>中文</a>
+  <span aria-hidden="true">/</span>
+  <a href="{{ language_translation.url | relative_url }}" lang="en" hreflang="en"{% if page_lang == 'en' %} aria-current="page"{% else %} data-language-switch="{{ switch_mode }}"{% endif %}>English</a>
+</nav>
+{% endif %}

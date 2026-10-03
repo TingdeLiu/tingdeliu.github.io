@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1672" height="941" viewBox="0 0 1672 941" role="img" aria-labelledby="title desc">
+  <title id="title">Vision-language navigation: from a language goal to action</title>
+  <desc id="desc">An instruction and egocentric observations inform a navigation decision, supported by history and optional spatial memory. The robot moves or stops, and new observations close the loop.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10" fill="none" stroke="#387c96" stroke-width="2"/></marker>
+    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#e5ebef"/></pattern>
+    <style>text{font-family:Arial,Helvetica,sans-serif;fill:#162d46}.title{font-size:48px;font-weight:700}.heading{font-size:31px;font-weight:700}.body{font-size:27px}.small{font-size:23px;fill:#536b7c}.edge{fill:none;stroke:#387c96;stroke-width:7;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="1672" height="941" rx="24" fill="#f8fbfd"/>
+  <text x="64" y="86" class="title">VLN: from a language goal to navigation behavior</text>
+  <text x="64" y="134" class="body" fill="#536b7c">Ground instructions in observations, act, and update from what actually happens.</text>
+  <rect x="54" y="190" width="470" height="550" rx="22" fill="#eef6fc" stroke="#9db9ce" stroke-width="2"/>
+  <text x="86" y="245" class="heading">Instruction + observations</text>
+  <rect x="82" y="280" width="414" height="108" rx="14" fill="#d9eafb"/>
+  <text x="105" y="324" class="body">“Pass the sofa, then turn left</text>
+  <text x="105" y="360" class="body">into the kitchen.”</text>
+  <rect x="82" y="417" width="414" height="245" rx="14" fill="#fff" stroke="#c6d5df"/>
+  <path d="M105 638L196 465H386L473 638M196 465V568M386 465V568M196 568H386" fill="none" stroke="#a2b4c3" stroke-width="5"/>
+  <rect x="125" y="548" width="134" height="63" rx="12" fill="#b7cbdc"/>
+  <rect x="137" y="521" width="110" height="42" rx="8" fill="#d6e3ed"/>
+  <path d="M294 568V485H353V568" fill="#e4f1ee" stroke="#88aaa0" stroke-width="4"/>
+  <text x="143" y="696" class="small">Current egocentric view</text>
+  <rect x="593" y="190" width="472" height="257" rx="22" fill="#fff8ed" stroke="#c7ad87" stroke-width="2" stroke-dasharray="10 8"/>
+  <text x="625" y="245" class="heading">History + spatial memory</text>
+  <text x="625" y="287" class="small">Past observations, route, task progress</text>
+  <path d="M656 370H772L844 334H1000" stroke="#b59461" stroke-width="6" fill="none"/>
+  <g fill="#fff" stroke="#b59461" stroke-width="5"><circle cx="656" cy="370" r="13"/><circle cx="772" cy="370" r="13"/><circle cx="844" cy="334" r="13"/><circle cx="1000" cy="334" r="13"/></g>
+  <text x="660" y="417" class="small">An explicit map is optional</text>
+  <path d="M829 459V512" class="edge"/>
+  <rect x="593" y="542" width="472" height="198" rx="22" fill="#e4f1f1" stroke="#5f9ba4" stroke-width="2"/>
+  <text x="625" y="601" class="heading">Navigation decision</text>
+  <text x="625" y="648" class="body">Align language, scene, and history</text>
+  <text x="625" y="693" class="small">Choose the next action or local goal</text>
+  <path d="M533 638H571" class="edge"/>
+  <path d="M1076 638H1114" class="edge"/>
+  <rect x="1138" y="190" width="480" height="550" rx="22" fill="#f3f2fa" stroke="#b0abc9" stroke-width="2"/>
+  <text x="1170" y="245" class="heading">Move or stop</text>
+  <rect x="1170" y="280" width="415" height="365" rx="12" fill="url(#grid)" stroke="#d0d9e3"/>
+  <path d="M1200 615V310H1547V615H1420V450H1330V615Z" fill="none" stroke="#9baab8" stroke-width="9"/>
+  <path d="M1250 573V365H1489" fill="none" stroke="#cb923c" stroke-width="9" stroke-dasharray="12 6"/>
+  <circle cx="1250" cy="573" r="24" fill="#fff" stroke="#387c96" stroke-width="6"/>
+  <path d="M1238 578L1250 561L1262 578" fill="none" stroke="#387c96" stroke-width="4"/>
+  <circle cx="1489" cy="365" r="20" fill="#e5f1e8" stroke="#63926f" stroke-width="5"/>
+  <text x="1169" y="695" class="small">Execute, observe, and decide when to stop</text>
+  <path d="M1378 752V815Q1378 845 1348 845H318Q289 845 289 815V770" class="edge"/>
+  <rect x="617" y="809" width="454" height="70" rx="16" fill="#f8fbfd" stroke="#9db9ce" stroke-width="2"/>
+  <text x="650" y="853" class="heading">New observation feedback</text>
+</svg>

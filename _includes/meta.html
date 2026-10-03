@@ -1,42 +1,24 @@
-    <meta charset="utf-8" />
-    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
-
-    <!-- 作者信息 -->
-    <meta name="author" content="Kwan Wai-Pang" />
-
-    <meta name="keywords" content="Robotics, SLAM, Event-based Vision, Deep Learning, Blog" />
-
-    <!-- 网页描述 -->
-    <!-- {% if page.excerpt %}
-    <meta name="description" content="{{ page.excerpt| strip_html }}" />
-    <meta property="og:description" content="{{ page.excerpt| strip_html }}" />
-    {% else %}
-    <meta name="description" content="{{ site.description }}">
-    <meta property="og:description" content="{{ site.description }}" />
-    {% endif %}
-    <meta name="author" content="{{ site.name }}" /> -->
-    <meta name="description" content="Personal Blog of Kwan Wai-Pang" />
-    <meta property="og:description" content="Welcome 😊{% if page.title %} {{ page.title }}{% endif %}" />
-
-    <!-- OpenGraph 元数据 -->
-    <meta property="og:site_name" content="My Technology Blog" />
-    <meta property="og:type" content="website" />
-    {% if page.title %}
-        <meta property="og:title" content="{{ page.title }}" />
-        <meta property="twitter:title" content="{{ page.title }}" />
-    {% else %}
-        <meta property="og:title" content="Kwan Wai-Pang | Personal Blog" />
-        <meta property="twitter:title" content="Kwan Wai-Pang | Personal Blog" />
-    {% endif %}
-
-    <!-- <meta property="og:image" content="https://kwanwaipang.github.io/Poster_files/hku_logo.jpg" /> -->
-    <meta property="og:image" content="{{ site.favicon }}" />
-    
-
-    <!-- OpenGraph 协议 中的一个元标签，用于指定网页内容的默认语言 -->
-    <meta property="og:locale" content="en" />
-
-    <!-- Google Search Console.-->
-    <meta name="google-site-verification" content="Jtxa1xy6N3_2RjVVFrZgXjPZ0AHklxJXQ1eQ6QXNWr8" />
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+{% assign meta_description = page.excerpt | default: site.description | strip_html | normalize_whitespace %}
+{% assign meta_title = page.title | default: site.name %}
+{% assign meta_image = page.image | default: site.avatar %}
+<meta name="author" content="{{ page.author | default: site.name | escape }}" />
+<meta name="description" content="{{ meta_description | escape }}" />
+<link rel="canonical" href="{{ page.url | absolute_url }}" />
+<meta property="og:site_name" content="{{ site.name | escape }}" />
+<meta property="og:title" content="{{ meta_title | escape }}" />
+<meta property="og:description" content="{{ meta_description | escape }}" />
+<meta property="og:url" content="{{ page.url | absolute_url }}" />
+<meta property="og:type" content="{% if page.layout == 'post' %}article{% else %}website{% endif %}" />
+<meta property="og:locale" content="{% if page_lang == 'en' %}en_US{% else %}zh_CN{% endif %}" />
+<meta property="og:image" content="{{ meta_image | absolute_url }}" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="{{ meta_title | escape }}" />
+<meta name="twitter:description" content="{{ meta_description | escape }}" />
+{% if language_source and language_translation %}
+<link rel="alternate" hreflang="zh-CN" href="{{ language_source.url | absolute_url }}" />
+<link rel="alternate" hreflang="en" href="{{ language_translation.url | absolute_url }}" />
+{% endif %}
+<meta name="google-site-verification" content="Jtxa1xy6N3_2RjVVFrZgXjPZ0AHklxJXQ1eQ6QXNWr8" />

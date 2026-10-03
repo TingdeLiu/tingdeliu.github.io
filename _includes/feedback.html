@@ -1,57 +1,57 @@
 {% capture page_link %}{{ site.url }}{{ site.baseurl }}{{ page.url }}{% endcapture %}
 
-{% capture bug_body %}**页面**：{{ page_link }}
+{% capture bug_body %}**{{ ui.page }}**:{{ page_link }}
 
-**章节 / 位置**：
-<!-- 出错内容所在的章节标题或段落 -->
+**{{ ui.section }}**:
+<!-- {% if page_lang == 'en' %}Heading or paragraph containing the issue{% else %}出错内容所在的章节标题或段落{% endif %} -->
 
-**错误描述**：
-
-
-**建议修改**：
-
-{% endcapture %}
-
-{% capture paper_body %}**页面**：{{ page_link }}
-
-**论文标题**：
+**{{ ui.error }}**:
 
 
-**论文链接**（arXiv / OpenReview 等）：
-
-
-**推荐理由**：
-
-
-**建议加入的章节**：
+**{{ ui.correction }}**:
 
 {% endcapture %}
 
-{% capture suggest_body %}**页面**：{{ page_link }}
+{% capture paper_body %}**{{ ui.page }}**:{{ page_link }}
 
-**建议内容**：
+**{{ ui.paper_title }}**:
 
 
-**理由**：
+**{{ ui.paper_link }}**:
+
+
+**{{ ui.reason }}**:
+
+
+**{{ ui.suggested_section }}**:
 
 {% endcapture %}
 
-<h1 id="feedback">反馈</h1>
+{% capture suggest_body %}**{{ ui.page }}**:{{ page_link }}
+
+**{{ ui.suggestion }}**:
+
+
+**{{ ui.reason }}**:
+
+{% endcapture %}
+
+<h1 id="feedback">{{ ui.feedback }}</h1>
 <div class="post-feedback">
   <div class="feedback-header">
-    <h3 id="improve-this-article">📮 参与改进这篇文章</h3>
-    <p>发现错误、想推荐相关论文、或有修改建议？点击下方按钮通过 GitHub Issue 提交，提交后你将出现在社区贡献者墙中。</p>
+    <h3 id="improve-this-article">📮 {{ ui.improve }}</h3>
+    <p>{{ ui.feedback_intro }}</p>
   </div>
   <div class="feedback-buttons">
     <a class="feedback-btn" target="_blank" rel="noopener"
-       href="https://github.com/TingdeLiu/Tingde.Liu.github.io/issues/new?title={{ '[错误反馈] ' | append: page.title | url_encode }}&labels=bug&body={{ bug_body | url_encode }}">🐛 报告错误</a>
+       href="https://github.com/TingdeLiu/Tingde.Liu.github.io/issues/new?title={{ ui.report_bug | append: ' — ' | append: page.title | url_encode }}&labels=bug&body={{ bug_body | url_encode }}">🐛 {{ ui.report_bug }}</a>
     <a class="feedback-btn" target="_blank" rel="noopener"
-       href="https://github.com/TingdeLiu/Tingde.Liu.github.io/issues/new?title={{ '[论文推荐] ' | append: page.title | url_encode }}&labels=paper&body={{ paper_body | url_encode }}">📄 推荐论文</a>
+       href="https://github.com/TingdeLiu/Tingde.Liu.github.io/issues/new?title={{ ui.recommend_paper | append: ' — ' | append: page.title | url_encode }}&labels=paper&body={{ paper_body | url_encode }}">📄 {{ ui.recommend_paper }}</a>
     <a class="feedback-btn" target="_blank" rel="noopener"
-       href="https://github.com/TingdeLiu/Tingde.Liu.github.io/issues/new?title={{ '[修改建议] ' | append: page.title | url_encode }}&labels=suggestion&body={{ suggest_body | url_encode }}">✏️ 修改建议</a>
+       href="https://github.com/TingdeLiu/Tingde.Liu.github.io/issues/new?title={{ ui.suggest | append: ' — ' | append: page.title | url_encode }}&labels=suggestion&body={{ suggest_body | url_encode }}">✏️ {{ ui.suggest }}</a>
   </div>
   <div class="feedback-contributors" id="feedback-contributors" hidden>
-    <h4>🙌 社区贡献者</h4>
+    <h4>🙌 {{ ui.contributors }}</h4>
     <div class="contributors-wall" id="contributors-wall"></div>
   </div>
 </div>
@@ -74,7 +74,7 @@
       a.href = c.url;
       a.target = "_blank";
       a.rel = "noopener";
-      a.title = c.login + " · " + c.count + " 次贡献";
+      a.title = c.login + " · " + c.count + " {{ ui.contributions }}";
       var img = document.createElement("img");
       img.src = c.avatar + (c.avatar.indexOf("?") >= 0 ? "&" : "?") + "s=80";
       img.alt = c.login;

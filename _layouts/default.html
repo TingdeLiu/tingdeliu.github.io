@@ -1,9 +1,10 @@
+{% include locale.html %}
 {% assign has_article_toc = false %}
 {% if page.layout == 'post' and page.toc == true %}
   {% assign has_article_toc = true %}
 {% endif %}
 <!DOCTYPE html>
-<html{% if page.layout == 'post' %} class="article-document"{% endif %}>
+<html lang="{{ page_lang }}"{% if page.layout == 'post' %} class="article-document"{% endif %}>
   {% include head.html %}
   <body class="{% if page.layout == 'post' %}no-sidebar article-page{% endif %}{% if has_article_toc %} has-article-toc{% endif %}">
     <!-- 只在非文章页面显示导航侧边栏 -->
@@ -21,16 +22,16 @@
       <button
         class="article-toc-trigger"
         type="button"
-        aria-label="打开文章目录"
+        aria-label="{{ ui.open_contents }}"
         aria-controls="article-toc"
         aria-expanded="false"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M4 6h2v2H4V6Zm4 0h12v2H8V6ZM4 11h2v2H4v-2Zm4 0h12v2H8v-2ZM4 16h2v2H4v-2Zm4 0h12v2H8v-2Z"/>
         </svg>
-        <span>目录</span>
+        <span>{{ ui.contents }}</span>
       </button>
-      <button class="article-toc-overlay" type="button" aria-label="关闭文章目录" tabindex="-1"></button>
+      <button class="article-toc-overlay" type="button" aria-label="{{ ui.close_contents }}" tabindex="-1"></button>
 
       <div class="article-reading-shell">
         {% include article-toc.html %}
@@ -67,8 +68,8 @@
     </div>
 
   {% if page.layout == 'post' %}
-  <dialog class="article-lightbox" id="article-lightbox" aria-label="图片预览">
-    <button class="article-lightbox-close" type="button" aria-label="关闭图片预览">×</button>
+  <dialog class="article-lightbox" id="article-lightbox" aria-label="{{ ui.preview }}">
+    <button class="article-lightbox-close" type="button" aria-label="{{ ui.close_preview }}">×</button>
     <figure>
       <img src="" alt="">
       <figcaption></figcaption>

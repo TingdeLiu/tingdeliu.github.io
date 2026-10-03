@@ -2,9 +2,11 @@
 layout: default
 ---
 
+{% include locale.html %}
 <article class="posts{% if page.vla_survey %} vla-survey{% endif %}">
   
   <h1>{{ page.title }}</h1>
+  {% include language-switch.html %}
 
   <div class="post-meta">
     <span class="date">
@@ -14,9 +16,9 @@ layout: default
     <ul class="tag">
       {% for tag in page.tags %}
       <li>
-        <a href="{{ site.url }}{{ site.baseurl }}/tags#{{ tag }}">
+        {% if page_lang == 'en' %}<span>{{ tag }}</span>{% else %}<a href="{{ site.url }}{{ site.baseurl }}/tags#{{ tag }}">
           {{ tag }}
-        </a>
+        </a>{% endif %}
       </li>
       {% endfor %}
     </ul>
@@ -27,6 +29,7 @@ layout: default
   {% include backtotop.html %}
 
   <div class="entry">
+    {% include translation-note.html %}
     {{ content }}
   </div>
 
@@ -36,19 +39,21 @@ layout: default
   {% include gitalk.html %}
 </article>
 
+{% unless page.collection == 'translations' %}
 <div class="pagination">
   {% if page.previous.url %}
     <span class="prev" >
       <a href="{{ site.url }}{{ site.baseurl }}{{ page.previous.url }}">
-        ← 上一篇
+        ← {{ ui.previous }}
       </a>
     </span>
   {% endif %}
   {% if page.next.url %}
     <span class="next" >
       <a href="{{ site.url }}{{ site.baseurl }}{{ page.next.url }}">
-        下一篇 →
+        {{ ui.next }} →
       </a>
     </span>
   {% endif %}
 </div>
+{% endunless %}

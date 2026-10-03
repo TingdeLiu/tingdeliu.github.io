@@ -1,6 +1,21 @@
 (function () {
   'use strict';
 
+  var english = document.documentElement.lang === 'en';
+  var labels = {
+    "可横向滚动的数据表格": "Horizontally scrollable data table",
+    "复制": "Copy",
+    "复制代码": "Copy code",
+    "已复制": "Copied",
+    "复制本节链接": "Copy link to this section",
+    "链接已复制": "Link copied",
+    "放大图片：": "Enlarge image: ",
+    "放大图片": "Enlarge image",
+    "展开子目录": "Expand subsections",
+    "收起子目录": "Collapse subsections"
+  };
+  function label(value) { return english ? (labels[value] || value) : value; }
+
   function copyText(text) {
     if (navigator.clipboard && window.isSecureContext) {
       return navigator.clipboard.writeText(text);
@@ -32,7 +47,7 @@
       wrapper.className = 'article-table-scroll article-wide';
       wrapper.tabIndex = 0;
       wrapper.setAttribute('role', 'region');
-      wrapper.setAttribute('aria-label', '可横向滚动的数据表格');
+      wrapper.setAttribute('aria-label', label('可横向滚动的数据表格'));
       table.parentNode.insertBefore(wrapper, table);
       wrapper.appendChild(table);
     });
@@ -53,17 +68,17 @@
       var button = document.createElement('button');
       button.className = 'article-code-copy';
       button.type = 'button';
-      button.textContent = '复制';
-      button.setAttribute('aria-label', '复制代码');
+      button.textContent = label('复制');
+      button.setAttribute('aria-label', label('复制代码'));
       shell.appendChild(button);
 
       button.addEventListener('click', function () {
         var code = pre.querySelector('code');
         copyText(code ? code.innerText : pre.innerText).then(function () {
-          button.textContent = '已复制';
+          button.textContent = label('已复制');
           button.classList.add('is-copied');
           window.setTimeout(function () {
-            button.textContent = '复制';
+            button.textContent = label('复制');
             button.classList.remove('is-copied');
           }, 1600);
         });
@@ -79,8 +94,8 @@
       anchor.className = 'heading-anchor';
       anchor.href = '#' + heading.id;
       anchor.textContent = '#';
-      anchor.setAttribute('aria-label', '复制本节链接');
-      anchor.title = '复制本节链接';
+      anchor.setAttribute('aria-label', label('复制本节链接'));
+      anchor.title = label('复制本节链接');
       heading.appendChild(anchor);
 
       anchor.addEventListener('click', function (event) {
@@ -90,10 +105,10 @@
         heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
         copyText(url).then(function () {
           anchor.classList.add('is-copied');
-          anchor.setAttribute('aria-label', '链接已复制');
+          anchor.setAttribute('aria-label', label('链接已复制'));
           window.setTimeout(function () {
             anchor.classList.remove('is-copied');
-            anchor.setAttribute('aria-label', '复制本节链接');
+            anchor.setAttribute('aria-label', label('复制本节链接'));
           }, 1600);
         });
       });
@@ -137,7 +152,7 @@
       image.classList.add('is-zoomable');
       image.tabIndex = 0;
       image.setAttribute('role', 'button');
-      image.setAttribute('aria-label', image.alt ? '放大图片：' + image.alt : '放大图片');
+      image.setAttribute('aria-label', image.alt ? label('放大图片：') + image.alt : label('放大图片'));
 
       image.addEventListener('click', function () {
         openLightbox(image);
@@ -213,7 +228,7 @@
       toggle.type = 'button';
       toggle.setAttribute('aria-expanded', 'false');
       toggle.setAttribute('aria-controls', nestedList.id);
-      toggle.setAttribute('aria-label', '展开子目录');
+      toggle.setAttribute('aria-label', label('展开子目录'));
       toggle.innerHTML = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7.5 4.5 5.5 5.5-5.5 5.5-1.4-1.4 4.1-4.1-4.1-4.1 1.4-1.4Z"/></svg>';
       branch.insertBefore(toggle, branch.firstChild);
 
@@ -233,7 +248,7 @@
       if (nestedList) nestedList.hidden = true;
       if (toggle) {
         toggle.setAttribute('aria-expanded', 'false');
-        toggle.setAttribute('aria-label', '展开子目录');
+        toggle.setAttribute('aria-label', label('展开子目录'));
       }
     }
 
@@ -248,7 +263,7 @@
       branch.classList.add('is-open');
       nestedList.hidden = false;
       toggle.setAttribute('aria-expanded', 'true');
-      toggle.setAttribute('aria-label', '收起子目录');
+      toggle.setAttribute('aria-label', label('收起子目录'));
     }
 
     function keepActiveVisible(link) {

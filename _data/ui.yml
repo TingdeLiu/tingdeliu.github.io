@@ -1,0 +1,74 @@
+zh-CN:
+  contents: 目录
+  open_contents: 打开文章目录
+  close_contents: 关闭文章目录
+  article_navigation: 文章导航
+  site_navigation: 站点导航
+  article_contents: 文章目录
+  preview: 图片预览
+  close_preview: 关闭图片预览
+  back_to_top: 回到顶部
+  visitors: 访客
+  views: 次浏览
+  footer: 探索人工智能与机器人技术的无限可能
+  previous: 上一篇
+  next: 下一篇
+  language: 阅读语言
+  english_library: English articles
+  updated: 更新于
+  recent: 近期更新
+  star: 在 GitHub Star 本站项目（新窗口打开）
+  feedback: 反馈
+  improve: 参与改进这篇文章
+  feedback_intro: 发现错误、想推荐相关论文、或有修改建议？点击下方按钮通过 GitHub Issue 提交，提交后你将出现在社区贡献者墙中。
+  report_bug: 报告错误
+  recommend_paper: 推荐论文
+  suggest: 修改建议
+  contributors: 社区贡献者
+  contributions: 次贡献
+  page: 页面
+  section: 章节 / 位置
+  error: 错误描述
+  correction: 建议修改
+  paper_title: 论文标题
+  paper_link: 论文链接（arXiv / OpenReview 等）
+  reason: 理由
+  suggested_section: 建议加入的章节
+  suggestion: 建议内容
+en:
+  contents: Contents
+  open_contents: Open table of contents
+  close_contents: Close table of contents
+  article_navigation: Article navigation
+  site_navigation: Site navigation
+  article_contents: Table of contents
+  preview: Image preview
+  close_preview: Close image preview
+  back_to_top: Back to top
+  visitors: visitors
+  views: views
+  footer: Research notes on artificial intelligence and robotics
+  previous: Previous article
+  next: Next article
+  language: Reading language
+  english_library: English articles
+  updated: Updated
+  recent: Recently updated
+  star: Star this project on GitHub (opens a new window)
+  feedback: Feedback
+  improve: Help improve this article
+  feedback_intro: Found an error, a relevant paper, or something to improve? Open a GitHub issue below. Contributors appear in the community wall.
+  report_bug: Report an error
+  recommend_paper: Recommend a paper
+  suggest: Suggest an improvement
+  contributors: Community contributors
+  contributions: contributions
+  page: Page
+  section: Section / location
+  error: Error description
+  correction: Suggested correction
+  paper_title: Paper title
+  paper_link: Paper link (arXiv / OpenReview, etc.)
+  reason: Reason
+  suggested_section: Suggested section
+  suggestion: Suggestion

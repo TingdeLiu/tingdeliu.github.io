@@ -1,0 +1,12 @@
+{% if page.source_path %}
+{% assign translation_status = site.data.translation_status[page.translation_id] %}
+<aside class="translation-note" aria-label="Translation status">
+  <p>English translation of the <a href="{{ page.source_url | relative_url }}" lang="zh-CN">Chinese article</a> revised {{ page.source_revision_date | date: '%Y-%m-%d' }}. Translation updated {{ page.translation_updated | date: '%Y-%m-%d' }}.</p>
+  {% if translation_status.stale %}
+  <p class="translation-stale">The Chinese article has changed since this translation was synchronized. This edition reflects the source version above.</p>
+  {% elsif translation_status == nil %}
+  <p>Synchronization status has not been checked for this build.</p>
+  {% endif %}
+  <p>Companion articles labeled <span class="language-label">Chinese only</span> are available in Chinese. English editions will be added as they are completed.</p>
+</aside>
+{% endif %}

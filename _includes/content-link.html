@@ -1,0 +1,6 @@
+{%- assign translated_target = site.translations | where: 'source_url', include.path | first -%}
+{%- if page.lang == 'en' and translated_target -%}
+<a href="{{ translated_target.url | relative_url }}{{ include.fragment }}">{{ include.label }}</a>
+{%- else -%}
+<a href="{{ include.path | relative_url }}{{ include.fragment }}"{% if page.lang == 'en' %} lang="zh-CN"{% endif %}>{{ include.label }}</a>{% if page.lang == 'en' %} <span class="language-label">(Chinese only)</span>{% endif %}
+{%- endif -%}

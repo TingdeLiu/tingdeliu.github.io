@@ -1,0 +1,43 @@
+---
+layout: page
+lang: en
+title: Research
+permalink: /en/research/
+translation_id: research-index
+excerpt: "English surveys and research notes on vision-language navigation and embodied intelligence, by Tingde Liu."
+---
+
+{% include locale.html %}
+{% include card-grid-style.html %}
+<div class="english-intro">
+  <p>Research surveys and paper notes on embodied intelligence and robotics. The English collection begins with vision-language navigation (VLN), from task definitions to real-robot evaluation.</p>
+</div>
+
+<h2 id="vln" class="rc-group">Vision-language navigation</h2>
+<div class="rc-grid">
+{% assign english_research = site.translations | where: 'lang', 'en' | sort: 'date' | reverse %}
+{% for article in english_research %}
+  {% include post-card.html post=article %}
+{% endfor %}
+</div>
+
+<div class="english-intro english-section">
+  <h2 id="reading-path">Suggested reading path</h2>
+  <ol>
+    <li>Start with <a href="{{ '/en/VLN-Survey/#survey-basics' | relative_url }}">tasks and system interfaces</a> to understand what a navigation agent observes and controls.</li>
+    <li>Compare <a href="{{ '/en/VLN-Survey/#survey-memory' | relative_url }}">spatial memory</a>, hierarchical control, and <a href="{{ '/en/VLN-Survey/#survey-training' | relative_url }}">training methods</a>.</li>
+    <li>Choose <a href="{{ '/en/VLN-Survey/#survey-datasets' | relative_url }}">datasets</a> and read the <a href="{{ '/en/VLN-Survey/#survey-evaluation' | relative_url }}">evaluation guide</a> before comparing results.</li>
+  </ol>
+
+  <h2 id="companion-readings">Companion paper readings</h2>
+  <p>The detailed paper collections and interactive leaderboards are currently in Chinese. Their English editions will be added progressively.</p>
+  <ul>
+    <li>{% include content-link.html path='/VLN-Papers/' label='VLN Papers: Instruction Following' %}</li>
+    <li>{% include content-link.html path='/VLN-Papers-Extended/' label='VLN Papers: Goal Navigation and Extensions' %}</li>
+    <li><a href="{{ '/research/' | relative_url }}" lang="zh-CN">Full research collection</a> <span class="language-label">(Chinese only)</span></li>
+  </ul>
+
+  <h2 id="about">About the author</h2>
+  <p>I am Tingde Liu, an AI engineer at Tyndall Labs. I maintain these notes to make research on embodied intelligence, navigation, and robot learning easier to study and apply.</p>
+  <p>For corrections or suggestions, use the feedback links at the end of each article or visit the <a href="https://github.com/TingdeLiu/tingdeliu.github.io">site repository</a>.</p>
+</div>

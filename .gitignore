@@ -10,6 +10,8 @@ _site/
 .sass-cache/
 .jekyll-cache/
 .jekyll-metadata
+_data/translation_status.json
+__pycache__/
 
 # 系统文件
 .DS_Store

@@ -135,7 +135,7 @@ def main(argv):
     fix = "--fix" in argv
     files = [Path(a) for a in argv if not a.startswith("--")]
     if not files:
-        files = sorted((ROOT / "_posts").rglob("*.md"))
+        files = sorted((ROOT / "_posts").rglob("*.md")) + sorted((ROOT / "_translations").rglob("*.md"))
     n_err = n_warn = 0
     for p in files:
         if fix:
