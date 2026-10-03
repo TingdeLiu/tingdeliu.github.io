@@ -36,7 +36,7 @@ I am Tingde Liu, an embodied AI engineer at [XYZ Embodied AI](https://xyz-eai.co
 
 Since 2025, I have been developing a general-purpose embodied navigation framework for real robots, with perception, memory, planning, and control as its core components. I am particularly interested in how robots reason about space, understand natural instructions, and adapt their plans over long tasks.
 
-Previously, I worked as a Research Engineer at [IPH gGmbH](https://www.iph-hannover.de/de/) on robot navigation, 3D reconstruction, and semantic mapping in industrial environments. As a research associate at LUH's [IKG](https://www.ikg.uni-hannover.de/en/), I spent nearly two years developing multimodal large language models for urban LiDAR point clouds.
+Previously, I worked as a Research Engineer at [IPH gGmbH](https://www.iph-hannover.de/de/) on embodied intelligence. As a research associate at LUH's [IKG](https://www.ikg.uni-hannover.de/en/), I spent nearly two years developing multimodal large language models.
 
 These experiences shape both my research and the questions I explore here. I use this blog to organize what I learn and share it with others working on similar problems.
 
