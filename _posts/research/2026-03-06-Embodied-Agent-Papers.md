@@ -806,9 +806,9 @@ graph TD
 
 **FT 模式（微调开源小模型）**：同一套动作词表也可以拿来训练小模型。给定用同一动作空间采集的演示 $$\mathcal D$$，策略最小化目标单元的 token 级交叉熵：
 
-$$\min_{\theta}\ \mathcal L(\theta) = -\sum_{(\ell, o, h, a) \in \mathcal D} \log \pi_\theta\big(a \mid \Phi_{\mathcal P_\min}(\ell, o, h)\big)$$
+$$\min_{\theta}\ \mathcal L(\theta) = -\sum_{(\ell, o, h, a) \in \mathcal D} \log \pi_\theta\big(a \mid \Phi_{\mathcal P_{\min}}(\ell, o, h)\big)$$
 
-这里的 $$\mathcal P_\min$$ 是刻意削到最薄的上下文（只留指令、多视角观测和一小段动作历史），目的是做受控对比。关键在于：**语义动作是用 VLM 自己的原生词表预测出来的**，没有额外动作头、没有特殊 token，所以一个 rank-64 的 LoRA（冻住视觉编码器和多模态投影层，只更新约 3% 参数）就够，Qwen3.5-2B 在单张 H200 上训不到 2 小时，24GB 级显卡也能跑。
+这里的 $$\mathcal P_{\min}$$ 是刻意削到最薄的上下文（只留指令、多视角观测和一小段动作历史），目的是做受控对比。关键在于：**语义动作是用 VLM 自己的原生词表预测出来的**，没有额外动作头、没有特殊 token，所以一个 rank-64 的 LoRA（冻住视觉编码器和多模态投影层，只更新约 3% 参数）就够，Qwen3.5-2B 在单张 H200 上训不到 2 小时，24GB 级显卡也能跑。
 
 #### ⑦ GUMI：把动作词表变成一个网页
 

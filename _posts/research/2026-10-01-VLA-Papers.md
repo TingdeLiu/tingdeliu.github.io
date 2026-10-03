@@ -1799,7 +1799,7 @@ InternVLA-A1.5 采用了 Mixture-of-Transformers (MoT) 混合架构，由两大�
 
 **（3）统一专家模块与动作预测（Unified Expert & Action Prediction）**
 - **输入**：接收 VLM 主干产生的语义隐特征 $H_t$、一组可学习的潜在预测 queries（Foresight Tokens） $Q_f$，以及在流匹配（Flow Matching）去噪过程中注入的噪声动作块 $\epsilon$。
-- **处理**：专家模块采用与 Qwen-3.5-Text 相同的结构，但其隐藏通道维度更小（460M 参数）。它维护自己独立的 Gated DeltaNet 线性注意力层以处理动作细节，而通过共享 of VLM 全注意力层与 $H_t$ 进行跨模块特征融合。在此模块中，可学习的 Foresight Tokens 充当未来查询插槽，而动作预测则利用流匹配预测速度场 $v_{	heta}^{	ext{act}}$。
+- **处理**：专家模块采用与 Qwen-3.5-Text 相同的结构，但其隐藏通道维度更小（460M 参数）。它维护自己独立的 Gated DeltaNet 线性注意力层以处理动作细节，而通过共享 of VLM 全注意力层与 $H_t$ 进行跨模块特征融合。在此模块中，可学习的 Foresight Tokens 充当未来查询插槽，而动作预测则利用流匹配预测速度场 $v_{\theta}^{\text{act}}$。
 - **输出**：生成当前时刻至未来 $H$ 步的连续控制轨迹动作块 $$\mathbf{a}_{t:t+H}$$。
 - **设计动机**：相比于离散 Token 预测，低维连续控制专家的 flow-matching 生成更适合低延迟（0.1s 闭环反馈）、高精度的实机机械臂控制。
 
@@ -1825,25 +1825,20 @@ InternVLA-A1.5 的多阶段训练依赖以下核心损失函数。
 
 - **第一阶段：VLM Transferring（语义迁移）**
   在此阶段，VQA 数据和离散化的机器人操控数据混合进行自回归预测，仅计算 Label（子任务描述 $\hat{\ell}$ 和 FAST 离散动作 Token $a$）部分的正向交叉熵损失：
-  $$L_{	ext{stage1}} = -\mathbb{E}_{(\mathbf{o}_t, \ell, \mathbf{y}) \sim \mathcal{D}} \left[ \sum_{i=1}^{M+N} \log p_{	heta}(y_i \mid \mathbf{o}_t, \ell, \mathbf{y}_{<i})
-ight]$$
+  $$L_{\text{stage1}} = -\mathbb{E}_{(\mathbf{o}_t, \ell, \mathbf{y}) \sim \mathcal{D}} \left[ \sum_{i=1}^{M+N} \log p_{\theta}(y_i \mid \mathbf{o}_t, \ell, \mathbf{y}_{<i}) \right]$$
   其中 $$\mathbf{y} = (\hat{\ell}_1, \dots, \hat{\ell}_M, a_1, \dots, a_N)$$ 是包含子任务和动作的拼接序列。
 
 - **第二阶段：Foresight and Action Joint Training（预测与动作协同）**
-  该阶段引入了视频潜在预测损失 $L_{	ext{video}}$ 和动作流匹配损失 $L_{	ext{action}}$。
+  该阶段引入了视频潜在预测损失 $L_{\text{video}}$ 和动作流匹配损失 $L_{\text{action}}$。
   - **潜在视频预测损失**：
-    $$L_{	ext{video}} = \mathbb{E}_{x_0, x_1, C_f^t, s} \left[ \lVert u(x_s, C_f^t, s) - v_s
-Vert_2^2
-ight]$$
+    $$L_{\text{video}} = \mathbb{E}_{x_0, x_1, C_f^t, s} \left[ \lVert u(x_s, C_f^t, s) - v_s \rVert_2^2 \right]$$
     用于让 Foresight Tokens 从 WAN 处汲取动力学表示。
   - **动作预测损失**：
-    $$L_{	ext{action}} = \mathbb{E}_{\mathbf{a}_{t:t+H}, \epsilon, 	au} \left[ \lVert v_{	heta}^{	ext{act}}(\mathbf{a}_{t:t+H}^{	au}, H_t, Q_f) - (\mathbf{a}_{t:t+H} - \epsilon)
-Vert_2^2
-ight]$$
+    $$L_{\text{action}} = \mathbb{E}_{\mathbf{a}_{t:t+H}, \epsilon, \tau} \left[ \lVert v_{\theta}^{\text{act}}(\mathbf{a}_{t:t+H}^{\tau}, H_t, Q_f) - (\mathbf{a}_{t:t+H} - \epsilon) \rVert_2^2 \right]$$
     用于预测连续的动作插值轨迹速度场。
   - **总联合损失**：
-    $$L_{	ext{stage2}} = L_{	ext{stage1}} + lpha L_{	ext{video}} + eta L_{	ext{action}}$$
-    在实践中，权重参数设为 $lpha = 1, eta = 10$。
+    $$L_{\text{stage2}} = L_{\text{stage1}} + \alpha L_{\text{video}} + \beta L_{\text{action}}$$
+    在实践中，权重参数设为 $\alpha = 1, \beta = 10$。
 
 <div align="center">
   <img src="/images/vla/InternVLA-A1.5-foresight-mechanism.webp" alt="Foresight 预测机制数据流：通过 Foresight 隐编码在视频扩散生成模型（WAN）上计算时空回归，并将梯度回传以优化专家表示。" width="1326" height="534" style="width: 100%;" loading="lazy" decoding="async" />

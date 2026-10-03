@@ -3017,7 +3017,7 @@ $$R' = R \oplus (t - t_{prev})$$
 $$d, y_t = \pi_\theta\big(f_{tok}(I), f_{tok}(R'), f_{vis}(O_t)\big)$$
 
   special token 的选择规则为：当 $d_{[\text{REASON}]} > d_{[\text{ACT}]}$ 时取 `[REASON]`，否则取 `[ACT]`。
-- **输出**：若为 `[REASON]`，模型进入推理模式，产生总结自身理解与进度的文本，并更新 $R$、记录 $t_{prev}$；若为 `[ACT]`，进入行动模式，生成动作命令（如"move forward 75 cm"），经 PARSE 解析为底层离散动作 $a_{t+1:t+k}$（动作集 $A=\{$FORWARD, TURN-LEFT, TURN-RIGHT, STOP$\}$）执行。
+- **输出**：若为 `[REASON]`，模型进入推理模式，产生总结自身理解与进度的文本，并更新 $R$、记录 $t_{prev}$；若为 `[ACT]`，进入行动模式，生成动作命令（如"move forward 75 cm"），经 PARSE 解析为底层离散动作 $a_{t+1:t+k}$（动作集 $$A=\{\text{FORWARD, TURN-LEFT, TURN-RIGHT, STOP}\}$$）执行。
 - **设计动机**：这种"语言驱动"的统一形式让感知、推理、控制无缝衔接；通过递归地以上一次推理和相对步数为条件，模型在长程导航中保持时间感知与自适应决策。
 
 **结构化自我感知推理（Structural Reasoning for Self-awareness）**
@@ -4399,7 +4399,7 @@ SEDualVLN 由两个子系统以及一个协同调度器构成：
 1. **单目 RGB 极简感知架构**：Robostral Navigate 彻底打破对深度传感器（RGB-D）、LiDAR、多视角相机阵列或预建地图的依赖，仅以单目 RGB 图像流为输入，在图像空间直接预测 Pointing 坐标（像素坐标）与航向角变化，解耦物理几何与硬件内参约束，实现跨异构机器人的零样本迁移。
 2. **高低层解耦分级控制**：采用“8B VLM 视语言推理（0.5 Hz 预测 Waypoint）+ 121M 扩散策略（10 Hz 生成动作块）+ 机器人底盘控制器（100 Hz 输出电机指令）”的分级控制管线，兼顾高层复杂语义规划与低层连续几何避障。
 3. **Prefix-Tree 树状注意力加速 SFT (Tree Training)**：提出 Episode Packing 与前缀树 Attention Mask 机制，单 Forward Pass 计算整条轨迹损失，保留全量 action 监督信号的同时消除共享前缀的重复编码，**将训练 Token 消耗降低 22 倍**，训练时间从数月缩短至几天。
-4. **在线 RL (CISPO) 与 Hard Subsets 强化探索**：基于 2.4M 仿真轨迹完成 SFT 后，利用 CISPO 算法在 35k 困难任务子集中进行在线强化学习，配合截断目标距离奖励 $- \max(2, \text{dist\_to\_goal})$，有效解决行为克隆的 Exposure Bias 与概率偏移，显著提振复杂场景探索与错误恢复能力。
+4. **在线 RL (CISPO) 与 Hard Subsets 强化探索**：基于 2.4M 仿真轨迹完成 SFT 后，利用 CISPO 算法在 35k 困难任务子集中进行在线强化学习，配合截断目标距离奖励 $$- \max(2, \mathrm{dist\_to\_goal})$$，有效解决行为克隆的 Exposure Bias 与概率偏移，显著提振复杂场景探索与错误恢复能力。
 5. **单目 RGB 刷新 SOTA**：在 R2R-CE Unseen 达到 **77.4% SR / 74.2% SPL**，RxR-CE Unseen 达到 **75.1% SR / 68.7% SPL**，不仅大幅碾压所有单相机方法，甚至全面超越了依赖深度相机及多视角全景的顶尖导航系统（如 Qwen-RobotNav-8B）。
 
 ---
@@ -4519,8 +4519,8 @@ $$\nabla_\theta L_{\text{CISPO}} = \hat{\mathbb{E}}_t \left[ \min\left(r_t(\thet
 
 ##### 2.4.2 截断目标距离奖励函数
 标量奖励函数定义为：
-$$R = - \max(2, \text{dist\_to\_goal})$$
-其中 $\text{dist\_to\_goal}$ 为最终位置到目标的测地线距离（米）。将惩罚截断在 2 米以内，防止智能体在靠近目标后做无意义的微调晃动，激励模型在到达终点时精准触发 STOP 动作。
+$$R = - \max(2, \mathrm{dist\_to\_goal})$$
+其中 $$\mathrm{dist\_to\_goal}$$ 为最终位置到目标的测地线距离（米）。将惩罚截断在 2 米以内，防止智能体在靠近目标后做无意义的微调晃动，激励模型在到达终点时精准触发 STOP 动作。
 
 ##### 2.4.3 Hard Subsets 筛选与 场景连续 Curriculum
 - **Hard Subsets (35k 任务)**：从 SFT 模型推演中筛选出 35k 困难任务子集（仅保留 SFT 失败的复杂布局、歧义指令样本），将算力集中在难点突破；

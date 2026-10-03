@@ -3298,7 +3298,7 @@ Among them, $t_{prev}$ is the time step of the last inference output. The unifie
 $$d, y_t = \pi_\theta\big(f_{tok}(I), f_{tok}(R'), f_{vis}(O_t)\big)$$
 
 The selection rule for special token is: when $d_{[\text{REASON}]} > d_{[\text{ACT}]}$, take `[REASON]`, otherwise take `[ACT]`.
-- **Output**: If it is `[REASON]`, the model enters inference mode, generates text summarizing its understanding and progress, and updates $R$ and records $t_{prev}$; if it is `[ACT]`, it enters action mode and generates action commands (such as "move forward 75 cm"), which are parsed into underlying discrete actions by PARSE $a_{t+1:t+k}$ (action set $A=\{$FORWARD, TURN-LEFT, TURN-RIGHT, STOP$\}$) is executed.
+- **Output**: If it is `[REASON]`, the model enters inference mode, generates text summarizing its understanding and progress, and updates $R$ and records $t_{prev}$; if it is `[ACT]`, it enters action mode and generates action commands (such as "move forward 75 cm"), which are parsed into underlying discrete actions by PARSE $a_{t+1:t+k}$ (action set $$A=\{\text{FORWARD, TURN-LEFT, TURN-RIGHT, STOP}\}$$) is executed.
 - **Design motivation**: This "language-driven" unified form allows perception, reasoning, and control to be seamlessly connected; by recursively conditioning on the last reasoning and the relative number of steps, the model maintains time awareness and adaptive decision-making in long-distance navigation.
 
 **Structural Reasoning for Self-awareness**
@@ -4914,7 +4914,7 @@ Figure 7: The second stage of System 2 makes boundary point decisions based on t
 1. **monocular RGB minimalist perception architecture**: Robostal Navigate completely breaks the dependence on depth sensors (RGB-D), LiDAR, multi-view camera arrays or pre-built maps. It only takes the monocular RGB image stream as input, directly predicts Pointing coordinates (pixel coordinates) and heading angle changes in the image space, decouples physical geometry and hardware internal parameter constraints, and achieves zero-shot migration across heterogeneous robots.
 2. **High and low-layer decoupling hierarchical control**: A hierarchical control pipeline using "8B VLM visual language reasoning (0.5 Hz prediction Waypoint) + 121M diffusion policy (10 Hz generated action blocks) + robot chassis controller (100 Hz output motor commands)", taking into account high-level complex semantic planning and low-level continuous geometric obstacle avoidance.
 3. **Prefix-Tree Tree Attention Acceleration SFT (Tree Training)**: Proposes Episode Packing and Prefix Tree Attention Mask mechanisms, calculates the entire trajectory loss with a single Forward Pass, retains the full amount of action supervision signals while eliminating repeated encoding of shared prefixes, **reduces training token consumption by 22 times**, and shortens training time from months to days.
-4. **Online RL (CISPO) and Hard Subsets Enhanced Exploration**: After completing SFT based on 2.4M simulation trajectories, the CISPO algorithm is used to perform online reinforcement learning on a subset of 35k difficult tasks, combined with the truncated target distance reward $- \max(2, \text{dist\_to\_goal})$, to effectively solve the Exposure Bias and probability offset of behavior cloning, and significantly improve complex scene exploration and error recovery capabilities.
+4. **Online RL (CISPO) and Hard Subsets Enhanced Exploration**: After completing SFT based on 2.4M simulation trajectories, the CISPO algorithm is used to perform online reinforcement learning on a subset of 35k difficult tasks, combined with the truncated target distance reward $$- \max(2, \mathrm{dist\_to\_goal})$$, to effectively solve the Exposure Bias and probability offset of behavior cloning, and significantly improve complex scene exploration and error recovery capabilities.
 5. **monocular RGB refresh SOTA**: R2R-CE Unseen reaches **77.4% SR / 74.2% SPL**, RxR-CE Unseen reaches **75.1% SR / 68.7% SPL**, which not only greatly crushes all single-camera methods, but even completely surpasses top navigation systems that rely on depth cameras and multi-view panoramic (such as Qwen-RobotNav-8B).
 
 ---
@@ -5056,8 +5056,8 @@ This greatly stabilizes the convergence of reinforcement learning in a continuou
 ##### 2.4.2 Truncated target distance reward function
 {: id="242-截断目标距离奖励函数"}
 The scalar reward function is defined as:
-$$R = - \max(2, \text{dist\_to\_goal})$$
-Among them, $\text{dist\_to\_goal}$ is the geodesic distance from the final position to the target (meters). Cut off the penalty within 2 meters to prevent the agent from making meaningless fine-tuning and shaking after approaching the target, and encourage the model to accurately trigger the STOP action when it reaches the end point.
+$$R = - \max(2, \mathrm{dist\_to\_goal})$$
+Among them, $$\mathrm{dist\_to\_goal}$$ is the geodesic distance from the final position to the target (meters). Cut off the penalty within 2 meters to prevent the agent from making meaningless fine-tuning and shaking after approaching the target, and encourage the model to accurately trigger the STOP action when it reaches the end point.
 
 ##### 2.4.3 Hard Subsets filtering and scene continuity Curriculum
 {: id="243-hard-subsets-筛选与-场景连续-curriculum"}
