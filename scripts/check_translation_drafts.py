@@ -28,16 +28,39 @@ def paper_sections(body):
     return result
 
 
+def normalize_math_labels(prose):
+    """Normalize only reviewed descriptive labels; preserve equations and values."""
+    labels = {
+        r'\text{ 在公共 Trunk}': r'\text{ is in the shared trunk}',
+        r'\text{ 在同一 Branch}': r'\text{ are in the same branch}',
+        r'\text{ 米}': r'\text{ m}',
+        r'\text{"红色工牌"}': r'\text{"red badge"}',
+        r'\text{"当前时间-5分钟"}': r'\text{"current time minus 5 minutes"}',
+        'Observable (可见)': 'Observable (visible)',
+        'Unobservable (被遮挡/位于表面后方)': 'Unobservable (occluded / behind the surface)',
+        'Disappeared (已消失/位于表面前方)': 'Disappeared (absent / in front of the surface)',
+        '若执行 done() 且机器人距离目标物体符合成功阈值': 'done() called and robot-to-target distance meets the success threshold',
+        '若执行 done() 但未成功（误报）': 'done() called without success (false positive)',
+        '执行其他动作': 'other actions',
+        '当目标物体已被收入场景图且机器人向其靠近': 'target is in the scene graph and the robot moves closer',
+        '其他情况': 'otherwise',
+        '若目标 G 已在场景图中': 'goal G is already in the scene graph',
+        '当目标 G 首次被收入场景图': 'goal G first enters the scene graph',
+        '发现新拓扑节点的归一化增量': 'normalized increase in newly discovered topological nodes',
+    }
+    for source, translated in labels.items():
+        prose = prose.replace(source, translated)
+    return prose
+
+
 def features(section):
-    prose = re.sub(r'<img\b[^>]*>', '', section)
-    # Translating descriptive TeX labels does not change this attention mask.
-    prose = prose.replace(r'\text{ 在公共 Trunk}', r'\text{ is in the shared trunk}')
-    prose = prose.replace(r'\text{ 在同一 Branch}', r'\text{ are in the same branch}')
+    prose = normalize_math_labels(re.sub(r'<img\b[^>]*>', '', section))
     return {
         'images': re.findall(r'<img[^>]+src="([^"]+)"', section),
         'math': Counter(re.findall(r'\$\$.*?\$\$|(?<!\$)\$(?!\$).*?(?<!\$)\$(?!\$)', prose, re.S)),
         'links': Counter(re.findall(r'\]\((https?://[^)]+)\)', section)),
         'tables': len(re.findall(r'^\|\s*:?-', section, re.M)),
+        'table_row_widths': [line.count('|') for line in section.splitlines() if line.startswith('|')],
         'table_numbers': Counter(re.findall(r'(?<![A-Za-z0-9])\d+(?:\.\d+)?',
                                             '\n'.join(line for line in section.splitlines() if line.startswith('|')))),
     }

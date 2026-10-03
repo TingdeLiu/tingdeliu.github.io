@@ -106,37 +106,39 @@ def main():
         check(external(en) == external(zh), 'External citations differ between source and translation')
     else:
         print('Source changed: skipping source/translation parity until the English edition is synchronized.')
-    papers_path = SITE / 'en/VLN-Papers/index.html'
-    if papers_path.exists():
-        papers, original = load(papers_path), load(SITE / 'VLN-Papers/index.html')
-        papers_status = json.loads((ROOT / '_data/translation_status.json').read_text(encoding='utf-8'))['vln-papers']
-        if not papers_status['stale']:
-            def headings(doc):
-                return [n['attrs'].get('id') for n in doc.nodes if n['entry'] and re.fullmatch('h[1-6]', n['tag'])]
-            check(headings(papers) == headings(original), 'VLN Papers: heading structure/IDs differ')
-            for tag in ('table', 'img', 'pre'):
-                check(len(papers.select(tag, True)) == len(original.select(tag, True)), f'VLN Papers: {tag} counts differ')
-            def equations(doc):
-                raw = doc.raw.replace(r'\text{ 在公共 Trunk}', r'\text{ is in the shared trunk}')
-                raw = raw.replace(r'\text{ 在同一 Branch}', r'\text{ are in the same branch}')
-                return Counter(re.findall(math_pattern, raw, re.S))
-            check(equations(papers) == equations(original), 'VLN Papers: rendered equations differ')
-            check(external(papers) == external(original), 'VLN Papers: external citations differ')
-            from check_translation_drafts import features, paper_sections
-            _, _, source_body = read_document(ROOT / '_posts/research/2026-01-05-VLN-Papers.md')
-            _, _, english_body = read_document(ROOT / '_translations/en/research/VLN-Papers.md')
-            originals, readings = paper_sections(source_body), paper_sections(english_body)
-            check(set(originals) == set(readings), 'VLN Papers: incomplete paper set')
-            for identity in originals.keys() & readings.keys():
-                check(features(originals[identity]) == features(readings[identity]), f'VLN Papers: {identity} source features differ')
-            # Include the opening leaderboards and comparison matrix in numeric checks.
-            check(features(source_body)['table_numbers'] == features(english_body)['table_numbers'], 'VLN Papers: table numbers differ')
-        for doc in (papers, original):
-            switches = [n['attrs']['data-language-switch'] for n in doc.select('a') if 'data-language-switch' in n['attrs']]
-            check(switches == ['index' if papers_status['stale'] else 'article'], 'VLN Papers: unsafe language switching')
-            alternates = {n['attrs'].get('hreflang'): n['attrs'].get('href') for n in doc.select('link') if n['attrs'].get('hreflang')}
-            check(alternates == {'en': 'https://tingdeliu.github.io/en/VLN-Papers/', 'zh-CN': 'https://tingdeliu.github.io/VLN-Papers/'}, 'VLN Papers: incorrect language alternates')
-        print(f'VLN Papers: {len(readings) if not papers_status["stale"] else "stale"} readings; {len(papers.select("table", True))} tables; {len(papers.select("img", True))} figures')
+    for slug, identity, source_path in [('VLN-Papers', 'vln-papers', '_posts/research/2026-01-05-VLN-Papers.md'), ('VLN-Papers-Extended', 'vln-papers-extended', '_posts/research/2026-01-06-VLN-Papers-Extended.md')]:
+        papers_path = SITE / f'en/{slug}/index.html'
+        if papers_path.exists():
+            papers, original = load(papers_path), load(SITE / f'{slug}/index.html')
+            papers_status = json.loads((ROOT / '_data/translation_status.json').read_text(encoding='utf-8'))[identity]
+            if not papers_status['stale']:
+                def headings(doc):
+                    return [n['attrs'].get('id') for n in doc.nodes if n['entry'] and re.fullmatch('h[1-6]', n['tag'])]
+                check(headings(papers) == headings(original), f'{slug}: heading structure/IDs differ')
+                for tag in ('table', 'img', 'pre'):
+                    check(len(papers.select(tag, True)) == len(original.select(tag, True)), f'{slug}: {tag} counts differ')
+                def equations(doc):
+                    from check_translation_drafts import normalize_math_labels
+                    raw = normalize_math_labels(re.sub(r'<img\b[^>]*>', '', doc.raw))
+                    return Counter(re.findall(math_pattern, raw, re.S))
+                check(equations(papers) == equations(original), f'{slug}: rendered equations differ')
+                check(external(papers) == external(original), f'{slug}: external citations differ')
+                from check_translation_drafts import features, paper_sections
+                _, _, source_body = read_document(ROOT / source_path)
+                _, _, english_body = read_document(ROOT / f'_translations/en/research/{slug}.md')
+                originals, readings = paper_sections(source_body), paper_sections(english_body)
+                check(set(originals) == set(readings), f'{slug}: incomplete paper set')
+                for anchor in originals.keys() & readings.keys():
+                    check(features(originals[anchor]) == features(readings[anchor]), f'{slug}: {anchor} source features differ')
+                # Include the opening leaderboards and comparison matrix in numeric checks.
+                check(features(source_body)['table_numbers'] == features(english_body)['table_numbers'], f'{slug}: table numbers differ')
+                check(features(source_body)['table_row_widths'] == features(english_body)['table_row_widths'], f'{slug}: table columns differ')
+            for doc in (papers, original):
+                switches = [n['attrs']['data-language-switch'] for n in doc.select('a') if 'data-language-switch' in n['attrs']]
+                check(switches == ['index' if papers_status['stale'] else 'article'], f'{slug}: unsafe language switching')
+                alternates = {n['attrs'].get('hreflang'): n['attrs'].get('href') for n in doc.select('link') if n['attrs'].get('hreflang')}
+                check(alternates == {'en': f'https://tingdeliu.github.io/en/{slug}/', 'zh-CN': f'https://tingdeliu.github.io/{slug}/'}, f'{slug}: incorrect language alternates')
+            print(f'{slug}: {len(readings) if not papers_status["stale"] else "stale"} readings; {len(papers.select("table", True))} tables; {len(papers.select("img", True))} figures')
     check(('translation-stale' in en.raw) == status['stale'], 'Stale translation notice does not match source status')
     for doc, name in [(en, 'English'), (zh, 'Chinese')]:
         switches = [n['attrs']['data-language-switch'] for n in doc.select('a') if 'data-language-switch' in n['attrs']]
@@ -144,7 +146,8 @@ def main():
         alternates = {n['attrs'].get('hreflang'): n['attrs'].get('href') for n in doc.select('link') if n['attrs'].get('hreflang')}
         check(alternates == {'en': 'https://tingdeliu.github.io/en/VLN-Survey/', 'zh-CN': 'https://tingdeliu.github.io/VLN-Survey/'}, f'{name}: incorrect language alternates')
     check('/en/VLN-Survey/' not in (SITE / 'feed.xml').read_text(encoding='utf-8'), 'Translation leaked into Chinese feed')
-    check('/en/VLN-Papers/' not in (SITE / 'feed.xml').read_text(encoding='utf-8'), 'VLN Papers translation leaked into Chinese feed')
+    for slug in ('VLN-Papers', 'VLN-Papers-Extended'):
+        check(f'/en/{slug}/' not in (SITE / 'feed.xml').read_text(encoding='utf-8'), f'{slug}: translation leaked into Chinese feed')
     zh_research = load(SITE / 'research/index.html')
     check(not any('/en/VLN-Survey/' == n['attrs'].get('href') for n in zh_research.select('a')), 'Translation duplicated in Chinese research cards')
     for directory in ('translations', 'docs', 'scripts', 'tmp', '_site-drafts'):

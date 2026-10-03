@@ -1,0 +1,193 @@
+{
+  "source": "_posts/research/2026-01-06-VLN-Papers-Extended.md",
+  "translation": "_translations/en/research/VLN-Papers-Extended.md",
+  "stage": "complete",
+  "updated_on": "2026-10-03",
+  "total_papers": 37,
+  "main_readings": 34,
+  "related_readings": 3,
+  "completed_papers": {
+    "vlfm": {
+      "source_hash": "4bdf31c34b9aa9a1921d6d099b3ba952efb5636473102da8ed6d9bdbce0e29c6",
+      "status": "translated-and-content-parity-validated"
+    },
+    "nomad": {
+      "source_hash": "424bb0b1dab2be15ae6faf2df94a6bfea2c2e2daf077ceabbec438023d5223ec",
+      "status": "translated-and-content-parity-validated"
+    },
+    "navcon": {
+      "source_hash": "2fae052b841da4b93615de18547b37d8fc0997fff7d9cf9646af9e9ed9d7b628",
+      "status": "translated-and-content-parity-validated"
+    },
+    "logoplanner": {
+      "source_hash": "51a53ceb21b2d797957ddf0b9e27abc7d4defaca6cc11b2177c25dfec5a90252",
+      "status": "translated-and-content-parity-validated"
+    },
+    "vl-nav": {
+      "source_hash": "4323e4f0e2814e450a0b31a303c81e3034ff856781a203ed80ca6b6704a45f83",
+      "status": "translated-and-content-parity-validated"
+    },
+    "gaussnav": {
+      "source_hash": "d81af91821bacf15ed18988ac815406f5d09c0db914236e505d04f13c2268d18",
+      "status": "translated-and-content-parity-validated"
+    },
+    "navdp": {
+      "source_hash": "bb25c3adf1b3b99f8286ee8fdb7d544bbf68c24cd4ff56f5d7983c08200bb0b3",
+      "status": "translated-and-content-parity-validated"
+    },
+    "panonav": {
+      "source_hash": "b7f769c35447d08d7ba78a25cf2fe9075cb0132957b39026f75d343d3942c186",
+      "status": "translated-and-content-parity-validated"
+    },
+    "odyssey": {
+      "source_hash": "c64293163f0c714c513c322d49ae71a4a4062c9e5cb0fe6319ae9592010b9a10",
+      "status": "translated-and-content-parity-validated"
+    },
+    "skill-nav": {
+      "source_hash": "6644e1806249117c92f78304baa457326c8fae3692542d3b4aad9034b2e6b206",
+      "status": "translated-and-content-parity-validated"
+    },
+    "fantasyvln": {
+      "source_hash": "c9066cc5500495c60e7758dc88afcbae531aedd28f178b2246a4e44119d1e636",
+      "status": "translated-and-content-parity-validated"
+    },
+    "sparsevideonav": {
+      "source_hash": "b1c4e3532b63fed000c3bd9cee2e041d0b2834fb9379dd3e2c9f70968063222f",
+      "status": "translated-and-content-parity-validated"
+    },
+    "worldvln": {
+      "source_hash": "e9ca1d372670e7d66726f8a0cb32625dd0d9f3f9cb59202f676e4834a7b87c08",
+      "status": "translated-and-content-parity-validated"
+    },
+    "navwam": {
+      "source_hash": "4f4695f877080b5cabb9bc0dd0a2dd3420a0d01a3e75e1ba3af2cb9b441bcad9",
+      "status": "translated-and-content-parity-validated"
+    },
+    "agentic-embodied-control": {
+      "source_hash": "7e872c36e438e41c87a18c7481488cddc49795966b02da7e01a1ca46a198ac52",
+      "status": "translated-and-content-parity-validated"
+    },
+    "condvln": {
+      "source_hash": "f5ad80736876554a681238522f6efc46e5c39ac49d0df57c8765a73b2704e8e0",
+      "status": "translated-and-content-parity-validated"
+    },
+    "remembr": {
+      "source_hash": "33a7684c79c19d8e011468b16d7a7503fca6ecf946a4f3d8cec944e854140815",
+      "status": "translated-and-content-parity-validated"
+    },
+    "supermap": {
+      "source_hash": "b0fc101b21998d1673c6d13bc013b54964680ff37be7768de06ca994ba3b0c21",
+      "status": "translated-and-content-parity-validated"
+    },
+    "gsmem": {
+      "source_hash": "c93f40c3d375bdcd47ff0b6de190f4695eebaea69e6283eef3c8410fa2a0f956",
+      "status": "translated-and-content-parity-validated"
+    },
+    "qwen-drive": {
+      "source_hash": "146145396bb200370c0a9101ae05b2684ee4353a76cea455d6170bad56e497ed",
+      "status": "translated-and-content-parity-validated"
+    },
+    "cgfm-nav": {
+      "source_hash": "30994bf2a1440c91917e2e0e4b1bacd531b8b2f4a77f61282fb5670710de149a",
+      "status": "translated-and-content-parity-validated"
+    },
+    "canonnav": {
+      "source_hash": "9af68a083838b0b8f88210a0bd31234ba425bf153bb6a11c5ec0b58ce5b6ab25",
+      "status": "translated-and-content-parity-validated"
+    },
+    "lookstep": {
+      "source_hash": "ab8d818c0b0f122ac1480f1615ddb22fc4fab8b26080d8f523d2b29f4b529c9a",
+      "status": "translated-and-content-parity-validated"
+    },
+    "navmcp": {
+      "source_hash": "0b92db3f8fe68312809d0576db0f174e1ab9ad1c8b6873b28b6fe75262ab3d9c",
+      "status": "translated-and-content-parity-validated"
+    },
+    "occplanner": {
+      "source_hash": "a257d89c33257cad35619062617e577f679c782bfb0e5a5bda8bace3a7395892",
+      "status": "translated-and-content-parity-validated"
+    },
+    "egopathbench": {
+      "source_hash": "870bb449cfbc3537a1b356e941b4748ed80490bb68a7a52058bd32f43d552e13",
+      "status": "translated-and-content-parity-validated"
+    },
+    "vlingnav": {
+      "source_hash": "9db1a49f274a5363626edcfd5749d3525200aa4ce0f404d25033b146262ff905",
+      "status": "translated-and-content-parity-validated"
+    },
+    "hydra-nav": {
+      "source_hash": "deed57cfc988046250c2dd0d5ebc82d359f17180de53df81426565823164d239",
+      "status": "translated-and-content-parity-validated"
+    },
+    "nav-3dgs": {
+      "source_hash": "fa548ca4800556bbd71aba1b9f4de024adfc11893748f993290f53f2945aa8dd",
+      "status": "translated-and-content-parity-validated"
+    },
+    "sysnav": {
+      "source_hash": "c1292bdb5f25447d53f280f812c7a01d63f477a0f6ab2169601be31c9a34012a",
+      "status": "translated-and-content-parity-validated"
+    },
+    "wam-nav": {
+      "source_hash": "88bbac51257318f76c42c120fb5375a6b6117848dbfb56296cb928367a9a22c6",
+      "status": "translated-and-content-parity-validated"
+    },
+    "evomemnav": {
+      "source_hash": "a2fb74963f5ce7d187bc03cc9636be57be542212d2fd48c6245bceb475828ab6",
+      "status": "translated-and-content-parity-validated"
+    },
+    "localnav": {
+      "source_hash": "5cdaee0c0045ff0c19829f9e58c46db8b4145999f90f5c351182a44acf6fe572",
+      "status": "translated-and-content-parity-validated"
+    },
+    "aecnav": {
+      "source_hash": "bbfa72156877fd5bfeda1afba5d9cab575776d7df101e1c33052442db2c5d1d2",
+      "status": "translated-and-content-parity-validated"
+    },
+    "sparsenav": {
+      "source_hash": "10b22a05f978360477af47e47df9996e00835a5f3d164ba274c19fccb9ef5907",
+      "status": "translated-and-content-parity-validated"
+    },
+    "talk2escape": {
+      "source_hash": "01a7c530b6e8e5553ed56b776b461a460b2806ac4ca387f3e1cd791c9cafcaf5",
+      "status": "translated-and-content-parity-validated"
+    },
+    "vnt-pa": {
+      "source_hash": "c05b403537ea6e5b67ee7ff0719091bc8132a637de6068bde5bb929eb169cfda",
+      "status": "translated-and-content-parity-validated"
+    }
+  },
+  "remaining_work": [],
+  "review_notes": [
+    "Prose translated with machine assistance; terminology, numerical differences, negation candidates, emphasis, captions, and protected elements reviewed.",
+    "All 37 readings, five leaderboard groups, references, 134 figures, and 17 diagrams translated. This is not independent re-verification of every underlying paper.",
+    "Descriptive TeX predicates and units translated using explicit normalization; mathematical expressions and reward values preserved.",
+    "Two malformed figure wrappers restored in Chinese and English.",
+    "English cross-page links, filter labels, related-reading labels, and research cards updated."
+  ],
+  "validation": {
+    "jekyll_build": "passed",
+    "source_sync": "passed",
+    "published_site": "passed",
+    "post_lint": "0 errors; existing 384KB image warning",
+    "regression_tests": 11,
+    "desktop_viewport": "1440x1000",
+    "headings": 273,
+    "tables": 37,
+    "figures": 134,
+    "leaderboard_groups": 5,
+    "leaderboard_rows": 53,
+    "mathjax_expressions": 762,
+    "mermaid_diagrams": 17,
+    "page_errors": [],
+    "interactions": [
+      "AND paper filtering",
+      "leaderboard paradigm and open-source filters",
+      "hide nonstandard rows",
+      "contents navigation",
+      "image enlargement",
+      "section-preserving language switching",
+      "English companion search links",
+      "research card"
+    ]
+  }
+}

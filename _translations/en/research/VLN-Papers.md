@@ -20,16 +20,14 @@ excerpt: "55 detailed readings on instruction-following VLN, with benchmark lead
 
 > This collection accompanies the [VLN survey](/en/VLN-Survey/) with detailed readings on instruction-following navigation and its supporting foundations.
 >
-> It covers 55 representative methods, benchmarks, and foundational works. Goal navigation, locomotion, mobile manipulation, and additional studies appear in the [extended collection](/VLN-Papers-Extended/). The collections are organized by research focus and reading sequence; publication status is not the sole criterion.
-
-> Links to the companion **extended collection** lead to its Chinese edition; an English translation of that collection is not yet available.
+> It covers 55 representative methods, benchmarks, and foundational works. Goal navigation, locomotion, mobile manipulation, and additional studies appear in the [extended collection](/en/VLN-Papers-Extended/). The collections are organized by research focus and reading sequence; publication status is not the sole criterion.
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
 # Performance leaderboards
 {: id="性能排行榜"}
 
-> ⚠️ **Do not compare scores across different benchmarks.** This page groups instruction-following results by benchmark: ① R2R-CE and ② RxR-CE use continuous environments with step-by-step first-person control; ③ R2R / REVERIE use panoramic decisions on discrete navigation graphs. Task definitions and sensor configurations differ, so SR is not comparable across these tables. ObjectNav, HM3D-OVON, image-goal, and point-goal results are in the extended collection's [goal-navigation leaderboards](/VLN-Papers-Extended/#goal-nav-leaderboard).
+> ⚠️ **Do not compare scores across different benchmarks.** This page groups instruction-following results by benchmark: ① R2R-CE and ② RxR-CE use continuous environments with step-by-step first-person control; ③ R2R / REVERIE use panoramic decisions on discrete navigation graphs. Task definitions and sensor configurations differ, so SR is not comparable across these tables. ObjectNav, HM3D-OVON, image-goal, and point-goal results are in the extended collection's [goal-navigation leaderboards](/en/VLN-Papers-Extended/#goal-nav-leaderboard).
 >
 > **Reading the tables:** **Trained** means trained or fine-tuned on navigation data, including navigation foundation models evaluated through cross-task zero-shot transfer. **Training-free** means no navigation model is trained: the system combines existing large models, detection or segmentation models, and rules or planners. Calling a pretrained low-level point-goal controller does not change this classification. Gray rows use nonstandard protocols, such as validation subsets, and are excluded from best-value bolding. Bold values are the best among non-gray rows within the same benchmark. The filters select paradigm, input configuration, and open-source availability, and can hide gray rows.
 
@@ -46,7 +44,7 @@ Continuous environment · English commands · val-unseen (1839 items in total)
 |[Robostral Navigate (monocular)](#robostral-navigate)|2026|Trained|Mistral-8B|**77.4**|**74.2**|**3.20**|**81.3**|No|
 |[GPT-6-Astra (monocular · medium)](#gpt-6-astra) <span class="lb-flag">100 subset </span>|2026|Training-free|GPT-6-Astra|75.7|65.6|3.0|80.7|No|
 |[Qwen-RobotNav (panoramic)](#qwen-robotnav)|2026|Trained|Qwen3-VL-8B|72.1|66.6|3.53|78.5|No|
-|[Talk2Escape + GTA (four views)](/VLN-Papers-Extended/#talk2escape) <span class="lb-flag">100 subset</span>|2026|Training-free|Gemini 3.1 Pro|72.0|49.4|4.80|66.0|No|
+|[Talk2Escape + GTA (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-flag">100 subset</span>|2026|Training-free|Gemini 3.1 Pro|72.0|49.4|4.80|66.0|No|
 |[ABot-N1 (three cameras)](#abot-n1)|2026|Trained|Qwen-3.5-4B + 2B|70.9|67.5|3.32|75.2|No|
 |[Image2Nav (180° FOV)](#image2sim)|2026|Trained|Qwen3-VL-4B|70.3|65.6|3.71|76.1|[YES](https://github.com/MrZihan/Image2Sim)|
 |[GroundingVLN (three cameras)](#groundingvln)|2026|Trained|Qwen3.5-4B|69.9|64.1|3.66|74.8|No|
@@ -61,7 +59,7 @@ Continuous environment · English commands · val-unseen (1839 items in total)
 |[AwareVLN (monocular)](#awarevln)|2026|Trained|Vicuna-7B|65.4|55.1|4.02|73.5|[Yes](https://github.com/GWxuan/AwareVLN)|
 |[CorrectNav (monocular)](#correctnav)|2025|Trained|–|65.1|62.3|4.24|67.5|[Yes](https://github.com/owlet914/CorrectNav)|
 |[DualVLN (monocular)](#dualvln)|2025|Trained|Qwen2.5-VL-7B|64.3|58.5|4.05|70.7|[Yes](https://github.com/InternRobotics/InternNav)|
-|[Talk2Escape + NavGPT (four views)](/VLN-Papers-Extended/#talk2escape) <span class="lb-flag">100 subset</span>|2026|Training-free|Gemini 3.1 Pro|64.0|46.4|4.84|60.0|No|
+|[Talk2Escape + NavGPT (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-flag">100 subset</span>|2026|Training-free|Gemini 3.1 Pro|64.0|46.4|4.84|60.0|No|
 |[VLN-Cache (monocular)](#vln-cache)|2026|Trained|Qwen2.5-VL-7B|63.1|57.6|–|–|No|
 |[ReflectVLN (monocular)](#reflectvln)|2026|Trained|Qwen2.5-VL-3B|62.8|58.5|4.19|67.3|No|
 |[NavFoM (multi-view)](#navfom)|2025|Trained|Qwen2-7B|61.7|55.3|4.61|72.1|No|
@@ -77,7 +75,7 @@ Continuous environment · English commands · val-unseen (1839 items in total)
 |[AgenticNav (panoramic)](#agenticnav) <span class="lb-flag">100 subset</span>|2026|Training-free|GPT-5.5|55.0|48.41|5.19|65.0|No|
 |[Goal2Pixel (monocular)](#goal2pixel)|2025|Trained|LLaVA-1.5-7B|54.1|52.5|4.85|59.9|No|
 |[HSGM (monocular)](#hsgm)|2026|Training-free|–|47.9|32.8|5.42|58.7|[Yes](https://github.com/Teacher-Tom/HSGM_public)|
-|[SparseNav (monocular)](/VLN-Papers-Extended/#sparsenav)|2026|Training-free|GPT-5|42.8|35.2|5.96|53.4|No|
+|[SparseNav (monocular)](/en/VLN-Papers-Extended/#sparsenav)|2026|Training-free|GPT-5|42.8|35.2|5.96|53.4|No|
 |[MapNav (monocular)](#mapnav)|2025|Trained|LLaVA-Onevision-7B|39.7|37.2|5.43|53.0|[is](https://github.com/linglingxiansen/MapNav)|
 |[NaVid (monocular)](#navid)|2024|Trained|–|37.4|35.9|5.47|49.1|[is](https://github.com/jzhzhang/NaVid-VLN-CE)|
 |[VLN-R1 (monocular)](#vln-r1)|2025|Trained|Qwen2-VL-7B|30.2|21.8|7.0|41.2|No|
@@ -110,7 +108,7 @@ Continuous environment · Multilingual commands (English/Hindi/Telugu) · val-un
 |[TAMP-Nav (multi-view)](#tamp-nav)|2026|Trained|Qwen2.5-VL-7B|65.7|56.9|4.32|–|[is](https://github.com/ZJU-OmniAI/Embodied-Omni)|
 |[NavFoM (multi-view)](#navfom)|2025|Trained|Qwen2-7B|64.4|56.2|4.74|–|No|
 |[SEDualVLN (monocular)](#sedualvln)|2026|Trained|LLaVA-Video-7B|63.9|52.4|4.12|–|No|
-|[Talk2Escape + GTA (four views)](/VLN-Papers-Extended/#talk2escape) <span class="lb-flag">260 subset</span>|2026|Training-free|Gemini 3.1 Pro|62.9|34.2|5.89|–|No|
+|[Talk2Escape + GTA (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-flag">260 subset</span>|2026|Training-free|Gemini 3.1 Pro|62.9|34.2|5.89|–|No|
 |[Dual-Anchoring (monocular)](#dual-anchoring)|2026|Trained|LLaVA-Video-7B|61.7|53.3|–|–|No|
 |[DualVLN (monocular)](#dualvln)|2025|Trained|Qwen2.5-VL-7B|61.4|51.8|4.58|–|[is](https://github.com/InternRobotics/InternNav)|
 |[JanusVLN (monocular)](#janusvln)|2026|Trained|Janus-Pro-7B|56.2|47.5|6.06|–|[Yes](https://github.com/MIV-XJTU/JanusVLN)|
@@ -120,10 +118,10 @@ Continuous environment · Multilingual commands (English/Hindi/Telugu) · val-un
 |[DecoVLN (monocular)](#decovln)|2026|Trained|LLaVA-Video-7B|54.2|46.3|5.73|–|No|
 |[HarnessVLN (monocular)](#harnessvln)|2026|Training-free|GPT-5.5|53.9|38.0|6.42|–|No|
 |[DGNav (panoramic)](#dgnav)|2026|Trained|–|53.78|44.37|6.00|–|[is](https://github.com/shannanshouyin/DGNav)|
-|[Talk2Escape + NavGPT (four views)](/VLN-Papers-Extended/#talk2escape) <span class="lb-flag">260 subset</span>|2026|Training-free|Gemini 3.1 Pro|50.4|27.2|6.01|–|No|
+|[Talk2Escape + NavGPT (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-flag">260 subset</span>|2026|Training-free|Gemini 3.1 Pro|50.4|27.2|6.01|–|No|
 |[Goal2Pixel (monocular)](#goal2pixel)|2025|Trained|LLaVA-1.5-7B|43.8|40.4|7.50|–|No|
 |[HSGM (monocular)](#hsgm)|2026|Training-free|–|41.8|25.1|7.43|–|[Yes](https://github.com/Teacher-Tom/HSGM_public)|
-|[SparseNav (monocular)](/VLN-Papers-Extended/#sparsenav)|2026|Training-free|GPT-5|40.7|24.1|7.82|–|No|
+|[SparseNav (monocular)](/en/VLN-Papers-Extended/#sparsenav)|2026|Training-free|GPT-5|40.7|24.1|7.82|–|No|
 |[MapNav (monocular)](#mapnav)|2025|Trained|LLaVA-Onevision-7B|32.6|27.7|7.62|–|[is](https://github.com/linglingxiansen/MapNav)|
 |[NaVid (monocular)](#navid)|2024|Trained|–|23.8|21.2|8.41|34.5|[Yes](https://github.com/jzhzhang/NaVid-VLN-CE)|
 |[VLN-R1 (monocular)](#vln-r1)|2025|Trained|Qwen2-VL-7B|22.7|17.6|9.1|30.4|No|
@@ -8493,16 +8491,16 @@ The following table organizes papers with publication information tagged by conf
 |---|---|
 | **CVPR** | [VLN-Imagine](#vln-imagine) (2025)、[Slow4fast-VLN](#slow4fast-vln) (2026)、[AwareVLN](#awarevln) (2026)、[GA-VLN](#ga-vln) (2026)、[HSGM](#hsgm) (2026)、[DecoVLN](#decovln) (2026)、[R2R](#r2r) (2018, Spotlight)、[DUET](#duet) (2022) |
 | **ICLR** | [NavFoM](#navfom) (2026)、[JanusVLN](#janusvln) (2026)、[OmniNav](#omninav) (2026, Poster)、[TuckerNav](#tuckernav) (2026)、[Uncertainty-Aware Gaussian Map](#uncertainty-aware-gaussian-map) (2026)、[DualVLN](#dualvln) (2026) |
-| **ICRA** | [NoMaD](/VLN-Papers-Extended/#nomad) (2024)、[VLFM](/VLN-Papers-Extended/#vlfm) (2024)、[Open-Nav](#open-nav) (2025)、[NavDP](/VLN-Papers-Extended/#navdp) (2026)、[StreamVLN](#streamvln) (2026) |
+| **ICRA** | [NoMaD](/en/VLN-Papers-Extended/#nomad) (2024)、[VLFM](/en/VLN-Papers-Extended/#vlfm) (2024)、[Open-Nav](#open-nav) (2025)、[NavDP](/en/VLN-Papers-Extended/#navdp) (2026)、[StreamVLN](#streamvln) (2026) |
 | **ECCV** | [VLN-CE](#vln-ce) (2020)、[NavGPT-2](#navgpt-2) (2024)、[AgentVLN](#agentvln) (2026)、[Route2Step](#route2step) (2026) |
-| **AAAI** | [ODYSSEY](/VLN-Papers-Extended/#odyssey) (2026)、[CorrectNav](#correctnav) (2026)、[R³](#r3) (2026)、[PanoNav](/VLN-Papers-Extended/#panonav) (2026, Poster) |
+| **AAAI** | [ODYSSEY](/en/VLN-Papers-Extended/#odyssey) (2026)、[CorrectNav](#correctnav) (2026)、[R³](#r3) (2026)、[PanoNav](/en/VLN-Papers-Extended/#panonav) (2026, Poster) |
 | **ICCV** | [VLN-PE](#vln-pe) (2025) |
 | **ACL** | [MapNav](#mapnav) (2025) |
 | **RSS** | [NaVid](#navid) (2024) |
 | **IROS** | [ReflectVLN](#reflectvln) (2026) |
 | **CoRL** | [X-NavDP](#x-navdp) (2026) |
 | **RO-MAN** | [R2RIE-CE & IEDL](#r2rie-ce-iedl) (2024) |
-| **Journal** | [GaussNav](/VLN-Papers-Extended/#gaussnav) (IEEE TPAMI 2025), [CausalNav](#causalnav) (IEEE RA-L), [HumanoidVLN](#humanoidvln) (IEEE RA-L), [Skill-Nav](/VLN-Papers-Extended/#skill-nav) (Vicinagearth / Springer 2025), [CA-VLN](#ca-vln) (Sensors 2026) |
+| **Journal** | [GaussNav](/en/VLN-Papers-Extended/#gaussnav) (IEEE TPAMI 2025), [CausalNav](#causalnav) (IEEE RA-L), [HumanoidVLN](#humanoidvln) (IEEE RA-L), [Skill-Nav](/en/VLN-Papers-Extended/#skill-nav) (Vicinagearth / Springer 2025), [CA-VLN](#ca-vln) (Sensors 2026) |
 
 ## Paper references
 {: id="论文引用"}
@@ -8627,7 +8625,7 @@ The following table organizes papers with publication information tagged by conf
 
 
 
-  var REMOTE_PAGE = { url: '/VLN-Papers-Extended/', label: 'Extended collection (Chinese only)' };
+  var REMOTE_PAGE = { url: '/en/VLN-Papers-Extended/', label: 'Goal navigation and extensions' };
   var REMOTE_PAPERS = [
     { n: '1. VLFM (2023)', a: 'vlfm', t: ['SLAM', 'Zero-shot', 'Real-robot deployment'] },
     { n: '2. NoMaD (2023)', a: 'nomad', t: ['End-to-end', 'Diffusion models', 'Zero-shot', 'Real-robot deployment'] },

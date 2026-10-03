@@ -18,6 +18,10 @@ class TranslationFeaturesTests(unittest.TestCase):
         self.assertNotEqual(features(source), features(source.replace('69.9', '96.9')))
         self.assertNotEqual(features(source), features(source.replace('x=1', 'x=2')))
 
+    def test_omitted_textual_table_column_is_detected(self):
+        source = '| Model | Open source |\n|---|---|\n| A | No |'
+        self.assertNotEqual(features(source), features(source.replace('| A | No |', '| A |')))
+
     def test_translated_mask_labels_preserve_mathematics(self):
         source = r'$$j \text{ 在公共 Trunk} \lor i,j \text{ 在同一 Branch}$$'
         target = r'$$j \text{ is in the shared trunk} \lor i,j \text{ are in the same branch}$$'
@@ -26,6 +30,13 @@ class TranslationFeaturesTests(unittest.TestCase):
     def test_last_paper_excludes_references(self):
         body = '## 1. Paper\n{: id="paper"}\nText\n# References\nOther material'
         self.assertEqual(paper_sections(body), {'paper': '## 1. Paper\n{: id="paper"}\nText'})
+
+    def test_reward_labels_translate_without_hiding_reward_changes(self):
+        source = r'$$1.0 \text{若执行 done() 但未成功（误报）}$$'
+        target = r'$$1.0 \text{done() called without success (false positive)}$$'
+        self.assertEqual(features(source), features(target))
+        self.assertNotEqual(features(source), features(target.replace('1.0', '-1.0')))
+        self.assertNotEqual(features(source), features(target.replace('without success', 'with success')))
 
 
 if __name__ == '__main__':

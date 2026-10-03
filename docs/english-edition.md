@@ -1,9 +1,10 @@
 # English edition: scope and maintenance
 
-The English edition contains the complete VLN Survey and VLN Papers: Instruction
-Following (all 55 readings), plus `/en/` and `/en/research/`. The extensions
-collection and other surveys remain Chinese-only until their translations are
-complete. The instruction-following paper filters and leaderboards are localized.
+The English edition contains the complete VLN Survey, VLN Papers: Instruction
+Following (55 readings), and VLN Papers: Goal Navigation and Extensions
+(34 main readings and 3 related readings, 37 total), plus `/en/` and
+`/en/research/`. Both paper collections have localized filters, leaderboards,
+and reciprocal English companion links. Other surveys remain Chinese-only.
 
 ## Content contract
 
@@ -26,14 +27,14 @@ English articles are grouped by content type under `_translations/en/`:
 _translations/en/
 ├── research/
 │   ├── VLN-Survey.md
-│   └── VLN-Papers.md
+│   ├── VLN-Papers.md
+│   └── VLN-Papers-Extended.md
 └── blog/
     └── .gitkeep
 ```
 
 Research surveys and paper readings belong in `research/`; technical blog posts
-belong in `blog/`. The future `VLN-Papers-Extended.md` translation belongs in
-`research/` when complete. Set `categories` to match the content type
+belong in `blog/`. Set `categories` to match the content type
 and declare an explicit `/en/.../` permalink so moving files does not change URLs.
 When moving an existing translation, update its `translation` path in the
 snapshot under `translations/`; preserve the reviewed source hashes and dates.
@@ -76,7 +77,7 @@ comparison tables are included in numerical checks too.
 Desktop is the primary reading and validation target. At 1440×1000, the complete
 page has 524 matching heading IDs, 52 tables, 233 captioned figures, 23 code
 blocks, 1,243 rendered mathematical expressions, and 19 Mermaid diagrams.
-All 55 paper wrappers, AND tag filters, Chinese-only extended-collection links,
+All 55 paper wrappers, AND tag filters, companion-collection links,
 three leaderboards, best-value bolding, contents links, figure enlargement, and
 code copying were checked. No page errors or formula/diagram errors occurred.
 
@@ -85,6 +86,46 @@ MapNav's R2R OS/SR headers were corrected in both editions against
 illustrative code now preserves query gradients through a frozen VLM, matching
 [Appendix A.2](https://arxiv.org/html/2512.08186v1#A2), and its real-world RGB-D
 and odometry pipeline is distinguished from RGB-only simulation.
+
+### Goal-navigation and extensions completion
+
+`_translations/en/research/VLN-Papers-Extended.md` contains all 37 readings,
+five goal-navigation leaderboard groups, related-reading notes, references,
+134 figures with English captions and alternative text, and 17 localized
+Mermaid diagrams. The full page has 37 tables. Harness Robotic OS links to a
+separate article and is explicitly labeled Chinese-only.
+
+Prose used machine translation assistance followed by terminology, numerical,
+negation, protected-element, and editorial review. The numerical audit restored
+a missing ReMEmbR accuracy of 0.61; the negation review corrected SparseNav's
+warning that more complete semantic maps are not always better. Original
+leaderboard rows were retained with explicit label translations to prevent
+omitted textual cells or inconsistent filter vocabulary. This process does not
+constitute independent verification of every underlying paper.
+
+Descriptive TeX labels, units, and reward predicates are translated using an
+explicit normalization map. Formula checks still detect changed mathematical
+values and predicates. Raw table column counts supplement numerical checks.
+Two malformed figure wrappers in the Chinese source were repaired in both
+editions; paper content and reported experimental values were retained.
+
+`translations/vln-papers-extended.en.json` records source synchronization, and
+`translations/vln-papers-extended.en.progress.json` records completion and the
+review process. The published-site validator checks both paper collections.
+Main/extended filters search 92 papers in total and link directly to the
+corresponding English collection. Research cards and Survey companion links
+also resolve to the English extension.
+
+Desktop verification at 1440×1000 passed: all 37 paper wrappers, 53 rows across
+five leaderboards, 273 matching heading IDs, 37 tables, 134 images, 762 MathJax
+expressions, and 17 Mermaid diagrams. AND tag filtering, open-source/paradigm
+filters, nonstandard-row hiding, figure enlargement, contents navigation,
+section-preserving language switching, English cross-page search results, and
+the research card were checked. No page, formula, diagram, or horizontal
+overflow errors occurred. The Jekyll build, synchronized-source checks, post
+linter, published-site validator, and 11 regression tests pass.
+
+### Future drafts
 
 Future incomplete drafts use `published: false` and `translation_scope: partial`.
 They are excluded from normal output, language pairs, cards, and translated

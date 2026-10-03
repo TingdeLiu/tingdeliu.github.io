@@ -1,5 +1,7 @@
 ---
 layout: post
+lang: zh-CN
+translation_id: vln-papers-extended
 title: "VLN 论文精读：目标导航与扩展篇"
 date:   2026-09-29
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
@@ -3556,7 +3558,7 @@ IRFT 流程：在快系统模式下运行，于停滞点触发慢系统；对失
 现有零样本目标导航（ZSON）方法通常将环境转换为语义地图或文字描述，导致高层决策被低层感知精度所制约，VLM 的视觉空间推理能力无法充分发挥。如何让 VLM 直接基于高质量视觉观测进行空间推理，而非依赖降维后的语义抽象，是本文解决的核心问题。
 
 ---
-div align="center">
+<div align="center">
   <img src="/images/vln/3DGSNav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1402/772" />
 <figcaption>
 3DGSNav 整体架构：该系统通过主动感知，利用机器人位姿和 RGB-D 观测数据构建面向导航的环境表示。自由视角优化与结构化视觉提示引导基于 VLM（视觉语言模型）的零样本导航规划，而在线物体检测与视角重验证技术则实现了高效的目标定位。
@@ -3596,7 +3598,7 @@ div align="center">
 
 ### 核心结果/发现
 
-div align="center">
+<div align="center">
   <img src="/images/vln/3DGSNav-comparison.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1701/550" />
 <figcaption>
  Gemini3-Pro 与 Qwen3-235b-Thinking 在 ZSON 任务中的自我解释对比：
