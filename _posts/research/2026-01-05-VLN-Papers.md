@@ -165,8 +165,9 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 | DAgger / 纠偏数据 | 用策略自身 rollout 采集纠偏样本（DAgger、自纠错飞轮、失败反思数据） |
 | 上下文压缩 | 显式的历史 Token 压缩、KV 复用或前缀共享（含训练期） |
 | 开源 | 代码或权重已公开 |
+{: .vln-component-criteria}
 
-| 排名 | 模型 | R2R-CE SR ↑ | 堆数据 (≥1M) | 堆相机 (多目/全景) | 快慢双系统 | Agentic | 像素 Grounding | 连续动作头 (回归/扩散/流匹配) | 强化学习 (GRPO/CISPO) | DAgger / 纠偏数据 | 上下文压缩 (KV/Token/前缀) | 开源代码 / 权重 |
+| 排名 | 模型 | R2R-CE SR ↑ | 堆数据 | 堆相机 | 快慢双系统 | Agentic | 像素 Grounding | 连续动作头 | 强化学习 | DAgger / 纠偏数据 | 上下文压缩 | 开源 |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | 1 | [**Robostral Navigate**](#robostral-navigate) (单目) | **77.4%** | ✓ | – | ✓ | – | ✓ | ✓ | ✓ | – | ✓ | – |
 | 2 | [**Qwen-RobotNav**](#qwen-robotnav) (全景) | **72.1%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | – |
@@ -191,6 +192,7 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 | 21 | [**HarnessVLN**](#harnessvln) (单目 RGB-D) | **60.8%** | – | – | ✓ | ✓ | ✓ | – | – | – | ✓ | – |
 | 22 | [**JanusVLN**](#janusvln) (单目) | **60.5%** | ✓ | – | – | – | – | – | – | ✓ | ✓ | ✓ |
 | **统计** | **各要素采纳频次** | **最高 77.4%** | **14/22 (64%)** | **8/22 (36%)** | **10/22 (45%)** | **3/22 (14%)** | **9/22 (41%)** | **10/22 (45%)** | **5/22 (23%)** | **11/22 (50%)** | **15/22 (68%)** | **11/22 (50%)** |
+{: .vln-component-matrix}
 
 注：VLN-Cache 是套在 DualVLN 上的免训练 Token 缓存层，其余要素随 DualVLN 继承；OmniNav 的 R2R / RxR 评测只走快系统（VLM + 航点回归头），慢系统的前沿探索只用于 OVON，故双系统记 –；Qwen-RobotNav 与上层规划 Agent 的协作只用于 EQA 等长程任务，R2R-CE 成绩来自模型本体；Dual-Anchoring 与 SEDualVLN 的系统 1 均以 StreamVLN 为骨干，继承其滑动窗口 KV 与体素剪枝；HarnessVLN 是表中唯一的免训练方法，其像素 Grounding 指 `ground_target` 工具把子目标落到图像区域后再查深度。ABot-N1 的 30M 预训练样本与 DAgger rollout、Image2Nav 的离散动作输出与在线 DAgger，均依据各自 arXiv 原文补充。
 
@@ -7673,6 +7675,7 @@ graph TD
 53. **MacroAction-VLN** (2026). 基于拓扑图宏动作分层 MDP 与动作感知 Critic 的连续环境闭环强化学习微调. arXiv: [2609.03906](https://arxiv.org/abs/2609.03906)
 54. **HumanoidVLN** (2026). 首个面向多样化双足人形机器人的物理真实 VLN 仿真平台与基准. arXiv: [2608.12860](https://arxiv.org/abs/2608.12860) · IEEE RA-L
 55. **AdaGeoVLN** (2026). 沿「表征深度」与「导航时间」两条轴做几何取舍. arXiv: [2609.18789](https://arxiv.org/abs/2609.18789)
+{: .paper-references}
 
 
 <script>

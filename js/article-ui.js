@@ -39,8 +39,65 @@
     });
   }
 
+  function groupComponentMatrix(table) {
+    if (table.classList.contains('is-grouped')) return;
+
+    var dataColumns = [3, 4, 10, 11, 12];
+    Array.prototype.forEach.call(table.rows, function (row) {
+      Array.prototype.forEach.call(row.cells, function (cell, index) {
+        if (index < 3) return;
+        cell.setAttribute('data-component-group', dataColumns.indexOf(index) !== -1 ? 'data' : 'policy');
+      });
+    });
+
+    var controls = document.createElement('div');
+    controls.className = 'vln-component-switch';
+    controls.setAttribute('role', 'group');
+    controls.setAttribute('aria-label', english ? 'Compare component groups' : '选择要素分组');
+    if (!table.id) table.id = 'vln-component-matrix-' + document.querySelectorAll('.vln-component-switch').length;
+
+    [
+      { value: 'policy', name: english ? 'Policy & control' : '决策与控制' },
+      { value: 'data', name: english ? 'Data & engineering' : '数据与工程' }
+    ].forEach(function (group) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = group.name;
+      button.setAttribute('aria-controls', table.id);
+      button.setAttribute('aria-pressed', group.value === 'policy' ? 'true' : 'false');
+      button.addEventListener('click', function () {
+        table.setAttribute('data-component-view', group.value);
+        controls.querySelectorAll('button').forEach(function (other) {
+          other.setAttribute('aria-pressed', other === button ? 'true' : 'false');
+        });
+      });
+      controls.appendChild(button);
+    });
+
+    var hint = document.createElement('span');
+    hint.textContent = english ? '5 components per view · rank, model and SR stay visible' : '每组 5 个要素 · 排名、模型和 SR 始终保留';
+    controls.appendChild(hint);
+    table.parentNode.insertBefore(controls, table);
+    table.setAttribute('data-component-view', 'policy');
+    table.classList.add('is-grouped');
+  }
+
   function enhanceTables() {
     document.querySelectorAll('.entry table').forEach(function (table) {
+      if (table.matches('.vln-component-criteria, .vln-component-matrix')) {
+        // These tables fit the reading column instead of using a scroll shell.
+        var headings = Array.prototype.map.call(table.querySelectorAll('thead th'), function (th) {
+          return th.textContent.trim();
+        });
+        table.querySelectorAll('tbody tr').forEach(function (row) {
+          Array.prototype.forEach.call(row.cells, function (cell, index) {
+            cell.setAttribute('data-label', headings[index]);
+          });
+        });
+        table.classList.add('is-labelled');
+        if (table.classList.contains('vln-component-matrix')) groupComponentMatrix(table);
+        return;
+      }
       if (table.closest('.article-table-scroll')) return;
 
       var wrapper = document.createElement('div');

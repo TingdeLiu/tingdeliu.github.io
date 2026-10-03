@@ -177,8 +177,9 @@ In order to clearly reveal the technical recipes (solution combinations) of **R2
 | DAgger / corrective data | Use the strategy's own rollout to collect corrective samples (DAgger, self-error correction flywheel, failure reflection data) |
 | Context compression | Explicit historical token compression, KV multiplexing or prefix sharing (including training period) |
 | Open source | Code or weight has been made public |
+{: .vln-component-criteria}
 
-| Ranking | Model | R2R-CE SR ↑ | Data scaling (≥1M) | Multiple cameras (multi-view/panoramic) | fast-slow dual system | Agentic | Pixel Grounding | Continuous action head (regression/diffusion/flow matching) | Reinforcement learning (GRPO/CISPO) | DAgger / corrective data | Contextual compression (KV/Token/prefix) | Open source code / weight |
+| Rank | Model | R2R-CE SR ↑ | Data scaling | Multi-view | Fast / slow | Agentic | Pixel grounding | Continuous actions | RL | DAgger / corrections | Context compression | Open source |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | 1 | [**Robostral Navigate**](#robostral-navigate) (monocular) | **77.4%** | ✓ | – | ✓ | – | ✓ | ✓ | ✓ | – | ✓ | – |
 | 2 | [**Qwen-RobotNav**](#qwen-robotnav) (panoramic) | **72.1%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | – |
@@ -203,6 +204,7 @@ In order to clearly reveal the technical recipes (solution combinations) of **R2
 | 21 | [**HarnessVLN**](#harnessvln) (monocular RGB-D) | **60.8%** | – | – | ✓ | ✓ | ✓ | – | – | – | ✓ | – |
 | 22 | [**JanusVLN**](#janusvln) (monocular) | **60.5%** | ✓ | – | – | – | – | – | – | ✓ | ✓ | ✓ |
 | **Statistics** | **Frequency of adoption of each element** | **Highest 77.4%** | **14/22 (64%)** | **8/22 (36%)** | **10/22 (45%)** | **3/22 (14%)** | **9/22 (41%)** | **10/22 (45%)** | **5/22 (23%)** | **11/22 (50%)** | **15/22 (68%)** | **11/22 (50%)** |
+{: .vln-component-matrix}
 
 Note: VLN-Cache is a training-free Token caching layer on DualVLN, and the other elements are inherited with DualVLN; OmniNav's R2R / RxR evaluation only uses the fast system (VLM + waypoint regression head), and the frontier exploration of the slow system is only used for OVON, so the dual system record –; the collaboration between Qwen-RobotNav and the upper planning agent is only used for EQA For long-range tasks, R2R-CE results come from the model ontology; System 1 of Dual-Anchoring and SEDualVLN both use StreamVLN as the backbone, inheriting its sliding window KV and voxel pruning; HarnessVLN is the only training-free method in the table, and its pixel Grounding refers to the `ground_target` tool that drops the sub-target into the image area and then checks the depth. ABot-N1's 30M pre-training samples and DAgger rollout, Image2Nav's discrete action output and online DAgger are all supplemented based on their respective arXiv original texts.
 
@@ -8560,6 +8562,7 @@ The following table organizes papers with publication information tagged by conf
 53. **MacroAction-VLN** (2026). Continuous environment closed-loop reinforcement learning fine-tuning based on topological graph macro-action hierarchical MDP and action-aware Critic. arXiv: [2609.03906](https://arxiv.org/abs/2609.03906)
 54. **HumanoidVLN** (2026). The first physically realistic VLN simulation platform and benchmark for diverse bipedal humanoid robots. arXiv: [2608.12860](https://arxiv.org/abs/2608.12860) · IEEE RA-L
 55. **AdaGeoVLN** (2026). Make geometric trade-offs along the two axes of "representation depth" and "navigation time". arXiv: [2609.18789](https://arxiv.org/abs/2609.18789)
+{: .paper-references}
 
 
 <script>

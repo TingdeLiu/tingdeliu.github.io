@@ -177,6 +177,22 @@ li {
   }
 }
 
+// References use native numbering so multi-digit markers keep a stable gutter.
+.entry ol.paper-references {
+  list-style: decimal outside;
+  padding-left: 3.2em;
+  counter-reset: none;
+
+  > li {
+    display: list-item;
+    margin: 0 0 $li-bottom-space;
+    padding-left: 0.35em;
+
+    &::before { content: none; }
+    &::marker { font-variant-numeric: tabular-nums; }
+  }
+}
+
 // Definition list
 dt {
   float: left;
@@ -678,6 +694,140 @@ nav {
     min-width: 100%;
     margin: 0;
     border: 0;
+  }
+}
+
+// Keep the VLN recipe criteria and adoption matrix readable without sideways scrolling.
+.entry .vln-component-criteria,
+.entry .vln-component-matrix {
+  width: 100%;
+  max-width: 1080px;
+  margin-left: auto;
+  margin-right: auto;
+  table-layout: fixed;
+  font-size: 0.875rem;
+  line-height: 1.5;
+
+  th, td {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    padding: 0.5rem 0.3rem;
+  }
+
+  th { hyphens: auto; }
+}
+
+.vln-component-criteria th:first-child { width: 24%; }
+.vln-component-matrix {
+  th:first-child { width: 4%; }
+  th:nth-child(2) { width: 19%; }
+  th:nth-child(3) { width: 8%; }
+  td { font-variant-numeric: tabular-nums; }
+}
+
+.vln-component-switch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 1080px;
+  margin: 1.5rem auto 0.75rem;
+
+  button {
+    padding: 0.55rem 0.9rem;
+    font: inherit;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: $link-color;
+    background: $white;
+    border: 1px solid $table-border-color;
+    border-radius: 6px;
+    cursor: pointer;
+
+    &[aria-pressed="true"] {
+      background: $oc-blue-0;
+      border-color: $oc-blue-4;
+      font-weight: 600;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $oc-blue-4;
+      outline-offset: 3px;
+    }
+  }
+
+  span {
+    font-size: 0.8rem;
+    color: $base-lighten-color;
+    margin-left: 0.35rem;
+  }
+}
+
+@media (min-width: 901px) {
+  .entry .vln-component-matrix.is-grouped {
+    font-size: 0.9375rem;
+
+    th, td { padding: 0.6rem 0.45rem; }
+    th:first-child { width: 6%; }
+    th:nth-child(2) { width: 28%; }
+    th:nth-child(3) { width: 11%; }
+
+    &[data-component-view="policy"] [data-component-group="data"],
+    &[data-component-view="data"] [data-component-group="policy"] { display: none; }
+  }
+}
+
+@media (max-width: 900px) {
+  .vln-component-switch { display: none; }
+
+  .entry .vln-component-matrix.is-labelled {
+    display: block;
+    border: 0;
+
+    thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+
+    tbody { display: block; }
+    tr {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-bottom: 1rem;
+      border: 1px solid $table-border-color;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    td {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+      border: 0;
+      padding: 0.45rem 0.65rem;
+      text-align: right !important;
+
+      &::before {
+        content: attr(data-label);
+        color: $base-lighten-color;
+        font-weight: 400;
+        text-align: left;
+      }
+    }
+
+    td:nth-child(2) {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      display: block;
+      border-bottom: 1px solid $table-border-color;
+      text-align: left !important;
+
+      &::before { content: none; }
+    }
   }
 }
 
