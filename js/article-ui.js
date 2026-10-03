@@ -100,13 +100,29 @@
       }
       if (table.closest('.article-table-scroll')) return;
 
+      var fitTable = table.closest('.prose-reading') && table.rows[0] && table.rows[0].cells.length <= 5;
       var wrapper = document.createElement('div');
       wrapper.className = 'article-table-scroll article-wide';
-      wrapper.tabIndex = 0;
+      if (fitTable) {
+        wrapper.classList.add('article-table-fit');
+      } else {
+        wrapper.tabIndex = 0;
+      }
       wrapper.setAttribute('role', 'region');
-      wrapper.setAttribute('aria-label', label('可横向滚动的数据表格'));
+      wrapper.setAttribute('aria-label', fitTable ? (english ? 'Comparison table' : '对比表格') : label('可横向滚动的数据表格'));
       table.parentNode.insertBefore(wrapper, table);
       wrapper.appendChild(table);
+    });
+  }
+
+  function enhanceProseLayout() {
+    document.querySelectorAll('.prose-reading .entry p').forEach(function (paragraph) {
+      // Keep standalone equations on the wide canvas alongside figures and tables.
+      var text = paragraph.textContent.trim();
+      var mathOnly = /^\\\([\s\S]*\\\)$/.test(text) || /^\\\[[\s\S]*\\\]$/.test(text);
+      if (mathOnly || (paragraph.children.length === 1 && paragraph.firstElementChild.tagName === 'MJX-CONTAINER')) {
+        paragraph.classList.add('article-wide');
+      }
     });
   }
 
@@ -431,6 +447,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
+    enhanceProseLayout();
     enhanceTables();
     enhanceCodeBlocks();
     enhanceHeadingAnchors();

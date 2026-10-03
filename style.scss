@@ -697,6 +697,53 @@ nav {
   }
 }
 
+.article-table-scroll.article-table-fit {
+  overflow-x: visible;
+  box-shadow: none;
+
+  table {
+    width: 100%;
+    table-layout: fixed;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  th, td {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    vertical-align: top;
+    padding: 0.6rem 0.7rem;
+  }
+
+  th:first-child { width: 22%; }
+}
+
+@media (min-width: 901px) {
+  .article-page .posts.prose-reading {
+    > h1,
+    > .post-meta,
+    > .language-switch,
+    .entry > .translation-note,
+    .entry > :is(h1, h2, h3, h4, h5, h6, p, ul, ol, dl, blockquote, hr):not(.article-wide),
+    .entry > .paper-section > :is(h1, h2, h3, h4, h5, h6, p, ul, ol, dl, blockquote, hr):not(.article-wide),
+    .paper-tags-row {
+      width: 100%;
+      max-width: 44rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .entry p { line-height: 1.75; }
+
+    .entry pre {
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    .entry pre > code.language-text { white-space: pre-wrap; }
+  }
+}
+
 // Keep the VLN recipe criteria and adoption matrix readable without sideways scrolling.
 .entry .vln-component-criteria,
 .entry .vln-component-matrix {

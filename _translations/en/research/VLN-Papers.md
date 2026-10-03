@@ -14,6 +14,7 @@ categories: research
 comments: false
 author: Tingde Liu
 toc: true
+prose_reading: true
 excerpt: "55 detailed readings on instruction-following VLN, with benchmark leaderboards, technical comparisons, methods, experiments, and limitations."
 ---
 
@@ -82,7 +83,17 @@ Continuous environment · English commands · val-unseen (1839 items in total)
 |[VLN-R1 (monocular)](#vln-r1)|2025|Trained|Qwen2-VL-2B|25.6|20.5|10.2|37.5|No|
 |[OneVLA (monocular)](#onevla-a-unified-framework-for-embodied-tasks)|2026|Trained|Qwen2.5-VL-3B|–|–|–|68.6|[Yes](https://github.com/linglingxiansen/OneVLA)|
 
-Note: NavFoM is the result of four views (single viewing angle is SR 56.2 / SPL 51.2); DGNav follows the panoramic RGB-D input of ETPNav; DualVLN and StreamVLN are single viewing angle comparisons of the same evaluation protocol; VLN-Cache is an acceleration solution for DualVLN, which is almost lossless (baseline 64.3 / 58.5). StreamVLN takes the StreamVLN† number of arXiv v2 (ICRA 2026 version) (using additional data such as ScaleVLN subset), v1 is 56.9 / 51.9, and other papers mostly quote v1 numbers as baselines. Qwen-RobotNav takes arXiv v3: the panoramic row is 8B (base Qwen3-VL-8B), and the monocular row is 4B (monocular 4B's 66.9 is higher than 8B's 65.7; 8B monocular is 65.7 / 59.6). The gray GPT-6-Astra and AgenticNav three lines are only evaluated on R2R-CE-100: these are 100 episodes (covering 10 scenes) fixedly extracted by Open-Nav from val-unseen. The training-free method generally only reports this subset to control the cost of large model calls. 1 episode is 1 percentage point. When the SR is around 81%, the standard error is about 4 points (95% interval is about 73-89), and when the total number is 1839, it is about 1 point; GPT-6-Astra takes the mean of three runs of arXiv v2 (v1 is a single 79.0 / 76.0), and the standard deviation of the three runs is only 1.5-2.5 points, which only reflect fluctuations between runs and do not include the sampling error of the 100 tasks themselves. These rows are arranged in the table according to SR and are not bolded. They are only for reference when compared with the total rows.
+Note: NavFoM is the result of four views (single viewing angle is SR 56.2 / SPL 51.2); DGNav follows the panoramic RGB-D input of ETPNav; DualVLN and StreamVLN are single viewing angle comparisons of the same evaluation protocol; VLN-Cache is an acceleration solution for DualVLN, which is almost lossless (baseline 64.3 / 58.5).
+
+StreamVLN takes the StreamVLN† number of arXiv v2 (ICRA 2026 version) (using additional data such as ScaleVLN subset), v1 is 56.9 / 51.9, and other papers mostly quote v1 numbers as baselines.
+
+Qwen-RobotNav takes arXiv v3: the panoramic row is 8B (base Qwen3-VL-8B), and the monocular row is 4B (monocular 4B's 66.9 is higher than 8B's 65.7; 8B monocular is 65.7 / 59.6).
+
+The gray GPT-6-Astra and AgenticNav three lines are only evaluated on R2R-CE-100: these are 100 episodes (covering 10 scenes) fixedly extracted by Open-Nav from val-unseen. The training-free method generally only reports this subset to control the cost of large model calls. 1 episode is 1 percentage point.
+
+When the SR is around 81%, the standard error is about 4 points (95% interval is about 73-89), and when the total number is 1839, it is about 1 point; GPT-6-Astra takes the mean of three runs of arXiv v2 (v1 is a single 79.0 / 76.0), and the standard deviation of the three runs is only 1.5-2.5 points, which only reflect fluctuations between runs and do not include the sampling error of the 100 tasks themselves.
+
+These rows are arranged in the table according to SR and are not bolded. They are only for reference when compared with the total rows.
 
 ## ② RxR-CE
 {: id="-rxr-ce"}
@@ -208,7 +219,11 @@ In order to clearly reveal the technical recipes (solution combinations) of **R2
 
 Note: VLN-Cache is a training-free Token caching layer on DualVLN, and the other elements are inherited with DualVLN; OmniNav's R2R / RxR evaluation only uses the fast system (VLM + waypoint regression head), and the frontier exploration of the slow system is only used for OVON, so the dual system record –; the collaboration between Qwen-RobotNav and the upper planning agent is only used for EQA For long-range tasks, R2R-CE results come from the model ontology; System 1 of Dual-Anchoring and SEDualVLN both use StreamVLN as the backbone, inheriting its sliding window KV and voxel pruning; HarnessVLN is the only training-free method in the table, and its pixel Grounding refers to the `ground_target` tool that drops the sub-target into the image area and then checks the depth. ABot-N1's 30M pre-training samples and DAgger rollout, Image2Nav's discrete action output and online DAgger are all supplemented based on their respective arXiv original texts.
 
-**Subset scores not included in the matrix**: GPT-6-Astra (ultra 81.3% / medium 75.7%, v2 average of three runs) and Talk2Escape (+ GTA 72.0% / + NavGPT 64.0%) are only evaluated on the 100 subset of R2R-CE. When there are 100 items, the standard error of SR 72% is about ±4.5 points (the 95% interval is about ±9 points). 68% of the binning lines fall within the error range and are different from the full val-unseen evaluation protocol. Therefore, they are only grayed out in the rankings and do not participate in the matrix and statistics below. Both still have reference value: GPT-6-Astra monocular RGB, outputs primitive discrete actions, does not make any navigation fine-tuning or calls mapping/perception/planning tools, and does not have any of the ten elements. This shows that with this interface and task set, the general foundation model can achieve high SR without relying on elements in the matrix. This does not mean that those elements are of no value: the paper does not dismantle the elements one by one for comparison, and the training data of the closed-source model is unknown; Talk2Escape training-free relies on running time to seek help from Oracle, which masters the target orientation and distance, for error correction, raising the base GTA from 48.8% to 72.0%, but it uses target true value information that other methods do not have.
+**Subset scores not included in the matrix**: GPT-6-Astra (ultra 81.3% / medium 75.7%, v2 average of three runs) and Talk2Escape (+ GTA 72.0% / + NavGPT 64.0%) are only evaluated on the 100 subset of R2R-CE. When there are 100 items, the standard error of SR 72% is about ±4.5 points (the 95% interval is about ±9 points). 68% of the binning lines fall within the error range and are different from the full val-unseen evaluation protocol. Therefore, they are only grayed out in the rankings and do not participate in the matrix and statistics below.
+
+Both still have reference value: GPT-6-Astra monocular RGB, outputs primitive discrete actions, does not make any navigation fine-tuning or calls mapping/perception/planning tools, and does not have any of the ten elements. This shows that with this interface and task set, the general foundation model can achieve high SR without relying on elements in the matrix.
+
+This does not mean that those elements are of no value: the paper does not dismantle the elements one by one for comparison, and the training data of the closed-source model is unknown; Talk2Escape training-free relies on running time to seek help from Oracle, which masters the target orientation and distance, for error correction, raising the base GTA from 48.8% to 72.0%, but it uses target true value information that other methods do not have.
 
 ## Analysis of adoption rates
 {: id="统计研判"}
@@ -807,8 +822,15 @@ NaVid is built on the general video language large model LLaMA-VID framework, wh
   - **Input**: historical frame Token sequence, current frame Token sequence, language instruction Token sequence.
   - **Processing**: Introduce special bounding identifiers `<HIS>`/`</HIS>` (bounding historical observations), `<OBS>`/`</OBS>` (bounding current observations), and `<NAV>` (triggering navigation action predictions).
   - **Output format**:
-    $$\text{Input}: \text{<HIS>} \{\text{historical frames}\} \text{</HIS>} \text{<OBS>} \{\text{current frame}\} \text{</OBS>} \text{<NAV>} \{\text{instruction content}\}$$
-    $$\text{Output}: \{\text{action reasoning \& text action}\}$$
+
+    ```text
+    Input:
+    <HIS>{historical frames}</HIS>
+    <OBS>{current frame}</OBS>
+    <NAV>{instruction content}
+    Output: {action reasoning & text action}
+    ```
+
   - **Design motivation**: Explicitly distinguish different modalities and spatiotemporal attributes required for action reasoning, and guide LLM to correctly distinguish navigation history memory and current decision-making environment.
 
 - **Quantitative Action Planning**
@@ -2865,7 +2887,13 @@ The robustness of CausalNav under extreme lighting/weather conditions needs to b
 ### Key takeaways
 {: id="精华-13"}
 
-The most valuable idea for AgentVLN is the **VLM-as-Brain** paradigm: using VLM as a brain purely for high-level semantic reasoning and skill scheduling, it encapsulates low-level capabilities such as perception, planning, and control into a modular, plug-and-play skill library, completely decoupling cognition and execution. Cross-space representation mapping (back-projecting 3D topological waypoints into pixel-aligned 2D visual cues) is an elegant design that bridges the gap between 2D VLM and the 3D physical world without additional parameters. QD-PCoT shows how to give the model metacognitive capabilities: proactively ask questions when faced with spatial ambiguity, and call on perceptual skills to obtain depth information instead of blindly outputting coordinates. The 3B parameter count surpasses the previous SOTA of 7B+ in both R2R/RxR lists, proving that structured hierarchical reasoning is far more efficient than brute-force parameter scaling. This framework can be directly deployed on the Jetson embedded edge platform and has strong deployment value.
+The most valuable idea for AgentVLN is the **VLM-as-Brain** paradigm: using VLM as a brain purely for high-level semantic reasoning and skill scheduling, it encapsulates low-level capabilities such as perception, planning, and control into a modular, plug-and-play skill library, completely decoupling cognition and execution.
+
+Cross-space representation mapping (back-projecting 3D topological waypoints into pixel-aligned 2D visual cues) is an elegant design that bridges the gap between 2D VLM and the 3D physical world without additional parameters.
+
+QD-PCoT shows how to give the model metacognitive capabilities: proactively ask questions when faced with spatial ambiguity, and call on perceptual skills to obtain depth information instead of blindly outputting coordinates.
+
+The 3B parameter count surpasses the previous SOTA of 7B+ in both R2R/RxR lists, proving that structured hierarchical reasoning is far more efficient than brute-force parameter scaling. This framework can be directly deployed on the Jetson embedded edge platform and has strong deployment value.
 
 ---
 
@@ -2965,7 +2993,13 @@ AgentVLN currently relies on a depth sensor (RGB-D) to support accurate 3D back-
 ### Key takeaways
 {: id="精华-14"}
 
-The core insight of VLN-Cache is that the root cause of the failure of existing token caching solutions in VLN scenarios has two independent dimensions - visual dynamics (perspective shift leads to spatial position mismatch) and semantic dynamics (advancement of task stages leads to cached token semantics becoming outdated). The orthogonal design of "view alignment remapping" and "task correlation semantic gating" respectively for these two dynamics is the most worthy of reference in this article: first use geometric correspondence to restore reusable collections, and then use semantic correlation to veto. Both are indispensable. The layer-adaptive entropy policy links the reuse budget of each layer to the uncertainty of attention distribution, and also provides a reference paradigm for other inference optimization work that requires cross-layer differential processing. The entire framework is free to train and does not require architectural modification. It can be used as a plug-and-play inference acceleration wrapping layer and has strong practical value.
+The core insight of VLN-Cache is that the root cause of the failure of existing token caching solutions in VLN scenarios has two independent dimensions - visual dynamics (perspective shift leads to spatial position mismatch) and semantic dynamics (advancement of task stages leads to cached token semantics becoming outdated).
+
+The orthogonal design of "view alignment remapping" and "task correlation semantic gating" respectively for these two dynamics is the most worthy of reference in this article: first use geometric correspondence to restore reusable collections, and then use semantic correlation to veto. Both are indispensable.
+
+The layer-adaptive entropy policy links the reuse budget of each layer to the uncertainty of attention distribution, and also provides a reference paradigm for other inference optimization work that requires cross-layer differential processing.
+
+The entire framework is free to train and does not require architectural modification. It can be used as a plug-and-play inference acceleration wrapping layer and has strong practical value.
 
 ---
 
@@ -3158,7 +3192,7 @@ Figure 4: R2R versus REVERIE Val-Unseen main results. R³ simultaneously outperf
 </div>
 
 - **R2R Val-Unseen**: SR 77 / SPL 66, 2 / 1.5 points better than the best BC baseline (GridMM 75 / 64, BEVBert 75 / 64); NE 2.76 (lowest).
-- **REVERIE Val-Unseen**: SR 53.76 / SPL 42.14 / RGS 37.94 / RGSPL 29.86, +2.01 / +3.28 / +2.92 / +3.30 compared to the suboptimal method (SUSA 51.75 / 38.86 / 35.02 / 26.56) respectively; the improvement on REVERIE** is significantly greater than R2R** shows that R³ is more advantageous in "coarse-grained" instructions that require higher-level semantic understanding and careful analysis.
+- **REVERIE Val-Unseen**: SR 53.76 / SPL 42.14 / RGS 37.94 / RGSPL 29.86, +2.01 / +3.28 / +2.92 / +3.30 compared to the suboptimal method (SUSA 51.75 / 38.86 / 35.02 / 26.56) respectively; the improvement on REVERIE **is significantly greater than R2R** shows that R³ is more advantageous in "coarse-grained" instructions that require higher-level semantic understanding and careful analysis.
 - **Efficiency (Fig. 1)**: R³ 1.10 s/step vs. other LLM-assisted methods 5~11 s, about 1/5; and SR 77 far exceeds all LLM-assisted baselines (the highest DiscussNav 40). Prove that the strategy of "Exception LLM" can achieve both efficiency and performance.
 
 <div align="center">
@@ -3171,7 +3205,7 @@ Figure 5: REVERIE visual comparison. GridMM lingers in the starting area for a l
 **ablation key points** (Table 2/3, sketch):
 
 - **Regulator three criteria are complementary**: remove Scoring and remove SR 2.05 / SPL 2.76 (maximum decrease), indicating that GNN scoring is the main early signal of failure; remove Ending and remove RGS 2.33 / RGSPL 4.01 (maximum decrease in RGS/RGSPL), which has the greatest impact on object positioning; remove Looping and Critical Formulation, and both have 0.37~0.39. SR dropped, all non-redundant.
-- **LLM capability × performance is positively correlated**: GPT-4o > GPT-3.5 Turbo >> MiniGPT-4; interestingly, R³ without Ruminator (w/o LLM) is still 1.98 SR better than with MiniGPT-4, indicating that ** LLM with insufficient capabilities will destroy the system **, indicating that stronger LLM in the future can directly amplify R³ gains.
+- **LLM capability × performance is positively correlated**: GPT-4o > GPT-3.5 Turbo >> MiniGPT-4; interestingly, R³ without Ruminator (w/o LLM) is still 1.98 SR better than with MiniGPT-4, indicating that  **LLM with insufficient capabilities will destroy the system** , indicating that stronger LLM in the future can directly amplify R³ gains.
 - **The necessity of shared memory**: w/o memory bank SR 52.89 (-0.87), RGSPL 28.06 (-1.80), indicating that Ruminator really relies on the context accumulated by Runner.
 
 ---
@@ -3215,7 +3249,13 @@ Figure 5: REVERIE visual comparison. GridMM lingers in the starting area for a l
 ### 1. Background and problem
 {: id="1-研究背景问题-15"}
 
-VLN (Vision-Language Navigation) requires the agent to navigate in an unknown environment by following natural language instructions. Traditional methods rely on explicit topology maps + SLAM/3D sensors for planning, and deployment is limited; recent end-to-end VLM-based methods (NaVid, NaVILA, StreamVLN, etc.) directly map instructions and RGB observations into actions, getting rid of dependence on depth/pose. However, these methods only "tame VLM to predict actions" and ignore the inherent reasoning ability of VLM, resulting in the navigation process being like a black box, lacking self-awareness, and making it difficult to perform precise sub-task planning and error correction. Although the existing Nav-R1 attempts to make inferences using a fixed-interval dual-system mechanism, its supervision data comes from the generalized query of historical observations by general VLM and lacks real self-awareness. The inference is only text output and cannot guide subsequent actions. The core question is: **How ​​to accurately reason about the current status and task progress of the agent based on the observation history, and make the reasoning truly serve action? **
+VLN (Vision-Language Navigation) requires the agent to navigate in an unknown environment by following natural language instructions. Traditional methods rely on explicit topology maps + SLAM/3D sensors for planning, and deployment is limited; recent end-to-end VLM-based methods (NaVid, NaVILA, StreamVLN, etc.) directly map instructions and RGB observations into actions, getting rid of dependence on depth/pose.
+
+However, these methods only "tame VLM to predict actions" and ignore the inherent reasoning ability of VLM, resulting in the navigation process being like a black box, lacking self-awareness, and making it difficult to perform precise sub-task planning and error correction.
+
+Although the existing Nav-R1 attempts to make inferences using a fixed-interval dual-system mechanism, its supervision data comes from the generalized query of historical observations by general VLM and lacks real self-awareness. The inference is only text output and cannot guide subsequent actions.
+
+The core question is: **How ​​to accurately reason about the current status and task progress of the agent based on the observation history, and make the reasoning truly serve action?**
 
 ---
 
@@ -4073,7 +4113,13 @@ The model adopts two-stage fine-tuning. First, LoRA is used to fine-tune the ins
 ### Key takeaways
 {: id="精华-22"}
 
-The core ideas worth learning from RynnBrain include: **Unified output space design** - encoding spatial quantities such as bounding boxes, trajectory points, area points, etc. into discrete coordinate tokens, sharing the same autoregressive decoder with language tokens, elegantly converting positioning tasks into classification problems; **Chain-of-Point (CoP) reasoning** - alternately inserting explicit spatial positioning steps in the text reasoning chain to make the reasoning process "rooted" in the physical environment and avoid illusions; **Hierarchical Plan-VLA architecture** - high-level RynnBrain-Plan generates subtask plans with precise coordinates, and low-level RynnBrain-VLA executes actions, with a clear division of labor between the two; **Human-model collaboration data flywheel** - only introduces manual annotation at key nodes, combined with model-assisted generation, to build a high-quality corpus of 20 million samples with a limited budget; **Multi-dimensional Spatio-temporal Memory** - Unifies images and videos into frame sequences, using temporal positional embedding Encoding temporal information gives the model global spatial awareness across frames.
+The core ideas worth learning from RynnBrain include:
+
+- **Unified output space design** - encoding spatial quantities such as bounding boxes, trajectory points, area points, etc. into discrete coordinate tokens, sharing the same autoregressive decoder with language tokens, elegantly converting positioning tasks into classification problems;
+- **Chain-of-Point (CoP) reasoning** - alternately inserting explicit spatial positioning steps in the text reasoning chain to make the reasoning process "rooted" in the physical environment and avoid illusions;
+- **Hierarchical Plan-VLA architecture** - high-level RynnBrain-Plan generates subtask plans with precise coordinates, and low-level RynnBrain-VLA executes actions, with a clear division of labor between the two;
+- **Human-model collaboration data flywheel** - only introduces manual annotation at key nodes, combined with model-assisted generation, to build a high-quality corpus of 20 million samples with a limited budget;
+- **Multi-dimensional Spatio-temporal Memory** - Unifies images and videos into frame sequences, using temporal positional embedding Encoding temporal information gives the model global spatial awareness across frames.
 
 ---
 
@@ -4392,7 +4438,11 @@ The real physical deployment of the complete slow system still requires addition
 
 ### 1. Background and problem
 {: id="1-研究背景问题-23"}
-Embodied intelligent navigation tasks (such as instruction following, target search, active tracking, and autonomous driving) are diverse, and their requirements for visual spatiotemporal context are essentially different. For example, command following requires long-range global memory to reset long-term landmarks, while active tracking highly relies on the latest frames of recent images for real-time response. Most of the existing unified navigation models use fixed down-sampling or sliding window strategies, which cannot be adjusted to local conditions when deploying inference. In large-scale trajectory training, it is easy to lose the multi-modal general understanding and common sense of large models, and degenerate into passive action generators. Therefore, how to expose a parameterized and reconfigurable observation coding interface on a single base model and build a universal navigation system that can cooperate with high-level agents is a core challenge in the field of embodied navigation.
+Embodied intelligent navigation tasks (such as instruction following, target search, active tracking, and autonomous driving) are diverse, and their requirements for visual spatiotemporal context are essentially different. For example, command following requires long-range global memory to reset long-term landmarks, while active tracking highly relies on the latest frames of recent images for real-time response.
+
+Most of the existing unified navigation models use fixed down-sampling or sliding window strategies, which cannot be adjusted to local conditions when deploying inference. In large-scale trajectory training, it is easy to lose the multi-modal general understanding and common sense of large models, and degenerate into passive action generators.
+
+Therefore, how to expose a parameterized and reconfigurable observation coding interface on a single base model and build a universal navigation system that can cooperate with high-level agents is a core challenge in the field of embodied navigation.
 
 ---
 
@@ -5382,7 +5432,11 @@ Overall concept and adaptive challenges for all-weather, multi-scenario lifelong
 #### ① Overview of the overall framework
 {: id="-整体框架概述-12"}
 
-In response to the challenges of all-weather multi-scenario lifelong navigation (AML-VLN), this article proposes the **Tucker Adaptation (TuKA)** architecture and the **Decoupled Knowledge Incremental Learning (DKIL)** incremental learning mechanism, and builds the **AlldayWalker** lifelong navigation agent. The system maps the adaptive weights of the Transformer layer to a high-dimensional tensor space, and uses Tucker Decomposition to explicitly decompose the high-dimensional tensor into a Core Tensor that captures global general navigation capabilities, an encoding and decoding dimensional projection matrix, and a vector expert library that is decoupled by scene and environment. In the continuous learning stage, the DKIL strategy implements differentiated constraints on shared and exclusive subspaces; in the inference stage, the agent uses double-layer matching retrieval based on CLIP visual features to automatically call the optimal combination of scene and environment experts without the need for Task-ID.
+In response to the challenges of all-weather multi-scenario lifelong navigation (AML-VLN), this article proposes the **Tucker Adaptation (TuKA)** architecture and the **Decoupled Knowledge Incremental Learning (DKIL)** incremental learning mechanism, and builds the **AlldayWalker** lifelong navigation agent.
+
+The system maps the adaptive weights of the Transformer layer to a high-dimensional tensor space, and uses Tucker Decomposition to explicitly decompose the high-dimensional tensor into a Core Tensor that captures global general navigation capabilities, an encoding and decoding dimensional projection matrix, and a vector expert library that is decoupled by scene and environment.
+
+In the continuous learning stage, the DKIL strategy implements differentiated constraints on shared and exclusive subspaces; in the inference stage, the agent uses double-layer matching retrieval based on CLIP visual features to automatically call the optimal combination of scene and environment experts without the need for Task-ID.
 
 <div align="center">
   <img src="/images/vln/TuckerNav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/473" alt="Comparison of traditional LoRA, HydraLoRA and Tucker Adaptation (TuKA) high-dimensional tensor architecture in this article" />
@@ -6183,9 +6237,13 @@ The physical meanings of each are as follows:
    $$\mathrm{Sim}_{Temp}(f, \mathcal M) = \frac{1}{\min_{m \in \mathcal M} \lvert t_f - t_m \rvert + \epsilon}$$
 
 > **For example (how AMR weight balancing selects key landmarks)**:
+>
 > The robot executes a 50-step long instruction: "Go through the hallway, into the living room and stop by the black loveseat."
+>
 > The robot stayed in the living room for 15 steps. If we only look at the semantic correlation ($\lambda_R = 1.0$), the 8 selected memory frames will all be occupied by the close-up of the sofa from the same angle in the living room, resulting in the complete loss of the memory of the first half of the corridor;
+>
 > When the visual diversity and time penalty ($\lambda_R = 0.5, w_V = 0.5, w_T = 0.5$) were introduced, the score of the second living room sofa frame was greatly reduced because it was $$\mathrm{Sim}_{Vis} > 0.95$$ with the existing sofa frame and had a very small time difference;
+>
 > The final algorithm will automatically retain: 1 frame of the starting room, 2 frames of the corridor corner, 2 frames of the living room entrance, and 3 frames of sofa landmarks with different orientations, achieving full-time and spatial high-fidelity memory.
 
 <div align="center">
@@ -6597,11 +6655,11 @@ The supervision sequence of the navigation sample is 1 `<apos_i>` + 1 `<opos_i>`
 #### ⑥ Three-stage training formula
 {: id="-三阶段训练配方"}
 
-**Stage I — Embodied Reasoning (ER) mid-term training. ** Don’t touch the movements first, and specifically use the backbone’s spatial ability. A mixed set of 13.0M samples was constructed from 36 data sources, and the sampling quality distribution was 35.14% for pointing, 25.05% for single-image VQA, 19.81% for video reasoning, and 20.00% for general visual and abstract reasoning. The generated checkpoint is called **LightNav-ER**, which is used to initialize subsequent navigation alignment. About 170 H100 GPU-hours.
+**Stage I — Embodied Reasoning (ER) mid-term training.**  Don’t touch the movements first, and specifically use the backbone’s spatial ability. A mixed set of 13.0M samples was constructed from 36 data sources, and the sampling quality distribution was 35.14% for pointing, 25.05% for single-image VQA, 19.81% for video reasoning, and 20.00% for general visual and abstract reasoning. The generated checkpoint is called **LightNav-ER**, which is used to initialize subsequent navigation alignment. About 170 H100 GPU-hours.
 
-**Stage II — Supervised Fine-Tuning (SFT). ** Align LightNav-ER to the unified navigation token space. In the optimized mix after task balancing, 77.6% of the samples have navigation action supervision, and 22.4% are perception/reasoning samples to review the ER stage abilities - the paper calls it a "specialize-then-retain" course to prevent specialization from squeezing out the general visual language ability inherited from the backbone. The mix contains samples collected by DAgger, allowing the strategy to see the state induced by its own actions. About 950 H100 GPU-hours.
+**Stage II — Supervised Fine-Tuning (SFT).**  Align LightNav-ER to the unified navigation token space. In the optimized mix after task balancing, 77.6% of the samples have navigation action supervision, and 22.4% are perception/reasoning samples to review the ER stage abilities - the paper calls it a "specialize-then-retain" course to prevent specialization from squeezing out the general visual language ability inherited from the backbone. The mix contains samples collected by DAgger, allowing the strategy to see the state induced by its own actions. About 950 H100 GPU-hours.
 
-**Stage III — Online post-RL training. ** Although DAgger supplements the strategy-induced state, its goal is still token-level imitation and does not directly optimize the closed-loop behavior that determines the success or failure of the task. So GRPO was used for online optimization. The same set of backbone, token interface and rollout mechanism support three types of tasks. **Only the reward function is different**:
+**Stage III — Online post-RL training.**  Although DAgger supplements the strategy-induced state, its goal is still token-level imitation and does not directly optimize the closed-loop behavior that determines the success or failure of the task. So GRPO was used for online optimization. The same set of backbone, token interface and rollout mechanism support three types of tasks. **Only the reward function is different**:
 
 $$A^{(g)} = \frac{R(\tau^{(g)}) - \mu_R}{\sigma_R + \epsilon_{num}}$$
 
@@ -6621,8 +6679,11 @@ $$R_{VLN} = \left(1 + \mathrm{nDTW}\right)\mathbf 1[\text{success}] + \exp\!\lef
 Object navigation is replaced by path efficiency $PL = d_0 / \max(d_0, \tilde\ell)$ (i.e., the episode-by-episode version of SPL). Because it only gives categories but not routes, path fidelity is out of the question; the Gaussian neighbor term assumes the distinction of all failed samples - without it, all failures have the same reward value and make no contribution to the within-group variance. Visual tracking is the most special: the target is moving and there is no end point to "reach", so the reward is changed to "time average of step-by-step quality", and when it stops early (lost or collides), it is normalized according to the fixed time domain $T_0 = 300$ steps, and the number of unexecuted steps is recorded as zero quality - otherwise a follower who hits the wall early will take advantage because of the "high average value".
 
 > **For example** (why the RL training set needs to be screened first): An episode seed needs to run $G=8$ rollouts.
+>
 > If all 8 are successful, the 8 rewards are almost the same, $\sigma_R \approx 0$, and all 8 advantages after standardization are 0 - these 8 simulations run in vain, and the gradient contribution is zero; the same applies if all fail.
+>
 > Only episodes riding on the decision boundary such as "3 out of 8 succeeded" have non-zero variance.
+>
 > Therefore, the paper first uses SFT checkpoint to run $K$ times on each candidate, and divides them into always-solved / mixed / never-solved, leaving only mixed. In the same way, the decision steps that are retained by sampling cannot be drawn evenly - the first and last decisions, as well as decisions with discrete events such as stop/stuck/collision/large-angle steering, and their neighbors must be retained, because the final rewards are earned precisely at these rare moments, and uniform sampling will throw them away according to rarity.
 
 #### ⑦ Use a table to see clearly "what has been changed"
@@ -6651,17 +6712,23 @@ The paper also builds a new benchmark that unifies gridded simulation scenes and
 ### 3. Results and findings
 {: id="3-核心结果发现-35"}
 
-**Embodied Reasoning (LightNav-ER, 8 benchmarks). ** 4B’s LightNav-ER achieved a complete set macro average of 67.4, ranking first in 4 items and second in 4 items. It is 4.3 points higher than its own initialization Qwen3-VL-4B (63.1) and 4.6 points higher than 8B Molmo2-ER (62.8) with only half the parameters. The two biggest gains are the capabilities that are most relevant to navigation - Where2Place +12.6 and RefSpatial +11.9, which respectively correspond to free space grounding and multi-step spatial reference.
+**Embodied Reasoning (LightNav-ER, 8 benchmarks).**  4B’s LightNav-ER achieved a complete set macro average of 67.4, ranking first in 4 items and second in 4 items. It is 4.3 points higher than its own initialization Qwen3-VL-4B (63.1) and 4.6 points higher than 8B Molmo2-ER (62.8) with only half the parameters. The two biggest gains are the capabilities that are most relevant to navigation - Where2Place +12.6 and RefSpatial +11.9, which respectively correspond to free space grounding and multi-step spatial reference.
 
-**Instruction following (VLN-CE val-unseen). ** The four indicators of monocular on R2R are the best across the board: SR 66.9 → 68.5, SPL 62.3 → 62.8, NE 4.05 → 3.91 m, OS 73.7. NE / SR / SPL on RxR are both the best for monocular (NE 4.09 → 3.66 m, a decrease of 10.5%; SR 73.6; SPL 64.5). **But nDTW is only 67.4, which is lower than DualVLN’s 70.0** - The paper points out that higher success rate and end point accuracy are not evenly converted into trajectory fidelity.
+**Instruction following (VLN-CE val-unseen).**  The four indicators of monocular on R2R are the best across the board: SR 66.9 → 68.5, SPL 62.3 → 62.8, NE 4.05 → 3.91 m, OS 73.7. NE / SR / SPL on RxR are both the best for monocular (NE 4.09 → 3.66 m, a decrease of 10.5%; SR 73.6; SPL 64.5). **But nDTW is only 67.4, which is lower than DualVLN’s 70.0** - The paper points out that higher success rate and end point accuracy are not evenly converted into trajectory fidelity.
 
-**Object target navigation. ** Without using depth or odometry, the three closed set settings of monocular SR and SPL are all optimal: MP3D SR 46.6 → 53.3, SPL 17.5 → 21.2; HM3D v1 SR 74.5 / SPL 43.9; HM3D v2 SR 77.2 / SPL 41.5. This pure RGB strategy even surpasses the listed multi-viewing systems - HM3D v1 is 16.4 SR and 12.7 SPL higher than WMNav with depth and odometry, which is equivalent to ruling out the explanation of "a wider field of view or more privileged geometric information". The pattern on HM3D-OVON of the open-vocabulary is consistent, and the more skewed the distribution, the greater the gain: seen +0.3 SR, synonyms +9.6, unseen +6.2; SPL +7.6 / +7.8 / +4.4 respectively (the above are arXiv v2 numbers).
+**Object target navigation.**  Without using depth or odometry, the three closed set settings of monocular SR and SPL are all optimal: MP3D SR 46.6 → 53.3, SPL 17.5 → 21.2; HM3D v1 SR 74.5 / SPL 43.9; HM3D v2 SR 77.2 / SPL 41.5. This pure RGB strategy even surpasses the listed multi-viewing systems - HM3D v1 is 16.4 SR and 12.7 SPL higher than WMNav with depth and odometry, which is equivalent to ruling out the explanation of "a wider field of view or more privileged geometric information". The pattern on HM3D-OVON of the open-vocabulary is consistent, and the more skewed the distribution, the greater the gain: seen +0.3 SR, synonyms +9.6, unseen +6.2; SPL +7.6 / +7.8 / +4.4 respectively (the above are arXiv v2 numbers).
 
-**Embodied Visual Tracking (EVT-Bench). ** SR 91.7 / TR 87.7 / CR 1.87 on STT, SR 82.6 / TR 80.1 / CR 4.62 on DT, leading in all aspects under monocular setting, DT is 9.3 SR higher than the sub-optimal ReferTrack.
+**Embodied Visual Tracking (EVT-Bench).**  SR 91.7 / TR 87.7 / CR 1.87 on STT, SR 82.6 / TR 80.1 / CR 4.62 on DT, leading in all aspects under monocular setting, DT is 9.3 SR higher than the sub-optimal ReferTrack.
 
-**INSIGHT-Bench. ** Under the unified deployment protocol (same 1,097 episodes, 120° forward-looking 480×270 RGB, 300-step budget), SR 27.4 → 43.7, SPL 24.0 → 41.5, NE 4.25 → 3.88 m, all aggregation indicators are optimal. The maximum gain on the command axis occurs in Direction (29.7 → 57.7), and this is the only type of command in which LightNav-0 exceeds its own Base score (45.1). The scores of the six open source baselines are all lower than their respective Bases after adding first-person orientation words - this directly corresponds to its route conditional supervision (the first-person orientation is explicitly written in the template and retained in the rewrite). The most difficult one is still Extremum (37.2), because to select "leftmost/second" you must first check out multiple candidates and then compare the positions. On the scene axis, the apartment is the strongest (61.1), the outdoor relative gain is the largest (16.7 → 34.2, doubled), and the institutional category is the weakest (29.2).
+**INSIGHT-Bench.**  Under the unified deployment protocol (same 1,097 episodes, 120° forward-looking 480×270 RGB, 300-step budget), SR 27.4 → 43.7, SPL 24.0 → 41.5, NE 4.25 → 3.88 m, all aggregation indicators are optimal.
 
-**ablation. ** Both components are required to be verified, and ** the contribution of dual-channel pointing is much greater than that of ER initialization **: ER initialization raised the average SR of the 8 settings from 60.8 to 63.1, and the average SPL from 39.0 to 40.0; while after removing pointing supervision, the average SR dropped from 63.1 to 54.7, and the average SPL dropped from 40.0 to 40.0 34.3 (about 3.7 times the effect of ER initialization). The improvement of SR by ER initialization is consistent across 8 settings, but the improvement on SPL is small and uneven, indicating that it mainly improves semantic and spatial decision-making, and path efficiency relies more on downstream navigation alignment.
+The maximum gain on the command axis occurs in Direction (29.7 → 57.7), and this is the only type of command in which LightNav-0 exceeds its own Base score (45.1). The scores of the six open source baselines are all lower than their respective Bases after adding first-person orientation words - this directly corresponds to its route conditional supervision (the first-person orientation is explicitly written in the template and retained in the rewrite).
+
+The most difficult one is still Extremum (37.2), because to select "leftmost/second" you must first check out multiple candidates and then compare the positions.
+
+On the scene axis, the apartment is the strongest (61.1), the outdoor relative gain is the largest (16.7 → 34.2, doubled), and the institutional category is the weakest (29.2).
+
+**ablation.**  Both components are required to be verified, and  **the contribution of dual-channel pointing is much greater than that of ER initialization** : ER initialization raised the average SR of the 8 settings from 60.8 to 63.1, and the average SPL from 39.0 to 40.0; while after removing pointing supervision, the average SR dropped from 63.1 to 54.7, and the average SPL dropped from 40.0 to 40.0 34.3 (about 3.7 times the effect of ER initialization). The improvement of SR by ER initialization is consistent across 8 settings, but the improvement on SPL is small and uneven, indicating that it mainly improves semantic and spatial decision-making, and path efficiency relies more on downstream navigation alignment.
 
 <div align="center">
   <img src="/images/vln/LightNav-0-scaling.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1450/601" alt="Three-axis scaling of model, data, and environment on continuous VLN: backbone has improved significantly from 2B to 4B, and mixed or even declined to 8B; data volume increases monotonically but returns diminish when approaching full volume; environment coverage is the most stable of the three axes" />
@@ -6670,9 +6737,9 @@ Three-axis scaling of model, data, and environment on continuous VLN: backbone h
 </figcaption>
 </div>
 
-**Scaling’s three axes give different conclusions. ** Model axis: 2B → 4B increased by 6.6–9.6 points in R2R/RxR, but 4B → 8B is no longer consistently beneficial (R2R SR/SPL decreased by 1.6/0.5, RxR SR decreased by 0.5, and only RxR SPL increased by 2.0) - 4B is the most cost-effective among this batch of checkpoints. Data axis: 1/16 → full volume increased by 15.0–17.4 points, but 1/2 → full volume only increased by 0.4–1.4 points, with obviously diminishing returns. Environment axis: 1/8 → Full volume increased by 16.7/16.2 in R2R and 21.1/19.1 in RxR, and each mid-range improved all four indicators; on the aligned 1/8-to-full range, the gain of environment expansion exceeded data expansion. **The conclusion is that expanding environmental diversity is the most reliable. **
+**Scaling’s three axes give different conclusions.**  Model axis: 2B → 4B increased by 6.6–9.6 points in R2R/RxR, but 4B → 8B is no longer consistently beneficial (R2R SR/SPL decreased by 1.6/0.5, RxR SR decreased by 0.5, and only RxR SPL increased by 2.0) - 4B is the most cost-effective among this batch of checkpoints. Data axis: 1/16 → full volume increased by 15.0–17.4 points, but 1/2 → full volume only increased by 0.4–1.4 points, with obviously diminishing returns. Environment axis: 1/8 → Full volume increased by 16.7/16.2 in R2R and 21.1/19.1 in RxR, and each mid-range improved all four indicators; on the aligned 1/8-to-full range, the gain of environment expansion exceeded data expansion. **The conclusion is that expanding environmental diversity is the most reliable.**
 
-**Zero sample migration. ** The same checkpoint is moved to the four game domains of Counter-Strike 1.6, VizDoom, Minecraft, and Trigger Rally without any adaptation, and is used for instruction following, target tracking, and checkpoint driving respectively - indicating that the learned pointing-trajectory interface is not tied to the appearance statistics or kinematics of the training simulator.
+**Zero sample migration.**  The same checkpoint is moved to the four game domains of Counter-Strike 1.6, VizDoom, Minecraft, and Trigger Rally without any adaptation, and is used for instruction following, target tracking, and checkpoint driving respectively - indicating that the learned pointing-trajectory interface is not tied to the appearance statistics or kinematics of the training simulator.
 
 <div align="center">
   <img src="/images/vln/LightNav-0-game-zeroshot.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1443/605" alt="Zero-sample generalization across game domains: the same checkpoint follows language instructions in CS 1.6 and VizDoom, tracks moving targets in Minecraft, and does checkpoint driving in Trigger Rally; cyan and magenta marks are predicted affordance points and object points respectively" />
@@ -6819,7 +6886,15 @@ The inference overhead of SGM construction (especially SAM2 semantic extraction 
 ### Key takeaways
 {: id="精华-39"}
 
-The real bottleneck of training-independent navigation is not whether the planner is smart enough, but the lack of an arbitration layer between "semantically reasonable proposals" and "whether they can be physically executed" - HarnessVLN explicitly implements this arbitration layer. The approach is to downgrade MLLM from the decision-maker to the proposer: every tool call it outputs must first pass the three verifications of evidence freshness, geometric reachability, and sub-goal consistency before it is allowed to be dispatched. Even Stop is only an "application" and not a "command". The memory is split into two complementary sets - event memory (task center, which stores complete failure trajectories) and spatio-temporal graph ST Graph (environment center, which stores reusable spatial evidence plus lightweight failure annotations and references back to events), which not only maintains traceability, but also prevents things entering the MLLM context from expanding linearly with the length of the trajectory. The protocol remains unchanged and the actuators are replaceable, so the same set of Harness consumes the four benchmarks of VLN-CE R2R/RxR and HM3D-v2/OVON at the same time, and is directly migrated to the humanoid robot. The core idea of ​​migration is: **Add a layer of "pre-dispatch verification + structured feedback infusion" runtime to the agent, which can better connect semantic reasoning back to physical execution** than continuing to adjust the prompt.
+The real bottleneck of training-independent navigation is not whether the planner is smart enough, but the lack of an arbitration layer between "semantically reasonable proposals" and "whether they can be physically executed" - HarnessVLN explicitly implements this arbitration layer.
+
+The approach is to downgrade MLLM from the decision-maker to the proposer: every tool call it outputs must first pass the three verifications of evidence freshness, geometric reachability, and sub-goal consistency before it is allowed to be dispatched. Even Stop is only an "application" and not a "command".
+
+The memory is split into two complementary sets - event memory (task center, which stores complete failure trajectories) and spatio-temporal graph ST Graph (environment center, which stores reusable spatial evidence plus lightweight failure annotations and references back to events), which not only maintains traceability, but also prevents things entering the MLLM context from expanding linearly with the length of the trajectory.
+
+The protocol remains unchanged and the actuators are replaceable, so the same set of Harness consumes the four benchmarks of VLN-CE R2R/RxR and HM3D-v2/OVON at the same time, and is directly migrated to the humanoid robot.
+
+The core idea of ​​migration is: **Add a layer of "pre-dispatch verification + structured feedback infusion" runtime to the agent, which can better connect semantic reasoning back to physical execution** than continuing to adjust the prompt.
 
 ---
 
@@ -6964,7 +7039,9 @@ Three items respectively verify the target identity, geometric validity and task
 > **For example (how to save a failure by stopping gating)**: Paper Figure 8, HM3D-OVON Episode 1297, the target category is picture.
 >
 > In step 216, the agent thinks it has arrived: according to the projected navigation target point, the distance is only **0.40 m**, which is lower than the projection target threshold of 1.0 m. It "looks" like it is time to stop.
+>
 > But Harness doesn't believe this number - it prioritizes grabbing a frame of **fresh depth**: taking the median of the 5×5 neighborhood on the detection frame anchor point (requiring the patch standard deviation not to exceed 0.5 m), it reads **4.65 m**, far exceeding the depth threshold of 2.5 m, so $F_{geometric}$ is not established, the stop application is rejected, and the event is stored in the database.
+>
 > The agent continues to approach, and the new depth reads **1.53 m** at step 429, and the door passes; it actually stops at step 430, and the end distance of the benchmark evaluation is **0.13 m**, which is successful.
 >
 > In a word: **The projected target point can only show "I went to where I thought I was", and fresh depth can show "I am really next to that object"**. The value of Harness is to choose to trust the sensor rather than the plan when the two conflict.
@@ -7024,7 +7101,7 @@ Runtime panel: ① Running status ② RGB observation with ground frame ③ Navi
 
 **An honest counterexample**: Stopping verification raised SR from 53.0 to 55.0 on OVON, but caused SPL to drop from 34.2 to 33.0, and the OSR-SR gap increased from 18.0 to 19.0 - **Stronger verification leads to a higher completion rate at the expense of detours and more cautious termination**, which are not in the same direction.
 
-**Model sensitivity (fixed 100 sets of OVON subsets)**: The protocol and tools remain unchanged and only the base is changed, the SR swings between 51.0 (Qwen3.8-flash) to 63.0 (GPT-6-astra); while under the same base GPT-5.6-luna, HarnessVLN’s 55.0 versus MSGNav’s 37.0, indicating that the ** gain mainly comes from Harness rather than the model itself**.
+**Model sensitivity (fixed 100 sets of OVON subsets)**: The protocol and tools remain unchanged and only the base is changed, the SR swings between 51.0 (Qwen3.8-flash) to 63.0 (GPT-6-astra); while under the same base GPT-5.6-luna, HarnessVLN’s 55.0 versus MSGNav’s 37.0, indicating that the  **gain mainly comes from Harness rather than the model itself**.
 
 | Methods | Base Model | SR↑ | SPL↑ | OSR↑ | Gap↓ |
 |---|---|---|---|---|---|
@@ -7069,7 +7146,13 @@ Paper description: The current orchestration and verification rules of Harness a
 ### Key takeaways
 {: id="精华-40"}
 
-There has always been a lack of a verifiable and trainable interface between the semantic reasoning of VLM and the spatial execution of robots in VLN: the text CoT says "I see the water tank" but cannot tell where the water tank is on the screen, and the discrete action output does not have any explicit target. GroundingVLN's approach is to let grounding take on two things at the same time - binding each visual assertion to pixel coordinates (`<obj>label|[x,y]</obj>`) during reasoning, outputting a pixel target aligned with the current subtask progress during decision-making, and handing it to the geometric planner to back-project into a 3D path. The two key supporting designs are: the data engine uses 3D world markers and SAM 3 tracking to solve the problem of "the same object changing its name and surname across perspectives"; GEAR back-projects the pixel target and scores it based on "where it can really go" instead of scoring based on 2D pixel distance. The result is that only 188K samples (0.9% of the strongest baseline) were used to obtain R2R-CE 69.9% SR and RxR-CE 75.1% SR, and only using R2R training to migrate to RxR still had 59.9% SR, which was 20.1 points higher than the strongest baseline. The inspiration for the methodology is: **When the interface between the high-level model and the low-level actuator itself has a measurable geometric quantity, the reward design can be upgraded from "right/wrong" to "how many meters wrong", and the sample efficiency changes from quantity to quality**.
+There has always been a lack of a verifiable and trainable interface between the semantic reasoning of VLM and the spatial execution of robots in VLN: the text CoT says "I see the water tank" but cannot tell where the water tank is on the screen, and the discrete action output does not have any explicit target. GroundingVLN's approach is to let grounding take on two things at the same time - binding each visual assertion to pixel coordinates (`<obj>label|[x,y]</obj>`) during reasoning, outputting a pixel target aligned with the current subtask progress during decision-making, and handing it to the geometric planner to back-project into a 3D path.
+
+The two key supporting designs are: the data engine uses 3D world markers and SAM 3 tracking to solve the problem of "the same object changing its name and surname across perspectives"; GEAR back-projects the pixel target and scores it based on "where it can really go" instead of scoring based on 2D pixel distance.
+
+The result is that only 188K samples (0.9% of the strongest baseline) were used to obtain R2R-CE 69.9% SR and RxR-CE 75.1% SR, and only using R2R training to migrate to RxR still had 59.9% SR, which was 20.1 points higher than the strongest baseline.
+
+The inspiration for the methodology is: **When the interface between the high-level model and the low-level actuator itself has a measurable geometric quantity, the reward design can be upgraded from "right/wrong" to "how many meters wrong", and the sample efficiency changes from quantity to quality**.
 
 ---
 
@@ -7092,7 +7175,7 @@ The evidence from cognitive science is that people will selectively encode navig
 ### 2. Method and innovations
 {: id="2-主要方法创新点-37"}
 
-**Overview of the overall framework. ** GroundingVLN is a decoupled closed-loop system, consisting of three parts: **High-level VLM** is responsible for structured grounded reasoning and outputs (current subtask, high-level action, pixel target) triplet; **Low-level execution module** back-projects the pixel target into 3D points, uses A\* to plan the path and converts it into the original action; **GEAR post-training** uses execution-aware reward maps to align the first two. The instruction is split into ordered subtasks at one time during initialization, and each decision step is then advanced on the semantic scale of "current subtask".
+**Overview of the overall framework.**  GroundingVLN is a decoupled closed-loop system, consisting of three parts: **High-level VLM** is responsible for structured grounded reasoning and outputs (current subtask, high-level action, pixel target) triplet; **Low-level execution module** back-projects the pixel target into 3D points, uses A\* to plan the path and converts it into the original action; **GEAR post-training** uses execution-aware reward maps to align the first two. The instruction is split into ordered subtasks at one time during initialization, and each decision step is then advanced on the semantic scale of "current subtask".
 
 <div align="center">
   <img src="/images/vln/GroundingVLN-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/843" alt="GroundingVLN Overview. (A) The high-level VLM performs grounded reasoning and predicts subtasks, actions and pixel targets, and the low-level modules are converted into original actions; (B) GroundingCOTVLN-188K provides supervision through subtask and target alignment, as well as grounding timing alignment; (C) GEAR uses execution-aware reward maps with multi-level rewards for GRPO optimization" />
@@ -7132,7 +7215,7 @@ Among them, $S_{k_t}$ is the path segment aligned with the current subtask, and 
 | Relationship with semantics | None, pure geometry is the farthest | Bind to the predicted current subtask and output together |
 | Actuator input | Diffusion executor eating **Latent features** of VLM | Explicit pixel coordinates → Backprojection → A\* planning |
 
-> **Example**: The command "Go into the kitchen, past the sink and oven → Go straight into the hallway → Turn left into the bedroom" is split into 3 subtasks. Assume that the robot is in the living room at the moment, and subtask 1 has not been completed yet. The farthest accessible point in the field of view on the reference trajectory is the corridor entrance 12 meters away - the "farthest visible point" strategy will directly set it as the target, spanning the entire subtask 1 in one step, and the sink and oven will not pass at all. GroundingVLN limits the candidates to the segment of subtask 1. The end of the segment is the kitchen entrance 3 m away, so the pixel target falls on the floor of the kitchen entrance [493, 409]. After getting there, subtask 1 is judged to be completed, and then the next section is planned. **One sentence: The pixel goal is not "how far you can see and walk", but "where you should go in this section of the task." **
+> **Example**: The command "Go into the kitchen, past the sink and oven → Go straight into the hallway → Turn left into the bedroom" is split into 3 subtasks. Assume that the robot is in the living room at the moment, and subtask 1 has not been completed yet. The farthest accessible point in the field of view on the reference trajectory is the corridor entrance 12 meters away - the "farthest visible point" strategy will directly set it as the target, spanning the entire subtask 1 in one step, and the sink and oven will not pass at all. GroundingVLN limits the candidates to the segment of subtask 1. The end of the segment is the kitchen entrance 3 m away, so the pixel target falls on the floor of the kitchen entrance [493, 409]. After getting there, subtask 1 is judged to be completed, and then the next section is planned. **One sentence: The pixel goal is not "how far you can see and walk", but "where you should go in this section of the task."**
 
 #### 2.3 Low-level planning and execution
 {: id="23-低层规划与执行"}
@@ -7200,13 +7283,17 @@ $$Q_t(p) = \lambda_r \exp\left(-\frac{d_\perp(p)^2}{2\sigma_r^2}\right) + \lambd
 
 The three items are responsible for three things respectively: $d_\perp(p)$ is the **lateral deviation** to the reference route (pipeline route consistency); $s(p)-s_t^{\ast}$ is the **route progress difference** from the reference target (controls semantic progress, points will be deducted for walking too little or rushing too far); $d_e(p) = \lVert P_t(p) - P_t^{\ast} \rVert_2$ is **execution endpoint error** (controlling physical executability). Invalid pixels directly get the lowest score in the entire image.
 
-> **Example**: The marked reference target is on the floor by the kitchen door. The model gives two candidate pixels - A on the floor of the doorway, 40 px from the reference point; B on the wall next to the door frame, also 40 px from the reference point. By 2D pixel distance, both score exactly the same. But after back-projecting to 3D: A falls on the walkable ground, about 0.3 m away from the reference endpoint, and all three Gaussians give high scores; B falls on the wall, and is directly judged invalid by the trafficability mask and gets the lowest score. **The reward picture does not ask "whether your click is close to the mark", but "follow your click, where can the robot really go, and how far is it from the goal?" **
+> **Example**: The marked reference target is on the floor by the kitchen door. The model gives two candidate pixels - A on the floor of the doorway, 40 px from the reference point; B on the wall next to the door frame, also 40 px from the reference point. By 2D pixel distance, both score exactly the same. But after back-projecting to 3D: A falls on the walkable ground, about 0.3 m away from the reference endpoint, and all three Gaussians give high scores; B falls on the wall, and is directly judged invalid by the trafficability mask and gets the lowest score. **The reward picture does not ask "whether your click is close to the mark", but "follow your click, where can the robot really go, and how far is it from the goal?"**
 
 In addition to the reward map, there are also multiple levels of rewards:
 
 $$R_y = \alpha_a R_{act} + \alpha_t R_{task} + \alpha_g R_{goal} + \lambda_g R_{grd} - P$$
 
-Among them, $R_{goal}(p) = \phi(Q_t(p))$ comes from the reward map above; $R_{act}$ is a deterministic action reward matrix (+1 is given if the action is completely correct, −0.5 is given if the TURN direction is wrong, −0.75 is given if the TURN predicts MOVE, but the target falls in the outer quarter of the screen consistent with the turn, −0.9 is given if MOVE and TURN are exchanged, and −0.9 is given if MOVE and TURN are exchanged in advance, or STOP is done in advance or the STOP is done differently. −1); $R_{task}$ is an exact match after normalization of the subtask text (True +1 False −1); $R_{grd}$ evaluates the semantic and spatial correctness of grounding; $P$ penalizes the inconsistency between reasoning and decision-making. The format is illegal (the number of `<think>` blocks is incorrect, the JSON schema does not match, the coordinates are out of bounds, the `<target>` label does not match the decision, etc.) Give it directly to $R = -1$. Finally, each anchor point takes G outputs, and uses the normalized reward within the group to perform GRPO clipping target optimization.
+Among them, $R_{goal}(p) = \phi(Q_t(p))$ comes from the reward map above; $R_{act}$ is a deterministic action reward matrix (+1 is given if the action is completely correct, −0.5 is given if the TURN direction is wrong, −0.75 is given if the TURN predicts MOVE, but the target falls in the outer quarter of the screen consistent with the turn, −0.9 is given if MOVE and TURN are exchanged, and −0.9 is given if MOVE and TURN are exchanged in advance, or STOP is done in advance or the STOP is done differently. −1); $R_{task}$ is an exact match after normalization of the subtask text (True +1 False −1); $R_{grd}$ evaluates the semantic and spatial correctness of grounding; $P$ penalizes the inconsistency between reasoning and decision-making.
+
+The format is illegal (the number of `<think>` blocks is incorrect, the JSON schema does not match, the coordinates are out of bounds, the `<target>` label does not match the decision, etc.) Give it directly to $R = -1$.
+
+Finally, each anchor point takes G outputs, and uses the normalized reward within the group to perform GRPO clipping target optimization.
 
 **Training configuration**: Initialize from Qwen3.5-4B, first do 1 epoch SFT on 188K samples (about 8 hours for 8 H200), then use GEAR to run 2000 steps on 16K samples, with a learning rate of 1e-6 (about 20 hours for the same hardware).
 
@@ -7215,7 +7302,7 @@ Among them, $R_{goal}(p) = \phi(Q_t(p))$ comes from the reward map above; $R_{ac
 ### 3. Results and findings
 {: id="3-核心结果发现-38"}
 
-**VLN-CE main list is comprehensive SOTA. ** R2R-CE val_unseen: NE 3.66/OS 74.8/SR 69.9/SPL 64.1; RxR-CE val_unseen: NE 3.54/SR 75.1/SPL 62.0/nDTW 75.3. Compared with ABot-N0, the absolute SR improvement is 3.5% (R2R) and 5.8% (RxR), and exceeds DualVLN(S2)+SPF - that variant uses Habitat's shortest path follower to ideally execute its predicted pixel target, indicating that the advantage of GroundingVLN does not come from the executor, but from the more correctly selected target itself.
+**VLN-CE main list is comprehensive SOTA.**  R2R-CE val_unseen: NE 3.66/OS 74.8/SR 69.9/SPL 64.1; RxR-CE val_unseen: NE 3.54/SR 75.1/SPL 62.0/nDTW 75.3. Compared with ABot-N0, the absolute SR improvement is 3.5% (R2R) and 5.8% (RxR), and exceeds DualVLN(S2)+SPF - that variant uses Habitat's shortest path follower to ideally execute its predicted pixel target, indicating that the advantage of GroundingVLN does not come from the executor, but from the more correctly selected target itself.
 
 <div align="center">
   <img src="/images/vln/GroundingVLN-data-efficiency.webp" width="90%" loading="lazy" decoding="async" style="aspect-ratio:1118/572" alt="Training data efficiency on R2R-CE val_unseen. The horizontal axis is the number of training samples self-reported by each method (logarithmic scale). GroundingVLN achieved the highest SR with 188K samples, which is approximately 0.9% of the total ABot-N0" />
@@ -7224,11 +7311,11 @@ Training data efficiency on R2R-CE val_unseen. The horizontal axis is the number
 </figcaption>
 </div>
 
-**Sample efficiency is the most eye-catching item. ** 188K samples compared to ABot-N0’s 21.9M (16.9M expert trajectories plus 5.0M inference samples), using only 0.9%. A more rigorous comparison is in Appendix A.2: When only using R2R and RxR data (no additional navigation corpus), the SR of StreamVLN is 45.6%, JanusVLN Base is 52.8%, and GroundingVLN is 69.9%; even against their versions using the full corpus (26.3M / 10.69M), GroundingVLN Still 13.0% and 9.4% higher respectively.
+**Sample efficiency is the most eye-catching item.**  188K samples compared to ABot-N0’s 21.9M (16.9M expert trajectories plus 5.0M inference samples), using only 0.9%. A more rigorous comparison is in Appendix A.2: When only using R2R and RxR data (no additional navigation corpus), the SR of StreamVLN is 45.6%, JanusVLN Base is 52.8%, and GroundingVLN is 69.9%; even against their versions using the full corpus (26.3M / 10.69M), GroundingVLN Still 13.0% and 9.4% higher respectively.
 
-**The improvement in generalization across datasets is even greater. ** Trained with R2R only, zero RxR-CE data directly transferred to RxR-CE val_unseen: SR 59.9% / SPL 48.2%, 20.1 and 12.2 absolute points higher than the strongest baseline AwareVLN (39.8% / 36.0%). The author's explanation is that explicit subtask progress, grounding evidence, and pixel target interfaces together constitute a **transferable navigation representation**, rather than remembering R2R's instruction style.
+**The improvement in generalization across datasets is even greater.**  Trained with R2R only, zero RxR-CE data directly transferred to RxR-CE val_unseen: SR 59.9% / SPL 48.2%, 20.1 and 12.2 absolute points higher than the strongest baseline AwareVLN (39.8% / 36.0%). The author's explanation is that explicit subtask progress, grounding evidence, and pixel target interfaces together constitute a **transferable navigation representation**, rather than remembering R2R's instruction style.
 
-**ablation: GEAR is the first contributor. ** Remove GEAR and drop 12.7 points (69.9 → 57.2); replace the execution-aware reward map with a naive 2D pixel distance and drop to 66.2; remove timing alignment and drop to 62.2; remove `<obj>` / `<prev_obj>` and drop 3.8 points to 66.1; remove subtask decomposition to 68.1 (SPL dropped even more significantly, to 62.2).
+**ablation: GEAR is the first contributor.**  Remove GEAR and drop 12.7 points (69.9 → 57.2); replace the execution-aware reward map with a naive 2D pixel distance and drop to 66.2; remove timing alignment and drop to 62.2; remove `<obj>` / `<prev_obj>` and drop 3.8 points to 66.1; remove subtask decomposition to 68.1 (SPL dropped even more significantly, to 62.2).
 
 <div align="center">
   <img src="/images/vln/GroundingVLN-grounding-analysis.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/420" alt="grounding quality and pixel target accuracy analysis. (a) GEAR increased grounding recall from 64.9% to 89.6%, and F1 from 70.9% to 83.1%; (b) The grounding quality of successful episodes was significantly higher than that of failed episodes; (c) When grounding was correct, the action accuracy was 96.4%, and when it was wrong, it was only 48.1%; (d) The proportion of targets with a normalized L2 error of no more than 10% increased from 82.1% rose to 92.9%; (e) the average positioning error dropped from 7.4% to 4.6%, and P90 dropped from 13.8% to 8.0%" />
@@ -7239,9 +7326,9 @@ grounding quality and pixel target accuracy analysis. (a) GEAR increased groundi
 
 The most convincing one is (c): **When grounding the correct decision step, the action accuracy is almost twice that when grounding is wrong** (96.4% vs. 48.1%) - This provides step-level evidence for "the quality of grounding directly determines the quality of navigation", not just the correlation on the end-to-end indicator.
 
-**No catastrophic forgetting. ** After navigation fine-tuning, it is 57.20 on MMStar and 45.55 on MVBench, which is only 6.47 and 5.38 points lower than the original Qwen3.5-4B (63.67 / 50.93); while AwareVLN and DualVLN System 2 are almost zero under the same test - the former continues to spit out the navigation protocol, and the latter only returns directional actions or STOP. Interestingly, navigation data also brings gains: Object Shuffle +27.5%, Scene Transition +5.0%, Egocentric Navigation +3.0%, focusing on spatial change tracking and egocentric motion reasoning.
+**No catastrophic forgetting.**  After navigation fine-tuning, it is 57.20 on MMStar and 45.55 on MVBench, which is only 6.47 and 5.38 points lower than the original Qwen3.5-4B (63.67 / 50.93); while AwareVLN and DualVLN System 2 are almost zero under the same test - the former continues to spit out the navigation protocol, and the latter only returns directional actions or STOP. Interestingly, navigation data also brings gains: Object Shuffle +27.5%, Scene Transition +5.0%, Egocentric Navigation +3.0%, focusing on spatial change tracking and egocentric motion reasoning.
 
-**real robot deployment. ** AgileX TRACER 2.0 wheeled chassis with Insta360 X5 and RealSense D435 (1.2 m off the ground, 30° tilt), single RTX 4090 inference. Each difficulty has 10 episodes: Easy 100%, Medium 90%, Hard 60%, Overall 83.3%, and the three baselines lag behind (DualVLN 40%, AwareVLN 50%, StreamVLN 33.3%), with the largest gap between Medium and Hard.
+**real robot deployment.**  AgileX TRACER 2.0 wheeled chassis with Insta360 X5 and RealSense D435 (1.2 m off the ground, 30° tilt), single RTX 4090 inference. Each difficulty has 10 episodes: Easy 100%, Medium 90%, Hard 60%, Overall 83.3%, and the three baselines lag behind (DualVLN 40%, AwareVLN 50%, StreamVLN 33.3%), with the largest gap between Medium and Hard.
 
 <div align="center">
   <img src="/images/vln/GroundingVLN-real-world.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/357" alt="real robot experiment. (a) The success rate of 10 episodes in each of the three difficulties, 83.3% overall, is ahead of all baselines; (b) A real navigation example, the model sequentially anchors pixel targets to the corridor floor outside the door, the floor near the kitchen, and the floor near the microwave oven" />
@@ -7250,7 +7337,7 @@ real robot experiment. (a) The success rate of 10 episodes in each of the three 
 </figcaption>
 </div>
 
-**Efficiency and Robustness. ** The average inference time per episode is 37.41 s, which is comparable to the fastest Progress-Think (36.60 s) and 34.2% / 35.5% / 65.0% faster than NaVILA / Aux-Think / ActiveVLN respectively. In terms of depth noise, after modeling the parallax domain noise according to the stereo baseline (B = 0.05 m) and sub-pixel error (0.08 px) of D435, the SR dropped from 69.9% to 65.5%, and the SPL dropped from 64.1% to 59.7%, a decrease of about 4.4 points. The first-order depth uncertainty increases with the square of the distance, and is approximately 1 / 3 / 5 m respectively. 0.58/5.20/14.43 cm.
+**Efficiency and Robustness.**  The average inference time per episode is 37.41 s, which is comparable to the fastest Progress-Think (36.60 s) and 34.2% / 35.5% / 65.0% faster than NaVILA / Aux-Think / ActiveVLN respectively. In terms of depth noise, after modeling the parallax domain noise according to the stereo baseline (B = 0.05 m) and sub-pixel error (0.08 px) of D435, the SR dropped from 69.9% to 65.5%, and the SPL dropped from 64.1% to 59.7%, a decrease of about 4.4 points. The first-order depth uncertainty increases with the square of the distance, and is approximately 1 / 3 / 5 m respectively. 0.58/5.20/14.43 cm.
 
 ---
 
@@ -7465,7 +7552,7 @@ Repeated evaluation distinguishes continuous failure from operational fluctuatio
 - **Execution difficulties and recovery**: Among the 1,103 action batches with readable observations at both ends, the three ultra runs had a total of 11 batches of pure forward actions, distributed among 10 trajectories. The RGB before and after execution was the same pixel by pixel (no visible displacement, but it does not mean that a collision was measured), and 6 of the trajectories were still successful in the end; EP70 entered the next room after turning and advancing near the narrow door and succeeded; EP176 in 8 After the forward screen remained unchanged, the budget of 500 steps was consumed, and the end point was 35.4 m away from the target. It failed in three runs of ultra, but succeeded in two runs of medium. It can be seen that the problem is unstable execution and recovery, rather than a failure of the task. Making an action does not mean that it has actually moved, nor does it mean that it has effectively recovered.
 - **Stop judgment**: In each ultra run, 96–99 trajectories are actively stopped by the model, and 1–3 failed trajectories enter and then leave the success radius each time. In the first run of EP705, the model reported stopping after seeing a fire extinguisher next to the door. The final NE was 12.3 m. The same task was successful in the other two ultra runs.
 
-**How many failures can be solved by increasing the strength of reasoning? **
+**How many failures can be solved by increasing the strength of reasoning?**
 
 Interleave the success times of three runs of medium and ultra on the same batch of 100 tasks (paper Figure 4b):
 
@@ -7492,7 +7579,11 @@ Interleave the success times of three runs of medium and ultra on the same batch
 ### 4. Limitations
 {: id="4-局限性-39"}
 
-Only evaluated on R2R-CE-100 (100 episodes, 10 scenes), each run three times; the multiple runs added by v2 illustrate the repeatability on the same task set, but do not illustrate generalization. It is still different from the training method on the full val-unseen and Author-sampled SpatialAnt; the standard deviation of the three runs (ultra is 2.5 points) only reflects the fluctuation between runs, and the sampling error of the 100 tasks itself is still there: the author roughly calculated based on the binomial distribution, the standard error of 81.3% SR is about 3.9 percentage points, leading Qwen-RobotNav's 9.2 The point is about 2.4 times the standard error, which is more generous than the case of v1, but it is still not the same set conclusion. GPT-6-Astra is a closed-source model, and it cannot be ruled out that its training data contains navigation data - the paper clearly states that "zero sample" only means that the author has not fine-tuned navigation, but does not mean that the model has never seen navigation data; inference costs and delays also currently restrict actual deployment. The author plans to expand to RxR-CE, NavRAG-CE and other datasets with more environments and instructions.
+Only evaluated on R2R-CE-100 (100 episodes, 10 scenes), each run three times; the multiple runs added by v2 illustrate the repeatability on the same task set, but do not illustrate generalization. It is still different from the training method on the full val-unseen and Author-sampled SpatialAnt; the standard deviation of the three runs (ultra is 2.5 points) only reflects the fluctuation between runs, and the sampling error of the 100 tasks itself is still there: the author roughly calculated based on the binomial distribution, the standard error of 81.3% SR is about 3.9 percentage points, leading Qwen-RobotNav's 9.2 The point is about 2.4 times the standard error, which is more generous than the case of v1, but it is still not the same set conclusion.
+
+GPT-6-Astra is a closed-source model, and it cannot be ruled out that its training data contains navigation data - the paper clearly states that "zero sample" only means that the author has not fine-tuned navigation, but does not mean that the model has never seen navigation data; inference costs and delays also currently restrict actual deployment.
+
+The author plans to expand to RxR-CE, NavRAG-CE and other datasets with more environments and instructions.
 
 ---
 
@@ -7792,6 +7883,7 @@ $$F_t^{fuse} = \mathrm{softmax}\left(\frac{(F_t^{2D} W_Q)(F_t^{3D} W_K)^{\top}}{
 - **Design motivation**: SigLIP recognized "that is a glass door", and CUT3R only knew "it is 2.3 meters in front". The spatial prepositions in the directive (through, to the right, in front) require the latter to be grounding.
 
 > **For example (why absolute scale is necessary)**: The robot walked 100 steps and made a big turn in the middle. Encoders such as VGGT output a scale "relative to the first frame" - the width of the door in the first frame is set to 1.0, and all subsequent distances are converted according to this basis. After the turn, the field of view changes completely, and the door in the first frame is no longer in the picture. There is no real object to anchor the benchmark, and the scale drifts accordingly. CUT3R maintains a continuously updated status token and spits out spatial features with absolute scale (meters) frame by frame. The sentence "There is an obstacle 2.3 m ahead" has exactly the same meaning in step 1 and step 100.
+>
 > The gap in engineering is more direct: most episodes of R2R exceed 30 frames, and VGGT swallows the entire sequence at once and directly OOMs; it can run only after switching to the streaming version InfiniteVGGT, but the SR is only 43.2, which is 5.5 points lower than CUT3R’s 48.7, and the single-step time consumption is even higher (0.284 s vs 0.245 s).
 
 <div align="center">
@@ -7830,7 +7922,9 @@ $$\hat F_{t+1}^{3D} = \mathrm{Decoder}^{3D}\left(e_{t+1}^{3D} \mid \langle m_t^{
 - **Design motivation**: Let the representation "know how the world will change", but do not pay the cost of reasoning for this.
 
 > **For example (training is hung up and reasoning is removed, what's going on)**: Assume that it is the Tth round. During training, in addition to instructions, long-term memory, history and current observations, the model input also includes 9 `<Query2d>` and 9 `<Query3d>`, a total of 18 tokens. After passing LLM, they each obtain a compressed embedding, which is then expanded by a 2-layer decoder into the "next frame feature" of 196 tokens, and the loss is calculated with the frozen teacher's encoding of the T+1th frame.
+>
 > These 18 tokens are not added to the input at all during inference - only instructions + context + action tokens remain in the sequence. The relative order and attention structure are exactly the same as during training, so the backbone will not be misaligned due to their absence.
+>
 > In other words, the predictive ability is ultimately deposited in the weight of the LLM backbone, rather than relying on reasoning to calculate the future. This is why it is more compact than "MLLM + independent video generator": the latter has to keep the generator together during inference.
 
 Why supervision is placed in latent space instead of pixel space:
@@ -8015,6 +8109,7 @@ Figure 2: Overall framework of the system. It includes a high-level planner (sha
 - **State transfer compression**: The underlying controller automatically plans and executes dozens of micro-actions to move the robot to the selected frontier point and updates the topology map. This reduces the number of macro-decision-making steps for a long task from the original 100~300 steps to **5~20 steps**.
 
 > **For example (Stick point dimensionality reduction device A: Comparison of credit allocation between micro-actions and macro-actions)**:
+>
 > Set a 15-meter-long corridor navigation task:
 > - **Micro-movement RL**: Each step advances 0.25 meters or turns 15 degrees, and the trajectory is as long as $T = 120$ steps. Suppose you reach the end and get the reward $R=1$. In time difference (TD) backpropagation, the reward of the first step of action is discounted to $\gamma^{120} = 0.99^{120} \approx 0.30$; more seriously, any random exploration of small actions in the middle 120 steps will introduce exponential cumulative variance, and Critic simply cannot distinguish which step of decision-making went the right way, causing the training to collapse.
 > - **Topological map macro action RL**: The environment is abstracted into 5 topological nodes such as the starting point, the corner, the middle of the corridor, and the target door. The agent only needs to make the $T = 5$ sub-macro action choice! The discount factor is $\gamma^5 = 0.99^5 \approx 0.951$; the final reward is a clear and direct advantage estimate (GAE) for these 5 sub-goal decisions, with minimal variance, and the RL strategy can quickly converge in just more than ten hours.
@@ -8239,14 +8334,22 @@ The current evaluation scenario is still limited to a static indoor environment,
 ### Key takeaways
 {: id="精华-47"}
 
-The geometry foundation model (GFM) should not just throw the last layer output to the strategy - AdaGeoVLN connects the 11th/17th/23rd layers of VGGT to the first three decoding layers of VLM, allowing geometric information of different maturity to enter the field at different stages of strategy reasoning. The key is that it designed a strict control: injecting the same terminal feature into the same three positions three times (Deep × 3), the SR dropped from 46.5% of the geometry-free baseline to 42.1%, proving that the gain comes from the diversity of representations rather than the number of interactions. On the timeline, it treats the KV history of VGGT global attention as an eliminable cache sorted by navigation value, scores the three signals of instruction relevance, geometric confidence, and transition novelty and then ranks TopK layer by layer. This retention action occurs after the current frame's reasoning and serves the next frame. Therefore, "which history to choose" is equivalent to shaping the context of future geometric reasoning, rather than performing compression afterwards. R2R-CE 55.7 SR / 51.4 SPL is obtained with a single RGB stream and zero additional navigation data, while saving 39.7% of GFM-KV GPU memory compared to the old and new baseline.
+The geometry foundation model (GFM) should not just throw the last layer output to the strategy - AdaGeoVLN connects the 11th/17th/23rd layers of VGGT to the first three decoding layers of VLM, allowing geometric information of different maturity to enter the field at different stages of strategy reasoning.
+
+The key is that it designed a strict control: injecting the same terminal feature into the same three positions three times (Deep × 3), the SR dropped from 46.5% of the geometry-free baseline to 42.1%, proving that the gain comes from the diversity of representations rather than the number of interactions.
+
+On the timeline, it treats the KV history of VGGT global attention as an eliminable cache sorted by navigation value, scores the three signals of instruction relevance, geometric confidence, and transition novelty and then ranks TopK layer by layer.
+
+This retention action occurs after the current frame's reasoning and serves the next frame. Therefore, "which history to choose" is equivalent to shaping the context of future geometric reasoning, rather than performing compression afterwards.
+
+R2R-CE 55.7 SR / 51.4 SPL is obtained with a single RGB stream and zero additional navigation data, while saving 39.7% of GFM-KV GPU memory compared to the old and new baseline.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-46"}
 
-What VLN agents have to do in unfamiliar environments is not only object recognition and language-appearance matching, but also reasoning about spatial relationships, perspective changes, and temporal connections between observations. This makes geometric representations a natural complement to semantic reasoning. Geometric foundation models such as VGGT can deduce the scene structure from pure RGB feedforward, but two questions have not been resolved: **(1) Which layer of the geometric encoder should the strategy look at? ** The mainstream approach only exposes terminal representations, but the middle layer may not have complementary information; ** (2) Under limited GPU memory, which historical geometric states are worth retaining? ** Eliminating by recency can seal the growth of GPU memory, but by default "the older it is, the more useless it is" - and an early observation may just anchor the landmark in the instruction, or provide the most reliable geometry.
+What VLN agents have to do in unfamiliar environments is not only object recognition and language-appearance matching, but also reasoning about spatial relationships, perspective changes, and temporal connections between observations. This makes geometric representations a natural complement to semantic reasoning. Geometric foundation models such as VGGT can deduce the scene structure from pure RGB feedforward, but two questions have not been resolved: **(1) Which layer of the geometric encoder should the strategy look at?**  The mainstream approach only exposes terminal representations, but the middle layer may not have complementary information;  **(2) Under limited GPU memory, which historical geometric states are worth retaining?**  Eliminating by recency can seal the growth of GPU memory, but by default "the older it is, the more useless it is" - and an early observation may just anchor the landmark in the instruction, or provide the most reliable geometry.
 
 ---
 
@@ -8319,7 +8422,7 @@ Hierarchical GFM–VLM fusion across representation depths. The 11/17/23 layers 
 </figcaption>
 </div>
 
-**Stuck point in dimensionality reduction: What is the difference between "injecting multiple depths" and "injecting terminal features several times"? **
+**Stuck point in dimensionality reduction: What is the difference between "injecting multiple depths" and "injecting terminal features several times"?**
 
 This is the most easily skipped but most critical design in the entire article. The author specially created a **Deep×3** control group: the number and position of fusion are all aligned with the hierarchical fusion. The only difference is that the same terminal feature $$G^{23}$$ was injected three times.
 
@@ -8398,7 +8501,7 @@ navigation-aware GFM-KV reserved. (a) Instruction correlation: segmented embeddi
 </figcaption>
 </div>
 
-**Stuck point dimensionality reduction (1): What is the unit of "900K budget"? **
+**Stuck point dimensionality reduction (1): What is the unit of "900K budget"?**
 
 The paper specifically writes a clarification, indicating that the author knows that this must be misunderstood - 900K refers to the **layer-token capacity combined across 24 global attention layers**, not the 900,000 unique tokens in the scene.
 
@@ -8409,7 +8512,7 @@ The paper specifically writes a clarification, indicating that the author knows 
 > The three signals are each z-scored and equal-weighted among the 448 signals. The **192** with the highest score are taken and saved, and the remaining **256** are discarded.
 > In other words, the occupancy of each layer is constant regardless of the trajectory length - this is exactly the meaning of "bounded memory".
 
-**Stuck point dimensionality reduction (2): Who is the retained KV used for? **
+**Stuck point dimensionality reduction (2): Who is the retained KV used for?**
 
 The sentence `Selection follows the current VGGT pass` in the paper is easily passed over at a glance, but it determines the nature of the entire mechanism: filtering occurs **after the current frame has been calculated**, so it will not change the representation of the current frame, and only affects the geometric context that can be seen by the $t+1$ frame. In other words, retention is not "post-compression", but "arranging the next reasoning conditions in advance."
 
