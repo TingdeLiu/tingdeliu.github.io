@@ -20,8 +20,25 @@ will be localized when those collections are translated.
 
 ## Files and metadata
 
-English articles live in `_translations/en/` and render through the shared post
-layout. They do not become extra Chinese posts, feed entries, or tag/archive
+English articles are grouped by content type under `_translations/en/`:
+
+```text
+_translations/en/
+├── research/
+│   └── VLN-Survey.md
+└── blog/
+    └── .gitkeep
+```
+
+Research surveys and paper readings belong in `research/`; technical blog posts
+belong in `blog/`. Future `VLN-Papers.md` and `VLN-Papers-Extended.md` translations
+will go in `research/` when complete. Set `categories` to match the content type
+and declare an explicit `/en/.../` permalink so moving files does not change URLs.
+When moving an existing translation, update its `translation` path in the
+snapshot under `translations/`; preserve the reviewed source hashes and dates.
+
+English articles render through the shared post layout.
+They do not become extra Chinese posts, feed entries, or tag/archive
 results. English entry pages live in `en/`. UI strings live in `_data/ui.yml`;
 JavaScript interaction labels are in `js/article-ui.js`.
 
