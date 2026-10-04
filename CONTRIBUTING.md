@@ -92,7 +92,16 @@ _posts/weekly-reports/  # 具身导航周报         →  categories: weekly
 
 - Markdown 解析器是 kramdown（GFM 模式）
 - 公式用 MathJax 3 语法
-- 图表用 Mermaid 10，**仅在页面含图表时才会加载 CDN**
+- 公式里不要直接写 `|`：条件概率用 `\mid`，绝对值用 `\lvert x \rvert`。kramdown 会把任何含 `|` 的行
+  当成表格行，把公式拆进单元格（整行单独成行的 `$$...$$` 块不受影响）；`python scripts/lint_posts.py`
+  会给出 `pipe-in-math` 警告。文字里要带下划线时写 `\mathrm{a\_b}`，不要写 `\text{a\_b}`
+- 不要把 `\t`、`\a`、`\b`、`\r` 开头的 LaTeX 命令粘贴成控制字符（从聊天窗口或脚本里复制公式时容易发生），
+  lint 的 `control-char` 规则会拦下来
+- 图表用 Mermaid 10，**仅在页面含图表时才会加载 CDN**，而且图表**滚动到视口附近（约两屏）才渲染**，
+  不是进页面时一次性渲染
+- Mermaid 连线上的文字里带括号等字符时必须加引号：`A -->|"f(x)"| B`，粗箭头带文字写 `A ==>|"文字"| B`
+  （不是 `==="文字"===>`）。写错会让整张图解析失败，页面上这张图直接消失；lint 的 `mermaid-label`
+  规则会警告
 - Mermaid 节点文字里避免出现 `{{` 和 `}}`，Jekyll 的 Liquid 模板会先把它吃掉，
   本地能 parse 不代表线上不报错；需要花括号时用 HTML 实体或改写表述
 

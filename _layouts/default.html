@@ -112,31 +112,115 @@
     })();
   </script>
 
-  <!-- Mermaid 图表支持：仅在页面含 mermaid 代码块时才加载 CDN 脚本 -->
+  <!-- Mermaid 图表：仅在页面含 mermaid 代码块时才加载库；图表在靠近视口（约两屏）时才渲染。
+       原因：进页面时一次性渲染几十张图会把主线程占住几秒（AI-Agent 页 50 张约 3 秒）。
+       库在页面载入后立即后台下载，所以滚到图时不用等下载；一次只渲染一张并让出主线程。
+       占位框样式见 style.scss 的 .mermaid-pending。 -->
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var mermaidBlocks = document.querySelectorAll('code.language-mermaid');
-      if (mermaidBlocks.length === 0) return;
+    document.addEventListener('DOMContentLoaded', function () {
+      var blocks = document.querySelectorAll('code.language-mermaid');
+      if (blocks.length === 0) return;
 
-      mermaidBlocks.forEach(function(block) {
+      var MARGIN = 1500;                 // 距视口多少 px 以内就开始渲染
+      var nodes = [];
+      blocks.forEach(function (block) {
         var div = document.createElement('div');
-        div.className = 'mermaid';
-        div.textContent = block.textContent;
+        div.className = 'mermaid mermaid-pending';
+        div.textContent = block.textContent;        // 源码留在节点里，渲染时由 mermaid 读取
+        // 占位高度只做粗略区分（实测图高度很难从源码预测）：横向图通常较矮，其余较高
+        div.style.minHeight = (/^\s*(?:graph|flowchart)\s+(?:LR|RL)\b/.test(block.textContent) ? 200 : 460) + 'px';
         var pre = block.parentElement;
         pre.parentElement.replaceChild(div, pre);
+        nodes.push(div);
       });
 
-      var s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
-      s.onload = function() {
-        mermaid.initialize({
-          startOnLoad: false,
-          theme: 'default',
-          flowchart: { htmlLabels: true, useMaxWidth: true }
+      // 库立即开始下载；下载失败时让占位框退回显示原始源码，而不是永远显示"加载中"
+      var libReady = new Promise(function (resolve, reject) {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+        s.onload = function () {
+          mermaid.initialize({
+            startOnLoad: false,
+            theme: 'default',
+            flowchart: { htmlLabels: true, useMaxWidth: true }
+          });
+          resolve();
+        };
+        s.onerror = reject;
+        document.body.appendChild(s);
+      });
+      function showSource(el) {
+        el.classList.remove('mermaid-pending');
+        el.style.minHeight = '';
+      }
+      libReady.catch(function () { nodes.forEach(showSource); });
+
+      var queue = [];                    // 已进入范围、等待渲染
+      var busy = false;
+      // 浏览器自带滚动锚定（Chrome、Firefox）时由它处理上方内容变高；不支持的（Safari）才手动补偿，避免叠加
+      var manualAnchor = !(window.CSS && CSS.supports && CSS.supports('overflow-anchor', 'auto'));
+      var io = null;
+
+      function inRange(el) {
+        var r = el.getBoundingClientRect();
+        return r.bottom > -MARGIN && r.top < window.innerHeight + MARGIN;
+      }
+
+      function renderNext() {
+        if (busy) return;
+        // 点目录跳到远处时，途中扫过的图已经离开范围：放回去重新观察，不再浪费渲染
+        queue = queue.filter(function (el) {
+          if (inRange(el)) return true;
+          if (io) io.observe(el);
+          return false;
         });
-        mermaid.init(undefined, document.querySelectorAll('.mermaid'));
-      };
-      document.body.appendChild(s);
+        if (!queue.length) return;
+
+        // 离视口中心最近的先渲染
+        var mid = window.innerHeight / 2, best = 0, bestDist = Infinity;
+        queue.forEach(function (el, i) {
+          var r = el.getBoundingClientRect();
+          var d = Math.abs((r.top + r.bottom) / 2 - mid);
+          if (d < bestDist) { bestDist = d; best = i; }
+        });
+        var el = queue.splice(best, 1)[0];
+        busy = true;
+
+        var before = el.getBoundingClientRect();
+        var wasAbove = before.bottom <= 0;
+        var h0 = before.height;
+        libReady
+          .then(function () { return mermaid.run({ nodes: [el] }); })
+          .catch(function () { /* 语法错误等：mermaid 自己会画出错误图，这里不再处理 */ })
+          .then(function () {
+            el.classList.remove('mermaid-pending');
+            el.style.minHeight = '';
+            if (manualAnchor && wasAbove) window.scrollBy(0, el.getBoundingClientRect().height - h0);
+            busy = false;
+            setTimeout(renderNext, 0);
+          });
+      }
+
+      if ('IntersectionObserver' in window) {
+        io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) { io.unobserve(e.target); queue.push(e.target); }
+          });
+          renderNext();
+        }, { rootMargin: MARGIN + 'px 0px' });
+        nodes.forEach(function (n) { io.observe(n); });
+      } else {
+        queue = nodes.slice();           // 太旧的浏览器：和以前一样全部渲染
+        renderNext();
+      }
+
+      // 打印前尽量把还没渲染的都渲染出来（来不及的占位框在打印样式里显示原始源码）
+      window.addEventListener('beforeprint', function () {
+        nodes.forEach(function (n) {
+          if (n.classList.contains('mermaid-pending') && queue.indexOf(n) === -1) queue.push(n);
+        });
+        renderNext();
+      });
     });
   </script>
 

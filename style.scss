@@ -934,6 +934,25 @@ nav {
     text-align: center;
   }
 
+  // 懒渲染前的占位框（_layouts/default.html）：隐藏原始源码，显示提示；高度由脚本按图类型粗估
+  .mermaid-pending {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    font-size: 0;
+    color: transparent;
+    background: $oc-gray-0;
+    border: 1px dashed $oc-gray-3;
+    border-radius: 8px;
+
+    &::before {
+      content: "图表加载中…";
+      font-size: .85rem;
+      color: $oc-gray-6;
+    }
+  }
+
   details {
     margin: 1.2rem 0 1.6rem;
     padding: 0 1rem;
@@ -2048,6 +2067,24 @@ footer {
   .heading-anchor {
     transition: none;
   }
+}
+
+// 打印时还没来得及渲染的图表：显示原始源码，信息不丢（正常渲染完的图表不受影响）
+@media print {
+  .article-page .entry .mermaid-pending {
+    display: block;
+    min-height: 0 !important;
+    font-size: .75rem;
+    color: $oc-gray-8;
+    white-space: pre-wrap;
+    text-align: left;
+    background: none;
+    border: 0;
+
+    &::before { content: none; }
+  }
+
+  html[lang="en"] .entry .mermaid-pending::before { content: none; }
 }
 
 // Settled on moving the import of syntax highlighting to the bottom of the CSS

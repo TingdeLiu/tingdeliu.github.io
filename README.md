@@ -134,7 +134,7 @@ Chinese articles use Jekyll's built-in `posts` collection with `/:title/` permal
 ## Technical Implementation
 
 - **Static site generation**: Jekyll 4.3, Ruby 3.2, and a custom theme derived from Jekyll Now.
-- **Rendering**: kramdown (GFM), Rouge syntax highlighting, MathJax 3 equations, and Mermaid 10 diagrams. Mermaid is loaded from a CDN only when a page contains diagrams.
+- **Rendering**: kramdown (GFM), Rouge syntax highlighting, MathJax 3 equations, and Mermaid 10 diagrams. Mermaid is loaded from a CDN only when a page contains diagrams, and each diagram is rendered lazily, only when it is scrolled within about two screens of the viewport.
 - **Jekyll plugins**: `jekyll-sitemap`, `jekyll-feed`, `jekyll-paginate`, and `jekyll-seo-tag`.
 - **Reading experience**: A contents drawer with scroll-based section highlighting, a reading progress bar, one-click code copying, heading-link copying, image zoom, horizontal scrolling for wide tables, and a back-to-top button.
 - **Paper filtering**: Interactive tag filters in the VLN and Embodied Agent paper collections support real-time filtering by multiple technical attributes. VLN filters also work across companion collections.
