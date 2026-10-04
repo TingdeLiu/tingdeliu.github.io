@@ -1,7 +1,7 @@
 {
   "source": "_posts/research/2026-01-04-VLN-Survey.md",
   "translation": "_translations/en/research/VLN-Survey.md",
-  "reviewed_on": "2026-10-03",
+  "reviewed_on": "2026-10-04",
   "source_revision_date": "2026-09-29",
   "sections": {
     "metadata": "5cb5678f6ebc4cbc261ee6d830d07f59ac5b14e692cd208b5ef9cac02023828a",
@@ -93,7 +93,7 @@
     "8.3 路径效率与指令保真度指标": "b00e15dd5eae35d954a44607e3b04507808b3e3166642df1883f4ea5c668546b",
     "8.3.1 Success weighted by Path Length (SPL)": "e30a8fa36a1e63cd66711c8881cc879224e7f249ec156201816902b29ecacf98",
     "8.3.2 Coverage weighted by Length Score (CLS)": "74335d7ee78e8645eb796fdcbe327e2c617b39eb0a8fa86cf9e8dae601ffd0f3",
-    "8.3.3 normalized Dynamic Time Warping (nDTW & SDTW)": "5be973c1f01e6df9272fdaf700975e8003b97d791030b1beea366e51a6e55f26",
+    "8.3.3 normalized Dynamic Time Warping (nDTW & SDTW)": "52687cb18586488a3a5bc585aeb5ecd0789fb137f0677b601d466157df3767d1",
     "8.4 具身安全、物理交互与部署级指标": "d6dbf79e6c1d188823bdcc6d84e0e732f96ff1e277c5abc7dd41f1dd88394247",
     "8.4.1 几何避障与社交安全指标": "cb9824f0b486282e863c9316e6ae737615c6b9bc7c14dfa5bf837888a833f81f",
     "8.4.2 动力学稳定性与不可逆故障指标": "481fcee3fe17ef45d9ae6815647b43f7b4eea4c0f15bad09446f258a4ded6df1",

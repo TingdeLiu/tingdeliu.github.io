@@ -2139,7 +2139,7 @@ y_{k+1} &= y_k + v_k \sin\theta_k \cdot \Delta t \\
 ### 对规划算法的影响
 
 - **Hybrid A\***：以 $(x, y, \theta)$ 为状态，用阿克曼运动方程展开节点，生成曲率连续路径，直接可跟踪。
-- **TEB**：需开启阿克曼模式，约束 $|\delta| \le \delta_{\max}$ 和 $\dot{\delta}$ 上限，轨迹最小曲率半径有限。
+- **TEB**：需开启阿克曼模式，约束 $\lvert\delta\rvert \le \delta_{\max}$ 和 $\dot{\delta}$ 上限，轨迹最小曲率半径有限。
 - **Pure Pursuit / Stanley**：输出前轮转角 $\delta$，是为阿克曼车辆专门推导的跟踪控制律。
 - **MPC**：以自行车模型为预测模型，约束 $\delta$ 和 $\dot{\delta}$，适合高速精确跟踪。
 

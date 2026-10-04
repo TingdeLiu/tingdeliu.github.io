@@ -254,7 +254,7 @@ Danijar Hafner 等人开创的 **Dreamer 系列** [[4]](#ref-4)（DreamerV1 $\to
 
 Dreamer 解决了连续世界模型长期存在的表示坍缩与数值不稳定性问题：
 1. **循环状态空间模型（Recurrent State Space Model, RSSM）**：将潜状态解耦为确定性时序特征 $$h_t = f_\phi(h_{t-1}, z_{t-1}, a_{t-1})$$ 与离散随机变量 $$z_t$$（采用 32 个 32 类别的 Categorical 潜变量）。离散 Categorical 分布缓解了连续高斯分布在面对非线性突变（如门开/关、物体碎裂）时的模糊与坍缩问题；
-2. **Symlog 变换与无量纲化设计**：提出对称对数变换 $$\mathrm{symlog}(x) = \mathrm{sign}(x)\ln(|x|+1)$$ 统一缩放特征与回归目标，配合自适应百分位数价值归一化，解决了跨任务奖励尺度横跨 7 个数量级导致的梯度弥散与数值发散；
+2. **Symlog 变换与无量纲化设计**：提出对称对数变换 $$\mathrm{symlog}(x) = \mathrm{sign}(x)\ln(\lvert x\rvert+1)$$ 统一缩放特征与回归目标，配合自适应百分位数价值归一化，解决了跨任务奖励尺度横跨 7 个数量级导致的梯度弥散与数值发散；
 3. **通用性与 Minecraft 钻石任务**：DreamerV3 使用**同一套超参数与模型架构**，在 Atari、Crafter、DMC、Procgen 等多个领域取得强性能，并成为首个在不使用人类数据与课程设计的条件下、在 Minecraft 中从零开始采集到钻石的算法——这一任务需要伐木、合成工作台、采矿、冶炼等一长串依赖步骤，且奖励极为稀疏。
 
 <div align="center">

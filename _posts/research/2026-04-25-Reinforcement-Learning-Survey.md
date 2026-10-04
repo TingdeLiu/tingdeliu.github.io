@@ -58,11 +58,11 @@ $$
 R(s, a) = \mathbb{E}[r_{t+1} \mid s_t = s, a_t = a]
 $$
 
-**马尔可夫性质**保证了"当前状态已包含所有历史信息"，即 $p(s_{t+1}|s_t, a_t) = p(s_{t+1}|s_0, a_0, \ldots, s_t, a_t)$。
+**马尔可夫性质**保证了"当前状态已包含所有历史信息"，即 $p(s_{t+1}\mid s_t, a_t) = p(s_{t+1}\mid s_0, a_0, \ldots, s_t, a_t)$。
 
 ## 2.2 策略、价值函数与 Bellman 方程
 
-**策略（Policy）** $\pi(a|s)$ 是给定状态 $s$ 时，选择动作 $a$ 的概率分布。RL 的目标是找到最优策略 $\pi^*$，最大化期望累积奖励（回报）。
+**策略（Policy）** $\pi(a\mid s)$ 是给定状态 $s$ 时，选择动作 $a$ 的概率分布。RL 的目标是找到最优策略 $\pi^*$，最大化期望累积奖励（回报）。
 
 **折扣回报**定义为：
 
@@ -106,7 +106,7 @@ graph TD
     C --> G[演员-评论员<br/>SAC, A2C, DDPG]
 ```
 
-- **有模型 RL**：智能体学习环境的状态转移模型 $P(s'|s,a)$，再利用该模型进行规划，通常具有更高的样本效率，但依赖模型精度。
+- **有模型 RL**：智能体学习环境的状态转移模型 $$P(s'\mid s,a)$$，再利用该模型进行规划，通常具有更高的样本效率，但依赖模型精度。
 - **免模型 RL**：直接与环境交互学习策略，不显式建模环境，通常更易迁移到复杂任务，但需要更多交互数据。
 
 ---
@@ -235,7 +235,7 @@ $$
 J^{\theta'}(\theta) = \mathbb{E}_{(s_t, a_t) \sim \pi_{\theta'}}\left[\frac{p_\theta(a_t|s_t)}{p_{\theta'}(a_t|s_t)} A^{\theta'}(s_t, a_t)\right]
 $$
 
-其中 $$\frac{p_\theta(a_t|s_t)}{p_{\theta'}(a_t|s_t)}$$ 是**重要性权重（Importance Weight）**，修正了两个分布间的差异。
+其中 $$\frac{p_\theta(a_t\mid s_t)}{p_{\theta'}(a_t\mid s_t)}$$ 是**重要性权重（Importance Weight）**，修正了两个分布间的差异。
 
 > **关键约束**：若 $\pi_\theta$ 与 $$\pi_{\theta'}$$ 差距过大，重要性权重方差爆炸，估计失准。这正是 PPO 要解决的问题。
 
@@ -270,7 +270,7 @@ $$
 J_{\mathrm{PPO2}}^{\theta^k}(\theta) \approx \sum_{(s_t, a_t)} \min\left(r_t(\theta) A^{\theta^k}(s_t, a_t),\; \mathrm{clip}(r_t(\theta),\, 1-\varepsilon,\, 1+\varepsilon) A^{\theta^k}(s_t, a_t)\right)
 $$
 
-其中 $$r_t(\theta) = \frac{p_\theta(a_t|s_t)}{p_{\theta^k}(a_t|s_t)}$$ 是概率比率，$\varepsilon$ 通常取 0.1 或 0.2。
+其中 $$r_t(\theta) = \frac{p_\theta(a_t\mid s_t)}{p_{\theta^k}(a_t\mid s_t)}$$ 是概率比率，$\varepsilon$ 通常取 0.1 或 0.2。
 
 **裁剪机制直觉**：
 
@@ -369,7 +369,7 @@ $$
 \pi^* = \arg\max_\pi \mathbb{E}\left[\sum_t \gamma^t \left(r_t + \alpha \mathcal{H}(\pi(\cdot|s_t))\right)\right]
 $$
 
-其中 $\mathcal{H}(\pi(\cdot|s_t)) = -\mathbb{E}[\log \pi(a|s_t)]$ 是策略熵，$\alpha > 0$ 是温度参数，控制探索程度。
+其中 $\mathcal{H}(\pi(\cdot\mid s_t)) = -\mathbb{E}[\log \pi(a\mid s_t)]$ 是策略熵，$\alpha > 0$ 是温度参数，控制探索程度。
 
 **熵最大化的好处**：
 - **鼓励探索**：策略分布更均匀，避免过早收敛到局部最优。
@@ -499,7 +499,7 @@ sequenceDiagram
     Agent->>RealWorld: 部署最优策略
 ```
 
-3. **无量纲化奖励（Symlog）**：使用 $\mathrm{symlog}(x) = \mathrm{sign}(x) \cdot \ln(|x|+1)$ 处理奖励，支持跨任务迁移而无需任务特定超参。
+3. **无量纲化奖励（Symlog）**：使用 $\mathrm{symlog}(x) = \mathrm{sign}(x) \cdot \ln(\lvert x\rvert+1)$ 处理奖励，支持跨任务迁移而无需任务特定超参。
 
 **DreamerV3 的成就**：
 - 首个单一超参设置，无需任何调参，在 Atari、DMC、Crafter、Minecraft 等 7 个领域同时达到 SOTA。
@@ -900,7 +900,7 @@ $$
 
 ### 精华
 1. **连续动作突破**：首次成功将 DQN 的深度表示与 Experience Replay / Target Network 机制无缝拓展至**高维连续动作空间**。
-2. **确定性策略梯度（DPG）落地**：Actor 直接输出确定性动作向量 $\mu(s|\theta^\mu)$，消除了在高维连续动作空间中求积分采样的高方差问题。
+2. **确定性策略梯度（DPG）落地**：Actor 直接输出确定性动作向量 $\mu(s\mid\theta^\mu)$，消除了在高维连续动作空间中求积分采样的高方差问题。
 3. **软更新目标网络（Polyak Averaging）**：提出 $\theta' \leftarrow \tau \theta + (1-\tau)\theta'$（$\tau \ll 1$）微量平滑更新目标网络，大幅改善连续控制中的训练稳定性。
 4. **探索噪声注入**：通过在确定性动作上叠加 Ornstein-Uhlenbeck (OU) 过程时序相关噪声，实现连续物理系统中的平滑探索。
 5. **具身机械控制里程碑**：在 MuJoCo 连续物理仿真（机械臂搬运、双足行走、车辆驾驶）中展现出强劲的端到端力矩控制能力。
@@ -1012,7 +1012,7 @@ $$
 L^{\mathrm{CLIP}}(\theta) = \hat{\mathbb{E}}_t \left[ \min\left( r_t(\theta)\hat{A}_t,\; \mathrm{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon)\hat{A}_t \right) \right]
 $$
 
-其中 $r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\mathrm{old}}}(a_t|s_t)}$。裁剪逻辑如下：
+其中 $r_t(\theta) = \frac{\pi_\theta(a_t\mid s_t)}{\pi_{\theta_{\mathrm{old}}}(a_t\mid s_t)}$。裁剪逻辑如下：
 - 当优势 $$\hat{A}_t > 0$$（动作好于平均）：目标随 $r_t$ 增加，但当 $r_t > 1+\epsilon$ 时被截断，防止策略因单个好样本过分贪婪；
 - 当优势 $$\hat{A}_t < 0$$（动作差于平均）：目标随 $r_t$ 减小，但当 $r_t < 1-\epsilon$ 时被截断，防止梯度过激修正。
 
@@ -1046,7 +1046,7 @@ $$
 💻 **Code**: [rail-berkeley / softlearning](https://github.com/rail-berkeley/softlearning)
 
 ### 精华
-1. **最大熵强化学习（Maximum Entropy RL）**：将策略熵 $\mathcal{H}(\pi(\cdot|s))$ 显式引入优化目标，促使智能体在最大化累积回报的同时尽可能采取多样的动作分布。
+1. **最大熵强化学习（Maximum Entropy RL）**：将策略熵 $\mathcal{H}(\pi(\cdot\mid s))$ 显式引入优化目标，促使智能体在最大化累积回报的同时尽可能采取多样的动作分布。
 2. **极佳的探索能力与鲁棒性**：面对多峰分布奖励与物理扰动，最大熵策略能够保留所有具有相近价值的动作分支，避免过早收敛于局部次优极值点。
 3. **异策略高样本效率**：结合 Replay Buffer、双 Q 网络（Double Q-Learning）与软策略迭代，样本利用率较 PPO 提升数倍至数十倍。
 4. **自动温度调节（Auto-tuning Temperature）**：后续版本引入拉格朗日乘子自适应调节温度系数 $\alpha$，完全免去人工手动调节熵权重的繁琐调试。
@@ -1234,7 +1234,7 @@ graph LR
 ```
 
 #### ① V 模型：空间压缩（Vision）
-- 训练 VAE 编码器 $q_\phi(z_t|o_t)$ 与解码器 $p_\psi(o_t|z_t)$，将 $64 \times 64 \times 3$ 图像压缩为 32 维高斯潜向量 $z_t$。
+- 训练 VAE 编码器 $q_\phi(z_t\mid o_t)$ 与解码器 $p_\psi(o_t\mid z_t)$，将 $64 \times 64 \times 3$ 图像压缩为 32 维高斯潜向量 $z_t$。
 
 #### ② M 模型：时间预测（Memory）
 - 采用带有混合高斯输出层（Mixture Density Network）的 RNN 建模环境转移：
@@ -1272,7 +1272,7 @@ $$
 
 ### 精华
 1. **首个跨领域无调参通用世界模型**：在完全固定的超参数设置下，同一套算法通吃 7 大异构领域（Atari、DMC 连续控制、Crafter 2D 生存、Minecraft 3D 沙盒、BSuite、Memory 任务等）。
-2. **Symlog 变换与无量纲化**：提出对称对数变换 $\mathrm{symlog}(x) = \mathrm{sign}(x)\ln(|x|+1)$ 处理输入特征、价值网络及损失函数，彻底解决了跨任务数量级跨度极大的奖励梯度缩放难题。
+2. **Symlog 变换与无量纲化**：提出对称对数变换 $\mathrm{symlog}(x) = \mathrm{sign}(x)\ln(\lvert x\rvert+1)$ 处理输入特征、价值网络及损失函数，彻底解决了跨任务数量级跨度极大的奖励梯度缩放难题。
 3. **离散潜变量 RSSM（循环状态空间模型）**：将世界模型的随机潜状态表示为离散的 Categorical 向量组，有效阻止信息坍缩并增强对非线性突变动力学的表达能力。
 4. **Minecraft 零样本挖钻石奇迹**：在没有任何人类专家演示数据、完全依靠稀疏奖励与潜空间世界模型探索的前提下，首次从零学会采集木材、制作工作台、挖掘铁矿直到合成钻石（需 14 步深度依赖链）。
 5. **具身智能通用模拟底座**：展现了世界模型作为通用具身基础规划器（Generalist Embodied Planner）的巨大潜力。
@@ -1470,7 +1470,7 @@ $$
 
 ### 精华
 1. **打通扩散策略与在线 RL**：首次提出将多步扩散去噪过程视作一个多步马尔可夫决策过程（MDP），在去噪链内部直接施加 PPO-Clip 约束，实现了扩散策略从专家模仿到在线强化学习的端到端跃迁。
-2. **解决概率密度求导难题**：规避了以往穿透扩散去噪长链导致的梯度爆炸或消失问题，将反向去噪的每一步高斯转移直接显式化计算对数概率 $\log p_\theta(x_{k-1}|x_k)$。
+2. **解决概率密度求导难题**：规避了以往穿透扩散去噪长链导致的梯度爆炸或消失问题，将反向去噪的每一步高斯转移直接显式化计算对数概率 $\log p_\theta(x_{k-1}\mid x_k)$。
 3. **保留多峰性的同时持续进化**：相比传统 RL 算法微调后策略迅速坍缩为单峰，DPPO 能够完美保持扩散模型固有的多峰探索能力，并在高难度奖励下探索出超越演示的更优解。
 4. **广泛适用于离线预训练到在线微调**：支持先利用专家数据进行 BC 预训练初始化，再通过在线交互进行 RL 对齐。
 5. **标杆性算法**：为后续基于 Flow Matching / Diffusion 的具身具象基础策略（如 π0、GRPO 扩散等）提供了坚实的理论与算法参考。
@@ -1480,7 +1480,7 @@ $$
 ### 1. 研究背景/问题
 
 Diffusion Policy 在模仿学习上效果惊艳，但完全依赖人类演示数据。当演示数据质量参差不齐或机器人遭遇未曾见过的复杂环境时，需要通过**强化学习在线交互试错**来进一步提升上限。然而，将传统 RL 应用于扩散策略存在理论死结：
-- 扩散模型的动作生成是一个多步随机微分/差分方程，无法直接输出显式的单步动作对数概率 $\log \pi(a|s)$；
+- 扩散模型的动作生成是一个多步随机微分/差分方程，无法直接输出显式的单步动作对数概率 $\log \pi(a\mid s)$；
 - 如果直接将最终输出 $a_0$ 视为黑盒并用标准策略梯度更新，穿透 $K$ 步的反向传播求导会引发严重的数值不稳定。
 
 ---

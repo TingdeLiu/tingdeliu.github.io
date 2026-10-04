@@ -749,7 +749,7 @@ UniSim 概览：整合互联网场景、机器人操作、人类活动、导航�
 2. **多模态对齐**：对于静态图像，将标题视为动作；对于 3D 扫描，利用相机姿态差构建动作；对于视频，则利用动作标签或预测的运动轨迹。
 
 #### 核心架构：基于视频扩散的观察预测
-UniSim 被建模为一个条件概率模型 $p(o_t | h_{t-1}, a_{t-1})$，即给定历史观察 $h_{t-1}$ 和当前动作 $a_{t-1}$，预测下一段观察帧 $o_t$。
+UniSim 被建模为一个条件概率模型 $p(o_t \mid h_{t-1}, a_{t-1})$，即给定历史观察 $h_{t-1}$ 和当前动作 $a_{t-1}$，预测下一段观察帧 $o_t$。
 
 <div align="center">
   <img src="/images/vla/UniSim-training-inference.webp" alt="UniSim 的训练与推理流程：基于条件视频扩散模型，支持多种模态的动作输入" width="1118" height="515" style="width: 100%;" loading="lazy" decoding="async" />

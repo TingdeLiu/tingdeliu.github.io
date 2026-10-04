@@ -6,7 +6,7 @@ permalink: /en/VLN-Survey/
 source_path: _posts/research/2026-01-04-VLN-Survey.md
 source_url: /VLN-Survey/
 source_revision_date: 2026-09-29
-translation_updated: 2026-10-03
+translation_updated: 2026-10-04
 title: "Vision-Language Navigation: A Survey"
 date:   2026-09-29
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
@@ -1496,7 +1496,7 @@ $$
 D(a,b)=d(r_a,p_b)+\min\{D(a-1,b),D(a,b-1),D(a-1,b-1)\}.
 $$
 
-For example, if $|R|=4$, $d_{th}=3$ m, and DTW is 6 m, nDTW is $e^{-0.5}\approx0.607$. If that episode fails, its SDTW is 0. With a second successful episode at nDTW 0.8, mean nDTW is about 0.704 and mean SDTW is 0.4. Apply success weighting per episode; overall SR times overall nDTW is not a substitute.
+For example, if $\lvert R\rvert=4$, $d_{th}=3$ m, and DTW is 6 m, nDTW is $e^{-0.5}\approx0.607$. If that episode fails, its SDTW is 0. With a second successful episode at nDTW 0.8, mean nDTW is about 0.704 and mean SDTW is 0.4. Apply success weighting per episode; overall SR times overall nDTW is not a substitute.
 
 ## 8.4 Embodied safety, physical interaction, and deployment metrics
 {: id="84-具身安全物理交互与部署级指标"}
