@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Lint Jekyll posts against the rules in CLAUDE.md.
+r"""Lint Jekyll posts against the rules in CLAUDE.md.
 
 Errors (exit 1):
   front-matter   missing layout/title/date
@@ -13,6 +13,10 @@ Errors (exit 1):
 Warnings (exit 0 unless --strict):
   gif            GIF referenced; use mp4 via <video>
   big-image      referenced image over 300KB
+  pipe-in-math   a bare `|` inside a formula on a normal text line: kramdown parses any line with a
+                 pipe as a table row and splits the formula across cells. Write `\mid` for conditional
+                 bars and `\lvert x \rvert` for absolute values (whole-line $$...$$ blocks and real
+                 table rows are not checked)
 
 Usage: python scripts/lint_posts.py [--strict] [--fix] [files...]   (default: _posts/**/*.md)
   --fix  rewrite math-underscore spans as $$...$$ (the only auto-fixable rule)
@@ -44,6 +48,10 @@ CONTROL_CHAR = re.compile(r"[\x00-\x08\x0b-\x1f]")
 TAB_IN_MATH = re.compile(
     r"^(?=[^\n]*(?:\$|" + re.escape(BS) + r"\(|" + re.escape(BS) + r"\[))[^\n]*?\S[ ]*\t(?:ext|heta|au|imes|ilde|op|ag|o|riangle|frac|an)\b",
     re.M)
+# A formula span ($$..$$ or $..$) on one line, and a pipe that is not escaped.
+MATH_SPAN = re.compile(r"\$\$.+?\$\$|" + MATH_INLINE.pattern)
+BARE_PIPE = re.compile(r"(?<!" + re.escape(BS) + r")\|")
+WHOLE_LINE_BLOCK = re.compile(r"^\s*\$\$.*\$\$\s*$")
 
 
 def mask_code(text):
@@ -108,6 +116,19 @@ def lint(path):
         if hit:
             errs.append((lineno(text, off + m.start()), "math-underscore",
                          f"`${m.group(1)[:40]}...$` contains `}}_`; use $$...$$"))
+
+    pos = off
+    for line in body.split("\n"):
+        ln = lineno(text, pos)
+        pos += len(line) + 1
+        if line.lstrip().startswith("|") or WHOLE_LINE_BLOCK.match(line):
+            continue
+        for m in MATH_SPAN.finditer(line):
+            if BARE_PIPE.search(m.group()):
+                warns.append((ln, "pipe-in-math",
+                              f"`{m.group()[:40]}` has a bare `|`; kramdown splits this line into table cells "
+                              "(use \\mid or \\lvert..\\rvert)"))
+                break
 
     seen = set()
     for m in IMG_REF.finditer(body):
