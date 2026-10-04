@@ -107,8 +107,7 @@ url: https://tingdeliu.github.io
 baseurl: "" # 若非子目录，留空
 
 
-# Jekyll 使用 kramdown 作为 Markdown 解析器。math_engine: mathjax 只是 kramdown 的输出格式名：
-# 它把 $$..$$ 转成 \(..\) / \[..\]，真正渲染公式的是页面里的 KaTeX（见 _includes/head.html 和 js/katex-init.js）
+# Jekyll 使用 kramdown 作为 Markdown 解析器，启用 MathJax 数学公式支持
 markdown: kramdown
 kramdown:
   input: GFM

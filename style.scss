@@ -2050,14 +2050,6 @@ footer {
   }
 }
 
-// KaTeX（js/katex-init.js 渲染）：独立公式过宽时在自己的框里横向滚动，而不是撑破页面，手机上最常见。
-// 字号不用调：KaTeX 默认 1.21em，和之前 MathJax 的字号只差约 2%。
-.katex-display {
-  max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-
 // Settled on moving the import of syntax highlighting to the bottom of the CSS
 // ... Otherwise it really bloats up the top of the CSS file and makes it difficult to find the start
 @import "highlights";
