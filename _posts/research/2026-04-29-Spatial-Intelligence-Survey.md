@@ -1,5 +1,7 @@
 ---
 layout: post
+lang: zh-CN
+translation_id: spatial-intelligence-survey
 title: "空间智能综述"
 date: 2026-10-04
 tags: [Spatial Intelligence, 3D Vision, NeRF, Point Cloud, Embodied AI, Survey]

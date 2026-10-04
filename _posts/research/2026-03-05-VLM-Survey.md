@@ -1,5 +1,7 @@
 ---
 layout: post
+lang: zh-CN
+translation_id: vlm-survey
 title: "VLM 综述"
 date:   2026-09-29
 tags: [VLM, Computer Vision, Deep Learning, Multimodal]

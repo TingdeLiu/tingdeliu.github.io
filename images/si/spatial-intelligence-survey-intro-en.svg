@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="510" viewBox="0 0 1200 510" role="img" aria-labelledby="title desc">
+<title id="title">Spatial intelligence: perceiving and acting in a 3D world</title>
+<desc id="desc">Four connected capabilities, jointly constrained by geometry and semantics.. These capabilities can be combined; the columns do not imply one fixed sequence of algorithms.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="#467481"/></marker></defs>
+<rect width="1200" height="510" rx="20" fill="#f4f8fa"/>
+<g font-family="Arial, sans-serif" fill="#153c55">
+<text x="44" y="61" font-size="30" font-weight="700">Spatial intelligence: perceiving and acting in a 3D world</text>
+<text x="44" y="100" font-size="18" fill="#4e6b79">Four connected capabilities, jointly constrained by geometry and semantics.</text>
+<rect x="44" y="155" width="250" height="217" rx="16" fill="#e5f1f6" stroke="#aec5d1"/>
+<text x="62" y="197" font-size="21" font-weight="700">3D perception</text>
+<text x="62" y="241" font-size="17" transform="translate(0,0)">Depth and point clouds</text>
+<text x="62" y="241" font-size="17" transform="translate(0,30)">Object shape and pose</text>
+<text x="62" y="241" font-size="17" transform="translate(0,60)">Sensor observations</text>
+<rect x="326" y="155" width="250" height="217" rx="16" fill="#e1f0ef" stroke="#aec5d1"/>
+<text x="344" y="197" font-size="21" font-weight="700">Spatial representation</text>
+<text x="344" y="241" font-size="17" transform="translate(0,0)">Meshes and 3D scenes</text>
+<text x="344" y="241" font-size="17" transform="translate(0,30)">Objects and scene graphs</text>
+<text x="344" y="241" font-size="17" transform="translate(0,60)">Maps and spatial memory</text>
+<rect x="608" y="155" width="250" height="217" rx="16" fill="#e7edf8" stroke="#aec5d1"/>
+<text x="626" y="197" font-size="21" font-weight="700">Relational reasoning</text>
+<text x="626" y="241" font-size="17" transform="translate(0,0)">Relative positions</text>
+<text x="626" y="241" font-size="17" transform="translate(0,30)">Viewpoint transformations</text>
+<text x="626" y="241" font-size="17" transform="translate(0,60)">Geometric constraints</text>
+<rect x="890" y="155" width="250" height="217" rx="16" fill="#fbefd9" stroke="#aec5d1"/>
+<text x="908" y="197" font-size="21" font-weight="700">Spatial interaction</text>
+<text x="908" y="241" font-size="17" transform="translate(0,0)">Navigation and grasping</text>
+<text x="908" y="241" font-size="17" transform="translate(0,30)">Plan and execute actions</text>
+<text x="908" y="241" font-size="17" transform="translate(0,60)">Observe action outcomes</text>
+<text x="44" y="437" font-size="18" fill="#4e6b79">These capabilities can be combined; the columns do not imply one fixed sequence of algorithms.</text>
+</g></svg>

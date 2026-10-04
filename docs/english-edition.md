@@ -10,7 +10,38 @@ Algorithms survey also has a complete English edition. The three agent articles
 (AI Agents, Embodied Agent Harness and Runtime Architecture, and Embodied Agent
 Paper Readings) are translated in full. The Machine Learning Foundations group
 also contains complete Machine Learning, Deep Learning, and Reinforcement Learning
-surveys. Other surveys remain Chinese-only.
+surveys. The Large Models and Spatial Intelligence group now contains complete LLM Training, VLM, and Spatial Intelligence surveys. Other surveys remain Chinese-only.
+
+
+## Large Models and Spatial Intelligence release (2026-10-04)
+
+The three complete articles are `_translations/en/research/LLM-Training-Survey.md`,
+`VLM-Survey.md`, and `Spatial-Intelligence-Survey.md`. They retain the source
+section order, heading IDs, equations, numerical tables, reference links, code
+examples, and paper readings. Captions, alternative text, Mermaid labels, and
+explanatory comments are localized. Three English SVG introduction diagrams
+replace the corresponding Chinese introduction graphics. Four VLM training
+plots are recreated in English as illustrative diagrams, preserving their
+learning-rate levels, stage descriptions, and diagnostic meaning; they are not
+measured training runs.
+
+Public prose used machine translation assistance followed by terminology and
+structural review. Equations, links, and executable identifiers were protected
+locally. The translation preserves the source article's claims and limitations;
+it does not independently update the papers or benchmark results. Companion
+links use `content-link.html` to select available English editions.
+
+Source revision dates are 2026-10-04 for LLM Training and Spatial Intelligence,
+and 2026-10-02 for VLM. Translation dates are 2026-10-04. Synchronization records
+live in `translations/llm-training-survey.en.json`, `vlm-survey.en.json`, and
+`spatial-intelligence-survey.en.json`. `normalize_large_model_labels` in the
+translation validator lists the reviewed English descriptions inside equations;
+the mathematical expressions remain identical. The English release validator
+checks structural parity, protected mathematical and numerical content,
+companion links, language switching, and inclusion in the Research index.
+The release has 962 headings, 104 tables, and 189 images. Desktop and 390/320px
+browser checks verified all 52 Mermaid diagrams and 997 rendered formulas,
+zero visible untranslated prose, and reciprocal section switching.
 
 ## Content contract
 

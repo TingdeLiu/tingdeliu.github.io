@@ -1,5 +1,7 @@
 ---
 layout: post
+lang: zh-CN
+translation_id: llm-training-survey
 title: "大语言模型训练综述"
 date: 2026-10-04
 tags: [LLM, Deep Learning, NLP, Training, AI]

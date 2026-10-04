@@ -97,6 +97,53 @@ def normalize_agent_table_labels(body):
     return '\n'.join(lines)
 
 
+def normalize_large_model_labels(body):
+    """Canonicalize translated descriptions inside otherwise identical equations."""
+    labels = {
+        '静态总显存': 'Static GPU memory', ' 字节': ' bytes',
+        '总GPU数': 'Total GPUs', 'DP度': 'DP degree', 'TP度': 'TP degree', 'PP度': 'PP degree',
+        '修正因子': 'Correction factor', '旧': 'old', '新': 'new',
+        '当前块贡献': 'Current block contribution', '量化': 'Quantization',
+        'KV Cache大小': 'KV cache size',
+        '压缩为低维潜在向量，维度 ': 'Compressed latent vector, dimension ',
+        '推理时上投影还原': 'Up-projection at inference',
+        'GPU 小时': 'GPU hours', '单卡峰值 FLOPS': 'Peak FLOPS per GPU',
+        '总成本': 'Total cost', '单价': 'Hourly price',
+        '存储、人力等其他成本': 'Other costs: storage, labor, etc.',
+        '词表大小': 'Vocabulary size',
+        '（线性缩放规则，适用于 SGD）': '(linear scaling rule for SGD)',
+        '（平方根缩放规则，适用于 Adam/AdamW）': '(square-root scaling rule for Adam/AdamW)',
+    }
+    # These replacements apply only to math; prose uses independently reviewed English.
+    def localize(match):
+        text = match[0]
+        for zh, en in labels.items():
+            text = text.replace(zh, en)
+        return text
+    body = re.sub(r'\$\$.*?\$\$|(?<!\$)\$(?!\$)[^\n$]+?(?<!\s)\$(?![\d$])', localize, body, flags=re.S)
+    body = normalize_agent_table_labels(body)
+    lines = []
+    for line in body.splitlines():
+        if line.startswith('|'):
+            line = line.replace('三维高斯 (3D Gaussian)', '3D Gaussian')
+            line = line.replace('三维', '3D')
+            line = re.sub(r'(?i)three[- ]dimensional', '3D', line)
+            for n, word in [('一', '1'), ('二', '2'), ('三', '3')]:
+                line = line.replace('第' + n + '阶段', 'Stage ' + word)
+                line = line.replace('阶段' + n, 'Stage ' + word)
+            for word, n in [('One', '1'), ('Two', '2'), ('Three', '3'), ('first', '1'), ('second', '2'), ('third', '3')]:
+                line = re.sub(r'(?i)(stage|phase):?\s+' + word + r'\b', r'\1 ' + n, line)
+                line = re.sub(r'(?i)\b(?:the )?' + word + r' stage\b', 'Stage ' + n, line)
+            from decimal import Decimal
+            scales = {'千万': 10000000, '亿': 100000000, 'billion': 1000000000}
+            def scale(match):
+                value = format(Decimal(match[1]) * scales[match[2].lower()], 'f')
+                return value.rstrip('0').rstrip('.') if '.' in value else value
+            line = re.sub(r'(\d+(?:\.\d+)?)\s*(千万|亿|billion\b)', scale, line, flags=re.I)
+        lines.append(line)
+    return '\n'.join(lines)
+
+
 def normalize_ml_labels(body):
     """Canonicalize reviewed ML units and descriptive TeX labels for parity."""
     labels = {

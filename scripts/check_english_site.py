@@ -139,7 +139,7 @@ def main():
                 alternates = {n['attrs'].get('hreflang'): n['attrs'].get('href') for n in doc.select('link') if n['attrs'].get('hreflang')}
                 check(alternates == {'en': f'https://tingdeliu.github.io/en/{slug}/', 'zh-CN': f'https://tingdeliu.github.io/{slug}/'}, f'{slug}: incorrect language alternates')
             print(f'{slug}: {len(readings) if not papers_status["stale"] else "stale"} readings; {len(papers.select("table", True))} tables; {len(papers.select("img", True))} figures')
-    for slug in ('AI-Agent-Survey', 'Embodied-Agent-Harness-Survey', 'Embodied-Agent-Papers', 'Machine-Learning-Survey', 'Deep-Learning-Survey', 'Reinforcement-Learning-Survey'):
+    for slug in ('AI-Agent-Survey', 'Embodied-Agent-Harness-Survey', 'Embodied-Agent-Papers', 'Machine-Learning-Survey', 'Deep-Learning-Survey', 'Reinforcement-Learning-Survey', 'LLM-Training-Survey', 'VLM-Survey', 'Spatial-Intelligence-Survey'):
         target = ROOT / f'_translations/en/research/{slug}.md'
         check(target.exists(), f'{slug}: English article missing')
         if not target.exists():
@@ -153,8 +153,8 @@ def main():
         for tag in ('table', 'img', 'pre'):
             check(len(translated.select(tag, True)) == len(original.select(tag, True)), f'{slug}: {tag} counts differ')
         check(external(translated) == external(original), f'{slug}: external citations differ')
-        from check_translation_drafts import features, normalize_agent_table_labels, normalize_ml_labels
-        normalize = normalize_ml_labels if 'Learning-Survey' in slug else normalize_agent_table_labels
+        from check_translation_drafts import features, normalize_agent_table_labels, normalize_ml_labels, normalize_large_model_labels
+        normalize = normalize_large_model_labels if slug in ('LLM-Training-Survey', 'VLM-Survey', 'Spatial-Intelligence-Survey') else normalize_ml_labels if 'Learning-Survey' in slug else normalize_agent_table_labels
         before, after = features(normalize(source_body)), features(normalize(english_body))
         for feature in ('math', 'links', 'table_numbers', 'table_row_widths'):
             check(before[feature] == after[feature], f'{slug}: {feature} differ')
