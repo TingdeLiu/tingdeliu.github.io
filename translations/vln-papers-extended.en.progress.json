@@ -2,7 +2,7 @@
   "source": "_posts/research/2026-01-06-VLN-Papers-Extended.md",
   "translation": "_translations/en/research/VLN-Papers-Extended.md",
   "stage": "complete",
-  "updated_on": "2026-10-03",
+  "updated_on": "2026-10-04",
   "total_papers": 37,
   "main_readings": 34,
   "related_readings": 3,
@@ -52,7 +52,7 @@
       "status": "translated-and-content-parity-validated"
     },
     "sparsevideonav": {
-      "source_hash": "b1c4e3532b63fed000c3bd9cee2e041d0b2834fb9379dd3e2c9f70968063222f",
+      "source_hash": "62ee6b8c33c626895f085ebd182819fd6f41979f48cb99b350bb1f656b207330",
       "status": "translated-and-content-parity-validated"
     },
     "worldvln": {

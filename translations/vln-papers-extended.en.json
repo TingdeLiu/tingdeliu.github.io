@@ -1,8 +1,8 @@
 {
   "source": "_posts/research/2026-01-06-VLN-Papers-Extended.md",
   "translation": "_translations/en/research/VLN-Papers-Extended.md",
-  "reviewed_on": "2026-10-03",
-  "source_revision_date": "2026-10-03",
+  "reviewed_on": "2026-10-04",
+  "source_revision_date": "2026-10-04",
   "sections": {
     "metadata": "b358eebee9d297648811ee946738ebc16f460f105fbd414dbc59863b018208c0",
     "introduction": "bf8559d483ec886369b50cc19865c8a67445ba4e7fe04d35fbae22631fa8c797",
@@ -40,12 +40,17 @@
     "paper:skill-nav / 3. 核心结果/发现": "d8dca67584a8a566ce90d61e82e6e7e39de4b74ac7ee44ac7f02a0f643c3cd23",
     "paper:skill-nav / 4. 局限性": "5fc6f134e17fe454389427ae9dbf36c30c5d04ca0c2e5484012f0c6fd15dcff9",
     "paper:fantasyvln / 11. FantasyVLN (2026) {#fantasyvln}": "c9066cc5500495c60e7758dc88afcbae531aedd28f178b2246a4e44119d1e636",
-    "paper:sparsevideonav / 12. SparseVideoNav (2026) {#sparsevideonav}": "8d653731d65b039e88939ccadfaf5453dd119b3f9dafc12f90174168c642cac3",
-    "paper:sparsevideonav / 精华": "5b3e6c44f9b7ca09553ae7fced9fca969f9cf66be9377554d5a5be605ab7cb0e",
-    "paper:sparsevideonav / 1. 研究背景/问题": "80f9d579877c24b7597b359a240ba28c4923ab70cb532ee99ce01c758444178b",
-    "paper:sparsevideonav / 2. 主要方法/创新点": "8664366b1e2662d7555042e2ea60c2dc28e6949d56beba5164c2ca138c176363",
-    "paper:sparsevideonav / 3. 核心结果/发现": "c81dd0f377940ad0dbb1d32e76c49d927078a3a378617082862ae340e170f55d",
-    "paper:sparsevideonav / 4. 局限性": "188da93fd16e967051b6b3a47a1840641454cc0895f1727b70db55a9802dff35",
+    "paper:sparsevideonav / 12. SparseVideoNav (2026) {#sparsevideonav}": "1af72d6822bd291fb49973d86d2f3e57191ab59bd5f5a7239c65482b1451536f",
+    "paper:sparsevideonav / 精华": "a27ded2721566e7cfeedb0192ed9cf0e7932649e3c29c79aa1e4f237f5ffe959",
+    "paper:sparsevideonav / 1. 研究背景/问题": "fb451e941337ed383fa159b466bffe9a25a2a476bea87a58f601284b64ab4c0c",
+    "paper:sparsevideonav / 2. 主要方法/创新点": "88fcac0349eeb60b996e8405758dae63ce5ad55ef6e3ccd98042723f86b4f178",
+    "paper:sparsevideonav / 2.1 整体框架与模块数据流": "a8fa569790ed4f25daff7c392e3f5cfcfcfb6d28ccd81835ad14496743af47ed",
+    "paper:sparsevideonav / 2.2 稀疏未来：生成数量与预测范围分开设计": "24005e2c9ff60419a0d18624af0979718c7beda0d669182f043c7282a4a1cb90",
+    "paper:sparsevideonav / 2.3 四阶段训练": "c62ed77944c56d9ae927519c07ec4e40775ab30fa4bc742057a19a976993f89d",
+    "paper:sparsevideonav / 2.4 核心训练目标": "fa5ae2983250bd5cd5702ce2c9f3ddfbb899cdb985e38548b9ef1301b8de452b",
+    "paper:sparsevideonav / 2.5 数据构建与推理": "9c579b77d2fbe36bb144138e0f87ce06aa9523d432700c5e4bb6a1708b575af8",
+    "paper:sparsevideonav / 3. 核心结果/发现": "133932c3fc74b9250c52a9ff21898e6ff4ae3e42094a96a6e96b3d778b4bcb70",
+    "paper:sparsevideonav / 4. 局限性": "46da88a2e2e02448d775449192548081e2e3491bc452d86b73957bcbdc8394c4",
     "paper:worldvln / 13. WorldVLN (2026) {#worldvln}": "ea159e03041bf19d37b644bc626771348b9aef5974306d58da2190f18f738bce",
     "paper:worldvln / 精华": "592448f0c1748c8f096a5d4c3b2b5a1abeab75c9455bea252b17c035debeee9f",
     "paper:worldvln / 1. 研究背景/问题": "14777e08b14c1d797dce17d1e833d7225ecb93d238070e308c68e03d2a8ed223",
@@ -278,6 +283,6 @@
     "paper:vnt-pa / 3. 核心结果/发现": "f4b4c805c52d3361e15b3eaaee74a4a9463964a622bf3ceeb13b44c1322ed32c",
     "paper:vnt-pa / 4. 局限性": "edc812a9afb14d5d0b716fdeefff77f808d6051f14e34bb725abaa2a98253b8c",
     "参考资料": "9b02b96398a0ecec9519f4402648095347400e58028bcf57f57e2194eee8f5e6",
-    "论文引用": "4f39c2aae3b72d6ee841ec3de729d23fc93bb548a47cd05c0ce84fe4e8640139"
+    "论文引用": "84030a6a199b8c48e717a1e2cad46c4e98df82853c61ac4a784611bc31e2959b"
   }
 }

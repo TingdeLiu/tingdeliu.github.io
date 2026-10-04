@@ -5,8 +5,8 @@ translation_id: vln-papers-extended
 permalink: /en/VLN-Papers-Extended/
 source_path: _posts/research/2026-01-06-VLN-Papers-Extended.md
 source_url: /VLN-Papers-Extended/
-source_revision_date: 2026-10-03
-translation_updated: 2026-10-03
+source_revision_date: 2026-10-04
+translation_updated: 2026-10-04
 title: "VLN Papers: Goal Navigation and Extensions"
 date: 2026-09-29
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
@@ -1142,110 +1142,200 @@ This method is trained on a small-scale dataset (18k trajectory slices) such as 
 
 ## 12. SparseVideoNav (2026)
 {: id="sparsevideonav"}
-———Sparse Video Generation Propels Real-World Beyond-the-View Vision-Language Navigation
+———Sparse future videos provide foresight for navigation beyond the current view
 
-📄 **Paper**: [arXiv:2602.05827](https://arxiv.org/abs/2602.05827)
+📄 **Paper**: [arXiv:2602.05827v1](https://arxiv.org/abs/2602.05827v1) · [Code](https://github.com/OpenDriveLab/SparseVideoNav)
 
-### Key takeaways
+> **Version note:** This summary covers the v1 PDF, dated February 5, 2026; the PDF does not identify an accepted conference or journal venue.
+
+### Key Takeaways
 {: id="精华-2"}
 
-The core idea worth learning from SparseVideoNav: **Video Generation model (VGM) naturally has the long-view prediction ability**, which can replace LLM as the "brain" of navigation and completely solve the short-sighted behavior caused by LLM's short field of view. **sparse** (sparse video generation) is a key design that takes into account long prediction horizons and computational efficiency - there is no need to predict consecutive frames, only frames at key timestamps can provide effective navigation guidance. **Four-stage progressive training** (T2V → I2V → History Injection → Diffusion Distillation → Action Learning) migrates large-scale pre-trained video models to the navigation field and is a set of universal VGM adaptation paradigm. **Diffusion Distillation** compresses the number of inference steps from 50 to 4 (9.6× acceleration), making real-time deployment possible. In addition, the history compression strategy of **Q-Former + Video-Former** decouples the relationship between inference delay and history length, ensuring stable inference efficiency.
+1. **Imagine the future, then infer how to move:** A language-conditioned video generation model provides longer-range visual guidance when the navigation target is still out of view.
+2. **Dense near-term predictions, sparse distant predictions:** Retain consecutive chunks near the current observation for action accuracy, then sample distant chunks at wider intervals to extend the horizon within a limited generation budget.
+3. **Transfer pretrained capability progressively:** Image conditioning, history injection, diffusion distillation, and action learning adapt a general video generator into a deployable navigation system.
+4. **Align action labels with the generated future:** Synthetic videos can depict motion that differs from the original recording, so their motion is re-estimated instead of reusing the recording's action labels.
+5. **Assess latency together with success rate:** The final system reports 0.79-second inference on an RTX 4090 and 25.0% BVN success, compared with 10.0% for the strongest LLM baseline, while a more expensive continuous-generation variant achieves higher success.
 
 ---
 
-### 1. Background and problem
+### 1. Background and Problem
 {: id="1-研究背景问题-2"}
 
-Existing vision-language navigation (VLN) systems rely on LLM, are limited by short-field supervision (steps 4-8), and perform poorly in Beyond-the-View Navigation (BVN) tasks: agents need to locate distant invisible targets based solely on high-level semantic instructions (such as "find a table and park next to it") without step-by-step guidance. Therefore, LLM-based methods frequently experience unexpected turns and dead ends. Simply extending the supervision field of view will destroy the stability of LLM training, and the video generation model is naturally aligned with long-view language understanding, becoming a key breakthrough to solve BVN.
+Beyond-the-View Navigation (BVN) requires a robot to find a currently unseen target in an unfamiliar environment from a high-level instruction such as “find a table and stop beside it,” without detailed intermediate directions. The paper attributes unexpected turns, spinning, and dead-end trapping in the evaluated LLM navigation baselines to short-horizon action supervision, and explores language-conditioned video generation as a source of longer-range foresight. Generating tens of seconds of continuous video is too slow for deployment, so the system must jointly address prediction horizon, historical context, and inference cost.
 
 ---
 
-### 2. Method and innovations
+### 2. Main Method and Contributions
 {: id="2-主要方法创新点-2"}
 
 <div align="center">
-  <img src="/images/vln/SparseVideoNav-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1446/907" alt="SparseVideoNav Overview: The video generation model provides sparse foresight (Sparse Video Foresight), which is significantly ahead of the BVN task compared to LLM-based baselines (StreamVLN, InternVLA-N1, UniNavid), and the inference speed is increased by 27×" />
-<figcaption>
-SparseVideoNav Overview: The video generation model provides sparse foresight (Sparse Video Foresight), which is significantly ahead of the BVN task compared to LLM-based baselines (StreamVLN, InternVLA-N1, UniNavid), and the inference speed is increased by 27×
-</figcaption>
+  <img src="/images/vln/SparseVideoNav-v1-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1601/923" alt="Figure 2: System architecture and four-stage training. The current observation, compressed history, and instruction condition a video generator; its sparse future latents then condition the action head." />
+<figcaption>Figure 2: System architecture and four-stage training. The current observation, compressed history, and instruction condition a video generator; its sparse future latents then condition the action head.</figcaption>
 </div>
 
-**core idea:** uses video generation model (VGM) to predict future sparse frame sequences as navigation foresight, extending the prediction horizon to 20 seconds (20s × 4FPS = 80 frames), instead of the 4-8 steps that LLM can only handle. When the sparse interval is set to 3 (sparse interval = 3), the optimal balance between predicted field of view and visual fidelity is achieved.
+#### 2.1 Architecture and Module Data Flow
+{: id="21-整体框架与模块数据流"}
 
-**overall structure:**
+The system combines a **Wan2.1 video generation backbone, a history compression module, and an inverse dynamics action head**: the backbone predicts what future observations may look like, the history module summarizes previous observations, and the action head infers how to move toward the predicted future.
+
+- **Video generation backbone:** A 3D causal Wan-VAE encodes the current RGB observation, and umT5 encodes the instruction; these inputs and the history embedding condition an image-to-video (I2V) model adapted from Wan2.1 T2V-1.3B, producing sparse future video latents that represent longer-range visual intent.
+- **History compression:** Historical observation features pass through a Q-Former to reduce temporal redundancy and a Video-Former for 4× spatial downsampling, yielding 2,560 history latent tokens; added cross-attention blocks inject this context into each backbone Transformer block, preserving access to past observations while controlling the cost of a long history.
+- **Action head:** An action-side Video-Former aggregates the generated future's spatiotemporal features into 640 conditioning tokens; these features and the instruction condition a Diffusion Transformer (DiT) through cross-attention, producing an **8-step continuous action trajectory** with planar translation and heading changes $(\Delta x,\Delta y,\Delta\theta)$.
+
+The reader-oriented diagram below isolates the deployment data flow:
+
+```mermaid
+graph LR
+    A["Current RGB observation"] --> E["Video generation backbone"]
+    B["Historical observations"] --> C["Q-Former and Video-Former compression"]
+    C --> E
+    D["Language instruction"] --> E
+    E --> F["Sparse future latents"]
+    F --> G["Video-Former and DiT action head"]
+    D --> G
+    G --> H["8-step continuous action trajectory"]
+    H --> I["Robot execution and new observation"]
+    I --> A
+```
+
+#### 2.2 Sparse Foresight: Decouple Generation Budget from Horizon
+{: id="22-稀疏未来生成数量与预测范围分开设计"}
+
+The intuition is to predict the immediate future in detail and sample the distant future at a few informative times. Sampling primarily operates on **VAE-compressed chunks**, so eight future chunks should not be read as eight original image frames.
+
+Wan-VAE compresses a video with $(1+F)$ frames into $(1+F/4)$ latent chunks, with spatial dimensions reduced from $H\times W$ to $H/8\times W/8$ and 16 latent channels per location. Apart from special handling of the initial frame, each future chunk corresponds to four original timesteps; at the dataset's 4 FPS sampling rate, one chunk represents approximately one second.
+
+The selected future chunk indices are:
+
+$$
+[T+1,T+2,T+5,T+8,T+11,T+14,T+17,T+20].
+$$
+
+The first two chunks remain consecutive to preserve motion information over the next eight original timesteps; subsequent chunks are sampled every three chunks, extending the horizon to approximately 20 seconds.
+
+> **Minimal example:** If one chunk represents one second, predicting consecutively through second 8 requires eight chunks; retaining only seconds 1, 2, 5, and 8 covers the same endpoint with four chunks. The paper extends this pattern to eight chunks around seconds 1, 2, 5, 8, 11, 14, 17, and 20, looking farther ahead with a similar output budget rather than generating every frame of a 20-second video.
 
 <div align="center">
-  <img src="/images/vln/SparseVideoNav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1448/990" alt="SparseVideoNav overall architecture (top) and four-stage training process (bottom). The VGM backbone receives current observations, historical frames and language instructions to generate sparse video latents, and the DiT-based action head predicts continuous actions based on the generated future foresight and language instructions." />
-<figcaption>
-SparseVideoNav overall architecture (top) and four-stage training process (bottom). The VGM backbone receives current observations, historical frames and language instructions to generate sparse video latents, and the DiT-based action head predicts continuous actions based on the generated future foresight and language instructions.
-</figcaption>
+  <img src="/images/vln/SparseVideoNav-v1-sparse-intervals.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:858/962" alt="Figure 3: Qualitative comparison of sparse intervals. Interval 1 has a shorter horizon, whereas interval 5 reduces visual fidelity; interval 3 is selected as a compromise between horizon and generation quality." />
+<figcaption>Figure 3: Qualitative comparison of sparse intervals. Interval 1 has a shorter horizon, whereas interval 5 reduces visual fidelity; interval 3 is selected as a compromise between horizon and generation quality.</figcaption>
 </div>
 
-The architecture consists of three core components:
-- **VGM Backbone** (Wan 2.1-1.3B): Receives the current frame, historical embedding (h_T) and language instructions (umT5), and outputs future sparse video latents
-- **Former module**: Q-Former processes the time dimension history compression, Video-Former processes the spatial dimension, and jointly generates a fixed-dimensional history embedding so that the inference delay does not increase with the history length.
-- **DiT Action Head**: Predict continuous action sequences via cross-attention (DDIM reconstruction) conditioned on generated sparse future latents and language instructions
+| Design choice | Continuous video generation | SparseVideoNav |
+|---|---|---|
+| Future supervision | Consecutive adjacent chunks | Consecutive near-term chunks and sparsely sampled distant chunks |
+| Cost of extending the horizon | Generate more chunks to look farther ahead | Cover distant changes with fewer chunks |
+| Guidance for actions | A complete continuous future | Sparse visual foresight plus near-term detail |
 
-**four-stage training process:**
+#### 2.3 Four-Stage Training
+{: id="23-四阶段训练"}
 
-1. **Stage 1 — T2V → I2V adaptation**: retain Wan’s flow matching goal, adapt the text-to-video model to image-conditioned video generation (Image-to-Video), introduce sparse frame supervision, and use sparse chunk latents `[c_{T+1}, c_{T+2}, c_{T+5}, c_{T+8}, ..., c_{T+20}]` as the training target
+**Stage 1: T2V → I2V adaptation.** The current image, instruction, and noisy sparse future latents enter the backbone, which is fine-tuned with Wan's flow matching objective; the resulting generator anchors its predicted future to the current viewpoint rather than relying on text alone.
 
-2. **Stage 2 - History injection**: Add a cross-attention block in each transformer block of Wan backbone and inject historical information h_T (Q-Former + Video-Former encoding); the new layer retains pre-training and generates priors with zero initialization
+**Stage 2: History injection.** Compressed historical embeddings enter new cross-attention blocks within every backbone Transformer block; the added blocks' final linear layers are zero-initialized to limit disruption of the existing generative prior, yielding an I2V model conditioned on both current and past observations.
 
-3. **Stage 3 — Diffusion Distillation**: Use PCM (Phased Consistency models) for distillation, use the history-injected I2V model as the teacher, train the student model with the same structure, and compress the number of inference steps from N=50 to M=4, achieving 9.6× inference acceleration while maintaining visual fidelity
+**Stage 3: Diffusion distillation.** The history-conditioned I2V model serves as the teacher, and an identical student is initialized from its weights; Phased Consistency Models (PCM) divide the noise schedule into four phases and teach the student to predict phase endpoints along the teacher's probability-flow ODE trajectory, using consistency between neighboring timesteps to reduce video denoising from **50 steps to 4**.
 
-4. **Stage 4 - Action Learning**: Freezing the distilled I2V model, using the inverse dynamics paradigm, and using DA3 to re-label the generated sparse future frames with action labels to ensure accurate alignment of action supervision and synthetic dynamics; train the DiT action head to predict continuous actions in a denoising manner
+**Stage 4: Action learning.** The distilled I2V model is frozen, while an inverse dynamics head learns to infer actions from predicted visual changes; generated sparse futures and instructions condition an 8-step continuous action prediction.
 
-**Data collection:** uses handheld DJI Osmo Action 4 (RockSteady+ image stabilization) to collect 140 hours of real outdoor navigation video, processed into about 13,000 trajectories (average 140 frames × 4FPS), uses DA3 to estimate camera poses to extract continuous action labels; language instructions are annotated by artificial experts - building the largest real-world VLN at present dataset.
+Importantly, the system first uses **Depth Anything 3 (DA3) to relabel motion in the generated future**, aligning the action supervision with synthetic visual dynamics instead of attaching the original recording's actions unchanged.
+
+> **Minimal example:** Suppose a real recording corresponds to moving straight for one meter, but its generated counterpart depicts moving forward and then turning right; labeling both as straight motion would provide contradictory supervision. The paper re-estimates camera motion in the generated video and derives matching action labels; the distance in this example is illustrative, not a reported measurement.
+
+#### 2.4 Core Training Objectives
+{: id="24-核心训练目标"}
+
+**Flow matching for video generation.** Let $x_1$ be the ground-truth sparse future latents, $x_0$ Gaussian noise, and $t$ the flow matching time; the intermediate input and target velocity are:
+
+$$
+x_t=t x_1+(1-t)x_0,\qquad v_t=x_1-x_0.
+$$
+
+The objectives for the two generation stages can be summarized as:
+
+$$
+\mathcal L_{\mathrm{FM}}
+=\mathbb E\left[\lVert u_\theta(x_t,l,c_T,h_T,t)-v_t\rVert_2^2\right].
+$$
+
+Here $l$ is the instruction embedding, $c_T$ the current observation latent, and $h_T$ the history embedding; Stage 1 omits $h_T$, while Stage 2 includes it, with both stages learning a velocity field from noise toward sparse future latents.
+
+**Consistency for distillation.** Stage 3 aligns predictions at adjacent noise times within a phase to the same solution point on the teacher's trajectory, retaining generative quality under few-step inference; the main text does not give a complete PCM loss equation.
+
+**Action reconstruction.** Following the paper's Eq. (5), relabeled clean actions $a_0$ are noised into $a_k$, and the action head reconstructs $a_0$ conditioned on the instruction $l$ and generated future $V$:
+
+$$
+\mathcal L_{\mathrm{action}}
+=\mathbb E\left[\lVert D_\psi(a_k,l,V)-a_0\rVert_2^2\right].
+$$
+
+This equation directly supervises clean-action reconstruction, with DDIM used for inference; the 20-second visual horizon and the 8-step action output are different quantities and should not be conflated.
+
+#### 2.5 Data Construction and Inference
+{: id="25-数据构建与推理"}
+
+Human operators collected **140 hours of real-world navigation video** with a handheld DJI Osmo Action 4 using RockSteady+ stabilization, producing approximately **13,000 trajectories**, averaging 140 frames at 4 FPS, with manually annotated instructions. DA3 estimates 6-DoF camera poses, and relative pose changes are projected onto the local plane to derive $(\Delta x,\Delta y,\Delta\theta)$ labels; static segments, extreme camera pitch, and frontal dynamic-pedestrian segments that impair pose estimation are filtered out.
+
+At deployment, the robot sends new RGB observations to a remote workstation; the model combines the instruction and compressed history, generates sparse futures with four video denoising steps, predicts continuous actions, and sends them back for execution, with subsequent observations closing the feedback loop rather than executing the entire 20-second imagined future open-loop. DA3 relabeling belongs to training preparation and is not listed as an online navigation component; the appendix reports about 64 hours for the complete four-stage pipeline on 32 H200 GPUs.
+
+<div align="center">
+  <img src="/images/vln/SparseVideoNav-v1-future-predictions.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1431/882" alt="Figure 5: Sparse future predictions during zero-shot BVN deployment for finding a table, an air conditioner, and a trash bin; the current observation and sampled future chunks express longer-range navigation intent." />
+<figcaption>Figure 5: Sparse future predictions during zero-shot BVN deployment for finding a table, an air conditioner, and a trash bin; the current observation and sampled future chunks express longer-range navigation intent.</figcaption>
+</div>
 
 ---
 
-### 3. Results and findings
+### 3. Key Results and Findings
 {: id="3-核心结果发现-2"}
 
-<div align="center">
-  <img src="/images/vln/SparseVideoNav-video-generation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1443/762" alt="Analysis of video generation results of SparseVideoNav in a zero-shot BVN deployment. The model predicts the future sparse frame sequence from the current frame (T) to T+20, across multiple scenarios including indoor (looking for a table), outdoor (looking for an air conditioner), and outdoor (looking for a trash can)." />
-<figcaption>
-Analysis of video generation results of SparseVideoNav in a zero-shot BVN deployment. The model predicts the future sparse frame sequence from the current frame (T) to T+20, across multiple scenarios including indoor (looking for a table), outdoor (looking for an air conditioner), and outdoor (looking for a trash can).
-</figcaption>
-</div>
+**Evaluation setup.** A Unitree Go2 is evaluated in six unseen real-world scenes: Room and Lab Building indoors, Yard and Park outdoors, and Square and Mountain at night; each scene contains two instruction-following navigation (IFN) tasks and two BVN tasks, repeated ten times each, for **240 trials per method**. Success means stopping within **1.5 meters** of the target, without an orientation requirement; models run on a remote RTX 4090 workstation, so reported inference latency should not be equated with the complete robot communication and control cycle.
+
+**Main results (Table I; success rate, %).**
+
+| Method | Average IFN | Average BVN |
+|---|---:|---:|
+| Uni-NaVid | 10.0 | 2.5 |
+| StreamVLN | 35.0 | 10.0 |
+| InternVLA-N1 | 17.5 | 8.3 |
+| **SparseVideoNav** | **50.0** | **25.0** |
+
+Both task types improve by **15 percentage points** over the strongest baseline, StreamVLN; BVN success is **2.5×** higher because 25.0% / 10.0% = 2.5. Nighttime BVN success is **20% and 15%** in the two scenes, averaging **17.5%**, versus 0% for all three evaluated baselines; this does not establish reliable navigation in arbitrary nighttime environments.
 
 <div align="center">
-  <img src="/images/vln/SparseVideoNav-ablation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:712/647" alt="ablation research: a) Data expansion continues to improve FVD with scale; b) Sparse design brings 1.7× inference acceleration; c) Diffusion Distillation brings 9.6× inference acceleration; d) Former historical compression maintains stable inference delay (+54.9% increases with history length without Former)" />
-<figcaption>
-ablation research: a) Data expansion continues to improve FVD with scale; b) Sparse design brings 1.7× inference acceleration; c) Diffusion Distillation brings 9.6× inference acceleration; d) Former historical compression maintains stable inference delay (+54.9% increases with history length without Former)
-</figcaption>
+  <img src="/images/vln/SparseVideoNav-v1-real-world-trajectories.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1605/972" alt="Figure 4: Successful real-world BVN trajectories involving backtracking out of a dead end, a narrow traversable ramp, and a steep hillside; these illustrate behavior rather than replace aggregate success rates." />
+<figcaption>Figure 4: Successful real-world BVN trajectories involving backtracking out of a dead end, a narrow traversable ramp, and a steep hillside; these illustrate behavior rather than replace aggregate success rates.</figcaption>
 </div>
 
-**Zero-sample real-world performance:**
-- SparseVideoNav comprehensively surpasses all LLM-based baselines in 6 real-world scenarios (Indoor Room/Lab, Outdoor Yard/Park, Night Square/Mountain)
-- **IFN task** average success rate **50.0%** (vs StreamVLN 35.0%, UniNavid 10.0%)
-- **BVN task** average success rate **25.0%** (vs almost 0% for all baselines, only 10.0% for StreamVLN)
-- Night scene success rate **17.5%** (LLM baseline all failed BVN at night)
+**Horizon and success-rate trade-offs (Table I).**
 
-**Efficiency improvement:**
-- inference delay **9.8s** vs baseline **21.6s** (**27×** acceleration vs. unoptimized version)
-- Stage 1+2 training time **32h** vs. training from scratch **64h** (**2×** acceleration)
-- Sparse design brings **1.7×** inference acceleration, and Distillation brings **9.6×** acceleration.
+| Variant | IFN (%) | BVN (%) |
+|---|---:|---:|
+| 4 denoising steps, 2 consecutive future chunks | 15.8 | 2.5 |
+| 4 denoising steps, 10 consecutive future chunks | 36.7 | 11.7 |
+| **Final system: 4 denoising steps, sparse foresight spanning 20 seconds** | **50.0** | **25.0** |
+| 50 denoising steps, 20 consecutive future chunks | 62.5 | 35.8 |
+| Final system without history compression | 45.0 | 22.5 |
 
-**Robustness:** can still navigate correctly when the training height (1m) and deployment height (50cm) are inconsistent, showing strong robustness to camera height changes; it can dynamically avoid pedestrian obstacles (emergent ability, non-explicit training).
+The longer continuous-generation variant achieves higher success, showing that sparsification and distillation trade some performance for efficiency; these ablations support a practical compromise rather than proving that sparse prediction is intrinsically more accurate at a matched horizon.
+
+<div align="center">
+  <img src="/images/vln/SparseVideoNav-v1-efficiency-ablation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:854/657" alt="Figure 6: Ablations of data scale, sparse generation, distillation, and history compression; larger datasets reduce FVD, sparse generation and distillation reduce inference time, and history compression limits latency growth with longer histories." />
+<figcaption>Figure 6: Ablations of data scale, sparse generation, distillation, and history compression; larger datasets reduce FVD, sparse generation and distillation reduce inference time, and history compression limits latency growth with longer histories.</figcaption>
+</div>
+
+- **Efficiency:** Figure 6 reports **0.79-second** inference for the final system, **1.35 seconds** without sparsification (approximately 1.7× slower), and **7.56 seconds** without distillation (approximately 9.6× slower), while sparse generation provides about **1.4× faster Stage 1+2 training**; the abstract separately reports **27× acceleration** over a fully unoptimized system, using a different comparison setting that should not be multiplied or mixed with the individual ablation ratios.
+- **History and initialization:** Removing the Former introduces a **54.9%** latency increase at history length $N=45$; progressive Stage 1 adaptation followed by history injection reduces generation-adaptation convergence time from **64 hours** for direct Stage 2 training to **32 hours**, which is distinct from the full four-stage training time.
+- **Data scaling:** Increasing training data from **8 / 50 / 140 hours** reduces FVD on a three-hour unseen validation set from **2534 / 1755 / 1390**, indicating improved video distribution fit; this experiment does not report a corresponding navigation success-rate scaling curve.
+- **Qualitative generalization:** The paper demonstrates pedestrian avoidance and successful navigation at a 50-centimeter camera height despite training near one meter, but does not report separate quantitative success rates for these capabilities.
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-2"}
 
-The current 140-hour dataset is still limited compared to network-scale data, and data expansion is a key direction for further improvement; the inference delay (9.8s) is still slightly higher than the existing LLM-based navigation paradigm (StreamVLN), and accelerated distillation and VGM quantification are important topics for future research.
+The 140-hour dataset remains limited, challenging scenes can cause generation mode collapse and navigation failure, and final BVN success is only 25.0%; efficiency optimizations sacrifice some success, while the authors report that inference remains slightly slower than existing LLM navigation methods. Evaluation spans six scenes and 24 tasks using a remote GPU, and camera-height robustness and dynamic obstacle avoidance are supported mainly by qualitative examples, leaving reliable autonomy across broader environments unproven.
 
 ---
-
-
-
-
-
-
-
-
 
 ## 13. WorldVLN (2026)
 {: id="worldvln"}
@@ -5194,7 +5284,7 @@ It only does 2D plane planning and assumes that the camera height is constant; t
 9. **ODYSSEY** (2025). Open-World Quadrupeds Exploration and Manipulation for Long-Horizon Tasks. arXiv: [2508.08240](https://arxiv.org/abs/2508.08240) · AAAI 2026
 10. **Skill-Nav** (2025). Enhanced Navigation with Versatile Quadrupedal Locomotion via Waypoint Interface. arXiv: [2506.21853](https://arxiv.org/abs/2506.21853) · Vicinagearth (Springer) 2025
 11. **FantasyVLN** (2026). Unified multimodal Chain-of-Thought inference for vision-language navigation. arXiv: [2601.13976](https://arxiv.org/abs/2601.13976)
-12. **SparseVideoNav** (2026). Sparse Video Generation Propels Real-World Beyond-the-View Vision-Language Navigation. arXiv: [2602.05827](https://arxiv.org/abs/2602.05827)
+12. **SparseVideoNav** (2026). Sparse Video Generation Propels Real-World Beyond-the-View Vision-Language Navigation. arXiv: [2602.05827v1](https://arxiv.org/abs/2602.05827v1)
 13. **WorldVLN** (2026). Autoregressive World Action model for Aerial Vision-Language Navigation. arXiv: [2605.15964](https://arxiv.org/abs/2605.15964)
 14. **NavWAM** (2026). The first navigation model that integrates future prediction, value evaluation and action decision-making into a single embodied world model. arXiv: [2606.13494](https://arxiv.org/abs/2606.13494)
 15. **Agentic Embodied Control** (2026). The general agent under the minimalist interface directly controls the embodied interaction loop, and the zero-shot performance is comparable to the industrial-grade training strategy. arXiv: [2607.26148](https://arxiv.org/abs/2607.26148)

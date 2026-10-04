@@ -1080,105 +1080,190 @@ FantasyVLN与WorldVLA的训练效率对比:CompV-CoT快速收敛,像素级V-CoT�
 
 
 ## 12. SparseVideoNav (2026) {#sparsevideonav}
-———Sparse Video Generation Propels Real-World Beyond-the-View Vision-Language Navigation
+———用稀疏未来视频为视野之外的导航提供长程预见
 
-📄 **Paper**: [arXiv:2602.05827](https://arxiv.org/abs/2602.05827)
+📄 **Paper**: [arXiv:2602.05827v1](https://arxiv.org/abs/2602.05827v1) · [Code](https://github.com/OpenDriveLab/SparseVideoNav)
+
+> **版本说明**：本文依据论文 v1 PDF（2026 年 2 月 5 日）整理；PDF 未注明正式发表会议或期刊。
 
 ### 精华
 
-SparseVideoNav 最值得借鉴的核心思想：**视频生成模型（VGM）天然具备长视野预测能力**，可以替代 LLM 作为导航的"大脑"，彻底解决 LLM 短视野导致的短视行为。**稀疏化**（sparse video generation）是兼顾长预测视野与计算效率的关键设计——不需要预测连续帧，只需关键时间戳处的帧即可提供有效导航指引。**四阶段渐进式训练**（T2V→I2V→历史注入→扩散蒸馏→动作学习）将大规模预训练视频模型迁移到导航领域，是一套通用的 VGM 适配范式。**Diffusion Distillation** 将推理步数从 50 步压缩到 4 步（9.6× 加速），使实时部署成为可能。此外，**Q-Former + Video-Former** 的历史压缩策略解耦了推理延迟与历史长度的关系，保证了稳定的推理效率。
+1. **把未来画出来，再决定怎么走**：将语言条件的视频生成模型作为长程预见模块，帮助导航策略在目标尚未出现时维持方向与任务意图。
+2. **近处密、远处疏**：保留近期连续片段保障动作精度，对较远未来间隔采样，用有限的生成预算覆盖更长时间，而不是追求完整连续视频。
+3. **逐步迁移预训练能力**：通过图像条件适配、历史注入、扩散蒸馏、动作学习四阶段，把通用视频生成模型转成可部署的导航系统。
+4. **动作标签必须匹配生成的未来**：生成视频与真实录像的运动可能不同，因此重新估计生成视频的动作，比直接复用原录像动作标签更合理。
+5. **效率与成功率需要一起看**：最终模型在 RTX 4090 上报告 0.79 秒推理、BVN 成功率 25.0%，优于最佳 LLM 基线的 10.0%，但低于计算更昂贵的长程连续生成变体。
 
 ---
 
 ### 1. 研究背景/问题
 
-现有视觉-语言导航（VLN）系统依赖 LLM，受限于短视野监督（4-8步），在 Beyond-the-View Navigation（BVN）任务中表现欠佳：智能体需要在没有逐步指引的情况下，仅凭高层语义指令（如"找一张桌子并停在旁边"）定位远处不可见目标，LLM-based 方法因此频繁出现意外转向和死路困陷。简单延长监督视野会破坏 LLM 训练稳定性，而视频生成模型天然对齐长视野语言理解，成为解决 BVN 的关键突破口。
+视野之外的导航（Beyond-the-View Navigation，BVN）要求机器人仅凭“寻找桌子并停在旁边”这类高层指令，在陌生环境中寻找当前看不到的目标，而无需沿途逐步指引。论文认为，所比较的 LLM 导航方法依赖较短动作序列监督，容易在长距离搜索时意外转向、原地旋转或困在死路；视频生成模型的长程语言条件预测能力提供了另一种预见方式。问题在于生成几十秒连续视频耗时过高，必须同时解决预测范围、历史输入和推理延迟的问题。
 
 ---
 
 ### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vln/SparseVideoNav-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1446/907" />
-<figcaption>
-SparseVideoNav 概览：视频生成模型提供稀疏预见（Sparse Video Foresight），相较 LLM-based 基线（StreamVLN、InternVLA-N1、UniNavid）在 BVN 任务上大幅领先，推理速度提升 27×
-</figcaption>
+  <img src="/images/vln/SparseVideoNav-v1-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1601/923" alt="图 2：整体架构与四阶段训练。当前观测、压缩后的历史和语言指令共同驱动视频生成主干，生成的稀疏未来潜变量再作为动作头的条件。" />
+<figcaption>图 2：整体架构与四阶段训练。当前观测、压缩后的历史和语言指令共同驱动视频生成主干，生成的稀疏未来潜变量再作为动作头的条件。</figcaption>
 </div>
 
-**核心思路：** 利用视频生成模型（VGM）预测未来稀疏帧序列作为导航预见，将预测视野延伸到 20 秒（20s × 4FPS = 80帧），而非 LLM 仅能处理的 4-8 步。稀疏间隔设为 3 时（sparse interval = 3），在预测视野与视觉保真度之间取得最优平衡。
+#### 2.1 整体框架与模块数据流
 
-**整体架构：**
+系统由 **Wan2.1 视频生成主干、历史压缩模块、逆动力学动作头** 三部分组成：视频主干预测“未来可能看见什么”，历史模块提供“之前经过哪里”的上下文，动作头根据预测未来输出“接下来怎么移动”。
+
+- **视频生成主干**：当前 RGB 观测经 Wan 的 3D 因果 VAE 编码，语言指令经 umT5 编码，再与历史嵌入一起输入 Wan2.1 T2V-1.3B 适配后的图像到视频模型（I2V）；输出稀疏未来视频潜变量，用视觉动态承载长程导航意图。
+- **历史压缩模块**：历史观测特征先经 Q-Former 压缩时间维度的冗余，再经 Video-Former 做 4 倍空间下采样，得到 2,560 个历史潜在 token；这些特征通过主干每个 Transformer 块新增的交叉注意力层注入，使模型利用过去的观测，同时控制历史上下文带来的计算负担。
+- **动作头**：动作侧的 Video-Former 聚合生成未来的时空特征，得到 640 个条件 token；这些特征与语言指令通过交叉注意力输入 Diffusion Transformer（DiT），以扩散去噪方式预测 **8 步连续动作轨迹**，动作表示为平面位移与转角 $(\Delta x,\Delta y,\Delta\theta)$。
+
+下面是只保留部署信息流的读者版示意图：
+
+```mermaid
+graph LR
+    A["当前 RGB 观测"] --> E["视频生成主干"]
+    B["历史观测"] --> C["Q-Former 与 Video-Former 压缩"]
+    C --> E
+    D["语言指令"] --> E
+    E --> F["稀疏未来潜变量"]
+    F --> G["Video-Former 与 DiT 动作头"]
+    D --> G
+    G --> H["8 步连续动作轨迹"]
+    H --> I["机器人执行并获取新观测"]
+    I --> A
+```
+
+#### 2.2 稀疏未来：生成数量与预测范围分开设计
+
+稀疏生成的直觉是：近期要看得细，远期只需在几个时间点看清道路与目标变化。论文的采样单位主要是 **VAE 压缩后的片段（chunk）**，不能把 8 个未来片段误读成 8 张原始图像。
+
+Wan-VAE 将输入的 $(1+F)$ 帧视频压缩为 $(1+F/4)$ 个潜在片段，同时将空间尺寸从 $H\times W$ 压缩至 $H/8\times W/8$，每个位置为 16 维潜变量。除初始帧的特殊处理外，未来每个片段对应 4 个原始时间步；在 4 FPS 数据上，一个片段约对应 1 秒。
+
+论文选取未来片段索引：
+
+$$
+[T+1,T+2,T+5,T+8,T+11,T+14,T+17,T+20].
+$$
+
+最初两个片段保持连续，保障最近 8 个原始时间步的动作信息；之后每隔 3 个片段选取一个，将预测范围延伸至约 20 秒。
+
+> **举个例子**：把未来每秒看作一个片段，要连续预测到第 8 秒，需要生成 8 个片段；如果只保留第 1、2、5、8 秒，就用 4 个片段覆盖相同终点。论文把这一设计延伸为第 1、2、5、8、11、14、17、20 秒附近的 8 个片段，用相近的生成数量看得更远；它并不是逐帧生成整段 20 秒视频。
 
 <div align="center">
-  <img src="/images/vln/SparseVideoNav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1448/990" />
-<figcaption>
-SparseVideoNav 整体架构（上）与四阶段训练流程（下）。VGM backbone 接收当前观测、历史帧和语言指令，生成稀疏视频 latents，DiT-based action head 基于生成的未来预见和语言指令预测连续动作
-</figcaption>
+  <img src="/images/vln/SparseVideoNav-v1-sparse-intervals.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:858/962" alt="图 3：稀疏间隔的定性比较。间隔 1 的预测范围较短，间隔 5 的视觉保真度下降；论文采用间隔 3，在预测范围与生成质量之间折中。" />
+<figcaption>图 3：稀疏间隔的定性比较。间隔 1 的预测范围较短，间隔 5 的视觉保真度下降；论文采用间隔 3，在预测范围与生成质量之间折中。</figcaption>
 </div>
 
-架构由三个核心组件构成：
-- **VGM Backbone**（Wan 2.1-1.3B）：接收当前帧、历史嵌入（h_T）和语言指令（umT5），输出未来稀疏视频 latents
-- **Former 模块**：Q-Former 处理时间维度历史压缩，Video-Former 处理空间维度，联合生成固定维度的历史嵌入，使推理延迟不随历史长度增长
-- **DiT Action Head**：以生成的稀疏未来 latents 和语言指令为条件，通过 cross-attention 预测连续动作序列（DDIM 重建）
+| 设计维度 | 连续视频生成 | 本文稀疏生成 |
+|---|---|---|
+| 未来监督 | 连续相邻片段 | 近期连续、远期间隔采样 |
+| 长程预测成本 | 看得更远需要生成更多片段 | 用较少片段覆盖远期变化 |
+| 动作依据 | 完整连续未来 | 稀疏视觉预见与近期细节 |
 
-**四阶段训练流程：**
+#### 2.3 四阶段训练
 
-1. **Stage 1 — T2V → I2V 适配**：保留 Wan 的 flow matching 目标，将文本到视频模型适配为图像条件的视频生成（Image-to-Video），引入稀疏帧监督，以稀疏 chunk latents `[c_{T+1}, c_{T+2}, c_{T+5}, c_{T+8}, ..., c_{T+20}]` 作为训练目标
+**Stage 1：T2V → I2V 适配。** 输入当前图像、语言指令和带噪的稀疏未来潜变量，在保留 Wan 的流匹配（flow matching）目标下微调主干；输出以当前视角为起点、与指令一致的未来生成模型，使文本到视频先验适应导航的视觉条件。
 
-2. **Stage 2 — 历史注入**：在 Wan backbone 每个 transformer block 中新增 cross-attention block，注入历史信息 h_T（Q-Former + Video-Former 编码）；新增层以零初始化保留预训练生成先验
+**Stage 2：历史注入。** 输入压缩历史嵌入，在主干每个 Transformer 块中增加历史交叉注意力；新增块的末端线性层零初始化，降低刚加入历史通道时对已有生成能力的扰动；输出同时利用当前画面与历史的 I2V 模型。
 
-3. **Stage 3 — Diffusion Distillation**：采用 PCM（Phased Consistency Models）进行蒸馏，以 history-injected I2V 模型为 teacher，训练结构相同的 student 模型，将推理步数从 N=50 压缩至 M=4，实现 9.6× 推理加速，同时保持视觉保真度
+**Stage 3：扩散蒸馏。** 用第二阶段模型作为教师，以相同结构和权重初始化学生，把噪声日程划为 4 个阶段；采用分阶段一致性模型（Phased Consistency Models，PCM），让学生学习教师概率流 ODE 轨迹上的各阶段终点，并通过相邻时刻的一致性约束，将视频生成去噪从 **50 步压缩至 4 步**。
 
-4. **Stage 4 — 动作学习**：冻结蒸馏后的 I2V 模型，采用逆动态范式（inverse dynamics paradigm），利用 DA3 对生成的稀疏未来帧重新标注动作标签，确保动作监督与合成动态精确对齐；训练 DiT action head 以去噪方式预测连续动作
+**Stage 4：动作学习。** 冻结蒸馏后的 I2V 主干，学习“从预测的视觉变化反推出动作”的逆动力学（inverse dynamics）动作头；输入生成的稀疏未来与指令，输出 8 步连续动作。
 
-**数据采集：** 使用手持 DJI Osmo Action 4（RockSteady+ 稳像）采集 140 小时真实室外导航视频，处理为约 13,000 条轨迹（均值 140 帧 × 4FPS），使用 DA3 估计相机位姿提取连续动作标签；语言指令由人工专家标注——构建了目前最大规模的真实世界 VLN 数据集。
+这里的关键不是直接把原录像动作附到生成视频上，而是先用 **Depth Anything 3（DA3）重新标注生成未来的运动**，避免视觉变化与动作监督错位。
+
+> **举个例子**：假设真实录像对应“直行 1 米”，生成视频却表现为“直行后右转”，仍给它“只直行”的标签就会产生冲突。论文重新估计生成视频的相机运动，再据此形成动作标签；例子中的距离仅用于解释标签对齐，不是论文测量值。
+
+#### 2.4 核心训练目标
+
+**视频生成的流匹配损失。** 设 $x_1$ 是真实稀疏未来潜变量，$x_0$ 是高斯噪声，$t$ 是流匹配时间，则输入和目标速度为：
+
+$$
+x_t=t x_1+(1-t)x_0,\qquad v_t=x_1-x_0.
+$$
+
+两个生成阶段可统一写为：
+
+$$
+\mathcal L_{\mathrm{FM}}
+=\mathbb E\left[\lVert u_\theta(x_t,l,c_T,h_T,t)-v_t\rVert_2^2\right].
+$$
+
+其中 $l$ 是语言嵌入，$c_T$ 是当前观测潜变量，$h_T$ 是历史嵌入；Stage 1 不使用 $h_T$，Stage 2 使用它，目标都是学习把噪声推进到稀疏未来的速度场。
+
+**蒸馏的一致性目标。** Stage 3 约束同一阶段内相邻噪声时刻的预测对应教师轨迹上的同一解点，使少步推理保留教师生成能力；论文正文未展开完整 PCM 损失公式。
+
+**动作重建损失。** 按论文式（5），将重新标注的干净动作 $a_0$ 加噪得到 $a_k$，动作头在指令 $l$ 和生成未来 $V$ 的条件下重建 $a_0$：
+
+$$
+\mathcal L_{\mathrm{action}}
+=\mathbb E\left[\lVert D_\psi(a_k,l,V)-a_0\rVert_2^2\right].
+$$
+
+这里直接监督的是干净动作重建，推理采用 DDIM；视频预测范围为 20 秒，动作头输出长度为 8 步，两者不是同一个时间尺度。
+
+#### 2.5 数据构建与推理
+
+作者用配备 RockSteady+ 稳像的手持 DJI Osmo Action 4 收集 **140 小时真实导航视频**，处理为约 **13,000 条轨迹**，平均每条 140 帧、采样率 4 FPS，并人工标注语言指令。DA3 估计每帧 6 自由度相机位姿，再将相邻位姿变化投影到局部平面，生成 $(\Delta x,\Delta y,\Delta\theta)$ 标签；静止片段、极端俯仰角和影响位姿估计的正面动态行人片段被过滤。
+
+推理时，机器人把新 RGB 观测发送至远程工作站，模型结合指令与压缩历史，先经 4 步视频去噪得到稀疏未来，再由动作头预测连续轨迹并发回机器人执行；后续观测参与闭环更新，而不是一次性执行完整 20 秒预测。DA3 重标注用于训练准备，论文没有将其列为在线导航推理模块；附录报告完整四阶段训练使用 32 张 H200，约耗时 64 小时。
+
+<div align="center">
+  <img src="/images/vln/SparseVideoNav-v1-future-predictions.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1431/882" alt="图 5：零样本 BVN 部署中的稀疏未来预测，展示找桌子、空调和垃圾桶的任务；当前观测与间隔选取的未来片段共同呈现长程导航意图。" />
+<figcaption>图 5：零样本 BVN 部署中的稀疏未来预测，展示找桌子、空调和垃圾桶的任务；当前观测与间隔选取的未来片段共同呈现长程导航意图。</figcaption>
+</div>
 
 ---
 
 ### 3. 核心结果/发现
 
-<div align="center">
-  <img src="/images/vln/SparseVideoNav-video-generation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1443/762" />
-<figcaption>
-SparseVideoNav 在零样本 BVN 部署中的视频生成结果分析。模型从当前帧（T）预测未来稀疏帧序列至 T+20，跨室内（找桌子）、室外（找空调）、户外（找垃圾桶）多种场景
-</figcaption>
-</div>
+**评测条件。** 在 Unitree Go2 上测试 6 个未见真实场景：室内 Room、Lab Building，室外 Yard、Park，夜间 Square、Mountain；每场景 2 个 IFN 任务和 2 个 BVN 任务，每任务重复 10 次，共 **240 次试验/方法**。成功标准为机器人停在目标 **1.5 米以内**，不要求朝向目标；模型部署在远程 RTX 4090 工作站上，不能将报告延迟直接等同于机器人端完整通信与控制周期。
+
+**主结果（表 I，成功率 %）。**
+
+| 方法 | IFN 平均 | BVN 平均 |
+|---|---:|---:|
+| Uni-NaVid | 10.0 | 2.5 |
+| StreamVLN | 35.0 | 10.0 |
+| InternVLA-N1 | 17.5 | 8.3 |
+| **SparseVideoNav** | **50.0** | **25.0** |
+
+相对最佳基线 StreamVLN，两类任务均提升 **15 个百分点**；BVN 的 25.0% / 10.0% = **2.5 倍**。夜间两个场景的 BVN 成功率分别为 **20% 和 15%**，平均 **17.5%**，所测三个基线均为 0%；这不意味着任意夜间环境都能成功导航。
 
 <div align="center">
-  <img src="/images/vln/SparseVideoNav-ablation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:712/647" />
-<figcaption>
-消融研究：a) 数据扩展随规模持续提升 FVD；b) 稀疏设计带来 1.7× 推理加速；c) Diffusion Distillation 带来 9.6× 推理加速；d) Former 历史压缩保持稳定推理延迟（无 Former 时 +54.9% 随历史长度增长）
-</figcaption>
+  <img src="/images/vln/SparseVideoNav-v1-real-world-trajectories.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1605/972" alt="图 4：真实 BVN 成功轨迹示例，涵盖死路回退、狭窄可通行坡道和大倾角山坡；这些案例用于展示行为，不替代总体成功率。" />
+<figcaption>图 4：真实 BVN 成功轨迹示例，涵盖死路回退、狭窄可通行坡道和大倾角山坡；这些案例用于展示行为，不替代总体成功率。</figcaption>
 </div>
 
-**零样本真实世界性能：**
-- SparseVideoNav 在 6 种真实场景（室内 Room/Lab、室外 Yard/Park、夜间 Square/Mountain）上全面超越所有 LLM-based 基线
-- **IFN 任务**平均成功率 **50.0%**（vs StreamVLN 35.0%、UniNavid 10.0%）
-- **BVN 任务**平均成功率 **25.0%**（vs 所有基线几乎为 0%，StreamVLN 仅 10.0%）
-- 夜间场景成功率 **17.5%**（LLM 基线在夜间 BVN 全部失败）
+**预测范围与成功率的取舍（表 I）。**
 
-**效率提升：**
-- 推理延迟 **9.8s** vs 基线 **21.6s**（**27×** 加速对比未优化版本）
-- Stage 1+2 训练时间 **32h** vs 从头训练 **64h**（**2×** 加速）
-- 稀疏设计带来 **1.7×** 推理加速，Distillation 带来 **9.6×** 加速
+| 变体 | IFN（%） | BVN（%） |
+|---|---:|---:|
+| 4 步去噪，连续生成 2 个片段 | 15.8 | 2.5 |
+| 4 步去噪，连续生成 10 个片段 | 36.7 | 11.7 |
+| **本文：4 步去噪，稀疏未来覆盖 20 秒** | **50.0** | **25.0** |
+| 50 步去噪，连续生成 20 个片段 | 62.5 | 35.8 |
+| 本文移除历史压缩模块 | 45.0 | 22.5 |
 
-**鲁棒性：** 在训练高度（1m）与部署高度（50cm）不一致时仍能正确导航，展示出对相机高度变化的强鲁棒性；能够动态规避行人障碍（emergent ability，非显式训练）。
+长程连续生成变体成功率更高，表明稀疏化与蒸馏获得效率收益时存在性能代价；这组消融支持本文的实用折中，并不证明稀疏预测在相同终点下必然比连续预测更准确。
+
+<div align="center">
+  <img src="/images/vln/SparseVideoNav-v1-efficiency-ablation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:854/657" alt="图 6：数据规模、稀疏生成、蒸馏与历史压缩消融。扩大训练数据降低 FVD；稀疏生成与蒸馏降低推理耗时，历史压缩缓解长历史的延迟增长。" />
+<figcaption>图 6：数据规模、稀疏生成、蒸馏与历史压缩消融。扩大训练数据降低 FVD；稀疏生成与蒸馏降低推理耗时，历史压缩缓解长历史的延迟增长。</figcaption>
+</div>
+
+- **效率**：图 6 报告最终推理 **0.79 秒**；去掉稀疏设计为 **1.35 秒**（约 1.7 倍差异），去掉蒸馏为 **7.56 秒**（约 9.6 倍差异），稀疏设计也带来 Stage 1+2 约 **1.4 倍训练加速**；摘要另报告相对完整未优化系统 **27 倍加速**，它与上述单项消融的对比设置不同，不能直接相乘或混用。
+- **历史与初始化**：不使用 Former 时，历史长度 $N=45$ 的延迟增加 **54.9%**；先完成 Stage 1 再进行历史注入，可把生成适配训练的收敛时间从直接训练 Stage 2 的 **64 小时**降为 **32 小时**，这不同于四阶段总训练耗时。
+- **数据扩展**：训练数据从 **8 / 50 / 140 小时**增加时，3 小时未见验证集上的 FVD 从 **2534 / 1755 / 1390**下降，显示视频分布拟合改善；论文没有在这一实验中报告导航成功率随数据规模的对应曲线。
+- **定性泛化**：展示了动态行人避让，以及训练相机高度约 1 米、部署高度 50 厘米时的成功案例，但没有给出这两项能力的独立量化成功率。
 
 ---
 
 ### 4. 局限性
 
-当前 140 小时数据集相较于网络规模数据仍然有限，数据扩展是进一步提升的关键方向；推理延迟（9.8s）仍略高于现有 LLM-based 导航范式（StreamVLN），加速蒸馏与 VGM 量化是未来研究的重要课题。
+140 小时数据仍有限，困难场景会出现生成模式坍塌并导致导航失败，最终 BVN 成功率也仅为 25.0%；效率优化牺牲部分成功率，且作者指出推理仍比现有 LLM 导航方法略慢。评测覆盖 6 个场景、24 个任务并依赖远程 GPU，相机高度变化与动态避障主要以定性案例支撑，因此本文结果尚不足以证明广泛场景下的稳定自主导航。
 
 ---
-
-
-
-
-
-
-
-
 
 ## 13. WorldVLN (2026) {#worldvln}
 ———Autoregressive World Action Model for Aerial Vision-Language Navigation
@@ -4738,7 +4823,7 @@ $$\mathcal L(\theta) = -\mathbb E\left[ \sum_{\ell=1}^{H} \log \pi_\theta\left( 
 9. **ODYSSEY** (2025). Open-World Quadrupeds Exploration and Manipulation for Long-Horizon Tasks. arXiv: [2508.08240](https://arxiv.org/abs/2508.08240) · AAAI 2026
 10. **Skill-Nav** (2025). Enhanced Navigation with Versatile Quadrupedal Locomotion via Waypoint Interface. arXiv: [2506.21853](https://arxiv.org/abs/2506.21853) · Vicinagearth (Springer) 2025
 11. **FantasyVLN** (2026). 统一多模态 Chain-of-Thought 推理用于视觉-语言导航. arXiv: [2601.13976](https://arxiv.org/abs/2601.13976)
-12. **SparseVideoNav** (2026). Sparse Video Generation Propels Real-World Beyond-the-View Vision-Language Navigation. arXiv: [2602.05827](https://arxiv.org/abs/2602.05827)
+12. **SparseVideoNav** (2026). Sparse Video Generation Propels Real-World Beyond-the-View Vision-Language Navigation. arXiv: [2602.05827v1](https://arxiv.org/abs/2602.05827v1)
 13. **WorldVLN** (2026). Autoregressive World Action Model for Aerial Vision-Language Navigation. arXiv: [2605.15964](https://arxiv.org/abs/2605.15964)
 14. **NavWAM** (2026). 首个将未来预测、价值评估与动作决策集成于单一具身世界模型的导航模型. arXiv: [2606.13494](https://arxiv.org/abs/2606.13494)
 15. **Agentic Embodied Control** (2026). 极简接口下的通用智能体直接掌控具身交互循环，零样本性能比肩工业级训练策略. arXiv: [2607.26148](https://arxiv.org/abs/2607.26148)
