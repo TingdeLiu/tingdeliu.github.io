@@ -3,11 +3,7 @@ layout: default
 ---
 
 {% include locale.html %}
-{% assign adaptive_paper_figures = false %}
-{% if page.translation_id == 'vln-papers' or page.translation_id == 'vln-papers-extended' %}
-  {% assign adaptive_paper_figures = true %}
-{% endif %}
-<article class="posts{% if adaptive_paper_figures %} paper-figures{% endif %}{% if page.vla_survey %} vla-survey{% endif %}{% if page.prose_reading %} prose-reading{% endif %}">
+<article class="posts paper-figures{% if page.vla_survey %} vla-survey{% endif %}{% if page.prose_reading %} prose-reading{% endif %}">
   
   <h1>{{ page.title }}</h1>
   {% include language-switch.html %}

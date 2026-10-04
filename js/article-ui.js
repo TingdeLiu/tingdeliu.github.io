@@ -190,10 +190,14 @@
 
   function enhancePaperFigures() {
     document.querySelectorAll('.paper-figures .entry img').forEach(function (image) {
-      // Keep intentionally small figures below the collection's default limit.
-      var requestedWidth = image.getAttribute('width') || '';
+      // Keep intentionally small figures below the article's default limit.
+      var inlineWidth = image.style.width;
+      var requestedWidth = inlineWidth || image.getAttribute('width') || '';
       if (/^\d+(?:\.\d+)?%$/.test(requestedWidth) && parseFloat(requestedWidth) < 80) {
         image.style.setProperty('--paper-figure-width', requestedWidth);
+      }
+      if (/^\d+(?:\.\d+)?%$/.test(inlineWidth)) {
+        image.style.removeProperty('width');
       }
 
       var filename = (image.getAttribute('src') || '').split('/').pop();
@@ -216,6 +220,8 @@
       var dimensions = image.style.aspectRatio.split('/').map(Number);
       if (dimensions.length === 2 && dimensions[0] > 16 && dimensions[1] > 16) {
         setDimensions(dimensions[0], dimensions[1]);
+      } else if (Number(image.getAttribute('width')) > 0 && Number(image.getAttribute('height')) > 0) {
+        setDimensions(Number(image.getAttribute('width')), Number(image.getAttribute('height')));
       } else if (image.complete && image.naturalHeight) {
         setDimensions(image.naturalWidth, image.naturalHeight);
       } else {
