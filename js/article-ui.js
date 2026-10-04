@@ -188,6 +188,44 @@
     });
   }
 
+  function enhancePaperFigures() {
+    document.querySelectorAll('.paper-figures .entry img').forEach(function (image) {
+      // Keep intentionally small figures below the collection's default limit.
+      var requestedWidth = image.getAttribute('width') || '';
+      if (/^\d+(?:\.\d+)?%$/.test(requestedWidth) && parseFloat(requestedWidth) < 80) {
+        image.style.setProperty('--paper-figure-width', requestedWidth);
+      }
+
+      var filename = (image.getAttribute('src') || '').split('/').pop();
+      function setDimensions(width, height) {
+        if (!(width > 0 && height > 0)) return;
+        var ratio = width / height;
+        image.style.setProperty('--paper-figure-natural-width', width + 'px');
+        // Fit the height by reducing width too, keeping the image's proportions.
+        image.style.setProperty('--paper-figure-height-fit-width', 'calc(75vh * ' + ratio + ')');
+        if (ratio < 1.6) return;
+
+        if (/architecture|framework|pipeline/i.test(filename)) {
+          image.classList.add('paper-figure-wide');
+        } else if (/comparison|ablation|statistics|performance|training|system-overview/i.test(filename)) {
+          image.classList.add('paper-figure-large');
+        }
+      }
+
+      // These are the stored pixel dimensions, reserving space before lazy loading.
+      var dimensions = image.style.aspectRatio.split('/').map(Number);
+      if (dimensions.length === 2 && dimensions[0] > 16 && dimensions[1] > 16) {
+        setDimensions(dimensions[0], dimensions[1]);
+      } else if (image.complete && image.naturalHeight) {
+        setDimensions(image.naturalWidth, image.naturalHeight);
+      } else {
+        image.addEventListener('load', function () {
+          setDimensions(image.naturalWidth, image.naturalHeight);
+        }, { once: true });
+      }
+    });
+  }
+
   function setupLightbox() {
     var dialog = document.getElementById('article-lightbox');
     if (!dialog) return;
@@ -451,6 +489,7 @@
     enhanceTables();
     enhanceCodeBlocks();
     enhanceHeadingAnchors();
+    enhancePaperFigures();
     setupLightbox();
 
     var updateProgress = setupProgress();
