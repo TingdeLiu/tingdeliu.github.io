@@ -2280,7 +2280,7 @@ flowchart LR
     FIS -->|ΔKp, ΔKi, ΔKd| ADD["参数更新\nKp = Kp₀+ΔKp\nKi = Ki₀+ΔKi\nKd = Kd₀+ΔKd"]
     ADD --> PID["PID 控制律\nu(t)"]
     PID --> Plant["被控对象"]
-    Plant -->|y(t)| FB(( ))
+    Plant -->|"y(t)"| FB(( ))
     FB --> E
     FB --> DE
 ```

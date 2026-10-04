@@ -926,7 +926,7 @@ graph TD
     Actor --> Noise["+ 探索噪声 (OU / 高斯)"] --> ActReal["执行动作 a_t"]
     S --> Critic["Critic 价值网络 Q(s, a|θ^Q)<br/>评估状态-动作对价值"]
     ActReal --> Critic
-    Critic -->|∇_a Q(s, a)| Grad["链式法则计算策略梯度"]
+    Critic -->|"∇_a Q(s, a)"| Grad["链式法则计算策略梯度"]
     Grad --> Actor
 ```
 
