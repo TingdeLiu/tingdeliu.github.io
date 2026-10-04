@@ -10,9 +10,9 @@ excerpt: "English surveys and research notes on vision-language navigation and e
 {% include locale.html %}
 {% include card-grid-style.html %}
 <div class="english-intro">
-  <p>Research surveys and paper notes on embodied intelligence and robotics, covering traditional robot navigation and vision-language navigation (VLN), from algorithm foundations to real-robot evaluation.</p>
+  <p>Research surveys and paper notes on AI agents, embodied intelligence, and robotics, from agent architecture and robot runtimes to traditional navigation and vision-language navigation (VLN).</p>
 </div>
-<h2 id="vln" class="rc-group">Navigation surveys and paper readings</h2>
+<h2 id="vln" class="rc-group">Surveys and paper readings</h2>
 <div class="rc-grid">
 {% assign english_research = site.translations | where: 'lang', 'en' | where_exp: 'item', 'item.categories contains "research"' | where_exp: 'item', 'item.published != false' | sort: 'date' | reverse %}
 {% for article in english_research %}

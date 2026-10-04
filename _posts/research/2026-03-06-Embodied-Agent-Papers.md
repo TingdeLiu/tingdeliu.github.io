@@ -1,5 +1,7 @@
 ---
 layout: post
+lang: zh-CN
+translation_id: embodied-agent-papers
 title: "Embodied Agent 论文精读"
 date:   2026-10-04
 tags: [Agent, Embodied AI, Robotics, VLA, Deep Learning]

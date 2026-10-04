@@ -139,6 +139,33 @@ def main():
                 alternates = {n['attrs'].get('hreflang'): n['attrs'].get('href') for n in doc.select('link') if n['attrs'].get('hreflang')}
                 check(alternates == {'en': f'https://tingdeliu.github.io/en/{slug}/', 'zh-CN': f'https://tingdeliu.github.io/{slug}/'}, f'{slug}: incorrect language alternates')
             print(f'{slug}: {len(readings) if not papers_status["stale"] else "stale"} readings; {len(papers.select("table", True))} tables; {len(papers.select("img", True))} figures')
+    for slug in ('AI-Agent-Survey', 'Embodied-Agent-Harness-Survey', 'Embodied-Agent-Papers'):
+        target = ROOT / f'_translations/en/research/{slug}.md'
+        check(target.exists(), f'{slug}: English article missing')
+        if not target.exists():
+            continue
+        fields, _, english_body = read_document(target)
+        _, _, source_body = read_document(ROOT / fields['source_path'])
+        translated = load(SITE / f'en/{slug}/index.html')
+        original = load(SITE / f'{slug}/index.html')
+        heading_ids = lambda doc: [n['attrs'].get('id') for n in doc.nodes if n['entry'] and re.fullmatch('h[1-6]', n['tag'])]
+        check(heading_ids(translated) == heading_ids(original), f'{slug}: heading structure/IDs differ')
+        for tag in ('table', 'img', 'pre'):
+            check(len(translated.select(tag, True)) == len(original.select(tag, True)), f'{slug}: {tag} counts differ')
+        check(external(translated) == external(original), f'{slug}: external citations differ')
+        from check_translation_drafts import features, normalize_agent_table_labels
+        before, after = features(normalize_agent_table_labels(source_body)), features(normalize_agent_table_labels(english_body))
+        for feature in ('math', 'links', 'table_numbers', 'table_row_widths'):
+            check(before[feature] == after[feature], f'{slug}: {feature} differ')
+        for doc in (translated, original):
+            switches = [n['attrs']['data-language-switch'] for n in doc.select('a') if 'data-language-switch' in n['attrs']]
+            check(switches == ['article'], f'{slug}: section switching missing')
+            alternates = {n['attrs'].get('hreflang'): n['attrs'].get('href') for n in doc.select('link') if n['attrs'].get('hreflang')}
+            check(alternates == {'en': f'https://tingdeliu.github.io/en/{slug}/', 'zh-CN': f'https://tingdeliu.github.io/{slug}/'}, f'{slug}: incorrect language alternates')
+        check(f'/en/{slug}/' not in (SITE / 'feed.xml').read_text(encoding='utf-8'), f'{slug}: translation leaked into Chinese feed')
+        cards = [n['attrs'].get('href') for n in load(SITE / 'en/research/index.html').select('a') if 'rc-card' in n['attrs'].get('class', '').split()]
+        check(cards.count(f'/en/{slug}/') == 1, f'{slug}: missing or duplicate Research card')
+        print(f'{slug}: {len(heading_ids(translated))} headings; {len(translated.select("table", True))} tables; {len(translated.select("img", True))} images')
     navigation_path = SITE / 'en/Robot-Navigation-Survey/index.html'
     if navigation_path.exists():
         navigation = load(navigation_path)

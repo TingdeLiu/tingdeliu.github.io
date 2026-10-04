@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title desc">
+<title id="title">AI agent: a goal-directed execution loop</title>
+<desc id="desc">The model selects actions; the harness manages execution and feedback.. Long-term memory and multi-agent collaboration are optional design choices.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="#667b79"/></marker></defs>
+<rect width="1200" height="600" rx="24" fill="#f5f3ed"/>
+<g font-family="Arial, sans-serif" fill="#233b3a">
+<text x="56" y="65" font-size="31" font-weight="700">AI agent: a goal-directed execution loop</text>
+<text x="56" y="100" font-size="18" fill="#5c6c68">The model selects actions; the harness manages execution and feedback.</text>
+<rect x="56" y="150" width="248" height="126" rx="16" fill="#fff" stroke="#cbd5ce"/>
+<text x="76" y="189" font-size="20" font-weight="700">Task and context</text>
+<text x="76" y="220" font-size="16" fill="#596d67">Goal, permissions,</text>
+<text x="76" y="243" font-size="16" fill="#596d67">current observations</text>
+<path d="M308 213h22" stroke="#667b79" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="336" y="150" width="248" height="126" rx="16" fill="#fff" stroke="#cbd5ce"/>
+<text x="356" y="189" font-size="20" font-weight="700">Reason and plan</text>
+<text x="356" y="220" font-size="16" fill="#596d67">Choose the next action</text>
+<text x="356" y="243" font-size="16" fill="#596d67">within the task budget</text>
+<path d="M588 213h22" stroke="#667b79" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="616" y="150" width="248" height="126" rx="16" fill="#fff" stroke="#cbd5ce"/>
+<text x="636" y="189" font-size="20" font-weight="700">Tools and actions</text>
+<text x="636" y="220" font-size="16" fill="#596d67">Call tools and receive</text>
+<text x="636" y="243" font-size="16" fill="#596d67">execution results</text>
+<path d="M868 213h22" stroke="#667b79" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="896" y="150" width="248" height="126" rx="16" fill="#fff" stroke="#cbd5ce"/>
+<text x="916" y="189" font-size="20" font-weight="700">Evaluate and adapt</text>
+<text x="916" y="220" font-size="16" fill="#596d67">Check completion,</text>
+<text x="916" y="243" font-size="16" fill="#596d67">retry, revise, or stop</text>
+<rect x="56" y="350" width="248" height="126" rx="16" fill="#e4ece7" stroke="#cbd5ce"/>
+<text x="76" y="389" font-size="20" font-weight="700">Memory</text>
+<text x="76" y="420" font-size="16" fill="#596d67">Working context;</text>
+<text x="76" y="443" font-size="16" fill="#596d67">optional long-term stores</text>
+<path d="M308 413h22" stroke="#667b79" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="336" y="350" width="248" height="126" rx="16" fill="#e4ece7" stroke="#cbd5ce"/>
+<text x="356" y="389" font-size="20" font-weight="700">Skills</text>
+<text x="356" y="420" font-size="16" fill="#596d67">Reusable procedures</text>
+<text x="356" y="443" font-size="16" fill="#596d67">and task knowledge</text>
+<path d="M588 413h22" stroke="#667b79" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="616" y="350" width="248" height="126" rx="16" fill="#e4ece7" stroke="#cbd5ce"/>
+<text x="636" y="389" font-size="20" font-weight="700">Harness</text>
+<text x="636" y="420" font-size="16" fill="#596d67">State, permissions,</text>
+<text x="636" y="443" font-size="16" fill="#596d67">recovery, stop conditions</text>
+<path d="M868 413h22" stroke="#667b79" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="896" y="350" width="248" height="126" rx="16" fill="#e4ece7" stroke="#cbd5ce"/>
+<text x="916" y="389" font-size="20" font-weight="700">Environment</text>
+<text x="916" y="420" font-size="16" fill="#596d67">Action outcomes and</text>
+<text x="916" y="443" font-size="16" fill="#596d67">fresh evidence</text>
+<path d="M1100 285v43H80v-38" fill="none" stroke="#667b79" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="440" y="318" font-size="16" fill="#596d67">Feedback updates the next decision</text>
+<text x="56" y="548" font-size="17" fill="#596d67">Long-term memory and multi-agent collaboration are optional design choices.</text>
+</g></svg>

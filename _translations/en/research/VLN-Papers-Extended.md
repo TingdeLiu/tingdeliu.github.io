@@ -4759,7 +4759,7 @@ Interference categories rely on a fixed small set (up to 3) generated offline by
 ## Harness Robotic OS (2026)
 {: id="harness-robotic-os"}
 
-The paper focuses on embodied agent runtime, skill orchestration, hierarchical memory and self-evolution management. The complete reading has been moved to [Embodied Agent paper intensive reading: Harness Robotic OS](/Embodied-Agent-Papers/#harness-robotic-os) (Chinese only).
+The paper focuses on embodied agent runtime, skill orchestration, hierarchical memory and self-evolution management. The complete reading has been moved to {% include content-link.html path='/Embodied-Agent-Papers/' fragment='#harness-robotic-os' label='Embodied Agents: Paper Readings — Harness Robotic OS' %}.
 
 ## 35. SparseNav (2026)
 {: id="sparsenav"}

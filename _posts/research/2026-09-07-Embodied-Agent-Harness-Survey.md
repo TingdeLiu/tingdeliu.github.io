@@ -1,5 +1,7 @@
 ---
 layout: post
+lang: zh-CN
+translation_id: embodied-agent-harness-survey
 title: "Embodied Agent 综述"
 date: 2026-09-29
 permalink: /Embodied-Agent-Harness-Survey/

@@ -6,7 +6,9 @@ Following (55 readings), and VLN Papers: Goal Navigation and Extensions
 embodied-navigation weekly digests (six published and two unpublished), plus `/en/`, `/en/research/`, and
 `/en/blog/`. Both paper collections have localized filters, leaderboards,
 and reciprocal English companion links. The Traditional Robot Navigation
-Algorithms survey also has a complete English edition. Other surveys remain Chinese-only.
+Algorithms survey also has a complete English edition. The three agent articles
+(AI Agents, Embodied Agent Harness and Runtime Architecture, and Embodied Agent
+Paper Readings) are translated in full. Other surveys remain Chinese-only.
 
 ## Content contract
 
@@ -31,7 +33,10 @@ _translations/en/
 │   ├── VLN-Survey.md
 │   ├── VLN-Papers.md
 │   ├── VLN-Papers-Extended.md
-│   └── Robot-Navigation-Survey.md
+│   ├── Robot-Navigation-Survey.md
+│   ├── AI-Agent-Survey.md
+│   ├── Embodied-Agent-Harness-Survey.md
+│   └── Embodied-Agent-Papers.md
 └── blog/
     ├── vln-weekly-2026-08-01.md
     └── ... (eight weekly digests through 2026-09-27)
@@ -130,8 +135,8 @@ and odometry pipeline is distinguished from RGB-only simulation.
 `_translations/en/research/VLN-Papers-Extended.md` contains all 37 readings,
 five goal-navigation leaderboard groups, related-reading notes, references,
 134 figures with English captions and alternative text, and 17 localized
-Mermaid diagrams. The full page has 37 tables. Harness Robotic OS links to a
-separate article and is explicitly labeled Chinese-only.
+Mermaid diagrams. The full page has 37 tables. Harness Robotic OS links to the
+companion Embodied Agent Paper Readings article.
 
 Prose used machine translation assistance followed by terminology, numerical,
 negation, protected-element, and editorial review. The numerical audit restored
@@ -195,6 +200,41 @@ overflow; long equations scroll within their own containers. The new article's
 source snapshot is synchronized. The unrelated VLN Papers snapshot currently
 needs updates, so the repository-wide strict synchronization command remains
 nonzero until that collection is reviewed.
+
+### Agent surveys and paper readings
+
+The English edition includes the complete AI Agent survey, the complete
+Embodied Agent Harness survey, and all eight Embodied Agent paper readings.
+Chinese publication dates, original section IDs, equations, paper citations,
+experimental values, and code interfaces are retained. English Research cards,
+reciprocal language switching, companion links, and the paper collection's AND
+tag filter use the shared site infrastructure.
+
+Public prose used machine translation assistance with terminology, numerical,
+negation, and markup review. Chinese numerical units require explicit
+conversion (for example, 100 万 tokens means one million tokens). The English
+overview figures are local SVGs; original paper figures are reused with English
+captions and alternative text. This translation preserves the source's claims
+and evidence boundaries; it is not a fresh verification of every paper,
+product release, benchmark, or library version.
+
+Source revisions are 2026-10-02 for the two surveys and 2026-10-04 for the
+paper collection; translation updates are dated 2026-10-04. Synchronization
+snapshots are stored under `translations/ai-agent-survey.en.json`,
+`translations/embodied-agent-harness-survey.en.json`, and
+`translations/embodied-agent-papers.en.json`. The release validator checks
+heading IDs, table dimensions and values, equations, external citations,
+Research cards, language pairs, and exclusion from the Chinese feed.
+
+Verified on 2026-10-04: all 355 section IDs match their Chinese sources, with
+95 tables, 60 figures, 63 rendered Mermaid diagrams, and 175 MathJax
+expressions. The build and built-site validator pass (16 English pages, zero
+errors), as do all 14 regression tests and lint for the six agent files.
+At 1440×1000 and 390×844, reciprocal section switching, all eight paper
+wrappers, AND filtering and reset, and the three Research cards pass. There
+are no page, formula, diagram, raw-emphasis, or horizontal-overflow errors.
+Long inline equations scroll locally in the English edition. The unrelated
+VLN Papers source snapshot remains stale and still requires its own review.
 
 ### Future drafts
 

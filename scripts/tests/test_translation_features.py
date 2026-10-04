@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from check_translation_drafts import features, paper_sections
+from check_translation_drafts import features, paper_sections, normalize_agent_table_labels
 
 
 class TranslationFeaturesTests(unittest.TestCase):
@@ -17,6 +17,20 @@ class TranslationFeaturesTests(unittest.TestCase):
         source = '| Model | SR |\n|---|---|\n| A | 69.9 |\n\n$$x=1$$'
         self.assertNotEqual(features(source), features(source.replace('69.9', '96.9')))
         self.assertNotEqual(features(source), features(source.replace('x=1', 'x=2')))
+
+    def test_currency_does_not_swallow_prose_or_formulas(self):
+        source = '$5/月 VPS\n\n# Heading\n$0.66 / M tokens | $0.435\n\n$x=1$ and $$y=2$$'
+        target = '$5/month VPS\n\n# Heading\n$0.66 / M tokens | $0.435\n\n$x=1$ and $$y=2$$'
+        self.assertEqual(features(source)['math'], features(target)['math'])
+        self.assertEqual(set(features(source)['math']), {'$x=1$', '$$y=2$$'})
+        self.assertNotEqual(features(source)['math'], features(target.replace('x=1', 'x=2'))['math'])
+
+    def test_agent_table_dates_and_unit_conversions(self):
+        source = '| 2025 年 11 月 | 1,000 万 token | 11.5 万 token |'
+        target = '| November 2025 | 10 million tokens | 115,000 tokens |'
+        normalize = lambda body: features(normalize_agent_table_labels(body))['table_numbers']
+        self.assertEqual(normalize(source), normalize(target))
+        self.assertNotEqual(normalize(source), normalize(target.replace('115,000', '11,500')))
 
     def test_omitted_textual_table_column_is_detected(self):
         source = '| Model | Open source |\n|---|---|\n| A | No |'

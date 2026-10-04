@@ -1,5 +1,7 @@
 ---
 layout: post
+lang: zh-CN
+translation_id: ai-agent-survey
 title: "AI Agent 综述"
 date: 2026-09-29
 tags: [Agent, LLM, Multi-Agent, Survey]

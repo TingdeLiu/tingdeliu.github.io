@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title desc">
+<title id="title">Embodied agent: two connected execution loops</title>
+<desc id="desc">Example: go to the kitchen and fetch a cup.. Commands, acknowledgments, and observations cross the interface; local protection remains independent.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="#667b79"/></marker></defs>
+<rect width="1200" height="600" rx="24" fill="#f5f3ed"/>
+<g font-family="Arial, sans-serif" fill="#233b3a">
+<text x="56" y="65" font-size="31" font-weight="700">Embodied agent: two connected execution loops</text>
+<text x="56" y="100" font-size="18" fill="#5c6c68">Example: go to the kitchen and fetch a cup.</text>
+<rect x="56" y="150" width="248" height="126" rx="16" fill="#fff" stroke="#cbd5ce"/>
+<text x="76" y="189" font-size="20" font-weight="700">Spatial context</text>
+<text x="76" y="220" font-size="16" fill="#596d67">Locate the cup using</text>
+<text x="76" y="243" font-size="16" fill="#596d67">current world evidence</text>
+<path d="M308 213h22" stroke="#667b79" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="336" y="150" width="248" height="126" rx="16" fill="#fff" stroke="#cbd5ce"/>
+<text x="356" y="189" font-size="20" font-weight="700">Plan and call skills</text>
+<text x="356" y="220" font-size="16" fill="#596d67">Navigation and grasping</text>
+<text x="356" y="243" font-size="16" fill="#596d67">with explicit contracts</text>
+<path d="M588 213h22" stroke="#667b79" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="616" y="150" width="248" height="126" rx="16" fill="#fff" stroke="#cbd5ce"/>
+<text x="636" y="189" font-size="20" font-weight="700">Monitor execution</text>
+<text x="636" y="220" font-size="16" fill="#596d67">Acknowledgments,</text>
+<text x="636" y="243" font-size="16" fill="#596d67">progress, and failures</text>
+<path d="M868 213h22" stroke="#667b79" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="896" y="150" width="248" height="126" rx="16" fill="#fff" stroke="#cbd5ce"/>
+<text x="916" y="189" font-size="20" font-weight="700">Evaluate the outcome</text>
+<text x="916" y="220" font-size="16" fill="#596d67">Confirm that the cup</text>
+<text x="916" y="243" font-size="16" fill="#596d67">is actually held</text>
+<rect x="56" y="350" width="248" height="126" rx="16" fill="#e4ece7" stroke="#cbd5ce"/>
+<text x="76" y="389" font-size="20" font-weight="700">Perception</text>
+<text x="76" y="420" font-size="16" fill="#596d67">Observe the scene</text>
+<text x="76" y="443" font-size="16" fill="#596d67">and update local state</text>
+<path d="M308 413h22" stroke="#667b79" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="336" y="350" width="248" height="126" rx="16" fill="#e4ece7" stroke="#cbd5ce"/>
+<text x="356" y="389" font-size="20" font-weight="700">Local control</text>
+<text x="356" y="420" font-size="16" fill="#596d67">Maintain the robot&#x27;s</text>
+<text x="356" y="443" font-size="16" fill="#596d67">control and servo loops</text>
+<path d="M588 413h22" stroke="#667b79" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="616" y="350" width="248" height="126" rx="16" fill="#e4ece7" stroke="#cbd5ce"/>
+<text x="636" y="389" font-size="20" font-weight="700">Physical execution</text>
+<text x="636" y="420" font-size="16" fill="#596d67">Move and manipulate</text>
+<text x="636" y="443" font-size="16" fill="#596d67">under local constraints</text>
+<path d="M868 413h22" stroke="#667b79" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="896" y="350" width="248" height="126" rx="16" fill="#e4ece7" stroke="#cbd5ce"/>
+<text x="916" y="389" font-size="20" font-weight="700">Local protection</text>
+<text x="916" y="420" font-size="16" fill="#596d67">Handle obstacles and</text>
+<text x="916" y="443" font-size="16" fill="#596d67">communication loss</text>
+<path d="M1100 285v43H80v-38" fill="none" stroke="#667b79" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="440" y="318" font-size="16" fill="#596d67">Feedback updates the next decision</text>
+<text x="56" y="548" font-size="17" fill="#596d67">Commands, acknowledgments, and observations cross the interface; local protection remains independent.</text>
+</g></svg>

@@ -55,15 +55,46 @@ def normalize_math_labels(prose):
 
 def features(section):
     prose = normalize_math_labels(re.sub(r'<img\b[^>]*>', '', section))
+    # Inline TeX ends on the same line. Currency such as $0.66 or $5/month
+    # must not consume tables, headings, and prose up to a later dollar sign.
+    display_math = re.findall(r'\$\$.*?\$\$', prose, re.S)
+    inline_prose = re.sub(r'\$\$.*?\$\$|```.*?```', '', prose, flags=re.S)
+    inline_math = re.findall(r'(?<![\\$])\$(?!\$)[^\n$]+?(?<!\s)\$(?![\d$])', inline_prose)
     return {
         'images': re.findall(r'<img[^>]+src="([^"]+)"', section),
-        'math': Counter(re.findall(r'\$\$.*?\$\$|(?<!\$)\$(?!\$).*?(?<!\$)\$(?!\$)', prose, re.S)),
+        'math': Counter(display_math + inline_math),
         'links': Counter(re.findall(r'\]\((https?://[^)]+)\)', section)),
         'tables': len(re.findall(r'^\|\s*:?-', section, re.M)),
         'table_row_widths': [line.count('|') for line in section.splitlines() if line.startswith('|')],
         'table_numbers': Counter(re.findall(r'(?<![A-Za-z0-9])\d+(?:\.\d+)?',
                                             '\n'.join(line for line in section.splitlines() if line.startswith('|')))),
     }
+
+
+def normalize_agent_table_labels(body):
+    """Canonicalize reviewed date/unit conversions in agent-survey tables only."""
+    months = 'January February March April May June July August September October November December'.split()
+    replacements = {
+        '百毫秒级': 'Hundreds of milliseconds',
+        '发布一周年': 'First anniversary',
+        '466 道三级难度题目': '466 questions at three difficulty levels',
+    }
+    lines = []
+    for line in body.splitlines():
+        if line.startswith('|'):
+            for source, english in replacements.items():
+                line = line.replace(source, english)
+            for number, name in enumerate(months, 1):
+                line = re.sub(r'\b' + name + r'\b', str(number), line)
+            line = re.sub(r'(\d[\d,]*(?:\.\d+)?)\s*百万',
+                          lambda m: format(float(m[1].replace(',', '')) * 1000000, '.12g'), line)
+            line = re.sub(r'(\d[\d,]*(?:\.\d+)?)\s*万',
+                          lambda m: format(float(m[1].replace(',', '')) * 10000, '.12g'), line)
+            line = re.sub(r'(\d[\d,]*(?:\.\d+)?)\s*million',
+                          lambda m: format(float(m[1].replace(',', '')) * 1000000, '.12g'), line)
+            line = re.sub(r'(?<=\d),(?=\d{3}(?:\D|$))', '', line)
+        lines.append(line)
+    return '\n'.join(lines)
 
 
 def main():
