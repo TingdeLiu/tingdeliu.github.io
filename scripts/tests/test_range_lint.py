@@ -13,8 +13,8 @@ class RangeLintTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'post.md'
             path.write_text('---\nlayout: post\ntitle: Example\ndate: 2026-10-04\n---\n' + body, encoding='utf-8')
-            _, warnings = lint(path)
-        return [rule for _, rule, _ in warnings]
+            errors, _ = lint(path)
+        return [rule for _, rule, _ in errors]
 
     def test_split_ranges_include_percent_exponents_and_double_dollars(self):
         for body in [r'$\sim 0.2$–$0.5\%$', r'$10^3$–$10^4$',

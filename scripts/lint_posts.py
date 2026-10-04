@@ -10,6 +10,8 @@ Errors (exit 1):
   control-char   control character (BEL, backspace, lone CR, ...) or a TAB glued to a LaTeX
                  command tail on a math line: a `\t`/`\a`/`\b`/`\r` command was pasted as the
                  control character and the formula is broken
+  split-math-range  a range split across adjacent formulas can wrap between endpoints
+  currency-range   two dollar currency amounts can be misinterpreted as math delimiters
 Warnings (exit 0 unless --strict):
   gif            GIF referenced; use mp4 via <video>
   big-image      referenced image over 300KB
@@ -20,8 +22,6 @@ Warnings (exit 0 unless --strict):
                  pipe as a table row and splits the formula across cells. Write `\mid` for conditional
                  bars and `\lvert x \rvert` for absolute values (whole-line $$...$$ blocks and real
                  table rows are not checked)
-  split-math-range  a range split across adjacent formulas can wrap between endpoints
-  currency-range   two dollar currency amounts can be misinterpreted as math delimiters
 
 Usage: python scripts/lint_posts.py [--strict] [--fix] [files...]   (default: _posts/**/*.md)
   --fix  rewrite math-underscore spans as $$...$$ (the only auto-fixable rule)
@@ -109,10 +109,10 @@ def lint(path):
         ranges = list(RANGE_MATH.finditer(line))
         for left, right in zip(ranges, ranges[1:]):
             if RANGE_JOIN.fullmatch(line[left.end():right.start()]):
-                warns.append((lineno(text, pos + left.start()), "split-math-range",
+                errs.append((lineno(text, pos + left.start()), "split-math-range",
                               "range endpoints are separate formulas; use one inline formula or non-wrapping text"))
         for match in CURRENCY_RANGE.finditer(line):
-            warns.append((lineno(text, pos + match.start()), "currency-range",
+            errs.append((lineno(text, pos + match.start()), "currency-range",
                           "dollar currency range can be parsed as math; use non-wrapping USD text"))
         pos += len(line) + 1
 
