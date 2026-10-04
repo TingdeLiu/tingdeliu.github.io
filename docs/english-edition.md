@@ -59,6 +59,11 @@ companion-link, or author section. Its sidebar contains Project, Research, Blog,
 and About; Project links to the existing `/home/` page, Blog links to `/en/blog/`,
 and About links to the existing `/about/` page.
 Language switching stays in the page's language selector.
+Both Research indexes use `_data/research_groups.json` for the same topic
+membership and group order. The English page shows groups with published
+translations, with jump links and article counts; currently navigation has
+four articles and embodied agents has three. Future translations join their
+source article's group automatically; unclassified articles appear under Other.
 
 Each article declares `lang`, `translation_id`, `permalink`, `source_path`,
 `source_url`, `source_revision_date`, and `translation_updated`. Its source has

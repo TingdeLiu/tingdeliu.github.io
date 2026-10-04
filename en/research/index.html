@@ -12,10 +12,59 @@ excerpt: "English surveys and research notes on vision-language navigation and e
 <div class="english-intro">
   <p>Research surveys and paper notes on AI agents, embodied intelligence, and robotics, from agent architecture and robot runtimes to traditional navigation and vision-language navigation (VLN).</p>
 </div>
-<h2 id="vln" class="rc-group">Surveys and paper readings</h2>
-<div class="rc-grid">
 {% assign english_research = site.translations | where: 'lang', 'en' | where_exp: 'item', 'item.categories contains "research"' | where_exp: 'item', 'item.published != false' | sort: 'date' | reverse %}
-{% for article in english_research %}
-  {% include post-card.html post=article %}
+{% assign research_groups = site.data.research_groups %}
+{% assign all_grouped_slugs = "" | split: "" %}
+{% for group in research_groups %}
+  {% assign all_grouped_slugs = all_grouped_slugs | concat: group.slugs %}
 {% endfor %}
-</div>
+{% assign ungrouped_posts = "" | split: "" %}
+{% for article in english_research %}
+  {% assign source_slug = article.source_url | remove: '/' %}
+  {% unless all_grouped_slugs contains source_slug %}
+    {% assign ungrouped_posts = ungrouped_posts | push: article %}
+  {% endunless %}
+{% endfor %}
+
+<p class="rc-intro">{{ english_research.size }} surveys and paper collections, grouped by topic and ordered by latest update within each group.</p>
+
+<nav class="rc-jump" aria-label="Research groups">
+  {% for group in research_groups %}
+    {% assign n = 0 %}
+    {% for article in english_research %}
+      {% assign source_slug = article.source_url | remove: '/' %}
+      {% if group.slugs contains source_slug %}{% assign n = n | plus: 1 %}{% endif %}
+    {% endfor %}
+    {% if n > 0 %}<a href="#{{ group.id }}">{{ group.en }}<span class="n">{{ n }}</span></a>{% endif %}
+  {% endfor %}
+  {% if ungrouped_posts.size > 0 %}
+    <a href="#other">Other<span class="n">{{ ungrouped_posts.size }}</span></a>
+  {% endif %}
+</nav>
+
+{% for group in research_groups %}
+  {% assign group_posts = "" | split: "" %}
+  {% for article in english_research %}
+    {% assign source_slug = article.source_url | remove: '/' %}
+    {% if group.slugs contains source_slug %}
+      {% assign group_posts = group_posts | push: article %}
+    {% endif %}
+  {% endfor %}
+  {% if group_posts.size > 0 %}
+    <h2 class="rc-group" id="{{ group.id }}">{{ group.en }}<span class="count">{{ group_posts.size }} articles</span></h2>
+    <div class="rc-grid" data-research-group="{{ group.id }}">
+      {% for article in group_posts %}
+        {% include post-card.html post=article %}
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endfor %}
+
+{% if ungrouped_posts.size > 0 %}
+  <h2 class="rc-group" id="other">Other<span class="count">{{ ungrouped_posts.size }} articles</span></h2>
+  <div class="rc-grid" data-research-group="other">
+    {% for article in ungrouped_posts %}
+      {% include post-card.html post=article %}
+    {% endfor %}
+  </div>
+{% endif %}

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "vln",
+    "zh": "具身导航（VLN）",
+    "en": "Embodied Navigation (VLN)",
+    "slugs": ["VLN-Survey", "VLN-Papers", "VLN-Papers-Extended", "Robot-Navigation-Survey"]
+  },
+  {
+    "id": "vla",
+    "zh": "具身操作（VLA）",
+    "en": "Embodied Manipulation (VLA)",
+    "slugs": ["VLA-Survey", "VLA-Papers", "World-Models-Survey"]
+  },
+  {
+    "id": "agent",
+    "zh": "具身 Agent",
+    "en": "Embodied Agents",
+    "slugs": ["AI-Agent-Survey", "Embodied-Agent-Harness-Survey", "Embodied-Agent-Papers"]
+  },
+  {
+    "id": "llm",
+    "zh": "大模型与空间智能",
+    "en": "Large Models and Spatial Intelligence",
+    "slugs": ["LLM-Training-Survey", "VLM-Survey", "Spatial-Intelligence-Survey"]
+  },
+  {
+    "id": "ml",
+    "zh": "机器学习基础",
+    "en": "Machine Learning Foundations",
+    "slugs": ["Deep-Learning-Survey", "Machine-Learning-Survey", "Reinforcement-Learning-Survey"]
+  },
+  {
+    "id": "engineering",
+    "zh": "工程实践",
+    "en": "Engineering Practice",
+    "slugs": ["Python-Engineering-Survey", "ROS2-Survey"]
+  }
+]

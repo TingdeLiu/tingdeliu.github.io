@@ -13,10 +13,11 @@ translation_id: research-index
   <h2>No post found</h2>
 {% endif %}
 
-{% assign group_names = "具身导航（VLN）|具身操作（VLA）|具身 Agent|大模型与空间智能|机器学习基础|工程实践" | split: "|" %}
-{% assign group_ids = "vln|vla|agent|llm|ml|engineering" | split: "|" %}
-{% assign group_slugs = "VLN-Survey,VLN-Papers,VLN-Papers-Extended,Robot-Navigation-Survey|VLA-Survey,VLA-Papers,World-Models-Survey|AI-Agent-Survey,Embodied-Agent-Harness-Survey,Embodied-Agent-Papers|LLM-Training-Survey,VLM-Survey,Spatial-Intelligence-Survey|Deep-Learning-Survey,Machine-Learning-Survey,Reinforcement-Learning-Survey|Python-Engineering-Survey,ROS2-Survey" | split: "|" %}
-{% assign all_grouped_slugs = group_slugs | join: "," | split: "," %}
+{% assign research_groups = site.data.research_groups %}
+{% assign all_grouped_slugs = "" | split: "" %}
+{% for group in research_groups %}
+  {% assign all_grouped_slugs = all_grouped_slugs | concat: group.slugs %}
+{% endfor %}
 
 {% comment %} 兜底：未归入任何分组的新文章统一显示在"其他" {% endcomment %}
 {% assign ungrouped_posts = "" | split: "" %}
@@ -29,29 +30,29 @@ translation_id: research-index
 <p class="rc-intro">共 {{ research_posts.size }} 篇长文综述与论文精读，按主题分组，组内按最近更新排序。</p>
 
 <nav class="rc-jump" aria-label="研究分组">
-  {% for group_name in group_names %}
-    {% assign slugs = group_slugs[forloop.index0] | split: "," %}
+  {% for group in research_groups %}
+    {% assign slugs = group.slugs %}
     {% assign n = 0 %}
     {% for post in research_posts %}
       {% if slugs contains post.slug %}{% assign n = n | plus: 1 %}{% endif %}
     {% endfor %}
-    <a href="#{{ group_ids[forloop.index0] }}">{{ group_name }}<span class="n">{{ n }}</span></a>
+    <a href="#{{ group.id }}">{{ group.zh }}<span class="n">{{ n }}</span></a>
   {% endfor %}
   {% if ungrouped_posts.size > 0 %}
     <a href="#other">其他<span class="n">{{ ungrouped_posts.size }}</span></a>
   {% endif %}
 </nav>
 
-{% for group_name in group_names %}
-  {% assign slugs = group_slugs[forloop.index0] | split: "," %}
+{% for group in research_groups %}
+  {% assign slugs = group.slugs %}
   {% assign group_posts = "" | split: "" %}
   {% for post in research_posts %}
     {% if slugs contains post.slug %}
       {% assign group_posts = group_posts | push: post %}
     {% endif %}
   {% endfor %}
-  <h2 class="rc-group" id="{{ group_ids[forloop.index0] }}">{{ group_name }}<span class="count">{{ group_posts.size }} 篇</span></h2>
-  <div class="rc-grid">
+  <h2 class="rc-group" id="{{ group.id }}">{{ group.zh }}<span class="count">{{ group_posts.size }} 篇</span></h2>
+  <div class="rc-grid" data-research-group="{{ group.id }}">
     {% for post in group_posts %}
       {% include post-card.html post=post %}
     {% endfor %}
@@ -60,7 +61,7 @@ translation_id: research-index
 
 {% if ungrouped_posts.size > 0 %}
   <h2 class="rc-group" id="other">其他<span class="count">{{ ungrouped_posts.size }} 篇</span></h2>
-  <div class="rc-grid">
+  <div class="rc-grid" data-research-group="other">
     {% for post in ungrouped_posts %}
       {% include post-card.html post=post %}
     {% endfor %}
