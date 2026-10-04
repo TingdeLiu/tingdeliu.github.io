@@ -1733,7 +1733,7 @@ Here, $c(x_t)$ is the state cost (collision penalty, path deviation, etc.), $\ph
 
 ✅ No need to solve the optimal control problem (just forward simulation, no gradient)
 ✅ Naturally supports nonlinear systems and non-convex cost functions (such as step costs of collisions)
-✅ GPU parallel sampling ($K$ up to $10^3$–$10^4$), can handle complex obstacle distribution
+✅ GPU parallel sampling ($K$ up to $10^3 \text{–} 10^4$), can handle complex obstacle distribution
 ❌ A relatively accurate motion model is required (accumulation of simulation errors will lead to trajectory deviation)
 ❌ The amount of calculation is large, and a GPU is usually required to achieve real-time control frequency ($\geq 10$ Hz)
 
@@ -2055,9 +2055,9 @@ $L_d$ is the only key parameter that needs to be adjusted for Pure Pursuit, whic
 | **Too large** (> 3m @ 1m/s) | Take the "big curve" to cut the angle, the straight effect is good but the turning error is large | High-speed straight |
 
 **Speed Adaptive Parameter** (Adaptive Pure Pursuit): Use $L_d = k \cdot v$, where the typical $k$ value is:
-- Indoor robot (up to 1 m/s): $k \approx 1.5$–$2.0$
-- Warehousing AGV (up to 2 m/s): $k \approx 1.0$–$1.5$
-- Autonomous driving (up to 30 km/h): $k \approx 0.5$–$1.0$
+- Indoor robot (up to 1 m/s): $k \approx 1.5 \text{–} 2.0$
+- Warehousing AGV (up to 2 m/s): $k \approx 1.0 \text{–} 1.5$
+- Autonomous driving (up to 30 km/h): $k \approx 0.5 \text{–} 1.0$
 
 Another practical tip: Set the **minimum value** of $L_d$ (such as 0.3 m) to avoid oscillation caused by the lookahead distance approaching zero at low speeds.
 

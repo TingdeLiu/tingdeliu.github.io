@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: ai-agent-survey
 title: "AI Agent 综述"
-date: 2026-09-29
+date: 2026-10-04
 tags: [Agent, LLM, Multi-Agent, Survey]
 categories: research
 comments: true
@@ -3783,7 +3783,7 @@ Pi Agent 最有说服力的背书来自 Databricks 在其**数百万行内部代
 | 模型 (Model) | 思考档位 (Reasoning) | 评测 Harness | 任务通过率 (Pass Rate) | 单任务成本 (Cost/Task) | 上下文与 Token 表现 |
 |---|---|---|---|---|---|
 | **Claude Opus 4.8** | xhigh | **Pi Agent** | **87% (最高)** | **$1.94** | 每轮上下文少 **3×**，极简提示开销 |
-| **Claude Opus 4.8** | xhigh | Claude Code / Codex | 84% ~ 86% | $3.80 ~ $4.20 | 默认工具与系统提示消耗较大窗口 |
+| **Claude Opus 4.8** | xhigh | Claude Code / Codex | 84% ~ 86% | <span style="white-space: nowrap;">USD 3.80–4.20</span> | 默认工具与系统提示消耗较大窗口 |
 | **GLM 5.2** | high | **Pi Agent** | **86.5% (持平)** | **$1.28 (最低)** | 质量与 Opus 4.8 持平，成本降 34% |
 | **Claude Sonnet 5** | standard | **Pi Agent** | 79% | $2.09 | 单 token 虽便宜，但多消耗 **1.9×** tokens |
 

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "空间智能综述"
-date:  2026-09-29
+date: 2026-10-04
 tags: [Spatial Intelligence, 3D Vision, NeRF, Point Cloud, Embodied AI, Survey]
 categories: research
 comments: true
@@ -3599,7 +3599,7 @@ $$d' = \text{clip}(\alpha \log(d+1), 0, 1)$$
 
 * **超越专用 SOTA 模型**：在法线估计、深度估计、相机姿态与 3D 人体关键点预测上，虽然没有使用对应数据集的训练集进行有监督训练，但 GenCeption 的预测精度依然全面超越了 Lotus-2（FLUX 12B）和 NormalCrafter（SVD 1.5B），并超越或持平了 DepthAnything 3 及 D4RT。
 * **远胜自监督视频底座**：在控制微调样本数（7.5k 视频）相同的前提下，GenCeption (1.3B/14B) 模型的几何和深度预测表现显著优于 VideoMAE V2 (1B) 与 V-JEPA (0.6B)。
-* **极高的数据效率**：在深度估计任务上，GenCeption 仅依靠 7.5k 的合成视频进行多任务微调，表现就媲美了在数百万/数亿真实多源数据上训练的 D4RT 和 VGGT-Ω，使训练所需的数据规模大幅下降了 $7\times$ 至 $500\times$。
+* **极高的数据效率**：在深度估计任务上，GenCeption 仅依靠 7.5k 的合成视频进行多任务微调，表现就媲美了在数百万/数亿真实多源数据上训练的 D4RT 和 VGGT-Ω，使训练所需的数据规模大幅下降了 $7\times \text{–} 500\times$。
 * **零样本泛化与跨域能力**：由于继承了预训练视频生成模型中蕴含的宏大世界物理常识，GenCeption 表现出极其突出的 Sim-to-Real 与 Out-of-Distribution（OOD）泛化能力：
   1. **实例泛化**：虽然微调时仅在**单人合成视频**上进行训练，但可以直接推理具有**多实例、高复杂度的真实场景视频**。
   2. **类别泛化**：能够直接准确泛化到完全未在训练数据中出现的动物、恐龙和人形机器人等类别上。

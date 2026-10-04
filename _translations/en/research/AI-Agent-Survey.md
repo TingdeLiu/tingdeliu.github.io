@@ -5,7 +5,7 @@ translation_id: ai-agent-survey
 permalink: /en/AI-Agent-Survey/
 source_path: _posts/research/2026-03-05-AI-Agent-Survey.md
 source_url: /AI-Agent-Survey/
-source_revision_date: 2026-10-02
+source_revision_date: 2026-10-04
 translation_updated: 2026-10-04
 title: "AI Agents: A Survey"
 date: 2026-09-29
@@ -3988,7 +3988,7 @@ The most convincing endorsement of Pi Agent comes from Databricks in its **Milli
 |Model|Reasoning|Review Harness|Pass Rate|Single task cost (Cost/Task)|Context and Token Performance|
 |---|---|---|---|---|---|
 | **Claude Opus 4.8** | xhigh | **Pi Agent** |**87% (highest)**| **$1.94** |Less context per round **3×**, minimalist prompt overhead|
-| **Claude Opus 4.8** | xhigh | Claude Code / Codex | 84% ~ 86% | $3.80 ~ $4.20 |Default tools and system prompts consume larger windows|
+| **Claude Opus 4.8** | xhigh | Claude Code / Codex | 84% ~ 86% | <span style="white-space: nowrap;">USD 3.80–4.20</span> |Default tools and system prompts consume larger windows|
 | **GLM 5.2** | high | **Pi Agent** |**86.5% (flat)**|**$1.28 (minimum)**|The quality is the same as Opus 4.8, and the cost is reduced by 34%|
 | **Claude Sonnet 5** | standard | **Pi Agent** | 79% | $2.09 |Although a single token is cheap, it consumes more **1.9×** tokens|
 

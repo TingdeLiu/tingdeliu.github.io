@@ -20,6 +20,8 @@ Warnings (exit 0 unless --strict):
                  pipe as a table row and splits the formula across cells. Write `\mid` for conditional
                  bars and `\lvert x \rvert` for absolute values (whole-line $$...$$ blocks and real
                  table rows are not checked)
+  split-math-range  a range split across adjacent formulas can wrap between endpoints
+  currency-range   two dollar currency amounts can be misinterpreted as math delimiters
 
 Usage: python scripts/lint_posts.py [--strict] [--fix] [files...]   (default: _posts/**/*.md)
   --fix  rewrite math-underscore spans as $$...$$ (the only auto-fixable rule)
@@ -39,6 +41,9 @@ DIV_BLOCK = re.compile(r'<div\s+align="center"\s*>(.*?)</div>', re.S)
 MATH_BLOCK = re.compile(r"\$\$.*?\$\$", re.S)
 BS = "\\"  # backslash, so `\$` (escaped dollar) is not treated as math
 MATH_INLINE = re.compile(r"(?<![$" + re.escape(BS) + r"])\$(?!\$)([^$\n]+?)(?<!" + re.escape(BS) + r")\$(?!\$)")
+RANGE_MATH = re.compile(r"(?<![$\\])(?P<delimiter>\${1,2})(?P<expression>[^$\n]+?)(?P=delimiter)(?!\$)")
+RANGE_JOIN = re.compile(r"[ \t]*(?:[-–—~～]|至)[ \t]*")
+CURRENCY_RANGE = re.compile(r"(?<![$\\])\$\d+(?:\.\d+)?[ \t]*[-–—~～][ \t]*\$\d+(?:\.\d+)?(?![\d$])")
 INLINE_CODE = re.compile(r"`[^`\n]*`")
 # kramdown treats `_` after a closing brace as possible emphasis (even before an
 # alphanumeric), so two of them in one paragraph swallow the text between them.
@@ -98,6 +103,18 @@ def lint(path):
     text = mask_code(raw)
     body = text[body_start:]
     off = body_start
+
+    pos = off
+    for line in body.split("\n"):
+        ranges = list(RANGE_MATH.finditer(line))
+        for left, right in zip(ranges, ranges[1:]):
+            if RANGE_JOIN.fullmatch(line[left.end():right.start()]):
+                warns.append((lineno(text, pos + left.start()), "split-math-range",
+                              "range endpoints are separate formulas; use one inline formula or non-wrapping text"))
+        for match in CURRENCY_RANGE.finditer(line):
+            warns.append((lineno(text, pos + match.start()), "currency-range",
+                          "dollar currency range can be parsed as math; use non-wrapping USD text"))
+        pos += len(line) + 1
 
     for m in TAB_IN_MATH.finditer(body):
         errs.append((lineno(text, off + m.start()), "control-char",

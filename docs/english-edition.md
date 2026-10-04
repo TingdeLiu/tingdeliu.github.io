@@ -19,6 +19,12 @@ surveys. Other surveys remain Chinese-only.
 - Use natural research English. Distinguish paper findings from the author's
   interpretation and proposed experiments. Do not strengthen claims.
 - A translation date does not change the source verification date.
+- Keep short numerical ranges together. Use one inline formula for mathematical
+  endpoints (for example, `$10^3 \text{–} 10^4$`) or a non-wrapping text span
+  for ordinary percentages and currency. Use `USD` for dollar ranges to avoid
+  confusing currency symbols with MathJax delimiters. The post linter reports
+  `split-math-range` and `currency-range`; browser regression checks live in
+  `scripts/tests/check_inline_ranges.cjs` and `check_label_smoothing.cjs`.
 - Reuse original English paper figures; translate captions, alternative text,
   Mermaid labels, and explanatory graphics made for this site.
 - Preserve source heading IDs and explicit anchors in the English edition so
