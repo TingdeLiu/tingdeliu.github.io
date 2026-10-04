@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "VLA 论文精读"
-date: 2026-10-01
+date: 2026-10-04
 last_modified_at: 2026-10-01
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 categories: research

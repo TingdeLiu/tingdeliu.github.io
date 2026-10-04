@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-survey
 title: "VLN 综述"
-date:   2026-09-29
+date:   2026-10-04
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true

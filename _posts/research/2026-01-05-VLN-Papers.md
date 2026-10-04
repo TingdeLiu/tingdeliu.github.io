@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-papers
 title: "VLN 论文精读：指令跟随篇"
-date:   2026-10-03
+date:   2026-10-04
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true

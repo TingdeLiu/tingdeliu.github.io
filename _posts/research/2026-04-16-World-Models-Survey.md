@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "世界模型综述"
-date:  2026-09-28
+date:  2026-10-04
 tags: [VLA, World Models, Robotics, Embodied AI, Survey]
 categories: research
 comments: true

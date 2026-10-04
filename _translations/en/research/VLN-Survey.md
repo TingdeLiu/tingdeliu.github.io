@@ -5,10 +5,10 @@ translation_id: vln-survey
 permalink: /en/VLN-Survey/
 source_path: _posts/research/2026-01-04-VLN-Survey.md
 source_url: /VLN-Survey/
-source_revision_date: 2026-09-29
+source_revision_date: 2026-10-04
 translation_updated: 2026-10-04
 title: "Vision-Language Navigation: A Survey"
-date:   2026-09-29
+date:   2026-10-04
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false

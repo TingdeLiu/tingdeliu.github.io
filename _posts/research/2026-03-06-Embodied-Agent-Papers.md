@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Embodied Agent 论文精读"
-date:   2026-09-29
+date:   2026-10-04
 tags: [Agent, Embodied AI, Robotics, VLA, Deep Learning]
 categories: research
 comments: true

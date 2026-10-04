@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "强化学习综述"
-date: 2026-09-28
+date: 2026-10-04
 tags: [Reinforcement Learning, RL, Embodied AI, Robotics, World Models, Diffusion Policy, PPO, SAC, TD3, DDPG, Actor-Critic, MDP]
 categories: research
 comments: true
