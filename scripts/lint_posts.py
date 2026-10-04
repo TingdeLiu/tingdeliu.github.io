@@ -13,6 +13,9 @@ Errors (exit 1):
 Warnings (exit 0 unless --strict):
   gif            GIF referenced; use mp4 via <video>
   big-image      referenced image over 300KB
+  mermaid-label  in a ```mermaid block, an unquoted edge label containing ( ) [ ] { } (write -->|"a(b)"| C),
+                 or the invalid thick-link form ==="text"===>. Mermaid then fails to parse the whole diagram
+                 and the page silently shows no diagram
   pipe-in-math   a bare `|` inside a formula on a normal text line: kramdown parses any line with a
                  pipe as a table row and splits the formula across cells. Write `\mid` for conditional
                  bars and `\lvert x \rvert` for absolute values (whole-line $$...$$ blocks and real
@@ -52,6 +55,10 @@ TAB_IN_MATH = re.compile(
 MATH_SPAN = re.compile(r"\$\$.+?\$\$|" + MATH_INLINE.pattern)
 BARE_PIPE = re.compile(r"(?<!" + re.escape(BS) + r")\|")
 WHOLE_LINE_BLOCK = re.compile(r"^\s*\$\$.*\$\$\s*$")
+MERMAID_BLOCK = re.compile(r"```mermaid\n(.*?)\n```", re.S)
+# edge label between pipes right after an arrow, not starting with a quote, containing a bracket character
+MERMAID_BAD_LABEL = re.compile(r"(?:-{2,}>?|={2,}>|-\.+->?)\|(?!\")([^|\n\"]*[()\[\]{}][^|\n\"]*)\|")
+MERMAID_BAD_THICK = re.compile(r"={3,}\"")
 
 
 def mask_code(text):
@@ -129,6 +136,17 @@ def lint(path):
                               f"`{m.group()[:40]}` has a bare `|`; kramdown splits this line into table cells "
                               "(use \\mid or \\lvert..\\rvert)"))
                 break
+
+    for block in MERMAID_BLOCK.finditer(raw):
+        base = lineno(raw, block.start(1)) - 1
+        for i, line in enumerate(block.group(1).split("\n")):
+            bad = MERMAID_BAD_LABEL.search(line)
+            if bad:
+                warns.append((base + 1 + i, "mermaid-label",
+                              f"unquoted edge label `|{bad.group(1)[:30]}|` has brackets; write |\"...\"| or the diagram will not render"))
+            elif MERMAID_BAD_THICK.search(line):
+                warns.append((base + 1 + i, "mermaid-label",
+                              "invalid thick-link syntax ===\"text\"===>; use ==>|\"text\"| instead"))
 
     seen = set()
     for m in IMG_REF.finditer(body):
