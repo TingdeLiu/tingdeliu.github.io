@@ -678,16 +678,22 @@ nav {
   }
 }
 
-// Long navigation equations stay readable inside narrow list items.
-.robot-navigation-survey .entry mjx-container {
+// Keep long equations scrollable in every article and both languages.
+.entry mjx-container[display="true"] {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: .3em 0;
+}
+
+.entry mjx-container:not([display="true"]) {
   display: inline-block;
   max-width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-}
-
-.robot-navigation-survey .entry mjx-container[display="true"] {
-  display: block;
+  // Leave room for ink beyond MathJax's reported box, such as the tail of g_E.
+  padding: .25em 0;
+  vertical-align: middle;
 }
 
 .heading-anchor {

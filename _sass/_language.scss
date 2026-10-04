@@ -29,22 +29,6 @@
 html[lang="en"] .entry { overflow-wrap: break-word; }
 html[lang="en"] .entry p,
 html[lang="en"] .translation-note p { text-align: left; }
-html[lang="en"] .entry mjx-container[display="true"] {
-  max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: .3em 0;
-}
-html[lang="en"] .entry mjx-container:not([display="true"]) {
-  display: inline-block;
-  max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  // MathJax glyphs can extend below their reported math box (for example g_E).
-  // Leave room for that ink while retaining local scrolling for long formulas.
-  padding: .25em 0;
-  vertical-align: middle;
-}
 html[lang="en"] .entry .mermaid-pending::before { content: "Loading diagram…"; }
 html[lang="en"] .article-toc-trigger span { white-space: nowrap; }
 html[lang="en"] .tag li > span { display: inline-block; padding: 2px 8px; border-radius: 4px; background: #edf2f7; font-size: .8rem; }

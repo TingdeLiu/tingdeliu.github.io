@@ -241,13 +241,20 @@ are no page, formula, diagram, raw-emphasis, or horizontal-overflow errors.
 Long inline equations scroll locally in the English edition. The unrelated
 VLN Papers source snapshot remains stale and still requires its own review.
 
-Inline math scrollers include vertical space for glyphs extending beyond
-MathJax's reported box, such as the descender in `g_E`. The browser regression
-`scripts/tests/check_math_layout.cjs` checks all 147 expressions in the embodied
-paper collection at desktop and mobile widths for glyph clipping, typesetting
-errors, page overflow, and continued local scrolling of long expressions.
-Run it against a built site with `node scripts/tests/check_math_layout.cjs URL`
-in an environment with Playwright and Chrome.
+All article math scrollers share styles across Chinese and English, including
+vertical space for glyphs extending beyond MathJax's reported box, such as the
+descender in `g_E`. Long inline and display equations scroll locally on mobile.
+The browser regression `scripts/tests/check_math_layout.cjs` checks visible
+CommonHTML glyph clipping, typesetting errors, uncontained equations, and raw
+TeX at 1440px and 390px. Hidden assistive MathML is excluded from glyph bounds.
+Run `node scripts/tests/check_math_layout.cjs URL --all` after a Jekyll build
+to discover all math-enabled articles in `_site`; the default checks the English
+embodied paper collection. Specific article routes can replace `--all`.
+The test requires Playwright and Chrome.
+
+The October 4 site-wide audit covered 29 math-enabled article pages and 7,607
+rendered expressions at both widths. The shared styles resolved mobile equation
+overflow in 17 Chinese articles; all pages passed the browser regression.
 
 ### Future drafts
 
