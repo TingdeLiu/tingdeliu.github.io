@@ -40,6 +40,9 @@ html[lang="en"] .entry mjx-container:not([display="true"]) {
   max-width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
+  // MathJax glyphs can extend below their reported math box (for example g_E).
+  // Leave room for that ink while retaining local scrolling for long formulas.
+  padding: .25em 0;
   vertical-align: middle;
 }
 html[lang="en"] .entry .mermaid-pending::before { content: "Loading diagram…"; }

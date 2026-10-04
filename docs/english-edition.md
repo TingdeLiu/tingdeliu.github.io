@@ -241,6 +241,14 @@ are no page, formula, diagram, raw-emphasis, or horizontal-overflow errors.
 Long inline equations scroll locally in the English edition. The unrelated
 VLN Papers source snapshot remains stale and still requires its own review.
 
+Inline math scrollers include vertical space for glyphs extending beyond
+MathJax's reported box, such as the descender in `g_E`. The browser regression
+`scripts/tests/check_math_layout.cjs` checks all 147 expressions in the embodied
+paper collection at desktop and mobile widths for glyph clipping, typesetting
+errors, page overflow, and continued local scrolling of long expressions.
+Run it against a built site with `node scripts/tests/check_math_layout.cjs URL`
+in an environment with Playwright and Chrome.
+
 ### Future drafts
 
 Future incomplete drafts use `published: false` and `translation_scope: partial`.
