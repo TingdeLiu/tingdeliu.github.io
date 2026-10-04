@@ -1,7 +1,9 @@
 ---
 layout: post
+lang: zh-CN
+translation_id: machine-learning-survey
 title: "机器学习综述"
-date: 2026-09-29
+date: 2026-10-04
 tags: [Machine Learning, Deep Learning, Algorithm, Foundation Models]
 categories: research
 comments: true

@@ -1,5 +1,7 @@
 ---
 layout: post
+lang: zh-CN
+translation_id: deep-learning-survey
 title: "深度学习综述"
 date: 2026-10-04
 tags: [Deep Learning, Neural Network, Optimization, Training, AI, Transformer, GNN, LLM, MoE, LoRA, Diffusion, GAN, VAE, RLHF, Mamba, SSM]

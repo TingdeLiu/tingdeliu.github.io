@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="540" viewBox="0 0 1200 540" role="img" aria-labelledby="title desc">
+<title id="title">Reinforcement learning: a loop of interaction</title>
+<desc id="desc">An agent learns decisions from environmental feedback.. Reward specifies the objective; observations, actions, and learning connect the agent to the environment.</desc>
+<rect width="1200" height="540" rx="24" fill="#f5f3ed"/>
+<g font-family="Arial, sans-serif" fill="#233b3a">
+<text x="48" y="60" font-size="32" font-weight="700">Reinforcement learning: a loop of interaction</text>
+<text x="48" y="100" font-size="19" fill="#596d67">An agent learns decisions from environmental feedback.</text>
+<rect x="48" y="138" width="532" height="132" rx="16" fill="#fff3df" stroke="#cbd5ce"/>
+<text x="72" y="175" font-size="23" font-weight="700">1. Observe and choose</text>
+<text x="72" y="211" font-size="19">Use the current observation or state</text>
+<text x="72" y="237" font-size="19">Select an action with the policy</text>
+<rect x="606" y="138" width="532" height="132" rx="16" fill="#e8f2fb" stroke="#cbd5ce"/>
+<text x="630" y="175" font-size="23" font-weight="700">2. Act in the environment</text>
+<text x="630" y="211" font-size="19">Execute the selected action</text>
+<text x="630" y="237" font-size="19">The environment evolves</text>
+<rect x="48" y="292" width="532" height="132" rx="16" fill="#e4ece7" stroke="#cbd5ce"/>
+<text x="72" y="329" font-size="23" font-weight="700">3. Receive feedback</text>
+<text x="72" y="365" font-size="19">Observe the next state and reward</text>
+<text x="72" y="391" font-size="19">Collect interaction experience</text>
+<rect x="606" y="292" width="532" height="132" rx="16" fill="#f5e7e3" stroke="#cbd5ce"/>
+<text x="630" y="329" font-size="23" font-weight="700">4. Learn and repeat</text>
+<text x="630" y="365" font-size="19">Update the policy from experience</text>
+<text x="630" y="391" font-size="19">Use the revised policy for future decisions</text>
+<text x="48" y="492" font-size="17" fill="#596d67">Reward specifies the objective; observations, actions, and learning connect the agent to the environment.</text>
+</g></svg>

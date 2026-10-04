@@ -8,7 +8,9 @@ embodied-navigation weekly digests (six published and two unpublished), plus `/e
 and reciprocal English companion links. The Traditional Robot Navigation
 Algorithms survey also has a complete English edition. The three agent articles
 (AI Agents, Embodied Agent Harness and Runtime Architecture, and Embodied Agent
-Paper Readings) are translated in full. Other surveys remain Chinese-only.
+Paper Readings) are translated in full. The Machine Learning Foundations group
+also contains complete Machine Learning, Deep Learning, and Reinforcement Learning
+surveys. Other surveys remain Chinese-only.
 
 ## Content contract
 
@@ -36,7 +38,10 @@ _translations/en/
 │   ├── Robot-Navigation-Survey.md
 │   ├── AI-Agent-Survey.md
 │   ├── Embodied-Agent-Harness-Survey.md
-│   └── Embodied-Agent-Papers.md
+│   ├── Embodied-Agent-Papers.md
+│   ├── Machine-Learning-Survey.md
+│   ├── Deep-Learning-Survey.md
+│   └── Reinforcement-Learning-Survey.md
 └── blog/
     ├── vln-weekly-2026-08-01.md
     └── ... (eight weekly digests through 2026-09-27)
@@ -62,7 +67,8 @@ Language switching stays in the page's language selector.
 Both Research indexes use `_data/research_groups.json` for the same topic
 membership and group order. The English page shows groups with published
 translations, with jump links and article counts; currently navigation has
-four articles and embodied agents has three. Future translations join their
+four articles, embodied agents has three, and machine learning foundations has
+three. Future translations join their
 source article's group automatically; unclassified articles appear under Other.
 
 Each article declares `lang`, `translation_id`, `permalink`, `source_path`,
@@ -205,6 +211,41 @@ overflow; long equations scroll within their own containers. The new article's
 source snapshot is synchronized. The unrelated VLN Papers snapshot currently
 needs updates, so the repository-wide strict synchronization command remains
 nonzero until that collection is reviewed.
+
+### Machine learning foundations
+
+The three complete English surveys cover Machine Learning, Deep Learning, and
+Reinforcement Learning, including all twelve RL paper readings. They retain all
+351 source heading IDs, 101 tables, 54 figures, equations, code blocks, and external
+citations. The English Research index displays three cards under Machine Learning
+Foundations, and language switching preserves the current section.
+
+Public prose used machine translation assistance followed by technical terminology,
+markup, and numerical review. Numerical magnitudes were explicitly checked:
+ImageNet uses 1.28 million images in the ML survey; GPT-1/2/3 use 117 million,
+1.5 billion, and 175 billion parameters; the DreamerV3 Minecraft milestone uses
+100 million environment steps. The DL survey retains its source's rounded
+ImageNet counts of 1.2 million training and 50,000 validation images. Descriptive
+TeX labels for gates and optimizer moments are localized while equations remain
+unchanged. English overview SVGs and an English multi-head-attention SVG supplement
+reused technical figures. These editions translate the source's claims, rather
+than independently re-verifying every historical or current claim.
+
+Translation updates are dated 2026-10-04. The ML source revision before pairing is
+2026-10-02; the DL and RL revisions are 2026-10-04. The authoritative snapshots
+are `translations/machine-learning-survey.en.json`,
+`translations/deep-learning-survey.en.json`, and
+`translations/reinforcement-learning-survey.en.json`.
+
+Verified on 2026-10-04: the Jekyll build and built-site validator pass with 19
+English pages and zero errors. Browser checks at 1440×1000 and 390×844 show all
+40 Mermaid diagrams and 712 MathJax expressions rendering without errors, all
+images loading, no horizontal page overflow, and reciprocal section switching
+working. The release validator checks heading IDs, table dimensions and values,
+mathematics, citations, research cards, language alternates, and exclusion from
+the Chinese feed. Unit normalization tests reject incorrect hundred-million
+conversions and changes to gate equations. The existing VLN Papers translation
+still requires synchronization with its source; the three new surveys are current.
 
 ### Agent surveys and paper readings
 

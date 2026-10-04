@@ -97,6 +97,26 @@ def normalize_agent_table_labels(body):
     return '\n'.join(lines)
 
 
+def normalize_ml_labels(body):
+    """Canonicalize reviewed ML units and descriptive TeX labels for parity."""
+    labels = {
+        '（重置门）': '(reset gate)', '（更新门）': '(update gate)',
+        '（速度累积）': '(velocity accumulation)',
+        '一阶矩': 'first moment', '二阶矩': 'second moment',
+        '步骤一/三': 'Step 1/3', '步骤三': 'Step 3', '步骤二': 'Step 2',
+    }
+    for source, english in labels.items():
+        body = body.replace(source, english)
+    # Express both editions in base units, including Chinese ten-thousands
+    # and hundred-millions. This catches mistranslated magnitudes.
+    units = {'万': 10000, '亿': 100000000, 'million': 1000000,
+             'billion': 1000000000}
+    body = re.sub(r'(?<=\d),(?=\d{3}(?:\D|$))', '', body)
+    body = re.sub(r'(\d+(?:\.\d+)?)\s*(万|亿|million|billion)',
+                  lambda m: format(float(m[1]) * units[m[2]], '.12g'), body)
+    return body
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--strict', action='store_true', help='Fail when reviewed source sections change')

@@ -4,10 +4,24 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from check_translation_drafts import features, paper_sections, normalize_agent_table_labels
+from check_translation_drafts import features, paper_sections, normalize_agent_table_labels, normalize_ml_labels
 
 
 class TranslationFeaturesTests(unittest.TestCase):
+    def test_ml_magnitudes_detect_hundred_million_mistranslation(self):
+        source = '| 128 万 | 1.17 亿 | 15 亿 | 1750 亿 |'
+        target = '| 1.28 million | 117 million | 1.5 billion | 175 billion |'
+        normalize = lambda body: features(normalize_ml_labels(body))['table_numbers']
+        self.assertEqual(normalize(source), normalize(target))
+        self.assertNotEqual(normalize(source), normalize(target.replace('175 billion', '1750 billion')))
+
+    def test_ml_descriptive_math_labels_preserve_gate_equations(self):
+        source = r'$$r_t = \sigma(W_r x_t) \quad \text{（重置门）}$$'
+        target = r'$$r_t = \sigma(W_r x_t) \quad \text{(reset gate)}$$'
+        normalize = lambda body: features(normalize_ml_labels(body))['math']
+        self.assertEqual(normalize(source), normalize(target))
+        self.assertNotEqual(normalize(source), normalize(target.replace('W_r', 'W_z')))
+
     def test_accessible_caption_does_not_duplicate_equation(self):
         source = '<img src="/images/a.webp" />\n<figcaption>$x$</figcaption>'
         translation = '<img src="/images/a.webp" alt="Value $x$" />\n<figcaption>$x$</figcaption>'
