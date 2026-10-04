@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="510" viewBox="0 0 1200 510" role="img" aria-labelledby="title desc">
+<title id="title">World models: predicting futures to support decisions</title>
+<desc id="desc">Current observations and candidate actions condition predictions of possible outcomes.. Predicted futures are candidates, not observations or guarantees of physical correctness.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="#467481"/></marker></defs>
+<rect width="1200" height="510" rx="20" fill="#f4f8fa"/>
+<g font-family="Arial, sans-serif" fill="#153c55">
+<text x="44" y="61" font-size="30" font-weight="700">World models: predicting futures to support decisions</text>
+<text x="44" y="100" font-size="18" fill="#4e6b79">Current observations and candidate actions condition predictions of possible outcomes.</text>
+<rect x="44" y="155" width="250" height="217" rx="16" fill="#e5f1f6" stroke="#aec5d1"/>
+<text x="62" y="197" font-size="21" font-weight="700">Current information</text>
+<text x="62" y="241" font-size="17" transform="translate(0,0)">Images, states or latents</text>
+<text x="62" y="241" font-size="17" transform="translate(0,30)">Task and action candidates</text>
+<text x="62" y="241" font-size="17" transform="translate(0,60)">Observed interaction history</text>
+<path d="M298 265h20" stroke="#467481" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="326" y="155" width="250" height="217" rx="16" fill="#e1f0ef" stroke="#aec5d1"/>
+<text x="344" y="197" font-size="21" font-weight="700">Predict futures</text>
+<text x="344" y="241" font-size="17" transform="translate(0,0)">Learned dynamics</text>
+<text x="344" y="241" font-size="17" transform="translate(0,30)">Alternative future branches</text>
+<text x="344" y="241" font-size="17" transform="translate(0,60)">Predictions with uncertainty</text>
+<path d="M580 265h20" stroke="#467481" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="608" y="155" width="250" height="217" rx="16" fill="#e7edf8" stroke="#aec5d1"/>
+<text x="626" y="197" font-size="21" font-weight="700">Plan and learn</text>
+<text x="626" y="241" font-size="17" transform="translate(0,0)">Compare candidate actions</text>
+<text x="626" y="241" font-size="17" transform="translate(0,30)">Simulate policy experience</text>
+<text x="626" y="241" font-size="17" transform="translate(0,60)">Optimize task decisions</text>
+<path d="M862 265h20" stroke="#467481" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="890" y="155" width="250" height="217" rx="16" fill="#fbefd9" stroke="#aec5d1"/>
+<text x="908" y="197" font-size="21" font-weight="700">Act and validate</text>
+<text x="908" y="241" font-size="17" transform="translate(0,0)">Execute selected actions</text>
+<text x="908" y="241" font-size="17" transform="translate(0,30)">Observe real outcomes</text>
+<text x="908" y="241" font-size="17" transform="translate(0,60)">Check prediction errors</text>
+<text x="44" y="437" font-size="18" fill="#4e6b79">Predicted futures are candidates, not observations or guarantees of physical correctness.</text>
+</g></svg>

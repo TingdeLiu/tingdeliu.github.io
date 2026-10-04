@@ -97,6 +97,25 @@ def normalize_agent_table_labels(body):
     return '\n'.join(lines)
 
 
+def normalize_vla_labels(body):
+    """Canonicalize reviewed descriptive labels without changing VLA equations."""
+    labels = {
+        '世界模型:': 'World model:', '联合预测:': 'Joint prediction:',
+        '从观察和语言预测动作': 'predict actions from observations and language',
+        '从当前观察和动作预测未来观察': 'predict future observations from current observations and actions',
+        '从观察序列推断动作': 'infer actions from observation sequences',
+        '从观察和语言生成未来视频': 'generate future video from observations and language',
+        '同时生成视频和动作': 'generate video and actions jointly',
+    }
+    def localize(match):
+        text = match[0]
+        for zh, en in labels.items():
+            text = text.replace(zh, en)
+        return text
+    body = re.sub(r'\$\$.*?\$\$|(?<!\$)\$(?!\$)[^\n$]+?(?<!\s)\$(?![\d$])', localize, body, flags=re.S)
+    return normalize_large_model_labels(body)
+
+
 def normalize_large_model_labels(body):
     """Canonicalize translated descriptions inside otherwise identical equations."""
     labels = {

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="510" viewBox="0 0 1200 510" role="img" aria-labelledby="title desc">
+<title id="title">Vision-language-action: a closed loop for robot control</title>
+<desc id="desc">Vision, language and proprioception condition predictions of executable actions.. Feedback returns to the policy: correct behavior as the robot and environment change.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="#467481"/></marker></defs>
+<rect width="1200" height="510" rx="20" fill="#f4f8fa"/>
+<g font-family="Arial, sans-serif" fill="#153c55">
+<text x="44" y="61" font-size="30" font-weight="700">Vision-language-action: a closed loop for robot control</text>
+<text x="44" y="100" font-size="18" fill="#4e6b79">Vision, language and proprioception condition predictions of executable actions.</text>
+<rect x="44" y="155" width="250" height="217" rx="16" fill="#e5f1f6" stroke="#aec5d1"/>
+<text x="62" y="197" font-size="21" font-weight="700">Observe and instruct</text>
+<text x="62" y="241" font-size="17" transform="translate(0,0)">Camera observations</text>
+<text x="62" y="241" font-size="17" transform="translate(0,30)">Language task</text>
+<text x="62" y="241" font-size="17" transform="translate(0,60)">Proprioceptive state</text>
+<path d="M298 265h20" stroke="#467481" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="326" y="155" width="250" height="217" rx="16" fill="#e1f0ef" stroke="#aec5d1"/>
+<text x="344" y="197" font-size="21" font-weight="700">Predict actions</text>
+<text x="344" y="241" font-size="17" transform="translate(0,0)">Vision-language features</text>
+<text x="344" y="241" font-size="17" transform="translate(0,30)">Action policy</text>
+<text x="344" y="241" font-size="17" transform="translate(0,60)">Action chunk prediction</text>
+<path d="M580 265h20" stroke="#467481" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="608" y="155" width="250" height="217" rx="16" fill="#e7edf8" stroke="#aec5d1"/>
+<text x="626" y="197" font-size="21" font-weight="700">Execute</text>
+<text x="626" y="241" font-size="17" transform="translate(0,0)">Controller adaptation</text>
+<text x="626" y="241" font-size="17" transform="translate(0,30)">Execute robot commands</text>
+<text x="626" y="241" font-size="17" transform="translate(0,60)">Check execution constraints</text>
+<path d="M862 265h20" stroke="#467481" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="890" y="155" width="250" height="217" rx="16" fill="#fbefd9" stroke="#aec5d1"/>
+<text x="908" y="197" font-size="21" font-weight="700">Observe again</text>
+<text x="908" y="241" font-size="17" transform="translate(0,0)">New sensor observations</text>
+<text x="908" y="241" font-size="17" transform="translate(0,30)">Assess progress and failure</text>
+<text x="908" y="241" font-size="17" transform="translate(0,60)">Replan or recover</text>
+<text x="44" y="437" font-size="18" fill="#4e6b79">Feedback returns to the policy: correct behavior as the robot and environment change.</text>
+</g></svg>

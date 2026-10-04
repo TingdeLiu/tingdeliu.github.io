@@ -6,7 +6,8 @@
     if (!article) return;
     // Preserve bookmarks to paper sections moved from the survey.
     if (/\/VLA-Survey\/?$/.test(window.location.pathname) && /^#5(?:-\d+|\d{1,2}-)/.test(window.location.hash)) {
-      window.location.replace('/VLA-Papers/' + window.location.hash);
+      var languagePrefix = document.documentElement.lang === 'en' ? '/en' : '';
+      window.location.replace(languagePrefix + '/VLA-Papers/' + window.location.hash);
       return;
     }
     var index = article.querySelector('.vla-paper-index');
@@ -66,7 +67,9 @@
         paper.item.hidden = !matches;
         if (matches) shown++;
       });
-      count.textContent = '显示 ' + shown + ' / ' + papers.length + ' 篇 · 点击标题跳转';
+      count.textContent = document.documentElement.lang === 'en'
+        ? 'Showing ' + shown + ' / ' + papers.length + ' papers · Select a title to jump'
+        : '显示 ' + shown + ' / ' + papers.length + ' 篇 · 点击标题跳转';
       empty.hidden = shown > 0;
       reset.hidden = !query.value && !year.value;
       results.scrollTop = 0;

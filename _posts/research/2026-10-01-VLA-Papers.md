@@ -1,5 +1,7 @@
 ---
 layout: post
+lang: zh-CN
+translation_id: vla-papers
 title: "VLA 论文精读"
 date: 2026-10-04
 last_modified_at: 2026-10-01

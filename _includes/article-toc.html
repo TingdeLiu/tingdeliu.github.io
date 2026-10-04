@@ -22,7 +22,7 @@
 
   <div class="article-toc-heading">
     <span>{{ ui.contents }}</span>
-    <span class="article-toc-depth">{% if page.vla_survey %}章节与论文{% else %}H1—H3{% endif %}</span>
+    <span class="article-toc-depth">{% if page.vla_survey %}{% if page_lang == 'en' %}Sections and papers{% else %}章节与论文{% endif %}{% else %}H1—H3{% endif %}</span>
   </div>
 
   <nav class="article-toc-scroll" aria-label="{{ ui.article_contents }}">

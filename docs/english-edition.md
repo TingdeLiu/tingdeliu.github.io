@@ -10,8 +10,42 @@ Algorithms survey also has a complete English edition. The three agent articles
 (AI Agents, Embodied Agent Harness and Runtime Architecture, and Embodied Agent
 Paper Readings) are translated in full. The Machine Learning Foundations group
 also contains complete Machine Learning, Deep Learning, and Reinforcement Learning
-surveys. The Large Models and Spatial Intelligence group now contains complete LLM Training, VLM, and Spatial Intelligence surveys. Other surveys remain Chinese-only.
+surveys. The Large Models and Spatial Intelligence group now contains complete LLM Training, VLM, and Spatial Intelligence surveys. The Embodied Manipulation (VLA) group now has complete VLA Survey, VLA Paper Readings, and World Models Survey editions. Other surveys remain Chinese-only.
 
+
+## Embodied Manipulation (VLA) release (2026-10-04)
+
+The complete English editions are `_translations/en/research/VLA-Survey.md`,
+`VLA-Papers.md`, and `World-Models-Survey.md`. VLA Paper Readings includes all
+36 source readings, the official RoboDojo snapshot, and the five groups of
+controlled experimental comparisons. The English editions preserve source
+heading IDs, formulas, numerical tables, reference links, and figures. Captions,
+alternative text, code comments, Mermaid labels, and the VLA contents label are
+localized. Two English SVG introduction diagrams replace the corresponding
+Chinese introduction graphics. Moved paper bookmarks redirect to the matching
+language edition.
+
+Public prose used machine translation assistance followed by terminology,
+structural, numerical, and targeted editorial review. These translations retain
+the source claims and qualifications; they do not independently update the
+papers or live leaderboards. Source revision dates are 2026-10-02 for VLA Survey
+and 2026-10-04 for the other two articles. All translation dates are 2026-10-04.
+Synchronization records are `translations/vla-survey.en.json`,
+`vla-papers.en.json`, and `world-models-survey.en.json`. The validator uses
+`normalize_vla_labels` to account for reviewed English descriptions within an
+otherwise unchanged equation and for equivalent numerical date/unit labels.
+The three articles join the Embodied Manipulation group automatically through
+the existing shared Research index configuration.
+
+Validation covered 479 matching headings, 70 tables, 185 images, 417 rendered
+mathematical expressions, and all 16 Mermaid diagrams. Desktop (1440px) and
+390/320px mobile checks passed with no page errors, untranslated visible prose,
+formula errors, or page overflow. Images load, ranking jumps work, section
+switching is reciprocal, and moved VLA paper bookmarks preserve the language.
+The Jekyll build, English site validator, post linter, and 20 existing tests pass.
+The three new source snapshots are synchronized. The full-registry strict
+synchronization check separately reports pre-existing changes in VLN Paper
+Readings; that record was not accepted as reviewed by this release.
 
 ## Large Models and Spatial Intelligence release (2026-10-04)
 
@@ -78,7 +112,10 @@ _translations/en/
 │   ├── Embodied-Agent-Papers.md
 │   ├── Machine-Learning-Survey.md
 │   ├── Deep-Learning-Survey.md
-│   └── Reinforcement-Learning-Survey.md
+│   ├── Reinforcement-Learning-Survey.md
+│   ├── VLA-Survey.md
+│   ├── VLA-Papers.md
+│   └── World-Models-Survey.md
 └── blog/
     ├── vln-weekly-2026-08-01.md
     └── ... (eight weekly digests through 2026-09-27)

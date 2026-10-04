@@ -1,5 +1,7 @@
 ---
 layout: post
+lang: zh-CN
+translation_id: world-models-survey
 title: "世界模型综述"
 date:  2026-10-04
 tags: [VLA, World Models, Robotics, Embodied AI, Survey]

@@ -1,5 +1,7 @@
 ---
 layout: post
+lang: zh-CN
+translation_id: vla-survey
 title: "VLA 综述"
 date:   2026-08-24
 last_modified_at: 2026-10-01
