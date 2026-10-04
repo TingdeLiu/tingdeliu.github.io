@@ -67,7 +67,7 @@
     "平均绝对误差（MAE）": "46aa50263ee6d04adca65ef785c196e1d0280cef2d299adbdafc275550de787c",
     "Huber Loss": "4c63a22a05842248232289542eca0fa3b489ddde38c2b2ddb61f0b4e05a4058c",
     "交叉熵损失（Cross-Entropy）": "f06b2291ecbd428a684b5e0d2478635d193139e019f925ac08671713687ebef0",
-    "Label Smoothing（标签平滑）": "5b7b0797e0b88d7eda60e63ab1ae9aab0565f35c291dbfe2d59b9e8626b18060",
+    "Label Smoothing（标签平滑）": "fb21ad34123c74ead1f3121edc77442f55147f89e7fc1bb0b1e9d556580e1f99",
     "二元交叉熵（Binary Cross-Entropy，BCE）": "bcecc5c17fe5d1c6523d4018dc6b7e286d8e2409e6ab794db38a0597e60996f3",
     "Focal Loss": "491aa72854f7f06870daaea23a9a0fea52c80a89f09fa9943c29831585ed73b1",
     "KL 散度": "87049666eabadfbf8c289164b0b48cb954319d22e3d9b5e6228f9d9a45c76649",

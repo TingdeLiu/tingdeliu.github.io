@@ -1201,7 +1201,7 @@ Here, $K$ is the number of categories, and $\epsilon$ is the smoothing coefficie
 
 **effect**:
 - Suppress model overconfidence, **calibration (calibration) is better** - that is, the actual accuracy when predicting 90% is also close to 90%
-- Slightly improved generalization ($\sim 0.2$–$0.5\%$ Top-1 improved on ImageNet)
+- Slightly improved generalization (approximately <span style="white-space: nowrap;">0.2–0.5%</span> higher Top-1 accuracy on ImageNet)
 - Improve teacher soft label quality for knowledge distillation (soft distribution carries more information than one-hot)
 
 **Note**: Label Smoothing will lose a small amount of confidence information, which needs to be weighed in tasks that require confidence selection (active learning, rejection).

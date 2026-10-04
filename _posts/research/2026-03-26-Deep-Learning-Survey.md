@@ -1133,7 +1133,7 @@ $$\hat{p}_i^{\text{LS}} = \begin{cases} 1 - \epsilon & i = y^* \\ \epsilon/(K-1)
 
 **效果**：
 - 抑制模型过度自信，**校准（calibration）更好**——即预测 90% 时实际准确率也接近 90%
-- 轻微提升泛化（ImageNet 上 $\sim 0.2$–$0.5\%$ Top-1 提升）
+- 轻微提升泛化（ImageNet 上约 <span style="white-space: nowrap;">0.2–0.5%</span> 的 Top-1 提升）
 - 改善知识蒸馏的教师软标签质量（软分布比 one-hot 承载更多信息）
 
 **注意**：Label Smoothing 会损失少量 confidence 信息，在需要置信度选择的任务（主动学习、拒识）中需权衡。
