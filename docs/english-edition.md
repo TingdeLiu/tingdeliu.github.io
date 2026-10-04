@@ -10,8 +10,34 @@ Algorithms survey also has a complete English edition. The three agent articles
 (AI Agents, Embodied Agent Harness and Runtime Architecture, and Embodied Agent
 Paper Readings) are translated in full. The Machine Learning Foundations group
 also contains complete Machine Learning, Deep Learning, and Reinforcement Learning
-surveys. The Large Models and Spatial Intelligence group now contains complete LLM Training, VLM, and Spatial Intelligence surveys. The Embodied Manipulation (VLA) group now has complete VLA Survey, VLA Paper Readings, and World Models Survey editions. Other surveys remain Chinese-only.
+surveys. The Large Models and Spatial Intelligence group now contains complete LLM Training, VLM, and Spatial Intelligence surveys. The Embodied Manipulation (VLA) group now has complete VLA Survey, VLA Paper Readings, and World Models Survey editions. The Engineering Practice group now contains complete Python Engineering and ROS 2 Core Architecture guides.
 
+
+## Engineering Practice release (2026-10-04)
+
+The complete English articles are `_translations/en/research/Python-Engineering-Survey.md`
+and `ROS2-Survey.md`. They retain every source section, table, equation, executable
+example, and external citation. Code comments, Mermaid labels, captions, and
+alternative text are localized. Two English SVG introduction diagrams explain
+the same concepts as the Chinese originals. Companion links select the matching
+English article, and section-preserving language switching uses the original
+heading IDs. Both articles appear in the Engineering Practice Research group.
+
+Public prose used machine translation assistance followed by terminology,
+structural, numerical, code, and editorial review. The English editions retain
+source claims and version qualifications; they do not independently update
+software release status or revalidate every technical recommendation. Source
+pairing metadata and the Python article date were updated on 2026-10-04;
+source technical content was retained. Synchronization snapshots are
+`translations/python-engineering-survey.en.json` and `ros2-survey.en.json`.
+
+Validation passed for all 135 heading IDs, 40 tables, 50 Mermaid diagrams, and
+11 rendered formulas. Both pages have no untranslated visible prose, formula
+errors, diagram errors, or horizontal overflow at 1440, 390, and 320 pixels.
+All images load; contents navigation, reciprocal section switching, and the
+English Research cards work. Jekyll build, the English site validator, post
+lint, and 20 existing regression tests pass. Both new source snapshots are
+synchronized. The pre-existing stale VLN Papers snapshot remains separate.
 
 ## Embodied Manipulation (VLA) release (2026-10-04)
 
@@ -115,7 +141,9 @@ _translations/en/
 │   ├── Reinforcement-Learning-Survey.md
 │   ├── VLA-Survey.md
 │   ├── VLA-Papers.md
-│   └── World-Models-Survey.md
+│   ├── World-Models-Survey.md
+│   ├── Python-Engineering-Survey.md
+│   └── ROS2-Survey.md
 └── blog/
     ├── vln-weekly-2026-08-01.md
     └── ... (eight weekly digests through 2026-09-27)

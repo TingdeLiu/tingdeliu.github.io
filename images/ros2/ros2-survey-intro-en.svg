@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="510" viewBox="0 0 1200 510" role="img" aria-labelledby="title desc">
+<title id="title">ROS 2: cooperating nodes and layered communication</title>
+<desc id="desc">Topics, services, and actions connect robot perception, planning, and control.. Each layer has its own role; nodes exchange data through configured middleware.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="#467481"/></marker></defs>
+<rect width="1200" height="510" rx="20" fill="#f4f8fa"/>
+<g font-family="Arial, sans-serif" fill="#153c55">
+<text x="44" y="61" font-size="30" font-weight="700">ROS 2: cooperating nodes and layered communication</text>
+<text x="44" y="100" font-size="18" fill="#4e6b79">Topics, services, and actions connect robot perception, planning, and control.</text>
+<rect x="44" y="155" width="250" height="217" rx="16" fill="#e5f1f6" stroke="#aec5d1"/>
+<text x="62" y="197" font-size="21" font-weight="700">Robot nodes</text>
+<text x="62" y="241" font-size="17" transform="translate(0,0)">Perception and sensing</text>
+<text x="62" y="241" font-size="17" transform="translate(0,30)">Planning and decisions</text>
+<text x="62" y="241" font-size="17" transform="translate(0,60)">Control and actuation</text>
+<rect x="326" y="155" width="250" height="217" rx="16" fill="#e1f0ef" stroke="#aec5d1"/>
+<text x="344" y="197" font-size="21" font-weight="700">Communication</text>
+<text x="344" y="241" font-size="17" transform="translate(0,0)">Topics: data streams</text>
+<text x="344" y="241" font-size="17" transform="translate(0,30)">Services: request / reply</text>
+<text x="344" y="241" font-size="17" transform="translate(0,60)">Actions: tasks / feedback</text>
+<rect x="608" y="155" width="250" height="217" rx="16" fill="#e7edf8" stroke="#aec5d1"/>
+<text x="626" y="197" font-size="21" font-weight="700">Client and executor</text>
+<text x="626" y="241" font-size="17" transform="translate(0,0)">rclcpp / rclpy / rcl</text>
+<text x="626" y="241" font-size="17" transform="translate(0,30)">Callback scheduling</text>
+<text x="626" y="241" font-size="17" transform="translate(0,60)">Execution and lifecycle</text>
+<rect x="890" y="155" width="250" height="217" rx="16" fill="#fbefd9" stroke="#aec5d1"/>
+<text x="908" y="197" font-size="21" font-weight="700">RMW and middleware</text>
+<text x="908" y="241" font-size="17" transform="translate(0,0)">Implementation interface</text>
+<text x="908" y="241" font-size="17" transform="translate(0,30)">DDS / RTPS or Zenoh</text>
+<text x="908" y="241" font-size="17" transform="translate(0,60)">Discovery and transport</text>
+<text x="44" y="437" font-size="18" fill="#4e6b79">Each layer has its own role; nodes exchange data through configured middleware.</text>
+</g></svg>

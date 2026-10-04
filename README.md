@@ -24,7 +24,7 @@ This is Tingde Liu's personal academic blog and research knowledge base, featuri
 
 The site is intended for researchers, students, and engineers working in embodied AI and robotics, with a basic understanding of machine learning and deep learning.
 
-Chinese is the source edition. The English edition includes the complete VLN Survey, both VLN paper collections, and six published embodied-navigation weekly digests, with an [English home page](https://tingdeliu.github.io/en/), [Research index](https://tingdeliu.github.io/en/research/), and [Blog index](https://tingdeliu.github.io/en/blog/). Translated articles support language switching. Other long-form articles will be translated gradually; untranslated destinations are marked **Chinese only** below. See the [English edition maintenance guide](docs/english-edition.md) for translation and synchronization checks.
+Chinese is the source edition. The English edition includes the complete VLN Survey, both VLN paper collections, and six published embodied-navigation weekly digests, plus the Python Engineering and ROS 2 architecture guides, with an [English home page](https://tingdeliu.github.io/en/), [Research index](https://tingdeliu.github.io/en/research/), and [Blog index](https://tingdeliu.github.io/en/blog/). Translated articles support language switching. Other long-form articles will be translated gradually; untranslated destinations are marked **Chinese only** below. See the [English edition maintenance guide](docs/english-edition.md) for translation and synchronization checks.
 
 The site aims to provide a systematic, continuously updated account of models, datasets, training methods, system architectures, benchmarks, and deployment on real robots. Long-form surveys establish the broader technical context, while shorter posts capture focused analyses and interim observations.
 
@@ -44,7 +44,7 @@ The complete article index is organized by topic. Links use the English edition 
 | **Vision-Language-Action Models** | [VLA Survey](https://tingdeliu.github.io/VLA-Survey/) (Chinese only) | Robot policy learning, action generation, imitation learning, and reinforcement learning |
 | | [VLA Paper Readings](https://tingdeliu.github.io/VLA-Papers/) (Chinese only) | Individual paper analyses, RoboDojo leaderboard links, and comparisons under matching experimental settings |
 | **Robot Navigation Systems** | [Classical Robot Navigation Survey](https://tingdeliu.github.io/Robot-Navigation-Survey/) (Chinese only) | SLAM, localization and mapping, path planning, and motion control |
-| | [Complete ROS 2 Guide](https://tingdeliu.github.io/ROS2-Survey/) (Chinese only) | Communication models, lifecycle nodes, QoS, and real-robot deployment |
+| | [Complete ROS 2 Guide](https://tingdeliu.github.io/en/ROS2-Survey/) | Communication models, lifecycle nodes, QoS, and real-robot deployment |
 | **Multimodal and Spatial Intelligence** | [VLM Survey](https://tingdeliu.github.io/VLM-Survey/) (Chinese only) | An overview of multimodal fusion methods in vision-language models |
 | | [Spatial Intelligence Survey](https://tingdeliu.github.io/Spatial-Intelligence-Survey/) (Chinese only) | 3D scene understanding, point clouds, depth estimation, and Gaussian Splatting |
 | **World Models and Agents** | [World Models Survey](https://tingdeliu.github.io/World-Models-Survey/) (Chinese only) | Environment modeling and prediction, video-generative world models, and embodied applications |
@@ -55,7 +55,7 @@ The complete article index is organized by topic. Links use the English edition 
 | | [Reinforcement Learning Survey](https://tingdeliu.github.io/Reinforcement-Learning-Survey/) (Chinese only) | Algorithms from theoretical foundations to embodied AI applications |
 | | [Deep Learning Survey](https://tingdeliu.github.io/Deep-Learning-Survey/) (Chinese only) | Network architectures, optimization, and training techniques |
 | | [Machine Learning Survey](https://tingdeliu.github.io/Machine-Learning-Survey/) (Chinese only) | Classical models and statistical learning foundations |
-| **Engineering Practice** | [Python Engineering Guide](https://tingdeliu.github.io/Python-Engineering-Survey/) (Chinese only) | Environment and dependency boundaries, src layouts and pyproject, guarantees of uv lockfiles, quality and CI pipelines, CUDA dependency layers, ROS 2 and virtual-environment compatibility, and four levels of experiment reproducibility |
+| **Engineering Practice** | [Python Engineering Guide](https://tingdeliu.github.io/en/Python-Engineering-Survey/) | Environment and dependency boundaries, src layouts and pyproject, guarantees of uv lockfiles, quality and CI pipelines, CUDA dependency layers, ROS 2 and virtual-environment compatibility, and four levels of experiment reproducibility |
 
 ### Technical Blog
 
@@ -91,7 +91,7 @@ New digests appear in the embodied-navigation weekly section of the [Blog page](
 1. Start with the [VLN Survey](https://tingdeliu.github.io/en/VLN-Survey/) for task definitions, datasets, and the evolution of navigation methods.
 2. Read the [VLA Survey](https://tingdeliu.github.io/VLA-Survey/) (Chinese only) for unified modeling of vision, language, and robot actions.
 3. Explore the [Spatial Intelligence Survey](https://tingdeliu.github.io/Spatial-Intelligence-Survey/) and [World Models Survey](https://tingdeliu.github.io/World-Models-Survey/) (both Chinese only) for 3D understanding and environment prediction.
-4. For implementation, move to the engineering sections of the [Complete ROS 2 Guide](https://tingdeliu.github.io/ROS2-Survey/) and [LLM Training Survey](https://tingdeliu.github.io/LLM-Training-Survey/) (both Chinese only).
+4. For implementation, move to the engineering sections of the [ROS 2 Core Architecture Guide](https://tingdeliu.github.io/en/ROS2-Survey/) and [LLM Training Survey](https://tingdeliu.github.io/en/LLM-Training-Survey/).
 5. Follow the [weekly digests](https://tingdeliu.github.io/en/blog/) for ongoing developments and reading priorities.
 
 ## Content Organization

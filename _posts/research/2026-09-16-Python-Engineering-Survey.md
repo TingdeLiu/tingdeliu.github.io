@@ -1,7 +1,9 @@
 ---
 layout: post
+lang: zh-CN
+translation_id: python-engineering-survey
 title: "Python 工程实践指南"
-date: 2026-09-23
+date: 2026-10-04
 tags: [Python, uv, pyproject, Packaging, Ruff, pytest, PyTorch, ROS2, Engineering, Reproducibility]
 categories: research
 comments: true

@@ -24,7 +24,7 @@
 
 内容主要面向具身智能与机器人方向的研究者、学生和工程师，默认读者具备基础的机器学习与深度学习知识。
 
-英文版已提供完整的 VLN 综述、两篇 VLN 论文精读和六期已发布的具身导航周报，以及[英文阅读入口](https://tingdeliu.github.io/en/)、[研究索引](https://tingdeliu.github.io/en/research/)和[博客索引](https://tingdeliu.github.io/en/blog/)，中英文文章可以切换。其他长文将逐步翻译，尚未翻译的链接会标注 Chinese only。翻译与同步检查流程见 [英文版维护说明](docs/english-edition.md)。
+英文版已提供完整的 VLN 综述、两篇 VLN 论文精读和六期已发布的具身导航周报、Python 工程实践指南和 ROS 2 核心架构指南，以及[英文阅读入口](https://tingdeliu.github.io/en/)、[研究索引](https://tingdeliu.github.io/en/research/)和[博客索引](https://tingdeliu.github.io/en/blog/)，中英文文章可以切换。其他长文将逐步翻译，尚未翻译的链接会标注 Chinese only。翻译与同步检查流程见 [英文版维护说明](docs/english-edition.md)。
 
 本站以系统梳理和持续更新为目标：既关注模型与数据的发展脉络，也关注训练方法、系统架构、评测基准和真实机器人部署。长篇综述用于建立完整的技术脉络，短篇文章用于记录阶段性观察与专题分析。
 

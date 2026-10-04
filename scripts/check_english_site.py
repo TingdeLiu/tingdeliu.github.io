@@ -139,7 +139,7 @@ def main():
                 alternates = {n['attrs'].get('hreflang'): n['attrs'].get('href') for n in doc.select('link') if n['attrs'].get('hreflang')}
                 check(alternates == {'en': f'https://tingdeliu.github.io/en/{slug}/', 'zh-CN': f'https://tingdeliu.github.io/{slug}/'}, f'{slug}: incorrect language alternates')
             print(f'{slug}: {len(readings) if not papers_status["stale"] else "stale"} readings; {len(papers.select("table", True))} tables; {len(papers.select("img", True))} figures')
-    for slug in ('AI-Agent-Survey', 'Embodied-Agent-Harness-Survey', 'Embodied-Agent-Papers', 'Machine-Learning-Survey', 'Deep-Learning-Survey', 'Reinforcement-Learning-Survey', 'LLM-Training-Survey', 'VLM-Survey', 'Spatial-Intelligence-Survey', 'VLA-Survey', 'VLA-Papers', 'World-Models-Survey'):
+    for slug in ('AI-Agent-Survey', 'Embodied-Agent-Harness-Survey', 'Embodied-Agent-Papers', 'Machine-Learning-Survey', 'Deep-Learning-Survey', 'Reinforcement-Learning-Survey', 'LLM-Training-Survey', 'VLM-Survey', 'Spatial-Intelligence-Survey', 'VLA-Survey', 'VLA-Papers', 'World-Models-Survey', 'Python-Engineering-Survey', 'ROS2-Survey'):
         target = ROOT / f'_translations/en/research/{slug}.md'
         check(target.exists(), f'{slug}: English article missing')
         if not target.exists():
