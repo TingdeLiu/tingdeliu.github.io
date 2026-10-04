@@ -40,40 +40,45 @@ These three issues are intertwined and together constitute a complete robot navi
 ## 1.2 Navigation Algorithm Stack Overview
 {: id="12-导航算法栈概览"}
 
-A complete robot navigation system, the data starts from the sensor, is processed layer by layer, and finally drives the actuator to move. The following figure shows the overall data flow of the navigation algorithm stack:
+In a complete robot navigation system, sensor data passes through successive processing layers before driving the actuators. The following diagram shows the overall data flow of the navigation algorithm stack:
 
 ```mermaid
-flowchart LR
-    subgraph Sensors["sensor layer"]
-        L["LiDAR\nLiDAR"]
-        C["camera\nCamera"]
+%%{init: {'themeVariables': {'fontSize': '18px'}, 'flowchart': {'nodeSpacing': 24, 'rankSpacing': 32}}}%%
+flowchart TB
+    subgraph Sensors["Sensors"]
+        direction LR
+        L["LiDAR"]
+        C["Camera"]
         I["IMU"]
-        O["odometry \nOdometry"]
+        O["Odometry"]
     end
 
-    subgraph Perception["Perception layer"]
-        PF["Point cloud filtering\nPoint Cloud Filter"]
-        FE["Feature extraction\nFeature Extraction"]
-        SF["sensor fusion\nSensor Fusion"]
+    subgraph Perception["Perception"]
+        direction LR
+        PF["Point Cloud Filtering"]
+        FE["Feature Extraction"]
+        SF["Sensor Fusion"]
     end
 
     subgraph LocalizationMapping["Localization and Mapping"]
-        LOC["Localization\nLocalization\nEKF/PF/NDT"]
-        MAP["Mapping/SLAM\nMapping/SLAM"]
+        direction LR
+        LOC["Localization<br/>EKF / PF / NDT"]
+        MAP["Mapping / SLAM"]
     end
 
-    subgraph Planning["planning level"]
-        GP["Global planning\nGlobal Planner\nA*/RRT*"]
-        LP["local planning\nLocal Planner\nDWA/TEB"]
-        CM["costmap \nCostmap"]
+    subgraph Planning["Planning"]
+        direction LR
+        GP["Global Planner<br/>A* / RRT*"]
+        LP["Local Planner<br/>DWA / TEB"]
+        CM["Costmap"]
     end
 
-    subgraph Control["control layer"]
-        PT["path tracking \nPath Tracking\nPure Pursuit/LQR"]
+    subgraph Control["Control"]
+        PT["Path Tracking<br/>Pure Pursuit / LQR"]
     end
 
-    subgraph Actuator["Execution layer"]
-        ACT["Chassis drive\nChassis Drive"]
+    subgraph Actuator["Actuation"]
+        ACT["Chassis Drive"]
     end
 
     Sensors --> Perception
@@ -86,7 +91,7 @@ flowchart LR
 ```
 
 <div align="center">
-  <img src="/images/robotics_navigation/robot-navigation-survey-intro-en.svg" width="50%" alt="Traditional robot navigation flow chart: mapping and localization (SLAM) based on data collected by sensors, and automatic navigation (planning + control) in the constructed environmental map" />
+  <img src="/images/robotics_navigation/robot-navigation-survey-intro-en.svg" width="100%" style="--paper-figure-width: 100%;" alt="Traditional robot navigation flow chart: mapping and localization (SLAM) based on data collected by sensors, and automatic navigation (planning + control) in the constructed environmental map" />
 <figcaption>Figure: Traditional robot navigation flow chart: mapping and localization (SLAM) based on data collected by sensors, and automatic navigation (planning + control) in the constructed environmental map</figcaption>
 </div>
 
