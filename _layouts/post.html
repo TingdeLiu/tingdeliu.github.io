@@ -3,7 +3,7 @@ layout: default
 ---
 
 {% include locale.html %}
-<article class="posts paper-figures{% if page.vla_survey %} vla-survey{% endif %}{% if page.prose_reading %} prose-reading{% endif %}">
+<article class="posts paper-figures{% if page.vla_survey %} vla-survey{% endif %}{% if page.prose_reading %} prose-reading{% endif %}{% if page.translation_id == 'robot-navigation-survey' %} robot-navigation-survey{% endif %}">
   
   <h1>{{ page.title }}</h1>
   {% include language-switch.html %}

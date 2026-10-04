@@ -139,6 +139,45 @@ def main():
                 alternates = {n['attrs'].get('hreflang'): n['attrs'].get('href') for n in doc.select('link') if n['attrs'].get('hreflang')}
                 check(alternates == {'en': f'https://tingdeliu.github.io/en/{slug}/', 'zh-CN': f'https://tingdeliu.github.io/{slug}/'}, f'{slug}: incorrect language alternates')
             print(f'{slug}: {len(readings) if not papers_status["stale"] else "stale"} readings; {len(papers.select("table", True))} tables; {len(papers.select("img", True))} figures')
+    navigation_path = SITE / 'en/Robot-Navigation-Survey/index.html'
+    if navigation_path.exists():
+        navigation = load(navigation_path)
+        original = load(SITE / 'Robot-Navigation-Survey/index.html')
+        navigation_status = json.loads((ROOT / '_data/translation_status.json').read_text(encoding='utf-8'))['robot-navigation-survey']
+        if not navigation_status['stale']:
+            heading_ids = lambda doc: [n['attrs'].get('id') for n in doc.nodes if n['entry'] and re.fullmatch('h[1-6]', n['tag'])]
+            check(heading_ids(navigation) == heading_ids(original), 'Robot navigation: heading structure/IDs differ')
+            for tag in ('table', 'img', 'video', 'pre'):
+                check(len(navigation.select(tag, True)) == len(original.select(tag, True)), f'Robot navigation: {tag} counts differ')
+            check(external(navigation) == external(original), 'Robot navigation: external citations differ')
+            from check_translation_drafts import features
+            _, _, source_body = read_document(ROOT / '_posts/research/2026-02-27-Robot-Navigation-Survey.md')
+            _, _, english_body = read_document(ROOT / '_translations/en/research/Robot-Navigation-Survey.md')
+            for zh_label, en_label in {
+                r'\text{（障碍物格本身）}': r'\text{ (obstacle cell)}',
+                r'\text{（内切圆内，必碰撞）}': r'\text{ (inside inscribed radius: collision)}',
+                r'\text{（膨胀梯度区）}': r'\text{ (inflation gradient)}',
+                'T_{左}': r'T_{left}', 'T_{右}': r'T_{right}',
+                'T_{上}': r'T_{up}', 'T_{下}': r'T_{down}',
+                r'\text{若 }': r'\text{if }',
+                r'\text{否则（退化为单侧更新）}': r'\text{otherwise (one-sided update)}',
+            }.items():
+                source_body = source_body.replace(zh_label, en_label)
+            before, after = features(source_body), features(english_body)
+            for feature in ('math', 'links', 'table_numbers', 'table_row_widths'):
+                check(before[feature] == after[feature], f'Robot navigation: {feature} differ')
+            videos = lambda doc: [n['attrs'].get('src') for n in doc.select('video', True)]
+            check(videos(navigation) == videos(original), 'Robot navigation: demonstration videos differ')
+        for doc in (navigation, original):
+            switches = [n['attrs']['data-language-switch'] for n in doc.select('a') if 'data-language-switch' in n['attrs']]
+            check(switches == ['index' if navigation_status['stale'] else 'article'], 'Robot navigation: unsafe section switching')
+            alternates = {n['attrs'].get('hreflang'): n['attrs'].get('href') for n in doc.select('link') if n['attrs'].get('hreflang')}
+            check(alternates == {'en': 'https://tingdeliu.github.io/en/Robot-Navigation-Survey/', 'zh-CN': 'https://tingdeliu.github.io/Robot-Navigation-Survey/'}, 'Robot navigation: incorrect language alternates')
+        check(all('alt' in n['attrs'] for n in navigation.select('img', True)), 'Robot navigation: image alternative text missing')
+        check('/en/Robot-Navigation-Survey/' not in (SITE / 'feed.xml').read_text(encoding='utf-8'), 'Robot navigation: translation leaked into Chinese feed')
+        cards = [n['attrs'].get('href') for n in load(SITE / 'en/research/index.html').select('a') if 'rc-card' in n['attrs'].get('class', '').split()]
+        check(cards.count('/en/Robot-Navigation-Survey/') == 1, 'Robot navigation: missing or duplicate Research card')
+        print(f'Robot navigation: {len(navigation.select("table", True))} tables; {len(navigation.select("img", True))} images; {len(navigation.select("video", True))} videos')
     check(('translation-stale' in en.raw) == status['stale'], 'Stale translation notice does not match source status')
     for doc, name in [(en, 'English'), (zh, 'Chinese')]:
         switches = [n['attrs']['data-language-switch'] for n in doc.select('a') if 'data-language-switch' in n['attrs']]

@@ -39,6 +39,7 @@ def section_hashes(path):
                          if not re.match(r'^(lang|translation_id):', line))
     sections = {'metadata': digest(metadata.strip())}
     key, lines, fence, paper = 'introduction', [], None, None
+    ancestors = []
     for line in body.splitlines():
         marker = re.match(r'^\s*(`{3,}|~{3,})', line)
         if marker:
@@ -50,6 +51,9 @@ def section_hashes(path):
         heading = re.match(r'^#{1,6}\s+(.+)', line) if not fence else None
         if heading:
             sections[key] = digest('\n'.join(lines).strip())
+            level = len(line) - len(line.lstrip('#'))
+            ancestors = [(depth, title) for depth, title in ancestors if depth < level]
+            ancestors.append((level, heading[1]))
             if re.match(r'^#\s', line):
                 paper = None
             paper_heading = re.match(r'^##\s+\d+\.\s.*\{#([^}]+)\}', line)
@@ -58,6 +62,11 @@ def section_hashes(path):
             # Repeated labels such as 精华 belong to a specific paper. A paper's
             # stable anchor prevents unrelated additions from renumbering keys.
             key = f'paper:{paper} / {heading[1]}' if paper else heading[1]
+            if key in sections:
+                # General surveys repeat labels such as "Kinematic equations"
+                # under different models. Preserve existing snapshot keys and
+                # scope subsequent occurrences to their enclosing sections.
+                key = 'section:' + ' / '.join(title for _, title in ancestors)
             if key in sections:
                 raise ValueError(f'{path}: duplicate source heading {key}')
             lines = []

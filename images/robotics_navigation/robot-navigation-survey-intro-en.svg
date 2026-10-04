@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title desc">
+  <title id="title">Traditional robot navigation: a feedback loop</title>
+  <desc id="desc">Sensors feed perception and localization. Maps support global and local planning. Tracking and control drive the robot, whose motion produces new sensor observations.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 10 5 0 10" fill="none" stroke="#536a68" stroke-width="1.6"/></marker>
+  </defs>
+  <rect width="1200" height="600" rx="24" fill="#f4f3ed"/>
+  <g font-family="Arial, sans-serif" fill="#263c3a">
+    <text x="60" y="72" font-size="16" letter-spacing="3" fill="#58716c">ROBOTICS / NAVIGATION</text>
+    <text x="60" y="126" font-size="38" font-weight="700">From observations to motion</text>
+    <text x="60" y="163" font-size="19" fill="#536a68">A modular navigation stack, connected by continuous feedback</text>
+    <g stroke="#ced7d2" stroke-width="1.5">
+      <rect x="60" y="230" width="240" height="190" rx="16" fill="#e5ede5"/>
+      <rect x="340" y="230" width="240" height="190" rx="16" fill="#e6ecee"/>
+      <rect x="620" y="230" width="240" height="190" rx="16" fill="#eee6dc"/>
+      <rect x="900" y="230" width="240" height="190" rx="16" fill="#ece6ed"/>
+    </g>
+    <g font-size="17" fill="#536a68"><text x="82" y="263">01 / OBSERVE</text><text x="362" y="263">02 / REPRESENT</text><text x="642" y="263">03 / PLAN</text><text x="922" y="263">04 / EXECUTE</text></g>
+    <g font-size="24" font-weight="700"><text x="82" y="305">Perception</text><text x="362" y="305">Maps and pose</text><text x="642" y="305">Paths</text><text x="922" y="305">Motion</text></g>
+    <g font-size="17" fill="#536a68">
+      <text x="82" y="344">LiDAR · cameras · IMU</text><text x="82" y="375">Filtering and fusion</text>
+      <text x="362" y="344">Localization and SLAM</text><text x="362" y="375">Occupancy and costmaps</text>
+      <text x="642" y="344">Global route planning</text><text x="642" y="375">Local obstacle avoidance</text>
+      <text x="922" y="344">Tracking and control</text><text x="922" y="375">Chassis actuation</text>
+    </g>
+    <text x="460" y="214" text-anchor="middle" font-size="16" fill="#536a68">Where am I?</text>
+    <text x="740" y="214" text-anchor="middle" font-size="16" fill="#536a68">How should I move?</text>
+    <text x="600" y="533" text-anchor="middle" font-size="18" fill="#536a68">Sensor feedback updates the next navigation decision</text>
+    <text x="60" y="574" font-size="14" fill="#73847e">Module boundaries and map representations vary across implementations.</text>
+  </g>
+  <g fill="none" stroke="#536a68" stroke-width="2" marker-end="url(#arrow)">
+    <path d="M302 326h30"/><path d="M582 326h30"/><path d="M862 326h30"/>
+    <path d="M1020 426v65H180v-59"/>
+  </g>
+</svg>

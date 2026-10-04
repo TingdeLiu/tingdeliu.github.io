@@ -12,6 +12,10 @@ The English collection starts with a complete **Vision-Language Navigation surve
 
 [Read the VLN survey →]({{ '/en/VLN-Survey/' | relative_url }})
 
+The **Traditional Robot Navigation Algorithms survey** covers perception, localization, SLAM, planning, path tracking, motion control, and ROS navigation stack integration.
+
+[Read the traditional navigation survey →]({{ '/en/Robot-Navigation-Survey/' | relative_url }})
+
 [Explore the English research collection]({{ '/en/research/' | relative_url }}) for available surveys and paper readings.
 
 [Read the embodied-navigation weekly digests]({{ '/en/blog/' | relative_url }}) for research highlights, evidence, limitations, and suggested next steps.

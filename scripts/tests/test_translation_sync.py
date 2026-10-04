@@ -45,6 +45,15 @@ class TranslationSyncTests(unittest.TestCase):
         inserted = self.snapshot(body.replace('## 1.', '## 0. New {#new}\n### 精华\nNew\n## 1.'))
         self.assertEqual(compare_sections(inserted, before)['changed'], [])
 
+    def test_repeated_survey_labels_track_their_enclosing_section(self):
+        body = '# Models\n## Differential\n### Equations\nOne\n## Ackermann\n### Equations\nTwo\n'
+        before = self.snapshot(body)
+        after = self.snapshot(body.replace('Two', 'Changed'))
+        self.assertEqual(compare_sections(after, before)['changed'],
+                         ['section:Models / Ackermann / Equations'])
+        inserted = self.snapshot(body.replace('## Ackermann', '## Extra\nText\n## Ackermann'))
+        self.assertEqual(compare_sections(inserted, before)['changed'], [])
+
 
 if __name__ == '__main__':
     unittest.main()

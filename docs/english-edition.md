@@ -5,7 +5,8 @@ Following (55 readings), and VLN Papers: Goal Navigation and Extensions
 (34 main readings and 3 related readings, 37 total), and all eight existing
 embodied-navigation weekly digests (six published and two unpublished), plus `/en/`, `/en/research/`, and
 `/en/blog/`. Both paper collections have localized filters, leaderboards,
-and reciprocal English companion links. Other surveys remain Chinese-only.
+and reciprocal English companion links. The Traditional Robot Navigation
+Algorithms survey also has a complete English edition. Other surveys remain Chinese-only.
 
 ## Content contract
 
@@ -29,7 +30,8 @@ _translations/en/
 ├── research/
 │   ├── VLN-Survey.md
 │   ├── VLN-Papers.md
-│   └── VLN-Papers-Extended.md
+│   ├── VLN-Papers-Extended.md
+│   └── Robot-Navigation-Survey.md
 └── blog/
     ├── vln-weekly-2026-08-01.md
     └── ... (eight weekly digests through 2026-09-27)
@@ -160,6 +162,39 @@ section-preserving language switching, English cross-page search results, and
 the research card were checked. No page, formula, diagram, or horizontal
 overflow errors occurred. The Jekyll build, synchronized-source checks, post
 linter, published-site validator, and 11 regression tests pass.
+
+### Traditional robot navigation
+
+`_translations/en/research/Robot-Navigation-Survey.md` translates all 12 main
+sections, from perception and localization through mapping, planning, tracking,
+kinematics, motion control, and ROS stack integration. Its 164 heading IDs match
+the Chinese edition, preserving section links and language switching. It retains
+62 tables, 46 images, and 33 demonstration videos. Table values, external
+citations, and mathematical expressions are checked against the source; only
+explicit descriptive TeX labels and direction subscripts are normalized.
+
+Public prose used translation assistance followed by terminology, markup,
+numerical, and targeted technical review. This translates the source's claims
+and does not independently reverify every algorithm comparison or ROS default.
+The English edition has a new SVG navigation overview and 13 localized vector
+diagrams, plus English captions and alternative text. Existing raster figures
+and demonstration videos are retained; embedded text in those original media
+may remain Chinese. Source synchronization is recorded in
+`translations/robot-navigation-survey.en.json`.
+
+The source tracker supports repeated survey subheadings by scoping subsequent
+occurrences to their enclosing section hierarchy. Existing snapshot keys and
+paper-anchor behavior are retained.
+
+Verified on 2026-10-04: Jekyll build, built-site validation (13 English pages,
+zero errors), post lint (zero errors), and all 12 regression tests pass.
+At 1440×1000, all 18 Mermaid diagrams and 407 MathJax expressions render without
+errors. Contents navigation, reciprocal section-preserving language switching,
+and the English Research card pass. The 390×844 layout has no horizontal page
+overflow; long equations scroll within their own containers. The new article's
+source snapshot is synchronized. The unrelated VLN Papers snapshot currently
+needs updates, so the repository-wide strict synchronization command remains
+nonzero until that collection is reviewed.
 
 ### Future drafts
 
