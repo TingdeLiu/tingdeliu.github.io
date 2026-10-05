@@ -2,8 +2,8 @@
   "source": "_posts/research/2026-01-05-VLN-Papers.md",
   "translation": "_translations/en/research/VLN-Papers.md",
   "stage": "complete",
-  "updated_on": "2026-10-03",
-  "total_papers": 55,
+  "updated_on": "2026-10-05",
+  "total_papers": 56,
   "completed_papers": {
     "r2r": {
       "source_hash": "5df534b80c984ad9599046180a2fa4ac74915a79f7b6e1865cfd62c694c236f8",
@@ -98,7 +98,7 @@
       "status": "translated-and-content-parity-validated"
     },
     "awarevln": {
-      "source_hash": "59f1b0901168bacd8747605569dfd0c52620c219d197e02238d42a74fbd98027",
+      "source_hash": "3d21792371e9ae1e2486bb25af166e06abf1fc5c7ce46d4f2f11b8d4d9c02610",
       "status": "translated-and-content-parity-validated"
     },
     "dual-anchoring": {
@@ -142,7 +142,7 @@
       "status": "translated-and-content-parity-validated"
     },
     "robostral-navigate": {
-      "source_hash": "4ecfa94c75a0d0568a917e24b2af3e2f6803e2d4b474396789333410ec682e0e",
+      "source_hash": "a2c9b40162d129ee15554bc4676e71f515c58c084b197f3490e39cce8a1f0bc7",
       "status": "translated-and-content-parity-validated"
     },
     "abot-n1": {
@@ -224,6 +224,10 @@
     "adageovln": {
       "source_hash": "92d230cfb2b9b5f613054cd017658426aba310773d26b3b10ce7558001cb050c",
       "status": "translated-and-content-parity-validated"
+    },
+    "seekvln": {
+      "source_hash": "b09c9a35c709a27abde0bac32cf45e46e26f0b2dc4fb157495b6bf0dcb4f0280",
+      "status": "translated-and-content-parity-validated"
     }
   },
   "next_batch": [],
@@ -233,18 +237,35 @@
     "Original formulas, numerical results, citations, figures, code, and heading IDs protected during translation.",
     "Diagram labels translated separately; paper filters localized, extended-collection links explicitly labeled Chinese-only.",
     "DualVLN illustrative training code corrected against Appendix A.2; real-world RGB-D and odometry distinguished from RGB-only simulation.",
-    "MapNav R2R OS/SR headers corrected against arXiv v5 Table 1."
+    "MapNav R2R OS/SR headers corrected against arXiv v5 Table 1.",
+    "2026-10-05: SeekVLN synchronized in the English main collection, including all methods, equations, examples, results, limitations, four figure captions, two leaderboard rows, 23-entry component matrix, adoption-rate analysis, reference, tags, and cross-page filtering. Earlier AwareVLN and Robostral source revisions reviewed against the English text; NaVid equation formatting restored to source parity."
   ],
+  "previous_validation": {
+    "reviewed_on": "2026-10-03",
+    "results": {
+      "papers": 55,
+      "headings": 524,
+      "tables": 52,
+      "figures": 233,
+      "code_blocks": 23,
+      "rendered_math": 1243,
+      "mermaid_diagrams": 19,
+      "desktop_viewport": "1440x1000",
+      "browser_errors": 0,
+      "review": "Assisted translation with terminology, numerical, negation, structure, and targeted technical review; not a new verification of every underlying paper."
+    }
+  },
   "validation": {
-    "papers": 55,
-    "headings": 524,
-    "tables": 52,
-    "figures": 233,
-    "code_blocks": 23,
-    "rendered_math": 1243,
-    "mermaid_diagrams": 19,
-    "desktop_viewport": "1440x1000",
-    "browser_errors": 0,
-    "review": "Assisted translation with terminology, numerical, negation, structure, and targeted technical review; not a new verification of every underlying paper."
+    "reviewed_on": "2026-10-05",
+    "papers": 56,
+    "source_sync": "passed: repository-wide strict synchronization check",
+    "source_content_parity": "passed: all paper sections; equations, image paths, external citations, table values and columns",
+    "heading_structure": "passed: heading counts, unique explicit IDs, and new IDs matched to source",
+    "english_prose": "passed: no Chinese text outside compatibility IDs",
+    "cross_page_papers": 93,
+    "post_lint": "0 errors; 4 image-size warnings",
+    "regression_tests": 20,
+    "jekyll_build": "not run: Ruby and Bundler unavailable in this environment",
+    "browser_validation": "not run for this update; prior evidence retained separately"
   }
 }

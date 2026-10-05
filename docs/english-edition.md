@@ -1,7 +1,7 @@
 # English edition: scope and maintenance
 
 The English edition contains the complete VLN Survey, VLN Papers: Instruction
-Following (55 readings), and VLN Papers: Goal Navigation and Extensions
+Following (56 readings), and VLN Papers: Goal Navigation and Extensions
 (34 main readings and 3 related readings, 37 total), and all eight existing
 embodied-navigation weekly digests (six published and two unpublished), plus `/en/`, `/en/research/`, and
 `/en/blog/`. Both paper collections have localized filters, leaderboards,
@@ -213,9 +213,26 @@ rendered source-link and heading-ID checks (19 matching headings each) and are
 absent from the production output. All 16 source/translation weekly files pass
 the post linter, and the 11 existing regression tests pass.
 
+### SeekVLN synchronization (2026-10-05)
+
+The instruction-following collection now includes SeekVLN as reading 56. Its
+complete methods, equations, examples, experimental results, limitations,
+Mermaid diagram, and four figure captions are translated. Both English
+leaderboards, the 23-entry component matrix, adoption-rate analysis, references,
+tags, and reciprocal cross-page search are synchronized with the Chinese
+editions. The two collections contain 93 readings in total.
+
+Earlier AwareVLN and Robostral source revisions were reviewed against the
+English text. NaVid's two input/output expressions now retain the source's math
+format instead of a text code block. The latest source-parity checks cover all
+56 main and 37 extended readings, including equations, image paths, external
+citations, table values, and table columns. Prior build and browser evidence is
+retained with its original review date in the progress records; this update has
+not been rebuilt locally because Ruby and Bundler are unavailable.
+
 ### VLN Papers completion and draft workflow
 
-`_translations/en/research/VLN-Papers.md` contains the complete 55-paper
+`_translations/en/research/VLN-Papers.md` contains the complete 56-paper
 instruction-following collection, including leaderboards, the component matrix,
 analysis, references, captions, and interactive controls. The four earlier
 reviewed readings were retained. Remaining prose used machine assistance,
@@ -268,7 +285,7 @@ editions; paper content and reported experimental values were retained.
 `translations/vln-papers-extended.en.json` records source synchronization, and
 `translations/vln-papers-extended.en.progress.json` records completion and the
 review process. The published-site validator checks both paper collections.
-Main/extended filters search 92 papers in total and link directly to the
+Main/extended filters search 93 papers in total and link directly to the
 corresponding English collection. Research cards and Survey companion links
 also resolve to the English extension.
 

@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-papers-extended
 title: "VLN 论文精读：目标导航与扩展篇"
-date:   2026-09-29
+date:   2026-10-05
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -4953,6 +4953,7 @@ $$\mathcal L(\theta) = -\mathbb E\left[ \sum_{\ell=1}^{H} \log \pi_\theta\left( 
     { n: '53. MacroAction-VLN (2026)', a: 'macroaction-vln', t: ['拓扑图', '强化学习', '连续环境'] },
     { n: '54. HumanoidVLN (2026)', a: 'humanoidvln', t: ['数据集', '强化学习', '实机部署', '高斯表示'] },
     { n: '55. AdaGeoVLN (2026)', a: 'adageovln', t: ['端到端', '连续环境', '实机部署', '加速优化'] },
+    { n: '56. SeekVLN (2026)', a: 'seekvln', t: ['CoT', '强化学习', '连续环境', '实机部署'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',

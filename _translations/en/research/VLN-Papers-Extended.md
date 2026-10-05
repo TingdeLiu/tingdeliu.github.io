@@ -5,10 +5,10 @@ translation_id: vln-papers-extended
 permalink: /en/VLN-Papers-Extended/
 source_path: _posts/research/2026-01-06-VLN-Papers-Extended.md
 source_url: /VLN-Papers-Extended/
-source_revision_date: 2026-10-04
-translation_updated: 2026-10-04
+source_revision_date: 2026-10-05
+translation_updated: 2026-10-05
 title: "VLN Papers: Goal Navigation and Extensions"
-date: 2026-09-29
+date: 2026-10-05
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
@@ -5413,6 +5413,7 @@ It only does 2D plane planning and assumes that the camera height is constant; t
     { n: '53. MacroAction-VLN (2026)', a: 'macroaction-vln', t: ['Topological maps', 'Reinforcement learning', 'Continuous environments'] },
     { n: '54. HumanoidVLN (2026)', a: 'humanoidvln', t: ['Datasets', 'Reinforcement learning', 'Real-robot deployment', 'Gaussian representations'] },
     { n: '55. AdaGeoVLN (2026)', a: 'adageovln', t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Inference optimization'] },
+    { n: '56. SeekVLN (2026)', a: 'seekvln', t: ['CoT', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment'] },
   ];
 
   var ALL_TAGS = ['Dual systems', 'End-to-end', 'Agentic', 'CoT', 'Diffusion models', 'Topological maps', 'SLAM', 'Gaussian representations',

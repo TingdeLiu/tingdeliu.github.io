@@ -1,10 +1,10 @@
 {
   "source": "_posts/research/2026-01-06-VLN-Papers-Extended.md",
   "translation": "_translations/en/research/VLN-Papers-Extended.md",
-  "reviewed_on": "2026-10-04",
-  "source_revision_date": "2026-10-04",
+  "reviewed_on": "2026-10-05",
+  "source_revision_date": "2026-10-05",
   "sections": {
-    "metadata": "b358eebee9d297648811ee946738ebc16f460f105fbd414dbc59863b018208c0",
+    "metadata": "cd0d6701c03ce468ca940d160589d6aacd65a64d7c7510ede4d2ee4bd8b68478",
     "introduction": "bf8559d483ec886369b50cc19865c8a67445ba4e7fe04d35fbae22631fa8c797",
     "目标导航性能排行榜 {#goal-nav-leaderboard}": "d296e1eecb528be40426b45e9b01415f513834d055d4d59cd27c55155d8c38dd",
     "④ 封闭类别物体目标 · ObjectNav（HM3D · MP3D · Gibson）": "9694f26518bebc49140cfeef997dea60e1d686bbeac652964c0b7f8a6b6e992d",
@@ -283,6 +283,6 @@
     "paper:vnt-pa / 3. 核心结果/发现": "f4b4c805c52d3361e15b3eaaee74a4a9463964a622bf3ceeb13b44c1322ed32c",
     "paper:vnt-pa / 4. 局限性": "edc812a9afb14d5d0b716fdeefff77f808d6051f14e34bb725abaa2a98253b8c",
     "参考资料": "9b02b96398a0ecec9519f4402648095347400e58028bcf57f57e2194eee8f5e6",
-    "论文引用": "84030a6a199b8c48e717a1e2cad46c4e98df82853c61ac4a784611bc31e2959b"
+    "论文引用": "29466e716cafdff375fc9c8514ab20eb6cb863d1c193061efe6692a707107e64"
   }
 }

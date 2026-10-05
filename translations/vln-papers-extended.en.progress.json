@@ -2,7 +2,7 @@
   "source": "_posts/research/2026-01-06-VLN-Papers-Extended.md",
   "translation": "_translations/en/research/VLN-Papers-Extended.md",
   "stage": "complete",
-  "updated_on": "2026-10-04",
+  "updated_on": "2026-10-05",
   "total_papers": 37,
   "main_readings": 34,
   "related_readings": 3,
@@ -162,32 +162,49 @@
     "All 37 readings, five leaderboard groups, references, 134 figures, and 17 diagrams translated. This is not independent re-verification of every underlying paper.",
     "Descriptive TeX predicates and units translated using explicit normalization; mathematical expressions and reward values preserved.",
     "Two malformed figure wrappers restored in Chinese and English.",
-    "English cross-page links, filter labels, related-reading labels, and research cards updated."
+    "English cross-page links, filter labels, related-reading labels, and research cards updated.",
+    "2026-10-05: SeekVLN added to the English cross-page filter; source and translation revision dates synchronized. All 37 existing readings retained and reviewed for protected-content parity."
   ],
+  "previous_validation": {
+    "reviewed_on": "2026-10-04",
+    "results": {
+      "jekyll_build": "passed",
+      "source_sync": "passed",
+      "published_site": "passed",
+      "post_lint": "0 errors; existing 384KB image warning",
+      "regression_tests": 11,
+      "desktop_viewport": "1440x1000",
+      "headings": 273,
+      "tables": 37,
+      "figures": 134,
+      "leaderboard_groups": 5,
+      "leaderboard_rows": 53,
+      "mathjax_expressions": 762,
+      "mermaid_diagrams": 17,
+      "page_errors": [],
+      "interactions": [
+        "AND paper filtering",
+        "leaderboard paradigm and open-source filters",
+        "hide nonstandard rows",
+        "contents navigation",
+        "image enlargement",
+        "section-preserving language switching",
+        "English companion search links",
+        "research card"
+      ]
+    }
+  },
   "validation": {
-    "jekyll_build": "passed",
-    "source_sync": "passed",
-    "published_site": "passed",
-    "post_lint": "0 errors; existing 384KB image warning",
-    "regression_tests": 11,
-    "desktop_viewport": "1440x1000",
-    "headings": 273,
-    "tables": 37,
-    "figures": 134,
-    "leaderboard_groups": 5,
-    "leaderboard_rows": 53,
-    "mathjax_expressions": 762,
-    "mermaid_diagrams": 17,
-    "page_errors": [],
-    "interactions": [
-      "AND paper filtering",
-      "leaderboard paradigm and open-source filters",
-      "hide nonstandard rows",
-      "contents navigation",
-      "image enlargement",
-      "section-preserving language switching",
-      "English companion search links",
-      "research card"
-    ]
+    "reviewed_on": "2026-10-05",
+    "papers": 37,
+    "source_sync": "passed: repository-wide strict synchronization check",
+    "source_content_parity": "passed: all paper sections; equations, image paths, external citations, table values and columns",
+    "heading_structure": "passed: heading counts, unique explicit IDs, and new IDs matched to source",
+    "english_prose": "passed: no Chinese text outside compatibility IDs",
+    "cross_page_papers": 93,
+    "post_lint": "0 errors; 4 image-size warnings",
+    "regression_tests": 20,
+    "jekyll_build": "not run: Ruby and Bundler unavailable in this environment",
+    "browser_validation": "not run for this update; prior evidence retained separately"
   }
 }
