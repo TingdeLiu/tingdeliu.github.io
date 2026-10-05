@@ -144,15 +144,13 @@ exclude:
   - LICENSE
   - LICENSE-CONTENT
   - README.md
-  - README_CN.md
-  - CONTRIBUTING.md
-  - SECURITY.md
-  - MAINTAINERS.md
+  - AGENTS.md
   - CNAME
   - tmp
+  - .cache
+  - paper_summary
   - new_paper
   - docs
   - scripts
-  - translations
   - _site-drafts
 

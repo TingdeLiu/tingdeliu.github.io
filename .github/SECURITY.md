@@ -15,7 +15,7 @@ Google Analytics 统计和跳转到 GitHub Issues 的反馈链接。
 | --- | --- |
 | **构建供应链** | `.github/workflows/deploy.yml` 中的 GitHub Actions、`Gemfile` 中的 Ruby 依赖 |
 | **第三方 CDN** | 页面从 `cdn.jsdelivr.net` 加载 MathJax 3、Mermaid 10、Gitalk，从 `events.vercount.one` 加载访客统计脚本（CDN 被投毒或劫持会导致任意脚本执行；统计脚本是无版本号的固定地址，因此无法加 SRI 校验） |
-| **前端注入** | `_layouts/`、`_includes/`、`js/` 中处理文章内容的逻辑，若存在未转义的 HTML 注入点 |
+| **前端注入** | `_layouts/`、`_includes/`、`assets/js/` 中处理文章内容的逻辑，若存在未转义的 HTML 注入点 |
 | **仓库与部署配置** | Actions 权限范围、Pages 部署配置、分支保护 |
 
 如果你发现的问题落在上述范围内，非常欢迎报告。
@@ -79,7 +79,7 @@ Google Analytics 统计和跳转到 GitHub Issues 的反馈链接。
 - 你主张权利的依据
 
 维护者会在核实后**及时移除或补充授权说明**。相关政策见
-[LICENSE-CONTENT](LICENSE-CONTENT) 第 4 节。
+[LICENSE-CONTENT](../LICENSE-CONTENT) 第 4 节。
 
 ---
 

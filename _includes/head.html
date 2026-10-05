@@ -3,7 +3,7 @@
 
   <!-- OpenGraph 是一种由 Facebook 推出的协议，用于在社交媒体上更好地展示网页内容。（在meta.html中定义） -->
   {% include meta.html %}
-  <script src="{{ '/js/language-switch.js' | relative_url }}" defer></script>
+  <script src="{{ '/assets/js/language-switch.js' | relative_url }}" defer></script>
 
   {% include fonts.html %}
 
@@ -13,8 +13,8 @@
 
   <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/style.css" />
   {% if page.vla_survey %}
-  <link rel="stylesheet" href="{{ site.baseurl }}/css/vla-survey.css" />
-  <script src="{{ site.baseurl }}/js/vla-survey.js" defer></script>
+  <link rel="stylesheet" href="{{ site.baseurl }}/assets/css/vla-survey.css" />
+  <script src="{{ site.baseurl }}/assets/js/vla-survey.js" defer></script>
   {% endif %}
   {% unless page_lang == 'en' %}<link rel="alternate" type="application/rss+xml" title="{{ site.name }} - {{ site.description }}" href="{{ site.baseurl }}/feed.xml" />{% endunless %}
   <!-- 下面为网页的略缩图 -->

@@ -188,7 +188,7 @@ def main():
     parser.add_argument('--strict', action='store_true', help='Fail when reviewed source sections change')
     args = parser.parse_args()
     errors, stale = [], False
-    for path in sorted((ROOT / 'translations').glob('*.en.progress.json')):
+    for path in sorted((ROOT / 'docs/translations').glob('*.en.progress.json')):
         progress = json.loads(path.read_text(encoding='utf-8'))
         target = within_root(progress['translation'])
         source = within_root(progress['source'])

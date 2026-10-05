@@ -9199,4 +9199,4 @@ The following table organizes papers with publication information tagged by conf
 })();
 </script>
 
-<script src="/js/leaderboard.js"></script>
+<script src="/assets/js/leaderboard.js"></script>

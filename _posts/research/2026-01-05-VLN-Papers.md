@@ -8215,4 +8215,4 @@ FRG 依赖启发式观察配额与 VLM 标注，C2PO 依赖可克隆状态的模
 })();
 </script>
 
-<script src="/js/leaderboard.js"></script>
+<script src="/assets/js/leaderboard.js"></script>

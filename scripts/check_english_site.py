@@ -262,8 +262,16 @@ def main():
         print(f'Blog: {len(weekly_targets)} complete weekly digest translations')
     zh_research = load(SITE / 'research/index.html')
     check(not any('/en/VLN-Survey/' == n['attrs'].get('href') for n in zh_research.select('a')), 'Translation duplicated in Chinese research cards')
-    for directory in ('translations', 'docs', 'scripts', 'tmp', '_site-drafts'):
+    for route in ('about', 'archive', 'blog', 'home', 'research', 'tags',
+                  'en', 'en/blog', 'en/research'):
+        check((SITE / route / 'index.html').is_file(), f'Entry page missing: /{route}/')
+    for asset in ('style.css', 'assets/css/vla-survey.css',
+                  'assets/js/article-ui.js', 'assets/js/language-switch.js',
+                  'assets/js/leaderboard.js', 'assets/js/vla-survey.js'):
+        check((SITE / asset).is_file(), f'Frontend asset missing: /{asset}')
+    for directory in ('docs', 'scripts', '.cache', 'tmp', 'paper_summary', 'pages', '_site-drafts'):
         check(not (SITE / directory).exists(), f'Internal directory published: {directory}')
+    check(not (SITE / 'AGENTS.md').exists(), 'Local agent instructions published')
     for error in errors:
         print('ERROR:', error)
     print(f'{len(english_files)} English pages; {len(en_headings)} English headings; '

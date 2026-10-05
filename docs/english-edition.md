@@ -29,7 +29,7 @@ source claims and version qualifications; they do not independently update
 software release status or revalidate every technical recommendation. Source
 pairing metadata and the Python article date were updated on 2026-10-04;
 source technical content was retained. Synchronization snapshots are
-`translations/python-engineering-survey.en.json` and `ros2-survey.en.json`.
+`docs/translations/python-engineering-survey.en.json` and `ros2-survey.en.json`.
 
 Validation passed for all 135 heading IDs, 40 tables, 50 Mermaid diagrams, and
 11 rendered formulas. Both pages have no untranslated visible prose, formula
@@ -56,7 +56,7 @@ structural, numerical, and targeted editorial review. These translations retain
 the source claims and qualifications; they do not independently update the
 papers or live leaderboards. Source revision dates are 2026-10-02 for VLA Survey
 and 2026-10-04 for the other two articles. All translation dates are 2026-10-04.
-Synchronization records are `translations/vla-survey.en.json`,
+Synchronization records are `docs/translations/vla-survey.en.json`,
 `vla-papers.en.json`, and `world-models-survey.en.json`. The validator uses
 `normalize_vla_labels` to account for reviewed English descriptions within an
 otherwise unchanged equation and for equivalent numerical date/unit labels.
@@ -93,7 +93,7 @@ links use `content-link.html` to select available English editions.
 
 Source revision dates are 2026-10-04 for LLM Training and Spatial Intelligence,
 and 2026-10-02 for VLM. Translation dates are 2026-10-04. Synchronization records
-live in `translations/llm-training-survey.en.json`, `vlm-survey.en.json`, and
+live in `docs/translations/llm-training-survey.en.json`, `vlm-survey.en.json`, and
 `spatial-intelligence-survey.en.json`. `normalize_large_model_labels` in the
 translation validator lists the reviewed English descriptions inside equations;
 the mathematical expressions remain identical. The English release validator
@@ -154,12 +154,12 @@ and weekly digests belong in `blog/`. Digests retain `categories: weekly`.
 Set `categories` to match the content type
 and declare an explicit `/en/.../` permalink so moving files does not change URLs.
 When moving an existing translation, update its `translation` path in the
-snapshot under `translations/`; preserve the reviewed source hashes and dates.
+snapshot under `docs/translations/`; preserve the reviewed source hashes and dates.
 
 English articles render through the shared post layout.
 They do not become extra Chinese posts, feed entries, or tag/archive
 results. English entry pages live in `en/`. UI strings live in `_data/ui.yml`;
-JavaScript interaction labels are in `js/article-ui.js`.
+JavaScript interaction labels are in `assets/js/article-ui.js`.
 
 The English Research index shows article cards without an extra reading-path,
 companion-link, or author section. Its sidebar contains Project, Research, Blog,
@@ -199,7 +199,7 @@ GPT-6-Astra paper reading. The two early source drafts (2026-08-01 and
 Public source prose used machine translation assistance followed by terminology,
 conclusion, limitation, numerical, and Markdown review. Links and numeric values
 were protected during translation. Each issue has a synchronization snapshot
-under `translations/vln-weekly-*.en.json`; the shared site validator checks the
+under `docs/translations/vln-weekly-*.en.json`; the shared site validator checks the
 complete issue set, heading IDs, source links, numerical values, language pairs,
 card order, and exclusion from Chinese feeds and Research cards. Technical essays
 remain untranslated and are not shown as English articles.
@@ -240,8 +240,8 @@ followed by terminology, negation, numerical, markup, and targeted technical
 review. This is a translation of the source article, not a new independent
 verification of every underlying paper.
 
-`translations/vln-papers.en.progress.json` records completion and validation.
-`translations/vln-papers.en.json` is the authoritative synchronization snapshot.
+`docs/translations/vln-papers.en.progress.json` records completion and validation.
+`docs/translations/vln-papers.en.json` is the authoritative synchronization snapshot.
 Repeated section labels are scoped by each paper's stable anchor so additions
 elsewhere do not renumber their keys. Source checks cover per-paper equations,
 figures, external citations, and table values; the opening leaderboards and
@@ -282,8 +282,8 @@ values and predicates. Raw table column counts supplement numerical checks.
 Two malformed figure wrappers in the Chinese source were repaired in both
 editions; paper content and reported experimental values were retained.
 
-`translations/vln-papers-extended.en.json` records source synchronization, and
-`translations/vln-papers-extended.en.progress.json` records completion and the
+`docs/translations/vln-papers-extended.en.json` records source synchronization, and
+`docs/translations/vln-papers-extended.en.progress.json` records completion and the
 review process. The published-site validator checks both paper collections.
 Main/extended filters search 93 papers in total and link directly to the
 corresponding English collection. Research cards and Survey companion links
@@ -315,7 +315,7 @@ The English edition has a new SVG navigation overview and 13 localized vector
 diagrams, plus English captions and alternative text. Existing raster figures
 and demonstration videos are retained; embedded text in those original media
 may remain Chinese. Source synchronization is recorded in
-`translations/robot-navigation-survey.en.json`.
+`docs/translations/robot-navigation-survey.en.json`.
 
 The source tracker supports repeated survey subheadings by scoping subsequent
 occurrences to their enclosing section hierarchy. Existing snapshot keys and
@@ -352,9 +352,9 @@ than independently re-verifying every historical or current claim.
 
 Translation updates are dated 2026-10-04. The ML source revision before pairing is
 2026-10-02; the DL and RL revisions are 2026-10-04. The authoritative snapshots
-are `translations/machine-learning-survey.en.json`,
-`translations/deep-learning-survey.en.json`, and
-`translations/reinforcement-learning-survey.en.json`.
+are `docs/translations/machine-learning-survey.en.json`,
+`docs/translations/deep-learning-survey.en.json`, and
+`docs/translations/reinforcement-learning-survey.en.json`.
 
 Verified on 2026-10-04: the Jekyll build and built-site validator pass with 19
 English pages and zero errors. Browser checks at 1440×1000 and 390×844 show all
@@ -385,9 +385,9 @@ product release, benchmark, or library version.
 
 Source revisions are 2026-10-02 for the two surveys and 2026-10-04 for the
 paper collection; translation updates are dated 2026-10-04. Synchronization
-snapshots are stored under `translations/ai-agent-survey.en.json`,
-`translations/embodied-agent-harness-survey.en.json`, and
-`translations/embodied-agent-papers.en.json`. The release validator checks
+snapshots are stored under `docs/translations/ai-agent-survey.en.json`,
+`docs/translations/embodied-agent-harness-survey.en.json`, and
+`docs/translations/embodied-agent-papers.en.json`. The release validator checks
 heading IDs, table dimensions and values, equations, external citations,
 Research cards, language pairs, and exclusion from the Chinese feed.
 
@@ -443,7 +443,7 @@ metadata, pair its Chinese source, and record its synchronized source snapshot.
 4. Update `source_revision_date` and `translation_updated` in the English file.
 5. After reviewing, run
    `python scripts/check_translations.py --record vln-survey --date YYYY-MM-DD`.
-   Commit the resulting `translations/vln-survey.en.json` with the translation.
+   Commit the resulting `docs/translations/vln-survey.en.json` with the translation.
    Recording accepts the current source as reviewed; it does not translate it.
 6. Run the checks below and inspect desktop rendering; mobile is a secondary check.
 

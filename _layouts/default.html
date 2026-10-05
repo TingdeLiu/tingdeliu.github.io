@@ -75,7 +75,7 @@
       <figcaption></figcaption>
     </figure>
   </dialog>
-  <script src="{{ site.baseurl }}/js/article-ui.js" defer></script>
+  <script src="{{ site.baseurl }}/assets/js/article-ui.js" defer></script>
   {% endif %}
 
   <!-- 标签自动着色：对标签名哈希映射到调色板，同名标签颜色全站一致 -->
@@ -115,7 +115,7 @@
   <!-- Mermaid 图表：仅在页面含 mermaid 代码块时才加载库；图表在靠近视口（约两屏）时才渲染。
        原因：进页面时一次性渲染几十张图会把主线程占住几秒（AI-Agent 页 50 张约 3 秒）。
        库在页面载入后立即后台下载，所以滚到图时不用等下载；一次只渲染一张并让出主线程。
-       占位框样式见 style.scss 的 .mermaid-pending。 -->
+       占位框样式见 assets/css/style.scss 的 .mermaid-pending。 -->
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var blocks = document.querySelectorAll('code.language-mermaid');

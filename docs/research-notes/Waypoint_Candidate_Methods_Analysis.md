@@ -2,7 +2,7 @@
 
 > **整理/合并**: Antigravity  
 > **日期**: 2026-07-28  
-> **文档位置**: [Waypoint_Candidate_Methods_Analysis.md](file:///C:/Github/Tingde.Liu.github.io/analysis/Waypoint_Candidate_Methods_Analysis.md)  
+> **文档位置**: [Waypoint_Candidate_Methods_Analysis.md](Waypoint_Candidate_Methods_Analysis.md)<br>
 > **合并说明**: 本文档系合并 `Waypoint_Candidate_Methods_Analysis.md` 与 `waypoint_candidate_report.md` 后的全量统计报告，以多维度对比表格为核心，全面覆盖经典及 2026 年最新 21 项代表性工作。
 
 ---

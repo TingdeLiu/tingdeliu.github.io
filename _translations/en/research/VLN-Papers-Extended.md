@@ -5664,4 +5664,4 @@ It only does 2D plane planning and assumes that the camera height is constant; t
 })();
 </script>
 
-<script src="/js/leaderboard.js"></script>
+<script src="/assets/js/leaderboard.js"></script>

@@ -41,7 +41,7 @@
 - 采纳的修改会直接提交，并在 Issue 中附上对应 commit 链接
 - 不采纳的会说明理由，而不是直接关闭
 
-历史处理记录见 [MAINTAINERS.md](MAINTAINERS.md)。
+历史处理记录见 [MAINTAINERS.md](../docs/maintainers.md)。
 
 ---
 
@@ -86,7 +86,7 @@ _posts/weekly-reports/  # 具身导航周报         →  categories: weekly
 > 不要提交你没有权利提交的图片。如果图片取自论文，请在 PR 描述中写明出处论文和
 > 该论文的许可条款（arXiv 页面左下角会标注）。本仓库以学术评述和教学为目的引用
 > 论文插图，这些图片的著作权属于原作者，**不在本站 CC BY 4.0 授权范围内**，
-> 详见 [LICENSE-CONTENT](LICENSE-CONTENT) 第 4 节。
+> 详见 [LICENSE-CONTENT](../LICENSE-CONTENT) 第 4 节。
 
 #### 写法约定
 
@@ -109,7 +109,7 @@ _posts/weekly-reports/  # 具身导航周报         →  categories: weekly
 
 ## 三、代码修改
 
-站点代码（`_layouts/` `_includes/` `_sass/` `js/` `.github/workflows/`）采用
+站点代码（`_layouts/` `_includes/` `_sass/` `assets/js/` `.github/workflows/`）采用
 MIT License，欢迎改进。
 
 ### 本地运行
@@ -176,8 +176,8 @@ scope 用方向名（`vln` / `vla` / `research` / `weekly`）或留空。
 
 提交贡献即表示你同意：
 
-- 对**代码**的贡献以 [MIT License](LICENSE) 授权
-- 对**原创文字内容**的贡献以 [CC BY 4.0](LICENSE-CONTENT) 授权
+- 对**代码**的贡献以 [MIT License](../LICENSE) 授权
+- 对**原创文字内容**的贡献以 [CC BY 4.0](../LICENSE-CONTENT) 授权
 - 你有权提交这些内容，且未侵犯第三方著作权
 
 ---

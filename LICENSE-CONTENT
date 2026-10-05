@@ -10,10 +10,10 @@ Copyright (c) 2026 Tingde Liu
 
   - `_posts/` 下全部文章正文（研究综述、论文精读、技术博客、具身导航周报）
   - 文章中由作者绘制的 Mermaid 图表、表格、公式推导与结构化整理
-  - `README.md`、`CONTRIBUTING.md`、`SECURITY.md`、`MAINTAINERS.md` 等仓库文档
+  - `README.md`、`.github/CONTRIBUTING.md`、`.github/SECURITY.md`、`docs/maintainers.md` 等仓库文档
 
 本仓库的**代码**（Jekyll 布局、样式、脚本、CI 配置等）不适用本许可证，改为适用
-根目录 `LICENSE` 中的 MIT License。代码与内容的分界见 README 的「许可与使用」一节。
+根目录 `LICENSE` 中的 MIT License。代码与内容的分界见 `docs/README.zh-CN.md` 的「许可与使用」一节。
 
 This license covers ONLY the original prose written by Tingde Liu, as listed
 above. Source code in this repository is licensed separately under the MIT
@@ -93,7 +93,7 @@ IMPORTANT EXCEPTION: THIRD-PARTY FIGURES AND QUOTED MATERIAL
 转载而传递给你**。
 
 作者已尽力在正文中标注每张图片的出处论文。若你是某张图片的权利人，认为本站的
-使用超出了合理引用范围，请通过 `SECURITY.md` 或 README 中的联系方式与作者联系，
+使用超出了合理引用范围，请通过 `.github/SECURITY.md` 或 README 中的联系方式与作者联系，
 作者将在核实后及时移除或补充授权说明。
 
 --------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ under, or the publisher's reprint policy). The fair-use / quotation basis on
 which this site includes them does NOT transfer to you.
 
 If you hold rights in a figure used here and believe the use exceeds fair
-quotation, please contact the author (see `SECURITY.md` / `README.md`); it will
+quotation, please contact the author (see `.github/SECURITY.md` / `README.md`); it will
 be removed or properly attributed promptly upon verification.
 
 ================================================================================

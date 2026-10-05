@@ -86,7 +86,7 @@
 3. **是否值得单独成节** —— 重要工作做深度精读，增量改进并入已有小节
 4. **无论采纳与否都要答复** —— 不静默关闭
 
-代码类 PR 的判断标准见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+代码类 PR 的判断标准见 [CONTRIBUTING.md](../.github/CONTRIBUTING.md)。
 
 ---
 
@@ -96,7 +96,7 @@
 | --- | --- |
 | 内容 Issue（错误 / 推荐 / 建议） | 3 个工作日内 |
 | Pull Request | 5 个工作日内 |
-| 安全报告（见 [SECURITY.md](SECURITY.md)） | 3 个工作日内确认，7 个工作日内给出评估 |
+| 安全报告（见 [SECURITY.md](../.github/SECURITY.md)） | 3 个工作日内确认，7 个工作日内给出评估 |
 | 著作权下架请求 | 3 个工作日内确认，核实后立即处理 |
 
 这些是个人维护者的目标，不是 SLA。历史记录（上表）显示实际响应在 1–3 天区间。
@@ -111,7 +111,7 @@
 - 推送 `main` 后由 GitHub Actions 自动构建并部署到 GitHub Pages
 - 线上版本始终对应 `main` 的最新提交，不存在需要单独维护的发布分支
 - 需要引用某个确定时刻的内容时，请直接引用对应的 commit 链接，而不是可变的页面 URL
-- 安全问题请始终针对 `main` 的当前状态报告，见 [SECURITY.md](SECURITY.md)
+- 安全问题请始终针对 `main` 的当前状态报告，见 [SECURITY.md](../.github/SECURITY.md)
 
 ---
 
@@ -122,7 +122,7 @@
 缓解措施：
 
 - 全部内容以纯 Markdown 保存在 Git 中，无私有格式、无外部数据库依赖
-- 代码采用 [MIT License](LICENSE)，原创内容采用 [CC BY 4.0](LICENSE-CONTENT)，
+- 代码采用 [MIT License](../LICENSE)，原创内容采用 [CC BY 4.0](../LICENSE-CONTENT)，
   任何人都可以在遵守署名要求的前提下 fork 并继续维护
 - 构建流程完全基于开源 Jekyll 与 GitHub Actions，无自建基础设施
 

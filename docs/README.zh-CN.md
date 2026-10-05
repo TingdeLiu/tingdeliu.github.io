@@ -2,7 +2,7 @@
 
 # Tingde Liu · Research Notes
 
-[English](README.md) | **简体中文**
+[English](../README.md) | **简体中文**
 
 **具身智能、视觉语言导航与机器人学习的中文研究笔记**
 
@@ -11,8 +11,8 @@
 [![Jekyll](https://img.shields.io/badge/Jekyll-4.3-CC0000?style=flat-square&logo=jekyll&logoColor=white)](https://jekyllrb.com/)
 
 [![Stars](https://img.shields.io/github/stars/TingdeLiu/tingdeliu.github.io?style=flat-square&logo=github&color=F5A623)](https://github.com/TingdeLiu/tingdeliu.github.io/stargazers)
-[![Code License: MIT](https://img.shields.io/badge/Code-MIT-3DA639?style=flat-square)](LICENSE)
-[![Content License: CC BY 4.0](https://img.shields.io/badge/Content-CC%20BY%204.0-EF9421?style=flat-square)](LICENSE-CONTENT)
+[![Code License: MIT](https://img.shields.io/badge/Code-MIT-3DA639?style=flat-square)](../LICENSE)
+[![Content License: CC BY 4.0](https://img.shields.io/badge/Content-CC%20BY%204.0-EF9421?style=flat-square)](../LICENSE-CONTENT)
 
 [访问网站](https://tingdeliu.github.io/) · [研究综述](https://tingdeliu.github.io/research/) · [技术博客](https://tingdeliu.github.io/blog/) · [开源项目](https://tingdeliu.github.io/home/) · [关于作者](https://tingdeliu.github.io/about/)
 
@@ -24,13 +24,13 @@
 
 内容主要面向具身智能与机器人方向的研究者、学生和工程师，默认读者具备基础的机器学习与深度学习知识。
 
-英文版已提供完整的 VLN 综述、两篇 VLN 论文精读和六期已发布的具身导航周报、Python 工程实践指南和 ROS 2 核心架构指南，以及[英文阅读入口](https://tingdeliu.github.io/en/)、[研究索引](https://tingdeliu.github.io/en/research/)和[博客索引](https://tingdeliu.github.io/en/blog/)，中英文文章可以切换。其他长文将逐步翻译，尚未翻译的链接会标注 Chinese only。翻译与同步检查流程见 [英文版维护说明](docs/english-edition.md)。
+英文版已提供完整的 VLN 综述、两篇 VLN 论文精读和六期已发布的具身导航周报、Python 工程实践指南和 ROS 2 核心架构指南，以及[英文阅读入口](https://tingdeliu.github.io/en/)、[研究索引](https://tingdeliu.github.io/en/research/)和[博客索引](https://tingdeliu.github.io/en/blog/)，中英文文章可以切换。其他长文将逐步翻译，尚未翻译的链接会标注 Chinese only。翻译与同步检查流程见 [英文版维护说明](english-edition.md)。
 
 本站以系统梳理和持续更新为目标：既关注模型与数据的发展脉络，也关注训练方法、系统架构、评测基准和真实机器人部署。长篇综述用于建立完整的技术脉络，短篇文章用于记录阶段性观察与专题分析。
 
 截至 **2026-10-03**，收录 **18 篇研究综述与论文精读**、**7 篇技术博客**、**6 期已发布的具身导航周报**与 **1000 余个图片文件**。已发布中文文章源文件合计约 **5.6 万行 Markdown**，英文译文另计，仍在持续维护。
 
-项目由 [@TingdeLiu](https://github.com/TingdeLiu) 创建，自 2026-01-04 起持续更新。2026-09-16 的维护记录收录了 **5 条社区反馈，均已处理关闭**，完整记录见 [MAINTAINERS.md](MAINTAINERS.md)。
+项目由 [@TingdeLiu](https://github.com/TingdeLiu) 创建，自 2026-01-04 起持续更新。2026-09-16 的维护记录收录了 **5 条社区反馈，均已处理关闭**，完整记录见 [MAINTAINERS.md](maintainers.md)。
 
 ## 研究方向
 
@@ -96,26 +96,28 @@
 
 ```text
 .
-├── _posts/
-│   ├── research/          # 长篇综述与论文精读（categories: research）
-│   ├── blog/              # 专题解析与工程文章（categories: blog）
-│   └── weekly-reports/    # 具身导航周报（categories: weekly）
-├── images/                # 按研究主题分目录：vln / vla / vlm / wm / si / agent / llm-training ...
-├── Analysis/              # 专题技术分析报告（VLN 技术分析、Waypoint 候选方法）
-├── paper_summary/         # 论文摘要草稿，供正文引用（本地目录，未纳入版本控制）
-├── _layouts/              # 页面布局：default / post / page
-├── _includes/             # 导航、目录、反馈、页脚等页面组件
-├── _sass/                 # 主题样式模块
-├── js/                    # 文章交互脚本
-├── home/ · research/ · blog/   # Project / Research / Blog 聚合页
-├── tags/ · archive/       # 标签检索页与历史归档页
-├── .github/workflows/     # GitHub Actions 部署流水线
-├── _config.yml            # 站点、导航与插件配置
-├── LICENSE                # 站点代码许可（MIT）
-├── LICENSE-CONTENT        # 原创内容许可（CC BY 4.0）+ 第三方图片例外声明
-├── CONTRIBUTING.md        # 反馈与贡献流程、写作约定
-├── SECURITY.md            # 安全报告渠道与著作权下架请求
-└── MAINTAINERS.md         # 维护者说明与社区反馈处理记录
+├── _posts/               # 中文研究文章、博客与周报
+├── _translations/        # 英文文章集合
+├── pages/                # 网站入口页，含 pages/en/；使用固定 permalink
+├── assets/               # css/ 样式与 js/ 交互脚本
+├── images/               # 按研究主题归档的文章配图
+├── _layouts/             # 页面布局：default / post / page
+├── _includes/            # 导航、目录、反馈和页脚等共享组件
+├── _sass/                # Sass 模块；入口为 assets/css/style.scss
+├── _data/                # UI 文案、研究分组与翻译状态
+├── docs/                 # 项目介绍、维护指南与记录
+│   ├── research-notes/   # 方法分析、事实核验与配图审计
+│   └── translations/     # 翻译同步快照与进度记录
+├── scripts/              # 内容校验脚本与回归检查
+├── .github/              # 部署流程、贡献指南与安全政策
+├── paper_summary/        # 本地论文摘要草稿，不纳入 Git
+├── .cache/               # 临时工作文件，不纳入 Git
+├── _config.yml           # 站点与构建配置
+├── index.html            # Jekyll 分页入口
+├── Gemfile · Gemfile.lock # Ruby 依赖
+├── README.md             # 精简项目入口与文档导航
+├── LICENSE               # 站点代码许可（MIT）
+└── LICENSE-CONTENT       # 原创内容许可（CC BY 4.0）
 ```
 
 文章使用 Jekyll 内置的 `posts` 集合，永久链接为 `/:title/`。`categories` 取 `research` / `blog` / `weekly` 三值，是聚合页分区的唯一依据，`_posts/` 下的子目录仅用于维护源文件。
@@ -178,7 +180,7 @@ ruby -S bundle exec jekyll build
 
 ### 内容维护约定
 
-新增或修改文章前，请先阅读 [CONTRIBUTING.md](CONTRIBUTING.md)，其中记录了 front matter 字段、图片归档目录、Mermaid 与公式写法等约定。其中一条硬性规则：**修改 `_posts/` 下任何已有文章后，必须把 front matter 的 `date:` 更新为当天日期**，以保证列表按最近更新排序。
+新增或修改文章前，请先阅读 [CONTRIBUTING.md](../.github/CONTRIBUTING.md)，其中记录了 front matter 字段、图片归档目录、Mermaid 与公式写法等约定。其中一条硬性规则：**修改 `_posts/` 下任何已有文章后，必须把 front matter 的 `date:` 更新为当天日期**，以保证列表按最近更新排序。
 
 ## 内容反馈
 
@@ -187,9 +189,9 @@ ruby -S bundle exec jekyll build
 - [提交 Issue](https://github.com/TingdeLiu/tingdeliu.github.io/issues/new)
 - 使用文章末尾的反馈入口提交错误报告、论文推荐或修改建议
 
-提交反馈时请尽量附上原始论文、官方文档或可复现资料，方便核验与更新。详细的提交格式与处理流程见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+提交反馈时请尽量附上原始论文、官方文档或可复现资料，方便核验与更新。详细的提交格式与处理流程见 [CONTRIBUTING.md](../.github/CONTRIBUTING.md)。
 
-维护者以 **3 个工作日内**首次回复为目标，无论是否采纳都会说明理由。2026-09-16 的维护记录列出的 5 条外部反馈均已处理关闭，逐条记录见 [MAINTAINERS.md](MAINTAINERS.md#社区反馈处理记录)。
+维护者以 **3 个工作日内**首次回复为目标，无论是否采纳都会说明理由。2026-09-16 的维护记录列出的 5 条外部反馈均已处理关闭，逐条记录见 [MAINTAINERS.md](maintainers.md#社区反馈处理记录)。
 
 ## 许可与使用
 
@@ -197,17 +199,17 @@ ruby -S bundle exec jekyll build
 
 | 部分 | 许可证 | 覆盖范围 |
 | --- | --- | --- |
-| **代码** | [MIT License](LICENSE) | `_layouts/` · `_includes/` · `_sass/` · `js/` · `style.scss` · `_config.yml` · `.github/workflows/` 等站点实现 |
-| **原创内容** | [CC BY 4.0](LICENSE-CONTENT) | `_posts/` 下全部文章正文、作者绘制的 Mermaid 图表与表格，以及仓库文档 |
+| **代码** | [MIT License](../LICENSE) | `_layouts/` · `_includes/` · `_sass/` · `assets/js/` · `assets/css/style.scss` · `_config.yml` · `.github/workflows/` 等站点实现 |
+| **原创内容** | [CC BY 4.0](../LICENSE-CONTENT) | `_posts/` 下全部文章正文、作者绘制的 Mermaid 图表与表格，以及仓库文档 |
 | **第三方论文图片** | ⚠️ **不在授权范围内** | `images/` 下取自论文、项目主页与官方文档的插图 |
 
 ### ⚠️ 关于第三方论文图片
 
 `images/` 下的绝大多数图片是从学术论文中引用的插图（架构图、实验结果图等），**著作权归原论文作者及出版方所有**。本站基于学术评述与教学目的引用，**不拥有这些图片的著作权，因此无权以 CC BY 4.0 或任何其他条款转授权**。
 
-如需复用某张论文配图，请直接向原作者或出版方获取授权，或遵循该论文自身的许可条款（arXiv 页面会标注）。本站的合理引用基础**不会随转载传递给你**。详细说明见 [LICENSE-CONTENT](LICENSE-CONTENT) 第 4 节。
+如需复用某张论文配图，请直接向原作者或出版方获取授权，或遵循该论文自身的许可条款（arXiv 页面会标注）。本站的合理引用基础**不会随转载传递给你**。详细说明见 [LICENSE-CONTENT](../LICENSE-CONTENT) 第 4 节。
 
-若你是某张图片的权利人并认为使用超出合理引用范围，请按 [SECURITY.md](SECURITY.md) 中的著作权联系方式告知，核实后会及时移除或补充授权说明。
+若你是某张图片的权利人并认为使用超出合理引用范围，请按 [SECURITY.md](../.github/SECURITY.md) 中的著作权联系方式告知，核实后会及时移除或补充授权说明。
 
 ### 引用本站
 
@@ -225,9 +227,9 @@ ruby -S bundle exec jekyll build
 
 | 文档 | 内容 |
 | --- | --- |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | 如何提交内容反馈与 PR、写作与图片约定、本地构建自查清单 |
-| [MAINTAINERS.md](MAINTAINERS.md) | 维护者身份与职责、完整的社区反馈处理记录、响应承诺、发布节奏 |
-| [SECURITY.md](SECURITY.md) | 安全问题的私密报告渠道、真实攻击面说明、著作权下架请求 |
+| [CONTRIBUTING.md](../.github/CONTRIBUTING.md) | 如何提交内容反馈与 PR、写作与图片约定、本地构建自查清单 |
+| [MAINTAINERS.md](maintainers.md) | 维护者身份与职责、完整的社区反馈处理记录、响应承诺、发布节奏 |
+| [SECURITY.md](../.github/SECURITY.md) | 安全问题的私密报告渠道、真实攻击面说明、著作权下架请求 |
 
 站点采用持续部署：推送 `main` 后由 GitHub Actions 构建并发布，线上版本始终对应 `main` 的最新提交。内容按需更新，不做版本化发布；需要引用某个确定时刻的版本时，可直接引用对应的 commit 链接。
 

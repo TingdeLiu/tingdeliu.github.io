@@ -118,7 +118,7 @@ def main():
         if source_fields.get('translation_id') != identity:
             raise ValueError(f'{target}: source translation_id does not match')
         current = section_hashes(source)
-        record_path = within_root(f'translations/{identity}.en.json')
+        record_path = within_root(f'docs/translations/{identity}.en.json')
         if args.record == identity:
             if fields.get('translation_updated') != args.date:
                 raise ValueError('Set translation_updated in the translated document to --date first')

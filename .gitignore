@@ -33,6 +33,8 @@ vendor/
 *.log
 
 # 临时文件
+.cache/
+tmp/
 本地部署.txt
 使用说明.txt
 
@@ -43,9 +45,7 @@ aboutme.md
 standard.md
 fix_format.py
 
-new_paper/
 paper_summary/
-tmp/
 
 # 字幕提取产物
 *_subtitles_whisper.txt
