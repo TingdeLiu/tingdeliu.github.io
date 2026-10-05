@@ -1,5 +1,7 @@
 ---
 layout: post
+lang: zh-CN
+translation_id: vln-weekly-2026-10-05
 title: "具身导航周报（2026-09-25 ~ 2026-10-02）"
 date:   2026-10-05
 permalink: /vln-weekly-2026-10-05/
@@ -12,6 +14,7 @@ excerpt: "本期新增 242 篇独立工作，自动主池 81 篇。EdgeVLN 在�
 ---
 
 ## 一、本期结论
+{: id="key-conclusions"}
 
 - **本期最值得复现的是“可解释的执行改进”，而非单一最高成功率。** [PACE](https://arxiv.org/abs/2609.32292v2) 把楼梯、门口等过渡区域的语义意图转成可通行姿态；[SeekVLN](https://arxiv.org/abs/2609.37353v1) 在证据不足时主动观察；[EdgeVLN](https://arxiv.org/abs/2609.35570v1) 同时测完整连续导航基准和板端资源。本报告判断：这三条路线分别对应“知道往哪走却过不去”“尚未看清却继续走”和“仿真能跑却上不了板”的不同瓶颈，应分开诊断。
 - **R2R-CE 结果继续增加，但信息条件与评测范围差异明显。** 本期 242 篇独立工作中，8 篇命中 R2R-CE 字段；另有 EdgeVLN 明确使用“R2R VLN-CE”，合计 9 项涉及该连续环境基准，其中 8 项提供 SR/SPL 绝对值或提升声明，1 项仅说明评测基准。EdgeVLN 在完整 val-unseen 1,839 个 episode 上报告 SR 58.02%；[InsightMap](https://arxiv.org/abs/2609.37187v1) 在 R2R-CE/RxR-CE val-unseen 报告 56.9%/54.9%；[AVERT-VLN](https://arxiv.org/abs/2609.39579v1) 的 76.2%/66.3% 包含人工纠错。PACE 只评估跨楼层子集。[PanoVLN](https://arxiv.org/abs/2609.34759v1) 与 SeekVLN 的提升在摘要中以百分号表述，尚不能确定是相对增幅还是百分点。本报告判断：这些数字不足以排成统一排行榜。
@@ -22,6 +25,7 @@ excerpt: "本期新增 242 篇独立工作，自动主池 81 篇。EdgeVLN 在�
 本期新增入库 242 条，对应 242 篇独立 arXiv 工作；公众号新增 0 条。自动主池为导航 48 篇、具身 Agent 33 篇，合计 81 篇；次池为 VLA·操作 133 篇、自动驾驶 8 篇、其他 20 篇，合计 161 篇。自动主池仍含代码检索、损失景观和电脑操作等边界条目，本报告将其降为低相关记录，不作为地面导航证据。覆盖日期为本次新增工作实际发布日期；最新条目为 10 月 2 日。
 
 ## 二、优先阅读清单
+{: id="priority-reading"}
 
 1. **[EdgeVLN](https://arxiv.org/abs/2609.35570v1)** · 连续 R2R-CE 与板端部署
    - 贡献：联合优化量化、运行时、记忆裁剪和停止判定。
@@ -57,8 +61,10 @@ excerpt: "本期新增 242 篇独立工作，自动主池 81 篇。EdgeVLN 在�
    - 理由：具身 Agent 方向的直接导航证据；需核验整体任务完成与子任务完成的差距。
 
 ## 三、重点工作分析
+{: id="key-work-analysis"}
 
 ### 1. EdgeVLN：量化收益必须连同执行路径与停止判定一起测
+{: id="edgevln"}
 
 **问题。** 模型压小后仍可能因内存搬运、不断增长的历史和停止错误无法部署。
 
@@ -73,6 +79,7 @@ excerpt: "本期新增 242 篇独立工作，自动主池 81 篇。EdgeVLN 在�
 **建议。** 复现四位执行路径与停止头，统一记录 SR、SPL、停止误判、内存、每步延迟及能耗。
 
 ### 2. SeekVLN：主动观察需要证明能改善后续动作
+{: id="seekvln"}
 
 **问题。** 机器人可能在未见转弯地标时仍自信前进，把错误进度判断带入后续决策。
 
@@ -87,6 +94,7 @@ excerpt: "本期新增 242 篇独立工作，自动主池 81 篇。EdgeVLN 在�
 **建议。** 在同一策略上对照固定观察、置信度触发观察和反事实训练，计入转头、停顿及总耗时。
 
 ### 3. PACE：规划正确之后，局部执行仍需要空间接地
+{: id="pace"}
 
 **问题。** 到达楼梯或门口并不等于能够通过，高层语义目标缺少可执行的姿态和路径条件。
 
@@ -101,6 +109,7 @@ excerpt: "本期新增 242 篇独立工作，自动主池 81 篇。EdgeVLN 在�
 **建议。** 单独复现过渡区域，并区分目标定位、通过失败及偏离后恢复；保留纯几何执行对照。
 
 ### 4. AVERT-VLN：监控器的价值不能由人工辅助 SR 单独证明
+{: id="avert-vln"}
 
 **问题。** 偏离路线后，控制器可能继续错误执行；持续人工监督又难以扩展。
 
@@ -115,6 +124,7 @@ excerpt: "本期新增 242 篇独立工作，自动主池 81 篇。EdgeVLN 在�
 **建议。** 固定人工分钟数或纠错次数，对照随机求助、策略置信度和独立监控；报告误报、漏报与恢复成功率。
 
 ### 5. 终身导航 NavHarness：子任务成功与整轮成功应分开看
+{: id="lifelong-navharness"}
 
 **问题。** 跨任务复用会遇到地图不完整、旧记录与新观察冲突，以及失败后重新启动丢失状态。
 
@@ -129,6 +139,7 @@ excerpt: "本期新增 242 篇独立工作，自动主池 81 篇。EdgeVLN 在�
 **建议。** 与 MemTransfer 的换起点、阻断路线和无关历史扰动结合，检查收益来自可迁移知识还是重复目标的记录积累。
 
 ## 四、可迁移方法
+{: id="transferable-methods"}
 
 - **进度判断：[ProgressCompass](https://arxiv.org/abs/2609.36684v1)**。
   - 来源：操作任务 ContextProgress-Bench，24 个任务、120 个 episode；作者报告补入正确上下文后，同五个进度模型的误差降低 77–82%。
@@ -148,10 +159,12 @@ excerpt: "本期新增 242 篇独立工作，自动主池 81 篇。EdgeVLN 在�
   - 本报告判断：适合诊断凭常识猜对的回答；其问答成绩不能直接代表闭环导航成功。
 
 ## 五、分类速览
+{: id="classified-overview"}
 
 A 表示直接地面语言/语义导航，B 表示迁移机制明确但任务不同，C 表示低相关观察。以下覆盖全部 242 篇独立工作；自动分池数量与研究相关度不是同一概念。主池中的边界条目已按实际任务放入低相关方向，次池按主题合并索引。
 
 ### 5.1 地面 VLN / ObjectNav / 语言与语义导航
+{: id="ground-navigation"}
 
 - **[PACE](https://arxiv.org/abs/2609.32292v2)**（A）：跨楼层可通行姿态执行；见重点分析。
 - **[FINE](https://arxiv.org/abs/2609.32855v1)**（A）：以未来地标的语义、几何与反事实表征改善示范利用率。
@@ -177,6 +190,7 @@ A 表示直接地面语言/语义导航，B 表示迁移机制明确但任务不
 - **[GeoScaffold](https://arxiv.org/abs/2610.02697v1)**（A）：训练时重建深度、连通性和可通行性，部署时移除几何监督组件；摘要没有明确基准数值。
 
 ### 5.2 记忆、地图、规划、社会导航与评测
+{: id="memory-maps-and-evaluation"}
 
 - **[TRACKGRAPH](https://arxiv.org/abs/2609.31005v1)**（B）：在图像流中跟踪短期 mask 身份，再融合进开放词汇 3D 场景图。
 - **[VideoSocNav](https://arxiv.org/abs/2609.37476v2)**（A）：从网络行走视频重建策略状态空间中的可通行地图和行人运动，减少照片级仿真依赖。
@@ -213,6 +227,7 @@ A 表示直接地面语言/语义导航，B 表示迁移机制明确但任务不
 - **导航与空间感知（B/C），7 项**：[InfraVLA](https://arxiv.org/abs/2609.33647v1)、[TUDF Scene Completion](https://arxiv.org/abs/2609.36543v1)、[S4VY](https://arxiv.org/abs/2609.36875v1)、[PERSEPHONE Spatial Perception](https://arxiv.org/abs/2609.37419v1)、[WayFinder](https://arxiv.org/abs/2609.37922v1)、[GroundingPI](https://arxiv.org/abs/2609.39601v1)、[PAGER](https://arxiv.org/abs/2610.01589v1)。
 
 ### 5.3 具身 Agent、VLA 与移动操作
+{: id="embodied-agents-and-manipulation"}
 
 主池中的 Agent 与操作相关工作：
 
@@ -245,6 +260,7 @@ A 表示直接地面语言/语义导航，B 表示迁移机制明确但任务不
 - **人形、双臂、移动操作与协作（C），11 项**：[Fiatlux](https://arxiv.org/abs/2609.38216v1)、[TAO-DA](https://arxiv.org/abs/2609.33197v1)、[Humanoid Loco-Manipulation With Discrete VLA Model](https://arxiv.org/abs/2609.35709v1)、[Uni-VLaT](https://arxiv.org/abs/2609.35450v2)、[Cooperative Multi-Agent VLA](https://arxiv.org/abs/2609.36588v1)、[EgoAlign](https://arxiv.org/abs/2609.38046v3)、[EgoHumanoid-V2](https://arxiv.org/abs/2609.37181v1)、[FineART](https://arxiv.org/abs/2609.36416v2)、[IronMind](https://arxiv.org/abs/2609.39403v1)、[Whole-Body Human Pretraining](https://arxiv.org/abs/2610.00438v1)、[DuoMind](https://arxiv.org/abs/2610.02161v1)。
 
 ### 5.4 无人机、自动驾驶与其他低相关方向
+{: id="other-directions"}
 
 - **[SatNav](https://arxiv.org/abs/2609.31507v1)**（C）：卫星图像构造城市级无人机 VLN，非地面视角评测。
 - **[SemNav：Code Repository](https://arxiv.org/abs/2609.31176v1)**（C）：代码仓库问题定位中的“导航”，不属于具身导航。
@@ -271,12 +287,15 @@ A 表示直接地面语言/语义导航，B 表示迁移机制明确但任务不
 - **形态、群体及医疗机器人（C），3 项**：[Bridging Body and Brain](https://arxiv.org/abs/2609.31329v1)、[Fish Schools](https://arxiv.org/abs/2609.35554v1)、[Endovascular BCI Navigation](https://arxiv.org/abs/2610.03537v1)。
 
 ### 5.5 资讯与非论文
+{: id="news"}
 
 - 本期未新增公众号文章或独立非论文资讯；Docker 未运行，手动公众号链接清单为空。
 
 ## 六、趋势判断与行动建议
+{: id="trends-and-actions"}
 
 ### 趋势
+{: id="trends"}
 
 - **训练监督与推理预算开始分开优化。** FINE 从未来地标提取监督，GeoScaffold 在训练时内化几何，EdgeVLN 在部署时测运行路径，NavJev 将每步生成改为结构化动作选择。本报告判断：需要同时报告训练新增资源和实际闭环成本。
 - **记忆从记录轨迹转向带条件的决策证据。** MemTransfer 揭示起点与路径变化的影响，ECROM 校准观测机会，EvolvingNav 推进时变信念，终身导航 NavHarness 检查旧记录与新观察。本报告判断：后续评测应覆盖记忆失效与纠正，不能只测重复任务。
@@ -284,12 +303,14 @@ A 表示直接地面语言/语义导航，B 表示迁移机制明确但任务不
 - **较大的具身模型成绩仍受执行与评测条件约束。** 本期 Astra 跨域评测的 RxR/HM3D 结果未在摘要中给完整 split 或 CE 口径，运动控制示例又暂停物理仿真等待推理；Embodied Agent Arena 与 VCN-Bench 也区分局部判断和最终任务完成。本报告判断：精准估计、正确目标定位和完整行动成功应分别检验。
 
 ### 研究空白
+{: id="research-gaps"}
 
 - **共同预算下，观察、全景和人工帮助各值多少？** PanoVLN 扩大视野，SeekVLN 增加取证，AVERT-VLN 引入人工纠错；缺少同一路线、相同感知/推理/人工成本下的对照。
 - **地图或记忆出错时，系统能否自己发现并修复？** 主动纠正旧经验的代价、误纠正风险和最坏任务损失，尚未从摘要中的平均成绩得到解释。
 - **板端延迟如何改变动态环境中的结果？** 需把监控、停止判定、取证和低层安全控制都纳入真实时钟，避免只在暂停仿真的条件下验证推理能力。
 
 ### 建议动作
+{: id="recommended-actions"}
 
 **高优先级**
 

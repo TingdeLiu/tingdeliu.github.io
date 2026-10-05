@@ -1,0 +1,29 @@
+{
+  "source": "_posts/weekly-reports/2026-10-05-VLN-Weekly.md",
+  "translation": "_translations/en/blog/vln-weekly-2026-10-05.md",
+  "reviewed_on": "2026-10-05",
+  "source_revision_date": "2026-10-05",
+  "sections": {
+    "metadata": "c86a16ef05f145804b7fbbcfd2c9de6ab3e53242112e6fa83ad34cc6b0e4de41",
+    "introduction": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "一、本期结论": "f0d3a78b316fc27ccaf93e5d8e481ee75c0cb35bfeaf6998e2388f9210437877",
+    "二、优先阅读清单": "8b0badd23d53a660d94bc8896ed49ff04daf699028844a3b32805639bee6d2e7",
+    "三、重点工作分析": "404bd5fc8765974ff5bc6fdd649dc55e1402f4807b6168ab57b781d6fe546d91",
+    "1. EdgeVLN：量化收益必须连同执行路径与停止判定一起测": "17a89a1fbca883d5ef90cf6dca23e5a16e73a0828cf089a490322512b6173283",
+    "2. SeekVLN：主动观察需要证明能改善后续动作": "dad653e5f0677cef1970c5b1e4287635a7033f1e8f169cf07f603dc89e28f93e",
+    "3. PACE：规划正确之后，局部执行仍需要空间接地": "1fd4cad9f8c51f15d41bb0a4c091f1b300ec4d21de6b2d83bdfabfcee84e46c9",
+    "4. AVERT-VLN：监控器的价值不能由人工辅助 SR 单独证明": "7f45ca736cae1460870234011f0e2735cdc6ec57f03d24e89b0480ea6cc2bb5e",
+    "5. 终身导航 NavHarness：子任务成功与整轮成功应分开看": "1a14d2cccc02a0995c8c56b8a0fa8d670e6cbefcfba10e24a969f43676c9a04a",
+    "四、可迁移方法": "85ff89b37407e878789282b2a9b77c58faece2c36f33b5f47ab5a5ce1d4c94a4",
+    "五、分类速览": "62bd5f092c7e14d59515f47a47c4a825f6d6a8341695246263ece383f61d2159",
+    "5.1 地面 VLN / ObjectNav / 语言与语义导航": "4e6bb0f0ed81946c30f29ed7beeed356e5ff1b25b1fb4dc2d70c502e0ee8f34a",
+    "5.2 记忆、地图、规划、社会导航与评测": "5ca3f084b4353ba6f745dea2d0f586439eeac135cb189e90ec26d0ceac6b832c",
+    "5.3 具身 Agent、VLA 与移动操作": "8e9a6d51f5ce985354bc68a98332698f738214aa5126dc83d8b7dfaebf142b92",
+    "5.4 无人机、自动驾驶与其他低相关方向": "e5925dd4ae228158f4648f0533933748b6a9c08a8ea0c08a3fa890deb9338a69",
+    "5.5 资讯与非论文": "2a1fd8f4a54e4e23ef4509c1c924f82872ea49ccf4a31e76515ed41f9d65a61e",
+    "六、趋势判断与行动建议": "f433f62d1aac525636d05c2957e6f2c97272292a09de8e097f5c188475e3caaf",
+    "趋势": "b9aecac276343a4c0f14a95b6cf2dda70a20ff6f67deaf345aabc871c7a8211e",
+    "研究空白": "00bfa53ace0ce1d7185dd5da02fd7ecccdf89d3443f600f6671e6ee544618d29",
+    "建议动作": "1df12a8c94ab15c68326a5128b65119c8d8b94cc128f0d684b08d196e179a92c"
+  }
+}
