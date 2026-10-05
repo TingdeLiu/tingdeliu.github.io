@@ -52,6 +52,9 @@ jobs:
         env:
           JEKYLL_ENV: production
 
+      - name: Validate compiled stylesheet
+        run: python3 scripts/check_site_styles.py
+
       - name: Validate English pages and language links
         run: python3 scripts/check_english_site.py
 

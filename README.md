@@ -36,6 +36,7 @@ python scripts/check_translations.py
 python scripts/check_translation_drafts.py
 python -m unittest discover -s scripts/tests
 bundle exec jekyll build
+python scripts/check_site_styles.py
 python scripts/check_english_site.py
 ```
 

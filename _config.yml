@@ -129,6 +129,8 @@ version: v1.2.0
 # Set the Sass partials directory, as we're using @imports
 sass:
   style: :compressed
+  # Source maps inherit the Sass page's /style.css permalink and overwrite CSS.
+  sourcemap: never
 
 # Use the following plug-ins
 plugins:
