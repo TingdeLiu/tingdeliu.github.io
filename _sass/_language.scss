@@ -5,39 +5,11 @@
   margin: .75rem 0 1.25rem;
   font-size: .9rem;
   a {
-    margin: 0;
     padding: .25rem .4rem;
     border-radius: 4px;
-    letter-spacing: normal;
     &:focus-visible { outline: 2px solid #1864ab; outline-offset: 3px; }
   }
   a[aria-current="page"] { font-weight: 700; background: #edf2f7; color: #25364a; }
-}
-.page-heading {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: .5rem 1rem;
-  margin: 1.875rem 0 1rem;
-  > h1 { margin: 0; }
-}
-.page-heading .site-language-switch {
-  justify-content: flex-end;
-  gap: .25rem;
-  margin: 0 0 0 auto;
-  font-size: .9rem;
-  a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    padding: 0 .9rem;
-    font-weight: 500;
-    &:hover { background: #e9ecef; }
-  }
-  a[aria-current="page"] { color: #25364a; background: #edf2f7; }
-  > span { color: #868e96; }
 }
 .translation-note {
   border-left: 3px solid #7c95aa;
