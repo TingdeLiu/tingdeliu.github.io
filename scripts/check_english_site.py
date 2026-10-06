@@ -65,6 +65,33 @@ def main():
             route = fields['permalink'].strip('/')
             check(not (SITE / route / 'index.html').exists(), f'Unpublished translation leaked into build: {route}')
     check(len(english_files) >= 3, 'Missing English entry pages or survey')
+    for route, language, other in [('', 'zh-CN', '/en/'), ('en', 'en', '/')]:
+        doc = load(SITE / route / 'index.html')
+        check(doc.select('html')[0]['attrs'].get('lang') == language, f'/{route}: wrong homepage language')
+        switches = [n for n in doc.select('a') if 'data-language-switch' in n['attrs']]
+        check(len(switches) == 1 and switches[0]['attrs'].get('href') == other,
+              f'/{route}: missing homepage language switch')
+        alternates = {n['attrs'].get('hreflang'): n['attrs'].get('href')
+                      for n in doc.select('link') if n['attrs'].get('hreflang')}
+        check(alternates == {'en': 'https://tingdeliu.github.io/en/', 'zh-CN': 'https://tingdeliu.github.io/'},
+              f'/{route}: incorrect homepage language alternates')
+        cards = [n['attrs'].get('href', '') for n in doc.select('a')
+                 if 'rc-card' in n['attrs'].get('class', '').split()]
+        check(bool(cards) and len(cards) == len(set(cards)), f'/{route}: empty or duplicate homepage cards')
+        check(all(url.startswith('/en/') == (language == 'en') for url in cards),
+              f'/{route}: homepage cards use the wrong language')
+    for route in ('', 'en', 'research', 'blog', 'en/research', 'en/blog', 'home', 'about', 'archive', 'tags'):
+        doc = load(SITE / route / 'index.html')
+        heading = re.search(r'<header class="page-heading">(.*?)</header>', doc.raw, re.S)
+        check(bool(heading) and 'site-language-switch' in heading[1],
+              f'/{route}/: language switch missing from content heading')
+        switches = [n['attrs'].get('href') for n in doc.select('a') if 'data-language-switch' in n['attrs']]
+        other = '/' + (route.removeprefix('en/') if route.startswith('en/') else 'en/' + route) + '/'
+        if route in ('home', 'about', 'archive', 'tags'):
+            other = '/en/'
+        elif route in ('', 'en'):
+            other = '/en/' if route == '' else '/'
+        check(switches == [other], f'/{route}/: missing or duplicate navigation language switch')
     for path in english_files:
         doc = load(path)
         route = '/' + path.relative_to(SITE).as_posix().removesuffix('index.html')

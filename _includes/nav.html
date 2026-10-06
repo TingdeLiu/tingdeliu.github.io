@@ -7,10 +7,10 @@
       </div>
       {% endif %}
       <h1 class="site-name"><a href="{{ site.baseurl }}/{% if page_lang == 'en' %}en/{% endif %}">{{ site.name }}</a></h1>
-      <p class="site-description">{{ site.description }}</p>
+      <p class="site-description">{{ ui.description | default: site.description }}</p>
       {% if site.tagline or site.company %}
       <p class="site-tagline">
-        {% if site.tagline %}{{ site.tagline }}{% endif %}
+        {% if site.tagline %}{{ ui.tagline | default: site.tagline }}{% endif %}
         {% if site.tagline and site.company %} · {% endif %}
         {% if site.company %}<span class="site-company">{{ site.company }}</span>{% endif %}
       </p>
@@ -19,7 +19,7 @@
   </header>
 
   <div class="navlist">
-    <nav>
+    <nav aria-label="{{ ui.site_navigation }}">
       {% if page_lang == 'en' %}
       <a href="{{ '/home/' | relative_url }}" lang="zh-CN">Project</a>
       <a href="{{ '/en/research/' | relative_url }}">Research</a>
@@ -28,9 +28,9 @@
       {% else %}
       {% for nav in site.navigation %}
       {% if nav.url contains 'http://' or nav.url contains 'https://' %}
-      <a href="{{ nav.url }}">{{ nav.name }}</a>
+      <a href="{{ nav.url }}">{{ ui.navigation[nav.name] | default: nav.name }}</a>
       {% else %}
-      <a href="{{ site.baseurl }}{{ nav.url }}">{{ nav.name }}</a>
+      <a href="{{ site.baseurl }}{{ nav.url }}">{{ ui.navigation[nav.name] | default: nav.name }}</a>
       {% endif %}
       {% endfor %}
       {% endif %}

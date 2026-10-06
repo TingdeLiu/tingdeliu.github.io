@@ -1,4 +1,18 @@
 zh-CN:
+  description: 个人博客与研究笔记
+  tagline: AI 工程师
+  navigation:
+    Project: 项目
+    Research: 研究
+    Blog: 博客
+    About: 关于
+  latest: 最新文章
+  research: 研究
+  weekly: 周报
+  notes: 随笔
+  browse_months: 按月份跳转
+  month_format: "%Y 年 %-m 月"
+  articles: 篇
   contents: 目录
   open_contents: 打开文章目录
   close_contents: 关闭文章目录
@@ -36,6 +50,15 @@ zh-CN:
   suggested_section: 建议加入的章节
   suggestion: 建议内容
 en:
+  description: Personal Blog & Research Notes
+  tagline: AI Engineer
+  latest: Latest
+  research: Research
+  weekly: Weekly digests
+  notes: Technical notes
+  browse_months: Browse by month
+  month_format: "%B %Y"
+  articles: articles
   contents: Contents
   open_contents: Open table of contents
   close_contents: Close table of contents
