@@ -1,24 +1,10 @@
-{% assign switch_source_url = nil %}
-{% assign switch_translation_url = nil %}
 {% if language_source and language_translation %}
-  {% assign switch_source_url = language_source.url %}
-  {% assign switch_translation_url = language_translation.url %}
-{% elsif include.fallback %}
-  {% assign switch_source_url = '/' %}
-  {% assign switch_translation_url = '/en/' %}
-  {% if page_lang == 'en' %}
-    {% assign switch_translation_url = page.url %}
-  {% else %}
-    {% assign switch_source_url = page.url %}
-  {% endif %}
-{% endif %}
-{% if switch_source_url and switch_translation_url %}
 {% assign switch_mode = 'index' %}
 {% assign switch_status = site.data.translation_status[page.translation_id] %}
 {% if page.layout == 'post' and switch_status.stale == false %}{% assign switch_mode = 'article' %}{% endif %}
-<nav class="language-switch{% if include.fallback %} site-language-switch{% endif %}" aria-label="{{ ui.language }}">
-  <a href="{{ switch_source_url | relative_url }}" lang="zh-CN" hreflang="zh-CN"{% if page_lang != 'en' %} aria-current="page"{% else %} data-language-switch="{{ switch_mode }}"{% endif %}>中文</a>
+<nav class="language-switch{% if include.site %} site-language-switch{% endif %}" aria-label="{{ ui.language }}">
+  <a href="{{ language_source.url | relative_url }}" lang="zh-CN" hreflang="zh-CN"{% if page_lang != 'en' %} aria-current="page"{% else %} data-language-switch="{{ switch_mode }}"{% endif %}>中文</a>
   <span aria-hidden="true">/</span>
-  <a href="{{ switch_translation_url | relative_url }}" lang="en" hreflang="en"{% if page_lang == 'en' %} aria-current="page"{% else %} data-language-switch="{{ switch_mode }}"{% endif %}>English</a>
+  <a href="{{ language_translation.url | relative_url }}" lang="en" hreflang="en"{% if page_lang == 'en' %} aria-current="page"{% else %} data-language-switch="{{ switch_mode }}"{% endif %}>English</a>
 </nav>
 {% endif %}

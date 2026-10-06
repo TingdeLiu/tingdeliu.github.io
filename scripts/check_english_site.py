@@ -80,22 +80,28 @@ def main():
         check(bool(cards) and len(cards) == len(set(cards)), f'/{route}: empty or duplicate homepage cards')
         check(all(url.startswith('/en/') == (language == 'en') for url in cards),
               f'/{route}: homepage cards use the wrong language')
-    for route in ('', 'en', 'research', 'blog', 'en/research', 'en/blog', 'home', 'about', 'archive', 'tags'):
+    for route in ('', 'en', 'research', 'blog', 'en/research', 'en/blog'):
         doc = load(SITE / route / 'index.html')
         heading = re.search(r'<header class="page-heading">(.*?)</header>', doc.raw, re.S)
         check(bool(heading) and 'site-language-switch' in heading[1],
               f'/{route}/: language switch missing from content heading')
         switches = [n['attrs'].get('href') for n in doc.select('a') if 'data-language-switch' in n['attrs']]
         other = '/' + (route.removeprefix('en/') if route.startswith('en/') else 'en/' + route) + '/'
-        if route in ('home', 'about', 'archive', 'tags'):
-            other = '/en/'
-        elif route in ('', 'en'):
+        if route in ('', 'en'):
             other = '/en/' if route == '' else '/'
         check(switches == [other], f'/{route}/: missing or duplicate navigation language switch')
+    for route in ('home', 'about', 'archive', 'tags'):
+        doc = load(SITE / route / 'index.html')
+        check(not any('data-language-switch' in n['attrs'] for n in doc.select('a')),
+              f'/{route}/: unpaired page has a misleading language switch')
     for path in english_files:
         doc = load(path)
         route = '/' + path.relative_to(SITE).as_posix().removesuffix('index.html')
         check(doc.select('html')[0]['attrs'].get('lang') == 'en', f'{route}: wrong HTML language')
+        sidebar = re.search(r'<nav aria-label="Site navigation">(.*?)</nav>', doc.raw, re.S)
+        if sidebar:
+            check('href="/home/"' in sidebar[1] and 'href="/about/"' in sidebar[1],
+                  f'{route}: navigation does not use the shared English Project/About pages')
         check(not re.search(r'[\u4e00-\u9fff]', ''.join(doc.visible).replace('中文', '')), f'{route}: untranslated visible Chinese')
         check(len(doc.ids) == len(set(doc.ids)), f'{route}: duplicate IDs')
         canonical = [n['attrs'].get('href') for n in doc.select('link') if n['attrs'].get('rel') == 'canonical']

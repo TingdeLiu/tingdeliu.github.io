@@ -21,10 +21,10 @@
   <div class="navlist">
     <nav aria-label="{{ ui.site_navigation }}">
       {% if page_lang == 'en' %}
-      <a href="{{ '/home/' | relative_url }}" lang="zh-CN">Project</a>
+      <a href="{{ '/home/' | relative_url }}" lang="en">Project</a>
       <a href="{{ '/en/research/' | relative_url }}">Research</a>
       <a href="{{ '/en/blog/' | relative_url }}">Blog</a>
-      <a href="{{ '/about/' | relative_url }}" lang="zh-CN">About</a>
+      <a href="{{ '/about/' | relative_url }}" lang="en">About</a>
       {% else %}
       {% for nav in site.navigation %}
       {% if nav.url contains 'http://' or nav.url contains 'https://' %}

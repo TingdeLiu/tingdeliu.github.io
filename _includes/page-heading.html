@@ -1,4 +1,4 @@
 <header class="page-heading">
   <h1>{{ include.title | default: page.title }}</h1>
-  {% include language-switch.html fallback=true %}
+  {% include language-switch.html site=true %}
 </header>
