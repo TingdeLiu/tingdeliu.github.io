@@ -5,10 +5,10 @@ translation_id: world-models-survey
 permalink: /en/World-Models-Survey/
 source_path: _posts/research/2026-04-16-World-Models-Survey.md
 source_url: /World-Models-Survey/
-source_revision_date: 2026-10-04
-translation_updated: 2026-10-04
+source_revision_date: 2026-10-07
+translation_updated: 2026-10-07
 title: "World Models: A Survey"
-date: 2026-10-04
+date: 2026-10-07
 tags: [VLA, World Models, Robotics, Embodied AI, Survey]
 categories: research
 comments: false
@@ -158,6 +158,7 @@ The following table summarizes the work detailed in the main text in the order o
 | **GENE-26.5** | 2026 |B · World Planner|Flow Matching joint distribution + conditional query|New tasks < 1 hour real robot data can be fine-tuned| [§6.1](#paper-gene) |
 | **VLA-World** | 2026 |B · World Planner (autonomous driving)|Single frame future generation + reflective reasoning (Think with Generated future) + GRPO|nuScenes collision rate 1.09% → 0.94%| [§6.1](#paper-vla-world) |
 | **WorldVLA** | 2025 |B · WAM (autoregressive)|Unified autoregressive backbone + action attention mask + video prediction pretraining| LIBERO Avg 81.8% | [§6.2](#paper-worldvla) |
+| **DreamZero** | 2026 | B · WAM (autoregressive + flow matching) | Joint video-action denoising + real-observation KV-cache updates + asynchronous control | AgiBot unseen-task progress 39.5%; approximately 7Hz on two GB200 GPUs | [§6.2](#paper-dreamzero) |
 | **AIM** | 2026 |B · WAM (diffusion)|Spatial Value Map (ASVM) + Intentional Causal Attention + Value Self-Distillation RL| RoboTwin 2.0 Avg SR 93.1% | [§6.2](#paper-aim) |
 | **Motus** | 2025/2026 | B · WAM(MoT) |Three experts MoT + optical flow latent action + UniDiffuser joint denoising scheduling|RoboTwin 2.0 Avg 87.8%, single step 80ms| [§6.2](#paper-motus) |
 | **NavWAM & WAM-Nav** | 2026 |B · WAM (Navigation)|Unified latent space-time canvas + asymmetric horizon + dual-stream feature fusion|Inference 205.7 ms (about 5Hz), 1100× faster than NWM; real robot success rate 79.2% / 85%| [§6.2](#paper-navwam) |
@@ -1300,7 +1301,7 @@ flowchart LR
 Traditional world models often need to rely on plug-in trajectory search algorithms (such as cross entropy method CEM, Monte Carlo tree search MCTS, model prediction path integral MPPI) when reasoning, and deduce scores one by one among hundreds of random candidate action sequences, resulting in a single-step decision-making that takes up to several seconds and cannot meet high-frequency dynamic interactions.
 
 The main engineering advantage of **WAM is that it eliminates the need to search online for** during testing:
-1. **directly generates actions in a single forward direction**: In the test phase, WAM can directly output executable action chunks (Action Chunks) in a single forward denoising in Policy mode, and the control frequency can reach **5Hz–15Hz**, eliminating the need for CEM-style deduction of a large number of candidate trajectories (NavWAM report NWM speedup is about 1100×, see below);
+1. **Generate action chunks directly, without online trajectory search**: WAMs output executable action chunks in policy mode. Diffusion / flow-matching models generally still require multiple denoising steps; single-step generation needs specific design or acceleration. Some implementations report **5Hz–15Hz** policy updates (including approximately 7Hz for DreamZero-Flash below), and NavWAM reports approximately 1100× speedup over NWM. These results depend on hardware and inference configuration;
 2. **Future visual prediction as strong regularization with landmark anchoring**: During the training phase, the model is forced to generate actions while predicting future scenes. Since visual denoising contains dense pixel-level self-supervised signals, the action head obtains deep physical dynamics constraints, which effectively alleviates the "Policy Drift" of reactive policies in long-range control;
 3. **Unification and flexibility of the architecture**: Through flexible masking mechanism (Masking) or noise scheduling, the same WAM weight can be freely switched to a forward dynamics simulator, inverse dynamics annotator, pure policy controller or cross-modal editing tool.
 
@@ -1310,6 +1311,7 @@ The main engineering advantage of **WAM is that it eliminates the need to search
 |:---|:---|:---|:---|
 |**Autoregressive (AR)**|video pretraining| GR-1 [[19]](#ref-19), HMA, UniVLA [[20]](#ref-20), GR-2 |Transforming large-scale video priors into end-to-end action predictions|
 |**Autoregressive (AR)**|Unified sequence modeling| WorldVLA [[21]](#ref-21), RynnVLA-002, UP-VLA |Discretize images, actions, and text into a unified Token stream|
+| **Autoregressive + flow matching** | Causal across chunks, joint denoising within chunks | DreamZero [[54]](#ref-54) | Video backbone jointly generates video and actions; real observations refresh the KV cache; Flash enables single-step denoising |
 |**Autoregressive (AR)**|Foresight and chain of thought reasoning| Seer, FlowVLA [[22]](#ref-22), CoT-VLA [[23]](#ref-23), DreamVLA [[24]](#ref-24) |Introducing multimodal chain of thought and future optical flow to guide structured decision-making|
 |**diffusion / flow matching**|Mixing Expert (MoT)| Motus [[25]](#ref-25), Cosmos 3 [[26]](#ref-26) |Shared self-attention + decoupled FFN, UniDiffuser multi-mode switching|
 |**diffusion / flow matching**|spatial value interface| AIM [[27]](#ref-27) |Spatial Value Map (ASVM) Explicitly Decouples Intent, Self-Distilling RL Optimization|
@@ -1400,6 +1402,106 @@ The paper found that due to the limited generalization ability of the pretrainin
 {: id="4-局限性-6"}
 
 Currently used discrete image tokenizers still have limitations in perceptual expressiveness. Future work will explore larger-scale data and models, as well as design a unified Tokenizer that can better balance understanding and generation.
+
+---
+
+### DreamZero (2026)
+{: id="paper-dreamzero"}
+———Video dynamics priors for zero-shot generalization to unseen tasks
+
+📄 **Paper**: [arXiv:2602.15922](https://arxiv.org/abs/2602.15922) · [Code](https://github.com/dreamzero0/dreamzero) · [Project Page](https://dreamzero0.github.io/) · [[54]](#ref-54)
+
+##### Key takeaways
+{: id="dreamzero-takeaways"}
+
+DreamZero learns **how the world will change and how the robot should move as one generation problem**, bringing temporal priors from video pretraining into action generation. A shared DiT jointly predicts video and actions, with causal video autoregression across temporal chunks and joint video-action flow-matching denoising within each chunk: autoregression and diffusion / flow matching can coexist. After execution, real observations update the visual KV cache to reduce errors from repeatedly conditioning on generated frames. The video objective also makes action-free demonstrations from other robots or humans useful for training, although embodiment adaptation and zero-shot generalization to unseen tasks are distinct experimental settings.
+
+---
+
+##### 1. Background and problem
+{: id="dreamzero-background"}
+
+VLAs initialized from image-text models can transfer object and semantic knowledge, but may struggle with new physical motions such as ironing or untying shoelaces. DreamZero starts from a video generator and asks whether diverse, less repetitive robot demonstrations can support dynamics and control learning that generalizes to new environments, objects, and tasks.
+
+**Zero-shot** means that the trained robot policy receives no additional demonstrations or fine-tuning for the unseen evaluation tasks; it still undergoes video pretraining and robot training. The paper trains separate AgiBot G1 and DROID-Franka models, rather than one universal policy across all embodiments in its main experiments.
+
+---
+
+##### 2. Methods and innovations
+{: id="dreamzero-methods"}
+
+<div align="center">
+  <img src="/images/wm/DreamZero-architecture.webp" width="100%" alt="DreamZero joint video-action flow matching and closed-loop feedback from real observations" />
+<figcaption>Figure: DreamZero training and inference. Left: joint video-action denoising conditioned on real history. Right: action execution followed by KV-cache updates from real observations. (Source: DreamZero, Figure 4)</figcaption>
+</div>
+
+###### ① Video backbone and action interfaces
+{: id="dreamzero-backbone"}
+
+DreamZero initializes from **Wan2.1-I2V-14B-480P**. A VAE encodes visual observations into latents, with multiple camera views concatenated into one frame; text and state encoders process instructions and proprioception. A new action encoder maps normalized continuous actions to tokens that enter the shared DiT alongside video tokens. The action decoder produces control sequences, while the VAE decoder can reconstruct predicted frames. Training updates the DiT and state/action interfaces, while freezing the text encoder, image encoder, and VAE.
+
+| Dimension | Video planner + separate inverse dynamics model | DreamZero |
+|:---|:---|:---|
+| Action generation | Generate future video, then translate it into actions with another model | Jointly generate future video and actions in a shared backbone |
+| Video-action alignment | Depends on the interface between two models | Learned through joint denoising |
+| Context for the next prediction | Depends on the external feedback design | Refresh visual context using real observations after execution |
+
+###### ② Autoregression across chunks, joint flow matching within chunks
+{: id="dreamzero-flow-matching"}
+
+Conditioned on past and current observations, language, and proprioception, the model learns a joint distribution over future video and actions. **Autoregression describes using only past information across temporal chunks; flow matching describes recovering video and actions from noise inside the current chunk. These are compatible choices.** Actions within a chunk can be generated in parallel rather than sampled individually like language tokens.
+
+Training uses teacher forcing: a noisy current chunk can attend to clean preceding context. Standard DreamZero shares noise time $t$ between video and actions within a chunk, while sampling $t$ independently across chunks. Concatenating the two modalities into $x$, the following simplified objective omits chunk indices and timestep weighting:
+
+$$
+x_t=(1-t)x_0+t x_1,\qquad
+\mathcal{L}_{\mathrm{FM}}=\mathbb{E}\left[\lVert u_\theta(x_t;C,c,q,t)-(x_1-x_0)\rVert^2\right].
+$$
+
+Here $x_0$ is Gaussian noise, $x_1$ contains real video latents and normalized actions, $C$ is historical context, and $c$ and $q$ denote language and proprioception. The model learns a velocity field toward real samples and uses it to jointly recover both outputs at inference.
+
+###### ③ Correcting the next prediction with real observations
+{: id="dreamzero-closed-loop"}
+
+Inference jointly denoises a future video-action chunk. After action execution, real camera frames are encoded to update the visual KV cache before generating the next chunk. **Predicted video constrains action generation; real video supplies the factual context for the next prediction**, reducing drift from repeatedly relying on generated frames.
+
+> **Example**: The instruction is “put the cup into the bag.” The model predicts grasping frames and produces actions. If the cup slips during execution, the next input shows the actual slipped cup. Refreshing the cache does not undo the failed grasp, but avoids treating the predicted successful grasp as reality.
+
+###### ④ Asynchronous execution and DreamZero-Flash
+{: id="dreamzero-flash"}
+
+Robot motion and model inference run asynchronously: the controller executes an existing action chunk while the model computes the next one from new observations. In the bimanual setting, a chunk contains **48 actions executed at 30Hz, covering 1.6 seconds**. This control rate differs from the rate of policy updates.
+
+Optimizations combine two-GPU CFG parallelism, DiT caching, compilation and CUDA Graphs, kernel improvements, and NVFP4 quantization on GB200. DreamZero-Flash additionally decouples video and action noise distributions during training: it exposes the model to noisy video paired with nearly clean actions, matching few-step inference and reducing denoising from four steps to one. With the full optimization stack on **two GB200 GPUs**, the paper reports approximately **150ms per chunk, 7Hz**, and **38×** speedup over a naive 5.7-second implementation. These figures depend on the model variant, hardware, and system configuration.
+
+###### ⑤ Cross-embodiment transfer from action-free video
+{: id="dreamzero-transfer"}
+
+Target-robot data with action labels retains the joint video-action objective; demonstrations from other robots or humans have video only and use only the video prediction objective. Mixing these sources teaches new motion dynamics that the learned target-robot action interface can execute. This does not directly recover robot joint commands from human video.
+
+---
+
+##### 3. Results and findings
+{: id="dreamzero-results"}
+
+<div align="center">
+  <img src="/images/wm/DreamZero-unseen-task-results.webp" width="100%" alt="DreamZero and VLA baselines on unseen AgiBot and DROID-Franka tasks" />
+<figcaption>Figure: Zero-shot evaluation on unseen tasks. AgiBot aggregates average task progress; DROID-Franka reports both task progress and full success rate. These metrics are distinct. (Source: DreamZero, Figure 9)</figcaption>
+</div>
+
+- **Seen tasks, unseen environments and objects**: AgiBot achieves **62.2%** average task progress versus **27.4%** for the best pretrained VLA baseline. This measures environment and object generalization, not unseen-task generalization.
+- **Unseen tasks**: On ten AgiBot tasks absent from training, average task progress is **39.5%**, versus **16.3%** for the best pretrained VLA baseline, with eight rollouts per task and 80 in total. DROID-Franka achieves **49%** task progress and **22.5%** full success, compared with **31% / 12.5%** for GR00T N1.6 and **33% / 7.5%** for π0.5.
+- **Transfer from action-free video**: On nine unseen tasks excluding cart pulling, average task progress rises from **38.3%** to **54.3%** with human video (12 minutes) or **55.4%** with YAM video (20 minutes). These results follow additional mixed training and represent approximately **42% / 45% relative improvements**, not gains of 42 / 45 percentage points.
+- **Few-shot adaptation to a new embodiment**: The AgiBot model is post-trained on **55 YAM trajectories, approximately 30 minutes of action-labeled data**, demonstrating retained language following and generalization to new object combinations. This is a separate experiment from using video only to improve the original robot.
+
+These are paper-reported real-robot results with different task sets and scoring protocols from LIBERO, CALVIN, and RoboTwin 2.0; they should not be inserted into those benchmark leaderboards.
+
+---
+
+##### 4. Limitations
+{: id="dreamzero-limitations"}
+
+Even at 7Hz on two GB200 GPUs, the 14B model is computationally expensive. Video prediction errors can translate into incorrect actions, and visual memory currently spans approximately six seconds, so long-horizon reasoning needs more context or higher-level planning. Human-video transfer has only been tested with small-scale laboratory demonstrations, which does not establish reliable learning of robot skills from arbitrary web video.
 
 ---
 
@@ -1930,7 +2032,7 @@ As the "imagination engine" of the world model, it is responsible for generating
 
 |model|Parameter scale|Modeling backbone|Typical applications and embodied roles|
 |:---|:---:|:---|:---|
-| **Wan2.1** | 1.3B / 14B | DiT + Flow Matching |Mainstream open source base; WristWorld, DreamGen, Motus, AIM|
+| **Wan2.1** | 1.3B / 14B | DiT + Flow Matching |Mainstream open source base; WristWorld, DreamGen, DreamZero, Motus, AIM|
 | **Cosmos-Predict2.5** | 2B / 14B | DiT + Flow Matching |Physical AI dedicated base; NavWAM, AdaPower, Prophet|
 | **SANA-WM** | 2.6B | Hybrid GDN/Softmax |Minute-level 720p efficient generation, single-GPU low GPU memory interactive simulation|
 | **LingBot-World** | 14B+14B MoE | MoE DiT |Minute-level real-time interactive world simulator, supporting event editing and command intervention|
@@ -2883,6 +2985,7 @@ The [[n]](#sec-10-references) subscript in the text can jump directly to the cor
 51. <span id="ref-51"></span>*RoboTwin 2.0: Dual-Arm Benchmark for Scalable Embodied Manipulation* (2025). Tsinghua University.
 52. <span id="ref-52"></span>Liu, B., et al. (2023). *LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning*. [libero-project.github.io](https://libero-project.github.io/)
 53. <span id="ref-53"></span>Mees, O., et al. (2022). *CALVIN: A Benchmark for Language-Conditioned Policy Learning for Long-Horizon Robot Manipulation Tasks*. [github.com/mees/calvin](https://github.com/mees/calvin)
+54. <span id="ref-54"></span>Ye, S., et al. (2026). *World Action Models are Zero-shot Policies*. NVIDIA. [arXiv:2602.15922](https://arxiv.org/abs/2602.15922) · [Code](https://github.com/dreamzero0/dreamzero) · [Project Page](https://dreamzero0.github.io/)
 
 ---
 

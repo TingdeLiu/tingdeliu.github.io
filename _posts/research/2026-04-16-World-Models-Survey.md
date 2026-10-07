@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: world-models-survey
 title: "世界模型综述"
-date:  2026-10-04
+date:  2026-10-07
 tags: [VLA, World Models, Robotics, Embodied AI, Survey]
 categories: research
 comments: true
@@ -142,6 +142,7 @@ flowchart LR
 | **GENE-26.5** | 2026 | B · 世界规划器 | Flow Matching 联合分布 + 条件查询 | 新任务 < 1 小时真机数据即可微调 | [§6.1](#paper-gene) |
 | **VLA-World** | 2026 | B · 世界规划器（自动驾驶） | 单帧未来生成 + 反思推理（Think with Generated future）+ GRPO | nuScenes 碰撞率 1.09% → 0.94% | [§6.1](#paper-vla-world) |
 | **WorldVLA** | 2025 | B · WAM（自回归） | 统一自回归骨干 + 动作注意力掩码 + 视频预测预训练 | LIBERO Avg 81.8% | [§6.2](#paper-worldvla) |
+| **DreamZero** | 2026 | B · WAM（自回归 + 流匹配） | 视频与动作联合去噪 + 真实观测 KV 缓存更新 + 异步控制 | AgiBot 未见任务进度 39.5%；双 GB200 约 7Hz | [§6.2](#paper-dreamzero) |
 | **AIM** | 2026 | B · WAM（扩散） | 空间价值图 (ASVM) + 意图因果注意力 + 价值自蒸馏 RL | RoboTwin 2.0 Avg SR 93.1% | [§6.2](#paper-aim) |
 | **Motus** | 2025/2026 | B · WAM（MoT） | 三专家 MoT + 光流潜动作 + UniDiffuser 联合去噪调度 | RoboTwin 2.0 Avg 87.8%，单步 80ms | [§6.2](#paper-motus) |
 | **NavWAM & WAM-Nav** | 2026 | B · WAM（导航） | 统一潜时空画布 + 非对称视界 + 双流特征融合 | 推理 205.7 ms（约 5Hz），较 NWM 快 1100×；真机成功率 79.2% / 85% | [§6.2](#paper-navwam) |
@@ -1199,7 +1200,7 @@ flowchart LR
 传统的世界模型在推理时往往需要依赖外挂的轨迹搜索算法（如交叉熵方法 CEM、蒙特卡洛树搜索 MCTS、模型预测路径积分 MPPI），在成百上千条随机候选动作序列中逐一推演评分，导致单步决策耗时高达数秒，无法满足高频动态交互。
 
 **WAM 的主要工程优势是省去了测试时的在线搜索**：
-1. **单次前向直接生成动作**：在测试阶段，WAM 可以直接以 Policy 模式单次前向去噪输出可执行动作块（Action Chunk），控制频率可达 **5Hz–15Hz**，省去了 CEM 式的大量候选轨迹推演（NavWAM 报告较 NWM 提速约 1100×，见下文）；
+1. **直接生成动作块，无需在线轨迹搜索**：WAM 以策略模式输出可执行动作块（Action Chunk）；扩散 / 流匹配模型通常仍需多轮去噪，单步生成需要专门设计或加速。部分实现报告 **5Hz–15Hz** 的策略更新频率（如 DreamZero-Flash 约 7Hz，见下文），NavWAM 报告较 NWM 提速约 1100×；这些结果取决于硬件与推理配置；
 2. **未来视觉预测作为强正则化与路标锚定**：在训练阶段，模型被迫在预测未来画面的同时生成动作。由于视觉去噪包含密集的像素级自监督信号，动作头获得了深度的物理动力学约束，有效缓解了反应式策略在长程控制中的“策略漂移（Policy Drift）”；
 3. **架构的统一与灵活性**：通过灵活的掩码机制（Masking）或加噪调度，同一个 WAM 权重即可自由切换为前向动力学模拟器、逆动力学标注器、纯策略控制器或跨模态编辑工具。
 
@@ -1209,6 +1210,7 @@ flowchart LR
 |:---|:---|:---|:---|
 | **自回归（AR）** | 视频预训练 | GR-1 [[19]](#ref-19), HMA, UniVLA [[20]](#ref-20), GR-2 | 大规模视频先验转化为端到端动作预测 |
 | **自回归（AR）** | 统一序列建模 | WorldVLA [[21]](#ref-21), RynnVLA-002, UP-VLA | 将图像、动作、文本离散化为统一 Token 流 |
+| **自回归 + 流匹配** | 块间因果、块内联合去噪 | DreamZero [[54]](#ref-54) | 视频底座联合生成视频与动作，真实观测刷新 KV 缓存；Flash 支持一步去噪 |
 | **自回归（AR）** | 前瞻与思维链推理 | Seer, FlowVLA [[22]](#ref-22), CoT-VLA [[23]](#ref-23), DreamVLA [[24]](#ref-24) | 引入多模态思维链与未来光流引导结构化决策 |
 | **扩散 / 流匹配** | 混合专家（MoT） | Motus [[25]](#ref-25), Cosmos 3 [[26]](#ref-26) | 共享自注意力 + 解耦 FFN，UniDiffuser 多模式切换 |
 | **扩散 / 流匹配** | 空间价值接口 | AIM [[27]](#ref-27) | 空间价值图（ASVM）显式解耦意图，自蒸馏 RL 优化 |
@@ -1290,6 +1292,95 @@ WorldVLA 采用自回归架构，集成了图像、文本和动作三种模态�
 ##### 4. 局限性
 
 目前使用的离散图像 Tokenizer 在感知表现力上仍有局限。未来工作将探索更大规模的数据和模型，以及设计能够更平衡理解与生成的统一 Tokenizer。
+
+---
+
+### DreamZero (2026) {#paper-dreamzero}
+———用视频动力学先验支撑未见任务的零样本策略
+
+📄 **Paper**: [arXiv:2602.15922](https://arxiv.org/abs/2602.15922) · [Code](https://github.com/dreamzero0/dreamzero) · [Project Page](https://dreamzero0.github.io/) · [[54]](#ref-54)
+
+##### 精华 {#dreamzero-takeaways}
+
+DreamZero 的核心思想是：**把“接下来世界会怎样变化”与“机器人该怎样动”作为同一个生成问题学习**，让视频预训练获得的时空先验参与动作生成。它在同一 DiT 骨干内联合预测视频与动作，视频在时间块之间采用因果自回归，当前块的视频与动作联合采用流匹配去噪，因此“自回归”和“扩散 / 流匹配”可以同时成立。每次执行后，用真实观测更新视觉 KV 缓存，减少模型反复依赖自己预测画面造成的误差累积。视频目标还让其他机器人或人类的无动作标签示范成为可用的训练数据，但跨本体适配与未见任务零样本泛化是不同的实验设置。
+
+---
+
+##### 1. 研究背景/问题 {#dreamzero-background}
+
+由图文模型初始化的 VLA 擅长迁移物体与语义知识，却未必能迁移熨烫、解鞋带等新的物理运动。DreamZero 以视频生成模型为底座，研究能否从多样、较少重复的机器人示范中学习动力学与控制，并在新的环境、物体和任务上直接执行。
+
+这里的**零样本**指机器人策略训练完成后，不针对评测中的未见任务追加示范或微调；模型仍经过视频预训练和机器人数据训练。论文分别训练 AgiBot G1 与 DROID-Franka 模型，并未在主实验中训练一个覆盖所有本体的通用策略。
+
+---
+
+##### 2. 主要方法/创新点 {#dreamzero-methods}
+
+<div align="center">
+  <img src="/images/wm/DreamZero-architecture.webp" width="100%" alt="DreamZero 的视频与动作联合流匹配训练及真实观测反馈闭环" />
+<figcaption>图：DreamZero 的训练与推理架构。左侧在真实历史条件下联合去噪视频与动作；右侧执行动作后以真实观测更新 KV 缓存。（图源：DreamZero，Figure 4）</figcaption>
+</div>
+
+###### ① 视频底座与动作接口 {#dreamzero-backbone}
+
+DreamZero 初始化自 **Wan2.1-I2V-14B-480P**。视觉观测由 VAE 编码为潜变量，多相机画面拼接为一帧；语言指令由文本编码器处理，本体状态由状态编码器处理。新增动作编码器将归一化的连续动作映射为动作 token，与视频 token 一起进入共享 DiT；动作解码器输出控制序列，VAE 解码器可还原预测画面。训练更新 DiT 与状态、动作接口，冻结文本编码器、图像编码器和 VAE。
+
+| 维度 | 视频规划器 + 独立逆动力学模型 | DreamZero |
+|:---|:---|:---|
+| 动作从何而来 | 先生成未来视频，再由另一个模型把视频翻译成动作 | 在共享骨干内联合生成未来视频与动作 |
+| 视频与动作如何对齐 | 依赖两阶段模型之间的接口 | 通过联合去噪目标学习跨模态对应 |
+| 下一轮依据什么 | 取决于外部闭环设计 | 用执行后的真实观测刷新视觉上下文 |
+
+###### ② 块间自回归，块内联合流匹配 {#dreamzero-flow-matching}
+
+模型给定历史与当前观测、语言指令和本体状态，学习未来视频与动作的联合分布。**“自回归”描述时间块之间只利用过去信息；“流匹配”描述当前块内如何从噪声逐步恢复视频与动作，两者不是互斥分类。**动作块内可以并行生成动作，不必把每一个动作当作语言 token 逐个采样。
+
+训练时采用 teacher forcing：当前带噪块可关注前面的真实干净上下文。标准 DreamZero 的同一块中，视频与动作共享噪声时间 $t$；不同块独立采样 $t$。将两种模态拼成向量 $x$，下面是省略块索引与时间权重后的流匹配目标：
+
+$$
+x_t=(1-t)x_0+t x_1,\qquad
+\mathcal{L}_{\mathrm{FM}}=\mathbb{E}\left[\lVert u_\theta(x_t;C,c,q,t)-(x_1-x_0)\rVert^2\right].
+$$
+
+其中 $x_0$ 是高斯噪声，$x_1$ 是真实视频潜变量与归一化动作，$C$ 是历史上下文，$c$ 和 $q$ 分别是语言与本体状态。模型学习将噪声推向真实样本的速度场，推理时沿这个方向联合恢复两种输出。
+
+###### ③ 用真实观测纠正下一轮预测 {#dreamzero-closed-loop}
+
+推理联合去噪一个未来视频与动作块，机器人执行动作后，将实拍画面编码并更新视觉 KV 缓存，再生成下一块。**预测视频提供动作生成的视觉约束，真实视频提供下一轮的事实依据**，从而减少长时间依赖生成画面的漂移。
+
+> **举个例子**：指令是“把杯子放进袋子”。模型预测抓杯的画面并生成动作；若实际抓取后杯子滑动，下一轮输入的是杯子滑动后的实拍画面。刷新缓存不会自动撤销这次失败，但可避免继续把“已经抓稳”的预测画面当作事实。
+
+###### ④ 异步执行与 DreamZero-Flash {#dreamzero-flash}
+
+机器人运动与模型推理异步运行：控制器执行已有动作块，模型同时依据新观测计算下一块。双臂设置中，一个块包含 **48 个动作，以 30Hz 执行，覆盖 1.6 秒**；这与模型更新策略的频率是两个概念。
+
+加速组合包括双 GPU 的 CFG 并行、DiT 缓存、编译与 CUDA Graphs、算子优化和 GB200 上的 NVFP4 量化。DreamZero-Flash 进一步让视频与动作使用不同的训练噪声分布：让模型见到“视频仍很嘈杂、动作已经接近干净”的情况，适应少步去噪，并将去噪由四步压到一步。论文报告完整优化在 **2 块 GB200** 上约 **150ms / 块、7Hz**，相对朴素实现约 5.7 秒提速 **38×**；这些数字依赖模型变体、硬件和系统配置。
+
+###### ⑤ 无动作标签视频的跨本体迁移 {#dreamzero-transfer}
+
+带动作标签的目标机器人数据继续使用视频与动作联合目标；其他机器人或人类的示范只有视频，因而只计算视频预测目标。两类数据混合训练，使模型学习新的运动过程，再通过已学得的目标机器人动作接口执行；这不等于从人类视频直接读出机器人关节控制量。
+
+---
+
+##### 3. 核心结果/发现 {#dreamzero-results}
+
+<div align="center">
+  <img src="/images/wm/DreamZero-unseen-task-results.webp" width="100%" alt="DreamZero 与 VLA 基线在 AgiBot 和 DROID-Franka 未见任务上的对比" />
+<figcaption>图：未见任务的零样本评测。AgiBot 汇总指标为平均任务进度；DROID-Franka 同时报告任务进度与完整成功率，两者不可混用。（图源：DreamZero，Figure 9）</figcaption>
+</div>
+
+- **已见任务、未见环境与物体**：AgiBot 的平均任务进度为 **62.2%**，最佳预训练 VLA 基线为 **27.4%**。这是环境与物体泛化，不是未见任务评测。
+- **未见任务**：AgiBot 的 10 个训练中未出现任务，平均任务进度为 **39.5%**，最佳预训练 VLA 基线为 **16.3%**；每任务 8 次执行，共 80 次。DROID-Franka 的未见任务进度为 **49%**、完整成功率 **22.5%**，GR00T N1.6 对应为 **31% / 12.5%**，π0.5 为 **33% / 7.5%**。
+- **无动作标签视频迁移**：在去掉拉车后的 9 个未见任务上，平均任务进度由 **38.3%** 提升到人类视频迁移的 **54.3%**（12 分钟数据）或 YAM 视频迁移的 **55.4%**（20 分钟数据）。这是额外混合训练后的结果，相对提升约 **42% / 45%**，并非增加了 42 / 45 个百分点。
+- **新本体少样本适配**：AgiBot 模型使用 YAM 的 **55 条轨迹、约 30 分钟带动作数据**进行后训练，展示保留语言跟随与新物体组合泛化的能力；它与“只用视频增强原机器人”是不同实验。
+
+这些是真实机器人上的论文自报结果，任务集合与计分方式不同于 LIBERO、CALVIN 或 RoboTwin 2.0，不能直接混入这些基准的排行榜。
+
+---
+
+##### 4. 局限性 {#dreamzero-limitations}
+
+14B 模型即使在双 GB200 上加速到 7Hz，计算成本仍高；视频预测错误可能被忠实转化为错误动作，而当前视觉记忆仅约 6 秒，长时程推理仍需扩展上下文或高层规划。人类视频迁移目前只验证了小规模实验室示范，尚不能据此认定任意网络视频都能可靠转化为机器人技能。
 
 ---
 
@@ -1777,7 +1868,7 @@ WoVR 引入了一种增强型 DiT（Diffusion Transformer）世界模型，通�
 
 | 模型 | 参数规模 | 建模骨干 | 典型应用与具身角色 |
 |:---|:---:|:---|:---|
-| **Wan2.1** | 1.3B / 14B | DiT + Flow Matching | 主流开源底座；WristWorld, DreamGen, Motus, AIM |
+| **Wan2.1** | 1.3B / 14B | DiT + Flow Matching | 主流开源底座；WristWorld, DreamGen, DreamZero, Motus, AIM |
 | **Cosmos-Predict2.5** | 2B / 14B | DiT + Flow Matching | 物理 AI 专用底座；NavWAM, AdaPower, Prophet |
 | **SANA-WM** | 2.6B | Hybrid GDN/Softmax | 分钟级 720p 高效生成，单卡低显存交互仿真 |
 | **LingBot-World** | 14B+14B MoE | MoE DiT | 分钟级实时交互世界模拟器，支持事件编辑与指令干预 |
@@ -2664,6 +2755,7 @@ flowchart TD
 51. <span id="ref-51"></span>*RoboTwin 2.0: Dual-Arm Benchmark for Scalable Embodied Manipulation* (2025). Tsinghua University.
 52. <span id="ref-52"></span>Liu, B., et al. (2023). *LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning*. [libero-project.github.io](https://libero-project.github.io/)
 53. <span id="ref-53"></span>Mees, O., et al. (2022). *CALVIN: A Benchmark for Language-Conditioned Policy Learning for Long-Horizon Robot Manipulation Tasks*. [github.com/mees/calvin](https://github.com/mees/calvin)
+54. <span id="ref-54"></span>Ye, S., et al. (2026). *World Action Models are Zero-shot Policies*. NVIDIA. [arXiv:2602.15922](https://arxiv.org/abs/2602.15922) · [Code](https://github.com/dreamzero0/dreamzero) · [Project Page](https://dreamzero0.github.io/)
 
 ---
 
