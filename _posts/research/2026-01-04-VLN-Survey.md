@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-survey
 title: "VLN 综述"
-date:   2026-10-07
+date:   2026-10-08
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -175,19 +175,16 @@ flowchart TB
 ## 2.5 从任务专用模型到导航基础模型
 
 ```mermaid
-flowchart LR
-    A["2018–2019 序列建模"] --> B["2020–2021 跨模态预训练"]
-    B --> C["2021–2023 图规划与长历史"]
-    C --> D["2023–2024 VLM 与视频策略"]
-    D --> E["2025 快慢系统与规模化数据"]
-    E --> F["2026 Agent 与统一导航持续探索"]
+%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 24, "rankSpacing": 28}}}%%
+flowchart TB
+    A["2018–2019<br/>序列建模<br/>Seq2Seq · Speaker-Follower"]
+    B["2020–2021<br/>跨模态预训练<br/>PREVALENT · VLN-BERT · HAMT"]
+    C["2021–2023<br/>图规划与长历史<br/>DUET · ETPNav · ScaleVLN"]
+    D["2023–2024<br/>VLM 与视频策略<br/>NaVid · NavGPT-2"]
+    E["2025<br/>快慢系统与规模化数据<br/>StreamVLN · DualVLN<br/>NavFoM · OmniNav"]
+    F["2026<br/>Agent 与统一导航持续探索<br/>AgentVLN · Qwen-RobotNav<br/>NavWAM"]
 
-    A1["Seq2Seq Speaker-Follower"] -.-> A
-    B1["PREVALENT VLN-BERT HAMT"] -.-> B
-    C1["DUET ETPNav ScaleVLN"] -.-> C
-    D1["NaVid NavGPT-2"] -.-> D
-    E1["StreamVLN DualVLN NavFoM OmniNav"] -.-> E
-    F1["AgentVLN Qwen-RobotNav NavWAM"] -.-> F
+    A --> B --> C --> D --> E --> F
 
     style A fill:#f8f9fa,stroke:#868e96,stroke-width:2px
     style B fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
