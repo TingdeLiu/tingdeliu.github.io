@@ -801,7 +801,9 @@ RxR 提供多语言指令及与观测关联的时空标注。复现时应明确�
 
 VLN-CE 将指令导航移到 Habitat 的可导航空间中，取消沿导航图边移动的限制。**连续的是环境位置，策略动作仍可采用有限集合**，例如前进和转向。它增加执行难度，但并不自动包含腿足动力学。[原论文](https://arxiv.org/abs/2004.02857)。
 
-原始基线仓库推荐 `R2R_VLNCE_v1-3`，并固定了对应 Habitat 版本。论文模型若使用不同传感器、路点控制器或修改过的模拟器，必须重新检查协议；数据名称相同不足以证明实验可比。[官方实现与版本说明](https://github.com/jacobkrantz/VLN-CE)。
+原始基线仓库推荐 `R2R_VLNCE_v1-3`，并固定了对应 Habitat 版本。论文模型若使用不同传感器、路点控制器或修改过的模拟器，必须重新检查协议；数据名称相同不足以证明实验可比。
+
+**数据与代码**：[官方 VLN-CE 仓库](https://github.com/jacobkrantz/VLN-CE) · [R2R-CE 数据下载与目录说明](https://github.com/jacobkrantz/VLN-CE#episodes-room-to-room-r2r) · [数据格式与版本记录](https://jacobkrantz.github.io/vlnce/data)。下载入口提供 `R2R_VLNCE_v1-3` 基础包和预处理包。
 
 <div align="center">
   <img loading="lazy" decoding="async" src="/images/vln/VLN-CE-comparison.webp" width="95%" alt="离散视点导航与连续空间执行的对比" />
@@ -844,6 +846,8 @@ VLN-CE 将指令导航移到 Habitat 的可导航空间中，取消沿导航图�
 ### 6.2.5 RxR-CE (多语言连续环境导航)
 
 RxR 的连续环境移植随 VLN-CE 发布。RxR-Habitat 挑战赛对 RGB-D 观测和动作步长、转角作了明确限制，采用全景观测的结果不能直接当作同一挑战赛成绩。[官方挑战赛配置说明](https://github.com/jacobkrantz/VLN-CE#required-task-configurations)。
+
+**数据与代码**：[官方 VLN-CE 仓库](https://github.com/jacobkrantz/VLN-CE) · [RxR-CE 数据下载与目录说明](https://github.com/jacobkrantz/VLN-CE#episodes-room-across-room-rxr)。RxR-CE 与 R2R-CE 共用该仓库；此入口提供 `RxR_VLNCE_v0` 数据包及文本特征下载说明。
 
 **多语言与执行误差需要分开看**：某语言上的下降可能来自语义理解，也可能来自较长路径引发的动作误差。本文建议按语言、路径长度和终点误差分组，并在相同相机与控制器下比较。若加入机器翻译或额外文本特征，应说明模型直接理解原语言，还是借助翻译系统完成导航。
 
