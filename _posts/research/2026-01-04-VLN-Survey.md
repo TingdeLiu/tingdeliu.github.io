@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-survey
 title: "VLN 综述"
-date:   2026-10-08
+date:   2026-10-09
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -12,7 +12,7 @@ toc: true
 excerpt: "从任务、策略架构、空间记忆、动作接口、进度判断与训练信号梳理 VLN；比较主动感知、Agent 编排和预测机制，给出带来源的数据集选型与闭环评测分析。"
 ---
 
-> **修订于 2026-10-07**：第 3 节按策略架构、空间表征、动作接口、任务进度、Agent 编排、预测与训练机制重新组织；关键规模和协议链接至原始来源，跨论文分析注明证据边界。详细论文解读见 [VLN 论文精读：指令跟随篇](/VLN-Papers/)与[VLN 论文精读：目标导航与扩展篇](/VLN-Papers-Extended/)，覆盖范围见[第 9.4 节](#survey-scope)。
+> **修订于 2026-10-09**：第 3 节按策略架构、空间表征、动作接口、任务进度、Agent 编排、预测与训练机制组织；本次扩充第 3.8 节的强化学习机制、奖励设计、PPO / GRPO 与同基座增益证据，关键结论链接至原论文。详细论文解读见 [VLN 论文精读：指令跟随篇](/VLN-Papers/)与[VLN 论文精读：目标导航与扩展篇](/VLN-Papers-Extended/)，覆盖范围见[第 9.4 节](#survey-scope)。
 
 
 ## 阅读导航
@@ -26,6 +26,7 @@ excerpt: "从任务、策略架构、空间记忆、动作接口、进度判断�
 | 像素目标、动作 token 和轨迹有何不同？ | [动作表示与空间落地](#survey-grounding) | [GroundingVLN](/VLN-Papers/#groundingvln)、[LightNav-0](/VLN-Papers/#lightnav-0) |
 | 怎么判断指令进度，何时需要补看或恢复？ | [进度、主动感知与恢复](#survey-progress) | [Route2Step](/VLN-Papers/#route2step)、[SeekVLN](/VLN-Papers/#seekvln) |
 | 架构之外，还能怎样训练策略？ | [数据扩展与闭环训练](#survey-training) | [CorrectNav](/VLN-Papers/#correctnav)、[MacroAction-VLN](/VLN-Papers/#macroaction-vln) |
+| 强化学习怎样改善纠错、停止与路线跟随？ | [RL 反馈层级](#survey-rl-levels)、[奖励设计](#survey-rl-rewards)、[PPO / GRPO](#survey-rl-algorithms) | [ActiveVLN](https://arxiv.org/html/2509.12618v1)、[ETP-R1](https://arxiv.org/html/2512.20940v1) |
 | 应该选什么数据与实验环境？ | [数据集](#survey-datasets)、[模拟器](#survey-simulators) | 先确定观测、动作和划分，再查同设定结果 |
 | SR 提高是否意味着导航更好？ | [评测体系](#survey-evaluation) | [分任务性能表](/VLN-Papers/)与原论文实验协议 |
 | 方法之间的真正差异是什么？ | [方法组合与证据比较](#survey-comparison) | 按状态、接口、训练和预算比较机制 |
@@ -528,6 +529,8 @@ flowchart LR
 
 架构与机制决定系统如何使用信息，训练范式决定它从什么反馈中学习。两者应分别描述：统一策略、分层控制和带记忆的模型都可以使用示范、数据增强或强化学习；同一个模型也可能先监督微调，再收集纠偏样本或进行 RL 后训练。
 
+### 3.8.1 从示范学习到闭环强化学习
+
 | 训练方式 | 学习信号与作用 | 代表工作 | 需要单独验证的问题 |
 |:---|:---|:---|:---|
 | 行为克隆 / 监督微调 | 从专家轨迹建立指令—动作映射 | [NaVid](/VLN-Papers/#navid)、[StreamVLN](/VLN-Papers/#streamvln) | 离开专家访问状态后能否恢复？ |
@@ -540,7 +543,172 @@ flowchart LR
 
 **纠偏数据需要区分语义状态错误和执行错误。** CorrectNav 利用偏离轨迹构造感知与动作纠错数据；Route2Step 为错误进度提供状态监督，并将直接动作监督用于相应的恢复情形。它们关注的是模型在哪些状态上学习、接受什么监督，不能仅由最终架构名称解释。
 
-**奖励与动作接口共同决定优化问题。** GroundingVLN 将像素目标与下游执行联系起来；[MacroAction-VLN](https://arxiv.org/abs/2609.03906)在拓扑前沿宏动作上进行闭环 RL，缩短高层决策时域；SeekVLN 则根据补充观察相对直接导航的后续进展分配奖励。使用几何奖励并不要求输出连续坐标，关键是动作后果能否在环境中得到有效度量。
+行为克隆 / SFT 学习“在专家经过的状态上，下一步应该怎么走”。测试时，一次转弯不足就会改变后续画面，策略可能进入示范没有覆盖的状态。[DAgger](https://arxiv.org/abs/1011.0686)让策略访问自己的状态，再查询专家纠正动作，缓解这种分布变化；**闭环 RL 则根据自主执行的后果，优化整段任务的回报。** 两者可以组合，交互采样本身不能决定一次训练属于模仿学习还是强化学习。
+
+用两个目标可以看出反馈来源的区别：
+
+$$
+\begin{aligned}
+\mathcal L_{BC}&=-\mathbb E_{(I,h_t,a_t^*)\sim D}
+\log\pi_\theta(a_t^*\mid I,h_t),\\
+J_{RL}(\theta)&=\mathbb E_{\tau\sim\pi_\theta}
+\left[\sum_{t=0}^{T-1}\gamma^t r_t\right].
+\end{aligned}
+$$
+
+这里 $I$ 是指令，$h_t$ 表示截至当前的观测与动作历史，$a_t^*$ 是专家动作，$\tau$ 是实际执行轨迹，$r_t$ 是奖励，$\gamma$ 是折扣因子。前者提高专家动作的概率，后者提高自主轨迹的期望回报。任务允许多种有效走法时，奖励可以接受不同但符合指令的路径；相应地，奖励遗漏沿途要求时，也可能鼓励错误的捷径。
+
+**RL 在 VLN 中值得优化的是关键决策的后果。** 偏航后是否重新观察或回头、到达附近后何时 STOP、为了正确转弯是否应暂时远离终点，都难以用平均动作准确率充分衡量。长程信用分配需要把最终成功或失败关联到更早的决策；过程奖励、价值估计和分段回报提供不同的信号。感知、深度尺度或执行器本身有错误时，仍需先确认系统瓶颈，不能把增加 RL 当作通用修复。
+
+这条研究路线早于大模型后训练：[RCM](https://arxiv.org/abs/1811.10092)用跨模态 matching critic 奖励指令与轨迹的匹配；[EnvDrop](https://aclanthology.org/N19-1268.pdf)结合环境特征 dropout、回译、行为克隆与 Advantage Actor-Critic。大模型阶段扩展了策略规模和动作生成接口，数据增强、记忆设计与 RL 的贡献仍应分别分析。
+
+<a id="survey-rl-levels"></a>
+
+### 3.8.2 奖励作用于动作、执行还是整条轨迹
+
+“使用 GRPO”只说明优化器的一部分，不能说明模型是否在环境中自主完成整段导航。以下按**训练时被评分的对象**区分代表方法；这是对原文机制的归纳，同一方法可能结合多种奖励。
+
+| 工作与核查版本 | 被评分的对象与主要奖励 | 能支持的机制判断 |
+|:---|:---|:---|
+| [VLN-R1，v1](https://arxiv.org/html/2506.17221v1) | 固定历史下生成六步动作，用时间衰减的专家逐位匹配奖励做 GRPO | 局部动作后训练；不能由此推断学会自主偏航后的整段恢复 |
+| [JOP-VLN，v1](https://arxiv.org/html/2607.13461v1) | 在 DAgger 状态上采样至多四步动作块，以格式、oracle 匹配和位姿 / 位移反馈评分，联合纠错 IL | 局部动作块优化，含短程执行反馈；不同于整段任务成功奖励 |
+| [GroundingVLN / GEAR，v3](https://arxiv.org/html/2609.18581v3) | 在固定决策 anchor 上采样输出，按视觉落地、子任务、可通行性与执行端点奖励评分 | 执行感知后训练；奖励图反映物理后果，但不等于每个候选都重新 rollout 整个 episode |
+| [ActiveVLN，v1](https://arxiv.org/html/2509.12618v1) | 生成动作、执行、追加观测，按完整多轮轨迹的任务结果做 GRPO | 闭环轨迹优化，策略动作会改变后续训练输入 |
+| [ETP-R1，v1](https://arxiv.org/html/2512.20940v1) | 图式策略经预训练和 DAgger 后，按完整 episode 的到达、效率与路线指标做 GRPO | 闭环高层规划优化，奖励随 R2R / RxR 的任务要求调整 |
+| [NavGRPO，v1](https://arxiv.org/html/2603.15370v1) | 在离散导航图上采样多条轨迹，以目标距离、路径效率和步级信号比较，结合困难任务回放 | 完整轨迹与恢复学习；动作和观测权限须与 VLN-CE 原子动作策略区分 |
+
+**局部答案奖励**主要回答“这段动作是否符合专家”，**执行感知奖励**回答“这个目标是否可走、执行后落在哪里”，**完整闭环回报**回答“反复观察与行动后是否完成任务”。三者可能都改善最终 SR，但训练成本、错误状态覆盖和能够证明的能力不同。尤其是固定历史的动作优化，后续输入不会随当前采样动作自然改变，不能直接当作长程探索的证据。
+
+动作粒度也影响学习：[MacroAction-VLN](https://arxiv.org/abs/2609.03906)在拓扑前沿宏动作上进行闭环 RL，减少高层决策次数；SeekVLN 则根据补充观察相对直接导航的后续进展分配奖励。使用几何奖励并不要求输出连续坐标，关键是评分对象、实际执行和新观测之间的关系是否明确。
+
+<a id="survey-rl-rewards"></a>
+
+### 3.8.3 奖励设计：到达、路线忠实度与执行成本
+
+如果指令是“先穿过厨房，再沿走廊进入卧室”，绕过厨房的捷径可能得到更高的终点成功与最短路效率，却违反了沿途要求。**到达终点、忠实执行指令、安全高效地移动，是相关但不同的优化目标。** 奖励应先明确任务要求，再选择指标。
+
+| 奖励项 | 希望学到什么 | 容易出现的偏差 |
+|:---|:---|:---|
+| 成功 / 正确 STOP | 在满足成功条件时结束任务 | 终点奖励稀疏；经过目标但不停与成功停止应区分 |
+| 距离进展 | 为中途决策提供密集反馈 | 必要转向、回退或绕行未必立即缩短距离 |
+| nDTW / SDTW、顺序地标完成 | 遵循中间地标与路线顺序 | 参考路径未必是唯一合理走法；地标事件应避免重复计奖 |
+| SPL 或与参考路线匹配的效率项 | 成功后少绕路 | 最短路效率本身不保证满足沿途指令 |
+| 碰撞、步数或时间成本 | 改善可执行性和效率 | 代价过大可能鼓励提前放弃或过早 STOP |
+| 格式 / 动作合法性 | 产生可解析的控制输出 | 格式正确不能代替任务完成 |
+
+[nDTW 原始研究](https://research.google/pubs/general-evaluation-for-instruction-conditioned-navigation-using-dynamic-time-warping/)通过有序路径匹配衡量路线忠实度，SDTW 再加入成功约束；定义见[第 8.3 节](#83-路径效率与指令保真度指标)。例如 ETP-R1 的 R2R 奖励结合 success@1.5m、SPL 与终点距离，RxR 则采用 nDTW、SDTW、以参考路线长度计算的 gSPL 及终点距离。gSPL 调整的是效率参照，沿途一致性仍需路线项共同约束；奖励中的 1.5m 也不能代替其他评测协议的成功阈值。[原文 Eq.5](https://arxiv.org/html/2512.20940v1)
+
+下面仅展示回报可包含的分项，**不是某篇论文的固定配方，也不是经验证的通用权重**：
+
+$$
+\begin{aligned}
+R(\tau)&=w_s\mathbf 1[\mathrm{success}]
++w_f\mathrm{nDTW}(\tau,\tau^*)+w_p\mathrm{SPL}(\tau)\\
+&\quad-c_c N_{\mathrm{collision}}-c_t T
+-w_e\mathbf 1[\mathrm{wrong\ STOP}].
+\end{aligned}
+$$
+
+其中 $\tau^*$ 是参考路线，$N_{\mathrm{collision}}$ 是碰撞次数，$T$ 在此表示执行步数；各权重控制不同目标的相对影响，距离进展等密集信号可另按步骤发放。长程任务要按整段累计量校准成本，避免数百步惩罚压过成功奖励。奖励落地前，可先比较专家、捷径、绕路、碰撞和提前停止轨迹的分项得分，确认排序符合任务要求。
+
+**奖励可用的训练信息与策略可见的信息要分开。** 仿真可用目标真值、导航网格和参考路线评分，部署 actor 应只读取协议允许的观测、指令和记忆。若 critic 使用特权状态辅助训练，也应单独说明。否则，靠真实目标坐标获得的收益不能作为仅凭视觉与语言导航的证据。
+
+<a id="survey-rl-algorithms"></a>
+
+### 3.8.4 PPO 与 GRPO：优势信号从哪里来
+
+策略梯度通过提高高优势动作的概率更新策略。这里的**优势**表示“这次选择的后续回报，比当前条件下的比较基准好多少”；PPO 与 GRPO 的一个核心差别，是这个比较基准如何得到。
+
+**PPO：用价值估计辅助分配步骤级信用。** 常见 actor-critic 实现训练价值函数 $V(I,h_t)$，结合回报估计每一步的优势 $A_t$，再限制新旧策略概率比的更新幅度。其裁剪目标为：
+
+$$
+\begin{aligned}
+L_{\mathrm{clip}}&=\mathbb E_t\left[
+\min\left(\rho_t A_t,
+\operatorname{clip}(\rho_t,1-\epsilon,1+\epsilon)A_t\right)\right],\\
+\rho_t&=\frac{\pi_\theta(a_t\mid I,h_t)}
+{\pi_{\mathrm{old}}(a_t\mid I,h_t)}.
+\end{aligned}
+$$
+
+$\pi_{\mathrm{old}}$ 是采样该批轨迹的行为策略，$\epsilon$ 是裁剪范围。价值基线帮助判断早期路口、回退和停止决策的贡献，也引入价值估计误差。critic 可以是共享表示上的小 value head，不必复制一个同规模模型；PPO 也可以使用终局奖励，并非必须有密集过程奖励。[PPO 原论文](https://arxiv.org/abs/1707.06347)
+
+**GRPO：用同一条件下的多个结果形成比较基准。** 不单独训练 critic，而是为同一输入采样一组输出并比较奖励。若评分单位是完整导航轨迹，同组应固定指令、起点、朝向和环境条件。常见的组归一化优势为：
+
+$$
+\hat A_i=\frac{R(\tau_i)-\operatorname{mean}_{j=1}^{G}R(\tau_j)}
+{\operatorname{std}_{j=1}^{G}R(\tau_j)+\varepsilon}.
+$$
+
+这里 $G$ 是组大小，$\varepsilon$ 是防止分母为零的小量，与 PPO 的裁剪范围不同。随后将优势用于对应轨迹的动作或策略生成 token，并采用裁剪更新及相应参考约束。这个式子是常见形式；NavGRPO 使用 Dr.GRPO，归一化和长度聚合不能一概照搬。[GRPO 来源：DeepSeekMath](https://arxiv.org/html/2402.03300v2)、[NavGRPO 算法说明](https://arxiv.org/html/2603.15370v1)
+
+| 比较项 | 常见 PPO 实现 | 轨迹级 GRPO 实现 |
+|:---|:---|:---|
+| 优势基准 | 学到的价值函数与回报 | 同任务多个采样结果的组内比较 |
+| 长程信用 | 可估计逐步优势，质量依赖 critic | 仅用终局回报时，整条轨迹可能共享同一优势，局部归因较粗 |
+| 额外成本 | 价值学习、概率重算与环境交互 | 多条完整轨迹的视觉推理与环境交互 |
+| 主要信号风险 | 价值估计不准、终止 / 截断处理错误 | 同组奖励相同导致零优势、采样质量差异不足 |
+| 适合比较的条件 | 希望逐步诊断决策，且可训练价值头 | 任务回报可靠，且同任务重复采样吞吐足够 |
+
+**省去 critic 不等于总训练更便宜。** 若成功奖励只有 0 / 1，全失败或全成功组都可能没有相对优势；密集评分、课程与困难任务监督能改变信号，但各有额外设计成本。GRPO 的完整轨迹回报也不能自动准确定位导致失败的那次转弯。参考策略 KL 与辅助 BC / IL 可用于保留原有能力，属于可选择的约束，应与主要任务奖励分别报告。
+
+<a id="survey-rl-loop"></a>
+
+### 3.8.5 闭环训练怎样落地：采样、更新与记忆一致性
+
+对已有导航模型，一条便于定位收益来源的实验路线是：**SFT / DAgger 初始化 → 自主采样 → 回报与优势计算 → 策略更新 → 未见场景验证。** 下图是训练流程示意，PPO 与完整轨迹 GRPO 均可采用；具体方案仍需按动作接口和采样预算选择。
+
+```mermaid
+flowchart TB
+    B["SFT 或 DAgger 初始化"] --> S["固定训练任务与行为策略版本"]
+    S --> P["读取指令、当前观测与历史"]
+    P --> A["采样动作并记录行为概率"]
+    A --> E["环境执行并返回新观测"]
+    E -->|任务继续| P
+    E -->|结束或截断| R["保存成功与失败，计算回报"]
+    R --> V["PPO 价值优势或 GRPO 组内优势"]
+    V --> U["重建采样历史并更新策略"]
+    U --> T["独立验证：到达、路线、恢复与成本"]
+    T -.->|下一轮训练| S
+
+    style B fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
+    style E fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
+    style R fill:#fff4e6,stroke:#e67700,stroke-width:2px
+    style V fill:#f3d9fa,stroke:#862e9c,stroke-width:2px
+    style U fill:#e5dbff,stroke:#5f3dc4,stroke-width:2px
+    style T fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
+```
+
+落实这条流程时，有三个容易影响结论的细节：
+
+1. **自主行为与专家纠正分开记账。** 专家接管后的转移不能直接配上模型原先被拒绝动作的概率。纠正样本可走 IL 通道，自主 RL 则应保留失败、错误 STOP、碰撞和超时，不能只筛成功轨迹；任务终止与采样截断也需区分。
+2. **采样概率与重算概率对应同一历史。** 对 StreamVLN 一类流式模型，要保存观测、历史选帧、记忆更新和动作 token，使新旧策略在相同条件下评分。参数更新后，旧参数产生的 KV cache 不能直接当作精确的新策略历史；可先在权重不变时核对概率重放是否一致。
+3. **生成动作块与实际执行步数对齐。** STOP 或碰撞可能截断动作块，未执行后缀如何参与优化应明确。长块减少模型调用，短块提供更快的新观测反馈；改变块长或重观察频率后，应增加同接口监督基线，才能判断收益来自 RL 还是更多决策机会。
+
+这些是从闭环目标和策略概率比推导出的实施检查，不表示必须照用某个项目的训练器。选型上，可把 PPO 作为有价值头的步骤级对照，把轨迹级 GRPO 作为组采样对照，并固定奖励、动作接口和环境交互预算。只有专家轨迹、无法交互时，应先确认离线 RL 所需的奖励、转移与失败覆盖；轨迹偏好优化则需保留各分支真实产生的视觉历史。
+
+<a id="survey-rl-evidence"></a>
+
+### 3.8.6 实验证据：RL 增加了什么，怎样公平归因
+
+同一论文、同一基座和协议下的前后对照，比跨论文最终成绩更接近回答“后训练增加了什么”。下表数字均为**作者报告，未独立复现**；SR / SPL 单位为百分数，增量是绝对百分点。每一行只在本行协议内解读，包含联合训练或特定奖励组件时，也不等于只替换优化器的收益。
+
+| 工作与原文表号 | 数据与 split | 对照 → 后训练 | SR | SPL | SR / SPL 增量 |
+|:---|:---|:---|:---|:---|:---|
+| [VLN-R1，Table 1](https://arxiv.org/html/2506.17221v1#S4.T1) | R2R-CE Val-Unseen | Qwen2-VL-7B SFT → SFT + RFT | 24.9 → 30.2 | 17.5 → 21.8 | +5.3 / +4.3 |
+| [ActiveVLN，Table IV](https://arxiv.org/html/2509.12618v1) | R2R-CE Val-Unseen | 多轮 IL → 多轮 IL + RL | 38.5 → 50.1 | 33.7 → 43.7 | +11.6 / +10.0 |
+| [ActiveVLN，Table IV](https://arxiv.org/html/2509.12618v1) | R2R-CE Val-Unseen | 单轮 IL → 单轮 IL + RL | 39.7 → 40.3 | 35.3 → 37.0 | +0.6 / +1.7 |
+| [ETP-R1，Table I](https://arxiv.org/html/2512.20940v1) | R2R-CE Val-Unseen | DAgger → GRPO | 63 → 65 | 54 → 56 | +2 / +2，原表取整 |
+| [ETP-R1，Table I](https://arxiv.org/html/2512.20940v1) | RxR-CE Val-Unseen | DAgger → GRPO | 58.26 → 59.92 | 48.19 → 48.97 | +1.66 / +0.78 |
+| [JOP-VLN，Table II](https://arxiv.org/html/2607.13461v1) | R2R-CE Val-Unseen | Stage 3 纯 IL → 联合训练 | 68.1 → 69.9 | 60.7 → 64.9 | +1.8 / +4.2 |
+| [NavGRPO，Table 7](https://arxiv.org/html/2603.15370v1) | 离散 R2R Val-Unseen | SFT → 完整 GRPO 方法 | 79.40 → 81.88 | 69.97 → 72.65 | +2.48 / +2.68 |
+| [GroundingVLN，Table 3](https://arxiv.org/html/2609.18581v3) | R2R-CE Val-Unseen | w/o GEAR → 完整方法 | 57.2 → 69.9 | 49.5 → 64.1 | +12.7 / +14.6 |
+
+这些结果支持**奖励驱动后训练可以改善 VLN，但收益依赖反馈层级、初始化和任务协议**。ActiveVLN 的单轮 / 多轮对照说明交互组织方式值得单独研究；ETP-R1 的 DAgger → RL 增量提醒读者，不能把整个系统相对旧模型的提升都算给 RL。JOP-VLN 同表的纯 GRPO 为 SR / SPL 67.5 / 62.8，相比纯 IL 的 68.1 / 60.7，成功率与效率并非同时提高，联合纠错监督在该实验更有效。[ActiveVLN 消融](https://arxiv.org/html/2509.12618v1)、[ETP-R1 对照](https://arxiv.org/html/2512.20940v1)、[JOP-VLN Table II](https://arxiv.org/html/2607.13461v1)
+
+复现实验还应核查奖励定义：ActiveVLN v1 的 Eq.8 写成成功指示乘终点距离，与“越近越好”的文字解释存在方向矛盾，不能直接抄作实现。NavGRPO 的 PPO 对照使用步级进度 / 朝向奖励，完整 GRPO 方法使用不同的轨迹奖励，因此该比较不能推出 GRPO 普遍优于 PPO；GroundingVLN 的 GEAR 增量也应放在其视觉落地、像素目标与几何执行接口内理解。[ActiveVLN Eq.8](https://arxiv.org/html/2509.12618v1)、[NavGRPO §4.4](https://arxiv.org/html/2603.15370v1)、[GroundingVLN §3.5 / Table 3](https://arxiv.org/html/2609.18581v3)
+
+评估时，除 SR / SPL，还应检查 nDTW / SDTW、错误 STOP、偏航恢复率、碰撞和任务耗时；未见场景评估与允许测试时探索的适应协议需分开。奖励上升而 SR 下降，可能意味着奖励排序、任务难度或执行接口出了问题，不能只看训练曲线。模型规模、数据、传感器、动作空间、训练交互与测试推理预算应逐项固定或报告，恢复能力还需要受控偏航实验。
 
 配套论文篇的[要素打勾矩阵](/VLN-Papers/#要素打勾矩阵)可以帮助检查数据、相机、控制接口、RL 与纠偏数据是否共同出现。但矩阵仅覆盖特定基准和筛选条件下的条目，采纳率不等于因果贡献；模型大小、观测范围和额外训练数据仍需逐项核对。
 
@@ -1623,7 +1791,7 @@ Seen / Unseen 通常按基准场景划分，衡量同一任务内的场景泛化
 
 本文是按问题组织的叙述性综述，覆盖路线指令导航及与之相关的目标导航、交互和具身控制工作，不是具有穷尽检索与排除流程的系统综述。不同任务作为机制参考时已注明边界；通用 VLA 与操作论文不作为标准 VLN 的直接性能证据。
 
-数据口径、平台支持和核心指标集中核验于 **2026-09-26**；**2026-10-07** 结合配套论文篇重组第 3 节，并补充核对动作接口、进度与主动感知、预测学习等代表方法的机制说明。本次方法章节修订不代表重新核验了全部数据集、平台或排行榜。正文为易变数据注明论文版本或数据卡来源；无法确认独立协议的条目保留不确定性说明。其余工作通过配套论文篇供进一步阅读，本文不声称已独立复现所有实验或验证全部排行榜结果。
+数据口径、平台支持和核心指标集中核验于 **2026-09-26**；**2026-10-07** 结合配套论文篇重组第 3 节，并补充核对动作接口、进度与主动感知、预测学习等代表方法的机制说明；**2026-10-09** 扩充第 3.8 节，按原论文指定版本核对 RL 的反馈层级、奖励与同基座消融。本次方法章节修订不代表重新核验了全部数据集、平台或排行榜。正文为易变数据注明论文版本或数据卡来源；无法确认独立协议的条目保留不确定性说明。其余工作通过配套论文篇供进一步阅读，本文不声称已独立复现所有实验或验证全部排行榜结果。
 
 
 # 10. 参考资料
@@ -1745,3 +1913,20 @@ Seen / Unseen 通常按基准场景划分，衡量同一任务内的场景泛化
 
 64. Gu et al., *Vision-and-Language Navigation: A Survey of Tasks, Methods, and Future Directions*, ACL 2022. [[Paper]](https://arxiv.org/abs/2203.12667)
 65. Zhang et al., *Vision-and-Language Navigation Today and Tomorrow: A Survey in the Era of Foundation Models*, arXiv 2024. [[Paper]](https://arxiv.org/abs/2407.07035) [[GitHub]](https://github.com/zhangyuejoslin/VLN-Survey-with-Foundation-Models)
+
+---
+
+## 10.5 强化学习与闭环后训练
+
+66. **DAgger** — Ross et al., *A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning*, AISTATS 2011. [[Paper]](https://arxiv.org/abs/1011.0686)
+67. **RCM** — Wang et al., *Reinforced Cross-Modal Matching and Self-Supervised Imitation Learning for Vision-Language Navigation*, CVPR 2019. [[Paper]](https://arxiv.org/abs/1811.10092)
+68. **EnvDrop** — Tan et al., *Learning to Navigate Unseen Environments: Back Translation with Environmental Dropout*, NAACL 2019. [[Paper]](https://aclanthology.org/N19-1268/)
+69. **PPO** — Schulman et al., *Proximal Policy Optimization Algorithms*, arXiv 2017. [[Paper]](https://arxiv.org/abs/1707.06347)
+70. **GRPO / DeepSeekMath** — Shao et al., *DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models*, arXiv 2024. [[Paper]](https://arxiv.org/abs/2402.03300)
+71. **nDTW / SDTW** — Ilharco et al., *General Evaluation for Instruction Conditioned Navigation using Dynamic Time Warping*, NeurIPS ViGIL Workshop 2019. [[Paper]](https://research.google/pubs/general-evaluation-for-instruction-conditioned-navigation-using-dynamic-time-warping/)
+72. **VLN-R1** — *Vision-Language Navigation via Reinforcement Fine-Tuning*, arXiv 2025（核查 v1）. [[Paper]](https://arxiv.org/html/2506.17221v1)
+73. **ActiveVLN** — *Towards Active Exploration via Multi-Turn RL in Vision-and-Language Navigation*, arXiv 2025（核查 v1）. [[Paper]](https://arxiv.org/html/2509.12618v1)
+74. **ETP-R1** — *Evolving Topological Planning with Reinforcement Fine-tuning for Vision-Language Navigation in Continuous Environments*, arXiv 2025（核查 v1）. [[Paper]](https://arxiv.org/html/2512.20940v1)
+75. **JOP-VLN** — *Joint On-and-Off Policy Learning for Vision-and-Language Navigation*, arXiv 2026（核查 v1）. [[Paper]](https://arxiv.org/html/2607.13461v1)
+76. **NavGRPO** — *Trajectory-Diversity-Driven Robust Vision-and-Language Navigation*, arXiv 2026（核查 v1）. [[Paper]](https://arxiv.org/html/2603.15370v1)
+77. **GroundingVLN / GEAR** — *Reasoning and Acting with Grounding for Vision-Language Navigation*, arXiv 2026（核查 v3）. [[Paper]](https://arxiv.org/html/2609.18581v3)
