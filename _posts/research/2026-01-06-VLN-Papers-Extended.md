@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-papers-extended
 title: "VLN 论文精读：目标导航与扩展篇"
-date:   2026-10-05
+date:   2026-10-09
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -12,7 +12,7 @@ toc: true
 excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav、HM3D-OVON、图像 / 点目标）性能排行榜，以及目标导航、运动控制、移动操作与其他增补研究。"
 ---
 
-> 本文是 [VLN 论文精读：指令跟随篇](/VLN-Papers/) 的扩展篇，收录 34 篇工作与目标导航性能排行榜，侧重目标导航、运动控制、移动操作及其他增补研究。主篇精选 55 篇工作，以指令跟随 VLN 的代表性方法、评测基准与相关基础工作为主；两篇按研究重点与阅读脉络安排，不以是否发表作为唯一分篇依据。
+> 本文是 [VLN 论文精读：指令跟随篇](/VLN-Papers/) 的扩展篇，收录 38 篇工作与目标导航性能排行榜，侧重目标导航、运动控制、移动操作及其他增补研究。主篇精选 56 篇工作，以指令跟随 VLN 的代表性方法、评测基准与相关基础工作为主；两篇按研究重点与阅读脉络安排，不以是否发表作为唯一分篇依据。
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
@@ -30,10 +30,14 @@ excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav
 
 | 模型 | 年份 | 基准 | 范式 | 基模 | SR ↑ | SPL ↑ | 开源 |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
+| [SuperNav-Geo (四视角)](#supernav) <span class="lb-flag">1 m，协议差异</span> | 2026 | HM3D-v2 | 免训练 | GPT-5.6 Terra (high) | 86.50 | 36.38 | – |
+| [SuperNav-Learned (四视角)](#supernav) <span class="lb-flag">1 m，协议差异</span> | 2026 | HM3D-v2 | 训练 | GPT-5.6 Terra (high) | 85.40 | 13.83 | – |
 | [Hydra-Nav (单目)](#hydra-nav) | 2026 | HM3D-v2 | 训练 | Qwen2.5-VL-7B | **84.8** | 41.1 | 否 |
 | [AECNav (单目)](#aecnav) | 2026 | HM3D-v2 | 免训练 | DeepSeek-V4-Flash | 84.7 | **45.3** | 否 |
 | [VLingNav (单目)](#vlingnav) | 2026 | HM3D-v2 | 训练 | LLaVA-Video-7B | 83.0 | 40.5 | 否 |
 | [SysNav (单目)](#sysnav) | 2026 | HM3D-v2 | 免训练 | Gemini-2.5-Flash | 80.8 | 37.2 | [是](https://github.com/zwandering/SysNav) |
+| [SuperNav-Geo (四视角)](#supernav) <span class="lb-flag">0.2 m，协议差异</span> | 2026 | HM3D-v2 | 免训练 | GPT-5.6 Terra (high) | 80.30 | 33.38 | – |
+| [SuperNav-Learned (四视角)](#supernav) <span class="lb-flag">0.2 m，协议差异</span> | 2026 | HM3D-v2 | 训练 | GPT-5.6 Terra (high) | 79.00 | 12.88 | – |
 | [LightNav-0 (单目)](/VLN-Papers/#lightnav-0) | 2026 | HM3D-v2 | 训练 | Qwen3-VL-4B | 77.2 | 41.5 | [是](https://github.com/lightorigins/LightNav-0) |
 | [HarnessVLN (单目)](/VLN-Papers/#harnessvln) | 2026 | HM3D-v2 | 免训练 | GPT-5.6-luna | 76.0 | 37.9 | 否 |
 | [Qwen-RobotNav (单目)](/VLN-Papers/#qwen-robotnav) | 2026 | HM3D-v2 | 训练 | Qwen3-VL-4B | 75.6 | 30.6 | 否 |
@@ -58,13 +62,21 @@ excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav
 
 注：HM3D-v1 为 Habitat 2022 挑战赛的 val（2000 条 / 20 场景 / 6 类），HM3D-v2 为 2023 挑战赛的 val（1000 条 / 36 场景 / 6 类），两者场景与标注不同。VLFM 原文只写 HM3D，但给出的 2000 条 / 20 场景 / 6 类与 v1 一致；Hydra-Nav 原文也未写版本，但其 Table 2 的基线 WMNav 取 72.2，与 WMNav 原文的 HM3D-v2 成绩一致，据此归入 v2；PanoNav 原文未写明版本，单列一组。PanoNav 只从 HM3D val 随机抽取 200 条评测，列为灰色。Hydra-Nav 取原文 Table 2 的 IRFT（Stage 3）结果。Qwen-RobotNav 取 arXiv v3，4B / 8B 两个尺寸分列；LightNav-0 取 arXiv v2 数字（v1 的 HM3D-v2 为 79.5 / 43.7）。
 
+补充：SuperNav-Geo 使用深度与导航几何执行移动，按免训练归类；SuperNav-Learned 的底层运动策略用导航专家轨迹训练，按训练归类，两者的上层 MLLM 均不做导航专用微调。其 HM3D-v2 两个成功阈值分别列行；论文说明外部方法的预算、STOP 规则与执行资源存在差异，因此这些行以灰色保留，不参与最优值加粗。SuperNav 的 SPL 已从原文的 0–1 数值换算为本表使用的百分数，开源列“–”表示摘要未提供可核实的代码仓库链接。
+
 ## ⑤ 开放词汇物体目标 · HM3D-OVON
 
 开放词汇物体导航；除注明外均为 val-unseen，标 † 的行原文未写明划分
 
 | 模型 | 年份 | 范式 | 基模 | SR ↑ | SPL ↑ | 开源 |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|
+| [SuperNav-Geo-Astra (四视角)](#supernav) <span class="lb-flag">120 条子集，1 m</span> | 2026 | 免训练 | GPT-6 Astra (medium) | 79.17 | 49.74 | – |
+| [SuperNav-Geo (四视角)](#supernav) <span class="lb-flag">120 条子集，1 m</span> | 2026 | 免训练 | GPT-5.6 Terra (high) | 73.33 | 41.05 | – |
+| [SuperNav-Geo-Astra (四视角)](#supernav) <span class="lb-flag">120 条子集，0.25 m</span> | 2026 | 免训练 | GPT-6 Astra (medium) | 71.67 | 45.79 | – |
+| [SuperNav-Learned (四视角)](#supernav) <span class="lb-flag">120 条子集，1 m</span> | 2026 | 训练 | GPT-5.6 Terra (high) | 70.83 | 14.43 | – |
+| [SuperNav-Geo (四视角)](#supernav) <span class="lb-flag">120 条子集，0.25 m</span> | 2026 | 免训练 | GPT-5.6 Terra (high) | 68.33 | 38.37 | – |
 | [Hydra-Nav (单目)](#hydra-nav) | 2026 | 训练 | Qwen2.5-VL-7B | **66.3** | **37.4** | 否 |
+| [SuperNav-Learned (四视角)](#supernav) <span class="lb-flag">120 条子集，0.25 m</span> | 2026 | 训练 | GPT-5.6 Terra (high) | 65.00 | 13.55 | – |
 | [HarnessVLN (单目)](/VLN-Papers/#harnessvln) | 2026 | 免训练 | GPT-5.6-luna | 59.3 | 36.6 | 否 |
 | [OmniNav (多目)](/VLN-Papers/#omninav) | 2026 | 训练 | Qwen2.5-VL-3B | 59.2 | 33.2 | [是](https://github.com/amap-cvlab/OmniNav) |
 | [AECNav (单目)](#aecnav) | 2026 | 免训练 | DeepSeek-V4-Flash | 57.3 | 30.5 | 否 |
@@ -80,6 +92,8 @@ excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav
 | [LocalNav-Qwen (单目)](#localnav) | 2026 | 训练 | Qwen3.5-4B | 34.5 | 17.2 | 否 |
 
 注：† SysNav、AstraNav-World 与 JanusVLN 原文只给出一列 HM3D-OVON 结果，未写明划分；NavFoM 为四视角设定（单视角为 43.6 / 31.3）；OmniNav 为启用慢思考系统的 OmniNav*。LocalNav-Claude 是直接用 Claude Sonnet 4.6 做决策的免训练版本，LocalNav-Qwen 是用 Claude 轨迹做 SFT 蒸馏的 Qwen3.5-4B。
+
+补充：SuperNav 使用 120 条 val-unseen 子集，分别报告 0.25 m 与 1 m 阈值，均列为灰色行；评测不额外要求 Habitat STOP，各配置中两项指定的不可达目标任务按采用的规则贡献 SR 与 SPL 为 1。SuperNav-Geo-Astra 为相同几何后端与完整框架上的 GPT-6 Astra（medium）配置，其余 SuperNav 行使用 GPT-5.6 Terra（high）；模型与推理设置同时变化。
 
 ## ⑥ 图像目标 · HM3D-IIN / Image-Goal
 
@@ -119,8 +133,16 @@ excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav
 | [ABot-N1 (三相机)](/VLN-Papers/#abot-n1) | 2026 | Short-Horizon OVON | 训练 | Qwen-3.5-4B + 2B | 84.9 | 51.8 | 否 |
 | [ABot-N1 (三相机)](/VLN-Papers/#abot-n1) | 2026 | ABotN-POIBench | 训练 | Qwen-3.5-4B + 2B | 77.3 | 72.6 | 否 |
 | [VNT-PA (单目)](#vnt-pa) | 2026 | HM3D (Point-Goal, 先验探索帧) | 训练 | – | 93.3 | 90.4 | 否 |
+| [SuperNav-Geo (四视角)](#supernav) | 2026 | InteriorGS (Single-Object) | 免训练 | GPT-5.6 Terra (high) | **78.00** | **41.27** | – |
+| [SuperNav-Learned (四视角)](#supernav) | 2026 | InteriorGS (Single-Object) | 训练 | GPT-5.6 Terra (high) | 68.00 | 20.59 | – |
+| [SuperNav-Geo (四视角)](#supernav) | 2026 | InteriorGS (Ordered Multi-Object) | 免训练 | GPT-5.6 Terra (high) | **34.00** | **13.88** | – |
+| [SuperNav-Learned (四视角)](#supernav) | 2026 | InteriorGS (Ordered Multi-Object) | 训练 | GPT-5.6 Terra (high) | **34.00** | 8.62 | – |
+| [SuperNav-Geo (四视角)](#supernav) | 2026 | Demand-Bench (Ordered Navigation) | 免训练 | GPT-5.6 Terra (high) | **59.50** | **18.01** | – |
+| [SuperNav-Learned (四视角)](#supernav) | 2026 | Demand-Bench (Ordered Navigation) | 训练 | GPT-5.6 Terra (high) | 45.00 | 16.03 | – |
 
-注：GOAT-Bench 为 val-unseen，一个 episode 内依次给出类别、文字描述或图像形式的多个目标。IsaacLab 40-Scenes 为 X-NavDP 的点目标评测；ABotN-PointBench、Short-Horizon OVON 与 ABotN-POIBench 为 ABot-N1 的自建设定，PointBench 室内用零碰撞成功率（SR<1col），室外用三次碰撞内成功率（SR<3col），两者判定不同；POIBench 以到达入口 2 m 内为成功。HM3D (Point-Goal, 先验探索帧) 为 VNT-PA 的设定：规划器只读取一段先验探索轨迹的深度帧与位姿，不看当前视图，以停在目标 0.2 m 内为成功。自建基准各只有一行，不加粗，也不宜与其他表的数字比较。
+注：GOAT-Bench 为 val-unseen，一个 episode 内依次给出类别、文字描述或图像形式的多个目标。IsaacLab 40-Scenes 为 X-NavDP 的点目标评测；ABotN-PointBench、Short-Horizon OVON 与 ABotN-POIBench 为 ABot-N1 的自建设定，PointBench 室内用零碰撞成功率（SR<1col），室外用三次碰撞内成功率（SR<3col），两者判定不同；POIBench 以到达入口 2 m 内为成功。HM3D (Point-Goal, 先验探索帧) 为 VNT-PA 的设定：规划器只读取一段先验探索轨迹的深度帧与位姿，不看当前视图，以停在目标 0.2 m 内为成功。仅有一行的基准不加粗；自建基准的结果不宜与其他表的数字比较。
+
+SuperNav 的 InteriorGS (Single-Object) 与 InteriorGS (Ordered Multi-Object) 是 Habitat-GS 中各 150 项的自建实例导航任务；多目标包含 2–5 个目标，要求按序到达批准视点的可导航距离 1 m 内并显式 STOP。Demand-Bench (Ordered Navigation) 使用 200 项需求驱动任务的改编协议，要求按序进入相关物体水平包围盒的 2 m 范围、不重复使用物体并显式 STOP，没有额外可见性检查；其数字不能直接与 DemandAgent 原协议比较，也不代表完成搬运或整理活动。同组两行比较 SuperNav 的几何与学习式后端，底层几何资源不同。
 
 # 具身导航论文扩展
 
@@ -4808,6 +4830,194 @@ $$\mathcal L(\theta) = -\mathbb E\left[ \sum_{\ell=1}^{H} \log \pi_\theta\left( 
 
 ---
 
+## 38. SuperNav (2026) {#supernav}
+———用导航技能、视觉点选工具与上下文管理，把通用多模态模型组织成持续行动的导航 Agent
+
+📄 **Paper**: [arXiv:2610.12126](https://arxiv.org/abs/2610.12126) · [Project Page](https://zju3dv.github.io/SuperNav/)
+
+### 精华
+
+让通用多模态模型负责理解请求、判断场景和选择目的地，把路径规划与运动控制交给工具，是 SuperNav 支持不同导航任务的核心分工。
+导航能力还取决于模型周围的执行框架：可按需读取的技能、方便点选目的地的工具、任务进度记录和上下文管理，共同支撑搜索、复核与失败恢复。
+统一的图像点坐标接口，使同一套高层决策流程可以连接几何规划器或学习式运动策略，但两者的传感与几何资源不同，成功率接近也不意味着路径效率相同。
+“无需导航专用微调”指上层 MLLM；学习式执行器仍用模拟器专家轨迹训练，实验中的几何执行器则使用深度与可导航几何。
+
+---
+
+### 1. 研究背景/问题
+
+服务机器人既要理解“找到指定沙发”“依次访问多个物体”，也要把“找个可以休息的地方”转成合适的目标，并在陌生场景中持续探索和验证。
+固定模块化流程通常预先规定模型何时参与、何时复核和停止，换任务时需要改流程；直接微调 VLM 预测导航动作，则受训练任务与场景覆盖范围限制。
+SuperNav 因此保留预训练 MLLM 的通用能力，用一个导航执行框架（agent harness）组织工具调用、技能读取和历史管理，让模型根据反馈选择下一步。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/vln/SuperNav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/943" />
+<figcaption>图 2：SuperNav 的整体框架。Agent 循环维护上下文；Navigation Skills 提供搜索、复核、恢复和完成指导；工具执行观测与移动，并通过统一图像点接口连接两种运动后端。</figcaption>
+</div>
+
+**整体框架。** SuperNav 由 Agent 循环、Navigation Skills 和面向 Agent 的导航工具三部分组成：循环把请求、历史和反馈交给 MLLM；技能提供可读取的操作经验；工具把模型选出的目的地转成真实移动，并返回新的观测。
+
+**① Agent 循环：让每次行动接上前面的证据。** 输入是任务指令、当前图像、文本交互历史和待完成目标记录；MLLM 据此选择观察、移动、读取技能、更新目标状态或结束会话；工具结果进入下一轮上下文。
+例如，靠近疑似沙发后发现它是床，模型应根据新图像继续搜索，而不是沿用先前猜测。
+实现采用 Codex CLI 运行循环，通过 MCP 暴露环境工具；高层模型接收 RGB 与执行反馈，不直接接收绝对位姿、地图或评测器目标信息。
+
+长任务的上下文管理采用**仅裁掉旧图像载荷的剪枝（media-only pruning）**：旧观测被新观测替代后，不再反复传输其图像内容，但保留文本历史、任务状态和图片路径，需要时可以重新读取旧图。
+这既降低重复图像输入，也保留已检查区域、失败尝试和未完成目标的线索；返回旧区域依靠视觉识别与记录，不依赖存储一条可直接执行的返程路径。
+
+**② Navigation Skills：把经验写成模型可以查阅的操作说明。** 每项技能是 Markdown 包，描述适用情况、需要检查的证据、建议步骤与参考文件；模型先看到名称和简介，再按需读取正文。
+搜索指导要求记录已检查区域、可见入口和待探索分支；恢复指导建议换点、换路、后退或绕到入口；完成指导要求复核目标外观、指定关系与周围上下文，再更新目标记录。
+技能通过进入上下文影响判断，动作仍由 MLLM 逐次选择。
+
+| 维度 | 固定模块化导航流程 | SuperNav 的技能与循环 |
+|---|---|---|
+| 决策顺序 | 程序预先规定探索、验证与结束的切换 | 模型依据请求和反馈选择下一项操作 |
+| 经验如何加入 | 写入流程分支或专门模块 | 读取搜索、恢复和完成的文字指导 |
+| 技能如何生效 | 程序直接执行预设逻辑 | 技能提供建议，不强制执行动作序列 |
+
+**③ 视觉点选工具：先在图像上说清“去哪里”，再让后端负责“怎么走”。** 观测提供相对于拍摄时机器人朝向的 front、right、back、left 四张 RGB 图像；模型选择视图和从左上角开始归一化的坐标：
+
+$$
+\operatorname{PointNav}(d,[u,v]),\qquad u,v\in[0,1].
+$$
+
+这里 $d$ 是视图，$u$ 和 $v$ 分别是横向、纵向坐标；点可以落在候选物体上，也可以落在可见地面上，以接近目标或获得更好的观察位置。
+移动或转向完成后，工具直接返回新四视图、执行状态和简短诊断，模型可立即复核，无需每次再单独调用观察。
+
+> **举个例子**：在一张 640 × 480 的右视图上选择 $[0.5,0.75]$，大致就是图像横向 320、纵向 360 的位置。
+> 这个点只说明视觉目的地；它没有给出机器人应转多少度、走多少米，更没有保证该点可以直接到达，这些问题由运动工具处理。
+
+同一个点选接口连接两种后端：
+
+| 后端 | 输入与处理 | 输出及设计作用 |
+|---|---|---|
+| Geo-based Executor | 利用深度、相机标定和位姿把像素反投影到场景，再选择可达位置并规划、跟随路径 | 完成一次移动并返回观测；模拟器使用预计算导航网格，真机使用 LiDAR 地图与里程计 |
+| Learned Executor | 读取带目标点标记的参考 RGB 和后续 RGB 历史，预测短段位移与局部停止信号，边执行边重新预测 | 完成一次局部移动并返回观测；策略推理无需深度反投影或导航网格规划 |
+
+因此，“上层接口一致”不代表“底层资源一致”：几何后端内部使用几何信息，学习式后端在模拟器中仍借助位置变化与碰撞报告监测进展。
+
+<div align="center">
+  <img src="/images/vln/SuperNav-demand-driven-navigation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/614" />
+<figcaption>图 4：需求驱动导航案例。面对“让工作区域清爽可用”的请求，Agent 依次寻找桌子、识别需要清走的花瓶、寻找可放置花瓶的架子；图中展示的是导航与目标判断。</figcaption>
+</div>
+
+**④ Learned Executor：目标参考图固定，当前视角不断变化。** 上层模型选定参考图和像素后，执行器在参考图上画红色圆环与中心点；同一次局部请求中，参考图和目标点保持固定，当前 RGB 随运动更新。
+共享 DINOv2 ViT-S/14 将 224 × 224 图像编码成 384 维全局特征：历史图像经投影成为 256 维观测 token；当前图像与标记参考图的特征拼接后，经 768 → 256 → 256 的 MLP 形成目标 token。
+目标 token 将“最初点选的位置”与“现在看到的场景”联系起来，供后续运动预测使用。
+
+<div align="center">
+  <img src="/images/vln/SuperNav-learned-executor.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/559" />
+<figcaption>图 6：学习式执行器。共享视觉编码器处理标记参考图和 RGB 历史，带时间年龄的 Transformer 融合后，由 flow 动作头生成位移增量，停止头判断当前移动请求是否应结束。</figcaption>
+</div>
+
+历史采用**保留起点、重点记住近期画面的变长视觉记忆（variable-length visual history）**，每次融合最多输入 12 帧。
+选择从间隔为 2 的历史帧与当前帧开始，超预算时反复稀疏较旧的一半，同时保留起点与当前帧；为每帧加入“距现在过去了多少个观测”的年龄编码，再与目标 token 一起送入四层、四头 Transformer，对有效 token 求均值得到条件向量 $c_t$。
+图像特征可缓存复用，但年龄编码随当前时刻更新，因此被选中的不等间隔历史帧仍保有时间信息。
+
+> **具体看帧编号**：论文在 $t=8$ 时选择 $[0,2,4,6,8]$，在 $t=60$ 时选择 $[0,30,42,46,48,50,52,54,56,58,60]$。
+> 后一组仅 11 帧，却保留了起始画面与密集的近期画面；没有参加本次融合的旧帧仍可留在历史与特征缓存中，12 帧上限约束的是一次融合的输入。
+
+**⑤ 运动预测与训练目标。** 一维 U-Net 以 $c_t$ 为条件，生成 8 个二维位移增量；所有增量均使用预测时机器人的固定坐标系，横轴向前、纵轴向左，乘以 0.25 m 后得到实际位移。
+训练数据来自 Habitat greedy-follower 专家轨迹：把未来位置投影到初始图像形成目标点，并在数据生成阶段用深度检查遮挡；若标记落在物体表面，地面上的接近位置提供对应轨迹。
+归一化增量逐分量裁剪到 $[-1,1]$，专家到达终点后的增量补零。
+
+> **举个例子**：简化为 3 个归一化增量 $[(1,0),(1,1),(0,1)]$，乘以 0.25 m 后依次是 $(0.25,0)$、$(0.25,0.25)$、$(0,0.25)$。
+> 在同一个预测时坐标系中累加，得到航点 $(0.25,0)$、$(0.50,0.25)$、$(0.50,0.50)$；真实模型一次预测 8 个增量，通常只执行前 3 个便重新观察和预测，以及时修正偏差。
+
+动作头用 **flow matching** 学习如何把噪声逐步变成专家位移序列：在专家序列 $A$ 与高斯噪声 $\epsilon$ 之间构造插值，并监督网络预测该插值路径的变化方向。
+
+$$
+x_\tau=(1-\tau)A+\tau\epsilon,\qquad
+\mathcal L_{\mathrm{flow}}=\frac{1}{16}\mathbb E\left[\lVert v_\theta(x_\tau,\tau,c_t)-(\epsilon-A)\rVert_F^2\right].
+$$
+
+其中 $\tau$ 在 $[0,1]$ 均匀采样，$\epsilon$ 是标准高斯噪声；$1/16$ 对 8 × 2 个序列分量取平均。
+停止头预测 $p_t$，辅助头估计距专家终点的剩余观测步数；当剩余步数不超过 2 时，停止监督标签为正，步数包含转向动作。
+总损失为：
+
+$$
+\mathcal L=\mathcal L_{\mathrm{flow}}+0.5\mathcal L_{\mathrm{stop}}+0.002\mathcal L_{\mathrm{remaining}}.
+$$
+
+停止项使用正样本权重为 3 的二元交叉熵，剩余步数项使用平方误差。
+10% 训练样本把目标 token 换成可学习的空 token，同时保留观测历史，用于无分类器引导；后两项损失仅在保留目标 token 的样本上计算。
+执行器训练 45,000 次更新、全局批量 256，并联合微调视觉编码器；这部分训练与上层 MLLM 不做导航微调是两回事。
+
+**⑥ 推理与结束判断：局部停下之后，还要判断任务是否完成。** 推理从高斯噪声开始，用 4 次 Euler 更新生成位移序列，并使用 $v_{\mathrm{guided}}=v_u+2(v_c-v_u)$ 结合有目标与空目标的预测；从 16 条采样序列中根据终点方向一致性与路径直线程度选择一条。
+执行器通常执行前三个增量，将其转为转向和前进动作，再获取 RGB 并继续预测；局部停止要求 $p_t\geq0.1$ 连续出现两次，并满足运动进展条件，辅助剩余步数预测不参与停止门控。
+运动进展条件要求累计至少执行 4 个原子动作且自本轮首次超过阈值以来至少执行 3 个，或上一周期没有执行动作；失败与预算耗尽另行报告。
+
+> **两层停止的区别**：点选门口后，执行器可以确认“这次走到门口的移动结束了”；但机器人还没有找到沙发，MLLM 仍需检查新视图并选择下一个目的地。
+> 即使 MLLM 最后调用关闭工具并声明 achieved，关闭成功也只说明会话已结束，任务成功仍由独立评测器判定。
+
+端到端看，一条请求经过“解释目标 → 查看四视图 → 按需读取技能 → 点选目的地 → 后端移动并返回反馈 → 复核并更新目标”的循环，直到模型决定结束；学习式后端的一次工具调用内，还会运行多轮短段运动与重新规划。
+
+---
+
+### 3. 核心结果/发现
+
+**实例与需求驱动导航（表 1）。** 主实验使用 GPT-5.6 Terra；SR 为成功率，SPL 同时考虑是否成功和路径效率，下表每格为 **SR（%）/ SPL**。
+
+| 方法 | 单物体（150 项） | 按序多物体（150 项） | 需求驱动（200 项） |
+|---|---|---|---|
+| NaVid | 24.67 / 0.1599 | 2.67 / 0.0216 | 17.00 / 0.0920 |
+| UniNaVid | 34.00 / 0.1833 | 1.33 / 0.0131 | 25.00 / 0.0943 |
+| StreamVLN | 13.33 / 0.1036 | 0.00 / 0.0000 | 25.50 / 0.0775 |
+| OmniNav（Action Former） | 27.33 / 0.2133 | 4.00 / 0.0275 | 37.50 / 0.1213 |
+| SuperNav + Geo-based Executor | **78.00 / 0.4127** | **34.00 / 0.1388** | **59.50 / 0.1801** |
+| SuperNav + Learned Executor | 68.00 / 0.2059 | **34.00** / 0.0862 | 45.00 / 0.1603 |
+
+几何后端的单物体 SR 比最强基线 UniNaVid 高 **44 个百分点**，需求驱动 SR 比 OmniNav Action Former 高 **22 个百分点**；多物体任务两种后端均达到 34%，但几何后端路径效率更高。
+多物体任务包含 2–5 个目标，单物体看最终位置，多物体看轨迹中是否按序到达批准视点 1 m 内，二者均要求显式 STOP。
+需求驱动任务采用 Demand-Bench 的 1–8 阶段任务，但协议改成依次进入合适物体水平包围盒的 2 m 范围、不重复使用物体并显式 STOP，不要求额外可见性或视线检查；这些数字不能直接与 DemandAgent 原协议比较。
+基线保留各自原生观测与历史机制，相机数量、视场和底层几何资源并未完全统一，因此表中比较反映完整系统配置。
+
+**类别级导航（表 2）。** HM3D-OVON 使用同一组 120 个 val-unseen episode，HM3Dv2 使用 1,000 个验证 episode；阈值是最终位置到最近目标视点的最短可导航距离，每格仍为 **SR（%）/ SPL**。
+
+| SuperNav 后端 | OVON，0.25 m | OVON，1 m | HM3Dv2，0.2 m | HM3Dv2，1 m |
+|---|---|---|---|---|
+| Geo-based Executor | 68.33 / 0.3837 | 73.33 / 0.4105 | 80.30 / 0.3338 | 86.50 / 0.3638 |
+| Learned Executor | 65.00 / 0.1355 | 70.83 / 0.1443 | 79.00 / 0.1288 | 85.40 / 0.1383 |
+
+学习式后端保留了大部分成功率，但 SPL 明显下降，说明抵达能力与走路效率需要分开评价。
+论文同时列出其他方法的已发表结果，但 episode 子集、动作预算、STOP 规则和执行资源存在差异，不能据此视为严格统一协议下的排名。
+SuperNav 的 OVON 协议不额外要求 Habitat STOP，也不以模型口头判断计分；各配置中两项指定的不可达目标任务按所采用规则给予 SR 和 SPL 为 1 的贡献。
+
+**技能、工具和模型消融（表 3）。** 固定 Geo-based Executor、120 个 OVON episode 与 GPT-5.6 Terra（high），除最后一行同时更换模型和推理设置：
+
+| 配置 | SR，0.25 m（%） | SPL，0.25 m | SR，1 m（%） | SPL，1 m |
+|---|---|---|---|---|
+| 完整 SuperNav | 68.33 | 0.3837 | 73.33 | 0.4105 |
+| 去掉 Navigation Skills | 35.00 | 0.2460 | 54.17 | 0.3894 |
+| 改成仅前视图交互 | 52.50 | 0.2230 | 65.83 | 0.2855 |
+| 同时去掉技能与工具设计 | 31.67 | 0.1870 | 54.17 | 0.3417 |
+| 外部语言定位与候选选择工具 | 55.83 | 0.3201 | 62.50 | 0.3624 |
+| GPT-6 Astra（medium）+ 完整框架 | **71.67** | **0.4579** | **79.17** | **0.4974** |
+
+严格 0.25 m 阈值下，去掉导航技能使 SR 下降 **33.33 个百分点**；只提供前视图则下降 **15.83 个百分点**，平均转向工具调用从 0.41 次增加到 17.56 次（表 6）。
+用 LocateAnything 的语言定位、候选选择替代直接点选并未提高表现；更换为 Astra（medium）则提高 SR 与 SPL，但该实验同时改变模型与推理设置，不能把增益仅归因于其中一项。
+
+**长序列与真机。** 在多物体五阶段任务中，几何后端完成前五个目标的阶段成功率为 39.47%；需求驱动五阶段只有 9.09%，没有方法完成六阶段及以上，且六、七、八阶段分别只有 3、2、1 项合格任务（表 4），长序列仍是明显短板。
+阶段成功率按“至少含有该阶段的任务”计分，且不要求 STOP，不能当成整任务成功率。
+Unitree Go2 上的四向 RGB 与 LiDAR 几何后端展示了寻找篮球、寻找另一台 Go2，以及按序访问打印机和垃圾桶的能力；论文提供定性演示，没有报告大规模真机成功率。
+
+<div align="center">
+  <img src="/images/vln/SuperNav-real-world-navigation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/665" />
+<figcaption>图 5：Unitree Go2 真机演示，包含单目标搜索、受阻后的路线调整、近距离验证，以及打印机到垃圾桶的多目标切换。</figcaption>
+</div>
+
+---
+
+### 4. 局限性
+
+语义判断与任务完成判断仍依赖 MLLM，推理成本和时延波动影响执行效率；几何后端依赖可用地图或场景几何，学习式后端的路径效率与长序列可靠性仍有提升空间。
+需求驱动实验衡量按序到达相关目标，不能证明完成搬运或整理等实际活动，且外部基准比较存在协议差异、真机验证主要是定性演示。
+
+---
+
 # 参考资料
 
 ## 论文引用
@@ -4849,6 +5059,7 @@ $$\mathcal L(\theta) = -\mathbb E\left[ \sum_{\ell=1}^{H} \log \pi_\theta\left( 
 35. **SparseNav** (2026). 少即是多：按指令"按需"感知语义的免训练 VLN. arXiv: [2609.26408](https://arxiv.org/abs/2609.26408)
 36. **Talk2Escape** (2026). 迷路了就开口问：把多轮对话变成 VLN 的闭环纠错通道. arXiv: [2609.28296](https://arxiv.org/abs/2609.28296)
 37. **VNT-PA** (2026). 把"在哪看到的"而不是"什么时候看到的"作为位置编码：无显式地图的 Transformer 规划器. arXiv: [2609.21212](https://arxiv.org/abs/2609.21212)
+38. **SuperNav** (2026). 用导航技能、视觉点选工具与上下文管理，把通用多模态模型组织成持续行动的导航 Agent. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126)
 
 
 <script>
@@ -4891,6 +5102,7 @@ $$\mathcal L(\theta) = -\mathbb E\left[ \sum_{\ell=1}^{H} \log \pi_\theta\left( 
     { m: 'SparseNav',             t: ['Agentic', '零样本', '连续环境', '实机部署'] },
     { m: 'Talk2Escape',           t: ['Agentic', '零样本', '连续环境', '实机部署'] },
     { m: 'VNT-PA',                t: ['端到端', '连续环境'] },
+    { m: 'SuperNav',              t: ['Agentic', '零样本', '实机部署', '数据集'] },
   ];
 
   // 另一篇文章的论文清单。两篇的 .paper-section 各自只在本页存在，

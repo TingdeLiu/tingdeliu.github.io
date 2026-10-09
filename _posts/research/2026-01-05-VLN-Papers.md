@@ -7960,6 +7960,7 @@ FRG 依赖启发式观察配额与 VLM 标注，C2PO 依赖可克隆状态的模
     { n: '35. SparseNav (2026)', a: 'sparsenav', t: ['Agentic', '零样本', '连续环境', '实机部署'] },
     { n: '36. Talk2Escape (2026)', a: 'talk2escape', t: ['Agentic', '零样本', '连续环境', '实机部署'] },
     { n: '37. VNT-PA (2026)', a: 'vnt-pa', t: ['端到端', '连续环境'] },
+    { n: '38. SuperNav (2026)', a: 'supernav', t: ['Agentic', '零样本', '实机部署', '数据集'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',
