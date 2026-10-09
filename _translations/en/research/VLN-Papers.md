@@ -6,7 +6,7 @@ permalink: /en/VLN-Papers/
 source_path: _posts/research/2026-01-05-VLN-Papers.md
 source_url: /VLN-Papers/
 source_revision_date: 2026-10-05
-translation_updated: 2026-10-05
+translation_updated: 2026-10-09
 title: "VLN Papers: Instruction Following"
 date: 2026-10-05
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
@@ -8946,6 +8946,8 @@ The following table organizes papers with publication information tagged by conf
     { n: '35. SparseNav (2026)', a: 'sparsenav', t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
     { n: '36. Talk2Escape (2026)', a: 'talk2escape', t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
     { n: '37. VNT-PA (2026)', a: 'vnt-pa', t: ['End-to-end', 'Continuous environments'] },
+    { n: '38. SuperNav (2026)', a: 'supernav', t: ['Agentic', 'Zero-shot', 'Real-robot deployment', 'Datasets'] },
+    { n: '39. NavHarness (2026)', a: 'navharness', t: ['Agentic', 'Zero-shot', 'SLAM', 'Continuous environments'] },
   ];
 
   var ALL_TAGS = ['Dual systems', 'End-to-end', 'Agentic', 'CoT', 'Diffusion models', 'Topological maps', 'SLAM', 'Gaussian representations',

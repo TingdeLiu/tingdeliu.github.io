@@ -12,7 +12,7 @@ toc: true
 excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav、HM3D-OVON、图像 / 点目标）性能排行榜，以及目标导航、运动控制、移动操作与其他增补研究。"
 ---
 
-> 本文是 [VLN 论文精读：指令跟随篇](/VLN-Papers/) 的扩展篇，收录 38 篇工作与目标导航性能排行榜，侧重目标导航、运动控制、移动操作及其他增补研究。主篇精选 56 篇工作，以指令跟随 VLN 的代表性方法、评测基准与相关基础工作为主；两篇按研究重点与阅读脉络安排，不以是否发表作为唯一分篇依据。
+> 本文是 [VLN 论文精读：指令跟随篇](/VLN-Papers/) 的扩展篇，收录 39 篇工作与目标导航性能排行榜，侧重目标导航、运动控制、移动操作及其他增补研究。主篇精选 56 篇工作，以指令跟随 VLN 的代表性方法、评测基准与相关基础工作为主；两篇按研究重点与阅读脉络安排，不以是否发表作为唯一分篇依据。
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
@@ -5018,6 +5018,17 @@ Unitree Go2 上的四向 RGB 与 LiDAR 几何后端展示了寻找篮球、寻�
 
 ---
 
+## 39. NavHarness (2026) {#navharness}
+———以跨会话交接、外部记忆和双阶段核验支撑持续导航
+
+📄 **Paper**: [arXiv:2609.34276](https://arxiv.org/abs/2609.34276) · [Code](https://github.com/billzhao1030/NavHarness) · [Project Page](https://billzhao1030.github.io)
+
+NavHarness 是以持续导航为核心任务的具身 Agent Harness：把空间地图、任务档案和经验记忆保存在推理会话之外，让新的会话接过已搜索区域、待检查分支与失败证据，并通过恢复交接、停止前核验和停止后认证继续导航。其评测覆盖 GOAT-Bench 多模态目标导航、IR2R-CE 指令导航，以及 36 个房屋中的持续部署仿真，因此也适合从导航任务与长期记忆的角度收录在本篇。
+
+**完整解析与实验结果**：[NavHarness：会话交接、记忆复用与持续导航（具身 Agent 论文精读第 9 篇）](/Embodied-Agent-Papers/#navharness)。
+
+---
+
 # 参考资料
 
 ## 论文引用
@@ -5060,6 +5071,7 @@ Unitree Go2 上的四向 RGB 与 LiDAR 几何后端展示了寻找篮球、寻�
 36. **Talk2Escape** (2026). 迷路了就开口问：把多轮对话变成 VLN 的闭环纠错通道. arXiv: [2609.28296](https://arxiv.org/abs/2609.28296)
 37. **VNT-PA** (2026). 把"在哪看到的"而不是"什么时候看到的"作为位置编码：无显式地图的 Transformer 规划器. arXiv: [2609.21212](https://arxiv.org/abs/2609.21212)
 38. **SuperNav** (2026). 用导航技能、视觉点选工具与上下文管理，把通用多模态模型组织成持续行动的导航 Agent. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126)
+39. **NavHarness** (2026). 以跨会话交接、外部记忆和双阶段核验支撑持续导航. arXiv: [2609.34276](https://arxiv.org/abs/2609.34276)
 
 
 <script>
@@ -5103,6 +5115,7 @@ Unitree Go2 上的四向 RGB 与 LiDAR 几何后端展示了寻找篮球、寻�
     { m: 'Talk2Escape',           t: ['Agentic', '零样本', '连续环境', '实机部署'] },
     { m: 'VNT-PA',                t: ['端到端', '连续环境'] },
     { m: 'SuperNav',              t: ['Agentic', '零样本', '实机部署', '数据集'] },
+    { m: 'NavHarness',            t: ['Agentic', '零样本', 'SLAM', '连续环境'] },
   ];
 
   // 另一篇文章的论文清单。两篇的 .paper-section 各自只在本页存在，

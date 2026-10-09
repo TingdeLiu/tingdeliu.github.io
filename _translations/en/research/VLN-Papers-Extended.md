@@ -5,19 +5,19 @@ translation_id: vln-papers-extended
 permalink: /en/VLN-Papers-Extended/
 source_path: _posts/research/2026-01-06-VLN-Papers-Extended.md
 source_url: /VLN-Papers-Extended/
-source_revision_date: 2026-10-05
-translation_updated: 2026-10-05
+source_revision_date: 2026-10-09
+translation_updated: 2026-10-09
 title: "VLN Papers: Goal Navigation and Extensions"
-date: 2026-10-05
+date: 2026-10-09
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "37 detailed readings on goal navigation, locomotion, mobile manipulation, and related research, with five task-specific performance leaderboards."
+excerpt: "39 paper entries on goal navigation, locomotion, mobile manipulation, and related research, with five task-specific performance leaderboards."
 ---
 
-> This collection extends [VLN Papers: Instruction Following](/en/VLN-Papers/) with **34 main readings and 3 related readings (37 in total)**, plus goal-navigation leaderboards. It focuses on goal navigation, locomotion, mobile manipulation, and additional studies. The main collection covers 55 representative instruction-following methods, benchmarks, and foundational works. The two collections follow research focus and reading sequence; publication status is not the sole criterion.
+> This collection extends [VLN Papers: Instruction Following](/en/VLN-Papers/) with **39 paper entries** and goal-navigation leaderboards. It focuses on goal navigation, locomotion, mobile manipulation, and additional studies. The main collection covers 56 representative instruction-following methods, benchmarks, and foundational works. The two collections follow research focus and reading sequence; publication status is not the sole criterion.
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
@@ -37,10 +37,14 @@ Closed-set object navigation: given an object category, find any instance in an 
 
 | Model | Year | Benchmark | Paradigm | Base model | SR ↑ | SPL ↑ | Open source |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
+| [SuperNav-Geo (four views)](#supernav) <span class="lb-flag">1 m, protocol differences</span> | 2026 | HM3D-v2 | Training-free | GPT-5.6 Terra (high) | 86.50 | 36.38 | – |
+| [SuperNav-Learned (four views)](#supernav) <span class="lb-flag">1 m, protocol differences</span> | 2026 | HM3D-v2 | Trained | GPT-5.6 Terra (high) | 85.40 | 13.83 | – |
 | [Hydra-Nav (monocular)](#hydra-nav) | 2026 | HM3D-v2 | Trained | Qwen2.5-VL-7B | **84.8** | 41.1 | No |
 | [AECNav (monocular)](#aecnav) | 2026 | HM3D-v2 | Training-free | DeepSeek-V4-Flash | 84.7 | **45.3** | No |
 | [VLingNav (monocular)](#vlingnav) | 2026 | HM3D-v2 | Trained | LLaVA-Video-7B | 83.0 | 40.5 | No |
 | [SysNav (monocular)](#sysnav) | 2026 | HM3D-v2 | Training-free | Gemini-2.5-Flash | 80.8 | 37.2 | [Yes](https://github.com/zwandering/SysNav) |
+| [SuperNav-Geo (four views)](#supernav) <span class="lb-flag">0.2 m, protocol differences</span> | 2026 | HM3D-v2 | Training-free | GPT-5.6 Terra (high) | 80.30 | 33.38 | – |
+| [SuperNav-Learned (four views)](#supernav) <span class="lb-flag">0.2 m, protocol differences</span> | 2026 | HM3D-v2 | Trained | GPT-5.6 Terra (high) | 79.00 | 12.88 | – |
 | [LightNav-0 (monocular)](/en/VLN-Papers/#lightnav-0) | 2026 | HM3D-v2 | Trained | Qwen3-VL-4B | 77.2 | 41.5 | [Yes](https://github.com/lightorigins/LightNav-0) |
 | [HarnessVLN (monocular)](/en/VLN-Papers/#harnessvln) | 2026 | HM3D-v2 | Training-free | GPT-5.6-luna | 76.0 | 37.9 | No |
 | [Qwen-RobotNav (monocular)](/en/VLN-Papers/#qwen-robotnav) | 2026 | HM3D-v2 | Trained | Qwen3-VL-4B | 75.6 | 30.6 | No |
@@ -65,6 +69,8 @@ Closed-set object navigation: given an object category, find any instance in an 
 
 Note: HM3D-v1 is the val of the Habitat 2022 Challenge (2000 items/20 scenes/6 categories), and HM3D-v2 is the val of the 2023 Challenge (1000 items/36 scenes/6 categories). The scenes and annotations of the two are different. The original text of VLFM only writes HM3D, but the 2000 items/20 scenes/6 categories given are consistent with v1; the original text of Hydra-Nav does not specify a version, but its baseline WMNav in Table 2 is 72.2, which is consistent with the HM3D-v2 score of the original WMNav text, and is therefore classified into v2; the original text of PanoNav does not specify the version, and is listed in a separate group. PanoNav evaluates only 200 randomly sampled HM3D validation episodes, listed in gray. Hydra-Nav takes the IRFT (Stage 3) results of the original Table 2. Qwen-RobotNav takes arXiv v3, divided into two sizes of 4B / 8B; LightNav-0 takes arXiv v2 numbers (HM3D-v2 of v1 is 79.5 / 43.7).
 
+Additional note: SuperNav-Geo executes movement using depth and navigation geometry and is classified as training-free; SuperNav-Learned trains its low-level motion policy on navigation expert trajectories and is classified as trained. Neither high-level MLLM receives navigation-specific fine-tuning. HM3D-v2 rows report two success thresholds; differences in budgets, STOP rules, and execution resources across published methods make these rows nonstandard, so they remain gray and do not participate in bolding. SuperNav SPL is converted from the paper's 0–1 scale to the percentages used in this table. The open-source value “–” means that the summary supplies no verified code-repository link.
+
 ## ⑤ Open-vocabulary object goals · HM3D-OVON
 {: id="-开放词汇物体目标--hm3d-ovon"}
 
@@ -72,7 +78,13 @@ Open-vocabulary object navigation; val-unseen unless otherwise noted, lines mark
 
 | Model | Year | Paradigm | Base model | SR ↑ | SPL ↑ | Open source |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|
+| [SuperNav-Geo-Astra (four views)](#supernav) <span class="lb-flag">120-episode subset, 1 m</span> | 2026 | Training-free | GPT-6 Astra (medium) | 79.17 | 49.74 | – |
+| [SuperNav-Geo (four views)](#supernav) <span class="lb-flag">120-episode subset, 1 m</span> | 2026 | Training-free | GPT-5.6 Terra (high) | 73.33 | 41.05 | – |
+| [SuperNav-Geo-Astra (four views)](#supernav) <span class="lb-flag">120-episode subset, 0.25 m</span> | 2026 | Training-free | GPT-6 Astra (medium) | 71.67 | 45.79 | – |
+| [SuperNav-Learned (four views)](#supernav) <span class="lb-flag">120-episode subset, 1 m</span> | 2026 | Trained | GPT-5.6 Terra (high) | 70.83 | 14.43 | – |
+| [SuperNav-Geo (four views)](#supernav) <span class="lb-flag">120-episode subset, 0.25 m</span> | 2026 | Training-free | GPT-5.6 Terra (high) | 68.33 | 38.37 | – |
 | [Hydra-Nav (monocular)](#hydra-nav) | 2026 | Trained | Qwen2.5-VL-7B | **66.3** | **37.4** | No |
+| [SuperNav-Learned (four views)](#supernav) <span class="lb-flag">120-episode subset, 0.25 m</span> | 2026 | Trained | GPT-5.6 Terra (high) | 65.00 | 13.55 | – |
 | [HarnessVLN (monocular)](/en/VLN-Papers/#harnessvln) | 2026 | Training-free | GPT-5.6-luna | 59.3 | 36.6 | No |
 | [OmniNav (multi-view)](/en/VLN-Papers/#omninav) | 2026 | Trained | Qwen2.5-VL-3B | 59.2 | 33.2 | [Yes](https://github.com/amap-cvlab/OmniNav) |
 | [AECNav (monocular)](#aecnav) | 2026 | Training-free | DeepSeek-V4-Flash | 57.3 | 30.5 | No |
@@ -88,6 +100,8 @@ Open-vocabulary object navigation; val-unseen unless otherwise noted, lines mark
 | [LocalNav-Qwen (monocular)](#localnav) | 2026 | Trained | Qwen3.5-4B | 34.5 | 17.2 | No |
 
 Note: † The original text of SysNav, AstraNav-World and JanusVLN only gives one column of HM3D-OVON results, without specifying the division; NavFoM is four views setting (single viewing angle is 43.6 / 31.3); OmniNav is OmniNav* with slow thinking system enabled. LocalNav-Claude is a training-free version that directly uses Claude Sonnet 4.6 to make decisions. LocalNav-Qwen is Qwen3.5-4B that uses Claude trajectories for SFT distillation.
+
+Additional note: SuperNav uses a 120-episode val-unseen subset, reporting 0.25 m and 1 m thresholds separately; all these rows are gray. Scoring does not additionally require Habitat STOP, and two designated unreachable-goal episodes per configuration contribute one to SR and SPL under the adopted rule. SuperNav-Geo-Astra uses GPT-6 Astra (medium) with the same geometric backend and full harness; the other SuperNav rows use GPT-5.6 Terra (high), changing both the model and reasoning setting.
 
 ## ⑥ Image goals · HM3D-IIN / Image-Goal
 {: id="-图像目标--hm3d-iin--image-goal"}
@@ -130,8 +144,16 @@ Multi-modal long-range target (GOAT-Bench), and self-built benchmark reported in
 | [ABot-N1 (three cameras)](/en/VLN-Papers/#abot-n1) | 2026 | Short-Horizon OVON | Trained | Qwen-3.5-4B + 2B | 84.9 | 51.8 | No |
 | [ABot-N1 (three cameras)](/en/VLN-Papers/#abot-n1) | 2026 | ABotN-POIBench | Trained | Qwen-3.5-4B + 2B | 77.3 | 72.6 | No |
 | [VNT-PA (monocular)](#vnt-pa) | 2026 | HM3D (Point-Goal, prior exploration frames) | Trained | – | 93.3 | 90.4 | No |
+| [SuperNav-Geo (four views)](#supernav) | 2026 | InteriorGS (Single-Object) | Training-free | GPT-5.6 Terra (high) | **78.00** | **41.27** | – |
+| [SuperNav-Learned (four views)](#supernav) | 2026 | InteriorGS (Single-Object) | Trained | GPT-5.6 Terra (high) | 68.00 | 20.59 | – |
+| [SuperNav-Geo (four views)](#supernav) | 2026 | InteriorGS (Ordered Multi-Object) | Training-free | GPT-5.6 Terra (high) | **34.00** | **13.88** | – |
+| [SuperNav-Learned (four views)](#supernav) | 2026 | InteriorGS (Ordered Multi-Object) | Trained | GPT-5.6 Terra (high) | **34.00** | 8.62 | – |
+| [SuperNav-Geo (four views)](#supernav) | 2026 | Demand-Bench (Ordered Navigation) | Training-free | GPT-5.6 Terra (high) | **59.50** | **18.01** | – |
+| [SuperNav-Learned (four views)](#supernav) | 2026 | Demand-Bench (Ordered Navigation) | Trained | GPT-5.6 Terra (high) | 45.00 | 16.03 | – |
 
-Note: GOAT-Bench is val-unseen. Multiple goals in the form of categories, text descriptions or images are given in one episode. IsaacLab 40-Scenes is the point-goal evaluation of X-NavDP; ABotN-PointBench, Short-Horizon OVON and ABotN-POIBench are the self-built settings of ABot-N1. PointBench uses a zero-collision success rate indoors (SR&lt;1col) and a three-collision success rate (SR&lt;3col) outdoors. The two judgments are different; POIBench counts arrival within 2 m of the entrance as success. HM3D (Point-Goal, a priori exploration frame) is the setting of VNT-PA: the planner only reads the depth frame and pose of a segment of the a priori exploration trajectory, without looking at the current view, and stops within 0.2 m of the target as success. Each self-created benchmark has only one line and should not be bolded, nor should it be compared with numbers in other tables.
+Note: GOAT-Bench is val-unseen. Multiple goals in the form of categories, text descriptions or images are given in one episode. IsaacLab 40-Scenes is the point-goal evaluation of X-NavDP; ABotN-PointBench, Short-Horizon OVON and ABotN-POIBench are the self-built settings of ABot-N1. PointBench uses a zero-collision success rate indoors (SR&lt;1col) and a three-collision success rate (SR&lt;3col) outdoors. The two judgments are different; POIBench counts arrival within 2 m of the entrance as success. HM3D (Point-Goal, a priori exploration frame) is the setting of VNT-PA: the planner only reads the depth frame and pose of a segment of the a priori exploration trajectory, without looking at the current view, and stops within 0.2 m of the target as success. Benchmarks with a single row are not bolded; custom-benchmark results should not be compared with scores in other tables.
+
+SuperNav's InteriorGS (Single-Object) and InteriorGS (Ordered Multi-Object) are custom Habitat-GS instance-navigation benchmarks with 150 tasks each. Multi-object tasks contain 2–5 goals and require ordered arrivals within a 1 m navigable distance of approved viewpoints and explicit STOP. Demand-Bench (Ordered Navigation) adapts 200 demand-driven tasks to ordered arrivals within 2 m of objects' horizontal bounding boxes, without reusing objects and with explicit STOP, but without additional visibility checks. These scores cannot be directly compared to DemandAgent's original protocol and do not show completion of moving or organizing objects. Each group compares SuperNav's geometric and learned backends, whose low-level geometric resources differ.
 
 # Extended paper readings
 {: id="具身导航论文扩展"}
@@ -5267,6 +5289,212 @@ It only does 2D plane planning and assumes that the camera height is constant; t
 
 ---
 
+## 38. SuperNav (2026)
+{: id="supernav"}
+———Turn a general-purpose multimodal model into a continuing navigation agent through navigation skills, visual-point tools, and context management
+
+📄 **Paper**: [arXiv:2610.12126](https://arxiv.org/abs/2610.12126) · [Project Page](https://zju3dv.github.io/SuperNav/)
+
+### Key takeaways
+{: id="精华-26"}
+
+SuperNav separates responsibilities: a general-purpose multimodal model interprets requests, understands scenes, and selects destinations, while tools handle path planning and motion control.
+Navigation performance also depends on the surrounding execution framework: readable skills, convenient destination-selection tools, task-progress records, and context management support search, verification, and recovery.
+A shared image-point interface connects the same high-level decision loop to geometric or learned motion backends, although their sensing and geometric resources differ, and similar success rates can conceal different path efficiency.
+“No navigation-specific fine-tuning” applies to the high-level MLLM; the learned executor is trained on simulator expert trajectories, while geometric execution uses depth and navigable geometry.
+
+---
+
+### 1. Background and problem
+{: id="1-研究背景问题-25"}
+
+Service robots must interpret requests such as “find the specified sofa” and “visit several objects in order,” infer suitable targets from needs such as “find somewhere to rest,” and keep exploring and verifying in unfamiliar scenes.
+Fixed modular workflows usually prescribe when a model participates, rechecks a candidate, or stops, requiring workflow changes for new tasks; directly fine-tuning a VLM to predict navigation actions is constrained by training-task and scene coverage.
+SuperNav therefore preserves the pretrained MLLM's general capabilities and uses an agent harness to organize tool calls, skill reading, and history management, allowing feedback to guide each subsequent decision.
+
+---
+
+### 2. Method and innovations
+{: id="2-主要方法创新点-25"}
+
+<div align="center">
+  <img src="/images/vln/SuperNav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/943" alt="SuperNav agent loop, navigation skills, and visual-point tools with geometric and learned motion backends" />
+<figcaption>Figure 2: SuperNav's overall framework. The agent loop maintains context; Navigation Skills guide search, rechecking, recovery, and completion; tools execute observation and motion through a shared image-point interface for two motion backends.</figcaption>
+</div>
+
+**Overall framework.** SuperNav combines an agent loop, Navigation Skills, and agent-oriented navigation tools: the loop presents requests, history, and feedback to the MLLM; skills provide readable procedural experience; tools translate selected destinations into movement and return fresh observations.
+
+**① Agent loop: connect each action to earlier evidence.** Inputs are the task instruction, current images, textual interaction history, and pending-goal records. The MLLM chooses to observe, move, read a skill, update goal state, or close the session, and tool results enter the next decision context.
+For example, when approaching a presumed sofa reveals a bed, the model should continue searching using the new images.
+The implementation uses Codex CLI for the loop and MCP for environment tools. The high-level model receives RGB observations and execution feedback rather than absolute poses, maps, or evaluator target information.
+
+Long tasks use **media-only pruning**: once newer observations supersede old images, their media payloads are omitted from subsequent requests while textual history, task state, and image paths remain; earlier images can be reread when needed.
+This reduces repeated image input while preserving inspected areas, failed attempts, and unfinished goals. Returning to an earlier area relies on visual recognition and records, rather than a stored executable return path.
+
+**② Navigation Skills: experience as readable procedural guidance.** Each skill is a Markdown package specifying applicable situations, evidence to inspect, recommended steps, and references. The model sees names and descriptions first and reads relevant instructions on demand.
+Search guidance asks it to record inspected areas, visible entrances, and uncertain branches; recovery guidance suggests changing a point or route, stepping back, or finding an entrance; completion guidance asks it to verify appearance, requested relations, and surrounding context before updating goal records.
+Skills influence reasoning by entering the context, while the MLLM chooses each action.
+
+| Dimension | Fixed modular navigation workflow | SuperNav skills and loop |
+|---|---|---|
+| Decision order | Program logic prescribes transitions between exploration, verification, and termination | The model selects the next operation from the request and feedback |
+| Adding experience | Implement workflow branches or dedicated modules | Read written guidance for search, recovery, and completion |
+| Effect of guidance | Program logic executes prescribed procedures | Skills recommend procedures without enforcing action sequences |
+
+**③ Visual-point tools: specify the destination in an image and delegate movement to the backend.** Observations provide front, right, back, and left RGB images relative to the robot's heading when captured. The model selects a view and coordinates normalized from the top-left corner:
+
+$$
+\operatorname{PointNav}(d,[u,v]),\qquad u,v\in[0,1].
+$$
+
+Here $d$ identifies the view, and $u$ and $v$ are horizontal and vertical coordinates. A selected point can lie on a candidate object or visible floor, allowing the robot to approach a target or obtain a better view.
+After movement or turning, the tool returns fresh four-view images, execution status, and concise diagnostics, allowing immediate rechecking without a separate observation call after every movement.
+
+> **Example:** Selecting $[0.5,0.75]$ in a 640 × 480 right-view image approximately identifies horizontal pixel 320 and vertical pixel 360.
+> This specifies a visual destination, without supplying a heading change or travel distance, or guaranteeing direct reachability; the motion tool handles those questions.
+
+The same pointing interface connects two backends:
+
+| Backend | Inputs and processing | Output and role |
+|---|---|---|
+| Geo-based Executor | Uses depth, camera calibration, and pose to back-project the pixel, select a reachable position, and plan and follow a path | Completes a movement and returns observations; simulation uses a precomputed navigation mesh, while deployment uses LiDAR mapping and odometry |
+| Learned Executor | Reads a marked reference RGB image and subsequent RGB history, predicts short displacement sequences and a local stop signal, and repeatedly executes and replans | Completes a local movement and returns observations; policy inference requires no depth back-projection or navigation-mesh planning |
+
+A shared high-level interface therefore does not imply shared low-level resources: geometric execution uses geometry internally, while the simulated learned backend still uses position changes and collision reports to monitor progress.
+
+<div align="center">
+  <img src="/images/vln/SuperNav-demand-driven-navigation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/614" alt="SuperNav infers a workspace, identifies a vase to clear, and finds a suitable shelf" />
+<figcaption>Figure 4: Demand-driven navigation. For a request to make a workspace clear and usable, the agent finds a table, identifies a vase to clear, and finds a suitable shelf; the example demonstrates navigation and target judgments.</figcaption>
+</div>
+
+**④ Learned Executor: a fixed goal reference with a changing current view.** After the high-level model selects a reference image and pixel, the executor draws a red ring and central dot at that point. The reference image and point remain fixed throughout the local request, while current RGB observations change with movement.
+A shared DINOv2 ViT-S/14 encodes 224 × 224 images into 384-dimensional global features. History features are projected into 256-dimensional observation tokens; concatenated current-image and marked-reference features pass through a 768 → 256 → 256 MLP to form the goal token.
+This goal token relates the initially selected destination to the current scene for motion prediction.
+
+<div align="center">
+  <img src="/images/vln/SuperNav-learned-executor.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/559" alt="Learned Executor with shared visual encoding, age-aware history fusion, flow action head, and local stopping" />
+<figcaption>Figure 6: Learned Executor. A shared visual encoder processes the marked reference and RGB history. An age-aware Transformer fuses the inputs, a flow action head generates displacement increments, and a stop head decides whether the current movement request should end.</figcaption>
+</div>
+
+**Variable-length visual history** preserves the starting frame and emphasizes recent observations, with at most 12 frames per fusion pass.
+Selection starts from stride-two history frames plus the current frame. When over budget, it repeatedly thins the older half while preserving the start and current frames. Each frame receives an age encoding indicating how many observations have elapsed; a four-layer, four-head Transformer fuses these tokens with the goal token, and valid-token mean pooling produces the condition $c_t$.
+Cached image features can be reused, while their age encodings update at the current time, preserving temporal information for unevenly spaced observations.
+
+> **Frame-index example:** At $t=8$, the paper selects $[0,2,4,6,8]$; at $t=60$, it selects $[0,30,42,46,48,50,52,54,56,58,60]$.
+> The latter uses only 11 frames while retaining the initial view and dense recent observations. Omitted frames can remain in history and the feature cache; the 12-frame limit applies to a single fusion pass.
+
+**⑤ Motion prediction and training objectives.** Conditioned on $c_t$, a one-dimensional U-Net generates 8 two-dimensional displacement increments, all expressed in the robot's fixed coordinate frame at prediction time, with forward and left axes. Multiplying by 0.25 m converts normalized predictions to physical displacements.
+Training uses Habitat greedy-follower expert trajectories. Future positions are projected into the initial image to form goal points, with depth checking occlusion during data generation; for object-surface markers, the corresponding ground-level approach position supplies the trajectory.
+Normalized increments are clipped componentwise to $[-1,1]$, with zero increments after the expert endpoint.
+
+> **Example:** Simplify to 3 normalized increments $[(1,0),(1,1),(0,1)]$. Scaling by 0.25 m gives $(0.25,0)$, $(0.25,0.25)$, and $(0,0.25)$.
+> Accumulating in the same prediction-time frame gives waypoints $(0.25,0)$, $(0.50,0.25)$, and $(0.50,0.50)$. The actual policy predicts 8 increments and normally executes only the first 3 before observing and replanning to correct deviations.
+
+The action head uses **flow matching** to learn how noise becomes an expert displacement sequence: it interpolates between the expert sequence $A$ and Gaussian noise $\epsilon$ and learns the interpolation's velocity.
+
+$$
+x_\tau=(1-\tau)A+\tau\epsilon,\qquad
+\mathcal L_{\mathrm{flow}}=\frac{1}{16}\mathbb E\left[\lVert v_\theta(x_\tau,\tau,c_t)-(\epsilon-A)\rVert_F^2\right].
+$$
+
+Here $\tau$ is uniform on $[0,1]$, $\epsilon$ is standard Gaussian noise, and $1/16$ averages over the 8 × 2 sequence components.
+A stop head predicts $p_t$, and an auxiliary head estimates the remaining expert-observation steps. The stop label is positive when at most 2 steps remain; the step count includes turning primitives.
+The total objective is:
+
+$$
+\mathcal L=\mathcal L_{\mathrm{flow}}+0.5\mathcal L_{\mathrm{stop}}+0.002\mathcal L_{\mathrm{remaining}}.
+$$
+
+Stopping uses binary cross-entropy with positive-label weight 3, and remaining-step estimation uses squared error.
+For classifier-free guidance, 10% of samples replace the goal token with a learned null token while retaining observation history. The latter two losses apply only to samples retaining the goal token.
+The executor trains for 45,000 updates with global batch size 256 and jointly fine-tunes the visual encoder. This training is separate from preserving the high-level MLLM without navigation fine-tuning.
+
+**⑥ Inference and termination: a local stop still requires a task-level decision.** Inference starts from Gaussian noise and generates an increment sequence with 4 Euler updates, using $v_{\mathrm{guided}}=v_u+2(v_c-v_u)$ to combine goal-conditioned and null-goal predictions. It selects one of 16 samples by endpoint-direction agreement and path straightness.
+The executor normally follows the first three increments, translates them into turning and forward primitives, acquires RGB, and replans. A local stop requires $p_t\geq0.1$ on two consecutive replanning calls plus a motion-progress condition; the auxiliary remaining-step prediction does not gate stopping.
+That progress condition requires at least 4 executed primitives overall and at least 3 since the current streak's first above-threshold prediction, or no executed primitives in the previous cycle. Failures and budget exhaustion are reported separately.
+
+> **Two levels of stopping:** After selecting a doorway, the executor may confirm that the movement to it has ended. The sofa remains unfound, so the MLLM must inspect the new views and choose another destination.
+> Even when the MLLM closes the session and declares achieved, successful closure only confirms that the session ended; an independent evaluator determines task success.
+
+End to end, a request follows a loop of interpreting goals, inspecting four views, reading relevant skills, selecting a visual point, executing movement and receiving feedback, and rechecking and updating goals until the model decides to terminate. Within one learned-backend tool call, multiple short movement and replanning cycles can occur.
+
+---
+
+### 3. Results and findings
+{: id="3-核心结果发现-25"}
+
+**Instance and demand-driven navigation (Table 1).** Main experiments use GPT-5.6 Terra. SR measures success rate, while SPL combines success and path efficiency; each cell below reports **SR (%) / SPL**.
+
+| Method | Single-object (150 tasks) | Ordered multi-object (150 tasks) | Demand-driven (200 tasks) |
+|---|---|---|---|
+| NaVid | 24.67 / 0.1599 | 2.67 / 0.0216 | 17.00 / 0.0920 |
+| UniNaVid | 34.00 / 0.1833 | 1.33 / 0.0131 | 25.00 / 0.0943 |
+| StreamVLN | 13.33 / 0.1036 | 0.00 / 0.0000 | 25.50 / 0.0775 |
+| OmniNav (Action Former) | 27.33 / 0.2133 | 4.00 / 0.0275 | 37.50 / 0.1213 |
+| SuperNav + Geo-based Executor | **78.00 / 0.4127** | **34.00 / 0.1388** | **59.50 / 0.1801** |
+| SuperNav + Learned Executor | 68.00 / 0.2059 | **34.00** / 0.0862 | 45.00 / 0.1603 |
+
+The geometric backend exceeds the strongest single-object baseline, UniNaVid, by **44 percentage points**, and OmniNav Action Former on demand-driven navigation by **22 percentage points**. Both SuperNav backends achieve 34% on multi-object tasks, with more efficient paths from geometric execution.
+Multi-object tasks contain 2–5 targets. Single-object scoring checks the final position; multi-object scoring checks ordered trajectory arrivals within 1 m of approved viewpoints. Both require explicit STOP.
+Demand-driven tasks adapt Demand-Bench's 1–8-stage requests to ordered arrivals within 2 m of admissible objects' horizontal bounding boxes, without object reuse and with explicit STOP, but without additional visibility or line-of-sight checks. These scores are not directly comparable to DemandAgent's original protocol.
+Baselines retain native observations and history mechanisms, without fully matching camera counts, fields of view, or low-level geometric resources; the comparison evaluates complete system configurations.
+
+**Category-level navigation (Table 2).** HM3D-OVON uses a shared 120-episode val-unseen subset; HM3Dv2 uses 1,000 validation episodes. Thresholds apply to the shortest navigable distance from the final position to the nearest goal viewpoint; cells report **SR (%) / SPL**.
+
+| SuperNav backend | OVON, 0.25 m | OVON, 1 m | HM3Dv2, 0.2 m | HM3Dv2, 1 m |
+|---|---|---|---|---|
+| Geo-based Executor | 68.33 / 0.3837 | 73.33 / 0.4105 | 80.30 / 0.3338 | 86.50 / 0.3638 |
+| Learned Executor | 65.00 / 0.1355 | 70.83 / 0.1443 | 79.00 / 0.1288 | 85.40 / 0.1383 |
+
+The learned backend retains most success rates but substantially lowers SPL, showing why arrival capability and path efficiency should be evaluated separately.
+Published comparison methods differ in episode subsets, action budgets, STOP rules, and execution resources; their reported scores do not establish a ranking under one shared protocol.
+SuperNav's OVON scoring neither additionally requires Habitat STOP nor uses the model's verbal judgment. Two designated unreachable-goal episodes per configuration receive SR and SPL contributions of one under the adopted rule.
+
+**Skill, tool, and model ablations (Table 3).** Geo-based Executor, the 120 OVON episodes, and GPT-5.6 Terra (high) are fixed, except the last row changes both model and reasoning setting:
+
+| Configuration | SR, 0.25 m (%) | SPL, 0.25 m | SR, 1 m (%) | SPL, 1 m |
+|---|---|---|---|---|
+| Full SuperNav | 68.33 | 0.3837 | 73.33 | 0.4105 |
+| Without Navigation Skills | 35.00 | 0.2460 | 54.17 | 0.3894 |
+| Front-only interaction | 52.50 | 0.2230 | 65.83 | 0.2855 |
+| Without skills and tool design | 31.67 | 0.1870 | 54.17 | 0.3417 |
+| External language grounding and candidate selection | 55.83 | 0.3201 | 62.50 | 0.3624 |
+| GPT-6 Astra (medium) + full harness | **71.67** | **0.4579** | **79.17** | **0.4974** |
+
+At the stricter 0.25 m threshold, removing skills lowers SR by **33.33 percentage points**. Front-only interaction lowers it by **15.83 percentage points** and increases mean turning-tool calls from 0.41 to 17.56 (Table 6).
+Replacing direct pointing with LocateAnything language grounding and candidate selection does not improve performance. Astra (medium) improves SR and SPL, although changing both model and reasoning setting prevents attributing the gain to either alone.
+
+**Long sequences and robot deployment.** On eligible five-goal multi-object tasks, the geometric backend completes the first five goals with a 39.47% stage success rate; five-stage demand-driven success is only 9.09%. No method completes six or more demand stages, for which only 3, 2, and 1 tasks qualify at stages six, seven, and eight respectively (Table 4), leaving long sequences a clear challenge.
+Stage success uses tasks with at least that many goals and does not require STOP; it is distinct from complete-task success.
+Unitree Go2 demonstrations use four-view RGB and LiDAR geometric execution to find a basketball, find another Go2, and visit a printer followed by a bin. The paper provides qualitative demonstrations rather than a large-scale real-robot success rate.
+
+<div align="center">
+  <img src="/images/vln/SuperNav-real-world-navigation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/665" alt="Unitree Go2 finding a basketball and another robot, and visiting a printer followed by a bin" />
+<figcaption>Figure 5: Unitree Go2 demonstrations show single-goal search, route revision after blockage, close-range verification, and transitions from a printer to a bin.</figcaption>
+</div>
+
+---
+
+### 4. Limitations
+{: id="4-局限性-25"}
+
+Semantic and completion judgments depend on the MLLM, and inference cost and latency variation affect execution efficiency. Geometric execution requires maps or scene geometry, while learned-backend path efficiency and long-sequence reliability need improvement.
+Demand-driven evaluation measures ordered arrivals at relevant targets rather than carrying out activities such as moving objects or organizing a workspace. External benchmark comparisons differ in protocol, and robot validation is mainly qualitative.
+
+---
+
+## 39. NavHarness (2026)
+{: id="navharness"}
+———Sustain navigation through cross-session handovers, external memory, and two-stage verification
+
+📄 **Paper**: [arXiv:2609.34276](https://arxiv.org/abs/2609.34276) · [Code](https://github.com/billzhao1030/NavHarness) · [Project Page](https://billzhao1030.github.io)
+
+NavHarness is an embodied-agent harness centered on continuing navigation. It keeps spatial maps, task records, and experiential memory outside reasoning sessions so that fresh sessions can inherit searched areas, pending branches, and failure evidence, with recovery handovers, pre-stop verification, and post-stop certification supporting further navigation. Evaluations cover GOAT-Bench multimodal-goal navigation, IR2R-CE instruction navigation, and simulated continuous deployment across 36 houses, making the paper relevant to navigation tasks and long-term memory.
+
+**Full analysis and experimental results**: [NavHarness: session handovers, memory reuse, and continuing navigation (Embodied Agents: Paper Readings, entry 9)](/en/Embodied-Agent-Papers/#navharness).
+
+---
+
 # References
 {: id="参考资料"}
 
@@ -5310,6 +5538,8 @@ It only does 2D plane planning and assumes that the camera height is constant; t
 35. **SparseNav** (2026). Less is more: training-free VLN with semantics-aware “on demand” instruction. arXiv: [2609.26408](https://arxiv.org/abs/2609.26408)
 36. **Talk2Escape** (2026). Ask when you are lost: turning multi-round conversations into a closed-loop error correction channel for VLN. arXiv: [2609.28296](https://arxiv.org/abs/2609.28296)
 37. **VNT-PA** (2026). Encoding "where" rather than "when" as location: Transformer planner without explicit map. arXiv: [2609.21212](https://arxiv.org/abs/2609.21212)
+38. **SuperNav** (2026). Organize a general navigation agent through navigation skills, visual-point tools, and context management. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126)
+39. **NavHarness** (2026). Sustain navigation through cross-session handovers, external memory, and two-stage verification. arXiv: [2609.34276](https://arxiv.org/abs/2609.34276)
 
 
 <script>
@@ -5352,6 +5582,8 @@ It only does 2D plane planning and assumes that the camera height is constant; t
     { m: 'SparseNav',             t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
     { m: 'Talk2Escape',           t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
     { m: 'VNT-PA',                t: ['End-to-end', 'Continuous environments'] },
+    { m: 'SuperNav', t: ['Agentic', 'Zero-shot', 'Real-robot deployment', 'Datasets'] },
+    { m: 'NavHarness', t: ['Agentic', 'Zero-shot', 'SLAM', 'Continuous environments'] },
   ];
 
 

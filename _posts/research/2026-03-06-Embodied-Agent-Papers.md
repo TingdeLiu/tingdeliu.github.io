@@ -9,14 +9,14 @@ categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "本文按系统运行时、物理编排、场景图评估、自演化治理、语义动作接口、动作分块、AgentOS、巡检系统治理与导航会话交接九条路线，精读 Embodied Agent 领域的代表性论文。"
+excerpt: "本文按系统运行时、物理编排、场景图评估、自演化治理、语义动作接口、动作分块、AgentOS、巡检系统治理、导航会话交接与导航工具编排十条路线，收录 Embodied Agent 领域的代表性论文。"
 ---
 
 > 本文是 [AI Agent 综述](/AI-Agent-Survey/) 与底层系统架构指南 [Embodied Agent 综述](/Embodied-Agent-Harness-Survey/) 的配套具身论文精读，系统收录 Embodied Agent（具身智能体）领域的代表性工作与前沿突破。
 
 # 具身智能体论文精读
 
-本文关注一个共同问题：机器人如何把感知、规划、执行、验证和恢复组织成可持续运行的闭环。九篇论文分别从运行时、编排器、评估器、演化机制、动作接口、训练目标、通用 AgentOS、巡检系统治理和导航会话交接切入，实验覆盖仿真环境、文本交互环境与真实机器人。
+本文关注一个共同问题：机器人如何把感知、规划、执行、验证和恢复组织成可持续运行的闭环。十篇论文分别从运行时、编排器、评估器、演化机制、动作接口、训练目标、通用 AgentOS、巡检系统治理、导航会话交接和导航工具编排切入，实验覆盖仿真环境、文本交互环境与真实机器人；其中 SuperNav 提供简要导读，完整解析链接到 VLN 扩展篇。
 
 | 论文 | 主要切入点 | 代表性验证 |
 |---|---|---|
@@ -29,6 +29,7 @@ excerpt: "本文按系统运行时、物理编排、场景图评估、自演化�
 | [ABot-AgentOS](#abot-agentos) | 双 LLM、Agent Harness 与终身多模态记忆 | EmbodiedWorldBench、记忆基准 |
 | [Harness Robotic OS](#harness-robotic-os) | 巡检运行时、分层记忆与自进化治理 | 真实小区导航与巡检；认知运行时尚待受控验证 |
 | [NavHarness](#navharness) | 跨会话搜索交接、记忆处理、恢复与双阶段核验 | GOAT-Bench、IR2R-CE、36 房屋持续部署（仿真） |
+| [SuperNav](#supernav) | 可读取导航技能、视觉点选工具与任务上下文管理 | 单 / 多物体与需求驱动导航、HM3D、Unitree Go2 真机 |
 
 下方筛选栏支持多标签组合；同时选中多个标签时，页面只保留同时满足这些标签的论文。
 
@@ -1383,6 +1384,8 @@ $$\text{WER} = (S + D + I) / N$$
 
 📄 **Paper**: [arXiv:2609.34276](https://arxiv.org/abs/2609.34276) · [Code](https://github.com/billzhao1030/NavHarness) · [Project Page](https://billzhao1030.github.io)
 
+**导航分类索引**：[VLN 扩展篇中的 NavHarness 条目](/VLN-Papers-Extended/#navharness)。
+
 ---
 
 ### 精华
@@ -1558,6 +1561,17 @@ judge 仍会接受错误完成或否决正确完成，错误记录可能被整�
 
 ---
 
+## 10. SuperNav (2026) {#supernav}
+———以导航技能、视觉点选工具和上下文管理组织通用导航 Agent
+
+📄 **Paper**: [arXiv:2610.12126](https://arxiv.org/abs/2610.12126) · [Project Page](https://zju3dv.github.io/SuperNav/)
+
+SuperNav 是以导航为主要验证场景的具身 Agent Harness。它让通用 MLLM 负责理解请求和选择目的地，通过可读取的 Navigation Skills、视觉点选工具、目标进度记录与上下文管理，把搜索、目标复核和失败恢复组织成持续闭环，再由几何或学习式运动后端执行移动。其可迁移思想是如何用技能、工具和执行反馈支撑持续的物理交互，因此也适合归入具身智能体框架；上层 MLLM 无需导航专用微调，学习式执行器仍用导航轨迹训练。
+
+**完整解析与实验结果**：[SuperNav：方法、评测口径与性能对比（VLN 扩展篇）](/VLN-Papers-Extended/#supernav)。
+
+---
+
 # 参考资料
 
 ## 论文引用
@@ -1572,6 +1586,7 @@ judge 仍会接受错误完成或否决正确完成，错误记录可能被整�
 
 8. **Harness Robotic OS** (2026). 把四足巡检从「导航栈」升级为「具身智能体运行时」. arXiv: [2609.11225](https://arxiv.org/abs/2609.11225)
 9. **NavHarness** (2026). NavHarness: Towards Lifelong Embodied Navigation. arXiv: [2609.34276](https://arxiv.org/abs/2609.34276) · Code: [billzhao1030/NavHarness](https://github.com/billzhao1030/NavHarness) · Project Page: [billzhao1030.github.io](https://billzhao1030.github.io)
+10. **SuperNav** (2026). SuperNav: An Agentic Navigation System for Any Task in Any Scene. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126) · 完整解析：[VLN 扩展篇](/VLN-Papers-Extended/#supernav)
 
 <script>
 (function () {
@@ -1585,6 +1600,7 @@ judge 仍会接受错误完成或否决正确完成，错误记录可能被整�
     { m: 'SPACE',       t: ['动作分块', '强化学习', '技能归纳', '长程任务'] },
     { m: 'ABot-AgentOS', t: ['AgentOS', 'Harness', '闭环系统', '拓扑图', '空间记忆', '自演化', '实机部署'] },
     { m: 'NavHarness', t: ['Harness', '闭环系统', '空间记忆', '异常恢复', '具身导航', '零微调', '长程任务'] },
+    { m: 'SuperNav', t: ['Harness', '闭环系统', '主动探索', '异常恢复', '具身导航', '实机部署'] },
   ];
 
   var ALL_TAGS = ['闭环系统', 'Harness', 'AgentOS', '具身操作', '场景图', '拓扑图', '实机部署', '快慢双系统', '类型化动作', '空间记忆', '3D语义', '多机协同', 'TAMP', 'VLA', '双重校验', '退出码评估', '自演化', '高频裁判', '跨本体', '主动探索', '零微调', '动作分块', '强化学习', '技能归纳', '长程任务', '异常恢复', '具身导航'];

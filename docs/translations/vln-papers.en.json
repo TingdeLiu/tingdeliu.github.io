@@ -1,7 +1,7 @@
 {
   "source": "_posts/research/2026-01-05-VLN-Papers.md",
   "translation": "_translations/en/research/VLN-Papers.md",
-  "reviewed_on": "2026-10-05",
+  "reviewed_on": "2026-10-09",
   "source_revision_date": "2026-10-05",
   "sections": {
     "metadata": "b2baf956b9640cb3c9872e5ae783aacb3f96211d06bd33490aee13c07d4049c8",
@@ -535,6 +535,6 @@
     "paper:seekvln / 4. 局限性": "b9c6a978f7352234c62798e4df84d35e387ed390d1b8f27cba268c5dc0bec477",
     "参考资料": "9b02b96398a0ecec9519f4402648095347400e58028bcf57f57e2194eee8f5e6",
     "已发表论文（会议 / 期刊）": "cf03748cf8da50e0e8f38b7a829819a0a182dcf6376ab83446b608c1fc0f96f6",
-    "论文引用": "216fcdb002e9b3990df0299c5a03b4d9b43c0b34845c47f8054070fdfd48569f"
+    "论文引用": "d0f1209f43409cc5dba30c914bb8fc23bb18658827b421b152b43a7e0078b1b1"
   }
 }

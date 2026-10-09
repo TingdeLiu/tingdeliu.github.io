@@ -4,9 +4,9 @@
   "reviewed_on": "2026-10-09",
   "source_revision_date": "2026-10-09",
   "sections": {
-    "metadata": "26f959bdf1dab6af916f86da5ebbbe591b0adb84a76e8da609898d120db335b1",
+    "metadata": "20278f45dcda711f5e539d9fc593b74c3fff87e3b5b8de7fbe341d8784c30e60",
     "introduction": "8c17bc1d22a44c667d3673775811d9cf4f0f4d7c5e66bc908245222485388b05",
-    "具身智能体论文精读": "be4ab1b2a7b52acffff352052f02b7766577ae6a0ccbf290319e44b6218bd3a9",
+    "具身智能体论文精读": "bc584aab1f2888fd78f3f78ee6211dc68d52753e6087a94495c5f5ec372f0726",
     "paper:holoagent-0 / 1. HoloAgent-0 (2026) {#holoagent-0}": "4cc92a362c7b424cc7a5e880c873144a6dd851bdfdd1e523c749b64861e1580c",
     "paper:holoagent-0 / 精华": "baeffd64d95f90fb8d914888810e60f1190f9f00c85dc8d42d3b83021e7f628f",
     "paper:holoagent-0 / 1. 研究背景/问题": "78636fbb3fb4b211a8ff109e039471dc173ca14b79d9e7250308b620b0f56f92",
@@ -103,13 +103,14 @@
     "paper:harness-robotic-os / 2.8 关于「训练目标」": "79c30a1deb5b649f44ac4ec8c4ea39526be2566a9842be1ce3754737648b061a",
     "paper:harness-robotic-os / 3. 核心结果/发现": "8a31cb346b408752cf619ebcb2b650cd17e8d140a9a127db908e67fb7d09434c",
     "paper:harness-robotic-os / 4. 局限性": "bf4c1958334cb19500d8b9811c3f851bc7d4971c77d14f18dede25ac39f1ca3f",
-    "paper:navharness / 9. NavHarness (2026) {#navharness}": "49b326d91261cb5160a86c23b8e43f026bf6f3d4a7322776dc0780caf7adb1ef",
+    "paper:navharness / 9. NavHarness (2026) {#navharness}": "5acfb06a7ad13982abb735af576eb4f458b7d285c577bb573e91fe3fa1d07e17",
     "paper:navharness / 精华": "b1ccd48e1305794237fe48b512e11ddb77b8850aeab9b14d846ae8fb8151c06b",
     "paper:navharness / 1. 研究背景/问题": "1caa5f4cfd4482f811adb9913b1d6d1b0ed0d1fbfe509929df2712f03eae2dbd",
     "paper:navharness / 2. 主要方法/创新点": "4de19d2a16419dcda7b90ee9301f04d7599b8779c2a72fd24b5523c3ee9ca7cb",
     "paper:navharness / 3. 核心结果/发现": "c0a158f3ee7f867a95dd5cfec745285f12ed1bf2ce1bd6e2933a2bde756bf1ab",
     "paper:navharness / 4. 局限性": "615b25b99d4a32582aef575236affd059d2870afbc8c661ad2fc2a7522dc9b29",
+    "paper:supernav / 10. SuperNav (2026) {#supernav}": "4533a66cf08b7ec21b64e5caf55f5979518a0ad3c84a97f96a363bda06434eca",
     "参考资料": "9b02b96398a0ecec9519f4402648095347400e58028bcf57f57e2194eee8f5e6",
-    "论文引用": "68995f37550fea556240b65a7fdcdd501bbb9e4f1e980032e72d90c828546f6c"
+    "论文引用": "93de957663c3712130fd4034ebeb1eb92f748f251772ad174221f73f0ef392df"
   }
 }
