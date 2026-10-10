@@ -12,7 +12,7 @@ toc: true
 excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav、HM3D-OVON、图像 / 点目标）性能排行榜，以及目标导航、运动控制、移动操作与其他增补研究。"
 ---
 
-> 本文是 [VLN 论文精读：指令跟随篇](/VLN-Papers/) 的扩展篇，收录 39 篇工作与目标导航性能排行榜，侧重目标导航、运动控制、移动操作及其他增补研究。主篇精选 56 篇工作，以指令跟随 VLN 的代表性方法、评测基准与相关基础工作为主；两篇按研究重点与阅读脉络安排，不以是否发表作为唯一分篇依据。
+> 本文是 [VLN 论文精读：指令跟随篇](/VLN-Papers/) 的扩展篇，收录 40 篇工作与目标导航性能排行榜，侧重目标导航、运动控制、移动操作及其他增补研究。主篇精选 56 篇工作，以指令跟随 VLN 的代表性方法、评测基准与相关基础工作为主；两篇按研究重点与阅读脉络安排，不以是否发表作为唯一分篇依据。
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
@@ -4360,13 +4360,16 @@ $$
 
 ---
 
-# 关联阅读
+## 35. Harness Robotic OS (2026) {#harness-robotic-os}
+———把四足巡检从「导航栈」升级为「具身智能体运行时」
 
-## Harness Robotic OS (2026) {#harness-robotic-os}
+📄 **Paper**: [arXiv:2609.11225](https://arxiv.org/abs/2609.11225)
 
 该论文侧重具身智能体运行时、技能编排、分层记忆与自进化治理，完整精读已移至 [Embodied Agent 论文精读：Harness Robotic OS](/Embodied-Agent-Papers/#harness-robotic-os)。
 
-## 35. SparseNav (2026) {#sparsenav}
+---
+
+## 36. SparseNav (2026) {#sparsenav}
 ———少即是多：按指令"按需"感知语义的免训练 VLN
 
 📄 **Paper**: [arXiv:2609.26408](https://arxiv.org/abs/2609.26408)
@@ -4511,7 +4514,7 @@ graph TD
 
 ---
 
-## 36. Talk2Escape (2026) {#talk2escape}
+## 37. Talk2Escape (2026) {#talk2escape}
 ———迷路了就开口问：把多轮对话变成 VLN 的闭环纠错通道
 
 📄 **Paper**: [arXiv:2609.28296](https://arxiv.org/abs/2609.28296) · [Project Page](https://zeruili22.github.io/talk2escape/)
@@ -4654,7 +4657,7 @@ Hybrid 触发太频繁，反而掉到 54.0%，说明问得越多不一定越好�
 
 ---
 
-## 37. VNT-PA (2026) {#vnt-pa}
+## 38. VNT-PA (2026) {#vnt-pa}
 ———把"在哪看到的"而不是"什么时候看到的"作为位置编码：无显式地图的 Transformer 规划器
 
 📄 **Paper**: [arXiv:2609.21212](https://arxiv.org/abs/2609.21212)
@@ -4830,7 +4833,7 @@ $$\mathcal L(\theta) = -\mathbb E\left[ \sum_{\ell=1}^{H} \log \pi_\theta\left( 
 
 ---
 
-## 38. SuperNav (2026) {#supernav}
+## 39. SuperNav (2026) {#supernav}
 ———用导航技能、视觉点选工具与上下文管理，把通用多模态模型组织成持续行动的导航 Agent
 
 📄 **Paper**: [arXiv:2610.12126](https://arxiv.org/abs/2610.12126) · [Project Page](https://zju3dv.github.io/SuperNav/)
@@ -5018,7 +5021,7 @@ Unitree Go2 上的四向 RGB 与 LiDAR 几何后端展示了寻找篮球、寻�
 
 ---
 
-## 39. NavHarness (2026) {#navharness}
+## 40. NavHarness (2026) {#navharness}
 ———以跨会话交接、外部记忆和双阶段核验支撑持续导航
 
 📄 **Paper**: [arXiv:2609.34276](https://arxiv.org/abs/2609.34276) · [Code](https://github.com/billzhao1030/NavHarness) · [Project Page](https://billzhao1030.github.io)
@@ -5067,11 +5070,12 @@ NavHarness 是以持续导航为核心任务的具身 Agent Harness：把空间�
 32. **EvoMemNav** (2026). 零样本具身导航中基于轻量化图先验与多视图反思的高效自进化细粒度拓扑记忆框架. arXiv: [2606.03509v1](https://arxiv.org/abs/2606.03509v1) · Code（待发布）: [caicaiya123/EvoMemNav](https://github.com/caicaiya123/EvoMemNav)
 33. **LocalNav** (2026). 基于知识蒸馏与具身强化学习的端侧轻量化三维场景图目标导航框架. arXiv: [2606.27871](https://arxiv.org/abs/2606.27871)
 34. **AECNav** (2026). 把"找物体"改写成"攒证据"：一次编码、按需分割、对数几率累积信念. arXiv: [2608.10817](https://arxiv.org/abs/2608.10817)
-35. **SparseNav** (2026). 少即是多：按指令"按需"感知语义的免训练 VLN. arXiv: [2609.26408](https://arxiv.org/abs/2609.26408)
-36. **Talk2Escape** (2026). 迷路了就开口问：把多轮对话变成 VLN 的闭环纠错通道. arXiv: [2609.28296](https://arxiv.org/abs/2609.28296)
-37. **VNT-PA** (2026). 把"在哪看到的"而不是"什么时候看到的"作为位置编码：无显式地图的 Transformer 规划器. arXiv: [2609.21212](https://arxiv.org/abs/2609.21212)
-38. **SuperNav** (2026). 用导航技能、视觉点选工具与上下文管理，把通用多模态模型组织成持续行动的导航 Agent. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126)
-39. **NavHarness** (2026). 以跨会话交接、外部记忆和双阶段核验支撑持续导航. arXiv: [2609.34276](https://arxiv.org/abs/2609.34276)
+35. **Harness Robotic OS** (2026). 把四足巡检从「导航栈」升级为「具身智能体运行时」. arXiv: [2609.11225](https://arxiv.org/abs/2609.11225)
+36. **SparseNav** (2026). 少即是多：按指令"按需"感知语义的免训练 VLN. arXiv: [2609.26408](https://arxiv.org/abs/2609.26408)
+37. **Talk2Escape** (2026). 迷路了就开口问：把多轮对话变成 VLN 的闭环纠错通道. arXiv: [2609.28296](https://arxiv.org/abs/2609.28296)
+38. **VNT-PA** (2026). 把"在哪看到的"而不是"什么时候看到的"作为位置编码：无显式地图的 Transformer 规划器. arXiv: [2609.21212](https://arxiv.org/abs/2609.21212)
+39. **SuperNav** (2026). 用导航技能、视觉点选工具与上下文管理，把通用多模态模型组织成持续行动的导航 Agent. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126)
+40. **NavHarness** (2026). 以跨会话交接、外部记忆和双阶段核验支撑持续导航. arXiv: [2609.34276](https://arxiv.org/abs/2609.34276)
 
 
 <script>
@@ -5106,6 +5110,7 @@ NavHarness 是以持续导航为核心任务的具身 Agent Harness：把空间�
         { m: 'EvoMemNav',             t: ['Agentic', '拓扑图', '零样本'] },
         { m: 'LocalNav',              t: ['拓扑图', '强化学习', '实机部署', '加速优化'] },
     { m: 'AECNav',                t: ['零样本', 'Agentic', '实机部署', '加速优化'] },
+    { m: 'Harness Robotic OS',     t: ['Agentic', '实机部署'] },
     { m: 'PanoNav',           t: ['Agentic', '零样本', '离散环境'] },
     { m: 'ODYSSEY',           t: ['Agentic', '实机部署'] },
     { m: 'Skill-Nav',         t: ['端到端', '强化学习', '实机部署'] },
