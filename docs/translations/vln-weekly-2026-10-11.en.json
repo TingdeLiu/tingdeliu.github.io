@@ -1,0 +1,29 @@
+{
+  "source": "_posts/weekly-reports/2026-10-11-VLN-Weekly.md",
+  "translation": "_translations/en/blog/vln-weekly-2026-10-11.md",
+  "reviewed_on": "2026-10-11",
+  "source_revision_date": "2026-10-11",
+  "sections": {
+    "metadata": "ef3cc6938e52b6d85020fd65be757895067e6a093f99a24e782e4e7f0e196c63",
+    "introduction": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "一、本期结论": "ad6e8f3272b50d1afd5db192682ddb8074425fbf3b0383fd1d25fb7712a7c6c1",
+    "二、优先阅读清单": "f2f85cf2e2aaa727a1c86f51f45b601b0cec12da77bc65874a41baffec556f5d",
+    "三、重点工作分析": "0ddd1a460039b2eb68b40a92e8312c703c8e2db57c529058b5920c7c98c10203",
+    "1. NavGPT-3：把中断与控制权作为运行时能力": "b3b3cafff791e3a0a1340d12105f433f090515a37504c647ee6c25a7f2880836",
+    "2. StageVLN：在训练中学习空间结构": "c6ff203be6ea6cd4ae881c21e4001667d7f249f8f297d5da714450338f66ad62",
+    "3. MarvisNav：让记忆直接参与候选路线选择": "0a2c1fa951347d0b1beb8a3ae3bd6b6c2fb111626e144b8ed21696ce6134895d",
+    "4. LiSoNav / IVAM-Nav：把“没看见”放回观察条件": "6d6a589da601ed4a1e47bd12d3c15fcc5fe25049ca59f037d651198f5d25f32a",
+    "5. SuperNav：检查通用请求如何落到可执行目标": "dbcf0bad222501a3f2d58614a5a5546a60970575fa91fbbbf2785761bd86e47e",
+    "四、可迁移方法": "6f85a87d925cc5318cbba35872d595b0d574cc5a8ba5a8bdcdfee5c7069b1fd8",
+    "五、分类速览": "b5e23e567492e5d74e5562e8aa0ff7b53cdaa59006b2bd014c0970c88e77875c",
+    "5.1 地面 VLN / ObjectNav / 语义导航": "f771b72cae6330485475e3c255223100cbb4dcaf715a84dcd890626b63de83aa",
+    "5.2 记忆、地图、规划与评测": "7323eead05f5ce3decbc9dcf931e1580aaedd5189b0dd31d6761a0b15d413c67",
+    "5.3 具身 VLA / 移动操作": "8a25307e8007e27b3ad1dd08933d318f6ce265aafb3dc1b66948750ec001f6b2",
+    "5.4 无人机、自动驾驶与其他低相关方向": "ca30b53250a511096eeb82d899ab668715d304a652a49fffbfad9eaf98fc20fe",
+    "5.5 资讯与非论文": "5f0d19eb5cae3e8596eac5b52cda51df391373be7faf8b3e52a1cf5a483d8934",
+    "六、趋势判断与行动建议": "70cd206653abcffa75e01f5b607df38033e9913e725f98022ba6e0c8dabad8c8",
+    "趋势": "a539a15c4b6e0d8b08cd8305998b952596d6e8e297e294e9f1a5c01c68fab9c9",
+    "研究空白": "68a7394a3c6f4ea8cbbd0716fae4c726bf7f5762a3b427f000ec67416b72daeb",
+    "建议动作": "84c9f5a9f4fe6dde5e7f26c50d00df13a88ab27c4d3e4c185a2fa4c19fcb844d"
+  }
+}
