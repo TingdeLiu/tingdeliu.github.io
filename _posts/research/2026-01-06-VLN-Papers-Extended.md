@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-papers-extended
 title: "VLN 论文精读：目标导航与扩展篇"
-date:   2026-10-09
+date:   2026-10-12
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -12,7 +12,7 @@ toc: true
 excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav、HM3D-OVON、图像 / 点目标）性能排行榜，以及目标导航、运动控制、移动操作与其他增补研究。"
 ---
 
-> 本文是 [VLN 论文精读：指令跟随篇](/VLN-Papers/) 的扩展篇，收录 40 篇工作与目标导航性能排行榜，侧重目标导航、运动控制、移动操作及其他增补研究。主篇精选 56 篇工作，以指令跟随 VLN 的代表性方法、评测基准与相关基础工作为主；两篇按研究重点与阅读脉络安排，不以是否发表作为唯一分篇依据。
+> 本文是 [VLN 论文精读：指令跟随篇](/VLN-Papers/) 的扩展篇，收录 40 篇工作与目标导航性能排行榜，侧重目标导航、运动控制、移动操作及其他增补研究。主篇精选 57 篇工作，以指令跟随 VLN 的代表性方法、评测基准与相关基础工作为主；两篇按研究重点与阅读脉络安排，不以是否发表作为唯一分篇依据。
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
@@ -41,6 +41,7 @@ excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav
 | [LightNav-0 (单目)](/VLN-Papers/#lightnav-0) | 2026 | HM3D-v2 | 训练 | Qwen3-VL-4B | 77.2 | 41.5 | [是](https://github.com/lightorigins/LightNav-0) |
 | [HarnessVLN (单目)](/VLN-Papers/#harnessvln) | 2026 | HM3D-v2 | 免训练 | GPT-5.6-luna | 76.0 | 37.9 | 否 |
 | [Qwen-RobotNav (单目)](/VLN-Papers/#qwen-robotnav) | 2026 | HM3D-v2 | 训练 | Qwen3-VL-4B | 75.6 | 30.6 | 否 |
+| [NavGPT-3 (四视角 · Opus 5)](/VLN-Papers/#navgpt-3) <span class="lb-flag">500 条子集，面向目标停止</span> | 2026 | HM3D-v2 | 训练 | Claude Opus 5 + Qwen3-VL-8B | 75.3 | 40.8 | [是](https://github.com/metacognitionai/NavGPT-3) |
 | [3DGSNav (单目)](#nav-3dgs) | 2026 | HM3D-v2 | 免训练 | Gemini 3 Pro + GLM-4.5V | 75.0 | 44.2 | 否 |
 | [Qwen-RobotNav (单目)](/VLN-Papers/#qwen-robotnav) | 2026 | HM3D-v2 | 训练 | Qwen3-VL-8B | 71.2 | 33.0 | 否 |
 | [EvoMemNav (单目)](#evomemnav) | 2026 | HM3D-v2 | 免训练 | Qwen-8B | 63.8 | 39.4 | 否 |
@@ -51,6 +52,7 @@ excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav
 | [VLFM (单目)](#vlfm) | 2023 | HM3D-v1 | 免训练 | – | 52.5 | 30.4 | [是](https://github.com/rai-opensource/vlfm) |
 | [PanoNav (全景)](#panonav) <span class="lb-flag">200 条子集</span> | 2025 | HM3D（未注明版本） | 免训练 | Qwen2.5-VL + DeepSeek-V3 | 43.5 | 23.7 | 否 |
 | [Hydra-Nav (单目)](#hydra-nav) | 2026 | MP3D | 训练 | Qwen2.5-VL-7B | **64.0** | **29.6** | 否 |
+| [NavGPT-3 (四视角 · Opus 5)](/VLN-Papers/#navgpt-3) <span class="lb-flag">500 条子集，面向目标停止</span> | 2026 | MP3D | 训练 | Claude Opus 5 + Qwen3-VL-8B | 59.2 | 25.2 | [是](https://github.com/metacognitionai/NavGPT-3) |
 | [VLingNav (单目)](#vlingnav) | 2026 | MP3D | 训练 | LLaVA-Video-7B | 58.9 | 26.5 | 否 |
 | [Qwen-RobotNav (单目)](/VLN-Papers/#qwen-robotnav) | 2026 | MP3D | 训练 | Qwen3-VL-4B | 52.2 | 16.0 | 否 |
 | [AECNav (单目)](#aecnav) | 2026 | MP3D | 免训练 | DeepSeek-V4-Flash | 51.3 | 25.9 | 否 |
@@ -63,6 +65,8 @@ excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav
 注：HM3D-v1 为 Habitat 2022 挑战赛的 val（2000 条 / 20 场景 / 6 类），HM3D-v2 为 2023 挑战赛的 val（1000 条 / 36 场景 / 6 类），两者场景与标注不同。VLFM 原文只写 HM3D，但给出的 2000 条 / 20 场景 / 6 类与 v1 一致；Hydra-Nav 原文也未写版本，但其 Table 2 的基线 WMNav 取 72.2，与 WMNav 原文的 HM3D-v2 成绩一致，据此归入 v2；PanoNav 原文未写明版本，单列一组。PanoNav 只从 HM3D val 随机抽取 200 条评测，列为灰色。Hydra-Nav 取原文 Table 2 的 IRFT（Stage 3）结果。Qwen-RobotNav 取 arXiv v3，4B / 8B 两个尺寸分列；LightNav-0 取 arXiv v2 数字（v1 的 HM3D-v2 为 79.5 / 43.7）。
 
 补充：SuperNav-Geo 使用深度与导航几何执行移动，按免训练归类；SuperNav-Learned 的底层运动策略用导航专家轨迹训练，按训练归类，两者的上层 MLLM 均不做导航专用微调。其 HM3D-v2 两个成功阈值分别列行；论文说明外部方法的预算、STOP 规则与执行资源存在差异，因此这些行以灰色保留，不参与最优值加粗。SuperNav 的 SPL 已从原文的 0–1 数值换算为本表使用的百分数，开源列“–”表示摘要未提供可核实的代码仓库链接。
+
+补充：NavGPT-3 使用 Claude Opus 5 Planner + 8B VLA，MP3D 与 HM3D-v2 各评测 500 条验证子集，成功还要求停止时面向目标，因此灰显且不参与加粗。附录表 16 在完全相同的子集与协议下重评 Qwen-RobotNav 8B，其 MP3D SR/SPL 为 47.8/17.5、HM3D-v2 为 72.4/33.1；表内 Qwen-RobotNav 的历史行仍为原论文全量结果，不能直接当作这个匹配对照。完整系统尚无对应的 ObjectNav 全量结果。
 
 ## ⑤ 开放词汇物体目标 · HM3D-OVON
 
@@ -5184,6 +5188,7 @@ NavHarness 是以持续导航为核心任务的具身 Agent Harness：把空间�
     { n: '54. HumanoidVLN (2026)', a: 'humanoidvln', t: ['数据集', '强化学习', '实机部署', '高斯表示'] },
     { n: '55. AdaGeoVLN (2026)', a: 'adageovln', t: ['端到端', '连续环境', '实机部署', '加速优化'] },
     { n: '56. SeekVLN (2026)', a: 'seekvln', t: ['CoT', '强化学习', '连续环境', '实机部署'] },
+    { n: '57. NavGPT-3 (2026)', a: 'navgpt-3', t: ['双系统', 'Agentic', '连续环境', '实机部署'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',
