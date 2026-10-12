@@ -87,7 +87,7 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 
 | 模型 | 年份 | 范式 | 基模 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 开源 |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
-| [NavGPT-3 (四视角 · Astra)](#navgpt-3) | 2026 | 训练 | GPT-6 Astra + Qwen3-VL-8B | **90.43** | **74.31** | **1.56** | – | [是](https://github.com/metacognitionai/NavGPT-3) |
+| [NavGPT-3 (四视角 · Astra)](#navgpt-3) | 2026 | 训练 | GPT-6-Astra/Qwen3-VL-8B | **90.43** | **74.31** | **1.56** | – | [是](https://github.com/metacognitionai/NavGPT-3) |
 | [NavGPT VLA 8B (四视角)](#navgpt-3) | 2026 | 训练 | Qwen3-VL-8B | 78.19 | 68.98 | 3.05 | – | [是](https://github.com/metacognitionai/NavGPT-3) |
 | [Qwen-RobotNav (全景)](#qwen-robotnav) | 2026 | 训练 | Qwen3-VL-8B | 76.5 | 65.7 | 3.58 | – | 否 |
 | [Robostral Navigate (单目)](#robostral-navigate) | 2026 | 训练 | Mistral-8B | 75.1 | 68.7 | 3.47 | – | 否 |
