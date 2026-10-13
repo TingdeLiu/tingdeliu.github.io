@@ -14,7 +14,7 @@ categories: research
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "Eleven paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, and visual-memory inspection."
+excerpt: "Twelve paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, and reasoning-budget allocation."
 ---
 
 
@@ -23,7 +23,7 @@ excerpt: "Eleven paper entries on embodied runtimes, physical orchestration, sce
 # Embodied Agents: Paper Readings
 {: id="具身智能体论文精读"}
 
-This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed-loop that can sustainably operate. The eleven papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, and visual-memory inspection. The experiments cover simulation environments, text-interaction environments, interactive visual games, and real robots. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection.
+This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed-loop that can sustainably operate. The twelve papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, and reasoning-budget allocation. The experiments cover simulation environments, text-interaction environments, interactive visual games, and real robots. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection.
 
 |Paper|Main entry points|representative verification|
 |---|---|---|
@@ -38,6 +38,7 @@ This article focuses on a common problem: how robots organize perception, planni
 | [NavHarness](#navharness) | Cross-session search handovers, memory processing, recovery, and two-stage verification | GOAT-Bench, IR2R-CE, and continuous deployment across 36 houses in simulation |
 | [SuperNav](#supernav) | Readable navigation skills, visual-point tools, and task-context management | Single-object, multi-object, and demand-driven navigation; HM3D; Unitree Go2 deployment |
 | [VISTA](#vista) | Lossless visual memory, model-directed visual inspection, and cross-context notes | ARC-AGI-3, GameWorld, AI GameStore, BabyVision |
+| [RACE](#race) | Cross-turn reasoning covers, likelihood proxy signals, and adaptive-reasoning RL | ScienceWorld, WebShop, AppWorld, DeepSearch |
 
 The filter bar below supports multiple tag combinations; when multiple tags are selected at the same time, the page will only retain papers that meet these tags.
 
@@ -1855,6 +1856,176 @@ Success depends heavily on the underlying model's own capabilities; VISTA only d
 
 ---
 
+## 12. RACE (2026)
+{: id="race"}
+———When should an agent think? Use the drop in action likelihood to judge whether earlier reasoning still suffices
+
+📄 **Paper**: [arXiv:2610.12061](https://arxiv.org/abs/2610.12061) · [Code](https://github.com/HututuAI/RACE)
+
+**Why it is included**: RACE is evaluated on text and API interaction tasks rather than on robots, but it addresses a cost problem shared by every long-horizon closed-loop agent: reasoning at every turn is expensive, so how long does earlier reasoning remain sufficient, and when is fresh reasoning needed? Its cross-turn reasoning-cover criterion and training recipe transfer directly to the multi-turn decisions of embodied agents.
+
+---
+
+### Key takeaways
+{: id="精华-10"}
+
+- Reasoning has a shelf life: a plan formed at one turn often supports several later actions, so there is no need to think again at every turn. The real question is not "can this turn skip reasoning?" but "how far does existing reasoning still reach?"
+- Replace expensive verification with a cheap proxy: instead of regenerating actions for every candidate context, a single teacher-forced pass that measures how much the reference action's likelihood drops is enough to approximate whether the action can still be recovered.
+- Deleting a reasoning step must be judged by its effect on **all later actions**, not only the current one. This is the fundamental difference between cross-turn estimation and earlier per-turn, independent decisions.
+- The same labeler (LoGiC) builds SFT data offline and produces RL signals online, so one mechanism spans both training stages. In RL it combines masking with explicitly teaching the model to close `</think>`, rather than tuning the reward.
+
+---
+
+### 1. Background and problem
+{: id="1-研究背景问题-10"}
+
+ReAct-style LLM agents reason before every action by default, so reasoning-token cost grows linearly over long trajectories. Existing adaptive-reasoning methods either decide independently at each turn whether to think, ignoring that earlier reasoning can remain effective across several turns, or obtain supervision by generating actions with and without reasoning and comparing them. That cost becomes prohibitive as trajectories grow, and especially in on-policy RL, where it must be repeated for every batch.
+
+---
+
+### 2. Methods and innovations
+{: id="2-主要方法创新点-10"}
+
+#### 2.1 Motivating analysis: reasoning persists across turns, and likelihood drop predicts it
+{: id="21-动机实验推理会跨轮持续生效且似然下降能预测这一点"}
+
+<div align="center">
+  <img src="/images/agent/RACE-cross-turn-analysis.webp" width="100%" loading="lazy" decoding="async" alt="Cross-turn reasoning support and the relation between likelihood drop and action recovery" />
+<figcaption>Cross-turn reasoning support: (a) after removing all reasoning beyond turn s, check whether later actions can still be recovered, giving the persistence span L of the reasoning support; (b) the reference-action likelihood drop d closely tracks the action recovery rate, which exceeds 99% when d ≤ 0.001</figcaption>
+</div>
+
+Using successful Qwen3.5-9B trajectories on ScienceWorld and WebShop, the authors run two analyses:
+
+- **Generation-based measurement (panel a)**: choose a cutoff s, keep the reasoning up to and including turn s, and remove all later reasoning while leaving actions and observations unchanged. At each later turn j, sample K=4 actions and compute the fraction $$\mathrm{Rec}_j$$ that recovers the reference action $a_j^*$. Some reasoning supports only one step, while some keeps supporting several later steps (on ScienceWorld, about 11% of reasoning steps support a full 5 steps). The authors call this **cross-turn reasoning persistence**.
+- **Likelihood-based estimation (panel b)**: compute the mean per-token log-likelihood $\ell(a_j^* \mid h)$ of the reference action and compare the full and truncated contexts:
+
+$$d_j = \ell(a_j^* \mid x_j, r_j) - \ell(a_j^* \mid \tilde x_j)$$
+
+A smaller $d_j$ means the model remains just as confident about the action after the reasoning is removed. Experiments show that $d_j$ and the recovery rate correspond almost monotonically. This replaces "generate many times to verify" with "score once under teacher forcing."
+
+| Dimension | Generation-based verification (prior work) | Likelihood proxy (this paper) |
+|---|---|---|
+| Cost per candidate context | Autoregressively sample K actions and compare | One batched teacher-forced scoring pass |
+| Usable inside on-policy RL | Must be redone every batch; too expensive | Cheap enough to run on every rollout batch |
+| Scope of effect considered | Usually only the current turn | The current turn plus every later reference action |
+
+#### 2.2 Overall framework
+{: id="22-整体框架"}
+
+<div align="center">
+  <img src="/images/agent/RACE-overview.webp" width="100%" loading="lazy" decoding="async" alt="Overview of the RACE training approach" />
+<figcaption>The RACE training framework: the core algorithm LoGiC labels each turn's reasoning as keep (THINK) or remove (SKIP); offline it builds SFT data, and online it drives reasoning masking and reasoning-closure supervision during RL</figcaption>
+</div>
+
+RACE (Reasoning Adaptation through Cross-Turn Estimation) has three parts. **LoGiC** marks which reasoning steps in a trajectory can be removed. The **SFT stage** uses LoGiC to compress full-reasoning trajectories into "think only when needed" trajectories for supervision. The **RL stage** reruns LoGiC on each batch of successful rollouts, using the result to block gradients on redundant reasoning and to teach the model directly to close its reasoning immediately where it should stop.
+
+```mermaid
+graph LR
+    A["Full-reasoning trajectories (DeepSeek-V4-Pro)"] --> B["LoGiC offline labeling"]
+    B --> C["Adaptive-reasoning trajectories"]
+    C --> D["RACE-SFT"]
+    D --> E["On-policy rollouts"]
+    E --> F{"Trajectory succeeded?"}
+    F -- "Yes" --> G["LoGiC labels SKIP turns online"]
+    G --> H["Masked GRPO + reasoning-closure loss"]
+    F -- "No" --> I["Standard GRPO"]
+    H --> J["RACE-SFT-RL"]
+    I --> J
+```
+
+#### 2.3 LoGiC: Likelihood-Guided Progressive Reasoning Cover Detection
+{: id="23-logic似然引导的渐进式推理覆盖检测"}
+
+<div align="center">
+  <img src="/images/agent/RACE-LoGiC.webp" width="100%" loading="lazy" decoding="async" alt="The three steps of the LoGiC algorithm" />
+<figcaption>The three LoGiC steps: (1) initialize the likelihood vector of all reference actions on the full trajectory; (2) from turn 2 onward, try removing the current reasoning step to build a candidate trajectory; (3) accept the removal only if the likelihood drop of the current and all later actions stays within the threshold, and carry the result forward to later turns</figcaption>
+</div>
+
+The intuition behind a "reasoning cover": keep the fewest reasoning steps that **together** still support every action in the trajectory, like lighting an entire road with the fewest streetlights. LoGiC works as input → processing → output:
+
+- **Input**: a successful trajectory $$\tau = (q, (r_t, a_t, o_t)_{t=1}^T)$$, with each $a_t$ treated as a fixed reference action $a_t^*$, and a threshold $\epsilon = 0.001$.
+- **① Initialization**: compute the likelihood vector under the full-reasoning context, $\ell^{(0)} = [\ell(a_1^* \mid x_1, r_1), \dots, \ell(a_T^* \mid x_T, r_T)]$. The first turn's reasoning is always kept.
+- **② Progressive compression**: starting at t=2, in the current compressed context $x^{(t)}$, where all accepted removals already apply, try removing $r_t$ and recompute the likelihoods $\tilde\ell_j^{(t)}$ of the reference actions at turn t and every later turn (earlier turns are unaffected and reused).
+- **③ Likelihood verification**: compute $d_j^{(t)} = \ell_j^{(t-1)} - \tilde\ell_j^{(t)}$ and accept the removal only if $d_j^{(t)} \le \epsilon$ holds for every $j \in \{t, \dots, T\}$. On acceptance, update the likelihood vector and context; otherwise keep $r_t$ and add it to the cover.
+- **Output**: the compressed trajectory $\tilde\tau$ and the reasoning cover C, i.e., a THINK / SKIP label for every turn.
+- **Design motivation**: first, "progressive" means each decision is made on the already compressed context, so several steps that each look removable on their own are not removed together when the remainder could no longer support the actions. Second, "looking ahead" matters because a reasoning step can be irrelevant to the current action yet be the only basis for a later one.
+
+> **Worked example**: a 4-turn trajectory, threshold ε = 0.001, initial likelihoods $\ell^{(0)}$ = [-0.20, -0.35, -0.10, -0.40].
+> - **t=2, try removing r2**: recomputing turns 2–4 gives [-0.3504, -0.1003, -0.4006]; the drops 0.0004 / 0.0003 / 0.0006 are all ≤ 0.001 → **accept**. r2 is marked SKIP and the likelihood vector becomes [-0.20, -0.3504, -0.1003, -0.4006].
+> - **t=3, try removing r3** (r2 already removed): the turn-3 action likelihood drops by only 0.0001, so judged on the current turn alone it is clearly removable. But turn 4 falls from -0.4006 to -0.52, a drop of 0.12 → **reject**, and r3 is kept. This is exactly the case that per-turn, independent decisions would delete by mistake.
+> - **t=4, try removing r4**: the turn-4 likelihood falls to -0.95, a drop of 0.55 → reject.
+>
+> The final reasoning cover is {r1, r3, r4}, i.e., THINK / SKIP / THINK / THINK. The whole procedure needs only 3 batched scoring passes over candidate trajectories. Generation-based verification would sample K=4 actions at every later turn of every candidate, for (3+2+1)×4 = 24 autoregressive generations.
+
+The threshold of 0.001 is supported by Figure 1(b): at d ≤ 0.001, the action recovery rates on ScienceWorld and WebShop are 99.52% and 99.07%.
+
+#### 2.4 Stage 1: LoGiC-based SFT data synthesis
+{: id="24-stage-1基于-logic-的-sft-数据合成"}
+
+Successful full-reasoning trajectories are collected with DeepSeek-V4-Pro, and LoGiC is run with Qwen3.5-9B to obtain $\tilde\tau = \mathrm{LoGiC}(\tau)$. Removed turns keep an empty `<think></think>` and output the action directly. Qwen3.5-9B is then trained with standard SFT:
+
+$$\mathcal L_{SFT} = -\mathbb E_{\tilde\tau \sim \mathcal D_{SFT}} \sum_{n=1}^{\lvert \tilde\tau \rvert} \log \pi_\theta(\tilde\tau_n \mid \tilde\tau_{<n})$$
+
+The loss applies only to model-generated reasoning and action tokens. This step first teaches the model when it can act directly, and it serves as the initialization for RL.
+
+#### 2.5 Stage 2: Reasoning-cover-aware agentic RL
+{: id="25-stage-2推理覆盖感知的-agentic-rl"}
+
+Offline data gradually drifts away from the evolving policy, so during RL, LoGiC is rerun on the **successful trajectories** of each rollout batch to obtain each trajectory's set of SKIP turns $S_i$; failed trajectories use standard GRPO. Two mechanisms work together:
+
+| Mechanism | What it does | Problem it solves |
+|---|---|---|
+| Reasoning masking | **Reasoning tokens** at SKIP turns are excluded from the GRPO gradient, while **action tokens** are still optimized; the normalization denominator still counts all original tokens | Prevents the positive advantage of successful trajectories from also reinforcing redundant reasoning |
+| Reasoning closure | After the compressed context at a SKIP turn, directly maximize the probability of generating the reasoning terminator `</think>` | Masking only withholds reward; closure supervision actively teaches the model to wrap up right there |
+
+The masked GRPO loss ($K_i$ is the set of positions left after removing the reasoning tokens of SKIP turns, and $P_i$ is the set of all policy-token positions):
+
+$$\mathcal L_{GRPO} = -\frac{1}{\sum_{i \in B} \lvert P_i \rvert} \sum_{i \in B} \sum_{k \in K_i} \min\left(r_{i,k}(\theta) \hat A_i, \mathrm{clip}(r_{i,k}(\theta), 1-\epsilon_{clip}, 1+\epsilon_{clip}) \hat A_i\right)$$
+
+The reasoning-closure loss ($e$ is `</think>`, $I_{succ}$ is the set of successful trajectories, and normalizing by the total number of turns $T_i$ makes the supervision strength proportional to the share of SKIP turns):
+
+$$\mathcal L_{close} = -\frac{1}{\sum_{i \in B} T_i} \sum_{i \in I_{succ}} \sum_{t \in S_i} \log \pi_\theta(e \mid x_i^{(t)})$$
+
+The final actor objective is $\mathcal L_{actor} = \mathcal L_{GRPO} + \lambda \mathcal L_{close}$, with λ = 0.02 on ScienceWorld, WebShop, and AppWorld and 0.01 on DeepSearch. The task reward handles getting it right and the LoGiC signal handles thinking less; the division of labor is clear, and no length penalty is needed in the reward.
+
+**Inference** has no extra steps: at each turn the model decides on its own whether to write a reasoning step or emit an empty `<think></think>` and call a tool directly.
+
+---
+
+### 3. Key results and findings
+{: id="3-核心结果发现-10"}
+
+On four benchmarks, ScienceWorld (scientific reasoning), WebShop (web shopping), AppWorld (app API use), and DeepSearch (retrieval QA), with Qwen3.5-9B as the backbone:
+
+| Method | ScienceWorld success / Tok. | WebShop | AppWorld | DeepSearch |
+|---|---|---|---|---|
+| Qwen3.5-9B (Base) | 18.52 / 2,210 | 15.60 / 2,713 | 46.15 / 3,134 | 29.25 / 1,281 |
+| AdaptThink | 64.49 / 1,252 | 44.60 / 748 | **68.72** / 2,381 | 33.50 / 1,481 |
+| SFT+GRPO (no LoGiC) | 74.55 / 2,073 | 52.00 / 2,702 | 65.30 / 3,545 | 35.75 / 2,163 |
+| **RACE-SFT-RL** | 73.28 / 1,403 | **53.40** / **535** | 65.13 / **1,900** | 35.00 / **822** |
+
+- **Fewer tokens without losing accuracy**: compared with standard SFT+GRPO, success stays within 1.4 points while reasoning tokens fall by **32.3% / 80.2% / 46.4% / 62.0%**.
+- **A small model catching up with large ones**: the 9B RACE model surpasses GPT-5.5 (69.88) on ScienceWorld (73.28) and ties Claude-Opus-4.6 on WebShop (53.40), but on AppWorld it still trails GPT-5.5 (91.11) and DeepSeek-V4-Pro (87.69) by a wide margin.
+- **The RL stage contributes most**: RACE-SFT saves only 4.3%–20.0% of tokens relative to standard SFT; after RL, RACE-SFT-RL gains another 2–30 points of success over RACE-SFT and cuts tokens by another 29%–57%.
+
+<div align="center">
+  <img src="/images/agent/RACE-ablation.webp" width="100%" loading="lazy" decoding="async" alt="Task performance and reasoning tokens with and without LoGiC" />
+<figcaption>With versus without LoGiC: the top row shows success rate and the bottom row reasoning tokens per trajectory. The SFT stage shows little difference; in the RL stage, RACE-SFT-RL greatly reduces reasoning tokens at comparable success</figcaption>
+</div>
+
+- **Ablation**: removing LoGiC from RL makes reasoning cost soar (AppWorld 1,900 → 8,574 tokens), showing that standard GRPO by itself makes reasoning grow longer during training. Removing only reasoning masking sometimes yields even fewer tokens (only 124 on WebShop), but success falls to 46.00, showing that masking is what keeps reasoning from being cut too far.
+- **Behavior analysis**: after RL, the share of turns that skip reasoning rises sharply (ScienceWorld 37% → 70%, WebShop 7% → 56%, AppWorld 8% → 52%). Yet the reasoning that remains is not uniformly shorter: on ScienceWorld and AppWorld each reasoning step actually gets longer (132 → 273 tokens on ScienceWorld), concentrating thought on key turns such as planning and error recovery. On DeepSearch the skip rate is only 5.77%, so reasoning is still needed after almost every retrieval.
+- **Scaling**: the trends are broadly consistent across Qwen3.5-2B / 4B / 9B. Because AppWorld has little training data (147 tasks), its RL gains are unstable for smaller models.
+
+---
+
+### 4. Limitations
+{: id="4-局限性-10"}
+
+LoGiC relies on successful trajectories and fixed reference actions, so failed trajectories receive no reasoning signal during RL, and the threshold ε is a single global value that does not adapt to task difficulty. On reasoning-heavy retrieval QA (DeepSearch) it can hardly skip any reasoning, and on AppWorld it still lags clearly behind frontier large models. (These are observations made in this reading; the paper has no separate limitations section.)
+
+---
+
 # References
 {: id="参考资料"}
 
@@ -1873,6 +2044,7 @@ Success depends heavily on the underlying model's own capabilities; VISTA only d
 9. **NavHarness** (2026). NavHarness: Towards Lifelong Embodied Navigation. arXiv: [2609.34276](https://arxiv.org/abs/2609.34276) · Code: [billzhao1030/NavHarness](https://github.com/billzhao1030/NavHarness) · Project Page: [billzhao1030.github.io](https://billzhao1030.github.io)
 10. **SuperNav** (2026). SuperNav: An Agentic Navigation System for Any Task in Any Scene. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126) · Full analysis: [Extended VLN collection](/en/VLN-Papers-Extended/#supernav)
 11. **VISTA** (2026). VISTA: A Visual Harness for Reasoning in an Interactive World. arXiv: [2610.02200](https://arxiv.org/abs/2610.02200) · Code: [joshhhhhan/VISTA](https://github.com/joshhhhhan/VISTA)
+12. **RACE** (2026). When Should Agents Think? Adaptive Reasoning via Cross-Turn Estimation. arXiv: [2610.12061](https://arxiv.org/abs/2610.12061) · Code: [HututuAI/RACE](https://github.com/HututuAI/RACE)
 
 <script>
 (function () {
@@ -1888,9 +2060,10 @@ Success depends heavily on the underlying model's own capabilities; VISTA only d
     { m: 'NavHarness', t: ['Harness', 'Closed-loop systems', 'Spatial memory', 'Exception recovery', 'Embodied navigation', 'Zero fine-tuning', 'Long-horizon tasks'] },
     { m: 'SuperNav', t: ['Harness', 'Closed-loop systems', 'Active exploration', 'Exception recovery', 'Embodied navigation', 'Real-robot deployment'] },
     { m: 'VISTA', t: ['Harness', 'Visual memory', 'Active exploration', 'Zero fine-tuning', 'Long-horizon tasks'] },
+    { m: 'RACE', t: ['reinforcement learning', 'Long-horizon tasks', 'Reasoning budget'] },
   ];
 
-  var ALL_TAGS = ['Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation', 'Visual memory'];
+  var ALL_TAGS = ['Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation', 'Visual memory', 'Reasoning budget'];
 
   var activeTags = [];
   var resultsPanel = null;

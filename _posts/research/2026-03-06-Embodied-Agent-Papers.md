@@ -9,14 +9,14 @@ categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "本文按系统运行时、物理编排、场景图评估、自演化治理、语义动作接口、动作分块、AgentOS、巡检系统治理、导航会话交接、导航工具编排与视觉记忆检视十一条路线，收录 Embodied Agent 领域的代表性论文。"
+excerpt: "本文按系统运行时、物理编排、场景图评估、自演化治理、语义动作接口、动作分块、AgentOS、巡检系统治理、导航会话交接、导航工具编排、视觉记忆检视与推理预算分配十二条路线，收录 Embodied Agent 领域的代表性论文。"
 ---
 
 > 本文是 [AI Agent 综述](/AI-Agent-Survey/) 与底层系统架构指南 [Embodied Agent 综述](/Embodied-Agent-Harness-Survey/) 的配套具身论文精读，系统收录 Embodied Agent（具身智能体）领域的代表性工作与前沿突破。
 
 # 具身智能体论文精读
 
-本文关注一个共同问题：机器人如何把感知、规划、执行、验证和恢复组织成可持续运行的闭环。十一篇论文分别从运行时、编排器、评估器、演化机制、动作接口、训练目标、通用 AgentOS、巡检系统治理、导航会话交接、导航工具编排和视觉记忆检视切入，实验覆盖仿真环境、文本交互环境、交互式视觉游戏与真实机器人；其中 SuperNav 提供简要导读，完整解析链接到 VLN 扩展篇。
+本文关注一个共同问题：机器人如何把感知、规划、执行、验证和恢复组织成可持续运行的闭环。十二篇论文分别从运行时、编排器、评估器、演化机制、动作接口、训练目标、通用 AgentOS、巡检系统治理、导航会话交接、导航工具编排、视觉记忆检视和推理预算分配切入，实验覆盖仿真环境、文本交互环境、交互式视觉游戏与真实机器人；其中 SuperNav 提供简要导读，完整解析链接到 VLN 扩展篇。
 
 | 论文 | 主要切入点 | 代表性验证 |
 |---|---|---|
@@ -31,6 +31,7 @@ excerpt: "本文按系统运行时、物理编排、场景图评估、自演化�
 | [NavHarness](#navharness) | 跨会话搜索交接、记忆处理、恢复与双阶段核验 | GOAT-Bench、IR2R-CE、36 房屋持续部署（仿真） |
 | [SuperNav](#supernav) | 可读取导航技能、视觉点选工具与任务上下文管理 | 单 / 多物体与需求驱动导航、HM3D、Unitree Go2 真机 |
 | [VISTA](#vista) | 无损视觉记忆、模型自主视觉检视与跨上下文笔记 | ARC-AGI-3、GameWorld、AI GameStore、BabyVision |
+| [RACE](#race) | 跨轮推理覆盖、似然代理信号与自适应推理强化学习 | ScienceWorld、WebShop、AppWorld、DeepSearch |
 
 下方筛选栏支持多标签组合；同时选中多个标签时，页面只保留同时满足这些标签的论文。
 
@@ -1739,6 +1740,163 @@ $$S_g = \min\left(\frac{\sum_{\ell=1}^{k} w_\ell}{\sum_{\ell=1}^{n} w_\ell},\ \f
 
 ---
 
+## 12. RACE (2026) {#race}
+———Agent 什么时候该想？用"动作似然掉了多少"判断旧推理还够不够用
+
+📄 **Paper**: [arXiv:2610.12061](https://arxiv.org/abs/2610.12061) · [Code](https://github.com/HututuAI/RACE)
+
+**收录说明**：RACE 的实验环境是文本与 API 交互任务而非机器人，但它回答的是长程闭环 Agent 的共同成本问题——每一轮都推理代价高昂，旧推理能撑多远、何时才需要重新想；这套「跨轮推理覆盖」的判定与训练方法可直接迁移到具身 Agent 的多轮决策中。
+
+### 精华
+
+- 推理有"保质期"：前面某一轮想好的计划，往往能撑住后面好几轮动作，没必要每轮都重新想；真正的问题不是"这一轮能不能不想"，而是"旧推理还能撑多远"。
+- 用便宜的代理信号替代昂贵的验证：不必把每个候选上下文都重新生成一遍动作来检验，只要用 teacher-forcing 算一下参考动作的似然掉了多少，就能近似判断动作还能不能复现。
+- 删一步推理要看它对**之后所有动作**的影响，而不仅是当前这一步——这是"跨轮"估计与以往逐轮独立判断的根本区别。
+- 同一个标注器（LoGiC）离线给 SFT 造数据、在线给 RL 造信号，一套机制贯通两个训练阶段；RL 里用"掩码 + 主动教模型闭合 `</think>`"两手配合，而不是靠调奖励。
+
+---
+
+### 1. 研究背景/问题
+
+ReAct 式 LLM Agent 默认每一轮动作前都先推理，长轨迹下推理 token 成本线性累积。已有的自适应推理方法要么逐轮独立判断"这一轮要不要想"，忽略了早先推理可以跨多轮持续生效；要么靠"有推理 vs 无推理各生成一次动作再比较"来获得监督信号，轨迹越长、尤其在 on-policy RL 里每个 batch 都要重做，代价难以承受。
+
+---
+
+### 2. 主要方法/创新点
+
+#### 2.1 动机实验：推理会跨轮持续生效，且似然下降能预测这一点
+
+<div align="center">
+  <img src="/images/agent/RACE-cross-turn-analysis.webp" width="100%" />
+<figcaption>跨轮推理支撑分析：(a) 截断第 s 轮之后的所有推理，看后续动作还能否复现，得到推理支撑的"持续跨度" L；(b) 参考动作似然下降 d 与动作复现率高度对应，d ≤ 0.001 时复现率超过 99%</figcaption>
+</div>
+
+作者用 Qwen3.5-9B 在 ScienceWorld、WebShop 的成功轨迹上做了两个分析：
+
+- **生成式测量（图 a）**：选一个截断点 s，保留第 s 轮及之前的推理，删掉之后所有推理（动作、观测不变），在每个后续轮 j 采样 K=4 次动作，统计能复现参考动作 $a_j^*$ 的比例 $$\mathrm{Rec}_j$$。结果显示：有的推理只能撑一步，有的能连续撑住后面多步（ScienceWorld 上约 11% 的推理能撑满 5 步）——作者称之为**跨轮推理持续性**（cross-turn reasoning persistence）。
+- **似然式估计（图 b）**：对参考动作计算平均 token 对数似然 $\ell(a_j^* \mid h)$，比较"完整上下文"与"截断上下文"下的差值
+
+$$d_j = \ell(a_j^* \mid x_j, r_j) - \ell(a_j^* \mid \tilde x_j)$$
+
+$d_j$ 越小，说明删掉推理后模型"照样很笃定地会做这个动作"；实验发现 $d_j$ 与复现率几乎单调对应。这就把"要生成很多次才能验证"换成了"一次 teacher-forced 打分"。
+
+| 维度 | 生成式验证（以往做法） | 似然代理（本文做法） |
+|---|---|---|
+| 每个候选上下文的成本 | 自回归采样 K 次动作再比对 | 一次批量 teacher-forcing 打分 |
+| 能否放进 on-policy RL | 每个 batch 都要重做，开销太大 | 便宜，可每个 rollout batch 都跑 |
+| 看到的影响范围 | 通常只看当前一轮 | 当前轮 + 之后所有轮的参考动作 |
+
+#### 2.2 整体框架
+
+<div align="center">
+  <img src="/images/agent/RACE-overview.webp" width="100%" />
+<figcaption>RACE 训练框架：核心算法 LoGiC 判定每一轮推理"留（THINK）"还是"删（SKIP）"；离线用于构造 SFT 数据，在线用于 RL 中的推理掩码与推理闭合监督</figcaption>
+</div>
+
+RACE（Reasoning Adaptation through Cross-Turn Estimation）由三部分组成：**LoGiC** 负责给一条轨迹标出哪些推理可删；**SFT 阶段**用 LoGiC 把全推理轨迹压缩成"该想才想"的轨迹做监督；**RL 阶段**在每批成功 rollout 上重跑 LoGiC，用结果屏蔽冗余推理的梯度、并直接教模型在该停的地方立刻闭合推理。
+
+```mermaid
+graph LR
+    A["全推理轨迹（DeepSeek-V4-Pro 标注）"] --> B["LoGiC 离线标注"]
+    B --> C["自适应推理轨迹"]
+    C --> D["RACE-SFT"]
+    D --> E["on-policy rollout"]
+    E --> F{"轨迹是否成功?"}
+    F -- "成功" --> G["LoGiC 在线标注 SKIP 轮"]
+    G --> H["掩码 GRPO + 推理闭合损失"]
+    F -- "失败" --> I["标准 GRPO"]
+    H --> J["RACE-SFT-RL"]
+    I --> J
+```
+
+#### 2.3 LoGiC：似然引导的渐进式推理覆盖检测
+
+<div align="center">
+  <img src="/images/agent/RACE-LoGiC.webp" width="100%" />
+<figcaption>LoGiC 三步流程：(1) 在完整轨迹上初始化各参考动作的似然向量；(2) 从第 2 轮起逐轮尝试删掉当前推理，构造候选轨迹；(3) 若当前及之后所有动作的似然下降都不超过阈值则接受删除，并把删除结果带入后续轮次的判断</figcaption>
+</div>
+
+"推理覆盖"（reasoning cover）的直觉：留下最少的几段推理，让它们**合起来**仍能撑住整条轨迹的所有动作——就像用最少的路灯照亮整条路。LoGiC 按"输入 → 处理 → 输出"运作：
+
+- **输入**：一条成功轨迹 $$\tau = (q, (r_t, a_t, o_t)_{t=1}^T)$$，把每个 $a_t$ 视为固定的参考动作 $a_t^*$；阈值 $\epsilon = 0.001$。
+- **① 初始化**：在完整推理上下文下算出似然向量 $\ell^{(0)} = [\ell(a_1^* \mid x_1, r_1), \dots, \ell(a_T^* \mid x_T, r_T)]$。第 1 轮推理默认保留。
+- **② 渐进压缩**：从 t=2 开始，在"已接受的删除都已生效"的当前压缩上下文 $x^{(t)}$ 中，再试着删掉 $r_t$，重新计算第 t 轮及之后所有参考动作的似然 $\tilde\ell_j^{(t)}$（之前轮次不受影响，直接沿用）。
+- **③ 似然验证**：计算 $d_j^{(t)} = \ell_j^{(t-1)} - \tilde\ell_j^{(t)}$，只有当 $d_j^{(t)} \le \epsilon$ 对所有 $j \in \{t, \dots, T\}$ 都成立时才接受删除；接受则更新似然向量与上下文，否则保留 $r_t$ 并放入覆盖集合。
+- **输出**：压缩轨迹 $\tilde\tau$ 与推理覆盖 C，即每一轮的 THINK / SKIP 标签。
+- **设计动机**：一是"渐进"——每次判断都基于已删过的上下文，避免多个"单独看都可删"的推理被同时删掉、合起来却撑不住；二是"看后续"——一段推理可能对当前动作无关紧要，却是后面某一步的唯一依据。
+
+> **举个例子**：一条 4 轮轨迹，阈值 ε = 0.001，初始化似然 $\ell^{(0)}$ = [-0.20, -0.35, -0.10, -0.40]。
+> - **t=2，试删 r2**：重算第 2–4 轮得 [-0.3504, -0.1003, -0.4006]，下降量 0.0004 / 0.0003 / 0.0006 全部 ≤ 0.001 → **接受**，r2 标为 SKIP，似然向量更新为 [-0.20, -0.3504, -0.1003, -0.4006]。
+> - **t=3，试删 r3**（r2 已删）：第 3 轮动作似然只降 0.0001，单看当前轮完全可删；但第 4 轮从 -0.4006 跌到 -0.52，下降 0.12 → **拒绝**，r3 保留。这正是"逐轮独立判断"会误删的情形。
+> - **t=4，试删 r4**：第 4 轮似然跌到 -0.95，下降 0.55 → 拒绝。
+>
+> 最终推理覆盖为 {r1, r3, r4}，即 THINK / SKIP / THINK / THINK。整个过程只做了 3 次候选轨迹的批量打分；若用生成式验证，每个候选的每个后续轮都要采样 K=4 次动作，共 (3+2+1)×4 = 24 次自回归生成。
+
+阈值取 0.001 有图 1(b) 的支撑：d ≤ 0.001 时 ScienceWorld / WebShop 的动作复现率分别为 99.52% / 99.07%。
+
+#### 2.4 Stage 1：基于 LoGiC 的 SFT 数据合成
+
+用 DeepSeek-V4-Pro 采集成功的全推理轨迹，用 Qwen3.5-9B 跑 LoGiC 得到 $\tilde\tau = \mathrm{LoGiC}(\tau)$——被删除的轮次保留一个空的 `<think></think>`，直接给动作。再对 Qwen3.5-9B 做标准 SFT：
+
+$$\mathcal L_{SFT} = -\mathbb E_{\tilde\tau \sim \mathcal D_{SFT}} \sum_{n=1}^{\lvert \tilde\tau \rvert} \log \pi_\theta(\tilde\tau_n \mid \tilde\tau_{<n})$$
+
+损失只作用于模型生成的推理与动作 token。这一步让模型先学会"什么情况可以直接动手"，作为 RL 的初始化。
+
+#### 2.5 Stage 2：推理覆盖感知的 Agentic RL
+
+离线数据和不断演化的策略会逐渐脱节，因此 RL 中对每个 rollout batch 的**成功轨迹**重新跑 LoGiC，得到各轨迹的 SKIP 轮集合 $S_i$；失败轨迹走标准 GRPO。两个机制配合：
+
+| 机制 | 做什么 | 解决什么问题 |
+|---|---|---|
+| 推理掩码（Reasoning Masking） | SKIP 轮的**推理 token** 不参与 GRPO 梯度，**动作 token** 照常优化；归一化分母仍按原 token 总数 | 防止成功轨迹的正优势把冗余推理也一起强化 |
+| 推理闭合（Reasoning Closure） | 在 SKIP 轮的压缩上下文后，直接最大化生成推理终止符 `</think>` 的概率 | 掩码只是"不奖励"，闭合监督才是"主动教它在这里马上收尾" |
+
+掩码后的 GRPO 损失（$K_i$ 为去掉 SKIP 轮推理 token 后剩下的位置，$P_i$ 为全部策略 token 位置）：
+
+$$\mathcal L_{GRPO} = -\frac{1}{\sum_{i \in B} \lvert P_i \rvert} \sum_{i \in B} \sum_{k \in K_i} \min\left(r_{i,k}(\theta) \hat A_i, \mathrm{clip}(r_{i,k}(\theta), 1-\epsilon_{clip}, 1+\epsilon_{clip}) \hat A_i\right)$$
+
+推理闭合损失（$e$ 为 `</think>`，$I_{succ}$ 为成功轨迹集合，按轨迹总轮数 $T_i$ 归一化，使监督强度与 SKIP 轮的占比成正比）：
+
+$$\mathcal L_{close} = -\frac{1}{\sum_{i \in B} T_i} \sum_{i \in I_{succ}} \sum_{t \in S_i} \log \pi_\theta(e \mid x_i^{(t)})$$
+
+最终 actor 目标为 $\mathcal L_{actor} = \mathcal L_{GRPO} + \lambda \mathcal L_{close}$，λ 在 ScienceWorld / WebShop / AppWorld 取 0.02，DeepSearch 取 0.01。任务奖励负责"做对"，LoGiC 信号负责"少想"，两者分工明确，不需要在奖励里加长度惩罚。
+
+**推理时**无额外步骤：模型在每一轮自行决定写一段推理，还是输出空 `<think></think>` 后直接调用工具。
+
+---
+
+### 3. 核心结果/发现
+
+在 ScienceWorld（科学推理）、WebShop（网购）、AppWorld（应用 API 操作）、DeepSearch（检索问答）四个基准上，以 Qwen3.5-9B 为骨干：
+
+| 方法 | ScienceWorld 成功率 / Tok. | WebShop | AppWorld | DeepSearch |
+|---|---|---|---|---|
+| Qwen3.5-9B（Base） | 18.52 / 2,210 | 15.60 / 2,713 | 46.15 / 3,134 | 29.25 / 1,281 |
+| AdaptThink | 64.49 / 1,252 | 44.60 / 748 | **68.72** / 2,381 | 33.50 / 1,481 |
+| SFT+GRPO（无 LoGiC） | 74.55 / 2,073 | 52.00 / 2,702 | 65.30 / 3,545 | 35.75 / 2,163 |
+| **RACE-SFT-RL** | 73.28 / 1,403 | **53.40** / **535** | 65.13 / **1,900** | 35.00 / **822** |
+
+- **省 token 而不掉点**：与标准 SFT+GRPO 相比，成功率差距在 1.4 分以内，推理 token 分别减少 **32.3% / 80.2% / 46.4% / 62.0%**。
+- **小模型追平大模型**：9B 的 RACE 在 ScienceWorld（73.28）超过 GPT-5.5（69.88），在 WebShop（53.40）与 Claude-Opus-4.6 持平；但 AppWorld 仍明显落后于 GPT-5.5（91.11）和 DeepSeek-V4-Pro（87.69）。
+- **RL 阶段贡献最大**：RACE-SFT 相比标准 SFT 只省 4.3%–20.0% token；进入 RL 后，RACE-SFT-RL 相比 RACE-SFT 成功率再涨 2–30 分、token 再降 29%–57%。
+
+<div align="center">
+  <img src="/images/agent/RACE-ablation.webp" width="100%" />
+<figcaption>有无 LoGiC 的对比：上排为成功率，下排为每条轨迹的推理 token 数；SFT 阶段差别不大，RL 阶段 RACE-SFT-RL 在成功率持平的前提下大幅压低推理 token</figcaption>
+</div>
+
+- **消融**：RL 中去掉 LoGiC 后推理成本暴涨（AppWorld 1,900 → 8,574 token）——说明标准 GRPO 本身会把推理越练越长；只去掉推理掩码，token 有时更少（WebShop 仅 124），但成功率掉到 46.00，说明掩码负责的是"别把推理砍过头"。
+- **行为分析**：RL 后跳过推理的轮次比例大幅上升（ScienceWorld 37% → 70%、WebShop 7% → 56%、AppWorld 8% → 52%），但保留下来的推理并非一律变短——ScienceWorld、AppWorld 单次推理反而更长（132 → 273 token），即把思考集中到规划与出错恢复等关键轮次；DeepSearch 跳过率仅 5.77%，几乎每次检索后仍需推理。
+- **规模扩展**：在 Qwen3.5-2B / 4B / 9B 上趋势基本一致，AppWorld 因训练数据少（147 个任务），RL 增益在小模型上不稳定。
+
+---
+
+### 4. 局限性
+
+LoGiC 依赖成功轨迹与固定参考动作，RL 中失败轨迹得不到任何推理信号，且阈值 ε 为全局统一值，未按任务难度自适应；在推理密集型的检索问答（DeepSearch）上几乎跳不过推理，在 AppWorld 上与前沿大模型仍有明显差距。（以上为本摘要的观察，论文未单列局限性章节。）
+
+---
+
 # 参考资料
 
 ## 论文引用
@@ -1755,6 +1913,7 @@ $$S_g = \min\left(\frac{\sum_{\ell=1}^{k} w_\ell}{\sum_{\ell=1}^{n} w_\ell},\ \f
 9. **NavHarness** (2026). NavHarness: Towards Lifelong Embodied Navigation. arXiv: [2609.34276](https://arxiv.org/abs/2609.34276) · Code: [billzhao1030/NavHarness](https://github.com/billzhao1030/NavHarness) · Project Page: [billzhao1030.github.io](https://billzhao1030.github.io)
 10. **SuperNav** (2026). SuperNav: An Agentic Navigation System for Any Task in Any Scene. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126) · 完整解析：[VLN 扩展篇](/VLN-Papers-Extended/#supernav)
 11. **VISTA** (2026). VISTA: A Visual Harness for Reasoning in an Interactive World. arXiv: [2610.02200](https://arxiv.org/abs/2610.02200) · Code: [joshhhhhan/VISTA](https://github.com/joshhhhhan/VISTA)
+12. **RACE** (2026). When Should Agents Think? Adaptive Reasoning via Cross-Turn Estimation. arXiv: [2610.12061](https://arxiv.org/abs/2610.12061) · Code: [HututuAI/RACE](https://github.com/HututuAI/RACE)
 
 <script>
 (function () {
@@ -1770,9 +1929,10 @@ $$S_g = \min\left(\frac{\sum_{\ell=1}^{k} w_\ell}{\sum_{\ell=1}^{n} w_\ell},\ \f
     { m: 'NavHarness', t: ['Harness', '闭环系统', '空间记忆', '异常恢复', '具身导航', '零微调', '长程任务'] },
     { m: 'SuperNav', t: ['Harness', '闭环系统', '主动探索', '异常恢复', '具身导航', '实机部署'] },
     { m: 'VISTA', t: ['Harness', '视觉记忆', '主动探索', '零微调', '长程任务'] },
+    { m: 'RACE', t: ['强化学习', '长程任务', '推理预算'] },
   ];
 
-  var ALL_TAGS = ['闭环系统', 'Harness', 'AgentOS', '具身操作', '场景图', '拓扑图', '实机部署', '快慢双系统', '类型化动作', '空间记忆', '3D语义', '多机协同', 'TAMP', 'VLA', '双重校验', '退出码评估', '自演化', '高频裁判', '跨本体', '主动探索', '零微调', '动作分块', '强化学习', '技能归纳', '长程任务', '异常恢复', '具身导航', '视觉记忆'];
+  var ALL_TAGS = ['闭环系统', 'Harness', 'AgentOS', '具身操作', '场景图', '拓扑图', '实机部署', '快慢双系统', '类型化动作', '空间记忆', '3D语义', '多机协同', 'TAMP', 'VLA', '双重校验', '退出码评估', '自演化', '高频裁判', '跨本体', '主动探索', '零微调', '动作分块', '强化学习', '技能归纳', '长程任务', '异常恢复', '具身导航', '视觉记忆', '推理预算'];
 
   var activeTags = [];
   var resultsPanel = null;

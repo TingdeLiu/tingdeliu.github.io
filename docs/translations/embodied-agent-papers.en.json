@@ -4,9 +4,9 @@
   "reviewed_on": "2026-10-13",
   "source_revision_date": "2026-10-13",
   "sections": {
-    "metadata": "4bc87bb10154379fe5ce0884c62603a5d4164836f6ae9e4afc8b0db32acbbf40",
+    "metadata": "e4afd5ebbf1832e90b293f15f4de302abaae246ece64b3edb636507c79a65833",
     "introduction": "8c17bc1d22a44c667d3673775811d9cf4f0f4d7c5e66bc908245222485388b05",
-    "具身智能体论文精读": "cac9a8bbc7839863cbe006afabbcc9f193df0a6bc612ab541a64ff2e9febe8fb",
+    "具身智能体论文精读": "7e4347165241660c76796bdc3e702ab4bdbc08e2e7a561c0484a940109318fd5",
     "paper:holoagent-0 / 1. HoloAgent-0 (2026) {#holoagent-0}": "4cc92a362c7b424cc7a5e880c873144a6dd851bdfdd1e523c749b64861e1580c",
     "paper:holoagent-0 / 精华": "baeffd64d95f90fb8d914888810e60f1190f9f00c85dc8d42d3b83021e7f628f",
     "paper:holoagent-0 / 1. 研究背景/问题": "78636fbb3fb4b211a8ff109e039471dc173ca14b79d9e7250308b620b0f56f92",
@@ -116,7 +116,18 @@
     "paper:vista / 2. 主要方法/创新点": "f1952bf7cd532bf8a93900f1779d601ad863382d0e4e1b24ef6e090f24d042b7",
     "paper:vista / 3. 核心结果/发现": "633b1269899f4120036d954a005620e037a223dd56c9f1df60784919fcfe0f25",
     "paper:vista / 4. 局限性": "7aabdefdb42b2356cfe61f2339e9940a09e8417e8abf47d6c7c311317d203bff",
+    "paper:race / 12. RACE (2026) {#race}": "781d373184615ab76119050cedf420751eb544bd6b7db4499acc4ee93ac09621",
+    "paper:race / 精华": "1b60928145fccd3ac03bb8f20ddf94d6fa4c9afb6a952b1cf9c75c02e9fa7006",
+    "paper:race / 1. 研究背景/问题": "dc8f7640f5297ef67a8fbec1886098bb95504d5cff548af47aa2bb6e5e5a3a5d",
+    "paper:race / 2. 主要方法/创新点": "0f04ee81a700c6c717661bb6d4a6a29656f6fae189b74ee207e23d4ef1454477",
+    "paper:race / 2.1 动机实验：推理会跨轮持续生效，且似然下降能预测这一点": "2f9f43db74244f3512ff0acf234d20d715a03eb4440879da1188caa7885bd6ef",
+    "paper:race / 2.2 整体框架": "272c0e3e9ea4f77805bb7469b29af74332d2c866d50f39df8ea1aa3d278afed5",
+    "paper:race / 2.3 LoGiC：似然引导的渐进式推理覆盖检测": "96ff2b1addecb5b95b0211bb3f41b25385911c2dda2ceaa77e4d76c25cdc473a",
+    "paper:race / 2.4 Stage 1：基于 LoGiC 的 SFT 数据合成": "e2ae9d85088e875f277d6595b86f9a11e6f0ae565c8d57042e16f1907db470ef",
+    "paper:race / 2.5 Stage 2：推理覆盖感知的 Agentic RL": "da9354afb3149c1e4d144765e2d3356d7f163c3da095768f6a2dfd7c788b955d",
+    "paper:race / 3. 核心结果/发现": "5a78181d2c4251a75fbdbfb89635439ecb0182cedf62450f75d3fe95c34de16e",
+    "paper:race / 4. 局限性": "1e1474c359d7e356a1c965e7c86ebc9459474402a30ad227251f3ef757c115cf",
     "参考资料": "9b02b96398a0ecec9519f4402648095347400e58028bcf57f57e2194eee8f5e6",
-    "论文引用": "2b5c41ab890a3ed6cb8b9429f39fcc567a1ea7ddd8d68818afc46de16080da5f"
+    "论文引用": "4f9bc7f55dfbaaa92fefecaa94c15d9f5cbe719001771091cb8b52f305dc244d"
   }
 }
