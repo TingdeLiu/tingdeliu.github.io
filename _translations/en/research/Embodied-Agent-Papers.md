@@ -5,16 +5,16 @@ translation_id: embodied-agent-papers
 permalink: /en/Embodied-Agent-Papers/
 source_path: _posts/research/2026-03-06-Embodied-Agent-Papers.md
 source_url: /Embodied-Agent-Papers/
-source_revision_date: 2026-10-09
-translation_updated: 2026-10-09
+source_revision_date: 2026-10-13
+translation_updated: 2026-10-13
 title: "Embodied Agents: Paper Readings"
-date: 2026-10-09
+date: 2026-10-13
 tags: [Agent, Embodied AI, Robotics, VLA, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "Ten paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, and navigation-tool orchestration."
+excerpt: "Eleven paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, and visual-memory inspection."
 ---
 
 
@@ -23,7 +23,7 @@ excerpt: "Ten paper entries on embodied runtimes, physical orchestration, scene-
 # Embodied Agents: Paper Readings
 {: id="具身智能体论文精读"}
 
-This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed-loop that can sustainably operate. The ten papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, and navigation-tool orchestration. The experiments cover simulation environments, text-interaction environments, and real robots. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection.
+This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed-loop that can sustainably operate. The eleven papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, and visual-memory inspection. The experiments cover simulation environments, text-interaction environments, interactive visual games, and real robots. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection.
 
 |Paper|Main entry points|representative verification|
 |---|---|---|
@@ -37,6 +37,7 @@ This article focuses on a common problem: how robots organize perception, planni
 | [Harness Robotic OS](#harness-robotic-os) |Patrol runtime, hierarchical memory and self-evolution governance|Real community navigation and inspection; cognitive operation needs to be controlled and verified|
 | [NavHarness](#navharness) | Cross-session search handovers, memory processing, recovery, and two-stage verification | GOAT-Bench, IR2R-CE, and continuous deployment across 36 houses in simulation |
 | [SuperNav](#supernav) | Readable navigation skills, visual-point tools, and task-context management | Single-object, multi-object, and demand-driven navigation; HM3D; Unitree Go2 deployment |
+| [VISTA](#vista) | Lossless visual memory, model-directed visual inspection, and cross-context notes | ARC-AGI-3, GameWorld, AI GameStore, BabyVision |
 
 The filter bar below supports multiple tag combinations; when multiple tags are selected at the same time, the page will only retain papers that meet these tags.
 
@@ -1682,6 +1683,178 @@ SuperNav is an embodied-agent harness evaluated primarily through navigation. A 
 
 ---
 
+## 11. VISTA (2026)
+{: id="vista"}
+———Giving a multimodal model eyes that can replay and zoom: lossless visual memory plus model-directed visual inspection
+
+📄 **Paper**: [arXiv:2610.02200](https://arxiv.org/abs/2610.02200) · [Code](https://github.com/joshhhhhan/VISTA)
+
+**Why it is included**: VISTA is evaluated in interactive visual games rather than on robots, but it addresses this collection's shared question: leave the model unchanged, change only the harness, and let a general-purpose multimodal model retain and revisit visual evidence on demand during long-horizon interaction. The authors also name embodied tasks as the next step.
+
+---
+
+### Key takeaways
+{: id="精华-9"}
+
+- **The bottleneck is often not model capability but how the harness feeds information**: the same Claude Opus 5.0 scores only 40.68 RHAE on ARC-AGI-3 with the organizers' minimal harness and 100.00 with VISTA, without any training.
+- **"Encode once, then discard the raw image" is a hidden ceiling for multimodal agents**: at encoding time the model cannot know which details will matter later. Archiving every original frame and letting the model revisit frames during reasoning amounts to an **explicit, addressable form of attention**.
+- **Observe images rather than text grids**: a 64×64 grid costs about 4K tokens as text but only about 308 tokens as a 512×512 rendered image. Performance stays comparable or improves, and token usage per game drops from 71.9M to 30.7M.
+- **Make read-only tools free and actions costly**: `inspect` and `read_pixels` consume no game actions; only `play` counts. This encourages the model to look carefully before acting, and it ends up using 57.4% fewer actions than first-time human players.
+- **Simplicity transfers**: the same harness, with an almost identical short prompt, carries over to GameWorld, AI GameStore, and BabyVision and clearly outperforms the official baselines using the same model on all three.
+
+---
+
+### 1. Background and problem
+{: id="1-研究背景问题-9"}
+
+ARC-AGI-3 is a suite of interactive visual games that **provide neither rules nor goals**: the agent must discover through probing which object is the player, what a click does, and what counts as winning. Most high-scoring methods convert the screen into numeric grids and have an LLM write programs that form an executable world model (program synthesis), which scales poorly as visuals grow complex. Approaches that use a VLM directly suffer from two problems: each image is encoded once, so details may be lost in compression, and during long interactions early observations are truncated or replaced by text summaries once the context fills. The paper asks: **without writing programs, relying only on vision and natural-language reasoning, can the right harness push a general-purpose multimodal model to a perfect score?**
+
+---
+
+### 2. Methods and innovations
+{: id="2-主要方法创新点-9"}
+
+<div align="center">
+  <img src="/images/agent/VISTA-agent-design-comparison.webp" width="60%" loading="lazy" decoding="async" alt="Comparison of language agents, conventional multimodal agents, and VISTA" />
+<figcaption>Three agent designs: (a) a language agent sees only text; (b) a conventional multimodal agent encodes each image once and never looks back; (c) VISTA can repeatedly call visual tools before each action, retrieving past frames and reorganizing its own visual input</figcaption>
+</div>
+
+**① Overall framework**
+
+VISTA is not a new model but a **purely mechanical harness with no trained parameters**. It consists of three visual components—**visual observations**, **lossless visual memory**, and **visual inspection tools**—plus two **note files** (`GUIDE.md` / `WORKING.md`). The harness executes tool calls and returns images or pixel values; all understanding, reasoning, and decision-making is left to the underlying multimodal model (Claude Opus 5.0, GPT-5.6 Sol, or GLM-5.3 Flash) within one multi-turn conversation.
+
+<div align="center">
+  <img src="/images/agent/VISTA-components-and-pipeline.webp" width="100%" loading="lazy" decoding="async" alt="VISTA components and per-turn pipeline on ARC-AGI-3" />
+<figcaption>VISTA's core components and per-turn pipeline (ARC-AGI-3 example): (a) observations change from a 64×64 digit grid to a rendered image; (b) every returned frame is archived at full resolution and addressable by turn and frame number; (c) the model can magnify any region in space and retrieve several past frames across time; (d) each turn follows observe → reason → act, where reading and writing notes and inspecting memory are optional and only acting consumes an action</figcaption>
+</div>
+
+**② Module by module**
+
+**Visual observation**
+- **Input**: the current environment state. ARC-AGI-3 officially provides a 64×64 integer grid in which each cell is a color index.
+- **Processing**: 8× nearest-neighbor upscaling into a 512×512 PNG, so each cell becomes a solid block of pixels.
+- **Output**: one image plus the list of currently available actions.
+- **Motivation**: images preserve object appearance and spatial relations, so the model can apply visual priors learned in pretraining ("this is a wall", "these two objects are symmetric") instead of assembling shapes from 4,096 numbers; token cost also drops sharply (see sticking point ② below).
+
+**Lossless visual memory**
+- **Input**: **every frame** the environment returns, including all intermediate animation frames triggered by an action (clicking a block, for example, returns six frames).
+- **Processing**: frames are archived unchanged, indexed by `(turn, frame)`, and fully decoupled from whatever remains in the model's context.
+- **Output**: a frame store that can be addressed at any time (one example game had accumulated 1,472 frames).
+- **Motivation**: the usual approach encodes once and truncates or summarizes once the context fills, but the model cannot predict at encoding time which details will become critical. Keeping original images **outside** the context means compressing the context no longer destroys visual evidence.
+
+**Visual inspection**
+
+This interface brings the memory to life; the model decides on its own when to use it and where to look:
+- `inspect(question, views)`: **in space**, crops and magnifies any rectangle of any frame (the paper's example magnifies about 13× to tell which way small blocks face); **across time**, retrieves frames from several past turns in one call for comparison, or replays the animation of an action frame by frame.
+- `read_pixels(question, views)`: splits a region into a grid and returns exact RGB values per cell, for judgments the eye easily gets wrong, such as whether two colors are actually identical.
+- Every call must include a `question`, forcing the model to state what the look is meant to settle.
+- **Key design**: inspection tools **consume no game actions**; only `play` counts.
+
+<div align="center">
+  <img src="/images/agent/VISTA-visual-memory-usage.webp" width="100%" loading="lazy" decoding="async" alt="Model-directed use of visual memory across time and for local details" />
+<figcaption>Two ways the model directs its use of visual memory: (a) inspection across space and time—after the board resets, a single inspect call retrieves four frames from the preceding 22 turns to reconstruct the full map; (b) inspection of local details—magnifying three small blocks about 13× reveals which side carries the purple marker, identifying each guard's orientation</figcaption>
+</div>
+
+**Note files (GUIDE.md / WORKING.md)**
+- `GUIDE.md`: a rulebook that stays valid across levels and contexts (for example, "clicking an orange block turns it into an X marker; clicking the X recreates the block").
+- `WORKING.md`: a scratchpad for the current level, cleared when the level advances.
+- When the context nears its limit, the agent writes a handoff summary to `WORKING.md` and resumes in a fresh context; notes, visual memory, and action history are all retained.
+
+**③ End-to-end data flow**
+
+Within one turn, the model may exchange several messages with the harness but executes only one game action. The reader's version of a single turn:
+
+```mermaid
+graph TD
+    A["Receive current frame + available actions"] --> B["Read GUIDE.md / WORKING.md (optional)"]
+    B --> C["Natural-language reasoning: hypothesize rules, predict outcome"]
+    C --> D{"Enough evidence?"}
+    D -- "No" --> E["inspect / read_pixels to revisit memory (free)"]
+    E --> C
+    D -- "Yes" --> F["Update notes (optional)"]
+    F --> G["play executes one action (the only counted step)"]
+    G --> H["All returned frames stored in lossless visual memory"]
+    H --> I["Last frame becomes next turn's observation"]
+    I --> A
+```
+
+The prompt is minimal, with four core sentences: finish the game in as few actions as possible; build and keep revising a compact model of the game; before each `play`, state the expected result and afterwards state every visible change; write durable understanding into `GUIDE.md`. This "predict, then compare" pattern turns the model into an online hypothesis tester.
+
+> **Sticking point ① — why not just put every frame in the context? An example**: the official implementation automatically feeds up to 7 frames per action. As text grids, each frame costs about 4K tokens, so observations alone take about 28K tokens per request; even as images (about 308 tokens per frame, about 2.2K total), 300 steps accumulate roughly 650K tokens and eventually overflow a 200K context and get truncated. VISTA does the opposite: each turn it **automatically provides only the last frame** (about 308 tokens) and keeps all other frames in a store outside the context, recalling 1–4 frames precisely with `inspect` when needed. The context holds the images the model currently considers relevant rather than the images that happened most recently—this is what the paper calls "explicit attention".
+
+**④ Training objective / loss function**
+
+None. VISTA requires no training; all gains come from harness design, and the underlying models are called as-is through closed-source CLIs (Claude Code / Codex) or with open weights.
+
+**⑤ Evaluation metric: RHAE (sticking point ②)**
+
+ARC-AGI-3 uses **Relative Human Action Efficiency (RHAE)** to measure how many actions you save compared with first-time human players. Let $h$ be the human baseline action count for a level (the upper median among first-time players who completed it) and $a$ the agent's action count. The level score is
+
+$$S_{\ell,g} = \min\left(1.15,\ \left(\frac{h_{\ell,g}}{a_{\ell,g}}\right)^2\right)$$
+
+Unfinished levels score 0. A game has $n$ levels, with level $\ell$ weighted $w_\ell = \ell$ (later levels matter more); if only the first $k$ levels are completed, the game score is the smaller of the weighted average level score and the weighted completion fraction:
+
+$$S_g = \min\left(\frac{\sum_{\ell=1}^{k} w_\ell}{\sum_{\ell=1}^{n} w_\ell},\ \frac{\sum_{\ell=1}^{n} w_\ell S_{\ell,g}}{\sum_{\ell=1}^{n} w_\ell}\right)$$
+
+> **An example**: a game has 2 levels with weights 1 and 2. Level 1: humans take 32 actions, the agent 16 → $(32/16)^2=4$, capped at 1.15. Level 2: humans take 40, the agent 50 → $(40/50)^2=0.64$.
+> Both levels cleared: weighted average $(1.15\times1 + 0.64\times2)/3 = 0.81$, completion fraction $3/3=1$, take the smaller → **0.81**.
+> Only level 1 cleared: weighted average $1.15/3 = 0.38$, completion fraction $1/3=0.33$, take the smaller → **0.33**.
+> The square makes extra actions costly, and a score of 100 means **every game is completed with overall weighted efficiency no worse than humans**—actions saved elsewhere can offset a few over-long levels within the 1.15 cap.
+
+**⑥ Differences from the official baseline (sticking point ③)**
+
+| Dimension | Official minimal harness | VISTA |
+|---|---|---|
+| Observation format | 64×64 text digit grid | 512×512 rendered image |
+| History retention | 175K sliding window; the oldest turns are dropped | All frames archived losslessly outside the context, retrievable by turn and frame number |
+| Automatic input per step | Up to 7 intermediate frames | Only 1 frame (the last); the model inspects the rest on demand |
+| Long-term knowledge | None | `GUIDE.md` + `WORKING.md`, preserved across context restarts |
+
+---
+
+### 3. Key results and findings
+{: id="3-核心结果发现-9"}
+
+**ARC-AGI-3 (25 public games)**: VISTA + Claude Opus 5.0 (xhigh) reaches **RHAE 100.00** with 7,302 actions in total, 57.4% fewer than first-time humans (17,135). VISTA + GPT-5.6 Sol (max) also completes all 25 games, with RHAE 99.00 (99.04 ± 0.17 over three runs). The same models score only 40.68 and 13.33 under the official implementation. To the authors' knowledge, this is the **first system to reach perfect or near-perfect performance without program synthesis**, matching program-synthesis systems such as Tycho (100.00) and Retrodict (99.86).
+
+<div align="center">
+  <img src="/images/agent/VISTA-harness-ablation.webp" width="100%" loading="lazy" decoding="async" alt="ARC-AGI-3 ablation adding harness components step by step" />
+<figcaption>Ablation adding harness components step by step (GPT-5.6 Sol): replacing text grids with images 13.33→47.32; relaxing action and time limits 51.66; continuous conversation 65.82; adding the two notes 70.05; adding lossless memory and inspection 94.10 (the largest jump); adding exact pixel readout gives full VISTA at 99.00, with total actions down to 9,126</figcaption>
+</div>
+
+**Key reading of the component ablation**: the largest jump comes from lossless memory plus inspection (70.05 → 94.10, +24), while actions fall from 23,702 to 12,261—once it can look back, the model wastes far fewer blind trials.
+
+<div align="center">
+  <img src="/images/agent/VISTA-text-vs-image.webp" width="100%" loading="lazy" decoding="async" alt="Text-grid versus image observations on ARC-AGI-3" />
+<figcaption>Observation formats compared: under the same harness, image observations (99.00) perform on par with text grids (96.75) while using fewer actions (9,126 vs 10,614) and less than half the tokens per game (30.7M vs 71.9M)</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/agent/VISTA-context-and-scale-ablation.webp" width="100%" loading="lazy" decoding="async" alt="Ablations on maximum context size and input image scale" />
+<figcaption>Context length and input resolution ablations: (a) a 200K context is best (99.0); 100K loses only 0.4 while halving tokens, and 780K does worse while using more than three times the tokens; (b) 4× upscaling (256 pixels, about 77 tokens per frame) matches the default 8×, while 2× is too blurry and 16× wastes context and drops to 88.3</figcaption>
+</div>
+
+**Other findings**:
+- **A longer context is not always better**: 500K and 780K drop to 94.4 and 93.9, suggesting that inspecting on demand beats keeping everything.
+- **Open-weight backend**: with GLM-5.3 Flash 320B, the official implementation scores 1.89 → VISTA without inspection tools 13.27 → full VISTA **66.93**, so the visual tools account for most of the gain.
+- **3D rendering**: rendering the same games in an isometric 3D view still yields RHAE 84.12 (actions rise to 20,640), far above the official text baseline.
+
+<div align="center">
+  <img src="/images/agent/VISTA-general-benchmarks.webp" width="100%" loading="lazy" decoding="async" alt="VISTA results on GameWorld, AI GameStore, and BabyVision" />
+<figcaption>Transfer to other visual environments (GPT-5.6 Sol): GameWorld success rate 63.3% / progress 79.3%, above novice humans (55.3% / 64.1%); AI GameStore geometric mean 140.3, above the human median (100); static BabyVision visual-tracking accuracy 41.0% → 63.2%, still well below humans at 92.3%</figcaption>
+</div>
+
+**Cross-benchmark transfer**: changing only the action interface name (`play` → `act`) and the task description, the same harness outperforms both the official baselines using the same model and the best previously reported results on all three benchmarks. BabyVision involves no interaction history, so its gain comes purely from zooming into and reading pixels within a single image, showing that the inspection tools have independent value.
+
+---
+
+### 4. Limitations
+{: id="4-局限性-9"}
+
+Success depends heavily on the underlying model's own capabilities; VISTA only draws them out. The models were also released after the public games, so the games may have appeared in their training data; generalization needs further verification on unseen games such as the ARC-AGI-3 private set.
+
+---
+
 # References
 {: id="参考资料"}
 
@@ -1699,6 +1872,7 @@ SuperNav is an embodied-agent harness evaluated primarily through navigation. A 
 8. **Harness Robotic OS** (2026). Upgrade the quadruped inspection from "navigation stack" to "embodied agent runtime". arXiv: [2609.11225](https://arxiv.org/abs/2609.11225)
 9. **NavHarness** (2026). NavHarness: Towards Lifelong Embodied Navigation. arXiv: [2609.34276](https://arxiv.org/abs/2609.34276) · Code: [billzhao1030/NavHarness](https://github.com/billzhao1030/NavHarness) · Project Page: [billzhao1030.github.io](https://billzhao1030.github.io)
 10. **SuperNav** (2026). SuperNav: An Agentic Navigation System for Any Task in Any Scene. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126) · Full analysis: [Extended VLN collection](/en/VLN-Papers-Extended/#supernav)
+11. **VISTA** (2026). VISTA: A Visual Harness for Reasoning in an Interactive World. arXiv: [2610.02200](https://arxiv.org/abs/2610.02200) · Code: [joshhhhhan/VISTA](https://github.com/joshhhhhan/VISTA)
 
 <script>
 (function () {
@@ -1713,9 +1887,10 @@ SuperNav is an embodied-agent harness evaluated primarily through navigation. A 
     { m: 'ABot-AgentOS', t: ['AgentOS', 'Harness', 'Closed-loop systems', 'Topological graph', 'Spatial memory', 'self-evolution', 'Real-robot deployment'] },
     { m: 'NavHarness', t: ['Harness', 'Closed-loop systems', 'Spatial memory', 'Exception recovery', 'Embodied navigation', 'Zero fine-tuning', 'Long-horizon tasks'] },
     { m: 'SuperNav', t: ['Harness', 'Closed-loop systems', 'Active exploration', 'Exception recovery', 'Embodied navigation', 'Real-robot deployment'] },
+    { m: 'VISTA', t: ['Harness', 'Visual memory', 'Active exploration', 'Zero fine-tuning', 'Long-horizon tasks'] },
   ];
 
-  var ALL_TAGS = ['Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation'];
+  var ALL_TAGS = ['Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation', 'Visual memory'];
 
   var activeTags = [];
   var resultsPanel = null;
