@@ -40,7 +40,8 @@ def section_hashes(path):
     sections = {'metadata': digest(metadata.strip())}
     key, lines, fence, paper = 'introduction', [], None, None
     ancestors = []
-    for line in body.splitlines():
+    body_lines = body.splitlines()
+    for index, line in enumerate(body_lines):
         marker = re.match(r'^\s*(`{3,}|~{3,})', line)
         if marker:
             token = marker[1]
@@ -57,6 +58,9 @@ def section_hashes(path):
             if re.match(r'^#\s', line):
                 paper = None
             paper_heading = re.match(r'^##\s+\d+\.\s.*\{#([^}]+)\}', line)
+            if not paper_heading and re.match(r'^##\s+\d+\.\s', line):
+                following = body_lines[index + 1] if index + 1 < len(body_lines) else ''
+                paper_heading = re.match(r'^\{:\s+id="([^"]+)"\}\s*$', following)
             if paper_heading:
                 paper = paper_heading[1]
             # Repeated labels such as 精华 belong to a specific paper. A paper's

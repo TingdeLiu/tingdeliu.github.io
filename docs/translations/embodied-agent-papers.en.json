@@ -1,12 +1,12 @@
 {
   "source": "_posts/research/2026-03-06-Embodied-Agent-Papers.md",
   "translation": "_translations/en/research/Embodied-Agent-Papers.md",
-  "reviewed_on": "2026-10-13",
-  "source_revision_date": "2026-10-13",
+  "reviewed_on": "2026-10-15",
+  "source_revision_date": "2026-10-15",
   "sections": {
-    "metadata": "e4afd5ebbf1832e90b293f15f4de302abaae246ece64b3edb636507c79a65833",
+    "metadata": "d596fa65e580be204e416102a99ab845938064c6aae813567a2d88627e57d9b3",
     "introduction": "8c17bc1d22a44c667d3673775811d9cf4f0f4d7c5e66bc908245222485388b05",
-    "具身智能体论文精读": "7e4347165241660c76796bdc3e702ab4bdbc08e2e7a561c0484a940109318fd5",
+    "具身智能体论文精读": "f967e165accef3ebb7d0996f39ca7031ffc4e64987f662444ef450cf301e4487",
     "paper:holoagent-0 / 1. HoloAgent-0 (2026) {#holoagent-0}": "4cc92a362c7b424cc7a5e880c873144a6dd851bdfdd1e523c749b64861e1580c",
     "paper:holoagent-0 / 精华": "baeffd64d95f90fb8d914888810e60f1190f9f00c85dc8d42d3b83021e7f628f",
     "paper:holoagent-0 / 1. 研究背景/问题": "78636fbb3fb4b211a8ff109e039471dc173ca14b79d9e7250308b620b0f56f92",
@@ -127,7 +127,19 @@
     "paper:race / 2.5 Stage 2：推理覆盖感知的 Agentic RL": "da9354afb3149c1e4d144765e2d3356d7f163c3da095768f6a2dfd7c788b955d",
     "paper:race / 3. 核心结果/发现": "5a78181d2c4251a75fbdbfb89635439ecb0182cedf62450f75d3fe95c34de16e",
     "paper:race / 4. 局限性": "1e1474c359d7e356a1c965e7c86ebc9459474402a30ad227251f3ef757c115cf",
+    "paper:agentic-robots / 13. Agentic Robots (2026)": "3af16193dc620c7b976e7fc702fb39e170bfdfeee0c41bb19e9acd60d87a6939",
+    "paper:agentic-robots / 精华": "67a211b247a6ee4ce236668c0f3b2440b5c88f6501bf5ba3bf338e17fa6b06d4",
+    "paper:agentic-robots / 1. 研究背景/问题": "7493173f2a269ec400d339023ae8958a9a5060ec4139fadbd119557f1213a89c",
+    "paper:agentic-robots / 2. 主要方法/创新点": "0f04ee81a700c6c717661bb6d4a6a29656f6fae189b74ee207e23d4ef1454477",
+    "paper:agentic-robots / 2.1 整体框架：四个功能领域，连接两种反馈循环": "091272d2b6270477e527303e4b470f3801adefd67ec788894ef3697a86c6c9c1",
+    "paper:agentic-robots / 2.2 Model：从学习过程到机器人动作，区分五种干预位置": "2c8bdbddfb028e6f9254264a15668dcc281b378354b6c91d23901429294095f5",
+    "paper:agentic-robots / 2.3 Data：获取经验、补充监督、再修正已有记录": "58d0f290ba98e40222845334c068feeb17077adfe21f7127b8cd1b5f1c8e9f75",
+    "paper:agentic-robots / 2.4 Environment：分别检查世界、目标和裁判": "5afef968c97ba5c244b1fe874fcd0965093104f728d080ccdffb0101c1fa9361",
+    "paper:agentic-robots / 2.5 Harness：让能力能够被调用、衔接、核验与复用": "b60d9c4e35e5f35d2a6f9e35fc37b05fd75985ba039851d3bff217eac74a6971",
+    "paper:agentic-robots / 2.6 训练与推理：明确哪些东西发生了变化": "3ede5fdf2880e0fc09df861d439f2b133c4e7ac71a2ba8718ec3ba7698d1a391",
+    "paper:agentic-robots / 3. 核心结果/发现": "045bd039b768ce1b9bb6bb278f97aebe0071f40d65a56cfa8577a6dc91e31457",
+    "paper:agentic-robots / 4. 局限性": "8c739b4e58cfe068e03ab98d5fed41ca3138f8bf1a7e62ebe7585e3c0fd7ac79",
     "参考资料": "9b02b96398a0ecec9519f4402648095347400e58028bcf57f57e2194eee8f5e6",
-    "论文引用": "4f9bc7f55dfbaaa92fefecaa94c15d9f5cbe719001771091cb8b52f305dc244d"
+    "论文引用": "ee2cd33045e9d58ebe6aa63476a37794b1fcc0b8ff7381801b0eaf741a5cbc55"
   }
 }

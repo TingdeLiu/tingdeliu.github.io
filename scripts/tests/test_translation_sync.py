@@ -54,6 +54,15 @@ class TranslationSyncTests(unittest.TestCase):
         inserted = self.snapshot(body.replace('## Ackermann', '## Extra\nText\n## Ackermann'))
         self.assertEqual(compare_sections(inserted, before)['changed'], [])
 
+    def test_next_line_paper_anchors_keep_repeated_sections_separate(self):
+        body = '# Papers\n## 1. A {#a}\n### 精华\nOne\n## 2. B\n{: id="b"}\n### 精华\nTwo\n# References\nEnd\n'
+        before = self.snapshot(body)
+        after = self.snapshot(body.replace('Two', 'Changed'))
+        self.assertIn('paper:b / 2. B', before)
+        self.assertEqual(compare_sections(after, before)['changed'], ['paper:b / 精华'])
+        inserted = self.snapshot(body.replace('## 2. B', '## 0. New\n{: id="new"}\n### 精华\nNew\n## 2. B'))
+        self.assertEqual(compare_sections(inserted, before)['changed'], [])
+
 
 if __name__ == '__main__':
     unittest.main()

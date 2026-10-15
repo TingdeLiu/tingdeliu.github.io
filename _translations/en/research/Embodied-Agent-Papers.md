@@ -5,16 +5,16 @@ translation_id: embodied-agent-papers
 permalink: /en/Embodied-Agent-Papers/
 source_path: _posts/research/2026-03-06-Embodied-Agent-Papers.md
 source_url: /Embodied-Agent-Papers/
-source_revision_date: 2026-10-13
-translation_updated: 2026-10-13
+source_revision_date: 2026-10-15
+translation_updated: 2026-10-15
 title: "Embodied Agents: Paper Readings"
-date: 2026-10-13
+date: 2026-10-15
 tags: [Agent, Embodied AI, Robotics, VLA, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "Twelve paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, and reasoning-budget allocation."
+excerpt: "Thirteen paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, and a unified taxonomy of agentic robots."
 ---
 
 
@@ -23,7 +23,7 @@ excerpt: "Twelve paper entries on embodied runtimes, physical orchestration, sce
 # Embodied Agents: Paper Readings
 {: id="具身智能体论文精读"}
 
-This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed-loop that can sustainably operate. The twelve papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, and reasoning-budget allocation. The experiments cover simulation environments, text-interaction environments, interactive visual games, and real robots. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection.
+This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed-loop that can sustainably operate. The thirteen papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, and a unified taxonomy of agentic robots. The experiments cover simulation environments, text-interaction environments, interactive visual games, and real robots. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection.
 
 |Paper|Main entry points|representative verification|
 |---|---|---|
@@ -39,6 +39,7 @@ This article focuses on a common problem: how robots organize perception, planni
 | [SuperNav](#supernav) | Readable navigation skills, visual-point tools, and task-context management | Single-object, multi-object, and demand-driven navigation; HM3D; Unitree Go2 deployment |
 | [VISTA](#vista) | Lossless visual memory, model-directed visual inspection, and cross-context notes | ARC-AGI-3, GameWorld, AI GameStore, BabyVision |
 | [RACE](#race) | Cross-turn reasoning covers, likelihood proxy signals, and adaptive-reasoning RL | ScienceWorld, WebShop, AppWorld, DeepSearch |
+| [Agentic Robots](#agentic-robots) | Four domains—Model, Data, Environment, and Harness—and 17 functional categories | Survey synthesis; no new method evaluated in a unified experiment |
 
 The filter bar below supports multiple tag combinations; when multiple tags are selected at the same time, the page will only retain papers that meet these tags.
 
@@ -2026,6 +2027,190 @@ LoGiC relies on successful trajectories and fixed reference actions, so failed t
 
 ---
 
+## 13. Agentic Robots (2026)
+{: id="agentic-robots"}
+
+———From predicting actions to organizing execution: connecting how robot capabilities are built and used through Model, Data, Environment, and Harness
+
+📄 **Paper**: [arXiv:2610.20442](https://arxiv.org/abs/2610.20442) · [Code](https://github.com/chonghanqin/Awesome-Agentic-Robots)
+
+### Key takeaways
+{: id="精华-11"}
+
+A robot's capability depends on whether its reasoning model, executors, observations, interfaces, and feedback work together to support the task; action prediction alone does not explain success or failure on long-horizon tasks.
+The key to an agentic system is using goals and actual execution results to decide what to do next, which capability to invoke, when to obtain new evidence, and how to change strategy after failure.
+This survey organizes those decisions into four domains—Model, Data, Environment, and Harness—and 17 overlapping functional categories, bringing task execution and improvements to data, training, skills, and software into a single framework.
+A harness can coordinate frozen VLAs, analytical controllers, and reusable skills, but its benefits depend on state handovers, trustworthy feedback, and recovery mechanisms as well as the size of the planning model.
+Evaluation should hold executors and interaction budgets fixed to isolate the agent's contribution, while also reporting the complete system's time, computation, additional observations, and human effort.
+
+---
+
+### 1. Research background and problem
+{: id="1-研究背景问题-11"}
+
+VLAs connect visual and language knowledge to robot actions, while world models and world-action models (WAMs) further introduce predictions of future states or observations. Long-horizon tasks also require continuous progress tracking, responses to environmental changes, and recovery from failure.
+Relevant work is scattered across model training, data collection, environment construction, and runtime software, making it easy to conflate stronger action models, better toolchains, and more effective agent decisions.
+Through a unified definition, functional taxonomy, and comparisons of representative work, this survey asks where agents make decisions in robot systems and how those decisions connect the current task to future capability improvements.
+
+---
+
+### 2. Main methods and contributions
+{: id="2-主要方法创新点-11"}
+
+#### 2.1 Overall framework: four functional domains connecting two feedback loops
+{: id="21-整体框架四个功能领域连接两种反馈循环"}
+
+<div align="center">
+  <img src="/images/agent/Agentic-Robots-four-domains.webp" width="100%" loading="lazy" decoding="async" alt="Four connected functional domains: Model, Data, Environment, and Harness" />
+<figcaption>Original paper, Figure 2: Model, Data, Environment, and Harness connect through environmental interaction, execution feedback, planning calls, and learning from experience. These are functional domains rather than four stages that must run in sequence.</figcaption>
+</div>
+
+The main contribution is a **taxonomy and systematic analysis**. Model covers model learning and the conversion of observations into decisions and control; Data acquires and organizes experience; Environment constructs interactive worlds, tasks, and tests; Harness connects models, tools, and skills to actual execution and manages context, verification, and recovery.
+
+The authors define agentic robots as robot systems whose agents use environmental observations and execution feedback to autonomously plan and coordinate tasks, deciding during execution whether to continue, acquire information, revise a plan, or recover from failure (§3.1). Implementation may reside within one model or span multiple models, programs, and tools; the criterion is **how tasks are organized and adjusted**.
+
+| Comparison | When considering only the action policy | The survey's agentic-system perspective |
+|---|---|---|
+| Objects of decision-making | Output the next action segment given observations and conditions | Also select subgoals, executors, tools, observation requests, and control handovers |
+| Use of feedback | Adjust actions within the current policy | Also trigger replanning, state verification, executor switching, and recovery |
+| Targets for improvement | Policy parameters and their training conditions | Also data, tasks, skill libraries, training experiments, and runtime software |
+
+These are not mutually exclusive generations of technology: a VLA can itself include memory, reasoning, or tool use, and traditional autonomous robots have long used planning and monitoring. The survey emphasizes how foundation-model agents participate in these functions; the label "agentic" does not automatically imply greater autonomy.
+
+The four domains contain the following 17 functional categories (Table 1). A single work may span several categories: Harness VLA involves orchestration, memory, monitoring, and recovery, while Zero2Skill connects data collection, refinement, and policy training.
+
+| Domain | Functional categories | What changes |
+|---|---|---|
+| Model (5 categories) | Training, Perception, Planning, Robot Control, Adaptation | Learning processes, task evidence, plans, control commands, and adaptation through experience |
+| Data (3 categories) | Collection, Annotation, Refinement | Acquisition of new experience, addition of structured supervision, and selection and correction of existing records |
+| Environment (3 categories) | Reconstruction, Task Generation, Benchmarking | Executable scenes, practice goals and distributions, evaluation conditions, and measurement procedures |
+| Harness (6 categories) | Orchestration, Memory, Monitoring and Recovery, Skills, Infrastructure, Layered Systems | Capability invocation, information retention, failure handling, behavior reuse, service interfaces, and authority across layers |
+
+Two connected but distinct loops operate here. The **within-task loop** adjusts the next step using current observations and execution results. The **cross-task improvement loop** turns experience into better data, models, skills, or software, then uses new tasks to test whether the improvement holds.
+
+#### 2.2 Model: five intervention points from learning to robot actions
+{: id="22-model从学习过程到机器人动作区分五种干预位置"}
+
+<div align="center">
+  <img src="/images/agent/Agentic-Robots-model-interventions.webp" width="100%" loading="lazy" decoding="async" alt="Training, perception, planning, control, and adaptation interventions for opening a drawer and retrieving an object" />
+<figcaption>Original paper, Figure 4: the same task of opening a drawer and retrieving an object can be improved through training, perception, planning, control, or adaptation. Different failures require different interventions.</figcaption>
+</div>
+
+- **Training: change how the robot learns.** Inputs include task goals, training logs, execution videos, and evaluation results. The agent generates or modifies reward code, objectives, training configurations, policy programs, or experimental procedures; an optimizer produces a new policy, which is tested through real or simulated execution. Eureka iterates reward code, ENPIRE extends this to real-robot policies and training code, and HARBOR emphasizes typed artifacts and stage checks. Measurement criteria must remain stable so that a modification does not change both the method and its judge.
+- **Perception: turn observations into evidence that the next decision can use.** Inputs include images, depth, robot state, and history. Outputs may be scene relations, geometric targets, symbolic states, or requests to look again. AgenticNav supports navigation with orientation-indexed views, selective recall, and geometric tools; MG-VQA can push or move objects to reveal occluded information. Remembering an object's identity does not mean its old position is still suitable for immediate action.
+- **Planning: decide what to do and in what dependency order.** Inputs include instructions, scene representations, history, and available capabilities; outputs include the next operation, subgoal, action sequence, or program. Hi Robot uses a high-level VLM to update short language subtasks for a VLA, while SayPlan checks and revises plans on a scene graph. Feasibility checks before execution and feedback afterward jointly determine how far a plan should extend: greater uncertainty makes fresh observations more important for subsequent decisions.
+- **Robot Control: translate the selected operation into requirements the execution layer can handle.** Outputs may be language instructions, action primitives, target poses, programs, constraints, or cost functions. ReKep expresses keypoint relations as constraints for a solver to repeatedly optimize motion; VoxPoser constructs spatial value maps for a motion planner. The backend responsible for inverse kinematics, collision checking, and trajectory tracking directly affects the capability of an apparently identical agent.
+- **Adaptation: change future behavior through experience.** Inputs include failures, corrections, demonstrations, and autonomous interaction results. Outputs may be updated context or planner configurations, or genuinely updated model parameters. TidyBot and DROC can retain experience to change decisions; OLAF and RoboCat involve policy training. The survey distinguishes recovery within the current task, adaptation through context, and long-term improvement after retraining, and calls for checking whether earlier capabilities are retained.
+
+#### 2.3 Data: acquire experience, add supervision, and revise existing records
+{: id="23-data获取经验补充监督再修正已有记录"}
+
+<div align="center">
+  <img src="/images/agent/Agentic-Robots-data-pipeline.webp" width="100%" loading="lazy" decoding="async" alt="Data collection, annotation, and refinement, including useful segments from failed trajectories" />
+<figcaption>Original paper, Figure 5: Collection acquires new experience, Annotation adds task, phase, and outcome information, and Refinement selects useful segments and corrects supervision. Failed trajectories may also contain progress and recovery behavior worth retaining.</figcaption>
+</div>
+
+- **Collection: decide what to collect, how, and when to reset.** Given scenes, task coverage, and execution weaknesses, the agent selects practice tasks, invokes policies or demonstration procedures, and evaluates outcomes to continue, retry, or request assistance. The survey distinguishes real physical collection, simulated execution, and synthesis with generative models: AutoRT and SOAR organize real-world collection; RoboGen connects tasks, scenes, and simulated trajectories; RoboCurate and related systems organize generation and check consistency between actions and visual outcomes.
+- **Annotation: turn videos and state logs into supervision.** Processing includes trajectory segmentation, language explanations, detection and segmentation, geometric queries, and outcome verification. Outputs include textual, spatial, interaction, or outcome labels. NILS generates stage instructions from object motion, state changes, and gripper events; ECoT adds reasoning traces. Answers about spatial distances or object locations can also come from geometric computation or simulation records, with semantic interpretation and measurement evidence serving different roles.
+- **Refinement: reassess whether existing data is worth learning from and whether its labels are correct.** Inputs include complete trajectories, local segments, and subsequent feedback; outputs are retained data and corrected supervision. HELP and ARS use progress estimates to retain useful portions of failed attempts. Zero2Skill can reapply human-corrected success criteria to earlier demonstrations. Selection need not operate on whole successful or failed trajectories, and the criteria themselves also require verification.
+
+#### 2.4 Environment: examine the world, the goal, and the evaluator separately
+{: id="24-environment分别检查世界目标和裁判"}
+
+<div align="center">
+  <img src="/images/agent/Agentic-Robots-environment-design.webp" width="100%" loading="lazy" decoding="async" alt="Environment reconstruction, task generation, and benchmarking" />
+<figcaption>Original paper, Figure 6: Reconstruction builds executable scenes; Task Generation defines goals, constraints, and success conditions; Benchmarking fixes test conditions, reset procedures, metrics, and evaluators.</figcaption>
+</div>
+
+- **Reconstruction: turn observations or requirements into interactive scenes.** Inputs may be images, videos, demonstrations, or layout descriptions. The agent generates, combines, or modifies meshes, joints, poses, physical properties, and scene code; compilation, geometry, and simulation checks guide repairs. Articulate-Anything iterates link and joint code, while SceneSmith modifies worlds through structured scene operations and rollback. Visual similarity, static stability, correct contact behavior, and validity in the real world require different levels of verification.
+- **Task Generation: define what the robot should practice.** Inputs include scenes, capability ranges, and past performance; outputs include goals, initial states, constraints, success conditions, or curriculum distributions. GenSim and RoboGen generate executable tasks, while CurricuLLM and RATs adjust practice according to learning progress. Repairing an infeasible task also requires checking that its original goal is preserved; changing only a solution plan does not necessarily create a new task.
+- **Benchmarking: specify which capability a score measures.** Given the capability under evaluation and system interfaces, outputs include tasks, perturbations, observation access, reset protocols, interaction budgets, and scoring rules. Tests of open-loop skill composition, closed-loop replanning, active perception, memory, and safety measure different capabilities. If an agent also generates new tests from evaluation results, improved evaluation must be distinguished from improved robot capability.
+
+#### 2.5 Harness: make capabilities callable, composable, verifiable, and reusable
+{: id="25-harness让能力能够被调用衔接核验与复用"}
+
+<div align="center">
+  <img src="/images/agent/Agentic-Robots-harness-functions.webp" width="100%" loading="lazy" decoding="async" alt="Six harness functions surrounding the decision, dispatch, execution, and feedback loop" />
+<figcaption>Original paper, Figure 7: tasks and evidence feed decisions and dispatch, which invoke policies, primitives, solvers, or skills and receive actual feedback. The six surrounding harness functions determine whether this execution loop is reliable.</figcaption>
+</div>
+
+A harness is **the software that tells a model what it can invoke, passes calls to the robot, and returns actual outcomes to the next decision** (§7). It manages input/output contracts, control authority, state, and retained experience as well as function names.
+
+**① Orchestration: select an executor and hand over control.** Inputs include the task, current evidence, executor capabilities, and the previous call's result. Processing includes routing, parameter binding, function-protocol checks, state transitions, and handover timing; outputs are a concrete dispatch and subsequent decisions to continue or switch. RoboHarness uses a motion-planned memory bridge to move the robot into the starting state required by the next policy, whereas RoboRouter selects a policy suited to the current state. Selecting the right policy and preparing a state it can handle are separate problems.
+
+> **Example:** suppose object retrieval requires three steps: open the drawer → grasp the object → place it on the table. The drawer-opening tool reports completion, but the gripper still holds the handle, while the grasping policy requires a free gripper. Calling it immediately would fail at the handover. The harness should verify the drawer state, release the handle, and reach an appropriate pose before starting the grasping policy. If sensors then show an empty gripper after the grasp, it should observe again or recover instead of advancing directly to placement. This is an explanatory illustration, not a new experiment in the paper.
+
+**② Memory: retain past information and manage whether it is still valid.** Inputs include interactions, events, observations, and outcomes. Writing, updating, and retrieval produce evidence or task state relevant to the next decision. Putting all history into context adds redundancy, while excessive compression loses critical commitments; when a scene changes, old positions need updating or verification. Whether memory persists across tasks depends on the system.
+
+**③ Monitoring and Recovery: turn detected problems into executable repairs.** Before execution, check candidate actions and constraints; during execution, assess progress and whether to interrupt; afterward, interpret success or failure. Then choose among retrying, grounding again, switching executors, replanning, and resetting. REFLECT passes failure explanations to a corrective planner, while DoReMi monitors constraints as skills run. Recovery must also specify whether to continue from the current disturbed state or first restore a known state, with limits on retries and conditions for human intervention.
+
+**④ Skills: turn experience into reusable ways of acting.** Inputs include demonstrations, corrections, successful programs, and failure records. Processing includes abstraction, implementation, testing, admission to the library, revision, and retirement; outputs are loadable textual procedures or callable behaviors. Code as Policies composes perception and control APIs into programs, and subsequent skill libraries retain transferable portions. ASPIRE, RATs, and RoboRSI further use execution evidence to revise skills. The key is verifying new versions and retaining earlier capabilities, beyond simply generating more code.
+
+| Object retained or improved | Plain-language meaning | Typical forms |
+|---|---|---|
+| Memory | Remember what just happened | Object states, failure records, historical views, task progress |
+| Skills | Retain what to do next time this situation occurs | Textual procedures, functions, programs, callable behaviors |
+| Model parameters | Change the model's own capabilities through training | Updated weights of planning models, action policies, or code models |
+
+**⑤ Infrastructure: provide runnable, inspectable interfaces for tools and policies.** Inputs are invocation requests and robot data. Backend services handle perception, grasping, motion planning, and VLA inference; interfaces return measurements, execution records, or explicit failure information. Typed APIs, ROS 2 / MCP interfaces, remote policy services, and runtime checks outside the model jointly determine available capabilities. If a backend hides perception errors or action latency, the planner also struggles to recover correctly.
+
+**⑥ Layered Systems: divide responsibilities by response speed and authority.** The authors use System 2 for the slow reasoning or program layer responsible for goals and subtasks, System 1 for learned visuomotor policies, and System 0 for analytical control such as inverse kinematics, motion planning, and MPC. Layers exchange language, latent features, paths, or waypoints and update at different frequencies. For example, the cited Ground Slow, Move Fast uses an approximately 2 Hz planner and a 30 Hz policy, followed by MPC tracking (§7.6). These rates belong to that configuration rather than a standard adopted by all systems.
+
+The following reader-oriented dataflow illustrates one closed-loop execution. It synthesizes mechanisms discussed in the survey and does not imply that the paper proposes this fixed architecture.
+
+```mermaid
+graph TD
+    A["Task goal and current observations"] --> B["Retrieve history and verify current state"]
+    B --> C["Select subgoal and executor at the high level"]
+    C --> D["Check parameters, preconditions, and handover state"]
+    D --> E["Invoke a VLA, analytical tool, or skill"]
+    E --> F["Execute motion with the low-level controller"]
+    F --> G["Independently verify progress, outcomes, and constraints"]
+    G -- "Continue or advance to the next phase" --> B
+    G -- "Failure or insufficient evidence" --> H["Acquire observations, recover, or replan"]
+    H --> B
+```
+
+#### 2.6 Training and inference: specify what actually changes
+{: id="26-训练与推理明确哪些东西发生了变化"}
+
+The paper proposes no unified trainable model or dedicated loss function, so its 17 functional categories should not be combined into a new training objective. Surveyed systems may modify rewards under a fixed optimizer, train policies with new annotations and corrected data, or freeze all models and update only context, skill code, or invocation procedures.
+
+At inference time, the agent advances the task using actual observations and execution feedback. High-level calls may be triggered periodically, by progress events, or according to a budget, while lower layers continue timely motion control. Cross-task improvement retains trajectories, reviews, labels, skill revisions, or experimental results. Establishing lasting capability gains requires reevaluation on new tasks and conditions that did not participate in the modification.
+
+---
+
+### 3. Key results and findings
+{: id="3-核心结果发现-11"}
+
+**The paper contributes a taxonomy of four domains and 17 overlapping functional categories, comparisons across works, and a research agenda; it does not introduce a new method and evaluate it in a unified leaderboard experiment.** All figures below are results of representative works as reported by the survey (§7.5). They illustrate the importance of interfaces and toolchains and cannot be compared across rows as a method ranking.
+
+| Surveyed work | Comparison conditions and reported results | Observation supported |
+|---|---|---|
+| NavMCP | QA accuracy is 74.0% with the complete three-channel protocol and 59.1% with an episode-organized interface | Intent, keyframe-based journey summaries, and persistent memory jointly affect results; the difference cannot be attributed to memory alone |
+| Show-Harness | Halving the motion step size raises reported zero-shot success from 60% to 82% | The same model can perform differently when action-interface granularity changes |
+| ASPIRE | On the evaluated LIBERO-Pro perturbations, adding the execution engine raises macro-average success from 14% to 62% | Primitive-level execution tracking, debugging, and repair verification are important system variables; the reasoning model cannot receive all the credit |
+| Work by Kuroki and Tang | Success is 65.0% with full simulation observations and 22.5% with RGB input alone | Privileged state can hide perception costs; results with different state-access conditions require separate interpretation |
+
+Across the domains, **correct action or tool-call syntax does not ensure successful physical execution; storing experience does not ensure that evidence remains valid; accepting one skill update does not ensure continuous long-term capability growth.** The survey notes that perception and tracking errors accumulate through toolchains and that progress in some self-improving systems is not monotonic. Actual execution evidence, independent measurement, and validation on new tasks are therefore necessary.
+
+The authors identify four directions for further work (§8):
+
+- **Fair evaluation:** compare the agent's decision-making contribution under the same executors, observation access, and interaction budgets, while reporting resources and human effort for the complete system.
+- **Real-robot deployment:** specify skill preconditions, whether actions have finished or stopped, and recovery mechanisms for noise, contact, and stale observations.
+- **Efficient robot use:** trigger high-level reasoning according to task progress and uncertainty, and account for the total cost of model waiting time, networking, tool calls, retries, and physical execution.
+- **Cross-embodiment generalization:** let agents adjust plans to a new robot's sensors, motion range, and skills, and measure the effects of additional configuration, training, and transferred experience.
+
+---
+
+### 4. Limitations
+{: id="4-局限性-11"}
+
+The evidence comes from existing studies with different observation access, executors, recovery budgets, and simulation or real-world conditions. Classification and synthesis cannot directly establish a common causal benefit for a particular system composition.
+Real-world contact and perception errors, runtime latency, reliable self-improvement, and transfer to unfamiliar robots remain open problems. A single task's success rate or a simulation score cannot replace their verification.
+
+---
+
 # References
 {: id="参考资料"}
 
@@ -2045,6 +2230,7 @@ LoGiC relies on successful trajectories and fixed reference actions, so failed t
 10. **SuperNav** (2026). SuperNav: An Agentic Navigation System for Any Task in Any Scene. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126) · Full analysis: [Extended VLN collection](/en/VLN-Papers-Extended/#supernav)
 11. **VISTA** (2026). VISTA: A Visual Harness for Reasoning in an Interactive World. arXiv: [2610.02200](https://arxiv.org/abs/2610.02200) · Code: [joshhhhhan/VISTA](https://github.com/joshhhhhan/VISTA)
 12. **RACE** (2026). When Should Agents Think? Adaptive Reasoning via Cross-Turn Estimation. arXiv: [2610.12061](https://arxiv.org/abs/2610.12061) · Code: [HututuAI/RACE](https://github.com/HututuAI/RACE)
+13. **Agentic Robots** (2026). Towards Agentic Robots: Model, Data, Environment, and Harness. arXiv: [2610.20442](https://arxiv.org/abs/2610.20442) · Code: [chonghanqin/Awesome-Agentic-Robots](https://github.com/chonghanqin/Awesome-Agentic-Robots)
 
 <script>
 (function () {
@@ -2061,9 +2247,10 @@ LoGiC relies on successful trajectories and fixed reference actions, so failed t
     { m: 'SuperNav', t: ['Harness', 'Closed-loop systems', 'Active exploration', 'Exception recovery', 'Embodied navigation', 'Real-robot deployment'] },
     { m: 'VISTA', t: ['Harness', 'Visual memory', 'Active exploration', 'Zero fine-tuning', 'Long-horizon tasks'] },
     { m: 'RACE', t: ['reinforcement learning', 'Long-horizon tasks', 'Reasoning budget'] },
+    { m: 'Agentic Robots', t: ['Survey', 'Harness', 'Closed-loop systems', 'VLA', 'Exception recovery', 'self-evolution', 'Cross-embodiment'] },
   ];
 
-  var ALL_TAGS = ['Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation', 'Visual memory', 'Reasoning budget'];
+  var ALL_TAGS = ['Survey', 'Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation', 'Visual memory', 'Reasoning budget'];
 
   var activeTags = [];
   var resultsPanel = null;
