@@ -5650,6 +5650,7 @@ NavHarness is an embodied-agent harness centered on continuing navigation. It ke
     { n: '54. HumanoidVLN (2026)', a: 'humanoidvln', t: ['Datasets', 'Reinforcement learning', 'Real-robot deployment', 'Gaussian representations'] },
     { n: '55. AdaGeoVLN (2026)', a: 'adageovln', t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Inference optimization'] },
     { n: '56. SeekVLN (2026)', a: 'seekvln', t: ['CoT', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment'] },
+    { n: '58. RSI-Nav (2026)', a: 'rsi-nav', t: ['End-to-end', 'Data augmentation', 'Continuous environments', 'Real-robot deployment'] },
   ];
 
   var ALL_TAGS = ['Dual systems', 'End-to-end', 'Agentic', 'CoT', 'Diffusion models', 'Topological maps', 'SLAM', 'Gaussian representations',

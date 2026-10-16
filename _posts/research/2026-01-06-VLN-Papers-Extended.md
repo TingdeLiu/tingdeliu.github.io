@@ -5189,6 +5189,7 @@ NavHarness 是以持续导航为核心任务的具身 Agent Harness：把空间�
     { n: '55. AdaGeoVLN (2026)', a: 'adageovln', t: ['端到端', '连续环境', '实机部署', '加速优化'] },
     { n: '56. SeekVLN (2026)', a: 'seekvln', t: ['CoT', '强化学习', '连续环境', '实机部署'] },
     { n: '57. NavGPT-3 (2026)', a: 'navgpt-3', t: ['双系统', 'Agentic', '连续环境', '实机部署'] },
+    { n: '58. RSI-Nav (2026)', a: 'rsi-nav', t: ['端到端', '数据增强', '连续环境', '实机部署'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',
