@@ -1,0 +1,29 @@
+{
+  "source": "_posts/weekly-reports/2026-10-17-VLN-Weekly.md",
+  "translation": "_translations/en/blog/vln-weekly-2026-10-17.md",
+  "reviewed_on": "2026-10-17",
+  "source_revision_date": "2026-10-17",
+  "sections": {
+    "metadata": "9358f5f1f8b6ee019f14cf8a0d6bf1706a1d99a3248e224d918efb1f3398e329",
+    "introduction": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "一、本期结论": "c7f31a1aee4ad4c3072d9623719d049c904c627b00ee9d979fbdf095883c4dd9",
+    "二、优先阅读清单": "e1e73d55571fa37abb98e616de402c013c29e53bfa8c77463f48d54c9a0d7e62",
+    "三、重点工作分析": "2584114b2e8622d0f560a157506af5322d97f8ea03c84bda9584637404ab9cfd",
+    "1. VLN-Safe：先明确碰撞如何改变动作": "dad1a0575b9db04d23cb936b5b5b8ce4e30e886fd93e9dd23949116358091d25",
+    "2. GuidedNav：把任务进度和几何监督留在训练阶段": "7daef9a02a850b9ed232b87000d66a2468c7e87e536a1da0730cd71296454c93",
+    "3. RSI-Nav：数据生成器必须跟上被训练的策略": "b5dce33d766dbb157e7a52788d25cbb41b8f426b67b0ea80c273793a13173a47",
+    "4. MemoryVLN：压缩历史之后仍需保留空间来源": "c99a156fba8f392bd34efa2b94e7241ff38293952796a78946c4ec451af40134",
+    "5. I2O2I-Nav：原子导航能力并不能保证完整任务": "a06be6208478f3b537d7bd16dd57f71a6a616572eeba87c739aeb11bad5156f5",
+    "四、可迁移方法": "46eb016c5eb445a86f91c1fa4385dbfa20bf968705c89751ed488ed4ceb9e7a2",
+    "五、分类速览": "9d4287a32f0824976d79af5af264fab31cde5f01a34734fa936487ca3fe39445",
+    "5.1 地面 VLN / ObjectNav / 语义导航": "0acecc22fe4af1b2ff69929b0645b7a27b83bec36afa7f11cc37bb6dd1a7c260",
+    "5.2 记忆、地图、规划与评测": "58fa79526d1e7aea70046c8ab4a2fcb58cb59de028333539c57a4275cb02b3ca",
+    "5.3 具身 VLA / 移动操作": "d568e06efbc9514a5056e0987b243bf745ecec6952f2f12810b2bfd8bd6b707b",
+    "5.4 无人机、自动驾驶与其他低相关方向": "e914eb1c90ddeb15a293ca761c1c0df96a69e0b22cde51fa02791c06e3470e2c",
+    "5.5 资讯与非论文": "ae7f018a0b7d4478cfbcfd5208d1e6a277413fb013d29d0b0f8af36684d06aea",
+    "六、趋势判断与行动建议": "f433f62d1aac525636d05c2957e6f2c97272292a09de8e097f5c188475e3caaf",
+    "趋势": "6e3112c44a3c4993843afe187edbe6bbf0674c2531a6efd1c78b7ba7309d9233",
+    "研究空白": "f27eebb9755a99527e1f9182e9b457411a352e42c121788654efcb3bfdb96f59",
+    "建议动作": "32ef4cacdc092069618ec8285f12fd2defb0f8a08426ca2e43262757af762637"
+  }
+}
