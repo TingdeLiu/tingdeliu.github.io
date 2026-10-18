@@ -3,20 +3,20 @@ layout: post
 lang: zh-CN
 translation_id: embodied-agent-papers
 title: "Embodied Agent 论文精读"
-date:   2026-10-15
+date:   2026-10-18
 tags: [Agent, Embodied AI, Robotics, VLA, Deep Learning]
 categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "本文按系统运行时、物理编排、场景图评估、自演化治理、语义动作接口、动作分块、AgentOS、巡检系统治理、导航会话交接、导航工具编排、视觉记忆检视、推理预算分配与统一分类十三条路线，收录 Embodied Agent 领域的代表性论文。"
+excerpt: "本文按系统运行时、物理编排、场景图评估、自演化治理、语义动作接口、动作分块、AgentOS、巡检系统治理、导航会话交接、导航工具编排、视觉记忆检视、推理预算分配、统一具身推理与统一分类十四条路线，收录 Embodied Agent 领域的代表性论文。"
 ---
 
 > 本文是 [AI Agent 综述](/AI-Agent-Survey/) 与底层系统架构指南 [Embodied Agent 综述](/Embodied-Agent-Harness-Survey/) 的配套具身论文精读，系统收录 Embodied Agent（具身智能体）领域的代表性工作与前沿突破。
 
 # 具身智能体论文精读
 
-本文关注一个共同问题：机器人如何把感知、规划、执行、验证和恢复组织成可持续运行的闭环。十三篇论文分别从运行时、编排器、评估器、演化机制、动作接口、训练目标、通用 AgentOS、巡检系统治理、导航会话交接、导航工具编排、视觉记忆检视、推理预算分配和统一分类切入，实验覆盖仿真环境、文本交互环境、交互式视觉游戏与真实机器人；其中 SuperNav 提供简要导读，完整解析链接到 VLN 扩展篇。
+本文关注一个共同问题：机器人如何把感知、规划、执行、验证和恢复组织成可持续运行的闭环。十四篇论文分别从运行时、编排器、评估器、演化机制、动作接口、训练目标、通用 AgentOS、巡检系统治理、导航会话交接、导航工具编排、视觉记忆检视、推理预算分配、统一具身推理和统一分类切入，实验覆盖仿真环境、文本交互环境、交互式视觉游戏与真实机器人；其中 SuperNav 提供简要导读，完整解析链接到 VLN 扩展篇。
 
 | 论文 | 主要切入点 | 代表性验证 |
 |---|---|---|
@@ -27,6 +27,7 @@ excerpt: "本文按系统运行时、物理编排、场景图评估、自演化�
 | [Show-Harness](#show-harness) | 语义动作单元与本体解释器 | Franka、AgileX、仿真与真机泛化 |
 | [SPACE](#space) | 技能引导的自适应动作分块与强化学习 | ALFWorld、ScienceWorld |
 | [ABot-AgentOS](#abot-agentos) | 双 LLM、Agent Harness 与终身多模态记忆 | EmbodiedWorldBench、记忆基准 |
+| [ABot-ER](#abot-er) | 统一具身推理与数据—模型协同演化 | 十二项具身理解与规划基准、真机定性演示 |
 | [Harness Robotic OS](#harness-robotic-os) | 巡检运行时、分层记忆与自进化治理 | 真实小区导航与巡检；认知运行时尚待受控验证 |
 | [NavHarness](#navharness) | 跨会话搜索交接、记忆处理、恢复与双阶段核验 | GOAT-Bench、IR2R-CE、36 房屋持续部署（仿真） |
 | [SuperNav](#supernav) | 可读取导航技能、视觉点选工具与任务上下文管理 | 单 / 多物体与需求驱动导航、HM3D、Unitree Go2 真机 |
@@ -1222,7 +1223,194 @@ Agent Harness 改变了传统单模型控制器的设计，将 Agent 调度划�
 
 ---
 
-## 8. Harness Robotic OS (2026) {#harness-robotic-os}
+## 8. ABot-ER (2026) {#abot-er}
+———让具身理解、长程规划与交互点定位共享一个模型，用失败诊断驱动训练数据的持续修正
+
+📄 **Paper**: [arXiv:2610.18355v2](https://arxiv.org/abs/2610.18355v2) · [Code](https://github.com/amap-cvlab/ABot-ER)
+
+### 精华
+
+ABot-ER 把机器人在行动前后需要的空间关系、场景状态、事件变化、行动计划与交互位置统一到一个具身推理模型，向 [ABot-AgentOS](#abot-agentos) 等运行时提供判断、计划和图像坐标，物理动作由下游策略完成。
+它最值得借鉴的是先辨认训练数据出了什么问题，再协调补充监督、修正输出协议与调整采样比例，而不是把每次低分都归结为数据不够。
+模型在共享主干上增加问答与规划两类低秩残差，但主干仍联合训练，且协议修复后的消融没有显示两类任务均分继续受益，结构收益有明确边界。
+单次使用收敛后的语料可以用五分之一的累计后训练量获得接近六轮链式训练的十二项均分，说明可复用的资产包含经过审计的数据与评测规则。
+阅读时应区分点定位命中率、仿真任务成功率和真机定性演示，也应区分训练中的语料演化与机器人部署后的在线适应。
+
+---
+
+### 1. 研究背景/问题
+
+机器人把物体移到指定位置，需要同时理解物体与人的相对方位、当前状态、步骤依赖和可交互区域；这些能力分别训练时容易各有所长，联合训练又可能因输出格式和学习进度不同而互相干扰。
+论文将两个瓶颈分别称为 **Data-Model Drift**——固定数据比例逐渐跟不上模型当前的短板，以及 **Modality Entanglement**——文字、计划和坐标监督对共享参数提出不同要求。
+ABot-ER 的目标是在一个检查点中兼顾五类具身判断，并建立可以诊断、修订和审计的训练流程。
+
+---
+
+### 2. 主要方法/创新点
+
+<div align="center">
+  <img src="/images/agent/ABot-ER-reasoning-interface.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1326/1014" />
+<figcaption>原文图 2：ABot-ER 位于观测与控制之间，输出语义判断、行动计划和归一化图像坐标；Agent 运行时决定何时查询、验证与重规划，下游策略执行动作。</figcaption>
+</div>
+
+#### ① 整体框架：统一推理模型、数据修订引擎与训练选择流程
+
+**在线模型**接收图像、视频或文字上下文，生成任务要求的回答；**离线数据引擎**读取评测和错误记录，修订下一版训练语料；**两阶段训练与检查点选择**把修订后的数据转化为新模型，并检查原有能力是否明显退化。
+这里的“执行”专指识别可交互目标与位置，模型不直接生成底盘速度、关节位置或力矩；部署时，运行时把这些判断交给导航、操作等执行策略。
+
+| 能力维度 | 输入与处理 | 输出示例 |
+|---|---|---|
+| 空间与关系推理 | 根据图像或多视图判断方向、距离与布局 | 从使用者视角判断哪个物体在左侧 |
+| 场景与状态理解 | 识别任务相关物体、属性与当前状态 | 桌上有哪些积木，表达式是否有效 |
+| 时间与事件推理 | 从视频或前后观测判断事件顺序、状态变化 | 积木已经放下，还是在搬运中掉落 |
+| 长程行动组织 | 结合目标、历史与反馈安排有前置条件的步骤 | 先取物，再移动，最后放到目标区域 |
+| 点定位与可供性 | 将指令落到图像中的可操作区域 | 抓取点或可放置区域内的坐标 |
+
+#### ② 共享主干与任务条件低秩残差：共用知识，保留任务适配容量
+
+<div align="center">
+  <img src="/images/agent/ABot-ER-model-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1286/823" />
+<figcaption>原文图 3：图像编码、语言主干和输出头由任务共享；最后四个全注意力块的 Q/V 投影增加两类任务残差，一条序列确定一条路由，点定位仍走问答分支。</figcaption>
+</div>
+
+**多模态编码模块**：图像或视频帧经过视觉编码器与投影器形成视觉表示，文字转成嵌入，随后按原有图文顺序送入共享解码器；纯文字任务绕过视觉分支。
+9B 实例基于 **Qwen3.5-9B**，有 32 个解码块，每三个 Gated DeltaNet 线性注意力块后接一个全注意力块，各任务共用语言输出头。
+
+**任务路由模块**：数据加载器在首条用户消息内加入任务标记，依据样本所属任务族确定分支，并在整段序列中保持不变。
+论文中的 `[EQA]` 覆盖空间、状态、时序问答以及交互坐标，`[TASK_PLAN]` 覆盖行动计划；这是按数据采集的任务族分组，并非按“文字或坐标”分组，也没有为五种能力分别建五个解码器。
+
+**残差适配模块**：在从零编号的第 19、23、27、31 层，即最后四个全注意力块的 `q_proj` 与 `v_proj` 上，各增加两组任务专用低秩参数。
+对一个投影，计算可概括为：
+
+$$
+\widetilde z_c = Wx + b + \frac{\alpha}{r} B_c A_c x, \qquad r=16,\quad \alpha=16.
+$$
+
+前两项是共享变换，最后一项是当前任务族的补偿；共享语言主干和残差共同更新，视觉编码器冻结、投影器可训练，因此不能把它理解为冻结整个基座后只训练 LoRA。
+
+> **举个例子**：面对同一张柠檬图片，“有几个柠檬”和“指出可抓取的中心”都选择问答残差；“把柠檬放进锅，再把锅送进烤箱”选择规划残差。
+> 三次调用共享物体与空间知识，但允许计划输出拥有专用的参数修正；路由由调用任务确定，模型不用先生成一段文字猜自己该选哪一支。
+
+#### ③ 数据自演化引擎：从错误证据决定修什么
+
+<div align="center">
+  <img src="/images/agent/ABot-ER-data-model-evolution.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1326/886" />
+<figcaption>原文图 4：每轮先评测诊断，再协调监督内容、输出协议与训练比例三类修订，经过数据审计、训练和能力保持检查后选择新模型；图中三流比例描述特定开发轮次的问答数据配置。</figcaption>
+</div>
+
+引擎接收能力分数、逐题输出、训练日志与数据来源记录，由一个协调语言模型 Agent 提出根因假设和数据需求，确定性程序检查候选数据是否满足格式、来源、采样上限及轨迹回放要求。
+最初几轮由专家校准诊断和验收规则；后续运行受这些规则约束，演化对象是训练语料，模型架构和学习算法不会自行改写。
+
+**能力诊断**先把错误分为格式解析、坐标协议与点位命中、选择题、数值解析、开放问答扣分及计划执行失败等类别，再映射到能力缺口；一个基准掉分不自动等于整类能力不足，需结合其他基准趋势或逐项错误证据。
+诊断结果随后进入三种可配合、但不能互相替代的修订：
+
+| 修订机制 | 解决的问题 | 具体处理 |
+|---|---|---|
+| Content Evolution：监督内容演化 | 缺少正确或完整的学习目标 | 构造满足前置条件、回放后能到终态的计划；保留有证据支持的交互目标 |
+| Protocol Evolution：协议演化 | 同一目标被写成不兼容的数值或格式 | 统一坐标数值约定，同时按任务固定点数、包装格式与动作模式 |
+| Mixture Evolution：比例演化 | 正确数据的训练曝光不足 | 在来源与重复次数上限内调整采样预算，保留已掌握能力的数据 |
+
+**坐标协议是最直观的例子。** 历史数据混用了 0–1000 坐标、归一化单点和八点 XML；此外，一些标签写的是手臂运动终点，并非题目要求的目标区域。
+修订一方面把坐标统一为相对原图的 `[0, 1]` 数值、保留三位小数，另一方面保留不同任务各自要求的输出形式：VABench-P 用八点 XML，Where2Place 用一至三个点的元组列表。
+
+> **举个例子**：同一个位于画面正中央的目标，在旧坐标尺度下可能写作 `(500, 500)`，统一后写作 `(0.500, 0.500)`。
+> 但数值统一还不够：如果评测要求八个点，单点列表仍可能无法解析；即使八个点都合法，若落在手臂末端而非目标上，仍然没有学对任务。
+
+**训练预算也要说清统计口径。** 引擎构建数据时使用字符与媒体开销估计的 token proxy，它并非真实 tokenizer 计数；独立样本数、重复展开后的训练记录数和助手输出 token 数回答的是不同问题。
+例如最终 Stage B 中规划占 **25.00% 的训练记录**、却占 **63.76% 的助手监督 token**，因为完整计划远长于一个选项答案；由于损失按序列归一化，后一个比例也不能直接等同于损失权重。
+图中约 45% 细粒度能力、15% 基准保障、40% 通用基础的三流配比属于 **R6 的问答分区**，规划另行分配，并非最终两阶段训练统一采用的固定比例；配额由人工写入配置，程序负责实现与检查。
+
+**数据治理**贯穿修订过程：检查同图同问的冲突答案、重复媒体、无效引用、来源资格与测试重叠，新增标签须依据图像、环境状态或可信标注。
+一个实际教训是 R3 曾出现 EB-ALFRED 的“100 分”：汇总只包含 300 个 episode 中先完成的 12 个，且旧训练池另有正式测试轨迹混入；补全汇总得到的 27 分也因权重受污染而不能采用。
+作者随后整体隔离三个来源、涉及 23,565 条候选记录，R3 仅作为诊断历史，不纳入性能结论，正式发布线路从清理后的数据和未承接污染权重的初始化重新训练。
+
+#### ④ 两阶段训练、统一损失与模型选择
+
+**Stage A：建立跨能力基础。** 从预训练 VLM 出发，在联合语料上做监督训练，使模型覆盖五类能力并掌握统一数值协议。
+**Stage B：修补剩余短板。** 从选出的 Stage A 检查点继续做较短的监督微调，降低学习率，增加规划恢复等目标数据，并保留其他能力的数据以抑制遗忘；这一阶段不是强化学习。
+
+所有任务都用同一个自回归交叉熵目标，只监督助手输出，输入、媒体占位和填充不计入损失。
+把一条样本的助手输出位置记为集合 $S$，其序列归一化目标可写为：
+
+$$
+\mathcal L = -\frac{1}{\lvert S\rvert}\sum_{t\in S}\log p_{\theta}(y_t\mid x,c,y_{<t}).
+$$
+
+多轮样本的助手 token 一起归一化，任务间的训练曝光主要由数据构建与采样控制，而非为五类能力各加一个独立损失。
+论文 v2 报告 Stage A 为 **462,390 条训练记录、294,762 个独立身份**，Stage B 为 **104,960 条记录、52,480 个独立身份**，后者恰好各重复两次；记录数不能相加当作独立样本量。
+两阶段解码器学习率分别为 **4×10⁻⁶、3×10⁻⁷**，阶段切换时重置优化器与调度器；32 张 GPU 完整作业合计约 **826 GPU 小时**，不含数据构造与全套评测。
+
+模型选择先检查其他能力退化、解析可靠性和已检测测试重叠等约束，再比较同一个检查点的领先基准数与目标分数。
+开发历史并非六轮连续叠加权重：协议、来源规则等大改动往往从预训练模型重训，正式发布的 Stage A→B 线路也不能与 R6 混为一谈。
+
+#### ⑤ 推理与真机系统如何衔接
+
+推理时，调用方确定任务族并激活对应残差，模型通过共享输出头逐 token 生成答案；它不需要另载五套任务模型，但自回归生成仍包含多次解码计算。
+在 Galaxea R1 Pro 演示中，ABot-ER 作为 [ABot-AgentOS](#abot-agentos) 的视觉问答组件，部署在外部单张 RTX 5090D 主机；AgentOS 负责交互编排，独立的 **ABot-M** VLA 执行操作。
+每个动作步骤前查询场景与交互位置，动作后再次查询结果，运行时依据判断继续或修订剩余计划。
+
+```mermaid
+graph TD
+    A["任务指令与当前观测"] --> B["ABot-ER：状态判断与交互目标"]
+    B --> C["ABot-AgentOS：组织与调度步骤"]
+    C --> D["ABot-M 等下游策略执行动作"]
+    D --> E["获取动作后的新观测"]
+    E --> F["ABot-ER：判断状态变化与结果"]
+    F --> G{"运行时判断是否达成目标"}
+    G -- "继续或修订" --> C
+    G -- "已达成" --> H["结束任务"]
+```
+
+<div align="center">
+  <img src="/images/agent/ABot-ER-real-world-deployment.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1328/974" />
+<figcaption>原文图 7：积木算术与石头剪刀布定性演示。ABot-ER 读取视觉状态，ABot-AgentOS 决定任务进展，下游 VLA 完成动作；这些案例没有提供额外的真机成功率统计。</figcaption>
+</div>
+
+---
+
+### 3. 核心结果/发现
+
+**① 单个检查点兼顾多类能力。** 主表比较 9 个公开基线，9B ABot-ER 在十二项中的六项取得所列最佳结果。
+按感知七项、规划三项和点定位两项分别等权汇总，均分为 **63.86、41.61、67.06**，分别比各组最强所列基线高 **3.94、4.20、11.81**；三个参照值来自不同模型。
+
+| 代表性基准 | ABot-ER 9B | 所列最佳基线 | 指标含义 |
+|---|---|---|---|
+| ERQA | **47.31** | Cosmos3-Nano 46.09 | 具身推理选择题准确率 |
+| RoboVQA | **71.79** | MiMo-Embodied 66.09 | 开放式机器人视频问答评分 |
+| Cosmos | **68.96** | Cosmos3-Nano 63.18 | 时序与物理事件选择题准确率 |
+| EB-ALFRED | **26.67** | MiMo-Embodied 17.33 | 交互任务成功率 |
+| EB-Habitat | **37.00** | Cosmos3-Nano 26.67 | 交互任务成功率 |
+| VABench-P | **63.33** | Cosmos3-Nano 47.54 | 点落入目标框的命中率 |
+
+这些数值统一展示在 0–100 尺度，但评分含义不同，不能把跨基准均分视为真实机器人的总体成功率。
+EQA 九项均分 **64.57** 包含七项感知和两项点定位；十二项均分为 **58.83**，也不等于 EQA 与规划两个均分再各占一半。
+
+**② 定向后训练存在收益和代价。** Stage A 到发布检查点，规划均分 **39.43→41.61**，EB-ALFRED 与 EB-Habitat 分别增加 **3.00、3.33** 点，但 Where2Place **72.90→70.79**，并非所有能力同步提升。
+
+**③ 条件分支的收益依赖数据状态。** 在 **Qwen3.6-35B-A3B** 上的受控成对消融中，未统一协议的数据使条件分支改善 11/12 项、十二项均分增加 **1.36**；协议修复后，各自最佳检查点的 EQA 为 **66.94→66.27**、规划为 **42.87→41.94**，均未改善。
+仍然稳定的收益是 ET-Plan-Bench：17 个配对检查点全部更高，平均 **+3.3** 点；此消融同时开关任务标记和残差，没有单独识别二者贡献，也不能直接外推成 9B 的独立结构增益。
+
+**④ 收敛数据可以复用，但训练历史影响能力分布。** 共享起点、最终语料和最终阶段进度的比较中，单次后训练与六轮链式后训练的十二项均分分别为 **60.00、60.09**，前者累计后训练量为五分之一；不过交互规划仍较弱，EB-ALFRED 为 **25.00 对 30.00**，EB-Habitat 为 **48.67 对 51.67**。
+同一对两阶段语料还迁移到 2B、4B、27B 和 35B-A3B 等骨干，无需为每种规模重新运行数据修订闭环；其中 27B 的十二项均分为 **62.57**，这是另一组模型规模实验，不能与前述训练历史对照混用。
+
+<div align="center">
+  <img src="/images/agent/ABot-ER-cross-round-tradeoffs.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1061/433" />
+<figcaption>原文图 6a：每次开发版本切换都同时出现增益与退化。各轮预算、初始化和部分历史协议不同，热力图描述开发过程，不能把每列当作只改变数据策略的严格对照实验。</figcaption>
+</div>
+
+**⑤ 实验口径决定结论边界。** VABench-P 的当前预测归档把同一个位置重复八次，不能解释为八个独立候选点；论文还说明 EB 归档的原始在线调用来源有待核验，不能仅凭成功率归因于模型原生的闭环纠错。
+公开基线取自不同时间的榜单快照，原始训练与评测配置未必一致；点定位分数也只验证空间目标命中，不直接衡量控制精度或物理操作成功。
+
+---
+
+### 4. 局限性
+
+开发轮次同时改变训练预算、学习率、数据与部分评测协议，数据配额仍有人为设定，附录审计也保留未覆盖媒体等残余风险，因此不能把跨轮涨分当作自演化机制的独立因果证明。
+真机主要是定性案例，缺少大规模成功率与延迟对照，交互规划还有明显失败空间，接入导航或操作项目时仍需独立验证视觉判断、运行时决策与下游控制各环节的贡献。
+
+---
+
+## 9. Harness Robotic OS (2026) {#harness-robotic-os}
 ———把四足巡检从「导航栈」升级为「具身智能体运行时」
 
 📄 **Paper**: [arXiv:2609.11225](https://arxiv.org/abs/2609.11225)
@@ -1382,7 +1570,7 @@ $$\text{WER} = (S + D + I) / N$$
 
 ---
 
-## 9. NavHarness (2026) {#navharness}
+## 10. NavHarness (2026) {#navharness}
 ———让新的导航会话接过旧的搜索证据，在连续任务中积累并修正经验
 
 📄 **Paper**: [arXiv:2609.34276](https://arxiv.org/abs/2609.34276) · [Code](https://github.com/billzhao1030/NavHarness) · [Project Page](https://billzhao1030.github.io)
@@ -1564,7 +1752,7 @@ judge 仍会接受错误完成或否决正确完成，错误记录可能被整�
 
 ---
 
-## 10. SuperNav (2026) {#supernav}
+## 11. SuperNav (2026) {#supernav}
 ———以导航技能、视觉点选工具和上下文管理组织通用导航 Agent
 
 📄 **Paper**: [arXiv:2610.12126](https://arxiv.org/abs/2610.12126) · [Project Page](https://zju3dv.github.io/SuperNav/)
@@ -1575,7 +1763,7 @@ SuperNav 是以导航为主要验证场景的具身 Agent Harness。它让通用
 
 ---
 
-## 11. VISTA (2026) {#vista}
+## 12. VISTA (2026) {#vista}
 ———给多模态模型一副「能回放、能放大」的眼睛：无损视觉记忆 + 模型自主视觉检视
 
 📄 **Paper**: [arXiv:2610.02200](https://arxiv.org/abs/2610.02200) · [Code](https://github.com/joshhhhhan/VISTA)
@@ -1741,7 +1929,7 @@ $$S_g = \min\left(\frac{\sum_{\ell=1}^{k} w_\ell}{\sum_{\ell=1}^{n} w_\ell},\ \f
 
 ---
 
-## 12. RACE (2026) {#race}
+## 13. RACE (2026) {#race}
 ———Agent 什么时候该想？用"动作似然掉了多少"判断旧推理还够不够用
 
 📄 **Paper**: [arXiv:2610.12061](https://arxiv.org/abs/2610.12061) · [Code](https://github.com/HututuAI/RACE)
@@ -1898,7 +2086,7 @@ LoGiC 依赖成功轨迹与固定参考动作，RL 中失败轨迹得不到任�
 
 ---
 
-## 13. Agentic Robots (2026)
+## 14. Agentic Robots (2026)
 {: id="agentic-robots"}
 
 ———从预测动作走向组织执行：用 Model、Data、Environment、Harness 贯通机器人能力的构建与使用
@@ -2083,12 +2271,13 @@ graph TD
 6. **SPACE** (2026). Act More, Decide Less: Skill-Guided Adaptive Action Chunking for Long-Horizon LLM Agents. arXiv: [2609.02042](https://arxiv.org/abs/2609.02042)
 7. **ABot-AgentOS** (2026). 面向具身智能的通用机器人 Agent 操作系统与终身多模态记忆系统. arXiv: [2607.10350](https://arxiv.org/abs/2607.10350) · Project Page: [ABot-AgentOS](https://amap-cvlab.github.io/ABot-AgentOS)
 
-8. **Harness Robotic OS** (2026). 把四足巡检从「导航栈」升级为「具身智能体运行时」. arXiv: [2609.11225](https://arxiv.org/abs/2609.11225)
-9. **NavHarness** (2026). NavHarness: Towards Lifelong Embodied Navigation. arXiv: [2609.34276](https://arxiv.org/abs/2609.34276) · Code: [billzhao1030/NavHarness](https://github.com/billzhao1030/NavHarness) · Project Page: [billzhao1030.github.io](https://billzhao1030.github.io)
-10. **SuperNav** (2026). SuperNav: An Agentic Navigation System for Any Task in Any Scene. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126) · 完整解析：[VLN 扩展篇](/VLN-Papers-Extended/#supernav)
-11. **VISTA** (2026). VISTA: A Visual Harness for Reasoning in an Interactive World. arXiv: [2610.02200](https://arxiv.org/abs/2610.02200) · Code: [joshhhhhan/VISTA](https://github.com/joshhhhhan/VISTA)
-12. **RACE** (2026). When Should Agents Think? Adaptive Reasoning via Cross-Turn Estimation. arXiv: [2610.12061](https://arxiv.org/abs/2610.12061) · Code: [HututuAI/RACE](https://github.com/HututuAI/RACE)
-13. **Agentic Robots** (2026). Towards Agentic Robots: Model, Data, Environment, and Harness. arXiv: [2610.20442](https://arxiv.org/abs/2610.20442) · Code: [chonghanqin/Awesome-Agentic-Robots](https://github.com/chonghanqin/Awesome-Agentic-Robots)
+8. **ABot-ER** (2026). ABot-ER: Unified Embodied Reasoning through Agentic Data–Model Co-Evolution. arXiv: [2610.18355v2](https://arxiv.org/abs/2610.18355v2) · Code: [amap-cvlab/ABot-ER](https://github.com/amap-cvlab/ABot-ER)
+9. **Harness Robotic OS** (2026). 把四足巡检从「导航栈」升级为「具身智能体运行时」. arXiv: [2609.11225](https://arxiv.org/abs/2609.11225)
+10. **NavHarness** (2026). NavHarness: Towards Lifelong Embodied Navigation. arXiv: [2609.34276](https://arxiv.org/abs/2609.34276) · Code: [billzhao1030/NavHarness](https://github.com/billzhao1030/NavHarness) · Project Page: [billzhao1030.github.io](https://billzhao1030.github.io)
+11. **SuperNav** (2026). SuperNav: An Agentic Navigation System for Any Task in Any Scene. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126) · 完整解析：[VLN 扩展篇](/VLN-Papers-Extended/#supernav)
+12. **VISTA** (2026). VISTA: A Visual Harness for Reasoning in an Interactive World. arXiv: [2610.02200](https://arxiv.org/abs/2610.02200) · Code: [joshhhhhan/VISTA](https://github.com/joshhhhhan/VISTA)
+13. **RACE** (2026). When Should Agents Think? Adaptive Reasoning via Cross-Turn Estimation. arXiv: [2610.12061](https://arxiv.org/abs/2610.12061) · Code: [HututuAI/RACE](https://github.com/HututuAI/RACE)
+14. **Agentic Robots** (2026). Towards Agentic Robots: Model, Data, Environment, and Harness. arXiv: [2610.20442](https://arxiv.org/abs/2610.20442) · Code: [chonghanqin/Awesome-Agentic-Robots](https://github.com/chonghanqin/Awesome-Agentic-Robots)
 
 <script>
 (function () {
@@ -2101,6 +2290,7 @@ graph TD
     { m: 'Show-Harness', t: ['Harness', '闭环系统', '具身操作', '类型化动作', '实机部署', '跨本体', 'VLA', '零微调'] },
     { m: 'SPACE',       t: ['动作分块', '强化学习', '技能归纳', '长程任务'] },
     { m: 'ABot-AgentOS', t: ['AgentOS', 'Harness', '闭环系统', '拓扑图', '空间记忆', '自演化', '实机部署'] },
+    { m: 'ABot-ER', t: ['具身推理', '数据治理', '自演化', '长程任务', '实机部署'] },
     { m: 'NavHarness', t: ['Harness', '闭环系统', '空间记忆', '异常恢复', '具身导航', '零微调', '长程任务'] },
     { m: 'SuperNav', t: ['Harness', '闭环系统', '主动探索', '异常恢复', '具身导航', '实机部署'] },
     { m: 'VISTA', t: ['Harness', '视觉记忆', '主动探索', '零微调', '长程任务'] },
@@ -2108,7 +2298,7 @@ graph TD
     { m: 'Agentic Robots', t: ['综述', 'Harness', '闭环系统', 'VLA', '异常恢复', '自演化', '跨本体'] },
   ];
 
-  var ALL_TAGS = ['综述', '闭环系统', 'Harness', 'AgentOS', '具身操作', '场景图', '拓扑图', '实机部署', '快慢双系统', '类型化动作', '空间记忆', '3D语义', '多机协同', 'TAMP', 'VLA', '双重校验', '退出码评估', '自演化', '高频裁判', '跨本体', '主动探索', '零微调', '动作分块', '强化学习', '技能归纳', '长程任务', '异常恢复', '具身导航', '视觉记忆', '推理预算'];
+  var ALL_TAGS = ['综述', '闭环系统', 'Harness', 'AgentOS', '具身操作', '场景图', '拓扑图', '实机部署', '快慢双系统', '类型化动作', '空间记忆', '3D语义', '多机协同', 'TAMP', 'VLA', '双重校验', '退出码评估', '自演化', '高频裁判', '跨本体', '主动探索', '零微调', '动作分块', '强化学习', '技能归纳', '长程任务', '异常恢复', '具身导航', '视觉记忆', '推理预算', '具身推理', '数据治理'];
 
   var activeTags = [];
   var resultsPanel = null;
