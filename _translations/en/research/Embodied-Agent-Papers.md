@@ -5,16 +5,16 @@ translation_id: embodied-agent-papers
 permalink: /en/Embodied-Agent-Papers/
 source_path: _posts/research/2026-03-06-Embodied-Agent-Papers.md
 source_url: /Embodied-Agent-Papers/
-source_revision_date: 2026-10-15
-translation_updated: 2026-10-15
+source_revision_date: 2026-10-18
+translation_updated: 2026-10-18
 title: "Embodied Agents: Paper Readings"
-date: 2026-10-15
+date: 2026-10-18
 tags: [Agent, Embodied AI, Robotics, VLA, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "Thirteen paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, and a unified taxonomy of agentic robots."
+excerpt: "Fourteen paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, and a unified taxonomy of agentic robots."
 ---
 
 
@@ -23,7 +23,7 @@ excerpt: "Thirteen paper entries on embodied runtimes, physical orchestration, s
 # Embodied Agents: Paper Readings
 {: id="具身智能体论文精读"}
 
-This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed-loop that can sustainably operate. The thirteen papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, and a unified taxonomy of agentic robots. The experiments cover simulation environments, text-interaction environments, interactive visual games, and real robots. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection.
+This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed-loop that can sustainably operate. The fourteen papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, and a unified taxonomy of agentic robots. The experiments cover simulation environments, text-interaction environments, interactive visual games, and real robots. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection.
 
 |Paper|Main entry points|representative verification|
 |---|---|---|
@@ -34,6 +34,7 @@ This article focuses on a common problem: how robots organize perception, planni
 | [Show-Harness](#show-harness) |Semantic action unit and embodiment interpreter|Franka, AgileX, simulation and real robot generalization|
 | [SPACE](#space) |Skill-guided adaptive action chunking and reinforcement learning| ALFWorld, ScienceWorld |
 | [ABot-AgentOS](#abot-agentos) |Dual LLM, Agent Harness, and Lifelong Multimodal Memory|EmbodiedWorldBench, memory benchmark|
+| [ABot-ER](#abot-er) | Unified embodied reasoning and data-model co-evolution | Twelve embodied-understanding and planning benchmarks; qualitative robot demonstrations |
 | [Harness Robotic OS](#harness-robotic-os) |Patrol runtime, hierarchical memory and self-evolution governance|Real community navigation and inspection; cognitive operation needs to be controlled and verified|
 | [NavHarness](#navharness) | Cross-session search handovers, memory processing, recovery, and two-stage verification | GOAT-Bench, IR2R-CE, and continuous deployment across 36 houses in simulation |
 | [SuperNav](#supernav) | Readable navigation skills, visual-point tools, and task-context management | Single-object, multi-object, and demand-driven navigation; HM3D; Unitree Go2 deployment |
@@ -1311,7 +1312,194 @@ In order to transfer the capabilities of the large cloud model Agent Harness to 
 
 ---
 
-## 8. Harness Robotic OS (2026)
+## 8. ABot-ER (2026) {#abot-er}
+———One model for embodied understanding, long-horizon planning, and interaction-point grounding, with training data revised through failure diagnosis
+
+📄 **Paper**: [arXiv:2610.18355v2](https://arxiv.org/abs/2610.18355v2) · [Code](https://github.com/amap-cvlab/ABot-ER)
+
+### Key takeaways {#abot-er-key-takeaways}
+
+ABot-ER unifies spatial relations, scene states, temporal events, action plans, and interaction targets in one embodied reasoning model, supplying judgements, plans, and image coordinates to runtimes such as [ABot-AgentOS](#abot-agentos), while downstream policies carry out physical actions.
+Its most transferable idea is to identify what is wrong with the supervision before coordinating new content, output-protocol repairs, and sampling changes, instead of treating every low score as a shortage of data.
+The shared backbone receives two task-family-specific low-rank residual branches for question answering and planning, but remains jointly trainable; after protocol repair, the ablation does not show gains in either suite mean, placing a clear boundary on the architectural benefit.
+A single post-training pass on the converged corpus approaches the twelve-benchmark mean of a six-round chain with one fifth of the accumulated post-training, suggesting that the reusable assets include audited data and evaluation rules.
+Point-hit accuracy, simulated task success, and qualitative physical demonstrations should be distinguished, as should training-time corpus evolution and online adaptation after deployment.
+
+---
+
+### 1. Background and problem {#abot-er-background}
+
+Moving an object to a requested location requires a robot to understand object-to-person spatial relations, current states, step dependencies, and actionable regions; separate training can produce uneven specialists, while joint training introduces interference between output formats and learning rates across capabilities.
+The paper calls these bottlenecks **Data-Model Drift**, where a fixed data mixture no longer matches the model's current weaknesses, and **Modality Entanglement**, where text, plans, and coordinate supervision impose different demands on shared parameters.
+ABot-ER aims to combine five kinds of embodied judgement in one checkpoint and establish a training workflow that can be diagnosed, revised, and audited.
+
+---
+
+### 2. Methods and innovations {#abot-er-method}
+
+<div align="center">
+  <img src="/images/agent/ABot-ER-reasoning-interface.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1326/1014" alt="ABot-ER reasoning interface between observations, the agent runtime, and downstream action policies" />
+<figcaption>Original Figure 2: ABot-ER sits between observation and control, returning semantic judgements, action plans, and normalized image coordinates. The agent runtime schedules queries, verification, and replanning; downstream policies execute actions.</figcaption>
+</div>
+
+#### ① Overall framework: a unified reasoning model, data-revision engine, and training-selection workflow {#abot-er-overview}
+
+The **online model** receives images, videos, or textual context and generates the requested response; the **offline data engine** reads evaluations and error records to revise the next training corpus; **two-stage training and checkpoint selection** turn that corpus into a new model while checking for substantial regressions in existing capabilities.
+Here, execution means identifying actionable targets and locations. The model does not directly emit base velocities, joint positions, or torques; at deployment, a runtime passes its judgements to navigation, manipulation, and other execution policies.
+
+| Capability dimension | Input and processing | Example output |
+|---|---|---|
+| Spatial and relational reasoning | Infer directions, distances, and layout from images or multiple views | Identify the object on the user's left |
+| Scene and state understanding | Recognize task-relevant objects, attributes, and current states | Identify the tabletop blocks and whether the expression is valid |
+| Temporal and event reasoning | Infer event order and state changes from video or before-and-after observations | Determine whether a block was placed or dropped during transfer |
+| Long-horizon action organization | Arrange steps with preconditions using the goal, history, and feedback | Pick the object, move, and place it in the target region |
+| Point grounding and affordance | Ground an instruction in an actionable image region | Return a grasp point or coordinates inside a valid placement region |
+
+#### ② Shared backbone and task-conditioned low-rank residuals: shared knowledge with task-specific capacity {#abot-er-task-conditioning}
+
+<div align="center">
+  <img src="/images/agent/ABot-ER-model-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1286/823" alt="Shared ABot-ER backbone with deterministic question-answering and planning residual branches" />
+<figcaption>Original Figure 3: tasks share image encoding, the language backbone, and the output head. Two residual branches augment Q/V projections in the last four full-attention blocks. Each sequence selects one route; point grounding still follows the question-answering route.</figcaption>
+</div>
+
+**Multimodal encoding.** Images or video frames pass through a vision encoder and projector to form visual representations, while text becomes embeddings. Their original interleaved order is retained at the shared decoder; text-only tasks bypass vision.
+The 9B instance uses **Qwen3.5-9B**, with 32 decoder blocks arranged as three Gated DeltaNet linear-attention blocks followed by one full-attention block, and a language output head shared by all tasks.
+
+**Task routing.** The data loader inserts a task marker inside the first user message, selects a branch from the record's task family, and keeps that branch throughout the sequence.
+The paper's `[EQA]` family covers spatial, state, and temporal questions as well as interaction coordinates; `[TASK_PLAN]` covers action plans. These families follow how the data was collected, rather than a text-versus-coordinate split, and there are no five separate capability decoders.
+
+**Residual adaptation.** The `q_proj` and `v_proj` projections in zero-indexed layers 19, 23, 27, and 31—the last four full-attention blocks—each receive two sets of task-specific low-rank parameters.
+For one projection, the calculation can be summarized as:
+
+$$
+\widetilde z_c = Wx + b + \frac{\alpha}{r} B_c A_c x, \qquad r=16,\quad \alpha=16.
+$$
+
+The first two terms are the shared transformation, and the last is the selected task family's correction. The shared language backbone and residuals train jointly; the vision encoder is frozen and the projector remains trainable, so this is not a frozen backbone with only LoRA trained on top.
+
+> **Example:** For the same lemon image, both “How many lemons are there?” and “Point to the graspable center” select the question-answering residual; “Put the lemon in the pan, then put the pan in the oven” selects the planning residual.
+> The three calls share object and spatial knowledge while giving plan generation its own parameter correction. The calling task determines the route; the model need not generate an explanation to decide which branch to use.
+
+#### ③ Data-model self-evolution: use error evidence to choose the repair {#abot-er-data-evolution}
+
+<div align="center">
+  <img src="/images/agent/ABot-ER-data-model-evolution.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1326/886" alt="Evaluation-driven revision of supervision content, output protocols, and sampling mixtures" />
+<figcaption>Original Figure 4: each round diagnoses evaluation failures, coordinates content, protocol, and mixture revisions, and selects a new model after data audits, training, and retention checks. The three-stream percentages describe the question-answering partition of a particular development round.</figcaption>
+</div>
+
+The engine receives capability scores, item-level outputs, training logs, and source records. One coordinating language-model agent proposes root-cause hypotheses and data requirements; deterministic programs check candidate data against format, provenance, exposure-cap, and trajectory-replay requirements.
+Experts calibrate diagnoses and acceptance rules in the initial rounds, and later runs are constrained by those rules. The evolving artifact is the training corpus; the architecture and learning algorithm do not rewrite themselves.
+
+**Capability diagnosis** classifies errors into parsing failures, coordinate-protocol violations versus point misses, multiple-choice errors, numeric parsing errors, open-ended deductions, and planning failures, then maps them to capability gaps. A drop on one benchmark does not automatically establish a dimension-wide weakness; other benchmark trends or item-level evidence are required.
+The diagnosis feeds three complementary repairs that cannot substitute for one another:
+
+| Revision mechanism | Problem addressed | Concrete action |
+|---|---|---|
+| Content Evolution | Missing correct or complete learning targets | Construct plans with verified preconditions and successful replay to the terminal state; retain evidence-grounded interaction targets |
+| Protocol Evolution | Incompatible values or formats for the same target | Unify numeric coordinate conventions while fixing each task's point count, wrapper, and action schema |
+| Mixture Evolution | Insufficient training exposure to valid supervision | Adjust sampling within source and repetition caps while retaining data for established capabilities |
+
+**Coordinate protocols provide the clearest example.** Historical data mixed 0–1000 coordinates, normalized single points, and eight-point XML. Some labels also described arm-motion endpoints rather than the target regions requested by the question.
+The repair unifies coordinates as `[0, 1]` values relative to the original image, with three decimal places, while preserving each task's required serialization: eight-point XML for VABench-P and lists of one to three point tuples for Where2Place.
+
+> **Example:** The same target at the center of an image might be represented as `(500, 500)` on the old scale and `(0.500, 0.500)` after normalization.
+> Numeric consistency alone is insufficient: a single-point list may still fail an evaluator that expects eight points. Even eight valid points teach the wrong task if they land on the arm endpoint rather than the requested object.
+
+**Training-budget figures need an explicit accounting basis.** Corpus construction uses a token proxy estimated from characters and media costs, rather than an actual tokenizer count. Unique examples, materialized training records, and assistant supervision tokens measure different things.
+In the final Stage B corpus, for example, planning represents **25.00% of physical records** but **63.76% of assistant supervision tokens**, because complete plans are much longer than single-option answers. Since the loss is normalized per sequence, the latter share is not directly a loss weight.
+The figure's approximately 45% fine-grained capability, 15% benchmark guarantee, and 40% foundational streams belong to **R6's question-answering partition**, with planning allocated separately; they are not a fixed mixture used by both released stages. Quotas are written into the configuration by hand, while programs implement and check them.
+
+**Data governance** checks contradictory answers for the same image-question pair, duplicate media, invalid references, source eligibility, and test overlap. New labels must be grounded in images, environment states, or trusted annotations.
+One concrete lesson was R3's apparent EB-ALFRED score of “100”: its summary included only the first 12 completed episodes out of 300, and official test trajectories had separately entered the legacy training pool. Recomputing the full summary gave 27, which was still unusable because the weights were contaminated.
+The authors then quarantined three sources in full, covering 23,565 candidate records. R3 remains diagnostic history and is excluded from performance claims; the released line restarts on cleaned data without inheriting weights trained on those sources.
+
+#### ④ Two-stage training, a unified loss, and checkpoint selection {#abot-er-training}
+
+**Stage A: cross-capability foundation.** Supervised training begins from a pretrained VLM on the joint corpus to cover all five capabilities and establish the shared numeric protocol.
+**Stage B: targeted repair.** A shorter supervised fine-tuning run continues from the selected Stage A checkpoint, lowers the learning rate, increases data for deficits such as planning recovery, and retains other-task data to reduce forgetting. This stage is not reinforcement learning.
+
+All tasks use the same autoregressive cross-entropy objective, supervising assistant outputs only; input tokens, media placeholders, and padding are excluded.
+Writing $S$ for the assistant output positions in one sample, its sequence-normalized objective can be expressed as:
+
+$$
+\mathcal L = -\frac{1}{\lvert S\rvert}\sum_{t\in S}\log p_{\theta}(y_t\mid x,c,y_{<t}).
+$$
+
+Assistant tokens across a multi-turn sample are normalized together. Relative exposure is controlled mainly through corpus construction and sampling, rather than five separate capability losses.
+Paper v2 reports **462,390 physical records and 294,762 unique identities** for Stage A, and **104,960 records and 52,480 identities** for Stage B, where every identity appears exactly twice. The record counts cannot be added and treated as unique examples.
+The decoder learning rates are **4×10⁻⁶ and 3×10⁻⁷**, with optimizer and scheduler reset between stages. The complete jobs take approximately **826 GPU hours** across 32 GPUs, excluding data construction and full-suite evaluation.
+
+Checkpoint selection first checks limits on other-capability regressions, parser reliability, and detected test overlap, then compares leading-benchmark counts and target scores within one checkpoint.
+The development history is not six continuously accumulated weight updates: major protocol and source changes often trigger retraining from the pretrained model, and the released Stage A→B line must also be distinguished from R6.
+
+#### ⑤ Inference and integration with the physical robot {#abot-er-inference}
+
+At inference, the caller specifies the task family and activates its residual; the shared output head generates the answer token by token. Five separate task models are unnecessary, but autoregressive generation still involves repeated decoding computations.
+In the Galaxea R1 Pro demonstrations, ABot-ER is the visual-question-answering component of [ABot-AgentOS](#abot-agentos), served on an external host with one RTX 5090D. AgentOS orchestrates the interaction, and the separate **ABot-M** VLA executes manipulation.
+Before each action step, the runtime queries the scene and interaction targets; afterward it queries the outcome, then uses the returned judgement to continue or revise the remaining plan.
+
+```mermaid
+graph TD
+    A["Task instruction and current observation"] --> B["ABot-ER: state judgements and interaction targets"]
+    B --> C["ABot-AgentOS: organize and dispatch steps"]
+    C --> D["ABot-M or another downstream policy executes"]
+    D --> E["Acquire the post-action observation"]
+    E --> F["ABot-ER: assess state changes and outcomes"]
+    F --> G{"Runtime decides whether the goal is achieved"}
+    G -- "Continue or revise" --> C
+    G -- "Achieved" --> H["End the task"]
+```
+
+<div align="center">
+  <img src="/images/agent/ABot-ER-real-world-deployment.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1328/974" alt="Qualitative block-arithmetic and rock-paper-scissors demonstrations on Galaxea R1 Pro" />
+<figcaption>Original Figure 7: qualitative block-arithmetic and rock-paper-scissors demonstrations. ABot-ER reads visual states, ABot-AgentOS controls task progression, and a downstream VLA executes actions. These examples provide no additional physical success-rate measurements.</figcaption>
+</div>
+
+---
+
+### 3. Results and findings {#abot-er-results}
+
+**① Multiple capabilities coexist in one checkpoint.** Against nine public baselines in the main table, ABot-ER 9B leads the listed results on six of twelve benchmarks.
+The equally weighted means over seven perception, three planning, and two point-grounding benchmarks are **63.86, 41.61, and 67.06**, exceeding the strongest listed baseline in each group by **3.94, 4.20, and 11.81** points. Those three reference values come from different models.
+
+| Representative benchmark | ABot-ER 9B | Best listed baseline | Metric meaning |
+|---|---|---|---|
+| ERQA | **47.31** | Cosmos3-Nano 46.09 | Embodied multiple-choice reasoning accuracy |
+| RoboVQA | **71.79** | MiMo-Embodied 66.09 | Open-ended robot-video question-answering score |
+| Cosmos | **68.96** | Cosmos3-Nano 63.18 | Temporal and physical-event multiple-choice accuracy |
+| EB-ALFRED | **26.67** | MiMo-Embodied 17.33 | Interactive task success rate |
+| EB-Habitat | **37.00** | Cosmos3-Nano 26.67 | Interactive task success rate |
+| VABench-P | **63.33** | Cosmos3-Nano 47.54 | Fraction of points inside the target box |
+
+The scores share a 0–100 display scale but have different meanings; their aggregate is not an overall physical-robot success rate.
+The nine-benchmark EQA mean of **64.57** includes seven perception and two point-grounding tasks. The twelve-benchmark mean is **58.83**, not an equally weighted average of the EQA and planning suite means.
+
+**② Targeted post-training brings gains and trade-offs.** From Stage A to the released checkpoint, the planning mean rises **39.43→41.61**, with EB-ALFRED and EB-Habitat gaining **3.00 and 3.33** points, while Where2Place falls **72.90→70.79**. Improvement is not synchronous across capabilities.
+
+**③ Conditional-branch benefits depend on data consistency.** In controlled paired ablations on **Qwen3.6-35B-A3B**, conditioning improves 11/12 benchmarks and raises the twelve-benchmark mean by **1.36** on the corpus with unaligned protocols. After protocol repair, the best checkpoints of each run give EQA **66.94→66.27** and planning **42.87→41.94**, with neither suite improving.
+ET-Plan-Bench retains a consistent benefit: conditioning wins at all 17 matched checkpoints, averaging **+3.3** points. The ablation switches task markers and residuals together, does not isolate their contributions, and does not establish an independent architectural gain for 9B.
+
+**④ The converged corpus transfers, while training history still shapes the capability profile.** With a common starting point, final corpus, and final-pass progress, a single post-training pass and a six-round chain reach twelve-benchmark means of **60.00 and 60.09**, using one fifth as much accumulated post-training in the single-pass case. Interactive planning remains weaker: EB-ALFRED is **25.00 versus 30.00**, and EB-Habitat **48.67 versus 51.67**.
+The same two-stage corpora also transfer to 2B, 4B, 27B, and 35B-A3B backbones without rerunning corpus revision for each size. The 27B mean is **62.57**; this is a separate scaling experiment and should not be mixed with the training-history comparison.
+
+<div align="center">
+  <img src="/images/agent/ABot-ER-cross-round-tradeoffs.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1061/433" alt="Cross-round benchmark gains and regressions during ABot-ER development" />
+<figcaption>Original Figure 6a: each development transition combines gains and regressions. Budgets, initialization, and some historical protocols differ across rounds, so this heatmap describes development history rather than controlled comparisons that change only the data strategy.</figcaption>
+</div>
+
+**⑤ Evaluation details limit the conclusions.** The current VABench-P prediction archive repeats one location eight times, so these cannot be interpreted as eight independent candidates. The paper also leaves the provenance of the EB archives' original online calls for verification, preventing success rates alone from establishing native closed-loop correction.
+Public baselines come from leaderboard snapshots at different times, with potentially different original training and evaluation configurations. Point scores measure target hits rather than control precision or physical manipulation success.
+
+---
+
+### 4. Limitations {#abot-er-limitations}
+
+Development rounds jointly change budgets, learning rates, data, and some evaluation protocols; quotas remain manually specified, and the appendix retains residual audit risks such as uncovered media. Cross-round gains therefore do not independently establish the causal benefit of self-evolution.
+Physical demonstrations are mainly qualitative, without large-scale success-rate and latency comparisons, and interactive planning still fails frequently. Navigation or manipulation integration requires separate validation of visual judgements, runtime decisions, and downstream control.
+
+---
+
+## 9. Harness Robotic OS (2026)
 {: id="harness-robotic-os"}
 ——Upgrade the four-legged inspection from "navigation stack" to "embodied agent runtime"
 
@@ -1485,7 +1673,7 @@ One additional sentence that should be taken into account when reading this arti
 
 ---
 
-## 9. NavHarness (2026)
+## 10. NavHarness (2026)
 {: id="navharness"}
 ———Passing search evidence to fresh navigation sessions to accumulate and revise experience across tasks
 
@@ -1673,7 +1861,7 @@ The judge can still accept false completions or reject true ones, incorrect reco
 
 ---
 
-## 10. SuperNav (2026)
+## 11. SuperNav (2026)
 {: id="supernav"}
 ———A general navigation agent organized through navigation skills, visual-point tools, and context management
 
@@ -1685,7 +1873,7 @@ SuperNav is an embodied-agent harness evaluated primarily through navigation. A 
 
 ---
 
-## 11. VISTA (2026)
+## 12. VISTA (2026)
 {: id="vista"}
 ———Giving a multimodal model eyes that can replay and zoom: lossless visual memory plus model-directed visual inspection
 
@@ -1857,7 +2045,7 @@ Success depends heavily on the underlying model's own capabilities; VISTA only d
 
 ---
 
-## 12. RACE (2026)
+## 13. RACE (2026)
 {: id="race"}
 ———When should an agent think? Use the drop in action likelihood to judge whether earlier reasoning still suffices
 
@@ -2027,7 +2215,7 @@ LoGiC relies on successful trajectories and fixed reference actions, so failed t
 
 ---
 
-## 13. Agentic Robots (2026)
+## 14. Agentic Robots (2026)
 {: id="agentic-robots"}
 
 ———From predicting actions to organizing execution: connecting how robot capabilities are built and used through Model, Data, Environment, and Harness
@@ -2225,12 +2413,13 @@ Real-world contact and perception errors, runtime latency, reliable self-improve
 6. **SPACE** (2026). Act More, Decide Less: Skill-Guided Adaptive Action Chunking for Long-Horizon LLM Agents. arXiv: [2609.02042](https://arxiv.org/abs/2609.02042)
 7. **ABot-AgentOS** (2026). Universal robot Agent operating system and lifelong multi-modal memory system for embodied intelligence. arXiv: [2607.10350](https://arxiv.org/abs/2607.10350) · Project Page: [ABot-AgentOS](https://amap-cvlab.github.io/ABot-AgentOS)
 
-8. **Harness Robotic OS** (2026). Upgrade the quadruped inspection from "navigation stack" to "embodied agent runtime". arXiv: [2609.11225](https://arxiv.org/abs/2609.11225)
-9. **NavHarness** (2026). NavHarness: Towards Lifelong Embodied Navigation. arXiv: [2609.34276](https://arxiv.org/abs/2609.34276) · Code: [billzhao1030/NavHarness](https://github.com/billzhao1030/NavHarness) · Project Page: [billzhao1030.github.io](https://billzhao1030.github.io)
-10. **SuperNav** (2026). SuperNav: An Agentic Navigation System for Any Task in Any Scene. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126) · Full analysis: [Extended VLN collection](/en/VLN-Papers-Extended/#supernav)
-11. **VISTA** (2026). VISTA: A Visual Harness for Reasoning in an Interactive World. arXiv: [2610.02200](https://arxiv.org/abs/2610.02200) · Code: [joshhhhhan/VISTA](https://github.com/joshhhhhan/VISTA)
-12. **RACE** (2026). When Should Agents Think? Adaptive Reasoning via Cross-Turn Estimation. arXiv: [2610.12061](https://arxiv.org/abs/2610.12061) · Code: [HututuAI/RACE](https://github.com/HututuAI/RACE)
-13. **Agentic Robots** (2026). Towards Agentic Robots: Model, Data, Environment, and Harness. arXiv: [2610.20442](https://arxiv.org/abs/2610.20442) · Code: [chonghanqin/Awesome-Agentic-Robots](https://github.com/chonghanqin/Awesome-Agentic-Robots)
+8. **ABot-ER** (2026). ABot-ER: Unified Embodied Reasoning through Agentic Data–Model Co-Evolution. arXiv: [2610.18355v2](https://arxiv.org/abs/2610.18355v2) · Code: [amap-cvlab/ABot-ER](https://github.com/amap-cvlab/ABot-ER)
+9. **Harness Robotic OS** (2026). Upgrade the quadruped inspection from "navigation stack" to "embodied agent runtime". arXiv: [2609.11225](https://arxiv.org/abs/2609.11225)
+10. **NavHarness** (2026). NavHarness: Towards Lifelong Embodied Navigation. arXiv: [2609.34276](https://arxiv.org/abs/2609.34276) · Code: [billzhao1030/NavHarness](https://github.com/billzhao1030/NavHarness) · Project Page: [billzhao1030.github.io](https://billzhao1030.github.io)
+11. **SuperNav** (2026). SuperNav: An Agentic Navigation System for Any Task in Any Scene. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126) · Full analysis: [Extended VLN collection](/en/VLN-Papers-Extended/#supernav)
+12. **VISTA** (2026). VISTA: A Visual Harness for Reasoning in an Interactive World. arXiv: [2610.02200](https://arxiv.org/abs/2610.02200) · Code: [joshhhhhan/VISTA](https://github.com/joshhhhhan/VISTA)
+13. **RACE** (2026). When Should Agents Think? Adaptive Reasoning via Cross-Turn Estimation. arXiv: [2610.12061](https://arxiv.org/abs/2610.12061) · Code: [HututuAI/RACE](https://github.com/HututuAI/RACE)
+14. **Agentic Robots** (2026). Towards Agentic Robots: Model, Data, Environment, and Harness. arXiv: [2610.20442](https://arxiv.org/abs/2610.20442) · Code: [chonghanqin/Awesome-Agentic-Robots](https://github.com/chonghanqin/Awesome-Agentic-Robots)
 
 <script>
 (function () {
@@ -2243,6 +2432,7 @@ Real-world contact and perception errors, runtime latency, reliable self-improve
     { m: 'Show-Harness', t: ['Harness', 'Closed-loop systems', 'Embodied manipulation', 'Typed actions', 'Real-robot deployment', 'Cross-embodiment', 'VLA', 'Zero fine-tuning'] },
     { m: 'SPACE',       t: ['action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks'] },
     { m: 'ABot-AgentOS', t: ['AgentOS', 'Harness', 'Closed-loop systems', 'Topological graph', 'Spatial memory', 'self-evolution', 'Real-robot deployment'] },
+    { m: 'ABot-ER', t: ['Embodied reasoning', 'Data governance', 'self-evolution', 'Long-horizon tasks', 'Real-robot deployment'] },
     { m: 'NavHarness', t: ['Harness', 'Closed-loop systems', 'Spatial memory', 'Exception recovery', 'Embodied navigation', 'Zero fine-tuning', 'Long-horizon tasks'] },
     { m: 'SuperNav', t: ['Harness', 'Closed-loop systems', 'Active exploration', 'Exception recovery', 'Embodied navigation', 'Real-robot deployment'] },
     { m: 'VISTA', t: ['Harness', 'Visual memory', 'Active exploration', 'Zero fine-tuning', 'Long-horizon tasks'] },
@@ -2250,7 +2440,7 @@ Real-world contact and perception errors, runtime latency, reliable self-improve
     { m: 'Agentic Robots', t: ['Survey', 'Harness', 'Closed-loop systems', 'VLA', 'Exception recovery', 'self-evolution', 'Cross-embodiment'] },
   ];
 
-  var ALL_TAGS = ['Survey', 'Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation', 'Visual memory', 'Reasoning budget'];
+  var ALL_TAGS = ['Survey', 'Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation', 'Visual memory', 'Reasoning budget', 'Embodied reasoning', 'Data governance'];
 
   var activeTags = [];
   var resultsPanel = null;
