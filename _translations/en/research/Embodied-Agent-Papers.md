@@ -5,16 +5,16 @@ translation_id: embodied-agent-papers
 permalink: /en/Embodied-Agent-Papers/
 source_path: _posts/research/2026-03-06-Embodied-Agent-Papers.md
 source_url: /Embodied-Agent-Papers/
-source_revision_date: 2026-10-18
-translation_updated: 2026-10-18
+source_revision_date: 2026-10-19
+translation_updated: 2026-10-19
 title: "Embodied Agents: Paper Readings"
-date: 2026-10-18
+date: 2026-10-19
 tags: [Agent, Embodied AI, Robotics, VLA, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "Fourteen paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, and a unified taxonomy of agentic robots."
+excerpt: "Fifteen paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, and recursive harness optimization."
 ---
 
 
@@ -23,7 +23,7 @@ excerpt: "Fourteen paper entries on embodied runtimes, physical orchestration, s
 # Embodied Agents: Paper Readings
 {: id="具身智能体论文精读"}
 
-This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed-loop that can sustainably operate. The fourteen papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, and a unified taxonomy of agentic robots. The experiments cover simulation environments, text-interaction environments, interactive visual games, and real robots. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection.
+This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed-loop that can sustainably operate. The fifteen papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, and recursive harness optimization. The experiments cover simulation environments, text-interaction environments, interactive visual games, real robots, and professional software tasks. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection.
 
 |Paper|Main entry points|representative verification|
 |---|---|---|
@@ -41,6 +41,7 @@ This article focuses on a common problem: how robots organize perception, planni
 | [VISTA](#vista) | Lossless visual memory, model-directed visual inspection, and cross-context notes | ARC-AGI-3, GameWorld, AI GameStore, BabyVision |
 | [RACE](#race) | Cross-turn reasoning covers, likelihood proxy signals, and adaptive-reasoning RL | ScienceWorld, WebShop, AppWorld, DeepSearch |
 | [Agentic Robots](#agentic-robots) | Four domains—Model, Data, Environment, and Harness—and 17 functional categories | Survey synthesis; no new method evaluated in a unified experiment |
+| [Harness²](#harness2) | Behavioral contrasts without answer keys, two-level recursion, and an improvement library | General-agent method reference; WorkBuddy-Bench, JobBench, LAB |
 
 The filter bar below supports multiple tag combinations; when multiple tags are selected at the same time, the page will only retain papers that meet these tags.
 
@@ -2399,6 +2400,162 @@ Real-world contact and perception errors, runtime latency, reliable self-improve
 
 ---
 
+## 15. Harness² (2026)
+{: id="harness2"}
+———Improving the harness for the current task while learning how to improve future harnesses
+
+📄 **Paper**: [arXiv:2610.14224](https://arxiv.org/abs/2610.14224) · [Code](https://github.com/google-research/harness2) · [Project Page](https://harness2.github.io/)
+
+**Scope of inclusion:** Harness² evaluates online harness refinement for general agents on coding, office, and legal tasks. It is included as a methodological reference for embodied-agent self-improvement and experience reuse; its results do not establish effectiveness in robot deployment.
+
+### Key takeaways
+{: id="harness2-takeaways"}
+
+1. An agent's capabilities also depend on the prompts, skills, scripts, tool constraints, and orchestration surrounding its model. These executable configurations can improve while model parameters remain frozen.
+2. Without ground-truth answers, proposing targeted edits, rerunning the task under matched conditions, and retaining changes supported by behavioral contrasts provides more evidence than rewriting a harness by intuition alone, but still does not guarantee correctness.
+3. Transferable assets include both the final skills or scripts and improvement experience: which situation exposed a weakness, which edit was tried, and what behavior changed.
+4. Starting each new task from a common base harness and selectively consulting the library avoids directly accumulating rules tailored to previous tasks.
+5. Additional inference budget is useful through candidate edits, execution evidence, and selective composition. Evaluation must count reruns and editing costs rather than only the steps in the final execution.
+
+---
+
+### 1. Background and problem
+{: id="harness2-background"}
+
+Open-world agents continually encounter new tasks whose requirements cannot usually be anticipated during harness design. Online adaptation also lacks ground-truth answers or reliable verifiers to guide edits. Existing approaches either optimize offline on fixed training tasks or refine only the current task, making it difficult to turn the process of diagnosing weaknesses, testing changes, and deciding what to retain into a capability useful for future tasks.
+
+The paper asks how to improve both the current execution harness and the experience that guides future harness refinement **without updating model weights, accessing scoring feedback, or replaying completed tasks**.
+
+---
+
+### 2. Method and innovations
+{: id="harness2-method"}
+
+<div align="center">
+  <img src="/images/agent/Harness2-framework.webp" width="100%" loading="lazy" decoding="async" alt="Harness² framework with task-level and harnessing-level recursion" />
+<figcaption>Figure 3: Harness² couples two levels of recursion. Within a task, editors propose invariant and domain-specific candidates, execute them, and pass the evidence to a composer. After the task, a reflector stores reusable harnesses and evidence-supported lessons in the improvement library.</figcaption>
+</div>
+
+**Overall framework.** Harness² comprises an executor, harness editors, a composer, and an experience reflector. The executor produces trajectories and deliverables; editors propose executable harness changes; the composer weighs probe evidence; and the reflector updates the experience library after each task. The paper calls the runtime configuration around a frozen model a **harness**, and the process of optimizing that configuration **harnessing**.
+
+**① Editable objects: eight file-based components.** The inputs are the current task, a frozen model, and an initial execution harness. Edits modify a component tree and produce a new configuration that can be mounted into the agent runtime. The eight components are System prompt, Guardrails, Memory, Tool guidance, Subagents, Skills, Scripts, and Plugin. They change persistent context, on-demand procedures, deterministic capabilities, separate working contexts, or hooks inside the tool loop.
+
+The editable surface extends beyond prompts. Scripts execute mechanical checks, Skills load when relevant, and Plugins intervene around tool calls or turn boundaries. Components are chosen to address observed weaknesses rather than added indiscriminately. The edited tree also passes structural validation: skills must have trigger guidance, scripts must compile, and referenced helpers must exist. These checks establish configuration validity, not task correctness.
+
+**② The basic within-task step: Propose–Probe–Compose.** Without an answer key, the system first asks whether a concrete behavior changed after an edit, then decides whether that edit deserves to remain. This is the paper's behavioral-contrast signal.
+
+- **Propose: diagnose weaknesses from a reference execution.** Inputs include the task, current harness, reference execution record, and existing experience. Two editing scopes produce complete candidate harnesses: Invariant (INV) addresses cross-domain procedures such as retries, planning, tool use, and delivery checks; Domain (DOM) addresses domain knowledge, professional procedures, deliverable structure, and constraints.
+- **Probe: execute the candidates.** Each candidate runs on the same task with matched model and environment configurations, producing a trajectory and deliverables. Comparison with the reference asks whether the targeted weakness was mitigated, unchanged, or accompanied by regressions. Sampling variation and shared model biases still limit the evidence.
+- **Compose: combine edits according to evidence.** Inputs include candidate diffs, reference and candidate trajectories, and the available task-local history. The composer can merge supported edits, revise conflicts, adopt a candidate, or retain the current harness. It then executes the composed harness and records the observation supporting each decision.
+
+> **A concrete example:** A task requires reconciling schedule, staffing, and budget files into consistent deliverables. The reference execution omits cross-file reconciliation and never reopens its outputs. An INV candidate adds a script to reopen and check deliverables; a DOM candidate adds a skill for reconciling schedules and budgets. If their probe trajectories show those operations occurring, the composer has evidence to retain the corresponding edits. However, running a check does not establish that every number is correct. In the paper's Figure 9 case, the final score rises from 43.1 to 77.8; that score is available only to retrospective evaluation, not to the editors or composer.
+
+**③ Scaling within-task search: parallel exploration and sequential revision.** Both forms build on the basic contrastive step, but their budgets control different aspects of search.
+
+<div align="center">
+  <img src="/images/agent/Harness2-recursion.webp" width="100%" loading="lazy" decoding="async" alt="Parallel and sequential task-level recursion in Harness²" />
+<figcaption>Figure 4: Parallel recursion explores multiple candidates against a shared reference set and independently composes successors. Sequential recursion passes the revised harness, accumulated trajectories, and decisions into the next step.</figcaption>
+</div>
+
+- **Parallel recursion:** Collect $k$ reference executions under the initial harness, independently propose and probe $k$ INV and $k$ DOM candidates, then let $k$ composition sessions read the entire pool. Each session produces and executes one successor harness. The implementation performs one population update, so $k$ controls search width.
+- **Sequential recursion:** Starting from the initial harness, chain $k$ improvement steps. Each reads the current harness and accumulated trajectories and decisions to produce the next configuration. Later steps can retain, revise, or undo earlier changes, so $k$ controls revision depth.
+
+> **Counting the budget:** For parallel recursion with $k=2$, there are 2 reference executions, 4 candidate probes, and 2 composed-harness executions: **8 complete task executions**, plus editing, composition, and final-selection sessions. Even $k=1$ involves 1 reference run, 2 candidate probes, and 1 composed-harness execution. A single improvement step therefore involves more than one extra run. This count excludes additional overhead such as configuration-validation retries.
+
+For $k>1$, a final selector compares anonymous deliverables against the task request and source material. It returns an existing result, creates no new content, and cannot see the originating harness. The appendix explicitly allows it to select an output produced by the initial harness. At $k=1$, final selection is bypassed and the executed successor from the basic step is returned. Adoption means selection in this run, not verified optimality.
+
+**④ Across-task improvement: retain the harness, applicable situation, and evidence.** The experience reflector receives the complete improvement record, including rejected candidates rather than only the selected output. It records each edit, the observed behavioral difference, and the strength of attribution before deciding whether to extract a reusable lesson. When multiple edits are confounded or only one execution supports an observation, attribution can be marked as confounded. With insufficient reusable evidence, the reflector can decline to add an experience entry.
+
+The library retains the adopted executable harness and an `EXPERIENCE.md` describing its applicable situation, lesson, evidence, and confidence. An index lets later editors inspect relevant entries on demand. The two recursive levels differ in what they change within a task and what they carry across tasks:
+
+| Dimension | Task-level recursion | Harnessing-level recursion |
+|---|---|---|
+| Updated object | The current task's execution harness $H$ | The library within the improvement harness $R_t$ that guides future editing |
+| Evidence | Reference, candidate, and composed-harness executions on the current task | The complete improvement process and its decisions |
+| When it acts | During probes and iterations on the same task | After task completion, for use by subsequent tasks |
+| How the next task starts | The task-specific harness is not directly inherited | Start from the common base harness and selectively reuse library components and experience |
+
+```mermaid
+graph TD
+    A["New task t + common initial harness H0"] --> B["Reference execution: trajectory and deliverables"]
+    R["Current experience library Rt"] --> C["Propose INV and DOM candidates"]
+    B --> C
+    C --> D["Probe candidates on the same task"]
+    D --> E["Compare behavioral evidence and compose a harness"]
+    E --> F["Execute the successor and return a result"]
+    F --> G["Reflect on the complete improvement record"]
+    G --> H["Update the experience library to Rt+1"]
+    H --> I["Next task: start from H0 again"]
+    I --> J["Use the updated library to guide new edits"]
+```
+
+The diagram omits anonymous deliverable selection for $k>1$. Throughout recursion within a task, $R_t$ remains fixed. The next task does not directly inherit the previous task's harness, and task-specific facts discovered earlier must be checked for applicability to the new task.
+
+**⑤ Update rules and training objectives.** The method introduces no gradient training, reinforcement-learning reward, or new loss function. It performs discrete updates to configuration files and the experience library around a frozen model. With $e=(\tau,y)$ denoting a trajectory and deliverable, the basic improvement step is:
+
+$$
+(H',e',\xi)=\Phi(q_t,H,\mathcal E;R_t).
+$$
+
+Here $\mathcal E$ is the available task-local history, and $\xi$ records candidate probes, composition decisions, and their evidence. Executing changes and retaining their evidence is central to this operator. After task completion, the improvement library is updated as:
+
+$$
+R_{t+1}=\operatorname{Update}(R_t,H_t^{\star},\mathcal D_t).
+$$
+
+$H_t^{\star}$ is the adopted harness and $\mathcal D_t$ the complete improvement record. The star denotes adoption, not correctness or global optimality. Model weights, stage instructions, and decision rules remain fixed; the persistent changes are library components and experience.
+
+**⑥ End-to-end execution.** A new task first runs with the common initial harness to obtain reference trajectories. Editors consult the current library to propose candidates, the executor probes them, and the composer forms a successor from behavioral evidence. Exploration follows the prescribed parallel or sequential budget, a result is delivered, and reflection makes supported experience available to the next task. The whole process takes place at deployment time; benchmark answers, rubrics, and scores are used only for external evaluation.
+
+---
+
+### 3. Key results and findings
+{: id="harness2-results"}
+
+**Evaluation setup.** Main experiments combine two frozen executors, Gemini 3.5 Flash and GLM-5, with two initial harnesses, OpenCode and Codex, giving four configurations. The default editor and selector are Claude Opus 4.8. WorkBuddy-Bench uses 40/35/25 test tasks in Code/Web/Office, JobBench uses 34 test tasks, and LAB uses 100 test tasks. Methods process task streams, and the main tables report means and standard deviations over three shuffled runs, starting from empty libraries.
+
+**Both a single step and parallel recursion improve performance.** The following representative results come from the main tables. The $k=5$ values add the reported recursion gains to the $k=1$ results. WorkBuddy-Bench and JobBench report scores; LAB Partial is a per-criterion pass rate (%).
+
+| Benchmark and execution configuration | Initial harness | Harness², $k=1$ | Parallel recursion, $k=5$ |
+|---|---:|---:|---:|
+| WorkBuddy-Bench average, Gemini 3.5 Flash / OpenCode | 72.4 | 77.5 | 80.8 |
+| WorkBuddy-Bench average, GLM-5 / OpenCode | 64.2 | 75.7 | 79.6 |
+| JobBench, Gemini 3.5 Flash / OpenCode | 31.5 | 36.0 | 39.0 |
+| JobBench, GLM-5 / OpenCode | 20.6 | 24.2 | 28.4 |
+| LAB Partial, GLM-5 / OpenCode | 59.6 | 71.4 | 78.1 |
+
+The largest single-step gains over the initial harness are **11.5 points** on WorkBuddy-Bench, **4.5 points** on JobBench, and **11.8 percentage points** on LAB. Increasing the budget to $k=5$ adds 2.9–3.9 points, 3.0–4.2 points, and 2.6–6.7 percentage points, respectively, across the four configurations. Harness² exceeds the compared baselines on WorkBuddy-Bench average and JobBench score in all four configurations. On LAB with Gemini 3.5 Flash / Codex, however, its single-step result of 75.6 is below Meta-Harness's 76.5; the evidence does not support claiming leadership in every setting.
+
+**Composition, scoped editing, and the library all contribute.** With Gemini 3.5 Flash / OpenCode at $k=1$, the full method scores 77.5 / 36.0 on WorkBuddy-Bench / JobBench. Removing the library lowers these to 74.4 / 34.2; removing the INV/DOM split gives 74.6 / 32.3; and skipping composition to choose between the two candidates gives 75.9 / 34.1. In the appendix, removing Skills from an already improved harness reduces the WorkBuddy-Bench average by 5.3 points, while removing Scripts costs 3.7 points. Multiple components contribute; longer prompts alone do not explain the gains.
+
+<div align="center">
+  <img src="/images/agent/Harness2-library-transfer.webp" width="100%" loading="lazy" decoding="async" alt="Harness² library reuse and cross-benchmark transfer" />
+<figcaption>Figure 7: Left, edit the harness directly with the improvement library, without new reference executions or candidate probes. Right, transfer JobBench experience to WorkBuddy-Bench. A library accumulated with more exploration better supports subsequent refinement.</figcaption>
+</div>
+
+**Experience helps future tasks, but experimental protocols matter.** Directly editing without execution evidence or a library lowers Code from 73.4 to 63.2 and Web from 69.9 to 65.0. With a library accumulated at $k=5$, even without new probes, Code/Web/Office exceed the initial harness by 0.9/4.4/5.1 points. Transferring JobBench experience to single-step WorkBuddy-Bench refinement adds 0.6/0.5/2.9 points across the three domains. The appendix's leave-one-out reruns can also access later-task experience; they are an offline reuse analysis, not an estimate of online gains.
+
+<div align="center">
+  <img src="/images/agent/Harness2-same-model.webp" width="100%" loading="lazy" decoding="async" alt="Harness² with the same model as executor and editor" />
+<figcaption>Figure 8: With OpenCode at k=2, using the same model as executor and editor still improves all five tested models on all three benchmarks. Gains therefore need not depend on a stronger external editor.</figcaption>
+</div>
+
+**The same model can improve its own harness, while full costs still matter.** In the same-model experiment, Claude Opus 5 gains 3.3, 5.5, and 3.0 points on WorkBuddy-Bench, JobBench, and LAB, respectively; GLM-5 gains 13.7 percentage points on LAB. Figure 6 counts total execution and improvement tokens and places both Harness² configurations, $k=1$ and $k=5$, for Gemini 3.5 Flash / OpenCode on the empirical Pareto frontier of the compared methods. This describes the observed cost–performance trade-off in that experiment. The main tables' `#Steps` count model turns in an executor session and cannot replace total cost accounting.
+
+<div align="center">
+  <img src="/images/agent/Harness2-case-study.webp" width="100%" loading="lazy" decoding="async" alt="Harness² case study on cross-file reconciliation and deliverable checks" />
+<figcaption>Figure 9: In a JobBench production-coordination task, procedural guardrails, a professional reconciliation skill, verification scripts, and tool guidance together address cross-file consistency and missing deliverable sections. The score rises from 43.1 to 77.8.</figcaption>
+</div>
+
+---
+
+### 4. Limitations
+{: id="harness2-limitations"}
+
+Repeated executions and editing add substantial inference cost. Parallelism reduces latency only when resources permit, and the paper does not establish a universally optimal budget or an adaptive stopping rule. Behavioral contrasts and anonymous selection remain vulnerable to shared false assumptions, sampling variation, and evaluation noise: the appendix even reports selecting a 55-point output when a 95-point candidate was available. Long-term library consolidation, outdated-experience revision, and retrieval management also remain open.
+
+---
+
 # References
 {: id="参考资料"}
 
@@ -2420,6 +2577,7 @@ Real-world contact and perception errors, runtime latency, reliable self-improve
 12. **VISTA** (2026). VISTA: A Visual Harness for Reasoning in an Interactive World. arXiv: [2610.02200](https://arxiv.org/abs/2610.02200) · Code: [joshhhhhan/VISTA](https://github.com/joshhhhhan/VISTA)
 13. **RACE** (2026). When Should Agents Think? Adaptive Reasoning via Cross-Turn Estimation. arXiv: [2610.12061](https://arxiv.org/abs/2610.12061) · Code: [HututuAI/RACE](https://github.com/HututuAI/RACE)
 14. **Agentic Robots** (2026). Towards Agentic Robots: Model, Data, Environment, and Harness. arXiv: [2610.20442](https://arxiv.org/abs/2610.20442) · Code: [chonghanqin/Awesome-Agentic-Robots](https://github.com/chonghanqin/Awesome-Agentic-Robots)
+15. **Harness²** (2026). Harness²: Recursive Agent Harnessing for an Open World. arXiv: [2610.14224](https://arxiv.org/abs/2610.14224) · Code: [google-research/harness2](https://github.com/google-research/harness2) · Project Page: [harness2.github.io](https://harness2.github.io/)
 
 <script>
 (function () {
@@ -2438,6 +2596,7 @@ Real-world contact and perception errors, runtime latency, reliable self-improve
     { m: 'VISTA', t: ['Harness', 'Visual memory', 'Active exploration', 'Zero fine-tuning', 'Long-horizon tasks'] },
     { m: 'RACE', t: ['reinforcement learning', 'Long-horizon tasks', 'Reasoning budget'] },
     { m: 'Agentic Robots', t: ['Survey', 'Harness', 'Closed-loop systems', 'VLA', 'Exception recovery', 'self-evolution', 'Cross-embodiment'] },
+    { m: 'Harness²', t: ['Harness', 'Closed-loop systems', 'self-evolution', 'Zero fine-tuning', 'Long-horizon tasks'] },
   ];
 
   var ALL_TAGS = ['Survey', 'Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation', 'Visual memory', 'Reasoning budget', 'Embodied reasoning', 'Data governance'];

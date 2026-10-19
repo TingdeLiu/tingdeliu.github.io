@@ -3,20 +3,20 @@ layout: post
 lang: zh-CN
 translation_id: embodied-agent-papers
 title: "Embodied Agent 论文精读"
-date:   2026-10-18
+date: 2026-10-19
 tags: [Agent, Embodied AI, Robotics, VLA, Deep Learning]
 categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "本文按系统运行时、物理编排、场景图评估、自演化治理、语义动作接口、动作分块、AgentOS、巡检系统治理、导航会话交接、导航工具编排、视觉记忆检视、推理预算分配、统一具身推理与统一分类十四条路线，收录 Embodied Agent 领域的代表性论文。"
+excerpt: "本文按系统运行时、物理编排、场景图评估、自演化治理、语义动作接口、动作分块、AgentOS、巡检系统治理、导航会话交接、导航工具编排、视觉记忆检视、推理预算分配、统一具身推理、统一分类与递归 Harness 优化十五条路线，收录 Embodied Agent 领域的代表性论文。"
 ---
 
 > 本文是 [AI Agent 综述](/AI-Agent-Survey/) 与底层系统架构指南 [Embodied Agent 综述](/Embodied-Agent-Harness-Survey/) 的配套具身论文精读，系统收录 Embodied Agent（具身智能体）领域的代表性工作与前沿突破。
 
 # 具身智能体论文精读
 
-本文关注一个共同问题：机器人如何把感知、规划、执行、验证和恢复组织成可持续运行的闭环。十四篇论文分别从运行时、编排器、评估器、演化机制、动作接口、训练目标、通用 AgentOS、巡检系统治理、导航会话交接、导航工具编排、视觉记忆检视、推理预算分配、统一具身推理和统一分类切入，实验覆盖仿真环境、文本交互环境、交互式视觉游戏与真实机器人；其中 SuperNav 提供简要导读，完整解析链接到 VLN 扩展篇。
+本文关注一个共同问题：机器人如何把感知、规划、执行、验证和恢复组织成可持续运行的闭环。十五篇论文分别从运行时、编排器、评估器、演化机制、动作接口、训练目标、通用 AgentOS、巡检系统治理、导航会话交接、导航工具编排、视觉记忆检视、推理预算分配、统一具身推理、统一分类和递归 Harness 优化切入，实验覆盖仿真环境、文本交互环境、交互式视觉游戏、真实机器人和软件专业任务；其中 SuperNav 提供简要导读，完整解析链接到 VLN 扩展篇。
 
 | 论文 | 主要切入点 | 代表性验证 |
 |---|---|---|
@@ -34,6 +34,7 @@ excerpt: "本文按系统运行时、物理编排、场景图评估、自演化�
 | [VISTA](#vista) | 无损视觉记忆、模型自主视觉检视与跨上下文笔记 | ARC-AGI-3、GameWorld、AI GameStore、BabyVision |
 | [RACE](#race) | 跨轮推理覆盖、似然代理信号与自适应推理强化学习 | ScienceWorld、WebShop、AppWorld、DeepSearch |
 | [Agentic Robots](#agentic-robots) | Model、Data、Environment、Harness 四领域与 17 类功能 | 综述归纳；未提出统一新方法实验 |
+| [Harness²](#harness2) | 无标准答案的行为对比、双层递归与改进经验库 | 通用 Agent 方法参考；WorkBuddy-Bench、JobBench、LAB |
 
 下方筛选栏支持多标签组合；同时选中多个标签时，页面只保留同时满足这些标签的论文。
 
@@ -2259,6 +2260,161 @@ graph TD
 
 ---
 
+## 15. Harness² (2026) {#harness2}
+———让 Agent 改进当前任务的执行配置，也积累“下次该怎么改”的经验
+
+📄 **Paper**: [arXiv:2610.14224](https://arxiv.org/abs/2610.14224) · [Code](https://github.com/google-research/harness2) · [Project Page](https://harness2.github.io/)
+
+**收录说明**：Harness² 在编程、办公与法律任务上评估通用 Agent 的在线配置改进；本文将其作为具身 Agent 自演化与经验复用的方法参考，其结果尚不构成机器人部署有效性的实验证据。
+
+### 精华
+{: id="harness2-takeaways"}
+
+1. Agent 的能力还取决于包围模型的提示词、技能、脚本、工具约束和编排；这些可执行配置可以在模型参数冻结时继续改进。
+2. 没有标准答案时，先提出有明确针对性的修改，再在相同任务与配置下重跑，通过轨迹中的行为变化决定保留什么，比直接凭印象重写配置更有依据，但仍不能保证答案正确。
+3. 可迁移的资产不仅是最终技能或脚本，还包括“什么情境出现什么问题、哪种修改改变了什么行为”的改进经验。
+4. 每个新任务从共同的初始配置出发，再按需借鉴经验库，可以避免把上一任务的专用规则直接叠加到后续任务。
+5. 增加推理预算的价值来自候选修改、执行证据和选择性组合；评估时必须把重跑与编辑成本计入，不能只看最终一次执行的步数。
+
+---
+
+### 1. 研究背景/问题
+{: id="harness2-background"}
+
+开放世界中的 Agent 会不断接到新任务，设计执行配置时通常无法预见这些需求，在线阶段也没有标准答案或可靠验证器来指导修改。已有方法或针对固定训练集离线优化，或只改进当前任务，难以把“如何发现问题、试验修改、判断取舍”的过程转化为后续任务可用的能力。
+
+本文研究的核心是：在**不更新模型权重、不读取评分反馈、不重放已完成任务**的条件下，如何同时改进当前任务的执行配置，以及指导未来配置改进的经验。
+
+---
+
+### 2. 主要方法/创新点
+{: id="harness2-method"}
+
+<div align="center">
+  <img src="/images/agent/Harness2-framework.webp" width="100%" loading="lazy" decoding="async" alt="Harness² 双层递归整体框架" />
+<figcaption>图 3：Harness² 的双层递归。任务内由编辑器提出通用与领域两类候选，实际执行后交给组合器形成配置；任务结束后，反思器把可复用配置和有证据支持的经验存入改进库。</figcaption>
+</div>
+
+**整体框架。** Harness² 由执行器、配置编辑器、组合器与经验反思器组成：执行器产生任务轨迹和交付物，编辑器提出可运行的配置修改，组合器根据试跑证据取舍，反思器在任务结束后更新经验库。论文把包围冻结模型的整套运行配置称为 **harness**，把优化这些配置的过程称为 **harnessing**。
+
+**① 可编辑对象：八类文件化组件。** 输入是当前任务、冻结模型和初始执行配置，编辑操作作用于文件树，输出是可以挂载到 Agent 运行时的新配置。八个编辑入口为 System prompt、Guardrails、Memory、Tool guidance、Subagents、Skills、Scripts 和 Plugin；它们分别改变常驻上下文、按需加载的流程、确定性能力、独立工作上下文或工具循环中的钩子。
+
+这里不只是改提示词：Scripts 可以直接执行机械性检查，Skills 在匹配任务时才加载，Plugin 则在工具调用或回合边界介入；组件应根据被观察到的问题选择，而非每次全部增加。编辑树还要通过结构验证，例如技能有触发说明、脚本可编译、引用的辅助文件实际存在；这些检查只验证配置有效性，不提供任务正确性标签。
+
+**② 任务内的基本改进单元：Propose–Probe–Compose。** 没有答案时，先观察“修改前后具体做法是否变了”，再判断某条配置是否值得保留；这就是本文的行为对比信号。
+
+- **Propose：从参考执行定位缺陷。** 输入为任务、当前配置、参考执行记录和已有经验。两个编辑方向分别生成完整候选配置：Invariant（INV）针对跨领域的工作方式，如重试、规划、工具使用与交付检查；Domain（DOM）针对当前领域的知识、专业流程、交付结构和约束。
+- **Probe：把候选真正跑起来。** 每个候选在相同任务、模型与环境配置下执行，输出轨迹和交付物。与参考执行对照，查看目标缺陷是否缓解、是否没有变化、是否引入退化；这种对照仍会受到采样波动和共享模型偏差影响。
+- **Compose：按证据组合修改。** 输入为候选文件差异、参考轨迹、候选轨迹和已有任务内历史。组合器可以合并有支持的修改、改写冲突、采用一个候选，或保留当前配置；随后实际执行组合后的配置，并记录每项决策对应的观察证据。
+
+> **举个例子**：任务要求把排期、人员与预算文件整理成一致的交付物。参考执行漏掉跨文件核对，也没有重新打开输出文件；INV 候选加入输出重开检查脚本，DOM 候选加入排期与预算核对技能。若试跑轨迹显示两类操作确实发生，组合器便有理由保留相关修改；但“检查执行了”仍不等于“所有数字都算对了”。论文图 9 的案例中最终评分从 43.1 升至 77.8，这个分数只用于事后评估，编辑器与组合器看不到。
+
+**③ 扩大任务内搜索：并行探索与顺序修订。** 两种递归都以基本改进单元为基础，但预算的作用不同。
+
+<div align="center">
+  <img src="/images/agent/Harness2-recursion.webp" width="100%" loading="lazy" decoding="async" alt="Harness² 并行与顺序递归" />
+<figcaption>图 4：并行递归让多个候选共享同一批参考证据，再进行独立组合；顺序递归把上一轮修订后的配置及累计轨迹传给下一轮。</figcaption>
+</div>
+
+- **并行递归**：收集 $k$ 次初始配置的参考执行，独立提出并试跑 $k$ 个 INV 候选和 $k$ 个 DOM 候选；随后 $k$ 个组合会话都读取完整候选池，各自生成并执行一个后继配置。本文实现只有一次种群更新，$k$ 控制搜索宽度。
+- **顺序递归**：从初始配置开始，串联 $k$ 次改进，每一步读取当前配置及之前累积的轨迹与取舍记录，形成下一配置；后续步骤可以保留、修正或撤销早先修改，$k$ 控制修订深度。
+
+> **预算怎么算**：只看并行方案，取 $k=2$ 时有 2 次参考执行、4 次候选试跑、2 次组合配置执行，共 **8 次完整任务执行**，另外还有编辑、组合和最终选择会话。$k=1$ 也需要 1 次参考、2 次候选试跑和 1 次组合后执行，因此“一步改进”不等于“只多跑一次”；这个计数不含配置验证重试等额外开销。
+
+当 $k>1$ 时，最终选择器依据任务要求与源材料比较匿名交付物，只返回已有结果，不再合成新内容，也看不到结果对应的配置；附录提示明确允许选择初始配置产生的结果。$k=1$ 时不走最终选择，直接返回基本改进单元执行后的结果；被采用只代表本轮选择，不代表已验证最优。
+
+**④ 跨任务的改进：保存“配置＋适用情境＋改进证据”。** 经验反思器接收整个任务的改进记录，包括被拒绝候选，而非只看获选输出；它逐项记录修改、观察到的行为差异与归因可信度，再决定是否提炼可复用经验。若多项修改混在一起、只有一次执行，归因可以标为受混杂影响；没有足够可复用证据时，可以不新增经验条目。
+
+经验库保留获选的可执行配置，并用 `EXPERIENCE.md` 记录适用情境、经验、证据与可信度，通过索引供后续编辑按需读取。两个递归层次的差别在于“当前任务改什么”和“跨任务留下什么”：
+
+| 维度 | 任务级递归 | Harnessing 级递归 |
+|---|---|---|
+| 更新对象 | 当前任务的执行配置 $H$ | 指导未来编辑的改进配置 $R_t$ 中的经验库 |
+| 证据来源 | 当前任务的参考、候选与组合后执行 | 整个改进过程及其取舍记录 |
+| 生效时机 | 同一任务内试跑与迭代 | 任务完成后更新，供后续任务读取 |
+| 下一任务如何开始 | 不直接继承本任务专用配置 | 从共同初始配置出发，按需复用库中组件和经验 |
+
+```mermaid
+graph TD
+    A["新任务 t + 共同初始配置 H0"] --> B["参考执行: 轨迹与交付物"]
+    R["当前经验库 Rt"] --> C["提出 INV 与 DOM 候选"]
+    B --> C
+    C --> D["同任务试跑候选"]
+    D --> E["比较行为证据并组合配置"]
+    E --> F["执行后继配置并提交结果"]
+    F --> G["反思完整改进记录"]
+    G --> H["更新经验库 Rt+1"]
+    H --> I["下一任务: 仍从 H0 开始"]
+    I --> J["由更新后的经验库指导新一轮编辑"]
+```
+
+图中省略了 $k>1$ 时的匿名交付物选择；任务内的全部递归期间，$R_t$ 保持固定。下一任务不会直接接手上一任务的配置，过去任务发现的具体事实也需要在新任务中重新核实适用性。
+
+**⑤ 更新规则与训练目标。** 本文没有梯度训练、强化学习奖励或新损失函数，核心是冻结模型下对文件配置与经验库的离散更新。令 $e=(\tau,y)$ 表示轨迹与交付物，基本改进单元可写为：
+
+$$
+(H',e',\xi)=\Phi(q_t,H,\mathcal E;R_t).
+$$
+
+其中 $\mathcal E$ 为任务内可用历史，$\xi$ 记录候选试跑、组合决策及其证据；先运行修改再保留证据，是这个算子的关键。任务完成后再更新改进库：
+
+$$
+R_{t+1}=\operatorname{Update}(R_t,H_t^{\star},\mathcal D_t).
+$$
+
+$H_t^{\star}$ 为被采用的配置，$\mathcal D_t$ 为完整改进记录；星号表示采用，不表示正确性或全局最优。模型权重、阶段指令和决策规则保持固定，长期变化发生在库中的组件与经验。
+
+**⑥ 一次完整运行。** 接收任务后，先挂载共同初始配置并取得参考轨迹；编辑器借助当前经验库提出候选，执行器试跑，组合器按行为证据形成后继配置；按预设并行或顺序预算完成探索并交付结果，最后反思改进过程，将有依据的经验供下一个任务使用。整个过程都发生在部署阶段，基准答案、评分量规与评测分数只在外部评估时使用。
+
+---
+
+### 3. 核心结果/发现
+{: id="harness2-results"}
+
+**评测设置。** 主实验覆盖 Gemini 3.5 Flash、GLM-5 两个冻结执行模型与 OpenCode、Codex 两种初始配置，共四种组合；默认编辑器与选择器为 Claude Opus 4.8。WorkBuddy-Bench 使用 Code/Web/Office 三域的 40/35/25 个测试任务，JobBench 使用 34 个测试任务，LAB 使用 100 个测试任务；各方法沿任务流运行，主表报告三次打乱顺序运行的均值与标准差，经验库从空开始。
+
+**单步与并行递归均有收益。** 下表整理主表中的代表性结果；$k=5$ 为 $k=1$ 行与后续增量相加，WorkBuddy-Bench 与 JobBench 为分数，LAB Partial 为逐项通过率（%）。
+
+| 基准与执行配置 | 初始配置 | Harness²，$k=1$ | 并行递归，$k=5$ |
+|---|---:|---:|---:|
+| WorkBuddy-Bench 均分，Gemini 3.5 Flash / OpenCode | 72.4 | 77.5 | 80.8 |
+| WorkBuddy-Bench 均分，GLM-5 / OpenCode | 64.2 | 75.7 | 79.6 |
+| JobBench，Gemini 3.5 Flash / OpenCode | 31.5 | 36.0 | 39.0 |
+| JobBench，GLM-5 / OpenCode | 20.6 | 24.2 | 28.4 |
+| LAB Partial，GLM-5 / OpenCode | 59.6 | 71.4 | 78.1 |
+
+单步对初始配置的最大提升分别为 WorkBuddy-Bench **11.5 分**、JobBench **4.5 分**、LAB **11.8 个百分点**；增至 $k=5$ 后，四种组合分别再增加 2.9–3.9 分、3.0–4.2 分、2.6–6.7 个百分点。Harness² 在四种组合的 WorkBuddy-Bench 均分与 JobBench 分数上都超过所比较基线，但 LAB 的 Gemini 3.5 Flash / Codex 组合中，单步结果 75.6 低于 Meta-Harness 的 76.5，不能概括为所有设置均领先。
+
+**组合、分工和经验库都有贡献。** 在 Gemini 3.5 Flash / OpenCode、$k=1$ 下，完整方法的 WorkBuddy-Bench / JobBench 为 77.5 / 36.0；去掉经验库降至 74.4 / 34.2，取消 INV/DOM 分工降至 74.6 / 32.3，去掉组合、只从两个候选中挑选则为 75.9 / 34.1。附录还表明，从已改进配置删除 Skills 后，WorkBuddy-Bench 均分下降 5.3 分，删除 Scripts 下降 3.7 分；收益来自多种组件，不能简单归因于提示词变长。
+
+<div align="center">
+  <img src="/images/agent/Harness2-library-transfer.webp" width="100%" loading="lazy" decoding="async" alt="Harness² 经验库复用与跨基准迁移" />
+<figcaption>图 7：左侧测试不再新增参考执行或候选试跑、直接借助改进库编辑配置；右侧把 JobBench 经验迁移到 WorkBuddy-Bench。探索更充分的经验库对后续改进更有帮助。</figcaption>
+</div>
+
+**经验能帮助后续任务，但需要区分实验协议。** 无执行证据、无经验库地直接改配置，Code 从 73.4 降至 63.2，Web 从 69.9 降至 65.0；使用 $k=5$ 累积的库后，即使不再新增试跑，Code/Web/Office 仍分别比初始配置高 0.9/4.4/5.1 分。将 JobBench 经验用于 WorkBuddy-Bench 的单步改进，三域再提升 0.6/0.5/2.9 分；附录的留一重跑还能访问后续任务经验，属于离线复用分析，不能当作在线增益。
+
+<div align="center">
+  <img src="/images/agent/Harness2-same-model.webp" width="100%" loading="lazy" decoding="async" alt="Harness² 同模型执行与编辑实验" />
+<figcaption>图 8：在 OpenCode、k=2 下，让同一模型兼任执行器与编辑器，五个受测模型仍在三个基准上获得提升，说明收益不必依赖更强的外部编辑模型。</figcaption>
+</div>
+
+**同模型也能改进自己，成本则必须完整计算。** 同模型执行与编辑实验中，Claude Opus 5 在 WorkBuddy-Bench、JobBench、LAB 分别提升 3.3、5.5、3.0 分，GLM-5 的 LAB 提升 13.7 个百分点。图 6 在计入执行与改进总 token 成本后，显示 Gemini 3.5 Flash / OpenCode 的 $k=1$、$k=5$ 两个 Harness² 配置位于所比较方法的经验 Pareto 前沿；这只说明该组实验的成本收益取舍，主表中的 `#Steps` 是执行器会话的模型回合数，不能替代总成本。
+
+<div align="center">
+  <img src="/images/agent/Harness2-case-study.webp" width="100%" loading="lazy" decoding="async" alt="Harness² 跨文件核对与交付检查案例" />
+<figcaption>图 9：JobBench 制作统筹任务中，工作流程约束、专业核对技能、验证脚本与工具指引共同修复了跨文件数字不一致及交付缺项，评分从 43.1 提升至 77.8。</figcaption>
+</div>
+
+---
+
+### 4. 局限性
+{: id="harness2-limitations"}
+
+多轮执行与编辑会显著增加推理成本，并行只能在资源允许时缩短等待，论文也未给出通用最优预算或自动停止策略。行为对比与匿名选择仍受共享错误假设、采样和评测波动影响，附录甚至出现候选中有 95 分结果却选中 55 分结果的案例；经验库的长期去重、过时知识修订与检索管理仍待完善。
+
+---
+
 # 参考资料
 
 ## 论文引用
@@ -2278,6 +2434,7 @@ graph TD
 12. **VISTA** (2026). VISTA: A Visual Harness for Reasoning in an Interactive World. arXiv: [2610.02200](https://arxiv.org/abs/2610.02200) · Code: [joshhhhhan/VISTA](https://github.com/joshhhhhan/VISTA)
 13. **RACE** (2026). When Should Agents Think? Adaptive Reasoning via Cross-Turn Estimation. arXiv: [2610.12061](https://arxiv.org/abs/2610.12061) · Code: [HututuAI/RACE](https://github.com/HututuAI/RACE)
 14. **Agentic Robots** (2026). Towards Agentic Robots: Model, Data, Environment, and Harness. arXiv: [2610.20442](https://arxiv.org/abs/2610.20442) · Code: [chonghanqin/Awesome-Agentic-Robots](https://github.com/chonghanqin/Awesome-Agentic-Robots)
+15. **Harness²** (2026). Harness²: Recursive Agent Harnessing for an Open World. arXiv: [2610.14224](https://arxiv.org/abs/2610.14224) · Code: [google-research/harness2](https://github.com/google-research/harness2) · Project Page: [harness2.github.io](https://harness2.github.io/)
 
 <script>
 (function () {
@@ -2296,6 +2453,7 @@ graph TD
     { m: 'VISTA', t: ['Harness', '视觉记忆', '主动探索', '零微调', '长程任务'] },
     { m: 'RACE', t: ['强化学习', '长程任务', '推理预算'] },
     { m: 'Agentic Robots', t: ['综述', 'Harness', '闭环系统', 'VLA', '异常恢复', '自演化', '跨本体'] },
+    { m: 'Harness²', t: ['Harness', '闭环系统', '自演化', '零微调', '长程任务'] },
   ];
 
   var ALL_TAGS = ['综述', '闭环系统', 'Harness', 'AgentOS', '具身操作', '场景图', '拓扑图', '实机部署', '快慢双系统', '类型化动作', '空间记忆', '3D语义', '多机协同', 'TAMP', 'VLA', '双重校验', '退出码评估', '自演化', '高频裁判', '跨本体', '主动探索', '零微调', '动作分块', '强化学习', '技能归纳', '长程任务', '异常恢复', '具身导航', '视觉记忆', '推理预算', '具身推理', '数据治理'];

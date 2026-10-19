@@ -1,12 +1,12 @@
 {
   "source": "_posts/research/2026-03-06-Embodied-Agent-Papers.md",
   "translation": "_translations/en/research/Embodied-Agent-Papers.md",
-  "reviewed_on": "2026-10-18",
-  "source_revision_date": "2026-10-18",
+  "reviewed_on": "2026-10-19",
+  "source_revision_date": "2026-10-19",
   "sections": {
-    "metadata": "002e8a845028801b0166dd18c99cd951c42cda741476ae7e8e0a66c6f8b9e34e",
+    "metadata": "03faed7fd1da688a66a90716bcd0f56ccff05b3732637ddf68bf8e3763cf547d",
     "introduction": "8c17bc1d22a44c667d3673775811d9cf4f0f4d7c5e66bc908245222485388b05",
-    "具身智能体论文精读": "115164c6d13b5fad02afa1de93260c51a96ea871d81f019fcf80276499ab4d22",
+    "具身智能体论文精读": "83b4a5c63459afb0c7f55020545f0bd50851b390438cc13cf97a091c6fab51cc",
     "paper:holoagent-0 / 1. HoloAgent-0 (2026) {#holoagent-0}": "4cc92a362c7b424cc7a5e880c873144a6dd851bdfdd1e523c749b64861e1580c",
     "paper:holoagent-0 / 精华": "baeffd64d95f90fb8d914888810e60f1190f9f00c85dc8d42d3b83021e7f628f",
     "paper:holoagent-0 / 1. 研究背景/问题": "78636fbb3fb4b211a8ff109e039471dc173ca14b79d9e7250308b620b0f56f92",
@@ -150,7 +150,13 @@
     "paper:agentic-robots / 2.6 训练与推理：明确哪些东西发生了变化": "3ede5fdf2880e0fc09df861d439f2b133c4e7ac71a2ba8718ec3ba7698d1a391",
     "paper:agentic-robots / 3. 核心结果/发现": "045bd039b768ce1b9bb6bb278f97aebe0071f40d65a56cfa8577a6dc91e31457",
     "paper:agentic-robots / 4. 局限性": "8c739b4e58cfe068e03ab98d5fed41ca3138f8bf1a7e62ebe7585e3c0fd7ac79",
+    "paper:harness2 / 15. Harness² (2026) {#harness2}": "609e825827a914f18a31aa03875f2ec336db5e366362eaca275061f59d9b0cd0",
+    "paper:harness2 / 精华": "8676981a32ec74e7ba0638c9e808816d53daf3bc1e42d77da25014c3fad3c253",
+    "paper:harness2 / 1. 研究背景/问题": "162a5f754aeabb71ac2996e753238183163faf160b5cf7a7af1dad85f960b170",
+    "paper:harness2 / 2. 主要方法/创新点": "c54711ddccceb42bf24252f93d6de6313d0665f3e0a61e82487a4a75e4f71200",
+    "paper:harness2 / 3. 核心结果/发现": "d4a949cfa8349ec92dfcfcab9eba2f4d239af5676599ceb6138d8a95792678df",
+    "paper:harness2 / 4. 局限性": "e1b38812cbe0943a74fc0c92c15f28000a2eb886602da94c432545060619966e",
     "参考资料": "9b02b96398a0ecec9519f4402648095347400e58028bcf57f57e2194eee8f5e6",
-    "论文引用": "52e1ae40d304502c92a3df65ef0ef0e8740de0d66d2effc91a2861bae92102f6"
+    "论文引用": "816fc3140ac7a8446a871720cc9ed0fd329038993698650b54e3c008509f0b50"
   }
 }
