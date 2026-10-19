@@ -4,9 +4,9 @@
   "reviewed_on": "2026-10-19",
   "source_revision_date": "2026-10-19",
   "sections": {
-    "metadata": "03faed7fd1da688a66a90716bcd0f56ccff05b3732637ddf68bf8e3763cf547d",
+    "metadata": "7e55db86227ac7f865488182b43094870592743e418799b1a3b542079686e139",
     "introduction": "8c17bc1d22a44c667d3673775811d9cf4f0f4d7c5e66bc908245222485388b05",
-    "具身智能体论文精读": "83b4a5c63459afb0c7f55020545f0bd50851b390438cc13cf97a091c6fab51cc",
+    "具身智能体论文精读": "1c098bde90fb2d03dcb49a516da54f9fd193c4ac60f4ce0c40b090647163b91f",
     "paper:holoagent-0 / 1. HoloAgent-0 (2026) {#holoagent-0}": "4cc92a362c7b424cc7a5e880c873144a6dd851bdfdd1e523c749b64861e1580c",
     "paper:holoagent-0 / 精华": "baeffd64d95f90fb8d914888810e60f1190f9f00c85dc8d42d3b83021e7f628f",
     "paper:holoagent-0 / 1. 研究背景/问题": "78636fbb3fb4b211a8ff109e039471dc173ca14b79d9e7250308b620b0f56f92",
@@ -156,7 +156,13 @@
     "paper:harness2 / 2. 主要方法/创新点": "c54711ddccceb42bf24252f93d6de6313d0665f3e0a61e82487a4a75e4f71200",
     "paper:harness2 / 3. 核心结果/发现": "d4a949cfa8349ec92dfcfcab9eba2f4d239af5676599ceb6138d8a95792678df",
     "paper:harness2 / 4. 局限性": "e1b38812cbe0943a74fc0c92c15f28000a2eb886602da94c432545060619966e",
+    "paper:gpt-6-astra-jrt / 16. GPT-6-Astra-JRT (2026) {#gpt-6-astra-jrt}": "7049a362e65ab3e20c51f686e9226ddd4aa730ac137454e40c1f3402b86a46c5",
+    "paper:gpt-6-astra-jrt / 精华 {#gpt-6-astra-jrt-takeaways}": "110f64b39322313ddda6fc2064324fac2e0204be55c66f5272a9d3055ccf8f7e",
+    "paper:gpt-6-astra-jrt / 1. 研究背景/问题 {#gpt-6-astra-jrt-background}": "70a203fbc396f5f48ed28ec84e14a067b1a900c922e11f5633c73fe9d9b72674",
+    "paper:gpt-6-astra-jrt / 2. 主要方法/创新点 {#gpt-6-astra-jrt-method}": "6ef71da686a91a9b9c99df9889032d234b2950999f46bad3a67b4743b27a18b9",
+    "paper:gpt-6-astra-jrt / 3. 核心结果/发现 {#gpt-6-astra-jrt-results}": "95379426a45a4af535efcae992dbb03583d9d793bf4d79f97a941f58288dafce",
+    "paper:gpt-6-astra-jrt / 4. 局限性 {#gpt-6-astra-jrt-limitations}": "3b34b355a2817a9e722860d2e645821602e17e8de9ad4dbd72105ae310feaf62",
     "参考资料": "9b02b96398a0ecec9519f4402648095347400e58028bcf57f57e2194eee8f5e6",
-    "论文引用": "816fc3140ac7a8446a871720cc9ed0fd329038993698650b54e3c008509f0b50"
+    "论文引用": "bb6025a77ebddf4b515db0a8102890199bbc56331f8e428ea68dc6285ed6402f"
   }
 }

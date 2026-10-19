@@ -14,7 +14,7 @@ categories: research
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "Fifteen paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, and recursive harness optimization."
+excerpt: "Sixteen paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, and evaluation of embodied capabilities."
 ---
 
 
@@ -23,7 +23,7 @@ excerpt: "Fifteen paper entries on embodied runtimes, physical orchestration, sc
 # Embodied Agents: Paper Readings
 {: id="具身智能体论文精读"}
 
-This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed-loop that can sustainably operate. The fifteen papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, and recursive harness optimization. The experiments cover simulation environments, text-interaction environments, interactive visual games, real robots, and professional software tasks. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection.
+This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed-loop that can sustainably operate. The sixteen papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, and evaluation of embodied capabilities. The experiments cover simulation environments, text-interaction environments, interactive visual games, real robots, and professional software tasks. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection.
 
 |Paper|Main entry points|representative verification|
 |---|---|---|
@@ -42,6 +42,7 @@ This article focuses on a common problem: how robots organize perception, planni
 | [RACE](#race) | Cross-turn reasoning covers, likelihood proxy signals, and adaptive-reasoning RL | ScienceWorld, WebShop, AppWorld, DeepSearch |
 | [Agentic Robots](#agentic-robots) | Four domains—Model, Data, Environment, and Harness—and 17 functional categories | Survey synthesis; no new method evaluated in a unified experiment |
 | [Harness²](#harness2) | Behavioral contrasts without answer keys, two-level recursion, and an improvement library | General-agent method reference; WorkBuddy-Bench, JobBench, LAB |
+| [GPT-6-Astra-JRT](#gpt-6-astra-jrt) | Frozen knowledge packages, interaction budgets, fast-slow collaboration, and continuous-world evaluation | 12 simulation benchmarks, 8 real-robot configurations, and a household prototype |
 
 The filter bar below supports multiple tag combinations; when multiple tags are selected at the same time, the page will only retain papers that meet these tags.
 
@@ -2556,6 +2557,170 @@ Repeated executions and editing add substantial inference cost. Parallelism redu
 
 ---
 
+## 16. GPT-6-Astra-JRT (2026) {#gpt-6-astra-jrt}
+———From capability limits with demonstrations and interaction budgets to the gaps in real-world embodied intelligence
+
+📄 **Paper**: [arXiv:2610.22471](https://arxiv.org/abs/2610.22471) · [Project Page](https://sensenova.ai/has-gpt-6-astra-achieved-embodied-intelligence)
+
+### Key takeaways {#gpt-6-astra-jrt-takeaways}
+
+1. A general model's embodied capabilities must be assessed together with the experience it can read, its control interfaces, and its interaction budget: this report freezes GPT-6-Astra's weights, lets it organize training demonstrations into a retrievable knowledge package, and evaluates task completion through observation, action, verification, and correction.
+2. Additional interaction steps can unlock failure recovery, but the benefit depends on whether recovery remains possible; spilled liquid, parts dropped outside the workspace, and progress undone by later actions cannot automatically be recovered through repeated attempts.
+3. Effective collaboration between high-level reasoning and a low-level policy requires reviewing candidate actions, checking physical outcomes, and choosing suitable action-chunk lengths; simply delegating high-level subgoals to a VLA does not improve success in the reported ablations.
+4. The main deployment gaps concern physical-state verification, precise contact, transfer of experience across tasks, and the safety and mechanical costs of deliberation time; appearing complete, being declared complete, and being physically complete can be different states.
+5. Future evaluations should assess satisfaction of human needs, continuing obligations created by the robot, and timely action in an evolving world to distinguish benchmark success from deployable embodied intelligence.
+
+---
+
+### 1. Background and problem {#gpt-6-astra-jrt-background}
+
+The Joint Research Team (JRT) report, *Has GPT-6-Astra Achieved Embodied Intelligence?*, examines whether a general model can handle tabletop manipulation, dexterous hands, humanoids, and navigation, while asking how much benchmark success depends on demonstrations, tools, and generous budgets. The authors conduct evaluations on 12 simulation benchmarks, harness ablations, validation on 8 real-robot configurations, and a household prototype that keeps running during deliberation to examine the gap between being capable of completing tasks and being reliable and efficient enough to deploy.
+
+---
+
+### 2. Main methods and contributions {#gpt-6-astra-jrt-method}
+
+<div align="center">
+  <img src="/images/vla/GPT-6-Astra-JRT-icl-protocol.webp" width="100%" loading="lazy" decoding="async" alt="Training demonstrations, a frozen knowledge package, and isolated test episodes" />
+<figcaption>Original Figure 2: training data are used to construct and freeze a knowledge package, which is copied into isolated test episodes; neither the model weights nor the package are updated during testing.</figcaption>
+</div>
+
+**① Overall framework: experience preparation, closed-loop reasoning, and action execution.** The basic system has three stages: a knowledge package stores experience extracted from training data, GPT-6-Astra chooses actions using current observations and that experience, and robot-control interfaces execute the actions and return feedback; some ablations additionally introduce a VLA to propose candidate actions. The contribution is a systematic study of evaluation protocols and harness design; the report does not introduce a GPT-6-Astra model trained with a new loss function.
+
+**Experience preparation: turning demonstrations into files the model can retrieve and use.** Inputs are the training demonstrations permitted by each benchmark, including images, actions, and robot states, with exploration in training scenes allowed in some settings; the model inspects these materials and writes task notes, reference data, and executable code, producing a knowledge package $K$ that is frozen before testing. The authors identify six recurring components: task goals and stage ordering, motion trajectories and grasp poses, demonstration keyframes and contact crops, programs for forward/inverse kinematics and retrieval, completion checks and recovery procedures, and robot specifications and provenance records; these are observed commonalities rather than a mandated template. Package contents also vary: LIBERO organizes composable atomic skills, SIMPLE retains numerical trajectories, and navigation packages retain landmarks, stopping guidance, and recovery experience.
+
+**Concept 1: ICL here involves more than a few demonstration images, and it does not update weights.** In practical terms, the model first writes its own operating manual containing pictures, numerical examples, and programs, then consults it and adapts actions to the current scene during testing. Each test episode starts a fresh session with the same read-only package, retains only its own interaction history, and transfers no experience to other test episodes.
+
+```mermaid
+graph TD
+    A["Training demonstrations or training-scene exploration"] --> B["Inspect data and write notes and programs"]
+    B --> C["Freeze knowledge package K"]
+    C --> D["Copy into a fresh test session"]
+    E["Task instruction and current observations"] --> F["Retrieve experience and choose actions"]
+    D --> F
+    F --> G["Controller executes actions"]
+    G --> H["Return new images and robot states"]
+    H --> F
+```
+
+**Closed-loop reasoning: using execution outcomes to revise the next action.** At test time, the model reads the instruction, package, current images, permitted robot states, and episode history, retrieves reference motions or calls helpers, and produces an action or sequence; after execution, new observations inform whether to continue, adjust, recover, or stop. Visual references help compare the current stage with demonstration stages, while numerical references and programs turn experience into executable actions; observation access varies across benchmarks, so the experiments should not all be described as using an identical RGB-only interface.
+
+**Action execution: connecting high-level reasoning to existing robot interfaces.** Inputs may specify end-effector positions and orientations, relative directions and distances, or joint targets; inverse kinematics or existing low-level controllers translate them into physical motion. This lets the model reason about where the gripper should move while controllers handle joint coordination; humanoid experiments also explore issuing targets directly to existing motor controllers without always going through a task-trained VLA.
+
+**Training and inference boundaries.** GPT-6-Astra's weights remain frozen throughout these experiments, so there is no additional model-training loss; ICL preparation produces an external knowledge package. System 1 in the collaboration experiments uses π0.5 fine-tuned on RoboDojo, which is separate from any update to GPT-6-Astra; inference consists of consulting experience, calling tools, executing actions, and revising decisions from feedback.
+
+**② Interaction budgets: measuring whether the model can progress after failure.** The standard budget is the benchmark's prescribed control-step limit, while the extended budget allows up to ten times as many steps; the main-text protocol emphasizes continuing from the same environment state and history, preserving consequences of prior actions and terminating early on success or terminal failure. Additional steps create opportunities to regrasp, change approach angles, relocalize, and correct errors; episodes need not consume the full extended budget.
+
+> **Concept 2: a numerical example separating control steps from elapsed time.** Consider a RoboDojo task with a standard budget of 200 steps at 25 Hz: 1× permits at most 8 seconds of commanded motion, while 10× permits at most 2,000 steps, or 80 seconds. Time spent observing, reasoning, and calling tools is outside those motion durations, so a simulated task with little commanded motion can still take tens of minutes or hours to run. A 10× budget also does not mean resetting the environment for ten independent attempts.
+
+Implementation details differ across benchmarks: the navigation appendices retain earlier successes, apply additional evaluation to unsuccessful episodes, and preserve better per-episode metrics, so these results cannot uniformly be interpreted as uninterrupted trajectories continued from exactly the same state. The aggregate table also distinguishes an independently executed 1× run from the 1× cutoff of a 10× run, and their results can differ.
+
+**③ Harness ablations: who proposes actions and who reviews them.** The authors call the slower, reasoning-oriented GPT-6-Astra System 2 and the RoboDojo-fine-tuned π0.5 System 1, connecting them through different collaboration protocols. In open-loop collaboration, GPT specifies subgoals and the VLA directly executes joint-action sequences; in closed-loop collaboration, forward kinematics first converts VLA-proposed joint actions into candidate end-effector motions, which GPT accepts, modifies, or rejects using observations before execution and feedback.
+
+| Collaboration stage | Open-loop collaboration | Closed-loop collaboration |
+|---|---|---|
+| GPT inputs and outputs | Produces subgoals from the current task | Reviews candidate end-effector motions and accepts, modifies, or rejects them |
+| How VLA outputs reach the robot | Candidate actions execute directly | Candidate actions first undergo GPT review |
+| Main trade-off | Fewer reasoning calls, but no action-level supervision | Candidate actions can be corrected, but frequent review consumes many tokens |
+
+The review horizon matters: $L=1$ means that each GPT call reviews one VLA-proposed end-effector action, while $L=4$ reviews four at once; this differs from direct-control experiments in which GPT generates multiple actions itself. The latter compare single actions, fixed four-action chunks, and adaptive chunks of one to four actions selected by GPT; longer chunks reduce calls but delay feedback, making the appropriate horizon dependent on the task stage.
+
+<div align="center">
+  <img src="/images/vla/GPT-6-Astra-JRT-harness-ablation.webp" width="100%" loading="lazy" decoding="async" alt="Success rates and token costs for RoboDojo harness ablations" />
+<figcaption>Original Figure 7: success and token cost for different collaboration protocols and action interfaces on RoboDojo; success here is averaged equally across five task categories and should not be conflated with an average over all tasks.</figcaption>
+</div>
+
+The appendix also ablates agent components individually: a feedback subagent checks outcomes, a planning subagent decomposes tasks, and an execution subagent generates end-effector actions; history compression retains the latest four turns and summarizes earlier interactions in at most 2,000 tokens. These components are added and compared separately, and the results do not establish that adding more modules always improves performance.
+
+**④ Real-robot validation: removing task demonstrations and cost-free retries.** The real-world study covers 8 configurations spanning single arms, dual arms, dexterous hands, wheeled mobile manipulation, and humanoids, without task demonstrations or demonstration-derived packages; it still supplies structured priors such as tool descriptions, joint limits, camera placement, and hand open/close presets, with task guidance or human-written grasp scripts on some platforms. Zero-shot therefore refers to the absence of demonstrations and task-specific training while retaining human priors and controller support. Most trials use a 60-minute wall-clock budget, with platform-specific exceptions, and people judge success from the physical outcome.
+
+One transferable behavior is **active vision: moving the camera to inspect the contact region before acting**. When a single arm holds a flower stem, the nearby wrist camera cannot see the vase mouth below it; on the dual-arm platform, GPT moves the free arm and its wrist camera until the mouth becomes visible, then completes insertion, making viewpoint selection part of the action decision.
+
+<div align="center">
+  <img src="/images/vla/GPT-6-Astra-JRT-active-vision.webp" width="100%" loading="lazy" decoding="async" alt="A dual-arm robot moves its free wrist camera to observe the vase mouth" />
+<figcaption>Original Figure 9: insertion fails with an occluded close-up view on a single-arm platform; a dual-arm platform succeeds after moving its free wrist camera to view the vase mouth. This illustrates the role of viewpoint selection, without statistically isolating camera count or other platform differences.</figcaption>
+</div>
+
+**⑤ Household prototype: evaluating whether the whole trajectory serves the user.** The authors build an interactive Isaac Sim apartment with contact, articulated fixtures, liquids, cloth, and cooking processes; GPT controls an AgiBot G2 using only onboard cameras and proprioception, with no scene demonstrations, while deliberation advances world time. The proposed evaluation considers both the user's explicit request, Intent, and continuing obligations, Duty, such as closing the refrigerator and turning off the tap while making breakfast.
+
+| Evaluation dimension | Common static-goal evaluation | Direction proposed in this report |
+|---|---|---|
+| Task specification | Prescribes target conditions for objects | Expresses human needs and allows different useful outcomes |
+| Source of experience | Uses task-training demonstrations | Supplies no in-domain demonstrations and requires exploration during deployment |
+| Time accounting | Pauses the world during reasoning and primarily counts actions | Advances the world during reasoning, tool calls, and communication |
+| Outcome judgment | Succeeds once a goal state is reached | Assesses utility, timeliness, and obligations across the trajectory |
+
+These are design principles and a proof of concept rather than a new benchmark with large-scale statistical rankings; illustrative breakfast deadlines and utility weights should not be treated as a validated universal scoring system.
+
+---
+
+### 3. Main results and findings {#gpt-6-astra-jrt-results}
+
+**Simulation: demonstrations and additional interaction bring some benchmarks close to saturation, while long-horizon tasks retain substantial gaps.** The table below prioritizes the corresponding appendix configurations and coverage, reporting full-task success rate, SR (%); RoboLab has no training set and is reported zero-shot without ICL.
+
+| Benchmark | Standard budget 1× | Extended evaluation up to 10× | Interpretation |
+|---|---:|---:|---|
+| LIBERO-Long++ | 97.5 | 100.0 | 120 episodes; atomic-skill experience supports composition into task chains |
+| LIBERO-PRO | 98.3 | 99.3 | All 800 episodes; experience from training exploration supports perturbation handling |
+| LIBERO-Ultra-Long | 82.2 | 98.9 | 90 episodes; additional interaction substantially helps long-chain correction |
+| RoboDojo, ICL direct control | 27.6 | 81.9 | 210 episodes, averaged over all 42 tasks |
+| RoboLab, no ICL | 57.1 | 69.2 | No training demonstrations; results do not depend on a task knowledge package |
+| SIMPLE, ICL | 96.3 | 98.8 | Only the 80 shared complete instances in Matched-8 |
+| DexJoCo | 78.2 | 87.3 | 11 tasks and 55 episodes |
+| Bench2Dex | 25.6 | 61.5 | 26 tasks and 78 episodes; precise control remains difficult |
+| BEHAVIOR | 37.0 | Not extended | One rollout for each of 100 tasks; the standard budget is already long |
+| VLN-CE R2R | 80.0 | 88.0 | A subset of 100 episodes in unseen scenes |
+| VLN-CE RxR | 82.0 | 90.0 | A selected subset of 100 English-language episodes |
+| LHPR-VLN | 21.1 | 28.9 | 114 long-horizon episodes manually filtered for target visibility |
+
+**Reporting distinctions.** The report's aggregate Table 2 lists a VLA-assisted 54.2% for the independent RoboDojo 1× run, whereas its 10× result and corresponding 1× cutoff are 81.9% and 27.6% for direct control; interpreting 54.2%→81.9% as a same-configuration budget ablation is therefore inappropriate. Table 13 and Figure 7 additionally average five categories equally, giving 29.67% for ICL direct control, consistent with 27.62% when averaging all 42 tasks above; SIMPLE's 98.8% does not represent its complete six-task set, and navigation has the previously described rules for retaining better outcomes.
+
+<div align="center">
+  <img src="/images/vla/GPT-6-Astra-JRT-benchmark-overview.webp" width="100%" loading="lazy" decoding="async" alt="GPT-6-Astra success rates across twelve embodied benchmarks" />
+<figcaption>Original Figure 1: overview of 12 benchmarks. Published baselines use standard budgets, so extended-budget results should not be interpreted as rankings at matched elapsed time, cost, or identical observation access.</figcaption>
+</div>
+
+**Paired evidence more directly identifies the contribution of ICL.** On SIMPLE's Common-4 subset of 120 shared instances, standard-budget success increases from 70.8% zero-shot to 90.8% with ICL, a gain of 20.0 percentage points; among the 81 episodes solved in both settings, average action steps fall from 376.9 to 210.4 and test time from 47.0 to 31.4 minutes, while tokens increase from 2.64 million to 6.40 million, in addition to a one-time preparation cost per task. This 120-instance subset differs from the 80-instance Matched-8 set above, so their denominators must remain separate.
+
+**Harness ablations: closed-loop review and adaptation are more useful than simply adding execution modules.** The following values use Figure 7's equal weighting across five categories; tokens count millions of input and output tokens per episode, rather than dollar costs matched across systems.
+
+| Configuration | SR (%) | Tokens (millions) |
+|---|---:|---:|
+| GPT direct-control baseline | 15.56 | 2.560 |
+| Standalone VLA π0.5 | 6.91 | GPT tokens not reported |
+| GPT + VLA open-loop | 5.83 | 0.387 |
+| GPT + VLA closed-loop, per-action review | 23.61 | 7.664 |
+| GPT + VLA closed-loop, four-action review | 25.83 | 2.796 |
+| GPT + ICL | 29.67 | 9.567 |
+| GPT + ICL + VLA closed-loop | 54.17 | 19.335 |
+| GPT with adaptive generated action chunks | 20.00 | 1.146 |
+
+Reviewing four actions at once reduces tokens by 63.5% relative to per-action review while increasing success by 2.22 percentage points; ICL combined with closed-loop collaboration reaches the highest success but consumes about 6.9 times as many tokens as four-action review. In direct control, relative directional commands achieve 18.06% versus 9.72% for joint-angle control, suggesting an interface gap between semantic reasoning and low-level action representations; fixed four-action chunks achieve only 11.39%, showing that longer chunks do not automatically improve outcomes. In the appendix, adding a feedback subagent independently raises baseline SR from 15.56% to 24.72%; history compression raises it to 21.11% while reducing tokens from 2.56 million to approximately 0.86 million.
+
+**High success can still be expensive.** At the standard budget, LIBERO-Long++ averages approximately 1.04 million tokens and 53.1 minutes per episode, while Ultra-Long averages 8.89 million tokens and 110.9 minutes. Extended RoboDojo evaluation averages approximately 38.63 million tokens and 216.6 minutes, excluding ICL preparation; Figure 5 also states that approximately 98% of tokens in the runs are cached inputs, so total tokens cannot simply be priced at the uncached-input rate. Benchmarks differ in their treatment of tool and simulation time, and some token records are incomplete; these figures indicate scale under the report's accounting conventions rather than a strictly uniform ranking of end-to-end latency.
+
+<div align="center">
+  <img src="/images/vla/GPT-6-Astra-JRT-compute-cost.webp" width="100%" loading="lazy" decoding="async" alt="Knowledge-package preparation, standard-budget execution, and extended-interaction costs" />
+<figcaption>Original Figure 5: token and time costs of ICL preparation, standard-budget execution, and additional interaction. Success gains from extra steps should be assessed alongside computation, waiting time, and preparation costs.</figcaption>
+</div>
+
+**Real robots: cross-embodiment feasibility, with remaining gaps in precise contact and long-horizon reliability.** Rigid-object pick-and-place succeeds in 17/18 trials, while plug insertion succeeds in 0/11 across three platforms; AgileX Tracer navigation and search achieve 9/23. On the Tianji dexterous hands, toy grasping succeeds in 0/3 trials with model-written grasp code and 3/3 with human-written grasp scripts, demonstrating the influence of structured priors; Unitree G1 achieves 2/3 in manipulation and 3/3 in locomotion, with its two successful manipulation runs taking approximately 74.5 and 87.8 minutes and API requests accounting for approximately 89%–92% of elapsed time. These small samples establish feasibility more than stable reliability.
+
+**Failure modes: choosing the next step does not guarantee that correct physical states persist.** Examples include treating image overlap between a mug handle and peg as evidence of successful hanging, undoing an earlier placement while adjusting headphones, and being unable to restore a task after spilled liquid even when the cup is righted. The continuously running household prototype reveals three additional problems: focusing on the held object while overlooking displaced items or an open refrigerator, failing to discover unfamiliar mechanisms and plan whole-body positioning, and acting on images that become outdated during deliberation; these are qualitative cases rather than statistically measured failure rates on a new benchmark.
+
+<div align="center">
+  <img src="/images/vla/GPT-6-Astra-JRT-household-failures.webp" width="100%" loading="lazy" decoding="async" alt="Collisions, forgotten obligations, and delayed actions in a continuously running household" />
+<figcaption>Original Figure 12: representative household failures include disturbing objects while tidying, leaving the refrigerator open, obstructing access through poor body positioning, overflowing the sink, and charring an egg through decision and execution delays.</figcaption>
+</div>
+
+---
+
+### 4. Limitations {#gpt-6-astra-jrt-limitations}
+
+Knowledge packages largely depend on task-related demonstrations, and transfer across tasks and embodiments is not systematically validated; observations, interfaces, coverage, budget-extension procedures, and cost accounting vary across benchmarks, without matching inference costs to prior methods, so the results better characterize capability limits than establish uniform system rankings. Most real-robot tasks have few trials, some rely on expert priors and differing success criteria, and the household prototype offers only a few qualitative cases whose physical fidelity, utility scoring, and continuous-time protocol require further validation.
+
+---
+
 # References
 {: id="参考资料"}
 
@@ -2579,6 +2744,8 @@ Repeated executions and editing add substantial inference cost. Parallelism redu
 14. **Agentic Robots** (2026). Towards Agentic Robots: Model, Data, Environment, and Harness. arXiv: [2610.20442](https://arxiv.org/abs/2610.20442) · Code: [chonghanqin/Awesome-Agentic-Robots](https://github.com/chonghanqin/Awesome-Agentic-Robots)
 15. **Harness²** (2026). Harness²: Recursive Agent Harnessing for an Open World. arXiv: [2610.14224](https://arxiv.org/abs/2610.14224) · Code: [google-research/harness2](https://github.com/google-research/harness2) · Project Page: [harness2.github.io](https://harness2.github.io/)
 
+16. **GPT-6-Astra-JRT** (2026). Joint Research Team. Has GPT-6-Astra Achieved Embodied Intelligence? arXiv: [2610.22471](https://arxiv.org/abs/2610.22471) · Project Page: [sensenova.ai](https://sensenova.ai/has-gpt-6-astra-achieved-embodied-intelligence)
+
 <script>
 (function () {
   var TAG_MAP = [
@@ -2597,6 +2764,7 @@ Repeated executions and editing add substantial inference cost. Parallelism redu
     { m: 'RACE', t: ['reinforcement learning', 'Long-horizon tasks', 'Reasoning budget'] },
     { m: 'Agentic Robots', t: ['Survey', 'Harness', 'Closed-loop systems', 'VLA', 'Exception recovery', 'self-evolution', 'Cross-embodiment'] },
     { m: 'Harness²', t: ['Harness', 'Closed-loop systems', 'self-evolution', 'Zero fine-tuning', 'Long-horizon tasks'] },
+    { m: 'GPT-6-Astra-JRT', t: ['Harness', 'Closed-loop systems', 'Fast and slow dual system', 'Real-robot deployment', 'Cross-embodiment', 'Zero fine-tuning', 'Exception recovery', 'Reasoning budget'] },
   ];
 
   var ALL_TAGS = ['Survey', 'Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation', 'Visual memory', 'Reasoning budget', 'Embodied reasoning', 'Data governance'];
