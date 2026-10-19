@@ -5,10 +5,10 @@ translation_id: vla-papers
 permalink: /en/VLA-Papers/
 source_path: _posts/research/2026-10-01-VLA-Papers.md
 source_url: /VLA-Papers/
-source_revision_date: 2026-10-04
-translation_updated: 2026-10-04
+source_revision_date: 2026-10-19
+translation_updated: 2026-10-19
 title: "Vision-Language-Action: Paper Readings"
-date: 2026-10-04
+date: 2026-10-19
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 categories: research
 comments: false
@@ -3467,3 +3467,160 @@ The authors used matched robot data budget comparisons on three real robot tasks
 {: id="局限与启示-4"}
 
 The roughly 20 pre-collected human correction clips and human takeovers during training remain practical costs; “online policy improvement” does not mean learning without human involvement. Success criteria differ across the four tasks, so the average summarizes the authors' experiments rather than a common measure of long-horizon task completion. Bee emphasizes **learning from human corrections**, whereas Real-Time EXPO-FT emphasizes **rapid feedback in dynamic environments**. Their costs should be evaluated using different accounting conventions.
+
+---
+
+## 5.37 ACE-Brain-0.5 (2026)
+{: id="5-37-ace-brain-05-2026"}
+
+From action generation toward a unified framework for perception, planning, execution, and evaluation
+
+📄 **Paper**: [arXiv:2607.04426](https://arxiv.org/abs/2607.04426) · [Project](https://daxiaorobotics.github.io/ACE-Brain-0.5/) · [Official repository](https://github.com/DAXIAORobotics/ACE-Brain-0.5) · [Model weights](https://huggingface.co/ACERobotics/ACE-Brain-0.5-8B)
+
+### Key takeaways
+{: id="精华-17"}
+
+ACE-Brain-0.5 explores how shared embodied representations can support spatial understanding, task planning, action generation, and execution evaluation, including whether behavior is making progress toward a goal.
+The transferable idea behind SSR+ is to train task capabilities separately, merge their parameters, and then calibrate output interfaces with a small amount of mixed fine-tuning to reduce conflicts among coordinate, action, and progress supervision.
+A fast vision pathway supplies the action expert with current observations while reusing semantic context that updates more slowly, providing information at two timescales for reactive manipulation.
+The paper's self-improvement mechanisms include external execution-state updates and navigation retraining with oracle corrections; their update targets and supporting evidence should be distinguished.
+Different experiments use the unified model, a navigation specialist, or separately trained manipulation configurations, so scores must be read alongside the model variant and fine-tuning procedure.
+
+---
+
+### 1. Background and research question
+{: id="1-研究背景问题-15"}
+
+End-to-end policies can predict the next control action, but spatial grounding, long-horizon task decomposition, and failure assessment often reside in separate modules. Tool-orchestrated robot systems can organize these capabilities without necessarily sharing one representation.
+Building on the spatial capabilities of ACE-Brain-0, ACE-Brain-0.5 studies how perception, planning, action, and evaluation can connect to a shared embodied backbone and improve using execution experience.
+It is useful to read this work alongside {% include content-link.html path='/VLA-Papers/' fragment='#525-qwen-vla-2026' label='Qwen-VLA' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-27-harness-vla' label='Harness VLA' %}, and {% include content-link.html path='/VLA-Papers/' fragment='#5-33-tau0-vla-2026' label='τ₀-VLA' %}, comparing their different approaches to task unification, execution feedback, and high-level decisions.
+
+---
+
+### 2. Main method and contributions
+{: id="2-主要方法创新点-15"}
+
+#### Shared semantic backbone and fast action pathway
+{: id="共享语义骨干与快速动作通路"}
+
+<div align="center">
+  <img src="/images/vla/ACE-Brain-0.5-architecture.webp" alt="ACE-Brain-0.5 shared vision-language backbone, fast vision pathway, action expert, and four capability interfaces" width="1278" height="609" style="width: 100%;" loading="lazy" decoding="async" />
+  <figcaption>Overall architecture: spatial, navigation, manipulation, and progress data connect to a shared model. Outputs include spatial grounding, language plans, navigation and manipulation actions, and progress estimates. Source: Figure 2, PDF page 7.</figcaption>
+</div>
+
+The framework combines a shared vision-language backbone, a fast vision encoder, and an action expert. The backbone interprets scenes and instructions, the fast pathway supplies current visual details, and the action expert converts both into continuous control.
+The paper describes its main model using Qwen3-VL-8B-Instruct as initialization and task interfaces for different output types. The manipulation variants require separate interpretation, as discussed below and in Appendix A.2.
+
+**Shared vision-language backbone.** Single images, multiple views, or videos pass through a vision encoder and projection layer to become visual tokens, which enter the LLM decoder alongside instruction tokens. Robot proprioceptive states are optional inputs.
+The resulting shared state supports spatial question answering, grounding, and subgoal generation, and supplies semantic conditioning to the action expert.
+The navigation interface predicts forward, left, right, and stop actions from instructions, observation history, and previous actions. The manipulation interface generates continuous action chunks, using a different output format.
+
+**Fast vision pathway and action expert.** DINOv3 extracts features from the latest multi-view images and sends them directly to a flow-matching action expert, which also reuses cached backbone context.
+The expert progressively transforms noisy actions into executable chunks, avoiding a full LLM pass for every low-level visual update.
+The division is between slower task semantics and current visual details. The paper does not report one end-to-end control frequency for every task, so actual deployment latency cannot be inferred from the architecture alone.
+
+**Progress estimation interface.** Given a task instruction and trajectory images, the model uses its text interface to output frame-wise progress. It can also compare which of two trajectories under the same instruction has made more progress.
+Training uses approximately 505K multi-image samples constructed from RBM-1M, samples 8 frames per sequence, and multiplies normalized progress by 1000 to produce integer targets with fewer repeated decimal tokens.
+
+> **Concrete example:** Progress labels of 0.124, 0.245, and 0.387 become training targets of 124, 245, and 387, then are divided by 1000 for evaluation. These values describe task progress rather than the probability that the current execution will succeed.
+
+#### SSR+: task specialization, parameter merging, and interface calibration
+{: id="ssr分任务学习参数合并与接口再校准"}
+
+Spatial question answering produces text, grounding produces coordinates, navigation produces actions, and progress estimation produces numbers. Directly mixing their training data can create interference.
+SSR+ adds a Reactivate stage to the Scaffold–Specialize–Reconcile recipe from ACE-Brain-0:
+
+1. **Scaffold: establish spatial foundations.** Use the spatial and embodied understanding capabilities of ACE-Brain-0 as shared support.
+2. **Specialize: learn interfaces separately.** Train four specialist groups for spatial question answering and planning, grounding, navigation, and progress estimation to reduce training interference.
+3. **Reconcile: merge task vectors.** Combine parameter changes relative to a common initialization into one parameter space while retaining the spatial scaffold's contribution.
+4. **Reactivate: calibrate output conventions.** Apply a small amount of mixed SFT to restore stable switching among coordinate, action, and progress interfaces.
+
+```mermaid
+flowchart LR
+    B["Common initialization and spatial scaffold"] --> E["Train four task interfaces separately"]
+    E --> M["Merge task vectors"]
+    M --> R["Calibrate interfaces with brief mixed SFT"]
+    R --> U["Shared backbone with multiple outputs"]
+```
+
+**Training objectives.** Text-based interfaces learn target outputs through supervised fine-tuning, while the manipulation expert learns continuous actions through flow matching.
+Parameter merging has a separate layer-wise objective: keep the merged layer's output close to each specialist's output on its task inputs. Equation (4) can be written as:
+
+$$
+\min_{\theta_{m,l}}\sum_{i=1}^{K}\mathbb{E}_{x\sim D_{i,l}}
+\left\lVert (\theta_{i,l}-\theta_{m,l})x\right\rVert_2^2 .
+$$
+
+Here, $l$ denotes a layer, $i$ a task expert, and $x$ that task's input to the layer.
+The paper performs 1000 data-free merging optimization steps through FusionBench, followed by mixed SFT. Data-free refers only to the merging optimization; specialist training and reactivation still require task data.
+The authors interpret reactivation as repairing output conventions disrupted by merging. That explanation alone does not establish lossless merging of every capability; gains and regressions must still be checked per task.
+
+#### Two levels of self-improvement
+{: id="自改进的两个层次"}
+
+The paper uses execution experience in two distinct update processes. They should not both be described as automatic deployment-time model learning.
+
+| Mechanism | Feedback obtained from execution | Update target and evidence |
+|---|---|---|
+| External execution-state updates (§3.3) | Successful experiences, corrected failures, and progress-labeled trajectories | Update task schemas, spatial memory, recovery cases, and other external state; the framework allows updates without retraining, with later model adaptation possible |
+| Navigation Evolving (§4.5) | Policy-induced deviations and oracle-recovered trajectories | Add filtered corrective trajectories to demonstrations and retrain navigation; Table 7 provides a quantitative ablation |
+
+Navigation correction focuses on states encountered after the robot's own policy goes off course. Deviations are detected using goal distance, path consistency, premature stopping, and accumulated local error. An oracle takes over to finish the remaining trajectory, after which samples are filtered by completion and path efficiency.
+These diagnostic metadata construct offline supervision and are not provided to the policy during evaluation. The experiment therefore demonstrates teacher-assisted corrective data expansion, without establishing continuous autonomous improvement in real environments without a teacher.
+
+<div align="center">
+  <img src="/images/vla/ACE-Brain-0.5-navigation-correction.webp" alt="Navigation observations and trajectories before and after corrective retraining" width="892" height="486" style="width: 100%;" loading="lazy" decoding="async" />
+  <figcaption>Navigation correction example: route choices at an intermediate stage before and after self-improvement; Table 7 supplies quantitative evidence. This illustrates policy behavior rather than oracle takeover during evaluation. Source: Figure 4, PDF page 18.</figcaption>
+</div>
+
+---
+
+### 3. Main results and findings
+{: id="3-核心结果发现-10"}
+
+#### Read scores by model variant and training configuration
+{: id="按模型变体和训练设置读成绩"}
+
+The table summarizes different tasks within the paper. Each row evaluates a different capability and does not form a cross-task ranking. Sources: Tables 3–6 and §4.3.
+
+| Model or configuration | Task and result | Conditions that must accompany the score |
+|---|---|---|
+| ACE-Brain-0.5 unified model | R2R Val-Unseen: SR 57.4%, SPL 51.7%; RxR Val-Unseen: SR 63.8%, SPL 47.9% | R2R SR is below RynnBrain-Nav's 58.6% in the same table; RxR SR is the table's highest, but SPL is not |
+| ACE-Brain-0.5-Specialist | R2R: SR 62.2%, SPL 56.2%; RxR: SR 63.6%, SPL 51.1% | Navigation specialist; its R2R scores must not be attributed to the unified model |
+| LIBERO manipulation configuration | Spatial / Object / Goal / Long: 100.0 / 100.0 / 96.0 / 97.0%, average 98.2% | Freeze the backbone and train FastVision plus the action expert; Appendix A.2 separately describes a Qwen3-VL-2B manipulation implementation, requiring checkpoint verification |
+| ACE-Brain-0.5-VLA | SimplerEnv-Bridge average success rate 82.3% | No FastVision; fully fine-tune the VLM and train a flow-matching action head; the authors state that manipulation pretraining weights were not used in this experiment |
+
+The SimplerEnv table uses a maximum inference horizon of 120 steps except for Qwen-VLA-Instruct, and baseline results come from cited publications. These scores should not be inserted into the common-protocol RoboDojo leaderboard or attributed collectively to one 8B checkpoint.
+The authors report improvements over ACE-Brain-0 on 14 of 18 spatial perception and grounding benchmarks. VSI, SparBench, EmbSpatial, and SAT still regress, showing tradeoffs in capability unification.
+
+#### Progress evaluation: detect task regression rather than only final states
+{: id="进度评估识别任务倒退而非只认终态"}
+
+VOC in RBM-EVAL measures the correlation between predicted and ground-truth progress. The unified model obtains **0.94 / 0.96** on standard ID / OOD and **0.80 / 0.88** on Refined splits with reversed successful trajectories; Robometer obtains 0.78 / 0.81 on the latter.
+Refined uses author-selected tasks sensitive to temporal order and adds reversed videos as an extra controlled test. Its scores should not be mixed into the original standard evaluation leaderboard.
+
+<div align="center">
+  <img src="/images/vla/ACE-Brain-0.5-progress-evaluation.webp" alt="Ground-truth progress and model predictions for successful, reversed, and failed trajectories" width="1413" height="726" style="width: 100%;" loading="lazy" decoding="async" />
+  <figcaption>Successful, reversed, and failed progress-estimation examples: ideal progress should decline when a task is reversed or undone, rather than increasing simply with frame index. These are qualitative examples; Table 6 reports aggregate results. Source: Figure 3, PDF page 17.</figcaption>
+</div>
+
+> **Intuition:** Reversing a video of taking a bottle out of a cup leaves the same bottle and cup visible, but turns the action into putting the bottle back. A progress estimator must combine the instruction with temporal order to recognize the direction. Seeing the target object in the final frame is insufficient, and high correlation alone does not establish reliable failure recovery on real robots.
+
+#### Controlled ablation of navigation correction and retraining
+{: id="导航纠错再训练的受控消融"}
+
+| Training configuration (Table 7) | R2R SR / SPL ↑ | RxR SR / SPL ↑ |
+|---|---:|---:|
+| Static Trajectory Imitation | 48.6 / 43.2 | 53.3 / 43.2 |
+| Navigation Evolving | 57.4 / 51.7 | 63.8 / 47.9 |
+
+All values are percentages. Adding oracle-recovered trajectories improves R2R and RxR success rates by **8.8 and 10.5 percentage points**, respectively.
+This ablation supports corrective data expansion as a way to reduce compounding errors after a policy deviates. It does not separately establish benefits from external spatial-memory updates or attribute the entire gain to the progress-estimation head.
+
+---
+
+### 4. Limitations
+{: id="4-局限性-9"}
+
+Task variants, manipulation fine-tuning configurations, and the appendix's 2B implementation require separate interpretation. The results do not establish that one fixed 8B checkpoint retains all capabilities simultaneously in long-horizon real-robot tasks; the interface-calibration explanation for SSR+ also needs more complete stage-wise ablations and cost reporting.
+External-memory updates and oracle-assisted offline retraining have different requirements. As checked on 2026-10-19, the official GitHub root mainly contains README and assets; model weights are linked, but complete reproduction of training, action control, and evaluation remains limited.

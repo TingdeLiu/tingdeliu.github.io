@@ -1,10 +1,10 @@
 {
   "source": "_posts/research/2026-10-01-VLA-Papers.md",
   "translation": "_translations/en/research/VLA-Papers.md",
-  "reviewed_on": "2026-10-04",
-  "source_revision_date": "2026-10-04",
+  "reviewed_on": "2026-10-19",
+  "source_revision_date": "2026-10-19",
   "sections": {
-    "metadata": "8d02d56a0298c11a286726d369021025cd7ed5ad570dd1391e4f0304a0678abb",
+    "metadata": "9b2adc874ea1197d0a75c911c14ff687d343b232344e193ab8a12d4a8674af1f",
     "introduction": "99a94a16d27e9817e61f88eb6d935dc98f799fd60de31f08d16236f75502e433",
     "性能排行榜": "4b59fbd42db37307d6e0e2d722ab5611350d80015a15b1a843d654819ebfa42e",
     "RoboDojo：官方统一评测榜": "0379675808086039da3e658c9ded836e6e5349ab194fdf4e2412ee469e1f09e1",
@@ -205,6 +205,18 @@
     "section:5. 论文精读 / 5.36 Bee (2026) / 研究问题": "950a6709f0bd71f8cdd61a42d6d74d5afe63c1a2c84ad759d43575fd0cc94d59",
     "section:5. 论文精读 / 5.36 Bee (2026) / 核心方法": "d2709c57c574945b6eb1a2c5d712e34dfe7ce55553a76b5c9d650b49340e7718",
     "section:5. 论文精读 / 5.36 Bee (2026) / 实验与证据": "1f0e208892b65c624ff4031b0a5ad540dd84e33a9c332971a4b6d25ae97785e1",
-    "section:5. 论文精读 / 5.36 Bee (2026) / 局限与启示": "dbed1d53e4d1c0bb97e52c2fe27827efda567858f0798943e0456f932295d014"
+    "section:5. 论文精读 / 5.36 Bee (2026) / 局限与启示": "febeffb46b61734cd28b4a491c421d8b3be3d602873cacfaaef36f7c188e31ac",
+    "5.37 ACE-Brain-0.5 (2026)": "eb82c5f2267f3a46702cbf46d0941fdf21894f99dfdf15d3426da7176e05ed60",
+    "section:5. 论文精读 / 5.37 ACE-Brain-0.5 (2026) / 精华": "925efd809f392f9eba15e5d53c5ce3d9c2424f86b105b6d2cefa7756d8405597",
+    "section:5. 论文精读 / 5.37 ACE-Brain-0.5 (2026) / 1. 研究背景/问题": "685e46a9767a72bf9654630e0a597f2860675e3c7eeda6b1dcadd13d978a28ba",
+    "section:5. 论文精读 / 5.37 ACE-Brain-0.5 (2026) / 2. 主要方法/创新点": "0f04ee81a700c6c717661bb6d4a6a29656f6fae189b74ee207e23d4ef1454477",
+    "共享语义骨干与快速动作通路": "cf28f45b15eded415c9a8b9bee8fe3186d765f592617e47c7ccb53e81f686f6a",
+    "SSR+：分任务学习、参数合并与接口再校准": "3818bf0a376daa7786937c5ad5ab56788a3ca48b583d70b9515f5bfbc8778c07",
+    "自改进的两个层次": "c51698239e34e1ec3589b96eea0596feb5d46d399d6574cc35b18b9ffe534093",
+    "section:5. 论文精读 / 5.37 ACE-Brain-0.5 (2026) / 3. 核心结果/发现": "0806531791eb036bada66a936673dbed20a2f29707b9008cff0b42afb328ec70",
+    "按模型变体和训练设置读成绩": "56472dca12abe4877d41510030d0e814408119fc19e9329c3b56c53ef1b7bd90",
+    "进度评估：识别任务倒退，而非只认终态": "040d16e0f180d15b061de478e6066a9ec6bf0acf17e4cd9292e2fb8c21782055",
+    "导航纠错再训练的受控消融": "24ee50a8abf7c794d5b0a629f6fbcf6a0c68af808baef08d99153145f3d1365f",
+    "section:5. 论文精读 / 5.37 ACE-Brain-0.5 (2026) / 4. 局限性": "9f12c945fc67cecca380bcdead928c2a1e0e60599c169d986081df7785c99718"
   }
 }
