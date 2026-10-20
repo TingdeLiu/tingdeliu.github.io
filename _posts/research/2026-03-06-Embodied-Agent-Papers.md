@@ -3,20 +3,20 @@ layout: post
 lang: zh-CN
 translation_id: embodied-agent-papers
 title: "Embodied Agent 论文精读"
-date: 2026-10-19
+date: 2026-10-20
 tags: [Agent, Embodied AI, Robotics, VLA, Deep Learning]
 categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "本文按系统运行时、物理编排、场景图评估、自演化治理、语义动作接口、动作分块、AgentOS、巡检系统治理、导航会话交接、导航工具编排、视觉记忆检视、推理预算分配、统一具身推理、统一分类、递归 Harness 优化与具身能力边界评测十六条路线，收录 Embodied Agent 领域的代表性论文。"
+excerpt: "本文按系统运行时、物理编排、场景图评估、自演化治理、语义动作接口、动作分块、AgentOS、巡检系统治理、导航会话交接、导航工具编排、视觉记忆检视、推理预算分配、统一具身推理、统一分类、递归 Harness 优化、具身能力边界评测与权重—Harness 协同进化十七条路线，收录 Embodied Agent 领域的代表性论文。"
 ---
 
 > 本文是 [AI Agent 综述](/AI-Agent-Survey/) 与底层系统架构指南 [Embodied Agent 综述](/Embodied-Agent-Harness-Survey/) 的配套具身论文精读，系统收录 Embodied Agent（具身智能体）领域的代表性工作与前沿突破。
 
 # 具身智能体论文精读
 
-本文关注一个共同问题：机器人如何把感知、规划、执行、验证和恢复组织成可持续运行的闭环。十六篇论文分别从运行时、编排器、评估器、演化机制、动作接口、训练目标、通用 AgentOS、巡检系统治理、导航会话交接、导航工具编排、视觉记忆检视、推理预算分配、统一具身推理、统一分类、递归 Harness 优化和具身能力边界评测切入，实验覆盖仿真环境、文本交互环境、交互式视觉游戏、真实机器人和软件专业任务；其中 SuperNav 提供简要导读，完整解析链接到 VLN 扩展篇。
+本文关注一个共同问题：机器人如何把感知、规划、执行、验证和恢复组织成可持续运行的闭环。十七篇论文分别从运行时、编排器、评估器、演化机制、动作接口、训练目标、通用 AgentOS、巡检系统治理、导航会话交接、导航工具编排、视觉记忆检视、推理预算分配、统一具身推理、统一分类、递归 Harness 优化、具身能力边界评测和权重—Harness 协同进化切入，实验覆盖仿真环境、文本交互环境、交互式视觉游戏、真实机器人和软件专业任务；其中 SuperNav 提供简要导读，完整解析链接到 VLN 扩展篇，Evo² 的直接证据来自编码与记忆任务，本文将其作为可迁移到具身 Harness 演化的机制参考。
 
 | 论文 | 主要切入点 | 代表性验证 |
 |---|---|---|
@@ -36,6 +36,7 @@ excerpt: "本文按系统运行时、物理编排、场景图评估、自演化�
 | [Agentic Robots](#agentic-robots) | Model、Data、Environment、Harness 四领域与 17 类功能 | 综述归纳；未提出统一新方法实验 |
 | [Harness²](#harness2) | 无标准答案的行为对比、双层递归与改进经验库 | 通用 Agent 方法参考；WorkBuddy-Bench、JobBench、LAB |
 | [GPT-6-Astra-JRT](#gpt-6-astra-jrt) | 冻结知识包、交互预算、快慢协作与持续世界评测 | 12 项仿真基准、8 种真机配置、家庭环境原型 |
+| [Evo²](#evo2) | 权重—Harness 协同进化、双角色 evolver 与跨分支策略复用 | Polyglot、SWE-bench Verified、LiveCodeBench、LoCoMo；无机器人实验 |
 
 下方筛选栏支持多标签组合；同时选中多个标签时，页面只保留同时满足这些标签的论文。
 
@@ -2580,6 +2581,122 @@ graph TD
 
 ---
 
+## 17. Evo² (2026) {#evo2}
+———让「改进智能体的人」与智能体 Harness 一起进化
+
+📄 **Paper**: [arXiv:2610.13025](https://arxiv.org/abs/2610.13025)
+
+**收录说明**：Evo² 的直接实验是编码与记忆任务，并非机器人或具身基准；但它研究的权重—Harness 协同进化、执行反馈归因、跨分支策略复用与轨迹恢复，正对应具身 Agent 长期运行中的 Harness 演化问题。本文将其作为机制参考收录，不把编码基准增益外推为机器人性能。
+
+### 精华
+
+Evo² 的核心不是单独优化模型权重或 Agent Harness，而是让两者形成闭环：更强的模型提出更好的 Harness 修改，而修改后的执行结果又反过来训练模型。它把同一个策略模型分成 Proposer 与 Reflector 两个角色，一个负责改代码，另一个负责根据执行证据诊断、修订或跨分支复用策略。EvoTIDE 通过编辑提取与前缀续写挽救不完整轨迹，再用 SFT 暖启动和双角色交错 GRPO 把 Harness 搜索经验写回模型参数。实验表明，这种「演化执行程序 + 演化演化者」的组合不仅提高编码任务成绩，还能把得到的 Harness 迁移到新基准和记忆任务。更可迁移的启发是：把外部可执行系统当作参数学习的经验生成器，并用固定评测器把每次结构修改转化为可比较的训练信号。
+
+---
+
+### 1. 研究背景/问题
+
+现有自进化智能体通常走两条彼此分离的路线：要么利用自生成经验更新模型权重，要么改写管理 prompt、工具、上下文与控制流的 Agent Harness。前者学到「如何思考」，后者积累「如何组织执行」，但如果两者各自演化，模型无法系统学习哪些 Harness 修改有效，Harness 搜索也无法受益于不断变强的修改者。Evo² 因此研究一个闭环问题：能否让 Harness 的每次编辑、执行结果与失败诊断都成为训练 evolver 的数据，再由更新后的 evolver 驱动下一轮搜索？
+
+---
+
+### 2. 主要方法/创新点
+
+#### 2.1 权重—Harness 协同进化闭环
+
+<div align="center">
+  <img src="/images/agent/Evo2-weight-harness-coevolution.webp" width="1326" height="609" loading="lazy" decoding="async" alt="Evo² 权重与 Agent Harness 协同进化闭环" />
+<figcaption>Evo² 的核心闭环：共享参数的 Proposer–Reflector 改进 Agent Harness，而编辑、轨迹与执行反馈又用于训练更强的 evolver。</figcaption>
+</div>
+
+Evo² 包含三个彼此咬合的部分：**Harness tree** 保存不同版本及其评测记录，**共享参数的双角色 evolver** 负责提出修改和解释修改效果，**EvoTIDE** 则把搜索轨迹转成权重训练数据。任务执行器在协同进化期间保持固定，因此候选分数的变化可以归因于 Harness 修改，而不是执行模型同时变化。
+
+| 维度 | 分离式自进化 | Evo² 协同进化 |
+|---|---|---|
+| 经验落点 | 只进入模型权重，或只留在 Harness 代码中 | 同一批执行经验同时改进 Harness 与 evolver |
+| 修改者能力 | 每轮由同一个未训练模型继续搜索 | Harness 结果用于训练下一轮修改者 |
+| 搜索结构 | 单链或仅保留候选集合 | 树状搜索，并可跨分支迁移有效策略 |
+| 反馈用途 | 用来筛选候选 | 同时监督编辑、诊断与是否继续修改 |
+
+#### 2.2 Proposer–Reflector 双角色 Harness 演化
+
+<div align="center">
+  <img src="/images/agent/Evo2-harness-evolution-pipeline.webp" width="1326" height="837" loading="lazy" decoding="async" alt="Evo² 双角色 Harness 演化与轨迹收集流程" />
+<figcaption>Harness 演化与轨迹收集流程：动态采样父节点，生成并评测修改，再由 Reflector 决定修订、交叉或保留。</figcaption>
+</div>
+
+**Proposer 的输入—处理—输出。** 在 Type A 模式下，它接收父 Harness、历史评测记录和角色 prompt，自主判断最值得修改的机制，输出一组可执行文件编辑，形成初始候选。在 Type B 模式下，它额外接收 Reflector 给出的明确 edit directive，把诊断意见落实为新的代码修改。前者训练「发现改进方向」，后者训练「把反馈可靠地实现出来」。
+
+**Reflector 的输入—处理—输出。** Reflector 接收父子 Harness、编辑 diff、性能变化以及相关成功与失败轨迹，先判断修改试图实现什么，再在三个动作中选择：`revise` 给出局部修订指令，`crossover` 引入其他分支的策略，`keep` 保留当前候选并停止追加编辑。其输出质量不靠语言风格判断，而由 Proposer 执行指令后产生的 Harness 性能决定。
+
+**Crossover searching。** 系统把已评测 Harness 中的有效机制整理成策略库。当前分支出现某类失败时，Reflector 可以选择另一分支的 donor strategy，并说明如何把它移植到当前 recipient；Proposer 再依据当前源码完成适配。新节点仍挂在 recipient 分支下，同时记录 donor 来源，从而避免「直接拼接两份代码」，只迁移经过执行验证的机制。
+
+```mermaid
+graph TD
+    A["从 Harness pool 采样父节点"] --> B["Proposer Type A: 自主编辑"]
+    B --> C["固定 executor 执行并评分"]
+    C --> D{"Reflector 如何处理?"}
+    D -- "revise" --> E["给出局部修订指令"]
+    D -- "crossover" --> F["选择其他分支的有效策略"]
+    D -- "keep" --> G["保留当前候选"]
+    E --> H["Proposer Type B: 落实指令"]
+    F --> H
+    H --> I["再次执行、评分并加入树"]
+    G --> I
+    I --> J["轨迹进入 EvoTIDE 训练"]
+```
+
+这张读者版流程图刻意只保留一次完整循环：先改、再跑、再反思；只有需要修订或交叉时才触发第二次编辑。这样 `keep` 也成为一种可学习的决策——当继续修改大概率无益时，停止本身可以节省评测预算。
+
+#### 2.3 EvoTIDE：从 Harness 经验训练 evolver
+
+每次 `propose → evaluate → reflect → revise` 循环最多产生三类轨迹：自主 Proposer、Reflector，以及按指令修改的 Type B Proposer。EvoTIDE 先从成功轨迹构造混合数据做 SFT 暖启动，再在持续扩展的 Harness tree 上对两种角色交错执行 GRPO，使同一组参数同时学会「提出改动」与「判断改动」。每轮训练冻结一份策略快照来扮演当前训练角色的对手方，轮次结束后再刷新快照，降低双方同时快速变化造成的不稳定。
+
+轨迹恢复解决的是一个很实际的问题：模型可能已经完成若干有效编辑，却在最后一次工具调用中格式出错。**Edit extraction** 会从 reasoning 或 chat 内容中提取可执行修改；**prefix continuation** 则截断到最后一次成功编辑，恢复当时的中间 Harness，并让模型只重新生成失败后缀。
+
+> **举个例子**：一次 rollout 依次产生 3 个编辑，前 2 个已成功应用，第 3 个因为工具格式错误而失败。直接丢弃会让前 2 个有效编辑和对应思路全部浪费；prefix continuation 把 Harness 恢复到「已应用 2 个编辑」的状态，只重写第 3 个编辑。若新后缀通过应用、启动与任务评测检查，这条轨迹就能进入训练集。
+
+#### 2.4 奖励、父节点采样与端到端训练流
+
+两个角色都使用「修改前后任务分数差」作为执行奖励。对 Proposer，从父 Harness $h$ 修改到 $h'$ 的奖励为：
+
+$$
+r_P^{\mathrm{exec}} = \hat V(h') - \hat V(h)
+$$
+
+对 Reflector，则比较执行其指令前后的候选：
+
+$$
+r_R^{\mathrm{exec}} = \hat V(h_1) - \hat V(h_0)
+$$
+
+不可应用、无法启动、无实际变化的编辑会收到负奖励；若 Reflector 建议加入某机制，但执行轨迹没有证据表明该机制真正运行，即使分数偶然上涨也不会得到正向归因。父节点池同时保留多个深度的强候选和一部分较弱候选，并让高分与低分节点获得更多采样机会：强节点用于继续突破，弱节点用于学习修复，根节点则始终保留固定采样份额。
+
+端到端看，一轮数据从父 Harness 出发，经 Type A 编辑、固定 executor 评测、Reflector 诊断、可选 Type B 修订，再进入树和策略库；恢复后的有效轨迹先支持 SFT，随后进入按角色分组的 GRPO。训练后的共享策略进入下一轮搜索，于是「更好的 evolver 造出更好的 Harness，更好的 Harness 经验再训练 evolver」的闭环持续推进。
+
+---
+
+### 3. 核心结果/发现
+
+在 Qwen3.8-27B 上，Evo² 在三个编码基准都得到最强的自进化 Harness：Polyglot 达到 **82.1% Pass@1**，显著高于最强基线 GEA 的 62.6%；SWE-bench Verified 达到 **48.3% Resolved**，高于 HGM 的 41.0%；LiveCodeBench 达到 **58.0% Pass@1**，也超过最强基线的 56.0%。跨基准迁移中，Evo² 在 6 个方向里有 5 个排名第一，说明搜索得到的不只是对训练题目的局部补丁。
+
+权重演化本身也有稳定贡献：与未训练 evolver 相比，EvoTIDE 训练后的 evolver 在 Polyglot、SWE-bench Verified、LoCoMo 和 LongMemEval 上分别带来 **+16.3、+5.0、+9.3、+10.6** 个百分点。即使固定专有模型权重、只使用双角色反思与 crossover，GPT-5-mini 在 60 题 SWE-bench Verified 子集上也从最强基线的 24.4% 提升到 **48.3%**，表明 Harness 搜索本身就能产生显著收益。
+
+<div align="center">
+  <img src="/images/agent/Evo2-accuracy-efficiency.webp" width="584" height="755" loading="lazy" decoding="async" alt="Evo² 在 LiveCodeBench 上的准确率与推理成本对比" />
+<figcaption>LiveCodeBench 准确率与推理成本：Evo² 在更少 completion token 和更少 LLM 调用下取得最高 Pass@1。</figcaption>
+</div>
+
+提升并非来自更大的推理预算。Evo² 的 LiveCodeBench champion 每题平均使用约 3.6K completion token 和 10.2 次 LLM 调用；HGM 与 DGM 成绩更低，却需要约 6.6K–6.9K token 和 26–37 次调用。扩展到记忆任务后，Evo² 在 LoCoMo 达到 **60.4 F1**，其 Harness 无需再次演化即可在 LongMemEval-S 达到 **71.5% accuracy**，继续优于所有基线。
+
+---
+
+### 4. 局限性
+
+Evo² 仍依赖大量真实任务执行来评估每个 Harness 候选，搜索与训练成本可能随任务复杂度和树规模快速增长；同时，固定 executor 虽有利于归因，却不能完全代表 executor 与 Harness 同时变化的部署环境。论文主要在编码与记忆任务上验证，策略库的跨分支复用能否稳定扩展到高风险、强状态依赖的现实智能体仍需进一步检验。
+
+---
+
 # 参考资料
 
 ## 论文引用
@@ -2602,6 +2719,7 @@ graph TD
 15. **Harness²** (2026). Harness²: Recursive Agent Harnessing for an Open World. arXiv: [2610.14224](https://arxiv.org/abs/2610.14224) · Code: [google-research/harness2](https://github.com/google-research/harness2) · Project Page: [harness2.github.io](https://harness2.github.io/)
 
 16. **GPT-6-Astra-JRT** (2026). Joint Research Team. Has GPT-6-Astra Achieved Embodied Intelligence? arXiv: [2610.22471](https://arxiv.org/abs/2610.22471) · Project Page: [sensenova.ai](https://sensenova.ai/has-gpt-6-astra-achieved-embodied-intelligence)
+17. **Evo²** (2026). Evo²: Evolving the Evolver through Weight-Harness Co-Evolution. arXiv: [2610.13025](https://arxiv.org/abs/2610.13025)
 
 <script>
 (function () {
@@ -2622,6 +2740,7 @@ graph TD
     { m: 'Agentic Robots', t: ['综述', 'Harness', '闭环系统', 'VLA', '异常恢复', '自演化', '跨本体'] },
     { m: 'Harness²', t: ['Harness', '闭环系统', '自演化', '零微调', '长程任务'] },
     { m: 'GPT-6-Astra-JRT', t: ['Harness', '闭环系统', '快慢双系统', '实机部署', '跨本体', '零微调', '异常恢复', '推理预算'] },
+    { m: 'Evo²', t: ['Harness', '闭环系统', '自演化', '强化学习', '长程任务', '数据治理'] },
   ];
 
   var ALL_TAGS = ['综述', '闭环系统', 'Harness', 'AgentOS', '具身操作', '场景图', '拓扑图', '实机部署', '快慢双系统', '类型化动作', '空间记忆', '3D语义', '多机协同', 'TAMP', 'VLA', '双重校验', '退出码评估', '自演化', '高频裁判', '跨本体', '主动探索', '零微调', '动作分块', '强化学习', '技能归纳', '长程任务', '异常恢复', '具身导航', '视觉记忆', '推理预算', '具身推理', '数据治理'];

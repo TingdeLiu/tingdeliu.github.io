@@ -1,12 +1,12 @@
 {
   "source": "_posts/research/2026-03-06-Embodied-Agent-Papers.md",
   "translation": "_translations/en/research/Embodied-Agent-Papers.md",
-  "reviewed_on": "2026-10-19",
-  "source_revision_date": "2026-10-19",
+  "reviewed_on": "2026-10-20",
+  "source_revision_date": "2026-10-20",
   "sections": {
-    "metadata": "7e55db86227ac7f865488182b43094870592743e418799b1a3b542079686e139",
+    "metadata": "9faf6449353967640c514742024271095a8837ea5872fdb0a6a9eab3a335d5c1",
     "introduction": "8c17bc1d22a44c667d3673775811d9cf4f0f4d7c5e66bc908245222485388b05",
-    "具身智能体论文精读": "1c098bde90fb2d03dcb49a516da54f9fd193c4ac60f4ce0c40b090647163b91f",
+    "具身智能体论文精读": "4aae660a406a522914d7b100e0cc1ea51198c1bd055bc2ae0c825e4f5ffdc019",
     "paper:holoagent-0 / 1. HoloAgent-0 (2026) {#holoagent-0}": "4cc92a362c7b424cc7a5e880c873144a6dd851bdfdd1e523c749b64861e1580c",
     "paper:holoagent-0 / 精华": "baeffd64d95f90fb8d914888810e60f1190f9f00c85dc8d42d3b83021e7f628f",
     "paper:holoagent-0 / 1. 研究背景/问题": "78636fbb3fb4b211a8ff109e039471dc173ca14b79d9e7250308b620b0f56f92",
@@ -162,7 +162,17 @@
     "paper:gpt-6-astra-jrt / 2. 主要方法/创新点 {#gpt-6-astra-jrt-method}": "6ef71da686a91a9b9c99df9889032d234b2950999f46bad3a67b4743b27a18b9",
     "paper:gpt-6-astra-jrt / 3. 核心结果/发现 {#gpt-6-astra-jrt-results}": "95379426a45a4af535efcae992dbb03583d9d793bf4d79f97a941f58288dafce",
     "paper:gpt-6-astra-jrt / 4. 局限性 {#gpt-6-astra-jrt-limitations}": "3b34b355a2817a9e722860d2e645821602e17e8de9ad4dbd72105ae310feaf62",
+    "paper:evo2 / 17. Evo² (2026) {#evo2}": "eced09bb36ea4c07776e318357e416773be605b30e691d7dc02cba51d0752bfb",
+    "paper:evo2 / 精华": "972533ea714125da081de52cefc7949bb49c049c54f7450b2c804132a68e2aa6",
+    "paper:evo2 / 1. 研究背景/问题": "f320512f0ec0525112f0bf62edbef8ac90032f530c31b38116fd2d4e49eb646c",
+    "paper:evo2 / 2. 主要方法/创新点": "0f04ee81a700c6c717661bb6d4a6a29656f6fae189b74ee207e23d4ef1454477",
+    "paper:evo2 / 2.1 权重—Harness 协同进化闭环": "7c9ba1b7a07f44271689a98c24eb661302a6b9540519e98cc5676333640edda1",
+    "paper:evo2 / 2.2 Proposer–Reflector 双角色 Harness 演化": "79a1dff6346802d66586b27d42ca274241a71843907058b6d2e479abd978f33b",
+    "paper:evo2 / 2.3 EvoTIDE：从 Harness 经验训练 evolver": "d404e9f37b25ebf39f245203237901057578a6a05a9da1471a8a9497d186b1ac",
+    "paper:evo2 / 2.4 奖励、父节点采样与端到端训练流": "fa0e475cd699ecb38824f6ef101800b680eecaf5492ff49392fee1f9c0ece51e",
+    "paper:evo2 / 3. 核心结果/发现": "b375e176a9b629a07600b520477e830438faaa5a42b6759b9df498a33705849d",
+    "paper:evo2 / 4. 局限性": "b6a6453b1e7c7ff5adb1fe1b01d3d2555c86b9a5d631c090914ca5fca78561db",
     "参考资料": "9b02b96398a0ecec9519f4402648095347400e58028bcf57f57e2194eee8f5e6",
-    "论文引用": "bb6025a77ebddf4b515db0a8102890199bbc56331f8e428ea68dc6285ed6402f"
+    "论文引用": "66f5790703c8c90b26de8e0c142858138d98034a7f648e6b994fd6d348e5bab3"
   }
 }

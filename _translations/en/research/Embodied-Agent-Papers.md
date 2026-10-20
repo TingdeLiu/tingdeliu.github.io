@@ -5,16 +5,16 @@ translation_id: embodied-agent-papers
 permalink: /en/Embodied-Agent-Papers/
 source_path: _posts/research/2026-03-06-Embodied-Agent-Papers.md
 source_url: /Embodied-Agent-Papers/
-source_revision_date: 2026-10-19
-translation_updated: 2026-10-19
+source_revision_date: 2026-10-20
+translation_updated: 2026-10-20
 title: "Embodied Agents: Paper Readings"
-date: 2026-10-19
+date: 2026-10-20
 tags: [Agent, Embodied AI, Robotics, VLA, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "Sixteen paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, and evaluation of embodied capabilities."
+excerpt: "Seventeen paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, and weight-harness co-evolution."
 ---
 
 
@@ -23,7 +23,7 @@ excerpt: "Sixteen paper entries on embodied runtimes, physical orchestration, sc
 # Embodied Agents: Paper Readings
 {: id="具身智能体论文精读"}
 
-This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed-loop that can sustainably operate. The sixteen papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, and evaluation of embodied capabilities. The experiments cover simulation environments, text-interaction environments, interactive visual games, real robots, and professional software tasks. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection.
+This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed loop that can operate sustainably. The seventeen papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, and weight-harness co-evolution. The experiments cover simulation environments, text-interaction environments, interactive visual games, real robots, and professional software tasks. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection. Evo² is evaluated directly on coding and memory tasks, so this article treats it as a mechanism that may transfer to embodied-harness evolution rather than as evidence of robot performance.
 
 |Paper|Main entry points|representative verification|
 |---|---|---|
@@ -43,6 +43,7 @@ This article focuses on a common problem: how robots organize perception, planni
 | [Agentic Robots](#agentic-robots) | Four domains—Model, Data, Environment, and Harness—and 17 functional categories | Survey synthesis; no new method evaluated in a unified experiment |
 | [Harness²](#harness2) | Behavioral contrasts without answer keys, two-level recursion, and an improvement library | General-agent method reference; WorkBuddy-Bench, JobBench, LAB |
 | [GPT-6-Astra-JRT](#gpt-6-astra-jrt) | Frozen knowledge packages, interaction budgets, fast-slow collaboration, and continuous-world evaluation | 12 simulation benchmarks, 8 real-robot configurations, and a household prototype |
+| [Evo²](#evo2) | Weight-harness co-evolution, a dual-role evolver, and cross-branch strategy reuse | Polyglot, SWE-bench Verified, LiveCodeBench, and LoCoMo; no robot evaluation |
 
 The filter bar below supports multiple tag combinations; when multiple tags are selected at the same time, the page will only retain papers that meet these tags.
 
@@ -2721,6 +2722,128 @@ Knowledge packages largely depend on task-related demonstrations, and transfer a
 
 ---
 
+## 17. Evo² (2026)
+{: id="evo2"}
+———Co-evolving the agent harness and the model that improves it
+
+📄 **Paper**: [arXiv:2610.13025](https://arxiv.org/abs/2610.13025)
+
+**Why it is included**: Evo² is evaluated directly on coding and memory tasks rather than on robots or embodied benchmarks. Its weight-harness co-evolution, execution-based attribution, cross-branch strategy reuse, and trajectory recovery nevertheless address mechanisms that embodied agents need for long-running harness evolution. This entry treats those mechanisms as transferable research ideas and does not extrapolate coding-benchmark gains into robot performance.
+
+### Highlights
+{: id="evo2-highlights"}
+
+Evo² does not optimize model weights and the agent harness as separate artifacts; it turns them into a feedback loop in which better models produce stronger harness edits and evaluated edits become training data for the model. A single shared policy plays two roles: the Proposer writes executable changes, while the Reflector diagnoses their effects and recommends revision, crossover, or retention. EvoTIDE recovers useful data from incomplete edit trajectories, warm-starts the policy with SFT, and then interleaves GRPO updates across both roles. The resulting harnesses improve coding and memory tasks, transfer across benchmarks, and can also improve proprietary models whose weights remain fixed. The broader lesson is to treat an executable system as an experience generator whose structural changes can supervise the policy responsible for future changes.
+
+---
+
+### 1. Background / Problem
+{: id="evo2-background"}
+
+Self-evolving agents usually follow one of two paths: update model weights from self-generated experience, or rewrite the agent harness that controls prompts, tools, context, and execution flow. The former improves the model's problem-solving behavior, while the latter accumulates improvements in executable code, but separating them prevents the model from learning systematically which harness changes work. Evo² asks whether every edit, execution result, and failure diagnosis can train a stronger evolver that drives the next round of harness search.
+
+---
+
+### 2. Main Method / Contributions
+{: id="evo2-method"}
+
+#### 2.1 The weight-harness co-evolution loop
+
+<div align="center">
+  <img src="/images/agent/Evo2-weight-harness-coevolution.webp" width="1326" height="609" loading="lazy" decoding="async" alt="The Evo² weight-harness co-evolution loop" />
+<figcaption>The Evo² feedback loop: a shared Proposer-Reflector policy improves the agent harness, while edits, trajectories, and execution feedback train a stronger evolver.</figcaption>
+</div>
+
+Evo² combines three coupled components. A **harness tree** stores program variants and their evaluation records; a **shared dual-role evolver** proposes changes and interprets their outcomes; and **EvoTIDE** converts search trajectories into weight-training data. The task executor stays fixed during co-evolution, so changes in candidate performance can be attributed to the harness rather than to a simultaneously changing execution model.
+
+| Dimension | Separate self-evolution | Evo² co-evolution |
+|---|---|---|
+| Where experience accumulates | Model weights or harness code | Both the harness and the evolver |
+| Capability of the editor | The same untrained model continues searching | Search outcomes train the next editor |
+| Search structure | A single lineage or candidate archive | A tree with strategy transfer across branches |
+| Role of feedback | Candidate selection | Editing, diagnosis, and stop decisions |
+
+#### 2.2 Dual-role harness evolution
+
+<div align="center">
+  <img src="/images/agent/Evo2-harness-evolution-pipeline.webp" width="1326" height="837" loading="lazy" decoding="async" alt="The Evo² dual-role harness-evolution and trajectory-collection pipeline" />
+<figcaption>Harness evolution and trajectory collection: a sampled parent is edited and evaluated before the Reflector chooses revision, crossover, or retention.</figcaption>
+</div>
+
+**Proposer: input, transformation, output.** In Type A mode, the Proposer receives a parent harness, its evaluation history, and a role prompt. It independently selects a mechanism to improve and emits executable file edits that create an initial candidate. In Type B mode, it also receives a concrete edit directive from the Reflector and turns that diagnosis into code. Type A learns to discover improvements; Type B learns to implement feedback reliably.
+
+**Reflector: input, transformation, output.** The Reflector receives the parent and child harnesses, their edit diff, the performance change, and relevant success and failure traces. It infers what strategy the edit attempted and chooses one of three actions: `revise` provides a local correction, `crossover` imports a strategy from another branch, and `keep` retains the candidate without further editing. The quality of a directive is measured by the performance of the harness produced after the Proposer executes it, rather than by the apparent quality of the text itself.
+
+**Crossover searching.** The system extracts mechanisms and observed effects from evaluated harnesses into a strategy library. When the current branch exhibits a weakness, the Reflector can select a donor strategy from another branch and explain how to adapt it to the current recipient. The Type B Proposer performs the source-level integration. The resulting node remains a child of the recipient and records the donor strategy, so Evo² transfers an evaluated mechanism instead of blindly merging two codebases.
+
+```mermaid
+graph TD
+    A["Sample a parent from the harness pool"] --> B["Proposer Type A: autonomous edit"]
+    B --> C["Run and score with a fixed executor"]
+    C --> D{"Reflector decision"}
+    D -- "revise" --> E["Issue a local edit directive"]
+    D -- "crossover" --> F["Select a strategy from another branch"]
+    D -- "keep" --> G["Retain the current candidate"]
+    E --> H["Proposer Type B: implement directive"]
+    F --> H
+    H --> I["Run, score, and extend the tree"]
+    G --> I
+    I --> J["Send trajectories to EvoTIDE"]
+```
+
+This simplified view shows one complete loop: edit, execute, and reflect. A second edit occurs only after revision or crossover. `keep` is therefore also a learned action: stopping when another edit is unlikely to help saves evaluation budget.
+
+#### 2.3 EvoTIDE: learning from harness evolution
+
+One `propose → evaluate → reflect → revise` cycle can produce three trajectory types: an autonomous Proposer trajectory, a Reflector trajectory, and a directed Type B Proposer trajectory. EvoTIDE first builds a balanced mixture of successful examples for SFT and then performs interleaved GRPO over both roles as the harness tree grows. At each training round, it freezes a policy snapshot to provide counterpart behavior for the role being optimized; the snapshot is refreshed after the round, reducing instability from both roles changing at once.
+
+Trajectory recovery addresses a common systems failure: a rollout may contain several valid edits but end with a malformed tool action. **Edit extraction** recovers concrete changes mentioned in reasoning or chat messages. **Prefix continuation** truncates the rollout after its last successful edit, restores the corresponding intermediate harness, and regenerates only the failed suffix.
+
+> **Minimal example**: suppose a rollout produces three edits. The first two apply successfully, but the third uses an invalid tool format. Discarding the rollout would waste both valid edits. Prefix continuation restores the harness after Edit 2 and regenerates Edit 3; if the new suffix passes application, startup, and task-evaluation checks, the recovered trajectory becomes training data.
+
+#### 2.4 Rewards, parent sampling, and end-to-end flow
+
+Both roles receive execution rewards based on the task-score change caused by their decision. For a Proposer edit from parent harness $h$ to $h'$:
+
+$$
+r_P^{\mathrm{exec}} = \hat V(h') - \hat V(h)
+$$
+
+For a Reflector intervention that changes candidate $h_0$ into $h_1$:
+
+$$
+r_R^{\mathrm{exec}} = \hat V(h_1) - \hat V(h_0)
+$$
+
+Malformed, non-executable, or no-op edits receive negative rewards. A Reflector is credited for adding a mechanism only when execution traces show that the mechanism actually ran, which reduces accidental reward assignment. The bounded parent pool retains candidates from several tree depths, including strong harnesses that may improve further and weaker harnesses that teach repair behavior, while reserving a fixed sampling share for the root.
+
+End to end, a parent harness undergoes a Type A edit, fixed-executor evaluation, Reflector diagnosis, and an optional Type B revision. The evaluated candidate enters the tree and strategy library; recovered trajectories support SFT and then role-grouped GRPO. The updated shared policy drives the next search round, closing the loop between better evolvers and better harnesses.
+
+---
+
+### 3. Key Results / Findings
+{: id="evo2-results"}
+
+With Qwen3.8-27B, Evo² produces the strongest self-evolved harness on all three coding benchmarks. It reaches **82.1% Pass@1** on Polyglot versus 62.6% for the strongest baseline, **48.3% Resolved** on SWE-bench Verified versus 41.0%, and **58.0% Pass@1** on LiveCodeBench versus 56.0%. In cross-benchmark evaluation, Evo² ranks first in five of six transfer directions, indicating that the learned harnesses contain reusable mechanisms rather than benchmark-specific patches.
+
+Weight evolution contributes consistently. Compared with the untrained evolver, EvoTIDE adds **+16.3, +5.0, +9.3, and +10.6** percentage points on Polyglot, SWE-bench Verified, LoCoMo, and LongMemEval, respectively. Even when proprietary-model weights stay fixed, dual-role reflection and crossover raise GPT-5-mini to **48.3%** on a 60-task SWE-bench Verified subset, compared with 24.4% for the strongest baseline.
+
+<div align="center">
+  <img src="/images/agent/Evo2-accuracy-efficiency.webp" width="584" height="755" loading="lazy" decoding="async" alt="Evo² LiveCodeBench accuracy versus inference cost" />
+<figcaption>LiveCodeBench accuracy versus inference cost: Evo² obtains the highest Pass@1 while using fewer completion tokens and fewer LLM calls.</figcaption>
+</div>
+
+The gain is not explained by a larger inference budget. The Evo² LiveCodeBench champion uses about 3.6K completion tokens and 10.2 LLM calls per task; HGM and DGM score lower while consuming about 6.6K-6.9K tokens and 26-37 calls. Beyond coding, Evo² reaches **60.4 F1** on LoCoMo, and the same harness transfers to LongMemEval-S without further evolution, achieving **71.5% accuracy**.
+
+---
+
+### 4. Limitations
+{: id="evo2-limitations"}
+
+Evo² still requires many real task executions to evaluate harness candidates, so search and training costs can grow quickly with task complexity and tree size. Keeping the executor fixed improves causal attribution but does not fully represent deployments where the executor and harness change together, and the evidence is currently concentrated on coding and memory tasks rather than high-risk, strongly stateful real-world agents.
+
+---
+
 # References
 {: id="参考资料"}
 
@@ -2745,6 +2868,7 @@ Knowledge packages largely depend on task-related demonstrations, and transfer a
 15. **Harness²** (2026). Harness²: Recursive Agent Harnessing for an Open World. arXiv: [2610.14224](https://arxiv.org/abs/2610.14224) · Code: [google-research/harness2](https://github.com/google-research/harness2) · Project Page: [harness2.github.io](https://harness2.github.io/)
 
 16. **GPT-6-Astra-JRT** (2026). Joint Research Team. Has GPT-6-Astra Achieved Embodied Intelligence? arXiv: [2610.22471](https://arxiv.org/abs/2610.22471) · Project Page: [sensenova.ai](https://sensenova.ai/has-gpt-6-astra-achieved-embodied-intelligence)
+17. **Evo²** (2026). Evo²: Evolving the Evolver through Weight-Harness Co-Evolution. arXiv: [2610.13025](https://arxiv.org/abs/2610.13025)
 
 <script>
 (function () {
@@ -2765,6 +2889,7 @@ Knowledge packages largely depend on task-related demonstrations, and transfer a
     { m: 'Agentic Robots', t: ['Survey', 'Harness', 'Closed-loop systems', 'VLA', 'Exception recovery', 'self-evolution', 'Cross-embodiment'] },
     { m: 'Harness²', t: ['Harness', 'Closed-loop systems', 'self-evolution', 'Zero fine-tuning', 'Long-horizon tasks'] },
     { m: 'GPT-6-Astra-JRT', t: ['Harness', 'Closed-loop systems', 'Fast and slow dual system', 'Real-robot deployment', 'Cross-embodiment', 'Zero fine-tuning', 'Exception recovery', 'Reasoning budget'] },
+    { m: 'Evo²', t: ['Harness', 'Closed-loop systems', 'self-evolution', 'reinforcement learning', 'Long-horizon tasks', 'Data governance'] },
   ];
 
   var ALL_TAGS = ['Survey', 'Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation', 'Visual memory', 'Reasoning budget', 'Embodied reasoning', 'Data governance'];
