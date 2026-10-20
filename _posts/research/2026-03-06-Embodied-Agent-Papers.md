@@ -2589,20 +2589,24 @@ graph TD
 **收录说明**：Evo² 的直接实验是编码与记忆任务，并非机器人或具身基准；但它研究的权重—Harness 协同进化、执行反馈归因、跨分支策略复用与轨迹恢复，正对应具身 Agent 长期运行中的 Harness 演化问题。本文将其作为机制参考收录，不把编码基准增益外推为机器人性能。
 
 ### 精华
+{: id="evo2-highlights"}
 
 Evo² 的核心不是单独优化模型权重或 Agent Harness，而是让两者形成闭环：更强的模型提出更好的 Harness 修改，而修改后的执行结果又反过来训练模型。它把同一个策略模型分成 Proposer 与 Reflector 两个角色，一个负责改代码，另一个负责根据执行证据诊断、修订或跨分支复用策略。EvoTIDE 通过编辑提取与前缀续写挽救不完整轨迹，再用 SFT 暖启动和双角色交错 GRPO 把 Harness 搜索经验写回模型参数。实验表明，这种「演化执行程序 + 演化演化者」的组合不仅提高编码任务成绩，还能把得到的 Harness 迁移到新基准和记忆任务。更可迁移的启发是：把外部可执行系统当作参数学习的经验生成器，并用固定评测器把每次结构修改转化为可比较的训练信号。
 
 ---
 
 ### 1. 研究背景/问题
+{: id="evo2-background"}
 
 现有自进化智能体通常走两条彼此分离的路线：要么利用自生成经验更新模型权重，要么改写管理 prompt、工具、上下文与控制流的 Agent Harness。前者学到「如何思考」，后者积累「如何组织执行」，但如果两者各自演化，模型无法系统学习哪些 Harness 修改有效，Harness 搜索也无法受益于不断变强的修改者。Evo² 因此研究一个闭环问题：能否让 Harness 的每次编辑、执行结果与失败诊断都成为训练 evolver 的数据，再由更新后的 evolver 驱动下一轮搜索？
 
 ---
 
 ### 2. 主要方法/创新点
+{: id="evo2-method"}
 
 #### 2.1 权重—Harness 协同进化闭环
+{: id="evo2-coevolution-loop"}
 
 <div align="center">
   <img src="/images/agent/Evo2-weight-harness-coevolution.webp" width="1326" height="609" loading="lazy" decoding="async" alt="Evo² 权重与 Agent Harness 协同进化闭环" />
@@ -2619,6 +2623,7 @@ Evo² 包含三个彼此咬合的部分：**Harness tree** 保存不同版本及
 | 反馈用途 | 用来筛选候选 | 同时监督编辑、诊断与是否继续修改 |
 
 #### 2.2 Proposer–Reflector 双角色 Harness 演化
+{: id="evo2-dual-role-evolution"}
 
 <div align="center">
   <img src="/images/agent/Evo2-harness-evolution-pipeline.webp" width="1326" height="837" loading="lazy" decoding="async" alt="Evo² 双角色 Harness 演化与轨迹收集流程" />
@@ -2649,6 +2654,7 @@ graph TD
 这张读者版流程图刻意只保留一次完整循环：先改、再跑、再反思；只有需要修订或交叉时才触发第二次编辑。这样 `keep` 也成为一种可学习的决策——当继续修改大概率无益时，停止本身可以节省评测预算。
 
 #### 2.3 EvoTIDE：从 Harness 经验训练 evolver
+{: id="evo2-evotide"}
 
 每次 `propose → evaluate → reflect → revise` 循环最多产生三类轨迹：自主 Proposer、Reflector，以及按指令修改的 Type B Proposer。EvoTIDE 先从成功轨迹构造混合数据做 SFT 暖启动，再在持续扩展的 Harness tree 上对两种角色交错执行 GRPO，使同一组参数同时学会「提出改动」与「判断改动」。每轮训练冻结一份策略快照来扮演当前训练角色的对手方，轮次结束后再刷新快照，降低双方同时快速变化造成的不稳定。
 
@@ -2657,6 +2663,7 @@ graph TD
 > **举个例子**：一次 rollout 依次产生 3 个编辑，前 2 个已成功应用，第 3 个因为工具格式错误而失败。直接丢弃会让前 2 个有效编辑和对应思路全部浪费；prefix continuation 把 Harness 恢复到「已应用 2 个编辑」的状态，只重写第 3 个编辑。若新后缀通过应用、启动与任务评测检查，这条轨迹就能进入训练集。
 
 #### 2.4 奖励、父节点采样与端到端训练流
+{: id="evo2-training-flow"}
 
 两个角色都使用「修改前后任务分数差」作为执行奖励。对 Proposer，从父 Harness $h$ 修改到 $h'$ 的奖励为：
 
@@ -2677,6 +2684,7 @@ $$
 ---
 
 ### 3. 核心结果/发现
+{: id="evo2-results"}
 
 在 Qwen3.8-27B 上，Evo² 在三个编码基准都得到最强的自进化 Harness：Polyglot 达到 **82.1% Pass@1**，显著高于最强基线 GEA 的 62.6%；SWE-bench Verified 达到 **48.3% Resolved**，高于 HGM 的 41.0%；LiveCodeBench 达到 **58.0% Pass@1**，也超过最强基线的 56.0%。跨基准迁移中，Evo² 在 6 个方向里有 5 个排名第一，说明搜索得到的不只是对训练题目的局部补丁。
 
@@ -2692,6 +2700,7 @@ $$
 ---
 
 ### 4. 局限性
+{: id="evo2-limitations"}
 
 Evo² 仍依赖大量真实任务执行来评估每个 Harness 候选，搜索与训练成本可能随任务复杂度和树规模快速增长；同时，固定 executor 虽有利于归因，却不能完全代表 executor 与 Harness 同时变化的部署环境。论文主要在编码与记忆任务上验证，策略库的跨分支复用能否稳定扩展到高风险、强状态依赖的现实智能体仍需进一步检验。
 

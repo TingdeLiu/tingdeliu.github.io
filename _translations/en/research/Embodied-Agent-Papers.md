@@ -2748,6 +2748,7 @@ Self-evolving agents usually follow one of two paths: update model weights from 
 {: id="evo2-method"}
 
 #### 2.1 The weight-harness co-evolution loop
+{: id="evo2-coevolution-loop"}
 
 <div align="center">
   <img src="/images/agent/Evo2-weight-harness-coevolution.webp" width="1326" height="609" loading="lazy" decoding="async" alt="The Evo² weight-harness co-evolution loop" />
@@ -2764,6 +2765,7 @@ Evo² combines three coupled components. A **harness tree** stores program varia
 | Role of feedback | Candidate selection | Editing, diagnosis, and stop decisions |
 
 #### 2.2 Dual-role harness evolution
+{: id="evo2-dual-role-evolution"}
 
 <div align="center">
   <img src="/images/agent/Evo2-harness-evolution-pipeline.webp" width="1326" height="837" loading="lazy" decoding="async" alt="The Evo² dual-role harness-evolution and trajectory-collection pipeline" />
@@ -2794,6 +2796,7 @@ graph TD
 This simplified view shows one complete loop: edit, execute, and reflect. A second edit occurs only after revision or crossover. `keep` is therefore also a learned action: stopping when another edit is unlikely to help saves evaluation budget.
 
 #### 2.3 EvoTIDE: learning from harness evolution
+{: id="evo2-evotide"}
 
 One `propose → evaluate → reflect → revise` cycle can produce three trajectory types: an autonomous Proposer trajectory, a Reflector trajectory, and a directed Type B Proposer trajectory. EvoTIDE first builds a balanced mixture of successful examples for SFT and then performs interleaved GRPO over both roles as the harness tree grows. At each training round, it freezes a policy snapshot to provide counterpart behavior for the role being optimized; the snapshot is refreshed after the round, reducing instability from both roles changing at once.
 
@@ -2802,6 +2805,7 @@ Trajectory recovery addresses a common systems failure: a rollout may contain se
 > **Minimal example**: suppose a rollout produces three edits. The first two apply successfully, but the third uses an invalid tool format. Discarding the rollout would waste both valid edits. Prefix continuation restores the harness after Edit 2 and regenerates Edit 3; if the new suffix passes application, startup, and task-evaluation checks, the recovered trajectory becomes training data.
 
 #### 2.4 Rewards, parent sampling, and end-to-end flow
+{: id="evo2-training-flow"}
 
 Both roles receive execution rewards based on the task-score change caused by their decision. For a Proposer edit from parent harness $h$ to $h'$:
 
@@ -2809,7 +2813,7 @@ $$
 r_P^{\mathrm{exec}} = \hat V(h') - \hat V(h)
 $$
 
-For a Reflector intervention that changes candidate $h_0$ into $h_1$:
+For a Reflector intervention that changes candidate `h_0` into `h_1`:
 
 $$
 r_R^{\mathrm{exec}} = \hat V(h_1) - \hat V(h_0)
