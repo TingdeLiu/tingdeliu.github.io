@@ -6,7 +6,7 @@ permalink: /en/VLN-Papers/
 source_path: _posts/research/2026-01-05-VLN-Papers.md
 source_url: /VLN-Papers/
 source_revision_date: 2026-10-05
-translation_updated: 2026-10-10
+translation_updated: 2026-10-20
 title: "VLN Papers: Instruction Following"
 date: 2026-10-05
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
@@ -27,7 +27,7 @@ excerpt: "57 detailed readings on instruction-following VLN, with benchmark lead
 # Performance leaderboards
 {: id="性能排行榜"}
 
-> ⚠️ **Do not compare scores across different benchmarks.** This page groups instruction-following results by benchmark: ① R2R-CE and ② RxR-CE use continuous environments with step-by-step first-person control; ③ R2R / REVERIE use panoramic decisions on discrete navigation graphs. Task definitions and sensor configurations differ, so SR is not comparable across these tables. ObjectNav, HM3D-OVON, image-goal, and point-goal results are in the extended collection's [goal-navigation leaderboards](/en/VLN-Papers-Extended/#goal-nav-leaderboard).
+> ⚠️ **Do not compare scores across different benchmarks.** This page groups instruction-following results by benchmark: ① R2R-CE and ② RxR-CE use continuous environments with step-by-step first-person control; ③ R2R / REVERIE use panoramic decisions on discrete navigation graphs; ④ LHPR-VLN evaluates long-horizon multi-stage instruction following in continuous environments. Task definitions and sensor configurations differ, so SR is not comparable across these tables. ObjectNav, HM3D-OVON, image-goal, and point-goal results are in the extended collection's [goal-navigation leaderboards](/en/VLN-Papers-Extended/#goal-nav-leaderboard).
 >
 > **Reading the tables:** **Trained** means trained or fine-tuned on navigation data, including navigation foundation models evaluated through cross-task zero-shot transfer. **Training-free** means no navigation model is trained: the system combines existing large models, detection or segmentation models, and rules or planners. Calling a pretrained low-level point-goal controller does not change this classification. Gray rows use nonstandard protocols, such as validation subsets, and are excluded from best-value bolding. Bold values are the best among non-gray rows within the same benchmark. The filters select paradigm, input configuration, and open-source availability, and can hide gray rows.
 
@@ -164,6 +164,71 @@ Discrete navigation graph · panoramic observation; residential (ID) / non-resid
 |[DUET (panoramic)](#duet)|2022|REVERIE (Test-Unseen)|Trained|–|52.51|36.06|–|56.91|[YES](https://github.com/cshizhe/VLN-DUET)|
 
 Note: VLN-Imagine is the R2R val-unseen result of DUET-Imagine (DUET baseline 71.52 / 60.41). GSA-R2R distinguishes between residential (ID, Test-R-Basic) and non-residential (OOD, Test-N-Basic) scenarios, and Slow4fast-VLN improves performance relative to GR-DUET. The REVERIE benchmark uses additional RGS/RGSPL indicators: R³ is 53.76/42.14/37.94/29.86 (SR/SPL/RGS/RGSPL), and the Uncertainty-Aware Gaussian Map has an RGS/RGSPL of 37.65/27.01. The continuous environment version REVERIE-CE currently only reports Image2Nav (180° FOV): SR 53.7 / SPL 42.7 / NE 5.08 / OSR 59.5 (val-unseen). The action space is different from discrete REVERIE and is not incorporated into this table.
+
+## ④ LHPR-VLN · Long-horizon multi-stage navigation
+
+Continuous environments · Habitat 3 / HM3D · multi-view RGB (forward and ±60°) · 2–4 sequential subtasks
+
+**LH-VLN** names the task; **LHPR-VLN** (Long-Horizon Planning and Reasoning in VLN) is its benchmark. Generated with NavGen, it contains 3,260 tasks across 216 scenes, averaging 150.95 action steps. Sources: [paper (CVPR 2025)](https://arxiv.org/abs/2412.09082) · [project and code](https://github.com/HCPLab-SYSU/LH-VLN).
+
+### Original paper baselines
+
+The table reproduces the multi-stage results from [v3 Table 2](https://arxiv.org/html/2412.09082v3#S5.T2), preserving its “2–3 / 3–4 Subtasks” groups. Within each group, rows are ordered by descending CGT, then ascending NE. SR requires completing every subtask in the instructed order; ISR measures independent subtask success, CSR accounts for dependencies between successive successes, and CGT adds ground-truth path-length weighting to CSR. Success metrics retain the paper's percentages; NE is in meters. Subtask success does not imply full-task success.
+
+| Model | Benchmark | Paradigm | Adaptation | SR ↑ | NE ↓ | ISR ↑ | CSR ↑ | CGT ↑ | Open |
+|:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
+| [MGDM (multi-view)](https://github.com/HCPLab-SYSU/LH-VLN) | LHPR-VLN (2–3 Subtasks) | Trained | Finetuned | 0.0 | **3.54** | 0.0 | 0.0 | 0.0 | [Yes](https://github.com/HCPLab-SYSU/LH-VLN) |
+| NaviLLM (multi-view) | LHPR-VLN (2–3 Subtasks) | Trained | Pretrain | 0.0 | 12.11 | 0.0 | 0.0 | 0.0 | – |
+| GPT-4 + NaviLLM (multi-view) | LHPR-VLN (2–3 Subtasks) | Trained | Pretrain | 0.0 | 12.23 | 0.0 | 0.0 | 0.0 | – |
+| NaviLLM (multi-view) | LHPR-VLN (2–3 Subtasks) | Trained | Finetuned | 0.0 | 12.24 | 0.0 | 0.0 | 0.0 | – |
+| Random | LHPR-VLN (2–3 Subtasks) | – | – | 0.0 | 14.09 | 0.0 | 0.0 | 0.0 | – |
+| GLM-4v prompt (multi-view) | LHPR-VLN (2–3 Subtasks) | Training-free | Zero-shot | 0.0 | 15.63 | 0.0 | 0.0 | 0.0 | – |
+| [MGDM (multi-view)](https://github.com/HCPLab-SYSU/LH-VLN) | LHPR-VLN (3–4 Subtasks) | Trained | Finetuned | 0.0 | **1.23** | 4.69 | 3.30 | 5.83 | [Yes](https://github.com/HCPLab-SYSU/LH-VLN) |
+| NaviLLM (multi-view) | LHPR-VLN (3–4 Subtasks) | Trained | Finetuned | 0.0 | 9.79 | 3.54 | 2.53 | 5.24 | – |
+| GPT-4 + NaviLLM (multi-view) | LHPR-VLN (3–4 Subtasks) | Trained | Pretrain | 0.0 | 10.00 | 4.37 | 2.91 | 5.23 | – |
+| NaviLLM (multi-view) | LHPR-VLN (3–4 Subtasks) | Trained | Pretrain | 0.0 | 10.04 | 0.0 | 0.0 | 0.0 | – |
+| Random | LHPR-VLN (3–4 Subtasks) | – | – | 0.0 | 10.91 | 0.0 | 0.0 | 0.0 | – |
+| GLM-4v prompt (multi-view) | LHPR-VLN (3–4 Subtasks) | Training-free | Zero-shot | 0.0 | 10.97 | 0.0 | 0.0 | 0.0 | – |
+
+Note: – in the Open column means that public availability of the benchmark-specific implementation has not been verified. Adaptation labels follow the paper: Pretrain uses a pretrained model, Finetuned adapts it to this dataset, and Zero-shot uses prompting. MGDM uses Vicuna-7B v0 with GPT-4 CoT feedback and multi-granularity dynamic memory. All models in the original table have zero full-task SR. MGDM's 4.69 / 3.30 / 5.83 are ISR / CSR / CGT for the 3–4-subtask group, not full-task SR. The paper's Table 3 evaluates step-by-step instructions at a different granularity and is excluded here.
+
+### Subsequent methods and third-party reproductions: FantasyVLN evaluation
+
+Sources: [FantasyVLN (CVPR 2026), Table 2 and §4.1](https://arxiv.org/html/2601.13976#S4.SS1) · [code and model links](https://github.com/Fantasy-AMAP/fantasy-vln). Evaluation uses unseen tasks and scenes. These aggregate results are listed separately from the task-length groups above.
+
+| Model | Paradigm | Result source | SR ↑ | ISR ↑ | CSR ↑ | CGT ↑ | Open |
+|:-----|:----:|:-----|:----:|:----:|:----:|:----:|:----:|
+| [FantasyVLN](https://github.com/Fantasy-AMAP/fantasy-vln) | Trained | Proposed method | **2.44** | 11.01 | 9.64 | 8.99 | [Yes](https://github.com/Fantasy-AMAP/fantasy-vln) |
+| Aux-Think | Trained | Reproduced by FantasyVLN authors | 0.65 | 3.16 | 2.04 | 1.47 | – |
+| MGDM | Trained | FantasyVLN comparison | 0.00 | 2.34 | 1.65 | 2.91 | [Yes](https://github.com/HCPLab-SYSU/LH-VLN) |
+| GPT-4 + NaviLLM | Trained | FantasyVLN comparison | 0.00 | 2.19 | 1.45 | 2.61 | – |
+| CoT-VLA | Trained | Reproduced by FantasyVLN authors | 0.00 | 0.00 | 0.00 | 0.00 | – |
+| WorldVLA | Trained | Adapted by FantasyVLN authors | 0.00 | 0.00 | 0.00 | 0.00 | – |
+
+Note: The FantasyVLN authors reimplemented Aux-Think and CoT-VLA from their papers and adapted WorldVLA's official implementation to LH-VLN. These are not LH-VLN results reported by those methods' original authors. The Open column refers to the benchmark-specific implementation; – means unverified. MGDM's aggregate scores are preserved as reported in this comparison.
+
+### Additional baseline: InstructNav
+
+The [LH-VLN appendix, §9.3 / Table 8](https://arxiv.org/html/2412.09082v3#S9.SS3), also evaluates InstructNav. It uses additional depth images, top-down maps, and parts of Habitat's greedy pathfinding interface, so its results are listed separately as a different-input reference.
+
+| Model | Benchmark | Paradigm | SR ↑ | NE ↓ | ISR ↑ | CSR ↑ | CGT ↑ | Open |
+|:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
+| [InstructNav](https://arxiv.org/abs/2406.04882) <span class="lb-flag">Extra depth / maps / pathfinding</span> | LHPR-VLN (2–3 Subtasks) | Training-free | 0.00 | 10.80 | 0.00 | 0.00 | 0.00 | – |
+| [InstructNav](https://arxiv.org/abs/2406.04882) <span class="lb-flag">Extra depth / maps / pathfinding</span> | LHPR-VLN (3–4 Subtasks) | Training-free | 0.00 | 8.38 | 0.00 | 0.00 | 0.00 | – |
+
+### General-purpose agents: a filtered 114-episode subset
+
+Source: [Has GPT-6-Astra Achieved Embodied Intelligence?, §9.7 / Table 9](https://arxiv.org/html/2610.22471#S9.SS7). The study filters 205 unseen test episodes by target visibility along reference trajectories, retaining 114 episodes across 25 scenes. It uses three RGB views and accepts a matching target object in the specified room. This differs from the original and FantasyVLN protocols; the following results are flagged as nonstandard.
+
+| Model | Paradigm | Action budget | SR ↑ | ISR ↑ | CSR ↑ | CGT ↑ | Open |
+|:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
+| GPT-6-Astra Max + ICL (multi-view) <span class="lb-flag">114-episode subset · 10× budget</span> | Training-free | 5,000 | 28.95 | 62.87 | 52.97 | 52.58 | – |
+| GPT-6-Astra Max + ICL (multi-view) <span class="lb-flag">114-episode subset · 1× budget</span> | Training-free | 500 | 21.05 | 54.68 | 44.55 | 43.91 | – |
+| Claude Code Opus-5 <span class="lb-flag">Agent comparison in the report</span> | Training-free | – | 5.26 | 26.87 | 17.82 | 17.84 | – |
+
+Note: ICL uses a frozen knowledge package prepared from training scenes without updating model weights. The 10× setting retains successful 1× outcomes, extends only unsuccessful episodes, and preserves earlier scores when higher. This section does not specify Claude's separate action budget, so it is marked – rather than assumed identical to GPT's. The report's cited FantasyVLN / Aux-Think scores are not evidence of reevaluation on this 114-episode subset.
+
+Search notes (2026-10-20): The [official MMSP 2025 challenge](https://hcplab-sysu.github.io/LH-VLN/contest/) provides evaluation and submission instructions, but its public static page does not list verifiable participant scores. The [EASI dataset adaptation](https://huggingface.co/datasets/oscarqjh/LHPR-VLN_easi) provides data splits but no model scores in its dataset card, so it is not added as a model entry.
 
 > **Note**: The following papers are not included in the rankings of this article and the extended article because they are evaluated on real-world/self-built or non-standard benchmarks (such as Open-Nav, SparseVideoNav, CausalNav, VL-Nav, etc.), or are non-navigation indicator tasks such as motion control/operation/generation (Skill-Nav, RoboClaw, ABot-Claw, etc.), or are dependent basic work. See respective chapters for details.
 

@@ -20,7 +20,7 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 
 # 性能排行榜
 
-> ⚠️ **不同基准不可直接混比**：本篇只收指令跟随类基准，按基准分表——① R2R-CE 与 ② RxR-CE 是连续环境（机器人第一视角逐步控制），③ R2R / REVERIE 是离散导航图上的全景决策。各表任务定义或传感器设定不同，SR 不可跨表比较。目标导航（ObjectNav、HM3D-OVON、图像 / 点目标等）的排行榜在扩展篇：[目标导航性能排行榜](/VLN-Papers-Extended/#goal-nav-leaderboard)。
+> ⚠️ **不同基准不可直接混比**：本篇只收指令跟随类基准，按基准分表——① R2R-CE 与 ② RxR-CE 是连续环境（机器人第一视角逐步控制），③ R2R / REVERIE 是离散导航图上的全景决策，④ LHPR-VLN 是连续环境中的长程多阶段指令导航。各表任务定义或传感器设定不同，SR 不可跨表比较。目标导航（ObjectNav、HM3D-OVON、图像 / 点目标等）的排行榜在扩展篇：[目标导航性能排行榜](/VLN-Papers-Extended/#goal-nav-leaderboard)。
 >
 > **读表**：「范式」列中，**训练**指在导航数据上训练或微调过模型（含跨任务零样本迁移的导航基础模型）；**免训练**指不训练任何导航模型，由现成的大模型、检测分割模型与规则 / 规划模块组合而成（调用现成的点目标低层控制器不影响归类）。灰色行是非标准口径（如只评测了验证集子集），不参与加粗；加粗为同一基准内非灰色行的最优值。表格上方的筛选栏可按范式、输入配置、是否开源筛选，也可以隐藏灰色行。
 
@@ -154,6 +154,71 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 | [DUET (全景)](#duet) | 2022 | REVERIE (Test-Unseen) | 训练 | – | 52.51 | 36.06 | – | 56.91 | [是](https://github.com/cshizhe/VLN-DUET) |
 
 注：VLN-Imagine 为 DUET-Imagine 的 R2R val-unseen 结果（DUET 基线 71.52 / 60.41）。GSA-R2R 区分住宅（ID，Test-R-Basic）与非住宅（OOD，Test-N-Basic）场景，Slow4fast-VLN 相对 GR-DUET 性能有所提升。REVERIE 基准另用 RGS / RGSPL 指标：R³ 为 53.76 / 42.14 / 37.94 / 29.86（SR/SPL/RGS/RGSPL），Uncertainty-Aware Gaussian Map 的 RGS / RGSPL 为 37.65 / 27.01。 连续环境版 REVERIE-CE 目前只有 Image2Nav（180° FOV）报告：SR 53.7 / SPL 42.7 / NE 5.08 / OSR 59.5（val-unseen），动作空间与离散 REVERIE 不同，不并入本表。
+
+## ④ LHPR-VLN · 长程多阶段导航
+
+连续环境 · Habitat 3 / HM3D · 多目 RGB（前方及左右 ±60°）· 2–4 个顺序子任务
+
+**LH-VLN** 是任务名称，**LHPR-VLN**（Long-Horizon Planning and Reasoning in VLN）是对应的 benchmark，由 NavGen 平台生成，包含 216 个场景中的 3,260 个任务，平均 150.95 个动作步。来源：[论文（CVPR 2025）](https://arxiv.org/abs/2412.09082) · [项目与代码](https://github.com/HCPLab-SYSU/LH-VLN)。
+
+### 原始论文基线
+
+下表收录[论文 v3 Table 2](https://arxiv.org/html/2412.09082v3#S5.T2) 的多阶段任务结果，保留原文的「2–3 / 3–4 Subtasks」分组，各组按 CGT 降序、同分时按 NE 升序排列。SR 要求按指令顺序完成全部子任务；ISR 衡量独立子任务成功率，CSR 考虑前后子任务的成功依赖，CGT 在 CSR 基础上引入真值路径长度权重。成功率类指标沿用原表百分数，NE 单位为米；子任务成功不等于整个任务成功。
+
+| 模型 | 基准 | 范式 | 适配方式 | SR ↑ | NE ↓ | ISR ↑ | CSR ↑ | CGT ↑ | 开源 |
+|:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
+| [MGDM (多目)](https://github.com/HCPLab-SYSU/LH-VLN) | LHPR-VLN (2–3 Subtasks) | 训练 | Finetuned | 0.0 | **3.54** | 0.0 | 0.0 | 0.0 | [是](https://github.com/HCPLab-SYSU/LH-VLN) |
+| NaviLLM (多目) | LHPR-VLN (2–3 Subtasks) | 训练 | Pretrain | 0.0 | 12.11 | 0.0 | 0.0 | 0.0 | – |
+| GPT-4 + NaviLLM (多目) | LHPR-VLN (2–3 Subtasks) | 训练 | Pretrain | 0.0 | 12.23 | 0.0 | 0.0 | 0.0 | – |
+| NaviLLM (多目) | LHPR-VLN (2–3 Subtasks) | 训练 | Finetuned | 0.0 | 12.24 | 0.0 | 0.0 | 0.0 | – |
+| Random | LHPR-VLN (2–3 Subtasks) | – | – | 0.0 | 14.09 | 0.0 | 0.0 | 0.0 | – |
+| GLM-4v prompt (多目) | LHPR-VLN (2–3 Subtasks) | 免训练 | Zero-shot | 0.0 | 15.63 | 0.0 | 0.0 | 0.0 | – |
+| [MGDM (多目)](https://github.com/HCPLab-SYSU/LH-VLN) | LHPR-VLN (3–4 Subtasks) | 训练 | Finetuned | 0.0 | **1.23** | 4.69 | 3.30 | 5.83 | [是](https://github.com/HCPLab-SYSU/LH-VLN) |
+| NaviLLM (多目) | LHPR-VLN (3–4 Subtasks) | 训练 | Finetuned | 0.0 | 9.79 | 3.54 | 2.53 | 5.24 | – |
+| GPT-4 + NaviLLM (多目) | LHPR-VLN (3–4 Subtasks) | 训练 | Pretrain | 0.0 | 10.00 | 4.37 | 2.91 | 5.23 | – |
+| NaviLLM (多目) | LHPR-VLN (3–4 Subtasks) | 训练 | Pretrain | 0.0 | 10.04 | 0.0 | 0.0 | 0.0 | – |
+| Random | LHPR-VLN (3–4 Subtasks) | – | – | 0.0 | 10.91 | 0.0 | 0.0 | 0.0 | – |
+| GLM-4v prompt (多目) | LHPR-VLN (3–4 Subtasks) | 免训练 | Zero-shot | 0.0 | 10.97 | 0.0 | 0.0 | 0.0 | – |
+
+注：开源列的 – 表示未核实该基准适配代码的公开情况。适配方式保留原文标签，Pretrain 表示使用预训练模型，Finetuned 表示在该数据集上微调，Zero-shot 表示零样本提示。MGDM 使用 Vicuna-7B v0，并结合 GPT-4 的 CoT 反馈及多粒度动态记忆。原表所有模型的完整任务 SR 均为 0；MGDM 的 4.69 / 3.30 / 5.83 是 3–4 子任务组的 ISR / CSR / CGT，不能当作完整任务 SR。论文 Table 3 的 step-by-step 结果属于另一种指令粒度，不混入本表。
+
+### 后续方法与第三方复现：FantasyVLN 评测
+
+来源：[FantasyVLN（CVPR 2026）Table 2、§4.1](https://arxiv.org/html/2601.13976#S4.SS1) · [代码与模型入口](https://github.com/Fantasy-AMAP/fantasy-vln)。在任务与场景均未见的测试集上评测；下表为汇总结果，与上表按任务长度拆分的成绩分开列出。
+
+| 模型 | 范式 | 结果来源 | SR ↑ | ISR ↑ | CSR ↑ | CGT ↑ | 开源 |
+|:-----|:----:|:-----|:----:|:----:|:----:|:----:|:----:|
+| [FantasyVLN](https://github.com/Fantasy-AMAP/fantasy-vln) | 训练 | 作者方法 | **2.44** | 11.01 | 9.64 | 8.99 | [是](https://github.com/Fantasy-AMAP/fantasy-vln) |
+| Aux-Think | 训练 | FantasyVLN 作者复现 | 0.65 | 3.16 | 2.04 | 1.47 | – |
+| MGDM | 训练 | FantasyVLN 对比表 | 0.00 | 2.34 | 1.65 | 2.91 | [是](https://github.com/HCPLab-SYSU/LH-VLN) |
+| GPT-4 + NaviLLM | 训练 | FantasyVLN 对比表 | 0.00 | 2.19 | 1.45 | 2.61 | – |
+| CoT-VLA | 训练 | FantasyVLN 作者复现 | 0.00 | 0.00 | 0.00 | 0.00 | – |
+| WorldVLA | 训练 | FantasyVLN 作者适配 | 0.00 | 0.00 | 0.00 | 0.00 | – |
+
+注：Aux-Think、CoT-VLA 由 FantasyVLN 作者依据论文实现；WorldVLA 基于官方代码适配 LH-VLN，不能把这些结果归为各方法原论文自行报告的成绩。开源列仍指该基准适配实现，– 表示未核实。MGDM 的汇总值按此文原表保留。
+
+### 补充基线：InstructNav
+
+[LH-VLN 原论文附录 §9.3 / Table 8](https://arxiv.org/html/2412.09082v3#S9.SS3) 还评测了 InstructNav。它额外使用深度图、俯视地图及部分 Habitat 贪婪寻路接口，单列为不同输入条件的参考。
+
+| 模型 | 基准 | 范式 | SR ↑ | NE ↓ | ISR ↑ | CSR ↑ | CGT ↑ | 开源 |
+|:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
+| [InstructNav](https://arxiv.org/abs/2406.04882) <span class="lb-flag">额外深度 / 地图 / 寻路接口</span> | LHPR-VLN (2–3 Subtasks) | 免训练 | 0.00 | 10.80 | 0.00 | 0.00 | 0.00 | – |
+| [InstructNav](https://arxiv.org/abs/2406.04882) <span class="lb-flag">额外深度 / 地图 / 寻路接口</span> | LHPR-VLN (3–4 Subtasks) | 免训练 | 0.00 | 8.38 | 0.00 | 0.00 | 0.00 | – |
+
+### 通用 Agent：114 条筛选子集
+
+来源：[Has GPT-6-Astra Achieved Embodied Intelligence? §9.7 / Table 9](https://arxiv.org/html/2610.22471#S9.SS7)。从 205 条 unseen 测试任务中按参考轨迹上的目标可见性筛选出 114 条、25 个场景；使用三视角 RGB，并允许同一指定房间内匹配物体作为成功目标。与原论文及 FantasyVLN 的评测口径不同，以下成绩灰显保留。
+
+| 模型 | 范式 | 动作预算 | SR ↑ | ISR ↑ | CSR ↑ | CGT ↑ | 开源 |
+|:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
+| GPT-6-Astra Max + ICL (多目) <span class="lb-flag">114 条子集 · 10× 预算</span> | 免训练 | 5,000 | 28.95 | 62.87 | 52.97 | 52.58 | – |
+| GPT-6-Astra Max + ICL (多目) <span class="lb-flag">114 条子集 · 1× 预算</span> | 免训练 | 500 | 21.05 | 54.68 | 44.55 | 43.91 | – |
+| Claude Code Opus-5 <span class="lb-flag">报告中的 Agent 对照</span> | 免训练 | – | 5.26 | 26.87 | 17.82 | 17.84 | – |
+
+注：ICL 使用训练场景准备的冻结知识包，不更新模型权重。10× 设置保留 1× 成功结果，仅扩展未成功任务，较早得分更高时保留该分数。Claude 对照的独立预算配置未在此节明确，记为 –；不假定与 GPT 完全相同。报告引用的 FantasyVLN / Aux-Think 成绩不视作它们在此 114 条子集上重新评测的证据。
+
+检索补充（2026-10-20）：[MMSP 2025 官方挑战赛](https://hcplab-sysu.github.io/LH-VLN/contest/) 提供评测与提交说明，但公开静态页未列出可核验的参赛方法成绩；[EASI 数据适配](https://huggingface.co/datasets/oscarqjh/LHPR-VLN_easi) 提供数据划分，数据卡本身没有模型成绩，暂不作为新增模型条目。
 
 > **说明**：以下论文因评测于真实世界 / 自建或非标准基准（如 Open-Nav、SparseVideoNav、CausalNav、VL-Nav 等），或属运动控制 / 操作 / 生成等非导航指标任务（Skill-Nav、RoboClaw、ABot-Claw 等），或为依赖性基础工作，未列入本篇与扩展篇的排行榜。详见各自章节。
 
