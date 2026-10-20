@@ -2877,26 +2877,26 @@ Evo² still requires many real task executions to evaluate harness candidates, s
 <script>
 (function () {
   var TAG_MAP = [
-    { m: 'Harness Robotic OS', t: ['AgentOS', 'Harness', 'Closed-loop systems', 'Spatial memory', 'self-evolution', 'Real-robot deployment'] },
+    { m: 'Harness Robotic OS', t: ['AgentOS', 'Harness', 'Closed-loop systems', 'Spatial memory', 'self-evolution', 'RSI', 'Real-robot deployment'] },
     { m: 'HoloAgent-0', t: ['AgentOS', 'Closed-loop systems', 'Typed actions', 'Spatial memory', 'Scene graph', '3D semantics', 'Real-robot deployment', 'Multi-machine collaboration'] },
     { m: 'Pigey',       t: ['Closed-loop systems', 'Embodied manipulation', 'Fast and slow dual system', 'Real-robot deployment', 'TAMP', 'VLA', 'double check', 'Zero fine-tuning'] },
     { m: 'Thea',        t: ['Harness', 'Closed-loop systems', 'Scene graph', 'Exit-code evaluation', 'Real-robot deployment', 'Cross-embodiment', 'Active exploration', 'Embodied manipulation'] },
-    { m: 'Zetta',       t: ['Harness', 'Closed-loop systems', 'self-evolution', 'High-frequency judge', 'Exception recovery', 'Embodied manipulation', 'High-throughput infrastructure'] },
+    { m: 'Zetta',       t: ['Harness', 'Closed-loop systems', 'self-evolution', 'RSI', 'High-frequency judge', 'Exception recovery', 'Embodied manipulation', 'High-throughput infrastructure'] },
     { m: 'Show-Harness', t: ['Harness', 'Closed-loop systems', 'Embodied manipulation', 'Typed actions', 'Real-robot deployment', 'Cross-embodiment', 'VLA', 'Zero fine-tuning'] },
     { m: 'SPACE',       t: ['action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks'] },
-    { m: 'ABot-AgentOS', t: ['AgentOS', 'Harness', 'Closed-loop systems', 'Topological graph', 'Spatial memory', 'self-evolution', 'Real-robot deployment'] },
-    { m: 'ABot-ER', t: ['Embodied reasoning', 'Data governance', 'self-evolution', 'Long-horizon tasks', 'Real-robot deployment'] },
+    { m: 'ABot-AgentOS', t: ['AgentOS', 'Harness', 'Closed-loop systems', 'Topological graph', 'Spatial memory', 'self-evolution', 'RSI', 'Real-robot deployment'] },
+    { m: 'ABot-ER', t: ['Embodied reasoning', 'Data governance', 'self-evolution', 'RSI', 'Long-horizon tasks', 'Real-robot deployment'] },
     { m: 'NavHarness', t: ['Harness', 'Closed-loop systems', 'Spatial memory', 'Exception recovery', 'Embodied navigation', 'Zero fine-tuning', 'Long-horizon tasks'] },
     { m: 'SuperNav', t: ['Harness', 'Closed-loop systems', 'Active exploration', 'Exception recovery', 'Embodied navigation', 'Real-robot deployment'] },
     { m: 'VISTA', t: ['Harness', 'Visual memory', 'Active exploration', 'Zero fine-tuning', 'Long-horizon tasks'] },
     { m: 'RACE', t: ['reinforcement learning', 'Long-horizon tasks', 'Reasoning budget'] },
-    { m: 'Agentic Robots', t: ['Survey', 'Harness', 'Closed-loop systems', 'VLA', 'Exception recovery', 'self-evolution', 'Cross-embodiment'] },
-    { m: 'Harness²', t: ['Harness', 'Closed-loop systems', 'self-evolution', 'Zero fine-tuning', 'Long-horizon tasks'] },
+    { m: 'Agentic Robots', t: ['Survey', 'Harness', 'Closed-loop systems', 'VLA', 'Exception recovery', 'self-evolution', 'RSI', 'Cross-embodiment'] },
+    { m: 'Harness²', t: ['Harness', 'Closed-loop systems', 'self-evolution', 'RSI', 'Zero fine-tuning', 'Long-horizon tasks'] },
     { m: 'GPT-6-Astra-JRT', t: ['Harness', 'Closed-loop systems', 'Fast and slow dual system', 'Real-robot deployment', 'Cross-embodiment', 'Zero fine-tuning', 'Exception recovery', 'Reasoning budget'] },
-    { m: 'Evo²', t: ['Harness', 'Closed-loop systems', 'self-evolution', 'reinforcement learning', 'Long-horizon tasks', 'Data governance'] },
+    { m: 'Evo²', t: ['Harness', 'Closed-loop systems', 'self-evolution', 'RSI', 'reinforcement learning', 'Long-horizon tasks', 'Data governance'] },
   ];
 
-  var ALL_TAGS = ['Survey', 'Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation', 'Visual memory', 'Reasoning budget', 'Embodied reasoning', 'Data governance'];
+  var ALL_TAGS = ['Survey', 'Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'RSI', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation', 'Visual memory', 'Reasoning budget', 'Embodied reasoning', 'Data governance'];
 
   var activeTags = [];
   var resultsPanel = null;
