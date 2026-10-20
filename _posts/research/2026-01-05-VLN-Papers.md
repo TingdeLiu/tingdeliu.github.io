@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-papers
 title: "VLN 论文精读：指令跟随篇"
-date:   2026-10-16
+date: 2026-10-20
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -161,60 +161,45 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 
 **LH-VLN** 是任务名称，**LHPR-VLN**（Long-Horizon Planning and Reasoning in VLN）是对应的 benchmark，由 NavGen 平台生成，包含 216 个场景中的 3,260 个任务，平均 150.95 个动作步。来源：[论文（CVPR 2025）](https://arxiv.org/abs/2412.09082) · [项目与代码](https://github.com/HCPLab-SYSU/LH-VLN)。
 
-### 原始论文基线
+按 SR 降序、同分按 CGT 降序排列。灰色行为筛选子集或额外输入条件下的参考成绩；加粗仅表示相同评测设置内的非零最优成功率指标（或最低 NE），不含灰色行。年份指结果来源发表年份；– 表示未报告或未核实。
 
-下表收录[论文 v3 Table 2](https://arxiv.org/html/2412.09082v3#S5.T2) 的多阶段任务结果，保留原文的「2–3 / 3–4 Subtasks」分组，各组按 CGT 降序、同分时按 NE 升序排列。SR 要求按指令顺序完成全部子任务；ISR 衡量独立子任务成功率，CSR 考虑前后子任务的成功依赖，CGT 在 CSR 基础上引入真值路径长度权重。成功率类指标沿用原表百分数，NE 单位为米；子任务成功不等于整个任务成功。
+| 模型 | 年份 | 范式 | 基模 | 评测设置 | SR ↑ | ISR ↑ | CSR ↑ | CGT ↑ | NE ↓ | 开源 |
+|:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
+| GPT-6-Astra Max + ICL (多目) <span class="lb-flag">114 条子集 · 10× 预算</span> [D] | 2026 | 免训练 | GPT-6-Astra | 114 条子集 · 5,000 步 | 28.95 | 62.87 | 52.97 | 52.58 | – | – |
+| GPT-6-Astra Max + ICL (多目) <span class="lb-flag">114 条子集 · 1× 预算</span> [D] | 2026 | 免训练 | GPT-6-Astra | 114 条子集 · 500 步 | 21.05 | 54.68 | 44.55 | 43.91 | – | – |
+| Claude Code Opus-5 <span class="lb-flag">报告中的 Agent 对照</span> [D] | 2026 | 免训练 | Opus-5 | 114 条子集 · – 步 | 5.26 | 26.87 | 17.82 | 17.84 | – | – |
+| [FantasyVLN](https://github.com/Fantasy-AMAP/fantasy-vln) [B] | 2026 | 训练 | – | 汇总 | **2.44** | **11.01** | **9.64** | **8.99** | – | [是](https://github.com/Fantasy-AMAP/fantasy-vln) |
+| Aux-Think [B] | 2026 | 训练 | – | 汇总 | 0.65 | 3.16 | 2.04 | 1.47 | – | – |
+| [MGDM (多目)](https://github.com/HCPLab-SYSU/LH-VLN) (Finetuned) [A] | 2025 | 训练 | Vicuna-7B v0 | 3–4 子任务 | 0.0 | **4.69** | **3.30** | **5.83** | **1.23** | [是](https://github.com/HCPLab-SYSU/LH-VLN) |
+| NaviLLM (多目) (Finetuned) [A] | 2025 | 训练 | – | 3–4 子任务 | 0.0 | 3.54 | 2.53 | 5.24 | 9.79 | – |
+| GPT-4 + NaviLLM (多目) (Pretrain) [A] | 2025 | 训练 | – | 3–4 子任务 | 0.0 | 4.37 | 2.91 | 5.23 | 10.00 | – |
+| MGDM [B] | 2026 | 训练 | Vicuna-7B v0 | 汇总 | 0.00 | 2.34 | 1.65 | 2.91 | – | [是](https://github.com/HCPLab-SYSU/LH-VLN) |
+| GPT-4 + NaviLLM [B] | 2026 | 训练 | – | 汇总 | 0.00 | 2.19 | 1.45 | 2.61 | – | – |
+| [MGDM (多目)](https://github.com/HCPLab-SYSU/LH-VLN) (Finetuned) [A] | 2025 | 训练 | Vicuna-7B v0 | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | **3.54** | [是](https://github.com/HCPLab-SYSU/LH-VLN) |
+| NaviLLM (多目) (Pretrain) [A] | 2025 | 训练 | – | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 12.11 | – |
+| GPT-4 + NaviLLM (多目) (Pretrain) [A] | 2025 | 训练 | – | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 12.23 | – |
+| NaviLLM (多目) (Finetuned) [A] | 2025 | 训练 | – | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 12.24 | – |
+| Random [A] | 2025 | – | – | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 14.09 | – |
+| GLM-4v prompt (多目) (Zero-shot) [A] | 2025 | 免训练 | GLM-4v | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 15.63 | – |
+| NaviLLM (多目) (Pretrain) [A] | 2025 | 训练 | – | 3–4 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 10.04 | – |
+| Random [A] | 2025 | – | – | 3–4 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 10.91 | – |
+| GLM-4v prompt (多目) (Zero-shot) [A] | 2025 | 免训练 | GLM-4v | 3–4 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 10.97 | – |
+| CoT-VLA [B] | 2026 | 训练 | – | 汇总 | 0.00 | 0.00 | 0.00 | 0.00 | – | – |
+| WorldVLA [B] | 2026 | 训练 | – | 汇总 | 0.00 | 0.00 | 0.00 | 0.00 | – | – |
+| [InstructNav](https://arxiv.org/abs/2406.04882) <span class="lb-flag">额外深度 / 地图 / 寻路接口</span> [C] | 2025 | 免训练 | – | 2–3 子任务 | 0.00 | 0.00 | 0.00 | 0.00 | 10.80 | – |
+| [InstructNav](https://arxiv.org/abs/2406.04882) <span class="lb-flag">额外深度 / 地图 / 寻路接口</span> [C] | 2025 | 免训练 | – | 3–4 子任务 | 0.00 | 0.00 | 0.00 | 0.00 | 8.38 | – |
 
-| 模型 | 基准 | 范式 | 适配方式 | SR ↑ | NE ↓ | ISR ↑ | CSR ↑ | CGT ↑ | 开源 |
-|:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
-| [MGDM (多目)](https://github.com/HCPLab-SYSU/LH-VLN) | LHPR-VLN (2–3 Subtasks) | 训练 | Finetuned | 0.0 | **3.54** | 0.0 | 0.0 | 0.0 | [是](https://github.com/HCPLab-SYSU/LH-VLN) |
-| NaviLLM (多目) | LHPR-VLN (2–3 Subtasks) | 训练 | Pretrain | 0.0 | 12.11 | 0.0 | 0.0 | 0.0 | – |
-| GPT-4 + NaviLLM (多目) | LHPR-VLN (2–3 Subtasks) | 训练 | Pretrain | 0.0 | 12.23 | 0.0 | 0.0 | 0.0 | – |
-| NaviLLM (多目) | LHPR-VLN (2–3 Subtasks) | 训练 | Finetuned | 0.0 | 12.24 | 0.0 | 0.0 | 0.0 | – |
-| Random | LHPR-VLN (2–3 Subtasks) | – | – | 0.0 | 14.09 | 0.0 | 0.0 | 0.0 | – |
-| GLM-4v prompt (多目) | LHPR-VLN (2–3 Subtasks) | 免训练 | Zero-shot | 0.0 | 15.63 | 0.0 | 0.0 | 0.0 | – |
-| [MGDM (多目)](https://github.com/HCPLab-SYSU/LH-VLN) | LHPR-VLN (3–4 Subtasks) | 训练 | Finetuned | 0.0 | **1.23** | 4.69 | 3.30 | 5.83 | [是](https://github.com/HCPLab-SYSU/LH-VLN) |
-| NaviLLM (多目) | LHPR-VLN (3–4 Subtasks) | 训练 | Finetuned | 0.0 | 9.79 | 3.54 | 2.53 | 5.24 | – |
-| GPT-4 + NaviLLM (多目) | LHPR-VLN (3–4 Subtasks) | 训练 | Pretrain | 0.0 | 10.00 | 4.37 | 2.91 | 5.23 | – |
-| NaviLLM (多目) | LHPR-VLN (3–4 Subtasks) | 训练 | Pretrain | 0.0 | 10.04 | 0.0 | 0.0 | 0.0 | – |
-| Random | LHPR-VLN (3–4 Subtasks) | – | – | 0.0 | 10.91 | 0.0 | 0.0 | 0.0 | – |
-| GLM-4v prompt (多目) | LHPR-VLN (3–4 Subtasks) | 免训练 | Zero-shot | 0.0 | 10.97 | 0.0 | 0.0 | 0.0 | – |
+[A] 收录[论文 v3 Table 2](https://arxiv.org/html/2412.09082v3#S5.T2) 的多阶段任务结果，保留原文的「2–3 / 3–4 Subtasks」分组，SR 要求按指令顺序完成全部子任务；ISR 衡量独立子任务成功率，CSR 考虑前后子任务的成功依赖，CGT 在 CSR 基础上引入真值路径长度权重。成功率类指标沿用原表百分数，NE 单位为米；子任务成功不等于整个任务成功。
 
 注：开源列的 – 表示未核实该基准适配代码的公开情况。适配方式保留原文标签，Pretrain 表示使用预训练模型，Finetuned 表示在该数据集上微调，Zero-shot 表示零样本提示。MGDM 使用 Vicuna-7B v0，并结合 GPT-4 的 CoT 反馈及多粒度动态记忆。原表所有模型的完整任务 SR 均为 0；MGDM 的 4.69 / 3.30 / 5.83 是 3–4 子任务组的 ISR / CSR / CGT，不能当作完整任务 SR。论文 Table 3 的 step-by-step 结果属于另一种指令粒度，不混入本表。
 
-### 后续方法与第三方复现：FantasyVLN 评测
-
-来源：[FantasyVLN（CVPR 2026）Table 2、§4.1](https://arxiv.org/html/2601.13976#S4.SS1) · [代码与模型入口](https://github.com/Fantasy-AMAP/fantasy-vln)。在任务与场景均未见的测试集上评测；下表为汇总结果，与上表按任务长度拆分的成绩分开列出。
-
-| 模型 | 范式 | 结果来源 | SR ↑ | ISR ↑ | CSR ↑ | CGT ↑ | 开源 |
-|:-----|:----:|:-----|:----:|:----:|:----:|:----:|:----:|
-| [FantasyVLN](https://github.com/Fantasy-AMAP/fantasy-vln) | 训练 | 作者方法 | **2.44** | 11.01 | 9.64 | 8.99 | [是](https://github.com/Fantasy-AMAP/fantasy-vln) |
-| Aux-Think | 训练 | FantasyVLN 作者复现 | 0.65 | 3.16 | 2.04 | 1.47 | – |
-| MGDM | 训练 | FantasyVLN 对比表 | 0.00 | 2.34 | 1.65 | 2.91 | [是](https://github.com/HCPLab-SYSU/LH-VLN) |
-| GPT-4 + NaviLLM | 训练 | FantasyVLN 对比表 | 0.00 | 2.19 | 1.45 | 2.61 | – |
-| CoT-VLA | 训练 | FantasyVLN 作者复现 | 0.00 | 0.00 | 0.00 | 0.00 | – |
-| WorldVLA | 训练 | FantasyVLN 作者适配 | 0.00 | 0.00 | 0.00 | 0.00 | – |
+来源：[FantasyVLN（CVPR 2026）Table 2、§4.1](https://arxiv.org/html/2601.13976#S4.SS1) · [代码与模型入口](https://github.com/Fantasy-AMAP/fantasy-vln)。在任务与场景均未见的测试集上评测；[B] 为汇总结果，不能与按任务长度拆分的成绩直接比较。
 
 注：Aux-Think、CoT-VLA 由 FantasyVLN 作者依据论文实现；WorldVLA 基于官方代码适配 LH-VLN，不能把这些结果归为各方法原论文自行报告的成绩。开源列仍指该基准适配实现，– 表示未核实。MGDM 的汇总值按此文原表保留。
 
-### 补充基线：InstructNav
+[LH-VLN 原论文附录 §9.3 / Table 8](https://arxiv.org/html/2412.09082v3#S9.SS3) 还评测了 InstructNav。它额外使用深度图、俯视地图及部分 Habitat 贪婪寻路接口，以灰色标记为不同输入条件的参考 [C]。
 
-[LH-VLN 原论文附录 §9.3 / Table 8](https://arxiv.org/html/2412.09082v3#S9.SS3) 还评测了 InstructNav。它额外使用深度图、俯视地图及部分 Habitat 贪婪寻路接口，单列为不同输入条件的参考。
-
-| 模型 | 基准 | 范式 | SR ↑ | NE ↓ | ISR ↑ | CSR ↑ | CGT ↑ | 开源 |
-|:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
-| [InstructNav](https://arxiv.org/abs/2406.04882) <span class="lb-flag">额外深度 / 地图 / 寻路接口</span> | LHPR-VLN (2–3 Subtasks) | 免训练 | 0.00 | 10.80 | 0.00 | 0.00 | 0.00 | – |
-| [InstructNav](https://arxiv.org/abs/2406.04882) <span class="lb-flag">额外深度 / 地图 / 寻路接口</span> | LHPR-VLN (3–4 Subtasks) | 免训练 | 0.00 | 8.38 | 0.00 | 0.00 | 0.00 | – |
-
-### 通用 Agent：114 条筛选子集
-
-来源：[Has GPT-6-Astra Achieved Embodied Intelligence? §9.7 / Table 9](https://arxiv.org/html/2610.22471#S9.SS7)。从 205 条 unseen 测试任务中按参考轨迹上的目标可见性筛选出 114 条、25 个场景；使用三视角 RGB，并允许同一指定房间内匹配物体作为成功目标。与原论文及 FantasyVLN 的评测口径不同，以下成绩灰显保留。
-
-| 模型 | 范式 | 动作预算 | SR ↑ | ISR ↑ | CSR ↑ | CGT ↑ | 开源 |
-|:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
-| GPT-6-Astra Max + ICL (多目) <span class="lb-flag">114 条子集 · 10× 预算</span> | 免训练 | 5,000 | 28.95 | 62.87 | 52.97 | 52.58 | – |
-| GPT-6-Astra Max + ICL (多目) <span class="lb-flag">114 条子集 · 1× 预算</span> | 免训练 | 500 | 21.05 | 54.68 | 44.55 | 43.91 | – |
-| Claude Code Opus-5 <span class="lb-flag">报告中的 Agent 对照</span> | 免训练 | – | 5.26 | 26.87 | 17.82 | 17.84 | – |
+来源：[Has GPT-6-Astra Achieved Embodied Intelligence? §9.7 / Table 9](https://arxiv.org/html/2610.22471#S9.SS7)。从 205 条 unseen 测试任务中按参考轨迹上的目标可见性筛选出 114 条、25 个场景；使用三视角 RGB，并允许同一指定房间内匹配物体作为成功目标。与原论文及 FantasyVLN 的评测口径不同，对应成绩灰显保留 [D]。
 
 注：ICL 使用训练场景准备的冻结知识包，不更新模型权重。10× 设置保留 1× 成功结果，仅扩展未成功任务，较早得分更高时保留该分数。Claude 对照的独立预算配置未在此节明确，记为 –；不假定与 GPT 完全相同。报告引用的 FantasyVLN / Aux-Think 成绩不视作它们在此 114 条子集上重新评测的证据。
 

@@ -536,10 +536,6 @@
     "参考资料": "9b02b96398a0ecec9519f4402648095347400e58028bcf57f57e2194eee8f5e6",
     "已发表论文（会议 / 期刊）": "cf03748cf8da50e0e8f38b7a829819a0a182dcf6376ab83446b608c1fc0f96f6",
     "论文引用": "788e0c2bb66b184384d16cbaee19d2d5e6bd77eb8066faa7a52be45cfab926e4",
-    "④ LHPR-VLN · 长程多阶段导航": "c73345d7c2fa4860989b25e0815b97bc0503d5bf3f9c73cabbcd20b145882e93",
-    "原始论文基线": "2e34393e981bec9e65a14610b99119092126e6ad87d11fc1c17d824e003c39e4",
-    "后续方法与第三方复现：FantasyVLN 评测": "200e97c21f9380a68449ab692d4aac75bf126da0599f60b9da4bae2bdf4d38f5",
-    "补充基线：InstructNav": "d25c4c5c0e4f28597391b4dede8adc245ed4e5726fd5bf4aa43275ab404ae9c0",
-    "通用 Agent：114 条筛选子集": "6cd011fe47f403843ef3f6bf3a26d0589157fd78f6c92cea6d55538bcc5cc1b0"
+    "④ LHPR-VLN · 长程多阶段导航": "c80ccdc1fce5de47748f2ddca74b52cdf223662bdef5e31c5cdd66cfecbc177b"
   }
 }

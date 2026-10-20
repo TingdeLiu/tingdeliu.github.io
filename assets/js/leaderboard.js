@@ -14,8 +14,8 @@
     { key: 'nonstd', label: label('非标准口径', 'Nonstandard evaluation'), opts: [['show', label('显示', 'Show')], ['hide', label('隐藏', 'Hide')]] }
   ];
   var MULTI_KEYS = ['全景', '多目', '三相机', '四视角', '180°', 'panoramic', 'multi-view', 'three cameras', 'four views'];
-  var COLUMNS = { Model: '模型', Paradigm: '范式', Open: '开源', Benchmark: '基准' };
-  var METRICS = { SR: 'max', SPL: 'max', NE: 'min', OSR: 'max' };
+  var COLUMNS = { Model: '模型', Paradigm: '范式', Open: '开源', Benchmark: '基准', Evaluation: '评测设置' };
+  var METRICS = { SR: 'max', SPL: 'max', NE: 'min', OSR: 'max', ISR: 'max', CSR: 'max', CGT: 'max' };
   var FOLLOWING = 4; // Node.DOCUMENT_POSITION_FOLLOWING
 
   var state = { paradigm: 'all', input: 'all', open: 'all', nonstd: 'show' };
@@ -80,7 +80,8 @@
         input: input,
         paradigm: cols['范式'] != null ? ({'训练': 'trained', '免训练': 'training-free', 'Trained': 'trained', 'Training-free': 'training-free'}[text(tds[cols['范式']])] || '') : '',
         open: cols['开源'] != null && /^(是|Yes)/.test(text(tds[cols['开源']])),
-        group: cols['基准'] != null ? text(tds[cols['基准']]) : '',
+        group: cols['评测设置'] != null ? text(tds[cols['评测设置']]) : (cols['基准'] != null ? text(tds[cols['基准']]) : ''),
+        evaluationSetting: cols['评测设置'] != null,
         metrics: metrics
       });
     });
@@ -121,6 +122,7 @@
         if (cand.length < 2) return;
         var vals = cand.map(function (r) { return num(r.metrics[m].getAttribute('data-v')); });
         var best = METRICS[m] === 'min' ? Math.min.apply(null, vals) : Math.max.apply(null, vals);
+        if (cand[0].evaluationSetting && METRICS[m] === 'max' && best === 0) return;
         cand.forEach(function (r, i) {
           if (vals[i] !== best) return;
           var strong = document.createElement('strong');
