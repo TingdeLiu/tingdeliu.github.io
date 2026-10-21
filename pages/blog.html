@@ -1,49 +1,15 @@
 ---
 layout: page
+editorial: true
+blog_index: true
 title: Blog
 permalink: /blog/
 lang: zh-CN
 translation_id: blog-index
+excerpt: "具身导航周报与技术随笔，记录机器人与智能体研究中的新进展、方法和实践。"
 ---
-
-{% include card-grid-style.html %}
-
-<style>
-.blog-empty {
-  color: #999;
-  font-size: 0.9rem;
-}
-</style>
 
 {% assign blog_posts = site.posts | where: "categories", "blog" %}
 {% assign weekly_posts = site.posts | where: "categories", "weekly" %}
-
-<p class="rc-intro">具身导航周报与技术随笔，按最近更新排序。</p>
-
-<h2 class="rc-group" id="weekly">具身导航周报<span class="count">{{ weekly_posts.size }} 期</span></h2>
-
-{% if weekly_posts.size == 0 %}
-  <p class="blog-empty">暂无周报</p>
-{% else %}
-<div class="rc-grid">
-  {% for post in weekly_posts %}
-    {% comment %} 期号按已发布周报倒序推算（最新一期 = 总期数）；日期取标题区间的结束日 {% endcomment %}
-    {% assign issue_no = weekly_posts.size | minus: forloop.index0 %}
-    {% assign end_date = post.title | split: "~" | last | remove: "）" | strip %}
-    {% capture weekly_title %}第 {{ issue_no }} 期：{{ end_date }}{% endcapture %}
-    {% include post-card.html post=post title=weekly_title %}
-  {% endfor %}
-</div>
-{% endif %}
-
-<h2 class="rc-group" id="notes">技术随笔<span class="count">{{ blog_posts.size }} 篇</span></h2>
-
-{% if blog_posts.size == 0 %}
-  <p class="blog-empty">暂无文章</p>
-{% else %}
-<div class="rc-grid">
-  {% for post in blog_posts %}
-    {% include post-card.html post=post %}
-  {% endfor %}
-</div>
-{% endif %}
+{% assign blog_entries = weekly_posts | concat: blog_posts | sort: 'date' | reverse %}
+{% include blog-index.html %}

@@ -22,7 +22,8 @@
     gap: 32px;
     a { color: var(--muted); }
     a:hover, a[aria-current] { color: var(--ink); }
-    nav { display: flex; gap: clamp(24px, 5vw, 72px); font: 13px $code-font; }
+    nav { display: flex; gap: clamp(24px, 5vw, 72px); margin: 0; font: 13px $code-font; }
+    nav a { margin: 0; letter-spacing: 0; }
     .article-brand { display: grid; place-items: center; width: 48px; height: 48px; flex-shrink: 0; color: var(--ink); }
     .article-robot { display: block; width: 44px; height: 44px; overflow: visible; }
     .article-robot-body { transform-origin: 24px 29px; animation: article-robot-sway 3.6s ease-in-out infinite alternate; }

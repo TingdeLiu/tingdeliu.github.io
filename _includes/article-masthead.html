@@ -19,7 +19,7 @@
     <a href="{{ '/' | relative_url }}{% if page_lang == 'en' %}en/{% endif %}">Home</a>
     <a href="{{ '/home/' | relative_url }}">Project</a>
     <a href="{{ site.baseurl }}/{% if page_lang == 'en' %}en/{% endif %}research/"{% if page.layout == 'post' and masthead_category == 'research' %} aria-current="page"{% endif %}>Research</a>
-    <a href="{{ site.baseurl }}/{% if page_lang == 'en' %}en/{% endif %}blog/"{% if page.layout == 'post' and masthead_category != 'research' %} aria-current="page"{% endif %}>Blog</a>
+    <a href="{{ site.baseurl }}/{% if page_lang == 'en' %}en/{% endif %}blog/"{% if page.blog_index or page.layout == 'post' and masthead_category != 'research' %} aria-current="page"{% endif %}>Blog</a>
     <a href="{{ '/about/' | relative_url }}"{% if page.url == '/about/' %} aria-current="page"{% endif %}>About</a>
   </nav>
   <div class="article-header-actions">

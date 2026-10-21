@@ -1,0 +1,35 @@
+<section class="blog-library" data-blog-library>
+  <header class="page-heading">
+    <div class="blog-heading-copy">
+      <h1>{{ page.title }}</h1>
+      <p class="blog-intro">{% if page_lang == 'en' %}Weekly research digests and technical notes.<br>Embodied navigation, robot learning, and agent engineering.{% else %}从论文到实践，记录具身智能的进展与思考。<br>具身导航周报，以及机器人与智能体的技术随笔。{% endif %}</p>
+    </div>
+    {% include language-switch.html site=true %}
+  </header>
+  <div class="blog-controls" data-blog-controls hidden>
+    <div class="blog-filters" role="group" aria-label="{% if page_lang == 'en' %}Article type{% else %}文章类型{% endif %}">
+      <button type="button" data-blog-filter="all" aria-pressed="true">{% if page_lang == 'en' %}All{% else %}全部{% endif %}<span>{{ blog_entries.size }}</span></button>
+      <button type="button" id="weekly" data-blog-filter="weekly" aria-pressed="false">{% if page_lang == 'en' %}Weekly digests{% else %}导航周报{% endif %}<span>{{ weekly_posts.size }}</span></button>
+      {% if blog_posts.size > 0 %}<button type="button" id="notes" data-blog-filter="notes" aria-pressed="false">{% if page_lang == 'en' %}Technical notes{% else %}技术随笔{% endif %}<span>{{ blog_posts.size }}</span></button>{% endif %}
+    </div>
+    <label class="blog-search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+      <span class="blog-sr-only">{% if page_lang == 'en' %}Search articles{% else %}搜索文章{% endif %}</span>
+      <input type="search" data-blog-search placeholder="{% if page_lang == 'en' %}Search titles, topics…{% else %}搜索标题、摘要或主题…{% endif %}" autocomplete="off" aria-controls="blog-results">
+    </label>
+  </div>
+  <div class="blog-results-info">
+    <p data-blog-count role="status" aria-live="polite">{{ blog_entries.size }} {% if page_lang == 'en' %}articles{% else %}篇文章{% endif %}</p>
+    <span>{% if page_lang == 'en' %}Latest updates first{% else %}按最近更新排序{% endif %}</span>
+  </div>
+  <div class="blog-grid" id="blog-results" data-blog-grid>
+    {% for post in blog_entries %}
+      {% include blog-card.html post=post featured=forloop.first %}
+    {% endfor %}
+  </div>
+  <div class="blog-empty" data-blog-empty hidden>
+    <h2>{% if page_lang == 'en' %}No matching articles{% else %}没有找到相关文章{% endif %}</h2>
+    <p>{% if page_lang == 'en' %}Try a different topic or clear the filters.{% else %}试试其他关键词，或清除筛选条件。{% endif %}</p>
+    <button type="button" data-blog-reset>{% if page_lang == 'en' %}Show all articles{% else %}查看全部文章{% endif %}</button>
+  </div>
+</section>

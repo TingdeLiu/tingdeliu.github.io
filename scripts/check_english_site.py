@@ -138,6 +138,23 @@ def main():
         doc = load(SITE / route / 'index.html')
         check(not any('data-language-switch' in n['attrs'] for n in doc.select('a')),
               f'/{route}/: unpaired page has a misleading language switch')
+    for route in ('blog', 'en/blog'):
+        doc = load(SITE / route / 'index.html')
+        check('blog-index-page' in doc.select('body')[0]['attrs'].get('class', '').split(),
+              f'/{route}/: Blog layout missing')
+        cards = [n for n in doc.select('a') if 'data-blog-card' in n['attrs']]
+        check(bool(cards) and 'blog-feature' in cards[0]['attrs'].get('class', '').split(),
+              f'/{route}/: latest article is not featured')
+        check(all(n['attrs'].get('data-kind') in ('weekly', 'notes') and n['attrs'].get('data-search') for n in cards),
+              f'/{route}/: article filter/search metadata missing')
+        dates = [n['attrs'].get('datetime', '') for n in doc.select('time', True)]
+        check(len(dates) == len(cards) and dates == sorted(dates, reverse=True),
+              f'/{route}/: articles are not ordered by latest update')
+        check(any('data-blog-search' in n['attrs'] for n in doc.select('input')) and
+              any(n['attrs'].get('src') == '/assets/js/blog-index.js' for n in doc.select('script')),
+              f'/{route}/: interactive Blog controls missing')
+        check(not any('wrapper-sidebar' in n['attrs'].get('class', '').split() for n in doc.select('div')),
+              f'/{route}/: legacy sidebar still visible')
     about = load(SITE / 'about/index.html')
     check(about.select('html')[0]['attrs'].get('lang') == 'en', '/about/: content language is incorrect')
     check('about-page' in about.select('body')[0]['attrs'].get('class', '').split(),
@@ -327,7 +344,10 @@ def main():
             check(route not in (SITE / 'feed.xml').read_text(encoding='utf-8'), f'{route}: weekly translation leaked into Chinese feed')
         english_blog = load(SITE / 'en/blog/index.html')
         cards = [n['attrs'].get('href') for n in english_blog.select('a') if 'rc-card' in n['attrs'].get('class', '').split()]
-        check(cards == list(reversed(weekly_urls)), 'English Blog issue order or cards differ')
+        expected_blog_urls = [fields['permalink'] for path in sorted((ROOT / '_translations/en/blog').glob('*.md'))
+                              for fields in [read_document(path)[0]] if fields.get('published', '').lower() != 'false']
+        check(len(cards) == len(expected_blog_urls) and set(cards) == set(expected_blog_urls),
+              'English Blog has missing or duplicate article cards')
         chinese_blog = load(SITE / 'blog/index.html')
         chinese_cards = [n['attrs'].get('href') for n in chinese_blog.select('a') if 'rc-card' in n['attrs'].get('class', '').split()]
         check(not any(url in chinese_cards for url in weekly_urls), 'Weekly translations duplicated in Chinese Blog')
@@ -341,7 +361,7 @@ def main():
         check((SITE / route / 'index.html').is_file(), f'Entry page missing: /{route}/')
     for asset in ('style.css', 'assets/css/vla-survey.css',
                   'assets/js/article-ui.js', 'assets/js/language-switch.js',
-                  'assets/js/leaderboard.js', 'assets/js/vla-survey.js'):
+                  'assets/js/leaderboard.js', 'assets/js/vla-survey.js', 'assets/js/blog-index.js'):
         check((SITE / asset).is_file(), f'Frontend asset missing: /{asset}')
     for directory in ('docs', 'scripts', '.cache', 'tmp', 'paper_summary', 'pages', '_site-drafts'):
         check(not (SITE / directory).exists(), f'Internal directory published: {directory}')
