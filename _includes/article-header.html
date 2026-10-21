@@ -1,9 +1,9 @@
 {% assign article_category = page.categories | first | default: 'blog' %}
 <a class="article-skip-link" href="#main">{% if page_lang == 'en' %}Skip to content{% else %}跳至正文{% endif %}</a>
 <header class="article-masthead">
-  <a class="article-brand" href="{{ '/' | relative_url }}{% if page_lang == 'en' %}en/{% endif %}" aria-label="{{ site.name }}">
-    <span class="article-brand-mark" aria-hidden="true">tl<span>_</span></span>
-    <span>{{ site.name }}</span>
+  <a class="article-brand" href="{{ '/' | relative_url }}{% if page_lang == 'en' %}en/{% endif %}">
+    <span class="article-brand-name">{{ site.name }}</span>
+    <span class="article-brand-home">{% if page_lang == 'en' %}Back to home{% else %}返回首页{% endif %}</span>
   </a>
   <nav aria-label="{{ ui.site_navigation }}">
     <a href="{{ '/home/' | relative_url }}">Project</a>

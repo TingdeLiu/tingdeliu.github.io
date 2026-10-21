@@ -23,9 +23,10 @@
     a { color: var(--muted); }
     a:hover, a[aria-current] { color: var(--ink); }
     nav { display: flex; gap: clamp(24px, 5vw, 72px); font: 13px $code-font; }
-    .article-brand { display: flex; align-items: center; gap: 15px; color: var(--ink); font-size: 14px; white-space: nowrap; flex-shrink: 0; }
-    .article-brand-mark { color: var(--accent); font: 700 32px $code-font; letter-spacing: -4px; }
-    .article-brand-mark span { margin-left: 3px; }
+    .article-brand { display: inline-flex; flex-direction: column; justify-content: center; align-items: flex-start; min-height: 40px; padding-left: 14px; border-left: 2px solid var(--accent); color: var(--ink); white-space: nowrap; flex-shrink: 0; }
+    .article-brand-name { font-size: 18px; font-weight: 600; letter-spacing: -.025em; line-height: 1.2; }
+    .article-brand-home { margin-top: 3px; color: var(--muted); font-size: 11px; line-height: 1.2; }
+    .article-brand:hover .article-brand-home { color: var(--accent); }
     .article-github { padding: 8px 16px; border: 1px solid var(--rule); color: var(--ink); font-size: 13px; white-space: nowrap; }
   }
 
@@ -184,7 +185,7 @@
 @media screen and (max-width: 640px) {
   .article-page {
     .article-masthead { padding: 18px 20px; min-height: 76px; gap: 20px; flex-wrap: wrap; }
-    .article-masthead .article-brand { font-size: 13px; }
+    .article-masthead .article-brand-name { font-size: 16px; }
     .article-masthead nav { order: 3; width: 100%; justify-content: space-between; gap: 16px; padding-top: 12px; font-size: 12px; }
     .article-masthead .article-github { margin-left: auto; padding: 5px 10px; font-size: 12px; }
     .article-hero-shell, .article-reading-shell { padding: 0 20px; }
