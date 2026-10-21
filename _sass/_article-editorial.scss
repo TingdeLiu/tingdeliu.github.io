@@ -23,10 +23,15 @@
     a { color: var(--muted); }
     a:hover, a[aria-current] { color: var(--ink); }
     nav { display: flex; gap: clamp(24px, 5vw, 72px); font: 13px $code-font; }
-    .article-brand { display: inline-flex; flex-direction: column; justify-content: center; align-items: flex-start; min-height: 40px; padding-left: 14px; border-left: 2px solid var(--accent); color: var(--ink); white-space: nowrap; flex-shrink: 0; }
-    .article-brand-name { font-size: 18px; font-weight: 600; letter-spacing: -.025em; line-height: 1.2; }
-    .article-brand-home { margin-top: 3px; color: var(--muted); font-size: 11px; line-height: 1.2; }
-    .article-brand:hover .article-brand-home { color: var(--accent); }
+    .article-brand { display: grid; place-items: center; width: 48px; height: 48px; flex-shrink: 0; color: var(--ink); }
+    .article-robot { display: block; width: 44px; height: 44px; overflow: visible; }
+    .article-robot-body { transform-origin: 24px 29px; animation: article-robot-sway 3.6s ease-in-out infinite alternate; }
+    .article-robot-face { fill: var(--panel); stroke: currentColor; stroke-width: 2; }
+    .article-robot-ear { fill: var(--accent); }
+    .article-robot-antenna, .article-robot-smile { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+    .article-robot-antenna-tip, .article-robot-eye { fill: var(--accent); }
+    .article-robot-eye { transform-box: fill-box; transform-origin: center; animation: article-robot-blink 6s infinite; }
+    .article-brand:hover .article-robot-face { stroke: var(--accent); }
     .article-github { padding: 8px 16px; border: 1px solid var(--rule); color: var(--ink); font-size: 13px; white-space: nowrap; }
   }
 
@@ -185,7 +190,6 @@
 @media screen and (max-width: 640px) {
   .article-page {
     .article-masthead { padding: 18px 20px; min-height: 76px; gap: 20px; flex-wrap: wrap; }
-    .article-masthead .article-brand-name { font-size: 16px; }
     .article-masthead nav { order: 3; width: 100%; justify-content: space-between; gap: 16px; padding-top: 12px; font-size: 12px; }
     .article-masthead .article-github { margin-left: auto; padding: 5px 10px; font-size: 12px; }
     .article-hero-shell, .article-reading-shell { padding: 0 20px; }
@@ -206,8 +210,18 @@
   }
 }
 
+@keyframes article-robot-sway {
+  from { transform: rotate(-5deg) translateY(1px); }
+  to { transform: rotate(5deg) translateY(-2px); }
+}
+
+@keyframes article-robot-blink {
+  0%, 44%, 48%, 100% { transform: scaleY(1); }
+  46% { transform: scaleY(.15); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .article-page *, .article-page *::before { scroll-behavior: auto !important; transition: none !important; }
+  .article-page *, .article-page *::before { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
 
 @media print {
