@@ -1,14 +1,16 @@
 {% include locale.html %}
+{% assign is_article_canvas = false %}
+{% if page.layout == 'post' or page.editorial %}{% assign is_article_canvas = true %}{% endif %}
 {% assign has_article_toc = false %}
 {% if page.layout == 'post' and page.toc == true %}
   {% assign has_article_toc = true %}
 {% endif %}
 <!DOCTYPE html>
-<html lang="{{ page_lang }}"{% if page.layout == 'post' %} class="article-document"{% endif %}>
+<html lang="{{ page_lang }}"{% if is_article_canvas %} class="article-document"{% endif %}>
   {% include head.html %}
-  <body class="{% if page.layout == 'post' %}no-sidebar article-page{% endif %}{% if has_article_toc %} has-article-toc{% endif %}">
+  <body class="{% if is_article_canvas %}no-sidebar article-page{% endif %}{% if page.editorial %} about-page{% endif %}{% if has_article_toc %} has-article-toc{% endif %}">
     <!-- 只在非文章页面显示导航侧边栏 -->
-    {% unless page.layout == 'post' %}
+    {% unless is_article_canvas %}
       {% include nav.html %}
     {% endunless %}
 
@@ -17,6 +19,8 @@
       <div class="article-progress" aria-hidden="true">
         <span class="article-progress-bar"></span>
       </div>
+    {% elsif page.editorial %}
+      {% include about-header.html %}
     {% endif %}
 
     {% if has_article_toc %}

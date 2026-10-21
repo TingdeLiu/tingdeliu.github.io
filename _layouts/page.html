@@ -5,7 +5,7 @@ layout: default
 {% include locale.html %}
 <article class="page">
 
-  {% include page-heading.html %}
+  {% unless page.editorial %}{% include page-heading.html %}{% endunless %}
 
   <div class="entry">
     {{ content }}

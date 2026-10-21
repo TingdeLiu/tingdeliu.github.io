@@ -138,6 +138,15 @@ def main():
         doc = load(SITE / route / 'index.html')
         check(not any('data-language-switch' in n['attrs'] for n in doc.select('a')),
               f'/{route}/: unpaired page has a misleading language switch')
+    about = load(SITE / 'about/index.html')
+    check(about.select('html')[0]['attrs'].get('lang') == 'en', '/about/: content language is incorrect')
+    check('about-page' in about.select('body')[0]['attrs'].get('class', '').split(),
+          '/about/: editorial layout missing')
+    check(any('article-masthead' in n['attrs'].get('class', '').split() for n in about.select('header')),
+          '/about/: article navigation missing')
+    check(not any('wrapper-sidebar' in n['attrs'].get('class', '').split() for n in about.select('div')),
+          '/about/: legacy sidebar still visible')
+    check(len(about.select('h1')) == 1, '/about/: expected one page heading')
     for path in english_files:
         doc = load(path)
         route = '/' + path.relative_to(SITE).as_posix().removesuffix('index.html')

@@ -1,0 +1,29 @@
+{% assign masthead_category = include.category | default: 'blog' %}
+<a class="article-skip-link" href="#main">{% if page_lang == 'en' %}Skip to content{% else %}跳至正文{% endif %}</a>
+<header class="article-masthead">
+  <a class="article-brand" href="{{ '/' | relative_url }}{% if page_lang == 'en' %}en/{% endif %}" aria-label="Home" title="Home">
+    <svg class="article-robot" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+      <g class="article-robot-body">
+        <path class="article-robot-antenna" d="M24 14V7" />
+        <circle class="article-robot-antenna-tip" cx="24" cy="5" r="2.5" />
+        <rect class="article-robot-ear" x="3.5" y="23" width="5" height="8" rx="2.5" />
+        <rect class="article-robot-ear" x="39.5" y="23" width="5" height="8" rx="2.5" />
+        <rect class="article-robot-face" x="7.5" y="13" width="33" height="25" rx="9" />
+        <circle class="article-robot-eye" cx="17.5" cy="25" r="2.5" />
+        <circle class="article-robot-eye" cx="30.5" cy="25" r="2.5" />
+        <path class="article-robot-smile" d="M20 31c2.2 2 5.8 2 8 0" />
+      </g>
+    </svg>
+  </a>
+  <nav aria-label="{{ ui.site_navigation }}">
+    <a href="{{ '/' | relative_url }}{% if page_lang == 'en' %}en/{% endif %}">Home</a>
+    <a href="{{ '/home/' | relative_url }}">Project</a>
+    <a href="{{ site.baseurl }}/{% if page_lang == 'en' %}en/{% endif %}research/"{% if page.layout == 'post' and masthead_category == 'research' %} aria-current="page"{% endif %}>Research</a>
+    <a href="{{ site.baseurl }}/{% if page_lang == 'en' %}en/{% endif %}blog/"{% if page.layout == 'post' and masthead_category != 'research' %} aria-current="page"{% endif %}>Blog</a>
+    <a href="{{ '/about/' | relative_url }}"{% if page.url == '/about/' %} aria-current="page"{% endif %}>About</a>
+  </nav>
+  <div class="article-header-actions">
+    {% include theme-toggle.html %}
+    <a class="article-github" href="https://github.com/TingdeLiu" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+  </div>
+</header>

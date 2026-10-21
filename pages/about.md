@@ -1,6 +1,9 @@
 ---
 layout: page
+lang: en
+editorial: true
 title: About
+subtitle: "Research notes on embodied AI, navigation, and robot learning."
 permalink: /about/
 ---
 
