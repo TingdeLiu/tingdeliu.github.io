@@ -1,0 +1,14 @@
+{% assign bp = include.post %}
+{% assign blog_kind = 'notes' %}
+{% if bp.categories contains 'weekly' %}{% assign blog_kind = 'weekly' %}{% endif %}
+<a class="rc-card blog-row" href="{{ bp.url | relative_url }}" data-blog-card data-kind="{{ blog_kind }}" data-search="{{ bp.title | escape }} {{ bp.excerpt | strip_html | normalize_whitespace | escape }} {{ bp.tags | join: ' ' | escape }}">
+  <span class="blog-row-icon" aria-hidden="true">
+    {% if blog_kind == 'weekly' %}
+    <svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="9"/><path d="m16 8-2.5 5.5L8 16l2.5-5.5Z"/></svg>
+    {% else %}
+    <svg viewBox="0 0 24 24" focusable="false"><path d="M6 3h8l4 4v14H6Zm8 0v5h4M9 12h6M9 16h6"/></svg>
+    {% endif %}
+  </span>
+  <time class="blog-row-date" datetime="{{ bp.date | date_to_xmlschema }}">{{ bp.date | date: '%Y-%m-%d' }}</time>
+  <h2 class="blog-row-title">{{ bp.title | escape }}</h2>
+</a>

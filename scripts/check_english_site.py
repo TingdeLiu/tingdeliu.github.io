@@ -143,8 +143,8 @@ def main():
         check('blog-index-page' in doc.select('body')[0]['attrs'].get('class', '').split(),
               f'/{route}/: Blog layout missing')
         cards = [n for n in doc.select('a') if 'data-blog-card' in n['attrs']]
-        check(bool(cards) and 'blog-feature' in cards[0]['attrs'].get('class', '').split(),
-              f'/{route}/: latest article is not featured')
+        check(bool(cards) and all('blog-row' in n['attrs'].get('class', '').split() for n in cards),
+              f'/{route}/: article rows missing')
         check(all(n['attrs'].get('data-kind') in ('weekly', 'notes') and n['attrs'].get('data-search') for n in cards),
               f'/{route}/: article filter/search metadata missing')
         dates = [n['attrs'].get('datetime', '') for n in doc.select('time', True)]

@@ -23,9 +23,9 @@
     <p data-blog-count role="status" aria-live="polite">{{ blog_entries.size }} {% if page_lang == 'en' %}articles{% else %}篇文章{% endif %}</p>
     <span>{% if page_lang == 'en' %}Latest updates first{% else %}按最近更新排序{% endif %}</span>
   </div>
-  <div class="blog-grid" id="blog-results" data-blog-grid>
+  <div class="blog-list" id="blog-results">
     {% for post in blog_entries %}
-      {% include blog-card.html post=post featured=forloop.first %}
+      {% include blog-row.html post=post %}
     {% endfor %}
   </div>
   <div class="blog-empty" data-blog-empty hidden>

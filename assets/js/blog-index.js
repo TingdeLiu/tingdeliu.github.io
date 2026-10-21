@@ -5,7 +5,6 @@
   var cards = Array.from(library.querySelectorAll('[data-blog-card]'));
   var buttons = Array.from(library.querySelectorAll('[data-blog-filter]'));
   var search = library.querySelector('[data-blog-search]');
-  var grid = library.querySelector('[data-blog-grid]');
   var count = library.querySelector('[data-blog-count]');
   var empty = library.querySelector('[data-blog-empty]');
   var english = document.documentElement.lang === 'en';
@@ -27,7 +26,6 @@
     buttons.forEach(function (button) {
       button.setAttribute('aria-pressed', String(button.dataset.blogFilter === kind));
     });
-    grid.classList.toggle('is-filtered', kind !== 'all' || terms.length > 0);
     count.textContent = english ? visible + (visible === 1 ? ' article' : ' articles') : visible + ' 篇文章';
     empty.hidden = visible > 0;
   }
