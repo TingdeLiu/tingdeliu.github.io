@@ -22,11 +22,16 @@
 
   <div class="article-toc-heading">
     <span>{{ ui.contents }}</span>
-    <span class="article-toc-depth">{% if page.vla_survey %}{% if page_lang == 'en' %}Sections and papers{% else %}章节与论文{% endif %}{% else %}H1—H3{% endif %}</span>
+    <span class="article-toc-depth">{% if page_lang == 'en' %}On this page{% else %}本文导航{% endif %}</span>
   </div>
 
   <nav class="article-toc-scroll" aria-label="{{ ui.article_contents }}">
     {% assign article_toc_depth = page.toc_depth | default: 3 %}
     {% include toc.html html=content sanitize=true h_min=1 h_max=article_toc_depth class="article-toc-list" id="article-toc-list" item_class="toc-level-%level%" anchor_class="article-toc-link" %}
   </nav>
+  <div class="article-reading-status">
+    <div class="article-reading-meter" aria-hidden="true"><span></span></div>
+    <span class="article-reading-percent">0%</span>
+    <span>{% if page_lang == 'en' %}read{% else %}已阅读{% endif %}</span>
+  </div>
 </aside>

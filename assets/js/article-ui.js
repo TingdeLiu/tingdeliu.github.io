@@ -175,7 +175,7 @@
         event.preventDefault();
         var url = window.location.origin + window.location.pathname + window.location.search + '#' + heading.id;
         window.history.pushState(null, '', '#' + heading.id);
-        heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        heading.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
         copyText(url).then(function () {
           anchor.classList.add('is-copied');
           anchor.setAttribute('aria-label', label('链接已复制'));
@@ -291,6 +291,8 @@
   function setupProgress() {
     var bar = document.querySelector('.article-progress-bar');
     var article = document.querySelector('.posts');
+    var meter = document.querySelector('.article-reading-meter span');
+    var percent = document.querySelector('.article-reading-percent');
     if (!bar || !article) return function () {};
 
     function update() {
@@ -299,6 +301,8 @@
       var distance = Math.max(articleEnd - articleTop, 1);
       var progress = Math.min(Math.max((window.scrollY - articleTop) / distance, 0), 1);
       bar.style.transform = 'scaleX(' + progress + ')';
+      if (meter) meter.style.transform = 'scaleX(' + progress + ')';
+      if (percent) percent.textContent = Math.round(progress * 100) + '%';
     }
 
     update();
@@ -315,7 +319,7 @@
     var scrollArea = toc.querySelector('.article-toc-scroll');
     var links = Array.prototype.slice.call(toc.querySelectorAll('.article-toc-link'));
     var branches = Array.prototype.slice.call(toc.querySelectorAll('.toc-level-2'));
-    var drawerQuery = window.matchMedia('(max-width: 1359px)');
+    var drawerQuery = window.matchMedia('(max-width: 1099px)');
     var linkById = new Map();
     var activeId = '';
 
@@ -431,6 +435,7 @@
       document.body.classList.add('toc-drawer-open');
       trigger.setAttribute('aria-expanded', 'true');
       toc.setAttribute('aria-hidden', 'false');
+      toc.inert = false;
       closeButton.focus({ preventScroll: true });
     }
 
@@ -438,6 +443,7 @@
       document.body.classList.remove('toc-drawer-open');
       trigger.setAttribute('aria-expanded', 'false');
       toc.setAttribute('aria-hidden', drawerQuery.matches ? 'true' : 'false');
+      toc.inert = drawerQuery.matches;
       if (options && options.restoreFocus) trigger.focus({ preventScroll: true });
     }
 
@@ -449,6 +455,13 @@
       closeDrawer({ restoreFocus: true });
     });
     document.addEventListener('keydown', function (event) {
+      if (event.key === 'Tab' && document.body.classList.contains('toc-drawer-open')) {
+        var focusable = Array.prototype.filter.call(toc.querySelectorAll('a, button'), function (el) { return el.getClientRects().length > 0; });
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
       if (event.key === 'Escape' && document.body.classList.contains('toc-drawer-open')) {
         closeDrawer({ restoreFocus: true });
       }
@@ -491,6 +504,16 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
+    document.body.classList.add('article-ui-ready');
+    var entry = document.querySelector('.entry');
+    var readingTime = document.querySelector('[data-reading-time]');
+    if (entry && readingTime) {
+      var prose = entry.textContent;
+      var cjk = (prose.match(/[\u3400-\u9fff]/g) || []).length;
+      var words = (prose.replace(/[\u3400-\u9fff]/g, ' ').match(/\S+/g) || []).length;
+      var minutes = Math.max(1, Math.ceil(cjk / 350 + words / 220));
+      readingTime.textContent = minutes + (english ? ' min' : ' 分钟');
+    }
     enhanceProseLayout();
     enhanceTables();
     enhanceCodeBlocks();

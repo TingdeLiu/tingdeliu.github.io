@@ -5,25 +5,6 @@ layout: default
 {% include locale.html %}
 <article class="posts paper-figures{% if page.vla_survey %} vla-survey{% endif %}{% if page.prose_reading %} prose-reading{% endif %}{% if page.translation_id == 'robot-navigation-survey' %} robot-navigation-survey{% endif %}">
   
-  <h1>{{ page.title }}</h1>
-  {% include language-switch.html %}
-
-  <div class="post-meta">
-    <span class="date">
-      {{ page.date | date: "%Y-%m-%d" }}
-    </span>
-
-    <ul class="tag">
-      {% for tag in page.tags %}
-      <li>
-        {% if page_lang == 'en' %}<span>{{ tag }}</span>{% else %}<a href="{{ site.url }}{{ site.baseurl }}/tags#{{ tag }}">
-          {{ tag }}
-        </a>{% endif %}
-      </li>
-      {% endfor %}
-    </ul>
-  </div>
-
   
   <!-- 在这里添加回到顶部，只在post页面会出现 -->
   {% include backtotop.html %}

@@ -13,6 +13,7 @@
     {% endunless %}
 
     {% if page.layout == 'post' %}
+      {% include article-header.html %}
       <div class="article-progress" aria-hidden="true">
         <span class="article-progress-bar"></span>
       </div>
@@ -100,7 +101,7 @@
       }
 
       document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.tag li > a').forEach(function (el) {
+        document.querySelectorAll('body:not(.article-page) .tag li > a').forEach(function (el) {
           var tag = el.textContent.trim();
           var c = palette[hash(tag) % palette.length];
           el.style.backgroundColor = c.bg;

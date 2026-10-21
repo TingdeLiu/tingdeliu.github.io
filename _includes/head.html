@@ -1,5 +1,6 @@
 <head>
   <title>{% if page.title %}{{ page.title }} – {% endif %}{{ site.name }} – {{ site.description }}</title>
+  <script src="{{ '/assets/js/theme.js' | relative_url }}"></script>
 
   <!-- OpenGraph 是一种由 Facebook 推出的协议，用于在社交媒体上更好地展示网页内容。（在meta.html中定义） -->
   {% include meta.html %}
