@@ -46,8 +46,52 @@ class Document(HTMLParser):
         return [n['attrs']['id'] for n in self.nodes if n['attrs'].get('id')]
 
 
+def research_pair_errors(slug, status, translated, original, source_body, english_body):
+    """Check a research translation without treating a known stale edition as synchronized."""
+    errors = []
+    stale = status['stale']
+    if ('translation-stale' in translated.raw) != stale:
+        errors.append(f'{slug}: stale translation notice missing' if stale
+                      else f'{slug}: stale translation notice shown for synchronized article')
+    if not stale:
+        heading_ids = lambda doc: [n['attrs'].get('id') for n in doc.nodes
+                                   if n['entry'] and re.fullmatch('h[1-6]', n['tag'])]
+        if heading_ids(translated) != heading_ids(original):
+            errors.append(f'{slug}: heading structure/IDs differ')
+        for tag in ('table', 'img', 'pre'):
+            if len(translated.select(tag, True)) != len(original.select(tag, True)):
+                errors.append(f'{slug}: {tag} counts differ')
+        def external(doc):
+            return Counter(n['attrs'].get('href') for n in doc.select('a', True)
+                           if n['attrs'].get('href', '').startswith(('http://', 'https://')))
+        if external(translated) != external(original):
+            errors.append(f'{slug}: external citations differ')
+        from check_translation_drafts import (features, normalize_agent_table_labels,
+                                              normalize_ml_labels, normalize_large_model_labels,
+                                              normalize_vla_labels)
+        normalize = (normalize_vla_labels if slug in ('VLA-Survey', 'VLA-Papers', 'World-Models-Survey')
+                     else normalize_large_model_labels if slug in ('LLM-Training-Survey', 'VLM-Survey', 'Spatial-Intelligence-Survey')
+                     else normalize_ml_labels if 'Learning-Survey' in slug else normalize_agent_table_labels)
+        before, after = features(normalize(source_body)), features(normalize(english_body))
+        for feature in ('math', 'links', 'table_numbers', 'table_row_widths'):
+            if before[feature] != after[feature]:
+                errors.append(f'{slug}: {feature} differ')
+    for doc in (translated, original):
+        switches = [n['attrs']['data-language-switch'] for n in doc.select('a')
+                    if 'data-language-switch' in n['attrs']]
+        if switches != ['index' if stale else 'article']:
+            errors.append(f'{slug}: unsafe section switching')
+        alternates = {n['attrs'].get('hreflang'): n['attrs'].get('href')
+                      for n in doc.select('link') if n['attrs'].get('hreflang')}
+        if alternates != {'en': f'https://tingdeliu.github.io/en/{slug}/',
+                          'zh-CN': f'https://tingdeliu.github.io/{slug}/'}:
+            errors.append(f'{slug}: incorrect language alternates')
+    return errors
+
+
 def main():
     errors, cache = [], {}
+    translation_status = json.loads((ROOT / '_data/translation_status.json').read_text(encoding='utf-8'))
 
     def check(condition, message):
         if not condition:
@@ -181,25 +225,13 @@ def main():
         _, _, source_body = read_document(ROOT / fields['source_path'])
         translated = load(SITE / f'en/{slug}/index.html')
         original = load(SITE / f'{slug}/index.html')
-        heading_ids = lambda doc: [n['attrs'].get('id') for n in doc.nodes if n['entry'] and re.fullmatch('h[1-6]', n['tag'])]
-        check(heading_ids(translated) == heading_ids(original), f'{slug}: heading structure/IDs differ')
-        for tag in ('table', 'img', 'pre'):
-            check(len(translated.select(tag, True)) == len(original.select(tag, True)), f'{slug}: {tag} counts differ')
-        check(external(translated) == external(original), f'{slug}: external citations differ')
-        from check_translation_drafts import features, normalize_agent_table_labels, normalize_ml_labels, normalize_large_model_labels, normalize_vla_labels
-        normalize = normalize_vla_labels if slug in ('VLA-Survey', 'VLA-Papers', 'World-Models-Survey') else normalize_large_model_labels if slug in ('LLM-Training-Survey', 'VLM-Survey', 'Spatial-Intelligence-Survey') else normalize_ml_labels if 'Learning-Survey' in slug else normalize_agent_table_labels
-        before, after = features(normalize(source_body)), features(normalize(english_body))
-        for feature in ('math', 'links', 'table_numbers', 'table_row_widths'):
-            check(before[feature] == after[feature], f'{slug}: {feature} differ')
-        for doc in (translated, original):
-            switches = [n['attrs']['data-language-switch'] for n in doc.select('a') if 'data-language-switch' in n['attrs']]
-            check(switches == ['article'], f'{slug}: section switching missing')
-            alternates = {n['attrs'].get('hreflang'): n['attrs'].get('href') for n in doc.select('link') if n['attrs'].get('hreflang')}
-            check(alternates == {'en': f'https://tingdeliu.github.io/en/{slug}/', 'zh-CN': f'https://tingdeliu.github.io/{slug}/'}, f'{slug}: incorrect language alternates')
+        errors.extend(research_pair_errors(slug, translation_status[fields['translation_id']],
+                                           translated, original, source_body, english_body))
         check(f'/en/{slug}/' not in (SITE / 'feed.xml').read_text(encoding='utf-8'), f'{slug}: translation leaked into Chinese feed')
         cards = [n['attrs'].get('href') for n in load(SITE / 'en/research/index.html').select('a') if 'rc-card' in n['attrs'].get('class', '').split()]
         check(cards.count(f'/en/{slug}/') == 1, f'{slug}: missing or duplicate Research card')
-        print(f'{slug}: {len(heading_ids(translated))} headings; {len(translated.select("table", True))} tables; {len(translated.select("img", True))} images')
+        heading_count = sum(n['entry'] and bool(re.fullmatch('h[1-6]', n['tag'])) for n in translated.nodes)
+        print(f'{slug}: {len(translated.select("table", True))} tables; {len(translated.select("img", True))} images; {heading_count} headings')
     navigation_path = SITE / 'en/Robot-Navigation-Survey/index.html'
     if navigation_path.exists():
         navigation = load(navigation_path)
