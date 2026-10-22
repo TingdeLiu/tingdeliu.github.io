@@ -1,0 +1,17 @@
+.article-page.research-index-page {
+  .research-topics { display: flex; flex-wrap: wrap; gap: 12px 24px; padding-bottom: 24px; border-bottom: 1px solid var(--rule); }
+  .entry .research-topics a { color: var(--muted); font-size: 12px; text-decoration: none; padding: 6px 0; margin: 0; letter-spacing: 0; }
+  .entry .research-topics a:hover { color: var(--accent); }
+  .research-topics .n { margin-left: 8px; font-size: 10px; }
+  .entry .research-group { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin: 48px 0 8px; padding: 0; font-size: 15px; font-weight: 500; line-height: 1.6; }
+  .research-group .count { flex-shrink: 0; color: var(--muted); font-size: 11px; font-weight: 400; }
+  .research-group:target { color: var(--accent); }
+  .research-list { border-top: 1px solid var(--rule); }
+}
+
+@media (max-width: 640px) {
+  .article-page.research-index-page {
+    .research-topics { gap: 6px 18px; }
+    .entry .research-group { margin-top: 36px; font-size: 14px; }
+  }
+}

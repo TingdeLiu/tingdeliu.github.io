@@ -1,4 +1,4 @@
-.article-page.blog-index-page {
+.article-page.blog-index-page, .article-page.research-index-page {
   .container { max-width: 1440px; padding: 76px 48px 120px; }
   .blog-library { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(0, 3fr); gap: 64px; align-items: start; }
   .blog-index-content { min-width: 0; }
@@ -41,7 +41,7 @@
 }
 
 @media (max-width: 1000px) {
-  .article-page.blog-index-page {
+  .article-page.blog-index-page, .article-page.research-index-page {
     .container { padding: 48px 32px 80px; }
     .blog-library { grid-template-columns: 1fr; gap: 36px; }
     .page-heading { position: static; flex-direction: row; justify-content: space-between; }
@@ -52,7 +52,7 @@
 }
 
 @media (max-width: 640px) {
-  .article-page.blog-index-page {
+  .article-page.blog-index-page, .article-page.research-index-page {
     .container { padding: 36px 20px 64px; }
     .page-heading { flex-direction: column; gap: 20px; margin-bottom: 0; }
     .page-heading h1 { font-size: 36px; margin-bottom: 16px; }

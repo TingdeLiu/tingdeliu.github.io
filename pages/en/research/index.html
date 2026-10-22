@@ -1,5 +1,7 @@
 ---
 layout: page
+editorial: true
+research_index: true
 lang: en
 title: Research
 permalink: /en/research/
@@ -8,10 +10,8 @@ excerpt: "English surveys and research notes on vision-language navigation and e
 ---
 
 {% include locale.html %}
-{% include card-grid-style.html %}
-<div class="english-intro">
-  <p>Research surveys and paper notes on AI agents, embodied intelligence, and robotics, from agent architecture and robot runtimes to traditional navigation and vision-language navigation (VLN).</p>
-</div>
+
+
 {% assign english_research = site.translations | where: 'lang', 'en' | where_exp: 'item', 'item.categories contains "research"' | where_exp: 'item', 'item.published != false' | sort: 'date' | reverse %}
 {% assign research_groups = site.data.research_groups %}
 {% assign all_grouped_slugs = "" | split: "" %}
@@ -26,9 +26,18 @@ excerpt: "English surveys and research notes on vision-language navigation and e
   {% endunless %}
 {% endfor %}
 
-<p class="rc-intro">{{ english_research.size }} surveys and paper collections, grouped by topic and ordered by latest update within each group.</p>
 
-<nav class="rc-jump" aria-label="Research groups">
+
+<section class="blog-library research-library">
+  <header class="page-heading">
+    <div>
+      <h1>{{ page.title }}</h1>
+      <p class="blog-intro">{% if page_lang == 'en' %}Research in embodied intelligence.<br>Surveys, papers, and technical notes.{% else %}关于具身智能的研究。<br>长文综述、论文精读与技术笔记。{% endif %}</p>
+    </div>
+    {% include language-switch.html site=true %}
+  </header>
+  <div class="blog-index-content">
+<nav class="research-topics" aria-label="Research groups">
   {% for group in research_groups %}
     {% assign n = 0 %}
     {% for article in english_research %}
@@ -51,20 +60,23 @@ excerpt: "English surveys and research notes on vision-language navigation and e
     {% endif %}
   {% endfor %}
   {% if group_posts.size > 0 %}
-    <h2 class="rc-group" id="{{ group.id }}">{{ group.en }}<span class="count">{{ group_posts.size }} articles</span></h2>
-    <div class="rc-grid" data-research-group="{{ group.id }}">
+    <h2 class="research-group" id="{{ group.id }}">{{ group.en }}<span class="count">{{ group_posts.size }} articles</span></h2>
+    <div class="research-list" data-research-group="{{ group.id }}">
       {% for article in group_posts %}
-        {% include post-card.html post=article %}
+        {% include research-row.html post=article %}
       {% endfor %}
     </div>
   {% endif %}
 {% endfor %}
 
 {% if ungrouped_posts.size > 0 %}
-  <h2 class="rc-group" id="other">Other<span class="count">{{ ungrouped_posts.size }} articles</span></h2>
-  <div class="rc-grid" data-research-group="other">
+  <h2 class="research-group" id="other">Other<span class="count">{{ ungrouped_posts.size }} articles</span></h2>
+  <div class="research-list" data-research-group="other">
     {% for article in ungrouped_posts %}
-      {% include post-card.html post=article %}
+      {% include research-row.html post=article %}
     {% endfor %}
   </div>
 {% endif %}
+
+  </div>
+</section>

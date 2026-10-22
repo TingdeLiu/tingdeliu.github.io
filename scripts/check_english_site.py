@@ -155,6 +155,16 @@ def main():
               f'/{route}/: interactive Blog controls missing')
         check(not any('wrapper-sidebar' in n['attrs'].get('class', '').split() for n in doc.select('div')),
               f'/{route}/: legacy sidebar still visible')
+    for route in ('research', 'en/research'):
+        research = load(SITE / route / 'index.html')
+        check('research-index-page' in research.select('body')[0]['attrs'].get('class', '').split(),
+              f'/{route}/: Research layout missing')
+        rows = [n for n in research.select('a') if 'data-research-row' in n['attrs']]
+        urls = [n['attrs'].get('href') for n in rows]
+        check(bool(rows) and len(urls) == len(set(urls)) and len(research.select('time', True)) == len(rows),
+              f'/{route}/: missing or duplicate dated research rows')
+        check(not any('wrapper-sidebar' in n['attrs'].get('class', '').split() for n in research.select('div')),
+              f'/{route}/: legacy sidebar still visible')
     projects = load(SITE / 'home/index.html')
     check('project-index-page' in projects.select('body')[0]['attrs'].get('class', '').split(),
           '/home/: project layout missing')
