@@ -180,12 +180,12 @@ Rows are sorted by SR, then CGT, descending. Gray rows use a filtered subset or 
 | Claude Code Opus-5 <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">Agent comparison in the report</span> [D] | 2026 | Training-free | Opus-5 | 114 episodes · – steps | 5.26 | 26.87 | 17.82 | 17.84 | – | – |
 | [FantasyVLN](https://github.com/Fantasy-AMAP/fantasy-vln) [B] | 2026 | Trained | – | Aggregate | **2.44** | **11.01** | **9.64** | **8.99** | – | [Yes](https://github.com/Fantasy-AMAP/fantasy-vln) |
 | Aux-Think [B] | 2026 | Trained | – | Aggregate | 0.65 | 3.16 | 2.04 | 1.47 | – | – |
-| [MGDM (multi-view)](https://github.com/HCPLab-SYSU/LH-VLN) (Finetuned) [A] | 2025 | Trained | Vicuna-7B v0 | 3–4 subtasks | 0.0 | **4.69** | **3.30** | **5.83** | **1.23** | [Yes](https://github.com/HCPLab-SYSU/LH-VLN) |
+| [MGDM (multi-view)](https://github.com/HCPLab-SYSU/LH-VLN) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> (Finetuned) [A] | 2025 | Trained | Vicuna-7B v0 | 3–4 subtasks | 0.0 | **4.69** | **3.30** | **5.83** | **1.23** | [Yes](https://github.com/HCPLab-SYSU/LH-VLN) |
 | NaviLLM (multi-view) (Finetuned) [A] | 2025 | Trained | – | 3–4 subtasks | 0.0 | 3.54 | 2.53 | 5.24 | 9.79 | – |
 | GPT-4 + NaviLLM (multi-view) (Pretrain) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> [A] | 2025 | Trained | – | 3–4 subtasks | 0.0 | 4.37 | 2.91 | 5.23 | 10.00 | – |
 | MGDM [B] | 2026 | Trained | Vicuna-7B v0 | Aggregate | 0.00 | 2.34 | 1.65 | 2.91 | – | [Yes](https://github.com/HCPLab-SYSU/LH-VLN) |
 | GPT-4 + NaviLLM <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> [B] | 2026 | Trained | – | Aggregate | 0.00 | 2.19 | 1.45 | 2.61 | – | – |
-| [MGDM (multi-view)](https://github.com/HCPLab-SYSU/LH-VLN) (Finetuned) [A] | 2025 | Trained | Vicuna-7B v0 | 2–3 subtasks | 0.0 | 0.0 | 0.0 | 0.0 | **3.54** | [Yes](https://github.com/HCPLab-SYSU/LH-VLN) |
+| [MGDM (multi-view)](https://github.com/HCPLab-SYSU/LH-VLN) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> (Finetuned) [A] | 2025 | Trained | Vicuna-7B v0 | 2–3 subtasks | 0.0 | 0.0 | 0.0 | 0.0 | **3.54** | [Yes](https://github.com/HCPLab-SYSU/LH-VLN) |
 | NaviLLM (multi-view) (Pretrain) [A] | 2025 | Trained | – | 2–3 subtasks | 0.0 | 0.0 | 0.0 | 0.0 | 12.11 | – |
 | GPT-4 + NaviLLM (multi-view) (Pretrain) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> [A] | 2025 | Trained | – | 2–3 subtasks | 0.0 | 0.0 | 0.0 | 0.0 | 12.23 | – |
 | NaviLLM (multi-view) (Finetuned) [A] | 2025 | Trained | – | 2–3 subtasks | 0.0 | 0.0 | 0.0 | 0.0 | 12.24 | – |
@@ -196,8 +196,8 @@ Rows are sorted by SR, then CGT, descending. Gray rows use a filtered subset or 
 | GLM-4v prompt (multi-view) (Zero-shot) [A] | 2025 | Training-free | GLM-4v | 3–4 subtasks | 0.0 | 0.0 | 0.0 | 0.0 | 10.97 | – |
 | CoT-VLA [B] | 2026 | Trained | – | Aggregate | 0.00 | 0.00 | 0.00 | 0.00 | – | – |
 | WorldVLA [B] | 2026 | Trained | – | Aggregate | 0.00 | 0.00 | 0.00 | 0.00 | – | – |
-| [InstructNav](https://arxiv.org/abs/2406.04882) <span class="lb-flag">Extra depth / maps / pathfinding</span> [C] | 2025 | Training-free | – | 2–3 subtasks | 0.00 | 0.00 | 0.00 | 0.00 | 10.80 | – |
-| [InstructNav](https://arxiv.org/abs/2406.04882) <span class="lb-flag">Extra depth / maps / pathfinding</span> [C] | 2025 | Training-free | – | 3–4 subtasks | 0.00 | 0.00 | 0.00 | 0.00 | 8.38 | – |
+| [InstructNav](https://arxiv.org/abs/2406.04882) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">Extra depth / maps / pathfinding</span> [C] | 2025 | Training-free | – | 2–3 subtasks | 0.00 | 0.00 | 0.00 | 0.00 | 10.80 | – |
+| [InstructNav](https://arxiv.org/abs/2406.04882) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">Extra depth / maps / pathfinding</span> [C] | 2025 | Training-free | – | 3–4 subtasks | 0.00 | 0.00 | 0.00 | 0.00 | 8.38 | – |
 
 [A] reproduces the multi-stage results from [v3 Table 2](https://arxiv.org/html/2412.09082v3#S5.T2), preserving its “2–3 / 3–4 Subtasks” groups. SR requires completing every subtask in the instructed order; ISR measures independent subtask success, CSR accounts for dependencies between successive successes, and CGT adds ground-truth path-length weighting to CSR. Success metrics retain the paper's percentages; NE is in meters. Subtask success does not imply full-task success.
 
@@ -205,7 +205,7 @@ Note: – in the Open column means that public availability of the benchmark-spe
 
 Sources: [FantasyVLN (CVPR 2026), Table 2 and §4.1](https://arxiv.org/html/2601.13976#S4.SS1) · [code and model links](https://github.com/Fantasy-AMAP/fantasy-vln). Evaluation uses unseen tasks and scenes. [B] reports aggregate results, which are not directly comparable to task-length groups.
 
-Note: The FantasyVLN authors reimplemented Aux-Think and CoT-VLA from their papers and adapted WorldVLA's official implementation to LH-VLN. These are not LH-VLN results reported by those methods' original authors. The Open column refers to the benchmark-specific implementation; – means unverified. MGDM's aggregate scores are preserved as reported in this comparison.
+Note: The FantasyVLN authors reimplemented Aux-Think and CoT-VLA from their papers and adapted WorldVLA's official implementation to LH-VLN. These are not LH-VLN results reported by those methods' original authors. The Open column refers to the benchmark-specific implementation; – means unverified. MGDM's aggregate scores are preserved as reported in this comparison. FantasyVLN uses the public LH-VLN implementation, which has no GPT-4 CoT module, so the [B] MGDM row carries no Closed API badge; the original paper's [A] rows call GPT-4 for chain-of-thought during navigation and do.
 
 The [LH-VLN appendix, §9.3 / Table 8](https://arxiv.org/html/2412.09082v3#S9.SS3), also evaluates InstructNav. It uses additional depth images, top-down maps, and parts of Habitat's greedy pathfinding interface, so its rows are gray reference entries [C].
 

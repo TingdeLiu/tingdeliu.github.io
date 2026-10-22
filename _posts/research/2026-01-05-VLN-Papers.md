@@ -170,12 +170,12 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 | Claude Code Opus-5 <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">报告中的 Agent 对照</span> [D] | 2026 | 免训练 | Opus-5 | 114 条子集 · – 步 | 5.26 | 26.87 | 17.82 | 17.84 | – | – |
 | [FantasyVLN](https://github.com/Fantasy-AMAP/fantasy-vln) [B] | 2026 | 训练 | – | 汇总 | **2.44** | **11.01** | **9.64** | **8.99** | – | [是](https://github.com/Fantasy-AMAP/fantasy-vln) |
 | Aux-Think [B] | 2026 | 训练 | – | 汇总 | 0.65 | 3.16 | 2.04 | 1.47 | – | – |
-| [MGDM (多目)](https://github.com/HCPLab-SYSU/LH-VLN) (Finetuned) [A] | 2025 | 训练 | Vicuna-7B v0 | 3–4 子任务 | 0.0 | **4.69** | **3.30** | **5.83** | **1.23** | [是](https://github.com/HCPLab-SYSU/LH-VLN) |
+| [MGDM (多目)](https://github.com/HCPLab-SYSU/LH-VLN) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> (Finetuned) [A] | 2025 | 训练 | Vicuna-7B v0 | 3–4 子任务 | 0.0 | **4.69** | **3.30** | **5.83** | **1.23** | [是](https://github.com/HCPLab-SYSU/LH-VLN) |
 | NaviLLM (多目) (Finetuned) [A] | 2025 | 训练 | – | 3–4 子任务 | 0.0 | 3.54 | 2.53 | 5.24 | 9.79 | – |
 | GPT-4 + NaviLLM (多目) (Pretrain) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> [A] | 2025 | 训练 | – | 3–4 子任务 | 0.0 | 4.37 | 2.91 | 5.23 | 10.00 | – |
 | MGDM [B] | 2026 | 训练 | Vicuna-7B v0 | 汇总 | 0.00 | 2.34 | 1.65 | 2.91 | – | [是](https://github.com/HCPLab-SYSU/LH-VLN) |
 | GPT-4 + NaviLLM <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> [B] | 2026 | 训练 | – | 汇总 | 0.00 | 2.19 | 1.45 | 2.61 | – | – |
-| [MGDM (多目)](https://github.com/HCPLab-SYSU/LH-VLN) (Finetuned) [A] | 2025 | 训练 | Vicuna-7B v0 | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | **3.54** | [是](https://github.com/HCPLab-SYSU/LH-VLN) |
+| [MGDM (多目)](https://github.com/HCPLab-SYSU/LH-VLN) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> (Finetuned) [A] | 2025 | 训练 | Vicuna-7B v0 | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | **3.54** | [是](https://github.com/HCPLab-SYSU/LH-VLN) |
 | NaviLLM (多目) (Pretrain) [A] | 2025 | 训练 | – | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 12.11 | – |
 | GPT-4 + NaviLLM (多目) (Pretrain) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> [A] | 2025 | 训练 | – | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 12.23 | – |
 | NaviLLM (多目) (Finetuned) [A] | 2025 | 训练 | – | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 12.24 | – |
@@ -186,8 +186,8 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 | GLM-4v prompt (多目) (Zero-shot) [A] | 2025 | 免训练 | GLM-4v | 3–4 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 10.97 | – |
 | CoT-VLA [B] | 2026 | 训练 | – | 汇总 | 0.00 | 0.00 | 0.00 | 0.00 | – | – |
 | WorldVLA [B] | 2026 | 训练 | – | 汇总 | 0.00 | 0.00 | 0.00 | 0.00 | – | – |
-| [InstructNav](https://arxiv.org/abs/2406.04882) <span class="lb-flag">额外深度 / 地图 / 寻路接口</span> [C] | 2025 | 免训练 | – | 2–3 子任务 | 0.00 | 0.00 | 0.00 | 0.00 | 10.80 | – |
-| [InstructNav](https://arxiv.org/abs/2406.04882) <span class="lb-flag">额外深度 / 地图 / 寻路接口</span> [C] | 2025 | 免训练 | – | 3–4 子任务 | 0.00 | 0.00 | 0.00 | 0.00 | 8.38 | – |
+| [InstructNav](https://arxiv.org/abs/2406.04882) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">额外深度 / 地图 / 寻路接口</span> [C] | 2025 | 免训练 | – | 2–3 子任务 | 0.00 | 0.00 | 0.00 | 0.00 | 10.80 | – |
+| [InstructNav](https://arxiv.org/abs/2406.04882) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">额外深度 / 地图 / 寻路接口</span> [C] | 2025 | 免训练 | – | 3–4 子任务 | 0.00 | 0.00 | 0.00 | 0.00 | 8.38 | – |
 
 [A] 收录[论文 v3 Table 2](https://arxiv.org/html/2412.09082v3#S5.T2) 的多阶段任务结果，保留原文的「2–3 / 3–4 Subtasks」分组，SR 要求按指令顺序完成全部子任务；ISR 衡量独立子任务成功率，CSR 考虑前后子任务的成功依赖，CGT 在 CSR 基础上引入真值路径长度权重。成功率类指标沿用原表百分数，NE 单位为米；子任务成功不等于整个任务成功。
 
@@ -195,7 +195,7 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 
 来源：[FantasyVLN（CVPR 2026）Table 2、§4.1](https://arxiv.org/html/2601.13976#S4.SS1) · [代码与模型入口](https://github.com/Fantasy-AMAP/fantasy-vln)。在任务与场景均未见的测试集上评测；[B] 为汇总结果，不能与按任务长度拆分的成绩直接比较。
 
-注：Aux-Think、CoT-VLA 由 FantasyVLN 作者依据论文实现；WorldVLA 基于官方代码适配 LH-VLN，不能把这些结果归为各方法原论文自行报告的成绩。开源列仍指该基准适配实现，– 表示未核实。MGDM 的汇总值按此文原表保留。
+注：Aux-Think、CoT-VLA 由 FantasyVLN 作者依据论文实现；WorldVLA 基于官方代码适配 LH-VLN，不能把这些结果归为各方法原论文自行报告的成绩。开源列仍指该基准适配实现，– 表示未核实。MGDM 的汇总值按此文原表保留；FantasyVLN 采用 LH-VLN 公开实现，其中没有 GPT-4 CoT 模块，因此 [B] 行的 MGDM 不标闭源 API，原论文 [A] 行在导航中调用 GPT-4 生成思维链，标闭源 API。
 
 [LH-VLN 原论文附录 §9.3 / Table 8](https://arxiv.org/html/2412.09082v3#S9.SS3) 还评测了 InstructNav。它额外使用深度图、俯视地图及部分 Habitat 贪婪寻路接口，以灰色标记为不同输入条件的参考 [C]。
 
