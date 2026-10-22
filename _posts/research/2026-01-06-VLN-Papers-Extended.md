@@ -5445,4 +5445,4 @@ NavHarness 是以持续导航为核心任务的具身 Agent Harness：把空间�
 })();
 </script>
 
-<script src="/assets/js/leaderboard.js"></script>
+<script src="/assets/js/leaderboard.js?v={{ site.time | date: '%Y%m%d%H%M%S' }}"></script>

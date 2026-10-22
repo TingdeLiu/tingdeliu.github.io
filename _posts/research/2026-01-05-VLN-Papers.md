@@ -8602,4 +8602,4 @@ RSI-Nav 在主表所列方法中取得两个数据集最高的 SR，相比 Aware
 })();
 </script>
 
-<script src="/assets/js/leaderboard.js"></script>
+<script src="/assets/js/leaderboard.js?v={{ site.time | date: '%Y%m%d%H%M%S' }}"></script>

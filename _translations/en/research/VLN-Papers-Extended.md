@@ -5901,4 +5901,4 @@ NavHarness is an embodied-agent harness centered on continuing navigation. It ke
 })();
 </script>
 
-<script src="/assets/js/leaderboard.js"></script>
+<script src="/assets/js/leaderboard.js?v={{ site.time | date: '%Y%m%d%H%M%S' }}"></script>
