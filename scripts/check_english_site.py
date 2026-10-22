@@ -161,6 +161,9 @@ def main():
               f'/{route}/: Research layout missing')
         rows = [n for n in research.select('a') if 'data-research-row' in n['attrs']]
         urls = [n['attrs'].get('href') for n in rows]
+        check(any('data-research-filter' in n['attrs'] for n in research.select('button')) and
+              any(n['attrs'].get('src') == '/assets/js/research-index.js' for n in research.select('script')),
+              f'/{route}/: Research filtering controls or script missing')
         check(bool(rows) and len(urls) == len(set(urls)) and len(research.select('time', True)) == len(rows),
               f'/{route}/: missing or duplicate dated research rows')
         check(not any('wrapper-sidebar' in n['attrs'].get('class', '').split() for n in research.select('div')),

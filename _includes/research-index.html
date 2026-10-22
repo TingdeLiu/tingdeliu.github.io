@@ -13,7 +13,7 @@
   {% endunless %}
 {% endfor %}
 
-<section class="blog-library research-library">
+<section class="blog-library research-library" data-research-library>
   <header class="page-heading">
     <div>
       <h1>{{ page.title }}</h1>
@@ -22,46 +22,33 @@
     {% include language-switch.html site=true %}
   </header>
   <div class="blog-index-content">
-<nav class="research-topics" aria-label="{% if page_lang == 'en' %}Research groups{% else %}研究分组{% endif %}">
+<div class="research-topics" data-research-controls hidden role="group" aria-label="{% if page_lang == 'en' %}Research groups{% else %}研究分组{% endif %}">
+  <button type="button" data-research-filter="all" aria-pressed="true" aria-controls="research-results">{% if page_lang == 'en' %}All{% else %}全部{% endif %}<span class="n">{{ research_entries.size }}</span></button>
   {% for group in research_groups %}
     {% assign n = 0 %}
     {% for article in research_entries %}
       {% assign source_slug = article.slug %}{% if page_lang == 'en' %}{% assign source_slug = article.source_url | remove: '/' %}{% endif %}
       {% if group.slugs contains source_slug %}{% assign n = n | plus: 1 %}{% endif %}
     {% endfor %}
-    {% if n > 0 %}<a href="#{{ group.id }}">{% if page_lang == 'en' %}{{ group.en }}{% else %}{{ group.zh }}{% endif %}<span class="n">{{ n }}</span></a>{% endif %}
+    {% if n > 0 %}<button type="button" data-research-filter="{{ group.id }}" aria-pressed="false" aria-controls="research-results">{% if page_lang == 'en' %}{{ group.en }}{% else %}{{ group.zh }}{% endif %}<span class="n">{{ n }}</span></button>{% endif %}
   {% endfor %}
   {% if ungrouped_posts.size > 0 %}
-    <a href="#other">{% if page_lang == 'en' %}Other{% else %}其他{% endif %}<span class="n">{{ ungrouped_posts.size }}</span></a>
+    <button type="button" data-research-filter="other" aria-pressed="false" aria-controls="research-results">{% if page_lang == 'en' %}Other{% else %}其他{% endif %}<span class="n">{{ ungrouped_posts.size }}</span></button>
   {% endif %}
-</nav>
-
-{% for group in research_groups %}
-  {% assign group_posts = "" | split: "" %}
-  {% for article in research_entries %}
-    {% assign source_slug = article.slug %}{% if page_lang == 'en' %}{% assign source_slug = article.source_url | remove: '/' %}{% endif %}
-    {% if group.slugs contains source_slug %}
-      {% assign group_posts = group_posts | push: article %}
-    {% endif %}
-  {% endfor %}
-  {% if group_posts.size > 0 %}
-    <h2 class="research-group" id="{{ group.id }}">{% if page_lang == 'en' %}{{ group.en }}{% else %}{{ group.zh }}{% endif %}<span class="count">{{ group_posts.size }} {% if page_lang == 'en' %}articles{% else %}篇{% endif %}</span></h2>
-    <div class="research-list" data-research-group="{{ group.id }}">
-      {% for article in group_posts %}
-        {% include research-row.html post=article %}
+</div>
+  <div class="blog-results-info">
+    <p data-research-count role="status" aria-live="polite">{{ research_entries.size }} {% if page_lang == 'en' %}articles{% else %}篇文章{% endif %}</p>
+    <span>{% if page_lang == 'en' %}Latest updates first{% else %}按最近更新排序{% endif %}</span>
+  </div>
+  <div class="research-list" id="research-results">
+    {% for article in research_entries %}
+      {% assign source_slug = article.slug %}{% if page_lang == 'en' %}{% assign source_slug = article.source_url | remove: '/' %}{% endif %}
+      {% assign article_group = 'other' %}
+      {% for group in research_groups %}
+        {% if group.slugs contains source_slug %}{% assign article_group = group.id %}{% break %}{% endif %}
       {% endfor %}
-    </div>
-  {% endif %}
-{% endfor %}
-
-{% if ungrouped_posts.size > 0 %}
-  <h2 class="research-group" id="other">{% if page_lang == 'en' %}Other{% else %}其他{% endif %}<span class="count">{{ ungrouped_posts.size }} {% if page_lang == 'en' %}articles{% else %}篇{% endif %}</span></h2>
-  <div class="research-list" data-research-group="other">
-    {% for article in ungrouped_posts %}
-      {% include research-row.html post=article %}
+      {% include research-row.html post=article group=article_group %}
     {% endfor %}
   </div>
-{% endif %}
-
   </div>
 </section>
