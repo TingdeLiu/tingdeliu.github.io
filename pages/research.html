@@ -1,5 +1,6 @@
 ---
 layout: page
+lang: zh-CN
 editorial: true
 research_index: true
 title: Research
@@ -7,78 +8,5 @@ permalink: /research/
 translation_id: research-index
 ---
 
-{% include locale.html %}
-
-
-{% assign research_posts = site.posts | where_exp: 'item', 'item.categories contains "research"' | sort: "date" | reverse %}
-
-{% if research_posts.size == 0 %}
-  <h2>No post found</h2>
-{% endif %}
-
-{% assign research_groups = site.data.research_groups %}
-{% assign all_grouped_slugs = "" | split: "" %}
-{% for group in research_groups %}
-  {% assign all_grouped_slugs = all_grouped_slugs | concat: group.slugs %}
-{% endfor %}
-
-{% comment %} 兜底：未归入任何分组的新文章统一显示在"其他" {% endcomment %}
-{% assign ungrouped_posts = "" | split: "" %}
-{% for post in research_posts %}
-  {% unless all_grouped_slugs contains post.slug %}
-    {% assign ungrouped_posts = ungrouped_posts | push: post %}
-  {% endunless %}
-{% endfor %}
-
-
-
-<section class="blog-library research-library">
-  <header class="page-heading">
-    <div>
-      <h1>{{ page.title }}</h1>
-      <p class="blog-intro">{% if page_lang == 'en' %}Research in embodied intelligence.<br>Surveys, papers, and technical notes.{% else %}关于具身智能的研究。<br>长文综述、论文精读与技术笔记。{% endif %}</p>
-    </div>
-    {% include language-switch.html site=true %}
-  </header>
-  <div class="blog-index-content">
-<nav class="research-topics" aria-label="研究分组">
-  {% for group in research_groups %}
-    {% assign slugs = group.slugs %}
-    {% assign n = 0 %}
-    {% for post in research_posts %}
-      {% if slugs contains post.slug %}{% assign n = n | plus: 1 %}{% endif %}
-    {% endfor %}
-    <a href="#{{ group.id }}">{{ group.zh }}<span class="n">{{ n }}</span></a>
-  {% endfor %}
-  {% if ungrouped_posts.size > 0 %}
-    <a href="#other">其他<span class="n">{{ ungrouped_posts.size }}</span></a>
-  {% endif %}
-</nav>
-
-{% for group in research_groups %}
-  {% assign slugs = group.slugs %}
-  {% assign group_posts = "" | split: "" %}
-  {% for post in research_posts %}
-    {% if slugs contains post.slug %}
-      {% assign group_posts = group_posts | push: post %}
-    {% endif %}
-  {% endfor %}
-  <h2 class="research-group" id="{{ group.id }}">{{ group.zh }}<span class="count">{{ group_posts.size }} 篇</span></h2>
-  <div class="research-list" data-research-group="{{ group.id }}">
-    {% for post in group_posts %}
-      {% include research-row.html post=post %}
-    {% endfor %}
-  </div>
-{% endfor %}
-
-{% if ungrouped_posts.size > 0 %}
-  <h2 class="research-group" id="other">其他<span class="count">{{ ungrouped_posts.size }} 篇</span></h2>
-  <div class="research-list" data-research-group="other">
-    {% for post in ungrouped_posts %}
-      {% include research-row.html post=post %}
-    {% endfor %}
-  </div>
-{% endif %}
-
-  </div>
-</section>
+{% assign research_entries = site.posts | where_exp: 'item', 'item.categories contains "research"' | where_exp: 'item', 'item.published != false' | sort: 'date' | reverse %}
+{% include research-index.html %}
