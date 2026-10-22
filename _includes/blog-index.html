@@ -3,10 +3,11 @@
   <header class="page-heading">
     <div class="blog-heading-copy">
       <h1>{{ page.title }}</h1>
-      <p class="blog-intro">{% if page_lang == 'en' %}Weekly research digests and technical notes.<br>Embodied navigation, robot learning, and agent engineering.{% else %}从论文到实践，记录具身智能的进展与思考。<br>具身导航周报，以及机器人与智能体的技术随笔。{% endif %}</p>
+      <p class="blog-intro">{% if page_lang == 'en' %}Notes on embodied intelligence.<br>Research, experiments, and things learned.{% else %}关于具身智能的研究与实践。<br>读过的论文，做过的尝试。{% endif %}</p>
     </div>
     {% include language-switch.html site=true %}
   </header>
+  <div class="blog-index-content">
   <div class="blog-controls" data-blog-controls hidden>
     <div class="blog-filters" role="group" aria-label="{% if page_lang == 'en' %}Article type{% else %}文章类型{% endif %}">
       <button type="button" data-blog-filter="all" aria-pressed="true">{% if page_lang == 'en' %}All{% else %}全部{% endif %}<span>{{ blog_entries.size }}</span></button>
@@ -16,7 +17,7 @@
     <label class="blog-search">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
       <span class="blog-sr-only">{% if page_lang == 'en' %}Search articles{% else %}搜索文章{% endif %}</span>
-      <input type="search" data-blog-search placeholder="{% if page_lang == 'en' %}Search titles, topics…{% else %}搜索标题、摘要或主题…{% endif %}" autocomplete="off" aria-controls="blog-results">
+      <input type="search" data-blog-search placeholder="{% if page_lang == 'en' %}Search articles…{% else %}搜索文章…{% endif %}" autocomplete="off" aria-controls="blog-results">
     </label>
   </div>
   <div class="blog-results-info">
@@ -32,5 +33,6 @@
     <h2>{% if page_lang == 'en' %}No matching articles{% else %}没有找到相关文章{% endif %}</h2>
     <p>{% if page_lang == 'en' %}Try a different topic or clear the filters.{% else %}试试其他关键词，或清除筛选条件。{% endif %}</p>
     <button type="button" data-blog-reset>{% if page_lang == 'en' %}Show all articles{% else %}查看全部文章{% endif %}</button>
+  </div>
   </div>
 </section>
