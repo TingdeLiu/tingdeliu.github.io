@@ -21,4 +21,21 @@
     <span>© {{ site.time | date: '%Y' }} {{ site.name }}</span>
     {% include site-stats.html %}
   </div>
+  <div class="site-footer-field" aria-hidden="true">
+    <canvas data-footer-field></canvas>
+    <span class="site-footer-walker">
+      <svg class="article-robot" viewBox="0 0 48 48" focusable="false">
+        <g class="article-robot-body">
+          <path class="article-robot-antenna" d="M24 14V7" />
+          <circle class="article-robot-antenna-tip" cx="24" cy="5" r="2.5" />
+          <rect class="article-robot-ear" x="3.5" y="23" width="5" height="8" rx="2.5" />
+          <rect class="article-robot-ear" x="39.5" y="23" width="5" height="8" rx="2.5" />
+          <rect class="article-robot-face" x="7.5" y="13" width="33" height="25" rx="9" />
+          <circle class="article-robot-eye" cx="17.5" cy="25" r="2.5" />
+          <circle class="article-robot-eye" cx="30.5" cy="25" r="2.5" />
+          <path class="article-robot-smile" d="M20 31c2.2 2 5.8 2 8 0" />
+        </g>
+      </svg>
+    </span>
+  </div>
 </div>

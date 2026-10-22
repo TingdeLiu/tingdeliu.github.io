@@ -24,6 +24,8 @@
     a:hover, a[aria-current] { color: var(--ink); }
     nav { display: flex; gap: clamp(24px, 5vw, 72px); margin: 0; font: 13px $code-font; }
     nav a { margin: 0; letter-spacing: 0; }
+    .nav-key { margin-right: 6px; opacity: .55; }
+    a:hover .nav-key, a[aria-current] .nav-key { opacity: 1; }
     .article-brand { display: grid; place-items: center; width: 48px; height: 48px; flex-shrink: 0; color: var(--ink); }
     .article-robot { display: block; width: 44px; height: 44px; overflow: visible; }
     .article-robot-body { transform-origin: 24px 29px; animation: article-robot-sway 3.6s ease-in-out infinite alternate; }
@@ -201,6 +203,30 @@
   .site-footer-col a:hover { color: var(--accent); }
   .site-footer-meta { grid-column: 1 / -1; display: flex; align-items: center; gap: 24px; padding-top: 24px; border-top: 1px solid var(--rule); color: var(--muted); font: 12px $code-font; }
   .site-stats { margin: 0; justify-content: flex-start; color: var(--muted); font: inherit; }
+  .site-footer-field { grid-column: 1 / -1; position: relative; height: 150px; margin-bottom: -56px; }
+  .site-footer-field canvas { display: block; width: 100%; height: 100%; color: var(--muted); }
+  .site-footer-walker { position: absolute; bottom: 14px; left: 0; width: 40px; height: 40px; color: var(--ink); animation: footer-walk 36s linear infinite; }
+  .article-robot { display: block; width: 40px; height: 40px; overflow: visible; }
+  .article-robot-body { transform-origin: 24px 38px; animation: footer-step .6s ease-in-out infinite alternate; }
+  .article-robot-face { fill: var(--panel); stroke: currentColor; stroke-width: 2; }
+  .article-robot-ear, .article-robot-antenna-tip, .article-robot-eye { fill: var(--accent); }
+  .article-robot-antenna, .article-robot-smile { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+}
+
+@keyframes footer-walk {
+  0% { left: 0; transform: scaleX(1); }
+  49.99% { left: calc(100% - 40px); transform: scaleX(1); }
+  50% { left: calc(100% - 40px); transform: scaleX(-1); }
+  100% { left: 0; transform: scaleX(-1); }
+}
+
+@keyframes footer-step {
+  from { transform: rotate(-6deg) translateY(0); }
+  to { transform: rotate(6deg) translateY(-3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article-page .site-footer-walker, .article-page .site-footer .article-robot-body { animation: none; }
 }
 
 @media screen and (max-width: 1099px) {

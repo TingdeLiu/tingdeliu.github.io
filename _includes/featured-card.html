@@ -1,0 +1,20 @@
+{% assign fp = include.post %}
+{% if fp %}
+<a class="home-featured" href="{{ fp.url | relative_url }}">
+  <span class="home-featured-art" aria-hidden="true">
+    {% include post-icon.html post=fp %}
+  </span>
+  <span class="home-featured-body">
+    <span class="home-featured-meta">
+      <span class="home-featured-badge">{% if page_lang == 'en' %}Featured{% else %}置顶{% endif %}</span>
+      <span>{% if fp.categories contains 'weekly' %}{{ ui.weekly }}{% elsif fp.categories contains 'research' %}{{ ui.research }}{% else %}{{ ui.notes }}{% endif %}</span>
+    </span>
+    <span class="home-featured-title">{{ fp.title | escape }}</span>
+    <span class="home-featured-excerpt">{{ fp.excerpt | strip_html | normalize_whitespace | truncate: 140 | escape }}</span>
+    <span class="home-featured-foot">
+      <time datetime="{{ fp.date | date_to_xmlschema }}">{{ fp.date | date: '%Y-%m-%d' }}</time>
+      {% include reading-time.html post=fp %}
+    </span>
+  </span>
+</a>
+{% endif %}

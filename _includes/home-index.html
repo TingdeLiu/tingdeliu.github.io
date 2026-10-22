@@ -9,31 +9,13 @@
 <section class="blog-library home-library" data-blog-library>
   <header class="page-heading">
     <div class="blog-heading-copy">
-      <h1>{{ site.name }}</h1>
+      <h1 class="home-title"><span class="home-title-text" style="--chars: {{ site.name | size }}">{{ site.name }}</span></h1>
       <p class="blog-intro">{% if page_lang == 'en' %}Notes on embodied intelligence:<br>navigation, VLA models, and robot learning.{% else %}具身智能研究笔记：<br>导航、VLA 与机器人学习。{% endif %}</p>
     </div>
     {% include language-switch.html site=true %}
   </header>
   <div class="blog-index-content">
-  {% if home_featured %}
-  <a class="home-featured" href="{{ home_featured.url | relative_url }}">
-    <span class="home-featured-art" aria-hidden="true">
-      <svg viewBox="0 0 24 24" focusable="false"><path d="M4 4h6v6H4Zm10 0h6v6h-6ZM4 14h6v6H4Zm10 0h6v6h-6Z"/></svg>
-    </span>
-    <span class="home-featured-body">
-      <span class="home-featured-meta">
-        <span class="home-featured-badge">{% if page_lang == 'en' %}Featured{% else %}置顶{% endif %}</span>
-        <span>{{ ui.research }}</span>
-      </span>
-      <span class="home-featured-title">{{ home_featured.title | escape }}</span>
-      <span class="home-featured-excerpt">{{ home_featured.excerpt | strip_html | normalize_whitespace | truncate: 140 | escape }}</span>
-      <span class="home-featured-foot">
-        <time datetime="{{ home_featured.date | date_to_xmlschema }}">{{ home_featured.date | date: '%Y-%m-%d' }}</time>
-        {% include reading-time.html post=home_featured %}
-      </span>
-    </span>
-  </a>
-  {% endif %}
+  {% include featured-card.html post=home_featured %}
   <div class="blog-controls" data-blog-controls hidden>
     <div class="blog-filters" role="group" aria-label="{% if page_lang == 'en' %}Article type{% else %}文章类型{% endif %}">
       <button type="button" data-blog-filter="all" aria-pressed="true">{% if page_lang == 'en' %}All{% else %}全部{% endif %}<span>{{ home_entries.size }}</span></button>

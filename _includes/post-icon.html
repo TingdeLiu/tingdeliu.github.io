@@ -1,0 +1,15 @@
+{%- comment -%}Pixel icon for any post: weekly digest, research group, or technical note.{%- endcomment -%}
+{%- assign icon_post = include.post -%}
+{%- if icon_post.categories contains 'weekly' -%}
+<svg viewBox="0 0 24 24" focusable="false"><path d="M10 2h4v4h4v4h4v4h-4v4h-4v4h-4v-4H6v-4H2v-4h4V6h4Zm0 8v4h4v-4Z" fill-rule="evenodd"/></svg>
+{%- elsif icon_post.categories contains 'research' -%}
+  {%- assign icon_slug = icon_post.slug -%}
+  {%- if icon_post.lang == 'en' -%}{%- assign icon_slug = icon_post.source_url | remove: '/' -%}{%- endif -%}
+  {%- assign icon_group = 'other' -%}
+  {%- for group in site.data.research_groups -%}
+    {%- if group.slugs contains icon_slug -%}{%- assign icon_group = group.id -%}{%- break -%}{%- endif -%}
+  {%- endfor -%}
+  {%- include group-icon.html group=icon_group -%}
+{%- else -%}
+<svg viewBox="0 0 24 24" focusable="false"><path d="M4 4h4v4H4Zm12 0h4v4h-4ZM8 8h8v8H8Zm-4 8h4v4H4Zm12 0h4v4h-4Z"/></svg>
+{%- endif -%}

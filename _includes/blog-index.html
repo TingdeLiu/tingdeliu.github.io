@@ -8,6 +8,8 @@
     {% include language-switch.html site=true %}
   </header>
   <div class="blog-index-content">
+  {% assign blog_featured = weekly_posts | first %}
+  {% include featured-card.html post=blog_featured %}
   <div class="blog-controls" data-blog-controls hidden>
     <div class="blog-filters" role="group" aria-label="{% if page_lang == 'en' %}Article type{% else %}文章类型{% endif %}">
       <button type="button" data-blog-filter="all" aria-pressed="true">{% if page_lang == 'en' %}All{% else %}全部{% endif %}<span>{{ blog_entries.size }}</span></button>

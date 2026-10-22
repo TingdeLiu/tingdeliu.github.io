@@ -22,6 +22,11 @@
     {% include language-switch.html site=true %}
   </header>
   <div class="blog-index-content">
+  {% assign research_featured = nil %}
+  {% for article in research_entries %}
+    {% if article.translation_id == site.research_featured %}{% assign research_featured = article %}{% break %}{% endif %}
+  {% endfor %}
+  {% include featured-card.html post=research_featured %}
 <div class="research-topics" data-research-controls hidden role="group" aria-label="{% if page_lang == 'en' %}Research groups{% else %}研究分组{% endif %}">
   <button type="button" data-research-filter="all" aria-pressed="true" aria-controls="research-results">{% if page_lang == 'en' %}All{% else %}全部{% endif %}<span class="n">{{ research_entries.size }}</span></button>
   {% for group in research_groups %}

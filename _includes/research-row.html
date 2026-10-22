@@ -1,7 +1,7 @@
 {% assign rp = include.post %}
 <a class="rc-card blog-row" href="{{ rp.url | relative_url }}" data-research-row data-research-group="{{ include.group }}">
   <span class="blog-row-icon" aria-hidden="true">
-    <svg viewBox="0 0 24 24" focusable="false"><path d="M4 4h6v6H4Zm10 0h6v6h-6ZM4 14h6v6H4Zm10 0h6v6h-6Z"/></svg>
+    {% include group-icon.html group=include.group %}
   </span>
   <time class="blog-row-date" datetime="{{ rp.date | date_to_xmlschema }}">{{ rp.date | date: '%Y-%m-%d' }}</time>
   <h2 class="blog-row-title">{{ rp.title | escape }}</h2>
