@@ -8,7 +8,7 @@ source_url: /VLN-Papers/
 source_revision_date: 2026-10-05
 translation_updated: 2026-10-20
 title: "VLN Papers: Instruction Following"
-date: 2026-10-20
+date: 2026-10-22
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
@@ -29,7 +29,7 @@ excerpt: "57 detailed readings on instruction-following VLN, with benchmark lead
 
 > ⚠️ **Do not compare scores across different benchmarks.** This page groups instruction-following results by benchmark: ① R2R-CE and ② RxR-CE use continuous environments with step-by-step first-person control; ③ R2R / REVERIE use panoramic decisions on discrete navigation graphs; ④ LHPR-VLN evaluates long-horizon multi-stage instruction following in continuous environments. Task definitions and sensor configurations differ, so SR is not comparable across these tables. ObjectNav, HM3D-OVON, image-goal, and point-goal results are in the extended collection's [goal-navigation leaderboards](/en/VLN-Papers-Extended/#goal-nav-leaderboard).
 >
-> **Reading the tables:** **Trained** means trained or fine-tuned on navigation data, including navigation foundation models evaluated through cross-task zero-shot transfer. **Training-free** means no navigation model is trained: the system combines existing large models, detection or segmentation models, and rules or planners. Calling a pretrained low-level point-goal controller does not change this classification. Gray rows use nonstandard protocols, such as validation subsets, and are excluded from best-value bolding. Bold values are the best among non-gray rows within the same benchmark. The filters select paradigm, input configuration, and open-source availability, and can hide gray rows.
+> **Reading the tables:** **Trained** means trained or fine-tuned on navigation data, including navigation foundation models evaluated through cross-task zero-shot transfer. **Training-free** means no navigation model is trained: the system combines existing large models, detection or segmentation models, and rules or planners. Calling a pretrained low-level point-goal controller does not change this classification. The **Closed API** badge marks methods that call a closed model such as GPT, Gemini or Claude through an API at inference time. This is separate from the paradigm: a trained model can still call one at inference time, as NavGPT-3's planner does, while using a large model only to build training data or for offline preprocessing does not count. In the chart view, bar colors show whether a method calls a closed API. Gray rows use nonstandard protocols, such as validation subsets, and are excluded from best-value bolding. Bold values are the best among non-gray rows within the same benchmark. The filters select paradigm, inference, input configuration, and open-source availability, and can hide gray rows.
 
 <div id="lb-filter-bar" class="lb-filter-bar"></div>
 
@@ -40,11 +40,11 @@ Continuous environment · English commands · val-unseen (1839 items in total)
 
 |Model|Year|Paradigm|Base model|SR ↑|SPL ↑|NE ↓|OSR ↑|Open source|
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
-|[GPT-6-Astra (monocular · ultra)](#gpt-6-astra) <span class="lb-flag">100 subset </span>|2026|Training-free|GPT-6-Astra|81.3|71.5|2.9|83.7|No|
+|[GPT-6-Astra (monocular · ultra)](#gpt-6-astra) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset </span>|2026|Training-free|GPT-6-Astra|81.3|71.5|2.9|83.7|No|
 |[Robostral Navigate (monocular)](#robostral-navigate)|2026|Trained|Mistral-8B|**77.4**|**74.2**|**3.20**|**81.3**|No|
-|[GPT-6-Astra (monocular · medium)](#gpt-6-astra) <span class="lb-flag">100 subset </span>|2026|Training-free|GPT-6-Astra|75.7|65.6|3.0|80.7|No|
+|[GPT-6-Astra (monocular · medium)](#gpt-6-astra) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset </span>|2026|Training-free|GPT-6-Astra|75.7|65.6|3.0|80.7|No|
 |[Qwen-RobotNav (panoramic)](#qwen-robotnav)|2026|Trained|Qwen3-VL-8B|72.1|66.6|3.53|78.5|No|
-|[Talk2Escape + GTA (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-flag">100 subset</span>|2026|Training-free|Gemini 3.1 Pro|72.0|49.4|4.80|66.0|No|
+|[Talk2Escape + GTA (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset</span>|2026|Training-free|Gemini 3.1 Pro|72.0|49.4|4.80|66.0|No|
 |[ABot-N1 (three cameras)](#abot-n1)|2026|Trained|Qwen-3.5-4B + 2B|70.9|67.5|3.32|75.2|No|
 |[Image2Nav (180° FOV)](#image2sim)|2026|Trained|Qwen3-VL-4B|70.3|65.6|3.71|76.1|[YES](https://github.com/MrZihan/Image2Sim)|
 |[GroundingVLN (three cameras)](#groundingvln)|2026|Trained|Qwen3.5-4B|69.9|64.1|3.66|74.8|No|
@@ -60,12 +60,12 @@ Continuous environment · English commands · val-unseen (1839 items in total)
 |[AwareVLN (monocular)](#awarevln)|2026|Trained|Vicuna-7B|65.4|55.1|4.02|73.5|[Yes](https://github.com/GWxuan/AwareVLN)|
 |[CorrectNav (monocular)](#correctnav)|2025|Trained|–|65.1|62.3|4.24|67.5|[Yes](https://github.com/owlet914/CorrectNav)|
 |[DualVLN (monocular)](#dualvln)|2025|Trained|Qwen2.5-VL-7B|64.3|58.5|4.05|70.7|[Yes](https://github.com/InternRobotics/InternNav)|
-|[Talk2Escape + NavGPT (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-flag">100 subset</span>|2026|Training-free|Gemini 3.1 Pro|64.0|46.4|4.84|60.0|No|
+|[Talk2Escape + NavGPT (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset</span>|2026|Training-free|Gemini 3.1 Pro|64.0|46.4|4.84|60.0|No|
 |[VLN-Cache (monocular)](#vln-cache)|2026|Trained|Qwen2.5-VL-7B|63.1|57.6|–|–|No|
 |[ReflectVLN (monocular)](#reflectvln)|2026|Trained|Qwen2.5-VL-3B|62.8|58.5|4.19|67.3|No|
 |[NavFoM (multi-view)](#navfom)|2025|Trained|Qwen2-7B|61.7|55.3|4.61|72.1|No|
 |[GA-VLN (monocular)](#ga-vln)|2026|Trained|LLaVA-Video-7B|61.0|55.2|4.80|67.6|[is](https://github.com/jahhaoyang/GA-VLN)|
-|[HarnessVLN (monocular)](#harnessvln)|2026|Training-free|GPT-5.5|60.8|43.5|4.01|72.7|No|
+|[HarnessVLN (monocular)](#harnessvln) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5.5|60.8|43.5|4.01|72.7|No|
 |[JanusVLN (monocular)](#janusvln)|2026|Trained|Janus-Pro-7B|60.5|56.8|4.78|65.2|[Yes](https://github.com/MIV-XJTU/JanusVLN)|
 |[RynnBrain-Nav (monocular)](#rynnbrain)|2026|Trained|–|58.6|49.6|4.92|71.6|[Yes](https://github.com/alibaba-damo-academy/RynnBrain)|
 |[DGNav (panoramic)](#dgnav)|2026|Trained|–|58.56|50.08|4.66|64.82|[is](https://github.com/shannanshouyin/DGNav)|
@@ -73,10 +73,10 @@ Continuous environment · English commands · val-unseen (1839 items in total)
 |[BudVLN (monocular)](#budvln)|2026|Trained|LLaVA-1.5-7B|57.6|51.1|–|–|No|
 |[StreamVLN (monocular)](#streamvln)|2025|Trained|LLaVA-Video-7B|56.4|50.2|4.90|63.6|[is](https://github.com/OpenRobotLab/StreamVLN)|
 |[DecoVLN (monocular)](#decovln)|2026|Trained|LLaVA-Video-7B|56.3|50.5|5.01|63.5|No|
-|[AgenticNav (panoramic)](#agenticnav) <span class="lb-flag">100 subset</span>|2026|Training-free|GPT-5.5|55.0|48.41|5.19|65.0|No|
+|[AgenticNav (panoramic)](#agenticnav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset</span>|2026|Training-free|GPT-5.5|55.0|48.41|5.19|65.0|No|
 |[Goal2Pixel (monocular)](#goal2pixel)|2025|Trained|LLaVA-1.5-7B|54.1|52.5|4.85|59.9|No|
-|[HSGM (monocular)](#hsgm)|2026|Training-free|–|47.9|32.8|5.42|58.7|[Yes](https://github.com/Teacher-Tom/HSGM_public)|
-|[SparseNav (monocular)](/en/VLN-Papers-Extended/#sparsenav)|2026|Training-free|GPT-5|42.8|35.2|5.96|53.4|No|
+|[HSGM (monocular)](#hsgm) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|–|47.9|32.8|5.42|58.7|[Yes](https://github.com/Teacher-Tom/HSGM_public)|
+|[SparseNav (monocular)](/en/VLN-Papers-Extended/#sparsenav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5|42.8|35.2|5.96|53.4|No|
 |[MapNav (monocular)](#mapnav)|2025|Trained|LLaVA-Onevision-7B|39.7|37.2|5.43|53.0|[is](https://github.com/linglingxiansen/MapNav)|
 |[NaVid (monocular)](#navid)|2024|Trained|–|37.4|35.9|5.47|49.1|[is](https://github.com/jzhzhang/NaVid-VLN-CE)|
 |[VLN-R1 (monocular)](#vln-r1)|2025|Trained|Qwen2-VL-7B|30.2|21.8|7.0|41.2|No|
@@ -119,7 +119,7 @@ Continuous environment · Multilingual commands (English/Hindi/Telugu) · val-un
 |[TAMP-Nav (multi-view)](#tamp-nav)|2026|Trained|Qwen2.5-VL-7B|65.7|56.9|4.32|–|[is](https://github.com/ZJU-OmniAI/Embodied-Omni)|
 |[NavFoM (multi-view)](#navfom)|2025|Trained|Qwen2-7B|64.4|56.2|4.74|–|No|
 |[SEDualVLN (monocular)](#sedualvln)|2026|Trained|LLaVA-Video-7B|63.9|52.4|4.12|–|No|
-|[Talk2Escape + GTA (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-flag">260 subset</span>|2026|Training-free|Gemini 3.1 Pro|62.9|34.2|5.89|–|No|
+|[Talk2Escape + GTA (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">260 subset</span>|2026|Training-free|Gemini 3.1 Pro|62.9|34.2|5.89|–|No|
 |[Dual-Anchoring (monocular)](#dual-anchoring)|2026|Trained|LLaVA-Video-7B|61.7|53.3|–|–|No|
 |[DualVLN (monocular)](#dualvln)|2025|Trained|Qwen2.5-VL-7B|61.4|51.8|4.58|–|[is](https://github.com/InternRobotics/InternNav)|
 |[SeekVLN (monocular, three views on demand)](#seekvln)|2026|Trained|Aux-Think / NVILA-lite-8B|59.7|50.3|4.9|–|No|
@@ -128,12 +128,12 @@ Continuous environment · Multilingual commands (English/Hindi/Telugu) · val-un
 |[GA-VLN (monocular)](#ga-vln)|2026|Trained|LLaVA-Video-7B|55.4|45.2|5.88|**67.0**|[Yes](https://github.com/jahhaoyang/GA-VLN)|
 |[StreamVLN (monocular)](#streamvln)|2025|Trained|LLaVA-Video-7B|54.4|45.4|5.65|–|[is](https://github.com/OpenRobotLab/StreamVLN)|
 |[DecoVLN (monocular)](#decovln)|2026|Trained|LLaVA-Video-7B|54.2|46.3|5.73|–|No|
-|[HarnessVLN (monocular)](#harnessvln)|2026|Training-free|GPT-5.5|53.9|38.0|6.42|–|No|
+|[HarnessVLN (monocular)](#harnessvln) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5.5|53.9|38.0|6.42|–|No|
 |[DGNav (panoramic)](#dgnav)|2026|Trained|–|53.78|44.37|6.00|–|[is](https://github.com/shannanshouyin/DGNav)|
-|[Talk2Escape + NavGPT (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-flag">260 subset</span>|2026|Training-free|Gemini 3.1 Pro|50.4|27.2|6.01|–|No|
+|[Talk2Escape + NavGPT (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">260 subset</span>|2026|Training-free|Gemini 3.1 Pro|50.4|27.2|6.01|–|No|
 |[Goal2Pixel (monocular)](#goal2pixel)|2025|Trained|LLaVA-1.5-7B|43.8|40.4|7.50|–|No|
-|[HSGM (monocular)](#hsgm)|2026|Training-free|–|41.8|25.1|7.43|–|[Yes](https://github.com/Teacher-Tom/HSGM_public)|
-|[SparseNav (monocular)](/en/VLN-Papers-Extended/#sparsenav)|2026|Training-free|GPT-5|40.7|24.1|7.82|–|No|
+|[HSGM (monocular)](#hsgm) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|–|41.8|25.1|7.43|–|[Yes](https://github.com/Teacher-Tom/HSGM_public)|
+|[SparseNav (monocular)](/en/VLN-Papers-Extended/#sparsenav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5|40.7|24.1|7.82|–|No|
 |[MapNav (monocular)](#mapnav)|2025|Trained|LLaVA-Onevision-7B|32.6|27.7|7.62|–|[is](https://github.com/linglingxiansen/MapNav)|
 |[NaVid (monocular)](#navid)|2024|Trained|–|23.8|21.2|8.41|34.5|[Yes](https://github.com/jzhzhang/NaVid-VLN-CE)|
 |[VLN-R1 (monocular)](#vln-r1)|2025|Trained|Qwen2-VL-7B|22.7|17.6|9.1|30.4|No|
@@ -150,7 +150,7 @@ Discrete navigation graph · panoramic observation; residential (ID) / non-resid
 |Model|Year|Baseline|Paradigm|Base model|SR ↑|SPL ↑|NE ↓|OSR ↑|Open source|
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
 |[UAGM (panoramic)](#uncertainty-aware-gaussian-map)|2026|R2R|Trained|–|**78.3**|**66**|–|–|No|
-|[R³ (panoramic)](#r3)|2026|R2R|Trained|GPT-4o|77|**66**|**2.76**|–|No|
+|[R³ (panoramic)](#r3) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|R2R|Trained|GPT-4o|77|**66**|**2.76**|–|No|
 |[CA-VLN (panoramic)](#ca-vln)|2026|R2R|Trained|LLaVA-7B|73.3|62.0|3.03|–|No|
 |[VLN-Imagine (DUET) (panoramic)](#vln-imagine)|2025|R2R|Trained|–|72.12|60.48|3.19|–|[Yes](https://github.com/akhilperincherry/VLN-Imagine)|
 |[NavGPT-2 (panoramic)](#navgpt-2)|2024|R2R|Trained|Vicuna-7B|71|60|3.18|80|[is](https://github.com/GengzeZhou/NavGPT-2)|
@@ -175,19 +175,19 @@ Rows are sorted by SR, then CGT, descending. Gray rows use a filtered subset or 
 
 | Model | Year | Paradigm | Base model | Evaluation setting | SR ↑ | ISR ↑ | CSR ↑ | CGT ↑ | NE ↓ | Open |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
-| GPT-6-Astra Max + ICL (multi-view) <span class="lb-flag">114-episode subset · 10× budget</span> [D] | 2026 | Training-free | GPT-6-Astra | 114 episodes · 5,000 steps | 28.95 | 62.87 | 52.97 | 52.58 | – | – |
-| GPT-6-Astra Max + ICL (multi-view) <span class="lb-flag">114-episode subset · 1× budget</span> [D] | 2026 | Training-free | GPT-6-Astra | 114 episodes · 500 steps | 21.05 | 54.68 | 44.55 | 43.91 | – | – |
-| Claude Code Opus-5 <span class="lb-flag">Agent comparison in the report</span> [D] | 2026 | Training-free | Opus-5 | 114 episodes · – steps | 5.26 | 26.87 | 17.82 | 17.84 | – | – |
+| GPT-6-Astra Max + ICL (multi-view) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">114-episode subset · 10× budget</span> [D] | 2026 | Training-free | GPT-6-Astra | 114 episodes · 5,000 steps | 28.95 | 62.87 | 52.97 | 52.58 | – | – |
+| GPT-6-Astra Max + ICL (multi-view) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">114-episode subset · 1× budget</span> [D] | 2026 | Training-free | GPT-6-Astra | 114 episodes · 500 steps | 21.05 | 54.68 | 44.55 | 43.91 | – | – |
+| Claude Code Opus-5 <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">Agent comparison in the report</span> [D] | 2026 | Training-free | Opus-5 | 114 episodes · – steps | 5.26 | 26.87 | 17.82 | 17.84 | – | – |
 | [FantasyVLN](https://github.com/Fantasy-AMAP/fantasy-vln) [B] | 2026 | Trained | – | Aggregate | **2.44** | **11.01** | **9.64** | **8.99** | – | [Yes](https://github.com/Fantasy-AMAP/fantasy-vln) |
 | Aux-Think [B] | 2026 | Trained | – | Aggregate | 0.65 | 3.16 | 2.04 | 1.47 | – | – |
 | [MGDM (multi-view)](https://github.com/HCPLab-SYSU/LH-VLN) (Finetuned) [A] | 2025 | Trained | Vicuna-7B v0 | 3–4 subtasks | 0.0 | **4.69** | **3.30** | **5.83** | **1.23** | [Yes](https://github.com/HCPLab-SYSU/LH-VLN) |
 | NaviLLM (multi-view) (Finetuned) [A] | 2025 | Trained | – | 3–4 subtasks | 0.0 | 3.54 | 2.53 | 5.24 | 9.79 | – |
-| GPT-4 + NaviLLM (multi-view) (Pretrain) [A] | 2025 | Trained | – | 3–4 subtasks | 0.0 | 4.37 | 2.91 | 5.23 | 10.00 | – |
+| GPT-4 + NaviLLM (multi-view) (Pretrain) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> [A] | 2025 | Trained | – | 3–4 subtasks | 0.0 | 4.37 | 2.91 | 5.23 | 10.00 | – |
 | MGDM [B] | 2026 | Trained | Vicuna-7B v0 | Aggregate | 0.00 | 2.34 | 1.65 | 2.91 | – | [Yes](https://github.com/HCPLab-SYSU/LH-VLN) |
-| GPT-4 + NaviLLM [B] | 2026 | Trained | – | Aggregate | 0.00 | 2.19 | 1.45 | 2.61 | – | – |
+| GPT-4 + NaviLLM <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> [B] | 2026 | Trained | – | Aggregate | 0.00 | 2.19 | 1.45 | 2.61 | – | – |
 | [MGDM (multi-view)](https://github.com/HCPLab-SYSU/LH-VLN) (Finetuned) [A] | 2025 | Trained | Vicuna-7B v0 | 2–3 subtasks | 0.0 | 0.0 | 0.0 | 0.0 | **3.54** | [Yes](https://github.com/HCPLab-SYSU/LH-VLN) |
 | NaviLLM (multi-view) (Pretrain) [A] | 2025 | Trained | – | 2–3 subtasks | 0.0 | 0.0 | 0.0 | 0.0 | 12.11 | – |
-| GPT-4 + NaviLLM (multi-view) (Pretrain) [A] | 2025 | Trained | – | 2–3 subtasks | 0.0 | 0.0 | 0.0 | 0.0 | 12.23 | – |
+| GPT-4 + NaviLLM (multi-view) (Pretrain) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> [A] | 2025 | Trained | – | 2–3 subtasks | 0.0 | 0.0 | 0.0 | 0.0 | 12.23 | – |
 | NaviLLM (multi-view) (Finetuned) [A] | 2025 | Trained | – | 2–3 subtasks | 0.0 | 0.0 | 0.0 | 0.0 | 12.24 | – |
 | Random [A] | 2025 | – | – | 2–3 subtasks | 0.0 | 0.0 | 0.0 | 0.0 | 14.09 | – |
 | GLM-4v prompt (multi-view) (Zero-shot) [A] | 2025 | Training-free | GLM-4v | 2–3 subtasks | 0.0 | 0.0 | 0.0 | 0.0 | 15.63 | – |

@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-papers
 title: "VLN 论文精读：指令跟随篇"
-date: 2026-10-20
+date: 2026-10-22
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -22,7 +22,7 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 
 > ⚠️ **不同基准不可直接混比**：本篇只收指令跟随类基准，按基准分表——① R2R-CE 与 ② RxR-CE 是连续环境（机器人第一视角逐步控制），③ R2R / REVERIE 是离散导航图上的全景决策，④ LHPR-VLN 是连续环境中的长程多阶段指令导航。各表任务定义或传感器设定不同，SR 不可跨表比较。目标导航（ObjectNav、HM3D-OVON、图像 / 点目标等）的排行榜在扩展篇：[目标导航性能排行榜](/VLN-Papers-Extended/#goal-nav-leaderboard)。
 >
-> **读表**：「范式」列中，**训练**指在导航数据上训练或微调过模型（含跨任务零样本迁移的导航基础模型）；**免训练**指不训练任何导航模型，由现成的大模型、检测分割模型与规则 / 规划模块组合而成（调用现成的点目标低层控制器不影响归类）。灰色行是非标准口径（如只评测了验证集子集），不参与加粗；加粗为同一基准内非灰色行的最优值。表格上方的筛选栏可按范式、输入配置、是否开源筛选，也可以隐藏灰色行。
+> **读表**：「范式」列中，**训练**指在导航数据上训练或微调过模型（含跨任务零样本迁移的导航基础模型）；**免训练**指不训练任何导航模型，由现成的大模型、检测分割模型与规则 / 规划模块组合而成（调用现成的点目标低层控制器不影响归类）。**闭源 API** 角标标出推理时调用 GPT / Gemini / Claude 等闭源大模型 API 的方法，与范式是两回事：训练过的模型也可能在推理时调用（如 NavGPT-3 的 Planner），只在构造训练数据或离线预处理时用到大模型的不算；图视图中条的颜色按是否调用闭源 API 区分。灰色行是非标准口径（如只评测了验证集子集），不参与加粗；加粗为同一基准内非灰色行的最优值。表格上方的筛选栏可按范式、推理方式、输入配置、是否开源筛选，也可以隐藏灰色行。
 
 <div id="lb-filter-bar" class="lb-filter-bar"></div>
 
@@ -32,13 +32,13 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 
 | 模型 | 年份 | 范式 | 基模 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 开源 |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
-| [NavGPT-3 (四视角 · Astra)](#navgpt-3) | 2026 | 训练 | GPT-6-Astra/Qwen3-VL-8B | **81.51** | 70.42 | **2.18** | **86.99** | [是](https://github.com/metacognitionai/NavGPT-3) |
-| [GPT-6-Astra (单目 · ultra)](#gpt-6-astra) <span class="lb-flag">100 条子集</span> | 2026 | 免训练 | GPT-6-Astra | 81.3 | 71.5 | 2.9 | 83.7 | 否 |
+| [NavGPT-3 (四视角 · Astra)](#navgpt-3) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 训练 | GPT-6-Astra/Qwen3-VL-8B | **81.51** | 70.42 | **2.18** | **86.99** | [是](https://github.com/metacognitionai/NavGPT-3) |
+| [GPT-6-Astra (单目 · ultra)](#gpt-6-astra) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">100 条子集</span> | 2026 | 免训练 | GPT-6-Astra | 81.3 | 71.5 | 2.9 | 83.7 | 否 |
 | [Robostral Navigate (单目)](#robostral-navigate) | 2026 | 训练 | Mistral-8B | 77.4 | **74.2** | 3.20 | 81.3 | 否 |
-| [GPT-6-Astra (单目 · medium)](#gpt-6-astra) <span class="lb-flag">100 条子集</span> | 2026 | 免训练 | GPT-6-Astra | 75.7 | 65.6 | 3.0 | 80.7 | 否 |
+| [GPT-6-Astra (单目 · medium)](#gpt-6-astra) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">100 条子集</span> | 2026 | 免训练 | GPT-6-Astra | 75.7 | 65.6 | 3.0 | 80.7 | 否 |
 | [NavGPT VLA 8B (四视角)](#navgpt-3) | 2026 | 训练 | Qwen3-VL-8B | 74.51 | 68.54 | 3.29 | 80.19 | [是](https://github.com/metacognitionai/NavGPT-3) |
 | [Qwen-RobotNav (全景)](#qwen-robotnav) | 2026 | 训练 | Qwen3-VL-8B | 72.1 | 66.6 | 3.53 | 78.5 | 否 |
-| [Talk2Escape + GTA (四视角)](/VLN-Papers-Extended/#talk2escape) <span class="lb-flag">100 条子集</span> | 2026 | 免训练 | Gemini 3.1 Pro | 72.0 | 49.4 | 4.80 | 66.0 | 否 |
+| [Talk2Escape + GTA (四视角)](/VLN-Papers-Extended/#talk2escape) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">100 条子集</span> | 2026 | 免训练 | Gemini 3.1 Pro | 72.0 | 49.4 | 4.80 | 66.0 | 否 |
 | [ABot-N1 (三相机)](#abot-n1) | 2026 | 训练 | Qwen-3.5-4B + 2B | 70.9 | 67.5 | 3.32 | 75.2 | 否 |
 | [Image2Nav (180° FOV)](#image2sim) | 2026 | 训练 | Qwen3-VL-4B | 70.3 | 65.6 | 3.71 | 76.1 | [是](https://github.com/MrZihan/Image2Sim) |
 | [GroundingVLN (三相机)](#groundingvln) | 2026 | 训练 | Qwen3.5-4B | 69.9 | 64.1 | 3.66 | 74.8 | 否 |
@@ -55,12 +55,12 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 | [AwareVLN (单目)](#awarevln) | 2026 | 训练 | Vicuna-7B | 65.4 | 55.1 | 4.02 | 73.5 | [是](https://github.com/GWxuan/AwareVLN) |
 | [CorrectNav (单目)](#correctnav) | 2025 | 训练 | – | 65.1 | 62.3 | 4.24 | 67.5 | [是](https://github.com/owlet914/CorrectNav) |
 | [DualVLN (单目)](#dualvln) | 2025 | 训练 | Qwen2.5-VL-7B | 64.3 | 58.5 | 4.05 | 70.7 | [是](https://github.com/InternRobotics/InternNav) |
-| [Talk2Escape + NavGPT (四视角)](/VLN-Papers-Extended/#talk2escape) <span class="lb-flag">100 条子集</span> | 2026 | 免训练 | Gemini 3.1 Pro | 64.0 | 46.4 | 4.84 | 60.0 | 否 |
+| [Talk2Escape + NavGPT (四视角)](/VLN-Papers-Extended/#talk2escape) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">100 条子集</span> | 2026 | 免训练 | Gemini 3.1 Pro | 64.0 | 46.4 | 4.84 | 60.0 | 否 |
 | [VLN-Cache (单目)](#vln-cache) | 2026 | 训练 | Qwen2.5-VL-7B | 63.1 | 57.6 | – | – | 否 |
 | [ReflectVLN (单目)](#reflectvln) | 2026 | 训练 | Qwen2.5-VL-3B | 62.8 | 58.5 | 4.19 | 67.3 | 否 |
 | [NavFoM (多目)](#navfom) | 2025 | 训练 | Qwen2-7B | 61.7 | 55.3 | 4.61 | 72.1 | 否 |
 | [GA-VLN (单目)](#ga-vln) | 2026 | 训练 | LLaVA-Video-7B | 61.0 | 55.2 | 4.80 | 67.6 | [是](https://github.com/jahhaoyang/GA-VLN) |
-| [HarnessVLN (单目)](#harnessvln) | 2026 | 免训练 | GPT-5.5 | 60.8 | 43.5 | 4.01 | 72.7 | 否 |
+| [HarnessVLN (单目)](#harnessvln) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 免训练 | GPT-5.5 | 60.8 | 43.5 | 4.01 | 72.7 | 否 |
 | [JanusVLN (单目)](#janusvln) | 2026 | 训练 | Janus-Pro-7B | 60.5 | 56.8 | 4.78 | 65.2 | [是](https://github.com/MIV-XJTU/JanusVLN) |
 | [RynnBrain-Nav (单目)](#rynnbrain) | 2026 | 训练 | – | 58.6 | 49.6 | 4.92 | 71.6 | [是](https://github.com/alibaba-damo-academy/RynnBrain) |
 | [DGNav (全景)](#dgnav) | 2026 | 训练 | – | 58.56 | 50.08 | 4.66 | 64.82 | [是](https://github.com/shannanshouyin/DGNav) |
@@ -68,10 +68,10 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 | [BudVLN (单目)](#budvln) | 2026 | 训练 | LLaVA-1.5-7B | 57.6 | 51.1 | – | – | 否 |
 | [StreamVLN (单目)](#streamvln) | 2025 | 训练 | LLaVA-Video-7B | 56.4 | 50.2 | 4.90 | 63.6 | [是](https://github.com/OpenRobotLab/StreamVLN) |
 | [DecoVLN (单目)](#decovln) | 2026 | 训练 | LLaVA-Video-7B | 56.3 | 50.5 | 5.01 | 63.5 | 否 |
-| [AgenticNav (全景)](#agenticnav) <span class="lb-flag">100 条子集</span> | 2026 | 免训练 | GPT-5.5 | 55.0 | 48.41 | 5.19 | 65.0 | 否 |
+| [AgenticNav (全景)](#agenticnav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">100 条子集</span> | 2026 | 免训练 | GPT-5.5 | 55.0 | 48.41 | 5.19 | 65.0 | 否 |
 | [Goal2Pixel (单目)](#goal2pixel) | 2025 | 训练 | LLaVA-1.5-7B | 54.1 | 52.5 | 4.85 | 59.9 | 否 |
-| [HSGM (单目)](#hsgm) | 2026 | 免训练 | – | 47.9 | 32.8 | 5.42 | 58.7 | [是](https://github.com/Teacher-Tom/HSGM_public) |
-| [SparseNav (单目)](/VLN-Papers-Extended/#sparsenav) | 2026 | 免训练 | GPT-5 | 42.8 | 35.2 | 5.96 | 53.4 | 否 |
+| [HSGM (单目)](#hsgm) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 免训练 | – | 47.9 | 32.8 | 5.42 | 58.7 | [是](https://github.com/Teacher-Tom/HSGM_public) |
+| [SparseNav (单目)](/VLN-Papers-Extended/#sparsenav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 免训练 | GPT-5 | 42.8 | 35.2 | 5.96 | 53.4 | 否 |
 | [MapNav (单目)](#mapnav) | 2025 | 训练 | LLaVA-Onevision-7B | 39.7 | 37.2 | 5.43 | 53.0 | [是](https://github.com/linglingxiansen/MapNav) |
 | [NaVid (单目)](#navid) | 2024 | 训练 | – | 37.4 | 35.9 | 5.47 | 49.1 | [是](https://github.com/jzhzhang/NaVid-VLN-CE) |
 | [VLN-R1 (单目)](#vln-r1) | 2025 | 训练 | Qwen2-VL-7B | 30.2 | 21.8 | 7.0 | 41.2 | 否 |
@@ -88,7 +88,7 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 
 | 模型 | 年份 | 范式 | 基模 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 开源 |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
-| [NavGPT-3 (四视角 · Astra)](#navgpt-3) | 2026 | 训练 | GPT-6-Astra/Qwen3-VL-8B | **90.43** | **74.31** | **1.56** | – | [是](https://github.com/metacognitionai/NavGPT-3) |
+| [NavGPT-3 (四视角 · Astra)](#navgpt-3) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 训练 | GPT-6-Astra/Qwen3-VL-8B | **90.43** | **74.31** | **1.56** | – | [是](https://github.com/metacognitionai/NavGPT-3) |
 | [NavGPT VLA 8B (四视角)](#navgpt-3) | 2026 | 训练 | Qwen3-VL-8B | 78.19 | 68.98 | 3.05 | – | [是](https://github.com/metacognitionai/NavGPT-3) |
 | [Qwen-RobotNav (全景)](#qwen-robotnav) | 2026 | 训练 | Qwen3-VL-8B | 76.5 | 65.7 | 3.58 | – | 否 |
 | [Robostral Navigate (单目)](#robostral-navigate) | 2026 | 训练 | Mistral-8B | 75.1 | 68.7 | 3.47 | – | 否 |
@@ -108,7 +108,7 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 | [TAMP-Nav (多目)](#tamp-nav) | 2026 | 训练 | Qwen2.5-VL-7B | 65.7 | 56.9 | 4.32 | – | [是](https://github.com/ZJU-OmniAI/Embodied-Omni) |
 | [NavFoM (多目)](#navfom) | 2025 | 训练 | Qwen2-7B | 64.4 | 56.2 | 4.74 | – | 否 |
 | [SEDualVLN (单目)](#sedualvln) | 2026 | 训练 | LLaVA-Video-7B | 63.9 | 52.4 | 4.12 | – | 否 |
-| [Talk2Escape + GTA (四视角)](/VLN-Papers-Extended/#talk2escape) <span class="lb-flag">260 条子集</span> | 2026 | 免训练 | Gemini 3.1 Pro | 62.9 | 34.2 | 5.89 | – | 否 |
+| [Talk2Escape + GTA (四视角)](/VLN-Papers-Extended/#talk2escape) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">260 条子集</span> | 2026 | 免训练 | Gemini 3.1 Pro | 62.9 | 34.2 | 5.89 | – | 否 |
 | [Dual-Anchoring (单目)](#dual-anchoring) | 2026 | 训练 | LLaVA-Video-7B | 61.7 | 53.3 | – | – | 否 |
 | [DualVLN (单目)](#dualvln) | 2025 | 训练 | Qwen2.5-VL-7B | 61.4 | 51.8 | 4.58 | – | [是](https://github.com/InternRobotics/InternNav) |
 | [SeekVLN (单目，按需三视角)](#seekvln) | 2026 | 训练 | Aux-Think / NVILA-lite-8B | 59.7 | 50.3 | 4.9 | – | 否 |
@@ -117,12 +117,12 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 | [GA-VLN (单目)](#ga-vln) | 2026 | 训练 | LLaVA-Video-7B | 55.4 | 45.2 | 5.88 | **67.0** | [是](https://github.com/jahhaoyang/GA-VLN) |
 | [StreamVLN (单目)](#streamvln) | 2025 | 训练 | LLaVA-Video-7B | 54.4 | 45.4 | 5.65 | – | [是](https://github.com/OpenRobotLab/StreamVLN) |
 | [DecoVLN (单目)](#decovln) | 2026 | 训练 | LLaVA-Video-7B | 54.2 | 46.3 | 5.73 | – | 否 |
-| [HarnessVLN (单目)](#harnessvln) | 2026 | 免训练 | GPT-5.5 | 53.9 | 38.0 | 6.42 | – | 否 |
+| [HarnessVLN (单目)](#harnessvln) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 免训练 | GPT-5.5 | 53.9 | 38.0 | 6.42 | – | 否 |
 | [DGNav (全景)](#dgnav) | 2026 | 训练 | – | 53.78 | 44.37 | 6.00 | – | [是](https://github.com/shannanshouyin/DGNav) |
-| [Talk2Escape + NavGPT (四视角)](/VLN-Papers-Extended/#talk2escape) <span class="lb-flag">260 条子集</span> | 2026 | 免训练 | Gemini 3.1 Pro | 50.4 | 27.2 | 6.01 | – | 否 |
+| [Talk2Escape + NavGPT (四视角)](/VLN-Papers-Extended/#talk2escape) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">260 条子集</span> | 2026 | 免训练 | Gemini 3.1 Pro | 50.4 | 27.2 | 6.01 | – | 否 |
 | [Goal2Pixel (单目)](#goal2pixel) | 2025 | 训练 | LLaVA-1.5-7B | 43.8 | 40.4 | 7.50 | – | 否 |
-| [HSGM (单目)](#hsgm) | 2026 | 免训练 | – | 41.8 | 25.1 | 7.43 | – | [是](https://github.com/Teacher-Tom/HSGM_public) |
-| [SparseNav (单目)](/VLN-Papers-Extended/#sparsenav) | 2026 | 免训练 | GPT-5 | 40.7 | 24.1 | 7.82 | – | 否 |
+| [HSGM (单目)](#hsgm) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 免训练 | – | 41.8 | 25.1 | 7.43 | – | [是](https://github.com/Teacher-Tom/HSGM_public) |
+| [SparseNav (单目)](/VLN-Papers-Extended/#sparsenav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 免训练 | GPT-5 | 40.7 | 24.1 | 7.82 | – | 否 |
 | [MapNav (单目)](#mapnav) | 2025 | 训练 | LLaVA-Onevision-7B | 32.6 | 27.7 | 7.62 | – | [是](https://github.com/linglingxiansen/MapNav) |
 | [NaVid (单目)](#navid) | 2024 | 训练 | – | 23.8 | 21.2 | 8.41 | 34.5 | [是](https://github.com/jzhzhang/NaVid-VLN-CE) |
 | [VLN-R1 (单目)](#vln-r1) | 2025 | 训练 | Qwen2-VL-7B | 22.7 | 17.6 | 9.1 | 30.4 | 否 |
@@ -140,7 +140,7 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 | 模型 | 年份 | 基准 | 范式 | 基模 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 开源 |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
 | [UAGM (全景)](#uncertainty-aware-gaussian-map) | 2026 | R2R | 训练 | – | **78.3** | **66** | – | – | 否 |
-| [R³ (全景)](#r3) | 2026 | R2R | 训练 | GPT-4o | 77 | **66** | **2.76** | – | 否 |
+| [R³ (全景)](#r3) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | R2R | 训练 | GPT-4o | 77 | **66** | **2.76** | – | 否 |
 | [CA-VLN (全景)](#ca-vln) | 2026 | R2R | 训练 | LLaVA-7B | 73.3 | 62.0 | 3.03 | – | 否 |
 | [VLN-Imagine (DUET) (全景)](#vln-imagine) | 2025 | R2R | 训练 | – | 72.12 | 60.48 | 3.19 | – | [是](https://github.com/akhilperincherry/VLN-Imagine) |
 | [NavGPT-2 (全景)](#navgpt-2) | 2024 | R2R | 训练 | Vicuna-7B | 71 | 60 | 3.18 | 80 | [是](https://github.com/GengzeZhou/NavGPT-2) |
@@ -165,19 +165,19 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 
 | 模型 | 年份 | 范式 | 基模 | 评测设置 | SR ↑ | ISR ↑ | CSR ↑ | CGT ↑ | NE ↓ | 开源 |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
-| GPT-6-Astra Max + ICL (多目) <span class="lb-flag">114 条子集 · 10× 预算</span> [D] | 2026 | 免训练 | GPT-6-Astra | 114 条子集 · 5,000 步 | 28.95 | 62.87 | 52.97 | 52.58 | – | – |
-| GPT-6-Astra Max + ICL (多目) <span class="lb-flag">114 条子集 · 1× 预算</span> [D] | 2026 | 免训练 | GPT-6-Astra | 114 条子集 · 500 步 | 21.05 | 54.68 | 44.55 | 43.91 | – | – |
-| Claude Code Opus-5 <span class="lb-flag">报告中的 Agent 对照</span> [D] | 2026 | 免训练 | Opus-5 | 114 条子集 · – 步 | 5.26 | 26.87 | 17.82 | 17.84 | – | – |
+| GPT-6-Astra Max + ICL (多目) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">114 条子集 · 10× 预算</span> [D] | 2026 | 免训练 | GPT-6-Astra | 114 条子集 · 5,000 步 | 28.95 | 62.87 | 52.97 | 52.58 | – | – |
+| GPT-6-Astra Max + ICL (多目) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">114 条子集 · 1× 预算</span> [D] | 2026 | 免训练 | GPT-6-Astra | 114 条子集 · 500 步 | 21.05 | 54.68 | 44.55 | 43.91 | – | – |
+| Claude Code Opus-5 <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">报告中的 Agent 对照</span> [D] | 2026 | 免训练 | Opus-5 | 114 条子集 · – 步 | 5.26 | 26.87 | 17.82 | 17.84 | – | – |
 | [FantasyVLN](https://github.com/Fantasy-AMAP/fantasy-vln) [B] | 2026 | 训练 | – | 汇总 | **2.44** | **11.01** | **9.64** | **8.99** | – | [是](https://github.com/Fantasy-AMAP/fantasy-vln) |
 | Aux-Think [B] | 2026 | 训练 | – | 汇总 | 0.65 | 3.16 | 2.04 | 1.47 | – | – |
 | [MGDM (多目)](https://github.com/HCPLab-SYSU/LH-VLN) (Finetuned) [A] | 2025 | 训练 | Vicuna-7B v0 | 3–4 子任务 | 0.0 | **4.69** | **3.30** | **5.83** | **1.23** | [是](https://github.com/HCPLab-SYSU/LH-VLN) |
 | NaviLLM (多目) (Finetuned) [A] | 2025 | 训练 | – | 3–4 子任务 | 0.0 | 3.54 | 2.53 | 5.24 | 9.79 | – |
-| GPT-4 + NaviLLM (多目) (Pretrain) [A] | 2025 | 训练 | – | 3–4 子任务 | 0.0 | 4.37 | 2.91 | 5.23 | 10.00 | – |
+| GPT-4 + NaviLLM (多目) (Pretrain) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> [A] | 2025 | 训练 | – | 3–4 子任务 | 0.0 | 4.37 | 2.91 | 5.23 | 10.00 | – |
 | MGDM [B] | 2026 | 训练 | Vicuna-7B v0 | 汇总 | 0.00 | 2.34 | 1.65 | 2.91 | – | [是](https://github.com/HCPLab-SYSU/LH-VLN) |
-| GPT-4 + NaviLLM [B] | 2026 | 训练 | – | 汇总 | 0.00 | 2.19 | 1.45 | 2.61 | – | – |
+| GPT-4 + NaviLLM <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> [B] | 2026 | 训练 | – | 汇总 | 0.00 | 2.19 | 1.45 | 2.61 | – | – |
 | [MGDM (多目)](https://github.com/HCPLab-SYSU/LH-VLN) (Finetuned) [A] | 2025 | 训练 | Vicuna-7B v0 | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | **3.54** | [是](https://github.com/HCPLab-SYSU/LH-VLN) |
 | NaviLLM (多目) (Pretrain) [A] | 2025 | 训练 | – | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 12.11 | – |
-| GPT-4 + NaviLLM (多目) (Pretrain) [A] | 2025 | 训练 | – | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 12.23 | – |
+| GPT-4 + NaviLLM (多目) (Pretrain) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> [A] | 2025 | 训练 | – | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 12.23 | – |
 | NaviLLM (多目) (Finetuned) [A] | 2025 | 训练 | – | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 12.24 | – |
 | Random [A] | 2025 | – | – | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 14.09 | – |
 | GLM-4v prompt (多目) (Zero-shot) [A] | 2025 | 免训练 | GLM-4v | 2–3 子任务 | 0.0 | 0.0 | 0.0 | 0.0 | 15.63 | – |

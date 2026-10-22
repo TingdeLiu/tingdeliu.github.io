@@ -1291,6 +1291,21 @@ nav {
   vertical-align: 1px;
 }
 
+// 推理时调用闭源大模型 API 的角标：与灰色的 .lb-flag 区分，用强调色描边
+.lb-api {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 5px;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  white-space: nowrap;
+  vertical-align: 1px;
+  cursor: help;
+}
+
 // 带 .lb-flag 的行灰显；:has 与 JS 加的类分成两条规则，不支持 :has 的浏览器不会连带丢掉后一条
 tr:has(.lb-flag) td {
   opacity: .55;
@@ -1316,8 +1331,8 @@ tr.lb-empty td {
 
 // 排行榜条形图视图（leaderboard.js 插在单一基准表格之前）
 .lb-chart {
-  --lb-trained: var(--syntax-name);
-  --lb-free: var(--accent);
+  --lb-local: var(--syntax-name);
+  --lb-api: var(--accent);
   margin: 1.2rem 0 1.8rem;
   font-size: 14px;
 
@@ -1376,10 +1391,21 @@ tr.lb-empty td {
   border-radius: 2px;
 }
 
-.lb-swatch.lb-trained, .lb-bar.lb-trained { background: var(--lb-trained); }
-.lb-swatch.lb-training-free, .lb-bar.lb-training-free { background: var(--lb-free); }
-.lb-bar.lb-other { background: var(--muted); }
-.lb-swatch.lb-nonstd, .lb-bar.lb-nonstd {
+.lb-swatch.lb-c-local, .lb-bar.lb-c-local { background: var(--lb-local); }
+.lb-swatch.lb-c-api, .lb-bar.lb-c-api { background: var(--lb-api); }
+
+// 条形图里调用闭源 API 的行名后的小标记
+.lb-bar-api {
+  margin-left: 6px;
+  padding: 0 4px;
+  font-size: 11px;
+  line-height: 15px;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  vertical-align: 1px;
+}
+.lb-swatch.lb-c-nonstd, .lb-bar.lb-c-nonstd {
   background: repeating-linear-gradient(45deg, var(--muted) 0 3px, transparent 3px 6px);
   box-shadow: inset 0 0 0 1px var(--muted);
 }

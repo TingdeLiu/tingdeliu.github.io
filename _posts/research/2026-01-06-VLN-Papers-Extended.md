@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-papers-extended
 title: "VLN 论文精读：目标导航与扩展篇"
-date:   2026-10-12
+date:   2026-10-22
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -20,7 +20,7 @@ excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav
 
 > ⚠️ **不同基准不可直接混比**：目标导航只给目标（物体类别、目标图像或坐标），不给路线描述，与主篇的指令跟随 VLN 是两类任务，指令跟随的排行榜见主篇 [性能排行榜](/VLN-Papers/)。本篇按目标形式分表，编号接主篇指令跟随的 ①–③：④ 封闭类别物体目标、⑤ 开放词汇物体目标、⑥ 图像目标、⑦ 点目标、⑧ 多模态目标与自建基准。表内再按基准分组，组间以粗线分隔，各组的场景、类别与成功判定不同（HM3D v1 与 v2 也不同），SR 只在组内比较；ObjectNav 类基准不定义 NE / OSR。
 >
-> **读表**：「范式」列中，**训练**指在导航数据上训练或微调过模型；**免训练**指不训练任何导航模型，由现成的大模型、检测分割模型与规则 / 规划模块组合而成（调用现成的点目标低层控制器不影响归类）。灰色行是非标准口径（如只评测了验证集子集），不参与加粗；加粗为同一基准内非灰色行的最优值，只有一行的基准不加粗。筛选栏可按范式、输入配置、是否开源筛选，也可以隐藏灰色行。
+> **读表**：「范式」列中，**训练**指在导航数据上训练或微调过模型；**免训练**指不训练任何导航模型，由现成的大模型、检测分割模型与规则 / 规划模块组合而成（调用现成的点目标低层控制器不影响归类）。**闭源 API** 角标标出推理时调用 GPT / Gemini / Claude 等闭源大模型 API 的方法，与范式是两回事：训练过的模型也可能在推理时调用（如 SuperNav-Learned），只在构造训练数据或离线预处理时用到大模型的不算（如 AECNav 用 DeepSeek 离线生成干扰类别）；图视图中条的颜色按是否调用闭源 API 区分。灰色行是非标准口径（如只评测了验证集子集），不参与加粗；加粗为同一基准内非灰色行的最优值，只有一行的基准不加粗。筛选栏可按范式、推理方式、输入配置、是否开源筛选，也可以隐藏灰色行。
 
 <div id="lb-filter-bar" class="lb-filter-bar"></div>
 
@@ -30,35 +30,35 @@ excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav
 
 | 模型 | 年份 | 基准 | 范式 | 基模 | SR ↑ | SPL ↑ | 开源 |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
-| [SuperNav-Geo (四视角)](#supernav) <span class="lb-flag">1 m，协议差异</span> | 2026 | HM3D-v2 | 免训练 | GPT-5.6 Terra (high) | 86.50 | 36.38 | – |
-| [SuperNav-Learned (四视角)](#supernav) <span class="lb-flag">1 m，协议差异</span> | 2026 | HM3D-v2 | 训练 | GPT-5.6 Terra (high) | 85.40 | 13.83 | – |
+| [SuperNav-Geo (四视角)](#supernav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">1 m，协议差异</span> | 2026 | HM3D-v2 | 免训练 | GPT-5.6 Terra (high) | 86.50 | 36.38 | – |
+| [SuperNav-Learned (四视角)](#supernav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">1 m，协议差异</span> | 2026 | HM3D-v2 | 训练 | GPT-5.6 Terra (high) | 85.40 | 13.83 | – |
 | [Hydra-Nav (单目)](#hydra-nav) | 2026 | HM3D-v2 | 训练 | Qwen2.5-VL-7B | **84.8** | 41.1 | 否 |
 | [AECNav (单目)](#aecnav) | 2026 | HM3D-v2 | 免训练 | DeepSeek-V4-Flash | 84.7 | **45.3** | 否 |
 | [VLingNav (单目)](#vlingnav) | 2026 | HM3D-v2 | 训练 | LLaVA-Video-7B | 83.0 | 40.5 | 否 |
-| [SysNav (单目)](#sysnav) | 2026 | HM3D-v2 | 免训练 | Gemini-2.5-Flash | 80.8 | 37.2 | [是](https://github.com/zwandering/SysNav) |
-| [SuperNav-Geo (四视角)](#supernav) <span class="lb-flag">0.2 m，协议差异</span> | 2026 | HM3D-v2 | 免训练 | GPT-5.6 Terra (high) | 80.30 | 33.38 | – |
-| [SuperNav-Learned (四视角)](#supernav) <span class="lb-flag">0.2 m，协议差异</span> | 2026 | HM3D-v2 | 训练 | GPT-5.6 Terra (high) | 79.00 | 12.88 | – |
+| [SysNav (单目)](#sysnav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | HM3D-v2 | 免训练 | Gemini-2.5-Flash | 80.8 | 37.2 | [是](https://github.com/zwandering/SysNav) |
+| [SuperNav-Geo (四视角)](#supernav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">0.2 m，协议差异</span> | 2026 | HM3D-v2 | 免训练 | GPT-5.6 Terra (high) | 80.30 | 33.38 | – |
+| [SuperNav-Learned (四视角)](#supernav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">0.2 m，协议差异</span> | 2026 | HM3D-v2 | 训练 | GPT-5.6 Terra (high) | 79.00 | 12.88 | – |
 | [LightNav-0 (单目)](/VLN-Papers/#lightnav-0) | 2026 | HM3D-v2 | 训练 | Qwen3-VL-4B | 77.2 | 41.5 | [是](https://github.com/lightorigins/LightNav-0) |
-| [HarnessVLN (单目)](/VLN-Papers/#harnessvln) | 2026 | HM3D-v2 | 免训练 | GPT-5.6-luna | 76.0 | 37.9 | 否 |
+| [HarnessVLN (单目)](/VLN-Papers/#harnessvln) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | HM3D-v2 | 免训练 | GPT-5.6-luna | 76.0 | 37.9 | 否 |
 | [Qwen-RobotNav (单目)](/VLN-Papers/#qwen-robotnav) | 2026 | HM3D-v2 | 训练 | Qwen3-VL-4B | 75.6 | 30.6 | 否 |
-| [NavGPT-3 (四视角 · Opus 5)](/VLN-Papers/#navgpt-3) <span class="lb-flag">500 条子集，面向目标停止</span> | 2026 | HM3D-v2 | 训练 | Claude Opus 5 + Qwen3-VL-8B | 75.3 | 40.8 | [是](https://github.com/metacognitionai/NavGPT-3) |
-| [3DGSNav (单目)](#nav-3dgs) | 2026 | HM3D-v2 | 免训练 | Gemini 3 Pro + GLM-4.5V | 75.0 | 44.2 | 否 |
+| [NavGPT-3 (四视角 · Opus 5)](/VLN-Papers/#navgpt-3) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">500 条子集，面向目标停止</span> | 2026 | HM3D-v2 | 训练 | Claude Opus 5 + Qwen3-VL-8B | 75.3 | 40.8 | [是](https://github.com/metacognitionai/NavGPT-3) |
+| [3DGSNav (单目)](#nav-3dgs) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | HM3D-v2 | 免训练 | Gemini 3 Pro + GLM-4.5V | 75.0 | 44.2 | 否 |
 | [Qwen-RobotNav (单目)](/VLN-Papers/#qwen-robotnav) | 2026 | HM3D-v2 | 训练 | Qwen3-VL-8B | 71.2 | 33.0 | 否 |
 | [EvoMemNav (单目)](#evomemnav) | 2026 | HM3D-v2 | 免训练 | Qwen-8B | 63.8 | 39.4 | 否 |
-| [3DGSNav (单目)](#nav-3dgs) | 2026 | HM3D-v1 | 免训练 | Gemini 3 Pro + GLM-4.5V | **80.0** | **51.8** | 否 |
+| [3DGSNav (单目)](#nav-3dgs) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | HM3D-v1 | 免训练 | Gemini 3 Pro + GLM-4.5V | **80.0** | **51.8** | 否 |
 | [VLingNav (单目)](#vlingnav) | 2026 | HM3D-v1 | 训练 | LLaVA-Video-7B | 79.1 | 42.9 | 否 |
-| [SysNav (单目)](#sysnav) | 2026 | HM3D-v1 | 免训练 | Gemini-2.5-Flash | 63.7 | 30.5 | [是](https://github.com/zwandering/SysNav) |
+| [SysNav (单目)](#sysnav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | HM3D-v1 | 免训练 | Gemini-2.5-Flash | 63.7 | 30.5 | [是](https://github.com/zwandering/SysNav) |
 | [EvoMemNav (单目)](#evomemnav) | 2026 | HM3D-v1 | 免训练 | Qwen-8B | 59.2 | 33.6 | 否 |
 | [VLFM (单目)](#vlfm) | 2023 | HM3D-v1 | 免训练 | – | 52.5 | 30.4 | [是](https://github.com/rai-opensource/vlfm) |
 | [PanoNav (全景)](#panonav) <span class="lb-flag">200 条子集</span> | 2025 | HM3D（未注明版本） | 免训练 | Qwen2.5-VL + DeepSeek-V3 | 43.5 | 23.7 | 否 |
 | [Hydra-Nav (单目)](#hydra-nav) | 2026 | MP3D | 训练 | Qwen2.5-VL-7B | **64.0** | **29.6** | 否 |
-| [NavGPT-3 (四视角 · Opus 5)](/VLN-Papers/#navgpt-3) <span class="lb-flag">500 条子集，面向目标停止</span> | 2026 | MP3D | 训练 | Claude Opus 5 + Qwen3-VL-8B | 59.2 | 25.2 | [是](https://github.com/metacognitionai/NavGPT-3) |
+| [NavGPT-3 (四视角 · Opus 5)](/VLN-Papers/#navgpt-3) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">500 条子集，面向目标停止</span> | 2026 | MP3D | 训练 | Claude Opus 5 + Qwen3-VL-8B | 59.2 | 25.2 | [是](https://github.com/metacognitionai/NavGPT-3) |
 | [VLingNav (单目)](#vlingnav) | 2026 | MP3D | 训练 | LLaVA-Video-7B | 58.9 | 26.5 | 否 |
 | [Qwen-RobotNav (单目)](/VLN-Papers/#qwen-robotnav) | 2026 | MP3D | 训练 | Qwen3-VL-4B | 52.2 | 16.0 | 否 |
 | [AECNav (单目)](#aecnav) | 2026 | MP3D | 免训练 | DeepSeek-V4-Flash | 51.3 | 25.9 | 否 |
-| [SysNav (单目)](#sysnav) | 2026 | MP3D | 免训练 | Gemini-2.5-Flash | 50.7 | 18.1 | [是](https://github.com/zwandering/SysNav) |
+| [SysNav (单目)](#sysnav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | MP3D | 免训练 | Gemini-2.5-Flash | 50.7 | 18.1 | [是](https://github.com/zwandering/SysNav) |
 | [Qwen-RobotNav (单目)](/VLN-Papers/#qwen-robotnav) | 2026 | MP3D | 训练 | Qwen3-VL-8B | 48.8 | 17.7 | 否 |
-| [3DGSNav (单目)](#nav-3dgs) | 2026 | MP3D | 免训练 | Gemini 3 Pro + GLM-4.5V | 43.6 | 21.3 | 否 |
+| [3DGSNav (单目)](#nav-3dgs) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | MP3D | 免训练 | Gemini 3 Pro + GLM-4.5V | 43.6 | 21.3 | 否 |
 | [VLFM (单目)](#vlfm) | 2023 | MP3D | 免训练 | – | 36.4 | 17.5 | [是](https://github.com/rai-opensource/vlfm) |
 | [VLFM (单目)](#vlfm) | 2023 | Gibson | 免训练 | – | 84.0 | 52.2 | [是](https://github.com/rai-opensource/vlfm) |
 
@@ -74,17 +74,17 @@ excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav
 
 | 模型 | 年份 | 范式 | 基模 | SR ↑ | SPL ↑ | 开源 |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|
-| [SuperNav-Geo-Astra (四视角)](#supernav) <span class="lb-flag">120 条子集，1 m</span> | 2026 | 免训练 | GPT-6 Astra (medium) | 79.17 | 49.74 | – |
-| [SuperNav-Geo (四视角)](#supernav) <span class="lb-flag">120 条子集，1 m</span> | 2026 | 免训练 | GPT-5.6 Terra (high) | 73.33 | 41.05 | – |
-| [SuperNav-Geo-Astra (四视角)](#supernav) <span class="lb-flag">120 条子集，0.25 m</span> | 2026 | 免训练 | GPT-6 Astra (medium) | 71.67 | 45.79 | – |
-| [SuperNav-Learned (四视角)](#supernav) <span class="lb-flag">120 条子集，1 m</span> | 2026 | 训练 | GPT-5.6 Terra (high) | 70.83 | 14.43 | – |
-| [SuperNav-Geo (四视角)](#supernav) <span class="lb-flag">120 条子集，0.25 m</span> | 2026 | 免训练 | GPT-5.6 Terra (high) | 68.33 | 38.37 | – |
+| [SuperNav-Geo-Astra (四视角)](#supernav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">120 条子集，1 m</span> | 2026 | 免训练 | GPT-6 Astra (medium) | 79.17 | 49.74 | – |
+| [SuperNav-Geo (四视角)](#supernav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">120 条子集，1 m</span> | 2026 | 免训练 | GPT-5.6 Terra (high) | 73.33 | 41.05 | – |
+| [SuperNav-Geo-Astra (四视角)](#supernav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">120 条子集，0.25 m</span> | 2026 | 免训练 | GPT-6 Astra (medium) | 71.67 | 45.79 | – |
+| [SuperNav-Learned (四视角)](#supernav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">120 条子集，1 m</span> | 2026 | 训练 | GPT-5.6 Terra (high) | 70.83 | 14.43 | – |
+| [SuperNav-Geo (四视角)](#supernav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">120 条子集，0.25 m</span> | 2026 | 免训练 | GPT-5.6 Terra (high) | 68.33 | 38.37 | – |
 | [Hydra-Nav (单目)](#hydra-nav) | 2026 | 训练 | Qwen2.5-VL-7B | **66.3** | **37.4** | 否 |
-| [SuperNav-Learned (四视角)](#supernav) <span class="lb-flag">120 条子集，0.25 m</span> | 2026 | 训练 | GPT-5.6 Terra (high) | 65.00 | 13.55 | – |
-| [HarnessVLN (单目)](/VLN-Papers/#harnessvln) | 2026 | 免训练 | GPT-5.6-luna | 59.3 | 36.6 | 否 |
+| [SuperNav-Learned (四视角)](#supernav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">120 条子集，0.25 m</span> | 2026 | 训练 | GPT-5.6 Terra (high) | 65.00 | 13.55 | – |
+| [HarnessVLN (单目)](/VLN-Papers/#harnessvln) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 免训练 | GPT-5.6-luna | 59.3 | 36.6 | 否 |
 | [OmniNav (多目)](/VLN-Papers/#omninav) | 2026 | 训练 | Qwen2.5-VL-3B | 59.2 | 33.2 | [是](https://github.com/amap-cvlab/OmniNav) |
 | [AECNav (单目)](#aecnav) | 2026 | 免训练 | DeepSeek-V4-Flash | 57.3 | 30.5 | 否 |
-| [SysNav (单目)](#sysnav)<sup>†</sup> | 2026 | 免训练 | Gemini-2.5-Flash | 54.9 | 26.1 | [是](https://github.com/zwandering/SysNav) |
+| [SysNav (单目)](#sysnav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span><sup>†</sup> | 2026 | 免训练 | Gemini-2.5-Flash | 54.9 | 26.1 | [是](https://github.com/zwandering/SysNav) |
 | [Qwen-RobotNav (单目)](/VLN-Papers/#qwen-robotnav) | 2026 | 训练 | Qwen3-VL-4B | 53.1 | 20.9 | 否 |
 | [Qwen-RobotNav (单目)](/VLN-Papers/#qwen-robotnav) | 2026 | 训练 | Qwen3-VL-8B | 51.2 | 24.0 | 否 |
 | [VLingNav (单目)](#vlingnav) | 2026 | 训练 | LLaVA-Video-7B | 50.1 | 24.6 | 否 |
@@ -92,7 +92,7 @@ excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav
 | [AstraNav-World (多目)](/VLN-Papers/#astranav-world)<sup>†</sup> | 2025 | 训练 | Qwen2.5-VL-3B | 45.7 | 28.7 | [是](https://github.com/amap-cvlab/AstraNav-World) |
 | [NavFoM (多目)](/VLN-Papers/#navfom) | 2025 | 训练 | Qwen2-7B | 45.2 | 31.9 | 否 |
 | [JanusVLN (单目)](/VLN-Papers/#janusvln)<sup>†</sup> | 2026 | 训练 | Janus-Pro-7B | 44.9 | 31.7 | [是](https://github.com/MIV-XJTU/JanusVLN) |
-| [LocalNav-Claude (单目)](#localnav) | 2026 | 免训练 | Claude Sonnet 4.6 | 39.7 | 19.7 | 否 |
+| [LocalNav-Claude (单目)](#localnav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 免训练 | Claude Sonnet 4.6 | 39.7 | 19.7 | 否 |
 | [LocalNav-Qwen (单目)](#localnav) | 2026 | 训练 | Qwen3.5-4B | 34.5 | 17.2 | 否 |
 
 注：† SysNav、AstraNav-World 与 JanusVLN 原文只给出一列 HM3D-OVON 结果，未写明划分；NavFoM 为四视角设定（单视角为 43.6 / 31.3）；OmniNav 为启用慢思考系统的 OmniNav*。LocalNav-Claude 是直接用 Claude Sonnet 4.6 做决策的免训练版本，LocalNav-Qwen 是用 Claude 轨迹做 SFT 蒸馏的 Qwen3.5-4B。
@@ -129,7 +129,7 @@ excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav
 
 | 模型 | 年份 | 基准 | 范式 | 基模 | SR ↑ | SPL ↑ | 开源 |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
-| [GSMem (单目)](#gsmem) | 2025 | GOAT-Bench | 免训练 | GPT-4o | **67.2** | **46.9** | 否 |
+| [GSMem (单目)](#gsmem) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2025 | GOAT-Bench | 免训练 | GPT-4o | **67.2** | **46.9** | 否 |
 | [EvoMemNav (单目)](#evomemnav) | 2026 | GOAT-Bench | 免训练 | Qwen-8B | 59.6 | 38.9 | 否 |
 | [X-NavDP (单目)](/VLN-Papers/#x-navdp) | 2026 | IsaacLab 40-Scenes (Point-Goal) | 训练 | – | 84.28 | 77.19 | [是](https://github.com/InternRobotics/NavDP) |
 | [ABot-N1 (三相机)](/VLN-Papers/#abot-n1) | 2026 | ABotN-PointBench (Indoor) | 训练 | Qwen-3.5-4B + 2B | 95.4 | 93.7 | 否 |
@@ -137,12 +137,12 @@ excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav
 | [ABot-N1 (三相机)](/VLN-Papers/#abot-n1) | 2026 | Short-Horizon OVON | 训练 | Qwen-3.5-4B + 2B | 84.9 | 51.8 | 否 |
 | [ABot-N1 (三相机)](/VLN-Papers/#abot-n1) | 2026 | ABotN-POIBench | 训练 | Qwen-3.5-4B + 2B | 77.3 | 72.6 | 否 |
 | [VNT-PA (单目)](#vnt-pa) | 2026 | HM3D (Point-Goal, 先验探索帧) | 训练 | – | 93.3 | 90.4 | 否 |
-| [SuperNav-Geo (四视角)](#supernav) | 2026 | InteriorGS (Single-Object) | 免训练 | GPT-5.6 Terra (high) | **78.00** | **41.27** | – |
-| [SuperNav-Learned (四视角)](#supernav) | 2026 | InteriorGS (Single-Object) | 训练 | GPT-5.6 Terra (high) | 68.00 | 20.59 | – |
-| [SuperNav-Geo (四视角)](#supernav) | 2026 | InteriorGS (Ordered Multi-Object) | 免训练 | GPT-5.6 Terra (high) | **34.00** | **13.88** | – |
-| [SuperNav-Learned (四视角)](#supernav) | 2026 | InteriorGS (Ordered Multi-Object) | 训练 | GPT-5.6 Terra (high) | **34.00** | 8.62 | – |
-| [SuperNav-Geo (四视角)](#supernav) | 2026 | Demand-Bench (Ordered Navigation) | 免训练 | GPT-5.6 Terra (high) | **59.50** | **18.01** | – |
-| [SuperNav-Learned (四视角)](#supernav) | 2026 | Demand-Bench (Ordered Navigation) | 训练 | GPT-5.6 Terra (high) | 45.00 | 16.03 | – |
+| [SuperNav-Geo (四视角)](#supernav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | InteriorGS (Single-Object) | 免训练 | GPT-5.6 Terra (high) | **78.00** | **41.27** | – |
+| [SuperNav-Learned (四视角)](#supernav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | InteriorGS (Single-Object) | 训练 | GPT-5.6 Terra (high) | 68.00 | 20.59 | – |
+| [SuperNav-Geo (四视角)](#supernav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | InteriorGS (Ordered Multi-Object) | 免训练 | GPT-5.6 Terra (high) | **34.00** | **13.88** | – |
+| [SuperNav-Learned (四视角)](#supernav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | InteriorGS (Ordered Multi-Object) | 训练 | GPT-5.6 Terra (high) | **34.00** | 8.62 | – |
+| [SuperNav-Geo (四视角)](#supernav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | Demand-Bench (Ordered Navigation) | 免训练 | GPT-5.6 Terra (high) | **59.50** | **18.01** | – |
+| [SuperNav-Learned (四视角)](#supernav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | Demand-Bench (Ordered Navigation) | 训练 | GPT-5.6 Terra (high) | 45.00 | 16.03 | – |
 
 注：GOAT-Bench 为 val-unseen，一个 episode 内依次给出类别、文字描述或图像形式的多个目标。IsaacLab 40-Scenes 为 X-NavDP 的点目标评测；ABotN-PointBench、Short-Horizon OVON 与 ABotN-POIBench 为 ABot-N1 的自建设定，PointBench 室内用零碰撞成功率（SR<1col），室外用三次碰撞内成功率（SR<3col），两者判定不同；POIBench 以到达入口 2 m 内为成功。HM3D (Point-Goal, 先验探索帧) 为 VNT-PA 的设定：规划器只读取一段先验探索轨迹的深度帧与位姿，不看当前视图，以停在目标 0.2 m 内为成功。仅有一行的基准不加粗；自建基准的结果不宜与其他表的数字比较。
 

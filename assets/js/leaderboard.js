@@ -1,5 +1,5 @@
 // 排行榜筛选：作用于 #lb-filter-bar 之后、下一个一级标题之前的所有「| 模型 | … |」表格。
-// 按范式、输入配置、是否开源筛选，并可隐藏非标准口径（模型格里带 .lb-flag 的灰色行）。
+// 按范式、推理方式（模型格里带 .lb-api 角标即调用闭源 API）、输入配置、是否开源筛选，并可隐藏非标准口径（模型格里带 .lb-flag 的灰色行）。
 // 每次筛选后按页面说明里的同一条规则重新加粗：同一基准内、可见的非灰色行、至少两个数值时取最优。
 (function () {
   'use strict';
@@ -9,6 +9,7 @@
 
   var FILTERS = [
     { key: 'paradigm', label: label('范式', 'Paradigm'), opts: [['all', label('全部', 'All')], ['trained', label('训练', 'Trained')], ['training-free', label('免训练', 'Training-free')]] },
+    { key: 'api', label: label('推理', 'Inference'), opts: [['all', label('全部', 'All')], ['local', label('仅本地模型', 'Local models only')], ['api', label('调用闭源 API', 'Calls closed API')]] },
     { key: 'input', label: label('输入', 'Input'), opts: [['all', label('全部', 'All')], ['mono', label('单目', 'Monocular')], ['multi', label('多目 / 全景', 'Multi-view / panoramic')]] },
     { key: 'open', label: label('开源', 'Open source'), opts: [['all', label('全部', 'All')], ['yes', label('仅开源', 'Open source only')]] },
     { key: 'nonstd', label: label('非标准口径', 'Nonstandard evaluation'), opts: [['show', label('显示', 'Show')], ['hide', label('隐藏', 'Hide')]] }
@@ -21,7 +22,7 @@
   var METRICS = { SR: 'max', SPL: 'max', NE: 'min', OSR: 'max', ISR: 'max', CSR: 'max', CGT: 'max' };
   var FOLLOWING = 4; // Node.DOCUMENT_POSITION_FOLLOWING
 
-  var state = { paradigm: 'all', input: 'all', open: 'all', nonstd: 'show' };
+  var state = { paradigm: 'all', api: 'all', input: 'all', open: 'all', nonstd: 'show' };
   var tables = [];
   var countEl = null;
 
@@ -64,8 +65,10 @@
       var tds = tr.children;
       var modelCell = tds[cols['模型']];
       var flag = modelCell ? modelCell.querySelector('.lb-flag') : null;
+      var api = modelCell ? modelCell.querySelector('.lb-api') : null;
       var name = text(modelCell);
       if (flag) name = name.replace(text(flag), '');
+      if (api) name = name.replace(text(api), '');
       var input = 'unknown';
       if (MULTI_KEYS.some(function (k) { return name.toLowerCase().indexOf(k) !== -1; })) input = 'multi';
       else if (name.indexOf('单目') !== -1 || name.toLowerCase().indexOf('monocular') !== -1) input = 'mono';
@@ -81,7 +84,8 @@
       var openLink = cols['开源'] != null ? tds[cols['开源']].querySelector('a') : null;
       rows.push({
         tr: tr,
-        name: name.trim(),
+        name: name.replace(/\s+/g, ' ').trim(),
+        api: !!api,
         href: link ? link.getAttribute('href') : '',
         flagText: text(flag),
         year: cols['年份'] != null ? text(tds[cols['年份']]) : '',
@@ -150,9 +154,9 @@
     });
     tools.appendChild(sorts);
     var legend = el('span', 'lb-chart-legend');
-    [['trained', label('训练', 'Trained')], ['training-free', label('免训练', 'Training-free')], ['nonstd', label('非标准口径', 'Nonstandard')]].forEach(function (l) {
+    [['local', label('本地模型', 'Local model')], ['api', label('调用闭源 API', 'Calls closed API')], ['nonstd', label('非标准口径', 'Nonstandard')]].forEach(function (l) {
       var s = el('span', 'lb-legend-item');
-      s.appendChild(el('span', 'lb-swatch lb-' + l[0]));
+      s.appendChild(el('span', 'lb-swatch lb-c-' + l[0]));
       s.appendChild(document.createTextNode(l[1]));
       legend.appendChild(s);
     });
@@ -215,9 +219,11 @@
       row.appendChild(el('span', 'lb-bar-rank', r.flag ? '·' : String(rank)));
       var nm = el('span', 'lb-bar-name', r.name);
       nm.title = r.name + (r.flagText ? ' · ' + r.flagText : '');
+      // 颜色之外再给调用 API 的行一个文字标记，不只靠颜色区分
+      if (r.api) nm.appendChild(el('span', 'lb-bar-api', 'API'));
       row.appendChild(nm);
       var track = el('span', 'lb-bar-track');
-      var bar = el('span', 'lb-bar lb-' + (r.flag ? 'nonstd' : (r.paradigm || 'other')));
+      var bar = el('span', 'lb-bar lb-c-' + (r.flag ? 'nonstd' : (r.api ? 'api' : 'local')));
       bar.style.width = (max ? d.v / max * 100 : 0).toFixed(1) + '%';
       track.appendChild(bar);
       row.appendChild(track);
@@ -258,7 +264,7 @@
       grid.appendChild(cell);
     });
     card.appendChild(grid);
-    var meta = [r.paradigmText, r.base && r.base !== '–' ? label('基模 ', 'Base model ') + r.base : '', r.year].filter(Boolean);
+    var meta = [r.paradigmText, r.api ? label('推理时调用闭源 API', 'Calls a closed API at inference') : label('本地模型推理', 'Local-model inference'), r.base && r.base !== '–' ? label('基模 ', 'Base model ') + r.base : '', r.year].filter(Boolean);
     var info = el('div', 'lb-detail-info', meta.join(' · '));
     if (r.openText) {
       info.appendChild(document.createTextNode(' · ' + label('开源 ', 'Open source ')));
@@ -294,6 +300,7 @@
 
   function visible(r) {
     if (state.paradigm !== 'all' && r.paradigm !== state.paradigm) return false;
+    if (state.api !== 'all' && r.api !== (state.api === 'api')) return false;
     if (state.input !== 'all' && r.input !== state.input) return false;
     if (state.open === 'yes' && !r.open) return false;
     if (state.nonstd === 'hide' && r.flag) return false;
