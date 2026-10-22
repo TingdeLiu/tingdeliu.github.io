@@ -3,7 +3,9 @@ layout: default
 ---
 
 {% include locale.html %}
-<article class="posts paper-figures{% if page.vla_survey %} vla-survey{% endif %}{% if page.prose_reading %} prose-reading{% endif %}{% if page.translation_id == 'robot-navigation-survey' %} robot-navigation-survey{% endif %}">
+{% assign prose_reading = page.prose_reading %}
+{% if page.categories contains 'weekly' or site.data.prose_reading contains page.slug %}{% assign prose_reading = true %}{% endif %}
+<article class="posts paper-figures{% if page.vla_survey %} vla-survey{% endif %}{% if prose_reading %} prose-reading{% endif %}{% if page.translation_id == 'robot-navigation-survey' %} robot-navigation-survey{% endif %}">
   
   
   <!-- 在这里添加回到顶部，只在post页面会出现 -->

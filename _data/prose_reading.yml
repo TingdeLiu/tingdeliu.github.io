@@ -1,0 +1,12 @@
+# 正文收窄阅读（760px 居中、17px）的文章：填文章 slug（文件名去掉日期，中英文共用）。
+# 周报（categories: weekly）自动收窄，不用写在这里。
+# 公式多、列表里夹长公式的论文页（如 VLN-Papers）不要加入：长公式会被挤到横向滚动。
+- Harness-Engineering
+- loop-engineering
+- graph-engineering
+- Jev-Embodied-Navigation
+- Python-Engineering-Survey
+- ROS2-Survey
+- Embodied-Agent-Harness-Survey
+- VLA-Survey
+- AI-Agent-Survey

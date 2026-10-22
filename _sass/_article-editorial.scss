@@ -115,8 +115,10 @@
     .vla-official-table tbody tr:first-child td { background: var(--panel); }
     .vla-score-meter { background: linear-gradient(90deg, var(--score-fill) var(--vla-meter), transparent var(--vla-meter)); }
   }
-  // Keep the established narrow prose / wide figure behavior for survey pages.
-  .posts.prose-reading .entry > :is(h1,h2,h3,h4,h5,h6,p,ul,ol,dl,blockquote,hr):not(.article-wide) { margin-left: 0; }
+  // Narrow, centered prose for text-heavy articles (see _data/prose_reading.yml); figures, tables and code stay wide.
+  .posts.prose-reading .entry { font-size: 17px; }
+  .posts.prose-reading .entry > :is(h1,h2,h3,h4,h5,h6,p,ul,ol,dl,blockquote,hr,.translation-note):not(.article-wide),
+  .posts.prose-reading .entry > .paper-section > :is(h1,h2,h3,h4,h5,h6,p,ul,ol,dl,blockquote,hr):not(.article-wide) { max-width: 760px; margin-left: auto; margin-right: auto; }
   .article-table-scroll { border-color: var(--rule); border-radius: 0; scrollbar-color: #57574e var(--panel); }
   .article-code-shell { border-color: var(--rule); border-radius: 0; }
   .article-code-copy { color: var(--ink); background: var(--panel); border-color: var(--rule); border-radius: 2px; }

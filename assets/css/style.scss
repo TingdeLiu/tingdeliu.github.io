@@ -690,8 +690,8 @@ nav {
 .entry mjx-container:not([display="true"]) {
   display: inline-block;
   max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
+  // MathJax under-reports the width of accents and scripts, so auto overflow drew a scrollbar under formulas that fit.
+  overflow: visible;
   // Leave room for ink beyond MathJax's reported box, such as the tail of g_E.
   padding: .25em 0;
   vertical-align: middle;
