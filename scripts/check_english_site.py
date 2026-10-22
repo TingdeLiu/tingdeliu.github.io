@@ -23,7 +23,8 @@ class Document(HTMLParser):
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         inside = any('entry' in n['attrs'].get('class', '').split() for n in self.stack)
-        node = dict(tag=tag, attrs=attrs, entry=inside, text='')
+        featured = any('home-featured' in n['attrs'].get('class', '').split() for n in self.stack)
+        node = dict(tag=tag, attrs=attrs, entry=inside, featured=featured, text='')
         self.nodes.append(node)
         if tag not in VOID:
             self.stack.append(node)
@@ -147,7 +148,7 @@ def main():
               f'/{route}/: article rows missing')
         check(all(n['attrs'].get('data-kind') in ('weekly', 'notes') and n['attrs'].get('data-search') for n in cards),
               f'/{route}/: article filter/search metadata missing')
-        dates = [n['attrs'].get('datetime', '') for n in doc.select('time', True)]
+        dates = [n['attrs'].get('datetime', '') for n in doc.select('time', True) if not n['featured']]
         check(len(dates) == len(cards) and dates == sorted(dates, reverse=True),
               f'/{route}/: articles are not ordered by latest update')
         check(any('data-blog-search' in n['attrs'] for n in doc.select('input')) and
@@ -164,14 +165,14 @@ def main():
         check(any('data-research-filter' in n['attrs'] for n in research.select('button')) and
               any(n['attrs'].get('src') == '/assets/js/research-index.js' for n in research.select('script')),
               f'/{route}/: Research filtering controls or script missing')
-        check(bool(rows) and len(urls) == len(set(urls)) and len(research.select('time', True)) == len(rows),
+        check(bool(rows) and len(urls) == len(set(urls)) and len([n for n in research.select('time', True) if not n['featured']]) == len(rows),
               f'/{route}/: missing or duplicate dated research rows')
         check(not any('wrapper-sidebar' in n['attrs'].get('class', '').split() for n in research.select('div')),
               f'/{route}/: legacy sidebar still visible')
     for route in ('blog', 'en/blog', 'research', 'en/research'):
         listing = load(SITE / route / 'index.html')
         rows = [n for n in listing.select('a') if 'blog-row' in n['attrs'].get('class', '').split()]
-        estimates = [n for n in listing.select('span') if 'blog-row-reading' in n['attrs'].get('class', '').split()]
+        estimates = [n for n in listing.select('span') if 'blog-row-reading' in n['attrs'].get('class', '').split() and not n['featured']]
         check(len(estimates) == len(rows) and all(re.search(r'[1-9]\d*', n['attrs'].get('aria-label', '')) for n in estimates),
               f'/{route}/: reading-time estimates missing or invalid')
     projects = load(SITE / 'home/index.html')
