@@ -17,8 +17,10 @@
   var MULTI_KEYS = ['全景', '多目', '三相机', '四视角', '180°', 'panoramic', 'multi-view', 'three cameras', 'four views'];
   // 英文版把「基准」列译成了 Baseline，一并识别
   var COLUMNS = { Model: '模型', Year: '年份', Paradigm: '范式', Base: '基模', Open: '开源', Benchmark: '基准', Baseline: '基准', Evaluation: '评测设置' };
-  var CHART_METRICS = ['SR', 'SPL', 'NE'];
+  var CHART_METRICS = ['SR', 'SPL', 'NE', 'ISR', 'CSR', 'CGT'];
   var CHART_TOP = 20;
+  // 分组表（带「基准」或「评测设置」列）只给行数不少于此值的组画图，且至少要有两个这样的组
+  var GROUP_MIN = 5;
   var METRICS = { SR: 'max', SPL: 'max', NE: 'min', OSR: 'max', ISR: 'max', CSR: 'max', CGT: 'max' };
   var FOLLOWING = 4; // Node.DOCUMENT_POSITION_FOLLOWING
 
@@ -111,9 +113,24 @@
     empty.style.display = 'none';
     tbl.querySelector('tbody').appendChild(empty);
     var t = { tbl: tbl, rows: rows, empty: empty, chart: null };
-    // 只给单一基准的表画图：带「基准」或「评测设置」列的表混了多种口径，条形长短不可比
-    if (cols.SR != null && cols['基准'] == null && cols['评测设置'] == null) buildChart(t);
+    // 单一基准的表直接画图；带「基准」或「评测设置」列的表混了多种口径，按组切换着画，每次只比同一组
+    if (cols.SR != null) {
+      if (cols['基准'] == null && cols['评测设置'] == null) buildChart(t, null);
+      else {
+        var groups = chartGroups(rows);
+        if (groups.length >= 2) buildChart(t, groups);
+      }
+    }
     return t;
+  }
+
+  function chartGroups(rows) {
+    var count = {}, order = [];
+    rows.forEach(function (r) {
+      if (!(r.group in count)) { count[r.group] = 0; order.push(r.group); }
+      count[r.group]++;
+    });
+    return order.filter(function (g) { return count[g] >= GROUP_MIN; });
   }
 
   // ---- 条形图视图：数据直接取自上面的表格行，表格仍是唯一数据源 ----
@@ -129,8 +146,8 @@
     return t.tbl.closest('.article-table-scroll') || t.tbl;
   }
 
-  function buildChart(t) {
-    var c = { view: 'chart', metric: 'SR', expanded: false, open: null };
+  function buildChart(t, groups) {
+    var c = { view: 'chart', metric: 'SR', expanded: false, open: null, groups: groups, group: groups ? groups[0] : null };
     var box = el('div', 'lb-chart');
     var tools = el('div', 'lb-chart-tools');
     var views = el('span', 'lb-chart-seg');
@@ -142,6 +159,18 @@
       views.appendChild(b);
     });
     tools.appendChild(views);
+    if (groups) {
+      var gseg = el('span', 'lb-chart-seg lb-chart-groups');
+      gseg.appendChild(el('span', 'filter-label', t.rows[0].evaluationSetting ? label('评测设置：', 'Setting: ') : label('基准：', 'Benchmark: ')));
+      groups.forEach(function (g) {
+        var b = el('button', 'filter-btn', g);
+        b.type = 'button';
+        b.setAttribute('data-group', g);
+        b.addEventListener('click', function () { c.group = g; c.open = null; renderChart(t); });
+        gseg.appendChild(b);
+      });
+      tools.appendChild(gseg);
+    }
     var sorts = el('span', 'lb-chart-seg lb-chart-sort');
     sorts.appendChild(el('span', 'filter-label', label('排序：', 'Sort: ')));
     CHART_METRICS.forEach(function (m) {
@@ -188,13 +217,18 @@
     c.box.querySelectorAll('[data-metric]').forEach(function (b) {
       b.classList.toggle('active', b.getAttribute('data-metric') === c.metric);
     });
-    c.box.querySelector('.lb-chart-sort').style.display = c.view === 'chart' ? '' : 'none';
+    c.box.querySelectorAll('[data-group]').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-group') === c.group);
+    });
+    c.box.querySelectorAll('.lb-chart-sort, .lb-chart-groups').forEach(function (s) {
+      s.style.display = c.view === 'chart' ? '' : 'none';
+    });
     c.box.querySelector('.lb-chart-legend').style.display = c.view === 'chart' ? '' : 'none';
     c.list.style.display = c.foot.style.display = c.view === 'chart' ? '' : 'none';
     if (c.view !== 'chart') return;
 
     var m = c.metric, asc = METRICS[m] === 'min';
-    var shown = t.rows.filter(function (r) { return r.visible; });
+    var shown = t.rows.filter(function (r) { return r.visible && (!c.groups || r.group === c.group); });
     var data = [], missing = 0;
     shown.forEach(function (r) {
       var v = r.metrics[m] ? num(r.metrics[m].getAttribute('data-v')) : null;
@@ -208,9 +242,13 @@
     var limit = c.expanded ? data.length : Math.min(CHART_TOP, data.length);
 
     c.list.innerHTML = '';
-    var rank = 0;
+    // 同分同名次（如 LHPR 里一排 0），下一个不同的分数跳过并列的名次
+    var rank = 0, seen = 0, prev = null;
     data.forEach(function (d, i) {
-      if (!d.r.flag) rank++;
+      if (!d.r.flag) {
+        seen++;
+        if (d.v !== prev) { rank = seen; prev = d.v; }
+      }
       if (i >= limit) return;
       var r = d.r;
       var row = el('button', 'lb-bar-row' + (c.open === r ? ' is-open' : ''));
