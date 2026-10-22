@@ -70,7 +70,7 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 | [DecoVLN (单目)](#decovln) | 2026 | 训练 | LLaVA-Video-7B | 56.3 | 50.5 | 5.01 | 63.5 | 否 |
 | [AgenticNav (全景)](#agenticnav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">100 条子集</span> | 2026 | 免训练 | GPT-5.5 | 55.0 | 48.41 | 5.19 | 65.0 | 否 |
 | [Goal2Pixel (单目)](#goal2pixel) | 2025 | 训练 | LLaVA-1.5-7B | 54.1 | 52.5 | 4.85 | 59.9 | 否 |
-| [HSGM (单目)](#hsgm) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 免训练 | – | 47.9 | 32.8 | 5.42 | 58.7 | [是](https://github.com/Teacher-Tom/HSGM_public) |
+| [HSGM (单目)](#hsgm) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 免训练 | GPT-5 | 47.9 | 32.8 | 5.42 | 58.7 | [是](https://github.com/Teacher-Tom/HSGM_public) |
 | [SparseNav (单目)](/VLN-Papers-Extended/#sparsenav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 免训练 | GPT-5 | 42.8 | 35.2 | 5.96 | 53.4 | 否 |
 | [MapNav (单目)](#mapnav) | 2025 | 训练 | LLaVA-Onevision-7B | 39.7 | 37.2 | 5.43 | 53.0 | [是](https://github.com/linglingxiansen/MapNav) |
 | [NaVid (单目)](#navid) | 2024 | 训练 | – | 37.4 | 35.9 | 5.47 | 49.1 | [是](https://github.com/jzhzhang/NaVid-VLN-CE) |
@@ -121,7 +121,7 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 | [DGNav (全景)](#dgnav) | 2026 | 训练 | – | 53.78 | 44.37 | 6.00 | – | [是](https://github.com/shannanshouyin/DGNav) |
 | [Talk2Escape + NavGPT (四视角)](/VLN-Papers-Extended/#talk2escape) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">260 条子集</span> | 2026 | 免训练 | Gemini 3.1 Pro | 50.4 | 27.2 | 6.01 | – | 否 |
 | [Goal2Pixel (单目)](#goal2pixel) | 2025 | 训练 | LLaVA-1.5-7B | 43.8 | 40.4 | 7.50 | – | 否 |
-| [HSGM (单目)](#hsgm) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 免训练 | – | 41.8 | 25.1 | 7.43 | – | [是](https://github.com/Teacher-Tom/HSGM_public) |
+| [HSGM (单目)](#hsgm) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 免训练 | GPT-5 | 41.8 | 25.1 | 7.43 | – | [是](https://github.com/Teacher-Tom/HSGM_public) |
 | [SparseNav (单目)](/VLN-Papers-Extended/#sparsenav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 免训练 | GPT-5 | 40.7 | 24.1 | 7.82 | – | 否 |
 | [MapNav (单目)](#mapnav) | 2025 | 训练 | LLaVA-Onevision-7B | 32.6 | 27.7 | 7.62 | – | [是](https://github.com/linglingxiansen/MapNav) |
 | [NaVid (单目)](#navid) | 2024 | 训练 | – | 23.8 | 21.2 | 8.41 | 34.5 | [是](https://github.com/jzhzhang/NaVid-VLN-CE) |
