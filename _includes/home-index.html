@@ -1,0 +1,65 @@
+{% include locale.html %}
+{% assign home_featured = nil %}
+{% for item in home_entries %}
+  {% if item.translation_id == site.home_featured %}{% assign home_featured = item %}{% break %}{% endif %}
+{% endfor %}
+{% assign research_count = home_entries | where_exp: 'item', 'item.categories contains "research"' | size %}
+{% assign weekly_count = home_entries | where_exp: 'item', 'item.categories contains "weekly"' | size %}
+{% assign notes_count = home_entries | where_exp: 'item', 'item.categories contains "blog"' | size %}
+<section class="blog-library home-library" data-blog-library>
+  <header class="page-heading">
+    <div class="blog-heading-copy">
+      <h1>{{ site.name }}</h1>
+      <p class="blog-intro">{% if page_lang == 'en' %}Notes on embodied intelligence:<br>navigation, VLA models, and robot learning.{% else %}具身智能研究笔记：<br>导航、VLA 与机器人学习。{% endif %}</p>
+    </div>
+    {% include language-switch.html site=true %}
+  </header>
+  <div class="blog-index-content">
+  {% if home_featured %}
+  <a class="home-featured" href="{{ home_featured.url | relative_url }}">
+    <span class="home-featured-art" aria-hidden="true">
+      <svg viewBox="0 0 24 24" focusable="false"><path d="M4 4h6v6H4Zm10 0h6v6h-6ZM4 14h6v6H4Zm10 0h6v6h-6Z"/></svg>
+    </span>
+    <span class="home-featured-body">
+      <span class="home-featured-meta">
+        <span class="home-featured-badge">{% if page_lang == 'en' %}Featured{% else %}置顶{% endif %}</span>
+        <span>{{ ui.research }}</span>
+      </span>
+      <span class="home-featured-title">{{ home_featured.title | escape }}</span>
+      <span class="home-featured-excerpt">{{ home_featured.excerpt | strip_html | normalize_whitespace | truncate: 140 | escape }}</span>
+      <span class="home-featured-foot">
+        <time datetime="{{ home_featured.date | date_to_xmlschema }}">{{ home_featured.date | date: '%Y-%m-%d' }}</time>
+        {% include reading-time.html post=home_featured %}
+      </span>
+    </span>
+  </a>
+  {% endif %}
+  <div class="blog-controls" data-blog-controls hidden>
+    <div class="blog-filters" role="group" aria-label="{% if page_lang == 'en' %}Article type{% else %}文章类型{% endif %}">
+      <button type="button" data-blog-filter="all" aria-pressed="true">{% if page_lang == 'en' %}All{% else %}全部{% endif %}<span>{{ home_entries.size }}</span></button>
+      {% if research_count > 0 %}<button type="button" id="research" data-blog-filter="research" aria-pressed="false">{{ ui.research }}<span>{{ research_count }}</span></button>{% endif %}
+      {% if weekly_count > 0 %}<button type="button" id="weekly" data-blog-filter="weekly" aria-pressed="false">{{ ui.weekly }}<span>{{ weekly_count }}</span></button>{% endif %}
+      {% if notes_count > 0 %}<button type="button" id="notes" data-blog-filter="notes" aria-pressed="false">{{ ui.notes }}<span>{{ notes_count }}</span></button>{% endif %}
+    </div>
+    <label class="blog-search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+      <span class="blog-sr-only">{% if page_lang == 'en' %}Search articles{% else %}搜索文章{% endif %}</span>
+      <input type="search" data-blog-search placeholder="{% if page_lang == 'en' %}Search articles…{% else %}搜索文章…{% endif %}" autocomplete="off" aria-controls="home-results">
+    </label>
+  </div>
+  <div class="blog-results-info">
+    <p data-blog-count role="status" aria-live="polite">{{ home_entries.size }} {% if page_lang == 'en' %}articles{% else %}篇文章{% endif %}</p>
+    <span>{% if page_lang == 'en' %}Latest updates first{% else %}按最近更新排序{% endif %}</span>
+  </div>
+  <div class="blog-list" id="home-results">
+    {% for post in home_entries %}
+      {% include blog-row.html post=post %}
+    {% endfor %}
+  </div>
+  <div class="blog-empty" data-blog-empty hidden>
+    <h2>{% if page_lang == 'en' %}No matching articles{% else %}没有找到相关文章{% endif %}</h2>
+    <p>{% if page_lang == 'en' %}Try a different topic or clear the filters.{% else %}试试其他关键词，或清除筛选条件。{% endif %}</p>
+    <button type="button" data-blog-reset>{% if page_lang == 'en' %}Show all articles{% else %}查看全部文章{% endif %}</button>
+  </div>
+  </div>
+</section>

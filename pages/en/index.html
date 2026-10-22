@@ -1,9 +1,12 @@
 ---
-layout: default
+layout: page
 lang: en
+editorial: true
+home_index: true
 permalink: /en/
 translation_id: latest-index
 excerpt: "Latest English research surveys, weekly digests, and technical notes by Tingde Liu on artificial intelligence and robotics."
 ---
 
-{% include latest-posts.html %}
+{% assign home_entries = site.translations | where: 'lang', 'en' | where_exp: 'item', 'item.published != false' | sort: 'date' | reverse %}
+{% include home-index.html %}

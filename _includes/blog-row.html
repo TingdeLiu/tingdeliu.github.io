@@ -1,10 +1,12 @@
 {% assign bp = include.post %}
 {% assign blog_kind = 'notes' %}
-{% if bp.categories contains 'weekly' %}{% assign blog_kind = 'weekly' %}{% endif %}
+{% if bp.categories contains 'weekly' %}{% assign blog_kind = 'weekly' %}{% elsif bp.categories contains 'research' %}{% assign blog_kind = 'research' %}{% endif %}
 <a class="rc-card blog-row" href="{{ bp.url | relative_url }}" data-blog-card data-kind="{{ blog_kind }}" data-search="{{ bp.title | escape }} {{ bp.excerpt | strip_html | normalize_whitespace | escape }} {{ bp.tags | join: ' ' | escape }}">
   <span class="blog-row-icon" aria-hidden="true">
     {% if blog_kind == 'weekly' %}
     <svg viewBox="0 0 24 24" focusable="false"><path d="M10 2h4v4h4v4h4v4h-4v4h-4v4h-4v-4H6v-4H2v-4h4V6h4Zm0 8v4h4v-4Z" fill-rule="evenodd"/></svg>
+    {% elsif blog_kind == 'research' %}
+    <svg viewBox="0 0 24 24" focusable="false"><path d="M4 4h6v6H4Zm10 0h6v6h-6ZM4 14h6v6H4Zm10 0h6v6h-6Z"/></svg>
     {% else %}
     <svg viewBox="0 0 24 24" focusable="false"><path d="M4 4h4v4H4Zm12 0h4v4h-4ZM8 8h8v8H8Zm-4 8h4v4H4Zm12 0h4v4h-4Z"/></svg>
     {% endif %}

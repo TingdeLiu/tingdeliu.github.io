@@ -1,0 +1,24 @@
+{% assign footer_prefix = '' %}{% if page_lang == 'en' %}{% assign footer_prefix = '/en' %}{% endif %}
+<div class="site-footer">
+  <div class="site-footer-brand">
+    <a class="site-footer-name" href="{{ footer_prefix | append: '/' | relative_url }}">{{ site.name }}</a>
+    <p>{{ ui.footer }}</p>
+  </div>
+  <nav class="site-footer-col" aria-label="{{ ui.site_navigation }}">
+    <p class="site-footer-heading">Site</p>
+    <a href="{{ footer_prefix | append: '/research/' | relative_url }}">Research</a>
+    <a href="{{ footer_prefix | append: '/blog/' | relative_url }}">Blog</a>
+    <a href="{{ '/home/' | relative_url }}">Project</a>
+    <a href="{{ '/about/' | relative_url }}">About</a>
+  </nav>
+  <nav class="site-footer-col" aria-label="Connect">
+    <p class="site-footer-heading">Connect</p>
+    {% if site.footer-links.github %}<a href="https://github.com/{{ site.footer-links.github }}" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>{% endif %}
+    {% if site.footer-links.email %}<a href="mailto:{{ site.footer-links.email }}">Email</a>{% endif %}
+    <a href="{{ '/feed.xml' | relative_url }}">RSS</a>
+  </nav>
+  <div class="site-footer-meta">
+    <span>© {{ site.time | date: '%Y' }} {{ site.name }}</span>
+    {% include site-stats.html %}
+  </div>
+</div>

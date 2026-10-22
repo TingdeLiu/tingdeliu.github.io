@@ -1,7 +1,10 @@
 ---
-layout: default
+layout: page
 lang: zh-CN
+editorial: true
+home_index: true
 translation_id: latest-index
 ---
 
-{% include latest-posts.html %}
+{% assign home_entries = site.posts | where_exp: 'item', 'item.published != false' %}
+{% include home-index.html %}

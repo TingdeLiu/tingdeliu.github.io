@@ -5,7 +5,7 @@
   <!-- OpenGraph 是一种由 Facebook 推出的协议，用于在社交媒体上更好地展示网页内容。（在meta.html中定义） -->
   {% include meta.html %}
   <script src="{{ '/assets/js/language-switch.js' | relative_url }}" defer></script>
-  {% if page.blog_index %}<script src="{{ '/assets/js/blog-index.js' | relative_url }}" defer></script>{% endif %}
+  {% if page.blog_index or page.home_index %}<script src="{{ '/assets/js/blog-index.js' | relative_url }}" defer></script>{% endif %}
   {% if page.research_index %}<script src="{{ '/assets/js/research-index.js' | relative_url }}" defer></script>{% endif %}
 
   {% include fonts.html %}
@@ -54,7 +54,7 @@
 
   <!-- 访客统计（Vercount，沿用不蒜子的 busuanzi_* 元素 ID）。
        必须在所有页面加载：计数发生在脚本运行时，文章页没有侧栏、不显示数字，但访问仍需计入；
-       数字只在 nav.html 的侧栏里显示。 -->
+       数字由 site-stats.html 显示：旧侧栏页在侧栏里，新版页面在 site-footer.html 页脚里。 -->
   <script defer src="https://events.vercount.one/js"></script>
 
   <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
