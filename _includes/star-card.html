@@ -1,0 +1,7 @@
+<aside class="star-card" aria-label="{% if page_lang == 'en' %}Star this site{% else %}收藏本站{% endif %}">
+  <div class="star-card-copy">
+    <p class="star-card-title">{% if page_lang == 'en' %}Enjoyed this article?{% else %}喜欢这篇文章？{% endif %}</p>
+    <p class="star-card-text">{% if page_lang == 'en' %}Star the site on GitHub to follow new readings and weekly digests.{% else %}在 GitHub 上 Star 本站，第一时间看到新的论文精读和周报。{% endif %}</p>
+  </div>
+  {% include gift-star.html variant='card' %}
+</aside>

@@ -1,0 +1,23 @@
+{%- comment -%}Gift-box Star button. include.variant: "header" (popover) or "card" (inline panel at article end).{%- endcomment -%}
+{% assign gift_variant = include.variant | default: 'header' %}
+<div class="gift gift-{{ gift_variant }}" data-gift>
+  <button class="gift-trigger" type="button" data-gift-trigger aria-expanded="false" aria-controls="gift-panel-{{ gift_variant }}">
+    <span class="gift-box" aria-hidden="true">
+      <svg class="gift-star" viewBox="0 0 16 16" focusable="false"><path d="M7 1h2v4h5v2h-2v2h1v5h-2v-1H9v-2H7v2H5v1H3V9h1V7H2V5h5Z"/></svg>
+      <svg class="gift-svg" viewBox="0 0 24 24" focusable="false">
+        <g class="gift-lid">
+          <path d="M3 7h18v4H3Z"/>
+          <path class="gift-ribbon" d="M11 7h2v4h-2ZM7 3h3v2h1v2H7Zm7 0h3v4h-4V5h1Z"/>
+        </g>
+        <path d="M4 11h16v10H4Z"/>
+        <path class="gift-ribbon" d="M11 11h2v10h-2Z"/>
+      </svg>
+    </span>
+    <span>{% if gift_variant == 'card' %}{% if page_lang == 'en' %}Star the repo{% else %}Star 支持一下{% endif %}{% else %}Star{% endif %}</span>
+  </button>
+  <div class="gift-panel" id="gift-panel-{{ gift_variant }}" data-gift-panel role="dialog" aria-label="{% if page_lang == 'en' %}Star this site{% else %}收藏本站{% endif %}" hidden>
+    <p class="gift-title"><span aria-hidden="true">★</span> {% if page_lang == 'en' %}Enjoying these notes?{% else %}喜欢这些笔记？{% endif %}</p>
+    <a class="gift-star-link" href="https://github.com/TingdeLiu/tingdeliu.github.io" target="_blank" rel="noopener noreferrer">{% if page_lang == 'en' %}Star on GitHub{% else %}去 GitHub 点 Star{% endif %} <span aria-hidden="true">↗</span><span class="gift-count" data-star-count hidden></span></a>
+    <p class="gift-hint">{% if page_lang == 'en' %}On the repository page, click <kbd>☆ Star</kbd> at the top right. Thank you!{% else %}打开仓库后，点右上角的 <kbd>☆ Star</kbd> 就好，谢谢支持！{% endif %}</p>
+  </div>
+</div>
