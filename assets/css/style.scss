@@ -1531,6 +1531,14 @@ tr.lb-empty td {
   color: var(--muted);
 }
 
+// 排行榜表格下默认折叠的「表注」（leaderboard.js 生成），沿用文章内 details 的外观，字号略小
+.entry details.lb-notes {
+  margin-top: -0.6rem;
+  font-size: 14px;
+
+  > summary { font-weight: 500; }
+}
+
 // 「在表格中定位」后短暂高亮目标行
 @keyframes lb-flash {
   from { background: var(--score-fill); }

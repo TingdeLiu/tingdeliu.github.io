@@ -19,8 +19,12 @@
   var COLUMNS = { Model: '模型', Year: '年份', Paradigm: '范式', Base: '基模', Open: '开源', Benchmark: '基准', Baseline: '基准', Evaluation: '评测设置' };
   var CHART_METRICS = ['SR', 'SPL', 'NE', 'ISR', 'CSR', 'CGT'];
   var CHART_TOP = 20;
-  // 分组表（带「基准」或「评测设置」列）只给行数不少于此值的组画图，且至少要有两个这样的组
+  // 分组表（带「基准」或「评测设置」列）至少要有两个行数不少于 GROUP_MIN 的组才画图；
+  // 画图后行数不少于 TAB_MIN 的组都给切换按钮
   var GROUP_MIN = 5;
+  var TAB_MIN = 3;
+  // 图里分组忽略步数预算后缀：「114 条子集 · 5,000 步」与「· 500 步」是同一子集上的成绩
+  var BUDGET_SUFFIX = /\s*·\s*[\d,–-]+\s*(步|steps?)$/;
   var METRICS = { SR: 'max', SPL: 'max', NE: 'min', OSR: 'max', ISR: 'max', CSR: 'max', CGT: 'max' };
   var FOLLOWING = 4; // Node.DOCUMENT_POSITION_FOLLOWING
 
@@ -127,10 +131,22 @@
   function chartGroups(rows) {
     var count = {}, order = [];
     rows.forEach(function (r) {
-      if (!(r.group in count)) { count[r.group] = 0; order.push(r.group); }
-      count[r.group]++;
+      r.chartGroup = r.group.replace(BUDGET_SUFFIX, '');
+      if (!(r.chartGroup in count)) { count[r.chartGroup] = 0; order.push(r.chartGroup); }
+      count[r.chartGroup]++;
     });
-    return order.filter(function (g) { return count[g] >= GROUP_MIN; });
+    var big = order.filter(function (g) { return count[g] >= GROUP_MIN; });
+    if (big.length < 2) return [];
+    return order.filter(function (g) { return count[g] >= TAB_MIN; });
+  }
+
+  // 默认显示第一个含标准口径行的组，避免一打开就是整组灰色斜纹条
+  function defaultGroup(rows, groups) {
+    for (var i = 0; i < groups.length; i++) {
+      var g = groups[i];
+      if (rows.some(function (r) { return r.chartGroup === g && !r.flag; })) return g;
+    }
+    return groups[0];
   }
 
   // ---- 条形图视图：数据直接取自上面的表格行，表格仍是唯一数据源 ----
@@ -147,7 +163,7 @@
   }
 
   function buildChart(t, groups) {
-    var c = { view: 'chart', metric: 'SR', expanded: false, open: null, groups: groups, group: groups ? groups[0] : null };
+    var c = { view: 'chart', metric: 'SR', expanded: false, open: null, groups: groups, group: groups ? defaultGroup(t.rows, groups) : null };
     var box = el('div', 'lb-chart');
     var tools = el('div', 'lb-chart-tools');
     var views = el('span', 'lb-chart-seg');
@@ -228,7 +244,7 @@
     if (c.view !== 'chart') return;
 
     var m = c.metric, asc = METRICS[m] === 'min';
-    var shown = t.rows.filter(function (r) { return r.visible && (!c.groups || r.group === c.group); });
+    var shown = t.rows.filter(function (r) { return r.visible && (!c.groups || r.chartGroup === c.group); });
     var data = [], missing = 0;
     shown.forEach(function (r) {
       var v = r.metrics[m] ? num(r.metrics[m].getAttribute('data-v')) : null;
@@ -431,12 +447,27 @@
     bar.appendChild(countEl);
   }
 
+  // 表格后、下一个标题之前的注释段落收进默认关闭的「表注」；表上方的口径说明与引用块（如排行榜末尾的「说明」）保持显示
+  function collapseNotes(t) {
+    var anchor = tableBox(t);
+    var notes = [];
+    for (var e = anchor.nextElementSibling; e && !/^(H[1-6]|BLOCKQUOTE|TABLE|HR)$/.test(e.tagName) && !e.matches('.lb-chart, .article-table-scroll'); e = e.nextElementSibling) {
+      notes.push(e);
+    }
+    if (!notes.length) return;
+    var box = el('details', 'lb-notes');
+    box.appendChild(el('summary', '', label('表注：口径、版本与来源（' + notes.length + ' 段）', 'Table notes: protocols, versions and sources (' + notes.length + ')')));
+    anchor.parentNode.insertBefore(box, notes[0]);
+    notes.forEach(function (n) { box.appendChild(n); });
+  }
+
   function init() {
     var bar = document.getElementById('lb-filter-bar');
     if (!bar || bar.getAttribute('data-ready')) return;
     bar.setAttribute('data-ready', '1');
     tables = findTables(bar).map(parseTable);
     if (!tables.length) return;
+    tables.forEach(collapseNotes);
     build(bar);
     update(bar);
   }
