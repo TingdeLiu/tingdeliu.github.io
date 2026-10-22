@@ -155,6 +155,19 @@ def main():
               f'/{route}/: interactive Blog controls missing')
         check(not any('wrapper-sidebar' in n['attrs'].get('class', '').split() for n in doc.select('div')),
               f'/{route}/: legacy sidebar still visible')
+    projects = load(SITE / 'home/index.html')
+    check('project-index-page' in projects.select('body')[0]['attrs'].get('class', '').split(),
+          '/home/: project layout missing')
+    check(any('article-masthead' in n['attrs'].get('class', '').split() for n in projects.select('header')),
+          '/home/: shared navigation missing')
+    check(not any('wrapper-sidebar' in n['attrs'].get('class', '').split() for n in projects.select('div')),
+          '/home/: legacy sidebar still visible')
+    project_urls = [n['attrs'].get('href') for n in projects.select('a')
+                    if 'project-card' in n['attrs'].get('class', '').split()]
+    expected_projects = re.findall(r'^  url: (.+)$', (ROOT / '_data/projects.yml').read_text(encoding='utf-8'), re.M)
+    check(bool(project_urls) and project_urls == expected_projects and len(project_urls) == len(set(project_urls)),
+          '/home/: missing or duplicate project cards')
+    check(len(projects.select('h1')) == 1, '/home/: expected one page heading')
     about = load(SITE / 'about/index.html')
     check(about.select('html')[0]['attrs'].get('lang') == 'en', '/about/: content language is incorrect')
     check('about-page' in about.select('body')[0]['attrs'].get('class', '').split(),

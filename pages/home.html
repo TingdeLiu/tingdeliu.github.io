@@ -2,72 +2,29 @@
 layout: page
 title: Projects
 permalink: /home/
+lang: en
+editorial: true
+project_index: true
+excerpt: "Tools and experiments in embodied navigation, 3D worlds, and AI workflows."
 ---
 
-{% include card-grid-style.html %}
-
-<style>
-.rc-card .rc-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.lang-badge {
-  flex: none;
-  padding: 0 0.5rem;
-  border-radius: 999px;
-  background: #e7f5ff;
-  color: #1864ab;
-  font-size: 0.72rem;
-  font-weight: 400;
-  line-height: 1.7;
-}
-
-/* 项目少，固定两列，避免最后一行只剩一张卡 */
-.home-projects {
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-}
-
-.home-projects .rc-excerpt {
-  -webkit-line-clamp: 3;
-}
-</style>
-
-<div class="rc-grid home-projects">
-
-  {% comment %}Temporarily hidden while the AgentNav repository is private.{% endcomment %}
-  {% if false %}
-  <a class="rc-card" href="https://github.com/TingdeLiu/AgentNav" target="_blank" rel="noopener">
-    <h3 class="rc-title">AgentNav<span class="lang-badge">Python</span></h3>
-    <p class="rc-excerpt">Agent-based navigation system for real robots. Natural language control via AI agents.</p>
-  </a>
-  {% endif %}
-
-  <a class="rc-card" href="https://github.com/TingdeLiu/R2RA-RXR-VLNCE-Refined" target="_blank" rel="noopener">
-    <h3 class="rc-title">R2RA-RXR-VLNCE-Refined<span class="lang-badge">Python</span></h3>
-    <p class="rc-excerpt">Data cleaning and integrity checks for R2R-CE and RxR-CE, with multilingual instruction processing, spatial alignment diagnostics, and VLN-CE-compatible exports.</p>
-  </a>
-
-  <a class="rc-card" href="https://github.com/TingdeLiu/Image2world" target="_blank" rel="noopener">
-    <h3 class="rc-title">Image2World<span class="lang-badge">TypeScript</span></h3>
-    <p class="rc-excerpt">Build walkable 3D scenes from a single image, with Gaussian splats, collision meshes, physics, and a scene editor. Supports local GPU generation and World Labs Marble.</p>
-  </a>
-
-  <a class="rc-card" href="https://github.com/TingdeLiu/MMS-LLM" target="_blank" rel="noopener">
-    <h3 class="rc-title">MMS-LLM<span class="lang-badge">Python</span></h3>
-    <p class="rc-excerpt">Multimodal LLM for urban LiDAR point clouds. Point-BERT + Vicuna-7B, +40% over PointLLM baseline. Master's thesis (1.0).</p>
-  </a>
-
-  <a class="rc-card" href="https://github.com/TingdeLiu/quant.ai" target="_blank" rel="noopener">
-    <h3 class="rc-title">quant.ai<span class="lang-badge">Python</span></h3>
-    <p class="rc-excerpt">US-equity quant research inside your AI assistant via MCP: explainable ratings, key levels, and daily briefs from one command.</p>
-  </a>
-
-  <a class="rc-card" href="https://github.com/TingdeLiu/Tyndall-Skills" target="_blank" rel="noopener">
-    <h3 class="rc-title">Tyndall-Skills<span class="lang-badge">Python</span></h3>
-    <p class="rc-excerpt">A collection of development skills and custom Claude Code SKILL.md templates for research workflows.</p>
-  </a>
-
-</div>
+<section class="project-library" aria-labelledby="projects-title">
+  <header class="page-heading">
+    <h1 id="projects-title">Projects</h1>
+    <p>Tools and experiments.<br>From research ideas to things you can use.</p>
+    <a class="project-profile" href="https://github.com/TingdeLiu" target="_blank" rel="noopener noreferrer">Explore on GitHub <span aria-hidden="true">↗</span></a>
+  </header>
+  <div class="project-grid">
+    {% for project in site.data.projects %}
+    <a class="project-card" href="{{ project.url }}" target="_blank" rel="noopener noreferrer">
+      <div class="project-card-top">
+        <svg class="project-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="{{ project.icon }}"/></svg>
+        <span class="project-language">{{ project.language }}</span>
+      </div>
+      <h2>{{ project.name }}</h2>
+      <p>{{ project.description }}</p>
+      <div class="project-card-bottom"><span>{{ project.topic }}</span><span class="project-link">GitHub <span aria-hidden="true">↗</span></span></div>
+    </a>
+    {% endfor %}
+  </div>
+</section>

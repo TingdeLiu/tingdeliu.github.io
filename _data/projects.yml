@@ -1,0 +1,24 @@
+- name: R2RA-RXR-VLNCE-Refined
+  url: https://github.com/TingdeLiu/R2RA-RXR-VLNCE-Refined
+  language: Python
+  topic: Embodied navigation
+  description: Data cleaning and integrity checks for R2R-CE and RxR-CE, with multilingual instruction processing, spatial alignment diagnostics, and VLN-CE-compatible exports.
+  icon: "M6 7h7v7H6ZM19 18h7v7h-7ZM13 10h9v8M10 14v8h9"
+- name: Image2World
+  url: https://github.com/TingdeLiu/Image2world
+  language: TypeScript
+  topic: 3D worlds
+  description: Build walkable 3D scenes from a single image, with Gaussian splats, collision meshes, physics, and a scene editor. Supports local GPU generation and World Labs Marble.
+  icon: "m16 3 12 7v13l-12 7L4 23V10Zm0 14 12-7M16 17 4 10m12 7v13M10 6l12 7"
+- name: quant.ai
+  url: https://github.com/TingdeLiu/quant.ai
+  language: Python
+  topic: Research tools
+  description: US-equity quant research inside your AI assistant via MCP, with explainable ratings, key levels, and daily briefs from one command.
+  icon: "M4 5v23h24M9 22v-7m7 7V9m7 13V4"
+- name: Tyndall-Skills
+  url: https://github.com/TingdeLiu/Tyndall-Skills
+  language: Python
+  topic: AI workflows
+  description: A collection of development skills and custom Claude Code SKILL.md templates for research workflows.
+  icon: "M5 5h9v9H5Zm13 0h9v9h-9ZM5 18h9v9H5Zm13 0h9v9h-9Z"
