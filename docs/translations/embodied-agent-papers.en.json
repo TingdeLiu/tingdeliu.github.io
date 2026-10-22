@@ -1,12 +1,12 @@
 {
   "source": "_posts/research/2026-03-06-Embodied-Agent-Papers.md",
   "translation": "_translations/en/research/Embodied-Agent-Papers.md",
-  "reviewed_on": "2026-10-20",
-  "source_revision_date": "2026-10-20",
+  "reviewed_on": "2026-10-22",
+  "source_revision_date": "2026-10-22",
   "sections": {
-    "metadata": "9faf6449353967640c514742024271095a8837ea5872fdb0a6a9eab3a335d5c1",
+    "metadata": "683b8406f5efa23612d6c13a932570572514f9a956481508281d0abea561fa54",
     "introduction": "8c17bc1d22a44c667d3673775811d9cf4f0f4d7c5e66bc908245222485388b05",
-    "具身智能体论文精读": "4aae660a406a522914d7b100e0cc1ea51198c1bd055bc2ae0c825e4f5ffdc019",
+    "具身智能体论文精读": "31000fa45c118c136822f86e1b029bc47d27abde7747025ec1b9e2f30fee335e",
     "paper:holoagent-0 / 1. HoloAgent-0 (2026) {#holoagent-0}": "4cc92a362c7b424cc7a5e880c873144a6dd851bdfdd1e523c749b64861e1580c",
     "paper:holoagent-0 / 精华": "baeffd64d95f90fb8d914888810e60f1190f9f00c85dc8d42d3b83021e7f628f",
     "paper:holoagent-0 / 1. 研究背景/问题": "78636fbb3fb4b211a8ff109e039471dc173ca14b79d9e7250308b620b0f56f92",
@@ -172,7 +172,17 @@
     "paper:evo2 / 2.4 奖励、父节点采样与端到端训练流": "8eabc89708c1d75468e3a405fc203eaa9e954871afcc8216005bdadb0abced75",
     "paper:evo2 / 3. 核心结果/发现": "6e83b77be7442f5e4cadc423c5a1c1a55784c72eea47bfc9c6d0531345774b8c",
     "paper:evo2 / 4. 局限性": "25f3f12648aeedfa931701f79bab02c852d03c3c4f019aca408d47b885daa4ad",
+    "paper:dream-rsi / 18. Dream-RSI (2026) {#dream-rsi}": "4c44ace2526b88f8a325c2d2e91c759b0802a33b4db16f361e4e691bdb4b744c",
+    "paper:dream-rsi / 精华": "b914755c2a058abc8d3c0660caf1f5cb9296bcfd6a4d238b79c35d5ad9911f4a",
+    "paper:dream-rsi / 1. 研究背景/问题": "8bda0f7dedfcc65680ec78b5565a646139b7cb696d93f30574870430d408583e",
+    "paper:dream-rsi / 2. 主要方法/创新点": "1ff9f73b88925c8a131a3bdf0e96257662a13c7b162aa8b79118b9c099e6cae9",
+    "paper:dream-rsi / 2.1 整体框架：在线探索、历史回放、策略改进": "61306b8c53af2a2aa135b5dd86a129fc6c8807512a9deef65054a3b380e640ba",
+    "paper:dream-rsi / 2.2 卡点一：历史树如何评价没有真正运行过的新策略？": "0edeada3e37f644a2430572b5741b64a6227cd206223c556ea7988de0ce2bcaf",
+    "paper:dream-rsi / 2.3 卡点二：为什么不只选「分数最高」的策略？": "f3ef44561929663d290f1946c4a3fe9023bd0962897dd9fff54519b578825e01",
+    "paper:dream-rsi / 2.4 递归演化与推理流程": "531702452cc8466bb0ca3881b1395a30ce028d1dd722ca31262632dabfb40b86",
+    "paper:dream-rsi / 3. 核心结果/发现": "bec40b5719c0e65d0d6a71307ae309de25d989c76a7849932fe5434ba3a765eb",
+    "paper:dream-rsi / 4. 局限性": "f45242dfd6e1b1db19f9fa31e6725cbbde1d8135037842db0fa4ed6a3ee37486",
     "参考资料": "9b02b96398a0ecec9519f4402648095347400e58028bcf57f57e2194eee8f5e6",
-    "论文引用": "18878f62b7a14fcfd152df30ae80464a4dea2345fa445f1f68d3922910e65aea"
+    "论文引用": "ab700511902835f45f5ca4655c6ea0314d37fa6859df2a86a3bbac5e3d39a713"
   }
 }

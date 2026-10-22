@@ -5,16 +5,16 @@ translation_id: embodied-agent-papers
 permalink: /en/Embodied-Agent-Papers/
 source_path: _posts/research/2026-03-06-Embodied-Agent-Papers.md
 source_url: /Embodied-Agent-Papers/
-source_revision_date: 2026-10-20
-translation_updated: 2026-10-20
+source_revision_date: 2026-10-22
+translation_updated: 2026-10-22
 title: "Embodied Agents: Paper Readings"
-date: 2026-10-20
+date: 2026-10-22
 tags: [Agent, Embodied AI, Robotics, VLA, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "Seventeen paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, and weight-harness co-evolution."
+excerpt: "Eighteen paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, weight-harness co-evolution, and history-replay-driven evolution of exploration policies."
 ---
 
 
@@ -23,7 +23,7 @@ excerpt: "Seventeen paper entries on embodied runtimes, physical orchestration, 
 # Embodied Agents: Paper Readings
 {: id="具身智能体论文精读"}
 
-This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed loop that can operate sustainably. The seventeen papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, and weight-harness co-evolution. The experiments cover simulation environments, text-interaction environments, interactive visual games, real robots, and professional software tasks. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection. Evo² is evaluated directly on coding and memory tasks, so this article treats it as a mechanism that may transfer to embodied-harness evolution rather than as evidence of robot performance.
+This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed loop that can operate sustainably. The eighteen papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, weight-harness co-evolution, and history-replay-driven evolution of exploration policies. The experiments cover simulation environments, text-interaction environments, interactive visual games, real robots, and professional software tasks. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection. Evo² and Dream-RSI are evaluated directly on software tasks, so this article treats them as mechanisms that may transfer to embodied-harness evolution rather than as evidence of robot performance.
 
 |Paper|Main entry points|representative verification|
 |---|---|---|
@@ -44,6 +44,7 @@ This article focuses on a common problem: how robots organize perception, planni
 | [Harness²](#harness2) | Behavioral contrasts without answer keys, two-level recursion, and an improvement library | General-agent method reference; WorkBuddy-Bench, JobBench, LAB |
 | [GPT-6-Astra-JRT](#gpt-6-astra-jrt) | Frozen knowledge packages, interaction budgets, fast-slow collaboration, and continuous-world evaluation | 12 simulation benchmarks, 8 real-robot configurations, and a household prototype |
 | [Evo²](#evo2) | Weight-harness co-evolution, a dual-role evolver, and cross-branch strategy reuse | Polyglot, SWE-bench Verified, LiveCodeBench, and LoCoMo; no robot evaluation |
+| [Dream-RSI](#dream-rsi) | Historical discovery-tree replay, offline exploration-policy improvement, and recursive deployment | KernelBench, mathematical optimization, Lasso, Terminal-Bench 2.1; no robot experiments |
 
 The filter bar below supports multiple tag combinations; when multiple tags are selected at the same time, the page will only retain papers that meet these tags.
 
@@ -2848,6 +2849,146 @@ Evo² still requires many real task executions to evaluate harness candidates, s
 
 ---
 
+## 18. Dream-RSI (2026)
+{: id="dream-rsi"}
+———Turning historical discovery trees into a replay environment, so exploration policies are screened offline before the next real search
+
+📄 **Paper**: [arXiv:2609.14858](https://arxiv.org/abs/2609.14858) · [Code](https://github.com/zhengkid/Dream-RSI) · [Project Page](https://dream-rsi.com/)
+
+**Why it is included**: The paper has no embodied tasks, robot simulation, or real-robot experiments. It is included because its discovery-tree replay and exploration-scheduling mechanism may inform active exploration, failure recovery, and harness evolution for embodied agents; those applications still need separate validation.
+
+> Version note: this entry follows the full PDF of arXiv v2 (6 October 2026); Figures 1–2 and Figures 3–7 are all taken from that version.
+
+### Highlights
+{: id="dream-rsi-highlights"}
+
+Dream-RSI stores the exploration an agent has already done as a **discovery tree** with scores and costs, so a candidate scheduling policy can be replayed along the tree instead of re-running every expensive candidate generation. A policy-development agent edits the executable code that decides whether to open a new branch, dig deeper, parallelize, or stop; after comparing versions across many historical trees, it sends the winner back to online discovery. Each online run produces a new tree, which adds experience for the next round of replay. This loop improves the **exploration orchestrator**, not the underlying model weights; it offers a transferable idea for self-evolving agent harnesses, but the paper has no robot validation.
+
+---
+
+### 1. Background / Problem
+{: id="dream-rsi-background"}
+
+Long-horizon algorithm discovery often needs many propose-execute-score cycles, and a fixed exploration policy can keep investing in low-yield directions. If every new scheduling policy required re-running an entire online search, evaluating the policy would cost more than evaluating a single candidate, and feedback would arrive only after a long rollout. The paper asks whether existing execution history can be used to evaluate the next exploration policy cheaply.
+
+---
+
+### 2. Main Method / Contributions
+{: id="dream-rsi-method"}
+
+#### 2.1 Overall framework: online exploration, historical replay, policy improvement
+{: id="dream-rsi-interface"}
+
+<div align="center">
+  <img src="/images/agent/Dream-RSI-overview.webp" width="100%" loading="lazy" decoding="async" alt="The Dream-RSI recursive loop of online exploration, replay simulation, and policy improvement" />
+<figcaption>Paper Figure 1: Online exploration produces a discovery tree; the tree enters a replay pool; the policy-development agent repeatedly replays and edits the scheduling code, then redeploys the winner.</figcaption>
+</div>
+
+The **online exploration module** takes the current exploration policy, the initial workspace, and earlier history. The policy chooses which nodes to continue from and assigns parallel jobs to a fixed discovery agent. Each new node stores its parent, a workspace snapshot, the full observation, and the score returned by a fixed evaluator, so one real search leaves a reusable tree-shaped record.
+
+**Discovery trees and the shared decision interface**: the tree is rooted at the initial workspace $r$ (root score 0). Every non-root node has exactly one parent: the discovery agent resumes from the parent's saved workspace and inherits its accumulated observations. The selectable set $A(\mathcal T)$ is the root plus all current leaves. With $W$ parallel workers, the policy outputs a batch of at most $W$ nodes per round, deciding both where to continue and how many attempts run at once. Online and offline phases share this interface and differ only in state transition: online executes for real (with stochastic outcomes), while offline only replays records.
+
+The **replay simulator** treats a recorded tree as a local environment: another policy sees only the nodes revealed so far, and after it chooses, the system reveals the corresponding children from the record. It needs no further calls to the base agent or evaluator, but it cannot produce branches absent from the history. The **policy-development module** receives the replay trajectories and scores of different candidate programs over many trees, revises the exploration policy, and hands the version with the best average replay score to the next round of online exploration.
+
+```mermaid
+graph TD
+    A["Online exploration: policy drives the fixed discovery agent"] --> B["Record nodes, observations, scores, and costs"]
+    B --> C["Add the tree to the historical pool"]
+    C --> D["Offline dreaming: candidate policies replay recorded nodes"]
+    D --> E["Score by quality, calls, and parallel rounds"]
+    E --> F["Deploy the highest-scoring policy code"]
+    F --> A
+```
+
+#### 2.2 Sticking point 1: how can a historical tree evaluate a new policy that never actually ran?
+{: id="dream-rsi-replay-tree"}
+
+<div align="center">
+  <img src="/images/agent/Dream-RSI-replay-tree.webp" width="100%" loading="lazy" decoding="async" alt="Different exploration policies replaying along the same historical discovery tree" />
+<figcaption>Paper Figure 2: A candidate policy changes the visiting order, parallel grouping, and stopping point over recorded branches; replay feedback comes from nodes that were actually saved.</figcaption>
+</div>
+
+> **Example**: a real exploration recorded two branches. Branch A has three consecutive nodes scoring 0.2, 0.3, 0.3; branch B has two nodes scoring 0.4, 0.8. A fixed policy spends 3 calls digging into A before opening B; a new policy opens A, then B, and reaches 0.8 along B by its third call. Offline replay can compare the "best score versus calls" curves of the two **visiting orders** because the node outcomes are already recorded. If the new policy wanted to explore an unrecorded branch C, replay has no answer, and it must actually run online to find out.
+
+During offline replay, a selected leaf reveals only the **single** child recorded for it in the original tree; if the root is selected, replay opens the earliest-created branch under the root that has not yet been revealed; if no unrevealed successor remains, it returns empty. Each non-empty batch counts as one round, replay runs for at most $K_2$ rounds, and it stops early when a batch is empty. Replay therefore has no shortcut for peeking at future nodes, and its evaluation range is strictly bounded by the historical tree.
+
+#### 2.3 Sticking point 2: why not just pick the policy with the highest score?
+{: id="dream-rsi-replay"}
+
+The system replays the same policy once for each budget preference $\rho\in\{0,0.25,0.5,0.75,1\}$, producing quality-cost points: quality is the best score among revealed nodes divided by the best score recorded in that tree, and cost is the number of discovery-agent calls in the replay. It keeps only the Pareto points that no other point beats in both quality and cost, then scores them as follows (for tree $i$ and policy version $m$):
+
+$$V_i^m=\frac{1}{B_i}\sum_{j=1}^{L}\left(\bar a_j-\bar a_{j-1}\right)\left(B_i-\bar n_j\right)-\lambda\,\frac{1}{\lvert\mathcal R\rvert}\sum_{\rho\in\mathcal R}\frac{k_\rho}{n_\rho}$$
+
+The first term is a normalized hypervolume: $B_i$ is the number of evaluated nodes in that tree, and $\bar a_j$, $\bar n_j$ are the quality and call count of the $j$-th Pareto point, so higher quality with fewer calls gives a larger area. In the second term, $k_\rho$ is the number of sequential rounds and $n_\rho$ the number of calls; a larger ratio means less parallelism, and $\lambda$ sets the penalty strength. Finally, scores are averaged over all historical trees to give $V^m$, so the policy does not overfit the accidental structure of a single tree.
+
+| Dimension | Final best score only | Dream-RSI replay score |
+|---|---|---|
+| Search cost | A late discovery of a high score can still earn full marks | Records the calls needed to reach each quality level |
+| Parallel efficiency | Does not distinguish serial from parallel | Penalizes too many sequential decision rounds |
+| Budget preference | A single cutoff point | Sweeps multiple budgets and compares the quality-cost frontier |
+
+The policy-development agent repeatedly rewrites the executable scheduling code and includes the currently deployed policy in the candidate set, so the selected policy never scores lower than the old one on the **average replay score over the existing historical trees**. This is an offline selection property; it does not guarantee that scores on new tasks or in real online runs rise monotonically.
+
+#### 2.4 Recursive evolution and inference flow
+{: id="dream-rsi-loop"}
+
+In online round $t$, the current policy drives the discovery agent to generate a new tree (using the full earlier history as context, kept separate from the tree under construction) for at most $K_1$ rounds; when the tree is finished it joins the historical pool. The offline phase then builds $M$ policy versions: the policy-development agent inspects the previous version's replay trajectories and scores plus feedback from earlier revisions, identifies successful decisions and recurring failures, rewrites the executable policy code into the next version, and re-evaluates it on all the same historical trees. The currently deployed policy $\pi^0$ always stays in the candidate set, and the version with the highest average replay score among the $M$ becomes the next online policy. Once deployed, the new policy may reach regions never visited before, and its new real results widen the coverage of the next round of replay. The base discovery model, candidate evaluator, and execution interface stay fixed; what changes is the code that orchestrates search resources. The paper does not complete this self-improvement loop by updating model weights.
+
+---
+
+### 3. Core Results / Findings
+{: id="dream-rsi-results"}
+
+The current arXiv v2 evaluates four task families and nine concrete tasks: four GPU kernels in KernelBench, three mathematical-optimization problems, Lasso path solving, and one agent-harness optimization. The main controlled baseline for scientific-discovery tasks, **Recursive Fixed Exploration**, uses the same discovery agent, evaluator, initial policy, and per-round budget, and only keeps the exploration policy from updating.
+
+<div align="center">
+  <img src="/images/agent/Dream-RSI-lasso-results.webp" width="100%" loading="lazy" decoding="async" alt="Quality and call-cost comparison of Dream-RSI and fixed exploration on Lasso path solving" />
+<figcaption>Paper Figure 4: (a) Final runtime (ms, lower is better) on six held-out Lasso datasets; (b) average runtime versus cumulative discovery calls across recursive rounds, labeled by round. On both backbones Dream-RSI finds faster solvers with fewer calls.</figcaption>
+</div>
+
+In the Lasso experiments, with Gemini 3.7 Flash the average runtime falls from **2516.7 ms** under the fixed policy to **2350.6 ms**, and discovery-agent calls drop from **3200** to **1879**; with Gemini 3.1 Pro the numbers are **3587.1 → 2931.0 ms** and **550 → 317 calls**. The paper also notes that on the Pro backbone the average gain is driven mainly by the RCV1 dataset, while the other five held-out datasets are actually slower, so the average should not be read as a gain on every dataset; on the Flash backbone, five of six datasets are faster. The solvers from both backbones beat sklearn and glmnet on all six held-out datasets. Compared with the 51,200 generations reported for SimpleTES, the Pro and Flash runs use roughly **162× and 27× fewer** discovery-agent calls and reach lower average runtime, but the backbone models differ, so this is not a strictly like-for-like comparison.
+
+In round 1 the two methods are identical by design; afterward the fixed policy stays static, while Dream-RSI "dreams" again each round over the accumulated history. By the final round, Dream-RSI reaches lower average runtime with fewer calls on both backbones (Figure 4(b)). The paper analyzes the discovered solver: SimpleTES switches between LARS and coordinate descent depending on problem dimension, whereas this solver makes the active-set optimization itself adaptive, combining strong-rule screening with Cauchy–Schwarz KKT pruning, computing exact gradients only when necessary and refreshing in full once pruning stops being effective.
+
+<div align="center">
+  <img src="/images/agent/Dream-RSI-kernel-results.webp" width="100%" loading="lazy" decoding="async" alt="Exploration performance versus number of generations on four GPU kernel tasks" />
+<figcaption>Paper Figure 3: Performance (1/ms, higher is better) versus number of generations on four GPU kernel tasks; VGG16 and LayerNorm reach similar performance with fewer generations, while ConvDiv and ConvMax improve performance under comparable budgets.</figcaption>
+</div>
+
+On KernelBench, VGG16 and LayerNorm reach similar performance with **2.43× and 1.79× fewer generations**; ConvDiv and ConvMax reach **2.09× and 1.44× higher performance** under comparable budgets, and surpass the PACEvolve baseline capped at two days. The kernel discovered for ConvDiv does not optimize convolution in isolation but restructures the operator chain around downstream pooling and reduction: adjacent convolution outputs are max-pooled immediately, width pooling and later reductions run directly on register-resident values, avoiding materialization of convolution and pooled feature maps, while linear operations such as scaling, averaging, and bias accumulation are deferred to a lightweight final reduction. In mathematical optimization, Sum–Difference scores **1.145427**, above SimpleTES's 1.143975 and the fixed policy's **1.144047**; Circle Packing reaches **2.635983**, tying the strongest compared result; Autocorrelation's **1.456375** is slightly worse than the fixed policy's **1.456001** (lower is better), so the advantage does not cover every task.
+
+<div align="center">
+  <img src="/images/agent/Dream-RSI-harness-results.webp" width="90%" loading="lazy" decoding="async" alt="Discovery process and method comparison for harness optimization on Terminal-Bench 2.1" />
+<figcaption>Paper Figure 5: (a) Best-so-far Terminal-Bench 2.1 score during discovery, rising from the 0.7247 seed to 0.8090; (b) full-suite comparison with Claude Code (CC), Terminus-Kira (TK), and Meta-Harness (MH).</figcaption>
+</div>
+
+The harness-optimization experiment follows the Meta-Harness setup, starts from Terminus-Kira as the seed harness, and evaluates on the 89 Terminal-Bench 2.1 tasks with two independent runs per task; the discovery agent, policy-development agent, and evaluation all use Claude Opus 4.8 (Claude Code). The full-suite score rises from **0.7247** to **0.8090**, above Claude Code's 0.75 and the reproduced Meta-Harness's 0.79 (Terminus-Kira scores 0.72). The paper runs no fixed-exploration control for this task, estimating that another full search would cost over USD 100,000, so the result mainly shows the final quality of the discovered harness and cannot isolate the contribution of replay-based policy improvement over fixed exploration.
+
+**Further analysis (all on ConvDiv):**
+
+- **Accumulated replay worlds help**: replaying over the full history gives performance **1.90** (786 calls), while using only the current round's history gives **1.59** (430 calls). The authors suggest that multiple trees help learn a more general policy and avoid being overly conservative when fitted to a single world.
+- **Replay beats writing history into the prompt**: abstracting history into directional semantic guidance injected into the prompt lowers final performance for both Dream-RSI and the fixed policy (Figure 6); the authors argue such guidance may constrain exploration.
+- **Exploration behavior adapts to the stage**: as performance improves, the number of attempts evaluated per round first drops from 110 to 50; once progress stalls it rises back to about 90 and further gains follow (Figure 7).
+
+<div align="center">
+  <img src="/images/agent/Dream-RSI-guidance-ablation.webp" width="55%" loading="lazy" decoding="async" alt="Replaying history versus prompt guidance on ConvDiv" />
+<figcaption>Paper Figure 6: On ConvDiv, replaying history (Dream-RSI) beats using history only as prompt guidance.</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/agent/Dream-RSI-exploration-evolution.webp" width="50%" loading="lazy" decoding="async" alt="Evolution of the exploration policy across recursive rounds on ConvDiv" />
+<figcaption>Paper Figure 7: (a) Round-best performance and (b) number of evaluated attempts across recursive rounds on ConvDiv.</figcaption>
+</div>
+
+---
+
+### 4. Limitations
+{: id="dream-rsi-limitations"}
+
+Replay is deterministic for recorded nodes but cannot evaluate branches that were never reached; insufficient historical coverage, task-distribution shift, or stochastic execution can all open a gap between offline selection and real performance. The experiments focus on software and mathematical discovery, with no robot simulation or real-robot validation; transferring to embodied agents would require handling irreversible actions, state drift, and safety constraints. The paper uses discovery-agent calls as its main search-cost metric, and storing and replaying history also consumes storage and compute. The Lasso results further show that average gains may be driven by individual datasets, and that cross-backbone comparisons (for example against SimpleTES) are not like-for-like.
+
+---
+
 # References
 {: id="参考资料"}
 
@@ -2873,6 +3014,7 @@ Evo² still requires many real task executions to evaluate harness candidates, s
 
 16. **GPT-6-Astra-JRT** (2026). Joint Research Team. Has GPT-6-Astra Achieved Embodied Intelligence? arXiv: [2610.22471](https://arxiv.org/abs/2610.22471) · Project Page: [sensenova.ai](https://sensenova.ai/has-gpt-6-astra-achieved-embodied-intelligence)
 17. **Evo²** (2026). Evo²: Evolving the Evolver through Weight-Harness Co-Evolution. arXiv: [2610.13025](https://arxiv.org/abs/2610.13025)
+18. **Dream-RSI** (2026). Dream-RSI: Recursive Self-Improvement through Evolving Worlds. arXiv: [2609.14858v2](https://arxiv.org/abs/2609.14858) · Code: [zhengkid/Dream-RSI](https://github.com/zhengkid/Dream-RSI) · Project Page: [dream-rsi.com](https://dream-rsi.com/)
 
 <script>
 (function () {
@@ -2894,6 +3036,7 @@ Evo² still requires many real task executions to evaluate harness candidates, s
     { m: 'Harness²', t: ['Harness', 'Closed-loop systems', 'self-evolution', 'RSI', 'Zero fine-tuning', 'Long-horizon tasks'] },
     { m: 'GPT-6-Astra-JRT', t: ['Harness', 'Closed-loop systems', 'Fast and slow dual system', 'Real-robot deployment', 'Cross-embodiment', 'Zero fine-tuning', 'Exception recovery', 'Reasoning budget'] },
     { m: 'Evo²', t: ['Harness', 'Closed-loop systems', 'self-evolution', 'RSI', 'reinforcement learning', 'Long-horizon tasks', 'Data governance'] },
+    { m: 'Dream-RSI', t: ['Harness', 'self-evolution', 'RSI', 'Active exploration', 'Long-horizon tasks', 'Data governance'] },
   ];
 
   var ALL_TAGS = ['Survey', 'Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'RSI', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation', 'Visual memory', 'Reasoning budget', 'Embodied reasoning', 'Data governance'];
