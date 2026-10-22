@@ -168,6 +168,12 @@ def main():
               f'/{route}/: missing or duplicate dated research rows')
         check(not any('wrapper-sidebar' in n['attrs'].get('class', '').split() for n in research.select('div')),
               f'/{route}/: legacy sidebar still visible')
+    for route in ('blog', 'en/blog', 'research', 'en/research'):
+        listing = load(SITE / route / 'index.html')
+        rows = [n for n in listing.select('a') if 'blog-row' in n['attrs'].get('class', '').split()]
+        estimates = [n for n in listing.select('span') if 'blog-row-reading' in n['attrs'].get('class', '').split()]
+        check(len(estimates) == len(rows) and all(re.search(r'[1-9]\d*', n['attrs'].get('aria-label', '')) for n in estimates),
+              f'/{route}/: reading-time estimates missing or invalid')
     projects = load(SITE / 'home/index.html')
     check('project-index-page' in projects.select('body')[0]['attrs'].get('class', '').split(),
           '/home/: project layout missing')

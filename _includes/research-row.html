@@ -5,4 +5,5 @@
   </span>
   <time class="blog-row-date" datetime="{{ rp.date | date_to_xmlschema }}">{{ rp.date | date: '%Y-%m-%d' }}</time>
   <h2 class="blog-row-title">{{ rp.title | escape }}</h2>
+  {% include reading-time.html post=rp %}
 </a>

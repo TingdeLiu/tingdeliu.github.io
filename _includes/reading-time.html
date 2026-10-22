@@ -1,0 +1,2 @@
+{%- assign reading_minutes = include.post.content | reading_time_minutes -%}
+<span class="blog-row-reading" aria-label="{% if page_lang == 'en' %}Estimated reading time: {{ reading_minutes }} minutes{% else %}预计阅读时间：{{ reading_minutes }} 分钟{% endif %}" title="{% if page_lang == 'en' %}Estimated reading time{% else %}预计阅读时间{% endif %}">{{ reading_minutes }} {% if page_lang == 'en' %}min{% else %}分钟{% endif %}</span>

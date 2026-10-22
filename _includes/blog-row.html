@@ -11,4 +11,5 @@
   </span>
   <time class="blog-row-date" datetime="{{ bp.date | date_to_xmlschema }}">{{ bp.date | date: '%Y-%m-%d' }}</time>
   <h2 class="blog-row-title">{{ bp.title | escape }}</h2>
+  {% include reading-time.html post=bp %}
 </a>

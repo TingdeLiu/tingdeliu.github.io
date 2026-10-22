@@ -24,11 +24,12 @@
   .blog-results-info p { margin: 0; line-height: inherit; }
 
   .blog-list { margin-top: 4px; }
-  .entry .blog-row { display: grid; grid-template-columns: 28px 106px minmax(0, 1fr); align-items: center; gap: 22px; min-height: 100px; padding: 26px 0; border-bottom: 1px solid var(--rule); color: var(--ink); text-decoration: none; }
+  .entry .blog-row { display: grid; grid-template-columns: 28px 106px minmax(0, 1fr) 76px; align-items: center; gap: 22px; min-height: 100px; padding: 26px 0; border-bottom: 1px solid var(--rule); color: var(--ink); text-decoration: none; }
   .entry .blog-row:hover { background: var(--panel); }
   .blog-row-icon { display: flex; align-items: center; justify-content: center; color: var(--muted); }
   .blog-row-icon svg { width: 24px; height: 24px; fill: currentColor; shape-rendering: crispEdges; }
   .blog-row-date { color: var(--muted); font: 13px $code-font; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .blog-row-reading { color: var(--muted); font: 12px $base-font; text-align: right; white-space: nowrap; }
   .entry .blog-row-title { margin: 0; color: var(--ink); font-size: 19px; font-weight: 400; letter-spacing: -.015em; line-height: 1.6; overflow-wrap: anywhere; }
   .entry .blog-row:hover .blog-row-icon, .entry .blog-row:hover .blog-row-title { color: var(--accent); }
 
@@ -63,11 +64,12 @@
     .blog-filters button { flex: 1; padding: 8px 0; margin-right: 12px; font-size: 12px; }
     .blog-filters button span { margin-left: 5px; }
     .blog-search { width: 100%; }
-    .entry .blog-row { grid-template-columns: 24px minmax(0, 1fr); gap: 8px 18px; min-height: 100px; padding: 24px 0; align-items: start; }
+    .entry .blog-row { grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px 18px; min-height: 100px; padding: 24px 0; align-items: start; }
     .blog-row-icon svg { width: 20px; height: 20px; }
     .blog-row-icon { grid-column: 1; grid-row: 1 / 3; padding-top: 4px; }
     .blog-row-date { grid-column: 2; grid-row: 2; font-size: 12px; }
-    .entry .blog-row-title { grid-column: 2; grid-row: 1; font-size: 17px; line-height: 1.65; }
+    .entry .blog-row-title { grid-column: 2 / 4; grid-row: 1; font-size: 17px; line-height: 1.65; }
+    .blog-row-reading { grid-column: 3; grid-row: 2; font-size: 12px; }
     .blog-results-info { font-size: 11px; }
   }
 }
