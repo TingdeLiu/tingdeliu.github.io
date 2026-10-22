@@ -14,7 +14,10 @@
     { key: 'nonstd', label: label('非标准口径', 'Nonstandard evaluation'), opts: [['show', label('显示', 'Show')], ['hide', label('隐藏', 'Hide')]] }
   ];
   var MULTI_KEYS = ['全景', '多目', '三相机', '四视角', '180°', 'panoramic', 'multi-view', 'three cameras', 'four views'];
-  var COLUMNS = { Model: '模型', Paradigm: '范式', Open: '开源', Benchmark: '基准', Evaluation: '评测设置' };
+  // 英文版把「基准」列译成了 Baseline，一并识别
+  var COLUMNS = { Model: '模型', Year: '年份', Paradigm: '范式', Base: '基模', Open: '开源', Benchmark: '基准', Baseline: '基准', Evaluation: '评测设置' };
+  var CHART_METRICS = ['SR', 'SPL', 'NE'];
+  var CHART_TOP = 20;
   var METRICS = { SR: 'max', SPL: 'max', NE: 'min', OSR: 'max', ISR: 'max', CSR: 'max', CGT: 'max' };
   var FOLLOWING = 4; // Node.DOCUMENT_POSITION_FOLLOWING
 
@@ -74,8 +77,18 @@
         td.setAttribute('data-v', text(td));
         metrics[m] = td;
       });
+      var link = modelCell ? modelCell.querySelector('a') : null;
+      var openLink = cols['开源'] != null ? tds[cols['开源']].querySelector('a') : null;
       rows.push({
         tr: tr,
+        name: name.trim(),
+        href: link ? link.getAttribute('href') : '',
+        flagText: text(flag),
+        year: cols['年份'] != null ? text(tds[cols['年份']]) : '',
+        paradigmText: cols['范式'] != null ? text(tds[cols['范式']]) : '',
+        base: cols['基模'] != null ? text(tds[cols['基模']]) : '',
+        openText: cols['开源'] != null ? text(tds[cols['开源']]) : '',
+        openHref: openLink ? openLink.getAttribute('href') : '',
         flag: !!flag,
         input: input,
         paradigm: cols['范式'] != null ? ({'训练': 'trained', '免训练': 'training-free', 'Trained': 'trained', 'Training-free': 'training-free'}[text(tds[cols['范式']])] || '') : '',
@@ -93,7 +106,190 @@
     empty.appendChild(cell);
     empty.style.display = 'none';
     tbl.querySelector('tbody').appendChild(empty);
-    return { rows: rows, empty: empty };
+    var t = { tbl: tbl, rows: rows, empty: empty, chart: null };
+    // 只给单一基准的表画图：带「基准」或「评测设置」列的表混了多种口径，条形长短不可比
+    if (cols.SR != null && cols['基准'] == null && cols['评测设置'] == null) buildChart(t);
+    return t;
+  }
+
+  // ---- 条形图视图：数据直接取自上面的表格行，表格仍是唯一数据源 ----
+
+  function el(tag, cls, txt) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+
+  function tableBox(t) {
+    return t.tbl.closest('.article-table-scroll') || t.tbl;
+  }
+
+  function buildChart(t) {
+    var c = { view: 'chart', metric: 'SR', expanded: false, open: null };
+    var box = el('div', 'lb-chart');
+    var tools = el('div', 'lb-chart-tools');
+    var views = el('span', 'lb-chart-seg');
+    [['chart', label('图', 'Chart')], ['table', label('表', 'Table')]].forEach(function (v) {
+      var b = el('button', 'filter-btn', v[1]);
+      b.type = 'button';
+      b.setAttribute('data-view', v[0]);
+      b.addEventListener('click', function () { setView(t, v[0]); });
+      views.appendChild(b);
+    });
+    tools.appendChild(views);
+    var sorts = el('span', 'lb-chart-seg lb-chart-sort');
+    sorts.appendChild(el('span', 'filter-label', label('排序：', 'Sort: ')));
+    CHART_METRICS.forEach(function (m) {
+      if (!t.rows.some(function (r) { return r.metrics[m]; })) return;
+      var b = el('button', 'filter-btn', m + (METRICS[m] === 'min' ? ' ↓' : ' ↑'));
+      b.type = 'button';
+      b.setAttribute('data-metric', m);
+      b.addEventListener('click', function () { c.metric = m; renderChart(t); });
+      sorts.appendChild(b);
+    });
+    tools.appendChild(sorts);
+    var legend = el('span', 'lb-chart-legend');
+    [['trained', label('训练', 'Trained')], ['training-free', label('免训练', 'Training-free')], ['nonstd', label('非标准口径', 'Nonstandard')]].forEach(function (l) {
+      var s = el('span', 'lb-legend-item');
+      s.appendChild(el('span', 'lb-swatch lb-' + l[0]));
+      s.appendChild(document.createTextNode(l[1]));
+      legend.appendChild(s);
+    });
+    tools.appendChild(legend);
+    box.appendChild(tools);
+    c.list = el('div', 'lb-chart-list');
+    box.appendChild(c.list);
+    c.foot = el('div', 'lb-chart-foot');
+    box.appendChild(c.foot);
+    c.box = box;
+    t.chart = c;
+    var anchor = tableBox(t);
+    anchor.parentNode.insertBefore(box, anchor);
+  }
+
+  function setView(t, view) {
+    t.chart.view = view;
+    renderChart(t);
+  }
+
+  function renderChart(t) {
+    var c = t.chart;
+    if (!c) return;
+    // 图视图下由 CSS 的相邻选择器隐藏紧随其后的表格；article-ui.js 之后才套的滚动外壳也同样命中
+    c.box.classList.toggle('is-chart', c.view === 'chart');
+    c.box.querySelectorAll('[data-view]').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-view') === c.view);
+    });
+    c.box.querySelectorAll('[data-metric]').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-metric') === c.metric);
+    });
+    c.box.querySelector('.lb-chart-sort').style.display = c.view === 'chart' ? '' : 'none';
+    c.box.querySelector('.lb-chart-legend').style.display = c.view === 'chart' ? '' : 'none';
+    c.list.style.display = c.foot.style.display = c.view === 'chart' ? '' : 'none';
+    if (c.view !== 'chart') return;
+
+    var m = c.metric, asc = METRICS[m] === 'min';
+    var shown = t.rows.filter(function (r) { return r.visible; });
+    var data = [], missing = 0;
+    shown.forEach(function (r) {
+      var v = r.metrics[m] ? num(r.metrics[m].getAttribute('data-v')) : null;
+      if (v === null) missing++;
+      else data.push({ r: r, v: v });
+    });
+    // 稳定排序：同分保持表格原顺序
+    data.forEach(function (d, i) { d.i = i; });
+    data.sort(function (a, b) { return (asc ? a.v - b.v : b.v - a.v) || a.i - b.i; });
+    var max = Math.max.apply(null, data.map(function (d) { return d.v; }).concat([0]));
+    var limit = c.expanded ? data.length : Math.min(CHART_TOP, data.length);
+
+    c.list.innerHTML = '';
+    var rank = 0;
+    data.forEach(function (d, i) {
+      if (!d.r.flag) rank++;
+      if (i >= limit) return;
+      var r = d.r;
+      var row = el('button', 'lb-bar-row' + (c.open === r ? ' is-open' : ''));
+      row.type = 'button';
+      row.setAttribute('aria-expanded', c.open === r ? 'true' : 'false');
+      row.appendChild(el('span', 'lb-bar-rank', r.flag ? '·' : String(rank)));
+      var nm = el('span', 'lb-bar-name', r.name);
+      nm.title = r.name + (r.flagText ? ' · ' + r.flagText : '');
+      row.appendChild(nm);
+      var track = el('span', 'lb-bar-track');
+      var bar = el('span', 'lb-bar lb-' + (r.flag ? 'nonstd' : (r.paradigm || 'other')));
+      bar.style.width = (max ? d.v / max * 100 : 0).toFixed(1) + '%';
+      track.appendChild(bar);
+      row.appendChild(track);
+      row.appendChild(el('span', 'lb-bar-value', r.metrics[m].getAttribute('data-v')));
+      row.addEventListener('click', function () {
+        c.open = c.open === r ? null : r;
+        renderChart(t);
+      });
+      c.list.appendChild(row);
+      if (c.open === r) c.list.appendChild(detail(t, r));
+    });
+    if (!data.length) c.list.appendChild(el('div', 'lb-chart-empty', label('没有符合当前筛选条件的行', 'No rows match the selected filters')));
+
+    c.foot.innerHTML = '';
+    if (data.length > CHART_TOP) {
+      var more = el('button', 'filter-btn', c.expanded
+        ? label('收起', 'Show top ' + CHART_TOP)
+        : label('展开全部 ' + data.length + ' 行', 'Show all ' + data.length + ' rows'));
+      more.type = 'button';
+      more.addEventListener('click', function () { c.expanded = !c.expanded; renderChart(t); });
+      c.foot.appendChild(more);
+    }
+    var notes = [];
+    if (asc) notes.push(label(m + ' 越小越好，条越短越好', 'Lower ' + m + ' is better; shorter bars are better'));
+    if (missing) notes.push(label(missing + ' 行未报告 ' + m, missing + ' rows do not report ' + m));
+    notes.push(label('灰色条纹为非标准口径，不参与名次', 'Hatched bars use nonstandard evaluation and are not ranked'));
+    c.foot.appendChild(el('span', 'lb-chart-note', notes.join(label('；', '; '))));
+  }
+
+  function detail(t, r) {
+    var card = el('div', 'lb-detail');
+    var grid = el('div', 'lb-detail-metrics');
+    Object.keys(METRICS).forEach(function (m) {
+      if (!r.metrics[m]) return;
+      var cell = el('div', 'lb-detail-metric');
+      cell.appendChild(el('span', '', m + (METRICS[m] === 'min' ? ' ↓' : ' ↑')));
+      cell.appendChild(el('b', '', r.metrics[m].getAttribute('data-v')));
+      grid.appendChild(cell);
+    });
+    card.appendChild(grid);
+    var meta = [r.paradigmText, r.base && r.base !== '–' ? label('基模 ', 'Base model ') + r.base : '', r.year].filter(Boolean);
+    var info = el('div', 'lb-detail-info', meta.join(' · '));
+    if (r.openText) {
+      info.appendChild(document.createTextNode(' · ' + label('开源 ', 'Open source ')));
+      if (r.openHref) {
+        var a = el('a', '', r.openText);
+        a.href = r.openHref;
+        info.appendChild(a);
+      } else {
+        info.appendChild(document.createTextNode(r.openText));
+      }
+    }
+    card.appendChild(info);
+    if (r.flag) card.appendChild(el('div', 'lb-detail-flag', r.flagText + label('：非标准口径，不参与加粗与名次，与全量行的高低只作参考', ': nonstandard evaluation, excluded from bolding and ranking; compare with full-set rows only as a reference')));
+    var links = el('div', 'lb-detail-links');
+    if (r.href) {
+      var go = el('a', '', label('精读章节 →', 'Paper notes →'));
+      go.href = r.href;
+      links.appendChild(go);
+    }
+    var locate = el('button', 'lb-link-btn', label('在表格中定位', 'Find in table'));
+    locate.type = 'button';
+    locate.addEventListener('click', function () {
+      setView(t, 'table');
+      r.tr.scrollIntoView({ block: 'center' });
+      r.tr.classList.remove('lb-flash');
+      void r.tr.offsetWidth;
+      r.tr.classList.add('lb-flash');
+    });
+    links.appendChild(locate);
+    card.appendChild(links);
+    return card;
   }
 
   function visible(r) {
@@ -157,6 +353,7 @@
       shownAll += shown;
       totalAll += t.rows.length;
       rebold(t.rows);
+      renderChart(t);
     });
     countEl.textContent = english ? 'Showing ' + shownAll + ' / ' + totalAll + ' rows' : '显示 ' + shownAll + ' / ' + totalAll + ' 行';
   }

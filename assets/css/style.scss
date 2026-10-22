@@ -1314,6 +1314,207 @@ tr.lb-empty td {
   text-align: center;
 }
 
+// 排行榜条形图视图（leaderboard.js 插在单一基准表格之前）
+.lb-chart {
+  --lb-trained: var(--syntax-name);
+  --lb-free: var(--accent);
+  margin: 1.2rem 0 1.8rem;
+  font-size: 14px;
+
+  // 图视图下隐藏紧随其后的表格或其滚动外壳
+  &.is-chart + table,
+  &.is-chart + .article-table-scroll {
+    display: none;
+  }
+}
+
+.lb-chart-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 18px;
+  margin-bottom: 10px;
+
+  .filter-label {
+    font-size: $small-font-size;
+    color: var(--muted);
+    margin-right: 2px;
+  }
+
+  .filter-btn {
+    margin: 0 4px 0 0;
+    padding: 2px 10px;
+    font-size: 13px;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    cursor: pointer;
+
+    &:hover { border-color: var(--accent); color: var(--accent); }
+    &.active { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  }
+}
+
+.lb-chart-legend {
+  display: flex;
+  gap: 14px;
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.lb-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.lb-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.lb-swatch.lb-trained, .lb-bar.lb-trained { background: var(--lb-trained); }
+.lb-swatch.lb-training-free, .lb-bar.lb-training-free { background: var(--lb-free); }
+.lb-bar.lb-other { background: var(--muted); }
+.lb-swatch.lb-nonstd, .lb-bar.lb-nonstd {
+  background: repeating-linear-gradient(45deg, var(--muted) 0 3px, transparent 3px 6px);
+  box-shadow: inset 0 0 0 1px var(--muted);
+}
+
+.lb-bar-row {
+  display: grid;
+  grid-template-columns: 28px 280px minmax(0, 1fr) 56px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 4px 8px;
+  font: inherit;
+  text-align: left;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover, &.is-open { background: var(--panel); }
+}
+
+.lb-bar-rank {
+  color: var(--muted);
+  font-size: 12px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.lb-bar-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.lb-bar-track {
+  height: 14px;
+}
+
+.lb-bar {
+  display: block;
+  height: 100%;
+  border-radius: 0 4px 4px 0;
+}
+
+.lb-bar-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.lb-detail {
+  margin: 4px 8px 10px 46px;
+  padding: 12px 16px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--prose);
+}
+
+.lb-detail-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.lb-detail-metric {
+  padding: 6px 10px;
+  background: var(--panel);
+  border-radius: 4px;
+
+  span { display: block; font-size: 12px; color: var(--muted); }
+  b { font-size: 17px; font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+}
+
+.lb-detail-flag {
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.lb-detail-links {
+  display: flex;
+  gap: 18px;
+  margin-top: 8px;
+}
+
+.lb-link-btn {
+  padding: 0;
+  font: inherit;
+  color: var(--accent);
+  background: none;
+  border: 0;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+}
+
+.lb-chart-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-top: 8px;
+  padding-left: 46px;
+
+  .filter-btn {
+    padding: 2px 10px;
+    font-size: 13px;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    cursor: pointer;
+
+    &:hover { border-color: var(--accent); color: var(--accent); }
+  }
+}
+
+.lb-chart-note,
+.lb-chart-empty {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+// 「在表格中定位」后短暂高亮目标行
+@keyframes lb-flash {
+  from { background: var(--score-fill); }
+  to { background: transparent; }
+}
+
+tr.lb-flash td {
+  animation: lb-flash 1.6s ease-out;
+}
+
 .paper-tags-row {
   margin: 4px 0 14px;
 
