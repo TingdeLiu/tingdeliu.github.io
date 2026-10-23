@@ -47,16 +47,16 @@ Continuous environment · English commands · val-unseen (1839 items in total)
 |[Qwen-RobotNav (panoramic)](#qwen-robotnav)|2026|Trained|Qwen3-VL-8B|72.1|66.6|3.53|78.5|No|
 |[Talk2Escape + GTA (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset</span>|2026|Training-free|Gemini 3.1 Pro|72.0|49.4|4.80|66.0|No|
 |[ABot-N1 (three cameras)](#abot-n1)|2026|Trained|Qwen-3.5-4B + 2B|70.9|67.5|3.32|75.2|No|
-|[Image2Nav (180° FOV)](#image2sim)|2026|Trained|Qwen3-VL-4B|70.3|65.6|3.71|76.1|[YES](https://github.com/MrZihan/Image2Sim)|
+|[Image2Nav (180° FOV)](#image2sim)|2026|Trained|Qwen3-VL-4B|70.3|65.6|3.71|76.1|[Yes](https://github.com/MrZihan/Image2Sim)|
 |[GroundingVLN (three cameras)](#groundingvln)|2026|Trained|Qwen3.5-4B|69.9|64.1|3.66|74.8|No|
-|[OmniNav (multi-view)](#omninav)|2026|Trained|Qwen2.5-VL-3B|69.5|66.1|3.74|74.6|[is](https://github.com/amap-cvlab/OmniNav)|
-|[LightNav-0 (monocular)](#lightnav-0)|2026|Trained|Qwen3-VL-4B|68.5|62.8|3.91|73.7|[is](https://github.com/lightorigins/LightNav-0)|
-|[AstraNav-World (multi-view)](#astranav-world)|2025|Trained|Qwen2.5-VL-3B|67.9|65.4|3.86|73.9|[is](https://github.com/amap-cvlab/AstraNav-World)|
+|[OmniNav (multi-view)](#omninav)|2026|Trained|Qwen2.5-VL-3B|69.5|66.1|3.74|74.6|[Yes](https://github.com/amap-cvlab/OmniNav)|
+|[LightNav-0 (monocular)](#lightnav-0)|2026|Trained|Qwen3-VL-4B|68.5|62.8|3.91|73.7|[Yes](https://github.com/lightorigins/LightNav-0)|
+|[AstraNav-World (multi-view)](#astranav-world)|2025|Trained|Qwen2.5-VL-3B|67.9|65.4|3.86|73.9|[Yes](https://github.com/amap-cvlab/AstraNav-World)|
 |[SeekVLN (monocular, three views on demand)](#seekvln)|2026|Trained|Aux-Think / NVILA-lite-8B|67.5|61.4|3.7|75.2|No|
 |[SEDualVLN (monocular)](#sedualvln)|2026|Trained|LLaVA-Video-7B|67.3|62.5|3.75|73.7|No|
 |[AgentVLN (monocular)](#agentvln)|2026|Trained|Qwen2.5-VL-3B|67.2|64.7|3.88|73.5|[Yes](https://github.com/Allenxinn/AgentVLN)|
 |[Qwen-RobotNav (monocular)](#qwen-robotnav)|2026|Trained|Qwen3-VL-4B|66.9|60.5|4.22|73.6|No|
-|[TAMP-Nav (multi-view)](#tamp-nav)|2026|Trained|Qwen2.5-VL-7B|66.2|58.8|3.85|74.5|[is](https://github.com/ZJU-OmniAI/Embodied-Omni)|
+|[TAMP-Nav (multi-view)](#tamp-nav)|2026|Trained|Qwen2.5-VL-7B|66.2|58.8|3.85|74.5|[Yes](https://github.com/ZJU-OmniAI/Embodied-Omni)|
 |[Dual-Anchoring (monocular)](#dual-anchoring)|2026|Trained|LLaVA-Video-7B|65.6|62.1|–|–|No|
 |[AwareVLN (monocular)](#awarevln)|2026|Trained|Vicuna-7B|65.4|55.1|4.02|73.5|[Yes](https://github.com/GWxuan/AwareVLN)|
 |[CorrectNav (monocular)](#correctnav)|2025|Trained|–|65.1|62.3|4.24|67.5|[Yes](https://github.com/owlet914/CorrectNav)|
@@ -65,21 +65,21 @@ Continuous environment · English commands · val-unseen (1839 items in total)
 |[VLN-Cache (monocular)](#vln-cache)|2026|Trained|Qwen2.5-VL-7B|63.1|57.6|–|–|No|
 |[ReflectVLN (monocular)](#reflectvln)|2026|Trained|Qwen2.5-VL-3B|62.8|58.5|4.19|67.3|No|
 |[NavFoM (multi-view)](#navfom)|2025|Trained|Qwen2-7B|61.7|55.3|4.61|72.1|No|
-|[GA-VLN (monocular)](#ga-vln)|2026|Trained|LLaVA-Video-7B|61.0|55.2|4.80|67.6|[is](https://github.com/jahhaoyang/GA-VLN)|
+|[GA-VLN (monocular)](#ga-vln)|2026|Trained|LLaVA-Video-7B|61.0|55.2|4.80|67.6|[Yes](https://github.com/jahhaoyang/GA-VLN)|
 |[HarnessVLN (monocular)](#harnessvln) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5.5|60.8|43.5|4.01|72.7|No|
 |[JanusVLN (monocular)](#janusvln)|2026|Trained|Janus-Pro-7B|60.5|56.8|4.78|65.2|[Yes](https://github.com/MIV-XJTU/JanusVLN)|
 |[RynnBrain-Nav (monocular)](#rynnbrain)|2026|Trained|–|58.6|49.6|4.92|71.6|[Yes](https://github.com/alibaba-damo-academy/RynnBrain)|
-|[DGNav (panoramic)](#dgnav)|2026|Trained|–|58.56|50.08|4.66|64.82|[is](https://github.com/shannanshouyin/DGNav)|
+|[DGNav (panoramic)](#dgnav)|2026|Trained|–|58.56|50.08|4.66|64.82|[Yes](https://github.com/shannanshouyin/DGNav)|
 |[MemVLN-8B (monocular)](#memvln)|2026|Trained|Qwen3-VL-8B|58.4|51.2|4.98|65.3|No|
 |[BudVLN (monocular)](#budvln)|2026|Trained|LLaVA-1.5-7B|57.6|51.1|–|–|No|
-|[StreamVLN (monocular)](#streamvln)|2025|Trained|LLaVA-Video-7B|56.4|50.2|4.90|63.6|[is](https://github.com/OpenRobotLab/StreamVLN)|
+|[StreamVLN (monocular)](#streamvln)|2025|Trained|LLaVA-Video-7B|56.4|50.2|4.90|63.6|[Yes](https://github.com/OpenRobotLab/StreamVLN)|
 |[DecoVLN (monocular)](#decovln)|2026|Trained|LLaVA-Video-7B|56.3|50.5|5.01|63.5|No|
 |[AgenticNav (panoramic)](#agenticnav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset</span>|2026|Training-free|GPT-5.5|55.0|48.41|5.19|65.0|No|
 |[Goal2Pixel (monocular)](#goal2pixel)|2025|Trained|LLaVA-1.5-7B|54.1|52.5|4.85|59.9|No|
 |[HSGM (monocular)](#hsgm) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5|47.9|32.8|5.42|58.7|[Yes](https://github.com/Teacher-Tom/HSGM_public)|
 |[SparseNav (monocular)](/en/VLN-Papers-Extended/#sparsenav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5|42.8|35.2|5.96|53.4|No|
-|[MapNav (monocular)](#mapnav)|2025|Trained|LLaVA-Onevision-7B|39.7|37.2|5.43|53.0|[is](https://github.com/linglingxiansen/MapNav)|
-|[NaVid (monocular)](#navid)|2024|Trained|–|37.4|35.9|5.47|49.1|[is](https://github.com/jzhzhang/NaVid-VLN-CE)|
+|[MapNav (monocular)](#mapnav)|2025|Trained|LLaVA-Onevision-7B|39.7|37.2|5.43|53.0|[Yes](https://github.com/linglingxiansen/MapNav)|
+|[NaVid (monocular)](#navid)|2024|Trained|–|37.4|35.9|5.47|49.1|[Yes](https://github.com/jzhzhang/NaVid-VLN-CE)|
 |[VLN-R1 (monocular)](#vln-r1)|2025|Trained|Qwen2-VL-7B|30.2|21.8|7.0|41.2|No|
 |[VLN-R1 (monocular)](#vln-r1)|2025|Trained|Qwen2-VL-2B|25.6|20.5|10.2|37.5|No|
 |[OneVLA (monocular)](#onevla-a-unified-framework-for-embodied-tasks)|2026|Trained|Qwen2.5-VL-3B|–|–|–|68.6|[Yes](https://github.com/linglingxiansen/OneVLA)|
@@ -108,35 +108,35 @@ Continuous environment · Multilingual commands (English/Hindi/Telugu) · val-un
 |[Robostral Navigate (monocular)](#robostral-navigate)|2026|Trained|Mistral-8B|75.1|68.7|3.47|–|No|
 |[GroundingVLN (three cameras)](#groundingvln)|2026|Trained|Qwen3.5-4B|75.1|62.0|3.54|–|No|
 |[ABot-N1 (three cameras)](#abot-n1)|2026|Trained|Qwen-3.5-4B + 2B|73.9|63.9|3.13|–|No|
-|[OmniNav (multi-view)](#omninav)|2026|Trained|Qwen2.5-VL-3B|73.6|62.0|3.77|–|[is](https://github.com/amap-cvlab/OmniNav)|
-|[LightNav-0 (monocular)](#lightnav-0)|2026|Trained|Qwen3-VL-4B|73.6|64.5|3.66|–|[is](https://github.com/lightorigins/LightNav-0)|
+|[OmniNav (multi-view)](#omninav)|2026|Trained|Qwen2.5-VL-3B|73.6|62.0|3.77|–|[Yes](https://github.com/amap-cvlab/OmniNav)|
+|[LightNav-0 (monocular)](#lightnav-0)|2026|Trained|Qwen3-VL-4B|73.6|64.5|3.66|–|[Yes](https://github.com/lightorigins/LightNav-0)|
 |[Qwen-RobotNav (monocular)](#qwen-robotnav)|2026|Trained|Qwen3-VL-8B|73.4|63.5|4.16|–|No|
-|[AstraNav-World (multi-view)](#astranav-world)|2025|Trained|Qwen2.5-VL-3B|72.9|61.5|3.82|–|[is](https://github.com/amap-cvlab/AstraNav-World)|
-|[Image2Nav (180° FOV)](#image2sim)|2026|Trained|Qwen3-VL-4B|70.7|59.1|3.74|–|[YES](https://github.com/MrZihan/Image2Sim)|
-|[AgentVLN (monocular)](#agentvln)|2026|Trained|Qwen2.5-VL-3B|69.5|61.3|3.92|–|[is](https://github.com/Allenxinn/AgentVLN)|
-|[CorrectNav (monocular)](#correctnav)|2025|Trained|–|69.3|63.3|4.09|–|[is](https://github.com/owlet914/CorrectNav)|
+|[AstraNav-World (multi-view)](#astranav-world)|2025|Trained|Qwen2.5-VL-3B|72.9|61.5|3.82|–|[Yes](https://github.com/amap-cvlab/AstraNav-World)|
+|[Image2Nav (180° FOV)](#image2sim)|2026|Trained|Qwen3-VL-4B|70.7|59.1|3.74|–|[Yes](https://github.com/MrZihan/Image2Sim)|
+|[AgentVLN (monocular)](#agentvln)|2026|Trained|Qwen2.5-VL-3B|69.5|61.3|3.92|–|[Yes](https://github.com/Allenxinn/AgentVLN)|
+|[CorrectNav (monocular)](#correctnav)|2025|Trained|–|69.3|63.3|4.09|–|[Yes](https://github.com/owlet914/CorrectNav)|
 |[AwareVLN (monocular)](#awarevln)|2026|Trained|Vicuna-7B|67.6|56.1|3.95|–|[Yes](https://github.com/GWxuan/AwareVLN)|
 |[MemVLN-4B (monocular)](#memvln)|2026|Trained|Qwen3-VL-4B|66.5|57.4|4.22|–|No|
 |[ReflectVLN (monocular)](#reflectvln)|2026|Trained|Qwen2.5-VL-3B|66.0|57.2|3.98|–|No|
-|[TAMP-Nav (multi-view)](#tamp-nav)|2026|Trained|Qwen2.5-VL-7B|65.7|56.9|4.32|–|[is](https://github.com/ZJU-OmniAI/Embodied-Omni)|
+|[TAMP-Nav (multi-view)](#tamp-nav)|2026|Trained|Qwen2.5-VL-7B|65.7|56.9|4.32|–|[Yes](https://github.com/ZJU-OmniAI/Embodied-Omni)|
 |[NavFoM (multi-view)](#navfom)|2025|Trained|Qwen2-7B|64.4|56.2|4.74|–|No|
 |[SEDualVLN (monocular)](#sedualvln)|2026|Trained|LLaVA-Video-7B|63.9|52.4|4.12|–|No|
 |[Talk2Escape + GTA (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">260 subset</span>|2026|Training-free|Gemini 3.1 Pro|62.9|34.2|5.89|–|No|
 |[Dual-Anchoring (monocular)](#dual-anchoring)|2026|Trained|LLaVA-Video-7B|61.7|53.3|–|–|No|
-|[DualVLN (monocular)](#dualvln)|2025|Trained|Qwen2.5-VL-7B|61.4|51.8|4.58|–|[is](https://github.com/InternRobotics/InternNav)|
+|[DualVLN (monocular)](#dualvln)|2025|Trained|Qwen2.5-VL-7B|61.4|51.8|4.58|–|[Yes](https://github.com/InternRobotics/InternNav)|
 |[SeekVLN (monocular, three views on demand)](#seekvln)|2026|Trained|Aux-Think / NVILA-lite-8B|59.7|50.3|4.9|–|No|
 |[JanusVLN (monocular)](#janusvln)|2026|Trained|Janus-Pro-7B|56.2|47.5|6.06|–|[Yes](https://github.com/MIV-XJTU/JanusVLN)|
 |[RynnBrain-Nav (monocular)](#rynnbrain)|2026|Trained|–|56.1|49.6|6.20|–|[Yes](https://github.com/alibaba-damo-academy/RynnBrain)|
 |[GA-VLN (monocular)](#ga-vln)|2026|Trained|LLaVA-Video-7B|55.4|45.2|5.88|**67.0**|[Yes](https://github.com/jahhaoyang/GA-VLN)|
-|[StreamVLN (monocular)](#streamvln)|2025|Trained|LLaVA-Video-7B|54.4|45.4|5.65|–|[is](https://github.com/OpenRobotLab/StreamVLN)|
+|[StreamVLN (monocular)](#streamvln)|2025|Trained|LLaVA-Video-7B|54.4|45.4|5.65|–|[Yes](https://github.com/OpenRobotLab/StreamVLN)|
 |[DecoVLN (monocular)](#decovln)|2026|Trained|LLaVA-Video-7B|54.2|46.3|5.73|–|No|
 |[HarnessVLN (monocular)](#harnessvln) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5.5|53.9|38.0|6.42|–|No|
-|[DGNav (panoramic)](#dgnav)|2026|Trained|–|53.78|44.37|6.00|–|[is](https://github.com/shannanshouyin/DGNav)|
+|[DGNav (panoramic)](#dgnav)|2026|Trained|–|53.78|44.37|6.00|–|[Yes](https://github.com/shannanshouyin/DGNav)|
 |[Talk2Escape + NavGPT (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">260 subset</span>|2026|Training-free|Gemini 3.1 Pro|50.4|27.2|6.01|–|No|
 |[Goal2Pixel (monocular)](#goal2pixel)|2025|Trained|LLaVA-1.5-7B|43.8|40.4|7.50|–|No|
 |[HSGM (monocular)](#hsgm) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5|41.8|25.1|7.43|–|[Yes](https://github.com/Teacher-Tom/HSGM_public)|
 |[SparseNav (monocular)](/en/VLN-Papers-Extended/#sparsenav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5|40.7|24.1|7.82|–|No|
-|[MapNav (monocular)](#mapnav)|2025|Trained|LLaVA-Onevision-7B|32.6|27.7|7.62|–|[is](https://github.com/linglingxiansen/MapNav)|
+|[MapNav (monocular)](#mapnav)|2025|Trained|LLaVA-Onevision-7B|32.6|27.7|7.62|–|[Yes](https://github.com/linglingxiansen/MapNav)|
 |[NaVid (monocular)](#navid)|2024|Trained|–|23.8|21.2|8.41|34.5|[Yes](https://github.com/jzhzhang/NaVid-VLN-CE)|
 |[VLN-R1 (monocular)](#vln-r1)|2025|Trained|Qwen2-VL-7B|22.7|17.6|9.1|30.4|No|
 |[VLN-R1 (monocular)](#vln-r1)|2025|Trained|Qwen2-VL-2B|20.7|16.9|10.2|30.1|No|
@@ -155,17 +155,17 @@ Discrete navigation graph · panoramic observation; residential (ID) / non-resid
 |[R³ (panoramic)](#r3) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|R2R|Trained|GPT-4o|77|**66**|**2.76**|–|No|
 |[CA-VLN (panoramic)](#ca-vln)|2026|R2R|Trained|LLaVA-7B|73.3|62.0|3.03|–|No|
 |[VLN-Imagine (DUET) (panoramic)](#vln-imagine)|2025|R2R|Trained|–|72.12|60.48|3.19|–|[Yes](https://github.com/akhilperincherry/VLN-Imagine)|
-|[NavGPT-2 (panoramic)](#navgpt-2)|2024|R2R|Trained|Vicuna-7B|71|60|3.18|80|[is](https://github.com/GengzeZhou/NavGPT-2)|
-|[DUET (panoramic)](#duet)|2022|R2R (Test-Unseen)|Trained|–|**69.0**|**59.0**|**3.65**|–|[](https://github.com/cshizhe/VLN-DUET)|
-|[R2R (panoramic)](#r2r)|2018|R2R (Test-Unseen)|Trained|–|20.4|18.0|7.85|26.6|No|
-|[Slow4fast-VLN (panoramic)](#slow4fast-vln)|2026|GSA-R2R (ID)|Trained|–|**70.8**|**65.0**|**2.9**|–|[is](https://github.com/yl6017339/Slow4Fast-VLN)|
-|GR-DUET (panoramic)|2025|GSA-R2R (ID)|Trained|–|69.3|64.3|3.1|–|[YES](https://github.com/honghd16/GSA-VLN)|
-|[Slow4fast-VLN (panoramic)](#slow4fast-vln)|2026|GSA-R2R (OOD)|Trained|–|**58.4**|**52.9**|**4.2**|–|[is](https://github.com/yl6017339/Slow4Fast-VLN)|
-|GR-DUET (panoramic)|2025|GSA-R2R (OOD)|TRAINING|–|56.6|51.5|4.4|–|[YES](https://github.com/honghd16/GSA-VLN)|
-|[CA-VLN (panoramic)](#ca-vln)|2026|REVERIE|TRAINING|LLaVA-7B|51.0|35.5|–|56.3|NO|
-|[DUET (panoramic)](#duet)|2022|REVERIE (Test-Unseen)|Trained|–|52.51|36.06|–|56.91|[YES](https://github.com/cshizhe/VLN-DUET)|
+|[NavGPT-2 (panoramic)](#navgpt-2)|2024|R2R|Trained|Vicuna-7B|71|60|3.18|**80**|[Yes](https://github.com/GengzeZhou/NavGPT-2)|
+|[DUET (panoramic)](#duet)|2022|R2R|Trained|–|69.0|59.0|3.65|–|[Yes](https://github.com/cshizhe/VLN-DUET)|
+|[R2R (panoramic)](#r2r)|2018|R2R|Trained|–|20.4|18.0|7.85|26.6|No|
+|[Slow4fast-VLN (panoramic)](#slow4fast-vln)|2026|GSA-R2R (ID)|Trained|–|**70.8**|**65.0**|**2.9**|–|[Yes](https://github.com/yl6017339/Slow4Fast-VLN)|
+|GR-DUET (panoramic)|2025|GSA-R2R (ID)|Trained|–|69.3|64.3|3.1|–|[Yes](https://github.com/honghd16/GSA-VLN)|
+|[Slow4fast-VLN (panoramic)](#slow4fast-vln)|2026|GSA-R2R (OOD)|Trained|–|**58.4**|**52.9**|**4.2**|–|[Yes](https://github.com/yl6017339/Slow4Fast-VLN)|
+|GR-DUET (panoramic)|2025|GSA-R2R (OOD)|Trained|–|56.6|51.5|4.4|–|[Yes](https://github.com/honghd16/GSA-VLN)|
+|[DUET (panoramic)](#duet)|2022|REVERIE|Trained|–|**52.51**|**36.06**|–|**56.91**|[Yes](https://github.com/cshizhe/VLN-DUET)|
+|[CA-VLN (panoramic)](#ca-vln)|2026|REVERIE|Trained|LLaVA-7B|51.0|35.5|–|56.3|No|
 
-Note: VLN-Imagine is the R2R val-unseen result of DUET-Imagine (DUET baseline 71.52 / 60.41). GSA-R2R distinguishes between residential (ID, Test-R-Basic) and non-residential (OOD, Test-N-Basic) scenarios, and Slow4fast-VLN improves performance relative to GR-DUET. The REVERIE benchmark uses additional RGS/RGSPL indicators: R³ is 53.76/42.14/37.94/29.86 (SR/SPL/RGS/RGSPL), and the Uncertainty-Aware Gaussian Map has an RGS/RGSPL of 37.65/27.01. The continuous environment version REVERIE-CE currently only reports Image2Nav (180° FOV): SR 53.7 / SPL 42.7 / NE 5.08 / OSR 59.5 (val-unseen). The action space is different from discrete REVERIE and is not incorporated into this table.
+Note: In the R2R and REVERIE groups, DUET and the R2R baseline report the Test-Unseen split from their papers, while the other rows report val-unseen; they are merged and compared as one benchmark. VLN-Imagine is the R2R val-unseen result of DUET-Imagine (DUET baseline 71.52 / 60.41). GSA-R2R distinguishes between residential (ID, Test-R-Basic) and non-residential (OOD, Test-N-Basic) scenarios, and Slow4fast-VLN improves performance relative to GR-DUET. The REVERIE benchmark uses additional RGS/RGSPL indicators: R³ is 53.76/42.14/37.94/29.86 (SR/SPL/RGS/RGSPL), and the Uncertainty-Aware Gaussian Map has an RGS/RGSPL of 37.65/27.01. The continuous environment version REVERIE-CE currently only reports Image2Nav (180° FOV): SR 53.7 / SPL 42.7 / NE 5.08 / OSR 59.5 (val-unseen). The action space is different from discrete REVERIE and is not incorporated into this table.
 
 ## ④ LHPR-VLN · Long-horizon multi-stage navigation
 

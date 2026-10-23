@@ -145,17 +145,17 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 | [R³ (全景)](#r3) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | R2R | 训练 | GPT-4o | 77 | **66** | **2.76** | – | 否 |
 | [CA-VLN (全景)](#ca-vln) | 2026 | R2R | 训练 | LLaVA-7B | 73.3 | 62.0 | 3.03 | – | 否 |
 | [VLN-Imagine (DUET) (全景)](#vln-imagine) | 2025 | R2R | 训练 | – | 72.12 | 60.48 | 3.19 | – | [是](https://github.com/akhilperincherry/VLN-Imagine) |
-| [NavGPT-2 (全景)](#navgpt-2) | 2024 | R2R | 训练 | Vicuna-7B | 71 | 60 | 3.18 | 80 | [是](https://github.com/GengzeZhou/NavGPT-2) |
-| [DUET (全景)](#duet) | 2022 | R2R (Test-Unseen) | 训练 | – | **69.0** | **59.0** | **3.65** | – | [是](https://github.com/cshizhe/VLN-DUET) |
-| [R2R (全景)](#r2r) | 2018 | R2R (Test-Unseen) | 训练 | – | 20.4 | 18.0 | 7.85 | 26.6 | 否 |
+| [NavGPT-2 (全景)](#navgpt-2) | 2024 | R2R | 训练 | Vicuna-7B | 71 | 60 | 3.18 | **80** | [是](https://github.com/GengzeZhou/NavGPT-2) |
+| [DUET (全景)](#duet) | 2022 | R2R | 训练 | – | 69.0 | 59.0 | 3.65 | – | [是](https://github.com/cshizhe/VLN-DUET) |
+| [R2R (全景)](#r2r) | 2018 | R2R | 训练 | – | 20.4 | 18.0 | 7.85 | 26.6 | 否 |
 | [Slow4fast-VLN (全景)](#slow4fast-vln) | 2026 | GSA-R2R (ID) | 训练 | – | **70.8** | **65.0** | **2.9** | – | [是](https://github.com/yl6017339/Slow4Fast-VLN) |
 | GR-DUET (全景) | 2025 | GSA-R2R (ID) | 训练 | – | 69.3 | 64.3 | 3.1 | – | [是](https://github.com/honghd16/GSA-VLN) |
 | [Slow4fast-VLN (全景)](#slow4fast-vln) | 2026 | GSA-R2R (OOD) | 训练 | – | **58.4** | **52.9** | **4.2** | – | [是](https://github.com/yl6017339/Slow4Fast-VLN) |
 | GR-DUET (全景) | 2025 | GSA-R2R (OOD) | 训练 | – | 56.6 | 51.5 | 4.4 | – | [是](https://github.com/honghd16/GSA-VLN) |
+| [DUET (全景)](#duet) | 2022 | REVERIE | 训练 | – | **52.51** | **36.06** | – | **56.91** | [是](https://github.com/cshizhe/VLN-DUET) |
 | [CA-VLN (全景)](#ca-vln) | 2026 | REVERIE | 训练 | LLaVA-7B | 51.0 | 35.5 | – | 56.3 | 否 |
-| [DUET (全景)](#duet) | 2022 | REVERIE (Test-Unseen) | 训练 | – | 52.51 | 36.06 | – | 56.91 | [是](https://github.com/cshizhe/VLN-DUET) |
 
-注：VLN-Imagine 为 DUET-Imagine 的 R2R val-unseen 结果（DUET 基线 71.52 / 60.41）。GSA-R2R 区分住宅（ID，Test-R-Basic）与非住宅（OOD，Test-N-Basic）场景，Slow4fast-VLN 相对 GR-DUET 性能有所提升。REVERIE 基准另用 RGS / RGSPL 指标：R³ 为 53.76 / 42.14 / 37.94 / 29.86（SR/SPL/RGS/RGSPL），Uncertainty-Aware Gaussian Map 的 RGS / RGSPL 为 37.65 / 27.01。 连续环境版 REVERIE-CE 目前只有 Image2Nav（180° FOV）报告：SR 53.7 / SPL 42.7 / NE 5.08 / OSR 59.5（val-unseen），动作空间与离散 REVERIE 不同，不并入本表。
+注：R2R 与 REVERIE 两组里，DUET 与 R2R 基线取原文 Test-Unseen 划分的成绩，其余取 val-unseen，按同一基准合并比较。VLN-Imagine 为 DUET-Imagine 的 R2R val-unseen 结果（DUET 基线 71.52 / 60.41）。GSA-R2R 区分住宅（ID，Test-R-Basic）与非住宅（OOD，Test-N-Basic）场景，Slow4fast-VLN 相对 GR-DUET 性能有所提升。REVERIE 基准另用 RGS / RGSPL 指标：R³ 为 53.76 / 42.14 / 37.94 / 29.86（SR/SPL/RGS/RGSPL），Uncertainty-Aware Gaussian Map 的 RGS / RGSPL 为 37.65 / 27.01。 连续环境版 REVERIE-CE 目前只有 Image2Nav（180° FOV）报告：SR 53.7 / SPL 42.7 / NE 5.08 / OSR 59.5（val-unseen），动作空间与离散 REVERIE 不同，不并入本表。
 
 ## ④ LHPR-VLN · 长程多阶段导航
 

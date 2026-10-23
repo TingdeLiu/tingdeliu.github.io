@@ -19,10 +19,10 @@
   var COLUMNS = { Model: '模型', Year: '年份', Paradigm: '范式', Base: '基模', Open: '开源', Benchmark: '基准', Baseline: '基准', Evaluation: '评测设置' };
   var CHART_METRICS = ['SR', 'SPL', 'NE', 'ISR', 'CSR', 'CGT'];
   var CHART_TOP = 20;
-  // 分组表（带「基准」或「评测设置」列）至少要有两个行数不少于 GROUP_MIN 的组才画图；
+  // 分组表（带「基准」或「评测设置」列）至少要有一个行数不少于 GROUP_MIN 的组才画图；
   // 画图后行数不少于 TAB_MIN 的组都给切换按钮
   var GROUP_MIN = 5;
-  var TAB_MIN = 3;
+  var TAB_MIN = 2;
   // 图里分组忽略步数预算后缀：「114 条子集 · 5,000 步」与「· 500 步」是同一子集上的成绩
   var BUDGET_SUFFIX = /\s*·\s*[\d,–-]+\s*(步|steps?)$/;
   var METRICS = { SR: 'max', SPL: 'max', NE: 'min', OSR: 'max', ISR: 'max', CSR: 'max', CGT: 'max' };
@@ -122,7 +122,7 @@
       if (cols['基准'] == null && cols['评测设置'] == null) buildChart(t, null);
       else {
         var groups = chartGroups(rows);
-        if (groups.length >= 2) buildChart(t, groups);
+        if (groups.length) buildChart(t, groups);
       }
     }
     return t;
@@ -136,7 +136,7 @@
       count[r.chartGroup]++;
     });
     var big = order.filter(function (g) { return count[g] >= GROUP_MIN; });
-    if (big.length < 2) return [];
+    if (!big.length) return [];
     return order.filter(function (g) { return count[g] >= TAB_MIN; });
   }
 
