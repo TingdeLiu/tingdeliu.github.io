@@ -8,19 +8,19 @@ source_url: /VLN-Papers/
 source_revision_date: 2026-10-05
 translation_updated: 2026-10-20
 title: "VLN Papers: Instruction Following"
-date: 2026-10-22
+date: 2026-10-24
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "57 detailed readings on instruction-following VLN, with benchmark leaderboards, technical comparisons, methods, experiments, and limitations."
+excerpt: "58 detailed readings on instruction-following VLN, with benchmark leaderboards, technical comparisons, methods, experiments, and limitations."
 ---
 
 
 > This collection accompanies the [VLN survey](/en/VLN-Survey/) with detailed readings on instruction-following navigation and its supporting foundations.
 >
-> It covers 57 representative methods, benchmarks, and foundational works. Goal navigation, locomotion, mobile manipulation, and additional studies appear in the [extended collection](/en/VLN-Papers-Extended/). The collections are organized by research focus and reading sequence; publication status is not the sole criterion.
+> It covers 58 representative methods, benchmarks, and foundational works. Goal navigation, locomotion, mobile manipulation, and additional studies appear in the [extended collection](/en/VLN-Papers-Extended/). The collections are organized by research focus and reading sequence; publication status is not the sole criterion.
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
@@ -41,7 +41,8 @@ Continuous environment · English commands · val-unseen (1839 items in total)
 |Model|Year|Paradigm|Base model|SR ↑|SPL ↑|NE ↓|OSR ↑|Open source|
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
 |[GPT-6-Astra (monocular · ultra)](#gpt-6-astra) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset </span>|2026|Training-free|GPT-6-Astra|81.3|71.5|2.9|83.7|No|
-|[Robostral Navigate (monocular)](#robostral-navigate)|2026|Trained|Mistral-8B|**77.4**|**74.2**|**3.20**|**81.3**|No|
+|[Robostral Navigate (monocular)](#robostral-navigate)|2026|Trained|Mistral-8B|**77.4**|**74.2**|3.20|81.3|No|
+|[SimpleVLN (monocular)](#simplevln)|2026|Trained|Qwen3.5-9B|76.7|72.6|**2.63**|**84.1**|No|
 |[GPT-6-Astra (monocular · medium)](#gpt-6-astra) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset </span>|2026|Training-free|GPT-6-Astra|75.7|65.6|3.0|80.7|No|
 |[Qwen-RobotNav (panoramic)](#qwen-robotnav)|2026|Trained|Qwen3-VL-8B|72.1|66.6|3.53|78.5|No|
 |[Talk2Escape + GTA (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset</span>|2026|Training-free|Gemini 3.1 Pro|72.0|49.4|4.80|66.0|No|
@@ -102,10 +103,11 @@ Continuous environment · Multilingual commands (English/Hindi/Telugu) · val-un
 
 |Model|Year|Paradigm|Base model|SR ↑|SPL ↑|NE ↓|OSR ↑|Open source|
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
-|[Qwen-RobotNav (panoramic)](#qwen-robotnav)|2026|Trained|Qwen3-VL-8B|**76.5**|65.7|3.58|–|No|
-|[Robostral Navigate (monocular)](#robostral-navigate)|2026|Trained|Mistral-8B|75.1|**68.7**|3.47|–|No|
+|[SimpleVLN (monocular)](#simplevln)|2026|Trained|Qwen3.5-9B|**80.1**|**69.9**|**2.51**|–|No|
+|[Qwen-RobotNav (panoramic)](#qwen-robotnav)|2026|Trained|Qwen3-VL-8B|76.5|65.7|3.58|–|No|
+|[Robostral Navigate (monocular)](#robostral-navigate)|2026|Trained|Mistral-8B|75.1|68.7|3.47|–|No|
 |[GroundingVLN (three cameras)](#groundingvln)|2026|Trained|Qwen3.5-4B|75.1|62.0|3.54|–|No|
-|[ABot-N1 (three cameras)](#abot-n1)|2026|Trained|Qwen-3.5-4B + 2B|73.9|63.9|**3.13**|–|No|
+|[ABot-N1 (three cameras)](#abot-n1)|2026|Trained|Qwen-3.5-4B + 2B|73.9|63.9|3.13|–|No|
 |[OmniNav (multi-view)](#omninav)|2026|Trained|Qwen2.5-VL-3B|73.6|62.0|3.77|–|[is](https://github.com/amap-cvlab/OmniNav)|
 |[LightNav-0 (monocular)](#lightnav-0)|2026|Trained|Qwen3-VL-4B|73.6|64.5|3.66|–|[is](https://github.com/lightorigins/LightNav-0)|
 |[Qwen-RobotNav (monocular)](#qwen-robotnav)|2026|Trained|Qwen3-VL-8B|73.4|63.5|4.16|–|No|
@@ -223,7 +225,7 @@ Search notes (2026-10-20): The [official MMSP 2025 challenge](https://hcplab-sys
 ## Component adoption matrix
 {: id="要素打勾矩阵"}
 
-To compare the technical recipes of **leading models with R2R-CE SR ≥ 60%**, the table below records components for all 24 eligible entries currently covered by this English edition (23 models, with Qwen-RobotNav's panoramic and monocular configurations listed separately). Gray subset results, such as R2R-CE-100, have too few samples and use different evaluation protocols, so they are excluded from the matrix. See the note below.
+To compare the technical recipes of **leading models with R2R-CE SR ≥ 60%**, the table below records components for all 25 eligible entries currently covered by this English edition (24 models, with Qwen-RobotNav's panoramic and monocular configurations listed separately). Gray subset results, such as R2R-CE-100, have too few samples and use different evaluation protocols, so they are excluded from the matrix. See the note below.
 
 **Judgment criteria:** Assess the configuration that produced the reported R2R-CE score. Components not disclosed in the paper are marked –.
 
@@ -244,30 +246,31 @@ To compare the technical recipes of **leading models with R2R-CE SR ≥ 60%**, t
 | Rank | Model | R2R-CE SR ↑ | Data scaling | Multi-view | Fast / slow | Agentic | Pixel grounding | Continuous actions | RL | DAgger / corrections | Context compression | Open source |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | 1 | [**Robostral Navigate**](#robostral-navigate) (monocular) | **77.4%** | ✓ | – | ✓ | – | ✓ | ✓ | ✓ | – | ✓ | – |
-| 2 | [**Qwen-RobotNav**](#qwen-robotnav) (panoramic) | **72.1%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | – |
-| 3 | [**ABot-N1**](#abot-n1) (three cameras) | **70.9%** | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | – | – |
-| 4 | [**Image2Nav**](#image2sim) (180° FOV) | **70.3%** | ✓ | ✓ | – | – | – | – | – | ✓ | ✓ | ✓ |
-| 5 | [**GroundingVLN**](#groundingvln) (three cameras) | **69.9%** | – | ✓ | ✓ | – | ✓ | – | ✓ | – | – | – |
-| 6 | [**OmniNav**](#omninav) (multi-view) | **69.5%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | ✓ |
-| 7 | [**RSI-Nav**](#rsi-nav) (monocular) | **68.6%** | ✓ | – | – | – | – | – | – | – | – | ✓ |
-| 8 | [**LightNav-0**](#lightnav-0) (monocular) | **68.5%** | ✓ | – | – | – | ✓ | – | ✓ | ✓ | ✓ | ✓ |
-| 9 | [**AstraNav-World**](#astranav-world) (multi-view) | **67.9%** | – | ✓ | – | – | – | ✓ | – | – | – | ✓ |
-| 10 | [**SeekVLN**](#seekvln) (monocular, three views on demand) | **67.5%** | ✓ | – | – | – | – | – | ✓ | ✓ | – | – |
-| 11 | [**SEDualVLN**](#sedualvln) (monocular) | **67.3%** | – | – | ✓ | ✓ | – | – | – | ✓ | ✓ | – |
-| 12 | [**AgentVLN**](#agentvln) (monocular) | **67.2%** | – | – | ✓ | ✓ | ✓ | – | – | – | – | ✓ |
-| 13 | [**Qwen-RobotNav**](#qwen-robotnav) (monocular) | **66.9%** | ✓ | – | – | – | – | ✓ | – | – | ✓ | – |
-| 14 | [**TAMP-Nav**](#tamp-nav) (multi-view) | **66.2%** | – | ✓ | ✓ | – | ✓ | – | ✓ | – | ✓ | ✓ |
-| 15 | [**Dual-Anchoring**](#dual-anchoring) (monocular) | **65.6%** | ✓ | – | – | – | – | – | – | ✓ | ✓ | – |
-| 16 | [**AwareVLN**](#awarevln) (monocular) | **65.4%** | – | – | – | – | – | – | – | ✓ | – | ✓ |
-| 17 | [**CorrectNav**](#correctnav) (monocular) | **65.1%** | ✓ | – | – | – | – | – | – | ✓ | – | ✓ |
-| 18 | [**DualVLN**](#dualvln) (monocular) | **64.3%** | ✓ | – | ✓ | – | ✓ | ✓ | – | ✓ | ✓ | ✓ |
-| 19 | [**VLN-Cache**](#vln-cache) (monocular) | **63.1%** | ✓ | – | ✓ | – | ✓ | ✓ | – | ✓ | ✓ | – |
-| 20 | [**ReflectVLN**](#reflectvln) (monocular) | **62.8%** | ✓ | – | ✓ | – | – | ✓ | – | ✓ | – | – |
-| 21 | [**NavFoM**](#navfom) (multi-view) | **61.7%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | – |
-| 22 | [**GA-VLN**](#ga-vln) (monocular) | **61.0%** | – | – | – | – | – | – | – | – | ✓ | ✓ |
-| 23 | [**HarnessVLN**](#harnessvln) (monocular RGB-D) | **60.8%** | – | – | ✓ | ✓ | ✓ | – | – | – | ✓ | – |
-| 24 | [**JanusVLN**](#janusvln) (monocular) | **60.5%** | ✓ | – | – | – | – | – | – | ✓ | ✓ | ✓ |
-| **Statistics** | **Component adoption** | **Highest 77.4%** | **16/24 (67%)** | **8/24 (33%)** | **10/24 (42%)** | **3/24 (12%)** | **9/24 (38%)** | **10/24 (42%)** | **6/24 (25%)** | **12/24 (50%)** | **15/24 (62%)** | **12/24 (50%)** |
+| 2 | [**SimpleVLN**](#simplevln) (monocular) | **76.7%** | ✓ | – | – | – | – | – | ✓ | ✓ | – | – |
+| 3 | [**Qwen-RobotNav**](#qwen-robotnav) (panoramic) | **72.1%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | – |
+| 4 | [**ABot-N1**](#abot-n1) (three cameras) | **70.9%** | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | – | – |
+| 5 | [**Image2Nav**](#image2sim) (180° FOV) | **70.3%** | ✓ | ✓ | – | – | – | – | – | ✓ | ✓ | ✓ |
+| 6 | [**GroundingVLN**](#groundingvln) (three cameras) | **69.9%** | – | ✓ | ✓ | – | ✓ | – | ✓ | – | – | – |
+| 7 | [**OmniNav**](#omninav) (multi-view) | **69.5%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | ✓ |
+| 8 | [**RSI-Nav**](#rsi-nav) (monocular) | **68.6%** | ✓ | – | – | – | – | – | – | – | – | ✓ |
+| 9 | [**LightNav-0**](#lightnav-0) (monocular) | **68.5%** | ✓ | – | – | – | ✓ | – | ✓ | ✓ | ✓ | ✓ |
+| 10 | [**AstraNav-World**](#astranav-world) (multi-view) | **67.9%** | – | ✓ | – | – | – | ✓ | – | – | – | ✓ |
+| 11 | [**SeekVLN**](#seekvln) (monocular, three views on demand) | **67.5%** | ✓ | – | – | – | – | – | ✓ | ✓ | – | – |
+| 12 | [**SEDualVLN**](#sedualvln) (monocular) | **67.3%** | – | – | ✓ | ✓ | – | – | – | ✓ | ✓ | – |
+| 13 | [**AgentVLN**](#agentvln) (monocular) | **67.2%** | – | – | ✓ | ✓ | ✓ | – | – | – | – | ✓ |
+| 14 | [**Qwen-RobotNav**](#qwen-robotnav) (monocular) | **66.9%** | ✓ | – | – | – | – | ✓ | – | – | ✓ | – |
+| 15 | [**TAMP-Nav**](#tamp-nav) (multi-view) | **66.2%** | – | ✓ | ✓ | – | ✓ | – | ✓ | – | ✓ | ✓ |
+| 16 | [**Dual-Anchoring**](#dual-anchoring) (monocular) | **65.6%** | ✓ | – | – | – | – | – | – | ✓ | ✓ | – |
+| 17 | [**AwareVLN**](#awarevln) (monocular) | **65.4%** | – | – | – | – | – | – | – | ✓ | – | ✓ |
+| 18 | [**CorrectNav**](#correctnav) (monocular) | **65.1%** | ✓ | – | – | – | – | – | – | ✓ | – | ✓ |
+| 19 | [**DualVLN**](#dualvln) (monocular) | **64.3%** | ✓ | – | ✓ | – | ✓ | ✓ | – | ✓ | ✓ | ✓ |
+| 20 | [**VLN-Cache**](#vln-cache) (monocular) | **63.1%** | ✓ | – | ✓ | – | ✓ | ✓ | – | ✓ | ✓ | – |
+| 21 | [**ReflectVLN**](#reflectvln) (monocular) | **62.8%** | ✓ | – | ✓ | – | – | ✓ | – | ✓ | – | – |
+| 22 | [**NavFoM**](#navfom) (multi-view) | **61.7%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | – |
+| 23 | [**GA-VLN**](#ga-vln) (monocular) | **61.0%** | – | – | – | – | – | – | – | – | ✓ | ✓ |
+| 24 | [**HarnessVLN**](#harnessvln) (monocular RGB-D) | **60.8%** | – | – | ✓ | ✓ | ✓ | – | – | – | ✓ | – |
+| 25 | [**JanusVLN**](#janusvln) (monocular) | **60.5%** | ✓ | – | – | – | – | – | – | ✓ | ✓ | ✓ |
+| **Statistics** | **Component adoption** | **Highest 77.4%** | **17/25 (68%)** | **8/25 (32%)** | **10/25 (40%)** | **3/25 (12%)** | **9/25 (36%)** | **10/25 (40%)** | **7/25 (28%)** | **13/25 (52%)** | **15/25 (60%)** | **12/25 (48%)** |
 {: .vln-component-matrix}
 
 Note: VLN-Cache is a training-free token-caching layer on DualVLN and inherits its other components. OmniNav uses only its fast system (VLM + waypoint regression head) for R2R / RxR; slow-system frontier exploration is used only for OVON, so the dual-system column is marked –. Qwen-RobotNav's collaboration with a high-level planning agent applies only to long-horizon tasks such as EQA; its R2R-CE score comes from the navigation model itself. System 1 in both Dual-Anchoring and SEDualVLN uses StreamVLN, inheriting its sliding-window KV and voxel pruning. HarnessVLN is the only training-free method in the matrix; its pixel grounding uses `ground_target` to locate a subgoal in an image region before querying depth. ABot-N1's 30M pretraining samples and DAgger rollouts, and Image2Nav's discrete outputs and online DAgger, are recorded from their respective arXiv papers.
@@ -278,49 +281,51 @@ SeekVLN's classifications: C2PO is PPO post-training, so RL is marked ✓. The m
 
 RSI-Nav is marked for data scaling because its recursive stage produces about 2.5M navigation samples. It uses monocular RGB and discrete text actions with SFT updates. Verification rollouts only filter instructions, while original trajectories remain the training targets; the paper does not disclose additional corrective-trajectory collection or dedicated token / KV compression. Its [official repository](https://github.com/OpenGVLab/RSI-Nav), checked on 2026-10-16, provides training, conversion, recursive-evolution, and evaluation code; weights and data require separate preparation.
 
+SimpleVLN is classified using the Qwen3.5-9B configuration that reaches 76.7% on R2R-CE. Its expert demonstrations pool the full R2R, RxR, and ScaleVLN trajectories (ScaleVLN alone contains millions of synthetic trajectories), so data scaling is marked ✓. After SFT, DAPO post-training with a binary success reward and deviation-based DAgger corrective data mark RL and DAgger ✓. It uses monocular RGB, and the native MLLM directly outputs action chunks of discrete primitive actions without added modules, so multiple cameras, fast/slow dual system, Agentic, pixel grounding, and continuous action head are marked –. Its "eight global + one local" history is a fixed-budget sample of raw frames without token compression or KV reuse, so context compression is marked –. The paper provides only a project page, without code or weights, so open source is marked –.
+
 ## Analysis of adoption rates
 {: id="统计研判"}
 
-Divide the 24 entries currently covered by this English edition into two tiers at 68% SR and compare component adoption:
+Divide the 25 entries currently covered by this English edition into two tiers at 68% SR and compare component adoption:
 
-| Element | First tier (SR ≥ 68%, 8 entries) | Second tier (60%–68%, 16 entries) | Total (24 entries) |
+| Element | First tier (SR ≥ 68%, 9 entries) | Second tier (60%–68%, 16 entries) | Total (25 entries) |
 |:--|:--:|:--:|:--:|
-| Data scaling | 7/8 (88%) | 9/16 (56%) | 16/24 (67%) |
-| Multiple cameras | 5/8 (62%) | 3/16 (19%) | 8/24 (33%) |
-| Fast/slow dual system | 3/8 (38%) | 7/16 (44%) | 10/24 (42%) |
-| Agentic | 0/8 (0%) | 3/16 (19%) | 3/24 (12%) |
-| Pixel grounding | 4/8 (50%) | 5/16 (31%) | 9/24 (38%) |
-| Continuous action head | 4/8 (50%) | 6/16 (38%) | 10/24 (42%) |
-| **Reinforcement learning** | **4/8 (50%)** | **2/16 (12%)** | 6/24 (25%) |
-| DAgger / corrective data | 3/8 (38%) | 9/16 (56%) | 12/24 (50%) |
-| Context compression | 5/8 (62%) | 10/16 (62%) | 15/24 (62%) |
-| Open source | 4/8 (50%) | 8/16 (50%) | 12/24 (50%) |
+| Data scaling | 8/9 (89%) | 9/16 (56%) | 17/25 (68%) |
+| Multiple cameras | 5/9 (56%) | 3/16 (19%) | 8/25 (32%) |
+| Fast/slow dual system | 3/9 (33%) | 7/16 (44%) | 10/25 (40%) |
+| Agentic | 0/9 (0%) | 3/16 (19%) | 3/25 (12%) |
+| Pixel grounding | 4/9 (44%) | 5/16 (31%) | 9/25 (36%) |
+| Continuous action head | 4/9 (44%) | 6/16 (38%) | 10/25 (40%) |
+| **Reinforcement learning** | **5/9 (56%)** | **2/16 (12%)** | 7/25 (28%) |
+| DAgger / corrective data | 4/9 (44%) | 9/16 (56%) | 13/25 (52%) |
+| Context compression | 5/9 (56%) | 10/16 (62%) | 15/25 (60%) |
+| Open source | 4/9 (44%) | 8/16 (50%) | 12/25 (48%) |
 
 > These comparisons show correlations within leading models. Gains attributable to a component must be assessed through each paper's ablations.
 
-1. **Reinforcement learning is more common in the first tier, but is not required (50% vs 12%):**
-   - Four of eight first-tier entries use navigation RL post-training: Robostral uses CISPO, ABot-N1 uses GRPO, GroundingVLN uses GEAR, and LightNav-0 uses GRPO. The second tier includes SeekVLN and TAMP-Nav among 16 entries. RSI-Nav reaches 68.6% through execution-filtered SFT; its execution feedback does not define an RL objective.
-   - Controlled ablations provide stronger evidence: removing GEAR reduces GroundingVLN SR from 69.9% to 57.2%, and replacing its execution-aware reward with naive 2D pixel distance gives 66.2%. On SeekVLN's 613-route subset, removing counterfactual rewards reduces SR from 68.5% to 65.1%. These subset scores are not directly comparable with full leaderboard evaluations.
-2. **Spatial targets are common in the first tier, with two discrete-action exceptions:**
-   - Six of eight first-tier entries output pixel targets or continuous waypoints. Image2Nav instead uses discrete actions with 10M synthetic trajectories and a 180° field of view; RSI-Nav uses monocular RGB and discrete text actions with policy-synchronized synthetic supervision.
+1. **Reinforcement learning is more common in the first tier, but is not required (56% vs 12%):**
+   - Five of nine first-tier entries use navigation RL post-training: Robostral uses CISPO, SimpleVLN uses DAPO, ABot-N1 uses GRPO, GroundingVLN uses GEAR, and LightNav-0 uses GRPO. The second tier includes SeekVLN and TAMP-Nav among 16 entries. RSI-Nav reaches 68.6% through execution-filtered SFT; its execution feedback does not define an RL objective.
+   - Controlled ablations provide stronger evidence: removing GEAR reduces GroundingVLN SR from 69.9% to 57.2%, and replacing its execution-aware reward with naive 2D pixel distance gives 66.2%. On SeekVLN's 613-route subset, removing counterfactual rewards reduces SR from 68.5% to 65.1%. SimpleVLN runs 40 DAPO steps on synthesized tasks, raising Qwen3-VL-4B from 65.4% to 73.8% R2R-CE SR, and its binary success reward beats an SPL reward (70.1% vs 68.9% under GRPO). These subset scores are not directly comparable with full leaderboard evaluations.
+2. **Spatial targets are common in the first tier, with three discrete-action exceptions:**
+   - Six of nine first-tier entries output pixel targets or continuous waypoints. SimpleVLN reaches 76.7% with monocular RGB and discrete action chunks trained with only a binary success reward. Image2Nav instead uses discrete actions with 10M synthetic trajectories and a 180° field of view; RSI-Nav uses monocular RGB and discrete text actions with policy-synchronized synthetic supervision.
    - The corresponding proportion in the second tier is 9/16. Its seven discrete-action entries are SeekVLN, SEDualVLN, Dual-Anchoring, AwareVLN, CorrectNav, GA-VLN, and JanusVLN; SeekVLN has the highest SR among them at 67.5%. These associations do not isolate the effect of the action interface.
 3. **Large training mixtures are common, while data quality and composition also matter:**
-   - Seven of eight first-tier entries use at least 1M samples or trajectories. RSI-Nav's recursive stage produces about 2.5M instruction-following samples and 1.1M instruction-generation samples; these are task-sample counts, not additive independent-trajectory counts. Other examples include ABot-N1's 30M, Qwen-RobotNav's 15.6M, Image2Nav's 10M, OmniNav's 9.2M, Robostral's 2.4M, and LightNav-0's 4K+ simulation hours.
+   - Eight of nine first-tier entries use at least 1M samples or trajectories, including SimpleVLN's pooled R2R, RxR, and ScaleVLN demonstrations. RSI-Nav's recursive stage produces about 2.5M instruction-following samples and 1.1M instruction-generation samples; these are task-sample counts, not additive independent-trajectory counts. Other examples include ABot-N1's 30M, Qwen-RobotNav's 15.6M, Image2Nav's 10M, OmniNav's 9.2M, Robostral's 2.4M, and LightNav-0's 4K+ simulation hours.
    - GroundingVLN reaches 69.9% with 188K samples, while TAMP-Nav uses 90K synthetic cold-start trajectories followed by GRPO. SeekVLN's 111K FRG samples are additional to inherited base-model training. These differing mixtures and optimization methods prevent attributing gains to sample quantity alone.
 4. **Multiple views can help, but monocular policies also reach the first tier:**
-   - Multi-view or panoramic inputs occur in 5/8 first-tier entries (62%) and 3/16 second-tier entries (19%). Within-model comparisons include Qwen-RobotNav-8B panoramic 72.1% versus monocular 65.7%, and NavFoM four-view 61.7% versus single-view 56.2%. The two Qwen-RobotNav matrix rows use different model sizes, so subtracting those rows is not a controlled gain.
-   - Robostral's 77.4%, RSI-Nav's 68.6%, and LightNav-0's 68.5% use monocular input. SeekVLN instead acquires extra side views on demand; its 100-episode seeking intervention does not share the full leaderboard protocol or establish zero additional perception cost.
+   - Multi-view or panoramic inputs occur in 5/9 first-tier entries (56%) and 3/16 second-tier entries (19%). Within-model comparisons include Qwen-RobotNav-8B panoramic 72.1% versus monocular 65.7%, and NavFoM four-view 61.7% versus single-view 56.2%. The two Qwen-RobotNav matrix rows use different model sizes, so subtracting those rows is not a controlled gain.
+   - Robostral's 77.4%, SimpleVLN's 76.7%, RSI-Nav's 68.6%, and LightNav-0's 68.5% use monocular input. SeekVLN instead acquires extra side views on demand; its 100-episode seeking intervention does not share the full leaderboard protocol or establish zero additional perception cost.
 5. **Control hierarchy and tool use alone do not determine the SR tier:**
-   - Fast/slow systems appear in 3/8 first-tier entries (38%) and 7/16 second-tier entries (44%). Agentic systems account for 3/24 entries, all in the second tier of the current English matrix. Their control frequency, tool interfaces, and runtime costs differ.
+   - Fast/slow systems appear in 3/9 first-tier entries (33%) and 7/16 second-tier entries (44%). Agentic systems account for 3/24 entries, all in the second tier of the current English matrix. Their control frequency, tool interfaces, and runtime costs differ. SimpleVLN ranks second in the matrix without any added module, further indicating that neither structure is required for a high score.
    - HarnessVLN reaches SR 60.8% without training but has SPL 43.5. GPT-6-Astra's higher path efficiency comes from a 100-episode subset and a different base model, so it is context for hypotheses rather than a matched comparison.
 6. **Corrective data and context compression remain common, with distinct mechanisms:**
-   - DAgger or corrective data appear in 12/24 entries (50%): 3/8 in the first tier and 9/16 in the second. Context compression appears in 15/24 (62%): 5/8 versus 10/16. Neither alone explains the tier boundary.
+   - DAgger or corrective data appear in 13/25 entries (52%): 4/9 in the first tier and 9/16 in the second. Context compression appears in 15/25 (60%): 5/9 versus 10/16. Neither alone explains the tier boundary, although DAgger is the largest single step in SimpleVLN's data ablation (+7.5 points on R2R-CE and +8.1 on RxR-CE).
    - Examples include JanusVLN's sliding-window KV, GA-VLN's BEV pooling, TAMP-Nav's keyframes and STI tokens, LightNav-0's slow/fast history compression, and HarnessVLN's bounded working memory and graph retrieval. RSI-Nav's verification rollouts filter instructions rather than supplying new corrective trajectories; ordinary history sampling is not counted as a dedicated token or KV compression mechanism.
-7. **Half of the first-tier entries have public implementations:**
-   - Open-source availability is 4/8 in the first tier and 8/16 in the second. RSI-Nav joins Image2Nav, OmniNav, and LightNav-0 among the public first-tier implementations covered here. Its official repository provides training, trajectory conversion, recursive evolution, and R2R-CE evaluation code; weights and data require separate preparation.
+7. **Fewer than half of the first-tier entries have public implementations:**
+   - Open-source availability is 4/9 in the first tier and 8/16 in the second. RSI-Nav joins Image2Nav, OmniNav, and LightNav-0 among the public first-tier implementations covered here. Its official repository provides training, trajectory conversion, recursive evolution, and R2R-CE evaluation code; weights and data require separate preparation.
    - Availability for other entries retains their earlier review status. An open-source checkmark records public code or weights, rather than complete release of every dataset, model artifact, and robot-deployment component.
 
-**Summary:** These 24 configurations show correlations rather than component contributions. RSI-Nav adds a monocular, discrete-action example in the first tier through improved synthetic supervision without navigation RL. SeekVLN separately shows how active observation and geometric feedback can improve discrete-action navigation. Shared training sources, different sensor configurations, and subset-only evaluations still require caution in interpreting cross-paper adoption rates.
+**Summary:** These 25 configurations show correlations rather than component contributions. SimpleVLN reaches 76.7% with an unmodified native MLLM trained through IL–DAgger–RL, suggesting that gains from added modules should be judged against a native baseline trained with an equally strong pipeline. RSI-Nav adds a monocular, discrete-action example in the first tier through improved synthetic supervision without navigation RL. SeekVLN separately shows how active observation and geometric feedback can improve discrete-action navigation. Shared training sources, different sensor configurations, and subset-only evaluations still require caution in interpreting cross-paper adoption rates.
 
 ---
 
@@ -8957,6 +8962,155 @@ Using the same model to generate instructions and execute verification can reinf
 
 ---
 
+## 59. SimpleVLN (2026)
+{: id="simplevln"}
+———Frontier VLN from a native MLLM, without architectural changes
+
+📄 **Paper**: [arXiv:2610.23203](https://arxiv.org/abs/2610.23203)
+
+### Key Takeaways
+{: id="精华-51"}
+
+1. Before adding specialized modules to an MLLM, get three things right: how the problem is presented to the model (input organization and output granularity), what data it sees, and which objective it is trained on. With those in place, the unmodified architecture outperforms many task-specific designs.
+2. For long-horizon decisions, rebuilding a **bounded context** at every decision (a single-turn input plus fixed-budget global and local memory) works better than appending history into an ever-growing multi-turn dialogue; current MLLMs do not exploit very long contexts well.
+3. More memory is not always better: eight uniformly sampled global frames plus one local frame is the best setting, and larger budgets dilute useful information.
+4. The progressive IL → DAgger → RL pipeline gives each stage a distinct role: IL initializes the policy, DAgger corrects distribution shift (the largest single gain, +7.5 SR), and RL directly optimizes task completion (a further gain of about 8 SR).
+5. RL should not reuse the SFT episodes; new tasks are synthesized in the training scenes instead. The simplest binary success reward outperforms a finer-grained SPL reward.
+
+---
+
+### 1. Background and Problem
+{: id="1-研究背景问题-50"}
+
+Existing VLN methods add many task-specific components on top of MLLMs, including 3D geometry encoders, topological graphs, dual-system planners, and streaming contexts. Final performance therefore mixes the contribution of the backbone with that of these additions. The paper raises an overlooked question: **have we fully unlocked native MLLMs for VLN before introducing task-specific architecture?** Without changing the network, the authors study how far a native MLLM can go on VLN-CE through task formulation, data construction, and optimization.
+
+---
+
+### 2. Method and Contributions
+{: id="2-主要方法创新点-48"}
+
+<div align="center">
+  <img src="/images/vln/SimpleVLN-motivation.webp" width="100%" alt="SimpleVLN motivation and success-rate comparison on R2R-CE and RxR-CE" loading="lazy" decoding="async" style="aspect-ratio:1118/557" />
+<figcaption>Motivation and performance of SimpleVLN: (a) task-specific designs add specialized perception, spatial reasoning, graphs, or planners around an MLLM, whereas SimpleVLN uses only a native MLLM and improves formulation, data, and optimization; (b) it leads published methods in success rate on both R2R-CE and RxR-CE.</figcaption>
+</div>
+
+SimpleVLN has three parts. **Decision-level navigation formulation** organizes each decision into a bounded input and lets the model output several primitive actions at once. **Navigation data construction** prepares data for each training stage: expert demonstrations, DAgger corrective trajectories, and synthesized RL tasks. **Progressive optimization** follows IL → DAgger → RL, shifting the learning signal from imitating actions to completing tasks. The model itself is an off-the-shelf Qwen3-VL or Qwen3.5, with no added modules.
+
+The action space is the standard discrete VLN-CE set: move forward 0.25 m, turn left 15°, turn right 15°, and stop. An episode succeeds when the agent stops within 3 m of the goal.
+
+<div align="center">
+  <img src="/images/vln/SimpleVLN-overview.webp" width="100%" alt="SimpleVLN overview: sampled history, current frame, and instruction feed an MLLM that predicts an action chunk" loading="lazy" decoding="async" style="aspect-ratio:1118/692" />
+<figcaption>SimpleVLN overview: at each decision, sampled history frames, the current frame, and the instruction are fed to the MLLM, which directly outputs an action chunk that the environment executes in order.</figcaption>
+</div>
+
+#### 2.1 Decision-level navigation formulation
+{: id="21-决策级导航建模"}
+
+**① Single-turn decision input**
+
+Intuition: instead of appending each new image and action to an ever-longer dialogue, **rebuild a fresh, fixed-length input** at every decision.
+
+- **Input**: instruction $I$, current observation $o_t$, and sampled visual history $H_t$; earlier dialogue turns and past actions are **not** included
+- **Processing**: a standard forward pass of the native MLLM
+- **Output**: the action chunk for this decision
+- **Motivation**: a multi-turn dialogue grows without bound over an episode, and current MLLMs cannot use such long contexts effectively. In the ablation, the multi-turn format reaches only 35.7 SR, compared with 53.6 for the single-turn format.
+
+| Dimension | Multi-turn dialogue | Single-turn decision (SimpleVLN) |
+|---|---|---|
+| Input at each step | Latest observation and action appended to all earlier turns | Instruction + current frame + fixed-budget history, rebuilt from scratch |
+| Context length | Grows linearly with the number of steps | At most $N+M+1$ frames, independent of episode length |
+| Past actions | Kept explicitly | Not kept; only visual history |
+| R2R-CE SR | 35.7 | 53.6 |
+
+**② Global–local history selection**
+
+Intuition: the most recent frames preserve continuity ("what was I just doing"), while a sparse sample of earlier frames preserves route context ("where have I been"). Each timescale covers what the other misses, and the total number of frames is capped.
+
+Let $n_t$ be the number of primitive actions executed before decision $t$. Local history $L_t$ keeps up to $N$ frames immediately before the current frame, and global history $G_t$ **uniformly samples** up to $M$ frames from the earlier observations, concatenated in chronological order:
+
+$$
+m_t = \min\{M, \max(0, n_t - N)\}, \qquad H_t = G_t \,\Vert\, L_t
+$$
+
+The current frame $o_t$ is provided separately, so each decision uses at most $N+M+1$ images. The defaults are $M=8$ and $N=1$.
+
+> **Example**: before a decision, the agent has taken $n_t = 20$ primitive steps, producing observations $x_0 \sim x_{19}$, and the current frame is $o_t = x_{20}$.
+> Local history takes $N=1$ frame: $x_{19}$. Global history uniformly samples $m_t = \min(8, 19) = 8$ frames from the remaining $x_0 \sim x_{18}$ (19 frames), for example $x_0, x_2, x_5, x_7, x_{10}, x_{12}, x_{15}, x_{17}$.
+> The input is therefore 8 + 1 + 1 = **10 images**. At step 200 it is still 10 images; only the spacing between the eight global frames grows. A multi-turn dialogue would by then contain 200 images.
+> If the agent has taken only 5 steps, the global pool contains just $x_0 \sim x_3$ (4 frames), and all of them are kept.
+
+**③ Action chunking**
+
+Following NaVIDA, one model call outputs an ordered sequence of primitive actions $a_t = (u_{n_t}, \dots, u_{n_t+K_t-1})$. The environment executes them in order, storing the observation after each step for later history construction. The model is queried again only after the whole chunk finishes, unless STOP or the step limit ends the episode. Chunking is not only a way to reduce inference calls: in the ablation, SR rises from 45.6 to 53.6.
+
+#### 2.2 Navigation data construction
+{: id="22-导航数据构建"}
+
+<div align="center">
+  <img src="/images/vln/SimpleVLN-training-pipeline.webp" width="100%" alt="SimpleVLN three-stage training: imitation learning, DAgger aggregation, and RL on synthesized tasks" loading="lazy" decoding="async" style="aspect-ratio:1118/811" />
+<figcaption>SimpleVLN training data and three-stage optimization: Stage 1 imitates expert demonstrations; Stage 2 collects and aggregates corrective trajectories through DAgger; Stage 3 samples start–goal pairs in training scenes, has an MLLM write instructions to synthesize new tasks, and then applies reinforcement learning with environment interaction and a success reward.</figcaption>
+</div>
+
+- **Expert demonstration coverage**: trajectories from R2R, RxR, and ScaleVLN are pooled, and each trajectory is split into decision-level samples $(I, s_t) \to a^\star_t$ that match the inference interface exactly.
+- **Policy-dependent data via DAgger**: expert data alone suffer from distribution shift, because the states the model reaches after drifting never appear in expert data. The authors use a **deviation-based** DAgger: the current policy trajectory is compared with the GT trajectory; when the deviation is large, the expert trajectory is selected, otherwise the policy's own trajectory is kept. Selected trajectories are split into samples and aggregated with the demonstrations.
+- **RL task synthesis**: SFT has already used every annotated episode, so reusing them in RL would add no new interaction experience. Instead, start–goal pairs in different rooms are sampled from the navigation graphs of training scenes (excluding val-unseen), with goals tied to semantic objects. An MLLM writes instructions from the reference path's turns, rooms, salient objects, and first-person views. The reference path is used only to construct the task, not as action supervision.
+
+#### 2.3 Progressive optimization
+{: id="23-渐进式优化"}
+
+```mermaid
+graph LR
+    A["Stage 1: imitation learning<br/>expert demos R2R + RxR"] --> B["Stage 2: DAgger fine-tuning<br/>demos + corrections + ScaleVLN"]
+    B --> C["Stage 3: reinforcement learning<br/>synthesized tasks + binary success reward"]
+    A -. "learns: follow the expert" .-> D["Supervision: action level"]
+    B -. "learns: recover after drifting" .-> D
+    C -. "learns: just reach the goal" .-> E["Supervision: task level"]
+```
+
+**④ Training objectives**
+
+- **IL and DAgger stages**: negative log-likelihood over the whole target action chunk. Both stages use the same objective; the DAgger stage simply adds policy-dependent samples to the dataset $\mathcal D$:
+
+$$
+\mathcal{L}_{SFT} = -\mathbb{E}_{(I, s_t, a^\star_t) \sim \mathcal D} \log \pi_\theta(a^\star_t \mid I, s_t)
+$$
+
+- **RL stage**: the policy predicts action chunks step by step on the synthesized tasks, producing trajectories $\tau = \{(s_t, a_t)\}$. The reward is a binary task-success indicator $R(\tau) = \mathbb{I}(\text{success}) \in \{0, 1\}$, and the objective maximizes the expected reward $$J_{RL}(\theta) = \mathbb{E}_{\tau \sim p_\theta}[R(\tau)]$$. Unlike imitation learning, **any trajectory that reaches the goal is rewarded**, with no requirement to match a reference action sequence. The main results use DAPO for 40 steps (batch size 256, 16 rollouts per prompt, KL coefficient 0).
+
+---
+
+### 3. Key Results and Findings
+{: id="3-核心结果发现-49"}
+
+- **Main results**: using only monocular RGB and the native architecture, the Qwen3.5-9B version reaches **SR 76.7 / SPL 72.6** on R2R-CE val-unseen and **SR 80.1 / nDTW 79.8** on RxR-CE. The Qwen3.5-4B version reaches R2R-CE SR 76.3 and SPL 72.3, also above panoramic Qwen-RobotNav-8B (72.1) and Efficient-VLN-8B (73.2).
+- **Generality across backbones**: the method works on Qwen2.5-VL (3B/7B), Qwen3-VL (4B/8B), and Qwen3.5 (4B/9B). RL consistently helps every backbone; for example, Qwen3-VL-4B rises from 65.4 to 73.8 SR on R2R-CE.
+- **Inference speed**: one action-chunk decision takes 293 ms on an A100, comparable to StreamVLN (300 ms) and faster than JanusVLN (906 ms), DualVLN (683 ms), and FutureNav (1141 ms).
+
+<div align="center">
+  <img src="/images/vln/SimpleVLN-memory-budget.webp" width="100%" alt="SimpleVLN memory-budget ablation over global and local history frames" loading="lazy" decoding="async" style="aspect-ratio:1118/425" />
+<figcaption>Memory-budget ablation: left, with N=1 fixed, SR peaks at M=8 global frames and then declines; right, with M=8 fixed, N=1 local frame is best.</figcaption>
+</div>
+
+- **Formulation ablations** (Qwen3-VL-4B trained on R2R only): action chunking adds 8.0 SR; the single-turn input adds 17.9 SR over multi-turn; uniformly sampling eight global frames (53.6) beats keeping every frame (51.9) and keeping only chunk-boundary frames (46.3).
+- **Data ablations**: R2R → +RxR → +ScaleVLN → +DAgger gives R2R-CE SR of 53.6 → 56.7 → 57.9 → 65.4. **DAgger is the largest single gain** (+7.5 / +8.1). Each of the three scene pools for RL task synthesis helps on its own, and their mixture is best (70.1 / 71.0).
+- **Reward and algorithm**: the binary success reward beats the SPL reward (R2R-CE 70.1 vs 68.9; RxR-CE 71.0 vs 67.7), and DAPO beats GRPO (71.5 vs 70.1).
+
+<div align="center">
+  <img src="/images/vln/SimpleVLN-rl-dynamics.webp" width="100%" alt="SimpleVLN RL training dynamics: reward, success rate, and decisions per trajectory" loading="lazy" decoding="async" style="aspect-ratio:1118/376" />
+<figcaption>RL training dynamics: rollout reward and evaluation success rate rise overall, while the average number of decisions per trajectory falls; RL improves accuracy and decision efficiency together.</figcaption>
+</div>
+
+- **Real-robot deployment**: running onboard a Daystar quadruped with a Jetson Thor and only the RGB stream of a RealSense D450, the model completes multi-step instructions that involve moving forward, turning, entering rooms, and stopping at landmarks.
+
+---
+
+### 4. Limitations
+{: id="4-局限性-49"}
+
+The real-robot experiments are qualitative only, without success rates or other quantitative evaluation. The authors also acknowledge that the DAPO gain cannot be attributed entirely to the algorithm, since the main results and the ablations use different batch sizes. The method also relies on a discrete action space and large-scale interaction in the Habitat simulator; the cost of transferring it to continuous control or settings without a simulator is not discussed.
+
+---
+
 # References
 {: id="参考资料"}
 
@@ -9040,6 +9194,7 @@ The following table organizes papers with publication information tagged by conf
 55. **AdaGeoVLN** (2026). Make geometric trade-offs along the two axes of "representation depth" and "navigation time". arXiv: [2609.18789](https://arxiv.org/abs/2609.18789)
 56. **SeekVLN** (2026). Seek Before You Move: Evidence Seeking for Progress Grounding in Vision-Language Navigation. arXiv: [2609.37353v1](https://arxiv.org/abs/2609.37353v1)
 58. **RSI-Nav** (2026). Generate instructions, execute them, filter the data, and update immediately so that synthetic supervision evolves with the policy. arXiv: [2610.15782](https://arxiv.org/abs/2610.15782)
+59. **SimpleVLN** (2026). Frontier VLN from a native MLLM, without architectural changes. arXiv: [2610.23203](https://arxiv.org/abs/2610.23203)
 {: .paper-references}
 
 
@@ -9103,6 +9258,7 @@ The following table organizes papers with publication information tagged by conf
     { m: 'AdaGeoVLN',             t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Inference optimization'] },
     { m: 'SeekVLN', t: ['CoT', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment'] },
     { m: 'RSI-Nav', t: ['End-to-end', 'Data augmentation', 'Continuous environments', 'Real-robot deployment'] },
+    { m: 'SimpleVLN', t: ['End-to-end', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment'] },
   ];
 
 
