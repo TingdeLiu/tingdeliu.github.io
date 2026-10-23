@@ -5,10 +5,10 @@ translation_id: embodied-agent-harness-survey
 permalink: /en/Embodied-Agent-Harness-Survey/
 source_path: _posts/research/2026-09-07-Embodied-Agent-Harness-Survey.md
 source_url: /Embodied-Agent-Harness-Survey/
-source_revision_date: 2026-10-02
-translation_updated: 2026-10-04
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "Embodied Agents: Harness and Runtime Architecture"
-date: 2026-09-29
+date: 2026-10-24
 tags: [Embodied-AI, Agent, Harness-Engineering, System-Architecture, Distributed-Systems, ZeroMQ, ROS2, Python]
 categories: research
 comments: false
@@ -37,19 +37,23 @@ This article unfolds along the lines of "upper-layer Harness → lower-layer ope
 ## 1.1 Three issues that need to be dealt with separately
 {: id="11-三个需要分别处理的问题"}
 
-**The time scales of different modules are different.** Semantic planning may take hundreds of milliseconds to several seconds, and local control and servo have their own update cycles. If you wait for model inference synchronously in the control callback, the control link will be affected by the inference delay. The problem lies in the blocking relationship, resource contention and scheduling methods. It cannot be simply reduced to "Python single process will inevitably lose control".
+Connect a model that understands "go to the kitchen and fetch a cup" to a robot, and three problems of different kinds appear quickly. They often occur together, but each needs its own mechanism.
 
-**Different faults have different impact ranges.** A locally extended segmentation fault may terminate the process; insufficient CUDA memory usually manifests as a runtime exception first, which does not mean that the operating system will necessarily kill the main process of the entire machine. Splitting the process can limit the propagation of some faults, but sharing GPU, memory, power and communication links can still create common points of failure.
+**Different time scales.** One semantic planning step may take hundreds of milliseconds to several seconds, while local control and servo loops update on fixed periods. If a control callback waits synchronously for model inference, the inference latency flows straight into the control path. What needs handling is blocking, resource contention, and scheduling; switching languages or adding processes does not solve it on its own.
 
-**execution feedback does not equal task success.** "Clamp closing completed" only indicates that the control action is completed, but does not prove that the target object has been stably grasped. Software operations may also have irreversible side effects; the more prominent problems of embodied scenes are incomplete observations, uncertain contact status, and difficulty in restoring the original state after the action occurs.
+**Different failure scopes.** A segmentation fault in a native extension can terminate the whole process, whereas running out of CUDA memory usually surfaces first as a runtime exception. Splitting processes contains some failures, but the GPU, memory, power supply, and communication links can still be failure points shared by several modules.
 
-Therefore, the system needs to answer at least three sets of questions:
+**A finished action is not a successful task.** "Gripper closed" only says that the control action ended; it does not prove that the cup is held securely. Compared with purely software agents, the difficulty in embodied settings is that observations are incomplete, contact states are uncertain, and actions usually cannot be undone.
 
-|question|Mainly responsible party|Evidence that needs to be retained|
-| :--- | :--- | :--- |
-|What should be done now, and is the basis still valid?|Planners and Harness|Mission goal, world state version, target object reference|
-|Has the command been received, is it being executed or has it been stopped?|Skill execution end|Instruction ID, life cycle status, serial number, controller feedback|
-|Does the expected physical effect occur and can the next step be continued?|evaluator and orchestrator|postconditions, observational evidence, failure reasons and recovery budget|
+For a concrete task, the three problems map to three kinds of judgment, each owned by a different module and each requiring different evidence:
+
+| Question to answer | In the cup task | Main owner | Evidence to keep |
+| :--- | :--- | :--- | :--- |
+| What should happen now, and is the basis still valid? | Is the cup still where it was last seen on the counter? | Planner and harness | Task goal, world-state version, target object reference |
+| Was the command received, and is it running or stopped? | Was the navigation command accepted, and is the base moving? | Skill executor | Command ID, lifecycle state, sequence number, controller feedback |
+| Did the expected effect happen, and can the next step proceed? | After the gripper closes, is the cup really in it? | Evaluator and orchestrator | Postconditions, observation evidence, failure reasons, recovery budget |
+
+Section 2 mainly answers the first and third rows, Section 3 covers the communication and control behind the second, and Section 4 ties all three into one reconcilable command lifecycle.
 
 ## 1.2 Two-layer perspective and independent local protection
 {: id="12-双层视角与独立的本地保护"}
@@ -57,27 +61,30 @@ Therefore, the system needs to answer at least three sets of questions:
 This article summarizes the system into two collaborative parts: **upper Harness management task semantics and execution closed-loop; lower operating system management resources, communication and body control.** This is the division of responsibilities. It does not require deployment into two processes, nor does it require the introduction of all middleware at the same time.
 
 ```mermaid
-flowchart TB
-    User["User task: Go to the kitchen to get a cup"] --> Planner
-    subgraph Harness["Upper level:Agent Harness"]
-        Memory["Spatial memory and task status"] --> Planner["Planner: Generate skill proposals"]
-        Planner --> Gate["Contract verification and resource arbitration"]
-        Eval["Outcome assessment and recovery decisions"] --> Memory
-    end
-    subgraph Runtime["Lower layer: robot operating system"]
-        Skills["Navigation / grasping skill execution end"] --> Control["local planning and controller"]
-        Control --> Body["Drive and body"]
-        Sensors["Sensors and state estimation"] --> Control
-        Sensors --> Protection["Local protection and watchdogs"]
-        Protection -->|"speed limit / controlled stop"| Control
-    end
-    Gate -->|"bring ID and validity period instructions"| Skills
-    Skills -->|"receive acknowledgment / Progress / final state"| Eval
-    Sensors -->|"Evidence of physical results"| Eval
-    Sensors -->|"timestamped observations"| Memory
+flowchart LR
+    User["User: fetch a cup<br/>from the kitchen"] --> Planner["Planner<br/>skill proposals"]
+    Planner --> Gate["Contract check<br/>resource arbitration"]
+    Gate -->|"① Command<br/>ID + validity"| Skills["Skill executor<br/>navigate / grasp"]
+    Skills --> Control["Local planner<br/>and controller"]
+    Control --> Body["Actuators<br/>and body"]
+    Sensors["Sensors<br/>state estimation"] --> Control
+    Sensors --> Protection["Local protection<br/>watchdog"]
+    Protection -->|"slow down / stop"| Control
+    Skills -.->|"② Ack / progress / terminal state"| Eval["Outcome evaluation<br/>recovery decision"]
+    Sensors -.->|"③ Observation evidence"| Eval
+    Eval -.-> Memory["Spatial memory<br/>task state"]
+    Memory -.-> Planner
+    classDef upper fill:#e8f1fb,stroke:#4a7fb5,color:#1f3b57
+    classDef lower fill:#eaf6ef,stroke:#4f9a6c,color:#1f4630
+    classDef guard fill:#fff4d6,stroke:#d19a1f,color:#5a4100
+    class User,Planner,Gate,Eval,Memory upper
+    class Skills,Control,Body,Sensors lower
+    class Protection guard
 ```
 
-In the above figure, local protection does not need to wait for the planner to make a decision first. The upper layer can request to stop, but the execution and confirmation of the protection action must be completed in the corresponding control link. Even with multiple processes and asynchronous communication, the hard real-time nature still depends on conditions such as operating system, scheduling, memory allocation, and worst-case execution time. [ROS 2 real-time system design instructions](https://design.ros2.org/articles/realtime_background.html)
+Blue nodes belong to the upper-layer harness, green nodes to the lower-layer runtime, and yellow marks local protection; solid lines carry commands and control, dashed lines carry feedback to the upper layer. A skill call goes down along ①, the executor reports its lifecycle through ②, and the evaluator combines that with the observations in ③ to judge the physical outcome, then writes the conclusion back to memory for the next planning round.
+
+Local protection does not need to wait for the planner to make a decision first. The upper layer can request to stop, but the execution and confirmation of the protection action must be completed in the corresponding control link. Even with multiple processes and asynchronous communication, the hard real-time nature still depends on conditions such as operating system, scheduling, memory allocation, and worst-case execution time. [ROS 2 real-time system design instructions](https://design.ros2.org/articles/realtime_background.html)
 
 # 2. Upper Harness: Turn intentions into verifiable skill calls
 {: id="2-上层-harness把意图变成可验证的技能调用"}
