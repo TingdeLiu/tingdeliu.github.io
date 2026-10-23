@@ -85,7 +85,7 @@ Ruff Check and format  ·  pytest test  ·  GitHub Actions run CI
 
 This combination suits **new projects whose dependencies are primarily Python packages**. Projects already tied closely to conda, or required to run inside a ROS 2 workspace, need the boundary discussions in §4.9 and §8.4. **Migrating to uv alone does not resolve those constraints.**
 
-All configuration blocks in this article that can be copied directly have applicable conditions noted at the beginning. Version baseline at time of writing: Python 3.14.7 (current stable version, 3.15 in RC Stage), uv 0.11.x.
+All configuration blocks in this article that can be copied directly have applicable conditions noted at the beginning. Version baseline at time of writing (September 2026): Python 3.14.7 and uv 0.11.x. Python 3.15 has since been released (2026-10-09), and uv has moved to the 0.13 series; for conclusions that depend on version behavior, check the versions you actually use.
 
 ---
 
@@ -1056,6 +1056,7 @@ Using both is a reasonable combination: pyright supplies immediate editor feedba
 
 ```yaml
 # .pre-commit-config.yaml
+# The revs are examples; update them with `uv run pre-commit autoupdate`
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
@@ -1075,7 +1076,7 @@ repos:
       - id: ruff-format
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.4.20
+    rev: 0.11.18                         # matches this guide's uv baseline
     hooks:
       - id: uv-lock                        # pyproject Automatically update lockfile if changed
 ```
@@ -1177,20 +1178,27 @@ The **solution is layered** so that the expensive parts can be skipped individua
 
 ```python
 # tests/gpu/conftest.py
+from pathlib import Path
 import pytest
 
+GPU_DIR = Path(__file__).parent
+
 def pytest_collection_modifyitems(config, items):
-    """Not available CUDA , all tests in this directory will be automatically skipped."""
+    """Mark tests in this directory as gpu, and skip them when CUDA is unavailable."""
+    # This hook receives every test in the session, so select this directory's tests by path
+    gpu_items = [item for item in items if GPU_DIR in item.path.parents]
+    for item in gpu_items:
+        item.add_marker(pytest.mark.gpu)   # lets -m "not gpu" exclude them
+
     try:
         import torch
         has_cuda = torch.cuda.is_available()
     except ImportError:
         has_cuda = False
-    if has_cuda:
-        return
-    skip = pytest.mark.skip(reason="need CUDA Equipment")
-    for item in items:
-        item.add_marker(skip)
+    if not has_cuda:
+        skip = pytest.mark.skip(reason="requires a CUDA device")
+        for item in gpu_items:
+            item.add_marker(skip)
 ```
 
 So three layers are formed:
@@ -1341,7 +1349,7 @@ import logging
 logger = logging.getLogger(__name__)      # The name is automatically "navkit.planner"
 
 def plan(waypoints):
-    logger.debug("Start planning, waypoint number %d", len(waypoints))   # Pay attention to use %s lazy formatting
+    logger.debug("Start planning, waypoint number %d", len(waypoints))   # placeholder arguments are formatted lazily
     if len(waypoints) < 2:
         logger.warning("waypoint insufficient 2 , unable to plan")
         return None

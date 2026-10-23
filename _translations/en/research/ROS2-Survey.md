@@ -100,23 +100,21 @@ flowchart TB
 ## 1.3 ROS 2 distribution evolution route and lifecycle
 {: id="13-ros-2-发行版演进路线与生命周期"}
 
-ROS 2 adopts a fixed release cycle in collaboration with Ubuntu: a long-term support version (**LTS**, support period 5 years) is released in May of even-numbered years, and a standard support version is released in May of odd-numbered years (support period 1 year).
+ROS 2 releases a new distribution every May, aligned with Ubuntu: even-numbered years bring a long-term support (LTS) release supported for five years, and odd-numbered years bring a regular release supported for about a year and a half.
 
-```mermaid
-timeline
-    title ROS 2 Key version evolution timeline
-    2020-05 : Foxy Fitzroy (Ubuntu 20.04 LTS / Already EOL)
-    2021-05 : Galactic Geochelone (Transitional version / Already EOL)
-    2022-05 : Humble Hawksbill (Ubuntu 22.04 LTS / The most widely stable version in the industry)
-    2023-05 : Iron Irwini (introduce EventsExecutor / Already EOL)
-    2024-05 : Jazzy Jalisco (Ubuntu 24.04 LTS / Latest mainstream LTS at the source baseline)
-    2025-05 : Kilted Kaiju (Python 3.12 / modernization C++20 Enhance)
-    2026-05 : L-Turtle (next generation core LTS Distro)
-```
+| Distribution | Released | Target platform | Type | Support status (as of 2026-10) |
+| :--- | :--- | :--- | :--- | :--- |
+| Foxy Fitzroy | 2020-05 | Ubuntu 20.04 | LTS | End of life |
+| Galactic Geochelone | 2021-05 | Ubuntu 20.04 | Regular | End of life |
+| Humble Hawksbill | 2022-05 | Ubuntu 22.04 | LTS | Supported until 2027-05; most widely deployed |
+| Iron Irwini | 2023-05 | Ubuntu 22.04 | Regular | End of life |
+| Jazzy Jalisco | 2024-05 | Ubuntu 24.04 | LTS | Supported until 2029-05 |
+| Kilted Kaiju | 2025-05 | Ubuntu 24.04 | Regular | Nearing end of life |
+| Lyrical Luth | 2026-05 | Ubuntu 26.04 | LTS | Supported until 2031-05; newest LTS |
 
 > **Selection Suggestions**:
 > - **Production/industrial grade deployment**: Preferred **ROS 2 Humble** (Ubuntu 22.04) or **ROS 2 Jazzy** (Ubuntu 24.04), the ecosystem package (Nav2, MoveIt 2, ros2_control) has the most complete support.
-> - **cutting-edge algorithm research and development**: Choose **Jazzy Jalisco** or **Rolling Ridley** to get the latest executor performance optimization and Type Adaptation hardware acceleration features.
+> - **cutting-edge algorithm research and development**: Choose the newest LTS or **Rolling Ridley** to get the latest executor performance optimization and Type Adaptation hardware acceleration features.
 
 ---
 
@@ -271,12 +269,15 @@ ros2 doctor --report | grep middleware
 ## 2.4 Multi-machine communication and Domain ID isolation
 {: id="24-多机通信与-domain-id-隔离"}
 
-In order to isolate nodes of different robots or teams under the same LAN switch, ROS 2 introduced `ROS_DOMAIN_ID` (range **0 ~ 101**, security recommended range **0 ~ 232**).
+In order to isolate nodes of different robots or teams under the same LAN switch, ROS 2 provides `ROS_DOMAIN_ID`. Valid values are 0 to 232; use **0 to 101**, which avoids conflicts with the operating system's ephemeral ports on every platform.
 
 ```bash
 # In ~/.bashrc Configure the robot's unique domain in ID
 export ROS_DOMAIN_ID=42
-export ROS_LOCALHOST_ONLY=0 # 0 Indicates that multi-machine communication on the LAN is allowed.1 Indicates only local loopback
+
+# Discovery range (Jazzy and later): SUBNET allows LAN communication, LOCALHOST restricts it to this machine
+export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
+# Humble and earlier use ROS_LOCALHOST_ONLY=0/1 for the same purpose (deprecated since Jazzy)
 ```
 
 > **DDS Port calculation underlying formula**:
@@ -352,8 +353,8 @@ flowchart LR
     end
 
     subgraph Channel["DDS topic bus"]
-        T1(["/scan\n(sensor_msgs/LaserScan)"])
-        T2(["/odom\n(nav_msgs/Odometry)"])
+        T1(["/scan<br/>(sensor_msgs/LaserScan)"])
+        T2(["/odom<br/>(nav_msgs/Odometry)"])
     end
 
     subgraph Subscribers["subscriber cluster"]
@@ -470,7 +471,8 @@ if __name__ == '__main__':
 ### Communication principles
 {: id="通信原理-1"}
 The service is a point-to-point client-server (Client/Server) communication model. The client sends `Request`, and the server returns `Response` after calculation.
-> **Key avoidance pit**: In ROS 2, **is strictly prohibited from calling synchronous blocking services (such as `client->call()`)** in the callback function of the default single-threaded Executor, which will cause thread deadlock (Deadlock)! It is recommended to always use the asynchronous client `call_async()`.
+
+> **Caution**: Do not wait synchronously for a service result inside a callback run by a single-threaded executor (for example, calling `get()` on the future returned by `async_send_request()`, or `client.call()` in Python). The wait occupies the only thread, so the response callback never runs and the node deadlocks. Call the service asynchronously and handle the result in the future's completion callback.
 
 ```mermaid
 sequenceDiagram
@@ -492,11 +494,13 @@ sequenceDiagram
 
 ### Communication principles
 {: id="通信原理-2"}
-Actions are designed for long-term asynchronous tasks (such as chassis navigation to move from point A to point B, robotic arm performing a grab). An Action is composed of 3 underlying communication channels:
-1. **Goal channel (Service)**: The client sends a goal request, and the server decides to accept (Accept) or reject (Reject).
-2. **Feedback channel (Topic)**: During the execution of the task, the server continues to push progress data such as percentage and current pose to the client.
-3. **Result channel (Service)**: When the task ends, the final execution result (success/failure/preempted) is returned.
-4. **Cancellation channel (Service)**: The client can initiate a cancellation request at any time, and the server can safely interrupt the current action.
+Actions are designed for long-term asynchronous tasks (such as chassis navigation to move from point A to point B, robotic arm performing a grab). Underneath, an Action consists of three services and two topics:
+
+1. **Goal (service)**: The client sends a goal, and the server accepts or rejects it.
+2. **Cancel (service)**: The client can request cancellation at any time, and the server safely interrupts the task.
+3. **Result (service)**: Returns the final outcome (succeeded, aborted, or canceled) when the task ends.
+4. **Feedback (topic)**: Streams progress during execution, such as the current pose or remaining distance.
+5. **Status (topic)**: Broadcasts the current state of each goal.
 
 ```mermaid
 stateDiagram-v2
@@ -718,9 +722,8 @@ flowchart LR
 > **Classic deadlock scenario and solution**:
 > If a subscriber callback is synchronously waiting for another service response, and both belong to the default `MutuallyExclusiveCallbackGroup` and run under a single-threaded Executor, the subscriber occupies the thread to wait for the service, and the service can never be executed because it cannot obtain the thread, forming a **permanent deadlock**.
 > **solution**:
-> 1. Assign the service and subscriber to different `CallbackGroup`.
-> 2. Mount node under `MultiThreadedExecutor`.
-> 3. Use non-blocking `call_async()` instead.
+> 1. Put the waiting callback and the response callback in different callback groups, and run the node under `MultiThreadedExecutor`.
+> 2. Do not block inside a callback; call the service asynchronously and handle the result in the future's completion callback.
 
 ---
 
@@ -754,11 +757,13 @@ flowchart TB
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 
+using namespace std::chrono_literals;
+
 class ZeroCopyPointCloudPublisher : public rclcpp::Node {
 public:
+    // Load the component with intra-process communication enabled: NodeOptions().use_intra_process_comms(true)
     explicit ZeroCopyPointCloudPublisher(const rclcpp::NodeOptions & options)
     : Node("zero_copy_publisher", options) {
-        // Create publisher, must be passed in NodeOptions opened in IPC support
         pub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/points", 10);
         timer_ = this->create_wall_timer(33ms, std::bind(&ZeroCopyPointCloudPublisher::publish_cloud, this));
     }
@@ -789,7 +794,7 @@ private:
 # 6. Controlled startup: lifecycle nodes
 {: id="六受控确定性生命周期节点lifecycle-nodes"}
 
-In industrial-grade robot systems, random startup of nodes may cause catastrophic accidents (such as the navigation algorithm issuing speed instructions before the lidar or chassis drive has completed parameter verification and calibration). ROS 2 introduces the ISO-standard **Lifecycle Node (lifecycle managed node)**.
+In industrial-grade robot systems, random startup of nodes may cause catastrophic accidents (such as the navigation algorithm issuing speed instructions before the lidar or chassis drive has completed parameter verification and calibration). ROS 2 therefore provides the **Lifecycle Node (managed lifecycle node)**: a node starts up through an explicit state machine, and an external manager decides when to activate it.
 
 ## 6.1 Lifecycle finite state machine
 {: id="61-生命周期有限状态机"}
@@ -1150,12 +1155,16 @@ flowchart TB
 # 1. Completely built foundation
 colcon build --symlink-install
 
-# 2. Core acceleration parameters (strongly recommended for daily development use):
+# 2. Common options for daily development:
+#   --symlink-install   install via symlinks, so Python and config edits need no rebuild
+#   --packages-select   build only the named packages
+#   --cmake-args        passed to CMake; here, a Release build
+#   --parallel-workers  limit how many packages build at once, to keep the machine responsive
 colcon build \
-  --symlink-install \                    # Create symbolic link, modify Python Code and configuration files do not need to be re- build
-  --packages-select my_robot_control \   # Only compile specified packages, greatly saving multi-core compilation time
-  --cmake-args -DCMAKE_BUILD_TYPE=Release \ # turn on Release Optimize (-O3)
-  --parallel-workers 8                  # Limit the number of concurrent compilation threads to prevent 100% Full load freezes the host machine
+  --symlink-install \
+  --packages-select my_robot_control \
+  --parallel-workers 8 \
+  --cmake-args -DCMAKE_BUILD_TYPE=Release
 
 # 3. Must be loaded after compilation overlay environment
 source install/setup.bash
