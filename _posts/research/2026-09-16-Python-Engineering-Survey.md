@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: python-engineering-survey
 title: "Python 工程实践指南"
-date: 2026-10-04
+date: 2026-10-24
 tags: [Python, uv, pyproject, Packaging, Ruff, pytest, PyTorch, ROS2, Engineering, Reproducibility]
 categories: research
 comments: true
@@ -35,9 +35,9 @@ Python 工程的目标，是让研究代码成为别人能够安装、运行和�
 | 加进 CI | 本地过、CI 挂，或者反过来 | 可复现性边界 |
 | 半年后自己回来改 | 不敢升级任何一个包 | 缺锁文件与测试 |
 
-这些症状看起来互不相干，实际上只对应一件事：**代码从来没有被当作「一个可安装的项目」来组织过**，它一直是「一堆恰好能跑的文件」。
+这些症状看起来互不相干，实际上只对应一件事：代码从来没有被当作「一个可安装的项目」来组织过，它一直是「一堆恰好能跑的文件」。
 
-本文的目标很具体：**把研究脚本整理成别人能安装、能运行、能维护的 Python 项目**。不是 Python 语言教程，也不是工具百科。凡是与这个目标关系不大的话题（Web 框架、异步编程范式、元编程技巧），本文一概不碰。
+本文的目标很具体：把研究脚本整理成别人能安装、能运行、能维护的 Python 项目。不是 Python 语言教程，也不是工具百科。凡是与这个目标关系不大的话题（Web 框架、异步编程范式、元编程技巧），本文一概不碰。
 
 ## 1.2 贯穿全文的示例项目
 
@@ -59,11 +59,11 @@ uv sync                 # 创建环境 + 按锁文件精确安装
 uv run pytest           # 跑测试
 ```
 
-注意这里**没有** `conda create`、没有 `pip install -r requirements.txt`、没有 `export PYTHONPATH=`、也没有「请先手动安装 torch」。每减少一条这样的口头约定，复现失败率就下降一截。
+注意这里没有 `conda create`、没有 `pip install -r requirements.txt`、没有 `export PYTHONPATH=`、也没有「请先手动安装 torch」。每减少一条这样的口头约定，复现失败率就下降一截。
 
 ## 1.3 阅读方式
 
-本文的组织原则是：**正文只给一条默认路径，替代方案放在紧邻的短说明里**。
+本文的组织原则是：正文只给一条默认路径，替代方案放在紧邻的短说明里。
 
 默认路径的技术选型是：
 
@@ -72,15 +72,13 @@ Python 3.12+  ·  uv 管环境与依赖  ·  src 布局  ·  hatchling 构建
 Ruff 检查与格式化  ·  pytest 测试  ·  GitHub Actions 跑 CI
 ```
 
-这套组合适用于**新建的、以 Python 依赖为主的项目**。如果你的项目已经深度绑定 conda，或者必须活在 ROS 2 的工作空间里，第四章 4.9 节和第八章 8.4 节专门讨论这两种情况 —— **它们不是「迁移到 uv 就完事了」的问题**。
+这套组合适用于新建的、以 Python 依赖为主的项目。如果你的项目已经深度绑定 conda，或者必须活在 ROS 2 的工作空间里，第四章 4.9 节和第八章 8.4 节专门讨论这两种情况 —— 它们不是「迁移到 uv 就完事了」的问题。
 
-本文所有可直接抄的配置块，都在开头注明适用条件。写作时的版本基准：Python 3.14.7（当前稳定版，3.15 处于 RC 阶段）、uv 0.11.x。
-
----
+本文所有可直接抄的配置块，都在开头注明适用条件。写作时（2026 年 9 月）的版本基准：Python 3.14.7、uv 0.11.x。此后 Python 3.15 已于 2026-10-09 正式发布，uv 也已进入 0.13 系列；文中依赖具体版本行为的结论，请以你实际使用的版本为准。
 
 # 二、环境与解释器边界：当前到底跑的是哪个 Python
 
-几乎所有「装了包却导不进来」的问题，最终都归结为同一个答案：**你装包的那个 Python，和你运行代码的那个 Python，不是同一个**。所以这一章只回答一个问题 —— **当前究竟运行了哪个解释器，它会去哪里找包**。
+几乎所有「装了包却导不进来」的问题，最终都归结为同一个答案：**你装包的那个 Python，和你运行代码的那个 Python，不是同一个**。所以这一章只回答一个问题 —— 当前究竟运行了哪个解释器，它会去哪里找包。
 
 ## 2.1 一次导入到底发生了什么
 
@@ -109,11 +107,11 @@ flowchart TB
 
 | 启动方式 | 第一项是什么 | 实际后果 |
 | --- | --- | --- |
-| `python script.py` | **脚本所在目录**（不是当前目录） | 脚本旁边的同名 `.py` 会遮蔽已安装的包 |
-| `python -m pkg.mod` | **当前工作目录** | 在项目根目录下运行时，会优先找到源码树 |
-| `python -c "..."` / 交互式 | **当前工作目录** | 同上 |
+| `python script.py` | 脚本所在目录（不是当前目录） | 脚本旁边的同名 `.py` 会遮蔽已安装的包 |
+| `python -m pkg.mod` | 当前工作目录 | 在项目根目录下运行时，会优先找到源码树 |
+| `python -c "..."` / 交互式 | 当前工作目录 | 同上 |
 | `pytest` | 取决于 rootdir 与 importmode 配置，见 §5.4 | 最容易「测到了源码而不是安装产物」 |
-| Jupyter 内核 | **Notebook 文件所在目录** | 与你在终端里的当前目录往往不是一回事 |
+| Jupyter 内核 | Notebook 文件所在目录 | 与你在终端里的当前目录往往不是一回事 |
 
 拼完第一项之后，剩余顺序大致是：
 
@@ -133,7 +131,7 @@ flowchart TB
 python -c "import sys, navkit; print(sys.executable); print(navkit.__file__)"
 ```
 
-第一行告诉你**跑的是哪个解释器**，第二行告诉你**导入的是哪份代码**。大部分环境问题在这两行输出面前会直接暴露。
+第一行告诉你跑的是哪个解释器，第二行告诉你导入的是哪份代码。大部分环境问题在这两行输出面前会直接暴露。
 
 ## 2.3 venv 的真相：它只做了三件事
 
@@ -152,10 +150,10 @@ flowchart LR
 ```
 
 1. 放一个 `pyvenv.cfg`，里面的 `home` 指向真正的基础解释器；
-2. 提供一个 `python` 可执行文件，它启动时读到 `pyvenv.cfg`，把 `sys.prefix` 指向 venv 自己，而 `sys.base_prefix` 仍指向基础解释器（**标准库是共享的，没有被复制**）；
+2. 提供一个 `python` 可执行文件，它启动时读到 `pyvenv.cfg`，把 `sys.prefix` 指向 venv 自己，而 `sys.base_prefix` 仍指向基础解释器（标准库是共享的，没有被复制）；
 3. 于是 `site-packages` 解析到 venv 内部，第三方包被隔离。
 
-由此得到一个很有用的推论：**`activate` 不是必需的**。激活脚本干的事情基本只有「把 venv 的 bin 目录塞到 `PATH` 最前面、设置 `VIRTUAL_ENV`」。直接调用绝对路径完全等价，而且在脚本、cron、systemd、CI 里更可靠：
+由此得到一个很有用的推论：`activate` 不是必需的。激活脚本干的事情基本只有「把 venv 的 bin 目录塞到 `PATH` 最前面、设置 `VIRTUAL_ENV`」。直接调用绝对路径完全等价，而且在脚本、cron、systemd、CI 里更可靠：
 
 ```bash
 .venv/bin/python -m pytest          # Linux / macOS
@@ -168,7 +166,7 @@ flowchart LR
 
 ## 2.4 pyenv / venv / conda / uv 的职责分层
 
-这四者常被拿来「二选一」，但它们解决的并不是同一层问题。下图表达的是**主要职责**，不是能力互斥 —— 实际上它们有明显的重叠区：
+这四者常被拿来「二选一」，但它们解决的并不是同一层问题。下图表达的是主要职责，不是能力互斥 —— 实际上它们有明显的重叠区：
 
 ```mermaid
 flowchart TB
@@ -191,12 +189,12 @@ flowchart TB
 | `pip` | 装 Python 包 | 否 | 只能装已打包进 wheel 的那部分 |
 | `venv`（标准库） | 隔离 site-packages | 否 | 否 |
 | `pyenv` | 安装与切换解释器版本 | 是（本地编译） | 否 |
-| `conda` / `mamba` | 环境 + 包 + 部分系统库 | 是 | **能**（独立的二进制分发体系） |
+| `conda` / `mamba` | 环境 + 包 + 部分系统库 | 是 | 能（独立的二进制分发体系） |
 | `uv` | 环境 + 包 + 解释器 + 项目工作流 | 是（下载预编译版） | 只能装已打包进 wheel 的那部分 |
 
 **uv 之所以能当主线，是因为它同时覆盖了第 2、3、4 层**：`uv sync` 一条命令里包含了「确保有正确版本的解释器 → 建 venv → 按锁文件装依赖」。这就是 §1.2 里三条命令能成立的原因。
 
-但请注意上图最底下那块橙色：**第 1 层（系统库与驱动）谁都管不了**。GPU 驱动、glibc 版本、ROS 2 的系统安装，都在所有 Python 工具的能力边界之外。第八章会专门处理这条边界。
+但请注意上图最底下那块橙色：第 1 层（系统库与驱动）谁都管不了。GPU 驱动、glibc 版本、ROS 2 的系统安装，都在所有 Python 工具的能力边界之外。第八章会专门处理这条边界。
 
 ## 2.5 PEP 668：系统 Python 为什么拒绝你装包
 
@@ -207,7 +205,7 @@ error: externally-managed-environment
 × This environment is externally managed
 ```
 
-这不是 bug。[PEP 668](https://peps.python.org/pep-0668/) 允许发行版在解释器目录下放一个 `EXTERNALLY-MANAGED` 标记文件，声明「**这个 Python 的 site-packages 由系统包管理器（apt/dnf）负责，安装器请不要往里写**」。
+这不是 bug。[PEP 668](https://peps.python.org/pep-0668/) 允许发行版在解释器目录下放一个 `EXTERNALLY-MANAGED` 标记文件，声明「这个 Python 的 site-packages 由系统包管理器（apt/dnf）负责，安装器请不要往里写」。
 
 原因很实在：系统里有一批工具（包括 apt 自身的某些组件）依赖特定版本的 Python 库。你升级一个公共依赖，可能直接让系统工具崩掉。
 
@@ -220,13 +218,13 @@ error: externally-managed-environment
 | 临时跑一次某个工具 | `uvx ruff check .`（不留痕迹） |
 | 确实要动系统环境 | 用 `apt install python3-xxx`，而不是 pip |
 
-`--break-system-packages` 这个标志的名字就是它的文档：**它真的会破坏系统包**。不要把它写进任何文档或 Dockerfile 模板。
+`--break-system-packages` 这个标志的名字就是它的文档：它真的会破坏系统包。不要把它写进任何文档或 Dockerfile 模板。
 
 ## 2.6 Notebook、IDE 与终端：三处解释器不一致
 
-这是本领域最高频的困惑之一：**「我在终端明明装好了，Notebook 里就是导入不了。」**
+这是本领域最高频的困惑之一：「我在终端明明装好了，Notebook 里就是导入不了。」
 
-根因是 Jupyter 的**内核与前端是解耦的**。你在终端激活的环境，和 Notebook 实际连上的内核，完全是两回事：
+根因是 Jupyter 的内核与前端是解耦的。你在终端激活的环境，和 Notebook 实际连上的内核，完全是两回事：
 
 ```mermaid
 flowchart LR
@@ -255,19 +253,19 @@ uv run python -m ipykernel install --user --name navkit --display-name "Python (
 
 然后在 Notebook 右上角切换到 `Python (navkit)`。
 
-> **一个常见误区**：在 Notebook 里用 `!pip install pandas`。开头的 `!` 表示交给系统 shell 执行，用的是 `PATH` 里的 `pip`，**不一定是当前内核的解释器**。如果非要在 Notebook 里装，写成 `%pip install pandas` —— `%` 开头的魔法命令会绑定到当前内核。
+> **一个常见误区**：在 Notebook 里用 `!pip install pandas`。开头的 `!` 表示交给系统 shell 执行，用的是 `PATH` 里的 `pip`，不一定是当前内核的解释器。如果非要在 Notebook 里装，写成 `%pip install pandas` —— `%` 开头的魔法命令会绑定到当前内核。
 
 VS Code 的情况类似：它有独立的「Python 解释器」选择（`Ctrl+Shift+P` → *Python: Select Interpreter*），与你在集成终端里激活的环境是两套状态。调试器用前者，终端用后者。
 
 ## 2.7 Windows 与 WSL 的额外坑
 
-本机实测 —— 这台机器上 `where python` 指向：
+在不少 Windows 机器上，`where python` 返回的第一个结果是：
 
 ```
 C:\Users\<user>\AppData\Local\Microsoft\WindowsApps\python.exe
 ```
 
-这不是 Python，而是 **Microsoft Store 的应用执行别名**：一个存根程序，未安装时会把你弹到商店页面。它导致的现象是 `python --version` 没有任何输出，或者行为莫名其妙。
+这不是 Python，而是 Microsoft Store 的应用执行别名：一个存根程序，未安装时会把你弹到商店页面。它导致的现象是 `python --version` 没有任何输出，或者行为莫名其妙。
 
 处理方式：*设置 → 应用 → 高级应用设置 → 应用执行别名*，关掉 `python.exe` 与 `python3.exe` 两项。用 uv 管解释器的话，这个存根本来也不该出现在 `PATH` 前面。
 
@@ -277,30 +275,28 @@ C:\Users\<user>\AppData\Local\Microsoft\WindowsApps\python.exe
 | --- | --- | --- |
 | venv 可执行文件 | `.venv/bin/python` | `.venv\Scripts\python.exe` |
 | 路径分隔符 | `:` | `;` |
-| 文件名大小写 | 敏感 | **不敏感**，`import Navkit` 在 Windows 能过、Linux 挂 |
+| 文件名大小写 | 敏感 | 不敏感，`import Navkit` 在 Windows 能过、Linux 挂 |
 | 符号链接 | 默认可用 | 需开发者模式，否则 uv 退化为复制或硬链接 |
 
-> **跨越 WSL 边界是纯粹的陷阱。** 不要在 `/mnt/c/...` 下建 venv，也不要让 WSL 里的 Python 去用 Windows 侧的 `.venv`。二进制格式不同（ELF 与 PE），文件系统性能差一个数量级，行尾与权限语义也不一致。**在 WSL 里开发，就把仓库放在 WSL 的原生文件系统里**（如 `~/code/navkit`），用 VS Code 的 Remote-WSL 打开。
-
----
+> **跨越 WSL 边界是纯粹的陷阱。** 不要在 `/mnt/c/...` 下建 venv，也不要让 WSL 里的 Python 去用 Windows 侧的 `.venv`。二进制格式不同（ELF 与 PE），文件系统性能差一个数量级，行尾与权限语义也不一致。在 WSL 里开发，就把仓库放在 WSL 的原生文件系统里（如 `~/code/navkit`），用 VS Code 的 Remote-WSL 打开。
 
 # 三、项目结构与项目声明
 
-这一章把目录树和 `pyproject.toml` 对照着讲 —— 它们描述的是同一件事的两面：**磁盘上的文件怎么摆**，以及**安装器该把哪些文件搬进 site-packages**。
+这一章把目录树和 `pyproject.toml` 对照着讲 —— 它们描述的是同一件事的两面：磁盘上的文件怎么摆，以及安装器该把哪些文件搬进 site-packages。
 
 ## 3.1 先分类：应用、库、实验仓库
 
-在动手建目录之前，先回答一个问题：**这个仓库是三类中的哪一类？** 它决定了后面几乎所有决策。
+在动手建目录之前，先回答一个问题：这个仓库是三类中的哪一类？它决定了后面几乎所有决策。
 
 | 维度 | 应用 / 服务 | 可发布的库 | 实验仓库 |
 | --- | --- | --- | --- |
 | 交付物 | 一个能跑起来的运行环境 | 一个装到别人环境里的包 | 可复现的实验记录 |
-| 依赖版本策略 | **锁死**（越精确越好） | **放宽**（声明兼容区间） | 锁死 + 记录实验元数据 |
-| 锁文件要不要提交 | **要** | **要，但只用于开发/CI** | **要** |
+| 依赖版本策略 | 锁死（越精确越好） | 放宽（声明兼容区间） | 锁死 + 记录实验元数据 |
+| 锁文件要不要提交 | 要 | 要，但只用于开发/CI | 要 |
 | 版本号 | 常用日期或 Git 描述 | 严格语义化版本 | 往往不需要 |
 | 典型例子 | 机器人上位机、推理服务 | `navkit` 作为依赖被引用 | 某篇论文的代码仓库 |
 
-**最容易搞错的一条**：你的锁文件**约束不了下游**。
+**最容易搞错的一条**：你的锁文件约束不了下游。
 
 ```mermaid
 flowchart TB
@@ -312,13 +308,13 @@ flowchart TB
     style X fill:#ff6b6b,stroke:#c92a2a,color:#fff
 ```
 
-所以：**库的 `pyproject.toml` 里写兼容区间，应用的锁文件里写精确版本**。把库的依赖写成 `numpy==1.26.4` 会让所有下游用户陷入版本冲突地狱；反过来，应用不锁版本则等于放弃可复现性。
+所以：库的 `pyproject.toml` 里写兼容区间，应用的锁文件里写精确版本。把库的依赖写成 `numpy==1.26.4` 会让所有下游用户陷入版本冲突地狱；反过来，应用不锁版本则等于放弃可复现性。
 
 `navkit` 同时具备库和应用两面 —— 这很常见。做法是：`pyproject.toml` 里声明宽松区间（服务库的一面），同时提交 `uv.lock`（服务开发与 CI 的一面）。两者不冲突。
 
 ## 3.2 src 布局 vs 扁平布局
 
-两种布局的区别只有一处：**包目录在不在仓库根目录下**。
+两种布局的区别只有一处：包目录在不在仓库根目录下。
 
 ```
 扁平布局                          src 布局
@@ -330,31 +326,34 @@ navkit/                          navkit/
                                  └── pyproject.toml
 ```
 
-差别看着微不足道，后果却不小。回忆 §2.2：**在项目根目录下运行 `python -m ...` 或 `pytest` 时，当前目录会被塞进 `sys.path` 的第一项**。
+差别看着微不足道，后果却不小。回忆 §2.2：在项目根目录下运行 `python -m ...` 或 `pytest` 时，当前目录会被塞进 `sys.path` 的第一项。
 
-- **扁平布局**：`navkit/` 就在根目录下，于是 `import navkit` 命中的是**源码树**，而不是你刚安装的那份。
+- **扁平布局**：`navkit/` 就在根目录下，于是 `import navkit` 命中的是源码树，而不是你刚安装的那份。
 - **src 布局**：根目录下只有 `src/`，`import navkit` 在根目录里找不到东西，只能走 site-packages。
 
 ```mermaid
 flowchart TB
     subgraph FLAT["扁平布局：在根目录运行"]
+        direction LR
         F1["sys.path[0] = 仓库根目录"] --> F2["找到 ./navkit/"]
         F2 --> F3["导入源码树<br/>安装是否正确完全测不出来"]
     end
     subgraph SRC["src 布局：在根目录运行"]
+        direction LR
         S1["sys.path[0] = 仓库根目录"] --> S2["根目录下没有 navkit/"]
         S2 --> S3["继续找到 site-packages<br/>导入已安装的那份"]
     end
+    FLAT ~~~ SRC
     style F3 fill:#ffd8a8,stroke:#e8590c
     style S3 fill:#51cf66,stroke:#2f9e44,color:#fff
 ```
 
 **但要把话说准确**，这里有两个常见的过度宣传：
 
-1. **src 布局不保证你测的是最终 wheel 的内容**。开发时用的是可编辑安装（§3.6），它通过 `.pth` 把路径指回 `src/`，导入的仍然是源码。src 布局真正消除的是「**工作目录导致的意外导入**」，不是「源码与产物的差异」。
+1. **src 布局不保证你测的是最终 wheel 的内容**。开发时用的是可编辑安装（§3.6），它通过 `.pth` 把路径指回 `src/`，导入的仍然是源码。src 布局真正消除的是「工作目录导致的意外导入」，不是「源码与产物的差异」。
 2. **要验证 wheel 真的完整**，唯一可靠的办法是构建后在干净环境里装一遍，见 §7.3。比如漏配了包数据文件（`.yaml`、`.pyi`），只有这一步能抓出来。
 
-结论：**新项目一律用 src 布局**，成本为零，收益是排除一整类幽灵问题。
+结论：新项目一律用 src 布局，成本为零，收益是排除一整类幽灵问题。
 
 ## 3.3 navkit 的目录树
 
@@ -399,9 +398,9 @@ navkit/
 
 ## 3.4 pyproject.toml 逐区块对照
 
-`pyproject.toml` 常被称作「唯一事实源」，这个说法**不准确**，值得先纠正：它描述不了锁定结果（那是 `uv.lock`）、描述不了系统库与 GPU 驱动（§8.1）、也描述不了运行时配置。
+`pyproject.toml` 常被称作「唯一事实源」，这个说法不准确，值得先纠正：它描述不了锁定结果（那是 `uv.lock`）、描述不了系统库与 GPU 驱动（§8.1）、也描述不了运行时配置。
 
-更准确的定位是：**Python 项目声明与工具配置的中心入口**。下面是 `navkit` 的完整配置，逐块对照目录树来看：
+更准确的定位是：Python 项目声明与工具配置的中心入口。下面是 `navkit` 的完整配置，逐块对照目录树来看：
 
 ```toml
 # 适用：Python 3.12+ · uv 0.11.x · src 布局 · 纯 Python 包
@@ -461,7 +460,7 @@ flowchart LR
     style LOCAL fill:#ffe8cc,stroke:#e8590c
 ```
 
-相关 PEP 各管一段，**不要混为一谈**：
+相关 PEP 各管一段，不要混为一谈：
 
 | PEP | 它解决什么问题 | 落在配置的哪个位置 |
 | --- | --- | --- |
@@ -479,10 +478,10 @@ flowchart LR
 这是初学者最容易含糊的一组概念，其实分工很清晰：
 
 ```mermaid
-flowchart LR
+flowchart TB
     U["你敲的命令<br/>uv build / pip install ."] --> FE["构建前端<br/>uv / pip / build"]
-    FE -->|"1. 读 [build-system].requires<br/>2. 建隔离环境装上它们<br/>3. 按 PEP 517 调用后端"| BE["构建后端<br/>hatchling / setuptools ..."]
-    BE -->|"决定哪些文件进包<br/>生成元数据"| ART["navkit-0.1.0.whl<br/>navkit-0.1.0.tar.gz"]
+    FE -->|"读 [build-system].requires，建隔离环境<br/>按 PEP 517 调用后端"| BE["构建后端<br/>hatchling / setuptools ..."]
+    BE -->|"决定哪些文件进包，生成元数据"| ART["navkit-0.1.0.whl<br/>navkit-0.1.0.tar.gz"]
 ```
 
 - **前端**（uv、pip、build）：不知道怎么造包，只负责准备环境、调用后端。
@@ -492,13 +491,13 @@ flowchart LR
 
 | 后端 | 什么时候选它 |
 | --- | --- |
-| **hatchling** | **纯 Python 包的默认选择** —— 配置少、src 布局开箱即用 |
+| **hatchling** | 纯 Python 包的默认选择 —— 配置少、src 布局开箱即用 |
 | setuptools | 老项目迁移，或需要某些历史插件 |
 | flit-core | 极简单文件包 |
 | maturin | 包含 Rust 扩展（PyO3） |
 | scikit-build-core | 包含 C/C++/CUDA 扩展，走 CMake |
 
-`navkit` 是纯 Python 的，用 hatchling。**带原生扩展的项目是另一个量级的话题**（交叉编译、ABI 兼容、manylinux 镜像），本文只在 §7.2 讲清楚产物层面的兼容规则，完整的扩展构建流程不展开。
+`navkit` 是纯 Python 的，用 hatchling。带原生扩展的项目是另一个量级的话题（交叉编译、ABI 兼容、manylinux 镜像），本文只在 §7.2 讲清楚产物层面的兼容规则，完整的扩展构建流程不展开。
 
 ## 3.6 可编辑安装：原理与陷阱
 
@@ -518,7 +517,7 @@ flowchart LR
 
 1. **改了 `pyproject.toml` 必须重新安装。** 新增依赖、改入口点、改包含规则，都不会自动生效 —— 因为 `.pth` 只接了路径，元数据是安装时定格的。用 uv 的话 `uv sync` 会处理；手工管理时记得 `pip install -e .` 再跑一次。
 2. **新增的子包可能不被识别。** 不同后端的 `.pth` 策略不同：有的接的是整个 `src/` 目录（新子包自动可见），有的是精确映射（必须重装）。遇到「新建的模块导不进来」，先重装一次。
-3. **可编辑安装不能验证打包正确性。** 它绕过了「哪些文件该进 wheel」这个判断，所以 §3.3 里那个 `default_params.yaml` 就算漏配了 `[tool.hatch.build]`，可编辑安装下也照样能读到。**这正是 §7.3 那步干净环境验证不可省略的原因。**
+3. **可编辑安装不能验证打包正确性。** 它绕过了「哪些文件该进 wheel」这个判断，所以 §3.3 里那个 `default_params.yaml` 就算漏配了 `[tool.hatch.build]`，可编辑安装下也照样能读到。这正是 §7.3 那步干净环境验证不可省略的原因。
 
 ## 3.7 导入、工作目录与资源路径
 
@@ -567,13 +566,13 @@ navkit/planner.py  →  import navkit.geometry
 navkit/geometry.py →  import navkit.planner     ← ImportError
 ```
 
-顺序是这样的：Python 执行 `planner.py` 的顶层代码，走到 `import geometry`，转去执行 `geometry.py`，后者又回头 `import planner` —— 此时 `planner` 已在 `sys.modules` 里但**只执行了一半**，需要的名字还不存在。
+顺序是这样的：Python 执行 `planner.py` 的顶层代码，走到 `import geometry`，转去执行 `geometry.py`，后者又回头 `import planner` —— 此时 `planner` 已在 `sys.modules` 里但只执行了一半，需要的名字还不存在。
 
-三种解法，**优先级从高到低**：
+三种解法，优先级从高到低：
 
 | 方案 | 做法 | 适用场景 |
 | --- | --- | --- |
-| **1. 拆出公共层**（首选） | 把双方都要的东西抽到 `navkit/types.py`，两边都只依赖它 | 大多数情况 —— 循环导入通常是分层没做对的信号 |
+| 1. 拆出公共层（首选） | 把双方都要的东西抽到 `navkit/types.py`，两边都只依赖它 | 大多数情况 —— 循环导入通常是分层没做对的信号 |
 | **2. 只为类型标注而导入** | 用 `if TYPE_CHECKING:` 包住，运行时不执行 | 纯粹为了类型标注产生的循环 |
 | 3. 延迟到函数内导入 | 把 `import` 放进函数体 | 临时止血，会掩盖设计问题 |
 
@@ -590,9 +589,7 @@ def describe(planner: "Planner") -> str:   # 标注是字符串，运行时不�
     return f"planner with {len(planner.waypoints)} waypoints"
 ```
 
-> 方案 3 能救急，但它把「模块之间有环」这个事实藏了起来。**如果你发现自己反复使用方案 3，那说明真正该做的是方案 1。**
-
----
+> 方案 3 能救急，但它把「模块之间有环」这个事实藏了起来。如果你发现自己反复使用方案 3，那说明真正该做的是方案 1。
 
 # 四、依赖管理与 uv 工作流
 
@@ -602,18 +599,18 @@ def describe(planner: "Planner") -> str:   # 标注是字符串，运行时不�
 
 | 工具 | 解决哪一层 | 有没有跨平台锁文件 | 适合什么项目 | 迁移成本 |
 | --- | --- | --- | --- | --- |
-| `pip` + `requirements.txt` | 只管安装 | **没有**（手写清单不是锁文件） | 极简脚本 | — |
-| `pip-tools` | 给 pip 补上锁 | 有，但**按平台分别生成** | 已有 pip 流程、只想补锁 | 低 |
+| `pip` + `requirements.txt` | 只管安装 | 没有（手写清单不是锁文件） | 极简脚本 | — |
+| `pip-tools` | 给 pip 补上锁 | 有，但按平台分别生成 | 已有 pip 流程、只想补锁 | 低 |
 | `Poetry` | 环境 + 依赖 + 打包 | 有（`poetry.lock`） | 成熟项目，团队已熟悉 | 中 |
 | `PDM` | 同上，标准跟得紧 | 有 | 想用 PEP 标准特性 | 中 |
 | `conda` / `mamba` | 环境 + Python 与非 Python 二进制 | 有（`environment.yml` 需配合导出） | 依赖大量非 Python 二进制 | 高 |
-| **`uv`** | **解释器 + 环境 + 依赖 + 打包** | 有（`uv.lock`，**跨平台**） | **新建的 Python 为主项目** | 低到中 |
+| **`uv`** | 解释器 + 环境 + 依赖 + 打包 | 有（`uv.lock`，跨平台） | 新建的 Python 为主项目 | 低到中 |
 
-**「跨平台锁文件」这一列是关键差异。** `pip-tools` 生成的 `requirements.txt` 绑定生成它的那台机器的平台与 Python 版本 —— 在 Linux 上生成，Windows 同事就用不了。`uv.lock` 记录的是**解析结果的全集**，包含各平台各 Python 版本对应的分支，因此一份文件全队通用。
+**「跨平台锁文件」这一列是关键差异。** `pip-tools` 生成的 `requirements.txt` 绑定生成它的那台机器的平台与 Python 版本 —— 在 Linux 上生成，Windows 同事就用不了。`uv.lock` 记录的是解析结果的全集，包含各平台各 Python 版本对应的分支，因此一份文件全队通用。
 
 ## 4.2 uv 的两套工作流：不要混用
 
-这是 uv 最容易踩的坑，**一定要先分清**。uv 提供了两套语义完全不同的命令：
+这是 uv 最容易踩的坑，一定要先分清。uv 提供了两套语义完全不同的命令：
 
 ```mermaid
 flowchart TB
@@ -634,12 +631,12 @@ flowchart TB
 | | 项目工作流 | `uv pip` 工作流 |
 | --- | --- | --- |
 | 代表命令 | `uv add` / `uv sync` / `uv run` | `uv pip install` / `uv pip compile` |
-| 会不会改 `pyproject.toml` | **会** | **不会** |
-| 会不会更新 `uv.lock` | **会** | **不会** |
+| 会不会改 `pyproject.toml` | 会 | 不会 |
+| 会不会更新 `uv.lock` | 会 | 不会 |
 | 定位 | 管理「项目声明的依赖」 | 「更快的 pip」，管理临时装进环境的包 |
-| 什么时候用 | **默认用这套** | 迁移过渡期、CI 里装一次性工具、不想引入 lock 的老仓库 |
+| 什么时候用 | 默认用这套 | 迁移过渡期、CI 里装一次性工具、不想引入 lock 的老仓库 |
 
-**混用的后果**：你用 `uv pip install some-pkg` 装了个包，代码开始依赖它，但 `pyproject.toml` 里没有任何记录。同事 `uv sync` 之后代码跑不起来 —— 而且下一次你自己跑 `uv sync`，这个包**会被删掉**。原因见下一节。
+**混用的后果**：你用 `uv pip install some-pkg` 装了个包，代码开始依赖它，但 `pyproject.toml` 里没有任何记录。同事 `uv sync` 之后代码跑不起来 —— 而且下一次你自己跑 `uv sync`，这个包会被删掉。原因见下一节。
 
 > **规则：一个项目里只用一套。** 本文后续全部使用项目工作流。
 
@@ -649,14 +646,14 @@ flowchart TB
 
 > By default, an exact sync is performed: uv removes packages that are not declared as dependencies of the project. Use the `--inexact` flag to keep extraneous packages.
 
-翻译过来：**`uv sync` 默认是「精确同步」，会删掉环境里一切没在项目里声明过的包。**
+翻译过来：`uv sync` 默认是「精确同步」，会删掉环境里一切没在项目里声明过的包。
 
 这是个特性不是 bug —— 它保证「环境状态 == 锁文件状态」，消除环境漂移。但如果你不知道这一点，就会出现「我手动装的东西怎么每次都消失」的困惑。
 
 两个例外也要知道：
 
 - 加 `--inexact` 可保留额外的包；
-- 用了 `--no-build-isolation` 时，uv **不会**删除多余的包（避免误删构建依赖）。
+- 用了 `--no-build-isolation` 时，uv 不会删除多余的包（避免误删构建依赖）。
 
 | 你想做的事 | 正确命令 |
 | --- | --- |
@@ -703,10 +700,10 @@ uvx ruff check .                  # 临时跑一次，不留痕迹
 
 | 参数 | 语义 | 用在哪 |
 | --- | --- | --- |
-| `--locked` | **断言锁文件已是最新**。若锁文件缺失或需要更新，直接报错退出 | **CI 首选** —— 能抓出「改了 `pyproject` 却忘了重新锁」 |
-| `--frozen` | 不检查锁文件是否与 `pyproject` 一致，**直接以锁文件为准**安装 | 部署镜像、离线环境 |
+| `--locked` | 断言锁文件已是最新。若锁文件缺失或需要更新，直接报错退出 | CI 首选 —— 能抓出「改了 `pyproject` 却忘了重新锁」 |
+| `--frozen` | 不检查锁文件是否与 `pyproject` 一致，直接以锁文件为准安装 | 部署镜像、离线环境 |
 
-不加任何参数时，uv 发现两者不一致会**自动重新解析** —— 于是 CI 悄悄测了一份和你本地不同的依赖。所以 CI 里请用 `--locked`：它把「依赖声明漂移」变成一次显式的构建失败，而不是一个无人察觉的差异。
+不加任何参数时，uv 发现两者不一致会自动重新解析 —— 于是 CI 悄悄测了一份和你本地不同的依赖。所以 CI 里请用 `--locked`：它把「依赖声明漂移」变成一次显式的构建失败，而不是一个无人察觉的差异。
 
 ## 4.5 四种依赖的区别
 
@@ -735,16 +732,16 @@ flowchart TB
 | 开发依赖 | `[dependency-groups]` | ❌ | 只有开发者和 CI 需要 |
 | 约束文件 | `constraints.txt` | ❌ | 不新增依赖，只对已有依赖设版本上下限 |
 
-**extras 和 dependency-groups 的区别，一句话讲清**：extras 是**给用户的开关**（`pip install navkit[torch]`），dependency-groups 是**给开发者的工具箱**（下游根本安装不到）。ruff 放进 extras 是错的，torch 放进 dependency-groups 也是错的。
+**extras 和 dependency-groups 的区别，一句话讲清**：extras 是给用户的开关（`pip install navkit[torch]`），dependency-groups 是给开发者的工具箱（下游根本安装不到）。ruff 放进 extras 是错的，torch 放进 dependency-groups 也是错的。
 
 ## 4.6 锁文件：能保证什么，不能保证什么
 
-「有锁文件就能复现」是个过于乐观的说法。锁文件的保证是**分维度的**，笼统地给一个「可复现等级」反而会误导：
+「有锁文件就能复现」是个过于乐观的说法。锁文件的保证是分维度的，笼统地给一个「可复现等级」反而会误导：
 
 | 维度 | `requirements.txt`（手写） | `pip-tools` 编译产物 | `poetry.lock` | `uv.lock` |
 | --- | --- | --- | --- | --- |
 | 记录直接依赖的精确版本 | 视你怎么写 | ✅ | ✅ | ✅ |
-| 记录**传递依赖**的精确版本 | ❌ 常见遗漏 | ✅ | ✅ | ✅ |
+| 记录传递依赖的精确版本 | ❌ 常见遗漏 | ✅ | ✅ | ✅ |
 | 记录哈希值（防篡改） | 需手工加 | 可选 `--generate-hashes` | ✅ | ✅ |
 | **跨平台通用** | ❌ | ❌ 每平台一份 | ✅ | ✅ |
 | 跨 Python 版本通用 | ❌ | ❌ | 部分 | ✅ |
@@ -752,23 +749,12 @@ flowchart TB
 
 **而无论用哪种锁文件，下面这些都锁不住**——这是最需要写进团队文档的一段：
 
-```mermaid
-flowchart TB
-    LOCK["锁文件能锁住的：<br/>包名 + 版本 + 哈希 + 来源索引"]
-    NO1["✗ 系统库<br/>glibc / libstdc++ / CUDA 驱动"]
-    NO2["✗ 需要源码构建时的编译器版本<br/>同一版本源码，不同编译器产物不同"]
-    NO3["✗ 索引上的包被删除或替换"]
-    NO4["✗ 非 Python 的外部服务与数据"]
-    LOCK -.->|"边界之外"| NO1
-    LOCK -.->|"边界之外"| NO2
-    LOCK -.->|"边界之外"| NO3
-    LOCK -.->|"边界之外"| NO4
-    style LOCK fill:#d3f9d8,stroke:#2f9e44
-    style NO1 fill:#ffc9c9,stroke:#c92a2a
-    style NO2 fill:#ffc9c9,stroke:#c92a2a
-    style NO3 fill:#ffc9c9,stroke:#c92a2a
-    style NO4 fill:#ffc9c9,stroke:#c92a2a
-```
+锁文件能锁住的只有包名、版本、哈希和来源索引。以下几项都在它的边界之外：
+
+- 系统库：glibc、libstdc++、CUDA 驱动；
+- 源码构建时的编译器版本：同一份源码，不同编译器的产物可能不同；
+- 索引上的包被删除或替换；
+- 非 Python 的外部服务与数据。
 
 具体到 `uv.lock`，还有三条使用条件：
 
@@ -796,28 +782,24 @@ flowchart TB
 
 ## 4.8 uv 为什么快
 
-uv 的速度提升是真实的，但把它归因成一句「Rust 写的」会错过重点。实际上四个阶段各有优化，且**收益分布很不均匀**：
+uv 的速度提升是真实的，但把它归因成一句「Rust 写的」会错过重点。实际上四个阶段各有优化，且收益分布很不均匀：
 
-```mermaid
-flowchart LR
-    R["① 解析<br/>确定装哪些版本"] --> D["② 下载<br/>取回 wheel"]
-    D --> C["③ 缓存<br/>存进全局缓存"]
-    C --> I["④ 安装<br/>放进 .venv"]
-    R -.->|"版本元数据只取需要的部分<br/>避免下载整包来读依赖"| RN["提升大"]
-    D -.->|"高并发"| DN["提升中"]
-    C -.->|"全局共享<br/>跨项目复用同一份解包结果"| CN["提升大"]
-    I -.->|"优先硬链接而非复制"| IN["提升大，但受文件系统限制"]
-```
+| 阶段 | 做了什么 | 主要优化 | 提升 |
+| --- | --- | --- | --- |
+| ① 解析 | 确定装哪些版本 | 只取需要的元数据，不下载整包来读依赖 | 大 |
+| ② 下载 | 取回 wheel | 高并发下载 | 中 |
+| ③ 缓存 | 存进全局缓存 | 全局共享，跨项目复用同一份解包结果 | 大 |
+| ④ 安装 | 放进 `.venv` | 优先硬链接而非复制 | 大，但受文件系统限制 |
 
 需要注意的边界：
 
 - **第 4 步的链接方式受平台和文件系统制约。** 硬链接要求缓存目录与 `.venv` 在同一个文件系统上。跨盘、跨 Docker 层、跨 WSL 边界时会退化为复制，速度优势大幅缩水。这也是「为什么我的 uv 在 Docker 里没那么快」的常见答案 —— 解法见 §7.5。
 - **第 1 步在遇到没有 wheel、必须源码构建的包时会失去优势**，因为要真的去执行构建。
-- 具体实现细节随版本演进，**以你实际使用的版本行为为准**（本文基准 uv 0.11.x）。
+- 具体实现细节随版本演进，以你实际使用的版本行为为准（本文基准 uv 0.11.x）。
 
 ## 4.9 从旧项目迁移
 
-大多数读者不是从空目录开始的，而是手上有一个混装了 conda、pip、`sys.path` hack 的仓库。**迁移的第一步不是换命令，而是先弄清现状。**
+大多数读者不是从空目录开始的，而是手上有一个混装了 conda、pip、`sys.path` hack 的仓库。迁移的第一步不是换命令，而是先弄清现状。
 
 ```mermaid
 flowchart TB
@@ -852,7 +834,7 @@ uv run python -m pip freeze > /tmp/after.txt
 diff /tmp/before.txt /tmp/after.txt
 ```
 
-**第 3 步是关键，也是最常做错的地方。** 不要把 `pip freeze` 的输出整个塞进 `dependencies` —— 那里面混着传递依赖。你应该只声明**你的代码真正 import 的那些包**，传递依赖交给解析器。分不清的话，`uv pip compile` 或 `pipdeptree` 可以帮你看清依赖树。
+**第 3 步是关键，也是最常做错的地方。** 不要把 `pip freeze` 的输出整个塞进 `dependencies` —— 那里面混着传递依赖。你应该只声明你的代码真正 import 的那些包，传递依赖交给解析器。分不清的话，`uv pip compile` 或 `pipdeptree` 可以帮你看清依赖树。
 
 **方案 B：只想要更快的 pip**（不引入锁文件，过渡期用）
 
@@ -861,7 +843,7 @@ uv venv
 uv pip install -r requirements.txt     # 语义与 pip 一致，只是快很多
 ```
 
-零迁移成本，随时可回退。但它不解决可复现性，**只是过渡态**。
+零迁移成本，随时可回退。但它不解决可复现性，只是过渡态。
 
 **方案 C：保留 conda 作为外层**
 
@@ -869,7 +851,7 @@ conda 负责非 Python 二进制，uv 或 pip 负责 Python 包，见下一节�
 
 ## 4.10 conda 还有没有位置
 
-有。但理由需要说准确 —— 「conda 在某些依赖上不可替代」这个说法**过于绝对**，而且经常被用错例子。
+有。但理由需要说准确 —— 「conda 在某些依赖上不可替代」这个说法过于绝对，而且经常被用错例子。
 
 更准确的表述是：
 
@@ -879,16 +861,16 @@ conda 负责非 Python 二进制，uv 或 pip 负责 Python 包，见下一节�
 
 | 依赖 | 常见说法 | 实际情况 |
 | --- | --- | --- |
-| PyTorch 所需的 CUDA 运行时 | 「必须 conda 装 cudatoolkit」 | **不必**。PyTorch 的 CUDA wheel 已把所需运行时打包成 `nvidia-*` 依赖，pip/uv 直接可得（§8.2） |
+| PyTorch 所需的 CUDA 运行时 | 「必须 conda 装 cudatoolkit」 | 不必。PyTorch 的 CUDA wheel 已把所需运行时打包成 `nvidia-*` 依赖，pip/uv 直接可得（§8.2） |
 | Open3D | 「只能 conda」 | PyPI 上有官方 wheel |
 | PCL | 「只能 conda」 | 它本质是 C++ 库，Python 绑定的分发情况因平台而异，需要按平台实测 |
-| 完整 CUDA Toolkit（含 `nvcc`） | 「conda 能装」 | conda-forge 确实提供，但**若只是运行预编译包则根本不需要它**（§8.3） |
+| 完整 CUDA Toolkit（含 `nvcc`） | 「conda 能装」 | conda-forge 确实提供，但若只是运行预编译包则根本不需要它（§8.3） |
 
 **判断流程**，按顺序问自己三个问题：
 
 1. 我需要的东西，PyPI 上有没有可用的 wheel？→ 有，就不需要 conda。
 2. 需要的非 Python 二进制，能不能交给容器镜像或系统包管理器？→ 能，优先用它们（边界更清晰）。
-3. 团队已经在用 conda 了吗？→ 是，那么**迁移成本本身就是一个正当的保留理由**。
+3. 团队已经在用 conda 了吗？→ 是，那么迁移成本本身就是一个正当的保留理由。
 
 **如果确实要混用**，只有一条规则值得记住：
 
@@ -900,11 +882,9 @@ conda activate navkit
 uv pip install -e .        # 注意：用 uv pip 工作流，不是 uv sync
 ```
 
-这里**必须用 `uv pip`** —— `uv sync` 会去创建并接管自己的 `.venv`，那就绕开了你刚建的 conda 环境。这正是 §4.2 里「两套工作流」区分的实际意义。
+这里必须用 `uv pip` —— `uv sync` 会去创建并接管自己的 `.venv`，那就绕开了你刚建的 conda 环境。这正是 §4.2 里「两套工作流」区分的实际意义。
 
-反过来的做法（先 pip 装，再 conda 装同一个包）会导致两套元数据互相覆盖，环境进入无法修复的状态。**遇到这种环境，重建比修复快。**
-
----
+反过来的做法（先 pip 装，再 conda 装同一个包）会导致两套元数据互相覆盖，环境进入无法修复的状态。遇到这种环境，重建比修复快。
 
 # 五、质量与测试：从本地检查到 CI 的同一条流程
 
@@ -923,7 +903,7 @@ flowchart LR
 
 ## 5.1 Ruff：检查与格式化
 
-Ruff 用 Rust 实现，速度比传统工具快一到两个数量级，并且**一个工具同时做 lint 和格式化**，这让「格式化器和检查器互相打架」的经典问题消失了。
+Ruff 用 Rust 实现，速度比传统工具快一到两个数量级，并且一个工具同时做 lint 和格式化，这让「格式化器和检查器互相打架」的经典问题消失了。
 
 **关于「Ruff 取代 flake8 + isort + black」这个说法，需要说准确**：Ruff 覆盖了这些工具的绝大多数常用规则与格式化行为，但不是逐位等价的替换 ——
 
@@ -1003,16 +983,17 @@ strict_equality = true
 | | mypy | pyright / Pylance |
 | --- | --- | --- |
 | 定位 | 参考实现，规则最贴近 PEP | 速度快，VS Code 内置体验好 |
-| 建议 | **CI 里用它**（结果稳定、可复现） | **编辑器里用它**（实时反馈） |
+| 建议 | CI 里用它（结果稳定、可复现） | 编辑器里用它（实时反馈） |
 
 两者同时用是常见且合理的组合：编辑器里 pyright 给你即时提示，CI 里 mypy 做最终把关。
 
-> 对数值代码有个现实的提醒：`numpy` 与 `torch` 的类型标注覆盖有限，张量形状更是类型系统管不了的东西。**类型检查在这类代码里的收益，主要来自函数边界（输入输出是什么类型的对象），而不是数组内部。** 别期望它能帮你抓形状不匹配。
+> 对数值代码有个现实的提醒：`numpy` 与 `torch` 的类型标注覆盖有限，张量形状更是类型系统管不了的东西。类型检查在这类代码里的收益，主要来自函数边界（输入输出是什么类型的对象），而不是数组内部。 别期望它能帮你抓形状不匹配。
 
 ## 5.3 pre-commit：把检查前移到提交时
 
 ```yaml
 # .pre-commit-config.yaml
+# rev 只是示例版本，用 `uv run pre-commit autoupdate` 更新到最新
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
@@ -1032,7 +1013,7 @@ repos:
       - id: ruff-format
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.4.20
+    rev: 0.11.18                         # 与本文的 uv 版本基准一致
     hooks:
       - id: uv-lock                        # pyproject 改了就自动更新锁文件
 ```
@@ -1046,7 +1027,7 @@ uv run pre-commit run --all-files   # 首次全量跑一遍
 
 ## 5.4 pytest：三个真正重要的机制
 
-pytest 功能很多，但对研究项目来说，**掌握下面三件事就够覆盖九成场景**。
+pytest 功能很多，但对研究项目来说，掌握下面三件事就够覆盖九成场景。
 
 ### 配置与导入模式
 
@@ -1061,19 +1042,19 @@ markers = [
 ]
 ```
 
-`--import-mode=importlib` 值得专门说 —— 它让 pytest 用标准导入机制找测试模块，**不再往 `sys.path` 里插入路径**。配合 src 布局，这就保证了「测试导入的是已安装的包」。这是 §3.2 那个问题在测试侧的解法。
+`--import-mode=importlib` 值得专门说 —— 它让 pytest 用标准导入机制找测试模块，不再往 `sys.path` 里插入路径。配合 src 布局，这就保证了「测试导入的是已安装的包」。这是 §3.2 那个问题在测试侧的解法。
 
 `--strict-markers` 则让拼错的标记直接报错，而不是静默地当成未知标记忽略掉。
 
 ### fixture 的作用域
 
-fixture 是 pytest 的核心抽象：**声明测试需要什么，而不是在测试里手工搭建**。作用域决定了它多久重建一次：
+fixture 是 pytest 的核心抽象：声明测试需要什么，而不是在测试里手工搭建。作用域决定了它多久重建一次：
 
 | 作用域 | 重建频率 | 典型用途 |
 | --- | --- | --- |
 | `function`（默认） | 每个测试函数 | 临时目录、可变的测试数据 |
 | `module` | 每个测试文件 | 小型只读数据集 |
-| `session` | 整轮测试一次 | **加载模型权重、启动仿真器** |
+| `session` | 整轮测试一次 | 加载模型权重、启动仿真器 |
 
 ```python
 # tests/conftest.py —— 这个文件里的 fixture 对同目录及子目录所有测试可见
@@ -1129,20 +1110,27 @@ def test_normalize_angle(raw, expected):
 
 ```python
 # tests/gpu/conftest.py
+from pathlib import Path
 import pytest
 
+GPU_DIR = Path(__file__).parent
+
 def pytest_collection_modifyitems(config, items):
-    """没有可用 CUDA 时，自动跳过本目录下所有测试。"""
+    """给本目录下的测试打上 gpu 标记；没有可用 CUDA 时自动跳过它们。"""
+    # 注意：这个钩子收到的是整轮会话的全部测试，必须按路径筛出本目录的
+    gpu_items = [item for item in items if GPU_DIR in item.path.parents]
+    for item in gpu_items:
+        item.add_marker(pytest.mark.gpu)   # 让 -m "not gpu" 能排除它们
+
     try:
         import torch
         has_cuda = torch.cuda.is_available()
     except ImportError:
         has_cuda = False
-    if has_cuda:
-        return
-    skip = pytest.mark.skip(reason="需要 CUDA 设备")
-    for item in items:
-        item.add_marker(skip)
+    if not has_cuda:
+        skip = pytest.mark.skip(reason="需要 CUDA 设备")
+        for item in gpu_items:
+            item.add_marker(skip)
 ```
 
 于是形成三层：
@@ -1174,7 +1162,7 @@ exclude_lines = [
 uv run pytest --cov --cov-report=term-missing
 ```
 
-> **不要把覆盖率当 KPI。** 它只能告诉你哪些代码**从没被执行过** —— 那是有价值的信息；它说明不了被执行到的代码是否被真正验证过。把精力放在 `--cov-report=term-missing` 列出的未覆盖行上，比盯着百分比有用得多。
+> **不要把覆盖率当 KPI。** 它只能告诉你哪些代码从没被执行过 —— 那是有价值的信息；它说明不了被执行到的代码是否被真正验证过。把精力放在 `--cov-report=term-missing` 列出的未覆盖行上，比盯着百分比有用得多。
 
 **多 Python 版本测试**曾经是 tox / nox 的地盘。有了 uv 之后，本地做矩阵测试变得很简单：
 
@@ -1186,15 +1174,13 @@ done
 
 `--isolated` 让每个版本用独立环境，互不干扰。真正的矩阵测试仍然交给 CI（§7.6），本地这个循环用来在推送前快速自查。
 
----
-
 # 六、配置、日志与命令行
 
 研究代码里，这三件事通常是这样的：配置靠改源码里的常量，日志靠 `print`，命令行靠 `sys.argv[1]`。三者都能跑，也都在项目长大时同时崩掉。
 
 ## 6.1 配置：先确定优先级链
 
-在选工具之前，先确定一件事：**同一个参数在多个地方出现时，谁说了算**。这个顺序应当是固定且公开的：
+在选工具之前，先确定一件事：同一个参数在多个地方出现时，谁说了算。这个顺序应当是固定且公开的：
 
 ```mermaid
 flowchart LR
@@ -1235,7 +1221,7 @@ class NavConfig(BaseSettings):
 | | pydantic-settings | Hydra / OmegaConf |
 | --- | --- | --- |
 | 强项 | 类型校验、环境变量、IDE 补全 | 配置组合、多组实验扫描（multirun） |
-| 适合 | **应用与库的常规配置** | **大规模实验管理** |
+| 适合 | 应用与库的常规配置 | 大规模实验管理 |
 | 代价 | 不擅长配置组合 | 学习曲线陡，`sys.argv` 被接管，调试稍麻烦 |
 
 **判断标准很简单**：你是否需要「一条命令跑 20 组超参组合」？需要就上 Hydra，不需要就用 pydantic-settings。`navkit` 属于后者。
@@ -1280,7 +1266,7 @@ flowchart TB
     style A1 fill:#d3f9d8,stroke:#2f9e44
 ```
 
-原因是**传播机制**：`navkit.planner` 这个 logger 产生的记录，会自动向上传给 `navkit`，再传给根 logger。**配置只在根部做一次，全局生效。** 如果库自己也配了 handler，调用方就会看到重复输出，且无法关闭。
+原因是传播机制：`navkit.planner` 这个 logger 产生的记录，会自动向上传给 `navkit`，再传给根 logger。配置只在根部做一次，全局生效。 如果库自己也配了 handler，调用方就会看到重复输出，且无法关闭。
 
 ```python
 # src/navkit/planner.py —— 库的正确写法
@@ -1289,7 +1275,7 @@ import logging
 logger = logging.getLogger(__name__)      # 名字自动是 "navkit.planner"
 
 def plan(waypoints):
-    logger.debug("开始规划，航点数 %d", len(waypoints))   # 注意用 %s 惰性格式化
+    logger.debug("开始规划，航点数 %d", len(waypoints))   # 用占位符，惰性格式化
     if len(waypoints) < 2:
         logger.warning("航点不足 2 个，无法规划")
         return None
@@ -1344,12 +1330,10 @@ if __name__ == "__main__":
 | 工具 | 什么时候用 |
 | --- | --- |
 | `argparse`（标准库） | 不想引入依赖，或只有一两个参数 |
-| **`typer`** | **默认选择** —— 从类型标注自动生成参数解析与帮助文本 |
+| **`typer`** | 默认选择 —— 从类型标注自动生成参数解析与帮助文本 |
 | `click` | typer 的底层；需要精细控制时直接用它 |
 
 > **入口点函数要薄。** `cli.py` 只做「解析参数 → 组装配置 → 调用核心逻辑」。真正的算法留在 `planner.py` 里，这样它既能被命令行调用，也能被别的 Python 代码导入 —— 这正是 §3.1 里「同时是库和应用」的实现方式。
-
----
 
 # 七、构建、交付与 CI
 
@@ -1368,7 +1352,7 @@ flowchart LR
 | | sdist（源码分发） | wheel（二进制分发） |
 | --- | --- | --- |
 | 本质 | 打包后的源码 | 预构建好的安装产物 |
-| 安装时 | **需要在目标机器上执行构建** | 解压即可 |
+| 安装时 | 需要在目标机器上执行构建 | 解压即可 |
 | 带原生扩展时 | 目标机器必须有编译器和头文件 | 无需编译环境 |
 | 作用 | 保底、可审计、支持冷门平台 | 日常安装的实际来源 |
 
@@ -1376,14 +1360,14 @@ flowchart LR
 
 ## 7.2 文件名里的三段 tag
 
-`navkit-0.1.0-py3-none-any.whl` 这个文件名不是随便起的，末尾三段是**机器可读的兼容性声明**：
+`navkit-0.1.0-py3-none-any.whl` 这个文件名不是随便起的，末尾三段是机器可读的兼容性声明：
 
 ```
 navkit - 0.1.0 - py3      - none     - any
   包名   版本    Python tag  ABI tag   平台 tag
 ```
 
-三段各自约束一个维度，**不要混为一谈**：
+三段各自约束一个维度，不要混为一谈：
 
 | 段 | 回答什么问题 | 取值举例 |
 | --- | --- | --- |
@@ -1396,16 +1380,16 @@ navkit - 0.1.0 - py3      - none     - any
 **两个高频误解，必须澄清：**
 
 > **误解一：`manylinux` = 「所有 Linux 通用」。**
-> 不是。`manylinux_2_28` 的含义是「**要求 glibc ≥ 2.28**」，它是一条有明确数值的下界。老于这个版本的系统装不上；使用 musl 的 Alpine 更是完全另一套（对应 `musllinux`）。这正是「Alpine 镜像里 pip 装什么都要现场编译」的原因。
+> 不是。`manylinux_2_28` 的含义是「要求 glibc ≥ 2.28」，它是一条有明确数值的下界。老于这个版本的系统装不上；使用 musl 的 Alpine 更是完全另一套（对应 `musllinux`）。这正是「Alpine 镜像里 pip 装什么都要现场编译」的原因。
 >
 > **而且：`manylinux` 只约束 C 运行时，不承诺任何 GPU 驱动兼容性。** 一个 manylinux wheel 里的 CUDA 代码能不能跑，取决于目标机器的驱动版本（§8.1），与这个 tag 无关。
 
 > **误解二：`abi3` = 「所有 Python 通用」。**
-> 不是。`abi3` 表示该扩展只用了 CPython 的**稳定 ABI 子集**，因而可以在**声明的最低版本及以上**的 CPython 上运行。它仍然绑定 CPython（PyPy 不适用），且有下界。
+> 不是。`abi3` 表示该扩展只用了 CPython 的稳定 ABI 子集，因而可以在声明的最低版本及以上的 CPython 上运行。它仍然绑定 CPython（PyPy 不适用），且有下界。
 
 ## 7.3 构建并在干净环境里验证
 
-这一步是 §3.6 留下的那个作业 —— **可编辑安装验证不了打包正确性，只有这步能。**
+这一步是 §3.6 留下的那个作业 —— 可编辑安装验证不了打包正确性，只有这步能。
 
 ```bash
 # 1. 构建两种产物
@@ -1435,15 +1419,15 @@ cd /tmp
 
 ## 7.4 发布：优先用可信发布
 
-传统做法是生成一个 PyPI API token，存进 CI secrets。**这个方案的问题是 token 长期有效**：一旦泄露，在你手工吊销之前一直可用。
+传统做法是生成一个 PyPI API token，存进 CI secrets。这个方案的问题是 token 长期有效：一旦泄露，在你手工吊销之前一直可用。
 
-**可信发布（Trusted Publishing）** 换了个思路：在 PyPI 上登记「哪个 GitHub 仓库的哪个工作流有权发布 `navkit`」，发布时由 CI 提供一个短时效的身份凭证换取临时令牌。**仓库里不存任何长期密钥。**
+**可信发布（Trusted Publishing）** 换了个思路：在 PyPI 上登记「哪个 GitHub 仓库的哪个工作流有权发布 `navkit`」，发布时由 CI 提供一个短时效的身份凭证换取临时令牌。仓库里不存任何长期密钥。
 
 要分清两件事（这里最容易混）：
 
 | | 身份与权限 | 上传动作 |
 | --- | --- | --- |
-| 在哪配置 | **PyPI 项目设置页** + CI 工作流的 `permissions: id-token: write` | 工作流里的一条命令 |
+| 在哪配置 | PyPI 项目设置页 + CI 工作流的 `permissions: id-token: write` | 工作流里的一条命令 |
 | 谁决定能不能发 | PyPI 端的登记规则 | — |
 | 常见误解 | 以为换个上传命令就算配好了 | `uv publish` 只是执行上传，它不负责建立信任关系 |
 
@@ -1467,13 +1451,13 @@ jobs:
       - run: uv publish         # 无需 token，凭证由上面的 id-token 提供
 ```
 
-> **先发到 TestPyPI 演练一次。** PyPI 上**同一个版本号只能上传一次**，删除后也不能重用。第一次发布时用 `0.1.0rc1` 这类预发布版本试水，比在正式版本号上翻车强。
+> **先发到 TestPyPI 演练一次。** PyPI 上同一个版本号只能上传一次，删除后也不能重用。第一次发布时用 `0.1.0rc1` 这类预发布版本试水，比在正式版本号上翻车强。
 
 ## 7.5 Docker：让依赖层真正被缓存
 
-朴素写法的问题是：`COPY . /app` 放在装依赖之前，于是**改一行代码就会让依赖层缓存全部失效**，每次构建都重装一遍 torch。
+朴素写法的问题是：`COPY . /app` 放在装依赖之前，于是改一行代码就会让依赖层缓存全部失效，每次构建都重装一遍 torch。
 
-正确的做法是**把依赖安装和项目安装拆成两层**：
+正确的做法是把依赖安装和项目安装拆成两层：
 
 ```dockerfile
 # 适用：uv 0.11.x · 已提交 uv.lock · 需要 BuildKit（Docker 23+ 默认开启）
@@ -1582,7 +1566,7 @@ jobs:
 | --- | --- |
 | 可发布的库 | 严格[语义化版本](https://semver.org/lang/zh-CN/)，在 `pyproject.toml` 里手工维护 |
 | 应用 / 服务 | 日期版本（`2026.9.1`）或直接用 Git 描述 |
-| 实验仓库 | 不需要版本号，**用 commit hash 标识**（§8.6） |
+| 实验仓库 | 不需要版本号，用 commit hash 标识（§8.6） |
 
 想避免「改代码和改版本号两处同步」的麻烦，可以让版本号从 Git tag 派生：
 
@@ -1614,17 +1598,15 @@ uvx pip-audit                       # 对照已知漏洞库检查当前依赖
       - run: uvx pip-audit
 ```
 
-> 学术项目常觉得漏洞扫描无关紧要。但**一旦代码要部署到真实机器人或对外服务上，它就直接相关了** —— 而那通常是在项目后期才发现的。定期跑一次的成本接近于零。
-
----
+> 学术项目常觉得漏洞扫描无关紧要。但一旦代码要部署到真实机器人或对外服务上，它就直接相关了 —— 而那通常是在项目后期才发现的。定期跑一次的成本接近于零。
 
 # 八、AI 与机器人项目的特殊实践
 
-前七章的内容适用于任何 Python 项目。这一章处理的是本领域独有的问题 —— 它们几乎全部发生在 §2.4 那张图**最底下那块橙色区域**：Python 工具管不到的系统与驱动层。
+前七章的内容适用于任何 Python 项目。这一章处理的是本领域独有的问题 —— 它们几乎全部发生在 §2.4 那张图最底下那块橙色区域：Python 工具管不到的系统与驱动层。
 
 ## 8.1 GPU 依赖栈：谁管哪一层
 
-「`torch.cuda.is_available()` 返回 False」之所以难查，是因为 GPU 依赖是一个**四层结构**，而 pip/uv 只能碰其中一层：
+「`torch.cuda.is_available()` 返回 False」之所以难查，是因为 GPU 依赖是一个四层结构，而 pip/uv 只能碰其中一层：
 
 ```mermaid
 flowchart TB
@@ -1643,11 +1625,11 @@ flowchart TB
     style L4 fill:#d3f9d8,stroke:#2f9e44
 ```
 
-**这张图澄清了一个流传很广的误解。** 现代 PyTorch 的 CUDA wheel **已经把第 3 层打包进去了** —— 它们以 `nvidia-cuda-runtime-cu12`、`nvidia-cudnn-cu12` 等形式作为依赖自动安装。因此：
+**这张图澄清了一个流传很广的误解。** 现代 PyTorch 的 CUDA wheel 已经把第 3 层打包进去了 —— 它们以 `nvidia-cuda-runtime-cu12`、`nvidia-cudnn-cu12` 等形式作为依赖自动安装。因此：
 
-> **只是要运行 PyTorch 的话，不需要在系统里装 CUDA Toolkit，也不需要用 conda 装 `cudatoolkit`。** 你只需要一个足够新的**驱动**。
+> **只是要运行 PyTorch 的话，不需要在系统里装 CUDA Toolkit，也不需要用 conda 装 `cudatoolkit`。** 你只需要一个足够新的驱动。
 
-驱动向后兼容：**较新的驱动可以运行较旧的 CUDA 运行时**，反之不行。所以升级驱动通常安全，而「CUDA 版本不匹配」的报错，多数时候是驱动太旧。
+驱动向后兼容：较新的驱动可以运行较旧的 CUDA 运行时，反之不行。所以升级驱动通常安全，而「CUDA 版本不匹配」的报错，多数时候是驱动太旧。
 
 **一个必须澄清的读数问题：**
 
@@ -1656,13 +1638,13 @@ nvidia-smi        # 右上角显示 "CUDA Version: 12.6"
 nvcc --version    # 可能显示 12.1，也可能命令根本不存在
 ```
 
-这两个数字**含义完全不同，不一致是正常的**：
+这两个数字含义完全不同，不一致是正常的：
 
 | 命令 | 报告的是什么 |
 | --- | --- |
-| `nvidia-smi` 的 `CUDA Version` | **驱动所能支持的最高 CUDA 运行时版本**，不是你装了什么 |
-| `nvcc --version` | 系统里 CUDA Toolkit 的版本（**只在要编译时才需要**） |
-| `torch.version.cuda` | **PyTorch 是针对哪个 CUDA 版本构建的** —— 排查时该看这个 |
+| `nvidia-smi` 的 `CUDA Version` | 驱动所能支持的最高 CUDA 运行时版本，不是你装了什么 |
+| `nvcc --version` | 系统里 CUDA Toolkit 的版本（只在要编译时才需要） |
+| `torch.version.cuda` | PyTorch 是针对哪个 CUDA 版本构建的 —— 排查时该看这个 |
 
 排查三连：
 
@@ -1671,11 +1653,11 @@ uv run python -c "import torch; print(torch.__version__, torch.version.cuda, tor
 nvidia-smi --query-gpu=driver_version --format=csv
 ```
 
-如果 `torch.version.cuda` 输出 `None`，说明你装的是 **CPU 版** —— 这是最常见的情况，解法见下节。
+如果 `torch.version.cuda` 输出 `None`，说明你装的是 CPU 版 —— 这是最常见的情况，解法见下节。
 
 ## 8.2 用 uv 精确控制 torch 的来源
 
-CPU 版和 CUDA 版的 torch **包名完全相同**，区别只在来源索引。如果不做任何配置，你拿到的是 PyPI 上的默认版本 —— 在 Linux 上通常是 CUDA 版，但在其他平台或某些版本组合下可能是 CPU 版，而且完全不受你控制。
+CPU 版和 CUDA 版的 torch 包名完全相同，区别只在来源索引。如果不做任何配置，你拿到的是 PyPI 上的默认版本 —— 在 Linux 上通常是 CUDA 版，但在其他平台或某些版本组合下可能是 CPU 版，而且完全不受你控制。
 
 **显式声明索引，把这件事变成确定的。** 以下 TOML 依据 uv 官方文档：
 
@@ -1733,7 +1715,7 @@ uv sync --extra cu130    # 训练服务器
 
 ## 8.3 运行预编译包 vs 编译自定义 CUDA 扩展
 
-这是两个**完全不同的场景**，需求差别很大，混为一谈会导致大量无用功（比如为了跑推理而折腾装 CUDA Toolkit）：
+这是两个完全不同的场景，需求差别很大，混为一谈会导致大量无用功（比如为了跑推理而折腾装 CUDA Toolkit）：
 
 ```mermaid
 flowchart TB
@@ -1753,11 +1735,11 @@ flowchart TB
 | 典型操作 | `uv sync` 后直接训练 | `pip install flash-attn --no-build-isolation` |
 | 需要 `nvcc` | ❌ | ✅ |
 | 需要系统 CUDA Toolkit | ❌ | ✅ |
-| CUDA 版本要求 | 只需驱动够新 | Toolkit 版本要与 `torch.version.cuda` **匹配** |
+| CUDA 版本要求 | 只需驱动够新 | Toolkit 版本要与 `torch.version.cuda` 匹配 |
 | 耗时 | 几分钟 | 十几分钟到数小时 |
-| 建议 | **默认路径** | 尽量先找官方预编译 wheel |
+| 建议 | 默认路径 | 尽量先找官方预编译 wheel |
 
-**场景 B 有个必须知道的坑**：像 `flash-attn` 这类包，构建时需要 `import torch` 来获取编译参数。而 PEP 517 默认在**隔离的构建环境**里执行构建，那个环境里没有 torch，于是构建失败。所以这类包的安装说明里总是带着 `--no-build-isolation` —— 它让构建过程直接使用当前环境（torch 已经在里面）。
+**场景 B 有个必须知道的坑**：像 `flash-attn` 这类包，构建时需要 `import torch` 来获取编译参数。而 PEP 517 默认在隔离的构建环境里执行构建，那个环境里没有 torch，于是构建失败。所以这类包的安装说明里总是带着 `--no-build-isolation` —— 它让构建过程直接使用当前环境（torch 已经在里面）。
 
 对应到 uv：
 
@@ -1767,11 +1749,11 @@ flowchart TB
 no-build-isolation-package = ["flash-attn"]
 ```
 
-> 回忆 §4.3：**使用 `--no-build-isolation` 时，`uv sync` 不会删除多余的包**（怕误删构建依赖）。这意味着这类项目的环境会逐渐偏离锁文件的严格状态 —— 定期重建环境是值得的。
+> 回忆 §4.3：使用 `--no-build-isolation` 时，`uv sync` 不会删除多余的包（怕误删构建依赖）。这意味着这类项目的环境会逐渐偏离锁文件的严格状态 —— 定期重建环境是值得的。
 
 ## 8.4 ROS 2 与虚拟环境的兼容边界
 
-「ROS 2 的 Python 装不进 venv」这句话把好几个不同的问题混成了一句，导致排查时无从下手。**实际上是三个独立的约束**，逐个拆开就清楚了。
+「ROS 2 的 Python 装不进 venv」这句话把好几个不同的问题混成了一句，导致排查时无从下手。实际上是三个独立的约束，逐个拆开就清楚了。
 
 ```mermaid
 flowchart TB
@@ -1802,7 +1784,7 @@ ModuleNotFoundError: No module named 'rclpy._rclpy_pybind11'
 
 **这个报错具有误导性**：它看起来像「包没装」，实际是「解释器版本不对」。
 
-> **推论：venv 的 Python 版本必须与 ROS 2 发行版所用的一致**（例如 Jazzy on Ubuntu 24.04 对应 Python 3.12）。这也意味着**不要让 uv 下载它自带的独立解释器来建这个 venv** —— 应当明确基于系统解释器创建。
+> **推论：venv 的 Python 版本必须与 ROS 2 发行版所用的一致**（例如 Jazzy on Ubuntu 24.04 对应 Python 3.12）。这也意味着不要让 uv 下载它自带的独立解释器来建这个 venv —— 应当明确基于系统解释器创建。
 
 **约束 3：`--system-site-packages` 只解决可见性**
 
@@ -1814,15 +1796,15 @@ sys.path[0] → PYTHONPATH → 标准库 → venv 的 site-packages
             ROS 的包在这里           你的包在这里（更靠后）
 ```
 
-**PYTHONPATH 的优先级高于 venv 的 site-packages。** 后果是：如果 ROS 带了一个 `numpy`，而你在 venv 里装了另一个版本，**代码实际用到的是 ROS 那个**。这解释了「我明明装了新版 numpy，运行时却还是老版本」。
+**PYTHONPATH 的优先级高于 venv 的 site-packages。** 后果是：如果 ROS 带了一个 `numpy`，而你在 venv 里装了另一个版本，代码实际用到的是 ROS 那个。这解释了「我明明装了新版 numpy，运行时却还是老版本」。
 
-而 `--system-site-packages` 这个标志，只是让 venv 能看到**系统解释器的** site-packages —— 它处理的是可见性问题，**既不能解决版本不匹配，也不能改变 PYTHONPATH 的优先级**。
+而 `--system-site-packages` 这个标志，只是让 venv 能看到系统解释器的 site-packages —— 它处理的是可见性问题，既不能解决版本不匹配，也不能改变 PYTHONPATH 的优先级。
 
 **可行的工作方式**，按推荐程度排序：
 
 | 方案 | 做法 | 适用 |
 | --- | --- | --- |
-| **A. 不要 venv，用容器** | 整个 ROS 2 工作空间放进 Docker 镜像，依赖在镜像里定死 | **推荐** —— 边界最清晰，可复现性最好 |
+| **A. 不要 venv，用容器** | 整个 ROS 2 工作空间放进 Docker 镜像，依赖在镜像里定死 | 推荐 —— 边界最清晰，可复现性最好 |
 | **B. 版本对齐的 venv** | 用系统解释器建 venv，版本与 ROS 一致，加 `--system-site-packages` | 需要在宿主机上加装少量纯 Python 依赖时 |
 | C. 彻底分离 | ROS 节点只做通信，算法跑在独立进程/独立环境，用话题或 IPC 通信 | 算法依赖与 ROS 依赖严重冲突时 |
 
@@ -1841,7 +1823,7 @@ uv pip install -e .        # 注意用 uv pip 工作流（§4.2），不要用 u
 
 ## 8.5 环境可复现 ≠ 实验可复现
 
-这是研究项目最该建立的一个认知：**锁住依赖、设好种子，离「实验可复现」还差两层**。
+这是研究项目最该建立的一个认知：锁住依赖、设好种子，离「实验可复现」还差两层。
 
 ```mermaid
 flowchart TB
@@ -1864,7 +1846,7 @@ flowchart TB
 | --- | --- | --- |
 | 1 依赖 | 精确到版本与哈希 | 系统库、驱动、编译器（§4.6） |
 | 2 输入 | 种子、配置快照 | 数据集本身若被改动，种子毫无意义 |
-| 3 计算 | 开启确定性算子 | **换一块型号不同的 GPU，结果就会变** |
+| 3 计算 | 开启确定性算子 | 换一块型号不同的 GPU，结果就会变 |
 | 4 结论 | 多次重复取统计量 | 单次运行的数值完全一致 |
 
 **第 2 层：种子要设全**
@@ -1897,17 +1879,17 @@ torch.backends.cudnn.benchmark = False       # 关掉自动算法选择（它会
 
 1. **会变慢。** 关掉 `cudnn.benchmark` 和使用确定性算子实现通常有性能损失。
 2. **有些算子没有确定性实现。** 开启后它们会直接抛异常，而不是静默退化 —— 这是设计如此，你得自己决定怎么办。
-3. **跨硬件依然不可复现。** 不同的 GPU 架构、不同的 cuDNN 版本、不同的并行规约顺序，都会产生浮点差异。**「同一台机器上可复现」和「换台机器也可复现」是两个难度完全不同的目标**，后者在深度学习里基本不可达。
+3. **跨硬件依然不可复现。** 不同的 GPU 架构、不同的 cuDNN 版本、不同的并行规约顺序，都会产生浮点差异。「同一台机器上可复现」和「换台机器也可复现」是两个难度完全不同的目标，后者在深度学习里基本不可达。
 
-还有一条容易忽略的：**TF32**。较新的 NVIDIA GPU 上，PyTorch 可能默认用 TF32 做矩阵乘法 —— 它更快，但精度低于 FP32。这会让你的数值结果在换机器时对不上。要严格对齐的话需要显式关闭它。
+还有一条容易忽略的：TF32。较新的 NVIDIA GPU 上，PyTorch 可能默认用 TF32 做矩阵乘法 —— 它更快，但精度低于 FP32。这会让你的数值结果在换机器时对不上。要严格对齐的话需要显式关闭它。
 
 **第 4 层：诚实地报告**
 
-单次运行的指标不构成结论。**跑 3–5 个种子，报告均值与标准差** —— 如果你的改进幅度小于种子间的方差，那它还不是一个结论。
+单次运行的指标不构成结论。跑 3–5 个种子，报告均值与标准差 —— 如果你的改进幅度小于种子间的方差，那它还不是一个结论。
 
 ## 8.6 实验产物管理
 
-代码和依赖只是可复现的一半。**另一半是：这次运行到底用了什么、产出了什么。**
+代码和依赖只是可复现的一半。另一半是：这次运行到底用了什么、产出了什么。
 
 建议每次运行都落一份元数据：
 
@@ -1957,12 +1939,12 @@ def _git(*args: str) -> str:
 | 依赖锁 | `uv.lock` | ✅ |
 | 配置快照 | 随输出目录一起保存 | ❌（原始配置模板进，快照不进） |
 | 模型权重 | 对象存储 / Git LFS / 专用工具 | ❌ |
-| 数据集 | 外部存储，**记录版本标识** | ❌ |
+| 数据集 | 外部存储，记录版本标识 | ❌ |
 | 运行元数据 | `outputs/<run_id>/provenance.json` | ❌ |
 
 ## 8.7 高频故障排查表
 
-这张表按**症状**索引，而不是按工具。遇到问题从这里开始，比搜索报错信息快。
+这张表按症状索引，而不是按工具。遇到问题从这里开始，比搜索报错信息快。
 
 | 症状 | 先查什么 | 常见原因与出处 |
 | --- | --- | --- |
@@ -1982,8 +1964,6 @@ def _git(*args: str) -> str:
 | `No module named 'rclpy._rclpy_pybind11'` | venv 的 Python 版本 | 与 ROS 2 发行版版本不一致（§8.4） |
 | 同种子，两台机器结果不同 | GPU 型号、cuDNN 版本、TF32 | 跨硬件不可复现（§8.5） |
 | Docker 构建每次都重装依赖 | 依赖层有没有和源码层分开 | 缺 `--no-install-project` 分层（§7.5） |
-
----
 
 # 九、落地清单与决策树
 
@@ -2040,17 +2020,17 @@ uv build && uv venv /tmp/verify && \
   cd /tmp && /tmp/verify/bin/python -c "import navkit; print(navkit.__file__)"
 ```
 
-提交进 Git 的：`pyproject.toml`、**`uv.lock`**、`.pre-commit-config.yaml`、`.github/workflows/`、`src/`、`tests/`。
+提交进 Git 的：`pyproject.toml`、`uv.lock`、`.pre-commit-config.yaml`、`.github/workflows/`、`src/`、`tests/`。
 不提交的：`.venv/`、`outputs/`、`data/`、`*.ckpt`、`__pycache__/`。
 
 ## 9.3 改造旧项目：按顺序做，不要一次全改
 
-改造的失败模式几乎都是「一次改太多，出问题不知道是哪一步引入的」。按下面的顺序，**每一步都能独立验证、独立回退**：
+改造的失败模式几乎都是「一次改太多，出问题不知道是哪一步引入的」。按下面的顺序，每一步都能独立验证、独立回退：
 
 | 步骤 | 做什么 | 验证方式 | 能否单独停在这 |
 | --- | --- | --- | --- |
 | 1 | 加 `pyproject.toml`，声明直接依赖 | `uv sync && 跑一次主流程` | ✅ |
-| 2 | 提交 `uv.lock` | 同事能 `uv sync` 复现 | ✅ **收益最大的一步** |
+| 2 | 提交 `uv.lock` | 同事能 `uv sync` 复现 | ✅ 收益最大的一步 |
 | 3 | 改 src 布局，删掉所有 `sys.path.append` | 换个目录仍能运行 | ✅ |
 | 4 | 接入 Ruff（先只 `check`，不 `--fix`） | 看 diff 规模再决定是否全量格式化 | ✅ |
 | 5 | 补最小测试集（先覆盖主流程） | `uv run pytest` | ✅ |
@@ -2095,11 +2075,9 @@ uv build && uv venv /tmp/verify && \
 - [ ] 清楚自己处在「环境可复现」的哪一层，并在论文/报告里如实说明
 - [ ] ROS 2 项目：venv 的 Python 版本与发行版一致，或干脆用容器
 
----
-
 # 附录 A：性能与并发（简版）
 
-性能优化本身是另一个话题。这里只收录**与工程化直接咬合**的部分：剖析工具怎么接进项目，以及并发模型怎么选。
+性能优化本身是另一个话题。这里只收录与工程化直接咬合的部分：剖析工具怎么接进项目，以及并发模型怎么选。
 
 ## A.1 先测量，再优化
 
@@ -2118,7 +2096,7 @@ uv run memray flamegraph out.bin
 | 工具 | 定位 | 什么时候用 |
 | --- | --- | --- |
 | `cProfile`（标准库） | 函数级耗时统计 | 快速看一眼热点 |
-| **`py-spy`** | 采样式，**可挂到运行中的进程** | **训练卡住了、线上进程变慢** —— 最实用 |
+| **`py-spy`** | 采样式，可挂到运行中的进程 | 训练卡住了、线上进程变慢 —— 最实用 |
 | `scalene` | 区分 CPU / GPU / 内存，能分辨 Python 与原生代码耗时 | 想知道时间花在 Python 还是底层库 |
 | `memray` | 内存分配追踪 | DataLoader 内存持续增长这类问题 |
 
@@ -2126,9 +2104,9 @@ uv run memray flamegraph out.bin
 
 ## A.2 并发模型选型
 
-流传很广的那条规则 ——「CPU 密集用多进程，I/O 密集用异步」—— **对 AI 项目来说过于粗糙，经常给出错误结论**。
+流传很广的那条规则 ——「CPU 密集用多进程，I/O 密集用异步」—— 对 AI 项目来说过于粗糙，经常给出错误结论。
 
-原因是：**AI 项目的大量计算并不在 Python 里**。NumPy 的矩阵运算、PyTorch 的算子、图像解码库，在执行时都会**释放 GIL**。对这类工作，多线程是有效的：
+原因是：AI 项目的大量计算并不在 Python 里。NumPy 的矩阵运算、PyTorch 的算子、图像解码库，在执行时都会释放 GIL。对这类工作，多线程是有效的：
 
 ```mermaid
 flowchart TB
@@ -2158,17 +2136,17 @@ export OMP_NUM_THREADS=1        # 在 DataLoader worker 场景下通常就该设
 
 ## A.3 GIL 与 free-threading 的现状
 
-这一节的内容随版本变化快，**请以你实际使用的 Python 版本为准**。以下为写作时（2026 年 9 月）的状态：
+这一节的内容随版本变化快，请以你实际使用的 Python 版本为准。以下为写作时（2026 年 9 月）的状态：
 
-- **Python 3.13** 首次提供了 free-threaded 构建，标记为**实验性**。
-- **[PEP 779](https://peps.python.org/pep-0779/) 于 2025 年 6 月被接受**，其效果是从 **Python 3.14** 起去掉 free-threaded 构建的「实验性」标签。这对应 [PEP 703](https://peps.python.org/pep-0703/) 三阶段计划中的**第二阶段：正式支持，但仍是可选构建**。
-- 第三阶段（成为默认构建）**尚未到来，也没有确定时间表**。
-- 接受 PEP 779 的硬性条件之一是单线程性能回退不超过 15%，到 3.14 时差距已收窄到 **5–10%**。
+- **Python 3.13** 首次提供了 free-threaded 构建，标记为实验性。
+- **[PEP 779](https://peps.python.org/pep-0779/) 于 2025 年 6 月被接受**，其效果是从 Python 3.14 起去掉 free-threaded 构建的「实验性」标签。这对应 [PEP 703](https://peps.python.org/pep-0703/) 三阶段计划中的第二阶段：正式支持，但仍是可选构建。
+- 第三阶段（成为默认构建）尚未到来，也没有确定时间表。
+- 接受 PEP 779 的硬性条件之一是单线程性能回退不超过 15%，到 3.14 时差距已收窄到 5–10%。
 
 **所以，准确的说法是：**
 
 > ❌ 「Python 已经没有 GIL 了」
-> ✅ 「Python 3.14 起提供**官方支持的、可选的** free-threaded 构建；默认构建仍然有 GIL」
+> ✅ 「Python 3.14 起提供官方支持的、可选的 free-threaded 构建；默认构建仍然有 GIL」
 
 用 uv 获取 free-threaded 解释器：
 
@@ -2184,9 +2162,7 @@ uv venv --python 3.14+freethreaded
 2. **本领域的核心依赖（torch、numpy 及其整条原生依赖链）的支持程度需要按版本实测**，不能假设。
 3. **如前所述，这些库的重计算本来就会释放 GIL** —— 也就是说，free-threading 对典型 AI 负载的边际收益，可能比对纯 Python 服务小得多。
 
-值得关注，但**不要在生产项目上抢跑**。
-
----
+值得关注，但不要在生产项目上抢跑。
 
 # 参考资料
 
@@ -2216,8 +2192,6 @@ uv venv --python 3.14+freethreaded
 - [ROS 2 核心架构指南]({{ site.baseurl }}/ROS2-Survey/) — ROS 2 侧的工程实践
 - [具身驾驭系统（Embodied Agent Harness）综述]({{ site.baseurl }}/Embodied-Agent-Harness-Survey/) — 分布式系统与分层解耦
 
----
-
-> 本文的默认路径（uv + src 布局 + Ruff + pytest）适用于新建的、以 Python 依赖为主的项目。如果你的项目深度绑定 conda（§4.10）或必须活在 ROS 2 工作空间里（§8.4），请优先按那两节的边界讨论来处理 —— **它们不是「换个工具」能解决的问题**。
+> 本文的默认路径（uv + src 布局 + Ruff + pytest）适用于新建的、以 Python 依赖为主的项目。如果你的项目深度绑定 conda（§4.10）或必须活在 ROS 2 工作空间里（§8.4），请优先按那两节的边界讨论来处理 —— 它们不是「换个工具」能解决的问题。
 >
 > 写作时的版本基准：Python 3.14.7、uv 0.11.x。涉及版本行为的结论请以你实际使用的版本为准。
