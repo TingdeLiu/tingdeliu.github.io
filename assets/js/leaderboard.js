@@ -425,7 +425,7 @@
       group.className = 'lb-group';
       var label = document.createElement('span');
       label.className = 'filter-label';
-      label.textContent = f.label + (english ? ': ' : '：');
+      label.textContent = f.label;
       group.appendChild(label);
       f.opts.forEach(function (o) {
         var btn = document.createElement('button');

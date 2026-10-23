@@ -1287,12 +1287,54 @@ nav {
 }
 
 // 排行榜：筛选分组、非标准口径的灰色行与角标
+// 每组按钮拼成分段控件，配色与下方图表工具栏一致；计数靠右
 .lb-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 24px;
+
   .lb-group {
-    display: inline-block;
-    margin-right: 14px;
+    display: inline-flex;
+    align-items: center;
     white-space: nowrap;
   }
+
+  .filter-label {
+    margin-right: 8px;
+    color: var(--muted);
+  }
+
+  .filter-btn {
+    margin: 0;
+    padding: 3px 12px;
+    line-height: 1.5;
+    color: var(--prose);
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 0;
+
+    & + .filter-btn { margin-left: -1px; }
+    &:last-child { border-radius: 0 6px 6px 0; }
+
+    &:hover {
+      color: var(--ink);
+      border-color: var(--rule);
+      background: var(--panel);
+    }
+
+    &.active {
+      position: relative;
+      z-index: 1;
+      color: var(--paper);
+      background: var(--ink);
+      border-color: var(--ink);
+    }
+  }
+
+  .filter-label + .filter-btn { border-radius: 6px 0 0 6px; }
+
+  .filter-count { margin-left: auto; }
 
   // 没有 JS 时筛选栏是空的，不占位置
   &:empty {
