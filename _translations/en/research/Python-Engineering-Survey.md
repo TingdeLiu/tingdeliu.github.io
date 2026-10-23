@@ -5,10 +5,10 @@ translation_id: python-engineering-survey
 permalink: /en/Python-Engineering-Survey/
 source_path: _posts/research/2026-09-16-Python-Engineering-Survey.md
 source_url: /Python-Engineering-Survey/
-source_revision_date: 2026-10-04
-translation_updated: 2026-10-04
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "Python Engineering: A Practical Guide"
-date: 2026-10-04
+date: 2026-10-24
 tags: [Python, uv, pyproject, Packaging, Ruff, pytest, PyTorch, ROS2, Engineering, Reproducibility]
 categories: research
 comments: false
@@ -44,9 +44,9 @@ Most AI and robotics projects begin with a single `train.py`. It runs well on yo
 |Add CI|Passes locally but fails in CI, or vice versa|Reproducibility boundaries|
 |Return to maintain it six months later|Afraid to upgrade any package|Missing lockfile and tests|
 
-These symptoms have a common cause: **the code was never organized as an installable project**. It remained a collection of files that happened to run.
+These symptoms have a common cause: the code was never organized as an installable project. It remained a collection of files that happened to run.
 
-The goal is concrete: **turn research scripts into a Python project that others can install, run, and maintain**. This guide is neither a Python language tutorial nor a tool encyclopedia; it leaves out unrelated topics such as web frameworks, asynchronous programming paradigms, and metaprogramming.
+The goal is concrete: turn research scripts into a Python project that others can install, run, and maintain. This guide is neither a Python language tutorial nor a tool encyclopedia; it leaves out unrelated topics such as web frameworks, asynchronous programming paradigms, and metaprogramming.
 
 ## 1.2 Example projects throughout the text
 {: id="12-贯穿全文的示例项目"}
@@ -69,12 +69,12 @@ uv sync                 # Create environment + Install exactly by lockfile
 uv run pytest           # Run test
 ```
 
-Notice that this requires **no** `conda create`, `pip install -r requirements.txt`, `export PYTHONPATH=`, or instruction to install torch manually first. Each implicit setup convention removed reduces the chance of reproduction failure.
+Notice that this requires no `conda create`, `pip install -r requirements.txt`, `export PYTHONPATH=`, or instruction to install torch manually first. Each implicit setup convention removed reduces the chance of reproduction failure.
 
 ## 1.3 Reading methods
 {: id="13-阅读方式"}
 
-The guide follows one organizing principle: **give one default workflow in the main text, with alternatives explained briefly alongside it**.
+The guide follows one organizing principle: give one default workflow in the main text, with alternatives explained briefly alongside it.
 
 The technology options for the default path are:
 
@@ -83,11 +83,9 @@ Python 3.12+  ·  uv Management environment and dependency  ·  src Layout  ·  
 Ruff Check and format  ·  pytest test  ·  GitHub Actions run CI
 ```
 
-This combination suits **new projects whose dependencies are primarily Python packages**. Projects already tied closely to conda, or required to run inside a ROS 2 workspace, need the boundary discussions in §4.9 and §8.4. **Migrating to uv alone does not resolve those constraints.**
+This combination suits new projects whose dependencies are primarily Python packages. Projects already tied closely to conda, or required to run inside a ROS 2 workspace, need the boundary discussions in §4.9 and §8.4. Migrating to uv alone does not resolve those constraints.
 
 All configuration blocks in this article that can be copied directly have applicable conditions noted at the beginning. Version baseline at time of writing (September 2026): Python 3.14.7 and uv 0.11.x. Python 3.15 has since been released (2026-10-09), and uv has moved to the 0.13 series; for conclusions that depend on version behavior, check the versions you actually use.
-
----
 
 # 2. Environment and interpreter boundaries: Which Python is currently running?
 {: id="二环境与解释器边界当前到底跑的是哪个-python"}
@@ -123,11 +121,11 @@ There are only two main points:
 
 |Startup mode|First entry|Practical consequences|
 | --- | --- | --- |
-| `python script.py` |**The script directory** (not the current working directory)|A neighboring `.py` file with the same name can shadow an installed package|
-| `python -m pkg.mod` |**Current working directory**|When running in the project root directory, the source tree will be found first.|
-|`python -c "..."` / interactive|**Current working directory**|Same as above|
+| `python script.py` |The script directory (not the current working directory)|A neighboring `.py` file with the same name can shadow an installed package|
+| `python -m pkg.mod` |Current working directory|When running in the project root directory, the source tree will be found first.|
+|`python -c "..."` / interactive|Current working directory|Same as above|
 | `pytest` |Depends on rootdir and importmode configuration, see §5.4|It is easiest to "test the source code instead of installing the product"|
-|Jupyter kernel|The directory where the **Notebook file is located**|This is often not the same as your current directory in the terminal.|
+|Jupyter kernel|The directory where the Notebook file is located|This is often not the same as your current directory in the terminal.|
 
 After finishing the first item, the remaining order is roughly:
 
@@ -147,7 +145,7 @@ This single command is enough for troubleshooting:
 python -c "import sys, navkit; print(sys.executable); print(navkit.__file__)"
 ```
 
-The first output line identifies **the running interpreter**; the second identifies **the imported code**. Together, they expose most environment mismatches.
+The first output line identifies the running interpreter; the second identifies the imported code. Together, they expose most environment mismatches.
 
 ## 2.3 The truth about venv: it only does three things
 {: id="23-venv-的真相它只做了三件事"}
@@ -167,10 +165,10 @@ flowchart LR
 ```
 
 1. Put a `pyvenv.cfg`, and the `home` inside points to the real basic interpreter;
-2. Provide a `python` executable that reads `pyvenv.cfg` when it starts, points `sys.prefix` to venv itself, and `sys.base_prefix` still points to the base interpreter (the **standard library is shared and not copied**);
+2. Provide a `python` executable that reads `pyvenv.cfg` when it starts, points `sys.prefix` to venv itself, and `sys.base_prefix` still points to the base interpreter (the standard library is shared and not copied);
 3. So `site-packages` is resolved into venv, and the third-party package is isolated.
 
-A very useful inference is drawn from this: **`activate` is not necessary**. What the activation script basically does is "put the bin directory of venv at the front of `PATH` and set `VIRTUAL_ENV`". Directly calling the absolute path is completely equivalent and more reliable in scripts, cron, systemd, and CI:
+A very useful inference is drawn from this: `activate` is not necessary. What the activation script basically does is "put the bin directory of venv at the front of `PATH` and set `VIRTUAL_ENV`". Directly calling the absolute path is completely equivalent and more reliable in scripts, cron, systemd, and CI:
 
 ```bash
 .venv/bin/python -m pytest          # Linux / macOS
@@ -207,12 +205,12 @@ flowchart TB
 | `pip` |Install Python packages|No|Only the part that has been packaged into the wheel can be installed.|
 |`venv` (standard library)|Isolate site-packages|No|No|
 | `pyenv` |Install and switch interpreter versions|Yes (local compilation)|No|
-| `conda` / `mamba` |Environment + package + some system libraries|Yes|**Yes** (independent binary distribution system)|
+| `conda` / `mamba` |Environment + package + some system libraries|Yes|Yes (independent binary distribution system)|
 | `uv` |Environment + package + interpreter + project workflow|Yes (download precompiled version)|Only the part that has been packaged into the wheel can be installed.|
 
 **uv is the default workflow because it covers layers 2, 3, and 4.** A single `uv sync` ensures an appropriate interpreter, creates a venv, and installs dependencies from the lockfile. That is why the three commands in §1.2 suffice.
 
-The orange layer in the diagram remains outside that workflow: **none of these Python tools manages layer 1, the system libraries and drivers**. GPU drivers, glibc, and the system ROS 2 installation require separate handling in Chapter 8.
+The orange layer in the diagram remains outside that workflow: none of these Python tools manages layer 1, the system libraries and drivers. GPU drivers, glibc, and the system ROS 2 installation require separate handling in Chapter 8.
 
 ## 2.5 PEP 668: Why does system Python refuse you to install the package?
 {: id="25-pep-668系统-python-为什么拒绝你装包"}
@@ -224,7 +222,7 @@ error: externally-managed-environment
 × This environment is externally managed
 ```
 
-This is not a bug. [PEP 668](https://peps.python.org/pep-0668/) allows distributions to place a `EXTERNALLY-MANAGED` mark file in the interpreter directory, stating that "**, the Python site-packages, is handled by the system package manager (apt/dnf). Please do not write** in it for the installer."
+This is not a bug. [PEP 668](https://peps.python.org/pep-0668/) allows distributions to place a `EXTERNALLY-MANAGED` mark file in the interpreter directory, stating that ", the Python site-packages, is handled by the system package manager (apt/dnf). Please do not write in it for the installer."
 
 The reason is very practical: there are a number of tools in the system (including some components of apt itself) that depend on a specific version of the Python library. If you upgrade a public dependency, it may directly crash the system tools.
 
@@ -237,14 +235,14 @@ The reason is very practical: there are a number of tools in the system (includi
 |Run a tool temporarily|`uvx ruff check .` (leave no trace)|
 |You really need to change the system environment|Use `apt install python3-xxx` instead of pip|
 
-`--break-system-packages` This flag takes its name from its documentation: **It really breaks system packages**. Don't put it in any documentation or Dockerfile templates.
+`--break-system-packages` This flag takes its name from its documentation: It really breaks system packages. Don't put it in any documentation or Dockerfile templates.
 
 ## 2.6 Notebook, IDE and terminal: three interpreter inconsistencies
 {: id="26-notebookide-与终端三处解释器不一致"}
 
-This is one of the most frequent confusions in this field: **"I have installed it in the terminal, but I can't import it into Notebook."**
+This is one of the most frequent confusions in this field: "I have installed it in the terminal, but I can't import it into Notebook."
 
-The root cause is that Jupyter's **kernel and front-end are decoupled**. The environment you activate in the terminal and the kernel actually connected to the Notebook are completely different things:
+The root cause is that Jupyter's kernel and front-end are decoupled. The environment you activate in the terminal and the kernel actually connected to the Notebook are completely different things:
 
 ```mermaid
 flowchart LR
@@ -280,13 +278,13 @@ The situation of VS Code is similar: it has an independent "Python interpreter" 
 ## 2.7 Additional pitfalls of Windows and WSL
 {: id="27-windows-与-wsl-的额外坑"}
 
-Actual measurement on this machine - `where python` on this machine points to:
+On many Windows machines, the first result of `where python` is:
 
 ```
 C:\Users\<user>\AppData\Local\Microsoft\WindowsApps\python.exe
 ```
 
-This is not Python, but **Microsoft Store’s application execution alias**: a stub program that pops you up to the store page when not installed. The phenomenon it causes is that `python --version` has no output or behaves inexplicably.
+This is not Python, but Microsoft Store’s application execution alias: a stub program that pops you up to the store page when not installed. The phenomenon it causes is that `python --version` has no output or behaves inexplicably.
 
 Solution: *Settings → Application → Advanced Application Settings → Application Execution Alias*, turn off `python.exe` and `python3.exe`. If you use uv to manage the interpreter, this stub should not appear in front of `PATH`.
 
@@ -296,17 +294,15 @@ A few remaining Windows/WSL differences:
 | --- | --- | --- |
 |venv executable file| `.venv/bin/python` | `.venv\Scripts\python.exe` |
 |path separator| `:` | `;` |
-|File name case|Case-sensitive|**Case-insensitive**: `import Navkit` may succeed on Windows but fail on Linux|
+|File name case|Case-sensitive|Case-insensitive: `import Navkit` may succeed on Windows but fail on Linux|
 |symbolic link|Available by default|Developer mode is required, otherwise uv will degrade to copy or hard link|
 
 > **crossing WSL boundaries is a pure trap.** Do not build a venv under `/mnt/c/...`, and do not let Python in WSL use `.venv` on the Windows side. The binary formats are different (ELF vs. PE), file system performance is an order of magnitude worse, and line endings and permission semantics are inconsistent. When **developing in WSL, put the repository in its native filesystem** (such as `~/code/navkit`), and open it with VS Code's Remote-WSL.
 
----
-
 # 3. Project structure and project statement
 {: id="三项目结构与项目声明"}
 
-The directory tree and `pyproject.toml` describe two sides of the same project: **how files are arranged on disk**, and **which files the installer should place in site-packages**.
+The directory tree and `pyproject.toml` describe two sides of the same project: how files are arranged on disk, and which files the installer should place in site-packages.
 
 ## 3.1 First classify: application, library, experiment repository
 {: id="31-先分类应用库实验仓库"}
@@ -316,8 +312,8 @@ Before starting to create the directory, first answer a question: Which of the t
 |Dimensions|Application/Service|Publishable library|Experimental repository|
 | --- | --- | --- | --- |
 |Deliverables|A running environment that can run|A package installed in someone else’s environment|reproducible experimental records|
-|dependency version strategy|**Pinned** (the more precise, the better)|**Ranges** (declare compatible versions)|Locking + recording experiment metadata|
-|Do you want to submit lockfile?|**Yes**|**required, but only for development/CI**|**Yes**|
+|dependency version strategy|Pinned (the more precise, the better)|Ranges (declare compatible versions)|Locking + recording experiment metadata|
+|Do you want to submit lockfile?|Yes|required, but only for development/CI|Yes|
 |version number|Common dates or Git descriptions|Strictly semantic version|Often not needed|
 |Typical example|Robot host computer and inference services|`navkit` is referenced as dependency|Code repository for a certain paper|
 
@@ -333,14 +329,14 @@ flowchart TB
     style X fill:#ff6b6b,stroke:#c92a2a,color:#fff
 ```
 
-A library declares compatible version ranges in **`pyproject.toml`**, while an application records exact versions in **its lockfile**. Pinning a library dependency to `numpy==1.26.4` can create conflicts for downstream users; leaving an application unlocked gives up reproducibility.
+A library declares compatible version ranges in `pyproject.toml`, while an application records exact versions in its lockfile. Pinning a library dependency to `numpy==1.26.4` can create conflicts for downstream users; leaving an application unlocked gives up reproducibility.
 
 `navkit` has both library and application sides - this is very common. The method is: declare the loose range in `pyproject.toml` (the service library side), and submit `uv.lock` (the service development and CI side) at the same time. The two do not conflict.
 
 ## 3.2 Src layout vs flat layout
 {: id="32-src-布局-vs-扁平布局"}
 
-There is only one difference between the two layouts: the **package directory is not in the repository root directory**.
+There is only one difference between the two layouts: the package directory is not in the repository root directory.
 
 ```
 flat layout                          src Layout
@@ -352,31 +348,34 @@ navkit/                          navkit/
                                  └── pyproject.toml
 ```
 
-The difference seems insignificant, but the consequences are not small. Recall §2.2: When **you run `python -m ...` or `pytest` in the project root directory, the current directory becomes the first entry** of `sys.path`.
+The difference seems insignificant, but the consequences are not small. Recall §2.2: When you run `python -m...` or `pytest` in the project root directory, the current directory becomes the first entry of `sys.path`.
 
-- **flat layout**: `navkit/` is in the root directory, so `import navkit` hits the **source tree**, not the one you just installed.
+- **flat layout**: `navkit/` is in the root directory, so `import navkit` hits the source tree, not the one you just installed.
 - **src layout**: There is only `src/` in the root directory. `import navkit` cannot find anything in the root directory and can only go to site-packages.
 
 ```mermaid
 flowchart TB
     subgraph FLAT["Flat layout: run in the root directory"]
+        direction LR
         F1["sys.path[0] = Warehouse root directory"] --> F2["found ./navkit/"]
         F2 --> F3["Import source tree<br/>It is completely impossible to test whether the installation is correct or not."]
     end
     subgraph SRC["src Layout: run in root directory"]
+        direction LR
         S1["sys.path[0] = Warehouse root directory"] --> S2["Not in the root directory navkit/"]
         S2 --> S3["continue to find site-packages<br/>Import the installed one"]
     end
+    FLAT ~~~ SRC
     style F3 fill:#ffd8a8,stroke:#e8590c
     style S3 fill:#51cf66,stroke:#2f9e44,color:#fff
 ```
 
- **But you have to say it accurately** , here are two common over-promotions:
+**But state it precisely**: two claims are commonly overstated:
 
 1. **The src layout does not guarantee that tests exercise the final wheel.** Editable installation (§3.6) points back to `src/` through mechanisms such as `.pth`, so imports still read source code. The layout prevents accidental imports through the working directory; it does not eliminate differences between source and packaged artifacts.
 2. **To verify that wheel is really complete**, the only reliable way is to install it in a clean environment after building, see §7.3. For example, if the package data files (`.yaml`, `.pyi`) are missing, this is the only way to catch them.
 
-**Use a src layout for new projects.** It has negligible cost and eliminates a whole class of import problems.
+Use a src layout for new projects. It has negligible cost and eliminates a whole class of import problems.
 
 ## 3.3 Directory tree of navkit
 {: id="33-navkit-的目录树"}
@@ -425,7 +424,7 @@ A few conventions that are easily overlooked:
 
 `pyproject.toml` is often called the “single source of truth,” but that is imprecise. It does not record the resolved lock state (`uv.lock`), system libraries or GPU drivers (§8.1), or runtime configuration.
 
-It is better understood as **the central declaration of a Python project and its tool configuration**. Compare the complete `navkit` configuration below with its directory tree.
+It is better understood as the central declaration of a Python project and its tool configuration. Compare the complete `navkit` configuration below with its directory tree.
 
 ```toml
 # Applicable:Python 3.12+ · uv 0.11.x · src Layout · pure Python package
@@ -504,10 +503,10 @@ Each PEP covers a distinct responsibility:
 This is the most confusing set of concepts for beginners. In fact, the division of labor is very clear:
 
 ```mermaid
-flowchart LR
+flowchart TB
     U["The command you typed<br/>uv build / pip install ."] --> FE["Build the frontend<br/>uv / pip / build"]
-    FE -->|"1. read [build-system].requires<br/>2. Create an isolated environment and install them<br/>3. press PEP 517 Call backend"| BE["build backend<br/>hatchling / setuptools ..."]
-    BE -->|"Decide which files to include in the package<br/>Generate metadata"| ART["navkit-0.1.0.whl<br/>navkit-0.1.0.tar.gz"]
+    FE -->|"Read [build-system].requires, create an isolated environment<br/>Call the backend via PEP 517"| BE["build backend<br/>hatchling / setuptools ..."]
+    BE -->|"Decide which files go into the package, generate metadata"| ART["navkit-0.1.0.whl<br/>navkit-0.1.0.tar.gz"]
 ```
 
 - **Frontend** (uv, pip, build): prepares the environment and calls the backend; it does not determine how to build the package.
@@ -517,13 +516,13 @@ When selecting a back-end model, just choose one according to the actual situati
 
 |backend|When to choose it|
 | --- | --- |
-| **hatchling** |**The default choice for pure Python packages** - less configuration, src layout available out of the box|
+| **hatchling** |The default choice for pure Python packages - less configuration, src layout available out of the box|
 | setuptools |Migration of old projects may require some historical plug-ins|
 | flit-core |Extremely simple file package|
 | maturin |Contains Rust extension (PyO3)|
 | scikit-build-core |Contains C/C++/CUDA extensions via CMake|
 
-`navkit` is pure Python, using hatchling. **Projects with native extensions require additional work** (cross-compilation, ABI compatibility, manylinux build images). This article only explains the compatibility rules at the product level in §7.2, and the complete extension build workflow is not carried out.
+`navkit` is pure Python, using hatchling. Projects with native extensions require additional work (cross-compilation, ABI compatibility, manylinux build images). This article only explains the compatibility rules at the product level in §7.2, and the complete extension build workflow is not carried out.
 
 ## 3.6 Editable installation: principles and pitfalls
 {: id="36-可编辑安装原理与陷阱"}
@@ -544,7 +543,7 @@ So `import navkit` directly reads your source code, and the changes will take ef
 
 1. **Reinstall after changing `pyproject.toml`.** New dependencies, entry points, and file-inclusion rules do not automatically take effect: `.pth` connects paths, but installation metadata is recorded at install time. `uv sync` handles this in the uv workflow; otherwise, rerun `pip install -e .`.
 2. **The newly added subpackage may not be recognized.** Different backends have different `.pth` strategies: some connect the entire `src/` directory (new sub-packages are automatically visible), and some use precise mapping (must be reinstalled). If you encounter "The newly created module cannot be imported", reinstall it first.
-3. **Editable installation cannot verify packaging correctness.** It bypasses the decision about which files enter the wheel. The `default_params.yaml` in §3.3 may remain readable even if omitted from `[tool.hatch.build]`. **This is why the clean-environment check in §7.3 is essential.**
+3. **Editable installation cannot verify packaging correctness.** It bypasses the decision about which files enter the wheel. The `default_params.yaml` in §3.3 may remain readable even if omitted from `[tool.hatch.build]`. This is why the clean-environment check in §7.3 is essential.
 
 ## 3.7 Import, working directory and resource path
 {: id="37-导入工作目录与资源路径"}
@@ -595,13 +594,13 @@ navkit/planner.py  →  import navkit.geometry
 navkit/geometry.py →  import navkit.planner     ← ImportError
 ```
 
-Python starts executing `planner.py`, reaches `import geometry`, executes `geometry.py`, and encounters `import planner` again. At this point, `planner` already exists in `sys.modules`, but **its initialization is incomplete** and the required name does not yet exist.
+Python starts executing `planner.py`, reaches `import geometry`, executes `geometry.py`, and encounters `import planner` again. At this point, `planner` already exists in `sys.modules`, but its initialization is incomplete and the required name does not yet exist.
 
-Three solutions, **priority from high to low**:
+Three solutions, priority from high to low:
 
 |Plan|practice|Applicable scenarios|
 | --- | --- | --- |
-|**1. Extract a shared layer** (preferred)|Move shared definitions into `navkit/types.py`; both modules depend on it|Usually the best option: circular imports often signal incorrect layering|
+|1. Extract a shared layer (preferred)|Move shared definitions into `navkit/types.py`; both modules depend on it|Usually the best option: circular imports often signal incorrect layering|
 |**2. Import** only for type annotations|Wrapped with `if TYPE_CHECKING:`, it will not be executed at runtime.|Loops created purely for type annotation|
 |3. Delay import into function|Put `import` into the function body|Temporary workaround may mask design issues|
 
@@ -620,8 +619,6 @@ def describe(planner: "Planner") -> str:   # The annotation is a string and is n
 
 > Option 3 can save the emergency, but it hides the fact that "there are loops between modules". **If you find yourself using option 3 over and over again, it’s probably option 1 that you should be doing.**
 
----
-
 # 4. Dependency management and uv workflow
 {: id="四依赖管理与-uv-工作流"}
 
@@ -632,19 +629,19 @@ def describe(planner: "Planner") -> str:   # The annotation is a string and is n
 
 |Tools|Which layer to solve|Is there a cross-platform lockfile?|What projects are suitable for|Migration costs|
 | --- | --- | --- | --- | --- |
-| `pip` + `requirements.txt` |Just install|**No** (handwritten list is not lockfile )|Minimalist script| — |
-| `pip-tools` |Lock dependencies for pip|Yes, but **generates** separately according to the platform|Already have a pip process and just want to add a lockfile?|low|
+| `pip` + `requirements.txt` |Just install|No (handwritten list is not lockfile )|Minimalist script| — |
+| `pip-tools` |Lock dependencies for pip|Yes, but generates separately according to the platform|Already have a pip process and just want to add a lockfile?|low|
 | `Poetry` |environment + dependency + packaging|Yes (`poetry.lock`)|Mature project, the team is already familiar with it|Medium|
 | `PDM` |Same as above, keep up with the standards|Yes|Want to use PEP standard features|Medium|
 | `conda` / `mamba` |Environment + Python and non-Python binaries|Yes (`environment.yml` needs to be exported)|dependency A large number of non-Python binaries|high|
-| **`uv`** |**interpreter + environment + dependency + packaging**|Yes (`uv.lock`, **cross-platform**)|**New projects primarily using Python**|low to medium|
+| **`uv`** |interpreter + environment + dependency + packaging|Yes (`uv.lock`, cross-platform)|New projects primarily using Python|low to medium|
 
-**The "cross-platform lockfile" column is the key difference.** `pip-tools` The generated `requirements.txt` is bound to the platform and Python version of the machine on which it was generated - when generated on Linux, Windows colleagues cannot use it. `uv.lock` records the complete set of **resolution results**, including branches corresponding to each Python version on each platform, so one file is common to the entire team.
+**The "cross-platform lockfile" column is the key difference.** `pip-tools` The generated `requirements.txt` is bound to the platform and Python version of the machine on which it was generated - when generated on Linux, Windows colleagues cannot use it. `uv.lock` records the complete set of resolution results, including branches corresponding to each Python version on each platform, so one file is common to the entire team.
 
 ## 4.2 Two sets of uv workflows: don’t mix them
 {: id="42-uv-的两套工作流不要混用"}
 
-This is the easiest pitfall for uv. **Be sure to distinguish first** . uv provides two sets of commands with completely different semantics:
+This is the easiest pitfall for uv. Be sure to distinguish first. uv provides two sets of commands with completely different semantics:
 
 ```mermaid
 flowchart TB
@@ -665,10 +662,10 @@ flowchart TB
 | |Project workflow|`uv pip` Workflow|
 | --- | --- | --- |
 |Commands| `uv add` / `uv sync` / `uv run` | `uv pip install` / `uv pip compile` |
-|Does it change `pyproject.toml`?|**Yes**|**No**|
-|Will `uv.lock` be updated?|**Yes**|**No**|
+|Does it change `pyproject.toml`?|Yes|No|
+|Will `uv.lock` be updated?|Yes|No|
 |Positioning|Manage "project declared dependencies"|"Faster pip", manages packages temporarily installed into the environment|
-|when to use|**Default choice**|Migration transition period, one-off tools installed in CI, and old repositories that do not want to introduce locks|
+|when to use|Default choice|Migration transition period, one-off tools installed in CI, and old repositories that do not want to introduce locks|
 
 **Mixing workflows creates undeclared dependencies.** A package installed with `uv pip install some-pkg` can be used by your code without appearing in `pyproject.toml`. A colleague running `uv sync` cannot reproduce that environment, and your own next `uv sync` will remove the extra package.
 
@@ -681,14 +678,14 @@ This article deserves to be taken out separately - the following is the original
 
 > By default, an exact sync is performed: uv removes packages that are not declared as dependencies of the project. Use the `--inexact` flag to keep extraneous packages.
 
-**`uv sync` performs an exact synchronization by default**, removing packages that the project has not declared.
+`uv sync` performs an exact synchronization by default, removing packages that the project has not declared.
 
 This is a feature, not a bug - it ensures "environment state == lockfile state" and eliminates environment drift. But if you don’t know this, you’ll be confused like “Why do things I manually install disappear every time?”
 
 There are two exceptions to be aware of:
 
 - Add `--inexact` to reserve additional packages;
-- With `--no-build-isolation`, uv **does not remove extraneous packages**, to avoid deleting build dependencies.
+- With `--no-build-isolation`, uv does not remove extraneous packages, to avoid deleting build dependencies.
 
 |what you want to do|correct command|
 | --- | --- |
@@ -736,10 +733,10 @@ uvx ruff check .                  # Run once temporarily without leaving any tra
 
 |parameters|Semantics|Where to use|
 | --- | --- | --- |
-| `--locked` |**Requires an up-to-date lockfile**. If the lockfile is missing or needs to be updated, directly report an error and exit.|**Preferred for CI** - can catch "changed `pyproject` but forgot to re-lock"|
-| `--frozen` |Does not check whether the lockfile is consistent with `pyproject`. **Installs directly from the lockfile.**|Deploy images and offline environments|
+| `--locked` |Requires an up-to-date lockfile. If the lockfile is missing or needs to be updated, directly report an error and exit.|Preferred for CI - can catch "changed `pyproject` but forgot to re-lock"|
+| `--frozen` |Does not check whether the lockfile is consistent with `pyproject`. Installs directly from the lockfile.|Deploy images and offline environments|
 
-Without either flag, uv **automatically re-resolves dependencies** when the project declaration and lockfile disagree. CI may then test different dependencies from your local environment. Use `--locked` to make that drift an explicit build failure.
+Without either flag, uv automatically re-resolves dependencies when the project declaration and lockfile disagree. CI may then test different dependencies from your local environment. Use `--locked` to make that drift an explicit build failure.
 
 ## 4.5 Differences between four dependencies
 {: id="45-四种依赖的区别"}
@@ -769,17 +766,17 @@ flowchart TB
 |development dependency| `[dependency-groups]` | ❌ |Only required by developers and CI|
 |constraint file| `constraints.txt` | ❌ |No new dependencies are added, only upper and lower version limits are set for existing dependencies.|
 
-**Extras are user-facing feature switches** (`pip install navkit[torch]`); **dependency groups are development toolkits**, unavailable through downstream package installation. Ruff belongs in a development group, while optional torch functionality belongs in an extra.
+Extras are user-facing feature switches (`pip install navkit[torch]`); dependency groups are development toolkits, unavailable through downstream package installation. Ruff belongs in a development group, while optional torch functionality belongs in an extra.
 
 ## 4.6 Lockfile: What can be guaranteed and what cannot be guaranteed
 {: id="46-锁文件能保证什么不能保证什么"}
 
-A lockfile alone does not guarantee reproducibility. **Its guarantees apply to specific dimensions**, so assigning a single general “reproducibility level” is misleading:
+A lockfile alone does not guarantee reproducibility. Its guarantees apply to specific dimensions, so assigning a single general “reproducibility level” is misleading:
 
 |Dimensions|`requirements.txt` (handwritten)|`pip-tools` compiled product| `poetry.lock` | `uv.lock` |
 | --- | --- | --- | --- | --- |
 |Record the exact version of a direct dependency|It depends on how you write it| ✅ | ✅ | ✅ |
-|Record **exact transitive dependency versions**|❌ Often omitted| ✅ | ✅ | ✅ |
+|Record exact transitive dependency versions|❌ Often omitted| ✅ | ✅ | ✅ |
 |Record the hash value (tamper-proof)|Need to add manually|Optional `--generate-hashes`| ✅ | ✅ |
 |**Cross-platform universal**| ❌ |❌ One copy per platform| ✅ | ✅ |
 |Common across Python versions| ❌ | ❌ |part| ✅ |
@@ -787,23 +784,12 @@ A lockfile alone does not guarantee reproducibility. **Its guarantees apply to s
 
 **No lockfile can lock the following conditions.** Document these limits explicitly for the team:
 
-```mermaid
-flowchart TB
-    LOCK["What lockfile can lock:<br/>package name + version + Hash + Source index"]
-    NO1["✗ System library<br/>glibc / libstdc++ / CUDA drive"]
-    NO2["✗ Requires the compiler version when building from source<br/>The same version of source code, different compiler products are different"]
-    NO3["✗ Packages on the index are removed or replaced"]
-    NO4["✗ Not Python external services and data"]
-    LOCK -.->|"outside the border"| NO1
-    LOCK -.->|"outside the border"| NO2
-    LOCK -.->|"outside the border"| NO3
-    LOCK -.->|"outside the border"| NO4
-    style LOCK fill:#d3f9d8,stroke:#2f9e44
-    style NO1 fill:#ffc9c9,stroke:#c92a2a
-    style NO2 fill:#ffc9c9,stroke:#c92a2a
-    style NO3 fill:#ffc9c9,stroke:#c92a2a
-    style NO4 fill:#ffc9c9,stroke:#c92a2a
-```
+A lockfile pins only package names, versions, hashes, and source indexes. Everything below lies outside that boundary:
+
+- System libraries: glibc, libstdc++, and the CUDA driver;
+- The compiler used for source builds: the same source can produce different artifacts with different compilers;
+- Packages being deleted or replaced on the index;
+- External services and data that are not Python packages.
 
 Specifically for `uv.lock`, there are three conditions for use:
 
@@ -833,29 +819,25 @@ Implementation progress as of mid-2026:
 ## 4.8 Why is uv fast?
 {: id="48-uv-为什么快"}
 
-uv is faster, but attributing all of that improvement to Rust misses the point. Each of its four stages is optimized, and **the gains are distributed unevenly**:
+uv is faster, but attributing all of that improvement to Rust misses the point. Each of its four stages is optimized, and the gains are distributed unevenly:
 
-```mermaid
-flowchart LR
-    R["① parse<br/>Determine which versions to install"] --> D["② Download<br/>retrieve wheel"]
-    D --> C["③ cache<br/>Store in global cache"]
-    C --> I["④ Installation<br/>put in .venv"]
-    R -.->|"Version metadata only takes the required part<br/>Avoid downloading the entire package to read dependencies"| RN["Big improvement"]
-    D -.->|"High concurrency"| DN["Upgrading"]
-    C -.->|"global sharing<br/>Reuse the same unpacking results across projects"| CN["Big improvement"]
-    I -.->|"Prefer hard links over copies"| IN["Great improvement, but limited by file system"]
-```
+| Stage | What happens | Main optimization | Gain |
+| --- | --- | --- | --- |
+| ① Resolve | Decide which versions to install | Fetch only the metadata it needs instead of downloading whole packages to read dependencies | Large |
+| ② Download | Retrieve wheels | Highly concurrent downloads | Medium |
+| ③ Cache | Store in the global cache | Shared globally, so unpacked results are reused across projects | Large |
+| ④ Install | Place into `.venv` | Prefer hard links over copies | Large, but limited by the filesystem |
 
 Boundaries to note:
 
 - **Linking in step 4 depends on the platform and filesystem.** A hard link requires that the cache directory be on the same file system as `.venv`. When crossing disks, Docker layers, and WSL boundaries, it will fall back to copying, and the speed advantage will be greatly reduced. This is also a common answer to "Why is my uv not so fast in Docker" - see §7.5 for the solution.
 - **Step 1 loses its advantage** when you encounter a package that does not have a wheel and must be built from source code, because you have to actually execute the build.
-- The specific implementation details evolve with the version. **is subject to the behavior of the version you actually use** (the benchmark of this article is uv 0.11.x).
+- The specific implementation details evolve with the version. is subject to the behavior of the version you actually use (the benchmark of this article is uv 0.11.x).
 
 ## 4.9 Migrating from old projects
 {: id="49-从旧项目迁移"}
 
-Most readers do not start from an empty directory, but have a repository with conda, pip, and `sys.path` hack mixed in. The first step in **migration is not to change the command, but to understand the current situation first.**
+Most readers do not start from an empty directory, but have a repository with conda, pip, and `sys.path` hack mixed in. The first step in migration is not to change the command, but to understand the current situation first.
 
 ```mermaid
 flowchart TB
@@ -890,7 +872,7 @@ uv run python -m pip freeze > /tmp/after.txt
 diff /tmp/before.txt /tmp/after.txt
 ```
 
-**Step 3 is the critical point.** Do not copy the entire `pip freeze` output into `dependencies`: it includes transitive dependencies. Declare **the packages your code actually imports** and leave transitive resolution to the resolver. `uv pip compile` or `pipdeptree` can help inspect the dependency tree.
+**Step 3 is the critical point.** Do not copy the entire `pip freeze` output into `dependencies`: it includes transitive dependencies. Declare the packages your code actually imports and leave transitive resolution to the resolver. `uv pip compile` or `pipdeptree` can help inspect the dependency tree.
 
 **Plan B: Just want faster pip** (without introducing lockfile, used during the transition period)
 
@@ -899,7 +881,7 @@ uv venv
 uv pip install -r requirements.txt     # Semantics and pip Same, just much faster
 ```
 
-This has negligible migration cost and is easy to reverse, but **it is only a transitional workflow** and does not resolve reproducibility.
+This has negligible migration cost and is easy to reverse, but it is only a transitional workflow and does not resolve reproducibility.
 
 **Solution C: Keep conda as outer layer**
 
@@ -918,16 +900,16 @@ Several examples that are often mistakenly cited are worth clarifying one by one
 
 |dependency|Common claim|actual situation|
 | --- | --- | --- |
-|CUDA runtime required by PyTorch|"Must conda install cudatoolkit"|**Not required**. PyTorch's CUDA wheel has packaged the required runtime into `nvidia-*` dependency, which is directly available from pip/uv (§8.2)|
+|CUDA runtime required by PyTorch|"Must conda install cudatoolkit"|Not required. PyTorch's CUDA wheel has packaged the required runtime into `nvidia-*` dependency, which is directly available from pip/uv (§8.2)|
 | Open3D |"Only conda"|There is an official wheel on PyPI|
 | PCL |"Only conda"|It is essentially a C++ library. The distribution of Python bindings varies between platforms and needs to be tested according to the platform.|
-|Complete CUDA Toolkit (including `nvcc`)|"conda can be installed"|conda-forge does provide it, but **you don't need it at all if you're just running precompiled packages** (§8.3)|
+|Complete CUDA Toolkit (including `nvcc`)|"conda can be installed"|conda-forge does provide it, but you don't need it at all if you're just running precompiled packages (§8.3)|
 
 **To judge the process**, ask yourself three questions in order:
 
 1. Is there a wheel available on PyPI for what I need? → If yes, there is no need for conda.
 2. Can the required non-Python binaries be given to the container image or system package manager? → If possible, use them first (the boundaries are clearer).
-3. Is the team already using conda? → Yes, then the **migration cost itself is a valid reason to retain conda**.
+3. Is the team already using conda? → Yes, then the migration cost itself is a valid reason to retain conda.
 
 **If you do want to mix**, there is only one rule worth remembering:
 
@@ -939,11 +921,9 @@ conda activate navkit
 uv pip install -e .        # Note: use uv pip Workflow, not uv sync
 ```
 
-Here **you must use `uv pip`** - `uv sync` will create and take over its own `.venv`, which bypasses the conda environment you just built. This is the actual meaning of the distinction between "two sets of workflows" in §4.2.
+Here you must use `uv pip` - `uv sync` will create and take over its own `.venv`, which bypasses the conda environment you just built. This is the actual meaning of the distinction between "two sets of workflows" in §4.2.
 
 The opposite approach (first pip installation, then conda installation of the same package) will cause the two sets of metadata to overwrite each other, and the environment will enter an irreparable state. When **Rebuilding such an environment is faster than repairing it.**
-
----
 
 # 5. Quality and testing: the same process from local inspection to CI
 {: id="五质量与测试从本地检查到-ci-的同一条流程"}
@@ -964,7 +944,7 @@ flowchart LR
 ## 5.1 Ruff: Checking and Formatting
 {: id="51-ruff检查与格式化"}
 
-Ruff is implemented in Rust and is one to two orders of magnitude faster than traditional tools. **One tool handles both linting and formatting**, avoiding conflicts between separate checkers and formatters.
+Ruff is implemented in Rust and is one to two orders of magnitude faster than traditional tools. One tool handles both linting and formatting, avoiding conflicts between separate checkers and formatters.
 
 **Regarding the statement "Ruff replaces flake8 + isort + black", it needs to be said accurately**: Ruff covers most of the common rules and formatting behaviors of these tools, but it is not a bit-by-bit equivalent replacement——
 
@@ -1045,11 +1025,11 @@ strict_equality = true
 | | mypy | pyright / Pylance |
 | --- | --- | --- |
 |Positioning|Reference implementation closely following the typing PEPs|Fast speed, good built-in experience in VS Code|
-|Suggestions|Use it in **CI** (the result is stable and reproducible)|Use it **in the editor** (real-time feedback)|
+|Suggestions|Use it in CI (the result is stable and reproducible)|Use it in the editor (real-time feedback)|
 
 Using both is a reasonable combination: pyright supplies immediate editor feedback, while mypy performs the final check in CI.
 
-> A practical reminder for numerical code: `numpy` and `torch` have limited type annotation coverage, and the tensor shape is something that the type system cannot control. The benefit of **type checking in this type of code mainly comes from the function boundary (what type of objects the input and output are), not from the inside of the array.** Don’t expect it to help you catch shape mismatches.
+> A practical reminder for numerical code: `numpy` and `torch` have limited type annotation coverage, and the tensor shape is something that the type system cannot control. The benefit of type checking in this type of code mainly comes from the function boundary (what type of objects the input and output are), not from the inside of the array. Don’t expect it to help you catch shape mismatches.
 
 ## 5.3 Pre-commit: run checks before committing
 {: id="53-pre-commit把检查前移到提交时"}
@@ -1091,7 +1071,7 @@ uv run pre-commit run --all-files   # Run it all for the first time
 ## 5.4 Pytest: three really important mechanisms
 {: id="54-pytest三个真正重要的机制"}
 
-pytest has many functions, but for research projects, **mastering the following three things is enough to cover 90% of the scenarios**.
+pytest has many functions, but for research projects, mastering the following three things is enough to cover 90% of the scenarios.
 
 ### Configuration and import mode
 {: id="配置与导入模式"}
@@ -1107,20 +1087,20 @@ markers = [
 ]
 ```
 
-`--import-mode=importlib` deserves special mention - it allows pytest to use the standard import mechanism to find the test module, and **no longer inserts the path** into `sys.path`. Coupled with the src layout, this ensures that "the test imports the installed package." This is the test-side solution to the problem in §3.2.
+`--import-mode=importlib` deserves special mention - it allows pytest to use the standard import mechanism to find the test module, and no longer inserts the path into `sys.path`. Coupled with the src layout, this ensures that "the test imports the installed package." This is the test-side solution to the problem in §3.2.
 
 `--strict-markers` allows misspelled tags to report errors directly instead of silently ignoring them as unknown tags.
 
 ### Fixture scope
 {: id="fixture-的作用域"}
 
-Fixtures are pytest’s central abstraction: **declare what a test needs rather than constructing it manually inside the test**. Scope determines how often that setup is recreated:
+Fixtures are pytest’s central abstraction: declare what a test needs rather than constructing it manually inside the test. Scope determines how often that setup is recreated:
 
 |Scope|Creation frequency|Typical uses|
 | --- | --- | --- |
 |`function` (default)|Each test function|Temporary directory, Mutable test data|
 | `module` |each test file|Small read-only dataset|
-| `session` |Once per test session|**Load model weights and start simulator**|
+| `session` |Once per test session|Load model weights and start simulator|
 
 ```python
 # Tests/conftest.py —— in this file fixture Visible to all tests in the same directory and subdirectories
@@ -1231,7 +1211,7 @@ exclude_lines = [
 uv run pytest --cov --cov-report=term-missing
 ```
 
-> **Don’t treat coverage as a KPI.** It can only tell you which code **has never been executed** - that is valuable information; it cannot tell whether the executed code has been actually verified. Focusing on the uncovered rows listed in `--cov-report=term-missing` is much more useful than staring at percentages.
+> **Don’t treat coverage as a KPI.** It can only tell you which code has never been executed - that is valuable information; it cannot tell whether the executed code has been actually verified. Focusing on the uncovered rows listed in `--cov-report=term-missing` is much more useful than staring at percentages.
 
 **Multiple Python version tests** used to be the domain of tox / nox. With uv, it becomes very simple to do matrix testing locally:
 
@@ -1243,8 +1223,6 @@ done
 
 `--isolated` allows each version to use an independent environment without interfering with each other. The full test matrix is still left to CI (§7.6), and this loop locally is used for quick self-checking before pushing.
 
----
-
 # 6. Configuration, logs and command line
 {: id="六配置日志与命令行"}
 
@@ -1253,7 +1231,7 @@ When research code, these three things usually look like this: configuration rel
 ## 6.1 Configuration: First determine the priority chain
 {: id="61-配置先确定优先级链"}
 
-Before choosing a tool, make sure of one thing: **When the same parameter appears in multiple places, who has the final say?** . This order should be fixed and public:
+Before choosing a tool, make sure of one thing: When the same parameter appears in multiple places, who has the final say?. This order should be fixed and public:
 
 ```mermaid
 flowchart LR
@@ -1294,7 +1272,7 @@ class NavConfig(BaseSettings):
 | | pydantic-settings | Hydra / OmegaConf |
 | --- | --- | --- |
 |Strengths|Type checking, environment variables, IDE completion|Configuration combination, multi-group experimental scan (multirun)|
-|suitable for|**General configuration of applications and libraries**|**Large-scale experiment management**|
+|suitable for|General configuration of applications and libraries|Large-scale experiment management|
 |cost|Not good at configuring combinations|The learning curve is steep, `sys.argv` is taken over, and debugging is a little troublesome.|
 
 **The judgment standard is very simple.**: Do you need to "run 20 sets of hyperparameter combinations with one command"? Use Hydra if you need it, use pydantic-settings if you don't. `navkit` belongs to the latter.
@@ -1340,7 +1318,7 @@ flowchart TB
     style A1 fill:#d3f9d8,stroke:#2f9e44
 ```
 
-The reason is that the **propagation mechanism**: The records generated by the `navkit.planner` logger will be automatically transmitted upward to `navkit` and then to the root logger. The **configuration is only done once at the root and takes effect globally.** If the library itself is configured with a handler, the caller will see repeated output and cannot close it.
+The reason is that the propagation mechanism: The records generated by the `navkit.planner` logger will be automatically transmitted upward to `navkit` and then to the root logger. The configuration is only done once at the root and takes effect globally. If the library itself is configured with a handler, the caller will see repeated output and cannot close it.
 
 ```python
 # Src/navkit/planner.py —— The correct way to write the library
@@ -1405,12 +1383,10 @@ In conjunction with `[project.scripts]` in §3.4, the command `navkit plan ...` 
 |Tools|when to use|
 | --- | --- |
 |`argparse` (standard library)|Don’t want to introduce dependency, or only have one or two parameters|
-| **`typer`** |**Default choice**: generates argument parsing and help text from type annotations|
+| **`typer`** |Default choice: generates argument parsing and help text from type annotations|
 | `click` |The bottom layer of typer; use it directly when you need fine control|
 
 > **entry point function should be thin.** `cli.py` only does "parse parameters → assemble configuration → call core logic". The real algorithm stays in `planner.py`, so that it can be called from the command line and imported by other Python code - this is exactly how "library and application at the same time" in §3.1 are implemented.
-
----
 
 # 7. Build, Delivery and CI
 {: id="七构建交付与-ci"}
@@ -1431,7 +1407,7 @@ flowchart LR
 | |sdist (source distribution)|wheel (binary distribution)|
 | --- | --- | --- |
 |essence|Packaged source code|Pre-built installation products|
-|When installing|**requires executing build** on the target machine|Just unzip it|
+|When installing|requires executing build on the target machine|Just unzip it|
 |With native extensions|The target machine must have a compiler and header files|No compilation environment required|
 |function|Guaranteed, auditable, support for unpopular platforms|The actual source of daily installations|
 
@@ -1460,17 +1436,17 @@ The pure Python package is `py3-none-any` - no matter the three dimensions, one 
 **Two high-frequency misunderstandings must be clarified:**
 
 > **Misunderstanding 1: `manylinux` = "Common to all Linux".**
-> No. The meaning of `manylinux_2_28` is "**requires glibc ≥ 2.28**", which is a lower bound with a clear value. Systems older than this version cannot be installed; Alpine using musl is completely different (corresponding to `musllinux`). This is the reason why "everything installed by pip in the Alpine image must be compiled on-site".
+> No. The meaning of `manylinux_2_28` is "requires glibc ≥ 2.28", which is a lower bound with a clear value. Systems older than this version cannot be installed; Alpine using musl is completely different (corresponding to `musllinux`). This is the reason why "everything installed by pip in the Alpine image must be compiled on-site".
 >
 > **Also: `manylinux` only constrains the C runtime and does not promise any GPU driver compatibility.** Whether the CUDA code in a manylinux wheel can run depends on the driver version of the target machine (§8.1) and has nothing to do with this tag.
 
 > **Misunderstanding 2: `abi3` = "Common to all Python".**
-> No. `abi3` means that the extension only uses the **stable ABI subset** of CPython, so it can run on the declared minimum CPython version **and later versions**. It still binds CPython (PyPy does not apply) and is lower bounded.
+> No. `abi3` means that the extension only uses the stable ABI subset of CPython, so it can run on the declared minimum CPython version and later versions. It still binds CPython (PyPy does not apply) and is lower bounded.
 
 ## 7.3 Build and verify in a clean environment
 {: id="73-构建并在干净环境里验证"}
 
-This step is the homework left behind in §3.6 - **editable installation cannot verify the correctness of the packaging, only this step can.**
+This step is the homework left behind in §3.6 - editable installation cannot verify the correctness of the packaging, only this step can.
 
 ```bash
 # 1. Build two products
@@ -1501,15 +1477,15 @@ Typical problems that can be caught in this step:
 ## 7.4 Publishing: Give priority to trusted publishing
 {: id="74-发布优先用可信发布"}
 
-The traditional approach is to generate a PyPI API token and store it in CI secrets. **The problem with this solution is that the token is valid for a long time** : Once leaked, it will be available until you manually revoke it.
+The traditional approach is to generate a PyPI API token and store it in CI secrets. The problem with this solution is that the token is valid for a long time : Once leaked, it will be available until you manually revoke it.
 
-**Trusted Publishing** uses a different approach: register which GitHub repository and workflow may publish `navkit` on PyPI. CI exchanges a short-lived identity credential for a temporary token, so **the repository stores no long-lived publishing key**.
+**Trusted Publishing** uses a different approach: register which GitHub repository and workflow may publish `navkit` on PyPI. CI exchanges a short-lived identity credential for a temporary token, so the repository stores no long-lived publishing key.
 
 There are two things to distinguish (the easiest thing to get confused here):
 
 | |Identity and permissions|upload action|
 | --- | --- | --- |
-|Where to configure|**PyPI project settings page** + CI workflow `permissions: id-token: write`|A command in the workflow|
+|Where to configure|PyPI project settings page + CI workflow `permissions: id-token: write`|A command in the workflow|
 |Who decides whether to send it or not?|Registration rules on the PyPI side| — |
 |Common misunderstandings|I thought it would be ready if I changed the upload command.|`uv publish` only performs the upload, it is not responsible for establishing trust relationships|
 
@@ -1533,14 +1509,14 @@ jobs:
       - run: uv publish         # No need token, The certificate is provided by the above id-token provide
 ```
 
-> **Test the workflow on TestPyPI first.** **The same version number** can only be uploaded once on PyPI, and cannot be reused after deletion. When it is first released, it is better to test the waters with a pre-release version like `0.1.0rc1` than to overturn the official version number.
+> **Test the workflow on TestPyPI first.** The same version number can only be uploaded once on PyPI, and cannot be reused after deletion. When it is first released, it is better to test the waters with a pre-release version like `0.1.0rc1` than to overturn the official version number.
 
 ## 7.5 Docker: Make the dependency layer truly cached
 {: id="75-docker让依赖层真正被缓存"}
 
-The problem with the simple writing method is: `COPY . /app` is placed before dependency installation, so changing one line of code to **will invalidate all dependency layer caches**, and torch will be reinstalled every time it is built.
+The problem with the simple writing method is: `COPY. /app` is placed before dependency installation, so changing one line of code to will invalidate all dependency layer caches, and torch will be reinstalled every time it is built.
 
-The correct approach is **Split dependency installation and project installation into two layers** : 
+The correct approach is Split dependency installation and project installation into two layers : 
 
 ```dockerfile
 # Applicable:uv 0.11.x · Submitted uv.lock · need BuildKit(Docker 23+ enabled by default)
@@ -1651,7 +1627,7 @@ Regarding the **version number**, different strategies are adopted according to 
 | --- | --- |
 |Publishable library|Strict [Semantic version ](https://semver.org/lang/zh-CN/), manually maintained in `pyproject.toml`|
 |Application/Service|Date version (`2026.9.1`) or describe directly with Git|
-|Experimental repository|No version number is required, **uses commit hash to identify** (§8.6)|
+|Experimental repository|No version number is required, uses commit hash to identify (§8.6)|
 
 If you want to avoid the trouble of "synchronizing code changes and version number changes", you can derive the version number from the Git tag:
 
@@ -1685,17 +1661,15 @@ uvx pip-audit                       # Check current dependencies against known v
 
 > Academic projects often feel that vulnerability scanning is irrelevant. But once code **is deployed on a real robot or external service, security becomes directly relevant** - and that is usually discovered later in the project. The cost of a regular run is close to zero.
 
----
-
 # 8. Special practices for AI and robotics projects
 {: id="八ai-与机器人项目的特殊实践"}
 
-The content in the first seven chapters applies to any Python project. This chapter deals with problems unique to this field - almost all of them occur in the orange area **at the bottom of the picture** in §2.4: the system and driver layer that Python tools cannot manage.
+The content in the first seven chapters applies to any Python project. This chapter deals with problems unique to this field - almost all of them occur in the orange area at the bottom of the picture in §2.4: the system and driver layer that Python tools cannot manage.
 
 ## 8.1 GPU dependency stack: who manages each layer?
 {: id="81-gpu-依赖栈谁管哪一层"}
 
-"`torch.cuda.is_available()` returns False" is difficult to check because the GPU dependency is a **four-layer structure**, and pip/uv can only touch one of the layers:
+"`torch.cuda.is_available()` returns False" is difficult to check because the GPU dependency is a four-layer structure, and pip/uv can only touch one of the layers:
 
 ```mermaid
 flowchart TB
@@ -1714,11 +1688,11 @@ flowchart TB
     style L4 fill:#d3f9d8,stroke:#2f9e44
 ```
 
-**This picture clarifies a widespread misunderstanding.** Modern PyTorch's CUDA wheel **includes layer 3** - they are automatically installed as dependencies in the form of `nvidia-cuda-runtime-cu12`, `nvidia-cudnn-cu12`, etc. Therefore:
+**This picture clarifies a widespread misunderstanding.** Modern PyTorch's CUDA wheel includes layer 3 - they are automatically installed as dependencies in the form of `nvidia-cuda-runtime-cu12`, `nvidia-cudnn-cu12`, etc. Therefore:
 
-> If **you only want to run PyTorch, there is no need to install CUDA Toolkit in the system, and there is no need to use conda to install `cudatoolkit`.** You only need a new enough **driver**.
+> If **you only want to run PyTorch, there is no need to install CUDA Toolkit in the system, and there is no need to use conda to install `cudatoolkit`.** You only need a new enough driver.
 
-Driver backward compatibility: **The newer driver can run the older CUDA runtime**, but not vice versa. Therefore, it is usually safe to upgrade the driver, but most of the time the "CUDA version mismatch" error message is that the driver is too old.
+Driver backward compatibility: The newer driver can run the older CUDA runtime, but not vice versa. Therefore, it is usually safe to upgrade the driver, but most of the time the "CUDA version mismatch" error message is that the driver is too old.
 
 **A reading issue that must be clarified:**
 
@@ -1727,13 +1701,13 @@ nvidia-smi        # Display in the upper right corner "CUDA Version: 12.6"
 nvcc --version    # may show 12.1, It is also possible that the command does not exist at all
 ```
 
-The meanings of these two numbers **are completely different, and the inconsistency is normal**:
+The meanings of these two numbers are completely different, and the inconsistency is normal:
 
 |command|what is reported|
 | --- | --- |
-|`nvidia-smi` → `CUDA Version`|The highest CUDA runtime version supported by the **driver**, not the installed runtime|
-| `nvcc --version` |The version of CUDA Toolkit in the system ( **Only required when compiling** ) |
-| `torch.version.cuda` |The CUDA version **PyTorch was built for**; inspect this when troubleshooting|
+|`nvidia-smi` → `CUDA Version`|The highest CUDA runtime version supported by the driver, not the installed runtime|
+| `nvcc --version` |The version of CUDA Toolkit in the system ( Only required when compiling ) |
+| `torch.version.cuda` |The CUDA version PyTorch was built for; inspect this when troubleshooting|
 
 Three rounds of troubleshooting:
 
@@ -1742,12 +1716,12 @@ uv run python -c "import torch; print(torch.__version__, torch.version.cuda, tor
 nvidia-smi --query-gpu=driver_version --format=csv
 ```
 
-If `torch.version.cuda` outputs `None`, it means that you are installing the **CPU version** - this is the most common situation. See the next section for the solution.
+If `torch.version.cuda` outputs `None`, it means that you are installing the CPU version - this is the most common situation. See the next section for the solution.
 
 ## 8.2 Use uv to precisely control the source of torch
 {: id="82-用-uv-精确控制-torch-的来源"}
 
-CPU and CUDA variants of torch **have the same package name**. The difference is only in the source index. Without any configuration, you get the default version on PyPI - usually the CUDA version on Linux, but it may be the CPU version on other platforms or under certain version combinations, and it is completely out of your control.
+CPU and CUDA variants of torch have the same package name. The difference is only in the source index. Without any configuration, you get the default version on PyPI - usually the CUDA version on Linux, but it may be the CPU version on other platforms or under certain version combinations, and it is completely out of your control.
 
 **Explicitly declare the index to make this matter certain.** The following TOML is based on the uv documentation:
 
@@ -1806,7 +1780,7 @@ uv sync --extra cu130    # training server
 ## 8.3 Running precompiled packages vs compiling custom CUDA extensions
 {: id="83-运行预编译包-vs-编译自定义-cuda-扩展"}
 
-These are two **completely different scenarios**. The requirements are very different. Confusing them will lead to a lot of wasted effort (such as installing CUDA Toolkit in order to run inference):
+These are two completely different scenarios. The requirements are very different. Confusing them will lead to a lot of wasted effort (such as installing CUDA Toolkit in order to run inference):
 
 ```mermaid
 flowchart TB
@@ -1828,9 +1802,9 @@ flowchart TB
 |Requires system CUDA Toolkit| ❌ | ✅ |
 |CUDA version requirements|Just the driver is new enough|Toolkit version must match `torch.version.cuda` |
 |Build/install time|few minutes|Ten minutes to several hours|
-|Suggestions|**Default path**|Try to find the official precompiled wheel first|
+|Suggestions|Default path|Try to find the official precompiled wheel first|
 
-**Scenario B There is a pitfall** that you must know: packages like `flash-attn` need `import torch` to obtain compilation parameters when building. By default, PEP 517 executes the build in the **isolated build environment**. There is no torch in that environment, so the build fails. Therefore, the installation instructions of such packages always include `--no-build-isolation` - it allows the build process to directly use the current environment (torch is already in it).
+**Scenario B There is a pitfall** that you must know: packages like `flash-attn` need `import torch` to obtain compilation parameters when building. By default, PEP 517 executes the build in the isolated build environment. There is no torch in that environment, so the build fails. Therefore, the installation instructions of such packages always include `--no-build-isolation` - it allows the build process to directly use the current environment (torch is already in it).
 
 Corresponds to uv:
 
@@ -1840,12 +1814,12 @@ Corresponds to uv:
 no-build-isolation-package = ["flash-attn"]
 ```
 
-> Recall §4.3: When **uses `--no-build-isolation`, `uv sync` will not delete the redundant package** (for fear of accidentally deleting the build dependency). This means that the environment of such projects will gradually drift away from the strict state of the lockfile - it is worthwhile to rebuild the environment periodically.
+> Recall §4.3: When uses `--no-build-isolation`, `uv sync` will not delete the redundant package (for fear of accidentally deleting the build dependency). This means that the environment of such projects will gradually drift away from the strict state of the lockfile - it is worthwhile to rebuild the environment periodically.
 
 ## 8.4 Compatibility boundaries between ROS 2 and virtual environment
 {: id="84-ros-2-与虚拟环境的兼容边界"}
 
-"Python in ROS 2 cannot be installed into venv" This sentence mixes several different problems into one sentence, making it impossible to start troubleshooting. **There are three independent constraints**. It will be clear when you take them apart one by one.
+"Python in ROS 2 cannot be installed into venv" This sentence mixes several different problems into one sentence, making it impossible to start troubleshooting. There are three independent constraints. It will be clear when you take them apart one by one.
 
 ```mermaid
 flowchart TB
@@ -1876,7 +1850,7 @@ ModuleNotFoundError: No module named 'rclpy._rclpy_pybind11'
 
 **This error is misleading**: It looks like "the package is not installed", but it is actually "the interpreter version is wrong".
 
-> **Corollary: The Python version of venv must be consistent with the one used by the ROS 2 distribution** (for example, Jazzy on Ubuntu 24.04 corresponds to Python 3.12). This also means that **do not let uv download a separate interpreter to create this venv** - it should be explicitly created based on the system interpreter.
+> **Corollary: The Python version of venv must be consistent with the one used by the ROS 2 distribution** (for example, Jazzy on Ubuntu 24.04 corresponds to Python 3.12). This also means that do not let uv download a separate interpreter to create this venv - it should be explicitly created based on the system interpreter.
 
 **Constraint 3: `--system-site-packages` only addresses visibility**
 
@@ -1888,15 +1862,15 @@ sys.path[0] → PYTHONPATH → standard library → venv of site-packages
             ROS The package is here           Your bag is here (further back)
 ```
 
-**PYTHONPATH takes precedence over venv site-packages.** The consequence is is: if ROS comes with a `numpy`, and you install another version in venv, the **code actually imports the ROS version**. This explains "I obviously installed a new version of numpy, but it is still an old version when running."
+**PYTHONPATH takes precedence over venv site-packages.** The consequence is is: if ROS comes with a `numpy`, and you install another version in venv, the code actually imports the ROS version. This explains "I obviously installed a new version of numpy, but it is still an old version when running."
 
-The `--system-site-packages` flag only allows venv to see the **site-packages of the** system interpreter - it deals with visibility issues. **can neither solve the version mismatch nor change the priority of PYTHONPATH**.
+The `--system-site-packages` flag only allows venv to see the site-packages of the system interpreter - it deals with visibility issues. can neither solve the version mismatch nor change the priority of PYTHONPATH.
 
 **Feasible working methods**, sorted by recommendation:
 
 |Plan|practice|Applicable|
 | --- | --- | --- |
-|**A. Don’t use venv, use container**|The entire ROS 2 workspace is put into the Docker image, and the dependency is fixed in the image.|**recommends** - the clearest boundary and the best reproducibility|
+|**A. Don’t use venv, use container**|The entire ROS 2 workspace is put into the Docker image, and the dependency is fixed in the image.|recommends - the clearest boundary and the best reproducibility|
 |**B. Version aligned venv**|Use the system interpreter to build venv, the version is consistent with ROS, add `--system-site-packages`|When you need to install a small amount of pure Python dependencies on the host machine|
 |C. Complete separation|ROS node only communicates. The algorithm runs in an independent process/independent environment and uses topic or IPC communication.|When algorithm dependency seriously conflicts with ROS dependency|
 
@@ -1916,7 +1890,7 @@ uv pip install -e .        # Pay attention to use uv pip Workflow (§4.2), Don't
 ## 8.5 Environment reproducible ≠ Experiment reproducible
 {: id="85-环境可复现--实验可复现"}
 
-This is the most important thing to realize in research projects: **lock dependencies and set up seeds, and there are still two layers** away from "experimental reproducible".
+This is the most important thing to realize in research projects: lock dependencies and set up seeds, and there are still two layers away from "experimental reproducible".
 
 ```mermaid
 flowchart TB
@@ -1939,7 +1913,7 @@ flowchart TB
 | --- | --- | --- |
 |1 dependency|Accurate to version and hash|System libraries, drivers, compilers (§4.6)|
 |2 input|Seeds, configuration snapshots|If the data set itself is modified, the seed is meaningless.|
-|3 Computation|Enable deterministic operators|**Results can change on a different GPU model**|
+|3 Computation|Enable deterministic operators|Results can change on a different GPU model|
 |4 Conclusions|Statistics over repeated runs|Identical values from a single run|
 
 **Layer 2: set all relevant seeds**
@@ -1972,18 +1946,18 @@ Three costs and boundaries that **must know:**
 
 1. **Execution becomes slower.** There is usually a performance penalty for turning off `cudnn.benchmark` and using deterministic operator implementations.
 2. **Some operators have no deterministic implementation. When determinism** is turned on, they will throw exceptions directly instead of silently degrading - this is by design, you have to decide what to do.
-3. **Cross-hardware reproducibility remains limited.** Different GPU architectures, different cuDNN versions, and different parallel reduction orders will produce floating point differences. **"Reproducible on the same machine" and "Reproducible on another machine" are two goals with completely different difficulties**. The latter is basically unreachable in deep learning.
+3. **Cross-hardware reproducibility remains limited.** Different GPU architectures, different cuDNN versions, and different parallel reduction orders will produce floating point differences. "Reproducible on the same machine" and "Reproducible on another machine" are two goals with completely different difficulties. The latter is basically unreachable in deep learning.
 
-There is another one that is easy to ignore: **TF32**. On newer NVIDIA GPUs, PyTorch may default to using TF32 for matrix multiplication - it is faster, but less accurate than FP32. This will make your numerical results inconsistent when changing machines. To achieve strict alignment, you need to turn it off explicitly.
+There is another one that is easy to ignore: TF32. On newer NVIDIA GPUs, PyTorch may default to using TF32 for matrix multiplication - it is faster, but less accurate than FP32. This will make your numerical results inconsistent when changing machines. To achieve strict alignment, you need to turn it off explicitly.
 
 **Layer 4: report results honestly**
 
-Metrics from a single run do not constitute conclusions. **Run 3–5 seeds and report the mean and standard deviation** - if your improvement is less than the variance between seeds, it is not a conclusion.
+Metrics from a single run do not constitute conclusions. Run 3–5 seeds and report the mean and standard deviation - if your improvement is less than the variance between seeds, it is not a conclusion.
 
 ## 8.6 Experiment artifact management
 {: id="86-实验产物管理"}
 
-Code and dependencies are only half the reproducible part. **The other half is: what was used and what was produced during this run.**
+Code and dependencies are only half the reproducible part. The other half is: what was used and what was produced during this run.
 
 Save metadata for every run:
 
@@ -2033,13 +2007,13 @@ Supporting storage conventions:
 |dependency lock| `uv.lock` | ✅ |
 |Configuration snapshot|Save with output directory|❌(The original configuration template is entered, but the snapshot is not)|
 |Model weights|Object Storage / Git LFS / Special Tools| ❌ |
-|Dataset|External storage, **record version identification**| ❌ |
+|Dataset|External storage, record version identification| ❌ |
 |Run metadata| `outputs/<run_id>/provenance.json` | ❌ |
 
 ## 8.7 High frequency troubleshooting table
 {: id="87-高频故障排查表"}
 
-This table is indexed by **symptom**, not by tool. If you encounter a problem, start here, which is faster than searching for error messages.
+This table is indexed by symptom, not by tool. If you encounter a problem, start here, which is faster than searching for error messages.
 
 |Symptoms|What to check first|Common causes and sources|
 | --- | --- | --- |
@@ -2059,8 +2033,6 @@ This table is indexed by **symptom**, not by tool. If you encounter a problem, s
 | `No module named 'rclpy._rclpy_pybind11'` |Python version of venv|Inconsistent with ROS 2 distribution version (§8.4)|
 |Same seed, two machines have different results|GPU model, cuDNN version, TF32|Not reproducible across hardware (§8.5)|
 |Docker build reinstalls dependencies every time|Is the dependency layer separated from the source layer?|Missing `--no-install-project` layer (§7.5)|
-
----
 
 # 9. Implementation Checklist and Decision Tree
 {: id="九落地清单与决策树"}
@@ -2120,18 +2092,18 @@ uv build && uv venv /tmp/verify && \
   cd /tmp && /tmp/verify/bin/python -c "import navkit; print(navkit.__file__)"
 ```
 
-Submitted to Git: `pyproject.toml`, **`uv.lock`**, `.pre-commit-config.yaml`, `.github/workflows/`, `src/`, `tests/`.
+Submitted to Git: `pyproject.toml`, `uv.lock`, `.pre-commit-config.yaml`, `.github/workflows/`, `src/`, `tests/`.
 Not submitted: `.venv/`, `outputs/`, `data/`, `*.ckpt`, `__pycache__/`.
 
 ## 9.3 Modify old projects: do it in sequence, don’t modify it all at once
 {: id="93-改造旧项目按顺序做不要一次全改"}
 
-Migration often fails because too many things change at once, making the cause hard to identify. Follow this sequence so **each step can be verified and rolled back independently**:
+Migration often fails because too many things change at once, making the cause hard to identify. Follow this sequence so each step can be verified and rolled back independently:
 
 |Step|Action|Verification|Can you stop after this step?|
 | --- | --- | --- | --- |
 | 1 |Add `pyproject.toml` to declare direct dependency| `uv sync` followed by one run of the main workflow | ✅ |
-| 2 |Submit `uv.lock`|Colleagues can reproduce `uv sync`|✅ **The biggest profit step**|
+| 2 |Submit `uv.lock`|Colleagues can reproduce `uv sync`|✅ The biggest profit step|
 | 3 |Change the src layout and delete all `sys.path.append`|It can still run if you change the directory| ✅ |
 | 4 |Access Ruff (first only `check`, not `--fix`)|Check the size of the diff before deciding whether to fully format it.| ✅ |
 | 5 |Complement the minimum test set (cover the main process first)| `uv run pytest` | ✅ |
@@ -2177,8 +2149,6 @@ Migration often fails because too many things change at once, making the cause h
 - [ ] Know which level of "environmental reproducible" you are at, and state it truthfully in your paper/report
 - [ ] ROS 2 project: Match the Python version of venv to the distribution, or simply use a container
 
----
-
 # Appendix A: Performance and Concurrency (Short Version)
 {: id="附录-a性能与并发简版"}
 
@@ -2202,7 +2172,7 @@ uv run memray flamegraph out.bin
 |Tools|Positioning|when to use|
 | --- | --- | --- |
 |`cProfile` (standard library)|Function-level runtime statistics|Take a quick look at the hot spots|
-| **`py-spy`** |Sampling type, **can attach to a running process**|**The training is stuck and the online process is slowed down**——The most practical|
+| **`py-spy`** |Sampling type, can attach to a running process|The training is stuck and the online process is slowed down——The most practical|
 | `scalene` |Distinguish between CPU/GPU/memory and be able to distinguish between Python and native code runtime|Want to know whether time is spent on Python or the underlying library?|
 | `memray` |Memory allocation tracking|Problems such as DataLoader memory continues to grow|
 
@@ -2211,9 +2181,9 @@ uv run memray flamegraph out.bin
 ## A.2 Concurrency model selection
 {: id="a2-并发模型选型"}
 
-The widely circulated rule - "CPU-intensive uses multi-process, I/O-intensive uses asynchronous" - **is too rough for AI projects and often gives wrong conclusions**.
+The widely circulated rule - "CPU-intensive uses multi-process, I/O-intensive uses asynchronous" - is too rough for AI projects and often gives wrong conclusions.
 
-Many AI computations execute outside Python. **NumPy matrix operations, PyTorch operators, and image-decoding libraries release the GIL** while running native code. Threads can therefore be effective for those workloads:
+Many AI computations execute outside Python. NumPy matrix operations, PyTorch operators, and image-decoding libraries release the GIL while running native code. Threads can therefore be effective for those workloads:
 
 ```mermaid
 flowchart TB
@@ -2244,17 +2214,17 @@ export OMP_NUM_THREADS=1        # in DataLoader worker In this scenario, it shou
 ## A.3 Current status of GIL and free-threading
 {: id="a3-gil-与-free-threading-的现状"}
 
-The content of this section changes rapidly with the version. **Please refer to the Python version you actually use**. Here is the status at the time of writing (September 2026):
+The content of this section changes rapidly with the version. Please refer to the Python version you actually use. Here is the status at the time of writing (September 2026):
 
-- **Python 3.13** first provides a free-threaded build, labeled **experimental**.
-- **[PEP 779](https://peps.python.org/pep-0779/) was accepted in June 2025**, with the effect of removing the "experimental" label for free-threaded builds starting from **Python 3.14**. This corresponds to **Phase 2 of the three-phase plan [PEP 703](https://peps.python.org/pep-0703/): Officially supported, but still optional, build**.
-- The third phase, making it the default build, **has not arrived and has no confirmed timetable**.
-- One of the hard conditions for accepting PEP 779 is that the single-threaded performance regression does not exceed 15%, and by 3.14 the gap has narrowed to **5–10%**.
+- **Python 3.13** first provides a free-threaded build, labeled experimental.
+- **[PEP 779](https://peps.python.org/pep-0779/) was accepted in June 2025**, with the effect of removing the "experimental" label for free-threaded builds starting from Python 3.14. This corresponds to Phase 2 of the three-phase plan [PEP 703](https://peps.python.org/pep-0703/): Officially supported, but still optional, build.
+- The third phase, making it the default build, has not arrived and has no confirmed timetable.
+- One of the hard conditions for accepting PEP 779 is that the single-threaded performance regression does not exceed 15%, and by 3.14 the gap has narrowed to 5–10%.
 
 **So, the accurate statement is:**
 
 > ❌ "Python no longer has a GIL"
-> ✅ "Python 3.14 and later provides **officially supported, optional** free-threaded build; the default build still has GIL"
+> ✅ "Python 3.14 and later provides officially supported, optional free-threaded build; the default build still has GIL"
 
 Get the free-threaded interpreter with uv:
 
@@ -2271,8 +2241,6 @@ uv venv --python 3.14+freethreaded
 3. **As noted above, heavy computation in these libraries already releases the GIL** - that is, the marginal benefit of free-threading for typical AI workloads is likely to be much smaller than for pure Python services.
 
 This is worth watching, but **do not rush to adopt it in production projects**.
-
----
 
 # References
 {: id="参考资料"}
@@ -2302,8 +2270,6 @@ This is worth watching, but **do not rush to adopt it in production projects**.
 
 - {% include content-link.html url="/ROS2-Survey/" label="ROS 2 Core Architecture Guide" %} — Engineering Practice on the ROS 2 Side
 - {% include content-link.html url="/Embodied-Agent-Harness-Survey/" label="Review of Embodied Agent Harness" %} — Distributed systems and hierarchical decoupling
-
----
 
 > The default path in this article (uv + src layout + Ruff + pytest) is suitable for newly created projects based on Python dependency. If your project is deeply bound to conda (§4.10) or must live in the ROS 2 workspace (§8.4), please give priority to the boundary discussions in those two sections - **They are not problems that can be solved by "changing tools"**.
 >
