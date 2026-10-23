@@ -2,8 +2,8 @@
   "source": "_posts/research/2026-01-05-VLN-Papers.md",
   "translation": "_translations/en/research/VLN-Papers.md",
   "stage": "complete",
-  "updated_on": "2026-10-05",
-  "total_papers": 56,
+  "updated_on": "2026-10-24",
+  "total_papers": 60,
   "completed_papers": {
     "r2r": {
       "source_hash": "5df534b80c984ad9599046180a2fa4ac74915a79f7b6e1865cfd62c694c236f8",
@@ -228,6 +228,22 @@
     "seekvln": {
       "source_hash": "b09c9a35c709a27abde0bac32cf45e46e26f0b2dc4fb157495b6bf0dcb4f0280",
       "status": "translated-and-content-parity-validated"
+    },
+    "navgpt-3": {
+      "source_hash": "565069a75d60fd2c27c61fc06da573126077284170a9b52d5f66fb966db16491",
+      "status": "translated-and-content-parity-validated"
+    },
+    "rsi-nav": {
+      "source_hash": "41207f78cec8a9da479de4f891381a5b7f4f9b2620d51cd537b52c89da38b266",
+      "status": "translated-and-content-parity-validated"
+    },
+    "simplevln": {
+      "source_hash": "594bcf63d34dd90d4c55c679f7b31a1b4e68ca7c541b8a8ffe69ce42e9a645f7",
+      "status": "translated-and-content-parity-validated"
+    },
+    "efficient-vln": {
+      "source_hash": "ec1cf9ba531e4af24bb2a1998d05d99e14723ddf719b2831c977d946df99f80b",
+      "status": "translated-and-content-parity-validated"
     }
   },
   "next_batch": [],
@@ -238,7 +254,8 @@
     "Diagram labels translated separately; paper filters localized, extended-collection links explicitly labeled Chinese-only.",
     "DualVLN illustrative training code corrected against Appendix A.2; real-world RGB-D and odometry distinguished from RGB-only simulation.",
     "MapNav R2R OS/SR headers corrected against arXiv v5 Table 1.",
-    "2026-10-05: SeekVLN synchronized in the English main collection, including all methods, equations, examples, results, limitations, four figure captions, two leaderboard rows, 23-entry component matrix, adoption-rate analysis, reference, tags, and cross-page filtering. Earlier AwareVLN and Robostral source revisions reviewed against the English text; NaVid equation formatting restored to source parity."
+    "2026-10-05: SeekVLN synchronized in the English main collection, including all methods, equations, examples, results, limitations, four figure captions, two leaderboard rows, 23-entry component matrix, adoption-rate analysis, reference, tags, and cross-page filtering. Earlier AwareVLN and Robostral source revisions reviewed against the English text; NaVid equation formatting restored to source parity.",
+    "2026-10-24: NavGPT-3 and Efficient-VLN translated in full; RSI-Nav and SimpleVLN recorded as complete. Both leaderboards gained the NavGPT-3, NavGPT VLA 8B, and Efficient-VLN rows, with best-value bolding updated; RSI-Nav's two rows were moved from the DualVLN comparison table, where they had been inserted by mistake, into the R2R-CE and RxR-CE leaderboards. The component matrix (28 entries), its notes, the adoption-rate analysis, references, tags, and cross-page filtering were retranslated from the Chinese source. Per-paper parity of equations, figures, external links, and table values passes for all 60 readings; not rebuilt locally because Ruby and Bundler are unavailable."
   ],
   "previous_validation": {
     "reviewed_on": "2026-10-03",

@@ -1,8 +1,8 @@
 # English edition: scope and maintenance
 
 The English edition contains the complete VLN Survey, VLN Papers: Instruction
-Following (56 readings), and VLN Papers: Goal Navigation and Extensions
-(34 main readings and 3 related readings, 37 total), and all eight existing
+Following (60 readings), and VLN Papers: Goal Navigation and Extensions
+(40 paper entries), and all eight existing
 embodied-navigation weekly digests (six published and two unpublished), plus `/en/`, `/en/research/`, and
 `/en/blog/`. Both paper collections have localized filters, leaderboards,
 and reciprocal English companion links. The Traditional Robot Navigation
@@ -212,6 +212,28 @@ unrendered emphasis, or page errors occurred. The built-site validator reports
 rendered source-link and heading-ID checks (19 matching headings each) and are
 absent from the production output. All 16 source/translation weekly files pass
 the post linter, and the 11 existing regression tests pass.
+
+### NavGPT-3 and Efficient-VLN synchronization (2026-10-24)
+
+The instruction-following collection now has all 60 Chinese readings in English.
+NavGPT-3 (reading 57) and Efficient-VLN (reading 60) are translated in full,
+including tables, equations, worked examples, two Mermaid diagrams, and seven
+figure captions with alternative text. RSI-Nav and SimpleVLN were already
+translated and are now recorded as complete in the progress file.
+
+The R2R-CE and RxR-CE leaderboards gained the NavGPT-3, NavGPT VLA 8B, and
+Efficient-VLN rows, and best-value bolding was updated. RSI-Nav's two rows had
+been inserted into the DualVLN comparison table on 2026-10-16; they now sit in
+the leaderboards. The 28-entry component matrix, its classification notes, the
+adoption-rate analysis, and its summary were retranslated from the Chinese
+source. The extended collection gained the two gray NavGPT-3 ObjectNav rows and
+their note. References, tags, cross-page filtering, and both introductions'
+paper counts match the Chinese editions.
+
+Per-paper parity of equations, figures, external links, and table values passes
+for all 60 main and 40 extended readings. Heading counts and order match (558 and
+284). Both source snapshots are synchronized. The pages were not rebuilt locally
+because Ruby and Bundler are unavailable; the deployment workflow builds them.
 
 ### SeekVLN synchronization (2026-10-05)
 

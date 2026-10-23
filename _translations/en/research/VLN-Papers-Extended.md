@@ -5,10 +5,10 @@ translation_id: vln-papers-extended
 permalink: /en/VLN-Papers-Extended/
 source_path: _posts/research/2026-01-06-VLN-Papers-Extended.md
 source_url: /VLN-Papers-Extended/
-source_revision_date: 2026-10-09
-translation_updated: 2026-10-10
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "VLN Papers: Goal Navigation and Extensions"
-date: 2026-10-22
+date: 2026-10-24
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
@@ -17,7 +17,7 @@ toc: true
 excerpt: "40 paper entries on goal navigation, locomotion, mobile manipulation, and related research, with five task-specific performance leaderboards."
 ---
 
-> This collection extends [VLN Papers: Instruction Following](/en/VLN-Papers/) with **40 paper entries** and goal-navigation leaderboards. It focuses on goal navigation, locomotion, mobile manipulation, and additional studies. The main collection covers 56 representative instruction-following methods, benchmarks, and foundational works. The two collections follow research focus and reading sequence; publication status is not the sole criterion.
+> This collection extends [VLN Papers: Instruction Following](/en/VLN-Papers/) with **40 paper entries** and goal-navigation leaderboards. It focuses on goal navigation, locomotion, mobile manipulation, and additional studies. The main collection covers 60 representative instruction-following methods, benchmarks, and foundational works. The two collections follow research focus and reading sequence; publication status is not the sole criterion.
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
@@ -48,6 +48,7 @@ Closed-set object navigation: given an object category, find any instance in an 
 | [LightNav-0 (monocular)](/en/VLN-Papers/#lightnav-0) | 2026 | HM3D-v2 | Trained | Qwen3-VL-4B | 77.2 | 41.5 | [Yes](https://github.com/lightorigins/LightNav-0) |
 | [HarnessVLN (monocular)](/en/VLN-Papers/#harnessvln) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> | 2026 | HM3D-v2 | Training-free | GPT-5.6-luna | 76.0 | 37.9 | No |
 | [Qwen-RobotNav (monocular)](/en/VLN-Papers/#qwen-robotnav) | 2026 | HM3D-v2 | Trained | Qwen3-VL-4B | 75.6 | 30.6 | No |
+| [NavGPT-3 (four views · Opus 5)](/en/VLN-Papers/#navgpt-3) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">500-episode subset, stop facing the goal</span> | 2026 | HM3D-v2 | Trained | Claude Opus 5 + Qwen3-VL-8B | 75.3 | 40.8 | [Yes](https://github.com/metacognitionai/NavGPT-3) |
 | [3DGSNav (monocular)](#nav-3dgs) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> | 2026 | HM3D-v2 | Training-free | Gemini 3 Pro + GLM-4.5V | 75.0 | 44.2 | No |
 | [Qwen-RobotNav (monocular)](/en/VLN-Papers/#qwen-robotnav) | 2026 | HM3D-v2 | Trained | Qwen3-VL-8B | 71.2 | 33.0 | No |
 | [EvoMemNav (monocular)](#evomemnav) | 2026 | HM3D-v2 | Training-free | Qwen-8B | 63.8 | 39.4 | No |
@@ -58,6 +59,7 @@ Closed-set object navigation: given an object category, find any instance in an 
 | [VLFM (monocular)](#vlfm) | 2023 | HM3D-v1 | Training-free | – | 52.5 | 30.4 | [Yes](https://github.com/rai-opensource/vlfm) |
 | [PanoNav (panoramic)](#panonav) <span class="lb-flag">200-episode subset</span> | 2025 | HM3D（version unspecified） | Training-free | Qwen2.5-VL + DeepSeek-V3 | 43.5 | 23.7 | No |
 | [Hydra-Nav (monocular)](#hydra-nav) | 2026 | MP3D | Trained | Qwen2.5-VL-7B | **64.0** | **29.6** | No |
+| [NavGPT-3 (four views · Opus 5)](/en/VLN-Papers/#navgpt-3) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">500-episode subset, stop facing the goal</span> | 2026 | MP3D | Trained | Claude Opus 5 + Qwen3-VL-8B | 59.2 | 25.2 | [Yes](https://github.com/metacognitionai/NavGPT-3) |
 | [VLingNav (monocular)](#vlingnav) | 2026 | MP3D | Trained | LLaVA-Video-7B | 58.9 | 26.5 | No |
 | [Qwen-RobotNav (monocular)](/en/VLN-Papers/#qwen-robotnav) | 2026 | MP3D | Trained | Qwen3-VL-4B | 52.2 | 16.0 | No |
 | [AECNav (monocular)](#aecnav) | 2026 | MP3D | Training-free | DeepSeek-V4-Flash | 51.3 | 25.9 | No |
@@ -70,6 +72,8 @@ Closed-set object navigation: given an object category, find any instance in an 
 Note: HM3D-v1 is the val of the Habitat 2022 Challenge (2000 items/20 scenes/6 categories), and HM3D-v2 is the val of the 2023 Challenge (1000 items/36 scenes/6 categories). The scenes and annotations of the two are different. The original text of VLFM only writes HM3D, but the 2000 items/20 scenes/6 categories given are consistent with v1; the original text of Hydra-Nav does not specify a version, but its baseline WMNav in Table 2 is 72.2, which is consistent with the HM3D-v2 score of the original WMNav text, and is therefore classified into v2; the original text of PanoNav does not specify the version, and is listed in a separate group. PanoNav evaluates only 200 randomly sampled HM3D validation episodes, listed in gray. Hydra-Nav takes the IRFT (Stage 3) results of the original Table 2. Qwen-RobotNav takes arXiv v3, divided into two sizes of 4B / 8B; LightNav-0 takes arXiv v2 numbers (HM3D-v2 of v1 is 79.5 / 43.7).
 
 Additional note: SuperNav-Geo executes movement using depth and navigation geometry and is classified as training-free; SuperNav-Learned trains its low-level motion policy on navigation expert trajectories and is classified as trained. Neither high-level MLLM receives navigation-specific fine-tuning. HM3D-v2 rows report two success thresholds; differences in budgets, STOP rules, and execution resources across published methods make these rows nonstandard, so they remain gray and do not participate in bolding. SuperNav SPL is converted from the paper's 0–1 scale to the percentages used in this table. The open-source value “–” means that the summary supplies no verified code-repository link.
+
+Additional note: NavGPT-3 uses a Claude Opus 5 Planner + 8B VLA and evaluates 500-episode validation subsets of MP3D and HM3D-v2, where success also requires facing the goal when stopping, so its rows are gray and excluded from bolding. Appendix Table 16 re-evaluates Qwen-RobotNav 8B on exactly the same subsets and protocol, giving SR/SPL of 47.8/17.5 on MP3D and 72.4/33.1 on HM3D-v2; the Qwen-RobotNav rows in this table remain the original paper's full-set results and cannot be read as that matched comparison. The full system has no corresponding full-set ObjectNav result yet.
 
 ## ⑤ Open-vocabulary object goals · HM3D-OVON
 {: id="-开放词汇物体目标--hm3d-ovon"}
@@ -5650,8 +5654,10 @@ NavHarness is an embodied-agent harness centered on continuing navigation. It ke
     { n: '54. HumanoidVLN (2026)', a: 'humanoidvln', t: ['Datasets', 'Reinforcement learning', 'Real-robot deployment', 'Gaussian representations'] },
     { n: '55. AdaGeoVLN (2026)', a: 'adageovln', t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Inference optimization'] },
     { n: '56. SeekVLN (2026)', a: 'seekvln', t: ['CoT', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment'] },
+    { n: '57. NavGPT-3 (2026)', a: 'navgpt-3', t: ['Dual systems', 'Agentic', 'Continuous environments', 'Real-robot deployment'] },
     { n: '58. RSI-Nav (2026)', a: 'rsi-nav', t: ['End-to-end', 'Data augmentation', 'Continuous environments', 'Real-robot deployment'] },
     { n: '59. SimpleVLN (2026)', a: 'simplevln', t: ['End-to-end', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment'] },
+    { n: '60. Efficient-VLN (2025)', a: 'efficient-vln', t: ['End-to-end', 'Inference optimization', 'Continuous environments'] },
   ];
 
   var ALL_TAGS = ['Dual systems', 'End-to-end', 'Agentic', 'CoT', 'Diffusion models', 'Topological maps', 'SLAM', 'Gaussian representations',
