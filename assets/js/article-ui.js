@@ -120,7 +120,13 @@
       // Keep standalone equations on the wide canvas alongside figures and tables.
       var text = paragraph.textContent.trim();
       var mathOnly = /^\\\([\s\S]*\\\)$/.test(text) || /^\\\[[\s\S]*\\\]$/.test(text);
-      if (mathOnly || (paragraph.children.length === 1 && paragraph.firstElementChild.tagName === 'MJX-CONTAINER')) {
+      // A paragraph with prose around one inline formula still reads as prose.
+      var renderedMathOnly = paragraph.children.length === 1 &&
+        paragraph.firstElementChild.tagName === 'MJX-CONTAINER' &&
+        Array.prototype.every.call(paragraph.childNodes, function (node) {
+          return node.nodeType !== 3 || !node.textContent.trim();
+        });
+      if (mathOnly || renderedMathOnly) {
         paragraph.classList.add('article-wide');
       }
     });
