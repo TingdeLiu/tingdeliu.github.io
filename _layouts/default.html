@@ -129,6 +129,7 @@
       if (blocks.length === 0) return;
 
       var MARGIN = 1500;                 // 距视口多少 px 以内就开始渲染
+      var readableDiagrams = {% if page.mermaid_readable %}true{% else %}false{% endif %};
       var nodes = [];
       blocks.forEach(function (block) {
         var div = document.createElement('div');
@@ -198,6 +199,20 @@
         var h0 = before.height;
         libReady
           .then(function () { return mermaid.run({ nodes: [el] }); })
+          .then(function () {
+            if (!readableDiagrams) return;
+            var svg = el.querySelector('svg');
+            var bounds = svg && svg.viewBox.baseVal;
+            if (!bounds || !bounds.width) return;
+            // Preserve diagram coordinates at 112.5% instead of shrinking text to fit the column.
+            svg.style.width = (bounds.width * 1.125) + 'px';
+            svg.style.maxWidth = 'none';
+            svg.style.height = 'auto';
+            el.classList.add('mermaid-readable');
+            el.tabIndex = 0;
+            el.setAttribute('role', 'region');
+            el.setAttribute('aria-label', 'Diagram. Scroll horizontally to view the full diagram.');
+          })
           .catch(function () { /* 语法错误等：mermaid 自己会画出错误图，这里不再处理 */ })
           .then(function () {
             el.classList.remove('mermaid-pending');

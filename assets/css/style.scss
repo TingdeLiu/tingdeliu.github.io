@@ -984,6 +984,29 @@ nav {
     text-align: center;
   }
 
+  .mermaid-readable {
+    box-sizing: border-box;
+    text-align: left;
+    padding: 1rem;
+    border: 1px solid $oc-gray-3;
+    border-radius: 8px;
+
+    &:focus-visible {
+      outline: 2px solid $link-color;
+      outline-offset: 2px;
+    }
+
+    @media print {
+      overflow: visible;
+      padding: 0;
+
+      > svg {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+    }
+  }
+
   // 懒渲染前的占位框（_layouts/default.html）：隐藏原始源码，显示提示；高度由脚本按图类型粗估
   .mermaid-pending {
     display: flex;

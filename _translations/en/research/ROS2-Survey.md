@@ -14,6 +14,7 @@ categories: research
 comments: false
 author: Tingde Liu
 toc: true
+mermaid_readable: true
 excerpt: "ROS 2 architecture, DDS and RTPS, communication primitives, QoS, executors, intra-process communication, lifecycle management, TF2, robot modeling, ecosystem stacks, and deployment."
 ---
 
@@ -23,42 +24,12 @@ excerpt: "ROS 2 architecture, DDS and RTPS, communication primitives, QoS, execu
 
 ROS 2 organizes functions such as sensing, planning, and control into cooperating nodes, and provides a foundation for communication, scheduling, and system integration. Understanding how nodes exchange data, and what the client, executor, and middleware are each responsible for, is the starting point for reading this architectural guide.
 
-```mermaid
-flowchart TB
-    accTitle: ROS 2 nodes and the communication stack
-    accDescr: Robot nodes exchange data through topics, services and actions. Client libraries expose these interfaces, executors schedule callbacks, and RMW connects the client layer to middleware for discovery and transport.
+<figure class="survey-intro-figure">
+  <img src="/images/ros2/ros2-survey-intro-professional-en.png" width="1536" height="1024" alt="ROS 2 overview: a mobile robot with sensing, planning and control nodes supported by client libraries, RMW and middleware." loading="lazy" decoding="async" />
+  <figcaption>ROS 2 connects sensing, planning and control through a layered communication stack. Topics, services and actions are available across nodes; the illustration does not imply a fixed one-to-one mapping between communication types and modules.</figcaption>
+</figure>
 
-    subgraph application["Robot application"]
-        direction LR
-        sensing["Sensing"] -->|"Topics: sensor data"| planning["Planning"]
-        planning -->|"Actions: goals and feedback"| control["Control"]
-        control -->|"Services: request and reply"| sensing
-    end
-
-    client["Client libraries · rclcpp / rclpy / rcl"]
-    executor["Executor · callback scheduling"]
-    rmw["RMW · middleware interface"]
-    transport["Middleware · discovery and transport"]
-    implementation["DDS / RTPS or Zenoh"]
-
-    application -->|"Communication APIs"| client
-    executor -.->|"Runs node callbacks"| application
-    client --> rmw --> transport --> implementation
-
-    classDef node fill:#e7f5ff,stroke:#1971c2,color:#153c55
-    classDef runtime fill:#e5dbff,stroke:#7950b2,color:#35245a
-    classDef middleware fill:#e1f0ef,stroke:#36847e,color:#164b47
-    class sensing node
-    class planning node
-    class control node
-    class client runtime
-    class executor runtime
-    class rmw middleware
-    class transport middleware
-    class implementation middleware
-```
-
-*Figure: An example of node collaboration (top) and the communication stack (below). Topics carry data streams, services exchange requests and replies, and actions manage tasks with feedback. The executor schedules callbacks; RMW separates client libraries from the selected middleware.*
+*Reading diagrams: scroll horizontally inside wide Mermaid diagrams to see all details at a readable size. Keyboard users can focus a diagram and use the arrow keys.*
 
 # 1. From ROS 1 to ROS 2: Paradigm Shift and Design Philosophy
 {: id="一从-ros-1-到-ros-2范式转移与设计哲学"}
