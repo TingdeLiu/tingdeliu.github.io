@@ -14,6 +14,7 @@ categories: research
 comments: false
 author: Tingde Liu
 toc: true
+toc_expand: 2
 excerpt: "60 detailed readings on instruction-following VLN, with benchmark leaderboards, technical comparisons, methods, experiments, and limitations."
 ---
 

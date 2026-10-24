@@ -1,4 +1,4 @@
-<aside class="article-toc" id="article-toc" aria-label="{{ ui.article_navigation }}" aria-hidden="true">
+<aside class="article-toc" id="article-toc" aria-label="{{ ui.article_navigation }}" aria-hidden="true"{% if page.toc_expand %} data-toc-expand="{{ page.toc_expand }}"{% endif %}>
   <div class="article-toc-nav">
     <nav aria-label="{{ ui.site_navigation }}">
       {% if page_lang == 'en' %}

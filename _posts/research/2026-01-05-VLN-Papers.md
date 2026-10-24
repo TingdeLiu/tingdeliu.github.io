@@ -9,6 +9,7 @@ categories: research
 comments: true
 author: Tingde Liu
 toc: true
+toc_expand: 2
 excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、StreamVLN 等最新研究成果，以及 Diffusion Policy 等 VLN 项目所依赖的基础工作。"
 ---
 

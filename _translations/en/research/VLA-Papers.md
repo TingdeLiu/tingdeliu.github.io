@@ -14,6 +14,7 @@ categories: research
 comments: false
 author: Tingde Liu
 toc: true
+toc_expand: 2
 vla_survey: true
 toc_depth: 3
 excerpt: "Detailed readings of VLA research with an official RoboDojo leaderboard snapshot, covering each paper's research question, method, evidence, and limitations."

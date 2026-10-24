@@ -34,9 +34,9 @@ def read_document(path):
 
 def section_hashes(path):
     _, metadata, body = read_document(path)
-    # Language pairing does not alter the translated meaning of the source.
+    # Language pairing and contents display settings do not alter the translated meaning of the source.
     metadata = '\n'.join(line for line in metadata.splitlines()
-                         if not re.match(r'^(lang|translation_id):', line))
+                         if not re.match(r'^(lang|translation_id|toc_expand):', line))
     sections = {'metadata': digest(metadata.strip())}
     key, lines, fence, paper = 'introduction', [], None, None
     ancestors = []

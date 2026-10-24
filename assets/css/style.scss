@@ -2041,6 +2041,14 @@ tr.lb-flash td {
       }
     }
   }
+
+  // 只常显第一级时，第一级也带折叠按钮，各级整体右移给按钮让位
+  &.is-fold-top {
+    .toc-level-1 > a { padding-left: 34px; }
+    .toc-level-2 > a { padding-left: 52px; }
+    .toc-level-2 > .toc-branch-toggle { left: 22px; }
+    .toc-level-3 > a { padding-left: 66px; }
+  }
 }
 
 .toc-branch-toggle {

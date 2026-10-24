@@ -9,6 +9,7 @@ categories: research
 comments: true
 author: Tingde Liu
 toc: true
+toc_expand: 2
 excerpt: "VLN 论文精读的目标导航与扩展篇：目标导航（ObjectNav、HM3D-OVON、图像 / 点目标）性能排行榜，以及目标导航、运动控制、移动操作与其他增补研究。"
 ---
 

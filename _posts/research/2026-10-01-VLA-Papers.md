@@ -10,6 +10,7 @@ categories: research
 comments: true
 author: Tingde Liu
 toc: true
+toc_expand: 2
 vla_survey: true
 toc_depth: 3
 excerpt: "VLA 配套论文精读，附 RoboDojo 官方统一榜快照，逐篇梳理研究问题、方法、证据与局限。"

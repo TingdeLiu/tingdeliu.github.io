@@ -14,6 +14,7 @@ categories: research
 comments: false
 author: Tingde Liu
 toc: true
+toc_expand: 2
 excerpt: "40 paper entries on goal navigation, locomotion, mobile manipulation, and related research, with five task-specific performance leaderboards."
 ---
 
