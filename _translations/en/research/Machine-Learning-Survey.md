@@ -5,10 +5,10 @@ translation_id: machine-learning-survey
 permalink: /en/Machine-Learning-Survey/
 source_path: _posts/research/2026-04-03-Machine-Learning-Survey.md
 source_url: /Machine-Learning-Survey/
-source_revision_date: 2026-10-02
-translation_updated: 2026-10-04
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "Machine Learning: A Survey"
-date: 2026-09-29
+date: 2026-10-24
 tags: [Machine Learning, Deep Learning, Algorithm, Foundation Models]
 categories: research
 comments: false
@@ -64,8 +64,8 @@ Machine learning is a multi-field interdisciplinary subject involving probabilit
 
 The following types of learning methods can be understood from the source of supervision signals. They are not completely mutually exclusive: the same system can do self-supervised pre-training, then supervised fine-tuning, and finally optimize decisions through reinforcement learning. Deep learning describes the model and representation learning methods, and is not in the same classification dimension as supervised learning and reinforcement learning.
 
-### 2.2.1 Supervised learning (Supervised Learning)
-{: id="221-监督学习-supervised-learning"}
+### 2.2.1 Supervised learning
+{: id="221-监督学习"}
 
 Supervised learning is the most mature and widely used paradigm. Its training data consists of the input feature $\mathbf{x}$ and the corresponding label (Ground Truth) $y$. The goal of the model is to learn a mapping function $f: \mathbf{x} \rightarrow y$.
 
@@ -73,8 +73,8 @@ Supervised learning is the most mature and widely used paradigm. Its training da
 
 - **Representative algorithms**: linear regression, logistic regression, SVM, decision tree, and most deep neural networks.
 
-### 2.2.2 Unsupervised learning (Unsupervised Learning)
-{: id="222-无监督学习-unsupervised-learning"}
+### 2.2.2 Unsupervised learning
+{: id="222-无监督学习"}
 
 The unsupervised learning data **does not have the label**, and the model needs to independently explore the potential structure, pattern or distribution within the data.
 
@@ -84,8 +84,8 @@ The unsupervised learning data **does not have the label**, and the model needs 
 
 <a id="ml-rl"></a>
 
-### 2.2.3 Reinforcement learning (Reinforcement Learning)
-{: id="223-强化学习-reinforcement-learning"}
+### 2.2.3 Reinforcement learning
+{: id="223-强化学习"}
 
 Reinforcement learning focuses on how the agent takes actions in the environment to maximize the cumulative reward. It uses rewards as feedback, which can be given immediately or delayed; training can come from online interactions or use existing interaction data for offline learning.
 
@@ -98,8 +98,8 @@ Reinforcement learning focuses on how the agent takes actions in the environment
 <figcaption>Figure: Schematic diagram of reinforcement learning algorithm</figcaption>
 </div>
 
-### 2.2.4 Semi/Self-Supervised Learning
-{: id="224-半监督与自监督学习-semiself-supervised-learning"}
+### 2.2.4 Semi- and self-supervised learning
+{: id="224-半监督与自监督学习"}
 
 - **Semi-supervised learning**: Use a small amount of labeled data and a large amount of unlabeled data for training to reduce labeling costs.
 
@@ -191,13 +191,13 @@ Machine learning has now deeply penetrated into all aspects of the digital and p
 
 - The monetization core of Internet giants. Through technologies such as collaborative filtering and deep cross network, the matching probability between users' historical behaviors and items is mined to achieve accurate push.
 
-### 2.7.4 Robots, autonomous driving and embodied intelligence (Embodied AI)
-{: id="274-机器人自动驾驶与具身智能-embodied-ai"}
+### 2.7.4 Robotics and embodied AI
+{: id="274-机器人与具身智能"}
 
 - Combining reinforcement learning, vision and large language models allows robots to realize perception, planning, navigation and dexterous operation in complex physical environments. Such tasks also take into account observation noise, action delays, physical constraints, and distribution changes in closed-loop execution.
 
-## 2.8 Mainstream data sets, evaluation benchmarks and frameworks
-{: id="28-主流数据集评测基准与框架"}
+## 2.8 Datasets, benchmarks and frameworks
+{: id="28-数据集基准与框架"}
 
 ### 2.8.1 Classic data set and benchmark
 {: id="281-经典数据集与基准"}
@@ -224,8 +224,8 @@ Machine learning has now deeply penetrated into all aspects of the digital and p
 
 <a id="ml-workflow"></a>
 
-## 2.9 From data to reliable conclusions: modeling and evaluation process
-{: id="29-从数据到可靠结论建模与评估流程"}
+## 2.9 Modeling and evaluation
+{: id="29-建模与评估流程"}
 
 Knowing the name of the algorithm is not enough. For a reproducible modeling experiment, you need to first define the task and verification method, and then optimize the model.
 
@@ -242,8 +242,8 @@ Here, $f_\theta$ is the model, $\ell$ measures the prediction error, $\Omega$ co
 
 Parameters (such as linear weights) are learned by the training process; hyperparameters (such as tree depth, regularization strength, learning rate) are usually selected using the validation set. If the training and validation errors are both high, it may be due to underfitting, insufficient features, or incomplete optimization; if the training error is low but the validation error is high, overfitting and distribution differences should be investigated.
 
-### 2.9.2 First divide the data and then learn the preprocessing parameters
-{: id="292-先划分数据再学习预处理参数"}
+### 2.9.2 Split before preprocessing
+{: id="292-先划分数据再预处理"}
 
 1. **Clear the forecast time point and target**: The input can only contain information available at the time of actual forecast. For example, to predict whether a user churns, fields generated after churn cannot be used as features.
 2. **retains the test set**: the training set is used for fitting, the validation set is used for parameter adjustment and threshold selection, and the test set is used for the final evaluation after the solution is determined. Repeatedly changing the model based on test results will cause the test set to lose its independence.
@@ -267,8 +267,8 @@ Cross-validation is mainly used for model selection in the development stage and
 
 For example, when the positive class only accounts for 1%, all predictions for the negative class have an Accuracy of 99%, but the Recall of the positive class is 0. The threshold should be chosen on the validation set based on the actual cost, rather than the default 0.5. For indicator definitions, see [scikit-learn evaluation document ](https://scikit-learn.org/stable/modules/model_evaluation.html).
 
-### 2.9.4 Use baseline and error analysis to determine next steps
-{: id="294-用基线和误差分析决定下一步"}
+### 2.9.4 Baselines and error analysis
+{: id="294-基线与误差分析"}
 
 First establish naive baselines such as majority class and mean prediction, and then compare linear models, tree models or pretrained representations. If the improvement for a complex model is small, the inference latency, memory and maintenance costs should also be reported. Check which categories, time periods or groups of people the model failed, and then decide to supplement the data, change the features, adjust the target or change the architecture.
 
@@ -332,8 +332,8 @@ Here, $\mathbf{w}$ is the weight vector of each feature (the coefficient size is
 |Need for interpretable models|There are a lot of outliers in the data|
 |Few features and sufficient samples|There is strong multicollinearity between features (use Ridge in this case)|
 
-## 3.3 Logistic Regression
-{: id="33-逻辑回归-logistic-regression"}
+## 3.3 Logistic regression
+{: id="33-逻辑回归"}
 
 > **Core points**: The logarithmic probability is a linear function of the feature, and the binary probability is output through Sigmoid; it uses classification loss training instead of fitting a linear regression first.
 
@@ -465,8 +465,8 @@ KNN is a typical "Lazy Learning" algorithm. It does not fit an explicit paramete
 |Small data set, rapid prototyping|Large data sets (prediction speed decreases linearly with sample size)|
 |Irregular data distribution and non-spherical category boundaries|High-dimensional data (seriously affected by the curse of dimensionality)|
 
-## 3.8 Naive Bayes and Hidden Markov Model
-{: id="38-朴素贝叶斯与隐马尔可夫模型"}
+## 3.8 Naive Bayes and HMM
+{: id="38-朴素贝叶斯与-hmm"}
 
 > **Core points**: Naive Bayes assumes independent feature conditions, fast training, and good text classification effect; the "hidden state + observation" of HMM modeling sequence is suitable for explicitly describing the relationship between state transition and observation generation.
 
@@ -587,8 +587,8 @@ The most classic and widely used unsupervised clustering algorithm.
 |The data distribution is close to spherical and the sizes of each cluster are similar.|Cluster shapes are irregular (use DBSCAN instead)|
 |Quickly obtain clustering results and user portrait grouping|Scenarios where the $K$ value is difficult to determine|
 
-## 3.11 Principal Component Analysis (PCA) and t-SNE
-{: id="311-主成分分析-pca-与-t-sne"}
+## 3.11 PCA and t-SNE
+{: id="311-pca-与-t-sne"}
 
 > **Core points**: PCA does linear dimensionality reduction and preserves global variance; t-SNE does nonlinear dimensionality reduction and preserves local manifold structure, which is the first choice for 2D/3D visualization.
 
@@ -620,8 +620,8 @@ t-SNE is sensitive to hyperparameters such as random initialization and perplexi
 
 <a id="ml-deep"></a>
 
-## 3.12 Multilayer Perceptron (MLP) and Backpropagation
-{: id="312-多层感知机-mlp-与反向传播"}
+## 3.12 MLP and backpropagation
+{: id="312-mlp-与反向传播"}
 
 > **Core points**: fully connected layer + nonlinear activation + backpropagation; strong function expression ability under appropriate conditions; expression ability, trainability and generalization ability need to be judged separately.
 
@@ -698,8 +698,8 @@ CNN is a neural network architecture designed specifically for processing grid-l
 |Grid data such as images and videos|Pure sequence/text data (use Transformer instead)|
 |Requires translation invariance and local feature extraction|Very small amount of data (can be mitigated by transfer learning)|
 
-## 3.14 Recurrent Neural Network (RNN & LSTM/GRU)
-{: id="314-循环神经网络-rnn--lstmgru"}
+## 3.14 RNN, LSTM and GRU
+{: id="314-rnnlstm-与-gru"}
 
 > **Core points**: The hidden state gives the network time memory; LSTM/GRU uses a gating mechanism to alleviate the gradient problem in long-distance dependent learning, and was the main force in sequence modeling before the emergence of Transformer.
 
@@ -768,8 +768,8 @@ Transformer (Vaswani et al., 2017, "Attention Is All You Need") takes self-atten
 <figcaption>Figure: Transformer model architecture (Source: Vaswani et al., 2017)</figcaption>
 </div>
 
-### Self-Attention mechanism (Self-Attention)
-{: id="自注意力机制-self-attention"}
+### Self-attention
+{: id="自注意力"}
 
 Global self-attention without causal restrictions allows each element in the sequence to focus on other positions; causal self-attention can only focus on the current position and the previous position, and calculate the association weight between them, thereby capturing global long-distance dependencies in parallel.
 
@@ -781,8 +781,8 @@ $$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right
 
 **formula interpretation**: $Q$ = "What am I looking for", $K$ = "What keywords can I provide", $V$ = "My actual content". $Q \cdot K^T$ calculates the correlation score of each pair of tokens and divides it by $\sqrt{d_k}$ to prevent the Softmax gradient from disappearing due to excessive scores. Finally, $V$ is weighted and summed to obtain a new representation of each token that incorporates contextual information.
 
-### Multi-Head Attention
-{: id="多头注意力-multi-head-attention"}
+### Multi-head attention
+{: id="多头注意力"}
 
 Split $Q, K, V$ into $h$ independent "heads", each head calculates attention in different subspaces, and finally splices:
 
@@ -798,8 +798,8 @@ Basic Encoder Block and common Decoder-only Block include the following two type
 1. **Multi-head self-attention layer**: Capture the dependencies between tokens.
 2. **Feedforward Network (FFN)**: Two layers of linear transformation sandwich an activation function, and each position is independently transformed nonlinearly: $\text{FFN}(x) = W_2 \cdot \text{ReLU}(W_1 x + b_1) + b_2$.
 
-### Positional Encoding
-{: id="位置编码-positional-encoding"}
+### Positional encoding
+{: id="位置编码"}
 
 Without position encoding and order-dependent masks, the self-attention pair arrangement is **equivariant**: scrambling the input will cause the output to be rearranged in the same way, rather than the output being completely unchanged. Therefore, it is usually necessary to add location information to distinguish the order. The original solution used sine/cosine functions to encode absolute position; subsequently, relative position encoding schemes such as RoPE (rotational position encoding, adopted by LLaMA series) and ALiBi were developed.
 
@@ -809,8 +809,8 @@ Without position encoding and order-dependent masks, the self-attention pair arr
 - **Encoder**: $N$ Blocks are stacked, and the input tokens can follow each other in both directions, which is suitable for "understanding" tasks (such as source language encoding for machine translation).
 - **Decoder**: The same $N$ Blocks, but the self-attention layer adds **causal mask (Causal Mask)** - each token Only the content before it can be seen (autoregressive generation); and **cross attention layer**, $Q$ from Decoder, and $K, V$ from Encoder are added to realize attention to the source language.
 
-### Why Transformer can replace RNN
-{: id="为什么-transformer-能替代-rnn"}
+### Why Transformers replaced RNNs
+{: id="transformer-为何取代-rnn"}
 
 RNN must be processed serially in time steps ($O(n)$ serial dependency) and cannot fully utilize GPU parallelism; Self-Attention calculates the relationship of all token pairs in parallel at once (training complexity $O(n^2 d)$), which facilitates parallel processing of sequences in training and shortens the information path between remote locations. However, deep Transformers may still have optimization and gradient problems; standard autoregressive inference still proceeds according to the generation step, and attention also has a secondary computational cost. [Original paper ](https://arxiv.org/abs/1706.03762) discusses these architectural differences.
 
@@ -825,8 +825,8 @@ RNN must be processed serially in time steps ($O(n)$ serial dependency) and cann
 
 <a id="ml-pretraining"></a>
 
-## 3.16 BERT and GPT series model paradigms
-{: id="316-bert-与-gpt-系列模型范式"}
+## 3.16 BERT and GPT
+{: id="316-bert-与-gpt"}
 
 > **Core points**: BERT uses a bidirectional Encoder to be good at understanding tasks (classification, extraction); GPT uses an autoregressive Decoder to be good at generation, and can improve interactive behavior by combining instruction fine-tuning and preference optimization.
 
@@ -1015,8 +1015,8 @@ The randomness comes from independent noise, and the gradient can be passed back
 
 AE, VAE and diffusion models can also be combined: latent space diffusion is first generated on the compressed representation and then the image is restored through the decoder.
 
-## 3.20 Diffusion Models
-{: id="320-扩散模型-diffusion-models"}
+## 3.20 Diffusion models
+{: id="320-扩散模型"}
 
 > **Core points**: Establish the generation process through learning goals under different noise levels; taking DDPM as an example, train to predict noise, and iteratively update samples when sampling.
 
@@ -1065,8 +1065,8 @@ Interpretation of the **formula**: $$\boldsymbol{\epsilon}$$ is the actual noise
 
 > **Advanced reading**: The following distinguishes three easily confused levels: what network to use (U-Net / Transformer), what variables to generate (image / action), and how to organize the generation process (diffusion / autoregression).
 
-### 3.20.1 Architecture evolution: Traditional U-Net Diffusion vs DiT (Diffusion Transformer)
-{: id="3201-架构演进传统-u-net-diffusion-vs-dit-diffusion-transformer"}
+### 3.20.1 U-Net vs. DiT
+{: id="3201-u-net-与-dit"}
 
 **diffusion describes the generation and training methods, and U-Net/Transformer describes the network structure. The two are not of the same dimension.** Replacing the backbone does not necessarily mean changing the target function; the same Transformer backbone can also use different generation targets.
 
@@ -1084,8 +1084,8 @@ The difference between **DiT and Flow Matching**: DiT is an architectural choice
 
 <a id="ml-policy"></a>
 
-### 3.20.2 Diffusion Policy: Application of diffusion model in robot decision-making
-{: id="3202-diffusion-policy扩散模型在机器人决策中的应用"}
+### 3.20.2 Diffusion Policy
+{: id="3202-diffusion-policy"}
 
 [Diffusion Policy](https://arxiv.org/abs/2303.04137) (Chi et al., 2023) is a **imitation learning** method: learning an observation-conditioned action distribution from demonstration data. It is not a reinforcement learning algorithm per se trained with rewards, nor does it necessarily include language input.
 
@@ -1103,8 +1103,8 @@ Here $t$ is the environment time and $k$ is the diffusion time step. The two can
 
 Related work needs to be distinguished by goal: RDT-1B uses diffusion action modeling; [π₀](https://arxiv.org/abs/2410.24164) uses Flow Matching and is combined with a pretrained visual language model. Both can iteratively generate continuous actions, but the training objectives cannot be confused with the same DDPM denoising loss. When comparing performance, it is also necessary to align demonstration data, robot morphology, and mission protocols.
 
-### 3.20.3 Diffusion architecture vs autoregressive architecture: Comparison of two generative paradigms
-{: id="3203-扩散架构-vs-自回归架构两种生成范式的对比"}
+### 3.20.3 Diffusion vs. autoregressive
+{: id="3203-扩散与自回归对比"}
 
 Autoregressive (AR) decomposes the joint distribution according to conditional probability; diffusion generates samples through a multi-step reverse process. Both can use Transformers, and both can express multimodal distributions.
 

@@ -5,10 +5,10 @@ translation_id: deep-learning-survey
 permalink: /en/Deep-Learning-Survey/
 source_path: _posts/research/2026-03-26-Deep-Learning-Survey.md
 source_url: /Deep-Learning-Survey/
-source_revision_date: 2026-10-04
-translation_updated: 2026-10-04
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "Deep Learning: A Survey"
-date: 2026-10-04
+date: 2026-10-24
 tags: [Deep Learning, Neural Network, Optimization, Training, AI, Transformer, GNN, LLM, MoE, LoRA, Diffusion, GAN, VAE, RLHF, Mamba, SSM]
 categories: research
 comments: false
@@ -68,8 +68,8 @@ Here, $x_i$ is the input, $w_i$ is the weight, $b$ is the bias, and $f$ is the a
 Schematic diagram of<figcaption>multi-layer neural network: input layer (left) → hidden layer (middle) → output layer (right)</figcaption>
 </div>
 
-### Universal Approximation Theorem
-{: id="通用近似定理universal-approximation-theorem"}
+### Universal approximation theorem
+{: id="通用近似定理"}
 
 One of the important theoretical basis for the expressive ability of neural network is **universal approximation theorem** (Cybenko 1989, Hornik 1991):
 
@@ -458,7 +458,7 @@ $$h_t = (1-z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t$$
 **Empirical conclusion**: Chung et al., 2014 System experiments show that GRU and LSTM have equivalent performance on most tasks. GRU has fewer parameters and faster training, and is more commonly used in short and medium sequence tasks (conversation, emotion classification); LSTM still has advantages in tasks that require strict long-term memory (machine translation of long sentences, speech recognition).
 
 ### Bidirectional RNN
-{: id="双向-rnnbidirectional-rnn"}
+{: id="双向-rnn"}
 
 The standard RNN can only utilize the information of **past** (from left to right). But for many tasks (named entity recognition, sentiment analysis, reading comprehension), the context of **and future** is equally critical - for example, to determine whether "bank" is "bank" or "river bank", you need to look at the following words.
 
@@ -495,8 +495,8 @@ flowchart LR
 
 BERT's MLM (Masked Language Model) can be seen as Transformer's generalization of "bidirectional modeling" - ensuring that bidirectional attention does not leak the target through mask.
 
-### Teacher Forcing: Key techniques for training sequence generative models
-{: id="teacher-forcing训练序列生成模型的关键技巧"}
+### Teacher forcing
+{: id="teacher-forcing"}
 
 There is a subtle choice when training a Seq2Seq / RNN Decoder - what is the input when decoding step $t$?
 
@@ -556,8 +556,8 @@ Let's say the model is processing the verb "sat" and it needs to find "who sat d
 
 This is how Attention works: **each token broadcasts a "query", all tokens respond with "How many do I match", and finally the aggregated information** is weighted by the degree of match. Q/K/V are generated from three different linear projections $W_Q, W_K, W_V$ from the same input, this flexibility allows the model to learn a variety of complex information routing patterns.
 
-### Multi-Head Attention
-{: id="多头注意力multi-head-attention"}
+### Multi-head attention
+{: id="多头注意力"}
 
 Map the input to $h$ different subspaces to calculate the attention separately, and then splice the results:
 $$\text{MultiHead}(Q,K,V) = \text{Concat}(head_1, \ldots, head_h) W^O$$
@@ -568,8 +568,8 @@ $$\text{MultiHead}(Q,K,V) = \text{Concat}(head_1, \ldots, head_h) W^O$$
 Schematic diagram of the<figcaption>multi-head attention mechanism (Multi-Head Attention) architecture. The left is scaling dot product attention, and the right is multi-head attention</figcaption>
 </div>
 
-### Attention variants: MHA → MQA → GQA → MLA
-{: id="attention-变体mha--mqa--gqa--mla"}
+### Attention variants
+{: id="attention-变体"}
 
 As the context of large models becomes longer, the GPU memory usage of KV Cache (which caches K and V of all historical tokens during inference) becomes a bottleneck. For this reason, the multi-head structure of Attention has evolved into multiple variants, the core of which are **reducing the number of K/V heads** to compress the KV Cache:
 
@@ -751,8 +751,8 @@ The specific form of **causal mask (Causal Mask)** - a lower triangular matrix o
 
 **implements**: before softmax, set the attention score of the mask position to $-\infty$ (actually use a large negative number such as `-1e9`), and after softmax, the weight of these positions becomes 0. This ensures the causality of "the $t$ token can only see the position of $\leq t$", and also realizes parallelization of Teacher Forcing during training - no longer recursive step by step like RNN, but forward prediction of the next token at all positions at once.
 
-### Attention visualization: What did the model really learn?
-{: id="attention-可视化模型真的学到了什么"}
+### Attention visualization
+{: id="attention-可视化"}
 
 One of the greatest charms of Attention is **Interpretability** ——The attention weight of each head in each layer can be directly visualized as a heat map, revealing the "attention mode" of the model. Typical findings:
 
@@ -784,8 +784,8 @@ Tools such as BertViz (Vig, 2019) and attention-flow (Abnar & Zuidema, 2020) can
 
 *Representative work*: BERT (2018, pure Encoder), GPT series (2018-to date, pure Decoder), T5 (2019, Encoder-Decoder), ViT (2020, treat image blocks as sequences).
 
-### Vision Transformer (ViT): Transformer enters the visual field
-{: id="vision-transformervittransformer-进入视觉领域"}
+### Vision Transformer (ViT)
+{: id="vision-transformervit"}
 
 **ViT (Vision Transformer, Dosovitskiy et al., 2020)** proved for the first time that pure Transformer can **directly defeat CNN** in processing image tasks with sufficient data, ending the nearly ten-year dominance of CNN in the field of vision.
 
@@ -851,8 +851,8 @@ ViT not only replaces CNN as the visual backbone, but more importantly **allows 
 
 CNN processes grid data and RNN/Transformer processes sequences, but in reality a large amount of data is a **graph (Graph)** structure - a user-item bipartite graph of social networks, molecular structures, knowledge graphs, and recommendation systems. This type of data has a variable number of nodes, no fixed order, and an uncertain number of neighbors. The regular structure assumptions of CNN/RNN no longer hold true. **Graph Neural Network (GNN)** is specially designed for this type of non-Euclidean data.
 
-### Core mechanism: Message Passing
-{: id="核心机制消息传递message-passing"}
+### Message passing
+{: id="消息传递"}
 
 The unified paradigm of GNN is **neighborhood aggregation**: each node repeatedly "collects neighbor information → aggregates → updates its own representation". The update of layer $l$ can be written as:
 
@@ -1206,8 +1206,8 @@ Here, $K$ is the number of categories, and $\epsilon$ is the smoothing coefficie
 
 **Note**: Label Smoothing will lose a small amount of confidence information, which needs to be weighed in tasks that require confidence selection (active learning, rejection).
 
-### Binary Cross-Entropy (BCE)
-{: id="二元交叉熵binary-cross-entropybce"}
+### Binary cross-entropy (BCE)
+{: id="二元交叉熵bce"}
 
 Two classification tasks (using Sigmoid for the output layer):
 
@@ -1249,8 +1249,8 @@ where $H(P) = -\sum_i P(i) \log P(i)$ is the entropy of the true distribution $P
 - Hard label (one-hot): using CE, simple calculation
 - Soft labels (distillation, Label Smoothing, RLHF reference strategy): Use KL, because when $H(P) \neq 0$, CE contains a non-optimizable constant term, KL more cleanly measures the "distance from the target distribution"
 
-### Contrastive/Triplet Loss
-{: id="对比学习损失contrastive--triplet-loss"}
+### Contrastive loss
+{: id="对比学习损失"}
 
 **Metric Learning (Metric Learning)** The goal is to learn an embedding space so that "similar samples" are close and "heterogeneous samples" are far away. Two types of classic losses:
 
@@ -1477,8 +1477,8 @@ The effects of Dropout, Batch Normalization, ResNet, and Data Augmentation have 
 
 BERT (2018) achieved leading results on GLUE when it was released; as the benchmark gradually became saturated, the researchers subsequently launched the more difficult SuperGLUE.
 
-### MMLU(Massive Multitask Language Understanding)
-{: id="mmlumassive-multitask-language-understanding"}
+### MMLU
+{: id="mmlu"}
 
 |Properties|content|
 |------|------|
@@ -1556,8 +1556,8 @@ Modern GPUs support FP16/BF16 operations. Mixed-precision training completes for
 
 **BF16** (Brain Float 16) has wider index bits (8 bits vs 5 of FP16) bits), with a larger numerical range, and has become the preferred low-precision format for large language model training.
 
-## 9.2 Gradient Clipping
-{: id="92-gradient-clipping梯度裁剪"}
+## 9.2 Gradient clipping
+{: id="92-梯度裁剪"}
 
 Occasional exploding gradientss (loss spikes) during large model training can lead to training crashes. Gradient clipping prevents this problem by limiting the upper bound on the L2 norm of the gradient:
 
@@ -1565,8 +1565,8 @@ $$g \leftarrow g \cdot \min\left(1, \frac{\tau}{\|g\|_2}\right)$$
 
 The usual threshold is $\tau = 1.0$, which is the standard companion to AdamW.
 
-## 9.3 Gradient Checkpointing
-{: id="93-梯度检查点gradient-checkpointing"}
+## 9.3 Gradient checkpointing
+{: id="93-梯度检查点"}
 
 During training, backpropagation requires all intermediate activation values in the forward process to calculate gradients - under deep networks, the activation value GPU memory can occupy several times the parameters themselves, becoming the main overhead of GPU memory for large model training.
 
@@ -1674,8 +1674,8 @@ Forward calculation: $h = W_0 x + BAx$.
 
 LoRA/QLoRA are common strong baselines for open source large model fine-tuning, but the best solution still depends on the task, base model, quantization method and available GPU memory.
 
-## 10.3 Model quantization (Quantization)
-{: id="103-模型量化quantization"}
+## 10.3 Quantization
+{: id="103-模型量化"}
 
 **quantization** compresses the model weights (and activations) from FP16/BF16 to INT8/INT4 or even lower bit width, with a small loss of accuracy in exchange for **model size reduced to 1/4~1/8, inference speed improvement 2-4×**.
 
@@ -1701,13 +1701,13 @@ LoRA/QLoRA are common strong baselines for open source large model fine-tuning, 
 
 **Experience**: INT4 can often significantly reduce GPU memory usage, but the quality loss depends on the model, calibration data, quantization granularity and inference kernel; latency, throughput and accuracy should be measured on the target task before deployment.
 
-## 10.4 Knowledge Distillation
-{: id="104-知识蒸馏knowledge-distillation"}
+## 10.4 Knowledge distillation
+{: id="104-知识蒸馏"}
 
 **Knowledge Distillation** (Hinton et al., 2015) migrates the capabilities of a large "teacher" model to a small "student" model, allowing the small model to achieve performance close to that of the large model during deployment.
 
-### Core idea: Soft labels are more informative than hard labels
-{: id="核心思想软标签比硬标签信息更丰富"}
+### Core idea: soft labels
+{: id="核心思想软标签"}
 
 The one-hot hard label only tells students "This picture is a cat"; while the **soft probability distribution** output by the teacher model can tell students: "This picture 90% is a cat, 8% is a dog, 1% is a fox, 0% is a car"—the relative relationship between these categories ("A dog is closer to a cat than a fox") implies the teacher's knowledge.
 
@@ -1746,8 +1746,8 @@ In LLM, distillation can act on logits, hidden representations, preference data,
 # 11. Cutting-edge architecture and large models
 {: id="11-前沿架构与大模型"}
 
-## 11.1 Reinforcement Learning from Human Feedback (RLHF)
-{: id="111-人类反馈强化学习rlhf"}
+## 11.1 RLHF
+{: id="111-rlhf"}
 
 **RLHF (Reinforcement Learning from Human Feedback)** is the key to the success of ChatGPT - aligning the pretrained large model from "speaking" to "understanding instructions and in line with human preferences".
 
@@ -1792,8 +1792,8 @@ The discriminative model learns $$p(y\mid x)$$ (given input prediction label), a
 
 The encoder $f$ compresses the input into a low-dimensional latent vector $z$, the decoder $g$ reconstructs $\hat{x}$, and the training target is the reconstruction error $$\mathcal{L} = \|x - g(f(x))\|^2$$. AE is good at **dimensionality reduction / denoising / representation learning**, but the latent space has no probability constraints and irregular distribution. **cannot randomly sample from it to generate new samples** - it is essentially a compressor, not a real generative model.
 
-### Variational Autoencoder (VAE, Kingma & Welling 2013)
-{: id="变分自编码器vaekingma--welling-2013"}
+### Variational autoencoder (VAE)
+{: id="变分自编码器vae"}
 
 VAE adds probabilistic structure to the latent space: the encoder outputs a distribution $$q_\phi(z\mid x)$$ (instead of a single point) and constrains it to be close to the prior $$p(z)=\mathcal{N}(0,I)$$. Training to maximize **evidence lower bound (ELBO)**:
 
@@ -1801,8 +1801,8 @@ $$\mathcal{L}_{\text{ELBO}} = \mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x|z)] - D_{
 
 The former term is the reconstruction term, and the latter term is the regular term that pulls the latent distribution toward the prior. Through the **reparameterization trick** $$z = \mu + \sigma \odot \epsilon$$ ($$\epsilon \sim \mathcal{N}(0,I)$$), the sampling can be differentiated and the gradient can be returned. After training, it can be generated by directly sampling from the prior $$p(z)$$. VAE sampling is stable, the latent space is continuous and interpolable, but the generated image is blurry.
 
-### Generative Adversarial Network (GAN, Goodfellow et al. 2014)
-{: id="生成对抗网络gangoodfellow-et-al-2014"}
+### Generative adversarial network (GAN)
+{: id="生成对抗网络gan"}
 
 GAN uses **to counter the game** to bypass the explicit likelihood: the generator $G$ maps noise into false samples, and the discriminator $D$ learns to distinguish between true and false, and the two alternately optimize a minimax objective:
 
@@ -1831,8 +1831,8 @@ flowchart LR
 
 The diffusion model combines the training stability of VAE and the high quality of GAN, and has become the mainstream of current generative modeling - the next section will expand.
 
-## 11.3 Diffusion Models
-{: id="113-扩散模型diffusion-models"}
+## 11.3 Diffusion models
+{: id="113-扩散模型"}
 
 **Diffusion model** is the most successful generative paradigm in deep learning in recent years, driving epoch-making work such as Stable Diffusion, DALL-E 3, Midjourney, and Sora. It is another pillar of deep generative modeling alongside Transformer.
 
@@ -1887,8 +1887,8 @@ $$\mathcal{L} = \mathbb{E}_{t, x_0, \epsilon}\left[\|\epsilon - \epsilon_\theta(
 | **Sora** | 2024 |Video diffusion model, DiT architecture|
 | **Stable Diffusion 3 / Flux** | 2024 | Rectified Flow + MMDiT |
 
-### From UNet to DiT: Transformerization of Diffusion Networks
-{: id="从-unet-到-dit扩散网络的-transformer-化"}
+### From UNet to DiT
+{: id="从-unet-到-dit"}
 
 The early diffusion model uses **UNet** (encoder-decoder CNN with skip connection) as the denoising network. 2022 appeared **DiT (Diffusion Transformer, Peebles & Xie, 2022)** years later, using Transformer to replace UNet - Sora, Stable Diffusion 3 all use DiT. This once again confirms the trend of Transformer unifying multiple fields.
 
@@ -1897,8 +1897,8 @@ The early diffusion model uses **UNet** (encoder-decoder CNN with skip connectio
 
 Transformer's attention mechanism affects sequence length $N$ The computational and GPU memory complexity of $O(N^2)$ , which is extremely expensive when processing long sequences. **State Space Model (SSM)** Provides an alternative architectural route with linear complexity.
 
-### SSM Basics: Continuous-Time Linear Dynamic Systems
-{: id="ssm-基础连续时间线性动力系统"}
+### SSM basics
+{: id="ssm-基础"}
 
 SSM originates from cybernetics and maps the input sequence $x(t)$ to the output sequence $y(t)$ through the hidden state $h(t)$:
 
@@ -1925,8 +1925,8 @@ Among them $\bar{A} = e^{\Delta A}$, $\bar{B} = (\Delta A)^{-1}(e^{\Delta A} - I
 
 Limitations of S4: The $A, B, C$ matrix is fixed for all time steps (**time-invariant**) and cannot dynamically choose which information to focus on or ignore based on the input content - essentially a static filter.
 
-### Mamba: Selective state space model (2023)
-{: id="mamba选择性状态空间模型2023"}
+### Mamba (2023)
+{: id="mamba2023"}
 
 The core innovation of **Mamba** (Gu & Dao, 2023) is **selectivity (Selectivity)**: convert $B, C$ and step size $\Delta$ Designed for **input-dependent**:
 

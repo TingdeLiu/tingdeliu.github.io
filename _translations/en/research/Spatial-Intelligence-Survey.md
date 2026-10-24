@@ -308,8 +308,8 @@ Here, $\delta$ is the point position encoding, $\rho$ is the softmax normalizati
 
 ---
 
-### Three-dimensional perception base model (2024–2026 latest progress)
-{: id="三维感知基础模型20242026-最新进展"}
+### 3D perception foundation models
+{: id="三维感知基础模型"}
 **Uni3D** (Zhou et al., ICLR 2024) is the first large-scale unified 3D perception base model. Through comparative pretraining on more than 10 million 3D objects, Uni3D has learned universal 3D point cloud features across categories and data sets, and has made breakthrough progress in tasks such as zero-shot 3D understanding and cross-modal retrieval (point cloud ↔ image ↔ text).
 
 **OpenShape** (Liu et al., NeurIPS 2023) uses text-3D shape pairs for large-scale multimodal contrastive learning, transfers CLIP's open vocabulary understanding capabilities to the 3D field, and supports zero-shot 3D classification (about 85% top-1 accuracy on ModelNet40, no 3D training data required).
@@ -427,8 +427,8 @@ Limitations of **SGM** is what drives the rise of deep learning methods (such as
 
 ---
 
-## 4.3 Neural 3D reconstruction: from implicit to explicit
-{: id="43-神经三维重建从隐式到显式"}
+## 4.3 Neural 3D reconstruction
+{: id="43-神经三维重建"}
 
 ### Classic SfM/MVS pipeline
 {: id="经典-sfmmvs-管线"}
@@ -504,8 +504,8 @@ During rendering, the three-dimensional Gaussian is projected onto the image pla
 
 ---
 
-### End-to-end dense 3D reconstruction (2024–2026)
-{: id="端到端稠密三维重建20242026"}
+### End-to-end dense reconstruction
+{: id="端到端稠密重建"}
 
 **DUSt3R** (Wang et al., CVPR 2024) proposes a new paradigm of end-to-end dense 3D reconstruction, which unifies the traditional SfM pipeline (feature matching → pose estimation → dense reconstruction) into a single Transformer network: input any image pair (without known camera parameters), directly predict dense point maps (Pointmap), and then fuse multiple maps through global optimization. DUSt3R breaks through the traditional method's reliance on high-overlapping image pairs and remains robust under extreme viewing angle changes.
 
@@ -513,8 +513,8 @@ During rendering, the three-dimensional Gaussian is projected onto the image pla
 
 ---
 
-### VGGT: Universal 3D Vision Basic Model (2025)
-{: id="vggt通用三维视觉基础模型-2025"}
+### VGGT (2025)
+{: id="vggt-2025"}
 
 **VGGT** (Visual Geometry Grounded Transformer, Wang et al., **CVPR 2025 Best Paper**, arXiv:2503.11651) is DUSt3R/MASt3R The master of the route is also the first truly "universal three-dimensional visual base model". Its core breakthrough is to use **'s single feedforward Transformer** to simultaneously predict all key three-dimensional attributes **corresponding to a set of images (from a single to hundreds of images)**:
 
@@ -578,8 +578,8 @@ graph TD
 
 ---
 
-### MapAnything: A universal metric feed-forward reconstruction model (2026)
-{: id="mapanything通用度量级前馈重建模型-2026"}
+### MapAnything (2026)
+{: id="mapanything-2026"}
 
  **MapAnything** (Keetha et al., Meta Reality Labs & CMU, arXiv:2509.13414) Pushing the "unified feedforward" paradigm of VGGT further **generalization** with **quantification** . VGGT only eats images and outputs up-to-scale geometry, while MapAnything fills two key gaps: **(1)** Flexibly accept any geometric prior (camera internal parameters, pose, depth) as **Optional input** ;  **(2)** direct output **metric-scale** 3D and camera. A single model thus covers uncalibrated SfM, calibrated MVS, monocular/multi-view depth estimation, camera positioning, metric depth completion, etc. **12+ tasks, 64 input combinations** .
 
@@ -633,8 +633,8 @@ Static 3DGS has limitations in modeling dynamic scenes. **Dynamic 3D Gaussians**
 ## 4.4 3D object detection and scene understanding
 {: id="44-三维目标检测与场景理解"}
 
-### VoxelNet, SECOND and PointPillars
-{: id="voxelnet-second-与-pointpillars"}
+### VoxelNet / SECOND / PointPillars
+{: id="voxelnet--second--pointpillars"}
 **VoxelNet** (Zhou & Tuzel, CVPR 2018) is the first end-to-end framework to learn 3D object detection directly from lidar point cloud. It voxels the point cloud, uses a VFE (Voxel Feature Encoding) layer to extract local features in each non-empty voxel, and then completes detection through a three-dimensional convolutional backbone network and RPN, eliminating artificial feature engineering. However, due to the use of conventional dense three-dimensional convolution, its calculation and GPU memory overhead are extremely high, which limits its real-time performance.
 
 <div align="center">
@@ -771,8 +771,8 @@ graph LR
 
 ---
 
-### Spatial intelligence large model progress (2024–2026)
-{: id="空间智能大模型进展20242026"}
+### Spatial intelligence models
+{: id="空间智能大模型进展"}
 
 **SpatialBot** (Cai et al., 2024) specifically targets robot spatial understanding tasks, integrates depth maps and RGB images, enhances VLM's capabilities in tasks such as object spatial layout and distance estimation, and builds corresponding evaluation benchmarks. **RoboSpatial** (2024) proposed a spatial understanding data set and model for robot control, and systematically studied the relationship between VLM spatial reasoning ability and robot task success rate. **Chat-3D v2** (Wang et al., 2024) supports multi-turn conversational 3D scene understanding through object-aware 3D feature injection, and can answer embodied interaction commands such as "help me find a chair next to the table".
 
@@ -780,8 +780,8 @@ A recent system evaluation of **Gemini 1.5 Pro** and **GPT-4V** shows that curre
 
 ---
 
-### Multi-view image-driven 3D scene MLLM and reconstructive supervision
-{: id="多视角图像驱动的-3d-场景-mllm-与重建式监督"}
+### Multi-view 3D scene MLLMs
+{: id="多视角-3d-场景-mllm"}
 
 The aforementioned 3D-LLM ([§6.7](#sec-6-7)), PointLLM-V2 ([§6.8](#sec-6-8)) and **point cloud** is the input, and GaussianVLM ([§6.6](#sec-6-6)) and SplatTalk ([§6.3](#sec-6-3)) use **3DGS** as the carrier. But both categories rely on additional 3D reconstruction or scan preprocessing. Another route that is closer to actual deployment is that **directly reuses a large multimodal model (LMM) designed for 2D content. It only takes the multi-view image/video frame with pose as input to**, and injects three-dimensional perception as an implicit capability, eliminating the need for an explicit point cloud. **LLaVA-3D** (2024) "promotes" the 2D patch features to a 3D patch according to the camera pose, and **Video-3D LLM** (2025) binds the video frame to the three-dimensional position encoding. Both of them verify that "video frame + "Pose" can support 3D question answering tasks such as ScanQA and SQA3D.
 
@@ -799,15 +799,15 @@ These two reconstruction heads are trained jointly with text supervision, allowi
 
 ---
 
-### HiSpatial: Hierarchical 3D spatial understanding (CVPR 2026)
-{: id="hispatial分层式三维空间理解-cvpr-2026"}
+### HiSpatial (CVPR 2026)
+{: id="hispatial-cvpr-2026"}
 
  **HiSpatial** (Microsoft,  **CVPR 2026** , arXiv:2603.25411) is currently the most systematic benchmark work in the direction of VLM spatial reasoning. Its core proposition is: three-dimensional space understanding should be like human cognitive development **Build step by step** ——Lack of underlying geometric and metric foundations, making high-level abstract reasoning almost impossible to acquire. To this end, it explicitly breaks down spatial understanding into four dependent levels: Level 0 (basic geometric perception) → Level 1 (object-level understanding) → Level 2 (relationships between objects) → Level 3 (abstract reasoning), with an automated data engine without manual annotation (about 5 million images / 2 billion QA) and injection **metric scale dot plot** The RGB-D VLM surpasses Gemini-2.5-Pro ​​and GPT-5 on multiple benchmarks such as SpatialRGPT, QSpatial, and RoboSpatial with only 3B parameters. As the representative work of the main line of "embodiment / VLM spatial reasoning" in this review, **For complete analysis, see [§6.10 ](#sec-6-10)** .
 
 ---
 
-### Language Gaussian Splatting (Language Gaussian Splatting)
-{: id="语言高斯溅射-language-gaussian-splatting"}
+### Language Gaussian Splatting
+{: id="语言高斯溅射"}
 This is the latest research frontier in 2025, which "sprays" semantic features onto 3DGS Gaussian primitives, making the three-dimensional scene both geometrically accurate and semantically queryable. Representative works include **SplatTalk (2025)**, **LangSplatV2 (2025)**, **4D LangSplat (2025)** and **GaussianVLM (2025)**. These works jointly promote the deep integration of three-dimensional scene representation and language interaction.
 
 ---
@@ -877,8 +877,8 @@ This section organizes commonly used data sets and evaluation benchmarks accordi
 - Annotation consistency: Different data sets may have different category definitions, coordinate systems, and measurement units (such as the scale of Metric depth). Data preprocessing (coordinate transformation, resolution, semantic class mapping) needs to be strictly unified before the experiment.
 - Training/testing leaks: When using large-scale pretraining (3D/2D) models, please note that cross-contained scenes/objects in the data set may cause high evaluation, and strict scene-level split should be adopted.
 
-## 5.4 Recommended benchmark combination (researcher/engineer perspective)
-{: id="54-推荐基准组合研究者工程师视角"}
+## 5.4 Recommended benchmarks
+{: id="54-推荐基准组合"}
 
 - Prototype research (quickly verify algorithm ideas): ModelNet / ShapeNet (small samples, synthesis, fast training)
 - Indoor 3D perception and semantics: ScanNet v2 + S3DIS + ScanRefer (semantics + positioning)
@@ -985,8 +985,8 @@ The main limitation of NeRF is that training and inference are extremely slow (i
 
 ---
 
-## 6.2 3D Gaussian Splatting (2023)
-{: id="62-3d-gaussian-splatting-2023"}
+## 6.2 3DGS (2023)
+{: id="62-3dgs-2023"}
 ———Real-Time Radiance Field Rendering via Differentiable Gaussian Primitives
 
 📄 **Paper**: https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/
@@ -1565,7 +1565,7 @@ GaussianVLM relies on the 3DGS pipeline to reconstruct the scene. In scenes with
 | 4D LangSplat |Dynamic scene query (4D)|MLLM generates temporal text supervision|Dual language field + state deformable network|
 | GaussianVLM |Scene Center VQA (Static)|Avoid detector dependencies|Dual path sparsifier (task/location guided)|
 
-## 6.7 3D-LLM: Injecting the 3D World into Large Language Models (2023)
+## 6.7 3D-LLM (2023)
 {: id="sec-6-7"}
 {:#sec-6-7}
 ——— Injecting a 3D physical world into a large language model
@@ -2025,8 +2025,8 @@ In addition to supporting standard text and image question and answer during inf
 
 ---
 
-## 6.12 LLaVA-Video (2024, TMLR 2025)
-{: id="612-llava-video-2024-tmlr-2025"}
+## 6.12 LLaVA-Video (2024)
+{: id="612-llava-video-2024"}
 ——Use high-quality synthetic data to fine-tune video instructions: LLaVA-Video-178K dataset + SlowFast video representation
 
 📄 **Paper**: [arXiv:2410.02713](https://arxiv.org/abs/2410.02713)
@@ -2652,8 +2652,8 @@ For scenes with severe non-rigid deformation or large-area dynamic motion, the t
 
 ---
 
-## 6.17 MuM: Multi-View Masked Image Modeling for 3D Vision (2025)
-{: id="617-mum-multi-view-masked-image-modeling-for-3d-vision-2025"}
+## 6.17 MuM (2025)
+{: id="617-mum-2025"}
 ——Multi-view mask image modeling: a self-supervised multi-view geometric feature representation model specially built for 3D vision tasks
 
 📄 **Paper**: [arXiv:2511.17309](https://arxiv.org/abs/2511.17309)
@@ -2768,8 +2768,8 @@ Visualization of the global attention map of the query patch in the<figcaption> 
 
 ---
 
-## 6.18 VLM³: Vision Language Models Are Native 3D Learners (2026)
-{: id="618-vlm-vision-language-models-are-native-3d-learners-2026"}
+## 6.18 VLM³ (2026)
+{: id="618-vlm-2026"}
 ——The first minimalist framework that uses only standard text SFT to allow VLM to master high-precision monocular/multi-ocular 3D spatial understanding capabilities
 
 📄 **Paper**: [arXiv:2605.30561](https://arxiv.org/abs/2605.30561)
@@ -3232,8 +3232,8 @@ Here, $L_{stream}$ is the average cross-entropy loss for decision control tokens
 
 ---
 
-## 6.22 MDM: Masked Depth Modeling for Spatial Perception (2026)
-{: id="622-mdm-masked-depth-modeling-for-spatial-perception-2026"}
+## 6.22 MDM (2026)
+{: id="622-mdm-2026"}
 ——— Universal three-dimensional space geometry sensing base based on occlusion depth modeling and massive RGB-D data
 
 📄 **Paper**: [arXiv:2601.17895](https://arxiv.org/abs/2601.17895) · [Project Page](https://technology.robbyant.com/lingbot-depth) · [Code](https://github.com/robbyant/lingbot-depth)
@@ -3701,7 +3701,7 @@ $$L_{normal} = \sum_{i=1}^N \sum_{j=1}^{H \times W} \arccos(\hat{n}_{i,j} \cdot 
 * **Stability of joint training of large parameter models**: There is a problem of convergence instability when fine-tuning low-level visual experts and LLM at the same time under a very large VLM framework such as 7B or 72B, which puts forward higher engineering requirements for the adjustment of the learning rate curve and the ratio of the mixed 3D reconstruction data set.
 
 ## 6.24 SparseOccVLA (2026)
-{: id="624-sparseoccvla-2026-6-24-sparseoccvla"}
+{: id="624-sparseoccvla-2026"}
 ——The first embodied autonomous driving planning model that natively integrates 3D semantic occupancy (Occupancy) and vision-language model (VLM)
 
 📄 **Paper**: https://arxiv.org/abs/2601.06474v2
@@ -3789,7 +3789,7 @@ And sent to the diffusion decoder for denoising. The Diffusion Decoder stacks mu
 - The verification has only been completed on open-loop autonomous driving planning benchmarks such as nuScenes, and its planning and control stability in a closed-loop simulation environment still needs to be further explored in future work.
 
 ## 6.25 GenCeption (2026)
-{: id="625-genception-2026-6-25-genception"}
+{: id="625-genception-2026"}
 ——Video generation model is a general visual learner
 
 📄 **Paper**: https://arxiv.org/abs/2607.09024
@@ -3903,7 +3903,7 @@ This eliminates the scale uncertainty of geometric perception at its source.
 * **Joint conflict between dense and sparse tasks**: The experiment found that when fine-tuning the dense pixel task and the sparse coordinate task at the same time, the performance of the sparse task will decline significantly, and the associated dense perception task will also be slightly degraded. Analysis shows that plug-in learnable tokens will destroy the original attention weight of DiT without sufficient multi-task fine-tuning data, and have certain conflicts with continuous pixel space reconstruction at the geometric representation level. When fine-tuning, greater care should be taken to design the network backbone to be "zero intrusive".
 
 ## 6.26 S-Agent (2026)
-{: id="626-s-agent-2026-6-26-s-agent"}
+{: id="626-s-agent-2026"}
 ——Spatial tool invocation inspires embodied spatial intelligence reasoning
 
 📄 **Paper**: [arXiv:2606.20515](https://arxiv.org/abs/2606.20515) · [Project Page](https://ropedia.github.io/S-Agent/)
@@ -4021,7 +4021,7 @@ To deploy powerful spatial reasoning capabilities into lightweight open source m
 ---
 
 ## 6.27 Qwen-3D (2026)
-{: id="627-qwen-3d-2026-6-27-qwen-3d"}
+{: id="627-qwen-3d-2026"}
 ——Universal 3D visual language multimodal large model, using world coordinate system self-attention and bottleneck-free Query mask decoding to unify 2D/3D spatial positioning and reasoning
 
 📄 **Paper**: [arXiv:2608.02980](https://arxiv.org/abs/2608.02980) · [Project Page](https://qwen-3d.github.io/)
@@ -4188,8 +4188,8 @@ Thanks to the 2D/3D joint training strategy, Qwen-3D achieved high scores of 88.
 
 Spatial intelligence is one of the core capabilities toward embodied general artificial intelligence. This article systematically sorts out the technical path from basic discrete geometry learning to the latest large model-driven spatial reasoning.
 
-### Spatial intelligence and world models (World Models)
-{: id="空间智能与世界模型-world-models"}
+### Spatial intelligence and world models
+{: id="空间智能与世界模型"}
 In the context of 2025-2026, spatial intelligence is no longer just a component of robotics or autonomous driving, it is becoming **"Physical World Model"** geometric skeleton. Current SOTA models such as GaussianVLM can handle complex spatial question answering, but the real challenge lies in **“Physical Reasoning”** :
 - **Causal prediction**: Understand the physical constraints between objects (for example: if the bottom block is removed, how will the top block collapse?).
 - **Embodied common sense reasoning**: Understand the material, mass and friction of objects during interaction.

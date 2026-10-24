@@ -5,10 +5,10 @@ translation_id: ai-agent-survey
 permalink: /en/AI-Agent-Survey/
 source_path: _posts/research/2026-03-05-AI-Agent-Survey.md
 source_url: /AI-Agent-Survey/
-source_revision_date: 2026-10-04
-translation_updated: 2026-10-04
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "AI Agents: A Survey"
-date: 2026-09-29
+date: 2026-10-24
 tags: [Agent, LLM, Multi-Agent, Survey]
 categories: research
 comments: false
@@ -25,8 +25,8 @@ excerpt: "A survey of reasoning and planning, multi-agent collaboration, memory,
 |the problem you want to solve|Suggested reading order|
 |:---|:---|
 |Establish an overall understanding|[Core architecture](#2-ai-agent-核心架构) → [Inference paradigm](#3-关键推理范式) → [Summary and outlook](#13-总结与展望)|
-|Design an Agent that can continuously perform tasks|[Memory](#5-记忆机制memory) → [Skills](#6-技能系统skill) → [Context](#7-上下文工程context-engineering) → [Tools and Protocols](#8-工具调用与外部集成)|
-|Decide whether to use multiple agents|Read [Architecture Choices](#46-何时不该用多-agent一场尚未终结的路线之争) first, then read the topology, roles and communication mechanisms in Chapter 4|
+|Design an Agent that can continuously perform tasks|[Memory](#5-记忆机制memory) → [Skills](#6-技能系统skill) → [Context](#7-上下文工程) → [Tools and Protocols](#8-工具调用与外部集成)|
+|Decide whether to use multiple agents|Read [Architecture Choices](#46-何时不该用多-agent) first, then read the topology, roles and communication mechanisms in Chapter 4|
 |Compare implementation solutions and application scenarios|[Application scenario](#10-应用场景) → [Agent case](#11-优秀-agent-示例) → [Evaluation](#9-主流评测基准) and [Security](#12-agent-安全)|
 
 **Central thread**: Reasoning determines the next action; memory, skills, and context supply decision inputs; tools and protocols connect the execution environment; the harness manages execution; evaluation and safety checks establish whether the task is complete and its costs are acceptable.
@@ -89,8 +89,8 @@ The core capability of Agent is that it can not only "say" but also "do" - affec
 
 From an engineering perspective, you can use the **model + Harness + execution environment** to analyze an Agent: the model provides decision-making capabilities, the Harness management tool scheduling, status, permissions, stop conditions and error recovery, and the environment provides action results. The above schematic diagram omits the termination branch; the actual system also needs to define exits such as success, failure, budget exhaustion, and request for manual intervention.
 
-## 2.2 The core difference between Agent and ordinary LLM
-{: id="22-agent-与普通-llm-的核心区别"}
+## 2.2 Agents vs. plain LLMs
+{: id="22-agent-与-llm-的区别"}
 
 LLM is a model component, and workflow and Agent are systematic ways of organizing models and tools. The three are not at the same abstraction level. The following table distinguishes **who decides the next step**:
 
@@ -279,8 +279,8 @@ flowchart TD
 |**2024**<br/>**Architecture and Interface Exploration**|Code Agent productization <br/> multi-agent and protocol standardization|**Devin** / **SWE-agent**<br/>**OpenAI Swarm** / **Computer Use**<br/>**MCP protocol** (Anthropic)|• Repository-level code repair and desktop operations become important applications <br/> • Explore orchestration, handover and cross-system tool interfaces|
 |**2025–2026**<br/>**Engineering and Application Deepening**|Long-distance task management<br/>Collaboration and connection<br/>Embodied application|Products, protocols and research cases in subsequent chapters of this article|• Compare the state management, verification and recovery mechanisms of different running frameworks <br/> • Explore the execution boundaries in software, browsers and physical environments <br/> • Distinguish between product implementations, protocol drafts and research previews, and do not replace capability assessment with popularity|
 
-## 2.7 Harness Engineering: Agent engineering
-{: id="27-harness-engineeringagent-工程化"}
+## 2.7 Harness Engineering
+{: id="27-harness-engineering"}
 
 **Harness Engineering** focuses on the operational mechanics around the model: how to prepare context, schedule tools, save progress, verify results, and recover from interruptions. Model capabilities and Harness design work together to influence outcomes, and "engineering is more important than models" cannot be used as a substitute for concrete experimentation. Anthropic's [Long-range Agent Engineering Practice](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) shows how the initialization environment, incremental advancement, progress recording and testing work together.
 
@@ -294,8 +294,8 @@ This methodology currently diverges in two directions: **DeepSeek Harness** (`ds
 
 ---
 
-## 2.8 Loop Engineering: The next generation of closed-loop paradigm
-{: id="28-loop-engineering下一代闭环范式"}
+## 2.8 Loop Engineering
+{: id="28-loop-engineering"}
 
 For this article **Loop Engineering** Refers to the engineering perspective of designing feedback loops around “Do → Check → Fix”. The focus is on clear input for each round, verifiable completion conditions, retry budgets, and manual takeover conditions. Automated triggers, isolated workspaces, skills, connectors, and child agents are optional; persistent state enables loop recovery across sessions. Automation scope should expand with verification capabilities, and reliability cannot be achieved simply by increasing the number of cycles.
 
@@ -305,8 +305,8 @@ For this article **Loop Engineering** Refers to the engineering perspective of d
 
 ---
 
-## 2.9 Graph Engineering: Graph Agent Engineering
-{: id="29-graph-engineering图智能体工程"}
+## 2.9 Graph Engineering
+{: id="29-graph-engineering"}
 
 This article uses **Graph Engineering (graph agent engineering)** to refer to the use of explicit state diagrams to organize execution: nodes carry model calls, tool execution or manual review, edges describe conditional routing and loops, and states record cross-step data. Graphs can express predefined workflows and accommodate Agents whose next steps are determined by the model. They are not exclusive to multiple Agents. [LangGraph's workflow and agent document](https://docs.langchain.com/oss/python/langgraph/workflows-agents) gives these two types of implementations. Explicit graphs make it easy to locate states and control paths, but model outputs in nodes still need to be verified.
 
@@ -358,8 +358,8 @@ The controlled experiment of the original ReAct paper illustrates why this inter
 
 ---
 
-## 3.2 Reflexion: reflection and self-correction
-{: id="32-reflexion反思与自我修正"}
+## 3.2 Reflexion
+{: id="32-reflexion"}
 
 **Reflexion** (2023) introduces reflective memory **in the form of** language based on ReAct, allowing the Agent to learn from failures without gradient updates. After the Agent fails to execute, it not only injects the error into the current context, but also writes a "reflection summary" into long-term memory for reference in the next attempt, achieving cross-task experience accumulation.
 
@@ -412,8 +412,8 @@ flowchart TB
 
 ---
 
-## 3.4 Tree of Thoughts: Tree search planning
-{: id="34-tree-of-thoughts树形搜索规划"}
+## 3.4 Tree of Thoughts
+{: id="34-tree-of-thoughts"}
 
 **Tree of Thoughts (ToT, 2023)** extends the reasoning process of LLM from linear chain (CoT) to **tree search**: Each step generates multiple candidate thinking nodes at the same time, scores them through the evaluation function, selects the optimal path to continue expansion, and backtracks and prunes when necessary.
 
@@ -451,8 +451,8 @@ The relationship between **and ReAct**: ReAct is single-path reasoning; ToT is m
 
 ---
 
-## 3.5 Code as Action and Voyager
-{: id="35-代码作为行动code-as-action与-voyager"}
+## 3.5 Code as action and Voyager
+{: id="35-代码即行动与-voyager"}
 
 Let Agent **directly generate executable code** instead of a natural language action sequence. The code naturally supports conditional branches, loops and variables, and its expressive capabilities are far beyond language instructions. It can also be directly used as input to feedback closed-loop.
 
@@ -547,16 +547,16 @@ flowchart TB
 |:-----|:-------------|:---------|:---------|:--------------------|
 |**① Centralized orchestration**|Orchestrator unified routing|Summary completed|The orchestrator becomes a bottleneck and risks single point of trust|OpenAI Swarm; [Maker-Checker evaluation architecture](#95-评测哲学的演进)|
 |**② Hierarchical divide and conquer**|Each layer has its own orchestrator|Backtracking and summarizing layer by layer|When there are too many layers, the context is distorted during transmission.|Claude Code nested Subagent; CrewAI `hierarchical`|
-|**③ Assembly line / SOP**|pre-fixed sequence of stages|Complete all stages|Errors in the previous stage will be amplified later|MetaGPT, ChatDev; [QuEra four-character cycle](#856-研究预览实证来自首批合作方的量化结果)|
+|**③ Assembly line / SOP**|pre-fixed sequence of stages|Complete all stages|Errors in the previous stage will be amplified later|MetaGPT, ChatDev; [QuEra four-character cycle](#856-首批实证结果)|
 |**④ Group chat/debate**|Manager or rotation rule selects speaker|Reach consensus or round cap|Infinite dialogue, out-of-control costs, consensus ≠ correct| AutoGen `GroupChat` |
-|**⑤ State diagram**|Conditional function on the edge|Reach the end node|The complex diagram makes it difficult to debug and verify| LangGraph; [2.9 Graph Engineering](#29-graph-engineering图智能体工程) |
+|**⑤ State diagram**|Conditional function on the edge|Reach the end node|The complex diagram makes it difficult to debug and verify| LangGraph; [2.9 Graph Engineering](#29-graph-engineering) |
 
 A practical criterion: **The first four topologies can be regarded as special cases of state diagram**. When the collaboration relationship is simple, it is faster to develop with ready-made abstractions such as ①③④; when the branch conditions are complex and need to go back to the edge and continue running at the breakpoint, ⑤ is the only form that can support it-this is why LangGraph's proportion in the production system continues to increase.
 
 ---
 
-## 4.2 Agent Team: Organizing collaboration based on role division
-{: id="42-agent-team以角色分工组织协作"}
+## 4.2 Agent teams
+{: id="42-agent-team"}
 
 "Multi-Agent" emphasizes quantity, while "**Agent Team**" emphasizes **organizational method**: Give each Agent a role (Role), a responsibility (Goal), and a personality (Backstory), so that they can divide work like a team. This line of thinking will diverge into four distinct organizational philosophies after 2023.
 
@@ -568,14 +568,14 @@ A practical criterion: **The first four topologies can be regarded as special ca
 | **AutoGen** |A **group chat**|`GroupChat` + `GroupChatManager`, the Manager decides the next speaker|Conversational messaging|Only two topologies, sequential and group chat, are supported, and rounds and costs are not easily capped.|
 | **LangGraph** |One **state machine**|The node is the Agent, the edge is the conditional transfer, and it is globally shared `State`|Status reading and writing|The mental burden on development is heaviest, and simple tasks are over-designed.|
 
- **Structured output vs free dialogue is the most critical distinction here.** The core proposition of MetaGPT is to allow roles to deliver PRDs, architecture diagrams, interface definitions, etc. **Standardized documents** , rather than letting them "chat" - because free dialogue will pass on misunderstandings layer by layer, and structured output naturally has format constraints, and errors are easier to find at the transition. This is consistent with this article [Section 13.2](#132-一个反复浮现的结构推理在外确定性在内) The inductive "reasoning is outside and certainty is inside" is the same idea: **Solidify the collaboration interface into a contract instead of leaving it to the model to improvise** .
+ **Structured output vs free dialogue is the most critical distinction here.** The core proposition of MetaGPT is to allow roles to deliver PRDs, architecture diagrams, interface definitions, etc. **Standardized documents** , rather than letting them "chat" - because free dialogue will pass on misunderstandings layer by layer, and structured output naturally has format constraints, and errors are easier to find at the transition. This is consistent with this article [Section 13.2](#132-推理在外确定性在内) The inductive "reasoning is outside and certainty is inside" is the same idea: **Solidify the collaboration interface into a contract instead of leaving it to the model to improvise** .
 
 There is an experience that has been proven repeatedly in character design: **There must be at least one character** (Critic / Reviewer / QA) who is not responsible for production but only responsible for fault-finding. The reason will be discussed in Section 4.6 - the most dangerous failure of multi-Agent is not that one Agent makes a mistake, but that no role is responsible for "suspecting".
 
 ---
 
-## 4.3 Subagent: Subagent derivation mode
-{: id="43-subagent子-agent-派生模式"}
+## 4.3 Subagents
+{: id="43-subagent"}
 
 **Subagent** refers to the sub-Agent instance **that is dynamically derived from** by the main Agent (Orchestrator) at runtime - the main Agent passes a subtask along with the required context to the Subagent, and the Subagent executes it in an independent context window and returns the result after completion. The entire process is transparent to the main Agent.
 
@@ -603,8 +603,8 @@ Each Subagent operates in an independent Git worktree without interfering with e
 
 ---
 
-## 4.4 A2A protocol: connection standard between agents
-{: id="44-a2a-协议agent-之间的连接标准"}
+## 4.4 The A2A protocol
+{: id="44-a2a-协议"}
 
 Chapter 8 of this article introduces the three-layer protocol for Agent to connect to the outside world - MCP (software and data), WebMCP (Web front-end), and MHS (physical device). But they have a common premise: the object **is connected to is a tool, not another Agent**. Tools are primitives with clear input and output, usually stateless; while Agent can reason, plan, and maintain state across multiple rounds. Forcing it into the tool interface is tantamount to losing its autonomy.
 
@@ -628,8 +628,8 @@ flowchart TB
     A2A -.->|"normative"| AG2
 ```
 
-### 4.4.1 Agent Card: Make Agent discoverable
-{: id="441-agent-card让-agent-可被发现"}
+### 4.4.1 Agent Card
+{: id="441-agent-card"}
 
 A2A's discovery mechanism is built on **Agent Card** - a JSON metadata released by the service provider, stating "Who am I, what can I do, how to adjust me, and how to authenticate me":
 
@@ -642,10 +642,10 @@ A2A's discovery mechanism is built on **Agent Card** - a JSON metadata released 
 | `securitySchemes` |Supported authentication methods|
 | `signature` |Card integrity signatures (canonical support for Ed25519/RSA canonical JSON signatures)|
 
-The fact that the Agent Card can be signed is critical: it makes "this card indeed comes from the purported provider" a verifiable fact, which directly corresponds to the risk of "Orchestrator defaults to trusting the Worker return value" in [Section 12.2 Agent hijacking](#122-agent-劫持agent-hijacking)]. In addition, the specification also provides `GetExtendedAgentCard`, which allows the client to obtain a more detailed capability list after authentication.
+The fact that the Agent Card can be signed is critical: it makes "this card indeed comes from the purported provider" a verifiable fact, which directly corresponds to the risk of "Orchestrator defaults to trusting the Worker return value" in [Section 12.2 Agent hijacking](#122-agent-劫持)]. In addition, the specification also provides `GetExtendedAgentCard`, which allows the client to obtain a more detailed capability list after authentication.
 
-### 4.4.2 Transport, methods and Task life cycle
-{: id="442-传输方法与-task-生命周期"}
+### 4.4.2 Transport and task lifecycle
+{: id="442-传输与-task-生命周期"}
 
 A2A defines three transport bindings for **that are functionally equivalent to**: **JSON-RPC 2.0**, **gRPC**, **HTTP+JSON/REST** - the implementer can choose any one, and the semantics remain consistent. Core methods can be divided into four groups:
 
@@ -675,8 +675,8 @@ Streaming and asynchronous are covered by two paths: `SendStreamingMessage` / `S
 
 ---
 
-## 4.5 Bridge: Cross-system Agent bridging
-{: id="45-bridge跨系统-agent-桥接"}
+## 4.5 Cross-system bridges
+{: id="45-跨系统桥接"}
 
 In real production, different tasks often need to call **Capabilities of different AI providers** (For example, Claude is good at reasoning and code understanding, Gemini is good at multi-modality, and Codex is good at large-scale code completion). **Bridge layer** Responsible for protocol conversion, context serialization and cross-Agent routing to enable heterogeneous Agent systems to collaborate.
 
@@ -715,8 +715,8 @@ Core values of the Bridge model:
 
 ---
 
-## 4.6 When not to use multiple agents: a battle of routes that is not over yet
-{: id="46-何时不该用多-agent一场尚未终结的路线之争"}
+## 4.6 When not to use multiple agents
+{: id="46-何时不该用多-agent"}
 
 Multi-Agent is often defaulted to a "more advanced" architecture, but the two most vocal teams in the industry from 2025 to 2026 have given their opinions on this issue. **Completely opposite** conclusions - and each is supported by hard data.
 
@@ -789,8 +789,8 @@ flowchart TD
 
 ---
 
-## 5.1 Four types of memory in cognitive science and engineering architecture (CoALA paradigm)
-{: id="51-认知科学与工程架构的四类记忆coala-范式"}
+## 5.1 Four memory types (CoALA)
+{: id="51-四类记忆coala"}
 
 CoALA (Cognitive Architectures for Language Agents, Princeton, 2023) draws on cognitive psychology to rigorously deconstruct the Agent's memory system into four major types at the systems engineering level:
 
@@ -836,8 +836,8 @@ From the perspective of memory subjects, modern memory architecture is also divi
 
 ---
 
-## 5.2 Memory life cycle dynamics: formation, organization, retrieval and forgetting
-{: id="52-记忆生命周期动力学形成组织检索与遗忘"}
+## 5.2 Memory lifecycle
+{: id="52-记忆生命周期"}
 
 Memory is not just a simple "write-read", but a complex **Memory Dynamics** The closed-loop control system:
 
@@ -850,20 +850,20 @@ flowchart LR
     M_FORGET -.->|"update status"| M_ORG
 ```
 
-### ① Formation and encoding (Memory Encoding)
-{: id="-形成与编码memory-encoding"}
+### ① Encoding
+{: id="-形成与编码"}
 Not all interactions deserve to be remembered forever. If every meaningless pleasantry or intermediate debugging error was stuffed into a long-term database, the memory bank would quickly become polluted with noise.
 - **Passive rule triggers**: captured only when a task completes a node, a specific error occurs, or an explicit instruction from the user (such as "Please remember my preferences");
 - **model adaptive scoring**: Use a lightweight model to score interactive content, and only enter the storage pipeline when the importance exceeds the threshold.
 
-### ② Organization and integration (Memory Consolidation)
-{: id="-组织与整合memory-consolidation"}
+### ② Consolidation
+{: id="-组织与整合"}
 Evolution from simple bulk text to **structured topology network**:
 - Decompose unstructured text into entities (Entities), relationships (Relations) and fact triples with timestamps $(Subject, Predicate, Object, [t_{start}, t_{end}])$;
 - Mimics the "memory consolidation" mechanism in human sleep: In background asynchronous tasks, historical memories are regularly clustered, deduplicated and high-level abstracted, and scattered plot facts are refined into abstract semantic common sense.
 
-### ③ Retrieval and wake-up (Memory Retrieval)
-{: id="-检索与唤醒memory-retrieval"}
+### ③ Retrieval
+{: id="-检索与唤醒"}
 Facing the current task, how to recall the most relevant previous memory with the lowest delay and the highest accuracy?
 - **three-way hybrid retrieval (Hybrid Retrieval)**: **dense semantic vector (Dense Embedding)** is responsible for capturing fuzzy intent; **sparse lexical index (BM25)** Ensure accurate matching of proper nouns and function names; **knowledge graph topology multi-hop (Graph Traversal)** mine deep entity relationships;
 - **Cognitive weighted scoring formula** (derived from Stanford Generative Agents and improved by the industry):
@@ -873,16 +873,16 @@ Facing the current task, how to recall the most relevant previous memory with th
   - **Relevance (Relevance)**: The cosine similarity between the current Query embedding vector and the memory vector;
   - **Frequency (Frequency)**: The cumulative number of times this memory has been retrieved and successfully adopted (the more frequently used a memory is, the easier it is to activate it quickly).
 
-### ④ Forgetting and updating (Decay & Forgetting)
-{: id="-遗忘与更新decay--forgetting"}
+### ④ Forgetting
+{: id="-遗忘与更新"}
 Forgetting is not a flaw in the system, but is indispensable to maintaining the healthy operation of the system. **active regulation mechanism** :
 - **Capacity management**: Automatically eliminate old memories based on access popularity and timeliness to prevent unlimited expansion of the vector library and retrieval delay degradation;
 - **Knowledge conflict resolution (Conflict Resolution)**: When new facts conflict with existing facts, the arbitration update process is triggered.
 
 ---
 
-## 5.3 Representative classic work and industrial-level framework evolution
-{: id="53-代表性经典工作与工业级框架演进"}
+## 5.3 Key work and frameworks
+{: id="53-代表工作与框架"}
 
 ### Classic groundbreaking work
 {: id="经典奠基工作"}
@@ -905,8 +905,8 @@ The memory retrieval mechanism adopts the classic "recency × importance × rele
 **MemGPT / Letta(Packer et al., UC Berkeley, 2023–2025)**:
 Introducing the operating system's virtual memory paging mechanism into LLM memory management. The main context is analogized to physical RAM, and the external archive storage (Archival Memory) and recall memory (Recall Memory) are analogized to disks. Agent realizes paging loading and persistent saving by autonomously calling built-in tools (`core_memory_append`, `archival_memory_search`).
 
-### Panoramic and horizontal comparison of mainstream memory frameworks (2025–2026)
-{: id="主流记忆框架全景横向对比20252026"}
+### Memory framework comparison
+{: id="主流记忆框架对比"}
 
 |Framework/System|core architecture paradigm|Core technology highlights|Typical applicable scenarios|Limitations and project costs|
 |:---|:---|:---|:---|:---|
@@ -919,8 +919,8 @@ Introducing the operating system's virtual memory paging mechanism into LLM memo
 
 ---
 
-## 5.4 From vector matching to knowledge graph: the evolution and deepening of hybrid memory engines
-{: id="54-从向量匹配到知识图谱混合记忆引擎的演化深化"}
+## 5.4 Hybrid memory engines
+{: id="54-混合记忆引擎"}
 
 Traditional memory systems are mostly built on the RAG link of "blocked $\rightarrow$ vectorized $\rightarrow$ cosine similarity recall". This works well for simple fact queries, but has fatal flaws in two core tasks:
 1. **Multi-hop Reasoning**: Answering the question requires spanning three historical interactions that are literally dissimilar but interlocking in the logical chain;
@@ -955,15 +955,15 @@ flowchart TD
     FUSE --> FINAL["🎯 Precise context injection (To Context Window)"]
 ```
 
-### 1. A-MEM: Card Box Network and Autonomous Evolution (Zettelkasten)
-{: id="1-a-mem卡片盒网络与自主演化zettelkasten"}
+### 1. A-MEM
+{: id="1-a-mem"}
 A-MEM (Agentic Memory, 2025) completely abandons the storage of isolated factual sentences and organizes memory into a **dynamic note network** similar to a human academic card box:
 - **Structured Card (Note Construction)**: Each card records atomic views, timestamps, context associations and semantic tags;
 - **Intelligent Link Generation**: When a new memory enters, LLM automatically retrieves potentially relevant stock notes and establishes strong and weak directed correlation edges;
 - **Reverse Evolution (Memory Evolution)**: Unlike traditional vector libraries that only add but never change, A-MEM allows the new memory **to reversely trigger and reconstruct the content, label and association strength of the existing memory**. The paper's experiments on six basic models are significantly better than the existing memory baselines, with the most obvious gains for multi-hop reasoning problems.
 
-### 2. Zep/Graphiti: Dual timelines and time travel
-{: id="2-zep--graphiti双时间轴与时间旅行"}
+### 2. Zep / Graphiti
+{: id="2-zep--graphiti"}
 The core breakthrough of the Zep memory engine lies in the **dual timeline (Bi-temporal Modeling)** mechanism, which clearly decouples the real-world occurrence time from the knowledge entry time:
 - **event time (Event Time, $T_{event}$)**: the starting and ending time when the fact is established in the real world $[t_{start}, t_{end}]$;
 - **Ingestion Time (Ingestion Time, $T_{ingest}$)**: The timestamp when the agent system first observed this information.
@@ -975,16 +975,16 @@ The core breakthrough of the Zep memory engine lies in the **dual timeline (Bi-t
 
 When the user moves to Shanghai, the system does not erase the records in Beijing, but truncates the valid interval of the old relationship and marks it as inactive. This gives Agent **"Time Travel"** the ability to not only know for sure that Zhang San currently lives in Shanghai, but also to retrieve historical slices for accurate traceability when asked "Where did Zhang San live the year before last?"
 
-### 3. HippoRAG: a biomimetic hippocampal association index
-{: id="3-hipporag仿生海马体联想索引"}
+### 3. HippoRAG
+{: id="3-hipporag"}
 HippoRAG (Gutiérrez et al., NeurIPS 2024; extended to HippoRAG 2 in 2025) draws on the complementary learning system (CLS theory) of the brain's hippocampus and neocortex, analogizing the large language model to the neocortex with common sense and the external map to the hippocampal index:
 - When facing complex problems, first extract the seed entities (Seed Entities);
 - The **Personalized PageRank algorithm (PPR)** is used to simulate the activation diffusion of biological synapses on the knowledge network. Key clues hidden 3-4 hops away can be found within a few milliseconds, effectively avoiding the "out of context" problem in naive vector recall.
 
 ---
 
-## 5.5 Memory failure and timeliness management: from soft failure to cascade cleanup
-{: id="55-记忆失效与时效性治理从软失效到级联清理"}
+## 5.5 Memory invalidation
+{: id="55-记忆失效与治理"}
 
 In modern memory engineering, it is easy to write **, but extremely difficult to invalidate**. If the memory is only kept but not deleted, it will inevitably lead to **memory bloat** and **cognitive hallucination contamination (Hallucination Cascade)**. The industry divides memory failures into three types and has established strict management pipelines:
 
@@ -1007,8 +1007,8 @@ flowchart LR
 
 ---
 
-## 5.6 Long-term memory professional evaluation benchmark system (2025–2026)
-{: id="56-长期记忆专业评测基准体系20252026"}
+## 5.6 Long-term memory benchmarks
+{: id="56-长期记忆评测基准"}
 
 The popularity of long context windows (such as 1M–2M tokens) once led some developers to mistakenly believe that external memory is dead. However, a series of authoritative benchmark experiments in 2025–2026 confirmed that the **long window cannot be equated to the long-term memory** at all. Long windows not only cause serious "Lost in the Middle" and dilute attention when processing millions of Tokens, they are also costly and cannot support cross-session state persistence.
 
@@ -1036,8 +1036,8 @@ If memory allows Agents to "remember experiences," Skills allow Agents to "solid
 
 ---
 
-## 6.1 What are skills? From atomic tools to business procedures
-{: id="61-什么是技能从原子工具到业务规程"}
+## 6.1 What a skill is
+{: id="61-什么是技能"}
 
 For a long time, developers have easily confused the boundaries between Prompt, Tool, Skill and Subagent. In modern Agent architecture, skills are essentially **Modular encapsulation package of procedural knowledge and deterministic execution resources** :
 
@@ -1080,8 +1080,8 @@ flowchart LR
 
 ---
 
-## 6.2 Standard skill file structure specification (agentskills.io / SKILL.md)
-{: id="62-标准技能文件结构规范agentskillsio--skillmd"}
+## 6.2 Skill file structure (SKILL.md)
+{: id="62-技能文件结构skillmd"}
 
 From the end of 2025 to 2026, the ecosystem represented by Anthropic Claude Code, OpenAI Codex, Google Antigravity and OpenClaw will jointly promote a unified skills organization standard (`agentskills.io` specification). A standard skill package is organized in independent directories, and the file structure is as follows:
 
@@ -1121,8 +1121,8 @@ skill-name/                          # Skill root directory (must match SKILL.md
 
 ---
 
-## 6.3 Progressive Disclosure Principle
-{: id="63-渐进式披露机制progressive-disclosure-principle"}
+## 6.3 Progressive disclosure
+{: id="63-渐进式披露"}
 
 The context window is the core public resource of the Agent system. If the system loads all the implementation details, script codes, and reference documents of dozens or even hundreds of skills into the model window at once, it will not only exhaust the context budget in an instant, but also cause serious consequences. **Context Distraction** , resulting in a significant decrease in model reasoning ability.
 
@@ -1161,8 +1161,8 @@ flowchart TD
 
 ---
 
-## 6.4 Practical implementation of production-level skills: taking automated analysis of scientific research papers as an example
-{: id="64-生产级技能实战以科研论文自动化分析为例"}
+## 6.4 Example: paper analysis skill
+{: id="64-技能实战论文分析"}
 
 In order to visually present the organization of modern Agent skill packages, the following shows the directory structure and core implementation of a real automated paper processing skill (`paper-analyzer`).
 
@@ -1222,8 +1222,8 @@ Before drafting your summary, check the domain labels against the classification
 If the user asks for a "visual summary" or "social platform alert", please read `assets/summary_card_template.html`, Fill in the corresponding placeholders with the above extraction results and save them to the workspace.
 ````
 
-### Deterministic support script: `scripts/extract_tables.py`
-{: id="确定性支撑脚本scriptsextract_tablespy"}
+### Support script: `extract_tables.py`
+{: id="支撑脚本extract_tablespy"}
 
 ```python
 #!/usr/bin/env python3
@@ -1277,8 +1277,8 @@ if __name__ == "__main__":
 
 ---
 
-## 6.5 Degrees of Freedom Framework
-{: id="65-自由度设计框架degrees-of-freedom-framework"}
+## 6.5 Degrees of freedom
+{: id="65-自由度设计"}
 
 When writing skills, the error tolerance and boundaries of different tasks vary greatly. The industry proposed the **degree of freedom trade-off design framework (Degrees of Freedom)** to guide developers to determine the implementation form of skills based on task attributes:
 
@@ -1315,8 +1315,8 @@ flowchart TD
 
 ---
 
-## 6.6 Skill acquisition, synthesis and life cycle (Lifecycle & Evolution)
-{: id="66-技能的获取合成与生命周期lifecycle--evolution"}
+## 6.6 Skill lifecycle
+{: id="66-技能的生命周期"}
 
 The skill library is not a static code library, but an organic system in which intelligent agents evolve independently. Academia and industry have formed the following four major skill acquisition and evolution paradigms (refer to "Agent Skill Evaluation and Evolution: Frameworks and Benchmarks", Ding et al., arXiv:2606.11435):
 
@@ -1370,8 +1370,8 @@ flowchart TB
 
 ---
 
-## 6.7 Skill discovery, hierarchical priority and ecological market
-{: id="67-技能发现层级优先级与生态市场"}
+## 6.7 Skill discovery and ecosystem
+{: id="67-技能发现与生态"}
 
 In order to allow developers, teams and enterprises to seamlessly share and cover skills, mainstream systems have generally established **Three-level priority discovery mechanism (Loading & Priority Hierarchy)** :
 
@@ -1397,13 +1397,13 @@ In 2026, the skills ecosystem will form a distribution market system similar to 
 
 ---
 
-## 6.8 SkillsBench & Security
-{: id="68-技能评测基准与安全治理skillsbench--security"}
+## 6.8 Skill evaluation and security
+{: id="68-技能评测与安全"}
 
 As skills systems become the standard configuration of complex Agent systems, academia and industry formally established the first batch of skills professional evaluation standards and security defense frameworks in 2026:
 
-### Specialized benchmark: SkillsBench (arXiv:2602.12670, 2026)
-{: id="专门基准skillsbench-arxiv260212670-2026"}
+### SkillsBench
+{: id="skillsbench"}
 
 Previous Agent evaluation benchmarks (such as SWE-bench and OSWorld) mainly measured the bare-metal end-to-end performance of the model and were unable to quantify the gain of the "skills" themselves. **SkillsBench** fills this gap:
 - **Paired Evaluation (Paired Evaluation)**: Across 8 fields and 87 tasks, each task is equipped with a manually organized skill package and a deterministic verifier. 18 sets of model-Harness configurations are compared one by one under the two conditions of "no skills" and "mounted Curated Skills";
@@ -1429,16 +1429,16 @@ The skill package has powerful script execution and system interaction capabilit
 ---
 
 
-# 7. Context engineering (Context Engineering)
-{: id="7-上下文工程context-engineering"}
+# 7. Context engineering
+{: id="7-上下文工程"}
 
 > "Context engineering is the delicate art and science of filling the context window with just the right information for the next step."
 > —Andrej Karpathy, June 2025
 
  **context engineering** It is one of the most important new paradigms in AI Agent engineering practice in 2025. When Karpathy proposed this concept, he pointed out that the core bottleneck of industrial LLM applications is no longer the prompt itself, but **How to load the model with just the right information in each step of reasoning within a limited context window** .
 
-## 7.1 Prompt Engineering vs Context Engineering
-{: id="71-prompt-engineering-vs-context-engineering"}
+## 7.1 Prompt vs. context engineering
+{: id="71-prompt-与-context-engineering"}
 
 |Dimensions| Prompt Engineering | Context Engineering |
 |------|-------------------|---------------------|
@@ -1465,8 +1465,8 @@ flowchart TB
 
 Key constraint: the context window is **limited resources** (Typically 128K–1M tokens). If you load too little, the model lacks key information; if you load too much, the model's attention will be diluted and its performance will decrease - this is where the "artistic" of context engineering lies.
 
-## 7.3 Four core operations (LangChain, 2025)
-{: id="73-四大核心操作langchain2025"}
+## 7.3 Four core operations
+{: id="73-四大核心操作"}
 
 The core of context engineering is the meticulous management of context window content, which LangChain summarizes into four operations:
 
@@ -1532,8 +1532,8 @@ flowchart LR
 |**Context Distraction**|Too much irrelevant content dilutes attention|Relevance filtering and semantic retrieval precise injection|
 |**Context Confusion**|Conflicting information coexists (e.g. old memories vs new retrieval results)|Memory conflict resolution, timing priority management|
 
-## 7.5 Relationship between context engineering and other modules
-{: id="75-上下文工程与其他模块的关系"}
+## 7.5 Relation to other modules
+{: id="75-与其他模块的关系"}
 
 Memories, skills, and context are easily confused and can be distinguished with a code fix task:
 
@@ -1665,7 +1665,7 @@ sequenceDiagram
 ## 8.2 Detailed explanation of Function Calling
 {: id="82-function-calling-详解"}
 
-### 8.2.1 What is Function Calling?
+### 8.2.1 What function calling is
 {: id="821-什么是-function-calling"}
 
  **Function Calling** It is called by the current mainstream LLM API implementation tools. **core standard protocol** . Unlike ReAct's free text format, Function Calling requires the model to be **Structured JSON format** The output tool call request is parsed and executed by the application layer.
@@ -1689,8 +1689,8 @@ sequenceDiagram
     LLM->>App: Final natural language answer
 ```
 
-### 8.2.3 JSON Schema tool definition example
-{: id="823-json-schema-工具定义示例"}
+### 8.2.3 JSON Schema example
+{: id="823-json-schema-示例"}
 
 ```json
 {
@@ -1732,8 +1732,8 @@ When the model recognizes that a tool needs to be called, it outputs a structure
 }
 ```
 
-### 8.2.4 Parallel Tool Calls
-{: id="824-并行工具调用parallel-tool-calls"}
+### 8.2.4 Parallel tool calls
+{: id="824-并行工具调用"}
 
 Modern LLM support in **Output multiple tool calls in a single response** , the application layer executes concurrently, greatly reducing latency:
 
@@ -1754,8 +1754,8 @@ flowchart LR
 - 3–5 parallel calls can reduce response latency **by 60–80%**
 - `parallel_tool_calls: false` parameter can force serialization (applicable to scenarios with sequence dependencies)
 
-### 8.2.5 Structured Outputs
-{: id="825-structured-outputs结构化输出"}
+### 8.2.5 Structured outputs
+{: id="825-结构化输出"}
 
 GPT-4o introduces the `"strict": true` parameter and enforces Schema compliance in the inference phase through **constrained decoding (Constrained Decoding)**, ensuring that the model output **100% complies with JSON Schema**, eliminating the risk of parsing failure:
 
@@ -1764,8 +1764,8 @@ Tradition Function Calling → Models may not be generated exactly Schema of JSO
 Structured Outputs    → Constraint decoding guarantee Schema Compliance              → Zero parsing failed
 ```
 
-### 8.2.6 ReAct vs Function Calling comparison
-{: id="826-react-vs-function-calling-对比"}
+### 8.2.6 ReAct vs. function calling
+{: id="826-react-与-function-calling"}
 
 |Dimensions| ReAct | Function Calling |
 |------|-------|-----------------|
@@ -1876,8 +1876,8 @@ MCP transmits messages based on **JSON-RPC 2.0**, drawing on the message flow de
 - **Streamable HTTP mode**: supports remote MCP Server, suitable for cloud services and multi-user scenarios; starting from the March 2025 specification, it will replace the early HTTP+SSE transmission, and a single endpoint can carry requests and streaming responses
 - **Message type**: Request (expecting response), Notification (one-way notification), Response (return of request)
 
-### 8.3.6 Major updates to the specification in November 2025
-{: id="836-2025-年-11-月规范重大更新"}
+### 8.3.6 November 2025 spec update
+{: id="836-2025-11-规范更新"}
 
 On the first anniversary of its release, the MCP specification has undergone a major upgrade for production environments:
 
@@ -1888,8 +1888,8 @@ On the first anniversary of its release, the MCP specification has undergone a m
 |**Server identity authentication**|Standardize OAuth 2.0 authorization process to solve enterprise-level security compliance needs|
 |**official MCP Registry** (previewed in September of the same year)|Community-driven server catalog supporting discovery, version management and security verification|
 
-### 8.3.7 2026 mid-term specification evolution (2026-07-28 upgrade)
-{: id="837-2026-年中期规范演进2026-07-28-升级"}
+### 8.3.7 Mid-2026 spec update
+{: id="837-2026-年中规范演进"}
 
 The new version of the MCP specification (Release Candidate) launched at the end of July 2026 marks the further maturity of MCP in enterprise distributed architecture:
 
@@ -1931,11 +1931,11 @@ The rapid popularity of MCP has also brought new security threats, and the secur
 
 ---
 
-## 8.4 Detailed explanation of WebMCP protocol (Web Model Context Protocol)
-{: id="84-webmcp-协议详解web-model-context-protocol"}
+## 8.4 The WebMCP protocol
+{: id="84-webmcp-协议"}
 
-### 8.4.1 Background: "Three generations of evolution" of Web agents
-{: id="841-背景web-智能体的三次代际演进"}
+### 8.4.1 Three generations of web agents
+{: id="841-web-智能体的三代演进"}
 
 Web browsers are the most intensive front-end hosting platform for human digital activities and enterprise applications. However, allowing AI Agents to autonomously control web pages has always faced extremely serious engineering and reliability challenges. From the early days based on DOM parsing to visual large model driving, to the **WebMCP (Web Model Context Protocol)** jointly promoted by OpenAI, Google and W3C in the second half of 2026, web-side agent interaction has experienced three key generational transitions:
 
@@ -1976,8 +1976,8 @@ flowchart TB
 
 ---
 
-### 8.4.2 WebMCP core architecture: Dual-Layer Web design
-{: id="842-webmcp-核心架构双层-webdual-layer-web设计"}
+### 8.4.2 Dual-layer web architecture
+{: id="842-双层-web-架构"}
 
 The core design concept of WebMCP is to divide modern web applications into **Two parallel decoupled interaction layers** :
 1. **Human Layer**: It is composed of traditional HTML, CSS, Canvas, SVG and animation, and is responsible for presentation and interaction to the human eye;
@@ -2041,8 +2041,8 @@ Different from the traditional cloud backend MCP Server, WebMCP is deployed on t
 
 ---
 
-### 8.4.3 Core API specifications and practical development
-{: id="843-核心-api-规范与实战开发"}
+### 8.4.3 Core API and development
+{: id="843-核心-api-与开发"}
 
 WebMCP defines two integration paradigms in the W3C standard draft: **declarative HTML attributes (Declarative)** and **imperative JavaScript API (Imperative)**.
 
@@ -2176,8 +2176,8 @@ if (typeof document.modelContext?.registerTool === "function") {
 
 ---
 
-### 8.4.4 OpenAI and industrial ecological advancement
-{: id="844-openai-与产业界生态推进"}
+### 8.4.4 Industry adoption
+{: id="844-产业生态"}
 
 WebMCP is not only a pure technical standard, but also officially launched by OpenAI in the second half of 2026 and quickly swept through mainstream browsers and Web cloud manufacturers. **Industrial level strategic actions** .
 
@@ -2219,8 +2219,8 @@ flowchart TB
 
 ---
 
-### 8.4.5 Core comparison: WebMCP vs MCP vs Computer Use
-{: id="845-核心对比webmcp-vs-mcp-vs-computer-use"}
+### 8.4.5 WebMCP vs. MCP vs. computer use
+{: id="845-webmcpmcp-与-computer-use"}
 
 To understand the position of WebMCP in the entire Agent technology stack, the key is to clarify its boundaries and division of labor with **MCP** and **Computer Use** initiated by Anthropic:
 
@@ -2297,8 +2297,8 @@ Since the WebMCP tool has the privilege of directly accessing the user's current
 
 ---
 
-## 8.5 Detailed explanation of MHS protocol (Model Hardware Standard, model hardware standard)
-{: id="85-mhs-协议详解model-hardware-standard模型硬件标准"}
+## 8.5 The MHS protocol
+{: id="85-mhs-协议"}
 
 On August 27, 2026, Anthropic released the **MHS (Model Hardware Standard)** research preview version - a set of shared specifications that allow AI Agent **to safely operate physical equipment**. The first batch is open to scientific research laboratories and advanced manufacturing companies.
 
@@ -2306,8 +2306,8 @@ If MCP solves the connection of "Agent ↔ software and data", and WebMCP solves
 
  **Its starting point is a shared memory dictionary.** MHS originated from Anthropic and **HHMI Janelia Research Park** Cooperation: Janelia researchers conducted experiments on a brain imaging device that mixed lasers, electric focusers, and cameras from multiple manufacturers with no common interfaces with each other. For this purpose, they developed a **shared memory dictionary** , allowing these instruments to communicate with each other at memory speed; Kemeny cooperated with it to connect the AI ​​model to this layer of interface-this also explains the problems that can be seen in the MHS data model so far. `io.shmdict/*` Format identifier. MHS is therefore not a grand protocol designed from the top down; **Grows from the pain points of real experimental benches** .
 
-### 8.5.1 Background: “Integrated Tax” on Science and Manufacturing
-{: id="851-背景科学与制造业的集成税"}
+### 8.5.1 Background: the integration tax
+{: id="851-背景集成税"}
 
 The core pain point of modern laboratories and advanced manufacturing workshops is not the lack of automation equipment, but the lack of automation equipment. **Not talking to each other** :
 
@@ -2335,8 +2335,8 @@ Comparison of key indicators among the three types of laboratories:
 
 The value proposition of MHS is therefore very straightforward: take this “integrated tax” from **Weeks compressed into hours or even minutes** , allowing laboratories and production lines to operate **7×24 hours unattended autonomous experiment and workflow** .
 
-### 8.5.2 Core architecture: standardized driver + two primitives + three channels
-{: id="852-核心架构标准化驱动--两个原语--三条通道"}
+### 8.5.2 Core architecture
+{: id="852-核心架构"}
 
 The architecture of MHS can be summarized as "**one driver, two primitives, three channels**": use a unified driver layer to smooth out differences among manufacturers, use two primitives `read` / `write` to cover most device interactions, and then use three channels of MCP / CLI / code API for Agent calls with different granularities.
 
@@ -2415,8 +2415,8 @@ flowchart TB
     DriverLayer -.->|"Structured status return (Slot)"| AgentLayer
 ```
 
-### 8.5.3 Slot data model, natural language tags and cross-host discovery
-{: id="853-slot-数据模型自然语言标签与跨主机发现"}
+### 8.5.3 Slot model and discovery
+{: id="853-slot-数据模型与发现"}
 
 **Slot: Unified data abstraction for MHS.** MHS models each observable and controllable quantity of the device as a **slot (slot)**. Each slot carries name, category (such as `SENSOR`), current value, and data format (such as `io.shmdict/int`, `io.shmdict/str` - shared memory dictionary) and a human-readable description. In Janelia's two-photon microscope case, after the researcher defines the region of interest, the real-time neural activity signal is also **written back to an MHS slot**, making it immediately visible to downstream processes. Slot is therefore not only the data source of the monitoring panel, but also the perception entrance of the Agent.
 
@@ -2455,8 +2455,8 @@ safety_limits:
   plate_rotation_check: required   # Refuse to execute when the plate position is missing or rotated out of position
 ```
 
-### 8.5.4 Double-layer loop: Agent reasoning outer loop + deterministic script inner loop
-{: id="854-双层循环agent-推理外循环--确定性脚本内循环"}
+### 8.5.4 Two-level loop
+{: id="854-双层循环"}
 
 An easily overlooked but extremely critical design in the MHS architecture is **Layered decoupling of inference and execution** . The official clearly stated: When the Agent needs to perform long-term tasks, or needs to **Faster than online inference** When operating a device at a speed, it can send driver commands to one or more devices **String into code file** , allowing the device to perform the entire operation on its own without requiring the Agent to participate in reasoning at every step.
 
@@ -2473,12 +2473,12 @@ This layering brings triple benefits:
 2. **Cost**: If you call the model for hundreds of tests overnight, the token overhead will be unbearable;
 3. **is reproducible**: deterministic scripts are naturally versionable and auditable, meeting the repeatability requirements of scientific research.
 
-What’s even more interesting is the closed-loop of **, which is the result of the** skill. The official description of Claude's behavior when aligning the laser is "exploratory, like a scientist": adjust the laser, use the camera to observe the movement of the beam, adjust again, and watch again until you understand the cause and effect sequence - **. Then package what you learned into a code file and write a deterministic script. After that, the entire alignment process only requires one command,**. The same path is followed at Genentech: "solidifying the experience of bubble handling into reusable liquid handling skills" so that Claude can automatically select reasonable default parameters for liquids with different physical properties. This is completely isomorphic in structure with Voyager's "exploration → verification → storage → reuse" paradigm in this article [6.6 Skill Acquisition, Synthesis and Life Cycle](#66-技能的获取合成与生命周期lifecycle--evolution)], except that the skill library is no longer Minecraft's JavaScript, but the control script that drives the real instrument.
+What’s even more interesting is the closed-loop of **, which is the result of the** skill. The official description of Claude's behavior when aligning the laser is "exploratory, like a scientist": adjust the laser, use the camera to observe the movement of the beam, adjust again, and watch again until you understand the cause and effect sequence - **. Then package what you learned into a code file and write a deterministic script. After that, the entire alignment process only requires one command,**. The same path is followed at Genentech: "solidifying the experience of bubble handling into reusable liquid handling skills" so that Claude can automatically select reasonable default parameters for liquids with different physical properties. This is completely isomorphic in structure with Voyager's "exploration → verification → storage → reuse" paradigm in this article [6.6 Skill Acquisition, Synthesis and Life Cycle](#66-技能的生命周期)], except that the skill library is no longer Minecraft's JavaScript, but the control script that drives the real instrument.
 
-### 8.5.5 Comparison of protocol families: MCP vs WebMCP vs MHS
-{: id="855-协议家族对比mcp-vs-webmcp-vs-mhs"}
+### 8.5.5 MCP vs. WebMCP vs. MHS
+{: id="855-mcpwebmcp-与-mhs"}
 
-At this point, Anthropic and the industry have formed a three-layer protocol family around "how Agents connect the world" (if the connection between Agents is also included, it is four layers - see [4.4 A2A Protocol](#44-a2a-协议agent-之间的连接标准)). The three share the same semantic tool calling philosophy, but the connection objects, failure costs and security models are completely different:
+At this point, Anthropic and the industry have formed a three-layer protocol family around "how Agents connect the world" (if the connection between Agents is also included, it is four layers - see [4.4 A2A Protocol](#44-a2a-协议)). The three share the same semantic tool calling philosophy, but the connection objects, failure costs and security models are completely different:
 
 |Dimensions| **MCP**(2024.11) | **WebMCP**(2026) | **MHS**(2026.08) |
 |:-----|:------------------|:------------------|:------------------|
@@ -2495,8 +2495,8 @@ At this point, Anthropic and the industry have formed a three-layer protocol fam
 
 The relationship between the three is not a substitution, but a complementary stack of **and**: a complete scientific research automation agent, which is likely to use MCP to read the literature library and LIMS system at the same time, use WebMCP to place reagent orders on the manufacturer portal, and use MHS to drive the instruments on the experimental bench to complete experiments.
 
-### 8.5.6 Research Preview Evidence: Quantitative Results from the First Collaborators
-{: id="856-研究预览实证来自首批合作方的量化结果"}
+### 8.5.6 Early results
+{: id="856-首批实证结果"}
 
 MHS's research preview is carried out simultaneously with partners in the three directions of biomedicine, scientific research infrastructure, and quantum computing. The publicly disclosed data reflects the two types of benefits: "integration acceleration" and "autonomous tuning":
 
@@ -2531,8 +2531,8 @@ MHS's research preview is carried out simultaneously with partners in the three 
 <figcaption> Figure 8.8: Real-time monitoring and control of qPCR by MHS (Anthropic official Figure 3). The Agent first uses<code>read_status</code> (MONITOR) to confirm that the instrument is idle, the cover temperature is 87 °C, it is still hot, the cover is closed, and prompts that the cover needs to be opened first; after loading the plate, call<code>run_protocol</code> (CONTROL) to start and return the amplification curve cycle by cycle, and mark it. Phase interpretation of<i>flat baseline → rising → log phase → plateau shoulder</i>; the researcher issued stop in the 12th cycle, and the Agent called<code>abort()</code> to stop and retain the data, and then actively asked whether to start 4 °C Keep warm to protect sample</figcaption>
 </div>
 
-### 8.5.7 Security model: intercept before machine action
-{: id="857-安全模型在机器动作之前拦截"}
+### 8.5.7 Security model
+{: id="857-安全模型"}
 
 Unlike software protocols, errors in the physical world usually **No rollback** . MHS therefore lowers the safety constraints to **device-level safety limits** ——Verification occurs in **Before the machine starts moving** , rather than reporting an error afterwards. To verify this, the CMU team artificially injected six fault conditions. **All six are correctly blocked before any device action** :
 
@@ -2655,11 +2655,11 @@ AgentBench is currently the most comprehensive comprehensive evaluation framewor
 
 ---
 
-## 9.2 Real-world tasks and software engineering benchmarks
-{: id="92-真实世界任务与软件工程基准"}
+## 9.2 Real-world and software tasks
+{: id="92-真实任务与软件工程基准"}
 
-### GAIA(General AI Assistants)
-{: id="gaiageneral-ai-assistants"}
+### GAIA
+{: id="gaia"}
 
 |Properties|content|
 |------|------|
@@ -2731,8 +2731,8 @@ When Loop Engineering closed-loop design became the core focus, STATE-Bench beca
 
 ---
 
-### Vertical Segmentation Benchmark (ReactBench & KernelBench)
-{: id="垂直细分基准reactbench--kernelbench"}
+### Domain benchmarks
+{: id="垂直领域基准"}
 
 As Agent is further implemented in professional engineering teams, customized benchmarks in vertical fields have emerged:
 - **ReactBench**: For front-end engineering, evaluate the comprehensive engineering quality of Agent writing, troubleshooting and reconstruction of production-level React applications (including CSS, state flow, interactive events).
@@ -2740,8 +2740,8 @@ As Agent is further implemented in professional engineering teams, customized be
 
 ---
 
-### Long-term memory benchmarks (LoCoMo/LongMemEval/BEAM)
-{: id="长期记忆基准locomo--longmemeval--beam"}
+### Long-term memory benchmarks
+{: id="长期记忆基准"}
 
 Unlike the above-mentioned benchmark that examines "whether one can accomplish a thing," the long-term memory benchmark examines " **After dozens or hundreds of sessions, do you still remember it? Do you remember it correctly?** ”. They deliberately construct the historical total far beyond a single context window to falsify the common assumption that "the window is large enough and there is no need for a memory system."
 
@@ -2754,15 +2754,15 @@ Unlike the above-mentioned benchmark that examines "whether one can accomplish a
 Two points are worth noting:
 
 1.  **"Knowledge update" and "rejection of answer" are two capabilities that are not covered by LoCoMo but specially supplemented by LongMemEval.** The former examines whether new information can correctly overwrite old information that has become outdated, and the latter examines whether the model can correctly cover when the answer is indeed not in the history. **Admit not knowing** Rather than making it up - for production systems, these two items are often more fatal than multi-hop reasoning.
-2. **These three benchmarks all measure fidelity under benign conditions and do not contain any adversarial components.** scoring high on them does not mean that the memory system is difficult to contaminate - the adversarial side evaluation is undertaken by the MemSecBench class of work in [12.4 Memory Poisoning](#124-记忆投毒跨会话的持久化攻击面), both of which measure completely different properties.
+2. **These three benchmarks all measure fidelity under benign conditions and do not contain any adversarial components.** scoring high on them does not mean that the memory system is difficult to contaminate - the adversarial side evaluation is undertaken by the MemSecBench class of work in [12.4 Memory Poisoning](#124-记忆投毒), both of which measure completely different properties.
 
 ---
 
 ## 9.4 Embodied intelligence and physical operations benchmarks
 {: id="94-具身智能与物理操作基准"}
 
-### LIBERO / LIBERO-PRO and RoboCasa
-{: id="libero--libero-pro-与-robocasa"}
+### LIBERO and RoboCasa
+{: id="libero-与-robocasa"}
 
 With the deep integration of embodied intelligence and the Harness governance paradigm, the physical world operation benchmark has become a key yardstick for measuring the Agent’s physical decision-making capabilities:
 
@@ -2777,10 +2777,10 @@ LIBERO-PRO especially strengthens the testing of causal confusion, visual occlus
 
 ---
 
-### Evaluation blank: There is no public benchmark for physical hardware Agent yet
-{: id="评测空白物理硬件-agent-尚无公开基准"}
+### Gap: physical hardware agents
+{: id="评测空白物理硬件-agent"}
 
-It is worth noting that both LIBERO and RoboCasa evaluated **Robot operation in a simulation environment** . While [Section 8.5](#85-mhs-协议详解model-hardware-standard模型硬件标准) The MHS class **Real experimental instrument control** scene, present **There is no public standardized benchmark** ——The existing evidence all comes from single-point experiments designed by each partner (such as CMU’s six fault injections, QuEra’s laser re-locking success rate), and cannot be compared horizontally with each other.
+It is worth noting that both LIBERO and RoboCasa evaluated **Robot operation in a simulation environment** . While [Section 8.5](#85-mhs-协议) The MHS class **Real experimental instrument control** scene, present **There is no public standardized benchmark** ——The existing evidence all comes from single-point experiments designed by each partner (such as CMU’s six fault injections, QuEra’s laser re-locking success rate), and cannot be compared horizontally with each other.
 
 This constitutes an obvious evaluation gap: there is neither a unified definition nor a public test bed for the core indicators of the physical device Agent (security interception rate, fault self-recovery rate, token per unit experiment, and time-consuming cost). Anthropic has said it will work with research preview partners to build a security benchmark set, which may be the first prototype of standardized benchmarks in this direction.
 
@@ -2835,8 +2835,8 @@ The general Agent OS represented by OpenClaw receives natural language instructi
 
  **March 6, 2026** , released by Xiaomi **Xiaomi miclaw** ——The mobile AI Agent based on the self-developed MiMo large model has entered invitation-only internal testing (supports Xiaomi 17 series). miclaw can independently call more than 50 system functions and third-party applications. Users only need to give vague intentions, and miclaw is responsible for decomposing and executing the entire process without step-by-step confirmation. This marks the full penetration of Agent capabilities into consumer-grade mobile devices.
 
-## 10.5 Embodied intelligence and robot control Agent
-{: id="105-具身智能与机器人控制-agent"}
+## 10.5 Embodied and robot agents
+{: id="105-具身与机器人-agent"}
 
 Robot control Agents (embodied agents/Embodied Agents) are the forefront of AI Agent interaction with the physical world. Unlike Agents running in software sandboxes (whose operations are usually lossless and reversible and environmental states can be accurately read), the physical world has **Action irreversibility, continuous spatiotemporal dynamics, perceived occlusion and uncertainty, and millisecond-level safety hard constraints** and other essential characteristics.
 
@@ -2888,8 +2888,8 @@ flowchart LR
 
 ---
 
-### 10.5.2 2025–2026 Representative frontier work
-{: id="1052-20252026-代表性前沿工作"}
+### 10.5.2 Recent work
+{: id="1052-代表性前沿工作"}
 
 #### 1. Thea: Harness infrastructure framework for embodied agents
 {: id="1-thea-具身智能体的-harness-基础设施框架"}
@@ -3006,8 +3006,8 @@ There is also an intriguing discovery in this work: forcing the agent to use way
 
 ---
 
-### 10.5.3 Comparison of mainstream embodied agent technology routes
-{: id="1053-主流具身-agent-技术路线对比"}
+### 10.5.3 Approach comparison
+{: id="1053-技术路线对比"}
 
 |architectural dimensions|Traditional Hierarchical Planning (SayCan/CaP)|End-to-end VLA (RT-2 / π0)|Embodied Harness (Thea / Pigey / Zetta)|
 |:---|:---|:---|:---|
@@ -3021,8 +3021,8 @@ There is also an intriguing discovery in this work: forcing the agent to use way
 
 ---
 
-### 10.5.4 Physical hardware deployment and community ecology (OpenClaw / MCP / Bionic Humanoid)
-{: id="1054-实体硬件部署与社区生态openclaw--mcp--仿生人形"}
+### 10.5.4 Hardware and community
+{: id="1054-硬件部署与社区生态"}
 
 In 2026, embodied agent technology is rapidly sinking through open protocols and consumer/industrial-grade hardware:
 
@@ -3037,7 +3037,7 @@ flowchart TB
 ```
 
 1. **MCP standard unification in the field of robotics**: Community developers widely use **Model Context Protocol (MCP)** to abstract robot capabilities into standardized microservices (such as `robot_locate_object()`, `robot_vla_grasp()`, `robot_navigate_to()`), breaking down the protocol barriers between software Agents (such as OpenClaw, Claude) and physical robots.
-2. **MHS complements the hardware-side standard (August 2026)**: MCP unifies the semantic interface of "Agent ↔ Software", but the driver layers of robot embodiments, sensors and experimental instruments have long been independent. Anthropic's **Model Hardware Standard (MHS)** uses unified `read` / `write` primitives and natural language device labels to smooth out manufacturer differences and lower device-level safety limits before actions occur. The first batch of partners has covered Universal Robots, Doosan Robotics, Hugging Face LeRobot and Robots and embedded ecology such as Raspberry Pi (see [Section 8.5](#85-mhs-协议详解model-hardware-standard模型硬件标准) for details]).
+2. **MHS complements the hardware-side standard (August 2026)**: MCP unifies the semantic interface of "Agent ↔ Software", but the driver layers of robot embodiments, sensors and experimental instruments have long been independent. Anthropic's **Model Hardware Standard (MHS)** uses unified `read` / `write` primitives and natural language device labels to smooth out manufacturer differences and lower device-level safety limits before actions occur. The first batch of partners has covered Universal Robots, Doosan Robotics, Hugging Face LeRobot and Robots and embedded ecology such as Raspberry Pi (see [Section 8.5](#85-mhs-协议) for details]).
 3. **real robot interaction case**: Connecting to Unitree G1 humanoid robot and robotic arm through MCP, users only need to send natural language commands in the IM chat box, and the Agent can autonomously call the visual model to complete positioning, schedule VLA to perform precise grasping, and automatically invoke the retry strategy when blocked.
 4. **Industrial support and implementation**: Governments and industrial funds in many places (such as the multi-million yuan special award set up by Wuxi in 2026) have listed the integration of open source Agent operating systems and embodied humanoid robots as key support directions.
 5. **Safety Guardrails and Hard Restraints (Safety Guardrails)**: The core bottom line of physical deployment is safety. Modern embodied Harness integrates insurmountable kinematic limits, torque safety thresholds, anti-collision volume boxes and hardware-level emergency stop mechanisms at the bottom layer to ensure that the exploration and reasoning of high-level agents operate within strict physical safety boundaries; MHS further standardizes such hard constraints into device drivers’ own safety statements that intercept before action.
@@ -3336,8 +3336,8 @@ Devin's success rate in resolving GitHub Issues end-to-end on SWE-bench is about
 
 **Hermes Agent** (Nous Research, first released in February 2026) is currently the most popular open source Agent framework. The core design philosophy is: **Agent should learn from experience like a human being, instead of starting from scratch for every task**. Within seven weeks of release, the number of GitHub stars exceeded **95,600**. As of April 2026, it has exceeded **103,000**. It is one of the fastest growing Agent open source projects. Different from Claude Code's programming focus or Devin's cloud asynchronous mode, Hermes is positioned as **universal autonomous Agent** - it can not only write code, but also manage files, control browsers, send messages, and accumulates reusable experience with each execution.
 
-### Core innovation: closed-loop self-improvement (Closed Learning Loop)
-{: id="核心创新闭环自改进closed-learning-loop"}
+### Core idea: closed-loop self-improvement
+{: id="核心创新闭环自改进"}
 
 The most essential difference between Hermes Agent and other frameworks is that it **self-improvement mechanism** :
 
@@ -3428,8 +3428,8 @@ This sentence itself is not new. What is new is DeepSeek’s implementation of i
 
 The project is written under the MIT license and TypeScript, and the bottom layer is driven by the plug-in kernel **Cordis** (the design comes from the paper *A Programming Paradigm for Spatiotemporal Composability*). After open source, GitHub Stars exceeded **95,000** within 48 hours, and as of August 21, 2026, it had reached **175,800+ Stars / 19,000+ Forks**, which is OpenClaw The Agent open source project with the fastest growth rate since then.
 
-### Design philosophy: No privileged kernel to patch
-{: id="设计哲学没有需要打补丁的特权内核"}
+### Design: no privileged kernel
+{: id="设计哲学无特权内核"}
 
 Most Agent frameworks (LangChain, AutoGen, and even Claude Code's plug-in system) follow the same structure: a hard-coded kernel is responsible for running the loop, surrounded by several **reserved extension hooks**. You can only insert code where the designer has thought of it in advance. Want to change the loop itself? Only fork.
 
@@ -3460,8 +3460,8 @@ flowchart TB
 
 This difference is not an aesthetic issue, but a capability issue: when Agent Loop itself is a replaceable plug-in line, "changing a loop strategy" and "changing a model" belong to the same type of engineering operations - they are just changing a line of configuration.
 
-### Assembling the model: Profile / Bundle / Patch three-layer superposition
-{: id="组装模型profile--bundle--patch-三层叠加"}
+### Three-layer assembly
+{: id="三层组装模型"}
 
 A running `dsh` process is essentially a plug-in tree **formed by superimposing** in sequence. dsh uses three concepts to describe this assembly process:
 
@@ -3481,8 +3481,8 @@ flowchart TB
 
 `dsh --profile web --dump-config` will print out the entire configuration tree actually started on the machine - and **any entry it prints out can be replaced by your own patch**. This property is the key to turning "everything is a plug-in" from a slogan into a verifiable fact: replaceability is not a documented promise, but a list that can be enumerated by a single command.
 
-### Rounds and Steps: An Agent Loop that can be intercepted everywhere
-{: id="轮次与步骤一个处处可拦截的-agent-循环"}
+### An interceptable agent loop
+{: id="可拦截的-agent-循环"}
 
 dsh has a clear conceptual segmentation of the Agent cycle, which is the prerequisite for understanding its expansion model:
 
@@ -3542,8 +3542,8 @@ Here, `agent/pre-step`, `agent/request`, `llm/stream` and three `tools/*` are **
 
 This is how context compression is implemented - `dsh-compaction-basic` pass `agent/pre-step` In a fork request **Before** handle contextual pressure, while `agent/request-error` Used only in canonical contexts. After triggering, the optional tool result pruning is performed first, and then the summary is selected; only when the pruning or summary actually advances the replacement generation, a new retry round will be started, otherwise the original error will prevail.
 
-### Session log: "The model is visible and recorded"
-{: id="会话日志模型可见即已记录"}
+### Session log
+{: id="会话日志"}
 
 If the plug-in tree is the skeleton of dsh, then the session log is its central nervous system. dsh uses a **runtime invariant** to constrain the entire system:
 
@@ -3572,8 +3572,8 @@ flowchart LR
 
 Compared with other Agent products, the value of this will be greatly magnified in long tasks: when the Agent ran for three hours and burned two million tokens and then made an error, "what it saw" can only be speculated based on logs in most frameworks; in dsh, this is a deterministic fact **that can be accurately played back**. The `assistant/message` event will even log calls that return empty content or end with `max-tokens` - empty content does not enter the derivation history, but the persistent event still retains the token usage and lists the corresponding `assistant/chunk` exactly via `sourceEventSeqs`.
 
-### Capability Seam: Change a provider and replace half of the product
-{: id="能力-seam换一个提供方换掉半个产品"}
+### Capability seams
+{: id="能力-seam"}
 
 dsh formalizes "replaceable capabilities" as **seam (seam)**. Each seam contains three roles:
 
@@ -3606,8 +3606,8 @@ As of v0.1.0-rc.5, dsh declared a total of **58 abilities seam** , coverage is a
 
 It is worth mentioning separately that `ctx.invariants` - **invariant registry itself is also a seam**. A framework that makes "runtime correctness assertions" into pluggable services has a rare level of engineering awareness.
 
-### Subagent provider: treat Claude Code and Codex as sub-Agents
-{: id="subagent-提供方把-claude-code-和-codex-当成子-agent"}
+### Subagent providers
+{: id="subagent-提供方"}
 
 One of the most unexpected designs of dsh is hidden behind the `ctx.subagents` seam. The official documentation writes: Subagent providers vary widely after the same interface, ranging from creating a new subagent to **delegating a round to another product**.
 
@@ -3654,8 +3654,8 @@ dsh provides four sets of preset tool surface and prompt combinations through pr
 
 **Minimal mode is the official benchmark caliber** - the code agent evaluation of DeepSeek-V4-Pro-0813 and V4-Flash-0731 were all completed under this configuration. `BENCHMARK.md` records the complete reproduction path through the Python SDK and independent workspace for each task. Open-sourcing the Harness used in the evaluation with the product actually turns the long-standing unfalsifiable question of "how much of the model score is attributed to Harness" into a reproducible experiment. This is mutually corroborated with the LangChain conclusion mentioned in Section 2.7: the same model **only replaces Harness, and the Terminal Bench 2.0 score can be improved from 52.8% to 66.5%**.
 
-### Underlying model: DeepSeek-V4-Pro-0813
-{: id="底层模型deepseek-v4-pro-0813"}
+### Underlying model
+{: id="底层模型"}
 
 It’s no coincidence that the Harness and the model were released on the same day—DeepSeek’s claim is precisely that the two must be co-designed. V4-Pro-0813 maintains **1 million token context window**, official evaluation results on its own Harness:
 
@@ -3678,8 +3678,8 @@ On the Artificial Analysis Intelligence Index, the model rose from 45 to **53**,
 
 Peak hours are UTC 01:00–04:00 and 06:00–10:00. The cache price increase of about **6 times** is particularly noteworthy: it directly changes the cost model of the long-session Agent, changing the context compression strategy from an "optimization item" to a "mandatory option" - which exactly explains why dsh makes `ctx.compaction` an independent replaceable seam.
 
-### Positioning comparison with Claude Code / OpenClaw
-{: id="与-claude-code--openclaw-的定位对比"}
+### vs. Claude Code / OpenClaw
+{: id="与-claude-code--openclaw-对比"}
 
 |Dimensions| DeepSeek Harness | Claude Code | OpenClaw |
 |------|------------------|-------------|----------|
@@ -3700,8 +3700,8 @@ npx @deepseek-ai/dsh web
 
 The Web UI is launched at `http://127.0.0.1:3080` by default. The credentials are stored in `$DSH_HOME/.credentials.yaml` in the form of **and write-only**.
 
-### DeepSeek Harness capability boundaries and limitations
-{: id="deepseek-harness-能力边界与局限"}
+### Limits
+{: id="能力边界与局限"}
 
 |good at|limitations|
 |------|------|
@@ -3837,8 +3837,8 @@ pi> /export report.html        # Export the entire interaction history as a stan
 
 By default, Pi Agent only gives model **four tools**: `read`, `write`, `edit`, and `bash`. There are actually 7 built-in tools (including `grep`, `find`, and `ls`). You can use `--tools` whitelist to specify them accurately, or use `--no-builtin-tools` to turn off all of them and only keep the custom tools. **All other capabilities - sub-agent, plan mode, permission confirmation, MCP - are not in the default package and need to be added by yourself.**
 
-### Design philosophy: Define yourself by “what you don’t do”
-{: id="设计哲学靠不做什么来定义自己"}
+### Design: defined by omission
+{: id="设计哲学做减法"}
 
 The most unique section of the Pi Agent official document is a **List of explicitly rejected features** ——Each item is accompanied by reasons and alternatives:
 
@@ -3887,8 +3887,8 @@ flowchart TB
     PKG["📦 Pi Package\nby npm / git Shared distribution"]
 ```
 
-### Conversation tree architecture: from "conversation line" to "decision tree"
-{: id="会话树架构从会话线到决策树"}
+### Conversation tree
+{: id="会话树架构"}
 
 Traditional agents generally use **linear conversation (Linear History)**. Once the code generation direction goes astray in a certain step, subsequent conversations will continue to be polluted by wrong contexts. Pi Agent introduces the **session tree (Session Tree)** model, which saves all interaction states in a single appended JSONL file.
 
@@ -3975,8 +3975,8 @@ Officially listed expansion possibilities include: custom tools (or even complet
 
 **supply chain hardening**: direct dependency locks the exact version, `.npmrc` sets `min-release-age=2` to avoid dependencies released on the same day, the released CLI package comes with shrinkwrap to lock transitive dependencies, and installation and self-update are the same `--ignore-scripts`. For a tool project that considers "installation to execute arbitrary code" as a default risk, this set of configurations is more serious than most similar projects.
 
-### "Harness is the cost lever": Databricks' actual measurement
-{: id="harness-才是成本杠杆databricks-的实测"}
+### Databricks cost measurements
+{: id="databricks-的成本实测"}
 
 The most convincing endorsement of Pi Agent comes from Databricks in its **Millions of lines of internal code base** Agent review done on. The conclusion has reference significance for the entire 11 sections:
 
@@ -4008,8 +4008,8 @@ This set of data is the strongest external evidence in Section 2.7 "The success 
 
 Here, "there is no built-in permission system" is one point that must be made clear before use - the official document bluntly states that Pi Agent runs with the permissions of the user and process that starts it by default, and gives three containerization boundary solutions: **Gondolin extension** (routes built-in tools and `!` commands into the local Linux micro-virtual machine, while pi and provider credentials remain on the host), directly **Docker**, or policy sandbox **OpenShell**. In addition, the project's issues and PRs for new contributors are automatically closed by default and reviewed daily by maintainers. This process also shows that it is currently closer to an "author-led tool" than a community co-governance project.
 
-### Significance: The Harness Project where two poles meet
-{: id="意义两极相逢的-harness-工程"}
+### Significance
+{: id="意义"}
 
 Pi Agent and DeepSeek Harness form the two poles of the Harness project in 2026:
 
@@ -4041,8 +4041,8 @@ Once an Agent with tool calling and code execution capabilities is controlled by
 
 ---
 
-## 12.1 Prompt Injection
-{: id="121-提示词注入prompt-injection"}
+## 12.1 Prompt injection
+{: id="121-提示词注入"}
 
 **Principle**: The attacker hides malicious instructions in external content that the Agent will read (web pages, files, emails, database return values), causing the Agent to mistake them for legitimate user instructions to execute.
 
@@ -4064,8 +4064,8 @@ Indirect injection is a unique attack surface of Agent - ordinary LLM chat does 
 
 ---
 
-## 12.2 Agent Hijacking
-{: id="122-agent-劫持agent-hijacking"}
+## 12.2 Agent hijacking
+{: id="122-agent-劫持"}
 
 **Principle**: In a multi-Agent system, an attacker controls a low-privileged Worker Agent and returns forged execution results or malicious instructions to the Orchestrator Agent, thereby hijacking the entire workflow.
 
@@ -4086,8 +4086,8 @@ Why **is dangerous**: Orchestrator Agent usually does not verify the authenticit
 
 ---
 
-## 12.3 Sandbox Escape
-{: id="123-沙箱逃逸sandbox-escape"}
+## 12.3 Sandbox escape
+{: id="123-沙箱逃逸"}
 
 **Principle**: The code execution capability of the Agent usually runs in a sandbox environment. By constructing special input, the attacker causes the Agent to generate code that can break through the sandbox restrictions and access the host system resources.
 
@@ -4105,8 +4105,8 @@ Why **is dangerous**: Orchestrator Agent usually does not verify the authenticit
 
 ---
 
-## 12.4 Memory Poisoning: Cross-session Persistence Attack Surface
-{: id="124-记忆投毒跨会话的持久化攻击面"}
+## 12.4 Memory poisoning
+{: id="124-记忆投毒"}
 
 The first three types of threats have a common feature: **The attack effect disappears when the session ends**. Prompt word injection pollutes the current context window, and sandbox escape occurs in a single code execution. Once the Agent has long-term memory, an attack of a completely different nature appears - **Memory Poisoning**: The attacker writes malicious content into the persistent memory through a seemingly normal interaction. **is repeatedly recalled in each subsequent session and affects the decision-making**, and the user is completely unaware of the entire process.
 
@@ -4170,10 +4170,10 @@ In 2026, Agent security has become the core selling point of enterprise-level pl
 
 ---
 
-## 12.6 Protocol layer security control: four layers of connection, four costs
-{: id="126-协议层安全对照四层连接四种代价"}
+## 12.6 Protocol-level security
+{: id="126-协议层安全对照"}
 
-The four types of threats discussed in this chapter (injection, hijacking, escape, memory poisoning) are **cross-protocol general** attack modes, and the four-layer connection protocols introduced in this article - [A2A](#44-a2a-协议agent-之间的连接标准) (Agent↔Agent) and MCP/WebMCP/MHS (Agent↔External World) - each face different attack surfaces and affordable costs. Their security designs therefore have different focuses. Looking at them side by side, a clear evolutionary logic can be seen:
+The four types of threats discussed in this chapter (injection, hijacking, escape, memory poisoning) are **cross-protocol general** attack modes, and the four-layer connection protocols introduced in this article - [A2A](#44-a2a-协议) (Agent↔Agent) and MCP/WebMCP/MHS (Agent↔External World) - each face different attack surfaces and affordable costs. Their security designs therefore have different focuses. Looking at them side by side, a clear evolutionary logic can be seen:
 
 |Dimensions| **A2A**(Agent↔Agent) |**MCP** (software and data)|**WebMCP** (Web front-end)|**MHS** (physical device)|
 |:-----|:----------------------|:---------------------|:----------------------|:-------------------|
@@ -4182,7 +4182,7 @@ The four types of threats discussed in this chapter (injection, hijacking, escap
 |**Defense line position**|Pre-delegation authentication + result traceability|Post-mortem auditing + runtime filtering|Confirm before calling + source isolation|Intercept **before** moves (rejection if the machine does not move)|
 |**Key mechanism**|Agent Card signature (Ed25519/RSA), five-type authentication scheme, no leakage of unauthorized resources|Permission minimization, description hash verification, sandboxing|Same origin policy, `readOnlyHint` Human-in-the-loop, `Permissions-Policy`|Equipment-level safety limit, pre-state verification, hardware emergency stop|
 |**Trigger conditions for people in the ring**|Delegation across trust domains|High-risk tool calls|Write operation (`readOnlyHint: false`)|**Agent will suspend** (conservative default) if it determines that there is a risk.|
-|**see** for details|[4.4 A2A protocol](#44-a2a-协议agent-之间的连接标准)|[8.3.8 Security Challenge](#838-安全挑战)|[8.4.6 Security model and permission guardrails](#846-安全模型与权限护栏)|[8.5.7 Security model: intercept](#857-安全模型在机器动作之前拦截) before machine action|
+|**see** for details|[4.4 A2A protocol](#44-a2a-协议)|[8.3.8 Security Challenge](#838-安全挑战)|[8.4.6 Security model and permission guardrails](#846-安全模型与权限护栏)|[8.5.7 Security model: intercept](#857-安全模型) before machine action|
 
 After comparing the four, there are three points worth emphasizing separately:
 
@@ -4198,8 +4198,8 @@ It should be reminded that these four-layer protocols are often **Online at the 
 
 The whole article discusses the same system problem: how to make the model advance the task based on environmental feedback and make the execution process checkable, recoverable, and cost controllable. The following summarizes design relationships and open questions without considering a certain product architecture as a universal answer.
 
-## 13.1 Three main lines: reasoning paradigm, connection protocol and engineering
-{: id="131-三条主线推理范式连接协议与工程化"}
+## 13.1 Three threads
+{: id="131-三条主线"}
 
 The work covered in this article can be understood along three interrelated threads.
 
@@ -4211,8 +4211,8 @@ The **engineering mechanism determines how execution continues.** Harness, feedb
 
 The three main lines will ultimately return to Chapters 9 and 12: whether success can be verified, whether failure can be located, and whether execution costs and permissions are acceptable.
 
-## 13.2 A recurring structure: reasoning outside, certainty inside
-{: id="132-一个反复浮现的结构推理在外确定性在内"}
+## 13.2 Reasoning outside, determinism inside
+{: id="132-推理在外确定性在内"}
 
 A useful design principle is to let the model handle the parts that require semantic judgment and adaptive decisions, and let the expressible constraints be enforced by the program. This is an engineering summary of the cases in this article, and it does not mean that all systems must use the same internal and external structures.
 

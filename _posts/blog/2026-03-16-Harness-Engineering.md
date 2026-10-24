@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Harness Engineering"
-date: 2026-07-17
+date: 2026-10-24
 tags: [Harness Engineering, Agent, LLM, Context Engineering, AI Engineering, Prompt Engineering]
 categories: blog
 comments: true
@@ -55,9 +55,9 @@ Harness Engineering 的核心洞察是：**限制才能解放**。当你为 Agen
 
 ---
 
-# 2. Harness Engineering 基本概述
+# 2. 基本概念
 
-## 2.1 什么是 Harness Engineering？
+## 2.1 什么是 Harness Engineering
 
 **Harness Engineering（Agent工程化）** 是指围绕 AI 模型/Agent 构建基础设施、约束体系和反馈循环，使 Agent 能够在生产规模下可靠地完成代码编写、测试和部署等软件工程任务的工程学科。
 
@@ -178,7 +178,7 @@ Harness Engineering 的技术体系可从四个维度理解：
 
 # 3. 核心技术体系
 
-## 3.1 系统提示工程（System Prompt Engineering）
+## 3.1 系统提示工程
 
 **系统提示（System Prompt）** 是 Harness 最基础的控制手段。高质量的系统提示不仅告诉 Agent "做什么"，更重要的是指定**如何验证自己的工作**。
 
@@ -199,7 +199,7 @@ flowchart TD
 - **具体化禁止项**：不是"写好代码"，而是"不能修改 `config/` 目录下的文件"
 - **情境化指令**：根据任务类型（新功能 vs Bug 修复 vs 重构）使用不同的提示模板
 
-## 3.2 上下文工程（Context Engineering）
+## 3.2 上下文工程
 
 上下文工程负责在正确的时间将正确的信息注入 Agent 的上下文窗口。关键实践包括：
 
@@ -257,7 +257,7 @@ flowchart TD
 - 测试要求和验收标准
 - 常用命令和环境配置
 
-## 3.3 构建-验证循环（Build-Verify Loop）
+## 3.3 构建-验证循环
 
 这是 Harness Engineering 中最重要的执行模式，将 Agent 的工作分为四个阶段：
 
@@ -279,7 +279,7 @@ flowchart LR
 
 LangChain 的实验数据显示：仅通过在 Harness 中加入更激进的验证提示，deepagents-cli 在 Terminal Bench 2.0 上的得分从 **52.8% 提升至 66.5%**（提升 13.7 个百分点），排名从前 30 跃升至前 5，而底层模型没有任何改动。
 
-## 3.4 中间件与 Hooks（Middleware & Hooks）
+## 3.4 中间件与 Hooks
 
 中间件是介于 Agent 和工具调用之间的拦截层，能够：
 
@@ -329,7 +329,7 @@ LangChain 的实验数据显示：仅通过在 Harness 中加入更激进的验�
 
 **时间预算感知**：在任务进行到一定时间后注入提醒，帮助 Agent 合理分配剩余计算预算。
 
-## 3.5 推理预算策略（Reasoning Budget）
+## 3.5 推理预算
 
 不同阶段的任务对推理深度的要求不同，"推理三明治"（Reasoning Sandwich）模式：
 
@@ -363,7 +363,7 @@ Types → Config → Repository → Service → Runtime → UI
 
 **关键悖论**：约束解放创造力。限制 Agent 的解决方案空间，减少了 Agent 在死胡同上浪费的 token，反而提升了整体产出质量和速度。
 
-## 3.7 熵管理（Entropy Management）
+## 3.7 熵管理
 
 代码库熵增是 AI 辅助编程时代的独特挑战——Agent 快速生成大量代码，文档、注释和架构图往往无法同步更新，代码库随时间"腐烂"。
 
@@ -470,7 +470,7 @@ flowchart TD
 
 **已知局限**：OpenAI 的 Harness 实现侧重内部代码质量和可维护性，对**功能正确性的外部验证**相对较弱，即缺乏明确的机制来验证代码是否真正满足用户需求。
 
-## 6.2 LangChain deepagents-cli 实验
+## 6.2 LangChain 实验
 
 **背景**：LangChain 团队为 deepagents-cli 开发了 Harness，并在 Terminal Bench 2.0 基准上评估效果。
 
@@ -560,7 +560,7 @@ Harness Engineering 不仅是一种工具，更是对软件工程师角色的重
 
 # 8. 常见陷阱与最佳实践
 
-## 8.1 过度工程化（Over-Engineering）
+## 8.1 过度工程化
 
 **问题**：当 Harness 包含大量复杂的控制流逻辑时，随着模型能力的提升，这些逻辑会逐渐变成阻碍。
 

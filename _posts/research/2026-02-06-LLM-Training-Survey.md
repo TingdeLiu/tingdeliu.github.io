@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: llm-training-survey
 title: "大语言模型训练综述"
-date: 2026-10-04
+date: 2026-10-24
 tags: [LLM, Deep Learning, NLP, Training, AI]
 categories: research
 comments: true
@@ -21,7 +21,7 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
   <figcaption>图：预训练建立基础模型，后训练可包含指令微调与偏好优化。图中是常见环节示意，具体顺序因配方而异；压缩、推理与交付单独属于部署工程。</figcaption>
 </figure>
 
-## 🎯 为什么关注大模型训练？
+## 为什么关注大模型训练
 
 训练是大模型能力的来源。一个高性能大模型的诞生，离不开：
 - 📊 **海量高质量数据**：数万亿token的精心处理
@@ -31,7 +31,7 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 
 然而，大模型训练的知识和技术往往分散在各类论文、博客和代码库中，缺乏系统性的整理。**本文旨在填补这一空白。**
 
-## 📚 本文内容
+## 本文内容
 
 本综述系统梳理大模型训练的核心技术，包括：
 
@@ -50,7 +50,7 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 13. 👁️ **迈向多模态与智能体**：VLM 视觉-语言融合架构、两阶段训练流程与 Agent 工具调用训练
 14. 📚 **参考资源**：经典论文、核心开源项目与大模型学习路径
 
-## 👥 目标读者
+## 目标读者
 
 - 🔬 **研究人员**：了解大模型训练的完整技术栈
 - 👨‍💻 **工程师**：掌握实际训练中的工程实践和优化技巧
@@ -63,7 +63,7 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 
 ---
 
-## 📖 快速导航
+## 快速导航
 
 本文共分为 14 个主要章节，建议根据需求选择性阅读：
 
@@ -95,7 +95,7 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 
 # 1. 大模型训练基础概述
 
-## 1.1 🤔 什么是大模型训练？
+## 1.1 什么是大模型训练
 
 大模型训练是指使用海量文本数据，通过深度学习算法训练具有数十亿甚至数万亿参数的神经网络模型的过程。这些模型通常基于Transformer架构，能够学习语言的统计规律和语义理解能力。
 
@@ -112,38 +112,38 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 > - **时间**：完整训练周期从数周到数月
 > - **成本**：中大型模型训练成本从数十万到数百万美元
 
-## 1.2 📅 大模型训练的演进历程
+## 1.2 演进历程
 
 大模型训练经历了从小规模实验到工业化生产的重要转变：
 
-### 1.2.1 早期探索阶段（2018-2019）🌱
+### 1.2.1 早期探索（2018–2019）
 - GPT-1、BERT等模型验证了预训练-微调范式的有效性
 - 模型规模：百万到亿级参数
 - 关键突破：自监督预训练、Transformer架构
 
-### 1.2.2 规模化阶段（2020-2021）📈
+### 1.2.2 规模化（2020–2021）
 - GPT-3将模型规模扩展到1750亿参数
 - 发现涌现能力（Emergent Abilities）
 - 少样本学习能力显著提升
 
-### 1.2.3 对齐与应用阶段（2022-2023）🎯
+### 1.2.3 对齐与应用（2022–2023）
 - InstructGPT和ChatGPT引入RLHF（基于人类反馈的强化学习）
 - 从"能用"到"好用"的关键转变
 - 大模型开始广泛应用于实际场景
 
-### 1.2.4 开源与民主化阶段（2024）🌍
+### 1.2.4 开源与民主化（2024）
 - LLaMA、Mistral等开源模型快速发展
 - 训练效率和成本持续优化
 - 多模态、长上下文等能力不断增强
 
-### 1.2.5 推理模型与效率竞赛阶段（2025-2026）🚀
+### 1.2.5 推理模型与效率（2025–2026）
 - **推理模型范式确立**：OpenAI o1/o3、DeepSeek-R1（及后续 V3.x 系列）将"测试时计算扩展"（Test-Time Compute Scaling）确立为与"训练时 Scaling Law"并列的新维度，长思维链（Long CoT）+ RL（GRPO 及其改进算法）成为训练强推理模型的标准范式
 - **国产大模型集团式追赶**：Qwen3 系列引入"思考/非思考"混合推理模式（同一模型可按需切换深度思考与快速响应）；Kimi K2 以超大规模 MoE + 强 Agentic（工具调用）能力为卖点；MiniMax、智谱 GLM、阶跃星辰等持续迭代
 - **闭源旗舰持续演进**：GPT-5 系列、Claude 4.x（Opus/Sonnet/Haiku）系列、Gemini 系列在推理、长上下文、Agent 能力上持续竞争
 - **架构创新**：MLA（多头潜在注意力）、FP8 训练工程化（DeepSeek-V3）大幅降低了千亿级模型的训练与推理成本，"低成本高性能"成为新的竞争维度
 - **Agent 能力成为新焦点**：从"对话助手"转向"能自主使用工具、完成多步任务的智能体"，训练目标从单轮问答扩展到多轮工具调用与长程任务规划
 
-## 1.3 🎶 大模型训练的三大核心阶段
+## 1.3 三大训练阶段
 
 现代大模型训练遵循**预训练 → 监督微调 → 偏好对齐**的三阶段范式，这已成为GPT-4、Claude、Gemini、LLaMA等主流模型的标准流程。
 
@@ -168,7 +168,7 @@ flowchart LR
 
 三个阶段的数据、算力与超参数差异见 1.3.4 节的对比表。
 
-### 1.3.1 阶段一：预训练（Pre-training）
+### 1.3.1 预训练
 
 从海量无标注文本中学习语言的统计规律、语法结构和世界知识，训练出**Base Model（基座模型）**。
 
@@ -180,7 +180,7 @@ flowchart LR
 
 **输出能力**：具备文本续写能力，但不擅长问答和指令遵循。
 
-### 1.3.2 阶段二：监督微调（SFT）
+### 1.3.2 监督微调（SFT）
 
 使用高质量的指令-回答对训练，将Base Model转化为能够理解指令的**SFT Model（指令模型）**。
 
@@ -192,7 +192,7 @@ flowchart LR
 
 **输出能力**：能够理解和执行用户指令，进行多轮对话。
 
-### 1.3.3 阶段三：偏好对齐（Alignment）
+### 1.3.3 偏好对齐
 
 通过人类反馈或AI反馈优化模型行为，使其更符合人类期望和价值观，训练出**Aligned Model（对齐模型）**。
 
@@ -223,17 +223,17 @@ flowchart LR
 - SFT是能力的激活（数据质量 > 数量）
 - 对齐是体验的保证（必不可少）
 
-## 1.4 🧩 大模型训练的核心组成要素
+## 1.4 核心组成要素
 
 一个完整的大模型训练系统包含以下核心要素：
 
-### 1.4.1 数据（Data）📊
+### 1.4.1 数据
 - **预训练数据**：网页、书籍、代码、学术论文等
 - **微调数据**：指令-回答对、对话数据
 - **偏好数据**：人类标注的偏好对比数据
 - **数据处理流程**：清洗、去重、质量过滤、毒性检测
 
-### 1.4.2 模型架构（Model Architecture）🏛️
+### 1.4.2 模型架构
 - **基础架构**：Transformer（Encoder、Decoder或Encoder-Decoder）
 - **位置编码**：绝对位置编码、相对位置编码、RoPE、ALiBi
 - **注意力机制**：Multi-Head Attention、Grouped-Query Attention、Multi-Query Attention
@@ -245,13 +245,13 @@ flowchart LR
   <figcaption>图：Transformer架构详解（来源："Attention is All You Need" 论文 Figure 1）</figcaption>
 </div>
 
-### 1.4.3 优化器与训练策略（Optimization）⚡
+### 1.4.3 优化器与训练策略
 - **优化器**：AdamW、Adafactor、Lion
 - **学习率调度**：Warmup、Cosine Decay、Constant
 - **梯度处理**：Gradient Clipping、Gradient Accumulation
 - **正则化**：Dropout、Weight Decay
 
-### 1.4.4 分布式训练框架（Distributed Training）🔀
+### 1.4.4 分布式训练
 - **数据并行**：DDP（Distributed Data Parallel）
 - **张量并行**：Megatron-LM Tensor Parallelism
 - **流水线并行**：Pipeline Parallelism、1F1B Schedule
@@ -259,13 +259,13 @@ flowchart LR
 - **混合并行**：3D Parallelism（数据+张量+流水线）
 - **优化器状态并行**：ZeRO-1/2/3（DeepSpeed）
 
-### 1.4.5 计算基础设施（Infrastructure）💻
+### 1.4.5 计算基础设施
 - **硬件**：GPU集群（A100、H100等）、TPU、专用AI芯片
 - **互联网络**：InfiniBand、NVLink、PCIe
 - **存储系统**：高性能分布式存储
 - **监控与日志**：TensorBoard、Weights & Biases、MLflow
 
-## 1.5 🚧 大模型训练的主要挑战
+## 1.5 主要挑战
 
 > **⚠️ 挑战总览**
 >
@@ -321,7 +321,7 @@ flowchart LR
 
 ---
 
-# 2. 预训练阶段（Pre-training）
+# 2. 预训练
 
 预训练是大模型训练的基石，目标是让模型从海量无标注文本中学习语言的统计规律和世界知识。
 
@@ -370,14 +370,14 @@ graph TD
 2. **训练迭代阶段**（J-S）：占整体时间的 70-80%，核心是前向-反向-优化循环
 3. **Checkpoint 管理**：每 1000-5000 步保存一次，总训练步数通常 100k-500k 步
 
-## 2.2 分词器训练 (Tokenizer Training)
+## 2.2 分词器训练
 
 在正式开始模型训练之前，我们需要定义模型如何“阅读”文本。分词器将连续的文本切割成模型可理解的最小单元（Tokens）。
 
 ### 2.2.1 为什么需要训练分词器？
 如果直接使用字符（Character）或词（Word），会面临词表过大（难以收敛）或单个 Token 信息密度过低（序列过长）的问题。现代大模型普遍采用 **子词（Subword）** 分词方案，如 **BPE (Byte Pair Encoding)**。
 
-### 2.2.2 核心权衡：词表大小 (Vocab Size)
+### 2.2.2 词表大小
 *   **大词表（如 100k+）**：
     *   ✅ 优点：单个 Token 承载信息多，序列更短，推理更快。
     *   ❌ 缺点：Embedding 层参数巨大，稀疏词难以充分训练。
@@ -387,7 +387,7 @@ graph TD
 
 > **💡 MiniMind 经验**：对于参数量在 500M 以下的小模型，词表不宜过大（MiniMind 只用 6,400 的 BPE 词表，常见的折中是 32k），否则 Embedding 层会吃掉大部分参数，稀有 Token 的向量也得不到充分更新。
 
-### 2.2.3 分词器训练实战 (Python)
+### 2.2.3 分词器训练实战
 
 使用 Hugging Face 的 `tokenizers` 库，可以快速训练一个 GPT/Llama 风格的**字节级 BPE（Byte-level BPE）**分词器。字节级方案以 256 个字节为初始字母表，任何语言（包括中文和 emoji）都不会出现未登录词（OOV），这也是当前 LLM 的主流选择：
 
@@ -421,7 +421,7 @@ tokenizer.save("my_tokenizer.json")
 
 预训练的核心是设计合适的目标函数，让模型从无标注文本中学习语言规律。
 
-### 2.3.1 自回归语言建模（Autoregressive Language Modeling）
+### 2.3.1 自回归语言建模
 
 **核心思想**：给定前文，预测下一个 token（Next Token Prediction）
 
@@ -473,7 +473,7 @@ for batch in dataloader:
     optimizer.zero_grad()
 ```
 
-### 2.3.2 掩码语言建模（Masked Language Modeling）
+### 2.3.2 掩码语言建模
 
 **核心思想**：随机 mask 部分 token，预测被 mask 的内容
 
@@ -609,7 +609,7 @@ for step, batch in enumerate(dataloader):
 
 ---
 
-### 2.5.3 上下文长度（Context Length）
+### 2.5.3 上下文长度
 
 #### 2.5.3.1 为什么从短上下文开始？
 
@@ -772,7 +772,7 @@ Flash Attention 通过 IO-aware 分块计算，将注意力层的显存复杂度
 
 ## 2.6 预训练的前沿技术
 
-### 2.6.1 MoE（Mixture of Experts）架构
+### 2.6.1 MoE 架构
 
 #### 2.6.1.1 核心思想
 
@@ -838,7 +838,7 @@ $$\mathcal{L}_{\text{aux}} = \alpha \cdot N \sum_{i=1}^{N} f_i \cdot P_i$$
 
 ---
 
-# 3. 监督微调阶段（Supervised Fine-Tuning, SFT）
+# 3. 监督微调（SFT）
 
 SFT阶段将预训练模型转化为能够理解和执行指令的助手。
 
@@ -1048,7 +1048,7 @@ def self_instruct_pipeline(seed_instructions, num_samples=10000):
     return generated_data  # 10k样本成本约$300-600
 ```
 
-### 3.3.3 前沿数据合成与过滤技术（Data Synthesis & Filtering）
+### 3.3.3 数据合成与过滤
 
 为了在大规模微调中兼顾多样性与极佳的质量，现代大模型（如 Llama-3, DeepSeek）广泛使用先进的数据合成与自动化清洗技术。
 
@@ -1141,7 +1141,7 @@ def quality_check(instruction, response):
 
 ## 3.4 SFT 训练策略
 
-### 3.4.1 全参数微调（Full Fine-Tuning）
+### 3.4.1 全参数微调
 
 **方法**：更新模型的所有参数
 
@@ -1250,7 +1250,7 @@ class LoRALinear(nn.Module):
 
 **核心创新**：把冻结的基座权重量化为 4-bit，再在其上训练 LoRA。7B 模型的微调显存可从 ~24GB（16-bit LoRA）压缩到 ~9GB，65B 模型可在单块 48GB GPU 上微调（QLoRA 论文）。核心技术包括 4-bit NF4 量化、双重量化（Double Quantization）和分页优化器（Paged Optimizers）。
 
-详细原理、显存对比与完整代码实现参见「[模型量化技术 → QLoRA：4-bit量化 + LoRA微调](#841-qlora4-bit量化--lora微调)」一节，此处不再重复。
+详细原理、显存对比与完整代码实现参见「[模型量化技术 → QLoRA：4-bit量化 + LoRA微调](#841-qlora)」一节，此处不再重复。
 
 #### 3.4.2.3 其他 PEFT 方法
 
@@ -1264,7 +1264,7 @@ class LoRALinear(nn.Module):
 - 只训练 adapter 参数
 - 参数量：~2-4% 的原模型
 
-### 3.4.3 指令模板（Instruction Template）
+### 3.4.3 指令模板
 
 设计统一的输入输出格式：
 
@@ -1358,7 +1358,7 @@ trainer.train()
 
 ---
 
-# 4. 偏好对齐阶段（Preference Alignment）
+# 4. 偏好对齐
 
 对齐阶段让模型输出符合人类偏好、价值观和安全准则。
 
@@ -1366,7 +1366,7 @@ trainer.train()
 >
 > 偏好对齐是从"能用"到"好用"的**关键一跃**，通过RLHF、DPO或最新的 **GRPO** 等技术让模型输出更有帮助、更安全、更符合人类价值观。本章详细对比RLHF、DPO和GRPO的原理、优劣。**推荐：简单任务优先使用DPO，复杂推理任务及资源受限场景优先考虑GRPO。**
 
-## 4.1 RLHF（Reinforcement Learning from Human Feedback）
+## 4.1 RLHF
 
 **论文来源**：[Training language models to follow instructions with human feedback (InstructGPT)](https://arxiv.org/abs/2203.02155)
 
@@ -1404,7 +1404,7 @@ trainer.train()
 - ❌ **计算开销大**：需同时运行 4 个大模型
 - ❌ **人类标注成本高**：每个偏好标注约 0.5–2 美元
 
-## 4.2 DPO（Direct Preference Optimization）
+## 4.2 DPO
 
 **论文来源**：[Direct Preference Optimization: Your Language Model is Secretly a Reward Model](https://arxiv.org/abs/2305.18290)
 
@@ -1452,7 +1452,7 @@ $$
 - **SimPO**（Simple Preference Optimization）：用长度归一化的平均对数概率作为隐式奖励，同样去掉了参考模型
 - **RRHF**（Rank Responses to align Human Feedback）：使用排序损失
 
-## 4.3 RLAIF（RL from AI Feedback）
+## 4.3 RLAIF
 
 **论文来源**：[RLAIF: Scaling Reinforcement Learning from Human Feedback with AI Feedback](https://arxiv.org/abs/2309.00267)
 
@@ -1521,13 +1521,13 @@ $$
 - ✅ **可扩展**：容易扩展到新的价值观和准则
 - ✅ **效果好**：不使用任何人工有害性标签，就得到了比 RLHF 基线更无害、同时更少回避问题（less evasive）的模型
 
-## 4.5 GRPO（Group Relative Policy Optimization）与推理模型训练
+## 4.5 GRPO 与推理模型
 
 **论文来源**：[DeepSeekMath](https://arxiv.org/abs/2402.03300)（GRPO 首次提出） / [DeepSeek-R1](https://arxiv.org/abs/2501.12948)（大规模推理 RL 实践）
 
 GRPO 由 DeepSeek 在 DeepSeekMath（2024）中提出。随着 DeepSeek-R1 的开源，GRPO 及其改进版本（见 4.6.4 节）成为开源社区训练强推理模型（Reasoning Models）最常用的 RL 算法。
 
-### 4.5.1 GRPO 的核心创新与显存优化
+### 4.5.1 GRPO 的创新与显存优化
 
 在传统的 PPO（Proximal Policy Optimization）算法中，为了计算优势函数（Advantage Function）以指导策略更新，必须加载一个与策略模型同等大小的价值网络（Critic Model，即 Value Network）来估计每个中间状态的价值。这意味着训练时显存需要同时容纳四个超大模型：
 
@@ -1591,7 +1591,7 @@ graph TD
 
 ---
 
-### 4.5.2 推理模型的对齐范式（DeepSeek-R1 实践）
+### 4.5.2 DeepSeek-R1 对齐范式
 
 在传统的 SFT 阶段，模型只是被动地“背诵”人类写好的推理步骤。而通过强化学习（如 GRPO），模型可以在没有人类示范的情况下，自主探索出最优的解题路径。
 
@@ -1615,7 +1615,7 @@ graph TD
 
 ---
 
-### 4.5.3 过程监督（PRMs）与结果监督（ORMs）
+### 4.5.3 过程监督与结果监督
 
 对于多步推理任务，如何给模型提供精准的反馈（Credit Assignment）是强化学习的核心挑战。
 
@@ -1633,7 +1633,7 @@ graph TD
 
 ---
 
-### 4.5.4 推理时计算扩展（Test-Time Compute Scaling）
+### 4.5.4 推理时计算扩展
 
 在 R1/o1 时代之前，大模型遵循**训练期 Scaling Laws**（即模型能力主要取决于训练参数量和 Token 数）。而推理模型引入了全新的维度——**推理期 Scaling Laws (Test-Time Compute Scaling)**。
 
@@ -1665,7 +1665,7 @@ OpenAI 在 o1 的发布博客中给出了"训练期计算量"与"推理期计算
 
 ---
 
-### 4.5.5 对齐税与推理冲突（Alignment Tax vs. Reasoning）
+### 4.5.5 对齐税与推理
 
 在偏好对齐中，存在一个著名的**“对齐税（Alignment Tax）”**现象：过度的安全性或人类偏好对齐，会显著损害模型原有的逻辑推理和指令遵循能力。
 
@@ -1676,11 +1676,11 @@ OpenAI 在 o1 的发布博客中给出了"训练期计算量"与"推理期计算
 
 ---
 
-## 4.6 RL 训练工程基础设施（Rollout Infra & 算法演进）
+## 4.6 RL 训练基础设施
 
 GRPO 等算法只是 RL 训练的"数学公式"，真正把它跑起来需要一整套工程系统。本节补充推理模型 RL 训练中绕不开的工程问题，以及 GRPO 之后业界提出的若干改进算法。
 
-### 4.6.1 Rollout 与训练的协同架构
+### 4.6.1 Rollout 与训练协同
 
 一次 RL 迭代包含两个性质完全不同的计算任务：
 
@@ -1695,7 +1695,7 @@ GRPO 等算法只是 RL 训练的"数学公式"，真正把它跑起来需要一
 - **Rollout 是推理密集型任务**：长 CoT 推理模型单次采样可能生成数千 token，G 通常取 8-64，对单个 Prompt 就要生成数万 token，自回归生成的 KV Cache 管理、批处理调度直接决定了 RL 训练的吞吐上限
 - **同步 vs 异步**：同步式（每轮先等所有 Rollout 完成再训练）实现简单但 GPU 利用率低（训练时 Rollout 引擎空闲，反之亦然）；异步式（Rollout 与训练流水线重叠，类似生产者-消费者模式）吞吐更高，但需要处理"训练参数更新后，正在进行的 Rollout 用的是旧策略"的 off-policy 偏差问题
 
-### 4.6.2 用推理引擎加速 Rollout：vLLM / SGLang
+### 4.6.2 vLLM / SGLang 加速 Rollout
 
 业界主流做法是用专门的高吞吐推理引擎（而非训练框架自带的 generate 方法）承担 Rollout 任务：
 
@@ -1726,11 +1726,11 @@ GRPO 并非终点，2024-2025 年业界针对其训练不稳定性和效率问�
 
 ---
 
-## 4.7 合成数据与 Self-Play：推理模型的数据飞轮
+## 4.7 合成数据与 Self-Play
 
 GRPO 类 RL 训练的数据需求与 SFT 不同——不需要人工写好的"标准答案推理过程"，只需要"可自动判定对错的题目"。这催生了 2024-2025 年兴起的**自我对弈式数据生成（Self-Play Data Synthesis）**，与第 4.5-4.6 节的推理模型训练形成完整闭环。
 
-### 4.7.1 STaR（Self-Taught Reasoner）
+### 4.7.1 STaR
 
 **核心思路**：让模型自己生成推理链，用最终答案是否正确来筛选"好的推理链"，再用筛选后的数据自我训练。
 
@@ -1743,7 +1743,7 @@ GRPO 类 RL 训练的数据需求与 SFT 不同——不需要人工写好的"�
 
 这本质上是 RL 之前的一种"伪强化学习"方法——用结果对错筛选数据，再做监督学习，是后续 ReST、GRPO 冷启动数据构造的思想源头。
 
-### 4.7.2 ReST（Reinforced Self-Training）
+### 4.7.2 ReST
 
 ReST 将 STaR 的思路系统化为两阶段循环：
 - **Grow（生长）**：用当前策略模型大量采样，生成候选数据池
@@ -1751,7 +1751,7 @@ ReST 将 STaR 的思路系统化为两阶段循环：
 
 相比标准 RL，ReST 的"批量生成 + 批量过滤 + 离线训练"模式对计算资源的要求更灵活，适合没有完整在线 RL 基础设施的团队。
 
-### 4.7.3 验证器驱动的数据飞轮（Verifier-Driven Data Flywheel）
+### 4.7.3 验证器驱动的数据飞轮
 
 代码和数学是 Self-Play 最容易落地的领域，因为存在**客观验证器**（编译器/测试用例、符号计算库）：
 
@@ -1767,11 +1767,11 @@ ReST 将 STaR 的思路系统化为两阶段循环：
 
 ---
 
-## 4.8 知识蒸馏：从推理模型到小模型
+## 4.8 知识蒸馏
 
 训练一个 671B 的强推理模型成本高昂，但很多应用场景只需要一个 7B/14B 的小模型就够用——**知识蒸馏（Distillation）** 正是把大模型的推理能力"转移"给小模型的关键技术。DeepSeek-R1 发布时同步开源的一系列蒸馏小模型（基于 Qwen2.5 1.5B–32B 与 Llama-3 8B/70B），是 2025 年最具影响力的蒸馏实践案例。
 
-### 4.8.1 推理轨迹蒸馏（Reasoning Trace Distillation）
+### 4.8.1 推理轨迹蒸馏
 
 与传统蒸馏（让小模型模仿大模型的输出概率分布，即 Hinton 经典蒸馏中的 soft label）不同，推理模型蒸馏的做法更直接：
 
@@ -1790,7 +1790,7 @@ ReST 将 STaR 的思路系统化为两阶段循环：
 - **是否需要二次 RL**：R1 报告中的蒸馏模型只做了 SFT，把 RL 留给了社区；后续工作（如 DeepScaleR 在 R1-Distill-Qwen-1.5B 上继续做 RL）表明，在蒸馏基础上再做 GRPO 仍能明显提升数学推理成绩，突破蒸馏数据的能力上限
 - **损失函数设计**：蒸馏阶段使用标准的交叉熵 SFT loss，loss 覆盖整个回答（思维链 + 最终答案），prompt 部分照常屏蔽；二次 RL 阶段则切换为 4.5 节的 GRPO loss
 
-### 4.8.3 蒸馏 vs 直接预训练小模型
+### 4.8.3 蒸馏与直接预训练
 
 | 维度 | 蒸馏小模型（如 DeepSeek-R1-Distill-Qwen-7B） | 直接用同等数据预训练/RL 训练小模型 |
 |------|------------------------------------------|--------------------------------|
@@ -1803,7 +1803,7 @@ ReST 将 STaR 的思路系统化为两阶段循环：
 
 ---
 
-# 5. Post-Training 与灾难性遗忘（Catastrophic Forgetting）
+# 5. Post-Training 与灾难性遗忘
 
 > **🎯 本章导读**
 >
@@ -1822,7 +1822,7 @@ flowchart LR
     style B fill:#c8e6c9
 ```
 
-### 5.1.1 为什么需要 Post-Training？
+### 5.1.1 为什么需要 Post-Training
 
 今天的通用模型（LLaMA、Gemma、DeepSeek 等）已经具备很强的基础能力——就像一个从学校毕业的优秀学生。但实际应用往往需要**某方面的专精**：
 
@@ -1843,7 +1843,7 @@ flowchart LR
 
 ---
 
-## 5.2 灾难性遗忘（Catastrophic Forgetting）
+## 5.2 灾难性遗忘
 
 Post-Training 最大的挑战是：**学了新技能，旧技能崩溃**。这个现象叫做**灾难性遗忘（Catastrophic Forgetting）**。
 
@@ -1912,7 +1912,7 @@ LoRA 看起来遗忘更少，但代价是**学到的东西也更少**。
 
 ## 5.3 防止遗忘的方法
 
-### 5.3.1 方法一：Experience Replay（经验回放）
+### 5.3.1 经验回放
 
 **核心思路**：在训练新任务时，混入少量旧任务的训练数据。
 
@@ -1932,7 +1932,7 @@ mixed_dataset = {
 
 ---
 
-### 5.3.2 方法二：Pseudo Experience Replay（伪经验回放）
+### 5.3.2 伪经验回放
 
 既然拿不到真实历史数据，就让模型**自己生成伪历史数据**。
 
@@ -1953,7 +1953,7 @@ Magpie 的原理见 3.3.3.1 节。用在防遗忘上，就是让 Foundation Mode
 
 ---
 
-### 5.3.3 方法三：Self-Output（用模型自己的话训练自己）
+### 5.3.3 Self-Output
 
 比 Pseudo Experience Replay 更精准的方法：不是生成“历史数据”，而是直接用 Foundation Model 的**当前输出**来替代人类标注答案。
 
@@ -2011,7 +2011,7 @@ loss = cross_entropy(logits[loss_mask], labels[loss_mask])
 
 ---
 
-### 5.3.4 方法四：RL-Based Post-Training 的天然优势
+### 5.3.4 基于 RL 的 Post-Training
 
 RL 训练（如 GRPO）与 Self-Output 方法**本质上非常相似**：
 
@@ -2065,7 +2065,7 @@ RL 训练（如 GRPO）与 Self-Output 方法**本质上非常相似**：
 >
 > 分布式训练是大模型训练的**核心工程技术**，没有分布式并行就无法训练超过单GPU显存容量的模型。本章介绍数据并行、张量并行、流水线并行、ZeRO等关键技术，以及如何选择合适的并行策略。**核心原则**：TP用于单层过大，PP用于层数过多，DP用于提升吞吐。
 
-## 6.1 数据并行 (Data Parallelism, DP / DDP)
+## 6.1 数据并行（DP / DDP）
 
 ### 6.1.1 原理
 数据并行是最直观的分布式训练方式。当单个 GPU 能够装下完整模型但显存无法容纳大 Batch Size 时，通过水平切分数据集，让多个 GPU 设备并行处理不同数据子集：
@@ -2100,7 +2100,7 @@ flowchart TD
     style UN fill:#c8e6c9,stroke:#1b5e20,color:#000
 ```
 
-### 6.1.2 底层工程优化：Bucket All-Reduce 与梯度通信重叠 (Overlapping)
+### 6.1.2 梯度通信优化
 在 PyTorch `DistributedDataParallel` (DDP) 的实际工程中，为了避免反向传播结束后一次性进行海量梯度同步带来的网络阻塞，系统采用了**梯度通信与计算重叠（Overlapping）**的技术：
 1. **梯度分组（Buckets）**：DDP 在初始化时，根据反向传播的逆序（即从输出层向输入层），将梯度张量分配进多个固定大小的“桶”（Bucket，通常为 25MB）。
 2. **异步同步**：在反向传播计算梯度时，一旦某一个 Bucket 中的梯度全部计算完毕，系统会立即在后台启动针对该 Bucket 的 `All-Reduce` 异步通信。与此同时，更前几层的反向传播梯度计算仍在 GPU 核心上继续运行。这成功实现了计算与网络通信的并发，掩盖了大量的卡间同步时间。
@@ -2149,7 +2149,7 @@ flowchart LR
 
 ---
 
-## 6.2 张量并行 (Tensor Parallelism, TP)
+## 6.2 张量并行（TP）
 
 ### 6.2.1 原理与切分策略
 当单层权重矩阵的大小超过单卡显存时，张量并行（如 Megatron-LM）通过将每一层的权重参数横向或纵向切分到同一节点（通常具有高速 NVLink 互联）的不同 GPU 上，实现层内的分布式矩阵乘法计算。
@@ -2232,7 +2232,7 @@ Megatron-LM 把这对操作抽象为共轭算子：$f$ 前向为恒等、反向�
 
 ---
 
-## 6.3 流水线并行 (Pipeline Parallelism, PP)
+## 6.3 流水线并行（PP）
 
 ### 6.3.1 原理
 当模型层数过多，单节点显存已无法装下时，流水线并行采用“层间纵向切分”：将模型的 $L$ 层划分为 $p$ 个 Stage（阶段），分配到 $p$ 个不同的 GPU 上（可跨节点）。
@@ -2320,7 +2320,7 @@ flowchart TD
 
 ---
 
-## 6.4 序列并行 (Sequence Parallelism, SP)
+## 6.4 序列并行（SP）
 
 ### 6.4.1 原理
 - **机制**：在 Transformer 层中不做张量并行的区域（如 LayerNorm、Dropout、残差连接），标准的 TP 仍然需要在每张 GPU 上冗余地存储完整的激活值（Activation Memory）。这部分显存随序列长度 $s$ 线性增长，在长文本训练中占比可观。序列并行（Sequence Parallelism）在**非注意力计算层**把序列维度进行切分（每张卡只负责 $\frac{s}{p}$ 长度的序列），而在进行 QKV 投影和 MLP 列投影前通过 `All-Gather` 拼回完整序列，计算完毕后通过 `Reduce-Scatter` 重新切分。
@@ -2355,11 +2355,11 @@ flowchart LR
 
 ---
 
-## 6.5 ZeRO (Zero Redundancy Optimizer)
+## 6.5 ZeRO
 
 微软 DeepSpeed 提出的 ZeRO 旨在完全消除 DDP 模式下多卡冗余的存储开销，将模型状态平摊到各 GPU。
 
-### 6.5.1 模型静态显存数学推导（以 AdamW 优化器为例）
+### 6.5.1 静态显存推导
 设模型参数量为 $\Psi$。在主流 FP16 混合精度训练下，一个 GPU 为存储模型状态（Model States）所消耗的静态显存包括：
 1. **模型参数 (Parameters)**：FP16 存储，占用 $2\Psi$ 字节。
 2. **梯度 (Gradients)**：FP16 存储，占用 $2\Psi$ 字节。
@@ -2373,7 +2373,7 @@ $$\text{静态总显存} = 2\Psi + 2\Psi + 12\Psi = 16\Psi \text{ 字节}$$
 
 对于 7B 参数模型，静态显存占用即高达 $16 \times 7 = 112\text{GB}$，单张 H100 (80GB) 甚至连模型状态都装不下。
 
-### 6.5.2 ZeRO 阶段性分片公式与 offload 技术 (设数据并行度为 $N_d$)
+### 6.5.2 ZeRO 分片与 offload
 
 #### 6.5.2.1 ZeRO-1：优化器状态分片 (Optimizer States Partitioning)
 - **机制**：将 $12\Psi$ 字节的 AdamW 优化器状态均匀分割并平摊到 $N_d$ 张卡上。每张 GPU 只负责更新和保存其中 $\frac{1}{N_d}$ 的优化器状态。
@@ -2417,7 +2417,7 @@ flowchart TD
     style Z3 fill:#c8e6c9,stroke:#1b5e20,color:#000
 ```
 
-## 6.6 混合并行（3D Parallelism）
+## 6.6 3D 混合并行
 
 结合数据并行、张量并行、流水线并行：
 
@@ -2500,11 +2500,11 @@ graph TD
 
 ---
 
-## 7.1 优化器选择（Optimizer Selection）
+## 7.1 优化器选择
 
 在大模型训练中，优化器状态（Optimizer States）是最大的显存消耗源之一。在常用的 FP16/BF16 混合精度训练中，虽然权重和梯度只需 2 字节（FP16/BF16），但 AdamW 优化器需要为每个参数存储一份 FP32 的 Master Weights、FP32 的一阶动量（Momentum）和 FP32 的二阶动量（Variance），这带来了巨大的显存开销。
 
-### 7.1.1 AdamW：主导大模型训练的经典之作
+### 7.1.1 AdamW
 
 AdamW 是当前大模型训练最主流的优化器（如 LLaMA, GPT, InternLM 等默认使用）。
 
@@ -2535,7 +2535,7 @@ $$
 
 ---
 
-### 7.1.2 Adafactor：低显存的自适应步骤优化器
+### 7.1.2 Adafactor
 
 Adafactor 主要是为了解决 AdamW 二阶动量占用 $4N$ 字节显存的痛点，常被用于 T5 等模型的训练。
 
@@ -2554,7 +2554,7 @@ $$
 
 ---
 
-### 7.1.3 Lion (Evolved Sign Momentum)：数据驱动的极简优化器
+### 7.1.3 Lion
 
 Lion 是通过 Google 的算法进化搜索（Symbolic Discovery）发现的新型优化器。
 
@@ -2588,7 +2588,7 @@ $$
 
 ---
 
-### 7.1.4 优化器系统对比与显存结构图
+### 7.1.4 优化器对比
 
 以下是常用优化器的综合对比表：
 
@@ -2624,11 +2624,11 @@ gantt
 
 ---
 
-## 7.2 学习率策略（Learning Rate Schedules）
+## 7.2 学习率策略
 
 在 Transformer 架构中，合理的学习率策略对防止模型梯度爆炸、加速收敛至关重要。目前业界标准采用 **Warmup (预热) + Decay (衰减)** 模式。
 
-### 7.2.1 Learning Rate Warmup（预热）
+### 7.2.1 Warmup
 
 #### 7.2.1.1 为什么必须 Warmup？
 在大模型训练初期（特别是使用 Pre-LN 结构或 AdamW 优化器时）：
@@ -2645,7 +2645,7 @@ $$
 
 ---
 
-### 7.2.2 Cosine Decay（余弦衰减）
+### 7.2.2 余弦衰减
 
 Cosine Decay 是大模型最主流的衰减方式，它能使学习率在中间训练阶段保持平稳释放，在训练末期快速收敛。
 
@@ -2658,7 +2658,7 @@ $$
 
 ---
 
-### 7.2.3 WSD (Warmup-Stable-Decay) 调度策略
+### 7.2.3 WSD 调度
 
 传统 Cosine 调度必须预先确定总训练 token 数，中途想追加数据就得重跑整条衰减曲线。为了应对**持续增量训练（Continual Training）**或动态调整数据量的需求，MiniCPM 系统地提出了 **WSD 调度策略**；DeepSeek-V3 也采用了类似的"长时间恒定学习率 + 末段衰减"方案（前 10T tokens 保持恒定，之后在 4.3T tokens 内余弦衰减）。
 
@@ -2679,9 +2679,9 @@ graph TD
 
 ---
 
-## 7.3 梯度处理（Gradient Processing）
+## 7.3 梯度处理
 
-### 7.3.1 Gradient Clipping（梯度裁剪）
+### 7.3.1 梯度裁剪
 
 为防止在遇到异常长样本或极端梯度时引发梯度爆炸，需要对所有层梯度向量的模长进行截断。
 
@@ -2697,7 +2697,7 @@ $$
 
 ---
 
-### 7.3.2 Gradient Accumulation（梯度累积）
+### 7.3.2 梯度累积
 
 在大模型训练中，由于单卡显存受限，无法直接将很大的 Batch Size（例如百万级 tokens 级别）一次性喂入 GPU 进行前向传播。**梯度累积**通过“时间换空间”的方式，在物理显存受限时模拟大 Batch 训练。
 
@@ -2728,7 +2728,7 @@ flowchart LR
 
 ---
 
-### 7.3.3 Gradient Checkpointing（梯度检查点 / 激活重计算）
+### 7.3.3 梯度检查点
 
 梯度检查点（Activation Checkpoint / Recomputation）是用**计算时间换显存空间**的经典技术。
 
@@ -2771,12 +2771,12 @@ flowchart TD
 
 在大模型训练中，正则化不仅用于防止过拟合，更关键的作用在于提高混合精度训练下的数值稳定性。
 
-### 7.4.1 Weight Decay（权重衰减）
+### 7.4.1 权重衰减
 
 - **在 AdamW 中的重要性**：在每一轮迭代更新中，模型权重乘以一个略小于 1 的系数（通常 Weight Decay = 0.1）：$\theta_{t} \leftarrow (1 - \eta_t \lambda)\theta_{t}$。
 - **作用**：防止权重数值过大。在大模型训练中，权重过大容易导致激活值溢出（NaN）或引发注意力矩阵偏置过大而导致 Softmax 梯度饱和。
 
-### 7.4.2 Dropout：在大模型中的逐渐淡出
+### 7.4.2 Dropout
 
 - **现状**：在千亿（100B）以上规模模型的预训练阶段，Dropout 率（包括 Attention Dropout 和 Residual Dropout）通常被直接设为 **0**。
 - **原因**：
@@ -2784,7 +2784,7 @@ flowchart TD
   2. **效率损失**：Dropout 需要在随机状态发生器中采样 mask 矩阵并写入显存，降低了显卡计算吞吐（Throughput）。
 - **特殊例外**：在小模型微调阶段（SFT）或在 Embedding 层后可能会保留 0.05–0.1 的 Dropout 以防止对特定微调模板产生过拟合。
 
-### 7.4.3 Z-loss 正则化：抑制 Logits 爆炸
+### 7.4.3 Z-loss
 
 在使用 FP16/BF16 混合精度进行超大规模训练时，输出层的 Logits 可能整体漂移到很大的数值，导致 Softmax 计算中指数项数值溢出（出现 NaN）。PaLM 为此引入了 Z-loss，OLMo 2 等开源模型也沿用了这一做法。
 
@@ -2807,7 +2807,7 @@ $$
 
 Flash Attention 是当前 LLM 训练和推理中最重要的注意力加速技术，通过改变计算顺序而非简化算法，在保持数值等价的前提下大幅减少显存占用、加快计算速度。
 
-### 7.5.1 背景：标准 Attention 的内存瓶颈
+### 7.5.1 标准 Attention 的内存瓶颈
 
 标准 Scaled Dot-Product Attention 的计算：
 
@@ -2818,7 +2818,7 @@ $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)
 - 内存复杂度 $O(n^2)$：$n=4096$ 时约占数百 MB，$n=32768$ 时高达数十 GB
 - **真正的瓶颈不是计算量，而是数据搬运**：HBM 带宽远低于片上 SRAM，反复读写大矩阵成为性能瓶颈
 
-### 7.5.2 GPU 内存层次：工作台 vs 仓库
+### 7.5.2 GPU 内存层次
 
 ```
 SRAM（片上缓存）= 工作台
@@ -2839,7 +2839,7 @@ HBM（主显存）= 仓库
   <figcaption>图：GPU 内存层次（左）、FlashAttention 分块计算机制（中）、与标准 PyTorch 实现的速度对比（右）。来源：Dao et al., FlashAttention, NeurIPS 2022</figcaption>
 </div>
 
-### 7.5.3 核心思想：分块 + Online Softmax
+### 7.5.3 分块与 Online Softmax
 
 Flash Attention 的两个关键创新：
 
@@ -2933,7 +2933,7 @@ pip install flash-attn --no-build-isolation
 >
 > 量化是大模型民主化的关键技术。**一个70B模型，FP16 权重需要140GB显存，INT4量化后仅需约35GB**——这意味着从至少 2 张 A100-80G 降到 1 张即可装下权重（KV Cache 另计）。本章深入讲解量化的数学原理、主流方法（GPTQ、AWQ、QLoRA）、训练策略，以及工程实践。核心要点：**量化不是简单压缩，而是精心设计的精度-性能权衡艺术**。
 
-## 8.1 🧮 量化基础概念
+## 8.1 量化基础
 
 ### 8.1.1 什么是量化？
 
@@ -3032,7 +3032,7 @@ $$
 - 异常值单独处理（Mixed-precision）
 - 量化感知训练（QAT）
 
-### 8.1.4 量化精度与性能权衡（Precision-Performance Trade-offs）
+### 8.1.4 精度与性能权衡
 
 不同的量化比特与数值格式在显存节省、计算加速和模型精度（困惑度 PPL）之间存在复杂的权衡。以下是主流数值格式的系统对比：
 
@@ -3051,7 +3051,7 @@ $$
 
 ---
 
-## 8.2 📊 量化方法分类
+## 8.2 量化方法分类
 
 ### 8.2.1 按量化时机分类
 
@@ -3070,7 +3070,7 @@ graph LR
     style C fill:#c8e6c9,stroke:#1b5e20
 ```
 
-### 8.2.2 训练后量化（Post-Training Quantization, PTQ）
+### 8.2.2 训练后量化（PTQ）
 
 **定义**：在模型训练完成后，直接对权重和激活值进行量化，无需重新训练。
 
@@ -3088,7 +3088,7 @@ graph LR
 - **AWQ**：基于激活值重要性的权重量化
 - **SmoothQuant**：迁移量化难度从激活到权重
 
-### 8.2.3 量化感知训练（Quantization-Aware Training, QAT）
+### 8.2.3 量化感知训练（QAT）
 
 **定义**：在训练过程中模拟量化操作，让模型学习适应量化误差。
 
@@ -3119,9 +3119,9 @@ graph LR
 
 ---
 
-## 8.3 🔧 训练后量化（PTQ）
+## 8.3 训练后量化（PTQ）
 
-### 8.3.1 GPTQ：基于二阶信息的权重量化
+### 8.3.1 GPTQ
 
 #### 8.3.1.1 核心原理
 
@@ -3286,7 +3286,7 @@ model_awq = AutoAWQForCausalLM.from_quantized(quant_path, fuse_layers=True)
 
 ---
 
-### 8.3.3 SmoothQuant：平滑激活值分布
+### 8.3.3 SmoothQuant
 
 #### 8.3.3.1 问题：为什么激活值难量化？
 
@@ -3365,9 +3365,9 @@ SmoothQuant 论文在 OPT-175B、BLOOM-176B、GLM-130B 等模型上验证：
 
 ---
 
-## 8.4 🎓 量化感知训练（QAT）
+## 8.4 量化感知训练（QAT）
 
-### 8.4.1 QLoRA：4-bit量化 + LoRA微调
+### 8.4.1 QLoRA
 
 QLoRA 是当前最流行的量化微调方法，实现了**在单张 48GB GPU 上微调 65B 模型**。严格来说，它只把冻结的基座权重量化为 4-bit、训练的仍是 16-bit 的 LoRA 适配器，并不是让模型适应量化误差的"经典 QAT"，但因为训练发生在量化模型之上，通常与 QAT 放在一起讨论。
 
@@ -3559,7 +3559,7 @@ model = model.merge_and_unload()  # 合并LoRA权重到基座
 
 ---
 
-### 8.4.2 BitNet：1.58-bit极限量化
+### 8.4.2 BitNet
 
 BitNet 将量化推向极限：**每个权重只用1.58 bit**（三值：-1, 0, +1）。
 
@@ -3608,7 +3608,7 @@ BitNet b1.58 论文（Ma et al., 2024）的主要结论：
 
 ---
 
-## 8.5 🛠️ 量化工程实践
+## 8.5 量化工程实践
 
 ### 8.5.1 量化工具生态
 
@@ -3726,7 +3726,7 @@ calibration_data = load_dataset("OpenAssistant/oasst1")  # 对话数据
 
 ---
 
-## 8.6 📊 量化方案选型总结
+## 8.6 量化方案选型
 
 | 场景 | 推荐方法 | 量化精度 | 精度影响 | 权重显存节省（相对 FP16） |
 |------|---------|---------|---------|---------|
@@ -3741,16 +3741,16 @@ calibration_data = load_dataset("OpenAssistant/oasst1")  # 对话数据
 
 ---
 
-## 8.7 🔮 量化技术的未来趋势
+## 8.7 未来趋势
 
-### 8.7.1 混合精度量化（Mixed-Precision Quantization）
+### 8.7.1 混合精度量化
 
 不同层使用不同比特数：
 - **敏感层**（注意力层）：INT8
 - **普通层**（FFN）：INT4
 - **不敏感层**：INT2
 
-### 8.7.2 训练后零样本量化（Zero-Shot PTQ）
+### 8.7.2 零样本 PTQ
 
 无需校准数据，直接从权重分布推断量化参数。
 
@@ -4068,7 +4068,7 @@ def sample_batch(data_mixture, batch_size):
 - 监控不同数据源loss
 - 动态再平衡
 
-### 9.4.3 课程学习（Curriculum Learning）
+### 9.4.3 课程学习
 - 从易到难：按困惑度排序
 - 从通用到专业
 
@@ -4126,7 +4126,7 @@ $$
 
 ## 10.1 语言理解与知识
 
-### 10.1.1 MMLU（Massive Multitask Language Understanding）
+### 10.1.1 MMLU
 - **内容**：57个学科的多选题（数学、历史、法律、医学等）
 - **规模**：~16,000道题目
 - **评估维度**：知识广度、跨学科理解
@@ -4147,14 +4147,14 @@ $$
   - 是否会产生幻觉（Hallucination）
 - **重要性**：衡量模型可靠性
 
-### 10.1.4 ARC（AI2 Reasoning Challenge）
+### 10.1.4 ARC
 - **内容**：小学科学考试题
 - **难度**：Easy和Challenge两个版本
 - **评估**：科学推理和知识应用
 
 ## 10.2 推理能力
 
-### 10.2.1 GSM8K（Grade School Math 8K）
+### 10.2.1 GSM8K
 - **任务**：小学数学应用题
 - **规模**：8,500道题
 - **特点**：需要多步推理
@@ -4179,7 +4179,7 @@ $$
   - 明确的输入输出规范
 - **变体**：HumanEval+（更严格测试）
 
-### 10.2.4 MBPP（Mostly Basic Python Problems）
+### 10.2.4 MBPP
 - **规模**：1,000个Python编程问题
 - **难度**：入门到中级
 - **评估**：实用编程能力
@@ -4200,13 +4200,13 @@ GSM8K、HumanEval 等经典基准已被前沿模型"刷满"（准确率普遍超
 
 ## 10.3 多语言能力
 
-### 10.3.1 FLORES（Facebook Low Resource Translation）
+### 10.3.1 FLORES
 - **任务**：机器翻译
 - **覆盖**：200+语言对
 - **评估**：跨语言理解和生成
 - **重要性**：衡量多语言模型能力
 
-### 10.3.2 XNLI（Cross-lingual Natural Language Inference）
+### 10.3.2 XNLI
 - **任务**：自然语言推理（蕴含、矛盾、中立）
 - **语言**：15种语言
 - **评估**：零样本跨语言迁移能力
@@ -4218,7 +4218,7 @@ GSM8K、HumanEval 等经典基准已被前沿模型"刷满"（准确率普遍超
 
 ## 10.4 长文本能力
 
-### 10.4.1 RULER（Rule-based Evaluation of Long Context Understanding）
+### 10.4.1 RULER
 - **任务类型**：
   - 信息检索（Needle in a Haystack）
   - 多跳推理
@@ -4232,7 +4232,7 @@ GSM8K、HumanEval 等经典基准已被前沿模型"刷满"（准确率普遍超
 - **语言**：英文和中文
 - **评估**：真实长文本应用场景
 
-### 10.4.3 Needle in a Haystack（大海捞针）
+### 10.4.3 大海捞针
 - **设计**：在长文本中插入关键信息
 - **测试**：模型能否准确检索
 - **变体**：
@@ -4250,7 +4250,7 @@ GSM8K、HumanEval 等经典基准已被前沿模型"刷满"（准确率普遍超
   - 仇恨言论
   - 暴力内容
 
-### 10.5.2 BBQ（Bias Benchmark for QA）
+### 10.5.2 BBQ
 - **任务**：检测社会偏见
 - **维度**：
   - 性别
@@ -4265,7 +4265,7 @@ GSM8K、HumanEval 等经典基准已被前沿模型"刷满"（准确率普遍超
 - **语言**：中英文
 - **评估**：拒绝回答不当请求的能力
 
-### 10.5.4 红队测试方法论（Red Teaming）
+### 10.5.4 红队测试
 
 静态安全基准测试（ToxiGen、BBQ、SafetyBench）只能覆盖测试集中已知的风险模式，而**红队测试（Red Teaming）**是主动寻找模型未知漏洞的过程，是安全对齐流程中与"训练"同等重要的"对抗性测试"环节。
 
@@ -4322,7 +4322,7 @@ GSM8K、HumanEval 等经典基准已被前沿模型"刷满"（准确率普遍超
 - **评估**：指令跟随质量
 - **输出**：胜率（Win Rate）；2.0 版本额外报告**长度控制胜率（LC Win Rate）**，抵消评委偏爱长回答的偏差
 
-### 10.6.3 Chatbot Arena（LMArena）
+### 10.6.3 Chatbot Arena
 - **方法**：真实用户对两个匿名模型的回答盲评投票，用 Bradley-Terry 模型计算 Elo 式评分
 - **特点**：持续更新的实时排行榜，2025 年起更名为 LMArena
 - **意义**：反映真实用户偏好（但也会受回答风格、长度与格式影响）
@@ -4337,7 +4337,7 @@ GSM8K、HumanEval 等经典基准已被前沿模型"刷满"（准确率普遍超
   - 标准化评测流程
 - **使用**：研究社区广泛采用，Hugging Face Open LLM Leaderboard 即基于它；用法示例见 8.5.2.2 节
 
-### 10.7.2 HELM（Holistic Evaluation of Language Models）
+### 10.7.2 HELM
 - **维度**：
   - 准确性
   - 鲁棒性
@@ -4378,7 +4378,7 @@ GSM8K、HumanEval 等经典基准已被前沿模型"刷满"（准确率普遍超
 
 ## 11.1 硬件配置建议
 
-### 11.1.1 不同规模模型的推荐配置
+### 11.1.1 不同规模的推荐配置
 
 | 模型规模 | 参数量 | 推荐GPU | 数量 | 显存需求 | 互联网络 | 适用场景 |
 |---------|--------|---------|------|---------|---------|---------|
@@ -4740,7 +4740,7 @@ def resume_training(checkpoint_path):
 > - 保留**多个历史checkpoint**，不要只保留最新的
 > - 定期**手动检查**训练日志和可视化图表
 
-## 11.4 个人级实践案例：MiniMind
+## 11.4 个人实践：MiniMind
 
 ### 11.4.1 项目地址
 ```
@@ -4776,9 +4776,9 @@ MiniMind 是一个极简的开源 LLM 训练项目，旨在让开发者在**单�
 
 > 💡 **使用技巧**：善用 Ctrl+F 搜索关键词快速定位问题
 
-## 12.1 🏗️ 预训练相关
+## 12.1 预训练
 
-### 12.1.1 Q1: 需要多少数据才能训练一个有用的模型？
+### 12.1.1 需要多少数据
 
 **A:** 取决于模型规模和目标：
 
@@ -4802,7 +4802,7 @@ MiniMind 是一个极简的开源 LLM 训练项目，旨在让开发者在**单�
 
 ---
 
-### 12.1.2 Q2: 如何判断预训练是否收敛？
+### 12.1.2 如何判断收敛
 
 **A:** 观察以下指标：
 
@@ -4824,7 +4824,7 @@ MiniMind 是一个极简的开源 LLM 训练项目，旨在让开发者在**单�
 
 ---
 
-### 12.1.3 Q3: 出现Loss Spike怎么办？
+### 12.1.3 Loss Spike 处理
 
 **A:** Loss突然上升的应对流程：
 
@@ -4853,7 +4853,7 @@ MiniMind 是一个极简的开源 LLM 训练项目，旨在让开发者在**单�
 
 ---
 
-### 12.1.4 Q4: 预训练可以超过1个epoch吗？
+### 12.1.4 能否超过 1 个 epoch
 
 **A:** 数据充足时**不推荐**，但数据受限时适度重复是可以的：
 
@@ -4873,9 +4873,9 @@ MiniMind 是一个极简的开源 LLM 训练项目，旨在让开发者在**单�
 
 ---
 
-## 12.2 🎨 监督微调（SFT）相关
+## 12.2 监督微调
 
-### 12.2.1 Q5: LoRA和全参数微调如何选择？
+### 12.2.1 LoRA 与全参数微调
 
 **A:** 根据场景选择：
 
@@ -4942,7 +4942,7 @@ MiniMind 是一个极简的开源 LLM 训练项目，旨在让开发者在**单�
 
 ---
 
-### 12.2.3 Q7: 如何避免微调时的过拟合？
+### 12.2.3 避免过拟合
 
 **A:** 多种策略组合使用：
 
@@ -5007,9 +5007,9 @@ if step % eval_steps == 0:
 
 ---
 
-## 12.3 🔁 Post-Training 相关
+## 12.3 Post-Training
 
-### 12.3.1 Q8: Post-Training 后模型旧能力下降怎么办？
+### 12.3.1 旧能力下降
 
 **A:** 这是**灾难性遗忘（Catastrophic Forgetting）**，Post-Training 最常见的问题。
 
@@ -5053,9 +5053,9 @@ for _ in range(n):
 
 ---
 
-## 12.4 🎯 偏好对齐相关
+## 12.4 偏好对齐
 
-### 12.4.1 Q9: RLHF和DPO如何选择？
+### 12.4.1 RLHF 与 DPO 怎么选
 
 **A:** DPO通常是更好的选择：
 
@@ -5088,7 +5088,7 @@ for _ in range(n):
 
 ---
 
-### 12.4.2 Q10: 偏好数据如何构建？
+### 12.4.2 构建偏好数据
 
 **A:** 三种主要方法：
 
@@ -5152,9 +5152,9 @@ rejected = synthesize_negative(chosen)  # 负样本来源：
 
 ---
 
-## 12.5 ⚙️ 工程实践相关
+## 12.5 工程实践
 
-### 12.5.1 Q11: 如何选择合适的并行策略？
+### 12.5.1 选择并行策略
 
 **A:** 遵循决策树：
 
@@ -5288,7 +5288,7 @@ model_size = "13B"  # 从70B→13B，显存降5倍
 
 ---
 
-### 12.5.3 Q13: 训练中断如何恢复？
+### 12.5.3 中断恢复
 
 **A:** 完整的恢复流程：
 
@@ -5373,7 +5373,7 @@ step = client_sd['step']
 
 ---
 
-### 12.5.4 Q14: 如何判断训练是否正常？
+### 12.5.4 判断训练是否正常
 
 **A:** 多维度监控清单：
 
@@ -5437,13 +5437,13 @@ if grad_norm > 100:
 
 ---
 
-# 13. 迈向多模态与智能体：VLM 架构与 Agent 训练
+# 13. 多模态与 Agent 训练
 
 在纯文本 LLM 的基础上，如何让模型“看见”世界、再进一步自主使用工具完成任务？本章前半部分介绍 Vision Language Model（VLM）：融合架构、动态分辨率处理、视觉 Token 编码、两阶段训练流程与一个极简 PyTorch 实现；后半部分介绍 Agent 的工具调用训练。更完整的 VLM 模型梳理见本站的《VLM 综述》。
 
 ---
 
-## 13.1 视觉-语言融合架构（VLM Architecture）
+## 13.1 VLM 架构
 
 主流 VLM（如 LLaVA、PaliGemma、Qwen-VL）主要由三个部分组成：
 
@@ -5460,22 +5460,22 @@ graph LR
     style LLM fill:#c8e6c9,stroke:#1b5e20
 ```
 
-### 13.1.1 视觉编码器 (Visual Encoder)
+### 13.1.1 视觉编码器
 负责将原始图像转化为特征张量。当前主流选择是预训练好的 **ViT-L/14**（如 CLIP 或 SigLIP）。
 * **SigLIP vs. CLIP**：早期的 VLM 多使用 CLIP，但近年 **SigLIP (Sigmoid Language-Image Pre-training)** 已成为主流。CLIP 使用 Softmax 损失进行全局对比学习，需要极大的 Batch Size 且对噪声敏感；而 SigLIP 将图文匹配视为独立的二分类任务，使用 Sigmoid 损失，在较小 Batch Size 下训练更稳定，且具有更强的零样本（Zero-Shot）图像分类与细粒度表征能力。
 
-### 13.1.2 粘合投影层 (Projection Layer)
+### 13.1.2 投影层
 负责将视觉编码器输出的特征维度（如 ViT 的 1024 维）映射到大语言模型的词表向量维度（如 Llama-3 的 4096 维），并将视觉特征转化为 LLM 能够理解的“虚拟视觉 Tokens”。
 * **线性投影/多层感知机 (Linear/MLP Projection)**：LLaVA 采用的极简方案，计算开销极低，但会将 ViT 的所有特征全部送入 LLM（如 576 个 Token），随着图像增加，极易占满 LLM 的上下文窗口。
 * **Perceiver 重采样器 (Perceiver Resampler)**：Flamingo 采用的方案，第一代 Qwen-VL 也用了类似的单层交叉注意力重采样器。使用一组固定数量的“查询向量（Queries）”通过交叉注意力（Cross-Attention）对 ViT 的海量特征进行聚合，将任意分辨率/任意数量的视觉特征压缩为固定长度（Flamingo 为 64 个，Qwen-VL 为 256 个），极大节省了 LLM 的上下文窗口。（PaliGemma 则与 LLaVA 一样，只用一个线性层把 SigLIP 特征投影到 Gemma 的词嵌入空间。）
 * **Q-Former**：BLIP-2 提出的基于两阶段预训练的 Query 变换器，结构较重但表征能力强。
 
-### 13.1.3 语言模型基座 (LLM Backbone)
+### 13.1.3 语言模型基座
 接收交织的视觉 Token 和文本 Token，输出最终的文本回答。训练时可以通过 LoRA 或全参数微调让其学习图文理解。
 
 ---
 
-## 13.2 动态分辨率处理技术（Dynamic Resolution / Image Patching）
+## 13.2 动态分辨率
 
 传统的视觉模型会将输入的任意尺寸图像强行缩放到固定分辨率（如 $224 \times 224$ 或 $336 \times 336$）。这对于普通分类任务可行，但对于大模型中的 **OCR（字符识别）**、**图表分析**或**细粒度目标检测**是灾难性的，缩放会导致小文字直接模糊不可读。
 
@@ -5506,7 +5506,7 @@ flowchart TD
 
 ---
 
-## 13.3 视觉 Token 编码与序列交织
+## 13.3 视觉 Token 与序列交织
 
 在 VLM 中，图像特征向量在送入 LLM 之前，必须在序列维度与文本进行拼接或交织（Interleaving）。
 
@@ -5540,7 +5540,7 @@ flowchart TD
 
 ---
 
-## 13.5 极简 VLM 前向传播 PyTorch 实现
+## 13.5 极简 VLM 实现
 
 以下代码演示了如何使用 PyTorch 从零构建一个支持 Vision-Language 融合的极简 VLM 模型：
 
@@ -5613,7 +5613,7 @@ class SimpleVLM(nn.Module):
 
 ---
 
-## 13.6 Agent 训练：从对话到自主完成任务
+## 13.6 Agent 训练
 
 2025-2026 年大模型竞争的新焦点已从"对话质量"转向"**能否自主使用工具、完成多步任务**"（Agentic 能力），如 Kimi K2 等模型即以此为核心卖点。Agent 训练在数据格式和奖励设计上与前几章的对话/推理模型训练有显著差异，本节作为补充。
 
@@ -5632,7 +5632,7 @@ Agent 训练的第一步是让模型学会按固定格式发起工具调用，�
 
 与标准 SFT（3.2.2 节）一样，**只对 `<|assistant|>` 部分计算 loss**，`<|tool_response|>` 部分（来自外部环境，非模型生成）不参与梯度计算。这类数据通常采用 **ReAct（Reasoning + Acting）格式**——模型在每次工具调用前先输出一段简短的思考（为什么调用这个工具、参数怎么定），再输出结构化的调用指令，从经验上看比"直接输出调用"更不容易出现参数错误。
 
-### 13.6.2 多轮工具调用的 RL 奖励设计
+### 13.6.2 多轮工具调用的奖励
 
 SFT 只能让模型学会"模仿"工具调用的格式，真正提升任务完成率依赖 RL 训练，奖励设计是核心难点：
 
@@ -5654,7 +5654,7 @@ Agent 训练并非全新的技术栈，而是对前文技术的组合应用：
 
 ---
 
-# 14. 参考资源（References & Reading List）
+# 14. 参考资源
 
 为了帮助深入探索和落地大语言模型训练，本章梳理了本综述提及的核心学术论文、开源社区标杆项目以及推荐的实践学习路径。
 

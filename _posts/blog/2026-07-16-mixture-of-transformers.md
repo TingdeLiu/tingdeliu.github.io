@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Mixture-of-Transformers (MoT) 架构详解"
-date:   2026-10-24
+date: 2026-10-24
 tags: [LLM Training, Multi-Modal, MoT, MoE, Sparse Transformer, Deep Learning, NVIDIA Cosmos]
 categories: blog
 comments: true
@@ -18,7 +18,7 @@ Meta 与斯坦福的 Liang 等人在 *Mixture-of-Transformers: A Sparse and Scal
 
 <!-- more -->
 
-## 1. 问题：共享参数时，模态之间会互相拖累
+## 1. 问题：模态互相拖累
 
 在 Chameleon、Transfusion 这类早期融合（early-fusion）的多模态模型中，不同模态的 token 化方式不同（文本用 BPE，图像用 VQ 离散码或连续 latent），但进入 Transformer 之后，它们经过的是**同一套**投影矩阵、FFN 与 LayerNorm。
 
@@ -114,7 +114,7 @@ $Z = [z_1, \dots, z_N]$ 即该层输出。可以看出，如果把所有 $m_i$ �
 
 论文在三种设置下评测：Chameleon（文本与图像都做自回归）、Chameleon + 语音，以及 Transfusion（文本自回归、图像扩散）。下面逐条说明主要数字的含义。
 
-### 5.1 达到 Dense 损失所需的训练 FLOPs
+### 5.1 达到同等损失的 FLOPs
 
 * **Chameleon，7B，文本 + 图像**：MoT 用 Dense 模型 **55.8%** 的训练步数（等价于训练 FLOPs）就达到了 Dense 训练结束时的验证损失。
 * **Chameleon + 语音，7B**：在语音模态上，MoT 用 **37.2%** 的 FLOPs 达到 Dense 的语音性能。语音实验覆盖 443M、880M、1.5B 和 7B 四个规模，37.2% 是 7B 的结果。
@@ -146,7 +146,7 @@ MoE-4x 的稀疏参数比 MoT 更多，但整体表现不如 MoT，在图像和�
 
 论文第 5 节还尝试在 MoT 的文本分支里再套一层 MoE-4x，文本有初步提升且不损害图像，作者明确称之为早期概念验证。
 
-## 6. Cosmos 3：把“按模态拆”换成“按角色拆”
+## 6. Cosmos 3：按角色拆分
 
 NVIDIA 在 2026 年 6 月发布的 Cosmos 3（arXiv:2606.02800）用一个模型同时覆盖理解、生成与动作，其骨干是**双塔 MoT**。但它拆分参数的依据和原始 MoT 不同，这一点容易被忽略。
 
@@ -189,7 +189,7 @@ NVIDIA 在 2026 年 6 月发布的 Cosmos 3（arXiv:2606.02800）用一个模型
 
 位置编码、动作表示、三种动作模式（前向动力学、逆动力学、策略）和各项评测结果，详见 [世界模型综述 §7.3 Cosmos 3](/World-Models-Survey/#cosmos-3)。
 
-## 7. 互动沙盘：Token 在三种结构中的流向
+## 7. 互动沙盘
 
 下面的沙盘演示 token 在 Dense、MoE、MoT 中分别经过哪些参数。它只是示意：MoE 一栏为了简化画成“每个模态一个 FFN 专家”，真实 MoE 的专家并不对应模态，而是由 router 动态分配。
 

@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: deep-learning-survey
 title: "深度学习综述"
-date: 2026-10-04
+date: 2026-10-24
 tags: [Deep Learning, Neural Network, Optimization, Training, AI, Transformer, GNN, LLM, MoE, LoRA, Diffusion, GAN, VAE, RLHF, Mamba, SSM]
 categories: research
 comments: true
@@ -59,7 +59,7 @@ $$a = f\left(\sum_i w_i x_i + b\right)$$
   <figcaption>多层神经网络示意图：输入层（左）→ 隐藏层（中）→ 输出层（右）</figcaption>
 </div>
 
-### 通用近似定理（Universal Approximation Theorem）
+### 通用近似定理
 
 神经网络表达能力的重要理论依据之一是 **通用近似定理**（Cybenko 1989、Hornik 1991）：
 
@@ -427,7 +427,7 @@ $$h_t = (1-z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t$$
 
 **经验结论**：Chung et al., 2014 系统实验显示 GRU 与 LSTM 在多数任务上性能相当，GRU 因参数更少、训练更快，在中短序列任务（对话、情感分类）中更常用；LSTM 在需要严格长期记忆的任务（机器翻译长句、语音识别）中仍有优势。
 
-### 双向 RNN（Bidirectional RNN）
+### 双向 RNN
 
 标准 RNN 只能利用**过去**的信息（从左到右）。但对许多任务（命名实体识别、情感分析、阅读理解），**未来**的上下文同样关键——例如判断 "bank" 是"银行"还是"河岸"，需要看后面的词。
 
@@ -464,7 +464,7 @@ flowchart LR
 
 BERT 的 MLM（Masked Language Model）可以看作 Transformer 对"双向建模"的一般化——通过 mask 保证双向注意力不会泄露目标。
 
-### Teacher Forcing：训练序列生成模型的关键技巧
+### Teacher Forcing
 
 训练 Seq2Seq / RNN Decoder 时有一个微妙的选择——解码第 $t$ 步时，输入是什么？
 
@@ -522,7 +522,7 @@ $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)
 
 这就是 Attention 的工作方式：**每个 token 广播一个"查询"，所有 token 回应"我匹配多少"，最后按匹配程度加权聚合信息**。Q/K/V 由三个不同的线性投影 $W_Q, W_K, W_V$ 从同一个输入生成，这种灵活性让模型可以学习各种复杂的信息路由模式。
 
-### 多头注意力（Multi-Head Attention）
+### 多头注意力
 
 将输入映射到 $h$ 个不同的子空间分别计算注意力，再将结果拼接：
 $$\text{MultiHead}(Q,K,V) = \text{Concat}(head_1, \ldots, head_h) W^O$$
@@ -533,7 +533,7 @@ $$\text{MultiHead}(Q,K,V) = \text{Concat}(head_1, \ldots, head_h) W^O$$
   <figcaption>多头注意力机制 (Multi-Head Attention) 架构示意图，左为缩放点积注意力，右为多头注意力</figcaption>
 </div>
 
-### Attention 变体：MHA → MQA → GQA → MLA
+### Attention 变体
 
 随着大模型上下文变长，KV Cache（推理时缓存所有历史 token 的 K、V）的显存占用成为瓶颈。为此，Attention 的多头结构演进出多个变体，核心都是**减少 K/V 头数**以压缩 KV Cache：
 
@@ -713,7 +713,7 @@ Transformer 采用编码器-解码器架构，两者的核心区别在于**掩�
 
 **实现**：在 softmax 之前，将掩码位置的 attention score 置为 $-\infty$（实际用 `-1e9` 之类的大负数），softmax 后这些位置的权重变为 0。这保证了"第 $t$ 个 token 只能看到 $\leq t$ 的位置"的因果性，也就实现了训练时的并行化 Teacher Forcing——不再像 RNN 那样逐步递推，而是一次前向同时预测所有位置的下一个 token。
 
-### Attention 可视化：模型真的学到了什么？
+### Attention 可视化
 
 Attention 的最大魅力之一是**可解释性**——每一层每一个头的 attention 权重可以直接可视化为热力图，揭示模型的"关注模式"。典型发现：
 
@@ -744,7 +744,7 @@ BertViz（Vig, 2019）、attention-flow（Abnar & Zuidema, 2020）等工具能�
 
 *代表性工作*：BERT（2018，纯 Encoder）、GPT 系列（2018-至今，纯 Decoder）、T5（2019，Encoder-Decoder）、ViT（2020，将图像分块视为序列）。
 
-### Vision Transformer（ViT）：Transformer 进入视觉领域
+### Vision Transformer（ViT）
 
 **ViT（Vision Transformer，Dosovitskiy et al., 2020）** 首次证明纯 Transformer 在足够数据下可以**直接击败 CNN** 处理图像任务，终结了 CNN 在视觉领域近十年的统治。
 
@@ -807,7 +807,7 @@ ViT 不仅取代 CNN 成为视觉主干，更重要的是**让图像与文本能
 
 CNN 处理网格数据、RNN/Transformer 处理序列，但现实中大量数据是**图（Graph）** 结构——社交网络、分子结构、知识图谱、推荐系统的用户–物品二部图。这类数据节点数可变、无固定顺序、邻居数不定，CNN/RNN 的规则结构假设不再成立。**图神经网络（Graph Neural Network，GNN）** 专为这类非欧几里得数据设计。
 
-### 核心机制：消息传递（Message Passing）
+### 消息传递
 
 GNN 的统一范式是**邻域聚合**：每个节点反复地"收集邻居信息 → 聚合 → 更新自身表示"。第 $l$ 层的更新可写为：
 
@@ -1138,7 +1138,7 @@ $$\hat{p}_i^{\text{LS}} = \begin{cases} 1 - \epsilon & i = y^* \\ \epsilon/(K-1)
 
 **注意**：Label Smoothing 会损失少量 confidence 信息，在需要置信度选择的任务（主动学习、拒识）中需权衡。
 
-### 二元交叉熵（Binary Cross-Entropy，BCE）
+### 二元交叉熵（BCE）
 
 二分类任务（输出层用 Sigmoid）：
 
@@ -1177,7 +1177,7 @@ $$\text{CE}(P, Q) = H(P) + \text{KL}(P \| Q)$$
 - 硬标签（one-hot）：用 CE，计算简单
 - 软标签（蒸馏、Label Smoothing、RLHF 参考策略）：用 KL，因为 $H(P) \neq 0$ 时，CE 包含一个不可优化的常数项，KL 更干净地衡量"与目标分布的差距"
 
-### 对比学习损失（Contrastive / Triplet Loss）
+### 对比学习损失
 
 **度量学习（Metric Learning）** 的目标是学到一个嵌入空间，使"同类样本"距离近、"异类样本"距离远。两类经典损失：
 
@@ -1388,7 +1388,7 @@ Dropout、Batch Normalization、ResNet、Data Augmentation 的效果均在此基
 
 BERT（2018）发布时在 GLUE 上取得了当时领先成绩；随着基准逐渐饱和，研究者随后推出了更难的 SuperGLUE。
 
-### MMLU（Massive Multitask Language Understanding）
+### MMLU
 
 | 属性 | 内容 |
 |------|------|
@@ -1460,7 +1460,7 @@ GSM8K 更偏基础多步算术，MATH 和 AIME 对竞赛数学推理要求更高
 
 **BF16**（Brain Float 16）因指数位更宽（8 位 vs FP16 的 5 位），数值范围更大，已成为大语言模型训练的首选低精度格式。
 
-## 9.2 Gradient Clipping（梯度裁剪）
+## 9.2 梯度裁剪
 
 大模型训练中偶发的梯度爆炸（loss spike）会导致训练崩溃。梯度裁剪通过限制梯度 L2 范数的上界来防止这一问题：
 
@@ -1468,7 +1468,7 @@ $$g \leftarrow g \cdot \min\left(1, \frac{\tau}{\|g\|_2}\right)$$
 
 通常阈值 $\tau = 1.0$，是 AdamW 的标准搭档。
 
-## 9.3 梯度检查点（Gradient Checkpointing）
+## 9.3 梯度检查点
 
 训练时，反向传播需要前向过程中所有中间激活值计算梯度——深层网络下，激活值显存占用可达参数本身的数倍，成为大模型训练显存的主要开销。
 
@@ -1568,7 +1568,7 @@ $$W = W_0 + \Delta W = W_0 + BA$$
 
 LoRA/QLoRA 是开源大模型微调中常见的强基线，但最佳方案仍取决于任务、底模、量化方式和可用显存。
 
-## 10.3 模型量化（Quantization）
+## 10.3 模型量化
 
 **量化**将模型权重（和激活）从 FP16/BF16 压缩到 INT8/INT4 甚至更低位宽，以少量精度损失换取**模型大小降至 1/4~1/8、推理速度提升 2-4×**。
 
@@ -1592,11 +1592,11 @@ LoRA/QLoRA 是开源大模型微调中常见的强基线，但最佳方案仍取
 
 **经验**：INT4 往往能显著降低显存占用，但质量损失取决于模型、校准数据、量化粒度和推理内核；部署前应在目标任务上实测延迟、吞吐和准确率。
 
-## 10.4 知识蒸馏（Knowledge Distillation）
+## 10.4 知识蒸馏
 
 **知识蒸馏**（Hinton et al., 2015）将一个大"教师"模型的能力迁移到小"学生"模型中，使部署时能用小模型达到接近大模型的性能。
 
-### 核心思想：软标签比硬标签信息更丰富
+### 核心思想：软标签
 
 one-hot 硬标签只告诉学生"这张图是猫"；而教师模型输出的**软概率分布**能告诉学生："这张图 90% 是猫、8% 是狗、1% 是狐狸、0% 是汽车"——这些类别间的相对关系（"狗比狐狸更接近猫"）蕴含了教师的知识。
 
@@ -1632,7 +1632,7 @@ $$\mathcal{L}_{KD} = \alpha \cdot \mathcal{L}_{CE}(y^*, p_s) + (1-\alpha) \cdot 
 
 # 11. 前沿架构与大模型
 
-## 11.1 人类反馈强化学习（RLHF）
+## 11.1 RLHF
 
 **RLHF（Reinforcement Learning from Human Feedback）** 是 ChatGPT 成功的关键——将预训练大模型从"会说话"对齐到"听得懂指令、符合人类偏好"。
 
@@ -1673,7 +1673,7 @@ flowchart LR
 
 编码器 $f$ 把输入压缩到低维隐向量 $z$，解码器 $g$ 重建出 $\hat{x}$，训练目标是重建误差 $$\mathcal{L} = \|x - g(f(x))\|^2$$。AE 擅长**降维 / 去噪 / 表示学习**，但隐空间无概率约束、分布不规则，**无法从中随机采样生成新样本**——它本质是压缩器，而非真正的生成模型。
 
-### 变分自编码器（VAE，Kingma & Welling 2013）
+### 变分自编码器（VAE）
 
 VAE 给隐空间加上概率结构：编码器输出一个分布 $$q_\phi(z\mid x)$$（而非单点），并约束其接近先验 $$p(z)=\mathcal{N}(0,I)$$。训练最大化**证据下界（ELBO）**：
 
@@ -1681,7 +1681,7 @@ $$\mathcal{L}_{\text{ELBO}} = \mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x|z)] - D_{
 
 前一项是重建项、后一项是把隐分布拉向先验的正则项。通过**重参数化技巧** $$z = \mu + \sigma \odot \epsilon$$（$$\epsilon \sim \mathcal{N}(0,I)$$）让采样可微、梯度可回传。训练后从先验 $$p(z)$$ 直接采样即可生成。VAE 采样稳定、隐空间连续可插值，但生成图像偏模糊。
 
-### 生成对抗网络（GAN，Goodfellow et al. 2014）
+### 生成对抗网络（GAN）
 
 GAN 用**对抗博弈**绕开显式似然：生成器 $G$ 把噪声映射为假样本，判别器 $D$ 学习区分真假，两者交替优化一个 minimax 目标：
 
@@ -1709,7 +1709,7 @@ flowchart LR
 
 扩散模型综合了 VAE 的训练稳定与 GAN 的高质量，成为当前生成建模的主流——下一节展开。
 
-## 11.3 扩散模型（Diffusion Models）
+## 11.3 扩散模型
 
 **扩散模型**是深度学习近年最成功的生成范式，驱动了 Stable Diffusion、DALL-E 3、Midjourney、Sora 等划时代工作，是深度生成建模与 Transformer 并列的另一大支柱。
 
@@ -1761,7 +1761,7 @@ $$\mathcal{L} = \mathbb{E}_{t, x_0, \epsilon}\left[\|\epsilon - \epsilon_\theta(
 | **Sora** | 2024 | 视频扩散模型，DiT 架构 |
 | **Stable Diffusion 3 / Flux** | 2024 | Rectified Flow + MMDiT |
 
-### 从 UNet 到 DiT：扩散网络的 Transformer 化
+### 从 UNet 到 DiT
 
 早期扩散模型用 **UNet**（带 skip connection 的编码-解码 CNN）作为去噪网络。2022 年后出现**DiT（Diffusion Transformer，Peebles & Xie, 2022）**，用 Transformer 替换 UNet——Sora、Stable Diffusion 3 均采用 DiT。这再次印证了 Transformer 统一多领域的趋势。
 
@@ -1769,7 +1769,7 @@ $$\mathcal{L} = \mathbb{E}_{t, x_0, \epsilon}\left[\|\epsilon - \epsilon_\theta(
 
 Transformer 的注意力机制对序列长度 $N$ 的计算和显存复杂度均为 $O(N^2)$，处理长序列时代价极高。**状态空间模型（State Space Model，SSM）** 提供了一种复杂度线性的替代架构路线。
 
-### SSM 基础：连续时间线性动力系统
+### SSM 基础
 
 SSM 源于控制论，将输入序列 $x(t)$ 通过隐藏状态 $h(t)$ 映射到输出序列 $y(t)$：
 
@@ -1795,7 +1795,7 @@ $$h_t = \bar{A} h_{t-1} + \bar{B} x_t, \quad y_t = C h_t$$
 
 S4 的局限：$A, B, C$ 矩阵对所有时间步固定（**time-invariant**），无法根据输入内容动态选择关注或忽略哪些信息——本质上是静态滤波器。
 
-### Mamba：选择性状态空间模型（2023）
+### Mamba（2023）
 
 **Mamba**（Gu & Dao, 2023）的核心创新是**选择性（Selectivity）**：将 $B, C$ 和步长 $\Delta$ 设计为**输入依赖（input-dependent）** 的：
 

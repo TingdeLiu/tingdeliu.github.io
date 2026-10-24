@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Graph Engineering：智能体图编排"
-date:   2026-09-23
+date: 2026-10-24
 tags: [Graph Engineering, LangGraph, Multi-Agent, Agentic Workflow, AI Engineering, LlamaIndex Workflows]
 categories: blog
 comments: true
@@ -13,7 +13,7 @@ excerpt: "Graph Engineering（图智能体工程）是继 Loop Engineering 之�
 * 目录
 {:toc}
 
-# 1. 引言：从“单一循环”到“图拓扑编排”的演进
+# 1. 引言
 
 在 2026 年上半年，**Loop Engineering（循环工程）** 的理念彻底颠覆了传统的单步 Prompting 交互。我们不再是手写 Prompt 的打字员，而是为 Agent 编写自动化闭环系统（如重试循环、计划-执行-校验循环等）的架构师。通过引入闭环，智能体在软件开发、自动化测试等长周期任务中的纠错能力和成功率得到了显著提升。
 
@@ -47,7 +47,7 @@ timeline
 ```
 <div align="center"><figcaption>图 2：从 Prompt 到 Graph 的范式演进时间线</figcaption></div>
 
-### 链、循环与图：三种控制结构的本质区别
+### 链、循环与图的区别
 
 理解 Graph Engineering 最快的方式，是把它和前两代控制结构摆在一起对比。
 
@@ -98,7 +98,7 @@ flowchart LR
 
 ---
 
-# 2. AI Agent 核心技术层级栈的跃迁
+# 2. 技术层级栈
 
 回顾整个 AI Agent 领域的发展，开发者的关注点在不断向上层抽象。我们可以将现代智能体开发的技术栈划分为五个核心层级：
 
@@ -134,11 +134,11 @@ flowchart TD
 
 ---
 
-# 3. Graph Engineering 的三大核心原语
+# 3. 三大核心原语
 
 在 Graph Engineering 中，一切工作流都是一张图（Graph），而构建这张图仅需要三个最基本的工程原语（Primitives）：
 
-### ① 节点 (Nodes)：原子的执行单元
+### ① 节点
 
 节点代表图中的一个执行步骤。每个节点可以是一段普通代码、一次 LLM 提示词调用、一个外部工具执行、甚至是一个由 Loop Engineering 驱动的独立子 Agent。
 
@@ -160,7 +160,7 @@ flowchart LR
 ```
 <div align="center"><figcaption>图 5：节点的 I/O 契约——读快照、返增量、由 Reducer 合并</figcaption></div>
 
-### ② 边与条件路由 (Edges & Conditional Routing)：逻辑流转的通道
+### ② 边与条件路由
 
 边定义了节点之间的连接关系，决定了下一步该走向哪里。
 * **普通边 (Normal Edges)**：确定性的单向连接。例如，节点 A 执行完毕后，必须无条件进入节点 B。
@@ -168,7 +168,7 @@ flowchart LR
 
 这里有一个容易被忽视的工程要点：**路由函数应当返回“有限枚举值”，而不是让 LLM 自由生成下一个节点名。** 前者的错误上界是“选错分支”（可观测、可兜底），后者的错误上界是“跳进不存在的节点”（直接崩图）。
 
-### ③ 全局状态 (State)：唯一的真理来源
+### ③ 全局状态
 
 这是 Graph Engineering 区别于传统链式（Chain）流调用的关键。在 Graph 中，整个生命周期维护着一个全局共享的、类型化的状态对象（如 Python 中的 Pydantic Model 或 TypedDict）。
 
@@ -240,7 +240,7 @@ result = graph.invoke(
 )
 ```
 
-### 隐藏的第四原语：超步 (Superstep)
+### 隐藏原语：超步
 
 前三个原语是写代码时看得见的，而**超步**是运行时看不见但决定行为的那一个。图引擎并非“一个节点跑完再跑下一个”，而是借鉴了 Pregel 的批量同步并行（BSP）模型：**同一超步内被激活的所有节点并发执行，全部返回后统一按 reducer 合并状态，然后写入一个 Checkpoint，再进入下一超步。**
 
@@ -304,7 +304,7 @@ flowchart TD
 ```
 <div align="center"><figcaption>图 8：拓扑模式选型决策树</figcaption></div>
 
-### ① 路由器模式 (The Router Pattern)
+### ① 路由器模式
 
 最基础的控制分流模式。LLM 或规则代码作为一个分类器（Router），决定接下来将任务派发给哪个特定的专用节点。
 
@@ -341,7 +341,7 @@ builder.add_conditional_edges("intake", route)
 | :--- | :--- | :--- |
 | 输入类型多样、各类型处理逻辑差异大 | 多一次分类调用的延迟与成本 | 分类粒度过细导致分支爆炸；缺少 `default` 兜底分支 |
 
-### ② 并行分叉与聚合模式 (Map-Reduce Pattern)
+### ② 分叉与聚合模式
 
 面对需要多维度分析的任务，主图会分叉（Fork）出多个并行的节点分支，每个分支执行不同的分析，最后通过一个聚合（Reduce）节点对所有分支的状态结果进行汇总提炼。
 
@@ -383,7 +383,7 @@ builder.add_conditional_edges("plan", fan_out, ["audit_file"])
 | :--- | :--- | :--- |
 | 子任务彼此独立、可同时进行、需要合并视角 | 并发放大 Token 与限流压力 | 忘记声明 reducer；扇出数量无上限导致成本爆炸；聚合节点上下文超长 |
 
-### ③ 协调者-执行者循环模式 (Orchestrator-Workers with Feedback)
+### ③ 协调者-执行者模式
 
 在这个模式中，一个高水平的**协调节点（Orchestrator）** 负责理解大局、进行任务拆解与子任务分发，多个**执行节点（Workers）** 并行或串行地去执行子任务并返回结果。协调节点会评估这些结果，如果发现问题，会带上反馈重新指派（Feedback Loop）给相应的 Worker，直到整体任务全部达标。
 
@@ -418,7 +418,7 @@ def orchestrator(state: ReviewState) -> Command[Literal["worker", "finalize"]]:
 | :--- | :--- | :--- |
 | 子任务无法预先枚举、需要多轮迭代收敛 | 协调者成为单点瓶颈与 Token 大头 | 缺少轮次上限导致 Maker-Checker 无限拉锯；评估标准模糊导致“永远差一点” |
 
-### ④ 人类在环控制点模式 (Human-in-the-loop Checkpoints)
+### ④ 人类在环模式
 
 并不是所有步骤都应该全自动执行。在 Graph Engineering 中，我们可以定义一个特别的节点为“控制点”。图引擎运行到该节点时会强制暂停，将当前图的全局状态持久化到数据库中（创建 Checkpoint），并发出通知。只有在人类输入决策、点击批准或手动编辑了状态数据后，图引擎才读取 Checkpoint 并恢复（Resume）运行。
 
@@ -477,7 +477,7 @@ graph.invoke(Command(resume={"approved": True, "note": "已复核"}), config=con
 
 ---
 
-# 5. 状态的一生：Checkpoint、持久化与时空穿梭
+# 5. 状态持久化与回溯
 
 Graph Engineering 相较于前几代范式最具工程价值的能力，其实不在拓扑本身，而在**状态被逐步落盘之后所解锁的一切**：崩溃恢复、人类在环、以及调试时的时空穿梭。
 
@@ -547,7 +547,7 @@ graph.invoke(None, forked)
 
 * **实战技巧**：在图的编译器或运行时中，**强制设置最大递归步数限制（Recursion Limit）**。LangGraph 的默认值是 25 个超步，复杂图务必显式调高并配合熔断；一旦超过上限，图引擎会抛出 `GraphRecursionError`，此时最近一次 Checkpoint 仍然可用于诊断现场。
 
-### ③ 时空穿梭与回溯测试 (Time Travel & Rollback)
+### ③ 回溯测试
 
 调试一个运行了数十个步骤后报错的图非常痛苦。如果必须从头运行，不仅费时而且大模型的随机性会导致无法稳定复现 Bug。
 
@@ -559,7 +559,7 @@ graph.invoke(None, forked)
 
 * **最佳实践**：**克制使用动态拓扑，坚持“静态编译，动态执行”**。在编译期定义好所有可能的逻辑节点与条件路由（即静态图结构），而在运行期让 LLM 通过全局状态来驱动不同的执行路径（即动态执行路径）。
 
-### 多智能体系统的五类高频故障速查表
+### 多智能体故障速查
 
 社区在 2025–2026 年的生产事故复盘中，反复出现同样的五类故障。把它们和图原语对应起来，就得到一份可直接落地的护栏清单：
 
@@ -575,7 +575,7 @@ graph.invoke(None, forked)
 
 ---
 
-# 7. 可观测性：让图从“黑盒”变成可调试的系统
+# 7. 可观测性
 
 图拓扑本身就是最好的观测骨架——因为每一次状态流转都天然对应一个可记录的事件。生产级 Graph 系统建议对每个节点至少记录以下字段：
 
@@ -592,7 +592,7 @@ graph.invoke(None, forked)
 
 ---
 
-# 8. 主流 Graph Engineering 框架深度对比
+# 8. 框架对比
 
 目前在开源与工业界，支持图智能体工程的核心框架主要以 **LangGraph** 和 **LlamaIndex Workflows** 为代表。
 
@@ -650,7 +650,7 @@ flowchart TD
 
 ---
 
-# 9. 端到端实战：自动化 PR 审查与发布流水线
+# 9. 实战：PR 审查流水线
 
 把前面所有原语与模式串起来，来看一个真实可落地的场景——**自动化的 Pull Request 审查与合并流水线**。它同时用到了四种拓扑模式：
 
@@ -728,7 +728,7 @@ class PRState(TypedDict):
 
 ---
 
-# 10. 结语：迈向更加确定、可控的 Agentic Era
+# 10. 结语
 
 从单次 Prompt 的探索，到 Harness / Loop Engineering 的局部优化，再到如今 **Graph Engineering** 对全局拓扑的掌控，智能体工程化（AI Engineering）的路径已经清晰：**我们正在用传统软件工程中沉淀了几十年的、确定性的结构（图、状态机、事件驱动），来驯服和驾驭非确定性大模型所带来的认知生产力。**
 

@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-survey
 title: "VLN 综述"
-date:   2026-10-09
+date: 2026-10-24
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -55,7 +55,7 @@ excerpt: "从任务、策略架构、空间记忆、动作接口、进度判断�
 
 VLN 的核心不是“看懂一句话”，而是在部分可观测环境中持续完成 **语言落地、空间定位、历史记忆、动作决策和停止判断**。智能体每移动一步，视觉输入和指令进度都会变化，因此导航是一个闭环过程，而不是一次性的视觉问答。
 
-## 2.1 任务定义：语言如何变成一条可执行轨迹
+## 2.1 任务定义
 
 给定自然语言指令 $I$，智能体在时刻 $t$ 接收当前观测 $o_t$，并结合历史状态 $h_t$ 预测动作 $a_t$：
 
@@ -87,7 +87,7 @@ flowchart LR
 
 离散环境通常输出相邻视点或 `STOP`；连续环境则可能输出前进/转向动作、二维路点、轨迹片段或底层控制量。动作接口不同会改变感知范围、控制难度和成功条件，因此不能仅凭“都使用 R2R 指令”就直接比较结果。
 
-## 2.2 看懂一个 VLN 基准：五个必要维度
+## 2.2 如何看懂 VLN 基准
 
 | 维度 | 需要确认的问题 | 常见设定 | 对结果的影响 |
 |:---|:---|:---|:---|
@@ -97,7 +97,7 @@ flowchart LR
 | **环境模型** | 环境是否具有物理约束？ | 导航图、可导航表面、刚体碰撞、机器人动力学 | 决定是否会碰撞、跌倒或卡住 |
 | **交互协议** | 指令能否被澄清或修正？ | 单轮、对话、主动问询、人类反馈 | 决定智能体能否消解歧义和请求帮助 |
 
-### 2.2.1 VLN、ObjectNav 与通用 VLA 的边界
+### 2.2.1 VLN、ObjectNav 与 VLA
 
 | 范式 | 主要输入 | 主要考察能力 | 典型输出 |
 |:---|:---|:---|:---|
@@ -107,7 +107,7 @@ flowchart LR
 
 ObjectNav 可以为 VLN 提供语义探索模块，VLA 也可以成为 VLN 的策略底座，但它们的成绩不能自动并入标准 VLN 榜单。公平比较必须固定任务输入、传感器、动作接口、数据划分与额外训练数据。
 
-## 2.3 一个现代 VLN 系统如何工作
+## 2.3 现代 VLN 系统
 
 早期模型常把 VLN 描述为“视觉编码器 + 语言编码器 + 动作分类器”。2026 年更实用的系统视图是：**感知提供语义与几何证据，状态层维护指令进度和空间记忆，规划层选择子目标，执行层将子目标转化为安全动作，并由真实观测持续纠偏。**
 
@@ -162,7 +162,7 @@ flowchart TB
 
 这张图不是要求所有方法都显式实现每个模块。端到端模型会把多个方框折叠进统一网络；双系统、地图方法和 Agent 方法则会把部分接口显式化。判断架构时，应看信息流和训练目标，而不是只看论文使用了哪个名称。
 
-## 2.4 VLN 的核心难点
+## 2.4 核心难点
 
 | 难点 | 典型失败 | 为什么难 | 需要观察的证据 |
 |:---|:---|:---|:---|
@@ -173,7 +173,7 @@ flowchart TB
 | **开放世界与真实部署** | 仿真成功、真机失效 | 视角、传感器、动力学和场景分布变化 | 跨场景、跨构型和真实机器人评测 |
 | **失败检测与恢复** | 到过目标附近却没有停下，偏航后持续累积错误 | 模型缺少不确定性和自我诊断 | OSR–SR 差距、恢复成功率、人工介入次数 |
 
-## 2.5 从任务专用模型到导航基础模型
+## 2.5 走向导航基础模型
 
 ```mermaid
 %%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 24, "rankSpacing": 28}}}%%
@@ -217,7 +217,7 @@ flowchart TB
 <a id="3-主流-vln-研究路线"></a>
 <a id="survey-methods"></a>
 
-# 3. VLN 的主要方法范式与关键机制
+# 3. 方法范式与关键机制
 
 理解一个 VLN 方法，需要分别回答：**策略怎样组织，历史怎样表示，决策怎样落到动作，指令进度怎样跟踪，以及模型从什么反馈中学习。** 本节按这些问题讨论统一策略、分层控制、空间记忆、任务编排与未来预测，并单独展开动作接口、主动感知和训练机制。同一方法可以同时采用多项设计，这些小节不构成互斥的论文类别，也不代表统一条件下的性能排序。
 
@@ -259,7 +259,7 @@ flowchart TB
     style E fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
 ```
 
-## 3.1 方法演进：真正变化的是状态、接口与训练数据
+## 3.1 方法演进
 
 | 研究重心 | 模型内部状态 | 典型动作接口 | 训练信号 | 代表方法 |
 |:---|:---|:---|:---|:---|
@@ -276,13 +276,13 @@ flowchart TB
 
 <a id="survey-policy"></a>
 
-## 3.2 策略架构：统一策略与分层控制
+## 3.2 策略架构
 
 架构首先决定各层负责什么。统一策略在同一个主干中结合语言、观测和历史，预测下一步动作或轨迹；分层系统显式传递子目标，由另一层完成局部执行。**模型数量、是否联合训练、是否维护地图、是否高低频分工是不同属性。** 使用统一策略仍可能需要轨迹跟踪器，分层网络也可能联合优化；“端到端”应说明监督或梯度覆盖到哪一级接口。
 
 <a id="32-单系统端到端把导航变成连续的多模态生成"></a>
 
-### 3.2.1 统一策略：在共享主干中建模观测与动作
+### 3.2.1 统一策略
 
 [NaVid](/VLN-Papers/#navid)和[StreamVLN](/VLN-Papers/#streamvln)将视频历史与语言用于动作生成；[NavFoM](/VLN-Papers/#navfom)、[Qwen-RobotNav](/VLN-Papers/#qwen-robotnav)等工作进一步探索多任务共享策略。讨论这一类方法时，重点是输入与输出如何统一，以及训练数据能否支持迁移，而不是要求模型完全没有外部模块。
 
@@ -300,7 +300,7 @@ flowchart TB
 
 <a id="33-快慢双系统高层语义推理与高频执行解耦"></a>
 
-### 3.2.2 分层控制：让语义决策与局部执行各有接口
+### 3.2.2 分层控制
 
 快慢系统是分层控制的一种实现：慢系统低频理解指令并产生子目标，快系统利用最新观测持续生成局部动作。低层既可以是学习到的策略，也可以是几何规划器；应检查它是否闭环执行、何时请求新目标，以及上层延迟和错误如何传递。
 
@@ -333,7 +333,7 @@ flowchart LR
 <a id="34-地图与空间记忆让历史变成可查询的环境状态"></a>
 <a id="survey-memory"></a>
 
-## 3.3 空间表征与历史记忆
+## 3.3 空间表征与记忆
 
 空间表征回答“环境中的对象和可通行区域是什么关系”，历史记忆回答“过去哪些信息应当影响现在的决策”。二者可以结合在地图中，也可以由几何特征、隐状态、关键帧或检索库共同承担。仅从 RGB 提取三维几何特征，不等于已经建立可供规划器查询的全局地图。
 
@@ -384,7 +384,7 @@ flowchart LR
 
 <a id="survey-progress"></a>
 
-## 3.5 指令进度、主动感知与失败恢复
+## 3.5 进度、主动感知与恢复
 
 长程导航需要持续判断“已完成哪段指令、下一步还缺什么证据”。选错活动子指令和未能执行正确子指令，会产生不同的错误；只给出一个纠正动作，未必能修复内部进度状态。
 
@@ -428,7 +428,7 @@ flowchart LR
 <a id="351-通用导航-agent-的五层结构"></a>
 <a id="351-基模能力与-agent-能力分别评测"></a>
 
-### 3.6.1 基模能力与 Agent 能力分别评测
+### 3.6.1 基模与 Agent 分开评测
 
 Qwen-RobotNav 是可用于 Agent 系统的导航模型。评价时应区分底层导航成绩与加入上层编排后的系统成绩：前者反映模型及其输入配置，后者还包含任务分解、模式切换和运行时反馈。不能把整个系统的收益全部记在基模或规划器任一方上。
 
@@ -440,7 +440,7 @@ Qwen-RobotNav 是可用于 Agent 系统的导航模型。评价时应区分底�
 <a id="352-qwen-robotnav-式-agentic-导航闭环"></a>
 <a id="352-一个可检查的-agent-闭环"></a>
 
-### 3.6.2 一个可检查的 Agent 闭环
+### 3.6.2 可检查的 Agent 闭环
 
 本文采用的分析框架是：任务状态 → 选择子任务与工具 → 执行 → 读取结果 → 更新任务状态。每个转换都应能在日志中检查：工具失败是否被识别、是否换了策略、是否重复调用无效动作，以及何时终止。下图是系统职责示意，不要求所有论文实现同名模块。
 
@@ -529,7 +529,7 @@ flowchart LR
 
 架构与机制决定系统如何使用信息，训练范式决定它从什么反馈中学习。两者应分别描述：统一策略、分层控制和带记忆的模型都可以使用示范、数据增强或强化学习；同一个模型也可能先监督微调，再收集纠偏样本或进行 RL 后训练。
 
-### 3.8.1 从示范学习到闭环强化学习
+### 3.8.1 从示范到闭环 RL
 
 | 训练方式 | 学习信号与作用 | 代表工作 | 需要单独验证的问题 |
 |:---|:---|:---|:---|
@@ -564,7 +564,7 @@ $$
 
 <a id="survey-rl-levels"></a>
 
-### 3.8.2 奖励作用于动作、执行还是整条轨迹
+### 3.8.2 奖励作用的粒度
 
 “使用 GRPO”只说明优化器的一部分，不能说明模型是否在环境中自主完成整段导航。以下按**训练时被评分的对象**区分代表方法；这是对原文机制的归纳，同一方法可能结合多种奖励。
 
@@ -583,7 +583,7 @@ $$
 
 <a id="survey-rl-rewards"></a>
 
-### 3.8.3 奖励设计：到达、路线忠实度与执行成本
+### 3.8.3 奖励设计
 
 如果指令是“先穿过厨房，再沿走廊进入卧室”，绕过厨房的捷径可能得到更高的终点成功与最短路效率，却违反了沿途要求。**到达终点、忠实执行指令、安全高效地移动，是相关但不同的优化目标。** 奖励应先明确任务要求，再选择指标。
 
@@ -596,7 +596,7 @@ $$
 | 碰撞、步数或时间成本 | 改善可执行性和效率 | 代价过大可能鼓励提前放弃或过早 STOP |
 | 格式 / 动作合法性 | 产生可解析的控制输出 | 格式正确不能代替任务完成 |
 
-[nDTW 原始研究](https://research.google/pubs/general-evaluation-for-instruction-conditioned-navigation-using-dynamic-time-warping/)通过有序路径匹配衡量路线忠实度，SDTW 再加入成功约束；定义见[第 8.3 节](#83-路径效率与指令保真度指标)。例如 ETP-R1 的 R2R 奖励结合 success@1.5m、SPL 与终点距离，RxR 则采用 nDTW、SDTW、以参考路线长度计算的 gSPL 及终点距离。gSPL 调整的是效率参照，沿途一致性仍需路线项共同约束；奖励中的 1.5m 也不能代替其他评测协议的成功阈值。[原文 Eq.5](https://arxiv.org/html/2512.20940v1)
+[nDTW 原始研究](https://research.google/pubs/general-evaluation-for-instruction-conditioned-navigation-using-dynamic-time-warping/)通过有序路径匹配衡量路线忠实度，SDTW 再加入成功约束；定义见[第 8.3 节](#83-路径效率与保真度)。例如 ETP-R1 的 R2R 奖励结合 success@1.5m、SPL 与终点距离，RxR 则采用 nDTW、SDTW、以参考路线长度计算的 gSPL 及终点距离。gSPL 调整的是效率参照，沿途一致性仍需路线项共同约束；奖励中的 1.5m 也不能代替其他评测协议的成功阈值。[原文 Eq.5](https://arxiv.org/html/2512.20940v1)
 
 下面仅展示回报可包含的分项，**不是某篇论文的固定配方，也不是经验证的通用权重**：
 
@@ -615,7 +615,7 @@ $$
 
 <a id="survey-rl-algorithms"></a>
 
-### 3.8.4 PPO 与 GRPO：优势信号从哪里来
+### 3.8.4 PPO 与 GRPO
 
 策略梯度通过提高高优势动作的概率更新策略。这里的**优势**表示“这次选择的后续回报，比当前条件下的比较基准好多少”；PPO 与 GRPO 的一个核心差别，是这个比较基准如何得到。
 
@@ -654,7 +654,7 @@ $$
 
 <a id="survey-rl-loop"></a>
 
-### 3.8.5 闭环训练怎样落地：采样、更新与记忆一致性
+### 3.8.5 闭环训练实践
 
 对已有导航模型，一条便于定位收益来源的实验路线是：**SFT / DAgger 初始化 → 自主采样 → 回报与优势计算 → 策略更新 → 未见场景验证。** 下图是训练流程示意，PPO 与完整轨迹 GRPO 均可采用；具体方案仍需按动作接口和采样预算选择。
 
@@ -689,7 +689,7 @@ flowchart TB
 
 <a id="survey-rl-evidence"></a>
 
-### 3.8.6 实验证据：RL 增加了什么，怎样公平归因
+### 3.8.6 RL 收益的归因
 
 同一论文、同一基座和协议下的前后对照，比跨论文最终成绩更接近回答“后训练增加了什么”。下表数字均为**作者报告，未独立复现**；SR / SPL 单位为百分数，增量是绝对百分点。每一行只在本行协议内解读，包含联合训练或特定奖励组件时，也不等于只替换优化器的收益。
 
@@ -717,9 +717,9 @@ flowchart TB
 <a id="39-跨论文比较相似名称背后的不同设计"></a>
 <a id="survey-comparison"></a>
 
-## 3.9 方法组合、证据比较与选型
+## 3.9 方法选型
 
-### 3.9.1 用多个维度描述同一个方法
+### 3.9.1 多维度描述方法
 
 下表展示怎样从论文机制出发描述组合。“需要验证”是本文提出的比较建议，不表示已有统一对照实验，也不是模型总排名。
 
@@ -752,7 +752,7 @@ flowchart TB
 
 <a id="371-阅读最新论文时的四个检查项"></a>
 
-### 3.9.3 阅读最新论文时的四个检查项
+### 3.9.3 读新论文的四个检查
 
 1. **协议是否一致**：传感器、动作空间、数据划分和成功阈值是否相同？按需观察、额外地图和目标真值是否单独说明？
 2. **资源是否一致**：收益来自机制，还是更大的基模、更多数据或额外几何先验？训练样本、环境交互与推理预算是否可比？
@@ -766,7 +766,7 @@ flowchart TB
 
 任务名称相近并不意味着结果可比。第 2.2 节已经给出理解一个 VLN 基准所需的五个维度（目标表达、观测配置、动作空间、环境模型、交互协议），本节在此基础上从 **推理复杂度、交互方式、动作与物理真实性** 三个角度给出常用的任务分类，并标出每类的代表性基准。需要特别留意具身形态：无动力学的虚拟智能体、轮式、四足、人形与无人机在碰撞、跌倒、卡住和 6-DoF 控制上的难度完全不同，同名任务在不同具身下的结果也不应直接比较。
 
-## 4.1 按推理与决策复杂度划分
+## 4.1 按推理复杂度
 
 **1. 指令跟随型 VLN（Instruction-Following VLN）**
 
@@ -792,7 +792,7 @@ flowchart TB
 
 ---
 
-## 4.2 按交互方式划分
+## 4.2 按交互方式
 
 **1. 非交互式 VLN**
 
@@ -806,7 +806,7 @@ flowchart TB
 
 *代表性数据集*：CVDN（须区分已有对话历史与在线问询协议）
 
-## 4.3 按动作与物理真实性划分
+## 4.3 按动作与物理真实性
 
 **1. 离散全景导航**
 
@@ -881,7 +881,7 @@ flowchart TB
 
 选择基准时先确定要验证的能力，再看规模。**场景资产、任务数据、训练增强数据是三种不同对象**：Matterport3D 提供环境，R2R 提供指令与路径，ScaleVLN 提供合成训练样本。共享环境不代表共享动作接口或评测协议。
 
-## 6.1 数据集对比总览
+## 6.1 数据集总览
 
 | 研究问题 | 代表基准 | 必须区分的设定 | 主要评测维度 |
 |:---|:---|:---|:---|
@@ -910,7 +910,7 @@ flowchart TB
 | HA-VLN 2.0（2025；IROS 2026） | 16,844 条社交情境指令 | 以版本化协议确认离散/连续子集；[论文 v5](https://arxiv.org/abs/2503.14229v5) |
 | InternData-N1 | 240k 余轨迹、3,000 余场景 | 数据卡汇总口径，包含多个子集；[官方数据卡](https://huggingface.co/datasets/InternRobotics/InternData-N1)，查阅于 2026-09-26 |
 
-## 6.2 指令导向与连续导航数据集
+## 6.2 指令导向与连续导航
 
 ### 6.2.1 R2R (Room-to-Room)
 
@@ -965,7 +965,7 @@ RxR 提供多语言指令及与观测关联的时空标注。复现时应明确�
 
 </details>
 
-### 6.2.4 VLN-CE (连续环境导航)
+### 6.2.4 VLN-CE
 
 VLN-CE 将指令导航移到 Habitat 的可导航空间中，取消沿导航图边移动的限制。**连续的是环境位置，策略动作仍可采用有限集合**，例如前进和转向。它增加执行难度，但并不自动包含腿足动力学。[原论文](https://arxiv.org/abs/2004.02857)。
 
@@ -1011,7 +1011,7 @@ VLN-CE 将指令导航移到 Habitat 的可导航空间中，取消沿导航图�
 
 </details>
 
-### 6.2.5 RxR-CE (多语言连续环境导航)
+### 6.2.5 RxR-CE
 
 RxR 的连续环境移植随 VLN-CE 发布。RxR-Habitat 挑战赛对 RGB-D 观测和动作步长、转角作了明确限制，采用全景观测的结果不能直接当作同一挑战赛成绩。[官方挑战赛配置说明](https://github.com/jacobkrantz/VLN-CE#required-task-configurations)。
 
@@ -1019,7 +1019,7 @@ RxR 的连续环境移植随 VLN-CE 发布。RxR-Habitat 挑战赛对 RGB-D 观�
 
 **多语言与执行误差需要分开看**：某语言上的下降可能来自语义理解，也可能来自较长路径引发的动作误差。本文建议按语言、路径长度和终点误差分组，并在相同相机与控制器下比较。若加入机器翻译或额外文本特征，应说明模型直接理解原语言，还是借助翻译系统完成导航。
 
-### 6.2.6 VLN-PE (真实物理具身导航)
+### 6.2.6 VLN-PE
 
 VLN-PE 支持人形、四足和轮式机器人，研究相机视角、光照、碰撞和跌倒等因素造成的具身差距。这里的“真实物理”指更接近机器人约束的仿真评测，并不表示全部数据来自真机。应按机器人形态和控制器分别报告结果。[论文 v2](https://arxiv.org/abs/2507.13019v2)。
 
@@ -1032,7 +1032,7 @@ VLN-PE 支持人形、四足和轮式机器人，研究相机视角、光照、�
 
 本文建议保留三层日志：高层目标与路点、低层实际轨迹、碰撞或姿态异常。跨机器人比较除 SR 外，还应报告所用控制器与失效类别；若同时换了相机、控制器和策略，结果不能单独解释为形态泛化。
 
-### 6.2.7 ScaleVLN (超大规模导航预训练增强数据集)
+### 6.2.7 ScaleVLN
 
 ScaleVLN 的作用是扩充训练覆盖，而非提供一个可与 R2R 并列排名的新任务。其结果说明扩大环境与合成监督可能显著改变既有模型表现；比较架构时需列明是否用了此类额外数据。[原论文](https://arxiv.org/abs/2307.15644)。
 
@@ -1040,7 +1040,7 @@ ScaleVLN 的作用是扩充训练覆盖，而非提供一个可与 R2R 并列排
 
 本文建议用相同模型比较原始数据、增加场景、增加指令和完整增强四种条件；同时报告训练步数或算力预算。这样才能判断增益主要来自数据覆盖、语言变化还是更多优化计算。
 
-### 6.2.8 InternData-N1 (InternVLA-N1 导航预训练数据)
+### 6.2.8 InternData-N1
 
 InternData-N1 将 VLN-CE、VLN-PE、VLN-N1 子集统一为 LeRobot 格式。统一存储格式便于训练，但不会消除原任务的观测、动作和成功标准差异；取用时需记录子集、筛选和采样配比。[官方数据卡](https://huggingface.co/datasets/InternRobotics/InternData-N1)。
 
@@ -1065,15 +1065,15 @@ vln_ce/
 
 </details>
 
-### 6.2.9 VLNVerse (物理多任务统一导航基准)
+### 6.2.9 VLNVerse
 
 VLNVerse 将多种任务、具身仿真和评测置于统一框架。它适合检查跨任务能力，但“使用同一平台”仍不等于“所有任务可合成一个 SR”。应展开各任务及各具身设置，而不是仅给总体均值。[原论文](https://arxiv.org/abs/2512.19021)。
 
 **统一基准应怎样读**：共同平台便于复用传感器和执行器，但任务成功可能分别指到达、目标确认或多阶段完成。本文建议同时给出“任务 × 具身设置”的结果矩阵，标明哪些模型共享权重、哪些进行了任务微调。仅有综合均值时，很难判断系统是否在部分任务上失效。
 
-## 6.3 目标导向与长程规划数据集
+## 6.3 目标导向与长程规划
 
-### 6.3.1 REVERIE (Remote Embodied Visual Referring Expression in Real Indoor Environments)
+### 6.3.1 REVERIE
 
 REVERIE 要求依据高层描述导航并识别目标物体。到达可见目标的位置与正确完成物体指代是不同结果，因此需区分导航指标与远程指代定位指标。[原论文](https://arxiv.org/abs/1904.10151)。
 
@@ -1083,13 +1083,13 @@ REVERIE 要求依据高层描述导航并识别目标物体。到达可见目标
 
 这也解释了为什么目标检测器、候选框与物体特征属于实验设置的一部分。比较导航策略时，如果一方获得更好的目标候选，不能把最终指代成功率的全部差异都归于规划能力。
 
-### 6.3.2 REVERIE-CE (目标指代连续动作导航)
+### 6.3.2 REVERIE-CE
 
 REVERIE-CE 是一类连续环境移植设定的统称，目前没有找到像 VLN-CE 那样由原作者维护、固定版本与规模的统一官方协议，因此本文不给出发布年份和样本数。引用此类结果时，应直接给出论文、转换脚本、样本过滤和物体成功判据，不沿用离散 REVERIE 的统计数。
 
 连续移植至少涉及三项额外工作：将离散目标映射到连续场景、明确可观察目标的位置集合、定义停止后如何提交物体预测。本文建议报告过滤了多少原始样本，以及过滤原因。未经核对的转换不能默认保持原基准的难度和目标分布。
 
-### 6.3.3 SOON (Scenario Oriented Object Navigation)
+### 6.3.3 SOON
 
 SOON 根据目标及周围场景描述，从不同起点搜索并定位目标。它将路径级指令跟随转为场景条件下的探索，适合研究语义搜索与图规划；所用 FAO 数据中的描述、目标与起点组合不应混算成一种样本数。[原论文](https://arxiv.org/abs/2103.17138)。
 
@@ -1097,7 +1097,7 @@ SOON 根据目标及周围场景描述，从不同起点搜索并定位目标。
 
 本文建议将未找到目标区域、目标已可见但未识别、识别后停止失败分别统计。这样能区分语义先验是否有效，以及探索预算究竟花在了哪些区域。
 
-### 6.3.4 LHPR-VLN (Long-Horizon Planning and Reasoning in VLN)
+### 6.3.4 LHPR-VLN
 
 LHPR-VLN 关注连续子任务中的规划一致性。除总体完成情况，还使用 ISR、CSR、CGT 等指标分析子任务成功与前序失败的影响。与 R4R 的区别在于，多阶段执行需要跟踪任务状态，不能只用总路径长度刻画难度。[论文 v3](https://arxiv.org/abs/2412.09082v3)。
 
@@ -1105,9 +1105,9 @@ LHPR-VLN 关注连续子任务中的规划一致性。除总体完成情况，�
 
 记忆机制也应围绕任务状态验证：模型是否记住已经完成的目标，是否重复访问已排除区域，执行失败后是否错误地把子任务标为完成。这些证据比单纯展示更长的上下文窗口更能说明长程能力。
 
-## 6.4 对话式与社交感知导航数据集
+## 6.4 对话式与社交导航
 
-### 6.4.1 CVDN (Cooperative Vision-and-Dialog Navigation)
+### 6.4.1 CVDN
 
 CVDN 的人类数据采集包含 Navigator 与 Oracle 对话；其 Navigation from Dialog History 任务是依据已有对话历史继续导航。**使用对话历史不等于允许模型在线向人求助**，评测主动提问能力须另行明确交互协议。[原论文](https://arxiv.org/abs/1907.04957)。
 
@@ -1115,7 +1115,7 @@ CVDN 的人类数据采集包含 Navigator 与 Oracle 对话；其 Navigation fr
 
 若研究主动求助，本文建议增加提问次数、有效回答比例与每次交互后的导航改善；若只做 NDH，则重点分析历史长度、指代消解与下一段路径的完成情况。
 
-### 6.4.2 TEACh (Task-driven Embodied Agents that Chat)
+### 6.4.2 TEACh
 
 TEACh 包含对话、导航和物体交互，属于更广义的具身任务。其 EDH 等派生任务有不同输入和完成条件，应与纯导航基准分开讨论。[论文 v3](https://arxiv.org/abs/2110.00534v3)还说明了测试集评估对象的修订。
 
@@ -1123,7 +1123,7 @@ TEACh 包含对话、导航和物体交互，属于更广义的具身任务。�
 
 EDH（Execution from Dialog History）研究从给定交互历史继续执行，TfD（Trajectory from Dialog）则依据对话推断并执行任务轨迹；两者的起始信息不同。阅读论文时要先确定评测任务，再比较任务成功与目标条件完成情况。[TEACh 论文](https://arxiv.org/abs/2110.00534v3)。
 
-### 6.4.3 HA-VLN 2.0 (Human-Aware Vision-Language Navigation)
+### 6.4.3 HA-VLN 2.0
 
 HA-VLN 2.0 将动态多人交互与个人空间约束纳入导航评测。到达与社交合规需要同时观察，并固定人群行为及运行种子；单次成功视频不能反映多次遇人情况下的稳定性。[论文 v5](https://arxiv.org/abs/2503.14229v5)。
 
@@ -1131,9 +1131,9 @@ HA-VLN 2.0 将动态多人交互与个人空间约束纳入导航评测。到达
 
 本文建议固定或配对运行种子，重复测试不同人群交互情形；报告成功样本中的社交违规，以及失败样本是否因超时、碰撞或迷路结束。不要仅展示最顺利的一次轨迹。
 
-## 6.5 需求导向与常识推理数据集
+## 6.5 需求导向与常识推理
 
-### 6.5.1 DDN (Demand-driven Navigation)
+### 6.5.1 DDN
 
 DDN 从用户需求推断满足需求的物体，例如将“我需要清洁”映射为具有合适用途的目标。原工作在 AI2-THOR / ProcTHOR 上研究这一问题，属于需求条件的目标导航；它不要求逐段遵循路线描述。[原论文](https://arxiv.org/abs/2309.08138)。
 
@@ -1141,9 +1141,9 @@ DDN 从用户需求推断满足需求的物体，例如将“我需要清洁”�
 
 本文建议把需求推断与空间搜索分开诊断：模型是否提出了可接受目标，目标是否在当前环境可用，随后是否找到并正确停止。将需求预先改写成固定物体类别再导航时，也应说明这一步使用了什么额外模型或监督。
 
-## 6.6 空中航拍与特殊场景数据集
+## 6.6 空中与特殊场景
 
-### 6.6.1 AerialVLN (Vision-and-Language Navigation for UAVs)
+### 6.6.1 AerialVLN
 
 AerialVLN 使用 UE4 / AirSim 城市场景，增加高度和空间关系推理。原论文表 1 将标准任务列为 **4 DoF**，不应笼统称为完整 6-DoF 飞控。[原论文](https://arxiv.org/html/2308.06735v1)。
 
@@ -1151,19 +1151,19 @@ AerialVLN 使用 UE4 / AirSim 城市场景，增加高度和空间关系推理�
 
 本文建议分开记录水平偏差、高度偏差和停止位置，不能仅凭二维地图上的投影接近目标就判断三维导航成功。
 
-### 6.6.2 CityNav (Language-Goal Aerial Navigation Dataset with Geographic Information)
+### 6.6.2 CityNav
 
 CityNav 使用真实城市地理环境及语言配对的人类示范，研究视觉与地理信息结合的空中导航。“真实城市数据”不能直接等同于真实无人机的自主飞行测试；比较时还需说明地理信息和地图是否可用。[论文 v3](https://arxiv.org/abs/2406.14240v3)。
 
 **地图信息是一种额外输入**：地理坐标、地图或先验位置可能显著改变搜索问题。本文建议对比视觉与语言输入、加入地理信息、加入地图的不同条件，并报告城市划分。跨城市评测更能检验空间语义能否迁移，但也需控制资产和数据重叠。
 
-### 6.6.3 OpenFly (A Comprehensive Platform for Aerial Vision-Language Navigation)
+### 6.6.3 OpenFly
 
 OpenFly 将多种渲染引擎、自动采集工具链与空中导航基准结合。研究价值在于数据生产和环境覆盖；跨引擎泛化仍需要隔离训练与测试引擎、场景和资产来验证。[论文 v7](https://arxiv.org/abs/2502.18041v7)。
 
 **跨引擎不只是换画面风格**：渲染、坐标系、深度定义和动作执行都可能变化。本文建议先对齐这些接口，再区分同场景换渲染、同引擎换场景和跨引擎跨场景三类实验。自动生成大量轨迹后，还应抽查语言是否描述了实际可见地标及真正执行的路线。
 
-## 6.7 复现时需要记录的数据口径
+## 6.7 复现需记录的数据口径
 
 保留原始数据版本、场景清单、episode 数与唯一指令数、语言子集、Guide/Follower 类型，以及丢弃样本的规则。说明额外训练数据是否接触测试建筑或其衍生资产。对私有预训练数据无法确认的重叠，应标注“未披露”，不能自动视为无重叠。
 
@@ -1326,13 +1326,13 @@ InternUtopia 在 Isaac Sim 上组织场景、机器人与具身任务。查阅�
 | 研究导航与操作 | AI2-THOR / iGibson / OmniGibson | 对象状态、任务完成条件与交互成本 |
 | 复现空中 VLN | 论文指定 AirSim 或其他引擎 | 飞行接口、城市资产、地理输入和划分 |
 
-## 7.10 平台系统与选型建议
+## 7.10 选型建议
 
-### 7.10.1 按开发宿主操作系统（Windows vs. Linux）选型
+### 7.10.1 按操作系统选型
 
 先核对**完整论文工程**的支持平台，再核对底层引擎。Windows 用户可选择原生提供支持的 Isaac Sim / Isaac Lab；其他工程应按官方配置使用 Linux 主机、容器或经过验证的 WSL 环境。WSL 能运行 Linux 程序并不保证 EGL、Vulkan、CUDA、窗口系统和仿真资产均可直接工作。
 
-### 7.10.2 按研究任务类型选型
+### 7.10.2 按研究任务选型
 
 本文建议：复现已有结果时使用原任务环境；研究动力学时才增加机器人形态和接触模型；研究交互时增加可操作对象。每多一层仿真能力，都应明确它对应哪个研究问题，并为新增变量建立基线。不要用跨硬件、跨场景的“快/慢”标签排列平台优劣。
 
@@ -1404,7 +1404,7 @@ flowchart TB
 
 <a id="81-评测体系总览与设计哲学"></a>
 
-## 8.1 先固定评测协议，再解释指标
+## 8.1 评测协议与指标解读
 
 记录任务与划分、传感器和视场、深度/位姿/地图权限、动作接口、停止与超时规则、距离函数、成功阈值、额外训练数据以及推理预算。R2R 的导航图、Habitat 的可导航表面与空中场景不是同一种距离空间。
 
@@ -1416,7 +1416,7 @@ flowchart TB
 | 更准确地找到物体 | 导航指标 + 对应目标定位指标 | 一般 ObjectNav 与指代导航同等困难 |
 | 更适合真实机器人 | 真机完成率、碰撞、介入、延迟与失败类型 | 在其他机器人和环境同样可靠 |
 
-### 8.1.1 典型轨迹形态与多维指标响应矩阵
+### 8.1.1 轨迹形态与指标响应
 
 以下是用于理解指标的示意，不是某篇论文的实验结果。设指令要求经过地标后再到终点：
 
@@ -1453,7 +1453,7 @@ flowchart TB
 
 选完指标后，还要保存逐 episode 结果。总体均值可能掩盖长路径、多语言、特定机器人或特定失败条件下的显著退化。
 
-### 8.1.3 核心评估指标全景矩阵
+### 8.1.3 核心指标总览
 
 | 指标 | 主要问题 | 方向 | 关键限制 |
 |:---|:---|:---|:---|
@@ -1467,7 +1467,7 @@ flowchart TB
 | TL | 实际走了多长 | 无固定优劣方向，通常为米 | 需结合 SR 与参考路径长度解读，过短可能是过早停止 |
 | RGS / RGSPL | 是否选中了指令所指的目标物体 | ↑ | REVERIE 类任务专用；需说明候选物体来源与判定方式 |
 
-### 8.1.4 常见指标反差与排查方向
+### 8.1.4 指标反差排查
 
 | 观察 | 可能原因 | 用什么验证 |
 |:---|:---|:---|
@@ -1479,7 +1479,7 @@ flowchart TB
 
 这些是待验证的解释。某个指标反差可以由多个机制产生，不应直接给模型下“缺乏推理”或“只会记忆”的结论。
 
-## 8.2 目标达成与定位精度指标
+## 8.2 目标达成指标
 
 ### 8.2.1 Success Rate (SR)
 
@@ -1527,9 +1527,9 @@ flowchart LR
 
 这个差距提示检查停止判断、目标识别和路径回退，但不能仅凭 OSR 高就断言模型“定位准确”。轨迹可能偶然路过目标，或者模型根本没有意识到目标已被看到。
 
-## 8.3 路径效率与指令保真度指标
+## 8.3 路径效率与保真度
 
-### 8.3.1 Success weighted by Path Length (SPL)
+### 8.3.1 SPL
 
 设 $l_i$ 为起点到目标的最短可行路径长度，$p_i$ 为实际行走长度，则：
 
@@ -1571,7 +1571,7 @@ flowchart TB
 
 SPL 对失败轨迹直接计零，对成功但过长的路径施加反比惩罚。它不要求遵循指令的所有中间地标：当指令要求绕行时，忠实执行可能反而降低 SPL，因此还需路径保真度指标。
 
-### 8.3.2 Coverage weighted by Length Score (CLS)
+### 8.3.2 CLS
 
 给定参考路径 $R$ 和预测路径 $P$，定义节点到路径的距离 $d(r,P)=\min_{p\in P}d(r,p)$。CLS 结合软覆盖与长度匹配：
 
@@ -1610,7 +1610,7 @@ flowchart TB
 
 CLS 可以揭示“到达终点却漏掉沿途路线”，但相同覆盖集合仍可能对应不同访问顺序；这正是下面引入 DTW 对齐的原因。
 
-### 8.3.3 normalized Dynamic Time Warping (nDTW & SDTW)
+### 8.3.3 nDTW 与 SDTW
 
 DTW 寻找满足顺序约束的路径对齐，允许两条轨迹具有不同采样点数。常见归一化与成功加权形式为：
 
@@ -1651,27 +1651,27 @@ $$
 
 例如 $\lvert R\rvert=4$、$d_{th}=3$ m、DTW 为 6 m，则 nDTW 为 $e^{-0.5}\approx0.607$；若最终失败，该条 SDTW 为 0。另一条成功且 nDTW 为 0.8 时，两条轨迹的平均 nDTW 约 0.704，而 SDTW 为 0.4。成功加权必须先作用于每条轨迹，不能用总体 SR 乘总体 nDTW 替代。
 
-## 8.4 具身安全、物理交互与部署级指标
+## 8.4 安全与部署指标
 
-### 8.4.1 几何避障与社交安全指标
+### 8.4.1 避障与社交安全
 
 碰撞可以按动作步、接触事件或 episode 计数，三者分母不同。报告 Collision Rate / Human Collision Rate 时写出定义，并同时给出任务完成情况，避免“原地不动所以碰撞少”的误读。个人空间侵犯也不能简化为身体接触。
 
-### 8.4.2 动力学稳定性与不可逆故障指标
+### 8.4.2 动力学稳定性
 
 跌倒、卡住、急停与人工复位应分别记录。需要给出姿态或时间阈值、恢复预算，以及复位是否中断 episode。不同机器人形态的失败模式不同，不能合并为一个不带条件的具身成功率。
 
-### 8.4.3 系统级效率与控制实时性指标
+### 8.4.3 系统效率与实时性
 
 报告相机到动作执行的端到端延迟，注明均值与尾部延迟、硬件、批大小、输入分辨率、历史长度和模型调用方式。另列控制频率、显存、调用/token 成本、任务耗时与人工介入。模型单次前向 FPS 不等于机器人的有效控制频率。
 
-## 8.5 评测协议规范与演进趋势
+## 8.5 评测协议规范
 
-### 8.5.1 Val-Seen 与 Val-Unseen 的划分与边界
+### 8.5.1 Val-Seen 与 Val-Unseen
 
 Seen / Unseen 通常按基准场景划分，衡量同一任务内的场景泛化。它不自动保证大规模预训练时从未见过同源建筑、图像或衍生资产，也不等价于跨机器人、跨语言或真机泛化。
 
-### 8.5.2 公平对比检查清单 (Fair Comparison Checklist)
+### 8.5.2 公平对比清单
 
 - **输入相同**：相机数量、视场、深度、位姿与地图权限。
 - **任务相同**：数据版本、语言子集、episode、目标与停止判据。
@@ -1681,7 +1681,7 @@ Seen / Unseen 通常按基准场景划分，衡量同一任务内的场景泛化
 
 <a id="853-评测体系的历史演进与代际跃迁"></a>
 
-### 8.5.3 从榜单成绩到可复现证据
+### 8.5.3 可复现证据
 
 先确认结果属于论文哪个版本和哪张表，再核对官方评测器。VLN-CE 官方仓库曾明确说明，同一基线在论文与榜单上的 SPL 差异与硬件和 Habitat 构建有关；这说明协议与实现本身也是实验的一部分。[官方复现说明](https://github.com/jacobkrantz/VLN-CE#baseline-performance)。
 
@@ -1748,7 +1748,7 @@ Seen / Unseen 通常按基准场景划分，衡量同一任务内的场景泛化
 
 <a id="survey-practice"></a>
 
-## 9.2 从论文到实验：一条可复现的实施路径
+## 9.2 可复现的实施路径
 
 以下流程是本文的实验组织建议，适合将配套论文中的方法落实为可比较的系统。
 
@@ -1767,7 +1767,7 @@ Seen / Unseen 通常按基准场景划分，衡量同一任务内的场景泛化
 
 <a id="survey-open-questions"></a>
 
-## 9.3 已有证据、开放问题与研究判断
+## 9.3 开放问题与研究判断
 
 从本文讨论的工作可以得到几条**有明确适用范围的结论**：R4R 与路径指标说明到达和指令忠实度需要分别衡量；ETPNav、DualVLN 展示了规划与执行分工的具体实现；ScaleVLN 说明训练资源是解释性能的重要变量；VLN-PE 则提供了视觉与物理差距会影响导航表现的实验证据。这些结论分别来自[路径跟随研究](https://arxiv.org/abs/1905.12255)、[连续图规划](https://arxiv.org/abs/2304.03047)、[双系统设计](https://arxiv.org/abs/2512.08186)、[数据扩展](https://arxiv.org/abs/2307.15644)和[物理具身评测](https://arxiv.org/abs/2507.13019)，尚不足以推出一种通用于所有任务的最优架构。
 
@@ -1802,7 +1802,7 @@ Seen / Unseen 通常按基准场景划分，衡量同一任务内的场景泛化
 
 ## 10.1 数据集与基准
 
-### 10.1.1 指令导向与连续环境数据集
+### 10.1.1 指令导向与连续环境
 
 1. **R2R** — Anderson et al., *Vision-and-Language Navigation: Interpreting Visually-Grounded Navigation Instructions in Real Environments*, CVPR 2018. [[Paper]](https://arxiv.org/abs/1711.07280)
 2. **R4R** — Jain et al., *Stay on the Path: Instruction Fidelity in Vision-and-Language Navigation*, ACL 2019. [[Paper]](https://arxiv.org/abs/1905.12255)
@@ -1814,21 +1814,21 @@ Seen / Unseen 通常按基准场景划分，衡量同一任务内的场景泛化
 8. **InternData-N1** — InternRobotics（上海人工智能实验室），面向 InternVLA-N1 的大规模合成导航数据（LeRobot 格式），2025. [[Dataset]](https://huggingface.co/datasets/InternRobotics/InternData-N1) [[Code]](https://github.com/InternRobotics/InternNav)
 9. **VLNVerse** — Lin et al., *VLNVerse: A Benchmark for Vision-Language Navigation with Versatile, Embodied, Realistic Simulation and Evaluation*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2512.19021)
 
-### 10.1.2 目标导向与长程规划数据集
+### 10.1.2 目标导向与长程规划
 
 10. **REVERIE** — Qi et al., *REVERIE: Remote Embodied Visual Referring Expression in Real Indoor Environments*, CVPR 2020. [[Paper]](https://arxiv.org/abs/1904.10151)
 11. **REVERIE-CE** — 连续环境移植设定的统称，尚无统一官方协议；引用时以具体论文的转换实现为准，参见第 6.3.2 节。
 12. **SOON** — Zhu et al., *SOON: Scenario Oriented Object Navigation with Graph-based Exploration*, CVPR 2021. [[Paper]](https://arxiv.org/abs/2103.17138)
 13. **LHPR-VLN** — Song et al., *Towards Long-Horizon Vision-Language Navigation: Platform, Benchmark and Method*, CVPR 2025. [[Paper]](https://arxiv.org/abs/2412.09082)
 
-### 10.1.3 对话式与社交感知数据集
+### 10.1.3 对话式与社交感知
 
 14. **CVDN** — Thomason et al., *Vision-and-Dialog Navigation*, CoRL 2019. [[Paper]](https://arxiv.org/abs/1907.04957)
 15. **TEACh** — Padmakumar et al., *TEACh: Task-driven Embodied Agents that Chat*, AAAI 2022. [[Paper]](https://arxiv.org/abs/2110.00534)
 16. **HA-VLN** — Li et al., *Human-Aware Vision-and-Language Navigation: Bridging Simulation to Reality with Dynamic Human Interactions*, NeurIPS 2024 Datasets and Benchmarks Track. [[Paper]](https://arxiv.org/abs/2406.19236)
 17. **HA-VLN 2.0** — Dong et al., *HA-VLN 2.0: An Open Benchmark and Leaderboard for Human-Aware Navigation in Discrete and Continuous Environments*, IROS 2026（arXiv 首发 2025；核对 v5）. [[Paper]](https://arxiv.org/abs/2503.14229v5)
 
-### 10.1.4 需求导向、室外街景与空中数据集
+### 10.1.4 需求导向、街景与空中
 
 18. **DDN** — Wang et al., *Find What You Want: Learning Demand-conditioned Object Attribute Space for Demand-driven Navigation*, NeurIPS 2023. [[Paper]](https://arxiv.org/abs/2309.08138)
 19. **Touchdown** — Chen et al., *Touchdown: Natural Language Navigation and Spatial Reasoning in Visual Street Environments*, CVPR 2019. [[Paper]](https://arxiv.org/abs/1811.12354)
@@ -1848,13 +1848,13 @@ Seen / Unseen 通常按基准场景划分，衡量同一任务内的场景泛化
 26. **Recurrent VLN-BERT** — Hong et al., *A Recurrent Vision-and-Language BERT for Navigation*, CVPR 2021. [[Paper]](https://arxiv.org/abs/2011.13922)
 27. **HAMT** — Chen et al., *History Aware Multimodal Transformer for Vision-and-Language Navigation*, NeurIPS 2021. [[Paper]](https://arxiv.org/abs/2110.13309)
 
-### 10.2.2 拓扑图、语义地图与空间记忆
+### 10.2.2 拓扑图与空间记忆
 
 28. **DUET** — Chen et al., *Think Global, Act Local: Dual-scale Graph Transformer for Vision-and-Language Navigation*, CVPR 2022. [[Paper]](https://arxiv.org/abs/2202.11742)
 29. **ETPNav** — An et al., *ETPNav: Evolving Topological Planning for Vision-Language Navigation in Continuous Environments*, IEEE TPAMI 2024. [[Paper]](https://arxiv.org/abs/2304.03047)
 30. **LagMemo** — Zhou et al., *LagMemo: Language 3D Gaussian Splatting Memory for Multi-modal Open-vocabulary Multi-goal Visual Navigation*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2510.24118)
 
-### 10.2.3 快慢双系统与导航基础模型
+### 10.2.3 快慢双系统
 
 31. **DualVLN** — Wei et al., *Ground Slow, Move Fast: A Dual-System Foundation Model for Generalizable Vision-and-Language Navigation*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2512.08186)
 32. **NaVILA** — Cheng et al., *NaVILA: Legged Robot Vision-Language-Action Model for Navigation*, RSS 2025. [[Paper]](https://arxiv.org/abs/2412.04453)
@@ -1863,7 +1863,7 @@ Seen / Unseen 通常按基准场景划分，衡量同一任务内的场景泛化
 35. **OmniNav** — Xue et al., *OmniNav: A Unified Framework for Prospective Exploration and Visual-Language Navigation*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2509.25687)
 36. **Qwen-RobotNav** — Zhang et al., *Qwen-RobotNav Technical Report: A Scalable Navigation Model Designed for an Agentic Navigation System*, arXiv 2026. [[Paper]](https://arxiv.org/abs/2606.18112)
 
-### 10.2.4 端到端视频 VLM 与连续环境策略
+### 10.2.4 视频 VLM 与连续策略
 
 37. **Waypoint Models** — Krantz et al., *Waypoint Models for Instruction-guided Navigation in Continuous Environments*, ICCV 2021. [[Paper]](https://arxiv.org/abs/2110.02207)
 38. **NaVid** — Zhang et al., *NaVid: Video-based VLM Plans the Next Step for Vision-and-Language Navigation*, RSS 2024. [[Paper]](https://arxiv.org/abs/2402.15852)
@@ -1877,7 +1877,7 @@ Seen / Unseen 通常按基准场景划分，衡量同一任务内的场景泛化
 43. **NoMaD** — Sridhar et al., *NoMaD: Goal Masked Diffusion Policies for Navigation and Exploration*, ICRA 2024. [[Paper]](https://arxiv.org/abs/2310.07896)
 44. **ViPlanner** — Roth et al., *ViPlanner: Visual Semantic Imperative Learning for Local Navigation*, ICRA 2024. [[Paper]](https://arxiv.org/abs/2310.00982)
 
-### 10.2.6 世界模型与世界动作模型
+### 10.2.6 世界模型
 
 45. **Navigation World Models (NWM)** — Bar et al., *Navigation World Models*, CVPR 2025. [[Paper]](https://arxiv.org/abs/2412.03572) [[Project]](https://www.amirbar.net/nwm/)
 46. **Dynam3D** — Wang et al., *Dynam3D: Dynamic Layered 3D Tokens Empower VLM for Vision-and-Language Navigation*, NeurIPS 2025. [[Paper]](https://arxiv.org/abs/2505.11383)
@@ -1887,7 +1887,7 @@ Seen / Unseen 通常按基准场景划分，衡量同一任务内的场景泛化
 50. **DreamVLA** — Zhang et al., *DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge*, NeurIPS 2025. [[Paper]](https://arxiv.org/abs/2507.04447) [[Project]](https://zhangwenyao1.github.io/DreamVLA/)
 51. **NVIDIA Cosmos** — NVIDIA, *Cosmos World Foundation Model Platform for Physical AI*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2501.03575) [[Project]](https://www.nvidia.com/en-us/ai/cosmos/)
 
-### 10.2.7 Agent、自我进化与通用 VLA
+### 10.2.7 Agent 与通用 VLA
 
 52. **AgentVLN** — Xin et al., *AgentVLN: Towards Agentic Vision-and-Language Navigation*, arXiv 2026. [[Paper]](https://arxiv.org/abs/2603.17670) [[Code]](https://github.com/Allenxinn/AgentVLN)
 53. **SE-VLN** — Dong et al., *SE-VLN: A Self-Evolving Vision-Language Navigation Framework Based on Multimodal Large Language Models*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2507.13152)
@@ -1916,7 +1916,7 @@ Seen / Unseen 通常按基准场景划分，衡量同一任务内的场景泛化
 
 ---
 
-## 10.5 强化学习与闭环后训练
+## 10.5 强化学习与后训练
 
 66. **DAgger** — Ross et al., *A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning*, AISTATS 2011. [[Paper]](https://arxiv.org/abs/1011.0686)
 67. **RCM** — Wang et al., *Reinforced Cross-Modal Matching and Self-Supervised Imitation Learning for Vision-Language Navigation*, CVPR 2019. [[Paper]](https://arxiv.org/abs/1811.10092)

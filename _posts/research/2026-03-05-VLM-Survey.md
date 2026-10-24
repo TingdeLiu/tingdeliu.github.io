@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vlm-survey
 title: "VLM 综述"
-date:   2026-09-29
+date: 2026-10-24
 tags: [VLM, Computer Vision, Deep Learning, Multimodal]
 categories: research
 comments: true
@@ -122,7 +122,7 @@ flowchart LR
 
 本章以当前主流的 **decoder-only（仅解码器）Transformer** 为对象，沿着数据流向依次拆解：分词（3.2）、嵌入（3.3）、Transformer 解码器堆叠（3.4）、输出层（3.5）、解码采样（3.6）、自回归生成与 KV Cache（3.7），最后说明这条流水线如何被改造为多模态入口（3.8）。
 
-## 3.1 LLM 的本质：自回归的下一个词预测
+## 3.1 自回归预测
 
 今天几乎所有主流 LLM（GPT、LLaMA、Qwen、InternLM 等）都是 **decoder-only 的自回归语言模型**。它做的事情本质上只有一件：**给定前面所有的词，预测下一个词**。
 
@@ -153,7 +153,7 @@ flowchart LR
 
 下面逐段拆解这条流水线上的每一个环节。
 
-## 3.2 文本输入（一）：分词 Tokenization
+## 3.2 分词
 
 计算机无法直接处理文字，第一步是把字符串切分成模型词表（vocabulary）中的基本单元——**token**，再把每个 token 映射为一个整数 ID。这一步称为**分词**（Tokenization）。
 
@@ -169,7 +169,7 @@ LLM 常采用 **子词分词**（subword tokenization），常见方法包括 BP
 
 经过分词，输入文本变成一串整数 token ID，例如 `[1, 345, 1820, 9, ...]`，这串整数就是送入模型的真正输入。
 
-## 3.3 文本输入（二）：嵌入与位置编码
+## 3.3 嵌入与位置编码
 
 整数 ID 本身没有语义，需要先转换为稠密向量。模型维护一张**嵌入矩阵** $E \in \mathbb{R}^{V \times d}$（$V$ 为词表大小，$d$ 为隐藏维度），第 $i$ 个 token 的嵌入向量就是按其 ID 在矩阵中查表得到的那一行：
 
@@ -182,7 +182,7 @@ $$\mathbf{x}_i = E[\,t_i\,], \quad \mathbf{x}_i \in \mathbb{R}^{d}$$
 - **绝对位置编码**：早期 Transformer/GPT 把可学习或正弦的位置向量 $$\mathbf{p}_i$$ 直接加到词嵌入上，即 $$\mathbf{x}_i = E[\,t_i\,] + \mathbf{p}_i$$；
 - **旋转位置编码（RoPE）**：现代 LLM（LLaMA、Qwen 等）主流方案，不再相加，而是在注意力计算时对 query/key 向量施加与位置相关的旋转，使注意力分数天然编码相对位置。RoPE 直接外推到训练长度之外时效果会下降，但配合位置插值（PI、NTK-aware、YaRN 等）可以较低成本扩展上下文；它也更易推广到多模态的二维/三维位置（VLM 中的 M-RoPE 即源于此，见 6.3 节）。
 
-## 3.4 核心计算：Transformer 解码器堆叠
+## 3.4 Transformer 解码器
 
 带位置信息的输入序列会依次穿过 $L$ 个结构相同的 **Transformer 解码器层**（典型 $L$ 从 7B 模型的 32 层到 70B 级模型的 80 层）。每一层包含两个核心子模块，并均配有残差连接（residual）与层归一化（LayerNorm / RMSNorm，现代模型多用 Pre-Norm）：
 
@@ -200,7 +200,7 @@ $$\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}} +
 
 逐层堆叠后，序列中每个位置都得到一个融合了全部上文语义的**最终隐状态** $$\mathbf{h}_i^{(L)} \in \mathbb{R}^{d}$$。其中最后一个位置的隐状态 $$\mathbf{h}_n^{(L)}$$ 浓缩了“在已有上文条件下，下一个词应该是什么”的全部信息。
 
-## 3.5 文本输出（一）：从隐状态到词表概率
+## 3.5 从隐状态到词表概率
 
 要把隐状态变回“词”，需要经过**输出层（LM Head）**——一个线性映射 $W_o \in \mathbb{R}^{V \times d}$（很多模型让它与输入嵌入矩阵 $E$ 共享权重，称为 weight tying）。它把 $d$ 维隐状态投影回 $V$ 维的**logits**（每个词表项一个未归一化分数），再经 softmax 得到下一个 token 的概率分布：
 
@@ -208,7 +208,7 @@ $$P(t_{i+1} \mid t_1, \ldots, t_i) = \text{softmax}\!\left(W_o\, \mathbf{h}_i^{(
 
 输出是一个长度为 $V$ 的概率向量，每一维对应词表中一个 token 的“接下来出现”的概率。至此，模型完成了一次完整的“前向传播”，把输入序列变成了对下一个 token 的概率预测。
 
-## 3.6 文本输出（二）：解码策略与采样
+## 3.6 解码与采样
 
 拿到概率分布后，如何从中**选出**一个具体的 token，称为**解码（decoding）**或**采样（sampling）**策略。不同策略在“确定性/质量”与“多样性/创造性”之间做权衡：
 
@@ -249,7 +249,7 @@ flowchart LR
 
 KV Cache 也带来**显存与长度的矛盾**。设当前上下文长为 $n$，固定模型维度时，缓存空间随 $n$ 线性增长；使用缓存后，**单步 decode 的注意力计算为 $O(n)$**，而标准全注意力的 prefill 计算为 $O(n^2)$。生成 $m$ 个 token 时，decode 的累计注意力计算约为 $O(mn+m^2)$。因此，图像和视频增加的视觉 token 会同时推高首 token 延迟、后续解码开销与缓存占用，压缩方法见第 4.6 节。
 
-## 3.8 从 LLM 到 VLM：视觉如何接入这条流水线
+## 3.8 从 LLM 到 VLM
 
 文本最终以 $d$ 维嵌入序列进入 Transformer，视觉特征也可以转换为这一接口所需的向量。**维度匹配只解决接口问题，图文训练才使语言模型学会利用视觉信息。** 以 LLaVA 的输入拼接路线为例：
 
@@ -285,7 +285,7 @@ KV Cache 也带来**显存与长度的矛盾**。设当前上下文长为 $n$，
 
 *代表性工作*：**CLIP**（OpenAI, 2021）、**ALIGN**（Google, 2021）、**BLIP**（Salesforce, 2022）、**SigLIP**（Google, 2023）
 
-### CLIP（Contrastive Language-Image Pre-training）
+### CLIP
 
 CLIP是对比学习范式的奠基性工作。OpenAI从互联网上收集了4亿个图文对（WIT数据集），分别训练图像编码器（ViT或ResNet）和文本编码器（Transformer），通过最大化正样本对相似度、最小化负样本对相似度来对齐视觉与语言空间。
 
@@ -304,7 +304,7 @@ CLIP最大的突破在于**零样本迁移**：通过将类别名嵌入为文本
 
 ---
 
-### BLIP（Bootstrapping Language-Image Pre-training）
+### BLIP
 
 BLIP提出了**多目标联合预训练**框架，同时优化三个目标：
 - **ITC**（Image-Text Contrastive）：对比对齐，继承CLIP思路
@@ -396,7 +396,7 @@ InstructBLIP在BLIP-2基础上引入**指令感知（instruction-aware）**的Q-
 
 *代表性工作*：**LLaVA**（2023）、**LLaVA-1.5**（2023）、**LLaVA-NeXT**（2024）、**MiniGPT-4**（2023）
 
-### LLaVA（Large Language and Vision Assistant）
+### LLaVA
 
 LLaVA提出了一套极简而有效的视觉指令微调框架：
 
@@ -456,11 +456,11 @@ Qwen2.5-VL是阿里巴巴推出的高性能开源VLM，在多模态处理技术�
 
 这些结果需要结合评测版本与输入配置解读。Qwen2.5-VL 仍采用 **ViT + MLP merger + Qwen2.5 LLM** 的模块化架构；动态分辨率是输入处理机制，不意味着取消连接模块，也不意味着支持图像生成。结构与实验设置参见 [Qwen2.5-VL 技术报告](https://arxiv.org/html/2502.13923v1)。
 
-### 全模态与推理增强：GPT-4o、o3 与 Gemini 2.5
+### 全模态与推理增强
 
 GPT-4o、o3 与 Gemini 2.5 常作为多模态交互或推理评测的商业模型参照，但不能仅凭输出效果推断其视觉微调流程。理解这类模型时，应区分**感知是否准确、推理是否有效、工具调用是否可靠**；更长的推理过程无法补回输入阶段丢失的视觉细节。开源模型的具体训练机制可结合第 8.10 节 Qwen3-VL 解读。
 
-### 统一理解与生成的解耦架构：Janus / Janus-Pro 与 Chameleon
+### 理解与生成解耦
 
 传统统一多模态生成模型（如早期的 Emu 或 GILL）在统一“图像理解”与“图像生成”时常面临**特征表示冲突**：
 - **理解任务（Understanding）**：需要高层次、抽象且语义密集的连续特征表示（如 SigLIP / CLIP 编码器提取的连续向量），以忽略像素级噪声、捕获全局语义；
@@ -547,13 +547,13 @@ MiniGPT-4证明了极简对齐方案的可行性：仅用一个**线性投影层
 
 端侧模型的评测分数对分辨率、tile 数和提示模板尤其敏感，跨模型比较应以同一评测框架（如 VLMEvalKit、lmms-eval）重跑的结果为准。
 
-### 视觉嵌入表：Ovis 的结构化对齐
+### Ovis 视觉嵌入表
 
 **Ovis**（AIDC-AI）关注的是连接模块本身：LLM 的文本 token 通过查嵌入表得到向量，而普通 MLP 投影直接输出连续视觉特征，两者结构不对称。Ovis 为视觉侧也引入一张可学习的**视觉嵌入表**：视觉 patch 先被映射为"视觉词表"上的概率分布，再按概率对嵌入表加权求和，得到与文本嵌入结构一致的视觉 token。Ovis2-34B 由 aimv2-1B 视觉编码器与 Qwen2.5-32B-Instruct 组成，同样复用预训练 LLM 并经过多阶段训练；它与 LLaVA、Qwen-VL 的区别在于视觉 token 的生成方式，而不在于是否复用 LLM。
 
 ---
 
-## 4.7 视觉特征提取：ViT与视觉编码器的演进
+## 4.7 视觉编码器演进
 
 实现高质量多模态融合的前提是强大的视觉表示。VLM中视觉编码器的设计经历了从早期CNN区域特征提取到Transformer全局特征建模，再到大尺度对比学习和动态高分辨率适配的重大转变。
 
@@ -569,7 +569,7 @@ MiniGPT-4证明了极简对齐方案的可行性：仅用一个**线性投影层
 - **纯视觉自监督路线**（2021至今）：以 DINO、DINOv2 为代表，摆脱语言标注偏置，通过自蒸馏与掩码重建学习高空间一致性的 patch 特征，适合定位与密集预测。
 - **高分辨率与动态切片时代**（2023至今）：支持任意长宽比、高分辨率输入的动态编码方案（如 AnyRes、Naive Dynamic Resolution），以保留细粒度文档及 OCR 信息。
 
-### Vision Transformer（ViT）工作原理
+### ViT 工作原理
 
 ViT 颠覆了传统的卷积神经网络结构，直接将 Transformer 架构应用于图像处理。其核心是将连续图像离散化为 Token 序列，与文本的 Token 化处理高度契合：
 
@@ -589,7 +589,7 @@ ViT 颠覆了传统的卷积神经网络结构，直接将 Transformer 架构应
 
 主流 VLM 的视觉编码器多为在 CLIP 或 SigLIP 目标下训练的 ViT：LLaVA 系列用 CLIP ViT-L/14（约 304M 参数），PaliGemma 与 Qwen3-VL 用 SigLIP / SigLIP 2 的 So400m（约 400M），BLIP-2 用 EVA-CLIP ViT-g/14（约 1B）。
 
-### CLIP 与 SigLIP 视觉编码器：图文对比对齐范式
+### CLIP 与 SigLIP 编码器
 
 为什么对比学习训练出的 ViT 会成为 VLM 的绝对主流？因为**在对比学习中，视觉特征已经被“语言化”了**。
 
@@ -608,7 +608,7 @@ $$L_{\text{SigLIP}} = -\frac{1}{B} \sum_{i=1}^{B} \sum_{j=1}^{B} \log \sigma \le
 其中，当且仅当 $i=j$（正样本对）时 $$y_{ij} = 1$$，否则为 $$-1$$；$$c, b$$ 是可学习的缩放与偏置参数。
 - **SigLIP 的优势**：无需对全部图文对进行 softmax 归一化，损失更易分块计算，减少了相关的显存与同步负担。它仍需要负样本和梯度同步；效果也受训练数据、batch 与模型规模影响，不能只归因于损失函数。
 
-### InternViT 与大尺度视觉编码器缩放 (Scaling)
+### InternViT 与编码器缩放
 
 随着大语言模型扩展到数百亿甚至数千亿参数，视觉编码器是否也需要同步放大？InternVL 的出发点是：约 300M 参数的 ViT-L 与 70B 级 LLM 在参数规模上相差两个数量级，可能成为表征瓶颈。
 
@@ -617,7 +617,7 @@ InternVL 系列因此将视觉编码器扩展到 **InternViT-6B**（约 5.9B 参
 - **表征可在不同 LLM 间复用**：InternVL2.5 先让 ViT 与较小 LLM 联合训练，再把它接到更大的 LLM 上继续训练而无需重训 ViT（progressive scaling，见 6.4 节）。
 - **代价**：6B 视觉编码器显著推高推理成本；Qwen2.5-VL（约 675M ViT）与 Qwen3-VL（SigLIP 2 So400m）说明，靠数据与训练配方而非单纯放大 ViT 也能取得强结果。视觉编码器规模与 LLM 规模之间并没有公认的最优配比。
 
-### 高分辨率与动态切片方案 (Any-Resolution)
+### 高分辨率与动态切片
 
 传统的 ViT 将输入图像固定缩放为单分辨率（如 $224 \times 224$ 或 $336 \times 336$），但这会严重破坏长宽比，并导致高细粒度图像（如表格、网页截图、PDF 文档）中的小文字完全模糊。为了解决高分辨率输入与 Transformer 计算复杂度之间的矛盾，业界演进出了以下几种主流方案：
 
@@ -642,7 +642,7 @@ Qwen 系列不切 tile，而是让 ViT 直接处理整张变尺寸图像：
   <figcaption>图 4.7.2：任意分辨率 ViT 动态切片与 Token 拼接机制示意图</figcaption>
 </div>
 
-### DINOv2：纯视觉自监督的另一条路线
+### DINOv2 自监督路线
 
 CLIP / SigLIP 用语言监督训练视觉编码器，[DINOv2](https://arxiv.org/abs/2304.07193)（Meta，TMLR 2024）则**全程不使用文字**：学生网络学习匹配 EMA 教师网络在不同裁剪视图上的输出（图像级 DINO 损失 + patch 级掩码 iBOT 损失），并在精选的 1.42 亿张图像（LVD-142M）上训练。两条路线的特征各有侧重：
 
@@ -685,25 +685,25 @@ CLIP / SigLIP 用语言监督训练视觉编码器，[DINOv2](https://arxiv.org/
 
 下面按"输入—输出"形式列出 VLM 的常见任务。前六类以单轮感知与理解为主，GUI Agent 则要求模型在环境中连续决策。
 
-## 5.1 图像描述（Image Captioning）
+## 5.1 图像描述
 
 给定图像，生成自然语言描述。是最基础的视觉生成任务，也是VLM训练的常见预训练目标之一。
 
 *代表性数据集*：COCO Captions、nocaps、Flickr30k
 
-## 5.2 视觉问答（Visual Question Answering, VQA）
+## 5.2 视觉问答（VQA）
 
 给定图像和问题，输出答案。分为开放式（生成型）和闭集（分类型）两种形式。
 
 *代表性数据集*：VQA v2、OK-VQA、GQA、ScienceQA
 
-## 5.3 视觉推理（Visual Reasoning）
+## 5.3 视觉推理
 
 要求模型对图像进行多步推理，如计数、空间关系判断、因果推断等。
 
 *代表性数据集*：NLVR2、CLEVR、MMStar、MMBench
 
-## 5.4 视觉定位（Visual Grounding / Referring Expression Comprehension）
+## 5.4 视觉定位
 
 根据自然语言描述，在图像中定位目标区域（通常输出 2D 边界框 $$[x_1, y_1, x_2, y_2]$$）。
 
@@ -711,19 +711,19 @@ CLIP / SigLIP 用语言监督训练视觉编码器，[DINOv2](https://arxiv.org/
 
 > 📌 **进阶延伸（3D 视觉定位）**：在机器人操控与具身交互场景中，视觉定位已进一步拓展至三维点云与 3D 空间定向包围盒（$$[x, y, z, dx, dy, dz, r, p, y]$$）。相关代表性基准（ScanRefer、EmbodiedScan）与 3D 定位模型，详见 [《空间智能综述：4.5 空间感知语言模型》](/Spatial-Intelligence-Survey/#scanrefer--scanqa)。
 
-## 5.5 文档与图表理解（Document / Chart Understanding）
+## 5.5 文档与图表理解
 
 理解包含文字、表格、图表的复杂文档图像，是近年VLM能力提升的重点方向。
 
 *代表性数据集*：DocVQA、ChartQA、TextVQA、OCRBench
 
-## 5.6 图文检索（Image-Text Retrieval）
+## 5.6 图文检索
 
 给定图像检索相关文本（或反之），是对比学习范式的核心应用场景。
 
 *代表性数据集*：MSCOCO Retrieval、Flickr30k Retrieval
 
-## 5.7 GUI Agent / 多模态智能体（GUI Automation）
+## 5.7 GUI Agent
 
 VLM 正从"被动理解"演化为"主动执行"：感知屏幕状态、规划操作序列、执行鼠标键盘动作。这要求模型具备四项核心能力——**精确视觉定位**（在截图中定位按钮、输入框等 UI 元素）、**操作序列规划**（将"帮我订机票"分解为具体操作步骤）、**状态追踪**（判断操作是否成功并实现错误恢复）、**跨应用协同**。
 
@@ -752,7 +752,7 @@ VLM 的训练旨在将视觉的感性认知与语言的理性推理相结合，�
 
 ---
 
-## 6.1 经典三阶段训练范式 (Three-Stage Training Pipeline)
+## 6.1 三阶段训练范式
 
 可以将训练目标概括为**模态对齐 → 多任务预训练 → 指令微调**。这是一种分析框架，不是所有模型都必须执行的固定三阶段配方：LLaVA 与 MiniGPT-4 的原始方案采用两阶段训练，不同模型也会合并或细分阶段。下图展示一种逐步解冻的方案；具体可训练模块与数据规模需以对应配方为准。
 
@@ -799,19 +799,19 @@ flowchart TD
     Stage1 --> Stage2 --> Stage3
 ```
 
-### 1. 第一阶段：模态特征对齐（Pre-training / Alignment）
+### 1. 模态对齐
 *   **训练目标**：将视觉特征投影到大语言模型的文本嵌入空间，建立最初步的"语义桥梁"。
 *   **参数冻结策略**：**冻结**视觉编码器（Vision Encoder）与大语言模型（LLM），**仅训练**连接模块（Connector / Projection layer，如简单的 MLP 投影层、Q-Former 或 Cross-Attention 层）。
 *   **训练数据**：海量、弱监督的短文本图文对（通常为数千万至数亿对），如 LAION-5B、CC3M、CC12M。这一阶段的数据噪音较大，但可以提供宽广的视觉概念覆盖。
 *   **核心逻辑**：这一阶段模型主要进行"概念配对"，即让 LLM 认识到图像中的实体与特定的文本 token 存在映射关系。由于 LLM 保持冻结，其原本的语言生成和推理能力不会受到干扰。
 
-### 2. 第二阶段：多任务联合预训练（Joint Pre-training）
+### 2. 多任务联合预训练
 *   **训练目标**：提升模型在细粒度视觉任务（如定位、密集文本阅读 OCR、高精度视觉问答等）上的泛化能力，实现深度的跨模态感知。
 *   **参数冻结策略**：通常**全部解冻**（Unfreeze），包括视觉编码器、连接模块和 LLM。在某些轻量级微调方案中，也会选择冻结视觉编码器或对其使用 LoRA。
 *   **训练数据**：高质量、混合格式的多任务多模态数据集（例如，包含边界框定位 Grounding、密集 OCR 识别、图表解析和长视频描述的混合数据）。
 *   **核心逻辑**：通过让视觉编码器也参与参数更新，模型可以根据跨模态任务的要求对视觉表示进行自适应微调（例如，学习识别图像中极小的文字或精确的目标边界）。这使得模型在处理细粒度特征时更加得心应手。
 
-### 3. 第三阶段：监督指令微调（Supervised Fine-Tuning, SFT）
+### 3. 指令微调（SFT）
 *   **训练目标**：使模型对齐人类的对话习惯、遵循复杂的推理指令，形成类似 Chat 助手的交互式对话能力。
 *   **参数冻结策略**：**解冻 LLM 和连接模块**，通常**冻结视觉编码器**（防止在纯文本指令微调和多模态对话训练中出现视觉特征的灾难性遗忘，并保护 LLM 原有的纯文本性能）。
 *   **训练数据**：精心清洗的高质量指令跟随数据集（通常在几万到百万级），例如 LLaVA-Instruct、ShareGPT4V，以及通过 GPT-4/GPT-4V 自动生成的复杂多轮对话数据。
@@ -819,7 +819,7 @@ flowchart TD
 
 ---
 
-## 6.2 偏好对齐与后训练 (Preference Alignment & Post-Training)
+## 6.2 偏好对齐与后训练
 
 随着 VLM 被广泛应用于复杂的实际场景，仅通过 SFT 训练的模型仍面临两个严峻问题：**多模态幻觉（Multimodal Hallucination）**（即编造图像中不存在的物体或关系）以及**生成格式失控/对齐不良**。为此，现代 VLM 开始引入后训练（Post-training）偏好对齐技术。
 
@@ -843,14 +843,14 @@ flowchart LR
     end
 ```
 
-### 1. 直接偏好优化 (Direct Preference Optimization, DPO)
+### 1. DPO
 在多模态场景下，研究者会收集或使用强模型（如 GPT-4V）来评判 VLM 自身的输出，从而构建偏好对齐数据集：
 - **更优样本 ($y_w$)**：准确描述图像、无幻觉且符合人类偏好的回答。
 - **更差样本 ($y_l$)**：包含事实错误、视觉幻觉或格式混乱的回答。
 
 DPO 不单独训练奖励模型，而是直接在偏好对上提高 $y_w$ 相对于 $y_l$ 的对数似然比（以参考模型为基准），从而降低幻觉回答的概率。Qwen2.5-VL 的后训练即采用 SFT + DPO 两步（ViT 冻结）。
 
-### 2. 群体相对策略优化 (Group Relative Policy Optimization, GRPO)
+### 2. GRPO
 训练推理型模型时，传统的 PPO (Proximal Policy Optimization) 需要一个与策略模型规模相当的 Critic（价值模型）来估计优势，显存与计算开销都很大。
 
 GRPO（出自 DeepSeekMath，后被 DeepSeek-R1 采用）针对每个问题采样一组输出，用组内奖励的均值和标准差对每条输出的奖励做归一化，作为优势估计，从而省去 Critic 模型：
@@ -876,7 +876,7 @@ GRPO（出自 DeepSeekMath，后被 DeepSeek-R1 采用）针对每个问题采�
 
 推理增强模型出现后，这些数字又被明显刷新（如 Qwen3-VL-235B-Thinking 的 MathVista 为 85.8，见 8.10 节）。
 
-### 4. 视觉慢思考（Visual Slow Thinking）与多模态测试时计算扩展 (Test-Time Compute)
+### 4. 视觉慢思考
 
 2025 年起，OpenAI o3 的"thinking with images"、开源侧的 R1-V 类 RLVR 工作以及 Qwen3-VL Thinking 等模型，推动多模态模型**从单次作答（System 1 式快速感知）走向先推理再作答（System 2 式慢思考）**。下图是对这类流程的概念示意，并非某个模型的具体实现。
 
@@ -916,11 +916,11 @@ flowchart LR
 
 ---
 
-## 6.3 核心技术关键点 (Key Training Technologies)
+## 6.3 关键训练技术
 
 要想让 VLM 训练既高效又精确，离不开一系列底层架构与算法的支撑：
 
-### 1. 原生动态分辨率 (Naive Dynamic Resolution)
+### 1. 原生动态分辨率
 早期的 VLM（如 LLaVA-1.0）通常强行将不同宽高比的图像裁剪并缩放为固定的方形像素（如 $224 \times 224$ 或 $336 \times 336$）。这导致长条形图片被拉伸变形、细小物体失真，且高分辨率图像信息丢失严重，无法识别小字（OCR）。
 
 **动态分辨率方案**有两条主流实现（细节见 4.7 节）：
@@ -940,7 +940,7 @@ flowchart LR
     MROPE --> LLM["LLM 融合理解"]:::concept
 ```
 
-### 2. 多模态旋转位置编码 (Multimodal Rotary Position Embedding, M-RoPE)
+### 2. M-RoPE
 在传统的 LLM 中，RoPE 是一维的（只对文本顺序编码）。但在多模态输入下，图像包含二维空间坐标（高度 $H$、宽度 $W$），视频则包含三维空间+时间坐标（时间 $T$、高度 $H$、宽度 $W$）。
 
 **M-RoPE** 的解决方案：
@@ -950,11 +950,11 @@ flowchart LR
 
 ---
 
-## 6.4 训练超参数实战指南 (Hyperparameter Tuning in Practice)
+## 6.4 超参数实战
 
 论文中的超参数表往往只告诉你"最终用了什么值"，但实践中更有价值的是：**为什么是这些值？当自己的算力、数据与论文不同时，该往哪个方向调？**本节把 VLM 训练中最关键的几组超参数逐一拆解。
 
-### 1. 第一原则：分模块差异化学习率
+### 1. 分模块学习率
 
 连接模块、ViT 与 LLM 的初始化和训练历史不同，**应分别检查它们是否需要不同学习率**。分模块设置是常见起点，统一学习率也可以有效；判断依据是冻结策略、梯度稳定性与验证表现。下表的数值是部分配方的量级参考，不是通用最优值：
 
@@ -1040,7 +1040,7 @@ $$\eta' = \eta \cdot \frac{B'}{B} \;\text{（线性缩放规则，适用于 SGD�
 
 **训几个 epoch？**可从公开配方的训练轮数或 token 预算起步，再根据验证表现调整。过拟合出现的时间取决于数据量、重复率、质量和模型容量，不存在固定的“第 2～3 轮”界限；重复高质量数据与引入新数据之间，也需要通过实验比较。
 
-### 5. 数据配比：防止文本能力退化
+### 5. 数据配比
 
 多模态训练会天然侵蚀 LLM 的纯文本能力——VILA 的消融显示，只用图文对训练会让纯文本任务精度**下跌 17% 以上**。常用对策有两个：
 
@@ -1083,7 +1083,7 @@ flowchart TD
 
 ---
 
-## 6.5 训练监控与 Loss 曲线解读 (Monitoring & Reading Loss Curves)
+## 6.5 训练监控与 Loss 曲线
 
 VLM 训练动辄几天到几周，**及时从曲线中读出问题**远比事后补救便宜。本节回答两个问题：盯什么、怎么读。
 
@@ -1171,7 +1171,7 @@ $$\mathcal{L}_0 \approx \ln |V|$$
 - **梯度裁剪 max_norm=1.0** 是几乎所有大模型训练的标配兜底（PaLM、LLaMA、LLaVA 均为 1.0；OPT 为求稳中途降到 0.3）。但若 grad norm **长期贴着裁剪阈值**，说明学习率设大了——裁剪只应偶尔触发，不应常态化；
 - **按模块分组记录**：embedding、attention、FFN、投影层分开记 grad norm，能精确定位问题层——GLM-130B 正是这样发现 embedding 层的梯度异常。VLM 中还要确认冻结边界是否真的冻结（如阶段一中 LLM 与 ViT 的 grad norm 应恒为 0）。
 
-### 5. loss 之外：一定要在训练中跑评测
+### 5. 训练中跑评测
 
 **loss 低不等于能力强**。SFT 的 loss 衡量的是"复读参考答案的精确度"，与"回答得好不好"只有松散关联；更隐蔽的是，幻觉率可能在 loss 同步下降的同时不降反升（模型学会了更流利地编造）。因此：
 
@@ -1182,7 +1182,7 @@ $$\mathcal{L}_0 \approx \ln |V|$$
 
 ---
 
-## 6.6 常见训练问题排查 (Troubleshooting)
+## 6.6 训练问题排查
 
 把 6.4、6.5 节的要点收敛为一棵决策树，训练出问题时按图索骥：
 
@@ -1213,7 +1213,7 @@ flowchart TD
 
 ---
 
-## 6.7 案例剖析：Qwen-VL系列训练演进 (Case Study: Evolution of Qwen-VL Training)
+## 6.7 案例：Qwen-VL 训练演进
 
 阿里巴巴开源的 Qwen-VL（通义千问视觉语言模型）系列是被广泛使用的开源 VLM。从 Qwen-VL 到 Qwen2-VL、Qwen2.5-VL，再到 Qwen3-VL，四代模型的技术报告都公开了较完整的训练阶段划分，适合用来观察训练配方的演进。
 
@@ -1346,7 +1346,7 @@ LAION-5B由LAION非营利组织发布，从Common Crawl中筛选出图文对，�
 
 ---
 
-## 7.2 COCO（Common Objects in Context）
+## 7.2 COCO
 
 | 属性 | 内容 |
 |------|------|
@@ -1411,7 +1411,7 @@ ScienceQA 要求模型结合图像和文本进行科学领域的多步推理，�
 
 ---
 
-## 7.7 MMMU & MMMU-Pro（大学级多学科多模态理解）
+## 7.7 MMMU & MMMU-Pro
 
 | 属性 | 内容 |
 |------|------|
@@ -1424,7 +1424,7 @@ MMMU（Massive Multi-discipline Multimodal Understanding）被公认为多模态
 
 ---
 
-## 7.8 MathVista & MathVision（多模态数学与几何视觉推理）
+## 7.8 MathVista & MathVision
 
 | 属性 | 内容 |
 |------|------|
@@ -1437,7 +1437,7 @@ MMMU（Massive Multi-discipline Multimodal Understanding）被公认为多模态
 
 ---
 
-## 7.9 Video-MME（综合长视频多模态评测）
+## 7.9 Video-MME
 
 | 属性 | 内容 |
 |------|------|
@@ -1450,7 +1450,7 @@ MMMU（Massive Multi-discipline Multimodal Understanding）被公认为多模态
 
 ---
 
-## 7.10 OSWorld & ScreenSpot（GUI Agent 计算机操作与定位基准）
+## 7.10 OSWorld & ScreenSpot
 
 | 属性 | 内容 |
 |------|------|
@@ -1476,7 +1476,7 @@ MVL-SIB 揭示了多模态的"语言公平性"瓶颈：低资源语言下，即�
 
 ---
 
-## 7.12 评测趋势：从静态 VQA 向交互、时序、多语言扩展
+## 7.12 评测趋势
 
 2025 年以来，VLM 评测呈现三个重要趋势：**Agent 导向评测**（将多模态任务与工具调用绑定，统一测试感知-规划-执行能力）、**时序知识新鲜度**（专门构造训练截止后的新闻与稀有知识，测试知识时效性）、**空间与 3D 推理**（多视角场景问答、带空间约束的 3D QA 进入主流）。评测重心正从"静态感知能力"向**"感知-推理-行动一体化"**演进，多语言公平性（MVL-SIB）也成为新的关注维度。
 
@@ -1793,7 +1793,7 @@ SigLIP 是对 CLIP 对比学习范式的关键改进：用逐对 sigmoid 损失�
   <figcaption>图：SigLIP 对比预训练框架——图像编码器与文本编码器学习共享嵌入空间（与 CLIP 框架相同），核心区别在于损失函数从 softmax InfoNCE 改为逐对 sigmoid，使训练无需依赖全局 batch 归一化（来源：论文原图）</figcaption>
 </div>
 
-### 核心：Sigmoid 损失替换 Softmax
+### 核心：Sigmoid 损失
 
 **CLIP 的 softmax 对比损失**（对称 InfoNCE）：
 
@@ -1837,7 +1837,7 @@ InternVL2 是 2024 年中期综合性能最强的开源 VLM 系列之一，最�
 
 > **精华**：InternVL2 的核心洞察是**扩大视觉编码器规模是提升多模态理解能力的关键杠杆**——InternViT-6B（5.9B参数）是 CLIP ViT-L（307M）的约19倍，能提取更丰富的细粒度视觉特征，在文档、图表、数学题图等精细理解任务上优势尤为明显。Pixel Shuffle 压缩（4:1）将高分辨率 tile 的 token 从1024压缩至256，高效降低 LLM 输入长度的同时保留视觉细节。模型系列从 1B 到 76B：26B 以上使用 InternViT-6B，8B 及以下使用 InternViT-300M，并搭配不同来源的语言骨干，覆盖从端侧到服务器的部署需求。局限在于 InternViT-6B 推理成本较高，小模型改用 300M 编码器后细粒度能力有所折损。
 
-### 核心：InternViT-6B 超大视觉编码器
+### 核心：InternViT-6B
 
 InternVL2 大模型的关键差异化在于使用了 **InternViT-6B**（最初约 **5.9B 参数**；InternVL 1.5 起去掉最后 3 层，约 5.5B）：
 
@@ -2237,7 +2237,7 @@ DINOv2 在 DINO（2021）与 iBOT（2022）的基础上组合了以下组件：
 
 iBOT 的掩码预测提供了显式的 patch 级监督，这是 DINOv2 密集特征强于原版 DINO 的重要原因之一。训练末期还有一个短暂的 518×518 高分辨率阶段，以改善小物体与像素级任务的表现。
 
-### 数据策略：LVD-142M 精选数据集
+### 数据：LVD-142M
 
 数据质量对自监督学习至关重要。DINOv2 专门构建了 **LVD-142M**（1.42 亿张图像）：
 
@@ -2289,7 +2289,7 @@ ViT-g/14 从头自监督训练，S/B/L 三个较小模型由 ViT-g 蒸馏得到�
   <figcaption>图：DINOv2 的 patch 特征 PCA 可视化——第一主成分自然对应前景物体（来源：DINOv2 论文）</figcaption>
 </div>
 
-### DINOv2 vs CLIP：两条路线的对比
+### DINOv2 与 CLIP 对比
 
 | 维度 | CLIP ViT-L/14 | DINOv2 ViT-L/14 |
 |------|--------------|----------------|

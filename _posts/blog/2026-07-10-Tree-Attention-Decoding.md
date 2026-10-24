@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "树状注意力：VLN 训练 Token 压缩 22×"
-date:   2026-09-23
+date: 2026-10-24
 last_modified_at: 2026-07-29
 tags: [VLA, VLN, Robostral, Prefix Caching, Tree Attention, LLM Training]
 categories: blog
@@ -11,7 +11,7 @@ toc: true
 excerpt: "聚焦 Robostral Navigate 的前缀树监督训练：为什么观测构成共享主干、动作必须成为叶节点，以及 tree attention 如何在阻止 ground-truth action 泄漏的同时将训练 Token 压缩 22×。"
 ---
 
-# 1. 问题：导航历史为何让训练 Token 数二次增长？
+# 1. 为什么 Token 数二次增长
 
 Robostral Navigate 是 Mistral AI 提出的 8B 单目 RGB 导航 VLM。它根据自然语言指令与历史图像预测下一导航 waypoint；为了覆盖长轨迹中的全部监督信号，第 $t$ 步必须读取从 episode 开始到当前时刻的观测历史。
 
@@ -35,9 +35,9 @@ Robostral Navigate 是 Mistral AI 提出的 8B 单目 RGB 导航 VLM。它根据
 | 训练 Token 规模 | 从逐时间步展开的 $O(T^2)$ 降到整 episode 的 $O(T)$ |
 | 论文结果 | 训练 Token 数减少 22×；训练周期从月缩短到天 |
 
-# 2. 前缀树监督训练：22× Token 压缩是怎么来的？
+# 2. 前缀树监督训练
 
-## 2.1 逐时间步训练的 Token 数为什么是 $O(T^2)$？
+## 2.1 逐步训练的 $O(T^2)$ 开销
 
 设指令为 $I$，第 $t$ 步观测为 $O_t$，监督动作是 $a_t$。部署时不存在 expert action history，因此第 $t$ 步应在下面的上下文中预测动作：
 
@@ -75,7 +75,7 @@ $$
 
 早期观测 $O_0$ 会被编码 $T$ 次，$O_1$ 会被编码 $T-1$ 次。若每帧视觉 Token 数量近似固定，主导项随 $T^2$ 增长。
 
-## 2.2 Robostral 的树：观测是主干，动作是叶子
+## 2.2 Robostral 的树结构
 
 <div align="center">
   <img src="/images/vln/Robostral-Navigate-prefix-tree.webp" width="96%" alt="Robostral Navigate 的逐时间步训练、前缀缓存与树状注意力掩码" />
@@ -106,7 +106,7 @@ $$
 
 这里的 **prefix caching 是训练期共享前缀计算，不是推理期 KV cache**。共享主干仍处于同一个 autograd graph 中，需要参与反向传播，并接收所有动作叶子汇总而来的梯度；如果将前缀 K/V 直接 `detach`，就会丢失这些训练信号。
 
-## 2.3 为什么不能直接使用 causal mask？
+## 2.3 为什么不用 causal mask
 
 在物理序列
 
@@ -144,7 +144,7 @@ $$
 
 因此，图中的动作是“leaves — never re-attended”：它们提供监督，但不会进入后续决策历史。
 
-## 2.4 为什么一次 forward 仍与逐时间步监督等价？
+## 2.4 一次 forward 的等价性
 
 每个动作叶子 $a_t$ 看到的上下文与独立样本
 

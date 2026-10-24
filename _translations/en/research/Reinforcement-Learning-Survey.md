@@ -5,10 +5,10 @@ translation_id: reinforcement-learning-survey
 permalink: /en/Reinforcement-Learning-Survey/
 source_path: _posts/research/2026-04-25-Reinforcement-Learning-Survey.md
 source_url: /Reinforcement-Learning-Survey/
-source_revision_date: 2026-10-04
-translation_updated: 2026-10-04
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "Reinforcement Learning: A Survey"
-date: 2026-10-04
+date: 2026-10-24
 tags: [Reinforcement Learning, RL, Embodied AI, Robotics, World Models, Diffusion Policy, PPO, SAC, TD3, DDPG, Actor-Critic, MDP]
 categories: research
 comments: false
@@ -18,8 +18,8 @@ excerpt: "MDPs, policy gradients, PPO, SAC, TD3, world models, diffusion policie
 ---
 
 
-# 1. Introduction: The "nerve center" of embodied intelligence
-{: id="1-引言具身智能的神经中枢"}
+# 1. Introduction
+{: id="1-引言"}
 
 On the journey to AGI, **reinforcement learning (RL)** is the core engine for robots to realize autonomous decision-making in the physical world. When RL meets **embodied intelligence (Embodied AI)**, it is no longer just processing digital signals and conquering Atari games, but driving an entity with a physical body to perceive, plan and complete tasks in a complex three-dimensional space.
 
@@ -45,13 +45,13 @@ This article is developed in the order of "theoretical basis → model-free cont
 
 ---
 
-# 2. Theoretical basis: Markov decision process (MDP)
-{: id="2-理论基础马尔可夫决策过程mdp"}
+# 2. Markov decision processes
+{: id="2-马尔可夫决策过程"}
 
 All RL algorithms are built on the unified framework of the **Markov Decision Process (MDP)**.
 
-## 2.1 Quadruple definition of MDP
-{: id="21-mdp-的四元组定义"}
+## 2.1 Defining an MDP
+{: id="21-mdp-的定义"}
 
 An MDP is defined by the quadruple $\langle S, A, P, R \rangle$:
 
@@ -71,8 +71,8 @@ $$
 
 **Markov property** guarantees that "the current state contains all historical information", that is, $p(s_{t+1}\mid s_t, a_t) = p(s_{t+1}\mid s_0, a_0, \ldots, s_t, a_t)$.
 
-## 2.2 Policy, value function and Bellman equation
-{: id="22-策略价值函数与-bellman-方程"}
+## 2.2 Policies, values and Bellman equations
+{: id="22-策略价值与-bellman-方程"}
 
 **Policy** $\pi(a\mid s)$ is the probability distribution of selecting action $a$ when given state $s$. The goal of RL is to find the optimal policy $\pi^*$ that maximizes the expected cumulative reward (return).
 
@@ -106,8 +106,8 @@ $$
 Q_\pi(s, a) = \sum_{s'} P(s'|s,a)\left[R(s,a) + \gamma \sum_{a'} \pi(a'|s') Q_\pi(s', a')\right]
 $$
 
-## 2.3 Two types of core issues: model-based vs. model-free
-{: id="23-两类核心问题有模型-vs-免模型"}
+## 2.3 Model-based vs. model-free
+{: id="23-有模型与免模型"}
 
 ```mermaid
 graph TD
@@ -124,8 +124,8 @@ graph TD
 
 ---
 
-# 3. Panorama of algorithm evolution 🗺️
-{: id="3-算法演进全景图-️"}
+# 3. Algorithm landscape
+{: id="3-算法演进全景"}
 
 The algorithm evolution of embodied RL can be divided into four generations:
 
@@ -154,8 +154,8 @@ graph LR
 
 ---
 
-# 4. Policy gradient: the mathematical foundation of the algorithm
-{: id="4-策略梯度算法的数学根基"}
+# 4. Policy gradients
+{: id="4-策略梯度"}
 
 ## 4.1 Policy gradient theorem
 {: id="41-策略梯度定理"}
@@ -188,8 +188,8 @@ $$
 A(s_t, a_t) \approx r_t + \gamma V_\pi(s_{t+1}) - V_\pi(s_t)
 $$
 
-## 4.2 The trade-off between exploration and exploitation
-{: id="42-探索与利用的权衡"}
+## 4.2 Exploration vs. exploitation
+{: id="42-探索与利用"}
 
 Among embodied intelligence, the **Exploration-Exploitation Dilemma** is particularly prominent:
 
@@ -203,8 +203,8 @@ Common exploration strategies:
 
 ---
 
-# 5. Actor-Critic Framework
-{: id="5-演员-评论员actor-critic框架"}
+# 5. Actor-critic
+{: id="5-actor-critic-框架"}
 
 **Actor-Critic (A-C)** is the basic structure of modern embodied RL algorithms, integrating policy gradient (actor) and value estimation (critic).
 
@@ -233,13 +233,13 @@ $$
 
 ---
 
-# 6. PPO: the cornerstone algorithm of embodied control 🛡️
-{: id="6-ppo具身控制的基石算法-️"}
+# 6. PPO
+{: id="6-ppo"}
 
 **Proximal Policy Optimization (PPO)** is a policy optimization algorithm widely used in engineering practice, and is also a common baseline for embodied simulation platforms such as Isaac Lab. Its design goal is to improve sample utilization and training stability while maintaining the stability of policy updates.
 
-## 6.1 From on-policy to off-policy learning: importance sampling
-{: id="61-从同策略到异策略重要性采样"}
+## 6.1 Importance sampling
+{: id="61-重要性采样"}
 
 Policy gradient is the **same-policy (On-Policy)** algorithm - data must be resampled after each parameter update, and the sample utilization rate is extremely low.
 
@@ -259,8 +259,8 @@ Here, $$\frac{p_\theta(a_t\mid s_t)}{p_{\theta'}(a_t\mid s_t)}$$ is the **import
 
 > **key constraint**: If the gap between $\pi_\theta$ and $$\pi_{\theta'}$$ is too large, the variance of the importance weight will explode and the estimation will be inaccurate. This is exactly what a PPO is meant to solve.
 
-## 6.2 TRPO: the predecessor of constrained optimization
-{: id="62-trpo约束优化的前身"}
+## 6.2 TRPO
+{: id="62-trpo"}
 
 **Trust Region Policy Optimization (TRPO)** takes KL divergence as a hard constraint:
 
@@ -270,8 +270,8 @@ $$
 
 TRPO theoretically guarantees policy improvement with each update, but solving constrained optimization problems is computationally expensive.
 
-## 6.3 PPO-Penalty: Adaptive KL Penalty
-{: id="63-ppo-penalty自适应-kl-惩罚"}
+## 6.3 PPO-Penalty
+{: id="63-ppo-penalty"}
 
 **PPO-Penalty** (PPO1) incorporates the constraints into the objective function:
 
@@ -284,8 +284,8 @@ And use **adaptive $\beta$** to dynamically adjust the KL divergence penalty int
 - If $$\mathrm{KL}(\theta, \theta^k) > \mathrm{KL}_{\max}$$: increase $\beta$ (punishment for excessive update)
 - If $$\mathrm{KL}(\theta, \theta^k) < \mathrm{KL}_{\min}$$: reduce $\beta$ (allow larger updates)
 
-## 6.4 PPO-Clip: clipping mechanism (most commonly used)
-{: id="64-ppo-clip裁剪机制最常用"}
+## 6.4 PPO-Clip
+{: id="64-ppo-clip"}
 
 **PPO-Clip** (PPO2) is more concise, constraining the probability ratio directly through clipping:
 
@@ -315,13 +315,13 @@ graph LR
 
 ---
 
-# 7. DDPG → TD3 → SAC: The evolution of continuous motion control
-{: id="7-ddpg--td3--sac连续动作控制的演进"}
+# 7. DDPG → TD3 → SAC
+{: id="7-ddpg--td3--sac"}
 
 Robot control usually involves **continuous action space** (such as joint torque, speed), which cannot be directly processed by discrete methods such as DQN, thus giving rise to a series of algorithms for continuous control.
 
-## 7.1 DDPG: Deep deterministic policy gradient
-{: id="71-ddpg深度确定性策略梯度"}
+## 7.1 DDPG
+{: id="71-ddpg"}
 
 **Deep deterministic policy gradient (DDPG)** is a pioneering work extending DQN to continuous action space, and is also the direct predecessor of TD3 and SAC.
 
@@ -352,13 +352,13 @@ To encourage exploration, noise (such as OU noise or Gaussian noise) is added to
 
 Problems with **DDPG**: The Q value is easily overestimated, causing the policy to be destroyed and is extremely sensitive to hyperparameters.
 
-## 7.2 TD3: Three key improvements
-{: id="72-td3三大关键改进"}
+## 7.2 TD3's three fixes
+{: id="72-td3-的三项改进"}
 
 **Double delay deep deterministic policy gradient (TD3)** systematically solves the instability problem of DDPG through three techniques:
 
-### Tip 1: Clipped Double Q-Learning
-{: id="技巧一截断双-q-学习clipped-double-q-learning"}
+### Clipped double Q-learning
+{: id="截断双-q-学习"}
 
 Learn two independent Q networks $$Q_{\phi_1}, Q_{\phi_2}$$, and take the minimum value when calculating Q-target:
 
@@ -368,13 +368,13 @@ $$
 
 Using minimum values instead of maximum values systematically suppresses Q overestimation.
 
-### Tip 2: Delayed Policy Updates
-{: id="技巧二延迟策略更新delayed-policy-updates"}
+### Delayed policy updates
+{: id="延迟策略更新"}
 
 For every commentator's update 2 times, the actor was updated 1 times. Experiments show that the Q network converges first and then updates the policy, which can significantly improve stability.
 
-### Tip 3: Target Policy Smoothing
-{: id="技巧三目标策略平滑target-policy-smoothing"}
+### Target policy smoothing
+{: id="目标策略平滑"}
 
 Add truncation noise to the target action:
 
@@ -386,8 +386,8 @@ Smooth the response surface of the Q function to actions and reduce the sensitiv
 
  **TD3 performs well on dexterous manipulation tasks** , is a common baseline for fine control of robotic arms.
 
-## 7.3 SAC: maximum entropy reinforcement learning 🎨
-{: id="73-sac最大熵强化学习-"}
+## 7.3 SAC: maximum-entropy RL
+{: id="73-sac最大熵-rl"}
 
 **Soft Actor-Critic (SAC)** is currently one of the most powerful model-free algorithms in the field of continuous control. Its core lies in the **maximum entropy reinforcement learning (Maximum Entropy RL)** framework.
 
@@ -444,13 +444,13 @@ Here, $\bar{\mathcal{H}}$ is the target entropy (usually set to $-\dim(A)$), and
 
 ---
 
-# 8. Model-based RL: "precognitive dream" in latent space 🧠
-{: id="8-有模型-rl潜空间的预知梦-"}
+# 8. Model-based RL
+{: id="8-有模型-rl"}
 
 Model-free RL requires repeated interactions with the real environment and has low sample efficiency. **Model-Based RL (Model-Based RL)** allows the agent to learn the internal model of the environment and simulate exercises "in the mind", greatly reducing the number of interactions in the real environment.
 
-## 8.1 World Models: V-M-C Trilogy
-{: id="81-世界模型world-modelsv-m-c-三部曲"}
+## 8.1 World Models
+{: id="81-world-models"}
 
 David Ha and Jürgen Schmidhuber proposed the classic world model framework in NeurIPS in 2018, which consists of three modules:
 
@@ -505,8 +505,8 @@ sequenceDiagram
 
 >  **Generative model ≠ world model** . The world model must have **Future state prediction ability under action conditions** , that is, given action input, the next state can be predicted. Models that can only generate images do not meet this condition.
 
-## 8.2 DreamerV3: "Dream Practice" in Latent Space
-{: id="82-dreamerv3潜空间的梦境修炼"}
+## 8.2 DreamerV3
+{: id="82-dreamerv3"}
 
 **DreamerV3** is one of the representative methods of world model reinforcement learning, demonstrating high sample efficiency and cross-task robustness on a variety of control tasks.
 
@@ -542,8 +542,8 @@ Achievements of **DreamerV3**:
 - The first single hyperparameter setting, no need for any parameter adjustment, in Atari, DMC, Crafter, Minecraft, etc. 7 reached SOTA in several fields at the same time.
 - Learn to mine diamonds from scratch for the first time in Minecraft (requires 14 consecutive decisions).
 
-## 8.3 TD-MPC2: Model predictive control of latent space
-{: id="83-td-mpc2潜空间的模型预测控制"}
+## 8.3 TD-MPC2
+{: id="83-td-mpc2"}
 
 **TD-MPC2** Combine **timing difference (TD)** and **model predictive control (MPC)** Unified in latent space, especially good at **long-range operation tasks**.
 
@@ -551,8 +551,8 @@ The core idea of **is**: perform short-view finite-step planning in the latent s
 
 ---
 
-# 9. Diffusion policy: from "image generation" to "action generation" 🌊
-{: id="9-扩散策略从生图到生动作-"}
+# 9. Diffusion policies
+{: id="9-扩散策略"}
 
 ## 9.1 Diffusion Policy
 {: id="91-diffusion-policy"}
@@ -589,8 +589,8 @@ Advantages of **diffusion policy**:
 |**Inference speed**|Fast (single forward)|Slow (requires K iterations)|
 |**applicable scenarios**|Simple operation|Complex grasping, two-arm collaboration|
 
-## 9.2 ReinFlow: diffusion policy + reinforcement learning
-{: id="92-reinflow扩散策略--强化学习"}
+## 9.2 ReinFlow
+{: id="92-reinflow"}
 
 **ReinFlow** introduces reinforcement learning fine-tuning on the basis of Diffusion Policy to solve the problem of insufficient generalization of pure behavioral cloning (BC):
 
@@ -599,8 +599,8 @@ Advantages of **diffusion policy**:
 
 This is similar to the SFT → RLHF two-stage training paradigm of LLM, which is one of the current mainstream frameworks for robot imitation learning.
 
-## 9.3 DPPO: PPO constraints within diffusion chain
-{: id="93-dppo扩散链内的-ppo-约束"}
+## 9.3 DPPO
+{: id="93-dppo"}
 
 **DPPO (Diffusion Policy with PPO)** directly embeds the truncated importance weighting mechanism of PPO into the gradual denoising process of the diffusion policy, solving the problem of unstable training when the diffusion policy does online reinforcement learning.
 
@@ -616,13 +616,13 @@ The difference between **and ReinFlow**:
 
 ---
 
-# 10. Sparse Rewards: The "Death Trap" of Embodied RL
-{: id="10-稀疏奖励具身-rl-的死亡陷阱"}
+# 10. Sparse rewards
+{: id="10-稀疏奖励"}
 
 Designing rewards for embodied intelligence is far more difficult than game environments. The robot does not receive any reward most of the time (for example, in the "Tightening the Screw" task, only the final tightening is rewarded with +1), causing gradients to disappear and training to stagnate.
 
-## 10.1 Reward Shaping
-{: id="101-奖励塑形reward-shaping"}
+## 10.1 Reward shaping
+{: id="101-奖励塑形"}
 
 Manually design **auxiliary reward** to guide agent behavior, which is most commonly used but requires domain knowledge:
 
@@ -635,8 +635,8 @@ Manually design **auxiliary reward** to guide agent behavior, which is most comm
 
 > **Trap warning**: Improperly designed rewards can lead to "reward hacking" - the agent finds shortcuts beyond expectations to maximize rewards, rather than actually completing the task.
 
-## 10.2 Intrinsic Curiosity Module (ICM)
-{: id="102-内在好奇心模块icm"}
+## 10.2 Curiosity module (ICM)
+{: id="102-好奇心模块icm"}
 
 **Curiosity-driven reward** is a task-independent intrinsic reward that encourages agents to explore "unpredictable" new states:
 
@@ -653,8 +653,8 @@ ICM consists of two subnetworks:
 1. **Forward Model**: Given $(s_t, a_t)$ prediction $$\hat{s}_{t+1}$$, the prediction error serves as an intrinsic reward.
 2. **Inverse Model**: Given $(s_t, s_{t+1})$ predicted action $$\hat{a}_t$$, it is used to train the feature extractor and filter noise irrelevant to the agent (such as background leaves fluttering).
 
-## 10.3 Curriculum Learning
-{: id="103-课程学习curriculum-learning"}
+## 10.3 Curriculum learning
+{: id="103-课程学习"}
 
 Arrange tasks progressively from easy to difficult, allowing the agent to gradually master complex skills:
 
@@ -666,8 +666,8 @@ graph LR
 
 **Reverse Curriculum Generation** is an automated method: starting from the target state, gradually sampling the initial state "$k$ steps away from the target", and automatically constructing courses with increasing difficulty.
 
-## 10.4 HER: Hindsight Experience Replay
-{: id="104-her后见之明的奖励重标记"}
+## 10.4 HER
+{: id="104-her"}
 
 **Hindsight Experience Replay (HER)** is a classic technology for processing sparse rewards: even if a task fails (such as the robotic arm not being placed at the specified location), the "actually reached position of the robotic arm" can be used as an imaginary target to learn from the failure trajectory.
 
@@ -675,11 +675,11 @@ graph LR
 
 ---
 
-# 11. 2026 Frontier Direction: Logical Reasoning and Residual Learning ⚡
-{: id="11-2026-前沿方向逻辑推理与残差学习-"}
+# 11. 2026 frontiers
+{: id="11-2026-前沿方向"}
 
-## 11.1 RLVR: reinforcement learning with verifiable rewards
-{: id="111-rlvr可验证奖励的强化学习"}
+## 11.1 RLVR
+{: id="111-rlvr"}
 
 **RLVR (Reinforcement Learning from Verifiable Rewards)** can incorporate **formally verifiable physical constraints** into the reward design to supplement sparse task success signals. For embodied tasks, this direction still needs to be combined with real dynamics, sensor noise and safety constraints to verify its effectiveness.
 
@@ -702,8 +702,8 @@ graph TD
 
 The essence of RLVR is to let robots master **physical reasoning ability** : Not just remembering "how", but understanding "why". This is especially critical for long, multi-step tasks like "take milk from the refrigerator and pour it into a cup."
 
-## 11.2 Residual-VLA: large model + residual fine-tuning
-{: id="112-residual-vla大模型--残差微调"}
+## 11.2 Residual-VLA
+{: id="112-residual-vla"}
 
 **Residual VLA (Residual Vision-Language-Action)** architecture is aimed at the problem of "how to efficiently adapt a general VLA large model to a specific robot".
 
@@ -734,16 +734,16 @@ graph LR
 
 ---
 
-# 12. Mainstream simulation environment and evaluation benchmark 🧪
-{: id="12-主流仿真环境与评测基准-"}
+# 12. Simulators and benchmarks
+{: id="12-仿真环境与基准"}
 
 The training and evaluation of embodied RL algorithms are highly dependent on simulation platforms. Different platforms have different emphasis on **physics engine accuracy**, **parallel efficiency** and **task type**. Choosing the right platform will get twice the result with half the effort.
 
-## 12.1 Continuous Control Standard Benchmark
-{: id="121-连续控制标准基准"}
+## 12.1 Continuous control
+{: id="121-连续控制基准"}
 
-### MuJoCo / DeepMind Control Suite
-{: id="mujoco--deepmind-control-suite"}
+### MuJoCo / DM Control
+{: id="mujoco--dm-control"}
 
 |Properties|content|
 | :--- | :--- |
@@ -756,11 +756,11 @@ The training and evaluation of embodied RL algorithms are highly dependent on si
 
 **OpenAI Gymnasium** (formerly OpenAI Gym) is currently the most common RL environment interface standard, and almost all mainstream RL libraries (Stable-Baselines3, CleanRL) are based on its `Env` interface.
 
-## 12.2 Large-scale parallel simulation platform
-{: id="122-大规模并行仿真平台"}
+## 12.2 Massively parallel simulation
+{: id="122-大规模并行仿真"}
 
-### Isaac Lab / Isaac Gym(NVIDIA)
-{: id="isaac-lab--isaac-gymnvidia"}
+### Isaac Lab / Isaac Gym
+{: id="isaac-lab--isaac-gym"}
 
 |Properties|content|
 | :--- | :--- |
@@ -772,8 +772,8 @@ The training and evaluation of embodied RL algorithms are highly dependent on si
 
 Isaac Lab is the next-generation successor of Isaac Gym. It is based on the USD scene format and supports more realistic rendering and sensor simulation. It is the current mainstream choice for training quadruped/biped rorobot policies.
 
-## 12.3 Dedicated environment for operation tasks
-{: id="123-操作任务专用环境"}
+## 12.3 Manipulation environments
+{: id="123-操作任务环境"}
 
 ### RoboSuite / robomimic
 {: id="robosuite--robomimic"}
@@ -802,8 +802,8 @@ Isaac Lab is the next-generation successor of Isaac Gym. It is based on the USD 
 
 ---
 
-# 13. Developer Guide: Algorithm Selection Matrix 🛠️
-{: id="13-开发者指南算法选择矩阵-️"}
+# 13. Choosing an algorithm
+{: id="13-算法选择指南"}
 
 If you are developing an embodied intelligence project, you can select algorithms according to the following dimensions:
 
@@ -837,8 +837,8 @@ graph TD
 
 ---
 
-# 14. In-depth analysis of classic papers 📚
-{: id="14-经典论文深度解析-"}
+# 14. Classic papers
+{: id="14-经典论文解析"}
 
 In order to help readers systematically grasp the complete evolution of reinforcement learning from classic theory to the frontier of embodied intelligence, this chapter selects **12 Milestone classics and cutting-edge breakthrough papers** Conduct in-depth analysis. Each paper is developed according to a standardized structure: [Key takeaways], [Background and problem], [Method and innovations], [Results and findings] and [Limitations analysis].
 

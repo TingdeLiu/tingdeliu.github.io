@@ -5,10 +5,10 @@ translation_id: vln-survey
 permalink: /en/VLN-Survey/
 source_path: _posts/research/2026-01-04-VLN-Survey.md
 source_url: /VLN-Survey/
-source_revision_date: 2026-10-09
+source_revision_date: 2026-10-24
 translation_updated: 2026-10-24
 title: "Vision-Language Navigation: A Survey"
-date:   2026-10-09
+date: 2026-10-24
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
@@ -63,8 +63,8 @@ As of 2026, the evidence is better described as a convergence of end-to-end mode
 
 VLN requires sustained **language grounding, localization, historical memory, action selection, and stopping decisions** under partial observability. Visual input and instruction progress change with every movement, making navigation a closed-loop process rather than a single visual question-answering step.
 
-## 2.1 Task definition: from language to an executable trajectory
-{: id="21-任务定义语言如何变成一条可执行轨迹"}
+## 2.1 Task definition
+{: id="21-任务定义"}
 
 Given a natural-language instruction $I$, an agent receives observation $o_t$ at time $t$ and predicts action $a_t$ using its historical state $h_t$:
 
@@ -96,8 +96,8 @@ flowchart LR
 
 In discrete environments, the output is usually a neighboring viewpoint or `STOP`. In continuous environments, it may be a forward/turn action, a 2D waypoint, a trajectory segment, or low-level controls. These interfaces change perceptual coverage, control difficulty, and success conditions. Sharing R2R instructions alone does not make results directly comparable.
 
-## 2.2 Five dimensions for understanding a VLN benchmark
-{: id="22-看懂一个-vln-基准五个必要维度"}
+## 2.2 Reading a VLN benchmark
+{: id="22-如何看懂-vln-基准"}
 
 | Dimension | Question to establish | Common settings | Effect on results |
 |:---|:---|:---|:---|
@@ -107,8 +107,8 @@ In discrete environments, the output is usually a neighboring viewpoint or `STOP
 | **Environment model** | Which physical constraints apply? | Navigation graph, navigable surface, rigid-body collisions, robot dynamics | Determines whether collisions, falls, or immobilization can occur |
 | **Interaction protocol** | Can instructions be clarified or revised? | Single turn, dialogue, active questions, human feedback | Determines whether the agent can resolve ambiguity or request help |
 
-### 2.2.1 Boundaries between VLN, ObjectNav, and general VLA
-{: id="221-vlnobjectnav-与通用-vla-的边界"}
+### 2.2.1 VLN, ObjectNav and VLA
+{: id="221-vlnobjectnav-与-vla"}
 
 | Paradigm | Main inputs | Principal capabilities evaluated | Typical outputs |
 |:---|:---|:---|:---|
@@ -118,8 +118,8 @@ In discrete environments, the output is usually a neighboring viewpoint or `STOP
 
 ObjectNav can supply semantic exploration modules for VLN, and VLA can provide a policy backbone. Their results nevertheless cannot automatically be included in standard VLN leaderboards. Fair comparison requires matching task inputs, sensors, action interfaces, data splits, and additional training data.
 
-## 2.3 How a modern VLN system works
-{: id="23-一个现代-vln-系统如何工作"}
+## 2.3 A modern VLN system
+{: id="23-现代-vln-系统"}
 
 Early models often described VLN as a visual encoder, a language encoder, and an action classifier. A more useful systems view in 2026 is: **perception supplies semantic and geometric evidence; the state layer maintains instruction progress and spatial memory; planning selects subgoals; execution converts them into safe actions; and actual observations continuously correct errors.**
 
@@ -175,7 +175,7 @@ flowchart TB
 This diagram does not require every method to implement each module explicitly. End-to-end models can fold several boxes into a unified network; dual-system, map-based, and agent-based approaches expose some interfaces explicitly. Assess architectures through their information flow and training objectives, not just the names used in a paper.
 
 ## 2.4 Core challenges
-{: id="24-vln-的核心难点"}
+{: id="24-核心难点"}
 
 | Challenge | Typical failure | Why it is difficult | Evidence to inspect |
 |:---|:---|:---|:---|
@@ -186,8 +186,8 @@ This diagram does not require every method to implement each module explicitly. 
 | **Open-world operation and real deployment** | Simulation success but real-world failure | Changes in viewpoints, sensors, dynamics, and scene distributions | Cross-scene, cross-embodiment, and real-robot evaluation |
 | **Failure detection and recovery** | Passing near the goal without stopping; compounding errors after a deviation | Weak uncertainty estimation and self-diagnosis | OSR–SR gap, recovery success rate, human interventions |
 
-## 2.5 From task-specific models to navigation foundation models
-{: id="25-从任务专用模型到导航基础模型"}
+## 2.5 Toward navigation foundation models
+{: id="25-走向导航基础模型"}
 
 ```mermaid
 %%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 24, "rankSpacing": 28}}}%%
@@ -233,8 +233,8 @@ Recent work converges on unified policies and hierarchical control, and also on 
 <a id="3-主流-vln-研究路线"></a>
 <a id="survey-methods"></a>
 
-# 3. Main VLN method paradigms and key mechanisms
-{: id="3-vln-的主要方法范式与关键机制"}
+# 3. Methods and key mechanisms
+{: id="3-方法范式与关键机制"}
 
 Understanding a VLN method requires separate answers to five questions: **how the policy is organized, how history is represented, how decisions become actions, how instruction progress is tracked, and what feedback the model learns from.** This section discusses unified policies, hierarchical control, spatial memory, task orchestration, and future prediction along these questions, and treats action interfaces, active perception, and training mechanisms on their own. One method can adopt several of these designs at once; the subsections are not mutually exclusive paper categories and do not imply a performance ranking under matched conditions.
 
@@ -276,8 +276,8 @@ flowchart TB
     style E fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
 ```
 
-## 3.1 What has changed: state, interfaces, and training data
-{: id="31-方法演进真正变化的是状态接口与训练数据"}
+## 3.1 How methods evolved
+{: id="31-方法演进"}
 
 | Research focus | Internal model state | Typical action interface | Training signals | Representative methods |
 |:---|:---|:---|:---|:---|
@@ -294,15 +294,15 @@ These focuses overlap in time: graph structures can still serve VLM policies, un
 
 <a id="survey-policy"></a>
 
-## 3.2 Policy architecture: unified policies and hierarchical control
-{: id="32-策略架构统一策略与分层控制"}
+## 3.2 Policy architecture
+{: id="32-策略架构"}
 
 Architecture first decides what each layer is responsible for. A unified policy combines language, observations, and history in one backbone and predicts the next action or trajectory; a hierarchical system passes subgoals explicitly and lets another layer execute them locally. **The number of models, whether they are trained jointly, whether a map is maintained, and whether high- and low-frequency roles are separated are different properties.** A unified policy may still need a trajectory tracker, and a hierarchical network may be optimized jointly; "end-to-end" should state which interface the supervision or gradient reaches.
 
 <a id="32-单系统端到端把导航变成连续的多模态生成"></a>
 
-### 3.2.1 Unified policies: modeling observations and actions in a shared backbone
-{: id="321-统一策略在共享主干中建模观测与动作"}
+### 3.2.1 Unified policies
+{: id="321-统一策略"}
 
 {% include content-link.html path='/VLN-Papers/' fragment='#navid' label='NaVid' %} and {% include content-link.html path='/VLN-Papers/' fragment='#streamvln' label='StreamVLN' %} use video history and language to generate actions; {% include content-link.html path='/VLN-Papers/' fragment='#navfom' label='NavFoM' %}, {% include content-link.html path='/VLN-Papers/' fragment='#qwen-robotnav' label='Qwen-RobotNav' %}, and related work further explore multitask shared policies. For this class of methods, the key questions are how inputs and outputs are unified and whether the training data support transfer, not whether the model avoids every external module.
 
@@ -320,8 +320,8 @@ Architecture first decides what each layer is responsible for. A unified policy 
 
 <a id="33-快慢双系统高层语义推理与高频执行解耦"></a>
 
-### 3.2.2 Hierarchical control: separate interfaces for semantic decisions and local execution
-{: id="322-分层控制让语义决策与局部执行各有接口"}
+### 3.2.2 Hierarchical control
+{: id="322-分层控制"}
 
 A fast-slow system is one implementation of hierarchical control: the slow system interprets the instruction at low frequency and produces subgoals, while the fast system keeps generating local actions from the latest observations. The lower layer can be a learned policy or a geometric planner; check whether it executes in closed loop, when it requests a new goal, and how upper-layer latency and errors propagate.
 
@@ -354,8 +354,8 @@ flowchart LR
 <a id="34-地图与空间记忆让历史变成可查询的环境状态"></a>
 <a id="survey-memory"></a>
 
-## 3.3 Spatial representation and historical memory
-{: id="33-空间表征与历史记忆"}
+## 3.3 Spatial representation and memory
+{: id="33-空间表征与记忆"}
 
 Spatial representation answers "how are objects and traversable regions in the environment related", and historical memory answers "which past information should influence the current decision". The two can be combined in a map, or shared among geometric features, hidden states, keyframes, or a retrieval store. Extracting 3D geometric features from RGB alone does not amount to building a global map that a planner can query.
 
@@ -407,8 +407,8 @@ When comparing interfaces, fix the available RGB, depth, pose, and map, and repo
 
 <a id="survey-progress"></a>
 
-## 3.5 Instruction progress, active perception, and failure recovery
-{: id="35-指令进度主动感知与失败恢复"}
+## 3.5 Progress, active perception and recovery
+{: id="35-进度主动感知与恢复"}
 
 Long-horizon navigation requires continual judgment of "which part of the instruction is done and what evidence is still missing for the next step". Choosing the wrong active sub-instruction and failing to execute the right one are different errors; a single corrective action may not repair the internal progress state.
 
@@ -453,8 +453,8 @@ This section limits agent orchestration to an upper layer that selects and calls
 <a id="351-通用导航-agent-的五层结构"></a>
 <a id="351-基模能力与-agent-能力分别评测"></a>
 
-### 3.6.1 Evaluate backbone and agent capabilities separately
-{: id="361-基模能力与-agent-能力分别评测"}
+### 3.6.1 Evaluating backbone vs. agent
+{: id="361-基模与-agent-分开评测"}
 
 Qwen-RobotNav is a navigation model that can be used in agent systems. Evaluation should distinguish the underlying navigation results from system-level results with orchestration. The former reflect the model and its input configuration; the latter also include task decomposition, mode switching, and runtime feedback. The full system's gains cannot all be attributed to either the backbone or the planner.
 
@@ -467,7 +467,7 @@ Qwen-RobotNav is a navigation model that can be used in agent systems. Evaluatio
 <a id="352-一个可检查的-agent-闭环"></a>
 
 ### 3.6.2 An inspectable agent loop
-{: id="362-一个可检查的-agent-闭环"}
+{: id="362-可检查的-agent-闭环"}
 
 This survey's analytical framework is: task state → select subtask and tools → execute → read results → update task state. Each transition should be inspectable in logs: was a tool failure recognized, did the strategy change, were ineffective actions repeated, and when did execution terminate? The diagram below illustrates system responsibilities and does not require every paper to implement identically named modules.
 
@@ -559,8 +559,8 @@ The two sides illustrate different uses that can be adopted separately or combin
 
 Architectures and mechanisms decide how a system uses information; training paradigms decide which feedback it learns from. The two should be described separately: unified policies, hierarchical control, and memory-equipped models can all use demonstrations, data augmentation, or reinforcement learning, and the same model may first be supervised fine-tuned, then collect corrective samples or undergo RL post-training.
 
-### 3.8.1 From learning from demonstrations to closed-loop reinforcement learning
-{: id="381-从示范学习到闭环强化学习"}
+### 3.8.1 From demonstrations to closed-loop RL
+{: id="381-从示范到闭环-rl"}
 
 | Training method | Learning signal and role | Representative work | Question to verify separately |
 |:---|:---|:---|:---|
@@ -595,8 +595,8 @@ This line of research predates large-model post-training: [RCM](https://arxiv.or
 
 <a id="survey-rl-levels"></a>
 
-### 3.8.2 Does the reward score actions, execution, or whole trajectories?
-{: id="382-奖励作用于动作执行还是整条轨迹"}
+### 3.8.2 Reward granularity
+{: id="382-奖励作用的粒度"}
 
 "Uses GRPO" describes only part of the optimizer and does not tell whether the model completes whole navigation episodes autonomously in the environment. The table below distinguishes representative methods by **what is scored during training**; this is a summary of the original mechanisms, and one method may combine several rewards.
 
@@ -615,8 +615,8 @@ Action granularity also affects learning: [MacroAction-VLN](https://arxiv.org/ab
 
 <a id="survey-rl-rewards"></a>
 
-### 3.8.3 Reward design: arrival, route fidelity, and execution cost
-{: id="383-奖励设计到达路线忠实度与执行成本"}
+### 3.8.3 Reward design
+{: id="383-奖励设计"}
 
 If the instruction is "go through the kitchen first, then follow the corridor into the bedroom", a shortcut that bypasses the kitchen may earn higher endpoint success and shortest-path efficiency while violating the requirements along the route. **Reaching the goal, following the instruction faithfully, and moving safely and efficiently are related but different optimization targets.** A reward should first make the task requirements explicit, then choose metrics.
 
@@ -629,7 +629,7 @@ If the instruction is "go through the kitchen first, then follow the corridor in
 | Collision, step, or time cost | Improve executability and efficiency | Excessive costs may encourage giving up early or an early STOP |
 | Format / action validity | Produce parseable control output | Correct format cannot substitute for task completion |
 
-The [original nDTW study](https://research.google/pubs/general-evaluation-for-instruction-conditioned-navigation-using-dynamic-time-warping/) measures route fidelity through ordered path matching, and SDTW adds a success constraint; see [Section 8.3](#83-路径效率与指令保真度指标) for definitions. For example, ETP-R1's R2R reward combines success@1.5m, SPL, and distance to goal, while for RxR it uses nDTW, SDTW, gSPL computed with the reference route length, and distance to goal. gSPL adjusts the efficiency reference, while consistency along the route still needs route terms as constraints; the 1.5m in the reward also cannot replace the success thresholds of other evaluation protocols. [Original Eq.5](https://arxiv.org/html/2512.20940v1)
+The [original nDTW study](https://research.google/pubs/general-evaluation-for-instruction-conditioned-navigation-using-dynamic-time-warping/) measures route fidelity through ordered path matching, and SDTW adds a success constraint; see [Section 8.3](#83-路径效率与保真度) for definitions. For example, ETP-R1's R2R reward combines success@1.5m, SPL, and distance to goal, while for RxR it uses nDTW, SDTW, gSPL computed with the reference route length, and distance to goal. gSPL adjusts the efficiency reference, while consistency along the route still needs route terms as constraints; the 1.5m in the reward also cannot replace the success thresholds of other evaluation protocols. [Original Eq.5](https://arxiv.org/html/2512.20940v1)
 
 The following only shows terms a return can include; **it is not any paper's fixed recipe or a validated general set of weights**:
 
@@ -648,8 +648,8 @@ Here $\tau^*$ is the reference route, $N_{\mathrm{collision}}$ is the number of 
 
 <a id="survey-rl-algorithms"></a>
 
-### 3.8.4 PPO and GRPO: where the advantage signal comes from
-{: id="384-ppo-与-grpo优势信号从哪里来"}
+### 3.8.4 PPO and GRPO
+{: id="384-ppo-与-grpo"}
 
 Policy gradients update the policy by raising the probability of high-advantage actions. Here the **advantage** means "how much better the subsequent return of this choice is than the baseline for the current conditions"; a core difference between PPO and GRPO is how that baseline is obtained.
 
@@ -688,8 +688,8 @@ Here $G$ is the group size and $\varepsilon$ is a small constant that prevents a
 
 <a id="survey-rl-loop"></a>
 
-### 3.8.5 Putting closed-loop training into practice: sampling, updates, and memory consistency
-{: id="385-闭环训练怎样落地采样更新与记忆一致性"}
+### 3.8.5 Closed-loop training in practice
+{: id="385-闭环训练实践"}
 
 For an existing navigation model, an experimental route that makes the source of gains easy to locate is: **SFT / DAgger initialization → autonomous sampling → return and advantage computation → policy update → validation in unseen scenes.** The diagram below illustrates the training flow, usable with PPO or full-trajectory GRPO; the specific scheme should still be chosen by action interface and sampling budget.
 
@@ -724,8 +724,8 @@ These are implementation checks derived from the closed-loop objective and the p
 
 <a id="survey-rl-evidence"></a>
 
-### 3.8.6 Experimental evidence: what RL adds and how to attribute it fairly
-{: id="386-实验证据rl-增加了什么怎样公平归因"}
+### 3.8.6 Attributing RL gains
+{: id="386-rl-收益的归因"}
 
 Before-and-after comparisons within the same paper, backbone, and protocol come closer to answering "what does post-training add" than final scores across papers. All numbers below are **reported by the authors and not independently reproduced**; SR / SPL are percentages, and gains are absolute percentage points. Read each row only within its own protocol; rows that include joint training or specific reward components do not equal the gain from swapping the optimizer alone.
 
@@ -753,11 +753,11 @@ Organize ablations at three levels: first fix data and backbone to compare mecha
 <a id="39-跨论文比较相似名称背后的不同设计"></a>
 <a id="survey-comparison"></a>
 
-## 3.9 Method combinations, evidence comparison, and selection
-{: id="39-方法组合证据比较与选型"}
+## 3.9 Choosing methods
+{: id="39-方法选型"}
 
-### 3.9.1 Describing one method along several dimensions
-{: id="391-用多个维度描述同一个方法"}
+### 3.9.1 Describing methods along several axes
+{: id="391-多维度描述方法"}
 
 The table below shows how to describe combinations starting from a paper's mechanisms. "Evidence to verify" is a comparison proposed by this survey; it does not mean a common controlled experiment exists, and it is not an overall model ranking.
 
@@ -791,8 +791,8 @@ The following are research recommendations based on system responsibilities. Fir
 
 <a id="371-阅读最新论文时的四个检查项"></a>
 
-### 3.9.3 Four checks when reading a new paper
-{: id="393-阅读最新论文时的四个检查项"}
+### 3.9.3 Four checks for new papers
+{: id="393-读新论文的四个检查"}
 
 1. **Matched protocols**: are sensors, action spaces, data splits, and success thresholds the same? Are on-demand observation, extra maps, and goal ground truth stated separately?
 2. **Matched resources**: do gains come from the mechanism, or from a larger backbone, more data, or extra geometric priors? Are training samples, environment interaction, and inference budgets comparable?
@@ -807,8 +807,8 @@ The companion {% include content-link.html path='/VLN-Papers/' fragment='' label
 
 Similar task names do not make results comparable. Building on the five dimensions in Section 2.2—goal specification, observations, actions, environment model, and interaction protocol—this section classifies common tasks by **reasoning complexity, interaction, and action/physical realism**, with representative benchmarks. Embodiment deserves particular attention: virtual agents without dynamics, wheeled robots, quadrupeds, humanoids, and drones face very different collision, fall, immobilization, and 6-DoF control challenges. Results under the same task name should not be compared directly across embodiments.
 
-## 4.1 Reasoning and decision complexity
-{: id="41-按推理与决策复杂度划分"}
+## 4.1 By reasoning complexity
+{: id="41-按推理复杂度"}
 
 **1. Instruction-Following VLN**
 
@@ -834,8 +834,8 @@ These tasks emphasize long routes and composed instructions, requiring long-term
 
 ---
 
-## 4.2 Interaction
-{: id="42-按交互方式划分"}
+## 4.2 By interaction
+{: id="42-按交互方式"}
 
 **1. Non-interactive VLN**
 
@@ -849,8 +849,8 @@ These tasks allow multiple interaction turns during navigation, using questions 
 
 *Representative dataset*: CVDN (distinguish supplied dialogue history from online questioning protocols).
 
-## 4.3 Actions and physical realism
-{: id="43-按动作与物理真实性划分"}
+## 4.3 By action and physical realism
+{: id="43-按动作与物理真实性"}
 
 **1. Discrete panoramic navigation**
 
@@ -930,8 +930,8 @@ Aerial VLN targets flying platforms such as multirotor drones. Compared with gro
 
 Start benchmark selection with the capability to be tested, then consider scale. **Scene assets, task data, and training augmentation data are different resources**: Matterport3D supplies environments, R2R supplies instructions and paths, and ScaleVLN supplies synthetic training examples. A shared environment does not imply a shared action interface or evaluation protocol.
 
-## 6.1 Dataset comparison
-{: id="61-数据集对比总览"}
+## 6.1 Dataset overview
+{: id="61-数据集总览"}
 
 | Research question | Representative benchmarks | Settings to distinguish | Main evaluation dimensions |
 |:---|:---|:---|:---|
@@ -960,8 +960,8 @@ The following table includes only scales with a clear counting unit. Years indic
 | HA-VLN 2.0 (2025; IROS 2026) | 16,844 socially contextualized instructions | Confirm discrete/continuous subsets against the versioned protocol; [paper v5](https://arxiv.org/abs/2503.14229v5) |
 | InternData-N1 | Over 240k trajectories and 3,000 scenes | Aggregate data-card counts across multiple subsets; [official data card](https://huggingface.co/datasets/InternRobotics/InternData-N1), accessed 2026-09-26 |
 
-## 6.2 Instruction-oriented and continuous-navigation datasets
-{: id="62-指令导向与连续导航数据集"}
+## 6.2 Instruction-following and continuous
+{: id="62-指令导向与连续导航"}
 
 ### 6.2.1 R2R (Room-to-Room)
 {: id="621-r2r-room-to-room"}
@@ -1019,8 +1019,8 @@ RxR provides multilingual instructions and spatiotemporal annotations associated
 
 </details>
 
-### 6.2.4 VLN-CE (continuous-environment navigation)
-{: id="624-vln-ce-连续环境导航"}
+### 6.2.4 VLN-CE
+{: id="624-vln-ce"}
 
 VLN-CE moves instruction navigation into Habitat's navigable space, removing movement constraints imposed by graph edges. **Environment positions are continuous; policy actions may still form a finite set**, such as forward and turn. Execution becomes harder, but legged dynamics are not automatically included. See the [original paper](https://arxiv.org/abs/2004.02857).
 
@@ -1066,8 +1066,8 @@ The following is a **field-type illustration**. Scene names, text, and coordinat
 
 </details>
 
-### 6.2.5 RxR-CE (multilingual continuous-environment navigation)
-{: id="625-rxr-ce-多语言连续环境导航"}
+### 6.2.5 RxR-CE
+{: id="625-rxr-ce"}
 
 RxR's continuous-environment adaptation is released with VLN-CE. The RxR-Habitat challenge explicitly constrains RGB-D observations, action step lengths, and turn angles. Panoramic-observation results cannot directly be treated as results under that challenge protocol. See the [official required task configurations](https://github.com/jacobkrantz/VLN-CE#required-task-configurations).
 
@@ -1075,8 +1075,8 @@ RxR's continuous-environment adaptation is released with VLN-CE. The RxR-Habitat
 
 **Separate multilingual effects from execution errors**: a language-specific drop can reflect semantic understanding or action errors on longer routes. Group results by language, route length, and endpoint error, using the same cameras and controllers. If machine translation or extra text features are used, clarify whether the model understands the original language directly or navigates through a translation system.
 
-### 6.2.6 VLN-PE (physically embodied navigation)
-{: id="626-vln-pe-真实物理具身导航"}
+### 6.2.6 VLN-PE
+{: id="626-vln-pe"}
 
 VLN-PE supports humanoid, quadruped, and wheeled robots, studying embodiment gaps caused by camera viewpoints, lighting, collisions, and falls. Physical realism here means simulation that better reflects robot constraints, not that all data come from real robots. Report results by morphology and controller. See [paper v2](https://arxiv.org/abs/2507.13019v2).
 
@@ -1089,8 +1089,8 @@ VLN-PE supports humanoid, quadruped, and wheeled robots, studying embodiment gap
 
 Retain three log layers: high-level goals and waypoints, actual low-level trajectories, and collisions or abnormal poses. Cross-robot comparisons should report controllers and failure categories alongside SR. Simultaneously changing camera, controller, and policy does not isolate morphological generalization.
 
-### 6.2.7 ScaleVLN (large-scale navigation pretraining augmentation)
-{: id="627-scalevln-超大规模导航预训练增强数据集"}
+### 6.2.7 ScaleVLN
+{: id="627-scalevln"}
 
 ScaleVLN expands training coverage rather than introducing a new task to rank alongside R2R. It shows that more environments and synthetic supervision can substantially change existing models' performance. Architecture comparisons must disclose such additional data. See the [original paper](https://arxiv.org/abs/2307.15644).
 
@@ -1098,8 +1098,8 @@ ScaleVLN expands training coverage rather than introducing a new task to rank al
 
 With the same model, compare original data, additional scenes, additional instructions, and full augmentation. Also report training steps or compute budgets to distinguish coverage, language variation, and extra optimization as sources of improvement.
 
-### 6.2.8 InternData-N1 (InternVLA-N1 navigation pretraining data)
-{: id="628-interndata-n1-internvla-n1-导航预训练数据"}
+### 6.2.8 InternData-N1
+{: id="628-interndata-n1"}
 
 InternData-N1 unifies VLN-CE, VLN-PE, and VLN-N1 subsets in LeRobot format. A shared storage format helps training but does not erase differences in observations, actions, or success criteria. Record subsets, filtering, and sampling ratios. See the [official data card](https://huggingface.co/datasets/InternRobotics/InternData-N1).
 
@@ -1124,18 +1124,18 @@ Before bulk training, check that an episode's table timestamps, video frames, ca
 
 </details>
 
-### 6.2.9 VLNVerse (unified physics-based multitask navigation benchmark)
-{: id="629-vlnverse-物理多任务统一导航基准"}
+### 6.2.9 VLNVerse
+{: id="629-vlnverse"}
 
 VLNVerse brings multiple tasks, embodied simulation, and evaluation into a shared framework. It supports cross-task evaluation, but a common platform does not justify collapsing all tasks into one SR. Report each task and embodiment setting rather than only an overall mean. See the [original paper](https://arxiv.org/abs/2512.19021).
 
 **Reading a unified benchmark**: common sensors and actuators may support tasks whose success means arrival, target confirmation, or multistage completion. Report a task × embodiment result matrix, indicating shared weights versus task-specific fine-tuning. An aggregate mean alone can conceal failure on particular tasks.
 
-## 6.3 Goal-oriented and long-horizon planning datasets
-{: id="63-目标导向与长程规划数据集"}
+## 6.3 Goal-oriented and long-horizon
+{: id="63-目标导向与长程规划"}
 
-### 6.3.1 REVERIE (Remote Embodied Visual Referring Expression in Real Indoor Environments)
-{: id="631-reverie-remote-embodied-visual-referring-expression-in-real-indoor-environments"}
+### 6.3.1 REVERIE
+{: id="631-reverie"}
 
 REVERIE requires navigation from a high-level description and identification of a target object. Reaching a viewpoint where the target is visible differs from correct object grounding. Separate navigation metrics from remote-grounding metrics. See the [original paper](https://arxiv.org/abs/1904.10151).
 
@@ -1145,15 +1145,15 @@ The original paper reports 10,567 panoramic viewpoints in 90 buildings, 4,140 ta
 
 Object detectors, candidate boxes, and object features are therefore part of the experimental setting. If one policy receives better object candidates, differences in final grounding success cannot all be attributed to planning.
 
-### 6.3.2 REVERIE-CE (continuous-action navigation with object grounding)
-{: id="632-reverie-ce-目标指代连续动作导航"}
+### 6.3.2 REVERIE-CE
+{: id="632-reverie-ce"}
 
 REVERIE-CE refers to a family of continuous-environment adaptations. This survey has not identified a unified official protocol with fixed versions and scale maintained by the original authors, comparable to VLN-CE, so it gives no release year or sample count. Cite the specific paper, conversion scripts, filtering, and object-success criterion; do not reuse discrete REVERIE counts.
 
 Continuous conversion requires at least mapping discrete targets into continuous scenes, specifying locations from which targets can be observed, and defining how object predictions are submitted after stopping. Report how many original samples were filtered and why. An unchecked conversion cannot be assumed to preserve difficulty or target distributions.
 
-### 6.3.3 SOON (Scenario Oriented Object Navigation)
-{: id="633-soon-scenario-oriented-object-navigation"}
+### 6.3.3 SOON
+{: id="633-soon"}
 
 SOON uses descriptions of the target and surrounding scene to search and localize from different starting points. It shifts from route following toward scene-conditioned exploration, supporting semantic search and graph planning. Do not conflate descriptions, targets, and start-point combinations in its FAO data into one sample count. See the [original paper](https://arxiv.org/abs/2103.17138).
 
@@ -1161,8 +1161,8 @@ SOON uses descriptions of the target and surrounding scene to search and localiz
 
 Separately count failure to find the target region, failure to recognize a visible target, and failure to stop after recognition. This distinguishes the value of semantic priors and reveals how exploration budgets are spent.
 
-### 6.3.4 LHPR-VLN (Long-Horizon Planning and Reasoning in VLN)
-{: id="634-lhpr-vln-long-horizon-planning-and-reasoning-in-vln"}
+### 6.3.4 LHPR-VLN
+{: id="634-lhpr-vln"}
 
 LHPR-VLN focuses on planning consistency across sequential subtasks. Alongside overall completion, ISR, CSR, and CGT analyze subtask success and the effects of preceding failures. Unlike R4R, multistage execution requires task-state tracking; total path length alone cannot characterize difficulty. See [paper v3](https://arxiv.org/abs/2412.09082v3).
 
@@ -1170,11 +1170,11 @@ LHPR-VLN focuses on planning consistency across sequential subtasks. Alongside o
 
 Validate memory around task state: does the model remember completed goals, revisit ruled-out regions, or incorrectly mark failed subtasks complete? Such evidence says more about long-horizon ability than a longer context window alone.
 
-## 6.4 Dialog-based and socially aware navigation datasets
-{: id="64-对话式与社交感知导航数据集"}
+## 6.4 Dialog and social navigation
+{: id="64-对话式与社交导航"}
 
-### 6.4.1 CVDN (Cooperative Vision-and-Dialog Navigation)
-{: id="641-cvdn-cooperative-vision-and-dialog-navigation"}
+### 6.4.1 CVDN
+{: id="641-cvdn"}
 
 CVDN collects human Navigator–Oracle dialogues. Navigation from Dialog History continues navigation using an existing dialogue history. **Using dialogue history does not imply permission to ask a human for help online**; active-questioning evaluation needs a separately specified interaction protocol. See the [original paper](https://arxiv.org/abs/1907.04957).
 
@@ -1182,8 +1182,8 @@ CVDN collects human Navigator–Oracle dialogues. Navigation from Dialog History
 
 For active help-seeking, report question counts, useful-answer rates, and navigation improvements after each interaction. For NDH alone, analyze history length, reference resolution, and completion of the next route segment.
 
-### 6.4.2 TEACh (Task-driven Embodied Agents that Chat)
-{: id="642-teach-task-driven-embodied-agents-that-chat"}
+### 6.4.2 TEACh
+{: id="642-teach"}
 
 TEACh includes dialogue, navigation, and object interaction, making it a broader embodied-task dataset. Derived tasks such as EDH have distinct inputs and completion conditions and should be discussed separately from pure navigation. [Paper v3](https://arxiv.org/abs/2110.00534v3) also explains revised test-set evaluation targets.
 
@@ -1191,8 +1191,8 @@ TEACh includes dialogue, navigation, and object interaction, making it a broader
 
 EDH (Execution from Dialog History) continues execution from a supplied interaction history, whereas TfD (Trajectory from Dialog) infers and executes a task trajectory from dialogue. Their initial information differs. Identify the evaluation task before comparing task success and goal-condition completion. See the [TEACh paper](https://arxiv.org/abs/2110.00534v3).
 
-### 6.4.3 HA-VLN 2.0 (Human-Aware Vision-Language Navigation)
-{: id="643-ha-vln-20-human-aware-vision-language-navigation"}
+### 6.4.3 HA-VLN 2.0
+{: id="643-ha-vln-20"}
 
 HA-VLN 2.0 includes dynamic interactions with multiple people and personal-space constraints. Evaluate arrival and social compliance together, fixing crowd behavior and run seeds. One successful video does not establish reliability across repeated encounters. See [paper v5](https://arxiv.org/abs/2503.14229v5).
 
@@ -1200,11 +1200,11 @@ HA-VLN 2.0 includes dynamic interactions with multiple people and personal-space
 
 Use fixed or paired seeds and repeat tests across crowd-interaction scenarios. Report social violations in successful episodes, and whether failures end through timeout, collision, or getting lost. Do not show only the smoothest trajectory.
 
-## 6.5 Demand-oriented and commonsense-reasoning datasets
-{: id="65-需求导向与常识推理数据集"}
+## 6.5 Demand-driven and commonsense
+{: id="65-需求导向与常识推理"}
 
-### 6.5.1 DDN (Demand-driven Navigation)
-{: id="651-ddn-demand-driven-navigation"}
+### 6.5.1 DDN
+{: id="651-ddn"}
 
 DDN infers objects that satisfy user demands, such as mapping "I need to clean" to a suitable functional target. The original work studies this in AI2-THOR / ProcTHOR as demand-conditioned goal navigation; it does not require stepwise route following. See the [original paper](https://arxiv.org/abs/2309.08138).
 
@@ -1212,11 +1212,11 @@ DDN infers objects that satisfy user demands, such as mapping "I need to clean" 
 
 Diagnose demand inference and spatial search separately: is the proposed goal acceptable, available in the environment, and subsequently found with a correct stop? If demands are first rewritten as fixed object categories, disclose the additional model or supervision used.
 
-## 6.6 Aerial and specialized datasets
-{: id="66-空中航拍与特殊场景数据集"}
+## 6.6 Aerial and specialized
+{: id="66-空中与特殊场景"}
 
-### 6.6.1 AerialVLN (Vision-and-Language Navigation for UAVs)
-{: id="661-aerialvln-vision-and-language-navigation-for-uavs"}
+### 6.6.1 AerialVLN
+{: id="661-aerialvln"}
 
 AerialVLN uses UE4 / AirSim urban scenes, adding altitude and spatial-relation reasoning. Table 1 in the original paper lists the standard task as **4 DoF**; it should not be described broadly as full 6-DoF flight control. See the [original paper](https://arxiv.org/html/2308.06735v1).
 
@@ -1224,22 +1224,22 @@ AerialVLN uses UE4 / AirSim urban scenes, adding altitude and spatial-relation r
 
 Record horizontal error, altitude error, and stopping position separately. Proximity in a 2D map projection alone cannot establish 3D navigation success.
 
-### 6.6.2 CityNav (Language-Goal Aerial Navigation Dataset with Geographic Information)
-{: id="662-citynav-language-goal-aerial-navigation-dataset-with-geographic-information"}
+### 6.6.2 CityNav
+{: id="662-citynav"}
 
 CityNav uses real urban geographic environments and language-paired human demonstrations to study aerial navigation with visual and geographic information. Real-city data do not automatically mean autonomous flights by real drones. State whether geographic information and maps are available. See [paper v3](https://arxiv.org/abs/2406.14240v3).
 
 **Maps are additional input**: geographic coordinates, maps, and prior locations may substantially change search. Compare vision-language inputs, added geographic information, and added maps, and report city splits. Cross-city evaluation better tests transfer of spatial semantics, but asset and data overlap must still be controlled.
 
-### 6.6.3 OpenFly (A Comprehensive Platform for Aerial Vision-Language Navigation)
-{: id="663-openfly-a-comprehensive-platform-for-aerial-vision-language-navigation"}
+### 6.6.3 OpenFly
+{: id="663-openfly"}
 
 OpenFly combines multiple rendering engines, automated data-collection tools, and an aerial-navigation benchmark. Its contribution includes data production and environment coverage. Cross-engine generalization still requires separation of training and testing engines, scenes, and assets. See [paper v7](https://arxiv.org/abs/2502.18041v7).
 
 **Cross-engine transfer changes more than appearance**: rendering, coordinates, depth definitions, and action execution can differ. Align these interfaces first, then distinguish same-scene/different-renderer, same-engine/different-scene, and cross-engine/cross-scene experiments. After generating many trajectories, sample-check that language describes actually visible landmarks and the executed routes.
 
-## 6.7 Data conventions to record for reproduction
-{: id="67-复现时需要记录的数据口径"}
+## 6.7 Data conventions for reproduction
+{: id="67-复现需记录的数据口径"}
 
 Record original versions, scene lists, episode and unique-instruction counts, language subsets, Guide/Follower types, and filtering rules. State whether extra training data touch test buildings or derived assets. Unknown overlap in private pretraining data should be marked "not disclosed," not assumed absent.
 
@@ -1412,16 +1412,16 @@ InternUtopia organizes scenes, robots, and embodied tasks on Isaac Sim. At the t
 | Study navigation and manipulation | AI2-THOR / iGibson / OmniGibson | Object states, completion conditions, interaction costs |
 | Reproduce aerial VLN | Paper-specified AirSim or other engine | Flight interfaces, urban assets, geographic inputs, splits |
 
-## 7.10 Platform and simulator selection
-{: id="710-平台系统与选型建议"}
+## 7.10 Choosing a platform
+{: id="710-选型建议"}
 
-### 7.10.1 Host operating system: Windows versus Linux
-{: id="7101-按开发宿主操作系统windows-vs-linux选型"}
+### 7.10.1 By host OS
+{: id="7101-按操作系统选型"}
 
 Check support for the **complete research codebase** before the underlying engine. Windows users can choose natively supported Isaac Sim / Isaac Lab; other projects should follow official Linux-host, container, or validated WSL configurations. Running Linux programs under WSL does not guarantee that EGL, Vulkan, CUDA, window systems, and simulation assets work without further setup.
 
-### 7.10.2 Research task
-{: id="7102-按研究任务类型选型"}
+### 7.10.2 By research task
+{: id="7102-按研究任务选型"}
 
 Use the original task environment for reproduction, add morphology and contacts when studying dynamics, and add interactive objects when studying interaction. Tie each additional simulation capability to a research question and establish baselines for new variables. Avoid ranking platforms with fast/slow labels across unmatched hardware and scenes.
 
@@ -1494,8 +1494,8 @@ Definitions in the first three groups are relatively consistent across benchmark
 
 <a id="81-评测体系总览与设计哲学"></a>
 
-## 8.1 Fix the protocol before interpreting metrics
-{: id="81-先固定评测协议再解释指标"}
+## 8.1 Protocols and metric reading
+{: id="81-评测协议与指标解读"}
 
 Record task and split, sensors and field of view, depth/pose/map access, action interface, stop and timeout rules, distance function, success threshold, extra training data, and inference budget. R2R graphs, Habitat navigable surfaces, and aerial scenes are different distance spaces.
 
@@ -1507,8 +1507,8 @@ Record task and split, sensors and field of view, depth/pose/map access, action 
 | More accurate object finding | Navigation + appropriate grounding metrics | Equal difficulty of general ObjectNav and referring-expression navigation |
 | Better real-robot suitability | Real completion, collisions, interventions, latency, failure categories | Equal reliability on other robots and environments |
 
-### 8.1.1 Typical trajectories and their metric responses
-{: id="811-典型轨迹形态与多维指标响应矩阵"}
+### 8.1.1 Trajectories and metric responses
+{: id="811-轨迹形态与指标响应"}
 
 These are illustrations for understanding metrics, not results from a particular paper. Assume an instruction requires visiting landmarks before reaching the endpoint:
 
@@ -1547,7 +1547,7 @@ flowchart TB
 Retain per-episode results after selecting metrics. Overall means can hide substantial degradation on long routes, particular languages or robots, or specific failure conditions.
 
 ### 8.1.3 Core metric overview
-{: id="813-核心评估指标全景矩阵"}
+{: id="813-核心指标总览"}
 
 | Metric | Main question | Direction | Key limitation |
 |:---|:---|:---|:---|
@@ -1561,8 +1561,8 @@ Retain per-episode results after selecting metrics. Overall means can hide subst
 | TL | How far did the agent travel? | No universally preferred direction; usually meters | Interpret with SR and reference length; short travel may mean premature stopping |
 | RGS / RGSPL | Was the referred target object selected correctly? | ↑ | Specific to REVERIE-like tasks; disclose object candidates and decision criteria |
 
-### 8.1.4 Metric discrepancies and diagnostic directions
-{: id="814-常见指标反差与排查方向"}
+### 8.1.4 Diagnosing metric gaps
+{: id="814-指标反差排查"}
 
 | Observation | Possible cause | How to verify |
 |:---|:---|:---|
@@ -1574,8 +1574,8 @@ Retain per-episode results after selecting metrics. Overall means can hide subst
 
 These are hypotheses to test. Multiple mechanisms can produce the same discrepancy; it does not justify immediately concluding that a model lacks reasoning or merely memorizes.
 
-## 8.2 Goal completion and localization accuracy
-{: id="82-目标达成与定位精度指标"}
+## 8.2 Goal completion metrics
+{: id="82-目标达成指标"}
 
 ### 8.2.1 Success Rate (SR)
 {: id="821-success-rate-sr"}
@@ -1626,11 +1626,11 @@ flowchart LR
 
 This gap motivates inspection of stopping, target recognition, and backtracking. High OSR alone does not prove accurate localization: the trajectory may pass the goal accidentally, or the model may never recognize that it has seen it.
 
-## 8.3 Path efficiency and instruction fidelity
-{: id="83-路径效率与指令保真度指标"}
+## 8.3 Path efficiency and fidelity
+{: id="83-路径效率与保真度"}
 
-### 8.3.1 Success weighted by Path Length (SPL)
-{: id="831-success-weighted-by-path-length-spl"}
+### 8.3.1 SPL
+{: id="831-spl"}
 
 Let $l_i$ be the shortest feasible start-to-goal path length and $p_i$ the actual traveled length:
 
@@ -1672,8 +1672,8 @@ Together, these four yield SR 0.75 and SPL 0.625. The third travels less than th
 
 SPL assigns zero to failures and an inverse-length penalty to successful but excessive travel. It does not require visiting every instructed landmark. When instructions require a detour, faithful execution can lower SPL, motivating path-fidelity metrics.
 
-### 8.3.2 Coverage weighted by Length Score (CLS)
-{: id="832-coverage-weighted-by-length-score-cls"}
+### 8.3.2 CLS
+{: id="832-cls"}
 
 For reference path $R$ and predicted path $P$, define point-to-path distance as $d(r,P)=\min_{p\in P}d(r,p)$. CLS combines soft coverage with length matching:
 
@@ -1712,8 +1712,8 @@ PC values here are chosen for illustration, not measured from a route diagram; 0
 
 CLS can reveal arrival that skips parts of the reference route, but identical coverage sets can have different visit orders. This motivates DTW alignment below.
 
-### 8.3.3 normalized Dynamic Time Warping (nDTW & SDTW)
-{: id="833-normalized-dynamic-time-warping-ndtw--sdtw"}
+### 8.3.3 nDTW and SDTW
+{: id="833-ndtw-与-sdtw"}
 
 DTW finds order-constrained path alignments while allowing different sample counts. Common normalized and success-weighted forms are:
 
@@ -1754,34 +1754,34 @@ $$
 
 For example, if $\lvert R\rvert=4$, $d_{th}=3$ m, and DTW is 6 m, nDTW is $e^{-0.5}\approx0.607$. If that episode fails, its SDTW is 0. With a second successful episode at nDTW 0.8, mean nDTW is about 0.704 and mean SDTW is 0.4. Apply success weighting per episode; overall SR times overall nDTW is not a substitute.
 
-## 8.4 Embodied safety, physical interaction, and deployment metrics
-{: id="84-具身安全物理交互与部署级指标"}
+## 8.4 Safety and deployment metrics
+{: id="84-安全与部署指标"}
 
-### 8.4.1 Geometric obstacle avoidance and social safety
-{: id="841-几何避障与社交安全指标"}
+### 8.4.1 Collision and social safety
+{: id="841-避障与社交安全"}
 
 Collisions can be counted per action step, contact event, or episode, yielding different denominators. Define Collision Rate / Human Collision Rate explicitly and report completion alongside them, avoiding apparent safety from remaining stationary. Personal-space violations are also broader than physical contact.
 
-### 8.4.2 Dynamic stability and irreversible failures
-{: id="842-动力学稳定性与不可逆故障指标"}
+### 8.4.2 Dynamic stability
+{: id="842-动力学稳定性"}
 
 Record falls, immobilization, emergency stops, and manual resets separately. Specify pose or time thresholds, recovery budgets, and whether resets terminate an episode. Different embodiments have different failure modes; do not combine them into an unconditional embodied-success score.
 
-### 8.4.3 System efficiency and real-time control
-{: id="843-系统级效率与控制实时性指标"}
+### 8.4.3 Efficiency and real-time control
+{: id="843-系统效率与实时性"}
 
 Report camera-to-action end-to-end latency, including mean and tail latency, hardware, batch size, resolution, history length, and model invocation mode. Also report control frequency, GPU memory, API/token costs, task time, and human interventions. A model's forward-pass FPS is not the robot's effective control frequency.
 
-## 8.5 Evaluation protocols and their development
-{: id="85-评测协议规范与演进趋势"}
+## 8.5 Evaluation protocols
+{: id="85-评测协议规范"}
 
-### 8.5.1 Val-Seen and Val-Unseen boundaries
-{: id="851-val-seen-与-val-unseen-的划分与边界"}
+### 8.5.1 Val-Seen and Val-Unseen
+{: id="851-val-seen-与-val-unseen"}
 
 Seen / Unseen usually split benchmark scenes to measure scene generalization within the same task. They do not guarantee that large-scale pretraining excluded related buildings, images, or derived assets, nor establish cross-robot, cross-language, or real-world generalization.
 
 ### 8.5.2 Fair comparison checklist
-{: id="852-公平对比检查清单-fair-comparison-checklist"}
+{: id="852-公平对比清单"}
 
 - **Same inputs**: camera count, field of view, depth, pose, and map access.
 - **Same task**: data version, language subset, episodes, goals, and stopping criteria.
@@ -1791,8 +1791,8 @@ Seen / Unseen usually split benchmark scenes to measure scene generalization wit
 
 <a id="853-评测体系的历史演进与代际跃迁"></a>
 
-### 8.5.3 From leaderboard scores to reproducible evidence
-{: id="853-从榜单成绩到可复现证据"}
+### 8.5.3 Reproducible evidence
+{: id="853-可复现证据"}
 
 Identify the paper version and result table first, then check the official evaluator. The VLN-CE repository has explicitly noted that SPL differences between a paper and leaderboard for the same baseline relate to hardware and Habitat builds. Protocols and implementations are themselves part of the experiment. See the [official reproduction notes](https://github.com/jacobkrantz/VLN-CE#baseline-performance).
 
@@ -1861,8 +1861,8 @@ A useful learning order is classic tasks → continuous environments → foundat
 
 <a id="survey-practice"></a>
 
-## 9.2 From paper to experiment: a reproducible workflow
-{: id="92-从论文到实验一条可复现的实施路径"}
+## 9.2 A reproducible workflow
+{: id="92-可复现的实施路径"}
 
 This survey proposes the following workflow for turning methods from the companion readings into comparable systems.
 
@@ -1881,8 +1881,8 @@ This survey proposes the following workflow for turning methods from the compani
 
 <a id="survey-open-questions"></a>
 
-## 9.3 Established evidence, open questions, and research judgments
-{: id="93-已有证据开放问题与研究判断"}
+## 9.3 Open questions
+{: id="93-开放问题与研究判断"}
 
 The reviewed work supports several **conclusions with explicit scope**: R4R and path metrics show the need to measure arrival and instruction fidelity separately; ETPNav and DualVLN demonstrate concrete planning/execution divisions; ScaleVLN establishes training resources as an important performance variable; VLN-PE provides experimental evidence that visual and physical gaps affect navigation. These findings come from [path-following research](https://arxiv.org/abs/1905.12255), [continuous graph planning](https://arxiv.org/abs/2304.03047), [dual-system design](https://arxiv.org/abs/2512.08186), [data scaling](https://arxiv.org/abs/2307.15644), and [physical embodiment evaluation](https://arxiv.org/abs/2507.13019). They do not establish one optimal architecture for every task.
 
@@ -1920,8 +1920,8 @@ Data-counting conventions, platform support, and core metrics were verified toge
 ## 10.1 Datasets and benchmarks
 {: id="101-数据集与基准"}
 
-### 10.1.1 Instruction-oriented and continuous-environment datasets
-{: id="1011-指令导向与连续环境数据集"}
+### 10.1.1 Instruction-following and continuous
+{: id="1011-指令导向与连续环境"}
 
 1. **R2R** — Anderson et al., *Vision-and-Language Navigation: Interpreting Visually-Grounded Navigation Instructions in Real Environments*, CVPR 2018. [[Paper]](https://arxiv.org/abs/1711.07280)
 2. **R4R** — Jain et al., *Stay on the Path: Instruction Fidelity in Vision-and-Language Navigation*, ACL 2019. [[Paper]](https://arxiv.org/abs/1905.12255)
@@ -1933,24 +1933,24 @@ Data-counting conventions, platform support, and core metrics were verified toge
 8. **InternData-N1** — InternRobotics (Shanghai AI Laboratory), large-scale synthetic navigation data for InternVLA-N1 in LeRobot format, 2025. [[Dataset]](https://huggingface.co/datasets/InternRobotics/InternData-N1) [[Code]](https://github.com/InternRobotics/InternNav)
 9. **VLNVerse** — Lin et al., *VLNVerse: A Benchmark for Vision-Language Navigation with Versatile, Embodied, Realistic Simulation and Evaluation*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2512.19021)
 
-### 10.1.2 Goal-oriented and long-horizon planning datasets
-{: id="1012-目标导向与长程规划数据集"}
+### 10.1.2 Goal-oriented and long-horizon
+{: id="1012-目标导向与长程规划"}
 
 10. **REVERIE** — Qi et al., *REVERIE: Remote Embodied Visual Referring Expression in Real Indoor Environments*, CVPR 2020. [[Paper]](https://arxiv.org/abs/1904.10151)
 11. **REVERIE-CE** — A family of continuous-environment adaptations without a unified official protocol. Cite the specific paper's conversion implementation; see Section 6.3.2.
 12. **SOON** — Zhu et al., *SOON: Scenario Oriented Object Navigation with Graph-based Exploration*, CVPR 2021. [[Paper]](https://arxiv.org/abs/2103.17138)
 13. **LHPR-VLN** — Song et al., *Towards Long-Horizon Vision-Language Navigation: Platform, Benchmark and Method*, CVPR 2025. [[Paper]](https://arxiv.org/abs/2412.09082)
 
-### 10.1.3 Dialog-based and socially aware datasets
-{: id="1013-对话式与社交感知数据集"}
+### 10.1.3 Dialog and social
+{: id="1013-对话式与社交感知"}
 
 14. **CVDN** — Thomason et al., *Vision-and-Dialog Navigation*, CoRL 2019. [[Paper]](https://arxiv.org/abs/1907.04957)
 15. **TEACh** — Padmakumar et al., *TEACh: Task-driven Embodied Agents that Chat*, AAAI 2022. [[Paper]](https://arxiv.org/abs/2110.00534)
 16. **HA-VLN** — Li et al., *Human-Aware Vision-and-Language Navigation: Bridging Simulation to Reality with Dynamic Human Interactions*, NeurIPS 2024 Datasets and Benchmarks Track. [[Paper]](https://arxiv.org/abs/2406.19236)
 17. **HA-VLN 2.0** — Dong et al., *HA-VLN 2.0: An Open Benchmark and Leaderboard for Human-Aware Navigation in Discrete and Continuous Environments*, IROS 2026 (first posted to arXiv in 2025; checked v5). [[Paper]](https://arxiv.org/abs/2503.14229v5)
 
-### 10.1.4 Demand-oriented, outdoor, and aerial datasets
-{: id="1014-需求导向室外街景与空中数据集"}
+### 10.1.4 Demand-driven, outdoor and aerial
+{: id="1014-需求导向街景与空中"}
 
 18. **DDN** — Wang et al., *Find What You Want: Learning Demand-conditioned Object Attribute Space for Demand-driven Navigation*, NeurIPS 2023. [[Paper]](https://arxiv.org/abs/2309.08138)
 19. **Touchdown** — Chen et al., *Touchdown: Natural Language Navigation and Spatial Reasoning in Visual Street Environments*, CVPR 2019. [[Paper]](https://arxiv.org/abs/1811.12354)
@@ -1972,15 +1972,15 @@ Data-counting conventions, platform support, and core metrics were verified toge
 26. **Recurrent VLN-BERT** — Hong et al., *A Recurrent Vision-and-Language BERT for Navigation*, CVPR 2021. [[Paper]](https://arxiv.org/abs/2011.13922)
 27. **HAMT** — Chen et al., *History Aware Multimodal Transformer for Vision-and-Language Navigation*, NeurIPS 2021. [[Paper]](https://arxiv.org/abs/2110.13309)
 
-### 10.2.2 Topological graphs, semantic maps, and spatial memory
-{: id="1022-拓扑图语义地图与空间记忆"}
+### 10.2.2 Topological graphs and memory
+{: id="1022-拓扑图与空间记忆"}
 
 28. **DUET** — Chen et al., *Think Global, Act Local: Dual-scale Graph Transformer for Vision-and-Language Navigation*, CVPR 2022. [[Paper]](https://arxiv.org/abs/2202.11742)
 29. **ETPNav** — An et al., *ETPNav: Evolving Topological Planning for Vision-Language Navigation in Continuous Environments*, IEEE TPAMI 2024. [[Paper]](https://arxiv.org/abs/2304.03047)
 30. **LagMemo** — Zhou et al., *LagMemo: Language 3D Gaussian Splatting Memory for Multi-modal Open-vocabulary Multi-goal Visual Navigation*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2510.24118)
 
-### 10.2.3 Fast-slow dual systems and navigation foundation models
-{: id="1023-快慢双系统与导航基础模型"}
+### 10.2.3 Fast-slow dual systems
+{: id="1023-快慢双系统"}
 
 31. **DualVLN** — Wei et al., *Ground Slow, Move Fast: A Dual-System Foundation Model for Generalizable Vision-and-Language Navigation*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2512.08186)
 32. **NaVILA** — Cheng et al., *NaVILA: Legged Robot Vision-Language-Action Model for Navigation*, RSS 2025. [[Paper]](https://arxiv.org/abs/2412.04453)
@@ -1989,8 +1989,8 @@ Data-counting conventions, platform support, and core metrics were verified toge
 35. **OmniNav** — Xue et al., *OmniNav: A Unified Framework for Prospective Exploration and Visual-Language Navigation*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2509.25687)
 36. **Qwen-RobotNav** — Zhang et al., *Qwen-RobotNav Technical Report: A Scalable Navigation Model Designed for an Agentic Navigation System*, arXiv 2026. [[Paper]](https://arxiv.org/abs/2606.18112)
 
-### 10.2.4 End-to-end video VLMs and continuous-environment policies
-{: id="1024-端到端视频-vlm-与连续环境策略"}
+### 10.2.4 Video VLMs and continuous policies
+{: id="1024-视频-vlm-与连续策略"}
 
 37. **Waypoint Models** — Krantz et al., *Waypoint Models for Instruction-guided Navigation in Continuous Environments*, ICCV 2021. [[Paper]](https://arxiv.org/abs/2110.02207)
 38. **NaVid** — Zhang et al., *NaVid: Video-based VLM Plans the Next Step for Vision-and-Language Navigation*, RSS 2024. [[Paper]](https://arxiv.org/abs/2402.15852)
@@ -2005,8 +2005,8 @@ Data-counting conventions, platform support, and core metrics were verified toge
 43. **NoMaD** — Sridhar et al., *NoMaD: Goal Masked Diffusion Policies for Navigation and Exploration*, ICRA 2024. [[Paper]](https://arxiv.org/abs/2310.07896)
 44. **ViPlanner** — Roth et al., *ViPlanner: Visual Semantic Imperative Learning for Local Navigation*, ICRA 2024. [[Paper]](https://arxiv.org/abs/2310.00982)
 
-### 10.2.6 World models and world-action models
-{: id="1026-世界模型与世界动作模型"}
+### 10.2.6 World models
+{: id="1026-世界模型"}
 
 45. **Navigation World Models (NWM)** — Bar et al., *Navigation World Models*, CVPR 2025. [[Paper]](https://arxiv.org/abs/2412.03572) [[Project]](https://www.amirbar.net/nwm/)
 46. **Dynam3D** — Wang et al., *Dynam3D: Dynamic Layered 3D Tokens Empower VLM for Vision-and-Language Navigation*, NeurIPS 2025. [[Paper]](https://arxiv.org/abs/2505.11383)
@@ -2016,8 +2016,8 @@ Data-counting conventions, platform support, and core metrics were verified toge
 50. **DreamVLA** — Zhang et al., *DreamVLA: A Vision-Language-Action Model Dreamed with Comprehensive World Knowledge*, NeurIPS 2025. [[Paper]](https://arxiv.org/abs/2507.04447) [[Project]](https://zhangwenyao1.github.io/DreamVLA/)
 51. **NVIDIA Cosmos** — NVIDIA, *Cosmos World Foundation Model Platform for Physical AI*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2501.03575) [[Project]](https://www.nvidia.com/en-us/ai/cosmos/)
 
-### 10.2.7 Agents, self-evolution, and general VLA
-{: id="1027-agent自我进化与通用-vla"}
+### 10.2.7 Agents and general VLA
+{: id="1027-agent-与通用-vla"}
 
 52. **AgentVLN** — Xin et al., *AgentVLN: Towards Agentic Vision-and-Language Navigation*, arXiv 2026. [[Paper]](https://arxiv.org/abs/2603.17670) [[Code]](https://github.com/Allenxinn/AgentVLN)
 53. **SE-VLN** — Dong et al., *SE-VLN: A Self-Evolving Vision-Language Navigation Framework Based on Multimodal Large Language Models*, arXiv 2025. [[Paper]](https://arxiv.org/abs/2507.13152)
@@ -2048,8 +2048,8 @@ Data-counting conventions, platform support, and core metrics were verified toge
 
 ---
 
-## 10.5 Reinforcement learning and closed-loop post-training
-{: id="105-强化学习与闭环后训练"}
+## 10.5 RL and post-training
+{: id="105-强化学习与后训练"}
 
 66. **DAgger** — Ross et al., *A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning*, AISTATS 2011. [[Paper]](https://arxiv.org/abs/1011.0686)
 67. **RCM** — Wang et al., *Reinforced Cross-Modal Matching and Self-Supervised Imitation Learning for Vision-Language Navigation*, CVPR 2019. [[Paper]](https://arxiv.org/abs/1811.10092)

@@ -283,7 +283,7 @@ $$y_i = \sum_{x_j \in \mathcal{N}(x_i)} \rho\!\left(\gamma\!\left(\phi(x_i) - \p
 
 ---
 
-### 三维感知基础模型（2024–2026 最新进展）
+### 三维感知基础模型
 **Uni3D**（Zhou et al., ICLR 2024）是首个大规模统一三维感知基础模型。通过在 1000 万以上三维对象上进行对比预训练，Uni3D 学习到跨类别、跨数据集的通用三维点云特征，在零样本三维理解和跨模态检索（点云↔图像↔文本）等任务上取得突破性进展。
 
 **OpenShape**（Liu et al., NeurIPS 2023）利用文本-三维形状对进行大规模多模态对比学习，将 CLIP 的开放词汇理解能力迁移至三维领域，支持零样本三维分类（ModelNet40 上约 85% top-1 准确率，无需三维训练数据）。
@@ -393,7 +393,7 @@ $$E(D) = \sum_{\mathbf{p}} \left( C(\mathbf{p}, D_\mathbf{p}) + \sum_{\mathbf{q}
 
 ---
 
-## 4.3 神经三维重建：从隐式到显式
+## 4.3 神经三维重建
 
 ### 经典 SfM/MVS 管线
 
@@ -466,7 +466,7 @@ $$\hat{C}(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\,\sigma\!\left(\mathbf{r}(t)\right
 
 ---
 
-### 端到端稠密三维重建（2024–2026）
+### 端到端稠密重建
 
 **DUSt3R**（Wang et al., CVPR 2024）提出端到端稠密三维重建新范式，将传统 SfM 管线（特征匹配→位姿估计→密集重建）统一为单一 Transformer 网络：输入任意图像对（无需已知相机参数），直接预测稠密点图（Pointmap），再通过全局优化融合多图。DUSt3R 突破了传统方法对高重叠度图像对的依赖，在极端视角变换下依然稳健。
 
@@ -474,7 +474,7 @@ $$\hat{C}(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\,\sigma\!\left(\mathbf{r}(t)\right
 
 ---
 
-### VGGT：通用三维视觉基础模型 (2025)
+### VGGT (2025)
 
 **VGGT**（Visual Geometry Grounded Transformer，Wang et al., **CVPR 2025 Best Paper**，arXiv:2503.11651）是 DUSt3R/MASt3R 路线的集大成者，也是首个真正意义上的"通用三维视觉基础模型"。其核心突破是用**单个前馈 Transformer** 在亚秒级一次推理中，同时预测一组图像（从单张到数百张）所对应的**全部关键三维属性**：
 
@@ -538,7 +538,7 @@ graph TD
 
 ---
 
-### MapAnything：通用度量级前馈重建模型 (2026)
+### MapAnything (2026)
 
 **MapAnything**（Keetha et al., Meta Reality Labs & CMU, arXiv:2509.13414）将 VGGT 的"统一前馈"范式进一步推向**通用化**与**度量化**。VGGT 只吃图像、输出 up-to-scale 几何，而 MapAnything 补上两个关键缺口：**(1)** 灵活接受任意几何先验（相机内参、位姿、深度）作为**可选输入**；**(2)** 直接输出**度量级（metric-scale）**三维与相机。单个模型由此覆盖无标定 SfM、标定 MVS、单目/多视角深度估计、相机定位、度量深度补全等 **12+ 种任务、64 种输入组合**。
 
@@ -589,7 +589,7 @@ graph TD
 
 ## 4.4 三维目标检测与场景理解
 
-### VoxelNet, SECOND 与 PointPillars
+### VoxelNet / SECOND / PointPillars
 **VoxelNet**（Zhou & Tuzel, CVPR 2018）是第一个端到端直接从激光雷达点云学习三维目标检测的框架。它将点云体素化，在每个非空体素内用 VFE（Voxel Feature Encoding）层提取局部特征，再通过三维卷积骨干网络和 RPN 完成检测，消除了人工特征工程。然而，由于使用常规稠密三维卷积，其计算与显存开销极大，限制了其实时性。
 
 <div align="center">
@@ -719,7 +719,7 @@ graph LR
 
 ---
 
-### 空间智能大模型进展（2024–2026）
+### 空间智能大模型进展
 
 **SpatialBot**（Cai et al., 2024）专门针对机器人空间理解任务，整合深度图与 RGB 图像，增强 VLM 在物体空间布局与距离估计等任务上的能力，并构建了相应的评测基准。**RoboSpatial**（2024）提出面向机器人操控的空间理解数据集与模型，系统研究了 VLM 空间推理能力与机器人任务成功率之间的关联。**Chat-3D v2**（Wang et al., 2024）通过对象感知的三维特征注入，支持多轮对话式三维场景理解，可回答"帮我找一把椅子放在桌子旁边"等具身交互指令。
 
@@ -727,7 +727,7 @@ graph LR
 
 ---
 
-### 多视角图像驱动的 3D 场景 MLLM 与重建式监督
+### 多视角 3D 场景 MLLM
 
 前述 3D-LLM（[§6.7](#sec-6-7)）、PointLLM-V2（[§6.8](#sec-6-8)）以**点云**为输入，GaussianVLM（[§6.6](#sec-6-6)）、SplatTalk（[§6.3](#sec-6-3)）以**3DGS**为载体。但这两类都依赖额外的三维重建或扫描预处理。另一条更贴近实际部署的路线是**直接复用为 2D 内容设计的大型多模态模型（LMM），仅以带位姿的多视角图像／视频帧为输入**，把三维感知作为隐式能力注入，从而无需显式点云。**LLaVA-3D**（2024）将 2D patch 特征按相机位姿"提升"为 3D patch，**Video-3D LLM**（2025）则把视频帧与三维位置编码绑定，二者均验证了"视频帧 + 位姿"即可支撑 ScanQA、SQA3D 等三维问答任务。
 
@@ -745,13 +745,13 @@ graph LR
 
 ---
 
-### HiSpatial：分层式三维空间理解 (CVPR 2026)
+### HiSpatial (CVPR 2026)
 
 **HiSpatial**（Microsoft，**CVPR 2026**，arXiv:2603.25411）是当前 VLM 空间推理方向最系统的标杆工作。其核心主张是：三维空间理解应像人类认知发育一样**逐级搭建**——缺乏底层几何与度量基础，高阶抽象推理几乎无法习得。为此它将空间理解显式拆解为 Level 0（基础几何感知）→ Level 1（物体级理解）→ Level 2（物体间关系）→ Level 3（抽象推理）四个层层依赖的层级，配合无人工标注的自动化数据引擎（约 500 万图像 / 20 亿 QA）与注入**度量尺度点图**的 RGB-D VLM，以仅 3B 参数在 SpatialRGPT、QSpatial、RoboSpatial 等多个基准上超越 Gemini-2.5-Pro、GPT-5。作为本综述"具身 / VLM 空间推理"主线的代表性工作，**完整解析详见 [§6.10](#sec-6-10)**。
 
 ---
 
-### 语言高斯溅射 (Language Gaussian Splatting)
+### 语言高斯溅射
 这是 2025 年最新的研究前沿，将语义特征"喷涂"到 3DGS 高斯基元上，使三维场景兼具几何精度与语义可查询性。代表作包括 **SplatTalk (2025)**、**LangSplatV2 (2025)**、**4D LangSplat (2025)** 和 **GaussianVLM (2025)**。这些工作共同推动了三维场景表示与语言交互的深度融合。
 
 ---
@@ -817,7 +817,7 @@ graph LR
 - 标注一致性：不同数据集对类别定义、坐标系、度量单位可能不同（例如 Metric depth 的尺度），实验前需对数据预处理（坐标变换、分辨率、语义类映射）做严格统一。
 - 训练/测试泄露：使用大规模预训练（3D/2D）模型时，注意数据集交叉包含的场景/对象可能导致评测偏高，应采用严格的场景分割（scene-level split）。
 
-## 5.4 推荐基准组合（研究者/工程师视角）
+## 5.4 推荐基准组合
 
 - 原型研究（快速验证算法想法）：ModelNet / ShapeNet（小样本、合成、训练快）
 - 室内三维感知与语义：ScanNet v2 + S3DIS + ScanRefer（语义+定位）
@@ -916,7 +916,7 @@ NeRF 的主要局限在于训练和推理速度极慢（训练单个场景需一
 
 ---
 
-## 6.2 3D Gaussian Splatting (2023)
+## 6.2 3DGS (2023)
 ———Real-Time Radiance Field Rendering via Differentiable Gaussian Primitives
 
 📄 **Paper**: https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/
@@ -1466,7 +1466,7 @@ GaussianVLM 依赖 3DGS pipeline 重建场景，在光照不均或反射材质�
 | 4D LangSplat | 动态场景查询（4D） | MLLM 生成时序文本监督 | 双语言场 + 状态可变形网络 |
 | GaussianVLM | 场景中心 VQA（静态） | 避免检测器依赖 | 双路径稀疏化器（任务/位置引导） |
 
-## 6.7 3D-LLM: Injecting the 3D World into Large Language Models (2023)
+## 6.7 3D-LLM (2023)
 {:#sec-6-7}
 ——— 将 3D 物理世界注入大语言模型
 
@@ -1884,7 +1884,7 @@ LLaVA-3D 框架基于 LLaVA-Video 改进，由 CLIP 图像编码器、2D-to-3D �
 
 ---
 
-## 6.12 LLaVA-Video (2024, TMLR 2025)
+## 6.12 LLaVA-Video (2024)
 ———用高质量合成数据做视频指令微调：LLaVA-Video-178K 数据集 + SlowFast 视频表示
 
 📄 **Paper**: [arXiv:2410.02713](https://arxiv.org/abs/2410.02713)
@@ -2455,7 +2455,7 @@ $$L_{\mathrm{grad}}(\hat{D}, D) = \lVert \nabla_x \hat{D} - \nabla_x D \rVert_1 
 
 ---
 
-## 6.17 MuM: Multi-View Masked Image Modeling for 3D Vision (2025)
+## 6.17 MuM (2025)
 ———多视角掩码图像建模：专为三维视觉任务打造的自监督多视几何特征表征模型
 
 📄 **Paper**: [arXiv:2511.17309](https://arxiv.org/abs/2511.17309)
@@ -2559,7 +2559,7 @@ $$L_{\text{distill}}(\theta) = \sum_{i=1}^{n} ( \lVert P_i^t - P_i^s \rVert^2 + 
 
 ---
 
-## 6.18 VLM³: Vision Language Models Are Native 3D Learners (2026)
+## 6.18 VLM³ (2026)
 ———首个仅用标准文本 SFT 让 VLM 掌握高精度单目/多目 3D 空间理解能力的极简框架
 
 📄 **Paper**: [arXiv:2605.30561](https://arxiv.org/abs/2605.30561)
@@ -2977,7 +2977,7 @@ $$L = \lambda L_{stream} + L_{LM}$$
 
 ---
 
-## 6.22 MDM: Masked Depth Modeling for Spatial Perception (2026)
+## 6.22 MDM (2026)
 ——— 基于遮蔽深度建模与海量 RGB-D 数据的通用三维空间几何感知底座
 
 📄 **Paper**: [arXiv:2601.17895](https://arxiv.org/abs/2601.17895) · [Project Page](https://technology.robbyant.com/lingbot-depth) · [Code](https://github.com/robbyant/lingbot-depth)
@@ -3429,7 +3429,7 @@ $$L_{normal} = \sum_{i=1}^N \sum_{j=1}^{H \times W} \arccos(\hat{n}_{i,j} \cdot 
 
 ### 4. 局限性
 * **大参数模型联合训练的稳定性**：在 7B 或 72B 等超大型 VLM 框架下同时微调低层视觉专家与 LLM 存在收敛不稳定的问题，对学习率曲线的调整和混合 3D 重建数据集的配比提出了更高的工程要求。
-## 6.24 SparseOccVLA (2026) {#6-24-sparseoccvla}
+## 6.24 SparseOccVLA (2026)
 ——首个将 3D 语义占用（Occupancy）与视觉-语言模型（VLM）原生融合的具身自动驾驶规划模型
 
 📄 **Paper**: https://arxiv.org/abs/2601.06474v2
@@ -3512,7 +3512,7 @@ SparseOccVLA 包含三个核心组件：**稀疏占用编码器（Sparse Occupan
 
 - 高度依赖稠密且高质量的 3D 语义占用真实标签（Occupancy Ground Truth），获取和生成此类监督标签具有极高的标注成本；
 - 仅在 nuScenes 等开环自动驾驶规划基准上完成了验证，其在闭环仿真环境下的规划与控制稳定性仍有待在未来工作中进一步探究。
-## 6.25 GenCeption (2026) {#6-25-genception}
+## 6.25 GenCeption (2026)
 ——视频生成模型是通用视觉学习器
 
 📄 **Paper**: https://arxiv.org/abs/2607.09024
@@ -3615,7 +3615,7 @@ $$d' = \text{clip}(\alpha \log(d+1), 0, 1)$$
 
 ### 4. 局限性
 * **密集与稀疏任务的联合冲突**：实验发现，在同时微调密集像素任务与稀疏坐标任务时，稀疏任务的表现会大幅下滑，且连带密集感知任务也会产生轻微退化。分析表明，外挂的可学习 Token 会在没有充分多任务微调数据的情况下，破坏 DiT 原本的注意力权重，且在几何表征层面上与连续的像素空间重构具有一定冲突。在进行微调时，应更加小心设计以保证网络骨干的“零侵入性”。
-## 6.26 S-Agent (2026) {#6-26-s-agent}
+## 6.26 S-Agent (2026)
 ——空间工具调用激发具身空间智能推理
 
 📄 **Paper**: [arXiv:2606.20515](https://arxiv.org/abs/2606.20515) · [Project Page](https://ropedia.github.io/S-Agent/)
@@ -3724,7 +3724,7 @@ $$(\mathcal{S}_{t+1}, \mathcal{H}_{t+1}) = \text{Update}(\mathcal{S}_t, \mathcal
 
 ---
 
-## 6.27 Qwen-3D (2026) {#6-27-qwen-3d}
+## 6.27 Qwen-3D (2026)
 ———通用 3D 视觉语言多模态大模型，以世界坐标系自注意力与无瓶颈 Query 掩码解码统一 2D/3D 空间定位与推理
 
 📄 **Paper**: [arXiv:2608.02980](https://arxiv.org/abs/2608.02980) · [Project Page](https://qwen-3d.github.io/)
@@ -3881,7 +3881,7 @@ $$L = \alpha_{mask} L_{mask} + \alpha_{textground} L_{textground} + \alpha_{gen}
 
 空间智能是迈向具身通用人工智能的核心能力之一。本文系统梳理了从基础离散几何学习到最新的大模型驱动空间推理的技术路径。
 
-### 空间智能与世界模型 (World Models)
+### 空间智能与世界模型
 在 2025-2026 年的语境下，空间智能不再仅仅是机器人或自动驾驶的一个组件，它正在成为 **“物理世界模型”** 的几何骨架。目前的 SOTA 模型如 GaussianVLM 已能处理复杂的空间问答，但真正的挑战在于 **“物理推理（Physical Reasoning）”**：
 - **因果关系预测**：理解物体间的物理约束（如：如果撤掉底部的积木，上方的积木会如何塌陷？）。
 - **具身常识推理**：在交互过程中理解物体的材质、质量与摩擦力。
