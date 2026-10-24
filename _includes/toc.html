@@ -32,7 +32,16 @@
     {% assign minHeader = include.h_min | default: 1 %}
     {% assign maxHeader = include.h_max | default: 6 %}
     {% assign nodes = include.html | split: '<h' %}
-    {% assign firstHeader = true %}
+    {% comment %} 以全文实际出现的最高标题级别为准，避免开头的低级标题把后面的高级标题挤出目录 {% endcomment %}
+    {% assign headerLevel = false %}
+    {% assign indentAmount = false %}
+    {% assign topHeader = maxHeader %}
+    {% for node in nodes %}
+        {% if node == "" %}{% continue %}{% endif %}
+        {% assign nodeLevel = node | replace: '"', '' | slice: 0, 1 | times: 1 %}
+        {% if nodeLevel >= minHeader and nodeLevel < topHeader %}{% assign topHeader = nodeLevel %}{% endif %}
+    {% endfor %}
+    {% assign minHeader = topHeader %}
 
     {% capture listModifier %}{% if orderedList %}1.{% else %}-{% endif %}{% endcapture %}
 
@@ -48,13 +57,11 @@
             {% continue %}
         {% endif %}
 
-        {% if firstHeader %}
-            {% assign firstHeader = false %}
-            {% assign minHeader = headerLevel %}
-        {% endif %}
-
         {% assign lastIndent = indentAmount %}
         {% assign indentAmount = headerLevel | minus: minHeader | add: 1 %}
+        {% unless lastIndent %}
+            {% assign indentAmount = 1 %}
+        {% endunless %}
         {% if lastHeaderLevel and lastHeaderLevel == headerLevel %}
             {% assign indentAmount = lastIndent %}
         {% elsif lastIndent and lastIndent < indentAmount %}
