@@ -213,6 +213,24 @@ rendered source-link and heading-ID checks (19 matching headings each) and are
 absent from the production output. All 16 source/translation weekly files pass
 the post linter, and the 11 existing regression tests pass.
 
+### VLN Survey synchronization (2026-10-24)
+
+The English survey follows the Chinese revisions of 2026-10-07 and 2026-10-09.
+Section 3 is retranslated in full under its new structure: policy architecture,
+spatial representation and memory, action interfaces, instruction progress and
+active perception, agent orchestration, predictive learning, data scaling and
+closed-loop training (including the RL feedback levels, reward design, PPO /
+GRPO, implementation checks, and same-backbone evidence in 3.8), and method
+selection. The reading guide, the 2.5 timeline diagram, the VLN-CE and RxR-CE
+data links, the Section 9 cross-reference, the 9.4 verification note, and the
+new reference list 10.5 also match the source. Older anchors are kept so
+existing links still resolve.
+
+Table cells that the validator's month-name normalization turned into numbers
+("May still succeed") now read "Can" or "Might", and "3D" / "2D" in table cells
+follow the source's wording. Whole-page parity of equations, external links,
+table values, and table widths passes, and all 128 heading IDs match.
+
 ### NavGPT-3 and Efficient-VLN synchronization (2026-10-24)
 
 The instruction-following collection now has all 60 Chinese readings in English.

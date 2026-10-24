@@ -5,19 +5,19 @@ translation_id: vln-survey
 permalink: /en/VLN-Survey/
 source_path: _posts/research/2026-01-04-VLN-Survey.md
 source_url: /VLN-Survey/
-source_revision_date: 2026-10-04
-translation_updated: 2026-10-04
+source_revision_date: 2026-10-09
+translation_updated: 2026-10-24
 title: "Vision-Language Navigation: A Survey"
-date:   2026-10-04
+date:   2026-10-09
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "A survey of VLN tasks, state and action interfaces, training signals, and closed-loop evaluation, comparing streaming policies, fast-slow control, spatial memory, agents, and world models."
+excerpt: "A survey of VLN through tasks, policy architecture, spatial memory, action interfaces, progress tracking, and training signals, comparing active perception, agent orchestration, and prediction mechanisms, with sourced dataset selection and closed-loop evaluation analysis."
 ---
 
-> **Revised on 2026-09-29**: This survey is organized around tasks, mechanisms, training, and evaluation. Key dataset scales and protocols link to primary sources, and cross-paper analysis states the limits of the evidence. Detailed readings are available in {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} and {% include content-link.html path='/VLN-Papers-Extended/' fragment='' label='VLN Papers: Goal Navigation and Extensions' %}. See [Section 9.4](#survey-scope) for coverage.
+> **Revised on 2026-10-09**: Section 3 is organized by policy architecture, spatial representation, action interfaces, task progress, agent orchestration, prediction, and training mechanisms. This revision expands Section 3.8 with RL mechanisms, reward design, PPO / GRPO, and same-backbone gain evidence, with key conclusions linked to the original papers. Detailed readings are available in {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} and {% include content-link.html path='/VLN-Papers-Extended/' fragment='' label='VLN Papers: Goal Navigation and Extensions' %}. See [Section 9.4](#survey-scope) for coverage.
 
 
 ## Reading guide
@@ -27,12 +27,15 @@ excerpt: "A survey of VLN tasks, state and action interfaces, training signals, 
 
 | Your question | Start here | Companion reading |
 |:---|:---|:---|
-| How do instructions become robot actions? | [Tasks and the system loop](#survey-basics) | {% include content-link.html path='/VLN-Papers/' fragment='#streamvln' label='StreamVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#dualvln' label='DualVLN' %} |
-| Should long histories stay in context or be written into a map? | [Maps and spatial memory](#survey-memory) | {% include content-link.html path='/VLN-Papers/' fragment='#mapnav' label='MapNav' %}, {% include content-link.html path='/VLN-Papers/' fragment='#memvln' label='MemVLN' %} |
-| How can policies be improved beyond architecture changes? | [Data and training paradigms](#survey-training) | {% include content-link.html path='/VLN-Papers/' fragment='#streamvln' label='StreamVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#reflectvln' label='ReflectVLN' %} |
+| How do instructions become robot actions? | [Tasks and the system loop](#survey-basics), [policy architecture](#survey-policy) | {% include content-link.html path='/VLN-Papers/' fragment='#streamvln' label='StreamVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#dualvln' label='DualVLN' %} |
+| Should long histories stay in context or be written into a map? | [Spatial representation and historical memory](#survey-memory) | {% include content-link.html path='/VLN-Papers/' fragment='#mapnav' label='MapNav' %}, {% include content-link.html path='/VLN-Papers/' fragment='#adageovln' label='AdaGeoVLN' %} |
+| How do pixel goals, action tokens, and trajectories differ? | [Action representation and spatial grounding](#survey-grounding) | {% include content-link.html path='/VLN-Papers/' fragment='#groundingvln' label='GroundingVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#lightnav-0' label='LightNav-0' %} |
+| How is instruction progress judged, and when should the agent look again or recover? | [Progress, active perception, and recovery](#survey-progress) | {% include content-link.html path='/VLN-Papers/' fragment='#route2step' label='Route2Step' %}, {% include content-link.html path='/VLN-Papers/' fragment='#seekvln' label='SeekVLN' %} |
+| How can policies be improved beyond architecture changes? | [Data scaling and closed-loop training](#survey-training) | {% include content-link.html path='/VLN-Papers/' fragment='#correctnav' label='CorrectNav' %}, {% include content-link.html path='/VLN-Papers/' fragment='#macroaction-vln' label='MacroAction-VLN' %} |
+| How does reinforcement learning improve correction, stopping, and route following? | [RL feedback levels](#survey-rl-levels), [reward design](#survey-rl-rewards), [PPO / GRPO](#survey-rl-algorithms) | [ActiveVLN](https://arxiv.org/html/2509.12618v1), [ETP-R1](https://arxiv.org/html/2512.20940v1) |
 | Which data and experimental environment should I use? | [Datasets](#survey-datasets), [simulators](#survey-simulators) | Fix observations, actions, and splits before comparing results |
 | Does a higher SR mean better navigation? | [Evaluation](#survey-evaluation) | {% include content-link.html path='/VLN-Papers/' fragment='' label='Task-specific performance tables' %} and the original experimental protocols |
-| What really distinguishes methods? | [Cross-paper comparison](#survey-comparison) | Compare mechanisms under matched states, interfaces, and budgets |
+| What really distinguishes methods? | [Method combinations and evidence comparison](#survey-comparison) | Compare mechanisms under matched states, interfaces, training, and budgets |
 | Which problems remain open? | [Evidence and open questions](#survey-open-questions) | Separate paper findings from this survey's research recommendations |
 | How do I turn a paper into a reproducible experiment? | [Experiment and deployment workflow](#survey-practice) | Pin code, weights, and data configurations to the paper version |
 
@@ -178,7 +181,7 @@ This diagram does not require every method to implement each module explicitly. 
 |:---|:---|:---|:---|
 | **Dynamic language grounding** | Acting on a later landmark too early or missing a turn | Instruction progress changes as the agent moves | Fine-grained trajectory alignment and incorrect-instruction tests |
 | **Partial observability and long-term memory** | Repeated exploration, forgotten regions, inability to backtrack | A single frame cannot reveal global structure | Long-route performance, backtracking, memory ablations |
-| **Semantic reasoning and geometric reachability** | Selecting a semantically correct but unreachable goal | Internet knowledge does not establish 3D geometry | Depth/map ablations and reachability checks |
+| **Semantic reasoning and geometric reachability** | Selecting a semantically correct but unreachable goal | Internet knowledge does not establish three-dimensional geometry | Depth/map ablations and reachability checks |
 | **High-level planning and low-level control** | Correct subgoal but colliding or oscillating trajectories | Errors accumulate across time scales and interfaces | Control frequency, latency, collisions, replanning counts |
 | **Open-world operation and real deployment** | Simulation success but real-world failure | Changes in viewpoints, sensors, dynamics, and scene distributions | Cross-scene, cross-embodiment, and real-robot evaluation |
 | **Failure detection and recovery** | Passing near the goal without stopping; compounding errors after a deviation | Weak uncertainty estimation and self-diagnosis | OSR–SR gap, recovery success rate, human interventions |
@@ -187,19 +190,16 @@ This diagram does not require every method to implement each module explicitly. 
 {: id="25-从任务专用模型到导航基础模型"}
 
 ```mermaid
-flowchart LR
-    A["2018–2019 Sequence modeling"] --> B["2020–2021 Cross-modal pretraining"]
-    B --> C["2021–2023 Graph planning and long histories"]
-    C --> D["2023–2024 VLMs and video policies"]
-    D --> E["2025 Fast-slow systems and data scaling"]
-    E --> F["2026 Agents and unified navigation under exploration"]
+%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 24, "rankSpacing": 28}}}%%
+flowchart TB
+    A["2018–2019<br/>Sequence modeling<br/>Seq2Seq · Speaker-Follower"]
+    B["2020–2021<br/>Cross-modal pretraining<br/>PREVALENT · VLN-BERT · HAMT"]
+    C["2021–2023<br/>Graph planning and long histories<br/>DUET · ETPNav · ScaleVLN"]
+    D["2023–2024<br/>VLMs and video policies<br/>NaVid · NavGPT-2"]
+    E["2025<br/>Fast-slow systems and data scaling<br/>StreamVLN · DualVLN<br/>NavFoM · OmniNav"]
+    F["2026<br/>Agents and unified navigation under exploration<br/>AgentVLN · Qwen-RobotNav<br/>NavWAM"]
 
-    A1["Seq2Seq Speaker-Follower"] -.-> A
-    B1["PREVALENT VLN-BERT HAMT"] -.-> B
-    C1["DUET ETPNav ScaleVLN"] -.-> C
-    D1["NaVid NavGPT-2"] -.-> D
-    E1["StreamVLN DualVLN NavFoM OmniNav"] -.-> E
-    F1["AgentVLN Qwen-RobotNav NavWAM"] -.-> F
+    A --> B --> C --> D --> E --> F
 
     style A fill:#f8f9fa,stroke:#868e96,stroke-width:2px
     style B fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
@@ -209,14 +209,14 @@ flowchart LR
     style F fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
 ```
 
-This progression does not simply replace old models with new ones. Pretraining addresses semantic generalization; maps and memory address spatial consistency; fast-slow systems reconcile reasoning and control time scales; agents and world models seek better active perception, recovery, and prospective planning. These approaches are converging.
+This progression involves several problems that keep converging: pretraining supplies semantic priors, spatial representation and memory support long-term state, hierarchical control coordinates planning and execution, and progress tracking and active perception help check the instruction continuously. Agent orchestration, corrective training, and future prediction can also be combined into these systems, improving capability invocation, error recovery, and action decisions respectively.
 
 ## 2.6 A map of research questions
 {: id="26-研究问题地图"}
 
 | Research layer | Common approaches | Critical evidence still needed |
 |:---|:---|:---|
-| Representation | VLM pretraining, video context, 3D tokens | Does the model understand constraints along the route, beyond predicting the endpoint? |
+| Representation | VLM pretraining, video context, three-dimensional tokens | Does the model understand constraints along the route, beyond predicting the endpoint? |
 | State | Topological graphs, BEV, 3D Gaussians, caches, retrieval memory | When does memory become incorrect, and how should it be forgotten or corrected? |
 | Planning | Subgoal decomposition, CoT, candidate trajectory scoring | Does longer reasoning reliably improve closed-loop control? |
 | Execution | Waypoint policies, action chunks, diffusion trajectories, MPC | Can these transfer across robot embodiments and control frequencies? |
@@ -228,171 +228,233 @@ This progression does not simply replace old models with new ones. Pretraining a
 ## 2.7 Where recent research converges
 {: id="27-近期研究的交汇点"}
 
-This survey groups recent work into five compatible directions: unified policies, hierarchical control, spatial memory, agent orchestration, and future prediction. This is an analytical framework for comparing mechanisms, not five mutually exclusive categories or a claim that these ideas originated in 2026. Section 3 examines designs; Section 9.3 discusses the limits of the evidence.
+Recent work converges on unified policies and hierarchical control, and also on geometric representations, historical memory, spatial action interfaces, progress tracking, and active perception. Agent orchestration, predictive learning, and closed-loop training can act on many architectures. Section 3 therefore organizes methods by research question, and one paper may illustrate several mechanisms. This organization is this survey's analytical framework, not a mutually exclusive classification, and it does not imply that these ideas originated in 2026. Section 9.3 discusses the limits of the evidence.
 
-# 3. Main research directions
-{: id="3-主流-vln-研究路线"}
+<a id="3-主流-vln-研究路线"></a>
+<a id="survey-methods"></a>
 
-A simple end-to-end versus modular classification is no longer sufficient. Three more informative axes are **whether the policy is trained jointly, whether spatial state is maintained explicitly, and whether decision-making and control are separated by time scale**. Through these axes, work from 2025–2026 falls into five compatible directions.
+# 3. Main VLN method paradigms and key mechanisms
+{: id="3-vln-的主要方法范式与关键机制"}
+
+Understanding a VLN method requires separate answers to five questions: **how the policy is organized, how history is represented, how decisions become actions, how instruction progress is tracked, and what feedback the model learns from.** This section discusses unified policies, hierarchical control, spatial memory, task orchestration, and future prediction along these questions, and treats action interfaces, active perception, and training mechanisms on their own. One method can adopt several of these designs at once; the subsections are not mutually exclusive paper categories and do not imply a performance ranking under matched conditions.
+
+| Analysis dimension | Core question | Where to read |
+|:---|:---|:---|
+| Policy architecture | How far does a unified policy reach, and how are planning and execution divided? | [3.2 Policy architecture](#survey-policy) |
+| State representation | How are spatial relations, historical evidence, and visit experience retained? | [3.3 Spatial representation and historical memory](#survey-memory) |
+| Action interface | Is the output a primitive action, a pixel goal, a waypoint, or a trajectory? | [3.4 Action representation and spatial grounding](#survey-grounding) |
+| Task progress | Which part of the instruction is being executed, and when should the agent look again, back up, or stop? | [3.5 Progress, active perception, and recovery](#survey-progress) |
+| System orchestration | Who calls tools, and how does execution feedback change later decisions? | [3.6 Agent orchestration](#survey-agent) |
+| Prediction mechanism | Is prediction used only in training, or does it take part in runtime decisions? | [3.7 Predictive learning and world models](#survey-prediction) |
+| Learning signal | Demonstrations, corrective trajectories, auxiliary supervision, or environment rewards? | [3.8 Data scaling and closed-loop training](#survey-training) |
+
+The diagram below shows how these responsibilities relate along the information flow. Spatial memory, progress tracking, and future prediction can be implemented inside one unified network or as separate modules; agent orchestration is an optional upper layer.
 
 ```mermaid
 flowchart TB
-    D["Navigation data at scale and vision-language backbones"]
-    I["Instructions, vision, history, robot state"]
+    I["Instruction and current observation"] --> S["Spatial representation and historical memory"]
+    I --> P["Instruction progress and evidence judgment"]
+    S --> D["Policy decision: unified policy or hierarchical planning"]
+    P --> D
+    D --> A["Action interface: primitive actions, pixels, waypoints, trajectories"]
+    A --> C["Local execution and control"]
+    C --> E["Environment and new observation"]
+    E -.->|Feedback and correction| I
+    P -.->|More evidence needed| O["Active observation"]
+    O --> E
+    G["Optional agent: task orchestration and tool calls"] -.-> D
+    E -.->|Execution results| G
+    W["Optional future prediction"] -.->|Assists runtime decisions| D
+    T["Training: demonstrations, data scaling, correction, RL, predictive supervision"] -.->|Learns policy and representations| D
 
-    subgraph routes["Five compatible directions"]
-        E["Single-system end-to-end policies"]
-        F["Fast-slow dual systems"]
-        M["Maps and spatial memory"]
-        A["Agents and self-correction"]
-        W["World models and imagination-based planning"]
-    end
-
-    D --> E
-    D --> F
-    D --> A
-    D --> W
-    I --> E
-    I --> F
-    I --> M
-    I --> A
-    I --> W
-    M -.-> E
-    M -.-> F
-    M -.-> A
-    W -.-> F
-    A -.-> F
-
-    E --> X["Action interface"]
-    F --> X
-    M --> X
-    A --> X
-    W --> X
-    X --> C["Local control and safety constraints"]
-    C --> R["Real or simulated environment"]
-    R -.->|Observation feedback| I
-
-    style D fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
-    style E fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
-    style F fill:#e5dbff,stroke:#5f3dc4,stroke-width:2px
-    style M fill:#fff4e6,stroke:#e67700,stroke-width:2px
-    style A fill:#ffe8cc,stroke:#d9480f,stroke-width:2px
+    style S fill:#fff4e6,stroke:#e67700,stroke-width:2px
+    style P fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
+    style D fill:#e5dbff,stroke:#5f3dc4,stroke-width:2px
+    style A fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
+    style G fill:#ffe8cc,stroke:#d9480f,stroke-width:2px
     style W fill:#f3d9fa,stroke:#862e9c,stroke-width:2px
-    style X fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
-    style R fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
+    style E fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
 ```
 
 ## 3.1 What has changed: state, interfaces, and training data
 {: id="31-方法演进真正变化的是状态接口与训练数据"}
 
-| Stage | Internal state | Typical action interface | Training signals | Representative methods |
+| Research focus | Internal model state | Typical action interface | Training signals | Representative methods |
 |:---|:---|:---|:---|:---|
 | **Sequence policies** | RNN hidden state | Discrete viewpoints / actions | Behavior cloning, reinforcement learning | Seq2Seq, Speaker-Follower |
 | **Pretrained Transformers** | Cross-modal tokens and historical features | Discrete candidates | Masked modeling, instruction-trajectory alignment | PREVALENT, VLN-BERT, HAMT |
 | **Graph planning and explicit memory** | Topological graphs, semantic graphs, local maps | Global nodes + local actions | Graph supervision, path and progress objectives | DUET, ETPNav, MapNav |
 | **Video VLM / VLA** | Video context, KV cache, action tokens | Discrete actions, waypoints, or action chunks | Vision-language data + navigation trajectories | NaVid, StreamVLN, NavFoM |
-| **Navigation foundation models** | Multitask context, configurable observations, unified spatial representations | Multitask modes and parameterized interfaces | Large-scale joint training, instruction tuning | OmniNav, OneVLA, Qwen-RobotNav |
-| **Agent orchestration** | Task progress, skill returns, experiential state | Tool calls or subtasks | Supervision, prompting, or environmental feedback depending on implementation; online training is not required | AgentVLN, Qwen-RobotNav systems |
-| **World-action models** | Joint representations of future observations and actions | Trajectories or action chunks | World prediction, action supervision, optional progress supervision | AstraNav-World, NavWAM (image-goal navigation) |
+| **Multitask navigation models** | Shared context and configurable observations | Multitask modes, spatial targets, or trajectories | Joint training, instruction tuning, and optional RL | OmniNav, OneVLA, Qwen-RobotNav, LightNav-0 |
+| **Progress reasoning and evidence acquisition** | Active sub-instruction, landmark evidence, recovery state | Navigation actions, additional observation, or subtasks | Progress alignment, correction, and observation gain | AwareVLN, Route2Step, SeekVLN |
+| **Agent orchestration** | Tool feedback and task memory | Tool calls or subtasks | Prompting, supervision, or environment feedback depending on implementation | AgentVLN, HarnessVLN |
+| **Predictive representations and world-action models** | Predicted future features, visual states, or joint representations | Original action interface, trajectories, or action chunks | Future prediction and action supervision | PROSPECT, AstraNav-World |
 
-Improvements in modern models often combine larger backbones, more trajectories, extra depth or map priors, and new system interfaces. When reading a paper, attribute architectural improvements separately from additional resources.
+These focuses overlap in time: graph structures can still serve VLM policies, unified models can use spatial memory, and reinforcement learning can optimize different action interfaces. Gains in modern methods also often come with larger backbones, more trajectories, or extra sensors, so attribute mechanism changes separately from added resources when reading a paper.
 
-## 3.2 Single-system end-to-end navigation: continuous multimodal generation
-{: id="32-单系统端到端把导航变成连续的多模态生成"}
+<a id="survey-policy"></a>
 
-Single-system methods place instructions, visual history, and action history into a unified model that directly predicts the next action, waypoint, or action chunk. They offer unified training objectives and straightforward data scaling; their bottlenecks are long-context costs, spatial drift, and difficult failure diagnosis.
+## 3.2 Policy architecture: unified policies and hierarchical control
+{: id="32-策略架构统一策略与分层控制"}
+
+Architecture first decides what each layer is responsible for. A unified policy combines language, observations, and history in one backbone and predicts the next action or trajectory; a hierarchical system passes subgoals explicitly and lets another layer execute them locally. **The number of models, whether they are trained jointly, whether a map is maintained, and whether high- and low-frequency roles are separated are different properties.** A unified policy may still need a trajectory tracker, and a hierarchical network may be optimized jointly; "end-to-end" should state which interface the supervision or gradient reaches.
+
+<a id="32-单系统端到端把导航变成连续的多模态生成"></a>
+
+### 3.2.1 Unified policies: modeling observations and actions in a shared backbone
+{: id="321-统一策略在共享主干中建模观测与动作"}
+
+{% include content-link.html path='/VLN-Papers/' fragment='#navid' label='NaVid' %} and {% include content-link.html path='/VLN-Papers/' fragment='#streamvln' label='StreamVLN' %} use video history and language to generate actions; {% include content-link.html path='/VLN-Papers/' fragment='#navfom' label='NavFoM' %}, {% include content-link.html path='/VLN-Papers/' fragment='#qwen-robotnav' label='Qwen-RobotNav' %}, and related work further explore multitask shared policies. For this class of methods, the key questions are how inputs and outputs are unified and whether the training data support transfer, not whether the model avoids every external module.
 
 <div align="center">
-  <img loading="lazy" decoding="async" src="/images/vln/StreamVLN-framework-overview.webp" width="100%" alt="StreamVLN streaming end-to-end navigation framework" />
-<figcaption>StreamVLN uses interleaved visual-action sequences for streaming navigation. See <a href="https://arxiv.org/abs/2507.05240v2">the original paper, v2</a>.</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/StreamVLN-framework-overview.webp" width="100%" alt="StreamVLN streaming navigation framework, separating the current context from slowly updated historical memory" />
+<figcaption>StreamVLN interleaves vision and actions and manages context at different update rates. See <a href="https://arxiv.org/abs/2507.05240v2">the original paper, v2</a>.</figcaption>
 </div>
 
-| Design | Problem addressed | Representative work |
+| Key design | Problem addressed | Representative work |
 |:---|:---|:---|
-| Interleaved observation-action generation | Avoids compressing an entire video into a single static judgment | {% include content-link.html path='/VLN-Papers/' fragment='#streamvln' label='StreamVLN' %}, {% include content-link.html path='/VLN-Papers-Extended/' fragment='#sparsevideonav' label='SparseVideoNav' %} |
-| Shared multitask policy | Shares spatial capabilities across instruction following, goal search, and exploration | {% include content-link.html path='/VLN-Papers/' fragment='#navfom' label='NavFoM' %}, {% include content-link.html path='/VLN-Papers/' fragment='#onevla-a-unified-framework-for-embodied-tasks' label='OneVLA' %} |
-| Configurable observation interface | Adjusts history length, camera weights, and task modes at inference | {% include content-link.html path='/VLN-Papers/' fragment='#qwen-robotnav' label='Qwen-RobotNav' %} |
-| Quantization and edge deployment | Reduces closed-loop inference latency for large models | {% include content-link.html path='/VLN-Papers-Extended/' fragment='#localnav' label='LocalNav' %} |
+| Interleaved observations and actions with streaming context | Continuous decisions and computation reuse over long video input | {% include content-link.html path='/VLN-Papers/' fragment='#streamvln' label='StreamVLN' %} |
+| Shared multitask policy | Lets different navigation goals share representations and action abilities | {% include content-link.html path='/VLN-Papers/' fragment='#navfom' label='NavFoM' %}, {% include content-link.html path='/VLN-Papers/' fragment='#onevla-a-unified-framework-for-embodied-tasks' label='OneVLA' %} |
+| Configurable observation context | Adjusts history, cameras, and token budget per task | {% include content-link.html path='/VLN-Papers/' fragment='#qwen-robotnav' label='Qwen-RobotNav' %} |
+| Unified spatial and action tokens | Expresses spatial intent and trajectories in the model vocabulary | {% include content-link.html path='/VLN-Papers/' fragment='#lightnav-0' label='LightNav-0' %} |
 
-**This survey's recommendation**: consider this direction when data are sufficient, interfaces are relatively uniform, and joint training and simple deployment are priorities. Long-range backtracking, dynamic replanning, or strict safety requirements will usually still need external memory or control modules.
+<a id="33-快慢双系统高层语义推理与高频执行解耦"></a>
 
-## 3.3 Fast-slow dual systems: separating semantic reasoning from frequent execution
-{: id="33-快慢双系统高层语义推理与高频执行解耦"}
+### 3.2.2 Hierarchical control: separate interfaces for semantic decisions and local execution
+{: id="322-分层控制让语义决策与局部执行各有接口"}
 
-Fast-slow systems divide work by time scale. The slow system interprets instructions, checks progress, and generates subgoals at low frequency; the fast system continuously converts those subgoals into waypoints or trajectories. The defining feature is a stable, verifiable interface between the layers, rather than simply having two models.
+A fast-slow system is one implementation of hierarchical control: the slow system interprets the instruction at low frequency and produces subgoals, while the fast system keeps generating local actions from the latest observations. The lower layer can be a learned policy or a geometric planner; check whether it executes in closed loop, when it requests a new goal, and how upper-layer latency and errors propagate.
 
 <div align="center">
-  <img loading="lazy" decoding="async" src="/images/vln/dualvln-framework-overview.webp" width="100%" alt="DualVLN fast-slow dual-system framework" />
-<figcaption>DualVLN: the slow system supplies goals and features; the fast system generates trajectories. See <a href="https://arxiv.org/abs/2512.08186v1">the original paper</a>.</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/dualvln-framework-overview.webp" width="100%" alt="DualVLN connects high-level reasoning and low-level trajectory generation through pixel goals and latent features" />
+<figcaption>DualVLN: the slow system provides goals and features, and the fast system generates trajectories. See <a href="https://arxiv.org/abs/2512.08186v1">the original paper</a>.</figcaption>
 </div>
 
 ```mermaid
 flowchart LR
-    I["Instruction and long history"] --> S2["Slow system: semantic planning"]
-    S2 --> G["Pixel goals, waypoints, subtasks"]
-    O["Current vision and robot state"] --> S1["Fast system: local policy"]
+    I["Instruction and history"] --> S2["High level: progress judgment and subgoals"]
+    S2 --> G["Pixel goals, waypoints, sub-instructions"]
+    O["Current observation and robot state"] --> S1["Low level: policy or geometric planner"]
     G --> S1
-    S1 --> T["High-frequency trajectories"]
-    T --> C["Controller and safety constraints"]
-    C --> R["Robot execution"]
-    R -.->|Unreachable goal or deviation| S2
-    R -.->|New observation| O
+    S1 --> T["Local actions or trajectories"]
+    T --> C["Tracking control and robot execution"]
+    C -.->|New observation| O
+    C -.->|Done, blocked, off route| S2
 
     style S2 fill:#e5dbff,stroke:#5f3dc4,stroke-width:2px
     style G fill:#fff4e6,stroke:#e67700,stroke-width:2px
     style S1 fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
-    style C fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px
-    style R fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
+    style C fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
 ```
 
-| System interface | Strengths | Main risks | Representative work |
-|:---|:---|:---|:---|
-| Pixel goals, optionally with latent features | Intuitive and easy to ground visually | Depth ambiguity and uncertain reachability | {% include content-link.html path='/VLN-Papers/' fragment='#dualvln' label='DualVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#goal2pixel' label='Goal2Pixel' %} |
-| Frontiers or topological waypoints | Supports global exploration and backtracking | Depends on map quality | {% include content-link.html path='/VLN-Papers/' fragment='#omninav' label='OmniNav' %}, {% include content-link.html path='/VLN-Papers/' fragment='#sedualvln' label='SEDualVLN' %} |
-| Shared latent features | Dense information and joint optimization | Limited interpretability and compatibility across models | {% include content-link.html path='/VLN-Papers-Extended/' fragment='#hydra-nav' label='Hydra-Nav' %} |
-| Pointing or candidate verification | Can incorporate online reinforcement learning | More complex training and inference systems | {% include content-link.html path='/VLN-Papers/' fragment='#robostral-navigate' label='Robostral Navigate' %} |
+{% include content-link.html path='/VLN-Papers/' fragment='#dualvln' label='DualVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#omninav' label='OmniNav' %}, {% include content-link.html path='/VLN-Papers/' fragment='#abot-n1' label='ABot-N1' %}, and {% include content-link.html path='/VLN-Papers/' fragment='#robostral-navigate' label='Robostral Navigate' %} offer different examples of dividing planning and execution. {% include content-link.html path='/VLN-Papers/' fragment='#route2step' label='Route2Step' %} separates semantic progress from action generation, a reminder to distinguish "layered responsibilities" from "layered control frequencies": having two modules alone does not make a fast-slow system.
 
+**Mechanisms with the same name need to be read for what they actually do.** StreamVLN's SlowFast mainly describes the update rate of context and memory; DualVLN's fast-slow division sits between goal reasoning and trajectory execution. The former should be evaluated on history retention and computational efficiency; the latter also on control frequency, trajectory smoothness, and asynchronous goal updates.
+
+<a id="34-地图与空间记忆让历史变成可查询的环境状态"></a>
 <a id="survey-memory"></a>
 
-## 3.4 Maps and spatial memory: making history a queryable environment state
-{: id="34-地图与空间记忆让历史变成可查询的环境状态"}
+## 3.3 Spatial representation and historical memory
+{: id="33-空间表征与历史记忆"}
 
-A VLM may recognize a kitchen and a sofa without knowing their stable positions in 3D space. Map and memory methods organize past observations into topological graphs, BEV representations, 3D Gaussians, hierarchical scene graphs, or hybrid retrieval stores. These provide external state for long-range planning, backtracking, and failure diagnosis.
+Spatial representation answers "how are objects and traversable regions in the environment related", and historical memory answers "which past information should influence the current decision". The two can be combined in a map, or shared among geometric features, hidden states, keyframes, or a retrieval store. Extracting 3D geometric features from RGB alone does not amount to building a global map that a planner can query.
 
 <div align="center">
-  <img loading="lazy" decoding="async" src="/images/vln/HSGM-framework-overview.webp" width="100%" alt="HSGM hierarchical scene graph memory framework" />
-<figcaption>HSGM: a hierarchical scene graph maintains local observations, object relationships, and global path state.</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/HSGM-framework-overview.webp" width="100%" alt="HSGM hierarchical scene graph organizing semantic and geometric state into queryable memory" />
+<figcaption>HSGM is one implementation of explicit spatial state: hierarchical semantic and geometric representations connect scene understanding and navigation. See <a href="https://arxiv.org/abs/2606.00095">the original paper</a>.</figcaption>
 </div>
 
-| Representation | Strengths | Typical limitations | Representative work |
+| Representation and memory | Main role | Representative work | Costs to check |
 |:---|:---|:---|:---|
-| Topological graph | Long-range connectivity and backtracking | Coarse node semantics; depends on waypoint quality | DUET, ETPNav |
-| BEV / semantic map | Geometric reachability and local planning | Pose errors accumulate | {% include content-link.html path='/VLN-Papers/' fragment='#mapnav' label='MapNav' %}, {% include content-link.html path='/VLN-Papers/' fragment='#ga-vln' label='GA-VLN' %} |
-| 3D Gaussian memory | Renderable, continuous 3D semantics | Mapping costs and complex dynamic updates | {% include content-link.html path='/VLN-Papers-Extended/' fragment='#nav-3dgs' label='3DGSNav' %}, {% include content-link.html path='/VLN-Papers-Extended/' fragment='#gsmem' label='GSMem' %} |
-| Hierarchical scene graph | Multiscale reasoning over rooms, objects, and paths | Graph construction and relation updates depend on perception quality | {% include content-link.html path='/VLN-Papers/' fragment='#hsgm' label='HSGM' %} |
-| Experience and graph-prior memory | Uses past visit outcomes to adjust exploration and decisions | Stale or incorrect experience can amplify bias | {% include content-link.html path='/VLN-Papers-Extended/' fragment='#evomemnav' label='EvoMemNav' %} (goal-navigation and multimodal-goal settings) |
+| Topological graph | Stores connectivity, supports global node selection and backtracking | {% include content-link.html path='/VLN-Papers/' fragment='#duet' label='DUET' %}, ETPNav, {% include content-link.html path='/VLN-Papers/' fragment='#dgnav' label='DGNav' %} | Mapping priors, candidate points, and connection errors |
+| Semantic map / BEV | Compresses spatial layout into a localizable, aggregable state | {% include content-link.html path='/VLN-Papers/' fragment='#mapnav' label='MapNav' %}, {% include content-link.html path='/VLN-Papers/' fragment='#ga-vln' label='GA-VLN' %} | Dependence on depth and pose, and update errors |
+| Hierarchical scene graph / three-dimensional scene memory | Organizes rooms, objects, and multi-view spatial relations | {% include content-link.html path='/VLN-Papers/' fragment='#hsgm' label='HSGM' %}, {% include content-link.html path='/VLN-Papers-Extended/' fragment='#gsmem' label='GSMem' %} | Perception quality, mapping cost, and dynamic-scene updates |
+| Geometric foundation-model features and implicit memory | Keeps geometry and cross-frame evidence in neural representations | {% include content-link.html path='/VLN-Papers/' fragment='#janusvln' label='JanusVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#adageovln' label='AdaGeoVLN' %} | Scale consistency, GPU memory, and history selection |
+| Historical frames, keyframes, and compressed context | Keeps task-relevant observations within a limited budget | {% include content-link.html path='/VLN-Papers/' fragment='#streamvln' label='StreamVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#memvln' label='MemVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#decovln' label='DecoVLN' %} | Whether early landmarks and turns are lost |
+| Task events and experience retrieval | Stores completed steps, failure conditions, and execution evidence | {% include content-link.html path='/VLN-Papers/' fragment='#harnessvln' label='HarnessVLN' %} | Incorrect writes, stale experience, and retrieval overhead |
 
-**Computational caches and task memory should be distinguished.** [VLN-Cache](https://arxiv.org/abs/2603.07080) reuses token computations across frames to reduce inference costs, addressing cache invalidation caused by viewpoint and task-stage changes. This differs from a retrieval store of successful and failed experiences. Evaluate the former by speedup and accuracy loss, and the latter by improvements in long-range decisions, backtracking, and recovery.
+**Geometric fusion and history selection can be optimized together.** [AdaGeoVLN](https://arxiv.org/abs/2609.18789) feeds features from different depths of a geometry model into the policy and keeps historical KV states according to instruction relevance, geometric confidence, and transition novelty. The example shows that compression is not only about reducing tokens: what is kept also changes the spatial reasoning available at the next step.
 
-Maps are not inherently correct ground truth. A good system must specify how information is written, when it is updated, how conflicts are handled, and when stale information is forgotten.
+**Computation reuse and task memory should be distinguished by purpose, not only by whether a KV cache is used.** [VLN-Cache](https://arxiv.org/abs/2603.07080) mainly reuses cross-frame computation to reduce cost; JanusVLN, AdaGeoVLN, and similar methods also use historical neural states as semantic or geometric memory. The former should report speedup and accuracy loss; the latter also needs tests of long-range landmark retention, backtracking, and error correction.
+
+Maps and memory can both be wrong. Evaluations should state how information is written, updated, reconciled when conflicting, and forgotten; when a memory method from goal navigation is used as a reference, the task inputs and cross-episode information rights must also be fixed.
+
+<a id="survey-grounding"></a>
+
+## 3.4 Action representation and spatial grounding
+{: id="34-动作表示与空间落地"}
+
+The action interface decides what the high-level model must predict and what work remains for the executor. "Turn left", "walk to the door in the image", "reach a 3D waypoint", and "a trackable trajectory segment" differ in precision, time horizon, and geometric requirements. They cannot be distinguished merely by whether the output is text or numbers.
+
+| Output interface | How it becomes motion | Representative work | Main limitation |
+|:---|:---|:---|:---|
+| Primitive actions / discrete action chunks | Maps action symbols to forward, turn, and stop | {% include content-link.html path='/VLN-Papers/' fragment='#navid' label='NaVid' %}, {% include content-link.html path='/VLN-Papers/' fragment='#streamvln' label='StreamVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#seekvln' label='SeekVLN' %} | Long decision sequences; execution granularity and action semantics depend on the platform |
+| Pixel goals / image regions | Executed through depth backprojection, geometric planning, or a goal-conditioned policy | {% include content-link.html path='/VLN-Papers/' fragment='#goal2pixel' label='Goal2Pixel' %}, {% include content-link.html path='/VLN-Papers/' fragment='#tamp-nav' label='TAMP-Nav' %}, {% include content-link.html path='/VLN-Papers/' fragment='#groundingvln' label='GroundingVLN' %} | A two-dimensional point alone does not guarantee depth, reachability, or safety |
+| Topological nodes / frontier macro-actions | Selects a graph node or frontier; discrete environments move along the graph, continuous ones hand off to a low-level executor | {% include content-link.html path='/VLN-Papers/' fragment='#duet' label='DUET' %}, {% include content-link.html path='/VLN-Papers/' fragment='#macroaction-vln' label='MacroAction-VLN' %} | The candidate set and graph quality limit high-level choices |
+| Continuous waypoints / trajectory chunks | A controller tracks trajectories produced by regression, diffusion, or similar methods | {% include content-link.html path='/VLN-Papers/' fragment='#dualvln' label='DualVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#omninav' label='OmniNav' %} | The coordinate frame, trajectory horizon, and execution constraints must be explicit |
+| Quantized trajectory tokens | Decoded into a trajectory first, then passed to the executor | {% include content-link.html path='/VLN-Papers/' fragment='#lightnav-0' label='LightNav-0' %} | Quantization error and cross-embodiment adaptation need checking |
+
+**Visual grounding affects both reasoning and execution.** [GroundingVLN](https://arxiv.org/abs/2609.18581v3) binds visual evidence in its reasoning to image locations, then outputs pixel goals aligned with task progress for a geometric planner to execute. A measurable intermediate interface makes it possible to check separately "what was recognized", "where the target is", and "where the agent actually went", and it also grounds execution-aware rewards.
+
+<div align="center">
+  <img loading="lazy" decoding="async" src="/images/vln/GroundingVLN-architecture.webp" width="100%" alt="GroundingVLN uses visual grounding to connect reasoning evidence, pixel goals, and geometric execution" />
+<figcaption>GroundingVLN: visual evidence and pixel goals together connect semantic reasoning and spatial execution. See <a href="https://arxiv.org/abs/2609.18581v3">the original paper, v3</a>.</figcaption>
+</div>
+
+**Tokenization is not the same as primitive discrete control.** [LightNav-0](https://arxiv.org/abs/2608.30935v2) uses a unified token interface for pointing and quantized trajectories; its action tokens decode into trajectories and should not be conflated with an action class such as "turn left once". Conversely, a pixel goal need not be paired with a neural continuous action head: a geometric planner can also turn it into motion.
+
+When comparing interfaces, fix the available RGB, depth, pose, and map, and report closed-loop results for the complete execution chain. A model that outputs discrete symbols can still be evaluated in continuous environments, and a model that outputs continuous coordinates does not automatically satisfy the robot's dynamic constraints.
+
+<a id="survey-progress"></a>
+
+## 3.5 Instruction progress, active perception, and failure recovery
+{: id="35-指令进度主动感知与失败恢复"}
+
+Long-horizon navigation requires continual judgment of "which part of the instruction is done and what evidence is still missing for the next step". Choosing the wrong active sub-instruction and failing to execute the right one are different errors; a single corrective action may not repair the internal progress state.
+
+| Research question | Typical mechanism | Representative work | Evidence to observe |
+|:---|:---|:---|:---|
+| When is reasoning needed? | On-demand scene description, progress judgment, and planning | {% include content-link.html path='/VLN-Papers/' fragment='#awarevln' label='AwareVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#tamp-nav' label='TAMP-Nav' %} | Reasoning frequency, call overhead, and gains |
+| Which sub-instruction is being executed? | Explicit task lists, progress state, and landmark constraints | {% include content-link.html path='/VLN-Papers/' fragment='#dual-anchoring' label='Dual-Anchoring' %}, {% include content-link.html path='/VLN-Papers/' fragment='#route2step' label='Route2Step' %} | State alignment and progress correction after going off route |
+| Are current observations sufficient? | Make additional observation part of the policy's choices | {% include content-link.html path='/VLN-Papers/' fragment='#seekvln' label='SeekVLN' %} | Number of observations, extra views, and gains in later actions |
+| How to recover after going off route? | Corrective data, state supervision, or reflection feedback | {% include content-link.html path='/VLN-Papers/' fragment='#correctnav' label='CorrectNav' %}, {% include content-link.html path='/VLN-Papers/' fragment='#budvln' label='BudVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#reflectvln' label='ReflectVLN' %} | Recovery success rate, extra path, and repeated failures |
+
+[Route2Step](https://arxiv.org/abs/2608.03143) separates semantic progress from action generation through a step-level interface, so wrong progress can receive state supervision. The lesson is that a single deviation may first require correcting "what am I doing" and then "how should I move", rather than leaving every problem to action prediction.
+
+<div align="center">
+  <img loading="lazy" decoding="async" src="/images/vln/Route2Step-architecture.webp" width="100%" alt="Route2Step connects semantic progress judgment and local action generation through an explicit step-level interface" />
+<figcaption>Route2Step models the active sub-instruction, execution state, and local actions separately. See <a href="https://arxiv.org/abs/2608.03143">the original paper</a>.</figcaption>
+</div>
+
+[SeekVLN](https://arxiv.org/abs/2609.37353v1) goes further into cases where the current view is insufficient for judging progress: the policy can either navigate directly or observe more, then continue with the added evidence. Its training compares the subsequent progress of looking again versus navigating directly from the same state. The extra observation cost must be reported separately; the gain from adding views on demand cannot all be attributed to stronger reasoning, and the mode switch alone does not make the method tool orchestration or fast-slow control.
+
+For example, the instruction is "pass the sofa, turn left, and stop before the second door". When the side door is not visible, an additional observation may help most; when the junction has already been missed, the agent must back up and correct its progress; when it keeps moving after arriving, the stopping condition needs analysis. Count these three error types separately, then check whether recovery actually preserves the instruction's constraints along the route.
+
+**Recovery is a capability, and more than one mechanism can provide it.** [CorrectNav](https://arxiv.org/abs/2508.10416) generates corrective data from the model's own deviations and continues training, which is a training mechanism; agent systems can also recover at runtime using tool feedback. Both should be verified with actual trajectories: the presence of "reflection" text does not establish effective recovery or imply weight updates during deployment.
 
 <a id="35-通用导航-agent上层规划器如何编排一个共享导航基模"></a>
+<a id="35-通用导航-agent任务编排与可调用的导航能力"></a>
+<a id="survey-agent"></a>
 
-## 3.5 General navigation agents: task orchestration and callable capabilities
-{: id="35-通用导航-agent任务编排与可调用的导航能力"}
+## 3.6 Agent orchestration and tool execution
+{: id="36-agent-编排与工具执行"}
 
-The agent perspective asks **who maintains task state, who selects the next capability, and how execution feedback changes subsequent decisions**. It can coexist with fast-slow control. Producing a high-level reasoning trace alone does not establish tool orchestration or failure recovery.
+This section limits agent orchestration to an upper layer that selects and calls perception, memory, planning, or navigation capabilities based on task state, and reads execution results to update later decisions. It can call a unified navigation policy or connect to a hierarchical control system. Evaluation should separate "what the tool itself can do" from "what the upper layer gains by deciding when to call it".
 
-| Organization | Representative design | Relationship to other directions | What to evaluate separately |
+| Organization | Representative work | Main interface | What to verify separately |
 |:---|:---|:---|:---|
-| VLM invokes perception and planning skills | [AgentVLN](https://arxiv.org/abs/2603.17670) separates high-level semantic reasoning from a skill library | Can use topological memory and local control | Whether tool selection and correction provide gains beyond the skills themselves |
-| High-level planner calls a shared navigation backbone | [Qwen-RobotNav](https://arxiv.org/abs/2606.18112v3) exposes task modes, token budgets, and camera weights | Shared policy performs navigation; the upper layer selects modes and observations | Whether dynamic settings outperform fixed settings, and whether invocation costs are acceptable |
-| Visit feedback updates spatial experience | {% include content-link.html path='/VLN-Papers-Extended/' fragment='#evomemnav' label='EvoMemNav' %} provides a design reference from related goal-navigation tasks | Explicit memory shapes exploration and subsequent choices | Experience lifetime, incorrect writes, and whether cross-episode information is allowed by the protocol |
+| VLM collaborates with callable skills | {% include content-link.html path='/VLN-Papers/' fragment='#open-nav' label='Open-Nav' %}, {% include content-link.html path='/VLN-Papers/' fragment='#agentvln' label='AgentVLN' %} | Perception, candidate points, planning, and local execution | Gains from tool selection over a fixed pipeline |
+| Navigation wrapped as tool calls | {% include content-link.html path='/VLN-Papers/' fragment='#agenticnav' label='AgenticNav' %} | Observation, decision, and execution feedback | Interaction protocol, call cost, and failure handling |
+| Unified management of tools, memory, and execution checks | {% include content-link.html path='/VLN-Papers/' fragment='#harnessvln' label='HarnessVLN' %} | Task progress, spatial evidence, and structured returns | Separate contributions of checking, memory, and recovery |
+| High-level planner calls a shared navigation backbone | {% include content-link.html path='/VLN-Papers/' fragment='#qwen-robotnav' label='Qwen-RobotNav' %} system | Task modes and configurable observation context | Gains from dynamic configuration over a fixed one |
+
+[HarnessVLN](https://arxiv.org/abs/2609.15195v3) puts perception, memory, and execution tools behind a shared interface and checks evidence, geometric feasibility, and subgoal consistency before dispatch. The example shows that agent orchestration and spatial memory often coexist; filing a paper under only one of them loses the other half of its design.
 
 <a id="351-通用导航-agent-的五层结构"></a>
+<a id="351-基模能力与-agent-能力分别评测"></a>
 
-### 3.5.1 Evaluate backbone and agent capabilities separately
-{: id="351-基模能力与-agent-能力分别评测"}
+### 3.6.1 Evaluate backbone and agent capabilities separately
+{: id="361-基模能力与-agent-能力分别评测"}
 
 Qwen-RobotNav is a navigation model that can be used in agent systems. Evaluation should distinguish the underlying navigation results from system-level results with orchestration. The former reflect the model and its input configuration; the latter also include task decomposition, mode switching, and runtime feedback. The full system's gains cannot all be attributed to either the backbone or the planner.
 
@@ -402,13 +464,12 @@ Qwen-RobotNav is a navigation model that can be used in agent systems. Evaluatio
 </div>
 
 <a id="352-qwen-robotnav-式-agentic-导航闭环"></a>
+<a id="352-一个可检查的-agent-闭环"></a>
 
-### 3.5.2 An inspectable agent loop
-{: id="352-一个可检查的-agent-闭环"}
+### 3.6.2 An inspectable agent loop
+{: id="362-一个可检查的-agent-闭环"}
 
-This survey uses the general analytical loop: task state → select subtask and tools → execute → read results → update task state. Each transition should be inspectable in logs: was a tool failure recognized, did the strategy change, were ineffective actions repeated, and when did execution terminate? This describes system responsibilities rather than prescribing identical modules for every paper.
-
-The following diagram is a general system-analysis aid. The crucial question is whether the upper layer updates task state after the navigation tool returns evidence, and whether failure actually changes its decisions.
+This survey's analytical framework is: task state → select subtask and tools → execute → read results → update task state. Each transition should be inspectable in logs: was a tool failure recognized, did the strategy change, were ineffective actions repeated, and when did execution terminate? The diagram below illustrates system responsibilities and does not require every paper to implement identically named modules.
 
 ```mermaid
 sequenceDiagram
@@ -430,124 +491,315 @@ sequenceDiagram
     end
 ```
 
-For example, "go through the corridor to the kitchen and find a cup" requires at least two checks: reaching the kitchen and confirming the cup. Detecting a cup does not establish the room condition; outputting "replan" does not establish successful recovery. Logs must connect actual observations, tool calls, and subsequent trajectories to locate failures in task decomposition, spatial memory, or execution.
+For example, "go through the corridor to the kitchen and find a cup" requires at least two checks: reaching the kitchen and confirming the cup. Detecting a cup does not establish the room condition; logs must connect actual observations, tool calls, and subsequent trajectories to locate failures in task decomposition, spatial memory, or execution.
 
 <a id="353-三类-agentic-vln-设计"></a>
+<a id="353-恢复能力的证据边界"></a>
 
-### 3.5.3 Limits of recovery evidence
-{: id="353-恢复能力的证据边界"}
+### 3.6.3 Orchestration gains and recovery costs
+{: id="363-编排收益与恢复成本"}
 
-Compare a fixed execution workflow with adaptive orchestration under the same underlying skills, models, and budgets. Report task success, recovery rate, tool calls, latency, and human interventions separately. Higher success through more retries can be useful, but its cost must be reported to assess deployment suitability.
+Compare a fixed execution pipeline with adaptive orchestration under the same underlying skills, models, and budgets, and report task success, recovery rate, tool calls, latency, and human interventions separately. If more retries yield higher success, present the cost alongside it. Whether the navigation model was trained should also be recorded separately; an agent is not the same as a training-free system.
 
+<a id="36-世界模型与世界动作模型从预测未来到利用未来"></a>
+<a id="survey-prediction"></a>
 
-## 3.6 World models and world-action models: from predicting to using the future
-{: id="36-世界模型与世界动作模型从预测未来到利用未来"}
+## 3.7 Predictive learning and world models
+{: id="37-预测学习与世界模型"}
 
-World-model approaches aim to predict action consequences before execution. Some pass predictions to an external planner; others learn predictions and actions jointly, sometimes with additional goal-progress or value supervision. The diagram below summarizes functions; not every paper implements every module.
+Prediction mechanisms should first be distinguished by **what is predicted, whether prediction happens in training or at execution time, and how the prediction affects actions**. Future images, latent features, and values can all provide supervision or decision evidence, but auxiliary prediction losses, runtime imagination for planning, and joint world-action generation differ in cost and evidence requirements.
+
+| Usage | How prediction contributes | Representative work | Gain to verify |
+|:---|:---|:---|:---|
+| Latent prediction during training | Future features supervise the policy representation; the prediction branch is removed at execution | {% include content-link.html path='/VLN-Papers/' fragment='#prospect' label='PROSPECT' %} | Whether it beats training without predictive supervision under the same deployment interface |
+| Visual imagination and future prediction assist decisions | Generates visual cues, or predicts consequences of candidate actions for a policy / planner | {% include content-link.html path='/VLN-Papers/' fragment='#vln-imagine' label='VLN-Imagine' %}, [NWM](https://arxiv.org/abs/2412.03572v2) | Gain of extra prediction over direct decisions at the same budget |
+| Joint visual-action generation | Couples future visuals and actions under shared conditions | {% include content-link.html path='/VLN-Papers/' fragment='#astranav-world' label='AstraNav-World' %} | Whether consistency and closed-loop control improve together |
+| Actions from predicted states | Predicts short-horizon latent states, then decodes executable waypoints | {% include content-link.html path='/VLN-Papers-Extended/' fragment='#worldvln' label='WorldVLN' %} (aerial VLN) | State error, execution results, and correction from real observations |
+| Joint observations, values, and action chunks | Puts future observations, goal progress, and actions into a shared representation | {% include content-link.html path='/VLN-Papers-Extended/' fragment='#navwam' label='NavWAM' %} (image-goal navigation) | Control gains and costs relative to prediction plus external search |
+
+[PROSPECT](https://arxiv.org/html/2603.03739v1) predicts next-step semantic and spatial latent features, and the prediction branch is removed at inference. It is therefore predictive representation learning, and cannot be cited as unrolling candidate futures or searching actions at runtime. Its "no extra prediction overhead" applies only to the removed branch; the full system still includes perception fusion and streaming-policy computation.
 
 <div align="center">
-  <img loading="lazy" decoding="async" src="/images/vln/AstraNav-World-architecture.webp" width="100%" alt="AstraNav-World world-model architecture" />
-<figcaption>AstraNav-World jointly updates future visual states and action sequences. See <a href="https://arxiv.org/abs/2512.21714v2">the original paper, v2</a>.</figcaption>
+  <img loading="lazy" decoding="async" src="/images/vln/AstraNav-World-architecture.webp" width="100%" alt="AstraNav-World couples future visual states with action generation" />
+<figcaption>AstraNav-World is an example of prediction taking part in action generation. See <a href="https://arxiv.org/abs/2512.21714v2">the original paper, v2</a>; such runtime mechanisms should be distinguished from predictive supervision used only during training.</figcaption>
 </div>
 
 ```mermaid
 flowchart LR
-    O["Current observation and history"] --> W["World model"]
-    G["Language or image goal"] --> W
-    W --> F["Candidate future states"]
-    W --> V["Goal progress and value"]
-    F --> P["Action or trajectory generation"]
-    V --> P
-    P --> R["Real-environment execution"]
-    R -.->|Correction from real observations| W
+    subgraph train["Predictive supervision during training"]
+        H["Observations and history"] --> Z["Policy representation"]
+        Z --> A["Action prediction"]
+        Z --> F["Future feature prediction"]
+        T["Teacher features from later real observations"] -.->|Supervision| F
+    end
+    subgraph run["Prediction in runtime decisions"]
+        O["Current observation and goal"] --> W["Prediction and decision module"]
+        W --> P["Action or trajectory"]
+        P --> R["Environment execution"]
+        R -.->|Correction from real observations| O
+    end
 
+    style Z fill:#e5dbff,stroke:#5f3dc4,stroke-width:2px
+    style F fill:#f3d9fa,stroke:#862e9c,stroke-width:2px
     style W fill:#f3d9fa,stroke:#862e9c,stroke-width:2px
-    style F fill:#e5dbff,stroke:#5f3dc4,stroke-width:2px
-    style V fill:#fff4e6,stroke:#e67700,stroke-width:2px
-    style P fill:#ffe8cc,stroke:#d9480f,stroke-width:2px
     style R fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
 ```
 
-| Direction | Key change | Representative work |
-|:---|:---|:---|
-| Visual imagination assists a policy | Generates candidate future visuals as extra evidence for an existing policy | {% include content-link.html path='/VLN-Papers/' fragment='#vln-imagine' label='VLN-Imagine' %}, Navigation World Models |
-| Language planning + prediction | Instruction decomposition constrains short- and long-term predictions | NavForesee, {% include content-link.html path='/VLN-Papers-Extended/' fragment='#worldvln' label='WorldVLN' %} |
-| Joint visual-action generation | Generates future states and actions together to reduce two-stage drift | {% include content-link.html path='/VLN-Papers/' fragment='#astranav-world' label='AstraNav-World' %} |
-| World-action models | Combine future observations, values, and action chunks in a shared latent sequence | {% include content-link.html path='/VLN-Papers-Extended/' fragment='#navwam' label='NavWAM' %}, {% include content-link.html path='/VLN-Papers-Extended/' fragment='#wam-nav' label='WAM-Nav' %} |
+The two sides illustrate different uses that can be adopted separately or combined. The prediction and decision module on the right may use candidate evaluation or joint generation; not every method performs explicit tree search.
 
-Compelling visuals can be misleading in this direction. Meaningful evidence concerns improvements in closed-loop SR / SPL, collision rates, and real-robot control, plus whether new observations correct prediction errors promptly. Plausible-looking generated frames alone are insufficient.
+**A name cannot replace checking the direction of prediction.** {% include content-link.html path='/VLN-Papers/' fragment='#dual-anchoring' label='Dual-Anchoring' %}'s landmark auxiliary branch reconstructs historical evidence, mainly to constrain memory; even though it uses the term world model, it should not be classified directly as prospective planning. Semantic cues generated by visual imagination are also not automatically equivalent to action-conditioned environment dynamics.
 
-**Task boundary**: [NavWAM](https://arxiv.org/abs/2606.13494) evaluates image-goal navigation. It informs the integration of prediction and control, but its results cannot directly enter a route-instruction VLN leaderboard. For visual navigation world models such as NWM, first check goal conditioning before discussing their relationship to language navigation.
+**Task boundaries and closed-loop gains still need separate confirmation.** [WorldVLN](https://arxiv.org/abs/2605.15964) targets aerial language navigation, and [NavWAM](https://arxiv.org/abs/2606.13494) evaluates image-goal navigation. The latter and NWM can serve as references for prediction-control mechanisms, but cannot be merged directly into route-instruction VLN leaderboards. Prediction quality should be interpreted together with SR / SPL, collision rate, long-horizon error, and inference cost; realistic generated frames alone do not demonstrate better navigation.
 
-## 3.7 Choosing among the five directions
-{: id="37-五条路线如何选择"}
-
-These recommendations follow system responsibilities; they are not a performance ranking under matched conditions.
-
-| Research objective | Priority direction | Suggested combination | Main reporting requirements |
-|:---|:---|:---|:---|
-| Unified training at scale | Single-system end-to-end policy | + Lightweight cache or implicit memory | Data scale, parameters, latency, cross-task transfer |
-| Smooth real-robot control | Fast-slow dual system | + Safety controller + local map | Control frequency, collisions, replanning, real-world success |
-| Long-range navigation and backtracking | Maps and spatial memory | + High-level VLM planning | Map error, backtracking gains, long-route metrics |
-| Open-ended tasks and autonomous recovery | Navigation agents | + Structured memory + skill library | Invocation costs, recovery, human interventions, hallucinations |
-| Prospective planning with less trial and error | World models | + Fast-slow system or value model | Prediction error, closed-loop gains, inference costs |
-
-### 3.7.1 Four checks when reading a new paper
-{: id="371-阅读最新论文时的四个检查项"}
-
-1. **Matched protocols**: are sensors, action spaces, splits, and success thresholds the same?
-2. **Matched resources**: do gains come from architecture, larger backbones, more data, or extra depth/maps?
-3. **Closed-loop benefits**: do reasoning, memory, or imagination modules improve navigation, beyond offline metrics?
-4. **Transparent deployment costs**: are latency, GPU memory, control frequency, and real-robot tests reported?
-
-The companion {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following and Leaderboards' %} maintains separate tables for R2R-CE, RxR-CE, and discrete R2R / REVERIE, marking trained versus training-free methods and validation-subset evaluations. ObjectNav, HM3D-OVON, and image/point-goal results appear in the {% include content-link.html path='/VLN-Papers-Extended/' fragment='#goal-nav-leaderboard' label='goal-navigation leaderboard in the extensions volume' %}. Both support further checks of performance under matched settings.
-
-
+<a id="38-数据与训练范式策略如何学会导航与纠错"></a>
 <a id="survey-training"></a>
 
-## 3.8 Data and training paradigms: learning navigation and correction
-{: id="38-数据与训练范式策略如何学会导航与纠错"}
+## 3.8 Data scaling and closed-loop training
+{: id="38-数据扩展与闭环训练"}
 
-The five directions above describe how systems organize information; training paradigms determine which feedback they learn from. These choices are independent. Single-system and fast-slow models can both use imitation learning, augmentation, or reinforcement learning. Reflection text does not imply that weights are updated during deployment.
+Architectures and mechanisms decide how a system uses information; training paradigms decide which feedback it learns from. The two should be described separately: unified policies, hierarchical control, and memory-equipped models can all use demonstrations, data augmentation, or reinforcement learning, and the same model may first be supervised fine-tuned, then collect corrective samples or undergo RL post-training.
 
-| Training method | Learning signal | Main purpose | Risks to evaluate separately |
+### 3.8.1 From learning from demonstrations to closed-loop reinforcement learning
+{: id="381-从示范学习到闭环强化学习"}
+
+| Training method | Learning signal and role | Representative work | Question to verify separately |
 |:---|:---|:---|:---|
-| Behavior cloning / supervised fine-tuning | Observation-action pairs from expert trajectories | Establishes a basic instruction-to-action mapping | Accuracy on expert states does not establish recovery after deviations |
-| Policy rollouts and correction data | Expert corrections or recovery trajectories at states visited by the model | Covers states outside the training demonstrations | Whether the expert uses maps or goal information unavailable at deployment |
-| Cross-modal pretraining and joint training | Image-text, video, instruction-trajectory, and multitask data | Transfers semantic knowledge and shared spatial representations | Whether data gains and architecture gains are evaluated separately |
-| Synthetic instructions and expanded scenes | Automatically generated paths, descriptions, and tasks | Expands language, scene, and route coverage | Executability, ambiguity, and scene leakage in instructions |
-| Reinforcement learning | Arrival, progress, path cost, and other environmental feedback | Optimizes closed-loop behavior and long-term returns | Whether rewards encourage shortcuts, repeated exploration, or inappropriate stopping |
-| Auxiliary prediction and reflection supervision | Progress, geometry, future states, or error explanations | Provides intermediate learning signals | Whether better auxiliary-task accuracy improves navigation |
+| Behavior cloning / supervised fine-tuning | Builds an instruction-to-action mapping from expert trajectories | {% include content-link.html path='/VLN-Papers/' fragment='#navid' label='NaVid' %}, {% include content-link.html path='/VLN-Papers/' fragment='#streamvln' label='StreamVLN' %} | Can the policy recover after leaving states the expert visited? |
+| Joint training and task expansion | Shares navigation, image-text, or video representations | {% include content-link.html path='/VLN-Papers/' fragment='#navfom' label='NavFoM' %}, {% include content-link.html path='/VLN-Papers/' fragment='#qwen-robotnav' label='Qwen-RobotNav' %} | Do gains come from data volume, task diversity, or model design? |
+| Synthetic scenes, instructions, and trajectories | Expands environment and language coverage | ScaleVLN, {% include content-link.html path='/VLN-Papers/' fragment='#image2sim' label='Image2Sim / Image2Nav' %} | Are instructions executable, are scenes leaked, and is the simulation reliable? |
+| Policy rollouts and corrective data | Provides corrections at error states the model actually visits | {% include content-link.html path='/VLN-Papers/' fragment='#correctnav' label='CorrectNav' %}, {% include content-link.html path='/VLN-Papers/' fragment='#decovln' label='DecoVLN' %} | Do the expert's information rights match the corrective instructions? |
+| Progress and evidence supervision | Ties intermediate states to the active sub-instruction and real observations | {% include content-link.html path='/VLN-Papers/' fragment='#route2step' label='Route2Step' %}, {% include content-link.html path='/VLN-Papers/' fragment='#seekvln' label='SeekVLN' %} | Do more accurate progress and evidence judgments improve trajectories? |
+| Reinforcement learning post-training | Optimizes the policy with task completion, geometric execution, or observation gain | {% include content-link.html path='/VLN-Papers/' fragment='#robostral-navigate' label='Robostral Navigate' %}, {% include content-link.html path='/VLN-Papers/' fragment='#groundingvln' label='GroundingVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#macroaction-vln' label='MacroAction-VLN' %} | Do rewards encourage shortcuts, and is the interaction budget fixed in comparisons? |
+| Auxiliary predictive supervision | Constrains representations with future states or history reconstruction | {% include content-link.html path='/VLN-Papers/' fragment='#prospect' label='PROSPECT' %}, {% include content-link.html path='/VLN-Papers/' fragment='#dual-anchoring' label='Dual-Anchoring' %} | How much do the auxiliary loss and the extra encoder each contribute? |
 
-Read this section alongside the training-data organization in {% include content-link.html path='/VLN-Papers/' fragment='#streamvln' label='StreamVLN' %} and reflection-data construction in {% include content-link.html path='/VLN-Papers/' fragment='#reflectvln' label='ReflectVLN' %}. Refer to each paper for its actual stages, data mixture, and supervision.
+**Corrective data must distinguish semantic-state errors from execution errors.** CorrectNav builds perception and action correction data from deviated trajectories; Route2Step provides state supervision for wrong progress and uses direct action supervision for the corresponding recovery cases. What matters is which states the model learns on and what supervision it receives, which the final architecture name alone cannot explain.
 
-**An example connecting training and evaluation**: the instruction is "pass the sofa, turn left, and stop before the second door." Successful demonstrations teach ordering and actions, but may not cover missing the left turn. To test correction, introduce matched deviations at fixed positions and examine whether the policy detects inconsistent progress, returns to the correct junction, and resumes the task. Report extra distance, recovery rate, and final success. More successful demonstrations or longer reasoning traces alone do not establish this ability.
+Behavior cloning / SFT learns "what to do next in states the expert passed through". At test time, a single under-turned corner changes the following views, and the policy may enter states the demonstrations never covered. [DAgger](https://arxiv.org/abs/1011.0686) lets the policy visit its own states and then queries the expert for corrective actions, easing this distribution shift; **closed-loop RL instead optimizes the return of the whole task from the consequences of autonomous execution.** The two can be combined, and interactive sampling alone does not determine whether training is imitation learning or reinforcement learning.
 
-Organize ablations at three levels: fix data and backbone to compare modules; fix architecture to compare data; then compare complete systems under the same hardware and inference budget. State any uncontrolled differences explicitly rather than attributing every gain to one design.
+Two objectives show the difference in feedback sources:
 
+$$
+\begin{aligned}
+\mathcal L_{BC}&=-\mathbb E_{(I,h_t,a_t^*)\sim D}
+\log\pi_\theta(a_t^*\mid I,h_t),\\
+J_{RL}(\theta)&=\mathbb E_{\tau\sim\pi_\theta}
+\left[\sum_{t=0}^{T-1}\gamma^t r_t\right].
+\end{aligned}
+$$
+
+Here $I$ is the instruction, $h_t$ is the observation and action history up to now, $a_t^*$ is the expert action, $\tau$ is the executed trajectory, $r_t$ is the reward, and $\gamma$ is the discount factor. The former raises the probability of expert actions; the latter raises the expected return of autonomous trajectories. When a task admits several valid routes, a reward can accept different paths that still follow the instruction; correspondingly, a reward that omits requirements along the route may encourage wrong shortcuts.
+
+**What RL is worth optimizing in VLN is the consequence of key decisions.** Whether to look again or turn back after going off route, when to STOP near the goal, and whether to move temporarily away from the goal in order to turn correctly are hard to measure adequately with average action accuracy. Long-horizon credit assignment must link final success or failure to earlier decisions; process rewards, value estimates, and segmented returns provide different signals. When perception, depth scale, or the actuator itself is faulty, first confirm the system bottleneck; adding RL is not a universal fix.
+
+This line of research predates large-model post-training: [RCM](https://arxiv.org/abs/1811.10092) rewards instruction-trajectory matching with a cross-modal matching critic, and [EnvDrop](https://aclanthology.org/N19-1268.pdf) combines environmental feature dropout, back-translation, behavior cloning, and Advantage Actor-Critic. The large-model era expanded policy scale and action-generation interfaces, but the contributions of data augmentation, memory design, and RL should still be analyzed separately.
+
+<a id="survey-rl-levels"></a>
+
+### 3.8.2 Does the reward score actions, execution, or whole trajectories?
+{: id="382-奖励作用于动作执行还是整条轨迹"}
+
+"Uses GRPO" describes only part of the optimizer and does not tell whether the model completes whole navigation episodes autonomously in the environment. The table below distinguishes representative methods by **what is scored during training**; this is a summary of the original mechanisms, and one method may combine several rewards.
+
+| Work and checked version | What is scored and main reward | Mechanism judgment it supports |
+|:---|:---|:---|
+| [VLN-R1, v1](https://arxiv.org/html/2506.17221v1) | Generates six-step actions under a fixed history and applies GRPO with a time-decayed reward for position-wise matching to the expert | Local action post-training; it cannot be taken as learning whole-episode recovery after autonomous deviation |
+| [JOP-VLN, v1](https://arxiv.org/html/2607.13461v1) | Samples action chunks of up to four steps at DAgger states, scored by format, oracle matching, and pose / displacement feedback, combined with corrective IL | Local action-chunk optimization with short-range execution feedback; distinct from a whole-task success reward |
+| [GroundingVLN / GEAR, v3](https://arxiv.org/html/2609.18581v3) | Samples outputs at fixed decision anchors, scored by visual grounding, subtask, traversability, and execution-endpoint rewards | Execution-aware post-training; the reward reflects physical consequences, but not every candidate reruns the whole episode |
+| [ActiveVLN, v1](https://arxiv.org/html/2509.12618v1) | Generates actions, executes them, appends observations, and applies GRPO to the task outcome of the full multi-turn trajectory | Closed-loop trajectory optimization; the policy's actions change later training inputs |
+| [ETP-R1, v1](https://arxiv.org/html/2512.20940v1) | After pretraining and DAgger, a graph policy is trained with GRPO on whole-episode arrival, efficiency, and route metrics | Closed-loop high-level planning optimization; the reward is adjusted to R2R / RxR task requirements |
+| [NavGRPO, v1](https://arxiv.org/html/2603.15370v1) | Samples multiple trajectories on a discrete navigation graph, compared by goal distance, path efficiency, and step-level signals, with hard-task replay | Whole-trajectory and recovery learning; its action and observation rights must be distinguished from VLN-CE primitive-action policies |
+
+**Local answer rewards** mainly ask "does this action segment match the expert", **execution-aware rewards** ask "is this target traversable and where does execution end up", and **full closed-loop returns** ask "after repeated observation and action, is the task completed". All three may improve final SR, but they differ in training cost, coverage of error states, and the abilities they can demonstrate. In particular, under action optimization with a fixed history, later inputs do not change naturally with the currently sampled action, so it cannot be taken directly as evidence of long-horizon exploration.
+
+Action granularity also affects learning: [MacroAction-VLN](https://arxiv.org/abs/2609.03906) performs closed-loop RL over topological frontier macro-actions, reducing the number of high-level decisions; SeekVLN assigns rewards according to the subsequent progress of additional observation relative to navigating directly. Geometric rewards do not require continuous coordinate outputs; what matters is that the relationship between the scored object, actual execution, and new observations is explicit.
+
+<a id="survey-rl-rewards"></a>
+
+### 3.8.3 Reward design: arrival, route fidelity, and execution cost
+{: id="383-奖励设计到达路线忠实度与执行成本"}
+
+If the instruction is "go through the kitchen first, then follow the corridor into the bedroom", a shortcut that bypasses the kitchen may earn higher endpoint success and shortest-path efficiency while violating the requirements along the route. **Reaching the goal, following the instruction faithfully, and moving safely and efficiently are related but different optimization targets.** A reward should first make the task requirements explicit, then choose metrics.
+
+| Reward term | What it should teach | Likely bias |
+|:---|:---|:---|
+| Success / correct STOP | End the task when the success condition holds | The endpoint reward is sparse; passing the goal without stopping should be distinguished from a successful stop |
+| Distance progress | Dense feedback for intermediate decisions | Necessary turns, backtracking, or detours may not shorten the distance immediately |
+| nDTW / SDTW, ordered landmark completion | Follow intermediate landmarks and route order | The reference path may not be the only reasonable route; landmark events should not be rewarded repeatedly |
+| SPL or an efficiency term matched to the reference route | Avoid detours after success | Shortest-path efficiency alone does not guarantee meeting the instructions along the route |
+| Collision, step, or time cost | Improve executability and efficiency | Excessive costs may encourage giving up early or an early STOP |
+| Format / action validity | Produce parseable control output | Correct format cannot substitute for task completion |
+
+The [original nDTW study](https://research.google/pubs/general-evaluation-for-instruction-conditioned-navigation-using-dynamic-time-warping/) measures route fidelity through ordered path matching, and SDTW adds a success constraint; see [Section 8.3](#83-路径效率与指令保真度指标) for definitions. For example, ETP-R1's R2R reward combines success@1.5m, SPL, and distance to goal, while for RxR it uses nDTW, SDTW, gSPL computed with the reference route length, and distance to goal. gSPL adjusts the efficiency reference, while consistency along the route still needs route terms as constraints; the 1.5m in the reward also cannot replace the success thresholds of other evaluation protocols. [Original Eq.5](https://arxiv.org/html/2512.20940v1)
+
+The following only shows terms a return can include; **it is not any paper's fixed recipe or a validated general set of weights**:
+
+$$
+\begin{aligned}
+R(\tau)&=w_s\mathbf 1[\mathrm{success}]
++w_f\mathrm{nDTW}(\tau,\tau^*)+w_p\mathrm{SPL}(\tau)\\
+&\quad-c_c N_{\mathrm{collision}}-c_t T
+-w_e\mathbf 1[\mathrm{wrong\ STOP}].
+\end{aligned}
+$$
+
+Here $\tau^*$ is the reference route, $N_{\mathrm{collision}}$ is the number of collisions, and $T$ here denotes the number of execution steps; the weights control the relative influence of different goals, and dense signals such as distance progress can be issued per step separately. Long-horizon tasks should calibrate costs by accumulated totals over the whole episode, so that hundreds of step penalties do not overwhelm the success reward. Before adopting a reward, compare the term scores of expert, shortcut, detour, collision, and early-stop trajectories to confirm that their ordering matches the task requirements.
+
+**Keep the training information available to the reward separate from the information visible to the policy.** Simulation can score with goal ground truth, navigation meshes, and reference routes, but the deployed actor should read only the observations, instructions, and memory the protocol allows. If a critic uses privileged state to aid training, state that separately. Otherwise, gains obtained from true goal coordinates cannot serve as evidence of navigating from vision and language alone.
+
+<a id="survey-rl-algorithms"></a>
+
+### 3.8.4 PPO and GRPO: where the advantage signal comes from
+{: id="384-ppo-与-grpo优势信号从哪里来"}
+
+Policy gradients update the policy by raising the probability of high-advantage actions. Here the **advantage** means "how much better the subsequent return of this choice is than the baseline for the current conditions"; a core difference between PPO and GRPO is how that baseline is obtained.
+
+**PPO: a value estimate helps assign step-level credit.** Common actor-critic implementations train a value function $V(I,h_t)$, combine it with returns to estimate each step's advantage $A_t$, and then limit how far the probability ratio between the new and old policies can move. Its clipped objective is:
+
+$$
+\begin{aligned}
+L_{\mathrm{clip}}&=\mathbb E_t\left[
+\min\left(\rho_t A_t,
+\operatorname{clip}(\rho_t,1-\epsilon,1+\epsilon)A_t\right)\right],\\
+\rho_t&=\frac{\pi_\theta(a_t\mid I,h_t)}
+{\pi_{\mathrm{old}}(a_t\mid I,h_t)}.
+\end{aligned}
+$$
+
+$\pi_{\mathrm{old}}$ is the behavior policy that sampled this batch of trajectories, and $\epsilon$ is the clipping range. The value baseline helps judge the contribution of early junction, backtracking, and stopping decisions, but also introduces value-estimation error. The critic can be a small value head on a shared representation rather than a copy of a same-sized model; PPO can also use terminal rewards and does not require dense process rewards. [Original PPO paper](https://arxiv.org/abs/1707.06347)
+
+**GRPO: multiple outcomes under the same condition form the baseline.** Instead of training a separate critic, it samples a group of outputs for the same input and compares their rewards. If the scoring unit is a full navigation trajectory, the group should fix the instruction, start position, heading, and environment conditions. The common group-normalized advantage is:
+
+$$
+\hat A_i=\frac{R(\tau_i)-\operatorname{mean}_{j=1}^{G}R(\tau_j)}
+{\operatorname{std}_{j=1}^{G}R(\tau_j)+\varepsilon}.
+$$
+
+Here $G$ is the group size and $\varepsilon$ is a small constant that prevents a zero denominator, distinct from PPO's clipping range. The advantage is then applied to the actions or policy-generated tokens of the corresponding trajectory, with clipped updates and the corresponding reference constraint. This expression is the common form; NavGRPO uses Dr.GRPO, so its normalization and length aggregation cannot be copied wholesale. [GRPO source: DeepSeekMath](https://arxiv.org/html/2402.03300v2), [NavGRPO algorithm description](https://arxiv.org/html/2603.15370v1)
+
+| Comparison | Common PPO implementation | Trajectory-level GRPO implementation |
+|:---|:---|:---|
+| Advantage baseline | Learned value function and returns | Within-group comparison of multiple samples for the same task |
+| Long-horizon credit | Can estimate per-step advantages, with quality depending on the critic | With terminal returns only, a whole trajectory may share one advantage, giving coarse local attribution |
+| Extra cost | Value learning, probability recomputation, and environment interaction | Visual inference and environment interaction for multiple full trajectories |
+| Main signal risk | Inaccurate value estimates, mishandled termination / truncation | Identical rewards within a group give zero advantage; insufficient variation in sample quality |
+| Suitable comparison condition | Step-by-step diagnosis of decisions is wanted and a value head can be trained | Task returns are reliable and repeated sampling of the same task has enough throughput |
+
+**Dropping the critic does not make total training cheaper.** If the success reward is only 0 / 1, all-failure or all-success groups may carry no relative advantage; dense scoring, curricula, and hard-task supervision can change the signal, but each adds design cost. GRPO's full-trajectory return also cannot automatically pinpoint the one turn that caused failure. A KL term to the reference policy and auxiliary BC / IL can preserve existing abilities; they are optional constraints and should be reported separately from the main task reward.
+
+<a id="survey-rl-loop"></a>
+
+### 3.8.5 Putting closed-loop training into practice: sampling, updates, and memory consistency
+{: id="385-闭环训练怎样落地采样更新与记忆一致性"}
+
+For an existing navigation model, an experimental route that makes the source of gains easy to locate is: **SFT / DAgger initialization → autonomous sampling → return and advantage computation → policy update → validation in unseen scenes.** The diagram below illustrates the training flow, usable with PPO or full-trajectory GRPO; the specific scheme should still be chosen by action interface and sampling budget.
+
+```mermaid
+flowchart TB
+    B["SFT or DAgger initialization"] --> S["Fix training tasks and behavior-policy version"]
+    S --> P["Read instruction, current observation, and history"]
+    P --> A["Sample action and record behavior probability"]
+    A --> E["Execute in environment and return new observation"]
+    E -->|Task continues| P
+    E -->|Ended or truncated| R["Keep successes and failures, compute returns"]
+    R --> V["PPO value advantage or GRPO group advantage"]
+    V --> U["Rebuild sampled history and update policy"]
+    U --> T["Independent validation: arrival, route, recovery, and cost"]
+    T -.->|Next training round| S
+
+    style B fill:#d3f9d8,stroke:#2f9e44,stroke-width:2px
+    style E fill:#c5f6fa,stroke:#0c8599,stroke-width:2px
+    style R fill:#fff4e6,stroke:#e67700,stroke-width:2px
+    style V fill:#f3d9fa,stroke:#862e9c,stroke-width:2px
+    style U fill:#e5dbff,stroke:#5f3dc4,stroke-width:2px
+    style T fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
+```
+
+Three details in implementing this flow can easily change conclusions:
+
+1. **Account for autonomous behavior and expert corrections separately.** A transition after an expert takeover cannot be paired with the probability of the action the model originally proposed and had rejected. Corrective samples can go through an IL channel, while autonomous RL should keep failures, wrong STOPs, collisions, and timeouts rather than filtering for successful trajectories only; task termination and sampling truncation also need to be distinguished.
+2. **Sampled probabilities and recomputed probabilities must use the same history.** For streaming models such as StreamVLN, store the observations, selected history frames, memory updates, and action tokens so the new and old policies are scored under the same conditions. After a parameter update, a KV cache produced by the old parameters cannot be treated as the exact history of the new policy; first check that probability replay agrees while the weights are unchanged.
+3. **Align generated action chunks with the steps actually executed.** STOP or a collision may truncate an action chunk, and how the unexecuted suffix participates in optimization should be explicit. Long chunks reduce model calls, while short chunks give faster feedback from new observations; after changing chunk length or re-observation frequency, add a supervised baseline with the same interface to tell whether gains come from RL or from more decision opportunities.
+
+These are implementation checks derived from the closed-loop objective and the policy probability ratio; they do not require using any particular project's trainer. For model selection, PPO can serve as a step-level comparison with a value head and trajectory-level GRPO as a group-sampling comparison, with reward, action interface, and environment-interaction budget fixed. With only expert trajectories and no interaction, first confirm the rewards, transitions, and failure coverage that offline RL needs; trajectory preference optimization must keep the visual history each branch actually produced.
+
+<a id="survey-rl-evidence"></a>
+
+### 3.8.6 Experimental evidence: what RL adds and how to attribute it fairly
+{: id="386-实验证据rl-增加了什么怎样公平归因"}
+
+Before-and-after comparisons within the same paper, backbone, and protocol come closer to answering "what does post-training add" than final scores across papers. All numbers below are **reported by the authors and not independently reproduced**; SR / SPL are percentages, and gains are absolute percentage points. Read each row only within its own protocol; rows that include joint training or specific reward components do not equal the gain from swapping the optimizer alone.
+
+| Work and source table | Data and split | Baseline → post-trained | SR | SPL | SR / SPL gain |
+|:---|:---|:---|:---|:---|:---|
+| [VLN-R1, Table 1](https://arxiv.org/html/2506.17221v1#S4.T1) | R2R-CE Val-Unseen | Qwen2-VL-7B SFT → SFT + RFT | 24.9 → 30.2 | 17.5 → 21.8 | +5.3 / +4.3 |
+| [ActiveVLN, Table IV](https://arxiv.org/html/2509.12618v1) | R2R-CE Val-Unseen | Multi-turn IL → multi-turn IL + RL | 38.5 → 50.1 | 33.7 → 43.7 | +11.6 / +10.0 |
+| [ActiveVLN, Table IV](https://arxiv.org/html/2509.12618v1) | R2R-CE Val-Unseen | Single-turn IL → single-turn IL + RL | 39.7 → 40.3 | 35.3 → 37.0 | +0.6 / +1.7 |
+| [ETP-R1, Table I](https://arxiv.org/html/2512.20940v1) | R2R-CE Val-Unseen | DAgger → GRPO | 63 → 65 | 54 → 56 | +2 / +2, rounded in the original table |
+| [ETP-R1, Table I](https://arxiv.org/html/2512.20940v1) | RxR-CE Val-Unseen | DAgger → GRPO | 58.26 → 59.92 | 48.19 → 48.97 | +1.66 / +0.78 |
+| [JOP-VLN, Table II](https://arxiv.org/html/2607.13461v1) | R2R-CE Val-Unseen | Stage 3 pure IL → joint training | 68.1 → 69.9 | 60.7 → 64.9 | +1.8 / +4.2 |
+| [NavGRPO, Table 7](https://arxiv.org/html/2603.15370v1) | Discrete R2R Val-Unseen | SFT → full GRPO method | 79.40 → 81.88 | 69.97 → 72.65 | +2.48 / +2.68 |
+| [GroundingVLN, Table 3](https://arxiv.org/html/2609.18581v3) | R2R-CE Val-Unseen | w/o GEAR → full method | 57.2 → 69.9 | 49.5 → 64.1 | +12.7 / +14.6 |
+
+These results support that **reward-driven post-training can improve VLN, but the gains depend on the feedback level, initialization, and task protocol**. ActiveVLN's single-turn / multi-turn comparison shows that the way interaction is organized deserves separate study; ETP-R1's DAgger → RL gain reminds readers not to credit RL with the whole system's improvement over older models. In the same JOP-VLN table, pure GRPO gives SR / SPL 67.5 / 62.8 versus 68.1 / 60.7 for pure IL, so success rate and efficiency did not improve together, and joint corrective supervision was more effective in that experiment. [ActiveVLN ablation](https://arxiv.org/html/2509.12618v1), [ETP-R1 comparison](https://arxiv.org/html/2512.20940v1), [JOP-VLN Table II](https://arxiv.org/html/2607.13461v1)
+
+Reproductions should also check reward definitions: ActiveVLN v1's Eq.8 is written as a success indicator multiplied by endpoint distance, which contradicts in direction the textual explanation that closer is better, so it should not be copied directly into an implementation. NavGRPO's PPO comparison uses step-level progress / heading rewards while the full GRPO method uses a different trajectory reward, so that comparison does not show that GRPO generally beats PPO; GroundingVLN's GEAR gain should likewise be understood within its interface of visual grounding, pixel goals, and geometric execution. [ActiveVLN Eq.8](https://arxiv.org/html/2509.12618v1), [NavGRPO §4.4](https://arxiv.org/html/2603.15370v1), [GroundingVLN §3.5 / Table 3](https://arxiv.org/html/2609.18581v3)
+
+Beyond SR / SPL, evaluation should check nDTW / SDTW, wrong STOPs, off-route recovery rate, collisions, and task duration; evaluation in unseen scenes should be kept separate from adaptation protocols that allow test-time exploration. A rising reward with falling SR may indicate a problem with reward ordering, task difficulty, or the execution interface, so the training curve alone is not enough. Model size, data, sensors, action space, training interaction, and test-time inference budget should each be fixed or reported, and recovery ability needs controlled off-route experiments.
+
+The companion article's {% include content-link.html path='/VLN-Papers/' fragment='#要素打勾矩阵' label='component adoption matrix' %} can help check whether data, cameras, control interfaces, RL, and corrective data appear together. However, the matrix covers only entries on particular benchmarks under particular filters, and adoption rates do not equal causal contributions; model size, observation range, and extra training data still need item-by-item checks.
+
+Organize ablations at three levels: first fix data and backbone to compare mechanisms, then fix the architecture to compare data and supervision, and finally compare complete systems under the same hardware and inference budget. Also state "zero-shot transfer after pretraining" and "no navigation-specific training" separately, so the two meanings of zero-shot are not mixed.
+
+<a id="39-跨论文比较相似名称背后的不同设计"></a>
 <a id="survey-comparison"></a>
 
-## 3.9 Cross-paper comparison: different designs behind similar names
-{: id="39-跨论文比较相似名称背后的不同设计"}
+## 3.9 Method combinations, evidence comparison, and selection
+{: id="39-方法组合证据比较与选型"}
 
-These comparisons follow mechanism descriptions in the original papers. The final column proposes experiments; it does not claim the papers conducted a common controlled comparison. Training data, sensors, and control interfaces differ, so the table does not provide an overall ranking.
+### 3.9.1 Describing one method along several dimensions
+{: id="391-用多个维度描述同一个方法"}
 
-| Work | Core design fact | Key distinction | Boundary requiring validation |
+The table below shows how to describe combinations starting from a paper's mechanisms. "Evidence to verify" is a comparison proposed by this survey; it does not mean a common controlled experiment exists, and it is not an overall model ranking.
+
+| Work | Main mechanisms combined | Easily confused boundary | Evidence to verify |
 |:---|:---|:---|:---|
-| [DUET](https://arxiv.org/abs/2202.11742) | Combines global topology with local observation-based decisions | Global/local spatial scales differ from low/high-frequency robot control | Whether discrete-graph gains transfer to self-built maps and continuous execution |
-| [ETPNav](https://arxiv.org/abs/2304.03047v3) | Online waypoint topology, high-level planning, and obstacle-avoidance control | Integrates graph planning with continuous-environment execution | Separate contributions of waypoint error, map updates, and the controller |
-| [StreamVLN](https://arxiv.org/abs/2507.05240v2) | Streaming context, slowly updated memory, and cache reuse | SlowFast mainly describes context-update mechanisms | Whether compression preserves key landmarks with matched history and compute |
-| [DualVLN](https://arxiv.org/abs/2512.08186v1) | VLM generates intermediate goals; a lightweight policy uses pixel goals and latent features to generate trajectories | Fast-slow division separates semantic planning from action execution | Whether the lower layer absorbs goal errors and upper-layer latency |
-| [AgentVLN](https://arxiv.org/abs/2603.17670) | VLM cooperates with a skill library, adding correction and exploration | Explicit orchestration of perception and planning capabilities | Remaining gains from adaptive orchestration with a fixed skill library |
-| [NWM](https://arxiv.org/abs/2412.03572v2) | Action-conditioned future visual prediction supports planning or trajectory ranking | A visual navigation world model is not synonymous with standard route-instruction VLN evaluation | How future prediction yields closed-loop gains under language constraints |
+| [MapNav](https://arxiv.org/abs/2502.13451) | Unified VLM policy + annotated semantic map | Using a map and end-to-end action prediction can coexist | Gain of the map over historical frames under the same input rights |
+| {% include content-link.html path='/VLN-Papers/' fragment='#streamvln' label='StreamVLN' %} | Streaming policy + fast-slow context + cache reuse | A context-update rhythm is not a high/low-frequency control hierarchy | Landmark retention under the same history and compute budget |
+| {% include content-link.html path='/VLN-Papers/' fragment='#dualvln' label='DualVLN' %} | High-level goals + pixel / latent interface + low-level diffusion trajectories | Hierarchical planning and execution need separate evaluation | Upper-layer goal errors, latency, and low-level adaptation |
+| {% include content-link.html path='/VLN-Papers/' fragment='#groundingvln' label='GroundingVLN' %} | Visual evidence grounding + pixel goals + geometric execution + RL | Interpretable interface, executor, and training all change together | Component ablations with the interface or training signal fixed |
+| {% include content-link.html path='/VLN-Papers/' fragment='#seekvln' label='SeekVLN' %} | Unified action policy + progress reasoning + active observation + RL | On-demand observation is not tool orchestration and has extra perception cost | Observation gains under the same views and call budget |
+| {% include content-link.html path='/VLN-Papers/' fragment='#harnessvln' label='HarnessVLN' %} | Tool orchestration + event memory / spatiotemporal graph + execution checks | System results include both backbone and tool abilities | Gains with backbone, skills, and retry budget fixed |
+| {% include content-link.html path='/VLN-Papers/' fragment='#prospect' label='PROSPECT' %} | Streaming policy + semantic-geometric fusion + training-time latent prediction | The prediction branch does not run at inference | Separate contributions of geometric fusion and predictive supervision |
+| {% include content-link.html path='/VLN-Papers/' fragment='#macroaction-vln' label='MacroAction-VLN' %} | Topological graph + hierarchical macro-actions + closed-loop RL | State, action granularity, and training method change together | Effect of action granularity on learning with the graph and controller fixed |
 
-**Comparison 1: context management and control hierarchies address different bottlenecks.** StreamVLN's fast-slow context manages historical information and computation; DualVLN's fast-slow system separates semantic decisions from local trajectory execution. Both involve time scales, but along different architectural axes. A system could combine streaming memory with hierarchical control; matched-budget ablations must establish whether that combination is worthwhile.
+<a id="37-五条路线如何选择"></a>
+<a id="survey-selection"></a>
 
-**Comparison 2: maps organize history spatially while introducing new errors.** DUET and ETPNav show global state informing decisions. Moving from a known discrete graph to online mapping requires estimating reachability and connectivity themselves. Comparisons with implicit memory must report access to mapping inputs and mapping costs, rather than attributing benefits from accurate depth or pose entirely to the representation.
+### 3.9.2 Choosing mechanisms by failure type
+{: id="392-从失败类型选择机制"}
 
-**Comparison 3: predicting the future still leaves a decision problem.** NWM uses predictions for planning or candidate ranking, while [AstraNav-World](https://arxiv.org/abs/2512.21714v2) explores joint visual-action updates. In this survey's assessment, both must show that prediction is more useful than additional candidate search or a stronger direct policy under fixed compute. Visual generation quality is supporting evidence only.
+The following are research recommendations based on system responsibilities. First confirm the bottleneck from failed trajectories, then run budget-constrained comparisons.
 
-**Comparison 4: large-scale data change the starting point of architectural comparisons.** ScaleVLN demonstrates how expanded training environments and supervision affect existing models. Comparisons should separate mechanism gains under the same data from system gains under full resource configurations. The latter are valuable, but support a system-level conclusion rather than proving one module superior.
+| Current bottleneck | Check first | Mechanisms to compare | Key reporting |
+|:---|:---|:---|:---|
+| Semantic goal is right, but motion is unstable or slow to respond | Action interface, update frequency, and executor | Pixel / trajectory interfaces, hierarchical control, cache reuse | Full closed-loop latency, collisions, and trajectory stability |
+| Forgets landmarks or re-explores over long horizons | History retention and spatial consistency | Keyframes, implicit geometric memory, topological graphs, and retrieval | Long-route results, backtracking gains, pose error, and GPU memory |
+| Misjudges task progress or misses junctions | Active sub-instruction and evidence sufficiency | Progress supervision, on-demand reasoning, and active observation | Progress errors, observation cost, and fidelity to instructions along the route |
+| Errors keep accumulating after going off route | Whether failure states are recognized and covered | Corrective data, state supervision, closed-loop RL | Recovery rate, extra path, stopping errors, and interaction budget |
+| Multi-step tasks require switching capabilities | Tool boundaries, task state, and returned results | Agent orchestration, shared navigation backbone, and execution checks | Tool calls, repeated failures, human interventions, and path efficiency |
+| Want to use action consequences to improve decisions | At which stage prediction adds value | Training-time prediction, candidate evaluation, or joint world-action generation | Closed-loop gain at the same budget, prediction error, and latency |
+
+<a id="371-阅读最新论文时的四个检查项"></a>
+
+### 3.9.3 Four checks when reading a new paper
+{: id="393-阅读最新论文时的四个检查项"}
+
+1. **Matched protocols**: are sensors, action spaces, data splits, and success thresholds the same? Are on-demand observation, extra maps, and goal ground truth stated separately?
+2. **Matched resources**: do gains come from the mechanism, or from a larger backbone, more data, or extra geometric priors? Are training samples, environment interaction, and inference budgets comparable?
+3. **Closed-loop benefits**: do progress, memory, or prediction actually improve navigation, with corresponding ablations and failed trajectories?
+4. **Transparent deployment costs**: are latency, GPU memory, control frequency, and real-robot tests reported for the complete execution chain?
+
+The companion {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} maintains results by benchmark for R2R-CE, RxR-CE, and discrete R2R / REVERIE, separating trained, training-free, and validation-subset evaluations; the {% include content-link.html path='/VLN-Papers-Extended/' fragment='#goal-nav-leaderboard' label='goal navigation and extensions volume' %} maintains goal-navigation results. This survey explains mechanisms and evidence; for implementations, paper versions, and results under matched settings, continue with the companion readings.
 
 
 # 4. VLN task types
@@ -632,7 +884,7 @@ Applications determine sensors, action spaces, map priors, and safety constraint
 |:---|:---|:---|:---|:---|:---|
 | **Indoor** | Wheeled / quadruped / humanoid robots | Monocular or panoramic RGB-D, odometry | Multiroom topology, occlusion, furniture semantics, precise stopping | R2R / RxR / VLN-CE / REVERIE / VLN-PE | Matterport3D Simulator, Habitat, Isaac Sim |
 | **Outdoor street scenes** | Wheeled delivery robots, mobility-assistance devices | Street-view panoramas, GPS, OpenStreetMap | Large scale, sparse similar landmarks, dynamic traffic and weather | Touchdown / StreetLearn / map2seq | Street View graph environments, CARLA (language-conditioned driving) |
-| **Aerial** | Multirotor drones | Oblique / downward RGB, altimeter, GPS | 3D motion, altitude and viewpoint changes, landmark disambiguation, flight safety | AerialVLN / CityNav / OpenFly | AirSim, Unreal Engine, Isaac Sim |
+| **Aerial** | Multirotor drones | Oblique / downward RGB, altimeter, GPS | Three-dimensional motion, altitude and viewpoint changes, landmark disambiguation, flight safety | AerialVLN / CityNav / OpenFly | AirSim, Unreal Engine, Isaac Sim |
 
 ## 5.1 Indoor environments
 {: id="51-室内场景"}
@@ -690,7 +942,7 @@ Start benchmark selection with the capability to be tested, then consider scale.
 | Dialogue collaboration | CVDN / TEACh | Dialogue history versus online Q&A; navigation versus manipulation | Task progress, interaction, execution |
 | Social and physical constraints | HA-VLN 2.0 / VLN-PE / VLNVerse | Crowds, morphology, dynamics, task subsets | Arrival + social or embodiment failures |
 | Demand reasoning | DDN | Satisfying a demand versus fixed-category search | Finding an object that satisfies the demand |
-| Aerial language navigation | AerialVLN / CityNav / OpenFly | Map inputs, flight degrees of freedom, environment sources | Arrival, 3D paths, execution constraints |
+| Aerial language navigation | AerialVLN / CityNav / OpenFly | Map inputs, flight degrees of freedom, environment sources | Arrival, three-dimensional paths, execution constraints |
 
 The following table includes only scales with a clear counting unit. Years indicate first public release; conference years are noted separately. **Paths, instructions, dialogues, and episodes are not interchangeable**, and continuous-environment conversions cannot simply inherit the discrete version's counts.
 
@@ -729,7 +981,7 @@ This is a reading guide to common original task fields. Refer to the [official R
 |:---|:---|:---|
 | `scan` | Scene identifier | Scene assets must be obtained separately |
 | `path_id` | Reference-path identifier | Not a unique identifier for one language instruction |
-| `path` | Ordered viewpoint IDs | Not a list of 3D coordinates |
+| `path` | Ordered viewpoint IDs | Not a list of three-dimensional coordinates |
 | `heading` | Initial heading | Preserve original units and coordinate conventions |
 | `instructions` | Instructions for the same path | Trainers may expand the list into multiple instances |
 
@@ -772,7 +1024,9 @@ RxR provides multilingual instructions and spatiotemporal annotations associated
 
 VLN-CE moves instruction navigation into Habitat's navigable space, removing movement constraints imposed by graph edges. **Environment positions are continuous; policy actions may still form a finite set**, such as forward and turn. Execution becomes harder, but legged dynamics are not automatically included. See the [original paper](https://arxiv.org/abs/2004.02857).
 
-The original baseline repository recommends `R2R_VLNCE_v1-3` and pins its Habitat version. Different sensors, waypoint controllers, or modified simulators require protocol checks. An identical dataset name alone does not establish comparability. See the [official implementation and version guidance](https://github.com/jacobkrantz/VLN-CE).
+The original baseline repository recommends `R2R_VLNCE_v1-3` and pins its Habitat version. Different sensors, waypoint controllers, or modified simulators require protocol checks. An identical dataset name alone does not establish comparability.
+
+**Data and code**: [official VLN-CE repository](https://github.com/jacobkrantz/VLN-CE) · [R2R-CE data download and directory layout](https://github.com/jacobkrantz/VLN-CE#episodes-room-to-room-r2r) · [data format and version history](https://jacobkrantz.github.io/vlnce/data). The download entry provides the `R2R_VLNCE_v1-3` base package and the preprocessed package.
 
 <div align="center">
   <img loading="lazy" decoding="async" src="/images/vln/VLN-CE-comparison.webp" width="95%" alt="Discrete viewpoint navigation compared with execution in continuous space" />
@@ -816,6 +1070,8 @@ The following is a **field-type illustration**. Scene names, text, and coordinat
 {: id="625-rxr-ce-多语言连续环境导航"}
 
 RxR's continuous-environment adaptation is released with VLN-CE. The RxR-Habitat challenge explicitly constrains RGB-D observations, action step lengths, and turn angles. Panoramic-observation results cannot directly be treated as results under that challenge protocol. See the [official required task configurations](https://github.com/jacobkrantz/VLN-CE#required-task-configurations).
+
+**Data and code**: [official VLN-CE repository](https://github.com/jacobkrantz/VLN-CE) · [RxR-CE data download and directory layout](https://github.com/jacobkrantz/VLN-CE#episodes-room-across-room-rxr). RxR-CE shares this repository with R2R-CE; this entry provides the `RxR_VLNCE_v0` data package and instructions for downloading text features.
 
 **Separate multilingual effects from execution errors**: a language-specific drop can reflect semantic understanding or action errors on longer routes. Group results by language, route length, and endpoint error, using the same cameras and controllers. If machine translation or extra text features are used, clarify whether the model understands the original language directly or navigates through a translation system.
 
@@ -1259,10 +1515,10 @@ These are illustrations for understanding metrics, not results from a particular
 | Behavior | SR | SPL | nDTW / CLS | Interpretation |
 |:---|:---|:---|:---|:---|
 | Follows the instruction, arrives, and stops correctly | Success | Depends on deviation from shortest path | Usually high | Meets both route and endpoint requirements |
-| Skips landmarks and takes a shortcut | May still succeed | May be high | Usually lower | Arrival does not establish path fidelity |
-| Repeatedly enters rooms before finally arriving | May still succeed | Clearly lower | Usually lower | Success may come from excessive exploration; inspect TL |
-| Follows most of the route but fails at the endpoint | Failure | 0 | May still be high | Path similarity does not establish completion; SDTW is 0 |
-| Passes the goal and keeps moving away | May fail | 0 if failed | Trajectory-dependent | OSR–SR gap motivates inspection of stopping and execution |
+| Skips landmarks and takes a shortcut | Can still succeed | Can be high | Usually lower | Arrival does not establish path fidelity |
+| Repeatedly enters rooms before finally arriving | Can still succeed | Clearly lower | Usually lower | Success may come from excessive exploration; inspect TL |
+| Follows most of the route but fails at the endpoint | Failure | 0 | Can still be high | Path similarity does not establish completion; SDTW is 0 |
+| Passes the goal and keeps moving away | Might fail | 0 if failed | Trajectory-dependent | OSR–SR gap motivates inspection of stopping and execution |
 
 <a id="812-场景化指标选型决策树"></a>
 
@@ -1553,7 +1809,7 @@ A useful learning order is classic tasks → continuous environments → foundat
 - {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following and Leaderboards' %}: detailed readings, performance, and open-source status organized by task setting.
 - {% include content-link.html path='/Spatial-Intelligence-Survey/' fragment='' label='Spatial Intelligence Survey' %}: foundations of 3D representations, maps, and spatial reasoning.
 - {% include content-link.html path='/World-Models-Survey/' fragment='' label='World Models Survey' %}: predictive models, world-action models, and data engines.
-- {% include content-link.html path='/Robot-Navigation-Survey/' fragment='' label='Traditional Robot Navigation Survey' %}: SLAM, global/local planning, and controllers, complementing fast systems in Section 3.3 and deployment metrics in Section 8.4.
+- {% include content-link.html path='/Robot-Navigation-Survey/' fragment='' label='Traditional Robot Navigation Survey' %}: SLAM, global/local planning, and controllers, complementing [hierarchical control in Section 3.2](#survey-policy), [action interfaces in Section 3.4](#survey-grounding), and deployment metrics in Section 8.4.
 - {% include content-link.html path='/VLA-Survey/' fragment='' label='VLA Survey' %}: vision-language-action training paradigms and action-interface design.
 
 **[VLN-Survey-with-Foundation-Models](https://github.com/zhangyuejoslin/VLN-Survey-with-Foundation-Models)**
@@ -1651,7 +1907,7 @@ The table proposes open questions and evaluation approaches based on that eviden
 
 This is a problem-oriented narrative survey covering route-instruction navigation and related goal-navigation, interaction, and embodied-control work. It is not a systematic review with exhaustive search and exclusion procedures. Boundaries are stated where other tasks inform mechanisms; general VLA and manipulation papers are not treated as direct performance evidence for standard VLN.
 
-The most recent source verification date is **2026-09-26**, focusing on data-counting conventions, platform support, core metrics, and cross-paper design differences. Changeable data are tied to paper versions or data-card sources; entries without a confirmed independent protocol retain uncertainty notes. Other work is available through companion paper readings. This survey does not claim to have independently reproduced every experiment or verified all leaderboard results.
+Data-counting conventions, platform support, and core metrics were verified together on **2026-09-26**. On **2026-10-07**, Section 3 was reorganized with the companion paper readings, adding checks of the mechanism descriptions for representative methods in action interfaces, progress and active perception, and predictive learning. On **2026-10-09**, Section 3.8 was expanded, checking RL feedback levels, rewards, and same-backbone ablations against the specified versions of the original papers. These method-section revisions do not mean that every dataset, platform, or leaderboard was re-verified. Changeable data are tied to paper versions or data-card sources; entries without a confirmed independent protocol retain uncertainty notes. Other work is available through companion paper readings. This survey does not claim to have independently reproduced every experiment or verified all leaderboard results.
 
 
 # 10. References
@@ -1789,3 +2045,21 @@ The most recent source verification date is **2026-09-26**, focusing on data-cou
 
 64. Gu et al., *Vision-and-Language Navigation: A Survey of Tasks, Methods, and Future Directions*, ACL 2022. [[Paper]](https://arxiv.org/abs/2203.12667)
 65. Zhang et al., *Vision-and-Language Navigation Today and Tomorrow: A Survey in the Era of Foundation Models*, arXiv 2024. [[Paper]](https://arxiv.org/abs/2407.07035) [[GitHub]](https://github.com/zhangyuejoslin/VLN-Survey-with-Foundation-Models)
+
+---
+
+## 10.5 Reinforcement learning and closed-loop post-training
+{: id="105-强化学习与闭环后训练"}
+
+66. **DAgger** — Ross et al., *A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning*, AISTATS 2011. [[Paper]](https://arxiv.org/abs/1011.0686)
+67. **RCM** — Wang et al., *Reinforced Cross-Modal Matching and Self-Supervised Imitation Learning for Vision-Language Navigation*, CVPR 2019. [[Paper]](https://arxiv.org/abs/1811.10092)
+68. **EnvDrop** — Tan et al., *Learning to Navigate Unseen Environments: Back Translation with Environmental Dropout*, NAACL 2019. [[Paper]](https://aclanthology.org/N19-1268/)
+69. **PPO** — Schulman et al., *Proximal Policy Optimization Algorithms*, arXiv 2017. [[Paper]](https://arxiv.org/abs/1707.06347)
+70. **GRPO / DeepSeekMath** — Shao et al., *DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models*, arXiv 2024. [[Paper]](https://arxiv.org/abs/2402.03300)
+71. **nDTW / SDTW** — Ilharco et al., *General Evaluation for Instruction Conditioned Navigation using Dynamic Time Warping*, NeurIPS ViGIL Workshop 2019. [[Paper]](https://research.google/pubs/general-evaluation-for-instruction-conditioned-navigation-using-dynamic-time-warping/)
+72. **VLN-R1** — *Vision-Language Navigation via Reinforcement Fine-Tuning*, arXiv 2025 (checked v1). [[Paper]](https://arxiv.org/html/2506.17221v1)
+73. **ActiveVLN** — *Towards Active Exploration via Multi-Turn RL in Vision-and-Language Navigation*, arXiv 2025 (checked v1). [[Paper]](https://arxiv.org/html/2509.12618v1)
+74. **ETP-R1** — *Evolving Topological Planning with Reinforcement Fine-tuning for Vision-Language Navigation in Continuous Environments*, arXiv 2025 (checked v1). [[Paper]](https://arxiv.org/html/2512.20940v1)
+75. **JOP-VLN** — *Joint On-and-Off Policy Learning for Vision-and-Language Navigation*, arXiv 2026 (checked v1). [[Paper]](https://arxiv.org/html/2607.13461v1)
+76. **NavGRPO** — *Trajectory-Diversity-Driven Robust Vision-and-Language Navigation*, arXiv 2026 (checked v1). [[Paper]](https://arxiv.org/html/2603.15370v1)
+77. **GroundingVLN / GEAR** — *Reasoning and Acting with Grounding for Vision-Language Navigation*, arXiv 2026 (checked v3). [[Paper]](https://arxiv.org/html/2609.18581v3)
