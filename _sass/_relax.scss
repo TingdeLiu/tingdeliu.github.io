@@ -1,0 +1,74 @@
+// Pixel runner on /relax/. The canvas is drawn at low resolution and scaled up without smoothing.
+.article-page .relax-game {
+  margin: 0 0 32px;
+  user-select: none;
+  -webkit-user-select: none;
+
+  .relax-hud {
+    display: flex;
+    justify-content: flex-end;
+    gap: 24px;
+    margin-bottom: 10px;
+    color: var(--muted);
+    font: 13px $code-font;
+    align-items: center;
+    b { color: var(--ink); font-weight: 500; }
+    b.is-milestone { animation: relax-flash .8s steps(2) 2; }
+  }
+
+  .relax-shield {
+    margin-right: auto;
+    padding: 5px 12px;
+    border: 1px solid var(--accent);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--accent);
+    font: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+    b { color: inherit; }
+    &:hover:not(:disabled) { background: var(--selection); }
+    &:disabled { border-color: var(--rule); color: var(--muted); cursor: default; }
+    &.is-active { border-color: var(--accent); background: var(--accent); color: var(--paper); }
+  }
+
+  .relax-stage {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    &:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+  }
+
+  canvas { display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+
+  .relax-message {
+    position: absolute;
+    top: 22%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 6px 12px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    color: var(--ink);
+    font: 13px $code-font;
+    white-space: nowrap;
+    pointer-events: none;
+    &[hidden] { display: none; }
+  }
+
+  .relax-help { margin: 12px 0 0; color: var(--muted); font-size: 13px; }
+}
+
+@keyframes relax-flash {
+  50% { opacity: 0; }
+}
+
+@media screen and (max-width: 640px) {
+  .article-page .relax-game .relax-message { white-space: normal; width: 80%; text-align: center; }
+  .article-page .relax-game .relax-hud { gap: 14px; font-size: 12px; }
+}

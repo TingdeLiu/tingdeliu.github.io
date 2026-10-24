@@ -1,0 +1,27 @@
+---
+layout: page
+editorial: true
+title: Relax
+subtitle: "读累了就跑两步：帮小恐龙跳过箱子和路锥，分清头顶和贴地的无人机。等级没有上限，越往后越快、越密。"
+hero_mark: R
+hero_label: Take a break
+portrait: false
+permalink: /relax/
+excerpt: "一个像素风的小恐龙跑酷小游戏，读论文间隙放松一下。"
+---
+
+<div class="relax-game">
+  <div class="relax-hud" aria-live="off">
+    <button class="relax-shield" type="button" data-relax-shield disabled>护盾 ×<b data-relax-charges>0</b></button>
+    <span>LV <b data-relax-level>1</b></span>
+    <span>HI <b data-relax-best>00000</b></span>
+    <span><b data-relax-score>00000</b></span>
+  </div>
+  <div class="relax-stage" data-relax-stage tabindex="0" role="application" aria-label="小恐龙跑酷：按空格、上方向键或点击画面跳跃">
+    <canvas data-relax-canvas></canvas>
+    <p class="relax-message" data-relax-message aria-live="polite"></p>
+  </div>
+  <p class="relax-help">空格 / ↑ 跳跃，按住跳得更高，↓ 加速落地；手机上点画面跳跃。<br>跳起来吃掉空中的盾牌可以攒护盾（最多 3 个），按 X / → 或点「护盾」开启，4 秒内撞碎障碍还能加分。</p>
+</div>
+
+<script src="{{ '/assets/js/relax-runner.js' | relative_url }}" defer></script>
