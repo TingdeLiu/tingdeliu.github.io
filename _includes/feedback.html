@@ -39,7 +39,7 @@
 <h1 id="feedback">{{ ui.feedback }}</h1>
 <div class="post-feedback">
   <div class="feedback-header">
-    <h3 id="improve-this-article">📮 {{ ui.improve }}</h3>
+    <h3 id="improve-this-article">{{ ui.improve }}</h3>
     <p>{{ ui.feedback_intro }}</p>
   </div>
   <div class="feedback-buttons">
@@ -51,7 +51,7 @@
        href="https://github.com/TingdeLiu/Tingde.Liu.github.io/issues/new?title={{ ui.suggest | append: ' — ' | append: page.title | url_encode }}&labels=suggestion&body={{ suggest_body | url_encode }}">✏️ {{ ui.suggest }}</a>
   </div>
   <div class="feedback-contributors" id="feedback-contributors" hidden>
-    <h4>🙌 {{ ui.contributors }}</h4>
+    <h4>{{ ui.contributors }}</h4>
     <div class="contributors-wall" id="contributors-wall"></div>
   </div>
 </div>

@@ -4002,7 +4002,7 @@ Some layers are particularly sensitive to quantization: output layers `lm_head`,
 ### 8.5.3 Common pitfalls of quantification
 {: id="853-量化的常见陷阱"}
 
-#### 8.5.3.1 ❌ Trap 1: Using too little calibration data
+#### 8.5.3.1 Trap 1: Using too little calibration data
 {: id="8531--陷阱1使用过少的校准数据"}
 
 ```python
@@ -4013,7 +4013,7 @@ calibration_data = dataset[:10]  # Only use10samples ❌
 calibration_data = dataset[:512]  # at least128-1024samples ✅
 ```
 
-#### 8.5.3.2 ❌ Trap 2: Calibration data distribution mismatch
+#### 8.5.3.2 Trap 2: Calibration data distribution mismatch
 {: id="8532--陷阱2校准数据分布不匹配"}
 
 ```python
@@ -4026,7 +4026,7 @@ calibration_data = load_dataset("allenai/c4", split="train[:1000]")  # universal
 calibration_data = load_dataset("OpenAssistant/oasst1")  # Conversation data
 ```
 
-#### 8.5.3.3 ❌ Trap 3: Directly perform per-tensor INT8 quantization on activations
+#### 8.5.3.3 Trap 3: Directly perform per-tensor INT8 quantization on activations
 {: id="8533--陷阱3直接对激活做-per-tensor-int8-量化"}
 
 The amplitudes of a few channels in the activations of a large model can be two orders of magnitude larger than other channels. When doing per-tensor naive INT8 quantization of activations, these outliers will increase the scaling factor, compressing the remaining channels to only a few quantization levels, and the accuracy will collapse.

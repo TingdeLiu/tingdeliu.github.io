@@ -3696,7 +3696,7 @@ for t in TASKS:
 
 ### 8.5.3 量化的常见陷阱
 
-#### 8.5.3.1 ❌ 陷阱1：使用过少的校准数据
+#### 8.5.3.1 陷阱1：使用过少的校准数据
 
 ```python
 # 错误示例
@@ -3706,7 +3706,7 @@ calibration_data = dataset[:10]  # 只用10个样本 ❌
 calibration_data = dataset[:512]  # 至少128-1024个样本 ✅
 ```
 
-#### 8.5.3.2 ❌ 陷阱2：校准数据分布不匹配
+#### 8.5.3.2 陷阱2：校准数据分布不匹配
 
 ```python
 # 错误示例：用代码数据校准对话模型 ❌
@@ -3718,7 +3718,7 @@ calibration_data = load_dataset("allenai/c4", split="train[:1000]")  # 通用文
 calibration_data = load_dataset("OpenAssistant/oasst1")  # 对话数据
 ```
 
-#### 8.5.3.3 ❌ 陷阱3：直接对激活做 per-tensor INT8 量化
+#### 8.5.3.3 陷阱3：直接对激活做 per-tensor INT8 量化
 
 大模型的激活中少数通道的幅值可比其他通道大两个数量级。对激活做 per-tensor 的朴素 INT8 量化时，这些离群值会拉大缩放因子，把其余通道压缩到只剩几个量化级，精度随之崩溃。
 
