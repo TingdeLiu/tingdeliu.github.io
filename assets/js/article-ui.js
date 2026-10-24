@@ -294,6 +294,28 @@
     });
   }
 
+  // Demo videos use data-autoplay + preload="none" instead of autoplay, so a page with
+  // dozens of clips downloads only the ones near the viewport, and pauses them off screen.
+  function setupViewportVideos() {
+    var videos = document.querySelectorAll('video[data-autoplay]');
+    if (!videos.length) return;
+    function play(video) {
+      var started = video.play();
+      if (started && started.catch) started.catch(function () {});
+    }
+    if (!('IntersectionObserver' in window)) {
+      Array.prototype.forEach.call(videos, play);
+      return;
+    }
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) play(entry.target);
+        else entry.target.pause();
+      });
+    }, { rootMargin: '200px 0px' });
+    Array.prototype.forEach.call(videos, function (video) { observer.observe(video); });
+  }
+
   function setupProgress() {
     var bar = document.querySelector('.article-progress-bar');
     var article = document.querySelector('.posts');
@@ -525,6 +547,7 @@
     enhanceCodeBlocks();
     enhanceHeadingAnchors();
     enhancePaperFigures();
+    setupViewportVideos();
     setupLightbox();
 
     var updateProgress = setupProgress();

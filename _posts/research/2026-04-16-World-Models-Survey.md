@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: world-models-survey
 title: "世界模型综述"
-date:  2026-10-07
+date: 2026-10-24
 tags: [VLA, World Models, Robotics, Embodied AI, Survey]
 categories: research
 comments: true
@@ -46,7 +46,7 @@ excerpt: "本文系统梳理具身智能世界模型（World Models）：从认�
 - **自主机器智能架构（Yann LeCun, 2022）**：Yann LeCun 在其机器智能愿景中强调，世界模型是自主智能体不可或缺的核心模块，负责根据当前状态与候选动作预测世界可能出现的演化。
 
 <div align="center">
-  <img src="/images/wm/wmandvla.png" width="90%" />
+  <img src="/images/wm/wmandvla.png" width="90%" loading="lazy" decoding="async" style="aspect-ratio:720/480" />
 <figcaption>图：物理 AI 世界模型（Cosmos WM）与具身策略模型（OpenVLA）的功能定位对比：前者负责环境演化与物理仿真，后者负责动作决策与执行。</figcaption>
 </div>
 
@@ -201,7 +201,7 @@ flowchart TD
 ## 2.4 演进时间线（2018–2026）
 
 <div align="center">
-  <img src="/images/wm/Survey-Fig2-Timeline.webp" width="100%" />
+  <img src="/images/wm/Survey-Fig2-Timeline.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1686/540" />
 <figcaption>图：具身智能世界模型演化时间线。从 2018 年潜空间梦境训练奠基，到 2023 年视频生成驱动规划，再到 2025–2026 年世界动作模型（WAM）、全模态基础模型（Cosmos 3）与可探索 3D 宇宙（Lyra 2.0 / Marble）的爆发。（图源：Tan et al., 2026）</figcaption>
 </div>
 
@@ -224,7 +224,7 @@ flowchart TD
 David Ha 与 Jürgen Schmidhuber 提出的 **World Models** [[3]](#ref-3) 首次在深度学习框架下完整实现了认知科学中的 **V-M-C 三位一体架构**：
 
 <div align="center">
-  <img src="/images/wm/WorldModels-vmc-overview.webp" width="90%" />
+  <img src="/images/wm/WorldModels-vmc-overview.webp" width="90%" loading="lazy" decoding="async" style="aspect-ratio:673/551" />
 <figcaption>图：World Models (2018) 的 V-M-C 核心架构：视觉感知 V（VAE）、记忆动力学 M（MDN-RNN）与轻量控制器 C。（图源：Ha & Schmidhuber, 2018）</figcaption>
 </div>
 
@@ -238,7 +238,7 @@ David Ha 与 Jürgen Schmidhuber 提出的 **World Models** [[3]](#ref-3) 首次
 3. **C 模型（Controller）**：仅包含千余参数的超轻量前馈网络，直接将 $$z_t$$ 与循环隐状态 $$h_t$$ 映射为控制动作 $$a_t = W_c [z_t \; h_t] + b_c$$。
 
 <div align="center">
-  <img src="/images/wm/WorldModels-flow-diagram.webp" width="90%" />
+  <img src="/images/wm/WorldModels-flow-diagram.webp" width="90%" loading="lazy" decoding="async" style="aspect-ratio:673/615" />
 <figcaption>图：World Models 完整数据流：离线收集经验训练 V 与 M，随后在完全脱离真实环境的 RNN 梦境中训练控制器 C。（图源：Ha & Schmidhuber, 2018）</figcaption>
 </div>
 
@@ -251,7 +251,7 @@ David Ha 与 Jürgen Schmidhuber 提出的 **World Models** [[3]](#ref-3) 首次
 Danijar Hafner 等人开创的 **Dreamer 系列** [[4]](#ref-4)（DreamerV1 $\to$ V2 $\to$ V3；V3 于 2023 年以 *Mastering Diverse Domains through World Models* 为题发布于 arXiv，2025 年以 *Mastering diverse control tasks through world models* 为题正式发表于 *Nature*）将有模型 RL 推向了通用化。
 
 <div align="center">
-  <img src="/images/wm/DreamerV3-training-architecture.webp" width="95%" />
+  <img src="/images/wm/DreamerV3-training-architecture.webp" width="95%" loading="lazy" decoding="async" style="aspect-ratio:1328/726" />
 <figcaption>图：DreamerV3 训练流水线：(a) 从真实经验中自监督学习 RSSM 世界模型；(b) 在潜空间自回归展开轨迹；(c) 在想象中优化 Actor-Critic 策略。（图源：Hafner et al., Nature 2025）</figcaption>
 </div>
 
@@ -261,7 +261,7 @@ Dreamer 解决了连续世界模型长期存在的表示坍缩与数值不稳定
 3. **通用性与 Minecraft 钻石任务**：DreamerV3 使用**同一套超参数与模型架构**，在 Atari、Crafter、DMC、Procgen 等多个领域取得强性能，并成为首个在不使用人类数据与课程设计的条件下、在 Minecraft 中从零开始采集到钻石的算法——这一任务需要伐木、合成工作台、采矿、冶炼等一长串依赖步骤，且奖励极为稀疏。
 
 <div align="center">
-  <img src="/images/wm/DreamerV3-benchmark-summary.webp" width="90%" />
+  <img src="/images/wm/DreamerV3-benchmark-summary.webp" width="90%" loading="lazy" decoding="async" style="aspect-ratio:1348/607" />
 <figcaption>图：DreamerV3 在 7 大异构领域（2D 像素、连续控制、3D 长程沙盒）中的标准化性能对比。（图源：Hafner et al., Nature 2025）</figcaption>
 </div>
 
@@ -272,7 +272,7 @@ Dreamer 解决了连续世界模型长期存在的表示坍缩与数值不稳定
 以往的世界模型（如 World Models、Dreamer）大多依赖逐像素的图像重建损失，大量网络算力被浪费在与下游控制无关的背景视觉细节上。Nicklas Hansen 等人提出的 **TD-MPC 系列** [[5]](#ref-5) 实现了关键的技术转向：
 
 <div align="center">
-  <img src="/images/wm/TD-MPC2-architecture.webp" width="90%" />
+  <img src="/images/wm/TD-MPC2-architecture.webp" width="90%" loading="lazy" decoding="async" style="aspect-ratio:479/585" />
 <figcaption>图：TD-MPC2 整体架构：无需逐像素解码重建，在紧凑潜空间中深度融合 MPPI 在线采样规划与时序差分（TD）长程价值学习。（图源：Hansen et al., ICLR 2024）</figcaption>
 </div>
 
@@ -431,7 +431,7 @@ Genie 是首个仅通过无标注视频学习而成的生成式交互环境（Fo
 Genie 是一个参数量达 110 亿的基础模型，其架构由三个深度集成的组件构成，全部基于改进的 **ST-Transformer**。
 
 <div align="center">
-  <img src="/images/wm/Genie-components.webp" width="100%" />
+  <img src="/images/wm/Genie-components.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1326/492" />
 <figcaption>图：Genie 整体训练框架：包含视频分词器、潜动作模型 (LAM) 和动力学模型。（图源：Genie, 2024）</figcaption>
 </div>
 
@@ -442,7 +442,7 @@ Genie 是一个参数量达 110 亿的基础模型，其架构由三个深度集
 - **一致性**：实验证明，即使在不同游戏中，相同的潜动作 Token 往往对应相同的物理语义（如 Action 0 始终代表左移）。
 
 <div align="center">
-  <img src="/images/wm/Genie-LAM.webp" width="70%" />
+  <img src="/images/wm/Genie-LAM.webp" width="70%" loading="lazy" decoding="async" style="aspect-ratio:653/230" />
 <figcaption>图：潜动作模型 (LAM)：通过重构目标实现无监督动作挖掘。（图源：Genie, 2024）</figcaption>
 </div>
 
@@ -457,7 +457,7 @@ Genie 提出了 **ST-ViViT** 架构：
 - **预测**：模型在隐空间内预测下一帧的 Token。通过海量数据的“喂养”，模型学习到了复杂的 2D 平台游戏规则，如碰撞、重力、敌人交互和屏幕卷轴滚动。
 
 <div align="center">
-  <img src="/images/wm/Genie-ST-transformer.webp" width="55%" />
+  <img src="/images/wm/Genie-ST-transformer.webp" width="55%" loading="lazy" decoding="async" style="aspect-ratio:648/259" />
 <figcaption>图：ST-transformer：交替进行空间与时间层计算，实现线性复杂度。（图源：Genie, 2024）</figcaption>
 </div>
 
@@ -471,7 +471,7 @@ Genie 提出了 **ST-ViViT** 架构：
 *   **作为强化学习的“母体”**：在 Genie 内部训练的智能体，可以极快地迁移到真实环境中。相比于从零开始训练，使用潜动作预训练的智能体在样本效率上提升了数倍。
 
 <div align="center">
-  <img src="/images/wm/Genie-robotics-actions.webp" width="100%" />
+  <img src="/images/wm/Genie-robotics-actions.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:653/830" />
 <figcaption>图：在机器人操作数据上学习到的具有语义意义的潜动作。（图源：Genie, 2024）</figcaption>
 </div>
 
@@ -503,7 +503,7 @@ Genie 提出了 **ST-ViViT** 架构：
 #### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vla/LingBot-World-overview.webp" width="100%" />
+  <img src="/images/vla/LingBot-World-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1320/882" />
 <figcaption>图：LingBot-World 交互式世界模拟概览：支持在多种场景（写实、科学、卡通等）下通过键盘操作进行实时交互。（图源：LingBot-World, 2026）</figcaption>
 </div>
 
@@ -517,7 +517,7 @@ Genie 提出了 **ST-ViViT** 架构：
 模型采用了从视频生成器向交互式模拟器进化的三阶段策略：
 
 <div align="center">
-  <img src="/images/vla/LingBot-World-training-pipeline.webp" width="100%" />
+  <img src="/images/vla/LingBot-World-training-pipeline.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1324/589" />
 <figcaption>图：LingBot-World 训练管线：从预训练的视频先验出发，经过中训练注入知识，最后通过后训练实现实时交互能力。（图源：LingBot-World, 2026）</figcaption>
 </div>
 
@@ -528,7 +528,7 @@ Genie 提出了 **ST-ViViT** 架构：
 ##### ③ 模型架构与动作注入
 
 <div align="center">
-  <img src="/images/vla/LingBot-World-architecture.webp" width="100%" />
+  <img src="/images/vla/LingBot-World-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1328/753" />
 <figcaption>图：LingBot-World 模型架构：基于 DiT 块，通过 Plücker Encoder 注入动作信号，并利用 AdaLN 进行调制。（图源：LingBot-World, 2026）</figcaption>
 </div>
 
@@ -537,7 +537,7 @@ LingBot-World 基于 DiT (Diffusion Transformer) 架构。动作信号（离散�
 #### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/vla/LingBot-World-memory-capability.webp" width="100%" />
+  <img src="/images/vla/LingBot-World-memory-capability.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1322/990" />
 <figcaption>图：涌现的记忆能力：模型能够记住视野外的静态地标（如巨石阵），并在 60 秒后返回时保持结构一致，且能模拟视野外物体的动态演化。（图源：LingBot-World, 2026）</figcaption>
 </div>
 
@@ -546,7 +546,7 @@ LingBot-World 基于 DiT (Diffusion Transformer) 架构。动作信号（离散�
 - **可控编辑**：支持通过文本指令（如“Firework”、“Fish”）对生成的世界进行实时干预。
 
 <div align="center">
-  <img src="/images/vla/LingBot-World-promptable-events.webp" width="100%" />
+  <img src="/images/vla/LingBot-World-promptable-events.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1328/1533" />
 <figcaption>图：可控世界事件示例：通过文本提示词实时改变天气、风格或在场景中注入特定动态元素。（图源：LingBot-World, 2026）</figcaption>
 </div>
 
@@ -578,14 +578,14 @@ SANA-WM 最值得借鉴的核心思想是**以效率为第一设计目标的世�
 #### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/wm/SANA-WM-teaser.webp" width="100%" />
+  <img src="/images/wm/SANA-WM-teaser.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1320/672" />
 <figcaption>图：SANA-WM 概览。从单张图像和动作轨迹出发，生成分钟级 720p 世界，支持精确相机控制、64-GPU 训练与单 GPU 推理。（图源：SANA-WM，arXiv:2605.15178）</figcaption>
 </div>
 
 **整体框架**：SANA-WM 由四个核心组件构成：① 混合线性 DiT 骨干（Hybrid GDN/Softmax）负责高效长程上下文建模；② 双分支相机控制（UCPE + Plücker）负责精确 6-DoF 轨迹注入；③ 第二阶段视觉精化器（LTX-2 LoRA）负责提升最终帧质量；④ 鲁棒度量标注管线（VIPE+Pi3X+MoGe-2）负责从公开视频提取高质量训练数据。
 
 <div align="center">
-  <img src="/images/wm/SANA-WM-architecture.webp" width="100%" />
+  <img src="/images/wm/SANA-WM-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1326/746" />
 <figcaption>图：SANA-WM 架构。文本、视频和姿态 Token 交替经过 GDN 块和 Softmax 块；UCPE Attention 和 Plücker Mixing 提供几何感知的相机条件；第二阶段精化器进一步提升视觉质量。（图源：SANA-WM）</figcaption>
 </div>
 
@@ -616,7 +616,7 @@ $$S_t = S_{t-1} M_t + U_t, \quad M_t = \gamma_t(I - \hat K_t \beta_t \hat K_t^\t
 ##### ④ 鲁棒度量标注管线与数据
 
 <div align="center">
-  <img src="/images/wm/SANA-WM-data-pipeline.webp" width="100%" />
+  <img src="/images/wm/SANA-WM-data-pipeline.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1326/606" />
 <figcaption>图：SANA-WM 数据构建管线。收集开源视频与静态 3D 资源，标注度量尺度相机姿态，用 3DGS 渲染增强 DL3DV，过滤/字幕处理后得到 213K 片段训练语料。（图源：SANA-WM）</figcaption>
 </div>
 
@@ -636,7 +636,7 @@ $$S_t = S_{t-1} M_t + U_t, \quad M_t = \gamma_t(I - \hat K_t \beta_t \hat K_t^\t
 #### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/wm/SANA-WM-qualitative-comparison.webp" width="100%" />
+  <img src="/images/wm/SANA-WM-qualitative-comparison.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1323/576" />
 <figcaption>图：四种方法在 Hard Trajectory 60s 视频上的定性对比。绿色边框为 SANA-WM，左下角为动作轨迹叠加。SANA-WM 在复杂轨迹下仍保持场景一致性，基线方法则出现模糊、布局漂移或结构崩溃。（图源：SANA-WM）</figcaption>
 </div>
 
@@ -645,7 +645,7 @@ $$S_t = S_{t-1} M_t + U_t, \quad M_t = \gamma_t(I - \hat K_t \beta_t \hat K_t^\t
 **视觉质量**：精化后 VBench Overall 80.62/81.89（Simple/Hard），与 LingBot-World（81.82/81.89）相当，但 LingBot-World 需要 8 块 H100（454.1 GB 显存），SANA-WM 单 GPU 仅需 74.7 GB。
 
 <div align="center">
-  <img src="/images/wm/SANA-WM-efficiency-ablation.webp" width="100%" />
+  <img src="/images/wm/SANA-WM-efficiency-ablation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1323/426" />
 <figcaption>图：效率消融与扩展性分析。(a) 60s 单 GPU 推理延迟分解：经蒸馏+attention sink+NVFP4 量化，RTX 5090 上 34s 生成一条 60s 720p 视频。(b) H100 延迟与显存随视频时长的变化：混合 GDN/Softmax 线性增长，纯 Softmax 在 60s 时 OOM。（图源：SANA-WM）</figcaption>
 </div>
 
@@ -691,7 +691,7 @@ NVIDIA 推出的 Lyra 2.0 解决了长程（Long-horizon）3D 一致性场景生
 #### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/wm/Lyra2-Overview.webp" width="100%" />
+  <img src="/images/wm/Lyra2-Overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1326/1532" />
 <figcaption>图：Lyra 2.0 能够从单张图像出发，支持长程、3D 一致的场景生成与探索，并能导出为高质量 3D 资产。（图源：Lyra 2.0）</figcaption>
 </div>
 
@@ -699,7 +699,7 @@ Lyra 2.0 的核心是一个基于"检索-生成-更新"的自回归循环：
 
 1. **抗遗忘机制（Anti-Forgetting）**：
 <div align="center">
-  <img src="/images/wm/Lyra2-Method-Overview.webp" width="100%" />
+  <img src="/images/wm/Lyra2-Method-Overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1323/671" />
 <figcaption>图：方法概览：左侧为交互式探索循环，右侧展示了如何从空间记忆中检索历史帧并注入到 DiT 注意力机制中。（图源：Lyra 2.0, 2026）</figcaption>
 </div>
 系统维护一个 3D 缓存（3D Cache），存储每帧的深度图和点云。在生成下一段视频时，系统会根据当前相机视角，通过投影计算可见度（Visibility Score），检索出最相关的历史帧。
@@ -712,7 +712,7 @@ Lyra 2.0 的核心是一个基于"检索-生成-更新"的自回归循环：
 
 4. **实时交互与 3D 导出**：
 <div align="center">
-  <img src="/images/wm/Lyra2-Applications.webp" width="100%" />
+  <img src="/images/wm/Lyra2-Applications.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1323/430" />
 <figcaption>图：Lyra 2.0 应用：交互式 GUI 允许用户自定义轨迹，生成的场景可直接导入 NVIDIA Isaac Sim 进行具身智能仿真。（图源：Lyra 2.0, 2026）</figcaption>
 </div>
 
@@ -722,19 +722,19 @@ Lyra 2.0 的核心是一个基于"检索-生成-更新"的自回归循环：
 
 - **长程一致性**：实验表明，Lyra 2.0 在 800 帧以上的生成序列中仍能保持极其稳定的几何结构和风格一致性，显著优于 GEN3C 和 SPMem 等基线方法。
 <div align="center">
-  <img src="/images/wm/Lyra2-Video-Comparison.webp" width="100%" />
+  <img src="/images/wm/Lyra2-Video-Comparison.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1324/1057" />
 <figcaption>图：视频生成对比：Lyra 2.0 在长程探索中展现了更强的真实感和更少的几何畸变。（图源：Lyra 2.0, 2026）</figcaption>
 </div>
 
 - **高质量 3D 重建**：生成的视频序列通过微调后的 feed-forward 3DGS 流程，可以生成几乎无伪影（Floater-free）的高质量 3D 高斯泼溅模型。
 <div align="center">
-  <img src="/images/wm/Lyra2-3DGS-Comparison.webp" width="100%" />
+  <img src="/images/wm/Lyra2-3DGS-Comparison.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1323/982" />
 <figcaption>图：3DGS 重建对比：Lyra 2.0 生成的视频驱动的重建结果在保真度和一致性上大幅领先。（图源：Lyra 2.0, 2026）</figcaption>
 </div>
 
 - **具身智能赋能**：
 <div align="center">
-  <img src="/images/wm/Lyra2-In-the-Wild.webp" width="100%" />
+  <img src="/images/wm/Lyra2-In-the-Wild.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1326/758" />
 <figcaption>图：野外场景生成：模型展现了极强的泛化能力，能够处理从室内书房到室外街道、沙漠和古建筑等多样化环境。（图源：Lyra 2.0, 2026）</figcaption>
 </div>
 
@@ -783,7 +783,7 @@ World Labs 的技术演进呈现出明确的“两阶段协同”逻辑：
 ##### Part A: Marble 工业落地体系与 3DGS 世界表征
 
 <div align="center">
-  <img src="/images/wm/MarbleWorldModelV4.svg" width="90%" />
+  <img src="/images/wm/MarbleWorldModelV4.svg" width="90%" loading="lazy" decoding="async" />
 <figcaption>图：Marble 大型世界模型（LWM）整体架构：多模态输入经过空间推理与 3D 世界生成，输出为可实时渲染、自由探索的 3D 高斯泼溅世界。（图源：World Labs）</figcaption>
 </div>
 
@@ -799,8 +799,8 @@ Marble 支持四类输入模态，真正实现了多模态 → 3D 世界的生�
 | 粗糙 3D 布局（Coarse 3D Layout） | 通过 Chisel 工具手绘草图或导入 3D 资产作为结构框架 |
 
 <div align="center">
-  <img src="/images/wm/i2w-living-room.jpg" width="48%" />
-  <img src="/images/wm/i2w-mushroom-forest.jpg" width="48%" />
+  <img src="/images/wm/i2w-living-room.jpg" width="48%" loading="lazy" decoding="async" style="aspect-ratio:1080/605" />
+  <img src="/images/wm/i2w-mushroom-forest.jpg" width="48%" loading="lazy" decoding="async" style="aspect-ratio:1312/736" />
 <figcaption>图：Image-to-World 示例：单张室内照片（左）和蘑菇森林插画（右）被 Marble 外推为完整可探索的 3D 世界。（图源：World Labs）</figcaption>
 </div>
 
@@ -809,7 +809,7 @@ Marble 支持四类输入模态，真正实现了多模态 → 3D 世界的生�
 Marble 的核心技术选型为 **3D 高斯泼溅（3D Gaussian Splatting, 3DGS）**。3DGS 将 3D 场景表示为一组半透明粒子集合，在世界模型场景下具有显著优势：
 
 <div align="center">
-  <img src="/images/wm/streaming-3dgs-worlds.jpg" width="90%" />
+  <img src="/images/wm/streaming-3dgs-worlds.jpg" width="90%" loading="lazy" decoding="async" style="aspect-ratio:1024/651" />
 <figcaption>图：Marble 的流式 3DGS 渲染：生成的 3D 世界以高斯粒子表示，支持跨平台（手机到 VR 头显）实时渲染与自由视角探索。（图源：World Labs）</figcaption>
 </div>
 
@@ -824,7 +824,7 @@ Marble 的核心技术选型为 **3D 高斯泼溅（3D Gaussian Splatting, 3DGS�
 **四大核心功能模块**
 
 <div align="center">
-  <img src="/images/wm/3d-as-code.jpg" width="90%" />
+  <img src="/images/wm/3d-as-code.jpg" width="90%" loading="lazy" decoding="async" style="aspect-ratio:1456/816" />
 <figcaption>图：Chisel 工具：用户通过盒子、平面等基础 3D 形状或导入现有 3D 资产确定世界结构，文本 prompt 控制整体风格，实现结构与风格的解耦。（图源：World Labs）</figcaption>
 </div>
 
@@ -969,14 +969,14 @@ Image2Sim 旨在回答：**能否直接从现实世界采集的无约束视频�
 #### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vln/Image2Sim-pipeline-comparison.webp" width="100%" />
+  <img src="/images/vln/Image2Sim-pipeline-comparison.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1113/530" />
 <figcaption>图：传统导航数据流水线（需昂贵人工 3D 重建）与 Image2Sim 神经仿真框架（自动从无约束数据构建 2 万个场景与千万轨迹）对比。（图源：Image2Sim, 2026）</figcaption>
 </div>
 
 Image2Sim 将神经环境仿真解耦为两级级联结构：
 
 <div align="center">
-  <img src="/images/vln/Image2Sim-architecture.webp" width="100%" />
+  <img src="/images/vln/Image2Sim-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1058/557" />
 <figcaption>图：Image2Sim 架构：前馈 3D 特征高斯编码器（左）与几何感知单步 Pixel Flow 渲染器（右）。（图源：Image2Sim, 2026）</figcaption>
 </div>
 
@@ -1012,7 +1012,7 @@ Image2Sim 将神经环境仿真解耦为两级级联结构：
 这一家族的世界模型直接服务于机器人策略：条件是机器人动作或任务指令，价值最终体现在下游任务成功率上。按世界模型与策略的耦合方式分为四大范式（§2.2）。每个范式下先给出定义与机制，再介绍代表工作。
 
 <div align="center">
-  <img src="/images/wm/Survey-Fig3-Paradigms.webp" width="95%" />
+  <img src="/images/wm/Survey-Fig3-Paradigms.webp" width="95%" loading="lazy" decoding="async" style="aspect-ratio:1686/531" />
 <figcaption>图：VLA 世界模型的四大技术范式。(a) 世界规划器：世界模型生成潜表示 z 引导 VLA；(b) 世界动作模型：将观察与动作联合建模；(c) 世界合成器：通过模仿学习（IL）构建合成数据集；(d) 世界模拟器：通过强化学习（RL）优化策略并获取外部奖励。（图源：Tan et al., 2026）</figcaption>
 </div>
 
@@ -1021,7 +1021,7 @@ Image2Sim 将神经环境仿真解耦为两级级联结构：
 > 💡 **姊妹篇导读**：关于具身策略模型（OpenVLA、$\pi_0$、Octo、RoboCat 等）的动作 Tokenization、跨本体预训练与端到端控制架构，详见专题博文 [视觉-语言-动作（VLA）全景综述：从大模型底座、数据引擎到物理落地](/VLA-Survey/)。
 
 <div align="center">
-  <img src="/images/wm/World_Planner.webp" width="80%" />
+  <img src="/images/wm/World_Planner.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:712/415" />
 <figcaption>图：InternVLA·N1 的端到端双系统架构：前向动力学规划器提供未来潜特征引导策略执行。（图源：Intern Robotics）</figcaption>
 </div>
 
@@ -1124,7 +1124,7 @@ VLA-World 的核心思想在于通过在单帧未来预测的基础上进行反�
 VLA-World 提出了一个结合了感知、动作衍生预测、图像生成、反思推理和规划的完整流程。
 
 <div align="center">
-  <img src="/images/wm/VLA-World-overview.webp" width="100%" />
+  <img src="/images/wm/VLA-World-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1394/713" />
 <figcaption>图：VLA-World 三阶段训练与性能概览。（图源：VLA-World, 2026）</figcaption>
 </div>
 
@@ -1134,7 +1134,7 @@ VLA-World 提出了一个结合了感知、动作衍生预测、图像生成、�
 3. **阶段 3：强化学习 (RL)**：利用 GRPO 算法探索类人推理，使模型能更深入地反思生成的未来是否安全。
 
 <div align="center">
-  <img src="/images/wm/VLA-World-paradigm-comparison.webp" width="100%" />
+  <img src="/images/wm/VLA-World-paradigm-comparison.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1398/787" />
 <figcaption>图：VLA、世界模型与 VLA-World 三种范式的对比。（图源：VLA-World, 2026）</figcaption>
 </div>
 
@@ -1149,7 +1149,7 @@ VLA-World 提出了一个结合了感知、动作衍生预测、图像生成、�
 - **可解释性**: 通过让模型写下对“自己生成的未来”的推理过程（如识别某卡车的碰撞风险），系统的决策过程变得更加透明。
 
 <div align="center">
-  <img src="/images/wm/VLA-World-visualization.webp" width="100%" />
+  <img src="/images/wm/VLA-World-visualization.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:673/755" />
 <figcaption>图：VLA-World 在复杂场景下的多视角图像预测可视化。（图源：VLA-World, 2026）</figcaption>
 </div>
 
@@ -1241,7 +1241,7 @@ flowchart LR
 WorldVLA 采用自回归架构，集成了图像、文本和动作三种模态的 Tokenizer。
 
 <div align="center">
-  <img src="/images/wm/WorldVLA-overview.webp" width="100%" />
+  <img src="/images/wm/WorldVLA-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1328/671" />
 <figcaption>图：WorldVLA 与传统动作模型、世界模型的对比。（图源：WorldVLA, 2025）</figcaption>
 </div>
 
@@ -1252,7 +1252,7 @@ WorldVLA 采用自回归架构，集成了图像、文本和动作三种模态�
 - **文本 Tokenizer**: 标准的 BPE Tokenizer。
 
 <div align="center">
-  <img src="/images/wm/WorldVLA-architecture.webp" width="100%" />
+  <img src="/images/wm/WorldVLA-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1328/773" />
 <figcaption>图：WorldVLA 整体架构图。（图源：WorldVLA, 2025）</figcaption>
 </div>
 
@@ -1265,7 +1265,7 @@ WorldVLA 采用自回归架构，集成了图像、文本和动作三种模态�
 论文发现，由于预训练模型在动作域的泛化能力有限，传统的因果掩码会导致前一动作的错误迅速传播。为此，WorldVLA 设计了一种特殊的掩码：在生成当前动作块时，遮蔽之前的动作，使动作生成仅依赖于视觉和文本输入，从而支持并行生成动作块并减少误差累积。
 
 <div align="center">
-  <img src="/images/wm/WorldVLA-attention-mask.webp" width="100%" />
+  <img src="/images/wm/WorldVLA-attention-mask.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1322/504" />
 <figcaption>图：WorldVLA 的注意力掩码机制。（图源：WorldVLA, 2025）</figcaption>
 </div>
 
@@ -1278,12 +1278,12 @@ WorldVLA 采用自回归架构，集成了图像、文本和动作三种模态�
 - **动作块生成**: 采用新掩码策略后，动作块生成的鲁棒性大幅增强。
 
 <div align="center">
-  <img src="/images/wm/WorldVLA-visualization-action.webp" width="100%" />
+  <img src="/images/wm/WorldVLA-visualization-action.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1309/1002" />
 <figcaption>图：动作模型可视化：WorldVLA 能在失败后多次尝试抓取。（图源：WorldVLA, 2025）</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/wm/WorldVLA-visualization-world.webp" width="100%" />
+  <img src="/images/wm/WorldVLA-visualization-world.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1309/1493" />
 <figcaption>图：世界模型可视化：WorldVLA 生成的未来图像更符合物理逻辑。（图源：WorldVLA, 2025）</figcaption>
 </div>
 
@@ -1317,7 +1317,7 @@ DreamZero 的核心思想是：**把“接下来世界会怎样变化”与“�
 ##### 2. 主要方法/创新点 {#dreamzero-methods}
 
 <div align="center">
-  <img src="/images/wm/DreamZero-architecture.webp" width="100%" alt="DreamZero 的视频与动作联合流匹配训练及真实观测反馈闭环" />
+  <img src="/images/wm/DreamZero-architecture.webp" width="100%" alt="DreamZero 的视频与动作联合流匹配训练及真实观测反馈闭环" loading="lazy" decoding="async" style="aspect-ratio:1326/697" />
 <figcaption>图：DreamZero 的训练与推理架构。左侧在真实历史条件下联合去噪视频与动作；右侧执行动作后以真实观测更新 KV 缓存。（图源：DreamZero，Figure 4）</figcaption>
 </div>
 
@@ -1365,7 +1365,7 @@ $$
 ##### 3. 核心结果/发现 {#dreamzero-results}
 
 <div align="center">
-  <img src="/images/wm/DreamZero-unseen-task-results.webp" width="100%" alt="DreamZero 与 VLA 基线在 AgiBot 和 DROID-Franka 未见任务上的对比" />
+  <img src="/images/wm/DreamZero-unseen-task-results.webp" width="100%" alt="DreamZero 与 VLA 基线在 AgiBot 和 DROID-Franka 未见任务上的对比" loading="lazy" decoding="async" style="aspect-ratio:1326/783" />
 <figcaption>图：未见任务的零样本评测。AgiBot 汇总指标为平均任务进度；DROID-Franka 同时报告任务进度与完整成功率，两者不可混用。（图源：DreamZero，Figure 9）</figcaption>
 </div>
 
@@ -1404,7 +1404,7 @@ $$
 ##### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/wm/AIM-typical-vs-ours.webp" width="100%" />
+  <img src="/images/wm/AIM-typical-vs-ours.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/506" />
 <figcaption>图：典型统一世界动作模型（左）直接从共享未来视觉表征解码动作；AIM（右）在世界模型与动作头间引入空间价值图接口并通过自蒸馏优化。（图源：AIM, 2026）</figcaption>
 </div>
 
@@ -1415,7 +1415,7 @@ $$p(X^+, M^+, A^+ \mid \mathcal H_t) = p(X^+, M^+ \mid \mathcal H_t)\, p(A^+ \mi
 动作生成**仅通过预测出的空间价值图**获取未来信息，而不直接访问未来 RGB Tokens。
 
 <div align="center">
-  <img src="/images/wm/AIM-framework.webp" width="100%" />
+  <img src="/images/wm/AIM-framework.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/995" />
 <figcaption>图：AIM 整体框架：Stage I 联合训练未来帧、空间价值图与动作；意图因果注意力将任务意图传递至动作分支；Stage II 冻结视频与价值分支，通过 GRPO 强化学习优化动作头。（图源：AIM, 2026）</figcaption>
 </div>
 
@@ -1459,7 +1459,7 @@ $$\mathcal L_{GRPO}(\phi) = \mathbb E_t\left[\min\!\Big(\rho_t(\phi)\hat A_t,\, 
 - **定性可视化验证**：未来帧预测与操作阶段时序高度对齐，空间价值图精准聚焦于具有明确物理交互语义的区域（而非一般的视觉显著性 Saliency），机械臂投影动作落点严密落在高价值区域内，表明性能突破确实源于所设计的“空间桥梁”机制。
 
 <div align="center">
-  <img src="/images/wm/AIM-task-execution.webp" width="100%" />
+  <img src="/images/wm/AIM-task-execution.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/763" />
 <figcaption>图：RoboTwin 2.0 代表性任务执行过程（置鼠标垫/压订书机/扫物体/扳开关/开笔记本），左列为 Easy 设置，右列为 Hard 设置。（图源：AIM, 2026）</figcaption>
 </div>
 
@@ -1497,7 +1497,7 @@ Motus 是首个将**混合专家 Transformer（Mixture-of-Transformers, MoT）**
 ##### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vln/motus-architecture-overview.webp" width="100%" />
+  <img src="/images/vln/motus-architecture-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:874/762" />
 <figcaption>图：Motus 整体架构图：基于 MoT（Mixture-of-Transformers）三专家网络，统一建模多模态理解、视频生成与机器人连续动作控制。（图源：Motus, 2025）</figcaption>
 </div>
 
@@ -1509,7 +1509,7 @@ Motus 在每个 Transformer Block 内部引入了分流设计：
 - **解耦专家 FFN（Decoupled FFNs）**：在注意力交互之后，视觉 Token 路由至 Video FFN，文本 Token 路由至 Text FFN，动作 Token 路由至 Action FFN。这种解耦避免了视频生成的大梯度破坏精细动作的数值敏感性。
 
 <div align="center">
-  <img src="/images/vln/motus-latent-action-vae.webp" width="75%" />
+  <img src="/images/vln/motus-latent-action-vae.webp" width="75%" loading="lazy" decoding="async" style="aspect-ratio:598/838" />
 <figcaption>图：Motus 的 Latent Action VAE：通过自编码光流场自监督提取连续潜动作空间。（图源：Motus, 2025）</figcaption>
 </div>
 
@@ -1529,7 +1529,7 @@ Motus 在每个 Transformer Block 内部引入了分流设计：
 ##### 3. 核心结果/发现
 
 <div align="center">
-  <img src="/images/vln/motus-robotwin-results.webp" width="100%" />
+  <img src="/images/vln/motus-robotwin-results.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1064/779" />
 <figcaption>图：Motus 在双臂操作仿真基准 RoboTwin 2.0 上的性能对比，在多种高精度接触任务中大幅领先基线。（图源：Motus, 2025）</figcaption>
 </div>
 
@@ -1538,7 +1538,7 @@ Motus 在每个 Transformer Block 内部引入了分流设计：
 3. **消除在线规划延迟**：Policy 模式下单步动作生成延迟仅需 **80ms**，实现了真正可部署的高频闭环伺服。
 
 <div align="center">
-  <img src="/images/vln/motus-real-world-tasks.webp" width="100%" />
+  <img src="/images/vln/motus-real-world-tasks.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:675/1320" />
 <figcaption>图：Motus 真机多任务操控执行轨迹。（图源：Motus, 2025）</figcaption>
 </div>
 
@@ -1578,7 +1578,7 @@ Motus 在每个 Transformer Block 内部引入了分流设计：
 ##### 2. 主要方法/创新点
 
 <div align="center">
-  <img src="/images/vln/NavWAM-concept-comparison.webp" width="100%" />
+  <img src="/images/vln/NavWAM-concept-comparison.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/542" />
 <figcaption>图：传统规划式导航世界模型（NWM，左）与导航世界动作模型（NavWAM，右）的决策流对比：NavWAM 彻底剔除繁重的在线 CEM 采样优化，实现高频闭环。（图源：NavWAM, 2026）</figcaption>
 </div>
 
@@ -1587,7 +1587,7 @@ Motus 在每个 Transformer Block 内部引入了分流设计：
 NavWAM 基于预训练 Cosmos-Predict2（2B）底座，构建了一个统一的 9 帧时空潜在画布：
 
 <div align="center">
-  <img src="/images/vln/NavWAM-architecture-overview.webp" width="100%" />
+  <img src="/images/vln/NavWAM-architecture-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:646/398" />
 <figcaption>图：NavWAM 的 9 帧潜在画布布局：将状态、目标、当前观测、动作 Chunk、未来状态、未来图像及进度价值统一排布并联合去噪。（图源：NavWAM, 2026）</figcaption>
 </div>
 
@@ -1602,7 +1602,7 @@ NavWAM 基于预训练 Cosmos-Predict2（2B）底座，构建了一个统一的 
 针对剧烈旋转下的长程漂移，WAM-Nav 提出了两大核心创新：
 
 <div align="center">
-  <img src="/images/vln/WAM-Nav-architecture.webp" width="100%" />
+  <img src="/images/vln/WAM-Nav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/636" />
 <figcaption>图：WAM-Nav 架构：统一目标对齐解耦为视觉查询 gV 与几何查询 gG，DSCC 双流融合历史观测与运动动量，共享 DiT 联合去噪动作与近未来隐特征。（图源：WAM-Nav, 2026）</figcaption>
 </div>
 
@@ -1623,7 +1623,7 @@ NavWAM 基于预训练 Cosmos-Predict2（2B）底座，构建了一个统一的 
    - **WAM-Nav**：在 Unitree G1 人形机器人真机实测中取得 **85%** 的平均导航成功率，展示出极强的 Sim2Real 零样本泛化能力。
 
 <div align="center">
-  <img src="/images/vln/NavWAM-real-world-rollouts.webp" width="100%" />
+  <img src="/images/vln/NavWAM-real-world-rollouts.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1110/378" />
 <figcaption>图：Diablo 机器人实机运行期间的实测相机画面与预测未来画面对比。（图源：NavWAM, 2026）</figcaption>
 </div>
 
@@ -1697,7 +1697,7 @@ flowchart LR
 Qwen-RobotWorld 由三部分构成：**架构**（双流 MMDiT + MLLM 动作编码）、**数据**（EWK 具身世界知识数据集）、**训练**（通用先验+专家能力的渐进式课程）。这三者紧密耦合：数据提供统一语言接口下的多领域监督信号，架构保证语言语义和视觉状态在每一层都能融合，训练策略则决定先学什么再学什么。
 
 <div align="center">
-  <img src="/images/wm/Qwen-RobotWorld-EWK-dataset-overview.webp" width="100%" />
+  <img src="/images/wm/Qwen-RobotWorld-EWK-dataset-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1277/952" />
 <figcaption>图：EWK 训练语料概览：通用世界数据提供外观、几何、动力学先验；结构化具身数据沿 Multi-Embodiment、Multi-Task、Multi-Scenario、Multi-View 四个维度组织，共同支撑语言条件下的动作理解和未来状态生成。</figcaption>
 </div>
 
@@ -1706,7 +1706,7 @@ Qwen-RobotWorld 由三部分构成：**架构**（双流 MMDiT + MLLM 动作编�
 模型核心是一个 60 层的双流 Multimodal Diffusion Transformer（MMDiT）：理解流（understanding stream）处理冻结 Qwen2.5-VL 抽取的语言语义特征，代表动作 $a_t$；生成流（generation stream）处理视频 VAE 编码出的视觉隐变量，代表状态 $s_t$。两条流在每一个 block 都通过联合注意力交互，而不是只在输入层做一次拼接，这样去噪的每一步都能让视觉隐变量同时关注语义动作信号。
 
 <div align="center">
-  <img src="/images/wm/Qwen-RobotWorld-architecture.webp" width="100%" />
+  <img src="/images/wm/Qwen-RobotWorld-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1278/1078" />
 <figcaption>图：双流 MMDiT 架构：冻结的 Qwen2.5-VL 编码语言动作，VAE 编码视频观测/预测帧的隐变量，二者在每层 MMDiT block 中联合注意力交互。</figcaption>
 </div>
 
@@ -1722,7 +1722,7 @@ Qwen-RobotWorld 由三部分构成：**架构**（双流 MMDiT + MLLM 动作编�
 人到机器人迁移本质是一个视频编辑问题：模型需要同时参考场景上下文（背景、物体布局、光照）和目标机器人的运动轨迹。Scene2Robot 在不改架构的前提下，把输入组织成三个连续分段：场景条件段（人类示范视频，人手已被遮罩处理，F 帧）、机器人参考段（MuJoCo 渲染的仿真机器人执行，F 帧）、生成段（待去噪的噪声隐变量，F 帧）。前两段都被赋予时间步 $t=0$ 并排除在去噪损失之外，只有生成段参与梯度更新；3D RoPE 给每个分段分配各自的时间索引范围。每一层 MMDiT 的联合注意力让生成段同时关注场景外观、机器人运动轨迹和语言动作语义，从而合成既保留场景上下文又遵循指令操作的逼真机器人执行视频。
 
 <div align="center">
-  <img src="/images/wm/Qwen-RobotWorld-Scene2Robot.webp" width="100%" />
+  <img src="/images/wm/Qwen-RobotWorld-Scene2Robot.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1278/1050" />
 <figcaption>图：Scene2Robot 多分段条件机制：场景条件段、机器人参考段仅提供条件（赋时间步 0、不计损失），生成段通过联合注意力同时关注场景外观与机器人运动轨迹，实现跨具身视频合成。</figcaption>
 </div>
 
@@ -1815,7 +1815,7 @@ WoVR 提出了一种基于世界模型的机器人强化学习（RL）框架，�
 WoVR 并不假设世界模型是完美的，而是通过三个层面显式地调节 RL 与不完美模拟器的交互。
 
 <div align="center">
-  <img src="/images/wm/WoVR-hallucination-overview.webp" width="100%" />
+  <img src="/images/wm/WoVR-hallucination-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/401" />
 <figcaption>图：世界模型中的幻觉问题及其对 RL 的干扰。（图源：WoVR, 2026）</figcaption>
 </div>
 
@@ -1826,7 +1826,7 @@ WoVR 引入了一种增强型 DiT（Diffusion Transformer）世界模型，通�
 为了防止自回归生成的误差随时间累加，WoVR 采用了 Keyframe-Initialized Rollouts。它利用人类演示中的关键帧作为起始点，在这些状态附近进行短程想象探索。这种做法大大限制了有效预测深度，抑制了幻觉的积累。
 
 <div align="center">
-  <img src="/images/wm/WoVR-pipeline.webp" width="100%" />
+  <img src="/images/wm/WoVR-pipeline.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/922" />
 <figcaption>图：WoVR 核心三步走架构：稳定模型、关键帧初始化、协同演化。（图源：WoVR, 2026）</figcaption>
 </div>
 
@@ -1842,7 +1842,7 @@ WoVR 引入了一种增强型 DiT（Diffusion Transformer）世界模型，通�
 - **生成效率**: WoVR 达到了 23 FPS 的生成速度，使其成为一种高效的训练模拟器。
 
 <div align="center">
-  <img src="/images/wm/WoVR-visualization-results.webp" width="100%" />
+  <img src="/images/wm/WoVR-visualization-results.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/886" />
 <figcaption>图：WoVR 在 LIBERO 任务上的想象生成与策略执行可视化。（图源：WoVR, 2026）</figcaption>
 </div>
 
@@ -1922,7 +1922,7 @@ WoVR 引入了一种增强型 DiT（Diffusion Transformer）世界模型，通�
 Cosmos 是 NVIDIA 发布的**物理 AI 世界基础模型平台**，目标是用生成式视频模型部分替代真实数据采集与物理仿真，为机器人、自动驾驶等系统提供可控的"世界模拟"能力。与单一视频生成模型不同，它是一套**分层平台**：数据策展基础设施 → 三条预训练模型产品线 → 面向具体场景的后训练工作流。
 
 <div align="center">
-  <img src="/images/wm/Cosmos-Platform-Components.webp" width="100%" />
+  <img src="/images/wm/Cosmos-Platform-Components.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1326/479" />
 <figcaption>图：Cosmos WFM 平台核心组件：视频数据策展流水线、多模态 Tokenizer、预训练 WFM 与后训练应用样例。</figcaption>
 </div>
 
@@ -1931,7 +1931,7 @@ Cosmos 是 NVIDIA 发布的**物理 AI 世界基础模型平台**，目标是用
 物理 AI 世界模型的训练瓶颈首先是**数据质量**。Cosmos Video Curator 分七个阶段把原始视频转为训练数据：镜头感知切分 → GPU 转码 → 裁剪 → **多级过滤**（美学、运动、OCR、DOVER 感知质量、VTSS 语义伪影、VLM 精筛，最终仅约 **4%** 的片段通过）→ 多粒度字幕（Qwen2.5-VL-7B 生成短 / 中 / 长三种描述）→ 语义去重 → 按内容类型、分辨率、宽高比、时长四维分片（支持课程学习与域平衡采样）。
 
 <div align="center">
-  <img src="/images/wm/Cosmos-Predict2.5-VideoCurationPipeline.webp" width="100%" />
+  <img src="/images/wm/Cosmos-Predict2.5-VideoCurationPipeline.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1328/863" />
 <figcaption>图：Cosmos Video Curator 流水线：原始多领域视频经切分、转码、裁剪、多级过滤、字幕生成、语义去重、结构化分片七个阶段，输出可直接用于大规模预训练的高质量数据集。（图源：Cosmos-Predict2.5）</figcaption>
 </div>
 
@@ -1950,12 +1950,12 @@ Predict2.5 时代流水线处理了数亿条原始片段，保留数千万条（
 **Cosmos-Predict1（2025）** 同时提供两种架构：**扩散模型**（DiT + EDM + T5 文本编码器，画质与 3D 一致性更好）和**自回归模型**（因果 Transformer 预测离散视频 token，适合长序列交互式展开）。二者共用 **Cosmos Tokenizer**——小波变换 + 因果 3D 卷积，同时输出连续 token（供扩散）与离散 token（供自回归）。
 
 <div align="center">
-  <img src="/images/wm/Cosmos-Predict1-Diffusion-Architecture.webp" width="100%" />
+  <img src="/images/wm/Cosmos-Predict1-Diffusion-Architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1328/992" />
 <figcaption>图：Cosmos-Predict1 扩散模型架构：DiT 主干 + T5 文本编码器 + 3D RoPE 位置编码。</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/wm/Cosmos-Tokenizer-Architecture.webp" width="100%" />
+  <img src="/images/wm/Cosmos-Tokenizer-Architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1326/720" />
 <figcaption>图：Cosmos Tokenizer：基于小波变换的编解码结构，通过因果 3D 卷积捕获时间相关性，同时输出连续 token（供扩散模型）与离散 token（供自回归模型）。</figcaption>
 </div>
 
@@ -1968,7 +1968,7 @@ Predict2.5 时代流水线处理了数亿条原始片段，保留数千万条（
 - 提供 **2B / 14B** 两种规模，以及机器人操作、自动驾驶等领域专属后训练版本。
 
 <div align="center">
-  <img src="/images/wm/Cosmos-Predict2.5-Architecture.webp" width="100%" />
+  <img src="/images/wm/Cosmos-Predict2.5-Architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1326/851" />
 <figcaption>图：Cosmos-Predict2.5 整体架构：右侧为 DiT 主干，在潜空间中以"自注意力 → 交叉注意力 → 前馈 MLP"堆叠的 Block 预测去噪速度场，时间步以 AdaLN-LoRA 注入；左侧为 Cosmos-Reason1 文本编码器，跨多层激活拼接后投影为 1024 维文本嵌入，通过交叉注意力层引导视频生成。（图源：Cosmos-Predict2.5）</figcaption>
 </div>
 
@@ -1983,7 +1983,7 @@ Cosmos-Transfer 把**结构化世界表示**翻译成**照片级视频**，典�
 - 自动驾驶版本额外支持 **HDMap** 与 **LiDAR** 条件，另有 4K 超分 ControlNet。
 
 <div align="center">
-  <img src="/images/wm/CosmosTransfer1-AdaptiveControlNet.webp" width="100%" />
+  <img src="/images/wm/CosmosTransfer1-AdaptiveControlNet.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1330/880" />
 <figcaption>图：Cosmos-Transfer1 自适应多模态 ControlNet 架构：每种控制模态对应一条独立控制分支，通过时空控制图 w 加权后注入主 DiT 生成分支，实现位置自适应的多模态融合。（图源：Cosmos-Transfer1）</figcaption>
 </div>
 
@@ -1996,7 +1996,7 @@ Cosmos-Transfer 把**结构化世界表示**翻译成**照片级视频**，典�
 Cosmos-Reason1 是面向物理 AI 的视觉语言模型，输出带 `<think>...</think>` 推理链的回答。它用两套本体定义能力边界：**物理常识本体**（Space / Time / Fundamental Physics 三大类、16 个子类，如物体恒存、因果、力学）与**具身推理本体**（重点考察任务完成验证、动作可操作性、下一步动作预测）。
 
 <div align="center">
-  <img src="/images/wm/CosmosReason1-CommonSenseOntology.webp" width="80%" />
+  <img src="/images/wm/CosmosReason1-CommonSenseOntology.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:1330/761" />
 <figcaption>图：Cosmos-Reason1 物理常识本体：三大类（Space、Time、Fundamental Physics）划分为 16 个细粒度子类，定义 Physical AI 模型应具备的感知与推理能力边界。（图源：Cosmos-Reason1）</figcaption>
 </div>
 
@@ -2011,7 +2011,7 @@ Cosmos-Reason1 是面向物理 AI 的视觉语言模型，输出带 `<think>...<
 ### 训练流程
 
 <div align="center">
-  <img src="/images/wm/Cosmos-Training-Paradigm.webp" width="100%" />
+  <img src="/images/wm/Cosmos-Training-Paradigm.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1332/961" />
 <figcaption>图：Cosmos 训练范式：通用物理知识大规模预训练 → 领域 SFT → 模型融合 → RL 后训练，最终微调适配各类下游 Physical AI 任务。</figcaption>
 </div>
 
@@ -2033,7 +2033,7 @@ Cosmos-Predict2.5 采用四阶段渐进范式：
 - **动作条件世界生成**：以关节角 / 末端轨迹为条件预测未来视频，用于策略闭环评估。
 
 <div align="center">
-  <img src="/images/wm/Cosmos-Predict2.5-PredictionSamples.webp" width="100%" />
+  <img src="/images/wm/Cosmos-Predict2.5-PredictionSamples.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1318/976" />
 <figcaption>图：Cosmos-Predict2.5-2B post-trained 模型在 PAI-Bench 上的生成样本：覆盖自动驾驶（上两行）、工业机器人操纵（中三行）、人类动力学（下行）等多个物理 AI 场景，展示了模型在时序一致性与物理合理性上的能力。（图源：Cosmos-Predict2.5）</figcaption>
 </div>
 
@@ -2053,7 +2053,7 @@ Cosmos-Predict2.5 采用四阶段渐进范式：
 如果说 §7.2 的 Cosmos 平台是用**一条工具链串起多个专用模型**（Predict 预测、Transfer 翻译、Reason 推理各司其职），那么 2026 年 6 月 NVIDIA 发布的 **Cosmos 3** 则把这条路线推到了终点：**用单一网络架构同时完成理解与生成、并原生覆盖语言、图像、视频、音频、动作五大模态**。它把视觉语言模型（VLM）、视频生成 / 前向动力学模型（对应 §6 的世界合成器 / 模拟器）与世界动作模型（WAM / VLA）**吸收进同一个模型**，是"单模型、多范式角色"趋势（参见 §6.1 的 GENE-26.5 与 §9.3）目前最完整的一次工程实现。
 
 <div align="center">
-  <img src="/images/wm/Cosmos3-Fig1-UnifiedBackbone.webp" width="100%" />
+  <img src="/images/wm/Cosmos3-Fig1-UnifiedBackbone.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1544/496" />
 <figcaption>图：Cosmos 3 作为 Physical AI 的通用骨干。仅通过改变输入-输出配置，同一套权重即可化身视觉语言模型、图像生成模型、音视频生成模型、策略/世界动作模型、前向动力学模型、逆动力学模型，无需任何结构改动。（图源：Cosmos 3）</figcaption>
 </div>
 
@@ -2066,7 +2066,7 @@ Cosmos-Predict2.5 采用四阶段渐进范式：
 Cosmos 3 的核心是一个 **MoT 双塔**结构：把一条 token 序列切成两段——前段是**自回归（AR）子序列**负责理解推理，后段是**扩散（DM）子序列**负责生成。每个 Transformer 解码层内部都并行持有**两套独立参数**（Reasoner 塔 + Generator 塔），二者均从预训练 VLM 权重初始化，从而继承强语言/视觉推理能力。
 
 <div align="center">
-  <img src="/images/wm/Cosmos3-Fig5-MoTArchitecture.webp" width="100%" />
+  <img src="/images/wm/Cosmos3-Fig5-MoTArchitecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1553/701" />
 <figcaption>图：Cosmos 3 的 MoT 架构。同一条序列由 AR 子序列（语言 + ViT 视觉 token，以 EOS/BOG 收尾）与 DM 子序列（VAE 视觉、音频、动作 token，训练时加噪）拼接而成；层内 AR 与 DM token 各用独立 LayerNorm 与 MLP（均由预训练 VLM 共同初始化），仅在共享自注意力处交汇。右图为注意力掩码：AR 为因果三角、DM 为全注意力。（图源：Cosmos 3）</figcaption>
 </div>
 
@@ -2085,14 +2085,14 @@ Cosmos 3 的核心是一个 **MoT 双塔**结构：把一条 token 序列切成�
 与多数工作把动作当作附属输出不同，Cosmos 3 显式引入一类**动作 token**，作为连接物理世界与语言推理、视频建模的桥梁。它用一套**统一动作表示**容纳异构本体（自动驾驶、相机运动、第一人称人体、单臂/双臂/人形机器人）：自我位姿（Ego Pose 9D）与执行器位姿（Effector Pose 9D）以"3D 平移 + 6D 旋转"的相对位姿伪动作表示，抓取状态（Grasp State）直接编码当前操作状态。各本体用**域感知的输入/输出投影**适配不同维度，同时共享 MoT 骨干。动作 token $a_t$ 表示从视频状态 $v_{t-1}$ 到 $v_t$ 的转移。
 
 <div align="center">
-  <img src="/images/wm/Cosmos3-Fig3-UnifiedActionRepresentation.webp" width="100%" />
+  <img src="/images/wm/Cosmos3-Fig3-UnifiedActionRepresentation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1529/716" />
 <figcaption>图：统一动作表示。异构本体的控制被映射为由共享几何分量构成的紧凑动作向量——Ego/Effector 运动编码为相对位姿伪动作（3D 平移 + 6D 旋转），抓取状态直接编码指尖位置或夹爪开合。（图源：Cosmos 3）</figcaption>
 </div>
 
 正因为动作与视频被纳入同一序列模型，Cosmos 3 仅靠"哪些 token 干净、哪些 token 加噪"的不同配置，就统一了三种动作生成模式：
 
 <div align="center">
-  <img src="/images/wm/Cosmos3-Fig4-ActionModes.webp" width="95%" />
+  <img src="/images/wm/Cosmos3-Fig4-ActionModes.webp" width="95%" loading="lazy" decoding="async" style="aspect-ratio:1541/349" />
 <figcaption>图：三种动作模式由 token 加噪配置决定。前向动力学（给定干净动作去噪视频）、逆动力学（给定干净视频去噪动作）、策略（同时去噪视频与动作）。（图源：Cosmos 3）</figcaption>
 </div>
 
@@ -2117,7 +2117,7 @@ Cosmos 3 的核心是一个 **MoT 双塔**结构：把一条 token 序列切成�
 #### 训练范式与 Physical AI 角色
 
 <div align="center">
-  <img src="/images/wm/Cosmos3-Fig2-TrainingParadigm.webp" width="92%" />
+  <img src="/images/wm/Cosmos3-Fig2-TrainingParadigm.webp" width="92%" loading="lazy" decoding="async" style="aspect-ratio:1297/521" />
 <figcaption>图：Cosmos 3 是训练 Physical AI 智能体的强起点。预训练 + 中训练得到通用底座后，可在目标数据上无结构改动地后训练，分别服务于合成数据生成、任务专域特化、闭环训练环境三类用途。（图源：Cosmos 3）</figcaption>
 </div>
 
@@ -2166,7 +2166,7 @@ Cosmos 3 是本文叙事的一个**收敛点**。GENE-26.5（§6.1）已展示"�
 ##### Wan-T2V (Text-to-Video) 整体架构
 
 <div align="center">
-  <img src="/images/wm/Wan-T2V-architecture.webp" width="100%" />
+  <img src="/images/wm/Wan-T2V-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/398" />
 <figcaption>图：Wan 文本到视频生成（T2V）的整体架构图。（图源：Wan2.1, 2025）</figcaption>
 </div>
 
@@ -2182,7 +2182,7 @@ Wan2.1 整体架构基于 Diffusion Transformer (DiT) 范式，包含三个核�
   - **特征缓存推理**：在处理超长视频时，将视频按 Latent 帧拆分为 Chunks（每块最多 4 帧），在块与块之间传递和复用前一阶段的最后两帧特征缓存，确保在受限的显存内实现连续、无缝的流式重建。
 
 <div align="center">
-  <img src="/images/wm/Wan-VAE-framework.webp" width="100%" />
+  <img src="/images/wm/Wan-VAE-framework.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/388" />
 <figcaption>图：Wan-VAE 时空压缩自编码器架构图。（图源：Wan2.1, 2025）</figcaption>
 </div>
 
@@ -2197,7 +2197,7 @@ Wan2.1 整体架构基于 Diffusion Transformer (DiT) 范式，包含三个核�
   - **输出**：预测的去噪速度向量 $v_t$。
 
 <div align="center">
-  <img src="/images/wm/Wan-transformer-block.webp" width="80%" />
+  <img src="/images/wm/Wan-transformer-block.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:442/555" />
 <figcaption>图：Wan Transformer Block 结构细节。（图源：Wan2.1, 2025）</figcaption>
 </div>
 
@@ -2213,7 +2213,7 @@ $$\mathcal{L} = \mathbb{E}_{x_0, x_1, ctxt, t} \left[ \lVert u(x_t, ctxt, t; \th
 ##### Wan-I2V (Image-to-Video) 架构与控制框架
 
 <div align="center">
-  <img src="/images/wm/Wan-I2V-architecture.webp" width="100%" />
+  <img src="/images/wm/Wan-I2V-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/475" />
 <figcaption>图：Wan-I2V 图生视频模型框架。（图源：Wan2.1, 2025）</figcaption>
 </div>
 
@@ -2227,7 +2227,7 @@ $$\mathcal{L} = \mathbb{E}_{x_0, x_1, ctxt, t} \left[ \lVert u(x_t, ctxt, t; \th
 ##### VACE：统一的可控生成与编辑框架
 
 <div align="center">
-  <img src="/images/wm/Wan-VACE-editing-framework.webp" width="100%" />
+  <img src="/images/wm/Wan-VACE-editing-framework.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/908" />
 <figcaption>图：VACE 可控生成与编辑模型框架与概念解耦机制。（图源：Wan2.1, 2025）</figcaption>
 </div>
 
@@ -2280,7 +2280,7 @@ Janus-Pro 从三个维度对 Janus 进行系统性增强：训练策略优化、
 **架构**（与 Janus 相同，解耦视觉编码）：
 
 <div align="center">
-  <img src="/images/vlm/Janus-Pro-architecture.webp" width="100%" />
+  <img src="/images/vlm/Janus-Pro-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1286/669" />
 <figcaption>图：Janus-Pro 整体架构：理解侧使用 SigLIP Understanding Encoder，生成侧使用 VQ Generation Encoder，共享同一个 Auto-Regressive Transformer。（图源：Janus-Pro, 2025）</figcaption>
 </div>
 
@@ -2325,7 +2325,7 @@ flowchart TB
 Janus 与 Janus-Pro 均采用三阶段训练范式，下图（取自原 Janus 论文）展示了每个阶段中各模块的冻结（❄️）与可训练（🔥）状态：
 
 <div align="center">
-  <img src="/images/wm/janus-training.webp" width="100%" />
+  <img src="/images/wm/janus-training.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1203/483" />
 <figcaption>图：Janus / JanusFlow 三阶段训练流程图：火焰标记代表可训练模块，雪花标记代表冻结模块。Janus-Pro 沿用该流程，但在 Stage 1 和 Stage 2 做出关键调整。（图源：Janus, 2024）</figcaption>
 </div>
 
@@ -2347,7 +2347,7 @@ Janus 与 Janus-Pro 均采用三阶段训练范式，下图（取自原 Janus �
 将基础 LLM 从 1.5B 扩展至 7B（使用 DeepSeek-LLM），形成 Janus-Pro-1B 和 Janus-Pro-7B 两个版本。实验表明更大规模 LLM 使两类任务的 loss 收敛速度均显著加快。
 
 <div align="center">
-  <img src="/images/vlm/Janus-Pro-performance.webp" width="100%" />
+  <img src="/images/vlm/Janus-Pro-performance.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1282/833" />
 <figcaption>图：Janus-Pro 在多模态理解（左，四个基准平均分 vs LLM 参数量）和文生图指令跟随（右，GenEval 和 DPG-Bench）上的性能对比，Janus-Pro-7B 在两类任务上均达到最优。（图源：Janus-Pro, 2025）</figcaption>
 </div>
 
@@ -2366,7 +2366,7 @@ Janus 与 Janus-Pro 均采用三阶段训练范式，下图（取自原 Janus �
 **定性结果**：
 
 <div align="center">
-  <img src="/images/vlm/Janus-Pro-qualitative.webp" width="100%" />
+  <img src="/images/vlm/Janus-Pro-qualitative.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1282/1960" />
 <figcaption>图：Janus-Pro-7B 的多模态理解（图像描述、地标识别、通识问答、文字识别）和文生图生成定性结果，生成分辨率为 384×384。（图源：Janus-Pro, 2025）</figcaption>
 </div>
 
@@ -2398,7 +2398,7 @@ Janus 与 Janus-Pro 均采用三阶段训练范式，下图（取自原 Janus �
 传统的机器人研究依赖物理仿真器进行策略验证和训练，但仿真器通常需要复杂的参数调整且难以模拟柔性体或精细物理交互。与此同时，仅依赖语言抽象的大模型（LLMs）缺乏对物理世界细粒度时空动态的理解。视频生成模型（Video Generation Models）凭借其在互联网规模数据上学习到的丰富视觉和动作知识，展现出作为**具身世界模型（Embodied World Models）**的巨大潜力。
 
 <div align="center">
-  <img src="/images/vln/Robot-Video-Gen-Overview.webp" width="100%" />
+  <img src="/images/vln/Robot-Video-Gen-Overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1326/653" />
 <figcaption>图：视频生成模型在机器人领域的应用框架，包括策略学习、视觉规划和策略评估。（图源：Robot-Video-Gen, 2026）</figcaption>
 </div>
 
@@ -2415,7 +2415,7 @@ Janus 与 Janus-Pro 均采用三阶段训练范式，下图（取自原 Janus �
 - **视觉规划器**：通过合成未来视频序列来辅助机器人进行任务分解和搜索。
 
 <div align="center">
-  <img src="/images/vln/Robot-Video-Gen-Taxonomy.webp" width="100%" />
+  <img src="/images/vln/Robot-Video-Gen-Taxonomy.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1328/1571" />
 <figcaption>图：论文的组织架构，展示了背景、应用、评估及开放挑战的分类体系。（图源：Robot-Video-Gen, 2026）</figcaption>
 </div>
 
@@ -2425,7 +2425,7 @@ Janus 与 Janus-Pro 均采用三阶段训练范式，下图（取自原 Janus �
 - **联合嵌入预测架构 (JEPA)**：通过学习隐藏特征空间中的动态，实现更鲁棒的非像素级世界建模。
 
 <div align="center">
-  <img src="/images/vln/Diffusion-Video-Architecture.webp" width="100%" />
+  <img src="/images/vln/Diffusion-Video-Architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1328/641" />
 <figcaption>图：基于扩散的视频模型架构示意图，展示了条件输入（文本、图像、动作）如何指导合成。（图源：Robot-Video-Gen, 2026）</figcaption>
 </div>
 
@@ -2434,7 +2434,7 @@ Janus 与 Janus-Pro 均采用三阶段训练范式，下图（取自原 Janus �
 - **显式模型**：输出如点云（Point Cloud）、体素网格（Voxel Map）或 3D 高斯泼溅（3DGS）等显式 3D 表示，以增强物理一致性。
 
 <div align="center">
-  <img src="/images/vln/Implicit-vs-Explicit-Models.webp" width="100%" />
+  <img src="/images/vln/Implicit-vs-Explicit-Models.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1326/697" />
 <figcaption>图：具身世界模型的两种表示形式：隐式表示（如视频潜空间）与显式表示（如点云、3DGS）。（图源：Robot-Video-Gen, 2026）</figcaption>
 </div>
 

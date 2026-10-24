@@ -1,206 +1,200 @@
 ---
 layout: post
 title: "Mixture-of-Transformers (MoT) 架构详解"
-date:   2026-09-23
+date:   2026-10-24
 tags: [LLM Training, Multi-Modal, MoT, MoE, Sparse Transformer, Deep Learning, NVIDIA Cosmos]
 categories: blog
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "深入剖析 Meta AI、NVIDIA 等机构提出的 Mixture-of-Transformers (MoT) 稀疏架构。从密集模型的模态竞争难题出发，详解 MoT 核心的「模态特定参数解耦 + 全局自注意力」机制、确定性模态路由，并重点剖析 NVIDIA Cosmos 3 物理世界模型在此架构上的前沿工程落地与巨大能效比。"
+excerpt: "Mixture-of-Transformers（MoT）把 FFN、注意力投影和 LayerNorm 按模态拆开，只在全局自注意力处让各模态交汇。本文拆解它的计算流程，核对论文里 55.8%、37.2%、47.2% 这些数字各自指什么，并说明 NVIDIA Cosmos 3 的双塔结构借用了 MoT 的哪一部分、又改了哪一部分。"
 ---
 
+把文本、图像、语音 token 放进同一个 Dense Transformer，是统一多模态模型最直接的做法：所有 token 共用同一套 $$W_Q, W_K, W_V$$、FFN 和 LayerNorm。它的代价在于，分布差异很大的模态要在同一组参数上争夺容量，训练也随之变慢。
 
-# Mixture-of-Transformers (MoT) 架构详解：多模态基础模型的模态解耦与稀疏化演进
+Meta 与斯坦福的 Liang 等人在 *Mixture-of-Transformers: A Sparse and Scalable Architecture for Multi-Modal Foundation Models*（arXiv:2411.04996，TMLR 2025）中给出的方案很朴素：**按模态复制所有非嵌入参数，只保留全局自注意力作为模态之间唯一的交汇点**。由于每个 token 属于哪个模态是已知的，路由不需要学习。
 
-在多模态基础模型（Multimodal Foundation Models）的开发与训练中，我们常常面临一个两难的困境：为了让模型拥有强大的跨模态理解与融合能力，我们倾向于将文本、图像、视频、音频等不同模态的 token 混合输入到同一个 Dense（密集型）Transformer 模型中。然而，这种“一刀切”的设计在实际训练中会带来极大的计算浪费与参数竞争冲突。
-
-2024 年底，来自 Meta AI 和斯坦福大学等机构的研究者在论文 *Mixture-of-Transformers: A Sparse and Scalable Architecture for Multi-Modal Foundation Models* (arXiv:2411.04996) 中提出了一种全新的稀疏架构——**Mixture-of-Transformers (MoT)**。此后，NVIDIA 更是将其发扬光大，在最新推出的 **Cosmos 3** 物理世界模型（Physical AI World Model）中全线采用了 MoT 架构，将物理推理、视频生成与动作规划统一在一个高效的计算框架中。
-
-本文将从密集模型的模态竞争难题出发，深入拆解 MoT 的核心机制，分析 NVIDIA Cosmos 3 的落地实现，并详细对比其与传统 Dense 及 Mixture-of-Experts (MoE) 的异同。
+本文先拆解 MoT 的计算流程，再逐条核对论文实验数字的含义，最后看 NVIDIA Cosmos 3 的双塔结构与原始 MoT 的异同。
 
 <!-- more -->
 
-## 1. 多模态训练的痛点：模态竞争与梯度冲突
+## 1. 问题：共享参数时，模态之间会互相拖累
 
-在传统的密集型多模态 Transformer（如 Chameleon、Transfusion 或 Unified-IO）中，虽然各种模态的输入被转化为不同的 token（例如文本的 BPE token，图像的 Vector Quantized patch token 等），但它们进入 Transformer Block 后，都会通过**完全相同**的一套参数进行投影与变换（共享相同的 $$W_Q, W_K, W_V$$ 投影矩阵，共享相同的 FFN 模块以及 LayerNorm 层）。
+在 Chameleon、Transfusion 这类早期融合（early-fusion）的多模态模型中，不同模态的 token 化方式不同（文本用 BPE，图像用 VQ 离散码或连续 latent），但进入 Transformer 之后，它们经过的是**同一套**投影矩阵、FFN 与 LayerNorm。
 
-这种设计看似简单优雅，但在优化动力学上存在显著的痛点：**模态干扰（Modality Interference）**与**模态竞争（Modality Competition）**。
+直觉上的担忧有两点：
 
-### 1.1 不同的数据分布与特征结构
-文本和图像/视频在信息密度和统计分布上截然不同。文本是高度离散、符号化且语义密集的；而图像/视频补丁通常是连续、高冗余且空间高度相关的。强行使用同一套权重矩阵来处理这两种性质大相径庭的信号，无异于强迫一个通用工具同时处理粗活与细活。
+- **分布差异**：文本 token 离散、语义密集；图像 patch 冗余度高、空间相关性强。用同一组权重拟合两种统计结构，容量可能被互相挤占。
+- **梯度干扰**：不同模态的损失在同一组参数上产生的更新方向未必一致，一个模态的进步可能以另一个模态为代价。
 
-### 1.2 梯度冲突（Gradient Conflict）
-在联合训练过程中，文本损失函数产生的梯度和图像损失函数产生的梯度，在更新同一组参数时常常会发生反向拉扯。更新参数以拟合文本，可能会损害图像的表征质量，反之亦然。这种负面的干扰导致了多模态模型在扩大规模（Scaling Up）时，收敛效率极低，甚至出现表现停滞（Performance Plateau）。
+这两点是 MoT 的动机，论文并没有直接测量梯度冲突。它给出的间接证据是第 4 节的留一（leave-one-out）实验：只把某一个模态单独拆出、其余模态继续共享参数时，各模态受益的程度并不对称。作者称之为**非对称的模态竞争**（non-reciprocal modality competition），比如单独拆出语音时，语音的收益保住了，但图像与文本的收益随之消失。
 
-<div align="center"><img src="/images/llm-training/mixture-of-transformers/modality_interference.webp" width="90%" /><figcaption>图 1：传统密集模型中的模态梯度冲突 vs. MoT 中的模态隔离</figcaption></div>
+## 2. MoT 做了什么
 
-为了解决这一冲突，最直接的想法是引入稀疏性，让不同的参数处理不同的信号。这就自然引出了 MoE 与 MoT 的对比。
+### 2.1 与 MoE 的区别
 
----
+稀疏化最常见的做法是 Mixture-of-Experts（MoE）。MoT 与 MoE 有三点不同：
 
-## 2. 从 MoE 走向 MoT：为什么我们需要“全模块”的模态解耦？
+1. **拆分范围**：MoE（如 Mixtral）通常只把 FFN 换成多个专家，注意力投影与 LayerNorm 仍然共享；MoT 把 FFN、$$W_Q, W_K, W_V, W_O$$ 与 LayerNorm **全部**按模态复制。
+2. **路由方式**：MoE 用可学习的 router 给 token 分配专家，需要负载均衡损失等手段防止专家闲置；MoT 直接按模态标签分流，没有 router，也就没有路由塌缩和负载均衡损失的问题。
+3. **专家数量**：MoE 的专家数 $E$ 可以很大；MoT 的“专家”数等于模态数 $K$，通常只有 2–3 个。
 
-在单模态大模型中，**Mixture of Experts (MoE)** 已经是公认的降低计算成本（FLOPs）的利器。然而，将 MoE 直接套用到多模态场景时，仍有诸多痛点。
+### 2.2 计算量不变，参数量变多
 
-### 2.1 传统 MoE 在多模态下的局限
-1. **局部稀疏性**：传统的 MoE（如 Mixtral）通常**仅将前馈网络（FFN）替换为稀疏专家**，而自注意力机制（Self-Attention）中的投影矩阵以及层归一化（LayerNorm）依然是共享的密集参数。在多模态模型中，自注意力层的参数量巨大，且是捕捉模态特征的关键，这部分的参数竞争依然无法解决。
-2. **可学习路由（Learnable Routing）的痛点**：MoE 依赖一个轻量级的门控网络（Router）来计算 token 到专家的亲和力分数。在多模态场景下，可学习路由容易面临**表征塌陷（Representation Collapse）**和**负载不均（Routing Imbalance）**。为了防止某些专家“饿死”，必须引入辅助损失（Auxiliary Loss），但这会干扰主任务的优化，且路由决策在训练中极不稳定。
+这是理解后文实验数字的关键：**MoT 每个 token 的计算量与同宽度的 Dense 模型完全相同**。每个 token 只经过自己模态那一套参数，论文称之为与 Dense 模型 “exact same computational structure and FLOP count”。变多的是总参数量，约为 Dense 的 $K$ 倍（嵌入层除外）。
 
-### 2.2 MoT 的解决方案：完全模态解耦 + 确定性路由
-为了克服上述局限，Mixture-of-Transformers (MoT) 进行了彻底的架构重构：
-
-* **非嵌入参数完全解耦**：在每个 Transformer 层中，不仅 FFN，连同 LayerNorm、自注意力投影矩阵（$$W_Q, W_K, W_V$$）以及输出投影矩阵（$$W_O$$）都**按模态进行独立复制**。每个模态都拥有专属于自己的“Transformer 专家分支”。
-* **确定性路由（Deterministic Routing）**：由于每个 token 属于什么模态在数据输入时是已知且固定的（例如，文本 token 还是图像 token），MoT 抛弃了可学习的门控 Router，直接使用预定义的模态掩码（`modality_masks`）进行**静态分流**。这消除了路由计算开销，彻底避免了表征塌陷和负载不均，极大地稳定了训练。
-* **全局融合的桥梁：全局自注意力**：虽然投影矩阵是模态特定的，但投影出来的 $$Q, K, V$$ 向量会被重新拼回全局序列，进行统一 of 的自注意力计算。这保证了模型依然具备全序列的跨模态交互能力。
-
-<div align="center"><img src="/images/llm-training/mixture-of-transformers/mot_architecture.webp" width="90%" /><figcaption>图 2：Dense、MoE 与 MoT 的架构对比（MoT 实现了非嵌入参数的全面解耦）</figcaption></div>
-
----
-
-## 3. MoT 架构数学拆解与工作流程
-
-为了精确理解 MoT 在一个 Transformer Block 内是如何运转的，我们来拆解其数学形式。
-
-### 3.1 符号定义
-设输入序列为 $X = [x_1, x_2, \dots, x_N] \in \mathbb{R}^{N \times d}$，其中 $N$ 为序列长度，$d$ 为隐藏层维度。
-每个 token $x_i$ 都有一个与之绑定的模态标签 $m_i \in \mathcal{M} = \{\text{text}, \text{image}, \text{speech}\}$。
-
-对于任意模态 $m \in \mathcal{M}$，MoT 维护了一套该模态专属的参数：
-* 专属的层归一化参数：$$\text{LN}_m$$
-* 专属的注意力投影矩阵：$$\mathbf{W}_{Q,m}, \mathbf{W}_{K,m}, \mathbf{W}_{V,m} \in \mathbb{R}^{d \times d}$$
-* 专属的输出投影矩阵：$$\mathbf{W}_{O,m} \in \mathbb{R}^{d \times d}$$
-* 专属的前馈网络：$$\text{FFN}_m$$
-
-### 3.2 详细计算步骤
-
-#### 第一步：模态分流与专属投影（Router & Projection）
-对输入序列中的每个 token $x_i$，根据其对应的模态标签 $m_i$，使用对应的专属 LayerNorm 和投影矩阵进行变换，得到查询（Query）、键（Key）和值（Value）：
-
-$$
-\mathbf{q}_i = \text{LN}_{m_i}(x_i) \mathbf{W}_{Q,m_i}
-$$
-
-$$
-\mathbf{k}_i = \text{LN}_{m_i}(x_i) \mathbf{W}_{K,m_i}
-$$
-
-$$
-\mathbf{v}_i = \text{LN}_{m_i}(x_i) \mathbf{W}_{V,m_i}
-$$
-
-通过这种方式，文本 token 使用模态特定的投影参数，图像 token 使用其专属参数，各行其道，参数之间不再干扰。
-
-#### 第二步：全局注意力机制（Global Attention）
-将各模态分别计算得到的 $$\mathbf{q}_i, \mathbf{k}_i, \mathbf{v}_i$$ 按原始的序列索引重新排列，拼接为全局的矩阵：
-
-$$
-\mathbf{Q} = [\mathbf{q}_1; \mathbf{q}_2; \dots; \mathbf{q}_N], \quad \mathbf{K} = [\mathbf{k}_1; \mathbf{k}_2; \dots; \mathbf{k}_N], \quad \mathbf{V} = [\mathbf{v}_1; \mathbf{v}_2; \dots; \mathbf{v}_N]
-$$
-
-然后在全局上计算标准的多头注意力（Multi-Head Attention）：
-
-$$
-\mathbf{H} = \text{Attention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{Softmax}\left(\frac{\mathbf{Q} \mathbf{K}^T}{\sqrt{d_k}}\right) \mathbf{V}
-$$
-
-> **💡 关键设计哲学**：
-> 这一步非常关键。虽然 $$Q, K, V$$ 的**生成阶段**是模态解耦的（使得不同模态可以使用最适合自身的映射空间），但是**计算注意力阶段**是全局的。这使得文本能够关注到图像的内容，图像也能融合上下文的文本语义，确保了跨模态表征的“融会贯通”。
-
-#### 第三步：模态特定输出投影与残差连接（Output Projection & Residual）
-注意力机制计算得出的全局表征向量 $$\mathbf{H} = [\mathbf{h}_1, \mathbf{h}_2, \dots, \mathbf{h}_N]$$ 会再次根据每个位置 of 的模态进行分流，并通过模态特定的输出投影矩阵与残差连接进行处理：
-
-$$
-y_i = x_i + \mathbf{h}_i \mathbf{W}_{O,m_i}
-$$
-
-#### 第四步：模态特定的 FFN 变换（Modality-Specific FFN）
-最后，对每个 token $y_i$，应用其模态特定的 FFN 模块：
-
-$$
-z_i = y_i + \text{FFN}_{m_i}(\text{LN}'_{m_i}(y_i))
-$$
-
-其中，$$\text{LN}'_{m_i}$$ 是第二层模态特定的 LayerNorm。输出的 $Z = [z_1, z_2, \dots, z_N]$ 即为当前 Transformer Block 的输出。
-
----
-
-## 4. 架构对比：Dense vs. MoE vs. MoT
-
-为了帮助大家理清思路，我们可以将这三种主要的架构设计进行横向对比：
-
-| 维度 | Dense (密集型) | MoE (混合专家) | MoT (混合 Transformer) |
-| :--- | :--- | :--- | :--- |
-| **自注意力机制投影 (QKV)** | 全局共享（密集参数） | 全局共享（密集参数） | **模态解耦（专属参数）** |
-| **层归一化 (LayerNorm)** | 全局共享（密集参数） | 全局共享（密集参数） | **模态解耦（专属参数）** |
-| **前馈网络 (FFN)** | 全局共享（密集参数） | 稀疏专家（多通道分布） | **模态解耦（专属参数）** |
-| **路由/分流机制 (Routing)** | 无需路由 | 可学习门控网络 (Learnable Router) | **确定性路由 (Deterministic Mask)** |
-| **训练稳定性** | 高，但存在模态干扰 | 较低，受路由坍塌和负载均衡影响 | **高，免去路由优化难题** |
-| **推理时激活参数** | 100% | 依 Top-K 决定（通常占 10-30%） | **由输入序列的模态比例决定** |
-
----
-
-## 5. 工业界前沿落地：NVIDIA Cosmos 3 中的 MoT 物理世界模型
-
-如果说 Meta AI 2024 年的论文为 Mixture-of-Transformers 奠定了理论与小型实验的基石，那么 **NVIDIA Cosmos 3** 的发布则证明了这一稀疏架构在大型工业界物理 AI（Physical AI）上的巨大统治力。
-
-### 5.1 双塔 MoT 结构：终结“范式割裂”
-在自动驾驶、具身智能（Robotics）等物理世界模拟中，传统的方案通常是拼凑型的（Duct-taped）：由一个视觉语言模型（VLM）处理感知，一个扩散模型（Diffusion）负责视频预测，再由另外的策略网络（Policy）决定动作。这不仅导致极大的推理延迟，更阻碍了跨模态物理规律的深度融合。
-
-NVIDIA Cosmos 3 彻底打破了这一界限。它构建了一个**“双塔（Dual-Tower）”架构**，但底座完全基于统一的 **Mixture-of-Transformers (MoT)**。它将输入序列划分为自回归（AR）与扩散（DM）子序列，在每一层解码器内部，并行持有两套独立参数（推理塔 + 生成塔），二者由预训练权重共同初始化：
+因此，MoT 节省的不是单步计算，而是**达到同等损失所需的训练步数**。由于每步 FLOPs 相同，论文把“步数占比”直接写成“FLOPs 占比”。
 
 <div align="center">
-  <img src="/images/wm/Cosmos3-Fig5-MoTArchitecture.webp" width="100%" />
+  <img src="/images/llm-training/mixture-of-transformers/mot_architecture.webp" width="90%" loading="lazy" decoding="async" style="aspect-ratio:1024/1024" />
+<figcaption>图 1：Dense、MoE 与 MoT 的结构对比（示意）。MoT 拆分了全部非嵌入参数，只共享注意力计算本身</figcaption>
+</div>
+
+## 3. 一个 MoT 层的计算流程
+
+### 3.1 符号
+
+设输入序列 $X = [x_1, \dots, x_N] \in \mathbb{R}^{N \times d}$，每个 token $x_i$ 带一个模态标签 $m_i \in \mathcal{M}$，例如 $\mathcal{M} = \{\text{text}, \text{image}, \text{speech}\}$。
+
+对每个模态 $m$，MoT 维护一套专属参数：
+
+* 两个 LayerNorm：$$\text{LN}_m$$ 与 $$\text{LN}'_m$$
+* 注意力投影：$$\mathbf{W}_{Q,m}, \mathbf{W}_{K,m}, \mathbf{W}_{V,m}, \mathbf{W}_{O,m} \in \mathbb{R}^{d \times d}$$
+* 前馈网络：$$\text{FFN}_m$$
+
+### 3.2 四个步骤
+
+论文 Algorithm 1 的流程是：按模态分组 → 各自投影 → 恢复原序列顺序 → 全局注意力 → 再按模态分组做输出投影、LayerNorm 和 FFN。写成公式如下。
+
+**第一步：按模态投影出 Q、K、V。** 每个 token 用自己模态的 LayerNorm 与投影矩阵：
+
+$$
+\mathbf{q}_i = \text{LN}_{m_i}(x_i)\,\mathbf{W}_{Q,m_i},\quad
+\mathbf{k}_i = \text{LN}_{m_i}(x_i)\,\mathbf{W}_{K,m_i},\quad
+\mathbf{v}_i = \text{LN}_{m_i}(x_i)\,\mathbf{W}_{V,m_i}
+$$
+
+**第二步：全局自注意力。** 把所有 token 的 $$\mathbf{q}_i, \mathbf{k}_i, \mathbf{v}_i$$ 按原序列顺序拼回 $\mathbf{Q}, \mathbf{K}, \mathbf{V}$，做一次标准（多头）注意力，因果掩码等与 Dense 模型一致：
+
+$$
+\mathbf{H} = \text{Softmax}\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}}\right)\mathbf{V}
+$$
+
+这是各模态唯一交换信息的地方：投影空间是各自的，但文本 token 能直接注意到图像 token，反之亦然。
+
+**第三步：按模态做输出投影与残差。**
+
+$$
+y_i = x_i + \mathbf{h}_i\,\mathbf{W}_{O,m_i}
+$$
+
+**第四步：按模态做 FFN。**
+
+$$
+z_i = y_i + \text{FFN}_{m_i}\big(\text{LN}'_{m_i}(y_i)\big)
+$$
+
+$Z = [z_1, \dots, z_N]$ 即该层输出。可以看出，如果把所有 $m_i$ 都设成同一个模态，这一层就退化回普通的 Pre-LN Transformer 层，这也是 MoT 每 token FLOPs 与 Dense 相同的原因。
+
+## 4. Dense、MoE 与 MoT 对比
+
+| 维度 | Dense | MoE | MoT |
+| :--- | :--- | :--- | :--- |
+| 注意力投影（QKV/O） | 共享 | 共享 | **按模态拆分** |
+| LayerNorm | 共享 | 共享 | **按模态拆分** |
+| FFN | 共享 | 稀疏专家 | **按模态拆分** |
+| 路由 | 无 | 可学习 router | **按模态标签，确定性** |
+| 每 token 计算量 | 基准 | 取决于激活专家数（top-1 时接近 Dense） | **与 Dense 相同** |
+| 总参数（非嵌入） | 基准 | 约 $E$ 倍（FFN 部分） | 约 $K$ 倍（全部） |
+| 额外训练机制 | 无 | 负载均衡损失等 | 无 |
+
+论文还从通信角度比较了两者：每层新增参数，MoT 约为 $7(K-1)D^2$，MoE 约为 $3(E-1)D^2$ 以上。由于 $K$ 通常远小于 $E$，MoT 的“参数/FLOPs”比更低，分布式训练时的通信压力也更小。
+
+## 5. 实验：每个数字各指什么
+
+论文在三种设置下评测：Chameleon（文本与图像都做自回归）、Chameleon + 语音，以及 Transfusion（文本自回归、图像扩散）。下面逐条说明主要数字的含义。
+
+### 5.1 达到 Dense 损失所需的训练 FLOPs
+
+* **Chameleon，7B，文本 + 图像**：MoT 用 Dense 模型 **55.8%** 的训练步数（等价于训练 FLOPs）就达到了 Dense 训练结束时的验证损失。
+* **Chameleon + 语音，7B**：在语音模态上，MoT 用 **37.2%** 的 FLOPs 达到 Dense 的语音性能。语音实验覆盖 443M、880M、1.5B 和 7B 四个规模，37.2% 是 7B 的结果。
+* **Transfusion，7B**：在图像指标上，MoT 用约 **三分之一** 的 FLOPs 达到 Dense 的水平；此外，760M 的 MoT 在关键图像生成指标上超过了 1.4B 的 Dense 模型。
+
+需要注意的是：这些都是**训练效率**的数字，不是推理时“只激活了 55.8% 的参数”。另外，Transfusion 设置下文本模态的收益很小甚至没有，作者列出了几种可能的原因，但没有定论。
+
+### 5.2 墙钟时间
+
+FLOPs 节省不一定能换成实际的训练时间节省。论文在 AWS p4de.24xlarge（A100）上用 256 张卡做了 Chameleon 设置的测速：
+
+* 图像：MoT 用 Dense **47.2%** 的 GPU 时间达到 Dense 的图像训练损失；
+* 文本：用 **75.6%** 的时间达到 Dense 的文本损失；
+* 对照组 MoE-4x 在文本上没有加速，在图像上反而**慢了 1.7 倍**。
+
+实现方式就是第 3 节的“按模态分组 → 投影 → 还原顺序”，配合 FSDP 与 PyTorch 2 编译，没有用到专门的融合算子。作者提到的主要开销来自两处：按模态分组带来的 CPU-GPU 同步，以及模态在 batch 和 GPU 之间分布不均造成的负载不平衡。这些开销在他们的设置下不在关键路径上；grouped GEMM、块稀疏矩阵乘等优化留作后续工作。
+
+### 5.3 拆哪些参数最重要
+
+论文的消融（Section 3.5）显示：
+
+* 只拆 FFN 就能带来大部分收益，图像上尤其明显；
+* 再拆 Q/K/V，还有显著的额外收益：在 Obelisc 数据上，相比只拆 FFN，图像节省约 33.3% 的 FLOPs，文本约 10%；
+* 拆 LayerNorm 的影响可以忽略。
+
+### 5.4 与 MoE-4x 的比较
+
+MoE-4x 的稀疏参数比 MoT 更多，但整体表现不如 MoT，在图像和语音上差距更明显：其图像优势在 7B 规模消失，语音验证损失甚至不如 Dense。作者也提醒，评测中 Expert Choice 路由可能泄露未来 token 的信息，MoE-4x 的结果因此可能被高估，换到分布外数据时又可能被低估。
+
+论文第 5 节还尝试在 MoT 的文本分支里再套一层 MoE-4x，文本有初步提升且不损害图像，作者明确称之为早期概念验证。
+
+## 6. Cosmos 3：把“按模态拆”换成“按角色拆”
+
+NVIDIA 在 2026 年 6 月发布的 Cosmos 3（arXiv:2606.02800）用一个模型同时覆盖理解、生成与动作，其骨干是**双塔 MoT**。但它拆分参数的依据和原始 MoT 不同，这一点容易被忽略。
+
+<div align="center">
+  <img src="/images/wm/Cosmos3-Fig5-MoTArchitecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1553/701" />
 <figcaption>图：Cosmos 3 的 MoT 架构。同一条序列由 AR 子序列（语言 + ViT 视觉 token，以 EOS/BOG 收尾）与 DM 子序列（VAE 视觉、音频、动作 token，训练时加噪）拼接而成；层内 AR 与 DM token 各用独立 LayerNorm 与 MLP（均由预训练 VLM 共同初始化），仅在共享自注意力处交汇。右图为注意力掩码：AR 为因果三角、DM 为全注意力。（图源：Cosmos 3）</figcaption>
 </div>
 
-*   **推理塔（Reasoner Tower，自回归）**：作为模型的“大脑”。这是一个因果自注意力（Causal Self-Attention）结构的 VLM，主要负责多模态感知输入、高层级任务规划、三维时空推理以及物理世界的意图理解。
-*   **生成塔（Generator Tower，扩散 Transformer）**：作为“执行器和物理模拟器”。这是一个扩散基础的 Transformer 架构，使用全双向注意力（Bidirectional Attention），条件化于推理塔输出的上下文，通过 Flow Matching 迭代去噪预测未来视频帧、音频和机器人执行器的连续动作轨迹（Actions）。
+### 6.1 两座塔分别是什么
 
-这两个塔内部通过**双流联合注意力（Dual-Stream Joint Attention）**相耦合：
-*   **AR 子序列（推理塔）**仅能关注自身的历史，以维持自回归的因果完整性；
-*   **DM 子序列（生成塔）**则以 AR 和 DM 标记的并集为 Key/Value，使得每个扩散生成 token 都能自由“读取”推理塔提供的上下文语义；
-*   **关键约束**：AR 标记永远不会被 DM 标记污染或更新，保证了推理通路的因果隔离。
+序列被切成两段：
 
-这种设计的精妙之处在于：**推理为生成提供高层语义指导，而生成过程不污染推理逻辑**，二者在同一张注意力图里协作，却互不破坏各自的归纳偏置。
+*   **AR 子序列（Reasoner 塔）**：语言 token 与 ViT 视觉 token，用因果注意力做下一个 token 预测，承担理解与推理；
+*   **DM 子序列（Generator 塔）**：VAE 视觉 latent、音频和动作 token，训练时加噪，用 Flow Matching 去噪，承担生成。
 
-### 5.2 Cosmos 3 中 MoT 架构的核心设计
-1.  **3D 多维旋转位置编码（mRoPE）**：为了让 MoT 能够无缝协调图像、文本、视频帧与动作 token，Cosmos 3 引入了 **mRoPE (3D Multi-dimensional Rotary Position Embedding)**。mRoPE 将空间（高度、宽度）和时间轴融合在一个多维旋转编码空间中，使不同模态投影参数在进入全局注意力时，具备了物理世界的相对位置坐标系。
-2.  **模态灵活部署与微调**：得益于 MoT 的参数隔离性质，开发者在使用 NVIDIA Cosmos 3 时，甚至可以独立于生成塔去优化或微调推理塔（Reasoner Tower），或者在 Reasoner 的制约下单独微调 Generator 产生特定的动作序列。
-3.  **模型规模与参数**：NVIDIA 基于 MoT 架构开源了不同尺度的变体，其总参数量由于双塔设计（推理塔 + 生成塔各持一套参数）约为同级密集模型的两倍：
-    *   **Cosmos 3 Nano (16B / 密集骨干 8B)**：对端侧及工作站算力极其友好，可在单张 RTX PRO 6000 级显卡上实现实时具身导航与推理。
-    *   **Cosmos 3 Super (64B / 密集骨干 32B)**：适用于大型数据中心 Hopper 和 Blackwell GPU，能生成大规模、高保真度的合成物理世界轨迹。
+每个解码层并行持有两套参数，二者都从预训练 VLM（Nano 与 Super 分别来自 Qwen3-VL 8B 与 32B）初始化。两段在注意力上的规则是：
 
-> 💡 **系统级关联**：关于 Cosmos 3 平台的完整技术演进、数据策展 Video Curator 以及三种动作模式（前向动力学、逆动力学与策略模型）的详细拆解，可以参考我之前撰写的 [世界模型综述：Cosmos 3 全模态统一世界模型](/World-Models-Survey/#46-cosmos-3%E5%85%A8%E6%A8%A1%E6%80%81%E7%BB%9F%E4%B8%80%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B2026)。
+*   AR token 只看自身之前的 AR token；
+*   DM token 以 AR 与 DM token 的并集作为 Key/Value，双向注意；
+*   AR token 永远不会被 DM token 更新，生成过程不会反过来改写理解通路。
 
----
+### 6.2 与原始 MoT 的异同
 
-## 6. 实验结果与系统效率提升
+**相同**的是核心机制：参数按 token 类别拆开、分流规则固定、所有 token 在共享的自注意力里交汇。
 
-Meta AI 团队对 MoT 在多种多模态基础模型设置中进行了广泛的评测。主要评估了两种典型的多模态框架：以自回归方式统一处理图文的 **Chameleon** 框架，以及结合扩散模型和自回归的 **Transfusion** 框架。
+**不同**的有两点：
 
-### 6.1 极佳的 FLOPs 压缩效率
-* **Chameleon 图文生成 (7B参数量)**：MoT 架构仅激活了 **55.8% 的 FLOPs**，就达到了与 Dense 7B Baseline **完全等价**的生成质量与下游任务表现。
-* **三模态扩展 (Text+Image+Speech, 443M参数量)**：当引入第三种模态（语音）时，MoT 的稀疏化优势更加巨大，仅需密集模型 **37.2% 的 FLOPs** 即可达到同等性能。
-* **Transfusion 图像生成 (7B参数量)**：在处理扩散模型目标时，MoT 架构对图像模态的计算代价缩减到了原来的 **1/3**，而图像质量没有受到任何损失。
+1. **分流依据**：原始 MoT 按**模态**分流，一个模态一套参数；Cosmos 3 按**角色**分流，同为视觉信息，ViT token 进 Reasoner、VAE latent 进 Generator。
+2. **注意力掩码**：原始 MoT 的掩码与 Dense 模型一致；Cosmos 3 的 AR 段用因果掩码、DM 段用全注意力，并且是单向的：DM 能读 AR，AR 不能读 DM。
 
-### 6.2 硬件运行时间与吞吐（Wall-Clock Speedup）
-理论上的 FLOPs 压缩并不总是能等价转化为实际的速度提升（由于稀疏算子的通信开销），但 MoT 凭借**确定性分流**和**算子融合（Kernel Fusion）**，在 A100 GPU 上的实际测速非常亮眼：
-* 在处理图像模态时，MoT 达到了 Dense 47% 的硬件运行时间（即 **2.13× 的实际加速**）。
-* 在处理文本模态时，也仅需 Dense 的 75.6% 的时间。
+### 6.3 规模
 
-### 6.3 理论支撑：子任务凸化（Subtask Convexification）
-除了工程和性能优势，理论分析也为 MoT 的快速收敛提供了强力解释：
-多模态联合优化由于存在梯度冲突，往往呈现高度非凸的性质。MoT 通过确定性掩码将参数分配给对应的专家，实质上将复杂的非凸混合优化问题拆解为了多个更平滑、接近强凸（Strongly Convex）的子问题。研究表明，在这种状态下，模型的收敛速度会呈现**对数级（Logarithmic）的加速**，优化过程更加平稳。
+双塔意味着总参数约为同级 Dense 骨干的 2 倍：
 
----
+| 变体 | 总参 / Dense 骨干 | 状态 |
+| :--- | :--- | :--- |
+| Cosmos3-Edge | 4B / 2B | 后续发布 |
+| Cosmos3-Nano | 16B / 8B | 已发布 |
+| Cosmos3-Super | 64B / 32B | 已发布 |
 
-## 7. 互动沙盘：直观感受 Token 分流与参数冲突
+位置编码、动作表示、三种动作模式（前向动力学、逆动力学、策略）和各项评测结果，详见 [世界模型综述 §7.3 Cosmos 3](/World-Models-Survey/#cosmos-3)。
 
-为了更直观地理解 Dense、MoE 以及 MoT 对 Token 的分流控制和参数冲突情况，你可以在下方的**互动沙盘**中切换不同架构，点击“开始分流”观察其动态执行流向和性能指标：
+## 7. 互动沙盘：Token 在三种结构中的流向
+
+下面的沙盘演示 token 在 Dense、MoE、MoT 中分别经过哪些参数。它只是示意：MoE 一栏为了简化画成“每个模态一个 FFN 专家”，真实 MoE 的专家并不对应模态，而是由 router 动态分配。
 
 <div id="mot-playground" style="margin: 20px 0; padding: 20px; background: radial-gradient(circle at top, #1e1b4b 0%, #0f172a 100%); border-radius: 12px; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);">
-  <h3 style="margin-top: 0; color: #38bdf8; text-align: center; font-size: 1.4rem; font-weight: bold;">多模态 Token 分流物理模拟器</h3>
+  <h3 style="margin-top: 0; color: #38bdf8; text-align: center; font-size: 1.4rem; font-weight: bold;">多模态 Token 分流示意</h3>
   <p style="font-size: 0.9rem; color: #94a3b8; text-align: center; margin-bottom: 20px;">
     切换架构模式，点击“开始分流”观察 Token 在各层权重（LN、QKV、Attention、FFN）中的流动轨迹。
   </p>
@@ -235,12 +229,12 @@ Meta AI 团队对 MoT 在多种多模态基础模型设置中进行了广泛的�
 
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; background: rgba(15, 23, 42, 0.6); padding: 15px; border-radius: 8px; border: 1px solid #334155;">
     <div style="text-align: center;">
-      <div style="font-size: 0.8rem; color: #94a3b8;">激活参数占比 (FLOPs)</div>
-      <div id="stat-flops" style="font-size: 1.3rem; font-weight: bold; color: #ef4444; margin-top: 5px;">100%</div>
+      <div style="font-size: 0.8rem; color: #94a3b8;">每 token 计算量</div>
+      <div id="stat-flops" style="font-size: 1.3rem; font-weight: bold; color: #ef4444; margin-top: 5px;">基准</div>
     </div>
     <div style="text-align: center;">
-      <div style="font-size: 0.8rem; color: #94a3b8;">模态梯度冲突率</div>
-      <div id="stat-conflict" style="font-size: 1.3rem; font-weight: bold; color: #ef4444; margin-top: 5px;">极高 (100%)</div>
+      <div style="font-size: 0.8rem; color: #94a3b8;">共享的参数</div>
+      <div id="stat-conflict" style="font-size: 1.3rem; font-weight: bold; color: #ef4444; margin-top: 5px;">全部</div>
     </div>
     <div style="text-align: center;">
       <div style="font-size: 0.8rem; color: #94a3b8;">分流路由机制</div>
@@ -288,21 +282,21 @@ Meta AI 团队对 MoT 在多种多模态基础模型设置中进行了广泛的�
       const routing = document.getElementById('stat-routing');
 
       if (mode === 'dense') {
-        flops.innerText = '100%';
+        flops.innerText = '基准';
         flops.style.color = '#ef4444';
-        conflict.innerText = '极高 (100%)';
+        conflict.innerText = '全部';
         conflict.style.color = '#ef4444';
         routing.innerText = '无 (全局共享)';
       } else if (mode === 'moe') {
-        flops.innerText = '激活约 55%';
+        flops.innerText = '≈ Dense（top-1）';
         flops.style.color = '#fbbf24';
-        conflict.innerText = '中 (共享QKV/LN)';
+        conflict.innerText = 'LN + 注意力投影';
         conflict.style.color = '#fbbf24';
         routing.innerText = '可学习动态路由';
       } else if (mode === 'mot') {
-        flops.innerText = '激活约 45%';
+        flops.innerText = '= Dense';
         flops.style.color = '#10b981';
-        conflict.innerText = '极低 (0% 解耦)';
+        conflict.innerText = '仅注意力计算';
         conflict.style.color = '#10b981';
         routing.innerText = '确定性模态路由';
       }
@@ -553,23 +547,22 @@ Meta AI 团队对 MoT 在多种多模态基础模型设置中进行了广泛的�
   })();
 </script>
 
----
+## 8. 什么时候适合用 MoT
 
-## 8. 总结与未来展望
+**适合的场景**：模态边界清晰、各模态数据量都不小、训练算力是主要瓶颈。MoT 不改变每 token 的计算量，也不需要调 router，从 Dense 改过来的工程量较小，论文在三种设置下都观察到了训练加速。
 
-Mixture-of-Transformers (MoT) 的提出，为我们思考多模态模型的参数排布带来了极具启发性的视角。过去，我们一味追求“同一个模型、同一个权重”去理解世界；而 MoT 和 NVIDIA Cosmos 3 的成功经验告诉我们，**“物理层面的独立参数解耦”与“逻辑层面的全局注意力融合”相结合，才是多模态世界模型更高效的发展方向**。
+**需要权衡的地方**：
 
+1. **显存与存储**：总参数约为 Dense 的 $K$ 倍，训练时的优化器状态和推理时的权重占用都会相应增加。
+2. **推理批处理**：一个 batch 里各模态 token 的比例不固定，每个分支的矩阵乘可能吃不满。作者建议用动态或连续批处理，或者把较小的模态 padding 到与较大的模态等长后合并计算，代价是部分无效计算或更高的延迟。
+3. **结论的适用范围**：墙钟时间的结果来自一套特定的 AWS 集群，作者明确表示换到其他硬件需要重新验证；Transfusion 设置下文本收益有限；7B Transfusion 模型只训练了 0.5T token，尚未饱和。
+4. **模态定义**：MoT 依赖“每个 token 属于哪一类”事先已知。Cosmos 3 的做法说明，这个类别不一定是模态，也可以是理解与生成这样的角色。
 
-### 💡 MoT 的几点核心启示：
-1. **多模态不等于参数大锅饭**：对于结构和密度差异巨大的模态，前期的 QKV 投影和后期的 FFN 进行参数隔离，能够极大地释放各自的潜力，避免“互相妥协”。
-2. **路由不一定非要“可学习”**：在天然拥有模态标签的多模态场景中，利用先验知识的确定性路由（Static Routing）比可学习路由（Dynamic Routing）更加稳定、简单且高效。
-3. **全局自注意力依然是护城河**：保留跨模态的全局注意力是确保模型进行深度推理和模态对齐的根本，绝不能为了稀疏化而将注意力也完全割裂。
-
-随着未来基础模型走向“声音、视频、三维场景、物理动作”等更广阔的 Physical AI 世界，MoT 这样兼具高性能与低能耗的稀疏解耦架构，无疑将成为支撑下一代多模态智能的核心基石。
+一句话总结：MoT 用 $K$ 倍的参数换取更快的训练收敛，每 token 计算量不变；拆注意力投影和 FFN 有用，拆 LayerNorm 作用不大；全局自注意力是唯一不拆的部分。
 
 ---
 **参考文献：**
-1. Liang, et al. *"Mixture-of-Transformers: A Sparse and Scalable Architecture for Multi-Modal Foundation Models"*, arXiv:2411.04996, 2024. (Published in TMLR 2025)
-2. NVIDIA Cosmos Team. *"NVIDIA Cosmos: World Foundation Models for Physical AI"*, Technical Report, 2025.
-3. Chameleon Team, Meta AI. *"Chameleon: Mixed-Modal Early-Fusion Foundation Models"*, arXiv:2405.09818, 2024.
----
+1. Liang, W., Yu, L., Luo, L., et al. *Mixture-of-Transformers: A Sparse and Scalable Architecture for Multi-Modal Foundation Models*. TMLR, 2025. [arXiv:2411.04996](https://arxiv.org/abs/2411.04996)
+2. NVIDIA. *Cosmos 3: Omnimodal World Models for Physical AI*. 2026. [arXiv:2606.02800](https://arxiv.org/abs/2606.02800)
+3. Chameleon Team. *Chameleon: Mixed-Modal Early-Fusion Foundation Models*. 2024. [arXiv:2405.09818](https://arxiv.org/abs/2405.09818)
+4. Zhou, C., Yu, L., Babu, A., et al. *Transfusion: Predict the Next Token and Diffuse Images with One Multi-Modal Model*. 2024. [arXiv:2408.11039](https://arxiv.org/abs/2408.11039)

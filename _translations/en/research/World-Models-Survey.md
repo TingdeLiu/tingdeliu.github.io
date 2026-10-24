@@ -5,10 +5,10 @@ translation_id: world-models-survey
 permalink: /en/World-Models-Survey/
 source_path: _posts/research/2026-04-16-World-Models-Survey.md
 source_url: /World-Models-Survey/
-source_revision_date: 2026-10-07
-translation_updated: 2026-10-07
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "World Models: A Survey"
-date: 2026-10-07
+date: 2026-10-24
 tags: [VLA, World Models, Robotics, Embodied AI, Survey]
 categories: research
 comments: false
@@ -56,7 +56,7 @@ The concept of "world model" does not originate from deep learning, but is roote
 - **Autonomous Machine Intelligence Architecture (Yann LeCun, 2022)**: Yann LeCun emphasized in his machine intelligence vision that the world model is an indispensable core module for autonomous agents, responsible for predicting the possible evolution of the world based on the current state and candidate actions.
 
 <div align="center">
-  <img src="/images/wm/wmandvla.png" width="90%" alt="Figure: Comparison of the functional positioning of the physical AI world model (Cosmos WM) and the embodied policy model (OpenVLA): the former is responsible for environment evolution and physical simulation, and the latter is responsible for action decision-making and execution." />
+  <img src="/images/wm/wmandvla.png" width="90%" alt="Figure: Comparison of the functional positioning of the physical AI world model (Cosmos WM) and the embodied policy model (OpenVLA): the former is responsible for environment evolution and physical simulation, and the latter is responsible for action decision-making and execution." loading="lazy" decoding="async" style="aspect-ratio:720/480" />
 <figcaption> Figure: Comparison of the functional positioning of the physical AI world model (Cosmos WM) and the embodied policy model (OpenVLA): the former is responsible for environment evolution and physical simulation, and the latter is responsible for action decision-making and execution.</figcaption>
 </div>
 
@@ -219,7 +219,7 @@ flowchart TD
 {: id="24-演进时间线20182026"}
 
 <div align="center">
-  <img src="/images/wm/Survey-Fig2-Timeline.webp" width="100%" alt="diagram: embodied intelligence world model evolution timeline. From the foundation of latent space dream training in 2018, to video generation-driven planning in 2023, to the explosion of world action model (WAM), full-modal base model (Cosmos 3) and explorable 3D universe (Lyra 2.0 / Marble) in 2025–2026. (Image source: Tan et al., 2026)" />
+  <img src="/images/wm/Survey-Fig2-Timeline.webp" width="100%" alt="diagram: embodied intelligence world model evolution timeline. From the foundation of latent space dream training in 2018, to video generation-driven planning in 2023, to the explosion of world action model (WAM), full-modal base model (Cosmos 3) and explorable 3D universe (Lyra 2.0 / Marble) in 2025–2026. (Image source: Tan et al., 2026)" loading="lazy" decoding="async" style="aspect-ratio:1686/540" />
 <figcaption> diagram: embodied intelligence world model evolution timeline. From the foundation of latent space dream training in 2018, to video generation-driven planning in 2023, to the explosion of world action model (WAM), full-modal base model (Cosmos 3) and explorable 3D universe (Lyra 2.0 / Marble) in 2025–2026. (Image source: Tan et al., 2026)</figcaption>
 </div>
 
@@ -244,7 +244,7 @@ Before the outbreak of the modern video diffusion base model, the world model ha
 The **World Models** proposed by David Ha and Jürgen Schmidhuber [[3]](#ref-3) is the first complete implementation of the **V-M-C trinity architecture** in cognitive science under the deep learning framework:
 
 <div align="center">
-  <img src="/images/wm/WorldModels-vmc-overview.webp" width="90%" alt="Figure: V-M-C core architecture of World Models (2018): visual perception V (VAE), memory dynamics M (MDN-RNN) and lightweight controller C. (Image source: Ha &amp; Schmidhuber, 2018)" />
+  <img src="/images/wm/WorldModels-vmc-overview.webp" width="90%" alt="Figure: V-M-C core architecture of World Models (2018): visual perception V (VAE), memory dynamics M (MDN-RNN) and lightweight controller C. (Image source: Ha &amp; Schmidhuber, 2018)" loading="lazy" decoding="async" style="aspect-ratio:673/551" />
 <figcaption> Figure: V-M-C core architecture of World Models (2018): visual perception V (VAE), memory dynamics M (MDN-RNN) and lightweight controller C. (Image source: Ha & Schmidhuber, 2018)</figcaption>
 </div>
 
@@ -258,7 +258,7 @@ The **World Models** proposed by David Ha and Jürgen Schmidhuber [[3]](#ref-3) 
 3. **C model (Controller)**: An ultra-lightweight feedforward network containing only more than a thousand parameters, directly mapping $$z_t$$ and the cyclic hidden state $$h_t$$ into the control action $$a_t = W_c [z_t \; h_t] + b_c$$.
 
 <div align="center">
-  <img src="/images/wm/WorldModels-flow-diagram.webp" width="90%" alt="Figure: World Models complete data flow: offline collection of experience training V and M, and then training controller C in an RNN dream that is completely separated from the real environment. (Image source: Ha &amp; Schmidhuber, 2018)" />
+  <img src="/images/wm/WorldModels-flow-diagram.webp" width="90%" alt="Figure: World Models complete data flow: offline collection of experience training V and M, and then training controller C in an RNN dream that is completely separated from the real environment. (Image source: Ha &amp; Schmidhuber, 2018)" loading="lazy" decoding="async" style="aspect-ratio:673/615" />
 <figcaption> Figure: World Models complete data flow: offline collection of experience training V and M, and then training controller C in an RNN dream that is completely separated from the real environment. (Image source: Ha & Schmidhuber, 2018)</figcaption>
 </div>
 
@@ -272,7 +272,7 @@ The **World Models** proposed by David Ha and Jürgen Schmidhuber [[3]](#ref-3) 
 The **Dreamer series** [[4] ](#ref-4) (DreamerV1 $\to$ V2 $\to$ V3; V3 was released in 2023 under the title of *Mastering Diverse Domains through World Models*) pioneered by Danijar Hafner et al. arXiv, officially published in *Nature* under the title *Mastering diverse control tasks through world models* in 2025), pushing model-based RL to generalization.
 
 <div align="center">
-  <img src="/images/wm/DreamerV3-training-architecture.webp" width="95%" alt="Figure: DreamerV3 training pipeline: (a) self-supervised learning of RSSM world model from real experience; (b) autoregressive expansion of trajectories in latent space; (c) optimization of actor-critic policy in imagination. (Image source: Hafner et al., Nature 2025)" />
+  <img src="/images/wm/DreamerV3-training-architecture.webp" width="95%" alt="Figure: DreamerV3 training pipeline: (a) self-supervised learning of RSSM world model from real experience; (b) autoregressive expansion of trajectories in latent space; (c) optimization of actor-critic policy in imagination. (Image source: Hafner et al., Nature 2025)" loading="lazy" decoding="async" style="aspect-ratio:1328/726" />
 <figcaption> Figure: DreamerV3 training pipeline: (a) self-supervised learning of RSSM world model from real experience; (b) autoregressive expansion of trajectories in latent space; (c) optimization of actor-critic policy in imagination. (Image source: Hafner et al., Nature 2025)</figcaption>
 </div>
 
@@ -282,7 +282,7 @@ Dreamer solves the long-standing problems of representation collapse and numeric
 3. **versatility and Minecraft diamond task**: DreamerV3 uses the same set of hyperparameters and model architecture **as** to achieve strong performance in Atari, Crafter, DMC, Procgen and other fields, and becomes the first to do so in Minecraft without using human data and course design. The algorithm for collecting diamonds from scratch in the game - this task requires a long series of dependent steps such as logging, crafting workbench, mining, smelting, etc., and the rewards are extremely sparse.
 
 <div align="center">
-  <img src="/images/wm/DreamerV3-benchmark-summary.webp" width="90%" alt="Figure: Standardized performance comparison of DreamerV3 in 7 heterogeneous fields (2D pixel, continuous control, 3D long-range sandbox). (Image source: Hafner et al., Nature 2025)" />
+  <img src="/images/wm/DreamerV3-benchmark-summary.webp" width="90%" alt="Figure: Standardized performance comparison of DreamerV3 in 7 heterogeneous fields (2D pixel, continuous control, 3D long-range sandbox). (Image source: Hafner et al., Nature 2025)" loading="lazy" decoding="async" style="aspect-ratio:1348/607" />
 <figcaption> Figure: Standardized performance comparison of DreamerV3 in 7 heterogeneous fields (2D pixel, continuous control, 3D long-range sandbox). (Image source: Hafner et al., Nature 2025)</figcaption>
 </div>
 
@@ -294,7 +294,7 @@ Dreamer solves the long-standing problems of representation collapse and numeric
 Most of the previous world models (such as World Models and Dreamer) relied on pixel-by-pixel image reconstruction loss, and a large amount of network computing power was wasted on background visual details that are irrelevant to downstream control. The **TD-MPC series** [[5]](#ref-5) proposed by Nicklas Hansen et al. has achieved a key technology shift:
 
 <div align="center">
-  <img src="/images/wm/TD-MPC2-architecture.webp" width="90%" alt="Figure: TD-MPC2 overall architecture: no need for pixel-by-pixel decoding and reconstruction, deep integration of MPPI online sampling planning and temporal difference (TD) long-range value learning in a compact latent space. (Image source: Hansen et al., ICLR 2024)" />
+  <img src="/images/wm/TD-MPC2-architecture.webp" width="90%" alt="Figure: TD-MPC2 overall architecture: no need for pixel-by-pixel decoding and reconstruction, deep integration of MPPI online sampling planning and temporal difference (TD) long-range value learning in a compact latent space. (Image source: Hansen et al., ICLR 2024)" loading="lazy" decoding="async" style="aspect-ratio:479/585" />
 <figcaption> Figure: TD-MPC2 overall architecture: no need for pixel-by-pixel decoding and reconstruction, deep integration of MPPI online sampling planning and temporal difference (TD) long-range value learning in a compact latent space. (Image source: Hansen et al., ICLR 2024)</figcaption>
 </div>
 
@@ -466,7 +466,7 @@ Current generative AI (such as ChatGPT, DALL-E) has achieved great success in th
 Genie is an 11 billion parameter base model whose architecture consists of three deeply integrated components, all based on the improved **ST-Transformer**.
 
 <div align="center">
-  <img src="/images/wm/Genie-components.webp" width="100%" alt="Figure: Genie overall training framework: including video segmenter, latent action model (LAM) and dynamics model. (Image source: Genie, 2024)" />
+  <img src="/images/wm/Genie-components.webp" width="100%" alt="Figure: Genie overall training framework: including video segmenter, latent action model (LAM) and dynamics model. (Image source: Genie, 2024)" loading="lazy" decoding="async" style="aspect-ratio:1326/492" />
 <figcaption> Figure: Genie overall training framework: including video segmenter, latent action model (LAM) and dynamics model. (Image source: Genie, 2024)</figcaption>
 </div>
 
@@ -478,7 +478,7 @@ This is the soul of Genie. To achieve control without action tags, LAM adopts th
 - **Consistency**: Experiments have proven that even in different games, the same latent action Token often corresponds to the same physical semantics (such as Action 0 always represents left shift).
 
 <div align="center">
-  <img src="/images/wm/Genie-LAM.webp" width="70%" alt="Figure: Latent Action Model (LAM): Unsupervised action mining by reconstructing goals. (Source: Genie, 2024)" />
+  <img src="/images/wm/Genie-LAM.webp" width="70%" alt="Figure: Latent Action Model (LAM): Unsupervised action mining by reconstructing goals. (Source: Genie, 2024)" loading="lazy" decoding="async" style="aspect-ratio:653/230" />
 <figcaption> Figure: Latent Action Model (LAM): Unsupervised action mining by reconstructing goals. (Source: Genie, 2024)</figcaption>
 </div>
 
@@ -495,7 +495,7 @@ Mask autoregressive model based on **MaskGIT**:
 - **predicts**: The model predicts the Token of the next frame in the latent space. Fed by massive amounts of data, the model learns complex 2D platform game rules such as collisions, gravity, enemy interactions, and screen scrolling.
 
 <div align="center">
-  <img src="/images/wm/Genie-ST-transformer.webp" width="55%" alt="Figure: ST-transformer: alternately performs space and time layer calculations to achieve linear complexity. (Source: Genie, 2024)" />
+  <img src="/images/wm/Genie-ST-transformer.webp" width="55%" alt="Figure: ST-transformer: alternately performs space and time layer calculations to achieve linear complexity. (Source: Genie, 2024)" loading="lazy" decoding="async" style="aspect-ratio:648/259" />
 <figcaption> Figure: ST-transformer: alternately performs space and time layer calculations to achieve linear complexity. (Source: Genie, 2024)</figcaption>
 </div>
 
@@ -510,7 +510,7 @@ Mask autoregressive model based on **MaskGIT**:
 * **serves as the "mother" of reinforcement learning.**: Agents trained within Genie can be transferred to the real environment extremely quickly. Compared with training from scratch, the sample efficiency of agents using latent action pretraining is improved several times.
 
 <div align="center">
-  <img src="/images/wm/Genie-robotics-actions.webp" width="100%" alt=": Semantically meaningful latent actions learned on robot manipulation data. (Source: Genie, 2024)" />
+  <img src="/images/wm/Genie-robotics-actions.webp" width="100%" alt=": Semantically meaningful latent actions learned on robot manipulation data. (Source: Genie, 2024)" loading="lazy" decoding="async" style="aspect-ratio:653/830" />
 <figcaption>Figure: Semantically meaningful latent actions learned on robot manipulation data. (Source: Genie, 2024)</figcaption>
 </div>
 
@@ -547,7 +547,7 @@ Although the current video generation model can generate high-quality short vide
 {: id="2-主要方法创新点-1"}
 
 <div align="center">
-  <img src="/images/vla/LingBot-World-overview.webp" width="100%" alt="Picture: LingBot-World interactive world simulation overview: supports real-time interaction through keyboard operations in a variety of scenarios (realistic, scientific, cartoon, etc.). (Image source: LingBot-World, 2026)" />
+  <img src="/images/vla/LingBot-World-overview.webp" width="100%" alt="Picture: LingBot-World interactive world simulation overview: supports real-time interaction through keyboard operations in a variety of scenarios (realistic, scientific, cartoon, etc.). (Image source: LingBot-World, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1320/882" />
 <figcaption> Picture: LingBot-World interactive world simulation overview: supports real-time interaction through keyboard operations in a variety of scenarios (realistic, scientific, cartoon, etc.). (Image source: LingBot-World, 2026)</figcaption>
 </div>
 
@@ -563,7 +563,7 @@ To address the scarcity of high-quality interaction data, LingBot-World built a 
 The model adopts a three-stage policy of evolving from a video generator to an interactive simulator:
 
 <div align="center">
-  <img src="/images/vla/LingBot-World-training-pipeline.webp" width="100%" alt="Figure: LingBot-World training pipeline: starting from the video prior of pretraining, injecting knowledge through mid-training, and finally achieving real-time interaction capabilities through post-training. (Image source: LingBot-World, 2026)" />
+  <img src="/images/vla/LingBot-World-training-pipeline.webp" width="100%" alt="Figure: LingBot-World training pipeline: starting from the video prior of pretraining, injecting knowledge through mid-training, and finally achieving real-time interaction capabilities through post-training. (Image source: LingBot-World, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1324/589" />
 <figcaption> Figure: LingBot-World training pipeline: starting from the video prior of pretraining, injecting knowledge through mid-training, and finally achieving real-time interaction capabilities through post-training. (Image source: LingBot-World, 2026)</figcaption>
 </div>
 
@@ -575,7 +575,7 @@ The model adopts a three-stage policy of evolving from a video generator to an i
 {: id="-模型架构与动作注入"}
 
 <div align="center">
-  <img src="/images/vla/LingBot-World-architecture.webp" width="100%" alt="Figure: LingBot-World model architecture: Based on the DiT block, the action signal is injected through the Plücker Encoder and modulated using AdaLN. (Image source: LingBot-World, 2026)" />
+  <img src="/images/vla/LingBot-World-architecture.webp" width="100%" alt="Figure: LingBot-World model architecture: Based on the DiT block, the action signal is injected through the Plücker Encoder and modulated using AdaLN. (Image source: LingBot-World, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1328/753" />
 <figcaption> Figure: LingBot-World model architecture: Based on the DiT block, the action signal is injected through the Plücker Encoder and modulated using AdaLN. (Image source: LingBot-World, 2026)</figcaption>
 </div>
 
@@ -585,7 +585,7 @@ LingBot-World is based on DiT (Diffusion Transformer) architecture. Action signa
 {: id="3-核心结果发现-1"}
 
 <div align="center">
-  <img src="/images/vla/LingBot-World-memory-capability.webp" width="100%" alt="Figure: Emergent memory ability: The model can remember static landmarks outside the field of view (such as Stonehenge), maintain a consistent structure when returning after 60 seconds, and can simulate the dynamic evolution of objects outside the field of view. (Image source: LingBot-World, 2026)" />
+  <img src="/images/vla/LingBot-World-memory-capability.webp" width="100%" alt="Figure: Emergent memory ability: The model can remember static landmarks outside the field of view (such as Stonehenge), maintain a consistent structure when returning after 60 seconds, and can simulate the dynamic evolution of objects outside the field of view. (Image source: LingBot-World, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1322/990" />
 <figcaption> Figure: Emergent memory ability: The model can remember static landmarks outside the field of view (such as Stonehenge), maintain a consistent structure when returning after 60 seconds, and can simulate the dynamic evolution of objects outside the field of view. (Image source: LingBot-World, 2026)</figcaption>
 </div>
 
@@ -594,7 +594,7 @@ LingBot-World is based on DiT (Diffusion Transformer) architecture. Action signa
 - **Controlled editing**: Supports real-time intervention in the generated world through text commands (such as "Firework", "Fish").
 
 <div align="center">
-  <img src="/images/vla/LingBot-World-promptable-events.webp" width="100%" alt="Picture: Example of controllable world events: changing the weather, style or injecting specific dynamic elements into the scene in real time through text prompts. (Image source: LingBot-World, 2026)" />
+  <img src="/images/vla/LingBot-World-promptable-events.webp" width="100%" alt="Picture: Example of controllable world events: changing the weather, style or injecting specific dynamic elements into the scene in real time through text prompts. (Image source: LingBot-World, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1328/1533" />
 <figcaption> Picture: Example of controllable world events: changing the weather, style or injecting specific dynamic elements into the scene in real time through text prompts. (Image source: LingBot-World, 2026)</figcaption>
 </div>
 
@@ -631,14 +631,14 @@ Existing open source minute-level world models (LingBot-World 14B+14B, HY-WorldP
 {: id="2-主要方法创新点-2"}
 
 <div align="center">
-  <img src="/images/wm/SANA-WM-teaser.webp" width="100%" alt="Figure: SANA-WM overview. Generate minute-level 720p worlds from a single image and motion trajectory, supporting precise camera control, 64-GPU training, and single-GPU inference. (Image source: SANA-WM, arXiv:2605.15178)" />
+  <img src="/images/wm/SANA-WM-teaser.webp" width="100%" alt="Figure: SANA-WM overview. Generate minute-level 720p worlds from a single image and motion trajectory, supporting precise camera control, 64-GPU training, and single-GPU inference. (Image source: SANA-WM, arXiv:2605.15178)" loading="lazy" decoding="async" style="aspect-ratio:1320/672" />
 <figcaption> Figure: SANA-WM overview. Generate minute-level 720p worlds from a single image and motion trajectory, supporting precise camera control, 64-GPU training, and single-GPU inference. (Image source: SANA-WM, arXiv:2605.15178)</figcaption>
 </div>
 
 **Overall framework**: SANA-WM consists of four core components: ① Hybrid linear DiT backbone (Hybrid GDN/Softmax) is responsible for efficient long-range context modeling; ② Dual-branch camera control (UCPE + Plücker) is responsible for accurate 6-DoF trajectory injection; ③ Second-stage visual refiner (LTX-2 LoRA) is responsible for improving the final frame Quality; ④ The robust metric annotation pipeline (VIPE+Pi3X+MoGe-2) is responsible for extracting high-quality training data from public videos.
 
 <div align="center">
-  <img src="/images/wm/SANA-WM-architecture.webp" width="100%" alt="Figure: SANA-WM architecture. Text, video, and gesture tokens alternately pass through GDN blocks and Softmax blocks; UCPE Attention and Plücker Mixing provide geometry-aware camera conditions; the second-stage refiner further improves visual quality. (Source: SANA-WM)" />
+  <img src="/images/wm/SANA-WM-architecture.webp" width="100%" alt="Figure: SANA-WM architecture. Text, video, and gesture tokens alternately pass through GDN blocks and Softmax blocks; UCPE Attention and Plücker Mixing provide geometry-aware camera conditions; the second-stage refiner further improves visual quality. (Source: SANA-WM)" loading="lazy" decoding="async" style="aspect-ratio:1326/746" />
 <figcaption> Figure: SANA-WM architecture. Text, video, and gesture tokens alternately pass through GDN blocks and Softmax blocks; UCPE Attention and Plücker Mixing provide geometry-aware camera conditions; the second-stage refiner further improves visual quality. (Source: SANA-WM)</figcaption>
 </div>
 
@@ -673,7 +673,7 @@ The first stage (SANA-WM master model) generates a structurally correct 60s vide
 {: id="-鲁棒度量标注管线与数据"}
 
 <div align="center">
-  <img src="/images/wm/SANA-WM-data-pipeline.webp" width="100%" alt="Figure: SANA-WM data construction pipeline. Collect open source video and static 3D resources, annotate metric camera poses, use 3DGS rendering to enhance DL3DV, and obtain 213K segment training corpus after filtering/subtitle processing. (Source: SANA-WM)" />
+  <img src="/images/wm/SANA-WM-data-pipeline.webp" width="100%" alt="Figure: SANA-WM data construction pipeline. Collect open source video and static 3D resources, annotate metric camera poses, use 3DGS rendering to enhance DL3DV, and obtain 213K segment training corpus after filtering/subtitle processing. (Source: SANA-WM)" loading="lazy" decoding="async" style="aspect-ratio:1326/606" />
 <figcaption> Figure: SANA-WM data construction pipeline. Collect open source video and static 3D resources, annotate metric camera poses, use 3DGS rendering to enhance DL3DV, and obtain 213K segment training corpus after filtering/subtitle processing. (Source: SANA-WM)</figcaption>
 </div>
 
@@ -694,7 +694,7 @@ The annotation engine is based on VIPE, replacing the depth estimation backend w
 {: id="3-核心结果发现-2"}
 
 <div align="center">
-  <img src="/images/wm/SANA-WM-qualitative-comparison.webp" width="100%" alt="Figure: Qualitative comparison of four methods on Hard Trajectory 60s video. The green border is SANA-WM, and the lower left corner is the action trajectory overlay. SANA-WM maintains scene consistency under complex trajectories, whereas baseline methods suffer from blurring, layout drift, or structural collapse. (Source: SANA-WM)" />
+  <img src="/images/wm/SANA-WM-qualitative-comparison.webp" width="100%" alt="Figure: Qualitative comparison of four methods on Hard Trajectory 60s video. The green border is SANA-WM, and the lower left corner is the action trajectory overlay. SANA-WM maintains scene consistency under complex trajectories, whereas baseline methods suffer from blurring, layout drift, or structural collapse. (Source: SANA-WM)" loading="lazy" decoding="async" style="aspect-ratio:1323/576" />
 <figcaption> Figure: Qualitative comparison of four methods on Hard Trajectory 60s video. The green border is SANA-WM, and the lower left corner is the action trajectory overlay. SANA-WM maintains scene consistency under complex trajectories, whereas baseline methods suffer from blurring, layout drift, or structural collapse. (Source: SANA-WM)</figcaption>
 </div>
 
@@ -703,7 +703,7 @@ The annotation engine is based on VIPE, replacing the depth estimation backend w
 **Visual quality**: VBench Overall 80.62/81.89 (Simple/Hard) after refinement, which is equivalent to LingBot-World (81.82/81.89), but LingBot-World requires 8 H100s (454.1 GB GPU memory), and SANA-WM single GPU only requires 74.7 GB.
 
 <div align="center">
-  <img src="/images/wm/SANA-WM-efficiency-ablation.webp" width="100%" alt="diagram: efficiency ablation and scalability analysis. (a) 60s single GPU inference latency decomposition: after distillation + attention sink + NVFP4 quantization, 34s ​​is generated on RTX 5090 to generate a 60s 720p video. (b) H100 latency and GPU memory change with video duration: hybrid GDN/Softmax grows linearly, pure Softmax OOMs at 60s. (Source: SANA-WM)" />
+  <img src="/images/wm/SANA-WM-efficiency-ablation.webp" width="100%" alt="diagram: efficiency ablation and scalability analysis. (a) 60s single GPU inference latency decomposition: after distillation + attention sink + NVFP4 quantization, 34s ​​is generated on RTX 5090 to generate a 60s 720p video. (b) H100 latency and GPU memory change with video duration: hybrid GDN/Softmax grows linearly, pure Softmax OOMs at 60s. (Source: SANA-WM)" loading="lazy" decoding="async" style="aspect-ratio:1323/426" />
 <figcaption> diagram: efficiency ablation and scalability analysis. (a) 60s single GPU inference latency decomposition: after distillation + attention sink + NVFP4 quantization, 34s ​​is generated on RTX 5090 to generate a 60s 720p video. (b) H100 latency and GPU memory change with video duration: hybrid GDN/Softmax grows linearly, pure Softmax OOMs at 60s. (Source: SANA-WM)</figcaption>
 </div>
 
@@ -754,7 +754,7 @@ The current video generation model is extremely prone to **spatial forgetting (S
 {: id="2-主要方法创新点-3"}
 
 <div align="center">
-  <img src="/images/wm/Lyra2-Overview.webp" width="100%" alt="Picture: Lyra 2.0 can support long-range, 3D consistent scene generation and exploration starting from a single image, and can be exported as high-quality 3D assets. (Source: Lyra 2.0)" />
+  <img src="/images/wm/Lyra2-Overview.webp" width="100%" alt="Picture: Lyra 2.0 can support long-range, 3D consistent scene generation and exploration starting from a single image, and can be exported as high-quality 3D assets. (Source: Lyra 2.0)" loading="lazy" decoding="async" style="aspect-ratio:1326/1532" />
 <figcaption> Picture: Lyra 2.0 can support long-range, 3D consistent scene generation and exploration starting from a single image, and can be exported as high-quality 3D assets. (Source: Lyra 2.0)</figcaption>
 </div>
 
@@ -762,7 +762,7 @@ The core of Lyra 2.0 is an autoregressive loop based on "retrieval-generation-up
 
 1. **Anti-forgetting mechanism (Anti-Forgetting)**:
 <div align="center">
-  <img src="/images/wm/Lyra2-Method-Overview.webp" width="100%" alt="Figure: Method overview: The left side is the interactive exploration loop, and the right side shows how historical frames are retrieved from spatial memory and injected into the DiT attention mechanism. (Image source: Lyra 2.0, 2026)" />
+  <img src="/images/wm/Lyra2-Method-Overview.webp" width="100%" alt="Figure: Method overview: The left side is the interactive exploration loop, and the right side shows how historical frames are retrieved from spatial memory and injected into the DiT attention mechanism. (Image source: Lyra 2.0, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1323/671" />
 <figcaption> Figure: Method overview: The left side is the interactive exploration loop, and the right side shows how historical frames are retrieved from spatial memory and injected into the DiT attention mechanism. (Image source: Lyra 2.0, 2026)</figcaption>
 </div>
 The system maintains a 3D cache (3D Cache) to store the depth map and point cloud of each frame. When generating the next video, the system will calculate the visibility (Visibility Score) through projection based on the current camera perspective and retrieve the most relevant historical frame.
@@ -775,7 +775,7 @@ The **self-augmentation training strategy (Self-augmentation Training)** is adop
 
 4. **Real-time interaction and 3D export**:
 <div align="center">
-  <img src="/images/wm/Lyra2-Applications.webp" width="100%" alt="Figure: Lyra 2.0 Application: Interactive GUI allows users to customize trajectories, and the generated scenes can be directly imported into NVIDIA Isaac Sim for embodied intelligence simulation. (Image source: Lyra 2.0, 2026)" />
+  <img src="/images/wm/Lyra2-Applications.webp" width="100%" alt="Figure: Lyra 2.0 Application: Interactive GUI allows users to customize trajectories, and the generated scenes can be directly imported into NVIDIA Isaac Sim for embodied intelligence simulation. (Image source: Lyra 2.0, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1323/430" />
 <figcaption> Figure: Lyra 2.0 Application: Interactive GUI allows users to customize trajectories, and the generated scenes can be directly imported into NVIDIA Isaac Sim for embodied intelligence simulation. (Image source: Lyra 2.0, 2026)</figcaption>
 </div>
 
@@ -786,19 +786,19 @@ The **self-augmentation training strategy (Self-augmentation Training)** is adop
 
 - **Long-range consistency**: Experiments show that Lyra 2.0 can still maintain extremely stable geometric structure and style consistency in generated sequences of more than 800 frames, significantly better than baseline methods such as GEN3C and SPMem.
 <div align="center">
-  <img src="/images/wm/Lyra2-Video-Comparison.webp" width="100%" alt="Figure: Video generation comparison: Lyra 2.0 demonstrates greater realism and less geometric distortion in long-range exploration. (Image source: Lyra 2.0, 2026)" />
+  <img src="/images/wm/Lyra2-Video-Comparison.webp" width="100%" alt="Figure: Video generation comparison: Lyra 2.0 demonstrates greater realism and less geometric distortion in long-range exploration. (Image source: Lyra 2.0, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1324/1057" />
 <figcaption> Figure: Video generation comparison: Lyra 2.0 demonstrates greater realism and less geometric distortion in long-range exploration. (Image source: Lyra 2.0, 2026)</figcaption>
 </div>
 
 - **High-quality 3D reconstruction**: The generated video sequence can generate a high-quality 3D Gaussian Splatting model with almost no artifacts (floater-free) through the fine-tuned feed-forward 3DGS process.
 <div align="center">
-  <img src="/images/wm/Lyra2-3DGS-Comparison.webp" width="100%" alt="Figure: 3DGS reconstruction comparison: The video-driven reconstruction results generated by Lyra 2.0 are significantly ahead in fidelity and consistency. (Image source: Lyra 2.0, 2026)" />
+  <img src="/images/wm/Lyra2-3DGS-Comparison.webp" width="100%" alt="Figure: 3DGS reconstruction comparison: The video-driven reconstruction results generated by Lyra 2.0 are significantly ahead in fidelity and consistency. (Image source: Lyra 2.0, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1323/982" />
 <figcaption> Figure: 3DGS reconstruction comparison: The video-driven reconstruction results generated by Lyra 2.0 are significantly ahead in fidelity and consistency. (Image source: Lyra 2.0, 2026)</figcaption>
 </div>
 
 - **embodied intelligence empowers**:
 <div align="center">
-  <img src="/images/wm/Lyra2-In-the-Wild.webp" width="100%" alt="Picture: Wild scene generation: The model shows strong generalization ability and can handle diverse environments from indoor study rooms to outdoor streets, deserts and ancient buildings. (Image source: Lyra 2.0, 2026)" />
+  <img src="/images/wm/Lyra2-In-the-Wild.webp" width="100%" alt="Picture: Wild scene generation: The model shows strong generalization ability and can handle diverse environments from indoor study rooms to outdoor streets, deserts and ancient buildings. (Image source: Lyra 2.0, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1326/758" />
 <figcaption> Picture: Wild scene generation: The model shows strong generalization ability and can handle diverse environments from indoor study rooms to outdoor streets, deserts and ancient buildings. (Image source: Lyra 2.0, 2026)</figcaption>
 </div>
 
@@ -853,7 +853,7 @@ The technological evolution of World Labs presents a clear “two-stage collabor
 {: id="part-a-marble-工业落地体系与-3dgs-世界表征"}
 
 <div align="center">
-  <img src="/images/wm/MarbleWorldModelV4.svg" width="90%" alt="Figure: The overall architecture of Marble large world model (LWM): multimodal input is generated through spatial reasoning and 3D world, and the output is a 3D Gaussian Splatting world that can be rendered in real time and freely explored. (Source: World Labs)" />
+  <img src="/images/wm/MarbleWorldModelV4.svg" width="90%" alt="Figure: The overall architecture of Marble large world model (LWM): multimodal input is generated through spatial reasoning and 3D world, and the output is a 3D Gaussian Splatting world that can be rendered in real time and freely explored. (Source: World Labs)" loading="lazy" decoding="async" />
 <figcaption> Figure: The overall architecture of Marble large world model (LWM): multimodal input is generated through spatial reasoning and 3D world, and the output is a 3D Gaussian Splatting world that can be rendered in real time and freely explored. (Source: World Labs)</figcaption>
 </div>
 
@@ -869,8 +869,8 @@ Marble supports four types of input modalities, truly realizing multimodal → 3
 |Rough 3D layout (Coarse 3D Layout)|Sketch by hand with Chisel tools or import 3D assets as structural framework|
 
 <div align="center">
-  <img src="/images/wm/i2w-living-room.jpg" width="48%" alt="Research method illustration" />
-  <img src="/images/wm/i2w-mushroom-forest.jpg" width="48%" alt="Figure: Image-to-World Example: A single interior photo (left) and a mushroom forest illustration (right) are extrapolated by Marble into a complete explorable 3D world. (Source: World Labs)" />
+  <img src="/images/wm/i2w-living-room.jpg" width="48%" alt="Research method illustration" loading="lazy" decoding="async" style="aspect-ratio:1080/605" />
+  <img src="/images/wm/i2w-mushroom-forest.jpg" width="48%" alt="Figure: Image-to-World Example: A single interior photo (left) and a mushroom forest illustration (right) are extrapolated by Marble into a complete explorable 3D world. (Source: World Labs)" loading="lazy" decoding="async" style="aspect-ratio:1312/736" />
 <figcaption> Figure: Image-to-World Example: A single interior photo (left) and a mushroom forest illustration (right) are extrapolated by Marble into a complete explorable 3D world. (Source: World Labs)</figcaption>
 </div>
 
@@ -879,7 +879,7 @@ Marble supports four types of input modalities, truly realizing multimodal → 3
 Marble's core technology selection is **3D Gaussian Splattering (3DGS)**. 3DGS represents a 3D scene as a set of translucent particles, which has significant advantages in world modelscenarios:
 
 <div align="center">
-  <img src="/images/wm/streaming-3dgs-worlds.jpg" width="90%" alt="Figure: Marble&#x27;s streaming 3DGS rendering: The generated 3D world is represented by Gaussian particles, supporting cross-platform (mobile phone to VR headset) real-time rendering and free perspective exploration. (Source: World Labs)" />
+  <img src="/images/wm/streaming-3dgs-worlds.jpg" width="90%" alt="Figure: Marble&#x27;s streaming 3DGS rendering: The generated 3D world is represented by Gaussian particles, supporting cross-platform (mobile phone to VR headset) real-time rendering and free perspective exploration. (Source: World Labs)" loading="lazy" decoding="async" style="aspect-ratio:1024/651" />
 <figcaption> Figure: Marble's streaming 3DGS rendering: The generated 3D world is represented by Gaussian particles, supporting cross-platform (mobile phone to VR headset) real-time rendering and free perspective exploration. (Source: World Labs)</figcaption>
 </div>
 
@@ -894,7 +894,7 @@ Marble's core technology selection is **3D Gaussian Splattering (3DGS)**. 3DGS r
 **Four core functional modules**
 
 <div align="center">
-  <img src="/images/wm/3d-as-code.jpg" width="90%" alt="Picture: Chisel Tool: Users determine the world structure through basic 3D shapes such as boxes and planes or import existing 3D assets, and text prompts control the overall style to achieve decoupling of structure and style. (Source: World Labs)" />
+  <img src="/images/wm/3d-as-code.jpg" width="90%" alt="Picture: Chisel Tool: Users determine the world structure through basic 3D shapes such as boxes and planes or import existing 3D assets, and text prompts control the overall style to achieve decoupling of structure and style. (Source: World Labs)" loading="lazy" decoding="async" style="aspect-ratio:1456/816" />
 <figcaption> Picture: Chisel Tool: Users determine the world structure through basic 3D shapes such as boxes and planes or import existing 3D assets, and text prompts control the overall style to achieve decoupling of structure and style. (Source: World Labs)</figcaption>
 </div>
 
@@ -1055,14 +1055,14 @@ Image2Sim aims to answer: Can **directly construct a neurophysical world with mi
 {: id="2-主要方法创新点-4"}
 
 <div align="center">
-  <img src="/images/vln/Image2Sim-pipeline-comparison.webp" width="100%" alt=": Comparison of the traditional navigation data pipeline (requiring expensive manual 3D reconstruction) and the Image2Sim neural simulation framework (automatically constructs 20,000 scenes and tens of millions of trajectories from unconstrained data). (Source: Image2Sim, 2026)" />
+  <img src="/images/vln/Image2Sim-pipeline-comparison.webp" width="100%" alt=": Comparison of the traditional navigation data pipeline (requiring expensive manual 3D reconstruction) and the Image2Sim neural simulation framework (automatically constructs 20,000 scenes and tens of millions of trajectories from unconstrained data). (Source: Image2Sim, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1113/530" />
 <figcaption>Figure: Comparison of the traditional navigation data pipeline (requiring expensive manual 3D reconstruction) and the Image2Sim neural simulation framework (automatically constructs 20,000 scenes and tens of millions of trajectories from unconstrained data). (Source: Image2Sim, 2026)</figcaption>
 </div>
 
 Image2Sim decouples neural environment simulation into a two-level cascade structure:
 
 <div align="center">
-  <img src="/images/vln/Image2Sim-architecture.webp" width="100%" alt="Figure: Image2Sim architecture: feed-forward 3D feature Gaussian encoder (left) and geometry-aware single-step Pixel Flow renderer (right). (Source: Image2Sim, 2026)" />
+  <img src="/images/vln/Image2Sim-architecture.webp" width="100%" alt="Figure: Image2Sim architecture: feed-forward 3D feature Gaussian encoder (left) and geometry-aware single-step Pixel Flow renderer (right). (Source: Image2Sim, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1058/557" />
 <figcaption> Figure: Image2Sim architecture: feed-forward 3D feature Gaussian encoder (left) and geometry-aware single-step Pixel Flow renderer (right). (Source: Image2Sim, 2026)</figcaption>
 </div>
 
@@ -1101,7 +1101,7 @@ Image2Sim decouples neural environment simulation into a two-level cascade struc
 This family of world models directly serves the robot policy: the conditions are robot actions or task instructions, and the value is ultimately reflected in the success rate of downstream tasks. According to the coupling method between world model and policy, it is divided into four major paradigms (§2.2). Under each paradigm, the definition and mechanism are first given, and then the representative work is introduced.
 
 <div align="center">
-  <img src="/images/wm/Survey-Fig3-Paradigms.webp" width="95%" alt="Figure: The four major technical paradigms of the VLA world model. (a) World planner: world model generates latent representation z to guide VLA; (b) World action model: jointly models observations and actions; (c) World synthesizer: builds synthetic data sets through imitation learning (IL); (d) World simulator: optimizes policies and obtains external rewards through reinforcement learning (RL). (Image source: Tan et al., 2026)" />
+  <img src="/images/wm/Survey-Fig3-Paradigms.webp" width="95%" alt="Figure: The four major technical paradigms of the VLA world model. (a) World planner: world model generates latent representation z to guide VLA; (b) World action model: jointly models observations and actions; (c) World synthesizer: builds synthetic data sets through imitation learning (IL); (d) World simulator: optimizes policies and obtains external rewards through reinforcement learning (RL). (Image source: Tan et al., 2026)" loading="lazy" decoding="async" style="aspect-ratio:1686/531" />
 <figcaption> Figure: The four major technical paradigms of the VLA world model. (a) World planner: world model generates latent representation z to guide VLA; (b) World action model: jointly models observations and actions; (c) World synthesizer: builds synthetic data sets through imitation learning (IL); (d) World simulator: optimizes policies and obtains external rewards through reinforcement learning (RL). (Image source: Tan et al., 2026)</figcaption>
 </div>
 
@@ -1111,7 +1111,7 @@ This family of world models directly serves the robot policy: the conditions are
 > 💡 **companion article introduction**: About the action tokenization, cross-embodiment pretraining and end-to-end control architecture of embodied policy models (OpenVLA, $\pi_0$, Octo, RoboCat, etc.), please see the special blog post for details {% include content-link.html path='/VLA-Survey/' fragment='' label='Visual-Language-Action (VLA) panoramic overview: from large model Base, data engine to physical implementation ' %}.
 
 <div align="center">
-  <img src="/images/wm/World_Planner.webp" width="80%" alt="Figure: InternVLA·N1’s end-to-end dual-system architecture: the forward dynamics planner provides future latent features to guide policy execution. (Source: Intern Robotics)" />
+  <img src="/images/wm/World_Planner.webp" width="80%" alt="Figure: InternVLA·N1’s end-to-end dual-system architecture: the forward dynamics planner provides future latent features to guide policy execution. (Source: Intern Robotics)" loading="lazy" decoding="async" style="aspect-ratio:712/415" />
 <figcaption> Figure: InternVLA·N1’s end-to-end dual-system architecture: the forward dynamics planner provides future latent features to guide policy execution. (Source: Intern Robotics)</figcaption>
 </div>
 
@@ -1219,7 +1219,7 @@ Existing end-to-end autonomous driving models (such as VLA) often lack explicit 
 VLA-World proposes a complete process that combines perception, action-derived prediction, image generation, reflective reasoning, and planning.
 
 <div align="center">
-  <img src="/images/wm/VLA-World-overview.webp" width="100%" alt=": VLA-World three-stage training and performance overview. (Source: VLA-World, 2026)" />
+  <img src="/images/wm/VLA-World-overview.webp" width="100%" alt=": VLA-World three-stage training and performance overview. (Source: VLA-World, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1394/713" />
 <figcaption>Figure: VLA-World three-stage training and performance overview. (Source: VLA-World, 2026)</figcaption>
 </div>
 
@@ -1230,7 +1230,7 @@ VLA-World proposes a complete process that combines perception, action-derived p
 3. **Phase 3: Reinforcement Learning (RL)**: Exploring human-like reasoning using the GRPO algorithm, allowing the model to reflect more deeply on whether the generated future is safe.
 
 <div align="center">
-  <img src="/images/wm/VLA-World-paradigm-comparison.webp" width="100%" alt=": Comparison of the three paradigms of VLA, world model and VLA-World. (Source: VLA-World, 2026)" />
+  <img src="/images/wm/VLA-World-paradigm-comparison.webp" width="100%" alt=": Comparison of the three paradigms of VLA, world model and VLA-World. (Source: VLA-World, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1398/787" />
 <figcaption>Figure: Comparison of the three paradigms of VLA, world model and VLA-World. (Source: VLA-World, 2026)</figcaption>
 </div>
 
@@ -1247,7 +1247,7 @@ The model first outputs a trajectory prediction within 0.5 seconds and generates
 - **Interpretability**: By letting the model write down the reasoning process for a "self-generated future" (such as identifying the collision risk of a certain truck), the system's decision-making process becomes more transparent.
 
 <div align="center">
-  <img src="/images/wm/VLA-World-visualization.webp" width="100%" alt=": VLA-World’s multi-view image prediction visualization in complex scenes. (Source: VLA-World, 2026)" />
+  <img src="/images/wm/VLA-World-visualization.webp" width="100%" alt=": VLA-World’s multi-view image prediction visualization in complex scenes. (Source: VLA-World, 2026)" loading="lazy" decoding="async" style="aspect-ratio:673/755" />
 <figcaption>Figure: VLA-World’s multi-view image prediction visualization in complex scenes. (Source: VLA-World, 2026)</figcaption>
 </div>
 
@@ -1346,7 +1346,7 @@ Current VLA models mainly focus on generating actions from images and text, but 
 WorldVLA adopts an autoregressive architecture and integrates Tokenizer in three modes: image, text and action.
 
 <div align="center">
-  <img src="/images/wm/WorldVLA-overview.webp" width="100%" alt=": Comparison between WorldVLA and traditional action model and world model. (Image source: WorldVLA, 2025)" />
+  <img src="/images/wm/WorldVLA-overview.webp" width="100%" alt=": Comparison between WorldVLA and traditional action model and world model. (Image source: WorldVLA, 2025)" loading="lazy" decoding="async" style="aspect-ratio:1328/671" />
 <figcaption>Figure: Comparison between WorldVLA and traditional action model and world model. (Image source: WorldVLA, 2025)</figcaption>
 </div>
 
@@ -1358,7 +1358,7 @@ The model is initialized from Chameleon, a unified image understanding and gener
 - **text Tokenizer**: Standard BPE Tokenizer.
 
 <div align="center">
-  <img src="/images/wm/WorldVLA-architecture.webp" width="100%" alt=": WorldVLA overall architecture diagram. (Source: WorldVLA, 2025)" />
+  <img src="/images/wm/WorldVLA-architecture.webp" width="100%" alt=": WorldVLA overall architecture diagram. (Source: WorldVLA, 2025)" loading="lazy" decoding="async" style="aspect-ratio:1328/773" />
 <figcaption>Figure: WorldVLA overall architecture diagram. (Source: WorldVLA, 2025)</figcaption>
 </div>
 
@@ -1373,7 +1373,7 @@ The training process mixes action model data and world model data:
 The paper found that due to the limited generalization ability of the pretraining model in the action domain, traditional causal masks will cause errors in the previous action to rapidly propagate. To this end, WorldVLA designed a special mask: when generating the current action chunk, it masks the previous action, so that action generation only relies on visual and text input, thereby supporting parallel generation of action chunks and reducing error accumulation.
 
 <div align="center">
-  <img src="/images/wm/WorldVLA-attention-mask.webp" width="100%" alt="Figure: WorldVLA’s attention masking mechanism. (Source: WorldVLA, 2025)" />
+  <img src="/images/wm/WorldVLA-attention-mask.webp" width="100%" alt="Figure: WorldVLA’s attention masking mechanism. (Source: WorldVLA, 2025)" loading="lazy" decoding="async" style="aspect-ratio:1322/504" />
 <figcaption> Figure: WorldVLA’s attention masking mechanism. (Source: WorldVLA, 2025)</figcaption>
 </div>
 
@@ -1387,12 +1387,12 @@ The paper found that due to the limited generalization ability of the pretrainin
 - **action chunk generation**: After adopting the new masking policy, the robustness of action chunk generation is greatly enhanced.
 
 <div align="center">
-  <img src="/images/wm/WorldVLA-visualization-action.webp" width="100%" alt="Figure: Action model visualization: WorldVLA can try to grab multiple times after failure. (Image source: WorldVLA, 2025)" />
+  <img src="/images/wm/WorldVLA-visualization-action.webp" width="100%" alt="Figure: Action model visualization: WorldVLA can try to grab multiple times after failure. (Image source: WorldVLA, 2025)" loading="lazy" decoding="async" style="aspect-ratio:1309/1002" />
 <figcaption> Figure: Action model visualization: WorldVLA can try to grab multiple times after failure. (Image source: WorldVLA, 2025)</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/wm/WorldVLA-visualization-world.webp" width="100%" alt="diagram: world model visualization: The future image generated by WorldVLA is more in line with physical logic. (Source: WorldVLA, 2025)" />
+  <img src="/images/wm/WorldVLA-visualization-world.webp" width="100%" alt="diagram: world model visualization: The future image generated by WorldVLA is more in line with physical logic. (Source: WorldVLA, 2025)" loading="lazy" decoding="async" style="aspect-ratio:1309/1493" />
 <figcaption>Figure: A world model visualization: The future image generated by WorldVLA is more in line with physical logic. (Source: WorldVLA, 2025)</figcaption>
 </div>
 
@@ -1431,7 +1431,7 @@ VLAs initialized from image-text models can transfer object and semantic knowled
 {: id="dreamzero-methods"}
 
 <div align="center">
-  <img src="/images/wm/DreamZero-architecture.webp" width="100%" alt="DreamZero joint video-action flow matching and closed-loop feedback from real observations" />
+  <img src="/images/wm/DreamZero-architecture.webp" width="100%" alt="DreamZero joint video-action flow matching and closed-loop feedback from real observations" loading="lazy" decoding="async" style="aspect-ratio:1326/697" />
 <figcaption>Figure: DreamZero training and inference. Left: joint video-action denoising conditioned on real history. Right: action execution followed by KV-cache updates from real observations. (Source: DreamZero, Figure 4)</figcaption>
 </div>
 
@@ -1485,7 +1485,7 @@ Target-robot data with action labels retains the joint video-action objective; d
 {: id="dreamzero-results"}
 
 <div align="center">
-  <img src="/images/wm/DreamZero-unseen-task-results.webp" width="100%" alt="DreamZero and VLA baselines on unseen AgiBot and DROID-Franka tasks" />
+  <img src="/images/wm/DreamZero-unseen-task-results.webp" width="100%" alt="DreamZero and VLA baselines on unseen AgiBot and DROID-Franka tasks" loading="lazy" decoding="async" style="aspect-ratio:1326/783" />
 <figcaption>Figure: Zero-shot evaluation on unseen tasks. AgiBot aggregates average task progress; DROID-Franka reports both task progress and full success rate. These metrics are distinct. (Source: DreamZero, Figure 9)</figcaption>
 </div>
 
@@ -1529,7 +1529,7 @@ The pretraining video generation model provides powerful visual priors for robot
 {: id="2-主要方法创新点-7"}
 
 <div align="center">
-  <img src="/images/wm/AIM-typical-vs-ours.webp" width="100%" alt="diagram: A typical unified world action model (left) decodes actions directly from a shared future visual representation; AIM (right) introduces a spatial value graph interface between the world model and the action head and optimizes it through self-distillation. (Source: AIM, 2026)" />
+  <img src="/images/wm/AIM-typical-vs-ours.webp" width="100%" alt="diagram: A typical unified world action model (left) decodes actions directly from a shared future visual representation; AIM (right) introduces a spatial value graph interface between the world model and the action head and optimizes it through self-distillation. (Source: AIM, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1118/506" />
 <figcaption> diagram: A typical unified world action model (left) decodes actions directly from a shared future visual representation; AIM (right) introduces a spatial value graph interface between the world model and the action head and optimizes it through self-distillation. (Source: AIM, 2026)</figcaption>
 </div>
 
@@ -1540,7 +1540,7 @@ $$p(X^+, M^+, A^+ \mid \mathcal H_t) = p(X^+, M^+ \mid \mathcal H_t)\, p(A^+ \mi
 Action generation **only obtains future information through the predicted spatial value map**, without directly accessing future RGB Tokens.
 
 <div align="center">
-  <img src="/images/wm/AIM-framework.webp" width="100%" alt="Figure: AIM overall framework: Stage I jointly trains future frames, spatial value maps and actions; intention causal attention transfers task intentions to the action branch; Stage II freezes the video and value branch, and optimizes the action head through GRPO reinforcement learning. (Image source: AIM, 2026)" />
+  <img src="/images/wm/AIM-framework.webp" width="100%" alt="Figure: AIM overall framework: Stage I jointly trains future frames, spatial value maps and actions; intention causal attention transfers task intentions to the action branch; Stage II freezes the video and value branch, and optimizes the action head through GRPO reinforcement learning. (Image source: AIM, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1118/995" />
 <figcaption> Figure: AIM overall framework: Stage I jointly trains future frames, spatial value maps and actions; intention causal attention transfers task intentions to the action branch; Stage II freezes the video and value branch, and optimizes the action head through GRPO reinforcement learning. (Image source: AIM, 2026)</figcaption>
 </div>
 
@@ -1585,7 +1585,7 @@ Evaluated on 50 double-arm fine manipulation tasks of RoboTwin 2.0. The Easy/Har
 - **Qualitative visualization verification**: The future frame prediction is highly aligned with the timing of the operation phase, the spatial value map accurately focuses on areas with clear physical interaction semantics (rather than general visual saliency), and the robot arm’s projected action landing points strictly fall within high-value areas, indicating that the performance breakthrough is indeed due to the designed "space bridge" mechanism.
 
 <div align="center">
-  <img src="/images/wm/AIM-task-execution.webp" width="100%" alt="Figure: Representative task execution process of RoboTwin 2.0 (setting the mouse pad/pressing the stapler/scanning objects/turning the switch/opening the notebook). The left column shows the Easy settings and the right column shows the Hard settings. (Source: AIM, 2026)" />
+  <img src="/images/wm/AIM-task-execution.webp" width="100%" alt="Figure: Representative task execution process of RoboTwin 2.0 (setting the mouse pad/pressing the stapler/scanning objects/turning the switch/opening the notebook). The left column shows the Easy settings and the right column shows the Hard settings. (Source: AIM, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1118/763" />
 <figcaption> Figure: Representative task execution process of RoboTwin 2.0 (setting the mouse pad/pressing the stapler/scanning objects/turning the switch/opening the notebook). The left column shows the Easy settings and the right column shows the Hard settings. (Source: AIM, 2026)</figcaption>
 </div>
 
@@ -1628,7 +1628,7 @@ The core question is: How can **build a unified generative backbone that can not
 {: id="2-主要方法创新点-8"}
 
 <div align="center">
-  <img src="/images/vln/motus-architecture-overview.webp" width="100%" alt="Figure: Motus overall architecture diagram: Based on the three expert networks of MoT (Mixture-of-Transformers), unified modeling of multimodal understanding, video generation and robot continuous action control. (Image source: Motus, 2025)" />
+  <img src="/images/vln/motus-architecture-overview.webp" width="100%" alt="Figure: Motus overall architecture diagram: Based on the three expert networks of MoT (Mixture-of-Transformers), unified modeling of multimodal understanding, video generation and robot continuous action control. (Image source: Motus, 2025)" loading="lazy" decoding="async" style="aspect-ratio:874/762" />
 <figcaption> Figure: Motus overall architecture diagram: Based on the three expert networks of MoT (Mixture-of-Transformers), unified modeling of multimodal understanding, video generation and robot continuous action control. (Image source: Motus, 2025)</figcaption>
 </div>
 
@@ -1641,7 +1641,7 @@ Motus introduces a shunt design inside each Transformer Block:
 - **Decoupling expert FFN (Decoupled FFNs)**: After the attention interaction, the visual Token is routed to Video FFN, the text Token is routed to Text FFN, and the action Token is routed to Action FFN. This decoupling avoids the large gradients generated by the video from destroying the numerical sensitivity of fine movements.
 
 <div align="center">
-  <img src="/images/vln/motus-latent-action-vae.webp" width="75%" alt="Figure: Motus’ Latent Action VAE: Extracting continuous latent actionspace through self-supervision of self-encoding optical flow fields. (Image source: Motus, 2025)" />
+  <img src="/images/vln/motus-latent-action-vae.webp" width="75%" alt="Figure: Motus’ Latent Action VAE: Extracting continuous latent actionspace through self-supervision of self-encoding optical flow fields. (Image source: Motus, 2025)" loading="lazy" decoding="async" style="aspect-ratio:598/838" />
 <figcaption> Figure: Motus’ Latent Action VAE: Extracting continuous latent actionspace through self-supervision of self-encoding optical flow fields. (Image source: Motus, 2025)</figcaption>
 </div>
 
@@ -1663,7 +1663,7 @@ In order to take advantage of the massive amount of unlabeled videos on the Inte
 {: id="3-核心结果发现-8"}
 
 <div align="center">
-  <img src="/images/vln/motus-robotwin-results.webp" width="100%" alt=": Performance comparison of Motus on the dual-arm operation simulation benchmark RoboTwin 2.0, significantly ahead of the baseline in a variety of high-precision contact tasks. (Image source: Motus, 2025)" />
+  <img src="/images/vln/motus-robotwin-results.webp" width="100%" alt=": Performance comparison of Motus on the dual-arm operation simulation benchmark RoboTwin 2.0, significantly ahead of the baseline in a variety of high-precision contact tasks. (Image source: Motus, 2025)" loading="lazy" decoding="async" style="aspect-ratio:1064/779" />
 <figcaption>Figure: Performance comparison of Motus on the dual-arm operation simulation benchmark RoboTwin 2.0, significantly ahead of the baseline in a variety of high-precision contact tasks. (Image source: Motus, 2025)</figcaption>
 </div>
 
@@ -1672,7 +1672,7 @@ In order to take advantage of the massive amount of unlabeled videos on the Inte
 3. **eliminates online planning delays**: The single-step action generation delay in policy mode only requires **80ms**, realizing a truly deployable high-frequency closed-loop servo.
 
 <div align="center">
-  <img src="/images/vln/motus-real-world-tasks.webp" width="100%" alt=": Motus real robot multi-task control execution trajectory. (Image source: Motus, 2025)" />
+  <img src="/images/vln/motus-real-world-tasks.webp" width="100%" alt=": Motus real robot multi-task control execution trajectory. (Image source: Motus, 2025)" loading="lazy" decoding="async" style="aspect-ratio:675/1320" />
 <figcaption>Figure: Motus real robot multi-task control execution trajectory. (Image source: Motus, 2025)</figcaption>
 </div>
 
@@ -1717,7 +1717,7 @@ The core question is: Can **deeply integrate future visual prediction, value eva
 {: id="2-主要方法创新点-9"}
 
 <div align="center">
-  <img src="/images/vln/NavWAM-concept-comparison.webp" width="100%" alt="Figure: Comparison of the decision flow between the traditional planned navigation world model (NWM, left) and the navigation world action model (NavWAM, right): NavWAM completely eliminates the heavy online CEM sampling optimization and achieves high-frequency closed-loop. (Image source: NavWAM, 2026)" />
+  <img src="/images/vln/NavWAM-concept-comparison.webp" width="100%" alt="Figure: Comparison of the decision flow between the traditional planned navigation world model (NWM, left) and the navigation world action model (NavWAM, right): NavWAM completely eliminates the heavy online CEM sampling optimization and achieves high-frequency closed-loop. (Image source: NavWAM, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1118/542" />
 <figcaption> Figure: Comparison of the decision flow between the traditional planned navigation world model (NWM, left) and the navigation world action model (NavWAM, right): NavWAM completely eliminates the heavy online CEM sampling optimization and achieves high-frequency closed-loop. (Image source: NavWAM, 2026)</figcaption>
 </div>
 
@@ -1727,7 +1727,7 @@ The core question is: Can **deeply integrate future visual prediction, value eva
 NavWAM builds a unified 9-frame spatiotemporal latent canvas based on the pretraining Cosmos-Predict2 (2B) base:
 
 <div align="center">
-  <img src="/images/vln/NavWAM-architecture-overview.webp" width="100%" alt="Figure: NavWAM&#x27;s 9 frame latent canvas layout: uniformly arrange and jointly denoise state, goal, current observation, action chunk, future state, future image and progress value. (Image source: NavWAM, 2026)" />
+  <img src="/images/vln/NavWAM-architecture-overview.webp" width="100%" alt="Figure: NavWAM&#x27;s 9 frame latent canvas layout: uniformly arrange and jointly denoise state, goal, current observation, action chunk, future state, future image and progress value. (Image source: NavWAM, 2026)" loading="lazy" decoding="async" style="aspect-ratio:646/398" />
 <figcaption> Figure: NavWAM's 9 frame latent canvas layout: uniformly arrange and jointly denoise state, goal, current observation, action chunk, future state, future image and progress value. (Image source: NavWAM, 2026)</figcaption>
 </div>
 
@@ -1743,7 +1743,7 @@ NavWAM builds a unified 9-frame spatiotemporal latent canvas based on the pretra
 To address long-range drift under severe rotation, WAM-Nav proposed two core innovations:
 
 <div align="center">
-  <img src="/images/vln/WAM-Nav-architecture.webp" width="100%" alt="Figure: WAM-Nav architecture: unified target alignment decoupling into visual query gV and geometric query gG, DSCC dual-stream fusion of historical observations and motion momentum, shared DiT joint denoising action and near-future latent features. (Image source: WAM-Nav, 2026)" />
+  <img src="/images/vln/WAM-Nav-architecture.webp" width="100%" alt="Figure: WAM-Nav architecture: unified target alignment decoupling into visual query gV and geometric query gG, DSCC dual-stream fusion of historical observations and motion momentum, shared DiT joint denoising action and near-future latent features. (Image source: WAM-Nav, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1118/636" />
 <figcaption> Figure: WAM-Nav architecture: unified target alignment decoupling into visual query gV and geometric query gG, DSCC dual-stream fusion of historical observations and motion momentum, shared DiT joint denoising action and near-future latent features. (Image source: WAM-Nav, 2026)</figcaption>
 </div>
 
@@ -1765,7 +1765,7 @@ To address long-range drift under severe rotation, WAM-Nav proposed two core inn
    - **WAM-Nav**: In the actual measurement of the Unitree G1 humanoid real robot, the average navigation success rate of **85%** was achieved, demonstrating the strong Sim2Real zero-sample generalization ability.
 
 <div align="center">
-  <img src="/images/vln/NavWAM-real-world-rollouts.webp" width="100%" alt=": Comparison of measured camera images during actual operation of the Diablo robot and predicted future images. (Image source: NavWAM, 2026)" />
+  <img src="/images/vln/NavWAM-real-world-rollouts.webp" width="100%" alt=": Comparison of measured camera images during actual operation of the Diablo robot and predicted future images. (Image source: NavWAM, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1110/378" />
 <figcaption>Figure: Comparison of measured camera images during actual operation of the Diablo robot and predicted future images. (Image source: NavWAM, 2026)</figcaption>
 </div>
 
@@ -1845,7 +1845,7 @@ General video generation models (Sora2, Veo3, etc.) have learned rich visual pri
 Qwen-RobotWorld consists of three parts: **architecture** (dual-stream MMDiT + MLLM action encoding), **data** (EWK Embodied world knowledge data set), **training** (progressive course of general prior + expert ability). These three are tightly coupled: the data provides multi-domain supervision signals under a unified language interface, the architecture ensures that language semantics and visual status can be integrated at each layer, and the training strategy determines what to learn first and what to learn later.
 
 <div align="center">
-  <img src="/images/wm/Qwen-RobotWorld-EWK-dataset-overview.webp" width="100%" alt="Figure: Overview of EWK training corpus: General world data provides appearance, geometry, and dynamics priors; structured embodied data is organized along the four dimensions of Multi-Embodiment, Multi-Task, Multi-Scenario, and Multi-View, which jointly support action understanding and future state generation under language conditions." />
+  <img src="/images/wm/Qwen-RobotWorld-EWK-dataset-overview.webp" width="100%" alt="Figure: Overview of EWK training corpus: General world data provides appearance, geometry, and dynamics priors; structured embodied data is organized along the four dimensions of Multi-Embodiment, Multi-Task, Multi-Scenario, and Multi-View, which jointly support action understanding and future state generation under language conditions." loading="lazy" decoding="async" style="aspect-ratio:1277/952" />
 <figcaption> Figure: Overview of EWK training corpus: General world data provides appearance, geometry, and dynamics priors; structured embodied data is organized along the four dimensions of Multi-Embodiment, Multi-Task, Multi-Scenario, and Multi-View, which jointly support action understanding and future state generation under language conditions.</figcaption>
 </div>
 
@@ -1854,7 +1854,7 @@ Qwen-RobotWorld consists of three parts: **architecture** (dual-stream MMDiT + M
 The core of the model is a 60-layer dual-stream Multimodal Diffusion Transformer (MMDiT): the understanding stream processes the language semantic features extracted by frozen Qwen2.5-VL, representing the action $a_t$; the generation stream processes the visual latent variables encoded by the video VAE, representing the state $s_t$. The two streams interact through joint attention in each block, instead of just splicing it once in the input layer, so that each step of denoising allows the visual latent variables to pay attention to the semantic action signals at the same time.
 
 <div align="center">
-  <img src="/images/wm/Qwen-RobotWorld-architecture.webp" width="100%" alt="Figure: Dual-stream MMDiT architecture: frozen Qwen2.5-VL encodes language actions, VAE encodes the latent variables of the video observation/prediction frame, and the two interact with joint attention in each layer of MMDiT block." />
+  <img src="/images/wm/Qwen-RobotWorld-architecture.webp" width="100%" alt="Figure: Dual-stream MMDiT architecture: frozen Qwen2.5-VL encodes language actions, VAE encodes the latent variables of the video observation/prediction frame, and the two interact with joint attention in each layer of MMDiT block." loading="lazy" decoding="async" style="aspect-ratio:1278/1078" />
 <figcaption> Figure: Dual-stream MMDiT architecture: frozen Qwen2.5-VL encodes language actions, VAE encodes the latent variables of the video observation/prediction frame, and the two interact with joint attention in each layer of MMDiT block.</figcaption>
 </div>
 
@@ -1870,7 +1870,7 @@ The core of the model is a 60-layer dual-stream Multimodal Diffusion Transformer
 Human-to-robot transfer is essentially a video editing problem: the model needs to reference both the scene context (background, object layout, lighting) and the target robot's motion trajectory. Scene2Robot organizes the input into three consecutive segments without changing the architecture: scene condition segment (human demonstration video, human hands have been masked, F frame), robot reference segment (real robot execution rendered by MuJoCo, F frame), and generation segment (noise latent variable to be denoised, F frame). The first two segments are both assigned time step $t=0$ and excluded from the denoising loss, only the generated segment participates in the gradient update; 3D RoPE assigns each segment its own time index range. The joint attention of each layer of MMDiT allows the generation segment to simultaneously focus on scene appearance, robot motion trajectories, and language action semantics, thereby synthesizing realistic robot execution videos that preserve scene context and follow instruction operations.
 
 <div align="center">
-  <img src="/images/wm/Qwen-RobotWorld-Scene2Robot.webp" width="100%" alt="Figure: Scene2Robot multi-segment condition mechanism: the scene condition segment and the robot reference segment only provide conditions (assigned time step 0, no loss), and the generation segment simultaneously pays attention to the scene appearance and robot motion trajectory through joint attention to achieve cross-embodiment video synthesis." />
+  <img src="/images/wm/Qwen-RobotWorld-Scene2Robot.webp" width="100%" alt="Figure: Scene2Robot multi-segment condition mechanism: the scene condition segment and the robot reference segment only provide conditions (assigned time step 0, no loss), and the generation segment simultaneously pays attention to the scene appearance and robot motion trajectory through joint attention to achieve cross-embodiment video synthesis." loading="lazy" decoding="async" style="aspect-ratio:1278/1050" />
 <figcaption> Figure: Scene2Robot multi-segment condition mechanism: the scene condition segment and the robot reference segment only provide conditions (assigned time step 0, no loss), and the generation segment simultaneously pays attention to the scene appearance and robot motion trajectory through joint attention to achieve cross-embodiment video synthesis.</figcaption>
 </div>
 
@@ -1971,7 +1971,7 @@ Using the learned world model as a simulator for reinforcement learning is a pop
 WoVR does not assume that the world model is perfect, but explicitly regulates RL interaction with imperfect simulators through three levels.
 
 <div align="center">
-  <img src="/images/wm/WoVR-hallucination-overview.webp" width="100%" alt="Figure: Hallucination problem in world model and its interference with RL. (Image source: WoVR, 2026)" />
+  <img src="/images/wm/WoVR-hallucination-overview.webp" width="100%" alt="Figure: Hallucination problem in world model and its interference with RL. (Image source: WoVR, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1118/401" />
 <figcaption> Figure: Hallucination problem in world model and its interference with RL. (Image source: WoVR, 2026)</figcaption>
 </div>
 
@@ -1984,7 +1984,7 @@ WoVR introduces an enhanced DiT (Diffusion Transformer) world model that achieve
 To prevent errors generated by autoregression from accumulating over time, WoVR uses Keyframe-Initialized Rollouts. It uses key frames from human demonstrations as starting points to conduct short-range imaginative explorations around these states. This approach greatly limits the effective prediction depth and inhibits the accumulation of hallucinations.
 
 <div align="center">
-  <img src="/images/wm/WoVR-pipeline.webp" width="100%" alt="Picture: WoVR core three-step architecture: stable model, key frame initialization, and collaborative evolution. (Image source: WoVR, 2026)" />
+  <img src="/images/wm/WoVR-pipeline.webp" width="100%" alt="Picture: WoVR core three-step architecture: stable model, key frame initialization, and collaborative evolution. (Image source: WoVR, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1118/922" />
 <figcaption> Picture: WoVR core three-step architecture: stable model, key frame initialization, and collaborative evolution. (Image source: WoVR, 2026)</figcaption>
 </div>
 
@@ -2002,7 +2002,7 @@ In order to cope with the action distribution shift (Distribution Shift) caused 
 - **Build Efficiency**: WoVR reaches a build speed of 23 FPS, making it an efficient training simulator.
 
 <div align="center">
-  <img src="/images/wm/WoVR-visualization-results.webp" width="100%" alt=": WoVR visualization of imagination generation and policy execution on the LIBERO task. (Image source: WoVR, 2026)" />
+  <img src="/images/wm/WoVR-visualization-results.webp" width="100%" alt=": WoVR visualization of imagination generation and policy execution on the LIBERO task. (Image source: WoVR, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1118/886" />
 <figcaption>Figure: WoVR visualization of imagination generation and policy execution on the LIBERO task. (Image source: WoVR, 2026)</figcaption>
 </div>
 
@@ -2090,7 +2090,7 @@ Providing a three-dimensional dimensional coordinate system, depth geometry and 
 Cosmos is the **physical AI world base model platform** released by NVIDIA. The goal is to partially replace real data collection and physical simulation with generative video models to provide controllable "world simulation" capabilities for systems such as robots and autonomous driving. Different from a single video generation model, it is a set of **layered platform**: data curation infrastructure → three pretraining model product lines → post-training workflow for specific scenarios.
 
 <div align="center">
-  <img src="/images/wm/Cosmos-Platform-Components.webp" width="100%" alt="Figure: Core components of the Cosmos WFM platform: video data curation pipeline, multimodal Tokenizer, pretraining WFM and post-training application examples." />
+  <img src="/images/wm/Cosmos-Platform-Components.webp" width="100%" alt="Figure: Core components of the Cosmos WFM platform: video data curation pipeline, multimodal Tokenizer, pretraining WFM and post-training application examples." loading="lazy" decoding="async" style="aspect-ratio:1326/479" />
 <figcaption> Figure: Core components of the Cosmos WFM platform: video data curation pipeline, multimodal Tokenizer, pretraining WFM and post-training application examples.</figcaption>
 </div>
 
@@ -2100,7 +2100,7 @@ Cosmos is the **physical AI world base model platform** released by NVIDIA. The 
 The training bottleneck of the physical AI world model is first **data quality**. Cosmos Video Curator converts the original video into training data in seven stages: lens-aware segmentation → GPU transcoding → cropping → **multi-level filtering** (aesthetics, motion, OCR, DOVER perceptual quality, VTSS semantic artifacts, VLM fine screening, and finally only about **4%** Fragments pass)→Multi-granularity subtitles (Qwen2.5-VL-7B generates short/medium/long descriptions)→Semantic deduplication→Four-dimensional fragmentation by content type, resolution, aspect ratio, and duration (supports course learning and domain balanced sampling).
 
 <div align="center">
-  <img src="/images/wm/Cosmos-Predict2.5-VideoCurationPipeline.webp" width="100%" alt="Figure: Cosmos Video Curator pipeline: The original multi-domain video undergoes seven stages of segmentation, transcoding, cropping, multi-level filtering, subtitle generation, semantic deduplication, and structured slicing, and the output is a high-quality data set that can be directly used for large-scale pretraining. (Source: Cosmos-Predict2.5)" />
+  <img src="/images/wm/Cosmos-Predict2.5-VideoCurationPipeline.webp" width="100%" alt="Figure: Cosmos Video Curator pipeline: The original multi-domain video undergoes seven stages of segmentation, transcoding, cropping, multi-level filtering, subtitle generation, semantic deduplication, and structured slicing, and the output is a high-quality data set that can be directly used for large-scale pretraining. (Source: Cosmos-Predict2.5)" loading="lazy" decoding="async" style="aspect-ratio:1328/863" />
 <figcaption> Figure: Cosmos Video Curator pipeline: The original multi-domain video undergoes seven stages of segmentation, transcoding, cropping, multi-level filtering, subtitle generation, semantic deduplication, and structured slicing, and the output is a high-quality data set that can be directly used for large-scale pretraining. (Source: Cosmos-Predict2.5)</figcaption>
 </div>
 
@@ -2121,12 +2121,12 @@ The Predict2.5 era pipeline processed hundreds of millions of original clips and
 **Cosmos-Predict1 (2025)** provides two architectures at the same time: **diffusion model** (DiT + EDM + T5 text encoder, image quality and 3D Better consistency) and **autoregressive model** (causal Transformer predicts discrete video tokens, suitable for interactive expansion of long sequences). Both share **Cosmos Tokenizer** - wavelet transform + causal 3D convolution, which simultaneously outputs continuous tokens (for diffusion) and discrete tokens (for autoregression).
 
 <div align="center">
-  <img src="/images/wm/Cosmos-Predict1-Diffusion-Architecture.webp" width="100%" alt="Figure: Cosmos-Predict1 diffusion model architecture: DiT backbone + T5 text encoder + 3D RoPE position encoding." />
+  <img src="/images/wm/Cosmos-Predict1-Diffusion-Architecture.webp" width="100%" alt="Figure: Cosmos-Predict1 diffusion model architecture: DiT backbone + T5 text encoder + 3D RoPE position encoding." loading="lazy" decoding="async" style="aspect-ratio:1328/992" />
 <figcaption> Figure: Cosmos-Predict1 diffusion model architecture: DiT backbone + T5 text encoder + 3D RoPE position encoding.</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/wm/Cosmos-Tokenizer-Architecture.webp" width="100%" alt="Figure: Cosmos Tokenizer: An encoding and decoding structure based on wavelet transform, which captures temporal correlation through causal 3D convolution and simultaneously outputs continuous tokens (for diffusion models) and discrete tokens (for autoregressive models)." />
+  <img src="/images/wm/Cosmos-Tokenizer-Architecture.webp" width="100%" alt="Figure: Cosmos Tokenizer: An encoding and decoding structure based on wavelet transform, which captures temporal correlation through causal 3D convolution and simultaneously outputs continuous tokens (for diffusion models) and discrete tokens (for autoregressive models)." loading="lazy" decoding="async" style="aspect-ratio:1326/720" />
 <figcaption> Figure: Cosmos Tokenizer: An encoding and decoding structure based on wavelet transform, which captures temporal correlation through causal 3D convolution and simultaneously outputs continuous tokens (for diffusion models) and discrete tokens (for autoregressive models).</figcaption>
 </div>
 
@@ -2139,7 +2139,7 @@ The Predict2.5 era pipeline processed hundreds of millions of original clips and
 - Two scales are provided: **2B / 14B**, as well as exclusive post-training versions for robot manipulation, autonomous driving and other fields.
 
 <div align="center">
-  <img src="/images/wm/Cosmos-Predict2.5-Architecture.webp" width="100%" alt="Figure: Cosmos-Predict2.5 overall architecture: the right side is the DiT backbone, the Block prediction denoising velocity field stacked with &quot;self-attention → cross-attention → feed-forward MLP&quot; in the latent space, and the time step is injected with AdaLN-LoRA; the left side is the Cosmos-Reason1 text encoder, which is projected to 1024 after splicing across multiple layers of activations. Dimensional text embeddings,guided video generation via cross-attention layers. (Source: Cosmos-Predict2.5)" />
+  <img src="/images/wm/Cosmos-Predict2.5-Architecture.webp" width="100%" alt="Figure: Cosmos-Predict2.5 overall architecture: the right side is the DiT backbone, the Block prediction denoising velocity field stacked with &quot;self-attention → cross-attention → feed-forward MLP&quot; in the latent space, and the time step is injected with AdaLN-LoRA; the left side is the Cosmos-Reason1 text encoder, which is projected to 1024 after splicing across multiple layers of activations. Dimensional text embeddings,guided video generation via cross-attention layers. (Source: Cosmos-Predict2.5)" loading="lazy" decoding="async" style="aspect-ratio:1326/851" />
 <figcaption> Figure: Cosmos-Predict2.5 overall architecture: the right side is the DiT backbone, the Block prediction denoising velocity field stacked with "self-attention → cross-attention → feed-forward MLP" in the latent space, and the time step is injected with AdaLN-LoRA; the left side is the Cosmos-Reason1 text encoder, which is projected to 1024 after splicing across multiple layers of activations. Dimensional text embeddings,guided video generation via cross-attention layers. (Source: Cosmos-Predict2.5)</figcaption>
 </div>
 
@@ -2155,7 +2155,7 @@ Cosmos-Transfer translates **structured world representation** into **photo-leve
 - The autonomous driving version additionally supports **HDMap** and **LiDAR** conditions, as well as 4K super-resolution ControlNet.
 
 <div align="center">
-  <img src="/images/wm/CosmosTransfer1-AdaptiveControlNet.webp" width="100%" alt="Figure: Cosmos-Transfer1 adaptive multimodal ControlNet architecture: Each control mode corresponds to an independent control branch, which is weighted by the spatio-temporal control graph w and then injected into the main DiT generation branch to achieve position-adaptive multimodal fusion. (Source: Cosmos-Transfer1)" />
+  <img src="/images/wm/CosmosTransfer1-AdaptiveControlNet.webp" width="100%" alt="Figure: Cosmos-Transfer1 adaptive multimodal ControlNet architecture: Each control mode corresponds to an independent control branch, which is weighted by the spatio-temporal control graph w and then injected into the main DiT generation branch to achieve position-adaptive multimodal fusion. (Source: Cosmos-Transfer1)" loading="lazy" decoding="async" style="aspect-ratio:1330/880" />
 <figcaption> Figure: Cosmos-Transfer1 adaptive multimodal ControlNet architecture: Each control mode corresponds to an independent control branch, which is weighted by the spatio-temporal control graph w and then injected into the main DiT generation branch to achieve position-adaptive multimodal fusion. (Source: Cosmos-Transfer1)</figcaption>
 </div>
 
@@ -2169,7 +2169,7 @@ Cosmos-Transfer translates **structured world representation** into **photo-leve
 Cosmos-Reason1 is a vision-language model for physical AI and outputs answers with `<think>...</think>` reasoning chain. It uses two sets of ontologies to define the boundaries of capabilities: **physics common sense embodiment** (three major categories of Space/Time/Fundamental Physics, 16 subcategories, such as object persistence, cause and effect, mechanics) and **embodied reasoning embodiment** (focusing on task completion verification, action operability, and next action prediction).
 
 <div align="center">
-  <img src="/images/wm/CosmosReason1-CommonSenseOntology.webp" width="80%" alt="Figure: Cosmos-Reason1 Physics common sense embodiment: three major categories (Space, Time, Fundamental Physics) are divided into 16 fine-grained subcategories, defining the boundaries of perception and reasoning capabilities that the Physical AI model should have. (Image source: Cosmos-Reason1)" />
+  <img src="/images/wm/CosmosReason1-CommonSenseOntology.webp" width="80%" alt="Figure: Cosmos-Reason1 Physics common sense embodiment: three major categories (Space, Time, Fundamental Physics) are divided into 16 fine-grained subcategories, defining the boundaries of perception and reasoning capabilities that the Physical AI model should have. (Image source: Cosmos-Reason1)" loading="lazy" decoding="async" style="aspect-ratio:1330/761" />
 <figcaption> Figure: Cosmos-Reason1 Physics common sense embodiment: three major categories (Space, Time, Fundamental Physics) are divided into 16 fine-grained subcategories, defining the boundaries of perception and reasoning capabilities that the Physical AI model should have. (Image source: Cosmos-Reason1)</figcaption>
 </div>
 
@@ -2185,7 +2185,7 @@ The training is divided into two steps: **Physical AI SFT** (about 4M video-text
 {: id="训练流程"}
 
 <div align="center">
-  <img src="/images/wm/Cosmos-Training-Paradigm.webp" width="100%" alt="Figure: Cosmos training paradigm: large-scale pretraining of general physical knowledge → domain SFT → model fusion → RL post-training, and finally fine-tuning to adapt to various downstream Physical AI tasks." />
+  <img src="/images/wm/Cosmos-Training-Paradigm.webp" width="100%" alt="Figure: Cosmos training paradigm: large-scale pretraining of general physical knowledge → domain SFT → model fusion → RL post-training, and finally fine-tuning to adapt to various downstream Physical AI tasks." loading="lazy" decoding="async" style="aspect-ratio:1332/961" />
 <figcaption> Figure: Cosmos training paradigm: large-scale pretraining of general physical knowledge → domain SFT → model fusion → RL post-training, and finally fine-tuning to adapt to various downstream Physical AI tasks.</figcaption>
 </div>
 
@@ -2208,7 +2208,7 @@ The inference side is compressed using rCM distillation to **4 steps** , PAI-Ben
 - **Action conditional world generation**: Predict future videos conditional on joint angles/end trajectories for policy closed-loop evaluation.
 
 <div align="center">
-  <img src="/images/wm/Cosmos-Predict2.5-PredictionSamples.webp" width="100%" alt="Figure: Generated samples of the Cosmos-Predict2.5-2B post-trained model on PAI-Bench: covering multiple physical AI scenarios such as autonomous driving (top two rows), industrial robot manipulation (middle three rows), human dynamics (bottom row), etc., demonstrating the model&#x27;s capabilities in timing consistency and physical rationality. (Source: Cosmos-Predict2.5)" />
+  <img src="/images/wm/Cosmos-Predict2.5-PredictionSamples.webp" width="100%" alt="Figure: Generated samples of the Cosmos-Predict2.5-2B post-trained model on PAI-Bench: covering multiple physical AI scenarios such as autonomous driving (top two rows), industrial robot manipulation (middle three rows), human dynamics (bottom row), etc., demonstrating the model&#x27;s capabilities in timing consistency and physical rationality. (Source: Cosmos-Predict2.5)" loading="lazy" decoding="async" style="aspect-ratio:1318/976" />
 <figcaption> Figure: Generated samples of the Cosmos-Predict2.5-2B post-trained model on PAI-Bench: covering multiple physical AI scenarios such as autonomous driving (top two rows), industrial robot manipulation (middle three rows), human dynamics (bottom row), etc., demonstrating the model's capabilities in timing consistency and physical rationality. (Source: Cosmos-Predict2.5)</figcaption>
 </div>
 
@@ -2229,7 +2229,7 @@ Official Cosmos Cookbook [[44] ](#ref-44) Provides inference scripts for three p
 If the Cosmos platform in §7.2 uses **to string together multiple dedicated models** (Predict prediction, Transfer translation, and Reason reasoning each perform their own duties), then in June 2026, NVIDIA released **Cosmos 3** This pushes this route to the end: **uses a single network architecture to simultaneously complete understanding and generation, and natively covers the five major modes of language, image, video, audio, and action**. It absorbs the vision-language model (VLM), video generation/forward dynamics model (corresponding to the world synthesizer/simulator in §6) and the world action model (WAM/VLA) **into the same model**, which is the "single model, multi-paradigm role" trend (see GENE-26.5 and §6.1 §9.3) The most complete engineering implementation at present.
 
 <div align="center">
-  <img src="/images/wm/Cosmos3-Fig1-UnifiedBackbone.webp" width="100%" alt="Figure: Cosmos 3 as the universal backbone of Physical AI. Just by changing the input-output configuration, the same set of weights can be transformed into a vision-language model, image generation model, audio and video generation model, policy/world action model, forward dynamics model, and inverse dynamics model without any structural changes. (Source: Cosmos 3)" />
+  <img src="/images/wm/Cosmos3-Fig1-UnifiedBackbone.webp" width="100%" alt="Figure: Cosmos 3 as the universal backbone of Physical AI. Just by changing the input-output configuration, the same set of weights can be transformed into a vision-language model, image generation model, audio and video generation model, policy/world action model, forward dynamics model, and inverse dynamics model without any structural changes. (Source: Cosmos 3)" loading="lazy" decoding="async" style="aspect-ratio:1544/496" />
 <figcaption> Figure: Cosmos 3 as the universal backbone of Physical AI. Just by changing the input-output configuration, the same set of weights can be transformed into a vision-language model, image generation model, audio and video generation model, policy/world action model, forward dynamics model, and inverse dynamics model without any structural changes. (Source: Cosmos 3)</figcaption>
 </div>
 
@@ -2244,7 +2244,7 @@ The starting point of the paper is a sharp judgment: **The artificial separation
 At its core, Cosmos 3 is a **MoT Twin Towers** Structure: Cut a token sequence into two parts - the first part is **Autoregressive (AR) subsequence** Responsible for understanding reasoning, the latter part is **Diffusion (DM) subsequence** Responsible for generation. Each Transformer decoding layer internally holds **Two independent sets of parameters** (Reasoner Tower + Generator Tower), both are initialized from pretraining VLM weights, thereby inheriting strong language/visual reasoning capabilities.
 
 <div align="center">
-  <img src="/images/wm/Cosmos3-Fig5-MoTArchitecture.webp" width="100%" alt="Figure: MoT architecture of Cosmos 3. The same sequence is spliced ​​from the AR subsequence (language + ViT visual token, ending with EOS/BOG) and the DM subsequence (VAE visual, audio, action token, noise added during training); the AR and DM tokens in the layer each use independent LayerNorm and MLP (both initialized by the pretraining VLM), and only meet at the shared self-attention. The picture on the right shows the attention mask: AR is the causal triangle and DM is full attention. (Source: Cosmos 3)" />
+  <img src="/images/wm/Cosmos3-Fig5-MoTArchitecture.webp" width="100%" alt="Figure: MoT architecture of Cosmos 3. The same sequence is spliced ​​from the AR subsequence (language + ViT visual token, ending with EOS/BOG) and the DM subsequence (VAE visual, audio, action token, noise added during training); the AR and DM tokens in the layer each use independent LayerNorm and MLP (both initialized by the pretraining VLM), and only meet at the shared self-attention. The picture on the right shows the attention mask: AR is the causal triangle and DM is full attention. (Source: Cosmos 3)" loading="lazy" decoding="async" style="aspect-ratio:1553/701" />
 <figcaption> Figure: MoT architecture of Cosmos 3. The same sequence is spliced ​​from the AR subsequence (language + ViT visual token, ending with EOS/BOG) and the DM subsequence (VAE visual, audio, action token, noise added during training); the AR and DM tokens in the layer each use independent LayerNorm and MLP (both initialized by the pretraining VLM), and only meet at the shared self-attention. The picture on the right shows the attention mask: AR is the causal triangle and DM is full attention. (Source: Cosmos 3)</figcaption>
 </div>
 
@@ -2264,14 +2264,14 @@ The subtlety of this design is that **understanding (AR) provides semantic condi
 Unlike most works that treat actions as auxiliary output, Cosmos 3 explicitly introduces a type of **action token** as a bridge connecting the physical world with language reasoning and video modeling. It uses a set of **unified action representation** to accommodate heterogeneous ontologies (autonomous driving, camera movement, first-person human body, single-arm/two-arm/humanoid robot): self pose (Ego Pose 9D) and actuator pose (Effector Pose 9D) are represented by relative pose pseudo-actions of "3D translation + 6D rotation", and the grasping state (Grasp State) directly encodes the current operating state. Each embodiment uses **domain-aware input/output projection** to adapt to different dimensions while sharing the MoT backbone. Action token $a_t$ represents the transition from video state $v_{t-1}$ to $v_t$.
 
 <div align="center">
-  <img src="/images/wm/Cosmos3-Fig3-UnifiedActionRepresentation.webp" width="100%" alt="diagram: Unified action representation. The control of heterogeneous ontologies is mapped into compact action vectors composed of shared geometric components - Ego/Effector motion is encoded as relative pose pseudo-action (3D translation + 6D rotation), and the grasping state directly encodes fingertip position or gripper opening and closing. (Source: Cosmos 3)" />
+  <img src="/images/wm/Cosmos3-Fig3-UnifiedActionRepresentation.webp" width="100%" alt="diagram: Unified action representation. The control of heterogeneous ontologies is mapped into compact action vectors composed of shared geometric components - Ego/Effector motion is encoded as relative pose pseudo-action (3D translation + 6D rotation), and the grasping state directly encodes fingertip position or gripper opening and closing. (Source: Cosmos 3)" loading="lazy" decoding="async" style="aspect-ratio:1529/716" />
 <figcaption> diagram: Unified action representation. The control of heterogeneous ontologies is mapped into compact action vectors composed of shared geometric components - Ego/Effector motion is encoded as relative pose pseudo-action (3D translation + 6D rotation), and the grasping state directly encodes fingertip position or gripper opening and closing. (Source: Cosmos 3)</figcaption>
 </div>
 
 Because actions and videos are included in the same sequence model, Cosmos 3 unifies three action generation modes simply by different configurations of "which tokens are clean and which tokens are noisy":
 
 <div align="center">
-  <img src="/images/wm/Cosmos3-Fig4-ActionModes.webp" width="95%" alt="diagram: The three action modes are determined by the token noise configuration. Forward dynamics (given a clean action denoised video), inverse dynamics (given a clean video denoised action), policy (given a clean video denoised video and action). (Source: Cosmos 3)" />
+  <img src="/images/wm/Cosmos3-Fig4-ActionModes.webp" width="95%" alt="diagram: The three action modes are determined by the token noise configuration. Forward dynamics (given a clean action denoised video), inverse dynamics (given a clean video denoised action), policy (given a clean video denoised video and action). (Source: Cosmos 3)" loading="lazy" decoding="async" style="aspect-ratio:1541/349" />
 <figcaption> diagram: The three action modes are determined by the token noise configuration. Forward dynamics (given a clean action denoised video), inverse dynamics (given a clean video denoised action), policy (given a clean video denoised video and action). (Source: Cosmos 3)</figcaption>
 </div>
 
@@ -2298,7 +2298,7 @@ Nano and Super are released this time, and Edge is left for follow-up. Reasoner 
 {: id="训练范式与-physical-ai-角色"}
 
 <div align="center">
-  <img src="/images/wm/Cosmos3-Fig2-TrainingParadigm.webp" width="92%" alt="Figure: Cosmos 3 is a strong starting point for training Physical AI agents. After the universal base is obtained through pretraining + mid-training, it can be post-trained on the target data without structural changes, serving three purposes: synthetic data generation, task domain specialization, and closed-loop training environment. (Source: Cosmos 3)" />
+  <img src="/images/wm/Cosmos3-Fig2-TrainingParadigm.webp" width="92%" alt="Figure: Cosmos 3 is a strong starting point for training Physical AI agents. After the universal base is obtained through pretraining + mid-training, it can be post-trained on the target data without structural changes, serving three purposes: synthetic data generation, task domain specialization, and closed-loop training environment. (Source: Cosmos 3)" loading="lazy" decoding="async" style="aspect-ratio:1297/521" />
 <figcaption> Figure: Cosmos 3 is a strong starting point for training Physical AI agents. After the universal base is obtained through pretraining + mid-training, it can be post-trained on the target data without structural changes, serving three purposes: synthetic data generation, task domain specialization, and closed-loop training environment. (Source: Cosmos 3)</figcaption>
 </div>
 
@@ -2354,7 +2354,7 @@ Cosmos 3 is one of the narratives in this article **convergence point** . GENE-2
 {: id="wan-t2v-text-to-video-整体架构"}
 
 <div align="center">
-  <img src="/images/wm/Wan-T2V-architecture.webp" width="100%" alt=": The overall architecture diagram of Wan text-to-video generation (T2V). (Source: Wan2.1, 2025)" />
+  <img src="/images/wm/Wan-T2V-architecture.webp" width="100%" alt=": The overall architecture diagram of Wan text-to-video generation (T2V). (Source: Wan2.1, 2025)" loading="lazy" decoding="async" style="aspect-ratio:1118/398" />
 <figcaption>Figure: The overall architecture diagram of Wan text-to-video generation (T2V). (Source: Wan2.1, 2025)</figcaption>
 </div>
 
@@ -2370,7 +2370,7 @@ The overall architecture of Wan2.1 is based on the Diffusion Transformer (DiT) p
   - **Feature Cache Inference**: When processing ultra-long videos, the video is split into Chunks according to Latent frame (each chunk has a maximum of 4 frames), and the last two frame feature caches of the previous stage are passed and reused between chunks to ensure continuous and seamless streaming reconstruction within limited GPU memory.
 
 <div align="center">
-  <img src="/images/wm/Wan-VAE-framework.webp" width="100%" alt="picture: Wan-VAE spatiotemporal compression autoencoder architecture diagram. (Source: Wan2.1, 2025)" />
+  <img src="/images/wm/Wan-VAE-framework.webp" width="100%" alt="picture: Wan-VAE spatiotemporal compression autoencoder architecture diagram. (Source: Wan2.1, 2025)" loading="lazy" decoding="async" style="aspect-ratio:1118/388" />
 <figcaption> picture: Wan-VAE spatiotemporal compression autoencoder architecture diagram. (Source: Wan2.1, 2025)</figcaption>
 </div>
 
@@ -2385,7 +2385,7 @@ The overall architecture of Wan2.1 is based on the Diffusion Transformer (DiT) p
   - **output**: predicted denoised speed vector $v_t$.
 
 <div align="center">
-  <img src="/images/wm/Wan-transformer-block.webp" width="80%" alt="Picture: Wan Transformer Block structural details. (Source: Wan2.1, 2025)" />
+  <img src="/images/wm/Wan-transformer-block.webp" width="80%" alt="Picture: Wan Transformer Block structural details. (Source: Wan2.1, 2025)" loading="lazy" decoding="async" style="aspect-ratio:442/555" />
 <figcaption> Picture: Wan Transformer Block structural details. (Source: Wan2.1, 2025)</figcaption>
 </div>
 
@@ -2402,7 +2402,7 @@ $$\mathcal{L} = \mathbb{E}_{x_0, x_1, ctxt, t} \left[ \lVert u(x_t, ctxt, t; \th
 {: id="wan-i2v-image-to-video-架构与控制框架"}
 
 <div align="center">
-  <img src="/images/wm/Wan-I2V-architecture.webp" width="100%" alt="diagram: Wan-I2V diagram raw video model framework. (Source: Wan2.1, 2025)" />
+  <img src="/images/wm/Wan-I2V-architecture.webp" width="100%" alt="diagram: Wan-I2V diagram raw video model framework. (Source: Wan2.1, 2025)" loading="lazy" decoding="async" style="aspect-ratio:1118/475" />
 <figcaption> diagram: Wan-I2V diagram raw video model framework. (Source: Wan2.1, 2025)</figcaption>
 </div>
 
@@ -2417,7 +2417,7 @@ In order to be compatible with various downstream tasks such as image to video (
 {: id="vace统一的可控生成与编辑框架"}
 
 <div align="center">
-  <img src="/images/wm/Wan-VACE-editing-framework.webp" width="100%" alt=": VACE controllable generation and editing model framework and concept decoupling mechanism. (Source: Wan2.1, 2025)" />
+  <img src="/images/wm/Wan-VACE-editing-framework.webp" width="100%" alt=": VACE controllable generation and editing model framework and concept decoupling mechanism. (Source: Wan2.1, 2025)" loading="lazy" decoding="async" style="aspect-ratio:1118/908" />
 <figcaption>Figure: VACE controllable generation and editing model framework and concept decoupling mechanism. (Source: Wan2.1, 2025)</figcaption>
 </div>
 
@@ -2476,7 +2476,7 @@ Janus-Pro systematically enhances Janus from three dimensions: training strategy
 **architecture** (same as Janus, decoupled visual encoding):
 
 <div align="center">
-  <img src="/images/vlm/Janus-Pro-architecture.webp" width="100%" alt="Figure: Janus-Pro overall architecture: the understanding side uses SigLIP Understanding Encoder, and the generation side uses VQ Generation Encoder, sharing the same Auto-Regressive Transformer. (Image source: Janus-Pro, 2025)" />
+  <img src="/images/vlm/Janus-Pro-architecture.webp" width="100%" alt="Figure: Janus-Pro overall architecture: the understanding side uses SigLIP Understanding Encoder, and the generation side uses VQ Generation Encoder, sharing the same Auto-Regressive Transformer. (Image source: Janus-Pro, 2025)" loading="lazy" decoding="async" style="aspect-ratio:1286/669" />
 <figcaption> Figure: Janus-Pro overall architecture: the understanding side uses SigLIP Understanding Encoder, and the generation side uses VQ Generation Encoder, sharing the same Auto-Regressive Transformer. (Image source: Janus-Pro, 2025)</figcaption>
 </div>
 
@@ -2521,7 +2521,7 @@ The overall framework is based on a unified autoregressive Transformer. For the 
 Both Janus and Janus-Pro adopt a three-stage training paradigm. The following figure (taken from the original Janus paper) shows the frozen (❄️) and trainable (🔥) status of each module in each stage:
 
 <div align="center">
-  <img src="/images/wm/janus-training.webp" width="100%" alt="Figure: Janus / JanusFlow three-stage training flow chart: flame marks represent trainable modules, and snowflake marks represent frozen modules. Janus-Pro follows this process but makes key adjustments in Stage 1 and Stage 2. (Image source: Janus, 2024)" />
+  <img src="/images/wm/janus-training.webp" width="100%" alt="Figure: Janus / JanusFlow three-stage training flow chart: flame marks represent trainable modules, and snowflake marks represent frozen modules. Janus-Pro follows this process but makes key adjustments in Stage 1 and Stage 2. (Image source: Janus, 2024)" loading="lazy" decoding="async" style="aspect-ratio:1203/483" />
 <figcaption> Figure: Janus / JanusFlow three-stage training flow chart: flame marks represent trainable modules, and snowflake marks represent frozen modules. Janus-Pro follows this process but makes key adjustments in Stage 1 and Stage 2. (Image source: Janus, 2024)</figcaption>
 </div>
 
@@ -2543,7 +2543,7 @@ Both Janus and Janus-Pro adopt a three-stage training paradigm. The following fi
 Extend the basic LLM from 1.5B to 7B (using DeepSeek-LLM), forming two versions of Janus-Pro-1B and Janus-Pro-7B. Experiments show that larger-scale LLM significantly speeds up the loss convergence speed of both types of tasks.
 
 <div align="center">
-  <img src="/images/vlm/Janus-Pro-performance.webp" width="100%" alt="Figure: Performance comparison of Janus-Pro on multimodal understanding (left, average score of four benchmarks vs LLM parameter amount) and Vincentian graph instruction following (right, GenEval and DPG-Bench), Janus-Pro-7B reaches the optimal level on both types of tasks. (Image source: Janus-Pro, 2025)" />
+  <img src="/images/vlm/Janus-Pro-performance.webp" width="100%" alt="Figure: Performance comparison of Janus-Pro on multimodal understanding (left, average score of four benchmarks vs LLM parameter amount) and Vincentian graph instruction following (right, GenEval and DPG-Bench), Janus-Pro-7B reaches the optimal level on both types of tasks. (Image source: Janus-Pro, 2025)" loading="lazy" decoding="async" style="aspect-ratio:1282/833" />
 <figcaption> Figure: Performance comparison of Janus-Pro on multimodal understanding (left, average score of four benchmarks vs LLM parameter amount) and Vincentian graph instruction following (right, GenEval and DPG-Bench), Janus-Pro-7B reaches the optimal level on both types of tasks. (Image source: Janus-Pro, 2025)</figcaption>
 </div>
 
@@ -2563,7 +2563,7 @@ Extend the basic LLM from 1.5B to 7B (using DeepSeek-LLM), forming two versions 
 **Qualitative results**:
 
 <div align="center">
-  <img src="/images/vlm/Janus-Pro-qualitative.webp" width="100%" alt="Figure: Qualitative results of Janus-Pro-7B&#x27;s multimodal understanding (image description, landmark recognition, general knowledge question and answer, text recognition) and Vincentian map generation, with a resolution of 384×384. (Image source: Janus-Pro, 2025)" />
+  <img src="/images/vlm/Janus-Pro-qualitative.webp" width="100%" alt="Figure: Qualitative results of Janus-Pro-7B&#x27;s multimodal understanding (image description, landmark recognition, general knowledge question and answer, text recognition) and Vincentian map generation, with a resolution of 384×384. (Image source: Janus-Pro, 2025)" loading="lazy" decoding="async" style="aspect-ratio:1282/1960" />
 <figcaption> Figure: Qualitative results of Janus-Pro-7B's multimodal understanding (image description, landmark recognition, general knowledge question and answer, text recognition) and Vincentian map generation, with a resolution of 384×384. (Image source: Janus-Pro, 2025)</figcaption>
 </div>
 
@@ -2599,7 +2599,7 @@ The input resolution of multimodal understanding is limited to $384 \times 384$,
 Traditional robotics research relies on physical simulators for policy verification and training, but simulators often require complex parameter adjustments and are difficult to simulate flexible bodies or fine physical interactions. At the same time, large models (LLMs) that rely solely on language abstraction lack understanding of the fine-grained spatiotemporal dynamics of the physical world. Video Generation Models rely on their rich visual and motion knowledge learned on Internet-scale data to demonstrate performance. **Embodied World Models** huge potential.
 
 <div align="center">
-  <img src="/images/vln/Robot-Video-Gen-Overview.webp" width="100%" alt="diagram: Application framework of video generation model in the field of robotics, including policy learning, visual planning and policy evaluation. (Source: Robot-Video-Gen, 2026)" />
+  <img src="/images/vln/Robot-Video-Gen-Overview.webp" width="100%" alt="diagram: Application framework of video generation model in the field of robotics, including policy learning, visual planning and policy evaluation. (Source: Robot-Video-Gen, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1326/653" />
 <figcaption> diagram: Application framework of video generation model in the field of robotics, including policy learning, visual planning and policy evaluation. (Source: Robot-Video-Gen, 2026)</figcaption>
 </div>
 
@@ -2618,7 +2618,7 @@ The roles of video generation models in robots are mainly divided into:
 - **Vision Planner**: Assists robots in task decomposition and search by synthesizing future video sequences.
 
 <div align="center">
-  <img src="/images/vln/Robot-Video-Gen-Taxonomy.webp" width="100%" alt="diagram: The organizational structure of the paper, showing the classification system of background, application, evaluation and open challenges. (Source: Robot-Video-Gen, 2026)" />
+  <img src="/images/vln/Robot-Video-Gen-Taxonomy.webp" width="100%" alt="diagram: The organizational structure of the paper, showing the classification system of background, application, evaluation and open challenges. (Source: Robot-Video-Gen, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1328/1571" />
 <figcaption> diagram: The organizational structure of the paper, showing the classification system of background, application, evaluation and open challenges. (Source: Robot-Video-Gen, 2026)</figcaption>
 </div>
 
@@ -2629,7 +2629,7 @@ Evolved from traditional RNN/CNN-based prediction models to today’s mainstream
 - **Joint Embedding Prediction Architecture (JEPA)**: Enabling more robust non-pixel-level world modeling by learning dynamics in hidden feature space.
 
 <div align="center">
-  <img src="/images/vln/Diffusion-Video-Architecture.webp" width="100%" alt="diagram: Schematic diagram of the diffusion-based video model architecture, showing how conditional input (text, image, action) guides synthesis. (Source: Robot-Video-Gen, 2026)" />
+  <img src="/images/vln/Diffusion-Video-Architecture.webp" width="100%" alt="diagram: Schematic diagram of the diffusion-based video model architecture, showing how conditional input (text, image, action) guides synthesis. (Source: Robot-Video-Gen, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1328/641" />
 <figcaption> diagram: Schematic diagram of the diffusion-based video model architecture, showing how conditional input (text, image, action) guides synthesis. (Source: Robot-Video-Gen, 2026)</figcaption>
 </div>
 
@@ -2639,7 +2639,7 @@ Evolved from traditional RNN/CNN-based prediction models to today’s mainstream
 - **Explicit model**: Outputs explicit 3D representations such as point cloud (Point Cloud), voxel grid (Voxel Map) or 3D Gaussian splatter (3DGS) to enhance physical consistency.
 
 <div align="center">
-  <img src="/images/vln/Implicit-vs-Explicit-Models.webp" width="100%" alt=": Two representations of the embodied world model: implicit representation (such as video latent space) and explicit representation (such as point cloud, 3DGS). (Source: Robot-Video-Gen, 2026)" />
+  <img src="/images/vln/Implicit-vs-Explicit-Models.webp" width="100%" alt=": Two representations of the embodied world model: implicit representation (such as video latent space) and explicit representation (such as point cloud, 3DGS). (Source: Robot-Video-Gen, 2026)" loading="lazy" decoding="async" style="aspect-ratio:1326/697" />
 <figcaption>Figure: Two representations of the embodied world model: implicit representation (such as video latent space) and explicit representation (such as point cloud, 3DGS). (Source: Robot-Video-Gen, 2026)</figcaption>
 </div>
 

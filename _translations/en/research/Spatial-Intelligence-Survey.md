@@ -5,10 +5,10 @@ translation_id: spatial-intelligence-survey
 permalink: /en/Spatial-Intelligence-Survey/
 source_path: _posts/research/2026-04-29-Spatial-Intelligence-Survey.md
 source_url: /Spatial-Intelligence-Survey/
-source_revision_date: 2026-10-04
-translation_updated: 2026-10-04
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "Spatial Intelligence: A Survey"
-date: 2026-10-04
+date: 2026-10-24
 tags: [Spatial Intelligence, 3D Vision, NeRF, Point Cloud, Embodied AI, Survey]
 categories: research
 comments: false
@@ -143,7 +143,7 @@ graph TD
 
 One of the mathematical foundations of spatial intelligence is the **pinhole camera model (Pinhole Camera Model)**, which accurately describes how points in the three-dimensional world are projected onto the two-dimensional image plane through the center of the lens. Understanding camera projection is a necessary prerequisite for understanding SfM, stereo vision, NeRF pose input, and VGGT camera parameter output.
 
-<div align="center"><img src="/images/si/pcv_camera_projection.webp" width="85%" alt="Figure: Decomposition of camera projection matrix P = K · RT · [Id | -X₀], combine the external parameters (rotation R, projection center X₀) with the internal parameter matrix K Explicit separation. (Source: Author LUH Photogrammetric Computer Vision courseware)"/><figcaption> Figure: Decomposition of camera projection matrix P = K · R<sup>T</sup> · [Id | -X₀], combine the external parameters (rotation R, projection center X₀) with the internal parameter matrix K Explicit separation. (Source: Author LUH Photogrammetric Computer Vision courseware)</figcaption></div>
+<div align="center"><img src="/images/si/pcv_camera_projection.webp" width="85%" alt="Figure: Decomposition of camera projection matrix P = K · RT · [Id | -X₀], combine the external parameters (rotation R, projection center X₀) with the internal parameter matrix K Explicit separation. (Source: Author LUH Photogrammetric Computer Vision courseware)" loading="lazy" decoding="async" style="aspect-ratio:2339/1435"/><figcaption> Figure: Decomposition of camera projection matrix P = K · R<sup>T</sup> · [Id | -X₀], combine the external parameters (rotation R, projection center X₀) with the internal parameter matrix K Explicit separation. (Source: Author LUH Photogrammetric Computer Vision courseware)</figcaption></div>
 
 ### Pinhole camera projection
 {: id="针孔相机投影"}
@@ -243,7 +243,7 @@ Here, $$[\mathbf{n}]_\times$$ is the antisymmetric matrix of the rotation axis $
 - It established the basic paradigm of point cloud deep learning "point independent processing + symmetric aggregation".
 
 <div align="center">
-  <img src="/images/si/PointNet-architecture.webp" width="90%" alt="PointNet network architecture: Apply shared MLP to each point independently to extract features, obtain global feature vectors through Max Pooling symmetric aggregation, and T-Net learns alignment transformations for input point coordinates (3×3) and feature space (64×64) respectively." />
+  <img src="/images/si/PointNet-architecture.webp" width="90%" alt="PointNet network architecture: Apply shared MLP to each point independently to extract features, obtain global feature vectors through Max Pooling symmetric aggregation, and T-Net learns alignment transformations for input point coordinates (3×3) and feature space (64×64) respectively." loading="lazy" decoding="async" style="aspect-ratio:1800/658" />
 <figcaption>PointNet network architecture: Apply shared MLP to each point independently to extract features, obtain global feature vectors through Max Pooling symmetric aggregation, and T-Net learns alignment transformations for input point coordinates (3×3) and feature space (64×64) respectively.</figcaption>
 </div>
 
@@ -265,7 +265,7 @@ Here, $$[\mathbf{n}]_\times$$ is the antisymmetric matrix of the rotation axis $
 - It established the point cloud learning standard paradigm of "sampling + grouping + aggregation", and subsequent work (DGCNN, Point Transformer, etc.) was expanded under this framework.
 
 <div align="center">
-  <img src="/images/si/PointNet2-architecture.webp" width="90%" alt="PointNet++ Hierarchical feature learning: through repeated stacking of FPS sampling → Ball Query grouping → PointNet local feature extraction, the receptive field is expanded layer by layer; the segmentation task additionally uses interpolation upsampling to transfer features back to the original point set." />
+  <img src="/images/si/PointNet2-architecture.webp" width="90%" alt="PointNet++ Hierarchical feature learning: through repeated stacking of FPS sampling → Ball Query grouping → PointNet local feature extraction, the receptive field is expanded layer by layer; the segmentation task additionally uses interpolation upsampling to transfer features back to the original point set." loading="lazy" decoding="async" style="aspect-ratio:1800/747" />
 <figcaption>PointNet++ Hierarchical feature learning: through repeated stacking of FPS sampling → Ball Query grouping → PointNet local feature extraction, the receptive field is expanded layer by layer; the segmentation task additionally uses interpolation upsampling to transfer features back to the original point set.</figcaption>
 </div>
 
@@ -284,7 +284,7 @@ Obtain new node features by aggregating edge features. After each layer of EdgeC
 - EdgeConv operates simply and efficiently, and is easy to integrate into various point cloud architectures.
 
 <div align="center">
-  <img src="/images/si/DGCNN-EdgeConv.png" width="85%" alt="DGCNN architecture and EdgeConv operation: dynamically construct a k-NN graph in the feature space (recalculated at each layer), calculate the edge features of the center point and neighbors and then aggregate them; multi-layer EdgeConv stacking followed by Max Pooling to obtain the global descriptor." />
+  <img src="/images/si/DGCNN-EdgeConv.png" width="85%" alt="DGCNN architecture and EdgeConv operation: dynamically construct a k-NN graph in the feature space (recalculated at each layer), calculate the edge features of the center point and neighbors and then aggregate them; multi-layer EdgeConv stacking followed by Max Pooling to obtain the global descriptor." loading="lazy" decoding="async" style="aspect-ratio:1048/580" />
 <figcaption>DGCNN architecture and EdgeConv operation: dynamically construct a k-NN graph in the feature space (recalculated at each layer), calculate the edge features of the center point and neighbors and then aggregate them; multi-layer EdgeConv stacking followed by Max Pooling to obtain the global descriptor.</figcaption>
 </div>
 
@@ -302,7 +302,7 @@ Here, $\delta$ is the point position encoding, $\rho$ is the softmax normalizati
 - The standard architecture of point cloud Transformer has been established, and the subsequent Point Transformer v3 (2024) will further pretrain on large-scale data.
 
 <div align="center">
-  <img src="/images/si/PointTransformer-attention.webp" width="85%" alt="Point Transformer Vector self-attention: assign independent attention weights to each feature dimension (different from scalar attention), position encoding δ is based on neighbor point coordinate difference learning, while injecting attention weights and value vectors to capture local geometric relationships." />
+  <img src="/images/si/PointTransformer-attention.webp" width="85%" alt="Point Transformer Vector self-attention: assign independent attention weights to each feature dimension (different from scalar attention), position encoding δ is based on neighbor point coordinate difference learning, while injecting attention weights and value vectors to capture local geometric relationships." loading="lazy" decoding="async" style="aspect-ratio:850/294" />
 <figcaption>Point Transformer Vector self-attention: assign independent attention weights to each feature dimension (different from scalar attention), position encoding δ is based on neighbor point coordinate difference learning, while injecting attention weights and value vectors to capture local geometric relationships.</figcaption>
 </div>
 
@@ -335,7 +335,7 @@ Here, $$d_i = \log \hat{y}_i - \log y_i$$ is the difference between the logarith
 - Strong cross-dataset generalization in relatively deep zero-shot transfer.
 
 <div align="center">
-  <img src="/images/si/DPT-architecture.webp" width="90%" alt="DPT architecture: Use ViT as the backbone to extract multi-layer patch tokens, restore the spatial resolution through the Reassemble operation to obtain multi-scale feature maps, and then gradually upsample and fuse them through the Fusion decoder to output high-resolution dense depth predictions." />
+  <img src="/images/si/DPT-architecture.webp" width="90%" alt="DPT architecture: Use ViT as the backbone to extract multi-layer patch tokens, restore the spatial resolution through the Reassemble operation to obtain multi-scale feature maps, and then gradually upsample and fuse them through the Fusion decoder to output high-resolution dense depth predictions." loading="lazy" decoding="async" style="aspect-ratio:1800/665" />
 <figcaption>DPT architecture: Use ViT as the backbone to extract multi-layer patch tokens, restore the spatial resolution through the Reassemble operation to obtain multi-scale feature maps, and then gradually upsample and fuse them through the Fusion decoder to output high-resolution dense depth predictions.</figcaption>
 </div>
 
@@ -353,7 +353,7 @@ Here, $$d_i = \log \hat{y}_i - \log y_i$$ is the difference between the logarith
 - Detail quality (edge sharpness, thin structures) is significantly improved in the V2 version.
 
 <div align="center">
-  <img src="/images/si/DepthAnything-pipeline.webp" width="90%" alt="Depth Anything semi-supervised data engine: train the teacher model with 1.5 million labeled images, generate pseudo labels for 62 million unlabeled images, and then train the student model with strong data enhancement (color distortion, CutMix, etc.) to force it to learn a more robust depth prior." />
+  <img src="/images/si/DepthAnything-pipeline.webp" width="90%" alt="Depth Anything semi-supervised data engine: train the teacher model with 1.5 million labeled images, generate pseudo labels for 62 million unlabeled images, and then train the student model with strong data enhancement (color distortion, CutMix, etc.) to force it to learn a more robust depth prior." loading="lazy" decoding="async" style="aspect-ratio:1409/514" />
 <figcaption>Depth Anything semi-supervised data engine: train the teacher model with 1.5 million labeled images, generate pseudo labels for 62 million unlabeled images, and then train the student model with strong data enhancement (color distortion, CutMix, etc.) to force it to learn a more robust depth prior.</figcaption>
 </div>
 
@@ -369,7 +369,7 @@ Here, $$d_i = \log \hat{y}_i - \log y_i$$ is the difference between the logarith
 - The generated depth map has rich details and clear boundaries, especially in weak/repeated texture areas.
 
 <div align="center">
-  <img src="/images/si/Marigold-pipeline.webp" width="85%" alt="Marigold inference process: Encode RGB images into Stable Diffusion latent space, generate depth map latent variables through iterative denoising steps, and finally decode into relative depth maps." />
+  <img src="/images/si/Marigold-pipeline.webp" width="85%" alt="Marigold inference process: Encode RGB images into Stable Diffusion latent space, generate depth map latent variables through iterative denoising steps, and finally decode into relative depth maps." loading="lazy" decoding="async" style="aspect-ratio:732/400" />
 <figcaption>Marigold inference process: Encode RGB images into Stable Diffusion latent space, generate depth map latent variables through iterative denoising steps, and finally decode into relative depth maps.</figcaption>
 </div>
 
@@ -393,7 +393,7 @@ $$E = K_2^T F K_1 = [\mathbf{t}]_\times R$$
 
 $E$ only encodes the extrinsic rotation $R$ and the (normalized) translation direction $\mathbf{t}$, and the relative pose can be recovered through SVD decomposition. Epipolar constraints reduce the two-dimensional search space to one-dimensional search on the **epipolar line (Epipolar Line)**, which is the core acceleration method of all stereo matching algorithms.
 
- <div align="center">  <img src="/images/si/pcv_epipolar_geometry.webp" width="70%" alt="Figure: Epipolar geometry. The projection centers X₀′, X₀″ and the object point"/><figcaption> Figure: Epipolar geometry. The projection centers X₀′, X₀″ and the object point</figcaption></div>
+ <div align="center">  <img src="/images/si/pcv_epipolar_geometry.webp" width="70%" alt="Figure: Epipolar geometry. The projection centers X₀′, X₀″ and the object point" loading="lazy" decoding="async" style="aspect-ratio:2339/1435"/><figcaption> Figure: Epipolar geometry. The projection centers X₀′, X₀″ and the object point</figcaption></div>
 
 ### Stereo Correction and Parallax Depth
 {: id="立体纠正与视差深度"}
@@ -404,7 +404,7 @@ $$Z = \frac{f \cdot B}{d}$$
 
 in $f$ is the focal length, $B$ for **Baseline** (Binocular distance), $Z$ for depth. The greater the parallax, the closer the distance; the parallax tends to zero, and the depth tends to infinity - this is the existence of monocular depth estimation. **scale ambiguity** geometric nature.
 
-<div align="center"><img src="/images/si/pcv_stereo_rectification.webp" width="80%" alt="picture: epipolar image generation (stereoscopic correction). The original image plane is reprojected to a common plane parallel to the baseline through two homography transformations H′, H″, so that the epipolar lines are aligned as horizontal scan lines. (Source: Author LUH Photogrammetric Computer Vision courseware)"/><figcaption> picture: epipolar image generation (stereoscopic correction). The original image plane is reprojected to a common plane parallel to the baseline through two homography transformations H′, H″, so that the epipolar lines are aligned as horizontal scan lines. (Source: Author LUH Photogrammetric Computer Vision courseware)</figcaption></div>
+<div align="center"><img src="/images/si/pcv_stereo_rectification.webp" width="80%" alt="picture: epipolar image generation (stereoscopic correction). The original image plane is reprojected to a common plane parallel to the baseline through two homography transformations H′, H″, so that the epipolar lines are aligned as horizontal scan lines. (Source: Author LUH Photogrammetric Computer Vision courseware)" loading="lazy" decoding="async" style="aspect-ratio:2339/1435"/><figcaption> picture: epipolar image generation (stereoscopic correction). The original image plane is reprojected to a common plane parallel to the baseline through two homography transformations H′, H″, so that the epipolar lines are aligned as horizontal scan lines. (Source: Author LUH Photogrammetric Computer Vision courseware)</figcaption></div>
 
 ### Semi-global matching (SGM)
 {: id="半全局匹配sgm"}
@@ -415,7 +415,7 @@ $$E(D) = \sum_{\mathbf{p}} \left( C(\mathbf{p}, D_\mathbf{p}) + \sum_{\mathbf{q}
 
 Here, $C(\mathbf{p}, d)$ is the matching cost of pixel $\mathbf{p}$ under the parallax $d$, and $P_1, P_2$ is the penalty term for small/large parallax jump respectively. SGM approaches global energy minimization with a linear complexity close to $O(WH)$ through path accumulation in 8 directions (Left/Right/Top/Bottom and diagonal).
 
-<div align="center"><img src="/images/si/pcv_sgm_cost.webp" width="80%" alt="plot: SGM cost aggregation energy function (Hirschmüller, PAMI 2008). The first item is the pixel-by-pixel matching cost, and the second and third items impose penalties P₁ and P₂ respectively on small (1 pixel) and large parallax jumps to achieve local smoothing constraints. (Source: Author LUH Photogrammetric Computer Vision courseware)"/><figcaption> plot: SGM cost aggregation energy function (Hirschmüller, PAMI 2008). The first item is the pixel-by-pixel matching cost, and the second and third items impose penalties P₁ and P₂ respectively on small (1 pixel) and large parallax jumps to achieve local smoothing constraints. (Source: Author LUH Photogrammetric Computer Vision courseware)</figcaption></div>
+<div align="center"><img src="/images/si/pcv_sgm_cost.webp" width="80%" alt="plot: SGM cost aggregation energy function (Hirschmüller, PAMI 2008). The first item is the pixel-by-pixel matching cost, and the second and third items impose penalties P₁ and P₂ respectively on small (1 pixel) and large parallax jumps to achieve local smoothing constraints. (Source: Author LUH Photogrammetric Computer Vision courseware)" loading="lazy" decoding="async" style="aspect-ratio:2041/1387"/><figcaption> plot: SGM cost aggregation energy function (Hirschmüller, PAMI 2008). The first item is the pixel-by-pixel matching cost, and the second and third items impose penalties P₁ and P₂ respectively on small (1 pixel) and large parallax jumps to achieve local smoothing constraints. (Source: Author LUH Photogrammetric Computer Vision courseware)</figcaption></div>
 
 **Census transformation** is a commonly used matching cost for SGM. It encodes the size relationship between each position in the pixel neighborhood and the center pixel as a binary string, and then uses the Hamming distance to measure the similarity. It is naturally robust to illumination changes and avoids the defect of being sensitive to absolute brightness when directly using pixel grayscale difference (SAD/SSD).
 
@@ -471,7 +471,7 @@ Where $T(t) = \exp\!\bigl(-\int_{t_n}^{t}\sigma(\mathbf{r}(s))\,\mathrm{d}s\bigr
 - Limitations: slow training (several hours/scene), only representing static scenes, and no generalization between different scenes.
 
 <div align="center">
-  <img src="/images/wm/NeRF-Pipeline.webp" width="90%" alt="NeRF rendering principle: Use Coarse MLP to estimate the density distribution after uniform sampling along the camera ray, then sample the importance of high-density areas and send it to Fine MLP. Finally, the pixel color is obtained by integrating the volume rendering equation, and the luminosity loss of the real image is back-propagated to optimize the network weight." />
+  <img src="/images/wm/NeRF-Pipeline.webp" width="90%" alt="NeRF rendering principle: Use Coarse MLP to estimate the density distribution after uniform sampling along the camera ray, then sample the importance of high-density areas and send it to Fine MLP. Finally, the pixel color is obtained by integrating the volume rendering equation, and the luminosity loss of the real image is back-propagated to optimize the network weight." loading="lazy" decoding="async" style="aspect-ratio:971/555" />
 <figcaption>NeRF rendering principle: Use Coarse MLP to estimate the density distribution after uniform sampling along the camera ray, then sample the importance of high-density areas and send it to Fine MLP. Finally, the pixel color is obtained by integrating the volume rendering equation, and the luminosity loss of the real image is back-propagated to optimize the network weight.</figcaption>
 </div>
 
@@ -498,7 +498,7 @@ During rendering, the three-dimensional Gaussian is projected onto the image pla
 - Limitations: The number of Gaussian primitives is huge (millions) and the storage overhead is large; the modeling of textureless smooth areas is weak.
 
 <div align="center">
-  <img src="/images/wm/3DGS-pipeline-overview.webp" width="90%" alt="3D Gaussian Splatting Overview: Initialize Gaussian primitives from SfM sparse point cloud, project three-dimensional Gaussians to the image plane and then sort by depth for alpha-blended rendering, gradient-driven adaptive density control (Clone/Split) to automatically propagate or prune Gaussians." />
+  <img src="/images/wm/3DGS-pipeline-overview.webp" width="90%" alt="3D Gaussian Splatting Overview: Initialize Gaussian primitives from SfM sparse point cloud, project three-dimensional Gaussians to the image plane and then sort by depth for alpha-blended rendering, gradient-driven adaptive density control (Clone/Split) to automatically propagate or prune Gaussians." loading="lazy" decoding="async" style="aspect-ratio:1430/383" />
 <figcaption>3D Gaussian Splatting Overview: Initialize Gaussian primitives from SfM sparse point cloud, project three-dimensional Gaussians to the image plane and then sort by depth for alpha-blended rendering, gradient-driven adaptive density control (Clone/Split) to automatically propagate or prune Gaussians.</figcaption>
 </div>
 
@@ -560,7 +560,7 @@ graph TD
 - **Large-scale hybrid training**: Joint pretraining on a variety of real and synthetic 3D-annotated data sets (including ScanNet, CO3D, ARKitScenes, MegaDepth, BlendedMVS, etc.) to absorb cross-domain geometric priors.
 
 <div align="center">
-  <img src="/images/si/VGGT-architecture.webp" width="92%" alt="VGGT architecture overview (Source: Wang et al., CVPR 2025, Fig. 2): DINO patches each frame image into a visual token and attaches a learnable camera token; the main body of the network consists of global self-attention (Global Attention) and frame-by-frame self-attention (Frame Attention) alternately stacked L times; finally the Camera Head outputs the internal and external parameters of the camera, and the DPT Head outputs each frame Depth map, dense point map and tracking features - all geometric quantities are obtained in parallel in one feed-forward, without the need for post-processing such as Bundle Adjustment." />
+  <img src="/images/si/VGGT-architecture.webp" width="92%" alt="VGGT architecture overview (Source: Wang et al., CVPR 2025, Fig. 2): DINO patches each frame image into a visual token and attaches a learnable camera token; the main body of the network consists of global self-attention (Global Attention) and frame-by-frame self-attention (Frame Attention) alternately stacked L times; finally the Camera Head outputs the internal and external parameters of the camera, and the DPT Head outputs each frame Depth map, dense point map and tracking features - all geometric quantities are obtained in parallel in one feed-forward, without the need for post-processing such as Bundle Adjustment." loading="lazy" decoding="async" style="aspect-ratio:1396/619" />
 <figcaption>VGGT architecture overview (Source: Wang et al., CVPR 2025, Fig. 2): DINO patches each frame image into a visual token and attaches a learnable camera token; the main body of the network consists of global self-attention (Global Attention) and frame-by-frame self-attention (Frame Attention) alternately stacked L times; finally the Camera Head outputs the internal and external parameters of the camera, and the DPT Head outputs each frame Depth map, dense point map and tracking features - all geometric quantities are obtained in parallel in one feed-forward, without the need for post-processing such as Bundle Adjustment.</figcaption>
 </div>
 
@@ -584,14 +584,14 @@ graph TD
  **MapAnything** (Keetha et al., Meta Reality Labs & CMU, arXiv:2509.13414) Pushing the "unified feedforward" paradigm of VGGT further **generalization** with **quantification** . VGGT only eats images and outputs up-to-scale geometry, while MapAnything fills two key gaps: **(1)** Flexibly accept any geometric prior (camera internal parameters, pose, depth) as **Optional input** ;  **(2)** direct output **metric-scale** 3D and camera. A single model thus covers uncalibrated SfM, calibrated MVS, monocular/multi-view depth estimation, camera positioning, metric depth completion, etc. **12+ tasks, 64 input combinations** .
 
 <div align="center">
-  <img src="/images/si/MapAnything-teaser.webp" width="92%" alt="MapAnything accepts N images and optionally comes with geometric inputs such as camera pose, internal parameters, and depth. A single feedforward outputs metric-level 3D reconstruction with camera information, uniformly covering 12+ tasks such as camera positioning, SfM, MVS, and metric depth completion." />
+  <img src="/images/si/MapAnything-teaser.webp" width="92%" alt="MapAnything accepts N images and optionally comes with geometric inputs such as camera pose, internal parameters, and depth. A single feedforward outputs metric-level 3D reconstruction with camera information, uniformly covering 12+ tasks such as camera positioning, SfM, MVS, and metric depth completion." loading="lazy" decoding="async" style="aspect-ratio:1392/665" />
 <figcaption>MapAnything accepts N images and optionally comes with geometric inputs such as camera pose, internal parameters, and depth. A single feedforward outputs metric-level 3D reconstruction with camera information, uniformly covering 12+ tasks such as camera positioning, SfM, MVS, and metric depth completion.</figcaption>
 </div>
 
 **Core Design - Factored Scene Representation**: The key insight of MapAnything is not to directly return to pointmap, but to decompose the geometry of each perspective into four decoupled components - pixel by pixel **ray direction** (equivalent camera calibration), along ray **depth**, **global pose** (quaternion + up-to-scale translation) in the first frame system, and full scene **single metric scale factor** $m$. These factors can be used to restore the local point diagram $$\tilde{L}_i = R_i \cdot \tilde{D}_i$$, the world system point diagram, and the metric three-dimensional $$X_i^{\text{metric}} = m \cdot \tilde{X}_i$$ step by step. This set of factor representations simultaneously serves as the optional input **of** and the final output **of**: fed according to the same parameterization when there is a prior, and degenerates into pure image reconstruction when there is no prior.
 
 <div align="center">
-  <img src="/images/si/MapAnything-architecture.webp" width="92%" alt="MapAnything Architecture Overview: N-channel images and optional geometric inputs are each encoded into a shared latent space and added per view, combined with a learnable scale token and sent to the alternating attention Transformer; a single DPT head decodes the density of each view (ray direction, depth, mask, confidence), the pose head predicts the pose of each view, and the scale token is given by MLP to give the full scene metric scale factor." />
+  <img src="/images/si/MapAnything-architecture.webp" width="92%" alt="MapAnything Architecture Overview: N-channel images and optional geometric inputs are each encoded into a shared latent space and added per view, combined with a learnable scale token and sent to the alternating attention Transformer; a single DPT head decodes the density of each view (ray direction, depth, mask, confidence), the pose head predicts the pose of each view, and the scale token is given by MLP to give the full scene metric scale factor." loading="lazy" decoding="async" style="aspect-ratio:1398/933" />
 <figcaption>MapAnything Architecture Overview: N-channel images and optional geometric inputs are each encoded into a shared latent space and added per view, combined with a learnable scale token and sent to the alternating attention Transformer; a single DPT head decodes the density of each view (ray direction, depth, mask, confidence), the pose head predicts the pose of each view, and the scale token is given by MLP to give the full scene metric scale factor.</figcaption>
 </div>
 
@@ -606,7 +606,7 @@ graph TD
 - It uses the same computing power of two dedicated models to train 12+ tasks at a time, but the performance is comparable to or even exceeds that of multiple bespoke expert models, verifying the efficiency of multi-task training; at 2-500 views, the inference speed and peak GPU memory are better than concurrent models such as VGGT and Depth-Anything-3.
 
 <div align="center">
-  <img src="/images/si/MapAnything-vs-VGGT.webp" width="90%" alt="Qualitative comparison of MapAnything and VGGT when using only in-the-wild image input (both apply the same normal edge mask and sky mask). MapAnything is significantly more robust to large parallax changes, seasonal differences, textureless surfaces, water bodies, and large scenes." />
+  <img src="/images/si/MapAnything-vs-VGGT.webp" width="90%" alt="Qualitative comparison of MapAnything and VGGT when using only in-the-wild image input (both apply the same normal edge mask and sky mask). MapAnything is significantly more robust to large parallax changes, seasonal differences, textureless surfaces, water bodies, and large scenes." loading="lazy" decoding="async" style="aspect-ratio:1398/836" />
 <figcaption> Qualitative comparison of MapAnything and VGGT when using only in-the-wild image input (both apply the same normal edge mask and sky mask). MapAnything is significantly more robust to large parallax changes, seasonal differences, textureless surfaces, water bodies, and large scenes.</figcaption>
 </div>
 
@@ -638,14 +638,14 @@ Static 3DGS has limitations in modeling dynamic scenes. **Dynamic 3D Gaussians**
 **VoxelNet** (Zhou & Tuzel, CVPR 2018) is the first end-to-end framework to learn 3D object detection directly from lidar point cloud. It voxels the point cloud, uses a VFE (Voxel Feature Encoding) layer to extract local features in each non-empty voxel, and then completes detection through a three-dimensional convolutional backbone network and RPN, eliminating artificial feature engineering. However, due to the use of conventional dense three-dimensional convolution, its calculation and GPU memory overhead are extremely high, which limits its real-time performance.
 
 <div align="center">
-  <img src="/images/si/voxelnet_architecture.webp" width="90%" alt="VoxelNet Architecture" />
+  <img src="/images/si/voxelnet_architecture.webp" width="90%" alt="VoxelNet Architecture" loading="lazy" decoding="async" style="aspect-ratio:838/431" />
 <figcaption>VoxelNet Architecture</figcaption>
 </div>
 
 **SECOND** (Sparsely Embedded Convolutional Detection, Yan et al., Sensors 2018) Aiming at the high cost of conventional three-dimensional convolution in VoxelNet, **sparse convolution (Sparse Convolution)** and manifold sparse convolution (Submanifold Sparse Convolution), the convolution calculation is only performed on non-empty voxels, which greatly improves the training and inference speed, and improves the angle regression loss function, making the voxel-based method truly of practical value.
 
 <div align="center">
-  <img src="/images/si/SECOND_architecture.jpg" width="90%" alt="SECOND Architecture" />
+  <img src="/images/si/SECOND_architecture.jpg" width="90%" alt="SECOND Architecture" loading="lazy" decoding="async" style="aspect-ratio:1440/1228" />
 <figcaption>SECOND Architecture</figcaption>
 </div>
 
@@ -656,7 +656,7 @@ Static 3DGS has limitations in modeling dynamic scenes. **Dynamic 3D Gaussians**
 - PointPillars drives real-time deployment of 3D inspection systems on embedded hardware.
 
 <div align="center">
-  <img src="/images/si/PointPillars-architecture.png" width="90%" alt="PointPillars architecture: compress the point cloud into a columnar (Pillar) pseudo-image along the height direction, extract the columnar features through PointNet and scatter them back to the 2D BEV feature map, and then output the three-dimensional bounding box through the 2D CNN backbone network and SSD detection head." />
+  <img src="/images/si/PointPillars-architecture.png" width="90%" alt="PointPillars architecture: compress the point cloud into a columnar (Pillar) pseudo-image along the height direction, extract the columnar features through PointNet and scatter them back to the 2D BEV feature map, and then output the three-dimensional bounding box through the 2D CNN backbone network and SSD detection head." loading="lazy" decoding="async" style="aspect-ratio:720/230" />
 <figcaption>PointPillars architecture: compress the point cloud into a columnar (Pillar) pseudo-image along the height direction, extract the columnar features through PointNet and scatter them back to the 2D BEV feature map, and then output the three-dimensional bounding box through the 2D CNN backbone network and SSD detection head.</figcaption>
 </div>
 
@@ -676,7 +676,7 @@ Static 3DGS has limitations in modeling dynamic scenes. **Dynamic 3D Gaussians**
 - BEV unified representation supports multi-task joint training such as detection, tracking, and map segmentation.
 
 <div align="center">
-  <img src="/images/si/BEVFormer-architecture.png" width="90%" alt="BEVFormer architecture: Preset grid Query in the BEV plane, project sampling features from multi-camera images to BEV space through spatial cross-attention, and then use temporal self-attention to fuse historical BEV frames to implicitly encode motion information, and finally send it to the detection/segmentation head." />
+  <img src="/images/si/BEVFormer-architecture.png" width="90%" alt="BEVFormer architecture: Preset grid Query in the BEV plane, project sampling features from multi-camera images to BEV space through spatial cross-attention, and then use temporal self-attention to fuse historical BEV frames to implicitly encode motion information, and finally send it to the detection/segmentation head." loading="lazy" decoding="async" style="aspect-ratio:720/271" />
 <figcaption>BEVFormer architecture: Preset grid Query in the BEV plane, project sampling features from multi-camera images to BEV space through spatial cross-attention, and then use temporal self-attention to fuse historical BEV frames to implicitly encode motion information, and finally send it to the detection/segmentation head.</figcaption>
 </div>
 
@@ -717,7 +717,7 @@ graph LR
 **ScanRefer** (Chen et al., ECCV 2020) proposed the **three-dimensional visual grounding (3D Visual Grounding)** task: given a natural language description (such as "the brown chair near the door"), in the three-dimensional point cloud Locate the target object in the scene (output a 3D bounding box). The ScanRefer dataset contains 51,583 verbal descriptions of objects in ScanNet scans and is a core benchmark for 3D verbal localization directions. After ScanRefer, **Nr3D/Sr3D** (Achlioptas et al., 2020) and **ScanQA** (Azuma et al., CVPR 2022) further expanded the evaluation dimensions of three-dimensional language understanding.
 
 <div align="center">
-  <img src="/images/si/ScanRefer-grounding.webp" width="85%" alt="ScanRefer 3D visual grounding example: Given a natural language description (such as &quot;brown chair near the door&quot;), the model locates the target in the 3D point cloudscene and outputs the 3D bounding box. It needs to simultaneously understand the spatial relationship clues in the language and resolve ambiguities in the point cloud." />
+  <img src="/images/si/ScanRefer-grounding.webp" width="85%" alt="ScanRefer 3D visual grounding example: Given a natural language description (such as &quot;brown chair near the door&quot;), the model locates the target in the 3D point cloudscene and outputs the 3D bounding box. It needs to simultaneously understand the spatial relationship clues in the language and resolve ambiguities in the point cloud." loading="lazy" decoding="async" style="aspect-ratio:1800/941" />
 <figcaption>ScanRefer 3D visual grounding example: Given a natural language description (such as "brown chair near the door"), the model locates the target in the 3D point cloudscene and outputs the 3D bounding box. It needs to simultaneously understand the spatial relationship clues in the language and resolve ambiguities in the point cloud.</figcaption>
 </div>
 
@@ -733,7 +733,7 @@ graph LR
 - Laying the foundation for subsequent three-dimensional multimodal large model (3D MLLM).
 
 <div align="center">
-  <img src="/images/si/3DLLM-architecture.png" width="90%" alt="3D-LLM framework: Utilizes a 3D feature extractor based on the diffusion model to map the point cloudscene into a token sequence, injects it into the context window of LLM, and supports tasks such as scene question and answer, visual grounding and multi-round dialogue." />
+  <img src="/images/si/3DLLM-architecture.png" width="90%" alt="3D-LLM framework: Utilizes a 3D feature extractor based on the diffusion model to map the point cloudscene into a token sequence, injects it into the context window of LLM, and supports tasks such as scene question and answer, visual grounding and multi-round dialogue." loading="lazy" decoding="async" style="aspect-ratio:841/461" />
 <figcaption>3D-LLM framework: Utilizes a 3D feature extractor based on the diffusion model to map the point cloudscene into a token sequence, injects it into the context window of LLM, and supports tasks such as scene question and answer, visual grounding and multi-round dialogue.</figcaption>
 </div>
 
@@ -749,7 +749,7 @@ graph LR
 - Dramatically improve performance in spatial reasoning-intensive downstream tasks such as robot manipulation.
 
 <div align="center">
-  <img src="/images/si/SpatialVLM-pipeline.webp" width="85%" alt="SpatialVLM data generation pipeline: Use three-dimensional sensor data to automatically generate quantitative spatial reasoning question and answer pairs such as distance estimation, orientation judgment, size comparison, etc., and perform special spatial reasoning fine-tuning on VLM to significantly improve the accuracy of the model on quantitative spatial problems." />
+  <img src="/images/si/SpatialVLM-pipeline.webp" width="85%" alt="SpatialVLM data generation pipeline: Use three-dimensional sensor data to automatically generate quantitative spatial reasoning question and answer pairs such as distance estimation, orientation judgment, size comparison, etc., and perform special spatial reasoning fine-tuning on VLM to significantly improve the accuracy of the model on quantitative spatial problems." loading="lazy" decoding="async" style="aspect-ratio:1800/915" />
 <figcaption>SpatialVLM data generation pipeline: Use three-dimensional sensor data to automatically generate quantitative spatial reasoning question and answer pairs such as distance estimation, orientation judgment, size comparison, etc., and perform special spatial reasoning fine-tuning on VLM to significantly improve the accuracy of the model on quantitative spatial problems.</figcaption>
 </div>
 
@@ -765,7 +765,7 @@ graph LR
 - Introducing multi-granularity spatial language alignment to support fine-grained object-level and scene-level descriptions.
 
 <div align="center">
-  <img src="/images/si/EmbodiedScan-overview.webp" width="90%" alt="EmbodiedScan framework overview: Taking the first-person RGB-D perspective stream actively explored by the agent as input, it uniformly supports multi-task evaluation such as 3D object detection, 3D visual grounding and scene question and answer." />
+  <img src="/images/si/EmbodiedScan-overview.webp" width="90%" alt="EmbodiedScan framework overview: Taking the first-person RGB-D perspective stream actively explored by the agent as input, it uniformly supports multi-task evaluation such as 3D object detection, 3D visual grounding and scene question and answer." loading="lazy" decoding="async" style="aspect-ratio:1800/828" />
 <figcaption>EmbodiedScan framework overview: Taking the first-person RGB-D perspective stream actively explored by the agent as input, it uniformly supports multi-task evaluation such as 3D object detection, 3D visual grounding and scene question and answer.</figcaption>
 </div>
 
@@ -793,7 +793,7 @@ The aforementioned 3D-LLM ([§6.7](#sec-6-7)), PointLLM-V2 ([§6.8](#sec-6-8)) a
 These two reconstruction heads are trained jointly with text supervision, allowing the model to obtain three-dimensional perception capabilities without changing the input form (still video frame + instructions). Ross3D achieved the current SOTA on multiple 3D scene understanding benchmarks; more importantly, its **semi-supervised experiment** showed that performance can be significantly improved with the help of a large amount of "purely visual, no language annotation" 3D data - this provides a scalable path to alleviate the 3D visual-language data bottleneck, and Depth Anything (§4.2) has the same idea of "using massive unlabeled data to drive base models".
 
 <div align="center">
-  <img src="/images/si/Ross3D-architecture.webp" width="95%" alt="Ross3D’s two types of 3D-aware reconstruction targets (Source: Ross3D official repository Haochen-Wang409/ross3d). Left: Cross-view reconstruction - after masking part of the video frame, the masked view is restored by LLM by aggregating overlapping views; Right: Global view reconstruction - aggregating all views to reconstruct the bird&#x27;s-eye view (BEV) of the scene. Both reconstructions are jointly trained with text supervision, implicitly injecting 3D perception into a multimodal large model designed for 2D content." />
+  <img src="/images/si/Ross3D-architecture.webp" width="95%" alt="Ross3D’s two types of 3D-aware reconstruction targets (Source: Ross3D official repository Haochen-Wang409/ross3d). Left: Cross-view reconstruction - after masking part of the video frame, the masked view is restored by LLM by aggregating overlapping views; Right: Global view reconstruction - aggregating all views to reconstruct the bird&#x27;s-eye view (BEV) of the scene. Both reconstructions are jointly trained with text supervision, implicitly injecting 3D perception into a multimodal large model designed for 2D content." loading="lazy" decoding="async" style="aspect-ratio:1800/403" />
 <figcaption>Ross3D’s two types of 3D-aware reconstruction targets (Source: Ross3D official repository Haochen-Wang409/ross3d). Left: Cross-view reconstruction - after masking part of the video frame, the masked view is restored by LLM by aggregating overlapping views; Right: Global view reconstruction - aggregating all views to reconstruct the bird's-eye view (BEV) of the scene. Both reconstructions are jointly trained with text supervision, implicitly injecting 3D perception into a multimodal large model designed for 2D content.</figcaption>
 </div>
 
@@ -930,7 +930,7 @@ View Synthesis is a long-standing problem in computer graphics. Traditional meth
 {: id="2-主要方法创新点"}
 
 <div align="center">
-  <img src="/images/wm/NeRF-Overview.webp" width="100%" alt="NeRF Overview: Optimize continuous 5D neural radiance fields from sparse 2D image sets and render images from new perspectives." />
+  <img src="/images/wm/NeRF-Overview.webp" width="100%" alt="NeRF Overview: Optimize continuous 5D neural radiance fields from sparse 2D image sets and render images from new perspectives." loading="lazy" decoding="async" style="aspect-ratio:973/487" />
 <figcaption>
 NeRF Overview: Optimize continuous 5D neural radiance fields from sparse 2D image sets and render images from new perspectives.
 </figcaption>
@@ -940,7 +940,7 @@ NeRF's core pipeline includes the following key technologies:
 
 1. **5D Neural scene representation**:
 <div align="center">
-  <img src="/images/wm/NeRF-Architecture.webp" width="100%" alt="NeRF network architecture: The spatial position x first passes through 8 layers of MLP to generate the volume density \sigma and feature vectors, and then combines the viewing direction d to output the viewing angle-related RGB color through an additional layer." />
+  <img src="/images/wm/NeRF-Architecture.webp" width="100%" alt="NeRF network architecture: The spatial position x first passes through 8 layers of MLP to generate the volume density \sigma and feature vectors, and then combines the viewing direction d to output the viewing angle-related RGB color through an additional layer." loading="lazy" decoding="async" style="aspect-ratio:972/444" />
 <figcaption>
 NeRF network architecture: The spatial position $x$ first passes through 8 layers of MLP to generate the volume density $\sigma$ and feature vectors, and then combines the viewing direction $d$ to output the viewing angle-related RGB color through an additional layer.
 </figcaption>
@@ -949,7 +949,7 @@ By constraining volume density to only depend on position, and color to depend o
 
 2. **Differentiable rendering pipeline**:
 <div align="center">
-  <img src="/images/wm/NeRF-Pipeline.webp" width="100%" alt="NeRF training pipeline: Sampling along rays -&gt; Query MLP -&gt; Volume rendering synthetic pixels -&gt; Calculate loss with ground truth and backpropagate." />
+  <img src="/images/wm/NeRF-Pipeline.webp" width="100%" alt="NeRF training pipeline: Sampling along rays -&gt; Query MLP -&gt; Volume rendering synthetic pixels -&gt; Calculate loss with ground truth and backpropagate." loading="lazy" decoding="async" style="aspect-ratio:971/555" />
 <figcaption>
 NeRF training pipeline: Sampling along rays -> Query MLP -> Volume rendering synthetic pixels -> Calculate loss with ground truth and backpropagate.
 </figcaption>
@@ -968,7 +968,7 @@ This enables MLP to fit high-frequency changing colors and geometric details, av
 
 - **Quantitatively and qualitatively surpasses**: In synthetic data sets (such as Lego, Drums) and real scenarios, NeRF's PSNR and SSIM indicators greatly surpassed the then SOTA (such as LLFF, SRN).
 <div align="center">
-  <img src="/images/wm/NeRF-Comparison.webp" width="100%" alt="Comparative experiments: NeRF shows significant advantages in recovering complex geometries (e.g., Lego interiors, microscope grids) and non-Lambertian reflections." />
+  <img src="/images/wm/NeRF-Comparison.webp" width="100%" alt="Comparative experiments: NeRF shows significant advantages in recovering complex geometries (e.g., Lego interiors, microscope grids) and non-Lambertian reflections." loading="lazy" decoding="async" style="aspect-ratio:971/1273" />
 <figcaption>
 Comparative experiments: NeRF shows significant advantages in recovering complex geometries (e.g., Lego interiors, microscope grids) and non-Lambertian reflections.
 </figcaption>
@@ -1009,7 +1009,7 @@ The Neural Radiance Field (NeRF) method achieves high-quality novel view synthes
 {: id="2-主要方法创新点-1"}
 
 <div align="center">
-  <img src="/images/wm/3DGS-pipeline-overview.webp" width="100%" alt="3DGS overall pipeline: Initialize 3D Gaussians from SfM sparse point cloud, render the image through projection and differentiable Tile Rasterizer, adjust the number of Gaussians through adaptive density control after gradient return" />
+  <img src="/images/wm/3DGS-pipeline-overview.webp" width="100%" alt="3DGS overall pipeline: Initialize 3D Gaussians from SfM sparse point cloud, render the image through projection and differentiable Tile Rasterizer, adjust the number of Gaussians through adaptive density control after gradient return" loading="lazy" decoding="async" style="aspect-ratio:1430/383" />
 <figcaption>
 3DGS overall pipeline: Initialize 3D Gaussians from SfM sparse point cloud, render the image through projection and differentiable Tile Rasterizer, adjust the number of Gaussians through adaptive density control after gradient return
 </figcaption>
@@ -1034,7 +1034,7 @@ When rendering, the 3D Gaussian is projected to the image plane, and the affine 
 **Differentiable Tile-based Rasterizer**
 
 <div align="center">
-  <img src="/images/wm/3DGS-adaptive-densification.webp" width="80%" alt="Adaptive Gaussian density control scheme: under-reconstructed area (top) fills in details by cloning small Gaussians; over-reconstructed area (bottom) splits a large Gaussian into two smaller Gaussians" />
+  <img src="/images/wm/3DGS-adaptive-densification.webp" width="80%" alt="Adaptive Gaussian density control scheme: under-reconstructed area (top) fills in details by cloning small Gaussians; over-reconstructed area (bottom) splits a large Gaussian into two smaller Gaussians" loading="lazy" decoding="async" style="aspect-ratio:694/541" />
 <figcaption>
 Adaptive Gaussian density control scheme: under-reconstructed area (top) fills in details by cloning small Gaussians; over-reconstructed area (bottom) splits a large Gaussian into two smaller Gaussians
 </figcaption>
@@ -1063,14 +1063,14 @@ $$\mathcal{L} = (1-\lambda)\mathcal{L}_1 + \lambda \mathcal{L}_\text{D-SSIM}, \q
 {: id="3-核心结果发现-1"}
 
 <div align="center">
-  <img src="/images/wm/3DGS-comparison-teaser.webp" width="100%" alt="Speed-quality comparison between 3DGS and the main baseline methods: it only takes 6 minutes to train to achieve the same quality as InstantNGP. After 51 minutes of training, the quality exceeds Mip-NeRF360 (48h training), and the rendering frame rate reaches 93-135 fps." />
+  <img src="/images/wm/3DGS-comparison-teaser.webp" width="100%" alt="Speed-quality comparison between 3DGS and the main baseline methods: it only takes 6 minutes to train to achieve the same quality as InstantNGP. After 51 minutes of training, the quality exceeds Mip-NeRF360 (48h training), and the rendering frame rate reaches 93-135 fps." loading="lazy" decoding="async" style="aspect-ratio:1428/508" />
 <figcaption>
 Speed-quality comparison between 3DGS and the main baseline methods: it only takes 6 minutes to train to achieve the same quality as InstantNGP. After 51 minutes of training, the quality exceeds Mip-NeRF360 (48h training), and the rendering frame rate reaches 93-135 fps.
 </figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/wm/3DGS-qualitative-comparison.webp" width="100%" alt="Comparison of visual quality on multiple datasets such as Mip-NeRF360, Tanks&amp;Temples, and Deep Blending. 3DGS performs well in retaining details and reducing artifacts." />
+  <img src="/images/wm/3DGS-qualitative-comparison.webp" width="100%" alt="Comparison of visual quality on multiple datasets such as Mip-NeRF360, Tanks&amp;Temples, and Deep Blending. 3DGS performs well in retaining details and reducing artifacts." loading="lazy" decoding="async" style="aspect-ratio:1428/1694" />
 <figcaption>
 Comparison of visual quality on multiple datasets such as Mip-NeRF360, Tanks&Temples, and Deep Blending. 3DGS performs well in retaining details and reducing artifacts.
 </figcaption>
@@ -1123,12 +1123,12 @@ By embedding language features into 3D Gaussian representation, explicit 3D inpu
 SplatTalk's pipeline is divided into three stages: feature autoencoder training, self-supervised 3D-Language Gaussian Splatting training, and 3D VQA inference.
 
 <div align="center">
-  <img src="/images/si/SplatTalk-pipeline.webp" width="100%" alt="Figure 1: SplatTalk overall pipeline. The multi-view RGB image is encoded into a Visual-Language Feature Map through pretraining 2D VLM, and then a 3D-Language Gaussian Field is constructed through the feedforward 3D Gaussian Splatting model; during inference, the Gaussian language features are directly sent to the LLM to complete 3D VQA." />
+  <img src="/images/si/SplatTalk-pipeline.webp" width="100%" alt="Figure 1: SplatTalk overall pipeline. The multi-view RGB image is encoded into a Visual-Language Feature Map through pretraining 2D VLM, and then a 3D-Language Gaussian Field is constructed through the feedforward 3D Gaussian Splatting model; during inference, the Gaussian language features are directly sent to the LLM to complete 3D VQA." loading="lazy" decoding="async" style="aspect-ratio:1394/559" />
 <figcaption> Figure 1: SplatTalk overall pipeline. The multi-view RGB image is encoded into a Visual-Language Feature Map through pretraining 2D VLM, and then a 3D-Language Gaussian Field is constructed through the feedforward 3D Gaussian Splatting model; during inference, the Gaussian language features are directly sent to the LLM to complete 3D VQA.</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/si/SplatTalk-architecture.webp" width="100%" alt="Figure 2: SplatTalk detailed architecture. The training feature autoencoder on the left compresses the LLaVA-OV high-dimensional visual token into a 256-dimensional compact hypersphere; the middle jointly trains RGB rendering and language feature rendering (shared Gaussian parameters); the language features are extracted from 3D Gaussian during inference on the right, sampled and sent to LLM." />
+  <img src="/images/si/SplatTalk-architecture.webp" width="100%" alt="Figure 2: SplatTalk detailed architecture. The training feature autoencoder on the left compresses the LLaVA-OV high-dimensional visual token into a 256-dimensional compact hypersphere; the middle jointly trains RGB rendering and language feature rendering (shared Gaussian parameters); the language features are extracted from 3D Gaussian during inference on the right, sampled and sent to LLM." loading="lazy" decoding="async" style="aspect-ratio:1398/710" />
 <figcaption>Figure 2: SplatTalk detailed architecture. The training feature autoencoder on the left compresses the LLaVA-OV high-dimensional visual token into a 256-dimensional compact hypersphere; the middle jointly trains RGB rendering and language feature rendering (shared Gaussian parameters); the language features are extracted from 3D Gaussian during inference on the right, sampled and sent to LLM.</figcaption>
 </div>
 
@@ -1148,7 +1148,7 @@ SplatTalk's pipeline is divided into three stages: feature autoencoder training,
 {: id="3-核心结果发现-2"}
 
 <div align="center">
-  <img src="/images/si/SplatTalk-qualitative.webp" width="100%" alt="Figure 3: ScanQA qualitative comparison (SplatTalk vs LLaVA-OV vs Ground Truth). SplatTalk correctly identified spatial relationships between objects spanning large distances (such as the relative positions of doors and windows), whereas LLaVA-OV frequently made errors on this type of problem." />
+  <img src="/images/si/SplatTalk-qualitative.webp" width="100%" alt="Figure 3: ScanQA qualitative comparison (SplatTalk vs LLaVA-OV vs Ground Truth). SplatTalk correctly identified spatial relationships between objects spanning large distances (such as the relative positions of doors and windows), whereas LLaVA-OV frequently made errors on this type of problem." loading="lazy" decoding="async" style="aspect-ratio:1398/711" />
 <figcaption> Figure 3: ScanQA qualitative comparison (SplatTalk vs LLaVA-OV vs Ground Truth). SplatTalk correctly identified spatial relationships between objects spanning large distances (such as the relative positions of doors and windows), whereas LLaVA-OV frequently made errors on this type of problem.</figcaption>
 </div>
 
@@ -1185,7 +1185,7 @@ LangSplatV2 solves the core pain point of slow inference of 3D language fields a
 Although LangSplat has significantly improved speed compared to previous NeRF methods, its inference speed is only 8.2 FPS (A100) when processing high-resolution images, which is far from real-time requirements. The analysis found that the bottleneck lies in the need to use a heavyweight **MLP decoder** to restore the rendered low-dimensional latent variables to high-dimensional CLIP features. Directly rendering high-dimensional features will lead to memory crashes and a sharp drop in rendering efficiency. This contradiction between "accuracy and speed" limits the application of 3D language fields in real-time robot interaction.
 
 <div align="center">
-  <img src="/images/vln/LangSplatV2-bottleneck-analysis.webp" width="80%" alt="LangSplat The rendering time increases sharply as the feature dimension increases, and low-end graphics cards cannot bear the memory overhead caused by high-dimensional features" />
+  <img src="/images/vln/LangSplatV2-bottleneck-analysis.webp" width="80%" alt="LangSplat The rendering time increases sharply as the feature dimension increases, and low-end graphics cards cannot bear the memory overhead caused by high-dimensional features" loading="lazy" decoding="async" style="aspect-ratio:566/559" />
 <figcaption>LangSplat The rendering time increases sharply as the feature dimension increases, and low-end graphics cards cannot bear the memory overhead caused by high-dimensional features</figcaption>
 </div>
 
@@ -1199,12 +1199,12 @@ The core idea of ​​LangSplatV2 is to use semantic distribution **sparsity** 
 * **Efficient Sparse Splatting (Efficient Sparse Splatting)**: A specialized CUDA kernel was developed to take advantage of the sparsity of coefficients and perform Alpha-blending only on non-zero channels. This makes the cost of rendering a 1536-dimensional feature map equivalent to rendering extremely low-dimensional features, greatly reducing the computational complexity.
 
 <div align="center">
-  <img src="/images/vln/LangSplatV2-framework.webp" width="100%" alt="LangSplatV2 architecture: By learning sparse coefficients and global codebooks, high-dimensional feature rendering is converted into low-dimensional coefficient rendering + matrix multiplication" />
+  <img src="/images/vln/LangSplatV2-framework.webp" width="100%" alt="LangSplatV2 architecture: By learning sparse coefficients and global codebooks, high-dimensional feature rendering is converted into low-dimensional coefficient rendering + matrix multiplication" loading="lazy" decoding="async" style="aspect-ratio:1118/445" />
 <figcaption>LangSplatV2 architecture: By learning sparse coefficients and global codebooks, high-dimensional feature rendering is converted into low-dimensional coefficient rendering + matrix multiplication</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vln/LangSplatV2-sparse-splatting.webp" width="80%" alt="Efficient sparse Splatting principle: only perform mixed calculations on Top-K non-zero coefficients" />
+  <img src="/images/vln/LangSplatV2-sparse-splatting.webp" width="80%" alt="Efficient sparse Splatting principle: only perform mixed calculations on Top-K non-zero coefficients" loading="lazy" decoding="async" style="aspect-ratio:572/488" />
 <figcaption> Efficient sparse Splatting principle: only perform mixed calculations on Top-K non-zero coefficients</figcaption>
 </div>
 
@@ -1276,12 +1276,12 @@ user input: "red chair" --> CLIP encoding --> [ text features T (1,D)]
 * **GPU memory friendly**: Successfully run high-dimensional 3D language field modeling on consumer-grade graphics cards such as RTX 3090/4090.
 
 <div align="center">
-  <img src="/images/vln/LangSplatV2-localization-results.webp" width="100%" alt="&#x27;s 3D object positioning effects on the LERF data set, LangSplatV2&#x27;s prediction points are more accurate and the boundaries are clearer" />
+  <img src="/images/vln/LangSplatV2-localization-results.webp" width="100%" alt="&#x27;s 3D object positioning effects on the LERF data set, LangSplatV2&#x27;s prediction points are more accurate and the boundaries are clearer" loading="lazy" decoding="async" style="aspect-ratio:1122/477" />
 Comparison of<figcaption>'s 3D object positioning effects on the LERF data set, LangSplatV2's prediction points are more accurate and the boundaries are clearer</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vln/LangSplatV2-segmentation-results.webp" width="100%" alt="Qualitative comparison of semantic segmentation: The mask generated by LangSplatV2 has less noise and more accurate object contours" />
+  <img src="/images/vln/LangSplatV2-segmentation-results.webp" width="100%" alt="Qualitative comparison of semantic segmentation: The mask generated by LangSplatV2 has less noise and more accurate object contours" loading="lazy" decoding="async" style="aspect-ratio:1118/821" />
 <figcaption> Qualitative comparison of semantic segmentation: The mask generated by LangSplatV2 has less noise and more accurate object contours</figcaption>
 </div>
 
@@ -1324,12 +1324,12 @@ LangSplat enables accurate open-vocabulary queries of static scenes by splatting
 {: id="2-主要方法创新点-4"}
 
 <div align="center">
-  <img src="/images/vlm/4DLangSplat-teaser.webp" width="100%" alt="Figure 1: Visualization of the time-varying semantic field learned by 4D LangSplat. The upper half shows the gradual diffusion of coffee (changing color over time), the lower half shows the chicken box switching between on/off states, and the color of time-invariant objects (tabletop, cup) remains stable throughout." />
+  <img src="/images/vlm/4DLangSplat-teaser.webp" width="100%" alt="Figure 1: Visualization of the time-varying semantic field learned by 4D LangSplat. The upper half shows the gradual diffusion of coffee (changing color over time), the lower half shows the chicken box switching between on/off states, and the color of time-invariant objects (tabletop, cup) remains stable throughout." loading="lazy" decoding="async" style="aspect-ratio:1396/928" />
 <figcaption> Figure 1: Visualization of the time-varying semantic field learned by 4D LangSplat. The upper half shows the gradual diffusion of coffee (changing color over time), the lower half shows the chicken box switching between on/off states, and the color of time-invariant objects (tabletop, cup) remains stable throughout.</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vlm/4DLangSplat-framework.webp" width="100%" alt="Figure 2: 4D LangSplat overall frame. The upper part is the Multimodal Object-Wise Video Prompting process (SAM segmentation → MLLM generates captions → LLM extracts embeddings as 2D supervision); the lower part is Status Deformable Network (HexPlane spatiotemporal features → MLP predicts state weights → linear combination state prototype → Splatting supervision)." />
+  <img src="/images/vlm/4DLangSplat-framework.webp" width="100%" alt="Figure 2: 4D LangSplat overall frame. The upper part is the Multimodal Object-Wise Video Prompting process (SAM segmentation → MLLM generates captions → LLM extracts embeddings as 2D supervision); the lower part is Status Deformable Network (HexPlane spatiotemporal features → MLP predicts state weights → linear combination state prototype → Splatting supervision)." loading="lazy" decoding="async" style="aspect-ratio:1393/732" />
 <figcaption> Figure 2: 4D LangSplat overall frame. The upper part is the Multimodal Object-Wise Video Prompting process (SAM segmentation → MLLM generates captions → LLM extracts embeddings as 2D supervision); the lower part is Status Deformable Network (HexPlane spatiotemporal features → MLP predicts state weights → linear combination state prototype → Splatting supervision).</figcaption>
 </div>
 
@@ -1388,12 +1388,12 @@ Video input → SAM+DEVA segmentation tracking → Visual prompt construction �
 {: id="3-核心结果发现-4"}
 
 <div align="center">
-  <img src="/images/vlm/4DLangSplat-timesensitive-scores.webp" width="100%" alt="Figure 3: Comparison of frame-level similarity curves for time-sensitive queries. 4D LangSplat (orange) can accurately identify the state switching moment, while the similarity curve of Deformable CLIP (blue) is flat or even misaligned, making it impossible to reliably locate the relevant frame segments." />
+  <img src="/images/vlm/4DLangSplat-timesensitive-scores.webp" width="100%" alt="Figure 3: Comparison of frame-level similarity curves for time-sensitive queries. 4D LangSplat (orange) can accurately identify the state switching moment, while the similarity curve of Deformable CLIP (blue) is flat or even misaligned, making it impossible to reliably locate the relevant frame segments." loading="lazy" decoding="async" style="aspect-ratio:1392/575" />
 <figcaption>Figure 3: Comparison of frame-level similarity curves for time-sensitive queries. 4D LangSplat (orange) can accurately identify the state switching moment, while the similarity curve of Deformable CLIP (blue) is flat or even misaligned, making it impossible to reliably locate the relevant frame segments.</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vlm/4DLangSplat-mask-comparison.webp" width="100%" alt="Figure 4: Time-sensitive query mask comparison. For &quot;complete cookie&quot; and &quot;empty glass cup&quot; queries, Deformable CLIP has a large number of misjudgments at the state transition frame (especially at the boundary), and the mask of 4D LangSplat is highly consistent with GT." />
+  <img src="/images/vlm/4DLangSplat-mask-comparison.webp" width="100%" alt="Figure 4: Time-sensitive query mask comparison. For &quot;complete cookie&quot; and &quot;empty glass cup&quot; queries, Deformable CLIP has a large number of misjudgments at the state transition frame (especially at the boundary), and the mask of 4D LangSplat is highly consistent with GT." loading="lazy" decoding="async" style="aspect-ratio:1396/712" />
 <figcaption> Figure 4: Time-sensitive query mask comparison. For "complete cookie" and "empty glass cup" queries, Deformable CLIP has a large number of misjudgments at the state transition frame (especially at the boundary), and the mask of 4D LangSplat is highly consistent with GT.</figcaption>
 </div>
 
@@ -1456,7 +1456,7 @@ Current mainstream methods of 3D VLM rely on object detectors to extract object-
 {: id="2-主要方法创新点-5"}
 
 <div align="center">
-  <img src="/images/vlm/GaussianVLM-teaser.webp" width="100%" alt="GaussianVLM supports six types of tasks: Embodied Reasoning, Embodied Planning, Embodied Dialogue, Scene Captioning, Question Answering, and Object Captioning, covering scene-level and object-level understanding." />
+  <img src="/images/vlm/GaussianVLM-teaser.webp" width="100%" alt="GaussianVLM supports six types of tasks: Embodied Reasoning, Embodied Planning, Embodied Dialogue, Scene Captioning, Question Answering, and Object Captioning, covering scene-level and object-level understanding." loading="lazy" decoding="async" style="aspect-ratio:1416/715" />
 <figcaption>GaussianVLM supports six types of tasks: Embodied Reasoning, Embodied Planning, Embodied Dialogue, Scene Captioning, Question Answering, and Object Captioning, covering scene-level and object-level understanding.</figcaption>
 </div>
 
@@ -1465,7 +1465,7 @@ Current mainstream methods of 3D VLM rely on object detectors to extract object-
 GaussianVLM consists of three core modules: **(A) Language-aligned Gaussian Backbone** (SceneSplat) encodes 3D scenes into 40k dense language features; **(B) Dual Sparsifier** (Position Guide + Task guidance) compresses dense representation into sparse tokens; **(C) LLM** (OPT-1.3B + LoRA) receives sparse tokens and task text and generates responses.
 
 <div align="center">
-  <img src="/images/vlm/GaussianVLM-architecture.webp" width="100%" alt="GaussianVLM complete architecture: The left side shows the overall data flow (3D scene → SceneSplat → Dual sparsifier → LLM), and the right side shows the internal structures of position-guided sparsification (A) and task-guided sparsification (B)." />
+  <img src="/images/vlm/GaussianVLM-architecture.webp" width="100%" alt="GaussianVLM complete architecture: The left side shows the overall data flow (3D scene → SceneSplat → Dual sparsifier → LLM), and the right side shows the internal structures of position-guided sparsification (A) and task-guided sparsification (B)." loading="lazy" decoding="async" style="aspect-ratio:1418/759" />
 <figcaption>GaussianVLM complete architecture: The left side shows the overall data flow (3D scene → SceneSplat → Dual sparsifier → LLM), and the right side shows the internal structures of position-guided sparsification (A) and task-guided sparsification (B).</figcaption>
 </div>
 
@@ -1542,7 +1542,7 @@ Here, the temperature hyperparameter $\tau = 0.07$.
 ablation research shows that removing the task-guided sparsifier (switching to a learnable query without text guidance) or removing the depth-wise cross-attention (using only the final decoder output) results in a significant performance drop, proving that these two designs are the main source of performance gains.
 
 <div align="center">
-  <img src="/images/vlm/GaussianVLM-qualitative-results.webp" width="100%" alt="scene-level tasks: GaussianVLM (left) and LEO/LL3DA baseline (right). GaussianVLM generates more accurate and semantically rich responses on all four tasks: Situated QA, Embodied Planning, Dialogue and Scene Captioning, reflecting the advantages of scene-centric global context understanding." />
+  <img src="/images/vlm/GaussianVLM-qualitative-results.webp" width="100%" alt="scene-level tasks: GaussianVLM (left) and LEO/LL3DA baseline (right). GaussianVLM generates more accurate and semantically rich responses on all four tasks: Situated QA, Embodied Planning, Dialogue and Scene Captioning, reflecting the advantages of scene-centric global context understanding." loading="lazy" decoding="async" style="aspect-ratio:1416/1766" />
 Comparison of qualitative results of<figcaption> scene-level tasks: GaussianVLM (left) and LEO/LL3DA baseline (right). GaussianVLM generates more accurate and semantically rich responses on all four tasks: Situated QA, Embodied Planning, Dialogue and Scene Captioning, reflecting the advantages of scene-centric global context understanding.</figcaption>
 </div>
 
@@ -1597,7 +1597,7 @@ In order to solve the problem of scarcity of 3D-language data, the author design
 - **Revision based Prompting**: Rewrite and optimize the existing rough 3D description to improve semantic richness.
 
 <div align="center">
-  <img src="/images/si/3D-LLM-data-generation.webp" width="100%" alt="Figure 1: Three 3D-language data generation pipelines" />
+  <img src="/images/si/3D-LLM-data-generation.webp" width="100%" alt="Figure 1: Three 3D-language data generation pipelines" loading="lazy" decoding="async" style="aspect-ratio:968/930" />
 <figcaption> Figure 1: Three 3D-language data generation pipelines</figcaption>
 </div>
 
@@ -1617,7 +1617,7 @@ The system first renders multi-view images from a 3D scene and extracts features
   - **Position Token**: Add several discrete position tokens (such as `<loc123>`) to the vocabulary to represent the coordinates of the AABB box. LLM implements object positioning (Grounding) by outputting these tokens.
 
 <div align="center">
-  <img src="/images/si/3D-LLM-architecture.webp" width="100%" alt="Figure 2: Overall architecture of 3D-LLM, including feature extraction and alignment process" />
+  <img src="/images/si/3D-LLM-architecture.webp" width="100%" alt="Figure 2: Overall architecture of 3D-LLM, including feature extraction and alignment process" loading="lazy" decoding="async" style="aspect-ratio:1118/618" />
 <figcaption>Figure 2: Overall architecture of 3D-LLM, including feature extraction and alignment process</figcaption>
 </div>
 
@@ -1626,7 +1626,7 @@ The system first renders multi-view images from a 3D scene and extracts features
 The 300k+ data generated covers 3D Captioning, Grounding, QA, Task Decomposition, 3D-Assisted Dialog and navigation, etc.
 
 <div align="center">
-  <img src="/images/si/3D-LLM-task-examples.webp" width="100%" alt="Figure 3: 3D-LLM generated data covering diverse 3D related tasks" />
+  <img src="/images/si/3D-LLM-task-examples.webp" width="100%" alt="Figure 3: 3D-LLM generated data covering diverse 3D related tasks" loading="lazy" decoding="async" style="aspect-ratio:1061/1186" />
 <figcaption> Figure 3: 3D-LLM generated data covering diverse 3D related tasks</figcaption>
 </div>
 
@@ -1639,7 +1639,7 @@ The 300k+ data generated covers 3D Captioning, Grounding, QA, Task Decomposition
 - **Qualitative analysis**: The model can provide reasonable navigation path suggestions and task execution steps based on 3D scenes, showing preliminary potential for embodied intelligence.
 
 <div align="center">
-  <img src="/images/si/3D-LLM-qualitative-results.webp" width="100%" alt="Figure 4: Qualitative prediction results of 3D-LLM in 3D question answering and scene description tasks" />
+  <img src="/images/si/3D-LLM-qualitative-results.webp" width="100%" alt="Figure 4: Qualitative prediction results of 3D-LLM in 3D question answering and scene description tasks" loading="lazy" decoding="async" style="aspect-ratio:1103/1267" />
 <figcaption>Figure 4: Qualitative prediction results of 3D-LLM in 3D question answering and scene description tasks</figcaption>
 </div>
 
@@ -1679,7 +1679,7 @@ Although large language models (LLM) have achieved great success in the field of
 PointLLM-V2 is a multimodal large language model that can understand colorful point clouds. It has strong ability to understand object categories, geometric shapes, and appearance features, and supports fine local coordinate perception.
 
 <div align="center">
-  <img src="/images/si/PointLLM-V2-overview.webp" width="100%" alt="Figure 1: PointLLM-V2 capability overview" />
+  <img src="/images/si/PointLLM-V2-overview.webp" width="100%" alt="Figure 1: PointLLM-V2 capability overview" loading="lazy" decoding="async" style="aspect-ratio:1450/838" />
 <figcaption>Figure 1: PointLLM-V2 capability overview</figcaption>
 </div>
 
@@ -1688,7 +1688,7 @@ PointLLM-V2 is a multimodal large language model that can understand colorful po
 The authors propose an innovative data generation process to convert 3D point cloud into instruction data understandable by LLM.
 
 <div align="center">
-  <img src="/images/si/PointLLM-V2-data-pipeline.webp" width="100%" alt="Figure 2: Automated data generation pipeline flow chart" />
+  <img src="/images/si/PointLLM-V2-data-pipeline.webp" width="100%" alt="Figure 2: Automated data generation pipeline flow chart" loading="lazy" decoding="async" style="aspect-ratio:1446/1049" />
 <figcaption>Figure 2: Automated data generation pipeline flow chart</figcaption>
 </div>
 
@@ -1703,7 +1703,7 @@ The authors propose an innovative data generation process to convert 3D point cl
 PointLLM-V2 adopts a typical end-to-end training architecture.
 
 <div align="center">
-  <img src="/images/si/PointLLM-V2-architecture.webp" width="100%" alt="Figure 3: PointLLM-V2 overall architecture diagram" />
+  <img src="/images/si/PointLLM-V2-architecture.webp" width="100%" alt="Figure 3: PointLLM-V2 overall architecture diagram" loading="lazy" decoding="async" style="aspect-ratio:1448/601" />
 <figcaption>Figure 3: PointLLM-V2 overall architecture diagram</figcaption>
 </div>
 
@@ -1724,7 +1724,7 @@ A two-stage training program is adopted:
 {: id="3-核心结果发现-7"}
 
 <div align="center">
-  <img src="/images/si/PointLLM-V2-evaluation-framework.webp" width="100%" alt="Figure 4: Overview of the assessment framework" />
+  <img src="/images/si/PointLLM-V2-evaluation-framework.webp" width="100%" alt="Figure 4: Overview of the assessment framework" loading="lazy" decoding="async" style="aspect-ratio:1448/860" />
 <figcaption>Figure 4: Overview of the assessment framework</figcaption>
 </div>
 
@@ -1770,7 +1770,7 @@ Existing 3D Gaussian Splatting (3DGS)-based open vocabulary methods (such as Lan
 {: id="2-主要方法创新点-8"}
 
 <div align="center">
-  <img src="/images/vlm/OpenGaussian-pipeline.webp" width="100%" alt="OpenGaussian overall process: (a) instance feature learning, (b) two-level codebook discretization, (c) 3D-2D feature association" />
+  <img src="/images/vlm/OpenGaussian-pipeline.webp" width="100%" alt="OpenGaussian overall process: (a) instance feature learning, (b) two-level codebook discretization, (c) 3D-2D feature association" loading="lazy" decoding="async" style="aspect-ratio:1118/537" />
 <figcaption>OpenGaussian overall process: (a) instance feature learning, (b) two-level codebook discretization, (c) 3D-2D feature association</figcaption>
 </div>
 
@@ -1798,7 +1798,7 @@ Continuous features are prone to noise and overlap with remote object features i
 {: id="-实例级-3d-2d-特征关联-sec-33"}
 
 <div align="center">
-  <img src="/images/vlm/OpenGaussian-association.webp" width="100%" alt="3D-2D association mechanism based on IoU and feature similarity" />
+  <img src="/images/vlm/OpenGaussian-association.webp" width="100%" alt="3D-2D association mechanism based on IoU and feature similarity" loading="lazy" decoding="async" style="aspect-ratio:1118/490" />
 <figcaption>3D-2D association mechanism based on IoU and feature similarity</figcaption>
 </div>
 
@@ -1813,7 +1813,7 @@ In order to assign CLIP features to 3D points, the author proposed a correlation
 {: id="3-核心结果发现-8"}
 
 <div align="center">
-  <img src="/images/vlm/OpenGaussian-lerf-results.webp" width="100%" alt="on the LERF dataset. OpenGaussian selects objects in 3D space far more accurately than LangSplat and LEGaussians" />
+  <img src="/images/vlm/OpenGaussian-lerf-results.webp" width="100%" alt="on the LERF dataset. OpenGaussian selects objects in 3D space far more accurately than LangSplat and LEGaussians" loading="lazy" decoding="async" style="aspect-ratio:1118/829" />
 Qualitative comparison of<figcaption> on the LERF dataset. OpenGaussian selects objects in 3D space far more accurately than LangSplat and LEGaussians</figcaption>
 </div>
 
@@ -1821,7 +1821,7 @@ Qualitative comparison of<figcaption> on the LERF dataset. OpenGaussian selects 
 2. **feature distinction**: Through visualization, it is found that OpenGaussian's 3D features have extremely high boundary clarity and semantic consistency, and can accurately distinguish small objects.
 
 <div align="center">
-  <img src="/images/vlm/OpenGaussian-feature-viz.webp" width="100%" alt="3D feature visualization comparison: showing the finer granularity and higher discriminability of OpenGaussian" />
+  <img src="/images/vlm/OpenGaussian-feature-viz.webp" width="100%" alt="3D feature visualization comparison: showing the finer granularity and higher discriminability of OpenGaussian" loading="lazy" decoding="async" style="aspect-ratio:1122/812" />
 <figcaption>3D feature visualization comparison: showing the finer granularity and higher discriminability of OpenGaussian</figcaption>
 </div>
 
@@ -1851,7 +1851,7 @@ Qualitative comparison of<figcaption> on the LERF dataset. OpenGaussian selects 
 4. **small model versus large model**: With only 3B parameters, it surpasses GPT-5 and Gemini-2.5-Pro on multiple spatial benchmarks, confirming that spatial reasoning is more of a "data and training paradigm" issue than a "parameter scale" issue.
 
 <div align="center">
-  <img src="/images/si/HiSpatial-overview.webp" width="100%" alt="Figure 1 (paper Fig. 1): HiSpatial overview. The left side shows Level 0→3 four-level spatial capabilities (geometric perception/object level/relationship between objects/abstract reasoning) and real-scenario question and answer examples from top to bottom; the upper right is a multi-benchmark performance radar chart (HiSpatial-3B is significantly extended to Gemini-2.5-Pro ​​and GPT-5), and the lower right is &quot;level dependency&quot; ablation - removing low-level training tasks will significantly reduce Level 2/3 performance." />
+  <img src="/images/si/HiSpatial-overview.webp" width="100%" alt="Figure 1 (paper Fig. 1): HiSpatial overview. The left side shows Level 0→3 four-level spatial capabilities (geometric perception/object level/relationship between objects/abstract reasoning) and real-scenario question and answer examples from top to bottom; the upper right is a multi-benchmark performance radar chart (HiSpatial-3B is significantly extended to Gemini-2.5-Pro ​​and GPT-5), and the lower right is &quot;level dependency&quot; ablation - removing low-level training tasks will significantly reduce Level 2/3 performance." loading="lazy" decoding="async" style="aspect-ratio:1390/869" />
 <figcaption> Figure 1 (paper Fig. 1): HiSpatial overview. The left side shows Level 0→3 four-level spatial capabilities (geometric perception/object level/relationship between objects/abstract reasoning) and real-scenario question and answer examples from top to bottom; the upper right is a multi-benchmark performance radar chart (HiSpatial-3B is significantly extended to Gemini-2.5-Pro ​​and GPT-5), and the lower right is "level dependency" ablation - removing low-level training tasks will significantly reduce Level 2/3 performance.</figcaption>
 </div>
 
@@ -1883,14 +1883,14 @@ graph TD
 **(2) Fully automated data engine**: Without manual annotation, the engine synthesizes **over 2 billion spatial VQA examples** from approximately **5 million images and over 45 million objects** (KosMos-2, Objects365, and CA-1M). It covers free-form questions, multiple-choice questions, and true/false questions; Level 3 questions are solved using GPT rather than templates. The pipeline has three steps. First, MoGe-2 estimates per-pixel point maps; RAM/GroundingDINO/SAM detect and segment objects; OrientAnything-v2 estimates orientation; and Perspective Fields establishes a gravity-aligned world coordinate system to produce structured spatial information. Second, Describe Anything and Qwen2.5/3-VL generate textual referring expressions with VLM verification. Finally, task templates synthesize question–answer pairs at each level:
 
 <div align="center">
-  <img src="/images/si/HiSpatial-taxonomy-pipeline.webp" width="100%" alt="Figure 2 (paper Fig. 2): The left is the spatial VQA construction pipeline - automatically estimating spatial information from existing 3D annotated data, generating text references and synthesizing massive QA; the right is the hierarchical task system of three-dimensional space understanding, which lists Level 0 (point query/depth sorting), Level 1 (positioning/orientation/size), Level 2 (relative direction/distance/comparison), Level Representative question and answer examples for 3 (Perspective Transformation/Spatial Counting/Problem Solving)." />
+  <img src="/images/si/HiSpatial-taxonomy-pipeline.webp" width="100%" alt="Figure 2 (paper Fig. 2): The left is the spatial VQA construction pipeline - automatically estimating spatial information from existing 3D annotated data, generating text references and synthesizing massive QA; the right is the hierarchical task system of three-dimensional space understanding, which lists Level 0 (point query/depth sorting), Level 1 (positioning/orientation/size), Level 2 (relative direction/distance/comparison), Level Representative question and answer examples for 3 (Perspective Transformation/Spatial Counting/Problem Solving)." loading="lazy" decoding="async" style="aspect-ratio:1390/854" />
 <figcaption> Figure 2 (paper Fig. 2): The left is the spatial VQA construction pipeline - automatically estimating spatial information from existing 3D annotated data, generating text references and synthesizing massive QA; the right is the hierarchical task system of three-dimensional space understanding, which lists Level 0 (point query/depth sorting), Level 1 (positioning/orientation/size), Level 2 (relative direction/distance/comparison), Level Representative question and answer examples for 3 (Perspective Transformation/Spatial Counting/Problem Solving).</figcaption>
 </div>
 
 **(3) RGB-D VLM** with metric point map injection: using PaliGemma-2 (SigLIP Vision Encoder + Gemma-2, ~3B parameters) as base. In addition to RGB, an additional **metric scale 3D point map** is input ($H\times W\times4$: XYZ coordinates + validity mask, provided by MoGe-2 estimation or depth sensor). After sinusoidal position encoding and learnable Conv2D patchify, features aligned with the image patch are obtained, which are spliced and projected with the RGB token into a fusion token. Enter LLM. The key difference is that the **measurement scale** is used instead of relative depth, thereby providing dimensional information such as absolute distance and real object size.
 
 <div align="center">
-  <img src="/images/si/HiSpatial-architecture.webp" width="85%" alt="Figure 3 (paper Fig. 3): RGB-D VLM architecture. The metric scale point map (estimate or true value) is encoded by sinusoidal position encoding and Patch Embedding, and the RGB image is encoded by the visual encoder. The two-way features are spliced ​​and sent to the language model through linear projection. Based on this, the model answers spatial questions that require absolute 3D information such as &quot;Which is closer to the camera, the TV or the door?&quot;" />
+  <img src="/images/si/HiSpatial-architecture.webp" width="85%" alt="Figure 3 (paper Fig. 3): RGB-D VLM architecture. The metric scale point map (estimate or true value) is encoded by sinusoidal position encoding and Patch Embedding, and the RGB image is encoded by the visual encoder. The two-way features are spliced ​​and sent to the language model through linear projection. Based on this, the model answers spatial questions that require absolute 3D information such as &quot;Which is closer to the camera, the TV or the door?&quot;" loading="lazy" decoding="async" style="aspect-ratio:670/437" />
 <figcaption> Figure 3 (paper Fig. 3): RGB-D VLM architecture. The metric scale point map (estimate or true value) is encoded by sinusoidal position encoding and Patch Embedding, and the RGB image is encoded by the visual encoder. The two-way features are spliced ​​and sent to the language model through linear projection. Based on this, the model answers spatial questions that require absolute 3D information such as "Which is closer to the camera, the TV or the door?"</figcaption>
 </div>
 
@@ -1953,12 +1953,12 @@ With only 3B parameters, HiSpatial leads large closed-source systems in multiple
 {: id="2-主要方法创新点-10"}
 
 <div align="center">
-  <img src="/images/si/LLaVA-3D-overview.webp" width="100%" alt="LLaVA-3D framework overview, achieving efficient 3D scene understanding, faster convergence speed and inference efficiency" />
+  <img src="/images/si/LLaVA-3D-overview.webp" width="100%" alt="LLaVA-3D framework overview, achieving efficient 3D scene understanding, faster convergence speed and inference efficiency" loading="lazy" decoding="async" style="aspect-ratio:1390/921" />
 <figcaption>LLaVA-3D framework overview, achieving efficient 3D scene understanding, faster convergence speed and inference efficiency</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/si/LLaVA-3D-architecture.webp" width="100%" alt="LLaVA-3D architecture design, including 3D Patch construction, pooling, 3D coordinate encoding and decoding and Grounding Decoder" />
+  <img src="/images/si/LLaVA-3D-architecture.webp" width="100%" alt="LLaVA-3D architecture design, including 3D Patch construction, pooling, 3D coordinate encoding and decoding and Grounding Decoder" loading="lazy" decoding="async" style="aspect-ratio:1390/513" />
 <figcaption>LLaVA-3D architecture design, including 3D Patch construction, pooling, 3D coordinate encoding and decoding and Grounding Decoder</figcaption>
 </div>
 
@@ -1996,12 +1996,12 @@ The input multi-view RGB frames and their depth maps are first input into the vi
 In addition to supporting standard text and image question and answer during inference, the model also supports interactive understanding. Users can click on specific pixels in a 2D image or video frame, and the click position is projected to 3D space through the camera geometry to generate a 3D Coordinate Token, which guides the model to generate a 3D bounding box and detailed description text for a specific object.
 
 <div align="center">
-  <img src="/images/si/LLaVA-3D-dataset.webp" width="100%" alt="LLaVA-3D-Instruct-86K Data distribution and details of mixed 3D corpus" />
+  <img src="/images/si/LLaVA-3D-dataset.webp" width="100%" alt="LLaVA-3D-Instruct-86K Data distribution and details of mixed 3D corpus" loading="lazy" decoding="async" style="aspect-ratio:673/413" />
 <figcaption>LLaVA-3D-Instruct-86K Data distribution and details of mixed 3D corpus</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/si/LLaVA-3D-interaction.webp" width="100%" alt="LLaVA-3D supported click-based three-dimensional question and answer and description interaction example" />
+  <img src="/images/si/LLaVA-3D-interaction.webp" width="100%" alt="LLaVA-3D supported click-based three-dimensional question and answer and description interaction example" loading="lazy" decoding="async" style="aspect-ratio:1394/496" />
 <figcaption>LLaVA-3D supported click-based three-dimensional question and answer and description interaction example</figcaption>
 </div>
 
@@ -2062,7 +2062,7 @@ The entire data synthesis pipeline consists of three links: **dynamic video filt
 **① Video source and dynamic filtering**
 
 <div align="center">
-  <img src="/images/vlm/LLaVA-Video-sources.webp" width="100%" alt="Left: More than 40 existing video-language data sets are actually mainly derived from 10 video sources; Right: Filtering logic for dynamic videos" />
+  <img src="/images/vlm/LLaVA-Video-sources.webp" width="100%" alt="Left: More than 40 existing video-language data sets are actually mainly derived from 10 video sources; Right: Filtering logic for dynamic videos" loading="lazy" decoding="async" style="aspect-ratio:1320/733" />
 <figcaption> Left: More than 40 existing video-language data sets are actually mainly derived from 10 video sources; Right: Filtering logic for dynamic videos</figcaption>
 </div>
 
@@ -2073,7 +2073,7 @@ The entire data synthesis pipeline consists of three links: **dynamic video filt
 **② Recursive three-layer detailed subtitle generation**
 
 <div align="center">
-  <img src="/images/vlm/LLaVA-Video-caption-pipeline.webp" width="100%" alt="Three-layer recursive subtitle generation pipeline: level-1 every 10s, level-2 every 30s, level-3 the whole film, each layer is conditioned on historical description" />
+  <img src="/images/vlm/LLaVA-Video-caption-pipeline.webp" width="100%" alt="Three-layer recursive subtitle generation pipeline: level-1 every 10s, level-2 every 30s, level-3 the whole film, each layer is conditioned on historical description" loading="lazy" decoding="async" style="aspect-ratio:1326/937" />
 <figcaption> Three-layer recursive subtitle generation pipeline: level-1 every 10s, level-2 every 30s, level-3 the whole film, each layer is conditioned on historical description</figcaption>
 </div>
 
@@ -2086,14 +2086,14 @@ Densely sample frame at 1 FPS, calling GPT-4o recursively at three time granular
 **Design motivation**: Different from solutions such as Video ReCap that first describe each paragraph independently and then summarize it, each level-1 description here carries historical context when generated to ensure the correlation of events before and after the timeline (such as identifying the same person across time periods). The following figure ablation shows the role of historical context:
 
 <div align="center">
-  <img src="/images/vlm/LLaVA-Video-historical-context.webp" width="100%" alt="Comparison of subtitles with/without historical context: Characters appearing in different time periods can be correctly identified as the same person when there is historical context" />
+  <img src="/images/vlm/LLaVA-Video-historical-context.webp" width="100%" alt="Comparison of subtitles with/without historical context: Characters appearing in different time periods can be correctly identified as the same person when there is historical context" loading="lazy" decoding="async" style="aspect-ratio:1245/456" />
 <figcaption> Comparison of subtitles with/without historical context: Characters appearing in different time periods can be correctly identified as the same person when there is historical context</figcaption>
 </div>
 
 **③ QA generation guided by 16 types of questions**
 
 <div align="center">
-  <img src="/images/vlm/LLaVA-Video-question-types.webp" width="100%" alt="Refer to the 16 question types and examples defined by the public video QA benchmark" />
+  <img src="/images/vlm/LLaVA-Video-question-types.webp" width="100%" alt="Refer to the 16 question types and examples defined by the public video QA benchmark" loading="lazy" decoding="async" style="aspect-ratio:1322/433" />
 <figcaption> Refer to the 16 question types and examples defined by the public video QA benchmark</figcaption>
 </div>
 
@@ -2104,7 +2104,7 @@ Densely sample frame at 1 FPS, calling GPT-4o recursively at three time granular
 A piece of video data ultimately contains three types of annotations:
 
 <div align="center">
-  <img src="/images/vlm/LLaVA-Video-data-example.webp" width="100%" alt="data sample: detailed description, open QA, multiple choice QA three types of annotation" />
+  <img src="/images/vlm/LLaVA-Video-data-example.webp" width="100%" alt="data sample: detailed description, open QA, multiple choice QA three types of annotation" loading="lazy" decoding="async" style="aspect-ratio:1248/594" />
 <figcaption> data sample: detailed description, open QA, multiple choice QA three types of annotation</figcaption>
 </div>
 
@@ -2116,7 +2116,7 @@ Compared with similar synthetic datasets: LLaVA-Hound 900K videos, but 44% are f
 The model follows the LLaVA-OneVision architecture: SigLIP visual encoder + two-layer MLP projector + Qwen2 LLM, and is fine-tuned starting from the LLaVA-OneVision single image (SI) stage checkpoint. The core problem is the token budget: when T=100 frame and M=729 tokens per frame, there are a total of 67,600 visual tokens. The 72B model can only fit 8 frames on 128 H100s.
 
 <div align="center">
-  <img src="/images/vlm/LLaVA-Video-slowfast.webp" width="100%" alt="SlowFast video representation: slow frame (take one frame for every s frame) uses smaller pooling to retain more tokens, fast frame uses larger pooling for compression, and is staggered" />
+  <img src="/images/vlm/LLaVA-Video-slowfast.webp" width="100%" alt="SlowFast video representation: slow frame (take one frame for every s frame) uses smaller pooling to retain more tokens, fast frame uses larger pooling for compression, and is staggered" loading="lazy" decoding="async" style="aspect-ratio:1233/587" />
 <figcaption>SlowFast video representation: slow frame (take one frame for every s frame) uses smaller pooling to retain more tokens, fast frame uses larger pooling for compression, and is staggered</figcaption>
 </div>
 
@@ -2193,7 +2193,7 @@ Videos originate from multiple platforms and inherit the inherent bias of the so
 ROSS3D consists of three parts: video encoder $\mathcal E_\phi$ (extracting multi-view video frame features), large language model $\mathcal P_\theta$ (processing visual token + text instructions, autoregressive output), and denoiser $\mathcal J_\pi$ (a lightweight DiT-based denoising network responsible for "translating" the visual output of the LMM back to the image latent space, thereby supervising the visual output). Cooperation among the three: the video encoder generates a visual prefix token and inputs it to the LLM. The LLM also outputs a "visual token" while generating text. The denoiser uses these visual tokens as conditions to denoise and reconstruct the specified target image (occluded perspective or BEV image).
 
 <div align="center">
-  <img src="/images/vlm/ROSS3D-paradigm-comparison.webp" width="100%" alt="and existing 3D LMM paradigm. (a) (b) (c) is the 3D perception design at the input level (point cloud feature fusion, 3D patch pooling, multi-view video processing), (d) is the core idea of ​​ROSS3D - through two visual reconstruction tasks, cross-view reconstruction (left) and global-view reconstruction (right), 3D perception signals are injected into the supervision of visual output." />
+  <img src="/images/vlm/ROSS3D-paradigm-comparison.webp" width="100%" alt="and existing 3D LMM paradigm. (a) (b) (c) is the 3D perception design at the input level (point cloud feature fusion, 3D patch pooling, multi-view video processing), (d) is the core idea of ​​ROSS3D - through two visual reconstruction tasks, cross-view reconstruction (left) and global-view reconstruction (right), 3D perception signals are injected into the supervision of visual output." loading="lazy" decoding="async" style="aspect-ratio:1396/762" />
 Comparison between<figcaption> and existing 3D LMM paradigm. (a) (b) (c) is the 3D perception design at the input level (point cloud feature fusion, 3D patch pooling, multi-view video processing), (d) is the core idea of ​​ROSS3D - through two visual reconstruction tasks, cross-view reconstruction (left) and global-view reconstruction (right), 3D perception signals are injected into the supervision of visual output.</figcaption>
 </div>
 
@@ -2217,7 +2217,7 @@ Comparison between<figcaption> and existing 3D LMM paradigm. (a) (b) (c) is the 
   - **output**: predicted noise, used to calculate MSE with the real noise, thereby backpropagating the gradient to optimize the visual output of the LLM.
 
 <div align="center">
-  <img src="/images/vlm/ROSS3D-pipeline-denoiser.webp" width="100%" alt="(a) ROSS3D overall process - the video frame is input to LLM through masking, and the denoiser reconstructs the masked perspective and BEV image respectively based on the visual output; (b) The internal structure of the denoiser, based on DiT, can learn query, visual output and time step information through cross-attention fusion." />
+  <img src="/images/vlm/ROSS3D-pipeline-denoiser.webp" width="100%" alt="(a) ROSS3D overall process - the video frame is input to LLM through masking, and the denoiser reconstructs the masked perspective and BEV image respectively based on the visual output; (b) The internal structure of the denoiser, based on DiT, can learn query, visual output and time step information through cross-attention fusion." loading="lazy" decoding="async" style="aspect-ratio:1398/614" />
 <figcaption> (a) ROSS3D overall process - the video frame is input to LLM through masking, and the denoiser reconstructs the masked perspective and BEV image respectively based on the visual output; (b) The internal structure of the denoiser, based on DiT, can learn query, visual output and time step information through cross-attention fusion.</figcaption>
 </div>
 
@@ -2288,7 +2288,7 @@ The paper does not specifically discuss the Limitations chapter, but from the de
 3D reconstruction has long been dominated by "visual geometry + iterative optimization": the classic SfM/MVS pipeline (COLMAP, etc.) relies on feature matching, triangulation and Bundle Adjustment, which is complex and computationally expensive. In recent years, DUSt3R / MASt3R have used feedforward networks to directly regress and align point maps, taking a step towards optimization, but they can only process them at a time. **two images** , multiple images must be fused by pairwise reconstruction + global alignment, which still requires expensive test-time optimization. The core questions to be answered in this article are: **Can a network be powerful enough to directly predict all three-dimensional properties of a set of images in one go, almost completely abandoning geometric post-processing?**
 
 <div align="center">
-  <img src="/images/si/VGGT-teaser.webp" width="100%" alt="VGGT can simultaneously predict cameras, point maps, depth maps and point trajectories from up to hundreds of images in one feedforward operation, which takes less than 1 second and is often better than methods that require post-processing optimization." />
+  <img src="/images/si/VGGT-teaser.webp" width="100%" alt="VGGT can simultaneously predict cameras, point maps, depth maps and point trajectories from up to hundreds of images in one feedforward operation, which takes less than 1 second and is often better than methods that require post-processing optimization." loading="lazy" decoding="async" style="aspect-ratio:1390/620" />
 <figcaption>VGGT can simultaneously predict cameras, point maps, depth maps and point trajectories from up to hundreds of images in one feedforward operation, which takes less than 1 second and is often better than methods that require post-processing optimization.</figcaption>
 </div>
 
@@ -2307,7 +2307,7 @@ $$f\,(I_i)_{i=1}^{N} = (g_i, D_i, P_i, T_i)_{i=1}^{N}$$
 Map N RGB images into camera parameters $g_i$, depth map $D_i$, point map $P_i$ and tracking features $T_i$ for each frame.
 
 <div align="center">
-  <img src="/images/si/VGGT-architecture.webp" width="100%" alt="VGGT architecture overview (Fig. 2): DINO patches each frame image into a visual token and attaches a camera token; the subject is alternately stacked L times by global self-attention and frame-by-frame self-attention; the Camera Head outputs camera internal and external parameters, and the DPT Head outputs each frame depth map, dense point map, and tracking features—all geometric quantities are generated in parallel in one feedforward." />
+  <img src="/images/si/VGGT-architecture.webp" width="100%" alt="VGGT architecture overview (Fig. 2): DINO patches each frame image into a visual token and attaches a camera token; the subject is alternately stacked L times by global self-attention and frame-by-frame self-attention; the Camera Head outputs camera internal and external parameters, and the DPT Head outputs each frame depth map, dense point map, and tracking features—all geometric quantities are generated in parallel in one feedforward." loading="lazy" decoding="async" style="aspect-ratio:1396/619" />
 <figcaption>VGGT architecture overview (Fig. 2): DINO patches each frame image into a visual token and attaches a camera token; the subject is alternately stacked L times by global self-attention and frame-by-frame self-attention; the Camera Head outputs camera internal and external parameters, and the DPT Head outputs each frame depth map, dense point map, and tracking features—all geometric quantities are generated in parallel in one feedforward.</figcaption>
 </div>
 
@@ -2389,7 +2389,7 @@ Camera, depth, and point map are not independent (point map can be derived from 
 - **Efficiency**: Feature backbone processing 1→200 frame, expanded from 0.04 seconds/1.88GB to 8.75 seconds/40.63GB; Camera Head only accounts for about 5% runtime and 2% GPU memory.
 
 <div align="center">
-  <img src="/images/si/VGGT-qualitative.webp" width="100%" alt="and DUSt3R on in-the-wild images: VGGT can correctly reconstruct oil paintings (DUSt3R gives slightly distorted planes), zero-overlap dual-view scenes (DUSt3R fails) and repeated texture scenes; DUSt3R exceeds 32 frames, which means GPU memory overflows, while VGGT is two to three orders of magnitude faster." />
+  <img src="/images/si/VGGT-qualitative.webp" width="100%" alt="and DUSt3R on in-the-wild images: VGGT can correctly reconstruct oil paintings (DUSt3R gives slightly distorted planes), zero-overlap dual-view scenes (DUSt3R fails) and repeated texture scenes; DUSt3R exceeds 32 frames, which means GPU memory overflows, while VGGT is two to three orders of magnitude faster." loading="lazy" decoding="async" style="aspect-ratio:1396/895" />
 Qualitative comparison between<figcaption> and DUSt3R on in-the-wild images: VGGT can correctly reconstruct oil paintings (DUSt3R gives slightly distorted planes), zero-overlap dual-view scenes (DUSt3R fails) and repeated texture scenes; DUSt3R exceeds 32 frames, which means GPU memory overflows, while VGGT is two to three orders of magnitude faster.</figcaption>
 </div>
 
@@ -2435,7 +2435,7 @@ Fisheye/panoramic images are not supported; in **extreme input rotation** The re
 Traditional image-based 3D reconstruction is split into a series of independent subtasks such as feature matching, two-view pose, camera calibration, BA, MVS, and monocular depth, which are solved in series. Although recent feedforward methods (DUSt3R, MASt3R, VGGT, π³, etc.) unify some subtasks into one transformer, they still have three major limitations: **(a)** only consumes image input and cannot utilize internal parameters/pose priors commonly seen in robot scenes; **(b)** Multi-prediction coupled pointmaps require expensive post-processing to restore the camera and geometry, and often have redundant branches; **(c)** has a limited number of views, only models simple pinhole cameras, and most of them cannot output metric scale. The core question to be solved in this article is: Can **use a feedforward backbone to directly output metric-level 3D reconstruction and camera from any number of viewing angles + any geometric prior subset?**
 
 <div align="center">
-  <img src="/images/si/MapAnything-teaser.webp" width="100%" alt="MapAnything accepts N images and optionally comes with geometric inputs such as camera pose, internal parameters, depth, etc., and outputs metric-level 3D reconstruction with camera information in a single feedforward, uniformly covering 12+ tasks such as camera positioning, SfM, MVS, and metric depth completion." />
+  <img src="/images/si/MapAnything-teaser.webp" width="100%" alt="MapAnything accepts N images and optionally comes with geometric inputs such as camera pose, internal parameters, depth, etc., and outputs metric-level 3D reconstruction with camera information in a single feedforward, uniformly covering 12+ tasks such as camera positioning, SfM, MVS, and metric depth completion." loading="lazy" decoding="async" style="aspect-ratio:1392/665" />
 <figcaption>MapAnything accepts N images and optionally comes with geometric inputs such as camera pose, internal parameters, depth, etc., and outputs metric-level 3D reconstruction with camera information in a single feedforward, uniformly covering 12+ tasks such as camera positioning, SfM, MVS, and metric depth completion.</figcaption>
 </div>
 
@@ -2445,7 +2445,7 @@ Traditional image-based 3D reconstruction is split into a series of independent 
 {: id="2-主要方法创新点-14"}
 
 <div align="center">
-  <img src="/images/si/MapAnything-architecture.webp" width="100%" alt="MapAnything architecture overview. N-channel images and optional geometric inputs are first encoded into a shared latent space and added per-view, combined with a learnable scale token and then sent to the alternating attention transformer; a single DPT head decodes the dense amount of each view, the pose head predicts the pose of each view, and the scale token is given by MLP to give the full scene metric scale factor." />
+  <img src="/images/si/MapAnything-architecture.webp" width="100%" alt="MapAnything architecture overview. N-channel images and optional geometric inputs are first encoded into a shared latent space and added per-view, combined with a learnable scale token and then sent to the alternating attention transformer; a single DPT head decodes the dense amount of each view, the pose head predicts the pose of each view, and the scale token is given by MLP to give the full scene metric scale factor." loading="lazy" decoding="async" style="aspect-ratio:1398/933" />
 <figcaption>MapAnything architecture overview. N-channel images and optional geometric inputs are first encoded into a shared latent space and added per-view, combined with a learnable scale token and then sent to the alternating attention transformer; a single DPT head decodes the dense amount of each view, the pose head predicts the pose of each view, and the scale token is given by MLP to give the full scene metric scale factor.</figcaption>
 </div>
 
@@ -2512,7 +2512,7 @@ During training, a priori is given with a total geometric input probability of 0
 - **speed/GPU memory**: Compared with concurrency models such as VGGT and Depth-Anything-3, MapAnything has the best speed and peak GPU memory at 2-500 viewing angles; the mem-efficient variant cycles dense heads in small batches according to viewing angles, substantially reducing GPU memory without losing speed.
 
 <div align="center">
-  <img src="/images/si/MapAnything-vs-VGGT.webp" width="100%" alt="Qualitative comparison of MapAnything and VGGT when using only in-the-wild image input (both apply the same normal edge mask and sky mask). MapAnything is significantly more robust to large parallax changes, seasonal differences, textureless surfaces, water bodies, and large scenes." />
+  <img src="/images/si/MapAnything-vs-VGGT.webp" width="100%" alt="Qualitative comparison of MapAnything and VGGT when using only in-the-wild image input (both apply the same normal edge mask and sky mask). MapAnything is significantly more robust to large parallax changes, seasonal differences, textureless surfaces, water bodies, and large scenes." loading="lazy" decoding="async" style="aspect-ratio:1398/836" />
 <figcaption> Qualitative comparison of MapAnything and VGGT when using only in-the-wild image input (both apply the same normal edge mask and sky mask). MapAnything is significantly more robust to large parallax changes, seasonal differences, textureless surfaces, water bodies, and large scenes.</figcaption>
 </div>
 
@@ -2565,7 +2565,7 @@ DA3 gives a positive answer to these two questions by introducing "Depth-Ray" re
 {: id="2-主要方法创新点-15"}
 
 <div align="center">
-  <img src="/images/vln/DepthAnything3-pipeline.webp" width="100%" alt="Depth Anything 3 Overall architecture: Based on the Plain Transformer backbone network (such as DINOv2), it supports camera pose condition input, performs intra-view and inter-view interaction through adaptive cross-view attention, and uses dual DPT heads to jointly predict consistent depth and ray maps." />
+  <img src="/images/vln/DepthAnything3-pipeline.webp" width="100%" alt="Depth Anything 3 Overall architecture: Based on the Plain Transformer backbone network (such as DINOv2), it supports camera pose condition input, performs intra-view and inter-view interaction through adaptive cross-view attention, and uses dual DPT heads to jointly predict consistent depth and ray maps." loading="lazy" decoding="async" style="aspect-ratio:1328/616" />
 <figcaption>Depth Anything 3 Overall architecture: Based on the Plain Transformer backbone network (such as DINOv2), it supports camera pose condition input, performs intra-view and inter-view interaction through adaptive cross-view attention, and uses dual DPT heads to jointly predict consistent depth and ray maps.</figcaption>
 </div>
 
@@ -2587,7 +2587,7 @@ In order to adapt to the number of input views ranging from a single image (mono
 {: id="-共享特征的双-dpt-头dual-dpt-head"}
 
 <div align="center">
-  <img src="/images/vln/DepthAnything3-dual-dpt.webp" width="80%" alt="Dual-DPT Head structure: Depth and ray estimation tasks share a high-order feature reassembly module (Reassemble), which is only separated in the final fusion output stage to improve the efficiency and consistency of joint estimation." />
+  <img src="/images/vln/DepthAnything3-dual-dpt.webp" width="80%" alt="Dual-DPT Head structure: Depth and ray estimation tasks share a high-order feature reassembly module (Reassemble), which is only separated in the final fusion output stage to improve the efficiency and consistency of joint estimation." loading="lazy" decoding="async" style="aspect-ratio:668/515" />
 <figcaption>Dual-DPT Head structure: Depth and ray estimation tasks share a high-order feature reassembly module (Reassemble), which is only separated in the final fusion output stage to improve the efficiency and consistency of joint estimation.</figcaption>
 </div>
 
@@ -2600,7 +2600,7 @@ $$(s^*, t^*) = \arg\min_{s > 0, t} \sum_{p \in \Omega} m_p \left\lvert s \tilde{
 Finally, the aligned dense label $D_{T \to M}$ is used to supervise the student network, so that the student model not only inherits the accuracy of the real pose, but also obtains extremely clear depth edge details.
 
 <div align="center">
-  <img src="/images/vln/DepthAnything3-teacher-supervision.webp" width="90%" alt="Teacher-supervised ablation comparison: Compared with no Teacher supervision, the model trained using Teacher pseudo-label supervision can capture richer three-dimensional microstructure and edge details." />
+  <img src="/images/vln/DepthAnything3-teacher-supervision.webp" width="90%" alt="Teacher-supervised ablation comparison: Compared with no Teacher supervision, the model trained using Teacher pseudo-label supervision can capture richer three-dimensional microstructure and edge details." loading="lazy" decoding="async" style="aspect-ratio:1322/640" />
 <figcaption>Teacher-supervised ablation comparison: Compared with no Teacher supervision, the model trained using Teacher pseudo-label supervision can capture richer three-dimensional microstructure and edge details.</figcaption>
 </div>
 
@@ -2617,7 +2617,7 @@ $$L_{\mathrm{grad}}(\hat{D}, D) = \lVert \nabla_x \hat{D} - \nabla_x D \rVert_1 
 {: id="3-核心结果发现-15"}
 
 <div align="center">
-  <img src="/images/vln/DepthAnything3-teaser.webp" width="100%" alt="Depth Anything 3 teaser: Input any view (with or without pose), and the model reconstructs consistent high-precision geometry and high-fidelity 3D Gaussian splatter performance." />
+  <img src="/images/vln/DepthAnything3-teaser.webp" width="100%" alt="Depth Anything 3 teaser: Input any view (with or without pose), and the model reconstructs consistent high-precision geometry and high-fidelity 3D Gaussian splatter performance." loading="lazy" decoding="async" style="aspect-ratio:1326/614" />
 <figcaption>Depth Anything 3 teaser: Input any view (with or without pose), and the model reconstructs consistent high-precision geometry and high-fidelity 3D Gaussian splatter performance.</figcaption>
 </div>
 
@@ -2626,12 +2626,12 @@ $$L_{\mathrm{grad}}(\hat{D}, D) = \lVert \nabla_x \hat{D} - \nabla_x D \rVert_1 
 - **Strong generalization to downstream 3DGS**: PSNR/SSIM on DL3DV, Tanks and Temples, and MegaDepth on DL3DV, Tanks and Temples, and MegaDepth in the large-scale feedforward 3D pixel-level Gaussian prediction (FF-NVS) task using a GS-DPT head fine-tuned with DA3 as the prior backbone The rendering quality comprehensively beats the specially designed end-to-end new perspective synthesis model.
 
 <div align="center">
-  <img src="/images/vln/DepthAnything3-pointcloud-comparison.webp" width="100%" alt="reconstructed point cloud: The point cloud generated by DA3 has an extremely regular structure and almost no background noise. It has higher accuracy and completeness than similar methods." />
+  <img src="/images/vln/DepthAnything3-pointcloud-comparison.webp" width="100%" alt="reconstructed point cloud: The point cloud generated by DA3 has an extremely regular structure and almost no background noise. It has higher accuracy and completeness than similar methods." loading="lazy" decoding="async" style="aspect-ratio:1324/665" />
 Quality comparison of<figcaption> reconstructed point cloud: The point cloud generated by DA3 has an extremely regular structure and almost no background noise. It has higher accuracy and completeness than similar methods.</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vln/DepthAnything3-depth-comparison.webp" width="100%" alt="and other methods (VGGT, Pi3, Fast3R): The depth map predicted by DA3 has clear details and clean semantic boundaries, showing strong geometric fidelity." />
+  <img src="/images/vln/DepthAnything3-depth-comparison.webp" width="100%" alt="and other methods (VGGT, Pi3, Fast3R): The depth map predicted by DA3 has clear details and clean semantic boundaries, showing strong geometric fidelity." loading="lazy" decoding="async" style="aspect-ratio:1324/418" />
 Comparison of depth map quality between<figcaption> and other methods (VGGT, Pi3, Fast3R): The depth map predicted by DA3 has clear details and clean semantic boundaries, showing strong geometric fidelity.</figcaption>
 </div>
 
@@ -2682,7 +2682,7 @@ Self-supervised learning (SSL) has achieved great success in visual representati
 {: id="2-主要方法创新点-16"}
 
 <div align="center">
-  <img src="/images/vlm/MuM-architecture.webp" width="100%" alt="MuM SSL pretraining flow chart: Multiple input images belonging to the same scene are processed by a unified mask, and features are extracted independently through the ViT-L encoder, and then jointly processed and pixel reconstructed by the lightweight alternating self-attention ViT-B decoder." />
+  <img src="/images/vlm/MuM-architecture.webp" width="100%" alt="MuM SSL pretraining flow chart: Multiple input images belonging to the same scene are processed by a unified mask, and features are extracted independently through the ViT-L encoder, and then jointly processed and pixel reconstructed by the lightweight alternating self-attention ViT-B decoder." loading="lazy" decoding="async" style="aspect-ratio:1398/715" />
 <figcaption>MuM SSL pretraining flow chart: Multiple input images belonging to the same scene are processed by a unified mask, and features are extracted independently through the ViT-L encoder, and then jointly processed and pixel reconstructed by the lightweight alternating self-attention ViT-B decoder.</figcaption>
 </div>
 
@@ -2706,7 +2706,7 @@ In the last layer of the decoder, all tokens are input into a simple linear pred
 In the training phase, a sequence length $n \in [2, 24]$ is randomly sampled in each batch (and there is a 10% probability of falling back to the ordinary ImageNet-1K data of single-view $n=1$). After the sequence is sent to the encoder for feature compression, alternating self-attention is used in the decoder to "broadcast" the multi-view unmasked patch information to the masked areas of other views, and cross-view similarity and disparity cues are used to complete the lost texture. Finally, the prediction head outputs the reconstructed image and calculates the loss.
 
 <div align="center">
-  <img src="/images/vlm/MuM-reconstruction-examples.webp" width="100%" alt="data samples and reconstruction results: Even under very severe viewing angle drift and extremely low co-view overlap, MuM is still able to generate consistent and clear pixel-level reconstruction results." />
+  <img src="/images/vlm/MuM-reconstruction-examples.webp" width="100%" alt="data samples and reconstruction results: Even under very severe viewing angle drift and extremely low co-view overlap, MuM is still able to generate consistent and clear pixel-level reconstruction results." loading="lazy" decoding="async" style="aspect-ratio:673/809" />
 Visualization of<figcaption> data samples and reconstruction results: Even under very severe viewing angle drift and extremely low co-view overlap, MuM is still able to generate consistent and clear pixel-level reconstruction results.</figcaption>
 </div>
 
@@ -2724,7 +2724,7 @@ The superscripts $t$ and $s$ represent the teacher model (VGGT) and the student 
 When applied to downstream tasks such as feature matching (such as the RoMa framework) or relative pose estimation, we usually **Only keep pretraining good ViT-L encoders** As a frozen geometric feature extractor and discard the decoder part. High-resolution images are directly sent to the encoder to extract local dense features, which can be plug-and-play fed to downstream lightweight prediction heads (such as matching decoders or pose solvers).
 
 <div align="center">
-  <img src="/images/vlm/MuM-attention-correspondence.webp" width="100%" alt="decoder: In the cross-frame global attention, the value with the highest attention weight accurately falls on the corresponding common-view feature point in another view, verifying that the model has the ability to implicitly learn multi-view geometric correspondence." />
+  <img src="/images/vlm/MuM-attention-correspondence.webp" width="100%" alt="decoder: In the cross-frame global attention, the value with the highest attention weight accurately falls on the corresponding common-view feature point in another view, verifying that the model has the ability to implicitly learn multi-view geometric correspondence." loading="lazy" decoding="async" style="aspect-ratio:673/389" />
 Visualization of the global attention map of the query patch in the<figcaption> decoder: In the cross-frame global attention, the value with the highest attention weight accurately falls on the corresponding common-view feature point in another view, verifying that the model has the ability to implicitly learn multi-view geometric correspondence.</figcaption>
 </div>
 
@@ -2746,7 +2746,7 @@ Visualization of the global attention map of the query patch in the<figcaption> 
    - In monocular depth estimation (NYUd/KITTI) and surface normal estimation (NYUv2), MuM exceeds CroCo v2 and MAE, but lags behind DINOv3 with strong semantic priors (such as NYUd depth RMSE: MuM 0.41 vs DINOv3 0.34). This shows that the pixel reconstruction target is beneficial to geometric correspondence, but high-level semantic classification tasks (such as ImageNet image classification) are still dominated by the semantic distillation model (DINOv3) (ImageNet accuracy: DINOv3 86.9% vs MuM 70.8%).
 
 <div align="center">
-  <img src="/images/vlm/MuM-dense-warp.webp" width="100%" alt="Warp result comparison of Linear Probe dense matching based on frozen features: The transformation field estimated by MuM is smoother and more continuous than CroCo v2 and DINOv3, and the detail alignment is significantly improved." />
+  <img src="/images/vlm/MuM-dense-warp.webp" width="100%" alt="Warp result comparison of Linear Probe dense matching based on frozen features: The transformation field estimated by MuM is smoother and more continuous than CroCo v2 and DINOv3, and the detail alignment is significantly improved." loading="lazy" decoding="async" style="aspect-ratio:676/1155" />
 <figcaption> Warp result comparison of Linear Probe dense matching based on frozen features: The transformation field estimated by MuM is smoother and more continuous than CroCo v2 and DINOv3, and the detail alignment is significantly improved.</figcaption>
 </div>
 
@@ -2797,7 +2797,7 @@ The purpose of this article is to explore: Can the **standard VLM match or even 
 {: id="2-主要方法创新点-17"}
 
 <div align="center">
-  <img src="/images/vlm/VLM3-pipeline.webp" width="100%" alt="Figure 1: Comparison of VLM³ minimalist frame diagram and previous 3D space understanding methods" />
+  <img src="/images/vlm/VLM3-pipeline.webp" width="100%" alt="Figure 1: Comparison of VLM³ minimalist frame diagram and previous 3D space understanding methods" loading="lazy" decoding="async" style="aspect-ratio:1326/691" />
 <figcaption> Figure 1: Comparison of VLM³ minimalist frame diagram and previous 3D space understanding methods</figcaption>
 </div>
 
@@ -2830,7 +2830,7 @@ VLM³ is a minimalist and highly scalable 3D spatial understanding framework. Th
 {: id="-任务分支与端到端数据流"}
 
 <div align="center">
-  <img src="/images/vlm/VLM3-tasks-comparison.webp" width="90%" alt="Figure 2: Four major 3D understanding tasks covered by VLM³ (3D object recognition, metric depth estimation, pixel matching, camera pose estimation)" />
+  <img src="/images/vlm/VLM3-tasks-comparison.webp" width="90%" alt="Figure 2: Four major 3D understanding tasks covered by VLM³ (3D object recognition, metric depth estimation, pixel matching, camera pose estimation)" loading="lazy" decoding="async" style="aspect-ratio:1328/1296" />
 <figcaption> Figure 2: Four major 3D understanding tasks covered by VLM³ (3D object recognition, metric depth estimation, pixel matching, camera pose estimation)</figcaption>
 </div>
 
@@ -2865,7 +2865,7 @@ There is no need for any iterative reprojection optimization, multi-level Warp m
 {: id="3-核心结果发现-17"}
 
 <div align="center">
-  <img src="/images/vlm/VLM3-visualizations.webp" width="100%" alt="Figure 3: Qualitative visual analysis of the VLM³ model under various three-dimensional understanding tasks (point cloud reconstruction and multi-view estimation)" />
+  <img src="/images/vlm/VLM3-visualizations.webp" width="100%" alt="Figure 3: Qualitative visual analysis of the VLM³ model under various three-dimensional understanding tasks (point cloud reconstruction and multi-view estimation)" loading="lazy" decoding="async" style="aspect-ratio:1324/1188" />
 <figcaption> Figure 3: Qualitative visual analysis of the VLM³ model under various three-dimensional understanding tasks (point cloud reconstruction and multi-view estimation)</figcaption>
 </div>
 
@@ -2925,7 +2925,7 @@ The AUC30° indicator on ETH3D and ScanNet++ skyrocketed from 5.4% of baseline V
 {: id="2-主要方法创新点-18"}
 
 <div align="center">
-  <img src="/images/vlm/DepthLM-overview.webp" width="100%" alt="Figure 1: Comparison of point cloud and depth estimation accuracy between DepthLM and large models such as GPT-5 and pure visual models" />
+  <img src="/images/vlm/DepthLM-overview.webp" width="100%" alt="Figure 1: Comparison of point cloud and depth estimation accuracy between DepthLM and large models such as GPT-5 and pure visual models" loading="lazy" decoding="async" style="aspect-ratio:1330/720" />
 <figcaption>Figure 1: Comparison of point cloud and depth estimation accuracy between DepthLM and large models such as GPT-5 and pure visual models</figcaption>
 </div>
 
@@ -2934,7 +2934,7 @@ The AUC30° indicator on ETH3D and ScanNet++ skyrocketed from 5.4% of baseline V
 DepthLM adopts the standard VLM architecture and autoregressive text generation paradigm. The core idea is to eliminate the multi-camera ambiguity of the three-dimensional absolute scale through **camera focal length normalization** at the input end, through **visual prompt rendering** in the image space to guide the model to focus on specific pixels, and then through **extremely sparse text SFT** training model autoregressive output distance value.
 
 <div align="center">
-  <img src="/images/vlm/DepthLM-architecture.webp" width="100%" alt="Figure 2: DepthLM processing flow: camera focal length unified image scaling, visual mark rendering and standard autoregressive text SFT training" />
+  <img src="/images/vlm/DepthLM-architecture.webp" width="100%" alt="Figure 2: DepthLM processing flow: camera focal length unified image scaling, visual mark rendering and standard autoregressive text SFT training" loading="lazy" decoding="async" style="aspect-ratio:1322/462" />
 <figcaption> Figure 2: DepthLM processing flow: camera focal length unified image scaling, visual mark rendering and standard autoregressive text SFT training</figcaption>
 </div>
 
@@ -2968,7 +2968,7 @@ Experiments show that using the complex GRPO reinforcement learning algorithm an
 - **Multi-task joint prediction**: Since there is no depth branch bound, DepthLM can jointly train and perform tasks such as principal axis distance prediction (Principal axis distance), absolute distance prediction between two points, arrival time prediction, arrival speed prediction, and camera translation estimation (Pose) between two frame images under the same VLM framework.
 
 <div align="center">
-  <img src="/images/vlm/DepthLM-tasks.webp" width="100%" alt="Figure 3: Examples of various 3D tasks and their prediction results expanded under the DepthLM unified architecture" />
+  <img src="/images/vlm/DepthLM-tasks.webp" width="100%" alt="Figure 3: Examples of various 3D tasks and their prediction results expanded under the DepthLM unified architecture" loading="lazy" decoding="async" style="aspect-ratio:1322/523" />
 <figcaption> Figure 3: Examples of various 3D tasks and their prediction results expanded under the DepthLM unified architecture</figcaption>
 </div>
 
@@ -3029,7 +3029,7 @@ In order to fill this gap, this article proposes RoboRefer, which simultaneously
 {: id="2-主要方法创新点-19"}
 
 <div align="center">
-  <img src="/images/vlm/RoboRefer-teaser.webp" width="100%" alt="Multi-step spatial reasoning task and real robot deployment application diagram of RoboRefer" />
+  <img src="/images/vlm/RoboRefer-teaser.webp" width="100%" alt="Multi-step spatial reasoning task and real robot deployment application diagram of RoboRefer" loading="lazy" decoding="async" style="aspect-ratio:1118/695" />
 <figcaption> Multi-step spatial reasoning task and real robot deployment application diagram of RoboRefer</figcaption>
 </div>
 
@@ -3038,7 +3038,7 @@ In order to fill this gap, this article proposes RoboRefer, which simultaneously
 RoboRefer receives sensor observations containing RGB(D) and a text instruction with multiple spatial constraints. It first explicitly outputs the logical reasoning steps in autoregressive decoding (such as locating each spatial reference anchor point and calculating the relative direction), and then outputs the final target 3D/2D positioning coordinate point. The entire system adopts a format similar to chain of thought when reasoning, reasoning first and then predicting action points.
 
 <div align="center">
-  <img src="/images/vlm/RoboRefer-architecture.webp" width="100%" alt="RoboRefer architecture and SFT+RFT two-stage training process overview" />
+  <img src="/images/vlm/RoboRefer-architecture.webp" width="100%" alt="RoboRefer architecture and SFT+RFT two-stage training process overview" loading="lazy" decoding="async" style="aspect-ratio:1118/861" />
 <figcaption>RoboRefer architecture and SFT+RFT two-stage training process overview</figcaption>
 </div>
 
@@ -3089,7 +3089,7 @@ This updates the policy network and achieves regular unsupervised step-level rew
 {: id="3-核心结果发现-19"}
 
 <div align="center">
-  <img src="/images/vlm/RoboRefer-refspatial-dataset.webp" width="100%" alt="RefSpatial Data set composition, three types of data pipelines and spatial relationship statistical distribution" />
+  <img src="/images/vlm/RoboRefer-refspatial-dataset.webp" width="100%" alt="RefSpatial Data set composition, three types of data pipelines and spatial relationship statistical distribution" loading="lazy" decoding="async" style="aspect-ratio:1118/883" />
 <figcaption>RefSpatial Data set composition, three types of data pipelines and spatial relationship statistical distribution</figcaption>
 </div>
 
@@ -3106,7 +3106,7 @@ In the **RefSpatial-Bench** review containing multi-step complex reasoning:
 - **Three-source data fusion mechanism**: As shown in the figure above, the RefSpatial data set integrates 2D web page data (enriching perceptual common sense), 3D embodied video (refining indoor depth understanding) and simulation generated data (annotating multi-step CoT inference trajectories). ablation research shows that removing any of these parts can lead to a significant performance decline in the model in certain scenarios (such as outdoor or multi-step inference).
 
 <div align="center">
-  <img src="/images/vlm/RoboRefer-robot-evaluation.webp" width="100%" alt="UR5 robotic arm and G1 humanoid robot in the real world" />
+  <img src="/images/vlm/RoboRefer-robot-evaluation.webp" width="100%" alt="UR5 robotic arm and G1 humanoid robot in the real world" loading="lazy" decoding="async" style="aspect-ratio:1118/278" />
 Qualitative demonstration of closed-loop operation and navigation tasks of<figcaption>UR5 robotic arm and G1 humanoid robot in the real world</figcaption>
 </div>
 
@@ -3161,7 +3161,7 @@ Although there are some streaming video large models in the field of 2D video un
 {: id="2-主要方法创新点-20"}
 
 <div align="center">
-  <img src="/images/si/Stream3D-VLM-framework.webp" width="100%" alt="Figure 1. The overall framework diagram of Stream3D-VLM: including three core modules: autoregressive streaming decision-making, VSFI geometric prior fusion and GAVC visual token compression." />
+  <img src="/images/si/Stream3D-VLM-framework.webp" width="100%" alt="Figure 1. The overall framework diagram of Stream3D-VLM: including three core modules: autoregressive streaming decision-making, VSFI geometric prior fusion and GAVC visual token compression." loading="lazy" decoding="async" style="aspect-ratio:983/702" />
 <figcaption> Figure 1. The overall framework diagram of Stream3D-VLM: including three core modules: autoregressive streaming decision-making, VSFI geometric prior fusion and GAVC visual token compression.</figcaption>
 </div>
 
@@ -3215,7 +3215,7 @@ Here, $L_{stream}$ is the average cross-entropy loss for decision control tokens
 {: id="3-核心结果发现-20"}
 
 <div align="center">
-  <img src="/images/si/Stream3D-VLM-data-generation.webp" width="100%" alt="Figure 2. Data generation pipeline process: using the metadata of ScanNet, ScanNet++ and ARKitScenes and GPT-5 verification to build the Stream3D-1M dataset and Stream3D-Bench." />
+  <img src="/images/si/Stream3D-VLM-data-generation.webp" width="100%" alt="Figure 2. Data generation pipeline process: using the metadata of ScanNet, ScanNet++ and ARKitScenes and GPT-5 verification to build the Stream3D-1M dataset and Stream3D-Bench." loading="lazy" decoding="async" style="aspect-ratio:983/688" />
 <figcaption> Figure 2. Data generation pipeline process: using the metadata of ScanNet, ScanNet++ and ARKitScenes and GPT-5 verification to build the Stream3D-1M dataset and Stream3D-Bench.</figcaption>
 </div>
 
@@ -3262,7 +3262,7 @@ Precise geometric perception of the three-dimensional world (absolute metric sca
 {: id="2-主要方法创新点-21"}
 
 <div align="center">
-  <img src="/images/vla/MDM-teaser.webp" width="100%" alt="Figure 1: Through masked depth modeling (MDM) pretraining, LingBot-Depth is able to repair the depth loss caused by commercial RGB-D sensors due to highly reflective, transparent or textureless surfaces, providing high-quality spatial geometry priors for downstream 3D trajectory tracking and dexterous grasping." />
+  <img src="/images/vla/MDM-teaser.webp" width="100%" alt="Figure 1: Through masked depth modeling (MDM) pretraining, LingBot-Depth is able to repair the depth loss caused by commercial RGB-D sensors due to highly reflective, transparent or textureless surfaces, providing high-quality spatial geometry priors for downstream 3D trajectory tracking and dexterous grasping." loading="lazy" decoding="async" style="aspect-ratio:1328/627" />
 <figcaption> Figure 1: Through masked depth modeling (MDM) pretraining, LingBot-Depth is able to repair the depth loss caused by commercial RGB-D sensors due to highly reflective, transparent or textureless surfaces, providing high-quality spatial geometry priors for downstream 3D trajectory tracking and dexterous grasping.</figcaption>
 </div>
 
@@ -3272,7 +3272,7 @@ Precise geometric perception of the three-dimensional world (absolute metric sca
 The MDM (Masked Depth Modeling) framework adopts an Encoder-Decoder structure, uses Vision Transformer (ViT-Large) as the backbone encoder, and combines it with a layered convolution decoder (ConvStack) for dense geometry prediction. Its core process is to extract patch tokens of RGB images and Sensor Depth with missing values ​​respectively, mix them and input them into the ViT encoder to learn cross-modal joint features, and finally discard the depth latent tokens in the decoding stage, and only use RGB tokens and global context to restore a complete and dense absolute metric depth map.
 
 <div align="center">
-  <img src="/images/vla/MDM-architecture.webp" width="100%" alt="Figure 2: Masked Depth Modeling (MDM) framework architecture. The input RGB image and Sensor Depth with missing values ​​are respectively projected into Tokens, adding spatial and modal position encoding. ViT Encoder extracts the joint representation, then discards the depth latent token, retains only the RGB-related context token, and inputs it into the hierarchical convolution decoder (ConvStack) to reconstruct a dense and complete metric depth map." />
+  <img src="/images/vla/MDM-architecture.webp" width="100%" alt="Figure 2: Masked Depth Modeling (MDM) framework architecture. The input RGB image and Sensor Depth with missing values ​​are respectively projected into Tokens, adding spatial and modal position encoding. ViT Encoder extracts the joint representation, then discards the depth latent token, retains only the RGB-related context token, and inputs it into the hierarchical convolution decoder (ConvStack) to reconstruct a dense and complete metric depth map." loading="lazy" decoding="async" style="aspect-ratio:1328/748" />
 <figcaption>Figure 2: Masked Depth Modeling (MDM) framework architecture. The input RGB image and Sensor Depth with missing values ​​are respectively projected into Tokens, adding spatial and modal position encoding. ViT Encoder extracts the joint representation, then discards the depth latent token, retains only the RGB-related context token, and inputs it into the hierarchical convolution decoder (ConvStack) to reconstruct a dense and complete metric depth map.</figcaption>
 </div>
 
@@ -3332,7 +3332,7 @@ Here, $$d^{pred}_i$$ and $$d^{gt}_i$$ respectively represent the predicted depth
   - In the MoGe-2 architecture, the initialized DINOv2 was replaced with the ViT weight of MDM pretraining. Without modifying the decoder structure, the 10 cross-domain benchmark indicators tested were comprehensively improved. This proves that the encoder trained by Masked Depth has been able to well absorb the metric geometry prior into the semantic token, thereby significantly enhancing the spatial perception upper limit of pure monocular RGB.
 
 <div align="center">
-  <img src="/images/vla/MDM-point-tracking.webp" width="100%" alt="Figure 3: Application effect on video depth completion and 3D point tracking: (a) Estimating stable camera trajectory and 3D reconstruction geometry in an indoor scene containing a large area of glass curtain wall; (b) Cooperating with SpatialTrackerV2 to perform robust 3D point trajectory tracking for dynamic objects (scooters, rowing machines, fitness equipment, pull-ups)." />
+  <img src="/images/vla/MDM-point-tracking.webp" width="100%" alt="Figure 3: Application effect on video depth completion and 3D point tracking: (a) Estimating stable camera trajectory and 3D reconstruction geometry in an indoor scene containing a large area of glass curtain wall; (b) Cooperating with SpatialTrackerV2 to perform robust 3D point trajectory tracking for dynamic objects (scooters, rowing machines, fitness equipment, pull-ups)." loading="lazy" decoding="async" style="aspect-ratio:1328/1327" />
 <figcaption> Figure 3: Application effect on video depth completion and 3D point tracking: (a) Estimating stable camera trajectory and 3D reconstruction geometry in an indoor scene containing a large area of glass curtain wall; (b) Cooperating with SpatialTrackerV2 to perform robust 3D point trajectory tracking for dynamic objects (scooters, rowing machines, fitness equipment, pull-ups).</figcaption>
 </div>
 
@@ -3343,12 +3343,12 @@ Here, $$d^{pred}_i$$ and $$d^{gt}_i$$ respectively represent the predicted depth
   - LingBot-Depth is combined with a 3D diffusion strategy (DP3 architecture) based on point cloud input to perform object grasping on a six-degree-of-freedom Rokae XMate-SR5 robotic arm and dexterous hand (X Hand-1) system. When facing four types of highly reflective/transparent challenging objects, including stainless steel cups, transparent glasses, transparent storage boxes, and toy cars, using the dense point cloud provided by LingBot-Depth, the grabbing success rate is significantly improved compared to the original sensor depth (for example: a transparent storage box cannot establish a point cloud at the original sensor depth, resulting in N/A failure, but after using LingBot-Depth, the grabbing success rate reaches 50%).
 
 <div align="center">
-  <img src="/images/vla/MDM-grasp-qualitative.webp" width="100%" alt="Figure 4: Qualitative comparison of grasping experiments. The right side shows the performance of four types of objects: stainless steel cup, glass, storage box and toy car under RGB, original Sensor depth and LingBot-Depth reconstruction depth. It is evident that LingBot-Depth completely eliminates a large number of missing depth values ​​on highly translucent/reflective surfaces and smooths structural features." />
+  <img src="/images/vla/MDM-grasp-qualitative.webp" width="100%" alt="Figure 4: Qualitative comparison of grasping experiments. The right side shows the performance of four types of objects: stainless steel cup, glass, storage box and toy car under RGB, original Sensor depth and LingBot-Depth reconstruction depth. It is evident that LingBot-Depth completely eliminates a large number of missing depth values ​​on highly translucent/reflective surfaces and smooths structural features." loading="lazy" decoding="async" style="aspect-ratio:1328/508" />
 <figcaption> Figure 4: Qualitative comparison of grasping experiments. The right side shows the performance of four types of objects: stainless steel cup, glass, storage box and toy car under RGB, original Sensor depth and LingBot-Depth reconstruction depth. It is evident that LingBot-Depth completely eliminates a large number of missing depth values ​​on highly translucent/reflective surfaces and smooths structural features.</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vla/MDM-grasp-execution.webp" width="100%" alt="Figure 5: Dexterous hand grasping pose generation on a predicted 3D point cloud (top row) and physically executed by a robotic arm in a physical environment (bottom row)." />
+  <img src="/images/vla/MDM-grasp-execution.webp" width="100%" alt="Figure 5: Dexterous hand grasping pose generation on a predicted 3D point cloud (top row) and physically executed by a robotic arm in a physical environment (bottom row)." loading="lazy" decoding="async" style="aspect-ratio:1328/711" />
 <figcaption> Figure 5: Dexterous hand grasping pose generation on a predicted 3D point cloud (top row) and physically executed by a robotic arm in a physical environment (bottom row).</figcaption>
 </div>
 
@@ -3389,12 +3389,12 @@ Existing multimodal large models (VLM) show serious shortcomings in three-dimens
 {: id="2-主要方法创新点-22"}
 
 <div align="center">
-  <img src="/images/vlm/G2VLM-tasks.webp" width="100%" alt="Figure 1: Tasks supported by G2VLM: interleaved spatial reasoning, monocular depth prediction, 3D point cloud reconstruction and camera pose estimation" />
+  <img src="/images/vlm/G2VLM-tasks.webp" width="100%" alt="Figure 1: Tasks supported by G2VLM: interleaved spatial reasoning, monocular depth prediction, 3D point cloud reconstruction and camera pose estimation" loading="lazy" decoding="async" style="aspect-ratio:1389/900" />
 <figcaption> Figure 1: Tasks supported by G2VLM: interleaved spatial reasoning, monocular depth prediction, 3D point cloud reconstruction and camera pose estimation</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vlm/G2VLM-architecture.webp" width="100%" alt="Figure 2: G2VLM overall architecture and expert division: based on hybrid expert (MoT) design, integrating geometric features and semantic representation through shared self-attention" />
+  <img src="/images/vlm/G2VLM-architecture.webp" width="100%" alt="Figure 2: G2VLM overall architecture and expert division: based on hybrid expert (MoT) design, integrating geometric features and semantic representation through shared self-attention" loading="lazy" decoding="async" style="aspect-ratio:1389/682" />
 <figcaption> Figure 2: G2VLM overall architecture and expert division: based on hybrid expert (MoT) design, integrating geometric features and semantic representation through shared self-attention</figcaption>
 </div>
 
@@ -3679,12 +3679,12 @@ $$L_{normal} = \sum_{i=1}^N \sum_{j=1}^{H \times W} \arccos(\hat{n}_{i,j} \cdot 
 {: id="3-核心结果发现-22"}
 
 <div align="center">
-  <img src="/images/vlm/G2VLM-qualitative.webp" width="100%" alt="Figure 3: Qualitative visualization display of G2VLM monocular and multi-view 3D scene reconstruction" />
+  <img src="/images/vlm/G2VLM-qualitative.webp" width="100%" alt="Figure 3: Qualitative visualization display of G2VLM monocular and multi-view 3D scene reconstruction" loading="lazy" decoding="async" style="aspect-ratio:671/490" />
 <figcaption> Figure 3: Qualitative visualization display of G2VLM monocular and multi-view 3D scene reconstruction</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vlm/G2VLM-ablation.webp" width="100%" alt="Figure 4: Key ablation of G2VLM: (a) Score comparison of single and double encoders on geometry and spatial reasoning; (b) GP experts’ loss convergence speed under different self-attention mask designs" />
+  <img src="/images/vlm/G2VLM-ablation.webp" width="100%" alt="Figure 4: Key ablation of G2VLM: (a) Score comparison of single and double encoders on geometry and spatial reasoning; (b) GP experts’ loss convergence speed under different self-attention mask designs" loading="lazy" decoding="async" style="aspect-ratio:1389/634" />
 <figcaption> Figure 4: Key ablation of G2VLM: (a) Score comparison of single and double encoders on geometry and spatial reasoning; (b) GP experts’ loss convergence speed under different self-attention mask designs</figcaption>
 </div>
 
@@ -3728,7 +3728,7 @@ In the end-to-end planning of autonomous driving, the vision-language model (VLM
 {: id="2-主要方法创新点-23"}
 
 <div align="center">
-  <img src="/images/si/SparseOccVLA-overview.webp" width="100%" alt="SparseOccVLA overall architecture: including sparse occupancy encoder, large language model backbone and LLM-guided anchor point diffusion planner, only using sparse occupancy query as a bridge between vision and language" />
+  <img src="/images/si/SparseOccVLA-overview.webp" width="100%" alt="SparseOccVLA overall architecture: including sparse occupancy encoder, large language model backbone and LLM-guided anchor point diffusion planner, only using sparse occupancy query as a bridge between vision and language" loading="lazy" decoding="async" style="aspect-ratio:1387/667" />
 <!-- RENAME: figure_01.png -> SparseOccVLA-overview.png -->
 <figcaption>SparseOccVLA overall architecture: including sparse occupancy encoder, large language model backbone and LLM-guided anchor point diffusion planner, only using sparse occupancy query as a bridge between vision and language</figcaption>
 </div>
@@ -3744,7 +3744,7 @@ SparseOccVLA contains three core components: **sparse occupancy encoder (Sparse 
   - **processing**: Use ResNet-50 to extract image features, and then use a SparseBEV-like structure to update randomly initialized $N$ three-dimensional occupancy queries through the $L$ layer encoder (Feature Sampling, Adaptive Mixing, Spatial-aware MHSA, FFN) $Q_0$ and three-dimensional coordinate position $P_0$. The number of predicted 3D point cloud points is gradually increased layer by layer, and Chamfer Distance (CD loss) and semantic Focal loss are calculated between the predicted point set and the real sparse occupied point set $G$ at each layer for in-depth supervision.
 
   <div align="center">
-    <img src="/images/si/SparseOccVLA-occupancy-encoder.webp" width="100%" alt="Sparse Occupancy Encoder structure, introduces feature-level distillation branch alignment CLIP features during training, and removes this branch during inference" />
+    <img src="/images/si/SparseOccVLA-occupancy-encoder.webp" width="100%" alt="Sparse Occupancy Encoder structure, introduces feature-level distillation branch alignment CLIP features during training, and removes this branch during inference" loading="lazy" decoding="async" style="aspect-ratio:671/651" />
   <!-- RENAME: figure_02.png -> SparseOccVLA-occupancy-encoder.png -->
 <figcaption> Sparse Occupancy Encoder structure, introduces feature-level distillation branch alignment CLIP features during training, and removes this branch during inference</figcaption></div>
 
@@ -3761,7 +3761,7 @@ SparseOccVLA contains three core components: **sparse occupancy encoder (Sparse 
   - **input**: $K=18$ trajectory anchors (Trajectory Anchors) $a_k$ obtained through K-means clustering learning.
 
   <div align="center">
-    <img src="/images/si/SparseOccVLA-diffusion-decoder.webp" width="100%" alt="The hierarchical cross-attention structure of the Diffusion Decoder sequentially aligns the three-dimensional occupancy query, ontology vehicle status and decision-making from LLM Token" />
+    <img src="/images/si/SparseOccVLA-diffusion-decoder.webp" width="100%" alt="The hierarchical cross-attention structure of the Diffusion Decoder sequentially aligns the three-dimensional occupancy query, ontology vehicle status and decision-making from LLM Token" loading="lazy" decoding="async" style="aspect-ratio:668/323" />
   <!-- RENAME: figure_03.png -> SparseOccVLA-diffusion-decoder.png -->
 <figcaption> The hierarchical cross-attention structure of the Diffusion Decoder sequentially aligns the three-dimensional occupancy query, ontology vehicle status and decision-making from LLM Token</figcaption></div>
 
@@ -3815,7 +3815,7 @@ And sent to the diffusion decoder for denoising. The Diffusion Decoder stacks mu
 {: id="2-主要方法创新点-24"}
 
 <div align="center">
-  <img src="/images/si/GenCeption-overview.webp" width="100%" alt="GenCeption versus traditional dedicated perception models. GenCeption achieves a paradigm shift from &quot;task-specific design&quot; to &quot;based on a unified backbone network, decoding head and loss function, guided only by Text Prompt&quot;." />
+  <img src="/images/si/GenCeption-overview.webp" width="100%" alt="GenCeption versus traditional dedicated perception models. GenCeption achieves a paradigm shift from &quot;task-specific design&quot; to &quot;based on a unified backbone network, decoding head and loss function, guided only by Text Prompt&quot;." loading="lazy" decoding="async" style="aspect-ratio:1326/826" />
 <figcaption>GenCeption versus traditional dedicated perception models. GenCeption achieves a paradigm shift from "task-specific design" to "based on a unified backbone network, decoding head and loss function, guided only by Text Prompt".</figcaption>
 </div>
 
@@ -3824,7 +3824,7 @@ And sent to the diffusion decoder for denoising. The Diffusion Decoder stacks mu
 The core design of GenCeption is extremely streamlined. It reuses the pretraining weights of the text-to-video generation model (WAN 2.1), including VAE encoder-decoder, text encoder and Transformer-based latent space diffusion model (DiT). By reconstructing the original multi-step reverse denoising process into **single-step forward propagation**, and directly mapping different perception tasks to a unified 3-channel continuous pixel space (RGB), an all-round visual perceptron that shares the backbone network, decoder and loss function is realized.
 
 <div align="center">
-  <img src="/images/si/GenCeption-architecture.webp" width="100%" alt="GenCeption overall architecture diagram. The left side shows the input video and task Prompt. Through the pretraining DiT single-step forward propagation, various dense and sparse visual perception results are predicted through the unified VAE decoder or sparse perception Token." />
+  <img src="/images/si/GenCeption-architecture.webp" width="100%" alt="GenCeption overall architecture diagram. The left side shows the input video and task Prompt. Through the pretraining DiT single-step forward propagation, various dense and sparse visual perception results are predicted through the unified VAE decoder or sparse perception Token." loading="lazy" decoding="async" style="aspect-ratio:1326/742" />
 <figcaption>GenCeption overall architecture diagram. The left side shows the input video and task Prompt. Through the pretraining DiT single-step forward propagation, various dense and sparse visual perception results are predicted through the unified VAE decoder or sparse perception Token.</figcaption>
 </div>
 
@@ -3850,7 +3850,7 @@ The core design of GenCeption is extremely streamlined. It reuses the pretrainin
   * **Design motivation**: Convert highly abstract matrix and pose estimation into spatially continuous image rendering perception to ensure the consistency of the decoder.
 
 <div align="center">
-  <img src="/images/si/GenCeption-raymap.webp" width="80%" alt="&quot;Rothko&quot; ray diagram encoding scheme. The 6-channel camera rays (origin and direction) are collaged through the spatial layout and compressed into a 3-channel continuous RGB pixel space to be compatible with the unified VAE decoding head." />
+  <img src="/images/si/GenCeption-raymap.webp" width="80%" alt="&quot;Rothko&quot; ray diagram encoding scheme. The 6-channel camera rays (origin and direction) are collaged through the spatial layout and compressed into a 3-channel continuous RGB pixel space to be compatible with the unified VAE decoding head." loading="lazy" decoding="async" style="aspect-ratio:1327/400" />
 <figcaption>"Rothko" ray diagram encoding scheme. The 6-channel camera rays (origin and direction) are collaged through the spatial layout and compressed into a 3-channel continuous RGB pixel space to be compatible with the unified VAE decoding head.</figcaption>
 </div>
 
@@ -3880,7 +3880,7 @@ This eliminates the scale uncertainty of geometric perception at its source.
 {: id="3-核心结果发现-24"}
 
 <div align="center">
-  <img src="/images/si/GenCeption-sota.webp" width="100%" alt="GenCeption performance and data efficiency comparison. The left picture shows that it matches or surpasses various existing dedicated SOTA models in multiple visual perception tasks; the right picture shows that it significantly outperforms self-supervised pretraining methods such as V-JEPA and VideoMAE V2 in depth estimation fine-tuning, and the data efficiency is several to hundreds of times higher." />
+  <img src="/images/si/GenCeption-sota.webp" width="100%" alt="GenCeption performance and data efficiency comparison. The left picture shows that it matches or surpasses various existing dedicated SOTA models in multiple visual perception tasks; the right picture shows that it significantly outperforms self-supervised pretraining methods such as V-JEPA and VideoMAE V2 in depth estimation fine-tuning, and the data efficiency is several to hundreds of times higher." loading="lazy" decoding="async" style="aspect-ratio:1330/914" />
 <figcaption>GenCeption performance and data efficiency comparison. The left picture shows that it matches or surpasses various existing dedicated SOTA models in multiple visual perception tasks; the right picture shows that it significantly outperforms self-supervised pretraining methods such as V-JEPA and VideoMAE V2 in depth estimation fine-tuning, and the data efficiency is several to hundreds of times higher.</figcaption>
 </div>
 
@@ -3892,7 +3892,7 @@ This eliminates the scale uncertainty of geometric perception at its source.
   2. **Category Generalization**: Able to directly and accurately generalize to categories such as animals, dinosaurs, and humanoid robots that do not appear in the training data at all.
 
 <div align="center">
-  <img src="/images/si/GenCeption-generalization.webp" width="100%" alt="zero-sample cross-domain and external distribution generalization results. Although the model is trained entirely on single-person synthetic videos (Synthetic Humans), it can generalize to real scenes containing multiple instances (Real Videos), and can generalize across categories to animals, robots, etc. (Unseen Objects)." />
+  <img src="/images/si/GenCeption-generalization.webp" width="100%" alt="zero-sample cross-domain and external distribution generalization results. Although the model is trained entirely on single-person synthetic videos (Synthetic Humans), it can generalize to real scenes containing multiple instances (Real Videos), and can generalize across categories to animals, robots, etc. (Unseen Objects)." loading="lazy" decoding="async" style="aspect-ratio:1326/681" />
 <figcaption> zero-sample cross-domain and external distribution generalization results. Although the model is trained entirely on single-person synthetic videos (Synthetic Humans), it can generalize to real scenes containing multiple instances (Real Videos), and can generalize across categories to animals, robots, etc. (Unseen Objects).</figcaption>
 </div>
 
@@ -3930,7 +3930,7 @@ This eliminates the scale uncertainty of geometric perception at its source.
 {: id="2-主要方法创新点-25"}
 
 <div align="center">
-  <img src="/images/si/S-Agent-overview.webp" width="100%" alt="S-Agent Comparison Overview of Spatial Tool Calling Paradigm and Traditional Static VLM/Spatial Agent" />
+  <img src="/images/si/S-Agent-overview.webp" width="100%" alt="S-Agent Comparison Overview of Spatial Tool Calling Paradigm and Traditional Static VLM/Spatial Agent" loading="lazy" decoding="async" style="aspect-ratio:1278/905" />
 <figcaption>S-Agent Comparison Overview of Spatial Tool Calling Paradigm and Traditional Static VLM/Spatial Agent</figcaption>
 </div>
 
@@ -3945,7 +3945,7 @@ The tool or expert executes $r_t$ and returns the observation $o_t$, thus updati
 $$(\mathcal{S}_{t+1}, \mathcal{H}_{t+1}) = \text{Update}(\mathcal{S}_t, \mathcal{H}_t, r_t, o_t)$$
 
 <div align="center">
-  <img src="/images/si/S-Agent-pipeline.webp" width="100%" alt="S-Agent system pipeline: hierarchical spatial evidence extraction and flow interaction of persistent dual memory system" />
+  <img src="/images/si/S-Agent-pipeline.webp" width="100%" alt="S-Agent system pipeline: hierarchical spatial evidence extraction and flow interaction of persistent dual memory system" loading="lazy" decoding="async" style="aspect-ratio:1277/709" />
 <figcaption>S-Agent system pipeline: hierarchical spatial evidence extraction and flow interaction of persistent dual memory system</figcaption>
 </div>
 
@@ -3977,7 +3977,7 @@ $$(\mathcal{S}_{t+1}, \mathcal{H}_{t+1}) = \text{Update}(\mathcal{S}_t, \mathcal
 - **Agent Memory (Agent Memory $$\mathcal{H}_t$$)**: records the planner’s intermediate thoughts (Thought), issued tool requests, tool success/failure feedback and staged conclusions, supporting self-correction and strategy adjustment.
 
 <div align="center">
-  <img src="/images/si/S-Agent-dataset-stats.webp" width="100%" alt="S-300K Data set construction components and tool call statistical distribution" />
+  <img src="/images/si/S-Agent-dataset-stats.webp" width="100%" alt="S-300K Data set construction components and tool call statistical distribution" loading="lazy" decoding="async" style="aspect-ratio:930/552" />
 <figcaption>S-300K Data set construction components and tool call statistical distribution</figcaption>
 </div>
 
@@ -3996,7 +3996,7 @@ To deploy powerful spatial reasoning capabilities into lightweight open source m
 {: id="3-核心结果发现-25"}
 
 <div align="center">
-  <img src="/images/si/S-Agent-qualitative.webp" width="100%" alt="S-Agent Tool-guided 3D relative position reasoning qualitative example in first-person video occlusion scenario" />
+  <img src="/images/si/S-Agent-qualitative.webp" width="100%" alt="S-Agent Tool-guided 3D relative position reasoning qualitative example in first-person video occlusion scenario" loading="lazy" decoding="async" style="aspect-ratio:1273/802" />
 <figcaption>S-Agent Tool-guided 3D relative position reasoning qualitative example in first-person video occlusion scenario</figcaption>
 </div>
 
@@ -4047,7 +4047,7 @@ The introduction of 3D geometry (depth and camera pose) can naturally compress m
 {: id="2-主要方法创新点-26"}
 
 <div align="center">
-  <img src="/images/si/Qwen-3D-teaser-overview.webp" width="100%" alt="Figure 1: Paradigm comparison between Qwen-3D and traditional 2D VLM and all-round 2D/3D multi-task capability radar chart" />
+  <img src="/images/si/Qwen-3D-teaser-overview.webp" width="100%" alt="Figure 1: Paradigm comparison between Qwen-3D and traditional 2D VLM and all-round 2D/3D multi-task capability radar chart" loading="lazy" decoding="async" style="aspect-ratio:1398/871" />
 <figcaption>Figure 1: Paradigm comparison between Qwen-3D and traditional 2D VLM and all-round 2D/3D multi-task capability radar chart</figcaption>
 </div>
 
@@ -4059,7 +4059,7 @@ Qwen-3D is built based on the Qwen2.5-VL base model and consists of three core m
 - **dual-branch decoding module**: The text branch is responsible for autoregressive open question and answer, and the mask decoding branch directly guides learnable Object Queries with full context features, and directly outputs 2D/3D segmentation masks associated with text spans.
 
 <div align="center">
-  <img src="/images/si/Qwen-3D-architecture.webp" width="100%" alt="Figure 2: Qwen-3D overall network architecture and end-to-end data flow" />
+  <img src="/images/si/Qwen-3D-architecture.webp" width="100%" alt="Figure 2: Qwen-3D overall network architecture and end-to-end data flow" loading="lazy" decoding="async" style="aspect-ratio:1398/691" />
 <figcaption>Figure 2: Qwen-3D overall network architecture and end-to-end data flow</figcaption>
 </div>
 
@@ -4130,7 +4130,7 @@ graph TD
 ```
 
 <div align="center">
-  <img src="/images/si/Qwen-3D-decoding-paradigms.webp" width="100%" alt="Figure 3: Structural comparison of four 3D LMM object information decoding paradigms" />
+  <img src="/images/si/Qwen-3D-decoding-paradigms.webp" width="100%" alt="Figure 3: Structural comparison of four 3D LMM object information decoding paradigms" loading="lazy" decoding="async" style="aspect-ratio:1394/652" />
 <figcaption>Figure 3: Structural comparison of four 3D LMM object information decoding paradigms</figcaption>
 </div>
 

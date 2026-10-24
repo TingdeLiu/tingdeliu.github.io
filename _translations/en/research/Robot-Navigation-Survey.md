@@ -5,10 +5,10 @@ translation_id: robot-navigation-survey
 permalink: /en/Robot-Navigation-Survey/
 source_path: _posts/research/2026-02-27-Robot-Navigation-Survey.md
 source_url: /Robot-Navigation-Survey/
-source_revision_date: 2026-10-04
-translation_updated: 2026-10-04
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "Traditional Robot Navigation Algorithms: A Survey"
-date: 2026-10-04
+date: 2026-10-24
 tags: [Robotics, Navigation, SLAM, Localization, Mapping, Path Planning, Path Tracking, Perception]
 categories: research
 comments: false
@@ -147,7 +147,7 @@ LiDAR calculates distance by emitting laser pulses **and measuring the return ti
 RGB-D cameras (such as Intel RealSense D435, Microsoft Kinect) simultaneously acquire color images and the depth value of each pixel through the **structured light** or **time-of-flight (ToF)** principle. The main limitations are: strong outdoor light will interfere with structured light, and the detection range is limited (usually 0.3–6m).
 
 <div align="center">
-  <video src="/images/robotics_navigation/Depth_Camera.mp4" autoplay loop muted playsinline width="70%"></video>
+  <video src="/images/robotics_navigation/Depth_Camera.mp4" data-autoplay preload="none" loop muted playsinline width="70%" style="aspect-ratio:740/330"></video>
 <figcaption>Figure: Depth camera acquisition depth map visualization</figcaption>
 </div>
 
@@ -197,7 +197,7 @@ Raw point clouds usually contain noise and irrelevant points and require preproc
 
 <div align="center">
   <img src="/images/robotics_navigation/Rectangle_Fitting_Detection.webp" width="55%" style="margin:4px" alt="Point cloud rectangular fitting - clustered point cloud (left) fitted to the minimum bounding rectangle (right moving picture)"/>
-  <video src="/images/robotics_navigation/point_cloud_rectangle_fitting.mp4" autoplay loop muted playsinline width="38%" style="margin:4px"></video>
+  <video src="/images/robotics_navigation/point_cloud_rectangle_fitting.mp4" data-autoplay preload="none" loop muted playsinline width="38%" style="aspect-ratio:800/800; margin:4px"></video>
 <figcaption>Figure: Point cloud rectangular fitting - clustered point cloud (left) fitted to the minimum bounding rectangle (right moving picture)</figcaption>
 </div>
 
@@ -223,7 +223,7 @@ When a system uses multiple sensors, it is necessary to know the **Relative pose
 **Estimation of extrinsic parameters based on UKF**: Online estimation of extrinsic parameters using **unscented Kalman filter (UKF)**. Compared with the offline calibration of the calibration target, this method can dynamically estimate and correct the extrinsic parameters during the movement of the robot, which is suitable for scenarios where the sensor installation position may change slightly.
 
 <div align="center">
-  <video src="/images/robotics_navigation/sensor_auto_calibration.mp4" autoplay loop muted playsinline width="75%"></video>
+  <video src="/images/robotics_navigation/sensor_auto_calibration.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
 <figcaption>Figure: Sensor online automatic calibration process - dynamic estimation and correction of extrinsic parameters between sensors during robot movement</figcaption>
 </div>
 
@@ -331,7 +331,7 @@ Here, $\mathbf{P}$ is the prediction uncertainty (the larger → the larger K �
 **applicable scenarios**: known map, known initial position, low non-linear system. The calculation efficiency is high and suitable for real-time operation.
 
 <div align="center">
-  <video src="/images/robotics_navigation/extended_kalman_filter_localization.mp4" autoplay loop muted playsinline width="75%"></video>
+  <video src="/images/robotics_navigation/extended_kalman_filter_localization.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
 <figcaption>Figure: EKF localization simulation - the robot (blue) moves along the trajectory, the green ellipse is the uncertainty estimate, and the red is the EKF localization result</figcaption>
 </div>
 
@@ -346,7 +346,7 @@ Here, $\mathbf{P}$ is the prediction uncertainty (the larger → the larger K �
 ❌ The computational cost is slightly larger than that of EKF (about 2–3 times that of EKF)
 
 <div align="center">
-  <video src="/images/robotics_navigation/ekf_vs_ukf_comparison.mp4" autoplay loop muted playsinline width="80%"></video>
+  <video src="/images/robotics_navigation/ekf_vs_ukf_comparison.mp4" data-autoplay preload="none" loop muted playsinline width="80%" style="aspect-ratio:800/800"></video>
 <figcaption>Figure: EKF vs UKF comparison simulation - the pose estimation of UKF (right) converges more accurately in high non-linear scenarios</figcaption>
 </div>
 
@@ -356,7 +356,7 @@ Here, $\mathbf{P}$ is the prediction uncertainty (the larger → the larger K �
 **Intuition**: Use thousands of "particles" (each particle represents a possible pose hypothesis) to represent the probability distribution of the robot's position. Each particle moves according to the motion model (adding random noise), and then each particle is given a score (weight) based on the sensor observation. The closer the particle is to the real observation, the higher the weight. Finally, **resampling (Resampling)** is used to eliminate particles with low weight and copy particles with high weight.
 
 <div align="center">
-  <video src="/images/robotics_navigation/particle_filter_localization.mp4" autoplay loop muted playsinline width="75%"></video>
+  <video src="/images/robotics_navigation/particle_filter_localization.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
 <figcaption>Figure: particle filtering localization simulation - initial particles are uniformly distributed (global localization), gradually converging to the true position with movement and observation</figcaption>
 </div>
 
@@ -446,7 +446,7 @@ Scan matching is another type of localization idea: directly align the current L
 | **ICP** | Fine registration, short range matching | ❌ | Medium – High | — | `pcl_ros` |
 
 <div align="center">
-  <video src="/images/robotics_navigation/ekf_ukf_pf_comparison.mp4" autoplay loop muted playsinline width="85%"></video>
+  <video src="/images/robotics_navigation/ekf_ukf_pf_comparison.mp4" data-autoplay preload="none" loop muted playsinline width="85%" style="aspect-ratio:800/800"></video>
 <figcaption>Figure: EKF / UKF / particle filtering Comparative simulation of three localization methods - Comparison of accuracy and convergence speed in the same scenario</figcaption>
 </div>
 
@@ -468,7 +468,7 @@ Different scenarios require different map representations:
 Divide the environment space into squares of equal size (usually 5–20 cm/square), and store a probability value in each square, indicating whether the square is occupied (obstructed = 1, passable = 0, unexplored = 0.5). This is the most commonly used map format in indoor robot navigation and is directly supported by ROS `map_server`.
 
 <div align="center">
-  <video src="/images/robotics_navigation/binary_grid_map_construction.mp4" autoplay loop muted playsinline width="60%" style="margin:4px"></video>
+  <video src="/images/robotics_navigation/binary_grid_map_construction.mp4" data-autoplay preload="none" loop muted playsinline width="60%" style="aspect-ratio:800/800; margin:4px"></video>
 <figcaption>Figure: Binary occupation grid map construction process</figcaption>
 </div>
 
@@ -483,7 +483,7 @@ Divide the environment space into squares of equal size (usually 5–20 cm/squar
 Based on the occupied grid, the area around the obstacle **Inflation** Create a cost layer: the closer you are to the obstacle, the higher the cost. In this way, the robot will automatically maintain a safe distance from obstacles during path planning without additional collision checks. ROS Navigation Stack `costmap_2d` Supports multi-layer costmap (static layer + obstacle layer + inflation layer).
 
 <div align="center">
-  <video src="/images/robotics_navigation/cost_grid_map_construction.mp4" autoplay loop muted playsinline width="55%" style="margin:4px"></video>
+  <video src="/images/robotics_navigation/cost_grid_map_construction.mp4" data-autoplay preload="none" loop muted playsinline width="55%" style="aspect-ratio:800/800; margin:4px"></video>
 <figcaption>Figure: costmap build</figcaption>
 </div>
 
@@ -513,7 +513,7 @@ The normal distribution transformation map mentioned above is suitable for high-
 </div>
 
 <div align="center">
-  <video src="/images/robotics_navigation/ndt_map_construction.mp4" autoplay loop muted playsinline width="65%"></video>
+  <video src="/images/robotics_navigation/ndt_map_construction.mp4" data-autoplay preload="none" loop muted playsinline width="65%" style="aspect-ratio:800/800"></video>
 <figcaption>Figure: NDT map construction</figcaption>
 </div>
 
@@ -1325,8 +1325,8 @@ The search algorithm searches for the optimal path on the **discretized grid map
 ❌ Time complexity $O(V \log V + E)$, $V$ is the number of nodes, $E$ is the number of edges
 
 <div align="center">
-  <video src="/images/robotics_navigation/dijkstra_search.mp4" autoplay loop muted playsinline width="46%" style="margin:4px"></video>
-  <video src="/images/robotics_navigation/dijkstra_navigate.mp4" autoplay loop muted playsinline width="46%" style="margin:4px"></video>
+  <video src="/images/robotics_navigation/dijkstra_search.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:1000/800; margin:4px"></video>
+  <video src="/images/robotics_navigation/dijkstra_navigate.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:800/800; margin:4px"></video>
 <figcaption>Figure: Dijkstra search process (left) and navigation results (right) - expansion nodes spread in concentric circles with no directionality</figcaption>
 </div>
 
@@ -1361,8 +1361,8 @@ The following figure shows the search process of A* on the 10×10 grid:
 </div>
 
 <div align="center">
-  <video src="/images/robotics_navigation/astar_search.mp4" autoplay loop muted playsinline width="46%" style="margin:4px"></video>
-  <video src="/images/robotics_navigation/astar_navigate.mp4" autoplay loop muted playsinline width="46%" style="margin:4px"></video>
+  <video src="/images/robotics_navigation/astar_search.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:1000/800; margin:4px"></video>
+  <video src="/images/robotics_navigation/astar_navigate.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:800/800; margin:4px"></video>
 <figcaption>Figure: A* search process (left) and navigation results (right) - directional, expansion nodes are concentrated in the target direction</figcaption>
 </div>
 
@@ -1372,8 +1372,8 @@ The following figure shows the search process of A* on the 10×10 grid:
 Search in both directions from the start and end points simultaneously, stopping when the two search wavefronts meet. The average number of search nodes is about half that of one-way A*, which is suitable for situations where the start and end points are far apart.
 
 <div align="center">
-  <video src="/images/robotics_navigation/astar_bidirectional_search.mp4" autoplay loop muted playsinline width="46%" style="margin:4px"></video>
-  <video src="/images/robotics_navigation/astar_bidirectional_navigate.mp4" autoplay loop muted playsinline width="46%" style="margin:4px"></video>
+  <video src="/images/robotics_navigation/astar_bidirectional_search.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:1000/800; margin:4px"></video>
+  <video src="/images/robotics_navigation/astar_bidirectional_navigate.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:800/800; margin:4px"></video>
 <figcaption>Figure: Two-way A* search (left, both ends are expanded simultaneously) and navigation results (right)</figcaption>
 </div>
 
@@ -1390,8 +1390,8 @@ Improvement of **Hybrid A***: Discretize the continuous state space of the vehic
 ❌ Need to be combined with post-processing smoothing such as Reeds-Shepp curve
 
 <div align="center">
-  <video src="/images/robotics_navigation/astar_hybrid_search.mp4" autoplay loop muted playsinline width="46%" style="margin:4px"></video>
-  <video src="/images/robotics_navigation/astar_hybrid_navigate.mp4" autoplay loop muted playsinline width="46%" style="margin:4px"></video>
+  <video src="/images/robotics_navigation/astar_hybrid_search.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:1000/800; margin:4px"></video>
+  <video src="/images/robotics_navigation/astar_hybrid_navigate.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:800/800; margin:4px"></video>
 <figcaption>Figure: Hybrid A* search (left) and navigation results (right) - generating a smooth feasible path that takes into account vehicle kinematic constraints</figcaption>
 </div>
 
@@ -1540,8 +1540,8 @@ Key parameter `step_size`: If it is too large, it will fail to cross the obstacl
 ❌ The final path requires additional smoothing (commonly used B-Spline or Shortcut smoothing)
 
 <div align="center">
-  <video src="/images/robotics_navigation/rrt_search.mp4" autoplay loop muted playsinline width="46%" style="margin:4px"></video>
-  <video src="/images/robotics_navigation/rrt_navigate.mp4" autoplay loop muted playsinline width="46%" style="margin:4px"></video>
+  <video src="/images/robotics_navigation/rrt_search.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:1000/800; margin:4px"></video>
+  <video src="/images/robotics_navigation/rrt_navigate.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:800/800; margin:4px"></video>
 <figcaption>Figure: RRT random tree expansion process (left) and planned path (right) - path twists and turns, non-optimal</figcaption>
 </div>
 
@@ -1564,8 +1564,8 @@ The search radius $r$ shrinks with the number of sampling points $n$: $r(n) = \g
 ❌ The convergence speed is slow, and the sampling time may not be enough during real-time planning.
 
 <div align="center">
-  <video src="/images/robotics_navigation/rrt_star_search.mp4" autoplay loop muted playsinline width="46%" style="margin:4px"></video>
-  <video src="/images/robotics_navigation/rrt_star_navigate.mp4" autoplay loop muted playsinline width="46%" style="margin:4px"></video>
+  <video src="/images/robotics_navigation/rrt_star_search.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:1000/800; margin:4px"></video>
+  <video src="/images/robotics_navigation/rrt_star_navigate.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:800/800; margin:4px"></video>
 <figcaption>Figure: RRT* search process (left, path continues to be optimized after reconnection) and planned path (right) - smoother than RRT</figcaption>
 </div>
 
@@ -1582,8 +1582,8 @@ Grow an RRT* tree ($$\mathcal{T}_a$$, $$\mathcal{T}_b$$) from the starting point
 The advantage of **comes from**: two trees "grow in opposite directions", which effectively avoids the blind diffusion of one-way trees in a wide space. The search volume is reduced from $O(r^d)$ to $O(2 \cdot (r/2)^d)$, and the convergence speed is about one order of magnitude faster than one-way RRT*.
 
 <div align="center">
-  <video src="/images/robotics_navigation/rrt_star_bidirectional_search.mp4" autoplay loop muted playsinline width="46%" style="margin:4px"></video>
-  <video src="/images/robotics_navigation/rrt_star_bidirectional_navigate.mp4" autoplay loop muted playsinline width="46%" style="margin:4px"></video>
+  <video src="/images/robotics_navigation/rrt_star_bidirectional_search.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:1000/800; margin:4px"></video>
+  <video src="/images/robotics_navigation/rrt_star_bidirectional_navigate.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:800/800; margin:4px"></video>
 <figcaption>Figure: Bidirectional RRT* search (left, red and blue trees meet) and planned path (right)</figcaption>
 </div>
 
@@ -1599,8 +1599,8 @@ $$b = \frac{1}{2}\sqrt{c_{best}^2 - \|x_{goal} - x_{start}\|^2}$$
 When sampling, the uniform random point $x_{ball} \sim \mathcal{U}(\mathcal{B}^d)$ within the standard circle is mapped to the elliptical coordinate frame through affine transformation: $x_{rand} = C \cdot L \cdot x_{ball} + x_{center}$, where $C$ is the rotation matrix (making the main axis of the ellipse align with the $x_{start} \to x_{goal}$ direction), $L = \text{diag}(a, b, \ldots, b)$.
 
 <div align="center">
-  <video src="/images/robotics_navigation/informed_rrt_star_search.mp4" autoplay loop muted playsinline width="46%" style="margin:4px"></video>
-  <video src="/images/robotics_navigation/informed_rrt_star_navigate.mp4" autoplay loop muted playsinline width="46%" style="margin:4px"></video>
+  <video src="/images/robotics_navigation/informed_rrt_star_search.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:1000/800; margin:4px"></video>
+  <video src="/images/robotics_navigation/informed_rrt_star_navigate.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:800/800; margin:4px"></video>
 <figcaption>Figure: Informed RRT* search (left, elliptical sampling area shrinks as the path improves) and planned path (right)</figcaption>
 </div>
 
@@ -1704,7 +1704,7 @@ The cause of the **local minimum**: In an obstacle-dense area, the attractive fo
 ❌ When approaching the target, the attractive force approaches zero. If there is still repulsive force, the robot may not reach the end point.
 
 <div align="center">
-  <video src="/images/robotics_navigation/potential_field_demo.mp4" autoplay loop muted playsinline width="65%"></video>
+  <video src="/images/robotics_navigation/potential_field_demo.mp4" data-autoplay preload="none" loop muted playsinline width="65%" style="aspect-ratio:800/800"></video>
 <figcaption>Figure: potential field method obstacle avoidance demonstration - the robot moves along the attractive force / repulsive force, and may stagnate when encountering a local minimum</figcaption>
 </div>
 
@@ -1714,7 +1714,7 @@ The cause of the **local minimum**: In an obstacle-dense area, the attractive fo
 **Model Predictive Path Integral idea**: It is a random variant of **model predictive control (MPC)**. At the current moment, forward sample **a large number of random control sequences** (through GPU parallel sampling), use the motion model to simulate the future state of each trajectory, calculate the **information-theoretic weighted average** according to the trajectory cost as the current control output, and then repeat the receding horizon.
 
 <div align="center">
-  <video src="/images/robotics_navigation/mppi_path_tracking.mp4" autoplay loop muted playsinline width="75%"></video>
+  <video src="/images/robotics_navigation/mppi_path_tracking.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
 <figcaption>Figure: MPPI path tracking simulation - GPU parallel sampling of a large number of trajectories (translucent lines), weighted average to obtain optimal control</figcaption>
 </div>
 
@@ -2062,7 +2062,7 @@ $L_d$ is the only key parameter that needs to be adjusted for Pure Pursuit, whic
 Another practical tip: Set the **minimum value** of $L_d$ (such as 0.3 m) to avoid oscillation caused by the lookahead distance approaching zero at low speeds.
 
 <div align="center">
-  <video src="/images/robotics_navigation/pure_pursuit_path_tracking.mp4" autoplay loop muted playsinline width="75%"></video>
+  <video src="/images/robotics_navigation/pure_pursuit_path_tracking.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
 <figcaption>Figure: Pure Pursuit path tracking simulation - the vehicle looks ahead at the lookahead point and smoothly tracks the reference path</figcaption>
 </div>
 
@@ -2076,7 +2076,7 @@ $$L_d = k \cdot v$$
 Here, $k$ is the proportional coefficient, and $v$ is the current speed. When the speed is fast, the lookahead is longer (stable), and when the speed is slow, the lookahead is shorter (accurate). This solves the problem of large differences in the performance of fixed lookahead distances at different speeds.
 
 <div align="center">
-  <video src="/images/robotics_navigation/adaptive_pure_pursuit_path_tracking.mp4" autoplay loop muted playsinline width="75%"></video>
+  <video src="/images/robotics_navigation/adaptive_pure_pursuit_path_tracking.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
 <figcaption>Figure: Adaptive Pure Pursuit path tracking - lookahead distance is dynamically adjusted with speed, and performance is stable at each speed range</figcaption>
 </div>
 
@@ -2086,7 +2086,7 @@ Here, $k$ is the proportional coefficient, and $v$ is the current speed. When th
 Rear Wheel Feedback uses the center point **of the rear axle of the vehicle** as the tracking reference point (rather than the front axle or center of gravity) to directly eliminate the lateral error and heading error of the rear wheel on the reference path. Rear Wheel Feedback has a stricter mathematical convergence guarantee than Pure Pursuit.
 
 <div align="center">
-  <video src="/images/robotics_navigation/rear_wheel_feedback_tracking.mp4" autoplay loop muted playsinline width="75%"></video>
+  <video src="/images/robotics_navigation/rear_wheel_feedback_tracking.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
 <figcaption>Figure: Rear wheel feedback control path tracking simulation - the rear axle is used as the reference point, the lateral error converges faster</figcaption>
 </div>
 
@@ -2111,7 +2111,7 @@ The first term corrects the heading deviation, and the second term corrects the 
 ❌ Does not explicitly consider path curvature
 
 <div align="center">
-  <video src="/images/robotics_navigation/stanley_path_tracking.mp4" autoplay loop muted playsinline width="75%"></video>
+  <video src="/images/robotics_navigation/stanley_path_tracking.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
 <figcaption>Figure: Stanley controller path tracking simulation - correcting heading error and lateral deviation at the same time, with higher accuracy at turns</figcaption>
 </div>
 
@@ -2130,7 +2130,7 @@ Here, $$\mathbf{e}_t$$ is the tracking error (lateral deviation and heading erro
 ❌ $\mathbf{Q}$, $\mathbf{R}$ matrix parameter adjustment requires experience
 
 <div align="center">
-  <video src="/images/robotics_navigation/lqr_path_tracking.mp4" autoplay loop muted playsinline width="75%"></video>
+  <video src="/images/robotics_navigation/lqr_path_tracking.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
 <figcaption>Figure: LQR path tracking simulation - the optimal control law minimizes the tracking error and the response is smooth and stable</figcaption>
 </div>
 

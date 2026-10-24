@@ -25,7 +25,7 @@ excerpt: "ROS 2 architecture, DDS and RTPS, communication primitives, QoS, execu
 ROS 2 organizes functions such as sensing, planning, and control into cooperating nodes, and provides a foundation for communication, scheduling, and system integration. Understanding how nodes exchange data, and what the client, executor, and middleware are each responsible for, is the starting point for reading this architectural guide.
 
 <figure class="survey-intro-figure">
-  <img src="/images/ros2/ros2-survey-intro-professional-en.png" width="1536" height="1024" alt="ROS 2 overview: a mobile robot with sensing, planning and control nodes supported by client libraries, RMW and middleware." loading="lazy" decoding="async" />
+  <img src="/images/ros2/ros2-survey-intro-professional-en.webp" width="1536" height="1024" alt="ROS 2 overview: a mobile robot with sensing, planning and control nodes supported by client libraries, RMW and middleware." loading="lazy" decoding="async" />
   <figcaption>ROS 2 connects sensing, planning and control through a layered communication stack. Topics, services and actions are available across nodes; the illustration does not imply a fixed one-to-one mapping between communication types and modules.</figcaption>
 </figure>
 
