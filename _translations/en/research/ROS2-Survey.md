@@ -31,11 +31,11 @@ ROS 2 organizes functions such as sensing, planning, and control into cooperatin
 
 *Reading diagrams: scroll horizontally inside wide Mermaid diagrams to see all details at a readable size. Keyboard users can focus a diagram and use the arrow keys.*
 
-# 1. From ROS 1 to ROS 2: Paradigm Shift and Design Philosophy
-{: id="一从-ros-1-到-ros-2范式转移与设计哲学"}
+# 1. From ROS 1 to ROS 2
+{: id="一从-ros-1-到-ros-2"}
 
-## 1.1 The evolution history of robot middleware: Why must it be completely reconstructed?
-{: id="11-机器人中间件演化史为什么必须彻底重构"}
+## 1.1 Why a rewrite
+{: id="11-为什么要重构"}
 
 **ROS (Robot Operating System)** was born in 2007 between the Stanford University Artificial Intelligence Laboratory (STAIR project) and Willow Garage. Its original intention was to provide an open source robot software rapid prototyping platform for the academic community. As robotics technology moves from the laboratory to industrial automation, commercial services, autonomous driving, and humanoid embodied intelligence, the design limitations of ROS 1 have become increasingly prominent:
 
@@ -69,8 +69,8 @@ flowchart TB
 
 *Figure: In ROS 1, nodes must register with roscore before they can find each other; in ROS 2, nodes discover each other directly through DDS/RTPS, with no central node.*
 
-## 1.2 ROS 1 vs. ROS 2 full-dimensional core comparison
-{: id="12-ros-1-vs-ros-2-全维度核心对比"}
+## 1.2 ROS 1 vs. ROS 2
+{: id="12-ros-1-与-ros-2-对比"}
 
 |Dimensions| ROS 1 (Noetic / Melodic) | ROS 2 (Humble / Iron / Jazzy) |Core Values/Industrial Impact|
 | :--- | :--- | :--- | :--- |
@@ -85,8 +85,8 @@ flowchart TB
 |**parameter system**|Globally unified Parameter Server|Node is a private and independent Parameter instance that supports runtime strong type constraints and event monitoring.|Avoid parameter namespace pollution and support dynamic reconfiguration interception|
 |**Multi-platform build**|Strong dependency Ubuntu Linux / CMake (`catkin`)|Native support for Linux, Windows, macOS (`colcon` + `ament`)|Lowering the threshold for cross-platform industrial software migration|
 
-## 1.3 ROS 2 distribution evolution route and lifecycle
-{: id="13-ros-2-发行版演进路线与生命周期"}
+## 1.3 Distributions and support
+{: id="13-发行版与支持周期"}
 
 ROS 2 releases a new distribution every May, aligned with Ubuntu: even-numbered years bring a long-term support (LTS) release supported for five years, and odd-numbered years bring a regular release supported for about a year and a half.
 
@@ -104,11 +104,11 @@ ROS 2 releases a new distribution every May, aligned with Ubuntu: even-numbered 
 > - **Production deployment**: choose Humble (Ubuntu 22.04) or Jazzy (Ubuntu 24.04); ecosystem packages such as Nav2, MoveIt 2, and ros2_control support them most completely. New projects can evaluate Lyrical, but first confirm that the ecosystem packages they depend on have been released for it.
 > - **Cutting-edge research and development**: use the newest LTS or Rolling to get new features such as executor performance improvements and Type Adaptation earlier.
 
-# 2. ROS 2 layered software stack and DDS middleware base
-{: id="二ros-2-分层软件栈与-dds-中间件底座"}
+# 2. Layered architecture and DDS
+{: id="二分层架构与-dds"}
 
-## 2.1 Analysis of software layered architecture
-{: id="21-软件分层架构剖析"}
+## 2.1 Software layers
+{: id="21-软件分层"}
 
 ROS 2 uses a layered design that decouples upper-layer algorithm code from the underlying transport middleware: switching middleware requires no change to application code.
 
@@ -170,8 +170,8 @@ The middleware implementation layer in the diagram corresponds to the four packa
 - **`rmw` (ROS Middleware)**: a unified C interface that defines operations such as publishing, subscribing, wait sets, and QoS mapping; upper-layer code does not need to know which middleware is used underneath.
 - **`rosidl`**: Interface Definition Language (IDL) generator, which automatically generates `.msg`, `.srv`, and `.action` into native structures and serialization/deserialization codes in C, C++, and Python.
 
-## 2.2 DDS (Data Distribution Service) core working mechanism
-{: id="22-dds-data-distribution-service-核心工作机制"}
+## 2.2 How DDS works
+{: id="22-dds-工作机制"}
 
 DDS is the Object Management Organization ( **OMG** ), the core of which is **Data-Centric Publish-Subscribe Model (DCPS, Data-Centric Publish-Subscribe)** .
 
@@ -195,8 +195,8 @@ flowchart LR
     end
 ```
 
-### RTPS dynamic self-discovery protocol (Discovery Protocol)
-{: id="rtps-动态自发现协议discovery-protocol"}
+### RTPS discovery
+{: id="rtps-自动发现"}
 When DDS nodes are started in the LAN, they can automatically discover each other without Master coordination. It contains two Stages:
 1. **SPDP (Simple Participant Discovery Protocol)**: After the node starts, it periodically sends multicast heartbeat packets to the predetermined port (the multicast address `239.255.0.1` calculated based on the Domain ID) to announce its Participant GUID, IP address and transmission port.
 2. **SEDP (Simple Endpoint Discovery Protocol)**: When Participants discover each other, they establish a reliable unicast connection and exchange the DataWriter / DataReader details (Topic name, data type, QoS configuration) contained in each other. If the QoS matching is successful, a point-to-point data channel is established at the bottom layer.
@@ -229,8 +229,8 @@ sequenceDiagram
     end
 ```
 
-## 2.3 Comparison and quick switching of mainstream RMW middleware
-{: id="23-主流-rmw-中间件对比与快速切换"}
+## 2.3 RMW implementations
+{: id="23-rmw-实现对比与切换"}
 
 |middleware (RMW)|Supplier/Licensing|Advantages and core features|Disadvantages/Notes|Recommended application scenarios|
 | :--- | :--- | :--- | :--- | :--- |
@@ -248,8 +248,8 @@ ros2 run my_pkg my_node
 ros2 doctor --report | grep middleware
 ```
 
-## 2.4 Multi-machine communication and Domain ID isolation
-{: id="24-多机通信与-domain-id-隔离"}
+## 2.4 Multi-machine and Domain ID
+{: id="24-多机通信与-domain-id"}
 
 In order to isolate nodes of different robots or teams under the same LAN switch, ROS 2 provides `ROS_DOMAIN_ID`. Valid values are 0 to 232; use **0 to 101**, which avoids conflicts with the operating system's ephemeral ports on every platform.
 
@@ -267,8 +267,8 @@ export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
 > $$\text{Port} = 7400 + 250 \times \text{DomainID} + \text{Offset}$$
 > Devices on the same network segment with the same `ROS_DOMAIN_ID` discover each other's nodes automatically.
 
-# 3. In-depth analysis and code practice of the five major communication primitives of ROS 2
-{: id="三ros-2-五大通信原语深度剖析与代码实践"}
+# 3. Communication primitives
+{: id="三五种通信方式"}
 
 ROS 2 abstracts all software decoupled interactions into five communication primitives. Choosing the correct communication method is the first principle of system architecture design.
 
@@ -297,8 +297,8 @@ mindmap
       Applicable: deterministic drive startup, fault protection
 ```
 
-## 3.1 Five primitive selection decision matrix
-{: id="31-五大原语选型决策矩阵"}
+## 3.1 Choosing a primitive
+{: id="31-如何选择"}
 
 ```mermaid
 flowchart TD
@@ -313,8 +313,8 @@ flowchart TD
     Q4 -->|"Yes"| NodeParam["Use parameters (Parameter)<br/>YAML configuration / validation callbacks"]
 ```
 
-## 3.2 Topic (Topics): Asynchronous high-frequency data flow
-{: id="32-话题topics异步高频数据流"}
+## 3.2 Topics
+{: id="32-话题-topic"}
 
 ### Communication principles
 {: id="通信原理"}
@@ -346,8 +346,8 @@ flowchart LR
     T2 --> S1 & S2
 ```
 
-### C++17 industrial-grade implementation (`rclcpp`)
-{: id="c17-工业级实现-rclcpp"}
+### C++ implementation (`rclcpp`)
+{: id="c-实现rclcpp"}
 
 ```cpp
 #include <chrono>
@@ -393,7 +393,7 @@ int main(int argc, char* argv[]) {
 ```
 
 ### Python implementation (`rclpy`)
-{: id="python-实现-rclpy"}
+{: id="python-实现rclpy"}
 
 ```python
 #!/usr/bin/env python3
@@ -439,8 +439,8 @@ if __name__ == '__main__':
     main()
 ```
 
-## 3.3 Services: synchronous/asynchronous request-response
-{: id="33-服务services同步异步请求-响应"}
+## 3.3 Services
+{: id="33-服务-service"}
 
 ### Communication principles
 {: id="通信原理-1"}
@@ -461,8 +461,8 @@ sequenceDiagram
     Note over C: Future Completed, perform subsequent business
 ```
 
-## 3.4 Actions: Preemptive long-term task scheduling
-{: id="34-动作actions抢占式长时任务调度"}
+## 3.4 Actions
+{: id="34-动作-action"}
 
 ### Communication principles
 {: id="通信原理-2"}
@@ -495,8 +495,8 @@ stateDiagram-v2
     CANCELED --> [*]
 ```
 
-### Action interface definition (`nav2_msgs/action/NavigateToPose.action`)
-{: id="action-接口定义-nav2_msgsactionnavigatetoposeaction"}
+### Action interface definition
+{: id="action-接口定义"}
 ```yaml
 # 1. Target (Goal)
 geometry_msgs/PoseStamped pose
@@ -514,8 +514,8 @@ int16 number_of_recoveries
 float32 distance_remaining
 ```
 
-## 3.5 Parameters: distributed node-level configuration
-{: id="35-参数parameters分布式节点级配置"}
+## 3.5 Parameters
+{: id="35-参数-parameter"}
 
 In ROS 2, parameters are **private data items bound to a specific node instance**, supporting strong type verification, range constraints and dynamic modification callback interception.
 
@@ -550,13 +550,13 @@ params_callback_handle_ = this->add_on_set_parameters_callback(
 );
 ```
 
-# 4. Quality of Service Strategy (QoS): Refined Communication Control
-{: id="四服务质量策略qos精细化通信控制"}
+# 4. Quality of Service (QoS)
+{: id="四qos-服务质量"}
 
 QoS (Quality of Service) is the most important communication improvement of ROS 2 over ROS 1: the underlying transport behavior can be configured separately according to the characteristics of each data flow.
 
-## 4.1 In-depth analysis of core QoS policies
-{: id="41-核心-qos-策略深度解析"}
+## 4.1 Core policies
+{: id="41-核心策略"}
 
 | Policy | Values | Meaning |
 | :--- | :--- | :--- |
@@ -567,8 +567,8 @@ QoS (Quality of Service) is the most important communication improvement of ROS 
 | **Deadline** | Duration | Maximum interval between consecutive messages; exceeding it triggers an event |
 | **Lifespan** | Duration | Messages older than their lifespan are no longer delivered |
 
-## 4.2 QoS Compatibility Matching Rules (Compatibility Rules)
-{: id="42-qos-兼容性匹配规则compatibility-rules"}
+## 4.2 Compatibility rules
+{: id="42-兼容性规则"}
 
 > **Request vs. Offer principle**
 >
@@ -590,8 +590,8 @@ flowchart LR
     style Subscriber fill:#ffe3e3,stroke:#e03131
 ```
 
-### Core compatibility matrix
-{: id="核心兼容矩阵"}
+### Compatibility matrix
+{: id="兼容矩阵"}
 
 |publisher (Offered)|subscriber (Requested)|Match results|Description|
 | :--- | :--- | :---: | :--- |
@@ -602,8 +602,8 @@ flowchart LR
 | **TRANSIENT_LOCAL** | **VOLATILE** |✅ **Compatible**|The subscriber does not require historical data and can receive real-time data normally.|
 | **VOLATILE** | **TRANSIENT_LOCAL** |❌ **Incompatible**|Subscriber requires historical map, but publisher is not cached, **cannot communicate**|
 
-## 4.3 Typical scenario standard QoS configuration template
-{: id="43-典型场景标准-qos-配置模板"}
+## 4.3 Common profiles
+{: id="43-常用配置模板"}
 
 |Scenario application| Reliability | Durability | History (Depth) |design considerations|
 | :--- | :--- | :--- | :--- | :--- |
@@ -612,11 +612,11 @@ flowchart LR
 |**static map / parameter event** (`/map`, `/robot_description`)| `RELIABLE` | `TRANSIENT_LOCAL` | `KEEP_LAST (1)` |Similar to the Latch mechanism of ROS 1, the SLAM/Nav2 node started later can obtain the full map as soon as it goes online.|
 |**high reliability status alarm** (`/emergency_stop`)| `RELIABLE` | `TRANSIENT_LOCAL` | `KEEP_ALL` |Emergency stop and failure events must never be lost|
 
-# 5. Executor, callback group and zero-copy IPC mechanism
-{: id="五执行器回调组与零拷贝-ipc-机制"}
+# 5. Executors and zero-copy
+{: id="五执行器与零拷贝"}
 
-## 5.1 ROS 2 executor (Executors) scheduling model
-{: id="51-ros-2-执行器executors调度模型"}
+## 5.1 Executors
+{: id="51-执行器"}
 
 In ROS 2, callbacks (Timer, Subscription, Service, Action) do not run on background threads by themselves; an **Executor** takes ready events from the underlying WaitSet and schedules them.
 
@@ -626,8 +626,8 @@ In ROS 2, callbacks (Timer, Subscription, Service, Action) do not run on backgro
 | `MultiThreadedExecutor` | A thread pool runs ready callbacks in parallel | Uses multiple cores to improve responsiveness and throughput | Concurrency must be controlled with callback groups (see Section 5.2) to avoid data races |
 | `EventsExecutor` | Woken directly by middleware events instead of polling the WaitSet | Low idle CPU overhead; saves power under light load | Provided as an experimental feature since Iron; check support in the version you use |
 
-## 5.2 Callback group (Callback Groups) and deadlock prevention
-{: id="52-回调组callback-groups与死锁防范"}
+## 5.2 Callback groups and deadlocks
+{: id="52-回调组与死锁"}
 
 In order to finely control concurrent permissions in `MultiThreadedExecutor`, ROS 2 provides two types of callback groups:
 
@@ -662,8 +662,8 @@ flowchart LR
 > 1. Put the waiting callback and the response-handling callback in different callback groups, and use `MultiThreadedExecutor`.
 > 2. Do not block inside a callback; call the service asynchronously and handle the result in the future's completion callback.
 
-## 5.3 Components and intra-process zero-copy communication (IPC)
-{: id="53-组件化components与进程内零拷贝通信ipc"}
+## 5.3 Components and zero-copy IPC
+{: id="53-组件与进程内零拷贝"}
 
 Traditional multi-node systems use a multi-process model, so a message between nodes passes through **user-space memory → serialization → kernel socket → deserialization → destination user-space memory**. For data streams of hundreds of megabytes per second, such as 4K images or 3D lidar point clouds, the CPU and memory-bandwidth overhead is large.
 
@@ -686,7 +686,7 @@ flowchart TB
 ```
 
 ### C++ zero-copy publisher example
-{: id="c-零拷贝发布端规范代码"}
+{: id="c-零拷贝发布示例"}
 
 ```cpp
 #include "rclcpp/rclcpp.hpp"
@@ -724,13 +724,13 @@ private:
 };
 ```
 
-# 6. Controlled startup: lifecycle nodes
-{: id="六受控确定性生命周期节点lifecycle-nodes"}
+# 6. Lifecycle nodes
+{: id="六生命周期节点"}
 
 On a real robot, an uncontrolled node startup order can cause accidents, for example the navigation algorithm publishing velocity commands before the lidar or base driver has finished validating its parameters. ROS 2 therefore provides the **Lifecycle Node (managed lifecycle node)**: a node starts up through an explicit state machine, and an external manager decides when to activate it.
 
-## 6.1 Lifecycle finite state machine
-{: id="61-生命周期有限状态机"}
+## 6.1 State machine
+{: id="61-状态机"}
 
 ```mermaid
 stateDiagram-v2
@@ -756,20 +756,20 @@ stateDiagram-v2
     Finalized --> [*]: Destruct and destroy node
 ```
 
-### Core state semantics
-{: id="核心状态语义"}
+### State meanings
+{: id="状态含义"}
 - **`Unconfigured` (not configured)**: The node is loaded, but the parameters are not read and the hardware device is not connected.
 - **`Inactive` (inactive)**: The configuration is loaded, the Publisher and Subscriber are established, but the Publisher is in a silent state (does not broadcast any messages to DDS), and the execution is suspended.
 - **`Active` (active state)**: The system is operating normally, all callbacks are activated, and the main control loop is executed.
 - **`Finalized` (terminal status)**: Resources are completely released and the process is ready to exit.
 
-# 7. Coordinate transformation engine: TF2 in-depth analysis
-{: id="七坐标变换引擎tf2-深度解析"}
+# 7. TF2 transforms
+{: id="七tf2-坐标变换"}
 
 There are a large number of geometric coordinate frames in the robot system (world, base, lidar, end-effector, and camera optical frames). **TF2 (Transform Library 2)** is responsible for maintaining the **space-time transformation tree (Transform Tree)** within the entire robot lifecycle.
 
-## 7.1 Robot standard coordinate frame specification (REP 105 & REP 103)
-{: id="71-机器人标准坐标系规范rep-105--rep-103"}
+## 7.1 Standard frames
+{: id="71-标准坐标系"}
 
 According to the official ROS specification **REP 105**, mobile robots must strictly follow the tree-like single-parent topology:
 
@@ -806,8 +806,8 @@ flowchart TB
   - Robot body: **FLU (Forward-Left-Up)**: $X$ axis is forward, $Y$ axis is to the left, $Z$ axis is upward.
   - Camera optical coordinate frame: **RDF (Right-Down-Forward)**: $X$ axis is to the right, $Y$ axis is downward, and $Z$ axis is forward (sight direction).
 
-## 7.2 Dynamic TF (`/tf`) vs static TF (`/tf_static`)
-{: id="72-动态-tf-tf-vs-静态-tf-tf_static"}
+## 7.2 Dynamic vs. static TF
+{: id="72-动态-tf-与静态-tf"}
 
 - **`/tf` (dynamic transformation)**: Broadcast the changing relative pose (such as `odom -> base_link`) at a fixed frequency (such as 50Hz).
 - **`/tf_static` (static extrinsics)**: only broadcast once when the system starts or the sensor extrinsic calibration is completed. It uses `TRANSIENT_LOCAL` QoS underneath, so nodes that start later still receive it without periodic rebroadcasting, which saves CPU and bandwidth.
@@ -834,8 +834,8 @@ try {
 }
 ```
 
-# 8. Robot modeling and description: URDF and Xacro
-{: id="八机器人建模与描述urdf-与-xacro"}
+# 8. URDF and Xacro
+{: id="八urdf-与-xacro"}
 
 ## 8.1 Robot description system
 {: id="81-机器人描述体系"}
@@ -854,8 +854,8 @@ flowchart LR
     end
 ```
 
-## 8.2 Industrial Xacro parameterized macro example
-{: id="82-工业级-xacro-参数化宏示例"}
+## 8.2 Xacro macro example
+{: id="82-xacro-宏示例"}
 
 ```xml
 <?xml version="1.0"?>
@@ -907,8 +907,8 @@ flowchart LR
 </robot>
 ```
 
-# 9. ROS 2 modern simulation and digital twin platform
-{: id="九ros-2-现代仿真与数字孪生平台"}
+# 9. Simulation
+{: id="九仿真平台"}
 
 | Platform | Characteristics | Connection to ROS 2 |
 | :--- | :--- | :--- |
@@ -922,8 +922,8 @@ The simulation engine publishes virtual time on the `/clock` topic, and ROS 2 no
 >
 > During simulation or rosbag playback, every algorithm node must set `use_sim_time: true`. Otherwise the node reads the host's system clock, which does not match the timestamps in the data, and TF lookups raise `ExtrapolationException`.
 
-# 10. Core ROS 2 ecosystem stacks
-{: id="十ros-2-顶级核心生态栈精讲"}
+# 10. Core ecosystem
+{: id="十核心生态"}
 
 ```mermaid
 mindmap
@@ -948,8 +948,8 @@ mindmap
       MCU Native Publisher/Subscriber
 ```
 
-## 10.1 Nav2 (Navigation 2) autonomous mobile navigation stack
-{: id="101-nav2-navigation-2-自主移动导航栈"}
+## 10.1 Nav2 navigation
+{: id="101-nav2-导航"}
 
 Nav2 is the second generation of autonomous mobile robot navigation system officially built by ROS 2. It reconstructs the overall architecture of ROS 1 navigation and is completely implemented based on **behavior tree (BehaviorTree.CPP)** and **lifecycle manager (LifecycleManager)**.
 
@@ -972,13 +972,13 @@ flowchart TB
 | Recovery behaviors | Spin, BackUp, ClearEntireCostmap | Try to get unstuck when the robot is trapped or planning fails |
 | Costmaps | Static layer, obstacle / voxel layer, inflation layer, Costmap Filters (keepout zones, speed-limit zones) | Fuse map and sensor data and mark each cell with a traversal cost |
 
-### Nav2 core controller in-depth comparison
-{: id="nav2-核心控制器深度对比"}
+### Controller comparison
+{: id="控制器对比"}
 1. **MPPI (Model Predictive Path Integral)**: samples many candidate trajectories in parallel on the CPU and scores them with a cost function. It suits differential, omnidirectional, and Ackermann bases, avoids obstacles nimbly, and is one of the general-purpose controllers Nav2 currently recommends.
 2. **Regulated Pure Pursuit (RPP)**: follows the reference path closely and slows down automatically according to path curvature and distance to obstacles. It behaves stably, is easy to tune, and is common on warehouse AGVs/AMRs.
 
-## 10.2 MoveIt 2: Modern robotic arm motion planning framework
-{: id="102-moveit-2现代机械臂运动规划框架"}
+## 10.2 MoveIt 2 motion planning
+{: id="102-moveit-2-运动规划"}
 
 MoveIt 2 is designed to provide kinematics solution, trajectory planning and real-time collision detection for multi-degree-of-freedom robotic arms (6-DOF / 7-DOF serial manipulators, dual-arm robots, humanoid robot upper bodies).
 
@@ -993,8 +993,8 @@ flowchart TB
     MG -->|Planned trajectory| RosControl
 ```
 
-## 10.3 Ros2_control: real-time hardware abstraction and control layer
-{: id="103-ros2_control工业级实时硬件抽象与控制层"}
+## 10.3 ros2_control
+{: id="103-ros2_control-硬件控制"}
 
 `ros2_control` provides a uniform way to write robot hardware drivers. It completely decouples the **real-time control loop (Hard Real-Time Loop, such as 1000Hz)** from **non-real-time asynchronous ROS communication**, so motor control does not lose control because of blocked ROS messages.
 
@@ -1026,11 +1026,11 @@ flowchart TB
     ROS_Interfaces["ROS 2 topic / action interface (/joint_trajectory)"] <===> CM
 ```
 
-# 11. Engineering practice: construction, system orchestration and data closed loop
-{: id="十一工程实战构建系统编排与数据闭环"}
+# 11. Build, launch and recording
+{: id="十一构建启动与录包"}
 
-## 11.1 Modern build tools: `colcon` complete set of core commands
-{: id="111-现代化构建工具colcon-核心命令全集"}
+## 11.1 Building with colcon
+{: id="111-colcon-构建"}
 
 ```bash
 # 1. Completely built foundation
@@ -1051,8 +1051,8 @@ colcon build \
 source install/setup.bash
 ```
 
-## 11.2 Advanced orchestration of Python Launch system
-{: id="112-python-launch-系统高级编排"}
+## 11.2 Launch files
+{: id="112-launch-编排"}
 
 The Launch file of ROS 2 is entirely written in Python and has powerful conditional branching, event monitoring and parameter forwarding capabilities.
 
@@ -1096,8 +1096,8 @@ def generate_launch_description():
     ])
 ```
 
-## 11.3 Rosbag2: Modern recording and data closed-loop workflow
-{: id="113-rosbag2现代化录制与数据闭环工作流"}
+## 11.3 rosbag2 record and replay
+{: id="113-rosbag2-录制回放"}
 
 ```bash
 # 1. Record the entire topic (excluding bulky uncompressed original images to save SSD bandwidth)
@@ -1110,11 +1110,11 @@ ros2 bag info my_experiment_bag.mcap
 ros2 bag play my_experiment_bag.mcap --rate 0.5 --clock 50
 ```
 
-# 12. Industrial-grade multi-machine distributed deployment, network tuning and security specifications
-{: id="十二工业级多机分布式部署网络调优与安全规范"}
+# 12. Multi-machine deployment and security
+{: id="十二多机部署与安全"}
 
-## 12.1 Lossy Wi-Fi and multi-machine DDS network in-depth tuning guide
-{: id="121-wi-fi-弱网与多机-dds-网络深度调优指南"}
+## 12.1 Tuning DDS on lossy networks
+{: id="121-弱网与-dds-调优"}
 
 In large-scale robot fleet (Fleet Management) and multi-machine collaboration scenarios, Wi-Fi multicast is prone to storms or packet loss. The following tuning strategies are recommended:
 
@@ -1128,8 +1128,8 @@ flowchart TB
     end
 ```
 
-### 1. Linux kernel network receive/send buffer expansion (to prevent high-concurrency point cloud packet loss)
-{: id="1-linux-内核网络接收发送缓冲区扩容防止高并发点云丢包"}
+### 1. Enlarge kernel network buffers
+{: id="1-扩大内核网络缓冲区"}
 ```bash
 sudo sysctl -w net.core.rmem_max=2147483647
 sudo sysctl -w net.core.wmem_max=2147483647
@@ -1137,8 +1137,8 @@ sudo sysctl -w net.ipv4.ipfrag_time=3
 sudo sysctl -w net.ipv4.ipfrag_high_thresh=134217728
 ```
 
-### 2. Fast DDS Discovery Server Production Level Launch Specification
-{: id="2-fast-dds-discovery-server-生产级启动规范"}
+### 2. Fast DDS Discovery Server
+{: id="2-fast-dds-发现服务器"}
 ```bash
 # Start the discovery server on the dispatch server or host (ID: 0, port 11811)
 fastdds discovery -i 0 -p 11811
@@ -1147,8 +1147,8 @@ fastdds discovery -i 0 -p 11811
 export ROS_DISCOVERY_SERVER="192.168.1.100:11811"
 ```
 
-## 12.2 SROS2: Robot end-to-end security defense system
-{: id="122-sros2机器人端到端安全防御体系"}
+## 12.2 SROS2 security
+{: id="122-sros2-安全"}
 
 Against threats such as network sniffing, unauthorized nodes joining, and forged control commands (such as a forged `/cmd_vel`), ROS 2 provides **SROS2**, a security toolset based on **DDS-Security** with three capabilities:
 
@@ -1172,8 +1172,8 @@ export ROS_SECURITY_KEYSTORE=~/sros2_keystore
 ros2 run my_robot_pkg controller_node --ros-args --enclave /my_secure_controller
 ```
 
-## 12.3 Production deployment: systemd daemon and watchdog
-{: id="123-工业级生产部署systemd-守护进程与看门狗"}
+## 12.3 systemd and watchdog
+{: id="123-systemd-部署与看门狗"}
 
 Host the robot startup stack as a Linux system daemon service to realize **auto-start at boot, automatic restart after a crash and log rotation**:
 
@@ -1207,8 +1207,8 @@ sudo systemctl enable robot_bringup.service
 sudo systemctl start robot_bringup.service
 ```
 
-# 13. ROS 2 CLI command reference
-{: id="十三ros-2-常用-cli-命令终极分类速查卡"}
+# 13. CLI reference
+{: id="十三cli-速查"}
 
 ```bash
 # -------------------------------------------------------------
@@ -1258,8 +1258,8 @@ ros2 doctor --report                          # Scan network configuration,DDS S
 rosdep install --from-paths src --ignore-src -r -y # Automatically install all system dependencies where the workspace source code is missing with one click
 ```
 
-# 14. Summary and authoritative reference materials
-{: id="十四总结与权威参考资料"}
+# 14. Summary and references
+{: id="十四总结与参考资料"}
 
 The design of ROS 2 centers on four points: data-centric, modular, reliable, and able to meet real-time requirements. Standardized DDS transport, managed lifecycle nodes, and componentized zero-copy communication, together with ecosystem stacks such as Nav2, MoveIt 2, and ros2_control, make it the mainstream infrastructure for robot software development today.
 
