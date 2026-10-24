@@ -129,7 +129,7 @@ excerpt: "这个站从 2026 年 1 月开始，十个月里积累了 950 多次�
 博客的内容生产大致是下面这样一条链路：
 
 ```mermaid
-flowchart LR
+flowchart TD
     A[arXiv / 公众号] -->|vln-feed| B[本地选题库<br/>index.md + items]
     B -->|vln-feed 写周报| C[具身导航周报]
     B -->|挑出值得精读的| D[论文 PDF]

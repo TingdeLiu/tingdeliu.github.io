@@ -134,7 +134,7 @@ Compared with re-describing the task in every conversation, Skills have three ad
 Content production for the blog roughly follows this chain:
 
 ```mermaid
-flowchart LR
+flowchart TD
     A[arXiv / WeChat accounts] -->|vln-feed| B[Local topic library<br/>index.md + items]
     B -->|vln-feed writes digest| C[Embodied navigation weekly]
     B -->|papers worth reading| D[Paper PDF]
