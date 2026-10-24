@@ -213,6 +213,19 @@ rendered source-link and heading-ID checks (19 matching headings each) and are
 absent from the production output. All 16 source/translation weekly files pass
 the post linter, and the 11 existing regression tests pass.
 
+### ROS 2 guide synchronization (2026-10-24)
+
+The English ROS 2 guide follows the Chinese readability revision of 2026-10-24.
+Technical fixes had already been carried over; this update adds the layout
+changes. Five list-like Mermaid diagrams are now tables (QoS policies,
+executors, simulation platforms, Nav2 modules, and SROS2), the ROS 1 / ROS 2,
+software-stack, zero-copy, lifecycle, Nav2, and MoveIt 2 diagrams are
+relaid out, body section rules are removed, callouts are rewritten, heading
+colons are dropped, and the references are a plain list rather than a quoted
+heading. Two leftover "Rospackage" mistranslations now read "rosbag".
+Whole-page parity of equations, links, table values, and table widths passes;
+the 61 heading IDs and 21 Mermaid diagrams match the source.
+
 ### VLN Survey synchronization (2026-10-24)
 
 The English survey follows the Chinese revisions of 2026-10-07 and 2026-10-09.
