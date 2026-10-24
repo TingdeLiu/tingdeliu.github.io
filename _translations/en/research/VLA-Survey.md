@@ -15,7 +15,7 @@ comments: false
 author: Tingde Liu
 toc: true
 vla_survey: true
-toc_depth: 2
+toc_depth: 3
 excerpt: "Action representations, training methods, closed-loop execution, datasets, evaluation, generalization, and deployment trade-offs for vision-language-action models."
 ---
 

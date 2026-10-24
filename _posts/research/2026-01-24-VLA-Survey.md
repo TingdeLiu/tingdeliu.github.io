@@ -11,7 +11,7 @@ comments: true
 author: Tingde Liu
 toc: true
 vla_survey: true
-toc_depth: 2
+toc_depth: 3
 excerpt: "围绕视觉、语言与动作的统一建模，梳理 VLA 的动作表示、训练方法、闭环执行、数据与评测，并结合代表论文讨论泛化能力、部署成本和适用边界。"
 ---
 
