@@ -38,7 +38,7 @@ flowchart TD
 
 **第二步：读论文。** 把 PDF 交给 [paper-summary](https://github.com/TingdeLiu/Tyndall-Skills/tree/main/paper-summary)，它会先判断哪几页有关键图，用 [pdf-figure-extractor](https://github.com/TingdeLiu/Tyndall-Skills/tree/main/pdf-figure-extractor) 抽图，再写一份结构统一的中文总结。每份总结开头有一节“精华”，最多 5 句话，只写可以迁移到别的工作里的思路。总结出来后，我会对着原文核对关键数字和结论。
 
-**第三步：放进综述。** 总结要插到对应综述的正确位置，同时补齐目录锚点、参考文献、排行榜等好几处。这一步由两个和本站结构绑定的工具（paper-insert、vln-paper-insert）完成，放哪一篇、要不要替换旧论文，都会先停下来问我。
+**第三步：放进综述。** 总结要插到对应综述的正确位置，同时补齐目录锚点、参考文献、排行榜等好几处。这一步由 [paper-insert](https://github.com/TingdeLiu/Tyndall-Skills/tree/main/paper-insert)（VLA、VLM、世界模型、空间智能综述）和 [vln-paper-insert](https://github.com/TingdeLiu/Tyndall-Skills/tree/main/vln-paper-insert)（VLN 论文列表）完成，它们按本站文章的结构编写，用在别的博客上需要改一下章节标题，放哪一篇、要不要替换旧论文，都会先停下来问我。
 
 **第四步：发布。** 站点用 Jekyll 搭在 GitHub Pages 上，文章就是 Markdown 文件，AI 读写没有障碍，也不需要任何后端。推送之后 GitHub Actions 先跑格式检查，再构建发布，任何一步失败都不会上线。
 
