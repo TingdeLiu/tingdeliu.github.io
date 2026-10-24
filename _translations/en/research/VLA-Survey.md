@@ -5,10 +5,10 @@ translation_id: vla-survey
 permalink: /en/VLA-Survey/
 source_path: _posts/research/2026-01-24-VLA-Survey.md
 source_url: /VLA-Survey/
-source_revision_date: 2026-10-02
-translation_updated: 2026-10-04
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "Vision-Language-Action Models: A Survey"
-date: 2026-08-24
+date: 2026-10-24
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 categories: research
 comments: false
@@ -143,6 +143,8 @@ flowchart TB
 
 Action chunking can reduce the invocation overhead of stepwise prediction, but the longer the chunks, the more stale observations used during execution may be. There is no one-to-one correspondence between the generation method and the control frequency. For related methods, see [ACT](https://arxiv.org/abs/2304.13705), [Diffusion Policy](https://arxiv.org/abs/2303.04137), [FAST](https://arxiv.org/abs/2501.09747) and [π₀](https://arxiv.org/abs/2410.24164).
 
+Two empirical studies from October 2026 show that the bottleneck in action generation is not always where the headline metric points. [ProAct](https://arxiv.org/abs/2610.09170) finds that an action tokenizer needs more than accurate reconstruction: the policy must also predict the right tokens for new observations, and tokens it gets wrong should still decode into reasonable actions. [When One Step Is Enough](https://arxiv.org/abs/2610.30735) reports that across six flow-matching VLAs, one-step Euler integration roughly matches multi-step sampling once a model is well trained and has enough capacity. Fewer integration steps may therefore not require extra distillation, but the finding depends on training and model scale, so it should be checked again before applying it to smaller models or new tasks.
+
 ### Unified policy and hierarchical system
 {: id="统一策略与层级系统"}
 
@@ -199,18 +201,23 @@ The following table compares representative work according to **research issues 
 | {% include content-link.html path='/VLA-Papers/' fragment='#5-10-pi0-2024' label='π₀' %} |How to generate high-frequency continuous action chunks|VLM and flow matching action expert|Distinguish between action execution frequency and policy update frequency|
 | {% include content-link.html path='/VLA-Papers/' fragment='#5-11-pi05-2025' label='π₀.5' %} |How to generalize to new home environments|Joint training of heterogeneous data and high- and low-level prediction|Unseen environments do not mean that any unseen tasks can be completed|
 | {% include content-link.html path='/VLA-Papers/' fragment='#5-12-pi06-2025' label='π*₀.₆' %} |How to use execution experience to improve your policy|RECAP and expert intervention data|Account for interaction, reward annotation, and manual correction costs|
+| {% include content-link.html path='/VLA-Papers/' fragment='#513-π7-a-steerable-generalist-robotic-foundation-model-2026' label='π₀.7' %} |Can prompts control how an action is performed?|Multimodal context of subtask instructions, subgoal images and training metadata|Separate the gain from steerability from the gain from model and data scale|
 | {% include content-link.html path='/VLA-Papers/' fragment='#5-18-gr00t-2025' label='GR00T' %} |How a universal robot model combines data and tool chains|Division of work between vision-language module and motion experts|Clarify model version, robot adaptation and training data range|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-20-xvla-2025' label='X-VLA' %} |How to adapt to heterogeneous hardware at low cost|Soft prompts learned per embodiment|A new robot still needs target data; report how much|
+| {% include content-link.html path='/VLA-Papers/' fragment='#525-qwen-vla-2026' label='Qwen-VLA' %} |Can manipulation, navigation and trajectory prediction share one model?|Unified action and trajectory prediction with a DiT flow-matching decoder|Check whether joint training degrades individual tasks|
 | {% include content-link.html path='/VLA-Papers/' fragment='#5-13-acot-vla-2026' label='ACoT-VLA' %} |Can intermediate action intentions assist execution?|Structured reasoning in action space|Requires intermediate representation ablation and additional inference cost comparison|
 | {% include content-link.html path='/VLA-Papers/' fragment='#5-18-internvla-a1.5-2026' label='InternVLA-A1.5' %} |How spatial positioning and future prediction assist actions|Space and forward supervision|Examine oversight data costs and benefits for each task|
 | {% include content-link.html path='/VLA-Papers/' fragment='#5-29-zr-0' label='ZR-0' %} |How to share cross-robot semantic representations|Intensive ECoT supervision, skipping ECoT generation during inference|Skipping text generation does not equal zero latency for the entire policy|
 | {% include content-link.html path='/VLA-Papers/' fragment='#5-30-robottt' label='RoboTTT' %} |How to take advantage of long history without continually growing the attention cache|Fast weights as loop states|Updating memory during testing is not equivalent to online reward optimization|
 | {% include content-link.html path='/VLA-Papers/' fragment='#5-31-s-vla' label='S²-VLA' %} |How to adjust feature fusion with task stages|State space guided adaptive attention|Verify income under unified long-horizon task protocol|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-27-harness-vla' label='Harness VLA' %} |Can an external orchestrator cover the weak spots of an end-to-end policy?|A frozen VLA as the contact primitive; analytic primitives and a high-level planner handle the remaining steps|Count planner calls, memory upkeep and retries|
 | {% include content-link.html path='/VLA-Papers/' fragment='#5-28-turbovla' label='TurboVLA' %} |How to reduce the cost of vision-language action fusion|Lightweight coding and direct cross-modal interaction|Report hardware, precision, action chunk and latency caliber|
 | {% include content-link.html path='/VLA-Papers/' fragment='#5-32-lingbot-vla-20-2026' label='LingBot-VLA 2.0' %} |How to scale to multi-tasking and full-body robotics|Approximately 60000 hours of mixed pretraining, whole body movement interface and future prediction|Separately report platform progress, success rates, and data costs|
 | {% include content-link.html path='/VLA-Papers/' fragment='#5-33-tau0-vla-2026' label='τ₀-VLA' %} |Which high-level decisions are worth spending more inference power on?|Perform memory and world model guided subtask searches|Distinguish between hierarchical decomposition benefits and additional search benefits|
 | {% include content-link.html path='/VLA-Papers/' fragment='#5-34-actionpiece-2026' label='ActionPiece' %} |Whether the action token retains local physical relationships|Physical sorting consistency index and quantitative supervision|The scope of application is discrete autoregressive action representation|
 | {% include content-link.html path='/VLA-Papers/' fragment='#5-35-real-time-expo-ft-2026' label='Real-Time EXPO-FT' %} |How to do a quick closed-loop fix for inference latency|Slow VLA proposals and fast editing policies for online RL|The boundary between real robot dynamic short tasks and online data cap|
 | {% include content-link.html path='/VLA-Papers/' fragment='#5-36-bee-2026' label='Bee' %} |How to use human correction for online policy improvement|Adjusting human corrective constraints by action dimension|Counts pre-collection corrections and manual takeover during training|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-37-ace-brain-05-2026' label='ACE-Brain-0.5' %} |Can perception, planning, execution and evaluation share one embodied backbone?|Per-task training, parameter merging, then brief mixed fine-tuning|Evaluate each capability separately and check how reliable execution assessment is|
 
 If the purpose is to reproduce, you should first confirm whether the weights, data processing, training configuration and evaluation code match. Code disclosure, weight disclosure, data disclosure and allowing commercial use are different conditions. You must check the corresponding version of the warehouse and license respectively.
 
@@ -227,6 +234,7 @@ If the purpose is to reproduce, you should first confirm whether the weights, da
 |cross-robot learning| RT-X, OpenVLA, GR00T, LingBot-VLA 2.0 |Share data and partial representations across platforms|Action interface, sensing configuration and embodied differences|
 |long term decision making| π₀.5, RoboTTT, S²-VLA, τ₀-VLA |Introduce subtasks, memories, stage representations or world modelsearches|Reliably determine success, detect failure, and recover|
 |Improve from experience| π*₀.₆ / RECAP, Real-Time EXPO-FT, Bee |Optimize policies with execution data, rewards, and human corrections|Interaction cost, real-time latency, reward quality and old skill retention|
+|System orchestration and runtime reliability| Harness VLA, ACE-Brain-0.5, P², RESCUE |Move planning, memory, execution assessment and failure monitoring into the system layer|Alarm timing, false-alarm cost and the overhead of external modules|
 
 These advances affect representation, action generation, data, and training mechanisms respectively. For example, TTT is a way of processing history, and Flow Matching is a way of generating action distribution. The two can coexist.
 
@@ -251,6 +259,22 @@ Calling both training data “sizes” masks the differences in supervision they
 The world model can provide future visual subgoals, candidate action results, or synthetic training trajectories. {% include content-link.html path='/VLA-Papers/' fragment='#5-8-unisim-2024' label='UniSim' %} shows the research path of learning interactive environment; {% include content-link.html path='/VLA-Papers/' fragment='#5-33-tau0-vla-2026' label='τ₀-VLA' %} uses prediction results for high-level subtask search. But visually sound generation results may lack the correct contact, mass, friction, and causal response. Further verification is needed during evaluation: whether the prediction is correctly controlled by actions, whether it can improve downstream policies, and whether the benefits are transferred to the real environment.
 
 Research trends can be summarized into three open questions: Can more semantic supervision improve actions rather than just interpretations? Can longer histories reduce failures caused by insufficient observability? Can deployment feedback improve overall mission reliability at an acceptable cost? Answers to these questions should come from controlled comparisons and closed-loop experiments.
+
+### Research directions in October 2026
+{: id="vla-recent-trends"}
+
+More than two hundred new arXiv papers in October 2026 mention VLA in their title or abstract. Compared with earlier work, the emphasis has shifted noticeably from adding another benchmark point to **finding problems during deployment, verifying decisions and diagnosing failures**. The table lists representative work for each direction; all numbers are self-reported and not yet reproduced.
+
+| Direction | Representative work | What is new | Boundaries when reading |
+|---|---|---|---|
+| Runtime monitoring and failure attribution | [Progress Probes P²](https://arxiv.org/abs/2610.31613), [RESCUE](https://arxiv.org/abs/2610.13516), [failure attribution](https://arxiv.org/abs/2610.27277) | Linear probes on the policy's own activations estimate task progress; simulator checkpoints test counterfactually whether acting on an alarm lowers completion cost; a risk model estimates whether removing a visual corruption would save the current episode | Accurate detection does not mean useful intervention. Under a stop-and-reset model, RESCUE finds that even an ideal detector can afford only about a 2%–3% false-alarm rate |
+| Test-time verification and latency | [VeriVLA](https://arxiv.org/abs/2610.21985), [PACT-VLA](https://arxiv.org/abs/2610.28019) | Sample several action chunks at critical states and rank them with a latent world model, or use the wait of asynchronous inference to pick the candidate that best fits a newer observation | Count the extra latency per trigger; VeriVLA reports about 326 ms on a single RTX 4090 |
+| Memory and history dependence | [Dual-Stream Memory](https://arxiv.org/abs/2610.13262), [GeoMem-VLA](https://arxiv.org/abs/2610.29866), [IMEP / ChainBench](https://arxiv.org/abs/2610.23372) | Keep execution progress apart from retrievable past frames; compress geometric supervision into continually updated memory tokens; test whether memory is actually used by intervening on its contents | A drop in success after removing memory does not prove the model uses the task facts stored there; that needs interventions that swap key facts |
+| World models that serve the policy | [What Matters for World Modeling](https://arxiv.org/abs/2610.19825), [DRILL](https://arxiv.org/abs/2610.30814), [WoVR+](https://arxiv.org/abs/2610.17922) | Compare four integration paradigms in one framework; train the world model for policy return rather than pixel error; run VLA reinforcement learning on imagined interaction | No paradigm wins in every setting; hallucination errors in imagined rollouts accumulate, so long tasks need stage-wise control |
+| Agentic orchestration | [SERA](https://arxiv.org/abs/2610.29560), [Towards Agentic Robots](https://arxiv.org/abs/2610.20442) | A high-level VLM keeps task context in an editable harness and revises its plans from execution feedback; the VLA serves only as the low-level executor | Harness revisions must be frozen before held-out testing, or tuning gains are counted as generalization |
+| Inference systems engineering | [FlashRT-PAI](https://arxiv.org/abs/2610.24349) | Shows that real-time single-batch latency is dominated by kernel launches, data movement between operators and recomputation across decisions, not by individual kernels | Compare speedups at the same precision, hardware and policy configuration |
+
+These papers share one premise: **whole-task success rate is not enough to describe policy reliability.** {% include content-link.html path='/VLA-Papers/' fragment='#5-27-harness-vla' label='Harness VLA' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-37-ace-brain-05-2026' label='ACE-Brain-0.5' %} and SERA place planning, memory and execution assessment in the system layer; P² and RESCUE ask when to stop; DRILL and VeriVLA make the world model serve action selection directly. They address the three questions above, but most conclusions still come from a small set of tasks on a single robot platform.
 
 ## 1.7 VLA open source ecosystem
 {: id="17-vla开源生态"}
@@ -295,6 +319,8 @@ Demonstrations are usually cut into $(o_t,\ell,s_t,A_t)$ by time window. Adjacen
 
 When comparing "adding pretraining", "adding future prediction" or "adding online feedback", first fix the backbone, target task data, action interface and initial evaluation status, and then only change the corresponding supervision or training stage. In addition to target task performance, performance degradation under language understanding, old robotics tasks, and perturbations should also be examined. For online methods, the horizontal axis must at least include the amount of robot interaction and manual intervention; only comparing the final success rate will mistakenly record the benefits brought by more data or longer training as algorithm benefits.
 
+Auxiliary objectives should also be compared under the same training budget. [What Should Robot Policies Learn to Predict?](https://arxiv.org/abs/2610.21915) uses a sample-level router to assign each training sample either to action prediction or to an auxiliary objective. On LIBERO, CALVIN and real-robot tasks, suitable latent-action or future-vision supervision beats action-only training even when action prediction receives no more than half of the samples, and future-vision targets generally do better. The result depends on the chosen representation, such as DINOv3, V-JEPA 2 or video-generation features, and does not mean auxiliary supervision always helps.
+
 <span id="vla-learning-path" class="vla-anchor-alias" aria-hidden="true"></span>
 
 ## 1.9 Embodied intelligence learning and entry route
@@ -332,6 +358,8 @@ This chapter is organized in a problem-driven manner: it links methods to observ
 
 Three sets of diagnoses can be made with the same task: just rewrite the language expression of "left cup" and observe whether the target is still selected; keep the instruction unchanged, move the cup and camera, and check the target positioning and coordinate transformation; keep the target unchanged, change the cup handle orientation or contact conditions, and check whether the grasp is stable. The three sets of changes emphasize semantics, space, and control respectively, but errors may also be transferred to each other. Recording the target selected by the model, predicted actions and final contact results can better locate the failure link than just reporting the success rate of the entire task.
 
+Recent diagnostics suggest that language plays a weaker role in action than expected. A [mechanistic interpretability study](https://arxiv.org/abs/2610.10178) applies activation patching to π₀.5 and GR00T N1.7 on LIBERO: both models are fairly insensitive to abstract rephrasing and even to references to objects that do not exist, yet react strongly to empty instructions and to directional words. [SIMPLER-IN](https://arxiv.org/abs/2610.21251) separates instructions about *what* to do from instructions about *how* to do it, and finds that how-level details do not help current VLAs and even lower their success. A paraphrase test therefore only shows that a model tolerates wording changes; it does not show that the model understands execution constraints stated in the instruction.
+
 ### Space and contact representation
 {: id="空间与接触表示"}
 
@@ -340,7 +368,7 @@ Multi-view RGB, depth, point cloud, occupancy representation and force-tactile s
 ### Future predictions and physical consistency
 {: id="未来预测与物理一致性"}
 
-Predicting future images or potential states can provide training signals for actions, but low pixel error does not equate to good control. The key is being able to distinguish the consequences of candidate actions, especially collisions, occlusions, sliding and irreversible operations. The evaluation of the world modelshould include multi-step errors and downstream closed-loop gains, and check whether the model is still credible in the failure state.
+Predicting future images or potential states can provide training signals for actions, but low pixel error does not equate to good control. The key is being able to distinguish the consequences of candidate actions, especially collisions, occlusions, sliding and irreversible operations. The evaluation of the world modelshould include multi-step errors and downstream closed-loop gains, and check whether the model is still credible in the failure state. [DRILL](https://arxiv.org/abs/2610.30814) gives a direct counterexample: a world model with lower next-frame pixel error can produce worse policy gradients, while one trained for policy return has 17% higher pixel error yet yields a better downstream policy.
 
 ## 2.2 Instruction following, planning and robust real-time execution
 {: id="22-指令跟随规划与鲁棒实时执行"}
@@ -411,7 +439,7 @@ Linguistic rules, rejected output, and readable reasoning can aid interaction, b
 |Runtime monitoring|Contact exception, timeout, failure detection and takeover|It cannot be inferred that every unknown fault can be discovered|
 |Interpretability|Whether subtasks, target locations, and intermediate reasoning are checkable|That the explanation faithfully reflects the actual cause of a decision|
 
-Valuable measurements include error acceptance versus error rejection, anomaly detection latency, constraint violation rate, number of manual takeovers, and post-recovery task success rate. Only by deleting, replacing, or interfering with the intermediate reasoning can we further determine whether it actually affects the action.
+Valuable measurements include error acceptance versus error rejection, anomaly detection latency, constraint violation rate, number of manual takeovers, and post-recovery task success rate. Runtime monitoring must also answer what happens after an alarm. [RESCUE](https://arxiv.org/abs/2610.13516) replays more than a hundred thousand counterfactual branches on OpenVLA-OFT and π₀.5 and finds that whether a failure can be recovered depends on the combination of state and intervention; a monitor with better detection scores does not necessarily lower intervention cost. [P²](https://arxiv.org/abs/2610.31613) shows that linear progress probes on the policy's own activations already match external VLM monitors, so monitoring does not necessarily require calling another large model. Only by deleting, replacing, or interfering with the intermediate reasoning can we further determine whether it actually affects the action.
 
 ## 2.5 Data Construction and Benchmark Testing Standards
 {: id="25-数据构建与基准测试标准"}
@@ -598,6 +626,13 @@ Results should be reported with reference to the robot, task set, visual match, 
 
 The selection should be based on the research questions: verifying parallel training efficiency, cross-scenario changes, and long-horizon task operations require different configurations. Good performance in simulation is also verified by sensing, dynamics and execution latency of real systems.
 
+### Robustness diagnostic benchmarks
+{: id="鲁棒性诊断基准"}
+
+As scores on benchmarks such as LIBERO approach saturation, October 2026 brought a set of benchmarks built specifically to test distribution shift. [LIBERO-Pro2.0](https://arxiv.org/abs/2610.24587) defines 22 static perturbations and 20 runtime interventions across six dimensions, giving 1,648 human-reviewed task instances; the 17 policies it evaluates lose 26.5 percentage points on average under runtime interventions. [VLA-GAUGE](https://arxiv.org/abs/2610.16567) tests 12 VLAs on paired in-distribution and out-of-distribution tasks and finds a mean zero-shot score of only 22.3%. [RoboCasa-Shift](https://arxiv.org/abs/2610.27861) makes each clean and perturbed episode pair differ in a single factor and locates failures by task stage, showing that the same drop in success rate can come from entirely different failure stages.
+
+Together these benchmarks show that a near-perfect score on the original LIBERO suites says little about reliability under changes in viewpoint, distractors, execution perturbations or language. When citing them, report the perturbation type, severity and per-stage results.
+
 ### From benchmark scores to real abilities
 {: id="从基准分数到真实能力"}
 
@@ -645,19 +680,20 @@ The article-by-article methods, experiments, illustrations and limitations have 
 
 |reading path|representative work|Questions worth asking|
 |---|---|---|
-|Base model and cross-robot| {% include content-link.html path='/VLA-Papers/' fragment='#5-1-rt-1-2022' label='RT-1' %} → {% include content-link.html path='/VLA-Papers/' fragment='#5-2-rt-2-2023' label='RT-2' %} → {% include content-link.html path='/VLA-Papers/' fragment='#5-9-openvla-2024' label='OpenVLA' %} → {% include content-link.html path='/VLA-Papers/' fragment='#5-32-lingbot-vla-20-2026' label='LingBot-VLA 2.0' %} |How scale and heterogeneous data translate into tasks and embodied generalization|
+|Base model and cross-robot| {% include content-link.html path='/VLA-Papers/' fragment='#5-1-rt-1-2022' label='RT-1' %} → {% include content-link.html path='/VLA-Papers/' fragment='#5-2-rt-2-2023' label='RT-2' %} → {% include content-link.html path='/VLA-Papers/' fragment='#5-9-openvla-2024' label='OpenVLA' %} → {% include content-link.html path='/VLA-Papers/' fragment='#513-π7-a-steerable-generalist-robotic-foundation-model-2026' label='π₀.7' %} → {% include content-link.html path='/VLA-Papers/' fragment='#5-32-lingbot-vla-20-2026' label='LingBot-VLA 2.0' %} |How scale and heterogeneous data translate into tasks and embodied generalization|
 |Action generation and representation| {% include content-link.html path='/VLA-Papers/' fragment='#5-4-act-2023' label='ACT' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-10-pi0-2024' label='π₀' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-34-actionpiece-2026' label='ActionPiece' %} |What have changed in action chunk, generation method and discretization?|
 |long-horizon task reasoning| {% include content-link.html path='/VLA-Papers/' fragment='#5-11-pi05-2025' label='π₀.5' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-30-robottt' label='RoboTTT' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-33-tau0-vla-2026' label='τ₀-VLA' %} |Can memory, subtasks and world modelsearch improve closed-loop success rate?|
 |Online improvements and real-time execution| {% include content-link.html path='/VLA-Papers/' fragment='#5-12-pi06-2025' label='RECAP' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-35-real-time-expo-ft-2026' label='Real-Time EXPO-FT' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-36-bee-2026' label='Bee' %} |How to account for robot interaction, human correction, and delay costs|
+|Unified frameworks and system orchestration| {% include content-link.html path='/VLA-Papers/' fragment='#525-qwen-vla-2026' label='Qwen-VLA' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-27-harness-vla' label='Harness VLA' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-37-ace-brain-05-2026' label='ACE-Brain-0.5' %} |Should capabilities live in one model or in external orchestration, and what does each cost?|
 
-The results of recent papers still need to be understood according to the evaluation protocol: LingBot-VLA 2.0's GM-100, ActionPiece's LIBERO, τ₀-VLA's long-task real robot experiment, and the task success rate of online reinforcement learning, which cannot be directly sorted.
+The results of recent papers still need to be understood according to the evaluation protocol: LingBot-VLA 2.0's GM-100, ActionPiece's LIBERO, τ₀-VLA's long-task real robot experiment, and the task success rate of online reinforcement learning, which cannot be directly sorted. New October 2026 work not yet covered in the paper readings is summarized under [research directions in Section 1.6](#vla-recent-trends).
 
 ---
 
 # 6. Summary and Outlook
 {: id="6-总结与展望"}
 
-VLA connects vision-language knowledge to action learning, but the general capability comes from the combination of data, representation, action generation and closed-loop execution. RT-2 and OpenVLA illustrate that pretraining semantics can help robot manipulations; ACT, Diffusion Policy, π₀, and ActionPiece indicate that action sequences and their representation are equally critical; τ₀-VLA, Real-Time EXPO-FT, and Bee respectively put calculations, fast feedback, and manual correction into different failure links. For a complete analysis of related papers, see {% include content-link.html path='/VLA-Papers/' fragment='' label='VLA Paper Intensive Reading ' %}.
+VLA connects vision-language knowledge to action learning, but the general capability comes from the combination of data, representation, action generation and closed-loop execution. RT-2 and OpenVLA illustrate that pretraining semantics can help robot manipulations; ACT, Diffusion Policy, π₀, and ActionPiece indicate that action sequences and their representation are equally critical; τ₀-VLA, Real-Time EXPO-FT, and Bee respectively put calculations, fast feedback, and manual correction into different failure links. Work from the second half of 2026 shifts attention further to the system layer: Harness VLA and ACE-Brain-0.5 organize planning, execution and assessment, while runtime monitoring, test-time verification and robustness diagnostic benchmarks begin to measure when and why policies fail. For a complete analysis of related papers, see {% include content-link.html path='/VLA-Papers/' fragment='' label='VLA Paper Intensive Reading ' %}.
 
 From this review, three research judgments can be formed:
 
@@ -672,6 +708,7 @@ From this review, three research judgments can be formed:
 |How to effectively leverage deployment experience|Correct data, reward learning and continuous adaptation|Interaction cost curve, performance changes of old and new tasks|
 |How to reduce data costs|cross-robot shares, demonstrates amplification and synthesis of data|Budget comparison and real system migration effects|
 |How to create trustworthy reviews|Fixed version, independent division, multiple tests|Reproducible configurations, confidence intervals and failure cases|
+|How to cut losses in time during deployment|Runtime monitoring, failure attribution and test-time verification|Alarm timing, false-alarm cost and completion cost after intervention|
 
 For practical research, a clear explanation of "which type of failure was solved under which conditions" is more valuable than unqualified claims of universality, real-time, or optimality. This is also a question that needs to be answered continuously as you move from a single demonstration to a stable robotic system.
 
@@ -679,6 +716,33 @@ For practical research, a clear explanation of "which type of failure was solved
 
 # 7. References
 {: id="7-参考资料"}
+
+**Added in October 2026**
+
+- [Towards Agentic Robots: Model, Data, Environment, and Harness](https://arxiv.org/abs/2610.20442) - Survey of agentic robots in 17 categories across model, data, environment and harness
+- [Progress Probes P²](https://arxiv.org/abs/2610.31613) - Lightweight runtime monitoring from the policy's internal activations
+- [RESCUE](https://arxiv.org/abs/2610.13516) - Counterfactual evaluation of interventions triggered by runtime monitors
+- [Failure Attribution for VLA Models](https://arxiv.org/abs/2610.27277) - Estimating what removing a visual corruption would change in the current episode
+- [VeriVLA](https://arxiv.org/abs/2610.21985) - Test-time action-chunk verification with a latent world model
+- [PACT-VLA](https://arxiv.org/abs/2610.28019) - Using asynchronous inference delay to select action chunks
+- [Dual-Stream Memory for VLA Policies](https://arxiv.org/abs/2610.13262) - Separate memories for execution progress and selective visual retrieval
+- [GeoMem-VLA](https://arxiv.org/abs/2610.29866) - Geometric supervision internalized as temporal memory
+- [Beyond Success Rate: Interventional Evaluation of Memory](https://arxiv.org/abs/2610.23372) - Interventional memory evaluation protocol and ChainBench
+- [What Matters for World Modeling in VLA Models?](https://arxiv.org/abs/2610.19825) - Controlled comparison of four world-model integration paradigms
+- [DRILL](https://arxiv.org/abs/2610.30814) - Training world models for policy return instead of pixel error
+- [WoVR+](https://arxiv.org/abs/2610.17922) - World model as a simulator for VLA reinforcement learning
+- [SERA: Self-Evolving Harnesses](https://arxiv.org/abs/2610.29560) - Self-revising high-level harness with a fixed VLA executor
+- [What Should Robot Policies Learn to Predict?](https://arxiv.org/abs/2610.21915) - Allocating auxiliary supervision under a fixed budget
+- [ProAct: Beyond Reconstruction in Action Tokenization](https://arxiv.org/abs/2610.09170) - Action tokenizers trained for predictability and robustness
+- [When One Step Is Enough](https://arxiv.org/abs/2610.30735) - Empirical study of one-step integration in flow-matching VLAs
+- [FlashRT-PAI](https://arxiv.org/abs/2610.24349) - Pipeline-level acceleration for physical AI inference
+- [Mechanistic Study on Language Grounding in VLAs](https://arxiv.org/abs/2610.10178) - Language grounding analysis of π₀.5 and GR00T N1.7
+- [Do VLAs Really Follow Instructions?](https://arxiv.org/abs/2610.21251) - How-level instruction-following diagnosis and SIMPLER-IN
+- [LIBERO-Pro2.0](https://arxiv.org/abs/2610.24587) - Robustness benchmark with static perturbations and runtime interventions across six dimensions
+- [VLA-GAUGE](https://arxiv.org/abs/2610.16567) - Diagnostic framework for generalization and combinatorial perturbations
+- [RoboCasa-Shift](https://arxiv.org/abs/2610.27861) - Single-factor paired perturbations with stage-aware failure diagnosis
+
+**Earlier entries**
 
 - [LingBot-VLA 2.0: From Foundation to Application](https://arxiv.org/abs/2607.06403) - Multi-embodiment data, whole body motion interface and future prediction
 - [τ₀-VLA](https://arxiv.org/abs/2608.16885) - world model guided high-level subtask search
