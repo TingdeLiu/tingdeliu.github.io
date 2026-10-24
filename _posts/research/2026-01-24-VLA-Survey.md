@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vla-survey
 title: "VLA 综述"
-date:   2026-10-24
+date: 2026-10-24
 last_modified_at: 2026-10-24
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 categories: research
@@ -202,6 +202,8 @@ VLA 改变的是任务到动作的学习方式。运动学、轨迹跟踪和反�
 | [Real-Time EXPO-FT](/VLA-Papers/#5-35-real-time-expo-ft-2026) | 如何对推理延迟做快速闭环修正 | 慢速 VLA 提议与快速编辑策略、在线 RL | 真机动态短任务和在线数据上限的边界 |
 | [Bee](/VLA-Papers/#5-36-bee-2026) | 如何将人工纠正用于在线策略改进 | 按动作维度调整人类纠正约束 | 计入预收集纠正和训练中人工接管 |
 | [ACE-Brain-0.5](/VLA-Papers/#5-37-ace-brain-05-2026) | 感知、规划、执行与评估能否共享具身骨干 | 分任务训练后合并参数，再少量混合微调 | 各能力分别评测，并核对执行评估的可靠性 |
+| [DreamZero / GR00T 2](/VLA-Papers/#38-dreamzero-2026) | 视频世界模型能否直接作为零样本策略 | 14B 自回归视频扩散模型联合生成未来画面与动作 | 指标是任务进度；7 Hz 依赖两块 GB200 |
+| [Cosmos Policy](/VLA-Papers/#39-cosmos-policy-2026) | 视频模型能否不改结构就变成策略 | 动作、状态与价值编码为潜帧，单阶段后训练与测试时规划 | 开启规划后每个动作块约 5 秒 |
 
 若目的是复现，应优先确认权重、数据处理、训练配置与评测代码是否匹配。代码公开、权重公开、数据公开和允许商业使用是不同条件，须分别查看对应版本的仓库与许可证。
 

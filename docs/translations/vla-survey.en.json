@@ -4,7 +4,7 @@
   "reviewed_on": "2026-10-24",
   "source_revision_date": "2026-10-24",
   "sections": {
-    "metadata": "a151688424e09c3e9a395772b709b42f46d1769faf8f46d2d2ee8f0bfabe38f7",
+    "metadata": "b42a2da759c5498747b42b0268257ebac4fe4539a6983259a1a4eeac52e7891c",
     "introduction": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "引言": "5f79adbce2431b75aa405c12c83237cee09e24cd86c6ecf2524d1bfff2cf56e3",
     "1. VLA核心技术体系": "2f1197b7cfd59b290f0b26a0fd882b3fc3a6bf618db5a6b14d7f8450b60e4579",
@@ -16,7 +16,7 @@
     "统一策略与层级系统": "bf2edb76b6e58d6a87a634be4e337593c2cd6d4cdb96dae9e5f68bad47fc5220",
     "1.3 VLA与传统机器人控制的区别": "d5aefdc015d3a2ddfdbdd48df6fff4710639b680d71826db9ca173f7786b415e",
     "1.4 VLA任务分类": "d6a118b67449b8a26332cf5755845b302ece5756514a0e6ff9de2aedbdd7df47",
-    "1.5 主流VLA模型横向对比汇总": "277099c4decf18c2760006b025f80a4b9e55415fdc067c65f2709ecefa12faf8",
+    "1.5 主流VLA模型横向对比汇总": "36bfb066a597ce57aa94c3f4f39fa4a37743fade03e2d7a708438d49486e4987",
     "1.6 架构演进与发展趋势": "d3ee38d684987fb6e2492ff4c5bb7235c9e634fe9fa3b4ccb73e55febcfd7b7c",
     "技术演进的几条主线": "ab2e3ae39efadc3b0951ac99c326e7a5b70bfde798abe5451d6828236aa63ba5",
     "四类学习信号的分工": "6dceea4e2e9994d6905ab0bc31a8b22325655c0398a309387e57ddf31710ae09",

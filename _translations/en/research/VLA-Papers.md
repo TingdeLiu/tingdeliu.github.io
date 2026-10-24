@@ -6,7 +6,7 @@ permalink: /en/VLA-Papers/
 source_path: _posts/research/2026-10-01-VLA-Papers.md
 source_url: /VLA-Papers/
 source_revision_date: 2026-10-19
-translation_updated: 2026-10-19
+translation_updated: 2026-10-24
 title: "Vision-Language-Action: Paper Readings"
 date: 2026-10-24
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
@@ -160,7 +160,7 @@ Among the two groups of Bee and RLT that need to be manually taken over during t
 # Paper readings
 {: id="5-论文精读"}
 
-This article contains 37 representative works, including VLA models, action policies, acquisition methods and world models. Together they explain technical sources, but are not all part of the VLA, nor are they exhaustive rankings. You can jump to the corresponding paper through the search above or the side table of contents.
+This article contains 39 representative works, including VLA models, action policies, acquisition methods and world models. Together they explain technical sources, but are not all part of the VLA, nor are they exhaustive rankings. You can jump to the corresponding paper through the search above or the side table of contents.
 
 |Read the topic|Suggested tandem work|Main questions|
 |---|---|---|
@@ -2090,6 +2090,8 @@ This paper studies general policy learning through multi-robot data and syntheti
 
 The tool chain can reduce some of the integration work, but the weights, training data, pretraining process and deployment hardware still need to be checked separately. When choosing this route, focus on confirming the robot interface, data format, training resources, and measured inference latency supported by the current version.
 
+NVIDIA's next-generation Isaac GR00T 2 switches to a world action model architecture; see [38. DreamZero](#38-dreamzero-2026) for the research behind it.
+
 ---
 
 <span id="521-xiaomi-robotics-0-2026-5-19-xiaomi-r0-2026" class="vla-anchor-alias" aria-hidden="true"></span>
@@ -3624,3 +3626,79 @@ This ablation supports corrective data expansion as a way to reduce compounding 
 
 Task variants, manipulation fine-tuning configurations, and the appendix's 2B implementation require separate interpretation. The results do not establish that one fixed 8B checkpoint retains all capabilities simultaneously in long-horizon real-robot tasks; the interface-calibration explanation for SSR+ also needs more complete stage-wise ablations and cost reporting.
 External-memory updates and oracle-assisted offline retraining have different requirements. As checked on 2026-10-19, the official GitHub root mainly contains README and assets; model weights are linked, but complete reproduction of training, action control, and evaluation remains limited.
+
+---
+
+## 38. DreamZero / Isaac GR00T 2 (2026)
+{: id="38-dreamzero-2026"}
+
+*World Action Models are Zero-shot Policies* · [Paper](https://arxiv.org/abs/2602.15922) · [Project](https://dreamzero0.github.io/) · [NVIDIA: What is a world action model](https://www.nvidia.com/en-gb/glossary/world-action-model/)
+
+### Research questions
+{: id="研究问题-5"}
+
+Most VLA backbones are pretrained on static image-text data. They understand semantics well but lack physical priors about how objects move after being pushed or grasped, so generalization drops sharply on new tasks and in new environments. DreamZero proposes the **World Action Model** (WAM): a pretrained video diffusion model predicts future frames and actions together, using video as dense supervision of how the world evolves. NVIDIA says its next-generation robot foundation model, Isaac GR00T 2 (often called GR00T N2), is based on DreamZero research and uses the WAM architecture.
+
+### Core method
+{: id="核心方法-5"}
+
+- **Backbone**: a 14B autoregressive video diffusion Transformer initialized from Wan2.1-I2V-14B-480P; a 5B variant is used for ablations.
+- **Joint generation**: video and action latents are denoised together under one flow-matching objective, so actions act as inverse dynamics recovered from the predicted video. Inputs are multi-view images, the language instruction and proprioceptive state.
+- **Autoregressive chunks**: each chunk holds 2 latent frames, with 4 chunks by default. After each action chunk is executed, predicted frames in the KV cache are replaced by real observations to stop errors from compounding. On AgiBot G1 each chunk outputs 48 actions at 30 Hz, about 1.6 seconds.
+- **Real-time execution**: asynchronous execution, CFG parallelism across two GPUs, DiT caching, torch.compile with CUDA Graphs, NVFP4 quantization on Blackwell, and DreamZero-Flash, which decouples the video and action noise schedules to allow one-step denoising. Per-chunk latency falls from 5.7 s to about 150 ms (a 38× speedup on GB200), giving about 7 Hz closed-loop control on two GB200s.
+- **Data**: about 500 hours of AgiBot G1 teleoperation across 22 environments. Operators pick tasks from a list and a task is retired after 50 episodes, deliberately producing a long tail of behaviors. The Franka setup uses the public DROID dataset.
+
+### Experiments and evidence
+{: id="实验与证据-5"}
+
+Baselines are GR00T N1.6 and π₀.5, each trained from VLM weights only and from the official pretrained checkpoint. Evaluation defaults to unseen environments and unseen objects.
+
+- **AgiBot seen tasks**: average task progress **62.2%**, against **27.4%** for the best pretrained VLA; VLAs trained from scratch stay near 0.
+- **AgiBot, 10 unseen tasks**: **39.5%** vs. **16.3%**.
+- **DROID-Franka unseen tasks**: task progress / success **49% / 22.5%**, against 31% / 12.5% for GR00T N1.6 and 33% / 7.5% for π₀.5.
+- **Cross-embodiment transfer** (9 unseen tasks, video only, no action labels): the baseline scores 38.3%; adding 12 minutes of egocentric human video gives 54.3%, and adding 20 minutes of YAM robot video gives 55.4%. This is the source of the abstract's "over 42% relative gain".
+- **New-robot adaptation**: post-training on the YAM bimanual robot with about 30 minutes (55 trajectories) of play data keeps language following and generalization to new objects, but the paper reports this qualitatively only.
+- **Ablations**: 14B clearly beats 5B (50% vs. 21%), while VLAs scaled to 8B or 32B stay at 0%; diverse data beats repetitive data (50% vs. 33%).
+
+### Limitations and Enlightenments
+{: id="局限与启示-5"}
+
+The main metric is **task progress**, not success rate, and most tasks are the authors' own, so the numbers cannot be compared directly with success rates in other papers. The 7 Hz figure needs two GB200s, far more than VLAs that run above 20 Hz on consumer GPUs. Visual memory covers only about 6 seconds, so long tasks still need a high-level planner; sub-centimeter precision remains a weakness, and most failures come from video generation errors. The cross-embodiment and human-video experiments use only tens of minutes of data.
+
+NVIDIA's claims that GR00T 2 succeeds on new tasks in new environments more than twice as often as leading VLAs, and that it ranks first on MolmoSpaces and RoboArena, come from its own materials; NVIDIA says it will be available by the end of the year. As checked on 2026-10-24, no public GR00T 2 weights were found, so its capabilities should be judged from the official model card once released. Compared with [GR00T N1](#5-18-gr00t-2025), NVIDIA's route moves from "VLM + action expert" to "video world model as policy". Compared with [Cosmos Policy](#39-cosmos-policy-2026), both build on video diffusion backbones, but DreamZero targets zero-shot generalization after large-scale pretraining, while Cosmos Policy targets post-training on few demonstrations plus test-time planning.
+
+---
+
+## 39. Cosmos Policy (2026)
+{: id="39-cosmos-policy-2026"}
+
+*Cosmos Policy: Fine-Tuning Video Models for Visuomotor Control and Planning* · ICLR 2026 · [Paper](https://arxiv.org/abs/2601.16163) · [Project](https://research.nvidia.com/labs/dir/cosmos-policy/)
+
+### Research questions
+{: id="研究问题-6"}
+
+Video generation models have learned spatio-temporal dynamics from huge amounts of video. Can one become a robot policy after a single round of post-training, with no architectural changes? Earlier video policies usually add an action head, an inverse dynamics model or multi-stage training. Cosmos Policy (NVIDIA and Stanford) encodes actions, states and values as "video frames" and reuses the video diffusion model's denoising process directly.
+
+### Core method
+{: id="核心方法-6"}
+
+- **Backbone**: the Cosmos-Predict2-2B-Video2World latent video diffusion model (Wan2.1 VAE), fully fine-tuned with no architectural changes.
+- **Latent-frame encoding**: proprioception, action chunks and values are normalized to [-1, 1], duplicated to fill a latent volume and inserted into the frame sequence. With two third-person cameras and a wrist camera there are 11 frames: a blank placeholder, current state, three current images, the action chunk, future state, three future images and the future value.
+- **Single-stage training**: one model serves as policy, world model and value function. Half of each batch trains the policy and the other half trains the world model and value; when fine-tuning further on execution rollouts, the world-model and value share rises to 90%.
+- **Test-time planning**: the original checkpoint proposes N candidate action chunks as the policy; a planning model fine-tuned on rollouts predicts the future state and value of each candidate (3 world-model queries, 5 value queries per state), and the highest-value candidate is executed.
+
+### Experiments and evidence
+{: id="实验与证据-6"}
+
+- **LIBERO** (500 trials × 3 seeds per suite): Spatial / Object / Goal / Long are 98.1 / 100.0 / 98.2 / 97.6, averaging **98.5%**, against 97.1% for OpenVLA-OFT, 97.4% for CogVLA and 96.9% for π₀.5. Most of the margin comes from the Long suite.
+- **RoboCasa, 24 tasks**: with only 50 demonstrations per task the average is **67.1%**; GR00T-N1.5 reaches 64.1% and FLARE 66.4%, each with 300 demonstrations.
+- **Real ALOHA bimanual tasks** (score out of 100): average **93.6**, against 88.6 for π₀.5 and 77.9 for π₀; out of distribution, π₀.5 is slightly higher (92.5 vs. 89.3).
+- **Planning gain**: on the two hardest ALOHA tasks, planning with the future-state value V(s′) raises the average score by **12.5** points and beats the model-free variant that predicts Q(s, a).
+- **Ablations**: removing the auxiliary training targets costs 1.5 points on LIBERO; training from scratch without video pretraining costs 3.9 points on LIBERO and 18.7 points on shirt folding.
+
+### Limitations and Enlightenments
+{: id="局限与启示-6"}
+
+With planning enabled each action chunk takes about 5 seconds and best-of-N relies on several GPUs in parallel, which rules out dynamic tasks. Accurate world-model prediction outside the demonstration distribution needs substantial rollout data, and planning is a single layer of best-of-N search. LIBERO is close to saturation, so the gap between 98.5% and roughly 97% means little; the few-shot RoboCasa result and the real-robot planning ablation are more convincing. The work shows that "video model as policy" works without an added action head and gives value-guided test-time search a unified interface; see the previous section for how it differs from [DreamZero](#38-dreamzero-2026).
+
+---
