@@ -8,7 +8,11 @@
     {% include language-switch.html site=true %}
   </header>
   <div class="blog-index-content">
-  {% assign blog_featured = weekly_posts | first %}
+  {% assign blog_featured = nil %}
+  {% for item in blog_entries %}
+    {% if site.blog_featured and item.translation_id == site.blog_featured %}{% assign blog_featured = item %}{% break %}{% endif %}
+  {% endfor %}
+  {% unless blog_featured %}{% assign blog_featured = weekly_posts | first %}{% endunless %}
   {% include featured-card.html post=blog_featured %}
   <div class="blog-controls" data-blog-controls hidden>
     <div class="blog-filters" role="group" aria-label="{% if page_lang == 'en' %}Article type{% else %}文章类型{% endif %}">

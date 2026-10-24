@@ -38,8 +38,10 @@ avatar: /images/Tingde.webp
 
 # 首页置顶文章：填文章的 translation_id，中英文首页各自取对应语言的版本
 home_featured: vln-papers
-# Research 页置顶文章（同样填 translation_id）；Blog 页自动置顶最新一期周报
+# Research 页置顶文章（同样填 translation_id）
 research_featured: vln-papers
+# Blog 页置顶文章（填 translation_id）；留空则自动置顶最新一期周报
+blog_featured: building-blog-with-skills
 
 # 你的favicon（出现在浏览器tab上）图片URL，建议使用较小(64px × 64px)的图片
 favicon: # 暂时留空，之后可以添加您的logo
