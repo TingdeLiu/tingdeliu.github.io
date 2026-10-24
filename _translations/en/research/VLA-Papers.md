@@ -8,21 +8,21 @@ source_url: /VLA-Papers/
 source_revision_date: 2026-10-19
 translation_updated: 2026-10-19
 title: "Vision-Language-Action: Paper Readings"
-date: 2026-10-19
+date: 2026-10-24
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
 vla_survey: true
-toc_depth: 2
+toc_depth: 3
 excerpt: "Detailed readings of VLA research, official RoboDojo leaderboard snapshots, controlled experimental comparisons, methods, evidence, and limitations."
 ---
 
 
 > This article provides the companion paper readings for {% include content-link.html path='/VLA-Survey/' fragment='' label='the VLA Survey' %}. The survey covers the methodological framework, datasets, and evaluation; this collection presents each paper's research question, method, evidence, and limitations.
 
-Paper numbering follows the survey's original Chapter 5 to preserve existing citations and cross-references. The official RoboDojo leaderboard compares models under a common evaluation protocol. Separate tables then compare experiments within individual papers under matched settings. Scores from these two kinds of evaluation must not be combined into one ranking.
+Papers are numbered in the order they were added; old section anchors still work, so links from the survey land on the right paper. The official RoboDojo leaderboard compares models under a common evaluation protocol. Separate tables then compare experiments within individual papers under matched settings. Scores from these two kinds of evaluation must not be combined into one ranking.
 
 <span id="vla-leaderboard" class="vla-anchor-alias" aria-hidden="true"></span>
 
@@ -157,10 +157,10 @@ Among the two groups of Bee and RLT that need to be manually taken over during t
 
 <span id="vla-papers" class="vla-anchor-alias" aria-hidden="true"></span>
 
-# 5. Paper readings
+# Paper readings
 {: id="5-论文精读"}
 
-This article contains 36 representative works, including VLA models, action policies, acquisition methods and world models. Together they explain technical sources, but are not all part of the VLA, nor are they exhaustive rankings. You can jump to the corresponding paper through the search above or the side table of contents.
+This article contains 37 representative works, including VLA models, action policies, acquisition methods and world models. Together they explain technical sources, but are not all part of the VLA, nor are they exhaustive rankings. You can jump to the corresponding paper through the search above or the side table of contents.
 
 |Read the topic|Suggested tandem work|Main questions|
 |---|---|---|
@@ -177,7 +177,7 @@ Each section is organized by research questions, core methods, experimental resu
 
 <span id="51-rt-1-2022-5-1-rt-1-2022" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.1 RT-1 (2022)
+## 1. RT-1 (2022)
 {: id="5-1-rt-1-2022"}
 Robotics Transformer for Real-World Control at Scale
 
@@ -245,7 +245,7 @@ Robot control methods before 2022 generally rely on dedicated networks trained o
 
 <span id="52-rt-2-2023-5-2-rt-2-2023" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.2 RT-2 (2023)
+## 2. RT-2 (2023)
 {: id="5-2-rt-2-2023"}
 Vision-Language-Action Models Transfer Web Knowledge to Robotic Control
 
@@ -311,7 +311,7 @@ These results indicate that semantic knowledge can influence action selection, b
 
 <span id="53-rt-x--open-x-embodiment-dataset-2023-5-3-rt-x-2023" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.3 RT-X / Open X-Embodiment Dataset (2023)
+## 3. RT-X / Open X-Embodiment Dataset (2023)
 {: id="5-3-rt-x-2023"}
 Open X-Embodiment: Robotic Learning Datasets and RT-X Models
 
@@ -370,7 +370,7 @@ RLDS provides trajectory organization specifications, and motion standardization
 
 <span id="54-act-2023-5-4-act-2023" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.4 ACT (2023)
+## 4. ACT (2023)
 {: id="5-4-act-2023"}
 ———Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware
 
@@ -490,7 +490,7 @@ ACT detailed reasoning/testing process (Testing)
 
 <span id="55-diffusion-policy-2023-5-5-diffusion-policy-2023" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.5 Diffusion Policy (2023)
+## 5. Diffusion Policy (2023)
 {: id="5-5-diffusion-policy-2023"}
 Visuomotor Policy Learning via Action Diffusion
 
@@ -576,7 +576,7 @@ $$\mathcal{L} = \mathbb{E}_{t, a_0, \epsilon}\left[\|\epsilon - \epsilon_\theta(
 
 <span id="56-umi-2024-5-6-umi-2024" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.6 UMI (2024)
+## 6. UMI (2024)
 {: id="5-6-umi-2024"}
 ———Universal Manipulation Interface: In-The-Wild Robot Teaching Without In-The-Wild Robots
 
@@ -660,7 +660,7 @@ UMI proves that **data diversity is better than model fine-tuning**. Rather than
 
 <span id="57-dp3-2024-5-7-dp3-2024" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.7 DP3 (2024)
+## 7. DP3 (2024)
 {: id="5-7-dp3-2024"}
 ———3D Diffusion Policy: Generalizable Visuomotor Policy Learning via Simple 3D Representations
 
@@ -742,7 +742,7 @@ The success of DP3 once again emphasizes the importance of **perceptual represen
 
 <span id="58-unisim-2024-5-8-unisim-2024" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.8 UniSim (2024)
+## 8. UniSim (2024)
 {: id="5-8-unisim-2024"}
 ———Learning Interactive Real-World Simulators
 
@@ -850,7 +850,7 @@ Although UniSim is an important step forward, it still faces the following chall
 
 <span id="59-openvla-2024-5-9-openvla-2024" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.9 OpenVLA (2024)
+## 9. OpenVLA (2024)
 {: id="5-9-openvla-2024"}
 ——Open source vision-language-action model
 
@@ -986,7 +986,7 @@ The original version of OpenVLA only supports single-image observation input and
 
 <span id="510-π-2024-5-10-pi0-2024" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.10 π₀ (2024)
+## 10. π₀ (2024)
 {: id="5-10-pi0-2024"}
 A Vision-Language-Action Flow Model for General Robot Control
 
@@ -1047,7 +1047,7 @@ Data coverage, robot interfaces, and observation distribution still limit migrat
 
 <span id="511-π5-2025-5-11-pi05-2025" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.11 π₀.5 (2025)
+## 11. π₀.5 (2025)
 {: id="5-11-pi05-2025"}
 ———a Vision-Language-Action Model with Open-World Generalization
 
@@ -1132,7 +1132,7 @@ This design of breaking down complex tasks allows low-level actions to benefit f
 
 <span id="512-π6-2025-5-12-pi06-2025" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.12 π*₀.₆ / RECAP (2025)
+## 12. π*₀.₆ / RECAP (2025)
 {: id="5-12-pi06-2025"}
 ———a VLA That Learns From Experience
 
@@ -1212,7 +1212,7 @@ RECAP workflow: starting from the pretraining VLA, collecting autonomous traject
 
 ---
 
-## 5.13 π₀.7: a Steerable Generalist Robotic Foundation Model (2026)
+## 13. π₀.7: a Steerable Generalist Robotic Foundation Model (2026)
 {: id="513-π7-a-steerable-generalist-robotic-foundation-model-2026"}
 ——Controllable universal robot base model with zero-sample cross-configuration migration and task combination capabilities
 
@@ -1315,7 +1315,7 @@ Unlike traditional discrete token prediction, π0.7 uses flow matching objective
 
 <span id="514-acot-vla-2026-5-13-acot-vla-2026" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.14 ACoT-VLA (2026)
+## 14. ACoT-VLA (2026)
 {: id="5-13-acot-vla-2026"}
 **Subtitle**: Action Chain-of-Thought for Vision-Language-Action Models
 **Translated title**: A vision-language-action model for reasoning in action space
@@ -1428,7 +1428,7 @@ This approach requires additional inference modules, which although has a relati
 ---
 <span id="515-vlm4vla-2026-5-14-vlm4vla-2026" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.15 VLM4VLA (2026)
+## 15. VLM4VLA (2026)
 {: id="5-14-vlm4vla-2026"}
 **Subtitle**: Revisiting Vision-Language Models in Vision-Language-Action Models
 **Translated title**: Re-examining the vision-language model in the vision-language-action model
@@ -1570,7 +1570,7 @@ The research did not conduct experiments on physical robots, mainly due to consi
 ---
 <span id="516-twinbrainvla-2026-5-15-twinbrain-vla-2026" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.16 TwinBrainVLA (2026)
+## 16. TwinBrainVLA (2026)
 {: id="5-15-twinbrain-vla-2026"}
 **Subtitle**: Unleashing VLM Potential in Embodied Tasks via Asymmetric Dual-Transformer Mixture
 **Translated title**: Unleashing the potential of general-purpose VLM in embodied tasks through an asymmetric dual-Transformer hybrid mechanism
@@ -1702,7 +1702,7 @@ The current implementation requires that Left Brain and Right Brain share the sa
 
 <span id="517-internvla-a1-2026-5-16-internvla-a1-2026" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.17 InternVLA-A1 (2026)
+## 17. InternVLA-A1 (2026)
 {: id="5-16-internvla-a1-2026"}
 ——Unifying Understanding, Generation and Action for Robotic Manipulation
 
@@ -1825,7 +1825,7 @@ Understanding experts lack joint training with multimodal VQA data sets, resulti
 
 <span id="518-internvla-a15-2026-5-18-internvla-a15-2026" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.18 InternVLA-A1.5 (2026)
+## 18. InternVLA-A1.5 (2026)
 {: id="5-18-internvla-a1.5-2026"}
 ——Unifying Understanding, Latent Foresight, and Action for Compositional Generalization
 
@@ -1951,7 +1951,7 @@ During inference (real robot deployment), in order to ensure real-time closed-lo
 
 <span id="519-interndata-a1-2025-5-17-interndata-a1-2025" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.19 InternData-A1 (2025)
+## 19. InternData-A1 (2025)
 {: id="5-17-interndata-a1-2025"}
 **Subtitle**: Pioneering High-Fidelity Synthetic Data for Pre-training Generalist Policy
 
@@ -2065,7 +2065,7 @@ Six sim-to-real tasks achieve over 50% success rate using only 500 simulation ep
 
 <span id="520-isaac-gr00t-2025-2026-5-18-gr00t-2025" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.20 Isaac GR00T (2025-2026)
+## 20. Isaac GR00T (2025-2026)
 {: id="5-18-gr00t-2025"}
 Generalist Robot 00 Technology
 
@@ -2094,7 +2094,7 @@ The tool chain can reduce some of the integration work, but the weights, trainin
 
 <span id="521-xiaomi-robotics-0-2026-5-19-xiaomi-r0-2026" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.21 Xiaomi-Robotics-0 (2026)
+## 21. Xiaomi-Robotics-0 (2026)
 {: id="5-19-xiaomi-r0-2026"}
 MoT Architecture for Real-Time Bimanual Manipulation—the real-time benchmark of domestic open source VLA
 
@@ -2143,7 +2143,7 @@ When performing real-time inference on large VLA models (such as 7B+ parameters)
 ---
 <span id="522-x-vla-2025-5-20-xvla-2025" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.22 X-VLA (2025)
+## 22. X-VLA (2025)
 {: id="5-20-xvla-2025"}
 Scalable Cross-Embodied Learning with Soft Prompting — A concrete example of complete open source in academia
 
@@ -2190,7 +2190,7 @@ Robot hardware has different shapes (number of joints, arm lengths, degrees of f
 
 ---
 
-## 5.23 Motus (2025)
+## 23. Motus (2025)
 {: id="523-motus-2025"}
 ——A Unified Latent Action World Model
 
@@ -2357,7 +2357,7 @@ Current methods require significant computing resources (~18,400 GPU hours total
 
 <span id="524-robogen-2024-5-23-robogen-2024" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.24 RoboGen (2024)
+## 24. RoboGen (2024)
 {: id="5-23-robogen-2024"}
 ———Towards Unleashing Infinite Data for Automated Robot Learning via Generative Simulation
 
@@ -2486,7 +2486,7 @@ For software tasks, GPT-4 is used to generate target shape description → Midjo
 
 ---
 
-## 5.25 Qwen-VLA (2026)
+## 25. Qwen-VLA (2026)
 {: id="525-qwen-vla-2026"}
 ——Embodied base model that unifies operation, navigation and trajectory prediction
 
@@ -2624,7 +2624,7 @@ The ROBOINF pipeline automatically builds scenes in IsaacLab (20 desktop scenes 
 The scale of embodied action data is much smaller than that of VL data, and the robustness of long-tail objects and contact-rich tasks (such as cloth folding, slotting) is still insufficient; there are optimization trade-offs in joint operation/navigation/VL training, and action-enhanced training will slightly damage pure VL and navigation evaluation indicators; current evaluation is mainly based on short-time domain, benchmark-driven, and long-term real deployment (fault recovery, scene memory) is still an unsolved challenge.
 <span id="526-spatialvla-2025-5-26-spatialvla" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.26 SpatialVLA (2025)
+## 26. SpatialVLA (2025)
 {: id="5-26-spatialvla"}
 ——Embodied intelligence base model that integrates 3D spatial representation and adaptive action mesh
 
@@ -2743,7 +2743,7 @@ Classification prediction errors are calculated for translation, rotation and gr
 - **High-dimensional action expansion is difficult**: The current Gaussian distribution fitting is designed for single-arm 7-degree-of-freedom actions. If it is extended to multi-dimensional high-degree-of-freedom tasks such as dual-arm collaboration and dexterous hand manipulation, the number of grid combinations will increase exponentially, and it is necessary to design a more efficient space-sharing grid or an implicit generation and decoding mechanism.
 <span id="527-harness-vla-2026-5-27-harness-vla" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.27 Harness VLA (2026)
+## 27. Harness VLA (2026)
 {: id="5-27-harness-vla"}
 📄 **Paper**: https://arxiv.org/abs/2607.08448
 
@@ -2860,7 +2860,7 @@ Comparison of out-of-distribution terminal status on<figcaption>LIBERO-Pro: beha
 2. The **Bootstrapping stage requires a trial and error budget**: to construct Task Specific Memory and Global Memory, the premise is that the use of `RESET` is allowed on the reference seed task and a certain amount of independent exploration trial and error time is provided.
 <span id="528-turbovla-2026-5-28-turbovla" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.28 TurboVLA (2026)
+## 28. TurboVLA (2026)
 {: id="5-28-turbovla"}
 ——Real-time vision-language action model: 32 Hz control and less than 1 GB GPU memory usage on RTX 4090
 
@@ -2993,7 +2993,7 @@ The training process uses the $\ell_1$ loss function under Behavior Cloning with
 - **Complex cross-modal reasoning is limited**: For complex tasks that require multi-step implicit reasoning (such as "find the bottle opener first and then open the leftmost drink bottle"), the upper large language model still needs to perform high-level planning and output sub-goal instructions, combined with TurboVLA's efficient execution path.
 <span id="529-zr-0-2026-5-29-zr-0" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.29 ZR-0 (2026)
+## 29. ZR-0 (2026)
 {: id="5-29-zr-0"}
 ——2.6B end-to-end VLA model based on dense Embodied Chain of Thinking (ECoT) supervision and cross-embodiment reasoning/execution decoupling
 
@@ -3091,7 +3091,7 @@ Here, the flow matching time step $\tau \sim \text{Beta}(1.5, 1.0)$ gives greate
 2. **One-way feedback lacks dynamic reflection during testing**: Since the inference stage skips the autoregressive generation of ECoT, the model cannot output text self-correction or perform language-based reflection re-planning in real time during execution.
 <span id="530-robottt-2026-5-30-robottt" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.30 RoboTTT (2026)
+## 30. RoboTTT (2026)
 {: id="5-30-robottt"}
 ——Extension of embodied policy attention context to test-time training (TTT) vision-language-action model with 8K Timesteps
 
@@ -3192,7 +3192,7 @@ Initialize $$\alpha \approx 0.001$$ at the beginning to make the model transitio
 * The update of fast weights relies on the auxiliary target based on MSE. The representation stability and generalization boundary when encountering extreme environmental mutations (such as large changes in illumination or violent shaking of the viewing angle) still need to be further explored.
 <span id="531-s-vla-2026-5-31-s-vla" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.31 S²-VLA (2026)
+## 31. S²-VLA (2026)
 {: id="5-31-s-vla"}
 ——State space guided dynamic adaptive attention vision-language-action model: Overcoming the cumulative error of long-range embodied control
 
@@ -3305,7 +3305,7 @@ $$\hat{A}_{t:t+K-1} = \text{LN}(H^{(L_{\mathrm{out}})}) W_{\mathrm{out}}^\top + 
 
 ---
 
-## 5.32 LingBot-VLA 2.0 (2026)
+## 32. LingBot-VLA 2.0 (2026)
 {: id="5-32-lingbot-vla-20-2026"}
 
 *From Foundation to Application: Improving VLA Models in Practice* · [Paper](https://arxiv.org/abs/2607.06403) · [Project and code](https://github.com/robbyant/lingbot-vla-v2)
@@ -3337,7 +3337,7 @@ The cross-embodiment results here are still a comparison under the specified pla
 
 ---
 
-## 5.33 Τ₀-VLA (2026)
+## 33. Τ₀-VLA (2026)
 {: id="5-33-tau0-vla-2026"}
 
 *$\tau_0$-VLA: a Hierarchical Robot Foundation Model with World-Model-Guided Test-Time Computation* · [Paper](https://arxiv.org/abs/2608.16885) · [Project](https://tau0-vla.github.io/)
@@ -3369,7 +3369,7 @@ High-level world model prediction, candidate search, and reflection will increas
 
 ---
 
-## 5.34 ActionPiece (2026)
+## 34. ActionPiece (2026)
 {: id="5-34-actionpiece-2026"}
 
 *ActionPiece: Rethinking Action Tokenization for Autoregressive Vision-Language-Action Models* · [Paper](https://arxiv.org/abs/2609.18487) · [Project](https://deepcybo-physai.github.io/ActionPiece/)
@@ -3406,7 +3406,7 @@ The results are mainly for **discrete autoregressive action representation**, an
 
 ---
 
-## 5.35 Real-Time EXPO-FT (2026)
+## 35. Real-Time EXPO-FT (2026)
 {: id="5-35-real-time-expo-ft-2026"}
 
 *Reinforcement Learning for Real-Time Vision-Language-Action Policies* · [Paper](https://arxiv.org/abs/2609.18207) · [Project](https://pd-perry.github.io/real-time-expo-ft/)
@@ -3438,7 +3438,7 @@ These four tasks emphasize rapid response and are not yet representative of long
 
 ---
 
-## 5.36 Bee (2026)
+## 36. Bee (2026)
 {: id="5-36-bee-2026"}
 
 *Bee: Intervention-Adaptive Real-World Reinforcement Learning with Vision-Language-Action Models* · [Paper](https://arxiv.org/abs/2609.27450)
@@ -3470,7 +3470,7 @@ The roughly 20 pre-collected human correction clips and human takeovers during t
 
 ---
 
-## 5.37 ACE-Brain-0.5 (2026)
+## 37. ACE-Brain-0.5 (2026)
 {: id="5-37-ace-brain-05-2026"}
 
 From action generation toward a unified framework for perception, planning, execution, and evaluation

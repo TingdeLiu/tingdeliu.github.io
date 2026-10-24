@@ -3,21 +3,21 @@ layout: post
 lang: zh-CN
 translation_id: vla-papers
 title: "VLA 论文精读"
-date: 2026-10-19
-last_modified_at: 2026-10-19
+date: 2026-10-24
+last_modified_at: 2026-10-24
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 categories: research
 comments: true
 author: Tingde Liu
 toc: true
 vla_survey: true
-toc_depth: 2
+toc_depth: 3
 excerpt: "VLA 配套论文精读，链接 RoboDojo 官方统一榜，并提供同评测设置的论文实验分榜。"
 ---
 
 > 本文是 [VLA 综述](/VLA-Survey/) 的配套论文精读。综述负责方法框架、数据与评测；这里保留逐篇的研究问题、方法、证据与局限。
 
-论文编号沿用综述原第 5 章，便于已有引用与交叉阅读。下方先列跨模型的 RoboDojo 官方统一评测榜，再列各论文同设置的实验对照；两类榜单的分数不能混排。
+论文按收录顺序编号；旧的章节锚点仍然有效，综述中的链接可直接跳转。下方先列跨模型的 RoboDojo 官方统一评测榜，再列各论文同设置的实验对照；两类榜单的分数不能混排。
 
 <span id="vla-leaderboard" class="vla-anchor-alias" aria-hidden="true"></span>
 
@@ -150,9 +150,10 @@ excerpt: "VLA 配套论文精读，链接 RoboDojo 官方统一榜，并提供�
 
 <span id="vla-papers" class="vla-anchor-alias" aria-hidden="true"></span>
 
-# 5. 论文精读
+# 论文精读
+{: id="5-论文精读"}
 
-本文收录 36 项代表工作，包括 VLA 模型、动作策略、采集方法与世界模型。它们共同解释技术来源，但并非都属于 VLA，也不是穷尽全部工作的排行榜。可通过上方搜索或侧边目录跳转到相应论文。
+本文收录 37 项代表工作，包括 VLA 模型、动作策略、采集方法与世界模型。它们共同解释技术来源，但并非都属于 VLA，也不是穷尽全部工作的排行榜。可通过上方搜索或侧边目录跳转到相应论文。
 
 | 阅读主题 | 建议串联的工作 | 主要问题 |
 |---|---|---|
@@ -169,7 +170,7 @@ excerpt: "VLA 配套论文精读，链接 RoboDojo 官方统一榜，并提供�
 
 <span id="51-rt-1-2022-5-1-rt-1-2022" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.1 RT-1 (2022)
+## 1. RT-1 (2022)
 {: id="5-1-rt-1-2022"}
 Robotics Transformer for Real-World Control at Scale
 
@@ -237,7 +238,7 @@ RT-1 研究大规模多任务数据能否训练出可迁移的机器人策略。
 
 <span id="52-rt-2-2023-5-2-rt-2-2023" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.2 RT-2 (2023)
+## 2. RT-2 (2023)
 {: id="5-2-rt-2-2023"}
 Vision-Language-Action Models Transfer Web Knowledge to Robotic Control
 
@@ -303,7 +304,7 @@ RT-2方式: 视觉 + 语言 → VLA → 动作token序列（直接控制）
 
 <span id="53-rt-x--open-x-embodiment-dataset-2023-5-3-rt-x-2023" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.3 RT-X / Open X-Embodiment Dataset (2023)
+## 3. RT-X / Open X-Embodiment Dataset (2023)
 {: id="5-3-rt-x-2023"}
 Open X-Embodiment: Robotic Learning Datasets and RT-X Models
 
@@ -362,7 +363,7 @@ RLDS 提供轨迹组织规范，动作标准化和数据采样仍由训练流程
 
 <span id="54-act-2023-5-4-act-2023" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.4 ACT (2023)
+## 4. ACT (2023)
 {: id="5-4-act-2023"}
 ———Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware
 
@@ -475,7 +476,7 @@ ACT 详细推理/测试流程 (Testing)
 
 <span id="55-diffusion-policy-2023-5-5-diffusion-policy-2023" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.5 Diffusion Policy (2023)
+## 5. Diffusion Policy (2023)
 {: id="5-5-diffusion-policy-2023"}
 Visuomotor Policy Learning via Action Diffusion
 
@@ -561,7 +562,7 @@ $$\mathcal{L} = \mathbb{E}_{t, a_0, \epsilon}\left[\|\epsilon - \epsilon_\theta(
 
 <span id="56-umi-2024-5-6-umi-2024" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.6 UMI (2024)
+## 6. UMI (2024)
 {: id="5-6-umi-2024"}
 ———Universal Manipulation Interface: In-The-Wild Robot Teaching Without In-The-Wild Robots
 
@@ -638,7 +639,7 @@ UMI 证明了**数据多样性优于模型微调**。与其在单一环境下费
 
 <span id="57-dp3-2024-5-7-dp3-2024" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.7 DP3 (2024)
+## 7. DP3 (2024)
 {: id="5-7-dp3-2024"}
 ———3D Diffusion Policy: Generalizable Visuomotor Policy Learning via Simple 3D Representations
 
@@ -713,7 +714,7 @@ DP3 的成功再次强调了**感知表征 (Visual Representation)** 在机器�
 
 <span id="58-unisim-2024-5-8-unisim-2024" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.8 UniSim (2024)
+## 8. UniSim (2024)
 {: id="5-8-unisim-2024"}
 ———Learning Interactive Real-World Simulators
 
@@ -811,7 +812,7 @@ UniSim 最强大的地方在于它能作为一个“训练场”：
 
 <span id="59-openvla-2024-5-9-openvla-2024" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.9 OpenVLA (2024)
+## 9. OpenVLA (2024)
 {: id="5-9-openvla-2024"}
 ———开源视觉-语言-动作模型
 
@@ -947,7 +948,7 @@ print(f"Predicted Action: {action}")
 
 <span id="510-π-2024-5-10-pi0-2024" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.10 π₀ (2024)
+## 10. π₀ (2024)
 {: id="5-10-pi0-2024"}
 A Vision-Language-Action Flow Model for General Robot Control
 
@@ -1001,7 +1002,7 @@ $$
 
 <span id="511-π5-2025-5-11-pi05-2025" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.11 π₀.5 (2025)
+## 11. π₀.5 (2025)
 {: id="5-11-pi05-2025"}
 ———a Vision-Language-Action Model with Open-World Generalization
 
@@ -1079,7 +1080,7 @@ $$
 
 <span id="512-π6-2025-5-12-pi06-2025" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.12 π*₀.₆ / RECAP (2025)
+## 12. π*₀.₆ / RECAP (2025)
 {: id="5-12-pi06-2025"}
 ———a VLA That Learns From Experience
 
@@ -1152,7 +1153,8 @@ RECAP 工作流：从预训练的 VLA 开始，通过部署采集自主轨迹和
 
 ---
 
-## 5.13 π₀.7: a Steerable Generalist Robotic Foundation Model (2026)
+## 13. π₀.7: a Steerable Generalist Robotic Foundation Model (2026)
+{: id="513-π7-a-steerable-generalist-robotic-foundation-model-2026"}
 ———可控的通用型机器人基础模型，具备零样本跨构型迁移与任务组合能力
 
 📄 **Paper**: [arXiv:2604.15483](https://arxiv.org/abs/2604.15483)
@@ -1246,7 +1248,7 @@ RECAP 工作流：从预训练的 VLA 开始，通过部署采集自主轨迹和
 
 <span id="514-acot-vla-2026-5-13-acot-vla-2026" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.14 ACoT-VLA (2026)
+## 14. ACoT-VLA (2026)
 {: id="5-13-acot-vla-2026"}
 **副标题**: Action Chain-of-Thought for Vision-Language-Action Models
 **中文标题**: 在动作空间中进行推理的视觉-语言-动作模型
@@ -1359,7 +1361,7 @@ noisy action├─→ IAR (Implicit Action Reasoner)
 ---
 <span id="515-vlm4vla-2026-5-14-vlm4vla-2026" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.15 VLM4VLA (2026)
+## 15. VLM4VLA (2026)
 {: id="5-14-vlm4vla-2026"}
 **副标题**: Revisiting Vision-Language Models in Vision-Language-Action Models
 **中文标题**: 重新审视视觉-语言-动作模型中的视觉-语言模型
@@ -1501,7 +1503,7 @@ VLA任务最优区域 ←──────┘
 ---
 <span id="516-twinbrainvla-2026-5-15-twinbrain-vla-2026" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.16 TwinBrainVLA (2026)
+## 16. TwinBrainVLA (2026)
 {: id="5-15-twinbrain-vla-2026"}
 **副标题**: Unleashing VLM Potential in Embodied Tasks via Asymmetric Dual-Transformer Mixture
 **中文标题**: 通过非对称双Transformer混合机制释放通用VLM在具身任务中的潜力
@@ -1633,7 +1635,7 @@ Left Brain (冻结通才VLM)          Right Brain (可训练专才VLM)
 
 <span id="517-internvla-a1-2026-5-16-internvla-a1-2026" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.17 InternVLA-A1 (2026)
+## 17. InternVLA-A1 (2026)
 {: id="5-16-internvla-a1-2026"}
 ——Unifying Understanding, Generation and Action for Robotic Manipulation
 
@@ -1756,7 +1758,7 @@ Express Sorting 和 In-motion Ingredient Picking 任务的成功率对比：Inte
 
 <span id="518-internvla-a15-2026-5-18-internvla-a15-2026" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.18 InternVLA-A1.5 (2026)
+## 18. InternVLA-A1.5 (2026)
 {: id="5-18-internvla-a1.5-2026"}
 ——Unifying Understanding, Latent Foresight, and Action for Compositional Generalization
 
@@ -1882,7 +1884,7 @@ InternVLA-A1.5 的多阶段训练依赖以下核心损失函数。
 
 <span id="519-interndata-a1-2025-5-17-interndata-a1-2025" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.19 InternData-A1 (2025)
+## 19. InternData-A1 (2025)
 {: id="5-17-interndata-a1-2025"}
 **副标题**: Pioneering High-Fidelity Synthetic Data for Pre-training Generalist Policy
 
@@ -1995,7 +1997,7 @@ InternData-A1 在 9 个真实世界任务上的性能对比，包括 5 个常规
 
 <span id="520-isaac-gr00t-2025-2026-5-18-gr00t-2025" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.20 Isaac GR00T (2025-2026)
+## 20. Isaac GR00T (2025-2026)
 {: id="5-18-gr00t-2025"}
 Generalist Robot 00 Technology
 
@@ -2021,7 +2023,7 @@ N1 的视觉语言模块提取条件表示，动作模块通过 Flow Matching �
 
 <span id="521-xiaomi-robotics-0-2026-5-19-xiaomi-r0-2026" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.21 Xiaomi-Robotics-0 (2026)
+## 21. Xiaomi-Robotics-0 (2026)
 {: id="5-19-xiaomi-r0-2026"}
 MoT Architecture for Real-Time Bimanual Manipulation ———国产开源 VLA 的实时性标杆
 
@@ -2070,7 +2072,7 @@ Xiaomi-R0 针对 VLA 模型在实际部署中常见的推理延迟问题，提�
 ---
 <span id="522-x-vla-2025-5-20-xvla-2025" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.22 X-VLA (2025)
+## 22. X-VLA (2025)
 {: id="5-20-xvla-2025"}
 Scalable Cross-Embodied Learning with Soft Prompting ———学术界彻底开源的具身范本
 
@@ -2117,7 +2119,8 @@ X-VLA 是由清华 AIR 和上海 AI 实验室联合推出的彻底开源项目�
 
 ---
 
-## 5.23 Motus (2025)
+## 23. Motus (2025)
+{: id="523-motus-2025"}
 ——A Unified Latent Action World Model
 
 📄 **Paper**: [arXiv:2512.13030](https://arxiv.org/abs/2512.13030)
@@ -2283,7 +2286,7 @@ Motus VGM 模式（从观察和语言生成未来视频）在 Agilex-Aloha-2 上
 
 <span id="524-robogen-2024-5-23-robogen-2024" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.24 RoboGen (2024)
+## 24. RoboGen (2024)
 {: id="5-23-robogen-2024"}
 ———Towards Unleashing Infinite Data for Automated Robot Learning via Generative Simulation
 
@@ -2403,7 +2406,8 @@ A) Task Proposal  →  B) Scene Generation  →  C) Training Supervision Generat
 
 ---
 
-## 5.25 Qwen-VLA (2026)
+## 25. Qwen-VLA (2026)
+{: id="525-qwen-vla-2026"}
 ———统一操作、导航与轨迹预测的具身基础模型
 
 📄 **Paper**: https://arxiv.org/abs/2605.30280
@@ -2535,7 +2539,7 @@ ROBOINF 流水线在 IsaacLab 中自动构建场景（20 桌面场景 × 10 姿�
 具身动作数据规模远小于 VL 数据，长尾物体、接触丰富任务（如布料折叠、插槽）的鲁棒性仍有不足；操作/导航/VL 联合训练存在优化权衡，动作增强训练会轻微损伤纯 VL 和导航评测指标；当前评估以短时域、基准驱动为主，长时域真实部署（故障恢复、情景记忆）仍是未解挑战。
 <span id="526-spatialvla-2025-5-26-spatialvla" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.26 SpatialVLA (2025)
+## 26. SpatialVLA (2025)
 {: id="5-26-spatialvla"}
 ——融合 3D 空间表征与自适应动作网格的具身智能基础模型
 
@@ -2645,7 +2649,7 @@ $$\mathcal{L}(\theta) = \mathbb{E}_{p(A_t|o_t)} [\mathcal{L}(a_t, \tilde{a}_t)]$
 - **高维动作扩展困难**：目前的 Gaussian 分布拟合是针对单臂 7 自由度动作设计的。如果扩展到双臂协作、灵巧手操纵等多维度高自由度任务，网格组合数会指数级增长，需要设计更高效的空间共享网格或者隐式生成解码机制。
 <span id="527-harness-vla-2026-5-27-harness-vla" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.27 Harness VLA (2026)
+## 27. Harness VLA (2026)
 {: id="5-27-harness-vla"}
 📄 **Paper**: https://arxiv.org/abs/2607.08448
 
@@ -2753,7 +2757,7 @@ Planner 将 `VLA_ACT` 视为可被重新调整姿态并重试的局部基元。�
 2. **Bootstrapping 阶段需要试错预算**：建构 Task Specific Memory 和 Global Memory 前提是在参考种子任务上允许使用 `RESET` 并提供一定的自主探索试错时间。
 <span id="528-turbovla-2026-5-28-turbovla" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.28 TurboVLA (2026)
+## 28. TurboVLA (2026)
 {: id="5-28-turbovla"}
 ——实时视语言动作模型：在 RTX 4090 上实现 32 Hz 控制与低于 1 GB 显存占用
 
@@ -2875,7 +2879,7 @@ $$\hat{A}_n = D_{\theta}(Q_a, [Z^{vl}_n; Z^s_n]) \in \mathbb{R}^{H \times d_a}$$
 - **复杂跨模态推理受限**：对于需要多步隐式推理（如“先找到开瓶器再打开最左边的饮料瓶”）的复杂任务，仍需上层大语言模型进行高层规划并输出子目标指令，与 TurboVLA 的高效执行路径相结合。
 <span id="529-zr-0-2026-5-29-zr-0" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.29 ZR-0 (2026)
+## 29. ZR-0 (2026)
 {: id="5-29-zr-0"}
 ——基于密集具身思考链 (ECoT) 监督与跨本体推理/执行解耦的 2.6B 端到端 VLA 模型
 
@@ -2964,7 +2968,7 @@ $$\mathcal{L} = \mathcal{L}_{\mathrm{ntp}} + \alpha \mathcal{L}_{\mathrm{fm}}$$
 2. **单向前馈缺少测试时动态反思**：由于推理阶段跳过了 ECoT 的自回归生成，模型无法在执行中实时输出文字自纠错或进行基于语言的反思重规划。
 <span id="530-robottt-2026-5-30-robottt" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.30 RoboTTT (2026)
+## 30. RoboTTT (2026)
 {: id="5-30-robottt"}
 ——扩展具身策略注意力上下文至 8K Timesteps 的测试时训练 (TTT) 视觉-语言-动作模型
 
@@ -3057,7 +3061,7 @@ RoboTTT 建立在流匹配（Flow-Matching）策略 Backbone（本文默认使�
 * 快权重的更新依赖基于 MSE 的辅助目标，在遇到极端环境突变（如光照大幅剧变或视角剧烈晃动）时的表征稳定性与泛化泛用边界仍有待进一步深入探索。
 <span id="531-s-vla-2026-5-31-s-vla" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 5.31 S²-VLA (2026)
+## 31. S²-VLA (2026)
 {: id="5-31-s-vla"}
 ——状态空间引导的动态自适应注意力视觉-语言-动作模型：攻克长程具身操控累积误差
 
@@ -3159,7 +3163,7 @@ $$\hat{A}_{t:t+K-1} = \text{LN}(H^{(L_{\mathrm{out}})}) W_{\mathrm{out}}^\top + 
 
 ---
 
-## 5.32 LingBot-VLA 2.0 (2026)
+## 32. LingBot-VLA 2.0 (2026)
 {: id="5-32-lingbot-vla-20-2026"}
 
 *From Foundation to Application: Improving VLA Models in Practice* · [论文](https://arxiv.org/abs/2607.06403) · [项目与代码](https://github.com/robbyant/lingbot-vla-v2)
@@ -3187,7 +3191,7 @@ $$\hat{A}_{t:t+K-1} = \text{LN}(H^{(L_{\mathrm{out}})}) W_{\mathrm{out}}^\top + 
 
 ---
 
-## 5.33 τ₀-VLA (2026)
+## 33. τ₀-VLA (2026)
 {: id="5-33-tau0-vla-2026"}
 
 *$\tau_0$-VLA: a Hierarchical Robot Foundation Model with World-Model-Guided Test-Time Computation* · [论文](https://arxiv.org/abs/2608.16885) · [项目](https://tau0-vla.github.io/)
@@ -3215,7 +3219,7 @@ $$\hat{A}_{t:t+K-1} = \text{LN}(H^{(L_{\mathrm{out}})}) W_{\mathrm{out}}^\top + 
 
 ---
 
-## 5.34 ActionPiece (2026)
+## 34. ActionPiece (2026)
 {: id="5-34-actionpiece-2026"}
 
 *ActionPiece: Rethinking Action Tokenization for Autoregressive Vision-Language-Action Models* · [论文](https://arxiv.org/abs/2609.18487) · [项目](https://deepcybo-physai.github.io/ActionPiece/)
@@ -3248,7 +3252,7 @@ $$\hat{A}_{t:t+K-1} = \text{LN}(H^{(L_{\mathrm{out}})}) W_{\mathrm{out}}^\top + 
 
 ---
 
-## 5.35 Real-Time EXPO-FT (2026)
+## 35. Real-Time EXPO-FT (2026)
 {: id="5-35-real-time-expo-ft-2026"}
 
 *Reinforcement Learning for Real-Time Vision-Language-Action Policies* · [论文](https://arxiv.org/abs/2609.18207) · [项目](https://pd-perry.github.io/real-time-expo-ft/)
@@ -3276,7 +3280,7 @@ Kinetix 的 10 个延迟仿真环境中，论文报告该方法在 **10/10** 项
 
 ---
 
-## 5.36 Bee (2026)
+## 36. Bee (2026)
 {: id="5-36-bee-2026"}
 
 *Bee: Intervention-Adaptive Real-World Reinforcement Learning with Vision-Language-Action Models* · [论文](https://arxiv.org/abs/2609.27450)
@@ -3304,7 +3308,7 @@ Kinetix 的 10 个延迟仿真环境中，论文报告该方法在 **10/10** 项
 
 ---
 
-## 5.37 ACE-Brain-0.5 (2026)
+## 37. ACE-Brain-0.5 (2026)
 {: id="5-37-ace-brain-05-2026"}
 ——从动作生成走向感知、规划、执行与评估的统一具身框架
 
