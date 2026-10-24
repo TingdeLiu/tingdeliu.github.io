@@ -5,10 +5,10 @@ translation_id: vln-weekly-2026-10-11
 permalink: /en/vln-weekly-2026-10-11/
 source_path: _posts/weekly-reports/2026-10-11-VLN-Weekly.md
 source_url: /vln-weekly-2026-10-11/
-source_revision_date: 2026-10-11
-translation_updated: 2026-10-11
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "Embodied Navigation Weekly (2026-10-02 to 2026-10-08)"
-date: 2026-10-11
+date: 2026-10-24
 period_start: 2026-10-02
 period_end: 2026-10-08
 issue_number: 8
@@ -65,8 +65,10 @@ This issue adds 147 records corresponding to 147 independent arXiv works, publis
 ## 3. Featured analysis
 {: id="featured-analysis"}
 
-### 1. NavGPT-3: interruption and control ownership as runtime capabilities
+### 1. NavGPT-3
 {: id="navgpt-3"}
+
+**Interruption and control ownership as runtime capabilities.**
 
 **Problem.** Long reasoning and low-latency motion require different execution rhythms.
 
@@ -80,8 +82,10 @@ This issue adds 147 records corresponding to 147 independent arXiv works, publis
 
 **Next step.** Inspect motion-control handoffs, monitoring triggers, and recovery logs before choosing a replication scope.
 
-### 2. StageVLN: learn spatial structure during training
+### 2. StageVLN
 {: id="stagevln"}
+
+**Learn spatial structure during training.**
 
 **Problem.** Action supervision alone may fail to retain geometry, orientation, and global progress.
 
@@ -95,8 +99,10 @@ This issue adds 147 records corresponding to 147 independent arXiv works, publis
 
 **Next step.** Ablate geometry, heading, and progress supervision separately under fixed data and training budgets.
 
-### 3. MarvisNav: make memory part of visual route selection
+### 3. MarvisNav
 {: id="marvisnav"}
+
+**Make memory part of visual route selection.**
 
 **Problem.** Separate textual history forces the model to infer how memory corresponds to available routes.
 
@@ -110,8 +116,10 @@ This issue adds 147 records corresponding to 147 independent arXiv works, publis
 
 **Next step.** Hold nodes, exploration information, and model constant while comparing text, a separate map, and image overlays.
 
-### 4. LiSoNav / IVAM-Nav: interpret non-detection through viewing conditions
+### 4. LiSoNav / IVAM-Nav
 {: id="lisonav"}
+
+**Interpret non-detection through viewing conditions.**
 
 **Problem.** Small objects are occluded and moved; last-known positions cannot support sustained search alone.
 
@@ -125,8 +133,10 @@ This issue adds 147 records corresponding to 147 independent arXiv works, publis
 
 **Next step.** Record old-location rechecking cost, useful observations, and recovery time after relocation separately.
 
-### 5. SuperNav: inspect how general requests become executable targets
+### 5. SuperNav
 {: id="supernav"}
+
+**Inspect how general requests become executable targets.**
 
 **Problem.** Navigation-specific fine-tuning may constrain generalization to new requests and environments.
 
@@ -154,7 +164,7 @@ This issue adds 147 records corresponding to 147 independent arXiv works, publis
 
 A = directly relevant to ground navigation; B = a clear transferable mechanism or evaluation contribution; C = low-relevance field observation. Manipulation papers are grouped by theme. Editorial placement does not change automatic pool counts.
 
-### 5.1 Ground VLN / ObjectNav / semantic navigation
+### 5.1 VLN and ObjectNav
 {: id="ground-navigation"}
 
 
@@ -204,7 +214,7 @@ A = directly relevant to ground navigation; B = a clear transferable mechanism o
 
 - **[TACET](https://arxiv.org/abs/2610.03828v1)** (A): Joint control of personal space and locomotion noise extends social navigation beyond distance keeping.
 
-### 5.2 Memory, maps, planning, and evaluation
+### 5.2 Memory, planning and evaluation
 {: id="memory-planning-evaluation"}
 
 
@@ -252,7 +262,7 @@ A = directly relevant to ground navigation; B = a clear transferable mechanism o
 
 - **[ROMA](https://arxiv.org/abs/2610.06955v2)** (B): Actively obtains visual, acoustic, tactile, and force evidence through object interactions.
 
-### 5.3 Embodied VLA / mobile manipulation
+### 5.3 VLA and manipulation
 {: id="vla-manipulation"}
 
 
@@ -276,7 +286,7 @@ A = directly relevant to ground navigation; B = a clear transferable mechanism o
 
 - **Contact, touch, and close-range exploration（4）· C**：[OpenViTac](https://arxiv.org/abs/2610.10384v1), [MIM-VLA](https://arxiv.org/abs/2610.08425v1), [Reactive Exploration with Virtual Model Control](https://arxiv.org/abs/2610.08110v1), [AgenticTactileVLA](https://arxiv.org/abs/2610.04391v1).
 
-### 5.4 Aerial navigation, driving, and other lower-relevance directions
+### 5.4 UAVs and other
 {: id="other-directions"}
 
 

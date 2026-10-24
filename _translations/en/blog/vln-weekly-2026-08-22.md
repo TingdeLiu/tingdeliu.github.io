@@ -5,10 +5,10 @@ translation_id: vln-weekly-2026-08-22
 permalink: /en/vln-weekly-2026-08-22/
 source_path: _posts/weekly-reports/2026-08-22-VLN-Weekly.md
 source_url: /vln-weekly-2026-08-22/
-source_revision_date: 2026-09-27
-translation_updated: 2026-10-03
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "Embodied Navigation Weekly (2026-08-13 to 2026-08-20)"
-date: 2026-08-22
+date: 2026-10-24
 period_start: 2026-08-13
 period_end: 2026-08-20
 issue_number: 1
@@ -66,8 +66,10 @@ excerpt: "Only 5 of this issue's 46 new works primarily concern navigation, and 
 ## 3. Analysis of highlighted work
 {: id="三重点工作分析"}
 
-### 1. Embodied-Navigator / TAMP-Nav: the only R2R-CE result this week, using VLMs for 2D point selection
+### 1. Embodied-Navigator / TAMP-Nav
 {: id="1-embodied-navigator--tamp-nav本期唯一给出-r2r-ce-数字的工作路线是让-vlm-只做它擅长的-2d-选点"}
+
+**The only R2R-CE result this week, using VLMs for 2D point selection.**
 
 **Problem.** The abstract states that existing methods stuff VLM into an unnatural action space, are misaligned with its 2D pre-training priors, and suffer from stiff inference scheduling and inefficient memory management.
 
@@ -81,8 +83,10 @@ excerpt: "Only 5 of this issue's 46 new works primarily concern navigation, and 
 
 **Recommendation.** Prioritize intensive reading, focusing on the R2R-CE comparison table and the specific design of the GRPO process rewards; if you want to compare with your own results, be sure to confirm that the other party uses R2R-CE division rather than discrete R2R.
 
-### 2. CondVLN: exposing wrong-branch successes in navigation evaluation
+### 2. CondVLN
 {: id="2-condvln把选错分支从成功率里拆出来是本期对评测口径冲击最大的工作"}
+
+**Exposing wrong-branch successes in navigation evaluation.**
 
 **Problem.** The abstract states that most of the existing VLN evaluations are route-based instructions toward a fixed target, and real instructions often have conditions (if the condition is true, go to A, otherwise go to B); the existing evaluations lack control over branch execution, and cannot distinguish whether the failure is caused by sensing, grounding, navigation, or logical decision-making.
 
@@ -96,8 +100,10 @@ excerpt: "Only 5 of this issue's 46 new works primarily concern navigation, and 
 
 **Recommendation.** It is recommended to read it carefully and consider including it in your own benchmark tracking; focus on whether the generation template of conditional instructions and the definition of Branch Selection Accuracy can be directly transplanted.
 
-### 3. Graph-MambaNav: bringing Graph-Mamba node ordering to ObjectNav
+### 3. Graph-MambaNav
 {: id="3-graph-mambanav把-graph-mamba-的节点排序机制引入-objectnav"}
+
+**Bringing Graph-Mamba node ordering to ObjectNav.**
 
 **Problem.** Abstract: The existing graph-based ObjectNav method introduces target awareness at the feature or attention layer, but is still permutation-invariant and lacks a mechanism to explicitly control the order of information propagation, which limits the modeling of target-related importance and long-range dependencies.
 
@@ -111,8 +117,10 @@ excerpt: "Only 5 of this issue's 46 new works primarily concern navigation, and 
 
 **Recommendation.** Medium priority tracking, give priority to confirming the absolute values and baseline selection in the experimental table when reading the full text.
 
-### 4. DevGRU: lightweight point-goal navigation for collision avoidance in narrow passages
+### 4. DevGRU
 {: id="4-devgru面向窄通道碰撞问题的轻量点目标导航模型"}
+
+**Lightweight point-goal navigation for collision avoidance in narrow passages.**
 
 **Problem.** Abstract: The existing visual navigation foundation model is prone to collisions in complex indoor environments (especially structured layouts and narrow passages).
 
@@ -159,8 +167,8 @@ excerpt: "Only 5 of this issue's 46 new works primarily concern navigation, and 
 
 The relevance of each label: A is for direct research on ground navigation, B has a transferable mechanism, and C is only for field observation.
 
-### 5.1 Ground-based VLN / ObjectNav / Semantic Navigation
-{: id="51-地面-vln--objectnav--语义导航"}
+### 5.1 VLN and ObjectNav
+{: id="51-vln-与-objectnav"}
 
 - **Embodied-Navigator / TAMP-Nav** (Continuous Environment VLN · A): See key analysis. [Source](https://arxiv.org/abs/2608.17512v1)
 - **CondVLN** (VLN conditional branch evaluation · A): See the key analysis. [Source](https://arxiv.org/abs/2608.17318v1)
@@ -168,8 +176,8 @@ The relevance of each label: A is for direct research on ground navigation, B ha
 - **DevGRU** (point target visual navigation · A): See key analysis. [Source](https://arxiv.org/abs/2608.18470v1)
 - **Exposing the Long-tail in Embodied Urban Navigation** (Urban Point Target Navigation · A): Automatically annotate metric trajectories and navigation semantics from first-view videos in the wild. Training can explain VLA planning strategies and systematically expose long-tail failure modes. [Source](https://arxiv.org/abs/2608.16476v1)
 
-### 5.2 Memory, Maps, Planning and Evaluation
-{: id="52-记忆地图规划与评测"}
+### 5.2 Memory, planning and evaluation
+{: id="52-记忆规划与评测"}
 
 - **RP1** (Learnable Planner · B): See Transferable Methods. [Source](https://arxiv.org/abs/2608.18669v1)
 - **Remember Smarter** (Long Range Memory Compression · B): See Migration Methods. [Source](https://arxiv.org/abs/2608.15269v1)
@@ -179,7 +187,7 @@ The relevance of each label: A is for direct research on ground navigation, B ha
 - **The Embodiment Gap** (cross-embodiment overview · B): See Migration Methods. [Source](https://arxiv.org/abs/2608.18433v1)
 - **LIBERO-VIFO** (Visual cue following evaluation · C): A benchmark for VLA visual cue following ability and security, based on scene instantiation experiments. [Source](https://arxiv.org/abs/2608.17600v1)
 
-### 5.3 Embodied VLA / mobile manipulation
+### 5.3 VLA and manipulation
 {: id="53-具身-vla--移动操作"}
 
 - **GigaBrain-0.7** (Base Model · C): The three-system architecture extends the embodied base model to obtain emergent capabilities. [Source](https://arxiv.org/abs/2608.15875v1)
@@ -210,8 +218,8 @@ The relevance of each label: A is for direct research on ground navigation, B ha
 - **OrthoSkillVLA** (Continuous Learning · C): Gradient-guided skill subspace adaptation. [Source](https://arxiv.org/abs/2608.19589v1)
 - **Bit-Flip Attacks on VLA** (Security · C): Action decoding architecture affects vulnerability to bit-flip attacks. [Source](https://arxiv.org/abs/2608.15475v1)
 
-### 5.4 UAVs, autonomous driving, and less relevant topics
-{: id="54-无人机自动驾驶与其他低相关方向"}
+### 5.4 UAVs and other
+{: id="54-无人机与其他"}
 
 - **BrainWAM** (autonomous driving · C): Action space coordination of semantic priors and predictive dynamics. [Source](https://arxiv.org/abs/2608.12854v2)
 - **Planning-Oriented End-to-End Autonomous Driving** (Autonomous Driving Review·C): Architecture, evaluation and emerging paradigm review. [Source](https://arxiv.org/abs/2608.20111v1)

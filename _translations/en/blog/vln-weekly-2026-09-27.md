@@ -5,10 +5,10 @@ translation_id: vln-weekly-2026-09-27
 permalink: /en/vln-weekly-2026-09-27/
 source_path: _posts/weekly-reports/2026-09-27-VLN-Weekly.md
 source_url: /vln-weekly-2026-09-27/
-source_revision_date: 2026-10-01
-translation_updated: 2026-10-03
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "Embodied Navigation Weekly (2026-09-16 to 2026-09-24)"
-date: 2026-09-27
+date: 2026-10-24
 period_start: 2026-09-16
 period_end: 2026-09-24
 issue_number: 6
@@ -68,8 +68,10 @@ excerpt: "GPT-6-Astra reports a new 79.0% zero-shot R2R-CE SR claim with Codex h
 ## 3. Analysis of highlighted work
 {: id="三重点工作分析"}
 
-### 1. GPT-6-Astra: no controlled variable separates the 79.0% and 52.0% results
+### 1. GPT-6-Astra
 {: id="1-gpt-6-astra-两篇对读790-与-520-之间没有一个变量是被控制的"}
+
+**No controlled variable separates the 79.0% and 52.0% results.**
 
 **Problem.** Whether the general foundation model can complete continuous environment VLN without adding any navigation-specific components. The article in the last issue ([How Far Can GPT-6-Astra Go? ](https://arxiv.org/abs/2609.20116v2), the original title GPT-6-Astra in a Navigation Workflow, this issue reappears as v2 after the title is revised, not included in the new addition) has been exposed: correct local judgment does not mean that it can continue to advance and stop at the correct position.
 
@@ -88,8 +90,10 @@ excerpt: "GPT-6-Astra reports a new 79.0% zero-shot R2R-CE SR claim with Codex h
 
 **Recommendation.** Read the text carefully and confirm the episode set, the SR and cost of each reasoning level, and whether success requires active STOP; if the log is made public, count the composition of "non-stop/wrong stop/yaw" in the failed episode. Don’t put 79.0% into a side-by-side comparison with a training-style approach before verifying it.
 
-### 2. SparseNav: selective perception offers a reproducible zero-shot route
+### 2. SparseNav
 {: id="2-sparsenav少感知一点反而是更可复现的零样本路线"}
+
+**Selective perception offers a reproducible zero-shot route.**
 
 **Problem.** If map-based VLN performs semantic annotation on all visible objects, it will not only increase the perceptual overhead, but also flood the spatial representation read by the VLM planner with irrelevant objects.
 
@@ -103,8 +107,10 @@ excerpt: "GPT-6-Astra reports a new 79.0% zero-shot R2R-CE SR claim with Codex h
 
 **Recommendation.** reproduces the instruction conditionalized perception triggering module and measures the actual decrease in the number of perception calls and latency; compare it with the dense semantic map baseline on the same episode set.
 
-### 3. Talk2Escape: the detector is more reusable than the dialogue
+### 3. Talk2Escape
 {: id="3-talk2escape检测器比对话更值得带走"}
+
+**The detector is more reusable than the dialogue.**
 
 **Problem.** Single-round VLN is an open-loop execution: small deviations caused by perceptual aliasing, sensing noise, and odometry drift continue to accumulate, and the final task fails, and the system has no built-in recovery mechanism.
 
@@ -118,8 +124,10 @@ excerpt: "GPT-6-Astra reports a new 79.0% zero-shot R2R-CE SR claim with Codex h
 
 **Recommendation.** Read the text to confirm the frequency of questions and the specific settings of the oracle; connect the detector to your own system to create a "self-correcting" version that does not require manual labor, and quantify the net income without external feedback.
 
-### 4. VNT-PA: attention based on pose differences rather than temporal order
+### 4. VNT-PA
 {: id="4-vnt-pa让注意力看位姿差而不是看时间顺序"}
+
+**Attention based on pose differences rather than temporal order.**
 
 **Problem.** The learning navigation policy encodes the observation history in chronological order, and it is difficult to reuse the experience of previously traversing the same environment; systems that can reuse experience usually need to explicitly build a map or topology map first, and then plan on it.
 
@@ -133,8 +141,10 @@ excerpt: "GPT-6-Astra reports a new 79.0% zero-shot R2R-CE SR claim with Codex h
 
 **Recommendation.** In-depth study of the keyframe context construction method; replace the "visited area memory" with a keyframe set of pose index in the VLN system for small-scale verification.
 
-### 5. AdaHVLA: this issue's only harness study with navigation results
+### 5. AdaHVLA
 {: id="5-adahvla本期唯一给出导航侧数字的-harness-工作"}
+
+**This issue's only harness study with navigation results.**
 
 **Problem.** VLA is good at local control and command following, but long-range tasks require persistent memory and planning; task harness can retain history and track stage progress. The difficulty lies in aligning the two.
 
@@ -187,8 +197,8 @@ Only include work where the migration path can be clearly explained.
 
 The relevance of each label: A is for direct research on ground navigation, B has a transferable mechanism, and C is only for field observation.
 
-### 5.1 Ground-based VLN / ObjectNav / Semantic Navigation
-{: id="51-地面-vln--objectnav--语义导航"}
+### 5.1 VLN and ObjectNav
+{: id="51-vln-与-objectnav"}
 
 - **GPT-6-Astra Lights Up** (zero-shot VLN-CE · A): See key analysis. [Source](https://arxiv.org/abs/2609.29861v1)
 - **How Far Can GPT-6-Astra Go?** (zero-shot VLN-CE · A): The renamed v2 of the v1 analyzed in the previous issue is not included in the new additions in this issue; see the key analysis. [Source](https://arxiv.org/abs/2609.20116v2)
@@ -237,15 +247,15 @@ The relevance of each label: A is for direct research on ground navigation, B ha
 - **BarrierFormer** (Safety Control · C): Transformer autoregressively generates predictive rolling to replace the model, barrier critic checks CBF constraints along the rolling, no online optimization required during inference. [Source](https://arxiv.org/abs/2609.23896v1)
 - **ZIL** (image-point cloud registration · C): zero-shot asynchronous image to LiDAR registration foundation model; 1.4 million frames of training in 7 datasets, translation/rotation error reduced by up to 87%/76%. [Source](https://arxiv.org/abs/2609.22716v1)
 
-### 5.4 Surface vessels, underwater vehicles, and UAVs
+### 5.4 Surface, underwater and UAVs
 {: id="54-水面水下与无人机"}
 
 - **RiverVLN** (Unmanned Surface Vehicle VLN·B): Long-range USV VLN benchmark under continuous river motion; PGT-NAV converts instructions into a visually verifiable semantic stage sequence and maintains the current stage online; Unity-ROS closed-loop average success rate is 0.79, verified by real ships. [Source](https://arxiv.org/abs/2609.23423v1)
 - **AquaWorld** (Underwater World Generation · C): Consistent randomization of shared terrain structures; the same budget strategy training verification success rate is 21%, and the simulation-trained visual navigation policy is 95% successful in the physical water tank. [Source](https://arxiv.org/abs/2609.22670v1)
 - **PhysAI-Bench** (UAV agent decision benchmark·C): 10,178 decision instances, including MCP tool calls, A2A interactions and 6G network status; among the 29 models, GPT-5.3 has the highest accuracy of 52.00%. [Source](https://arxiv.org/abs/2609.23695v1)
 
-### 5.5 Secondary-pool roundup: VLA/manipulation, autonomous driving, and other work
-{: id="55-次池速览vla操作--自动驾驶--其他"}
+### 5.5 Secondary pool
+{: id="55-次池速览"}
 
 There are a total of 84 articles in the secondary pool (81 articles on VLA/manipulation, another 1 article AdaHVLA due to the navigation side digital shift to 5.2; 3 "other" articles), and no in-depth analysis will be performed. Those with transfer value have been included in Section 4. Grouped by theme as follows:
 

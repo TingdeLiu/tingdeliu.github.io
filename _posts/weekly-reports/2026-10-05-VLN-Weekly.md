@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-weekly-2026-10-05
 title: "具身导航周报（2026-09-25 ~ 2026-10-02）"
-date:   2026-10-05
+date: 2026-10-24
 permalink: /vln-weekly-2026-10-05/
 tags: [VLN, VLA, Embodied Navigation, Weekly Digest, arXiv]
 categories: weekly
@@ -63,8 +63,10 @@ excerpt: "本期新增 242 篇独立工作，自动主池 81 篇。EdgeVLN 在�
 ## 三、重点工作分析
 {: id="key-work-analysis"}
 
-### 1. EdgeVLN：量化收益必须连同执行路径与停止判定一起测
+### 1. EdgeVLN
 {: id="edgevln"}
+
+**量化收益必须连同执行路径与停止判定一起测。**
 
 **问题。** 模型压小后仍可能因内存搬运、不断增长的历史和停止错误无法部署。
 
@@ -78,8 +80,10 @@ excerpt: "本期新增 242 篇独立工作，自动主池 81 篇。EdgeVLN 在�
 
 **建议。** 复现四位执行路径与停止头，统一记录 SR、SPL、停止误判、内存、每步延迟及能耗。
 
-### 2. SeekVLN：主动观察需要证明能改善后续动作
+### 2. SeekVLN
 {: id="seekvln"}
+
+**主动观察需要证明能改善后续动作。**
 
 **问题。** 机器人可能在未见转弯地标时仍自信前进，把错误进度判断带入后续决策。
 
@@ -93,8 +97,10 @@ excerpt: "本期新增 242 篇独立工作，自动主池 81 篇。EdgeVLN 在�
 
 **建议。** 在同一策略上对照固定观察、置信度触发观察和反事实训练，计入转头、停顿及总耗时。
 
-### 3. PACE：规划正确之后，局部执行仍需要空间接地
+### 3. PACE
 {: id="pace"}
+
+**规划正确之后，局部执行仍需要空间接地。**
 
 **问题。** 到达楼梯或门口并不等于能够通过，高层语义目标缺少可执行的姿态和路径条件。
 
@@ -108,8 +114,10 @@ excerpt: "本期新增 242 篇独立工作，自动主池 81 篇。EdgeVLN 在�
 
 **建议。** 单独复现过渡区域，并区分目标定位、通过失败及偏离后恢复；保留纯几何执行对照。
 
-### 4. AVERT-VLN：监控器的价值不能由人工辅助 SR 单独证明
+### 4. AVERT-VLN
 {: id="avert-vln"}
+
+**监控器的价值不能由人工辅助 SR 单独证明。**
 
 **问题。** 偏离路线后，控制器可能继续错误执行；持续人工监督又难以扩展。
 
@@ -123,8 +131,10 @@ excerpt: "本期新增 242 篇独立工作，自动主池 81 篇。EdgeVLN 在�
 
 **建议。** 固定人工分钟数或纠错次数，对照随机求助、策略置信度和独立监控；报告误报、漏报与恢复成功率。
 
-### 5. 终身导航 NavHarness：子任务成功与整轮成功应分开看
+### 5. NavHarness
 {: id="lifelong-navharness"}
+
+**子任务成功与整轮成功应分开看。**
 
 **问题。** 跨任务复用会遇到地图不完整、旧记录与新观察冲突，以及失败后重新启动丢失状态。
 
@@ -163,7 +173,7 @@ excerpt: "本期新增 242 篇独立工作，自动主池 81 篇。EdgeVLN 在�
 
 A 表示直接地面语言/语义导航，B 表示迁移机制明确但任务不同，C 表示低相关观察。以下覆盖全部 242 篇独立工作；自动分池数量与研究相关度不是同一概念。主池中的边界条目已按实际任务放入低相关方向，次池按主题合并索引。
 
-### 5.1 地面 VLN / ObjectNav / 语言与语义导航
+### 5.1 VLN 与 ObjectNav
 {: id="ground-navigation"}
 
 - **[PACE](https://arxiv.org/abs/2609.32292v2)**（A）：跨楼层可通行姿态执行；见重点分析。
@@ -189,7 +199,7 @@ A 表示直接地面语言/语义导航，B 表示迁移机制明确但任务不
 - **[UniTrackPLA](https://arxiv.org/abs/2610.00878v1)**（A）：全景时空编码与未来一致性检查统一语言导航和动态人物跟踪。
 - **[GeoScaffold](https://arxiv.org/abs/2610.02697v1)**（A）：训练时重建深度、连通性和可通行性，部署时移除几何监督组件；摘要没有明确基准数值。
 
-### 5.2 记忆、地图、规划、社会导航与评测
+### 5.2 记忆、规划与评测
 {: id="memory-maps-and-evaluation"}
 
 - **[TRACKGRAPH](https://arxiv.org/abs/2609.31005v1)**（B）：在图像流中跟踪短期 mask 身份，再融合进开放词汇 3D 场景图。
@@ -226,7 +236,7 @@ A 表示直接地面语言/语义导航，B 表示迁移机制明确但任务不
 
 - **导航与空间感知（B/C），7 项**：[InfraVLA](https://arxiv.org/abs/2609.33647v1)、[TUDF Scene Completion](https://arxiv.org/abs/2609.36543v1)、[S4VY](https://arxiv.org/abs/2609.36875v1)、[PERSEPHONE Spatial Perception](https://arxiv.org/abs/2609.37419v1)、[WayFinder](https://arxiv.org/abs/2609.37922v1)、[GroundingPI](https://arxiv.org/abs/2609.39601v1)、[PAGER](https://arxiv.org/abs/2610.01589v1)。
 
-### 5.3 具身 Agent、VLA 与移动操作
+### 5.3 Agent、VLA 与操作
 {: id="embodied-agents-and-manipulation"}
 
 主池中的 Agent 与操作相关工作：
@@ -259,7 +269,7 @@ A 表示直接地面语言/语义导航，B 表示迁移机制明确但任务不
 - **记忆与长期状态（C），11 项**：[RecastVLA](https://arxiv.org/abs/2609.32155v1)、[SSVR](https://arxiv.org/abs/2609.33412v1)、[D²-VLA](https://arxiv.org/abs/2609.34792v2)、[Ledger](https://arxiv.org/abs/2609.34554v1)、[LexiconVLA](https://arxiv.org/abs/2609.36774v1)、[Action-History Memory](https://arxiv.org/abs/2609.37307v1)、[T²Mem](https://arxiv.org/abs/2609.36720v1)、[ECoMEM](https://arxiv.org/abs/2610.00801v1)、[Optimus-R](https://arxiv.org/abs/2609.39794v1)、[MIKASA-Robo-VLA](https://arxiv.org/abs/2610.00604v1)、[Divide-and-Remember](https://arxiv.org/abs/2610.00982v1)。
 - **人形、双臂、移动操作与协作（C），11 项**：[Fiatlux](https://arxiv.org/abs/2609.38216v1)、[TAO-DA](https://arxiv.org/abs/2609.33197v1)、[Humanoid Loco-Manipulation With Discrete VLA Model](https://arxiv.org/abs/2609.35709v1)、[Uni-VLaT](https://arxiv.org/abs/2609.35450v2)、[Cooperative Multi-Agent VLA](https://arxiv.org/abs/2609.36588v1)、[EgoAlign](https://arxiv.org/abs/2609.38046v3)、[EgoHumanoid-V2](https://arxiv.org/abs/2609.37181v1)、[FineART](https://arxiv.org/abs/2609.36416v2)、[IronMind](https://arxiv.org/abs/2609.39403v1)、[Whole-Body Human Pretraining](https://arxiv.org/abs/2610.00438v1)、[DuoMind](https://arxiv.org/abs/2610.02161v1)。
 
-### 5.4 无人机、自动驾驶与其他低相关方向
+### 5.4 无人机与其他
 {: id="other-directions"}
 
 - **[SatNav](https://arxiv.org/abs/2609.31507v1)**（C）：卫星图像构造城市级无人机 VLN，非地面视角评测。

@@ -5,10 +5,10 @@ translation_id: vln-weekly-2026-10-17
 permalink: /en/vln-weekly-2026-10-17/
 source_path: _posts/weekly-reports/2026-10-17-VLN-Weekly.md
 source_url: /vln-weekly-2026-10-17/
-source_revision_date: 2026-10-17
-translation_updated: 2026-10-17
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "Embodied Navigation Weekly (2026-10-08 to 2026-10-15)"
-date: 2026-10-17
+date: 2026-10-24
 period_start: 2026-10-08
 period_end: 2026-10-15
 issue_number: 9
@@ -69,8 +69,10 @@ This issue adds 175 records corresponding to 175 independent arXiv works, publis
 ## 3. Detailed analyses
 {: id="deep-analysis"}
 
-### 1. VLN-Safe: establish how collisions change actions
+### 1. VLN-Safe
 {: id="vln-safe"}
+
+**Establish how collisions change actions.**
 
 **Problem.** Reaching the goal does not imply collision-free motion. Sliding along obstacles can conceal unsafe actions' consequences.
 
@@ -84,8 +86,10 @@ This issue adds 175 records corresponding to 175 independent arXiv works, publis
 
 **Action.** Fix policies and episodes, compare both collision regimes, and record collision-free success, interventions, and added distance.
 
-### 2. GuidedNav: keep progress and geometry supervision in training
+### 2. GuidedNav
 {: id="guidednav"}
+
+**Keep progress and geometry supervision in training.**
 
 **Problem.** Action labels alone may teach correlations without reliably grounding the current instruction segment and its landmarks.
 
@@ -99,8 +103,10 @@ This issue adds 175 records corresponding to 175 independent arXiv works, publis
 
 **Action.** Fix backbone and data volume, ablate subtask, landmark, and spatial supervision separately, and measure closed-loop latency.
 
-### 3. RSI-Nav: keep the data generator aligned with the policy
+### 3. RSI-Nav
 {: id="rsi-nav"}
+
+**Keep the data generator aligned with the policy.**
 
 **Problem.** Labeling all trajectories with a fixed model can leave generated instructions misaligned with an evolving navigator.
 
@@ -114,8 +120,10 @@ This issue adds 175 records corresponding to 175 independent arXiv works, publis
 
 **Action.** Fix the trajectory budget, compare one-pass annotation with shard-wise updates, and track long instructions, difficult routes, and instruction diversity.
 
-### 4. MemoryVLN: compressed history still needs spatial provenance
+### 4. MemoryVLN
 {: id="memoryvln"}
+
+**Compressed history still needs spatial provenance.**
 
 **Problem.** Long histories face context limits, redundant observations, and unstable spatial alignment over time.
 
@@ -129,8 +137,10 @@ This issue adds 175 records corresponding to 175 independent arXiv works, publis
 
 **Action.** Separate within-episode and cross-task memory; fix the token budget and compare compression, spatial anchoring, and write-back.
 
-### 5. I2O2I-Nav: primitive competence does not ensure full missions
+### 5. I2O2I-Nav
 {: id="i2o2i-nav"}
+
+**Primitive competence does not ensure full missions.**
 
 **Problem.** Isolated stage evaluation misses accumulated endpoint errors, handoff failures, and incorrect completion decisions.
 
@@ -158,7 +168,7 @@ This issue adds 175 records corresponding to 175 independent arXiv works, publis
 
 A denotes direct ground-navigation relevance; B denotes an explicit transferable mechanism; C denotes field observation or low relevance. These reading categories do not replace automatic library labels. Detailed analyses are not repeated; secondary works are grouped by theme.
 
-### 5.1 Ground VLN / ObjectNav / semantic navigation
+### 5.1 VLN and ObjectNav
 {: id="ground-navigation"}
 
 - **[Two-Stage Multi-modal Learning for Dynamic Audio-Visual Navigation](https://arxiv.org/abs/2610.14077v1)** (A): Dynamic audio-visual navigation aligns sound intensity with geometry for unheard sounds.
@@ -196,7 +206,7 @@ A denotes direct ground-navigation relevance; B denotes an explicit transferable
 - **[Training-Free Target-Aware Refinement of 3D Gaussian Language Map](https://arxiv.org/abs/2610.21619v1)** (A): Minimally injects target priors into existing language maps while suppressing query-independent bias.
 - **[VP-EVT](https://arxiv.org/abs/2610.21999v1)** (A): Makes target visibility a motion objective to actively resolve persistent occlusion.
 
-### 5.2 Memory, maps, planning, and evaluation
+### 5.2 Memory, planning and evaluation
 {: id="memory-planning"}
 
 - **[HorizonNav](https://arxiv.org/abs/2610.13849v1)** (B): Reconstructs plannable space from generated video; imagined feasibility does not establish real traversability.
@@ -224,7 +234,7 @@ A denotes direct ground-navigation relevance; B denotes an explicit transferable
 - **[MAGMA-Bench](https://arxiv.org/abs/2610.13534v1)** (B): MAGMA-Bench evaluates interruptions, execution failures, and heterogeneous robot coordination at a skill interface.
 - **[MPT](https://arxiv.org/abs/2610.22322v1)** (B): MPT jointly learns bidding-based participation and action policies for decentralized coordination.
 
-### 5.3 Embodied VLA / mobile manipulation
+### 5.3 VLA and manipulation
 {: id="vla-manipulation"}
 
 - **Manipulation memory, skills, and runtimes (C)**：[Embodied Zero-Shot Task Planning via Hardware-Aware LLM-VLM Integration for Grounded Robotic Manipulation](https://arxiv.org/abs/2610.14106v1); [REMM](https://arxiv.org/abs/2610.12710v1); [Dual-Stream Memory for Vision-Language-Action Policies](https://arxiv.org/abs/2610.13262v1); [Memory Without Curation](https://arxiv.org/abs/2610.14406v1); [A Persian Vision-Language-Action Dataset and Benchmark for Ambiguity- and Infeasibility-Aware Instruction-to-Plan Grounding](https://arxiv.org/abs/2610.15666v1); [Exploring the Limits of Combinatorial Generalization in Embodied Manipulation](https://arxiv.org/abs/2610.15425v1).
@@ -245,7 +255,7 @@ A denotes direct ground-navigation relevance; B denotes an explicit transferable
 - **Precision manipulation, multimodality, and body control (C)**：[KODA](https://arxiv.org/abs/2610.21152v1).
 - **Inference compression, action chunks, and verification (C)**：[Accelerating VLA Inference with Perturbation Informed Execution](https://arxiv.org/abs/2610.19656v2); [Fast-VLA — You Only Think Once](https://arxiv.org/abs/2610.21389v1); [FastVLA — Adaptive Visual Token Compression](https://arxiv.org/abs/2610.22146v1); [Policy-Aligned Predictive Verification for Adaptive VLA Action-Chunk Execution](https://arxiv.org/abs/2610.21434v1); [VeriVLA](https://arxiv.org/abs/2610.21985v1); [When to Ask for Help](https://arxiv.org/abs/2610.21160v1).
 
-### 5.4 Aerial, driving, and lower-relevance directions
+### 5.4 UAVs and other
 {: id="lower-relevance"}
 
 - **Aerial navigation and interaction (C)**：[Verifier-Mediated Multi-LLM Coordination for Multi-Robot Path Planning](https://arxiv.org/abs/2610.12761v1); [BGC-Nav](https://arxiv.org/abs/2610.14702v1); [ClearNav](https://arxiv.org/abs/2610.17419v1); [Benchmarking Interaction-Oriented Aerial Mobility across Heterogeneous Environments](https://arxiv.org/abs/2610.18381v1); [Towards bio-inspired visual navigation](https://arxiv.org/abs/2610.21978v1); [X-Fly](https://arxiv.org/abs/2610.21450v1).

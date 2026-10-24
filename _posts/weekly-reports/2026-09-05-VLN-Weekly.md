@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-weekly-2026-09-05
 title: "具身导航周报（2026-08-26 ~ 2026-09-03）"
-date:   2026-09-05
+date: 2026-10-24
 permalink: /vln-weekly-2026-09-05/
 tags: [VLN, VLA, Embodied Navigation, Weekly Digest, arXiv]
 categories: weekly
@@ -49,7 +49,10 @@ excerpt: "本期 45 条新增全部来自 arXiv，公众号源因上游中转随
 
 ## 三、重点工作分析
 
-### 1. Revisiting Topological Graphs：把 VLN-CE 的决策视界压到 RL 能训练的尺度
+### 1. Revisiting Topological Graphs
+{: id="1-revisiting-topological-graphs把-vln-ce-的决策视界压到-rl-能训练的尺度"}
+
+**把 VLN-CE 的决策视界压到 RL 能训练的尺度。**
 
 **问题。** 论文指出闭环 VLN-CE 下模仿学习的两个具体瓶颈：行为克隆遭遇分布偏移；DAgger 在智能体偏离轨迹后专家动作变得歧义。而直接在微动作空间上做 RL 因奖励稀疏而样本效率极低。
 
@@ -63,7 +66,10 @@ excerpt: "本期 45 条新增全部来自 arXiv，公众号源因上游中转随
 
 **建议。** 优先读正文的 value head 设计与 PPO 训练细节，重点核对 R2R-CE Val-Unseen 的 SR / SPL 具体数值及对照基线。
 
-### 2. LookStep：用语言标签替代认知地图，压低 VLN-CE 的记忆与数据成本
+### 2. LookStep
+{: id="2-lookstep用语言标签替代认知地图压低-vln-ce-的记忆与数据成本"}
+
+**用语言标签替代认知地图，压低 VLN-CE 的记忆与数据成本。**
 
 **问题。** 论文指出现有 MLLM 驱动的 VLN 遵循下一步动作预测范式，只监督专家动作，训练数据需求大；且依赖认知地图、累积历史帧或外部 3D 工具维护状态，计算与内存开销高。
 
@@ -77,7 +83,10 @@ excerpt: "本期 45 条新增全部来自 arXiv，公众号源因上游中转随
 
 **建议。** 本期最值得优先复现的工作——有[开源代码](https://github.com/kunyang-YU/LookStep)且目标明确。重点验证有界滚动记忆的写入策略在长指令上的表现。
 
-### 3. LightNav-0：单一 VLM 骨干覆盖多任务与多本体
+### 3. LightNav-0
+{: id="3-lightnav-0单一-vlm-骨干覆盖多任务与多本体"}
+
+**单一 VLM 骨干覆盖多任务与多本体。**
 
 **问题。** 论文指出现有导航系统依赖任务专用或本体专用组件，割裂感知、推理与动作，泛化受限；而 VLM 已编码视觉定位、空间推理、pointing 等空间先验，却很少被直接用于机器人控制。
 
@@ -91,7 +100,10 @@ excerpt: "本期 45 条新增全部来自 arXiv，公众号源因上游中转随
 
 **建议。** 作为通用导航模型的架构参考精读，重点看双通道 pointing 的具体定义与动作 tokenizer 的本体适配方式；暂不列入复现计划。
 
-### 4. CGFM-Nav：显式语义记忆与语义引导探索的闭环耦合
+### 4. CGFM-Nav
+{: id="4-cgfm-nav显式语义记忆与语义引导探索的闭环耦合"}
+
+**显式语义记忆与语义引导探索的闭环耦合。**
 
 **问题。** 论文指出现有环境表征难以同时支撑显式语义记忆与连续探索引导——要么能检索已见目标，要么能引导探索未见区域。
 
@@ -136,7 +148,7 @@ excerpt: "本期 45 条新增全部来自 arXiv，公众号源因上游中转随
 
 每条标注相关度：A 为直接研究地面导航，B 有可迁移机制，C 仅作领域观察。
 
-### 5.1 地面 VLN / ObjectNav / 语义导航
+### 5.1 VLN 与 ObjectNav
 
 - **Revisiting Topological Graphs**（VLN-CE + 闭环 RL · A）：见重点分析 1。[原文](https://arxiv.org/abs/2609.03906v1)
 - **LookStep**（VLN-CE 效率 · A）：见重点分析 2。[原文](https://arxiv.org/abs/2609.02350v1)
@@ -146,7 +158,7 @@ excerpt: "本期 45 条新增全部来自 arXiv，公众号源因上游中转随
 - **CanonNav**（跨平台视觉导航 · A）：相机几何规范化解耦导航行为与平台几何，仅 RGB 推理称超过 RGB-D 方法。[原文](https://arxiv.org/abs/2608.30242v1)
 - **AGC-VLN**（空地协同 VLN · B）：共享鸟瞰图作为训练无关的协作接口，CARLA-Air 联合成功率 77.0%。[原文](https://arxiv.org/abs/2609.03483v1)
 
-### 5.2 记忆、地图、规划与评测
+### 5.2 记忆、规划与评测
 
 - **AGM**（具身记忆 · B）：子目标进度指针仅在物理证据验证后推进；主张记忆可靠性取决于更新纪律而非容量。[原文](https://arxiv.org/abs/2608.29537v1)
 - **EmbodiedSkills**（智能体编排 · B）：统一编排感知 / 规划 / 执行 / 进度验证 / 恢复的 VLA 框架。[原文](https://arxiv.org/abs/2609.01281v1)
@@ -182,7 +194,7 @@ excerpt: "本期 45 条新增全部来自 arXiv，公众号源因上游中转随
 - **FWBC-VLA**（力感知 · C）：面向接触密集 loco-manipulation 的全身力补偿。[原文](https://arxiv.org/abs/2609.03889v1)
 - **Scaling Bimanual Household Manipulation**（数据集 · C）：发布 1,500 小时双臂家务操作演示并做在策略纠正。[原文](https://arxiv.org/abs/2609.03591v1)
 
-### 5.4 无人机、自动驾驶与其他低相关方向
+### 5.4 无人机与其他
 
 - **MulDP**（四足 parkour 导航 · C）：多模态扩散策略生成导航速度指令，并发布四足 parkour 导航数据集 QPND；无语言指令成分。[原文](https://arxiv.org/abs/2609.03984v1)
 - **LaPla**（自动驾驶 · C）：潜空间对齐规划，nuScenes 上长视界 L2 误差较 SOTA VLA 方法降低 15.52%。[原文](https://arxiv.org/abs/2609.04070v1)

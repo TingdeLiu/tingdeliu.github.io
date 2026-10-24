@@ -5,10 +5,10 @@ translation_id: vln-weekly-2026-09-12
 permalink: /en/vln-weekly-2026-09-12/
 source_path: _posts/weekly-reports/2026-09-12-VLN-Weekly.md
 source_url: /vln-weekly-2026-09-12/
-source_revision_date: 2026-09-27
-translation_updated: 2026-10-03
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "Embodied Navigation Weekly (2026-09-02 to 2026-09-10)"
-date: 2026-09-12
+date: 2026-10-24
 period_start: 2026-09-02
 period_end: 2026-09-10
 issue_number: 4
@@ -69,8 +69,10 @@ excerpt: "All 46 new entries come from arXiv; WeChat rate limiting leaves both s
 ## 3. Analysis of highlighted work
 {: id="三重点工作分析"}
 
-### 1. O2C-Nav: one large-model call per zero-shot VLN-CE decision step
+### 1. O2C-Nav
 {: id="1-o2c-nav把零样本-vln-ce-的每步大模型调用压到一次"}
+
+**One large-model call per zero-shot VLN-CE decision step.**
 
 **Problem.** The abstract states that existing zero-shot VLN-CE methods either rely on pre-trained waypoint predictors or require multiple queries of large models at each step, resulting in unbearable inference latency and computational overhead.
 
@@ -84,8 +86,10 @@ excerpt: "All 46 new entries come from arXiv; WeChat rate limiting leaves both s
 
 **Recommendation.** **gives priority to intensive reading and reproduction of**. This is the only R2R-CE/RxR-CE job in this issue that has code. When reproducing, first confirm the R2R-CE value and control settings in the main text of the paper (note that the R2R-CE continuous environment and discrete R2R are distinguished, the two are not directly comparable), and then measure the single-step end-to-end delay
 
-### 2. OmniNav: accounting for outdated memory in navigation state inference
+### 2. OmniNav
 {: id="2-omninav把记忆会过期写进导航状态推断"}
+
+**Accounting for outdated memory in navigation state inference.**
 
 **Problem.** The three types of states in long-term goal navigation are only conditionally valid: the scene representation becomes stale after the object moves or disappears; search failure will change the belief of the target position; the geometrically convenient end point may not be feasible for subsequent operations.
 
@@ -99,8 +103,10 @@ excerpt: "All 46 new entries come from arXiv; WeChat rate limiting leaves both s
 
 **Recommendation.** **Read the method part intensively, focusing on the specific form of belief modification**. Consider ablating the negative evidence mechanism separately and then connecting it to the existing frontier exploration module.
 
-### 3. OVMAN: scene changes as navigation goals
+### 3. OVMAN
 {: id="3-ovman把场景变化本身作为导航目标"}
+
+**Scene changes as navigation goals.**
 
 **Problem.** The goal of the existing navigation benchmark is defined in the world currently seen by the agent. The existing two-visit benchmark evaluates recall or rearrangement, not navigation. The abstract states that there is no basis for expressing "go to the chair that was removed" or "go to the original position of the vase"
 
@@ -114,8 +120,10 @@ excerpt: "All 46 new entries come from arXiv; WeChat rate limiting leaves both s
 
 **Recommendation.** **is added to the benchmark tracking list**. There is no need to invest in reproduction in the near future, but when evaluating the map aging problem of the self-developed navigation system, the structure method of its "past tense query" can be borrowed
 
-### 4. TANGO: from 2D paths to full-body geometric adaptation
+### 4. TANGO
 {: id="4-tango把人形导航从-2d-路径规划改写为全身几何适配"}
+
+**From 2D paths to full-body geometric adaptation.**
 
 **Problem.** Humanoid traffic in a cluttered indoor environment is not a 2D path planning problem. It requires continuous, geometry-aware whole-body adaptation, including arm placement, torso adjustment and gait adjustment, in order to move without collision in a complex three-dimensional space.
 
@@ -129,8 +137,10 @@ excerpt: "All 46 new entries come from arXiv; WeChat rate limiting leaves both s
 
 **Recommendation.** **trace, and** is disassembled according to its data synthesis pipeline. After the main text is published, confirm the specific benchmarks used in its VLN evaluation (the abstract does not specify whether it is the R2R-CE series and should not be comparable by default)
 
-### 5. NavArena: converting 3DGS reconstructions into closed-loop navigation benchmarks
+### 5. NavArena
 {: id="5-navarena把-3dgs-重建变成可闭环评测的导航基准"}
+
+**Converting 3DGS reconstructions into closed-loop navigation benchmarks.**
 
 **Problem.** Fixed 3D Gaussian splash reconstruction provides realistic new perspectives, but lacks traversability constraints, valid targets and closed-loop protocols required for navigation evaluation
 
@@ -185,8 +195,8 @@ excerpt: "All 46 new entries come from arXiv; WeChat rate limiting leaves both s
 
 The relevance of each label: A is for direct research on ground navigation, B has a transferable mechanism, and C is only for field observation.
 
-### 5.1 Ground-based VLN / ObjectNav / Semantic Navigation
-{: id="51-地面-vln--objectnav--语义导航"}
+### 5.1 VLN and ObjectNav
+{: id="51-vln-与-objectnav"}
 
 - **O2C-Nav** (zero-shot VLN-CE · A): See key analysis. [Source](https://arxiv.org/abs/2609.06476v1)
 - **OmniNav** (dynamic environment goal navigation · A): See key analysis. [Source](https://arxiv.org/abs/2609.08159v1)
@@ -194,8 +204,8 @@ The relevance of each label: A is for direct research on ground navigation, B ha
 - **TANGO** (humanoid full-body VLN · A): See key analysis. [Source](https://arxiv.org/abs/2609.09158v1)
 - **MobileVLA-R1 2.0** (Mobile Robot Control · A): Alignment of thinking chains to enhance reinforcement learning; SR on VLN-CE is increased by 1.6 points on average, and the overall task success rate of real robot G1 mobile operation is increased by 10.0 points. [Source](https://arxiv.org/abs/2609.06251v1)
 
-### 5.2 Memory, Maps, Planning and Evaluation
-{: id="52-记忆地图规划与评测"}
+### 5.2 Memory, planning and evaluation
+{: id="52-记忆规划与评测"}
 
 - **NavArena** (Navigation reference generation · A): See key analysis. [Source](https://arxiv.org/abs/2609.04602v1)
 - **MEMOBench** (process-level memory evaluation · B): separates forgetting from operation failure and does not rely on the final success rate. [Source](https://arxiv.org/abs/2609.07047v1)
@@ -209,7 +219,7 @@ The relevance of each label: A is for direct research on ground navigation, B ha
 - **UniMPA** (Memory-Prediction-Action Unification · B): Use the transfer interface of action grounding to jointly handle transfer ambiguity, mismatch between prediction and execution, and mismatch between experience and implementation. [Source](https://arxiv.org/abs/2609.11875v1)
 - **An overview of 3D Vision-Language Models** (3D VLM Overview · B): A tutorial-style overview from 3D representation encoding to cross-modal contrast alignment and 3D VLLM, including language-guided 3DGS. [Source](https://arxiv.org/abs/2609.05583v1)
 
-### 5.3 Embodied VLA / mobile manipulation
+### 5.3 VLA and manipulation
 {: id="53-具身-vla--移动操作"}
 
 - **VLA-Corrector** (Closed Loop Recovery · B): See Migration Methods. [Source](https://arxiv.org/abs/2609.06508v1)
@@ -238,8 +248,8 @@ The relevance of each label: A is for direct research on ground navigation, B ha
 - **FolDeX** (Deformable Object Benchmark · C): A real robot benchmark for dual-arm operation of long-term deformable objects. [Source](https://arxiv.org/abs/2609.10243v1)
 - **Language Migration Metrics for Robot Strategies** (Multi-Language VLA · C): Rewrite instructions only with machine translation to add Greek to the Cosmos3 VLA, focusing on the reliability of the measurement tool. [Source](https://arxiv.org/abs/2609.07470v1)
 
-### 5.4 UAVs, communications, and less relevant topics
-{: id="54-无人机通信与其他低相关方向"}
+### 5.4 UAVs and other
+{: id="54-无人机与其他"}
 
 - **AGC-VLN** (Air-Ground Coordination VLN · B): See Migration Methods. [Source](https://arxiv.org/abs/2609.03483v3)
 - **AirAnchor** (drone zero-shot VLN · B): See Migration Methods. [Source](https://arxiv.org/abs/2609.08442v1)

@@ -5,10 +5,10 @@ translation_id: vln-weekly-2026-09-05
 permalink: /en/vln-weekly-2026-09-05/
 source_path: _posts/weekly-reports/2026-09-05-VLN-Weekly.md
 source_url: /vln-weekly-2026-09-05/
-source_revision_date: 2026-09-27
-translation_updated: 2026-10-03
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "Embodied Navigation Weekly (2026-08-26 to 2026-09-03)"
-date: 2026-09-05
+date: 2026-10-24
 period_start: 2026-08-26
 period_end: 2026-09-03
 issue_number: 3
@@ -59,8 +59,10 @@ excerpt: "All 45 new entries come from arXiv; the WeChat source is absent after 
 ## 3. Analysis of highlighted work
 {: id="三重点工作分析"}
 
-### 1. Revisiting Topological Graphs: shortening the VLN-CE decision horizon for RL
+### 1. Revisiting Topological Graphs
 {: id="1-revisiting-topological-graphs把-vln-ce-的决策视界压到-rl-能训练的尺度"}
+
+**Shortening the VLN-CE decision horizon for RL.**
 
 **Problem.** The paper points out two specific bottlenecks in imitation learning under closed-loop VLN-CE: behavioral clones encounter distribution shifts; DAgger expert actions become ambiguous after the agent deviates from the trajectory. However, doing RL directly on the micro-action space has extremely low sample efficiency due to sparse rewards.
 
@@ -74,8 +76,10 @@ excerpt: "All 45 new entries come from arXiv; the WeChat source is absent after 
 
 **Recommendation.** Prioritize reading the value head design and PPO training details of the text, focusing on checking the specific SR/SPL values and comparison baselines of R2R-CE Val-Unseen.
 
-### 2. LookStep: language tags reduce VLN-CE memory and data costs
+### 2. LookStep
 {: id="2-lookstep用语言标签替代认知地图压低-vln-ce-的记忆与数据成本"}
+
+**Language tags reduce VLN-CE memory and data costs.**
 
 **Problem.** The paper points out that existing MLLM-driven VLN follows the next action prediction paradigm, only supervises expert actions, and requires large training data; it also relies on cognitive maps, accumulated historical frames, or external 3D tools to maintain status, resulting in high computational and memory overhead.
 
@@ -89,8 +93,10 @@ excerpt: "All 45 new entries come from arXiv; the WeChat source is absent after 
 
 **Recommendation.** The work that deserves priority to be reproduced in this issue - there is [open source code ](https://github.com/kunyang-YU/LookStep) with clear goals. Focus on verifying the performance of the bounded rolling memory writing strategy on long instructions.
 
-### 3. LightNav-0: one VLM backbone for multiple tasks and embodiments
+### 3. LightNav-0
 {: id="3-lightnav-0单一-vlm-骨干覆盖多任务与多本体"}
+
+**One VLM backbone for multiple tasks and embodiments.**
 
 **Problem.** The paper points out that existing navigation systems rely on task-specific or embodiment-specific components, which separate perception, reasoning and action, and have limited generalization; while VLM has encoded spatial priors such as visual positioning, spatial reasoning, and pointing, but is rarely used directly for robot control.
 
@@ -104,8 +110,10 @@ excerpt: "All 45 new entries come from arXiv; the WeChat source is absent after 
 
 **Recommendation.** is an intensive reading of the architecture reference of the general navigation model, focusing on the specific definition of dual-channel pointing and the embodiment adaptation method of the action tokenizer; it is not included in the recurrence plan for the time being.
 
-### 4. CGFM-Nav: coupling explicit semantic memory with semantic-guided exploration
+### 4. CGFM-Nav
 {: id="4-cgfm-nav显式语义记忆与语义引导探索的闭环耦合"}
+
+**Coupling explicit semantic memory with semantic-guided exploration.**
 
 **Problem.** The paper points out that it is difficult for existing environmental representations to simultaneously support explicit semantic memory and continuous exploration guidance—either retrieving seen targets or guiding exploration of unseen areas.
 
@@ -152,8 +160,8 @@ excerpt: "All 45 new entries come from arXiv; the WeChat source is absent after 
 
 The relevance of each label: A is for direct research on ground navigation, B has a transferable mechanism, and C is only for field observation.
 
-### 5.1 Ground-based VLN / ObjectNav / Semantic Navigation
-{: id="51-地面-vln--objectnav--语义导航"}
+### 5.1 VLN and ObjectNav
+{: id="51-vln-与-objectnav"}
 
 - **Revisiting Topological Graphs** (VLN-CE + closed loop RL · A): See key analysis 1. [Source](https://arxiv.org/abs/2609.03906v1)
 - **LookStep** (VLN-CE efficiency · A): See key analysis 2. [Source](https://arxiv.org/abs/2609.02350v1)
@@ -163,8 +171,8 @@ The relevance of each label: A is for direct research on ground navigation, B ha
 - **CanonNav** (Cross-platform visual navigation · A): Camera geometry normalization decouples navigation behavior from platform geometry, with RGB-only inference outperforming RGB-D methods. [Source](https://arxiv.org/abs/2608.30242v1)
 - **AGC-VLN** (Air-Ground Collaboration VLN · B): Sharing aerial view as a training-free collaboration interface, CARLA-Air joint success rate 77.0%. [Source](https://arxiv.org/abs/2609.03483v1)
 
-### 5.2 Memory, Maps, Planning and Evaluation
-{: id="52-记忆地图规划与评测"}
+### 5.2 Memory, planning and evaluation
+{: id="52-记忆规划与评测"}
 
 - **AGM** (Embodied Memory · B): Sub-goal progress pointer advances only after physical evidence verification; advocates that memory reliability depends on update discipline rather than capacity. [Source](https://arxiv.org/abs/2608.29537v1)
 - **EmbodiedSkills** (Agent Orchestration·B): VLA framework for unified orchestration awareness/planning/execution/progress verification/recovery. [Source](https://arxiv.org/abs/2609.01281v1)
@@ -174,7 +182,7 @@ The relevance of each label: A is for direct research on ground navigation, B ha
 - **Drive the Thoughts** (Runtime Monitoring · C): Monitors VLA inference chain and trajectory consistency, and analysis shows that 33.3% of CoTs are unreliable. [Source](https://arxiv.org/abs/2608.29583v1)
 - **LAVLA** (Interpretability · C): Layer-by-layer latent space clustering analysis of the GR00T N1.5 action decoder. [Source](https://arxiv.org/abs/2609.02634v1)
 
-### 5.3 Embodied VLA / mobile manipulation
+### 5.3 VLA and manipulation
 {: id="53-具身-vla--移动操作"}
 
 - **MINERVA** (small model · C): The 0.54M parameter strategy averages 95.1% over 2,000 rollouts of the four standard LIBERO suites, just 2.4 points below the reported LeRobot π0.5 result. [Source](https://arxiv.org/abs/2609.03715v1)
@@ -201,8 +209,8 @@ The relevance of each label: A is for direct research on ground navigation, B ha
 - **FWBC-VLA** (Force Sensing · C): Full-body force compensation for contact-intensive loco-manipulation. [Source](https://arxiv.org/abs/2609.03889v1)
 - **Scaling Bimanual Household Manipulation** (Dataset · C): Released 1,500 hours of dual-arm household manipulation demonstration and made in-policy corrections. [Source](https://arxiv.org/abs/2609.03591v1)
 
-### 5.4 UAVs, autonomous driving, and less relevant topics
-{: id="54-无人机自动驾驶与其他低相关方向"}
+### 5.4 UAVs and other
+{: id="54-无人机与其他"}
 
 - **MulDP** (Quadruped parkour navigation · C): The multi-modal diffusion policy generates navigation speed instructions and publishes the quadruped parkour navigation dataset QPND; no language instruction component. [Source](https://arxiv.org/abs/2609.03984v1)
 - **LaPla** (autonomous driving · C): latent space alignment planning, the long horizon L2 error on nuScenes is 15.52% lower than the SOTA VLA method. [Source](https://arxiv.org/abs/2609.04070v1)

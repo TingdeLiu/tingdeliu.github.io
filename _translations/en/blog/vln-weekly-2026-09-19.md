@@ -5,10 +5,10 @@ translation_id: vln-weekly-2026-09-19
 permalink: /en/vln-weekly-2026-09-19/
 source_path: _posts/weekly-reports/2026-09-19-VLN-Weekly.md
 source_url: /vln-weekly-2026-09-19/
-source_revision_date: 2026-09-27
-translation_updated: 2026-10-03
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "Embodied Navigation Weekly (2026-09-09 to 2026-09-17)"
-date: 2026-09-19
+date: 2026-10-24
 period_start: 2026-09-09
 period_end: 2026-09-17
 issue_number: 5
@@ -76,8 +76,10 @@ excerpt: "EgoPathBench tests first-person waypoint decisions in nine VLMs: Point
 ## 3. Analysis of highlighted work
 {: id="三重点工作分析"}
 
-### 1. EgoPathBench and GPT-6-Astra: foundation-model spatial ability and system performance
+### 1. EgoPathBench / GPT-6-Astra
 {: id="1-egopathbench-与-gpt-6-astra-对读基础模型的空间能力和导航系统的成绩是两件事"}
+
+**Foundation-model spatial ability and system performance.**
 
 It is easy to read these two articles separately, but the whole picture can be seen only when they are put together, so they are analyzed together.
 
@@ -93,8 +95,10 @@ It is easy to read these two articles separately, but the whole picture can be s
 
 **Recommendation.** EgoPathBench high-priority intensive reading and reproduction of fine-tuning experiments - it is the only work in this issue that provides evidence that "this ability is trainable". GPT-6-Astra can be used as a baseline tracking, but its reporting method of termination composition is worth copying.
 
-### 2. GroundingVLN: explicit grounding interfaces improve sample efficiency by an order of magnitude
+### 2. GroundingVLN
 {: id="2-groundingvln把-grounding-当接口而非中间产物样本效率出现量级差"}
+
+**Explicit grounding interfaces improve sample efficiency by an order of magnitude.**
 
 **Problem.** The paper states that there are two coupling gaps: intermediate reasoning is not explicitly anchored to visual evidence; and high-level decision-making lacks precise spatial targets to guide low-level movements.
 
@@ -108,8 +112,10 @@ It is easy to read these two articles separately, but the whole picture can be s
 
 **Recommendation.** High priority intensive reading. Focus on checking two things: whether the val-unseen corresponding to 69.9% is a complete set; how to define GEAR's execution alignment reward - this is a candidate answer for "inference-execution disconnect".
 
-### 3. C2Nav: comparative questions improve performance over absolute numerical answers
+### 3. C2Nav
 {: id="3-c2nav把-vlm-的回答形式从报数改成比较本身就是性能来源"}
+
+**Comparative questions improve performance over absolute numerical answers.**
 
 **Problem.** Existing zero-shot VLN-CE systems generally ask for cardinal output from the VLM—waypoints, pixels, orientations, progress values, or absolute arrival decisions, which directly couples generative answers to geometric magnitudes or irreversible commitments.
 
@@ -123,8 +129,10 @@ It is easy to read these two articles separately, but the whole picture can be s
 
 **Recommendation.** Read and reproduce the role reversal experiment. On your own system, change Arriving first (to stop the judgment), which will cost the least.
 
-### 4. Harness Robotic OS: complete real-robot results from an embodied-agent runtime
+### 4. Harness Robotic OS
 {: id="4-harness-robotic-os具身-agent-运行时第一次给出完整真机闭环数据"}
+
+**Complete real-robot results from an embodied-agent runtime.**
 
 **Problem.** The deployable autonomous inspection system requires not only robust navigation, but also the connection of heterogeneous sensors, reusable autonomous capabilities, multi-modal scene understanding, human–robot interaction and enterprise-side response in a traceable operational closed loop. The existing quadruped inspection system uses multi-purpose task-specific interfaces to put these functions together, making context coordination, knowledge reuse and controlled adaptation difficult.
 
@@ -138,8 +146,10 @@ It is easy to read these two articles separately, but the whole picture can be s
 
 **Recommendation.** Read the architecture part intensively, focusing on the division basis of three-layer memory and the safety-gate design of self-evolving loop. There is no need to replicate the entire system - its value lies in the way it is organized, not in the specific numbers.
 
-### 5. GLAM and Memory as Plans: a third route to spatial memory
+### 5. GLAM / Memory as Plans
 {: id="5-glam-与-memory-as-plans空间记忆的第三条路线"}
+
+**A third route to spatial memory.**
 
 **Problem.** Active exploration and semantic navigation require the agent to build memory from local observations, predict how the evolution of the observed spatial memory will support future movements, and convert the predictions into executable plans. Existing approaches either retain the original form of geometric features (high memory cost), or degenerate into topological maps with no predictive ability.
 
@@ -190,8 +200,8 @@ Only secondary-pool studies with clear transfer paths are included.
 ## 5. Research roundup by category
 {: id="五分类速览"}
 
-### 5.1 Ground-based VLN / ObjectNav / Semantic Navigation
-{: id="51-地面-vln--objectnav--语义导航"}
+### 5.1 VLN and ObjectNav
+{: id="51-vln-与-objectnav"}
 
 - **GroundingVLN** (R2R-CE/RxR-CE): See key analysis. [Source](https://arxiv.org/abs/2609.18581v1)
 - **C2Nav** (zero-shot VLN-CE): See key analysis. [Source](https://arxiv.org/abs/2609.15142v1)
@@ -207,8 +217,8 @@ Only secondary-pool studies with clear transfer paths are included.
 - **RoboFind** (Personalized Object Search (Barrier-free)): Mobile phone teaches target and quadruped execution search; teaching agent produces semantic target portrait and multi-view reference library for reuse in subsequent tasks. [Source](https://arxiv.org/abs/2609.20330v1)
 - **LEAP** (Quadruped Navigation + Active Perception): No change in task goals, no coverage/curiosity agent rewards, just the task pressure of the terrain course to make gaze control emerge spontaneously. [Source](https://arxiv.org/abs/2609.17628v1)
 
-### 5.2 Embodied agents / AgentOS (new coverage)
-{: id="52-具身-agent--agentos本期新覆盖方向"}
+### 5.2 Embodied agents
+{: id="52-具身-agent"}
 
 This direction has not been included in the crawling before. It is included in the system for the first time in this issue, so it is listed in a separate section. In addition to Harness Robotic OS, Finder, GLAM, and Memory as Plans analyzed above:
 
@@ -249,8 +259,8 @@ This direction has not been included in the crawling before. It is included in t
   - Evidence: The summary does not provide verifiable figures.
   - Relationship to terrestrial navigation: Upstream perception module of semantic maps.
 
-### 5.3 Memory, Maps, Planning and Evaluation
-{: id="53-记忆地图规划与评测"}
+### 5.3 Memory, planning and evaluation
+{: id="53-记忆规划与评测"}
 
 - **EgoPathBench** (waypoint decision evaluation): See key analysis. [Source](https://arxiv.org/abs/2609.16610v1)
 - **ENCP** (VLN uncertainty): Episode normalized conformal prediction, recovering progressive coverage guarantees for variable length dependent navigation sequences. [Source](https://arxiv.org/abs/2609.17499v1)
@@ -269,8 +279,8 @@ This direction has not been included in the crawling before. It is included in t
 - **Custom PX4 firmware** (Land-Air Amphibious): PX4 firmware customization for autonomous hybrid land-air missions. [Source](https://arxiv.org/abs/2609.20691v1)
 - **UAVs Meet Embodied Intelligence** (UAV embodied intelligence): bridging human intention and flight dynamics with physical-digital AI agents. [Source](https://arxiv.org/abs/2609.18326v1)
 
-### 5.4 Secondary-pool roundup: VLA/manipulation, autonomous driving, and other work
-{: id="54-次池速览vla操作--自动驾驶--其他"}
+### 5.4 Secondary pool
+{: id="54-次池速览"}
 
 There are a total of 162 windows in this issue, 41 of which are covered by the main pool above; the remaining 121 are classified into the secondary pool according to the "field" field and will not be analyzed in depth. The distribution is: VLA/manipulation 65 items, other 50 items, and autonomous driving 6 items.
 

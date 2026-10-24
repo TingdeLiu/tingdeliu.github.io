@@ -33,8 +33,10 @@ excerpt: "This issue adds 119 independent works, including 14 in the VLN track a
 ## 2. Deep reads
 {: id="deep-reads"}
 
-### 1. SimpleVLN: preserve the native architecture and jointly improve memory, data, and training
+### 1. SimpleVLN
 {: id="simplevln"}
+
+**Preserve the native architecture and jointly improve memory, data, and training.**
 
 **[Paper](https://arxiv.org/abs/2610.23203v1)** · Track: VLN · [My reading guide (Chinese)](https://tingdeliu.github.io/VLN-Papers/#simplevln) · Instruction following · R2R-CE / RxR-CE (continuous environments)
 
@@ -53,8 +55,10 @@ excerpt: "This issue adds 119 independent works, including 14 in the VLN track a
 
 **Next step.** Read closely: confirm evaluation splits, then separate memory, DAgger, and RL gains.
 
-### 2. CLOSER: turn stopping into active evidence acquisition
+### 2. CLOSER
 {: id="closer"}
+
+**Turn stopping into active evidence acquisition.**
 
 **[Paper](https://arxiv.org/abs/2610.28476v1)** · Track: VLN · ObjectNav · Gibson / Habitat-Matterport 3D
 
@@ -73,8 +77,10 @@ excerpt: "This issue adds 119 independent works, including 14 in the VLN track a
 
 **Next step.** Reproduce: compare single-view stopping, passive multi-view fusion, and active verification on false stops and SPL.
 
-### 3. PASS-VLN: the same instruction should yield different outcomes as robot width changes
+### 3. PASS-VLN
 {: id="pass-vln"}
+
+**The same instruction should yield different outcomes as robot width changes.**
 
 **[Paper](https://arxiv.org/abs/2610.22812v1)** · Track: VLN · Local language navigation · PASS-VLN
 
@@ -93,8 +99,10 @@ excerpt: "This issue adds 119 independent works, including 14 in the VLN track a
 
 **Next step.** Read closely: check stopping criteria for blocked passages and width boundaries under depth error.
 
-### 4. VeSTA: align training feedback with strict-contact execution
+### 4. VeSTA
 {: id="vesta"}
+
+**Align training feedback with strict-contact execution.**
 
 **[Paper](https://arxiv.org/abs/2610.25687v1)** · Track: VLN · Continuous VLN · Abstract names R2R / RxR without an explicit CE designation
 
@@ -113,8 +121,10 @@ excerpt: "This issue adds 119 independent works, including 14 in the VLN track a
 
 **Next step.** Read closely: confirm task versions, collision implementation, and hardware sample sizes before comparing SR and collisions.
 
-### 5. DialogMem: dialogue memory must link to objects that can be located
+### 5. DialogMem
 {: id="dialogmem"}
+
+**Dialogue memory must link to objects that can be located.**
 
 **[Paper](https://arxiv.org/abs/2610.24767v1)** · Track: embodied agentic navigation · Dialogue memory · Instance-level object navigation / question answering
 

@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-weekly-2026-10-24
 title: "具身导航周报（2026-10-15 ~ 2026-10-22）"
-date:   2026-10-24
+date: 2026-10-24
 permalink: /vln-weekly-2026-10-24/
 tags: [VLN, VLA, Embodied Navigation, Weekly Digest, arXiv]
 categories: weekly
@@ -26,8 +26,10 @@ excerpt: "本期新增 119 项独立工作，VLN 主线 14 篇、具身 Agentic 
 ## 二、精读
 {: id="deep-reads"}
 
-### 1. SimpleVLN：保留原生架构，联合优化记忆、数据与训练
+### 1. SimpleVLN
 {: id="simplevln"}
+
+**保留原生架构，联合优化记忆、数据与训练。**
 
 **[论文](https://arxiv.org/abs/2610.23203v1)** · 主线：VLN · [我的导读](https://tingdeliu.github.io/VLN-Papers/#simplevln) · 指令跟随 · R2R-CE / RxR-CE（连续环境）
 
@@ -46,8 +48,10 @@ excerpt: "本期新增 119 项独立工作，VLN 主线 14 篇、具身 Agentic 
 
 **下一步。** 精读：先核对评测划分，再分离记忆、DAgger 与 RL 各自的增益。
 
-### 2. CLOSER：把停止决策改成主动取证
+### 2. CLOSER
 {: id="closer"}
+
+**把停止决策改成主动取证。**
 
 **[论文](https://arxiv.org/abs/2610.28476v1)** · 主线：VLN · ObjectNav · Gibson / Habitat-Matterport 3D
 
@@ -66,8 +70,10 @@ excerpt: "本期新增 119 项独立工作，VLN 主线 14 篇、具身 Agentic 
 
 **下一步。** 复现：比较单帧停止、多视角被动融合与主动取证的错误停止率和 SPL。
 
-### 3. PASS-VLN：同一条指令，应随机器人宽度改变执行结果
+### 3. PASS-VLN
 {: id="pass-vln"}
+
+**同一条指令，应随机器人宽度改变执行结果。**
 
 **[论文](https://arxiv.org/abs/2610.22812v1)** · 主线：VLN · 局部语言导航 · PASS-VLN
 
@@ -86,8 +92,10 @@ excerpt: "本期新增 119 项独立工作，VLN 主线 14 篇、具身 Agentic 
 
 **下一步。** 精读：核对不可通过样本的停下标准，并测试深度误差下的宽度边界。
 
-### 4. VeSTA：让训练反馈与严格接触执行一致
+### 4. VeSTA
 {: id="vesta"}
+
+**让训练反馈与严格接触执行一致。**
 
 **[论文](https://arxiv.org/abs/2610.25687v1)** · 主线：VLN · 连续 VLN · 摘要写 R2R / RxR，未明确标为 CE
 
@@ -106,8 +114,10 @@ excerpt: "本期新增 119 项独立工作，VLN 主线 14 篇、具身 Agentic 
 
 **下一步。** 精读：确认任务版本、碰撞实现和真机实验规模，再比较 SR 与碰撞率。
 
-### 5. DialogMem：对话进入记忆后，还要绑定到可定位的对象
+### 5. DialogMem
 {: id="dialogmem"}
+
+**对话进入记忆后，还要绑定到可定位的对象。**
 
 **[论文](https://arxiv.org/abs/2610.24767v1)** · 主线：具身 Agentic 导航 · 对话记忆 · 实例级对象导航 / 问答
 

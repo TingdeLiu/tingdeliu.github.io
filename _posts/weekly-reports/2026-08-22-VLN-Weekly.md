@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-weekly-2026-08-22
 title: "具身导航周报（2026-08-13 ~ 2026-08-20）"
-date:   2026-08-22
+date: 2026-10-24
 permalink: /vln-weekly-2026-08-22/
 tags: [VLN, VLA, Embodied Navigation, Weekly Digest, arXiv]
 categories: weekly
@@ -56,7 +56,10 @@ excerpt: "本期 46 篇新增工作中导航为主仅 5 篇，R2R/RxR 榜单供�
 
 ## 三、重点工作分析
 
-### 1. Embodied-Navigator / TAMP-Nav：本期唯一给出 R2R-CE 数字的工作，路线是让 VLM 只做它擅长的 2D 选点
+### 1. Embodied-Navigator / TAMP-Nav
+{: id="1-embodied-navigator--tamp-nav本期唯一给出-r2r-ce-数字的工作路线是让-vlm-只做它擅长的-2d-选点"}
+
+**本期唯一给出 R2R-CE 数字的工作，路线是让 VLM 只做它擅长的 2D 选点。**
 
 **问题。** 摘要称现有方法把 VLM 塞进不自然的动作空间，与其 2D 预训练先验错位，同时推理调度僵硬、记忆管理低效。
 
@@ -70,7 +73,10 @@ excerpt: "本期 46 篇新增工作中导航为主仅 5 篇，R2R/RxR 榜单供�
 
 **建议。** 优先精读，重点看 R2R-CE 的对照表和 GRPO 过程奖励的具体设计；若要与自有结果对比，务必确认对方用的是 R2R-CE 划分而非离散 R2R。
 
-### 2. CondVLN：把选错分支从成功率里拆出来，是本期对评测口径冲击最大的工作
+### 2. CondVLN
+{: id="2-condvln把选错分支从成功率里拆出来是本期对评测口径冲击最大的工作"}
+
+**把选错分支从成功率里拆出来，是本期对评测口径冲击最大的工作。**
 
 **问题。** 摘要称现有 VLN 评测多为朝固定目标的路线式指令，而真实指令常带条件（若条件成立则走 A，否则走 B）；现有评测对分支执行缺乏控制，无法区分失败源自感知、接地、导航还是逻辑决策。
 
@@ -84,7 +90,10 @@ excerpt: "本期 46 篇新增工作中导航为主仅 5 篇，R2R/RxR 榜单供�
 
 **建议。** 建议精读并考虑纳入自有 benchmark 跟踪；重点看条件指令的生成模板与 Branch Selection Accuracy 的定义是否可直接移植。
 
-### 3. Graph-MambaNav：把 Graph-Mamba 的节点排序机制引入 ObjectNav
+### 3. Graph-MambaNav
+{: id="3-graph-mambanav把-graph-mamba-的节点排序机制引入-objectnav"}
+
+**把 Graph-Mamba 的节点排序机制引入 ObjectNav。**
 
 **问题。** 摘要称现有基于图的 ObjectNav 方法在特征或注意力层引入目标感知，但仍是置换不变的，缺乏显式控制信息传播顺序的机制，限制了对目标相关重要性和长程依赖的建模。
 
@@ -98,7 +107,10 @@ excerpt: "本期 46 篇新增工作中导航为主仅 5 篇，R2R/RxR 榜单供�
 
 **建议。** 中优先级跟踪，读全文时优先确认实验表中的绝对数值与基线选择。
 
-### 4. DevGRU：面向窄通道碰撞问题的轻量点目标导航模型
+### 4. DevGRU
+{: id="4-devgru面向窄通道碰撞问题的轻量点目标导航模型"}
+
+**面向窄通道碰撞问题的轻量点目标导航模型。**
 
 **问题。** 摘要称现有视觉导航基础模型在复杂室内环境（尤其结构化布局与窄通道）中易发生碰撞。
 
@@ -143,7 +155,7 @@ excerpt: "本期 46 篇新增工作中导航为主仅 5 篇，R2R/RxR 榜单供�
 
 每条标注相关度：A 为直接研究地面导航，B 有可迁移机制，C 仅作领域观察。
 
-### 5.1 地面 VLN / ObjectNav / 语义导航
+### 5.1 VLN 与 ObjectNav
 
 - **Embodied-Navigator / TAMP-Nav**（连续环境 VLN · A）：见重点分析。[原文](https://arxiv.org/abs/2608.17512v1)
 - **CondVLN**（VLN 条件分支评测 · A）：见重点分析。[原文](https://arxiv.org/abs/2608.17318v1)
@@ -151,7 +163,7 @@ excerpt: "本期 46 篇新增工作中导航为主仅 5 篇，R2R/RxR 榜单供�
 - **DevGRU**（点目标视觉导航 · A）：见重点分析。[原文](https://arxiv.org/abs/2608.18470v1)
 - **Exposing the Long-tail in Embodied Urban Navigation**（城市点目标导航 · A）：从野外第一视角视频自动标注度量轨迹与导航语义，训练可解释 VLA 规划策略并系统暴露长尾失败模式。[原文](https://arxiv.org/abs/2608.16476v1)
 
-### 5.2 记忆、地图、规划与评测
+### 5.2 记忆、规划与评测
 
 - **RP1**（可学习规划器 · B）：见可迁移方法。[原文](https://arxiv.org/abs/2608.18669v1)
 - **Remember Smarter**（长程记忆压缩 · B）：见可迁移方法。[原文](https://arxiv.org/abs/2608.15269v1)
@@ -191,7 +203,7 @@ excerpt: "本期 46 篇新增工作中导航为主仅 5 篇，R2R/RxR 榜单供�
 - **OrthoSkillVLA**（持续学习 · C）：梯度引导的技能子空间适配。[原文](https://arxiv.org/abs/2608.19589v1)
 - **Bit-Flip Attacks on VLA**（安全性 · C）：动作解码架构影响位翻转攻击脆弱性。[原文](https://arxiv.org/abs/2608.15475v1)
 
-### 5.4 无人机、自动驾驶与其他低相关方向
+### 5.4 无人机与其他
 
 - **BrainWAM**（自动驾驶 · C）：语义先验与预测动力学的动作空间协调。[原文](https://arxiv.org/abs/2608.12854v2)
 - **Planning-Oriented End-to-End Autonomous Driving**（自动驾驶综述 · C）：架构、评测与新兴范式梳理。[原文](https://arxiv.org/abs/2608.20111v1)

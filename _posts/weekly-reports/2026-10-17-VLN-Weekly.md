@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-weekly-2026-10-17
 title: "具身导航周报（2026-10-08 ~ 2026-10-15）"
-date:   2026-10-17
+date: 2026-10-24
 permalink: /vln-weekly-2026-10-17/
 tags: [VLN, VLA, Embodied Navigation, Weekly Digest, arXiv]
 categories: weekly
@@ -62,8 +62,10 @@ excerpt: "本期新增 175 篇独立工作，自动主池 64 篇，5 篇涉及 R
 ## 三、重点工作分析
 {: id="deep-analysis"}
 
-### 1. VLN-Safe：先明确碰撞如何改变动作
+### 1. VLN-Safe
 {: id="vln-safe"}
+
+**先明确碰撞如何改变动作。**
 
 **问题。** 到达终点不等于没有碰撞；sliding 允许碰撞后继续沿障碍物移动，可能掩盖危险动作的后果。
 
@@ -77,8 +79,10 @@ excerpt: "本期新增 175 篇独立工作，自动主池 64 篇，5 篇涉及 R
 
 **建议。** 固定策略和轨迹集合，比较两种碰撞机制，记录无碰撞成功率、干预次数与额外路程。
 
-### 2. GuidedNav：把任务进度和几何监督留在训练阶段
+### 2. GuidedNav
 {: id="guidednav"}
+
+**把任务进度和几何监督留在训练阶段。**
 
 **问题。** 只用动作标签训练，模型可能学到动作相关性，却没有可靠识别当前指令片段及其地标。
 
@@ -92,8 +96,10 @@ excerpt: "本期新增 175 篇独立工作，自动主池 64 篇，5 篇涉及 R
 
 **建议。** 在固定骨干和数据量下，分别消融子任务、地标与空间监督，并单独测量闭环延迟。
 
-### 3. RSI-Nav：数据生成器必须跟上被训练的策略
+### 3. RSI-Nav
 {: id="rsi-nav"}
+
+**数据生成器必须跟上被训练的策略。**
 
 **问题。** 用固定模型一次性标注全部轨迹，生成指令可能逐渐偏离更新后的导航策略能力。
 
@@ -107,8 +113,10 @@ excerpt: "本期新增 175 篇独立工作，自动主池 64 篇，5 篇涉及 R
 
 **建议。** 固定轨迹预算，比较一次性标注与逐批更新，并测量长指令、困难路线和指令多样性的变化。
 
-### 4. MemoryVLN：压缩历史之后仍需保留空间来源
+### 4. MemoryVLN
 {: id="memoryvln"}
+
+**压缩历史之后仍需保留空间来源。**
 
 **问题。** 长历史同时受到上下文预算、冗余观测与跨时间空间对齐不稳定的影响。
 
@@ -122,8 +130,10 @@ excerpt: "本期新增 175 篇独立工作，自动主池 64 篇，5 篇涉及 R
 
 **建议。** 区分单次任务内记忆与跨任务记忆；固定 token 预算，比较压缩、空间锚定和写回机制。
 
-### 5. I2O2I-Nav：原子导航能力并不能保证完整任务
+### 5. I2O2I-Nav
 {: id="i2o2i-nav"}
+
+**原子导航能力并不能保证完整任务。**
 
 **问题。** 独立评测每个阶段，忽略了不理想终点、阶段切换与错误完成判断的累积。
 
@@ -151,7 +161,7 @@ excerpt: "本期新增 175 篇独立工作，自动主池 64 篇，5 篇涉及 R
 
 A 表示直接地面导航相关；B 表示有明确可迁移机制；C 表示领域观察或低相关工作。分类是阅读用途，不替换资料库的自动领域标签。重点工作不重复展开；次池按主题合并列出链接。
 
-### 5.1 地面 VLN / ObjectNav / 语义导航
+### 5.1 VLN 与 ObjectNav
 {: id="ground-navigation"}
 
 - **[Two-Stage Multi-modal Learning for Dynamic Audio-Visual Navigation](https://arxiv.org/abs/2610.14077v1)**（A）：动态音视导航：以声强—几何对齐提高未见声音泛化。
@@ -189,7 +199,7 @@ A 表示直接地面导航相关；B 表示有明确可迁移机制；C 表示�
 - **[Training-Free Target-Aware Refinement of 3D Gaussian Language Map](https://arxiv.org/abs/2610.21619v1)**（A）：在已有语言地图中最小量注入目标先验，同时抑制查询无关的偏置。
 - **[VP-EVT](https://arxiv.org/abs/2610.21999v1)**（A）：将目标可见性设为运动目标，主动绕开持续遮挡。
 
-### 5.2 记忆、地图、规划与评测
+### 5.2 记忆、规划与评测
 {: id="memory-planning"}
 
 - **[HorizonNav](https://arxiv.org/abs/2610.13849v1)**（B）：由生成视频重建可规划空间；想象场景可规划不代表现实可通行。
@@ -238,7 +248,7 @@ A 表示直接地面导航相关；B 表示有明确可迁移机制；C 表示�
 - **精细操作、多模态与本体控制（C）**：[KODA](https://arxiv.org/abs/2610.21152v1)。
 - **推理压缩、动作块与验证（C）**：[Accelerating VLA Inference with Perturbation Informed Execution](https://arxiv.org/abs/2610.19656v2)、[Fast-VLA — You Only Think Once](https://arxiv.org/abs/2610.21389v1)、[FastVLA — Adaptive Visual Token Compression](https://arxiv.org/abs/2610.22146v1)、[Policy-Aligned Predictive Verification for Adaptive VLA Action-Chunk Execution](https://arxiv.org/abs/2610.21434v1)、[VeriVLA](https://arxiv.org/abs/2610.21985v1)、[When to Ask for Help](https://arxiv.org/abs/2610.21160v1)。
 
-### 5.4 无人机、自动驾驶与其他低相关方向
+### 5.4 无人机与其他
 {: id="lower-relevance"}
 
 - **空中导航与交互（C）**：[Verifier-Mediated Multi-LLM Coordination for Multi-Robot Path Planning](https://arxiv.org/abs/2610.12761v1)、[BGC-Nav](https://arxiv.org/abs/2610.14702v1)、[ClearNav](https://arxiv.org/abs/2610.17419v1)、[Benchmarking Interaction-Oriented Aerial Mobility across Heterogeneous Environments](https://arxiv.org/abs/2610.18381v1)、[Towards bio-inspired visual navigation](https://arxiv.org/abs/2610.21978v1)、[X-Fly](https://arxiv.org/abs/2610.21450v1)。

@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-weekly-2026-09-27
 title: "具身导航周报（2026-09-16 ~ 2026-09-24）"
-date:   2026-09-27
+date: 2026-10-24
 permalink: /vln-weekly-2026-09-27/
 tags: [VLN, VLA, Embodied Navigation, Embodied Agent, Weekly Digest, arXiv]
 categories: weekly
@@ -58,7 +58,10 @@ excerpt: "R2R-CE 零样本出现 79.0% SR 的新声明（GPT-6-Astra，Codex har
 
 ## 三、重点工作分析
 
-### 1. GPT-6-Astra 两篇对读：79.0% 与 52.0% 之间，没有一个变量是被控制的
+### 1. GPT-6-Astra 对读
+{: id="1-gpt-6-astra-两篇对读790-与-520-之间没有一个变量是被控制的"}
+
+**79.0% 与 52.0% 之间，没有一个变量是被控制的。**
 
 **问题。** 通用基础模型不加任何导航专用组件，能否完成连续环境 VLN。上期那篇（[How Far Can GPT-6-Astra Go?](https://arxiv.org/abs/2609.20116v2)，原题 GPT-6-Astra in a Navigation Workflow，本期以改题后的 v2 重新出现，不计入新增）已经暴露出：局部判断正确，不等于能持续推进并在正确位置停下。
 
@@ -77,7 +80,10 @@ excerpt: "R2R-CE 零样本出现 79.0% SR 的新声明（GPT-6-Astra，Codex har
 
 **建议。** 精读正文，确认 episode 集合、各推理档位的 SR 与成本、成功是否要求主动 STOP；若日志公开，统计失败 episode 中「未停 / 错停 / 偏航」的构成。在核验前，不要把 79.0% 放进与训练式方法的横向对比。
 
-### 2. SparseNav：少感知一点，反而是更可复现的零样本路线
+### 2. SparseNav
+{: id="2-sparsenav少感知一点反而是更可复现的零样本路线"}
+
+**少感知一点，反而是更可复现的零样本路线。**
 
 **问题。** 基于地图的 VLN 若对所有可见物体都做语义标注，既增加感知开销，又会用无关物体淹没 VLM 规划器读到的空间表征。
 
@@ -91,7 +97,10 @@ excerpt: "R2R-CE 零样本出现 79.0% SR 的新声明（GPT-6-Astra，Codex har
 
 **建议。** 复现指令条件化的感知触发模块，测量感知调用次数与延迟的实际下降；在同一 episode 集上与稠密语义地图基线做对照。
 
-### 3. Talk2Escape：检测器比对话更值得带走
+### 3. Talk2Escape
+{: id="3-talk2escape检测器比对话更值得带走"}
+
+**检测器比对话更值得带走。**
 
 **问题。** 单轮 VLN 是开环执行：感知混叠、传感噪声、里程计漂移带来的小偏差持续累积，最终任务失败，而系统没有内建的恢复机制。
 
@@ -105,7 +114,10 @@ excerpt: "R2R-CE 零样本出现 79.0% SR 的新声明（GPT-6-Astra，Codex har
 
 **建议。** 读正文确认提问频次与 oracle 的具体设定；把检测器接到自有系统，做成不接人工的「自纠错」版本，量化没有外部反馈时的净收益。
 
-### 4. VNT-PA：让注意力看位姿差，而不是看时间顺序
+### 4. VNT-PA
+{: id="4-vnt-pa让注意力看位姿差而不是看时间顺序"}
+
+**让注意力看位姿差，而不是看时间顺序。**
 
 **问题。** 学习式导航策略按时间顺序编码观测历史，很难复用先前遍历同一环境时的经验；能复用经验的系统通常要先显式建图或建拓扑图，再在上面规划。
 
@@ -119,7 +131,10 @@ excerpt: "R2R-CE 零样本出现 79.0% SR 的新声明（GPT-6-Astra，Codex har
 
 **建议。** 精读关键帧上下文的构造方式；在 VLN 系统里把「已访问区域记忆」换成位姿索引的关键帧集合，做小规模验证。
 
-### 5. AdaHVLA：本期唯一给出导航侧数字的 harness 工作
+### 5. AdaHVLA
+{: id="5-adahvla本期唯一给出导航侧数字的-harness-工作"}
+
+**本期唯一给出导航侧数字的 harness 工作。**
 
 **问题。** VLA 擅长局部控制与指令跟随，但长程任务需要持久记忆与规划；task harness 能保留历史、跟踪阶段进度，难点在于让两者对齐。
 
@@ -170,7 +185,7 @@ excerpt: "R2R-CE 零样本出现 79.0% SR 的新声明（GPT-6-Astra，Codex har
 
 每条标注相关度：A 为直接研究地面导航，B 有可迁移机制，C 仅作领域观察。
 
-### 5.1 地面 VLN / ObjectNav / 语义导航
+### 5.1 VLN 与 ObjectNav
 
 - **GPT-6-Astra Lights Up**（零样本 VLN-CE · A）：见重点分析。[原文](https://arxiv.org/abs/2609.29861v1)
 - **How Far Can GPT-6-Astra Go?**（零样本 VLN-CE · A）：上期已分析的 v1 改题后的 v2，不计入本期新增；见重点分析。[原文](https://arxiv.org/abs/2609.20116v2)
@@ -223,7 +238,7 @@ excerpt: "R2R-CE 零样本出现 79.0% SR 的新声明（GPT-6-Astra，Codex har
 - **AquaWorld**（水下世界生成 · C）：共享地形结构的一致性随机化；同预算策略训练验证成功率高 21%，仿真训练的视觉导航策略在实体水槽中成功 95%。[原文](https://arxiv.org/abs/2609.22670v1)
 - **PhysAI-Bench**（无人机 agent 决策基准 · C）：10,178 个决策实例，含 MCP 工具调用、A2A 交互与 6G 网络状态；29 个模型中 GPT-5.3 准确率最高，为 52.00%。[原文](https://arxiv.org/abs/2609.23695v1)
 
-### 5.5 次池速览（VLA·操作 / 自动驾驶 / 其他）
+### 5.5 次池速览
 
 次池共 84 篇（VLA·操作 81 篇，另 1 篇 AdaHVLA 因有导航侧数字移入 5.2；「其他」3 篇），不做深度分析。有迁移价值的已列入第四节。按主题归组如下：
 

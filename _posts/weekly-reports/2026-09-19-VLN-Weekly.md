@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-weekly-2026-09-19
 title: "具身导航周报（2026-09-09 ~ 2026-09-17）"
-date:   2026-09-19
+date: 2026-10-24
 permalink: /vln-weekly-2026-09-19/
 tags: [VLN, VLA, Embodied Navigation, Embodied Agent, Weekly Digest, arXiv]
 categories: weekly
@@ -66,7 +66,10 @@ excerpt: "本期最值得注意的是一组对照：EgoPathBench 测九个 VLM �
 
 ## 三、重点工作分析
 
-### 1. EgoPathBench 与 GPT-6-Astra 对读：基础模型的空间能力，和导航系统的成绩，是两件事
+### 1. EgoPathBench / GPT-6-Astra
+{: id="1-egopathbench-与-gpt-6-astra-对读基础模型的空间能力和导航系统的成绩是两件事"}
+
+**基础模型的空间能力，和导航系统的成绩，是两件事。**
 
 这两篇单独看都容易读偏，放在一起才见全貌，故合并分析。
 
@@ -82,7 +85,10 @@ excerpt: "本期最值得注意的是一组对照：EgoPathBench 测九个 VLM �
 
 **建议。** EgoPathBench 高优先级精读并复现微调实验——它是本期唯一给出「这项能力可训」证据的工作。GPT-6-Astra 作为基线跟踪即可，但其终止构成的报告方式值得照搬。
 
-### 2. GroundingVLN：把 grounding 当接口而非中间产物，样本效率出现量级差
+### 2. GroundingVLN
+{: id="2-groundingvln把-grounding-当接口而非中间产物样本效率出现量级差"}
+
+**把 grounding 当接口而非中间产物，样本效率出现量级差。**
 
 **问题。** 论文称存在两个耦合缺口：中间推理未显式锚定到视觉证据；高层决策缺少精确空间目标来指导底层运动。
 
@@ -96,7 +102,10 @@ excerpt: "本期最值得注意的是一组对照：EgoPathBench 测九个 VLM �
 
 **建议。** 高优先级精读。重点核验两件事：69.9% 对应的 val-unseen 是否为完整集；GEAR 的执行对齐奖励如何定义——这是「推理-执行脱节」的候选答案。
 
-### 3. C2Nav：把 VLM 的回答形式从「报数」改成「比较」，本身就是性能来源
+### 3. C2Nav
+{: id="3-c2nav把-vlm-的回答形式从报数改成比较本身就是性能来源"}
+
+**把 VLM 的回答形式从「报数」改成「比较」，本身就是性能来源。**
 
 **问题。** 现有零样本 VLN-CE 系统普遍向 VLM 索要基数型输出——路径点、像素、朝向、进度值或绝对到达判定，这把生成式回答直接耦合到几何量级或不可逆承诺上。
 
@@ -110,7 +119,10 @@ excerpt: "本期最值得注意的是一组对照：EgoPathBench 测九个 VLM �
 
 **建议。** 精读并复现角色反转实验。在自有系统上先改 Arriving 一处（停止判定），代价最小。
 
-### 4. Harness Robotic OS：具身 Agent 运行时第一次给出完整真机闭环数据
+### 4. Harness Robotic OS
+{: id="4-harness-robotic-os具身-agent-运行时第一次给出完整真机闭环数据"}
+
+**具身 Agent 运行时第一次给出完整真机闭环数据。**
 
 **问题。** 可部署的自主巡检系统需要的不只是稳健导航，还要在一个可追溯的运行闭环里连接异构传感、可复用自主能力、多模态场景理解、人机交互与企业侧响应。现有四足巡检系统多用任务专用接口把这些功能拼起来，导致上下文协调、知识复用和受控适配都很困难。
 
@@ -124,7 +136,10 @@ excerpt: "本期最值得注意的是一组对照：EgoPathBench 测九个 VLM �
 
 **建议。** 精读架构部分，重点是三层记忆的划分依据与自演化回路的安全门设计。不必复现整套系统——它的价值在架构组织方式，不在具体数字。
 
-### 5. GLAM 与 Memory as Plans：空间记忆的第三条路线
+### 5. GLAM / Memory as Plans
+{: id="5-glam-与-memory-as-plans空间记忆的第三条路线"}
+
+**空间记忆的第三条路线。**
 
 **问题。** 主动探索与语义导航要求智能体从局部观测建立记忆，预测已观测空间记忆的演化如何支撑未来运动，并把预测转成可执行计划。既有做法要么保留几何特征的原始形态（内存代价高），要么退化成无预测能力的拓扑图。
 
@@ -173,7 +188,7 @@ excerpt: "本期最值得注意的是一组对照：EgoPathBench 测九个 VLM �
 
 ## 五、分类速览
 
-### 5.1 地面 VLN / ObjectNav / 语义导航
+### 5.1 VLN 与 ObjectNav
 
 - **GroundingVLN**（R2R-CE / RxR-CE）：见重点分析。[原文](https://arxiv.org/abs/2609.18581v1)
 - **C2Nav**（零样本 VLN-CE）：见重点分析。[原文](https://arxiv.org/abs/2609.15142v1)
@@ -189,7 +204,7 @@ excerpt: "本期最值得注意的是一组对照：EgoPathBench 测九个 VLM �
 - **RoboFind**（个性化物体搜索（无障碍））：手机教目标、四足执行搜索；教学 agent 产出语义目标画像与多视角参考库，供后续任务复用。[原文](https://arxiv.org/abs/2609.20330v1)
 - **LEAP**（四足导航 + 主动感知）：不改任务目标、不加覆盖率/好奇心代理奖励，仅靠地形课程的任务压力使注视控制自发涌现。[原文](https://arxiv.org/abs/2609.17628v1)
 
-### 5.2 具身 Agent / AgentOS（本期新覆盖方向）
+### 5.2 具身 Agent
 
 本方向此前未纳入抓取，本期首次系统收录，故单列一节。除上文已分析的 Harness Robotic OS、Finder、GLAM、Memory as Plans 外：
 
@@ -230,7 +245,7 @@ excerpt: "本期最值得注意的是一组对照：EgoPathBench 测九个 VLM �
   - 证据：摘要未提供可核验数字。
   - 与地面导航的关系：语义地图的上游感知模块。
 
-### 5.3 记忆、地图、规划与评测
+### 5.3 记忆、规划与评测
 
 - **EgoPathBench**（航点决策评测）：见重点分析。[原文](https://arxiv.org/abs/2609.16610v1)
 - **ENCP**（VLN 不确定性）：Episode 归一化共形预测，为变长依赖导航序列恢复逐步覆盖保证。[原文](https://arxiv.org/abs/2609.17499v1)
@@ -249,7 +264,7 @@ excerpt: "本期最值得注意的是一组对照：EgoPathBench 测九个 VLM �
 - **Custom PX4 firmware**（陆空两栖）：面向自主陆空混合任务的 PX4 固件定制。[原文](https://arxiv.org/abs/2609.20691v1)
 - **UAVs Meet Embodied Intelligence**（无人机具身智能）：用物理-数字 AI 智能体桥接人类意图与飞行动力学。[原文](https://arxiv.org/abs/2609.18326v1)
 
-### 5.4 次池速览（VLA·操作 / 自动驾驶 / 其他）
+### 5.4 次池速览
 
 本期窗口共 162 条，主池 41 条已在上文覆盖；其余 121 条按「领域」字段归入次池，不做深度分析。分布为：VLA·操作 65 条、其他 50 条、自动驾驶 6 条。
 

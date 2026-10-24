@@ -5,10 +5,10 @@ translation_id: vln-weekly-2026-08-30
 permalink: /en/vln-weekly-2026-08-30/
 source_path: _posts/weekly-reports/2026-08-30-VLN-Weekly.md
 source_url: /vln-weekly-2026-08-30/
-source_revision_date: 2026-09-27
-translation_updated: 2026-10-03
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "Embodied Navigation Weekly (2026-08-20 to 2026-08-29)"
-date: 2026-08-30
+date: 2026-10-24
 period_start: 2026-08-20
 period_end: 2026-08-29
 issue_number: 2
@@ -67,8 +67,10 @@ excerpt: "Of 53 new entries, only VTInstructor reports continuous-environment re
 ## 3. Analysis of highlighted work
 {: id="三重点工作分析"}
 
-### 1. VTInstructor: continuous-environment results from the speaker, not the follower
+### 1. VTInstructor
 {: id="1-vtinstructor本期唯一的连续环境数字来自-speaker-而非跟随器"}
+
+**Continuous-environment results from the speaker, not the follower.**
 
 **Problem.** The mainstream solutions for navigation instruction generation (panoramic speaker, knowledge enhancement, 3D enhancement) are all based on discrete viewpoint topology maps, and the path direction and corners are explicitly visible. In continuous environments such as R2R-CE/RxR-CE, robots only have dense first-person RGB streams, and trajectory geometry information is hidden in subtle changes between frames. Speakers trained on discrete graphs cannot be directly transferred.
 
@@ -82,8 +84,10 @@ excerpt: "Of 53 new entries, only VTInstructor reports continuous-environment re
 
 **Recommendation.** Read the original text carefully and check the Val Unseen division of R2R-CE / RxR-CE and the CIDEr calculation caliber; if you build your own data pipeline, give priority to the two modules of EDTC and VTP - they are decoupled from the subsequent RL part and can be independently connected to the existing Speaker.
 
-### 2. RTNav: including wall-clock time reveals degradation in zero-shot ObjectNav
+### 2. RTNav
 {: id="2-rtnav把-wall-clock-时间放进任务预算既有零样本-objectnav-方法普遍掉点"}
+
+**Including wall-clock time reveals degradation in zero-shot ObjectNav.**
 
 **Problem.** The mainstream zero-shot goal navigation method is developed in a synchronous simulator - the environment waits for the agent's actions, and the inference time is equal to free. Therefore, the architecture was designed to execute sequentially "perception → reasoning → action" without considering time constraints at all. Once switched to continuous running in the real world, the reasoning delay of the visual language foundation model cannot be ignored.
 
@@ -97,8 +101,10 @@ excerpt: "Of 53 new entries, only VTInstructor reports continuous-environment re
 
 **Recommendation.** Read and evaluate the cost of porting the "real-time variant" construction method to R2R-CE; if the team already has a real robot navigation stack, it can give priority to reusing its Success weighted by Completion Time indicator definition.
 
-### 3. WILD-Nav: turning street-view videos into supervision and locating reasoning failures
+### 3. WILD-Nav
 {: id="3-wild-nav把互联网街拍视频变成导航监督并把失败归因到具体推理环节"}
+
+**Turning street-view videos into supervision and locating reasoning failures.**
 
 **Problem.** Urban outdoor navigation training relies on simulation data (with a simulation-reality gap and artificially preset scenes) or manual remote control collection (high cost and limited scale), both of which are difficult to cover rare but safety-critical long-tail scenarios. The average indicators look good and cover up the model's flaws in a few dangerous scenarios.
 
@@ -112,8 +118,10 @@ excerpt: "Of 53 new entries, only VTInstructor reports continuous-environment re
 
 **Recommendation.** tracks the openness of the dataset and code; even if its data is not used, the evaluation habit of "attributing failure cases to the perception/prediction/planning link" is worthy of introducing its own experimental report.
 
-### 4. Latent World Model: learning navigation without action labels through latent-feature compatibility
+### 4. Latent World Model
 {: id="4-latent-world-model用潜特征兼容性替代观测重建免动作标注学导航策略"}
+
+**Learning navigation without action labels through latent-feature compatibility.**
 
 **Problem.** Existing navigation world models mainly reconstruct future observations or features, introducing complexity that is not necessary for decision-making - the ability to render pixels and "does this action get me closer to my goal" are two different things.
 
@@ -127,8 +135,10 @@ excerpt: "Of 53 new entries, only VTInstructor reports continuous-environment re
 
 **Recommendation.** Read carefully and focus on checking the failure analysis of its latent space similarity hypothesis; if it is established, it is worth testing its unlabeled supervision process on its own real robot video.
 
-### 5. UrbanGround: atomic capabilities do not ensure sustained goal-directed behavior
+### 5. UrbanGround
 {: id="5-urbanground城市尺度上原子能力不等于持续目标导向行为的系统性证据"}
+
+**Atomic capabilities do not ensure sustained goal-directed behavior.**
 
 **Problem.** MLLM can understand a street view, but once the agent starts moving, is the local evidence still useful? Existing reviews mostly focus on static visual Q&A and cannot answer this question.
 
@@ -195,8 +205,8 @@ excerpt: "Of 53 new entries, only VTInstructor reports continuous-environment re
 
 The relevance of each label: A is for direct research on ground navigation, B has a transferable mechanism, and C is only for field observation.
 
-### 5.1 Ground-based VLN / ObjectNav / Semantic Navigation
-{: id="51-地面-vln--objectnav--语义导航"}
+### 5.1 VLN and ObjectNav
+{: id="51-vln-与-objectnav"}
 
 - **VTInstructor** (continuous environment instruction generation · A): See key analysis. [Source](https://arxiv.org/abs/2608.15284)
 - **RTNav** (real-time zero-shot goal navigation · A): See key analysis. [Source](https://arxiv.org/abs/2608.26496v1)
@@ -207,8 +217,8 @@ The relevance of each label: A is for direct research on ground navigation, B ha
 - **PDPO** (Robot Crowd Navigation · B): Offline to online planning diffusion policy optimization, using short-range planning to replace single-step reactive actions to express multi-modal avoidance; no language component. [Source](https://arxiv.org/abs/2608.27158v1)
 - **TAMP-Nav / Embodied-Navigator** (continuous environment VLN · A): Key analysis has been done in the previous issue. This issue is the interpretation of WeChat public account and is not counted as new work. [Source](https://arxiv.org/abs/2608.17512)
 
-### 5.2 Memory, Maps, Planning and Evaluation
-{: id="52-记忆地图规划与评测"}
+### 5.2 Memory, planning and evaluation
+{: id="52-记忆规划与评测"}
 
 - **UniMem** (Unified Memory and Control · B): See Migration Methods. [Source](https://arxiv.org/abs/2608.22869v1)
 - **PonderPounce** (MLLM for plot memory · B): See transferable method. [Source](https://arxiv.org/abs/2608.24115v1)
@@ -222,7 +232,7 @@ The relevance of each label: A is for direct research on ground navigation, B ha
 - **Hierarchical Skill Retrieval** (Hierarchical Skill Retrieval · C): Hierarchical skill retrieval for few-sample adaptation, replacing retrieval that only relies on visual similarity. [Source](https://arxiv.org/abs/2608.24042v1)
 - **RA-VLA** (test-time retrieval enhancement · C): Retrieval enhancement test-time adaptation for new task distributions alleviates the adaptation bottleneck of context imitation learning. [Source](https://arxiv.org/abs/2608.25585v1)
 
-### 5.3 Embodied VLA / mobile manipulation
+### 5.3 VLA and manipulation
 {: id="53-具身-vla--移动操作"}
 
 - **GaussianDream++** (3D Gaussian World Modeling · B): See transferable method. [Source](https://arxiv.org/abs/2608.25659v1)
@@ -251,8 +261,8 @@ The relevance of each label: A is for direct research on ground navigation, B ha
 - **EndoLIFT** (bidirectional endoscope control · C): Formalize the bidirectional control ambiguity of "almost the same observation requires opposite axial actions" and solve it using the latent condition rectification flow of language disambiguation. [Source](https://arxiv.org/abs/2608.20478v1)
 - **Multi-modal speculative decoding research** (Inference acceleration review · C): A review and empirical diagnosis of diffusion-based parallel draft speculative decoding. [Source](https://arxiv.org/abs/2608.20743v1)
 
-### 5.4 UAVs, autonomous driving, and less relevant topics
-{: id="54-无人机自动驾驶与其他低相关方向"}
+### 5.4 UAVs and other
+{: id="54-无人机与其他"}
 
 - **RACO** (UAV inspection VLN · B): See migration methods. [Source](https://arxiv.org/abs/2608.22678v1)
 - **Logic-VLA** (quadcopter sequential logic constraints · B): See transferable method. [Source](https://arxiv.org/abs/2608.20556v1)

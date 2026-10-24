@@ -5,10 +5,10 @@ translation_id: vln-weekly-2026-10-05
 permalink: /en/vln-weekly-2026-10-05/
 source_path: _posts/weekly-reports/2026-10-05-VLN-Weekly.md
 source_url: /vln-weekly-2026-10-05/
-source_revision_date: 2026-10-05
-translation_updated: 2026-10-05
+source_revision_date: 2026-10-24
+translation_updated: 2026-10-24
 title: "Embodied Navigation Weekly (2026-09-25 to 2026-10-02)"
-date: 2026-10-05
+date: 2026-10-24
 period_start: 2026-09-25
 period_end: 2026-10-02
 issue_number: 7
@@ -70,8 +70,10 @@ This collection added 242 records corresponding to 242 independent arXiv works, 
 ## 3. Analysis of key works
 {: id="key-work-analysis"}
 
-### 1. EdgeVLN: evaluate quantization together with execution paths and stopping
+### 1. EdgeVLN
 {: id="edgevln"}
+
+**Evaluate quantization together with execution paths and stopping.**
 
 **Problem.** A smaller model can still be undeployable because of memory transfers, growing history, and stopping errors.
 
@@ -85,8 +87,10 @@ This collection added 242 records corresponding to 242 independent arXiv works, 
 
 **Recommendation.** Replicate the four-bit execution paths and stopping head, recording SR, SPL, stopping errors, memory, per-step latency, and energy consistently.
 
-### 2. SeekVLN: active observation must improve subsequent actions
+### 2. SeekVLN
 {: id="seekvln"}
+
+**Active observation must improve subsequent actions.**
 
 **Problem.** A robot may confidently move before seeing a turning landmark, carrying an incorrect progress estimate into later decisions.
 
@@ -100,8 +104,10 @@ This collection added 242 records corresponding to 242 independent arXiv works, 
 
 **Recommendation.** Compare fixed observation, confidence-triggered observation, and counterfactual training on the same policy, including head turns, pauses, and total elapsed time.
 
-### 3. PACE: correct plans still need spatially grounded local execution
+### 3. PACE
 {: id="pace"}
+
+**Correct plans still need spatially grounded local execution.**
 
 **Problem.** Reaching stairs or a doorway does not guarantee passage; high-level semantic goals lack executable pose and path conditions.
 
@@ -115,8 +121,10 @@ This collection added 242 records corresponding to 242 independent arXiv works, 
 
 **Recommendation.** Replicate transition regions separately, distinguish goal localization, passage failures, and recovery after deviations, and retain a purely geometric execution baseline.
 
-### 4. AVERT-VLN: human-assisted SR alone cannot establish a monitor's value
+### 4. AVERT-VLN
 {: id="avert-vln"}
+
+**Human-assisted SR alone cannot establish a monitor's value.**
 
 **Problem.** A controller may continue incorrect execution after departing the route, while constant human supervision is difficult to scale.
 
@@ -130,8 +138,10 @@ This collection added 242 records corresponding to 242 independent arXiv works, 
 
 **Recommendation.** Fix human minutes or correction counts and compare random help requests, policy confidence, and independent monitoring. Report false positives, missed detections, and recovery success.
 
-### 5. Lifelong-navigation NavHarness: separate subtask and whole-episode success
+### 5. NavHarness
 {: id="lifelong-navharness"}
+
+**Separate subtask and whole-episode success.**
 
 **Problem.** Cross-task reuse encounters incomplete maps, conflicts between old records and new observations, and state loss when restarting after failure.
 
@@ -170,7 +180,7 @@ This collection added 242 records corresponding to 242 independent arXiv works, 
 
 A denotes direct ground language/semantic navigation, B a clear transferable mechanism from a different task, and C low-relevance observations. This overview covers all 242 independent works. Automatic pool assignment is distinct from research relevance: primary-pool boundary cases appear under their actual low-relevance tasks, while secondary-pool works are indexed by theme.
 
-### 5.1 Ground VLN / ObjectNav / language and semantic navigation
+### 5.1 VLN and ObjectNav
 {: id="ground-navigation"}
 
 - **[PACE](https://arxiv.org/abs/2609.32292v2)** (A): Traversable-pose execution across floors; see the detailed analysis.
@@ -196,7 +206,7 @@ A denotes direct ground language/semantic navigation, B a clear transferable mec
 - **[UniTrackPLA](https://arxiv.org/abs/2610.00878v1)** (A): Unifies language navigation and dynamic person tracking through panoramic spatiotemporal encoding and future-consistency checks.
 - **[GeoScaffold](https://arxiv.org/abs/2610.02697v1)** (A): Reconstructs depth, connectivity, and traversability during training, removing geometric-supervision components at deployment; the abstract gives no specific benchmark figures.
 
-### 5.2 Memory, maps, planning, social navigation, and evaluation
+### 5.2 Memory, planning and evaluation
 {: id="memory-maps-and-evaluation"}
 
 - **[TRACKGRAPH](https://arxiv.org/abs/2609.31005v1)** (B): Tracks short-term mask identities in image streams, then fuses them into open-vocabulary 3D scene graphs.
@@ -233,7 +243,7 @@ Navigation and spatial-perception boundary works from the secondary pool remain 
 
 - **Navigation and spatial perception (B/C), 7 works**: [InfraVLA](https://arxiv.org/abs/2609.33647v1), [TUDF Scene Completion](https://arxiv.org/abs/2609.36543v1), [S4VY](https://arxiv.org/abs/2609.36875v1), [PERSEPHONE Spatial Perception](https://arxiv.org/abs/2609.37419v1), [WayFinder](https://arxiv.org/abs/2609.37922v1), [GroundingPI](https://arxiv.org/abs/2609.39601v1), [PAGER](https://arxiv.org/abs/2610.01589v1).
 
-### 5.3 Embodied agents, VLA, and mobile manipulation
+### 5.3 Agents, VLA and manipulation
 {: id="embodied-agents-and-manipulation"}
 
 Agent and manipulation works from the primary pool:
@@ -266,7 +276,7 @@ The following secondary-pool themes are not compared as ground-VLN results; each
 - **Memory and persistent state (C), 11 works**: [RecastVLA](https://arxiv.org/abs/2609.32155v1), [SSVR](https://arxiv.org/abs/2609.33412v1), [D²-VLA](https://arxiv.org/abs/2609.34792v2), [Ledger](https://arxiv.org/abs/2609.34554v1), [LexiconVLA](https://arxiv.org/abs/2609.36774v1), [Action-History Memory](https://arxiv.org/abs/2609.37307v1), [T²Mem](https://arxiv.org/abs/2609.36720v1), [ECoMEM](https://arxiv.org/abs/2610.00801v1), [Optimus-R](https://arxiv.org/abs/2609.39794v1), [MIKASA-Robo-VLA](https://arxiv.org/abs/2610.00604v1), [Divide-and-Remember](https://arxiv.org/abs/2610.00982v1).
 - **Humanoids, dual arms, mobile manipulation, and cooperation (C), 11 works**: [Fiatlux](https://arxiv.org/abs/2609.38216v1), [TAO-DA](https://arxiv.org/abs/2609.33197v1), [Humanoid Loco-Manipulation With Discrete VLA Model](https://arxiv.org/abs/2609.35709v1), [Uni-VLaT](https://arxiv.org/abs/2609.35450v2), [Cooperative Multi-Agent VLA](https://arxiv.org/abs/2609.36588v1), [EgoAlign](https://arxiv.org/abs/2609.38046v3), [EgoHumanoid-V2](https://arxiv.org/abs/2609.37181v1), [FineART](https://arxiv.org/abs/2609.36416v2), [IronMind](https://arxiv.org/abs/2609.39403v1), [Whole-Body Human Pretraining](https://arxiv.org/abs/2610.00438v1), [DuoMind](https://arxiv.org/abs/2610.02161v1).
 
-### 5.4 Drones, autonomous driving, and other low-relevance directions
+### 5.4 UAVs and other
 {: id="other-directions"}
 
 - **[SatNav](https://arxiv.org/abs/2609.31507v1)** (C): Builds city-scale drone VLN from satellite imagery; evaluation is not from a ground viewpoint.
