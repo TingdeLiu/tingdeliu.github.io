@@ -83,14 +83,6 @@
 .vla-survey .vla-evidence-steps li::before { content: counter(vla-evidence); display: inline-block; width: 1.45rem; height: 1.45rem; margin-right: .35rem; border-radius: 50%; background: var(--vla-blue); color: #fff; text-align: center; line-height: 1.45rem; font-size: .78rem; font-weight: 700; }
 .vla-survey .vla-evidence-steps strong { font-size: .94rem; }
 .vla-survey .vla-evidence-steps span { display: block; margin-top: .5rem; color: var(--vla-muted); font-size: .84rem; line-height: 1.55; }
-.vla-survey .vla-ranking-lead { margin: .35rem 0 1.2rem; color: var(--vla-muted); font-size: 1.03rem; line-height: 1.75; }
-.vla-survey .vla-ranking-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin: 0 0 2.25rem; padding: 1px 0; border-block: 1px solid var(--vla-line); background: var(--vla-line); }
-.vla-survey .vla-ranking-nav a { display: flex; flex-direction: column; gap: .28rem; min-width: 0; min-height: 5.5rem; padding: .8rem .85rem; background: #fff; color: var(--vla-ink); text-decoration: none; transition: background-color .15s ease; }
-.vla-survey .vla-ranking-nav a:hover { background: var(--vla-tint); }
-.vla-survey .vla-ranking-nav a:focus-visible { outline: 2px solid var(--vla-blue); outline-offset: -3px; }
-.vla-survey .vla-ranking-nav strong { color: var(--vla-blue); font-size: .95rem; line-height: 1.45; }
-.vla-survey .vla-ranking-nav span { color: var(--vla-muted); font-size: .77rem; line-height: 1.5; }
-.vla-survey .entry > h2[id^="vla-ranking-"] { scroll-margin-top: 1.5rem; }
 .vla-survey .vla-table-hint { display: none; }
 .vla-survey .entry table { display: block; max-width: 100%; overflow-x: auto; scrollbar-width: thin; }
 .vla-survey .entry pre { max-width: 100%; overflow-x: auto; }
@@ -107,10 +99,6 @@
 .vla-survey .vla-anchor-alias { display: block; scroll-margin-top: 24px; }
 @media (max-width: 600px) {
   .vla-survey .vla-table-hint { display: block; margin: .5rem 0 -.45rem; color: var(--vla-muted); font-size: .78rem; text-align: right; }
-  .vla-survey .vla-ranking-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .vla-survey .vla-ranking-nav a { min-height: 5.1rem; padding: .7rem .6rem; }
-  .vla-survey .vla-ranking-nav strong { font-size: .88rem; }
-  .vla-survey .vla-ranking-nav span { font-size: .72rem; }
   .vla-survey .vla-reading-paths { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .vla-survey .vla-reading-paths a:nth-child(3) { border-left: 0; }
   .vla-survey .vla-reading-paths a:nth-child(n+3) { border-top: 1px solid var(--vla-line); }

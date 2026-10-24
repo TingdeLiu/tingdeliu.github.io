@@ -678,7 +678,7 @@ This also explains why a higher simulation success rate does not necessarily mea
 # 5. Paper readings
 {: id="5-论文精读"}
 
-The article-by-article methods, experiments, illustrations and limitations have been moved to {% include content-link.html path='/VLA-Papers/' fragment='' label='VLA Paper Readings ' %}; the beginning of this page provides {% include content-link.html path='/VLA-Papers/' fragment='#vla-ranking-robodojo' label='RoboDojo official unified ranking entrance ' %} and {% include content-link.html path='/VLA-Papers/' fragment='#vla-leaderboard' label='performance score ranking ' %} differentiated by evaluation protocol in the paper. The independent page retains the original Chapter 5 number and thesis anchor point, making it easy to jump from anywhere in the article. The reading path is still given here according to the research questions.
+The article-by-article methods, experiments, illustrations and limitations have been moved to {% include content-link.html path='/VLA-Papers/' fragment='' label='VLA Paper Readings ' %}; the page opens with a {% include content-link.html path='/VLA-Papers/' fragment='#vla-ranking-robodojo' label='snapshot of the official RoboDojo leaderboard' %}, and each paper's own matched-setting comparison table sits in the experiments part of its reading. The page keeps the original paper anchors, so links from anywhere in this survey still work. The reading path is still given here according to the research questions.
 
 |reading path|representative work|Questions worth asking|
 |---|---|---|
