@@ -381,7 +381,7 @@ Maps and memory can both be wrong. Evaluations should state how information is w
 
 <a id="survey-grounding"></a>
 
-## 3.4 Action representation and spatial grounding
+## 3.4 Actions and spatial grounding
 {: id="34-动作表示与空间落地"}
 
 The action interface decides what the high-level model must predict and what work remains for the executor. "Turn left", "walk to the door in the image", "reach a 3D waypoint", and "a trackable trajectory segment" differ in precision, time horizon, and geometric requirements. They cannot be distinguished merely by whether the output is text or numbers.
@@ -436,7 +436,7 @@ For example, the instruction is "pass the sofa, turn left, and stop before the s
 <a id="35-通用导航-agent任务编排与可调用的导航能力"></a>
 <a id="survey-agent"></a>
 
-## 3.6 Agent orchestration and tool execution
+## 3.6 Agents and tool execution
 {: id="36-agent-编排与工具执行"}
 
 This section limits agent orchestration to an upper layer that selects and calls perception, memory, planning, or navigation capabilities based on task state, and reads execution results to update later decisions. It can call a unified navigation policy or connect to a hierarchical control system. Evaluation should separate "what the tool itself can do" from "what the upper layer gains by deciding when to call it".
@@ -496,7 +496,7 @@ For example, "go through the corridor to the kitchen and find a cup" requires at
 <a id="353-三类-agentic-vln-设计"></a>
 <a id="353-恢复能力的证据边界"></a>
 
-### 3.6.3 Orchestration gains and recovery costs
+### 3.6.3 Orchestration gains and costs
 {: id="363-编排收益与恢复成本"}
 
 Compare a fixed execution pipeline with adaptive orchestration under the same underlying skills, models, and budgets, and report task success, recovery rate, tool calls, latency, and human interventions separately. If more retries yield higher success, present the cost alongside it. Whether the navigation model was trained should also be recorded separately; an agent is not the same as a training-free system.
@@ -756,7 +756,7 @@ Organize ablations at three levels: first fix data and backbone to compare mecha
 ## 3.9 Choosing methods
 {: id="39-方法选型"}
 
-### 3.9.1 Describing methods along several axes
+### 3.9.1 Describing methods on several axes
 {: id="391-多维度描述方法"}
 
 The table below shows how to describe combinations starting from a paper's mechanisms. "Evidence to verify" is a comparison proposed by this survey; it does not mean a common controlled experiment exists, and it is not an overall model ranking.
@@ -775,7 +775,7 @@ The table below shows how to describe combinations starting from a paper's mecha
 <a id="37-五条路线如何选择"></a>
 <a id="survey-selection"></a>
 
-### 3.9.2 Choosing mechanisms by failure type
+### 3.9.2 Choosing by failure type
 {: id="392-从失败类型选择机制"}
 
 The following are research recommendations based on system responsibilities. First confirm the bottleneck from failed trajectories, then run budget-constrained comparisons.
@@ -1964,7 +1964,7 @@ Data-counting conventions, platform support, and core metrics were verified toge
 ## 10.2 Core models and methods
 {: id="102-核心模型与方法"}
 
-### 10.2.1 Cross-modal alignment and pretraining
+### 10.2.1 Cross-modal pre-training
 {: id="1021-跨模态对齐与预训练"}
 
 24. **PREVALENT** — Hao et al., *Towards Learning a Generic Agent for Vision-and-Language Navigation via Pre-training*, CVPR 2020. [[Paper]](https://arxiv.org/abs/2002.10638)
@@ -1996,7 +1996,7 @@ Data-counting conventions, platform support, and core metrics were verified toge
 38. **NaVid** — Zhang et al., *NaVid: Video-based VLM Plans the Next Step for Vision-and-Language Navigation*, RSS 2024. [[Paper]](https://arxiv.org/abs/2402.15852)
 39. **StreamVLN** — Wei et al., *StreamVLN: Streaming Vision-and-Language Navigation via SlowFast Context Modeling*, ICRA 2026 (first posted to arXiv in 2025; checked v2). [[Paper]](https://arxiv.org/abs/2507.05240v2)
 
-### 10.2.5 Low-level visual navigation policies
+### 10.2.5 Low-level visual navigation
 {: id="1025-底层视觉导航策略"}
 
 40. **DD-PPO** — Wijmans et al., *DD-PPO: Learning Near-Perfect PointGoal Navigators from 2.5 Billion Frames*, ICLR 2020. [[Paper]](https://arxiv.org/abs/1911.00357)

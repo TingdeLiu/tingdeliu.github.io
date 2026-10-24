@@ -21,7 +21,7 @@ excerpt: "A survey of the traditional robot navigation stack, from perception, l
 # 1. Introduction
 {: id="1-引言"}
 
-## 1.1 Why do we need autonomous navigation?
+## 1.1 Why autonomous navigation
 {: id="11-为什么需要自主导航"}
 
 Imagine a warehouse robot moving between shelves, picking up goods precisely, and avoiding forklifts and pedestrians that suddenly appear. Or consider a self-driving car traveling safely for hundreds of kilometers in complex traffic. Both depend on a carefully designed **autonomous navigation system**.
@@ -96,7 +96,7 @@ flowchart TB
 </div>
 
 
-## 1.3 Traditional navigation vs. learning navigation
+## 1.3 Classical vs. learned navigation
 {: id="13-传统导航-vs-学习型导航"}
 
 Before the rise of deep learning, robot navigation mainly relied on **modular, interpretable traditional algorithm stacks**. Each module has clear responsibilities and can be independently debugged and optimized. This article will systematically introduce the core components of this algorithm stack.
@@ -1260,7 +1260,7 @@ Visual SLAM is extremely sensitive to light:
 - HDR camera or active lighting (structured light) adapts to lighting changes
 - Event Camera is immune to motion blur and is a current research hotspot
 
-### 4.7.4 Long-term map maintenance and scene changes
+### 4.7.4 Long-term map maintenance
 {: id="474-长期地图维护与场景变化"}
 
 Long-term deployment faces the problem of map aging: seasonal changes (falling leaves, snow), renovations, furniture movement, etc. will make the original map invalid.
@@ -1270,7 +1270,7 @@ Long-term deployment faces the problem of map aging: seasonal changes (falling l
 - **Multiple map management** (ORB-SLAM3 support): Create new submaps when scene switching or tracking is lost, merge after recovery
 - **Semantic Map**: Replace original points with semantic labels (door/wall/column), semantic features are more stable than geometric features
 
-### 4.7.5 Embedded platform computing constraints
+### 4.7.5 Embedded compute limits
 {: id="475-嵌入式平台计算约束"}
 
 Robots are often equipped with embedded platforms (Jetson Nano / Xavier / Orin) with limited computing power, and a complete SLAM system requires higher computing power:
@@ -1513,7 +1513,7 @@ The closer to the obstacle, the smaller the $W(\mathbf{x})$ (the lower the speed
 
 
 
-## 5.2 Global Path Planning: Sampling Methods
+## 5.2 Global planning: sampling-based
 {: id="52-全局路径规划采样类"}
 
 The sampling algorithm constructs a path by **random sampling**. It does not require explicit rasterization of the map and is suitable for high-dimensional space and complex geometric constraint scenarios.
@@ -1604,7 +1604,7 @@ When sampling, the uniform random point $x_{ball} \sim \mathcal{U}(\mathcal{B}^d
 <figcaption>Figure: Informed RRT* search (left, elliptical sampling area shrinks as the path improves) and planned path (right)</figcaption>
 </div>
 
-## 5.3 Local path planning (dynamic obstacle avoidance)
+## 5.3 Local planning and avoidance
 {: id="53-局部路径规划动态避障"}
 
 Global planning assumes that the map is static, but in reality there will be dynamic obstacles (pedestrians, other robots). Local planning re-plans in real time during robot movement to handle dynamic obstacles.
@@ -2134,7 +2134,7 @@ Here, $$\mathbf{e}_t$$ is the tracking error (lateral deviation and heading erro
 <figcaption>Figure: LQR path tracking simulation - the optimal control law minimizes the tracking error and the response is smooth and stable</figcaption>
 </div>
 
-## 6.6 Comparison of Path Tracking Algorithms
+## 6.6 Path tracking comparison
 {: id="66-路径跟踪算法对比汇总"}
 
 | Controller | Tracking accuracy | Computational cost | Number of parameters | Applicable speed | Typical application |
@@ -2231,7 +2231,7 @@ $$\cot\delta_{out} - \cot\delta_{in} = \frac{W}{L}$$
 
 Here, $W$ is the track width. In practice, a single equivalent front-wheel steering angle $\delta$ is commonly used.
 
-### Kinematic equations (bicycle model approximation)
+### Kinematics (bicycle model)
 {: id="运动学方程自行车模型近似"}
 
 Merge the front and rear wheels into a single wheel to get the classic **bicycle model**:
@@ -2311,7 +2311,7 @@ State equation in the world frame (including heading angle $\theta$):
 
 $$\dot{\mathbf{q}} = \begin{bmatrix} \cos\theta & -\sin\theta & 0 \\ \sin\theta & \cos\theta & 0 \\ 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} v_x \\ v_y \\ \omega_z \end{bmatrix}$$
 
-### Three-wheel omnidirectional kinematics equations
+### Three-wheel omni kinematics
 {: id="三轮全向运动学方程"}
 
 <div align="center">
@@ -2348,7 +2348,7 @@ $$\begin{bmatrix} v_x \\ v_y \\ \omega_z \end{bmatrix} = \frac{2r}{3} \begin{bma
 
 ---
 
-## 7.4 Comprehensive comparison of three types of models
+## 7.4 Comparing the three models
 {: id="74-三类模型综合对比"}
 
 | Comparison dimensions | differential drive | Ackermann steering | omnidirectional wheels (Mecanum) |
@@ -2731,7 +2731,7 @@ Unconfigured → Inactive → Active → Deactivating → Inactive → Finalized
 - **Active → Inactive** (`deactivate`): Stop processing and retain resources (can be quickly reactivated)
 - The startup sequence is managed uniformly by `nav2_lifecycle_manager` to avoid race conditions caused by out-of-order initialization of nodes.
 
-### Behavior tree (BT) default navigation flow
+### Default BT navigation flow
 {: id="行为树bt默认导航流程"}
 
 Simplified logic of Nav2 default BT (`navigate_w_replanning_and_recovery.xml`):
@@ -2755,7 +2755,7 @@ flowchart TD
     PLAN5 -->|Still failed| FAIL([Navigation failed / abort])
 ```
 
-### Detailed explanation of failure recovery chain
+### The recovery chain
 {: id="失败恢复链详解"}
 
 | Recovery behavior | Parameters (default value) | Principle | Applicable scenarios |
@@ -2775,7 +2775,7 @@ After each recovery step, the global planning is re-triggered. As long as one st
 
 **Custom recovery behavior**: Implement the `nav2_core::Recovery` interface, register it in the `recovery_server.plugins` list of `nav2_params.yaml`, and then add the corresponding node in BT XML.
 
-### Common recovery trigger timings (real robot experience)
+### When recovery triggers
 {: id="常见恢复触发时机实机经验"}
 
 The trigger sources of the recovery chain can be divided into the following four categories, corresponding to different root causes and treatment directions:
@@ -2949,7 +2949,7 @@ Tuning a navigation stack means **coordinating its modules**: an upstream parame
 
 ---
 
-# 11. Common Open-Source Tools and Frameworks
+# 11. Open-source tools
 {: id="11-常用开源工具与框架汇总"}
 
 ### Sensor drivers and processing

@@ -269,7 +269,7 @@ flowchart TD
     style G2025_Emb fill:#ffffff,stroke:#fecdd3,stroke-width:1px,stroke-dasharray: 4 4;
 ```
 
-### A quick overview of development stages and key milestones
+### Stages and milestones
 {: id="发展阶段与关键里程碑速览"}
 
 |year stage|evolution core|Representative work/architecture|Key breakthroughs and technology paradigms|
@@ -330,7 +330,7 @@ These methods individually change different parts of the decision-making process
 
 This table is a summary for system design, not a performance ranking; the following sections describe the method mechanism and representative work.
 
-## 3.1 ReAct: Interweaving Reasoning and Action
+## 3.1 ReAct
 {: id="31-react推理与行动交织"}
 
 **ReAct** (Reasoning + Acting, Princeton & Google, 2022) is the first time that **reasoning and action** are explicitly intertwined in the generation process of LLM. The Agent first outputs **thinking (Thought)** in the form of natural language at each step, then generates structured **action (Action)**, and uses the execution result (Observation) as the input for the next step to form a continuous cycle.
@@ -1388,7 +1388,7 @@ Order of priority: Workspace local configuration > User global configuration > B
 3. **System/Platform level skills (System Built-in Level)**:
    - The official basic skills package that comes with the Agent platform provides common out-of-the-box capabilities.
 
-### Skills market and packaging and distribution ecology
+### Skill marketplaces
 {: id="技能市场与打包分发生态"}
 
 In 2026, the skills ecosystem will form a distribution market system similar to npm/Docker Hub:
@@ -1447,7 +1447,7 @@ The skill package has powerful script execution and system interaction capabilit
 |Applicable level|Single call optimization|Information management of the entire Agent life cycle|
 |core issues|"How should I say it so that the model can understand it?"|"What does the model need to know at this moment?"|
 
-## 7.2 Content composition of the context window
+## 7.2 What fills the context window
 {: id="72-上下文窗口的内容构成"}
 
 ```mermaid
@@ -1516,7 +1516,7 @@ Much Agent Isolate (Anthropic multi-agent researcher, 2025):
 
 Anthropic’s multi-agent researcher experiments have proven: **The overall performance of multiple context-isolated sub-agents is better than that of a single agent with the same information.** , because each sub-window can be precisely focused on a narrower sub-task.
 
-## 7.4 Three types of contextual failure modes
+## 7.4 Three context failure modes
 {: id="74-三类上下文失效模式"}
 
 ```mermaid
@@ -1662,7 +1662,7 @@ sequenceDiagram
 
 ---
 
-## 8.2 Detailed explanation of Function Calling
+## 8.2 Function calling
 {: id="82-function-calling-详解"}
 
 ### 8.2.1 What function calling is
@@ -1778,7 +1778,7 @@ Structured Outputs    → Constraint decoding guarantee Schema Compliance       
 
 > In practice, both are often **Used in conjunction with** : The outer layer uses Function Calling to ensure the calling format is stable, and the inner layer uses the Thought field to record the reasoning process. o3/o4-mini has called the reasoning chain and tool **native unity** , the internal reasoning token of the model can directly trigger the tool call, without the need to manually design the ReAct loop.
 
-### 8.2.7 Support status of various mainstream models
+### 8.2.7 Model support
 {: id="827-各主流模型支持情况"}
 
 |Model series|Function Calling Interface|Parallel calls|Structured output|
@@ -1795,7 +1795,7 @@ Structured Outputs    → Constraint decoding guarantee Schema Compliance       
 ## 8.3 Detailed explanation of MCP protocol
 {: id="83-mcp-协议详解"}
 
-### 8.3.1 Background: Dilemma of Fragmentation
+### 8.3.1 Background: fragmentation
 {: id="831-背景碎片化困境"}
 
 Before the emergence of MCP, the AI ​​Agent ecosystem faced serious challenges **Dilemma of fragmentation** : Each Agent framework (LangChain, AutoGen, CrewAI...) needs to implement a connector separately for each external tool (GitHub, Slack, PostgreSQL...), forming an M×N integration matrix.
@@ -2276,7 +2276,7 @@ flowchart TB
 
 ---
 
-### 8.4.6 Security model and permission guardrails
+### 8.4.6 Security and permissions
 {: id="846-安全模型与权限护栏"}
 
 Since the WebMCP tool has the privilege of directly accessing the user's current session and triggering front-end business logic, its security model is built on multiple defense depths:
@@ -2553,7 +2553,7 @@ In addition to hard limits, the MHS safety model consists of three layers:
 
 Anthropic also said it is developing a **physical safety roadmap** , strengthens its Safeguards policy's coverage of abuse risks in the physical world, and will release the security evaluation and deployment guidelines accumulated during the research preview period when MHS is open source.
 
-### 8.5.8 Positioning, limitations and open routes
+### 8.5.8 Scope and limits
 {: id="858-定位局限与开放路线"}
 
  **Relationship to existing industry standards.** MHS does not attempt to replace existing laboratory/industrial communication standards and robotics middleware such as SiLA 2, OPC UA, and ROS 2 - they solve **between machines** reliable communication and real-time issues. MHS adds another layer: **Let the "model" understand the machine** , encoding the tacit knowledge that originally existed only in manuals and the experience of old masters, such as measuring range, self-weight, and process taboos, into a structured context that can be consumed by the Agent. The two are the division of labor between the "bus layer" and the "semantic layer".
@@ -2610,7 +2610,7 @@ flowchart LR
 
 ---
 
-## 9.1 Environment interaction and multi-step task benchmark
+## 9.1 Interactive multi-step benchmarks
 {: id="91-环境交互与多步任务基准"}
 
 ### ALFWorld
@@ -2700,7 +2700,7 @@ The core benchmark of Computer Use Agent, the optimal open source Agent in 2025 
 
 ---
 
-## 9.3 Dialogue status and vertical domain benchmarks
+## 9.3 Dialogue and domain benchmarks
 {: id="93-对话状态与垂直领域基准"}
 
 ### τ-bench (Tau Bench)
@@ -2758,7 +2758,7 @@ Two points are worth noting:
 
 ---
 
-## 9.4 Embodied intelligence and physical operations benchmarks
+## 9.4 Embodied benchmarks
 {: id="94-具身智能与物理操作基准"}
 
 ### LIBERO and RoboCasa
@@ -2786,7 +2786,7 @@ This constitutes an obvious evaluation gap: there is neither a unified definitio
 
 ---
 
-## 9.5 The evolution of evaluation philosophy
+## 9.5 How evaluation evolved
 {: id="95-评测哲学的演进"}
 
 Final state judgment answers "whether the task is completed", and trajectory analysis explains "how it was completed or why it failed." The two should be used together. Referring to Anthropic's [Agent Evaluation Practice](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)], this article summarizes engineering evaluation into four aspects:
@@ -2825,7 +2825,7 @@ Representative products and solutions:
 - **Web structured interaction and end-side tools**: OpenAI Site Tools (based on WebMCP), OpenAI Operator (WebMCP + visual hybrid driver);
 - **system GUI and visual control**: Claude Computer Use (Anthropic), OpenAI CUA, Microsoft Windows Agent (Windows 11 native integration).
 
-## 10.3 Universal dialogue and task assistant
+## 10.3 General assistants
 {: id="103-通用对话与任务助手"}
 
 The general Agent OS represented by OpenClaw receives natural language instructions through messaging applications (WhatsApp, Telegram, iMessage, etc.), and autonomously schedules tools and sub-Agents to complete complex tasks, such as "organizing my inbox and generating weekly reports" and "collecting competitive product information and making comparison tables."
@@ -2840,7 +2840,7 @@ The general Agent OS represented by OpenClaw receives natural language instructi
 
 Robot control Agents (embodied agents/Embodied Agents) are the forefront of AI Agent interaction with the physical world. Unlike Agents running in software sandboxes (whose operations are usually lossless and reversible and environmental states can be accurately read), the physical world has **Action irreversibility, continuous spatiotemporal dynamics, perceived occlusion and uncertainty, and millisecond-level safety hard constraints** and other essential characteristics.
 
-### 10.5.1 Three generations of technological paradigm evolution
+### 10.5.1 Three generations
 {: id="1051-技术范式的三代演进"}
 
 From the early semantic planning based on large models, to the end-to-end vision-language-action (VLA) model, to the **embodied governance Harness (Embodied Harness)** architecture that broke out in 2025–2026, the embodied control agent has experienced three key evolution stages:
@@ -3084,7 +3084,7 @@ The entire cycle does not require manual intervention. The Agent treats test fai
 
 **Sub-Agent architecture** (new in July 2025): For ultra-long tasks, the main Agent can spawn multiple specialized sub-Agents to process independent sub-tasks in parallel (such as reconstructing multiple modules at the same time). The main Agent summarizes the results for final integration, breaking through the limitations of a single session context window.
 
-### Claude Code Capability Boundaries and Limitations
+### Claude Code limits
 {: id="claude-code-能力边界与局限"}
 
 |good at|limitations|
@@ -3186,7 +3186,7 @@ The entire process runs in an isolated virtual machine in the cloud. Users only 
 
 ---
 
-## 11.4 MiniAgent: Minimalist open source framework
+## 11.4 MiniAgent
 {: id="114-miniagent极简开源框架"}
 
 **[MiniAgent](https://github.com/TingdeLiu/miniagent)** (open source, ~500 lines of Python) is a minimalist Agent implementation for learners, with only one goal: **to run through all the core concepts of this article with the least amount of code**.
@@ -3397,7 +3397,7 @@ There are two points worthy of attention in the supporting recommended model **H
 
 The design of YC-Bench is particularly unique - it tests not the coding ability, but the Agent's strategic planning ability under multiple rounds of decision-making, resource management and uncertainty. It is currently one of the few long-term Agent evaluation benchmarks.
 
-### Hermes Agent capability boundaries and limitations
+### Hermes Agent limits
 {: id="hermes-agent-能力边界与局限"}
 
 |good at|limitations|
@@ -3918,7 +3918,7 @@ flowchart TB
 - **/fork & /clone**: Select any historical node to fork a new session at any time, the original path is intact, and the exploration cost is reduced to zero.
 - **/compact Lossy compression and lossless storage**: Compression only affects the real-time window fed into the model. The underlying JSONL always retains all original interaction details and can be traced back to any state before compression at any time.
 
-### Module decoupling and key technical points
+### Modules and key techniques
 {: id="模块解耦与技术关键点"}
 
 The Pi Agent code base is provided by **5 independent packages with high cohesion and low coupling** constitute:
@@ -3996,7 +3996,7 @@ In the xhigh thinking setting of Opus 4.8, **Pi achieved the highest pass rate a
 
 This set of data is the strongest external evidence in Section 2.7 "The success or failure of Agent is not in the model, but in the Harness".
 
-### Pi Agent capability boundaries and limitations
+### Pi Agent limits
 {: id="pi-agent-能力边界与局限"}
 
 |Areas of expertise|inherent limitations and boundaries|Official response advice|

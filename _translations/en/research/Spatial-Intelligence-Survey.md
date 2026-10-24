@@ -94,7 +94,7 @@ The technical system of spatial intelligence revolves around **three-dimensional
 | | EM (Exact Match) |The proportion of answers that match exactly|3D Visual Q&A|
 |**Reconstruction quality**| PSNR / SSIM |Peak signal-to-noise ratio and structural similarity of rendered images|Perspective synthesis (NeRF/3DGS)|
 
-## 2.5 Research trends and convergence paths
+## 2.5 Trends and convergence
 {: id="25-研究趋势与汇聚路径"}
 
 ```mermaid
@@ -138,7 +138,7 @@ graph TD
 - **2024–2025**: Depth Anything, SpatialVLM, DUST3R, Uni3D and other works have promoted the formation of base models of spatial perception; VGGT (CVPR 2025 Best Paper) simultaneously outputs camera parameters, depth, point maps and point trajectories with a single feedforward, marking that spatial intelligence has officially entered a new stage of "feedforward three-dimensional base model".
 - **2026**: Spatial intelligence has entered a new stage of "hierarchical cognition, native text fine-tuning and forward metric mapping". **HiSpatial** (CVPR 2026) builds hierarchical spatial cognition from geometry to abstract reasoning; **VLM³** (2026) demonstrates that universal VLM can natively master high-precision 3D through focal length unification and plain text SFT Geometry; **MapAnything** (2026) enables multi-source arbitrary sensor forward metric map reconstruction; **Qwen-3D** and **SparseOccVLA** promote 3D Space occupancy prediction is deeply coupled with embodied decision-making.
 
-## 2.6 Camera model and projection geometry basis
+## 2.6 Camera models and projection
 {: id="26-相机模型与投影几何基础"}
 
 One of the mathematical foundations of spatial intelligence is the **pinhole camera model (Pinhole Camera Model)**, which accurately describes how points in the three-dimensional world are projected onto the two-dimensional image plane through the center of the lens. Understanding camera projection is a necessary prerequisite for understanding SfM, stereo vision, NeRF pose input, and VGGT camera parameter output.
@@ -222,10 +222,10 @@ Here, $$[\mathbf{n}]_\times$$ is the antisymmetric matrix of the rotation axis $
 
 ---
 
-# 4. Spatial intelligence technology evolution paradigm
+# 4. How the field evolved
 {: id="4-空间智能技术演进范式"}
 
-## 4.1 Discrete geometric representation and point cloud processing
+## 4.1 Point clouds and discrete geometry
 {: id="41-离散几何表示与点云处理"}
 
 ### PointNet
@@ -318,7 +318,7 @@ Here, $\delta$ is the point position encoding, $\rho$ is the softmax normalizati
 
 ---
 
-## 4.2 Dense geometry perception and depth estimation
+## 4.2 Dense geometry and depth
 {: id="42-密集几何感知与深度估计"}
 
 ### DPT
@@ -614,7 +614,7 @@ graph TD
 
 ---
 
-### 3D generation and single image reconstruction
+### 3D generation and single-image reconstruction
 {: id="三维生成与单图重建"}
 
 **Zero-1-to-3** (Liu et al., ICCV 2023) uses a diffusion model to generate a new perspective image at any viewing angle from a single RGB image, providing a new idea for single image 3D reconstruction. **Zero123++** (Shi et al., 2023), **One-2-3-45** (Liu et al., 2024) further improves multi-view consistency and generation speed.
@@ -630,7 +630,7 @@ Static 3DGS has limitations in modeling dynamic scenes. **Dynamic 3D Gaussians**
 
 ---
 
-## 4.4 3D object detection and scene understanding
+## 4.4 3D detection and scene understanding
 {: id="44-三维目标检测与场景理解"}
 
 ### VoxelNet / SECOND / PointPillars
@@ -682,7 +682,7 @@ Static 3DGS has limitations in modeling dynamic scenes. **Dynamic 3D Gaussians**
 
 ---
 
-### Semantic occupancy prediction and representation evolution
+### Semantic occupancy prediction
 {: id="语义占用预测与表示演进"}
 **Semantic Occupancy Prediction** has received widespread attention in autonomous driving in recent years. Unlike 3D object detection, which outputs a limited number of bounding boxes, occupancy prediction assigns semantic labels to each area (voxel) in the scene, and can more naturally handle arbitrarily shaped special-shaped obstacles and long-tail targets (such as fallen cartons, construction guardrails, hanging cables), and is therefore regarded as the key path to "universal obstacle perception". However, dense voxel representation naturally faces the memory and computing explosion problem of $O(N^3)$. The technological evolution of the entire field is essentially an optimization trajectory that continuously approaches the triangular constraint of "high resolution × low computing power × consistent timing":
 
@@ -812,12 +812,12 @@ This is the latest research frontier in 2025, which "sprays" semantic features o
 
 ---
 
-# 5. Mainstream data sets and evaluation benchmarks
+# 5. Datasets and benchmarks
 {: id="5-主流数据集与评测基准"}
 
 This section organizes commonly used data sets and evaluation benchmarks according to task and application dimensions, and points out the applicable scenarios, common evaluation indicators and usage precautions for each type of data set to facilitate selection and horizontal comparison.
 
-## 5.1 Overview of datasets classified by tasks
+## 5.1 Datasets by task
 {: id="51-按任务分类的数据集概览"}
 
 - Shape and synthetic 3D data (for 3D generation, shape retrieval, point cloud classification)
@@ -859,7 +859,7 @@ This section organizes commonly used data sets and evaluation benchmarks accordi
   - Synthetic-NeRF / Blender scenes: A synthetic dataset used for rendering and new perspective synthesis to easily reproduce and quantify PSNR/SSIM/LPIPS metrics.
   - Tanks and Temples/DTU: A high-quality real scene benchmark for traditional MVS and new perspective synthesis.
 
-## 5.2 Common evaluation indicators (by task)
+## 5.2 Metrics by task
 {: id="52-常用评测指标按任务"}
 
 - Shape reconstruction/generation: Chamfer Distance (CD), Earth Mover's Distance (EMD)
@@ -869,7 +869,7 @@ This section organizes commonly used data sets and evaluation benchmarks accordi
 - Text generation and question answering: CIDEr, BLEU, ROUGE, Exact Match (EM)
 - Embodied Navigation: Success Rate (SR), Success weighted by Path Length (SPL), Coverage
 
-## 5.3 Selection suggestions and common pitfalls
+## 5.3 Choosing benchmarks and pitfalls
 {: id="53-选型建议与常见陷阱"}
 
 - Data domain matching: Synthetic CAD data (ShapeNet/ModelNet) is suitable for algorithm design and rapid iteration, but there is a big gap with real sensor noise and occlusion; when studying real perception capabilities, please give priority to real scan sets such as ScanNet/Matterport3D/HM3D.

@@ -128,7 +128,7 @@ The year is based on the first publication of the paper on arXiv (for example, [
 
 <a id="llm-principles"></a>
 
-# 3. Large language model (LLM) operating principle
+# 3. How LLMs work
 {: id="3-大语言模型llm运行原理"}
 
 In Chapter 2, we mentioned that the "reasoning brain" of modern VLM is a pretrained large language model (LLM). All the work of the visual encoder and connection module is ultimately to turn the image into an input that the LLM can "understand". Therefore, before entering the multimodal fusion method, it is necessary to first understand how a pure text LLM works: how the text enters the model, how the model internally calculates, and how the answer is "spit" out word by word. After understanding this "text input → internal calculation → text output" pipeline, it will be very natural to see how visual features are "disguised" as tokens and injected into this pipeline in Chapter 4.
@@ -245,7 +245,7 @@ $$P(t) = \frac{\exp(z_t / \tau)}{\sum_{j} \exp(z_j / \tau)}$$
 
 When $\tau \to 0^+$ and the maximum logit is unique, the distribution tends to one-hot, close to greedy decoding; when $\tau > 1$, the distribution is flatter. When using **temperature + Top-p** in combination, a common implementation first scales the logits, and then determines the candidate set and samples according to the resulting probability distribution; the processing order will affect the results and should be subject to the actual inference framework.
 
-## 3.7 Autoregressive generation and KV Cache
+## 3.7 Autoregression and KV cache
 {: id="37-自回归生成与-kv-cache"}
 
 Only one token can be predicted in a single forward pass. To generate a complete answer, the model must **autoregressive loop**: connect the just sampled token to the end of the input sequence, go forward again, and predict the next one until the end character `<eos>` is sampled or the upper limit of the length is reached.
@@ -282,7 +282,7 @@ Visual tokens are usually continuous features and are not literal IDs in the tok
 
 <a id="vlm-methods"></a>
 
-# 4. Core methods for achieving multimodality
+# 4. Building multimodal models
 {: id="4-实现多模态的核心方法"}
 
 This chapter organizes methods by design problem, **Sections are not mutually exclusive model categories** : Contrast learning and instruction fine-tuning describe the training goals, Q-Former and cross-attention describe the connection structure, and high-resolution and video processing describe the input representation. Multiple methods can be combined in the same model.
@@ -452,7 +452,7 @@ LLaVA-1.5 upgrades the linear projection to **two-layer MLP** and introduces a h
 
 ---
 
-## 4.5 Multimodal understanding and unified generation
+## 4.5 Understanding and generation
 {: id="45-多模态理解与统一生成"}
 
 "Generative VLM" and "unified understanding and generation model" need to be distinguished: the former can read images and generate text answers, but may not necessarily generate images; the latter further supports the generation of visual content.
@@ -546,7 +546,7 @@ flowchart TD
 
 ---
 
-## 4.6 Efficient multimodal alignment method
+## 4.6 Efficient alignment
 {: id="46-高效多模态对齐方法"}
 
 As the number of VLM parameters continues to increase, how to achieve high-quality multimodal alignment with lower computational cost has become an important research direction.
@@ -575,7 +575,7 @@ The number of visual tokens directly determines the inference cost of VLM, and c
 |average pooling|Average adjacent tokens|variable| LLaVA-HD |
 | Q-Former |Fixed 32 Query Tokens to extract all visual information|High magnification| BLIP-2, InstructBLIP |
 
-### Lightweight VLM and device-side deployment
+### Lightweight and on-device VLMs
 {: id="轻量化-vlm-与端侧部署"}
 
 With the rapid growth of demand for end-side deployment (mobile phones, edge devices), achieving competitive multimodal understanding under extremely low parameter quantities has become a hot topic. **SigLIP visual encoder** (sigmoid loss is better than softmax contrast loss in smaller batches, see Section 8.6) is one of the most common visual backbones of lightweight VLM:
@@ -710,7 +710,7 @@ In the ADE20K segmentation experiment with frozen features + linear heads, DINOv
 
 ---
 
-## 4.8 Video Understanding: Expanding to the Time Series Dimension
+## 4.8 Video understanding
 {: id="48-视频理解向时序维度扩展"}
 
 Video understanding requires the model to simultaneously process **spatial visual content** (image per frame) and **temporal dynamic information** (changes between frames), which is an important frontier direction for VLM capability expansion.
@@ -807,7 +807,7 @@ Other representative work: **SeeClick** (2024) specializes in GUI element positi
 
 <a id="vlm-training"></a>
 
-# 6. VLM training process and key technologies
+# 6. Training VLMs
 {: id="6-vlm-训练流程与关键技术"}
 
 VLM training aims to combine visual perceptual cognition with language rational reasoning to build cross-modal understanding and generation capabilities. Compared with traditional single-modal model training, VLM training often does not start "from scratch" (from-scratch), but makes use of existing powerful pretraining results (such as pretraining's ViT visual encoder and LLM large language model ), focusing on solving core issues such as **modal alignment**, **multi-task generalization**, and **instruction alignment**.
@@ -928,7 +928,7 @@ GRPO (from DeepSeekMath, later adopted by DeepSeek-R1) samples a set of outputs 
 - **Reward Function**: Usually includes **rule reward** (such as math questions, counting questions, positioning IoU determination results) and **format reward** (such as requiring the model to be in Output the reasoning process in the `<think>` tag, and then give the final answer).
 - **Function**: As long as the answer can be automatically verified, it can strengthen reasoning behavior without manual CoT annotation; it improves reasoning and answer selection, and cannot make up for the visual information lost in the input stage.
 
-### 3. Representative practices for visual reasoning enhancement
+### 3. Visual reasoning in practice
 {: id="3-视觉推理增强的代表性实践"}
 
 Inspired by the o1/DeepSeek-R1 reasoning breakthrough, a batch of work will emerge in 2024-2025 that applies structured chain of thought and RLVR (verifiable reward reinforcement learning) to VLM:
@@ -1100,7 +1100,7 @@ The progressive reuse formula **of**InternVL2.5 (technical report arXiv:2412.052
 
 InternVL2.5 has two significant differences from the previous two formulations. **First, the whole learning rate is unified** - each trainable module shares the same lr, does not apply the LLaVA-NeXT-style "ViT lr = 1/10 of the basic lr" multiplier, and does not do the Qwen-VL-style layer-by-layer decay (decay = 0.95); Stage 1.5 relies on overall lowering of the learning rate to avoid ViT forgetting. **Second, the lower token consumption** - the 78B model totals about 120 billion tokens, which is about 1/10 of Qwen2-VL (1.4 trillion). The key is **progressive scaling**: first let ViT be jointly trained with a smaller LLM (stage 1.5), and then connect the trained ViT directly to the larger LLM, skipping stage 1.5; the report believes that visual features are universal representations and can be read by different LLMs. Phase 1 freezes ViT and LLM, and only trains MLP, in order to establish a stable interface with less data. **jointly trains large-scale data from scratch (Qwen2-VL) and reuses trained components (InternVL2.5) are two coexisting ideas.**
 
-### 3. Linkage between batch size and learning rate
+### 3. Batch size and learning rate
 {: id="3-batch-size-与学习率的联动"}
 
 When the GPU memory is insufficient, first differentiate between single-GPU micro-batch and globally valid batch. When the global batch is kept unchanged through gradient accumulation, there is no need to adjust the learning rate just because the batch of a single GPU changes; after the global batch changes, the learning rate should be re-verified. The following two scaling rules can be used as candidate initial values:
@@ -1131,7 +1131,7 @@ Multimodal training will naturally erode the pure text capabilities of LLM - VIL
 
 The ratio within the task type is also particular: Cambrian-1's ablation found that the number of samples from a single data source is optimal at an upper limit of 250,000 to 350,000; the proportion of OCR data is proportional to the OCR capability, but too high a proportion will damage general VQA—— **The ratio should be adjusted according to your own evaluation goals.** .
 
-### 6. Parameter adjustment workflow: first small, then large
+### 6. Tuning workflow: small first
 {: id="6-调参工作流先小后大"}
 
 Learning rate is among all hyperparameters **Highest sensitivity** For one, the parameter adjustment budget should be spent first on the learning rate:
@@ -1153,7 +1153,7 @@ flowchart TD
 
 "Learning rate priority" has a classic source - Chapter 11 of Goodfellow's "Deep Learning": "If you only have time to adjust one hyperparameter, adjust the learning rate." Also note a trap: under standard parameterization, the optimal learning rate swept out by the small model **cannot be directly moved to the large model** (the optimal point will drift with the width of the model), so the above proxy experiment is recommended to be done on a data subset with the same scale model. If it is indeed necessary to migrate hyperparameters across scales, μP / μTransfer (Yang et al., 2022) modifies the parameterization to keep the optimal learning rate stable with width - Microsoft used a 40 million parameter proxy model to adjust parameters and then migrated to 6.7B GPT-3. The effect exceeds the original version, and the parameter adjustment overhead only accounts for 7% of the total pretraining compute.
 
-### 7. Project switch when GPU memory is insufficient
+### 7. When memory runs out
 {: id="7-显存不够时的工程开关"}
 
 |means|Principle|cost|
@@ -1208,7 +1208,7 @@ The update formula of EMA is $$\hat{L}_t = \alpha \cdot \hat{L}_{t-1} + (1-\alph
 
 **weighs both sides**: α is too large (over-smoothing) → the real spikes are covered up and problem discovery lags behind, and cannot be used as an early warning supplement for grad norm; α is too small (insufficient smoothing) → the curve jitters continuously, making it difficult to judge the downward trend and plateau period. Rule of thumb: **is suitable when the smoothed curve of** has "fuzzy details but clear trends". If periodic spikes are still clearly visible on the smooth curve, increase α by about 0.01~0.02.
 
-### 2. What does a healthy loss curve look like?
+### 2. A healthy loss curve
 {: id="2-健康的-loss-曲线长什么样"}
 
 **first makes the initial value sanity check**. When the language model starts training from random initialization, the loss in the first step should be approximately equal to the natural logarithm of the vocabulary size (equivalent to the cross entropy under uniform distribution prediction):
@@ -1250,7 +1250,7 @@ Three common misunderstandings:
 
 Regarding loss spikes, there are many public experiences in the history of large model training that can be used for reference: **PaLM-540B** encountered about 20 spikes in the whole process. The standard operation is to rewind to the checkpoint about 100 steps before the spike, skip the subsequent 200~500 batches and continue training - the same batch of data is started from earlier checkpoints. Replaying and **will not** spikes, indicating that spikes are a combined event of "parameter status × specific data" rather than simply bad data; **OPT-175B** manually restarted 35 times during two months of training, during which the gradient clipping threshold was tightened from 1.0 to 0.3; **GLM-130B** The main reason for locating spikes is the abnormal gradient of the embedding layer (several orders of magnitude larger than other layers). The spikes are significantly reduced by reducing the gradient of this layer to 0.1 times; PaLM, Falcon, OLMo 2 also use **z-loss** (coefficient 1e-4) regular term suppresses logits drift. VLM is most susceptible to such problems in the second stage of large-scale joint training.
 
-### 4. Grad norm: leading indicator of spikes
+### 4. Grad norm as an early warning
 {: id="4-grad-norm尖刺的先行指标"}
 
 Gradient norm often exposes problems earlier than loss:
@@ -1414,7 +1414,7 @@ From Qwen-VL to Qwen3-VL, we can see three directions of change: **resolution fr
 
 <a id="vlm-evaluation"></a>
 
-# 7. Mainstream data sets and evaluation benchmarks
+# 7. Datasets and benchmarks
 {: id="7-主流数据集与评测基准"}
 
 **First distinguish between training resources and evaluation tools.** LAION-5B is mainly used for graphic pretraining; COCO also contains data and divisions of multiple tasks; MMBench, MMMU, etc. are used to evaluate specific abilities. The large size of the data set does not mean that the model is powerful.
@@ -1591,7 +1591,7 @@ Since 2025, VLM evaluation has shown three important trends: **Agent-oriented ev
 
 <a id="vlm-papers"></a>
 
-# 8. Classic methods and representative work
+# 8. Key methods
 {: id="8-经典方法与代表性工作"}
 
 > This section roughly sorts out the representative work in the VLM field in chronological order (DINOv2 / DINOv3 are put together as a visual encoder topic). 8.1~8.7 are developed according to "structure-training-results"; 8.8 and above are newer papers, uniformly adopting the structure of "Key takeaways-research background-method-results-limitations".
@@ -1607,7 +1607,7 @@ ViLBERT is the earliest milestone work to extend BERT to joint understanding of 
 
 > **Key takeaways**: ViLBERT The most worth learning idea is **dual flow + Collaborative attention** design - the two modalities are processed independently in their respective streams, and information is selectively exchanged only through the collaborative attention layer. This not only retains the independent characteristics of each modality, but also achieves deep cross-modal interaction and avoids information loss caused by premature fusion. Its paradigm of "large-scale unlabeled image and text pair pretraining + lightweight task head fine-tuning" directly inspired almost all subsequent visual-language pretraining work. The limitation is that visual features rely on offline Faster R-CNN extraction, the inference speed is slow, and the dual-stream architecture has a large number of parameters, making it difficult to scale up.
 
-### Architecture design: dual-stream collaborative attention
+### Architecture: dual-stream attention
 {: id="架构设计双流协同注意力"}
 
 ViLBERT adopts the **dual-stream (Two-Stream)** design. The two modes are processed in independent streams, and then exchange information with each other through the collaborative attention layer:
@@ -1798,7 +1798,7 @@ The core question of BLIP-2 is: How to establish an effective semantic bridge at
 
 > **Key takeaways**: The core innovation of BLIP-2 is the **Q-Former information bottleneck** - 32 learnable Query Tokens extract the most language-related visual features from frozen ViT-g (about 1B) through cross-attention. The entire Q-Former only 188M parameters, but can connect to frozen LLMs such as OPT-6.7B, FlanT5-XXL (11B) to complete multimodal generation tasks, greatly reducing the computational threshold for multimodal alignment. The progressive strategy of two-stage training (visual-language representation alignment first, then generative language alignment) is also worth learning from. The limitation is that Q-Former's fixed number of Query Tokens limits its ability to process high-resolution fine images, and the semantic gap between Q-Former and LLM requires subsequent work (such as InstructBLIP) to further bridge it through the instruction-aware mechanism.
 
-### Q-Former: lightweight information bottleneck
+### Q-Former
 {: id="q-former轻量级信息瓶颈"}
 
 Q-Former (Querying Transformer) is the core innovation of BLIP-2. It contains two Transformer modules that share self-attention weights:
@@ -1850,7 +1850,7 @@ With its minimalist architecture and innovative instruction data construction me
 
 > **Key takeaways**: The value of LLaVA is that it proves that the combination of **minimalist architecture + high-quality instruction data** can transcend complex designs - a linear projection layer (later upgraded to a two-layer MLP) is enough to connect the CLIP visual encoder and LLM. The key lies in how to obtain high-quality visual instruction data. The method of using GPT-4 to generate multiple rounds of dialogue data based on image captions and bounding box text proxies is a paradigm innovation for constructing instruction data at low cost, without the need for direct manual annotation of images. The dynamic resolution slicing (tile-based high resolution) introduced by LLaVA-NeXT is adopted by a large number of open source VLMs such as InternVL. Another route is the native resolution encoding of Qwen2-VL. The limitation is that the linear projection of early LLaVA is too simple, there is a visual-language semantic gap, and the recognition ability of high-resolution fine content (OCR, small targets) is insufficient.
 
-### Architecture: Three-piece minimalist design
+### Architecture: three parts
 {: id="架构三件套极简设计"}
 
 ```
@@ -1872,7 +1872,7 @@ Only a linear projection matrix **$W$** is used to map the visual features outpu
 <figcaption> Figure: LLaVA architecture - CLIP visual encoder is connected to the LLaMA language model through a linear projection layer to achieve fine-tuning of visual instructions (Source: LLaVA project)</figcaption>
 </div>
 
-### Instruction data construction: GPT-4 assisted generation
+### Instruction data via GPT-4
 {: id="指令数据构建gpt-4辅助生成"}
 
 The key innovation of LLaVA is how **obtains high-quality visual command data**. Since it is extremely expensive to directly annotate large amounts of image multi-turn dialogue data, LLaVA adopted an ingenious solution:
@@ -1999,7 +1999,7 @@ InternVL2 uses up to 12 448×448 tiles during training, and can be extended to 4
 2. **independent encoding**: Each sub-picture is independently encoded by InternViT-6B, generating $(448/14)^2 = 1024$ tokens
 3. **Pixel Shuffle compression**: merge 4 adjacent tokens of 2×2 into 1, compress the token of each sub-image from 1024 to **256** (4:1 compression ratio), significantly reducing the input length of LLM
 
-### Model specifications and language backbone
+### Model sizes and backbone
 {: id="模型规格与语言骨干"}
 
 The InternVL2 family provides a complete family of models from the end-side to the server-side by replacing the language backbone:
@@ -2369,7 +2369,7 @@ DINOv2 represents a different visual encoder training route from CLIP/SigLIP—�
 
 > **Key takeaways**: The core value of DINOv2 is that **can learn general visual semantics** without relying on text descriptions. CLIP's visual features are optimized to match the entire text, and spatial details rarely mentioned in graphic descriptions will not be directly supervised; DINOv2 uses student-teacher self-distillation and mask patch prediction to give patch features better spatial semantic consistency - frozen features plus linear headers can be used for segmentation. The limitation is that it does not include language alignment and cannot be directly used for zero-sample image and text retrieval or classification. When connecting to VLM, it still needs to connect the module and image and text training.
 
-### Training method: student-teacher self-distillation
+### Training: self-distillation
 {: id="训练方法学生-教师自蒸馏"}
 
 DINOv2 uses the **self-distillation (Self-Distillation)** framework without any annotation data:
@@ -2425,7 +2425,7 @@ Data quality is critical to self-supervised learning. DINOv2 specifically built 
 
 ViT-g/14 is self-supervised from scratch and three smaller models S/B/L are distilled from ViT-g. All use 14×14 patches, which provide denser patch tokens than configurations such as B/16 and B/32.
 
-### Core result: Advantages in dense prediction
+### Result: dense prediction
 {: id="核心结果密集预测上的优势"}
 
 The following results are all the settings of **freezing the backbone network** and only training lightweight task heads (paper Table 10, 11).

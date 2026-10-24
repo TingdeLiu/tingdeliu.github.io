@@ -59,7 +59,7 @@ This article starts from the learning paradigm and modeling process, and introdu
 
 Machine learning is a multi-field interdisciplinary subject involving probability theory, statistics, approximation theory, convex analysis, algorithm complexity theory, etc. Its core idea is: **Let computers analyze data through algorithms, learn patterns from them, and use these patterns to make predictions and decisions about unknown events in the real world.** . The model adjusts parameters through training; new data may only improve performance if the quality, coverage, and training methods are appropriate. The model will not automatically become better simply because more data is added.
 
-## 2.2 Learning paradigm and classification system
+## 2.2 Learning paradigms
 {: id="22-学习范式与分类体系"}
 
 The following types of learning methods can be understood from the source of supervision signals. They are not completely mutually exclusive: the same system can do self-supervised pre-training, then supervised fine-tuning, and finally optimize decisions through reinforcement learning. Deep learning describes the model and representation learning methods, and is not in the same classification dimension as supervised learning and reinforcement learning.
@@ -105,7 +105,7 @@ Reinforcement learning focuses on how the agent takes actions in the environment
 
 - **self-supervised learning**: Constructing supervised signals from the data itself (such as predicting the next word or recovering occluded image areas) is an important training method for modern language models and many visual pretrained models.
 
-## 2.3 Core elements and system architecture
+## 2.3 Core elements
 {: id="23-核心要素与系统架构"}
 
 A typical machine learning process usually includes the following five core elements:
@@ -150,7 +150,7 @@ Despite the fruitful results, machine learning still faces many challenges in pr
 
 - **Evaluation and Security**: Offline indicators may not represent real usage effects, and reliability, privacy, robustness and alignment still need to be continuously verified.
 
-## 2.6 Key technical directions and future prospects
+## 2.6 Directions and outlook
 {: id="26-关键技术方向与未来展望"}
 
 Machine learning continues to evolve on the frontiers of methodology and application. The following directions focus on representation, migration, adaptation, and reliability respectively, and cannot be regarded as solved problems:
@@ -186,7 +186,7 @@ Machine learning has now deeply penetrated into all aspects of the digital and p
 
 - **Application**: ChatGPT and other intelligent assistants, intelligent customer service, and automatic document review.
 
-### 2.7.3 Recommendation system and computational advertising
+### 2.7.3 Recommendation and ads
 {: id="273-推荐系统与计算广告"}
 
 - The monetization core of Internet giants. Through technologies such as collaborative filtering and deep cross network, the matching probability between users' historical behaviors and items is mined to achieve accurate push.
@@ -209,7 +209,7 @@ Machine learning has now deeply penetrated into all aspects of the digital and p
 | **MNIST** |CV (entry)|The handwritten digit recognition set is known as the "Hello World" in the field of machine learning.|
 | **GLUE** | NLP |A comprehensive benchmark for evaluating natural language understanding models, driving the BERT era.|
 
-### 2.8.2 Mainstream tools and open source frameworks
+### 2.8.2 Tools and frameworks
 {: id="282-主流工具与开源框架"}
 
 - **Scikit-learn**: A traditional machine learning library under Python that provides unified interfaces for linear models, tree models, SVM, clustering, preprocessing and model evaluation.
@@ -229,7 +229,7 @@ Machine learning has now deeply penetrated into all aspects of the digital and p
 
 Knowing the name of the algorithm is not enough. For a reproducible modeling experiment, you need to first define the task and verification method, and then optimize the model.
 
-### 2.9.1 Distinguishes between fitting, optimization and generalization
+### 2.9.1 Fitting, optimization, generalization
 {: id="291-区分拟合优化与泛化"}
 
 Taking supervised learning as an example, given $n$ training samples, a common goal is to minimize the empirical risk and regularization terms:
@@ -253,7 +253,7 @@ Parameters (such as linear weights) are learned by the training process; hyperpa
 
 Cross-validation is mainly used for model selection in the development stage and does not mean that time and grouping structure can be ignored. If you also want to use cross-validation to estimate the generalization performance of the program after parameter adjustment, nested cross-validation can be used. See [scikit-learn data leakage guide ](https://scikit-learn.org/stable/common_pitfalls.html) and [cross-validation document ](https://scikit-learn.org/stable/modules/cross_validation.html)].
 
-### 2.9.3 Indicator must correspond to the task cost
+### 2.9.3 Metrics should match task cost
 {: id="293-指标必须对应任务代价"}
 
 |Task|Common indicators|Interpretation points|
@@ -274,12 +274,12 @@ First establish naive baselines such as majority class and mean prediction, and 
 
 Continue to monitor input distribution, prediction quality, and feedback latency after launch. Offline testing only illustrates the performance of the model under specific data and evaluation protocols, and cannot replace post-deployment inspection.
 
-# 3. Classic algorithms and representative models
+# 3. Classic algorithms
 {: id="3-经典算法与代表性模型"}
 
 This chapter organizes content by model structure and purpose. The same method may span multiple categories, for example Transformer can be used for supervised classification, self-supervised pre-training or generative modeling; AE mainly learns representations and does not automatically define sampleable generative distributions.
 
-## 3.1 Core algorithm classification overview
+## 3.1 Algorithm overview
 {: id="31-核心算法分类概览"}
 
 Before delving into specific models, the following table sorts out the classic algorithm classifications and their representative models in machine learning:
@@ -892,7 +892,7 @@ The Causal Mask is used to ensure that only the previous token can be seen at ea
 
 <a id="ml-generation"></a>
 
-## 3.17 Generative Adversarial Network (GAN)
+## 3.17 GANs
 {: id="317-生成对抗网络-gan"}
 
 > **Core points**: Generator and discriminator game confrontation, G for fraud, D for fraud; sampling usually only requires one generator forward, but the training may be unstable and there is a risk of model collapse.

@@ -85,7 +85,7 @@ This conclusion answers the fundamental question of "Why can neural networks wor
 
  **The advantage of depth** : Theoretically (Telgarsky 2016 ) There is a class of functions that deep networks can express with far fewer units than shallow networks. It should be noted that the theorem describes the expression ability and parameter efficiency. It does not guarantee that the optimization process will find these parameters, nor does it directly guarantee the generalization performance.
 
-### Three major driving factors for the explosion of deep learning
+### Why deep learning took off
 {: id="深度学习爆发的三大驱动因素"}
 
 |factors|content|representative event|
@@ -220,7 +220,7 @@ flowchart LR
 
 The Computation Graph automatically records the forward calculation path, and during back propagation the gradient is transferred along the path in the opposite direction. PyTorch's `autograd` mechanism is based on this principle. Users only need to define forward calculations, and the framework automatically completes gradient calculations.
 
-### A minimal numerical example of backpropagation
+### A tiny backprop example
 {: id="一个最小反向传播数值例子"}
 
 Consider the simplest single hidden layer network: $y = w_2 \cdot \sigma(w_1 \cdot x)$, with loss $\mathcal{L} = \frac{1}{2}(y - t)^2$. Set $x=1, w_1=0.5, w_2=0.8, t=0.5$, activate $\sigma$ and take Sigmoid.
@@ -270,7 +270,7 @@ There are three forms of gradient descent depending on the number of samples use
 
 **Parameter Sharing (parameter sharing)**: Similar neurons in different positions share the same set of parameters (filter/convolution kernel). The same pattern (such as a horizontal edge) appearing anywhere in the image should be processed by the same detector - this constraint brings **translation equivariance (Translation Equivariance)**; only after pooling or global aggregation, the model will obtain a certain translation invariance.
 
-### Core hyperparameters of convolutional layers
+### Convolution hyperparameters
 {: id="卷积层的核心超参数"}
 
 |hyperparameters|meaning|Typical values|influence|
@@ -527,7 +527,7 @@ Problems with **Teacher Forcing**——**Exposure Bias**: The model has never "s
 <figcaption>Self-Attention architecture: Query, Key, Value After linear projection, the attention weight is calculated through scaling dot product and weighted summation is performed to obtain the output</figcaption>
 </div>
 
-### Core Mechanism: Scaled Dot-Product Attention
+### Core: scaled dot-product attention
 {: id="核心机制缩放点积注意力"}
 
 $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
@@ -733,7 +733,7 @@ Each sub-layer uses residual connections and cooperates with layer normalization
 - **Post-LN** (original version): First calculate the sub-layer and then add the residual to make LN. Good performance but difficult to train at deep level.
 - **Pre-LN** (commonly used in modern large models): Do LN first and then calculate the sub-layer, which is usually easier to train stably; whether Warmup is needed still depends on the model, optimizer and training settings.
 
-### The difference between Encoder and Decoder
+### Encoder vs. decoder
 {: id="encoder-与-decoder-的差异"}
 
 Transformer uses an encoder-decoder architecture. The core difference between the two is the **masking (Masking)**:
@@ -813,7 +813,7 @@ flowchart LR
 5. **Transformer Encoder**: Standard Transformer stack, usually 12–32 layers
 6. **classification head**: take [CLS] output and connect to MLP
 
-### Inductive Bias and Data Requirements for ViT
+### ViT inductive bias and data
 {: id="vit-的归纳偏置与数据需求"}
 
 |Contrast Dimensions| CNN | ViT |
@@ -908,7 +908,7 @@ $$\theta_{t+1} = \theta_t - \eta \cdot g_t$$
 
 Here, $\eta$ is the learning rate, and $g_t$ is the gradient of Loss to the parameters. In this way, all parameters share the same learning rate. However, in the actual loss surface, the gradients in different directions are very different, and it is difficult to take into account the fixed learning rate. This gave rise to the adaptive optimizer.
 
-### Momentum method: rolling down a hill like a ball
+### Momentum
 {: id="动量法像小球一样滚下山"}
 
 **Momentum** (Polyak 1964, re-developed by Sutskever et al., 2013 in deep learning) simulates the inertia of a small ball rolling down a hillside in physics:
@@ -1342,7 +1342,7 @@ $$\mathcal{L}' = \mathcal{L}_{data} + \lambda \sum_i \theta_i^2$$
 
 AdamW is the current standard optimizer for large language model training, and is usually used with gradient clipping.
 
-## 6.5 Semi-supervised learning and self-supervised learning
+## 6.5 Semi- and self-supervised learning
 {: id="65-半监督学习与自监督学习"}
 
 In real scenarios, labeled data is scarce and unlabeled data is cheap. **Semi-supervised learning (Semi-supervised Learning)** and **self-supervised learning (Self-supervised Learning)** are the two mainstream paths for utilizing unlabeled data.
@@ -1464,7 +1464,7 @@ The effects of Dropout, Batch Normalization, ResNet, and Data Augmentation have 
 
 **ImageNet Top-1 Accuracy evolution (see table in Section 4)**: AlexNet (56.5%) → VGG (71.5%) → ResNet (76.0%) → EfficientNet (84.4%). These numbers come from classic models and training recipes from different eras, and are mainly used to illustrate the evolution of the architecture.
 
-## 8.2 Natural Language Processing Benchmark
+## 8.2 NLP benchmarks
 {: id="82-自然语言处理基准"}
 
 ### GLUE / SuperGLUE
@@ -1640,7 +1640,7 @@ flowchart LR
 
 **Key challenges**: **Load balancing** (preventing all tokens from flooding to a few experts) - usually adding auxiliary losses or capacity constraints to avoid overloading a few experts. The statistical calibers of total parameters and activated parameters are not uniform. When comparing across models, the routing strategy and FFN scale should be viewed at the same time.
 
-## 10.2 Parameter efficient fine-tuning (PEFT)
+## 10.2 Parameter-efficient fine-tuning
 {: id="102-参数高效微调peft"}
 
 As the number of pretrained model parameters expands to tens or hundreds of billions, **Full Fine-tuning** GPU memory and storage costs tend to be high. **Parameter-Efficient Fine-Tuning(PEFT)** Only train a very small number of additional parameters (usually < 1% ), which can approximate the full parameter fine-tuning effect.
@@ -1743,7 +1743,7 @@ In LLM, distillation can act on logits, hidden representations, preference data,
 
 ---
 
-# 11. Cutting-edge architecture and large models
+# 11. Frontier architectures
 {: id="11-前沿架构与大模型"}
 
 ## 11.1 RLHF
@@ -1860,7 +1860,7 @@ $$\mathcal{L} = \mathbb{E}_{t, x_0, \epsilon}\left[\|\epsilon - \epsilon_\theta(
 
  **reasoning** , sampled from the standard normal distribution $x_T$ , then use $$\epsilon_\theta$$ Gradually remove noise, $T$ After the step, the generated sample is obtained.
 
-### Why are diffusion models more successful than GANs?
+### Why diffusion beat GANs
 {: id="为什么扩散模型比-gan-成功"}
 
 |Dimensions| GAN | Diffusion |
@@ -1918,7 +1918,7 @@ Among them $\bar{A} = e^{\Delta A}$, $\bar{B} = (\Delta A)^{-1}(e^{\Delta A} - I
 |**during training**|Equivalent to 1D convolution ($y = x * k$, $k$ is the convolution kernel)|Fully parallelized|
 |**during inference**|Equivalent to recursion (RNN style)|GPU memory $O(1)$, constant time step|
 
-### S4: Structured state space sequence model
+### S4: structured state spaces
 {: id="s4结构化状态空间序列模型"}
 
 **S4** (Gu et al., 2021) is the first practical deep SSM: restricting the matrix $A$ to **HiPPO initialized diagonal plus low rank (DPLR)** The structure makes long sequence training efficient and feasible, significantly surpassing Transformer on long sequence benchmarks such as Long Range Arena.
@@ -1990,7 +1990,7 @@ flowchart LR
 
 > **Current situation and prospects**: Mamba and SSM series are currently the most popular Transformer alternative architectures, demonstrating competitive performance in fields such as language, vision, and genomics. However, pure SSM is still weaker than Transformer in terms of general reasoning and in-context learning capabilities. The mainstream trend is **Mamba + Transformer hybrid architecture** (such as Jamba, Zamba) to take into account long sequence efficiency and global reasoning capabilities.
 
-## 11.5 Deep learning and large language model
+## 11.5 Deep learning and LLMs
 {: id="115-深度学习与大语言模型"}
 
 Deep learning (especially Transformer) is the technical foundation of large language models (LLM). **The division of labor between this article and the LLM training review is as follows**:

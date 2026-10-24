@@ -104,7 +104,7 @@ This article is divided into 14 main chapters. It is recommended to read selecti
 
 ---
 
-# 1. Overview of large model training basics
+# 1. LLM training basics
 {: id="1-大模型训练基础概述"}
 
 ## 1.1 What LLM training is
@@ -227,7 +227,7 @@ Optimize model behavior through human feedback or AI feedback to make it more co
 
 **output capability**: output is more helpful, safer, and more in line with human values.
 
-### 1.3.4 Summary and comparison of three stages
+### 1.3.4 Comparing the three stages
 {: id="134-三阶段总结对比"}
 
 |stage|pretraining|supervised fine-tuning|preference alignment|
@@ -347,7 +347,7 @@ How to fully assess model capabilities:
 - The complexity of multilingual, multimodal assessment
 - Performance differences in real application scenarios
 
-### 1.5.6 Unpredictability of emergent capabilities
+### 1.5.6 Unpredictable emergence
 {: id="156-涌现能力的不可预测性"}
 
 Unknowns brought about by the expansion of model scale:
@@ -367,7 +367,7 @@ Pretraining is the cornerstone of large model training, with the goal of allowin
 >
 > pretraining is part of the entire training process **The highest cost, the longest time, and the greatest technical difficulty** stage, accounting for 80-90% of the total cost. This chapter will introduce the objective function, data processing, training techniques and cutting-edge technologies of pretraining in detail to help readers understand how to train a base model from scratch.
 
-## 2.1 Overview of the complete pretraining process
+## 2.1 The pre-training pipeline
 {: id="21-预训练完整流程概览"}
 
 The following figure shows the complete training process from raw data to Base Model:
@@ -414,7 +414,7 @@ graph TD
 
 Before officially starting model training, we need to define how the model "reads" text. The tokenizer cuts continuous text into the smallest units (Tokens) that the model can understand.
 
-### 2.2.1 Why do we need to train a word segmenter?
+### 2.2.1 Why train a tokenizer
 {: id="221-为什么需要训练分词器"}
 If you use characters or words directly, you will face the problem that the vocabulary is too large (difficult to converge) or the information density of a single Token is too low (the sequence is too long). Modern large models generally use **subword (Subword)** word segmentation scheme, such as **BPE (Byte Pair Encoding)**.
 
@@ -839,7 +839,7 @@ Flash Attention reduces the GPU memory complexity of the attention layer from $O
 
 ---
 
-## 2.6 Cutting-edge technology of pretraining
+## 2.6 Pre-training frontiers
 {: id="26-预训练的前沿技术"}
 
 ### 2.6.1 MoE architecture
@@ -1268,7 +1268,7 @@ Total:~132-152GB
 - Need best performance
 - The task is quite different from pretraining
 
-### 3.4.2 Parameter Efficient Fine-tuning (PEFT)
+### 3.4.2 Parameter-efficient fine-tuning (PEFT)
 {: id="342-参数高效微调peft"}
 
 **Core idea**: freeze most parameters and only train a small number of parameters or additional parameters
@@ -1425,7 +1425,7 @@ The basic method of using strong models to directly generate instruction-respons
 - Interpretive data augmentation
 - Improve the reasoning ability of small models
 
-### 3.5.3 Quantitative fine-tuning acceleration
+### 3.5.3 Quantized fine-tuning
 {: id="353-量化微调加速"}
 
 The principles and comparisons of quantization methods such as QLoRA, GPTQ, and AWQ have been introduced in detail in the entire chapter "[Model Quantization Technology ](#8-模型量化技术)". This section focuses on Unsloth, a tool specifically used to accelerate quantization fine-tuning in the SFT scenario.
@@ -1944,7 +1944,7 @@ Different from traditional distillation (which allows the small model to imitate
 
 **Key insights**: DeepSeek-R1 uses about 800,000 samples generated and filtered by R1 to perform SFT distillation on the Qwen and Llama small models. Comparison of its technical report found that on Qwen-32B, the model obtained by **distillation is significantly stronger than the result of direct large-scale RL on the same base** - that is, "teaching the small model to learn the problem-solving process of the large model" is more efficient than "letting the small model explore on its own", because the small model's own exploration ability is far inferior to that of the large model.
 
-### 4.8.2 Distillation + Quadratic Reinforcement Learning
+### 4.8.2 Distillation plus RL
 {: id="482-蒸馏--二次强化学习"}
 
 The small model of pure SFT distillation already has strong reasoning capabilities, but it can still be further improved through a small amount of RL fine-tuning:
@@ -2343,7 +2343,7 @@ flowchart LR
 ## 6.2 Tensor parallelism (TP)
 {: id="62-张量并行tp"}
 
-### 6.2.1 Principle and segmentation strategy
+### 6.2.1 How tensors are split
 {: id="621-原理与切分策略"}
 When the size of a single layer weight matrix exceeds the memory of a single GPU GPU, tensor parallelism (such as Megatron-LM) implements distributed matrix multiplication calculations within the layer by splitting the weight parameters of each layer horizontally or vertically onto different GPUs on the same node (usually with high-speed NVLink interconnect).
 
@@ -2404,7 +2404,7 @@ flowchart LR
     style OUT fill:#c8e6c9,stroke:#1b5e20,color:#000
 ```
 
-### 6.2.2 Mathematical derivation and communication cost analysis
+### 6.2.2 Math and communication cost
 {: id="622-数学推导与通信代价分析"}
 For a basic Block of Transformer, its forward and reverse communication operator calls are very clear:
 - **Forward propagation (Forward)**:
@@ -2417,7 +2417,7 @@ For a basic Block of Transformer, its forward and reverse communication operator
 
 Megatron-LM abstracts this pair of operations into conjugate operators: $f$ is identity in the forward direction and All-Reduce in the reverse direction; $g$ is All-Reduce in the forward direction and identity in the reverse direction.
 
-### 6.2.3 Applicable scenarios and limitations
+### 6.2.3 When to use it
 {: id="623-适用场景与局限"}
 - **applicable scenario**: single-layer weight GPU memory exceeds the limit (such as the Attention layer and MLP layer of the 70B model).
 -  **limitations** : The communication frequency of TP is extremely high (there are 4 All-Reduces before each block), and the network transmission must be extremely fast. Therefore, TP is usually limited to **NVLink communication within a single node** , the TP degree is usually set to 2, 4 or 8, and cross-node TP is rarely performed.
@@ -2466,7 +2466,7 @@ flowchart LR
     style LOSS fill:#c8e6c9,stroke:#1b5e20,color:#000
 ```
 
-### 6.3.2 Scheduling strategy and bubble proportion formula
+### 6.3.2 Schedules and bubble ratio
 {: id="632-调度策略与气泡占比公式"}
 If the entire Batch is directly sent into the pipeline, most of the GPUs will be in an idle waiting state during forward and reverse, which is called pipeline bubble (Bubble). PP improves utilization by subdividing the Batch into $m$ smaller Micro-Batches.
 
@@ -2530,7 +2530,7 @@ flowchart TD
 {: id="641-原理"}
 - **mechanism**: In areas where tensor parallelism is not done in the Transformer layer (such as LayerNorm, Dropout, residual connection), standard TP still needs to redundantly store the complete activation value (Activation Memory) on each GPU. This part of GPU memory grows linearly with the sequence length $s$, accounting for a considerable proportion in long text training. Sequence Parallelism divides the sequence dimensions in the **non-attention computing layer** (each card is only responsible for the sequence of length $\frac{s}{p}$), and before performing QKV projection and MLP column projection, the complete sequence is put back together through `All-Gather`, and after the calculation is completed, it is passed `Reduce-Scatter` re-segmented.
 
-### 6.4.2 Advantages and long sequence distributed optimization
+### 6.4.2 Long-sequence optimization
 {: id="642-优势与长序列分布式优化"}
 - **Cost reduction and efficiency improvement**: Successfully allocate the activation value GPU memory at LayerNorm and Dropout to $p$ GPUs.
 - **supports longer context**: combined with TP (i.e. TP-SP), combined with selective activation recalculation, the activation of GPU memory in Megatron-LM experiments can be reduced by about 5 times (Korthikanti et al., 2022). Longer contexts (millions of tokens) require solutions such as Ring Attention to segment the sequence within the attention (see Section 2.5.3.4).
@@ -3012,7 +3012,7 @@ flowchart TD
 
 ---
 
-## 7.4 Regularization and numerical stability techniques
+## 7.4 Regularization and stability
 {: id="74-正则化与数值稳定性技术"}
 
 In large model training, regularization is not only used to prevent overfitting, but also plays a more critical role in improving numerical stability under mixed precision training.
@@ -3214,7 +3214,7 @@ $$
 - Handling Outliers
 - Balancing Quantization Granularity and Precision Loss
 
-### 8.1.2 Mathematical principles of quantification
+### 8.1.2 The math of quantization
 {: id="812-量化的数学原理"}
 
 #### 8.1.2.1 Symmetric Quantization
@@ -3322,7 +3322,7 @@ Different quantization bits and numerical formats have complex trade-offs betwee
 ## 8.2 Quantization methods
 {: id="82-量化方法分类"}
 
-### 8.2.1 Classification by Quantification Timing
+### 8.2.1 By when to quantize
 {: id="821-按量化时机分类"}
 
 ```mermaid
@@ -3381,7 +3381,7 @@ graph LR
 - **LLM-QAT**: large model quantization perception training
 - **BitNet**: Extremely low-bit (1.58-bit) quantization training
 
-### 8.2.4 Classification by quantified objects
+### 8.2.4 By what to quantize
 {: id="824-按量化对象分类"}
 
 |Quantitative object|Description|difficulty|Common methods|
@@ -3483,7 +3483,7 @@ The quantized weights can also be directly loaded and used by frameworks such as
 
 ---
 
-### 8.3.2 AWQ: Activation Perceptual Weight Quantization
+### 8.3.2 AWQ: activation-aware quantization
 {: id="832-awq激活感知权重量化"}
 
 #### 8.3.2.1 Core Insights
@@ -3923,7 +3923,7 @@ The main conclusions of the BitNet b1.58 paper (Ma et al., 2024):
 | **vLLM** | FP8, INT8 |High-throughput reasoning|Production deployment|
 | **TensorRT-LLM** | INT8, INT4, FP8 |NVIDIA optimization|NVIDIA GPU deployment|
 
-### 8.5.2 Quantitative Process Best Practices
+### 8.5.2 Quantization best practices
 {: id="852-量化流程最佳实践"}
 
 #### 8.5.2.1 Decision tree for selecting quantification method
@@ -4286,7 +4286,7 @@ Data is the cornerstone of large model training. High-quality training data dire
 - Typical approach (FineWeb-Edu): First use a strong model (Llama-3-70B-Instruct) to score "educational value" on a scale of 0-5 for about 450,000 web pages, then use these annotations to train a lightweight classifier, score the full amount of data and retain high-scoring documents
 - The data filtered out in this way can achieve the same effect with fewer tokens on knowledge and reasoning benchmarks such as MMLU and ARC.
 
-### 9.2.3 Toxicity and Harmful Content Detection
+### 9.2.3 Toxicity detection
 {: id="923-毒性与有害内容检测"}
 
 #### 9.2.3.1 Toxicity testing
@@ -4560,7 +4560,7 @@ The evaluation system is an important tool to measure training effectiveness and
 - **Features**: More complex real-world programming tasks
 - **Evaluation**: Tool usage, API calls, complex logic
 
-### 10.2.6 New benchmarks in the era of inference models
+### 10.2.6 Benchmarks for reasoning models
 {: id="1026-推理模型时代的新基准"}
 
 Classic benchmarks such as GSM8K and HumanEval have been "full" by cutting-edge models (accuracy rates generally exceed 90%), their discrimination has declined, and they are more susceptible to training data pollution. The evaluation of inference models and agents turns to harder and newer benchmarks:
@@ -4766,7 +4766,7 @@ The vulnerabilities discovered by the red team testing will eventually be return
 - Comprehensive consideration of performance, safety and efficiency
 - Focus on long-tail capabilities and edge cases
 
-### 10.8.3 Relationship between evaluation and training
+### 10.8.3 Evaluation and training
 {: id="1083-评测与训练的关系"}
 - Evaluation results guide training direction
 - Avoid over-optimizing against benchmarks (swiping the rankings)
@@ -4774,12 +4774,12 @@ The vulnerabilities discovered by the red team testing will eventually be return
 
 ---
 
-# 11. Practical Guidelines and Best Practices
+# 11. Practical guide
 {: id="11-实践指南与最佳实践"}
 
 This chapter provides engineering guidance for practical training of large models, including hardware configuration, cost estimation, monitoring and debugging, and code examples.
 
-## 11.1 Hardware configuration recommendations
+## 11.1 Hardware recommendations
 {: id="111-硬件配置建议"}
 
 ### 11.1.1 Configurations by model size
@@ -5025,7 +5025,7 @@ logger.log({"learning_rate": current_lr})
 - **GPU memory occupied**: avoid OOM, retain 10-15% buffer
 - **communication time ratio**: <20% is better
 
-### 11.3.2 Diagnosis and resolution of common problems
+### 11.3.2 Diagnosing common problems
 {: id="1132-常见问题诊断与解决"}
 
 #### 11.3.2.1 Problem 1: Out of Memory (OOM)
@@ -5351,7 +5351,7 @@ How big is the difference between **?** Depends on task and data volume:
 
 ---
 
-### 12.2.2 Q6: How much SFT data is required?
+### 12.2.2 Q6: How much SFT data
 {: id="1222-q6-需要多少sft数据"}
 
 **A:** is much less than pretraining, quality is more important than quantity:
@@ -5658,7 +5658,7 @@ assert 4 * 8 * 4 == 128  # ✓ Just full
 
 ---
 
-### 12.5.2 Q12: What should I do if the GPU memory is not enough?
+### 12.5.2 Q12: Running out of GPU memory
 {: id="1252-q12-显存不够怎么办"}
 
 **A:** Multi-layer optimization strategy:

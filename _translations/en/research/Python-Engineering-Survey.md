@@ -28,10 +28,10 @@ Python engineering turns research code into a project that others can install, r
 <figcaption>Figure: To turn a research script into an installable project, you need to clarify the environment and dependencies, organize the code and interfaces, establish quality checks, and complete building and delivery; reproducibility also depends on the platform, data, and operating conditions. </figcaption>
 </figure>
 
-# 1. From research scripts to installable projects
+# 1. From scripts to installable projects
 {: id="一从研究脚本到可安装项目"}
 
-## 1.1 Problems to be solved in this article
+## 1.1 What this guide covers
 {: id="11-本文要解决的问题"}
 
 Most AI and robotics projects begin with a single `train.py`. It runs well on your machine. Three months later, the situation often looks like this:
@@ -92,7 +92,7 @@ All configuration blocks in this article that can be copied directly have applic
 
 Most cases of “installed but cannot import” have the same cause: **the interpreter used to install the package differs from the interpreter running the code**. This chapter explains which interpreter is running and where it searches for packages.
 
-## 2.1 What exactly happens during an import?
+## 2.1 What an import does
 {: id="21-一次导入到底发生了什么"}
 
 ```mermaid
@@ -275,7 +275,7 @@ Then switch to `Python (navkit)` in the upper right corner of the Notebook.
 
 The situation of VS Code is similar: it has an independent "Python interpreter" selection (`Ctrl+Shift+P` → *Python: Select Interpreter*), which is two sets of states from the environment you activate in the integrated terminal. The debugger uses the former and the terminal uses the latter.
 
-## 2.7 Additional pitfalls of Windows and WSL
+## 2.7 Windows and WSL pitfalls
 {: id="27-windows-与-wsl-的额外坑"}
 
 On many Windows machines, the first result of `where python` is:
@@ -299,7 +299,7 @@ A few remaining Windows/WSL differences:
 
 > **crossing WSL boundaries is a pure trap.** Do not build a venv under `/mnt/c/...`, and do not let Python in WSL use `.venv` on the Windows side. The binary formats are different (ELF vs. PE), file system performance is an order of magnitude worse, and line endings and permission semantics are inconsistent. When **developing in WSL, put the repository in its native filesystem** (such as `~/code/navkit`), and open it with VS Code's Remote-WSL.
 
-# 3. Project structure and project statement
+# 3. Project structure
 {: id="三项目结构与项目声明"}
 
 The directory tree and `pyproject.toml` describe two sides of the same project: how files are arranged on disk, and which files the installer should place in site-packages.
@@ -524,7 +524,7 @@ When selecting a back-end model, just choose one according to the actual situati
 
 `navkit` is pure Python, using hatchling. Projects with native extensions require additional work (cross-compilation, ABI compatibility, manylinux build images). This article only explains the compatibility rules at the product level in §7.2, and the complete extension build workflow is not carried out.
 
-## 3.6 Editable installation: principles and pitfalls
+## 3.6 Editable installs
 {: id="36-可编辑安装原理与陷阱"}
 
 When developing you don't want to have to rebuild the installation every time you change a line of code. editable installation (`pip install -e .`, or what uv does automatically) solves this problem.
@@ -545,7 +545,7 @@ So `import navkit` directly reads your source code, and the changes will take ef
 2. **The newly added subpackage may not be recognized.** Different backends have different `.pth` strategies: some connect the entire `src/` directory (new sub-packages are automatically visible), and some use precise mapping (must be reinstalled). If you encounter "The newly created module cannot be imported", reinstall it first.
 3. **Editable installation cannot verify packaging correctness.** It bypasses the decision about which files enter the wheel. The `default_params.yaml` in §3.3 may remain readable even if omitted from `[tool.hatch.build]`. This is why the clean-environment check in §7.3 is essential.
 
-## 3.7 Import, working directory and resource path
+## 3.7 Imports, cwd and resource paths
 {: id="37-导入工作目录与资源路径"}
 
 **An iron rule: Never use relative paths to read data files in packages.**
@@ -693,7 +693,7 @@ There are two exceptions to be aware of:
 |Keep manually installed extra packages| `uv sync --inexact` |
 |Make a package an official dependency of the project|`uv add <pkg>` - Do not use `uv pip install`|
 
-## 4.4 Commands corresponding to daily tasks
+## 4.4 Everyday commands
 {: id="44-日常任务对应命令"}
 
 Instead of listing the full set of commands (that's a matter of official documentation), we only give the mapping from tasks to commands:
@@ -738,7 +738,7 @@ uvx ruff check .                  # Run once temporarily without leaving any tra
 
 Without either flag, uv automatically re-resolves dependencies when the project declaration and lockfile disagree. CI may then test different dependencies from your local environment. Use `--locked` to make that drift an explicit build failure.
 
-## 4.5 Differences between four dependencies
+## 4.5 Four kinds of dependencies
 {: id="45-四种依赖的区别"}
 
 Cramming everything into a `dependencies` list is a common problem when research code. The result is that in order to run inference, users are forced to install pytest, ruff and a complete set of documentation tools.
@@ -1228,7 +1228,7 @@ done
 
 When research code, these three things usually look like this: configuration relies on changing constants in the source code, logging relies on `print`, and command lines rely on `sys.argv[1]`. All three can run, and they all collapse at the same time when the project grows.
 
-## 6.1 Configuration: First determine the priority chain
+## 6.1 Configuration precedence
 {: id="61-配置先确定优先级链"}
 
 Before choosing a tool, make sure of one thing: When the same parameter appears in multiple places, who has the final say?. This order should be fixed and public:
@@ -1443,7 +1443,7 @@ The pure Python package is `py3-none-any` - no matter the three dimensions, one 
 > **Misunderstanding 2: `abi3` = "Common to all Python".**
 > No. `abi3` means that the extension only uses the stable ABI subset of CPython, so it can run on the declared minimum CPython version and later versions. It still binds CPython (PyPy does not apply) and is lower bounded.
 
-## 7.3 Build and verify in a clean environment
+## 7.3 Verifying in a clean environment
 {: id="73-构建并在干净环境里验证"}
 
 This step is the homework left behind in §3.6 - editable installation cannot verify the correctness of the packaging, only this step can.
@@ -1474,7 +1474,7 @@ Typical problems that can be caught in this step:
 
 > For a stricter check, run `twine check dist/*` to verify PyPI metadata requirements. Checking before upload is easier than changing the version after a failed release.
 
-## 7.4 Publishing: Give priority to trusted publishing
+## 7.4 Trusted publishing
 {: id="74-发布优先用可信发布"}
 
 The traditional approach is to generate a PyPI API token and store it in CI secrets. The problem with this solution is that the token is valid for a long time : Once leaked, it will be available until you manually revoke it.
@@ -1618,7 +1618,7 @@ Several deliberate designs:
 - **`fail-fast: false`** - The default value `true` will kill the remaining tasks when the first combination fails, so you can only see "Windows fails", but you don't know if Linux also fails. For cross-platform matrices, this default is almost always wrong.
 - **`-m "not gpu"`** – GitHub’s standard runner does not have a GPU. GPU testing is offloaded to a self-hosted runner or nightly task.
 
-## 7.7 Version number and dependency security
+## 7.7 Versions and dependency security
 {: id="77-版本号与依赖安全"}
 
 Regarding the **version number**, different strategies are adopted according to the classification in §3.1:
@@ -1666,7 +1666,7 @@ uvx pip-audit                       # Check current dependencies against known v
 
 The content in the first seven chapters applies to any Python project. This chapter deals with problems unique to this field - almost all of them occur in the orange area at the bottom of the picture in §2.4: the system and driver layer that Python tools cannot manage.
 
-## 8.1 GPU dependency stack: who manages each layer?
+## 8.1 The GPU dependency stack
 {: id="81-gpu-依赖栈谁管哪一层"}
 
 "`torch.cuda.is_available()` returns False" is difficult to check because the GPU dependency is a four-layer structure, and pip/uv can only touch one of the layers:
@@ -1887,7 +1887,7 @@ uv pip install -e .        # Pay attention to use uv pip Workflow (§4.2), Don't
 
 > **Plan C deserves serious consideration.** When your algorithm uses torch 2.x + the new version of numpy, and the ROS distribution is locked on the old dependency, instead of fighting dependency resolution, it is better to accept the fact that "they should be two processes." This is also the hierarchical decoupling idea discussed in the two articles of this blog {% include content-link.html url="/ROS2-Survey/" label="ROS 2 Overview" %} and {% include content-link.html url="/Embodied-Agent-Harness-Survey/" label="Embodied Control System" %}.
 
-## 8.5 Environment reproducible ≠ Experiment reproducible
+## 8.5 Reproducible env ≠ reproducible results
 {: id="85-环境可复现--实验可复现"}
 
 This is the most important thing to realize in research projects: lock dependencies and set up seeds, and there are still two layers away from "experimental reproducible".
@@ -2034,10 +2034,10 @@ This table is indexed by symptom, not by tool. If you encounter a problem, start
 |Same seed, two machines have different results|GPU model, cuDNN version, TF32|Not reproducible across hardware (§8.5)|
 |Docker build reinstalls dependencies every time|Is the dependency layer separated from the source layer?|Missing `--no-install-project` layer (§7.5)|
 
-# 9. Implementation Checklist and Decision Tree
+# 9. Checklists and decision tree
 {: id="九落地清单与决策树"}
 
-## 9.1 Decision tree: first decide which path you want to take
+## 9.1 Choosing a path
 {: id="91-决策树先确定你走哪条路"}
 
 ```mermaid
@@ -2063,7 +2063,7 @@ flowchart TB
     style M4 fill:#ffe8cc,stroke:#e8590c
 ```
 
-## 9.2 Create new from scratch: ten-minute checklist
+## 9.2 New project in ten minutes
 {: id="92-从零新建十分钟清单"}
 
 ```bash
@@ -2149,7 +2149,7 @@ Migration often fails because too many things change at once, making the cause h
 - [ ] Know which level of "environmental reproducible" you are at, and state it truthfully in your paper/report
 - [ ] ROS 2 project: Match the Python version of venv to the distribution, or simply use a container
 
-# Appendix A: Performance and Concurrency (Short Version)
+# Appendix A: Performance and concurrency
 {: id="附录-a性能与并发简版"}
 
 Performance optimization is a separate subject. This appendix covers only the parts directly connected to project engineering: integrating profilers and choosing a concurrency model.
