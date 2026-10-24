@@ -10,10 +10,10 @@ categories: weekly
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "本期新增 119 项独立工作，主池 48 篇，2 篇涉及 R2R-CE。SimpleVLN 报告 R2R-CE SR 76.7%、RxR-CE SR 80.1%；目标核验、本体可通行性与严格接触执行成为本期重点。"
+excerpt: "本期新增 119 项独立工作，VLN 主线 14 篇、具身 Agentic 导航主线 5 篇，2 篇涉及 R2R-CE。SimpleVLN 报告 R2R-CE SR 76.7%、RxR-CE SR 80.1%；目标核验、本体可通行性与严格接触执行成为本期重点。"
 ---
 
-> **本期数字**：新增 119 篇 / 119 项独立工作 · 主池 48 篇（导航 30 / 具身 Agent 18）· 次池 71 篇 · R2R-CE 2 篇 · 公众号 0 条 · 另更新已有论文 6 篇
+> **本期数字**：新增 119 篇 / 119 项独立工作 · 主线：VLN 14 篇 / 具身 Agentic 导航 5 篇 · 其他方向 100 篇 · R2R-CE 2 篇 · 公众号 0 条 · 另更新已有论文 6 篇
 
 ## 一、本期要点
 {: id="key-points"}
@@ -29,11 +29,16 @@ excerpt: "本期新增 119 项独立工作，主池 48 篇，2 篇涉及 R2R-CE�
 ### 1. SimpleVLN：保留原生架构，联合优化记忆、数据与训练
 {: id="simplevln"}
 
-**[论文](https://arxiv.org/abs/2610.23203v1)** · 指令跟随 · R2R-CE / RxR-CE（连续环境）
+**[论文](https://arxiv.org/abs/2610.23203v1)** · 主线：VLN · [我的导读](https://tingdeliu.github.io/VLN-Papers/#simplevln) · 指令跟随 · R2R-CE / RxR-CE（连续环境）
 
 **问题。** 增加专用模块之前，原生多模态模型的导航潜力是否已被充分挖掘？
 
 **方法。** 固定预算的全局与局部记忆配合动作块；专家示范、随策略变化的 DAgger 数据与合成任务，支持 IL→DAgger→RL 的渐进训练。
+
+<div align="center">
+<img src="/images/vln/SimpleVLN-overview.webp" alt="SimpleVLN架构图" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/692" />
+<figcaption>SimpleVLN：历史帧、当前观察与指令送入 MLLM，直接预测动作块。（<a href="https://arxiv.org/html/2610.23203v1#S2.F2">论文原图 2</a>）</figcaption>
+</div>
 
 **证据。** 摘要报告 R2R-CE SR 76.7%、RxR-CE SR 80.1%，未注明具体划分。
 
@@ -44,11 +49,16 @@ excerpt: "本期新增 119 项独立工作，主池 48 篇，2 篇涉及 R2R-CE�
 ### 2. CLOSER：把停止决策改成主动取证
 {: id="closer"}
 
-**[论文](https://arxiv.org/abs/2610.28476v1)** · ObjectNav · Gibson / Habitat-Matterport 3D
+**[论文](https://arxiv.org/abs/2610.28476v1)** · 主线：VLN · ObjectNav · Gibson / Habitat-Matterport 3D
 
 **问题。** 检测器会把相似物体认成目标，单帧高置信判断可能导致错误停止。
 
 **方法。** 经微调的 VLM 为跟踪候选的各视角输出目标、非目标或不确定；多样性门控与概率融合整合证据，不确定时由扩散策略继续接近观察。
+
+<div align="center">
+<img src="/images/vln/CLOSER-overview.webp" alt="CLOSER架构图" width="100%" loading="lazy" decoding="async" style="aspect-ratio:2000/1108" />
+<figcaption>CLOSER：跟踪候选并融合多视角证据，不确定时主动接近取证。（<a href="https://arxiv.org/html/2610.28476v1#S3.F2">论文原图 2</a>）</figcaption>
+</div>
 
 **证据。** 摘要报告上述两个场景集的平均 SR 提升 3.6 点、SPL 提升 2.0 点。
 
@@ -59,11 +69,16 @@ excerpt: "本期新增 119 项独立工作，主池 48 篇，2 篇涉及 R2R-CE�
 ### 3. PASS-VLN：同一条指令，应随机器人宽度改变执行结果
 {: id="pass-vln"}
 
-**[论文](https://arxiv.org/abs/2610.22812v1)** · 局部语言导航 · PASS-VLN
+**[论文](https://arxiv.org/abs/2610.22812v1)** · 主线：VLN · 局部语言导航 · PASS-VLN
 
 **问题。** 默认指令可执行，会掩盖机器人本体尺寸造成的局部通行失败。
 
 **方法。** 固定场景、指令、起点和参考路线，仅改变本体宽度；用深度局部 BEV 的障碍膨胀编码宽度，融合视觉语言信息，输出连续闭环执行的离散潜动作码。
+
+<div align="center">
+<img src="/images/vln/PASS-VLN-overview.webp" alt="PASS-VLN架构图" width="100%" loading="lazy" decoding="async" style="aspect-ratio:2000/726" />
+<figcaption>PASS-VLN：将本体宽度条件下的几何特征与视觉语言信息融合，再解码闭环动作。（<a href="https://arxiv.org/html/2610.22812v1#S3.F2">论文原图 2</a>）</figcaption>
+</div>
 
 **证据。** 摘要报告 PASS-VLN 上无碰撞成功率比经同基准微调的强 VLN 模型高约 12 个百分点，并报告未见宽度泛化与真机部署。
 
@@ -74,11 +89,16 @@ excerpt: "本期新增 119 项独立工作，主池 48 篇，2 篇涉及 R2R-CE�
 ### 4. VeSTA：让训练反馈与严格接触执行一致
 {: id="vesta"}
 
-**[论文](https://arxiv.org/abs/2610.25687v1)** · 连续 VLN · 摘要写 R2R / RxR，未明确标为 CE
+**[论文](https://arxiv.org/abs/2610.25687v1)** · 主线：VLN · 连续 VLN · 摘要写 R2R / RxR，未明确标为 CE
 
 **问题。** 宽松碰撞模型可能允许物理上不可执行的动作完成导航。
 
 **方法。** 轨迹级相对分组策略优化使用严格接触反馈，增加可执行候选的概率；可通行性风险评价器再按风险调整的效用选择候选未来。
+
+<div align="center">
+<img src="/images/vln/VeSTA-overview.webp" alt="VeSTA架构图" width="100%" loading="lazy" decoding="async" style="aspect-ratio:2000/1055" />
+<figcaption>VeSTA：严格接触反馈调整轨迹分布，风险评价器选择可执行候选。（<a href="https://arxiv.org/html/2610.25687v1#S1.F2">论文原图 2</a>）</figcaption>
+</div>
 
 **证据。** 摘要无数值；论文称严格接触评测减少碰撞失败，并提供受控真机迁移实验。
 
@@ -89,11 +109,16 @@ excerpt: "本期新增 119 项独立工作，主池 48 篇，2 篇涉及 R2R-CE�
 ### 5. DialogMem：对话进入记忆后，还要绑定到可定位的对象
 {: id="dialogmem"}
 
-**[论文](https://arxiv.org/abs/2610.24767v1)** · 对话记忆 · 实例级对象导航 / 问答
+**[论文](https://arxiv.org/abs/2610.24767v1)** · 主线：具身 Agentic 导航 · 对话记忆 · 实例级对象导航 / 问答
 
 **问题。** 视觉记忆难以把人类对话持续关联到曾观察到的具体物体。
 
 **方法。** 先从时间对齐的带位姿 RGB-D 与对话构建记忆，再检索用于对象导航和问答；统一比较记忆形成、检索与输出推理。
+
+<div align="center">
+<img src="/images/vln/DialogMem-overview.webp" alt="DialogMem任务流程图" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1890/1276" />
+<figcaption>DialogMem：先从视觉与对话形成记忆，再评测实例导航与问答。（<a href="https://arxiv.org/html/2610.24767v1#Sx2.F1">论文原图 1</a>）</figcaption>
+</div>
 
 **证据。** 基准含 27 个真实场景的 142 个片段、14,193 对问答和 11,890 条导航指令；摘要未给导航 SR，仅报告追加对话的导航收益可忽略。
 
@@ -143,15 +168,13 @@ excerpt: "本期新增 119 项独立工作，主池 48 篇，2 篇涉及 R2R-CE�
 A 为直接相关，B 为机制可迁移，C 为领域观察；以下五组覆盖本期全部 119 项独立工作。
 
 <details markdown="1">
-<summary>地面 VLN / ObjectNav / 语义导航 · A · 16 篇</summary>
+<summary>VLN 与语义导航 · A · 14 篇</summary>
 
 - [ChairNav](https://arxiv.org/abs/2610.24012v1)：轮椅跨本体适配与用户干预学习。
 - [HAVANA](https://arxiv.org/abs/2610.24122v1)：异步潜计划与快速局部轨迹。
 - [PASS-VLN](#pass-vln)：见精读。
 - [SimpleVLN](#simplevln)：见精读。
 - [StopWatch](https://arxiv.org/abs/2610.23841v1)：显式目标定位与停止判断。
-- [DialogMem](#dialogmem)：见精读。
-- [Structure over Reasoning](https://arxiv.org/abs/2610.25130v1)：小模型只提供感知证据，结构化模块导航。
 - [EmbodiedWorld-200K](https://arxiv.org/abs/2610.25959v1)：导航规划数据与世界模型交互训练。
 - [ReInsVLN](https://arxiv.org/abs/2610.26545v1)：压缩并重新调用历史证据。
 - [VeSTA](#vesta)：见精读。
@@ -165,11 +188,21 @@ A 为直接相关，B 为机制可迁移，C 为领域观察；以下五组覆�
 </details>
 
 <details markdown="1">
-<summary>地图、记忆、协作与评测 · B · 23 篇</summary>
+<summary>具身 Agentic 导航 · A · 5 篇</summary>
+
+- [InstAgent](https://arxiv.org/abs/2610.23098v1)：行为树、共享记忆与协作交接。
+- [DialogMem](#dialogmem)：见精读。
+- [Structure over Reasoning](https://arxiv.org/abs/2610.25130v1)：小模型只提供感知证据，结构化模块导航。
+- [DPGP](https://arxiv.org/abs/2610.26359v1)：用发现概率图处理隐藏协作需求。
+- [TARSphere](https://arxiv.org/abs/2610.30043v1)：动态物理与社会约束下的长程任务。
+
+</details>
+
+<details markdown="1">
+<summary>可迁移机制与 VLA / 操作 · B/C · 76 篇</summary>
 
 - [Cambrian-BEV](https://arxiv.org/abs/2610.22700v1)：空间聚合视觉词元，压缩多帧历史。
 - [FOUND-IT System](https://arxiv.org/abs/2610.23622v1)：把单目场景图接入移动操作系统。
-- [InstAgent](https://arxiv.org/abs/2610.23098v1)：行为树、共享记忆与协作交接。
 - [Robot Metareasoning](https://arxiv.org/abs/2610.23662v1)：按状态调整计算与动作承诺时间。
 - [Offline Empowerment](https://arxiv.org/abs/2610.24461v1)：从离线轨迹估计探索价值。
 - [GOFusion](https://arxiv.org/abs/2610.25261v1)：占据与高斯子图融合，辅助主动观察。
@@ -177,7 +210,6 @@ A 为直接相关，B 为机制可迁移，C 为领域观察；以下五组覆�
 - [RCRA](https://arxiv.org/abs/2610.25419v1)：按行人反应性调节保守导航策略。
 - [BetaMem](https://arxiv.org/abs/2610.26554v1)：可追溯记忆写入、遗忘与局部规则修补。
 - [CoopUQ](https://arxiv.org/abs/2610.26852v1)：联合占据预测与不确定性感知协同导航。
-- [DPGP](https://arxiv.org/abs/2610.26359v1)：用发现概率图处理隐藏协作需求。
 - [ForagerSim](https://arxiv.org/abs/2610.26395v1)：动态大场景中的地图推理评测。
 - [LVMem](https://arxiv.org/abs/2610.27104v1)：把检索文本连回原始视觉证据。
 - [MEAN](https://arxiv.org/abs/2610.26297v1)：面向具身任务闭环的网络系统综述。
@@ -186,16 +218,9 @@ A 为直接相关，B 为机制可迁移，C 为领域观察；以下五组覆�
 - [Externalise the Memory](https://arxiv.org/abs/2610.30478v1)：固定策略下比较外部检索与权重蒸馏。
 - [VLA Corpus Selection](https://arxiv.org/abs/2610.29646v1)：检验反事实诊断是否真的改善数据选择。
 - [PAPAV](https://arxiv.org/abs/2610.30108v1)：按感知、预判、规划、行动、核验审视评测。
-- [TARSphere](https://arxiv.org/abs/2610.30043v1)：动态物理与社会约束下的长程任务。
 - [Sparse Topometric Graph](https://arxiv.org/abs/2610.31432v1)：以几何与连通结构匹配跨会话地图。
 - [CARE](https://arxiv.org/abs/2610.30587v1)：用评价器和共享交接记忆切换云端执行。
 - [Refinable Semantic Mapping](https://arxiv.org/abs/2610.31476v1)：逐点置信更新清除过时空间记忆。
-
-</details>
-
-<details markdown="1">
-<summary>VLA / 操作 · C · 56 篇</summary>
-
 - **数据、表征与训练（17）**：[GRASP](https://arxiv.org/abs/2610.23123v1)、[ActiveAlign](https://arxiv.org/abs/2610.23378v1)、[Model-to-Policy](https://arxiv.org/abs/2610.23053v1)、[GazeAct](https://arxiv.org/abs/2610.24507v1)、[Relational Spatial Alignment](https://arxiv.org/abs/2610.24705v1)、[ALIGN](https://arxiv.org/abs/2610.26455v1)、[FR-VLA](https://arxiv.org/abs/2610.25981v1)、[Agricultural VLA](https://arxiv.org/abs/2610.26717v1)、[VLDA](https://arxiv.org/abs/2610.25874v1)、[PLaCA](https://arxiv.org/abs/2610.27657v1)、[Real2Sem2Real](https://arxiv.org/abs/2610.28880v1)、[Generative Plan Latents](https://arxiv.org/abs/2610.28166v1)、[AtomicRL](https://arxiv.org/abs/2610.30097v1)、[SimPT](https://arxiv.org/abs/2610.29161v1)、[DRILL](https://arxiv.org/abs/2610.30814v1)、[Sensorimotor Alignment](https://arxiv.org/abs/2610.31670v1)、[Tactile Manipulation Survey](https://arxiv.org/abs/2610.30438v1)
 - **记忆、监测与执行框架（14）**：[RePlanMem-VLA](https://arxiv.org/abs/2610.22556v1)、[IMEP](https://arxiv.org/abs/2610.23372v1)、[VLA Memory Survey](https://arxiv.org/abs/2610.23319v1)、[RTPC](https://arxiv.org/abs/2610.24573v1)、[Runtime Safety Check](https://arxiv.org/abs/2610.27350v1)、[EventSync](https://arxiv.org/abs/2610.27917v1)、[FIT-MAC](https://arxiv.org/abs/2610.28109v1)、[JARVIS](https://arxiv.org/abs/2610.27618v1)、[RoboCasa-Shift](https://arxiv.org/abs/2610.27861v1)、[SERA](https://arxiv.org/abs/2610.29560v1)、[PAL](https://arxiv.org/abs/2610.29329v1)、[Echo](https://arxiv.org/abs/2610.31569v1)、[WholeBodyMem](https://arxiv.org/abs/2610.31166v1)、[Progress Probes P2](https://arxiv.org/abs/2610.31613v1)
 - **推理、压缩与持续适配（12）**：[MambaAct](https://arxiv.org/abs/2610.22951v1)、[NestedVLA](https://arxiv.org/abs/2610.23271v3)、[FlashRT-PAI](https://arxiv.org/abs/2610.24349v1)、[SARAM](https://arxiv.org/abs/2610.24804v1)、[VLA-Rolling](https://arxiv.org/abs/2610.25043v3)、[PaceVLA](https://arxiv.org/abs/2610.25961v2)、[SPAR](https://arxiv.org/abs/2610.26487v1)、[PACT-VLA](https://arxiv.org/abs/2610.28019v1)、[Kernel-Variance Heads](https://arxiv.org/abs/2610.29730v1)、[FocusVLA](https://arxiv.org/abs/2610.31423v1)、[SmolVLA-MoE](https://arxiv.org/abs/2610.30732v1)、[One-Step Flow Policies](https://arxiv.org/abs/2610.30735v1)
