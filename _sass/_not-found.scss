@@ -1,0 +1,44 @@
+// 404 page drawn as a failed navigation episode. Colors come from the theme tokens the canvas reads.
+.article-page .nf-episode {
+  margin: 0 0 28px;
+
+  .nf-map { padding: 14px; border: 1px solid var(--rule); border-radius: 2px; background: var(--panel); }
+  .nf-map canvas { display: block; width: 100%; color: var(--ink); }
+
+  .nf-log {
+    min-height: 7.5em;
+    margin: 16px 0 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font: 12px/1.7 $code-font;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .nf-metrics { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 12px 0 0; color: var(--muted); font: 13px $code-font; }
+  .nf-metrics[hidden] { display: none; }
+  .nf-metrics b { color: var(--accent); font-weight: 500; }
+}
+
+.article-page .nf-copy {
+  .nf-nodes-label { margin-bottom: 8px; }
+  .nf-nodes { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 0 0 24px; padding: 0; list-style: none; }
+  .nf-nodes > li { margin: 0; padding: 0; }
+  .nf-nodes > li:before { content: none; }
+  .nf-nodes a { font: 14px $code-font; }
+  .nf-nodes a:before { content: '→ '; color: var(--muted); }
+
+  .nf-retry {
+    padding: 6px 14px;
+    border: 1px solid var(--accent);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--accent);
+    font: 13px $code-font;
+    cursor: pointer;
+    &:hover { background: var(--accent); color: var(--paper); }
+    &:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  }
+}

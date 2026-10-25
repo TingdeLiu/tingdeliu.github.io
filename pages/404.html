@@ -1,0 +1,50 @@
+---
+layout: page
+editorial: true
+title: "404"
+subtitle: "Navigation failed. 目标不在场景图里。"
+hero_mark: "!"
+hero_label: Episode terminated
+portrait: false
+permalink: /404.html
+sitemap: false
+excerpt: "页面不存在：小机器人没能导航到这个地址。"
+---
+
+<div class="nf-episode" data-nf>
+  <div class="nf-map"><canvas data-nf-map aria-hidden="true"></canvas></div>
+  <pre class="nf-log" data-nf-log></pre>
+  <p class="nf-metrics" data-nf-metrics hidden>
+    <span>SR <b>0.0</b></span>
+    <span>SPL <b>0.00</b></span>
+    <span>OSR <b>0%</b></span>
+    <span>nDTW <b data-nf-ndtw>0.00</b></span>
+    <span>NE <b>∞</b></span>
+  </p>
+</div>
+
+<div class="nf-copy" lang="zh-CN" data-nf-copy="zh">
+  <p>小机器人按指令走了一圈，没找到这个地址对应的页面。可能是链接打错了，也可能是文章换了地址。</p>
+  <p class="nf-nodes-label">最近的可达节点：</p>
+  <ul class="nf-nodes">
+    <li><a href="{{ '/' | relative_url }}">首页</a></li>
+    <li><a href="{{ '/research/' | relative_url }}">Research</a></li>
+    <li><a href="{{ '/blog/' | relative_url }}">Blog</a></li>
+    <li><a href="{{ '/relax/' | relative_url }}">Relax</a></li>
+  </ul>
+  <button class="nf-retry" type="button" data-nf-retry>再跑一个 episode</button>
+</div>
+
+<div class="nf-copy" lang="en" data-nf-copy="en" hidden>
+  <p>The robot followed the instruction, looked around, and never found a page at this address. The link may have a typo, or the post may have moved.</p>
+  <p class="nf-nodes-label">Nearest reachable nodes:</p>
+  <ul class="nf-nodes">
+    <li><a href="{{ '/en/' | relative_url }}">Home</a></li>
+    <li><a href="{{ '/en/research/' | relative_url }}">Research</a></li>
+    <li><a href="{{ '/en/blog/' | relative_url }}">Blog</a></li>
+    <li><a href="{{ '/en/relax/' | relative_url }}">Relax</a></li>
+  </ul>
+  <button class="nf-retry" type="button" data-nf-retry>Run another episode</button>
+</div>
+
+<script src="{{ '/assets/js/not-found.js' | relative_url }}" defer></script>
