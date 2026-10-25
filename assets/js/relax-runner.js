@@ -719,7 +719,8 @@
     if (keys.join(' ') === KONAMI) { keys = []; toggleSkin(); }
     if (isJumpKey(e)) {
       e.preventDefault();
-      if (!e.repeat) press();
+      // Only Space starts or resumes a run, so the arrows of the cheat code don't kick off a game.
+      if (!e.repeat && (state === 'running' || e.key !== 'ArrowUp')) press();
     } else if ((e.key === 'x' || e.key === 'X' || e.key === 'ArrowRight') && state === 'running') {
       e.preventDefault();
       activateShield();
