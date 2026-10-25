@@ -218,7 +218,7 @@
 
   function loop(now) {
     raf = 0;
-    var elapsed = now - start;
+    var elapsed = Math.max(0, now - start);   // the frame timestamp can predate start
     var last = walk.length - 1;
     progress = Math.min(last, elapsed / stepMs);
     if (progress >= last) {
