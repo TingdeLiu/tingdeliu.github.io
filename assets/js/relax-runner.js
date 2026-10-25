@@ -39,7 +39,7 @@
       again: '按空格或点击再来一次',
       revise: '按空格或点击再改一版',
       best: function (n) { return '新纪录 ' + n + '！'; },
-      reject: 'Reviewer 2 给了 Reject · ',
+      majorRevision: 'Reviewer 2 要求大修 · ',
       rebuttal: 'Rebuttal 成功 +',
       accepted: 'Accepted! +',
       heart: '爱心护罩挡下了一击',
@@ -60,7 +60,7 @@
       again: 'Press Space or tap to try again',
       revise: 'Press Space or tap to revise and resubmit',
       best: function (n) { return 'New best: ' + n + '! '; },
-      reject: 'Reviewer 2 says Reject · ',
+      majorRevision: 'Reviewer 2 asks for major revisions · ',
       rebuttal: 'Rebuttal accepted +',
       accepted: 'Accepted! +',
       heart: 'Heart shield blocked a hit',
@@ -419,7 +419,8 @@
     holding = false;
     var s = score();
     var byReviewer = o && o.type === 'r2';
-    var lead = byReviewer ? T.reject : '';
+    // Never a reject, only major revisions: the game is for a break, not a reminder of decision emails.
+    var lead = byReviewer ? T.majorRevision : '';
     var again = byReviewer ? T.revise : T.again;
     if (s > best) {
       best = s;
