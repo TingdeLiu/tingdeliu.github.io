@@ -45,6 +45,22 @@
 
   canvas { display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
 
+  .relax-skin {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    padding: 4px;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    background: var(--paper);
+    line-height: 0;
+    cursor: pointer;
+    canvas { width: 33px; height: 33px; }
+    &.is-rolling canvas { animation: relax-shake .16s steps(2) infinite; }
+    &:hover { border-color: var(--accent); }
+    &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  }
+
   .relax-message {
     position: absolute;
     top: 22%;
@@ -66,9 +82,15 @@
     border-color: #2d3245;
     background: #161a26;
     .relax-message { border-color: #2d3245; background: #161a26; color: #e9e6da; }
+    .relax-skin { border-color: #2d3245; background: #161a26; }
   }
 
   .relax-help { margin: 12px 0 0; color: var(--muted); font-size: 13px; }
+}
+
+@keyframes relax-shake {
+  0% { transform: translate(-2px, 1px) rotate(-8deg); }
+  100% { transform: translate(2px, -1px) rotate(8deg); }
 }
 
 @keyframes relax-flash {

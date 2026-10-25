@@ -10,6 +10,8 @@
   var bestEl = document.querySelector('[data-relax-best]');
   var levelEl = document.querySelector('[data-relax-level]');
   var shieldBtn = document.querySelector('[data-relax-shield]');
+  var skinBtn = stage.querySelector('[data-relax-skin]');
+  var skinIcon = skinBtn.querySelector('canvas');
   var chargesEl = document.querySelector('[data-relax-charges]');
   var ctx = canvas.getContext('2d');
 
@@ -59,7 +61,7 @@
   var DINO_W = FRAMES[0][0].length;
   var DINO_H = FRAMES[0].length;
 
-  // Secret tin-toy robot skin (↑↑↓↓←→←→BA), same size as the dino. m metal, v dark panel, o eye,
+  // Tin-toy robot, the rarest character from the dice in the stage corner. Same size as the dino. m metal, v dark panel, o eye,
   // a accent light, w dial face, g joints and arms.
   var ROBOT_BODY = [
     '.............a......',
@@ -91,16 +93,120 @@
   var FLAME_X = [10, 14];
   var FLAME_CORE = '#ffd08a';
   // hit: insets from the left, right and top of the sprite box, skipping tails and antennas.
+  // More characters, same 20 x 17 grid and letters as the robot.
+  var HOVER_BODY = [
+    '..........mmmmm.....',
+    '........mmmmmmmmm...',
+    '.......mmvvvvvvvmm..',
+    '.......mvvvvvvvvvm..',
+    '.......mvvovvvovvm..',
+    '.......mvvovvvovvm..',
+    '.......mmvvvvvvvmm..',
+    '........mmmmmmmmm...',
+    '......g..mmmmmmm..g.',
+    '......gg.mmaammm.gg.',
+    '.........mmmmmmm....',
+    '..........mmmmm.....',
+    '...........ggg......',
+    '....................'
+  ];
+  var HOVER_LEGS = [   // no legs: a jet flame that flickers, bigger in the air
+    ['..........aaaaa.....', '...........aaa......', '....................'],
+    ['...........aaa......', '..........aaaaa.....', '...........aaa......'],
+    ['..........aaaaa.....', '.........aaaaaaa....', '..........aa.aa.....']
+  ];
+  var TANK_BODY = [
+    '....................',
+    '........mmmm.mmmm...',
+    '.......mvvvvmvvvvm..',
+    '.......mvvwvmvvwvm..',
+    '.......mvvvvmvvvvm..',
+    '........mmmm.mmmm...',
+    '...........gg.......',
+    '...........gg.......',
+    '......mmmmmmmmmmm...',
+    '......mmaammmmmmm.g.',
+    '......mmmmmmmmmmmgg.',
+    '......mmmmmmmmmmm...',
+    '......mmmmmmmmmmm...',
+    '....................'
+  ];
+  var TANK_LEGS = [   // treads roll by shifting their studs
+    ['.....vvvvvvvvvvvvv..', '....vgvvgvvgvvgvvgv.', '.....vvvvvvvvvvvvv..'],
+    ['.....vvvvvvvvvvvvv..', '....vvgvvgvvgvvgvvv.', '.....vvvvvvvvvvvvv..'],
+    ['.....vvvvvvvvvvvvv..', '....vgvvgvvgvvgvvgv.', '.....vvvvvvvvvvvvv..']
+  ];
+  var DOG_BODY = [
+    '....................',
+    '....................',
+    '....................',
+    '...............mmm..',
+    '..............mmmmmm',
+    '..............mvovvm',
+    '..............mmmmm.',
+    '..a..........mm.....',
+    '...g.mmmmmmmmmm.....',
+    '....mmmmmmmmmmmm....',
+    '....mmaammmmmmmm....',
+    '....mmmmmmmmmmmm....',
+    '.....gg......gg.....',
+    '.....gg......gg.....'
+  ];
+  var DOG_LEGS = [
+    ['.....g........g.....', '....g..........g....', '...mm.........mm....'],
+    ['......g......g......', '.......g......g.....', '......mm.....mm.....'],
+    ['......g......g......', '.....g........g.....', '....................']
+  ];
+
+  // Golden capybara with an orange on its head. y gold, d dark gold, h shine, e eye, a orange, g leaf.
+  var CAPY_BODY = [
+    '.............g......',
+    '............aaa.....',
+    '...........aaaaa....',
+    '...........aaaaa....',
+    '............aaa.....',
+    '...........dyyyyyy..',
+    '..........yyyyyyyyy.',
+    '..........yyyyyeyyyy',
+    '...yyyyyyyyyyyyyyydd',
+    '..yhhyyyyyyyyyyyyyy.',
+    '.yhyyyyyyyyyyyyyyyy.',
+    '.yyyyyyyyyyyyyyyyy..',
+    '.dyyyyyyyyyyyyyyyy..',
+    '..ddyyyyyyyyyyyyy...'
+  ];
+  var CAPY_LEGS = [
+    ['...yy........yy.....', '...yy........yy.....', '...dd........dd.....'],
+    ['....yy......yy......', '....yy......yy......', '....dd......dd......'],
+    ['...yy........yy.....', '...dd........dd.....', '....................']
+  ];
+  var GOLD = { y: '#e0b03c', d: '#9c7419', h: '#fff3c4' };
+
+  function build(body, legs) { return legs.map(function (l) { return trace(body.concat(l)); }); }
+  function swap(rows, from, to) { return rows.map(function (r) { return r.replace(from, to); }); }
+  var HOVER = build(HOVER_BODY, HOVER_LEGS);
+  var TANK = build(TANK_BODY, TANK_LEGS);
+  var DOG = build(DOG_BODY, DOG_LEGS);
+  var CAPY = build(CAPY_BODY, CAPY_LEGS);
+
+  // Every character plays the same; only the look and how rare it is differ. weight is out of 100.
+  // hit: insets from the left, right and top of the sprite box, skipping tails and antennas.
   var SKINS = {
-    dino: { frames: FRAMES, dead: DEAD, sleep: SLEEP, hit: [5, 3, 2] },
+    dino: { name: '小恐龙', rank: 'N 普通', weight: 40, frames: FRAMES, dead: DEAD, sleep: SLEEP, hit: [5, 3, 2] },
+    tank: { name: '履带小车', rank: 'N 普通', weight: 25, frames: TANK, dead: swap(TANK[0], /[wa]/g, 'g'), sleep: swap(TANK[0], /w/g, 'v'), hit: [5, 2, 2] },
+    hover: { name: '悬浮蛋仔', rank: 'R 稀有', weight: 18, frames: HOVER, dead: swap(HOVER[0], /[oa]/g, 'g'), sleep: swap(HOVER[0], /o/g, 'v'), hit: [8, 3, 1] },
+    dog: { name: '机器狗', rank: 'SR 史诗', weight: 12, frames: DOG, dead: swap(DOG[0], /[oa]/g, 'g'), sleep: swap(DOG[0], /o/g, 'm'), hit: [5, 1, 4] },
     robot: {
+      name: '铁皮机器人', rank: 'SSR 传说', weight: 4,
       frames: ROBOT_FRAMES,
-      dead: ROBOT_FRAMES[0].map(function (r) { return r.replace(/[oa]/g, 'g'); }),   // lights go out
+      dead: swap(ROBOT_FRAMES[0], /[oa]/g, 'g'),   // lights go out
       sleep: ROBOT_SLEEP,
       hit: [9, 3, 3]
-    }
+    },
+    // The rarest one sheds golden sparkles while it runs. The orange on its head doesn't count as a hit.
+    capy: { name: '金色卡皮巴拉', rank: 'UR 金色传说', weight: 1, frames: CAPY, dead: swap(CAPY[0], /e/g, 'd'), sleep: swap(CAPY[0], /e/g, 'd'), hit: [3, 1, 6] }
   };
-  var KONAMI = 'arrowup arrowup arrowdown arrowdown arrowleft arrowright arrowleft arrowright b a';
+  var ROLL_MS = 700;
   var SKIN_KEY = 'relax-runner-skin';
   var SLEEP_MS = 30000;
   // Night sky between 23:00 and 05:00 local time (or with ?night in the URL).
@@ -145,13 +251,13 @@
   var last = 0;
   var lastMilestone = 0;
   var skin = 'dino';
-  var keys = [];
+  var rolling = false;
   var idleSince = performance.now();
   var night = false;
   var stars = [];
 
   try { best = parseInt(localStorage.getItem(BEST_KEY), 10) || 0; } catch (e) { best = 0; }
-  try { if (localStorage.getItem(SKIN_KEY) === 'robot') skin = 'robot'; } catch (e) { /* keep the dino */ }
+  try { var saved = localStorage.getItem(SKIN_KEY); if (SKINS[saved]) skin = saved; } catch (e) { /* keep the dino */ }
 
   function isNight() {
     var h = new Date().getHours();
@@ -187,6 +293,7 @@
       colors[name] = night ? NIGHT[name] : css.getPropertyValue('--' + name).trim() || '#888';
     });
     stage.classList.toggle('is-night', night);
+    drawDie();
     draw();
   }
 
@@ -269,10 +376,39 @@
     updateHud();
   }
 
-  function toggleSkin() {
-    skin = skin === 'dino' ? 'robot' : 'dino';
-    try { localStorage.setItem(SKIN_KEY, skin); } catch (e) { /* lasts for this visit */ }
-    var text = skin === 'robot' ? '秘籍生效：机器人模式（再输一次换回小恐龙）' : '换回小恐龙啦';
+  function pickSkin() {
+    var ticket = Math.random() * 100;
+    var names = Object.keys(SKINS);
+    for (var i = 0; i < names.length; i++) {
+      ticket -= SKINS[names[i]].weight;
+      if (ticket < 0) return names[i];
+    }
+    return names[0];
+  }
+
+  // Shake the die for a moment, flipping faces, then land on a character by weight.
+  function rollSkin() {
+    if (rolling) return;
+    rolling = true;
+    skinBtn.classList.add('is-rolling');
+    var flips = setInterval(function () { drawDie(1 + Math.floor(Math.random() * 6)); }, 80);
+    setTimeout(function () {
+      clearInterval(flips);
+      rolling = false;
+      skinBtn.classList.remove('is-rolling');
+      var next = pickSkin();
+      var same = next === skin;
+      skin = next;
+      drawDie(1 + Math.floor(Math.random() * 6));
+      try { localStorage.setItem(SKIN_KEY, skin); } catch (e) { /* lasts for this visit */ }
+      var look = SKINS[skin];
+      var lucky = look.weight <= 1 ? '✦✦ ' : look.weight <= 5 ? '★ ' : '';
+      var text = lucky + look.rank + ' · ' + look.name + (same ? '（又是它）' : look.weight <= 1 ? '！！' : lucky ? '！' : '');
+      showSkinNotice(text);
+    }, ROLL_MS);
+  }
+
+  function showSkinNotice(text) {
     if (state === 'running') { toast(text); return; }
     setMessage(text);
     var shown = state;
@@ -405,6 +541,12 @@
     var dx = speed * dt;
     distance += dx;
     if (shieldLeft > 0) shieldLeft = Math.max(0, shieldLeft - dt);
+    if (skin === 'capy' && Math.random() < dt * 10) {
+      particles.push({
+        x: DINO_X + 2 + Math.random() * 16, y: GROUND - DINO_H + dino.y + 6 + Math.random() * 10,
+        vx: speed * 0.8, vy: -40 - Math.random() * 40, life: 0.5, color: Math.random() < 0.5 ? GOLD.h : GOLD.y
+      });
+    }
 
     if (!dino.grounded) {
       var g = holding && dino.vy < 0 ? HOLD_GRAVITY : GRAVITY;
@@ -521,17 +663,43 @@
     });
   }
 
-  function sprite(rows, x, y) {
-    var map = {
+  function palette() {
+    return {
       k: colors.ink, e: colors.ink, '#': colors.accent, b: colors.panel, s: colors.selection, w: colors.paper,
-      m: colors.panel, v: colors.ink, o: colors.accent, a: colors.accent, g: colors.muted
+      m: colors.panel, v: colors.ink, o: colors.accent, a: colors.accent, g: colors.muted,
+      y: GOLD.y, d: GOLD.d, h: GOLD.h
     };
+  }
+
+  function sprite(rows, x, y, target) {
+    var map = palette();
+    var c2d = target || ctx;
     for (var r = 0; r < rows.length; r++) {
       for (var c = 0; c < rows[r].length; c++) {
         var ch = rows[r][c];
-        if (ch !== '.') px(x + c, y + r, 1, 1, map[ch]);
+        if (ch === '.') continue;
+        c2d.fillStyle = map[ch];
+        c2d.fillRect(Math.round(x + c), Math.round(y + r), 1, 1);
       }
     }
+  }
+
+  // Pixel die in the corner button: 11 x 11 with an outline and the pips of one face.
+  var PIPS = { 1: [[5, 5]], 2: [[3, 3], [7, 7]], 3: [[3, 3], [5, 5], [7, 7]], 4: [[3, 3], [7, 3], [3, 7], [7, 7]],
+    5: [[3, 3], [7, 3], [5, 5], [3, 7], [7, 7]], 6: [[3, 3], [7, 3], [3, 5], [7, 5], [3, 7], [7, 7]] };
+  var dieFace = 5;
+  function drawDie(face) {
+    dieFace = face || dieFace;
+    var c2d = skinIcon.getContext('2d');
+    skinIcon.width = 11;
+    skinIcon.height = 11;
+    c2d.fillStyle = colors.ink;
+    c2d.fillRect(1, 0, 9, 11);
+    c2d.fillRect(0, 1, 11, 9);
+    c2d.fillStyle = colors.panel;
+    c2d.fillRect(1, 1, 9, 9);
+    c2d.fillStyle = colors.accent;
+    PIPS[dieFace].forEach(function (p) { c2d.fillRect(p[0], p[1], 1, 1); });
   }
 
   function sleeping() {
@@ -715,11 +883,9 @@
     if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(t.tagName))) return;
     if (!stageInView()) return;
     idleSince = performance.now();
-    keys = keys.concat(e.key.toLowerCase()).slice(-10);
-    if (keys.join(' ') === KONAMI) { keys = []; toggleSkin(); }
     if (isJumpKey(e)) {
       e.preventDefault();
-      // Only Space starts or resumes a run, so the arrows of the cheat code don't kick off a game.
+      // Only Space starts or resumes a run; the up arrow is for jumping.
       if (!e.repeat && (state === 'running' || e.key !== 'ArrowUp')) press();
     } else if ((e.key === 'x' || e.key === 'X' || e.key === 'ArrowRight') && state === 'running') {
       e.preventDefault();
@@ -745,6 +911,12 @@
   shieldBtn.addEventListener('pointerdown', function (e) { e.preventDefault(); });
   shieldBtn.addEventListener('click', function () {
     activateShield();
+    stage.focus({ preventScroll: true });
+  });
+  // The skin button sits on the stage, so stop its press from also counting as a jump.
+  skinBtn.addEventListener('pointerdown', function (e) { e.stopPropagation(); e.preventDefault(); });
+  skinBtn.addEventListener('click', function () {
+    rollSkin();
     stage.focus({ preventScroll: true });
   });
   document.addEventListener('visibilitychange', function () { if (document.hidden) pause(); });
