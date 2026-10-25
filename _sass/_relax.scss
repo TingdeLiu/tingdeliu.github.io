@@ -61,6 +61,13 @@
     &[hidden] { display: none; }
   }
 
+  // Night sky colours, matching NIGHT in relax-runner.js.
+  .relax-stage.is-night {
+    border-color: #2d3245;
+    background: #161a26;
+    .relax-message { border-color: #2d3245; background: #161a26; color: #e9e6da; }
+  }
+
   .relax-help { margin: 12px 0 0; color: var(--muted); font-size: 13px; }
 }
 

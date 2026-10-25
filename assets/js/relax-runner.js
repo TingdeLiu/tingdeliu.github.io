@@ -54,8 +54,59 @@
   var DEAD = FRAMES[0].slice();
   DEAD[3] = DEAD[3].slice(0, 17) + 'e#' + DEAD[3].slice(19);   // eyes become a pixel "x"
   DEAD[4] = DEAD[4].slice(0, 17) + '#e' + DEAD[4].slice(19);
+  var SLEEP = FRAMES[0].slice();
+  SLEEP[3] = SLEEP[3].slice(0, 17) + '##' + SLEEP[3].slice(19);  // eyes shut
   var DINO_W = FRAMES[0][0].length;
   var DINO_H = FRAMES[0].length;
+
+  // Secret tin-toy robot skin (↑↑↓↓←→←→BA), same size as the dino. m metal, v dark panel, o eye,
+  // a accent light, w dial face, g joints and arms.
+  var ROBOT_BODY = [
+    '.............a......',
+    '.............g......',
+    '.........mmmmmmmmm..',
+    '.........moommmoom..',
+    '.........moommmoom..',
+    '.........mmmmmmmmm..',
+    '.........mmvgvgvmm..',
+    '.........mmmmmmmmm..',
+    '............ggg.....',
+    '........gmmmmmmmmmg.',
+    '........gmmvvvvvmmg.',
+    '........gmmvawavmmg.',
+    '........g.mmmmmmm.g.',
+    '..........mmmmmmm...'
+  ];
+  var ROBOT_LEGS = [
+    ['..........gg..gg....', '.........gg....gg...', '........mmm....mmm..'],
+    ['..........g....g....', '..........g....g....', '.........mm....mm...'],
+    ['..........gg..gg....', '..........mm..mm....', '....................']
+  ];
+  var ROBOT_FRAMES = ROBOT_LEGS.map(function (legs) { return trace(ROBOT_BODY.concat(legs)); });
+  var ROBOT_SLEEP = ROBOT_FRAMES[0].slice();
+  ROBOT_SLEEP[4] = ROBOT_SLEEP[4].replace(/o/g, 'm');   // eyes shut to a dark line
+  ROBOT_SLEEP[5] = ROBOT_SLEEP[5].replace(/o/g, 'v');
+  // Jet flame under each foot while airborne, two flicker frames. a accent shell, w hot core.
+  var FLAMES = [['.a.', 'awa', 'awa', '.a.'], ['aaa', 'awa', '.w.', '.a.']];
+  var FLAME_X = [10, 14];
+  var FLAME_CORE = '#ffd08a';
+  // hit: insets from the left, right and top of the sprite box, skipping tails and antennas.
+  var SKINS = {
+    dino: { frames: FRAMES, dead: DEAD, sleep: SLEEP, hit: [5, 3, 2] },
+    robot: {
+      frames: ROBOT_FRAMES,
+      dead: ROBOT_FRAMES[0].map(function (r) { return r.replace(/[oa]/g, 'g'); }),   // lights go out
+      sleep: ROBOT_SLEEP,
+      hit: [9, 3, 3]
+    }
+  };
+  var KONAMI = 'arrowup arrowup arrowdown arrowdown arrowleft arrowright arrowleft arrowright b a';
+  var SKIN_KEY = 'relax-runner-skin';
+  var SLEEP_MS = 30000;
+  // Night sky between 23:00 and 05:00 local time (or with ?night in the URL).
+  var NIGHT = { paper: '#161a26', panel: '#252a3a', ink: '#e9e6da', muted: '#8d91a3', rule: '#2d3245', accent: '#e39572', selection: '#6e4a3c' };
+  var R2_BONUS = 30;
+  var R2_ACCEPT_BONUS = 50;
   // Shield pickup, drawn with the same palette as the dino.
   var SHIELD = trace([
     '#######',
@@ -93,8 +144,29 @@
   var raf = 0;
   var last = 0;
   var lastMilestone = 0;
+  var skin = 'dino';
+  var keys = [];
+  var idleSince = performance.now();
+  var night = false;
+  var stars = [];
 
   try { best = parseInt(localStorage.getItem(BEST_KEY), 10) || 0; } catch (e) { best = 0; }
+  try { if (localStorage.getItem(SKIN_KEY) === 'robot') skin = 'robot'; } catch (e) { /* keep the dino */ }
+
+  function isNight() {
+    var h = new Date().getHours();
+    return /[?&]night\b/.test(location.search) || h >= 23 || h < 5;
+  }
+
+  function readyText() {
+    return night ? '这么晚还在读论文？跑两步就去睡吧 · 按空格开始' : '按空格或点击画面开始';
+  }
+
+  // Short in-game notices (level ups, Reviewer 2) that clear themselves after a moment.
+  function toast(text) {
+    setMessage(text);
+    tipUntil = elapsed + 1.6;
+  }
 
   function pad(n) { return ('00000' + Math.floor(n)).slice(-5); }
   function score() { return Math.floor(distance / 8) + bonus; }
@@ -112,8 +184,9 @@
   function readColors() {
     var css = getComputedStyle(document.documentElement);
     ['paper', 'panel', 'ink', 'muted', 'rule', 'accent', 'selection'].forEach(function (name) {
-      colors[name] = css.getPropertyValue('--' + name).trim() || '#888';
+      colors[name] = night ? NIGHT[name] : css.getPropertyValue('--' + name).trim() || '#888';
     });
+    stage.classList.toggle('is-night', night);
     draw();
   }
 
@@ -126,6 +199,8 @@
     canvas.style.width = W * scale + 'px';
     canvas.style.height = H * scale + 'px';
     ctx.imageSmoothingEnabled = false;
+    stars = [];
+    for (var i = 0; i < W / 9; i++) stars.push({ x: Math.floor(Math.random() * W), y: 3 + Math.floor(Math.random() * 40), phase: Math.random() * 6 });
     draw();
   }
 
@@ -156,7 +231,10 @@
 
   function start() {
     if (state === 'over' && performance.now() - overAt < 400) return;   // a stray tap right after a crash should not restart
-    if (state !== 'paused') reset();
+    if (state !== 'paused') {
+      reset();
+      if (isNight() !== night) { night = !night; readColors(); }
+    }
     state = 'running';
     setMessage('');
     last = performance.now();
@@ -173,19 +251,33 @@
     updateHud();
   }
 
-  function crash() {
+  function crash(o) {
     state = 'over';
     overAt = performance.now();
     holding = false;
     var s = score();
+    var byReviewer = o && o.type === 'r2';
+    var lead = byReviewer ? 'Reviewer 2 给了 Reject · ' : '';
+    var again = byReviewer ? '按空格或点击再改一版' : '按空格或点击再来一次';
     if (s > best) {
       best = s;
       try { localStorage.setItem(BEST_KEY, String(best)); } catch (e) { /* private mode: keep it for this visit */ }
-      setMessage('新纪录 ' + s + '！按空格或点击再来一次');
+      setMessage(lead + '新纪录 ' + s + '！' + again);
     } else {
-      setMessage('撞到啦 · 按空格或点击再来一次');
+      setMessage((lead || '撞到啦 · ') + again);
     }
     updateHud();
+  }
+
+  function toggleSkin() {
+    skin = skin === 'dino' ? 'robot' : 'dino';
+    try { localStorage.setItem(SKIN_KEY, skin); } catch (e) { /* lasts for this visit */ }
+    var text = skin === 'robot' ? '秘籍生效：机器人模式（再输一次换回小恐龙）' : '换回小恐龙啦';
+    if (state === 'running') { toast(text); return; }
+    setMessage(text);
+    var shown = state;
+    setTimeout(function () { if (state === shown && state === 'ready') setMessage(readyText()); }, 2200);
+    draw();
   }
 
   function press() {
@@ -225,6 +317,12 @@
     return { type: 'drone', high: high, x: x, w: 14, h: 7, y: y, baseY: y, bob: bob, phase: Math.random() * 6, vx: 0 };
   }
 
+  // Reviewer 2: a big drone weaving between the high and low lanes. Stay under it while it is high,
+  // or clear it with a full jump at any height. Passing earns a rebuttal, smashing it an accept.
+  function reviewer(x) {
+    return { type: 'r2', high: true, x: x, w: 20, h: 9, y: GROUND - 21, phase: Math.random() * 6, vx: 0 };
+  }
+
   function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
 
   function spawn() {
@@ -236,7 +334,9 @@
     var pCombo = lv >= 4 ? Math.min(0.25, 0.1 + 0.03 * (lv - 4)) : 0;
     var group = [];
     var i;
-    if (roll < pDrone) {
+    if (lv >= 2 && Math.random() < 0.07 && !obstacles.some(function (o) { return o.type === 'r2'; })) {
+      group.push(reviewer(x));
+    } else if (roll < pDrone) {
       var d = drone(lv < 2 || Math.random() < 0.5, x, lv);
       // A dashing drone flies at the dino faster than the ground scrolls. Only low ones, and never right behind
       // a high drone, so closing in on the group ahead can't create a "jump and don't jump" overlap.
@@ -265,6 +365,7 @@
     var span = lastOne.x + lastOne.w - x;
     var minGap = speed * Math.max(0.45, 0.8 - 0.04 * lv) + 40;
     nextGap = span + minGap + Math.random() * minGap * Math.max(0.35, (lastOne.type === 'drone' ? 1.2 : 0.9) - 0.06 * lv);
+    if (lastOne.type === 'r2') nextGap += minGap * 0.5;
     // Now and then a shield floats in the gap, high enough that only a real jump reaches it.
     if (lv >= 1 && !items.length && Math.random() < 0.15) {
       var y = GROUND - 50 - Math.floor(Math.random() * 10);
@@ -274,9 +375,10 @@
 
   function hits(o) {
     var top = GROUND - DINO_H + dino.y;
-    // Hitbox skips the thin tail and the outline so near misses feel fair.
-    return DINO_X + 5 < o.x + o.w - 1 && DINO_X + DINO_W - 3 > o.x + 1 &&
-      top + 2 < o.y + o.h - 1 && top + DINO_H > o.y + 1;
+    var inset = SKINS[skin].hit;
+    // Hitbox skips thin parts and the outline so near misses feel fair.
+    return DINO_X + inset[0] < o.x + o.w - 1 && DINO_X + DINO_W - inset[1] > o.x + 1 &&
+      top + inset[2] < o.y + o.h - 1 && top + DINO_H > o.y + 1;
   }
 
   function touches(o) {
@@ -318,6 +420,16 @@
       var o = obstacles[i];
       o.x -= dx + o.vx * dt;
       if (o.bob) o.y = o.baseY + Math.round(Math.sin(elapsed * 4 + o.phase) * o.bob);
+      if (o.type === 'r2') {
+        // Two mixed waves keep it hard to predict while staying between the lanes (GROUND-30 to GROUND-12).
+        var wave = (Math.sin(elapsed * 3.2 + o.phase) + 0.35 * Math.sin(elapsed * 7.1 + o.phase * 2)) / 1.35;
+        o.y = Math.round(GROUND - 21 + wave * 9);
+        if (!o.passed && o.x + o.w < DINO_X + 5) {
+          o.passed = true;
+          bonus += R2_BONUS;
+          toast('Rebuttal 成功 +' + R2_BONUS);
+        }
+      }
       if (o.x + o.w < 0) obstacles.splice(i, 1);
     }
     nextGap -= dx;
@@ -352,8 +464,14 @@
 
     for (var j = obstacles.length - 1; j >= 0; j--) {
       if (!hits(obstacles[j])) continue;
-      if (shieldLeft > 0) smash(obstacles.splice(j, 1)[0]);
-      else { crash(); return; }
+      if (shieldLeft > 0) {
+        var hit = obstacles.splice(j, 1)[0];
+        smash(hit);
+        if (hit.type === 'r2') {
+          bonus += R2_ACCEPT_BONUS - SMASH_BONUS;
+          toast('Accepted! +' + R2_ACCEPT_BONUS);
+        }
+      } else { crash(obstacles[j]); return; }
     }
 
     var s = score();
@@ -365,8 +483,7 @@
     if (lv > currentLevel) {
       currentLevel = lv;
       flash(levelEl);
-      setMessage('LV ' + (lv + 1) + ' · ' + (LEVEL_TIPS[lv] || '更快了'));
-      tipUntil = elapsed + 1.8;
+      toast('LV ' + (lv + 1) + ' · ' + (LEVEL_TIPS[lv] || '更快了'));
     } else if (tipUntil && elapsed > tipUntil) {
       tipUntil = 0;
       setMessage('');
@@ -405,7 +522,10 @@
   }
 
   function sprite(rows, x, y) {
-    var map = { k: colors.ink, e: colors.ink, '#': colors.accent, b: colors.panel, s: colors.selection, w: colors.paper };
+    var map = {
+      k: colors.ink, e: colors.ink, '#': colors.accent, b: colors.panel, s: colors.selection, w: colors.paper,
+      m: colors.panel, v: colors.ink, o: colors.accent, a: colors.accent, g: colors.muted
+    };
     for (var r = 0; r < rows.length; r++) {
       for (var c = 0; c < rows[r].length; c++) {
         var ch = rows[r][c];
@@ -414,14 +534,43 @@
     }
   }
 
+  function sleeping() {
+    return state === 'ready' && performance.now() - idleSince > SLEEP_MS;
+  }
+
   function drawDino() {
+    var look = SKINS[skin];
     var frame;
-    if (state === 'over') frame = DEAD;
-    else if (!dino.grounded) frame = FRAMES[2];
-    else if (state === 'running') frame = FRAMES[Math.floor(distance / 10) % 2];
-    else frame = FRAMES[0];
+    if (state === 'over') frame = look.dead;
+    else if (sleeping()) frame = look.sleep;
+    else if (!dino.grounded) frame = look.frames[2];
+    else if (state === 'running') frame = look.frames[Math.floor(distance / 10) % 2];
+    else frame = look.frames[0];
     var top = GROUND - DINO_H + Math.round(dino.y);
     sprite(frame, DINO_X, top);
+    if (skin === 'robot' && !dino.grounded && state === 'running') {
+      var flame = FLAMES[Math.floor(performance.now() / 70) % 2];
+      FLAME_X.forEach(function (fx) {
+        flame.forEach(function (row, fy) {
+          for (var c = 0; c < row.length; c++) {
+            if (row[c] !== '.') px(DINO_X + fx + c, top + DINO_H + fy, 1, 1, row[c] === 'w' ? FLAME_CORE : colors.accent);
+          }
+        });
+      });
+    }
+    if (sleeping()) {
+      // Three z's drifting up from the head, each one a little bigger.
+      var t = (performance.now() - idleSince) / 1000;
+      for (var z = 0; z < 3; z++) {
+        var age = (t * 0.6 + z / 3) % 1;
+        var size = 2 + z;
+        var zx = DINO_X + 18 + z * 4 + Math.round(age * 4);
+        var zy = top - 2 - Math.round(age * 16) - z * 3;
+        px(zx, zy, size, 1, colors.muted);
+        for (var d = 1; d < size - 1; d++) px(zx + size - 1 - d, zy + d, 1, 1, colors.muted);
+        px(zx, zy + size - 1, size, 1, colors.muted);
+      }
+    }
     // Shield: a ring of dots spinning around the dino, blinking in its last second.
     if (shieldLeft > 0 && state !== 'over' && (shieldLeft > 1 || Math.floor(elapsed * 10) % 2)) {
       var cx = DINO_X + DINO_W / 2;
@@ -433,8 +582,25 @@
     }
   }
 
+  var GLYPHS = { R: ['##.', '#.#', '##.', '#.#', '#.#'], 2: ['###', '..#', '###', '#..', '###'] };
+
   function drawObstacle(o) {
     var x = Math.round(o.x);
+    if (o.type === 'r2') {
+      var turn = Math.floor(elapsed * 20) % 2;
+      px(x + (turn ? 0 : 2), o.y, 6, 1, colors.muted);
+      px(x + (turn ? 14 : 12), o.y, 6, 1, colors.muted);
+      px(x + 3, o.y + 1, 1, 1, colors.ink);
+      px(x + 16, o.y + 1, 1, 1, colors.ink);
+      px(x, o.y + 2, o.w, 7, colors.ink);
+      px(x + 1, o.y + 3, o.w - 2, 5, colors.accent);
+      ['R', 2].forEach(function (ch, n) {
+        GLYPHS[ch].forEach(function (row, gy) {
+          for (var gx = 0; gx < 3; gx++) if (row[gx] === '#') px(x + 6 + n * 5 + gx, o.y + 3 + gy, 1, 1, colors.paper);
+        });
+      });
+      return;
+    }
     if (o.type === 'cone') {
       for (var r = 0; r < o.h - 2; r++) {
         var half = Math.floor(1 + r * 3 / (o.h - 2));
@@ -472,7 +638,22 @@
     }
   }
 
+  function drawSky() {
+    var t = performance.now() / 1000;
+    stars.forEach(function (s) {
+      if (Math.sin(t * 2 + s.phase) > -0.6) px(s.x, s.y, 1, 1, Math.sin(t * 2 + s.phase) > 0.7 ? colors.ink : colors.muted);
+    });
+    // Crescent moon: a disc with a second disc cut out of it.
+    var mx = W - 30;
+    for (var y = -6; y <= 6; y++) {
+      for (var x = -6; x <= 6; x++) {
+        if (x * x + y * y <= 36 && (x - 3) * (x - 3) + (y + 2) * (y + 2) > 30) px(mx + x, 14 + y, 1, 1, colors.ink);
+      }
+    }
+  }
+
   function drawScenery() {
+    if (night) drawSky();
     // Dot dunes in the background, echoing the footer field, scrolling slower than the ground.
     var offset = distance * 0.25;
     for (var y = 46; y < GROUND; y += 3) {
@@ -533,6 +714,9 @@
     var t = e.target;
     if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(t.tagName))) return;
     if (!stageInView()) return;
+    idleSince = performance.now();
+    keys = keys.concat(e.key.toLowerCase()).slice(-10);
+    if (keys.join(' ') === KONAMI) { keys = []; toggleSkin(); }
     if (isJumpKey(e)) {
       e.preventDefault();
       if (!e.repeat) press();
@@ -565,11 +749,14 @@
   document.addEventListener('visibilitychange', function () { if (document.hidden) pause(); });
   window.addEventListener('blur', pause);
 
+  night = isNight();
   reset();
   updateHud();
-  setMessage('按空格或点击画面开始');
+  setMessage(readyText());
   resize();
   readColors();
+  // While waiting on the start screen, redraw a few times a second so the dino can doze off.
+  setInterval(function () { if (state === 'ready' && !document.hidden) draw(); }, 250);
   if ('ResizeObserver' in window) new ResizeObserver(resize).observe(stage);
   else window.addEventListener('resize', resize);
   new MutationObserver(readColors).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
