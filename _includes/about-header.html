@@ -5,6 +5,7 @@
       <div class="article-hero-category"><span aria-hidden="true">[ {{ page.hero_mark | default: 'A' }} ]</span> {{ page.hero_label | default: 'About this site' }}</div>
       <h1>{{ page.title }}</h1>
       <p class="article-deck">{{ page.subtitle }}</p>
+      {% include language-switch.html site=true %}
     </div>
     {% unless page.portrait == false %}<img class="about-portrait" src="{{ site.avatar | relative_url }}" alt="{{ site.name }}" width="128" height="128">{% endunless %}
   </header>

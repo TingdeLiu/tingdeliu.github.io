@@ -16,6 +16,9 @@
     b.is-milestone { animation: relax-flash .8s steps(2) 2; }
   }
 
+  .relax-perk { color: #c08a1e; font-weight: 500; }
+  .relax-perk[hidden] { display: none; }
+
   .relax-shield {
     margin-right: auto;
     padding: 5px 12px;

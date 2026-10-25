@@ -52,6 +52,7 @@
     .about-hero { display: flex; align-items: center; gap: 48px; }
     .about-hero-copy { flex: 1; min-width: 0; }
     .about-hero .article-deck { margin-bottom: 0; }
+    .about-hero .language-switch { margin-top: 20px; }
     .about-portrait { width: clamp(72px, 20vw, 128px); height: auto; aspect-ratio: 1; flex-shrink: 0; object-fit: cover; border-radius: 50%; outline: 1px solid var(--rule); }
     .entry h2:not(:first-child) { border-top: 1px solid var(--rule); padding-top: 36px; }
   }

@@ -13,6 +13,7 @@
   var skinBtn = stage.querySelector('[data-relax-skin]');
   var skinIcon = skinBtn.querySelector('canvas');
   var chargesEl = document.querySelector('[data-relax-charges]');
+  var perkEl = document.querySelector('[data-relax-perk]');
   var ctx = canvas.getContext('2d');
 
   var H = 120;              // logical height in game pixels
@@ -28,7 +29,54 @@
   var MAX_CHARGES = 3;
   var SMASH_BONUS = 15;
   var BEST_KEY = 'relax-runner-best';
-  var LEVEL_TIPS = ['', '高空无人机：别跳', '低空无人机要跳，还有连排障碍', '无人机开始上下浮动', '节奏组合：跳与不跳交替', '冲刺无人机迎面而来'];
+  // The page language picks the copy; /relax/ is Chinese and /en/relax/ English.
+  var TEXT = {
+    zh: {
+      start: '按空格或点击画面开始',
+      night: '这么晚还在读论文？跑两步就去睡吧 · 按空格开始',
+      paused: '已暂停 · 按空格或点击继续',
+      oops: '撞到啦 · ',
+      again: '按空格或点击再来一次',
+      revise: '按空格或点击再改一版',
+      best: function (n) { return '新纪录 ' + n + '！'; },
+      reject: 'Reviewer 2 给了 Reject · ',
+      rebuttal: 'Rebuttal 成功 +',
+      accepted: 'Accepted! +',
+      heart: '爱心护罩挡下了一击',
+      repeat: '（又是它）',
+      bang: '！',
+      faster: '更快了',
+      tips: ['', '高空无人机：别跳', '低空无人机要跳，还有连排障碍', '无人机开始上下浮动', '节奏组合：跳与不跳交替', '冲刺无人机迎面而来'],
+      skins: {
+        dino: ['小恐龙', 'N 普通'], tank: ['履带小车', 'N 普通'], hover: ['悬浮蛋仔', 'N 普通'],
+        dog: ['机器狗', 'SR 史诗'], robot: ['铁皮机器人', 'SSR 传说'], capy: ['金色卡皮巴拉', 'UR 金色传说']
+      }
+    },
+    en: {
+      start: 'Press Space or tap to start',
+      night: 'Still reading papers this late? One run, then bed · Press Space to start',
+      paused: 'Paused · Press Space or tap to resume',
+      oops: 'Oops · ',
+      again: 'Press Space or tap to try again',
+      revise: 'Press Space or tap to revise and resubmit',
+      best: function (n) { return 'New best: ' + n + '! '; },
+      reject: 'Reviewer 2 says Reject · ',
+      rebuttal: 'Rebuttal accepted +',
+      accepted: 'Accepted! +',
+      heart: 'Heart shield blocked a hit',
+      repeat: ' (again!)',
+      bang: '!',
+      faster: 'Faster',
+      tips: ['', "High drones: don't jump", 'Low drones: jump. Plus rows of crates', 'Drones start to bob', 'Rhythm sections: jump, stay, jump', 'Dashing drones incoming'],
+      skins: {
+        dino: ['Dino', 'N Common'], tank: ['Tread Cart', 'N Common'], hover: ['Hover Egg', 'N Common'],
+        dog: ['Robot Dog', 'SR Epic'], robot: ['Tin Robot', 'SSR Legendary'], capy: ['Golden Capybara', 'UR Golden Legend']
+      }
+    }
+  };
+  var T = /^en/i.test(document.documentElement.lang) ? TEXT.en : TEXT.zh;
+  var CAPY_MULTIPLIER = 1.5;
+  var HEART_GRACE = 1;   // seconds of blinking invulnerability after the heart shield breaks
 
   // Silhouette only: # body, b belly, s spike, e eye, w eye shine. The ink outline is traced at load time.
   var BODY = [
@@ -189,22 +237,23 @@
   var DOG = build(DOG_BODY, DOG_LEGS);
   var CAPY = build(CAPY_BODY, CAPY_LEGS);
 
-  // Every character plays the same; only the look and how rare it is differ. weight is out of 100.
+  // Characters differ in look and rarity only, except the golden capybara. weight is out of 100.
   // hit: insets from the left, right and top of the sprite box, skipping tails and antennas.
   var SKINS = {
-    dino: { name: '小恐龙', rank: 'N 普通', weight: 40, frames: FRAMES, dead: DEAD, sleep: SLEEP, hit: [5, 3, 2] },
-    tank: { name: '履带小车', rank: 'N 普通', weight: 25, frames: TANK, dead: swap(TANK[0], /[wa]/g, 'g'), sleep: swap(TANK[0], /w/g, 'v'), hit: [5, 2, 2] },
-    hover: { name: '悬浮蛋仔', rank: 'R 稀有', weight: 18, frames: HOVER, dead: swap(HOVER[0], /[oa]/g, 'g'), sleep: swap(HOVER[0], /o/g, 'v'), hit: [8, 3, 1] },
-    dog: { name: '机器狗', rank: 'SR 史诗', weight: 12, frames: DOG, dead: swap(DOG[0], /[oa]/g, 'g'), sleep: swap(DOG[0], /o/g, 'm'), hit: [5, 1, 4] },
+    dino: { weight: 27, frames: FRAMES, dead: DEAD, sleep: SLEEP, hit: [5, 3, 2] },
+    tank: { weight: 27, frames: TANK, dead: swap(TANK[0], /[wa]/g, 'g'), sleep: swap(TANK[0], /w/g, 'v'), hit: [5, 2, 2] },
+    hover: { weight: 27, frames: HOVER, dead: swap(HOVER[0], /[oa]/g, 'g'), sleep: swap(HOVER[0], /o/g, 'v'), hit: [8, 3, 1] },
+    dog: { weight: 14, frames: DOG, dead: swap(DOG[0], /[oa]/g, 'g'), sleep: swap(DOG[0], /o/g, 'm'), hit: [5, 1, 4] },
     robot: {
-      name: '铁皮机器人', rank: 'SSR 传说', weight: 4,
+      weight: 4,
       frames: ROBOT_FRAMES,
       dead: swap(ROBOT_FRAMES[0], /[oa]/g, 'g'),   // lights go out
       sleep: ROBOT_SLEEP,
       hit: [9, 3, 3]
     },
-    // The rarest one sheds golden sparkles while it runs. The orange on its head doesn't count as a hit.
-    capy: { name: '金色卡皮巴拉', rank: 'UR 金色传说', weight: 1, frames: CAPY, dead: swap(CAPY[0], /e/g, 'd'), sleep: swap(CAPY[0], /e/g, 'd'), hit: [3, 1, 6] }
+    // The rarest one sheds golden sparkles, starts each run with a heart shield and scores 1.5x
+    // distance points. The orange on its head doesn't count as a hit.
+    capy: { weight: 1, frames: CAPY, dead: swap(CAPY[0], /e/g, 'd'), sleep: swap(CAPY[0], /e/g, 'd'), hit: [3, 1, 6] }
   };
   var ROLL_MS = 700;
   var SKIN_KEY = 'relax-runner-skin';
@@ -235,6 +284,9 @@
   var clouds = [];
   var speed = 0;
   var distance = 0;
+  var points = 0;          // distance score, boosted for the capybara
+  var hearts = 0;
+  var invulnerable = 0;
   var bonus = 0;
   var elapsed = 0;
   var nextGap = 0;
@@ -265,7 +317,7 @@
   }
 
   function readyText() {
-    return night ? '这么晚还在读论文？跑两步就去睡吧 · 按空格开始' : '按空格或点击画面开始';
+    return night ? T.night : T.start;
   }
 
   // Short in-game notices (level ups, Reviewer 2) that clear themselves after a moment.
@@ -275,7 +327,7 @@
   }
 
   function pad(n) { return ('00000' + Math.floor(n)).slice(-5); }
-  function score() { return Math.floor(distance / 8) + bonus; }
+  function score() { return Math.floor(points) + bonus; }
 
   // Levels never stop: each one asks for 50 more points than the last (0, 150, 350, 600, 900, 1250, ...).
   function levelStart(n) { return 150 * n + 25 * n * (n - 1); }
@@ -323,6 +375,9 @@
     particles = [];
     speed = 105;
     distance = 0;
+    points = 0;
+    hearts = skin === 'capy' ? 1 : 0;
+    invulnerable = 0;
     bonus = 0;
     elapsed = 0;
     nextGap = W * 0.8;
@@ -354,7 +409,7 @@
     state = 'paused';
     holding = false;
     tipUntil = 0;
-    setMessage('已暂停 · 按空格或点击继续');
+    setMessage(T.paused);
     updateHud();
   }
 
@@ -364,14 +419,14 @@
     holding = false;
     var s = score();
     var byReviewer = o && o.type === 'r2';
-    var lead = byReviewer ? 'Reviewer 2 给了 Reject · ' : '';
-    var again = byReviewer ? '按空格或点击再改一版' : '按空格或点击再来一次';
+    var lead = byReviewer ? T.reject : '';
+    var again = byReviewer ? T.revise : T.again;
     if (s > best) {
       best = s;
       try { localStorage.setItem(BEST_KEY, String(best)); } catch (e) { /* private mode: keep it for this visit */ }
-      setMessage(lead + '新纪录 ' + s + '！' + again);
+      setMessage(lead + T.best(s) + again);
     } else {
-      setMessage((lead || '撞到啦 · ') + again);
+      setMessage((lead || T.oops) + again);
     }
     updateHud();
   }
@@ -402,9 +457,11 @@
       drawDie(1 + Math.floor(Math.random() * 6));
       try { localStorage.setItem(SKIN_KEY, skin); } catch (e) { /* lasts for this visit */ }
       var look = SKINS[skin];
+      var label = T.skins[skin];
       var lucky = look.weight <= 1 ? '✦✦ ' : look.weight <= 5 ? '★ ' : '';
-      var text = lucky + look.rank + ' · ' + look.name + (same ? '（又是它）' : look.weight <= 1 ? '！！' : lucky ? '！' : '');
+      var text = lucky + label[1] + ' · ' + label[0] + (same ? T.repeat : look.weight <= 1 ? T.bang + T.bang : lucky ? T.bang : '');
       showSkinNotice(text);
+      updateHud();
     }, ROLL_MS);
   }
 
@@ -540,6 +597,8 @@
     speed += Math.max(-40 * dt, Math.min(40 * dt, target - speed));
     var dx = speed * dt;
     distance += dx;
+    points += dx / 8 * (skin === 'capy' ? CAPY_MULTIPLIER : 1);
+    if (invulnerable > 0) invulnerable = Math.max(0, invulnerable - dt);
     if (shieldLeft > 0) shieldLeft = Math.max(0, shieldLeft - dt);
     if (skin === 'capy' && Math.random() < dt * 10) {
       particles.push({
@@ -569,7 +628,7 @@
         if (!o.passed && o.x + o.w < DINO_X + 5) {
           o.passed = true;
           bonus += R2_BONUS;
-          toast('Rebuttal 成功 +' + R2_BONUS);
+          toast(T.rebuttal + R2_BONUS);
         }
       }
       if (o.x + o.w < 0) obstacles.splice(i, 1);
@@ -611,8 +670,17 @@
         smash(hit);
         if (hit.type === 'r2') {
           bonus += R2_ACCEPT_BONUS - SMASH_BONUS;
-          toast('Accepted! +' + R2_ACCEPT_BONUS);
+          toast(T.accepted + R2_ACCEPT_BONUS);
         }
+      } else if (invulnerable > 0) {
+        continue;
+      } else if (hearts > 0) {
+        // The capybara's heart shield takes the hit: the obstacle bursts, without the smash bonus.
+        hearts--;
+        invulnerable = HEART_GRACE;
+        smash(obstacles.splice(j, 1)[0]);
+        bonus -= SMASH_BONUS;
+        toast(T.heart);
       } else { crash(obstacles[j]); return; }
     }
 
@@ -625,7 +693,7 @@
     if (lv > currentLevel) {
       currentLevel = lv;
       flash(levelEl);
-      toast('LV ' + (lv + 1) + ' · ' + (LEVEL_TIPS[lv] || '更快了'));
+      toast('LV ' + (lv + 1) + ' · ' + (T.tips[lv] || T.faster));
     } else if (tipUntil && elapsed > tipUntil) {
       tipUntil = 0;
       setMessage('');
@@ -643,6 +711,9 @@
     levelEl.textContent = level() + 1;
     bestEl.textContent = pad(best);
     chargesEl.textContent = charges;
+    // The capybara's perks: a heart (filled until it breaks this run) and the score boost.
+    perkEl.hidden = skin !== 'capy';
+    perkEl.textContent = (state === 'ready' || hearts > 0 ? '♥' : '♡') + ' ×' + CAPY_MULTIPLIER;
     shieldBtn.disabled = state !== 'running' || charges === 0 || shieldLeft > 0;
     shieldBtn.classList.toggle('is-active', state === 'running' && shieldLeft > 0);
   }
@@ -715,7 +786,7 @@
     else if (state === 'running') frame = look.frames[Math.floor(distance / 10) % 2];
     else frame = look.frames[0];
     var top = GROUND - DINO_H + Math.round(dino.y);
-    sprite(frame, DINO_X, top);
+    if (!(invulnerable > 0 && Math.floor(elapsed * 12) % 2)) sprite(frame, DINO_X, top);
     if (skin === 'robot' && !dino.grounded && state === 'running') {
       var flame = FLAMES[Math.floor(performance.now() / 70) % 2];
       FLAME_X.forEach(function (fx) {

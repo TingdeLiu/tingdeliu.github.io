@@ -15,7 +15,7 @@
     <p class="site-footer-heading">Connect</p>
     {% if site.footer-links.github %}<a href="https://github.com/{{ site.footer-links.github }}" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>{% endif %}
     {% if site.footer-links.email %}<a href="mailto:{{ site.footer-links.email }}">Email</a>{% endif %}
-    <a href="{{ '/relax/' | relative_url }}"{% if page.url == '/relax/' %} aria-current="page"{% endif %}>Relax</a>
+    <a href="{{ footer_prefix | append: '/relax/' | relative_url }}"{% if page.translation_id == 'relax' %} aria-current="page"{% endif %}>Relax</a>
   </nav>
   <div class="site-footer-meta">
     <span>© {{ site.time | date: '%Y' }} {{ site.name }}</span>

@@ -1,0 +1,31 @@
+---
+layout: page
+lang: en
+editorial: true
+title: Relax
+subtitle: "Tired of reading? Go for a little run. There's more to life than papers."
+hero_mark: R
+hero_label: Take a break
+portrait: false
+permalink: /en/relax/
+translation_id: relax
+excerpt: "A pixel-art runner for a break between papers."
+---
+
+<div class="relax-game">
+  <div class="relax-hud" aria-live="off">
+    <button class="relax-shield" type="button" data-relax-shield disabled>Shield ×<b data-relax-charges>0</b></button>
+    <span class="relax-perk" data-relax-perk hidden title="The heart shield blocks one hit, and distance scores 1.5x"></span>
+    <span>LV <b data-relax-level>1</b></span>
+    <span>HI <b data-relax-best>00000</b></span>
+    <span><b data-relax-score>00000</b></span>
+  </div>
+  <div class="relax-stage" data-relax-stage tabindex="0" role="application" aria-label="Pixel runner: press Space or the up arrow, or tap, to jump">
+    <canvas data-relax-canvas></canvas>
+    <button class="relax-skin" type="button" data-relax-skin aria-label="Roll the dice for a random character" title="Roll for a character"><canvas></canvas></button>
+    <p class="relax-message" data-relax-message aria-live="polite"></p>
+  </div>
+  <p class="relax-help">Space / ↑ to jump, hold to jump higher, ↓ to drop faster. On phones, tap the game to jump.<br>Jump into floating shields to save them (up to 3). Press X / → or tap "Shield" to switch one on and smash through obstacles for 4 seconds.</p>
+</div>
+
+<script src="{{ '/assets/js/relax-runner.js' | relative_url }}" defer></script>
