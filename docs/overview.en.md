@@ -1,5 +1,3 @@
-<div align="center">
-
 # Tingde Liu · Research Notes
 
 **English** | [简体中文](README.zh-CN.md)
@@ -10,13 +8,10 @@
 [![Deploy](https://github.com/TingdeLiu/tingdeliu.github.io/actions/workflows/deploy.yml/badge.svg)](https://github.com/TingdeLiu/tingdeliu.github.io/actions/workflows/deploy.yml)
 [![Jekyll](https://img.shields.io/badge/Jekyll-4.3-CC0000?style=flat-square&logo=jekyll&logoColor=white)](https://jekyllrb.com/)
 
-[![Stars](https://img.shields.io/github/stars/TingdeLiu/tingdeliu.github.io?style=flat-square&logo=github&color=F5A623)](https://github.com/TingdeLiu/tingdeliu.github.io/stargazers)
 [![Code License: MIT](https://img.shields.io/badge/Code-MIT-3DA639?style=flat-square)](../LICENSE)
 [![Content License: CC BY 4.0](https://img.shields.io/badge/Content-CC%20BY%204.0-EF9421?style=flat-square)](../LICENSE-CONTENT)
 
 [English Edition](https://tingdeliu.github.io/en/) · [Research](https://tingdeliu.github.io/en/research/) · [Blog](https://tingdeliu.github.io/en/blog/) · [Projects](https://tingdeliu.github.io/home/) (Chinese only) · [About](https://tingdeliu.github.io/about/) (Chinese only)
-
-</div>
 
 ## Overview
 
@@ -24,13 +19,11 @@ This is Tingde Liu's personal academic blog and research knowledge base, featuri
 
 The site is intended for researchers, students, and engineers working in embodied AI and robotics, with a basic understanding of machine learning and deep learning.
 
-Chinese is the source edition. The English edition includes the complete VLN Survey, both VLN paper collections, and six published embodied-navigation weekly digests, plus the Python Engineering and ROS 2 architecture guides, with an [English home page](https://tingdeliu.github.io/en/), [Research index](https://tingdeliu.github.io/en/research/), and [Blog index](https://tingdeliu.github.io/en/blog/). Translated articles support language switching. Other long-form articles will be translated gradually; untranslated destinations are marked **Chinese only** below. See the [English edition maintenance guide](english-edition.md) for translation and synchronization checks.
+Chinese is the source edition. English translations cover the research collection and published navigation digests. Use the [English home page](https://tingdeliu.github.io/en/), [Research index](https://tingdeliu.github.io/en/research/), or [Blog index](https://tingdeliu.github.io/en/blog/) to browse available articles. Articles support language switching and indicate when a translation needs updating. Some technical essays remain Chinese only. See the [English edition maintenance guide](english-edition.md) for synchronization checks.
 
 The site aims to provide a systematic, continuously updated account of models, datasets, training methods, system architectures, benchmarks, and deployment on real robots. Long-form surveys establish the broader technical context, while shorter posts capture focused analyses and interim observations.
 
-As of **October 3, 2026**, the collection includes **18 research surveys and paper readings**, **7 technical blog posts**, **6 published embodied-navigation weekly digests**, and **over 1,000** image files. The published Chinese article sources total about **56,000 lines of Markdown**; English translations are counted separately.
-
-Created and maintained by [@TingdeLiu](https://github.com/TingdeLiu), the project has been continuously updated since January 4, 2026. The September 16, 2026 maintenance record documents **5 community feedback submissions, all addressed and closed**; see [MAINTAINERS.md](maintainers.md).
+Created and maintained by [@TingdeLiu](https://github.com/TingdeLiu). For the current collection, browse the [Research](https://tingdeliu.github.io/en/research/) and [Blog](https://tingdeliu.github.io/en/blog/) indexes.
 
 ## Research Areas
 
@@ -41,28 +34,29 @@ The complete article index is organized by topic. Links use the English edition 
 | **Vision-Language Navigation** | [VLN Survey](https://tingdeliu.github.io/en/VLN-Survey/) | Task definitions, datasets, and benchmarks; the evolution from modular pipelines to end-to-end navigation agents |
 | | [VLN Papers: Instruction Following](https://tingdeliu.github.io/en/VLN-Papers/) | Detailed readings of published or leaderboard-listed work, with leaderboards for three instruction-following task settings |
 | | [VLN Papers: Goal Navigation and Extensions](https://tingdeliu.github.io/en/VLN-Papers-Extended/) | Goal-navigation leaderboards, recent preprints, and additional papers beyond the main instruction-following collection |
-| **Vision-Language-Action Models** | [VLA Survey](https://tingdeliu.github.io/VLA-Survey/) (Chinese only) | Robot policy learning, action generation, imitation learning, and reinforcement learning |
-| | [VLA Paper Readings](https://tingdeliu.github.io/VLA-Papers/) (Chinese only) | Individual paper analyses, RoboDojo leaderboard links, and comparisons under matching experimental settings |
-| **Robot Navigation Systems** | [Classical Robot Navigation Survey](https://tingdeliu.github.io/Robot-Navigation-Survey/) (Chinese only) | SLAM, localization and mapping, path planning, and motion control |
+| **Vision-Language-Action Models** | [VLA Survey](https://tingdeliu.github.io/en/VLA-Survey/) | Robot policy learning, action generation, imitation learning, and reinforcement learning |
+| | [VLA Paper Readings](https://tingdeliu.github.io/en/VLA-Papers/) | Individual paper analyses, RoboDojo leaderboard links, and comparisons under matching experimental settings |
+| **Robot Navigation Systems** | [Classical Robot Navigation Survey](https://tingdeliu.github.io/en/Robot-Navigation-Survey/) | SLAM, localization and mapping, path planning, and motion control |
 | | [Complete ROS 2 Guide](https://tingdeliu.github.io/en/ROS2-Survey/) | Communication models, lifecycle nodes, QoS, and real-robot deployment |
-| **Multimodal and Spatial Intelligence** | [VLM Survey](https://tingdeliu.github.io/VLM-Survey/) (Chinese only) | An overview of multimodal fusion methods in vision-language models |
-| | [Spatial Intelligence Survey](https://tingdeliu.github.io/Spatial-Intelligence-Survey/) (Chinese only) | 3D scene understanding, point clouds, depth estimation, and Gaussian Splatting |
-| **World Models and Agents** | [World Models Survey](https://tingdeliu.github.io/World-Models-Survey/) (Chinese only) | Environment modeling and prediction, video-generative world models, and embodied applications |
-| | [AI Agent Survey](https://tingdeliu.github.io/AI-Agent-Survey/) (Chinese only) | Reasoning, memory and skills, context engineering, multi-agent collaboration, and the MCP / WebMCP / A2A / MHS connectivity layers and security |
-| | [Embodied Agent Paper Readings](https://tingdeliu.github.io/Embodied-Agent-Papers/) (Chinese only) | Closed-loop runtimes (AgentOS / Harness), typed action abstractions, physical orchestration, scene-graph exit-code evaluation, and governance of self-evolution |
-| | [Embodied Agent Survey](https://tingdeliu.github.io/Embodied-Agent-Harness-Survey/) (Chinese only) | Integration of agent harnesses (physical guardrails, exit-code evaluation, online critics) with software systems engineering (microservices, ZeroMQ, fast/slow loops) |
-| **Learning and Training Methods** | [LLM Training Survey](https://tingdeliu.github.io/LLM-Training-Survey/) (Chinese only) | Pretraining, post-training, alignment, parallelism, and inference acceleration |
-| | [Reinforcement Learning Survey](https://tingdeliu.github.io/Reinforcement-Learning-Survey/) (Chinese only) | Algorithms from theoretical foundations to embodied AI applications |
-| | [Deep Learning Survey](https://tingdeliu.github.io/Deep-Learning-Survey/) (Chinese only) | Network architectures, optimization, and training techniques |
-| | [Machine Learning Survey](https://tingdeliu.github.io/Machine-Learning-Survey/) (Chinese only) | Classical models and statistical learning foundations |
+| **Multimodal and Spatial Intelligence** | [VLM Survey](https://tingdeliu.github.io/en/VLM-Survey/) | An overview of multimodal fusion methods in vision-language models |
+| | [Spatial Intelligence Survey](https://tingdeliu.github.io/en/Spatial-Intelligence-Survey/) | 3D scene understanding, point clouds, depth estimation, and Gaussian Splatting |
+| **World Models and Agents** | [World Models Survey](https://tingdeliu.github.io/en/World-Models-Survey/) | Environment modeling and prediction, video-generative world models, and embodied applications |
+| | [AI Agent Survey](https://tingdeliu.github.io/en/AI-Agent-Survey/) | Reasoning, memory and skills, context engineering, multi-agent collaboration, and the MCP / WebMCP / A2A / MHS connectivity layers and security |
+| | [Embodied Agent Paper Readings](https://tingdeliu.github.io/en/Embodied-Agent-Papers/) | Closed-loop runtimes (AgentOS / Harness), typed action abstractions, physical orchestration, scene-graph exit-code evaluation, and governance of self-evolution |
+| | [Embodied Agent Survey](https://tingdeliu.github.io/en/Embodied-Agent-Harness-Survey/) | Integration of agent harnesses (physical guardrails, exit-code evaluation, online critics) with software systems engineering (microservices, ZeroMQ, fast/slow loops) |
+| **Learning and Training Methods** | [LLM Training Survey](https://tingdeliu.github.io/en/LLM-Training-Survey/) | Pretraining, post-training, alignment, parallelism, and inference acceleration |
+| | [Reinforcement Learning Survey](https://tingdeliu.github.io/en/Reinforcement-Learning-Survey/) | Algorithms from theoretical foundations to embodied AI applications |
+| | [Deep Learning Survey](https://tingdeliu.github.io/en/Deep-Learning-Survey/) | Network architectures, optimization, and training techniques |
+| | [Machine Learning Survey](https://tingdeliu.github.io/en/Machine-Learning-Survey/) | Classical models and statistical learning foundations |
 | **Engineering Practice** | [Python Engineering Guide](https://tingdeliu.github.io/en/Python-Engineering-Survey/) | Environment and dependency boundaries, src layouts and pyproject, guarantees of uv lockfiles, quality and CI pipelines, CUDA dependency layers, ROS 2 and virtual-environment compatibility, and four levels of experiment reproducibility |
 
 ### Technical Blog
 
-These posts are currently available in Chinese only.
+The workflow article is available in English; the additional essays listed below are currently in Chinese.
 
 | Article | Topic |
 | --- | --- |
+| [Self Research: How This Blog Is Maintained with AI](https://tingdeliu.github.io/en/building-blog-with-skills/) | Literature collection, paper readings, survey maintenance, and automated publishing |
 | [Jev: System One Models and Embodied Navigation](https://tingdeliu.github.io/Jev-Embodied-Navigation/) | Typed decisions, evidence boundaries, and research questions for navigation, memory, and agent collaboration |
 | [RoboTTT: A Detailed Analysis](https://tingdeliu.github.io/RoboTTT-Fast-Weights/) | How TTT modules compress history into fast weights for long-term storage and real-time retrieval |
 | [Graph Engineering](https://tingdeliu.github.io/graph-engineering/) | Agent graph orchestration and design patterns in the large-model era |
@@ -73,32 +67,29 @@ These posts are currently available in Chinese only.
 
 ### Embodied-Navigation Weekly Digests
 
-Weekly digests cover new arXiv papers and Chinese community analyses in six parts: key conclusions, reading priorities, detailed analyses, transferable methods, a topic overview, and trends. Each issue emphasizes conclusions, evidence, and reading priorities. Figures that cannot be verified are explicitly qualified by source and measurement scope.
+Digests follow VLN and embodied agentic navigation through key findings, selected paper readings, and a categorized index. Experimental results retain source and evaluation context to help readers decide what to investigate next.
 
-| Issue | Coverage Period |
-| --- | --- |
-| [Issue 6](https://tingdeliu.github.io/en/vln-weekly-2026-09-27/) | 2026-09-16 ~ 2026-09-24 |
-| [Issue 5](https://tingdeliu.github.io/en/vln-weekly-2026-09-19/) | 2026-09-09 ~ 2026-09-17 |
-| [Issue 4](https://tingdeliu.github.io/en/vln-weekly-2026-09-12/) | 2026-09-02 ~ 2026-09-10 |
-| [Issue 3](https://tingdeliu.github.io/en/vln-weekly-2026-09-05/) | 2026-08-26 ~ 2026-09-03 |
-| [Issue 2](https://tingdeliu.github.io/en/vln-weekly-2026-08-30/) | 2026-08-20 ~ 2026-08-29 |
-| [Issue 1](https://tingdeliu.github.io/en/vln-weekly-2026-08-22/) | 2026-08-13 ~ 2026-08-20 |
-
-New digests appear in the embodied-navigation weekly section of the [Blog page](https://tingdeliu.github.io/en/blog/).
+Browse the [English Blog index](https://tingdeliu.github.io/en/blog/) for the complete published series and future issues, or use the [Chinese edition](https://tingdeliu.github.io/blog/).
 
 ### Suggested Reading Path
 
 1. Start with the [VLN Survey](https://tingdeliu.github.io/en/VLN-Survey/) for task definitions, datasets, and the evolution of navigation methods.
-2. Read the [VLA Survey](https://tingdeliu.github.io/VLA-Survey/) (Chinese only) for unified modeling of vision, language, and robot actions.
-3. Explore the [Spatial Intelligence Survey](https://tingdeliu.github.io/Spatial-Intelligence-Survey/) and [World Models Survey](https://tingdeliu.github.io/World-Models-Survey/) (both Chinese only) for 3D understanding and environment prediction.
+2. Read the [VLA Survey](https://tingdeliu.github.io/en/VLA-Survey/) for unified modeling of vision, language, and robot actions.
+3. Explore the [Spatial Intelligence Survey](https://tingdeliu.github.io/en/Spatial-Intelligence-Survey/) and [World Models Survey](https://tingdeliu.github.io/en/World-Models-Survey/) for 3D understanding and environment prediction.
 4. For implementation, move to the engineering sections of the [ROS 2 Core Architecture Guide](https://tingdeliu.github.io/en/ROS2-Survey/) and [LLM Training Survey](https://tingdeliu.github.io/en/LLM-Training-Survey/).
 5. Follow the [weekly digests](https://tingdeliu.github.io/en/blog/) for ongoing developments and reading priorities.
+
+## Research Workflow
+
+AI assistants help collect literature, draft paper summaries, extract figures, update surveys, and validate formatting. The author selects papers and reviews key claims against original sources.
+
+[Self Research: How This Blog Is Maintained with AI](https://tingdeliu.github.io/en/building-blog-with-skills/) explains the process. Reusable skills are maintained in the separate [Tyndall-Skills](https://github.com/TingdeLiu/Tyndall-Skills) repository.
 
 ## Content Organization
 
 ```text
 .
-├── _posts/               # Chinese research, blog, and weekly articles
+├── _posts/               # research/, blog/, and weekly-reports/ Chinese sources
 ├── _translations/        # English article collection
 ├── pages/                # Entry pages, including pages/en/; explicit permalinks
 ├── assets/               # css/ and js/ frontend resources
@@ -124,8 +115,8 @@ New digests appear in the embodied-navigation weekly section of the [Blog page](
 
 Chinese articles use Jekyll's built-in `posts` collection with `/:title/` permalinks. The `categories` value (`research`, `blog`, or `weekly`) determines index-page placement; subdirectories under `_posts/` only organize source files. English articles use the separate `translations` collection with explicit `/en/.../` permalinks.
 
-- The Chinese Research page groups cards into six areas: embodied navigation (VLN), embodied AI, large models and agents, machine learning foundations, robot systems and classical navigation, and engineering practice. A jump bar links to each group; unassigned articles appear under Other.
-- The Chinese Blog page lists embodied-navigation weekly digests first, with issue numbers assigned in publication order, followed by technical essays.
+- The Chinese Research page groups cards into six areas: embodied navigation (VLN), embodied manipulation (VLA), embodied agents, large models and spatial intelligence, machine learning foundations, and engineering practice. A jump bar links to each group; unassigned articles appear under Other.
+- The Chinese Blog page combines navigation digests and technical essays, with filters for each category.
 - The English Research and Blog pages list available translations. English articles do not add duplicate entries to Chinese feeds, tags, or archives.
 
 ## Technical Implementation
@@ -145,6 +136,7 @@ Chinese articles use Jekyll's built-in `posts` collection with `/:title/` permal
 
 - [Ruby 3.2](https://www.ruby-lang.org/en/documentation/installation/) (matching CI)
 - Bundler
+- Python 3 for content and translation checks
 
 Check your environment:
 
@@ -157,6 +149,7 @@ bundle --version
 
 ```bash
 bundle install
+python scripts/check_translations.py
 bundle exec jekyll serve
 ```
 
@@ -180,6 +173,22 @@ For a production build in PowerShell:
 $env:JEKYLL_ENV = "production"
 ruby -S bundle exec jekyll build
 ```
+
+### Before Publishing
+
+Run the same checks as GitHub Actions, from the repository root:
+
+```bash
+python scripts/lint_posts.py
+python scripts/check_translations.py
+python scripts/check_translation_drafts.py
+python -m unittest discover -s scripts/tests
+JEKYLL_ENV=production bundle exec jekyll build
+python scripts/check_site_styles.py
+python scripts/check_english_site.py
+```
+
+For the PowerShell build step, use the production command above: set `$env:JEKYLL_ENV = "production"`, then run `ruby -S bundle exec jekyll build`.
 
 ### Content Maintenance
 
@@ -221,7 +230,8 @@ When reusing original content, provide attribution under CC BY 4.0:
 ```text
 Author: Tingde Liu
 Source: https://tingdeliu.github.io/<article-path>
-License: CC BY 4.0
+License: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+Changes: <state whether the content was modified>
 ```
 
 When citing this site's conclusions in academic writing, **also cite the relevant original papers**. This site's contribution is selection, translation, and commentary; credit for the methods belongs to the original authors.

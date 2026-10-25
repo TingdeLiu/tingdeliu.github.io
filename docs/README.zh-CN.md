@@ -1,5 +1,3 @@
-<div align="center">
-
 # Tingde Liu · Research Notes
 
 [English](../README.md) | **简体中文**
@@ -10,13 +8,10 @@
 [![Deploy](https://github.com/TingdeLiu/tingdeliu.github.io/actions/workflows/deploy.yml/badge.svg)](https://github.com/TingdeLiu/tingdeliu.github.io/actions/workflows/deploy.yml)
 [![Jekyll](https://img.shields.io/badge/Jekyll-4.3-CC0000?style=flat-square&logo=jekyll&logoColor=white)](https://jekyllrb.com/)
 
-[![Stars](https://img.shields.io/github/stars/TingdeLiu/tingdeliu.github.io?style=flat-square&logo=github&color=F5A623)](https://github.com/TingdeLiu/tingdeliu.github.io/stargazers)
 [![Code License: MIT](https://img.shields.io/badge/Code-MIT-3DA639?style=flat-square)](../LICENSE)
 [![Content License: CC BY 4.0](https://img.shields.io/badge/Content-CC%20BY%204.0-EF9421?style=flat-square)](../LICENSE-CONTENT)
 
 [访问网站](https://tingdeliu.github.io/) · [研究综述](https://tingdeliu.github.io/research/) · [技术博客](https://tingdeliu.github.io/blog/) · [开源项目](https://tingdeliu.github.io/home/) · [关于作者](https://tingdeliu.github.io/about/)
-
-</div>
 
 ## 项目简介
 
@@ -24,13 +19,19 @@
 
 内容主要面向具身智能与机器人方向的研究者、学生和工程师，默认读者具备基础的机器学习与深度学习知识。
 
-英文版已提供完整的 VLN 综述、两篇 VLN 论文精读和六期已发布的具身导航周报、Python 工程实践指南和 ROS 2 核心架构指南，以及[英文阅读入口](https://tingdeliu.github.io/en/)、[研究索引](https://tingdeliu.github.io/en/research/)和[博客索引](https://tingdeliu.github.io/en/blog/)，中英文文章可以切换。其他长文将逐步翻译，尚未翻译的链接会标注 Chinese only。翻译与同步检查流程见 [英文版维护说明](english-edition.md)。
+中文是源语言，研究文章与已发布的具身导航周报均有对应英文版。可从[英文首页](https://tingdeliu.github.io/en/)、[研究索引](https://tingdeliu.github.io/en/research/)与[博客索引](https://tingdeliu.github.io/en/blog/)进入；文章支持语言切换，并在译文落后于源文时提示同步状态。部分技术随笔仍仅有中文，完整可读内容以各语言索引为准。维护流程见[英文版维护说明](english-edition.md)。
 
 本站以系统梳理和持续更新为目标：既关注模型与数据的发展脉络，也关注训练方法、系统架构、评测基准和真实机器人部署。长篇综述用于建立完整的技术脉络，短篇文章用于记录阶段性观察与专题分析。
 
-截至 **2026-10-03**，收录 **18 篇研究综述与论文精读**、**7 篇技术博客**、**6 期已发布的具身导航周报**与 **1000 余个图片文件**。已发布中文文章源文件合计约 **5.6 万行 Markdown**，英文译文另计，仍在持续维护。
+项目由 [@TingdeLiu](https://github.com/TingdeLiu) 创建和维护。完整文章与更新记录请查看[研究索引](https://tingdeliu.github.io/research/)和[博客索引](https://tingdeliu.github.io/blog/)。
 
-项目由 [@TingdeLiu](https://github.com/TingdeLiu) 创建，自 2026-01-04 起持续更新。2026-09-16 的维护记录收录了 **5 条社区反馈，均已处理关闭**，完整记录见 [MAINTAINERS.md](maintainers.md)。
+## 从哪里开始读
+
+- **了解视觉语言导航**：先看 [VLN 综述](https://tingdeliu.github.io/VLN-Survey/)，再进入[指令跟随论文精读](https://tingdeliu.github.io/VLN-Papers/)与[目标导航及扩展篇](https://tingdeliu.github.io/VLN-Papers-Extended/)，按任务、方法和评测结果比较工作。
+- **研究机器人操作**：从 [VLA 综述](https://tingdeliu.github.io/VLA-Survey/)建立技术框架，再看 [VLA 论文精读](https://tingdeliu.github.io/VLA-Papers/)。
+- **搭建具身智能体**：阅读 [Embodied Agent 综述](https://tingdeliu.github.io/Embodied-Agent-Harness-Survey/)，了解执行闭环与运行时架构。
+- **动手做工程**：进入 [ROS 2 指南](https://tingdeliu.github.io/ROS2-Survey/)与 [Python 工程实践](https://tingdeliu.github.io/Python-Engineering-Survey/)。
+- **持续跟进新论文**：浏览[具身导航周报](https://tingdeliu.github.io/blog/)，根据要点、精读与阅读优先级筛选工作。
 
 ## 研究方向
 
@@ -61,6 +62,7 @@
 
 | 文章 | 主题 |
 | --- | --- |
+| [自主研究：这个博客是如何用 AI 维护的](https://tingdeliu.github.io/Building-This-Blog-with-Skills/) | 从资料抓取、论文精读到综述更新和自动发布的个人研究工作流 |
 | [Jev：System One 模型与具身导航](https://tingdeliu.github.io/Jev-Embodied-Navigation/) | 类型化判断、证据边界，以及导航决策、记忆管理与 Agent 协作的研究问题 |
 | [RoboTTT 深度解析](https://tingdeliu.github.io/RoboTTT-Fast-Weights/) | TTT 模块如何把历史压缩进 Fast Weights，实现长时程存储与实时检索 |
 | [Graph Engineering](https://tingdeliu.github.io/graph-engineering/) | 大模型时代的智能体图拓扑编排与设计模式 |
@@ -71,32 +73,21 @@
 
 ### 具身导航周报
 
-按周汇总 arXiv 新论文与中文社区解读，按「本期结论 → 优先阅读清单 → 重点工作分析 → 可迁移方法 → 分类速览 → 趋势判断」六段组织。只保留结论、证据与阅读优先级，不做论文清单堆砌；无法核实的数字会明确标注来源与口径。
+围绕 VLN 与具身 Agentic 导航，汇总新论文与社区解读，提供本期要点、重点工作精读及分类索引。涉及实验数字时注明来源与评测口径，便于判断哪些工作值得继续读。
 
-| 期号 | 覆盖区间 |
-| --- | --- |
-| [第 6 期](https://tingdeliu.github.io/vln-weekly-2026-09-27/) | 2026-09-16 ~ 2026-09-24 |
-| [第 5 期](https://tingdeliu.github.io/vln-weekly-2026-09-19/) | 2026-09-09 ~ 2026-09-17 |
-| [第 4 期](https://tingdeliu.github.io/vln-weekly-2026-09-12/) | 2026-09-02 ~ 2026-09-10 |
-| [第 3 期](https://tingdeliu.github.io/vln-weekly-2026-09-05/) | 2026-08-26 ~ 2026-09-03 |
-| [第 2 期](https://tingdeliu.github.io/vln-weekly-2026-08-30/) | 2026-08-20 ~ 2026-08-29 |
-| [第 1 期](https://tingdeliu.github.io/vln-weekly-2026-08-22/) | 2026-08-13 ~ 2026-08-20 |
+完整期刊列表与后续更新见 [Blog 页](https://tingdeliu.github.io/blog/)；[英文周报](https://tingdeliu.github.io/en/blog/)提供对应译文。
 
-后续新增周报同样发布在 [Blog 页](https://tingdeliu.github.io/blog/) 的「具身导航周报」分区。
+## 这个博客是如何维护的
 
-### 推荐阅读路径
+研究流程连接资料抓取、论文总结、关键图提取、综述更新与自动发布检查。AI 编码助手参与检索、起草、排版与校验，作者负责选题、研究判断和对照原文核验关键结论。
 
-1. 从 [VLN 综述](https://tingdeliu.github.io/VLN-Survey/) 了解视觉语言导航的任务定义、数据集和技术演进。
-2. 阅读 [VLA 综述](https://tingdeliu.github.io/VLA-Survey/) 了解视觉、语言与机器人动作的统一建模。
-3. 通过 [空间智能综述](https://tingdeliu.github.io/Spatial-Intelligence-Survey/) 和 [世界模型综述](https://tingdeliu.github.io/World-Models-Survey/) 扩展到三维理解与环境预测。
-4. 需要动手实现时，再进入 [ROS 2 完全指南](https://tingdeliu.github.io/ROS2-Survey/) 与 [LLM 训练综述](https://tingdeliu.github.io/LLM-Training-Survey/) 的工程部分。
-5. 想持续跟进最新进展，直接看[具身导航周报](https://tingdeliu.github.io/blog/)，每期只给结论与阅读优先级。
+完整过程见[自主研究：这个博客是如何用 AI 维护的](https://tingdeliu.github.io/Building-This-Blog-with-Skills/)。文中使用的技能在独立仓库 [Tyndall-Skills](https://github.com/TingdeLiu/Tyndall-Skills) 维护，可作为搭建个人研究工作流的参考。
 
 ## 内容组织
 
 ```text
 .
-├── _posts/               # 中文研究文章、博客与周报
+├── _posts/               # research/ 综述、blog/ 随笔、weekly-reports/ 周报
 ├── _translations/        # 英文文章集合
 ├── pages/                # 网站入口页，含 pages/en/；使用固定 permalink
 ├── assets/               # css/ 样式与 js/ 交互脚本
@@ -122,8 +113,8 @@
 
 文章使用 Jekyll 内置的 `posts` 集合，永久链接为 `/:title/`。`categories` 取 `research` / `blog` / `weekly` 三值，是聚合页分区的唯一依据，`_posts/` 下的子目录仅用于维护源文件。
 
-- Research 页以卡片网格按「具身导航（VLN）／具身智能／大模型与 Agent／机器学习基础／机器人系统与传统导航／工程实践」六组展示，顶部有分组跳转栏，未归组的新文章自动落入「其他」
-- Blog 页先列「具身导航周报」（按发布顺序自动编期号），再列「技术随笔」
+- Research 页以卡片网格按「具身导航（VLN）／具身操作（VLA）／具身 Agent／大模型与空间智能／机器学习基础／工程实践」六组展示，顶部有分组跳转栏，未归组的新文章自动落入「其他」
+- Blog 页汇集「具身导航周报」与「技术随笔」，提供分类筛选入口
 
 ## 技术实现
 
@@ -142,6 +133,7 @@
 
 - [Ruby 3.2](https://www.ruby-lang.org/en/documentation/installation/)（与 CI 环境一致）
 - Bundler
+- Python 3（运行内容与翻译检查）
 
 确认环境：
 
@@ -154,6 +146,7 @@ bundle --version
 
 ```bash
 bundle install
+python scripts/check_translations.py
 bundle exec jekyll serve
 ```
 
@@ -177,6 +170,22 @@ PowerShell 生产构建：
 $env:JEKYLL_ENV = "production"
 ruby -S bundle exec jekyll build
 ```
+
+### 发布前检查
+
+与 GitHub Actions 保持一致，在仓库根目录依次运行：
+
+```bash
+python scripts/lint_posts.py
+python scripts/check_translations.py
+python scripts/check_translation_drafts.py
+python -m unittest discover -s scripts/tests
+JEKYLL_ENV=production bundle exec jekyll build
+python scripts/check_site_styles.py
+python scripts/check_english_site.py
+```
+
+PowerShell 中的构建步骤请使用上方的生产构建命令：先设置 `$env:JEKYLL_ENV = "production"`，再运行 `ruby -S bundle exec jekyll build`。
 
 ### 内容维护约定
 
@@ -218,7 +227,8 @@ ruby -S bundle exec jekyll build
 ```
 作者：Tingde Liu
 来源：https://tingdeliu.github.io/<文章链接>
-许可：CC BY 4.0
+许可：CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+修改：<注明是否修改，如“有删改”或“未修改”>
 ```
 
 学术写作中引用本站结论时，**请同时引用相关原始论文**——本站的贡献在于筛选、翻译与评述，方法本身的功劳属于原作者。
@@ -231,7 +241,7 @@ ruby -S bundle exec jekyll build
 | [MAINTAINERS.md](maintainers.md) | 维护者身份与职责、完整的社区反馈处理记录、响应承诺、发布节奏 |
 | [SECURITY.md](../.github/SECURITY.md) | 安全问题的私密报告渠道、真实攻击面说明、著作权下架请求 |
 
-站点采用持续部署：推送 `main` 后由 GitHub Actions 构建并发布，线上版本始终对应 `main` 的最新提交。内容按需更新，不做版本化发布；需要引用某个确定时刻的版本时，可直接引用对应的 commit 链接。
+站点采用持续部署：推送 `main` 后由 GitHub Actions 构建并发布，线上版本对应最近一次成功部署的 `main` 提交。内容按需更新，不做版本化发布；需要引用某个确定时刻的版本时，可直接引用对应的 commit 链接。
 
 ## 联系方式
 
