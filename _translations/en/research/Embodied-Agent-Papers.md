@@ -5,16 +5,16 @@ translation_id: embodied-agent-papers
 permalink: /en/Embodied-Agent-Papers/
 source_path: _posts/research/2026-03-06-Embodied-Agent-Papers.md
 source_url: /Embodied-Agent-Papers/
-source_revision_date: 2026-10-22
-translation_updated: 2026-10-22
+source_revision_date: 2026-10-26
+translation_updated: 2026-10-26
 title: "Embodied Agents: Paper Readings"
-date: 2026-10-22
+date: 2026-10-26
 tags: [Agent, Embodied AI, Robotics, VLA, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "Eighteen paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, weight-harness co-evolution, and history-replay-driven evolution of exploration policies."
+excerpt: "Nineteen paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, weight-harness co-evolution, history-replay-driven evolution of exploration policies, and evaluation in evolving physical and social environments."
 ---
 
 
@@ -23,7 +23,7 @@ excerpt: "Eighteen paper entries on embodied runtimes, physical orchestration, s
 # Embodied Agents: Paper Readings
 {: id="具身智能体论文精读"}
 
-This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed loop that can operate sustainably. The eighteen papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, weight-harness co-evolution, and history-replay-driven evolution of exploration policies. The experiments cover simulation environments, text-interaction environments, interactive visual games, real robots, and professional software tasks. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection. Evo² and Dream-RSI are evaluated directly on software tasks, so this article treats them as mechanisms that may transfer to embodied-harness evolution rather than as evidence of robot performance.
+This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed loop that can operate sustainably. The nineteen papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, weight-harness co-evolution, history-replay-driven evolution of exploration policies, and evaluation in evolving physical and social environments. The experiments cover simulation environments, text-interaction environments, interactive visual games, real robots, and professional software tasks. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection. Evo² and Dream-RSI are evaluated directly on software tasks, so this article treats them as mechanisms that may transfer to embodied-harness evolution rather than as evidence of robot performance.
 
 |Paper|Main entry points|representative verification|
 |---|---|---|
@@ -45,6 +45,7 @@ This article focuses on a common problem: how robots organize perception, planni
 | [GPT-6-Astra-JRT](#gpt-6-astra-jrt) | Frozen knowledge packages, interaction budgets, fast-slow collaboration, and continuous-world evaluation | 12 simulation benchmarks, 8 real-robot configurations, and a household prototype |
 | [Evo²](#evo2) | Weight-harness co-evolution, a dual-role evolver, and cross-branch strategy reuse | Polyglot, SWE-bench Verified, LiveCodeBench, and LoCoMo; no robot evaluation |
 | [Dream-RSI](#dream-rsi) | Historical discovery-tree replay, offline exploration-policy improvement, and recursive deployment | KernelBench, mathematical optimization, Lasso, Terminal-Bench 2.1; no robot experiments |
+| [TARSphere](#tarsphere) | Event-driven physical and social execution, hierarchical memory, and paired capability evaluation | 30 indoor scenes, 360 simulated episodes, and 8 frozen MLLMs; embodied NPCs and dynamic task updates |
 
 The filter bar below supports multiple tag combinations; when multiple tags are selected at the same time, the page will only retain papers that meet these tags.
 
@@ -2989,6 +2990,187 @@ Replay is deterministic for recorded nodes but cannot evaluate branches that wer
 
 ---
 
+## 19. TARSphere (2026) {#tarsphere}
+———One closed loop for physical execution, human–robot interaction, and task requirements that change during execution
+
+📄 **Paper**: [arXiv:2610.30043](https://arxiv.org/abs/2610.30043) · [Code](https://github.com/xuyicheng-zju/TARSphere) · [Project Page](https://xuyicheng-zju.github.io/TARSphere/)
+
+### Key takeaways
+{: id="tarsphere-takeaways"}
+
+TARSphere offers a transferable design principle: update plans according to what actually executed, whether information was delivered, and whether the active goal changed, then use those same facts to judge completion.
+It connects physical simulation and embodied NPCs, an execution harness for frozen multimodal models, and paired capability evaluations, making bottlenecks in reasoning, execution, and interaction observable separately.
+Its evaluation shows that a shared tool interface does not eliminate differences between models: general-purpose models can outperform specialized embodied models in this setting, while substantial gaps remain between good plans, usable skills, and final success.
+Even with assistance for locomotion, grasping, grounding, and mapping, task-update and human-coordination success deficits relative to Base persist, indicating that better low-level execution alone cannot resolve every difficulty.
+The most reusable evaluation idea is to record stage evidence, final completion, collisions, and falls together, then use matched task variants and controlled interventions to locate capability gaps.
+
+---
+
+### 1. Background and problem
+{: id="tarsphere-background"}
+
+Long-horizon robot service tasks involve contact, friction, and balance, as well as situations such as a busy partner, information that must first be requested from another person, or a last-minute change of recipient.
+Evaluations with fixed goals or symbolic actions can obscure why a plan fails during execution, motivating a simulation framework and benchmark that connect physical outcomes, message delivery, and task state.
+
+---
+
+### 2. Main methods and innovations
+{: id="tarsphere-method"}
+
+<div align="center">
+  <img src="/images/agent/TARSphere-infrastructure.webp" width="100%" loading="lazy" decoding="async" alt="TARSphere infrastructure for physical execution, NPC interaction, and event-driven evaluation" />
+<figcaption>Figure 2: TARSphere-Infra connects physical execution, NPC interaction, and an event-driven task state machine; evaluation checks evidence against the task requirements active when that evidence was produced.</figcaption>
+</div>
+
+**Overall framework.** TARSphere consists of the execution and evaluation layer TARSphere-Infra, the decision layer TARSphere-Harness, and TARSphere-Bench built on both: Infra produces execution outcomes under physical and interaction constraints, Harness lets a frozen multimodal large language model (MLLM) call skills using observations, memory, and feedback, and Bench compares capabilities through paired task conditions.
+The model receives public observations and events; complete task ground truth and scoring requirements remain private to the environment and evaluator.
+
+**① Physical execution: a tool call does not establish that an action has completed.** Robot actions or skill calls enter Isaac Sim / PhysX, which runs a G1 robot, objects, and NPCs in GRScenes-100 scenes; locomotion follows a learned policy, while grasping executes planned arm motion and checks actual acquisition and continued retention of the object.
+Outputs include synchronized RGB-D, LiDAR, action feedback, and collision information rather than only symbolic movement or grasp success. NPCs' visible poses are synchronized with their collision proxies, aligning the human motion the robot sees with the physical contact constraints it encounters.
+
+**② Interaction and state machines: the world advances only when actions finish and messages arrive.** Each NPC maintains its pose, behavior, availability, and authorized knowledge; an LLM backend routes natural-language questions to authorized topics and returns episode-defined replies.
+Robot-to-NPC queries require proximity and visibility, and NPC speech reaches the robot only within hearing range; generating an utterance therefore does not establish that the other party heard it.
+An event-driven finite-state machine (FSM) admits events according to directed acyclic graph (DAG) prerequisites and live physical and interaction conditions; NPC actions follow Idle → Queued → Acting → Done, and state transitions are committed only after confirmed action completion or actual message delivery.
+
+> **Concrete example, corresponding to the recipient update in Figure 4:** Elena initially asks the robot to bring her a bottle, then requests delivery to Marcus instead. Scheduling this notification in the task logic does not mean the robot has received it: the update changes the active task binding only after actual message delivery. Completion then requires physically handing the correct bottle to Marcus and receiving acceptance. The recipient-change event itself earns no score, but changes the recipient against whom subsequent outcomes are judged.
+
+The diagram below isolates this causal chain; the task update inserted into the workflow does not add an extra scored stage.
+
+```mermaid
+graph TD
+    A["Original task: deliver the bottle to Elena"] --> B["Robot physically acquires the bottle"]
+    B --> C["Prerequisites met: trigger recipient-change notification"]
+    C --> D{"Was the notification actually delivered to the robot?"}
+    D -- "No" --> E["This update has not yet been committed"]
+    E --> D
+    D -- "Yes" --> F["Active recipient changes to Marcus"]
+    F --> G["Model replans using observations and memory"]
+    G --> H["Find Marcus and physically hand over the bottle"]
+    H --> I["Check dependencies, object, and acceptance before marking completion"]
+```
+
+**③ Harness observations and hierarchical memory: connect the current view to previously confirmed facts.**
+
+<div align="center">
+  <img src="/images/agent/TARSphere-harness.webp" width="100%" loading="lazy" decoding="async" alt="The TARSphere loop of observations, hierarchical memory, skill interfaces, and execution feedback" />
+<figcaption>Figure 3: Current observations and hierarchical memory inform a frozen MLLM, which calls controller backends through a unified skill interface and continues deciding from new observations, execution feedback, and public events.</figcaption>
+</div>
+
+Each decision receives current egocentric RGB, body-frame LiDAR information, public events, and execution feedback; RGB-D also supports entity grounding and the online map.
+Short-term history retains recent actions, outcomes, and visual-state notes, while long-term records retain the active plan, dialogue, and robot state.
+In addition, **semantic spatial memory** associates model-selected people, objects, and places with locations measured from synchronized RGB-D and supporting keyframes; **self-managed key memory** lets the model retain, revise, or forget facts, producing context for later navigation and replanning.
+
+| Memory component | Input and processing | Downstream use |
+|---|---|---|
+| Short-term history and long-term records | Retain recent execution traces, plans, dialogue, and robot state | Continue unfinished steps without ignoring previous feedback |
+| Semantic spatial memory | Associate selected entities with measured locations and supporting keyframes | Return to previously observed targets or people |
+| Self-managed key memory | Let the model choose facts to retain, revise, or forget | Adjust active information as the task changes |
+
+These components retain what just happened, where a target is, and which facts should currently be trusted, respectively, rather than merely lengthening the input history. The paper does not define them as modules that retrain the model; their benefits come from how runtime context and tools are organized.
+
+**④ A multi-level skill interface and closed-loop execution.** The input is a structured action list produced by the MLLM; the interface dispatches calls to bounded body, gaze, and end-effector primitives, as well as grasping, navigation, dialogue, and memory operations.
+For example, `grasp_object` handles grasping a visible target, `navigate_to_entity` navigates using remembered entity information, and `ask` and `speak` perform interactions subject to spatial conditions; the grasping backend in Figure 3 includes SAM3, GraspGenX, and cuRobo.
+The output is measured execution feedback, including motion residuals—the error between actual and requested motion—and collision bearings, allowing the next decision to correct the action; navigation and action backends can also be replaced by corresponding policies.
+
+End to end, the robot first uses images and memory to locate a target, selects a navigation or manipulation skill, then checks whether it arrived, made contact, or actually holds the object before deciding whether to continue delivery or revise its plan.
+By default, each decision uses the current image and 10 text-history steps and adaptively proposes 1–5 actions; actions execute serially, control can return to the model at tool boundaries with remaining actions canceled, and each episode has a 100-decision cap.
+
+**⑤ Benchmark curation: make task semantics, causal dependencies, and scene geometry agree.**
+
+<div align="center">
+  <img src="/images/agent/TARSphere-curation.webp" width="100%" loading="lazy" decoding="async" alt="Joint semantic, causal, and geometric curation and validation of TARSphere benchmark tasks" />
+<figcaption>Figure 4: Starting from task cards, NPC profiles, and scene assets, a coding agent jointly solves entity bindings, event dependencies, and interaction positions; multi-agent review, human audit, and simulation validation then produce executable tasks.</figcaption>
+</div>
+
+Inputs are task cards, character profiles, authorized knowledge, and 3D scene assets; a coding agent follows `SKILL.md` to jointly determine entity bindings, causal and temporal dependencies, robot and human positions, visibility, and clearance, producing executable task specifications.
+Specialized review agents then check causality, dialogue, ground-truth bindings, scoring shortcuts, geometry, and diversity; humans audit meaning, naturalness, and layout, and simulation checks event delivery and physical execution. The feedback improves both the tasks and the curation rules.
+
+The resulting benchmark contains **30 indoor scenes and 360 episodes**, including 10 homes and 20 commercial spaces; its two task families are navigate-and-report and fetch-and-deliver.
+Each Base task has five paired conditions sharing its scene and task family, giving six evaluation groups including Base; five conditions does not mean five groups in total.
+
+| Condition | What changes | Capability assessed |
+|---|---|---|
+| PR: perceptual robustness | Sensing conditions such as lighting, resolution, or depth noise | Completing the task when observations degrade |
+| DA: disruption adaptation | Temporary blockage or person/tool unavailability, with the original goal unchanged | Waiting, rerouting, or adjusting execution |
+| TU: task update | An authorized event revises task requirements | Receiving a revision and executing the updated goal |
+| HC: human coordination | Another person's information or onsite action is required | Obtaining help to achieve a known goal |
+| IU: intent understanding | Requirements need clarification, preferences need confirmation, or context must be interpreted | Establishing what the person actually wants |
+
+**⑥ Training and evaluation equations: score execution evidence rather than self-reported completion.** The paper introduces no new MLLM training loss: all 8 evaluated models remain frozen, with no parameter updates for these evaluation tasks; its main contributions are the execution framework, task curation, and evaluation design.
+The interaction loop is written as:
+
+$$
+B_k = \pi(o_{t_k}, h_{t_k}), \qquad
+\langle s_{t+1}, f_t \rangle = W(s_t, \operatorname{Exec}(a_t), e_t), \qquad a_t \in B_k.
+$$
+
+The policy produces an action sequence from observations and history; following execution, the world combines the action with external events to update the robot, objects, people, and active task state, returning measured feedback for the next decision.
+
+Evaluation checks five stages in order: **task understanding, onsite target observation, onsite task completion, recipient observation, and final task completion**; depending on the task, the onsite outcome can be an inspection conclusion, received information, or a physical grasp.
+Stage Progress and final Success are computed separately:
+
+$$
+\operatorname{Prog}(e) = \frac{1}{5}\sum_{i=1}^{5} g_{e,i}q_{e,i}, \qquad
+\operatorname{Succ}(e) = c_e(1-u_e).
+$$
+
+$g_{e,i}$ indicates whether evidence satisfies stage dependencies and live conditions, and $q_{e,i}$ measures its quality; plans, inspections, and delivered reports receive continuous quality scores, while observations, information receipt, and physical outcomes are binary.
+$c_e$ requires all prerequisites to be fulfilled and the correct report delivered to the intended person or the correct object handed over and accepted; $u_e$ indicates terminal fall or object loss. Terminal failure preserves previously earned Progress, and ordinary contact alone does not veto Success, so safety must be reported separately.
+
+> **Concrete example, solely to explain the equation:** If plan quality is 0.5, target observation earns 1, and the remaining stages are not established, Progress is `(0.5 + 1 + 0 + 0 + 0) / 5 = 30%`, while Success remains 0. Checking off every step in the robot's own plan cannot replace evidence of actually receiving an answer, grasping the object, or completing delivery.
+
+Path efficiency Eff. is **the ratio of actual path length to the authored route length on successful Base episodes**, with lower values preferred; it is not SPL and covers only successful Base episodes with complete path records.
+The paper separately reports decision counts, tokens per decision, and the proportions of episodes with collisions or falls, avoiding reliance on task success alone.
+
+---
+
+### 3. Core results and findings
+{: id="tarsphere-results"}
+
+**Main results: general-purpose models can outperform specialized embodied models under this shared harness.** The table below gives average final Success from paper Table 2, equally weighting Base, PR, DA, TU, HC, and IU; these are neither stage Progress nor Base-only success rates.
+
+| Model | Navigate-and-report success | Fetch-and-deliver success |
+|---|---:|---:|
+| Gemini-3.8-Flash | **40.6%** | **47.8%** |
+| Claude Sonnet-5 | 16.9% | 24.6% |
+| GPT-5.6-Terra | 15.0% | 12.8% |
+| Qwen3.7-Plus | 11.1% | 5.0% |
+| Gemma-4-31B | 13.4% | 2.2% |
+| Qwen3.8-27B | 0.0% | 0.0% |
+| RoboBrain2.0-32B | 0.0% | 0.0% |
+| Hy-Embodied-VLM-1.0 | 0.0% | 0.0% |
+
+The embodied models earn some stage credit but complete no episodes; this finding is specific to these tasks, observations, and skill interfaces, and does not establish that they also trail all general-purpose models on their native control tasks.
+
+<div align="center">
+  <img src="/images/agent/TARSphere-progress-analysis.webp" width="100%" loading="lazy" decoding="async" alt="TARSphere model progress analyzed by task condition and execution stage" />
+<figcaption>Figure 6: Performance broken down by task condition, stage, Progress distribution, and subtype; forming a plan does not guarantee subsequent onsite evidence gathering, execution, or final completion.</figcaption>
+</div>
+
+**Capability gaps depend on the task family.** Gemini achieves 60.0% Base success in both families, but navigate-and-report drops to 16.7% under TU and 16.7% under IU; fetch-and-deliver retains 46.7% under TU, 43.3% under HC, and 40.0% under IU. Identical Base success can conceal different bottlenecks in task updates, coordination, and intent understanding.
+
+**Execution and memory components help, with condition-dependent effects.** On the balanced ablation subset using Gemini, the full Harness reaches average Progress / Success of **70.5% / 45.8%**; removing the grasp skill lowers these to **51.0% / 20.8%**, a 25.0-point Success drop, while removing LiDAR or motion residuals lowers Success by 12.5 and 11.1 points, respectively (Table 3).
+Removing semantic spatial memory reduces average Success to 41.7% but improves PR and HC, showing that an overall benefit need not hold monotonically for every condition; this subset also cannot be directly subtracted from the full main-results table.
+
+**Low-level assistance improves completion without eliminating higher-level capability gaps.** In controlled experiments on 30 fetch-and-deliver Base tasks and their DA, TU, and HC variants, joint assistance for locomotion, object attachment, grounding, and mapping improves Base Success from 60.0% to 66.7%, TU from 46.7% to 53.3%, and HC from 43.3% to 50.0% (Table 4).
+However, the TU / HC deficits relative to Base remain **13.3 / 16.7 percentage points**, while the DA deficit narrows by only 3.3 points. These are relative gaps within the same assistance setting and do not mean that low-level execution has no effect on Success.
+
+**Success rates still conceal extensive safety problems.** Across model–task groups, collisions occur in 84%–100% of episodes and falls in 9%–47%; even the strongest model, Gemini, incurs collisions in 84% / 98% of episodes and falls in 14% / 16% for the two task families, respectively (Table 2).
+Independent skill calibration under valid calls reports 229/240 successful grasps and 285/300 correct target detections, while only 260/300 targets are localized within 10 cm of their 3D references (Table 5), illustrating the remaining gap between usable individual skills and reliable task completion.
+
+**Task quality depends on the curation and review loop.** An independent audit of 360 matched task specifications finds **96.7%** usable episodes for the full pipeline, versus **45.0%** without multi-agent review; removing human audit, rule refinement, or simulation validation gives 65.0%, 72.5%, and 83.3%, respectively (Table 6).
+Comparing semantic and human scores on 180 trajectories gives plan SRCC / PLCC of 0.86 / 0.88 and inspection/inquiry report correlations of 0.91 / 0.92; a separate audit of 60 HC and 60 IU tasks passes both causal soundness and feasibility, without proving that every task or score is error-free (Table 7).
+
+---
+
+### 4. Limitations
+{: id="tarsphere-limitations"}
+
+Experiments cover one robot body and two indoor service-task families in simulation, without real-robot transfer validation; differences in real sensing, contact, and human behavior remain to be addressed.
+Model conclusions depend on the shared Harness, task definitions, and constrained NPC interactions; semantic scoring is checked against sampled human judgments but does not represent every open-world task or human interaction.
+
+---
+
 # References
 {: id="参考资料"}
 
@@ -3015,6 +3197,7 @@ Replay is deterministic for recorded nodes but cannot evaluate branches that wer
 16. **GPT-6-Astra-JRT** (2026). Joint Research Team. Has GPT-6-Astra Achieved Embodied Intelligence? arXiv: [2610.22471](https://arxiv.org/abs/2610.22471) · Project Page: [sensenova.ai](https://sensenova.ai/has-gpt-6-astra-achieved-embodied-intelligence)
 17. **Evo²** (2026). Evo²: Evolving the Evolver through Weight-Harness Co-Evolution. arXiv: [2610.13025](https://arxiv.org/abs/2610.13025)
 18. **Dream-RSI** (2026). Dream-RSI: Recursive Self-Improvement through Evolving Worlds. arXiv: [2609.14858v2](https://arxiv.org/abs/2609.14858) · Code: [zhengkid/Dream-RSI](https://github.com/zhengkid/Dream-RSI) · Project Page: [dream-rsi.com](https://dream-rsi.com/)
+19. **TARSphere** (2026). TARSphere: A Robot-Oriented Full-Stack Framework for Long-Horizon Embodied Agents in Evolving Physical and Social Environments. arXiv: [2610.30043](https://arxiv.org/abs/2610.30043) · Code: [xuyicheng-zju/TARSphere](https://github.com/xuyicheng-zju/TARSphere) · Project Page: [xuyicheng-zju.github.io/TARSphere](https://xuyicheng-zju.github.io/TARSphere/)
 
 <script>
 (function () {
@@ -3037,9 +3220,10 @@ Replay is deterministic for recorded nodes but cannot evaluate branches that wer
     { m: 'GPT-6-Astra-JRT', t: ['Harness', 'Closed-loop systems', 'Fast and slow dual system', 'Real-robot deployment', 'Cross-embodiment', 'Zero fine-tuning', 'Exception recovery', 'Reasoning budget'] },
     { m: 'Evo²', t: ['Harness', 'Closed-loop systems', 'self-evolution', 'RSI', 'reinforcement learning', 'Long-horizon tasks', 'Data governance'] },
     { m: 'Dream-RSI', t: ['Harness', 'self-evolution', 'RSI', 'Active exploration', 'Long-horizon tasks', 'Data governance'] },
+    { m: 'TARSphere', t: ['Harness', 'Closed-loop systems', 'Spatial memory', 'Zero fine-tuning', 'Long-horizon tasks', 'Benchmark evaluation', 'Human-robot interaction'] },
   ];
 
-  var ALL_TAGS = ['Survey', 'Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'RSI', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation', 'Visual memory', 'Reasoning budget', 'Embodied reasoning', 'Data governance'];
+  var ALL_TAGS = ['Survey', 'Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'RSI', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation', 'Visual memory', 'Reasoning budget', 'Embodied reasoning', 'Data governance', 'Benchmark evaluation', 'Human-robot interaction'];
 
   var activeTags = [];
   var resultsPanel = null;

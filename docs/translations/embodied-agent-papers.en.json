@@ -1,12 +1,12 @@
 {
   "source": "_posts/research/2026-03-06-Embodied-Agent-Papers.md",
   "translation": "_translations/en/research/Embodied-Agent-Papers.md",
-  "reviewed_on": "2026-10-22",
-  "source_revision_date": "2026-10-22",
+  "reviewed_on": "2026-10-26",
+  "source_revision_date": "2026-10-26",
   "sections": {
-    "metadata": "683b8406f5efa23612d6c13a932570572514f9a956481508281d0abea561fa54",
+    "metadata": "60bc9b1842d78fd2024b3b8072972d0b98bdc4602f68b6fcd10056258c105892",
     "introduction": "8c17bc1d22a44c667d3673775811d9cf4f0f4d7c5e66bc908245222485388b05",
-    "具身智能体论文精读": "31000fa45c118c136822f86e1b029bc47d27abde7747025ec1b9e2f30fee335e",
+    "具身智能体论文精读": "a5ddb582e679cb8914ea90608aeec9893b5bb3dff48fba71e1b58a7b2a9a43f7",
     "paper:holoagent-0 / 1. HoloAgent-0 (2026) {#holoagent-0}": "4cc92a362c7b424cc7a5e880c873144a6dd851bdfdd1e523c749b64861e1580c",
     "paper:holoagent-0 / 精华": "baeffd64d95f90fb8d914888810e60f1190f9f00c85dc8d42d3b83021e7f628f",
     "paper:holoagent-0 / 1. 研究背景/问题": "78636fbb3fb4b211a8ff109e039471dc173ca14b79d9e7250308b620b0f56f92",
@@ -182,7 +182,13 @@
     "paper:dream-rsi / 2.4 递归演化与推理流程": "531702452cc8466bb0ca3881b1395a30ce028d1dd722ca31262632dabfb40b86",
     "paper:dream-rsi / 3. 核心结果/发现": "bec40b5719c0e65d0d6a71307ae309de25d989c76a7849932fe5434ba3a765eb",
     "paper:dream-rsi / 4. 局限性": "f45242dfd6e1b1db19f9fa31e6725cbbde1d8135037842db0fa4ed6a3ee37486",
+    "paper:tarsphere / 19. TARSphere (2026) {#tarsphere}": "7382bd119d640dfa7e3f7bb6733ec1ff73c763d3def7944331f5bd732e977f5a",
+    "paper:tarsphere / 精华": "e7b0332161bd5d1b0a6c55a05e3a6711b2fd9c2c7ed81d986ed0bdf46fc9d020",
+    "paper:tarsphere / 1. 研究背景/问题": "ad9e95e4b9c4feff0cd05d1b20bba529655087c5307581c15b2e87254e41ff7d",
+    "paper:tarsphere / 2. 主要方法/创新点": "6ae7999a796e17373d95f9a3343541d839aa90f14f65569be9f57511ff001b9c",
+    "paper:tarsphere / 3. 核心结果/发现": "f846aca1bb65f74997d8983028e0dbfba31d8207e5f8e623b32d5cdfffb47511",
+    "paper:tarsphere / 4. 局限性": "67714c7cf602b1c6c8a46b349aee052ab5f075b1b116f07c2be0f26b7df80388",
     "参考资料": "9b02b96398a0ecec9519f4402648095347400e58028bcf57f57e2194eee8f5e6",
-    "论文引用": "ab700511902835f45f5ca4655c6ea0314d37fa6859df2a86a3bbac5e3d39a713"
+    "论文引用": "1227ee5958e80dd7565b70dee7e0bbf87ca89abde0e7304ad39fb1740bb9a136"
   }
 }
