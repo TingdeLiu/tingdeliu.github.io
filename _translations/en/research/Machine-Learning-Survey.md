@@ -5,10 +5,10 @@ translation_id: machine-learning-survey
 permalink: /en/Machine-Learning-Survey/
 source_path: _posts/research/2026-04-03-Machine-Learning-Survey.md
 source_url: /Machine-Learning-Survey/
-source_revision_date: 2026-10-24
-translation_updated: 2026-10-24
+source_revision_date: 2026-10-26
+translation_updated: 2026-10-26
 title: "Machine Learning: A Survey"
-date: 2026-10-24
+date: 2026-10-26
 tags: [Machine Learning, Deep Learning, Algorithm, Foundation Models]
 categories: research
 comments: false
@@ -425,7 +425,7 @@ Decision trees imitate the human thinking process based on rule judgment and cla
 > **Intuition**: It's like a set of questions that students got wrong - after completing the first round, the second round focuses on practicing the questions they got wrong last time, and the third round focuses on practicing the questions they got wrong last time... Each round focuses on making up for the weaknesses of the previous round, and ultimately forms a model that is strong in all aspects.
 
 <div align="center">
-  <img src="/images/ML/gradient_boosting.webp" width="60%" alt="Gradient boosted decision tree (GBDT) diagram" />
+  <img src="/images/ML/gradient_boosting.webp" class="paper-figure-wide" width="100%" alt="Gradient boosted decision tree (GBDT) diagram" />
 <figcaption>Figure: Gradient boosting decision tree (GBDT) diagram</figcaption>
 </div>
 

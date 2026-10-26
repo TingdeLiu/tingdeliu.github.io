@@ -1,10 +1,10 @@
 {
   "source": "_posts/research/2026-04-03-Machine-Learning-Survey.md",
   "translation": "_translations/en/research/Machine-Learning-Survey.md",
-  "reviewed_on": "2026-10-24",
-  "source_revision_date": "2026-10-24",
+  "reviewed_on": "2026-10-26",
+  "source_revision_date": "2026-10-26",
   "sections": {
-    "metadata": "9c6e5534e31360fbb9e6180a7593b058ebc520d9ca19fe7cf9759845341f1838",
+    "metadata": "62f5bddf016eeecc4ea02be22d15896622d800937901abe71e2708e1334fee5b",
     "introduction": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "1. 引言": "7e95d72cd697338dca13412b1718b649399a28d06caad29aa9bd6808de27050a",
     "阅读指南": "93c02a2a32daff5ed03680ca4e17fe5563582114f659ea3b59c368dda8ebd969",
@@ -38,7 +38,7 @@
     "3.3 逻辑回归": "fda2d26004adeba959ae10a018d74d43333f9bc937dd563c7eed8112de664ef0",
     "3.4 决策树 (Decision Tree)": "8931847d48d5367d65cc84b5b4aca8f40307cc2a75bc442bcce1c94fa45d706c",
     "3.5 随机森林 (Random Forest)": "d5e429651405b144b0e1694f4f399084e0601c08cdf8c12019adcb6697624aba",
-    "3.6 梯度提升树": "2785127f85cfef167dcf2d3575d19dbf77d6539d1208dc29d7b867d2386ef758",
+    "3.6 梯度提升树": "40c8cd3b6e35f5f1ce8e4ca9e8ebbbaa2909d4c77f59de7c95101bb7f8f39171",
     "3.7 K近邻算法 (KNN)": "1a1b37aaec0e4eeacd223defefd32cdc63844e69e82b4e519ee494d5d7d1f17b",
     "3.8 朴素贝叶斯与 HMM": "639b5d695eaaa160e1091e8241d053b7ac7b2751a60807c95930c072291fc09a",
     "朴素贝叶斯 (Naive Bayes)": "2b4d59881ad0b3dffe4c35b8b88dce745f7e8c819a719c29ca12203976aa3b1b",

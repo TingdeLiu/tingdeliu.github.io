@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: machine-learning-survey
 title: "机器学习综述"
-date: 2026-10-24
+date: 2026-10-26
 tags: [Machine Learning, Deep Learning, Algorithm, Foundation Models]
 categories: research
 comments: true
@@ -386,7 +386,7 @@ $$P(y=1 \mid \mathbf{x}) = \sigma(\mathbf{w}^T \mathbf{x} + b) = \frac{1}{1 + e^
 > **直觉理解**：就像学生做错题集——第一轮做完后，第二轮重点练上次做错的题，第三轮再练上次还错的……每一轮专注于弥补前一轮的弱点，最终形成一个各方面都强的模型。
 
 <div align="center">
-  <img src="/images/ML/gradient_boosting.webp" width="60%" alt="梯度提升决策树 (GBDT) 示意图" />
+  <img src="/images/ML/gradient_boosting.webp" class="paper-figure-wide" width="100%" alt="梯度提升决策树 (GBDT) 示意图" />
 <figcaption>图：梯度提升决策树 (GBDT) 示意图</figcaption>
 </div>
 
