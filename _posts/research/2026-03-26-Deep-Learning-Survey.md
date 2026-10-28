@@ -3,17 +3,19 @@ layout: post
 lang: zh-CN
 translation_id: deep-learning-survey
 title: "深度学习综述"
-date: 2026-10-24
-tags: [Deep Learning, Neural Network, Optimization, Training, AI, Transformer, GNN, LLM, MoE, LoRA, Diffusion, GAN, VAE, RLHF, Mamba, SSM]
+date: 2026-10-28
+tags: [Deep Learning, Neural Network, Optimization, Muon, SOAP, Training, AI, Transformer, GNN, LLM, MoE, LoRA, Diffusion, GAN, VAE, RLHF, Mamba, SSM]
 categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "从机器学习三步骤框架出发，系统梳理神经网络、CNN、RNN/LSTM、Transformer、GNN、优化与正则化、生成模型、MoE、PEFT、量化和 Mamba/SSM，并提供训练排错与基准选择的实用参考。"
+excerpt: "从机器学习三步骤框架出发，系统梳理网络架构、优化与正则化、生成模型和高效训练；补充 Muon、SOAP、NorMuon 等优化器，以及 WSD、Schedule-Free、FP8、FlashAttention-4 与 GRPO 的机制和选型参考。"
 ---
 
 
 # 1. 引言
+
+> **更新说明（2026-10-28）**：本次重点扩充 §5 的优化器与学习率策略，并更新 §9 的 FP8 / FlashAttention-4、§11 的推理强化学习与混合注意力架构。年份优先采用首次公开时间；会议发表时间另行注明。新方法的性能结论限定于原论文实验设置，文末列出本次补充的原始资料。
 
 深度学习（Deep Learning）是以多层神经网络为核心的机器学习方法。2012 年 AlexNet 在 ImageNet 挑战赛上的突破，加速了深度学习在计算机视觉、自然语言处理、语音识别和科学计算等领域的普及。GPT、BERT、Stable Diffusion、AlphaFold 等代表性系统，也都建立在深度神经网络之上。
 
@@ -30,13 +32,13 @@ excerpt: "从机器学习三步骤框架出发，系统梳理神经网络、CNN�
 
 - **§2–3 基础**：机器学习三步骤框架、神经元与反向传播
 - **§4 架构**：MLP → CNN → RNN/LSTM → Transformer 的演进主线，并补充图神经网络（GNN）
-- **§5 训练优化**：优化器、学习率调度、初始化、归一化、残差连接
+- **§5 训练优化**：从 AdamW 到 Muon / SOAP / NorMuon，学习率调度与 Schedule-Free，初始化、归一化、残差连接
 - **§6 损失与正则化**：各类 Loss 的选型、Dropout、数据增强、AdamW
 - **§7 方法分类汇总**：将所有技巧映射到"三步骤 × 两目标"坐标系
 - **§8 基准**：MNIST / CIFAR / ImageNet / GLUE / MMLU / HumanEval / 长上下文等经典评测
-- **§9 高效训练与推理**：混合精度、梯度裁剪/检查点、Flash Attention 等工程级优化技术
+- **§9 高效训练与推理**：BF16 / FP8、梯度裁剪/检查点、FlashAttention 1–4 等工程级优化技术
 - **§10 模型压缩与适配**：MoE、LoRA/PEFT、量化、知识蒸馏等部署向轻量化方法
-- **§11 前沿架构与大模型**：RLHF、生成模型（AE/VAE/GAN）、扩散模型、Mamba/SSM、LLM 等近年重大范式
+- **§11 前沿架构与大模型**：RLHF / GRPO / RLVR、生成模型（AE/VAE/GAN）、扩散模型、Mamba/SSM 与混合注意力
 
 **阅读建议**：初学者可按 §2–§6 顺序阅读；正在训练模型时，优先查看 §5–§7 和 §9；关注大模型时，可重点阅读 §4.3、§10 和 §11。文中的精度、参数量和年份用于说明历史脉络，受模型版本、数据处理和评测协议影响，复现实验时应以原论文或官方报告为准。
 
@@ -127,6 +129,9 @@ flowchart LR
     subgraph G2022 ["2022 至今 大模型"]
         L["Chinchilla<br/>2022 Scaling Laws"] --> M["ChatGPT 2022<br/>RLHF 对齐"]
         M --> N["Flash Attn 2/3<br/>2023-2024"]
+        N --> O["Muon / SOAP<br/>2024 矩阵优化"]
+        O --> P["GRPO / 推理 RL<br/>2024-2025"]
+        P --> Q["FlashAttention-4<br/>2026 硬件协同"]
     end
     B --> C
     E --> F
@@ -891,28 +896,36 @@ flowchart TD
     SGD["SGD<br/>随机梯度下降<br/>1951"] -->|"加动量"| Momentum["Momentum SGD<br/>抑制震荡"]
     SGD -->|"自适应 LR"| Adagrad["Adagrad 2011<br/>累积梯度平方"]
     Adagrad -->|"指数移动平均"| RMSprop["RMSprop 2012<br/>适应非稳态"]
-    Momentum -->|"结合"| Adam["Adam 2014<br/>Momentum + RMSprop<br/>当前默认"]
-    Adam -->|"修正 L2"| AdamW["AdamW 2017<br/>大模型标配"]
-    AdamW -->|"二阶信息"| Sophia["Sophia 2023<br/>二阶 Hessian"]
-    AdamW -->|"正交化"| Muon["Muon 2024<br/>梯度正交化"]
-    AdamW -->|"Shampoo 等价"| SOAP["SOAP 2024<br/>Shampoo+AdamW"]
+    Momentum -->|"结合"| Adam["Adam 2014<br/>一阶矩 + 二阶矩"]
+    Adam -->|"解耦权重衰减"| AdamW["AdamW 2017<br/>常用基线"]
+    AdamW -->|"曲率预条件"| Sophia["Sophia 2023<br/>对角曲率估计"]
+    AdamW -->|"快慢双动量"| AdEMAMix["AdEMAMix 2024"]
+    Momentum -->|"矩阵更新正交化"| Muon["Muon 2024"]
+    Shampoo["Shampoo 2018<br/>矩阵预条件"] -->|"特征基内运行 Adam"| SOAP["SOAP 2024"]
+    Muon -->|"更新尺度与权重衰减"| Moonlight["Moonlight 2025<br/>大规模训练验证"]
+    Muon -->|"逐神经元自适应缩放"| NorMuon["NorMuon 2025<br/>ICML 2026"]
 ```
 
-### 主流优化器对比
+图中的箭头表示相关思想的演进；Muon 来自动量更新的矩阵正交化，不能理解为在 AdamW 上增加一个开关。Scion 等从范数几何出发的方法另见下文。
 
-| 优化器 | 年份 | 动量 | 自适应 LR | 核心特点 | 适用场景 |
-|:---|:---:|:---:|:---:|:---|:---|
-| SGD | — | ✗ | ✗ | 简单、对 LR 敏感 | CV 精调（结合调度）|
-| Momentum SGD | — | ✓ | ✗ | 抑制震荡，越过 saddle | CV 训练 |
-| Adagrad | 2011 | ✗ | ✓ | 稀疏特征友好，LR 单调减 | NLP 稀疏场景 |
-| RMSprop | 2012 | ✗ | ✓ | 指数移动平均，适应非稳态 | RNN 训练 |
-| **Adam** | 2014 | ✓ | ✓ | Momentum + RMSprop | 绝大多数任务默认选择 |
-| **AdamW** | 2017 | ✓ | ✓ | Adam + 正确 Weight Decay | 大语言模型预训练标配 |
-| Sophia | 2023 | ✓ | ✓ | 二阶 Hessian 估计 | LLM 预训练（论文声明约 2× 加速）|
-| Muon | 2024 | ✓ | ✗ | 梯度正交化 | 中小规模预训练 |
-| SOAP | 2024 | ✓ | ✓ | Shampoo 等价 + AdamW | 大批量 LLM 训练 |
+### 经典与近年优化器对比
 
-> 注：Sophia/Muon/SOAP 的加速比例来自原论文在特定设置下的实验结果，实际表现因模型规模、数据分布、超参调优差异较大，生产环境中 AdamW 仍是经验上最稳健的默认选择。
+| 优化器 | 首次公开 | 更新机制 | 主要代价或限制 | 适用方向 |
+|:---|:---:|:---|:---|:---|
+| SGD / Momentum SGD | 经典方法 | 原始梯度或动量方向 | 需配合学习率与调度器调参 | CNN 等监督学习基线 |
+| Adagrad | 2011 | 按累计梯度平方逐坐标缩放 | 学习率可能衰减过快 | 稀疏特征 |
+| RMSprop | 2012 | 梯度平方的指数滑动平均 | 超参数与任务相关 | RNN 等历史常用方案 |
+| Adam / **AdamW** | 2014 / 2017 | 一阶矩、二阶矩；AdamW 解耦权重衰减 | 常规实现需保存两个逐参数状态 | 通用训练与微调基线 |
+| [Adafactor][ref-adafactor] | 2018 | 对矩阵的二阶矩做行列分解 | 节省状态，但近似与配置会影响效果 | 优化器状态显存紧张 |
+| [Lion][ref-lion] | 2023 | 动量组合的符号更新 | 通常需比 AdamW 更低的学习率，联动调整衰减 | 视觉、语言任务的候选方案 |
+| [Sophia][ref-sophia] | 2023 | 对角曲率估计与裁剪更新 | 需额外估计曲率，不能只比较更新步数 | LLM 预训练研究 |
+| [AdEMAMix][ref-ademamix] | 2024 | 混合快、慢两条梯度 EMA，配合二阶矩 | 相比 AdamW 多一份慢动量状态及其超参 | 长程预训练、减少遗忘 |
+| [Muon][ref-muon] / [Moonlight 扩展][ref-moonlight] | 2024 / 2025 | 对矩阵动量近似正交化，按层形状缩放 | 通常与 AdamW 分工；有矩阵运算和通信成本 | 已有大规模 dense / MoE 预训练验证 |
+| [SOAP][ref-soap] | 2024 | 在 Shampoo 预条件器的特征基内运行 Adam | 保存矩阵统计量，周期性更新特征基 | 能承担预条件开销的训练 |
+| [Scion][ref-scion] | 2025 | 依据层的范数约束，用线性最小化 oracle 产生更新 | 需为不同层选择范数与尺度 | 研究学习率迁移、激活尺度控制 |
+| [NorMuon][ref-normuon] | 2025；ICML 2026 | 对 Muon 更新增加神经元维度的自适应缩放 | 通常仍需为非隐藏矩阵参数配置 AdamW | 大批量训练中的 Muon 改进 |
+
+**二阶矩不等于二阶导数**：Adam 的 $v_t$ 是梯度平方的滑动平均，并非 Hessian。Sophia 使用曲率估计；Shampoo / SOAP 使用矩阵预条件；Muon 直接改变矩阵更新的奇异值结构。这几条路线解决的问题有所不同，不能用一个“是否自适应 LR”标签概括。
 
 **Adam 的核心公式**（Kingma & Ba，2014）：
 
@@ -926,9 +939,56 @@ $$\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t}+\epsilon}\hat{m}_t$$
 
 标准超参数：$\beta_1=0.9$，$\beta_2=0.999$，$\epsilon=10^{-8}$。Adam 的 $m_t$ 负责方向（可越过 saddle point）；$v_t$ 负责大小（自适应调整各参数学习率）。两者互补，共同解决了梯度下降的两大核心难题。
 
+### Muon：从逐坐标缩放到矩阵更新
+
+**Muon（MomentUm Orthogonalized by Newton-Schulz）** 将隐藏层权重视为矩阵，对其动量做近似正交化。直观上，AdamW 调整每个坐标的步幅，Muon 则重新平衡矩阵更新的不同奇异方向。省略 Nesterov、形状缩放和权重衰减后，示意公式为：
+
+$$M_t = \beta M_{t-1} + (1-\beta)G_t, \qquad M_t = U_t\Sigma_t V_t^\top$$
+
+$$Q_t = U_t V_t^\top, \qquad W_{t+1} = W_t - \eta_t Q_t$$
+
+这里用紧致 SVD 表示理想的极分解因子；实际实现用若干步 **Newton–Schulz 迭代**近似该变换，避免每一步显式计算 SVD。满秩矩形矩阵的理想因子为半正交矩阵，有限步近似不保证严格半正交。被正交化的是**更新方向**，并未要求权重矩阵本身始终正交。原始算法与参数分组约定见 [Muon 作者说明][ref-muon-note]及[实现][ref-muon]。
+
+**大规模扩展的关键**：Moonlight 工作为 Muon 加入权重衰减与更新尺度校准，并在 **3B 激活参数 / 16B 总参数 MoE、5.7T tokens** 上验证。原文在其比较设置中报告约 2 倍计算效率收益，这不能直接换算成任意任务的端到端训练时间减半；但已足以说明 Muon 的验证范围超出了中小模型。[原论文][ref-moonlight]
+
+**参数分工**：常见实现把隐藏层的二维矩阵交给 Muon，embedding、输出头、bias、归一化参数交给 AdamW。不能只用 `p.ndim == 2` 分组：embedding 和输出头也是二维矩阵，权重绑定时还需要去重。卷积核如何展平、Q/K/V 是否分开正交化，以及分片参数如何通信，也应跟随所用实现的约定。[作者实现][ref-muon]
+
+### SOAP：在更合适的坐标系中使用 Adam
+
+**SOAP（Shampoo with Adam in the Preconditioner's eigenbasis）** 累积矩阵梯度的左右统计量，周期性求取其特征基，把梯度变换到该坐标系，在其中执行 Adam，再将更新变换回原空间。它把 **Shampoo 的矩阵结构信息**与 **Adam 的逐坐标自适应更新**结合起来。[原论文][ref-soap]
+
+“SOAP 等价于 Shampoo”并不准确：其理论联系有相应假设，实际算法还受到特征基更新频率、分块大小、动量处理等影响。对于 $m\times n$ 矩阵，未分块的左右统计量就需 $O(m^2+n^2)$ 存储，另有特征分解开销；论文中减少训练步数的收益，应与单步耗时、峰值显存一起评估。
+
+### AdEMAMix、Scion 与 NorMuon：三种不同的改进方向
+
+- **保留更久的梯度信息——AdEMAMix（2024）**：快 EMA 跟踪近期方向，慢 EMA 保留更长历史，再按混合系数组合。论文在语言建模和图像分类中验证了收益；这通常意味着比 AdamW 多保存一份逐参数动量，不能同时宣称其更省状态显存。[原论文][ref-ademamix]
+- **改变更新的几何约束——Scion（2025）**：根据层的输入输出尺度选择范数，用线性最小化 oracle 求更新，包含受约束与无约束变体。其目标之一是在模型尺寸变化时改善超参数迁移；这不意味着任意模型都无需调参。[ICML 2025 论文][ref-scion]
+- **恢复神经元维度的适应性——NorMuon（2025，ICML 2026）**：在 Muon 正交化后引入逐神经元的二阶统计与行归一化，以缓解不同神经元更新不均衡的问题，尤其关注较大 batch。它结合矩阵更新与神经元级适应性，不能简化成“给 Muon 再套一次逐元素 Adam”。[ICML 2026 论文][ref-normuon]
+
+### 2026 年新近工作：值得跟踪的两个方向
+
+| 工作 | 首次公开 | 新增思路 | 阅读时的边界 |
+|:---|:---:|:---|:---|
+| [Aurora][ref-aurora] | 2026-06-26 | 在 Muon 的谱几何框架中改善高而窄矩阵的行更新均衡，关注 MLP up / gate projection | 作者展示语言模型预训练与 nanoGPT 实验；不能据此断言适用于所有层与模型 |
+| [AF-Muon][ref-afmuon] | 2026-10-01 | 面向绑定 embedding / 输出头的模型，为共享词表矩阵与辅助参数设计更新，使整个模型无需搭配 AdamW | 作者实验覆盖 124M–1B 等模型；尚未验证前沿规模预训练，也不是原始 Muon 的通用参数配置 |
+
+截至本次更新，这两项按**新近预印本**介绍。AF-Muon 报告的约 20% 节省针对其混合 Muon 基线的**优化器状态显存**，不能写成训练总显存下降 20%。相比只追逐“新优化器名称”，更值得跟踪的是：如何处理词表矩阵、如何在正交化后保留神经元级适应性，以及如何减少正交化与通信开销。
+
+### 实践选型与公平比较
+
+| 当前问题 | 优先考虑 | 比较时必须记录 |
+|:---|:---|:---|
+| 需要可靠起点，或进行常规微调 / LoRA | 先建立 AdamW 基线 | 学习率、有效 batch、衰减分组 |
+| 从零预训练 Transformer，希望提高计算效率 | Muon + AdamW；再对比 NorMuon | 参数分组、更新缩放、分布式实现、端到端时间 |
+| 希望利用矩阵预条件，且显存与算力允许 | SOAP | 分块大小、预条件器更新间隔、显存峰值 |
+| 长程训练，希望利用更久的梯度历史 | AdEMAMix | 慢动量设置、额外状态、训练预算 |
+| 优化器状态显存成为瓶颈 | Adafactor、低比特状态或状态分片 | 状态显存与总显存分别统计，检验质量变化 |
+
+上表是依据机制与现有实验范围给出的**选型建议**。比较优化器时，应使用相同数据、模型、token / 样本预算与验证协议，并为各自留出合理调参预算；同时报告**达到目标质量的 GPU 时间、最终质量、峰值显存与稳定性**。减少步数、减少 tokens、减少 FLOPs 和减少实际耗时是不同指标。预训练中的收益也不能直接外推到 LoRA、强化学习后训练或其他模态。
+
 ## 5.2 学习率调度
 
-固定学习率存在过大（震荡）和过小（过慢）的矛盾。大语言模型训练的标准方案：**Warmup + Cosine Decay**
+固定学习率存在过大（震荡）和过小（过慢）的矛盾。**Warmup + Cosine Decay** 是常用方案；近年的 WSD 与 Schedule-Free 则从不同角度降低对预定训练终点的依赖。
 
 | 训练阶段 | 相对 LR | 说明 |
 |:---:|:---:|:---|
@@ -953,13 +1013,26 @@ $$\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t}+\epsilon}\hat{m}_t$$
 | **Cosine Annealing Warm Restart** | 余弦衰减到 0 后"重启"回高 LR，周期递增（SGDR） | 逃出局部最优，集成多个 checkpoint |
 | **1Cycle**（Leslie Smith, 2018） | 先升后降 + 动量反向同步变化 | CV 快速训练（FastAI 推崇）|
 | **Warmup + Linear Decay** | 预热后线性衰减 | BERT 原论文、GLUE 微调常用 |
-| **Warmup + Cosine**（当前主流）| 预热后余弦衰减 | **大语言模型预训练标配** |
+| **Warmup + Cosine** | 预热后余弦衰减 | 训练预算预先确定的预训练与微调 |
+| **Warmup–Stable–Decay（WSD）** | 预热 → 恒定 LR 主干 → 末期衰减 | 需要灵活延长预训练或比较不同预算 |
+
+### WSD：把训练主干与末期收敛分开
+
+**WSD（Warmup–Stable–Decay）** 在预热后保持稳定学习率，确定某个预算的终点时，再从主干 checkpoint 分出一段衰减训练。与一开始就绑定总步数的 cosine 相比，它便于复用稳定阶段主干、派生不同计算预算的模型。[WSD 分析论文][ref-wsd]
+
+这仍是**学习率调度策略**：需要选择峰值、预热、衰减时长与形状，也需要支付衰减阶段的计算成本。稳定阶段的 checkpoint 与完成 cooldown 的 checkpoint 不应直接当作同等预算、同等收敛状态比较。
+
+### Schedule-Free：用迭代平均替代预设衰减曲线
+
+**Schedule-Free（2024）** 将动量与迭代平均结合，区分梯度计算点与评估参数，避免依赖预先给定停止步数的衰减曲线；有 SGD 和 AdamW 等变体。它与 WSD 的机制不同，也不等于“学习率、预热和权重衰减都不用调”。[原论文][ref-schedulefree]
+
+**实现注意**：作者的非 closure 接口在训练时需要 `optimizer.train()`，验证及保存评估权重前需要 `optimizer.eval()`，并与 `model.train()` / `model.eval()` 配合；仅切换模型模式不够。保存可恢复训练的 checkpoint 时，应遵循实现说明保留优化器状态；使用 BatchNorm 还需处理评估参数对应的运行统计量。官方实现仍建议配置 warmup。[作者仓库][ref-schedulefree-code]
 
 **选择原则**：
 
 - **从零训练 CNN**：StepLR 或 Cosine Annealing（长训练用 Warm Restart）
 - **微调预训练模型**：Warmup + Linear / Cosine（低峰值 LR，通常 $1-5 \times 10^{-5}$）
-- **LLM 预训练**：Warmup + Cosine（峰值 LR $\sim 3 \times 10^{-4}$，Warmup 占 0.5–2%）
+- **LLM 预训练**：预算固定时比较 Warmup + Cosine；预算可能扩展时比较 WSD。峰值 LR 与 warmup 应随模型尺度、batch 和优化器校准，不能直接跨配置照搬
 - **验证集可用且不确定 epoch 数**：ReduceLROnPlateau
 - **快速原型 / 比赛**：1Cycle（Smith 称可达"超收敛"效果）
 
@@ -1293,8 +1366,8 @@ flowchart TD
     A["神经网络训练技巧"] --> B["步骤三：改进 Optimization"]
     A --> C["步骤二：改进网络架构"]
     A --> D["步骤一：改进 Loss 与数据"]
-    B --> B1["Adam / AdamW<br/>自适应学习率+动量"]
-    B --> B2["LR Scheduling<br/>Warmup + Cosine Decay"]
+    B --> B1["AdamW / Muon / SOAP<br/>逐坐标或矩阵更新"]
+    B --> B2["Cosine / WSD<br/>或 Schedule-Free 迭代平均"]
     B --> B3["Kaiming Init<br/>参数初始化"]
     B --> B4["Pre-training<br/>同时改善 Opt+Gen"]
     C --> C1["CNN<br/>Receptive Field + 参数共享<br/>改善 Generalization"]
@@ -1311,8 +1384,10 @@ flowchart TD
 | 方法 | 改进步骤 | 目标 | 备注 |
 |:---|:---|:---|:---|
 | Adagrad / RMSprop | 步骤三 | Optimization | 自适应学习率前身 |
-| Adam | 步骤三 | Optimization | 当前默认优化器 |
-| LR Scheduling | 步骤三 | Optimization | Warmup+Cosine 为大模型标配 |
+| Adam / AdamW | 步骤三 | Optimization | 常用逐坐标自适应基线 |
+| Muon / NorMuon | 步骤三 | Optimization | 矩阵正交化更新；需明确参数分工 |
+| SOAP / Scion | 步骤三 | Optimization | 分别利用矩阵预条件与层的范数几何 |
+| LR Scheduling / Schedule-Free | 步骤三 | Optimization | Cosine、WSD 或迭代平均，按训练预算选择 |
 | Kaiming Init | 步骤三 | Optimization | ReLU 网络的标准初始化 |
 | Pre-training | 步骤三 | Opt + Gen | 两者同时改善，现代大模型核心 |
 | CNN | 步骤二 | Opt + Gen | 通过归纳偏置提升样本效率 |
@@ -1450,15 +1525,22 @@ GSM8K 更偏基础多步算术，MATH 和 AIME 对竞赛数学推理要求更高
 
 ## 9.1 混合精度训练
 
-现代 GPU 支持 FP16/BF16 运算。混合精度训练以低精度完成前向传播和梯度计算（节省显存 50%、加速计算 2-3×），以 FP32 执行参数更新（保证数值稳定）。
+混合精度训练让适合的算子使用 FP16 / BF16 等低精度格式，并在敏感计算、累加或主权重上保留更高精度。显存与加速收益取决于硬件、算子覆盖率、激活和优化器状态占比，不能把张量字节数减半直接理解成总显存减半。
 
 | 格式 | 指数位 | 尾数位 | 优点 | 劣势 |
 |:---:|:---:|:---:|:---|:---|
 | FP32 | 8 | 23 | 最稳定 | 显存占用大 |
 | FP16 | 5 | 10 | 快 | 数值范围小，易溢出 |
 | **BF16** | 8 | 7 | 数值范围同 FP32，稳定 | 精度略低于 FP16 |
+| **FP8 E4M3 / E5M2** | 4 / 5 | 3 / 2 | 在支持的硬件上提高矩阵乘吞吐、减少存储与传输 | 需缩放与量化策略，误差和溢出更敏感 |
 
 **BF16**（Brain Float 16）因指数位更宽（8 位 vs FP16 的 5 位），数值范围更大，已成为大语言模型训练的首选低精度格式。
+
+### FP8：训练精度成为系统设计的一部分
+
+**FP8 训练**的关键是缩放、累加精度和算子选择。DeepSeek-V3 报告采用细粒度缩放，让多数 Linear GEMM 使用 FP8 输入，同时将归一化、路由、embedding、输出头等保留在更高精度，并提高部分累加的精度。[技术报告][ref-deepseekv3]
+
+长程训练也可能暴露短实验中看不到的问题：*Scaling FP8 Training to Trillion-Token LLMs* 在万亿 token 训练中分析了 SwiGLU 异常值放大，并提出 Smooth-SwiGLU。因此，选择 FP8 除了测吞吐，还需比较完整训练区间的 loss、梯度范数与下游质量；不能只把 BF16 张量直接转换成 FP8 就假定效果相同。[原论文][ref-fp8]
 
 ## 9.2 梯度裁剪
 
@@ -1486,13 +1568,16 @@ $$g \leftarrow g \cdot \min\left(1, \frac{\tau}{\|g\|_2}\right)$$
 
 **标准注意力**的瓶颈在于需要将 $N \times N$ 注意力矩阵写入 GPU HBM 显存，显存复杂度 $O(N^2)$，长序列时极其昂贵。
 
-| 版本 | 年份 | 相对标准注意力加速 | 关键创新 |
-|:---:|:---:|:---:|:---|
-| Flash Attention 1 | 2022 | 2–4× | IO-aware 分块计算，显存 $O(N)$ |
-| Flash Attention 2 | 2023 | 4–9× | 改进并行化与 warp 分区，达 70% A100 FLOP/s |
-| Flash Attention 3 | 2024 | 6–18×（vs FA1）| 针对 H100 Hopper 架构；异步流水线；FP8 支持，达 75% H100 FLOP/s（约 1.2 PFLOP/s）|
+| 版本 | 首次公开 | 主要优化对象 | 关键创新 |
+|:---:|:---:|:---|:---|
+| [FlashAttention][ref-fa1] | 2022 | 注意力的显存读写 | 分块与在线 softmax，避免显式存储完整注意力矩阵 |
+| [FlashAttention-2][ref-fa2] | 2023 | GPU 并行度与工作划分 | 减少非矩阵乘运算、改善线程块与 warp 分工 |
+| [FlashAttention-3][ref-fa3] | 2024 | Hopper / H100 | 异步流水线，重叠矩阵乘与 softmax，支持 FP8 路线 |
+| [FlashAttention-4][ref-fa4] | 2026 | Blackwell / B200 | 利用 Tensor Memory、异步 MMA 与 2-CTA 模式，CuTe-DSL 实现 |
 
-Flash Attention 在保持**精确计算**（非近似）的同时降低显存访问开销并加速计算；是否可用取决于硬件、序列长度和算子实现。
+FlashAttention 对标准稠密 softmax attention 做等价重排，在有限精度下仍有数值误差；它降低 IO 与中间显存开销，**并未把稠密注意力的计算复杂度从 $O(N^2)$ 改为 $O(N)$**。
+
+**FlashAttention-4 的收益需要注明比较条件**：论文在 B200、BF16 与所测形状下报告，相对 cuDNN 9.13 最高约 1.3×、相对 Triton 最高约 2.7×。这些是指定版本与硬件上的算子结果，不能直接当作完整模型训练加速比；不同代版本也不宜跨硬件拼成一张统一倍数榜。[原论文][ref-fa4]
 
 ---
 
@@ -1533,9 +1618,9 @@ flowchart LR
 | Switch Transformer | 2021 | 1.6T | — | top-1 路由 |
 | GShard | 2020 | 600B | — | top-2 路由 |
 | **Mixtral 8×7B** | 2023 | 47B | 13B | 8 专家、top-2 |
-| **DeepSeek-V3** | 2024 | 671B | 37B | 256 共享专家 + 细粒度路由 |
+| **DeepSeek-V3** | 2024 | 671B | 37B | 每 MoE 层 1 个共享专家 + 256 个路由专家，每 token 选 8 个路由专家 |
 
-**关键挑战**：**负载均衡**（防止所有 token 涌向少数专家）——通常加入辅助损失或容量约束，避免少数专家过载。总参数量与激活参数量的统计口径并不统一，跨模型比较时应同时查看路由策略和 FFN 规模。
+**关键挑战**：**负载均衡**（防止所有 token 涌向少数专家）——通常加入辅助损失或容量约束，避免少数专家过载。总参数量与激活参数量的统计口径并不统一，跨模型比较时应同时查看路由策略和 FFN 规模。DeepSeek-V3 的上述配置与负载均衡设计见[技术报告][ref-deepseekv3]。
 
 ## 10.2 参数高效微调（PEFT）
 
@@ -1658,12 +1743,30 @@ flowchart LR
 
 | 方法 | 年份 | 相对 RLHF |
 |:---|:---:|:---|
-| **DPO**（Direct Preference Optimization）| 2023 | 跳过 RM 与 PPO，直接在偏好数据上闭式优化；训练简单、稳定 |
-| **IPO / KTO** | 2023 | DPO 变体，更鲁棒 |
+| [**DPO**（Direct Preference Optimization）][ref-dpo] | 2023 | 将偏好学习写成直接可优化的损失，无需单独训练 RM 或在线运行 PPO；参数仍通过梯度训练 |
+| [**IPO**][ref-ipo] / [**KTO**][ref-kto] | 2023 / 2024 | 分别调整偏好优化目标，或利用“可取 / 不可取”的反馈，数据要求与 DPO 不完全相同 |
 | **RLAIF** | 2023 | 用 AI（如 Claude）代替人类标注偏好 |
 | **Constitutional AI** | 2022 | Anthropic 提出，用一组"宪法"原则指导模型自我批评 |
 
 > DPO 因训练流程较简单、无需单独训练奖励模型，成为常见的偏好优化方法。PPO、DPO、拒绝采样和其他方法也可以组合使用；闭源模型的具体训练流程通常没有完全公开。
+
+### 从偏好对齐到推理训练：GRPO 与 RLVR
+
+**GRPO（Group Relative Policy Optimization）** 由 DeepSeekMath（2024）提出：对同一个问题采样一组回答，以组内奖励统计构造相对优势，保留 PPO 风格的裁剪目标，从而省去单独训练的 value / critic 网络。以每个回答只有一个结果奖励的情形为例，优势可示意为：
+
+$$A_i = \frac{r_i-\operatorname{mean}(r_1,\ldots,r_G)}{\operatorname{std}(r_1,\ldots,r_G)+\epsilon}$$
+
+其中 $G$ 是每题采样数，$r_i$ 是第 $i$ 个回答的奖励，$\epsilon$ 用于数值稳定。省去 critic 不代表采样成本消失：同题多次生成可能是主要开销；组内奖励完全相同的样本也缺少相对区分信号。[DeepSeekMath][ref-deepseekmath]
+
+**RLVR（Reinforcement Learning with Verifiable Rewards）** 指用可验证结果提供奖励，例如数学答案核验、代码测试。它描述的是**奖励来源**，GRPO / PPO 描述的是**策略训练算法**；二者可以组合。DeepSeek-R1（2025）用规则奖励训练推理，并结合冷启动数据、强化学习和其他训练阶段；R1-Zero 与完整 R1 的流程需要区分。[技术报告][ref-deepseekr1]
+
+| 路线 | 数据与信号 | 主要作用 | 实践关注点 |
+|:---|:---|:---|:---|
+| DPO 等离线偏好学习 | 固定的偏好回答或反馈 | 学习偏好与回答风格 | 数据覆盖、参考策略、分布偏移 |
+| GRPO + 可验证奖励 | 当前策略生成的多条回答，规则 / 测试评分 | 提升可验证任务上的推理表现 | 生成成本、奖励设计、组内奖励方差 |
+| [DAPO（2025）][ref-dapo] | 大规模在线推理 RL | 改进裁剪、动态采样、token 级损失与超长回答奖励处理 | 需要结合完整采样与训练系统复现 |
+
+这也补全了“三步骤”框架：RLVR 改变训练信号，GRPO / DAPO 定义策略目标和采样更新流程，底层参数更新仍需 AdamW 等优化器。它们与 §5 的梯度优化器处于不同层次；可验证任务上的奖励提升，也需用独立测试集和其他任务检验泛化。
 
 ## 11.2 生成模型：从 AE 到 GAN
 
@@ -1854,7 +1957,11 @@ flowchart LR
 | **RWKV** | 2023 | 类 RNN 线性注意力，Transformer 训练范式 + RNN 推理 |
 | **RetNet** | 2023 | 微软提出的递推注意力，训练并行 + 推理递推 |
 
-> **现状与展望**：Mamba 及 SSM 系列是当前最受关注的 Transformer 替代架构，在语言、视觉、基因组学等领域展示出竞争性能。但在通用推理和 in-context 学习能力上，纯 SSM 仍弱于 Transformer。主流趋势是 **Mamba + Transformer 混合架构**（如 Jamba、Zamba），以兼顾长序列效率与全局推理能力。
+### 近年进展：递推记忆与注意力的混合
+
+在讨论替代架构时，应区分纯 SSM、线性注意力与混合模型。有限维递推状态有利于控制解码缓存，但不同任务对精确检索、遗忘与长期记忆的需求不同；混合结构在保留部分完整注意力的同时，引入更便宜的递推层。
+
+**Kimi Linear（2025）** 是一个代表：以带细粒度门控的 **Kimi Delta Attention（KDA）** 扩展 Gated DeltaNet，并与 MLA 层混合。它展示了在固定训练配置下兼顾表达能力与长上下文效率的路线；论文中的缓存与吞吐收益取决于混合比例、序列长度和实现，不能把整个混合模型直接标成“所有计算均线性”。[原论文][ref-kimi-linear]
 
 ## 11.5 深度学习与大语言模型
 
@@ -1884,3 +1991,45 @@ flowchart LR
 **核心结论**：
 
 > 深度学习的训练技巧不是越多越好，而是要**对症下药**——先看训练 Loss：降不下去是 Optimization 问题，不要加 Dropout；训练 Loss 低而验证 Loss 高才是 Generalization 问题，此时才考虑数据增强与正则化。这是高效炼丹的基本功，也是本文反复强调的判别原则。
+
+---
+
+# 13. 本次更新的原始资料
+
+以下资料对应 2026-10-28 的增补内容；方法年份以首次公开为主，避免把会议年份误认为提出年份。
+
+- **低状态开销与动量改进**：[Adafactor（2018）][ref-adafactor]、[Lion（2023）][ref-lion]、[Sophia（2023）][ref-sophia]、[AdEMAMix（2024）][ref-ademamix]。
+- **矩阵优化与几何方法**：[Muon 作者说明（2024）][ref-muon-note]及[实现][ref-muon]、[Muon is Scalable for LLM Training / Moonlight（2025）][ref-moonlight]、[SOAP（2024）][ref-soap]、[Scion（ICML 2025）][ref-scion]、[NorMuon（ICML 2026）][ref-normuon]。
+- **2026 新近预印本**：[Aurora: A Leverage-Aware Spectral Optimizer][ref-aurora]、[AF-Muon: An AdamW-Free Muon Optimizer for Tied-Embedding Models][ref-afmuon]。
+- **学习率与迭代平均**：[Understanding Warmup-Stable-Decay Learning Rates（2024）][ref-wsd]、[The Road Less Scheduled（2024）][ref-schedulefree]、[Schedule-Free 官方实现与使用约定][ref-schedulefree-code]。
+- **低精度与注意力算子**：[DeepSeek-V3 Technical Report（2024）][ref-deepseekv3]、[Scaling FP8 Training to Trillion-Token LLMs（2024）][ref-fp8]、[FlashAttention（2022）][ref-fa1]、[FlashAttention-2（2023）][ref-fa2]、[FlashAttention-3（2024）][ref-fa3]、[FlashAttention-4（2026）][ref-fa4]。
+- **偏好学习、推理后训练与混合架构**：[DPO（2023）][ref-dpo]、[IPO（2023）][ref-ipo]、[KTO（2024）][ref-kto]、[DeepSeekMath / GRPO（2024）][ref-deepseekmath]、[DeepSeek-R1（2025）][ref-deepseekr1]、[DAPO（2025）][ref-dapo]、[Kimi Linear（2025）][ref-kimi-linear]。
+
+[ref-adafactor]: https://arxiv.org/abs/1804.04235
+[ref-lion]: https://arxiv.org/abs/2302.06675
+[ref-sophia]: https://arxiv.org/abs/2305.14342
+[ref-ademamix]: https://arxiv.org/abs/2409.03137
+[ref-muon]: https://github.com/KellerJordan/Muon
+[ref-muon-note]: https://kellerjordan.github.io/posts/muon/
+[ref-moonlight]: https://arxiv.org/abs/2502.16982
+[ref-soap]: https://arxiv.org/abs/2409.11321
+[ref-scion]: https://proceedings.mlr.press/v267/pethick25a.html
+[ref-normuon]: https://proceedings.mlr.press/v306/li26dh.html
+[ref-aurora]: https://arxiv.org/abs/2606.27715
+[ref-afmuon]: https://arxiv.org/abs/2610.01395
+[ref-wsd]: https://arxiv.org/abs/2410.05192
+[ref-schedulefree]: https://arxiv.org/abs/2405.15682
+[ref-schedulefree-code]: https://github.com/facebookresearch/schedule_free
+[ref-deepseekv3]: https://arxiv.org/abs/2412.19437
+[ref-fp8]: https://arxiv.org/abs/2409.12517
+[ref-fa1]: https://arxiv.org/abs/2205.14135
+[ref-fa2]: https://arxiv.org/abs/2307.08691
+[ref-fa3]: https://arxiv.org/abs/2407.08608
+[ref-fa4]: https://arxiv.org/abs/2603.05451
+[ref-deepseekmath]: https://arxiv.org/abs/2402.03300
+[ref-dpo]: https://arxiv.org/abs/2305.18290
+[ref-ipo]: https://arxiv.org/abs/2310.12036
+[ref-kto]: https://arxiv.org/abs/2402.01306
+[ref-deepseekr1]: https://arxiv.org/abs/2501.12948
+[ref-dapo]: https://arxiv.org/abs/2503.14476
+[ref-kimi-linear]: https://arxiv.org/abs/2510.26692

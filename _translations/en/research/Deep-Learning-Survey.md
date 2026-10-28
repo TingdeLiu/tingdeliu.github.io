@@ -5,22 +5,24 @@ translation_id: deep-learning-survey
 permalink: /en/Deep-Learning-Survey/
 source_path: _posts/research/2026-03-26-Deep-Learning-Survey.md
 source_url: /Deep-Learning-Survey/
-source_revision_date: 2026-10-24
-translation_updated: 2026-10-24
+source_revision_date: 2026-10-28
+translation_updated: 2026-10-28
 title: "Deep Learning: A Survey"
-date: 2026-10-24
-tags: [Deep Learning, Neural Network, Optimization, Training, AI, Transformer, GNN, LLM, MoE, LoRA, Diffusion, GAN, VAE, RLHF, Mamba, SSM]
+date: 2026-10-28
+tags: [Deep Learning, Neural Network, Optimization, Muon, SOAP, Training, AI, Transformer, GNN, LLM, MoE, LoRA, Diffusion, GAN, VAE, RLHF, Mamba, SSM]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "Neural networks, CNNs, RNNs, Transformers, GNNs, optimization, regularization, generative models, MoE, PEFT, quantization, and Mamba/SSMs, with training diagnostics and benchmark selection."
+excerpt: "Network architectures, optimization, regularization, generative models, and efficient training, including Muon, SOAP, NorMuon, WSD, Schedule-Free, FP8, FlashAttention-4, and GRPO, with mechanisms and practical selection guidance."
 ---
 
 
 
 # 1. Introduction
 {: id="1-引言"}
+
+> **Update (2026-10-28)**: This revision expands the optimizers and learning rate strategies in §5, and updates FP8 / FlashAttention-4 in §9 and reasoning reinforcement learning and hybrid attention architectures in §11. Years generally refer to first public release; conference publication years are noted separately. Performance claims are limited to the experimental settings of the original papers. Primary sources for the additions are listed at the end.
 
 Deep learning (Deep Learning) is a machine learning method with multi-layer neural network as the core. AlexNet's breakthrough in the ImageNet Challenge in 2012 accelerated the popularity of deep learning in fields such as computer vision, natural language processing, speech recognition, and scientific computing. Representative systems such as GPT, BERT, Stable Diffusion, and AlphaFold are also built on deep neural networks.
 
@@ -37,13 +39,13 @@ This article aims to systematically sort out the core principles and key technol
 
 - **§2–3 Basics**: machine learning three-step framework, neurons and backpropagation
 - **§4 Architecture**: The main line of evolution of MLP → CNN → RNN/LSTM → Transformer, and supplemented by graph neural network (GNN)
-- **§5 Training optimization**: optimizer, learning rate scheduling, initialization, normalization, residual connection
+- **§5 Training optimization**: From AdamW to Muon / SOAP / NorMuon; learning rate scheduling and Schedule-Free; initialization, normalization, and residual connections
 - **§6 Loss and regularization**: Selection of various types of Loss, Dropout, data augmentation, AdamW
 - **§7 Method classification summary**: Map all techniques to the "three steps × two goals" coordinate system
 - **§8 Benchmark**: MNIST/CIFAR/ImageNet/GLUE/MMLU/HumanEval/Long Context and other classic reviews
-- **§9 Efficient training and inference**: Engineering-level optimization technologies such as mixed precision, gradient clipping/checkpointing, and Flash Attention
+- **§9 Efficient training and inference**: BF16 / FP8, gradient clipping/checkpointing, and FlashAttention 1–4
 - **§10 Model compression and adaptation**: MoE, LoRA/PEFT, quantification, knowledge distillation and other deployment-oriented lightweight methods
-- **§11 Cutting-edge architecture and large models**: RLHF, generative model (AE/VAE/GAN), diffusion model, Mamba/SSM, LLM and other major paradigms in recent years
+- **§11 Frontier architectures and large models**: RLHF / GRPO / RLVR, generative models (AE/VAE/GAN), diffusion models, Mamba/SSMs, and hybrid attention
 
 **Reading Suggestion**: Beginners can read in the order of §2–§6; when training the model, give priority to §5–§7 and §9; when focusing on large models, focus on reading §4.3, §10 and §11. The accuracy, parameter count and year in the article are used to illustrate the historical context and are affected by the model version, data processing and evaluation protocol. When reproducing the experiment, the original paper or official report should prevail.
 
@@ -141,6 +143,9 @@ flowchart LR
     subgraph G2022 ["2022 so far large model"]
         L["Chinchilla<br/>2022 Scaling Laws"] --> M["ChatGPT 2022<br/>RLHF Alignment"]
         M --> N["Flash Attn 2/3<br/>2023-2024"]
+        N --> O["Muon / SOAP<br/>2024 matrix optimization"]
+        O --> P["GRPO / reasoning RL<br/>2024-2025"]
+        P --> Q["FlashAttention-4<br/>2026 hardware co-design"]
     end
     B --> C
     E --> F
@@ -942,29 +947,37 @@ flowchart TD
     SGD["SGD<br/>stochastic gradient descent<br/>1951"] -->|"Add momentum"| Momentum["Momentum SGD<br/>Suppress oscillation"]
     SGD -->|"Adaptive LR"| Adagrad["Adagrad 2011<br/>Cumulative gradient squared"]
     Adagrad -->|"exponential moving average"| RMSprop["RMSprop 2012<br/>Adapt to unstable states"]
-    Momentum -->|"combine"| Adam["Adam 2014<br/>Momentum + RMSprop<br/>Current default"]
-    Adam -->|"Correction L2"| AdamW["AdamW 2017<br/>Standard for large models"]
-    AdamW -->|"second order information"| Sophia["Sophia 2023<br/>Second order Hessian"]
-    AdamW -->|"Orthogonalization"| Muon["Muon 2024<br/>Gradient Orthogonalization"]
-    AdamW -->|"Shampoo Equivalent"| SOAP["SOAP 2024<br/>Shampoo+AdamW"]
+    Momentum -->|"Combine"| Adam["Adam 2014<br/>First + second moments"]
+    Adam -->|"Decouple weight decay"| AdamW["AdamW 2017<br/>Common baseline"]
+    AdamW -->|"Curvature preconditioning"| Sophia["Sophia 2023<br/>Diagonal curvature estimate"]
+    AdamW -->|"Fast and slow momentum"| AdEMAMix["AdEMAMix 2024"]
+    Momentum -->|"Orthogonalize matrix updates"| Muon["Muon 2024"]
+    Shampoo["Shampoo 2018<br/>Matrix preconditioning"] -->|"Adam in the eigenbasis"| SOAP["SOAP 2024"]
+    Muon -->|"Update scaling and weight decay"| Moonlight["Moonlight 2025<br/>Large-scale training validation"]
+    Muon -->|"Neuron-wise adaptive scaling"| NorMuon["NorMuon 2025<br/>ICML 2026"]
 ```
 
-### Comparison of mainstream optimizers
-{: id="主流优化器对比"}
+The arrows illustrate related ideas. Muon orthogonalizes momentum updates for matrices; it should not be understood as a switch added to AdamW. Methods based on norm geometry, such as Scion, are discussed below.
 
-|optimizer|Year|momentum|Adaptive LR|Core features|Applicable scenarios|
-|:---|:---:|:---:|:---:|:---|:---|
-| SGD | — | ✗ | ✗ |Simple, sensitive to LR|CV fine tuning (combined with scheduling)|
-| Momentum SGD | — | ✓ | ✗ |Suppress oscillation and cross the saddle|CV training|
-| Adagrad | 2011 | ✗ | ✓ |Sparse feature friendly, LR decreases monotonically|NLP sparse scenario|
-| RMSprop | 2012 | ✗ | ✓ |Exponential moving average, adapted to non-stationary conditions|RNN training|
-| **Adam** | 2014 | ✓ | ✓ | Momentum + RMSprop |Selected by default for most tasks|
-| **AdamW** | 2017 | ✓ | ✓ |Adam + Correct Weight Decay|Standard large language model pre-training|
-| Sophia | 2023 | ✓ | ✓ |Second-order Hessian estimate|LLM pre-training (paper statement about 2× acceleration)|
-| Muon | 2024 | ✓ | ✗ |Gradient Orthogonalization|Small and medium-sized pre-training|
-| SOAP | 2024 | ✓ | ✓ |Shampoo equivalent + AdamW|Large batch LLM training|
+### Classical and recent optimizers
+{: id="经典与近年优化器对比"}
 
-> Note: The acceleration ratio of Sophia/Muon/SOAP comes from the experimental results of the original paper under specific settings. The actual performance varies greatly due to model size, data distribution, and hyperparameter tuning. In the production environment, AdamW is still the most empirically stable default choice.
+| Optimizer | First public release | Update mechanism | Main cost or limitation | Application direction |
+|:---|:---:|:---|:---|:---|
+| SGD / Momentum SGD | Classical methods | Raw gradient or momentum direction | Requires learning rate and schedule tuning | Baselines for supervised learning, including CNNs |
+| Adagrad | 2011 | Coordinate-wise scaling by accumulated squared gradients | Learning rates may decay too quickly | Sparse features |
+| RMSprop | 2012 | Exponential moving average of squared gradients | Hyperparameters depend on the task | Historically common for RNNs |
+| Adam / **AdamW** | 2014 / 2017 | First and second moments; AdamW decouples weight decay | Standard implementations store two per-parameter states | General training and fine-tuning baselines |
+| [Adafactor][ref-adafactor] | 2018 | Factorizes matrix second moments into row and column statistics | Saves state memory, but approximation and configuration affect results | Limited optimizer-state memory |
+| [Lion][ref-lion] | 2023 | Sign of a combination of momentum and gradient | Usually needs a lower learning rate than AdamW and corresponding decay adjustments | Candidate for vision and language tasks |
+| [Sophia][ref-sophia] | 2023 | Diagonal curvature estimates and clipped updates | Requires additional curvature estimation; step count alone is insufficient | LLM pretraining research |
+| [AdEMAMix][ref-ademamix] | 2024 | Combines fast and slow gradient EMAs with a second moment | Adds a slow momentum buffer and its hyperparameters relative to AdamW | Long training runs and reduced forgetting |
+| [Muon][ref-muon] / [Moonlight extension][ref-moonlight] | 2024 / 2025 | Approximately orthogonalizes matrix momentum and scales updates by layer shape | Usually paired with AdamW; adds matrix operations and communication costs | Validated in large-scale dense / MoE pretraining |
+| [SOAP][ref-soap] | 2024 | Runs Adam in the eigenbasis of Shampoo's preconditioner | Stores matrix statistics and periodically updates the eigenbasis | Training that can afford preconditioning overhead |
+| [Scion][ref-scion] | 2025 | Produces updates through a linear minimization oracle under layer-specific norm constraints | Requires norms and scales for different layers | Hyperparameter transfer and activation-scale control |
+| [NorMuon][ref-normuon] | 2025; ICML 2026 | Adds neuron-wise adaptive scaling to Muon updates | Usually still needs AdamW for parameters outside the hidden weight matrices | Improving Muon for large-batch training |
+
+**A second moment is not a second derivative**: Adam's $v_t$ is a moving average of squared gradients, not a Hessian. Sophia estimates curvature; Shampoo / SOAP use matrix preconditioning; Muon changes the singular-value structure of matrix updates. These approaches address different aspects of optimization and cannot be adequately described by a single “adaptive LR” label.
 
 **Adam’s core formula** (Kingma & Ba, 2014):
 
@@ -978,10 +991,62 @@ $$\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t}+\epsilon}\hat{m}_t$$
 
 Standard hyperparameters: $\beta_1=0.9$, $\beta_2=0.999$, $\epsilon=10^{-8}$. Adam's $m_t$ is responsible for the direction (can cross the saddle point); $v_t$ is responsible for the size (adaptive adjustment of the learning rate of each parameter). The two complement each other and jointly solve the two core problems of gradient descent.
 
+### Muon: from coordinate-wise scaling to matrix updates
+{: id="muon从逐坐标缩放到矩阵更新"}
+
+**Muon (MomentUm Orthogonalized by Newton-Schulz)** treats hidden-layer weights as matrices and approximately orthogonalizes their momentum. Intuitively, AdamW adjusts each coordinate's step size, while Muon rebalances different singular directions of a matrix update. Omitting Nesterov momentum, shape-dependent scaling, and weight decay, an illustrative formulation is:
+
+$$M_t = \beta M_{t-1} + (1-\beta)G_t, \qquad M_t = U_t\Sigma_t V_t^\top$$
+
+$$Q_t = U_t V_t^\top, \qquad W_{t+1} = W_t - \eta_t Q_t$$
+
+The compact SVD expresses the ideal polar factor. Implementations approximate this transformation with a few **Newton–Schulz iterations**, avoiding an explicit SVD at every step. For a full-rank rectangular matrix, the ideal factor is semi-orthogonal; a finite approximation need not be strictly semi-orthogonal. The **update direction** is orthogonalized, rather than requiring the weight matrix itself to remain orthogonal. See the [author's explanation][ref-muon-note] and [implementation][ref-muon] for the original algorithm and parameter grouping conventions.
+
+**Scaling to larger models**: Moonlight adds weight decay and update-scale calibration to Muon and validates it on a **MoE with 3B active / 16B total parameters, trained on 5.7T tokens**. The paper reports roughly twice the compute efficiency in its comparisons. This does not imply that arbitrary end-to-end training runs take half the time, but it does establish evidence beyond small and medium-sized models. [Original paper][ref-moonlight]
+
+**Parameter grouping**: Common implementations use Muon for hidden-layer matrices and AdamW for embeddings, output heads, biases, and normalization parameters. Grouping solely by `p.ndim == 2` is insufficient: embeddings and output heads are also matrices, and tied weights must be deduplicated. Convolution-kernel flattening, whether Q/K/V are orthogonalized separately, and communication for sharded parameters should follow the conventions of the chosen implementation. [Author's implementation][ref-muon]
+
+### SOAP: Adam in a better coordinate system
+{: id="soap在更合适的坐标系中使用-adam"}
+
+**SOAP (Shampoo with Adam in the Preconditioner's eigenbasis)** accumulates left and right statistics of matrix gradients, periodically obtains their eigenbases, transforms gradients into that coordinate system, applies Adam there, and transforms updates back. It combines **Shampoo's matrix structure** with **Adam's coordinate-wise adaptation**. [Original paper][ref-soap]
+
+It is inaccurate to state that “SOAP is equivalent to Shampoo.” The theoretical connection relies on particular assumptions, and practical behavior also depends on basis-update frequency, block size, and momentum handling. For an $m\times n$ matrix, the unblocked left and right statistics alone require $O(m^2+n^2)$ storage, with additional eigendecomposition costs. Fewer training steps must therefore be assessed alongside time per step and peak memory.
+
+### AdEMAMix, Scion, and NorMuon: three directions for improvement
+{: id="ademamixscion-与-normuon三种不同的改进方向"}
+
+- **Retaining older gradient information—AdEMAMix (2024)**: A fast EMA tracks recent directions, while a slow EMA retains a longer history; a mixing coefficient combines them. The paper validates benefits in language modeling and image classification. This generally adds a per-parameter momentum buffer relative to AdamW, so it should not also be presented as saving optimizer-state memory. [Original paper][ref-ademamix]
+- **Changing the geometry of updates—Scion (2025)**: Norms are chosen according to layer input and output scales, and a linear minimization oracle produces updates. The framework includes constrained and unconstrained variants. One goal is better hyperparameter transfer across model sizes; this does not mean that every model requires no tuning. [ICML 2025 paper][ref-scion]
+- **Restoring neuron-wise adaptation—NorMuon (2025; ICML 2026)**: It introduces per-neuron second-moment statistics and row normalization after Muon orthogonalization to address uneven neuron updates, with particular attention to larger batches. It combines matrix updates with neuron-wise adaptation, rather than simply applying coordinate-wise Adam to Muon. [ICML 2026 paper][ref-normuon]
+
+### Recent work in 2026: two directions to follow
+{: id="2026-年新近工作值得跟踪的两个方向"}
+
+| Work | First public release | New idea | Scope and limitations |
+|:---|:---:|:---|:---|
+| [Aurora][ref-aurora] | 2026-06-26 | Improves row-update balance for tall matrices within Muon's spectral geometry, focusing on MLP up / gate projections | The authors report language-model pretraining and nanoGPT experiments; these do not establish benefits for every layer and model |
+| [AF-Muon][ref-afmuon] | 2026-10-01 | Designs updates for a shared vocabulary matrix and auxiliary parameters in models with tied embeddings / output heads, removing the need for companion AdamW | The authors test models including 124M–1B parameters; frontier-scale pretraining remains untested, and this is not a universal configuration for original Muon |
+
+As of this update, both are presented as **recent preprints**. AF-Muon's reported savings of about 20% concern **optimizer-state memory** relative to its Hybrid Muon baseline, not a 20% reduction in total training memory. Beyond new optimizer names, useful questions include how vocabulary matrices are handled, how neuron-wise adaptation is retained after orthogonalization, and how orthogonalization and communication costs can be reduced.
+
+### Practical selection and fair comparisons
+{: id="实践选型与公平比较"}
+
+| Current problem | Consider first | What to record |
+|:---|:---|:---|
+| Need a reliable starting point, or perform conventional fine-tuning / LoRA | Establish an AdamW baseline | Learning rate, effective batch size, and decay groups |
+| Pretrain a Transformer from scratch and seek better compute efficiency | Muon + AdamW; then compare NorMuon | Parameter grouping, update scaling, distributed implementation, and end-to-end time |
+| Want matrix preconditioning and have sufficient memory and compute | SOAP | Block size, preconditioner update interval, and peak memory |
+| Run long training and want to retain older gradient information | AdEMAMix | Slow momentum settings, additional state, and training budget |
+| Optimizer states are the memory bottleneck | Adafactor, low-bit states, or state sharding | Optimizer-state and total memory separately, plus changes in quality |
+
+These are **selection recommendations** based on the mechanisms and available experimental evidence. Compare optimizers using the same data, model, token / sample budget, and validation protocol, with a reasonable tuning budget for each. Report **GPU time to target quality, final quality, peak memory, and stability**. Fewer steps, fewer tokens, fewer FLOPs, and less elapsed time are different metrics. Benefits in pretraining do not automatically transfer to LoRA, reinforcement learning post-training, or other modalities.
+
 ## 5.2 Learning rate scheduling
 {: id="52-学习率调度"}
 
-There is a contradiction between a fixed learning rate that is too large (oscillation) and too small (too slow). Standard solution for large language model training: **Warmup + Cosine Decay**
+A fixed learning rate can be too large, causing oscillation, or too small, causing slow progress. **Warmup + Cosine Decay** is a common approach; WSD and Schedule-Free reduce dependence on a predetermined training endpoint in different ways.
 
 |training phase|Relative LR|Description|
 |:---:|:---:|:---|
@@ -1007,13 +1072,28 @@ There is a contradiction between a fixed learning rate that is too large (oscill
 | **Cosine Annealing Warm Restart** |The cosine decays to 0 and then "restarts" back to high LR, with period increment (SGDR)|Escape from local optimality and integrate multiple checkpoints|
 | **1Cycle**(Leslie Smith, 2018) |First rise and then fall + Momentum reversely changes synchronously|CV fast training (recommended by FastAI)|
 | **Warmup + Linear Decay** |Linear decay after warmup|BERT original paper, GLUE fine-tuning commonly used|
-|**Warmup + Cosine** (currently mainstream)|Cosine decay after warm-up|**Large language model pre-training standard**|
+| **Warmup + Cosine** | Cosine decay after warmup | Pretraining and fine-tuning with a predetermined budget |
+| **Warmup–Stable–Decay (WSD)** | Warmup → constant-LR trunk → final decay | Extending pretraining flexibly or comparing different budgets |
+
+### WSD: separating the training trunk from final convergence
+{: id="wsd把训练主干与末期收敛分开"}
+
+**WSD (Warmup–Stable–Decay)** maintains a constant learning rate after warmup. Once an endpoint for a particular budget is chosen, training branches from a trunk checkpoint into a decay phase. Unlike a cosine schedule tied to a total step count from the start, this allows the stable-phase trunk to be reused to produce models at different compute budgets. [WSD analysis paper][ref-wsd]
+
+This is still a **learning rate schedule**: the peak rate, warmup, decay duration, and decay shape must be chosen, and decay consumes compute. A stable-phase checkpoint and one that has completed cooldown should not be treated as having equal budgets and convergence states.
+
+### Schedule-Free: iterate averaging instead of a preset decay curve
+{: id="schedule-free用迭代平均替代预设衰减曲线"}
+
+**Schedule-Free (2024)** combines momentum with iterate averaging, distinguishes the gradient-evaluation point from the parameters used for evaluation, and avoids a decay curve tied to a predetermined stopping step. Variants include SGD and AdamW. Its mechanism differs from WSD, and learning rate, warmup, and weight decay still require configuration. [Original paper][ref-schedulefree]
+
+**Implementation details**: The authors' non-closure interface requires `optimizer.train()` during training and `optimizer.eval()` before validation or saving evaluation weights, alongside `model.train()` / `model.eval()`; switching model mode alone is insufficient. Resumable checkpoints should retain optimizer state according to the implementation's instructions. BatchNorm also requires handling running statistics for the evaluation parameters. The official implementation still recommends warmup. [Author's repository][ref-schedulefree-code]
 
 **selection principle**:
 
 - **trains from scratch CNN**: StepLR or Cosine Annealing (Warm Restart for long training)
 - **fine-tuned pretrained model**: Warmup + Linear/Cosine (low peak LR, usually $1-5 \times 10^{-5}$)
-- **LLM pre-training**: Warmup + Cosine (peak LR $\sim 3 \times 10^{-4}$, Warmup accounts for 0.5–2%)
+- **LLM pretraining**: Compare Warmup + Cosine for fixed budgets and WSD when the budget may grow. Calibrate peak learning rate and warmup to model scale, batch size, and optimizer rather than copying them across configurations
 - **validation set available and uncertain number of epochs**: ReduceLROnPlateau
 - **Rapid Prototyping/Competition**: 1Cycle (Smith said it can achieve "super-convergence" effect)
 
@@ -1374,8 +1454,8 @@ flowchart TD
     A["Neural network training techniques"] --> B["Step 3: Improve Optimization"]
     A --> C["Step 2: Improve network architecture"]
     A --> D["Step 1: Improve Loss with data"]
-    B --> B1["Adam / AdamW<br/>adaptive learning rate+momentum"]
-    B --> B2["LR Scheduling<br/>Warmup + Cosine Decay"]
+    B --> B1["AdamW / Muon / SOAP<br/>Coordinate-wise or matrix updates"]
+    B --> B2["Cosine / WSD<br/>or Schedule-Free iterate averaging"]
     B --> B3["Kaiming Init<br/>Parameter initialization"]
     B --> B4["Pre-training<br/>improve at the same time Opt+Gen"]
     C --> C1["CNN<br/>Receptive Field + Parameter sharing<br/>improve Generalization"]
@@ -1392,8 +1472,10 @@ Comparison table of objectives of each method:
 |method|Improvement steps|target|Remarks|
 |:---|:---|:---|:---|
 | Adagrad / RMSprop |Step 3| Optimization |Adaptive learning rate predecessor|
-| Adam |Step 3| Optimization |Current default optimizer|
-| LR Scheduling |Step 3| Optimization |Warmup+Cosine is standard for large models|
+| Adam / AdamW | Step 3 | Optimization | Common coordinate-wise adaptive baseline |
+| Muon / NorMuon | Step 3 | Optimization | Orthogonalized matrix updates; parameter grouping must be explicit |
+| SOAP / Scion | Step 3 | Optimization | Matrix preconditioning and layer-specific norm geometry, respectively |
+| LR Scheduling / Schedule-Free | Step 3 | Optimization | Cosine, WSD, or iterate averaging, chosen for the training budget |
 | Kaiming Init |Step 3| Optimization |Standard initialization of ReLU networks|
 | Pre-training |Step 3| Opt + Gen |Both are improved at the same time, the core of modern large models|
 | CNN |Step 2| Opt + Gen |Improving sample efficiency through inductive bias|
@@ -1546,15 +1628,23 @@ As the context window expands from 2K→32K→128K→1M, simple perplexity can n
 ## 9.1 Mixed precision training
 {: id="91-混合精度训练"}
 
-Modern GPUs support FP16/BF16 operations. Mixed-precision training completes forward propagation and gradient calculations with low precision (saving GPU memory 50%, accelerating calculations 2-3×), and performs parameter updates with FP32 (ensuring numerical stability).
+Mixed-precision training uses formats such as FP16 / BF16 for suitable operations, while retaining higher precision for sensitive computations, accumulation, or master weights. Memory savings and speedups depend on hardware, operator coverage, activations, and optimizer states. Halving a tensor's byte count does not imply halving total memory use.
 
 |Format|Exponent bit|mantissa digits|Advantages|Disadvantages|
 |:---:|:---:|:---:|:---|:---|
 | FP32 | 8 | 23 |most stable|GPU memory usage is large|
 | FP16 | 5 | 10 |Fast|The numerical range is small and easy to overflow.|
 | **BF16** | 8 | 7 |The numerical range is the same as FP32, stable|Slightly less accurate than FP16|
+| **FP8 E4M3 / E5M2** | 4 / 5 | 3 / 2 | Higher matrix-multiplication throughput and less storage and transfer on supported hardware | Requires scaling and quantization strategies; more sensitive to errors and overflow |
 
-**BF16** (Brain Float 16) has wider index bits (8 bits vs 5 of FP16) bits), with a larger numerical range, and has become the preferred low-precision format for large language model training.
+**BF16** (Brain Float 16) has a wider exponent field (8 bits versus 5 in FP16), giving it a larger numerical range. It has become the preferred low-precision format for large language model training.
+
+### FP8: training precision as part of system design
+{: id="fp8训练精度成为系统设计的一部分"}
+
+**FP8 training** depends on scaling, accumulation precision, and operator selection. The DeepSeek-V3 report uses fine-grained scaling and FP8 inputs for most Linear GEMMs, while retaining higher precision for normalization, routing, embeddings, output heads, and other sensitive components, and increasing precision for parts of the accumulation. [Technical report][ref-deepseekv3]
+
+Long training runs can reveal problems that short experiments miss. *Scaling FP8 Training to Trillion-Token LLMs* analyzes SwiGLU outlier amplification over trillion-token runs and introduces Smooth-SwiGLU. FP8 should therefore be evaluated using loss, gradient norms, and downstream quality over the full training run, in addition to throughput. Simply casting BF16 tensors to FP8 does not establish equivalent results. [Original paper][ref-fp8]
 
 ## 9.2 Gradient clipping
 {: id="92-梯度裁剪"}
@@ -1585,13 +1675,16 @@ The use of gradient checkpoints in combination with mixed precision, ZeRO, and t
 
 The bottleneck of **standard attention** is that the $N \times N$ attention matrix needs to be written to GPU HBM GPU memory. The GPU memory complexity is $O(N^2)$, which is extremely expensive for long sequences.
 
-|version|Year|Relative to standard attention acceleration|key innovation|
-|:---:|:---:|:---:|:---|
-| Flash Attention 1 | 2022 | 2–4× |IO-aware block calculation, GPU memory $O(N)$|
-| Flash Attention 2 | 2023 | 4–9× |Improved parallelization and warp partitioning, reaching 70% A100 FLOP/s|
-| Flash Attention 3 | 2024 | 6–18×(vs FA1)|For H100 Hopper architecture; asynchronous pipeline; FP8 support, up to 75% H100 FLOP/s (approximately 1.2 PFLOP/s)|
+| Version | First public release | Main optimization target | Key contribution |
+|:---:|:---:|:---|:---|
+| [FlashAttention][ref-fa1] | 2022 | Attention memory traffic | Tiling and online softmax avoid explicitly storing the full attention matrix |
+| [FlashAttention-2][ref-fa2] | 2023 | GPU parallelism and work partitioning | Fewer non-matmul operations and better thread-block and warp partitioning |
+| [FlashAttention-3][ref-fa3] | 2024 | Hopper / H100 | Asynchronous pipelines overlap matrix multiplication and softmax, with an FP8 path |
+| [FlashAttention-4][ref-fa4] | 2026 | Blackwell / B200 | Uses Tensor Memory, asynchronous MMA, and 2-CTA mode, implemented in CuTe-DSL |
 
-Flash Attention reduces GPU memory traffic and accelerates computation while retaining **exact attention** rather than approximating it. Availability depends on hardware, sequence length, and kernel implementation.
+FlashAttention equivalently rearranges standard dense softmax attention, while still introducing finite-precision numerical error. It reduces IO and intermediate memory use, but **does not change dense attention's computational complexity from $O(N^2)$ to $O(N)$**.
+
+**FlashAttention-4 results need their comparison conditions**: On B200 with BF16 and the tested shapes, the paper reports up to roughly 1.3× speedup over cuDNN 9.13 and 2.7× over Triton. These are kernel results for specific versions and hardware, not end-to-end model-training speedups. Results from different generations should not be combined across hardware into a single speedup ranking. [Original paper][ref-fa4]
 
 ---
 
@@ -1636,9 +1729,9 @@ flowchart LR
 | Switch Transformer | 2021 | 1.6T | — |top-1 routing|
 | GShard | 2020 | 600B | — |top-2 routing|
 | **Mixtral 8×7B** | 2023 | 47B | 13B |8 expert, top-2|
-| **DeepSeek-V3** | 2024 | 671B | 37B |256 Sharing Expert + Fine-grained Routing|
+| **DeepSeek-V3** | 2024 | 671B | 37B | Each MoE layer has 1 shared expert and 256 routed experts; each token selects 8 routed experts |
 
-**Key challenges**: **Load balancing** (preventing all tokens from flooding to a few experts) - usually adding auxiliary losses or capacity constraints to avoid overloading a few experts. The statistical calibers of total parameters and activated parameters are not uniform. When comparing across models, the routing strategy and FFN scale should be viewed at the same time.
+**Key challenge**: **Load balancing** prevents tokens from concentrating on a few experts, often through auxiliary losses or capacity constraints. Total and active parameter counts are not reported uniformly across models; routing strategies and FFN sizes also matter. See the [technical report][ref-deepseekv3] for DeepSeek-V3's configuration above and its load-balancing design.
 
 ## 10.2 Parameter-efficient fine-tuning
 {: id="102-参数高效微调peft"}
@@ -1775,12 +1868,31 @@ flowchart LR
 
 |method|Year|Relative to RLHF|
 |:---|:---:|:---|
-| **DPO**(Direct Preference Optimization)| 2023 |Skip RM and PPO and directly perform closed-form optimization on preference data; training is simple and stable|
-| **IPO / KTO** | 2023 |DPO variant, more robust|
+| [**DPO** (Direct Preference Optimization)][ref-dpo] | 2023 | Expresses preference learning as a directly optimizable loss, without a separately trained RM or online PPO; parameters are still trained through gradients |
+| [**IPO**][ref-ipo] / [**KTO**][ref-kto] | 2023 / 2024 | Modify the preference objective or use desirable / undesirable feedback, respectively; their data requirements differ from DPO |
 | **RLAIF** | 2023 |Replacing humans with labeling preferences with AI (like Claude)|
 | **Constitutional AI** | 2022 |Anthropic proposes using a set of "constitutional" principles to guide model self-criticism|
 
 > DPO has become a common preference optimization method because the training process is simple and there is no need to separately train the reward model. PPO, DPO, rejection sampling, and other methods can also be used in combination; the specific training process of closed-source models is often not fully disclosed.
+
+### From preference alignment to reasoning training: GRPO and RLVR
+{: id="从偏好对齐到推理训练grpo-与-rlvr"}
+
+**GRPO (Group Relative Policy Optimization)** was introduced in DeepSeekMath (2024). It samples a group of responses to the same question and uses within-group reward statistics to construct relative advantages, retaining a PPO-style clipped objective while removing the separately trained value / critic network. For the case of one outcome reward per response, the advantage can be illustrated as:
+
+$$A_i = \frac{r_i-\operatorname{mean}(r_1,\ldots,r_G)}{\operatorname{std}(r_1,\ldots,r_G)+\epsilon}$$
+
+Here, $G$ is the number of samples per question, $r_i$ is the reward for response $i$, and $\epsilon$ provides numerical stability. Removing the critic does not remove sampling costs: generating multiple responses per question can dominate compute, and groups with identical rewards provide little relative discrimination. [DeepSeekMath][ref-deepseekmath]
+
+**RLVR (Reinforcement Learning with Verifiable Rewards)** uses verifiable outcomes as rewards, such as checked mathematical answers or code tests. It describes the **reward source**, while GRPO / PPO describe **policy-training algorithms**; they can be combined. DeepSeek-R1 (2025) trains reasoning with rule-based rewards and combines cold-start data, reinforcement learning, and other training stages. R1-Zero and the full R1 pipeline should be distinguished. [Technical report][ref-deepseekr1]
+
+| Approach | Data and signal | Main role | Practical considerations |
+|:---|:---|:---|:---|
+| Offline preference learning such as DPO | Fixed preferred responses or feedback | Learn preferences and response style | Data coverage, reference policy, and distribution shift |
+| GRPO + verifiable rewards | Multiple responses from the current policy, scored by rules / tests | Improve reasoning on verifiable tasks | Generation costs, reward design, and within-group reward variance |
+| [DAPO (2025)][ref-dapo] | Large-scale online reasoning RL | Improves clipping, dynamic sampling, token-level loss, and reward handling for overlong responses | Reproduction requires the full sampling and training system |
+
+This also completes the three-step framework: RLVR changes the training signal; GRPO / DAPO define policy objectives and the sampling and update procedure; underlying parameter updates still require optimizers such as AdamW. These methods operate at a different level from the gradient optimizers in §5. Gains on verifiable-task rewards should also be evaluated on independent test sets and other tasks to assess generalization.
 
 ## 11.2 Generative model: from AE to GAN
 {: id="112-生成模型从-ae-到-gan"}
@@ -1988,7 +2100,12 @@ flowchart LR
 | **RWKV** | 2023 |RNN-like linear attention, Transformer training paradigm + RNN inference|
 | **RetNet** | 2023 |Recursive attention proposed by Microsoft, training parallelism + reasoning recursion|
 
-> **Current situation and prospects**: Mamba and SSM series are currently the most popular Transformer alternative architectures, demonstrating competitive performance in fields such as language, vision, and genomics. However, pure SSM is still weaker than Transformer in terms of general reasoning and in-context learning capabilities. The mainstream trend is **Mamba + Transformer hybrid architecture** (such as Jamba, Zamba) to take into account long sequence efficiency and global reasoning capabilities.
+### Recent progress: combining recurrent memory and attention
+{: id="近年进展递推记忆与注意力的混合"}
+
+Alternative architectures should distinguish pure SSMs, linear attention, and hybrid models. Finite-dimensional recurrent states help control decoding-cache size, but tasks differ in their requirements for exact retrieval, forgetting, and long-term memory. Hybrid designs retain some full attention while introducing cheaper recurrent layers.
+
+**Kimi Linear (2025)** is one example: **Kimi Delta Attention (KDA)** extends Gated DeltaNet with fine-grained gating and is combined with MLA layers. It demonstrates an approach to balancing expressivity and long-context efficiency under a fixed training setup. Cache and throughput gains depend on the mixing ratio, sequence length, and implementation; the entire hybrid model should not be described as having exclusively linear computation. [Original paper][ref-kimi-linear]
 
 ## 11.5 Deep learning and LLMs
 {: id="115-深度学习与大语言模型"}
@@ -2019,4 +2136,47 @@ There is only one main thread running through the whole text: **machine learning
 
 **Core conclusion**:
 
-> The training technique of deep learning is not that the more the better, but to **the right medicine** - Look at the training Loss first: if it cannot be reduced, it is an Optimization problem, do not add Dropout; low training Loss and high verification Loss are a Generalization problem, only then consider data augmentation and regularization. This is the basic skill for efficient alchemy, and it is also the judgment principle repeatedly emphasized in this article.
+> Effective deep learning training requires **matching the intervention to the problem**, rather than adding more techniques. Inspect training loss first: if it does not decrease, address optimization before adding Dropout. Low training loss with high validation loss points to generalization, where data augmentation and regularization become relevant. This diagnostic principle is a foundation for effective experimentation and recurs throughout the article.
+
+---
+
+# 13. Primary sources for this update
+{: id="13-本次更新的原始资料"}
+
+These sources support the additions made on 2026-10-28. Method years generally refer to first public release, rather than conference publication.
+
+- **State-efficient methods and momentum improvements**: [Adafactor (2018)][ref-adafactor], [Lion (2023)][ref-lion], [Sophia (2023)][ref-sophia], and [AdEMAMix (2024)][ref-ademamix].
+- **Matrix optimization and geometric methods**: [Muon author's explanation (2024)][ref-muon-note] and [implementation][ref-muon], [Muon is Scalable for LLM Training / Moonlight (2025)][ref-moonlight], [SOAP (2024)][ref-soap], [Scion (ICML 2025)][ref-scion], and [NorMuon (ICML 2026)][ref-normuon].
+- **Recent 2026 preprints**: [Aurora: A Leverage-Aware Spectral Optimizer][ref-aurora] and [AF-Muon: An AdamW-Free Muon Optimizer for Tied-Embedding Models][ref-afmuon].
+- **Learning rates and iterate averaging**: [Understanding Warmup-Stable-Decay Learning Rates (2024)][ref-wsd], [The Road Less Scheduled (2024)][ref-schedulefree], and [Schedule-Free's official implementation and usage conventions][ref-schedulefree-code].
+- **Low precision and attention kernels**: [DeepSeek-V3 Technical Report (2024)][ref-deepseekv3], [Scaling FP8 Training to Trillion-Token LLMs (2024)][ref-fp8], [FlashAttention (2022)][ref-fa1], [FlashAttention-2 (2023)][ref-fa2], [FlashAttention-3 (2024)][ref-fa3], and [FlashAttention-4 (2026)][ref-fa4].
+- **Preference learning, reasoning post-training, and hybrid architectures**: [DPO (2023)][ref-dpo], [IPO (2023)][ref-ipo], [KTO (2024)][ref-kto], [DeepSeekMath / GRPO (2024)][ref-deepseekmath], [DeepSeek-R1 (2025)][ref-deepseekr1], [DAPO (2025)][ref-dapo], and [Kimi Linear (2025)][ref-kimi-linear].
+
+[ref-adafactor]: https://arxiv.org/abs/1804.04235
+[ref-lion]: https://arxiv.org/abs/2302.06675
+[ref-sophia]: https://arxiv.org/abs/2305.14342
+[ref-ademamix]: https://arxiv.org/abs/2409.03137
+[ref-muon]: https://github.com/KellerJordan/Muon
+[ref-muon-note]: https://kellerjordan.github.io/posts/muon/
+[ref-moonlight]: https://arxiv.org/abs/2502.16982
+[ref-soap]: https://arxiv.org/abs/2409.11321
+[ref-scion]: https://proceedings.mlr.press/v267/pethick25a.html
+[ref-normuon]: https://proceedings.mlr.press/v306/li26dh.html
+[ref-aurora]: https://arxiv.org/abs/2606.27715
+[ref-afmuon]: https://arxiv.org/abs/2610.01395
+[ref-wsd]: https://arxiv.org/abs/2410.05192
+[ref-schedulefree]: https://arxiv.org/abs/2405.15682
+[ref-schedulefree-code]: https://github.com/facebookresearch/schedule_free
+[ref-deepseekv3]: https://arxiv.org/abs/2412.19437
+[ref-fp8]: https://arxiv.org/abs/2409.12517
+[ref-fa1]: https://arxiv.org/abs/2205.14135
+[ref-fa2]: https://arxiv.org/abs/2307.08691
+[ref-fa3]: https://arxiv.org/abs/2407.08608
+[ref-fa4]: https://arxiv.org/abs/2603.05451
+[ref-deepseekmath]: https://arxiv.org/abs/2402.03300
+[ref-dpo]: https://arxiv.org/abs/2305.18290
+[ref-ipo]: https://arxiv.org/abs/2310.12036
+[ref-kto]: https://arxiv.org/abs/2402.01306
+[ref-deepseekr1]: https://arxiv.org/abs/2501.12948
+[ref-dapo]: https://arxiv.org/abs/2503.14476
+[ref-kimi-linear]: https://arxiv.org/abs/2510.26692
