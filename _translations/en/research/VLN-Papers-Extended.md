@@ -5,20 +5,22 @@ translation_id: vln-papers-extended
 permalink: /en/VLN-Papers-Extended/
 source_path: _posts/research/2026-01-06-VLN-Papers-Extended.md
 source_url: /VLN-Papers-Extended/
-source_revision_date: 2026-10-24
-translation_updated: 2026-10-24
-title: "VLN Papers: Goal Navigation and Extensions"
-date: 2026-10-24
+source_revision_date: 2026-10-31
+translation_updated: 2026-10-31
+title: "VLN Papers: Goal and Agentic Navigation"
+date: 2026-10-31
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
 toc_expand: 2
-excerpt: "40 paper entries on goal navigation, locomotion, mobile manipulation, and related research, with five task-specific performance leaderboards."
+excerpt: "41 readings on goal and agentic navigation: ObjectNav, multimodal goals, tool use, active interaction, persistent spatial memory, and task-specific leaderboards."
 ---
 
-> This collection extends [VLN Papers: Instruction Following](/en/VLN-Papers/) with **40 paper entries** and goal-navigation leaderboards. It focuses on goal navigation, locomotion, mobile manipulation, and additional studies. The main collection covers 60 representative instruction-following methods, benchmarks, and foundational works. The two collections follow research focus and reading sequence; publication status is not the sole criterion.
+> This collection complements [VLN Papers: Instruction Following](/en/VLN-Papers/) with **41 paper entries** organized around goal navigation and agentic navigation, retaining locomotion and mobile manipulation as supporting directions. The main collection covers 60 representative instruction-following methods, benchmarks, and foundational works. The collections follow research focus and reading sequence; publication status is not the sole criterion.
+>
+> **Goal navigation** describes the task: find and reach a goal specified by a category, description, image, or coordinate. **Agentic navigation** describes how decisions are organized: an LLM/VLM agent autonomously calls perception and movement tools, asks for assistance as needed, reads and writes spatial memory, and replans or resumes tasks using execution feedback; individual papers need not implement every mechanism. These perspectives overlap: [NavHarness](#navharness) and [EvoLife](#evolife) both study continuing decisions and experience reuse in goal-navigation tasks.
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
@@ -29,6 +31,8 @@ excerpt: "40 paper entries on goal navigation, locomotion, mobile manipulation, 
 >
 > **Reading the tables:** **Trained** means trained or fine-tuned on navigation data. **Training-free** means no navigation model is trained: the system combines existing large models, detection or segmentation models, and rules or planners. Calling a pretrained low-level point-goal controller does not change this classification. The **Closed API** badge marks methods that call a closed model such as GPT, Gemini or Claude through an API at inference time. This is separate from the paradigm: a trained model can still call one at inference time, as SuperNav-Learned does, while using a large model only to build training data or for offline preprocessing does not count, as with AECNav's offline DeepSeek distractor lists. In the chart view, bar colors show whether a method calls a closed API. Gray rows use nonstandard protocols, such as validation subsets, and are excluded from best-value bolding. Bold values are the best among non-gray rows within the same benchmark; groups with only one row are not bolded. Filters select paradigm, inference, input configuration, and open-source availability, and can hide gray rows.
 
+> **EvoLife evaluation conditions:** Gray rows use sampled tasks and a guide with privileged target and route information. They describe assisted navigation and are not directly comparable to unassisted full-validation results. GOAT-Bench SR is subtask success, 99.3%, while complete-sequence success is 94%; LHPR-VLN SR, 98%, measures complete sequences, and VL-LN / CoIN evaluate interactive instance navigation.
+
 <div id="lb-filter-bar" class="lb-filter-bar"></div>
 
 ## ④ Closed-set object goals · ObjectNav (HM3D · MP3D · Gibson)
@@ -38,6 +42,7 @@ Closed-set object navigation: given an object category, find any instance in an 
 
 | Model | Year | Benchmark | Paradigm | Base model | SR ↑ | SPL ↑ | Open source |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
+| [EvoLife (four views)](#evolife) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100-episode subset; privileged guide</span> | 2026 | HM3D-v2 | Training-free | GPT-6 Astra (ultra) | 100 | 64.3 | – |
 | [SuperNav-Geo (four views)](#supernav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">1 m, protocol differences</span> | 2026 | HM3D-v2 | Training-free | GPT-5.6 Terra (high) | 86.50 | 36.38 | – |
 | [SuperNav-Learned (four views)](#supernav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">1 m, protocol differences</span> | 2026 | HM3D-v2 | Trained | GPT-5.6 Terra (high) | 85.40 | 13.83 | – |
 | [Hydra-Nav (monocular)](#hydra-nav) | 2026 | HM3D-v2 | Trained | Qwen2.5-VL-7B | **84.8** | 41.1 | No |
@@ -83,6 +88,7 @@ Open-vocabulary object navigation; val-unseen unless otherwise noted, lines mark
 
 | Model | Year | Paradigm | Base model | SR ↑ | SPL ↑ | Open source |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|
+| [EvoLife (four views)](#evolife) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100-episode subset; privileged guide</span> | 2026 | Training-free | GPT-6 Astra (ultra) | 100 | 71.4 | – |
 | [SuperNav-Geo-Astra (four views)](#supernav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">120-episode subset, 1 m</span> | 2026 | Training-free | GPT-6 Astra (medium) | 79.17 | 49.74 | – |
 | [SuperNav-Geo (four views)](#supernav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">120-episode subset, 1 m</span> | 2026 | Training-free | GPT-5.6 Terra (high) | 73.33 | 41.05 | – |
 | [SuperNav-Geo-Astra (four views)](#supernav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">120-episode subset, 0.25 m</span> | 2026 | Training-free | GPT-6 Astra (medium) | 71.67 | 45.79 | – |
@@ -137,10 +143,11 @@ Note: The scene composition of Clutter/Intern is the same as the source of NavDP
 ## ⑧ Multimodal goals and custom benchmarks
 {: id="-多模态目标与自建基准"}
 
-Multi-modal long-range target (GOAT-Bench), and self-built benchmark reported in only one paper so far
+Multimodal long-range goals (GOAT-Bench), interactive instance and continuous multi-stage tasks, and custom benchmarks currently reported by only one paper
 
 | Model | Year | Benchmark | Paradigm | Base model | SR ↑ | SPL ↑ | Open source |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
+| [EvoLife (four views)](#evolife) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">50 sequences; privileged guide</span> | 2026 | GOAT-Bench | Training-free | GPT-6 Astra (ultra) | 99.3 | 81.9 | – |
 | [GSMem (monocular)](#gsmem) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> | 2025 | GOAT-Bench | Training-free | GPT-4o | **67.2** | **46.9** | No |
 | [EvoMemNav (monocular)](#evomemnav) | 2026 | GOAT-Bench | Training-free | Qwen-8B | 59.6 | 38.9 | No |
 | [X-NavDP (monocular)](/en/VLN-Papers/#x-navdp) | 2026 | IsaacLab 40-Scenes (Point-Goal) | Trained | – | 84.28 | 77.19 | [Yes](https://github.com/InternRobotics/NavDP) |
@@ -155,6 +162,9 @@ Multi-modal long-range target (GOAT-Bench), and self-built benchmark reported in
 | [SuperNav-Learned (four views)](#supernav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> | 2026 | InteriorGS (Ordered Multi-Object) | Trained | GPT-5.6 Terra (high) | **34.00** | 8.62 | – |
 | [SuperNav-Geo (four views)](#supernav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> | 2026 | Demand-Bench (Ordered Navigation) | Training-free | GPT-5.6 Terra (high) | **59.50** | **18.01** | – |
 | [SuperNav-Learned (four views)](#supernav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> | 2026 | Demand-Bench (Ordered Navigation) | Trained | GPT-5.6 Terra (high) | 45.00 | 16.03 | – |
+| [EvoLife (four views)](#evolife) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100-episode subset; privileged guide</span> | 2026 | VL-LN | Training-free | GPT-6 Astra (ultra) | 99 | 76.2 | – |
+| [EvoLife (four views)](#evolife) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100-episode subset; privileged guide</span> | 2026 | CoIN | Training-free | GPT-6 Astra (ultra) | 100 | 73.5 | – |
+| [EvoLife (four views)](#evolife) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">50 sequences; privileged guide</span> | 2026 | LHPR-VLN | Training-free | GPT-6 Astra (ultra) | 98 | – | – |
 
 Note: GOAT-Bench is val-unseen. Multiple goals in the form of categories, text descriptions or images are given in one episode. IsaacLab 40-Scenes is the point-goal evaluation of X-NavDP; ABotN-PointBench, Short-Horizon OVON and ABotN-POIBench are the self-built settings of ABot-N1. PointBench uses a zero-collision success rate indoors (SR&lt;1col) and a three-collision success rate (SR&lt;3col) outdoors. The two judgments are different; POIBench counts arrival within 2 m of the entrance as success. HM3D (Point-Goal, a priori exploration frame) is the setting of VNT-PA: the planner only reads the depth frame and pose of a segment of the a priori exploration trajectory, without looking at the current view, and stops within 0.2 m of the target as success. Benchmarks with a single row are not bolded; custom-benchmark results should not be compared with scores in other tables.
 
@@ -5502,6 +5512,154 @@ NavHarness is an embodied-agent harness centered on continuing navigation. It ke
 
 ---
 
+## 41. EvoLife (2026)
+{: id="evolife"}
+———Turn directions into place memories so that the next navigation task can build on experience
+
+📄 **Paper**: [arXiv:2610.39446v1](https://arxiv.org/abs/2610.39446v1) · [Project Page](https://kai-sheng-caesar.github.io/EvoLife-Web/)
+
+---
+
+### Key takeaways
+{: id="精华-27"}
+
+EvoLife lets a single multimodal agent decide how to move, when to ask for help, and which experiences to retain. Its hybrid action space gives the same decision maker waypoint selection, floor-pixel selection, object approach, and local adjustment, while a geometric backend turns these intentions into executable movement. Directions and target cues acquired through interaction are grounded in actual places, so one question can resolve immediate ambiguity and support later revisits. Here, “evolution” means accumulating and revising maps, places, and dialogue records; the paper introduces no new parameter-training objective. The reported 100% SR must be read with its information conditions: the main experiments permit questions to an independent guide with privileged target and route information and evaluate sampled task sets.
+
+---
+
+### 1. Background and problem
+{: id="1-研究背景问题-26"}
+
+A robot operating in an environment over time must select suitable movement interfaces, ask for help when instructions are ambiguous or passages are blocked, and preserve verified places and routes for subsequent tasks. Existing policies, interaction mechanisms, and spatial memories provide parts of this capability; EvoLife connects them through a unified tool loop so that an interaction can influence both the current action and future experience. The tasks cover route following, object search, instance disambiguation, and continuous multi-goal navigation, without a prebuilt map supplied to the navigation agent on its first visit.
+
+---
+
+### 2. Method and innovations
+{: id="2-主要方法创新点-26"}
+
+<div align="center">
+  <img src="/images/vln/EvoLife-architecture.webp" width="100%" loading="lazy" decoding="async" alt="EvoLife combines hybrid actions, active interaction, and persistent spatial memory" style="aspect-ratio:1327/908" />
+<figcaption>Original Figure 2: EvoLife connects hybrid actions, active interaction, and persistent memory in one decision loop. Candidate waypoints support current movement; place records preserve poses, descriptions, and question–answer evidence for later visits.</figcaption>
+</div>
+
+**Overall framework.** EvoLife is a navigation harness built around existing multimodal models. The **hybrid action space** expresses movement intentions, **active interaction** supplies target or route information, and **persistent spatial memory** stores and retrieves acquired experience. At each step, the model reads the current task, observations, tool history, and available memory, then selects a tool and its arguments; the tool returns the actual outcome, informing state updates and the next decision.
+
+**① Hybrid action space: the model expresses where to go, and the backend checks whether it can get there.**
+
+Inputs include front, right, back, and left RGB views and observed geometry constructed from depth; the main simulation experiments also provide simulator poses. Perception tools expose panoramas with candidate waypoints, occupancy maps, historical routes, and places. The model selects among four movement interfaces:
+
+| Movement mode | Agent-selected tool input | Backend processing and purpose |
+|---|---|---|
+| Waypoint navigation `navigate_candidate` | Geometric candidate waypoint index | Refresh candidates using current RGB-D geometry, plan through observed free space, and execute continuously; useful for longer movements. |
+| Local actions `step` | Forward, left turn, or right turn | In simulation, move forward 0.25 m, turn left 15°, or turn right 15° for exploration and final position or orientation adjustment. |
+| Pixel navigation `navigate_pixel` | View, normalized floor-pixel coordinates, and image version | Project the selection to a ground waypoint using depth and the camera transform, check reachability, and execute without restricting selection to the candidate set. |
+| Object navigation `navigate_object` | Localized object identifier, stand-off distance, and facing options | Find reachable free space near the object and plan an approach, rather than treating its surface as a robot destination. |
+
+**A pixel is not a movement coordinate.** Clicking an image expresses visual intent; RGB-D geometry and reachability checks still have to turn it into a motion target.
+
+> **Worked example:** Suppose the current image is 1000 pixels wide and 500 pixels high. Selecting the normalized floor point `(0.4, 0.8)` corresponds approximately to image pixel `(400, 400)`. This means “move toward this patch of floor in the image,” not “go to world coordinates `(0.4 m, 0.8 m)`.” The backend must read depth, transform the point using calibration and camera pose, and confirm a traversable path. These illustrative dimensions are not the paper's image-resolution settings.
+
+Object navigation adds a semantic-to-geometric grounding step. The agent recognizes an object in current RGB observations and calls `localize_object` with a box or point; the backend filters valid depth, extracts a depth-consistent component, and back-projects it, returning an object identifier, 3D points, and overlays. `verify_object` can reproject the estimate into current views for inspection; `navigate_object` then searches for an appropriate approach position. **The agent remains responsible for recognizing the intended target and deciding when to stop.**
+
+Navigation requests can specify an inspection distance or execution time. Control returns at an inspection checkpoint or destination, or after collision, lack of progress, or budget exhaustion. A backend arrival report is not successful task submission: only `stop` ends the current task or advances to the next subtask.
+
+**② Active interaction: ask a specific question, then verify the answer against new observations.**
+
+<div align="center">
+  <img src="/images/vln/EvoLife-guide.webp" width="100%" loading="lazy" decoding="async" alt="An independent guide uses privileged route and target evidence to answer the agent's question" style="aspect-ratio:1324/601" />
+<figcaption>Original Figure 3: The navigation agent generates a question; an independent multimodal guide uses current views, target views, and a reference route to answer it. Only the natural-language answer reaches the navigator, which selects its own subsequent actions.</figcaption>
+</div>
+
+`ask_human` takes a question or assistance intent generated from the current goal, views, and relevant memory, and returns natural-language feedback. It can clarify which table is intended, ask which doorway to use, or request that a person open a door in a physical deployment. The paper introduces neither a separately trained question classifier nor a fixed confidence threshold: the multimodal model chooses when to ask as part of tool selection.
+
+**The simulated guide's information is essential to interpreting the results.** Guide and navigator run in independent sessions; the main experiments use **GPT-6 Astra (ultra)** for both. Beyond instructions, current views, target information, and dialogue history, the guide can access the current pose, target position, shortest navigable path, relevant maps, and reference-route visualizations. It translates this privileged information into directions, landmarks, and spatial relations. The navigator does not directly receive target coordinates, complete reference paths, or private maps; each subtask permits at most 10 interactions. In VL-LN and CoIN, the navigator initially receives only an object category while the guide knows the intended instance, so dialogue also resolves instance ambiguity.
+
+**③ Persistent spatial memory: attach what a question established to an actual place.**
+
+Memory contains four parts: observed geometry $G_t$, the place collection $P_t$, executed routes $R_t$, and retained dialogue $D_t$. Geometry, routes, and spatially associated dialogue are recorded automatically. The agent selectively creates, revises, or retires semantic places. A place record links an identifier, actual pose, name and description, object labels, historical images, associated question–answer evidence, map context, timestamp, and active status.
+
+> **Worked example:** On a first visit to two similar doorways, the guide explains, “Go through the narrow arch; the target is at the end of the picture-lined hallway.” The agent can save the arch entrance as a place, linked to its actual pose, four-view images, and this exchange. Later retrieval supports replanning toward that entrance and checking it against current observations. If a previously open door is now closed, the old record helps establish where to go, while current evidence determines whether passage is possible; the agent can ask again and revise the record. This accumulates retrievable experience rather than updating model weights through revisits.
+
+`remember_place` creates a record at the actual current location or updates an existing identifier. `search_memory` matches names, descriptions, and object labels, with an empty query listing available places. `inspect_place` returns four-view images and details explicitly marked as historical evidence. `navigate_place` **replans using currently observed geometry** toward the stored pose; `resume_navigation` continues after local inspection or avoidance. A revisit therefore does not blindly replay previous actions, and the agent chooses retrieval operations as needed rather than following a fixed retrieval pipeline.
+
+The diagram below isolates how an interaction becomes reusable experience:
+
+```mermaid
+graph TD
+    A["Current goal + current observations + available memory"] --> B["Agent selects a tool and arguments"]
+    B --> C["Move, observe, or request assistance"]
+    C --> D["Return actual views, execution feedback, or an answer"]
+    D --> E["Automatically record geometry, routes, and associated dialogue"]
+    D --> F["Agent selectively creates or revises place records"]
+    E --> G["Retain spatial experience across tasks"]
+    F --> G
+    G --> H["Later retrieve evidence and replan with current geometry"]
+    H --> A
+```
+
+**④ Decisions and state updates: a tool loop, with no new loss function.**
+
+The central decision and update rules are:
+
+$$
+a_t=(u_t,\eta_t)=\pi_\theta(g_j,o_t,H_t,M_t),\qquad
+M_{t+1}=U(M_t,a_t,z_t,o_{t+1}).
+$$
+
+Here $g_j$ is the current stage goal, $o_t$ the current observation, $H_t$ the current execution's tool requests and returns, $M_t$ persistent memory, $u_t$ and $\eta_t$ the selected tool and arguments, and $z_t$ the actual execution feedback. The first rule selects the next call, and the second determines what the execution retains. These are decision and memory-update rules, not supervised or reinforcement-learning losses. The paper reports no navigation-specific parameter fine-tuning; inference cycles through existing multimodal models and tools.
+
+---
+
+### 3. Results and findings
+{: id="3-核心结果发现-26"}
+
+**Evaluation size and protocol.** The main study contains six sets of 100 single-task episodes and 50 continuous sequences each for LHPR-VLN and GOAT-Bench: 700 complete tasks or sequences and 1,105 subtasks in total. R2R-CE reuses OpenNav's fixed 100 episodes; the other five single-task sets are randomly sampled. Continuous sequences are sampled after checking annotation consistency. Memory persists within a sequence and resets at the next sequence; a first visit without initial memory can still use experience accumulated during that run.
+
+**Assisted first visits and continuous tasks.** The table follows the main results in Tables 3 and 4. SR and SPL are percentages; SPL accounts for both success and path efficiency.
+
+| Task | Evaluation size | Main results |
+|---|---|---|
+| R2R-CE | 100 tasks | SR 100, SPL 82.2, NE 0.95 m. |
+| RxR-CE | 100 tasks | SR 100, SPL 75.4, nDTW 82.3. |
+| HM3D v2 | 100 tasks | SR 100, SPL 64.3. |
+| HM3D-OVON | 100 tasks | SR 100, SPL 71.4. |
+| VL-LN | 100 tasks | SR 99, SPL 76.2, 3.21 questions on average. |
+| CoIN | 100 tasks | SR 100, SPL 73.5, 2.83 questions on average. |
+| LHPR-VLN | 50 sequences, 133 stages | Complete-sequence SR 98, or 49/50; independent-stage success 99.3. |
+| GOAT-Bench | 50 sequences, 372 subtasks | Complete-sequence e-SR 94, or 47/50; subtask SR 99.3, SPL 81.9. |
+
+The abstract reports **1.87 interactions** on average. Table 5 lists 1.66, 1.64, 2.02, and 2.15 for the first four VLN/ObjectNav first-visit sets, whose mean is approximately 1.87; this should not be treated as a uniform average over all eight benchmarks. Previously published baselines use different evaluation and information conditions, so their differences cannot all be attributed to a harness improvement under matched settings. Table 5 also gives GOAT SPL as 82.2, whereas Table 4 gives 81.9; this summary uses the task's main results in Table 4.
+
+**The matched R2R task set better separates interaction from experience reuse.**
+
+| Setting | SR | SPL | Mean tool decisions | Navigator-active execution time |
+|---|---|---|---|---|
+| First visit: no active interaction or initial memory | 86 | 63.7 | 18.71 | 170.17 s |
+| First visit: active interaction, no initial memory | 100 | 82.2 | 15.57 | 164.08 s |
+| Revisit: corresponding first-visit memory, active interaction disabled | 100 | 93.3 | 12.31 | 107.41 s |
+
+After an interactive first visit, revisits retain 100% SR without further questions. Using the precise values in the text, SPL rises from **82.23 to 93.31**; tool decisions decrease by approximately 20.9%, and navigator-active execution time by approximately 34.5%. This demonstrates experience reuse on the same tasks, not a 100% unassisted success rate for entirely new goals. The paper also lacks a complete ablation of the four action interfaces individually.
+
+**How much does arrival confirmation contribute?** An additional setting retains earlier directional guidance and target clarification but executes `STOP` at the first arrival-confirmation request, preventing subsequent position corrections informed by the confirmation answer. SR becomes **90% / 95%** on R2R-CE / RxR-CE and **69% / 89%** on HM3D-OVON / HM3D v2. Earlier questions still help, while confirmation and fine adjustment near the goal also affect results substantially, particularly under strict object-navigation distance thresholds. This remains an interactive setting, not an experiment without a guide.
+
+**Backbones and cost.** On assisted R2R-CE, GPT-6 Astra, Qwen3.8-Max, and DeepSeek V4.1-Flash achieve 100%, 91%, and 98% SR with 15.57, 72.98, and 44.72 tool decisions on average. The reported approximately USD 1.06, 0.46, and 0.03 per task cover only navigator-side API-equivalent costs, excluding the guide. Time measures navigator-active execution rather than end-to-end robot runtime including all interaction waiting. Model names and settings are reproduced as stated in the paper.
+
+<div align="center">
+  <img src="/images/vln/EvoLife-real-world.webp" width="100%" loading="lazy" decoding="async" alt="Three real-robot navigation tasks over two days, with human door-opening assistance and restored place memory" style="aspect-ratio:1328/923" />
+<figcaption>Original Figure 6: Three navigation tasks across two days. On the first night, the robot travels from room 625 to the elevator and back, asking a person to open the door on its return. The next morning it restores the historical map and revisits the glass office seen the previous day.</figcaption>
+</div>
+
+**Physical validation.** The first-night route from room 625 to the opposite-side elevator is approximately 87 m. On the return, the robot reuses place memory and asks someone to open the door; the two routes total approximately 166 m. The next morning it restores the map and localization and travels approximately 60 m to the glass office. These three tasks demonstrate assistance and cross-day reuse under changing doors and lighting, but are qualitative examples rather than a large-scale physical-robot success-rate evaluation.
+
+---
+
+### 4. Limitations
+{: id="4-局限性-26"}
+
+The main results rely on strong multimodal backbones, RGB-D geometry, simulator poses, and a guide with privileged target and route information; sampled evaluations, matched-task revisits, and three physical demonstrations do not establish equivalent performance in long-term, large-scale, unassisted deployment. The authors identify multi-round inference latency and expense as bottlenecks, while final positioning and stopping can still fail: the GOAT example identifies the correct bookcase but stops 0.73 m from the reference target, exceeding the 0.25 m threshold.
+
+---
+
 # References
 {: id="参考资料"}
 
@@ -5548,6 +5706,7 @@ NavHarness is an embodied-agent harness centered on continuing navigation. It ke
 38. **VNT-PA** (2026). Encoding "where" rather than "when" as location: Transformer planner without explicit map. arXiv: [2609.21212](https://arxiv.org/abs/2609.21212)
 39. **SuperNav** (2026). Organize a general navigation agent through navigation skills, visual-point tools, and context management. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126)
 40. **NavHarness** (2026). Sustain navigation through cross-session handovers, external memory, and two-stage verification. arXiv: [2609.34276](https://arxiv.org/abs/2609.34276)
+41. **EvoLife** (2026). Turn directions into place memories so that the next navigation task can build on experience. arXiv: [2610.39446](https://arxiv.org/abs/2610.39446)
 
 
 <script>
@@ -5593,6 +5752,7 @@ NavHarness is an embodied-agent harness centered on continuing navigation. It ke
     { m: 'VNT-PA',                t: ['End-to-end', 'Continuous environments'] },
     { m: 'SuperNav', t: ['Agentic', 'Zero-shot', 'Real-robot deployment', 'Datasets'] },
     { m: 'NavHarness', t: ['Agentic', 'Zero-shot', 'SLAM', 'Continuous environments'] },
+    { m: 'EvoLife',               t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
   ];
 
 

@@ -1,10 +1,10 @@
 {
   "source": "_posts/research/2026-03-05-AI-Agent-Survey.md",
   "translation": "_translations/en/research/AI-Agent-Survey.md",
-  "reviewed_on": "2026-10-24",
-  "source_revision_date": "2026-10-24",
+  "reviewed_on": "2026-10-31",
+  "source_revision_date": "2026-10-31",
   "sections": {
-    "metadata": "d45f32d1746d204ea84e725242213b68bfaeb4235df6f5f8f31059686ddd7dd4",
+    "metadata": "9e1c3e259470cf500b589cbebf2db3fbc99e0dab016ad66a54defb6ac5d591a9",
     "introduction": "5ca1528f32bc99fb7d83b0219c79c48868c55eedb37d07d98291c9f90ab49385",
     "1. 引言": "4532fc6a8f23793d599d611ccefc2b4e427736137d522c493da3d738fa685976",
     "2. AI Agent 核心架构": "561efd086c132946e9566a5d1f996e22d539d4b0bec272c8790ed43a4e85756a",
@@ -149,7 +149,7 @@
     "7. 人形与全身控制：物理真实性带来的新约束": "3367e777a545fee838555f21e1dba56beb6de2a3b85b2a33257a06f40f3757c5",
     "8. 一个反例：Harness 的收益并非在所有具身任务上都成立": "e23acb8979a70aaeb7ce63b2cc991625dd3a1868971f22279f93422b80befa5c",
     "10.5.3 技术路线对比": "d9dcbde2072646529f3f9e3b8ec45849ef52d6bbb188aac6976c87c6acacbf6f",
-    "10.5.4 硬件部署与社区生态": "76e3cc32e3b1ba3bdeaa297f1cdc599879bbae8203ec510f60627f9e041b1f3c",
+    "10.5.4 硬件部署与社区生态": "39efa722b6508602e9e328b8e868fddb0cd2497e594894386f8c1d290a40f60f",
     "11. 优秀 Agent 示例": "539141a5919676c1c3a7cbd73d6c28966ba5843914dbfedb6aa8053da0624bfe",
     "11.1 Claude Code": "ace9a9118a885aff62e817e6a6da3a050997328c74e8342b133cf59f402fb9dd",
     "Claude Code 工作流程": "20164e51158258b72f527109df9f580eef74debbf81204817316b06cbeb51430",

@@ -5,10 +5,10 @@ translation_id: vln-papers
 permalink: /en/VLN-Papers/
 source_path: _posts/research/2026-01-05-VLN-Papers.md
 source_url: /VLN-Papers/
-source_revision_date: 2026-10-24
-translation_updated: 2026-10-24
+source_revision_date: 2026-10-31
+translation_updated: 2026-10-31
 title: "VLN Papers: Instruction Following"
-date: 2026-10-24
+date: 2026-10-31
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
@@ -21,7 +21,7 @@ excerpt: "60 detailed readings on instruction-following VLN, with benchmark lead
 
 > This collection accompanies the [VLN survey](/en/VLN-Survey/) with detailed readings on instruction-following navigation and its supporting foundations.
 >
-> It covers 60 representative methods, benchmarks, and foundational works. Goal navigation, locomotion, mobile manipulation, and additional studies appear in the [extended collection](/en/VLN-Papers-Extended/). The collections are organized by research focus and reading sequence; publication status is not the sole criterion.
+> It covers 60 representative methods, benchmarks, and foundational works. Goal navigation, agentic navigation, and supporting work on locomotion and mobile manipulation appear in [Goal and Agentic Navigation](/en/VLN-Papers-Extended/). The collections are organized by research focus and reading sequence; publication status is not the sole criterion.
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
@@ -32,6 +32,8 @@ excerpt: "60 detailed readings on instruction-following VLN, with benchmark lead
 >
 > **Reading the tables:** **Trained** means trained or fine-tuned on navigation data, including navigation foundation models evaluated through cross-task zero-shot transfer. **Training-free** means no navigation model is trained: the system combines existing large models, detection or segmentation models, and rules or planners. Calling a pretrained low-level point-goal controller does not change this classification. The **Closed API** badge marks methods that call a closed model such as GPT, Gemini or Claude through an API at inference time. This is separate from the paradigm: a trained model can still call one at inference time, as NavGPT-3's planner does, while using a large model only to build training data or for offline preprocessing does not count. In the chart view, bar colors show whether a method calls a closed API. Gray rows use nonstandard protocols, such as validation subsets, and are excluded from best-value bolding. Bold values are the best among non-gray rows within the same benchmark. The filters select paradigm, inference, input configuration, and open-source availability, and can hide gray rows.
 
+> **EvoLife evaluation conditions:** Gray rows use sampled tasks and a guide with privileged target and route information. They describe assisted navigation and are not directly comparable to unassisted full-validation results.
+
 <div id="lb-filter-bar" class="lb-filter-bar"></div>
 
 ## ① R2R-CE
@@ -41,6 +43,7 @@ Continuous environment · English commands · val-unseen (1839 items in total)
 
 |Model|Year|Paradigm|Base model|SR ↑|SPL ↑|NE ↓|OSR ↑|Open source|
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
+| [EvoLife (four views)](/en/VLN-Papers-Extended/#evolife) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100-episode subset; privileged guide</span> | 2026 | Training-free | GPT-6 Astra (ultra) | 100 | 82.2 | 0.95 | 100 | – |
 |[NavGPT-3 (four views · Astra)](#navgpt-3) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Trained|GPT-6-Astra/Qwen3-VL-8B|**81.51**|70.42|**2.18**|**86.99**|[Yes](https://github.com/metacognitionai/NavGPT-3)|
 |[GPT-6-Astra (monocular · ultra)](#gpt-6-astra) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset </span>|2026|Training-free|GPT-6-Astra|81.3|71.5|2.9|83.7|No|
 |[Robostral Navigate (monocular)](#robostral-navigate)|2026|Trained|Mistral-8B|77.4|**74.2**|3.20|81.3|No|
@@ -110,6 +113,7 @@ Continuous environment · Multilingual commands (English/Hindi/Telugu) · val-un
 
 |Model|Year|Paradigm|Base model|SR ↑|SPL ↑|NE ↓|OSR ↑|Open source|
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
+| [EvoLife (four views)](/en/VLN-Papers-Extended/#evolife) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100-episode subset; privileged guide</span> | 2026 | Training-free | GPT-6 Astra (ultra) | 100 | 75.4 | 0.71 | 100 | – |
 |[NavGPT-3 (four views · Astra)](#navgpt-3) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Trained|GPT-6-Astra/Qwen3-VL-8B|**90.43**|**74.31**|**1.56**|–|[Yes](https://github.com/metacognitionai/NavGPT-3)|
 |[SimpleVLN (monocular)](#simplevln)|2026|Trained|Qwen3.5-9B|80.1|69.9|2.51|–|No|
 |[NavGPT VLA 8B (four views)](#navgpt-3)|2026|Trained|Qwen3-VL-8B|78.19|68.98|3.05|–|[Yes](https://github.com/metacognitionai/NavGPT-3)|
@@ -9575,7 +9579,7 @@ The following table organizes papers with publication information tagged by conf
 
 
 
-  var REMOTE_PAGE = { url: '/en/VLN-Papers-Extended/', label: 'Goal navigation and extensions' };
+  var REMOTE_PAGE = { url: '/en/VLN-Papers-Extended/', label: 'Goal and agentic navigation' };
   var REMOTE_PAPERS = [
     { n: '1. VLFM (2023)', a: 'vlfm', t: ['SLAM', 'Zero-shot', 'Real-robot deployment'] },
     { n: '2. NoMaD (2023)', a: 'nomad', t: ['End-to-end', 'Diffusion models', 'Zero-shot', 'Real-robot deployment'] },
@@ -9617,6 +9621,7 @@ The following table organizes papers with publication information tagged by conf
     { n: '38. VNT-PA (2026)', a: 'vnt-pa', t: ['End-to-end', 'Continuous environments'] },
     { n: '39. SuperNav (2026)', a: 'supernav', t: ['Agentic', 'Zero-shot', 'Real-robot deployment', 'Datasets'] },
     { n: '40. NavHarness (2026)', a: 'navharness', t: ['Agentic', 'Zero-shot', 'SLAM', 'Continuous environments'] },
+    { n: '41. EvoLife (2026)', a: 'evolife', t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
   ];
 
   var ALL_TAGS = ['Dual systems', 'End-to-end', 'Agentic', 'CoT', 'Diffusion models', 'Topological maps', 'SLAM', 'Gaussian representations',

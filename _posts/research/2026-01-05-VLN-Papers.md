@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-papers
 title: "VLN 论文精读：指令跟随篇"
-date: 2026-10-24
+date: 2026-10-31
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -15,7 +15,7 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 
 > 本文是 [VLN综述：基于视觉语言的导航](/VLN-Survey/) 的配套论文精读，聚焦 VLN 指令跟随任务与其依赖的基础工作。
 >
-> 本篇精选 60 篇工作，以指令跟随 VLN 的代表性方法、评测基准与相关基础工作为主；目标导航、运动控制、移动操作及其他增补研究见 [VLN 论文精读：目标导航与扩展篇](/VLN-Papers-Extended/)。两篇按研究重点与阅读脉络安排，不以是否发表作为唯一分篇依据。
+> 本篇精选 60 篇工作，以指令跟随 VLN 的代表性方法、评测基准与相关基础工作为主；目标导航、Agentic 导航及其运动控制、移动操作等支撑研究见 [VLN 论文精读：目标导航与 Agentic 导航](/VLN-Papers-Extended/)。两篇按研究重点与阅读脉络安排，不以是否发表作为唯一分篇依据。
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
@@ -25,6 +25,8 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 >
 > **读表**：「范式」列中，**训练**指在导航数据上训练或微调过模型（含跨任务零样本迁移的导航基础模型）；**免训练**指不训练任何导航模型，由现成的大模型、检测分割模型与规则 / 规划模块组合而成（调用现成的点目标低层控制器不影响归类）。**闭源 API** 角标标出推理时调用 GPT / Gemini / Claude 等闭源大模型 API 的方法，与范式是两回事：训练过的模型也可能在推理时调用（如 NavGPT-3 的 Planner），只在构造训练数据或离线预处理时用到大模型的不算；图视图中条的颜色按是否调用闭源 API 区分。灰色行是非标准口径（如只评测了验证集子集），不参与加粗；加粗为同一基准内非灰色行的最优值。表格上方的筛选栏可按范式、推理方式、输入配置、是否开源筛选，也可以隐藏灰色行。
 
+> **EvoLife 评测条件**：EvoLife 的灰色行使用抽样任务和具有目标、路线特权信息的向导，属于辅助导航；不能与无向导、全量验证集成绩直接比较。
+
 <div id="lb-filter-bar" class="lb-filter-bar"></div>
 
 ## ① R2R-CE
@@ -33,6 +35,7 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 
 | 模型 | 年份 | 范式 | 基模 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 开源 |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
+| [EvoLife (四视角)](/VLN-Papers-Extended/#evolife) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">100 条子集、特权向导</span> | 2026 | 免训练 | GPT-6 Astra (ultra) | 100 | 82.2 | 0.95 | 100 | – |
 | [NavGPT-3 (四视角 · Astra)](#navgpt-3) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 训练 | GPT-6-Astra/Qwen3-VL-8B | **81.51** | 70.42 | **2.18** | **86.99** | [是](https://github.com/metacognitionai/NavGPT-3) |
 | [GPT-6-Astra (单目 · ultra)](#gpt-6-astra) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">100 条子集</span> | 2026 | 免训练 | GPT-6-Astra | 81.3 | 71.5 | 2.9 | 83.7 | 否 |
 | [Robostral Navigate (单目)](#robostral-navigate) | 2026 | 训练 | Mistral-8B | 77.4 | **74.2** | 3.20 | 81.3 | 否 |
@@ -91,6 +94,7 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 
 | 模型 | 年份 | 范式 | 基模 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 开源 |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
+| [EvoLife (四视角)](/VLN-Papers-Extended/#evolife) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">100 条子集、特权向导</span> | 2026 | 免训练 | GPT-6 Astra (ultra) | 100 | 75.4 | 0.71 | 100 | – |
 | [NavGPT-3 (四视角 · Astra)](#navgpt-3) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 训练 | GPT-6-Astra/Qwen3-VL-8B | **90.43** | **74.31** | **1.56** | – | [是](https://github.com/metacognitionai/NavGPT-3) |
 | [SimpleVLN (单目)](#simplevln) | 2026 | 训练 | Qwen3.5-9B | 80.1 | 69.9 | 2.51 | – | 否 |
 | [NavGPT VLA 8B (四视角)](#navgpt-3) | 2026 | 训练 | Qwen3-VL-8B | 78.19 | 68.98 | 3.05 | – | [是](https://github.com/metacognitionai/NavGPT-3) |
@@ -8603,6 +8607,7 @@ $$P_{\text{model}} = 1 - \beta_t = \alpha^{t/T}$$
     { n: '38. VNT-PA (2026)', a: 'vnt-pa', t: ['端到端', '连续环境'] },
     { n: '39. SuperNav (2026)', a: 'supernav', t: ['Agentic', '零样本', '实机部署', '数据集'] },
     { n: '40. NavHarness (2026)', a: 'navharness', t: ['Agentic', '零样本', 'SLAM', '连续环境'] },
+    { n: '41. EvoLife (2026)', a: 'evolife', t: ['Agentic', '零样本', '连续环境', '实机部署'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',

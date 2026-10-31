@@ -17,7 +17,7 @@ Chinese is the source edition, with English translations of the research collect
 | If you want to… | Start here |
 | --- | --- |
 | Understand vision-language navigation | [VLN Survey](https://tingdeliu.github.io/en/VLN-Survey/) — tasks, benchmarks, and the evolution of navigation methods |
-| Compare navigation papers and results | [Instruction Following](https://tingdeliu.github.io/en/VLN-Papers/) · [Goal Navigation and Extensions](https://tingdeliu.github.io/en/VLN-Papers-Extended/) — paper readings, task-specific leaderboards, and tag filters |
+| Compare navigation papers and results | [Instruction Following](https://tingdeliu.github.io/en/VLN-Papers/) · [Goal and Agentic Navigation](https://tingdeliu.github.io/en/VLN-Papers-Extended/) — paper readings, task-specific leaderboards, and tag filters |
 | Explore robot manipulation | [VLA Survey](https://tingdeliu.github.io/en/VLA-Survey/) · [VLA Paper Readings](https://tingdeliu.github.io/en/VLA-Papers/) |
 | Study embodied agent systems | [Harness and Runtime Architecture](https://tingdeliu.github.io/en/Embodied-Agent-Harness-Survey/) · [Embodied Agent Paper Readings](https://tingdeliu.github.io/en/Embodied-Agent-Papers/) |
 | Move from reading to implementation | [ROS 2 Architecture](https://tingdeliu.github.io/en/ROS2-Survey/) · [Python Engineering](https://tingdeliu.github.io/en/Python-Engineering-Survey/) |

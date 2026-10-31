@@ -33,7 +33,7 @@ The complete article index is organized by topic. Links use the English edition 
 | --- | --- | --- |
 | **Vision-Language Navigation** | [VLN Survey](https://tingdeliu.github.io/en/VLN-Survey/) | Task definitions, datasets, and benchmarks; the evolution from modular pipelines to end-to-end navigation agents |
 | | [VLN Papers: Instruction Following](https://tingdeliu.github.io/en/VLN-Papers/) | Detailed readings of published or leaderboard-listed work, with leaderboards for three instruction-following task settings |
-| | [VLN Papers: Goal Navigation and Extensions](https://tingdeliu.github.io/en/VLN-Papers-Extended/) | Goal-navigation leaderboards, recent preprints, and additional papers beyond the main instruction-following collection |
+| | [VLN Papers: Goal and Agentic Navigation](https://tingdeliu.github.io/en/VLN-Papers-Extended/) | Goal-navigation leaderboards and detailed readings on tool use, active interaction, spatial memory, and continuing navigation |
 | **Vision-Language-Action Models** | [VLA Survey](https://tingdeliu.github.io/en/VLA-Survey/) | Robot policy learning, action generation, imitation learning, and reinforcement learning |
 | | [VLA Paper Readings](https://tingdeliu.github.io/en/VLA-Papers/) | Individual paper analyses, RoboDojo leaderboard links, and comparisons under matching experimental settings |
 | **Robot Navigation Systems** | [Classical Robot Navigation Survey](https://tingdeliu.github.io/en/Robot-Navigation-Survey/) | SLAM, localization and mapping, path planning, and motion control |

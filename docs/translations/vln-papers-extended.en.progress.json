@@ -2,10 +2,10 @@
   "source": "_posts/research/2026-01-06-VLN-Papers-Extended.md",
   "translation": "_translations/en/research/VLN-Papers-Extended.md",
   "stage": "complete",
-  "updated_on": "2026-10-05",
-  "total_papers": 37,
-  "main_readings": 34,
-  "related_readings": 3,
+  "updated_on": "2026-10-31",
+  "total_papers": 41,
+  "main_readings": 39,
+  "related_readings": 2,
   "completed_papers": {
     "vlfm": {
       "source_hash": "4bdf31c34b9aa9a1921d6d099b3ba952efb5636473102da8ed6d9bdbce0e29c6",
@@ -143,16 +143,32 @@
       "source_hash": "bbfa72156877fd5bfeda1afba5d9cab575776d7df101e1c33052442db2c5d1d2",
       "status": "translated-and-content-parity-validated"
     },
+    "harness-robotic-os": {
+      "source_hash": "1f012f0d827ee69a3a046967a34ca81e9a758a2261c79804b0ab3097f3610d30",
+      "status": "translated-and-content-parity-validated"
+    },
     "sparsenav": {
-      "source_hash": "10b22a05f978360477af47e47df9996e00835a5f3d164ba274c19fccb9ef5907",
+      "source_hash": "567548f8bb915c56bc6a893d7de91ee33adecc98300f07149ec1e42c93c0a873",
       "status": "translated-and-content-parity-validated"
     },
     "talk2escape": {
-      "source_hash": "01a7c530b6e8e5553ed56b776b461a460b2806ac4ca387f3e1cd791c9cafcaf5",
+      "source_hash": "b3ba1965e82a26011efc84a3757bf424f0b421b7df2590a3a738fb51f80cd939",
       "status": "translated-and-content-parity-validated"
     },
     "vnt-pa": {
-      "source_hash": "c05b403537ea6e5b67ee7ff0719091bc8132a637de6068bde5bb929eb169cfda",
+      "source_hash": "b7969f1d55b2e3ae3c9b4b95129db046a042ea23ec18d9d9f10c4cc998fb1c9b",
+      "status": "translated-and-content-parity-validated"
+    },
+    "supernav": {
+      "source_hash": "890bd039736d1692e38df0b38f4b40390c34fdac853a8fa10a6fc0c43152f63e",
+      "status": "translated-and-content-parity-validated"
+    },
+    "navharness": {
+      "source_hash": "46cd167c9041672aa10558d8b545b138d9ce9658610544d2ebeff4f9fa1db142",
+      "status": "translated-and-content-parity-validated"
+    },
+    "evolife": {
+      "source_hash": "aa31e19d4cc023d71eeebc09d92c530224c2a0a036520c4197b8e0dbe660f209",
       "status": "translated-and-content-parity-validated"
     }
   },
@@ -163,7 +179,8 @@
     "Descriptive TeX predicates and units translated using explicit normalization; mathematical expressions and reward values preserved.",
     "Two malformed figure wrappers restored in Chinese and English.",
     "English cross-page links, filter labels, related-reading labels, and research cards updated.",
-    "2026-10-05: SeekVLN added to the English cross-page filter; source and translation revision dates synchronized. All 37 existing readings retained and reviewed for protected-content parity."
+    "2026-10-05: SeekVLN added to the English cross-page filter; source and translation revision dates synchronized. All 37 existing readings retained and reviewed for protected-content parity.",
+    "2026-10-31: Renamed the companion collection to Goal and Agentic Navigation and clarified task versus system scope. EvoLife is reading 41 with its complete English translation, three captions, worked examples, and Mermaid diagram. Eight assisted, sampled benchmark rows are flagged and excluded from standard best-value comparisons; GOAT subtask and sequence success are distinguished. References, API badges, companion links, dates, and cross-page filters are synchronized across 101 readings. All paper protected-content comparisons pass."
   ],
   "previous_validation": {
     "reviewed_on": "2026-10-04",
@@ -195,16 +212,30 @@
     }
   },
   "validation": {
-    "reviewed_on": "2026-10-05",
-    "papers": 37,
-    "source_sync": "passed: repository-wide strict synchronization check",
-    "source_content_parity": "passed: all paper sections; equations, image paths, external citations, table values and columns",
-    "heading_structure": "passed: heading counts, unique explicit IDs, and new IDs matched to source",
-    "english_prose": "passed: no Chinese text outside compatibility IDs",
-    "cross_page_papers": 93,
-    "post_lint": "0 errors; 4 image-size warnings",
-    "regression_tests": 20,
+    "reviewed_on": "2026-10-31",
+    "papers": 41,
+    "source_content_parity": "passed: all 101 paper sections; equations, image paths, external links, table values and columns",
+    "heading_structure": "passed: source heading counts and unique explicit translation IDs; new reading retains source-compatible IDs",
+    "headings": 290,
+    "cross_page_papers": 101,
+    "post_lint": "0 errors across eight changed source/translation files; 24 image-size warnings",
+    "source_sync": "passed: repository-wide check_translations.py --strict",
     "jekyll_build": "not run: Ruby and Bundler unavailable in this environment",
     "browser_validation": "not run for this update; prior evidence retained separately"
-  }
+  },
+  "validation_history": [
+    {
+      "reviewed_on": "2026-10-05",
+      "papers": 37,
+      "source_sync": "passed: repository-wide strict synchronization check",
+      "source_content_parity": "passed: all paper sections; equations, image paths, external citations, table values and columns",
+      "heading_structure": "passed: heading counts, unique explicit IDs, and new IDs matched to source",
+      "english_prose": "passed: no Chinese text outside compatibility IDs",
+      "cross_page_papers": 93,
+      "post_lint": "0 errors; 4 image-size warnings",
+      "regression_tests": 20,
+      "jekyll_build": "not run: Ruby and Bundler unavailable in this environment",
+      "browser_validation": "not run for this update; prior evidence retained separately"
+    }
+  ]
 }

@@ -1,14 +1,14 @@
 {
   "source": "_posts/research/2026-01-05-VLN-Papers.md",
   "translation": "_translations/en/research/VLN-Papers.md",
-  "reviewed_on": "2026-10-24",
-  "source_revision_date": "2026-10-24",
+  "reviewed_on": "2026-10-31",
+  "source_revision_date": "2026-10-31",
   "sections": {
-    "metadata": "47094ba80c07c52bcd860eed85814508cde3b01b410734a9ce1c4373b838cb5c",
-    "introduction": "0820ff95b70895a00ec8a4f2163a639145274b39c782fd6344dc28e981ab5c67",
-    "性能排行榜": "88df9494c1dd885d820f6ce80f1ae12fdecb552812d217b3c155a40c9802a06f",
-    "① R2R-CE": "f6343ec7cf9d68a8e55ef5f480f0ff1fe1fccd3a5376a6fdef9f81465cd5ccce",
-    "② RxR-CE": "ffc74430fe4a0383369bdddf96aaeed764f08c07ba9b78cfc628bdf9792eb68e",
+    "metadata": "1044eccfb83cf17ad7b30205bc692148bb6e8cef48a5f5d83b336cea09e0035e",
+    "introduction": "42dbaf051414408c21506d7b0ebff131fbe0550cb7e9cac75be2db695503e51d",
+    "性能排行榜": "d43a6abc85352118a5e9d339f4536284392c33d1f667711730fbbc8e66963eb8",
+    "① R2R-CE": "98cc2012690eccfa6467d443d6b30ef4c931ec4a94202e8cfe2896b6e48bbdcd",
+    "② RxR-CE": "610dc4d286baa55004e1b5a1db9e420292e35c8fcad0c50ff31fff5810fb231a",
     "③ R2R · REVERIE": "45e414b3ceb67e6ad275e8ad9151c3b679dc13803ec000024ed1b3b5ad645965",
     "④ LHPR-VLN · 长程多阶段导航": "959075e585fbcf2a750936aab195e9c7192d7102fea67d5770ed080b33f0cdb0",
     "前列模型技术方案分析": "1aecdf467c0edd88f67a855b02afe775c490ccb95b0ee1808df896c9cb9c1e32",
@@ -563,6 +563,6 @@
     "paper:efficient-vln / 4. 局限性": "833c5f73ba180786d962c67272130a3a5bdeec7c2080a0ff7866c9a2bca5b25f",
     "参考资料": "9b02b96398a0ecec9519f4402648095347400e58028bcf57f57e2194eee8f5e6",
     "已发表论文（会议 / 期刊）": "cf03748cf8da50e0e8f38b7a829819a0a182dcf6376ab83446b608c1fc0f96f6",
-    "论文引用": "ec119f7ad463183632576d460866058a74c24efa8fb4c1fe87ac1caadb72800d"
+    "论文引用": "b49984434ac813d8b48795d4991da19a930f1d7b599752d4a0e0d45308544bd1"
   }
 }

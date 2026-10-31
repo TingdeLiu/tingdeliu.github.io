@@ -41,7 +41,7 @@
 | --- | --- | --- |
 | **视觉语言导航** | [VLN 综述](https://tingdeliu.github.io/VLN-Survey/) | 任务定义、数据集与基准，从模块化流水线到端到端导航智能体的演进 |
 | | [VLN 论文精读：指令跟随篇](https://tingdeliu.github.io/VLN-Papers/) | 已发表或已上榜工作的精读，附三类指令跟随任务设定的性能排行榜 |
-| | [VLN 论文精读：目标导航与扩展篇](https://tingdeliu.github.io/VLN-Papers-Extended/) | 目标导航性能排行榜，以及指令跟随主篇之外的近期预印本与扩展论文 |
+| | [VLN 论文精读：目标导航与 Agentic 导航](https://tingdeliu.github.io/VLN-Papers-Extended/) | 目标导航性能排行榜，以及工具调用、主动交互、空间记忆与持续导航论文精读 |
 | **视觉语言动作模型** | [VLA 综述](https://tingdeliu.github.io/VLA-Survey/) | 机器人策略学习、动作生成、模仿学习与强化学习的路线梳理 |
 | | [VLA 论文精读](https://tingdeliu.github.io/VLA-Papers/) | 独立论文解析、RoboDojo 排行榜入口与同设置实验对照 |
 | **机器人导航系统** | [传统导航综述](https://tingdeliu.github.io/Robot-Navigation-Survey/) | SLAM、定位建图、路径规划与运动控制等经典方法 |

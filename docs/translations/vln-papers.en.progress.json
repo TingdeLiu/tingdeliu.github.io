@@ -2,7 +2,7 @@
   "source": "_posts/research/2026-01-05-VLN-Papers.md",
   "translation": "_translations/en/research/VLN-Papers.md",
   "stage": "complete",
-  "updated_on": "2026-10-24",
+  "updated_on": "2026-10-31",
   "total_papers": 60,
   "completed_papers": {
     "r2r": {
@@ -255,7 +255,8 @@
     "DualVLN illustrative training code corrected against Appendix A.2; real-world RGB-D and odometry distinguished from RGB-only simulation.",
     "MapNav R2R OS/SR headers corrected against arXiv v5 Table 1.",
     "2026-10-05: SeekVLN synchronized in the English main collection, including all methods, equations, examples, results, limitations, four figure captions, two leaderboard rows, 23-entry component matrix, adoption-rate analysis, reference, tags, and cross-page filtering. Earlier AwareVLN and Robostral source revisions reviewed against the English text; NaVid equation formatting restored to source parity.",
-    "2026-10-24: NavGPT-3 and Efficient-VLN translated in full; RSI-Nav and SimpleVLN recorded as complete. Both leaderboards gained the NavGPT-3, NavGPT VLA 8B, and Efficient-VLN rows, with best-value bolding updated; RSI-Nav's two rows were moved from the DualVLN comparison table, where they had been inserted by mistake, into the R2R-CE and RxR-CE leaderboards. The component matrix (28 entries), its notes, the adoption-rate analysis, references, tags, and cross-page filtering were retranslated from the Chinese source. Per-paper parity of equations, figures, external links, and table values passes for all 60 readings; not rebuilt locally because Ruby and Bundler are unavailable."
+    "2026-10-24: NavGPT-3 and Efficient-VLN translated in full; RSI-Nav and SimpleVLN recorded as complete. Both leaderboards gained the NavGPT-3, NavGPT VLA 8B, and Efficient-VLN rows, with best-value bolding updated; RSI-Nav's two rows were moved from the DualVLN comparison table, where they had been inserted by mistake, into the R2R-CE and RxR-CE leaderboards. The component matrix (28 entries), its notes, the adoption-rate analysis, references, tags, and cross-page filtering were retranslated from the Chinese source. Per-paper parity of equations, figures, external links, and table values passes for all 60 readings; not rebuilt locally because Ruby and Bundler are unavailable.",
+    "2026-10-31: Renamed the companion collection to Goal and Agentic Navigation and clarified task versus system scope. EvoLife is reading 41 with its complete English translation, three captions, worked examples, and Mermaid diagram. Eight assisted, sampled benchmark rows are flagged and excluded from standard best-value comparisons; GOAT subtask and sequence success are distinguished. References, API badges, companion links, dates, and cross-page filters are synchronized across 101 readings. All paper protected-content comparisons pass."
   ],
   "previous_validation": {
     "reviewed_on": "2026-10-03",
@@ -273,16 +274,30 @@
     }
   },
   "validation": {
-    "reviewed_on": "2026-10-05",
-    "papers": 56,
-    "source_sync": "passed: repository-wide strict synchronization check",
-    "source_content_parity": "passed: all paper sections; equations, image paths, external citations, table values and columns",
-    "heading_structure": "passed: heading counts, unique explicit IDs, and new IDs matched to source",
-    "english_prose": "passed: no Chinese text outside compatibility IDs",
-    "cross_page_papers": 93,
-    "post_lint": "0 errors; 4 image-size warnings",
-    "regression_tests": 20,
+    "reviewed_on": "2026-10-31",
+    "papers": 60,
+    "source_content_parity": "passed: all 101 paper sections; equations, image paths, external links, table values and columns",
+    "heading_structure": "passed: source heading counts and unique explicit translation IDs; new reading retains source-compatible IDs",
+    "headings": 558,
+    "cross_page_papers": 101,
+    "post_lint": "0 errors across eight changed source/translation files; 24 image-size warnings",
+    "source_sync": "passed: repository-wide check_translations.py --strict",
     "jekyll_build": "not run: Ruby and Bundler unavailable in this environment",
     "browser_validation": "not run for this update; prior evidence retained separately"
-  }
+  },
+  "validation_history": [
+    {
+      "reviewed_on": "2026-10-05",
+      "papers": 56,
+      "source_sync": "passed: repository-wide strict synchronization check",
+      "source_content_parity": "passed: all paper sections; equations, image paths, external citations, table values and columns",
+      "heading_structure": "passed: heading counts, unique explicit IDs, and new IDs matched to source",
+      "english_prose": "passed: no Chinese text outside compatibility IDs",
+      "cross_page_papers": 93,
+      "post_lint": "0 errors; 4 image-size warnings",
+      "regression_tests": 20,
+      "jekyll_build": "not run: Ruby and Bundler unavailable in this environment",
+      "browser_validation": "not run for this update; prior evidence retained separately"
+    }
+  ]
 }

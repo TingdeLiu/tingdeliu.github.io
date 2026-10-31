@@ -5,10 +5,10 @@ translation_id: vln-survey
 permalink: /en/VLN-Survey/
 source_path: _posts/research/2026-01-04-VLN-Survey.md
 source_url: /VLN-Survey/
-source_revision_date: 2026-10-24
-translation_updated: 2026-10-24
+source_revision_date: 2026-10-31
+translation_updated: 2026-10-31
 title: "Vision-Language Navigation: A Survey"
-date: 2026-10-24
+date: 2026-10-31
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
@@ -17,7 +17,7 @@ toc: true
 excerpt: "A survey of VLN through tasks, policy architecture, spatial memory, action interfaces, progress tracking, and training signals, comparing active perception, agent orchestration, and prediction mechanisms, with sourced dataset selection and closed-loop evaluation analysis."
 ---
 
-> **Revised on 2026-10-09**: Section 3 is organized by policy architecture, spatial representation, action interfaces, task progress, agent orchestration, prediction, and training mechanisms. This revision expands Section 3.8 with RL mechanisms, reward design, PPO / GRPO, and same-backbone gain evidence, with key conclusions linked to the original papers. Detailed readings are available in {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} and {% include content-link.html path='/VLN-Papers-Extended/' fragment='' label='VLN Papers: Goal Navigation and Extensions' %}. See [Section 9.4](#survey-scope) for coverage.
+> **Revised on 2026-10-09**: Section 3 is organized by policy architecture, spatial representation, action interfaces, task progress, agent orchestration, prediction, and training mechanisms. This revision expands Section 3.8 with RL mechanisms, reward design, PPO / GRPO, and same-backbone gain evidence, with key conclusions linked to the original papers. Detailed readings are available in {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} and {% include content-link.html path='/VLN-Papers-Extended/' fragment='' label='VLN Papers: Goal and Agentic Navigation' %}. See [Section 9.4](#survey-scope) for coverage.
 
 
 ## Reading guide
@@ -799,7 +799,7 @@ The following are research recommendations based on system responsibilities. Fir
 3. **Closed-loop benefits**: do progress, memory, or prediction actually improve navigation, with corresponding ablations and failed trajectories?
 4. **Transparent deployment costs**: are latency, GPU memory, control frequency, and real-robot tests reported for the complete execution chain?
 
-The companion {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} maintains results by benchmark for R2R-CE, RxR-CE, and discrete R2R / REVERIE, separating trained, training-free, and validation-subset evaluations; the {% include content-link.html path='/VLN-Papers-Extended/' fragment='#goal-nav-leaderboard' label='goal navigation and extensions volume' %} maintains goal-navigation results. This survey explains mechanisms and evidence; for implementations, paper versions, and results under matched settings, continue with the companion readings.
+The companion {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} maintains results by benchmark for R2R-CE, RxR-CE, and discrete R2R / REVERIE, separating trained, training-free, and validation-subset evaluations; the {% include content-link.html path='/VLN-Papers-Extended/' fragment='#goal-nav-leaderboard' label='goal and agentic navigation collection' %} maintains goal-navigation results. This survey explains mechanisms and evidence; for implementations, paper versions, and results under matched settings, continue with the companion readings.
 
 
 # 4. VLN task types
@@ -1913,7 +1913,7 @@ Data-counting conventions, platform support, and core metrics were verified toge
 # 10. References
 {: id="10-参考资料"}
 
-> **Detailed paper readings**: see {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} and {% include content-link.html path='/VLN-Papers-Extended/' fragment='' label='VLN Papers: Goal Navigation and Extensions' %}. This section lists datasets, methods, simulators, and surveys directly discussed above, grouped by topic with continuous numbering. For preprint publication status and leaderboard values, consult paper homepages and the companion readings.
+> **Detailed paper readings**: see {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} and {% include content-link.html path='/VLN-Papers-Extended/' fragment='' label='VLN Papers: Goal and Agentic Navigation' %}. This section lists datasets, methods, simulators, and surveys directly discussed above, grouped by topic with continuous numbering. For preprint publication status and leaderboard values, consult paper homepages and the companion readings.
 
 ---
 

@@ -1,8 +1,8 @@
 # English edition: scope and maintenance
 
 The English edition contains the complete VLN Survey, VLN Papers: Instruction
-Following (60 readings), and VLN Papers: Goal Navigation and Extensions
-(40 paper entries), and all eight existing
+Following (60 readings), and VLN Papers: Goal and Agentic Navigation
+(41 paper entries), and all eight existing
 embodied-navigation weekly digests (six published and two unpublished), plus `/en/`, `/en/research/`, and
 `/en/blog/`. Both paper collections have localized filters, leaderboards,
 and reciprocal English companion links. The Traditional Robot Navigation
@@ -12,6 +12,26 @@ Paper Readings) are translated in full. The Machine Learning Foundations group
 also contains complete Machine Learning, Deep Learning, and Reinforcement Learning
 surveys. The Large Models and Spatial Intelligence group now contains complete LLM Training, VLM, and Spatial Intelligence surveys. The Embodied Manipulation (VLA) group now has complete VLA Survey, VLA Paper Readings, and World Models Survey editions. The Engineering Practice group now contains complete Python Engineering and ROS 2 Core Architecture guides.
 
+
+## EvoLife and collection scope (2026-10-31)
+
+The companion collection is now **VLN Papers: Goal and Agentic Navigation**,
+with 41 entries. Its introduction distinguishes goal navigation as a task from
+agentic navigation as a way to organize decisions around tools, interaction,
+spatial memory, and feedback. Existing routes and section anchors are retained.
+
+EvoLife is reading 41, immediately after NavHarness. The complete English reading
+retains the methods, equations, worked examples, Mermaid diagram, three original
+figures, results, and limitations. Eight benchmark rows explicitly flag sampled,
+privileged-guide-assisted evaluation. GOAT subtask SR and sequence success are
+reported separately. Both collections' references, filters, and companion labels
+are synchronized; all 101 readings pass protected-content parity checks.
+
+Post lint reports zero errors across the eight changed article files, with 24
+image-size warnings. The cross-page filter and 28-row component-matrix checks
+pass. Source snapshots were reviewed and recorded for the two collections and
+the VLN and AI Agent surveys whose companion labels changed. Ruby and Bundler
+are unavailable locally, so this update has not been rebuilt or browser-tested.
 
 ## Engineering Practice release (2026-10-04)
 

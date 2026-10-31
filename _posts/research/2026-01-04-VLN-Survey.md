@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-survey
 title: "VLN 综述"
-date: 2026-10-24
+date: 2026-10-31
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -12,7 +12,7 @@ toc: true
 excerpt: "从任务、策略架构、空间记忆、动作接口、进度判断与训练信号梳理 VLN；比较主动感知、Agent 编排和预测机制，给出带来源的数据集选型与闭环评测分析。"
 ---
 
-> **修订于 2026-10-09**：第 3 节按策略架构、空间表征、动作接口、任务进度、Agent 编排、预测与训练机制组织；本次扩充第 3.8 节的强化学习机制、奖励设计、PPO / GRPO 与同基座增益证据，关键结论链接至原论文。详细论文解读见 [VLN 论文精读：指令跟随篇](/VLN-Papers/)与[VLN 论文精读：目标导航与扩展篇](/VLN-Papers-Extended/)，覆盖范围见[第 9.4 节](#survey-scope)。
+> **修订于 2026-10-09**：第 3 节按策略架构、空间表征、动作接口、任务进度、Agent 编排、预测与训练机制组织；本次扩充第 3.8 节的强化学习机制、奖励设计、PPO / GRPO 与同基座增益证据，关键结论链接至原论文。详细论文解读见 [VLN 论文精读：指令跟随篇](/VLN-Papers/)与[VLN 论文精读：目标导航与 Agentic 导航](/VLN-Papers-Extended/)，覆盖范围见[第 9.4 节](#survey-scope)。
 
 
 ## 阅读导航
@@ -759,7 +759,7 @@ flowchart TB
 3. **闭环是否受益**：进度、记忆或预测是否真正改善导航，是否有相应消融与失败轨迹？
 4. **部署代价是否透明**：是否报告完整执行链的延迟、显存、控制频率和真实机器人测试？
 
-配套文章 [VLN 论文精读：指令跟随篇](/VLN-Papers/)按基准维护 R2R-CE、RxR-CE、离散 R2R / REVERIE 结果，并区分训练式、免训练与验证集子集；[目标导航与扩展篇](/VLN-Papers-Extended/#goal-nav-leaderboard)维护目标导航结果。综述用于解释机制与证据，具体实现、论文版本和同设定成绩可继续查阅配套精读。
+配套文章 [VLN 论文精读：指令跟随篇](/VLN-Papers/)按基准维护 R2R-CE、RxR-CE、离散 R2R / REVERIE 结果，并区分训练式、免训练与验证集子集；[目标导航与 Agentic 导航](/VLN-Papers-Extended/#goal-nav-leaderboard)维护目标导航结果。综述用于解释机制与证据，具体实现、论文版本和同设定成绩可继续查阅配套精读。
 
 
 # 4. VLN 任务类型
@@ -1796,7 +1796,7 @@ Seen / Unseen 通常按基准场景划分，衡量同一任务内的场景泛化
 
 # 10. 参考资料
 
-> **论文精读**：指令跟随论文与目标导航、扩展方向的论文详见 [VLN 论文精读：指令跟随篇](/VLN-Papers/) 与 [VLN 论文精读：目标导航与扩展篇](/VLN-Papers-Extended/)。本节只收录正文直接涉及的数据集、方法、模拟器与综述，按主题分组、全文连续编号；预印本的发表状态与榜单数字以论文主页及配套论文页为准。
+> **论文精读**：指令跟随论文与目标导航、扩展方向的论文详见 [VLN 论文精读：指令跟随篇](/VLN-Papers/) 与 [VLN 论文精读：目标导航与 Agentic 导航](/VLN-Papers-Extended/)。本节只收录正文直接涉及的数据集、方法、模拟器与综述，按主题分组、全文连续编号；预印本的发表状态与榜单数字以论文主页及配套论文页为准。
 
 ---
 

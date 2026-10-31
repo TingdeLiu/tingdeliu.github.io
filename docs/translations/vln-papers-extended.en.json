@@ -1,17 +1,17 @@
 {
   "source": "_posts/research/2026-01-06-VLN-Papers-Extended.md",
   "translation": "_translations/en/research/VLN-Papers-Extended.md",
-  "reviewed_on": "2026-10-24",
-  "source_revision_date": "2026-10-24",
+  "reviewed_on": "2026-10-31",
+  "source_revision_date": "2026-10-31",
   "sections": {
-    "metadata": "71003db822cbbfd5274f5fd615a5a8801423d22335d64b04f13793ba17770b2c",
-    "introduction": "6d12f4e86a6619e9aeb9cff04cc1dc9501914ceabb62b6b54c1a49dfc9409f16",
-    "目标导航性能排行榜 {#goal-nav-leaderboard}": "d9c209b2fae6ee4c65b6b0914f9f13b5962b9f1a213926ef1efd81e8343db978",
-    "④ 封闭类别物体目标 · ObjectNav（HM3D · MP3D · Gibson）": "08a548f1570cc11c41a326eefc11b895cb06da966bb6e93c184ccec8671be829",
-    "⑤ 开放词汇物体目标 · HM3D-OVON": "08736d938c636e4184346e72f7045a2904bde405527dfe7ee73a05cf847bf3fa",
+    "metadata": "76a3fe50bfbdc132c1244d6d0e632da55daf7e648c773ac0994a8c3b1cf2ae0b",
+    "introduction": "672a0c67a35a658e3f6e42d78c667f24733f71387ab4fbe257912973a88133ae",
+    "目标导航性能排行榜 {#goal-nav-leaderboard}": "34eb39f721ad90cdd67a491709b03593471cf5c807978537cc6350bc1382079c",
+    "④ 封闭类别物体目标 · ObjectNav（HM3D · MP3D · Gibson）": "5f91919df96e36b9c6b4d5001f4e41904f048dac6400981ce1f461ee85079497",
+    "⑤ 开放词汇物体目标 · HM3D-OVON": "7482f62c86266c8179a841c41801e4e4c1a03c0038aabf7e707959ab105c3103",
     "⑥ 图像目标 · HM3D-IIN / Image-Goal": "ca68bea056e9b1524eaa0fc260ea1525d05e7915fe8247a3ba346f255f07a827",
     "⑦ 点目标 · Point-Goal": "4efe606d16bf3c71947634f2d4d458e7eb0b825481f515449eefb469835f39e8",
-    "⑧ 多模态目标与自建基准": "c39bcd6d9ef007257be0c2f03f1c7103f0137fb336417095b1a3fb8b35ddda80",
+    "⑧ 多模态目标与自建基准": "807cbffaa9c1d6964a79c55ac8c1b6037133b19a1313f0dcfe2050da47f8432f",
     "具身导航论文扩展": "9f6db9606b70246c34959ce72803f1e6ba27e4bbe3bba989ba6e1de9d244a347",
     "paper:vlfm / 1. VLFM (2023) {#vlfm}": "4bdf31c34b9aa9a1921d6d099b3ba952efb5636473102da8ed6d9bdbce0e29c6",
     "paper:nomad / 2. NoMaD (2023) {#nomad}": "1261d95193efa2faa00fe64d84967fc4b4fcacfd984fbfb41d7badf5847de711",
@@ -288,7 +288,13 @@
     "paper:supernav / 3. 核心结果/发现": "08846f7b0469bbaabc1f840931c726d57c18b44043937cf47464397dfc3d38e2",
     "paper:supernav / 4. 局限性": "aec87450a8cf5acda55c8c3ca74b82c796e9029c199f7c7eaac0c618f1d600f9",
     "paper:navharness / 40. NavHarness (2026) {#navharness}": "46cd167c9041672aa10558d8b545b138d9ce9658610544d2ebeff4f9fa1db142",
+    "paper:evolife / 41. EvoLife (2026) {#evolife}": "b2efc4d15b77df674925d600a92a8cbef6cbcf71d540b78d4fef9342d8e7ac3a",
+    "paper:evolife / 精华": "10fb4f35bb09f27c3dd831b4d079f644b059bbf9ceeed78e551d719ce352c44d",
+    "paper:evolife / 1. 研究背景/问题": "a5f6fd7e907bb884691251a98631b8e787be045f7703a4184ee17cec4b510850",
+    "paper:evolife / 2. 主要方法/创新点": "dfa0a14405d2587b87010009c91391d4b0d3baf06cf39fa21dab30e871ac4361",
+    "paper:evolife / 3. 核心结果/发现": "51f86662e5d10ea3aecddb96b0b1003947e744cd33be28b4633be3fe0e999c5f",
+    "paper:evolife / 4. 局限性": "4e664e085cd4c6f509251e96777987c9b8baeda8ef4075dcce8ea83345e5587d",
     "参考资料": "9b02b96398a0ecec9519f4402648095347400e58028bcf57f57e2194eee8f5e6",
-    "论文引用": "9e958a2f717a171e9ca5e1dc7b8bfdf263be8bfff88f0ea9474e26b29f1dcc97"
+    "论文引用": "99f8349e65263865b1c6dd65fba0e6ec06be1bbe441380f71c5aa34695a7f0a8"
   }
 }

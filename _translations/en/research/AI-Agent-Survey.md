@@ -5,10 +5,10 @@ translation_id: ai-agent-survey
 permalink: /en/AI-Agent-Survey/
 source_path: _posts/research/2026-03-05-AI-Agent-Survey.md
 source_url: /AI-Agent-Survey/
-source_revision_date: 2026-10-24
-translation_updated: 2026-10-24
+source_revision_date: 2026-10-31
+translation_updated: 2026-10-31
 title: "AI Agents: A Survey"
-date: 2026-10-24
+date: 2026-10-31
 tags: [Agent, LLM, Multi-Agent, Survey]
 categories: research
 comments: false
@@ -3042,7 +3042,7 @@ flowchart TB
 4. **Industrial support and implementation**: Governments and industrial funds in many places (such as the multi-million yuan special award set up by Wuxi in 2026) have listed the integration of open source Agent operating systems and embodied humanoid robots as key support directions.
 5. **Safety Guardrails and Hard Restraints (Safety Guardrails)**: The core bottom line of physical deployment is safety. Modern embodied Harness integrates insurmountable kinematic limits, torque safety thresholds, anti-collision volume boxes and hardware-level emergency stop mechanisms at the bottom layer to ensure that the exploration and reasoning of high-level agents operate within strict physical safety boundaries; MHS further standardizes such hard constraints into device drivers’ own safety statements that intercept before action.
 
-**Extended reading**: Embodied control Agent is highly intertwined with visual language navigation (VLN) and world model, which can be passed in [VLN Paper Readings: Instruction following](https://tingdeliu.github.io/VLN-Papers/) and [VLN Paper Readings: target navigation and extension](https://tingdeliu.github.io/VLN-Papers-Extended/)] **Agentic** tag filters related papers. Current matching entries include: NavGPT-2 (2024), ODYSSEY (2025), PanoNav (2025), Open-Nav (2025), CausalNav (2026), AgentVLN (2026), SysNav (2026), GSMem (2026), HSGM (2026), CA-VLN (2026), EvoMemNav (2026), OmniNav (2026), ReflectVLN (2026), AgenticNav (2026), Agentic Embodied Control (2026), ABot-AgentOS (2026), etc.
+**Extended reading**: Embodied control agents overlap with vision-language navigation (VLN) and world models. Use the **Agentic** tag in [VLN Papers: Instruction Following](https://tingdeliu.github.io/VLN-Papers/) and [VLN Papers: Goal and Agentic Navigation](https://tingdeliu.github.io/VLN-Papers-Extended/) to find related papers. Current matching entries include: NavGPT-2 (2024), ODYSSEY (2025), PanoNav (2025), Open-Nav (2025), CausalNav (2026), AgentVLN (2026), SysNav (2026), GSMem (2026), HSGM (2026), CA-VLN (2026), EvoMemNav (2026), OmniNav (2026), ReflectVLN (2026), AgenticNav (2026), Agentic Embodied Control (2026), ABot-AgentOS (2026), etc.
 
 
 # 11. Excellent Agent Examples
