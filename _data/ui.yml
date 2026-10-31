@@ -34,10 +34,11 @@ zh-CN:
   star: 在 GitHub Star 本站项目（新窗口打开）
   feedback: 反馈
   improve: 参与改进这篇文章
-  feedback_intro: 发现错误、想推荐相关论文、或有修改建议？点击下方按钮通过 GitHub Issue 提交，提交后你将出现在社区贡献者墙中。
+  feedback_intro: 勘误、论文推荐和修改建议请提交 GitHub Issue；提问和交流观点，欢迎前往 Discussions。通过 Issue 提交反馈的读者会显示在社区贡献者墙中。
   report_bug: 报告错误
   recommend_paper: 推荐论文
   suggest: 修改建议
+  discuss: 参与讨论
   contributors: 社区贡献者
   contributions: 次贡献
   page: 页面
@@ -80,10 +81,11 @@ en:
   star: Star this project on GitHub (opens a new window)
   feedback: Feedback
   improve: Help improve this article
-  feedback_intro: Found an error, a relevant paper, or something to improve? Open a GitHub issue below. Contributors appear in the community wall.
+  feedback_intro: Use GitHub Issues for corrections, paper recommendations, and improvements, or Discussions for questions and exchanging ideas. Readers who submit issues appear in the community wall.
   report_bug: Report an error
   recommend_paper: Recommend a paper
   suggest: Suggest an improvement
+  discuss: Join the discussion
   contributors: Community contributors
   contributions: contributions
   page: Page

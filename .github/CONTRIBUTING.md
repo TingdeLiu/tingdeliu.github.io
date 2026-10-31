@@ -16,6 +16,9 @@
 1. 文章末尾的反馈组件 —— 会带上文章标题自动生成 Issue 标题，推荐使用
 2. 直接 [新建 Issue](https://github.com/TingdeLiu/tingdeliu.github.io/issues/new)
 
+如果想提问、交流阅读心得或探讨尚未明确的问题，可以使用文章末尾的「参与讨论」按钮，
+或直接前往 [Discussions](https://github.com/TingdeLiu/tingdeliu.github.io/discussions)。发起讨论时请附上文章链接和相关章节，方便大家了解上下文。
+
 ### 三类反馈
 
 | 类型 | 适用情形 | 请附上 |
