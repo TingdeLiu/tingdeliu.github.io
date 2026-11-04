@@ -5,16 +5,16 @@ translation_id: embodied-agent-papers
 permalink: /en/Embodied-Agent-Papers/
 source_path: _posts/research/2026-03-06-Embodied-Agent-Papers.md
 source_url: /Embodied-Agent-Papers/
-source_revision_date: 2026-10-26
-translation_updated: 2026-10-26
+source_revision_date: 2026-11-04
+translation_updated: 2026-11-04
 title: "Embodied Agents: Paper Readings"
-date: 2026-10-26
+date: 2026-11-04
 tags: [Agent, Embodied AI, Robotics, VLA, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "Nineteen paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, weight-harness co-evolution, history-replay-driven evolution of exploration policies, and evaluation in evolving physical and social environments."
+excerpt: "Twenty paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, weight-harness co-evolution, history-replay-driven evolution of exploration policies, evaluation in evolving physical and social environments, and unified robot-use tools for open models."
 ---
 
 
@@ -23,7 +23,7 @@ excerpt: "Nineteen paper entries on embodied runtimes, physical orchestration, s
 # Embodied Agents: Paper Readings
 {: id="具身智能体论文精读"}
 
-This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed loop that can operate sustainably. The nineteen papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, weight-harness co-evolution, history-replay-driven evolution of exploration policies, and evaluation in evolving physical and social environments. The experiments cover simulation environments, text-interaction environments, interactive visual games, real robots, and professional software tasks. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection. Evo² and Dream-RSI are evaluated directly on software tasks, so this article treats them as mechanisms that may transfer to embodied-harness evolution rather than as evidence of robot performance.
+This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed loop that can operate sustainably. The twenty papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, weight-harness co-evolution, history-replay-driven evolution of exploration policies, evaluation in evolving physical and social environments, and unified robot-use tools for open models. The experiments cover simulation environments, text-interaction environments, interactive visual games, real robots, and professional software tasks. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection. Evo² and Dream-RSI are evaluated directly on software tasks, so this article treats them as mechanisms that may transfer to embodied-harness evolution rather than as evidence of robot performance.
 
 |Paper|Main entry points|representative verification|
 |---|---|---|
@@ -46,6 +46,7 @@ This article focuses on a common problem: how robots organize perception, planni
 | [Evo²](#evo2) | Weight-harness co-evolution, a dual-role evolver, and cross-branch strategy reuse | Polyglot, SWE-bench Verified, LiveCodeBench, and LoCoMo; no robot evaluation |
 | [Dream-RSI](#dream-rsi) | Historical discovery-tree replay, offline exploration-policy improvement, and recursive deployment | KernelBench, mathematical optimization, Lasso, Terminal-Bench 2.1; no robot experiments |
 | [TARSphere](#tarsphere) | Event-driven physical and social execution, hierarchical memory, and paired capability evaluation | 30 indoor scenes, 360 simulated episodes, and 8 frozen MLLMs; embodied NPCs and dynamic task updates |
+| [uni-robot-agent](#uni-robot-agent) | Unified robot-use tools for open models, reliable execution feedback, and reasoning–action pipelining | 42 RoboDojo tasks and 19 dual-arm real-world evaluation entries; primary simulation excludes depth, while real-world agents use depth |
 
 The filter bar below supports multiple tag combinations; when multiple tags are selected at the same time, the page will only retain papers that meet these tags.
 
@@ -3171,6 +3172,139 @@ Model conclusions depend on the shared Harness, task definitions, and constraine
 
 ---
 
+## 20. uni-robot-agent (2026)
+{: id="uni-robot-agent"}
+———Unified tools, reliable feedback, and pipelined execution unlock robot manipulation with open models
+
+📄 **Paper**: [arXiv:2611.01560](https://arxiv.org/abs/2611.01560) · [Code](https://github.com/Open-RUA/uni-robot-agent) · [Project Page](https://uni-robot-agent.com)
+
+### Key takeaways
+{: id="uni-robot-agent-highlights"}
+
+- **Robot-use performance depends on the interface to the physical world as well as model weights**: consistent action semantics, diagnosable feedback, and observation consistency can substantially improve the same open model's performance.
+- **Completed motion is not completed manipulation**: pose errors tell the agent where the hand ended up, while post-action images show whether the object was actually lifted; both forms of evidence are necessary.
+- **No depth does not mean no geometry**: RGB, camera calibration, and corresponding points across views can recover 3D positions; the difficult parts are accurate pointing, correct geometric code, and verification.
+- **Concurrency means overlapping reasoning with motion, not executing conflicting actions on the same arm simultaneously**; exclusive-resource queues and feedback dependencies remain essential.
+- Future RUA training should jointly develop visual understanding, spatial grounding, geometric coding, and embodied reasoning rather than merely fit action outputs; this paper supplies infrastructure for that research but **does not propose or validate a new training algorithm**.
+
+---
+
+### 1. Background and problem
+{: id="uni-robot-agent-background"}
+
+Robot-Use Agents (RUAs) let general-purpose multimodal models operate robots through tools, drawing directly on task decomposition, code generation, and failure recovery. Reliance on proprietary models limits weight adaptation, deployment optimization, and large-scale interaction. Existing open-model systems often compensate with simulator ground truth or task-specific skills; this paper first establishes a reusable harness—the runtime connecting model decisions to robots and returning execution evidence—across models and environments to assess what open models can already do and collect standardized interaction records for future training.
+
+---
+
+### 2. Methods and innovations
+{: id="uni-robot-agent-method"}
+
+<div align="center">
+  <img src="/images/vla/uni-robot-agent-architecture.webp" width="100%" loading="lazy" decoding="async" alt="The five layers of uni-robot-agent: Agent, Orchestration, Tools, Services, and Backends" />
+<figcaption>Figure 2: Tool requests pass through orchestration and shared tools to environment, action-model, or perception services, then execute on concrete backends; results return to the model through the same interfaces.</figcaption>
+</div>
+
+**① Overall framework: decouple models, robot tools, and concrete environments.** The five layers are Agent, Orchestration, Tools, Services, and Backends: the agent makes decisions, orchestration schedules requests, shared tools implement robot-operation semantics, services manage runtime resources, and backends connect to specific robots, simulators, or models. Replacing the agent runtime, perception model, or environment does not require rewriting the entire control stack.
+
+**② Data flow through the five layers.**
+
+- **Agent layer: instructions and observations → reasoning and context management → tool requests.** The model receives task instructions, environment descriptions, tool definitions, recent images, and interaction history through runtimes such as Codex or Claude Code. It chooses when to observe, localize, move, or revise its strategy; the harness does not supply a prewritten task plan.
+- **Orchestration layer: tool requests → validation, registration, and resource scheduling → execution jobs and results.** MCP adapters route requests to `ToolExecutor`, while unified tool definitions specify schemas and handlers. The executor distinguishes immediate calls, background jobs, and exclusive-resource queues, avoiding direct coupling between agent runtimes and native robot APIs.
+- **Tools layer: common arguments → shared operation logic → motion or perception feedback.** `GripperTools` provides `move`, `grasp`, `release`, and `hold`; `SceneTools` handles state inspection, scene capture, and localization; `SkillTools` supports skill reading and writing; `EpisodeTools` manages episode completion. Arm and camera parameters come from environment descriptors, while units, operation meanings, and feedback formats remain consistent across environments.
+- **Services layer: domain requests → service calls and resource management → state, action proposals, or segmentation results.** `EnvironmentService` handles state, snapshots, stepping, and execution receipts; `ActorService` supports action-model proposals and batching; `PerceptionService` supplies capabilities such as image segmentation.
+- **Backends layer: common interface requests → native implementations → actual execution results.** Environment adapters connect RoboUse, RoboDojo, or physical robots, while action and perception backends can use OpenPI/JAX π0.5 and SAM3. The action-model service is optional: its presence in the architecture does not mean the primary zero-shot RUA experiments depend on a hybrid π0.5 policy.
+
+**How do shared tools avoid repeated implementations?** Put the logic for completing a `move` in the shared layer, and let each environment adapter translate native commands: the tool generates intermediate targets and monitors errors; the adapter converts targets into commands accepted by its robot and returns the measured state.
+
+> **Minimal example**: With 3 tools and 2 environments, separately implementing every pairing requires 6 tool implementations. The shared design maintains 3 tools and 2 adapters, or 5 components. Adding a third environment requires 3 more tool implementations in the first design but only 1 adapter in the second. This illustrates interface reuse, not a guaranteed proportional reduction in code size.
+
+**③ Two levels of concurrency: reasoning can run ahead, while arm motions remain ordered.** A background call immediately returns a job handle, letting the model continue reasoning that does not depend on its outcome and retrieve feedback later. Calls sharing an exclusive resource execute in submission order; non-conflicting operations such as reading an existing snapshot can run concurrently. The model can submit multiple requests at once and wait for results in batches. If new evidence invalidates a plan, `flush_queue` cancels calls that have not started on the specified resource; flushing a queue cannot undo actions already executed.
+
+<div align="center">
+  <img src="/images/vla/uni-robot-agent-pipeline.webp" width="100%" loading="lazy" decoding="async" alt="Serial interaction compared with a two-stage reasoning and tool-execution pipeline" />
+<figcaption>Figure 4: Serial interaction waits after each action; the two-stage pipeline overlaps subsequent reasoning with the current action while calls sharing a resource remain queued.</figcaption>
+</div>
+
+> **Minimal example (illustrative, not an experimental measurement)**: Two reasoning steps each take 2 seconds, two actions each take 5 seconds, and the second reasoning step does not depend on the first action's result. Serial execution takes 2 + 5 + 2 + 5 = 14 seconds. With pipelining, the first action runs from seconds 2–7, the second reasoning step runs from seconds 2–4, and the second action waits to execute from seconds 7–12, totaling 12 seconds. If the second decision must first check whether the first grasp succeeded, this advance reasoning is not valid.
+
+**④ Six reliability mechanisms: make feedback correspond to what actually happened.**
+
+<div align="center">
+  <img src="/images/vla/uni-robot-agent-reliable-execution.webp" width="100%" loading="lazy" decoding="async" alt="Six uni-robot-agent designs for observation consistency, action precision, and context management" />
+<figcaption>Figure 5: The six designs cover consistent snapshots, duplicate-action prevention, coordinated arm and gripper control, progress monitoring, outcome diagnosis, and visual-history management.</figcaption>
+</div>
+
+- **Immutable snapshots.** Bind images, camera calibration, and robot state to a single snapshot with an ID, timestamp, and version. Localization uses the camera pose at capture time rather than the new pose after motion, avoiding a mismatch between old images and new extrinsics.
+- **Duplicate-action prevention after communication failures.** Requests have identities and execution records. A lost reply triggers receipt recovery rather than blindly repeating the physical action; unresolved execution status blocks subsequent actions and remains explicitly uncertain.
+- **Coordinated arm and gripper control.** `move` can receive a target pose and gripper opening together, allowing opening changes during motion instead of forcing separate movement and gripping commands.
+- **Stopping based on measured progress.** After every step, the tool reads the actual pose and generates bounded intermediate targets. Arrival, stalling, divergence, planning rejection, abnormal motion, or budget exhaustion stops execution and returns a reason, rather than assuming success after a fixed number of steps.
+- **Numerical feedback plus images.** Actual and target poses, position and orientation errors, stop reasons, and post-action images let the model distinguish failure to reach a pose, reaching it without holding the object, and the need for a different manipulation strategy.
+- **Useful context retention.** A sliding window replaces old images with text placeholders but preserves recent images, instructions, and action records. Batched image eviction keeps prompt prefixes more stable for cache reuse; if the budget is still exceeded, the policy model itself compacts the history.
+
+Appendix D specifies the monitored `move` algorithm. Position error is Euclidean distance, and orientation error between unit quaternions is:
+
+$$
+d_q(q_1,q_2)=2\arccos\!\left(\min\{1,\lvert q_1^\top q_2\rvert\}\right).
+$$
+
+A pose is reached only when both position and orientation errors satisfy their respective tolerances; this is still **not a grasp or task-success judgment**. To detect divergence, the algorithm tracks $v_t=e_t^p+0.1e_t^q$, with position in meters and angles in radians, and stops after two consecutive instances of $v_t>v_{t-1}+0.01$. Stalling detection examines four consecutive accepted steps and returns control when neither error has improved sufficiently. Supported backends may also try one alternative execution target within the original tolerances, without relaxing the request.
+
+**⑤ No simulator ground truth: recover geometry from RGB and calibration.** The primary simulation configuration supplies only RGB, camera calibration, robot proprioception and descriptions, and task instructions. It excludes simulator ground-truth depth, object CAD assets, hidden scene annotations, task-verifier feedback, and external web access. Without depth, a pixel determines only a viewing ray from the camera; identifying the same physical point in another view provides a second ray from which to estimate its 3D position—triangulation.
+
+> **Minimal example**: In a horizontal cross-section, camera A is at (0, 0) and camera B at (2, 0). A target corresponds to the ray y = x from A and y = 2 − x from B; their intersection is (1, 1), so depth is not necessary for localization. In real 3D observations, pointing errors usually prevent exact intersection, requiring a least-squares point close to all rays. If the two images mark different physical points, even correct code produces a wrong estimate.
+
+<div align="center">
+  <img src="/images/vla/uni-robot-agent-triangulation.webp" width="100%" loading="lazy" decoding="async" alt="The model writes geometry code to reconstruct a tube-cap position from two views and complete manipulation" />
+<figcaption>Figure 15: Qwen matches a tube cap across two views, writes least-squares ray-intersection code, checks reprojection errors, then grasps and inserts the tubes; the two errors are 0.46 and 1.94 pixels.</figcaption>
+</div>
+
+In the no-depth, no-skill cases in Appendix E, Qwen **writes and executes its own geometric code rather than calling the built-in triangulation operation**. It converts pixels into world-frame rays using camera intrinsics and extrinsics, estimates their intersection, and reprojects the 3D position to check consistency before estimating tube axes and grasp orientations. In another case involving covering blocks, it sweeps candidate table heights and intersects pixel rays with each plane to compare estimated cup dimensions. Localization can therefore be an exploratory cycle of proposing geometric hypotheses, testing them in code, and refining them.
+
+**⑥ Training and end-to-end inference.** This paper trains no new network and introduces no learning loss; the preceding equations govern execution monitoring, not training. Inference follows the loop “read instructions and snapshots → select observation/localization tools or generate code → obtain 3D targets and an interaction plan → submit actions → receive monitored execution evidence → verify, refine, or change strategy,” until the agent finishes the episode or reaches an execution limit. Background reasoning is inserted only where feedback dependencies permit.
+
+---
+
+### 3. Results and findings
+{: id="uni-robot-agent-results"}
+
+**Simulation: the same model behaves very differently under different harnesses.** RoboDojo contains 42 tasks in 5 capability dimensions. The primary evaluation uses 3 seeds × 2 layouts per task, or 252 episodes. SR and partial-credit Score are aggregated within each dimension, then averaged equally across the five dimensions; Score is not complete-task success rate.
+
+| Model and configuration | SR (%) | Score (0–100) |
+|---|---:|---:|
+| Qwen3.8-Flash-Next + RoboProbe | 0.83 | 1.90 |
+| Qwen3.8-Flash-Next + RPent | 4.31 | 7.75 |
+| Qwen3.8-Flash-Next + GAP (Hybrid, including π0.5) | 16.11 | 21.01 |
+| **Qwen3.8-Flash-Next + uni-robot-agent, no depth** | **25.00** | **31.39** |
+| DeepSeek-V4.1-Flash + uni-robot-agent, no depth | 21.39 | 27.11 |
+| GPT-6 Astra + RoboProbe (published result) | 22.48 | 28.97 |
+| GPT-6 Astra + uni-robot-agent, no depth | 46.67 | 51.90 |
+
+Qwen improves by **10.38 Score points** over its strongest comparison harness, GAP, and exceeds the listed VLA/WAM baselines and published Astra–RoboProbe result; however, **Astra remains substantially stronger than Qwen under the same uni-robot-agent harness**. RUAs are stronger on memory and open-vocabulary tasks, while Qwen achieves only 2.08% SR on precision and 6.25% on long-horizon tasks. Its aggregate advantage does not mean precise control or long-horizon reliability is solved.
+
+**Real robots: competitive performance, but unequal sensing inputs.** Across 19 evaluation entries on the ARX AC one dual-arm platform, Qwen and Astra score **49.50 and 75.50**, versus **47.75** for π0.5 and **35.50** for Dream-1. Qwen is stronger on compositional generalization and unseen tasks, but scores 6.00 on object generalization versus π0.5's 12.50. The RUAs use the D405 **depth stream**, while π0.5 and Dream-1 use RGB only. RUA and Dream-1 are zero-shot, whereas π0.5 is fine-tuned on robot demonstrations; this is therefore not a matched-input, matched-training comparison, and 49.50 is not a 49.50% complete-task success rate.
+
+**Depth and skill ablations: calibration matters more than task-specific skill guidance.** Qwen's Score falls from **35.89** with RGB + depth + calibration to **31.39** with RGB + calibration, retaining about **87.5%**. Removing camera calibration as well, leaving RGB only, reduces it to **9.13**. Disabling skill-library access and skill writing still yields **30.31 Score and 24.58% SR**, retaining **96.6%** of the skill-enabled Score. Performance therefore does not depend on task guidance in the skill library, but this does not imply calibration or environment descriptions are unnecessary.
+
+**Capability analysis: robot use draws on four general capabilities together.** Trajectory analysis identifies four major failures: misinterpreting objects or action outcomes, inconsistent cross-view correspondences, errors in coordinate-transform or orientation code, and physically inappropriate grasp or interaction plans. Earlier Qwen models record zero SR, while Qwen3.8-27B reaches 8.06%, suggesting parameter count is not sufficient. The authors relate this difference to training distributions but do not validate that attribution through controlled training experiments.
+
+<div align="center">
+  <img src="/images/vla/uni-robot-agent-capability-correlation.webp" width="100%" loading="lazy" decoding="async" alt="Correlations between general vision, embodied reasoning, grounding, and coding benchmark scores and RoboDojo Score across six models" />
+<figcaption>Figure 8: General benchmark scores correlate positively with RoboDojo Score across six models; ERQA and MMMU-Pro show stronger associations, but small-sample correlations do not establish causation.</figcaption>
+</div>
+
+Across six models, Pearson correlations between RoboDojo Score and ERQA, MMMU-Pro, ScreenSpot-Pro, and LiveCodeBench v6 are **0.97, 0.93, 0.69, and 0.75**, respectively. ScreenSpot-Pro evaluates 2D screen grounding rather than the full 3D grounding required for robot manipulation. These correlations motivate jointly developing multiple capabilities; they do not prove that improving any one benchmark necessarily improves robot performance.
+
+**Cost and speed: cheaper models do not necessarily need less reasoning time.** Using recorded API usage and the paper's reference prices, mean per-episode costs are **1.09, 0.94, and 21.29 USD** for Qwen, DeepSeek, and Astra. Reaching Score 25 takes about **95.5, 99.2, and 42.6 minutes**, respectively, so low token prices do not remove the latency of longer interaction chains. Across 5 Astra tasks, pipelining reduces episode duration by **4.8%–73.7%**, with model requests overlapping **84.5%–93.8%** of physical-action time. Each task is evaluated once per configuration, making this preliminary efficiency evidence rather than a guaranteed average speedup.
+
+---
+
+### 4. Limitations
+{: id="uni-robot-agent-limitations"}
+
+Precise grounding, fine manipulation, bimanual coordination, and reliable long-horizon execution remain bottlenecks. Depth-free operation still depends on calibration, cross-view correspondence, and correct geometric computation, and the paper does not test whether subsequent training resolves these issues. Real-world results cover one dual-arm tabletop platform with unequal depth inputs; model-generation comparisons use differing episode settings, general-benchmark correlations involve only six models, and efficiency tests use one trial per configuration. Generalization, causal, and acceleration claims must retain these boundaries.
+
+---
+
 # References
 {: id="参考资料"}
 
@@ -3199,6 +3333,8 @@ Model conclusions depend on the shared Harness, task definitions, and constraine
 18. **Dream-RSI** (2026). Dream-RSI: Recursive Self-Improvement through Evolving Worlds. arXiv: [2609.14858v2](https://arxiv.org/abs/2609.14858) · Code: [zhengkid/Dream-RSI](https://github.com/zhengkid/Dream-RSI) · Project Page: [dream-rsi.com](https://dream-rsi.com/)
 19. **TARSphere** (2026). TARSphere: A Robot-Oriented Full-Stack Framework for Long-Horizon Embodied Agents in Evolving Physical and Social Environments. arXiv: [2610.30043](https://arxiv.org/abs/2610.30043) · Code: [xuyicheng-zju/TARSphere](https://github.com/xuyicheng-zju/TARSphere) · Project Page: [xuyicheng-zju.github.io/TARSphere](https://xuyicheng-zju.github.io/TARSphere/)
 
+20. **uni-robot-agent** (2026). Democratizing Robot-Use Agents: A Unified Harness with Open Models. arXiv: [2611.01560](https://arxiv.org/abs/2611.01560) · Code: [Open-RUA/uni-robot-agent](https://github.com/Open-RUA/uni-robot-agent) · Project Page: [uni-robot-agent.com](https://uni-robot-agent.com)
+
 <script>
 (function () {
   var TAG_MAP = [
@@ -3221,6 +3357,7 @@ Model conclusions depend on the shared Harness, task definitions, and constraine
     { m: 'Evo²', t: ['Harness', 'Closed-loop systems', 'self-evolution', 'RSI', 'reinforcement learning', 'Long-horizon tasks', 'Data governance'] },
     { m: 'Dream-RSI', t: ['Harness', 'self-evolution', 'RSI', 'Active exploration', 'Long-horizon tasks', 'Data governance'] },
     { m: 'TARSphere', t: ['Harness', 'Closed-loop systems', 'Spatial memory', 'Zero fine-tuning', 'Long-horizon tasks', 'Benchmark evaluation', 'Human-robot interaction'] },
+    { m: 'uni-robot-agent', t: ['Harness', 'Closed-loop systems', 'Embodied manipulation', 'Real-robot deployment', 'Zero fine-tuning', 'Exception recovery', 'Reasoning budget', 'Embodied reasoning'] },
   ];
 
   var ALL_TAGS = ['Survey', 'Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'RSI', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation', 'Visual memory', 'Reasoning budget', 'Embodied reasoning', 'Data governance', 'Benchmark evaluation', 'Human-robot interaction'];
