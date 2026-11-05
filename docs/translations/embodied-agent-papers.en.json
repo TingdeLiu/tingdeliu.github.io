@@ -1,12 +1,12 @@
 {
   "source": "_posts/research/2026-03-06-Embodied-Agent-Papers.md",
   "translation": "_translations/en/research/Embodied-Agent-Papers.md",
-  "reviewed_on": "2026-11-04",
-  "source_revision_date": "2026-11-04",
+  "reviewed_on": "2026-11-05",
+  "source_revision_date": "2026-11-05",
   "sections": {
-    "metadata": "a675aeb19f64f47a93d616eaa754db508e7041eb2ed7b78f04b4d1d48c6a1163",
+    "metadata": "5e7da4f700e74964e567e15a340036ca865dcf4b2c64e298eb2007f3d4f1ca82",
     "introduction": "8c17bc1d22a44c667d3673775811d9cf4f0f4d7c5e66bc908245222485388b05",
-    "具身智能体论文精读": "5f689b7e6302eb7f7e1b8e526c5e38b8f50f0d2b2369df034bb7f3f6c9e960e8",
+    "具身智能体论文精读": "e11d2ca23dd0fe528050c8cff556ab733a3fafe4c8b2097aa06dfb7e459a6976",
     "paper:holoagent-0 / 1. HoloAgent-0 (2026) {#holoagent-0}": "4cc92a362c7b424cc7a5e880c873144a6dd851bdfdd1e523c749b64861e1580c",
     "paper:holoagent-0 / 精华": "baeffd64d95f90fb8d914888810e60f1190f9f00c85dc8d42d3b83021e7f628f",
     "paper:holoagent-0 / 1. 研究背景/问题": "78636fbb3fb4b211a8ff109e039471dc173ca14b79d9e7250308b620b0f56f92",
@@ -194,7 +194,13 @@
     "paper:uni-robot-agent / 2. 主要方法/创新点": "ab3c0af0eb5e7729346ea6685f1e7599738d31599e792a617ea28f04454385e0",
     "paper:uni-robot-agent / 3. 核心结果/发现": "e16bab1c202b29351258edf7c3b0955b86d3acc26a90810427dc2a94ab6361a4",
     "paper:uni-robot-agent / 4. 局限性": "f754190cbebf4719c2c721cc8ced80f16137f924a273d1cc66c465635b2551a4",
+    "paper:asena / 21. ASENA (2026) {#asena}": "e814a8b57f73e70094142f8ca85003b2c2eb335bc5ffe6eb72e5f6a4cdfba7c5",
+    "paper:asena / 精华 {#asena-key-takeaways}": "fb395d31efed96a2aeb458868273219ff62659b633e6a8c3ce2dddc61aade3cb",
+    "paper:asena / 1. 研究背景/问题 {#asena-background}": "fdf88f6763cdbb52f1f865598781da32cda7ef0cea66fec62fc8209ac9ad7dc2",
+    "paper:asena / 2. 主要方法/创新点 {#asena-method}": "1c13440e4bf74103a41628185d7cc3ed65e38849e392941834ddf73a57f08096",
+    "paper:asena / 3. 核心结果/发现 {#asena-results}": "fcb5535b13c0b917457be884c562731b5b38402456e632b5803c104cdbc00ad5",
+    "paper:asena / 4. 局限性 {#asena-limitations}": "3178f05f1d40fc3ede28041292ba5afa003ccd2bda7d2965e2bfbcb49cdff0d2",
     "参考资料": "9b02b96398a0ecec9519f4402648095347400e58028bcf57f57e2194eee8f5e6",
-    "论文引用": "ab95604eba4515d7d59d695e4ced36af7b0da8463bf048f9f7bb7feb2e218745"
+    "论文引用": "8f4e237a2a5e69743a99edda4b15708877d431ff5fa006f873eafb972401a8da"
   }
 }

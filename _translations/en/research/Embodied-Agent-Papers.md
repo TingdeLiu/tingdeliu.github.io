@@ -5,16 +5,16 @@ translation_id: embodied-agent-papers
 permalink: /en/Embodied-Agent-Papers/
 source_path: _posts/research/2026-03-06-Embodied-Agent-Papers.md
 source_url: /Embodied-Agent-Papers/
-source_revision_date: 2026-11-04
-translation_updated: 2026-11-04
+source_revision_date: 2026-11-05
+translation_updated: 2026-11-05
 title: "Embodied Agents: Paper Readings"
-date: 2026-11-04
+date: 2026-11-05
 tags: [Agent, Embodied AI, Robotics, VLA, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "Twenty paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, weight-harness co-evolution, history-replay-driven evolution of exploration policies, evaluation in evolving physical and social environments, and unified robot-use tools for open models."
+excerpt: "Twenty-one paper entries on embodied runtimes, physical orchestration, scene-graph evaluation, self-evolution, semantic action interfaces, action chunking, AgentOS, inspection systems, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, weight-harness co-evolution, history-replay-driven evolution of exploration policies, evaluation in evolving physical and social environments, unified robot-use tools for open models, and robot-program evolution with fixed model weights."
 ---
 
 
@@ -23,7 +23,7 @@ excerpt: "Twenty paper entries on embodied runtimes, physical orchestration, sce
 # Embodied Agents: Paper Readings
 {: id="具身智能体论文精读"}
 
-This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed loop that can operate sustainably. The twenty papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, weight-harness co-evolution, history-replay-driven evolution of exploration policies, evaluation in evolving physical and social environments, and unified robot-use tools for open models. The experiments cover simulation environments, text-interaction environments, interactive visual games, real robots, and professional software tasks. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection. Evo² and Dream-RSI are evaluated directly on software tasks, so this article treats them as mechanisms that may transfer to embodied-harness evolution rather than as evidence of robot performance.
+This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed loop that can operate sustainably. The twenty-one papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, weight-harness co-evolution, history-replay-driven evolution of exploration policies, evaluation in evolving physical and social environments, unified robot-use tools for open models, and robot-program evolution with fixed model weights. The experiments cover simulation environments, text-interaction environments, interactive visual games, real robots, and professional software tasks. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection. Evo² and Dream-RSI are evaluated directly on software tasks, so this article treats them as mechanisms that may transfer to embodied-harness evolution rather than as evidence of robot performance.
 
 |Paper|Main entry points|representative verification|
 |---|---|---|
@@ -47,6 +47,7 @@ This article focuses on a common problem: how robots organize perception, planni
 | [Dream-RSI](#dream-rsi) | Historical discovery-tree replay, offline exploration-policy improvement, and recursive deployment | KernelBench, mathematical optimization, Lasso, Terminal-Bench 2.1; no robot experiments |
 | [TARSphere](#tarsphere) | Event-driven physical and social execution, hierarchical memory, and paired capability evaluation | 30 indoor scenes, 360 simulated episodes, and 8 frozen MLLMs; embodied NPCs and dynamic task updates |
 | [uni-robot-agent](#uni-robot-agent) | Unified robot-use tools for open models, reliable execution feedback, and reasoning–action pipelining | 42 RoboDojo tasks and 19 dual-arm real-world evaluation entries; primary simulation excludes depth, while real-world agents use depth |
+| [ASENA](#asena) | Execution-grounded program repair, persistent workspace evolution, and an optional navigation policy | R2R/RxR, ObjectNav, EQA, and qualitative Unitree G1 demonstrations; navigation evolution reuses fixed task sets |
 
 The filter bar below supports multiple tag combinations; when multiple tags are selected at the same time, the page will only retain papers that meet these tags.
 
@@ -3305,6 +3306,146 @@ Precise grounding, fine manipulation, bimanual coordination, and reliable long-h
 
 ---
 
+## 21. ASENA (2026) {#asena}
+———Coding agents revise robot programs from execution evidence and accumulate reusable skills with fixed model weights
+
+📄 **Paper**: [arXiv:2609.39207v2](https://arxiv.org/abs/2609.39207v2) · [Project Page](https://research.nvidia.com/labs/gear/asena/)
+
+### Key takeaways {#asena-key-takeaways}
+
+ASENA connects general-purpose coding agents to robots so they can read sensors, write and execute programs, inspect execution records, and retain repaired programs and experience for later tasks. It divides responsibility between general task reasoning and specialized motion capabilities: the agent organizes search, inspection, manipulation, and communication, while the optional 4B monocular ASENA-VLN tool handles extended routes and local navigation. The transferable idea is to turn execution failures into program repairs grounded in recorded evidence, then store the resulting experience as inspectable notes and executable skills. The navigation tool's benefits depend on the coding backend, with reductions in tool calls more consistent than improvements in success rate. The paper primarily demonstrates workspace evolution through repeated execution of the same tasks; transfer to new tasks still requires separate evaluation.
+
+---
+
+### 1. Background and problem {#asena-background}
+
+A request such as finding a vending machine, checking whether it stocks the snack on a desk, and returning to answer with a gesture requires navigation, recognition, spatial memory, and interaction. ASENA lets a coding agent organize these capabilities from live observations, use execution records to identify failures, and retain repairs; it also trains a callable navigation policy to reduce repeated reasoning about individual movements.
+
+---
+
+### 2. Methods and innovations {#asena-method}
+
+<div align="center">
+  <img src="/images/vln/ASENA-system-overview.webp" width="100%" loading="lazy" decoding="async" alt="ASENA coding agent, robot tools, execution feedback, and persistent workspace" />
+<figcaption>Figure 2: A coding agent coordinates perception, planning, and execution through a unified robot interface and reads execution records aligned with sensors, actions, and code. Notes and skills retained across tasks form an editable workspace.</figcaption>
+</div>
+
+**① Overall framework: a coding agent, robot tools, and a persistent workspace.** ASENA comprises a coding agent that generates and repairs task programs, a robot interface for perception, planning, and physical execution, and a workspace that retains programs, notes, and skills. The agent can invoke geometric navigation, ASENA-VLN, grasp planning, and motion checks, then revise its program using subsequent observations and execution records.
+
+**② Grounding programs in robot feedback: action calls produce inspectable outcomes.** Inputs include task instructions, panoramic imagery, LiDAR, odometry, an IMU, and joint states, with calibrated head RGB/stereo-depth observations for manipulation. The agent can process point clouds, compute occupancy maps, and create visualizations to produce waypoints or manipulation programs. MCAP execution records align observations with actions, feedback, code, and visualizations for replay and diagnosis. Program repair can therefore target where physical execution actually diverged from the plan.
+
+The following reader-oriented diagram illustrates tool flow for an object-retrieval task, redrawn from the paper's interfaces; tools are composed as needed:
+
+```mermaid
+graph TD
+    A["Task instruction + current sensor observations"] --> B["Coding agent writes or revises the task program"]
+    B --> C["Navigation: geometric planning or ASENA-VLN"]
+    C --> D["Manipulation: segmentation, depth, grasp candidates, and motion planning"]
+    D --> E["Pre-execution checks and operator approval"]
+    E --> F["Robot executes and records observations, actions, and feedback"]
+    F --> G["Inspect evidence, check progress, or diagnose failure"]
+    G --> B
+    G --> H["Retain notes and reusable skills with robot motion disabled"]
+```
+
+Navigation has two composable paths. Geometric tools plan waypoints and check obstacle clearance using LiDAR occupancy maps; ASENA-VLN predicts body-frame trajectories from language and recent monocular images. The agent decides which tools to invoke and checks progress through subsequent observations.
+
+For manipulation, SAM 2 object masks and depth observations ground grasp candidates, optionally supplemented by learned GraspGenX proposals. Inverse kinematics computes joint angles from the desired hand position, and motion planning produces reaching, lifting, and carrying trajectories. Before execution, arm trajectories are rebuilt from measured joint states and checked for joint limits, sampled self-collisions, and scene clearance, including held-object clearance during lift and retraction. SONIC handles body motion, the optional YAM controller handles grippers, and the speaker handles speech. Online synthesized gestures undergo MuJoCo checks for pose continuity, motion limits, and sampled self-collision; failed checks return the violated constraint to the agent for repair. Physical robot motion in the paper requires validation and operator approval.
+
+**③ Workspace self-evolution: experience files and programs are updated.** ASENA represents workspace revision k as a combination of notes and executable skills:
+
+$$
+W_k = (N_k, S_k), \qquad W_{k+1} = I_\phi(W_k, \mathcal T_k, f_k).
+$$
+
+A fixed-weight improver uses execution traces, code, and task feedback to update notes and skills; the task agent reads the revised workspace during later execution. Coding-model, navigation-policy, and controller weights all remain fixed during this stage.
+
+| Dimension | Model-parameter updates | ASENA workspace evolution |
+|---|---|---|
+| Where experience is stored | Model weights | Notes, programs, and executable skills |
+| Improvement process | Change parameters through training | Edit the workspace using execution records and feedback |
+| How later tasks benefit | Use the updated model | A fixed model reads and invokes retained experience |
+| Evaluation constraint | Freeze the model being evaluated | Disable workspace writes to evaluate the retained version |
+
+In navigation evolution experiments, 16 Claude Sonnet 5 workers execute tasks using private workspaces, while an improver aggregates traces and edits between passes to update the canonical workspace. Tasks, scenes, instructions, and initial poses remain identical across passes, and ground-truth task feedback is supplied. On the real robot, skill revision uses execution records and optional operator feedback with robot motion disabled. These settings primarily measure experience accumulation on recurring tasks.
+
+**④ ASENA-VLN: a shared decoder converts vision and language into executable waypoints.**
+
+<div align="center">
+  <img src="/images/vln/ASENA-navigation-policy.webp" width="100%" loading="lazy" decoding="async" alt="ASENA-VLN shared decoder, trajectory outputs, and atomic-navigation examples" />
+<figcaption>Figure 3: ASENA-VLN builds on Qwen3-VL-4B-Instruct and takes a structured instruction and up to 8 front-view frames. A shared autoregressive decoder outputs trajectory tokens, auxiliary pixel goals, or text answers; the right panel shows atomic-navigation training examples.</figcaption>
+</div>
+
+Inputs are up to 8 monocular front-view frames and a JSON instruction containing goal text, a quality setting, and optional end-pose anchors. Recency-weighted visual tokens preserve historical context while emphasizing the latest view. The shared autoregressive decoder adds 1,343 tokens to the original text vocabulary: 660 for trajectories and 683 for pixel goals. Fixed bins along each coordinate axis decode trajectory tokens into up to 8 cumulative waypoints, each containing position and heading. The model thus generates explicit motion targets without a separate continuous-action head.
+
+> **A minimal example:** Consider straight-line motion with 3 predicted waypoints at 0.25, 0.50, and 0.75 meters, all with zero lateral offset and heading. Each is relative to the robot frame at the start of this prediction, so the endpoint is 0.75 meters ahead; adding the three positions again to obtain 1.50 meters would be incorrect. Decoding predicts bin tokens for each waypoint's x, y, and heading, then converts them back into coordinates. These illustrative values explain cumulative poses and do not assert that the paper specifies these particular bin centers.
+
+The decoder can also output a destination's image location, heading, and termination flag as auxiliary visual-grounding supervision, while VQA uses the original text tokens. Pixel goals require additional motion planning before execution. All evaluations in the paper use trajectory-token predictions, so the results should not be interpreted as pixel-goal execution using a simulator shortest-path follower.
+
+**⑤ Atomic-navigation data: train both extended route following and local actions.** The authors construct and validate 9 atomic-navigation task categories in MP3D and HM3D, covering metric motion, rotation, approaching targets from relative directions, fine alignment, room entry, door traversal, corridor following, and floor changes. Scene geometry and goal requirements are checked using shortest traversable-path distance, or geodesic distance, together with visibility and geometric constraints. Each feasible task produces an instruction, waypoint trajectory, and auxiliary pixel goal, giving coding agents callable capabilities such as passing through a particular door.
+
+Training mixes navigation atoms, short-horizon ObjectNav, R2R/RxR routes, ScaleVLN, SRDF, and multi-view spatial VQA. GPT-5.5 re-captions the original navigation instructions into the structured interface. Trajectory prediction and spatial VQA are sampled at a 3:1 ratio. Training uses 64 devices with an effective batch size of 512; the reported checkpoint uses fewer than 10,000 optimizer updates and fewer than 5 million training samples, including repeats. The appendix's 28.422 million trajectory pool and 9.128 million VQA pool include sampling weights and repeated entries; they are available pool sizes rather than actual training consumption.
+
+**Training objective.** Trajectory and auxiliary pixel-goal supervision support motion prediction and visual grounding, while VQA supervises spatial answers. The paper does not explicitly give a loss equation; the following generic negative log-likelihood is an explanatory expression for understanding the shared autoregressive supervision:
+
+$$
+\mathcal L_{\mathrm{AR}} = -\sum_{t=1}^{T} \log p_\theta(z_t \mid z_{<t}, V, q).
+$$
+
+Here V denotes visual history, q an instruction or question, and z the target token sequence for the task. The 3:1 ratio describes sampling between trajectory tasks and spatial VQA; the paper does not define it as a loss coefficient.
+
+**Inference.** The agent organizes a program from the task and observations, invokes ASENA-VLN when needed, passes its bounded waypoint trajectory to the motion interface, and uses new observations to check the goal or continue planning. Search tasks additionally require a high-level VLM to choose where to search, while the policy handles local navigation. Standalone ASENA-VLN evaluation uses 0.25-meter forward steps and 15° rotations. The full real-robot system also uses sensors such as LiDAR, so the monocular description applies specifically to the navigation policy's visual input.
+
+---
+
+### 3. Results and findings {#asena-results}
+
+**Standalone navigation: leading R2R success, with RxR metrics requiring separate interpretation.** The following results are from the full val_unseen evaluation in Table 1. SR measures stopping in the goal region, while SPL also accounts for path efficiency.
+
+| Method | R2R SR ↑ | R2R SPL ↑ | RxR SR ↑ | RxR SPL ↑ |
+|---|---:|---:|---:|---:|
+| StreamVLN | 56.9 | 51.9 | 52.9 | 46.0 |
+| DualVLN | 64.3 | 58.5 | 61.4 | 51.8 |
+| Qwen-RobotNav-4B | 66.9 | 60.5 | 71.3 | 61.5 |
+| ASENA-VLN-4B | **68.7** | **64.2** | 70.2 | 59.7 |
+
+On R2R, ASENA-VLN improves over Qwen-RobotNav by 1.8 percentage points in SR and 3.7 points in SPL. Its RxR SR/SPL are lower than that baseline, but navigation error is lower at 3.90 versus 4.15 meters, and reference-route similarity nDTW is higher at 73.1 versus 68.6. The abstract's leading-performance description therefore should not be generalized into a claim that every success metric on both R2R and RxR ranks first.
+
+**Integration with coding agents: the navigation tool consistently reduces calls, while success gains depend on the backend.** The next table comes from Table 3, before workspace evolution. Each R2R/RxR Agentic Split contains 100 tasks across 10 scenes; this is a different evaluation setting from the standalone policy's full val_unseen results.
+
+| Coding backend | Navigation tool | R2R SR / SPL | RxR SR / SPL | Mean R2R / RxR tool calls |
+|---|---|---:|---:|---:|
+| Claude Sonnet 5 | No | 61.0 / 34.2 | 50.0 / 31.9 | 83.32 / 103.83 |
+| Claude Sonnet 5 | Yes | 72.0 / 54.9 | 61.0 / 45.5 | 33.96 / 38.91 |
+| GPT-6 Astra | No | 87.0 / 72.4 | 93.0 / 78.0 | 26.37 / 40.80 |
+| GPT-6 Astra | Yes | 88.0 / 72.8 | 86.0 / 64.0 | 14.00 / 19.98 |
+
+Claude Sonnet 5 gains 11 percentage points of SR on both benchmarks, with calls reduced by 59.2% and 62.5%. GPT-6 Astra also reduces calls by 46.9% and 51.0%, but its RxR SR falls from 93% to 86%. A specialized policy can absorb batches of local movement without necessarily improving task success for a strong coding backend; reasoning capability and tool integration are important variables. Four RxR episodes produce non-finite NE or SPL values: the authors count them as failures for SR and compute NE/SPL on the remaining 96 episodes.
+
+<div align="center">
+  <img src="/images/vln/ASENA-workspace-evolution.webp" width="100%" loading="lazy" decoding="async" alt="ASENA workspace evolution and cost changes on recurring task sets" />
+<figcaption>Figure 4: Repeated execution on fixed Agentic Splits of 100 tasks each retains workspace experience while model weights remain fixed. Success-related metrics generally improve and logged per-episode costs generally decrease; the navigation tool consistently improves path efficiency.</figcaption>
+</div>
+
+**Evolution on recurring tasks: retained experience can increase success and lower logged costs.** The abstract reports that after 10 passes, R2R SR rises from 72% to 98% and RxR from 65% to 89%; Figure 4 shows improvement in all four evolution campaigns with and without the navigation tool. One reporting difference remains: Table 3 gives an initial RxR SR of 61% for tool-equipped Claude Sonnet 5, whereas the abstract reports 65%, without an explicit explanation. Since passes reuse the same tasks with ground-truth feedback, these gains cannot directly establish generalization to new scenes or tasks.
+
+**Object search and embodied question answering: combine high-level search with local navigation.** The full ASENA system reaches 80.8% SR and 38.1% SPL on HM3D-v2 ObjectNav, and 64.9% SR and 38.4% SPL on unseen HM3D-OVON categories (Table 2). In frozen-workspace EQA evaluation, pass 17 with high reasoning effort achieves 81.2% accuracy and 0.253 normalized exploration steps on HM-EQA. The best evolved MT-HM3D workspace is pass 4 at low effort, with 66.5% accuracy and 0.091 steps, while the hand-designed quality configuration reaches 67.1%. Different revisions and reasoning configurations therefore trade accuracy against exploration, rather than improving monotonically. A paired ablation on 132 MT-HM3D questions finds that the navigation tool reduces median normalized exploration steps by approximately 19% with little accuracy change. EQA uses a simulator protocol allowing teleportation, so its step counts do not directly measure real-robot walking time.
+
+<div align="center">
+  <img src="/images/vln/ASENA-real-world-tasks.webp" width="100%" loading="lazy" decoding="async" alt="ASENA search, interaction, retrieval, and handoff demonstrations on Unitree G1" />
+<figcaption>Figure 5: Four Unitree G1 demonstrations without pre-built maps: find a restroom and return with directions, count coffee machines in a pantry, compare a snack and return with a gesture, and pick up, carry, and hand over a Pringles can. Maps are constructed during execution.</figcaption>
+</div>
+
+**Physical deployment: capability composition is demonstrated, with speed and reliability still needing improvement.** Odometry-estimated distances for the four demonstrations are 158, 58, 70, and 60 meters. Individual tasks take approximately 10–20 minutes, and the first three search tasks use previously unseen environments. The appendix separately evaluates an earlier policy checkpoint at step 8,400 on Jetson AGX Thor: FP8 and a reduced navigation-output vocabulary lower the sum of component latencies from 2,806 to 877 milliseconds, approximately a 3.20-fold speedup. This checkpoint differs from the main benchmark policy, and quantized prediction agreement is not navigation success.
+
+---
+
+### 4. Limitations {#asena-limitations}
+
+Navigation workspace evolution repeatedly uses the same tasks, scenes, instructions, and initial poses; aggregate monitoring results in EQA evolution also reach the improver, and transfer of retained skills to entirely new tasks lacks independent validation. Real-robot results are primarily qualitative demonstrations without repeated reliability statistics across objects, layouts, and users; tasks take 10–20 minutes, and safeguards for dynamic environments require further work.
+
+---
+
 # References
 {: id="参考资料"}
 
@@ -3334,6 +3475,7 @@ Precise grounding, fine manipulation, bimanual coordination, and reliable long-h
 19. **TARSphere** (2026). TARSphere: A Robot-Oriented Full-Stack Framework for Long-Horizon Embodied Agents in Evolving Physical and Social Environments. arXiv: [2610.30043](https://arxiv.org/abs/2610.30043) · Code: [xuyicheng-zju/TARSphere](https://github.com/xuyicheng-zju/TARSphere) · Project Page: [xuyicheng-zju.github.io/TARSphere](https://xuyicheng-zju.github.io/TARSphere/)
 
 20. **uni-robot-agent** (2026). Democratizing Robot-Use Agents: A Unified Harness with Open Models. arXiv: [2611.01560](https://arxiv.org/abs/2611.01560) · Code: [Open-RUA/uni-robot-agent](https://github.com/Open-RUA/uni-robot-agent) · Project Page: [uni-robot-agent.com](https://uni-robot-agent.com)
+21. **ASENA** (2026). ASENA: Self-evolving Agents for Embodied Navigation. arXiv: [2609.39207v2](https://arxiv.org/abs/2609.39207v2) · Project Page: [ASENA](https://research.nvidia.com/labs/gear/asena/)
 
 <script>
 (function () {
@@ -3358,6 +3500,7 @@ Precise grounding, fine manipulation, bimanual coordination, and reliable long-h
     { m: 'Dream-RSI', t: ['Harness', 'self-evolution', 'RSI', 'Active exploration', 'Long-horizon tasks', 'Data governance'] },
     { m: 'TARSphere', t: ['Harness', 'Closed-loop systems', 'Spatial memory', 'Zero fine-tuning', 'Long-horizon tasks', 'Benchmark evaluation', 'Human-robot interaction'] },
     { m: 'uni-robot-agent', t: ['Harness', 'Closed-loop systems', 'Embodied manipulation', 'Real-robot deployment', 'Zero fine-tuning', 'Exception recovery', 'Reasoning budget', 'Embodied reasoning'] },
+    { m: 'ASENA', t: ['Harness', 'Closed-loop systems', 'self-evolution', 'Skill induction', 'Embodied navigation', 'Embodied manipulation', 'Real-robot deployment'] },
   ];
 
   var ALL_TAGS = ['Survey', 'Closed-loop systems', 'Harness', 'AgentOS', 'Embodied manipulation', 'Scene graph', 'Topological graph', 'Real-robot deployment', 'Fast and slow dual system', 'Typed actions', 'Spatial memory', '3D semantics', 'Multi-machine collaboration', 'TAMP', 'VLA', 'double check', 'Exit-code evaluation', 'self-evolution', 'RSI', 'High-frequency judge', 'Cross-embodiment', 'Active exploration', 'Zero fine-tuning', 'action chunking', 'reinforcement learning', 'Skill induction', 'Long-horizon tasks', 'Exception recovery', 'Embodied navigation', 'Visual memory', 'Reasoning budget', 'Embodied reasoning', 'Data governance', 'Benchmark evaluation', 'Human-robot interaction'];
