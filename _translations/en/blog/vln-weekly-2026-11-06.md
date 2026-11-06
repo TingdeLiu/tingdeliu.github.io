@@ -17,7 +17,7 @@ categories: weekly
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "Continuing from the previous cutoff of October 29, this issue organizes 131 verified independent works. WayTrace reports physical missions up to 1.37 km, and MessyNav reports a 27-percentage-point interactive-navigation gain. We also examine evidence boundaries for safety constraints, missing-target verification, and navigation world models."
+excerpt: "Continuing from the previous cutoff of 10/29, this issue organizes 131 verified independent works. WayTrace reports physical missions up to 1.37 km, and MessyNav reports a 27-percentage-point interactive-navigation gain. We also examine evidence boundaries for safety constraints, missing-target verification, and navigation world models."
 ---
 
 > **This issue**: 131 independent works (91 newly collected / 24 version updates / 16 carried over at the boundary) · Tracks: VLN 8 / embodied agentic navigation 6 · Other directions 117 · WeChat 0
@@ -144,7 +144,7 @@ excerpt: "Continuing from the previous cutoff of October 29, this issue organize
 - **[REA](https://arxiv.org/abs/2610.42053v1)** · Boundary checks and shared recovery budgets may inform navigation runtimes; principal evidence concerns manipulation.
 - **[RoboCasa-Mem](https://arxiv.org/abs/2611.06475v1)** · Earlier behavior defines later constraints, a useful mechanism for testing use of navigation history.
 - **[RESONATE](https://arxiv.org/abs/2611.02937v1)** · 8 controller configurations, 8 scenarios, and 5 repetitions yield 320 physical social-navigation experiments.
-- **[EvoLife](https://arxiv.org/abs/2610.39446v1)** · Carried over from October 29: help-seeking, hybrid actions, and persistent place memory.
+- **[EvoLife](https://arxiv.org/abs/2610.39446v1)** · Carried over from 10/29: help-seeking, hybrid actions, and persistent place memory.
 
 ## 4. Trends and actions
 {: id="trends-and-actions"}
@@ -170,7 +170,7 @@ excerpt: "Continuing from the previous cutoff of October 29, this issue organize
 ## 5. Full work index
 {: id="full-index"}
 
-A marks direct work on the two tracks, B transferable mechanisms or evaluation, and C field observations; October 29 works are retained for continuity.
+A marks direct work on the two tracks, B transferable mechanisms or evaluation, and C field observations; 10/29 works are retained for continuity.
 
 <details markdown="1">
 <summary>VLN and semantic navigation · 8 papers</summary>
