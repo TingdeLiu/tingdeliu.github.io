@@ -35,6 +35,16 @@ def heading_ids(path):
 
 
 class NavigationHeadingTests(unittest.TestCase):
+    def test_navigation_headings_use_block_attribute_lists(self):
+        for filename, slug in PAIRS:
+            for path in [ROOT / '_posts/research' / filename,
+                         ROOT / '_translations/en/research' / (slug + '.md')]:
+                with self.subTest(path=path.name):
+                    body = path.read_text(encoding='utf-8')
+                    self.assertNotRegex(body, r'(?m)^#{1,6} .+ \{#[^}]+\}$')
+                    blocks = re.findall(r'(?m)^#{1,6} .+\n\{: id="[^"]+"\}$', body)
+                    self.assertEqual(len(blocks), len(heading_ids(path)))
+
     def test_all_heading_anchors_are_explicit_unique_and_bilingual(self):
         for filename, slug in PAIRS:
             with self.subTest(collection=slug):

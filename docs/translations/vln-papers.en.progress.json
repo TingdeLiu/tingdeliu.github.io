@@ -6,203 +6,203 @@
   "total_papers": 50,
   "completed_papers": {
     "r2r": {
-      "source_hash": "8d0efd8a7f25bc1e7acd213b2781797e9545de0a2dc64223cfed9d9428fafbbc",
+      "source_hash": "1868417b848f7dbfff3f330923b6fb5829267e748c329da872690cf061c491d3",
       "status": "translated-and-content-parity-validated"
     },
     "vln-ce": {
-      "source_hash": "ce0e8ab6c316552daba9eebf4cc61dd004a3c30e95636d2cbf508277250b6553",
+      "source_hash": "0b0bb911e25807148ff6aa689282ad1a4084644994b45e8ce6e51b55df2336b0",
       "status": "translated-and-content-parity-validated"
     },
     "duet": {
-      "source_hash": "3bf951b6c1ede230ce7a0fa29aea527075a8beb3b1ded7ef8a952a0e2bf40ce8",
+      "source_hash": "08202af0bc17da516af59bbb772dc62fa71583dfb9c1bf19be34cdbc3e850c47",
       "status": "translated-and-content-parity-validated"
     },
     "r2rie-ce-iedl": {
-      "source_hash": "34dd21fe5583da5d989f4c250d10b7fe2069e883711c41900631ec127dc2672d",
+      "source_hash": "d1d44ebcc59672f61198dd5f8705c1340e8c31deb608bf8fb8aba386656bb235",
       "status": "translated-and-content-parity-validated"
     },
     "navid": {
-      "source_hash": "272b39aeb1d8e717186bd007c32e58793d22dec4fafe4943d434477ac6749b26",
+      "source_hash": "3f55219e0a74f6c8fcfa79aab01b089d4aaea7ca7befd2fa16813cd190d4e2cf",
       "status": "translated-and-content-parity-validated"
     },
     "navgpt-2": {
-      "source_hash": "0889a2f0f8f1ccf0ef43f797a437f9135f044c37b351f948768b7c46c8139cf4",
+      "source_hash": "c9ecf049a41fb5f4a9bdaf52ed637b85456d3e12e17ed7e248ef0ab343e63498",
       "status": "translated-and-content-parity-validated"
     },
     "dualvln": {
-      "source_hash": "22de448340eafb9de3e0bd96392543ea51bdb3ecc9f912ada023f1e4663c81e4",
+      "source_hash": "3c372673866e3043119e31b76cbcd119d7e134dc31b1c485f0a2d9f2dc269ac4",
       "status": "translated-and-content-parity-validated"
     },
     "vln-r1": {
-      "source_hash": "e645c56650e0b37482d7f5624c9efb118704a9d973d7820bd80aec0f2e3ce2e2",
+      "source_hash": "1215ee322a29ed17e7541f9c5715370aab01166a3b09c393a79ba271e13c56c0",
       "status": "translated-and-content-parity-validated"
     },
     "streamvln": {
-      "source_hash": "5c455bd1d03603d94b192a7e108852fc1ceb486d366541ff9ca3826ea7d47deb",
+      "source_hash": "d8539657588258b1682fd489abbe02977f588d6c0519998b06fb6eddddc0d4ee",
       "status": "translated-and-content-parity-validated"
     },
     "navfom": {
-      "source_hash": "f290b85cdfec06f8ba0659c648b7b8ba5e4b53619fec31fd79ede4da3cb9e03f",
+      "source_hash": "929dbe55d1ff3986ed5c3d2a4a2c08b3fa4265e1a1b7b7e7c6079fb11f938fd8",
       "status": "translated-and-content-parity-validated"
     },
     "mapnav": {
-      "source_hash": "44730cacc8882c160d6048fb0c464510b45ce7621987d44498c653455d540279",
+      "source_hash": "96b869d5009eb916984511b0d17d06114b4a90951fcfaa9c8722410b3db59b3a",
       "status": "translated-and-content-parity-validated"
     },
     "vln-imagine": {
-      "source_hash": "31dbc9f74a0e7adac8e693d7814c24d5dc3e016fb9f629b01cc06ed95c598c96",
+      "source_hash": "385376037dcd0d5406a983277557527236f5cf20bc952af6c8411c065349d377",
       "status": "translated-and-content-parity-validated"
     },
     "vln-pe": {
-      "source_hash": "12a21dca1dbc37294219f44fc677967a4b0847e4dfc8de15e3d3e60eaccea021",
+      "source_hash": "b3c08661b88f3df040abdaef5bfe77c5dc38400647b50859de1a21dab65d57ce",
       "status": "translated-and-content-parity-validated"
     },
     "goal2pixel": {
-      "source_hash": "57c22326ead91a8393a7558463a413c48a4507c7d9c722997656dbe038c4dca7",
+      "source_hash": "0ee071e91295598d0085ff8ba2bbbeeb1801e3d87bc73ef302f6c5dfd33d8810",
       "status": "translated-and-content-parity-validated"
     },
     "astranav-world": {
-      "source_hash": "b511a24d32c847bb7774923b83412512dda16b4230c8a24243daf321146de5b1",
+      "source_hash": "f105ab011ba019e6a696afe78701594d80eb95e5d1ffc1678a7d63b3c7bc3599",
       "status": "translated-and-content-parity-validated"
     },
     "correctnav": {
-      "source_hash": "c3fe4db21d6fc021dcfb053977013406d869721143deb44ae93929c5b101c2b8",
+      "source_hash": "c51a844f156cd00bf55379b57342d21a30854bc2a5345205d76a13aafb9026b0",
       "status": "translated-and-content-parity-validated"
     },
     "slow4fast-vln": {
-      "source_hash": "38c9f948c428ed92ae701df2ee341cce90ff94f4f011e789a4e75a6efd229fc4",
+      "source_hash": "721e87ad330408acdabf0624fca036a2b9d2586439f428c1cf0133e54dd12303",
       "status": "translated-and-content-parity-validated"
     },
     "dgnav": {
-      "source_hash": "db98ea7bc2261221c228305dee4b80364f85795964fbe4a4575525d4e8e283a5",
+      "source_hash": "6a293c3d12b0ae1623ef2e7a2263429219bda6563bc7f00ed85b79bd8baa8553",
       "status": "translated-and-content-parity-validated"
     },
     "vln-cache": {
-      "source_hash": "603b1c568933be3a7502cd4b7de8e1daff25f0f995880f0b9105df3a1c7e93bf",
+      "source_hash": "c6879028ba7571c9c6667f54cc5117ce07683118b30b232a36fede115a4ad412",
       "status": "translated-and-content-parity-validated"
     },
     "r3": {
-      "source_hash": "3e381a93216e4eb453b2752cfb5889a02b9beb78b2288f9a34374be36c70ab61",
+      "source_hash": "9a775c28614a5ee0c5b75cbdf9768d3edc2d60dd2a45d102bb855eb1161b3c99",
       "status": "translated-and-content-parity-validated"
     },
     "awarevln": {
-      "source_hash": "a7d5aacd24172a7abbe3515ccc78f61f9f56caad088e6e50708a1edee5073334",
+      "source_hash": "2eec595435cb3c17df447aa5befc1c969e2a1d2310eafc359fbc3a3d1782a27b",
       "status": "translated-and-content-parity-validated"
     },
     "dual-anchoring": {
-      "source_hash": "7b45b47091ecc5b9136efcaed8042a5c3a07f462376960ad33fe2734e925225e",
+      "source_hash": "60cc0337c8081e0ba60b47241796a1bf8d169ad4f0d481d6d22a4259c4f21f61",
       "status": "translated-and-content-parity-validated"
     },
     "janusvln": {
-      "source_hash": "69d9d4342d7ad9896ad96c62f4507016ca70c314c7f03819e9dd78397ecf9532",
+      "source_hash": "261d8a053882cf126c57b6c3be4e7621f3e0ad3d63cf887f70c188b036c67e3e",
       "status": "translated-and-content-parity-validated"
     },
     "hsgm": {
-      "source_hash": "b4618e21c0087ff4e17524639ffa7fee93ba9620ed107100c5f0ca432ba326ba",
+      "source_hash": "2454b2e4058d7c1451a3472c6fcd15372081b96a11d20955e3f495d38e41269c",
       "status": "translated-and-content-parity-validated"
     },
     "onevla-a-unified-framework-for-embodied-tasks": {
-      "source_hash": "4561fca75c426dc521b30e647ec31f2e3816a517438d25d0d3f481ebad2374a2",
+      "source_hash": "94f25901e96444d6c6f2832ef91f021814608d158a32a29f75a4bf473497031a",
       "status": "translated-and-content-parity-validated"
     },
     "rynnbrain": {
-      "source_hash": "c78d6d718659fe8b1d162cb39574436e6222a84f7f780104e41649438f6b6900",
+      "source_hash": "50c2fd5eb10714181c9ea930e9232149cd59edd88096a7692286ee531cd789a5",
       "status": "translated-and-content-parity-validated"
     },
     "omninav": {
-      "source_hash": "07e6d613b4f19b38167d8f1be04317b8204b256107c2dc527df1cde041f4a962",
+      "source_hash": "8d28796acb6dc93870b70c8232a832615a071ddd0478cfe69f5db493f30c2db6",
       "status": "translated-and-content-parity-validated"
     },
     "qwen-robotnav": {
-      "source_hash": "335bab2c859aa10e035fbcc4cbe1412c7511b94674a80f045695ec35ca0364e6",
+      "source_hash": "16bb80345c6c1b8e5acebabfa710525bbe896b83742c5a04ec58460f1459fe9a",
       "status": "translated-and-content-parity-validated"
     },
     "ga-vln": {
-      "source_hash": "98616363313100fddb9553f92e4a605186bd90e41b744b0b00a1da560b50ea91",
+      "source_hash": "67af4ed2fa459f841f37b96fd690bc4ac65d6034a7253807eb3dd13a54c96612",
       "status": "translated-and-content-parity-validated"
     },
     "sedualvln": {
-      "source_hash": "f5c3ad2aca71ecaa9ad2e337cc78ef635aa838d6371caa04184522655d9c107a",
+      "source_hash": "9b60c783ab9875cc3a78cee875db5204849038a850fe5c7c011df3e080aa0549",
       "status": "translated-and-content-parity-validated"
     },
     "robostral-navigate": {
-      "source_hash": "720a0d2517823c56836dfae7c1683f9ea417422071c990337cb0fa951211d9d2",
+      "source_hash": "e45698e61ccd070b7161ee98aadc0541c6488793a209515fbe3ef13cad5ebce5",
       "status": "translated-and-content-parity-validated"
     },
     "abot-n1": {
-      "source_hash": "06bed741cef89f05e17d64dcf5445dd691affe1d0093738e9362a87ab4a2781d",
+      "source_hash": "749a4765983976981c77eb20643f5672ff099370f26ad6832eeda536b3e92672",
       "status": "translated-and-content-parity-validated"
     },
     "tuckernav": {
-      "source_hash": "eaba865f2e99546fe75cd5f5f709247a2ef49576f969bbe899dec8eb1a9de19c",
+      "source_hash": "e90900bc7e836ce72c7a406371b6a0a18fe0ee2d6c0e934085fc8324b1cf4459",
       "status": "translated-and-content-parity-validated"
     },
     "memvln": {
-      "source_hash": "5d5d5dba67ff1be612c217ebc55a5585b810cd7742b871e5958622f561fdbcc0",
+      "source_hash": "b3e9e6472c3f7daef9614cbf4c7719091fcd309bc2edee884fd5026fe5258b7a",
       "status": "translated-and-content-parity-validated"
     },
     "image2sim": {
-      "source_hash": "b7e1c1adf64e6082a39c67c129fc7eb8ee1aea191b29a3dd4f3023a2e7c5d843",
+      "source_hash": "35973a8d03c60f9b79158cbeeaa9cc42ad442237d4ed262ea20f5c9927cdc214",
       "status": "translated-and-content-parity-validated"
     },
     "decovln": {
-      "source_hash": "e1f1e5c64ddefe7e568b1845c695f4066f1ce15ac54d577f518017611b82926d",
+      "source_hash": "74bb1864d5771ab8c22f7246ef347d5112a59542f4f9b8c8af8ae654863fdc3b",
       "status": "translated-and-content-parity-validated"
     },
     "tamp-nav": {
-      "source_hash": "d5e6e912437f2d8b37c4fea5d9a098b284fabe80b75ae4e8e59f027fd507a62e",
+      "source_hash": "d20e9cc84d07de3ee3557090a720c19129c322b8c2ccd7502a30557e6e17b999",
       "status": "translated-and-content-parity-validated"
     },
     "lightnav-0": {
-      "source_hash": "ce36f33ff40a7f443e7d4835c62ee1537720f27835c7b583d4118f1c4d16f4e2",
+      "source_hash": "6bf614a91f31cd64fb8addc64045ef47431070f07c05f3e7d365a8105df5ab24",
       "status": "translated-and-content-parity-validated"
     },
     "uncertainty-aware-gaussian-map": {
-      "source_hash": "c306e2db0851cb9273e24c80e11fd2bc8088fd5ed8b6dcdf9fffefe069a96857",
+      "source_hash": "261377e191aed6d6b9a7627848ed37a6a62a7addab9506427d0f2dc57354f2a5",
       "status": "translated-and-content-parity-validated"
     },
     "groundingvln": {
-      "source_hash": "c27e4ce8bc2607240abb8e6520bf32d5806085c16d8635a870ba28b1a6eb4e15",
+      "source_hash": "b5485af57b55d93f30873f04d78e17bf35d696f06281a05699fe6f6cd292b3c8",
       "status": "translated-and-content-parity-validated"
     },
     "budvln": {
-      "source_hash": "94d9d2ca31632956f589ee02766a9f0940ac5b40097ac6aae060a3a234cb76b2",
+      "source_hash": "29a7b664e5e688f672f587b16c6593f3a69e0c319bb27db552278f19a8262fe2",
       "status": "translated-and-content-parity-validated"
     },
     "route2step": {
-      "source_hash": "17123e573e70d53bee5d46ad388cee9a8c640c95e9e24c72bf042541fe1b4734",
+      "source_hash": "bcf55a3d48b41a0bab7816cbffa41f0e97974d921fd8742d1a1884a93276292f",
       "status": "translated-and-content-parity-validated"
     },
     "prospect": {
-      "source_hash": "afae6d012b0484cb8116b4b646116375ed5aea3c9452b9aded8b6a4ff99ec389",
+      "source_hash": "aefeb737521a3f38368f65d6a824906bbf5afcf062c38c1fd0e9e47f5a8f4c29",
       "status": "translated-and-content-parity-validated"
     },
     "macroaction-vln": {
-      "source_hash": "cbc6e7189f432412ae5cecc061eff285cac018c5f3533ba3088d379c4c8e39d2",
+      "source_hash": "d1435cd01d3d87ead8c3be5acf5db0a83bb511f4c7b37ae5dccdfc8a7b19fe8d",
       "status": "translated-and-content-parity-validated"
     },
     "humanoidvln": {
-      "source_hash": "2aadf6f4b6ce715d5fe92019073c0a5891636fda88522dc60a9a10b01e25b819",
+      "source_hash": "0f6c9c75690025515e790fedaa387cb351a80800a19cd9195bafd6ec8148c1f7",
       "status": "translated-and-content-parity-validated"
     },
     "adageovln": {
-      "source_hash": "4b7c42639a8615ac77d367f48093e4b055e11b8bf9cdd3fbc2748b419af53859",
+      "source_hash": "7d2d47c3f9ec95ef2366e4ebb3196cb9a9ec57b4197f90bd6eb209dbfad408ab",
       "status": "translated-and-content-parity-validated"
     },
     "seekvln": {
-      "source_hash": "2b4360f524a291b72b063743b0878f73664563b2ebc92d4298525bcbad959aee",
+      "source_hash": "d86ea6cc59de1a5d51450129a98968ac948c3ac6f0444fa854ae23fdfc539259",
       "status": "translated-and-content-parity-validated"
     },
     "rsi-nav": {
-      "source_hash": "1dbd6227459913ceead460e222f75bb9f62e5e451fde76bfc8f942577d152be5",
+      "source_hash": "9ee4538c150bc047477db8473f3fa2ef483702ab2ffa7b6dc83e77c205de0e7b",
       "status": "translated-and-content-parity-validated"
     },
     "simplevln": {
-      "source_hash": "d4ba679f84914c14a0434c7085380fa2ce243b000db685fd68d90aac4dce0c8a",
+      "source_hash": "65154e7bbe1dda6e426f66ee4da1ab8e7be75c1e4117e1cd4eb36db5fc879099",
       "status": "translated-and-content-parity-validated"
     },
     "efficient-vln": {
-      "source_hash": "95ae801434600aa334737ef3fbbda61ff643cc44fcd8d10d52f0087394d04437",
+      "source_hash": "cb1e8abfcc4359961c89c303e3da26a5fb32779b02c0cd5c310f6a592b86981a",
       "status": "translated-and-content-parity-validated"
     }
   }

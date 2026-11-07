@@ -250,7 +250,16 @@ def main():
             if not papers_status['stale']:
                 def headings(doc):
                     return [n['attrs'].get('id') for n in doc.nodes if n['entry'] and re.fullmatch('h[1-6]', n['tag'])]
-                check(headings(papers) == headings(original), f'{slug}: heading structure/IDs differ')
+                english_ids, source_ids = headings(papers), headings(original)
+                check(english_ids == source_ids, f'{slug}: heading structure/IDs differ')
+                if english_ids != source_ids:
+                    differences = [(i, source_ids[i] if i < len(source_ids) else None,
+                                    english_ids[i] if i < len(english_ids) else None)
+                                   for i in range(max(len(source_ids), len(english_ids)))
+                                   if (source_ids[i] if i < len(source_ids) else None) !=
+                                      (english_ids[i] if i < len(english_ids) else None)]
+                    for index, source_id, english_id in differences[:5]:
+                        print(f'{slug}: heading {index + 1}: source={source_id!r}, English={english_id!r}')
                 for tag in ('table', 'img', 'pre'):
                     check(len(papers.select(tag, True)) == len(original.select(tag, True)), f'{slug}: {tag} counts differ')
                 def equations(doc):
