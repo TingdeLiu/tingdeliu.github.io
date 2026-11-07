@@ -1,0 +1,105 @@
+{
+  "source": "_posts/research/2026-11-07-Agentic-Navigation-Papers.md",
+  "translation": "_translations/en/research/Agentic-Navigation-Papers.md",
+  "stage": "complete",
+  "updated_on": "2026-11-07",
+  "total_papers": 24,
+  "completed_papers": {
+    "panonav": {
+      "source_hash": "91ae0f3c199908b8c3f1275a1d88b8c8b96c33c090a56c208a75977472c87f51",
+      "status": "translated-and-content-parity-validated"
+    },
+    "odyssey": {
+      "source_hash": "28f1d5e88718a8f4038a6c69fb52dedb9582ec152135deb3f6e2fb309e8b69a7",
+      "status": "translated-and-content-parity-validated"
+    },
+    "agentic-embodied-control": {
+      "source_hash": "88ab3b8cd367c745b94441763e9f2f7f2f8d6c84cbd39f4f64b9fb0c78fbd787",
+      "status": "translated-and-content-parity-validated"
+    },
+    "remembr": {
+      "source_hash": "c585d97f6362dd9bfd4df835d8317358bb072d0b9785198ff6adc31f2ad487fc",
+      "status": "translated-and-content-parity-validated"
+    },
+    "supermap": {
+      "source_hash": "9b5b736e53d02bc7454fc435106eb15ea3865678a7264bb26c0da545aa7ded01",
+      "status": "translated-and-content-parity-validated"
+    },
+    "gsmem": {
+      "source_hash": "ab559a436acd7f91b9e4647fd6ffa34d0ca2f4951a8816d54acaee870ecdf9ec",
+      "status": "translated-and-content-parity-validated"
+    },
+    "cgfm-nav": {
+      "source_hash": "f3e29f01fdfcf54920b2acf0c9ea7459688277d84c886dbe20fe1606488eaf26",
+      "status": "translated-and-content-parity-validated"
+    },
+    "navmcp": {
+      "source_hash": "9b62c57e5007fa741fdadc5725c53514fd278dccf69ac28fe2c4b45df89d5a1c",
+      "status": "translated-and-content-parity-validated"
+    },
+    "sysnav": {
+      "source_hash": "26fbeec7f0be7ec7d9e7a79e3bdb80cf015fd27e01f0b676fd5e23deb6fd6ab4",
+      "status": "translated-and-content-parity-validated"
+    },
+    "evomemnav": {
+      "source_hash": "d07a900179665a0fcdb847bfb9f2cdd7f8be48aa2c094efba796b1bfe052a84e",
+      "status": "translated-and-content-parity-validated"
+    },
+    "harness-robotic-os": {
+      "source_hash": "50de9524219e605e3be4551ec4ae874d04fdacd336576172e6d542187ee37765",
+      "status": "translated-and-content-parity-validated"
+    },
+    "sparsenav": {
+      "source_hash": "da06ad23627e74c844a4b847bda8f35f5b8e0302a412052842c389cbc5418779",
+      "status": "translated-and-content-parity-validated"
+    },
+    "talk2escape": {
+      "source_hash": "0193ddfccbf43c3dba7686e3575b6f70b94d93ef4430306a99a122ccd8030047",
+      "status": "translated-and-content-parity-validated"
+    },
+    "supernav": {
+      "source_hash": "d5a4604b17470b1692184602b9e8aee9a1e5a48da09c9a321452664c9a767a7b",
+      "status": "translated-and-content-parity-validated"
+    },
+    "navharness": {
+      "source_hash": "3592b1c16d1219631e04b9c1416493fa11b139c13a3249547615993d697051cb",
+      "status": "translated-and-content-parity-validated"
+    },
+    "evolife": {
+      "source_hash": "e1288d2cea3f07fd5121e94e54d857c3f1d2086ff6ee616c78d48142b687cdd2",
+      "status": "translated-and-content-parity-validated"
+    },
+    "open-nav": {
+      "source_hash": "a98352462725c326fdd371501c69d861e389dc7aac9b10152613af83c766a281",
+      "status": "translated-and-content-parity-validated"
+    },
+    "agentvln": {
+      "source_hash": "b244f82ed61acc3b2ac560fcec75f0741434f26eca4859b95e86ab6d01eb262b",
+      "status": "translated-and-content-parity-validated"
+    },
+    "ca-vln": {
+      "source_hash": "288b5d3939208216324a52fe891be32ab7228f97a50931ae6bd58c3be05e58e8",
+      "status": "translated-and-content-parity-validated"
+    },
+    "reflectvln": {
+      "source_hash": "4c7f8a541d6d0557676c8bd7b3882ed29e408306d149880c98bc02105c11e9fd",
+      "status": "translated-and-content-parity-validated"
+    },
+    "agenticnav": {
+      "source_hash": "72cf3bd1fde4bf2cce9048fe95371c017d21bb322af2909f2fc3a70c3c7da600",
+      "status": "translated-and-content-parity-validated"
+    },
+    "harnessvln": {
+      "source_hash": "17eb7d41a23c19066aabf626c48dc4a21fc0049ef1da6fa315d428b007b4b9bb",
+      "status": "translated-and-content-parity-validated"
+    },
+    "gpt-6-astra": {
+      "source_hash": "ee77464a282957d374aa3c472071a3ec500ba3f7cdabaf42d4e5a5c8034cd413",
+      "status": "translated-and-content-parity-validated"
+    },
+    "navgpt-3": {
+      "source_hash": "f6cc1b31dd1ea9c9c5ec7fd21c414cd4d3f44ecabc38db9295255bbf12c77a6c",
+      "status": "translated-and-content-parity-validated"
+    }
+  }
+}

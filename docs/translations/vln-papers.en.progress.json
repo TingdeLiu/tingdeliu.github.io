@@ -2,8 +2,8 @@
   "source": "_posts/research/2026-01-05-VLN-Papers.md",
   "translation": "_translations/en/research/VLN-Papers.md",
   "stage": "complete",
-  "updated_on": "2026-10-31",
-  "total_papers": 60,
+  "updated_on": "2026-11-07",
+  "total_papers": 50,
   "completed_papers": {
     "r2r": {
       "source_hash": "5df534b80c984ad9599046180a2fa4ac74915a79f7b6e1865cfd62c694c236f8",
@@ -49,255 +49,161 @@
       "source_hash": "44730cacc8882c160d6048fb0c464510b45ce7621987d44498c653455d540279",
       "status": "translated-and-content-parity-validated"
     },
-    "open-nav": {
-      "source_hash": "a2aa6239f8a89a27ebd1a0dbcd501fa6b0efff0ce1e4a7f34225fe9d6c8661bf",
-      "status": "translated-and-content-parity-validated"
-    },
     "vln-imagine": {
-      "source_hash": "12ac4ecee197ed04c44283b3804de3a497f767927b4d8dfa0bae9f3644e3ceef",
+      "source_hash": "b63d53185a0085eb8635a25600405484c37c29e250cdf3310fbb2b8eed1b1361",
       "status": "translated-and-content-parity-validated"
     },
     "vln-pe": {
-      "source_hash": "a0b302e27ffd0047943477d51e8338ec13a4d00c1a2158ce5f2f6b6d4f5e4976",
+      "source_hash": "12a21dca1dbc37294219f44fc677967a4b0847e4dfc8de15e3d3e60eaccea021",
       "status": "translated-and-content-parity-validated"
     },
     "goal2pixel": {
-      "source_hash": "a79244ffdc9d20be5c6cf44acd8236d3d5d06d50c859993cc54eca70c8c89a5b",
+      "source_hash": "9326f27c3db81812b1c3432a2c53a0ee7276a789bda21cb2a0a44d616747e90c",
       "status": "translated-and-content-parity-validated"
     },
     "astranav-world": {
-      "source_hash": "85e92619954c9e6f76dbfc67e2aeab3abafc150024ca12eb6e10b1524d38e857",
+      "source_hash": "eb117928afb94532dfb8f2ef8b322cd41934d1d6fd6daabb036287ded4d71119",
       "status": "translated-and-content-parity-validated"
     },
     "correctnav": {
-      "source_hash": "8c13a68efbf40ca87f8e534255f15ff833ed7df04bb43d17b52d0b48948665b5",
+      "source_hash": "b650deb45b1b258356f2bc8751016bcd4006ceaa14e0b12729cdfd5b2cf3c1e8",
       "status": "translated-and-content-parity-validated"
     },
     "slow4fast-vln": {
-      "source_hash": "2a13a2afb0127069683d577bc133682d6abd4129a171100b452c672a8dc3b1a2",
+      "source_hash": "859eb1924a50d2db23924be483551a7d3f17ffe115871e2193c12ab7ac5eb82c",
       "status": "translated-and-content-parity-validated"
     },
     "dgnav": {
-      "source_hash": "c6045fa1d2281f85664c874d4f6803f669a88b5d987824873e27e1077eb62301",
-      "status": "translated-and-content-parity-validated"
-    },
-    "causalnav": {
-      "source_hash": "219ad119e1f0d3fc4fbbbd539e74835c29cd5297c22e162a2e14ed6f2b54214f",
-      "status": "translated-and-content-parity-validated"
-    },
-    "agentvln": {
-      "source_hash": "9d0966e74eaf9d4f005520a6fc38f94d4fc92e3a7b9214db50d34810f0f6e88b",
+      "source_hash": "a0f07d9155dec59d0253ffc046fc77ab18578059b81062e03bc8a797e06a42ba",
       "status": "translated-and-content-parity-validated"
     },
     "vln-cache": {
-      "source_hash": "06a84e68bfaa0031d616e81430cbc2bf65babbe5a467a3adadb06ab61248503d",
+      "source_hash": "de47c05e4e2888d5b7bfaaeaa31aa191de1b196567699ace889523921cd5f8ba",
       "status": "translated-and-content-parity-validated"
     },
     "r3": {
-      "source_hash": "cf78a91201701dd723c3165c74015dfd874742cd24b6d53b2e9ae9cba6c22365",
+      "source_hash": "42deb2893e11e97c1a5f12066e3b7e2ba4a2099342c9613195f4d825d295519e",
       "status": "translated-and-content-parity-validated"
     },
     "awarevln": {
-      "source_hash": "3d21792371e9ae1e2486bb25af166e06abf1fc5c7ce46d4f2f11b8d4d9c02610",
+      "source_hash": "13ff8abd9ef94b3978f4d82a51ab3dea19bf5c31ed21fbcc375c95b900a5d90a",
       "status": "translated-and-content-parity-validated"
     },
     "dual-anchoring": {
-      "source_hash": "06e1c7029e05ae603be6766bb8acc4ab1bc7ca30ba7936e680ee262e7a89e47e",
+      "source_hash": "9e60317df63b33b10d992985abb94b63e9c438e84cc5507a3976c577bb3aeef6",
       "status": "translated-and-content-parity-validated"
     },
     "janusvln": {
-      "source_hash": "4ba699ef81e40cf03784ef142ebe8a29fad9846a66fa1e559bc28f971a04feaa",
+      "source_hash": "1f63856b6ebf866062d556a4f300ba823a628d54e53631995767dc7f72923e8d",
       "status": "translated-and-content-parity-validated"
     },
     "hsgm": {
-      "source_hash": "1e63530618aad4b90cfec9f2256a1ea6a81b78f352ed043c63c79343bcf00e1d",
+      "source_hash": "49f5f76c6c715e731ceba87991db8267d84fe80d35ab8236eaa86046d1b41d05",
       "status": "translated-and-content-parity-validated"
     },
     "onevla-a-unified-framework-for-embodied-tasks": {
-      "source_hash": "41cadffc507ad9048bcd73752cd03458f1cb0ae160c5d97407971c947f66c096",
-      "status": "translated-and-content-parity-validated"
-    },
-    "ca-vln": {
-      "source_hash": "5296500b3f422ee78aaf6da1548ea6eac8359a6692b74ba2cc05fcad31fb2b86",
+      "source_hash": "b4a20acd45baadb0bbc01288cc6a1f55bf1849f4f9831b1bde820afe3c79a878",
       "status": "translated-and-content-parity-validated"
     },
     "rynnbrain": {
-      "source_hash": "ce8e08ac4fd97449f30d95bdfcff9dfddfadc9f4c15e8891d83ac2e8fbbf591c",
+      "source_hash": "c5e055480c8e15f0795f78ffd6bb5188bd020d9ac2d4040cc4b3f6cdd0e480df",
       "status": "translated-and-content-parity-validated"
     },
     "omninav": {
-      "source_hash": "1c2ed18d1b5a65824c529ca7d257bc981c551680b33104b67a0bd41a7c14bfda",
+      "source_hash": "faa92f46db8ca99e9f72755ec2e5d4e4199586c592318b3492770cec1fef6e3a",
       "status": "translated-and-content-parity-validated"
     },
     "qwen-robotnav": {
-      "source_hash": "cd995d7792eebea52143d2d8a0503056ebd30073599861210975ac5f6e48446d",
+      "source_hash": "76df78b26078645fb3f1a7a977f26ad77331d00d4576b886a8db95494e4720dd",
       "status": "translated-and-content-parity-validated"
     },
     "ga-vln": {
-      "source_hash": "1d8a6fd1261e248cd97da7fb5b3287f58af02e0cae01373791150a5c9fe28611",
+      "source_hash": "61c6f82b2aa2c6f9c5e1afd82b8de096b060acea249d7c41aade5e8452971d0b",
       "status": "translated-and-content-parity-validated"
     },
     "sedualvln": {
-      "source_hash": "2c13f16bf3c6f3b2ca9806c5288eea3630fd338c896504e3766b15d74e2f79e8",
+      "source_hash": "86928ac1d742d9ac964d810c3bbcc772c573161ccd3f31adebb63924d65324f3",
       "status": "translated-and-content-parity-validated"
     },
     "robostral-navigate": {
-      "source_hash": "a2c9b40162d129ee15554bc4676e71f515c58c084b197f3490e39cce8a1f0bc7",
+      "source_hash": "a018f11bfeab289569687cf73c4e65c5cdedb738ec39469e601122b6a30d80e5",
       "status": "translated-and-content-parity-validated"
     },
     "abot-n1": {
-      "source_hash": "6e7964c729f0e4d88f3ab56aa8a0c9be3e453dde72605793576211836dc8ffb4",
-      "status": "translated-and-content-parity-validated"
-    },
-    "reflectvln": {
-      "source_hash": "1d2a06e65a54a94de821396c1ede153e2494d337ddea5e7054bcaa1887bfc685",
+      "source_hash": "e8aa55ddb8767bd7c228e9bae45d36ff22051231fad7ae49118592f80512b998",
       "status": "translated-and-content-parity-validated"
     },
     "tuckernav": {
-      "source_hash": "300823f13a9a82cf1c6cf52963197f91ce9d20a54af11229aacb73b4b5d1b41d",
-      "status": "translated-and-content-parity-validated"
-    },
-    "agenticnav": {
-      "source_hash": "090ad83756801c3e9f02d11b25eb97e8811215ea4f11570ab1883a15efbdf526",
+      "source_hash": "603b0d92e41de01834c1f4a5ed13548983fd3b5081db2874ce089e8a5a72262e",
       "status": "translated-and-content-parity-validated"
     },
     "memvln": {
-      "source_hash": "9d632ed0a5b11d86367becbd2aac322e3ba5a9e8a258f9182330ee8b3270faac",
-      "status": "translated-and-content-parity-validated"
-    },
-    "x-navdp": {
-      "source_hash": "21e698969aeb97b59368fea3bcf0c1e6482abf48cf6b3ac01f6393f60676032f",
+      "source_hash": "d984109048fa3b181ab7aab1cf6a9a80e2caeefe9bed57675b544b64054eb2ed",
       "status": "translated-and-content-parity-validated"
     },
     "image2sim": {
-      "source_hash": "534080f43bcae5b7f196bf190d836695c34aa774f87111d7a8d20a1ab8b60690",
+      "source_hash": "dc694a1748afee6653ddc3230216b64f914497744846757a1bdcd5dd853bb17a",
       "status": "translated-and-content-parity-validated"
     },
     "decovln": {
-      "source_hash": "b8a1c15173b11b62b0b4267a177c557052a30f9e6eb655797454e47ce2b51818",
+      "source_hash": "33e1dc7481f502aab804af40eff3c1f88420fc7324e59455218ea960c900286f",
       "status": "translated-and-content-parity-validated"
     },
     "tamp-nav": {
-      "source_hash": "79ded8c160878217c9f7b48aa7f61c560b393350df489ea87c560151216bc722",
+      "source_hash": "1eeabb33e244bc05660ade84303074d477b7e9fd37d6a305c184be75929a5270",
       "status": "translated-and-content-parity-validated"
     },
     "lightnav-0": {
-      "source_hash": "9cbbc49919da99a650412005a9030c52dd11cdad936d11c5ba515617074323c3",
+      "source_hash": "ae6125b2b3925738e8fece46220535a4525ca134e47dff5a91fe5808df1501ca",
       "status": "translated-and-content-parity-validated"
     },
     "uncertainty-aware-gaussian-map": {
-      "source_hash": "03e97674aec0f671ba71e38d4a9dcf7d895bf6a0c142141d6fbfadcbd2de2b48",
-      "status": "translated-and-content-parity-validated"
-    },
-    "harnessvln": {
-      "source_hash": "ee081379a6aeda4bc10808d3e83d9fc43dc9fb73e524f523542a327c4bc46823",
+      "source_hash": "f82f92ccc6127f8e6515d37dd1bb22ed5b80c0fd20dc4106ebd26c8ca86dca2c",
       "status": "translated-and-content-parity-validated"
     },
     "groundingvln": {
-      "source_hash": "6087fa04a781a182d8b8b4337e8141770bfe3a472976a5fcaf4485be93da5156",
-      "status": "translated-and-content-parity-validated"
-    },
-    "gpt-6-astra": {
-      "source_hash": "fd58338f69f379321d15eed1cd1469f4fd0a9ed469faaf0e5d31c1dbe744116f",
+      "source_hash": "72585a2b967550651583d0bda5541422f1cd6ce05201c45d4ade0975eb416b37",
       "status": "translated-and-content-parity-validated"
     },
     "budvln": {
-      "source_hash": "8efe3bc02d838541847db278421741747a190732c60cad9d54ea4534e08d3ca1",
+      "source_hash": "9d26293f746c928733b340af97e0aca538c3311ac0eb45b4e607d1139aaf3047",
       "status": "translated-and-content-parity-validated"
     },
     "route2step": {
-      "source_hash": "a7c994523ed6ce16f5e073e04e0b2d70b785715ab68bebfb77da45179abc1119",
+      "source_hash": "81cd7b48e81b868b6594239b2c72725854e3955dfb21b4070ac65579f23f5cdb",
       "status": "translated-and-content-parity-validated"
     },
     "prospect": {
-      "source_hash": "df28097735c523abb44ecc3ac2d457933caec1129564265b4c14be70e957098e",
+      "source_hash": "5b1bde4cecebce7bf9c8eacb75f75bd9b22f719a0fc1f8390d2d8a633cc51579",
       "status": "translated-and-content-parity-validated"
     },
     "macroaction-vln": {
-      "source_hash": "829be9b8aa2411e954d8402996d78747e9dcb5550b5ff76d1c5382d79c48d40c",
+      "source_hash": "09177f7bd1f03d0990384a708d45b1dd1731763788ab977ace516bcf4be65ec6",
       "status": "translated-and-content-parity-validated"
     },
     "humanoidvln": {
-      "source_hash": "7be6434f10a6e512ac1afca6c8a832f840155b85f8a934ebc41a14c5867d19b7",
+      "source_hash": "0118b7f5a7ea5a4aa16329f19a46b8a81339ac867b92831cb7d0b22638077948",
       "status": "translated-and-content-parity-validated"
     },
     "adageovln": {
-      "source_hash": "92d230cfb2b9b5f613054cd017658426aba310773d26b3b10ce7558001cb050c",
+      "source_hash": "ccdd9104bbeba7a39e4f105bf0266a0bc8a85d5b62af981938d0aad332f944ff",
       "status": "translated-and-content-parity-validated"
     },
     "seekvln": {
-      "source_hash": "b09c9a35c709a27abde0bac32cf45e46e26f0b2dc4fb157495b6bf0dcb4f0280",
-      "status": "translated-and-content-parity-validated"
-    },
-    "navgpt-3": {
-      "source_hash": "565069a75d60fd2c27c61fc06da573126077284170a9b52d5f66fb966db16491",
+      "source_hash": "473aabf9a59bf0700cef98efea81e03e45321d27984fbdd092ff43d2b2f2730a",
       "status": "translated-and-content-parity-validated"
     },
     "rsi-nav": {
-      "source_hash": "41207f78cec8a9da479de4f891381a5b7f4f9b2620d51cd537b52c89da38b266",
+      "source_hash": "a4a5c87378cbdacb685336c57af734adc800a4162877766934bd6461fd6f55d3",
       "status": "translated-and-content-parity-validated"
     },
     "simplevln": {
-      "source_hash": "594bcf63d34dd90d4c55c679f7b31a1b4e68ca7c541b8a8ffe69ce42e9a645f7",
+      "source_hash": "addae7eefccc99fe28a586c38bd3d9e97128f6983d04c388faa3192d853542c4",
       "status": "translated-and-content-parity-validated"
     },
     "efficient-vln": {
-      "source_hash": "ec1cf9ba531e4af24bb2a1998d05d99e14723ddf719b2831c977d946df99f80b",
+      "source_hash": "3852912cee0009b44389f5616632b55e5f9d77bd2e418a45107f452443981352",
       "status": "translated-and-content-parity-validated"
     }
-  },
-  "next_batch": [],
-  "remaining_work": [],
-  "review_notes": [
-    "Four earlier reviewed sections retained; remaining prose translated with machine assistance and reviewed for terminology and source parity.",
-    "Original formulas, numerical results, citations, figures, code, and heading IDs protected during translation.",
-    "Diagram labels translated separately; paper filters localized, extended-collection links explicitly labeled Chinese-only.",
-    "DualVLN illustrative training code corrected against Appendix A.2; real-world RGB-D and odometry distinguished from RGB-only simulation.",
-    "MapNav R2R OS/SR headers corrected against arXiv v5 Table 1.",
-    "2026-10-05: SeekVLN synchronized in the English main collection, including all methods, equations, examples, results, limitations, four figure captions, two leaderboard rows, 23-entry component matrix, adoption-rate analysis, reference, tags, and cross-page filtering. Earlier AwareVLN and Robostral source revisions reviewed against the English text; NaVid equation formatting restored to source parity.",
-    "2026-10-24: NavGPT-3 and Efficient-VLN translated in full; RSI-Nav and SimpleVLN recorded as complete. Both leaderboards gained the NavGPT-3, NavGPT VLA 8B, and Efficient-VLN rows, with best-value bolding updated; RSI-Nav's two rows were moved from the DualVLN comparison table, where they had been inserted by mistake, into the R2R-CE and RxR-CE leaderboards. The component matrix (28 entries), its notes, the adoption-rate analysis, references, tags, and cross-page filtering were retranslated from the Chinese source. Per-paper parity of equations, figures, external links, and table values passes for all 60 readings; not rebuilt locally because Ruby and Bundler are unavailable.",
-    "2026-10-31: Renamed the companion collection to Goal and Agentic Navigation and clarified task versus system scope. EvoLife is reading 41 with its complete English translation, three captions, worked examples, and Mermaid diagram. Eight assisted, sampled benchmark rows are flagged and excluded from standard best-value comparisons; GOAT subtask and sequence success are distinguished. References, API badges, companion links, dates, and cross-page filters are synchronized across 101 readings. All paper protected-content comparisons pass."
-  ],
-  "previous_validation": {
-    "reviewed_on": "2026-10-03",
-    "results": {
-      "papers": 55,
-      "headings": 524,
-      "tables": 52,
-      "figures": 233,
-      "code_blocks": 23,
-      "rendered_math": 1243,
-      "mermaid_diagrams": 19,
-      "desktop_viewport": "1440x1000",
-      "browser_errors": 0,
-      "review": "Assisted translation with terminology, numerical, negation, structure, and targeted technical review; not a new verification of every underlying paper."
-    }
-  },
-  "validation": {
-    "reviewed_on": "2026-10-31",
-    "papers": 60,
-    "source_content_parity": "passed: all 101 paper sections; equations, image paths, external links, table values and columns",
-    "heading_structure": "passed: source heading counts and unique explicit translation IDs; new reading retains source-compatible IDs",
-    "headings": 558,
-    "cross_page_papers": 101,
-    "post_lint": "0 errors across eight changed source/translation files; 24 image-size warnings",
-    "source_sync": "passed: repository-wide check_translations.py --strict",
-    "jekyll_build": "not run: Ruby and Bundler unavailable in this environment",
-    "browser_validation": "not run for this update; prior evidence retained separately"
-  },
-  "validation_history": [
-    {
-      "reviewed_on": "2026-10-05",
-      "papers": 56,
-      "source_sync": "passed: repository-wide strict synchronization check",
-      "source_content_parity": "passed: all paper sections; equations, image paths, external citations, table values and columns",
-      "heading_structure": "passed: heading counts, unique explicit IDs, and new IDs matched to source",
-      "english_prose": "passed: no Chinese text outside compatibility IDs",
-      "cross_page_papers": 93,
-      "post_lint": "0 errors; 4 image-size warnings",
-      "regression_tests": 20,
-      "jekyll_build": "not run: Ruby and Bundler unavailable in this environment",
-      "browser_validation": "not run for this update; prior evidence retained separately"
-    }
-  ]
+  }
 }

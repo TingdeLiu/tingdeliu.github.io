@@ -1,12 +1,12 @@
 {
   "source": "_posts/research/2026-03-06-Embodied-Agent-Papers.md",
   "translation": "_translations/en/research/Embodied-Agent-Papers.md",
-  "reviewed_on": "2026-11-05",
-  "source_revision_date": "2026-11-05",
+  "reviewed_on": "2026-11-07",
+  "source_revision_date": "2026-11-07",
   "sections": {
-    "metadata": "5e7da4f700e74964e567e15a340036ca865dcf4b2c64e298eb2007f3d4f1ca82",
+    "metadata": "e187b5ba50913eacd5ee5d1f6c4059c9ee455460388a2b3f573bcbdb084fd977",
     "introduction": "8c17bc1d22a44c667d3673775811d9cf4f0f4d7c5e66bc908245222485388b05",
-    "具身智能体论文精读": "e11d2ca23dd0fe528050c8cff556ab733a3fafe4c8b2097aa06dfb7e459a6976",
+    "具身智能体论文精读": "31bb6e69345fb8a60f0f72df5940f089c660f6451feac828b3c281c7a54fdcf8",
     "paper:holoagent-0 / 1. HoloAgent-0 (2026) {#holoagent-0}": "4cc92a362c7b424cc7a5e880c873144a6dd851bdfdd1e523c749b64861e1580c",
     "paper:holoagent-0 / 精华": "baeffd64d95f90fb8d914888810e60f1190f9f00c85dc8d42d3b83021e7f628f",
     "paper:holoagent-0 / 1. 研究背景/问题": "78636fbb3fb4b211a8ff109e039471dc173ca14b79d9e7250308b620b0f56f92",
@@ -114,13 +114,13 @@
     "paper:harness-robotic-os / 2.8 关于「训练目标」": "79c30a1deb5b649f44ac4ec8c4ea39526be2566a9842be1ce3754737648b061a",
     "paper:harness-robotic-os / 3. 核心结果/发现": "8a31cb346b408752cf619ebcb2b650cd17e8d140a9a127db908e67fb7d09434c",
     "paper:harness-robotic-os / 4. 局限性": "bf4c1958334cb19500d8b9811c3f851bc7d4971c77d14f18dede25ac39f1ca3f",
-    "paper:navharness / 10. NavHarness (2026) {#navharness}": "377c677fbf6620b75a440dbf1523417f7f3cd6b6f020068a5502ec72c624bf31",
+    "paper:navharness / 10. NavHarness (2026) {#navharness}": "371da922a137c4af425af80f1e6a624d5af639344fd3abf96ddec85ef9ac8634",
     "paper:navharness / 精华": "b1ccd48e1305794237fe48b512e11ddb77b8850aeab9b14d846ae8fb8151c06b",
     "paper:navharness / 1. 研究背景/问题": "1caa5f4cfd4482f811adb9913b1d6d1b0ed0d1fbfe509929df2712f03eae2dbd",
     "paper:navharness / 2. 主要方法/创新点": "4de19d2a16419dcda7b90ee9301f04d7599b8779c2a72fd24b5523c3ee9ca7cb",
     "paper:navharness / 3. 核心结果/发现": "c0a158f3ee7f867a95dd5cfec745285f12ed1bf2ce1bd6e2933a2bde756bf1ab",
     "paper:navharness / 4. 局限性": "615b25b99d4a32582aef575236affd059d2870afbc8c661ad2fc2a7522dc9b29",
-    "paper:supernav / 11. SuperNav (2026) {#supernav}": "fc45a363490a94fcc6342746578313f3beb3731e34b29d986b9b57f04ecc56e1",
+    "paper:supernav / 11. SuperNav (2026) {#supernav}": "c077c7cedff4de0dec6c3706273c60dd36215388f0fc9b54b4be16a1f6889eca",
     "paper:vista / 12. VISTA (2026) {#vista}": "f9ae2ca34723ab540811fd68417178525d7763d3a79067738709eaff2c1a8305",
     "paper:vista / 精华": "11ef6b2f6fd63cceef620ed2b3b440ef343fd49817e9fd8fc84f8043cc1633fb",
     "paper:vista / 1. 研究背景/问题": "61d8d6f767cd0fa6ac233e413773e843d5c4dcb593773dfae56bbb1221cc6739",
@@ -201,6 +201,6 @@
     "paper:asena / 3. 核心结果/发现 {#asena-results}": "fcb5535b13c0b917457be884c562731b5b38402456e632b5803c104cdbc00ad5",
     "paper:asena / 4. 局限性 {#asena-limitations}": "3178f05f1d40fc3ede28041292ba5afa003ccd2bda7d2965e2bfbcb49cdff0d2",
     "参考资料": "9b02b96398a0ecec9519f4402648095347400e58028bcf57f57e2194eee8f5e6",
-    "论文引用": "8f4e237a2a5e69743a99edda4b15708877d431ff5fa006f873eafb972401a8da"
+    "论文引用": "af6e05513af38d71d13c0c8a945b537f0a8b55bbc57cdc087b9e56c2b51663dc"
   }
 }

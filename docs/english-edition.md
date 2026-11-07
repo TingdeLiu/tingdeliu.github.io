@@ -1,10 +1,10 @@
 # English edition: scope and maintenance
 
 The English edition contains the complete VLN Survey, VLN Papers: Instruction
-Following (60 readings), and VLN Papers: Goal and Agentic Navigation
-(41 paper entries), and all eight existing
+Following (50 readings), VLN Papers: Goal Navigation (27 goal/support readings),
+and VLN Papers: Agentic Navigation (24 readings), and all eight existing
 embodied-navigation weekly digests (six published and two unpublished), plus `/en/`, `/en/research/`, and
-`/en/blog/`. Both paper collections have localized filters, leaderboards,
+`/en/blog/`. The three paper collections have localized filters, task-specific leaderboards,
 and reciprocal English companion links. The Traditional Robot Navigation
 Algorithms survey also has a complete English edition. The three agent articles
 (AI Agents, Embodied Agent Harness and Runtime Architecture, and Embodied Agent
@@ -12,6 +12,34 @@ Paper Readings) are translated in full. The Machine Learning Foundations group
 also contains complete Machine Learning, Deep Learning, and Reinforcement Learning
 surveys. The Large Models and Spatial Intelligence group now contains complete LLM Training, VLM, and Spatial Intelligence surveys. The Embodied Manipulation (VLA) group now has complete VLA Survey, VLA Paper Readings, and World Models Survey editions. The Engineering Practice group now contains complete Python Engineering and ROS 2 Core Architecture guides.
 
+
+## Navigation reading reclassification (2026-11-07)
+
+Ten readings have moved from Instruction Following to their primary research
+collections. AgentVLN, AgenticNav, HarnessVLN, NavGPT-3, Open-Nav, CA-VLN,
+ReflectVLN, and GPT-6-Astra now belong to Agentic Navigation. CausalNav belongs
+to the goal-navigation methods section; X-NavDP belongs to supporting navigation
+policies. The current counts are 50 instruction-following, 27 goal/support, and
+24 agentic-navigation readings, with all 101 readings preserved in both languages.
+Goal Navigation contains 14 core readings and 13 supporting readings.
+Instruction-following leaderboards and cross-method comparisons remain on their
+task page, with links to the relocated readings. Each page's tag filter indexes
+all three collections using the destination's current numbering. Old main-page
+paper anchors retain migration links. Published inbound links, English source
+snapshots, and all three completion records have been updated.
+
+## Initial navigation collection split (2026-11-07)
+
+The former combined collection is now two articles in both languages.
+`/VLN-Papers-Extended/` retains goal navigation and its leaderboards, with 13
+goal-navigation readings followed by 12 supporting policy, world-model, and
+evaluation readings. `/Agentic-Navigation-Papers/` contains 16 readings on
+agent decisions, tools, interaction, spatial memory, and continuing execution.
+All 41 original readings are preserved; numbering restarts within each article.
+Leaderboards and the three-page tag filters link to each reading's owning page.
+The old goal-navigation URL retains named migration links for moved Agent papers.
+English routes use the same slugs under `/en/`; both translation snapshots and
+the Research navigation group include the new article.
 
 ## EvoLife and collection scope (2026-10-31)
 

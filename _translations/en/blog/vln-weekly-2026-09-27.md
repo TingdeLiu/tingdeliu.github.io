@@ -5,10 +5,10 @@ translation_id: vln-weekly-2026-09-27
 permalink: /en/vln-weekly-2026-09-27/
 source_path: _posts/weekly-reports/2026-09-27-VLN-Weekly.md
 source_url: /vln-weekly-2026-09-27/
-source_revision_date: 2026-10-24
-translation_updated: 2026-10-24
+source_revision_date: 2026-11-07
+translation_updated: 2026-11-07
 title: "Embodied Navigation Weekly (2026-09-16 to 2026-09-24)"
-date: 2026-10-24
+date: 2026-11-07
 period_start: 2026-09-16
 period_end: 2026-09-24
 issue_number: 6
@@ -315,4 +315,4 @@ None in this issue. WeChat public account source has 0 items in the database.
 - **Track whether the** NaviScale dataset is public.
 - **Defer** secondary pool VLA quantification and inference acceleration work: the mechanisms can be used for reference, but they have not been verified on VLN-CE.
 
-> **update (2026-10-01)**: GPT-6-Astra Lights Up has released v2 on 2026-09-25. The 79.0% / 76.0% quoted in this report are the single-run results of v1; v2 is changed to the average of three runs at each reasoning level, and ultra is 81.3±2.5% (SPL 71.5±1.7), medium is 75.7±1.5% (SPL 65.6±2.1), still only evaluated on R2R-CE-100. See the [GPT-6-Astra reading in VLN Papers](/en/VLN-Papers/#gpt-6-astra) for details.
+> **update (2026-10-01)**: GPT-6-Astra Lights Up has released v2 on 2026-09-25. The 79.0% / 76.0% quoted in this report are the single-run results of v1; v2 is changed to the average of three runs at each reasoning level, and ultra is 81.3±2.5% (SPL 71.5±1.7), medium is 75.7±1.5% (SPL 65.6±2.1), still only evaluated on R2R-CE-100. See the [GPT-6-Astra reading in VLN Papers](/en/Agentic-Navigation-Papers/#gpt-6-astra) for details.

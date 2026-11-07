@@ -5,10 +5,10 @@ translation_id: vln-survey
 permalink: /en/VLN-Survey/
 source_path: _posts/research/2026-01-04-VLN-Survey.md
 source_url: /VLN-Survey/
-source_revision_date: 2026-10-31
-translation_updated: 2026-10-31
+source_revision_date: 2026-11-07
+translation_updated: 2026-11-07
 title: "Vision-Language Navigation: A Survey"
-date: 2026-10-31
+date: 2026-11-07
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
@@ -17,7 +17,7 @@ toc: true
 excerpt: "A survey of VLN through tasks, policy architecture, spatial memory, action interfaces, progress tracking, and training signals, comparing active perception, agent orchestration, and prediction mechanisms, with sourced dataset selection and closed-loop evaluation analysis."
 ---
 
-> **Revised on 2026-10-09**: Section 3 is organized by policy architecture, spatial representation, action interfaces, task progress, agent orchestration, prediction, and training mechanisms. This revision expands Section 3.8 with RL mechanisms, reward design, PPO / GRPO, and same-backbone gain evidence, with key conclusions linked to the original papers. Detailed readings are available in {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} and {% include content-link.html path='/VLN-Papers-Extended/' fragment='' label='VLN Papers: Goal and Agentic Navigation' %}. See [Section 9.4](#survey-scope) for coverage.
+> **Revised on 2026-10-09**: Section 3 is organized by policy architecture, spatial representation, action interfaces, task progress, agent orchestration, prediction, and training mechanisms. This revision expands Section 3.8 with RL mechanisms, reward design, PPO / GRPO, and same-backbone gain evidence, with key conclusions linked to the original papers. Detailed readings are available in {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} and {% include content-link.html path='/VLN-Papers-Extended/' fragment='' label='VLN Papers: Goal Navigation' %} and {% include content-link.html path='/Agentic-Navigation-Papers/' fragment='' label='VLN Papers: Agentic Navigation' %}. See [Section 9.4](#survey-scope) for coverage.
 
 
 ## Reading guide
@@ -368,10 +368,10 @@ Spatial representation answers "how are objects and traversable regions in the e
 |:---|:---|:---|:---|
 | Topological graph | Stores connectivity, supports global node selection and backtracking | {% include content-link.html path='/VLN-Papers/' fragment='#duet' label='DUET' %}, ETPNav, {% include content-link.html path='/VLN-Papers/' fragment='#dgnav' label='DGNav' %} | Mapping priors, candidate points, and connection errors |
 | Semantic map / BEV | Compresses spatial layout into a localizable, aggregable state | {% include content-link.html path='/VLN-Papers/' fragment='#mapnav' label='MapNav' %}, {% include content-link.html path='/VLN-Papers/' fragment='#ga-vln' label='GA-VLN' %} | Dependence on depth and pose, and update errors |
-| Hierarchical scene graph / three-dimensional scene memory | Organizes rooms, objects, and multi-view spatial relations | {% include content-link.html path='/VLN-Papers/' fragment='#hsgm' label='HSGM' %}, {% include content-link.html path='/VLN-Papers-Extended/' fragment='#gsmem' label='GSMem' %} | Perception quality, mapping cost, and dynamic-scene updates |
+| Hierarchical scene graph / three-dimensional scene memory | Organizes rooms, objects, and multi-view spatial relations | {% include content-link.html path='/VLN-Papers/' fragment='#hsgm' label='HSGM' %}, {% include content-link.html path='/Agentic-Navigation-Papers/' fragment='#gsmem' label='GSMem' %} | Perception quality, mapping cost, and dynamic-scene updates |
 | Geometric foundation-model features and implicit memory | Keeps geometry and cross-frame evidence in neural representations | {% include content-link.html path='/VLN-Papers/' fragment='#janusvln' label='JanusVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#adageovln' label='AdaGeoVLN' %} | Scale consistency, GPU memory, and history selection |
 | Historical frames, keyframes, and compressed context | Keeps task-relevant observations within a limited budget | {% include content-link.html path='/VLN-Papers/' fragment='#streamvln' label='StreamVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#memvln' label='MemVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#decovln' label='DecoVLN' %} | Whether early landmarks and turns are lost |
-| Task events and experience retrieval | Stores completed steps, failure conditions, and execution evidence | {% include content-link.html path='/VLN-Papers/' fragment='#harnessvln' label='HarnessVLN' %} | Incorrect writes, stale experience, and retrieval overhead |
+| Task events and experience retrieval | Stores completed steps, failure conditions, and execution evidence | {% include content-link.html path='/Agentic-Navigation-Papers/' fragment='#harnessvln' label='HarnessVLN' %} | Incorrect writes, stale experience, and retrieval overhead |
 
 **Geometric fusion and history selection can be optimized together.** [AdaGeoVLN](https://arxiv.org/abs/2609.18789) feeds features from different depths of a geometry model into the policy and keeps historical KV states according to instruction relevance, geometric confidence, and transition novelty. The example shows that compression is not only about reducing tokens: what is kept also changes the spatial reasoning available at the next step.
 
@@ -417,7 +417,7 @@ Long-horizon navigation requires continual judgment of "which part of the instru
 | When is reasoning needed? | On-demand scene description, progress judgment, and planning | {% include content-link.html path='/VLN-Papers/' fragment='#awarevln' label='AwareVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#tamp-nav' label='TAMP-Nav' %} | Reasoning frequency, call overhead, and gains |
 | Which sub-instruction is being executed? | Explicit task lists, progress state, and landmark constraints | {% include content-link.html path='/VLN-Papers/' fragment='#dual-anchoring' label='Dual-Anchoring' %}, {% include content-link.html path='/VLN-Papers/' fragment='#route2step' label='Route2Step' %} | State alignment and progress correction after going off route |
 | Are current observations sufficient? | Make additional observation part of the policy's choices | {% include content-link.html path='/VLN-Papers/' fragment='#seekvln' label='SeekVLN' %} | Number of observations, extra views, and gains in later actions |
-| How to recover after going off route? | Corrective data, state supervision, or reflection feedback | {% include content-link.html path='/VLN-Papers/' fragment='#correctnav' label='CorrectNav' %}, {% include content-link.html path='/VLN-Papers/' fragment='#budvln' label='BudVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#reflectvln' label='ReflectVLN' %} | Recovery success rate, extra path, and repeated failures |
+| How to recover after going off route? | Corrective data, state supervision, or reflection feedback | {% include content-link.html path='/VLN-Papers/' fragment='#correctnav' label='CorrectNav' %}, {% include content-link.html path='/VLN-Papers/' fragment='#budvln' label='BudVLN' %}, {% include content-link.html path='/Agentic-Navigation-Papers/' fragment='#reflectvln' label='ReflectVLN' %} | Recovery success rate, extra path, and repeated failures |
 
 [Route2Step](https://arxiv.org/abs/2608.03143) separates semantic progress from action generation through a step-level interface, so wrong progress can receive state supervision. The lesson is that a single deviation may first require correcting "what am I doing" and then "how should I move", rather than leaving every problem to action prediction.
 
@@ -443,9 +443,9 @@ This section limits agent orchestration to an upper layer that selects and calls
 
 | Organization | Representative work | Main interface | What to verify separately |
 |:---|:---|:---|:---|
-| VLM collaborates with callable skills | {% include content-link.html path='/VLN-Papers/' fragment='#open-nav' label='Open-Nav' %}, {% include content-link.html path='/VLN-Papers/' fragment='#agentvln' label='AgentVLN' %} | Perception, candidate points, planning, and local execution | Gains from tool selection over a fixed pipeline |
-| Navigation wrapped as tool calls | {% include content-link.html path='/VLN-Papers/' fragment='#agenticnav' label='AgenticNav' %} | Observation, decision, and execution feedback | Interaction protocol, call cost, and failure handling |
-| Unified management of tools, memory, and execution checks | {% include content-link.html path='/VLN-Papers/' fragment='#harnessvln' label='HarnessVLN' %} | Task progress, spatial evidence, and structured returns | Separate contributions of checking, memory, and recovery |
+| VLM collaborates with callable skills | {% include content-link.html path='/Agentic-Navigation-Papers/' fragment='#open-nav' label='Open-Nav' %}, {% include content-link.html path='/Agentic-Navigation-Papers/' fragment='#agentvln' label='AgentVLN' %} | Perception, candidate points, planning, and local execution | Gains from tool selection over a fixed pipeline |
+| Navigation wrapped as tool calls | {% include content-link.html path='/Agentic-Navigation-Papers/' fragment='#agenticnav' label='AgenticNav' %} | Observation, decision, and execution feedback | Interaction protocol, call cost, and failure handling |
+| Unified management of tools, memory, and execution checks | {% include content-link.html path='/Agentic-Navigation-Papers/' fragment='#harnessvln' label='HarnessVLN' %} | Task progress, spatial evidence, and structured returns | Separate contributions of checking, memory, and recovery |
 | High-level planner calls a shared navigation backbone | {% include content-link.html path='/VLN-Papers/' fragment='#qwen-robotnav' label='Qwen-RobotNav' %} system | Task modes and configurable observation context | Gains from dynamic configuration over a fixed one |
 
 [HarnessVLN](https://arxiv.org/abs/2609.15195v3) puts perception, memory, and execution tools behind a shared interface and checks evidence, geometric feasibility, and subgoal consistency before dispatch. The example shows that agent orchestration and spatial memory often coexist; filing a paper under only one of them loses the other half of its design.
@@ -768,7 +768,7 @@ The table below shows how to describe combinations starting from a paper's mecha
 | {% include content-link.html path='/VLN-Papers/' fragment='#dualvln' label='DualVLN' %} | High-level goals + pixel / latent interface + low-level diffusion trajectories | Hierarchical planning and execution need separate evaluation | Upper-layer goal errors, latency, and low-level adaptation |
 | {% include content-link.html path='/VLN-Papers/' fragment='#groundingvln' label='GroundingVLN' %} | Visual evidence grounding + pixel goals + geometric execution + RL | Interpretable interface, executor, and training all change together | Component ablations with the interface or training signal fixed |
 | {% include content-link.html path='/VLN-Papers/' fragment='#seekvln' label='SeekVLN' %} | Unified action policy + progress reasoning + active observation + RL | On-demand observation is not tool orchestration and has extra perception cost | Observation gains under the same views and call budget |
-| {% include content-link.html path='/VLN-Papers/' fragment='#harnessvln' label='HarnessVLN' %} | Tool orchestration + event memory / spatiotemporal graph + execution checks | System results include both backbone and tool abilities | Gains with backbone, skills, and retry budget fixed |
+| {% include content-link.html path='/Agentic-Navigation-Papers/' fragment='#harnessvln' label='HarnessVLN' %} | Tool orchestration + event memory / spatiotemporal graph + execution checks | System results include both backbone and tool abilities | Gains with backbone, skills, and retry budget fixed |
 | {% include content-link.html path='/VLN-Papers/' fragment='#prospect' label='PROSPECT' %} | Streaming policy + semantic-geometric fusion + training-time latent prediction | The prediction branch does not run at inference | Separate contributions of geometric fusion and predictive supervision |
 | {% include content-link.html path='/VLN-Papers/' fragment='#macroaction-vln' label='MacroAction-VLN' %} | Topological graph + hierarchical macro-actions + closed-loop RL | State, action granularity, and training method change together | Effect of action granularity on learning with the graph and controller fixed |
 
@@ -799,7 +799,7 @@ The following are research recommendations based on system responsibilities. Fir
 3. **Closed-loop benefits**: do progress, memory, or prediction actually improve navigation, with corresponding ablations and failed trajectories?
 4. **Transparent deployment costs**: are latency, GPU memory, control frequency, and real-robot tests reported for the complete execution chain?
 
-The companion {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} maintains results by benchmark for R2R-CE, RxR-CE, and discrete R2R / REVERIE, separating trained, training-free, and validation-subset evaluations; the {% include content-link.html path='/VLN-Papers-Extended/' fragment='#goal-nav-leaderboard' label='goal and agentic navigation collection' %} maintains goal-navigation results. This survey explains mechanisms and evidence; for implementations, paper versions, and results under matched settings, continue with the companion readings.
+The companion {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} maintains results by benchmark for R2R-CE, RxR-CE, and discrete R2R / REVERIE, separating trained, training-free, and validation-subset evaluations; the {% include content-link.html path='/VLN-Papers-Extended/' fragment='#goal-nav-leaderboard' label='goal-navigation collection' %} maintains goal-navigation results. This survey explains mechanisms and evidence; for implementations, paper versions, and results under matched settings, continue with the companion readings.
 
 
 # 4. VLN task types
@@ -1913,7 +1913,7 @@ Data-counting conventions, platform support, and core metrics were verified toge
 # 10. References
 {: id="10-参考资料"}
 
-> **Detailed paper readings**: see {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} and {% include content-link.html path='/VLN-Papers-Extended/' fragment='' label='VLN Papers: Goal and Agentic Navigation' %}. This section lists datasets, methods, simulators, and surveys directly discussed above, grouped by topic with continuous numbering. For preprint publication status and leaderboard values, consult paper homepages and the companion readings.
+> **Detailed paper readings**: see {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} and {% include content-link.html path='/VLN-Papers-Extended/' fragment='' label='VLN Papers: Goal Navigation' %} and {% include content-link.html path='/Agentic-Navigation-Papers/' fragment='' label='VLN Papers: Agentic Navigation' %}. This section lists datasets, methods, simulators, and surveys directly discussed above, grouped by topic with continuous numbering. For preprint publication status and leaderboard values, consult paper homepages and the companion readings.
 
 ---
 

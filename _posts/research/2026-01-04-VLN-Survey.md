@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-survey
 title: "VLN 综述"
-date: 2026-10-31
+date: 2026-11-07
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -12,7 +12,7 @@ toc: true
 excerpt: "从任务、策略架构、空间记忆、动作接口、进度判断与训练信号梳理 VLN；比较主动感知、Agent 编排和预测机制，给出带来源的数据集选型与闭环评测分析。"
 ---
 
-> **修订于 2026-10-09**：第 3 节按策略架构、空间表征、动作接口、任务进度、Agent 编排、预测与训练机制组织；本次扩充第 3.8 节的强化学习机制、奖励设计、PPO / GRPO 与同基座增益证据，关键结论链接至原论文。详细论文解读见 [VLN 论文精读：指令跟随篇](/VLN-Papers/)与[VLN 论文精读：目标导航与 Agentic 导航](/VLN-Papers-Extended/)，覆盖范围见[第 9.4 节](#survey-scope)。
+> **修订于 2026-10-09**：第 3 节按策略架构、空间表征、动作接口、任务进度、Agent 编排、预测与训练机制组织；本次扩充第 3.8 节的强化学习机制、奖励设计、PPO / GRPO 与同基座增益证据，关键结论链接至原论文。详细论文解读见 [VLN 论文精读：指令跟随篇](/VLN-Papers/)与[VLN 论文精读：目标导航](/VLN-Papers-Extended/)与 [Agent 导航](/Agentic-Navigation-Papers/)，覆盖范围见[第 9.4 节](#survey-scope)。
 
 
 ## 阅读导航
@@ -346,10 +346,10 @@ flowchart LR
 |:---|:---|:---|:---|
 | 拓扑图 | 保存连通关系，支持全局选点和回溯 | [DUET](/VLN-Papers/#duet)、ETPNav、[DGNav](/VLN-Papers/#dgnav) | 建图先验、候选点和连接误差 |
 | 语义地图 / BEV | 将空间布局压缩成可定位、可聚合的状态 | [MapNav](/VLN-Papers/#mapnav)、[GA-VLN](/VLN-Papers/#ga-vln) | 深度、位姿依赖与更新误差 |
-| 分层场景图 / 三维场景记忆 | 组织房间、对象与多视角空间关系 | [HSGM](/VLN-Papers/#hsgm)、[GSMem](/VLN-Papers-Extended/#gsmem) | 感知质量、建图成本与动态场景更新 |
+| 分层场景图 / 三维场景记忆 | 组织房间、对象与多视角空间关系 | [HSGM](/VLN-Papers/#hsgm)、[GSMem](/Agentic-Navigation-Papers/#gsmem) | 感知质量、建图成本与动态场景更新 |
 | 几何基础模型特征与隐式记忆 | 在神经表征中保留几何和跨帧证据 | [JanusVLN](/VLN-Papers/#janusvln)、[AdaGeoVLN](/VLN-Papers/#adageovln) | 尺度一致性、显存与历史选择 |
 | 历史帧、关键帧与压缩上下文 | 用有限预算保存任务相关观测 | [StreamVLN](/VLN-Papers/#streamvln)、[MemVLN](/VLN-Papers/#memvln)、[DecoVLN](/VLN-Papers/#decovln) | 是否遗漏早期地标和转折点 |
-| 任务事件与经验检索 | 保存已完成步骤、失败条件和执行证据 | [HarnessVLN](/VLN-Papers/#harnessvln) | 错误写入、经验过时与检索开销 |
+| 任务事件与经验检索 | 保存已完成步骤、失败条件和执行证据 | [HarnessVLN](/Agentic-Navigation-Papers/#harnessvln) | 错误写入、经验过时与检索开销 |
 
 **几何融合与历史选择可以共同优化。** [AdaGeoVLN](https://arxiv.org/abs/2609.18789)将几何模型不同深度的特征接入策略，并按指令相关性、几何置信度和转移新颖度保留历史 KV 状态。这个例子说明，压缩不只是减少 token；保留什么也会改变下一时刻的空间推理依据。
 
@@ -393,7 +393,7 @@ flowchart LR
 | 何时需要推理？ | 按需触发场景描述、进度判断与计划 | [AwareVLN](/VLN-Papers/#awarevln)、[TAMP-Nav](/VLN-Papers/#tamp-nav) | 推理频率、调用开销与收益 |
 | 正在执行哪条子指令？ | 显式任务清单、进度状态与地标约束 | [Dual-Anchoring](/VLN-Papers/#dual-anchoring)、[Route2Step](/VLN-Papers/#route2step) | 状态对齐、偏航后的进度修正 |
 | 现有观测够不够？ | 把补充观察纳入策略选择 | [SeekVLN](/VLN-Papers/#seekvln) | 观察次数、额外视角与后续行动收益 |
-| 走偏后怎样恢复？ | 纠偏数据、状态监督或反思反馈 | [CorrectNav](/VLN-Papers/#correctnav)、[BudVLN](/VLN-Papers/#budvln)、[ReflectVLN](/VLN-Papers/#reflectvln) | 恢复成功率、额外路径与重复失败 |
+| 走偏后怎样恢复？ | 纠偏数据、状态监督或反思反馈 | [CorrectNav](/VLN-Papers/#correctnav)、[BudVLN](/VLN-Papers/#budvln)、[ReflectVLN](/Agentic-Navigation-Papers/#reflectvln) | 恢复成功率、额外路径与重复失败 |
 
 [Route2Step](https://arxiv.org/abs/2608.03143)通过步级接口拆开语义进度与动作生成，使错误进度能够获得状态监督。它提供的启发是：同一次偏航，可能需要先修正“我在做什么”，再修正“怎样移动”，而非把所有问题都交给动作预测。
 
@@ -418,9 +418,9 @@ flowchart LR
 
 | 组织方式 | 代表工作 | 主要接口 | 应单独验证什么 |
 |:---|:---|:---|:---|
-| VLM 与可调用技能协作 | [Open-Nav](/VLN-Papers/#open-nav)、[AgentVLN](/VLN-Papers/#agentvln) | 感知、候选点、规划与局部执行 | 工具选择相对固定流程的收益 |
-| 导航封装为工具调用 | [AgenticNav](/VLN-Papers/#agenticnav) | 观测、决策与执行反馈 | 交互协议、调用成本与失败处理 |
-| 统一管理工具、记忆和执行校验 | [HarnessVLN](/VLN-Papers/#harnessvln) | 任务进度、空间证据与结构化返回 | 校验、记忆及恢复各自的贡献 |
+| VLM 与可调用技能协作 | [Open-Nav](/Agentic-Navigation-Papers/#open-nav)、[AgentVLN](/Agentic-Navigation-Papers/#agentvln) | 感知、候选点、规划与局部执行 | 工具选择相对固定流程的收益 |
+| 导航封装为工具调用 | [AgenticNav](/Agentic-Navigation-Papers/#agenticnav) | 观测、决策与执行反馈 | 交互协议、调用成本与失败处理 |
+| 统一管理工具、记忆和执行校验 | [HarnessVLN](/Agentic-Navigation-Papers/#harnessvln) | 任务进度、空间证据与结构化返回 | 校验、记忆及恢复各自的贡献 |
 | 上层规划器调用共享导航基模 | [Qwen-RobotNav](/VLN-Papers/#qwen-robotnav) 系统 | 任务模式与可配置观测上下文 | 动态配置相对固定配置的收益 |
 
 [HarnessVLN](https://arxiv.org/abs/2609.15195v3)将感知、记忆和执行工具纳入共享接口，并在派发前检查证据、几何可行性与子目标一致性。这个例子说明，Agent 编排与空间记忆常同时存在；把一篇论文只归入其中一类，会丢掉另一部分设计。
@@ -730,7 +730,7 @@ flowchart TB
 | [DualVLN](/VLN-Papers/#dualvln) | 高层目标 + 像素 / 潜在接口 + 低层扩散轨迹 | 分层规划与执行需要分别评测 | 上层目标偏差、延迟与低层适应能力 |
 | [GroundingVLN](/VLN-Papers/#groundingvln) | 视觉证据落地 + 像素目标 + 几何执行 + RL | 可解释接口、执行器与训练同时变化 | 固定接口或训练信号后的分项消融 |
 | [SeekVLN](/VLN-Papers/#seekvln) | 统一动作策略 + 进度推理 + 主动观察 + RL | 按需观察不等于工具编排，且有额外感知成本 | 同视角与调用预算下的观察收益 |
-| [HarnessVLN](/VLN-Papers/#harnessvln) | 工具编排 + 事件记忆 / 时空图 + 执行校验 | 系统成绩同时包含基模和工具能力 | 固定基模、技能与重试预算后的收益 |
+| [HarnessVLN](/Agentic-Navigation-Papers/#harnessvln) | 工具编排 + 事件记忆 / 时空图 + 执行校验 | 系统成绩同时包含基模和工具能力 | 固定基模、技能与重试预算后的收益 |
 | [PROSPECT](/VLN-Papers/#prospect) | 流式策略 + 语义几何融合 + 训练时潜预测 | 推理时不运行预测分支 | 几何融合和预测监督各自的贡献 |
 | [MacroAction-VLN](/VLN-Papers/#macroaction-vln) | 拓扑图 + 分层宏动作 + 闭环 RL | 状态、动作粒度和训练方式共同改变 | 固定图与控制器后，动作粒度对学习的作用 |
 
@@ -759,7 +759,7 @@ flowchart TB
 3. **闭环是否受益**：进度、记忆或预测是否真正改善导航，是否有相应消融与失败轨迹？
 4. **部署代价是否透明**：是否报告完整执行链的延迟、显存、控制频率和真实机器人测试？
 
-配套文章 [VLN 论文精读：指令跟随篇](/VLN-Papers/)按基准维护 R2R-CE、RxR-CE、离散 R2R / REVERIE 结果，并区分训练式、免训练与验证集子集；[目标导航与 Agentic 导航](/VLN-Papers-Extended/#goal-nav-leaderboard)维护目标导航结果。综述用于解释机制与证据，具体实现、论文版本和同设定成绩可继续查阅配套精读。
+配套文章 [VLN 论文精读：指令跟随篇](/VLN-Papers/)按基准维护 R2R-CE、RxR-CE、离散 R2R / REVERIE 结果，并区分训练式、免训练与验证集子集；[目标导航](/VLN-Papers-Extended/#goal-nav-leaderboard)维护目标导航结果。综述用于解释机制与证据，具体实现、论文版本和同设定成绩可继续查阅配套精读。
 
 
 # 4. VLN 任务类型
@@ -1796,7 +1796,7 @@ Seen / Unseen 通常按基准场景划分，衡量同一任务内的场景泛化
 
 # 10. 参考资料
 
-> **论文精读**：指令跟随论文与目标导航、扩展方向的论文详见 [VLN 论文精读：指令跟随篇](/VLN-Papers/) 与 [VLN 论文精读：目标导航与 Agentic 导航](/VLN-Papers-Extended/)。本节只收录正文直接涉及的数据集、方法、模拟器与综述，按主题分组、全文连续编号；预印本的发表状态与榜单数字以论文主页及配套论文页为准。
+> **论文精读**：指令跟随论文与目标导航、扩展方向的论文详见 [VLN 论文精读：指令跟随篇](/VLN-Papers/) 与 [VLN 论文精读：目标导航](/VLN-Papers-Extended/)与 [Agent 导航](/Agentic-Navigation-Papers/)。本节只收录正文直接涉及的数据集、方法、模拟器与综述，按主题分组、全文连续编号；预印本的发表状态与榜单数字以论文主页及配套论文页为准。
 
 ---
 

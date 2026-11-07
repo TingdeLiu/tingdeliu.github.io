@@ -5,30 +5,33 @@ translation_id: vln-papers
 permalink: /en/VLN-Papers/
 source_path: _posts/research/2026-01-05-VLN-Papers.md
 source_url: /VLN-Papers/
-source_revision_date: 2026-10-31
-translation_updated: 2026-10-31
+source_revision_date: 2026-11-07
+translation_updated: 2026-11-07
 title: "VLN Papers: Instruction Following"
-date: 2026-10-31
+date: 2026-11-07
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
 toc_expand: 2
-excerpt: "60 detailed readings on instruction-following VLN, with benchmark leaderboards, technical comparisons, methods, experiments, and limitations."
+excerpt: "50 detailed readings on instruction-following VLN, with benchmark leaderboards, technical comparisons, methods, experiments, and limitations."
 ---
+
 
 
 > This collection accompanies the [VLN survey](/en/VLN-Survey/) with detailed readings on instruction-following navigation and its supporting foundations.
 >
-> It covers 60 representative methods, benchmarks, and foundational works. Goal navigation, agentic navigation, and supporting work on locomotion and mobile manipulation appear in [Goal and Agentic Navigation](/en/VLN-Papers-Extended/). The collections are organized by research focus and reading sequence; publication status is not the sole criterion.
+> It covers 50 representative methods, benchmarks, and foundational works. Goal navigation, agentic navigation, and supporting work on locomotion and mobile manipulation appear in [Goal Navigation](/en/VLN-Papers-Extended/) and [Agentic Navigation](/en/Agentic-Navigation-Papers/). The collections are organized by research focus and reading sequence; publication status is not the sole criterion.
+
+> Instruction-following leaderboards and cross-method comparisons remain here. Readings focused on agent systems or goal navigation live in their respective collections; paper names in the tables link directly to those readings.
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
 # Performance leaderboards
 {: id="性能排行榜"}
 
-> ⚠️ **Do not compare scores across different benchmarks.** This page groups instruction-following results by benchmark: ① R2R-CE and ② RxR-CE use continuous environments with step-by-step first-person control; ③ R2R / REVERIE use panoramic decisions on discrete navigation graphs; ④ LHPR-VLN evaluates long-horizon multi-stage instruction following in continuous environments. Task definitions and sensor configurations differ, so SR is not comparable across these tables. ObjectNav, HM3D-OVON, image-goal, and point-goal results are in the extended collection's [goal-navigation leaderboards](/en/VLN-Papers-Extended/#goal-nav-leaderboard).
+> ⚠️ **Do not compare scores across different benchmarks.** This page groups instruction-following results by benchmark: ① R2R-CE and ② RxR-CE use continuous environments with step-by-step first-person control; ③ R2R / REVERIE use panoramic decisions on discrete navigation graphs; ④ LHPR-VLN evaluates long-horizon multi-stage instruction following in continuous environments. Task definitions and sensor configurations differ, so SR is not comparable across these tables. ObjectNav, HM3D-OVON, image-goal, and point-goal results are in the goal-navigation collection's [leaderboards](/en/VLN-Papers-Extended/#goal-nav-leaderboard).
 >
 > **Reading the tables:** **Trained** means trained or fine-tuned on navigation data, including navigation foundation models evaluated through cross-task zero-shot transfer. **Training-free** means no navigation model is trained: the system combines existing large models, detection or segmentation models, and rules or planners. Calling a pretrained low-level point-goal controller does not change this classification. The **Closed API** badge marks methods that call a closed model such as GPT, Gemini or Claude through an API at inference time. This is separate from the paradigm: a trained model can still call one at inference time, as NavGPT-3's planner does, while using a large model only to build training data or for offline preprocessing does not count. In the chart view, bar colors show whether a method calls a closed API. Gray rows use nonstandard protocols, such as validation subsets, and are excluded from best-value bolding. Bold values are the best among non-gray rows within the same benchmark. The filters select paradigm, inference, input configuration, and open-source availability, and can hide gray rows.
 
@@ -43,16 +46,16 @@ Continuous environment · English commands · val-unseen (1839 items in total)
 
 |Model|Year|Paradigm|Base model|SR ↑|SPL ↑|NE ↓|OSR ↑|Open source|
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
-| [EvoLife (four views)](/en/VLN-Papers-Extended/#evolife) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100-episode subset; privileged guide</span> | 2026 | Training-free | GPT-6 Astra (ultra) | 100 | 82.2 | 0.95 | 100 | – |
-|[NavGPT-3 (four views · Astra)](#navgpt-3) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Trained|GPT-6-Astra/Qwen3-VL-8B|**81.51**|70.42|**2.18**|**86.99**|[Yes](https://github.com/metacognitionai/NavGPT-3)|
-|[GPT-6-Astra (monocular · ultra)](#gpt-6-astra) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset </span>|2026|Training-free|GPT-6-Astra|81.3|71.5|2.9|83.7|No|
+| [EvoLife (four views)](/en/Agentic-Navigation-Papers/#evolife) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100-episode subset; privileged guide</span> | 2026 | Training-free | GPT-6 Astra (ultra) | 100 | 82.2 | 0.95 | 100 | – |
+|[NavGPT-3 (four views · Astra)](/en/Agentic-Navigation-Papers/#navgpt-3) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Trained|GPT-6-Astra/Qwen3-VL-8B|**81.51**|70.42|**2.18**|**86.99**|[Yes](https://github.com/metacognitionai/NavGPT-3)|
+|[GPT-6-Astra (monocular · ultra)](/en/Agentic-Navigation-Papers/#gpt-6-astra) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset </span>|2026|Training-free|GPT-6-Astra|81.3|71.5|2.9|83.7|No|
 |[Robostral Navigate (monocular)](#robostral-navigate)|2026|Trained|Mistral-8B|77.4|**74.2**|3.20|81.3|No|
 |[SimpleVLN (monocular)](#simplevln)|2026|Trained|Qwen3.5-9B|76.7|72.6|2.63|84.1|No|
-|[GPT-6-Astra (monocular · medium)](#gpt-6-astra) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset </span>|2026|Training-free|GPT-6-Astra|75.7|65.6|3.0|80.7|No|
-|[NavGPT VLA 8B (four views)](#navgpt-3)|2026|Trained|Qwen3-VL-8B|74.51|68.54|3.29|80.19|[Yes](https://github.com/metacognitionai/NavGPT-3)|
+|[GPT-6-Astra (monocular · medium)](/en/Agentic-Navigation-Papers/#gpt-6-astra) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset </span>|2026|Training-free|GPT-6-Astra|75.7|65.6|3.0|80.7|No|
+|[NavGPT VLA 8B (four views)](/en/Agentic-Navigation-Papers/#navgpt-3)|2026|Trained|Qwen3-VL-8B|74.51|68.54|3.29|80.19|[Yes](https://github.com/metacognitionai/NavGPT-3)|
 |[Efficient-VLN (monocular)](#efficient-vln)|2025|Trained|Qwen3-VL-8B|73.2|65.0|3.29|78.2|No|
 |[Qwen-RobotNav (panoramic)](#qwen-robotnav)|2026|Trained|Qwen3-VL-8B|72.1|66.6|3.53|78.5|No|
-|[Talk2Escape + GTA (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset</span>|2026|Training-free|Gemini 3.1 Pro|72.0|49.4|4.80|66.0|No|
+|[Talk2Escape + GTA (four views)](/en/Agentic-Navigation-Papers/#talk2escape) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset</span>|2026|Training-free|Gemini 3.1 Pro|72.0|49.4|4.80|66.0|No|
 |[ABot-N1 (three cameras)](#abot-n1)|2026|Trained|Qwen-3.5-4B + 2B|70.9|67.5|3.32|75.2|No|
 |[Image2Nav (180° FOV)](#image2sim)|2026|Trained|Qwen3-VL-4B|70.3|65.6|3.71|76.1|[Yes](https://github.com/MrZihan/Image2Sim)|
 |[GroundingVLN (three cameras)](#groundingvln)|2026|Trained|Qwen3.5-4B|69.9|64.1|3.66|74.8|No|
@@ -62,19 +65,19 @@ Continuous environment · English commands · val-unseen (1839 items in total)
 |[AstraNav-World (multi-view)](#astranav-world)|2025|Trained|Qwen2.5-VL-3B|67.9|65.4|3.86|73.9|[Yes](https://github.com/amap-cvlab/AstraNav-World)|
 |[SeekVLN (monocular, three views on demand)](#seekvln)|2026|Trained|Aux-Think / NVILA-lite-8B|67.5|61.4|3.7|75.2|No|
 |[SEDualVLN (monocular)](#sedualvln)|2026|Trained|LLaVA-Video-7B|67.3|62.5|3.75|73.7|No|
-|[AgentVLN (monocular)](#agentvln)|2026|Trained|Qwen2.5-VL-3B|67.2|64.7|3.88|73.5|[Yes](https://github.com/Allenxinn/AgentVLN)|
+|[AgentVLN (monocular)](/en/Agentic-Navigation-Papers/#agentvln)|2026|Trained|Qwen2.5-VL-3B|67.2|64.7|3.88|73.5|[Yes](https://github.com/Allenxinn/AgentVLN)|
 |[Qwen-RobotNav (monocular)](#qwen-robotnav)|2026|Trained|Qwen3-VL-4B|66.9|60.5|4.22|73.6|No|
 |[TAMP-Nav (multi-view)](#tamp-nav)|2026|Trained|Qwen2.5-VL-7B|66.2|58.8|3.85|74.5|[Yes](https://github.com/ZJU-OmniAI/Embodied-Omni)|
 |[Dual-Anchoring (monocular)](#dual-anchoring)|2026|Trained|LLaVA-Video-7B|65.6|62.1|–|–|No|
 |[AwareVLN (monocular)](#awarevln)|2026|Trained|Vicuna-7B|65.4|55.1|4.02|73.5|[Yes](https://github.com/GWxuan/AwareVLN)|
 |[CorrectNav (monocular)](#correctnav)|2025|Trained|–|65.1|62.3|4.24|67.5|[Yes](https://github.com/owlet914/CorrectNav)|
 |[DualVLN (monocular)](#dualvln)|2025|Trained|Qwen2.5-VL-7B|64.3|58.5|4.05|70.7|[Yes](https://github.com/InternRobotics/InternNav)|
-|[Talk2Escape + NavGPT (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset</span>|2026|Training-free|Gemini 3.1 Pro|64.0|46.4|4.84|60.0|No|
+|[Talk2Escape + NavGPT (four views)](/en/Agentic-Navigation-Papers/#talk2escape) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset</span>|2026|Training-free|Gemini 3.1 Pro|64.0|46.4|4.84|60.0|No|
 |[VLN-Cache (monocular)](#vln-cache)|2026|Trained|Qwen2.5-VL-7B|63.1|57.6|–|–|No|
-|[ReflectVLN (monocular)](#reflectvln)|2026|Trained|Qwen2.5-VL-3B|62.8|58.5|4.19|67.3|No|
+|[ReflectVLN (monocular)](/en/Agentic-Navigation-Papers/#reflectvln)|2026|Trained|Qwen2.5-VL-3B|62.8|58.5|4.19|67.3|No|
 |[NavFoM (multi-view)](#navfom)|2025|Trained|Qwen2-7B|61.7|55.3|4.61|72.1|No|
 |[GA-VLN (monocular)](#ga-vln)|2026|Trained|LLaVA-Video-7B|61.0|55.2|4.80|67.6|[Yes](https://github.com/jahhaoyang/GA-VLN)|
-|[HarnessVLN (monocular)](#harnessvln) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5.5|60.8|43.5|4.01|72.7|No|
+|[HarnessVLN (monocular)](/en/Agentic-Navigation-Papers/#harnessvln) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5.5|60.8|43.5|4.01|72.7|No|
 |[JanusVLN (monocular)](#janusvln)|2026|Trained|Janus-Pro-7B|60.5|56.8|4.78|65.2|[Yes](https://github.com/MIV-XJTU/JanusVLN)|
 |[RynnBrain-Nav (monocular)](#rynnbrain)|2026|Trained|–|58.6|49.6|4.92|71.6|[Yes](https://github.com/alibaba-damo-academy/RynnBrain)|
 |[DGNav (panoramic)](#dgnav)|2026|Trained|–|58.56|50.08|4.66|64.82|[Yes](https://github.com/shannanshouyin/DGNav)|
@@ -82,10 +85,10 @@ Continuous environment · English commands · val-unseen (1839 items in total)
 |[BudVLN (monocular)](#budvln)|2026|Trained|LLaVA-1.5-7B|57.6|51.1|–|–|No|
 |[StreamVLN (monocular)](#streamvln)|2025|Trained|LLaVA-Video-7B|56.4|50.2|4.90|63.6|[Yes](https://github.com/OpenRobotLab/StreamVLN)|
 |[DecoVLN (monocular)](#decovln)|2026|Trained|LLaVA-Video-7B|56.3|50.5|5.01|63.5|No|
-|[AgenticNav (panoramic)](#agenticnav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset</span>|2026|Training-free|GPT-5.5|55.0|48.41|5.19|65.0|No|
+|[AgenticNav (panoramic)](/en/Agentic-Navigation-Papers/#agenticnav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset</span>|2026|Training-free|GPT-5.5|55.0|48.41|5.19|65.0|No|
 |[Goal2Pixel (monocular)](#goal2pixel)|2025|Trained|LLaVA-1.5-7B|54.1|52.5|4.85|59.9|No|
 |[HSGM (monocular)](#hsgm) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5|47.9|32.8|5.42|58.7|[Yes](https://github.com/Teacher-Tom/HSGM_public)|
-|[SparseNav (monocular)](/en/VLN-Papers-Extended/#sparsenav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5|42.8|35.2|5.96|53.4|No|
+|[SparseNav (monocular)](/en/Agentic-Navigation-Papers/#sparsenav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5|42.8|35.2|5.96|53.4|No|
 |[MapNav (monocular)](#mapnav)|2025|Trained|LLaVA-Onevision-7B|39.7|37.2|5.43|53.0|[Yes](https://github.com/linglingxiansen/MapNav)|
 |[NaVid (monocular)](#navid)|2024|Trained|–|37.4|35.9|5.47|49.1|[Yes](https://github.com/jzhzhang/NaVid-VLN-CE)|
 |[VLN-R1 (monocular)](#vln-r1)|2025|Trained|Qwen2-VL-7B|30.2|21.8|7.0|41.2|No|
@@ -113,10 +116,10 @@ Continuous environment · Multilingual commands (English/Hindi/Telugu) · val-un
 
 |Model|Year|Paradigm|Base model|SR ↑|SPL ↑|NE ↓|OSR ↑|Open source|
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
-| [EvoLife (four views)](/en/VLN-Papers-Extended/#evolife) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100-episode subset; privileged guide</span> | 2026 | Training-free | GPT-6 Astra (ultra) | 100 | 75.4 | 0.71 | 100 | – |
-|[NavGPT-3 (four views · Astra)](#navgpt-3) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Trained|GPT-6-Astra/Qwen3-VL-8B|**90.43**|**74.31**|**1.56**|–|[Yes](https://github.com/metacognitionai/NavGPT-3)|
+| [EvoLife (four views)](/en/Agentic-Navigation-Papers/#evolife) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100-episode subset; privileged guide</span> | 2026 | Training-free | GPT-6 Astra (ultra) | 100 | 75.4 | 0.71 | 100 | – |
+|[NavGPT-3 (four views · Astra)](/en/Agentic-Navigation-Papers/#navgpt-3) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Trained|GPT-6-Astra/Qwen3-VL-8B|**90.43**|**74.31**|**1.56**|–|[Yes](https://github.com/metacognitionai/NavGPT-3)|
 |[SimpleVLN (monocular)](#simplevln)|2026|Trained|Qwen3.5-9B|80.1|69.9|2.51|–|No|
-|[NavGPT VLA 8B (four views)](#navgpt-3)|2026|Trained|Qwen3-VL-8B|78.19|68.98|3.05|–|[Yes](https://github.com/metacognitionai/NavGPT-3)|
+|[NavGPT VLA 8B (four views)](/en/Agentic-Navigation-Papers/#navgpt-3)|2026|Trained|Qwen3-VL-8B|78.19|68.98|3.05|–|[Yes](https://github.com/metacognitionai/NavGPT-3)|
 |[Qwen-RobotNav (panoramic)](#qwen-robotnav)|2026|Trained|Qwen3-VL-8B|76.5|65.7|3.58|–|No|
 |[Efficient-VLN (monocular)](#efficient-vln)|2025|Trained|Qwen3-VL-8B|75.6|60.0|3.18|–|No|
 |[Robostral Navigate (monocular)](#robostral-navigate)|2026|Trained|Mistral-8B|75.1|68.7|3.47|–|No|
@@ -128,15 +131,15 @@ Continuous environment · Multilingual commands (English/Hindi/Telugu) · val-un
 |[AstraNav-World (multi-view)](#astranav-world)|2025|Trained|Qwen2.5-VL-3B|72.9|61.5|3.82|–|[Yes](https://github.com/amap-cvlab/AstraNav-World)|
 |[RSI-Nav](#rsi-nav)|2026|Trained|Qwen3.5-9B|72.4|56.5|3.53|–|[Yes](https://github.com/OpenGVLab/RSI-Nav)|
 |[Image2Nav (180° FOV)](#image2sim)|2026|Trained|Qwen3-VL-4B|70.7|59.1|3.74|–|[Yes](https://github.com/MrZihan/Image2Sim)|
-|[AgentVLN (monocular)](#agentvln)|2026|Trained|Qwen2.5-VL-3B|69.5|61.3|3.92|–|[Yes](https://github.com/Allenxinn/AgentVLN)|
+|[AgentVLN (monocular)](/en/Agentic-Navigation-Papers/#agentvln)|2026|Trained|Qwen2.5-VL-3B|69.5|61.3|3.92|–|[Yes](https://github.com/Allenxinn/AgentVLN)|
 |[CorrectNav (monocular)](#correctnav)|2025|Trained|–|69.3|63.3|4.09|–|[Yes](https://github.com/owlet914/CorrectNav)|
 |[AwareVLN (monocular)](#awarevln)|2026|Trained|Vicuna-7B|67.6|56.1|3.95|–|[Yes](https://github.com/GWxuan/AwareVLN)|
 |[MemVLN-4B (monocular)](#memvln)|2026|Trained|Qwen3-VL-4B|66.5|57.4|4.22|–|No|
-|[ReflectVLN (monocular)](#reflectvln)|2026|Trained|Qwen2.5-VL-3B|66.0|57.2|3.98|–|No|
+|[ReflectVLN (monocular)](/en/Agentic-Navigation-Papers/#reflectvln)|2026|Trained|Qwen2.5-VL-3B|66.0|57.2|3.98|–|No|
 |[TAMP-Nav (multi-view)](#tamp-nav)|2026|Trained|Qwen2.5-VL-7B|65.7|56.9|4.32|–|[Yes](https://github.com/ZJU-OmniAI/Embodied-Omni)|
 |[NavFoM (multi-view)](#navfom)|2025|Trained|Qwen2-7B|64.4|56.2|4.74|–|No|
 |[SEDualVLN (monocular)](#sedualvln)|2026|Trained|LLaVA-Video-7B|63.9|52.4|4.12|–|No|
-|[Talk2Escape + GTA (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">260 subset</span>|2026|Training-free|Gemini 3.1 Pro|62.9|34.2|5.89|–|No|
+|[Talk2Escape + GTA (four views)](/en/Agentic-Navigation-Papers/#talk2escape) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">260 subset</span>|2026|Training-free|Gemini 3.1 Pro|62.9|34.2|5.89|–|No|
 |[Dual-Anchoring (monocular)](#dual-anchoring)|2026|Trained|LLaVA-Video-7B|61.7|53.3|–|–|No|
 |[DualVLN (monocular)](#dualvln)|2025|Trained|Qwen2.5-VL-7B|61.4|51.8|4.58|–|[Yes](https://github.com/InternRobotics/InternNav)|
 |[SeekVLN (monocular, three views on demand)](#seekvln)|2026|Trained|Aux-Think / NVILA-lite-8B|59.7|50.3|4.9|–|No|
@@ -145,12 +148,12 @@ Continuous environment · Multilingual commands (English/Hindi/Telugu) · val-un
 |[GA-VLN (monocular)](#ga-vln)|2026|Trained|LLaVA-Video-7B|55.4|45.2|5.88|**67.0**|[Yes](https://github.com/jahhaoyang/GA-VLN)|
 |[StreamVLN (monocular)](#streamvln)|2025|Trained|LLaVA-Video-7B|54.4|45.4|5.65|–|[Yes](https://github.com/OpenRobotLab/StreamVLN)|
 |[DecoVLN (monocular)](#decovln)|2026|Trained|LLaVA-Video-7B|54.2|46.3|5.73|–|No|
-|[HarnessVLN (monocular)](#harnessvln) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5.5|53.9|38.0|6.42|–|No|
+|[HarnessVLN (monocular)](/en/Agentic-Navigation-Papers/#harnessvln) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5.5|53.9|38.0|6.42|–|No|
 |[DGNav (panoramic)](#dgnav)|2026|Trained|–|53.78|44.37|6.00|–|[Yes](https://github.com/shannanshouyin/DGNav)|
-|[Talk2Escape + NavGPT (four views)](/en/VLN-Papers-Extended/#talk2escape) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">260 subset</span>|2026|Training-free|Gemini 3.1 Pro|50.4|27.2|6.01|–|No|
+|[Talk2Escape + NavGPT (four views)](/en/Agentic-Navigation-Papers/#talk2escape) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">260 subset</span>|2026|Training-free|Gemini 3.1 Pro|50.4|27.2|6.01|–|No|
 |[Goal2Pixel (monocular)](#goal2pixel)|2025|Trained|LLaVA-1.5-7B|43.8|40.4|7.50|–|No|
 |[HSGM (monocular)](#hsgm) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5|41.8|25.1|7.43|–|[Yes](https://github.com/Teacher-Tom/HSGM_public)|
-|[SparseNav (monocular)](/en/VLN-Papers-Extended/#sparsenav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5|40.7|24.1|7.82|–|No|
+|[SparseNav (monocular)](/en/Agentic-Navigation-Papers/#sparsenav) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Training-free|GPT-5|40.7|24.1|7.82|–|No|
 |[MapNav (monocular)](#mapnav)|2025|Trained|LLaVA-Onevision-7B|32.6|27.7|7.62|–|[Yes](https://github.com/linglingxiansen/MapNav)|
 |[NaVid (monocular)](#navid)|2024|Trained|–|23.8|21.2|8.41|34.5|[Yes](https://github.com/jzhzhang/NaVid-VLN-CE)|
 |[VLN-R1 (monocular)](#vln-r1)|2025|Trained|Qwen2-VL-7B|22.7|17.6|9.1|30.4|No|
@@ -170,7 +173,7 @@ Discrete navigation graph · panoramic observation; residential (ID) / non-resid
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
 |[UAGM (panoramic)](#uncertainty-aware-gaussian-map)|2026|R2R|Trained|–|**78.3**|**66**|–|–|No|
 |[R³ (panoramic)](#r3) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|R2R|Trained|GPT-4o|77|**66**|**2.76**|–|No|
-|[CA-VLN (panoramic)](#ca-vln)|2026|R2R|Trained|LLaVA-7B|73.3|62.0|3.03|–|No|
+|[CA-VLN (panoramic)](/en/Agentic-Navigation-Papers/#ca-vln)|2026|R2R|Trained|LLaVA-7B|73.3|62.0|3.03|–|No|
 |[VLN-Imagine (DUET) (panoramic)](#vln-imagine)|2025|R2R|Trained|–|72.12|60.48|3.19|–|[Yes](https://github.com/akhilperincherry/VLN-Imagine)|
 |[NavGPT-2 (panoramic)](#navgpt-2)|2024|R2R|Trained|Vicuna-7B|71|60|3.18|**80**|[Yes](https://github.com/GengzeZhou/NavGPT-2)|
 |[DUET (panoramic)](#duet)|2022|R2R|Trained|–|69.0|59.0|3.65|–|[Yes](https://github.com/cshizhe/VLN-DUET)|
@@ -180,7 +183,7 @@ Discrete navigation graph · panoramic observation; residential (ID) / non-resid
 |[Slow4fast-VLN (panoramic)](#slow4fast-vln)|2026|GSA-R2R (OOD)|Trained|–|**58.4**|**52.9**|**4.2**|–|[Yes](https://github.com/yl6017339/Slow4Fast-VLN)|
 |GR-DUET (panoramic)|2025|GSA-R2R (OOD)|Trained|–|56.6|51.5|4.4|–|[Yes](https://github.com/honghd16/GSA-VLN)|
 |[DUET (panoramic)](#duet)|2022|REVERIE|Trained|–|**52.51**|**36.06**|–|**56.91**|[Yes](https://github.com/cshizhe/VLN-DUET)|
-|[CA-VLN (panoramic)](#ca-vln)|2026|REVERIE|Trained|LLaVA-7B|51.0|35.5|–|56.3|No|
+|[CA-VLN (panoramic)](/en/Agentic-Navigation-Papers/#ca-vln)|2026|REVERIE|Trained|LLaVA-7B|51.0|35.5|–|56.3|No|
 
 Note: In the R2R and REVERIE groups, DUET and the R2R baseline report the Test-Unseen split from their papers, while the other rows report val-unseen; they are merged and compared as one benchmark. VLN-Imagine is the R2R val-unseen result of DUET-Imagine (DUET baseline 71.52 / 60.41). GSA-R2R distinguishes between residential (ID, Test-R-Basic) and non-residential (OOD, Test-N-Basic) scenarios, and Slow4fast-VLN improves performance relative to GR-DUET. The REVERIE benchmark uses additional RGS/RGSPL indicators: R³ is 53.76/42.14/37.94/29.86 (SR/SPL/RGS/RGSPL), and the Uncertainty-Aware Gaussian Map has an RGS/RGSPL of 37.65/27.01. The continuous environment version REVERIE-CE currently only reports Image2Nav (180° FOV): SR 53.7 / SPL 42.7 / NE 5.08 / OSR 59.5 (val-unseen). The action space is different from discrete REVERIE and is not incorporated into this table.
 
@@ -263,10 +266,10 @@ To compare the technical recipes of **leading models with R2R-CE SR ≥ 60%**, t
 
 | Rank | Model | R2R-CE SR ↑ | Data scaling | Multi-view | Fast / slow | Agentic | Pixel grounding | Continuous actions | RL | DAgger / corrections | Context compression | Open source |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 1 | [**NavGPT-3**](#navgpt-3) (four views · Astra) | **81.5%** | ✓ | ✓ | ✓ | ✓ | – | ✓ | – | ✓ | ✓ | ✓ |
+| 1 | [**NavGPT-3**](/en/Agentic-Navigation-Papers/#navgpt-3) (four views · Astra) | **81.5%** | ✓ | ✓ | ✓ | ✓ | – | ✓ | – | ✓ | ✓ | ✓ |
 | 2 | [**Robostral Navigate**](#robostral-navigate) (monocular) | **77.4%** | ✓ | – | ✓ | – | ✓ | ✓ | ✓ | – | ✓ | – |
 | 3 | [**SimpleVLN**](#simplevln) (monocular) | **76.7%** | ✓ | – | – | – | – | – | ✓ | ✓ | – | – |
-| 4 | [**NavGPT VLA 8B**](#navgpt-3) (four views) | **74.5%** | ✓ | ✓ | – | – | – | ✓ | – | ✓ | ✓ | ✓ |
+| 4 | [**NavGPT VLA 8B**](/en/Agentic-Navigation-Papers/#navgpt-3) (four views) | **74.5%** | ✓ | ✓ | – | – | – | ✓ | – | ✓ | ✓ | ✓ |
 | 5 | [**Efficient-VLN**](#efficient-vln) (monocular) | **73.2%** | – | – | – | – | – | – | – | ✓ | ✓ | – |
 | 6 | [**Qwen-RobotNav**](#qwen-robotnav) (panoramic) | **72.1%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | – |
 | 7 | [**ABot-N1**](#abot-n1) (three cameras) | **70.9%** | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | – | – |
@@ -278,7 +281,7 @@ To compare the technical recipes of **leading models with R2R-CE SR ≥ 60%**, t
 | 13 | [**AstraNav-World**](#astranav-world) (multi-view) | **67.9%** | – | ✓ | – | – | – | ✓ | – | – | – | ✓ |
 | 14 | [**SeekVLN**](#seekvln) (monocular, three views on demand) | **67.5%** | ✓ | – | – | – | – | – | ✓ | ✓ | – | – |
 | 15 | [**SEDualVLN**](#sedualvln) (monocular) | **67.3%** | – | – | ✓ | ✓ | – | – | – | ✓ | ✓ | – |
-| 16 | [**AgentVLN**](#agentvln) (monocular) | **67.2%** | – | – | ✓ | ✓ | ✓ | – | – | – | – | ✓ |
+| 16 | [**AgentVLN**](/en/Agentic-Navigation-Papers/#agentvln) (monocular) | **67.2%** | – | – | ✓ | ✓ | ✓ | – | – | – | – | ✓ |
 | 17 | [**Qwen-RobotNav**](#qwen-robotnav) (monocular) | **66.9%** | ✓ | – | – | – | – | ✓ | – | – | ✓ | – |
 | 18 | [**TAMP-Nav**](#tamp-nav) (multi-view) | **66.2%** | – | ✓ | ✓ | – | ✓ | – | ✓ | – | ✓ | ✓ |
 | 19 | [**Dual-Anchoring**](#dual-anchoring) (monocular) | **65.6%** | ✓ | – | – | – | – | – | – | ✓ | ✓ | – |
@@ -286,10 +289,10 @@ To compare the technical recipes of **leading models with R2R-CE SR ≥ 60%**, t
 | 21 | [**CorrectNav**](#correctnav) (monocular) | **65.1%** | ✓ | – | – | – | – | – | – | ✓ | – | ✓ |
 | 22 | [**DualVLN**](#dualvln) (monocular) | **64.3%** | ✓ | – | ✓ | – | ✓ | ✓ | – | ✓ | ✓ | ✓ |
 | 23 | [**VLN-Cache**](#vln-cache) (monocular) | **63.1%** | ✓ | – | ✓ | – | ✓ | ✓ | – | ✓ | ✓ | – |
-| 24 | [**ReflectVLN**](#reflectvln) (monocular) | **62.8%** | ✓ | – | ✓ | – | – | ✓ | – | ✓ | – | – |
+| 24 | [**ReflectVLN**](/en/Agentic-Navigation-Papers/#reflectvln) (monocular) | **62.8%** | ✓ | – | ✓ | – | – | ✓ | – | ✓ | – | – |
 | 25 | [**NavFoM**](#navfom) (multi-view) | **61.7%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | – |
 | 26 | [**GA-VLN**](#ga-vln) (monocular) | **61.0%** | – | – | – | – | – | – | – | – | ✓ | ✓ |
-| 27 | [**HarnessVLN**](#harnessvln) (monocular RGB-D) | **60.8%** | – | – | ✓ | ✓ | ✓ | – | – | – | ✓ | – |
+| 27 | [**HarnessVLN**](/en/Agentic-Navigation-Papers/#harnessvln) (monocular RGB-D) | **60.8%** | – | – | ✓ | ✓ | ✓ | – | – | – | ✓ | – |
 | 28 | [**JanusVLN**](#janusvln) (monocular) | **60.5%** | ✓ | – | – | – | – | – | – | ✓ | ✓ | ✓ |
 | **Statistics** | **Component adoption** | **Highest 81.5%** | **19/28 (68%)** | **10/28 (36%)** | **11/28 (39%)** | **4/28 (14%)** | **9/28 (32%)** | **12/28 (43%)** | **7/28 (25%)** | **16/28 (57%)** | **18/28 (64%)** | **14/28 (50%)** |
 {: .vln-component-matrix}
@@ -364,10 +367,6 @@ Divide the 28 entries into two tiers at 68% SR and compare component adoption:
 
 # Paper readings
 {: id="具身导航经典论文"}
-
-
-
-
 
 ## 1. R2R (2018)
 {: id="r2r"}
@@ -501,14 +500,6 @@ This article evaluates the navigation performance of different Baseline and Seq2
 
 ---
 
-
-
-
-
-
-
-
-
 ## 2. VLN-CE (2020)
 {: id="vln-ce"}
 ——Beyond the Nav-Graph: vision-language navigation in a continuous environment
@@ -565,14 +556,6 @@ The paper proposes the Vision-and-Language Navigation in Continuous Environments
 About 23% of R2R trajectories cannot navigate in continuous environments (discontinuities in environment reconstruction, object movement, etc.). The absolute performance of the current end-to-end method is still low, and modular methods need to be explored in the future, such as integrating learned agents with motion controllers. The paper does not explore in detail all techniques that may improve VLN-CE performance (such as more methods to deal with exposure bias and data sparsity).
 
 ---
-
-
-
-
-
-
-
-
 
 ## 3. DUET (2022)
 {: id="duet"}
@@ -716,14 +699,6 @@ Figure 5: Qualitative comparison of the navigation trajectories of DUET and HAMT
 
 ---
 
-
-
-
-
-
-
-
-
 ## 4. R2RIE-CE & IEDL (2024)
 {: id="r2rie-ce-iedl"}
 ——The first continuous navigation command error benchmark test, and a multi-modal error detection and positioning framework combining command-trajectory compatibility
@@ -845,14 +820,6 @@ Table 2: Comparison of error detection (AUC) and positioning (ATD) indicators of
 2. **Lack of closed-loop strategy after error correction**: The paper mainly focuses on "detecting" and "locating" errors, but does not construct a detailed closed-loop control strategy for how the agent can proactively initiate interactive clarification to human users or autonomously try to re-plan the route after discovering an error.
 
 ---
-
-
-
-
-
-
-
-
 
 ## 5. NaVid (2024)
 {: id="navid"}
@@ -981,14 +948,6 @@ NaVid Vision-language navigation execution effect in real physical environment
 
 ---
 
-
-
-
-
-
-
-
-
 ## 6. NavGPT-2 (2024)
 {: id="navgpt-2"}
 ——Unleash the navigation reasoning capabilities of large visual language models
@@ -1084,12 +1043,6 @@ The two works jointly demonstrate the great potential of LLMs in embodied naviga
 
 
 ---
-
-
-
-
-
-
 
 ## 7. DualVLN/InternVLN (2025)
 {: id="dualvln"}
@@ -1393,14 +1346,6 @@ Layerwise Qwen-VL attention during autoregressive generation shows:
 
 ---
 
-
-
-
-
-
-
-
-
 ## 8. VLN-R1 (2025)
 {: id="vln-r1"}
 ——End-to-end navigation based on GRPO and Time-Decayed Reward
@@ -1516,14 +1461,6 @@ VLN-R1 was fully tested on the VLN-CE (vision-language navigation continuous env
 The content of the paper is relatively short and does not detail the specific performance index values (such as SR, SPL, etc.) and detailed comparison with other SOTA methods. In addition, there is less discussion on Real-world deployment, mainly focusing on simulation environment (Habitat) testing, and there is a lack of verification experiments on the real robot platform.
 
 ---
-
-
-
-
-
-
-
-
 
 ## 9. StreamVLN (2025)
 {: id="streamvln"}
@@ -1646,15 +1583,6 @@ Effect of KV-cache reuse on multi-turn decoding latency. Retaining the full cach
 
 ---
 
-
-
-
-
-
-
-
-
-
 ## 10. NavFoM (2025)
 {: id="navfom"}
 ——Embodied Navigation Foundation Model
@@ -1759,13 +1687,6 @@ This method requires significant computing resources during training (56 NVIDIA 
 
 
 ---
-
-
-
-
-
-
-
 
 ## 11. MapNav (2025)
 {: id="mapnav"}
@@ -1901,147 +1822,7 @@ Semantic segmentation can assign inaccurate object labels under occlusion or lig
 
 ---
 
-
-
-
-
-
-
-
-
-## 12. Open-Nav (2025)
-{: id="open-nav"}
-———Zero-Shot VLN in Continuous Environment with Open-Source LLMs
-
-📄 **Paper**: [arXiv:2409.18794](https://arxiv.org/abs/2409.18794) · 🏛️ **ICRA 2025**
-
-### Key takeaways
-{: id="精华-5"}
-
-The core contribution of Open-Nav is to replace the expensive GPT-4 API with a locally deployed open source LLM while maintaining competitive performance, which has important implications for privacy-sensitive real-world robot deployments. The three-stage spatial-temporal CoT (instruction understanding → progress estimation → decision making) designed in the paper is a reusable LLM navigation reasoning framework and is worth learning from. The idea of ​​using SpatialBot + RAM to jointly enhance visual perception - one is responsible for spatial relationship understanding, and the other is responsible for fine-grained target recognition - effectively bridges the gap in visual perception between open source LLM and GPT-4. Real-world evaluation results show that Open-Nav without training even surpasses the SOTA method with supervised training, indicating that the generalization ability of LLM has significant advantages in out-of-distribution scenarios.
-
----
-
-### 1. Background and problem
-{: id="1-研究背景问题-4"}
-
-Vision-and-Language Navigation in Continuous Environments (VLN-CE) requires agents to navigate in unseen 3D indoor environments based on natural language instructions. Existing LLM-based zero-shot methods (such as NavGPT, DiscussionNav) rely heavily on the GPT-4 API, which involves high token fees and the risk of user environment data privacy leakage. They are mainly verified in discrete environments and are difficult to be directly applied to continuous real-world scenarios.
-
----
-
-### 2. Method and innovations
-{: id="2-主要方法创新点-4"}
-
-<div align="center">
-  <img src="/images/vln/Open-Nav-motivation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:697/557" alt="Comparison between GPT-based Navigator and Open-Source LLM-based Navigator: The latter requires no API fees, and environmental data does not leave the local device, protecting user privacy." />
-<figcaption>
-Comparison between GPT-based Navigator and Open-Source LLM-based Navigator: The latter requires no API fees, and environmental data does not leave the local device, protecting user privacy.
-</figcaption>
-</div>
-
-The Open-Nav framework consists of three core modules:
-
-**1. Waypoint Prediction module**
-
-Use a Transformer-based waypoint prediction model that fuses RGB and depth image features (two dedicated ResNet50 branches):
-
-$$v_i^{rgbd} = W_m(f_{\text{ResNet-RGB}}(I_i^{rgb}) \| f_{\text{ResNet-Depth}}(I_i^d))$$
-
-After Transformer processing, a candidate path point heat map is generated, and then K candidate direction points $$\Delta W = \{\Delta w_i\}_{i=1}^K$$ are filtered out through NMS. Each candidate point is represented by angle and distance.
-
-**2. Scene Perception module**
-
-For challenges requiring accurate spatial understanding in continuous environments, scene description is enhanced using two complementary models:
-
-- **SpatialBot**: Spatial understanding VLM, input RGB+depth map, output text description containing distance and spatial relationship between objects
-- **RAM** (Recognize Anything Model): Fine-grained target detection, identifying the categories and three-dimensional positions of all objects in the scene
-
-The two outputs are merged into a unified textual scene observation $O_{text} = \langle D_{spatial}, \{o_i\}\rangle$, providing rich spatial context for LLM.
-
-<div align="center">
-  <img src="/images/vln/Open-Nav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1419/882" alt="Open-Nav overall architecture: Waypoint Prediction module identifies candidate guide waypoints, Scene Perception module (RAM + SpatialBot) extracts object positions and spatial relationships, and LLM Navigator performs three-stage CoT reasoning and outputs actions." />
-<figcaption>
-Open-Nav overall architecture: Waypoint Prediction module identifies candidate guide waypoints, Scene Perception module (RAM + SpatialBot) extracts object positions and spatial relationships, and LLM Navigator performs three-stage CoT reasoning and outputs actions.
-</figcaption>
-</div>
-
-**3. LLM Navigator: Three-stage space-timing Chain-of-Thought**
-
-This is the core innovation of Open-Nav. At each navigation step, LLM sequentially completes three inference stages:
-
-- **Instruction Comprehension**: Decompose navigation instructions into action sequences and landmark lists, using dedicated prompts to extract structured information
-- **Progress Estimation**: Based on historical trajectories and current observations, determine which subtasks have been completed through four steps: landmark verification, direction analysis, and action completion assessment.
-- **Decision Making**: Integrate the spatial description, historical trajectory summary and progress estimation results of the current candidate waypoint, generate the reasoning process and select the optimal direction point
-
-The framework deploys four open source LLMs locally via [Ollama](https://ollama.ai/): Llama3.1-70B, Qwen2-72B, Gemma2-27B, Phi3-14B.
-
----
-
-### 3. Results and findings
-{: id="3-核心结果发现-4"}
-
-**Simulation Environment (R2R-CE Dataset)**:
-
-| Methods | SR↑ | SPL↑ | nDTW↑ |
-|------|-----|------|--------|
-| DiscussNav-GPT4 | 15 | 10.51 | 42.87 |
-| Open-Nav-Llama3.1 (this article) | **16** | **12.90** | **44.99** |
-| Open-Nav-GPT4 (this article) | 19 | 16.10 | 45.79 |
-
-Open-Nav uses open source LLM to surpass DiscussNav-GPT4 in both SR and SPL, proving that open source LLM with good perceptual enhancement is comparable to closed source solutions.
-
-**Real World Environment (Office/Lab/Game Room)**:
-
-<div align="center">
-  <img src="/images/vln/Open-Nav-real-world-env.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:694/248" alt="Real-world testing environment: office, laboratory, game room, each scene is marked with 20 instructions (including simple and complex instructions)." />
-<figcaption>
-Real-world testing environment: office, laboratory, game room, each scene is marked with 20 instructions (including simple and complex instructions).
-</figcaption>
-</div>
-
-<div align="center">
-  <img src="/images/vln/Open-Nav-real-world-demo.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:654/302" alt="The navigation process of Open-Nav in the real environment is visualized. The right side shows the step-by-step reasoning process of LLM Navigator, reflecting the interpretability of the CoT thinking chain." />
-<figcaption>
-The navigation process of Open-Nav in the real environment is visualized. The right side shows the step-by-step reasoning process of LLM Navigator, reflecting the interpretability of the CoT thinking chain.
-</figcaption>
-</div>
-
-In all real scenarios: Open-Nav-Llama3.1 reaches **SR=35, NE=2.39**, surpassing supervised training CMA (SR=23), RecBERT (SR=27), and BEVBert (SR=20), verifying the superiority of LLM generalization ability in out-of-distribution scenarios.
-
-**Comparison of different open source LLMs (simulated environment navigation performance)**:
-
-<div align="center">
-  <img src="/images/vln/Open-Nav-llm-action-decomposition.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:1321/453" alt="Performance comparison of four open source LLMs on action decomposition tasks (SPICE/BLEU/METEOR/ROUGE)." />
-<figcaption>
-Performance comparison of four open source LLMs on action decomposition tasks (SPICE/BLEU/METEOR/ROUGE).
-</figcaption>
-</div>
-
-<div align="center">
-  <img src="/images/vln/Open-Nav-llm-landmark-extraction.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:646/315" alt="Performance comparison of four open source LLMs on landmark extraction tasks. Llama3.1-70B performs best in landmark extraction, Qwen2-72B scores highest in action decomposition, but Llama3.1-70B is the best overall in final navigation performance (SR=16, SPL=12.90)." />
-<figcaption>
-Performance comparison of four open source LLMs on landmark extraction tasks. Llama3.1-70B performs best in landmark extraction, Qwen2-72B scores highest in action decomposition, but Llama3.1-70B is the best overall in final navigation performance (SR=16, SPL=12.90).
-</figcaption>
-</div>
-
----
-
-### 4. Limitations
-{: id="4-局限性-4"}
-
-The current inference speed of open source LLM is slow, and the computational efficiency in real environments still needs to be improved; the paper does not explore the potential of fine-tuning open source LLM for navigation tasks, and the performance gap with GPT-4 can be further narrowed in the future.
-
----
-
-
-
-
-
-
-
-
-
-## 13. VLN-Imagine (2025)
+## 12. VLN-Imagine (2025)
 {: id="vln-imagine"}
 ——Using text-generated image models to build "visual imagination" for navigation agents
 
@@ -2125,15 +1906,7 @@ Generating and encoding imagined images adds computational overhead that is part
 
 ---
 
-
-
-
-
-
-
-
-
-## 14. VLN-PE (2025)
+## 13. VLN-PE (2025)
 {: id="vln-pe"}
 ———Rethinking the Embodied Gap in Vision-Language Navigation: A Comprehensive Study of Physical and Visual Differences
 
@@ -2237,15 +2010,7 @@ Current RL-based motion controllers cannot reliably handle stair navigation in c
 
 ---
 
-
-
-
-
-
-
-
-
-## 15. Goal2Pixel (2025)
+## 14. Goal2Pixel (2025)
 {: id="goal2pixel"}
 ———Ground navigation targets to image pixels and unify the decision space of VLN-CE with pixel predictions
 
@@ -2381,15 +2146,7 @@ Using visibility as the criterion, ViKeyMem may miss fine-grained landmarks that
 
 ---
 
-
-
-
-
-
-
-
-
-## 16. AstraNav-World (2025)
+## 15. AstraNav-World (2025)
 {: id="astranav-world"}
 ——Unify "imagining the future" and "planning the future" into the same generative probability framework
 
@@ -2477,15 +2234,7 @@ The reasoning delay of video generation itself and the computing power overhead 
 
 ---
 
-
-
-
-
-
-
-
-
-## 17. CorrectNav (2025)
+## 16. CorrectNav (2025)
 {: id="correctnav"}
 ——— Monocular RGB vision-language-action navigation model empowered by self-error correction flywheel
 
@@ -2637,15 +2386,7 @@ CorrectNav Qualitative results of real robot deployment in indoor and outdoor mu
 
 ---
 
-
-
-
-
-
-
-
-
-## 18. Slow4fast-VLN (2026)
+## 17. Slow4fast-VLN (2026)
 {: id="slow4fast-vln"}
 ——General Vision-Language Navigation via Fast-Slow Interactive Reasoning
 
@@ -2706,14 +2447,7 @@ One limitation pointed out in the paper is that the knowledge generated by slow-
 
 ---
 
-
-
-
-
-
-
-
-## 19. DGNav (2026)
+## 18. DGNav (2026)
 {: id="dgnav"}
 ——Dynamic topology awareness: Breaking the granular rigidity in vision-language navigation
 
@@ -2848,227 +2582,7 @@ The core parameters of the adaptive strategy ($\gamma_{fix}, \gamma_{min}, \sigm
 
 ---
 
-
-
-
-
-
-
-
-## 20. CausalNav (2026)
-{: id="causalnav"}
-———First Scene Graph-based Semantic Navigation for Dynamic Outdoor Environments
-
-📄 **Paper**: [arXiv:2601.01872](https://arxiv.org/abs/2601.01872) · 🏛️ **IEEE RA-L**
-
-### Key takeaways
-{: id="精华-12"}
-
-The core highlight of CausalNav is the deep integration of multi-level scene graph (Embodied Graph) and RAG mechanism to achieve long-range semantic navigation that supports open-vocabulary queries - the design paradigm of "graph as knowledge base" is worth learning from. Second, the hierarchical Embodied Graph construction strategy (from fine-grained object nodes to coarse-grained building and cluster nodes) shows how to unify semantic representation and retrieval at multiple spatial scales. Third, the dynamic object filtering mechanism based on the Spatial-Temporal Corridor can distinguish static, quasi-static and dynamic obstacles without additional annotation, which is a practical solution for processing outdoor dynamic scenes. Fourth, local open source LLM is used to replace commercial APIs to complete hierarchical semantic retrieval, proving that high-quality semantic reasoning can still be achieved on an autonomous platform without the cloud.
-
----
-
-### 1. Background and problem
-{: id="1-研究背景问题-11"}
-
-Autonomous semantic navigation in large-scale outdoor dynamic environments faces three major challenges: semantic understanding of open-vocabulary, dynamic environment adaptation (moving obstacles such as pedestrians and vehicles), and long-term stability. Existing VLN research mainly focuses on static indoor scenes, relying on high-precision maps or large-scale training data, and the long-range navigation robustness in real outdoor dynamic scenes has not been fully verified.
-
----
-
-### 2. Method and innovations
-{: id="2-主要方法创新点-9"}
-
-<div align="center">
-  <img src="/images/vln/CausalNav-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:715/565" alt="CausalNav overall workflow: integrating three major modules: semantic reasoning, dynamic environment adaptation and Embodied Graph planning" />
-<figcaption>
-CausalNav overall workflow: integrating three major modules: semantic reasoning, dynamic environment adaptation and Embodied Graph planning
-</figcaption>
-</div>
-
-CausalNav proposes a semantic navigation framework composed of three core modules:
-
-**Module 1: Open vocabulary target tracking and self-motion estimation**
-
-Use YOLO-World to extract open-vocabulary 2D detection boxes and segmentation masks from RGB images, and perform multi-view target tracking through ByteTrack. Combined with the LiDAR point cloud, the 2D detection is projected into the 3D space to obtain the 3D attitude of the target $$^w\mathbf{T}_{obj}$$. The self-vehicle motion is estimated through LiDAR-IMU odometry (FAST-LIO2), providing an accurate basis for positioning and coordinate transformation.
-
-**Module 2: Dynamic Object Filtering and Embodied Graph Construction**
-
-<div align="center">
-  <img src="/images/vln/CausalNav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1446/699" alt="CausalNav three-module pipeline architecture: target tracking and self-motion estimation → dynamic filtering and graph construction → graph update and natural language navigation" />
-<figcaption>
-CausalNav three-module pipeline architecture: target tracking and self-motion estimation → dynamic filtering and graph construction → graph update and natural language navigation
-</figcaption>
-</div>
-
-- **Space-time corridor filtering**: Encode the historical trajectory of each target as a space-time corridor $$\mathcal{T} = \{^w\mathbf{T}^n_{obj}, \text{3DBBox}_i, t_i\}_{i=1}^n$$. If the target's displacement exceeds the threshold within $k$ steps, it is identified as a dynamic target and removed from the graph, effectively eliminating false nodes caused by motion.
-
-- **Embodied Graph hierarchical construction**: The static environment consists of two types of nodes - the building node $\nu_i^{build}$ comes from the offline map, and the object node $\nu_i^{obj}$ comes from real-time perception. Use LLM to perform hierarchical clustering (spatial-semantic similarity) of nodes to form multi-level abstraction: object layer (Level $L-1$) → building/Place layer (Level $L$) → clustering node (Clustering Node). Each time the self-vehicle moves exceeds the distance threshold $d$, a new self-vehicle node $\nu_i^l$ is added to record the historical trajectory.
-
-- **RAG semantic retrieval**: hierarchical retrieval based on LLM scoring, combined with spatial similarity $\kappa^{spatial}$ and semantic similarity $\kappa^{semantic}$, selecting the node path that best matches the query layer by layer in the graph, supporting open-vocabulary target positioning.
-
-**Module 3: Embodied Graph dynamic update and natural language navigation**
-
-<div align="center">
-  <img src="/images/vln/CausalNav-embodied-graph.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:715/610" alt="Embodied Graph built in the simulation environment: multi-level fusion of coarse-grained building nodes and fine-grained object nodes (fire hydrants, mailboxes, etc.)" />
-<figcaption>
-Embodied Graph built in the simulation environment: multi-level fusion of coarse-grained building nodes and fine-grained object nodes (fire hydrants, mailboxes, etc.)
-</figcaption>
-</div>
-
-- **Global planning**: Parse natural language instructions, infer the target location through RAG retrieval Embodied Graph, and give priority to the Dijkstra shortest path in the historical trajectory; if the target is unreachable, call offline maps or Google Maps to generate coarse-grained routes, and the result is expressed as waypoint sequence $\mathcal{W} = \{w_1, w_2, \ldots, w_n\}$.
-
-- **Local planning**: Use RH-Map for real-time dynamic local map construction, use Informed-RRT* to generate the initial trajectory, and then use NMPC-CBF (Nonlinear Model Predictive Control with Control Barrier Function) for trajectory tracking and dynamic obstacle avoidance to ensure the safety of moving pedestrians/vehicles.
-
----
-
-### 3. Results and findings
-{: id="3-核心结果发现-10"}
-
-<div align="center">
-  <img src="/images/vln/CausalNav-real-world-results.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:709/997" alt="Navigation experiments at different distance scales in real environments: short-range (130m object-level instructions) and long-range (512m building-level instructions)" />
-<figcaption>
-Navigation experiments at different distance scales in real environments: short-range (130m object-level instructions) and long-range (512m building-level instructions)
-</figcaption>
-</div>
-
-**Simulation experiment** (Compare ViNT, NoMaD, GNM, CityWalker):
-- Small task: SR 100%, SPL 88.9%, CC 0.2 (best among all methods)
-- Medium mission: SR 92%, SPL 82.2%
-- Large mission: SR 80%, SPL 66.0%, CC 1.2, TL 141.82m
-
-**Real World Experiment**:
-- Short range (130m): ViNT and CausalNav both succeed, other methods fail
-- Long range (512m): Only CausalNav successfully completed the task, other methods failed due to collision
-- CityWalker's real-world performance is significantly worse than simulation, and it is sensitive to lighting changes and dynamic obstacles.
-
-**ablation experiment**:
-- Enable Embodied Graph dynamic updates: SR increased from 78% to 90%, SPL increased from 54.7% to 80.1%
-- Optimal hyperparameters: $\alpha=\beta=0.5$, $\gamma=1.5$ (space-semantic balance point)
-- Running latency: 105ms/cycle (10Hz), only 11% more overhead than NoMaD
-
----
-
-### 4. Limitations
-{: id="4-局限性-10"}
-
-The robustness of CausalNav under extreme lighting/weather conditions needs to be improved, and the compression and forgetting mechanism of long-range graph memory has not yet been perfected. Problems of graph expansion and retrieval accuracy may occur after extremely long runs.
-
-
-
-
-
-
-
-
-
-
-## 21. AgentVLN (2026)
-{: id="agentvln"}
-———Towards Agentic Vision-and-Language Navigation
-
-📄 **Paper**: [arXiv:2603.17670](https://arxiv.org/abs/2603.17670) · 🏛️ **ECCV 2026** · [Project Page](https://allenxinn.github.io/AgentVLN/) · [Code](https://github.com/Allenxinn/AgentVLN)
-
-### Key takeaways
-{: id="精华-13"}
-
-The most valuable idea for AgentVLN is the **VLM-as-Brain** paradigm: using VLM as a brain purely for high-level semantic reasoning and skill scheduling, it encapsulates low-level capabilities such as perception, planning, and control into a modular, plug-and-play skill library, completely decoupling cognition and execution.
-
-Cross-space representation mapping (back-projecting 3D topological waypoints into pixel-aligned 2D visual cues) is an elegant design that bridges the gap between 2D VLM and the 3D physical world without additional parameters.
-
-QD-PCoT shows how to give the model metacognitive capabilities: proactively ask questions when faced with spatial ambiguity, and call on perceptual skills to obtain depth information instead of blindly outputting coordinates.
-
-The 3B parameter count surpasses the previous SOTA of 7B+ in both R2R/RxR lists, proving that structured hierarchical reasoning is far more efficient than brute-force parameter scaling. This framework can be directly deployed on the Jetson embedded edge platform and has strong deployment value.
-
----
-
-### 1. Background and problem
-{: id="1-研究背景问题-12"}
-
-Vision-and-Language Navigation (VLN) requires embodied agents to convert complex natural language instructions into long-term, continuous space navigation behaviors. Current VLN systems face three core bottlenecks: the cross-spatial mismatch between VLM's inherent 2D semantic understanding and 3D geometric perception; scale ambiguity caused by monocular RGB images leads to failure of local target positioning; and large parameter models cannot meet the real-time reasoning needs of edge devices.
-
----
-
-### 2. Method and innovations
-{: id="2-主要方法创新点-10"}
-
-<div align="center">
-  <img src="/images/vln/AgentVLN-framework-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:979/605" alt="AgentVLN overall framework: The VLM-as-Brain paradigm decomposes long-term navigation into the alternating invocation of perception skills (Perception Skills) and planning skills (Planning Skills), supplemented by QD-PCoT to handle spatial ambiguity." />
-<figcaption>
-AgentVLN overall framework: The VLM-as-Brain paradigm decomposes long-term navigation into the alternating invocation of perception skills (Perception Skills) and planning skills (Planning Skills), supplemented by QD-PCoT to handle spatial ambiguity.
-</figcaption>
-</div>
-
-**VLM-as-Brain Paradigm and POSMDP Modeling**
-
-AgentVLN formalizes the VLN task as the Partially Observable Semi-Markov Decision Process (POSMDP) $\mathcal{M} = \langle \mathcal{S}, \mathcal{O}, \mathcal{F}, \mathcal{T}, \mathcal{I}, \mathcal{H} \rangle$. As a central controller, VLM generates skill calling instructions at each decision step $t$ based on historical context $$\mathcal{H}_t$$, visual observations $o_t$ and natural language instructions $\mathcal{I}$:
-
-$$c_k \sim \pi_\theta(f \mid \mathcal{H}_{t_k}, o_{t_k}, \mathcal{I}), \quad f \in \mathcal{F}$$
-
-The skill library $\mathcal{F}$ is divided into two categories: **Perception skills** $\mathcal F_{percep}$ ($\tau=0$, extract geometric/semantic features from the environment without delay, update the global state $\mathcal{S}$) and **Planning skills** $\mathcal F_{plan}$ ($\tau>0$, execute a multi-step physical action sequence). Specifically including: Back-Projection, Global Planning, Obstacle Avoidance, Incremental Exploration Map, Feasible Waypoints and other modules. This hierarchical design allows VLM to be completely disconnected from low-level motion details and focus on high-level semantic-spatial matching.
-
-**Cross-Space Representation Mapping**
-
-To solve the problem that VLM cannot directly perceive 3D geometry, AgentVLN designed a set of inverse perspective projection mechanisms. Perception skills first construct a global occupancy grid map through back-projection of RGB-D observations to generate a three-dimensional waypoint $\mathbf{P}^w_{path} = [X_{path}, Y_{path}, 0]^T$; then project the 3D waypoint back to pixel coordinates through the camera internal parameter matrix $K$ and the current pose $T_t$:
-
-$$s \cdot \mathbf{p}^{img}_{path} = KR_t^{-1}(\mathbf{P}^w_{path} - \mathbf{t}_t)$$
-
-In this way, VLM only needs to select the most matching waypoint based on semantics in 2D pixel space, and then use planning skills to restore it to a 3D control signal, achieving a seamless bridge between 2D visual semantics and 3D physical structures.
-
-**Context-aware fine-grained self-correction and active exploration**
-
-When there is no feasible waypoint that satisfies the command semantics in the current observation $o_t$ (such as occlusion, blind zone, trajectory deviation), AgentVLN does not force the long-distance blind displacement, but outputs fine-grained atomic actions $$a_t \sim \pi_\theta(a \mid \mathcal{H}_t, o_t, \mathcal{I})$$, $a \in \{\text{Forward, Left, Right}\}$. After the autonomous look-around restores the visible waypoint, it switches back to the macro skill call, effectively suppressing the accumulation of long trajectory errors.
-
-**Query-Driven Perceptual Chain-of-Thought (QD-PCoT)**
-
-<div align="center">
-  <img src="/images/vln/AgentVLN-performance-comparison.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:575/583" alt="AgentVLN-3B&#x27;s parameter count-success rate comparison on RxR-CE Val-Unseen surpasses all previous methods of 7B+ with 3B parameter count." />
-<figcaption>
-AgentVLN-3B's parameter count-success rate comparison on RxR-CE Val-Unseen surpasses all previous methods of 7B+ with 3B parameter count.
-</figcaption>
-</div>
-
-To address the monocular scale ambiguity in the local target positioning stage, AgentVLN introduces the QD-PCoT mechanism. When the model detects spatial ambiguity, it does not blindly return pixel coordinates, but generates an intermediate natural language query (such as *"How many meters is the chair in front of me?"*) and calls the perception skill $\mathcal F_{percep}$ to obtain accurate depth feedback. This feedback is injected into the context in the form of incremental text prompts, guiding the model to finally output the accurate target pixel coordinate $\mathbf p_{target}^{img} = [u_{target}, v_{target}, 1]^T$, which is then converted into the 3D target coordinate $\mathbf{P}^w_{target}$ by back-projection of the depth map to achieve accurate docking.
-
-**AgentVLN-Instruct Dataset**
-
-A large-scale instruction tuning dataset, AgentVLN-Instruct (based on the Habitat simulator), was constructed, which contains four key components: a dynamic stage routing mechanism driven by target visibility (simulating the human cognitive model of "first coarse navigation, then fine positioning"), generalizable skill call annotation, localized reasoning data, and active question and answer interactive pairs. The foundation model is Qwen2.5-VL-3B, the visual encoder is frozen during training, optimized with AdamW, and uses 32 NVIDIA A100 GPUs.
-
----
-
-### 3. Results and findings
-{: id="3-核心结果发现-11"}
-
-<div align="center">
-  <img src="/images/vln/AgentVLN-navigation-visualization.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:981/625" alt="AgentVLN navigation visualization: The green dot is the pixel-level visual prompt generated by the perception skill, and the red circle is the waypoint selected by the planning skill; it automatically switches to fine-grained atomic actions when encountering visual occlusion." />
-<figcaption>
-AgentVLN navigation visualization: The green dot is the pixel-level visual prompt generated by the perception skill, and the red circle is the waypoint selected by the planning skill; it automatically switches to fine-grained atomic actions when encountering visual occlusion.
-</figcaption>
-</div>
-
-- **R2R-CE Val-Unseen**: AgentVLN-3B reaches SR=67.2%, SPL=64.7%, surpassing similar SOTA InternVLA-N1-8.3B (SR+9.0%, SPL+10.7%), achieving comprehensive surpassing with less than half the number of parameters
-- **RxR-CE Val-Unseen**: SR=69.5%, SPL=61.3%, nDTW=74.6%, also refresh SOTA
-- **ablation analysis**: Only introducing VLM-as-Brain + cross-space mapping, SR increased from the baseline 38.6% to 59.7%; adding CDFG fine-grained self-correction reached 65.6%; the final integrated QD-PCoT reached 67.2%
-- **Timing context**: The optimal number of historical frames K=8 (SR=67.2%, SPL=64.7%). If it is too short, it will be short-sighted, and if it is too long, the attention will be diluted.
-- **Real World Deployment**: Based on Unitree Go2 quadruped robot + Intel RealSense D455, combined with RTAB-Map SLAM, it can achieve accurate navigation in indoor and outdoor scenes and support Jetson edge real-time inference.
-
----
-
-### 4. Limitations
-{: id="4-局限性-11"}
-
-AgentVLN currently relies on a depth sensor (RGB-D) to support accurate 3D back-projection, and its scale ambiguity processing capabilities in pure RGB monocular scenes are still limited; in addition, the expansion and maintenance of the skill library requires a certain engineering cost, and its zero-shot adaptation ability to new scenes has yet to be systematically evaluated.
-
----
-
-
-
-
-
-
-
-
-
-## 22. VLN-Cache (2026)
+## 19. VLN-Cache (2026)
 {: id="vln-cache"}
 ———Enabling Token Caching for VLN Models with Visual/Semantic Dynamics Awareness
 
@@ -3166,15 +2680,7 @@ VLN-Cache currently only targets RGB-based continuous VLN and does not support d
 
 ---
 
-
-
-
-
-
-
-
-
-## 23. R³: Run, Ruminate, and Regulate (2026)
+## 20. R³: Run, Ruminate, and Regulate (2026)
 {: id="r3"}
 ———A dual-process thinking framework for vision-language navigation
 
@@ -3303,15 +2809,7 @@ Figure 5: REVERIE visual comparison. GridMM lingers in the starting area for a l
 
 ---
 
-
-
-
-
-
-
-
-
-## 24. AwareVLN (2026)
+## 21. AwareVLN (2026)
 {: id="awarevln"}
 ———Reasoning with Self-awareness for Vision-Language Navigation
 
@@ -3438,15 +2936,7 @@ The quality of inference supervision is limited by the accuracy of universal VLM
 
 ---
 
-
-
-
-
-
-
-
-
-## 25. Dual-Anchoring (2026)
+## 22. Dual-Anchoring (2026)
 {: id="dual-anchoring"}
 ——Use "command progress" and "landmark memory" as dual anchors to combat state drift in VLN (State Drift)
 
@@ -3577,15 +3067,7 @@ Figure 5: Performance at different track lengths. (a) SR, (b) SPL comparison of 
 
 ---
 
-
-
-
-
-
-
-
-
-## 26. JanusVLN (2026)
+## 23. JanusVLN (2026)
 {: id="janusvln"}
 ——— Decoupling semantics and space: vision-language navigation using dual implicit neural memory
 
@@ -3715,15 +3197,7 @@ Visual analysis of spatial geometry token: The extracted spatial geometry token 
 
 ---
 
-
-
-
-
-
-
-
-
-## 27. HSGM (2026)
+## 24. HSGM (2026)
 {: id="hsgm"}
 ——— Hierarchical semantic-geometric map, filling the gap between VLM 2D vision and 3D spatial reasoning and motion planning
 
@@ -3881,15 +3355,7 @@ Figure 4. An example of the evolution of robot mapping and navigation in continu
 
 ---
 
-
-
-
-
-
-
-
-
-## 28. OneVLA (2026)
+## 25. OneVLA (2026)
 {: id="onevla-a-unified-framework-for-embodied-tasks"}
 OneVLA: A Unified Framework for Embodied Tasks
 ——The first VLA model to unify embodied navigation and operation under a single network and action head
@@ -4063,132 +3529,7 @@ Demonstration of the qualitative effects of OneVLA on navigation and operation i
 
 ---
 
-
-
-
-
-
-
-
-
-## 29. CA-VLN (2026)
-{: id="ca-vln"}
-——— Multi-modal large model embodied navigation framework based on dual-agent collaboration
-
-📄 **Paper**: [Sensors 2026](https://doi.org/10.3390/s26041254) · 🏛️ **Sensors 2026**
-
-### Key takeaways
-{: id="精华-21"}
----
-1. **Dual-agent collaboration mechanism**: Decouples high-level common sense cognition from underlying episodic memory, and effectively improves the generalization and backtracking capabilities of embodied navigation agents in unseen environments through the collaboration of knowledge agents and hierarchical history agents.
-2. **Progressive Online Knowledge Generation**: During reasoning, the agent dynamically generates and retrieves Top-K relevant semantic knowledge facts based on original instructions and real-time visual observations, reducing dependence on static offline knowledge bases.
-3. **Hierarchical topological memory design**: Constructing the episodic memory topology map through hierarchical descriptions at the perspective layer and path layer not only retains temporal continuity, but also effectively prevents memory explosion caused by wandering or reciprocating motion.
-4. **Two-stage parameter efficient fine-tuning**: LoRA is used to constrain the trainable parameters within 10M, and the dual-agent and multi-modal fusion modules are fine-tuned successively to achieve low-cost domain adaptation of large models in specific navigation tasks.
-5. **Sim-to-Real Enlightenment of Decoupled Generalization**: Binding navigation strategies to relatively stable semantic concepts and connectivity relationships instead of fragile low-level visual textures provides an excellent transferable design for overcoming Sim-to-Real domain shift.
-
-### 1. Background and problem
-{: id="1-研究背景问题-20"}
----
-Vision-language navigation (VLN) requires agents to find paths in complex 3D environments based on natural language instructions. However, traditional end-to-end methods have poor generalization performance when facing unseen environments, and are easily lost or stuck in loops due to the lack of long-term historical context in large-scale scenarios. Although multimodal large models (MLLM) have been introduced into embodied navigation in recent years, the huge parameters of the large model that directly output navigation actions will bring about a huge "Domain Gap" and extremely high computational delays. How to skillfully integrate the common sense reasoning advantages of the large model with the fine underlying local decision-making and spatial topology memory is still an urgent problem to be solved.
-
-### 2. Method and innovations
-{: id="2-主要方法创新点-18"}
----
-<div align="center">
-  <img src="/images/vln/CA-VLN-overall-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1113/952" alt="CA-VLN overall collaboration architecture: including Knowledge Agent and Hierarchical History Agent, supplemented by multi-modal feature retrieval" />
-<figcaption>
-CA-VLN overall collaboration architecture: including Knowledge Agent and Hierarchical History Agent, supplemented by multi-modal feature retrieval
-</figcaption>
-</div>
-
-#### ① Overview of the overall framework
-{: id="-整体框架概述-8"}
-CA-VLN proposes a dual-agent collaboration framework composed of a Knowledge Reasoning Agent and a Hierarchical History Agent, and uses a specialized multi-modal fusion module to deeply interact with vision, text, common sense and memory features, and finally output action decisions.
-
-<div align="center">
-  <img src="/images/vln/CA-VLN-interaction-flow.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1114/919" alt="CA-VLN Agent interaction and information flow: Knowledge Agent extracts semantic features, History Agent maintains situation memory and guides action decisions" />
-<figcaption>
-CA-VLN Agent interaction and information flow: Knowledge Agent extracts semantic features, History Agent maintains situation memory and guides action decisions
-</figcaption>
-</div>
-
-#### ② Explain module by module
-{: id="-逐模块讲解-6"}
-- **Knowledge Reasoning Agent**
-  - **Input**: Original natural language instructions, real-time multi-view images from the current perspective.
-  - **Processing**: During training, the original instructions are spliced with the ground truth trajectories, and MLLM generates accurate step-by-step instructions and extracts key entities; during inference, in the absence of ground truth, the large model adopts a step-by-step prompting strategy to identify visible object attributes in the scene from color, shape, and size, describe the spatial layout, and use the CLIP text encoder to retrieve between the current instructions and preset facts to obtain the Top-K most relevant semantic facts (such as "Dining table is near the kitchen").
-  - **Output**: Extracted key semantic entity feature vectors and retrieved Top-K semantic fact feature vectors.
-  - **Design Motivation**: In order to bridge the context gap between MLLM and downstream navigation action decisions, the large model is used as a "high-level planner and common sense retriever" to assist multi-modal alignment with natural language description.
-
-- **Hierarchical History Agent**
-  - **Input**: The graph topology at the current moment, the local scene description of the historical traversal nodes, and the CLIP features of the image.
-  - **Processing**: Maintain a two-layer hierarchical structure: One is the **Viewpoint Hierarchy**, which uses LLaVA to generate a triplet description containing location type, salient visual features and connected area relationships for each newly visited observation point; in order to avoid memory explosion caused by wandering and reciprocating motion, new nodes are only added when the agent advances to a new observation point. The second is **Path Hierarchy**, which cascades the descriptions of visited perspectives according to the timeline, and uses MLLM to semantically enhance the global path.
-  - **Output**: Hierarchical history feature vector $H_{hist}$ and connection description of topological nodes.
-  - **Design motivation**: Overcome the shortcomings of traditional graph neural networks that are lost in long-distance dependencies and long-range backtracking due to the lack of high-level timing semantics.
-
-- **History Enhancement Module (HEM)**
-  - **Input**: Unenhanced local node feature vector $V_t$, candidate node feature vector $v_i$, and associated memory vector $m_s$ retrieved from episodic memory.
-  - **Processing**: First, perform nonlinear fusion of node features and memory features through MLP:
-    $$\tilde{V}_t = \text{MLP}([V_t; m_s]), \quad \tilde{v}_i = \text{MLP}([v_i; m_s])$$
-Global dependencies are then established through the Graph-Aware Transformer (GAT). GAT internally contains a cross-attention layer (used to model node feature relationships) and a self-attention layer (used to encode topological layout). The calculation formula is:
-    $$\tilde{h}'_t = \text{GAT}(\tilde{h}_t) = \text{softmax}\left(\frac{(\tilde{h}_t W_q)(\tilde{h}_t W_k)^T}{\sqrt{d}} + M\right)\tilde{h}_t W_v$$
-The bias matrix $M = D W_a + b_d$ is used to integrate the topological distance graph and limit the influence between unreachable nodes.
-  - **Output**: Enhanced global historical trajectory feature representation $$\tilde{H}_t = \{\tilde{h}'_1, \tilde{h}'_2, \dots, \tilde{h}'_{t-1}\}$$.
-  - **Design motivation**: Make the historical representation rich in temporal and semantic information, as well as precise geometric structure constraints, thereby improving the accuracy of backtracking decision-making.
-
-- **Multi-modal fusion and action prediction module**
-  - This module contains two sub-parts: **Instruction Guided Feature Fusion (IGFF)** and **Knowledge-Aware Visual Semantic Interactor (KVSI)**.
-  - **IGFF module**: Extract the global semantic features of the instruction `[CLS]` Token, and calculate the response weight of each visual area feature $o_i$ through cross attention, so that the agent focuses on the landmarks related to the instruction:
-    $$\eta_i = \text{softmax}\left(\frac{o_i W_q \hat{W}_0^T}{\sqrt{d}}\right), \quad \bar{o}_i = \eta_i o_i$$
-  - **KVSI module**: Integrate visual and knowledge features. First, the alignment score $a_{ij}$ between the visual query and the knowledge key is calculated through cross attention, and the local features of the fused semantic knowledge are obtained:
-    $$a_{ij} = \text{softmax}\left(\frac{Q K^T}{\sqrt{d}}\right), \quad o'_i = \sum_{j} a_{ij} \cdot V_j$$
-Afterwards, the spatial relationship is refined through self-attention, and an adaptive view weighting mechanism is introduced to calculate the importance score for each candidate view based on the historical context. Finally, the weighted context representation is calculated through Softmax normalization.
-
-<div align="center">
-  <img src="/images/vln/CA-VLN-multimodal-fusion.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1113/1008" alt="Multi-modal fusion and action prediction: Combining KVSI and IGFF mechanisms, using semantic, historical and local candidate perspectives respectively for global and local prediction" />
-<figcaption>
-Multi-modal fusion and action prediction: Combining KVSI and IGFF mechanisms, using semantic, historical and local candidate perspectives respectively for global and local prediction
-</figcaption>
-</div>
-
-#### ③ end-to-end data flow
-{: id="-端到端数据流"}
-At every decision-making step $t$:
-1. The agent obtains the panoramic visual observation $O_t$ from the current environment.
-2. The knowledge reasoning agent combines the current instructions with the description generated online by the multi-modal model to retrieve the Top-K semantic fact knowledge $K_{emb}$.
-3. The hierarchical historical agent updates the graph topology and uses HEM to obtain enhanced global trajectory features $$\tilde{H}_t$$.
-4. The extracted visual features, knowledge features, instruction features and entity features are input into the multi-modal fusion module respectively, and KVSI is used for knowledge-visual alignment, and IGFF is used for instruction-visual alignment to obtain refined local candidate feature representations.
-5. The global action prediction branch uses graph attention to model the global topology graph and instruction intersection to output a global candidate score, while the local action prediction branch performs local scoring for adjacent navigation candidates of the current node.
-6. After adaptive weighted fusion, the two use Softmax to decide the next action with the highest probability (execute movement or stop), and update the history and topology at the next moment.
-
-#### ④ Training objective/loss function
-{: id="-训练目标--损失函数-2"}
-The model adopts two-stage fine-tuning. First, LoRA is used to fine-tune the instructions of LLaVA-7B, limiting the trainable parameters to less than 10M, and optimizing its ability to generate stepwise instructions and hierarchical history descriptions. The agent is then frozen and the fusion and action prediction modules are jointly fine-tuned. The action prediction branch is optimized using a hybrid loss of behavior cloning (Imitation Learning) and reinforcement learning.
-
-### 3. Results and findings
-{: id="3-核心结果发现-19"}
----
-- **R2R dataset performance**: On the unseen validation set, CA-VLN reached a Success Rate (SR) of **73.31%** (an increase of **+1.79%** compared to the baseline DUET) and an SPL of **61.95%** (an improvement of **+1.53%**); on the unseen test set, the SR reached **70.27%** and the SPL reached **60.31%**, surpassing SOTA methods such as HAMT and KERM.
-- **REVERIE and SOON performance**: On the REVERIE dataset, which contains rich object positioning requirements, the SR in unseen scenes reaches **50.99%**, and the object positioning index RGSR is improved by **+2.85%**; on the SOON dataset with longer paths and more complex spatial structures, the SR on unseen validation reaches **37.32%** (+1.02%), indicating that hierarchical history and knowledge enhancement have significant gains for large-scale exploration.
-- **Ablation experiments and hyperparameter analysis**: Hierarchical history, entity guidance, large model step-by-step instructions, etc. all provide positive gains. Sensitivity analysis of Top-K shows that the optimal Top-K setting for knowledge retrieval is between 3 and 5. If it is too high (Top-K > 5), the performance will plummet due to the introduction of redundant or illusory information.
-
-### 4. Limitations
-{: id="4-局限性-19"}
----
-- **Sensitive to visually sparse scenes**: In visually minimalist scenes that lack significant landmarks and object textures, the semantic enhancement effect of the navigation instructions will be reduced due to the inability of the knowledge reasoning agent to capture rich entity attributes.
-- **Computation and reasoning delay**: Due to the introduction of online MLLM's text description retrieval and graph attention calculation, the reasoning time of each navigation decision has increased by about **15%** compared to the baseline (but better path planning, that is, higher SPL, reduces the total number of navigation steps, providing partial compensation for the total time consumption).
-
-
----
-
-
-
-
-
-
-
-
-## 30. RynnBrain (2026)
+## 26. RynnBrain (2026)
 {: id="rynnbrain"}
 ———Open Spatiotemporal Foundation Model for Embodied Intelligence
 
@@ -4283,15 +3624,7 @@ The MoE architecture (30B-A3B) failed to surpass the 8B Dense model in VLN tasks
 
 ---
 
-
-
-
-
-
-
-
-
-## 31. OmniNav (2026)
+## 27. OmniNav (2026)
 {: id="omninav"}
 ——Use fast-slow dual system to unify point-goal, object-goal, instruction-following navigation and frontier exploration
 
@@ -4496,15 +3829,7 @@ The real physical deployment of the complete slow system still requires addition
 
 ---
 
-
-
-
-
-
-
-
-
-## 32. Qwen-RobotNav (2026)
+## 28. Qwen-RobotNav (2026)
 {: id="qwen-robotnav"}
 ——The first unified multi-task, spatio-temporal reconfigurable embodied navigation model
 
@@ -4687,15 +4012,7 @@ Figure 10: Real long-range multi-task Agent cooperative closed-loop control (fin
 
 ---
 
-
-
-
-
-
-
-
-
-## 33. GA-VLN (2026)
+## 29. GA-VLN (2026)
 {: id="ga-vln"}
 ——— Geometry-Aware BEV Representation for Efficient Vision-Language Navigation
 
@@ -4824,15 +4141,7 @@ Figure 4. Real vehicle test of GA-VLN on the physical agent Hello Robot Stretch 
 
 ---
 
-
-
-
-
-
-
-
-
-## 34. SEDualVLN (2026)
+## 30. SEDualVLN (2026)
 {: id="sedualvln"}
 ——Spatially enhanced dual-system continuous environment vision-language navigation framework
 
@@ -4976,15 +4285,7 @@ Figure 7: The second stage of System 2 makes boundary point decisions based on t
 
 ---
 
-
-
-
-
-
-
-
-
-## 35. Robostral Navigate (2026)
+## 31. Robostral Navigate (2026)
 {: id="robostral-navigate"}
 ———An 8B vision-language navigation large model that only requires a monocular RGB camera: ultra-efficient simulation training and online reinforcement learning
 
@@ -5202,15 +4503,7 @@ The same set of VLM + Diffusion Policy weights was successfully deployed directl
 
 ---
 
-
-
-
-
-
-
-
-
-## 36. ABot-N1 (2026)
+## 32. ABot-N1 (2026)
 {: id="abot-n1"}
 ———Universal vision-language navigation foundation model based on dual system architecture of slow cognition and fast control
 
@@ -5326,158 +4619,7 @@ ABot-N1 broke the previous SOTA record on five core navigation tasks, and the mu
 
 ---
 
-
-
-
-
-
-
-
-
-## 37. ReflectVLN (2026)
-{: id="reflectvln"}
-——Embodied vision-language navigation based on reflective reasoning and two-way interaction mechanism
-
-📄 **Paper**: [arXiv:2607.12680](https://arxiv.org/abs/2607.12680) · 🏛️ **IROS 2026**
-
-### Key takeaways
-{: id="精华-29"}
-
-- Upgrade the one-way cascade structure of "slow planning-fast execution" in the traditional vision-language navigation (VLN) to a two-way closed-loop interaction architecture between the intent agent and execution agent.
-- Introducing the **Trigger Token mechanism** (`<VLNBOA>`, `<VLNBOR>`, `<VLNBOC>`), the execution agent monitors the sub-goal completion and yaw deviation in real time during the navigation process, realizing **on-demand high-level reflection and re-planning**, avoiding the waste of resources with fixed frequency refresh and the semantic disconnect of one-way cascade.
-- **Action-CoT** (path condition dual query training mechanism) is proposed to predict implicit coarse-grained future routes before predicting short-term actions and introduce global topological path constraints for local control.
-- Build a **single-round reflection-driven data generation pipeline** (Reflection-Driven Data Pipeline), collect policy Rollout failure samples and introduce Oracle expert intervention and VLM reflection generation. High-quality error correction data is generated through three-party cross-validation. It can significantly improve the recovery ability of the agent in long-term unknown environments without the need for large-scale pre-training or multiple rounds of iterative data enhancement.
-
----
-
-### 1. Background and problem
-{: id="1-研究背景问题-28"}
-
-During the long-range execution of vision-language navigation in a continuous environment (VLN-CE), small control errors of the robot tend to accumulate and cause yaw. Most of the existing high- and low-level decoupling (Slow-Fast or Dual-System) methods use one-way communication: the high-level outputs language sub-goals at a fixed frequency, and the low-level executes in one direction, lacking semantic progress tracking and fault diagnosis closed loops during the execution process. When the robot yaws, the upper level cannot receive deviation feedback in time, resulting in a lag in replanning. In addition, traditional methods lack explicit reflection mechanisms to identify, diagnose, and correct navigation failures.
-
-<div align="center">
-  <img src="/images/vln/ReflectVLN-paradigm-comparison.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:499/720" alt="Comparison between ReflectVLN and traditional Slow-Fast/dual system navigation framework. (a) The traditional cascade method delivers sub-goals in one direction; (b) ReflectVLN defines three trigger tokens (&lt;VLNBOR&gt; starts regular reflection to generate the next sub-goal, &lt;VLNBOC&gt; starts error correction reflection and diagnose errors, and &lt;VLNBBOA&gt; maintains pure action execution) to control the intent Agent in a closed loop on demand." />
-<figcaption>
-Comparison between ReflectVLN and traditional Slow-Fast/dual system navigation framework. (a) The traditional cascade method delivers sub-goals in one direction; (b) ReflectVLN defines three trigger tokens (&lt;VLNBOR&gt; starts regular reflection to generate the next sub-goal, &lt;VLNBOC&gt; starts error correction reflection and diagnose errors, and &lt;VLNBBOA&gt; maintains pure action execution) to control the intent Agent in a closed loop on demand.
-</figcaption>
-</div>
-
----
-
-### 2. Method and innovations
-{: id="2-主要方法创新点-26"}
-
-The ReflectVLN architecture consists of two independently parameterized Agents: **Intention Agent (Intention Agent, $\theta_{int}$)** and **Execution Agent ($\theta_{exe}$)**, both initialized based on the Qwen2.5-VL-3B model.
-
-<div align="center">
-  <img src="/images/vln/ReflectVLN-architecture-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:983/737" alt="ReflectVLN overall architecture diagram. As a high-level reflective planner, the intent agent receives visual history, natural language instructions and execution feedback, and generates reflective sub-goal descriptions; the execution agent conditions the sub-goals and current observations, outputs continuous motion trajectories and status tokens that regulate subsequent dual-agent interactions." />
-<figcaption>
-ReflectVLN overall architecture diagram. As a high-level reflective planner, the intent agent receives visual history, natural language instructions and execution feedback, and generates reflective sub-goal descriptions; the execution agent conditions the sub-goals and current observations, outputs continuous motion trajectories and status tokens that regulate subsequent dual-agent interactions.
-</figcaption>
-</div>
-
-#### ① Overview of the overall framework
-{: id="-整体框架概述-11"}
-The system consists of high-level intent Agent and low-level execution Agent. The intent agent is responsible for sub-task decomposition and yaw reflection of global long-range instructions; the execution agent is responsible for grounding sub-goals into short-term continuous motion control in the local field of view and evaluating the execution status in real time. The two establish event-driven two-way closed-loop communication through the explicit **Status Token interface** (Status Tokens) instead of a fixed frequency of one-way command issuance.
-
-#### ② Explain module by module
-{: id="-逐模块讲解-9"}
-
-- **Intention Agent（Intention Agent, $\theta_{int}$）**
-  - **Input**: Global natural language instruction $\ell$, monocular RGB historical observation $I_{t-H:t}$, and status trigger signal $z_t \in \{R, C\}$ sent by the execution agent.
-  - **Processing process**: Based on the multi-modal understanding and generation capabilities of VLM, when the regular trigger signal $z_t = R$ (`<VLNBOR>`) is received, the next executable sub-goal description $c_t$ is generated based on the route progress; when the error correction trigger signal is received When $z_t = C$ (`<VLNBOC>`), diagnose the cause of yaw and output the sub-target description with corrective actions.
-  - **Output**: Structured natural language sub-target text $c_t$.
-  - **Design motivation**: Directly utilize the language reasoning capabilities of VLM to complete advanced semantic planning, avoiding the introduction of additional target detectors or complex pixel-level target calibration.
-
-- **Execution Agent (Execution Agent with Action-CoT, $\theta_{exe}$)**
-  - **Input**: Global instruction $\ell$, current language subgoal $c_t$, and historical visual observation $I_{t-H:t}$.
-  - **Processing process (Action-CoT path condition double query)**:
-    1. First, learnable navigation queries (Navigation Queries, $Q_{nav}$) are used to predict implicit coarse-grained future routes $$\hat{P}_t = \text{MLP}_{nav}(f_{\theta_{exe}}(X, Q_{nav}))$$ for longer horizons.
-    2. Splice the coarse-grained route feature $E_{nav}$ with the action query (Action Queries, $Q_{act}$) to predict the short-term control action $$\hat{A}_t = \text{MLP}_{act}(f_{\theta_{exe}}(X, [E_{nav}; Q_{act}]))$$.
-    3. At the same time, the language generation head autoregression is used to predict a discrete state Token $z_t \in \{A, R, C\}$.
-  - **Output**: Continuous motion control quantity $$\hat{A}_t$$ (including plane relative displacement $(\Delta x_t, \Delta y_t)$, orientation angle $(\cos\phi_t, \sin\phi_t)$ and stop probability logit $s_t$) and interaction status Token $z_t$.
-  - **Design motivation**: Break the traditional plain text CoT model, model "Thought" as a coarse-grained future path constraint, and explicitly improve the spatiotemporal consistency of the route of local action prediction.
-
-#### ③ Closed-loop data flow and interaction logic
-{: id="-闭环数据流与交互逻辑"}
-1. At the initial moment, the intent Agent generates the first sub-target $c_1$.
-2. At each time step $t$, the executing Agent outputs short-range action $$\hat{A}_t$$ and status Token $z_t$ based on $c_t$ and visual history.
-3. If $z_t = \langle \text{VLNBOA} \rangle$, the agent is executed to run independently for short-term control without calling the high-level intent agent;
-4. If $z_t = \langle \text{VLNBOR} \rangle$, it indicates that the current sub-goal has been completed, triggering the intent Agent to generate the next regular sub-goal;
-5. If $z_t = \langle \text{VLNBOC} \rangle$, it indicates that the agent detects severe yaw, triggers the intent Agent to perform error diagnosis and outputs the error correction sub-goal.
-
-#### ④ Training objective and loss function
-{: id="-训练目标与损失函数-2"}
-
-- **Stage I: Action-CoT pre-training**
-Define a single control point prediction loss as a combination of position loss, orientation loss and stop loss:
-  $$\mathcal{L}_{traj}(\hat{U}, U^*) = \lambda_{pos} \mathcal{L}_{pos} + \lambda_{ang} \mathcal{L}_{ang} + \lambda_{stop} \mathcal{L}_{stop}$$
-Action-CoT pre-training total loss combines short-term action loss and coarse-grained route loss:
-  $$\mathcal{L}_{WP} = \mathcal{L}_{traj}(\hat{A}, A^*) + \beta \mathcal{L}_{traj}(\hat{P}, P^*)$$
-Among them, set the weight $\lambda_{pos} = \lambda_{ang} = \lambda_{stop} = 1.0$ and the route regular weight $\beta = 0.1$.
-
-- **Stage II: State-aware joint fine-tuning**
-  - **Intent Agent Goal**: Autoregressive language modeling of regular requests and error correction requests:
-    $$\mathcal{L}_{int}^{(z)} = -\sum_{j=1}^{T} \log p_{\theta_{int}}(y_j^* \mid y_{<j}^*, \ell, I_{t-H:t}, z)$$
-  - **Execution Agent Goal**: Jointly predict actions and status Token:
-    $$\mathcal{L}_{exe} = \mathbf{1}[z_t^* = A] \mathcal{L}_{WP} + \lambda_{status} \mathcal{L}_{status}$$
-Among them $$\mathcal{L}_{status} = -\log p_{\theta_{exe}}(z_t^* \mid \ell, c_t, I_{t-H:t})$$.
-
-#### ⑤ Reflection-driven data construction pipeline
-{: id="-反思驱动的数据构建流水线"}
-
-<div align="center">
-  <img src="/images/vln/ReflectVLN-reflective-data-pipeline.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:983/559" alt="Reflection-driven data generation pipeline. (1) Expert data collection; (2) Policy Rollout produces yaw failure, calling Oracle experts to calculate the rescue trajectory and VLM to generate reflection text; (3) Quality filtering and three-party cross-validation to produce a high-quality reflection error correction training set." />
-<figcaption>
-Reflection-driven data generation pipeline. (1) Expert data collection; (2) Policy Rollout produces yaw failure, calling Oracle experts to calculate the rescue trajectory and VLM to generate reflection text; (3) Quality filtering and three-party cross-validation to produce a high-quality reflection error correction training set.
-</figcaption>
-</div>
-
----
-
-### 3. Results and findings
-{: id="3-核心结果发现-27"}
-
-Comprehensive evaluation on standard continuous environment vision-language navigation benchmarks (R2R-CE and RxR-CE Val-Unseen) on Matterport3D:
-
-<div align="center">
-  <img src="/images/vln/ReflectVLN-qualitative-examples.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:975/779" alt="Qualitative visual comparison on R2R Val-Unseen. Above: sub-goal grounding and progress tracking; below: off-orbit and yaw detection and successful error correction recovery based on closed-loop re-planning." />
-<figcaption>
-Qualitative visual comparison on R2R Val-Unseen. Above: sub-goal grounding and progress tracking; below: off-orbit and yaw detection and successful error correction recovery based on closed-loop re-planning.
-</figcaption>
-</div>
-
-1. **SOTA Navigation Performance**:
-   - **R2R-CE benchmark**: Achieved **62.8% success rate (SR)** and **58.5% SPL** under pure monocular RGB conditions (compared to StreamVLN baseline SR improvement of 5.9 percentage points, the same as DualVLN's 58.5% SPL).
-   - **RxR-CE benchmark**: Achieved **66.0% success rate (SR)** and **57.2% SPL** on the long-instruction complex RxR-CE (13.1 percentage points higher than the StreamVLN baseline SR, surpassing the 61.4% SR / 51.8% SPL of DualVLN based on the 7B model).
-
-2. **High data and parameter efficiency**:
-   - Compared with DualVLN (7B model, 12M training samples, introduction of additional ScaleVLN data) and CorrectNav (7B model, multi-round flywheel iteration), ReflectVLN only uses **2×3B parameter architecture** and **1.5M expert data + 100k single-round reflection data**, which means it achieves better overall performance.
-
-3. **ablation experiment and on-demand triggering efficiency**:
-   - **Action-CoT effect**: The introduction of coarse-grained route prediction of path conditions increases the SR from 52.8% to 60.0% and the SPL from 50.1% to 57.2%.
-   - **Advantages of on-demand triggering**: Compared with fixed step size triggering (such as calling high-level every 4 steps or 12 steps), on-demand triggering achieves the highest success rate (62.8% vs 61.8%/59.4%).
-   - **Frequency of high-level calls**: During the inference phase, the intent agent is triggered and called once on average every **9.63 execution steps**, which significantly reduces the computational burden of high-level language inference in slow systems.
-
----
-
-### 4. Limitations
-{: id="4-局限性-27"}
-
-- The decoupled dual-agent architecture in this article uses two 3B models independently (the total parameter count is 6B). Compared with the ablation of the single 7B model, the total parameter count alignment is not strictly controlled;
-- The evaluation indicators mainly focus on the high-level invocation frequency (Invocation frequency) triggered on demand. In the future, it is still necessary to further measure the end-to-end delay (Latency) and actual FLOPs power consumption on actual hardware devices.
-
----
-
-
-
-
-
-
-
-
-
-## 38. TuckerNav (2026)
+## 33. TuckerNav (2026)
 {: id="tuckernav"}
 ——Tucker tensor adaptation for all-weather, multi-scenario, lifelong embodied vision-language navigation
 
@@ -5626,159 +4768,7 @@ The weight satisfies $$\lambda = 1 - (\lambda_1 + \lambda_2 + \lambda_3)$$ (expe
 
 ---
 
-
-
-
-
-
-
-
-
-## 39. AgenticNav (2026)
-{: id="agenticnav"}
-———Reconstruct zero-shot continuous environment navigation (VLN-CE) into a VLM callable Tool-Calling architecture
-
-📄 **Paper**: [arXiv:2606.10577](https://arxiv.org/abs/2606.10577)
-
----
-
-### Key takeaways
-{: id="精华-31"}
-1. **Paradigm Reconstruction**: Redefine zero-shot continuous environment vision-language navigation (VLN-CE) as the Tool-Calling interaction Harness between VLM and the environment, breaking the dependence on additionally trained waypoint predictors (Waypoint Predictor).
-2. **Pixel-level waypoint-free action control**: Action Tool is proposed to allow VLM to directly click the target pixel $(u,v)$ in the RGB image, and the background Harness completes the back-projection, ground plane steering/step calculation and swept-corridor sweeping safety collision check.
-3. **Depth Perception on Demand**: Designed by Pixel-Depth Tool, VLM can query the true physical depth and $5\times 5$ local depth statistics of specific pixels on demand, without the need for full depth maps or implicit predictions.
-4. **Lightweight Agentic Memory**: Build a Memory mechanism that combines the bird's-eye view Map Image and the on-demand Recall Tool to only call the historical node RGB view when necessary, completely solving the problem of prompt context overload and cross-episode dependency.
-5. **SOTA performance and real robot generalization**: On the R2R-CE benchmark, using GPT-5.5 as the VLM core achieves **55% SR** and **48.41% SPL** (significantly exceeding SmartWay's 44% SR / 35.04% SPL); it demonstrates extremely strong Zero-Shot Sim-to-Real generalization capabilities in real four-wheeled robots and complex indoor and outdoor scenes.
-
----
-
-### 1. Background and problem
-{: id="1-研究背景问题-30"}
-
-Zero-shot continuous environment vision-language navigation (Zero-Shot VLN-CE) requires the agent to complete continuous motion control in an unseen 3D physical scene without predefined navigation graph (Navigation Graph) and policy fine-tuning, relying only on natural language instructions and visual/depth perception. The rapid development of large language/visual language models (VLM) has made it the core of high-level decision-making, but existing methods have three serious bottlenecks:
-- **Limited action space**: SOTA methods such as Open-Nav and SmartWay generally rely on additionally trained waypoint prediction networks (Waypoint Predictor) to recommend candidate action points. If the predictor does not reveal the critical directions/goals required by the instruction, the VLM will be limited to the wrong candidate set and cannot select the correct path.
-- **Lack of geometry/depth perception**: The existing architecture treats the depth input as a black box to the waypoint predictor, or forces the VLM to directly parse complex dense depth maps, making it difficult for the VLM to accurately evaluate the physical distance and spatial accessibility of the target object.
-- **Memory mechanism dilemma**: Traditional methods maintain memory by continuously splicing historical text/visual frames to Prompt, causing the Context to quickly overload and introduce a large amount of irrelevant interference; or relying on cross-episode (Cross-episode) experience retrieval (such as EvoNav), weakening the strict zero-shot assumption.
-
----
-
-### 2. Method and innovations
-{: id="2-主要方法创新点-28"}
-
-AgenticNav reconstructs zero-shot VLN-CE into a lightweight **Tool-Calling Harness**, decoupling action generation, depth perception and historical memory into 4 callable tool interfaces (Action Tool, Depth Tool, Recall Tool, Stop Tool). While retaining the semantic reasoning and perceptual freedom of VLM, numerical geometry calculations and safety checks are handled by deterministic physical Harness.
-
-<div align="center">
-  <img src="/images/vln/AgenticNav-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/475" alt="Comparison between AgenticNav and the traditional Zero-Shot VLN-CE architecture: breaking the movement restrictions of the traditional Waypoint Predictor, the full depth map perception bottleneck and the long prompt memory overload." />
-<figcaption>
-Comparison between AgenticNav and the traditional Zero-Shot VLN-CE architecture: breaking the movement restrictions of the traditional Waypoint Predictor, the full depth map perception bottleneck and the long prompt memory overload.
-</figcaption>
-</div>
-
-<div align="center">
-  <img src="/images/vln/AgenticNav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/702" alt="AgenticNav system overall workflow: VLM makes decisions based on the current RGB and Map Image, can query the depth (Depth Tool) on demand, recall historical visual nodes (Recall Tool), and trigger the Action Tool to perform safe movements by clicking on the RGB target pixel." />
-<figcaption>
-AgenticNav system overall workflow: VLM makes decisions based on the current RGB and Map Image, can query the depth (Depth Tool) on demand, recall historical visual nodes (Recall Tool), and trigger the Action Tool to perform safe movements by clicking on the RGB target pixel.
-</figcaption>
-</div>
-
-#### ① Overview of the overall framework
-{: id="-整体框架概述-13"}
-AgenticNav consists of **VLM decision-making core** and **four deterministic Tool interfaces**:
-1. **Action Tool (`move_to`)**: Responsible for converting image pixels selected by VLM into safe continuous control quantities.
-2. **Depth Tool (`query_depth`)**: Responsible for providing VLM with precise physical distances and local surface features of specific pixels.
-3. **Agentic Memory (`Map Image` + `recall`)**: Responsible for maintaining global trajectory awareness and on-demand retrieval of local details.
-4. **Stop Tool (`stop`)**: Responsible for determining navigation termination.
-
-#### ② Explain module by module
-{: id="-逐模块讲解-11"}
-
-##### 1. Waypoint-Free Action Tool (`move_to(k, u, v)`)
-{: id="1-waypoint-free-action-tool-move_tok-u-v"}
-- **Input**: VLM selected view index $k$ and normalized pixel coordinates $(u, v) \in [0,1]^2$.
-- **Processing**:
-  - **Geometric back-projection**: Combined with the camera internal parameter $K$, external parameter $T_k$ and depth value $d = D_t^k(x, y)$, back-project the pixel $(x, y)$ into a 3D target point in the robot coordinate system:
-    $$p_t = T_k \left( d K^{-1} [x, y, 1]^\top \right)$$
-  - **Motion Calculation**: Extract the ground plane azimuth angle $\theta = \text{bearing}(p_{t,xz})$, and calculate the actual forward distance according to the maximum step limit $\rho_{\max}$, stop margin $m$ and step discretization interval $\Delta$:
-    $$\rho = \Delta \left\lfloor \frac{\min\left(\rho_{\max}, \max(0, \|p_{t,xz}\| - m)\right)}{\Delta} \right\rfloor$$
-  - **Swept-Corridor Sweep Safety Check**: Filter out all obstacle point clusters $P_t$ located within the robot body height interval $[y_{\min}, y_{\max}]$. Check whether there is a collision point in the robot sweep corridor along the heading vector $b_\theta = (-\sin\theta, \cos\theta)$ and the lateral vector $\ell_\theta = (\cos\theta, \sin\theta)$:
-    $$\text{Safe}(\theta, \rho) = \mathbf{1} \left[ \nexists q \in P_t : 0 \lt q_{xz} \cdot b_\theta \lt \rho + r_a \land |q_{xz} \cdot \ell_\theta| \lt r_a \right]$$
-Among them, $r_a$ is the radius of the robot. If a collision is detected, `Reselect` feedback is returned to prompt VLM to reselect; if it is safe, `Execute(θ, ρ)` is output.
-- **Design motivation**: Abandon the supervised training waypoint predictor and give VLM the freedom to directly select any visually accessible location in the visual scene (such as a specific door gap, the end of the corridor, next to furniture).
-
-##### 2. On-Demand Pixel-Depth Tool (`query_depth(P)`)
-{: id="2-on-demand-pixel-depth-tool-query_depthp"}
-- **Input**: Batch set of candidate pixels $$P = \{ p_i = (k_i, u_i, v_i) \}_{i=1}^m$$.
-- **Processing**: Sample the phase depth map of each query point and return structured information:
-  $$D(p_i) = \left( d_i, s_i^{5 \times 5}, \hat{\theta}_i, \hat{\rho}_i \right)$$
-Among them, $d_i$ is the physical depth (meters), $s_i^{5 \times 5}$ is the minimum, mean and median depth within the $5\times 5$ window centered on the pixel (used to determine whether it falls on the edge or a flat surface), $$\hat{\theta}_i$$ and $$\hat{\rho}_i$$ are pre-calculated action previews.
-- **Design motivation**: Dense depth maps are extremely difficult for VLM to parse quantitatively. On-demand query enables VLM to accurately compare different directions (such as "whether the left channel is clear" and "how far away is the door ahead") before making decisions, providing reliable local spatial geometry evidence.
-
-##### 3. Agentic Memory and Visual Recall Tool
-{: id="3-agentic-memory-与-visual-recall-tool"}
-- **Input and structure**: The internal memory of Episode is represented as $$\mathcal{M}_t = (B_t, \mathcal{C}_t)$$.
-  - $B_t$ is a **topology Map Image** placed directly in Prompt, which visually displays historical trajectory nodes and current orientation.
-  - $$\mathcal{C}_t$$ is the cache of all past observation views.
-- **Recall mechanism**: When VLM needs to check early road signs (such as "the sign you just saw at the intersection"), it calls `recall(p, k)` and only extracts the single-frame RGB image $$R_t(p, k) = \mathcal{C}_t[p, k]$$ of the $p$ perspective $k$ and appends it to Prompt.
-- **Design motivation**: Prevent Prompt from overflowing as the number of navigation steps increases, avoid useless visual frames from interfering with VLM's attention, and achieve efficient long-distance navigation.
-
-#### ③ Reasoning and interaction process
-{: id="-推理与交互流程"}
-1. At the initial moment, VLM receives language commands, the current panoramic RGB image and the initial Map Image $B_t$.
-2. VLM can call `query_depth` as many times as needed to evaluate the distance to a target point of interest, or call `recall` to backtrack a specific historical view.
-3. VLM calls `move_to` to output target pixels; Harness evaluates safety checks. If it is safe, drive the robot to move and update the Map Image; if it is unsafe, feedback `Reselect` to prompt a new decision.
-4. After reaching the target area, VLM calls `stop()` to complete the task.
-
----
-
-### 3. Results and findings
-{: id="3-核心结果发现-29"}
-
-<div align="center">
-  <img src="/images/vln/AgenticNav-realworld.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/841" alt="real-world robot deployment comparison: AgenticNav can accurately pass through narrow door openings and long corridors without waypoint predictor constraints, and significantly surpasses SmartWay in four views mode." />
-<figcaption>
-real-world robot deployment comparison: AgenticNav can accurately pass through narrow door openings and long corridors without waypoint predictor constraints, and significantly surpasses SmartWay in four views mode.
-</figcaption>
-</div>
-
-#### 1. R2R-CE Simulation Evaluation (R2R-CEval Unseen 100 Episodes)
-{: id="1-r2r-ce-simulation-评估r2r-ceval-unseen-100-episodes"}
-Under the strict same VLM Backbone (GPT-5.5 / Gemini-2.5-Pro), AgenticNav refreshed the Zero-Shot VLN-CE performance record:
-- **AgenticNav-GPT-5.5** achieved **55% SR**, **48.41% SPL**, **65% OSR**, **63.41 nDTW** and **5.19 m NE**. Compared with the SOTA Baseline **SmartWay-GPT-5.5** (SR 44%, SPL 35.04%) reproduced with Backbone, the SR is improved **11%**, SPL increased significantly by **13.37%**.
-- **AgenticNav-Gemini-2.5-Pro** achieves **49% SR**, surpassing Open-Nav (23% SR) and EvoNav (43% SR) which relies on cross-episode experience retrieval.
-
-#### 2. Ablation Experimental Analysis (Ablation Study)
-{: id="2-消融实验分析ablation-study"}
-Perform strip testing on each Tool module on R2R-CE:
-- **Replace Action Tool with Waypoint Predictor**: SR dropped by 5% (55% $\to$ 50%), SPL dropped by 4.42%, proving that freely selecting visual target pixels is better than selecting candidate waypoints recommended by the model.
-- **Remove Depth Tool**: SR plummets to 42%; if the complete depth map is directly input, SR recovers to 53%, but is still lower than 55% of on-demand query, proving that structured local depth query is more suitable for VLM's inference mode.
-- **Remove Agentic Memory**: SR drops to 41%; if only Map Image is retained without Recall Tool, SR is 51%, proving that Visual Recall Tool is indispensable in long-range/sign recognition tasks.
-
-#### 3. Real-World real robot test
-{: id="3-real-world-实机测试"}
-Deployed on four-wheeled omnidirectional robots in 30 complex real-world scenarios including laboratories, offices and outdoor courtyards:
-- **Single-view mode (1-view)**: SR reaches 33.3%, navigation error NE is 3.20m (SmartWay is 23.3% / 3.57m).
-- **four views mode (4-view)**: SR increased to **46.7%**, NE dropped to 2.67m, doubled compared to SmartWay success rate (the advantage is particularly significant in wide-angle scenes such as outdoor courtyards).
-
----
-
-### 4. Limitations
-{: id="4-局限性-29"}
-
-1. **Strong dependence on basic VLM decision-making capabilities**: Failure analysis shows that 88.9% of failures in simulation and 71.4% of failures in the real world originate from incorrect judgments of VLM itself (such as wrong room/branch selection or final docking deviation), and hardware and control failures only account for a very small proportion.
-2. **Cloud API latency and network dependence**: Relying on large-scale VLM APIs in the cloud brings obvious inference delays and network fluctuation risks, limiting real-time high-frequency closed-loop control capabilities.
-3. **Environment Assumption Dependence**: Relies on accurate local positioning and RGB-D sensor quality, limited performance in extremely featureless or depth-deficient areas.
-
----
-
-
-
-
-
-
-
-
-
-## 40. MemVLN (2026)
+## 34. MemVLN (2026)
 {: id="memvln"}
 — Efficient continuous vision-language navigation inspired by human dual-memory mechanisms
 
@@ -5911,163 +4901,7 @@ Figure 5. Qualitative navigation results for MemVLN on R2R-CE and RxR-CE in Habi
 
 ---
 
-## 41. X-NavDP (2026)
-{: id="x-navdp"}
-——Intra-group Q-value weighted Diffusion RL reinforcement learning fine-tuning framework for universal visual navigation of multi-configuration robots
-
-📄 **Paper**: [arXiv:2607.28560](https://arxiv.org/abs/2607.28560) · 🏛️ **CoRL 2026** · [Code](https://github.com/InternRobotics/NavDP/tree/master/baselines/x-navdp)
-
-💻 **Code**: [InternRobotics/NavDP](https://github.com/InternRobotics/NavDP)
-
----
-
-### Key takeaways
-{: id="精华-33"}
-1. **Solution to core pain points**: Traditional diffusion navigation strategies rely on global privileged planner imitation learning and lack self-rescue exploration and multi-configuration adaptability in local fields of view. However, conventional RL algorithms are prone to problems such as likelihood calculation instability or Gaussian exploration destroying trajectory smoothness during diffusion policy fine-tuning.
-2. **Self-guided trajectory perturbation**: Utilizes a combination of Goal-Agnostic prediction branches and coordinate flipping within the pre-trained model to generate highly diverse exploration actions such as sideways, reversing, and detours while retaining the priori and temporal smoothness of the diffusion model.
-3. **Intra-group Q value reweighting (GQRM)**: Proposes to normalize Q values within the same-state candidate action group, which solves the problem of gradient signals being masked by global Minibatch normalization in difficult and low-yield states, and achieves efficient and robust diffusion actor updates.
-4. **Lightweight configuration FiLM modulation**: By injecting configuration Embedding into the input and output feature layers of the Transformer decoder, a single set of network weights is used to uniformly control three heterogeneous robots: wheeled, quadrupedal and humanoid (Dingo, Unitree Go2, G1).
-5. **Significantly improved performance**: The success rate is increased from 61.20% to 84.28% in 40 unseen simulation scenarios, and the success rate is increased from 10% to 65% in difficult scenarios such as self-rescue in real-world dead ends, with only 12 hours of parallel RL training.
-
----
-
-### 1. Background and problem
-{: id="1-研究背景问题-32"}
-
-Diffusion visual navigation strategies (such as NavDP, NoMaD) based on large-scale data pre-training have strong zero-shot generalization capabilities. However, existing methods mainly use **Imitation Learning**, where supervised data is generated by a global omniscient planner. This training paradigm has two major natural flaws:
-1. **Decision ambiguity and no self-rescue capability**: During actual deployment, the robot can only obtain local Visual RGB-D observations. The mismatch between the global optimal trajectory and local vision seriously inhibits the autonomous exploration of strategies, resulting in the robot being unable to retreat or go around to save itself when facing a dead-end (Dead-End) or long obstacle.
-2. **Configuration-Blind**: Data generation does not take into account the physical motion constraints and dynamic differences of different robots, making it difficult to directly migrate across robot platforms.
-
-Although **Reinforcement Learning (RL)** is an effective way to solve interactive trial and error and configuration application, there are extremely high technical bottlenecks in RL fine-tuning of diffusion strategies:
-- Fine-tuning methods based on policy gradient (such as DPPO) need to penetrate long diffusion denoising chains to calculate the likelihood, resulting in extremely unstable training;
-- Fine-tuning methods based on latent space (such as DSRL) freeze the core parameters of denoising, which greatly limits exploration capabilities;
-- Methods based on reweighted piecewise matching (such as DPMD), although stable, suffer from gradient distortion due to low absolute gains in difficult states under global minibatch normalization.
-
----
-
-### 2. Method and innovations
-{: id="2-主要方法创新点-30"}
-
-X-NavDP builds a high-performance diffusion policy reinforcement learning post-training framework. The system consists of three core modules: **Configuration FiLM conditional modulation module** is responsible for cross-configuration perception, **Self-guided trajectory perturbation module** generates exploration candidates with both priori and diversity, **Intra-group Q-value reweighted matching (GQRM)** accurately calculates the strategy improvement direction within the same state group, and finally, **Closed-loop time domain guidance (RTC)** ensures the continuous smoothness of deployment deductions.
-
-<div align="center">
-  <img src="/images/vln/X-NavDP-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/513" alt="Figure 1: Overall overview of X-NavDP RL post-training framework and offline/online navigation performance comparison" />
-<figcaption>
-Figure 1: Overall overview of X-NavDP RL post-training framework and offline/online navigation performance comparison
-</figcaption>
-</div>
-
-#### ① Overall framework and hierarchical control
-{: id="-整体框架与分层控制"}
-X-NavDP adopts a layered control architecture:
-- **High-level navigation policy**: Input local RGB-D image and PointGoal target coordinates, and the diffusion model outputs $H$ step future waypoint trajectory Chunk (such as 3-second trajectory);
-- **Low-level control stack**: The unified MPC controller converts the waypoint chunk into chassis speed commands, which are then executed by the robot-specific low-level foot/wheel motion control strategy (25 Hz).
-- **Parallel training environment**: 500+ simulation environments involving wheeled (Dingo), quadruped (Unitree Go2), and humanoid (Unitree G1) robots are run in parallel in IsaacLab. The high-level strategy collects the Replay Buffer in 3-second macro steps (Macro-Step).
-
-<div align="center">
-  <img src="/images/vln/X-NavDP-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/612" alt="Figure 2: X-NavDP overall architecture and three core modules (configuration FiLM modulation, self-guided perturbation, intra-group Q value reweighted matching)" />
-<figcaption>
-Figure 2: X-NavDP overall architecture and three core modules (configuration FiLM modulation, self-guided perturbation, intra-group Q value reweighted matching)
-</figcaption>
-</div>
-
-#### ② Self-Bootstrapped Perturbation
-{: id="-自引导轨迹扰动self-bootstrapped-perturbation"}
-Intuitively, adding Gaussian noise directly to the trajectory will destroy the time continuity and dynamic feasibility of the waypoint. X-NavDP found that: **The output of the pre-trained strategy under no-goal (Goal-Agnostic) conditions naturally maintains scene consistency and explores more aggressively**.
-
-Therefore, for the same visual observation, the algorithm simultaneously samples the target trajectory $$\tilde{\tau}_{\text{pointgoal}}$$ and the non-target trajectory $$\tilde{\tau}_{\text{nogoal}}$$, and performs signed extrapolation mixing:
-
-$$
-\tau_{\text{mixed}}
-= \mathbf{s} \odot
-\left(
-  \tilde{\tau}_{\text{pointgoal}}
-  + \lambda \tilde{\tau}_{\text{nogoal}}
-\right)
-$$
-
-Among them, $\mathbf{s} = ((-1)^{B_1}, (-1)^{B_2})$ is a random symbol vector generated by Bernoulli distribution, and the $x, y$ coordinates of the overall Chunk are flipped independently according to the probability $\epsilon$. This design can natively generate smooth reversing, lateral obstacle avoidance and side retreat self-rescue trajectories.
-
-> **For example (self-guided perturbation data flow)**:
-> Assume that the robot is in a dead end, and the target prediction $$\tilde{\tau}_{\text{pointgoal}}$$ gives a forward slight movement of $[+0.2, 0.0]$. Simply adding Gaussian noise may result in $[+0.2+\mathcal N, 0.0+\mathcal N]$ (the robot shakes violently and collides);
-> The target-free prediction $$\tilde{\tau}_{\text{nogoal}}$$ gives a wide range of exploration waypoint $[+0.5, +0.6]$. By extrapolating and sign-flipping $\mathbf s = (-1, -1)$, the resultant trajectory becomes $[-0.2, -0.6]$ - resulting in an extremely smooth and physically constrained reversing trajectory!
-
-#### ③ Group Q-Score Reweighted Matching (GQRM)
-{: id="-组内-q-值重加权匹配group-q-score-reweighted-matching-gqrm"}
-In order to solve the defect of standard DPMD in Minibatch global normalization of "high returns in simple states mask low returns in difficult states", GQRM forces the statistics to be calculated within the candidate action group $G(s)$ in the same state:
-
-The formula for mean and standard deviation within a group:
-$$\bar{Q}_G(s) = \mathbb E_{a_0 \sim \pi_{\text{old}}(\cdot \mid s)} [Q(s, a_0)], \quad \sigma_G(s) = \sqrt{\mathbb E_{a_0 \sim \pi_{\text{old}}(\cdot \mid s)} [(Q(s, a_0) - \bar{Q}_G(s))^2]}$$
-
-Normalized advantage value within group:
-$$\tilde{Q}_G(s, a_0) = \text{clip}\left( \frac{c (Q(s, a_0) - \bar{Q}_G(s))}{\sigma_G(s) + \varepsilon}, -h, h \right)$$
-
-GQRM's Actor optimization goals:
-$$\mathcal L_{\text{GQRM}}(\theta; s, t) = \mathbb E_{a_0 \sim \pi_{\text{old}}(\cdot \mid s), a_t \sim q_{t \mid 0}(\cdot \mid a_0)} \left[ \exp(\tilde{Q}_G(s, a_0) / \lambda) \left\lVert s_\theta(a_t; s, t) - \nabla_{a_t} \log q_{t \mid 0}(a_t \mid a_0) \right\rVert^2 \right]$$
-
-In practice, only the top $k$ candidate actions (Top-$k$ Positive Advantage) with advantage values greater than zero in the same-state candidate group are retained each time, which not only reduces low-quality sample noise, but also significantly saves computational overhead.
-
-| Dimensions | Traditional DPMD approach | GQRM approach in this article |
-|---|---|---|
-| Normalization range | Mixed normalization across different states within Minibatch | Normalize only within candidate action groups sampled from the same state |
-| Dilemma performance | A large positive return in a simple state masks the relative advantages and disadvantages of a difficult state | Even if the absolute returns are all negative, locally better reversing self-rescue actions can be distinguished |
-| Gradient weight | The weight of samples in difficult states is close to 0 and cannot learn to save themselves | The local relative winners in difficult states receive exponential strengthening weights |
-
-#### ④ Configuration FiLM modulation and closed-loop time domain guidance
-{: id="-构型-film-调制与闭环时域引导"}
-- **Configuration FiLM Modulation (Embodiment Modulation)**: Convert the robot ID to Embedding $\mathbf z_e = E_{\text{emb}}(e)$, on the one hand as the bias $\mathbf u_e = \mathbf u + f_\Delta(\mathbf z_e)$ before the Action Token, on the other hand, generate the scaling and offset parameters $[\Delta \gamma_e, \Delta \beta_e] = f_{\text{FiLM}}(\mathbf z_e)$ modulation decoder output characteristics through FiLM $\mathbf h_e = (1 + \Delta \gamma_e) \odot \mathbf h + \Delta \beta_e$ enables a single set of backbone models to sense the width, turning radius and thrust characteristics of different robots.
-- **Closed-loop time domain guidance (RTC Guidance)**: During inference deployment, the time domain smooth gradient of the previous predicted trajectory is introduced in the DDPM reverse denoising step, and the update formula is $$\mathbf x_t^{(k-1)} = \boldsymbol \mu_k + \sigma_k \mathbf z + \sqrt{\bar{\alpha}_k} \eta_{\text{guide}} \mathbf g$$, which effectively eliminates trajectory jitter in rolling time domain prediction.
-
-```mermaid
-graph TD
-    A["Input: local RGB-D + PointGoal + robot ID"] --> B["Embodiment FiLM module injects robot embedding"]
-    B --> C["Self-guided perturbed policy samples same-state candidates G(s)"]
-    C --> D["Twin critics evaluate candidate trajectories Q(s, a0)"]
-    D --> E["Same-state group normalization computes advantage Q_tilde_G"]
-    E --> F["Retain top-k positive-advantage actions with exponential reweighting"]
-    F --> G["Optimize the diffusion score network denoising objective"]
-    G --> H["MPC tracking + RTC closed-loop smoothing guidance"]
-```
-
----
-
-### 3. Results and findings
-{: id="3-核心结果发现-31"}
-
-1. **Simulation benchmarks surpassed all aspects**: In 40 unseen test scenarios in IsaacLab, compared with the pre-trained baseline NavDP, the average success rate (SR) of X-NavDP increased from **61.20% to 84.28%**, and the SPL increased from **58.95% to 77.19%**. Especially on the humanoid robot (Unitree G1), the Home scene success rate rose sharply from **50.70% to 84.50%**.
-2. **Real robot hard-core dilemma self-rescue**: Deployed on Turtlebot, Unitree Go2 and Unitree G1 without real robot fine-tuning (Zero-Shot Sim-to-Real), in hard-core test sets such as dead ends and long wall detours, the success rate soared from the baseline of **10% to 65%**.
-
-<div align="center">
-  <img src="/images/vln/X-NavDP-qualitative-results.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/561" alt="Figure 3: Qualitative trajectory comparison: X-NavDP is significantly better than NavDP in difficult self-rescue, long obstacle detour and safe path selection" />
-<figcaption>
-Figure 3: Qualitative trajectory comparison: X-NavDP is significantly better than NavDP in difficult self-rescue, long obstacle detour and safe path selection
-</figcaption>
-</div>
-
-<div align="center">
-  <img src="/images/vln/X-NavDP-ablation-study.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/326" alt="Figure 4: Exploration policy ablation experiment: the importance of target-free perturbation and trajectory reversal in policy learning" />
-<figcaption>
-Figure 4: Exploration policy ablation experiment: the importance of target-free perturbation and trajectory reversal in policy learning
-</figcaption>
-</div>
-
-3. **Key findings from the ablation experiment**:
-   - Removing the self-guided perturbation and trajectory reversal causes the RL training to directly collapse (SR drops to 6.23%);
-   - Compared with Soft-Prompt splicing, FiLM configuration modulation shows stronger cross-configuration adaptability when expanded to multiple scenarios;
-   - Compared to DPPO and DSRL, GQRM exhibits extremely high training stability and data efficiency (only 12 hours post-training).
-
----
-
-### 4. Limitations
-{: id="4-局限性-31"}
-
-1. **Short-term context dependence**: The strategy currently relies mainly on short-term visual context and lacks long-term topological memory. During extremely long wall detours, repeated spins may occur due to memory fading.
-2. **Low-level controller dependence**: Cross-configuration generalization relies on pre-trained low-level foot/wheel controllers. Expansion to unconventional configurations requires the corresponding base controller.
-3. **Transparent and hollow obstacle perception**: RGB-D depth measurement of transparent/highly penetrating obstacles such as glass partitions and grid hole panels is prone to failure, and stronger semantic perception needs to be introduced.
-
----
-
-## 42. Image2Sim (2026)
+## 35. Image2Sim (2026)
 {: id="image2sim"}
 ———A real-time neural simulation engine that decouples 3D spatial anchoring and hyper-realistic image synthesis
 
@@ -6245,7 +5079,7 @@ Real robot testing (20 trials) on the Hello Robot Stretch 3 mobile robot showed:
 
 ---
 
-## 43. DecoVLN (2026)
+## 36. DecoVLN (2026)
 {: id="decovln"}
 ———Decoupling Observation, Reasoning, and Correction for Vision-and-Language Navigation
 
@@ -6399,7 +5233,7 @@ DecoVLN Real robot evaluation on Yushu GO2 robot dog: Even in the face of reflec
 
 ---
 
-## 44. TAMP-Nav (2026)
+## 37. TAMP-Nav (2026)
 {: id="tamp-nav"}
 ———Point, Think, Memorize, and Align for Efficient Navigation
 
@@ -6599,7 +5433,7 @@ Without any real robot fine-tuning, it is directly deployed on the Unitree Go2 q
 
 ---
 
-## 45. LightNav-0 (2026)
+## 38. LightNav-0 (2026)
 {: id="lightnav-0"}
 ——"Bring out" the existing spatial intelligence of VLM instead of plugging in a navigation module for it
 
@@ -6852,7 +5686,7 @@ From the experiment itself, we can also read two weaknesses that are not listed 
 
 ---
 
-## 46. Uncertainty-Aware Gaussian Map for VLN (2026)
+## 39. Uncertainty-Aware Gaussian Map for VLN (2026)
 {: id="uncertainty-aware-gaussian-map"}
 ——Three types of perceived uncertainty × Semantic Gaussian Map, giving VLN agents reliable decision-making capabilities
 
@@ -6951,275 +5785,7 @@ The inference overhead of SGM construction (especially SAM2 semantic extraction 
 
 ---
 
-
-
-
-
-
-
-
-
-## 47. HarnessVLN (2026)
-{: id="harnessvln"}
-——A set of Agent Harness, which compresses the two types of navigation "instruction following" and "finding objects" into the same tool calling protocol
-
-📄 **Paper**: [arXiv:2609.15195](https://arxiv.org/abs/2609.15195) · [Project Page](https://agibot-harnessvln.netlify.app/)
-
----
-
-### Key takeaways
-{: id="精华-39"}
-
-The real bottleneck of training-independent navigation is not whether the planner is smart enough, but the lack of an arbitration layer between "semantically reasonable proposals" and "whether they can be physically executed" - HarnessVLN explicitly implements this arbitration layer.
-
-The approach is to downgrade MLLM from the decision-maker to the proposer: every tool call it outputs must first pass the three verifications of evidence freshness, geometric reachability, and sub-goal consistency before it is allowed to be dispatched. Even Stop is only an "application" and not a "command".
-
-The memory is split into two complementary sets - event memory (task center, which stores complete failure trajectories) and spatio-temporal graph ST Graph (environment center, which stores reusable spatial evidence plus lightweight failure annotations and references back to events), which not only maintains traceability, but also prevents things entering the MLLM context from expanding linearly with the length of the trajectory.
-
-The protocol remains unchanged and the actuators are replaceable, so the same set of Harness consumes the four benchmarks of VLN-CE R2R/RxR and HM3D-v2/OVON at the same time, and is directly migrated to the humanoid robot.
-
-The core idea of ​​migration is: **Add a layer of "pre-dispatch verification + structured feedback infusion" runtime to the agent, which can better connect semantic reasoning back to physical execution** than continuing to adjust the prompt.
-
----
-
-### 1. Background and problem
-{: id="1-研究背景问题-38"}
-
-Both instruction following and target object navigation tasks require the agent to connect language to part of the observable environment, accumulate spatial knowledge while walking, and judge whether its actions really advance the task. The training method is effective on the target task, but if the task form or environment is changed, the data must be collected again; the MLLM-driven training-independent method bypasses training, but generally treats the model as a planner in the task-specific pipeline - how to retain evidence, how to verify proposals, and how failure affects subsequent decisions are still determined by the peripheral pipeline. So the old problem remains: recognizing the target does not mean reaching it, and taking action does not mean completing the sub-goal; old observations, unreachable goals, and execution failures will make subsequent planning more and more deviated from the actual task status, manifested in repeated attempts or error termination.
-
----
-
-### 2. Method and innovations
-{: id="2-主要方法创新点-36"}
-
-**Overall Framework**: HarnessVLN consists of four components - **MLLM Planner** is only responsible for proposing semantic operations, **Agent Harness** is responsible for assembling context, verifying proposals, dispatching tools and feedback, **Hierarchical Event Memory** is responsible for recording task progress and execution events, **Persistence ST Graph** is responsible for precipitating reusable spatial evidence. The four close the loop through a set of **unified tool interface**: context assembly → proposal verification → tool distribution → feedback integration → reassembly.
-
-<div align="center">
-  <img src="/images/vln/HarnessVLN-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1320/950" alt="HarnessVLN Overall architecture: MLLM Planner only mentions &quot;operation proposals&quot;, Agent Harness completes evidence/geometry/task consistency verification before dispatch, and the structured feedback returned by the tool then updates the event memory and ST Graph" />
-<figcaption>
-HarnessVLN Overall architecture: MLLM Planner only mentions "operation proposals", Agent Harness completes evidence/geometry/task consistency verification before dispatch, and the structured feedback returned by the tool then updates the event memory and ST Graph
-</figcaption>
-</div>
-
-#### Stuck point 1: After talking for a long time, what is the difference between Harness and the ordinary "MLLM as planner" assembly line?
-{: id="卡点一说了半天harness-和普通的mllm-当-planner流水线到底差在哪"}
-
-The only difference is one sentence: **What MLLM says no longer directly counts**. In traditional pipelines, whatever the model outputs is executed, Harness inserts a gate between the model and the environment.
-
-| Dimensions | Traditional MLLM-as-planner pipeline | Agent Harness by HarnessVLN |
-|---|---|---|
-| The role of MLLM | Decision-maker: The output action is directly issued for execution | Proposer: The output is an "operation proposal", pending review |
-| Suggest how to grounding | The downstream module tries its best to execute, whether it succeeds or not depends on luck | Check three things before dispatching: evidence source and freshness, target geometric reachability, and whether it is consistent with the current sub-goal |
-| How to use failure | It only reflects "this step failed", and the same one will be raised in the next round | Write to reflection memory, and hang lightweight annotation at the corresponding location of ST Graph to lower the next round of retrieval score |
-| Stop and stop | Stop when the model says stop | The model can only "apply", and it can only be issued after the triple gate control of semantics ∧ geometry ∧ progress |
-
-Drawing a runtime loop is the picture below. Pay attention to the return edge that fails the verification - it is the difference between the entire framework and the pipeline: the rejected proposal will not disappear, but will become a piece of negative evidence in the next round of context.
-
-```mermaid
-graph TD
-    A["Observation + pose (RGB-D)"] --> B["Assemble context: task · current observation · retrieved evidence"]
-    B --> C["MLLM planner proposes a semantic operation"]
-    C --> D{"Three harness checks: fresh evidence / geometric reachability / consistency with current subgoal"}
-    D -- "Fail" --> E["Write reflection memory and ST graph annotations"]
-    E --> B
-    D -- "Pass" --> F["Dispatch tool call (uniform input / output contract)"]
-    F --> G["Structured feedback: reached / collision / unreachable / no progress"]
-    G --> H["Update harness state · task progress · ST graph"]
-    H --> B
-```
-
-#### 2.1 Harness’ status and decision-making cycle
-{: id="21-harness-的状态与决策循环"}
-
-At decision step $t$, Harness maintains the status
-
-$$
-S_t = \langle x,\ \omega_t,\ p_t,\ z_t,\ M_t,\ G_t \rangle
-$$
-
-Among them, $x$ is the task specification (a route instruction, or a target object category), $\omega_t$ is the pose-aligned RGB-D observation and local geometric map, $p_t$ is the agent pose, $z_t$ is the task progress, and $M_t$ is hierarchical event memory, and $G_t$ is persistent ST Graph.
-
-**Both types of tasks share the same state definition, and the difference only lies in $z_t$**: When the instruction is following, $z_t$ records the current route segment, satisfied motion constraints, and observed landmarks; when ObjectNav is used, $z_t$ records the explored area, candidate target hypothesis, and its verification status. The tasks have changed, the progress representation and completion criteria have changed, but the Harness protocol itself has not changed a word - this is the fundamental reason why it can cover both types of tasks at the same time.
-
-Single-step loop (paper Algorithm 1): If the observation is inconsistent with the pose, re-`Observe` → Record the event → Merge the graph → Get the current active sub-goal → Retrieve experience by sub-goal → Assemble the context → MLLM makes a proposal → **Validate** → Dispatch the tool → Update the status with feedback.
-
-#### 2.2 Unified tool interface
-{: id="22-统一工具接口"}
-
-All heterogeneous capabilities are wrapped into a shared input and output contract, so replacing any individual tool does not require changing the MLLM Planner or Harness protocol:
-
-| Tools | Roles | Features |
-|---|---|---|
-| `observe` | Perception | Capture the current RGB-D observation and agent pose |
-| `observe_panorama` | Perception | Grab panoramic observations in the preset orientation |
-| `retrieve_memory` | Retrieval | Get task-related evidence from event memory and ST Graph |
-| `ground_target` | Grounding | Drop the sub-target into the image area of a candidate perspective |
-| `query_depth` | Perception | Estimating the depth of the grounded area and its uncertainty |
-| `navigate_to` | Navigation | Call Navigation Executor on the target that has passed the verification |
-| `backtrack` | Restore | Return to a previously visited location and confirm arrival |
-| `request_stop` | Termination | Verify whether the task is actually completed before terminating execution |
-
-#### 2.3 Hierarchical event memory $M_t$ (task center)
-{: id="23-分层事件记忆-m_t任务中心"}
-
-- **Working memory**: Current observations, bounded panoramic history, active target hypotheses, recent tool feedback. **Leaves only the short-term context needed for one-step decision-making, so it does not grow infinitely with the trajectory length**.
-- **Progress memory**: task decomposition and completion status. Each sub-goal has a unique id and one of four states - pending / active / completed / blocked; **At most one active at the same time**, and the mark completed must be supported by posture-aligned observations or successful tool results, blocking the planner's way of advancing the task just by saying it is completed.
-- **Reflection memory**: Completely records sub-goal level execution events - unreachable target, inconsistent grounding, collision, no progress, backtracking failure, rejected stop request. Each entry contains event id, task context, location, timestamp, tool feedback and supporting observations.
-
-#### 2.4 Space-time diagram hosted by Harness $G_t$ (Environmental Center)
-{: id="24-harness-托管的时空图-g_t环境中心"}
-
-$$
-G_t = \left( V_t^P \cup V_t^E,\ E_t,\ T_t \right)
-$$
-
-$V_t^P$ is a place node, $V_t^E$ is an entity node, $E_t$ is a typed spatial relationship, and $T_t$ stores timestamps and lightweight event annotations.
-
-- **Place node** summarizes visited locations, supporting observations and accessible waypoints; spatially compatible observations are merged into existing places, otherwise new nodes are created; adjacent places are connected by bidirectional `NavigableTo` edges to form a persistent topology that can be reused for forward and backtracking.
-- **Entity node** represents the ObjectNav target and the landmark mentioned in the instruction, with semantic aliases, spatial assumptions, confidence and supporting perspective; `ObservedFrom` retains the traceability information of "when and from which perspective it was seen", and `Contains` encodes coarse-grained place-entity attribution. **It is precisely because of the traceability that Harness can retrieve both the "target hypothesis" and the "evidence required to verify this hypothesis"**.
-- **Task condition retrieval**: Before each MLLM decision, score the place node according to the current active sub-goal $g_t$
-
-$$
-s(v_i \mid g_t) = R(v_i, g_t) + \lambda_{rec} C(v_i) + \lambda_{sal} A(v_i) - \lambda_{fail} P(v_i, g_t)
-$$
-
-where $R$ is semantic relatedness (implemented with local IDF weighted cosine similarity), $C$ is freshness, $A$ is spatial saliency, and $P$ is the historical failure to which the penalty applies.
-
-#### Stuck point 2: Both event memory and ST Graph seem to store history, why are they divided into two sets?
-{: id="卡点二事件记忆和-st-graph-看起来都在存历史为什么要分两套"}
-
-Because they answer two different questions: event memory answers "**What did I do on this mission**", and ST Graph answers "**What does this house look like**". The former is rolling and bounded as the task progresses; the latter is accumulated continuously across sub-goals.
-
-| Dimensions | Event Memory (event memory) | ST Graph (space-time graph) |
-|---|---|---|
-| Perspective and lifespan | Task center, rolling with sub-goals, working part bounded | Environment center, persistent across sub-goals, accumulated throughout the episode |
-| What to store | Three layers: working (current observation and recent feedback) / progress (sub-goal state machine) / reflection (complete failure event) | place node, entity node, typed space relationship, timestamp |
-| Failure record | Authoritative full quantity: event id, task context, location, timestamp, tool feedback, support observation | Only attach the light annotation "Failed here under this sub-goal", plus a reference pointing back to the original event |
-| Read by whom | Assemble the current decision context | Score according to $s(v_i \mid g_t)$ to select the top-K locations and feed it to MLLM |
-
-The key design is in the last two lines: **Only one copy of the complete trajectory of failure is stored (in reflection memory), and only "pointer weighting" is placed in the picture**. This enables failure-aware retrieval and recovery without copying the execution history in the graph. The relevance of the annotation will also be dynamically adjusted - if the sub-goal changes or new evidence overturns it, the weight will decrease; if similar failures occur repeatedly, the weight will increase; at the same time, the punishment has an upper limit to avoid a branch being permanently blacklisted just because it failed once.
-
-> **For example (how to calculate the search score)**: Suppose there are only 3 place nodes in the graph, and the current sub-goal is "Go to the kitchen to find the dishwasher". According to the weight given by the appendix of the paper (freshness 0.3, significance 0.3, 0.5 deduction for each failed application, maximum deduction limit 1.0):
->
-> - Node A (kitchen, just viewed 3 steps ago): $0.9 + 0.3 \times 1.0 + 0.3 \times 0.8 = 1.44$
-> - Node B (on the other side of the kitchen, seen 60 steps ago, and failed to navigate into the wall from here last time): $0.85 + 0.3 \times 0.2 + 0.3 \times 0.7 - 0.5 = 0.62$
-> - Node C (bedroom): $0.1 + 0.3 \times 0.5 + 0.3 \times 0.3 = 0.34$
->
-> Take the three with the highest scores as seeds, expand each one by one jump, and return up to 5 places - **It is always these 5 places and their entities that enter the MLLM context, but the graph can continue to grow with the trajectory**. This is the specific meaning of "the graph grows but the context does not grow".
-
-#### 2.5 Grounded enforcement and evidence-based termination
-{: id="25-接地执行与基于证据的终止"}
-
-MLLM proposes semantic commands, and physical execution requires grounded targets and executable control quantities, so Navigation Executor is made into a **replaceable Harness hosting tool**: Harness is responsible for grounding and verification, and Executor is only responsible for path planning and local control. Commands are only dispatched when "supported by evidence + geometrically reachable + consistent with active sub-goals and applicable failure history"; the Executor returns structured feedback such as arrival/collision/unreachable/no progress for updating status, event memory and graph. **Forward and backtracking follow the same "verification-execution-update" loop**.
-
-Termination is also arbitrated by Harness - MLLM can propose a stop, but cannot directly issue an environment-level Stop action. The request is accepted if and only if
-
-$$
-F_{stop} = F_{semantic} \wedge F_{geometric} \wedge F_{progress}
-$$
-
-Three items respectively verify the target identity, geometric validity and task completion. ObjectNav requires that the target is visually supported and falls within the stopping radius; instruction following requires that the current evidence supports the last route segment, the referenced landmark, and the grounded end point. **Rejected requests will be written to the event memory and trigger further observation, target refinement, continued approach or backtracking**.
-
-> **For example (how to save a failure by stopping gating)**: Paper Figure 8, HM3D-OVON Episode 1297, the target category is picture.
->
-> In step 216, the agent thinks it has arrived: according to the projected navigation target point, the distance is only **0.40 m**, which is lower than the projection target threshold of 1.0 m. It "looks" like it is time to stop.
->
-> But Harness doesn't believe this number - it prioritizes grabbing a frame of **fresh depth**: taking the median of the 5×5 neighborhood on the detection frame anchor point (requiring the patch standard deviation not to exceed 0.5 m), it reads **4.65 m**, far exceeding the depth threshold of 2.5 m, so $F_{geometric}$ is not established, the stop application is rejected, and the event is stored in the database.
->
-> The agent continues to approach, and the new depth reads **1.53 m** at step 429, and the door passes; it actually stops at step 430, and the end distance of the benchmark evaluation is **0.13 m**, which is successful.
->
-> In a word: **The projected target point can only show "I went to where I thought I was", and fresh depth can show "I am really next to that object"**. The value of Harness is to choose to trust the sensor rather than the plan when the two conflict.
-
-<div align="center">
-  <img src="/images/vln/HarnessVLN-stop-validation-case.webp" width="95%" loading="lazy" decoding="async" style="aspect-ratio:1320/491" alt="The actual effect of stop gating: the stop application in step 216 was rejected due to the fresh depth of 4.65 m, the agent continued to approach, and the stop application was successfully terminated at 0.13 m in step 430" />
-<figcaption>
-The actual effect of stop gating: the stop application in step 216 was rejected due to the fresh depth of 4.65 m, the agent continued to approach, and the stop application was successfully terminated at 0.13 m in step 430
-</figcaption>
-</div>
-
-The runtime panel below grounds all the previous abstract states at once - pay attention to the STOP GATE count (requested / gate pass / gate fail / rejected) in panel ⑤, the node edge count of ST Graph, and the `evidence` id hanging behind each TODO in panel ⑦: **The two words "complete" are always tied to a backtracking observation in the system**.
-
-<div align="center">
-  <img src="/images/vln/HarnessVLN-runtime-dashboard.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1320/836" alt="Runtime panel: ① Running status ② RGB observation with ground frame ③ Navigation map ④ Legend ⑤ Harness status (decision, stop gate, ST Graph count, executor count) ⑥ Task and current action ⑦ TODO memory with evidence id" />
-<figcaption>
-Runtime panel: ① Running status ② RGB observation with ground frame ③ Navigation map ④ Legend ⑤ Harness status (decision, stop gate, ST Graph count, executor count) ⑥ Task and current action ⑦ TODO memory with evidence id
-</figcaption>
-</div>
-
-**Implementation configuration**: 640×480 synchronized RGB-D, 79° horizontal field of view; GroundingDINO plus SAM to provide open-vocabulary target areas and segmentation masks; Navigation Executor uses FMM planner for planar motion, and calls NavDP when going up and down stairs. In the main simulation experiment, the instruction following uses GPT-5.5, and the ObjectNav uses GPT-5.6-luna - **All reasoning functions (task decomposition, navigation planning, target grounding, stop verification, recovery) in the same episode share a model, and only the prompt** is changed.
-
----
-
-### 3. Results and findings
-{: id="3-核心结果发现-37"}
-
-**instruction following (VLN-CE val-unseen)**: Among the training-independent methods, both R2R and RxR have the highest SR. Compared with AgenticNav, which also uses GPT-5.5, R2R's SR is 5.8 points higher and OSR is 7.7 points higher. Compared with HSGM, RxR's SR is 12.1 points higher, SPL is 12.9 points higher, and nDTW is equivalent.
-
-| Method | R2R NE↓ | R2R OSR↑ | R2R SR↑ | R2R SPL↑ | RxR SR↑ | RxR SPL↑ | RxR nDTW↑ |
-|---|---|---|---|---|---|---|---|
-| *NavFoM (ICLR26, supervised)* | *3.78* | *70.8* | *61.7* | *55.3* | *64.4* | *56.2* | *–* |
-| *ABot-N0 (CVPR26, supervised)* | *3.78* | *70.8* | *66.4* | *63.9* | *69.3* | *60.0* | *–* |
-| GC-VLN [CoRL25] | 7.30 | 41.8 | 33.6 | 16.3 | 33.8 | 13.8 | – |
-| HSGM [CVPR26] | 5.42 | 58.7 | 47.9 | 32.8 | 41.8 | 25.1 | 54.9 |
-| AgenticNav-GPT-5.5 | 5.19 | 65.0 | 55.0 | **48.4** | – | – | – |
-| **HarnessVLN-GPT-5.5** | **4.01** | **72.7** | **60.8** | 43.5 | **53.9** | **38.0** | 54.8 |
-
-**Target object navigation**: HM3D-v2 got the highest SR (76.0%) among training-independent methods; HM3D-OVON achieved SR 59.3% and SPL 36.6%, **the highest among all listed methods (including supervised methods)**, 9.1 points and 4.0 points higher than DRIVE-Nav.
-
-| Method | Training required | HM3D-v2 SR↑ | HM3D-v2 SPL↑ | OVON SR↑ | OVON SPL↑ |
-|---|---|---|---|---|---|
-| FiLM-Nav [arXiv25] | ✓ | 77.0 | **41.3** | 40.8 | 24.4 |
-| ABot-N0 [CVPR26] | ✓ | – | – | 54.0 | 30.5 |
-| DRIVE-Nav [arXiv26] | ✗ | 72.4 | **41.3** | 50.2 | 32.6 |
-| MSGNav [CVPR26] | ✗ | 74.4 | 33.4 | 48.3 | 27.0 |
-| **HarnessVLN** | ✗ | **76.0** | 37.9 | **59.3** | **36.6** |
-
-**ablation (100 fixed subsets each, accumulation is on)**: Event memory is the largest single gain, ST Graph is the second, and SPL is improved at the same time, stop verification and then make another stab. Compared with the basic agent, the SR of R2R and OVON in complete Harness increased by 18.0 and 10.0 points respectively, and the OSR–SR gap narrowed in both tasks.
-
-| Mem. | Graph | Stop | R2R SR↑ | R2R SPL↑ | R2R Gap↓ | OVON SR↑ | OVON SPL↑ | OVON Gap↓ |
-|---|---|---|---|---|---|---|---|---|
-| ✗ | ✗ | ✗ | 46.0 | 23.7 | 26.0 | 45.0 | 32.0 | 27.0 |
-| ✓ | ✗ | ✗ | 54.0 | 33.0 | 19.0 | 52.0 | 32.4 | 20.0 |
-| ✓ | ✓ | ✗ | 60.0 | 35.4 | 15.0 | 53.0 | 34.2 | 18.0 |
-| ✓ | ✓ | ✓ | **64.0** | **35.8** | **13.0** | **55.0** | 33.0 | 19.0 |
-
-**An honest counterexample**: Stopping verification raised SR from 53.0 to 55.0 on OVON, but caused SPL to drop from 34.2 to 33.0, and the OSR-SR gap increased from 18.0 to 19.0 - **Stronger verification leads to a higher completion rate at the expense of detours and more cautious termination**, which are not in the same direction.
-
-**Model sensitivity (fixed 100 sets of OVON subsets)**: The protocol and tools remain unchanged and only the base is changed, the SR swings between 51.0 (Qwen3.8-flash) to 63.0 (GPT-6-astra); while under the same base GPT-5.6-luna, HarnessVLN’s 55.0 versus MSGNav’s 37.0, indicating that the  **gain mainly comes from Harness rather than the model itself**.
-
-| Methods | Base Model | SR↑ | SPL↑ | OSR↑ | Gap↓ |
-|---|---|---|---|---|---|
-| MSGNav | GPT-5.6-luna | 37.0 | 18.9 | 46.0 | **9.0** |
-| HarnessVLN | GPT-5.6-luna | 55.0 | 33.0 | 74.0 | 19.0 |
-| HarnessVLN | GPT-6-astra | **63.0** | **39.4** | **76.0** | 13.0 |
-| HarnessVLN | Qwen3.8-flash | 51.0 | 32.8 | 75.0 | 24.0 |
-
-**real robot deployment**: AgiBot A3U full-size humanoid robot (1.74 m, 3D LiDAR plus multi-channel RGB-D and fisheye cameras, NVIDIA Thor onboard computing power), head stereo camera as the main visual sensor, Fast FoundationStereo to produce dense volume depth, **planning model replaced with local Qwen-3.8-27B**. Three scenarios: continuous instruction following (walk to the intersection in front of Room 806, turn left and stop at the trash can next to the water dispenser, and then go to the refrigerator), open word list object search, and the combined task of "first stop at the sign at the door and then look for the vending machine." ST Graph preserves landmark and target evidence between route following and object search, supporting continuity between stages.
-
-<div align="center">
-  <img src="/images/vln/HarnessVLN-real-world.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1317/873" alt="Three examples of real robot navigation: continuous instruction following, open-vocabulary object search, and a combined task of route following and object search; on the right is the synchronously constructed ST Graph" />
-<figcaption>
-Three examples of real robot navigation: continuous instruction following, open-vocabulary object search, and a combined task of route following and object search; on the right is the synchronously constructed ST Graph
-</figcaption>
-</div>
-
-<div align="center">
-  <img src="/images/vln/HarnessVLN-teaser.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1320/839" alt="is a Harness set that covers four benchmarks and two types of tasks, and can be migrated to the humanoid robot" />
-<figcaption>
-is a Harness set that covers four benchmarks and two types of tasks, and can be migrated to the humanoid robot
-</figcaption>
-</div>
-
----
-
-### 4. Limitations
-{: id="4-局限性-37"}
-
-Paper description: The current orchestration and verification rules of Harness are preset and lack a self-evolution mechanism in open environment interaction. There are two points worth noting from the data - **Tougher verification is not free**, HarnessVLN’s R2R SPL (43.5) is lower than AgenticNav (48.4), which also uses GPT-5.5, HM3D-v2 SPL (37.9) is also lower than FiLM-Nav and DRIVE-Nav’s 41.3, stopping verification on OVON even lowers SPL and increases OSR–SR at the same time gap; **still quite sensitive to the base model**, after switching to Qwen3.8-flash, OVON's SR dropped by 4 points, and the OSR-SR gap expanded from 19 to 24, indicating that "seeing it but not being able to walk through the door" is still the main failure mode.
-
----
-
-## 48. GroundingVLN (2026)
+## 40. GroundingVLN (2026)
 {: id="groundingvln"}
 ——Make visual grounding a shared interface between "thinking" and "walking"
 
@@ -7432,246 +5998,7 @@ The high-level VLM only eats RGB, but the low-level execution module relies on t
 
 ---
 
-## 49. GPT-6-Astra (2026)
-{: id="gpt-6-astra"}
-———The general foundation model only relies on monocular RGB and primitive movements, and can run through the continuous environment vision-language navigation with zero-shot.
-
-📄 **Paper**: [arXiv:2609.29861v2](https://arxiv.org/abs/2609.29861v2) · [Project Page](https://daiguangzhao.github.io/gpt-6-astra-for-vln/)
-
-> This section is organized based on v2 (2026-09-25). v2 is only one day away from v1 (2026-09-24), but the single run of each level of inference intensity is changed to the average of three runs, and cross-run consistency analysis is supplemented; 79.0% / 76.0% of v1 is a single result, which has been replaced by 81.3% / 75.7%.
-
----
-
-### Key takeaways
-{: id="精华-41"}
-
-- "Look" is also made into a tool that the model can decide when to call - `observe()` does not consume steps, and `step()` does not return images after execution - the interface only has two verbs: "look" and "move". What is measured is the navigation ability of the foundation model itself, not the ability of peripheral modules.
-- After removing the "scaffolding" of waypoint predictor, panoramic, depth, and prebuilt maps, and adding a primitive motion of 0.25 m / 15° to monocular RGB, the average of three runs on R2R-CE-100 still reached SR 81.3±2.5%, SPL 71.5±1.7% (ultra), and SR is higher than Table 1 Reported values for all zero-shot and training-based methods in (the evaluation subsets are different and should be treated with caution). This is only the result under the same interface and fixed task set. The paper proposes "how to combine general capabilities and navigation-specific capabilities" based on this, and does not prove that scaffolding is redundant.
-- Only looking at SR will miss three types of problems: the difference between OSR and SR (there are 1–3 episodes in each run where the target circle is entered but parked at the wrong location), low nDTW success (EP42 took about 2.4 times the distance to arrive; about 9% of the successful trajectories of three runs have nDTW lower than 50%), and "empty walking" with unchanged pixels (EP176 walked 8 times in a row) The step screen has not changed), corresponding to stop judgment, route following and execution confirmation respectively.
-- Multiple runs separate the "difficulty of the task itself" from the "jitter between runs": medium and ultra were run three times each, and out of 100 tasks, 62 were successful six times, 8 were failed six times, and 30 were good and bad. The average SR value of ultra is 5.7 points higher than that of medium, but only 6 of the 14 tasks that were completely failed by medium were successful at least once under ultra, and another 3 tasks that were completely successful by medium failed once by ultra. If you think about it for a while, what changes is the outcome of individual tasks, and there is no systematic repair of execution and endpoint verification.
-- Inspiration for VLN research: The paper (v2) advocates studying which general models of navigation capabilities can be directly provided and which areas need to be supplemented by navigation-specific learning. It proposes three directions: spatial representation, navigation experience, and acquired control skills, but it is clearly stated that these directions are only motivations and have not been evaluated. The author's inference: The value of navigation-specific components should be measured by "what kind of measurable remaining failures have been repaired in the foundation model" (route deviation, invalid action, error stop).
-
----
-
-### 1. Background and problem
-{: id="1-研究背景问题-40"}
-
-VLN-CE (continuous environment vision-language navigation) requires the agent to turn and advance step by step according to natural language instructions in a continuous 3D space, and stop at the correct position, testing the long-range cooperation of perception, reasoning, memory and action. After GPT-4, Gemini-2.5-Pro, and Qwen2.5-VL, the mainstream approach to zero-shot VLN is to put a navigation-specific "scaffolding" on a general model - a trained waypoint predictor, panoramic RGB-D, a manually designed planning and memory module, and even pre-exploration mapping - so the score reflects the entire system rather than the model itself. This report from Singapore Management University and the Australian Machine Learning Institute does not propose new methods, but follows the minimalist interface setting of Embodied Agents Take Control (arXiv:2607.26148) to ask: Take away all the scaffolding, how far can OpenAI's general model GPT-6-Astra navigate by itself, and where will it fail?
-
----
-
-### 2. Method and innovations
-{: id="2-主要方法创新点-38"}
-
-This is an evaluation report. The "method" refers to three things: a minimalist navigation interface, an evaluation protocol aligned with existing zero-shot work, and a behavioral analysis framework based on interaction logs. The report did not disclose the structure, training data or scale of GPT-6-Astra. It only stated that it is a closed-source general model of OpenAI that provides two levels of inference intensity, medium (default) and ultra, in Codex.
-
-**Overall Framework**
-
-<div align="center">
-  <img src="/images/vln/GPT-6-Astra-interface.webp" width="60%" loading="lazy" decoding="async" style="aspect-ratio:677/774" alt="Navigation interface: GPT-6-Astra In the Codex harness session, call observe() via MCP to obtain monocular RGB, call step() to perform primitive actions; the top view and reference path on the right are only for illustration, and" />
-<figcaption>
-Navigation interface: GPT-6-Astra In the Codex harness session, call observe() via MCP to obtain monocular RGB, call step() to perform primitive actions; the top view and reference path on the right are only for illustration, and
-</figcaption>
-</div>
-
-The system consists of three parts: **Codex harness** is only responsible for maintaining a continuous session and does not participate in any navigation decisions; **MCP (Model Context Protocol, a standard protocol for model calling external tools) tool layer** only exposes two tools `observe()` and `step(actions)`; **VLN-CE simulator** executes actions and determines success or failure. Understanding commands, when to look, how to move, and when to stop are all determined by GPT-6-Astra within a session.
-
-Compared with a typical zero-shot VLN-CE system, this interface is "minimalist" in the following ways:
-
-| Dimensions | Typical zero-shot VLN-CE method | Interface to this report |
-|---|---|---|
-| Observation | 360° panoramic, most with depth; some methods pre-explore the scene and reconstruct it (such as SpatialAnt) | 512×512 monocular RGB, adjust `observe()` if you want; no depth, no map, no pose |
-| Action space | The trained waypoint predictor gives candidate points, and the model selects one from them | Primitive action sequence: forward 0.25 m, turn left/right 15°, camera pitch 30°, STOP |
-| Process | Manually designed planning, memory, and action selection modules | No navigation-specific modules, harness only maintains sessions |
-| Navigation training | Some methods are fine-tuned on navigation data | No navigation fine-tuning is performed |
-
-**Module 1: Observation Tool `observe()`**
-
-- **Input**: no parameters
-- **Processing**: Read the current camera perspective, do not advance the simulator, and do not consume the action budget
-- **Output**: A 512×512 monocular RGB. Scene map, reference trajectory, target coordinates, global pose and depth are not provided.
-- **Design motivation**: Turn "looking" into an action actively selected by the model - how many times and when to look are determined by the model, thereby testing its active perception ability, rather than feeding a panoramic sheet at each step by an external process
-
-**Module 2: Action Tool `step(actions)`**
-
-- **Input**: An ordered sequence of primitive actions, multiple primitives can be packaged in one call
-- **Processing**: The simulator executes in sequence
-- **Output**: Execution count, remaining budget, whether to terminate - **No image returned**, you must adjust it again if you want to see the image after execution `observe()`
-- **Design motivation**: The action granularity is kept to a minimum and does not rely on any trained waypoint predictor; "no picture is given after the action" also means that the model has to judge whether the action is really effective, which is the foreshadowing of the execution failure analysis later.
-
-> **For example**: The instruction "turn right into the corridor" is approximately 6 right turns (6 × 15° = 90°). A call "L × 6, F × 4" of EP42 in Figure 3 means turning left 90° and then moving forward 1 m (4 × 0.25 m) in one `step()`. Packing multiple primitives only saves the number of calls, and each primitive is still included in the 500 action budget - which is only enough to walk straight for about 125 meters.
-
-**Module 3: Codex harness and task prompt**
-
-The task prompt describes the tool usage, budget and stopping conditions; the harness maintains the session, allowing the model to continuously accumulate the pictures it has seen and the actions it has performed in the same context. GPT-6-Astra runs the entire episode in two levels of inference intensity: medium and ultra. The two levels share the same prompt and tools.
-
-**end-to-end data flow (redrawn in reader version)**
-
-```mermaid
-graph TD
-    A["Language instruction + task prompt (tools, budget, stopping conditions)"] --> B["GPT-6-Astra reasons about the next step"]
-    B -- "Observe" --> C["observe(): return monocular RGB without spending action budget"]
-    C --> B
-    B -- "Move" --> D["step(actions): execute a batch of primitive actions"]
-    D --> E["Return execution count, remaining budget, and termination state (no image)"]
-    E --> B
-    B -- "Believes goal reached" --> F["STOP"]
-    F --> G{"Endpoint within 3 m of goal?"}
-    G -- "Yes" --> H["Success"]
-    G -- "No" --> I["Failure"]
-    E -- "500 actions or 2400 s exhausted" --> I
-```
-
-**Evaluation Agreement**
-
-- **Data**: R2R-CE-100, that is, 100 val-unseen episodes introduced by Open-Nav, covering 10 scenes, using the same protocol as EvoNav, Open-Nav, SmartWay and other zero-shot work; the numbers of the training method in Table 1 come from the full amount of val-unseen
-- **Budget**: Each episode has a maximum of 500 primitive actions and 2,400 s. It ends when STOP is called or any budget is exhausted.
-- **Number of runs**: Each level of inference intensity was run three times. Table 1 and Table 2 report the mean ± sample standard deviation; three runs are regarded as repeated observations of the same batch of tasks (v1 is a single run)
-- **Successful Determination**: Explicitly call STOP, and the geodesic distance from the end point to the target is less than 3 m
-
-**Evaluation Indicators**
-
-The report uses five indicators together because they answer different questions:
-
-- **SR** (success rate): The proportion of distance less than 3 m from the target during STOP - "Arrival or not"
-- **NE** (navigation error): geodesic distance from the end point to the target, in meters - "how far"
-- **OSR** (oracle success rate): Any point on the trajectory that has entered the 3 m circle is counted as "passing by"
-- **SPL**: Success rate weighted by path length - "Is the result efficient?"
-
-$$\text{SPL} = \frac{1}{N}\sum_{i=1}^{N} S_i \cdot \frac{\ell_i}{\max(p_i, \ell_i)}$$
-
-Among them, $S_i$ is whether the $i$ episode is successful, $\ell_i$ is the shortest path length, and $p_i$ is the actual walking length.
-
-- **nDTW** (Normalized Dynamic Time Warping): Press the cumulative distance after point-by-point alignment between the actual trajectory $Q$ and the reference path $R$ to 0–1 - "Is it following the route described by the instruction?"
-
-$$\text{nDTW}(R, Q) = \exp\left(-\frac{\mathrm{DTW}(R, Q)}{\lvert R \rvert \cdot d_{th}}\right)$$
-
-Among them, $d_{th}$ takes a success radius of 3 m.
-
-> **For example**: Among the 100 episodes of the first run of ultra, 79 were successful, 3 trajectories entered the 3m target circle but eventually stopped outside the circle, and 18 never entered the target circle. So SR = 79%, OSR = (79 + 3) / 100 = 82% - these three points between OSR and SR are "passing by but not stopping". The three runs were 79 / 81 / 84 successes and 3 / 3 / 1 lap failures, respectively. The mean values ​​are therefore SR 81.3 and OSR 83.7, corresponding to Table 1. Let’s look at the successful EP42 (the first run): the end point error is only 0.7 m, and it is still recorded as a success; but SPL 41.2% means that the actual distance is about 1 / 0.412 ≈ 2.4 times of the shortest path, and nDTW 27.5% shows that the trajectory and the reference route hardly fit - it first walked into the bedroom, found that the order was wrong, and turned back to the kitchen to start again.
-
-**Behavior Analysis Framework**
-
-In addition to the aggregated indicators, the author checked the interaction logs of three ultra runs one by one (tool calls, actual executed actions and corresponding RGB images), and organized the analysis according to three groups of questions:
-
-- **Ability side**: How to ground spatial reference (4.1), whether reaching the target is equal to following the route (4.2), how to adjust actions (4.3)
-- **Failure side**: Where does route following break (5.1), whether it can recover from execution difficulties (5.2), and whether it can stop at the correct location (5.3)
-- **Stability side**: How many times did the same task succeed in six evaluations (medium × 3 + ultra × 3), distinguish between "continuous failure" and "inter-run jitter", and answer whether increasing inference intensity can solve the failure (5.4)
-
-The author also emphasizes that logs can only support the analysis of "observable behavior". They can neither confirm whether a single semantic judgment is correct, nor can they see the internal reasoning of the model.
-
----
-
-### 3. Results and findings
-{: id="3-核心结果发现-39"}
-
-**Main results: monocular RGB, zero sample, ultra's SR, SPL, OSR, and NE are all the best in Table 1 of the paper**
-
-<div align="center">
-  <img src="/images/vln/GPT-6-Astra-sr-comparison.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1394/625" alt="SR comparison on R2R-CE (v2, average of three runs): The left is the zero-shot method, ultra (81.3%) is 15.3 points higher than the best zero-shot SpatialAnt (66.0%, panoramic + pre-exploration mapping); the right is the training method (full val-unseen), which is better than Qwen-RobotNav (72.1%, panoramic) + 15.6 million mixed source samples) is 9.2 points higher; the blue column is medium (75.7%). The evaluation subsets and settings are different, and the author notes that the comparison is not strictly fair" />
-<figcaption>
-SR comparison on R2R-CE (v2, average of three runs): The left is the zero-shot method, ultra (81.3%) is 15.3 points higher than the best zero-shot SpatialAnt (66.0%, panoramic + pre-exploration mapping); the right is the training method (full val-unseen), which is better than Qwen-RobotNav (72.1%, panoramic) + 15.6 million mixed source samples) is 9.2 points higher; the blue column is medium (75.7%). The evaluation subsets and settings are different, and the author notes that the comparison is not strictly fair
-</figcaption>
-</div>
-
-Representative rows taken from Table 1 (NE units are meters, remainder are percentages; GPT-6-Astra two rows are means ± sample standard deviations of three runs):
-
-| Method | Type | Evaluation Set | Perspective | NE↓ | OSR↑ | SR↑ | SPL↑ |
-|---|---|---|---|---|---|---|---|
-| GC-VLN | Zero sample | Full | monocular | 7.3 | 41.8 | 33.6 | 16.3 |
-| AgenticNav-GPT-5.5 | Zero sample | R2R-CE-100 | panoramic | 5.2 | 65.0 | 55.0 | 48.4 |
-| HarnessVLN-GPT-5.5 | zero sample | – | panoramic | 4.0 | 72.7 | 60.8 | 43.5 |
-| SpatialAnt | zero-shotd | Author-sampled | panoramic | 4.4 | 76.0 | 66.0 | 54.4 |
-| Image2Nav | Training | Full | monocular | 4.0 | 72.9 | 66.3 | 61.5 |
-| Qwen-RobotNav-8B | Training | Full | monocular | 4.4 | 72.7 | 65.7 | 59.6 |
-| OmniNav | Training | Full | panoramic | 3.7 | 74.6 | 69.5 | 66.1 |
-| Qwen-RobotNav-8B | Training | Full | panoramic | 3.5 | 78.5 | 72.1 | 66.6 |
-| **GPT-6-Astra (medium)** | Zero sample | R2R-CE-100 | monocular | 3.0±0.4 | 80.7±2.1 | 75.7±1.5 | 65.6±2.1 |
-| **GPT-6-Astra(ultra)** | Zero sample | R2R-CE-100 | monocular | **2.9±0.2** | **83.7±1.5** | **81.3±2.5** | **71.5±1.7** |
-
-- Among the zero-shot methods that are also monocular RGB, the previous best GC-VLN has only 33.6% SR / 16.3% SPL, and the SR of GPT-6-Astra is more than twice as high.
-- Ultra's NE of 2.9 m is the lowest in Table 1, lower than the strongest training model Qwen-RobotNav-8B (panoramic, 3.5 m); in terms of SPL, only ultra (71.5) is higher than all training methods in Table 1, and medium's 65.6 is lower than Qwen-RobotNav-8B panoramic (66.6) and OmniNav (66.1). Table 1 Not included Robostral Navigate: It achieved 77.4% SR and 74.2 SPL with monocular RGB on full val-unseen. The SR is higher than medium’s 75.7 and SPL is higher than ultra’s 71.5 (NE 3.20 m is not as good as ultra’s 2.9 m)
-- Ultra compared to medium: SR +5.7, SPL +5.9 (the paper is calculated based on the values before rounding), OSR 83.7 vs. 80.7, nDTW 74.0 vs. 70.5, NE 2.9 vs. 3.0 m. The standard deviation of the two bins is between 1.5–2.5 points, which the paper positions as a descriptive comparison of the two configurations
-- The author repeatedly reminds: the training method uses the full amount of val-unseen, SpatialAnt uses the author's self-sampled episodes and relies on scene reconstruction and simulator depth. HarnessVLN does not indicate a subset. These comparisons only illustrate competitiveness and do not constitute a conclusion on the advantages and disadvantages under the same conditions.
-
-**Spatial reference: Ordinal formula is more stable than landmark relative formula (but the number of tasks is small and the fluctuation is large)**
-
-| Instruction subset | N | SR | SPL | nDTW |
-|---|---|---|---|---|
-| R2R-CE-100 (all) | 100 | 81.3±2.5 | 71.5±1.7 | 74.0±1.2 |
-| Ordinal selection ("second room" "rightmost door") | 14 | 95.2±8.2 | 77.3±8.2 | 75.9±3.2 |
-| Landmark relative selection ("on the left of...", "between...", "behind...") | 13 | 74.4±11.8 | 69.0±8.1 | 73.9±2.0 |
-
-(Mean ± sample standard deviation of three runs, ultra setting.) In EP218, after the model left the bedroom, it first recognized a bathroom as the "first room on the left" in the interaction log, and then walked to the next door; in EP244, it selected the door opening on the "left side of the white double door". Both cases were successful in six evaluations (two levels of inference intensity × three times). The NEs of the first ultra run were 2.6 m and 1.8 m respectively. The author notes that this is the score of the entire task, not the accuracy of a single spatial relationship judgment; the two subsets may overlap, and the scene layout and difficulty are also different. There are only 14 and 13 tasks, and the standard deviation itself is 8–12 points. The difference should not be directly attributed to "spatial relationship difficulty".
-
-**Arrive ≠ Follow the route**
-
-- There were a total of 244 successful trajectories in the three ultra runs (79 + 81 + 84, which are repeated observations of the same batch of tasks, not 244 different tasks). The median nDTW was between 90.3%–91.0%, and most of them followed the reference route; but there were still 8, 7, and 7 below 50% each time, accounting for 9.0±1.0% of the successful trajectories. EP116 has an end point error of 0.1 m and nDTW of 89.2%, which is a typical example of line bonding; EP42 is a success after a significant detour.
-- There are 16, 16, and 12 trajectories in each run in the log recording action adjustments after obvious route deviations or difficulty in access, of which 10, 6, and 7 were successful; the median SPL of these successful trajectories was only 45.5%, 30.3%, and 35.6%, and the median nDTW was 8.9%–44.3%. This only counts recorded adjustments, and the score covers the complete trajectory including retracement, which cannot explain the causal effect of the adjustment itself on success or failure.
-
-<div align="center">
-  <img src="/images/vln/GPT-6-Astra-route-following.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1598/557" alt="Route fit of &#x27;s three ultra runs: (a) nDTW–SPL scatter points of successful trajectories, the number of successes in each run is 79 / 81 / 84 in the brackets of the legend; (b) the number of trajectories where route or action adjustments were recorded and their success or failure, the right side is the median SPL of the winners" />
-<figcaption>
-Route fit of 's three ultra runs: (a) nDTW–SPL scatter points of successful trajectories, the number of successes in each run is 79 / 81 / 84 in the brackets of the legend; (b) the number of trajectories where route or action adjustments were recorded and their success or failure, the right side is the median SPL of the winners
-</figcaption>
-</div>
-
-<div align="center">
-  <img src="/images/vln/GPT-6-Astra-EP42-backtracking.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1598/601" alt="The return process of EP42 (command: kitchen → small living room → left-hand bedroom): t=135 The model found that it entered the bedroom, which did not match the order of &quot;kitchen-living room-bedroom&quot;, so it turned left and returned to the kitchen, passed through the living room, and finally entered the correct bedroom and STOP; succeeded, but the nDTW was only 27.5% and the SPL was 41.2%. t is the number of executed primitive actions" />
-<figcaption>
-The return process of EP42 (command: kitchen → small living room → left-hand bedroom): t=135 The model found that it entered the bedroom, which did not match the order of "kitchen-living room-bedroom", so it turned left and returned to the kitchen, passed through the living room, and finally entered the correct bedroom and STOP; succeeded, but the nDTW was only 27.5% and the SPL was 41.2%. t is the number of executed primitive actions
-</figcaption>
-</div>
-
-**Failure modes: three categories: route, execution, and stop**
-
-<div align="center">
-  <img src="/images/vln/GPT-6-Astra-failures.webp" width="90%" loading="lazy" decoding="async" style="aspect-ratio:1598/1234" alt="Repeated evaluation distinguishes continuous failure from operational fluctuations: (a) The results of three ultra runs (successful 79/81/84, entered the target circle but stopped wrongly 3/3/1, never entered the circle 18/16/15); (b) The distribution of the number of successes in the same batch of 100 tasks under medium and ultra, 62 were all successful six times, 8 All six times failed; (c) EP176’s RGB image remained unchanged after eight consecutive forward actions, and finally exhausted the 500-step budget and NE 35.4 m; (d) EP1133 failed all six times and stopped near the arch, with NE fluctuating between 5.6–12.3 m and always exceeding 3 m" />
-<figcaption>
-Repeated evaluation distinguishes continuous failure from operational fluctuations: (a) The results of three ultra runs (successful 79/81/84, entered the target circle but stopped wrongly 3/3/1, never entered the circle 18/16/15); (b) The distribution of the number of successes in the same batch of 100 tasks under medium and ultra, 62 were all successful six times, 8 All six times failed; (c) EP176’s RGB image remained unchanged after eight consecutive forward actions, and finally exhausted the 500-step budget and NE 35.4 m; (d) EP1133 failed all six times and stopped near the arch, with NE fluctuating between 5.6–12.3 m and always exceeding 3 m
-</figcaption>
-</div>
-
-- **Route Following Breaks**: In each ultra run, 10–13 failed finish lines were at least 5 m away from the target, and 5–8 of them were more than 10 m away, indicating that the remaining errors were more likely to be significant deviations rather than narrow misses. The instruction of EP513 mentioned the fireplace living room, two white sofas and the entrance to the adjacent dining room. In the first run, the model announced its arrival when it finally saw the fireplace and light-colored seats, but the NE was 14.5 m; in the other two ultra runs, it succeeded - the local landmarks were aligned, which does not mean that it has reached the place mentioned in the instruction. This was a failure in execution, not that the task was impossible, and the log could not locate the first wrong location.
-- **Execution difficulties and recovery**: Among the 1,103 action batches with readable observations at both ends, the three ultra runs had a total of 11 batches of pure forward actions, distributed among 10 trajectories. The RGB before and after execution was the same pixel by pixel (no visible displacement, but it does not mean that a collision was measured), and 6 of the trajectories were still successful in the end; EP70 entered the next room after turning and advancing near the narrow door and succeeded; EP176 in 8 After the forward screen remained unchanged, the budget of 500 steps was consumed, and the end point was 35.4 m away from the target. It failed in three runs of ultra, but succeeded in two runs of medium. It can be seen that the problem is unstable execution and recovery, rather than a failure of the task. Making an action does not mean that it has actually moved, nor does it mean that it has effectively recovered.
-- **Stop judgment**: In each ultra run, 96–99 trajectories are actively stopped by the model, and 1–3 failed trajectories enter and then leave the success radius each time. In the first run of EP705, the model reported stopping after seeing a fire extinguisher next to the door. The final NE was 12.3 m. The same task was successful in the other two ultra runs.
-
-**How many failures can be solved by increasing the strength of reasoning?**
-
-Interleave the success times of three runs of medium and ultra on the same batch of 100 tasks (paper Figure 4b):
-
-| ultra number of successes ＼ medium number of successes | 0 | 1 | 2 | 3 |
-|---|---|---|---|---|
-| **3** | 0 | 2 | 7 | **62** |
-| **2** | 2 | 4 | 3 | 3 |
-| **1** | 4 | 3 | 0 | 0 |
-| **0** | **8** | 1 | 1 | 0 |
-
-> **How to read this table**: The 62 tasks in the upper right corner were all successful in six evaluations, the 8 tasks in the lower left corner were all failed in six evaluations, and the remaining 30 tasks were good and bad. This is an extra layer of information than the crosstab of "run each of the two gears once": part of the "turnover" or "rollover" in a single run is just the normal fluctuation of the same task in different runs.
-
-- Among the 14 tasks (first column) that failed all three times on medium, 6 succeeded at least once under ultra, and 8 still failed completely; conversely, among the tasks that succeeded all three times on medium, 3 failed in a certain run of ultra. Higher inference strength does not guarantee reliable completion, and the paper makes it clear that these observations cannot explain the cause of every persistent failure.
-- EP1133 is one of the eight missions that failed six times: the end point NE of medium is 7.5–11.4 m, and the ultra is 5.6–12.3 m. A smaller NE cannot be regarded as a stable improvement.
-
-**Author’s suggestions for subsequent VLN research**
-
-- The general model can complete competitive navigation through a minimalist "observation-action" interface. It is worth studying: which capabilities can be directly provided by the general model, and which areas need to be supplemented by navigation-specific learning; the paper states that how to divide labor between general models and special methods is still an empirical issue
-- There are three types of possible supplementary methods: spatial representation (matching current observations with the places traveled and completed instruction steps, to help progress tracking and end-point verification), navigation experience (using trajectories or demonstrations during reasoning, to help path selection and error correction), and learned control skills (efficient movement and recovery routines); these supplements should retain the flexibility of the model to observe and adjust its route by itself. The paper itself emphasizes that these directions are just motivations and have not been evaluated.
-- Follow-up evaluations should fix the model, tasks, observations, primitive actions and budgets, disclose any additional information, do component ablation and multiple runs, and report task success, path efficiency, reference path fit and progress tracking, recovery, and stop behaviors together. At the same time, the reasoning cost and delay should be given, and then the migration should be tested in more environments, instruction lengths, and layouts.
-
----
-
-### 4. Limitations
-{: id="4-局限性-39"}
-
-Only evaluated on R2R-CE-100 (100 episodes, 10 scenes), each run three times; the multiple runs added by v2 illustrate the repeatability on the same task set, but do not illustrate generalization. It is still different from the training method on the full val-unseen and Author-sampled SpatialAnt; the standard deviation of the three runs (ultra is 2.5 points) only reflects the fluctuation between runs, and the sampling error of the 100 tasks itself is still there: the author roughly calculated based on the binomial distribution, the standard error of 81.3% SR is about 3.9 percentage points, leading Qwen-RobotNav's 9.2 The point is about 2.4 times the standard error, which is more generous than the case of v1, but it is still not the same set conclusion.
-
-GPT-6-Astra is a closed-source model, and it cannot be ruled out that its training data contains navigation data - the paper clearly states that "zero sample" only means that the author has not fine-tuned navigation, but does not mean that the model has never seen navigation data; inference costs and delays also currently restrict actual deployment.
-
-The author plans to expand to RxR-CE, NavRAG-CE and other datasets with more environments and instructions.
-
----
-
-## 50. BudVLN (2026)
+## 41. BudVLN (2026)
 {: id="budvln"}
 ———Nipping the Drift in the Bud: Retrospective Rectification for Robust Vision-Language Navigation
 
@@ -7756,14 +6083,7 @@ While BudVLN performs well in both discrete and continuous environments, its rob
 
 ---
 
-
-
-
-
-
-
-
-## 51. Route2Step (2026)
+## 42. Route2Step (2026)
 {: id="route2step"}
 ——Decoupling semantic progress and local execution, empowering embodied navigation corrective through explicit step-level interfaces
 
@@ -7906,7 +6226,7 @@ Figure 4: Real robot navigation trajectory in a complex indoor real environment.
 
 ---
 
-## 52. PROSPECT (2026)
+## 43. PROSPECT (2026)
 {: id="prospect"}
 ——Streaming VLA + latent space prediction: preview the future during training, zero overhead during inference
 
@@ -8136,7 +6456,7 @@ Autonomy is still limited by the form of computing power: the main results rely 
 
 ---
 
-## 53. MacroAction-VLN (2026)
+## 44. MacroAction-VLN (2026)
 {: id="macroaction-vln"}
 ——— Continuous environment closed-loop reinforcement learning fine-tuning based on topological graph macro-action hierarchical MDP and action-aware critic
 
@@ -8278,7 +6598,7 @@ System evaluation was conducted on the continuous environment vision-language na
 
 ---
 
-## 54. HumanoidVLN (2026)
+## 45. HumanoidVLN (2026)
 {: id="humanoidvln"}
 ——The first physically realistic VLN simulation platform and benchmark for diverse bipedal humanoid robots
 
@@ -8407,7 +6727,7 @@ The current evaluation scenario is still limited to a static indoor environment,
 
 ---
 
-## 55. AdaGeoVLN (2026)
+## 46. AdaGeoVLN (2026)
 {: id="adageovln"}
 ——Making geometric trade-offs along the two axes of "representation depth" and "navigation time"
 
@@ -8668,7 +6988,7 @@ The three retained signals use **equal weight coefficients and are not tuned**. 
 
 ---
 
-## 56. SeekVLN (2026)
+## 47. SeekVLN (2026)
 {: id="seekvln"}
 —Seek additional evidence before judging progress and choosing the next action
 
@@ -8845,180 +7165,7 @@ FRG depends on heuristic seeking quotas and VLM annotation. C2PO requires a simu
 
 ---
 
-## 57. NavGPT-3 (2026)
-{: id="navgpt-3"}
-———Asynchronous planning, action, and monitoring, closed through inspectable execution evidence
-
-📄 **Paper**: [arXiv:2610.10787](https://arxiv.org/abs/2610.10787) · [Code](https://github.com/metacognitionai/NavGPT-3) · [Project Page](https://metacognitionai.github.io/NavGPT3/)
-
-### Key Takeaways
-{: id="精华-49"}
-
-1. Long-horizon navigation can be split into three tempos: the language model interprets and corrects, the VLA keeps predicting actions, and a monitor interrupts promptly, while the runtime decides which operation may move the robot.
-2. Delegated execution must close an evidence loop: only when it returns keyframes along the route, the actual motion state, and stable place IDs can the planner tell which segment was missed, where to return, and whether the task is truly complete.
-3. The VLA's main system value is shorter action-update intervals and fewer planning rounds. Whether success rate improves depends on the planning model and its map and backtracking tools, so adding a VLA does not by itself guarantee higher accuracy.
-4. Under a fixed visual budget, image resolution can be allocated jointly by visual change, recency, and view direction; yet the cumulative gains from expanding training data and task coverage are larger, and the effects of data quantity and composition have not been separated.
-
----
-
-### 1. Background and Problem
-{: id="1-研究背景问题-48"}
-
-Language models are good at understanding long instructions, analyzing routes, and calling tools, but each inference takes seconds, which makes them unsuitable for continuous motion control. A purpose-trained VLA reacts faster but can drift, skip instructions, or stop early over long horizons. Real environments also change while a model is still reasoning. NavGPT-3 therefore addresses three problems together: how to assemble usable context for the planner, how to make execution results inspectable and correctable, and how to interrupt motion promptly while the model is still thinking.
-
----
-
-### 2. Method and Contributions
-{: id="2-主要方法创新点-46"}
-
-<div align="center">
-  <img src="/images/vln/NavGPT-3-overview.webp" width="100%" alt="NavGPT-3 overview connecting the planner, VLA, spatial tools, and runtime" loading="lazy" decoding="async" style="aspect-ratio:1118/489" />
-<figcaption>Figure 1: NavGPT-3 overview. The navigation interface connects the planner, the VLA, and spatial tools; the runtime runs route review and monitoring concurrently with motion and switches motion authority in one place.</figcaption>
-</div>
-
-**Overall framework.** NavGPT-3 consists of a Planner, a Harness, a Runtime, and NavGPT VLA. The Planner chooses the navigation strategy and when to finish; the Harness organizes observations, route records, and tool returns into context; the Runtime schedules logical threads and manages motion authority; and the VLA outputs local waypoints from the instruction and visual history, which the simulator or robot executes.
-
-**① Harness: turning "let the small model walk a segment" into an inspectable, redoable operation.** The Harness is the full interaction interface between the planning model and the environment, covering context organization, persistent state, tool checks, and execution feedback. Its inputs are the current RGB observation, route history, visited places, and dialogue history. It maintains place IDs and semantic annotations, renders the observed map, and passes this information to the Planner together with the tools currently allowed; the Planner outputs a tool name and arguments. The Harness checks the request, executes the approved operation, and returns the actual motion result rather than only "call succeeded".
-
-The full interface provides eight tools:
-
-| Tool group | Tools | Inputs, outputs, and role |
-|---|---|---|
-| Basic observation | `observe_forward`, `observe_panorama` | Return a forward view or four views (front, right, back, left) to identify landmarks and estimate the current position. |
-| Local motion and termination | `navigate_relative`, `terminate_episode` | Move by a relative angle and distance and return the actual result, or explicitly end the task; termination can also include returning to a specified place. |
-| VLA delegation | `navigate_by_instruction` | Accept the full instruction or the remaining subtask, and return up to eight keyframes along the route, an endpoint panorama, and the execution status. |
-| Map | `observe_map` | Return a top-down map of observed areas and a place table numbered in visiting order; unobserved areas are not treated as free space. |
-| Backtracking and annotation | `navigate_to_node`, `annotate_node` | Return to a previously visited place or to the waypoint of the most recent execution, or attach a semantic label to an existing place. |
-
-**There are two stopping conditions: a VLA stop only ends the current delegation, and only the Planner calling `terminate_episode` means the whole task is complete.** The VLA keeps its visual history across re-delegation or continued execution; the Planner decides from the returned evidence whether to continue, backtrack, make a local correction, or finish. Each delegation runs at most 200 environment steps, and the whole task is capped at 500 steps.
-
-```mermaid
-flowchart TD
-    A["Language instruction and current observation"] --> B["Planner selects a tool or delegates to the VLA"]
-    B --> C["Harness checks the request and runs the approved operation"]
-    C --> D["Return route keyframes, place IDs, and actual execution status"]
-    D --> E["Planner checks completed and missed instructions"]
-    E --> F{"Is the task complete?"}
-    F -- "Yes" --> G["Explicitly call the termination tool"]
-    F -- "No" --> H["Backtrack, correct locally, or delegate again"]
-    H --> C
-```
-
-This forms an end-to-end loop. For example, if the robot has already passed the target table, the Planner can see from the keyframes and the place table that it overshot the endpoint, return to the corresponding node, and then make a short correction and verify the endpoint. Place IDs turn "go back to where we just were" into an action with a stable target rather than a new, vague navigation request.
-
-**② Runtime: threads work concurrently, but only one operation drives the robot at a time.** The intuition behind motion authority is "who is holding the steering wheel": the operation that holds authority may issue motion commands, while other threads can still take approved observations and keep reasoning. The main thread runs the current task, a background thread reviews the route, and a monitor thread checks for hazards. Each thread keeps its own working history, lifecycle state, and read/write permissions on shared state, and the runtime keeps, transfers, or revokes motion authority according to event priority.
-
-<div align="center">
-  <img src="/images/vln/NavGPT-3-runtime.webp" width="100%" alt="Thread concurrency and motion-authority switching in the NavGPT-3 runtime" loading="lazy" decoding="async" style="aspect-ratio:1118/524" />
-<figcaption>Figure 2: Thread concurrency and control handover. A route correction pauses the current motion and hands over authority; a protective interrupt can revoke authority directly while language-model reasoning continues.</figcaption>
-</div>
-
-| Dimension | Synchronous delegation interface | NavGPT-3 asynchronous runtime |
-|---|---|---|
-| Route review | Check only after the VLA returns. | While the VLA moves, the background reviews a snapshot of the state at that time. |
-| Route correction | Choose a new action at the call boundary. | Request an interrupt, wait for the current motion step to finish and be confirmed, then authorize the corrective operation. |
-| Hazard handling | Sequential handling may wait until the next regular control step. | Protective events revoke authority first, without waiting for Planner reasoning to finish. |
-| Late commands | Call order alone cannot easily distinguish stale operations. | Commands carry an authority version, and the final command filter rejects old versions. |
-
-**Authority versions solve the problem of stale reasoning results arriving late.** The version number increments every time authority is revoked or replaced. A motion command is executed only if the operation is still authorized, its version matches the current one, and the current state satisfies its preconditions. Protective stops and control timeouts have the highest priority, followed by the task cap, natural completion of an operation, and routine review. After an alert clears, motion resumes only with a new observation and new authority.
-
-> **For example**: the VLA issues a forward command under version 7; the monitor then detects an obstacle and changes the current authority to version 8. Even if a queued version-7 waypoint or language-model reply arrives only now, it can no longer drive the robot.
-> These numbers only illustrate the mechanism: an ordinary route correction waits until the current motion step ends, whereas a hazard interrupt revokes authority directly, so the two hand over at different times.
-
-The paper also distinguishes the full runtime design from the experimental implementation: simulation ablations use simplified single-motion-operation scheduling, version checks, and pending reviews, while independent monitor preemption and physical stopping latency are measured on a real Go2.
-
-**③ NavGPT VLA: predict eight waypoints jointly, execute the first, then observe again.** The VLA uses Qwen3-VL-Instruct as its backbone with an added MLP action head, in 4B and 8B versions. Its inputs are the Planner's instruction and visual history from up to 16 retained time steps; in simulation each time step usually has four images (front, right, back, left). It outputs eight cumulative targets in the current robot frame, each with forward displacement $x$, leftward displacement $y$, and relative heading $\theta$, for 24 regression values. Inference executes only the first waypoint and then re-predicts the rest of the trajectory from the new observation.
-
-**Codec allocation: the more an image changes, the more detail it deserves.** Borrowing the idea of reference frames and subsequent frames from video coding, this mechanism adjusts each image's resolution within a fixed total visual-token budget. It does not perform video residual decoding or crop semantically important regions; it assigns each whole image a token cap and resizes the image accordingly.
-
-<div align="center">
-  <img src="/images/vln/NavGPT-3-codec-allocation.webp" width="100%" alt="Change-aware visual budget allocation across time steps and camera directions" loading="lazy" decoding="async" style="aspect-ratio:1118/598" />
-<figcaption>Figure 3: Change-aware visual budget allocation. Recency, camera direction, and visual change jointly determine image resolution; optical flow and change masks are visual diagnostics, not inputs to the allocator.</figcaption>
-</div>
-
-For each camera direction, adjacent retained observations are shrunk to $64\times64$ RGB thumbnails and the normalized mean pixel difference is computed:
-
-$$
-\delta_{h,v}=\frac{\lVert \mathrm{thumb}(I_{h,v})-\mathrm{thumb}(I_{h-1,v})\rVert_1}{255\cdot3\cdot64^2}.
-$$
-
-The first image in each direction serves as an I-frame with change score 1; later P-frames score $\mathrm{clip}(5\delta_{h,v},0.05,1)$. The final weight is the original recency and view weight multiplied by the change score, which keeps the priority of recent, forward observations while giving newly appearing visual information more budget.
-
-The allocator first gives each image a minimum number of tokens, then distributes the remainder by weight, handling integer rounding and the per-image cap. Evaluation uses a total budget of 3072, a per-image range of 4–196, view weights $(2,1,0.5,1)$ for front, right, back, and left, and recency parameter $\gamma=2$. The first and current observations are always retained, and the remaining history steps are sampled uniformly. Image resizing must also align with the encoder grid, so the actual token count can fall below the allocated cap.
-
-> **For example**: consider only two later images with the same position weight, a total budget of 12, and 2–10 tokens per image.
-> If their change scores are 0.2 and 0.6, the minimum of 4 is assigned first and the remaining 8 is split 1:3, giving 4 and 8; allocating by position alone gives 6 and 6.
-> If the total budget rises to 20, both images reach the cap of 10 and the change weights can no longer alter the allocation. This is a worked example of the mechanism, not the paper's measured token counts.
-
-The ratio of budget to capacity, $\rho_{\mathrm{vis}}=B_{\mathrm{vis}}/(N_{\mathrm{hist}}N_{\mathrm{view}}b_{\mathrm{max}})$, determines whether the mechanism takes effect: below 1, images compete for budget; at or above 1, every image can reach the cap and the two rules coincide. Under the paper's evaluation configuration, four-view history with at most three time steps already reaches the per-image cap, so the budget constraint only begins to bind from four time steps. Change scores are also affected by camera motion and lighting, so they cannot be read directly as semantic importance.
-
-**④ Data coverage and training objectives: a unified action space, plus off-route recovery and visual grounding.** The training mixture draws on 83 sources in 11 categories, about 19.28 million effective training samples per epoch, of which 65.6% are used for action regression and 34.4% only for next-token prediction. It covers instruction following, point goals, object goals, target tracking, and outdoor driving, and adds embodied question answering, general vision-language, spatial reasoning, and visual grounding data. All navigation sources are converted to the same eight-waypoint action format; language tasks use the same image-dialogue format without action targets.
-
-Transferable practices include re-rendering the same route as four-view and single-view observations; rewriting inaccurate navigation instructions; relabeling SRDF's DAgger off-route states with the shortest-path direction from the current position to the goal, rather than continuing to imitate the original executed trajectory; and geometric resampling to raise the proportion of turns and stops. The 19 subsets of LocateAnything contribute about 2.31 million effective samples that explicitly teach "where in the image the language refers to", supplying object-grounding signals that waypoint supervision lacks. The 19.28 million figure counts effective records after sampling and repetition, including different views or augmented versions of the same route, so it is not a count of independent trajectories.
-
-Action coordinates are normalized by $(1.0,0.433,2.094)$ for training. The action loss is the mean squared error over eight waypoints, and the language loss is the cross-entropy over annotated answer tokens:
-
-$$
-\mathcal L_{\mathrm{nav}}=\frac{1}{24\lvert B_{\mathrm{nav}}\rvert}\sum_{i\in B_{\mathrm{nav}}}\sum_{r=1}^{8}\lVert\hat a_{i,r}-a_{i,r}\rVert_2^2,
-\qquad
-\mathcal L=\mathcal L_{\mathrm{nav}}+\mathcal L_{\mathrm{NTP}}.
-$$
-
-Both terms have weight 1: navigation samples participate only in action regression, and QA and grounding samples only in next-token prediction. Empty action targets of language tasks are masked out so they are not learned as zero motion, and prompt and padding tokens are excluded from the language loss. Trajectory ends use padded stop targets, and the action loss does not additionally mask terminal waypoints; the normalization scales set the relative weight of position and heading errors in physical units. Both 4B and 8B train for one epoch with a global batch of 256, about 75.3K steps, and learning rates of $5\times10^{-6}$ for the backbone and $10^{-3}$ for the action head.
-
-<div align="center">
-  <img src="/images/vln/NavGPT-3-data-scaling.webp" width="100%" alt="R2R-CE and RxR-CE success rates of the 4B and 8B policies as the cumulative training recipe expands" loading="lazy" decoding="async" style="aspect-ratio:1112/340" />
-<figcaption>Figure 8: As the cumulative training recipe expands, both 4B and 8B policies improve overall. The horizontal axis changes sample count and data composition together, so the curves cannot be attributed to any single data source.</figcaption>
-</div>
-
-**⑤ Harness development: searching the interaction interface rather than updating models online.** The paper uses recursive self-improvement (RSI) to search for executable Harness versions: it proposes changes to prompts, tools, state, or visual return formats, checks constraints, runs experiments, records effective and failed changes, and selects the better version. The search uses Claude Opus 5 on a fixed set of 100 R2R-CE training tasks, whose scenes are disjoint from Val-Unseen. The best development success rate rises from 66% to 81%, but the final evaluation uses a fixed interface, and neither Planner nor VLA weights are updated during navigation.
-
----
-
-### 3. Key Results and Findings
-{: id="3-核心结果发现-47"}
-
-**Full validation sets: the Harness helps more on long instructions.** The table below comes from the paper's Table 6 on full R2R-CE and RxR-CE Val-Unseen. SR is task success rate, SPL measures success and path efficiency together, and nDTW measures how closely the instructed route is followed; all are percentages.
-
-| Method | R2R-CE SR | R2R-CE SPL | RxR-CE SR | RxR-CE SPL | RxR-CE nDTW |
-|---|---:|---:|---:|---:|---:|
-| Qwen-RobotNav 8B | 72.1 | 66.6 | 76.5 | 65.7 | 72.5 |
-| Robostral Navigate 8B | 77.4 | 74.2 | 75.1 | 68.7 | — |
-| NavGPT VLA 4B | 72.54 | 67.19 | 76.77 | 67.77 | 73.33 |
-| NavGPT VLA 8B | 74.51 | 68.54 | 78.19 | 68.98 | 74.85 |
-| NavGPT-3, Opus 5 + 8B VLA | 79.01 | 70.16 | 84.80 | 69.85 | 75.09 |
-| NavGPT-3, GPT-6 Astra + 8B VLA | **81.51** | 70.42 | **90.43** | **74.31** | **78.47** |
-| RxR English human followers, discrete environment | — | — | 90.4 | — | 77.7 |
-
-Compared with the 8B VLA alone, the GPT-6 Astra full system raises R2R-CE SR by **7.00 percentage points** and RxR-CE SR by **12.24 percentage points**. The best R2R-CE SR reported in the paper does not mean the highest SPL. The paper's "human level" means that SR and nDTW on English RxR instructions approach the historical human baseline; humans moved on a discrete navigation graph while the system executes in a continuous environment, so this is not a matched comparison under the same control protocol.
-
-**Tool and VLA ablations: high success, low inference cost, and fast action updates are different metrics.** On a fixed set of 100 R2R-CE ablation tasks, GPT-6 Astra reaches 72% SR with basic tools and 83% with maps and backtracking but no VLA; adding only the VLA gives 75%, and full tools plus VLA give 82%, so the VLA does not always raise success rate. The full combination cuts Astra's average planning rounds from 32.14 in the basic configuration to 3.88 and cumulative tokens from 325.0k to 155.0k. The action-update interval becomes the 8B VLA's average of 0.78 seconds, shorter than the 3–19 seconds without a VLA, but this inference interval excludes communication, Harness overhead, physical braking, and interrupt propagation time.
-
-**Review frequency: more frequent supervision sharply increases context cost.** On the same ablation set, moving from no periodic review to a review every 16 VLA steps raises SR from 77% to 83% and SPL from 67.51 to 77.36, but average cumulative tokens grow from 179.2k to 2319.5k, about **12.9 times**; reviewing every 32 steps reaches only 78% SR and already needs 1529.9k tokens. Here "one step" means predicting eight waypoints and executing the first. The periodic-review experiment has no additional event-triggered reviews; event triggering is a direction for real-robot deployment.
-
-<div align="center">
-  <img src="/images/vln/NavGPT-3-codec-ablation.webp" width="100%" alt="Codec ablation across cumulative training scopes for the 4B and 8B policies" loading="lazy" decoding="async" style="aspect-ratio:1118/647" />
-<figcaption>Figure 7: Codec ablation across cumulative training scopes. The 8B model benefits on both benchmarks and the 4B model on RxR-CE, but the first two training scopes show no stable gain on R2R-CE for 4B.</figcaption>
-</div>
-
-**Codec and data scaling: gains are conditional.** For 8B, across the three scopes of VLN only, adding navigation QA, and adding cross-embodiment data, Codec raises R2R-CE SR by 1.7, 5.7, and 2.1 percentage points and RxR-CE by 1.6, 2.6, and 2.6. For 4B on R2R-CE, the first two scopes change by −0.1 and −0.8 points, and only adding cross-embodiment data yields a 1.1-point gain. As the cumulative Codec training mixture grows from 1.7 million to 19.28 million effective samples, 8B R2R-CE SR rises from 65.3 to 74.51 and RxR-CE from 70.5 to 78.19. The full 4B model's R2R-CE SR of 72.54 exceeds the 71.6 of an 8B model that had not yet added the final stage of grounding and other data, but each stage changes data quantity and composition together.
-
-**Real robot: priority monitoring and overlapping inference with execution each contribute.** The Go2 drives the VLA with forward RGB, and LiDAR is used only for runtime hazard monitoring. The onboard version runs the 4B VLA on a Jetson Thor with FP8 and TensorRT, while the Planner remains a remote service. Each condition and scene uses five routes, three event timings, and two repetitions, for 30 trials. Switching from "sequential execution + queued monitoring" to "overlapping inference and execution + priority monitoring" raises route-correction SR from 73.3% to 83.3%, cuts correction time from 12.8 to 7.9 seconds, reduces the p95 latency from hazard trigger to physical stop from 1840 to 180 milliseconds, and reduces missed stops from 7/30 to 0/30, though 1/30 trials still accepted a stale command.
-
-**Across tasks: the interface also transfers to object navigation and embodied QA.** Appendix Table 16 compares the full system with Qwen-RobotNav 8B on the same 500 tasks per dataset: MP3D SR/SPL is 59.2/25.2 versus 47.8/17.5, and HM3D v2 is 75.3/40.8 versus 72.4/33.1. The full system has no corresponding full-validation ObjectNav result. HM-EQA and MT-HM3D accuracies are 77.38% and 55.27%, and the open-answer EXPRESS score is 80.43; that score uses a GPT-6 Astra judge, which differs in judging protocol from historical scores that used GPT-4o-mini.
-
-**Code and reproducibility.** As checked on 2026-10-12, the [official repository](https://github.com/metacognitionai/NavGPT-3) publishes VLA inference, the Harness, simulation evaluation code, and configurations. The repository states that ZEOS-based Unitree deployment code (including thread management) will be released separately, so the public simulation code should not be equated with the complete real-robot runtime.
-
----
-
-### 4. Limitations
-{: id="4-局限性-47"}
-
-The system depends on a remote Planner, a large vision-language model, and continually accumulating route evidence, and high-frequency review markedly increases cost. Codec's RGB change score is affected by lighting and camera motion, and the cumulative data experiments do not separately identify the contributions of data quantity and source composition. The human baseline uses a discrete environment, tool ablations are limited to 100 tasks, ObjectNav is limited to 500-task subsets, and the real-robot study has only 30 trials per condition and scene while still accepting a stale command. The results therefore support navigation and scheduling ability in the tested scenarios, but do not establish general human-level performance or complete safety guarantees.
-
----
-
-## 58. RSI-Nav (2026)
+## 48. RSI-Nav (2026)
 {: id="rsi-nav"}
 ———Generate instructions, execute them, filter the data, and update immediately so that synthetic supervision evolves with the policy
 
@@ -9166,7 +7313,7 @@ Using the same model to generate instructions and execute verification can reinf
 
 ---
 
-## 59. SimpleVLN (2026)
+## 49. SimpleVLN (2026)
 {: id="simplevln"}
 ———Frontier VLN from a native MLLM, without architectural changes
 
@@ -9315,7 +7462,7 @@ The real-robot experiments are qualitative only, without success rates or other 
 
 ---
 
-## 60. Efficient-VLN (2025)
+## 50. Efficient-VLN (2025)
 {: id="efficient-vln"}
 ———A Simple yet Strong Baseline for Efficient Vision-Language Navigation
 
@@ -9428,22 +7575,22 @@ Evaluation is limited to Habitat simulation, with no real-robot experiments. Usi
 ## Published papers (conference/journal)
 {: id="已发表论文会议--期刊"}
 
-The following table organizes papers with publication information tagged by conference or journal, and retains cross-page indexes of some extended papers:
+The following table organizes papers with publication information tagged by conference or journal, and retains cross-page indexes of goal-navigation and agentic-navigation papers:
 
 | Conference/Journal | Paper |
 |---|---|
 | **CVPR** | [VLN-Imagine](#vln-imagine) (2025)、[Slow4fast-VLN](#slow4fast-vln) (2026)、[AwareVLN](#awarevln) (2026)、[GA-VLN](#ga-vln) (2026)、[HSGM](#hsgm) (2026)、[DecoVLN](#decovln) (2026)、[R2R](#r2r) (2018, Spotlight)、[DUET](#duet) (2022) |
 | **ICLR** | [NavFoM](#navfom) (2026)、[JanusVLN](#janusvln) (2026)、[OmniNav](#omninav) (2026, Poster)、[TuckerNav](#tuckernav) (2026)、[Uncertainty-Aware Gaussian Map](#uncertainty-aware-gaussian-map) (2026)、[DualVLN](#dualvln) (2026) |
-| **ICRA** | [NoMaD](/en/VLN-Papers-Extended/#nomad) (2024)、[VLFM](/en/VLN-Papers-Extended/#vlfm) (2024)、[Open-Nav](#open-nav) (2025)、[NavDP](/en/VLN-Papers-Extended/#navdp) (2026)、[StreamVLN](#streamvln) (2026) |
-| **ECCV** | [VLN-CE](#vln-ce) (2020)、[NavGPT-2](#navgpt-2) (2024)、[AgentVLN](#agentvln) (2026)、[Route2Step](#route2step) (2026) |
-| **AAAI** | [ODYSSEY](/en/VLN-Papers-Extended/#odyssey) (2026)、[CorrectNav](#correctnav) (2026)、[R³](#r3) (2026)、[PanoNav](/en/VLN-Papers-Extended/#panonav) (2026, Poster) |
+| **ICRA** | [NoMaD](/en/VLN-Papers-Extended/#nomad) (2024)、[VLFM](/en/VLN-Papers-Extended/#vlfm) (2024)、[Open-Nav](/en/Agentic-Navigation-Papers/#open-nav) (2025)、[NavDP](/en/VLN-Papers-Extended/#navdp) (2026)、[StreamVLN](#streamvln) (2026) |
+| **ECCV** | [VLN-CE](#vln-ce) (2020)、[NavGPT-2](#navgpt-2) (2024)、[AgentVLN](/en/Agentic-Navigation-Papers/#agentvln) (2026)、[Route2Step](#route2step) (2026) |
+| **AAAI** | [ODYSSEY](/en/Agentic-Navigation-Papers/#odyssey) (2026)、[CorrectNav](#correctnav) (2026)、[R³](#r3) (2026)、[PanoNav](/en/Agentic-Navigation-Papers/#panonav) (2026, Poster) |
 | **ICCV** | [VLN-PE](#vln-pe) (2025) |
 | **ACL** | [MapNav](#mapnav) (2025) |
 | **RSS** | [NaVid](#navid) (2024) |
-| **IROS** | [ReflectVLN](#reflectvln) (2026) |
-| **CoRL** | [X-NavDP](#x-navdp) (2026) |
+| **IROS** | [ReflectVLN](/en/Agentic-Navigation-Papers/#reflectvln) (2026) |
+| **CoRL** | [X-NavDP](/en/VLN-Papers-Extended/#x-navdp) (2026) |
 | **RO-MAN** | [R2RIE-CE & IEDL](#r2rie-ce-iedl) (2024) |
-| **Journal** | [GaussNav](/en/VLN-Papers-Extended/#gaussnav) (IEEE TPAMI 2025), [CausalNav](#causalnav) (IEEE RA-L), [HumanoidVLN](#humanoidvln) (IEEE RA-L), [Skill-Nav](/en/VLN-Papers-Extended/#skill-nav) (Vicinagearth / Springer 2025), [CA-VLN](#ca-vln) (Sensors 2026) |
+| **Journal** | [GaussNav](/en/VLN-Papers-Extended/#gaussnav) (IEEE TPAMI 2025), [CausalNav](/en/VLN-Papers-Extended/#causalnav) (IEEE RA-L), [HumanoidVLN](#humanoidvln) (IEEE RA-L), [Skill-Nav](/en/VLN-Papers-Extended/#skill-nav) (Vicinagearth / Springer 2025), [CA-VLN](/en/Agentic-Navigation-Papers/#ca-vln) (Sensors 2026) |
 
 ## Paper references
 {: id="论文引用"}
@@ -9459,169 +7606,173 @@ The following table organizes papers with publication information tagged by conf
 9. **StreamVLN** (2025). Streaming vision-language navigation via slow-fast context modeling. arXiv: [2507.05240](https://arxiv.org/abs/2507.05240) · ICRA 2026 · Code: [OpenRobotLab/StreamVLN](https://github.com/OpenRobotLab/StreamVLN)
 10. **NavFoM** (2025). Embodied Navigation Foundation Model. arXiv: [2509.12129](https://arxiv.org/abs/2509.12129) · ICLR 2026
 11. **MapNav** (2025). A Novel Memory Representation via Annotated Semantic Maps for Vision-and-Language Navigation. arXiv: [2502.13451](https://arxiv.org/abs/2502.13451) · ACL 2025 · Code: [linglingxiansen/MapNav](https://github.com/linglingxiansen/MapNav)
-12. **Open-Nav** (2025). Zero-Shot VLN in Continuous Environment with Open-Source LLMs. arXiv: [2409.18794](https://arxiv.org/abs/2409.18794) · ICRA 2025
-13. **VLN-Imagine** (2025). Use text-generated image models to build "visual imagination" for navigation agents. arXiv: [2503.16394](https://arxiv.org/abs/2503.16394) · CVPR 2025 · Code: [akhilperincherry/VLN-Imagine](https://github.com/akhilperincherry/VLN-Imagine)
-14. **VLN-PE** (2025). Rethinking the embodiment gap in vision-language navigation: A comprehensive study of physical and visual differences. arXiv: [2507.13019v2](https://arxiv.org/abs/2507.13019v2) · ICCV 2025
-15. **Goal2Pixel** (2025). Ground navigation goals to image pixels to unify the decision space of VLN-CE with pixel prediction. arXiv: [2606.01621](https://arxiv.org/abs/2606.01621)
-16. **AstraNav-World** (2025). Unify "imagining the future" and "planning the future" into the same generative probability framework. arXiv: [2512.21714](https://arxiv.org/abs/2512.21714) · Code: [amap-cvlab/AstraNav-World](https://github.com/amap-cvlab/AstraNav-World)
-17. **CorrectNav** (2025). Monocular RGB vision-language-action navigation model empowered by self-error correction flywheel. arXiv: [2508.10416](https://arxiv.org/abs/2508.10416) · AAAI 2026 · Code: [owlet914/CorrectNav](https://github.com/owlet914/CorrectNav)
-18. **Slow4fast-VLN** (2026). General Vision-Language Navigation via Fast-Slow Interactive Reasoning. arXiv: [2601.09111v1](https://arxiv.org/abs/2601.09111v1) · CVPR 2026 · Code: [yl6017339/Slow4Fast-VLN](https://github.com/yl6017339/Slow4Fast-VLN)
-19. **DGNav** (2026). Dynamic topology awareness: breaking granular rigidity in vision-language navigation. arXiv: [2601.21751](https://arxiv.org/abs/2601.21751) · Code: [shannanshouyin/DGNav](https://github.com/shannanshouyin/DGNav)
-20. **CausalNav** (2026). First Scene Graph-based Semantic Navigation for Dynamic Outdoor Environments. arXiv: [2601.01872](https://arxiv.org/abs/2601.01872) · IEEE RA-L
-21. **AgentVLN** (2026). Towards Agentic Vision-and-Language Navigation. arXiv: [2603.17670](https://arxiv.org/abs/2603.17670) · ECCV 2026 · Code: [Allenxinn/AgentVLN](https://github.com/Allenxinn/AgentVLN)
-22. **VLN-Cache** (2026). Enabling Token Caching for VLN Models with Visual/Semantic Dynamics Awareness. arXiv: [2603.07080](https://arxiv.org/abs/2603.07080)
-23. **R³: Run, Ruminate, and Regulate** (2026). A dual-process thinking framework for vision-language navigation. arXiv: [2511.14131](https://arxiv.org/abs/2511.14131) · AAAI 2026 · Code (to be released): [IAII-CAS/navigation_R3](https://github.com/IAII-CAS/navigation_R3)
-24. **AwareVLN** (2026). Reasoning with Self-awareness for Vision-Language Navigation. arXiv: [2605.22816](https://arxiv.org/abs/2605.22816) · CVPR 2026 · Code: [GWxuan/AwareVLN](https://github.com/GWxuan/AwareVLN)
-25. **Dual-Anchoring** (2026). Use "instruction progress" and "landmark memory" dual anchoring to combat state drift (State Drift) in VLN. arXiv: [2604.17473](https://arxiv.org/abs/2604.17473)
-26. **JanusVLN** (2026). Decoupling semantics and space: vision-language navigation using dual implicit neural memory. arXiv: [2509.22548v2](https://arxiv.org/abs/2509.22548v2) · ICLR 2026 · Code: [MIV-XJTU/JanusVLN](https://github.com/MIV-XJTU/JanusVLN)
-27. **HSGM** (2026). Hierarchical semantic-geometric map, filling the gap between VLM 2D vision and 3D spatial reasoning and motion planning. arXiv: [2606.00095](https://arxiv.org/abs/2606.00095) · CVPR 2026 · Code: [Teacher-Tom/HSGM_public](https://github.com/Teacher-Tom/HSGM_public)
-28. **OneVLA** (2026). The first VLA model to unify embodied navigation and operation under a single network and action head. arXiv: [2606.01241](https://arxiv.org/abs/2606.01241) · Code: [linglingxiansen/OneVLA](https://github.com/linglingxiansen/OneVLA)
-29. **CA-VLN** (2026). Multimodal large model embodied navigation framework based on dual-agent collaboration. DOI: [10.3390/s26041254](https://doi.org/10.3390/s26041254) · Sensors 2026
-30. **RynnBrain** (2026). Open Spatiotemporal Foundation Model for Embodied Intelligence. arXiv: [2602.14979](https://arxiv.org/abs/2602.14979) · Code: [alibaba-damo-academy/RynnBrain](https://github.com/alibaba-damo-academy/RynnBrain)
-31. **OmniNav** (2026). Use fast-slow dual system to unify point target, object target, instruction-following navigation and frontier exploration. arXiv: [2509.25687](https://arxiv.org/abs/2509.25687) · ICLR 2026 (Poster) · Code: [amap-cvlab/OmniNav](https://github.com/amap-cvlab/OmniNav)
-32. **Qwen-RobotNav** (2026). The first unified large-scale model of multi-task, spatio-temporal reconfigurable embodied navigation. arXiv: [2606.18112](https://arxiv.org/abs/2606.18112)
-33. **GA-VLN** (2026). Geometry-Aware BEV Representation for Efficient Vision-Language Navigation. arXiv: [2605.22036](https://arxiv.org/abs/2605.22036) · CVPR 2026 · Code: [jahhaoyang/GA-VLN](https://github.com/jahhaoyang/GA-VLN)
-34. **SEDualVLN** (2026). Spatially enhanced dual-system continuous environment vision-language navigation framework. arXiv: [2605.17249](https://arxiv.org/abs/2605.17249) · Project Page: [kim-os.github.io/SEDualVLN](https://kim-os.github.io/SEDualVLN/)
-35. **Robostral Navigate** (2026). 8B vision-language navigation large model using only monocular RGB camera: ultra-efficient simulation training and online reinforcement learning. arXiv: [2607.20785](https://arxiv.org/abs/2607.20785)
-36. **ABot-N1** (2026). Universal vision-language navigation foundation model based on slow cognitive and fast control dual system architecture. arXiv: [2607.10383v2](https://arxiv.org/abs/2607.10383v2) · Benchmark: [amap-cvlab/ABot-Navigation (ABotN-Bench)](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench)
-37. **ReflectVLN** (2026). Embodied vision-language navigation based on reflective reasoning and two-way interaction mechanism. arXiv: [2607.12680](https://arxiv.org/abs/2607.12680) · IROS 2026
-38. **TuckerNav** (2026). Tucker tensor adaptation for all-weather multi-scenario lifelong embodied vision-language navigation. arXiv: [2603.14276](https://arxiv.org/abs/2603.14276) · ICLR 2026
-39. **AgenticNav** (2026). Refactoring zero-shot continuous environment navigation (VLN-CE) into a VLM callable Tool-Calling architecture. arXiv: [2606.10577](https://arxiv.org/abs/2606.10577)
-40. **MemVLN** (2026). An efficient continuous environment vision-language navigation framework that simulates human dual memory mechanism. arXiv: [2607.23504](https://arxiv.org/abs/2607.23504)
-41. **X-NavDP** (2026). Intra-group Q-value weighted Diffusion RL reinforcement learning fine-tuning framework for universal visual navigation of multi-configuration robots. arXiv: [2607.28560](https://arxiv.org/abs/2607.28560) · CoRL 2026 · Code: [InternRobotics/NavDP](https://github.com/InternRobotics/NavDP)
-42. **Image2Sim** (2026). A real-time neural simulation engine that decouples 3D spatial anchoring and hyper-realistic image synthesis. arXiv: [2607.05765](https://arxiv.org/abs/2607.05765) · Code: [MrZihan/Image2Sim](https://github.com/MrZihan/Image2Sim)
-43. **DecoVLN** (2026). Decoupling Observation, Reasoning, and Correction for Vision-and-Language Navigation. arXiv: [2603.13133](https://arxiv.org/abs/2603.13133) · CVPR 2026 · Code (to be released): [Allenxinn/DecoVLN](https://github.com/Allenxinn/DecoVLN)
-44. **TAMP-Nav** (2026). Point, Think, Memorize, and Align for Efficient Navigation. arXiv: [2608.17512](https://arxiv.org/abs/2608.17512) · Code: [ZJU-OmniAI/Embodied-Omni](https://github.com/ZJU-OmniAI/Embodied-Omni)
-45. **LightNav-0** (2026). "Bring out" the existing spatial intelligence of VLM instead of plugging in a navigation module. arXiv: [2608.30935](https://arxiv.org/abs/2608.30935) · Code: [lightorigins/LightNav-0](https://github.com/lightorigins/LightNav-0)
-46. **Uncertainty-Aware Gaussian Map for VLN** (2026). Three types of perceived uncertainty × Semantic Gaussian Map, giving VLN agents reliable decision-making capabilities. arXiv: [2607.13500](https://arxiv.org/abs/2607.13500) · ICLR 2026 · Code (to be released): [Gaozzzz/Uncertainty-Aware-VLN](https://github.com/Gaozzzz/Uncertainty-Aware-VLN)
-47. **HarnessVLN** (2026). A set of Agent Harness that compresses the two types of navigation "instruction following" and "finding objects" into the same tool calling protocol. arXiv: [2609.15195](https://arxiv.org/abs/2609.15195)
-48. **GroundingVLN** (2026). Make visual grounding a shared interface between "thinking" and "walking". arXiv: [2609.18581](https://arxiv.org/abs/2609.18581)
-49. **GPT-6-Astra** (2026). The general foundation model only relies on monocular RGB and primitive actions, and runs through the continuous environment vision-language navigation with zero-shot. arXiv: [2609.29861v2](https://arxiv.org/abs/2609.29861v2)
-50. **BudVLN** (2026). Nipping the Drift in the Bud: Retrospective Rectification for Robust Vision-Language Navigation. arXiv: [2602.06356](https://arxiv.org/abs/2602.06356)
-51. **Route2Step** (2026). Decouple semantic progress and local execution to empower embodied navigation corrective through explicit step-level interfaces. arXiv: [2608.03143](https://arxiv.org/abs/2608.03143) · ECCV 2026
-52. **PROSPECT** (2026). Streaming VLA + latent space prediction: preview the future during training, zero overhead during inference. arXiv: [2603.03739](https://arxiv.org/abs/2603.03739)
-53. **MacroAction-VLN** (2026). Continuous environment closed-loop reinforcement learning fine-tuning based on topological graph macro-action hierarchical MDP and action-aware Critic. arXiv: [2609.03906](https://arxiv.org/abs/2609.03906)
-54. **HumanoidVLN** (2026). The first physically realistic VLN simulation platform and benchmark for diverse bipedal humanoid robots. arXiv: [2608.12860](https://arxiv.org/abs/2608.12860) · IEEE RA-L
-55. **AdaGeoVLN** (2026). Make geometric trade-offs along the two axes of "representation depth" and "navigation time". arXiv: [2609.18789](https://arxiv.org/abs/2609.18789)
-56. **SeekVLN** (2026). Seek Before You Move: Evidence Seeking for Progress Grounding in Vision-Language Navigation. arXiv: [2609.37353v1](https://arxiv.org/abs/2609.37353v1)
-57. **NavGPT-3** (2026). Asynchronous planning, action, and monitoring, closed through inspectable execution evidence. arXiv: [2610.10787](https://arxiv.org/abs/2610.10787)
-58. **RSI-Nav** (2026). Generate instructions, execute them, filter the data, and update immediately so that synthetic supervision evolves with the policy. arXiv: [2610.15782](https://arxiv.org/abs/2610.15782)
-59. **SimpleVLN** (2026). Frontier VLN from a native MLLM, without architectural changes. arXiv: [2610.23203](https://arxiv.org/abs/2610.23203)
-60. **Efficient-VLN** (2025). A Simple yet Strong Baseline for Efficient Vision-Language Navigation. arXiv: [2512.10310](https://arxiv.org/abs/2512.10310)
+12. **VLN-Imagine** (2025). Use text-generated image models to build "visual imagination" for navigation agents. arXiv: [2503.16394](https://arxiv.org/abs/2503.16394) · CVPR 2025 · Code: [akhilperincherry/VLN-Imagine](https://github.com/akhilperincherry/VLN-Imagine)
+13. **VLN-PE** (2025). Rethinking the embodiment gap in vision-language navigation: A comprehensive study of physical and visual differences. arXiv: [2507.13019v2](https://arxiv.org/abs/2507.13019v2) · ICCV 2025
+14. **Goal2Pixel** (2025). Ground navigation goals to image pixels to unify the decision space of VLN-CE with pixel prediction. arXiv: [2606.01621](https://arxiv.org/abs/2606.01621)
+15. **AstraNav-World** (2025). Unify "imagining the future" and "planning the future" into the same generative probability framework. arXiv: [2512.21714](https://arxiv.org/abs/2512.21714) · Code: [amap-cvlab/AstraNav-World](https://github.com/amap-cvlab/AstraNav-World)
+16. **CorrectNav** (2025). Monocular RGB vision-language-action navigation model empowered by self-error correction flywheel. arXiv: [2508.10416](https://arxiv.org/abs/2508.10416) · AAAI 2026 · Code: [owlet914/CorrectNav](https://github.com/owlet914/CorrectNav)
+17. **Slow4fast-VLN** (2026). General Vision-Language Navigation via Fast-Slow Interactive Reasoning. arXiv: [2601.09111v1](https://arxiv.org/abs/2601.09111v1) · CVPR 2026 · Code: [yl6017339/Slow4Fast-VLN](https://github.com/yl6017339/Slow4Fast-VLN)
+18. **DGNav** (2026). Dynamic topology awareness: breaking granular rigidity in vision-language navigation. arXiv: [2601.21751](https://arxiv.org/abs/2601.21751) · Code: [shannanshouyin/DGNav](https://github.com/shannanshouyin/DGNav)
+19. **VLN-Cache** (2026). Enabling Token Caching for VLN Models with Visual/Semantic Dynamics Awareness. arXiv: [2603.07080](https://arxiv.org/abs/2603.07080)
+20. **R³: Run, Ruminate, and Regulate** (2026). A dual-process thinking framework for vision-language navigation. arXiv: [2511.14131](https://arxiv.org/abs/2511.14131) · AAAI 2026 · Code (to be released): [IAII-CAS/navigation_R3](https://github.com/IAII-CAS/navigation_R3)
+21. **AwareVLN** (2026). Reasoning with Self-awareness for Vision-Language Navigation. arXiv: [2605.22816](https://arxiv.org/abs/2605.22816) · CVPR 2026 · Code: [GWxuan/AwareVLN](https://github.com/GWxuan/AwareVLN)
+22. **Dual-Anchoring** (2026). Use "instruction progress" and "landmark memory" dual anchoring to combat state drift (State Drift) in VLN. arXiv: [2604.17473](https://arxiv.org/abs/2604.17473)
+23. **JanusVLN** (2026). Decoupling semantics and space: vision-language navigation using dual implicit neural memory. arXiv: [2509.22548v2](https://arxiv.org/abs/2509.22548v2) · ICLR 2026 · Code: [MIV-XJTU/JanusVLN](https://github.com/MIV-XJTU/JanusVLN)
+24. **HSGM** (2026). Hierarchical semantic-geometric map, filling the gap between VLM 2D vision and 3D spatial reasoning and motion planning. arXiv: [2606.00095](https://arxiv.org/abs/2606.00095) · CVPR 2026 · Code: [Teacher-Tom/HSGM_public](https://github.com/Teacher-Tom/HSGM_public)
+25. **OneVLA** (2026). The first VLA model to unify embodied navigation and operation under a single network and action head. arXiv: [2606.01241](https://arxiv.org/abs/2606.01241) · Code: [linglingxiansen/OneVLA](https://github.com/linglingxiansen/OneVLA)
+26. **RynnBrain** (2026). Open Spatiotemporal Foundation Model for Embodied Intelligence. arXiv: [2602.14979](https://arxiv.org/abs/2602.14979) · Code: [alibaba-damo-academy/RynnBrain](https://github.com/alibaba-damo-academy/RynnBrain)
+27. **OmniNav** (2026). Use fast-slow dual system to unify point target, object target, instruction-following navigation and frontier exploration. arXiv: [2509.25687](https://arxiv.org/abs/2509.25687) · ICLR 2026 (Poster) · Code: [amap-cvlab/OmniNav](https://github.com/amap-cvlab/OmniNav)
+28. **Qwen-RobotNav** (2026). The first unified large-scale model of multi-task, spatio-temporal reconfigurable embodied navigation. arXiv: [2606.18112](https://arxiv.org/abs/2606.18112)
+29. **GA-VLN** (2026). Geometry-Aware BEV Representation for Efficient Vision-Language Navigation. arXiv: [2605.22036](https://arxiv.org/abs/2605.22036) · CVPR 2026 · Code: [jahhaoyang/GA-VLN](https://github.com/jahhaoyang/GA-VLN)
+30. **SEDualVLN** (2026). Spatially enhanced dual-system continuous environment vision-language navigation framework. arXiv: [2605.17249](https://arxiv.org/abs/2605.17249) · Project Page: [kim-os.github.io/SEDualVLN](https://kim-os.github.io/SEDualVLN/)
+31. **Robostral Navigate** (2026). 8B vision-language navigation large model using only monocular RGB camera: ultra-efficient simulation training and online reinforcement learning. arXiv: [2607.20785](https://arxiv.org/abs/2607.20785)
+32. **ABot-N1** (2026). Universal vision-language navigation foundation model based on slow cognitive and fast control dual system architecture. arXiv: [2607.10383v2](https://arxiv.org/abs/2607.10383v2) · Benchmark: [amap-cvlab/ABot-Navigation (ABotN-Bench)](https://github.com/amap-cvlab/ABot-Navigation/tree/ABotN-Bench)
+33. **TuckerNav** (2026). Tucker tensor adaptation for all-weather multi-scenario lifelong embodied vision-language navigation. arXiv: [2603.14276](https://arxiv.org/abs/2603.14276) · ICLR 2026
+34. **MemVLN** (2026). An efficient continuous environment vision-language navigation framework that simulates human dual memory mechanism. arXiv: [2607.23504](https://arxiv.org/abs/2607.23504)
+35. **Image2Sim** (2026). A real-time neural simulation engine that decouples 3D spatial anchoring and hyper-realistic image synthesis. arXiv: [2607.05765](https://arxiv.org/abs/2607.05765) · Code: [MrZihan/Image2Sim](https://github.com/MrZihan/Image2Sim)
+36. **DecoVLN** (2026). Decoupling Observation, Reasoning, and Correction for Vision-and-Language Navigation. arXiv: [2603.13133](https://arxiv.org/abs/2603.13133) · CVPR 2026 · Code (to be released): [Allenxinn/DecoVLN](https://github.com/Allenxinn/DecoVLN)
+37. **TAMP-Nav** (2026). Point, Think, Memorize, and Align for Efficient Navigation. arXiv: [2608.17512](https://arxiv.org/abs/2608.17512) · Code: [ZJU-OmniAI/Embodied-Omni](https://github.com/ZJU-OmniAI/Embodied-Omni)
+38. **LightNav-0** (2026). "Bring out" the existing spatial intelligence of VLM instead of plugging in a navigation module. arXiv: [2608.30935](https://arxiv.org/abs/2608.30935) · Code: [lightorigins/LightNav-0](https://github.com/lightorigins/LightNav-0)
+39. **Uncertainty-Aware Gaussian Map for VLN** (2026). Three types of perceived uncertainty × Semantic Gaussian Map, giving VLN agents reliable decision-making capabilities. arXiv: [2607.13500](https://arxiv.org/abs/2607.13500) · ICLR 2026 · Code (to be released): [Gaozzzz/Uncertainty-Aware-VLN](https://github.com/Gaozzzz/Uncertainty-Aware-VLN)
+40. **GroundingVLN** (2026). Make visual grounding a shared interface between "thinking" and "walking". arXiv: [2609.18581](https://arxiv.org/abs/2609.18581)
+41. **BudVLN** (2026). Nipping the Drift in the Bud: Retrospective Rectification for Robust Vision-Language Navigation. arXiv: [2602.06356](https://arxiv.org/abs/2602.06356)
+42. **Route2Step** (2026). Decouple semantic progress and local execution to empower embodied navigation corrective through explicit step-level interfaces. arXiv: [2608.03143](https://arxiv.org/abs/2608.03143) · ECCV 2026
+43. **PROSPECT** (2026). Streaming VLA + latent space prediction: preview the future during training, zero overhead during inference. arXiv: [2603.03739](https://arxiv.org/abs/2603.03739)
+44. **MacroAction-VLN** (2026). Continuous environment closed-loop reinforcement learning fine-tuning based on topological graph macro-action hierarchical MDP and action-aware Critic. arXiv: [2609.03906](https://arxiv.org/abs/2609.03906)
+45. **HumanoidVLN** (2026). The first physically realistic VLN simulation platform and benchmark for diverse bipedal humanoid robots. arXiv: [2608.12860](https://arxiv.org/abs/2608.12860) · IEEE RA-L
+46. **AdaGeoVLN** (2026). Make geometric trade-offs along the two axes of "representation depth" and "navigation time". arXiv: [2609.18789](https://arxiv.org/abs/2609.18789)
+47. **SeekVLN** (2026). Seek Before You Move: Evidence Seeking for Progress Grounding in Vision-Language Navigation. arXiv: [2609.37353v1](https://arxiv.org/abs/2609.37353v1)
+48. **RSI-Nav** (2026). Generate instructions, execute them, filter the data, and update immediately so that synthetic supervision evolves with the policy. arXiv: [2610.15782](https://arxiv.org/abs/2610.15782)
+49. **SimpleVLN** (2026). Frontier VLN from a native MLLM, without architectural changes. arXiv: [2610.23203](https://arxiv.org/abs/2610.23203)
+50. **Efficient-VLN** (2025). A Simple yet Strong Baseline for Efficient Vision-Language Navigation. arXiv: [2512.10310](https://arxiv.org/abs/2512.10310)
 {: .paper-references}
 
+
+# Moved paper readings
+{: id="moved-paper-readings"}
+
+<div id="open-nav"><a href="/en/Agentic-Navigation-Papers/#open-nav">Open-Nav (2025)</a></div>
+<div id="agentvln"><a href="/en/Agentic-Navigation-Papers/#agentvln">AgentVLN (2026)</a></div>
+<div id="ca-vln"><a href="/en/Agentic-Navigation-Papers/#ca-vln">CA-VLN (2026)</a></div>
+<div id="reflectvln"><a href="/en/Agentic-Navigation-Papers/#reflectvln">ReflectVLN (2026)</a></div>
+<div id="agenticnav"><a href="/en/Agentic-Navigation-Papers/#agenticnav">AgenticNav (2026)</a></div>
+<div id="harnessvln"><a href="/en/Agentic-Navigation-Papers/#harnessvln">HarnessVLN (2026)</a></div>
+<div id="gpt-6-astra"><a href="/en/Agentic-Navigation-Papers/#gpt-6-astra">GPT-6-Astra (2026)</a></div>
+<div id="navgpt-3"><a href="/en/Agentic-Navigation-Papers/#navgpt-3">NavGPT-3 (2026)</a></div>
+<div id="causalnav"><a href="/en/VLN-Papers-Extended/#causalnav">CausalNav (2026)</a></div>
+<div id="x-navdp"><a href="/en/VLN-Papers-Extended/#x-navdp">X-NavDP (2026)</a></div>
 
 <script>
 (function () {
   var TAG_MAP = [
-    { m: 'DualVLN/InternVLN', t: ['Dual systems', 'Diffusion models', 'Continuous environments', 'Real-robot deployment'] },
-    { m: 'X-NavDP',               t: ['Diffusion models', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment'] },
-    { m: 'VLN-R1',            t: ['End-to-end', 'Reinforcement learning', 'Continuous environments'] },
-    { m: 'Slow4fast-VLN',     t: ['Dual systems', 'Topological maps', 'Discrete environments'] },
-    { m: 'StreamVLN',         t: ['End-to-end', 'Inference optimization', 'Continuous environments', 'Real-robot deployment'] },
-    { m: 'NavFoM',            t: ['End-to-end', 'Continuous environments'] },
-    { m: 'DGNav',             t: ['Topological maps', 'SLAM', 'Continuous environments'] },
-    { m: 'MapNav',            t: ['Topological maps', 'SLAM', 'Inference optimization', 'Continuous environments'] },
-    { m: 'Open-Nav',          t: ['Agentic', 'Zero-shot', 'Continuous environments'] },
-    { m: 'CausalNav',         t: ['Agentic', 'Topological maps'] },
-    { m: 'AgentVLN',          t: ['Agentic', 'Continuous environments', 'Real-robot deployment'] },
-    { m: 'VLN-Cache',         t: ['Inference optimization'] },
-    { m: 'VLN-Imagine',       t: ['Data augmentation', 'Discrete environments'] },
-    { m: 'R³: Run, Ruminate, and Regulate', t: ['Dual systems', 'Inference optimization', 'CoT'] },
-        { m: 'AwareVLN',              t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Data augmentation', 'CoT'] },
-        { m: 'Dual-Anchoring',        t: ['End-to-end', 'World models', 'Continuous environments', 'Real-robot deployment'] },
-        { m: 'JanusVLN',              t: ['Dual systems', 'Continuous environments', 'Real-robot deployment', 'Inference optimization'] },
-        { m: 'HSGM',                  t: ['Agentic', 'Topological maps', 'Zero-shot', 'Continuous environments', 'BEV'] },
-        { m: 'OneVLA',                t: ['End-to-end', 'Diffusion models', 'Continuous environments', 'Real-robot deployment'] },
-        { m: 'CA-VLN',                t: ['Agentic', 'Topological maps', 'Discrete environments'] },
-        { m: 'Goal2Pixel',            t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Inference optimization'] },
-        { m: 'OmniNav',               t: ['Dual systems', 'Agentic', 'CoT', 'Diffusion models', 'Real-robot deployment'] },
-        { m: 'AstraNav-World',        t: ['World models', 'Diffusion models', 'End-to-end', 'Continuous environments', 'Real-robot deployment'] },
-        { m: 'Qwen-RobotNav',         t: ['Agentic', 'End-to-end', 'Continuous environments', 'Real-robot deployment'] },
-        { m: 'GA-VLN',                t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Inference optimization', 'BEV'] },
-        { m: 'SEDualVLN',             t: ['Dual systems', 'Agentic', 'Continuous environments'] },
-        { m: 'R2RIE-CE & IEDL',       t: ['Continuous environments', 'Datasets'] },
-        { m: 'Robostral Navigate',    t: ['End-to-end', 'Reinforcement learning', 'Continuous environments', 'Inference optimization'] },
-        { m: 'ABot-N1',               t: ['Dual systems', 'CoT', 'Reinforcement learning', 'Real-robot deployment', 'Datasets'] },
-        { m: 'ReflectVLN',            t: ['Dual systems', 'Agentic', 'CoT', 'Continuous environments'] },
-        { m: 'CorrectNav',            t: ['End-to-end', 'Continuous environments', 'Real-robot deployment'] },
-        { m: 'TuckerNav', t: ['Continuous environments', 'Inference optimization'] },
-        { m: 'AgenticNav', t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
-        { m: 'R2R',                   t: ['Discrete environments', 'Datasets'] },
-        { m: 'DUET',                  t: ['Topological maps', 'End-to-end', 'Discrete environments'] },
-        { m: 'NaVid',                 t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Zero-shot'] },
-        { m: 'MemVLN',                t: ['End-to-end', 'Continuous environments', 'Inference optimization'] },
-        { m: 'Image2Sim',             t: ['World models', 'Data augmentation', 'Gaussian representations', 'Continuous environments', 'Real-robot deployment', 'Zero-shot'] },
-        { m: 'DecoVLN',               t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Inference optimization', 'Error correction'] },
-        { m: 'TAMP-Nav',              t: ['CoT', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment'] },
-        { m: 'LightNav-0',            t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Reinforcement learning', 'Zero-shot', 'CoT', 'Datasets'] },
-        { m: 'HarnessVLN',            t: ['Agentic', 'Zero-shot', 'Real-robot deployment', 'Topological maps'] },
-        { m: 'GroundingVLN',          t: ['Dual systems', 'CoT', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment', 'Datasets'] },
-        { m: 'GPT-6-Astra',           t: ['Agentic', 'Zero-shot', 'Continuous environments'] },
-    { m: 'VLN-CE',            t: ['Datasets', 'Continuous environments', 'Foundational work'] },
-    { m: 'VLN-PE',            t: ['Datasets', 'Continuous environments', 'Foundational work'] },
-    { m: 'RynnBrain',         t: ['Foundational work'] },
-    { m: 'Uncertainty-Aware Gaussian Map for VLN', t: ['Gaussian representations', 'Topological maps', 'Discrete environments'] },
-    { m: 'BudVLN',            t: ['End-to-end', 'Reinforcement learning', 'Continuous environments'] },
-    { m: 'NavGPT-2',          t: ['Agentic', 'Topological maps', 'Discrete environments', 'CoT'] },
-    { m: 'Route2Step',               t: ['Dual systems', 'Continuous environments', 'Real-robot deployment'] },
-    { m: 'PROSPECT',              t: ['End-to-end', 'World models', 'Continuous environments', 'Real-robot deployment'] },
-    { m: 'MacroAction-VLN',       t: ['Topological maps', 'Reinforcement learning', 'Continuous environments'] },
-    { m: 'HumanoidVLN',              t: ['Datasets', 'Reinforcement learning', 'Real-robot deployment', 'Gaussian representations'] },
-    { m: 'AdaGeoVLN',             t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Inference optimization'] },
-    { m: 'SeekVLN', t: ['CoT', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment'] },
-    { m: 'NavGPT-3', t: ['Dual systems', 'Agentic', 'Continuous environments', 'Real-robot deployment'] },
-    { m: 'RSI-Nav', t: ['End-to-end', 'Data augmentation', 'Continuous environments', 'Real-robot deployment'] },
-    { m: 'SimpleVLN', t: ['End-to-end', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment'] },
-    { m: 'Efficient-VLN', t: ['End-to-end', 'Inference optimization', 'Continuous environments'] },
+    { m: "R2R", t: ['Discrete environments', 'Datasets'] },
+    { m: "VLN-CE", t: ['Datasets', 'Continuous environments', 'Foundational work'] },
+    { m: "DUET", t: ['Topological maps', 'End-to-end', 'Discrete environments'] },
+    { m: "R2RIE-CE & IEDL", t: ['Continuous environments', 'Datasets'] },
+    { m: "NaVid", t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Zero-shot'] },
+    { m: "NavGPT-2", t: ['Agentic', 'Topological maps', 'Discrete environments', 'CoT'] },
+    { m: "DualVLN/InternVLN", t: ['Dual systems', 'Diffusion models', 'Continuous environments', 'Real-robot deployment'] },
+    { m: "VLN-R1", t: ['End-to-end', 'Reinforcement learning', 'Continuous environments'] },
+    { m: "StreamVLN", t: ['End-to-end', 'Inference optimization', 'Continuous environments', 'Real-robot deployment'] },
+    { m: "NavFoM", t: ['End-to-end', 'Continuous environments'] },
+    { m: "MapNav", t: ['Topological maps', 'SLAM', 'Inference optimization', 'Continuous environments'] },
+    { m: "VLN-Imagine", t: ['Data augmentation', 'Discrete environments'] },
+    { m: "VLN-PE", t: ['Datasets', 'Continuous environments', 'Foundational work'] },
+    { m: "Goal2Pixel", t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Inference optimization'] },
+    { m: "AstraNav-World", t: ['World models', 'Diffusion models', 'End-to-end', 'Continuous environments', 'Real-robot deployment'] },
+    { m: "CorrectNav", t: ['End-to-end', 'Continuous environments', 'Real-robot deployment'] },
+    { m: "Slow4fast-VLN", t: ['Dual systems', 'Topological maps', 'Discrete environments'] },
+    { m: "DGNav", t: ['Topological maps', 'SLAM', 'Continuous environments'] },
+    { m: "VLN-Cache", t: ['Inference optimization'] },
+    { m: "R³: Run, Ruminate, and Regulate", t: ['Dual systems', 'Inference optimization', 'CoT'] },
+    { m: "AwareVLN", t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Data augmentation', 'CoT'] },
+    { m: "Dual-Anchoring", t: ['End-to-end', 'World models', 'Continuous environments', 'Real-robot deployment'] },
+    { m: "JanusVLN", t: ['Dual systems', 'Continuous environments', 'Real-robot deployment', 'Inference optimization'] },
+    { m: "HSGM", t: ['Agentic', 'Topological maps', 'Zero-shot', 'Continuous environments', 'BEV'] },
+    { m: "OneVLA", t: ['End-to-end', 'Diffusion models', 'Continuous environments', 'Real-robot deployment'] },
+    { m: "RynnBrain", t: ['Foundational work'] },
+    { m: "OmniNav", t: ['Dual systems', 'Agentic', 'CoT', 'Diffusion models', 'Real-robot deployment'] },
+    { m: "Qwen-RobotNav", t: ['Agentic', 'End-to-end', 'Continuous environments', 'Real-robot deployment'] },
+    { m: "GA-VLN", t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Inference optimization', 'BEV'] },
+    { m: "SEDualVLN", t: ['Dual systems', 'Agentic', 'Continuous environments'] },
+    { m: "Robostral Navigate", t: ['End-to-end', 'Reinforcement learning', 'Continuous environments', 'Inference optimization'] },
+    { m: "ABot-N1", t: ['Dual systems', 'CoT', 'Reinforcement learning', 'Real-robot deployment', 'Datasets'] },
+    { m: "TuckerNav", t: ['Continuous environments', 'Inference optimization'] },
+    { m: "MemVLN", t: ['End-to-end', 'Continuous environments', 'Inference optimization'] },
+    { m: "Image2Sim", t: ['World models', 'Data augmentation', 'Gaussian representations', 'Continuous environments', 'Real-robot deployment', 'Zero-shot'] },
+    { m: "DecoVLN", t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Inference optimization', 'Error correction'] },
+    { m: "TAMP-Nav", t: ['CoT', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment'] },
+    { m: "LightNav-0", t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Reinforcement learning', 'Zero-shot', 'CoT', 'Datasets'] },
+    { m: "Uncertainty-Aware Gaussian Map for VLN", t: ['Gaussian representations', 'Topological maps', 'Discrete environments'] },
+    { m: "GroundingVLN", t: ['Dual systems', 'CoT', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment', 'Datasets'] },
+    { m: "BudVLN", t: ['End-to-end', 'Reinforcement learning', 'Continuous environments'] },
+    { m: "Route2Step", t: ['Dual systems', 'Continuous environments', 'Real-robot deployment'] },
+    { m: "PROSPECT", t: ['End-to-end', 'World models', 'Continuous environments', 'Real-robot deployment'] },
+    { m: "MacroAction-VLN", t: ['Topological maps', 'Reinforcement learning', 'Continuous environments'] },
+    { m: "HumanoidVLN", t: ['Datasets', 'Reinforcement learning', 'Real-robot deployment', 'Gaussian representations'] },
+    { m: "AdaGeoVLN", t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Inference optimization'] },
+    { m: "SeekVLN", t: ['CoT', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment'] },
+    { m: "RSI-Nav", t: ['End-to-end', 'Data augmentation', 'Continuous environments', 'Real-robot deployment'] },
+    { m: "SimpleVLN", t: ['End-to-end', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment'] },
+    { m: "Efficient-VLN", t: ['End-to-end', 'Inference optimization', 'Continuous environments'] },
   ];
 
 
 
 
-  var REMOTE_PAGE = { url: '/en/VLN-Papers-Extended/', label: 'Goal and agentic navigation' };
+  var REMOTE_PAGE = { url: '/en/VLN-Papers-Extended/', label: 'Goal navigation' };
   var REMOTE_PAPERS = [
-    { n: '1. VLFM (2023)', a: 'vlfm', t: ['SLAM', 'Zero-shot', 'Real-robot deployment'] },
-    { n: '2. NoMaD (2023)', a: 'nomad', t: ['End-to-end', 'Diffusion models', 'Zero-shot', 'Real-robot deployment'] },
-    { n: '3. NAVCON (2024)', a: 'navcon', t: ['Datasets', 'Continuous environments', 'Discrete environments'] },
-    { n: '4. LoGoPlanner (2025)', a: 'logoplanner', t: ['End-to-end', 'Diffusion models', 'Continuous environments', 'Real-robot deployment'] },
-    { n: '5. VL-Nav (2025)', a: 'vl-nav', t: ['End-to-end', 'Zero-shot', 'Real-robot deployment'] },
-    { n: '6. GaussNav (2025)', a: 'gaussnav', t: ['SLAM', 'Gaussian representations'] },
-    { n: '7. NavDP (2025)', a: 'navdp', t: ['End-to-end', 'Diffusion models', 'Continuous environments', 'Zero-shot', 'Real-robot deployment'] },
-    { n: '8. PanoNav (2025)', a: 'panonav', t: ['Agentic', 'Zero-shot', 'Discrete environments'] },
-    { n: '9. ODYSSEY (2025)', a: 'odyssey', t: ['Agentic', 'Real-robot deployment'] },
-    { n: '10. Skill-Nav (2025)', a: 'skill-nav', t: ['End-to-end', 'Reinforcement learning', 'Real-robot deployment'] },
-    { n: '11. FantasyVLN (2026)', a: 'fantasyvln', t: ['World models', 'Data augmentation', 'Continuous environments', 'CoT'] },
-    { n: '12. SparseVideoNav (2026)', a: 'sparsevideonav', t: ['End-to-end', 'Diffusion models', 'World models'] },
-    { n: '13. WorldVLN (2026)', a: 'worldvln', t: ['World models', 'Reinforcement learning', 'End-to-end', 'Real-robot deployment'] },
-    { n: '14. NavWAM (2026)', a: 'navwam', t: ['World models', 'Diffusion models', 'Continuous environments', 'Real-robot deployment'] },
-    { n: '15. Agentic Embodied Control (2026)', a: 'agentic-embodied-control', t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
-    { n: '16. CONDVLN (2026)', a: 'condvln', t: ['Datasets', 'Continuous environments', 'Topological maps'] },
-    { n: '17. ReMEmbR (2024)', a: 'remembr', t: ['Agentic', 'Real-robot deployment', 'Datasets', 'Continuous environments'] },
-    { n: '18. SuperMap (2026)', a: 'supermap', t: ['SLAM', 'Topological maps', 'Zero-shot', 'Real-robot deployment', 'Agentic'] },
-    { n: '19. GSMem (2026)', a: 'gsmem', t: ['Agentic', 'Gaussian representations', 'Zero-shot'] },
-    { n: '20. Qwen-Drive (2026)', a: 'qwen-drive', t: ['End-to-end', 'Diffusion models', 'Reinforcement learning', 'Continuous environments'] },
-    { n: '21. CGFM-Nav (2026)', a: 'cgfm-nav', t: ['Topological maps', 'Agentic', 'Zero-shot'] },
-    { n: '22. CanonNav (2026)', a: 'canonnav', t: ['Diffusion models', 'Continuous environments', 'Real-robot deployment'] },
-    { n: '23. LookStep (2026)', a: 'lookstep', t: ['End-to-end', 'Continuous environments', 'Inference optimization', 'Real-robot deployment'] },
-    { n: '24. NavMCP (2026)', a: 'navmcp', t: ['Agentic', 'Zero-shot', 'Real-robot deployment', 'Continuous environments'] },
-    { n: '25. OccPlanner (2026)', a: 'occplanner', t: ['Diffusion models', 'End-to-end', 'Data augmentation', 'Continuous environments'] },
-    { n: '26. EgoPathBench (2026)', a: 'egopathbench', t: ['Datasets', 'Zero-shot', 'CoT', 'Continuous environments'] },
-    { n: '27. VLingNav (2026)', a: 'vlingnav', t: ['Dual systems', 'Continuous environments', 'CoT'] },
-    { n: '28. Hydra-Nav (2026)', a: 'hydra-nav', t: ['Dual systems', 'Reinforcement learning'] },
-    { n: '29. 3DGSNav (2026)', a: 'nav-3dgs', t: ['SLAM', 'Gaussian representations', 'Zero-shot', 'Real-robot deployment'] },
-    { n: '30. SysNav (2026)', a: 'sysnav', t: ['Agentic', 'Topological maps'] },
-    { n: '31. WAM-Nav (2026)', a: 'wam-nav', t: ['World models', 'Diffusion models', 'Zero-shot', 'Real-robot deployment'] },
-    { n: '32. EvoMemNav (2026)', a: 'evomemnav', t: ['Agentic', 'Topological maps', 'Zero-shot'] },
-    { n: '33. LocalNav (2026)', a: 'localnav', t: ['Topological maps', 'Reinforcement learning', 'Real-robot deployment', 'Inference optimization'] },
-    { n: '34. AECNav (2026)', a: 'aecnav', t: ['Zero-shot', 'Agentic', 'Real-robot deployment', 'Inference optimization'] },
-    { n: '35. Harness Robotic OS (2026)', a: 'harness-robotic-os', t: ['Agentic', 'Real-robot deployment'] },
-    { n: '36. SparseNav (2026)', a: 'sparsenav', t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
-    { n: '37. Talk2Escape (2026)', a: 'talk2escape', t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
-    { n: '38. VNT-PA (2026)', a: 'vnt-pa', t: ['End-to-end', 'Continuous environments'] },
-    { n: '39. SuperNav (2026)', a: 'supernav', t: ['Agentic', 'Zero-shot', 'Real-robot deployment', 'Datasets'] },
-    { n: '40. NavHarness (2026)', a: 'navharness', t: ['Agentic', 'Zero-shot', 'SLAM', 'Continuous environments'] },
-    { n: '41. EvoLife (2026)', a: 'evolife', t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
+    { n: "1. VLFM (2023)", a: "vlfm", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['SLAM', 'Zero-shot', 'Real-robot deployment'] },
+    { n: "2. NoMaD (2023)", a: "nomad", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['End-to-end', 'Diffusion models', 'Zero-shot', 'Real-robot deployment'] },
+    { n: "3. VL-Nav (2025)", a: "vl-nav", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['End-to-end', 'Zero-shot', 'Real-robot deployment'] },
+    { n: "4. GaussNav (2025)", a: "gaussnav", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['SLAM', 'Gaussian representations'] },
+    { n: "5. NavDP (2025)", a: "navdp", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['End-to-end', 'Diffusion models', 'Continuous environments', 'Zero-shot', 'Real-robot deployment'] },
+    { n: "6. NavWAM (2026)", a: "navwam", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['World models', 'Diffusion models', 'Continuous environments', 'Real-robot deployment'] },
+    { n: "7. CanonNav (2026)", a: "canonnav", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['Diffusion models', 'Continuous environments', 'Real-robot deployment'] },
+    { n: "8. Hydra-Nav (2026)", a: "hydra-nav", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['Dual systems', 'Reinforcement learning'] },
+    { n: "9. 3DGSNav (2026)", a: "nav-3dgs", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['SLAM', 'Gaussian representations', 'Zero-shot', 'Real-robot deployment'] },
+    { n: "10. WAM-Nav (2026)", a: "wam-nav", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['World models', 'Diffusion models', 'Zero-shot', 'Real-robot deployment'] },
+    { n: "11. LocalNav (2026)", a: "localnav", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['Topological maps', 'Reinforcement learning', 'Real-robot deployment', 'Inference optimization'] },
+    { n: "12. AECNav (2026)", a: "aecnav", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['Zero-shot', 'Agentic', 'Real-robot deployment', 'Inference optimization'] },
+    { n: "13. VNT-PA (2026)", a: "vnt-pa", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['End-to-end', 'Continuous environments'] },
+    { n: "14. CausalNav (2026)", a: "causalnav", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['Agentic', 'Topological maps'] },
+    { n: "15. NAVCON (2024)", a: "navcon", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['Datasets', 'Continuous environments', 'Discrete environments'] },
+    { n: "16. LoGoPlanner (2025)", a: "logoplanner", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['End-to-end', 'Diffusion models', 'Continuous environments', 'Real-robot deployment'] },
+    { n: "17. Skill-Nav (2025)", a: "skill-nav", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['End-to-end', 'Reinforcement learning', 'Real-robot deployment'] },
+    { n: "18. FantasyVLN (2026)", a: "fantasyvln", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['World models', 'Data augmentation', 'Continuous environments', 'CoT'] },
+    { n: "19. SparseVideoNav (2026)", a: "sparsevideonav", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['End-to-end', 'Diffusion models', 'World models'] },
+    { n: "20. WorldVLN (2026)", a: "worldvln", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['World models', 'Reinforcement learning', 'End-to-end', 'Real-robot deployment'] },
+    { n: "21. CONDVLN (2026)", a: "condvln", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['Datasets', 'Continuous environments', 'Topological maps'] },
+    { n: "22. Qwen-Drive (2026)", a: "qwen-drive", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['End-to-end', 'Diffusion models', 'Reinforcement learning', 'Continuous environments'] },
+    { n: "23. LookStep (2026)", a: "lookstep", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['End-to-end', 'Continuous environments', 'Inference optimization', 'Real-robot deployment'] },
+    { n: "24. OccPlanner (2026)", a: "occplanner", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['Diffusion models', 'End-to-end', 'Data augmentation', 'Continuous environments'] },
+    { n: "25. EgoPathBench (2026)", a: "egopathbench", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['Datasets', 'Zero-shot', 'CoT', 'Continuous environments'] },
+    { n: "26. VLingNav (2026)", a: "vlingnav", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['Dual systems', 'Continuous environments', 'CoT'] },
+    { n: "27. X-NavDP (2026)", a: "x-navdp", url: "/en/VLN-Papers-Extended/", label: "Goal navigation", t: ['Diffusion models', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment'] },
+    { n: "1. PanoNav (2025)", a: "panonav", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Zero-shot', 'Discrete environments'] },
+    { n: "2. ODYSSEY (2025)", a: "odyssey", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Real-robot deployment'] },
+    { n: "3. Agentic Embodied Control (2026)", a: "agentic-embodied-control", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
+    { n: "4. ReMEmbR (2024)", a: "remembr", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Real-robot deployment', 'Datasets', 'Continuous environments'] },
+    { n: "5. SuperMap (2026)", a: "supermap", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['SLAM', 'Topological maps', 'Zero-shot', 'Real-robot deployment', 'Agentic'] },
+    { n: "6. GSMem (2026)", a: "gsmem", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Gaussian representations', 'Zero-shot'] },
+    { n: "7. CGFM-Nav (2026)", a: "cgfm-nav", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Topological maps', 'Agentic', 'Zero-shot'] },
+    { n: "8. NavMCP (2026)", a: "navmcp", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Zero-shot', 'Real-robot deployment', 'Continuous environments'] },
+    { n: "9. SysNav (2026)", a: "sysnav", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Topological maps'] },
+    { n: "10. EvoMemNav (2026)", a: "evomemnav", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Topological maps', 'Zero-shot'] },
+    { n: "11. Harness Robotic OS (2026)", a: "harness-robotic-os", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Real-robot deployment'] },
+    { n: "12. SparseNav (2026)", a: "sparsenav", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
+    { n: "13. Talk2Escape (2026)", a: "talk2escape", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
+    { n: "14. SuperNav (2026)", a: "supernav", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Zero-shot', 'Real-robot deployment', 'Datasets'] },
+    { n: "15. NavHarness (2026)", a: "navharness", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Zero-shot', 'SLAM', 'Continuous environments'] },
+    { n: "16. EvoLife (2026)", a: "evolife", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
+    { n: "17. Open-Nav (2025)", a: "open-nav", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Zero-shot', 'Continuous environments'] },
+    { n: "18. AgentVLN (2026)", a: "agentvln", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Continuous environments', 'Real-robot deployment'] },
+    { n: "19. CA-VLN (2026)", a: "ca-vln", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Topological maps', 'Discrete environments'] },
+    { n: "20. ReflectVLN (2026)", a: "reflectvln", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Dual systems', 'Agentic', 'CoT', 'Continuous environments'] },
+    { n: "21. AgenticNav (2026)", a: "agenticnav", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
+    { n: "22. HarnessVLN (2026)", a: "harnessvln", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Zero-shot', 'Real-robot deployment', 'Topological maps'] },
+    { n: "23. GPT-6-Astra (2026)", a: "gpt-6-astra", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Zero-shot', 'Continuous environments'] },
+    { n: "24. NavGPT-3 (2026)", a: "navgpt-3", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Dual systems', 'Agentic', 'Continuous environments', 'Real-robot deployment'] },
   ];
 
   var ALL_TAGS = ['Dual systems', 'End-to-end', 'Agentic', 'CoT', 'Diffusion models', 'Topological maps', 'SLAM', 'Gaussian representations',
@@ -9721,12 +7872,12 @@ The following table organizes papers with publication information tagged by conf
       var li = document.createElement('li');
       li.className = 'results-remote';
       var a = document.createElement('a');
-      a.href = REMOTE_PAGE.url + '#' + p.a;
+      a.href = (p.url || REMOTE_PAGE.url) + '#' + p.a;
       a.textContent = p.n;
       li.appendChild(a);
       var badge = document.createElement('span');
       badge.className = 'results-badge';
-      badge.textContent = REMOTE_PAGE.label;
+      badge.textContent = p.label || REMOTE_PAGE.label;
       li.appendChild(badge);
       list.appendChild(li);
     });

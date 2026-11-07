@@ -5,10 +5,10 @@ translation_id: ai-agent-survey
 permalink: /en/AI-Agent-Survey/
 source_path: _posts/research/2026-03-05-AI-Agent-Survey.md
 source_url: /AI-Agent-Survey/
-source_revision_date: 2026-10-31
-translation_updated: 2026-10-31
+source_revision_date: 2026-11-07
+translation_updated: 2026-11-07
 title: "AI Agents: A Survey"
-date: 2026-10-31
+date: 2026-11-07
 tags: [Agent, LLM, Multi-Agent, Survey]
 categories: research
 comments: false

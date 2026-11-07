@@ -5,10 +5,10 @@ translation_id: embodied-agent-papers
 permalink: /en/Embodied-Agent-Papers/
 source_path: _posts/research/2026-03-06-Embodied-Agent-Papers.md
 source_url: /Embodied-Agent-Papers/
-source_revision_date: 2026-11-05
-translation_updated: 2026-11-05
+source_revision_date: 2026-11-07
+translation_updated: 2026-11-07
 title: "Embodied Agents: Paper Readings"
-date: 2026-11-05
+date: 2026-11-07
 tags: [Agent, Embodied AI, Robotics, VLA, Deep Learning]
 categories: research
 comments: false
@@ -23,7 +23,7 @@ excerpt: "Twenty-one paper entries on embodied runtimes, physical orchestration,
 # Embodied Agents: Paper Readings
 {: id="具身智能体论文精读"}
 
-This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed loop that can operate sustainably. The twenty-one papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, weight-harness co-evolution, history-replay-driven evolution of exploration policies, evaluation in evolving physical and social environments, unified robot-use tools for open models, and robot-program evolution with fixed model weights. The experiments cover simulation environments, text-interaction environments, interactive visual games, real robots, and professional software tasks. The SuperNav entry provides a brief introduction and links to the full reading in the extended VLN collection. Evo² and Dream-RSI are evaluated directly on software tasks, so this article treats them as mechanisms that may transfer to embodied-harness evolution rather than as evidence of robot performance.
+This article focuses on a common problem: how robots organize perception, planning, execution, verification, and recovery into a closed loop that can operate sustainably. The twenty-one papers examine runtimes, orchestration, evaluation, evolution mechanisms, action interfaces, training objectives, general AgentOS, inspection-system governance, navigation-session handovers, navigation-tool orchestration, visual-memory inspection, reasoning-budget allocation, unified embodied reasoning, a unified taxonomy of agentic robots, recursive harness optimization, evaluation of embodied capabilities, weight-harness co-evolution, history-replay-driven evolution of exploration policies, evaluation in evolving physical and social environments, unified robot-use tools for open models, and robot-program evolution with fixed model weights. The experiments cover simulation environments, text-interaction environments, interactive visual games, real robots, and professional software tasks. The SuperNav entry provides a brief introduction and links to the full reading in the agentic-navigation collection. Evo² and Dream-RSI are evaluated directly on software tasks, so this article treats them as mechanisms that may transfer to embodied-harness evolution rather than as evidence of robot performance.
 
 |Paper|Main entry points|representative verification|
 |---|---|---|
@@ -1686,7 +1686,7 @@ One additional sentence that should be taken into account when reading this arti
 
 📄 **Paper**: [arXiv:2609.34276](https://arxiv.org/abs/2609.34276) · [Code](https://github.com/billzhao1030/NavHarness) · [Project Page](https://billzhao1030.github.io)
 
-**Navigation index**: [NavHarness in the extended VLN collection](/en/VLN-Papers-Extended/#navharness).
+**Navigation index**: [NavHarness in the agentic-navigation collection](/en/Agentic-Navigation-Papers/#navharness).
 
 ---
 
@@ -1876,7 +1876,7 @@ The judge can still accept false completions or reject true ones, incorrect reco
 
 SuperNav is an embodied-agent harness evaluated primarily through navigation. A general-purpose MLLM interprets requests and selects destinations, while readable Navigation Skills, visual-point tools, goal-progress records, and context management organize search, target rechecking, and failure recovery into a continuing loop; geometric or learned motion backends execute the movements. Its transferable idea is how skills, tools, and execution feedback sustain physical interaction, making it relevant to embodied-agent frameworks. The decision-making MLLM receives no navigation-specific fine-tuning, while the learned executor is trained on navigation trajectories.
 
-**Full analysis and experimental results**: [SuperNav: methods, evaluation protocols, and performance comparisons in the extended VLN collection](/en/VLN-Papers-Extended/#supernav).
+**Full analysis and experimental results**: [SuperNav: methods, evaluation protocols, and performance comparisons in the agentic-navigation collection](/en/Agentic-Navigation-Papers/#supernav).
 
 ---
 
@@ -3463,7 +3463,7 @@ Navigation workspace evolution repeatedly uses the same tasks, scenes, instructi
 8. **ABot-ER** (2026). ABot-ER: Unified Embodied Reasoning through Agentic Data–Model Co-Evolution. arXiv: [2610.18355v2](https://arxiv.org/abs/2610.18355v2) · Code: [amap-cvlab/ABot-ER](https://github.com/amap-cvlab/ABot-ER)
 9. **Harness Robotic OS** (2026). Upgrade the quadruped inspection from "navigation stack" to "embodied agent runtime". arXiv: [2609.11225](https://arxiv.org/abs/2609.11225)
 10. **NavHarness** (2026). NavHarness: Towards Lifelong Embodied Navigation. arXiv: [2609.34276](https://arxiv.org/abs/2609.34276) · Code: [billzhao1030/NavHarness](https://github.com/billzhao1030/NavHarness) · Project Page: [billzhao1030.github.io](https://billzhao1030.github.io)
-11. **SuperNav** (2026). SuperNav: An Agentic Navigation System for Any Task in Any Scene. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126) · Full analysis: [Extended VLN collection](/en/VLN-Papers-Extended/#supernav)
+11. **SuperNav** (2026). SuperNav: An Agentic Navigation System for Any Task in Any Scene. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126) · Full analysis: [Agentic-navigation collection](/en/Agentic-Navigation-Papers/#supernav)
 12. **VISTA** (2026). VISTA: A Visual Harness for Reasoning in an Interactive World. arXiv: [2610.02200](https://arxiv.org/abs/2610.02200) · Code: [joshhhhhan/VISTA](https://github.com/joshhhhhan/VISTA)
 13. **RACE** (2026). When Should Agents Think? Adaptive Reasoning via Cross-Turn Estimation. arXiv: [2610.12061](https://arxiv.org/abs/2610.12061) · Code: [HututuAI/RACE](https://github.com/HututuAI/RACE)
 14. **Agentic Robots** (2026). Towards Agentic Robots: Model, Data, Environment, and Harness. arXiv: [2610.20442](https://arxiv.org/abs/2610.20442) · Code: [chonghanqin/Awesome-Agentic-Robots](https://github.com/chonghanqin/Awesome-Agentic-Robots)

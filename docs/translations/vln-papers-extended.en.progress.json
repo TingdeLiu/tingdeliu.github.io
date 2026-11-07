@@ -2,10 +2,8 @@
   "source": "_posts/research/2026-01-06-VLN-Papers-Extended.md",
   "translation": "_translations/en/research/VLN-Papers-Extended.md",
   "stage": "complete",
-  "updated_on": "2026-10-31",
-  "total_papers": 41,
-  "main_readings": 39,
-  "related_readings": 2,
+  "updated_on": "2026-11-07",
+  "total_papers": 27,
   "completed_papers": {
     "vlfm": {
       "source_hash": "4bdf31c34b9aa9a1921d6d099b3ba952efb5636473102da8ed6d9bdbce0e29c6",
@@ -15,227 +13,105 @@
       "source_hash": "424bb0b1dab2be15ae6faf2df94a6bfea2c2e2daf077ceabbec438023d5223ec",
       "status": "translated-and-content-parity-validated"
     },
-    "navcon": {
-      "source_hash": "2fae052b841da4b93615de18547b37d8fc0997fff7d9cf9646af9e9ed9d7b628",
-      "status": "translated-and-content-parity-validated"
-    },
-    "logoplanner": {
-      "source_hash": "51a53ceb21b2d797957ddf0b9e27abc7d4defaca6cc11b2177c25dfec5a90252",
-      "status": "translated-and-content-parity-validated"
-    },
     "vl-nav": {
-      "source_hash": "4323e4f0e2814e450a0b31a303c81e3034ff856781a203ed80ca6b6704a45f83",
+      "source_hash": "bb0e0b68048017823c4ab77c916a98153fac5446c334f664f98c924883b6f1d2",
       "status": "translated-and-content-parity-validated"
     },
     "gaussnav": {
-      "source_hash": "d81af91821bacf15ed18988ac815406f5d09c0db914236e505d04f13c2268d18",
+      "source_hash": "d1221c25c1c3461f051e016bf952e79d7ef1b9d6193fe78b3f7f431f2777df29",
       "status": "translated-and-content-parity-validated"
     },
     "navdp": {
-      "source_hash": "bb25c3adf1b3b99f8286ee8fdb7d544bbf68c24cd4ff56f5d7983c08200bb0b3",
-      "status": "translated-and-content-parity-validated"
-    },
-    "panonav": {
-      "source_hash": "b7f769c35447d08d7ba78a25cf2fe9075cb0132957b39026f75d343d3942c186",
-      "status": "translated-and-content-parity-validated"
-    },
-    "odyssey": {
-      "source_hash": "c64293163f0c714c513c322d49ae71a4a4062c9e5cb0fe6319ae9592010b9a10",
-      "status": "translated-and-content-parity-validated"
-    },
-    "skill-nav": {
-      "source_hash": "6644e1806249117c92f78304baa457326c8fae3692542d3b4aad9034b2e6b206",
-      "status": "translated-and-content-parity-validated"
-    },
-    "fantasyvln": {
-      "source_hash": "c9066cc5500495c60e7758dc88afcbae531aedd28f178b2246a4e44119d1e636",
-      "status": "translated-and-content-parity-validated"
-    },
-    "sparsevideonav": {
-      "source_hash": "62ee6b8c33c626895f085ebd182819fd6f41979f48cb99b350bb1f656b207330",
-      "status": "translated-and-content-parity-validated"
-    },
-    "worldvln": {
-      "source_hash": "e9ca1d372670e7d66726f8a0cb32625dd0d9f3f9cb59202f676e4834a7b87c08",
+      "source_hash": "d2ceb2e93e86d29e41ff582ab1f0712d0f6e674113d0969d18720bedd57a96d4",
       "status": "translated-and-content-parity-validated"
     },
     "navwam": {
-      "source_hash": "4f4695f877080b5cabb9bc0dd0a2dd3420a0d01a3e75e1ba3af2cb9b441bcad9",
-      "status": "translated-and-content-parity-validated"
-    },
-    "agentic-embodied-control": {
-      "source_hash": "7e872c36e438e41c87a18c7481488cddc49795966b02da7e01a1ca46a198ac52",
-      "status": "translated-and-content-parity-validated"
-    },
-    "condvln": {
-      "source_hash": "f5ad80736876554a681238522f6efc46e5c39ac49d0df57c8765a73b2704e8e0",
-      "status": "translated-and-content-parity-validated"
-    },
-    "remembr": {
-      "source_hash": "33a7684c79c19d8e011468b16d7a7503fca6ecf946a4f3d8cec944e854140815",
-      "status": "translated-and-content-parity-validated"
-    },
-    "supermap": {
-      "source_hash": "b0fc101b21998d1673c6d13bc013b54964680ff37be7768de06ca994ba3b0c21",
-      "status": "translated-and-content-parity-validated"
-    },
-    "gsmem": {
-      "source_hash": "c93f40c3d375bdcd47ff0b6de190f4695eebaea69e6283eef3c8410fa2a0f956",
-      "status": "translated-and-content-parity-validated"
-    },
-    "qwen-drive": {
-      "source_hash": "146145396bb200370c0a9101ae05b2684ee4353a76cea455d6170bad56e497ed",
-      "status": "translated-and-content-parity-validated"
-    },
-    "cgfm-nav": {
-      "source_hash": "30994bf2a1440c91917e2e0e4b1bacd531b8b2f4a77f61282fb5670710de149a",
+      "source_hash": "ff8d06db9b3683e0b45ba6998cf1760808dd8abc259429daf2b7da5495daca49",
       "status": "translated-and-content-parity-validated"
     },
     "canonnav": {
-      "source_hash": "9af68a083838b0b8f88210a0bd31234ba425bf153bb6a11c5ec0b58ce5b6ab25",
-      "status": "translated-and-content-parity-validated"
-    },
-    "lookstep": {
-      "source_hash": "ab8d818c0b0f122ac1480f1615ddb22fc4fab8b26080d8f523d2b29f4b529c9a",
-      "status": "translated-and-content-parity-validated"
-    },
-    "navmcp": {
-      "source_hash": "0b92db3f8fe68312809d0576db0f174e1ab9ad1c8b6873b28b6fe75262ab3d9c",
-      "status": "translated-and-content-parity-validated"
-    },
-    "occplanner": {
-      "source_hash": "a257d89c33257cad35619062617e577f679c782bfb0e5a5bda8bace3a7395892",
-      "status": "translated-and-content-parity-validated"
-    },
-    "egopathbench": {
-      "source_hash": "870bb449cfbc3537a1b356e941b4748ed80490bb68a7a52058bd32f43d552e13",
-      "status": "translated-and-content-parity-validated"
-    },
-    "vlingnav": {
-      "source_hash": "9db1a49f274a5363626edcfd5749d3525200aa4ce0f404d25033b146262ff905",
+      "source_hash": "8a9bc191693e7801be384ed600e2fb8a65e46c523be063b1e1c491c9614676c1",
       "status": "translated-and-content-parity-validated"
     },
     "hydra-nav": {
-      "source_hash": "deed57cfc988046250c2dd0d5ebc82d359f17180de53df81426565823164d239",
+      "source_hash": "9459d9884c36ef1b93ced853bd37da4ac18aacec3abb898cf7f9510a569166e1",
       "status": "translated-and-content-parity-validated"
     },
     "nav-3dgs": {
-      "source_hash": "fa548ca4800556bbd71aba1b9f4de024adfc11893748f993290f53f2945aa8dd",
-      "status": "translated-and-content-parity-validated"
-    },
-    "sysnav": {
-      "source_hash": "c1292bdb5f25447d53f280f812c7a01d63f477a0f6ab2169601be31c9a34012a",
+      "source_hash": "547fad637b23a0cc1d9eb932ae3eb2eb03b86c8a64be8515bfb5618fbf6af510",
       "status": "translated-and-content-parity-validated"
     },
     "wam-nav": {
-      "source_hash": "88bbac51257318f76c42c120fb5375a6b6117848dbfb56296cb928367a9a22c6",
-      "status": "translated-and-content-parity-validated"
-    },
-    "evomemnav": {
-      "source_hash": "a2fb74963f5ce7d187bc03cc9636be57be542212d2fd48c6245bceb475828ab6",
+      "source_hash": "19a83059eeb99117c962f99462af163c284d2c38bdd7a43ec9c250660a6c3855",
       "status": "translated-and-content-parity-validated"
     },
     "localnav": {
-      "source_hash": "5cdaee0c0045ff0c19829f9e58c46db8b4145999f90f5c351182a44acf6fe572",
+      "source_hash": "aebf971a1251093923dfcc68e9e4d57d6e88ea7db6da54ccf17a5042d0fea66b",
       "status": "translated-and-content-parity-validated"
     },
     "aecnav": {
-      "source_hash": "bbfa72156877fd5bfeda1afba5d9cab575776d7df101e1c33052442db2c5d1d2",
-      "status": "translated-and-content-parity-validated"
-    },
-    "harness-robotic-os": {
-      "source_hash": "1f012f0d827ee69a3a046967a34ca81e9a758a2261c79804b0ab3097f3610d30",
-      "status": "translated-and-content-parity-validated"
-    },
-    "sparsenav": {
-      "source_hash": "567548f8bb915c56bc6a893d7de91ee33adecc98300f07149ec1e42c93c0a873",
-      "status": "translated-and-content-parity-validated"
-    },
-    "talk2escape": {
-      "source_hash": "b3ba1965e82a26011efc84a3757bf424f0b421b7df2590a3a738fb51f80cd939",
+      "source_hash": "ab6ef76fd08ed0dcdb2171ad3ad3d6fe3076561ae376b8b9d12e4a454691bb14",
       "status": "translated-and-content-parity-validated"
     },
     "vnt-pa": {
-      "source_hash": "b7969f1d55b2e3ae3c9b4b95129db046a042ea23ec18d9d9f10c4cc998fb1c9b",
+      "source_hash": "ceb5b6e8619d3aca5e80430150356c628377b94d4976fa2c4b56d68b6d8ba829",
       "status": "translated-and-content-parity-validated"
     },
-    "supernav": {
-      "source_hash": "890bd039736d1692e38df0b38f4b40390c34fdac853a8fa10a6fc0c43152f63e",
+    "causalnav": {
+      "source_hash": "cbfd3e07fe25163d9cba016d8a0b9f309cb71f1b8aeb4c98bc1e390b4165be6c",
       "status": "translated-and-content-parity-validated"
     },
-    "navharness": {
-      "source_hash": "46cd167c9041672aa10558d8b545b138d9ce9658610544d2ebeff4f9fa1db142",
+    "navcon": {
+      "source_hash": "84e2d6a80f132822a38bd710a9a3ce9aa8ef49622008a2e67e5a12461b5c3896",
       "status": "translated-and-content-parity-validated"
     },
-    "evolife": {
-      "source_hash": "aa31e19d4cc023d71eeebc09d92c530224c2a0a036520c4197b8e0dbe660f209",
+    "logoplanner": {
+      "source_hash": "cc57dae7236498ff5788d02e8fe5089407def67beaf07a896a23c7e6a1e87ae0",
+      "status": "translated-and-content-parity-validated"
+    },
+    "skill-nav": {
+      "source_hash": "28e7624440eccee908f2ee38828c667a22c8adfa996b8dc8e9b52c97c5a8afff",
+      "status": "translated-and-content-parity-validated"
+    },
+    "fantasyvln": {
+      "source_hash": "da3e82760e9f5acba94c6d3b167bafc381e443b06cf3638438f08465b8ef4df2",
+      "status": "translated-and-content-parity-validated"
+    },
+    "sparsevideonav": {
+      "source_hash": "7ae85f16b863b45c65b0e2de073ef0c3153166c9900c220859026950dbe8af99",
+      "status": "translated-and-content-parity-validated"
+    },
+    "worldvln": {
+      "source_hash": "9253dc9f7806204189020f7dfb9a9576b773fef7154d3b1968c864a3e0da5778",
+      "status": "translated-and-content-parity-validated"
+    },
+    "condvln": {
+      "source_hash": "719ad39cd483f01cd340893b76970cef7fed1bcd837693c3bee1ac55e36758f5",
+      "status": "translated-and-content-parity-validated"
+    },
+    "qwen-drive": {
+      "source_hash": "b52710a53f5b5e0f5d1080f86bdbf2a3fd88e3b19bbb9ecee5c5ebb33ccc9afc",
+      "status": "translated-and-content-parity-validated"
+    },
+    "lookstep": {
+      "source_hash": "7d8d4166eb607664abb7401e88a0c9d0c82bc5af68ef434b2c3e8dd6acc1dfbb",
+      "status": "translated-and-content-parity-validated"
+    },
+    "occplanner": {
+      "source_hash": "88fba514db5cef0adac5269fa7ce1ea16a2e042aff50c60c47eabbfc64c02bc9",
+      "status": "translated-and-content-parity-validated"
+    },
+    "egopathbench": {
+      "source_hash": "0d594cb178f9ef6eb395773cfebcdb3cbf05c6cb60db33e2fa711a87a0b470b0",
+      "status": "translated-and-content-parity-validated"
+    },
+    "vlingnav": {
+      "source_hash": "1c1456714fcf3e37ca48fda09c3eb67ee1e9e79864a36323694f5a616c93d39e",
+      "status": "translated-and-content-parity-validated"
+    },
+    "x-navdp": {
+      "source_hash": "36ac884f50e6b2e3bd7979ab329fe1d9ae71a5e54ffcaa0f102bfa87d9747843",
       "status": "translated-and-content-parity-validated"
     }
-  },
-  "remaining_work": [],
-  "review_notes": [
-    "Prose translated with machine assistance; terminology, numerical differences, negation candidates, emphasis, captions, and protected elements reviewed.",
-    "All 37 readings, five leaderboard groups, references, 134 figures, and 17 diagrams translated. This is not independent re-verification of every underlying paper.",
-    "Descriptive TeX predicates and units translated using explicit normalization; mathematical expressions and reward values preserved.",
-    "Two malformed figure wrappers restored in Chinese and English.",
-    "English cross-page links, filter labels, related-reading labels, and research cards updated.",
-    "2026-10-05: SeekVLN added to the English cross-page filter; source and translation revision dates synchronized. All 37 existing readings retained and reviewed for protected-content parity.",
-    "2026-10-31: Renamed the companion collection to Goal and Agentic Navigation and clarified task versus system scope. EvoLife is reading 41 with its complete English translation, three captions, worked examples, and Mermaid diagram. Eight assisted, sampled benchmark rows are flagged and excluded from standard best-value comparisons; GOAT subtask and sequence success are distinguished. References, API badges, companion links, dates, and cross-page filters are synchronized across 101 readings. All paper protected-content comparisons pass."
-  ],
-  "previous_validation": {
-    "reviewed_on": "2026-10-04",
-    "results": {
-      "jekyll_build": "passed",
-      "source_sync": "passed",
-      "published_site": "passed",
-      "post_lint": "0 errors; existing 384KB image warning",
-      "regression_tests": 11,
-      "desktop_viewport": "1440x1000",
-      "headings": 273,
-      "tables": 37,
-      "figures": 134,
-      "leaderboard_groups": 5,
-      "leaderboard_rows": 53,
-      "mathjax_expressions": 762,
-      "mermaid_diagrams": 17,
-      "page_errors": [],
-      "interactions": [
-        "AND paper filtering",
-        "leaderboard paradigm and open-source filters",
-        "hide nonstandard rows",
-        "contents navigation",
-        "image enlargement",
-        "section-preserving language switching",
-        "English companion search links",
-        "research card"
-      ]
-    }
-  },
-  "validation": {
-    "reviewed_on": "2026-10-31",
-    "papers": 41,
-    "source_content_parity": "passed: all 101 paper sections; equations, image paths, external links, table values and columns",
-    "heading_structure": "passed: source heading counts and unique explicit translation IDs; new reading retains source-compatible IDs",
-    "headings": 290,
-    "cross_page_papers": 101,
-    "post_lint": "0 errors across eight changed source/translation files; 24 image-size warnings",
-    "source_sync": "passed: repository-wide check_translations.py --strict",
-    "jekyll_build": "not run: Ruby and Bundler unavailable in this environment",
-    "browser_validation": "not run for this update; prior evidence retained separately"
-  },
-  "validation_history": [
-    {
-      "reviewed_on": "2026-10-05",
-      "papers": 37,
-      "source_sync": "passed: repository-wide strict synchronization check",
-      "source_content_parity": "passed: all paper sections; equations, image paths, external citations, table values and columns",
-      "heading_structure": "passed: heading counts, unique explicit IDs, and new IDs matched to source",
-      "english_prose": "passed: no Chinese text outside compatibility IDs",
-      "cross_page_papers": 93,
-      "post_lint": "0 errors; 4 image-size warnings",
-      "regression_tests": 20,
-      "jekyll_build": "not run: Ruby and Bundler unavailable in this environment",
-      "browser_validation": "not run for this update; prior evidence retained separately"
-    }
-  ]
+  }
 }

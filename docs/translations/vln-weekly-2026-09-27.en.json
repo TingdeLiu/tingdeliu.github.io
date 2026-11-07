@@ -1,10 +1,10 @@
 {
   "source": "_posts/weekly-reports/2026-09-27-VLN-Weekly.md",
   "translation": "_translations/en/blog/vln-weekly-2026-09-27.md",
-  "reviewed_on": "2026-10-24",
-  "source_revision_date": "2026-10-24",
+  "reviewed_on": "2026-11-07",
+  "source_revision_date": "2026-11-07",
   "sections": {
-    "metadata": "cb5f0e29610f9569c3802a02fb462af895972ff0f8300c63aba3a5ed99fa9277",
+    "metadata": "563e964ea3f82afc0a9911df51c47f234ef60414d12c9cd33c7cee9e44ed9dd8",
     "introduction": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "一、本期结论": "959bb5e81e7468ed6d07768eba981670d9d091dc1325238470dd0c9bb85a8a0f",
     "二、优先阅读清单": "187c3099327d493433bf2779faca5b14a34d909cd72dd2559916855b584c22d0",
@@ -25,6 +25,6 @@
     "六、趋势判断与行动建议": "fc00737faecc1684002148b05ade49c41e5145506ec0ceb26d93fca92c7f8bb1",
     "趋势": "a21513ad38366c10f1fcdf22f6135cdd07c670c8efe068e1b76e620aa07f3dca",
     "研究空白": "fd8f5fec54c3a31f3cfe4a11e7d7c872cba782bc9b48622e4162f785a3904fd4",
-    "建议动作": "cb29df64710eecfa79335162b879ac04ada175a3b2ceb8ec9c6e717e6c3be13d"
+    "建议动作": "af989289173448d5449b78e89f4276871f0b7ab59ed88c9b629aee437d5314bf"
   }
 }
