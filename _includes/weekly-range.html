@@ -1,0 +1,2 @@
+{%- assign range = include.title | split: '（' | last | split: '(' | last | remove: '）' | remove: ')' | split: ' ' -%}
+{{ range.first | slice: 5, 5 }} ~ {{ range.last | slice: 5, 5 }}

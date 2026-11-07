@@ -1,60 +1,62 @@
 {% include locale.html %}
 {% assign label = 'zh' %}
 {% assign lookup = 'url' %}
+{% assign blog_url = '/blog/' %}
 {% if page_lang == 'en' %}
   {% assign label = 'en' %}
   {% assign lookup = 'source_url' %}
+  {% assign blog_url = '/en/blog/' %}
 {% endif %}
-{% capture columns %}
-  {% for domain in site.data.home_tree %}
-    {% assign count = 0 %}
-    {% capture branches %}
-      {% for branch in domain.branches %}
-        {% capture articles %}
-          {% for reading in branch.readings %}
-            {% assign path = reading.slug | prepend: '/' | append: '/' %}
-            {% assign post = home_entries | where: lookup, path | first %}
-            {% if post %}
-              {% assign count = count | plus: 1 %}
-              <li>
-                {% if reading[label] %}<small>{{ reading[label] | escape }}</small>{% endif %}
-                <a class="tree-link" data-tree-article href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
-              </li>
-            {% endif %}
-          {% endfor %}
-        {% endcapture %}
-        {% assign articles = articles | strip %}
-        {% if articles != empty %}
-          <details open><summary>{{ branch[label] | escape }}</summary><ul>{{ articles }}</ul></details>
-        {% endif %}
-      {% endfor %}
-    {% endcapture %}
-    {% if count > 0 %}
-      <section class="tree-domain">
-        <h2>{{ domain[label] }} <span>{{ count }}</span></h2>
-        <div class="tree-branches">{{ branches }}</div>
-      </section>
-    {% endif %}
-  {% endfor %}
-{% endcapture %}
+{% assign total = 0 %}
+{% assign left = '' %}
+{% assign right = '' %}
+{% for domain in site.data.home_tree %}
+  {% assign count = 0 %}
+  {% capture branches %}
+    {% for branch in domain.branches %}
+      {% capture articles %}
+        {% for reading in branch.readings %}
+          {% assign path = reading.slug | prepend: '/' | append: '/' %}
+          {% assign post = home_entries | where: lookup, path | first %}
+          {% if post %}
+            {% assign count = count | plus: 1 %}
+            <li><a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a></li>
+          {% endif %}
+        {% endfor %}
+      {% endcapture %}
+      {% assign articles = articles | strip %}
+      {% if articles != empty %}
+        <p class="home-branch">{{ branch[label] | escape }}</p><ul>{{ articles }}</ul>
+      {% endif %}
+    {% endfor %}
+  {% endcapture %}
+  {% if count > 0 %}
+    {% assign total = total | plus: count %}
+    {% capture section %}<section class="home-domain"><h3>{{ domain[label] }} <span>{{ count }}</span></h3>{{ branches }}</section>{% endcapture %}
+    {% if forloop.first %}{% assign left = section %}{% else %}{% assign right = right | append: section %}{% endif %}
+  {% endif %}
+{% endfor %}
+{% assign weekly = home_entries | where_exp: 'item', 'item.categories contains "weekly"' | sort: 'url' | reverse %}
+{% assign notes = home_entries | where_exp: 'item', 'item.categories contains "blog"' | sort: 'date' | reverse %}
+{% assign latest = weekly | first %}
 <div class="home-map">
-  <header class="page-heading">
-    <h1>{% if label == 'en' %}Research map{% else %}研究地图{% endif %}</h1>
+  <header class="home-hero">
+    <div>
+      <h1>{% if label == 'en' %}Embodied AI research notes{% else %}具身智能研究笔记{% endif %}</h1>
+      <p class="home-lede">{% if label == 'en' %}Surveys and paper readings on VLN, VLA and robot AI, plus a weekly embodied navigation digest.{% else %}VLN、VLA 与机器人 AI 的综述、论文精读，以及每周的具身导航周报。{% endif %}</p>
+      {% if latest %}
+      <a class="home-latest" href="{{ latest.url | relative_url }}"><span>{% if label == 'en' %}Latest{% else %}最新{% endif %}</span>{% if label == 'en' %}Navigation digest{% else %}具身导航周报{% endif %} {% include weekly-range.html title=latest.title %} →</a>
+      {% endif %}
+    </div>
     {% include language-switch.html site=true %}
   </header>
-  <div class="tree-actions">
-    <a href="#home-reading">{% if label == 'en' %}Digests and notes{% else %}周报与随笔{% endif %} ↓</a>
-    <button type="button" hidden data-tree-toggle aria-controls="home-branches"
-      data-expand="{% if label == 'en' %}Expand branches{% else %}展开分支{% endif %}"
-      data-collapse="{% if label == 'en' %}Collapse branches{% else %}收起分支{% endif %}"></button>
+  <h2 class="home-section">{% if label == 'en' %}Research map{% else %}研究地图{% endif %} <span>{% if label == 'en' %}{{ total }} articles{% else %}{{ total }} 篇{% endif %}</span></h2>
+  <div class="home-grid">
+    <div>{{ left }}</div>
+    <div>{{ right }}</div>
   </div>
-  <div class="tree-panel">
-    <div id="home-branches" class="tree-columns">{{ columns }}</div>
-  </div>
-  <div class="home-feeds" id="home-reading">
-    {% assign weekly = home_entries | where_exp: 'item', 'item.categories contains "weekly"' | sort: 'url' | reverse %}
-    {% assign notes = home_entries | where_exp: 'item', 'item.categories contains "blog"' | sort: 'date' | reverse %}
-    {% include home-feed.html entries=weekly category='weekly' %}
-    {% include home-feed.html entries=notes category='notes' %}
+  <div class="home-grid home-feeds">
+    {% include home-feed.html entries=weekly category='weekly' url=blog_url %}
+    {% include home-feed.html entries=notes category='notes' url=blog_url %}
   </div>
 </div>

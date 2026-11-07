@@ -1,27 +1,27 @@
 {% if include.entries.size > 0 %}
-<section class="home-feed">
-  <h2>
+<section class="home-domain home-feed">
+  <h3>
     {% if include.category == 'weekly' %}
       {% if page_lang == 'en' %}Navigation digests{% else %}具身导航周报{% endif %}
     {% else %}
       {% if page_lang == 'en' %}Blog notes{% else %}Blog 随笔{% endif %}
     {% endif %}
     <span>{{ include.entries.size }}</span>
-  </h2>
+  </h3>
   <ul>
-  {% for post in include.entries %}
-    {% if forloop.index == 4 %}
-      </ul>
-      <details>
-        <summary>{% if page_lang == 'en' %}More ({{ include.entries.size | minus: 3 }}){% else %}其余 {{ include.entries.size | minus: 3 }} 篇{% endif %}</summary>
-        <ul>
-    {% endif %}
-    <li><a class="tree-link" href="{{ post.url | relative_url }}">
-      <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%Y-%m-%d' }}</time>
-      {{ post.title | escape }}
+  {% for post in include.entries limit: 5 %}
+    <li><a href="{{ post.url | relative_url }}">
+      {% if include.category == 'weekly' %}
+        {% include weekly-range.html title=post.title %}
+      {% else %}
+        {{ post.title | escape }}
+        <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%m-%d' }}</time>
+      {% endif %}
     </a></li>
   {% endfor %}
   </ul>
-  {% if include.entries.size > 3 %}</details>{% endif %}
+  <a class="home-all" href="{{ include.url | append: '#' | append: include.category | relative_url }}">
+    {% if page_lang == 'en' %}All {% if include.category == 'weekly' %}digests{% else %}notes{% endif %}{% else %}全部{% if include.category == 'weekly' %}周报{% else %}随笔{% endif %}{% endif %} →
+  </a>
 </section>
 {% endif %}
