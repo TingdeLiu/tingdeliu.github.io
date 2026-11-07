@@ -19,7 +19,7 @@ excerpt: "27 篇目标导航及支撑方法精读，覆盖 ObjectNav、图像目
 
 > 本篇收录 27 篇目标导航及支撑研究。目标导航给定物体类别、描述、图像或坐标，要求机器人寻找并到达目标；下文先列目标导航方法，再单列相关策略、世界模型与评测工作。
 >
-> 工具调用、主动交互、持久空间记忆与持续决策系统已独立整理为 [Agent 导航篇](/Agentic-Navigation-Papers/)；指令跟随方法见[指令跟随篇](/VLN-Papers/)。交叉工作的精读按研究重点分篇，目标导航排行榜仍在本页统一维护，并链接至对应论文所在篇目。
+> 工具调用、主动交互、持久空间记忆与持续决策系统已独立整理为 [Agentic 导航篇](/Agentic-Navigation-Papers/)；指令跟随方法见[指令跟随篇](/VLN-Papers/)。交叉工作的精读按研究重点分篇，目标导航排行榜仍在本页统一维护，并链接至对应论文所在篇目。
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
@@ -3598,7 +3598,7 @@ graph TD
 26. **VLingNav** (2026). Embodied Navigation with Adaptive Reasoning and Visual-Assisted Linguistic Memory. arXiv: [2601.08665](https://arxiv.org/abs/2601.08665) · Project Page: [wsakobe/VLingNav-web](https://github.com/wsakobe/VLingNav-web)
 27. **X-NavDP** (2026). 多构型机器人通用视觉导航的组内 Q值重加权 Diffusion RL 强化学习微调框架. arXiv: [2607.28560](https://arxiv.org/abs/2607.28560) · CoRL 2026 · Code: [InternRobotics/NavDP](https://github.com/InternRobotics/NavDP)
 
-# 已迁移的 Agent 导航精读
+# 已迁移的 Agentic 导航精读
 {: id="moved-agent-readings"}
 
 <div id="panonav"><a href="/Agentic-Navigation-Papers/#panonav">PanoNav (2025)</a></div>
@@ -3705,30 +3705,30 @@ graph TD
     { n: "48. RSI-Nav (2026)", a: "rsi-nav", url: "/VLN-Papers/", label: "指令跟随篇", t: ['端到端', '数据增强', '连续环境', '实机部署'] },
     { n: "49. SimpleVLN (2026)", a: "simplevln", url: "/VLN-Papers/", label: "指令跟随篇", t: ['端到端', '强化学习', '连续环境', '实机部署'] },
     { n: "50. Efficient-VLN (2025)", a: "efficient-vln", url: "/VLN-Papers/", label: "指令跟随篇", t: ['端到端', '加速优化', '连续环境'] },
-    { n: "1. PanoNav (2025)", a: "panonav", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '零样本', '离散环境'] },
-    { n: "2. ODYSSEY (2025)", a: "odyssey", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '实机部署'] },
-    { n: "3. Agentic Embodied Control (2026)", a: "agentic-embodied-control", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '零样本', '连续环境', '实机部署'] },
-    { n: "4. ReMEmbR (2024)", a: "remembr", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '实机部署', '数据集', '连续环境'] },
-    { n: "5. SuperMap (2026)", a: "supermap", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['SLAM', '拓扑图', '零样本', '实机部署', 'Agentic'] },
-    { n: "6. GSMem (2026)", a: "gsmem", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '高斯表示', '零样本'] },
-    { n: "7. CGFM-Nav (2026)", a: "cgfm-nav", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['拓扑图', 'Agentic', '零样本'] },
-    { n: "8. NavMCP (2026)", a: "navmcp", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '零样本', '实机部署', '连续环境'] },
-    { n: "9. SysNav (2026)", a: "sysnav", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '拓扑图'] },
-    { n: "10. EvoMemNav (2026)", a: "evomemnav", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '拓扑图', '零样本'] },
-    { n: "11. Harness Robotic OS (2026)", a: "harness-robotic-os", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '实机部署'] },
-    { n: "12. SparseNav (2026)", a: "sparsenav", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '零样本', '连续环境', '实机部署'] },
-    { n: "13. Talk2Escape (2026)", a: "talk2escape", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '零样本', '连续环境', '实机部署'] },
-    { n: "14. SuperNav (2026)", a: "supernav", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '零样本', '实机部署', '数据集'] },
-    { n: "15. NavHarness (2026)", a: "navharness", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '零样本', 'SLAM', '连续环境'] },
-    { n: "16. EvoLife (2026)", a: "evolife", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '零样本', '连续环境', '实机部署'] },
-    { n: "17. Open-Nav (2025)", a: "open-nav", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '零样本', '连续环境'] },
-    { n: "18. AgentVLN (2026)", a: "agentvln", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '连续环境', '实机部署'] },
-    { n: "19. CA-VLN (2026)", a: "ca-vln", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '拓扑图', '离散环境'] },
-    { n: "20. ReflectVLN (2026)", a: "reflectvln", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['双系统', 'Agentic', 'CoT', '连续环境'] },
-    { n: "21. AgenticNav (2026)", a: "agenticnav", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '零样本', '连续环境', '实机部署'] },
-    { n: "22. HarnessVLN (2026)", a: "harnessvln", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '零样本', '实机部署', '拓扑图'] },
-    { n: "23. GPT-6-Astra (2026)", a: "gpt-6-astra", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['Agentic', '零样本', '连续环境'] },
-    { n: "24. NavGPT-3 (2026)", a: "navgpt-3", url: "/Agentic-Navigation-Papers/", label: "Agent 导航篇", t: ['双系统', 'Agentic', '连续环境', '实机部署'] },
+    { n: "1. PanoNav (2025)", a: "panonav", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '离散环境'] },
+    { n: "2. ODYSSEY (2025)", a: "odyssey", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '实机部署'] },
+    { n: "3. Agentic Embodied Control (2026)", a: "agentic-embodied-control", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '连续环境', '实机部署'] },
+    { n: "4. ReMEmbR (2024)", a: "remembr", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '实机部署', '数据集', '连续环境'] },
+    { n: "5. SuperMap (2026)", a: "supermap", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['SLAM', '拓扑图', '零样本', '实机部署', 'Agentic'] },
+    { n: "6. GSMem (2026)", a: "gsmem", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '高斯表示', '零样本'] },
+    { n: "7. CGFM-Nav (2026)", a: "cgfm-nav", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['拓扑图', 'Agentic', '零样本'] },
+    { n: "8. NavMCP (2026)", a: "navmcp", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '实机部署', '连续环境'] },
+    { n: "9. SysNav (2026)", a: "sysnav", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '拓扑图'] },
+    { n: "10. EvoMemNav (2026)", a: "evomemnav", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '拓扑图', '零样本'] },
+    { n: "11. Harness Robotic OS (2026)", a: "harness-robotic-os", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '实机部署'] },
+    { n: "12. SparseNav (2026)", a: "sparsenav", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '连续环境', '实机部署'] },
+    { n: "13. Talk2Escape (2026)", a: "talk2escape", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '连续环境', '实机部署'] },
+    { n: "14. SuperNav (2026)", a: "supernav", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '实机部署', '数据集'] },
+    { n: "15. NavHarness (2026)", a: "navharness", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', 'SLAM', '连续环境'] },
+    { n: "16. EvoLife (2026)", a: "evolife", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '连续环境', '实机部署'] },
+    { n: "17. Open-Nav (2025)", a: "open-nav", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '连续环境'] },
+    { n: "18. AgentVLN (2026)", a: "agentvln", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '连续环境', '实机部署'] },
+    { n: "19. CA-VLN (2026)", a: "ca-vln", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '拓扑图', '离散环境'] },
+    { n: "20. ReflectVLN (2026)", a: "reflectvln", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['双系统', 'Agentic', 'CoT', '连续环境'] },
+    { n: "21. AgenticNav (2026)", a: "agenticnav", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '连续环境', '实机部署'] },
+    { n: "22. HarnessVLN (2026)", a: "harnessvln", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '实机部署', '拓扑图'] },
+    { n: "23. GPT-6-Astra (2026)", a: "gpt-6-astra", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '连续环境'] },
+    { n: "24. NavGPT-3 (2026)", a: "navgpt-3", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['双系统', 'Agentic', '连续环境', '实机部署'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',

@@ -5,7 +5,7 @@
   "source_revision_date": "2026-11-07",
   "sections": {
     "metadata": "27b81201597aa7f08aa30b6a2322601468632ee644b49c7a81335d449a663b17",
-    "introduction": "3898af009cf05fbfda0ffbb9b1a73dc9ce426517eeb90590c6c6b213857b8ed3",
+    "introduction": "669a479f1367794e12d2c70add379d1f265831ad207bb9d75559011fabbefe53",
     "目标导航性能排行榜": "249796beb0be9adf00e733252ae7e7a044d596a1386f62bea85d83e6a98d0c04",
     "④ 封闭类别物体目标 · ObjectNav（HM3D · MP3D · Gibson）": "2ed52eb42b7feb53dad1d469b33be94256d74f2f5424a7300ee56d1d5aab3840",
     "⑤ 开放词汇物体目标 · HM3D-OVON": "920d3c8ab84ee09cef15739b9e335ac69ca6bf7559833c0187f5eb1d8d6e8f4d",
@@ -194,6 +194,6 @@
     "paper:x-navdp / 4. 局限性": "68004e962e8e18f8a6f3fff9738fdc2a99c109cece08676664c796690cd781a4",
     "参考资料": "c6909a34733f06b163d2f52bf177742b01cc4b7963a27bbf7c699ec4da5e31d1",
     "论文引用": "413c96f0c9eaf23d59e7798a843a40a04769048dfb44aefd9963fbbd0805375e",
-    "已迁移的 Agent 导航精读": "8faaa0390da115c0b3df9dfee3f13452426997b658b72e683f17d810d3b9a09e"
+    "已迁移的 Agentic 导航精读": "7c585c0cd43ea147578cd50596ba09be4b3f7f0292c6b1097ebc84dd1ec9dfe0"
   }
 }

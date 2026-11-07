@@ -5,7 +5,7 @@
   "source_revision_date": "2026-11-07",
   "sections": {
     "metadata": "eb734b8d9c7dee7d299947b6e9087241dad70a3d5bbe84fcc588022439ec046d",
-    "introduction": "1462a2f5229bfac9f307f9bc730c3b6acb670b52ded63ea0f42b3e8f93c96d8b",
+    "introduction": "05837fdefdeb710af454a635dc9bc78e60583324966f080a985fd08714a6d8e2",
     "性能排行榜": "9a2cf6f3f7b09b17a1a12403f1808af21030840081cad6069071e3f40443206e",
     "① R2R-CE": "f6859b7c8e0499918678562008c7f5d55ab56a13a9aeca4f21811bd4ae13c3db",
     "② RxR-CE": "d2c37666484a10d840110f9d2dfc8da766da7f9915ce84383ccd59e228088e48",
@@ -473,8 +473,8 @@
     "paper:efficient-vln / 3. 核心结果/发现": "a3bf6d4a5a1041cc7eaef477467a323fed57f3a1d20a50744ba80a1f2ce669cd",
     "paper:efficient-vln / 4. 局限性": "77aae7497f2a6b52ed206608e4c6e139c7db848984bde1314b9c303bba45d74c",
     "参考资料": "37b0f14294c325d590ec513f27a4d22572998634a6132090258473b1ca1b7f2b",
-    "已发表论文（会议 / 期刊）": "01b853a2a410fbdbf5b5a7294b1803db48763fed47fa2d5f86704012dc8227d0",
+    "已发表论文（会议 / 期刊）": "0720e60fd652812eb01311a40366254b78962942cb676aef33d88a84dbcbf6ad",
     "论文引用": "aca4897b609cd4d418457c872f8afe7921d9f0d208842b72828dd9fc07b46696",
-    "已迁移的论文精读": "547d731b06138e01dddf71b25d5cee37f5cac073857d1e734e14a5510f5aabd5"
+    "已迁移的论文精读": "0482412bb3d46edf1d9e0bc16cf6c9f7eb2b188a9ab19af3a7fe62e46c0bb238"
   }
 }

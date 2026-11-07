@@ -27,7 +27,7 @@
 
 ## 从哪里开始读
 
-- **了解视觉语言导航**：先看 [VLN 综述](https://tingdeliu.github.io/VLN-Survey/)，再进入[指令跟随论文精读](https://tingdeliu.github.io/VLN-Papers/)与[目标导航篇](https://tingdeliu.github.io/VLN-Papers-Extended/)与 [Agent 导航篇](https://tingdeliu.github.io/Agentic-Navigation-Papers/)，按任务、方法和评测结果比较工作。
+- **了解视觉语言导航**：先看 [VLN 综述](https://tingdeliu.github.io/VLN-Survey/)，再进入[指令跟随论文精读](https://tingdeliu.github.io/VLN-Papers/)与[目标导航篇](https://tingdeliu.github.io/VLN-Papers-Extended/)与 [Agentic 导航篇](https://tingdeliu.github.io/Agentic-Navigation-Papers/)，按任务、方法和评测结果比较工作。
 - **研究机器人操作**：从 [VLA 综述](https://tingdeliu.github.io/VLA-Survey/)建立技术框架，再看 [VLA 论文精读](https://tingdeliu.github.io/VLA-Papers/)。
 - **搭建具身智能体**：阅读 [Embodied Agent 综述](https://tingdeliu.github.io/Embodied-Agent-Harness-Survey/)，了解执行闭环与运行时架构。
 - **动手做工程**：进入 [ROS 2 指南](https://tingdeliu.github.io/ROS2-Survey/)与 [Python 工程实践](https://tingdeliu.github.io/Python-Engineering-Survey/)。
@@ -41,7 +41,7 @@
 | --- | --- | --- |
 | **视觉语言导航** | [VLN 综述](https://tingdeliu.github.io/VLN-Survey/) | 任务定义、数据集与基准，从模块化流水线到端到端导航智能体的演进 |
 | | [VLN 论文精读：指令跟随篇](https://tingdeliu.github.io/VLN-Papers/) | 已发表或已上榜工作的精读，附三类指令跟随任务设定的性能排行榜 |
-| | [目标导航精读](https://tingdeliu.github.io/VLN-Papers-Extended/)与 [Agent 导航精读](https://tingdeliu.github.io/Agentic-Navigation-Papers/) | 目标导航性能排行榜，以及工具调用、主动交互、空间记忆与持续导航论文精读 |
+| | [目标导航精读](https://tingdeliu.github.io/VLN-Papers-Extended/)与 [Agentic 导航精读](https://tingdeliu.github.io/Agentic-Navigation-Papers/) | 目标导航性能排行榜，以及工具调用、主动交互、空间记忆与持续导航论文精读 |
 | **视觉语言动作模型** | [VLA 综述](https://tingdeliu.github.io/VLA-Survey/) | 机器人策略学习、动作生成、模仿学习与强化学习的路线梳理 |
 | | [VLA 论文精读](https://tingdeliu.github.io/VLA-Papers/) | 独立论文解析、RoboDojo 排行榜入口与同设置实验对照 |
 | **机器人导航系统** | [传统导航综述](https://tingdeliu.github.io/Robot-Navigation-Survey/) | SLAM、定位建图、路径规划与运动控制等经典方法 |

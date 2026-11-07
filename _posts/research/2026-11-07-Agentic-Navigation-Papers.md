@@ -2,7 +2,7 @@
 layout: post
 lang: zh-CN
 translation_id: agentic-navigation-papers
-title: "VLN 论文精读：Agent 导航"
+title: "VLN 论文精读：Agentic 导航"
 date: 2026-11-07
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
@@ -10,7 +10,7 @@ comments: true
 author: Tingde Liu
 toc: true
 toc_expand: 2
-excerpt: "24 篇 Agent 导航论文精读，聚焦工具调用、主动交互、空间记忆与持续任务执行。"
+excerpt: "24 篇 Agentic 导航论文精读，聚焦工具调用、主动交互、空间记忆与持续任务执行。"
 ---
 
 
@@ -23,7 +23,7 @@ excerpt: "24 篇 Agent 导航论文精读，聚焦工具调用、主动交互、
 
 <div id="paper-filter-bar" class="paper-filter-bar"></div>
 
-# Agent 导航论文精读
+# Agentic 导航论文精读
 {: id="agentic-navigation-readings"}
 
 ## 1. PanoNav (2025)

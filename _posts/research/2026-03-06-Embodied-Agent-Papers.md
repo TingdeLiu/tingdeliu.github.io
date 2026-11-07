@@ -16,7 +16,7 @@ excerpt: "本文按系统运行时、物理编排、场景图评估、自演化�
 
 # 具身智能体论文精读
 
-本文关注一个共同问题：机器人如何把感知、规划、执行、验证和恢复组织成可持续运行的闭环。二十一篇论文分别从运行时、编排器、评估器、演化机制、动作接口、训练目标、通用 AgentOS、巡检系统治理、导航会话交接、导航工具编排、视觉记忆检视、推理预算分配、统一具身推理、统一分类、递归 Harness 优化、具身能力边界评测、权重—Harness 协同进化、历史回放驱动的探索策略演化、动态物理与社会环境评测、开源机器人统一工具接口和固定权重的机器人程序进化切入，实验覆盖仿真环境、文本交互环境、交互式视觉游戏、真实机器人和软件专业任务；其中 SuperNav 提供简要导读，完整解析链接到 Agent 导航篇。Evo² 与 Dream-RSI 的直接证据来自软件任务，本文将它们作为可迁移到具身 Harness 的机制参考，不把软件基准增益外推为机器人性能。
+本文关注一个共同问题：机器人如何把感知、规划、执行、验证和恢复组织成可持续运行的闭环。二十一篇论文分别从运行时、编排器、评估器、演化机制、动作接口、训练目标、通用 AgentOS、巡检系统治理、导航会话交接、导航工具编排、视觉记忆检视、推理预算分配、统一具身推理、统一分类、递归 Harness 优化、具身能力边界评测、权重—Harness 协同进化、历史回放驱动的探索策略演化、动态物理与社会环境评测、开源机器人统一工具接口和固定权重的机器人程序进化切入，实验覆盖仿真环境、文本交互环境、交互式视觉游戏、真实机器人和软件专业任务；其中 SuperNav 提供简要导读，完整解析链接到 Agentic 导航篇。Evo² 与 Dream-RSI 的直接证据来自软件任务，本文将它们作为可迁移到具身 Harness 的机制参考，不把软件基准增益外推为机器人性能。
 
 | 论文 | 主要切入点 | 代表性验证 |
 |---|---|---|
@@ -1582,7 +1582,7 @@ $$\text{WER} = (S + D + I) / N$$
 
 📄 **Paper**: [arXiv:2609.34276](https://arxiv.org/abs/2609.34276) · [Code](https://github.com/billzhao1030/NavHarness) · [Project Page](https://billzhao1030.github.io)
 
-**导航分类索引**：[Agent 导航篇中的 NavHarness 条目](/Agentic-Navigation-Papers/#navharness)。
+**导航分类索引**：[Agentic 导航篇中的 NavHarness 条目](/Agentic-Navigation-Papers/#navharness)。
 
 ---
 
@@ -1766,7 +1766,7 @@ judge 仍会接受错误完成或否决正确完成，错误记录可能被整�
 
 SuperNav 是以导航为主要验证场景的具身 Agent Harness。它让通用 MLLM 负责理解请求和选择目的地，通过可读取的 Navigation Skills、视觉点选工具、目标进度记录与上下文管理，把搜索、目标复核和失败恢复组织成持续闭环，再由几何或学习式运动后端执行移动。其可迁移思想是如何用技能、工具和执行反馈支撑持续的物理交互，因此也适合归入具身智能体框架；上层 MLLM 无需导航专用微调，学习式执行器仍用导航轨迹训练。
 
-**完整解析与实验结果**：[SuperNav：方法、评测口径与性能对比（Agent 导航篇）](/Agentic-Navigation-Papers/#supernav)。
+**完整解析与实验结果**：[SuperNav：方法、评测口径与性能对比（Agentic 导航篇）](/Agentic-Navigation-Papers/#supernav)。
 
 ---
 
@@ -3317,7 +3317,7 @@ Claude Sonnet 5 在两个基准上均提高 11 个百分点 SR，调用量分别
 8. **ABot-ER** (2026). ABot-ER: Unified Embodied Reasoning through Agentic Data–Model Co-Evolution. arXiv: [2610.18355v2](https://arxiv.org/abs/2610.18355v2) · Code: [amap-cvlab/ABot-ER](https://github.com/amap-cvlab/ABot-ER)
 9. **Harness Robotic OS** (2026). 把四足巡检从「导航栈」升级为「具身智能体运行时」. arXiv: [2609.11225](https://arxiv.org/abs/2609.11225)
 10. **NavHarness** (2026). NavHarness: Towards Lifelong Embodied Navigation. arXiv: [2609.34276](https://arxiv.org/abs/2609.34276) · Code: [billzhao1030/NavHarness](https://github.com/billzhao1030/NavHarness) · Project Page: [billzhao1030.github.io](https://billzhao1030.github.io)
-11. **SuperNav** (2026). SuperNav: An Agentic Navigation System for Any Task in Any Scene. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126) · 完整解析：[Agent 导航篇](/Agentic-Navigation-Papers/#supernav)
+11. **SuperNav** (2026). SuperNav: An Agentic Navigation System for Any Task in Any Scene. arXiv: [2610.12126](https://arxiv.org/abs/2610.12126) · 完整解析：[Agentic 导航篇](/Agentic-Navigation-Papers/#supernav)
 12. **VISTA** (2026). VISTA: A Visual Harness for Reasoning in an Interactive World. arXiv: [2610.02200](https://arxiv.org/abs/2610.02200) · Code: [joshhhhhan/VISTA](https://github.com/joshhhhhan/VISTA)
 13. **RACE** (2026). When Should Agents Think? Adaptive Reasoning via Cross-Turn Estimation. arXiv: [2610.12061](https://arxiv.org/abs/2610.12061) · Code: [HututuAI/RACE](https://github.com/HututuAI/RACE)
 14. **Agentic Robots** (2026). Towards Agentic Robots: Model, Data, Environment, and Harness. arXiv: [2610.20442](https://arxiv.org/abs/2610.20442) · Code: [chonghanqin/Awesome-Agentic-Robots](https://github.com/chonghanqin/Awesome-Agentic-Robots)
