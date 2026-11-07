@@ -20,7 +20,7 @@
           {% assign post = home_entries | where: lookup, path | first %}
           {% if post %}
             {% assign count = count | plus: 1 %}
-            <li><a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a></li>
+            <li><a data-tree-article href="{{ post.url | relative_url }}">{{ post.title | escape }}</a></li>
           {% endif %}
         {% endfor %}
       {% endcapture %}

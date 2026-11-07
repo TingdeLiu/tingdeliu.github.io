@@ -127,7 +127,7 @@ def main():
               f'/{route}: homepage cards use the wrong language')
     for route in ('', 'en', 'research', 'blog', 'en/research', 'en/blog'):
         doc = load(SITE / route / 'index.html')
-        heading = re.search(r'<header class="page-heading">(.*?)</header>', doc.raw, re.S)
+        heading = re.search(r'<header class="(?:page-heading|home-hero)">(.*?)</header>', doc.raw, re.S)
         check(bool(heading) and 'site-language-switch' in heading[1],
               f'/{route}/: language switch missing from content heading')
         switches = [n['attrs'].get('href') for n in doc.select('a') if 'data-language-switch' in n['attrs']]
