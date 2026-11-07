@@ -14,35 +14,35 @@
       "status": "translated-and-content-parity-validated"
     },
     "agentic-embodied-control": {
-      "source_hash": "88ab3b8cd367c745b94441763e9f2f7f2f8d6c84cbd39f4f64b9fb0c78fbd787",
+      "source_hash": "7f882f7878ab021c27793bd5ae01c8facac13a588bf0200b11775110b9b068a1",
       "status": "translated-and-content-parity-validated"
     },
     "remembr": {
-      "source_hash": "c585d97f6362dd9bfd4df835d8317358bb072d0b9785198ff6adc31f2ad487fc",
+      "source_hash": "e5d6ff0a8301d0f3b85b81b893fe48f5a6bdbafb739436afd550c0573d6512ce",
       "status": "translated-and-content-parity-validated"
     },
     "supermap": {
-      "source_hash": "9b5b736e53d02bc7454fc435106eb15ea3865678a7264bb26c0da545aa7ded01",
+      "source_hash": "e9d41de1619ada14565714018b995e37723007e81e64268974510094bb50047d",
       "status": "translated-and-content-parity-validated"
     },
     "gsmem": {
-      "source_hash": "ab559a436acd7f91b9e4647fd6ffa34d0ca2f4951a8816d54acaee870ecdf9ec",
+      "source_hash": "fe770e6066a0fdefdec45160c25bd3bbc8a9f3c2233f6fe37465042177e83dc4",
       "status": "translated-and-content-parity-validated"
     },
     "cgfm-nav": {
-      "source_hash": "f3e29f01fdfcf54920b2acf0c9ea7459688277d84c886dbe20fe1606488eaf26",
+      "source_hash": "83e2f1c66e7c19551ab90979e4906a3970d4958c90d0b1d1f4a27a5da722cb1f",
       "status": "translated-and-content-parity-validated"
     },
     "navmcp": {
-      "source_hash": "9b62c57e5007fa741fdadc5725c53514fd278dccf69ac28fe2c4b45df89d5a1c",
+      "source_hash": "62f9d7c9929a5d98ff4a4ed6f3d02915a459ded403d6c657ed06f0cac81fbcfa",
       "status": "translated-and-content-parity-validated"
     },
     "sysnav": {
-      "source_hash": "26fbeec7f0be7ec7d9e7a79e3bdb80cf015fd27e01f0b676fd5e23deb6fd6ab4",
+      "source_hash": "d153559c34b540608c6e8b16f2f554c4f9bfb08714cae591c11e70ec3445f656",
       "status": "translated-and-content-parity-validated"
     },
     "evomemnav": {
-      "source_hash": "d07a900179665a0fcdb847bfb9f2cdd7f8be48aa2c094efba796b1bfe052a84e",
+      "source_hash": "e20c3ff4dfed0270163155683cdc2ceacf9c8c3f1503ded37b53d34ff15c3eca",
       "status": "translated-and-content-parity-validated"
     },
     "harness-robotic-os": {
@@ -50,15 +50,15 @@
       "status": "translated-and-content-parity-validated"
     },
     "sparsenav": {
-      "source_hash": "da06ad23627e74c844a4b847bda8f35f5b8e0302a412052842c389cbc5418779",
+      "source_hash": "cabaa3fe025f8c5369492ffbf0c0268d0421bebc412757ceee4234f82d388405",
       "status": "translated-and-content-parity-validated"
     },
     "talk2escape": {
-      "source_hash": "0193ddfccbf43c3dba7686e3575b6f70b94d93ef4430306a99a122ccd8030047",
+      "source_hash": "319d1017a32131bf048319aea01a6b674c3fa16e5506a877b0b76f14a7cd9fcd",
       "status": "translated-and-content-parity-validated"
     },
     "supernav": {
-      "source_hash": "d5a4604b17470b1692184602b9e8aee9a1e5a48da09c9a321452664c9a767a7b",
+      "source_hash": "d0610d373bd4482937241ff968267acf587de0d5ecd7c2e30d482a78fbec8622",
       "status": "translated-and-content-parity-validated"
     },
     "navharness": {
@@ -66,39 +66,39 @@
       "status": "translated-and-content-parity-validated"
     },
     "evolife": {
-      "source_hash": "e1288d2cea3f07fd5121e94e54d857c3f1d2086ff6ee616c78d48142b687cdd2",
+      "source_hash": "5e32c489f1ff2eccbdfdc9292e63fdc0f170680e3fa5581ae28100b95bcbece0",
       "status": "translated-and-content-parity-validated"
     },
     "open-nav": {
-      "source_hash": "a98352462725c326fdd371501c69d861e389dc7aac9b10152613af83c766a281",
+      "source_hash": "a2ea28d4a00a6793418f9c899b1a7e50eb69f3445b1e01268d37a0d58184e0ee",
       "status": "translated-and-content-parity-validated"
     },
     "agentvln": {
-      "source_hash": "b244f82ed61acc3b2ac560fcec75f0741434f26eca4859b95e86ab6d01eb262b",
+      "source_hash": "abaac73dace78b0ffefdf8103fdd13d5a2b61a9ed09505001e5672a5f79f59e2",
       "status": "translated-and-content-parity-validated"
     },
     "ca-vln": {
-      "source_hash": "288b5d3939208216324a52fe891be32ab7228f97a50931ae6bd58c3be05e58e8",
+      "source_hash": "8cc6ac8f25bb7b81a86889b19987815cb57118e3ed918a9f24b8fb9aeff5efce",
       "status": "translated-and-content-parity-validated"
     },
     "reflectvln": {
-      "source_hash": "4c7f8a541d6d0557676c8bd7b3882ed29e408306d149880c98bc02105c11e9fd",
+      "source_hash": "cb5642ab124b7ed220f970f4d22833a220a6e348da2938af5ccb53af08a0b765",
       "status": "translated-and-content-parity-validated"
     },
     "agenticnav": {
-      "source_hash": "72cf3bd1fde4bf2cce9048fe95371c017d21bb322af2909f2fc3a70c3c7da600",
+      "source_hash": "5a8ad87f84e0b82f1cf7c5de9a5b2988f1ba505dc63ccc8899bb9451a64c77b9",
       "status": "translated-and-content-parity-validated"
     },
     "harnessvln": {
-      "source_hash": "17eb7d41a23c19066aabf626c48dc4a21fc0049ef1da6fa315d428b007b4b9bb",
+      "source_hash": "543a6c93d016b3f7ac7256aba1f13aaab2409c74f191a4bdc3e07766efeb6d35",
       "status": "translated-and-content-parity-validated"
     },
     "gpt-6-astra": {
-      "source_hash": "ee77464a282957d374aa3c472071a3ec500ba3f7cdabaf42d4e5a5c8034cd413",
+      "source_hash": "a094aebcadbd9677b6fa13988b524fd9db734ce8ecbe256ac21d13d0c053467d",
       "status": "translated-and-content-parity-validated"
     },
     "navgpt-3": {
-      "source_hash": "f6cc1b31dd1ea9c9c5ec7fd21c414cd4d3f44ecabc38db9295255bbf12c77a6c",
+      "source_hash": "5d51e7137f91424f247dd1e0553ee7667c8bda34c1cf4312752398414ed17096",
       "status": "translated-and-content-parity-validated"
     }
   }

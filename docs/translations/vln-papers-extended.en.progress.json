@@ -10,7 +10,7 @@
       "status": "translated-and-content-parity-validated"
     },
     "nomad": {
-      "source_hash": "424bb0b1dab2be15ae6faf2df94a6bfea2c2e2daf077ceabbec438023d5223ec",
+      "source_hash": "ef32efc37110b313583c99d8d65f8d5ec3003b4aec0c7925f431b44775514825",
       "status": "translated-and-content-parity-validated"
     },
     "vl-nav": {
@@ -26,11 +26,11 @@
       "status": "translated-and-content-parity-validated"
     },
     "navwam": {
-      "source_hash": "ff8d06db9b3683e0b45ba6998cf1760808dd8abc259429daf2b7da5495daca49",
+      "source_hash": "3fa68968c5b45c838c4cc4e77cdbe71de54d6d822728c0a4492198abc4b2eb50",
       "status": "translated-and-content-parity-validated"
     },
     "canonnav": {
-      "source_hash": "8a9bc191693e7801be384ed600e2fb8a65e46c523be063b1e1c491c9614676c1",
+      "source_hash": "d28df3fb7fb00387d9fdc79889d28946c06d714961a67414e0f8ccd96f65cbf5",
       "status": "translated-and-content-parity-validated"
     },
     "hydra-nav": {
@@ -38,31 +38,31 @@
       "status": "translated-and-content-parity-validated"
     },
     "nav-3dgs": {
-      "source_hash": "547fad637b23a0cc1d9eb932ae3eb2eb03b86c8a64be8515bfb5618fbf6af510",
+      "source_hash": "9724d553885c4c91a1d6934118394f75b5ba4e519728480912f41f8933c2e045",
       "status": "translated-and-content-parity-validated"
     },
     "wam-nav": {
-      "source_hash": "19a83059eeb99117c962f99462af163c284d2c38bdd7a43ec9c250660a6c3855",
+      "source_hash": "0575ccbff26078d6c96fa95419593b7513495a58dea423d9454db211e60e350a",
       "status": "translated-and-content-parity-validated"
     },
     "localnav": {
-      "source_hash": "aebf971a1251093923dfcc68e9e4d57d6e88ea7db6da54ccf17a5042d0fea66b",
+      "source_hash": "b5b2bb96fb993588d21b9b94fe3dc112ad643a09696fb0658536f87fa7cc8641",
       "status": "translated-and-content-parity-validated"
     },
     "aecnav": {
-      "source_hash": "ab6ef76fd08ed0dcdb2171ad3ad3d6fe3076561ae376b8b9d12e4a454691bb14",
+      "source_hash": "ff3abac2d0e70f4e7137ffd45eca408f6dc5377ef9f2dbdb404833e3c4dae1e2",
       "status": "translated-and-content-parity-validated"
     },
     "vnt-pa": {
-      "source_hash": "ceb5b6e8619d3aca5e80430150356c628377b94d4976fa2c4b56d68b6d8ba829",
+      "source_hash": "d9b4ab6be8b701186c257f66c660ed5931b5d4db61fccb4e2d9f6b1b2dc2b922",
       "status": "translated-and-content-parity-validated"
     },
     "causalnav": {
-      "source_hash": "cbfd3e07fe25163d9cba016d8a0b9f309cb71f1b8aeb4c98bc1e390b4165be6c",
+      "source_hash": "f6a348e044d629165428daa62c62ab7eca27365f630b9fd23e4c95e83d2d8982",
       "status": "translated-and-content-parity-validated"
     },
     "navcon": {
-      "source_hash": "84e2d6a80f132822a38bd710a9a3ce9aa8ef49622008a2e67e5a12461b5c3896",
+      "source_hash": "645a4ec8e531c97b6008ffe7545cade0241ba8d1286f2b60d8b989b7dc30e0fb",
       "status": "translated-and-content-parity-validated"
     },
     "logoplanner": {
@@ -70,7 +70,7 @@
       "status": "translated-and-content-parity-validated"
     },
     "skill-nav": {
-      "source_hash": "28e7624440eccee908f2ee38828c667a22c8adfa996b8dc8e9b52c97c5a8afff",
+      "source_hash": "bff3df1f8c8410a8ce2eee2d40a9bd7fe856293427e21179afa4fc145be3fca9",
       "status": "translated-and-content-parity-validated"
     },
     "fantasyvln": {
@@ -78,31 +78,31 @@
       "status": "translated-and-content-parity-validated"
     },
     "sparsevideonav": {
-      "source_hash": "7ae85f16b863b45c65b0e2de073ef0c3153166c9900c220859026950dbe8af99",
+      "source_hash": "dde808ad5f0e0a16fe823f65a5f28e4d018e872fb0f5abd892c73317d33e57a6",
       "status": "translated-and-content-parity-validated"
     },
     "worldvln": {
-      "source_hash": "9253dc9f7806204189020f7dfb9a9576b773fef7154d3b1968c864a3e0da5778",
+      "source_hash": "be0dee645cdf43f64775eafe9f7122b15135a4242bcfd0dfcc1ec395a482ff68",
       "status": "translated-and-content-parity-validated"
     },
     "condvln": {
-      "source_hash": "719ad39cd483f01cd340893b76970cef7fed1bcd837693c3bee1ac55e36758f5",
+      "source_hash": "623b4d8f04046a5d15baf52da42e0764f8c612dd65f992005eb860da24a0a47a",
       "status": "translated-and-content-parity-validated"
     },
     "qwen-drive": {
-      "source_hash": "b52710a53f5b5e0f5d1080f86bdbf2a3fd88e3b19bbb9ecee5c5ebb33ccc9afc",
+      "source_hash": "6c57bc30e884d0b7153467ef2101888cb0bbf44207a12a4de70722a4ba9e92ea",
       "status": "translated-and-content-parity-validated"
     },
     "lookstep": {
-      "source_hash": "7d8d4166eb607664abb7401e88a0c9d0c82bc5af68ef434b2c3e8dd6acc1dfbb",
+      "source_hash": "431610d5b386ffbedf8f5b985c651277074ac715820fbceb607e50e28b272130",
       "status": "translated-and-content-parity-validated"
     },
     "occplanner": {
-      "source_hash": "88fba514db5cef0adac5269fa7ce1ea16a2e042aff50c60c47eabbfc64c02bc9",
+      "source_hash": "8ddd0048b3951746b1b91bfefcc13e9060cec461a3d6a57c19fe54eb60af020e",
       "status": "translated-and-content-parity-validated"
     },
     "egopathbench": {
-      "source_hash": "0d594cb178f9ef6eb395773cfebcdb3cbf05c6cb60db33e2fa711a87a0b470b0",
+      "source_hash": "23b15151d80f04ae0330db6b19b9055ae84080306479dcd72ddf9a7031f9f0de",
       "status": "translated-and-content-parity-validated"
     },
     "vlingnav": {
@@ -110,7 +110,7 @@
       "status": "translated-and-content-parity-validated"
     },
     "x-navdp": {
-      "source_hash": "36ac884f50e6b2e3bd7979ab329fe1d9ae71a5e54ffcaa0f102bfa87d9747843",
+      "source_hash": "9d36932e99fae2c78e0d87ddfdb4845f4ec4bce531ae1d9679e0297845b843c6",
       "status": "translated-and-content-parity-validated"
     }
   }

@@ -1680,7 +1680,7 @@ It only does 2D plane planning and assumes that the camera height is constant; t
 📄 **Paper**: [arXiv:2601.01872](https://arxiv.org/abs/2601.01872) · 🏛️ **IEEE RA-L**
 
 ### Key takeaways
-{: id="精华-12"}
+{: id="causalnav-精华-12"}
 
 The core highlight of CausalNav is the deep integration of multi-level scene graph (Embodied Graph) and RAG mechanism to achieve long-range semantic navigation that supports open-vocabulary queries - the design paradigm of "graph as knowledge base" is worth learning from. Second, the hierarchical Embodied Graph construction strategy (from fine-grained object nodes to coarse-grained building and cluster nodes) shows how to unify semantic representation and retrieval at multiple spatial scales. Third, the dynamic object filtering mechanism based on the Spatial-Temporal Corridor can distinguish static, quasi-static and dynamic obstacles without additional annotation, which is a practical solution for processing outdoor dynamic scenes. Fourth, local open source LLM is used to replace commercial APIs to complete hierarchical semantic retrieval, proving that high-quality semantic reasoning can still be achieved on an autonomous platform without the cloud.
 
@@ -2768,7 +2768,7 @@ In order to balance multi-task learning conflicts and avoid catastrophic forgett
 ---
 
 ### 3. Results and findings
-{: id="3-核心结果发现-10"}
+{: id="qwen-drive-3-核心结果发现-10"}
 
 <div align="center">
   <img src="/images/si/Qwen-Drive-performance-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1282/791" alt="Comprehensive performance radar chart of Qwen-Drive-1.0 in the four dimensions of driving scene question and answer, general visual question and answer, 3D perception and motion planning" />
@@ -2807,7 +2807,7 @@ Qualitative visualization of dynamic road scene trajectory planning: (a) open-lo
 ---
 
 ### 4. Limitations
-{: id="4-局限性-10"}
+{: id="qwen-drive-4-局限性-10"}
 
 Although Qwen-Drive-1.0 has made a breakthrough in the unification of multi-tasks, its BEV sensing head and planning experts are still independently connected to the VLM as plug-in branches. The explicit geometric primitives of the sensing output (such as 3D bounding boxes and occupancy grids) cannot be directly fed back as structured prompts to the large language model for multi-step thinking chain symbolic inference; in addition, closed-loop simulation still has an occasional conservative tendency in the decision-making of giving way to sudden intruding vehicles when facing the long-tail extreme conditions of intensive dynamic games.
 
