@@ -17,7 +17,7 @@
         <ul>
     {% endif %}
     <li><a class="tree-link" href="{{ post.url | relative_url }}">
-      {% unless include.category == 'weekly' %}<time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%Y-%m-%d' }}</time>{% endunless %}
+      <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%Y-%m-%d' }}</time>
       {{ post.title | escape }}
     </a></li>
   {% endfor %}

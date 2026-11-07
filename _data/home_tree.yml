@@ -9,8 +9,8 @@
         - {slug: VLN-Papers-Extended, zh: 寻找目标, en: Find a target}
         - {slug: Agentic-Navigation-Papers, zh: 自主探索与决策, en: Explore and make decisions}
         - {slug: Robot-Navigation-Survey, zh: 定位与规划, en: Localize and plan}
-    - zh: 机器人操作
-      en: Robot manipulation
+    - zh: 具身操作
+      en: Embodied manipulation
       readings:
         - {slug: VLA-Survey}
         - {slug: VLA-Papers}

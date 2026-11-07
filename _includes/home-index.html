@@ -5,7 +5,6 @@
   {% assign label = 'en' %}
   {% assign lookup = 'source_url' %}
 {% endif %}
-{% assign total = 0 %}
 {% capture columns %}
   {% for domain in site.data.home_tree %}
     {% assign count = 0 %}
@@ -31,7 +30,6 @@
       {% endfor %}
     {% endcapture %}
     {% if count > 0 %}
-      {% assign total = total | plus: count %}
       <section class="tree-domain">
         <h2>{{ domain[label] }} <span>{{ count }}</span></h2>
         <div class="tree-branches">{{ branches }}</div>
@@ -51,7 +49,6 @@
       data-collapse="{% if label == 'en' %}Collapse branches{% else %}收起分支{% endif %}"></button>
   </div>
   <div class="tree-panel">
-    <div class="tree-root">{% if label == 'en' %}Selected research{% else %}研究选读{% endif %} <span>{{ total }}</span></div>
     <div id="home-branches" class="tree-columns">{{ columns }}</div>
   </div>
   <div class="home-feeds" id="home-reading">
