@@ -1,0 +1,27 @@
+{% if include.entries.size > 0 %}
+<section class="home-feed">
+  <h2>
+    {% if include.category == 'weekly' %}
+      {% if page_lang == 'en' %}Navigation digests{% else %}具身导航周报{% endif %}
+    {% else %}
+      {% if page_lang == 'en' %}Blog notes{% else %}Blog 随笔{% endif %}
+    {% endif %}
+    <span>{{ include.entries.size }}</span>
+  </h2>
+  <ul>
+  {% for post in include.entries %}
+    {% if forloop.index == 4 %}
+      </ul>
+      <details>
+        <summary>{% if page_lang == 'en' %}More ({{ include.entries.size | minus: 3 }}){% else %}其余 {{ include.entries.size | minus: 3 }} 篇{% endif %}</summary>
+        <ul>
+    {% endif %}
+    <li><a class="tree-link" href="{{ post.url | relative_url }}">
+      {% unless include.category == 'weekly' %}<time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%Y-%m-%d' }}</time>{% endunless %}
+      {{ post.title | escape }}
+    </a></li>
+  {% endfor %}
+  </ul>
+  {% if include.entries.size > 3 %}</details>{% endif %}
+</section>
+{% endif %}

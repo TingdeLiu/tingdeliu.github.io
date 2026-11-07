@@ -36,9 +36,8 @@ company: "Tyndall Labs"
 # URL of your avatar or profile pic (you could use your GitHub profile pic)
 avatar: /images/Tingde.webp
 
-# 首页置顶文章：填文章的 translation_id，中英文首页各自取对应语言的版本
-home_featured: vln-papers
-# Research 页置顶文章（同样填 translation_id）
+# 首页研究分支和精选文章在 _data/home_tree.yml 中维护。
+# Research 页置顶文章（填 translation_id）
 research_featured: vln-papers
 # Blog 页置顶文章（填 translation_id）；留空则自动置顶最新一期周报
 blog_featured: building-blog-with-skills

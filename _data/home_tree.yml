@@ -1,0 +1,50 @@
+- zh: 具身智能
+  en: Embodied AI
+  branches:
+    - zh: 具身导航
+      en: Embodied navigation
+      readings:
+        - {slug: VLN-Survey, zh: 按指令走, en: Follow instructions}
+        - {slug: VLN-Papers}
+        - {slug: VLN-Papers-Extended, zh: 寻找目标, en: Find a target}
+        - {slug: Agentic-Navigation-Papers, zh: 自主探索与决策, en: Explore and make decisions}
+        - {slug: Robot-Navigation-Survey, zh: 定位与规划, en: Localize and plan}
+    - zh: 机器人操作
+      en: Robot manipulation
+      readings:
+        - {slug: VLA-Survey}
+        - {slug: VLA-Papers}
+    - zh: 具身智能体
+      en: Embodied agents
+      readings:
+        - {slug: Embodied-Agent-Harness-Survey}
+        - {slug: Embodied-Agent-Papers}
+- zh: 模型与学习
+  en: Models and learning
+  branches:
+    - zh: 感知与预测
+      en: Perception and prediction
+      readings:
+        - {slug: VLM-Survey}
+        - {slug: Spatial-Intelligence-Survey}
+        - {slug: World-Models-Survey}
+    - zh: 学习与训练
+      en: Learning and training
+      readings:
+        - {slug: Machine-Learning-Survey}
+        - {slug: Deep-Learning-Survey}
+        - {slug: Reinforcement-Learning-Survey}
+        - {slug: LLM-Training-Survey}
+- zh: 系统与工程
+  en: Systems and engineering
+  branches:
+    - zh: 智能体工程
+      en: Agent engineering
+      readings:
+        - {slug: AI-Agent-Survey}
+        - {slug: Harness-Engineering}
+    - zh: 开发实践
+      en: Engineering practice
+      readings:
+        - {slug: ROS2-Survey}
+        - {slug: Python-Engineering-Survey}

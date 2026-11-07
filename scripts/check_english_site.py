@@ -121,7 +121,7 @@ def main():
         check(alternates == {'en': 'https://tingdeliu.github.io/en/', 'zh-CN': 'https://tingdeliu.github.io/'},
               f'/{route}: incorrect homepage language alternates')
         cards = [n['attrs'].get('href', '') for n in doc.select('a')
-                 if 'rc-card' in n['attrs'].get('class', '').split()]
+                 if 'data-tree-article' in n['attrs']]
         check(bool(cards) and len(cards) == len(set(cards)), f'/{route}: empty or duplicate homepage cards')
         check(all(url.startswith('/en/') == (language == 'en') for url in cards),
               f'/{route}: homepage cards use the wrong language')
