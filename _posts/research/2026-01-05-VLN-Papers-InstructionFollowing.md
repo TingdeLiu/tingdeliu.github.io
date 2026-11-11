@@ -7335,6 +7335,10 @@ $$P_{\text{model}} = 1 - \beta_t = \alpha^{t/T}$$
   // 跨篇索引包含每条精读的所在页、独立编号和标签。
   var REMOTE_PAGE = { url: '/VLN-Papers-Extended/', label: '目标导航篇' };
   var REMOTE_PAPERS = [
+    { n: "4. CityWalker (2025)", a: "citywalker", url: "/VLN-Papers-Outdoor/", label: "户外导航篇", t: ['数据集', '连续环境', '实机部署'] },
+    { n: "5. UrbanNav (2026)", a: "urbannav", url: "/VLN-Papers-Outdoor/", label: "户外导航篇", t: ['数据集', '连续环境', '实机部署'] },
+    { n: "6. MOSU2 (2026)", a: "mosu2", url: "/VLN-Papers-Outdoor/", label: "户外导航篇", t: ['Agentic', '连续环境', '实机部署'] },
+    { n: "7. LM-Nav (2022)", a: "lm-nav", url: "/VLN-Papers-Outdoor/", label: "户外导航篇", t: ['零样本', '连续环境', '实机部署'] },
     { n: "3. DA-Nav (2026)", a: "da-nav", url: "/VLN-Papers-Outdoor/", label: "户外导航篇", t: ['CoT', '数据集', '连续环境', '实机部署'] },
     { n: "1. VLFM (2023)", a: "vlfm", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['SLAM', '零样本', '实机部署'] },
     { n: "2. NoMaD (2023)", a: "nomad", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['端到端', '扩散模型', '零样本', '实机部署'] },
