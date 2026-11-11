@@ -5,9 +5,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 PAIRS = [
-    ('2026-01-05-VLN-Papers.md', 'VLN-Papers'),
-    ('2026-01-06-VLN-Papers-Extended.md', 'VLN-Papers-Extended'),
-    ('2026-11-07-Agentic-Navigation-Papers.md', 'Agentic-Navigation-Papers'),
+    ('2026-01-05-VLN-Papers-InstructionFollowing.md', 'VLN-Papers'),
+    ('2026-01-06-VLN-Papers-ObjectNav.md', 'VLN-Papers-Extended'),
+    ('2026-11-07-VLN-Papers-AgenticNav.md', 'Agentic-Navigation-Papers'),
 ]
 
 

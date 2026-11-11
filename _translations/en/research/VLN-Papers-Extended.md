@@ -3,26 +3,26 @@ layout: post
 lang: en
 translation_id: vln-papers-extended
 permalink: /en/VLN-Papers-Extended/
-source_path: _posts/research/2026-01-06-VLN-Papers-Extended.md
+source_path: _posts/research/2026-01-06-VLN-Papers-ObjectNav.md
 source_url: /VLN-Papers-Extended/
-source_revision_date: 2026-11-07
-translation_updated: 2026-11-07
+source_revision_date: 2026-11-11
+translation_updated: 2026-11-11
 title: "VLN Papers: Goal Navigation"
-date: 2026-11-07
+date: 2026-11-11
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
 toc_expand: 2
-excerpt: "27 readings on goal navigation and supporting policies, with ObjectNav, image-goal, point-goal, and multimodal leaderboards."
+excerpt: "26 readings on goal navigation and supporting policies, with ObjectNav, image-goal, point-goal, and multimodal leaderboards."
 ---
 
 
 * Contents
 {:toc}
 
-> This collection covers 27 works on goal navigation and supporting research. Goal navigation asks a robot to find and reach a category, description, image, or coordinate goal. Goal-navigation methods come first, followed by related policies, world models, and evaluation work.
+> This collection covers 26 works on goal navigation and supporting research. Goal navigation asks a robot to find and reach a category, description, image, or coordinate goal. Goal-navigation methods come first, followed by related policies, world models, and evaluation work.
 >
 > Tool use, active interaction, persistent spatial memory, and continuing decisions are covered in [Agentic Navigation](/en/Agentic-Navigation-Papers/); see [Instruction Following](/en/VLN-Papers/) for instruction-following methods. Overlapping works are assigned by research focus. Goal-navigation leaderboards remain here and link to the collection containing each reading.
 
@@ -1673,108 +1673,10 @@ It only does 2D plane planning and assumes that the camera height is constant; t
 
 ---
 
-## 14. CausalNav (2026)
-{: id="causalnav"}
-———First Scene Graph-based Semantic Navigation for Dynamic Outdoor Environments
-
-📄 **Paper**: [arXiv:2601.01872](https://arxiv.org/abs/2601.01872) · 🏛️ **IEEE RA-L**
-
-### Key takeaways
-{: id="causalnav-精华-12"}
-
-The core highlight of CausalNav is the deep integration of multi-level scene graph (Embodied Graph) and RAG mechanism to achieve long-range semantic navigation that supports open-vocabulary queries - the design paradigm of "graph as knowledge base" is worth learning from. Second, the hierarchical Embodied Graph construction strategy (from fine-grained object nodes to coarse-grained building and cluster nodes) shows how to unify semantic representation and retrieval at multiple spatial scales. Third, the dynamic object filtering mechanism based on the Spatial-Temporal Corridor can distinguish static, quasi-static and dynamic obstacles without additional annotation, which is a practical solution for processing outdoor dynamic scenes. Fourth, local open source LLM is used to replace commercial APIs to complete hierarchical semantic retrieval, proving that high-quality semantic reasoning can still be achieved on an autonomous platform without the cloud.
-
----
-
-### 1. Background and problem
-{: id="1-研究背景问题-11"}
-
-Autonomous semantic navigation in large-scale outdoor dynamic environments faces three major challenges: semantic understanding of open-vocabulary, dynamic environment adaptation (moving obstacles such as pedestrians and vehicles), and long-term stability. Existing VLN research mainly focuses on static indoor scenes, relying on high-precision maps or large-scale training data, and the long-range navigation robustness in real outdoor dynamic scenes has not been fully verified.
-
----
-
-### 2. Method and innovations
-{: id="2-主要方法创新点-9"}
-
-<div align="center">
-  <img src="/images/vln/CausalNav-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:715/565" alt="CausalNav overall workflow: integrating three major modules: semantic reasoning, dynamic environment adaptation and Embodied Graph planning" />
-<figcaption>
-CausalNav overall workflow: integrating three major modules: semantic reasoning, dynamic environment adaptation and Embodied Graph planning
-</figcaption>
-</div>
-
-CausalNav proposes a semantic navigation framework composed of three core modules:
-
-**Module 1: Open vocabulary target tracking and self-motion estimation**
-
-Use YOLO-World to extract open-vocabulary 2D detection boxes and segmentation masks from RGB images, and perform multi-view target tracking through ByteTrack. Combined with the LiDAR point cloud, the 2D detection is projected into the 3D space to obtain the 3D attitude of the target $$^w\mathbf{T}_{obj}$$. The self-vehicle motion is estimated through LiDAR-IMU odometry (FAST-LIO2), providing an accurate basis for positioning and coordinate transformation.
-
-**Module 2: Dynamic Object Filtering and Embodied Graph Construction**
-
-<div align="center">
-  <img src="/images/vln/CausalNav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1446/699" alt="CausalNav three-module pipeline architecture: target tracking and self-motion estimation → dynamic filtering and graph construction → graph update and natural language navigation" />
-<figcaption>
-CausalNav three-module pipeline architecture: target tracking and self-motion estimation → dynamic filtering and graph construction → graph update and natural language navigation
-</figcaption>
-</div>
-
-- **Space-time corridor filtering**: Encode the historical trajectory of each target as a space-time corridor $$\mathcal{T} = \{^w\mathbf{T}^n_{obj}, \text{3DBBox}_i, t_i\}_{i=1}^n$$. If the target's displacement exceeds the threshold within $k$ steps, it is identified as a dynamic target and removed from the graph, effectively eliminating false nodes caused by motion.
-
-- **Embodied Graph hierarchical construction**: The static environment consists of two types of nodes - the building node $\nu_i^{build}$ comes from the offline map, and the object node $\nu_i^{obj}$ comes from real-time perception. Use LLM to perform hierarchical clustering (spatial-semantic similarity) of nodes to form multi-level abstraction: object layer (Level $L-1$) → building/Place layer (Level $L$) → clustering node (Clustering Node). Each time the self-vehicle moves exceeds the distance threshold $d$, a new self-vehicle node $\nu_i^l$ is added to record the historical trajectory.
-
-- **RAG semantic retrieval**: hierarchical retrieval based on LLM scoring, combined with spatial similarity $\kappa^{spatial}$ and semantic similarity $\kappa^{semantic}$, selecting the node path that best matches the query layer by layer in the graph, supporting open-vocabulary target positioning.
-
-**Module 3: Embodied Graph dynamic update and natural language navigation**
-
-<div align="center">
-  <img src="/images/vln/CausalNav-embodied-graph.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:715/610" alt="Embodied Graph built in the simulation environment: multi-level fusion of coarse-grained building nodes and fine-grained object nodes (fire hydrants, mailboxes, etc.)" />
-<figcaption>
-Embodied Graph built in the simulation environment: multi-level fusion of coarse-grained building nodes and fine-grained object nodes (fire hydrants, mailboxes, etc.)
-</figcaption>
-</div>
-
-- **Global planning**: Parse natural language instructions, infer the target location through RAG retrieval Embodied Graph, and give priority to the Dijkstra shortest path in the historical trajectory; if the target is unreachable, call offline maps or Google Maps to generate coarse-grained routes, and the result is expressed as waypoint sequence $\mathcal{W} = \{w_1, w_2, \ldots, w_n\}$.
-
-- **Local planning**: Use RH-Map for real-time dynamic local map construction, use Informed-RRT* to generate the initial trajectory, and then use NMPC-CBF (Nonlinear Model Predictive Control with Control Barrier Function) for trajectory tracking and dynamic obstacle avoidance to ensure the safety of moving pedestrians/vehicles.
-
----
-
-### 3. Results and findings
-{: id="3-核心结果发现-10"}
-
-<div align="center">
-  <img src="/images/vln/CausalNav-real-world-results.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:709/997" alt="Navigation experiments at different distance scales in real environments: short-range (130m object-level instructions) and long-range (512m building-level instructions)" />
-<figcaption>
-Navigation experiments at different distance scales in real environments: short-range (130m object-level instructions) and long-range (512m building-level instructions)
-</figcaption>
-</div>
-
-**Simulation experiment** (Compare ViNT, NoMaD, GNM, CityWalker):
-- Small task: SR 100%, SPL 88.9%, CC 0.2 (best among all methods)
-- Medium mission: SR 92%, SPL 82.2%
-- Large mission: SR 80%, SPL 66.0%, CC 1.2, TL 141.82m
-
-**Real World Experiment**:
-- Short range (130m): ViNT and CausalNav both succeed, other methods fail
-- Long range (512m): Only CausalNav successfully completed the task, other methods failed due to collision
-- CityWalker's real-world performance is significantly worse than simulation, and it is sensitive to lighting changes and dynamic obstacles.
-
-**ablation experiment**:
-- Enable Embodied Graph dynamic updates: SR increased from 78% to 90%, SPL increased from 54.7% to 80.1%
-- Optimal hyperparameters: $\alpha=\beta=0.5$, $\gamma=1.5$ (space-semantic balance point)
-- Running latency: 105ms/cycle (10Hz), only 11% more overhead than NoMaD
-
----
-
-### 4. Limitations
-{: id="4-局限性-10"}
-
-The robustness of CausalNav under extreme lighting/weather conditions needs to be improved, and the compression and forgetting mechanism of long-range graph memory has not yet been perfected. Problems of graph expansion and retrieval accuracy may occur after extremely long runs.
-
 # Supporting policies, world models, and evaluation
 {: id="supporting-navigation-research"}
 
-## 15. NAVCON (2024)
+## 14. NAVCON (2024)
 {: id="navcon"}
 ———— The first large-scale Vision-Language Navigation concept dataset for cognitive elicitation and language grounding
 
@@ -1879,7 +1781,7 @@ NAVCON Distribution statistics of navigation concepts in the dataset
 
 ---
 
-## 16. LoGoPlanner (2025)
+## 15. LoGoPlanner (2025)
 {: id="logoplanner"}
 ——End-to-end navigation policy of localization grounding: "embedding" the visual geometry of metric scale into planning
 
@@ -1954,7 +1856,7 @@ Limited by the small number of available navigation scenes (about 2k), the recon
 
 ---
 
-## 17. Skill-Nav (2025)
+## 16. Skill-Nav (2025)
 {: id="skill-nav"}
 ———Enhanced Navigation with Versatile Quadrupedal Locomotion via Waypoint Interface
 
@@ -2037,7 +1939,7 @@ Snapshots of robot navigation in simulation (LLM planning) and real world (A* pl
 
 High-level planners (especially LLM) may generate abnormal waypoints located in the center of gaps or at the edges of boxes, and it is difficult for low-level controllers to recover from such extreme positions; future work will design edge-free collision-free low-level controllers and explore end-to-end unified strategies for motion and navigation.
 
-## 18. FantasyVLN (2026)
+## 17. FantasyVLN (2026)
 {: id="fantasyvln"}
 ——Unified multi-modal Chain-of-Thoughtinference for vision-language navigation
 
@@ -2145,7 +2047,7 @@ This method is trained on a small-scale dataset (18k trajectory slices) such as 
 
 ---
 
-## 19. SparseVideoNav (2026)
+## 18. SparseVideoNav (2026)
 {: id="sparsevideonav"}
 ———Sparse future videos provide foresight for navigation beyond the current view
 
@@ -2342,7 +2244,7 @@ The 140-hour dataset remains limited, challenging scenes can cause generation mo
 
 ---
 
-## 20. WorldVLN (2026)
+## 19. WorldVLN (2026)
 {: id="worldvln"}
 ———Autoregressive World Action model for Aerial Vision-Language Navigation
 
@@ -2473,7 +2375,7 @@ Current experiments are mainly aimed at short-range low-time domain navigation, 
 
 ---
 
-## 21. CONDVLN (2026)
+## 20. CONDVLN (2026)
 {: id="condvln"}
 ———The first vision-language navigation conditional branch diagnosis benchmark and neural symbol probe based on hierarchical 3D scene graph
 
@@ -2609,7 +2511,7 @@ CONDVLN currently only supports VLN-CE compatible indoor discrete/continuous sim
 
 ---
 
-## 22. Qwen-Drive (2026)
+## 21. Qwen-Drive (2026)
 {: id="qwen-drive"}
 ——The first end-to-end autonomous driving foundation model that unifies 3D perception/question and answer/trajectory planning without changing the VLM architecture
 
@@ -2813,7 +2715,7 @@ Although Qwen-Drive-1.0 has made a breakthrough in the unification of multi-task
 
 ---
 
-## 23. LookStep (2026)
+## 22. LookStep (2026)
 {: id="lookstep"}
 ———— Efficient end-to-end vision-language navigation based on language forward deduction and event-driven memory
 
@@ -2960,7 +2862,7 @@ A comprehensive comparative evaluation was conducted on the core benchmark **R2R
 
 ---
 
-## 24. OccPlanner (2026)
+## 23. OccPlanner (2026)
 {: id="occplanner"}
 ——Put a pixel without depth back into the local 3D occupancy grid and then plan
 
@@ -3190,7 +3092,7 @@ The real robot evaluation **only made an open-loop qualitative comparison with**
 
 ---
 
-## 25. EgoPathBench (2026)
+## 24. EgoPathBench (2026)
 {: id="egopathbench"}
 ——Conpress "navigation decision" into a series of numbers on the egocentric image, and leave it to the scene geometry to decide whether it is right or wrong.
 
@@ -3457,7 +3359,7 @@ The human reference only has 50 questions and a single volunteer. The paper itse
 
 ---
 
-## 26. VLingNav (2026)
+## 25. VLingNav (2026)
 {: id="vlingnav"}
 ——Embodied Navigation with Adaptive Reasoning and Visual-Assisted Linguistic Memory
 
@@ -3530,7 +3432,7 @@ Hybrid rollout process for online post-training.
 
 ---
 
-## 27. X-NavDP (2026)
+## 26. X-NavDP (2026)
 {: id="x-navdp"}
 ——Intra-group Q-value weighted Diffusion RL reinforcement learning fine-tuning framework for universal visual navigation of multi-configuration robots
 
@@ -3707,20 +3609,19 @@ Figure 4: Exploration policy ablation experiment: the importance of target-free 
 11. **LocalNav** (2026). On-device lightweight 3D scene graph goal navigation framework based on knowledge distillation and embodied reinforcement learning. arXiv: [2606.27871](https://arxiv.org/abs/2606.27871)
 12. **AECNav** (2026). Rewriting "finding objects" into "accumulating evidence": one-time encoding, segmentation on demand, logarithmic probability accumulation of beliefs. arXiv: [2608.10817](https://arxiv.org/abs/2608.10817)
 13. **VNT-PA** (2026). Encoding "where" rather than "when" as location: Transformer planner without explicit map. arXiv: [2609.21212](https://arxiv.org/abs/2609.21212)
-14. **CausalNav** (2026). First Scene Graph-based Semantic Navigation for Dynamic Outdoor Environments. arXiv: [2601.01872](https://arxiv.org/abs/2601.01872) · IEEE RA-L
-15. **NAVCON** (2024). The first large-scale Vision-Language Navigation concept dataset for cognitive elicitation and language grounding. arXiv: [2412.13026](https://arxiv.org/abs/2412.13026)
-16. **LoGoPlanner** (2025). End-to-end navigation strategies for localization grounding: "embedding" metric-scale visual geometry into planning. arXiv: [2512.19629](https://arxiv.org/abs/2512.19629) · ICRA 2026
-17. **Skill-Nav** (2025). Enhanced Navigation with Versatile Quadrupedal Locomotion via Waypoint Interface. arXiv: [2506.21853](https://arxiv.org/abs/2506.21853) · Vicinagearth (Springer) 2025
-18. **FantasyVLN** (2026). Unified multimodal Chain-of-Thought inference for vision-language navigation. arXiv: [2601.13976](https://arxiv.org/abs/2601.13976)
-19. **SparseVideoNav** (2026). Sparse Video Generation Propels Real-World Beyond-the-View Vision-Language Navigation. arXiv: [2602.05827v1](https://arxiv.org/abs/2602.05827v1)
-20. **WorldVLN** (2026). Autoregressive World Action model for Aerial Vision-Language Navigation. arXiv: [2605.15964](https://arxiv.org/abs/2605.15964)
-21. **CONDVLN** (2026). The first vision-language navigation conditional branch diagnosis benchmark and neural symbol probe based on hierarchical 3D scene graph. arXiv: [2608.17318](https://arxiv.org/abs/2608.17318)
-22. **Qwen-Drive** (2026). The first end-to-end autonomous driving foundation model that unifies 3D perception/question and answer/trajectory planning without changing the VLM architecture. arXiv: [2609.00111](https://arxiv.org/abs/2609.00111)
-23. **LookStep** (2026). Efficient end-to-end vision-language navigation based on language look-ahead deduction and event-driven memory. arXiv: [2609.02350](https://arxiv.org/abs/2609.02350)
-24. **OccPlanner** (2026). "Push" a pixel without depth back to the local 3D occupancy grid for planning. arXiv: [2608.14160](https://arxiv.org/abs/2608.14160)
-25. **EgoPathBench** (2026). Press "navigation decision" into a series of numbers on the egocentric image, and leave it to the scene geometry to decide whether it is right or wrong. arXiv: [2609.16610](https://arxiv.org/abs/2609.16610)
-26. **VLingNav** (2026). Embodied Navigation with Adaptive Reasoning and Visual-Assisted Linguistic Memory. arXiv: [2601.08665](https://arxiv.org/abs/2601.08665) · Project Page: [wsakobe/VLingNav-web](https://github.com/wsakobe/VLingNav-web)
-27. **X-NavDP** (2026). Intra-group Q-value weighted Diffusion RL reinforcement learning fine-tuning framework for universal visual navigation of multi-configuration robots. arXiv: [2607.28560](https://arxiv.org/abs/2607.28560) · CoRL 2026 · Code: [InternRobotics/NavDP](https://github.com/InternRobotics/NavDP)
+14. **NAVCON** (2024). The first large-scale Vision-Language Navigation concept dataset for cognitive elicitation and language grounding. arXiv: [2412.13026](https://arxiv.org/abs/2412.13026)
+15. **LoGoPlanner** (2025). End-to-end navigation strategies for localization grounding: "embedding" metric-scale visual geometry into planning. arXiv: [2512.19629](https://arxiv.org/abs/2512.19629) · ICRA 2026
+16. **Skill-Nav** (2025). Enhanced Navigation with Versatile Quadrupedal Locomotion via Waypoint Interface. arXiv: [2506.21853](https://arxiv.org/abs/2506.21853) · Vicinagearth (Springer) 2025
+17. **FantasyVLN** (2026). Unified multimodal Chain-of-Thought inference for vision-language navigation. arXiv: [2601.13976](https://arxiv.org/abs/2601.13976)
+18. **SparseVideoNav** (2026). Sparse Video Generation Propels Real-World Beyond-the-View Vision-Language Navigation. arXiv: [2602.05827v1](https://arxiv.org/abs/2602.05827v1)
+19. **WorldVLN** (2026). Autoregressive World Action model for Aerial Vision-Language Navigation. arXiv: [2605.15964](https://arxiv.org/abs/2605.15964)
+20. **CONDVLN** (2026). The first vision-language navigation conditional branch diagnosis benchmark and neural symbol probe based on hierarchical 3D scene graph. arXiv: [2608.17318](https://arxiv.org/abs/2608.17318)
+21. **Qwen-Drive** (2026). The first end-to-end autonomous driving foundation model that unifies 3D perception/question and answer/trajectory planning without changing the VLM architecture. arXiv: [2609.00111](https://arxiv.org/abs/2609.00111)
+22. **LookStep** (2026). Efficient end-to-end vision-language navigation based on language look-ahead deduction and event-driven memory. arXiv: [2609.02350](https://arxiv.org/abs/2609.02350)
+23. **OccPlanner** (2026). "Push" a pixel without depth back to the local 3D occupancy grid for planning. arXiv: [2608.14160](https://arxiv.org/abs/2608.14160)
+24. **EgoPathBench** (2026). Press "navigation decision" into a series of numbers on the egocentric image, and leave it to the scene geometry to decide whether it is right or wrong. arXiv: [2609.16610](https://arxiv.org/abs/2609.16610)
+25. **VLingNav** (2026). Embodied Navigation with Adaptive Reasoning and Visual-Assisted Linguistic Memory. arXiv: [2601.08665](https://arxiv.org/abs/2601.08665) · Project Page: [wsakobe/VLingNav-web](https://github.com/wsakobe/VLingNav-web)
+26. **X-NavDP** (2026). Intra-group Q-value weighted Diffusion RL reinforcement learning fine-tuning framework for universal visual navigation of multi-configuration robots. arXiv: [2607.28560](https://arxiv.org/abs/2607.28560) · CoRL 2026 · Code: [InternRobotics/NavDP](https://github.com/InternRobotics/NavDP)
 
 # Moved Agent readings
 {: id="moved-agent-readings"}
@@ -3743,6 +3644,13 @@ Figure 4: Exploration policy ablation experiment: the importance of target-free 
 <div id="navharness"><a href="/en/Agentic-Navigation-Papers/#navharness">NavHarness (2026)</a></div>
 <div id="evolife"><a href="/en/Agentic-Navigation-Papers/#evolife">EvoLife (2026)</a></div>
 
+<div id="causalnav"><a href="/VLN-Papers-Outdoor/#causalnav">CausalNav — moved to Outdoor Navigation (Chinese)</a></div>
+<div id="causalnav-精华-12"><a href="/VLN-Papers-Outdoor/#causalnav-精华-12">CausalNav — moved to Outdoor Navigation (Chinese)</a></div>
+<div id="1-研究背景问题-11"><a href="/VLN-Papers-Outdoor/#1-研究背景问题-11">CausalNav — moved to Outdoor Navigation (Chinese)</a></div>
+<div id="2-主要方法创新点-9"><a href="/VLN-Papers-Outdoor/#2-主要方法创新点-9">CausalNav — moved to Outdoor Navigation (Chinese)</a></div>
+<div id="3-核心结果发现-10"><a href="/VLN-Papers-Outdoor/#3-核心结果发现-10">CausalNav — moved to Outdoor Navigation (Chinese)</a></div>
+<div id="4-局限性-10"><a href="/VLN-Papers-Outdoor/#4-局限性-10">CausalNav — moved to Outdoor Navigation (Chinese)</a></div>
+
 <script>
 (function () {
   var TAG_MAP = [
@@ -3759,7 +3667,6 @@ Figure 4: Exploration policy ablation experiment: the importance of target-free 
     { m: "LocalNav", t: ['Topological maps', 'Reinforcement learning', 'Real-robot deployment', 'Inference optimization'] },
     { m: "AECNav", t: ['Zero-shot', 'Agentic', 'Real-robot deployment', 'Inference optimization'] },
     { m: "VNT-PA", t: ['End-to-end', 'Continuous environments'] },
-    { m: "CausalNav", t: ['Agentic', 'Topological maps'] },
     { m: "NAVCON", t: ['Datasets', 'Continuous environments', 'Discrete environments'] },
     { m: "LoGoPlanner", t: ['End-to-end', 'Diffusion models', 'Continuous environments', 'Real-robot deployment'] },
     { m: "Skill-Nav", t: ['End-to-end', 'Reinforcement learning', 'Real-robot deployment'] },
@@ -3779,6 +3686,8 @@ Figure 4: Exploration policy ablation experiment: the importance of target-free 
 
   var REMOTE_PAGE = { url: '/en/VLN-Papers/', label: 'Instruction-following collection' };
   var REMOTE_PAPERS = [
+    { n: "3. DA-Nav (2026)", a: "da-nav", url: "/VLN-Papers-Outdoor/", label: "Outdoor navigation (Chinese)", t: ['CoT', 'Datasets', 'Continuous environments', 'Real-robot deployment'] },
+    { n: "2. CausalNav (2026)", a: "causalnav", url: "/VLN-Papers-Outdoor/", label: "Outdoor navigation (Chinese)", t: ['Agentic', 'Topological maps'] },
     { n: "1. R2R (2018)", a: "r2r", url: "/en/VLN-Papers/", label: "Instruction following", t: ['Discrete environments', 'Datasets'] },
     { n: "2. VLN-CE (2020)", a: "vln-ce", url: "/en/VLN-Papers/", label: "Instruction following", t: ['Datasets', 'Continuous environments', 'Foundational work'] },
     { n: "3. DUET (2022)", a: "duet", url: "/en/VLN-Papers/", label: "Instruction following", t: ['Topological maps', 'End-to-end', 'Discrete environments'] },

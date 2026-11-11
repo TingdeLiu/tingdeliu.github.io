@@ -242,7 +242,7 @@ def main():
         check(external(en) == external(zh), 'External citations differ between source and translation')
     else:
         print('Source changed: skipping source/translation parity until the English edition is synchronized.')
-    for slug, identity, source_path in [('VLN-Papers', 'vln-papers', '_posts/research/2026-01-05-VLN-Papers.md'), ('VLN-Papers-Extended', 'vln-papers-extended', '_posts/research/2026-01-06-VLN-Papers-Extended.md'), ('Agentic-Navigation-Papers', 'agentic-navigation-papers', '_posts/research/2026-11-07-Agentic-Navigation-Papers.md')]:
+    for slug, identity, source_path in [('VLN-Papers', 'vln-papers', '_posts/research/2026-01-05-VLN-Papers-InstructionFollowing.md'), ('VLN-Papers-Extended', 'vln-papers-extended', '_posts/research/2026-01-06-VLN-Papers-ObjectNav.md'), ('Agentic-Navigation-Papers', 'agentic-navigation-papers', '_posts/research/2026-11-07-VLN-Papers-AgenticNav.md')]:
         papers_path = SITE / f'en/{slug}/index.html'
         if papers_path.exists():
             papers, original = load(papers_path), load(SITE / f'{slug}/index.html')

@@ -1,10 +1,10 @@
 {
-  "source": "_posts/research/2026-11-07-Agentic-Navigation-Papers.md",
+  "source": "_posts/research/2026-11-07-VLN-Papers-AgenticNav.md",
   "translation": "_translations/en/research/Agentic-Navigation-Papers.md",
-  "reviewed_on": "2026-11-07",
-  "source_revision_date": "2026-11-07",
+  "reviewed_on": "2026-11-11",
+  "source_revision_date": "2026-11-11",
   "sections": {
-    "metadata": "37391bb10d5d03997e2fcfd36837998719c7947c3895bfdb122361466006d883",
+    "metadata": "c4233200159329b68262f7e8366dcc5cf42b9f39403d3ae16a57ea8c172fb687",
     "introduction": "561cf8991816cf0f4c24d02080dcfa8e353abf1d99e94affd1e37b0c838495dd",
     "Agentic 导航论文精读": "ead9a0fa8143490ef5a25cbc149bd6bb5a372b6effbbac47a77aec4571b0ba2e",
     "paper:panonav / 1. PanoNav (2025)": "5e657dbccdf25628156d12dc7e97f4e0004e394c63aba6a888a5f65e345cfbf4",
@@ -200,6 +200,6 @@
     "paper:navgpt-3 / 3. 核心结果/发现": "697527cc81435e82098be73edff61ddca3dd7537d6c73257ff069d4b6ccac5ac",
     "paper:navgpt-3 / 4. 局限性": "9caf96b93a5bb6e69cab959c17627ae351d01bf1884bf0aa2f699757171f94bf",
     "参考资料": "c6909a34733f06b163d2f52bf177742b01cc4b7963a27bbf7c699ec4da5e31d1",
-    "论文引用": "deedfd4a71bd66510f5e800dcce798a9cf59429d3f3653612e0747e9597f869c"
+    "论文引用": "ba509a9b5128682441a5fc8314a359e47948dde6d70965f5738241073a887fc7"
   }
 }

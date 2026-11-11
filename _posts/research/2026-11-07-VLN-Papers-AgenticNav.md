@@ -2,8 +2,9 @@
 layout: post
 lang: zh-CN
 translation_id: agentic-navigation-papers
+permalink: /Agentic-Navigation-Papers/
 title: "VLN 论文精读：Agentic 导航"
-date: 2026-11-07
+date: 2026-11-11
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -3304,6 +3305,7 @@ GPT-6 Astra 完整系统相对 8B VLA 单独运行，R2R-CE SR 提升 **7.00 个
   // 跨篇索引包含每条精读的所在页、独立编号和标签。
   var REMOTE_PAGE = { url: '/VLN-Papers/', label: '指令跟随篇' };
   var REMOTE_PAPERS = [
+    { n: "3. DA-Nav (2026)", a: "da-nav", url: "/VLN-Papers-Outdoor/", label: "户外导航篇", t: ['CoT', '数据集', '连续环境', '实机部署'] },
     { n: "1. R2R (2018)", a: "r2r", url: "/VLN-Papers/", label: "指令跟随篇", t: ['离散环境', '数据集'] },
     { n: "2. VLN-CE (2020)", a: "vln-ce", url: "/VLN-Papers/", label: "指令跟随篇", t: ['数据集', '连续环境', '基础工作'] },
     { n: "3. DUET (2022)", a: "duet", url: "/VLN-Papers/", label: "指令跟随篇", t: ['拓扑图', '端到端', '离散环境'] },
@@ -3367,20 +3369,20 @@ GPT-6 Astra 完整系统相对 8B VLA 单独运行，R2R-CE SR 提升 **7.00 个
     { n: "11. LocalNav (2026)", a: "localnav", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['拓扑图', '强化学习', '实机部署', '加速优化'] },
     { n: "12. AECNav (2026)", a: "aecnav", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['零样本', 'Agentic', '实机部署', '加速优化'] },
     { n: "13. VNT-PA (2026)", a: "vnt-pa", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['端到端', '连续环境'] },
-    { n: "14. CausalNav (2026)", a: "causalnav", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['Agentic', '拓扑图'] },
-    { n: "15. NAVCON (2024)", a: "navcon", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['数据集', '连续环境', '离散环境'] },
-    { n: "16. LoGoPlanner (2025)", a: "logoplanner", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['端到端', '扩散模型', '连续环境', '实机部署'] },
-    { n: "17. Skill-Nav (2025)", a: "skill-nav", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['端到端', '强化学习', '实机部署'] },
-    { n: "18. FantasyVLN (2026)", a: "fantasyvln", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['世界模型', '数据增强', '连续环境', 'CoT'] },
-    { n: "19. SparseVideoNav (2026)", a: "sparsevideonav", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['端到端', '扩散模型', '世界模型'] },
-    { n: "20. WorldVLN (2026)", a: "worldvln", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['世界模型', '强化学习', '端到端', '实机部署'] },
-    { n: "21. CONDVLN (2026)", a: "condvln", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['数据集', '连续环境', '拓扑图'] },
-    { n: "22. Qwen-Drive (2026)", a: "qwen-drive", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['端到端', '扩散模型', '强化学习', '连续环境'] },
-    { n: "23. LookStep (2026)", a: "lookstep", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['端到端', '连续环境', '加速优化', '实机部署'] },
-    { n: "24. OccPlanner (2026)", a: "occplanner", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['扩散模型', '端到端', '数据增强', '连续环境'] },
-    { n: "25. EgoPathBench (2026)", a: "egopathbench", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['数据集', '零样本', 'CoT', '连续环境'] },
-    { n: "26. VLingNav (2026)", a: "vlingnav", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['双系统', '连续环境', 'CoT'] },
-    { n: "27. X-NavDP (2026)", a: "x-navdp", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['扩散模型', '强化学习', '连续环境', '实机部署'] },
+    { n: "2. CausalNav (2026)", a: "causalnav", url: "/VLN-Papers-Outdoor/", label: "户外导航篇", t: ['Agentic', '拓扑图'] },
+    { n: "14. NAVCON (2024)", a: "navcon", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['数据集', '连续环境', '离散环境'] },
+    { n: "15. LoGoPlanner (2025)", a: "logoplanner", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['端到端', '扩散模型', '连续环境', '实机部署'] },
+    { n: "16. Skill-Nav (2025)", a: "skill-nav", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['端到端', '强化学习', '实机部署'] },
+    { n: "17. FantasyVLN (2026)", a: "fantasyvln", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['世界模型', '数据增强', '连续环境', 'CoT'] },
+    { n: "18. SparseVideoNav (2026)", a: "sparsevideonav", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['端到端', '扩散模型', '世界模型'] },
+    { n: "19. WorldVLN (2026)", a: "worldvln", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['世界模型', '强化学习', '端到端', '实机部署'] },
+    { n: "20. CONDVLN (2026)", a: "condvln", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['数据集', '连续环境', '拓扑图'] },
+    { n: "21. Qwen-Drive (2026)", a: "qwen-drive", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['端到端', '扩散模型', '强化学习', '连续环境'] },
+    { n: "22. LookStep (2026)", a: "lookstep", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['端到端', '连续环境', '加速优化', '实机部署'] },
+    { n: "23. OccPlanner (2026)", a: "occplanner", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['扩散模型', '端到端', '数据增强', '连续环境'] },
+    { n: "24. EgoPathBench (2026)", a: "egopathbench", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['数据集', '零样本', 'CoT', '连续环境'] },
+    { n: "25. VLingNav (2026)", a: "vlingnav", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['双系统', '连续环境', 'CoT'] },
+    { n: "26. X-NavDP (2026)", a: "x-navdp", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['扩散模型', '强化学习', '连续环境', '实机部署'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',

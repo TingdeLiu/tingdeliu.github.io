@@ -1,0 +1,13 @@
+{
+  "source": "_posts/research/2026-01-06-VLN-Papers-Outdoor.md",
+  "translation": "_translations/en/research/VLN-Papers-Outdoor.md",
+  "stage": "partial",
+  "updated_on": "2026-11-11",
+  "total_papers": 3,
+  "completed_papers": {
+    "causalnav": {
+      "source_hash": "1f04921278e93ee8b550ed75d458ca8ec7eae1a0e0e7eb3f6d5e2bd5ffbade8b",
+      "status": "translated-and-content-parity-validated"
+    }
+  }
+}

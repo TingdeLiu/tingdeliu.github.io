@@ -1,9 +1,9 @@
 {
-  "source": "_posts/research/2026-01-06-VLN-Papers-Extended.md",
+  "source": "_posts/research/2026-01-06-VLN-Papers-ObjectNav.md",
   "translation": "_translations/en/research/VLN-Papers-Extended.md",
   "stage": "complete",
-  "updated_on": "2026-11-07",
-  "total_papers": 27,
+  "updated_on": "2026-11-11",
+  "total_papers": 26,
   "completed_papers": {
     "vlfm": {
       "source_hash": "4f3c9215a77857d1f095baf86c2ee7569b3b30a591a4cb374d1d8ea9b6ce2b2b",
@@ -55,10 +55,6 @@
     },
     "vnt-pa": {
       "source_hash": "acab1cb341d8779d5cbc66911db18b02a2f15d4a18e90c42a7056f9fb17865a1",
-      "status": "translated-and-content-parity-validated"
-    },
-    "causalnav": {
-      "source_hash": "c52287f86b155416fe6dfe50237cde4838059c6e58adec0a6e4687837bef82e5",
       "status": "translated-and-content-parity-validated"
     },
     "navcon": {
