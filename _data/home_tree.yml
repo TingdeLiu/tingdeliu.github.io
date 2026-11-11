@@ -7,6 +7,7 @@
         - {slug: VLN-Survey, zh: 按指令走, en: Follow instructions}
         - {slug: VLN-Papers}
         - {slug: VLN-Papers-Extended, zh: 寻找目标, en: Find a target}
+        - {slug: VLN-Papers-Outdoor, zh: 户外长程导航, en: Navigate outdoors}
         - {slug: Agentic-Navigation-Papers, zh: 自主探索与决策, en: Explore and make decisions}
         - {slug: Robot-Navigation-Survey, zh: 定位与规划, en: Localize and plan}
     - zh: 具身操作
