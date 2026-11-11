@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-survey
 title: "VLN 综述"
-date: 2026-11-07
+date: 2026-11-11
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -1697,7 +1697,7 @@ Seen / Unseen 通常按基准场景划分，衡量同一任务内的场景泛化
 - [VLN 论文精读：指令跟随篇与性能排行榜](/VLN-Papers/)：按任务设定维护论文精读、性能和开源状态。
 - [空间智能综述](/Spatial-Intelligence-Survey/)：补充 3D 表征、地图与空间推理基础。
 - [世界模型综述](/World-Models-Survey/)：补充预测模型、世界动作模型与数据引擎。
-- [传统机器人导航算法综述](/Robot-Navigation-Survey/)：补充 SLAM、全局 / 局部规划与控制器基础，对应[第 3.2 节的分层控制](#survey-policy)、[第 3.4 节的动作接口](#survey-grounding)与第 8.4 节的部署指标。
+- [传统导航综述](/Robot-Navigation-Survey/)：补充 SLAM、全局 / 局部规划与控制器基础，对应[第 3.2 节的分层控制](#survey-policy)、[第 3.4 节的动作接口](#survey-grounding)与第 8.4 节的部署指标。
 - [VLA 综述](/VLA-Survey/)：补充视觉-语言-动作模型的训练范式与动作接口设计。
 
 **[VLN-Survey-with-Foundation-Models](https://github.com/zhangyuejoslin/VLN-Survey-with-Foundation-Models)**

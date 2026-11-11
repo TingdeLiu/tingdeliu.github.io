@@ -5,10 +5,10 @@ translation_id: robot-navigation-survey
 permalink: /en/Robot-Navigation-Survey/
 source_path: _posts/research/2026-02-27-Robot-Navigation-Survey.md
 source_url: /Robot-Navigation-Survey/
-source_revision_date: 2026-10-24
-translation_updated: 2026-10-24
-title: "Traditional Robot Navigation Algorithms: A Survey"
-date: 2026-10-24
+source_revision_date: 2026-11-11
+translation_updated: 2026-11-11
+title: "Traditional Navigation: A Survey"
+date: 2026-11-11
 tags: [Robotics, Navigation, SLAM, Localization, Mapping, Path Planning, Path Tracking, Perception]
 categories: research
 comments: false

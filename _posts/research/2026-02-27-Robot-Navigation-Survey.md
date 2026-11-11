@@ -2,8 +2,8 @@
 layout: post
 lang: zh-CN
 translation_id: robot-navigation-survey
-title: "传统机器人导航算法综述"
-date: 2026-10-24
+title: "传统导航综述"
+date: 2026-11-11
 tags: [Robotics, Navigation, SLAM,  Localization, Mapping, Path Planning, Path Tracking, Perception]
 categories: research
 comments: true

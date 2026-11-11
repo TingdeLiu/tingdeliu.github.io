@@ -5,10 +5,10 @@ translation_id: vln-survey
 permalink: /en/VLN-Survey/
 source_path: _posts/research/2026-01-04-VLN-Survey.md
 source_url: /VLN-Survey/
-source_revision_date: 2026-11-07
-translation_updated: 2026-11-07
+source_revision_date: 2026-11-11
+translation_updated: 2026-11-11
 title: "Vision-Language Navigation: A Survey"
-date: 2026-11-07
+date: 2026-11-11
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
@@ -1809,7 +1809,7 @@ A useful learning order is classic tasks → continuous environments → foundat
 - {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following and Leaderboards' %}: detailed readings, performance, and open-source status organized by task setting.
 - {% include content-link.html path='/Spatial-Intelligence-Survey/' fragment='' label='Spatial Intelligence Survey' %}: foundations of 3D representations, maps, and spatial reasoning.
 - {% include content-link.html path='/World-Models-Survey/' fragment='' label='World Models Survey' %}: predictive models, world-action models, and data engines.
-- {% include content-link.html path='/Robot-Navigation-Survey/' fragment='' label='Traditional Robot Navigation Survey' %}: SLAM, global/local planning, and controllers, complementing [hierarchical control in Section 3.2](#survey-policy), [action interfaces in Section 3.4](#survey-grounding), and deployment metrics in Section 8.4.
+- {% include content-link.html path='/Robot-Navigation-Survey/' fragment='' label='Traditional Navigation Survey' %}: SLAM, global/local planning, and controllers, complementing [hierarchical control in Section 3.2](#survey-policy), [action interfaces in Section 3.4](#survey-grounding), and deployment metrics in Section 8.4.
 - {% include content-link.html path='/VLA-Survey/' fragment='' label='VLA Survey' %}: vision-language-action training paradigms and action-interface design.
 
 **[VLN-Survey-with-Foundation-Models](https://github.com/zhangyuejoslin/VLN-Survey-with-Foundation-Models)**

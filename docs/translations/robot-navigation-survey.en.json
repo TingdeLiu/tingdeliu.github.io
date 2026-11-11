@@ -1,10 +1,10 @@
 {
   "source": "_posts/research/2026-02-27-Robot-Navigation-Survey.md",
   "translation": "_translations/en/research/Robot-Navigation-Survey.md",
-  "reviewed_on": "2026-10-24",
-  "source_revision_date": "2026-10-24",
+  "reviewed_on": "2026-11-11",
+  "source_revision_date": "2026-11-11",
   "sections": {
-    "metadata": "1f852a94d2f1c9d712ec7c3c6eaafbd669e6cea8c59f771f17059aee10f1aeca",
+    "metadata": "32337e92a8f3cacbbb86726d08e1679c3f1ff4a76adeab66c1b7e0e0f0b5fdc1",
     "introduction": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "1. 引言": "b968f1f3f8960b540c41930426830a6742961e1b91e2406903e41bccead0b32e",
     "1.1 为什么需要自主导航？": "ee1c2d72000a4b23d5fcef82cc71ffbb88650e9388239691e505e5cc47bbb267",
