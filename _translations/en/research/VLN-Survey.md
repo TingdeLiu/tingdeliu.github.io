@@ -17,7 +17,21 @@ toc: true
 excerpt: "A survey of VLN through tasks, policy architecture, spatial memory, action interfaces, progress tracking, and training signals, comparing active perception, agent orchestration, and prediction mechanisms, with sourced dataset selection and closed-loop evaluation analysis."
 ---
 
-> **Revised on 2026-10-09**: Section 3 is organized by policy architecture, spatial representation, action interfaces, task progress, agent orchestration, prediction, and training mechanisms. This revision expands Section 3.8 with RL mechanisms, reward design, PPO / GRPO, and same-backbone gain evidence, with key conclusions linked to the original papers. Detailed readings are available in {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} and {% include content-link.html path='/VLN-Papers-Extended/' fragment='' label='VLN Papers: Goal Navigation' %} and {% include content-link.html path='/Agentic-Navigation-Papers/' fragment='' label='VLN Papers: Agentic Navigation' %}. See [Section 9.4](#survey-scope) for coverage.
+> **Reading guide updated on 2026-11-11**: Added entry points for instruction following, goal navigation, agentic navigation, outdoor navigation, and traditional navigation, together with outdoor mechanism comparisons and evaluation boundaries. This is not a full re-verification of papers or leaderboards; see [Section 9.4](#survey-scope) for the scope of earlier technical checks.
+
+## How to read this collection
+{: id="survey-reading-map"}
+
+| Article | Main question |
+|:---|:---|
+| **This article: VLN Survey** | How should tasks, mechanisms, datasets, and evaluation be understood? Start here. |
+| {% include content-link.html path='/VLN-Papers/' fragment='' label='Instruction following' %} | How are route instructions followed? Find methods and results under matched settings. |
+| {% include content-link.html path='/VLN-Papers-Extended/' fragment='' label='Goal navigation' %} | How are object or image goals found and reached? Includes related extension tasks. |
+| {% include content-link.html path='/Agentic-Navigation-Papers/' fragment='' label='Agentic navigation' %} | How are tools, memory, plans, and execution feedback organized? |
+| [Outdoor navigation (Chinese)](/VLN-Papers-Outdoor/) | How are maps, vision, and language combined on streets, in parks, and on trails? |
+| {% include content-link.html path='/Robot-Navigation-Survey/' fragment='' label='Traditional Navigation Survey' %} | How do localization, mapping, planning, and control support execution? |
+
+The four paper collections are **reading categories, not mutually exclusive algorithm classes**: outdoor methods can use agent orchestration, and instruction following can rely on traditional planners. Establish the task and evaluation protocol here, then consult the relevant readings for implementation and evidence. Return to traditional navigation when the execution stack is unclear.
 
 
 ## Reading guide
@@ -373,6 +387,8 @@ Spatial representation answers "how are objects and traversable regions in the e
 | Historical frames, keyframes, and compressed context | Keeps task-relevant observations within a limited budget | {% include content-link.html path='/VLN-Papers/' fragment='#streamvln' label='StreamVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#memvln' label='MemVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#decovln' label='DecoVLN' %} | Whether early landmarks and turns are lost |
 | Task events and experience retrieval | Stores completed steps, failure conditions, and execution evidence | {% include content-link.html path='/Agentic-Navigation-Papers/' fragment='#harnessvln' label='HarnessVLN' %} | Incorrect writes, stale experience, and retrieval overhead |
 
+**An outdoor scene-graph reading.** [CausalNav (Chinese)](/VLN-Papers-Outdoor/#causalnav) connects semantic maps, goal retrieval, and navigation in dynamic environments. It illustrates how scene graphs serve real outdoor tasks, not direct performance evidence on route-instruction benchmarks; fix the goal format, mapping information, and dynamic-obstacle conditions before comparing.
+
 **Geometric fusion and history selection can be optimized together.** [AdaGeoVLN](https://arxiv.org/abs/2609.18789) feeds features from different depths of a geometry model into the policy and keeps historical KV states according to instruction relevance, geometric confidence, and transition novelty. The example shows that compression is not only about reducing tokens: what is kept also changes the spatial reasoning available at the next step.
 
 **Computation reuse and task memory should be distinguished by purpose, not only by whether a KV cache is used.** [VLN-Cache](https://arxiv.org/abs/2603.07080) mainly reuses cross-frame computation to reduce cost; JanusVLN, AdaGeoVLN, and similar methods also use historical neural states as semantic or geometric memory. The former should report speedup and accuracy loss; the latter also needs tests of long-range landmark retention, backtracking, and error correction.
@@ -393,6 +409,8 @@ The action interface decides what the high-level model must predict and what wor
 | Topological nodes / frontier macro-actions | Selects a graph node or frontier; discrete environments move along the graph, continuous ones hand off to a low-level executor | {% include content-link.html path='/VLN-Papers/' fragment='#duet' label='DUET' %}, {% include content-link.html path='/VLN-Papers/' fragment='#macroaction-vln' label='MacroAction-VLN' %} | The candidate set and graph quality limit high-level choices |
 | Continuous waypoints / trajectory chunks | A controller tracks trajectories produced by regression, diffusion, or similar methods | {% include content-link.html path='/VLN-Papers/' fragment='#dualvln' label='DualVLN' %}, {% include content-link.html path='/VLN-Papers/' fragment='#omninav' label='OmniNav' %} | The coordinate frame, trajectory horizon, and execution constraints must be explicit |
 | Quantized trajectory tokens | Decoded into a trajectory first, then passed to the executor | {% include content-link.html path='/VLN-Papers/' fragment='#lightnav-0' label='LightNav-0' %} | Quantization error and cross-embodiment adaptation need checking |
+
+**Outdoor direction commands also need geometric grounding.** [DA-Nav (Chinese)](/VLN-Papers-Outdoor/#da-nav-method) converts direction commands and visual history into image-grid trajectories, then uses depth or flat-ground IPM to project targets for a controller. Grid locations are not metric waypoints, and an RGB policy does not make the complete system independent of depth, calibration, or ground assumptions.
 
 **Visual grounding affects both reasoning and execution.** [GroundingVLN](https://arxiv.org/abs/2609.18581v3) binds visual evidence in its reasoning to image locations, then outputs pixel goals aligned with task progress for a geometric planner to execute. A measurable intermediate interface makes it possible to check separately "what was recognized", "where the target is", and "where the agent actually went", and it also grounds execution-aware rewards.
 
@@ -429,6 +447,8 @@ Long-horizon navigation requires continual judgment of "which part of the instru
 [SeekVLN](https://arxiv.org/abs/2609.37353v1) goes further into cases where the current view is insufficient for judging progress: the policy can either navigate directly or observe more, then continue with the added evidence. Its training compares the subsequent progress of looking again versus navigating directly from the same state. The extra observation cost must be reported separately; the gain from adding views on demand cannot all be attributed to stronger reasoning, and the mode switch alone does not make the method tool orchestration or fast-slow control.
 
 For example, the instruction is "pass the sofa, turn left, and stop before the second door". When the side door is not visible, an additional observation may help most; when the junction has already been missed, the agent must back up and correct its progress; when it keeps moving after arriving, the stopping condition needs analysis. Count these three error types separately, then check whether recovery actually preserves the instruction's constraints along the route.
+
+[DA-Nav recovery data (Chinese)](/VLN-Papers-Outdoor/#da-nav-method) illustrate another training route: induce deviations during simulation data collection, discard the disturbance segment, retain recovery demonstrations, and supervise deviation states, corrective actions, and trajectories. This is not online reinforcement learning. Evaluation must also distinguish recovery success per deviation event from whole-task success.
 
 **Recovery is a capability, and more than one mechanism can provide it.** [CorrectNav](https://arxiv.org/abs/2508.10416) generates corrective data from the model's own deviations and continues training, which is a training mechanism; agent systems can also recover at runtime using tool feedback. Both should be verified with actual trajectories: the presence of "reflection" text does not establish effective recovery or imply weight updates during deployment.
 
@@ -909,6 +929,14 @@ Outdoor VLN faces larger spatial scales and greater uncertainty. Similar-looking
 </div>
 
 **Applications**: campus and urban delivery, guidance for visually impaired people and mobility assistance, and language-conditioned autonomous-driving planning.
+
+**From street-view graphs to physical execution.** Language navigation between panoramic graph nodes, map-direction-driven ground navigation, and open semantic-goal navigation differ in inputs and execution conditions; they do not belong in one leaderboard. The [outdoor collection (Chinese)](/VLN-Papers-Outdoor/) records results under their respective protocols:
+
+- [WayTrace (Chinese)](/VLN-Papers-Outdoor/#waytrace): map guidance, long-range route execution, and GNSS drift.
+- [CausalNav (Chinese)](/VLN-Papers-Outdoor/#causalnav): semantic maps, goal retrieval, and dynamic-environment navigation.
+- [DA-Nav (Chinese)](/VLN-Papers-Outdoor/#da-nav): image-grid grounding of direction commands and deviation-recovery data.
+
+Before comparing completion or safety, check map and localization access, the source of direction updates, control interfaces, and human intervention. Ground outdoor execution should also be distinguished from the aerial tasks below and autonomous driving.
 
 ## 5.3 Aerial environments
 {: id="53-空中场景"}
@@ -1762,6 +1790,8 @@ For example, if $\lvert R\rvert=4$, $d_{th}=3$ m, and DTW is 6 m, nDTW is $e^{-0
 
 Collisions can be counted per action step, contact event, or episode, yielding different denominators. Define Collision Rate / Human Collision Rate explicitly and report completion alongside them, avoiding apparent safety from remaining stationary. Personal-space violations are also broader than physical contact.
 
+**Outdoor evaluation needs more than distance traveled.** [DA-Nav evaluation (Chinese)](/VLN-Papers-Outdoor/#da-nav-results) separates mixed-town CARLA, unseen-town CARLA, and real closed-loop trials. Task SR, event-level recovery CSR, single-action success, and kilometer-scale demonstrations are different kinds of evidence. Record human interventions, retries, collisions, and network dependencies across papers; without intervention logs, long-distance demonstrations do not establish reliable unsupervised operation.
+
 ### 8.4.2 Dynamic stability
 {: id="842-动力学稳定性"}
 
@@ -1805,6 +1835,10 @@ The companion {% include content-link.html path='/VLN-Papers/' fragment='' label
 A useful learning order is classic tasks → continuous environments → foundation models → real deployment. Reproduce R2R / VLN-CE baselines and learn Habitat episodes, sensors, and metrics; then study streaming VLA, fast-slow systems, and spatial memory; finally move to agents, world models, and real robots. Starting with the latest large model can obscure differences caused by protocols and action interfaces.
 
 **Companion resources on this site:**
+
+- {% include content-link.html path='/VLN-Papers-Extended/' fragment='' label='Goal navigation' %}: finding and reaching object or image goals, with related extension tasks.
+- {% include content-link.html path='/Agentic-Navigation-Papers/' fragment='' label='Agentic navigation' %}: tool use, spatial memory, plans, and execution feedback.
+- [Outdoor navigation (Chinese)](/VLN-Papers-Outdoor/): map guidance, semantic goals, and recovery; results remain separated by task and protocol.
 
 - {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following and Leaderboards' %}: detailed readings, performance, and open-source status organized by task setting.
 - {% include content-link.html path='/Spatial-Intelligence-Survey/' fragment='' label='Spatial Intelligence Survey' %}: foundations of 3D representations, maps, and spatial reasoning.
@@ -1907,13 +1941,15 @@ The table proposes open questions and evaluation approaches based on that eviden
 
 This is a problem-oriented narrative survey covering route-instruction navigation and related goal-navigation, interaction, and embodied-control work. It is not a systematic review with exhaustive search and exclusion procedures. Boundaries are stated where other tasks inform mechanisms; general VLA and manipulation papers are not treated as direct performance evidence for standard VLN.
 
+**2026-11-11 reading-guide update**: Added entry points for all four paper collections and traditional navigation, mechanism comparisons for CausalNav and DA-Nav, and outdoor evaluation boundaries; checked internal links and synchronized the English article. This does not constitute a full review of paper claims, datasets, or leaderboards.
+
 Data-counting conventions, platform support, and core metrics were verified together on **2026-09-26**. On **2026-10-07**, Section 3 was reorganized with the companion paper readings, adding checks of the mechanism descriptions for representative methods in action interfaces, progress and active perception, and predictive learning. On **2026-10-09**, Section 3.8 was expanded, checking RL feedback levels, rewards, and same-backbone ablations against the specified versions of the original papers. These method-section revisions do not mean that every dataset, platform, or leaderboard was re-verified. Changeable data are tied to paper versions or data-card sources; entries without a confirmed independent protocol retain uncertainty notes. Other work is available through companion paper readings. This survey does not claim to have independently reproduced every experiment or verified all leaderboard results.
 
 
 # 10. References
 {: id="10-参考资料"}
 
-> **Detailed paper readings**: see {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} and {% include content-link.html path='/VLN-Papers-Extended/' fragment='' label='VLN Papers: Goal Navigation' %} and {% include content-link.html path='/Agentic-Navigation-Papers/' fragment='' label='VLN Papers: Agentic Navigation' %}. This section lists datasets, methods, simulators, and surveys directly discussed above, grouped by topic with continuous numbering. For preprint publication status and leaderboard values, consult paper homepages and the companion readings.
+> **Detailed paper readings**: see {% include content-link.html path='/VLN-Papers/' fragment='' label='VLN Papers: Instruction Following' %} and {% include content-link.html path='/VLN-Papers-Extended/' fragment='' label='VLN Papers: Goal Navigation' %} and {% include content-link.html path='/Agentic-Navigation-Papers/' fragment='' label='VLN Papers: Agentic Navigation' %}, and [Outdoor navigation (Chinese)](/VLN-Papers-Outdoor/). This section lists datasets, methods, simulators, and surveys directly discussed above, grouped by topic with continuous numbering. For preprint publication status and leaderboard values, consult paper homepages and the companion readings.
 
 ---
 
