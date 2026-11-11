@@ -19,8 +19,6 @@ excerpt: "24 readings on tool use, active interaction, spatial memory, and conti
 ---
 
 
-* Contents
-{:toc}
 
 > This collection covers 24 works on how LLM/VLM agents call perception and movement tools, request help, read and write spatial memory, and replan or resume tasks using execution feedback. It includes supporting work on mobile manipulation and spatial mapping; individual papers need not implement every mechanism.
 >
