@@ -13,7 +13,7 @@ class OutdoorMigrationTests(unittest.TestCase):
         for path, count in [
             (CN / '2026-01-06-VLN-Papers-ObjectNav.md', 26),
             (EN / 'VLN-Papers-Extended.md', 26),
-            (CN / '2026-01-06-VLN-Papers-Outdoor.md', 7),
+            (CN / '2026-01-06-VLN-Papers-Outdoor.md', 8),
         ]:
             text = path.read_text(encoding='utf-8')
             numbers = [int(n) for n in re.findall(r'^## (\d+)\. ', text, re.M)]
@@ -65,6 +65,19 @@ class OutdoorMigrationTests(unittest.TestCase):
             self.assertNotIn('\n\n', block)
         self.assertIn('非加权平均', text)
         self.assertIn('两组 Net Success 均为 0.80', text)
+
+    def test_compass_reading_assets_and_evaluation_scope(self):
+        text = (CN / '2026-01-06-VLN-Papers-Outdoor.md').read_text(encoding='utf-8')
+        self.assertEqual(text.count('## 8. Compass 1 (2026)'), 1)
+        self.assertIn('收录 8 篇精读', text)
+        for suffix in ['', '-takeaways', '-background', '-method', '-results', '-limitations']:
+            self.assertEqual(text.count('{: id="compass-1' + suffix + '"}'), 1)
+        images = re.findall(r'<img src="(/images/vln/Compass-1-[^"]+)"', text)
+        self.assertEqual(len(images), 4)
+        for image in images:
+            self.assertTrue((ROOT / image.lstrip('/')).is_file(), image)
+        self.assertIn('总 SR 79.4% 混合了室内与户外结果', text)
+        self.assertIn('8. **Compass 1** (2026).', text)
 
     def test_english_reading_is_retained_as_unpublished_draft(self):
         text = (EN / 'VLN-Papers-Outdoor.md').read_text(encoding='utf-8')
