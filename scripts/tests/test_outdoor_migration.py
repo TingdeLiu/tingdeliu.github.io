@@ -79,11 +79,24 @@ class OutdoorMigrationTests(unittest.TestCase):
         self.assertIn('总 SR 79.4% 混合了室内与户外结果', text)
         self.assertIn('8. **Compass 1** (2026).', text)
 
-    def test_english_reading_is_retained_as_unpublished_draft(self):
+    def test_complete_english_collection_preserves_source_features(self):
+        import sys
+        sys.path.insert(0, str(ROOT / 'scripts'))
+        from check_translation_drafts import features, paper_sections
         text = (EN / 'VLN-Papers-Outdoor.md').read_text(encoding='utf-8')
-        self.assertIn('published: false', text)
-        self.assertIn('translation_scope: partial', text)
-        self.assertIn('## 2. CausalNav (2026)', text)
+        source = (CN / '2026-01-06-VLN-Papers-Outdoor.md').read_text(encoding='utf-8')
+        self.assertNotIn('published: false', text)
+        self.assertIn('translation_scope: complete', text)
+        self.assertNotIn('{:toc}', text)
+        self.assertEqual(re.findall(r'^## (\d+)\. ', text, re.M), list(map(str, range(1, 9))))
+        originals, translated = paper_sections(source), paper_sections(text)
+        self.assertEqual(originals.keys(), translated.keys())
+        for anchor in originals:
+            self.assertEqual(features(originals[anchor]), features(translated[anchor]), anchor)
+        self.assertEqual(features(source), features(text))
+        # Chinese text is retained only in stable heading IDs for section switching.
+        prose = re.sub(r'^\{: id="[^"]+"\}\s*$', '', text, flags=re.M)
+        self.assertNotRegex(prose, r'[\u4e00-\u9fff]')
 
 
 if __name__ == '__main__':

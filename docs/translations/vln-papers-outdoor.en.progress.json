@@ -1,12 +1,40 @@
 {
   "source": "_posts/research/2026-01-06-VLN-Papers-Outdoor.md",
   "translation": "_translations/en/research/VLN-Papers-Outdoor.md",
-  "stage": "partial",
-  "updated_on": "2026-11-11",
-  "total_papers": 7,
+  "stage": "complete",
+  "updated_on": "2026-11-12",
+  "total_papers": 8,
   "completed_papers": {
+    "waytrace": {
+      "source_hash": "fc339d0b259ee23b770dd636fc242b1bd82f340f09ef5872a0b76cc6431c6b32",
+      "status": "translated-and-content-parity-validated"
+    },
     "causalnav": {
       "source_hash": "1f04921278e93ee8b550ed75d458ca8ec7eae1a0e0e7eb3f6d5e2bd5ffbade8b",
+      "status": "translated-and-content-parity-validated"
+    },
+    "da-nav": {
+      "source_hash": "93bc8cf56eb25ef52839ab434b508386a1dc4f913238bdaf5022fe3cc0631447",
+      "status": "translated-and-content-parity-validated"
+    },
+    "citywalker": {
+      "source_hash": "ef2734f950c7abb53fcc0567a39e4124517777aa37311ce9601d44d5f3cb6b1f",
+      "status": "translated-and-content-parity-validated"
+    },
+    "urbannav": {
+      "source_hash": "eb199835b082b55575ef430c4397e4a47ade0d812be1dfece7a77dd9587e9373",
+      "status": "translated-and-content-parity-validated"
+    },
+    "mosu2": {
+      "source_hash": "aeeee358d7ab13ad6b1c8bee85820f639fd9190f85877404dfd987b0e99df648",
+      "status": "translated-and-content-parity-validated"
+    },
+    "lm-nav": {
+      "source_hash": "d07f480413bedf47e3097220edd0e6ee483053a8dee2dca1f3206438f7c812ba",
+      "status": "translated-and-content-parity-validated"
+    },
+    "compass-1": {
+      "source_hash": "7a22419db0eb27b79138bee45d8cba36fb442431a0ad693735f5fa316102b6e4",
       "status": "translated-and-content-parity-validated"
     }
   }

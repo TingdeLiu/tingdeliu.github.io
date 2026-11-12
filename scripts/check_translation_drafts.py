@@ -34,6 +34,7 @@ def normalize_math_labels(prose):
         r'\text{ 在公共 Trunk}': r'\text{ is in the shared trunk}',
         r'\text{ 在同一 Branch}': r'\text{ are in the same branch}',
         r'\text{ 米}': r'\text{ m}',
+        r'\text{保留条件： }': r'\text{retain if: }',
         r'\text{"红色工牌"}': r'\text{"red badge"}',
         r'\text{"当前时间-5分钟"}': r'\text{"current time minus 5 minutes"}',
         'Observable (可见)': 'Observable (visible)',
