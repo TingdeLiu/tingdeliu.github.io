@@ -1,15 +1,15 @@
 {
   "source": "_posts/research/2026-01-05-VLN-Papers-InstructionFollowing.md",
   "translation": "_translations/en/research/VLN-Papers.md",
-  "reviewed_on": "2026-11-11",
-  "source_revision_date": "2026-11-11",
+  "reviewed_on": "2026-11-14",
+  "source_revision_date": "2026-11-14",
   "sections": {
-    "metadata": "8b762f7887b3c2d0e248e8e420196303d615555b788653b1f255cdf72fc28695",
+    "metadata": "ea0df1bda27354a28a2012f1f2ce8df66d87391c7b45a74df4bad149ce8d5acd",
     "introduction": "05837fdefdeb710af454a635dc9bc78e60583324966f080a985fd08714a6d8e2",
     "性能排行榜": "9a2cf6f3f7b09b17a1a12403f1808af21030840081cad6069071e3f40443206e",
     "① R2R-CE": "f6859b7c8e0499918678562008c7f5d55ab56a13a9aeca4f21811bd4ae13c3db",
     "② RxR-CE": "d2c37666484a10d840110f9d2dfc8da766da7f9915ce84383ccd59e228088e48",
-    "③ R2R · REVERIE": "c35646fc26bd0d8b84e410f45144345e66c31db6ac4523f5087910efdee8f009",
+    "③ R2R · REVERIE": "404052b54ed74a8973d3f61f13069a9824e043c988b50828637b74ec222b497d",
     "④ LHPR-VLN · 长程多阶段导航": "8fa3ce9872945fe69bb42efb3e984f334337a99784461acef488a94eb467fb9e",
     "前列模型技术方案分析": "e772b799c4c151d21ab387f9b5fff37cb91fa68dd1c0b728d1dca58567ab02da",
     "要素打勾矩阵": "91be0ffac788280822fed6e48f3b6e8ea809e1871fc5cdf2fc88af0aff37ebbe",
@@ -475,6 +475,6 @@
     "参考资料": "37b0f14294c325d590ec513f27a4d22572998634a6132090258473b1ca1b7f2b",
     "已发表论文（会议 / 期刊）": "d322989713f3f8556788f26513d293106556a3e82b3aead60920efcbeca8c565",
     "论文引用": "aca4897b609cd4d418457c872f8afe7921d9f0d208842b72828dd9fc07b46696",
-    "已迁移的论文精读": "49fef8ca1ee71dfe937c14168c149780495bd7a2aec0ef3c04f492edf1ab9caf"
+    "已迁移的论文精读": "419537b28abf2758d2c4413f34ac16f7466fbe9452e0cf0820f9b7a493777252"
   }
 }

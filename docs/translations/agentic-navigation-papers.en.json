@@ -1,11 +1,11 @@
 {
   "source": "_posts/research/2026-11-07-VLN-Papers-AgenticNav.md",
   "translation": "_translations/en/research/Agentic-Navigation-Papers.md",
-  "reviewed_on": "2026-11-11",
-  "source_revision_date": "2026-11-11",
+  "reviewed_on": "2026-11-14",
+  "source_revision_date": "2026-11-14",
   "sections": {
-    "metadata": "c4233200159329b68262f7e8366dcc5cf42b9f39403d3ae16a57ea8c172fb687",
-    "introduction": "dd4578eaf2e8dfb662ce392a16a57bae93ac98f489e71a5e2d49277966839937",
+    "metadata": "82179085e361300599b898c4538b979d765f1d09a076b4741dec20dee1f4f93a",
+    "introduction": "38303fc34dce87c1fb87a43734b3fdeb671db02d77b59379768dc13c672a5840",
     "Agentic 导航论文精读": "ead9a0fa8143490ef5a25cbc149bd6bb5a372b6effbbac47a77aec4571b0ba2e",
     "paper:panonav / 1. PanoNav (2025)": "5e657dbccdf25628156d12dc7e97f4e0004e394c63aba6a888a5f65e345cfbf4",
     "paper:odyssey / 2. ODYSSEY (2025)": "2956aac02c125c6703ca106dd943086d1251a9b276f30b9ea0a7789e832a8f9e",
@@ -199,7 +199,19 @@
     "paper:navgpt-3 / 2. 主要方法/创新点": "1d8e76740e57eb79d4966774370823f46e91499e87c20756cdf2efd7436cba7e",
     "paper:navgpt-3 / 3. 核心结果/发现": "697527cc81435e82098be73edff61ddca3dd7537d6c73257ff069d4b6ccac5ac",
     "paper:navgpt-3 / 4. 局限性": "9caf96b93a5bb6e69cab959c17627ae351d01bf1884bf0aa2f699757171f94bf",
+    "paper:hsgnav / 25. HSGNav (2026)": "4f0ce41a7db3b7e4996fcbda48831868f05ab7f0551618f6f94d855c29bf6b56",
+    "paper:hsgnav / 精华": "e4fe39a331afa38e17108252235c571d6fa7be3b5604daf4f0ec88c4796694bd",
+    "paper:hsgnav / 1. 研究背景/问题": "efef79928202a649353790f06be2d43dce2ba0a2769481c3293594d6c8ccd180",
+    "paper:hsgnav / 2. 主要方法/创新点": "4c7182f4da0779dc41e632fbb40fbfb6e1f64b94a72aec9308a3bd05a7ec26be",
+    "paper:hsgnav / 3. 核心结果/发现": "4b2a5175d061d0d32671187fd2d3dda6bed4e8c660cbb264af18e57e6b6a2836",
+    "paper:hsgnav / 4. 局限性": "71df44834a12d2d97105f2ea96d2e7405831470792cdcd9b13ff8b55879593f7",
+    "paper:h2e / 26. H2E (2026)": "cd98dbd36377fb1ba2551ccf4be64fad58f46c85dcb9c7162cb9eb07ccd5f7ca",
+    "paper:h2e / 精华": "809a259dd59981dd671c7fbc222d93b66d52911c838aa21aa0a324fe02de6035",
+    "paper:h2e / 1. 研究背景/问题": "f55a25258b0bd47a9fb1f4a4229320de79334cd8a1942c968998a3b311d6522e",
+    "paper:h2e / 2. 主要方法/创新点": "916545bd1194119caa039d5736af8a667595fbe33a3cd4a8cedf96f930febedd",
+    "paper:h2e / 3. 核心结果/发现": "f143cc526504be29f972cb9f6c99f2880c53828e7586436d3458ed7ac48b3a5b",
+    "paper:h2e / 4. 局限性": "d19cca06f0de42a5a36da6049e723927d3b44186b86886270bbbf33abea09716",
     "参考资料": "c6909a34733f06b163d2f52bf177742b01cc4b7963a27bbf7c699ec4da5e31d1",
-    "论文引用": "2dde33e2cf0f82a74e727e8f3b54c5d35b99dbe429e3ccddd4584ca46facf40e"
+    "论文引用": "0ccbbfed91bd86ed2d4687684bfce16ed5a57ed11f6bd2b7b110fb7384389276"
   }
 }

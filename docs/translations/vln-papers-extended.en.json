@@ -1,17 +1,17 @@
 {
   "source": "_posts/research/2026-01-06-VLN-Papers-ObjectNav.md",
   "translation": "_translations/en/research/VLN-Papers-Extended.md",
-  "reviewed_on": "2026-11-11",
-  "source_revision_date": "2026-11-11",
+  "reviewed_on": "2026-11-14",
+  "source_revision_date": "2026-11-14",
   "sections": {
-    "metadata": "28bd8d2cb95d4571a5ebe543aee1895b01098567e2039b60736a1e6d1f6910a2",
+    "metadata": "e7ffc40c21009102001511df919d072d91a757fb5d06575318a5f36b4235e616",
     "introduction": "bc47efad1827b0cbbbe1014593a834a04933b410983144c6c3774b5e07326cee",
     "目标导航性能排行榜": "249796beb0be9adf00e733252ae7e7a044d596a1386f62bea85d83e6a98d0c04",
     "④ 封闭类别物体目标 · ObjectNav（HM3D · MP3D · Gibson）": "2ed52eb42b7feb53dad1d469b33be94256d74f2f5424a7300ee56d1d5aab3840",
     "⑤ 开放词汇物体目标 · HM3D-OVON": "920d3c8ab84ee09cef15739b9e335ac69ca6bf7559833c0187f5eb1d8d6e8f4d",
     "⑥ 图像目标 · HM3D-IIN / Image-Goal": "43c65b60ca622f0ea41b99135525b7514e99b287bfd38011f1bdef61d4ca9245",
     "⑦ 点目标 · Point-Goal": "73c18cb096c1cb5bf668a5b61ffdb3966a724a9787bc7a1b8fe380bd7a6bae1a",
-    "⑧ 多模态目标与自建基准": "8070fee1a6d2e748343dd3840d971c106352682f7bb5bb657a20a7b3469b5f38",
+    "⑧ 多模态目标与自建基准": "2ed39bfffd7885b8799ee0dbb295f27e71696abdfac70860a51cb9122cc6820f",
     "目标导航论文精读": "e590ebd37b708576d264ff23e8a0f4cc60c4ce34472e8ac7476067f7b3eaea5e",
     "paper:vlfm / 1. VLFM (2023)": "4f3c9215a77857d1f095baf86c2ee7569b3b30a591a4cb374d1d8ea9b6ce2b2b",
     "paper:nomad / 2. NoMaD (2023)": "7b9d6604f53ac524b4bf94822075f722fe5c265bf5478ab80b4d28b4b348bb64",
@@ -188,6 +188,6 @@
     "paper:x-navdp / 4. 局限性": "68004e962e8e18f8a6f3fff9738fdc2a99c109cece08676664c796690cd781a4",
     "参考资料": "c6909a34733f06b163d2f52bf177742b01cc4b7963a27bbf7c699ec4da5e31d1",
     "论文引用": "1ee1f25d4269aaa3f78e7e6096ab38363c24e6dc69ba5f604f754ee1f701961c",
-    "已迁移的 Agentic 导航精读": "fdbc97ee10ab69e2bb4347cce5e01b5315d78a68d406ceeb241f02507b64c15f"
+    "已迁移的 Agentic 导航精读": "46b447eb9868275b09a021b8c3b85a013028a4f42deeaad187d66836de15d1a8"
   }
 }

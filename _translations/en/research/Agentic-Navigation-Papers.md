@@ -5,22 +5,22 @@ translation_id: agentic-navigation-papers
 permalink: /en/Agentic-Navigation-Papers/
 source_path: _posts/research/2026-11-07-VLN-Papers-AgenticNav.md
 source_url: /Agentic-Navigation-Papers/
-source_revision_date: 2026-11-11
-translation_updated: 2026-11-11
+source_revision_date: 2026-11-14
+translation_updated: 2026-11-14
 title: "VLN Papers: Agentic Navigation"
-date: 2026-11-11
+date: 2026-11-14
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
 toc_expand: 2
-excerpt: "24 readings on tool use, active interaction, spatial memory, and continuing navigation."
+excerpt: "26 readings on tool use, active interaction, spatial memory, and continuing navigation."
 ---
 
 
 
-> This collection covers 24 works on how LLM/VLM agents call perception and movement tools, request help, read and write spatial memory, and replan or resume tasks using execution feedback. It includes supporting work on mobile manipulation and spatial mapping; individual papers need not implement every mechanism.
+> This collection covers 26 works on how LLM/VLM agents call perception and movement tools, request help, read and write spatial memory, and replan or resume tasks using execution feedback. It includes supporting work on mobile manipulation and spatial mapping; individual papers need not implement every mechanism.
 >
 > Papers are grouped by research focus. Agent systems evaluated on goal navigation, such as SuperNav, NavHarness, and EvoLife, are read here. See [Goal Navigation](/en/VLN-Papers-Extended/) for goal-navigation methods and leaderboards, and [Instruction Following](/en/VLN-Papers/) for instruction-following methods and results.
 
@@ -3373,6 +3373,298 @@ The system depends on a remote Planner, a large vision-language model, and conti
 
 ---
 
+## 25. HSGNav (2026)
+{: id="hsgnav"}
+———Revisable hypotheses for small tabletop objects, supporting multi-scale lifelong object search
+
+📄 **Paper**: [arXiv:2611.10547](https://arxiv.org/abs/2611.10547)
+
+---
+
+### Key Takeaways
+{: id="精华-50"}
+
+1. Memory should be layered: furniture is stable and can be built as 3D entities, while small tabletop objects move often and are detected unreliably, so they are stored only as hypotheses attached to furniture, keeping visual evidence without separate geometry.
+2. Infer the target scale before retrieval: look at wide views for furniture and close surface views for small objects. The images sent to the VLM drop to about one-sixth of what 3D-Mem uses.
+3. A memory hit must be verified on site, and records that fail verification must be invalidated persistently; verification without invalidation lets stale records mislead later retrievals again and again.
+4. Exploration is more than pushing map frontiers: furniture already visited but with surfaces not fully seen is often worth checking before distant unknown space.
+5. Most lifelong navigation benchmarks test static goals only; evaluating objects moved mid-episode needs a purpose-built benchmark.
+
+---
+
+### 1. Background and Problem
+{: id="1-研究背景问题-49"}
+
+A household robot must find things repeatedly in the same environment, with goals ranging from large furniture such as sofas and beds to small objects such as apples and scissors, and people move things around. Existing 3D scene-graph methods (ConceptGraph, MSGNav, 3D-Mem) instantiate every detection as a 3D object. Small objects are detected intermittently with unstable depth, so they often gather too little support and are filtered out or merged into a nearby table. Even when a node is built, there is no state validation or removal, so a moved object's stale node keeps misleading retrieval. Lifelong benchmarks such as GOAT-Bench mostly use static, furniture-dominated goals and rarely test memory invalidation within an episode.
+
+---
+
+### 2. Method and Contributions
+{: id="2-主要方法创新点-47"}
+
+<div align="center">
+  <img src="/images/vln/HSGNav-teaser.webp" width="100%" loading="lazy" decoding="async" />
+<figcaption>HSGNav's three core mechanisms: on the left, the two-level hypothesis scene graph separates stable furniture from revisable surface objects; top right, a missing target at a remembered location removes the stale hypothesis locally; bottom right, after memory fails, under-observed surfaces are inspected first</figcaption>
+</div>
+
+**Overall framework**
+
+HSGNav consists of a two-level Hypothesis Scene Graph (HSG) and four modules around it: scale-adaptive memory retrieval (SAMR) selects evidence from memory; when retrieval fails, observation-complete exploration (OCE) chooses the next destination; committed goal navigation (CGN) drives to the chosen point; and belief-driven verification (BDV) checks the target on site and invalidates contradicted records.
+
+<div align="center">
+  <img src="/images/vln/HSGNav-overview.webp" width="100%" loading="lazy" decoding="async" />
+<figcaption>HSGNav overview: streaming RGB-D builds the two-level HSG; SAMR retrieves, OCE picks a destination when retrieval fails, CGN executes, and BDV verifies with fresh views and invalidates contradicted descriptions</figcaption>
+</div>
+
+The diagram below redraws the control flow of one subtask from the reader's side:
+
+```mermaid
+graph TD
+    A["Goal query: category / text description / reference image"] --> B["SAMR: retrieve memory by target scale"]
+    B -- "hit" --> C["CGN: go to the remembered camera pose"]
+    C --> D["BDV: verify with fresh views"]
+    D -- "present" --> E["Stop: subtask succeeds"]
+    D -- "absent" --> F["Invalidate that description record"]
+    D -- "misidentified" --> I["Exclude the record for this subtask"]
+    F --> B
+    I --> B
+    B -- "miss" --> G["OCE: inspect a surface, or go to a new frontier"]
+    G --> H["CGN: travel there, collecting views on the way"]
+    H --> B
+```
+
+**① Two-level hypothesis scene graph (HSG)**
+
+- **Input**: RGB-D frames with poses.
+- **Entity level**: following ConceptGraph's back-projection and association, furniture and support surfaces become 3D entity nodes, and stable furniture is selected as semantic anchors. Co-visible entity pairs are linked by edges that store the frames showing both.
+- **Hypothesis level**: for each anchor, YOLO-World (with the confidence threshold lowered to 0.1) detects objects on its surface inside an enlarged image crop. Each detected non-anchor class creates a hypothesis node on that anchor, at most one per class per anchor. Hypothesis nodes **are not added to the 3D map**; they keep only appearance-description records and the views supporting them.
+- **Observation state**: each anchor's collected views are scored by mask area, truncation at the image border, and camera distance, with a bonus when the views cover 3 or more sectors. Anchors are labelled uncertain, under-observed, or sufficient, so OCE knows which surfaces have not been fully seen.
+- **Design motivation**: small objects can enter memory without first gathering reliable 3D geometry; when a record becomes invalid, only the hypothesis level changes while the furniture skeleton stays intact.
+
+**Traditional scene graphs versus HSG**
+
+| Aspect | Traditional (instantiate everything) | HSG |
+|---|---|---|
+| How small objects enter memory | Need enough cross-view 3D support, otherwise filtered out or merged into furniture | Attached to an anchor as a hypothesis, needing only visual evidence |
+| After an object is moved | The node remains and keeps taking part in retrieval | BDV invalidates the record and removes the node once all its records are invalid |
+| Update cost | Rebuild or repair the 3D instance | Change only the records under the anchor; leave the furniture topology intact |
+
+**② Scale-adaptive memory retrieval (SAMR)**
+
+Four steps. First, **compress** the whole graph into a text-only index (for each anchor, a summary of co-visible furniture and a summary of surface objects, with no images loaded). The VLM reads the index and the goal, infers the target scale, and **focuses** on node groups linked to at most 3 anchors. Next, images are **packed** by scale: close surface views (micro) for small objects, wide co-visibility views (macro) for furniture. Finally, the packed frames go to the VLM together for **inspection**, which returns the best view index (or a miss) and, for a small-object hit, the matching description record. Objects newly seen during inspection are merged into the corresponding hypothesis nodes.
+
+**③ Observation-complete exploration (OCE)**
+
+When retrieval misses, the agent must choose between exploring unknown space and returning to an under-observed anchor. One VLM call looks at frontier previews and under-observed anchor previews together and picks the next destination. If an anchor is picked, the 360° around it is divided into 5 sectors of 72°; the agent takes the direction farthest from the covered sectors and stands on a circle 1 m from the anchor to observe from there.
+
+**④ Committed goal navigation (CGN)**
+
+Once a destination is chosen, the agent drives all the way there without calling the VLM to replan, only capturing a ring of views every 1 m and adding them to the HSG. This saves calls and avoids switching goals back and forth.
+
+**⑤ Belief-driven verification (BDV) — the sticking point**
+
+Intuitively, BDV means: memory says the apple is on the table, so go back and look; if it is not there, cross that memory out. Concretely, the agent returns to the remembered camera pose and captures three views (±60°); for small objects it also approaches the anchor to 1 m and captures another ring. The VLM compares the old frame, the fresh views, and the goal description and returns one of three verdicts: **present** (end the subtask), **misidentified** (a retrieval error, excluded for the current subtask only), or **absent** (the object has been moved). A record is invalidated only when the fresh views contradict the record itself:
+
+$$N_{ak} \leftarrow N_{ak} \cup \{\delta_t\}$$
+
+Here $D_{ak}$ is the set of all description records for class k on anchor a, and $N_{ak}$ is the invalidated subset; when $D_{ak} \subseteq N_{ak}$, meaning every record has been invalidated, the hypothesis node is deleted.
+
+> **Example**: the desk holds two "cup" records: a red mug (record one) and a white paper cup (record two). The task is "find the red mug", and SAMR hits record one. The agent returns to the desk and sees only the paper cup, so the verdict is absent: record one is invalidated, record two stays, and the "cup" hypothesis node remains. Later someone takes the paper cup as well; the next verification invalidates record two, both records are now invalid, and the node is deleted. Invalidated records are never retrieved again, but their source images are kept for other records to share; if the red mug is seen again later, it gets a new record.
+
+---
+
+### 3. Key Results and Findings
+{: id="3-核心结果发现-48"}
+
+All experiments run in Habitat-Sim (HM3D-Semantics v0.2), with GPT-4o for both navigation and verification; success means stopping within 1 m of the target.
+
+**GOAT-Bench** (val-unseen, 36 scenes and 278 subtasks; training-free methods):
+
+| Method | SR | SPL |
+|---|---|---|
+| MTU3D | 47.2 | 27.7 |
+| MSGNav | 60.0 | 37.0 |
+| 3D-Mem | 69.1 | 48.9 |
+| **HSGNav** | **71.2** | **50.3** |
+
+On static, furniture-dominated goals, HSGNav leads 3D-Mem by only 2.1 points.
+
+<div align="center">
+  <img src="/images/vln/HSGNav-faros-bench.webp" width="80%" loading="lazy" decoding="async" />
+<figcaption>FAROS-Bench: each episode has 10 subtasks; the same movable target is queried at steps 1, 5, and 10 and moved twice in between; large objects make up 20.0% of goals, small 51.9%, and tiny 28.1%</figcaption>
+</div>
+
+**FAROS-Bench** (built by the authors; 7 HM3D scenes, 210 subtasks):
+
+| Method | Overall SR | Overall SPL | Tiny SR | Small SR | Large SR | Dynamic SR |
+|---|---|---|---|---|---|---|
+| 3D-Mem | 35.7 | 16.8 | 23.7 | 30.3 | 66.7 | 21.4 |
+| MSGNav | 36.7 | 12.5 | 25.4 | 33.0 | 61.9 | 26.2 |
+| Full Inst. + Removal (instantiate all surface detections and allow removal) | 41.4 | 21.5 | 33.9 | 35.8 | 66.7 | 33.3 |
+| **HSGNav** | **58.1** | **28.5** | **47.5** | **58.7** | **71.4** | **57.1** |
+
+- **The gain comes mainly from small and moved targets**: Large SR is only 4.7 points above 3D-Mem, Small SR is 28.4 points above, and dynamic subtasks rise from 21.4% to 57.1%. Giving the baselines the same surface detections (+Det) barely helps—MSGNav gains just 0.9 points—so the bottleneck is the memory representation, not detection recall.
+- **Module ablations**: without BDV, dynamic SR falls from 57.1% to 28.6%; keeping verification but disabling invalidation (w/o Removal) gives 50.0%; removing OCE lowers overall SR by 10.0 points; removing CGN changes SR little but drops SPL from 28.5% to 25.4%.
+- **Verification reliability**: over 212 small-object checks, accuracy is 86.8% with 15 erroneous invalidations; 93.3% of wrongly invalidated targets are re-admitted from fresh observations.
+- **Repeated relocation** (pre-mapped scenes, 51 sequences): after three moves SR is 78.4%, versus 60.8% without invalidation and 64.7% for OASIS; without invalidation, the rate of revisiting already-rejected anchors rises from 3.9% to 27.5%.
+- **Cost**: each subtask averages 18.2 VLM calls and 102.6 input images, versus 36.8 calls and 657.3 images for 3D-Mem; the average path of 17.4 m is the shortest of the three.
+
+<div align="center">
+  <img src="/images/vln/HSGNav-hypothesis-effectiveness.webp" width="80%" loading="lazy" decoding="async" />
+<figcaption>Hypothesis effectiveness: (a) full instantiation merges a mug into the desk and loses it, while HSG retains evidence at 70.51% versus 32.69%; (b) confusion matrix of small-object verification; (c) persistent invalidation lowers the revisit rate to 3.9% and wasted travel to 3.2%</figcaption>
+</div>
+
+---
+
+### 4. Limitations
+{: id="4-局限性-48"}
+
+All experiments are in simulation, with no real-robot relocation test and no reported latency; the lead on GOAT-Bench is small, and most of the gain comes from the authors' own FAROS-Bench. The hypothesis level assumes furniture anchors stay put; moved furniture is not yet handled.
+
+---
+
+## 26. H2E (2026)
+{: id="h2e"}
+———Distilling the successful experience of the LLM agent that calls a VLA back into the VLA, so no planner is needed at test time
+
+📄 **Paper**: [arXiv:2611.16246](https://arxiv.org/abs/2611.16246)
+
+---
+
+### Key Takeaways
+{: id="精华-51"}
+
+1. The distillation target can be reversed: earlier agent distillation shrank the planner, whereas H2E trains the executor it calls (the VLA) and removes the LLM entirely at test time.
+2. Agent sessions are not usable as demonstrations directly; three rewriting rules are needed: every motion is credited under the original task instruction, detour steps leave the loss, and every state near the goal is labelled as a stop.
+3. Separate the sources of gain first: success rate equals the reach rate times the share of reaches that stop correctly. H2E's gain over the base model comes almost entirely from stopping correctly, while its gain over geodesic fine-tuning comes entirely from finding more goals.
+4. The loss function shapes the learned behavior: the L1 optimum is the median, so when stop labels are the majority the model outputs an exact zero (a stop); L2 yields only a nonzero mean.
+5. Distillation transfers part of the agent's goal finding as well as stopping, but recovery after going off track depends on the agent's map and memory and does not transfer.
+
+---
+
+### 1. Background and Problem
+{: id="1-研究背景问题-50"}
+
+Strong goal-directed navigation systems today mostly have two levels: a frontier LLM planner keeps a map, hands sub-goals to a VLA, and corrects the VLA when it goes wrong. This works well but calls the LLM in every episode; the authors measure a median of about 70k tokens per episode and more than twice the time of the VLA running alone. Prior agent distillation (TinyAstral, Guava, OmniBrain-0) shrinks the planner and keeps the VLA frozen. H2E asks the reverse question: can the called VLA learn from these sessions to finish tasks on its own? The difficulty is that sessions are not VLA demonstrations: in the authors' data, the planner's own tool motions and its sub-instructions produce about 45% of the motion, and nearly a quarter of the steps are detours away from the goal.
+
+---
+
+### 2. Method and Contributions
+{: id="2-主要方法创新点-48"}
+
+<div align="center">
+  <img src="/images/vln/H2E-teaser.webp" width="100%" loading="lazy" decoding="async" />
+<figcaption>H2E setting: (a) on training scenes an LLM planner calls the 8B VLA, and only successful sessions are distilled; (b) at test time the VLA runs alone—the base model walks through the 3 m goal region and stops outside it, while H2E stops inside; (c) SR rises by 9.9 points on REVERIE-CE val-unseen</figcaption>
+</div>
+
+**Overall framework**
+
+H2E has three stages: an LLM agent with a map and tools runs tasks on training scenes and only successful sessions are kept; three rules rewrite each session into VLA training samples; the VLA is fine-tuned with LoRA and runs alone at test time.
+
+<div align="center">
+  <img src="/images/vln/H2E-overview.webp" width="100%" loading="lazy" decoding="async" />
+<figcaption>H2E pipeline: (a) the planner calls the VLA to produce sessions; (b) three rules turn a session into labels—task-level relabelling, progress masking, and stop labels; (c) the vision encoder and language model stay frozen, and only LoRA and the waypoint head are trained</figcaption>
+</div>
+
+**The distilled model and its teacher**
+
+- **VLA**: the 8B video VLA from NavGPT-3. It reads the last 16 observations (four RGB views each) and the instruction, outputs 8 waypoints (planar offset plus heading), executes the first, and queries again. It has **no separate stop head**: it stops after two all-zero outputs in a row, so moving and stopping come from the same regression output.
+- **Agent**: gpt-6-astra acts as the planner. It can send the VLA the original instruction or a sub-instruction, or use its own tools to move the robot, walk back to a place in its place graph, look at a panorama or the map, and end the episode. The planner sees the place graph and the whole history; the VLA does not.
+- **Data**: 2,395 successful sessions are kept from 57 training scenes, with 332,405 labelled steps. In 1,538 sessions the first VLA call reached the goal (direct); in 857 the planner had to rescue it (rescued). Rescued sessions hold two thirds of all steps.
+
+**Three rewriting rules**
+
+```mermaid
+graph LR
+    A["One successful session: pose, observation and motion source per step"] --> B["① Task-level relabelling: whoever moved, the target is the next 8 poses under the original task instruction"]
+    B --> C{"② After K steps, farther from the goal by over 0.25 m and never within 1 m?"}
+    C -- "yes (detour)" --> D["Keep it in the history but leave the loss"]
+    C -- "no" --> E{"③ Within 1 m of the goal?"}
+    E -- "yes" --> F["Target set to all zeros (stop)"]
+    E -- "no" --> G["Target stays the following poses"]
+```
+
+- **① Task-level relabelling**: each step's target is the next 8 poses the session actually went through (in the current robot frame), and the instruction is always the original task instruction. Whether the motion came from the VLA or a planner tool, and whether the VLA was given a sub-instruction at that step, does not affect the label. The planner's interventions are thus learned as what the VLA should have done.
+- **② Progress masking**: a step enters the loss if either condition holds: the geodesic distance to the goal after K steps has not grown by too much ($d(p_{t+K}) \le d(p_t) + \delta$, $\delta = 0.25$ m), or the next K steps come within 1 m of the goal. Detour steps meeting neither condition leave the loss. Turns in place keep the distance and stay in. Masked steps remain in the history, so the model still sees them. The geodesic distance is used only to build labels; the VLA never receives it.
+- **③ Stop labels**: every state within 1 m of the goal gets an all-zero target. The 1 m radius is tighter than the 3 m success radius, so stop points fall inside the success region; the rule also adds stop labels at states the VLA once walked through without stopping.
+
+**Training objective**
+
+Three data sources are mixed with weights: agent sessions 0.60, geodesic expert trajectories with DART noise 0.25, and R2R-CE path following 0.15, all under a masked L1 loss:
+
+$$L(\theta) = \sum_s w_s \, \mathbb E_{x_t \sim D_s} \left[ m_t \lVert \pi_\theta(o_{\le t}, \ell) - y_t \rVert_1 \right]$$
+
+LoRA uses rank 16 and scale 32 on the language model's attention and MLP layers; the action head is trained in full and the vision encoder stays frozen. Training takes 9000 updates on 4 L40 GPUs, about 28 hours.
+
+**Why L1 is what teaches stopping — the sticking point**
+
+The VLA stops only when its output is exactly zero. Under an L1 loss, the optimal output for each coordinate is the **median** of the labels; if more than half the labels for a history are zero, the optimum is uniquely zero. An L2 loss gives the **mean**, which stays nonzero as long as a few samples still move, so the robot keeps shuffling near the goal and never stops.
+
+> **Example**: a state near the goal appears 5 times; 3 are labelled as stops (0), and the other two move forward by 0.4 m and 0.6 m. The L1 optimum is the median, 0, which triggers a stop; the L2 optimum is the mean, (0.4 + 0.6) / 5 = 0.2 m, so the robot keeps inching forward. Labelling every visited state within 1 m as zero is exactly what makes zero the majority there.
+
+**Deployment**
+
+The LoRA weights can be merged back into the original matrices, so the distilled VLA has the same size and per-step cost as the base model; no LLM is called and no module is added at test time.
+
+---
+
+### 3. Key Results and Findings
+{: id="3-核心结果发现-49"}
+
+**REVERIE-CE val-unseen** (10 unseen scenes, all 3,189 episodes; success means stopping within 3 m of the goal):
+
+| Method | Input | Training data | SR | OSR | SPL | NE |
+|---|---|---|---|---|---|---|
+| Dynam3D | RGB-D | 4M+ samples | 40.1 | 48.9 | 28.5 | 6.22 |
+| D3D-VLP | RGB-D | 10M samples | 47.5 | 56.9 | 34.7 | 5.36 |
+| Base VLA | 4-view RGB | – | 35.0 | 52.0 | 26.5 | 8.53 |
+| + Geodesic fine-tuning | 4-view RGB | DART + R2R, 48k samples | 34.9 | 38.5 | 33.2 | 8.93 |
+| **+ H2E** | 4-view RGB | 2,395 sessions + DART + R2R | **44.9** | 50.1 | **38.4** | 6.90 |
+
+- SR rises by 9.9 points (95% scene-bootstrap interval 3.9–16.3), improving in 9 of the 10 scenes; just 504 sessions already reach 43.2%, while geodesic fine-tuning with the same recipe gains nothing.
+- The farther the goal, the larger the gain: splitting episodes into thirds by start-to-goal distance, H2E's lead over geodesic fine-tuning grows from 4.4 points on the near third to 17.5 points on the far third.
+- LoRA rank 16 is far better than rank 64 (45.6% versus 33.2% on 861 episodes).
+- With only four RGB views, both SR and SPL exceed Dynam3D, which uses depth and more than 4M samples; but the evaluation protocols differ (Dynam3D is scored after 50 waypoint decisions, whereas this VLA must stop on its own), so the comparison is not strictly like for like.
+
+<div align="center">
+  <img src="/images/vln/H2E-episode-outcomes.webp" width="70%" loading="lazy" decoding="async" />
+<figcaption>Outcome split over all val-unseen episodes: success, reached the goal region but did not stop inside it, and never reached; on the right is the share of reaches that stop correctly—67% for the base model and 89% for H2E</figcaption>
+</div>
+
+**Splitting the gain into finding and stopping**
+
+Write SR as OSR (whether the goal region was ever entered) times C (the share of entries that stop correctly):
+
+$$SR_c - SR_b = (OSR_c - OSR_b)\, C_c + OSR_b\, (C_c - C_b)$$
+
+The first term is the gain from finding, the second the gain from stopping. Against the base model, the stop term is +11.6 and the reach term −1.7, so the whole gain comes from stopping: the base model entered the goal region but stopped outside it in 544 episodes, and H2E cuts this to 168. Against geodesic fine-tuning, the reach term is +10.4 and the stop term −0.4: geodesic fine-tuning also learns to stop, but stops too early and reaches the goal region in only 38.5% of episodes, versus 50.1% for H2E. In addition, H2E enters the goal region in 401 episodes the base model never reached, and 355 of them succeed.
+
+**Against the full agent** (100 episodes from 26 scenes outside the training data; H2E is distilled from only 63 sessions):
+
+| Method | SR | OSR | NE | Time per episode (median) | LLM tokens per episode (median) |
+|---|---|---|---|---|---|
+| Agent (planner + base VLA) | 53 | 70 | 5.50 | 423 s | 70k |
+| Base VLA | 38 | 59 | 8.60 | 196 s | 0 |
+| **H2E** | **57** | 64 | 5.96 | **114 s** | **0** |
+
+The distilled VLA overtakes its teacher in success rate and runs 3.7 times faster. The agent still has the higher OSR (70 versus 64): it finds goals but stops imprecisely, 53/70, whereas H2E finds a few fewer and stops more accurately, 57/64.
+
+**Ablations** (100 development episodes, removing one rule at a time): without task-level relabelling or progress masking, SR drops from 53% to 47% in both cases; keeping the agent's states but replacing its motions with geodesic expert actions gives 46%; training the VLA only on its own successful runs gives 47%. The gain is therefore not just from selecting successes: both the states the agent visits and the motions it takes contribute. On the 12 episodes only the agent reaches, H2E reaches 8 and the base model none.
+
+<div align="center">
+  <img src="/images/vln/H2E-stopping-examples.webp" width="100%" loading="lazy" decoding="async" />
+<figcaption>Stopping behavior: from the same start, the base model (blue) walks through the 3 m goal region and stops outside it, while H2E (orange) stops inside; below are the views each model sees when it stops and its final distance to the goal</figcaption>
+</div>
+
+---
+
+### 4. Limitations
+{: id="4-局限性-49"}
+
+Only one benchmark, one VLA, and one agent are studied, all in simulation. The distilled VLA does not yet learn to recover after going off track, which needs the agent's map and memory; the authors propose collecting sessions that start from the VLA's own failures as the next step.
+
+---
+
 # References
 {: id="navigation-references"}
 {: id="navigation-references"}
@@ -3405,6 +3697,8 @@ The system depends on a remote Planner, a large vision-language model, and conti
 22. **HarnessVLN** (2026). A set of Agent Harness that compresses the two types of navigation "instruction following" and "finding objects" into the same tool calling protocol. arXiv: [2609.15195](https://arxiv.org/abs/2609.15195)
 23. **GPT-6-Astra** (2026). The general foundation model only relies on monocular RGB and primitive actions, and runs through the continuous environment vision-language navigation with zero-shot. arXiv: [2609.29861v2](https://arxiv.org/abs/2609.29861v2)
 24. **NavGPT-3** (2026). Asynchronous planning, action, and monitoring, closed through inspectable execution evidence. arXiv: [2610.10787](https://arxiv.org/abs/2610.10787)
+25. **HSGNav** (2026). Revisable hypotheses for small tabletop objects, supporting multi-scale lifelong object search. arXiv: [2611.10547](https://arxiv.org/abs/2611.10547)
+26. **H2E** (2026). Distilling the successful experience of the LLM agent that calls a VLA back into the VLA, so no planner is needed at test time. arXiv: [2611.16246](https://arxiv.org/abs/2611.16246)
 
 <script>
 (function () {
@@ -3433,6 +3727,8 @@ The system depends on a remote Planner, a large vision-language model, and conti
     { m: "HarnessVLN", t: ['Agentic', 'Zero-shot', 'Real-robot deployment', 'Topological maps'] },
     { m: "GPT-6-Astra", t: ['Agentic', 'Zero-shot', 'Continuous environments'] },
     { m: "NavGPT-3", t: ['Dual systems', 'Agentic', 'Continuous environments', 'Real-robot deployment'] },
+    { m: "HSGNav", t: ['Agentic', 'Topological maps', 'Zero-shot', 'Datasets'] },
+    { m: "H2E", t: ['End-to-end', 'Continuous environments', 'Data augmentation'] },
   ];
 
 

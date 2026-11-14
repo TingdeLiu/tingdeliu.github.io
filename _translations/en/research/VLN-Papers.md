@@ -5,10 +5,10 @@ translation_id: vln-papers
 permalink: /en/VLN-Papers/
 source_path: _posts/research/2026-01-05-VLN-Papers-InstructionFollowing.md
 source_url: /VLN-Papers/
-source_revision_date: 2026-11-11
-translation_updated: 2026-11-11
+source_revision_date: 2026-11-14
+translation_updated: 2026-11-14
 title: "VLN Papers: Instruction Following"
-date: 2026-11-11
+date: 2026-11-14
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
@@ -185,7 +185,7 @@ Discrete navigation graph · panoramic observation; residential (ID) / non-resid
 |[DUET (panoramic)](#duet)|2022|REVERIE|Trained|–|**52.51**|**36.06**|–|**56.91**|[Yes](https://github.com/cshizhe/VLN-DUET)|
 |[CA-VLN (panoramic)](/en/Agentic-Navigation-Papers/#ca-vln)|2026|REVERIE|Trained|LLaVA-7B|51.0|35.5|–|56.3|No|
 
-Note: In the R2R and REVERIE groups, DUET and the R2R baseline report the Test-Unseen split from their papers, while the other rows report val-unseen; they are merged and compared as one benchmark. VLN-Imagine is the R2R val-unseen result of DUET-Imagine (DUET baseline 71.52 / 60.41). GSA-R2R distinguishes between residential (ID, Test-R-Basic) and non-residential (OOD, Test-N-Basic) scenarios, and Slow4fast-VLN improves performance relative to GR-DUET. The REVERIE benchmark uses additional RGS/RGSPL indicators: R³ is 53.76/42.14/37.94/29.86 (SR/SPL/RGS/RGSPL), and the Uncertainty-Aware Gaussian Map has an RGS/RGSPL of 37.65/27.01. The continuous environment version REVERIE-CE currently only reports Image2Nav (180° FOV): SR 53.7 / SPL 42.7 / NE 5.08 / OSR 59.5 (val-unseen). The action space is different from discrete REVERIE and is not incorporated into this table.
+Note: In the R2R and REVERIE groups, DUET and the R2R baseline report the Test-Unseen split from their papers, while the other rows report val-unseen; they are merged and compared as one benchmark. VLN-Imagine is the R2R val-unseen result of DUET-Imagine (DUET baseline 71.52 / 60.41). GSA-R2R distinguishes between residential (ID, Test-R-Basic) and non-residential (OOD, Test-N-Basic) scenarios, and Slow4fast-VLN improves performance relative to GR-DUET. The REVERIE benchmark uses additional RGS/RGSPL indicators: R³ is 53.76/42.14/37.94/29.86 (SR/SPL/RGS/RGSPL), and the Uncertainty-Aware Gaussian Map has an RGS/RGSPL of 37.65/27.01. Two papers currently report the continuous-environment version REVERIE-CE, both on val-unseen: Image2Nav (180° FOV) SR 53.7 / SPL 42.7 / NE 5.08 / OSR 59.5; [H2E](/en/Agentic-Navigation-Papers/#h2e) (four RGB views, all 3,189 episodes, the VLA must stop on its own) SR 44.9 / SPL 38.4 / NE 6.90 / OSR 50.1. Their observation and evaluation settings differ, and the action space also differs from discrete REVERIE, so they are not merged into this table.
 
 ## ④ LHPR-VLN · Long-horizon multi-stage navigation
 {: id="-lhpr-vln--长程多阶段导航"}
@@ -7778,6 +7778,8 @@ The following table organizes papers with publication information tagged by conf
     { n: "22. HarnessVLN (2026)", a: "harnessvln", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Zero-shot', 'Real-robot deployment', 'Topological maps'] },
     { n: "23. GPT-6-Astra (2026)", a: "gpt-6-astra", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Zero-shot', 'Continuous environments'] },
     { n: "24. NavGPT-3 (2026)", a: "navgpt-3", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Dual systems', 'Agentic', 'Continuous environments', 'Real-robot deployment'] },
+    { n: "25. HSGNav (2026)", a: "hsgnav", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Topological maps', 'Zero-shot', 'Datasets'] },
+    { n: "26. H2E (2026)", a: "h2e", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['End-to-end', 'Continuous environments', 'Data augmentation'] },
   ];
 
   var ALL_TAGS = ['Dual systems', 'End-to-end', 'Agentic', 'CoT', 'Diffusion models', 'Topological maps', 'SLAM', 'Gaussian representations',
