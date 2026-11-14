@@ -28,6 +28,7 @@
       readings:
         - {slug: VLM-Survey}
         - {slug: Spatial-Intelligence-Survey}
+        - {slug: Spatial-Intelligence-Papers}
         - {slug: World-Models-Survey}
     - zh: 学习与训练
       en: Learning and training

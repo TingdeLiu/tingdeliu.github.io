@@ -40,6 +40,7 @@ The complete article index is organized by topic. Links use the English edition 
 | | [Complete ROS 2 Guide](https://tingdeliu.github.io/en/ROS2-Survey/) | Communication models, lifecycle nodes, QoS, and real-robot deployment |
 | **Multimodal and Spatial Intelligence** | [VLM Survey](https://tingdeliu.github.io/en/VLM-Survey/) | An overview of multimodal fusion methods in vision-language models |
 | | [Spatial Intelligence Survey](https://tingdeliu.github.io/en/Spatial-Intelligence-Survey/) | 3D scene understanding, point clouds, depth estimation, and Gaussian Splatting |
+| | [Spatial Intelligence Paper Readings](https://tingdeliu.github.io/en/Spatial-Intelligence-Papers/) | 26 paper readings in five groups, from neural rendering to spatial reasoning VLMs |
 | **World Models and Agents** | [World Models Survey](https://tingdeliu.github.io/en/World-Models-Survey/) | Environment modeling and prediction, video-generative world models, and embodied applications |
 | | [AI Agent Survey](https://tingdeliu.github.io/en/AI-Agent-Survey/) | Reasoning, memory and skills, context engineering, multi-agent collaboration, and the MCP / WebMCP / A2A / MHS connectivity layers and security |
 | | [Embodied Agent Paper Readings](https://tingdeliu.github.io/en/Embodied-Agent-Papers/) | Closed-loop runtimes (AgentOS / Harness), typed action abstractions, physical orchestration, scene-graph exit-code evaluation, and governance of self-evolution |

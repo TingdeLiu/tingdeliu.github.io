@@ -21,7 +21,7 @@
     "id": "llm",
     "zh": "大模型与空间智能",
     "en": "Large Models and Spatial Intelligence",
-    "slugs": ["LLM-Training-Survey", "VLM-Survey", "Spatial-Intelligence-Survey"]
+    "slugs": ["LLM-Training-Survey", "VLM-Survey", "Spatial-Intelligence-Survey", "Spatial-Intelligence-Papers"]
   },
   {
     "id": "ml",

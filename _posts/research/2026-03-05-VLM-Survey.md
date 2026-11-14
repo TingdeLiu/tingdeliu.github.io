@@ -671,7 +671,7 @@ CLIP / SigLIP 用语言监督训练视觉编码器，[DINOv2](https://arxiv.org/
 
 **Qwen2.5-VL** 通过与绝对时间对齐的 MRoPE 和动态帧率采样支持长视频；**Qwen3-VL** 改用显式文本时间戳与 Interleaved MRoPE，原生上下文达到 256K（30 分钟视频内 Needle-in-a-Haystack 100% 准确率，见 8.10 节）。
 
-近期的视频专用模型大致分别回应上面三项挑战：**VideoChat3**（2026）把 ViT 膨胀为时空编码器 I3D-ViT，并在流式输入中自适应调整帧分辨率来压缩视频 token，4B 参数即超过参数量相当或更大的开源视频模型（[arXiv:2607.14935](https://arxiv.org/abs/2607.14935)）；**Video-o3**（ICML 2026）不再一次性均匀采帧，而是在推理中反复调用工具查找、放大关键片段，证据足够时自行停止，在 MLVU 上达到 72.1%（[arXiv:2601.23224](https://arxiv.org/abs/2601.23224)）；**TimeLens2**（2026）回答"证据出现在何时"，把时间定位建模为数量可变的区间集合，并以时间 Wasserstein 距离作为强化学习奖励，2B / 4B / 8B 模型比各自的 Qwen3-VL 基座分别提升 14.2 / 13.0 / 18.1 mIoU（[arXiv:2607.17423](https://arxiv.org/abs/2607.17423)）。
+近期的视频专用模型大致分别回应上面三项挑战：**VideoChat3**（2026）把 ViT 膨胀为时空编码器 I3D-ViT，并在流式输入中自适应调整帧分辨率来压缩视频 token，4B 参数即超过参数量相当或更大的开源视频模型（[arXiv:2607.14935](https://arxiv.org/abs/2607.14935)）；**Video-o3**（ICML 2026）不再一次性均匀采帧，而是在推理中反复调用工具查找、放大关键片段，证据足够时自行停止，在 MLVU 上达到 72.1%（[arXiv:2601.23224](https://arxiv.org/abs/2601.23224)）；**TimeLens2**（2026）回答"证据出现在何时"，把时间定位建模为数量可变的区间集合，并以时间 Wasserstein 距离作为强化学习奖励，2B / 4B / 8B 模型比各自的 Qwen3-VL 基座分别提升 14.2 / 13.0 / 18.1 mIoU（[arXiv:2607.17423](https://arxiv.org/abs/2607.17423)）。另一条路线从数据入手：**LLaVA-Video**（2024）用合成的 LLaVA-Video-178K 做视频指令微调，并以 SlowFast 表示平衡帧数与 token 数，详见 [§8.14](#814-llava-video2024)。
 
 **主流视频理解基准**（分数取自 [Qwen2.5-VL 技术报告](https://arxiv.org/abs/2502.13923) Table 8，同表对照）：
 
@@ -2556,7 +2556,130 @@ graph TD
 
 ---
 
+## 8.14 LLaVA-Video（2024）
+———用高质量合成数据做视频指令微调：LLaVA-Video-178K 数据集 + SlowFast 视频表示
 
+📄 **Paper**: [arXiv:2410.02713](https://arxiv.org/abs/2410.02713)
+
+---
+
+### 精华
+
+1. **数据质量 > 数据数量**：178K 高动态、未剪辑视频的密集标注，胜过 900K 静态视频的稀疏标注——训练视频 LMM 时，选"剧情完整、时序动态强"的视频源比堆量更关键。
+2. **递归式分层字幕生成**是为任意长度视频做密集描述的可迁移范式：以 10s/30s/全片三个时间粒度递归生成，每层都以历史描述为上下文，保证跨时段的人物与事件指代一致。
+3. **密集采样（1 FPS）喂给标注模型**：稀疏采样（如 0.008–0.15 FPS）的字幕只能描述大场景、丢失细微动作，是下游模型幻觉的根源之一。
+4. **SlowFast token 分配**：对视频帧分组施加不同空间池化率（slow 帧多 token、fast 帧少 token），在固定 LLM 上下文/显存预算内塞进最多 3 倍帧数，是"帧数 vs 每帧 token 数"权衡的简洁解法。
+5. 用 16 类问题模板引导 GPT-4o 生成 QA 对，可系统性覆盖时序、因果、计数、相机方向等真实查询分布，避免模板 QA 的低质重复。
+
+---
+
+### 1. 研究背景/问题
+
+视频 LMM 的发展受限于高质量视频-语言指令数据的匮乏：现有数据集（LLaVA-Hound、ShareGPT4Video 等）的视频源大多静态、按场景切分成短片段导致剧情简化，且标注时帧采样极稀（平均 0.008–0.15 FPS），无法捕捉细微动作变化，导致模型在需要细节描述时产生幻觉。本文走"合成数据"路线，用 GPT-4o + 人工流程构建高质量视频指令微调数据集，并探索在有限显存下最大化帧数的视频表示。
+
+---
+
+### 2. 主要方法/创新点
+
+#### 2.1 LLaVA-Video-178K 数据集构建
+
+整个数据合成 pipeline 由三个环节构成：**动态视频筛选**（从 10 大视频源选取高动态、未剪辑视频）、**递归式三层详细字幕生成**（1 FPS 密集采样 + GPT-4o）、**16 类问题引导的 QA 生成**（开放式 + 多选）。最终得到 178K 视频、1.3M 指令样本（178K 字幕、960K 开放式 QA、196K 多选 QA）。
+
+**① 视频源与动态筛选**
+
+<div align="center">
+  <img src="/images/vlm/LLaVA-Video-sources.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1320/733" />
+<figcaption>左：40 余个现有视频-语言数据集实际上主要源自 10 个视频源；右：动态视频的过滤逻辑</figcaption>
+</div>
+
+- **输入**：调研 40+ 视频-语言数据集后归纳出的 10 大视频源（HD-VILA-100M、InternVid-10M、VidOR、VIDAL/YouTube Shorts、YouCook2、Charades、ActivityNet、Kinetics-700、Sth-sth v2、Ego4D），覆盖活动、烹饪、TV、第一视角等领域。
+- **处理**：用 PySceneDetect 统计场景数作为"动态程度"指标，过滤逻辑包括：按播放量排序、场景数 > 2、时长 5–180s、场景数/时长 ≤ 0.5（剔除 PPT 式幻灯片视频）、分辨率 > 480p、每类别采样 50 条。
+- **设计动机**：除 YouCook2 和 Kinetics-700 外全部使用**未剪辑原始视频**——切片会破坏剧情连续性，而完整剧情正是视频理解区别于图像理解的核心价值。
+
+**② 递归式三层详细字幕生成**
+
+<div align="center">
+  <img src="/images/vlm/LLaVA-Video-caption-pipeline.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1326/937" />
+<figcaption>三层递归字幕生成 pipeline：level-1 每 10s、level-2 每 30s、level-3 全片，每层均以历史描述为条件</figcaption>
+</div>
+
+以 1 FPS 密集采样帧，按三个时间粒度递归调用 GPT-4o：
+
+- **Level-1（每 10s）**：输入当前片段的帧 + 历史上下文（尚未被汇总的近期 level-1 描述 + 最新 level-2 描述），输出该 10s 片段的事件描述；
+- **Level-2（每 30s）**：输入最近三条 level-1 描述 + 上一条 level-2 描述，输出到当前为止的剧情摘要；
+- **Level-3（视频结束时）**：输入最新 level-2 描述 + 尚未汇总的 level-1 描述，输出整段视频的完整描述。
+
+**设计动机**：与 Video ReCap 等先逐段独立描述再汇总的方案不同，这里每条 level-1 描述生成时就携带历史上下文，保证时间线上前后事件的关联（如跨时段识别同一人物）。下图消融展示了历史上下文的作用：
+
+<div align="center">
+  <img src="/images/vlm/LLaVA-Video-historical-context.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1245/456" />
+<figcaption>有/无历史上下文的字幕对比：有历史上下文时能正确将不同时段出现的人物识别为同一人</figcaption>
+</div>
+
+**③ 16 类问题引导的 QA 生成**
+
+<div align="center">
+  <img src="/images/vlm/LLaVA-Video-question-types.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1322/433" />
+<figcaption>参考公开视频 QA 基准定义的 16 类问题类型及示例</figcaption>
+</div>
+
+- **输入**：每个视频的详细描述（level-3）+ 当前问题类型的任务定义 + 3 个同类型 in-context 示例。
+- **处理**：GPT-4o 对每种类型最多生成一个 QA 对，无法生成则返回 None；随后用 sentence-transformer 去重，并丢弃以 "does not specify/mention/show" 等开头的无效答案。
+- **设计动机**：16 类问题（时序、空间、因果、计数、属性变化、相机方向等）参考公开视频 QA 基准定义，确保覆盖真实用户查询分布，避免模板生成 QA 的低质与单一。
+
+一条视频数据最终包含三种标注：
+
+<div align="center">
+  <img src="/images/vlm/LLaVA-Video-data-example.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1248/594" />
+<figcaption>数据样例：详细描述、开放式 QA、多选 QA 三类标注</figcaption>
+</div>
+
+与同类合成数据集相比：LLaVA-Hound 900K 视频但 44% 来自静态的 WebVid 且仅 0.008 FPS 标注；ShareGPT4Video 40K 视频多为剪辑短片且 0.15 FPS；LLaVA-Video-178K 以 1 FPS 标注 178K 动态未剪辑视频，且同时覆盖字幕、开放式 QA、多选 QA 三种任务。
+
+#### 2.2 LLaVA-Video 模型与 SlowFast 视频表示
+
+模型沿用 LLaVA-OneVision 架构：SigLIP 视觉编码器 + 两层 MLP projector + Qwen2 LLM，从 LLaVA-OneVision 单图（SI）阶段 checkpoint 出发微调。核心问题是 token 预算：T=100 帧、每帧 M=729 token 时共 67,600 个视觉 token，72B 模型在 128 张 H100 上也只能塞 8 帧。
+
+<div align="center">
+  <img src="/images/vlm/LLaVA-Video-slowfast.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1233/587" />
+<figcaption>SlowFast 视频表示：slow 帧（每 s 帧取一帧）用较小池化保留更多 token，fast 帧用较大池化压缩，交错排列</figcaption>
+</div>
+
+- **输入**：最多 T 帧的视频序列，每帧经 SigLIP + MLP 得到 M 个视觉 token。
+- **处理**：按 stride $s$ 将帧分为两组——每隔 $s$ 帧均匀选出的帧构成 **slow 组**，施加 $p \times p$ 平均池化；其余帧构成 **fast 组**，施加 $2p \times 2p$ 池化（token 数为 slow 的 1/4）。slow 与 fast 帧按原时间顺序交错排列。$s = 1$ 时退化为所有帧等量 token 的普通表示。
+- **输出**：视频表示由四元组 $V = (T, M, s, p)$ 参数化，总 token 数为
+
+$$
+\#\text{tokens} = \lfloor T/s \rfloor \times \frac{M}{p^2} + \left( T - \lfloor T/s \rfloor \right) \times \frac{M}{4p^2}
+$$
+
+- **设计动机**：与 LITA、SlowFast-LLaVA 先把所有帧压成极少 token 再对部分帧补充细粒度 token（导致部分帧被表示两次）不同，本文每帧只属于一组、不重复表示；相比所有帧等量分配 token，可在同等预算下纳入最多 3 倍帧数。LLaVA-Video-7B 用 $V = (64, 679, 1, 2)$，72B 用 $V = (64, 679, 3, 2)$。
+
+**训练**：在 LLaVA-Video-178K + 四个公开数据集（ActivityNet-QA、NExT-QA、PerceptionTest、LLaVA-Hound-255K，只取 <3 分钟视频）共 1.6M 视频-语言样本上，联合 1.1M LLaVA-OneVision 图像数据微调；其中 92.2% 字幕、77.4% 开放式 QA、90.9% 多选 QA 为新标注。
+
+---
+
+### 3. 核心结果/发现
+
+- **总体性能**：在 11 个视频基准上，LLaVA-Video-7B 在 10 个数据集中的 7 个超越此前最强开源 LLaVA-OV-7B；LLaVA-Video-72B 达到与商用 Gemini-1.5-Flash 相当的水平（VideoMME 70.5/76.9 w-subs，MLVU 74.4，NExT-QA 85.4）。
+- **数据集消融**：在 LLaVA-Hound 基线上加入 LLaVA-Video-178K，NExT-QA 提升 31.9 点（64.4→80.1）、VideoMME 提升 9.1 点（54.1→63.2），zero-shot 任务同样显著受益。
+- **质量 vs 数量**：等量对比下（900K 开放式 QA），178K 视频的 LLaVA-Video-178K 全面超过 900K 视频的 LLaVA-Hound（NExT-QA 73.2 vs 39.8），印证视频指令数据质量比数量更重要；与 ShareGPT4Video 的 40K 等量对比同样占优。
+- 改进幅度与基准的视频来源相关：MLVU、LongVideoBench、VideoMME 等 YouTube 系基准提升明显；ActivityNet-QA 提升小（其问题多数看单帧即可回答）。
+
+---
+
+### 4. 局限性
+
+视频源自多个平台，继承了来源平台的固有偏差；QA 对由 GPT-4o 生成，可能受标注者（prompt 设计者）视角影响而产生分布偏斜。
+
+---
+
+### 参考
+
+- Paper: [LLaVA-Video: Video Instruction Tuning With Synthetic Data (TMLR 2025)](https://arxiv.org/abs/2410.02713)
+- OpenReview: [https://openreview.net/forum?id=EElFGvt39K](https://openreview.net/forum?id=EElFGvt39K)
+
+---
 
 <a id="vlm-summary"></a>
 

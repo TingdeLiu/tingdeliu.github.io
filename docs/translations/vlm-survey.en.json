@@ -54,7 +54,7 @@
     "2. LLaVA-NeXT 动态切片 (AnyRes)": "60a67a2270ce953d0daf3259bc509b4ce26105a99c6c391ac851c0f35b5f257d",
     "3. Qwen2-VL / Qwen2.5-VL 动态分辨率 (Naive Dynamic Resolution)": "010e6835f61831ba766791f3993762b9b394ba258b5f7898e91f5397c5ce1138",
     "DINOv2 自监督路线": "2ca94ef6d8b63f9d80b6786e2efbd049d726faccde76c7740c490286dc636a6d",
-    "4.8 视频理解：向时序维度扩展": "6a58d9018c0329aa742f751fd5ffeec4840f4bb3599c20fb8500259484c33451",
+    "4.8 视频理解：向时序维度扩展": "cd4bfb60bb677900a5c30c6e6c33a1d7c1dbd8ebb026b3b49e1b8e1c47f11e6e",
     "5. VLM 任务类型": "3fd8b1b2beef2394e2eb0f49af63fb3e445cf2b08eeaf597000b6ecb445a85f9",
     "5.1 图像描述": "7492337398b4fde5da9dd66c05aeb40c099ff6a261511219142dc5e3d686c97e",
     "5.2 视觉问答（VQA）": "3af6ab1c9ffd325d08cbb561019d829791987521f558dd36a62581b8bf990ef9",
@@ -200,7 +200,16 @@
     "section:8. 经典方法与代表性工作 / 8.13 Mage-VL（2026） / 3. 核心结果/发现": "0806531791eb036bada66a936673dbed20a2f29707b9008cff0b42afb328ec70",
     "1. 基准评测表现": "48271339d0d4fb3430976d805ed04a85bf698871a2b4fd37db8367017c88d7d8",
     "2. 七大核心实证发现（Empirical Findings）": "c7b36611d125a9654cd3aa4eea83c64cb45ecb7af0e61dbb7d286c8dffac21d1",
-    "section:8. 经典方法与代表性工作 / 8.13 Mage-VL（2026） / 4. 局限性": "81e76027e199a82776ed8ff8d62cc3d0cd6fec94e0c04c3f5726034cb762bdf5",
+    "section:8. 经典方法与代表性工作 / 8.13 Mage-VL（2026） / 4. 局限性": "de5c0213b2ffcd64d3542e3d6eeec08d3bb701e0c73ff8036989a28f82a291ae",
+    "8.14 LLaVA-Video（2024）": "c769171c321bd484cb0ccfcccce7b2617fcfcb296bc8e0edfc19986c78119640",
+    "section:8. 经典方法与代表性工作 / 8.14 LLaVA-Video（2024） / 精华": "23530d8a456b501e7a9856946408cd1e08853be0032019f67a62bcb3ca0afa71",
+    "section:8. 经典方法与代表性工作 / 8.14 LLaVA-Video（2024） / 1. 研究背景/问题": "87d8c9bda5646f50d9b4b1a5a5aa7b40eb51827ac6bf05aaa69cdde009cdd0de",
+    "section:8. 经典方法与代表性工作 / 8.14 LLaVA-Video（2024） / 2. 主要方法/创新点": "0f04ee81a700c6c717661bb6d4a6a29656f6fae189b74ee207e23d4ef1454477",
+    "2.1 LLaVA-Video-178K 数据集构建": "d8395278f4024cc3a10797d278b2e85780120d465825ca93b2e834dbb303b41e",
+    "2.2 LLaVA-Video 模型与 SlowFast 视频表示": "2468ca2ebe02e7105b6adc6484a91200320d4d4542a27f81b3a00f0a792de303",
+    "section:8. 经典方法与代表性工作 / 8.14 LLaVA-Video（2024） / 3. 核心结果/发现": "a1a8e6896c180fe5142a5a35e1c274c7272dd8a6e6ce8755cbd4d1d24b48846d",
+    "section:8. 经典方法与代表性工作 / 8.14 LLaVA-Video（2024） / 4. 局限性": "97ecd8d46d99378773bdcbbba6707d7aa8ddb9d20de8b2e0a7969b0edc5e2be5",
+    "参考": "f0d412ea028f6dcde9362fcae498290512794866f3de968c484d7a4fa81079c9",
     "9. 总结": "a0ac733f35d30b6f39218f1728b0cfce2a99ccb7cc62ebb5f362013ba927f6e6"
   }
 }

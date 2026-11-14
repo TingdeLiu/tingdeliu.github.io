@@ -726,7 +726,7 @@ Video understanding requires the model to simultaneously process **spatial visua
 
 **Qwen2.5-VL** supports long videos with MRoPE aligned to absolute time and dynamic frame rate sampling; **Qwen3-VL** uses explicit text timestamps instead with Interleaved MRoPE, reaching 256K native contexts (within 30 minutes of video Needle-in-a-Haystack 100% accuracy, see Section 8.10).
 
-Recent video-specific models each address one of the three challenges above. **VideoChat3** (2026) inflates a ViT into the spatiotemporal I3D-ViT encoder and adapts frame resolution for streaming input to cut video tokens; with only 4B parameters it surpasses open-source video models of equal or larger size ([arXiv:2607.14935](https://arxiv.org/abs/2607.14935)). **Video-o3** (ICML 2026) replaces one-pass uniform sampling with repeated tool calls that locate and zoom into key segments, stopping once it has enough evidence, and reaches 72.1% on MLVU ([arXiv:2601.23224](https://arxiv.org/abs/2601.23224)). **TimeLens2** (2026) asks *when* the evidence occurs: it models temporal grounding as a variable-size set of intervals and uses a temporal Wasserstein distance as its reinforcement-learning reward, improving its 2B / 4B / 8B models over their Qwen3-VL backbones by 14.2 / 13.0 / 18.1 mIoU ([arXiv:2607.17423](https://arxiv.org/abs/2607.17423)).
+Recent video-specific models each address one of the three challenges above. **VideoChat3** (2026) inflates a ViT into the spatiotemporal I3D-ViT encoder and adapts frame resolution for streaming input to cut video tokens; with only 4B parameters it surpasses open-source video models of equal or larger size ([arXiv:2607.14935](https://arxiv.org/abs/2607.14935)). **Video-o3** (ICML 2026) replaces one-pass uniform sampling with repeated tool calls that locate and zoom into key segments, stopping once it has enough evidence, and reaches 72.1% on MLVU ([arXiv:2601.23224](https://arxiv.org/abs/2601.23224)). **TimeLens2** (2026) asks *when* the evidence occurs: it models temporal grounding as a variable-size set of intervals and uses a temporal Wasserstein distance as its reinforcement-learning reward, improving its 2B / 4B / 8B models over their Qwen3-VL backbones by 14.2 / 13.0 / 18.1 mIoU ([arXiv:2607.17423](https://arxiv.org/abs/2607.17423)). Another line of work starts from data: **LLaVA-Video** (2024) performs video instruction tuning on the synthetic LLaVA-Video-178K set and uses a SlowFast representation to balance frame count against token count; see [§8.14](#814-llava-video2024).
 
 **mainstream video understanding benchmark** (scores are taken from [Qwen2.5-VL technical report ](https://arxiv.org/abs/2502.13923) Table 8, compare with the same table):
 
@@ -2757,7 +2757,139 @@ graph TD
 
 ---
 
+## 8.14 LLaVA-Video (2024)
+{: id="814-llava-video2024"}
+——Use high-quality synthetic data to fine-tune video instructions: LLaVA-Video-178K dataset + SlowFast video representation
 
+📄 **Paper**: [arXiv:2410.02713](https://arxiv.org/abs/2410.02713)
+
+---
+
+### Key takeaways
+{: id="精华-5"}
+
+1. **Data quality > Data quantity**: The dense annotation of 178K high-dynamic, unedited videos is better than the sparse annotation of 900K static videos - when training video LMM, choosing a video source with "complete plot and strong temporal dynamics" is more critical than the amount of the video.
+2. **Recursive hierarchical subtitle generation** is a transferable paradigm for dense description of videos of any length: recursively generated with three time granularities of 10s/30s/full film. Each layer uses historical description as the context to ensure that characters and events refer to the same across time periods.
+3. **dense sampling (1 FPS) is fed to the annotation model**: subtitles with sparse sampling (such as 0.008–0.15 FPS) can only describe large scenes and lose subtle movements, which is one of the sources of hallucinations in downstream models.
+4. **SlowFast token allocation**: Apply different spatial pooling rates to video frame groups (slow frame has more tokens, fast frame has less tokens), and stuff up to 3 times the number of frames within the fixed LLM context/GPU memory budget. It is a simple solution to the trade-off of "number of frames vs number of tokens per frame".
+5. Use 16 types of question templates to guide GPT-4o to generate QA pairs, which can systematically cover real query distributions such as timing, cause and effect, counting, camera direction, etc., and avoid low-quality duplication of template QA.
+
+---
+
+### 1. Background and problem
+{: id="1-研究背景问题-5"}
+
+The development of video LMM is limited by the lack of high-quality video-language instruction data: the video sources of existing data sets (LLaVA-Hound, ShareGPT4Video, etc.) are mostly static and divided into short clips according to scenes, which leads to simplified plots, and the frame sampling during annotation is extremely sparse (average 0.008–0.15 FPS), which cannot capture subtle motion changes, causing the model to produce hallucinations when detailed description is required. This article takes the "synthetic data" route, uses GPT-4o + manual process to build a high-quality video instruction fine-tuning data set, and explores video representation that maximizes the number of frames under limited GPU memory.
+
+---
+
+### 2. Methods and innovations
+{: id="2-主要方法创新点-5"}
+
+#### 2.1 LLaVA-Video-178K data set construction
+{: id="21-llava-video-178k-数据集构建"}
+
+The entire data synthesis pipeline consists of three links: **dynamic video filtering** (selecting high-dynamic, unedited videos from 10 major video sources), **recursive three-layer detailed subtitle generation** (1 FPS dense sampling + GPT-4o), **16 Question-guided QA generation** (open + multiple choice). The final result is 178K video, 1.3M command samples (178K subtitles, 960K open QA, 196K multi-select QA).
+
+**① Video source and dynamic filtering**
+
+<div align="center">
+  <img src="/images/vlm/LLaVA-Video-sources.webp" width="100%" alt="Left: More than 40 existing video-language data sets are actually mainly derived from 10 video sources; Right: Filtering logic for dynamic videos" loading="lazy" decoding="async" style="aspect-ratio:1320/733" />
+<figcaption> Left: More than 40 existing video-language data sets are actually mainly derived from 10 video sources; Right: Filtering logic for dynamic videos</figcaption>
+</div>
+
+- **input**: Top 10 video sources (HD-VILA-100M, InternVid-10M, VidOR, VIDAL/YouTube Shorts, YouCook2, Charades, ActivityNet, Kinetics-700, Sth-sth) summarized after surveying 40+ video-language data sets v2, Ego4D), covering activities, cooking, TV, first-person perspective and other fields.
+- **processing**: Use PySceneDetect to count the number of scenes as the "dynamic degree" indicator. The filtering logic includes: sorting by playback volume, number of scenes > 2, duration 5–180s, number of scenes/duration ≤ 0.5 (excluding PPT slideshow videos), resolution > 480p, and 50 samples per category.
+- **design motivation**: All except YouCook2 and Kinetics-700 use **uncut original video** - slicing will destroy the continuity of the plot, and the complete plot is the core value that distinguishes video understanding from image understanding.
+
+**② Recursive three-layer detailed subtitle generation**
+
+<div align="center">
+  <img src="/images/vlm/LLaVA-Video-caption-pipeline.webp" width="100%" alt="Three-layer recursive subtitle generation pipeline: level-1 every 10s, level-2 every 30s, level-3 the whole film, each layer is conditioned on historical description" loading="lazy" decoding="async" style="aspect-ratio:1326/937" />
+<figcaption> Three-layer recursive subtitle generation pipeline: level-1 every 10s, level-2 every 30s, level-3 the whole film, each layer is conditioned on historical description</figcaption>
+</div>
+
+Densely sample frame at 1 FPS, calling GPT-4o recursively at three time granularities:
+
+- **Level-1 (every 10s)**: Input the frame of the current fragment + historical context (recent level-1 description that has not been summarized + the latest level-2 description), and output the event description of the 10s fragment;
+- **Level-2 (every 30s)**: Input the latest three level-1 descriptions + the previous level-2 description, and output the plot summary so far;
+- **Level-3 (at the end of the video)**: Input the latest level-2 description + the level-1 description that has not yet been summarized, and output the complete description of the entire video.
+
+**Design motivation**: Different from solutions such as Video ReCap that first describe each paragraph independently and then summarize it, each level-1 description here carries historical context when generated to ensure the correlation of events before and after the timeline (such as identifying the same person across time periods). The following figure ablation shows the role of historical context:
+
+<div align="center">
+  <img src="/images/vlm/LLaVA-Video-historical-context.webp" width="100%" alt="Comparison of subtitles with/without historical context: Characters appearing in different time periods can be correctly identified as the same person when there is historical context" loading="lazy" decoding="async" style="aspect-ratio:1245/456" />
+<figcaption> Comparison of subtitles with/without historical context: Characters appearing in different time periods can be correctly identified as the same person when there is historical context</figcaption>
+</div>
+
+**③ QA generation guided by 16 types of questions**
+
+<div align="center">
+  <img src="/images/vlm/LLaVA-Video-question-types.webp" width="100%" alt="Refer to the 16 question types and examples defined by the public video QA benchmark" loading="lazy" decoding="async" style="aspect-ratio:1322/433" />
+<figcaption> Refer to the 16 question types and examples defined by the public video QA benchmark</figcaption>
+</div>
+
+- **Input**: Detailed description of each video (level-3) + task definition of the current problem type + 3 in-context examples of the same type.
+- **handles**: GPT-4o generates at most one QA pair for each type, and returns None if it cannot be generated; then use sentence-transformer to remove duplicates, and discard invalid answers starting with "does not specify/mention/show", etc.
+- **Design motivation**: 16 types of questions (timing, space, causality, counting, attribute changes, camera direction, etc.) refer to the public video QA benchmark definition to ensure coverage of real user query distribution and avoid low-quality and single template-generated QA.
+
+A piece of video data ultimately contains three types of annotations:
+
+<div align="center">
+  <img src="/images/vlm/LLaVA-Video-data-example.webp" width="100%" alt="data sample: detailed description, open QA, multiple choice QA three types of annotation" loading="lazy" decoding="async" style="aspect-ratio:1248/594" />
+<figcaption> data sample: detailed description, open QA, multiple choice QA three types of annotation</figcaption>
+</div>
+
+Compared with similar synthetic datasets: LLaVA-Hound 900K videos, but 44% are from static WebVid and only 0.008 FPS annotation; ShareGPT4Video 40K videos are mostly clipped short videos and 0.15 FPS; LLaVA-Video-178K annotates 178K dynamic uncut videos at 1 FPS, and simultaneously covers subtitles, open QA, and multiple selections QA three tasks.
+
+#### 2.2 LLaVA-Video model and SlowFast video representation
+{: id="22-llava-video-模型与-slowfast-视频表示"}
+
+The model follows the LLaVA-OneVision architecture: SigLIP visual encoder + two-layer MLP projector + Qwen2 LLM, and is fine-tuned starting from the LLaVA-OneVision single image (SI) stage checkpoint. The core problem is the token budget: when T=100 frame and M=729 tokens per frame, there are a total of 67,600 visual tokens. The 72B model can only fit 8 frames on 128 H100s.
+
+<div align="center">
+  <img src="/images/vlm/LLaVA-Video-slowfast.webp" width="100%" alt="SlowFast video representation: slow frame (take one frame for every s frame) uses smaller pooling to retain more tokens, fast frame uses larger pooling for compression, and is staggered" loading="lazy" decoding="async" style="aspect-ratio:1233/587" />
+<figcaption>SlowFast video representation: slow frame (take one frame for every s frame) uses smaller pooling to retain more tokens, fast frame uses larger pooling for compression, and is staggered</figcaption>
+</div>
+
+- **input**: a video sequence of up to T frames, each frame gets M visual tokens through SigLIP + MLP.
+- **processing**: divide the frame into two groups according to stride $s$ - every $s$ frame is evenly selected to form the **slow group**, and $p \times p$ average pooling is applied; the remaining frames Constitute **fast group**, and apply $2p \times 2p$ pooling (the number of tokens is 1/4 of slow). Slow and fast frames are staggered in original chronological order. $s = 1$ degenerates into a common representation of all frame equivalent tokens.
+- **output**: The video representation is parameterized by the quad $V = (T, M, s, p)$, and the total number of tokens is
+
+$$
+\#\text{tokens} = \lfloor T/s \rfloor \times \frac{M}{p^2} + \left( T - \lfloor T/s \rfloor \right) \times \frac{M}{4p^2}
+$$
+
+- **Design motivation**: Unlike LITA and SlowFast-LLaVA, which first compress all frames into very few tokens and then supplement some frames with fine-grained tokens (resulting in some frames being represented twice), each frame in this article only belongs to one group and is not represented repeatedly; compared with all frames allocating tokens equally, up to 3 times the number of frames can be included under the same budget. Use $V = (64, 679, 1, 2)$ for LLaVA-Video-7B and $V = (64, 679, 3, 2)$ for 72B.
+
+**training**: Fine-tuning with 1.1M LLaVA-OneVision image data on LLaVA-Video-178K + four public data sets (ActivityNet-QA, NExT-QA, PerceptionTest, LLaVA-Hound-255K, only taking <3 minutes of video) totaling 1.6M video-language samples; where 92.2% subtitles, 77.4% open QA, and 90.9% multiple-choice QA are new annotations.
+
+---
+
+### 3. Results and findings
+{: id="3-核心结果发现-5"}
+
+- **Overall performance**: On 11 video benchmarks, LLaVA-Video-7B surpassed the previous strongest open source LLaVA-OV-7B in 7 of 10 data sets; LLaVA-Video-72B reached a level comparable to commercial Gemini-1.5-Flash (VideoMME 70.5/76.9 w-subs, MLVU 74.4, NExT-QA 85.4).
+- **dataset ablation**: Adding LLaVA-Video-178K to the LLaVA-Hound baseline, NExT-QA is improved by 31.9 points (64.4→80.1), VideoMME is improved by 9.1 points (54.1→63.2), and the zero-shot task also benefits significantly.
+- **quality vs quantity**: Under equal comparison (900K open QA), LLaVA-Video-178K of 178K video comprehensively exceeds LLaVA-Hound of 900K video (NExT-QA 73.2 vs 39.8), confirming that the quality of video instruction data is more important than quantity; with ShareGPT4Video’s 40K equivalent comparison is also superior.
+- The degree of improvement is related to the video source of the benchmark: MLVU, LongVideoBench, VideoMME and other YouTube benchmarks have significantly improved; ActivityNet-QA has improved slightly (most of its questions can be answered by looking at a single frame).
+
+---
+
+### 4. Limitations
+{: id="4-局限性-5"}
+
+Videos originate from multiple platforms and inherit the inherent bias of the source platform; QA pairs are generated by GPT-4o, which may be affected by the perspective of the annotator (prompt designer) and produce distribution skew.
+
+---
+
+### Reference
+{: id="参考"}
+
+- Paper: [LLaVA-Video: Video Instruction Tuning With Synthetic Data (TMLR 2025)](https://arxiv.org/abs/2410.02713)
+- OpenReview: [https://openreview.net/forum?id=EElFGvt39K](https://openreview.net/forum?id=EElFGvt39K)
+
+---
 
 <a id="vlm-summary"></a>
 

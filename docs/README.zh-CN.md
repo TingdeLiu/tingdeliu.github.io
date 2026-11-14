@@ -48,6 +48,7 @@
 | | [ROS 2 完全指南](https://tingdeliu.github.io/ROS2-Survey/) | 通信模型、生命周期节点、QoS 与真实机器人部署实战 |
 | **多模态与空间智能** | [VLM 综述](https://tingdeliu.github.io/VLM-Survey/) | 视觉语言模型的多模态融合方法全景 |
 | | [空间智能综述](https://tingdeliu.github.io/Spatial-Intelligence-Survey/) | 三维场景理解、点云、深度估计与 Gaussian Splatting |
+| | [空间智能论文精读](https://tingdeliu.github.io/Spatial-Intelligence-Papers/) | 26 篇论文精读，按神经渲染到空间推理 VLM 五组整理 |
 | **世界模型与智能体** | [世界模型综述](https://tingdeliu.github.io/World-Models-Survey/) | 环境建模与预测、视频生成式世界模型及其在具身任务中的应用 |
 | | [AI Agent 综述](https://tingdeliu.github.io/AI-Agent-Survey/) | 推理范式、记忆与技能、上下文工程、多智能体协作，以及 MCP / WebMCP / A2A / MHS 四层连接协议与安全 |
 | | [Embodied Agent 论文精读](https://tingdeliu.github.io/Embodied-Agent-Papers/) | 具身智能体闭环运行时（AgentOS / Harness）、类型化动作抽象、物理编排、场景图退出码评估与自演化治理 |

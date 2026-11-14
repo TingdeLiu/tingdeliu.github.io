@@ -30,7 +30,7 @@ Chinese is the source edition, with English translations of the research collect
 | Embodied navigation | [VLN](https://tingdeliu.github.io/en/VLN-Survey/) · [Classical Robot Navigation](https://tingdeliu.github.io/en/Robot-Navigation-Survey/) |
 | Embodied manipulation | [VLA](https://tingdeliu.github.io/en/VLA-Survey/) · [World Models](https://tingdeliu.github.io/en/World-Models-Survey/) |
 | Embodied agents | [AI Agents](https://tingdeliu.github.io/en/AI-Agent-Survey/) · [Harness and Runtime Architecture](https://tingdeliu.github.io/en/Embodied-Agent-Harness-Survey/) · [Paper Readings](https://tingdeliu.github.io/en/Embodied-Agent-Papers/) |
-| Large models and spatial intelligence | [LLM Training](https://tingdeliu.github.io/en/LLM-Training-Survey/) · [Vision-Language Models](https://tingdeliu.github.io/en/VLM-Survey/) · [Spatial Intelligence](https://tingdeliu.github.io/en/Spatial-Intelligence-Survey/) |
+| Large models and spatial intelligence | [LLM Training](https://tingdeliu.github.io/en/LLM-Training-Survey/) · [Vision-Language Models](https://tingdeliu.github.io/en/VLM-Survey/) · [Spatial Intelligence](https://tingdeliu.github.io/en/Spatial-Intelligence-Survey/) · [Spatial Intelligence Paper Readings](https://tingdeliu.github.io/en/Spatial-Intelligence-Papers/) |
 | Learning foundations | [Machine Learning](https://tingdeliu.github.io/en/Machine-Learning-Survey/) · [Deep Learning](https://tingdeliu.github.io/en/Deep-Learning-Survey/) · [Reinforcement Learning](https://tingdeliu.github.io/en/Reinforcement-Learning-Survey/) |
 | Engineering practice | [Python Engineering](https://tingdeliu.github.io/en/Python-Engineering-Survey/) · [ROS 2](https://tingdeliu.github.io/en/ROS2-Survey/) |
 

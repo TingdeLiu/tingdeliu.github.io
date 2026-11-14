@@ -71,7 +71,7 @@ def research_pair_errors(slug, status, translated, original, source_body, englis
                                               normalize_ml_labels, normalize_large_model_labels,
                                               normalize_vla_labels)
         normalize = (normalize_vla_labels if slug in ('VLA-Survey', 'VLA-Papers', 'World-Models-Survey')
-                     else normalize_large_model_labels if slug in ('LLM-Training-Survey', 'VLM-Survey', 'Spatial-Intelligence-Survey')
+                     else normalize_large_model_labels if slug in ('LLM-Training-Survey', 'VLM-Survey', 'Spatial-Intelligence-Survey', 'Spatial-Intelligence-Papers')
                      else normalize_ml_labels if 'Learning-Survey' in slug else normalize_agent_table_labels)
         before, after = features(normalize(source_body)), features(normalize(english_body))
         for feature in ('math', 'links', 'table_numbers', 'table_row_widths'):
@@ -284,7 +284,7 @@ def main():
                 alternates = {n['attrs'].get('hreflang'): n['attrs'].get('href') for n in doc.select('link') if n['attrs'].get('hreflang')}
                 check(alternates == {'en': f'https://tingdeliu.github.io/en/{slug}/', 'zh-CN': f'https://tingdeliu.github.io/{slug}/'}, f'{slug}: incorrect language alternates')
             print(f'{slug}: {len(readings) if not papers_status["stale"] else "stale"} readings; {len(papers.select("table", True))} tables; {len(papers.select("img", True))} figures')
-    for slug in ('VLN-Papers-Outdoor', 'AI-Agent-Survey', 'Embodied-Agent-Harness-Survey', 'Embodied-Agent-Papers', 'Machine-Learning-Survey', 'Deep-Learning-Survey', 'Reinforcement-Learning-Survey', 'LLM-Training-Survey', 'VLM-Survey', 'Spatial-Intelligence-Survey', 'VLA-Survey', 'VLA-Papers', 'World-Models-Survey', 'Python-Engineering-Survey', 'ROS2-Survey'):
+    for slug in ('VLN-Papers-Outdoor', 'AI-Agent-Survey', 'Embodied-Agent-Harness-Survey', 'Embodied-Agent-Papers', 'Machine-Learning-Survey', 'Deep-Learning-Survey', 'Reinforcement-Learning-Survey', 'LLM-Training-Survey', 'VLM-Survey', 'Spatial-Intelligence-Survey', 'Spatial-Intelligence-Papers', 'VLA-Survey', 'VLA-Papers', 'World-Models-Survey', 'Python-Engineering-Survey', 'ROS2-Survey'):
         target = ROOT / f'_translations/en/research/{slug}.md'
         check(target.exists(), f'{slug}: English article missing')
         if not target.exists():

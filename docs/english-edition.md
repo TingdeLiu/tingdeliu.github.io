@@ -10,8 +10,25 @@ Algorithms survey also has a complete English edition. The three agent articles
 (AI Agents, Embodied Agent Harness and Runtime Architecture, and Embodied Agent
 Paper Readings) are translated in full. The Machine Learning Foundations group
 also contains complete Machine Learning, Deep Learning, and Reinforcement Learning
-surveys. The Large Models and Spatial Intelligence group now contains complete LLM Training, VLM, and Spatial Intelligence surveys. The Embodied Manipulation (VLA) group now has complete VLA Survey, VLA Paper Readings, and World Models Survey editions. The Engineering Practice group now contains complete Python Engineering and ROS 2 Core Architecture guides.
+surveys. The Large Models and Spatial Intelligence group now contains complete LLM Training, VLM, and Spatial Intelligence surveys, plus Spatial Intelligence Paper Readings. The Embodied Manipulation (VLA) group now has complete VLA Survey, VLA Paper Readings, and World Models Survey editions. The Engineering Practice group now contains complete Python Engineering and ROS 2 Core Architecture guides.
 
+
+## Spatial intelligence collection split (2026-11-14)
+
+The 27 readings formerly in Section 6 of the Spatial Intelligence Survey have
+moved. Twenty-six are now `/Spatial-Intelligence-Papers/`, grouped as neural
+rendering and language fields, feed-forward geometry models, 3D scene language
+models, spatial reasoning VLMs, and embodied manipulation and driving. LLaVA-Video
+moved to VLM Survey §8.14. Every heading on the new page has an explicit
+block-attribute ID shared by both languages; paper anchors are short slugs such
+as `#vggt`. Survey Section 6 is now an index linking to each reading.
+
+The survey also gained 2025–2026 material: feed-forward reconstruction after
+VGGT (VGGT-Ω, π³, streaming models, WorldMirror), SAM 3D and Marble, four lines
+of spatial-reasoning VLM work, and a spatial reasoning benchmark table. New
+arXiv references were checked through the export API. G2VLM lost two generic
+MoE/MoT diagrams in both languages. Ruby is unavailable locally, so the build
+and English-site checks run in CI only.
 
 ## Navigation reading reclassification (2026-11-07)
 
