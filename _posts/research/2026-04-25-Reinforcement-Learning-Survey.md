@@ -65,7 +65,7 @@ $$
 只看定义很难想象 MDP 长什么样。下面用一个两状态的小例子把四元组画出来：一台扫地机器人只关心电量高（H）还是低（L）。
 
 <div align="center">
-  <img src="/images/ML/rl-mdp-example.svg" width="90%" alt="扫地机器人的两状态 MDP：高电量与低电量两个状态，清扫、待机、充电三种动作，箭头上标注转移概率与奖励" />
+  <img src="/images/ML/rl-mdp-example.svg" width="1140" height="615" style="--paper-figure-width: 100%;" alt="扫地机器人的两状态 MDP：高电量与低电量两个状态，清扫、待机、充电三种动作，箭头上标注转移概率与奖励" />
 <figcaption>图：一个完整的 MDP。蓝色圆是状态，黑点是动作；智能体只能选黑点，选完之后去哪个状态由环境按箭头上的概率决定</figcaption>
 </div>
 
@@ -90,7 +90,7 @@ $$
 其中 $\gamma \in [0, 1)$ 是折扣因子，表示对未来奖励打折扣。
 
 <div align="center">
-  <img src="/images/ML/rl-return-discount.svg" width="90%" alt="上半部分：状态、动作、奖励交替出现的轨迹，当前状态之前的历史被标为灰色；下半部分：γ 等于 0.9 与 0.5 时未来第 k 步奖励权重的柱状图" />
+  <img src="/images/ML/rl-return-discount.svg" width="1140" height="600" style="--paper-figure-width: 100%;" alt="上半部分：状态、动作、奖励交替出现的轨迹，当前状态之前的历史被标为灰色；下半部分：γ 等于 0.9 与 0.5 时未来第 k 步奖励权重的柱状图" />
 <figcaption>图：上方是一条轨迹，马尔可夫性意味着灰色历史不影响未来；下方是折扣权重，γ 越小，智能体越"短视"</figcaption>
 </div>
 
@@ -121,7 +121,7 @@ $$
 这两个求和式看着吓人，画成树就清楚了。从状态 $s$ 往下展开一步：第一层是策略选动作，第二层是环境决定落到哪个 $s'$；把每片叶子的"即时奖励 + 折扣后的下一状态价值"按两层概率加权求和，就得到根节点的价值。这种图叫**备份图（Backup Diagram）**，后面的 TD 学习、Q 学习都是在这棵树上做不同的近似。
 
 <div align="center">
-  <img src="/images/ML/rl-bellman-backup.svg" width="90%" alt="Bellman 期望方程的备份图：根节点状态 s，向下分出三个动作，每个动作再分出两个后继状态，公式中的每一项用与树层相同的颜色标出" />
+  <img src="/images/ML/rl-bellman-backup.svg" width="1140" height="495" style="--paper-figure-width: 100%;" alt="Bellman 期望方程的备份图：根节点状态 s，向下分出三个动作，每个动作再分出两个后继状态，公式中的每一项用与树层相同的颜色标出" />
 <figcaption>图：Bellman 期望方程的备份图，公式里每个求和号对应树的一层</figcaption>
 </div>
 
@@ -152,7 +152,7 @@ $$
 从全零开始反复套用这个式子，就是**价值迭代（Value Iteration）**。下图是在一个 5×4 网格世界上跑价值迭代的真实结果：右上角是终点（+1），它下方是陷阱（−1），每走一步扣 0.04，而且地面打滑——动作只有 0.8 的概率按预期执行，各有 0.1 的概率滑向两侧。
 
 <div align="center">
-  <img src="/images/ML/rl-gridworld-values.svg" width="95%" alt="5 乘 4 网格世界的价值迭代结果：左侧为每个格子的最优状态价值热力图，右侧为对应的最优动作箭头，右上角终点 +1，其下方陷阱 −1，两个深灰色格子为墙" />
+  <img src="/images/ML/rl-gridworld-values.svg" width="1140" height="547.5" style="--paper-figure-width: 100%;" alt="5 乘 4 网格世界的价值迭代结果：左侧为每个格子的最优状态价值热力图，右侧为对应的最优动作箭头，右上角终点 +1，其下方陷阱 −1，两个深灰色格子为墙" />
 <figcaption>图：左边是最优价值 V*（越蓝越好），右边是由它导出的贪心策略；数值由价值迭代实际算出</figcaption>
 </div>
 
@@ -344,7 +344,7 @@ $$
 **裁剪机制直觉**：把单个样本的目标画成 $r$ 的函数（取 $\varepsilon=0.2$）就一目了然。
 
 <div align="center">
-  <img src="/images/ML/rl-ppo-clip.svg" width="90%" alt="PPO-Clip 目标函数随概率比率 r 的变化：左图优势为正时，r 超过 1+ε 后曲线变平；右图优势为负时，r 低于 1−ε 后曲线变平，阴影区梯度为零" />
+  <img src="/images/ML/rl-ppo-clip.svg" width="1140" height="600" style="--paper-figure-width: 100%;" alt="PPO-Clip 目标函数随概率比率 r 的变化：左图优势为正时，r 超过 1+ε 后曲线变平；右图优势为负时，r 低于 1−ε 后曲线变平，阴影区梯度为零" />
 <figcaption>图：PPO-Clip 的目标曲线（蓝）与未裁剪的 r·A（灰虚线），阴影区内梯度为 0</figcaption>
 </div>
 
@@ -606,7 +606,7 @@ sequenceDiagram
 - 扩散模型天然能表示多峰分布，可以果断选择其中一个。
 
 <div align="center">
-  <img src="/images/ML/rl-multimodal-actions.svg" width="90%" alt="多峰动作分布示意：示教数据中伸向左杯和右杯的动作形成两个峰，单高斯拟合的均值落在两杯之间，扩散策略的采样点集中在两个峰上" />
+  <img src="/images/ML/rl-multimodal-actions.svg" width="1140" height="510" style="--paper-figure-width: 100%;" alt="多峰动作分布示意：示教数据中伸向左杯和右杯的动作形成两个峰，单高斯拟合的均值落在两杯之间，扩散策略的采样点集中在两个峰上" />
 <figcaption>图：示教里"抓左杯"和"抓右杯"都对，形成两个峰；用均方误差训练的单高斯策略取平均，落在中间的空档里，扩散策略的样本则落在峰上</figcaption>
 </div>
 
@@ -731,7 +731,7 @@ graph LR
 RLVR 背后最常用的算法是 **GRPO（Group Relative Policy Optimization）**，由 [DeepSeekMath](https://arxiv.org/abs/2402.03300)（2024）提出。它的出发点很实际：PPO 需要一个与策略同等规模的价值网络来估计优势，对大模型而言显存和训练成本都翻倍。GRPO 干脆不要 Critic——同一个问题采样一组 $G$ 个回答，用组内平均分当基线：
 
 <div align="center">
-  <img src="/images/ML/rl-grpo-vs-ppo.svg" width="90%" alt="PPO 与 GRPO 的对比：PPO 用单独训练的价值网络与 GAE 估计优势；GRPO 对同一问题采样 6 个回答，验证器给出对错，组内标准化后答对的优势为 +1、答错的为 −1" />
+  <img src="/images/ML/rl-grpo-vs-ppo.svg" width="1140" height="525" style="--paper-figure-width: 100%;" alt="PPO 与 GRPO 的对比：PPO 用单独训练的价值网络与 GAE 估计优势；GRPO 对同一问题采样 6 个回答，验证器给出对错，组内标准化后答对的优势为 +1、答错的为 −1" />
 <figcaption>图：同一问题采样 6 个回答，3 对 3 错，组均值 0.5 当基线，标准化后答对的优势为 +1、答错的为 −1</figcaption>
 </div>
 

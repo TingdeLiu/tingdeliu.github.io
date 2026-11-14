@@ -74,7 +74,7 @@ $$
 Definitions alone make it hard to picture what an MDP looks like. The small two-state example below draws the whole quadruple: a cleaning robot that only cares whether its battery is high (H) or low (L).
 
 <div align="center">
-  <img src="/images/ML/rl-mdp-example-en.svg" width="90%" alt="A two-state MDP for a cleaning robot: high and low battery states, clean, wait and recharge actions, with transition probabilities and rewards on the arrows" />
+  <img src="/images/ML/rl-mdp-example-en.svg" width="1140" height="615" style="--paper-figure-width: 100%;" alt="A two-state MDP for a cleaning robot: high and low battery states, clean, wait and recharge actions, with transition probabilities and rewards on the arrows" />
 <figcaption>Figure: A complete MDP. Blue circles are states and black dots are actions; the agent only picks a black dot, and the environment then decides the next state with the probabilities on the arrows</figcaption>
 </div>
 
@@ -100,7 +100,7 @@ $$
 Here, $\gamma \in [0, 1)$ is the discount factor, which means discounting future rewards.
 
 <div align="center">
-  <img src="/images/ML/rl-return-discount-en.svg" width="90%" alt="Top: a trajectory alternating states, actions and rewards, with the history before the current state greyed out; bottom: bar chart of the weight on the reward k steps ahead for gamma 0.9 and 0.5" />
+  <img src="/images/ML/rl-return-discount-en.svg" width="1140" height="600" style="--paper-figure-width: 100%;" alt="Top: a trajectory alternating states, actions and rewards, with the history before the current state greyed out; bottom: bar chart of the weight on the reward k steps ahead for gamma 0.9 and 0.5" />
 <figcaption>Figure: Top, a trajectory; the Markov property means the grey history does not affect the future. Bottom, discount weights; the smaller γ is, the more short-sighted the agent becomes</figcaption>
 </div>
 
@@ -131,7 +131,7 @@ $$
 The two sums look intimidating, but they become clear as a tree. Expand one step down from state $s$: the first level is the policy choosing an action, the second is the environment deciding which $s'$ we land in. Weight each leaf's "immediate reward + discounted value of the next state" by the probabilities on both levels and sum them up, and you get the value at the root. This picture is called a **backup diagram**; TD learning and Q-learning later in the article are different approximations on this same tree.
 
 <div align="center">
-  <img src="/images/ML/rl-bellman-backup-en.svg" width="90%" alt="Backup diagram of the Bellman expectation equation: root state s branches into three actions, each action branches into two successor states, and each term of the equation is coloured like its tree level" />
+  <img src="/images/ML/rl-bellman-backup-en.svg" width="1140" height="495" style="--paper-figure-width: 100%;" alt="Backup diagram of the Bellman expectation equation: root state s branches into three actions, each action branches into two successor states, and each term of the equation is coloured like its tree level" />
 <figcaption>Figure: Backup diagram of the Bellman expectation equation; each summation in the formula corresponds to one level of the tree</figcaption>
 </div>
 
@@ -163,7 +163,7 @@ $$
 Applying this equation repeatedly, starting from all zeros, is **value iteration**. The figure below shows the actual result of value iteration on a 5×4 grid world: the top-right cell is the goal (+1), the cell below it is a pit (−1), every step costs 0.04, and the floor is slippery—an action does what was intended with probability 0.8 and slips to either side with probability 0.1 each.
 
 <div align="center">
-  <img src="/images/ML/rl-gridworld-values-en.svg" width="95%" alt="Value iteration on a 5 by 4 grid world: the left grid is a heat map of the optimal state value of each cell, the right grid shows the corresponding optimal action arrows; goal +1 at the top right, pit −1 below it, two dark grey walls" />
+  <img src="/images/ML/rl-gridworld-values-en.svg" width="1140" height="547.5" style="--paper-figure-width: 100%;" alt="Value iteration on a 5 by 4 grid world: the left grid is a heat map of the optimal state value of each cell, the right grid shows the corresponding optimal action arrows; goal +1 at the top right, pit −1 below it, two dark grey walls" />
 <figcaption>Figure: Left, the optimal value V* (bluer is better); right, the greedy policy derived from it. The numbers are computed by value iteration</figcaption>
 </div>
 
@@ -366,7 +366,7 @@ Here, $$r_t(\theta) = \frac{p_\theta(a_t\mid s_t)}{p_{\theta^k}(a_t\mid s_t)}$$ 
 **Intuition behind clipping**: plotting the per-sample objective as a function of $r$ (with $\varepsilon=0.2$) makes it obvious.
 
 <div align="center">
-  <img src="/images/ML/rl-ppo-clip-en.svg" width="90%" alt="The PPO-Clip objective as a function of the probability ratio r: with positive advantage the curve flattens beyond 1+ε; with negative advantage it flattens below 1−ε; the shaded zone has zero gradient" />
+  <img src="/images/ML/rl-ppo-clip-en.svg" width="1140" height="600" style="--paper-figure-width: 100%;" alt="The PPO-Clip objective as a function of the probability ratio r: with positive advantage the curve flattens beyond 1+ε; with negative advantage it flattens below 1−ε; the shaded zone has zero gradient" />
 <figcaption>Figure: The PPO-Clip objective (blue) and the unclipped r·A (grey dashed); the gradient is 0 inside the shaded zone</figcaption>
 </div>
 
@@ -646,7 +646,7 @@ The traditional policy network outputs the mean value of the action and cannot h
 - Diffusion models can naturally represent multimodal distributions, and one can be chosen decisively.
 
 <div align="center">
-  <img src="/images/ML/rl-multimodal-actions-en.svg" width="90%" alt="Multi-modal action distribution: reaching for the left cup and the right cup form two peaks in the demonstrations, the mean of a single-Gaussian fit falls between the cups, and samples from a diffusion policy sit on the two peaks" />
+  <img src="/images/ML/rl-multimodal-actions-en.svg" width="1140" height="510" style="--paper-figure-width: 100%;" alt="Multi-modal action distribution: reaching for the left cup and the right cup form two peaks in the demonstrations, the mean of a single-Gaussian fit falls between the cups, and samples from a diffusion policy sit on the two peaks" />
 <figcaption>Figure: In the demonstrations both "grab the left cup" and "grab the right cup" are correct, giving two peaks; a single-Gaussian policy trained with mean squared error averages them and lands in the gap, while samples from a diffusion policy fall on the peaks</figcaption>
 </div>
 
@@ -782,7 +782,7 @@ The name **RLVR (Reinforcement Learning from Verifiable Rewards)** comes from [T
 The algorithm most commonly behind RLVR is **GRPO (Group Relative Policy Optimization)**, introduced in [DeepSeekMath](https://arxiv.org/abs/2402.03300) (2024). Its motivation is practical: PPO needs a value network as large as the policy to estimate advantages, which doubles memory and training cost for large models. GRPO drops the critic altogether—it samples a group of $G$ answers to the same question and uses the group's average score as the baseline:
 
 <div align="center">
-  <img src="/images/ML/rl-grpo-vs-ppo-en.svg" width="90%" alt="PPO versus GRPO: PPO estimates the advantage with a separately trained value network and GAE; GRPO samples 6 answers to one question, a verifier marks them right or wrong, and after normalising within the group the right answers get advantage +1 and the wrong ones −1" />
+  <img src="/images/ML/rl-grpo-vs-ppo-en.svg" width="1140" height="525" style="--paper-figure-width: 100%;" alt="PPO versus GRPO: PPO estimates the advantage with a separately trained value network and GAE; GRPO samples 6 answers to one question, a verifier marks them right or wrong, and after normalising within the group the right answers get advantage +1 and the wrong ones −1" />
 <figcaption>Figure: 6 answers sampled for the same question, 3 right and 3 wrong; the group mean 0.5 is the baseline, and after normalisation right answers get advantage +1 and wrong ones −1</figcaption>
 </div>
 

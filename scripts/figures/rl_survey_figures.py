@@ -20,6 +20,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "images" / "ML"
+# Intrinsic size is 1.5x the drawing grid. The article script never upscales an
+# image beyond its natural width, and an SVG without width/height falls back to
+# 300x150, so an explicit, generous size is what lets the figures fill the column.
+SCALE = 1.5
 
 # ---------------------------------------------------------------- palette ---
 BG = "#fbfaf7"
@@ -64,7 +68,7 @@ def svg(w: int, h: int, body: list[str], title: str) -> str:
                           ("green", GREEN), ("red", RED), ("faint", FAINT))
     )
     return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" role="img" aria-label="{esc(title)}">\n'
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w * SCALE:g}" height="{h * SCALE:g}" role="img" aria-label="{esc(title)}">\n'
         f"<title>{esc(title)}</title>\n<defs>{marker}{STYLE}</defs>\n"
         f'<rect x="0.5" y="0.5" width="{w-1}" height="{h-1}" rx="14" fill="{BG}" stroke="{FRAME}"/>\n'
         + "\n".join(body)
