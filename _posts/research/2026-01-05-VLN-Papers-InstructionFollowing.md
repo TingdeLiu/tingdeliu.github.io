@@ -4,7 +4,7 @@ lang: zh-CN
 translation_id: vln-papers
 permalink: /VLN-Papers/
 title: "VLN 论文精读：指令跟随篇"
-date: 2026-11-11
+date: 2026-11-14
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -170,7 +170,7 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 | [DUET (全景)](#duet) | 2022 | REVERIE | 训练 | – | **52.51** | **36.06** | – | **56.91** | [是](https://github.com/cshizhe/VLN-DUET) |
 | [CA-VLN (全景)](/Agentic-Navigation-Papers/#ca-vln) | 2026 | REVERIE | 训练 | LLaVA-7B | 51.0 | 35.5 | – | 56.3 | 否 |
 
-注：R2R 与 REVERIE 两组里，DUET 与 R2R 基线取原文 Test-Unseen 划分的成绩，其余取 val-unseen，按同一基准合并比较。VLN-Imagine 为 DUET-Imagine 的 R2R val-unseen 结果（DUET 基线 71.52 / 60.41）。GSA-R2R 区分住宅（ID，Test-R-Basic）与非住宅（OOD，Test-N-Basic）场景，Slow4fast-VLN 相对 GR-DUET 性能有所提升。REVERIE 基准另用 RGS / RGSPL 指标：R³ 为 53.76 / 42.14 / 37.94 / 29.86（SR/SPL/RGS/RGSPL），Uncertainty-Aware Gaussian Map 的 RGS / RGSPL 为 37.65 / 27.01。 连续环境版 REVERIE-CE 目前只有 Image2Nav（180° FOV）报告：SR 53.7 / SPL 42.7 / NE 5.08 / OSR 59.5（val-unseen），动作空间与离散 REVERIE 不同，不并入本表。
+注：R2R 与 REVERIE 两组里，DUET 与 R2R 基线取原文 Test-Unseen 划分的成绩，其余取 val-unseen，按同一基准合并比较。VLN-Imagine 为 DUET-Imagine 的 R2R val-unseen 结果（DUET 基线 71.52 / 60.41）。GSA-R2R 区分住宅（ID，Test-R-Basic）与非住宅（OOD，Test-N-Basic）场景，Slow4fast-VLN 相对 GR-DUET 性能有所提升。REVERIE 基准另用 RGS / RGSPL 指标：R³ 为 53.76 / 42.14 / 37.94 / 29.86（SR/SPL/RGS/RGSPL），Uncertainty-Aware Gaussian Map 的 RGS / RGSPL 为 37.65 / 27.01。 连续环境版 REVERIE-CE 目前有两篇报告，均为 val-unseen：Image2Nav（180° FOV）SR 53.7 / SPL 42.7 / NE 5.08 / OSR 59.5；[H2E](/Agentic-Navigation-Papers/#h2e)（四路 RGB，全部 3,189 个回合，VLA 须自行停止）SR 44.9 / SPL 38.4 / NE 6.90 / OSR 50.1。两者的观测与评测设置不同，动作空间也与离散 REVERIE 不同，因此不并入本表。
 
 ## ④ LHPR-VLN · 长程多阶段导航
 {: id="-lhpr-vln--长程多阶段导航"}
@@ -7391,6 +7391,8 @@ $$P_{\text{model}} = 1 - \beta_t = \alpha^{t/T}$$
     { n: "22. HarnessVLN (2026)", a: "harnessvln", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '实机部署', '拓扑图'] },
     { n: "23. GPT-6-Astra (2026)", a: "gpt-6-astra", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '连续环境'] },
     { n: "24. NavGPT-3 (2026)", a: "navgpt-3", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['双系统', 'Agentic', '连续环境', '实机部署'] },
+    { n: "25. HSGNav (2026)", a: "hsgnav", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '拓扑图', '零样本', '数据集'] },
+    { n: "26. H2E (2026)", a: "h2e", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['端到端', '连续环境', '数据增强'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',

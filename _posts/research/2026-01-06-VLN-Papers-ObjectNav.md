@@ -4,7 +4,7 @@ lang: zh-CN
 translation_id: vln-papers-extended
 permalink: /VLN-Papers-Extended/
 title: "VLN 论文精读：目标导航"
-date: 2026-11-11
+date: 2026-11-14
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -148,7 +148,8 @@ excerpt: "26 篇目标导航及支撑方法精读，覆盖 ObjectNav、图像目
 | 模型 | 年份 | 基准 | 范式 | 基模 | SR ↑ | SPL ↑ | 开源 |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
 | [EvoLife (四视角)](/Agentic-Navigation-Papers/#evolife) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">50 条序列、特权向导</span> | 2026 | GOAT-Bench | 免训练 | GPT-6 Astra (ultra) | 99.3 | 81.9 | – |
-| [GSMem (单目)](/Agentic-Navigation-Papers/#gsmem) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2025 | GOAT-Bench | 免训练 | GPT-4o | **67.2** | **46.9** | 否 |
+| [HSGNav (单目)](/Agentic-Navigation-Papers/#hsgnav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | GOAT-Bench | 免训练 | GPT-4o | **71.2** | **50.3** | 否 |
+| [GSMem (单目)](/Agentic-Navigation-Papers/#gsmem) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2025 | GOAT-Bench | 免训练 | GPT-4o | 67.2 | 46.9 | 否 |
 | [EvoMemNav (单目)](/Agentic-Navigation-Papers/#evomemnav) | 2026 | GOAT-Bench | 免训练 | Qwen-8B | 59.6 | 38.9 | 否 |
 | [X-NavDP (单目)](/VLN-Papers-Extended/#x-navdp) | 2026 | IsaacLab 40-Scenes (Point-Goal) | 训练 | – | 84.28 | 77.19 | [是](https://github.com/InternRobotics/NavDP) |
 | [ABot-N1 (三相机)](/VLN-Papers/#abot-n1) | 2026 | ABotN-PointBench (Indoor) | 训练 | Qwen-3.5-4B + 2B | 95.4 | 93.7 | 否 |
@@ -3643,6 +3644,8 @@ graph TD
     { n: "22. HarnessVLN (2026)", a: "harnessvln", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '实机部署', '拓扑图'] },
     { n: "23. GPT-6-Astra (2026)", a: "gpt-6-astra", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '连续环境'] },
     { n: "24. NavGPT-3 (2026)", a: "navgpt-3", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['双系统', 'Agentic', '连续环境', '实机部署'] },
+    { n: "25. HSGNav (2026)", a: "hsgnav", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '拓扑图', '零样本', '数据集'] },
+    { n: "26. H2E (2026)", a: "h2e", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['端到端', '连续环境', '数据增强'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',
