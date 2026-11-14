@@ -81,17 +81,22 @@ excerpt: "This issue covers 88 independent works (86 newly collected and 2 versi
 
 **Long history needs both representation and supervision.**
 
-**[Paper](https://arxiv.org/abs/2611.12087v1)** · Track: VLN · Monocular RGB · open-world navigation / history backtracking
+**[Paper](https://arxiv.org/abs/2611.12087v1)** · [My reading guide (Chinese)](https://tingdeliu.github.io/VLN-Papers-Outdoor/#compass-1) · Track: VLN · Monocular RGB · open-world navigation / history backtracking
 
-**Problem.** A few recent frames do not sustain persistent spatial awareness. Retained history also needs to connect to task stages and targets encountered earlier.
+**Problem.** History frames record what was seen without necessarily explaining where it was seen or how to return. Without supervision for memory use, the model can also ignore the history it receives.
 
-**Method.** The paper retains spatiotemporal context with sparse visual keyframes and an explicit History Representation Map. Three VQA supervision categories teach task-stage grounding, exploration consistency, and spatiotemporal target retrieval.
+**Method.** The paper draws sparse keyframe positions, indices, and headings into a History Representation Map (HRM). VQA supervision for task stages, exploration consistency, and spatiotemporal target retrieval teaches the model to use it; a shared backbone connects language reasoning with video–action prediction.
 
-**Evidence.** The paper reports 79.4% overall SR in its open-world evaluation versus 17.8% for the strongest baseline, and history-backtracking success from 0% to 58%. These are not standard R2R-CE metrics.
+<div align="center">
+<img src="/images/vln/Compass-1-architecture.webp" alt="Compass 1 method overview" width="100%" loading="lazy" decoding="async" />
+<figcaption>Figure 2: The HRM aligns historical keyframes with spatial trajectories on the left; memory questions, language reasoning, and video–action prediction share a backbone on the right. <a href="https://arxiv.org/pdf/2611.12087v1#page=4">Original figure</a></figcaption>
+</div>
 
-**Assessment.** This is useful for studying whether map-structured history improves revisits and retrieval. Cross-height and cross-embodiment demonstrations merit tracking, but the aggregate custom evaluation does not support ranking against standard VLN results.
+**Evidence.** The paper reports 320 hardware trials per method: 4 scenarios, 8 tasks, and 10 trials for each combination. Overall SR is 79.4%, versus 17.8% for AwareVLN; persistent history-backtracking SR is 58%, versus 0% for the strongest baseline on that task.
 
-**Next step.** Read closely: check task splits, history windows, and failures, separating place recall from successful backtracking.
+**Assessment.** This is useful for studying long-history retrieval and revisits, but overall SR mixes indoor and outdoor tasks and cannot be ranked directly against standard R2R-CE. The hardware system still relies on odometry and remote GPU inference; monocular input does not imply a pose-free robot system.
+
+**Next step.** Read closely: use the reading guide to examine HRM and VQA ablations, separating history-retrieval accuracy from successful closed-loop returns.
 
 ### 4. HSGNav
 {: id="hsgnav"}
