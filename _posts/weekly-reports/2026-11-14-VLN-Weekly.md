@@ -4,6 +4,7 @@ lang: zh-CN
 translation_id: vln-weekly-2026-11-14
 title: "具身导航周报 · 第 13 期"
 date: 2026-11-14
+last_modified_at: 2026-11-14
 issue_number: 13
 period_start: 2026-11-04
 period_end: 2026-11-12
@@ -110,11 +111,11 @@ excerpt: "本期整理 88 项独立工作（新收 86 项、版本更新 2 项�
 <figcaption>图 2：检索、探索与目标验证共同更新双层假设场景图。 <a href="https://arxiv.org/html/2611.10547v1#S3.F2">论文原图</a></figcaption>
 </div>
 
-**证据。** 摘要无数值；列出 GOAT-Bench，并提出覆盖回合中物体搬移与多尺度目标的 FAROS-Bench。
+**证据。** 论文报告：GOAT-Bench SR / SPL 为 71.2% / 50.3%，略高于 3D-Mem 的 69.1% / 48.9%；在新提出的 FAROS-Bench 上为 58.1% / 28.5%，最强对照 MSGNav 的 SR 为 36.7%，其中物体被搬走的动态子集为 57.1% 对 26.2%。去掉目标验证后动态子集 SR 降到 28.6%；验证准确率 86.8%（212 次），被误判作废的目标有 93.3% 可凭新观测找回。每个子任务的 VLM 调用为 18.2 次，3D-Mem 为 36.8 次。
 
-**判断。** 与导航 Agent 的记忆失效问题直接相关，重点是何时撤销旧事实。还需核对误检导致的错误删除、验证调用成本及真机搬移实验。
+**判断。** 与导航 Agent 的记忆失效问题直接相关，重点是何时撤销旧事实。增益主要来自自建的 FAROS-Bench，GOAT-Bench 上只领先约 2 个百分点；实验全在 Habitat 仿真，没有真机搬移测试，论文也没给延迟。
 
-**下一步。** 精读：围绕“检索成功但目标已搬走”复查验证触发与失效记录的消融。
+**下一步。** 精读：围绕“检索成功但目标已搬走”，核对验证误判的 13% 落在哪些尺度的物体上，再看连续搬移三次后 SR 从 82.4% 降到 78.4% 的失败案例。
 
 ### 5. LHNav
 {: id="lhnav"}
@@ -141,8 +142,8 @@ excerpt: "本期整理 88 项独立工作（新收 86 项、版本更新 2 项�
 ## 三、也值得一看
 {: id="also-worth"}
 
-- **[PreNav](https://arxiv.org/abs/2611.15093v1)** · VLN：先生成全局搜索参考，再在线检测目标；摘要无数值。
-- **[BAMOS](https://arxiv.org/abs/2611.15689v1)** · VLN：用检测误差消融检验目标信念更新；摘要无数值。
+- **[PreNav](https://arxiv.org/abs/2611.15093v1)** · VLN：先生成全局搜索参考，再在线检测目标；Gibson 六类子集上同等先验比 SGM 高 2.3 个 SR 点，十类全集只高 1.4 个点；真机 15 次成功 13 次。
+- **[BAMOS](https://arxiv.org/abs/2611.15689v1)** · VLN：用检测误差消融检验目标信念更新；漏检率到 0.3 时成功率只降 0.018，误检的影响大得多（HSSD 最多降 0.402），且只与自身消融比较。
 - **[EMS-Nav](https://arxiv.org/abs/2611.15589v1)** · VLN：按区域组织端侧多尺度导航，值得核对资源开销。
 - **[HeMeR](https://arxiv.org/abs/2611.16487v1)** · 可借鉴到导航 Agent 的记忆缓存复用；真机数字来自操作场景。
 - **[SimplEvo](https://arxiv.org/abs/2611.11509v1)** · 可借鉴到导航 Agent 的训练期经验修订与固定记忆测试。
@@ -175,45 +176,45 @@ excerpt: "本期整理 88 项独立工作（新收 86 项、版本更新 2 项�
 ## 五、全部工作索引
 {: id="full-index"}
 
-A 为两条主线，B 为机制可迁移工作，C 为其他方向；以下覆盖本期全部独立工作。
+按两条主线、可迁移机制和其他方向分组，覆盖本期全部独立工作。
 
 <details markdown="1">
 <summary>VLN 与语义导航 · 7 篇</summary>
 
-- [CPNav](#cpnav)：见精读（A）。
-- [CSG-Nav](https://arxiv.org/abs/2611.11978v1)：融合语义置信度与深度定位，约束探索和停止。（A）。
-- [Compass 1](#compass-1)：见精读（A）。
-- [PreNav](https://arxiv.org/abs/2611.15093v1)：根据稳定结构与家具先验预生成搜索参考。（A）。
-- [EMS-Nav](https://arxiv.org/abs/2611.15589v1)：以区域层级组织多尺度语言目标与端侧地图。（A）。
-- [BAMOS](https://arxiv.org/abs/2611.15689v1)：联合目标信念、占据与检测误差分析主动搜索。（A）。
-- [H2E](#h2e)：见精读（A）。
+- [CPNav](#cpnav)：见精读。
+- [CSG-Nav](https://arxiv.org/abs/2611.11978v1)：融合语义置信度与深度定位，约束探索和停止。
+- [Compass 1](#compass-1)：见精读。
+- [PreNav](https://arxiv.org/abs/2611.15093v1)：根据稳定结构与家具先验预生成搜索参考。
+- [EMS-Nav](https://arxiv.org/abs/2611.15589v1)：以区域层级组织多尺度语言目标与端侧地图。
+- [BAMOS](https://arxiv.org/abs/2611.15689v1)：联合目标信念、占据与检测误差分析主动搜索。
+- [H2E](#h2e)：见精读。
 
 </details>
 
 <details markdown="1">
 <summary>具身 Agentic 导航 · 2 篇</summary>
 
-- [HSGNav](#hsgnav)：见精读（A）。
-- [LHNav](#lhnav)：见精读（A）。
+- [HSGNav](#hsgnav)：见精读。
+- [LHNav](#lhnav)：见精读。
 
 </details>
 
 <details markdown="1">
 <summary>可迁移机制 · 13 篇</summary>
 
-- [Flex-RSI](https://arxiv.org/abs/2611.08946v1)：在固定预算内评测 harness 自我修订。（B）。
-- [A2-MEAS](https://arxiv.org/abs/2611.09124v1)：用纠错代码连接训练监督与运行时恢复。（B）。
-- [CUA Generalists](https://arxiv.org/abs/2611.09847v1)：以屏幕与软件控件访问具身环境。（B）。
-- [SimplEvo](https://arxiv.org/abs/2611.11509v1)：训练阶段修订文本经验，测试时固定记忆。（B）。
-- [MAP-VP](https://arxiv.org/abs/2611.11510v1)：用地图地标提示修正空中导航末端定位。（B）。
-- [WanderBench](https://arxiv.org/abs/2611.12557v1)：评测视频世界探索中的回访一致性。（B）。
-- [Safe Depth](https://arxiv.org/abs/2611.13769v1)：以深度不确定性支持安全导航感知。（B）。
-- [AST](https://arxiv.org/abs/2611.14111v1)：监测任务信息获取是否停滞。（B）。
-- [Memory as a Clock?](https://arxiv.org/abs/2611.14488v1)：停顿干预揭示时间索引记忆的虚假进度。（B）。
-- [HDH](https://arxiv.org/abs/2611.14834v1)：冻结策略，用小型验证器挑选动作块。（B）。
-- [IncR-3DSGG](https://arxiv.org/abs/2611.15429v1)：用带位姿 RGB 增量构建三维场景图。（B）。
-- [HeMeR](https://arxiv.org/abs/2611.16487v1)：按记忆内容变化局部更新 KV 缓存。（B）。
-- [ProtoVis-Nav](https://arxiv.org/abs/2611.17330v1)：以局部视觉想象约束无人机航点。（B）。
+- [Flex-RSI](https://arxiv.org/abs/2611.08946v1)：在固定预算内评测 harness 自我修订。
+- [A2-MEAS](https://arxiv.org/abs/2611.09124v1)：用纠错代码连接训练监督与运行时恢复。
+- [CUA Generalists](https://arxiv.org/abs/2611.09847v1)：以屏幕与软件控件访问具身环境。
+- [SimplEvo](https://arxiv.org/abs/2611.11509v1)：训练阶段修订文本经验，测试时固定记忆。
+- [MAP-VP](https://arxiv.org/abs/2611.11510v1)：用地图地标提示修正空中导航末端定位。
+- [WanderBench](https://arxiv.org/abs/2611.12557v1)：评测视频世界探索中的回访一致性。
+- [Safe Depth](https://arxiv.org/abs/2611.13769v1)：以深度不确定性支持安全导航感知。
+- [AST](https://arxiv.org/abs/2611.14111v1)：监测任务信息获取是否停滞。
+- [Memory as a Clock?](https://arxiv.org/abs/2611.14488v1)：停顿干预揭示时间索引记忆的虚假进度。
+- [HDH](https://arxiv.org/abs/2611.14834v1)：冻结策略，用小型验证器挑选动作块。
+- [IncR-3DSGG](https://arxiv.org/abs/2611.15429v1)：用带位姿 RGB 增量构建三维场景图。
+- [HeMeR](https://arxiv.org/abs/2611.16487v1)：按记忆内容变化局部更新 KV 缓存。
+- [ProtoVis-Nav](https://arxiv.org/abs/2611.17330v1)：以局部视觉想象约束无人机航点。
 
 </details>
 
