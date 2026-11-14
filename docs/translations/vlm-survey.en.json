@@ -1,10 +1,10 @@
 {
   "source": "_posts/research/2026-03-05-VLM-Survey.md",
   "translation": "_translations/en/research/VLM-Survey.md",
-  "reviewed_on": "2026-10-24",
-  "source_revision_date": "2026-10-24",
+  "reviewed_on": "2026-11-14",
+  "source_revision_date": "2026-11-14",
   "sections": {
-    "metadata": "607712866e71ae5c1a1f5b0ca3f9101c0cf0ce977c52bd1fca52d83c83c447f2",
+    "metadata": "65becc11785de50527a60180a35c12381ef9a4f8cb808bf1a5a922a848d87948",
     "introduction": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "1. 引言": "8a4ab365ea1ef3036947c9a32f9feba81a8d9a0b5112f9622d1168016545ec7c",
     "2. VLM 基本概述": "d312bbac4691a20e7fa3681e0415a38f64febb591d41c725c05450755314c9c4",
@@ -54,7 +54,7 @@
     "2. LLaVA-NeXT 动态切片 (AnyRes)": "60a67a2270ce953d0daf3259bc509b4ce26105a99c6c391ac851c0f35b5f257d",
     "3. Qwen2-VL / Qwen2.5-VL 动态分辨率 (Naive Dynamic Resolution)": "010e6835f61831ba766791f3993762b9b394ba258b5f7898e91f5397c5ce1138",
     "DINOv2 自监督路线": "2ca94ef6d8b63f9d80b6786e2efbd049d726faccde76c7740c490286dc636a6d",
-    "4.8 视频理解：向时序维度扩展": "deddd236ca4e5b44b7a6c5a942181d0d3fba8e8ac75e71e4fd7629d63f4c06e1",
+    "4.8 视频理解：向时序维度扩展": "6a58d9018c0329aa742f751fd5ffeec4840f4bb3599c20fb8500259484c33451",
     "5. VLM 任务类型": "3fd8b1b2beef2394e2eb0f49af63fb3e445cf2b08eeaf597000b6ecb445a85f9",
     "5.1 图像描述": "7492337398b4fde5da9dd66c05aeb40c099ff6a261511219142dc5e3d686c97e",
     "5.2 视觉问答（VQA）": "3af6ab1c9ffd325d08cbb561019d829791987521f558dd36a62581b8bf990ef9",

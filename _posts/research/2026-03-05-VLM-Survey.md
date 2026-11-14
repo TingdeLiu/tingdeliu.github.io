@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vlm-survey
 title: "VLM 综述"
-date: 2026-10-24
+date: 2026-11-14
 tags: [VLM, Computer Vision, Deep Learning, Multimodal]
 categories: research
 comments: true
@@ -670,6 +670,8 @@ CLIP / SigLIP 用语言监督训练视觉编码器，[DINOv2](https://arxiv.org/
 **LongVA**（2024）提出**长上下文迁移**（long context transfer）：先只用纯文本把 Qwen2-7B-Instruct 的上下文扩展到 224K，再做常规的图像对齐训练，无需长视频训练数据即可处理约 2000 帧、20 万以上的视觉 token；论文同时提出视觉大海捞针测试 V-NIAH（[arXiv:2406.16852](https://arxiv.org/abs/2406.16852)）。
 
 **Qwen2.5-VL** 通过与绝对时间对齐的 MRoPE 和动态帧率采样支持长视频；**Qwen3-VL** 改用显式文本时间戳与 Interleaved MRoPE，原生上下文达到 256K（30 分钟视频内 Needle-in-a-Haystack 100% 准确率，见 8.10 节）。
+
+近期的视频专用模型大致分别回应上面三项挑战：**VideoChat3**（2026）把 ViT 膨胀为时空编码器 I3D-ViT，并在流式输入中自适应调整帧分辨率来压缩视频 token，4B 参数即超过参数量相当或更大的开源视频模型（[arXiv:2607.14935](https://arxiv.org/abs/2607.14935)）；**Video-o3**（ICML 2026）不再一次性均匀采帧，而是在推理中反复调用工具查找、放大关键片段，证据足够时自行停止，在 MLVU 上达到 72.1%（[arXiv:2601.23224](https://arxiv.org/abs/2601.23224)）；**TimeLens2**（2026）回答"证据出现在何时"，把时间定位建模为数量可变的区间集合，并以时间 Wasserstein 距离作为强化学习奖励，2B / 4B / 8B 模型比各自的 Qwen3-VL 基座分别提升 14.2 / 13.0 / 18.1 mIoU（[arXiv:2607.17423](https://arxiv.org/abs/2607.17423)）。
 
 **主流视频理解基准**（分数取自 [Qwen2.5-VL 技术报告](https://arxiv.org/abs/2502.13923) Table 8，同表对照）：
 

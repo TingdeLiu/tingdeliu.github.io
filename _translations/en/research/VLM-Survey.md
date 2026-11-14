@@ -5,10 +5,10 @@ translation_id: vlm-survey
 permalink: /en/VLM-Survey/
 source_path: _posts/research/2026-03-05-VLM-Survey.md
 source_url: /VLM-Survey/
-source_revision_date: 2026-10-24
-translation_updated: 2026-10-24
+source_revision_date: 2026-11-14
+translation_updated: 2026-11-14
 title: "Vision-Language Models: A Survey"
-date: 2026-10-24
+date: 2026-11-14
 tags: [VLM, Computer Vision, Deep Learning, Multimodal]
 categories: research
 comments: false
@@ -725,6 +725,8 @@ Video understanding requires the model to simultaneously process **spatial visua
 **LongVA** (2024) proposed **long context transfer** (long context transfer): first use only plain text to expand the context of Qwen2-7B-Instruct to 224K, and then do conventional image alignment training. About 2000 frames can be processed without long video training data. , more than 200,000 visual tokens; the paper also proposes a visual needle-in-a-haystack test V-NIAH ([arXiv:2406.16852](https://arxiv.org/abs/2406.16852)).
 
 **Qwen2.5-VL** supports long videos with MRoPE aligned to absolute time and dynamic frame rate sampling; **Qwen3-VL** uses explicit text timestamps instead with Interleaved MRoPE, reaching 256K native contexts (within 30 minutes of video Needle-in-a-Haystack 100% accuracy, see Section 8.10).
+
+Recent video-specific models each address one of the three challenges above. **VideoChat3** (2026) inflates a ViT into the spatiotemporal I3D-ViT encoder and adapts frame resolution for streaming input to cut video tokens; with only 4B parameters it surpasses open-source video models of equal or larger size ([arXiv:2607.14935](https://arxiv.org/abs/2607.14935)). **Video-o3** (ICML 2026) replaces one-pass uniform sampling with repeated tool calls that locate and zoom into key segments, stopping once it has enough evidence, and reaches 72.1% on MLVU ([arXiv:2601.23224](https://arxiv.org/abs/2601.23224)). **TimeLens2** (2026) asks *when* the evidence occurs: it models temporal grounding as a variable-size set of intervals and uses a temporal Wasserstein distance as its reinforcement-learning reward, improving its 2B / 4B / 8B models over their Qwen3-VL backbones by 14.2 / 13.0 / 18.1 mIoU ([arXiv:2607.17423](https://arxiv.org/abs/2607.17423)).
 
 **mainstream video understanding benchmark** (scores are taken from [Qwen2.5-VL technical report ](https://arxiv.org/abs/2502.13923) Table 8, compare with the same table):
 
