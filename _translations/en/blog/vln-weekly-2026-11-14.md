@@ -9,6 +9,7 @@ source_revision_date: 2026-11-14
 translation_updated: 2026-11-14
 title: "Embodied Navigation Weekly · Issue 13"
 date: 2026-11-14
+last_modified_at: 2026-11-14
 period_start: 2026-11-04
 period_end: 2026-11-12
 issue_number: 13
@@ -114,11 +115,11 @@ excerpt: "This issue covers 88 independent works (86 newly collected and 2 versi
 <figcaption>Figure 2: Retrieval, exploration, and target verification update a two-level hypothesis scene graph. <a href="https://arxiv.org/html/2611.10547v1#S3.F2">Original figure</a></figcaption>
 </div>
 
-**Evidence.** No numerical results in the abstract; it lists GOAT-Bench and introduces FAROS-Bench for within-episode object relocation and multi-scale targets.
+**Evidence.** The paper reports GOAT-Bench SR / SPL of 71.2% / 50.3%, slightly above 3D-Mem at 69.1% / 48.9%. On its new FAROS-Bench it reaches 58.1% / 28.5%, against an SR of 36.7% for the strongest baseline, MSGNav; on the subset where objects are moved, SR is 57.1% versus 26.2%. Removing target verification drops that subset to 28.6%. Verification is correct 86.8% of the time over 212 checks, and 93.3% of wrongly invalidated targets are recovered from fresh observations. Each subtask uses 18.2 VLM calls, versus 36.8 for 3D-Mem.
 
-**Assessment.** This directly addresses memory invalidation in navigation agents, especially when to withdraw an old fact. Important checks include erroneous deletion after false detections, verification-call cost, and real-robot relocation experiments.
+**Assessment.** This directly addresses memory invalidation in navigation agents, especially when to withdraw an old fact. Most of the gain comes from the self-built FAROS-Bench; on GOAT-Bench the lead is only about 2 points. All experiments run in Habitat simulation, with no hardware relocation test and no reported latency.
 
-**Next step.** Read closely: inspect verification triggers and invalidation ablations for cases where retrieval succeeds but the target has moved.
+**Next step.** Read closely: for cases where retrieval succeeds but the target has moved, check which object sizes account for the 13% of wrong verification decisions, then inspect the failures behind the SR drop from 82.4% to 78.4% after three successive relocations.
 
 ### 5. LHNav
 {: id="lhnav"}
@@ -145,8 +146,8 @@ excerpt: "This issue covers 88 independent works (86 newly collected and 2 versi
 ## 3. Also worth reading
 {: id="also-worth"}
 
-- **[PreNav](https://arxiv.org/abs/2611.15093v1)** · VLN: generate a global search reference before online detection; no numerical results in the abstract.
-- **[BAMOS](https://arxiv.org/abs/2611.15689v1)** · VLN: test target-belief updates through detection-error ablations; no numerical results in the abstract.
+- **[PreNav](https://arxiv.org/abs/2611.15093v1)** · VLN: generate a global search reference before online detection; with matched priors it beats SGM by 2.3 SR points on the Gibson six-category subset and by only 1.4 points on the full ten-category set; on hardware it succeeds in 13 of 15 trials.
+- **[BAMOS](https://arxiv.org/abs/2611.15689v1)** · VLN: test target-belief updates through detection-error ablations; a false-negative rate of 0.3 lowers success by only 0.018, while false positives hurt far more (up to 0.402 in HSSD); it compares only against its own ablations.
 - **[EMS-Nav](https://arxiv.org/abs/2611.15589v1)** · VLN: region-based onboard multi-scale navigation; examine resource overhead.
 - **[HeMeR](https://arxiv.org/abs/2611.16487v1)** · Transferable to navigation-agent cache reuse; its hardware numbers concern manipulation.
 - **[SimplEvo](https://arxiv.org/abs/2611.11509v1)** · Transferable to training-time lesson refinement and fixed-memory testing in navigation agents.
@@ -179,45 +180,45 @@ excerpt: "This issue covers 88 independent works (86 newly collected and 2 versi
 ## 5. Full index
 {: id="full-index"}
 
-A denotes the two main tracks, B transferable mechanisms, and C other directions; the blocks below cover every independent work in this issue.
+Grouped into the two main tracks, transferable mechanisms, and other directions; the blocks below cover every independent work in this issue.
 
 <details markdown="1">
 <summary>VLN and semantic navigation · 7 works</summary>
 
-- [CPNav](#cpnav): see deep read (A).
-- [CSG-Nav](https://arxiv.org/abs/2611.11978v1): Fuse semantic confidence and depth localization for exploration and stopping. (A).
-- [Compass 1](#compass-1): see deep read (A).
-- [PreNav](https://arxiv.org/abs/2611.15093v1): Generate a search reference from persistent structure and furniture priors. (A).
-- [EMS-Nav](https://arxiv.org/abs/2611.15589v1): Organize multi-scale language goals and onboard maps by regions. (A).
-- [BAMOS](https://arxiv.org/abs/2611.15689v1): Study active search with target beliefs, occupancy, and detection errors. (A).
-- [H2E](#h2e): see deep read (A).
+- [CPNav](#cpnav): see deep read.
+- [CSG-Nav](https://arxiv.org/abs/2611.11978v1): Fuse semantic confidence and depth localization for exploration and stopping.
+- [Compass 1](#compass-1): see deep read.
+- [PreNav](https://arxiv.org/abs/2611.15093v1): Generate a search reference from persistent structure and furniture priors.
+- [EMS-Nav](https://arxiv.org/abs/2611.15589v1): Organize multi-scale language goals and onboard maps by regions.
+- [BAMOS](https://arxiv.org/abs/2611.15689v1): Study active search with target beliefs, occupancy, and detection errors.
+- [H2E](#h2e): see deep read.
 
 </details>
 
 <details markdown="1">
 <summary>Embodied agentic navigation · 2 works</summary>
 
-- [HSGNav](#hsgnav): see deep read (A).
-- [LHNav](#lhnav): see deep read (A).
+- [HSGNav](#hsgnav): see deep read.
+- [LHNav](#lhnav): see deep read.
 
 </details>
 
 <details markdown="1">
 <summary>Transferable mechanisms · 13 works</summary>
 
-- [Flex-RSI](https://arxiv.org/abs/2611.08946v1): Evaluate harness self-revision under a fixed budget. (B).
-- [A2-MEAS](https://arxiv.org/abs/2611.09124v1): Connect training supervision and runtime recovery through correction codes. (B).
-- [CUA Generalists](https://arxiv.org/abs/2611.09847v1): Access embodied environments through screens and software controls. (B).
-- [SimplEvo](https://arxiv.org/abs/2611.11509v1): Revise text lessons during training; freeze them at test time. (B).
-- [MAP-VP](https://arxiv.org/abs/2611.11510v1): Use map-landmark prompts for final aerial target localization. (B).
-- [WanderBench](https://arxiv.org/abs/2611.12557v1): Evaluate revisit consistency in video-world exploration. (B).
-- [Safe Depth](https://arxiv.org/abs/2611.13769v1): Use depth uncertainty for navigation perception. (B).
-- [AST](https://arxiv.org/abs/2611.14111v1): Monitor stagnation in task-relevant information acquisition. (B).
-- [Memory as a Clock?](https://arxiv.org/abs/2611.14488v1): Pause interventions expose phantom progress in time-indexed memory. (B).
-- [HDH](https://arxiv.org/abs/2611.14834v1): Select frozen-policy action chunks with a compact verifier. (B).
-- [IncR-3DSGG](https://arxiv.org/abs/2611.15429v1): Build incremental 3D scene graphs from posed RGB. (B).
-- [HeMeR](https://arxiv.org/abs/2611.16487v1): Update KV caches selectively as memory changes. (B).
-- [ProtoVis-Nav](https://arxiv.org/abs/2611.17330v1): Constrain UAV waypoints through local visual imagination. (B).
+- [Flex-RSI](https://arxiv.org/abs/2611.08946v1): Evaluate harness self-revision under a fixed budget.
+- [A2-MEAS](https://arxiv.org/abs/2611.09124v1): Connect training supervision and runtime recovery through correction codes.
+- [CUA Generalists](https://arxiv.org/abs/2611.09847v1): Access embodied environments through screens and software controls.
+- [SimplEvo](https://arxiv.org/abs/2611.11509v1): Revise text lessons during training; freeze them at test time.
+- [MAP-VP](https://arxiv.org/abs/2611.11510v1): Use map-landmark prompts for final aerial target localization.
+- [WanderBench](https://arxiv.org/abs/2611.12557v1): Evaluate revisit consistency in video-world exploration.
+- [Safe Depth](https://arxiv.org/abs/2611.13769v1): Use depth uncertainty for navigation perception.
+- [AST](https://arxiv.org/abs/2611.14111v1): Monitor stagnation in task-relevant information acquisition.
+- [Memory as a Clock?](https://arxiv.org/abs/2611.14488v1): Pause interventions expose phantom progress in time-indexed memory.
+- [HDH](https://arxiv.org/abs/2611.14834v1): Select frozen-policy action chunks with a compact verifier.
+- [IncR-3DSGG](https://arxiv.org/abs/2611.15429v1): Build incremental 3D scene graphs from posed RGB.
+- [HeMeR](https://arxiv.org/abs/2611.16487v1): Update KV caches selectively as memory changes.
+- [ProtoVis-Nav](https://arxiv.org/abs/2611.17330v1): Constrain UAV waypoints through local visual imagination.
 
 </details>
 
