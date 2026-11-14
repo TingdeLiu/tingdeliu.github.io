@@ -6,6 +6,6 @@
     {% include post-icon.html post=bp %}
   </span>
   <time class="blog-row-date" datetime="{{ bp.date | date_to_xmlschema }}">{{ bp.date | date: '%Y-%m-%d' }}</time>
-  <h2 class="blog-row-title">{{ bp.title | escape }}</h2>
+  <h2 class="blog-row-title">{{ bp.title | escape }}{% if blog_kind == 'weekly' %} {% include weekly-period.html post=bp %}{% endif %}</h2>
   {% include reading-time.html post=bp %}
 </a>

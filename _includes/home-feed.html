@@ -12,7 +12,8 @@
   {% for post in include.entries limit: 5 %}
     <li><a href="{{ post.url | relative_url }}">
       {% if include.category == 'weekly' %}
-        {% include weekly-range.html title=post.title %}
+        {% if page_lang == 'en' %}Issue {{ post.issue_number }}{% else %}第 {{ post.issue_number }} 期{% endif %}
+        {% include weekly-period.html post=post %}
       {% else %}
         {{ post.title | escape }}
         <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%m-%d' }}</time>

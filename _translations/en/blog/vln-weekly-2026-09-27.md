@@ -6,9 +6,10 @@ permalink: /en/vln-weekly-2026-09-27/
 source_path: _posts/weekly-reports/2026-09-27-VLN-Weekly.md
 source_url: /vln-weekly-2026-09-27/
 source_revision_date: 2026-11-07
-translation_updated: 2026-11-07
-title: "Embodied Navigation Weekly (2026-09-16 to 2026-09-24)"
-date: 2026-11-07
+translation_updated: 2026-11-14
+title: "Embodied Navigation Weekly · Issue 6"
+date: 2026-09-27
+last_modified_at: 2026-11-07
 period_start: 2026-09-16
 period_end: 2026-09-24
 issue_number: 6

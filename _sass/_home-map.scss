@@ -14,7 +14,7 @@
   .home-lede { margin: 14px 0 0; max-width: 34em; color: var(--muted); font-size: 16px; line-height: 1.7; }
   .home-latest {
     display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; color: var(--ink); font-size: 14px;
-    span { padding: 2px 8px; border-radius: 4px; background: var(--accent); color: #fff; font: 12px $code-font; }
+    > span:first-child { padding: 2px 8px; border-radius: 4px; background: var(--accent); color: #fff; font: 12px $code-font; }
     &:hover { color: var(--accent); }
   }
   .home-section { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; font-size: 22px; font-weight: 600; }
@@ -30,7 +30,7 @@
     color: var(--ink); font-size: 16px; line-height: 1.5;
     &:hover { color: var(--accent); }
   }
-  time { flex-shrink: 0; color: var(--muted); font: 12px $code-font; }
+  time, .weekly-period { flex-shrink: 0; color: var(--muted); font: 12px $code-font; }
   .home-feeds { margin-top: 24px; }
   .home-all { display: inline-block; margin-top: 14px; color: var(--accent); font-size: 14px; }
   @media (max-width: 760px) {

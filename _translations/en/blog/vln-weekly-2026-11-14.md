@@ -7,7 +7,7 @@ source_path: _posts/weekly-reports/2026-11-14-VLN-Weekly.md
 source_url: /vln-weekly-2026-11-14/
 source_revision_date: 2026-11-14
 translation_updated: 2026-11-14
-title: "Embodied Navigation Weekly (2026-11-04 to 2026-11-12)"
+title: "Embodied Navigation Weekly · Issue 13"
 date: 2026-11-14
 period_start: 2026-11-04
 period_end: 2026-11-12

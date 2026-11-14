@@ -1,0 +1,8 @@
+{%- assign wp = include.post -%}
+{%- if wp.period_start and wp.period_end -%}
+{%- assign wp_start_year = wp.period_start | date: '%Y' -%}
+{%- assign wp_end_year = wp.period_end | date: '%Y' -%}
+{%- if include.full -%}{%- assign wp_start = wp.period_start | date: '%Y.%m.%d' -%}{%- else -%}{%- assign wp_start = wp.period_start | date: '%m.%d' -%}{%- endif -%}
+{%- if include.full and wp_start_year != wp_end_year -%}{%- assign wp_end = wp.period_end | date: '%Y.%m.%d' -%}{%- else -%}{%- assign wp_end = wp.period_end | date: '%m.%d' -%}{%- endif -%}
+<span class="weekly-period">{{ wp_start }} – {{ wp_end }}</span>
+{%- endif -%}

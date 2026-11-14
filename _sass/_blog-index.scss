@@ -32,6 +32,8 @@
   .blog-row-reading { color: var(--muted); font: 12px $base-font; text-align: right; white-space: nowrap; }
   .entry .blog-row-title { margin: 0; color: var(--ink); font-size: 19px; font-weight: 400; letter-spacing: -.015em; line-height: 1.6; overflow-wrap: anywhere; }
   .entry .blog-row:hover .blog-row-icon, .entry .blog-row:hover .blog-row-title { color: var(--accent); }
+  .weekly-period { margin-left: .5em; color: var(--muted); font: 13px $code-font; font-variant-numeric: tabular-nums; letter-spacing: 0; white-space: nowrap; }
+  .home-featured-title .weekly-period { font-size: 15px; vertical-align: middle; }
 
   .blog-empty { padding: 60px 24px; border: 1px solid var(--rule); text-align: center; }
   .entry .blog-empty h2 { margin: 0 0 12px; font-size: 24px; }

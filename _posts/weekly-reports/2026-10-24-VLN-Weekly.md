@@ -2,8 +2,11 @@
 layout: post
 lang: zh-CN
 translation_id: vln-weekly-2026-10-24
-title: "具身导航周报（2026-10-15 ~ 2026-10-22）"
+title: "具身导航周报 · 第 10 期"
 date: 2026-10-24
+issue_number: 10
+period_start: 2026-10-15
+period_end: 2026-10-22
 permalink: /vln-weekly-2026-10-24/
 tags: [VLN, VLA, Embodied Navigation, Weekly Digest, arXiv]
 categories: weekly

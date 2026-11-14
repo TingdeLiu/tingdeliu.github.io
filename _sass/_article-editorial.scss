@@ -57,10 +57,11 @@
     .entry h2:not(:first-child) { border-top: 1px solid var(--rule); padding-top: 36px; }
   }
   .article-facts {
-    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin: 0;
+    display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 24px; margin: 0;
     dt { float: none; width: auto; text-align: left; font: 11px $code-font; color: var(--muted); margin-bottom: 9px; }
     dd { margin: 0; padding: 0; font-size: 14px; }
     dd::before { content: '└ '; color: #717168; font-family: $code-font; }
+    dd small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
   }
   .article-hero-bottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-top: 30px; }
   .article-topics {
@@ -301,6 +302,7 @@
     &.about-page .about-hero .article-hero-category > span { width: 42px; height: 42px; font-size: 14px; }
     &.about-page .about-portrait { width: 72px; }
     .article-facts { gap: 12px; }
+    .article-facts:has(> div:nth-child(4)) { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .article-facts dd { font-size: 12px; }
     .article-facts dd::before { display: none; }
     .article-topics { gap: 6px 12px; }

@@ -28,7 +28,7 @@
   </div>
   <div class="blog-results-info">
     <p data-blog-count role="status" aria-live="polite">{{ blog_entries.size }} {% if page_lang == 'en' %}articles{% else %}篇文章{% endif %}</p>
-    <span>{% if page_lang == 'en' %}Latest updates first{% else %}按最近更新排序{% endif %}</span>
+    <span>{% if page_lang == 'en' %}Newest first{% else %}按时间倒序{% endif %}</span>
   </div>
   <div class="blog-list" id="blog-results">
     {% for post in blog_entries %}

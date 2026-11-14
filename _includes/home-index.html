@@ -45,7 +45,7 @@
       <h1>{% if label == 'en' %}Embodied AI research notes{% else %}具身智能研究笔记{% endif %}</h1>
       <p class="home-lede">{% if label == 'en' %}Surveys and paper readings on VLN, VLA and robot AI, plus a weekly embodied navigation digest.{% else %}VLN、VLA 与机器人 AI 的综述、论文精读，以及每周的具身导航周报。{% endif %}</p>
       {% if latest %}
-      <a class="home-latest" href="{{ latest.url | relative_url }}"><span>{% if label == 'en' %}Latest{% else %}最新{% endif %}</span>{% if label == 'en' %}Navigation digest{% else %}具身导航周报{% endif %} {% include weekly-range.html title=latest.title %} →</a>
+      <a class="home-latest" href="{{ latest.url | relative_url }}"><span>{% if label == 'en' %}Latest{% else %}最新{% endif %}</span>{{ latest.title | escape }} {% include weekly-period.html post=latest %} →</a>
       {% endif %}
     </div>
     {% include language-switch.html site=true %}

@@ -7,7 +7,13 @@
     {% if page.excerpt %}<p class="article-deck">{{ page.excerpt | strip_html | normalize_whitespace | truncate: 180 }}</p>{% endif %}
     <dl class="article-facts">
       <div><dt>{% if page_lang == 'en' %}Author{% else %}作者{% endif %}</dt><dd>{{ page.author | default: site.name }}</dd></div>
-      <div><dt>{% if page_lang == 'en' %}Updated{% else %}更新日期{% endif %}</dt><dd><time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: '%Y-%m-%d' }}</time></dd></div>
+      {% if article_category == 'weekly' and page.period_start %}
+      <div><dt>{% if page_lang == 'en' %}Covers{% else %}覆盖范围{% endif %}</dt><dd>{% include weekly-period.html post=page full=true %}</dd></div>
+      <div><dt>{% if page_lang == 'en' %}Published{% else %}发布日期{% endif %}</dt><dd><time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: '%Y-%m-%d' }}</time>{% if page.last_modified_at %}<small>{% if page_lang == 'en' %}revised{% else %}修订于{% endif %} {{ page.last_modified_at | date: '%Y-%m-%d' }}</small>{% endif %}</dd></div>
+      {% else %}
+      {% assign article_updated = page.last_modified_at | default: page.date %}
+      <div><dt>{% if page_lang == 'en' %}Updated{% else %}更新日期{% endif %}</dt><dd><time datetime="{{ article_updated | date_to_xmlschema }}">{{ article_updated | date: '%Y-%m-%d' }}</time></dd></div>
+      {% endif %}
       <div><dt>{% if page_lang == 'en' %}Reading time{% else %}预计阅读{% endif %}</dt><dd data-reading-time>—</dd></div>
     </dl>
     <div class="article-hero-bottom">
