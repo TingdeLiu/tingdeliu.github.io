@@ -5,16 +5,16 @@ translation_id: reinforcement-learning-survey
 permalink: /en/Reinforcement-Learning-Survey/
 source_path: _posts/research/2026-04-25-Reinforcement-Learning-Survey.md
 source_url: /Reinforcement-Learning-Survey/
-source_revision_date: 2026-10-24
-translation_updated: 2026-10-24
+source_revision_date: 2026-11-14
+translation_updated: 2026-11-14
 title: "Reinforcement Learning: A Survey"
-date: 2026-10-24
+date: 2026-11-14
 tags: [Reinforcement Learning, RL, Embodied AI, Robotics, World Models, Diffusion Policy, PPO, SAC, TD3, DDPG, Actor-Critic, MDP]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "MDPs, policy gradients, PPO, SAC, TD3, world models, diffusion policies, twelve landmark paper readings, simulation benchmarks, and algorithm selection for embodied intelligence."
+excerpt: "MDPs and Bellman equations explained with figures and worked examples, policy gradients, PPO, SAC, TD3, world models (DreamerV3, TD-MPC2, Dreamer 4), RL for diffusion and flow policies, RLVR/GRPO and online RL post-training of VLAs, twelve landmark paper readings, simulation benchmarks, and algorithm selection for embodied intelligence."
 ---
 
 
@@ -39,7 +39,7 @@ There are essential differences between reinforcement learning and supervised le
 <figcaption>Figure: The agent affects the environment through actions, receives new observations and rewards, and uses interactive experience to improve the policy; optimization goals usually consider long-term returns, and parameters may not continue to be updated during deployment.</figcaption>
 </figure>
 
-This article is developed in the order of "theoretical basis → model-free control → world model → diffusion policy → sparse reward and post-training → simulation evaluation". Readers can first read Sections 2–7 to establish the main line of the algorithm, and then jump to Sections 10–13 according to the task type; Section 14 provides a consistent analysis of representative papers to facilitate further in-depth analysis.
+This article is developed in the order of "theoretical basis → model-free control → world model → diffusion policy → sparse reward and post-training → simulation evaluation". Readers can first read Sections 2–7 to establish the main line of the algorithm, and then jump to Sections 10–13 according to the task type; Section 14 provides a consistent analysis of representative papers to facilitate further in-depth analysis. Section 2 draws and works through MDPs and the Bellman equations with a cleaning robot and a grid world; readers new to RL should start there.
 
 <!-- more -->
 
@@ -71,6 +71,21 @@ $$
 
 **Markov property** guarantees that "the current state contains all historical information", that is, $p(s_{t+1}\mid s_t, a_t) = p(s_{t+1}\mid s_0, a_0, \ldots, s_t, a_t)$.
 
+Definitions alone make it hard to picture what an MDP looks like. The small two-state example below draws the whole quadruple: a cleaning robot that only cares whether its battery is high (H) or low (L).
+
+<div align="center">
+  <img src="/images/ML/rl-mdp-example-en.svg" width="90%" alt="A two-state MDP for a cleaning robot: high and low battery states, clean, wait and recharge actions, with transition probabilities and rewards on the arrows" />
+<figcaption>Figure: A complete MDP. Blue circles are states and black dots are actions; the agent only picks a black dot, and the environment then decides the next state with the probabilities on the arrows</figcaption>
+</div>
+
+Matching the figure to the definition:
+
+- **$S$** = {high battery H, low battery L}; **$A$** = {clean, wait, recharge}, where recharge is only available on low battery.
+- **$P$** is written on the arrows. Cleaning on high battery keeps the battery high with probability 0.7 and drops it to low with probability 0.3, i.e. $P(H\mid H,a)=0.7$ (with $a$ = clean).
+- **$R$** is also on the arrows. Cleaning earns +2 (work gets done), waiting earns +0.5 and recharging earns 0. The risky move is **cleaning on a low battery**: with probability 0.4 the battery dies, someone has to carry the robot back, and it receives −3.
+
+The figure also shows what makes RL hard. From low battery, the expected immediate reward of cleaning is $0.6\times 2 + 0.4\times(-3) = 0$, and recharging also yields 0. One step of lookahead cannot tell them apart; we have to look further ahead, which is exactly what value functions in the next section do.
+
 ## 2.2 Policies, values and Bellman equations
 {: id="22-策略价值与-bellman-方程"}
 
@@ -84,13 +99,20 @@ $$
 
 Here, $\gamma \in [0, 1)$ is the discount factor, which means discounting future rewards.
 
-The **state price value function** $V_\pi(s)$ is the expected return that can be obtained starting from the state $s$ and executing the policy $\pi$:
+<div align="center">
+  <img src="/images/ML/rl-return-discount-en.svg" width="90%" alt="Top: a trajectory alternating states, actions and rewards, with the history before the current state greyed out; bottom: bar chart of the weight on the reward k steps ahead for gamma 0.9 and 0.5" />
+<figcaption>Figure: Top, a trajectory; the Markov property means the grey history does not affect the future. Bottom, discount weights; the smaller γ is, the more short-sighted the agent becomes</figcaption>
+</div>
+
+The discount factor sets how far the agent looks ahead: a reward $k$ steps in the future is multiplied by $\gamma^k$. With $\gamma=0.9$, a reward 10 steps away keeps only about a third of its weight; with $\gamma=0.5$, rewards beyond 4 steps are almost negligible. Roughly, the effective horizon is $1/(1-\gamma)$ steps. Robot control commonly uses 0.99 (about 100 steps), because grasping or walking often succeeds or fails on what happens a few seconds later.
+
+The **state-value function** $V_\pi(s)$ is the expected return that can be obtained starting from the state $s$ and executing the policy $\pi$:
 
 $$
 V_\pi(s) = \mathbb{E}_\pi\left[G_t \mid s_t = s\right] = \mathbb{E}_\pi\left[\sum_{k=0}^{\infty} \gamma^k r_{t+k+1} \mid s_t = s\right]
 $$
 
-**action price value function (Q function)** $Q_\pi(s, a)$ After executing action $a$ in state $s$, the expected return according to policy $\pi$:
+**action-value function (Q function)** $Q_\pi(s, a)$ After executing action $a$ in state $s$, the expected return according to policy $\pi$:
 
 $$
 Q_\pi(s, a) = \mathbb{E}_\pi\left[G_t \mid s_t = s, a_t = a\right]
@@ -106,8 +128,54 @@ $$
 Q_\pi(s, a) = \sum_{s'} P(s'|s,a)\left[R(s,a) + \gamma \sum_{a'} \pi(a'|s') Q_\pi(s', a')\right]
 $$
 
-## 2.3 Model-based vs. model-free
-{: id="23-有模型与免模型"}
+The two sums look intimidating, but they become clear as a tree. Expand one step down from state $s$: the first level is the policy choosing an action, the second is the environment deciding which $s'$ we land in. Weight each leaf's "immediate reward + discounted value of the next state" by the probabilities on both levels and sum them up, and you get the value at the root. This picture is called a **backup diagram**; TD learning and Q-learning later in the article are different approximations on this same tree.
+
+<div align="center">
+  <img src="/images/ML/rl-bellman-backup-en.svg" width="90%" alt="Backup diagram of the Bellman expectation equation: root state s branches into three actions, each action branches into two successor states, and each term of the equation is coloured like its tree level" />
+<figcaption>Figure: Backup diagram of the Bellman expectation equation; each summation in the formula corresponds to one level of the tree</figcaption>
+</div>
+
+**Working it out for the cleaning robot.** Take $\gamma=0.9$ and the policy $\pi$ "clean on high battery, recharge on low battery". Plugging into the Bellman equation:
+
+$$
+V_\pi(H) = 0.7\,[2 + 0.9\,V_\pi(H)] + 0.3\,[2 + 0.9\,V_\pi(L)], \qquad V_\pi(L) = 0 + 0.9\,V_\pi(H)
+$$
+
+Two unknowns and two equations give $V_\pi(H)\approx 15.75$ and $V_\pi(L)\approx 14.17$. Repeating the calculation for other policies gives:
+
+| Choice on low battery | $V_\pi(H)$ | $V_\pi(L)$ |
+| :--- | :---: | :---: |
+| **Recharge** | **15.75** | **14.17** |
+| Keep cleaning | 12.60 | 9.86 |
+| Wait | 9.05 | 5.00 |
+
+The previous section showed that cleaning and recharging on low battery both have an expected one-step reward of 0. Only once the value function accounts for what comes after does the difference appear: recharging earns nothing now, but it brings the robot back to the high-battery state where it can reliably collect +2. **A value function measures long-term consequences, not immediate gains**, and that is the fundamental difference between RL and greedy decision-making.
+
+## 2.3 Optimal values: a grid world
+{: id="23-最优价值一个网格世界"}
+
+So far we asked "given a policy, how much is it worth". What RL actually wants is the **optimal policy**, described by the **Bellman optimality equation**, which replaces the weighted average over actions with a maximum:
+
+$$
+V^*(s) = \max_a \sum_{s'} P(s'|s,a)\left[R(s,a) + \gamma V^*(s')\right], \qquad \pi^*(s) = \arg\max_a Q^*(s,a)
+$$
+
+Applying this equation repeatedly, starting from all zeros, is **value iteration**. The figure below shows the actual result of value iteration on a 5×4 grid world: the top-right cell is the goal (+1), the cell below it is a pit (−1), every step costs 0.04, and the floor is slippery—an action does what was intended with probability 0.8 and slips to either side with probability 0.1 each.
+
+<div align="center">
+  <img src="/images/ML/rl-gridworld-values-en.svg" width="95%" alt="Value iteration on a 5 by 4 grid world: the left grid is a heat map of the optimal state value of each cell, the right grid shows the corresponding optimal action arrows; goal +1 at the top right, pit −1 below it, two dark grey walls" />
+<figcaption>Figure: Left, the optimal value V* (bluer is better); right, the greedy policy derived from it. The numbers are computed by value iteration</figcaption>
+</div>
+
+Two cells deserve a closer look:
+
+- **The cell left of the pit** (row 2, column 4) does not go up; it **steps back to the left**. Going up slips right into the pit with probability 0.1, while going left can only slip up or down, which is harmless.
+- **The cell directly below the pit** (row 3, column 5) chooses to **go down and take the long way round** rather than rush up towards the goal, since going up means falling into the pit with probability 0.8.
+
+Neither of these "counter-intuitive" moves is a hand-written rule; both fall out of the Bellman optimality equation once the slip probabilities are taken into account. That is the value of the MDP framework: once $\langle S, A, P, R \rangle$ is written down, "what is a good action" has a precise answer.
+
+## 2.4 Model-based vs. model-free
+{: id="24-有模型与免模型"}
 
 ```mermaid
 graph TD
@@ -119,8 +187,8 @@ graph TD
     C --> G["actor-commentator<br/>SAC, A2C, DDPG"]
 ```
 
-- **has model RL**: state transition model $$P(s'\mid s,a)$$ of the agent learning environment. This model is then used for planning, which usually has higher sample efficiency, but depends on model accuracy.
-- **model-free RL**: directly interacts with the environment to learn strategies without explicitly modeling the environment. It is usually easier to migrate to complex tasks, but requires more interactive data.
+- **Model-based RL**: state transition model $$P(s'\mid s,a)$$ of the agent learning environment. This model is then used for planning, which usually has higher sample efficiency, but depends on model accuracy.
+- **Model-free RL**: directly interacts with the environment to learn strategies without explicitly modeling the environment. It is usually easier to migrate to complex tasks, but requires more interactive data.
 
 ---
 
@@ -147,8 +215,8 @@ graph LR
     C("Diffusion Policy / ReinFlow<br/>DPPO<br/>Focus: Multimodal action distribution and trajectory smoothing")
     end
 
-    subgraph "2026: Reasoning alignment"
-    D("RLVR / Residual-VLA<br/>Focus: Verifiable Reasoning Vs. VLA fine-tuning")
+    subgraph "2025-2026: post-training and scaling"
+    D("RLVR / GRPO / online VLA RL<br/>πRL / RL-100 / FastTD3<br/>Focus: verifiable rewards, RL post-training of large models")
     end
 ```
 
@@ -295,17 +363,16 @@ $$
 
 Here, $$r_t(\theta) = \frac{p_\theta(a_t\mid s_t)}{p_{\theta^k}(a_t\mid s_t)}$$ is the probability ratio, and $\varepsilon$ usually takes 0.1 or 0.2.
 
-**Intuitive clipping mechanism**:
+**Intuition behind clipping**: plotting the per-sample objective as a function of $r$ (with $\varepsilon=0.2$) makes it obvious.
 
-```mermaid
-graph LR
-    A["probability ratio rt"] --> B["Advantages A is positive"]
-    A --> C["Advantages A is negative"]
-    B -- "rt Beyond the upper bound" --> D["Truncation: does not increase the probability<br/>Prevent taking too big a step"]
-    B -- "rt normal range" --> E["Normally increased probability"]
-    C -- "rt below lower bound" --> F["Truncation: does not reduce the probability<br/>Prevent overcorrection"]
-    C -- "rt normal range" --> G["Normally reduce the probability"]
-```
+<div align="center">
+  <img src="/images/ML/rl-ppo-clip-en.svg" width="90%" alt="The PPO-Clip objective as a function of the probability ratio r: with positive advantage the curve flattens beyond 1+ε; with negative advantage it flattens below 1−ε; the shaded zone has zero gradient" />
+<figcaption>Figure: The PPO-Clip objective (blue) and the unclipped r·A (grey dashed); the gradient is 0 inside the shaded zone</figcaption>
+</div>
+
+- **Good action ($A>0$)**: raising its probability increases the objective, but once $r$ exceeds $1+\varepsilon$ the curve goes flat and the gradient is 0, so this batch of data stops pushing it further up—no overly large steps.
+- **Bad action ($A<0$)**: lowering its probability increases the objective, but once $r$ falls below $1-\varepsilon$ the curve flattens as well—no overcorrection.
+- The outer $\min$ always takes the more pessimistic line: gains in the favourable direction are capped, while losses in the unfavourable direction are counted in full (the parts with $r<1-\varepsilon$ on the left and $r>1+\varepsilon$ on the right are not flattened).
 
 **Why is PPO suitable for embodied control?**
 
@@ -549,6 +616,18 @@ Achievements of **DreamerV3**:
 
 The core idea of **is**: perform short-view finite-step planning in the latent space, combine TD learning to estimate long-term value, and take into account planning depth and computational efficiency. Applicable scenarios: Multi-step operation tasks of robots from "grasping" to "assembly".
 
+## 8.4 Dreamer 4: learning in imagination from offline data only
+{: id="84-dreamer-4只用离线数据在想象中学会"}
+
+**[Dreamer 4](https://arxiv.org/abs/2509.24527)** (2025) replaces the world model with a scalable transformer and uses a "shortcut forcing" objective so that it runs interactively in real time on a single GPU. It targets the weakness DreamerV3 left behind: inaccurate prediction of **object interactions** in complex environments.
+
+Two changes stand out:
+
+1. **Knowledge from unlabelled video**: action conditioning needs only a small amount of action-labelled data, and the world model takes most of its knowledge from large amounts of unlabelled video. This mirrors the situation in robotics, where internet video is plentiful and teleoperation data with actions is scarce.
+2. **Purely offline**: the paper proposes the challenge of obtaining diamonds in Minecraft from offline data only, which requires more than 20,000 mouse and keyboard actions from raw pixels. Dreamer 4 is the first agent to solve it **without any environment interaction**, training purely in imagination.
+
+For robotics the second point matters more: real-world interaction is slow and unsafe, and "offline data + world model + RL in imagination" is a route around trial and error on the real robot.
+
 ---
 
 # 9. Diffusion policies
@@ -565,6 +644,11 @@ The traditional policy network outputs the mean value of the action and cannot h
 
 - There are two optional cups on the table. The optimal policy is "choose left" or "choose right". The mean policy will hover in the middle - neither can be obtained.
 - Diffusion models can naturally represent multimodal distributions, and one can be chosen decisively.
+
+<div align="center">
+  <img src="/images/ML/rl-multimodal-actions-en.svg" width="90%" alt="Multi-modal action distribution: reaching for the left cup and the right cup form two peaks in the demonstrations, the mean of a single-Gaussian fit falls between the cups, and samples from a diffusion policy sit on the two peaks" />
+<figcaption>Figure: In the demonstrations both "grab the left cup" and "grab the right cup" are correct, giving two peaks; a single-Gaussian policy trained with mean squared error averages them and lands in the gap, while samples from a diffusion policy fall on the peaks</figcaption>
+</div>
 
 **forward process (noise added)**:
 
@@ -592,12 +676,12 @@ Advantages of **diffusion policy**:
 ## 9.2 ReinFlow
 {: id="92-reinflow"}
 
-**ReinFlow** introduces reinforcement learning fine-tuning on the basis of Diffusion Policy to solve the problem of insufficient generalization of pure behavioral cloning (BC):
+**[ReinFlow](https://arxiv.org/abs/2505.22094)** (2025) targets **flow matching policies**, the "straight-line" relatives of diffusion policies. Their denoising path is a deterministic ODE, so the log-likelihood of an action cannot be computed and policy gradients do not apply directly. ReinFlow **injects learnable noise** into that deterministic path, turning the whole denoising chain into a discrete-time Markov process whose likelihood can be computed exactly step by step, which makes PPO-style updates possible:
 
-- First use expert demonstration data to train the diffusion policy (imitation learning stage)
-- Then use the RL reward signal to fine-tune the diffusion policy (reinforcement learning stage)
+- First train the flow matching policy on expert demonstrations (imitation learning stage);
+- Then fine-tune it with online RL, where the injected noise also drives exploration (reinforcement learning stage).
 
-This is similar to the SFT → RLHF two-stage training paradigm of LLM, which is one of the current mainstream frameworks for robot imitation learning.
+The paper reports that it can fine-tune Rectified Flow and Shortcut Model policies with very few or even 1 denoising step, saving about 82.63% of wall-clock training time compared with DPPO on legged locomotion. This "imitate first, reinforce later" two-stage recipe mirrors the SFT → RL paradigm of LLMs and is now the mainstream way to post-train robot policies.
 
 ## 9.3 DPPO
 {: id="93-dppo"}
@@ -613,6 +697,15 @@ The difference between **and ReinFlow**:
 |**training paradigm**|BC pre-training → RL fine-tuning (two stages)|Direct online RL within the diffusion chain (end-to-end)|
 |**Constraint granularity**|overall strategic level|Level of each denoising step|
 |**applicable scenarios**|There is sufficient demonstration data|Demo data is limited and needs to be explored purely online|
+
+## 9.4 Flow-policy RL without likelihoods
+{: id="94-不算似然的流策略-rl"}
+
+ReinFlow and DPPO both reshape the denoising chain into an MDP with a computable likelihood, at the cost of tying training to a particular sampler. In 2025 another line of work appeared: **sidestep exact likelihoods**.
+
+- **[FPO (Flow Policy Optimization)](https://arxiv.org/abs/2507.21053)**: replaces the log-likelihood ratio with the change in the conditional flow matching loss, forming an "advantage-weighted ratio" that plugs straight into PPO-Clip. Neither training nor inference is tied to a particular integrator, it can train diffusion-style policies from scratch, and it beats Gaussian policies on under-conditioned tasks (several reasonable actions for the same observation).
+- **[Flow Q-Learning (FQL)](https://arxiv.org/abs/2502.02538)**: aimed at offline RL. A multi-step flow policy only imitates the data distribution, while a separate **one-step** policy maximises Q and is distilled towards the flow policy, avoiding backpropagation through the whole denoising chain.
+- **[Flow-GRPO](https://arxiv.org/abs/2505.05470)**: rewrites ODE sampling as an SDE with the same marginals to obtain stochasticity, then trains flow matching models with the GRPO of Section 11.1. It was first used for text-to-image generation, and the same "ODE→SDE for exploration" trick shows up in RL fine-tuning of VLAs (see Flow-SDE in πRL, Section 11.3).
 
 ---
 
@@ -681,12 +774,41 @@ graph LR
 ## 11.1 RLVR
 {: id="111-rlvr"}
 
-**RLVR (Reinforcement Learning from Verifiable Rewards)** can incorporate **formally verifiable physical constraints** into the reward design to supplement sparse task success signals. For embodied tasks, this direction still needs to be combined with real dynamics, sensor noise and safety constraints to verify its effectiveness.
+The name **RLVR (Reinforcement Learning from Verifiable Rewards)** comes from [Tülu 3](https://arxiv.org/abs/2411.15124) (2024): the reward is no longer scored by a learned reward model but **checked automatically by a program**—does the answer to a maths problem equal the reference answer, does the code pass its unit tests. A checking rule cannot be flattered, which addresses reward hacking at the root. [DeepSeek-R1](https://arxiv.org/abs/2501.12948) (2025) showed that large-scale RL on such right-or-wrong signals alone (R1-Zero even skipped supervised fine-tuning) lets a model spontaneously learn longer reasoning chains and self-checking.
 
-**What is a "verifiable reward"?**
+### GRPO: group comparison instead of a critic
+{: id="grpo用组内比较代替-critic"}
 
-- Traditional rewards: "Complete grasping tasks" → sparse, delayed
-- RLVR reward: "Is the cup currently vertical (angle error < 5°)" → can be verified instantly, intensive
+The algorithm most commonly behind RLVR is **GRPO (Group Relative Policy Optimization)**, introduced in [DeepSeekMath](https://arxiv.org/abs/2402.03300) (2024). Its motivation is practical: PPO needs a value network as large as the policy to estimate advantages, which doubles memory and training cost for large models. GRPO drops the critic altogether—it samples a group of $G$ answers to the same question and uses the group's average score as the baseline:
+
+<div align="center">
+  <img src="/images/ML/rl-grpo-vs-ppo-en.svg" width="90%" alt="PPO versus GRPO: PPO estimates the advantage with a separately trained value network and GAE; GRPO samples 6 answers to one question, a verifier marks them right or wrong, and after normalising within the group the right answers get advantage +1 and the wrong ones −1" />
+<figcaption>Figure: 6 answers sampled for the same question, 3 right and 3 wrong; the group mean 0.5 is the baseline, and after normalisation right answers get advantage +1 and wrong ones −1</figcaption>
+</div>
+
+$$
+\hat{A}_i = \frac{r_i - \mathrm{mean}(r_1, \ldots, r_G)}{\mathrm{std}(r_1, \ldots, r_G)}
+$$
+
+The advantage $$\hat{A}_i$$ is then assigned to every token of answer $o_i$, the PPO-Clip objective of Section 6.4 is reused, and a KL term keeps the policy close to a reference model. This group baseline is the same thing as the baseline $b$ in the policy gradient of Section 4.1; "learning a $V(s)$" is simply replaced by "sampling a few more times on the spot and averaging".
+
+Once GRPO was public, the community quickly found several flaws and proposed corrected versions:
+
+| Method | Change | Problem addressed |
+| :--- | :--- | :--- |
+| [DAPO](https://arxiv.org/abs/2503.14476) (2025) | Decoupled clipping bounds (looser upper bound), dynamic sampling (drop groups that are all right or all wrong, whose advantages are all 0), token-level loss, reward shaping for overlong answers | Entropy collapse, wasted samples, long answers being diluted; reaches 50 points on AIME 2024 from the Qwen2.5-32B base model |
+| [Dr. GRPO](https://arxiv.org/abs/2503.20783) (2025) | Removes normalisation by answer length and by standard deviation | The original objective makes **wrong answers grow longer and longer**, producing a spurious "length increase" |
+| [GSPO](https://arxiv.org/abs/2507.18071) (2025) | Importance ratio, clipping and optimisation all at the **whole-sequence** level | Token-level ratios are noisy and MoE training is unstable; used to train Qwen3 |
+
+### From language to embodiment
+{: id="从语言到具身"}
+
+The most direct verifiable reward in embodied tasks is **whether the task succeeded**: in simulation, "is the object in the drawer" can be read off the simulator state. SimpleVLA-RL in Section 11.3 uses exactly this kind of 0/1 success signal to bring GRPO-style training to VLAs.
+
+Going further, **physical constraints** can be written as automatically checkable items that give a denser signal than final success. For example:
+
+- Traditional reward: "complete the grasping task" → sparse, delayed
+- Constraint check: "is the cup currently upright (angle error < 5°)" → verifiable instantly, dense
 
 ```mermaid
 graph TD
@@ -700,7 +822,7 @@ graph TD
     F --> G["Policy update"]
 ```
 
-The essence of RLVR is to let robots master **physical reasoning ability** : Not just remembering "how", but understanding "why". This is especially critical for long, multi-step tasks like "take milk from the refrigerator and pour it into a cup."
+A caveat: such fine-grained physical checks still lack systematic validation on real robots. Sensor noise erodes how "verifiable" they are, and poorly designed checks invite reward hacking just the same. What has actually been deployed at scale in embodied RL so far is mainly the task-success signal in simulation.
 
 ## 11.2 Residual-VLA
 {: id="112-residual-vla"}
@@ -731,6 +853,34 @@ graph LR
 1. Only small residual networks (number of parameters << VLA) are trained, and **can adapt to** new scenarios extremely quickly (hours vs days).
 2. **Protect pretrained knowledge**: Freeze large models to avoid catastrophic forgetting.
 3. **is highly versatile.**: The same VLA backbone can be used with different residual modules to adapt to different robot platforms.
+
+## 11.3 Online RL post-training of VLAs
+{: id="113-vla-的在线-rl-后训练"}
+
+Residual schemes train only a small module. Since 2025, more work **fine-tunes the entire VLA with RL**: a VLA obtained by imitation has only seen the states covered by demonstrations and fails easily once it drifts outside that distribution, whereas RL lets it keep learning from its own mistakes. This is the same "SFT → RL" post-training recipe used for LLMs.
+
+| Work | Policy being fine-tuned | Key idea | Reported results |
+| :--- | :--- | :--- | :--- |
+| [VLA-RL](https://arxiv.org/abs/2505.18719) (2025) | Autoregressive VLA (OpenVLA-7B) | Trajectory-level PPO that models a manipulation trajectory as a multi-turn conversation; a fine-tuned VLM serves as a process reward model to ease sparse rewards | Beats the strongest fine-tuned baseline by 4.5% on 40 LIBERO tasks, on par with π0-FAST |
+| [SimpleVLA-RL](https://arxiv.org/abs/2509.09674) (2025) | Autoregressive VLA (OpenVLA-OFT) | Parallel sampling and multi-environment rendering on veRL, 0/1 success reward, GRPO-style group advantages, exploration-enhancing strategies | SOTA on LIBERO, beats π0 on RoboTwin 1.0/2.0; new action patterns absent from demonstrations emerge during training ("pushcut") |
+| [πRL](https://arxiv.org/abs/2510.25889) (2025) | Flow matching VLA (π0, π0.5) | Flow-Noise: a learnable noise network makes the denoising chain's likelihood exact; Flow-SDE: ODE-to-SDE conversion giving a two-layer "denoising × environment" MDP | Significant gains both in and out of distribution |
+| [π\*₀.₆](https://arxiv.org/abs/2511.14759) (2025) | Flow matching VLA | Autonomous experience + expert interventions, advantage-conditioned offline RL (Recap) | Long real-world tasks, see Section 14.11 |
+| [RL-100](https://arxiv.org/abs/2510.14830) (2025) | Diffusion visuomotor policy | A single PPO-Clip objective inside the denoising process, improving step by step from offline to online; consistency distillation into a one-step controller for real-time control | 1000/1000 successes over 8 real tasks; served customers in a shopping mall for about 7 hours without failure |
+| [HIL-SERL](https://arxiv.org/abs/2410.21845) (2024) | Vision RL policy (not a VLA) | Demonstrations + human corrections + efficient off-policy RL, trained directly on the real robot | Close to 100% success after 1–2.5 hours of training; average success rate 2× that of imitation and other baselines |
+
+By 2026 the focus has shifted to **exploration efficiency and generalisation of real-robot RL**:
+
+- **Digital-twin guidance**: [TwinRL](https://arxiv.org/abs/2602.09023) reconstructs a digital twin of the scene from a smartphone scan, first runs parallel RL in the twin to fill the replay buffer and find failure-prone configurations, and then trains on the real robot. The paper reports near-100% success both in and out of distribution on four tasks, with about 20 minutes of on-robot interaction and over 30% faster convergence than earlier real-robot RL methods. One observation is especially telling: what real-robot RL can explore is largely boxed in by the trajectory distribution from the SFT stage.
+- **Generative 3D worlds**: [Choi et al.](https://arxiv.org/abs/2603.18532) combine a 3D world generative model with a language-driven scene designer to generate 100 diverse interactive scenes automatically, RL fine-tune a VLA in simulation and transfer it to the real robot, raising real-world success from 21.7% to 75%. It targets another hazard of real-robot RL: a policy trained in a single scene overfits and loses the generality that pretraining provided.
+- **Off-policy value estimation**: [ALOE](https://arxiv.org/abs/2602.12691) points out that a replay buffer mixes data from past policies, demonstrations and human interventions, so "progress-style" value signals misjudge the current policy. It instead evaluates the current policy off-policy with chunked TD bootstrapping and conservative value aggregation, outperforming other VLA post-training methods on four real tasks including laundry folding and phone assembly.
+
+## 11.4 Scaling RL
+{: id="114-rl-的规模化"}
+
+The lesson from LLMs is "bigger models and more data are better", yet RL has long stayed with small 2–5 layer networks. Two threads from 2025 suggest this is changing:
+
+- **Parallel simulation + off-policy learning**: [FastTD3](https://arxiv.org/abs/2505.22642) adds massively parallel simulation, large-batch updates and a distributional critic to TD3, solving a range of HumanoidBench tasks in under 3 hours on a single A100. "Parallel simulation with PPO" used to be the default (Section 6); work like this shows that off-policy algorithms can also profit from parallelism, with better sample efficiency.
+- **Deeper networks**: [1000 Layer Networks for Self-Supervised RL](https://arxiv.org/abs/2503.14858) (NeurIPS 2025 Best Paper) deepens contrastive RL networks to 1024 layers in a goal-conditioned setting with no rewards or demonstrations, improving performance by 2–50× and producing qualitatively new behaviours as depth grows. RL can scale after all; the key is finding objectives and architectures that benefit from scale.
 
 ---
 
@@ -815,6 +965,7 @@ If you are developing an embodied intelligence project, you can select algorithm
 |**Long-range navigation and operation**| **TD-MPC2** |Latent space planning is suitable for multi-step sequence decision-making| ⭐⭐⭐⭐ |
 |**Multitasking/generalization operation**| **Diffusion Policy + ReinFlow** |The action trajectory is natural and smooth, and can handle multi-target conflicts| ⭐⭐⭐⭐⭐ |
 |**VLA Large model fine-tuning**| **Residual-RL** |Protect pre-training knowledge while quickly adapting to specific scenarios| ⭐⭐⭐⭐ |
+| **Full RL post-training of VLAs** | **GRPO / PPO (SimpleVLA-RL, πRL)** | Task success in simulation as a verifiable reward, going beyond the demonstration distribution | ⭐⭐⭐⭐⭐ |
 |**Sparse reward environment**| **SAC + ICM / HER** |Intrinsic reward + experience reuse alleviates reward sparsity| ⭐⭐⭐⭐⭐ |
 
 **selection decision tree**:
@@ -1841,7 +1992,7 @@ The evolution of reinforcement learning in the field of embodied intelligence ma
 - **Model-free era (DQN / PPO / SAC / TD3)**: It lays the mathematical foundation for deep policy learning in discrete and continuous action spaces, and overcomes the problems of policy variance and value overestimation.
 - **World Model Era (World Models / DreamerV3 / TD-MPC2)**: Breaks the absolute dependence on massive real physical sampling, and realizes latent space self-supervised physical dynamics evolution and long-term planning.
 - **Generative Era (Diffusion Policy / DPPO / X-NavDP)**: Fundamentally reshape the distribution representation of the action space, and use the diffusion denoising mechanism to perfectly resolve the contradiction between multi-modal continuous control and timing smoothing.
-- **Real and post-training era (π\*₀.₆ / RLVR / Residual-VLA)**: Opens up the end-to-end enhanced alignment closed loop of expert intervention, verifiable physical common sense and VLA large model.
+- **Real-world and post-training era (π\*₀.₆ / RLVR / GRPO / Residual-VLA)**: Algorithms such as GRPO first proved "verifiable rewards + large-scale RL" on LLM reasoning and were then carried over to VLAs; SimpleVLA-RL, πRL, RL-100 and others moved RL from training small policies to fine-tuning large models, and from simulation to real robots.
 
 Each generation of algorithms builds on its predecessors to overcome new theoretical and engineering bottlenecks. With the further integration of physical world perception, multi-modal foundation models and high-fidelity parallel simulation, reinforcement learning is driving embodied robots to accelerate their transition from "pattern reproduction" to "autonomous cognition and universal action in the physical world".
 

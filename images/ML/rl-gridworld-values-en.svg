@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 365" role="img" aria-label="Optimal values and optimal policy in a grid world">
+<title>Optimal values and optimal policy in a grid world</title>
+<defs><marker id="ah-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1f2328"/></marker><marker id="ah-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6b6f76"/></marker><marker id="ah-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2f6fab"/></marker><marker id="ah-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d97757"/></marker><marker id="ah-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3a8a5c"/></marker><marker id="ah-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b8483e"/></marker><marker id="ah-faint" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b9bcc2"/></marker>
+<style>
+  text { font-family: 'PingFang SC','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif; fill: #1f2328; }
+  .t { font-size: 15px; }
+  .s { font-size: 13px; fill: #6b6f76; }
+  .xs { font-size: 11.5px; fill: #6b6f76; }
+  .b { font-weight: 600; }
+  .m { font-family: 'Times New Roman','Noto Serif',Georgia,serif; font-style: italic; font-size: 16px; }
+  .ms { font-family: 'Times New Roman','Noto Serif',Georgia,serif; font-style: italic; font-size: 14px; }
+  .h { font-size: 15px; font-weight: 600; }
+</style></defs>
+<rect x="0.5" y="0.5" width="759" height="364" rx="14" fill="#fbfaf7" stroke="#e4e0d8"/>
+<text x="380.0" y="30.0" class="h" text-anchor="middle" >Optimal values and optimal policy in a grid world</text>
+<text x="205.0" y="58.0" class="t b" text-anchor="middle" >Optimal state value V*(s)</text>
+<rect x="50" y="70" width="62" height="62" fill="#90b1cf"/>
+<text x="81.0" y="106.0" class="t" text-anchor="middle" style="fill:#ffffff" >+0.55</text>
+<rect x="112" y="70" width="62" height="62" fill="#81a7c9"/>
+<text x="143.0" y="106.0" class="t" text-anchor="middle" style="fill:#ffffff" >+0.65</text>
+<rect x="174" y="70" width="62" height="62" fill="#729dc4"/>
+<text x="205.0" y="106.0" class="t" text-anchor="middle" style="fill:#ffffff" >+0.74</text>
+<rect x="236" y="70" width="62" height="62" fill="#6292be"/>
+<text x="267.0" y="106.0" class="t" text-anchor="middle" style="fill:#ffffff" >+0.86</text>
+<rect x="298" y="70" width="62" height="62" fill="#4e84b6"/>
+<text x="329.0" y="106.0" class="t" text-anchor="middle" style="fill:#ffffff" >+1</text>
+<rect x="50" y="132" width="62" height="62" fill="#9dbad4"/>
+<text x="81.0" y="168.0" class="t" text-anchor="middle" style="fill:#1f2328" >+0.47</text>
+<rect x="112" y="132" width="62" height="62" fill="#5b5f66"/>
+<rect x="174" y="132" width="62" height="62" fill="#82a7ca"/>
+<text x="205.0" y="168.0" class="t" text-anchor="middle" style="fill:#ffffff" >+0.64</text>
+<rect x="236" y="132" width="62" height="62" fill="#8aadcd"/>
+<text x="267.0" y="168.0" class="t" text-anchor="middle" style="fill:#ffffff" >+0.58</text>
+<rect x="298" y="132" width="62" height="62" fill="#c2635a"/>
+<text x="329.0" y="168.0" class="t" text-anchor="middle" style="fill:#ffffff" >−1</text>
+<rect x="50" y="194" width="62" height="62" fill="#a9c2d8"/>
+<text x="81.0" y="230.0" class="t" text-anchor="middle" style="fill:#1f2328" >+0.39</text>
+<rect x="112" y="194" width="62" height="62" fill="#a0bcd5"/>
+<text x="143.0" y="230.0" class="t" text-anchor="middle" style="fill:#1f2328" >+0.45</text>
+<rect x="174" y="194" width="62" height="62" fill="#91b2cf"/>
+<text x="205.0" y="230.0" class="t" text-anchor="middle" style="fill:#ffffff" >+0.54</text>
+<rect x="236" y="194" width="62" height="62" fill="#5b5f66"/>
+<rect x="298" y="194" width="62" height="62" fill="#c8d7e4"/>
+<text x="329.0" y="230.0" class="t" text-anchor="middle" style="fill:#1f2328" >+0.22</text>
+<rect x="50" y="256" width="62" height="62" fill="#b4cadd"/>
+<text x="81.0" y="292.0" class="t" text-anchor="middle" style="fill:#1f2328" >+0.33</text>
+<rect x="112" y="256" width="62" height="62" fill="#acc4da"/>
+<text x="143.0" y="292.0" class="t" text-anchor="middle" style="fill:#1f2328" >+0.37</text>
+<rect x="174" y="256" width="62" height="62" fill="#a1bdd5"/>
+<text x="205.0" y="292.0" class="t" text-anchor="middle" style="fill:#1f2328" >+0.44</text>
+<rect x="236" y="256" width="62" height="62" fill="#aec5da"/>
+<text x="267.0" y="292.0" class="t" text-anchor="middle" style="fill:#1f2328" >+0.36</text>
+<rect x="298" y="256" width="62" height="62" fill="#bbcfdf"/>
+<text x="329.0" y="292.0" class="t" text-anchor="middle" style="fill:#1f2328" >+0.29</text>
+<line x1="50.0" y1="70.0" x2="50.0" y2="318.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="112.0" y1="70.0" x2="112.0" y2="318.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="174.0" y1="70.0" x2="174.0" y2="318.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="236.0" y1="70.0" x2="236.0" y2="318.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="298.0" y1="70.0" x2="298.0" y2="318.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="360.0" y1="70.0" x2="360.0" y2="318.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="50.0" y1="70.0" x2="360.0" y2="70.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="50.0" y1="132.0" x2="360.0" y2="132.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="50.0" y1="194.0" x2="360.0" y2="194.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="50.0" y1="256.0" x2="360.0" y2="256.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="50.0" y1="318.0" x2="360.0" y2="318.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<text x="60.0" y="272.0" class="xs b" text-anchor="start" style="fill:#6b6f76" >S</text>
+<text x="560.0" y="58.0" class="t b" text-anchor="middle" >Greedy policy π*(s) = argmaxₐ Q*(s, a)</text>
+<rect x="405" y="70" width="62" height="62" fill="#fbfaf7"/>
+<line x1="420.0" y1="101.0" x2="452.0" y2="101.0" stroke="#2f6fab" stroke-width="2.6" marker-end="url(#ah-blue)"/>
+<rect x="467" y="70" width="62" height="62" fill="#fbfaf7"/>
+<line x1="482.0" y1="101.0" x2="514.0" y2="101.0" stroke="#2f6fab" stroke-width="2.6" marker-end="url(#ah-blue)"/>
+<rect x="529" y="70" width="62" height="62" fill="#fbfaf7"/>
+<line x1="544.0" y1="101.0" x2="576.0" y2="101.0" stroke="#2f6fab" stroke-width="2.6" marker-end="url(#ah-blue)"/>
+<rect x="591" y="70" width="62" height="62" fill="#fbfaf7"/>
+<line x1="606.0" y1="101.0" x2="638.0" y2="101.0" stroke="#2f6fab" stroke-width="2.6" marker-end="url(#ah-blue)"/>
+<rect x="653" y="70" width="62" height="62" fill="#dcefe3"/>
+<text x="684.0" y="106.0" class="s b" text-anchor="middle" style="fill:#3a8a5c" >goal +1</text>
+<rect x="405" y="132" width="62" height="62" fill="#fbfaf7"/>
+<line x1="436.0" y1="179.0" x2="436.0" y2="147.0" stroke="#2f6fab" stroke-width="2.6" marker-end="url(#ah-blue)"/>
+<rect x="467" y="132" width="62" height="62" fill="#5b5f66"/>
+<rect x="529" y="132" width="62" height="62" fill="#fbfaf7"/>
+<line x1="560.0" y1="179.0" x2="560.0" y2="147.0" stroke="#2f6fab" stroke-width="2.6" marker-end="url(#ah-blue)"/>
+<rect x="591" y="132" width="62" height="62" fill="#fbfaf7"/>
+<line x1="638.0" y1="163.0" x2="606.0" y2="163.0" stroke="#2f6fab" stroke-width="2.6" marker-end="url(#ah-blue)"/>
+<rect x="653" y="132" width="62" height="62" fill="#f3dcd9"/>
+<text x="684.0" y="168.0" class="s b" text-anchor="middle" style="fill:#b8483e" >pit −1</text>
+<rect x="405" y="194" width="62" height="62" fill="#fbfaf7"/>
+<line x1="436.0" y1="241.0" x2="436.0" y2="209.0" stroke="#2f6fab" stroke-width="2.6" marker-end="url(#ah-blue)"/>
+<rect x="467" y="194" width="62" height="62" fill="#fbfaf7"/>
+<line x1="482.0" y1="225.0" x2="514.0" y2="225.0" stroke="#2f6fab" stroke-width="2.6" marker-end="url(#ah-blue)"/>
+<rect x="529" y="194" width="62" height="62" fill="#fbfaf7"/>
+<line x1="560.0" y1="241.0" x2="560.0" y2="209.0" stroke="#2f6fab" stroke-width="2.6" marker-end="url(#ah-blue)"/>
+<rect x="591" y="194" width="62" height="62" fill="#5b5f66"/>
+<rect x="653" y="194" width="62" height="62" fill="#fbfaf7"/>
+<line x1="684.0" y1="209.0" x2="684.0" y2="241.0" stroke="#2f6fab" stroke-width="2.6" marker-end="url(#ah-blue)"/>
+<rect x="405" y="256" width="62" height="62" fill="#fbfaf7"/>
+<line x1="436.0" y1="303.0" x2="436.0" y2="271.0" stroke="#2f6fab" stroke-width="2.6" marker-end="url(#ah-blue)"/>
+<rect x="467" y="256" width="62" height="62" fill="#fbfaf7"/>
+<line x1="498.0" y1="303.0" x2="498.0" y2="271.0" stroke="#2f6fab" stroke-width="2.6" marker-end="url(#ah-blue)"/>
+<rect x="529" y="256" width="62" height="62" fill="#fbfaf7"/>
+<line x1="560.0" y1="303.0" x2="560.0" y2="271.0" stroke="#2f6fab" stroke-width="2.6" marker-end="url(#ah-blue)"/>
+<rect x="591" y="256" width="62" height="62" fill="#fbfaf7"/>
+<line x1="638.0" y1="287.0" x2="606.0" y2="287.0" stroke="#2f6fab" stroke-width="2.6" marker-end="url(#ah-blue)"/>
+<rect x="653" y="256" width="62" height="62" fill="#fbfaf7"/>
+<line x1="700.0" y1="287.0" x2="668.0" y2="287.0" stroke="#2f6fab" stroke-width="2.6" marker-end="url(#ah-blue)"/>
+<line x1="405.0" y1="70.0" x2="405.0" y2="318.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="467.0" y1="70.0" x2="467.0" y2="318.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="529.0" y1="70.0" x2="529.0" y2="318.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="591.0" y1="70.0" x2="591.0" y2="318.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="653.0" y1="70.0" x2="653.0" y2="318.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="715.0" y1="70.0" x2="715.0" y2="318.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="405.0" y1="70.0" x2="715.0" y2="70.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="405.0" y1="132.0" x2="715.0" y2="132.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="405.0" y1="194.0" x2="715.0" y2="194.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="405.0" y1="256.0" x2="715.0" y2="256.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<line x1="405.0" y1="318.0" x2="715.0" y2="318.0" stroke="#e4e0d8" stroke-width="1.2"/>
+<text x="415.0" y="272.0" class="xs b" text-anchor="start" style="fill:#6b6f76" >S</text>
+<text x="380.0" y="345.0" class="s" text-anchor="middle" >Step reward −0.04; an action succeeds with prob. 0.8 and slips sideways with 0.1 each; γ = 0.95; dark cells are walls</text>
+</svg>

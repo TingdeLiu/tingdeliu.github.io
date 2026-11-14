@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 350" role="img" aria-label="PPO 与 GRPO：优势从哪里来">
+<title>PPO 与 GRPO：优势从哪里来</title>
+<defs><marker id="ah-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1f2328"/></marker><marker id="ah-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6b6f76"/></marker><marker id="ah-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2f6fab"/></marker><marker id="ah-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d97757"/></marker><marker id="ah-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3a8a5c"/></marker><marker id="ah-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b8483e"/></marker><marker id="ah-faint" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b9bcc2"/></marker>
+<style>
+  text { font-family: 'PingFang SC','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif; fill: #1f2328; }
+  .t { font-size: 15px; }
+  .s { font-size: 13px; fill: #6b6f76; }
+  .xs { font-size: 11.5px; fill: #6b6f76; }
+  .b { font-weight: 600; }
+  .m { font-family: 'Times New Roman','Noto Serif',Georgia,serif; font-style: italic; font-size: 16px; }
+  .ms { font-family: 'Times New Roman','Noto Serif',Georgia,serif; font-style: italic; font-size: 14px; }
+  .h { font-size: 15px; font-weight: 600; }
+</style></defs>
+<rect x="0.5" y="0.5" width="759" height="349" rx="14" fill="#fbfaf7" stroke="#e4e0d8"/>
+<text x="380.0" y="30.0" class="h" text-anchor="middle" >PPO 与 GRPO：优势从哪里来</text>
+<text x="185.0" y="62.0" class="t b" text-anchor="middle" >PPO（需要 Critic）</text>
+<rect x="40.0" y="85.0" width="110.0" height="40.0" rx="8" fill="#f1efea" stroke="#6b6f76" stroke-width="1.4"/>
+<text x="95.0" y="110.0" class="s" text-anchor="middle" style="fill:#1f2328" >问题 q</text>
+<rect x="40.0" y="150.0" width="110.0" height="40.0" rx="8" fill="#dbe7f3" stroke="#2f6fab" stroke-width="1.4"/>
+<text x="95.0" y="175.0" class="s" text-anchor="middle" style="fill:#1f2328" >策略 π</text>
+<rect x="40.0" y="215.0" width="110.0" height="40.0" rx="8" fill="#f1efea" stroke="#6b6f76" stroke-width="1.4"/>
+<text x="95.0" y="240.0" class="s" text-anchor="middle" style="fill:#1f2328" >一个回答 o</text>
+<rect x="210.0" y="150.0" width="130.0" height="40.0" rx="8" fill="#f6e1d8" stroke="#d97757" stroke-width="1.4"/>
+<text x="275.0" y="175.0" class="s" text-anchor="middle" style="fill:#1f2328" >价值网络 V</text>
+<rect x="210.0" y="215.0" width="130.0" height="40.0" rx="8" fill="#dcefe3" stroke="#3a8a5c" stroke-width="1.4"/>
+<text x="275.0" y="240.0" class="s" text-anchor="middle" style="fill:#1f2328" >奖励 r</text>
+<rect x="210.0" y="280.0" width="130.0" height="40.0" rx="8" fill="#ffffff" stroke="#1f2328" stroke-width="1.4"/>
+<text x="275.0" y="305.0" class="s" text-anchor="middle" style="fill:#1f2328" >GAE 优势 Â</text>
+<line x1="95.0" y1="125.0" x2="95.0" y2="148.0" stroke="#1f2328" stroke-width="1.4" marker-end="url(#ah-ink)"/>
+<line x1="95.0" y1="190.0" x2="95.0" y2="213.0" stroke="#1f2328" stroke-width="1.4" marker-end="url(#ah-ink)"/>
+<line x1="150.0" y1="235.0" x2="208.0" y2="235.0" stroke="#1f2328" stroke-width="1.4" marker-end="url(#ah-ink)"/>
+<line x1="290.0" y1="255.0" x2="290.0" y2="278.0" stroke="#1f2328" stroke-width="1.4" marker-end="url(#ah-ink)"/>
+<line x1="250.0" y1="190.0" x2="250.0" y2="278.0" stroke="#d97757" stroke-width="1.4" marker-end="url(#ah-orange)"/>
+<text x="275.0" y="141.0" class="xs" text-anchor="middle" style="fill:#d97757" >与策略同规模、需单独训练</text>
+<line x1="380.0" y1="60.0" x2="380.0" y2="330.0" stroke="#e4e0d8" stroke-width="1.4"/>
+<text x="575.0" y="62.0" class="t b" text-anchor="middle" >GRPO（组内比较，去掉 Critic）</text>
+<rect x="420.0" y="85.0" width="100.0" height="40.0" rx="8" fill="#f1efea" stroke="#6b6f76" stroke-width="1.4"/>
+<text x="470.0" y="110.0" class="s" text-anchor="middle" style="fill:#1f2328" >问题 q</text>
+<rect x="420.0" y="150.0" width="100.0" height="40.0" rx="8" fill="#dbe7f3" stroke="#2f6fab" stroke-width="1.4"/>
+<text x="470.0" y="175.0" class="s" text-anchor="middle" style="fill:#1f2328" >策略 π</text>
+<line x1="470.0" y1="125.0" x2="470.0" y2="148.0" stroke="#1f2328" stroke-width="1.4" marker-end="url(#ah-ink)"/>
+<text x="638.0" y="88.0" class="xs" text-anchor="middle" >采样 G = 6 个回答，验证器打分</text>
+<line x1="520.0" y1="170.0" x2="546.0" y2="107.0" stroke="#b9bcc2" stroke-width="1"/>
+<rect x="548.0" y="98.0" width="40.0" height="18.0" rx="4" fill="#f1efea" stroke="#6b6f76" stroke-width="1"/>
+<text x="568.0" y="111.0" class="xs" text-anchor="middle" style="fill:#1f2328" >o1</text>
+<text x="610.0" y="111.0" class="s b" text-anchor="middle" style="fill:#3a8a5c" >✓ 1</text>
+<rect x="698.0" y="100" width="40.0" height="14" fill="#3a8a5c" opacity="0.8"/>
+<text x="744.0" y="111.0" class="xs" text-anchor="start" style="fill:#3a8a5c" >+1</text>
+<line x1="520.0" y1="170.0" x2="546.0" y2="133.0" stroke="#b9bcc2" stroke-width="1"/>
+<rect x="548.0" y="124.0" width="40.0" height="18.0" rx="4" fill="#f1efea" stroke="#6b6f76" stroke-width="1"/>
+<text x="568.0" y="137.0" class="xs" text-anchor="middle" style="fill:#1f2328" >o2</text>
+<text x="610.0" y="137.0" class="s b" text-anchor="middle" style="fill:#b8483e" >✗ 0</text>
+<rect x="658.0" y="126" width="40.0" height="14" fill="#b8483e" opacity="0.8"/>
+<text x="652.0" y="137.0" class="xs" text-anchor="end" style="fill:#b8483e" >−1</text>
+<line x1="520.0" y1="170.0" x2="546.0" y2="159.0" stroke="#b9bcc2" stroke-width="1"/>
+<rect x="548.0" y="150.0" width="40.0" height="18.0" rx="4" fill="#f1efea" stroke="#6b6f76" stroke-width="1"/>
+<text x="568.0" y="163.0" class="xs" text-anchor="middle" style="fill:#1f2328" >o3</text>
+<text x="610.0" y="163.0" class="s b" text-anchor="middle" style="fill:#3a8a5c" >✓ 1</text>
+<rect x="698.0" y="152" width="40.0" height="14" fill="#3a8a5c" opacity="0.8"/>
+<text x="744.0" y="163.0" class="xs" text-anchor="start" style="fill:#3a8a5c" >+1</text>
+<line x1="520.0" y1="170.0" x2="546.0" y2="185.0" stroke="#b9bcc2" stroke-width="1"/>
+<rect x="548.0" y="176.0" width="40.0" height="18.0" rx="4" fill="#f1efea" stroke="#6b6f76" stroke-width="1"/>
+<text x="568.0" y="189.0" class="xs" text-anchor="middle" style="fill:#1f2328" >o4</text>
+<text x="610.0" y="189.0" class="s b" text-anchor="middle" style="fill:#3a8a5c" >✓ 1</text>
+<rect x="698.0" y="178" width="40.0" height="14" fill="#3a8a5c" opacity="0.8"/>
+<text x="744.0" y="189.0" class="xs" text-anchor="start" style="fill:#3a8a5c" >+1</text>
+<line x1="520.0" y1="170.0" x2="546.0" y2="211.0" stroke="#b9bcc2" stroke-width="1"/>
+<rect x="548.0" y="202.0" width="40.0" height="18.0" rx="4" fill="#f1efea" stroke="#6b6f76" stroke-width="1"/>
+<text x="568.0" y="215.0" class="xs" text-anchor="middle" style="fill:#1f2328" >o5</text>
+<text x="610.0" y="215.0" class="s b" text-anchor="middle" style="fill:#b8483e" >✗ 0</text>
+<rect x="658.0" y="204" width="40.0" height="14" fill="#b8483e" opacity="0.8"/>
+<text x="652.0" y="215.0" class="xs" text-anchor="end" style="fill:#b8483e" >−1</text>
+<line x1="520.0" y1="170.0" x2="546.0" y2="237.0" stroke="#b9bcc2" stroke-width="1"/>
+<rect x="548.0" y="228.0" width="40.0" height="18.0" rx="4" fill="#f1efea" stroke="#6b6f76" stroke-width="1"/>
+<text x="568.0" y="241.0" class="xs" text-anchor="middle" style="fill:#1f2328" >o6</text>
+<text x="610.0" y="241.0" class="s b" text-anchor="middle" style="fill:#b8483e" >✗ 0</text>
+<rect x="658.0" y="230" width="40.0" height="14" fill="#b8483e" opacity="0.8"/>
+<text x="652.0" y="241.0" class="xs" text-anchor="end" style="fill:#b8483e" >−1</text>
+<line x1="698.0" y1="94.0" x2="698.0" y2="254.0" stroke="#6b6f76" stroke-width="1"/>
+<text x="698.0" y="270.0" class="ms" text-anchor="middle" >Âᵢ = (rᵢ − mean) / std</text>
+<text x="575.0" y="330.0" class="xs" text-anchor="middle" >组均值 0.5 充当基线：答对的回答被推高，答错的被压低</text>
+</svg>

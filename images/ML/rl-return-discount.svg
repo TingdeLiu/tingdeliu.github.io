@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 400" role="img" aria-label="轨迹、马尔可夫性与折扣权重">
+<title>轨迹、马尔可夫性与折扣权重</title>
+<defs><marker id="ah-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1f2328"/></marker><marker id="ah-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6b6f76"/></marker><marker id="ah-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2f6fab"/></marker><marker id="ah-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d97757"/></marker><marker id="ah-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3a8a5c"/></marker><marker id="ah-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b8483e"/></marker><marker id="ah-faint" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b9bcc2"/></marker>
+<style>
+  text { font-family: 'PingFang SC','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif; fill: #1f2328; }
+  .t { font-size: 15px; }
+  .s { font-size: 13px; fill: #6b6f76; }
+  .xs { font-size: 11.5px; fill: #6b6f76; }
+  .b { font-weight: 600; }
+  .m { font-family: 'Times New Roman','Noto Serif',Georgia,serif; font-style: italic; font-size: 16px; }
+  .ms { font-family: 'Times New Roman','Noto Serif',Georgia,serif; font-style: italic; font-size: 14px; }
+  .h { font-size: 15px; font-weight: 600; }
+</style></defs>
+<rect x="0.5" y="0.5" width="759" height="399" rx="14" fill="#fbfaf7" stroke="#e4e0d8"/>
+<text x="380.0" y="32.0" class="h" text-anchor="middle" >轨迹、马尔可夫性与折扣权重</text>
+<circle cx="70.0" cy="110.0" r="24" fill="#eeeeec" stroke="#b9bcc2" stroke-width="2"/>
+<text x="70" y="116" class="m" text-anchor="middle" style="fill:#6b6f76">s<tspan dy="5" font-size="70%">t−2</tspan></text>
+<line x1="96.0" y1="110.0" x2="157.0" y2="110.0" stroke="#b9bcc2" stroke-width="1.6" marker-end="url(#ah-faint)"/>
+<text x="127.5" y="98" class="ms" text-anchor="middle" style="fill:#6b6f76">a<tspan dy="4" font-size="70%">t−2</tspan></text>
+<circle cx="185.0" cy="110.0" r="24" fill="#eeeeec" stroke="#b9bcc2" stroke-width="2"/>
+<text x="185" y="116" class="m" text-anchor="middle" style="fill:#6b6f76">s<tspan dy="5" font-size="70%">t−1</tspan></text>
+<line x1="211.0" y1="110.0" x2="272.0" y2="110.0" stroke="#b9bcc2" stroke-width="1.6" marker-end="url(#ah-faint)"/>
+<text x="242.5" y="98" class="ms" text-anchor="middle" style="fill:#6b6f76">a<tspan dy="4" font-size="70%">t−1</tspan></text>
+<circle cx="300.0" cy="110.0" r="24" fill="#f6e1d8" stroke="#d97757" stroke-width="2"/>
+<text x="300" y="116" class="m" text-anchor="middle" style="fill:#1f2328">s<tspan dy="5" font-size="70%">t</tspan></text>
+<line x1="326.0" y1="110.0" x2="387.0" y2="110.0" stroke="#1f2328" stroke-width="1.6" marker-end="url(#ah-ink)"/>
+<text x="357.5" y="98" class="ms" text-anchor="middle" style="fill:#1f2328">a<tspan dy="4" font-size="70%">t</tspan></text>
+<text x="357.5" y="140" class="ms" text-anchor="middle" style="fill:#3a8a5c">r<tspan dy="4" font-size="70%">t+1</tspan></text>
+<circle cx="415.0" cy="110.0" r="24" fill="#dbe7f3" stroke="#2f6fab" stroke-width="2"/>
+<text x="415" y="116" class="m" text-anchor="middle" style="fill:#1f2328">s<tspan dy="5" font-size="70%">t+1</tspan></text>
+<line x1="441.0" y1="110.0" x2="502.0" y2="110.0" stroke="#1f2328" stroke-width="1.6" marker-end="url(#ah-ink)"/>
+<text x="472.5" y="98" class="ms" text-anchor="middle" style="fill:#1f2328">a<tspan dy="4" font-size="70%">t+1</tspan></text>
+<text x="472.5" y="140" class="ms" text-anchor="middle" style="fill:#3a8a5c">r<tspan dy="4" font-size="70%">t+2</tspan></text>
+<circle cx="530.0" cy="110.0" r="24" fill="#dbe7f3" stroke="#2f6fab" stroke-width="2"/>
+<text x="530" y="116" class="m" text-anchor="middle" style="fill:#1f2328">s<tspan dy="5" font-size="70%">t+2</tspan></text>
+<line x1="556.0" y1="110.0" x2="617.0" y2="110.0" stroke="#1f2328" stroke-width="1.6" marker-end="url(#ah-ink)"/>
+<text x="587.5" y="98" class="ms" text-anchor="middle" style="fill:#1f2328">a<tspan dy="4" font-size="70%">t+2</tspan></text>
+<text x="587.5" y="140" class="ms" text-anchor="middle" style="fill:#3a8a5c">r<tspan dy="4" font-size="70%">t+3</tspan></text>
+<circle cx="645.0" cy="110.0" r="24" fill="#dbe7f3" stroke="#2f6fab" stroke-width="2"/>
+<text x="645" y="116" class="m" text-anchor="middle" style="fill:#1f2328">s<tspan dy="5" font-size="70%">t+3</tspan></text>
+<text x="720.0" y="116.0" class="t" text-anchor="middle" style="fill:#6b6f76" >⋯</text>
+<path d="M48,68 L48,60 L322,60 L322,68" fill="none" stroke="#d97757" stroke-width="1.4"/>
+<text x="48" y="52" class="s" text-anchor="start" style="fill:#d97757">马尔可夫性：预测未来只需 s<tspan dy='4' font-size='70%'>t</tspan><tspan dy='-4'> </tspan>，灰色历史可以丢掉</text>
+<text x="415" y="172" class="t" text-anchor="middle" style="fill:#3a8a5c">回报 G<tspan dy='4' font-size='70%'>t</tspan><tspan dy='-4'> </tspan> = r<tspan dy='4' font-size='70%'>t+1</tspan><tspan dy='-4'> </tspan> + γ r<tspan dy='4' font-size='70%'>t+2</tspan><tspan dy='-4'> </tspan> + γ² r<tspan dy='4' font-size='70%'>t+3</tspan><tspan dy='-4'> </tspan> + ⋯</text>
+<line x1="74.0" y1="340.0" x2="570.0" y2="340.0" stroke="#6b6f76" stroke-width="1.2"/>
+<line x1="74.0" y1="340.0" x2="74.0" y2="198.0" stroke="#6b6f76" stroke-width="1.2"/>
+<text x="68.0" y="214.0" class="xs" text-anchor="end" >1</text>
+<text x="68.0" y="344.0" class="xs" text-anchor="end" >0</text>
+<rect x="82.0" y="210.0" width="12" height="130.0" fill="#2f6fab" opacity="0.85"/>
+<rect x="95.0" y="210.0" width="12" height="130.0" fill="#d97757" opacity="0.85"/>
+<text x="95.0" y="356.0" class="xs" text-anchor="middle" >0</text>
+<rect x="112.0" y="223.0" width="12" height="117.0" fill="#2f6fab" opacity="0.85"/>
+<rect x="125.0" y="275.0" width="12" height="65.0" fill="#d97757" opacity="0.85"/>
+<rect x="142.0" y="234.7" width="12" height="105.3" fill="#2f6fab" opacity="0.85"/>
+<rect x="155.0" y="307.5" width="12" height="32.5" fill="#d97757" opacity="0.85"/>
+<text x="155.0" y="356.0" class="xs" text-anchor="middle" >2</text>
+<rect x="172.0" y="245.2" width="12" height="94.8" fill="#2f6fab" opacity="0.85"/>
+<rect x="185.0" y="323.8" width="12" height="16.2" fill="#d97757" opacity="0.85"/>
+<rect x="202.0" y="254.7" width="12" height="85.3" fill="#2f6fab" opacity="0.85"/>
+<rect x="215.0" y="331.9" width="12" height="8.1" fill="#d97757" opacity="0.85"/>
+<text x="215.0" y="356.0" class="xs" text-anchor="middle" >4</text>
+<rect x="232.0" y="263.2" width="12" height="76.8" fill="#2f6fab" opacity="0.85"/>
+<rect x="245.0" y="335.9" width="12" height="4.1" fill="#d97757" opacity="0.85"/>
+<rect x="262.0" y="270.9" width="12" height="69.1" fill="#2f6fab" opacity="0.85"/>
+<rect x="275.0" y="338.0" width="12" height="2.0" fill="#d97757" opacity="0.85"/>
+<text x="275.0" y="356.0" class="xs" text-anchor="middle" >6</text>
+<rect x="292.0" y="277.8" width="12" height="62.2" fill="#2f6fab" opacity="0.85"/>
+<rect x="305.0" y="339.0" width="12" height="1.0" fill="#d97757" opacity="0.85"/>
+<rect x="322.0" y="284.0" width="12" height="56.0" fill="#2f6fab" opacity="0.85"/>
+<rect x="335.0" y="339.5" width="12" height="0.5" fill="#d97757" opacity="0.85"/>
+<text x="335.0" y="356.0" class="xs" text-anchor="middle" >8</text>
+<rect x="352.0" y="289.6" width="12" height="50.4" fill="#2f6fab" opacity="0.85"/>
+<rect x="365.0" y="339.7" width="12" height="0.3" fill="#d97757" opacity="0.85"/>
+<rect x="382.0" y="294.7" width="12" height="45.3" fill="#2f6fab" opacity="0.85"/>
+<rect x="395.0" y="339.9" width="12" height="0.1" fill="#d97757" opacity="0.85"/>
+<text x="395.0" y="356.0" class="xs" text-anchor="middle" >10</text>
+<rect x="412.0" y="299.2" width="12" height="40.8" fill="#2f6fab" opacity="0.85"/>
+<rect x="425.0" y="339.9" width="12" height="0.1" fill="#d97757" opacity="0.85"/>
+<rect x="442.0" y="303.3" width="12" height="36.7" fill="#2f6fab" opacity="0.85"/>
+<rect x="455.0" y="340.0" width="12" height="0.0" fill="#d97757" opacity="0.85"/>
+<text x="455.0" y="356.0" class="xs" text-anchor="middle" >12</text>
+<rect x="472.0" y="307.0" width="12" height="33.0" fill="#2f6fab" opacity="0.85"/>
+<rect x="485.0" y="340.0" width="12" height="0.0" fill="#d97757" opacity="0.85"/>
+<rect x="502.0" y="310.3" width="12" height="29.7" fill="#2f6fab" opacity="0.85"/>
+<rect x="515.0" y="340.0" width="12" height="0.0" fill="#d97757" opacity="0.85"/>
+<text x="515.0" y="356.0" class="xs" text-anchor="middle" >14</text>
+<rect x="532.0" y="313.2" width="12" height="26.8" fill="#2f6fab" opacity="0.85"/>
+<rect x="545.0" y="340.0" width="12" height="0.0" fill="#d97757" opacity="0.85"/>
+<text x="320.0" y="376.0" class="s" text-anchor="middle" >未来第 k 步奖励的权重 γᵏ</text>
+<rect x="590" y="210" width="12" height="12" fill="#2f6fab"/>
+<text x="608.0" y="221.0" class="s" text-anchor="start" >γ = 0.9</text>
+<text x="608.0" y="239.0" class="xs" text-anchor="start" >有效视野 ≈ 10 步</text>
+<rect x="590" y="258" width="12" height="12" fill="#d97757"/>
+<text x="608.0" y="269.0" class="s" text-anchor="start" >γ = 0.5</text>
+<text x="608.0" y="287.0" class="xs" text-anchor="start" >有效视野 ≈ 2 步</text>
+<text x="590.0" y="318.0" class="ms" text-anchor="start" style="fill:#6b6f76" >≈ 1 / (1 − γ)</text>
+</svg>

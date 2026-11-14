@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 330" role="img" aria-label="Bellman 期望方程的备份图">
+<title>Bellman 期望方程的备份图</title>
+<defs><marker id="ah-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1f2328"/></marker><marker id="ah-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6b6f76"/></marker><marker id="ah-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2f6fab"/></marker><marker id="ah-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d97757"/></marker><marker id="ah-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3a8a5c"/></marker><marker id="ah-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b8483e"/></marker><marker id="ah-faint" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b9bcc2"/></marker>
+<style>
+  text { font-family: 'PingFang SC','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif; fill: #1f2328; }
+  .t { font-size: 15px; }
+  .s { font-size: 13px; fill: #6b6f76; }
+  .xs { font-size: 11.5px; fill: #6b6f76; }
+  .b { font-weight: 600; }
+  .m { font-family: 'Times New Roman','Noto Serif',Georgia,serif; font-style: italic; font-size: 16px; }
+  .ms { font-family: 'Times New Roman','Noto Serif',Georgia,serif; font-style: italic; font-size: 14px; }
+  .h { font-size: 15px; font-weight: 600; }
+</style></defs>
+<rect x="0.5" y="0.5" width="759" height="329" rx="14" fill="#fbfaf7" stroke="#e4e0d8"/>
+<text x="380.0" y="30.0" class="h" text-anchor="middle" >Bellman 期望方程的备份图</text>
+<text x="380" y="66" class="m" text-anchor="middle">V<tspan dy="4" font-size="70%">π</tspan><tspan dy="-4">(s) = </tspan><tspan style="fill:#d97757">Σ<tspan dy="4" font-size="70%">a</tspan><tspan dy="-4"> π(a|s) </tspan></tspan><tspan style="fill:#3a8a5c">Σ<tspan dy="4" font-size="70%">s′</tspan><tspan dy="-4"> P(s′|s,a) [ R(s,a) </tspan></tspan><tspan style="fill:#2f6fab">+ γ V<tspan dy="4" font-size="70%">π</tspan><tspan dy="-4">(s′)</tspan></tspan> ]</text>
+<circle cx="280.0" cy="110.0" r="18" fill="#dbe7f3" stroke="#2f6fab" stroke-width="2"/>
+<text x="280.0" y="116.0" class="m" text-anchor="middle" >s</text>
+<line x1="280.0" y1="128.0" x2="160.0" y2="187.0" stroke="#1f2328" stroke-width="1.4"/>
+<circle cx="160.0" cy="195.0" r="8" fill="#1f2328" stroke="#1f2328" stroke-width="1.6"/>
+<line x1="160.0" y1="203.0" x2="126.0" y2="274.0" stroke="#1f2328" stroke-width="1.4"/>
+<circle cx="126.0" cy="290.0" r="16" fill="#dbe7f3" stroke="#2f6fab" stroke-width="1.6"/>
+<text x="126.0" y="295.0" class="ms" text-anchor="middle" >s′</text>
+<line x1="160.0" y1="203.0" x2="194.0" y2="274.0" stroke="#1f2328" stroke-width="1.4"/>
+<circle cx="194.0" cy="290.0" r="16" fill="#dbe7f3" stroke="#2f6fab" stroke-width="1.6"/>
+<text x="194.0" y="295.0" class="ms" text-anchor="middle" >s′</text>
+<line x1="280.0" y1="128.0" x2="280.0" y2="187.0" stroke="#1f2328" stroke-width="1.4"/>
+<circle cx="280.0" cy="195.0" r="8" fill="#1f2328" stroke="#1f2328" stroke-width="1.6"/>
+<line x1="280.0" y1="203.0" x2="246.0" y2="274.0" stroke="#1f2328" stroke-width="1.4"/>
+<circle cx="246.0" cy="290.0" r="16" fill="#dbe7f3" stroke="#2f6fab" stroke-width="1.6"/>
+<text x="246.0" y="295.0" class="ms" text-anchor="middle" >s′</text>
+<line x1="280.0" y1="203.0" x2="314.0" y2="274.0" stroke="#1f2328" stroke-width="1.4"/>
+<circle cx="314.0" cy="290.0" r="16" fill="#dbe7f3" stroke="#2f6fab" stroke-width="1.6"/>
+<text x="314.0" y="295.0" class="ms" text-anchor="middle" >s′</text>
+<line x1="280.0" y1="128.0" x2="400.0" y2="187.0" stroke="#1f2328" stroke-width="1.4"/>
+<circle cx="400.0" cy="195.0" r="8" fill="#1f2328" stroke="#1f2328" stroke-width="1.6"/>
+<line x1="400.0" y1="203.0" x2="366.0" y2="274.0" stroke="#1f2328" stroke-width="1.4"/>
+<circle cx="366.0" cy="290.0" r="16" fill="#dbe7f3" stroke="#2f6fab" stroke-width="1.6"/>
+<text x="366.0" y="295.0" class="ms" text-anchor="middle" >s′</text>
+<line x1="400.0" y1="203.0" x2="434.0" y2="274.0" stroke="#1f2328" stroke-width="1.4"/>
+<circle cx="434.0" cy="290.0" r="16" fill="#dbe7f3" stroke="#2f6fab" stroke-width="1.6"/>
+<text x="434.0" y="295.0" class="ms" text-anchor="middle" >s′</text>
+<line x1="465.0" y1="105.0" x2="487.0" y2="105.0" stroke="#2f6fab" stroke-width="1.2" stroke-dasharray="2 3"/>
+<text x="495.0" y="110.0" class="s" text-anchor="start" style="fill:#2f6fab" >根：要求的 V</text>
+<line x1="465.0" y1="147.0" x2="487.0" y2="147.0" stroke="#d97757" stroke-width="1.2" stroke-dasharray="2 3"/>
+<text x="495.0" y="152.0" class="s" text-anchor="start" style="fill:#d97757" >① 策略选动作，权重 π(a|s)</text>
+<line x1="465.0" y1="235.0" x2="487.0" y2="235.0" stroke="#3a8a5c" stroke-width="1.2" stroke-dasharray="2 3"/>
+<text x="495.0" y="240.0" class="s" text-anchor="start" style="fill:#3a8a5c" >② 环境掷骰子，权重 P(s′|s,a)，得 R</text>
+<line x1="465.0" y1="290.0" x2="487.0" y2="290.0" stroke="#2f6fab" stroke-width="1.2" stroke-dasharray="2 3"/>
+<text x="495.0" y="295.0" class="s" text-anchor="start" style="fill:#2f6fab" >③ 叶子：R + γ · 下一状态的价值</text>
+<path d="M100,300 C40,250 70,130 258,112" fill="none" stroke="#6b6f76" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#ah-muted)"/>
+<text x="40.0" y="205.0" class="xs" text-anchor="middle" >加权求和</text>
+<text x="40.0" y="221.0" class="xs" text-anchor="middle" >回根节点</text>
+</svg>
