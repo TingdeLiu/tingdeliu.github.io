@@ -177,7 +177,6 @@ SuperNav's InteriorGS (Single-Object) and InteriorGS (Ordered Multi-Object) are 
 
 # Goal-navigation readings
 {: id="goal-navigation-readings"}
-{: id="goal-navigation-readings"}
 
 ## 1. VLFM (2023)
 {: id="vlfm"}
@@ -3591,10 +3590,8 @@ Figure 4: Exploration policy ablation experiment: the importance of target-free 
 
 # References
 {: id="navigation-references"}
-{: id="navigation-references"}
 
 ## Paper citations
-{: id="paper-citations"}
 {: id="paper-citations"}
 
 1. **VLFM** (2023). Vision-Language Frontier Maps for Zero-Shot Semantic Navigation. arXiv: [2312.03275](https://arxiv.org/abs/2312.03275) · ICRA 2024 · Code: [rai-opensource/vlfm](https://github.com/rai-opensource/vlfm)
@@ -3625,7 +3622,6 @@ Figure 4: Exploration policy ablation experiment: the importance of target-free 
 26. **X-NavDP** (2026). Intra-group Q-value weighted Diffusion RL reinforcement learning fine-tuning framework for universal visual navigation of multi-configuration robots. arXiv: [2607.28560](https://arxiv.org/abs/2607.28560) · CoRL 2026 · Code: [InternRobotics/NavDP](https://github.com/InternRobotics/NavDP)
 
 # Moved Agent readings
-{: id="moved-agent-readings"}
 {: id="moved-agent-readings"}
 
 <div id="panonav"><a href="/en/Agentic-Navigation-Papers/#panonav">PanoNav (2025)</a></div>
@@ -3659,6 +3655,7 @@ Figure 4: Exploration policy ablation experiment: the importance of target-free 
     { m: "NoMaD", t: ['End-to-end', 'Diffusion models', 'Zero-shot', 'Real-robot deployment'] },
     { m: "VL-Nav", t: ['End-to-end', 'Zero-shot', 'Real-robot deployment'] },
     { m: "GaussNav", t: ['SLAM', 'Gaussian representations'] },
+    { m: "X-NavDP", t: ['Diffusion models', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment'] },
     { m: "NavDP", t: ['End-to-end', 'Diffusion models', 'Continuous environments', 'Zero-shot', 'Real-robot deployment'] },
     { m: "NavWAM", t: ['World models', 'Diffusion models', 'Continuous environments', 'Real-robot deployment'] },
     { m: "CanonNav", t: ['Diffusion models', 'Continuous environments', 'Real-robot deployment'] },
@@ -3680,7 +3677,6 @@ Figure 4: Exploration policy ablation experiment: the importance of target-free 
     { m: "OccPlanner", t: ['Diffusion models', 'End-to-end', 'Data augmentation', 'Continuous environments'] },
     { m: "EgoPathBench", t: ['Datasets', 'Zero-shot', 'CoT', 'Continuous environments'] },
     { m: "VLingNav", t: ['Dual systems', 'Continuous environments', 'CoT'] },
-    { m: "X-NavDP", t: ['Diffusion models', 'Reinforcement learning', 'Continuous environments', 'Real-robot deployment'] },
   ];
 
 

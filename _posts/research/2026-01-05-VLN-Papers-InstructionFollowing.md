@@ -7278,10 +7278,10 @@ $$P_{\text{model}} = 1 - \beta_t = \alpha^{t/T}$$
 <script>
 (function () {
   var TAG_MAP = [
+    { m: "R2RIE-CE & IEDL", t: ['连续环境', '数据集'] },
     { m: "R2R", t: ['离散环境', '数据集'] },
     { m: "VLN-CE", t: ['数据集', '连续环境', '基础工作'] },
     { m: "DUET", t: ['拓扑图', '端到端', '离散环境'] },
-    { m: "R2RIE-CE & IEDL", t: ['连续环境', '数据集'] },
     { m: "NaVid", t: ['端到端', '连续环境', '实机部署', '零样本'] },
     { m: "NavGPT-2", t: ['Agentic', '拓扑图', '离散环境', 'CoT'] },
     { m: "DualVLN/InternVLN", t: ['双系统', '扩散模型', '连续环境', '实机部署'] },

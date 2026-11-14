@@ -7665,10 +7665,10 @@ The following table organizes papers with publication information tagged by conf
 <script>
 (function () {
   var TAG_MAP = [
+    { m: "R2RIE-CE & IEDL", t: ['Continuous environments', 'Datasets'] },
     { m: "R2R", t: ['Discrete environments', 'Datasets'] },
     { m: "VLN-CE", t: ['Datasets', 'Continuous environments', 'Foundational work'] },
     { m: "DUET", t: ['Topological maps', 'End-to-end', 'Discrete environments'] },
-    { m: "R2RIE-CE & IEDL", t: ['Continuous environments', 'Datasets'] },
     { m: "NaVid", t: ['End-to-end', 'Continuous environments', 'Real-robot deployment', 'Zero-shot'] },
     { m: "NavGPT-2", t: ['Agentic', 'Topological maps', 'Discrete environments', 'CoT'] },
     { m: "DualVLN/InternVLN", t: ['Dual systems', 'Diffusion models', 'Continuous environments', 'Real-robot deployment'] },
