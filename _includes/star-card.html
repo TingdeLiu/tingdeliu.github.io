@@ -1,7 +1,12 @@
-<aside class="star-card" aria-label="{% if page_lang == 'en' %}Star this site{% else %}收藏本站{% endif %}">
+<aside class="star-card" aria-label="{% if page_lang == 'en' %}Support these research notes{% else %}支持研究笔记{% endif %}">
   <div class="star-card-copy">
-    <p class="star-card-title">{% if page_lang == 'en' %}Enjoyed this article?{% else %}喜欢这篇文章？{% endif %}</p>
-    <p class="star-card-text">{% if page_lang == 'en' %}Star the site on GitHub to follow new readings and weekly digests.{% else %}在 GitHub 上 Star 本站，第一时间看到新的论文精读和周报。{% endif %}</p>
+    <p class="star-card-title">{% if page_lang == 'en' %}Found these notes helpful?{% else %}这些笔记对你有帮助吗？{% endif %}</p>
+    {% if site.sponsors_url %}
+    <p class="star-card-text">{% if page_lang == 'en' %}You can support paper readings, weekly digests, and site maintenance through GitHub Sponsors.{% else %}欢迎通过 GitHub Sponsors 支持论文整理、周报更新与网站维护。{% endif %}</p>
+    {% include sponsor-link.html article=true %}
+    {% else %}
+    <p class="star-card-text">{% if page_lang == 'en' %}Star the site on GitHub to follow new readings and weekly digests.{% else %}在 GitHub 上 Star 本站，关注新的论文精读和周报。{% endif %}</p>
+    {% endif %}
   </div>
   {% include gift-star.html variant='card' %}
 </aside>

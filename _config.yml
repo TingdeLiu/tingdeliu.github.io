@@ -64,6 +64,9 @@ paginate: 10 #8
 excerpt_separator: <!-- more -->
 
 # Includes an icon in the footer for each username you enter（配置各种社交链接，请见_includes\svg-icons.html）
+# GitHub Sponsors profile; leave empty to hide sponsorship links site-wide.
+sponsors_url: https://github.com/sponsors/TingdeLiu
+
 footer-links:
   home: https://tingdeliu.github.io/
   email: tingde.liu.luh@gmail.com
