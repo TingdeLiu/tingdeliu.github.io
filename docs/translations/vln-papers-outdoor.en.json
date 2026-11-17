@@ -1,7 +1,7 @@
 {
   "source": "_posts/research/2026-01-06-VLN-Papers-Outdoor.md",
   "translation": "_translations/en/research/VLN-Papers-Outdoor.md",
-  "reviewed_on": "2026-11-12",
+  "reviewed_on": "2026-11-17",
   "source_revision_date": "2026-11-12",
   "sections": {
     "metadata": "40de1408dcc3adb3d8af6bb58cbfbc9eae26295b17f4050b89b8fb66977e41b1",
@@ -53,8 +53,8 @@
     "paper:compass-1 / 8. Compass 1 (2026)": "6739871f424e2a3fb5a8070f4c6902c9c6043900f83d3d6f0e1bf964bb041d1c",
     "paper:compass-1 / 精华": "3d0c44e0f87f151d88c163f45824a0094c694540f81f0e67b528ee7463b40cfa",
     "paper:compass-1 / 1. 研究背景/问题": "9a423ac90b0583b6711d88fb8a81d70637a962c057385ad7b930d08ac5cb7267",
-    "paper:compass-1 / 2. 主要方法/创新点": "e1b0c1e2a3ff6e3e7bf0151f5f2eff5ad570268346f4f125de0bbd45ca066efc",
-    "paper:compass-1 / 3. 核心结果/发现": "bdd1e6b7c7ac8c8f0ca4331e4aa9c857b3214617ab4ebff151cba4babc4ddf90",
+    "paper:compass-1 / 2. 主要方法/创新点": "4aeeca8b1afdc410ba69935fe5ffcd1763255158be364dc5729e59b97d626c1d",
+    "paper:compass-1 / 3. 核心结果/发现": "b61ef8bf6b2f0ea19d55f1ef510340651345248d1e09815f4f79c231ee1c3359",
     "paper:compass-1 / 4. 局限性": "761a40f48ca79346904dfa8447ef2375e48c25572664c4073e436c95076ed724",
     "相关工作与跨篇阅读": "7e109f64b61f5ef32a2dce08c71de6680c2a354e77512510fb0281687e8eb472",
     "参考资料": "9b02b96398a0ecec9519f4402648095347400e58028bcf57f57e2194eee8f5e6",

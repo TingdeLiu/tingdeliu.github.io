@@ -904,7 +904,7 @@ VQA 项训练结构化记忆推理，视频项训练未来视觉预测，动作�
 **⑥ 数据流水线：先确定怎么动，再描述看到了什么。**
 
 <div align="center">
-  <img src="/images/vln/Compass-1-data-pipeline.webp" width="100%" />
+  <img src="/images/vln/Compass-1-data-pipeline.webp" width="100%" style="max-width: 100%; max-height: none;" />
 <figcaption>图 4：从单目视频到导航监督的半自动流程。依次恢复运动、用动作约束语言标注、选择关键帧、细化阶段边界、人工检查，再通过目标实例锚定生成一致的目标框。</figcaption>
 </div>
 
@@ -927,7 +927,7 @@ VQA 项训练结构化记忆推理，视频项训练未来视觉预测，动作�
 **户外分项口径。** 图 7 给出的 Complex、Terrace、Street 场景 SR 分别约为 **79%、81%、74%**，每个场景各有 80 次测试，数值沿用图中取整显示；办公室约为 84%。总 SR 79.4% 混合了室内与户外结果，不能称作“户外成功率 79.4%”，街道动态扰动下的表现也不等于已验证城市级交通安全或无人干预的公里级导航。
 
 <div align="center">
-  <img src="/images/vln/Compass-1-results.webp" width="100%" />
+  <img src="/images/vln/Compass-1-results.webp" width="100%" style="max-width: 100%; max-height: none;" />
 <figcaption>图 7：真实世界任务、场景、跨机器人与消融结果。总体结果对比各个基线，分任务的“最强基线”则可来自不同方法；主要差距集中在多阶段执行与长历史回溯。</figcaption>
 </div>
 

@@ -6,7 +6,7 @@ permalink: /en/VLN-Papers-Outdoor/
 source_path: _posts/research/2026-01-06-VLN-Papers-Outdoor.md
 source_url: /VLN-Papers-Outdoor/
 source_revision_date: 2026-11-12
-translation_updated: 2026-11-12
+translation_updated: 2026-11-17
 title: "VLN Papers: Outdoor Navigation"
 date: 2026-11-12
 translation_scope: complete
@@ -899,7 +899,7 @@ Keyframe KV caching and CUDA Graph diffusion denoising reduce overhead. The asyn
 **⑥ Data pipeline: establish motion before describing observations.**
 
 <div align="center">
-  <img src="/images/vln/Compass-1-data-pipeline.webp" width="100%" alt="Compass 1 semi-automated data pipeline" />
+  <img src="/images/vln/Compass-1-data-pipeline.webp" width="100%" style="max-width: 100%; max-height: none;" alt="Compass 1 semi-automated data pipeline" />
 <figcaption>Figure 4: Recover motion, constrain language with actions, select keyframes, refine stage boundaries, perform human checks, and anchor target instances for consistent boxes.</figcaption>
 </div>
 
@@ -922,7 +922,7 @@ Baselines are fine-tuned on the paper's data, and the higher score between origi
 **Outdoor breakdown.** Figure 7 gives approximately **79%, 81%, and 74%** for Complex, Terrace, and Street, respectively, each over 80 trials and rounded as shown; Office is about 84%. Overall SR 79.4% mixes indoor and outdoor scenarios and must not be called “outdoor SR 79.4%.” Performance under street disturbances also does not establish city-scale traffic safety or intervention-free kilometer routes.
 
 <div align="center">
-  <img src="/images/vln/Compass-1-results.webp" width="100%" alt="Compass 1 real-world results and ablations" />
+  <img src="/images/vln/Compass-1-results.webp" width="100%" style="max-width: 100%; max-height: none;" alt="Compass 1 real-world results and ablations" />
 <figcaption>Figure 7: Real-world tasks, scenarios, embodiment transfer, and ablations. Overall scores compare individual baselines, whereas the strongest baseline per task can differ. The largest gaps concern multistage execution and long-history backtracking.</figcaption>
 </div>
 
