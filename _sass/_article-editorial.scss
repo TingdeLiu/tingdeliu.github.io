@@ -250,8 +250,10 @@
   .site-footer-heading { margin: 0 0 6px; color: var(--muted); font: 11px $code-font; letter-spacing: .08em; text-transform: uppercase; }
   .site-footer-col a { margin: 0; color: var(--ink); font-size: 14px; text-align: left; text-decoration: none; }
   .site-footer-col a:hover { color: var(--accent); }
-  .site-footer-meta { grid-column: 1 / -1; display: flex; align-items: center; gap: 24px; padding-top: 24px; border-top: 1px solid var(--rule); color: var(--muted); font: 12px $code-font; }
+  .site-footer-meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; padding-top: 24px; border-top: 1px solid var(--rule); color: var(--muted); font: 12px $code-font; }
   .site-stats { margin: 0; justify-content: flex-start; color: var(--muted); font: inherit; }
+  .site-footer-meta .sponsor-link { color: var(--muted); text-decoration: none; }
+  .site-footer-meta .sponsor-link:hover { color: var(--accent); }
   .site-footer-field { grid-column: 1 / -1; position: relative; height: 150px; margin-bottom: -56px; }
   .site-footer-field canvas { display: block; width: 100%; height: 100%; color: var(--muted); }
   .site-footer-walker { position: absolute; bottom: 14px; left: 0; width: 40px; height: 40px; color: var(--ink); animation: footer-walk 36s linear infinite; }
