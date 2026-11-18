@@ -78,8 +78,6 @@ This review systematically summarizes the core technologies of large model train
 
 This article is divided into 14 main chapters. It is recommended to read selectively according to your needs:
 
-|Chapter|content|suitable for readers|reading time|
-|------|------|---------|---------|
 |Chapter|Content|Suitable for|Reading time|
 |------|------|---------|---------|
 |**1. Overview**|What LLM training is and how it evolved|All readers|10 minutes|
@@ -235,7 +233,7 @@ Optimize model behavior through human feedback or AI feedback to make it more co
 
 |stage|pretraining|supervised fine-tuning|preference alignment|
 |------|--------|----------|----------|
-|**target**|Learn language basics|Church instructions to follow|consistent with human preferences|
+|**target**|Learn language basics|Teach instruction following|consistent with human preferences|
 |**data type**|Unlabeled text|Instructions-answers|Preference comparison data|
 |**data size**|Trillions of tokens|Tens of thousands to hundreds of thousands of samples|Tens of thousands - hundreds of thousands comparison|
 |**Training duration**|weeks to months|hours - days|hours - days|
@@ -951,7 +949,7 @@ V3 uses $D=1$ and sets $\lambda$ to 0.3 for the first 10T tokens and 0.1 afterwa
 ### 2.6.4 Efficient attention: sparse and hybrid architectures
 {: id="264-高效注意力稀疏与混合架构"}
 
-Full-attention compute grows quadratically with sequence length $L$, and the KV cache grows linearly. Once context reaches 128K or even 1M tokens, attention dominates both training and inference cost. In 2025, two approaches made it into large production models:
+Full-attention compute grows quadratically with sequence length $L$, and the KV cache grows linearly with $L$. Once context reaches 128K or even 1M tokens, attention dominates both training and inference cost. In 2025, two approaches made it into large production models:
 
 **1. Trainable sparse attention**: each query attends to only a small subset of keys.
 
