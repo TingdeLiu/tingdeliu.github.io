@@ -131,6 +131,7 @@ Training aims to give the model:
 LLM training has moved from small-scale experiments to industrial production. The timeline below lists representative work by year; the subsections that follow summarize each stage:
 
 ```mermaid
+%%{init: { 'theme': 'base', 'themeVariables': { 'fontSize': '15px', 'cScale0': '#dbeafe', 'cScale1': '#fef3c7', 'cScale2': '#dcfce7', 'cScale3': '#fce7f3', 'cScale4': '#ede9fe', 'cScaleLabel0': '#1f2937', 'cScaleLabel1': '#1f2937', 'cScaleLabel2': '#1f2937', 'cScaleLabel3': '#1f2937', 'cScaleLabel4': '#1f2937' } } }%%
 timeline
     title Evolution of LLM training
     section Early exploration
