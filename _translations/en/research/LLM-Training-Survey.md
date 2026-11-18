@@ -32,10 +32,10 @@ Large language models (LLMs) mark a new stage in artificial intelligence. BERT a
 {: id="为什么关注大模型训练"}
 
 Training is the source of large model capabilities. Building a high-performance large model requires:
-- 📊 **Massive high-quality data**: Careful preparation of trillions of tokens
-- 💰 **Large-scale computing resource**: Thousands of GPUs train in parallel for several months
-- 🧠 **Carefully designed training strategies**: Complete pipeline from pretraining to alignment
-- ⚙️ **engineering implementation**: distributed training, memory optimization, stability guarantee
+- **Massive high-quality data**: Careful preparation of trillions of tokens
+- **Large-scale computing resource**: Thousands of GPUs train in parallel for several months
+- **Carefully designed training strategies**: Complete pipeline from pretraining to alignment
+- **engineering implementation**: distributed training, memory optimization, stability guarantee
 
 However, the knowledge and technology of large model training are often scattered in various papers, blogs and code repositories, lacking systematic organization. **This article aims to fill this gap.**
 
@@ -44,30 +44,30 @@ However, the knowledge and technology of large model training are often scattere
 
 This review systematically summarizes the core technologies of large model training, including:
 
-1. 🏗️ **Overview of LLM training**: core concepts, how the field evolved, and the main components
-2. 🌀 **Pretraining**: objectives, data sources and mixing, key hyperparameters, MoE, multi-token prediction, sparse/hybrid attention, and mid-training
-3. 🎯 **Supervised fine-tuning**: SFT objectives, data sources, and recent synthesis and quality-filtering techniques
-4. 🤝 **Preference alignment**: RLHF, DPO, and GRPO, the training paradigm of reasoning models, and on-policy distillation
-5. 🔁 **Post-training and catastrophic forgetting**: why models forget during continual learning and how to mitigate it
-6. 🔀 **Distributed training**: data, tensor, and pipeline parallelism, sequence parallelism, and ZeRO sharding
-7. ⚡ **Training optimization**: AdamW, Muon, and other optimizers, learning-rate schedules, and Flash Attention
-8. 📉 **Quantization**: PTQ and QLoRA low-bit fine-tuning, and accuracy/performance trade-offs across formats
-9. 🗂️ **Data engineering**: best practices for collection, cleaning, deduplication, and mixing
-10. 📈 **Evaluation and benchmarks**: knowledge, reasoning, code, long-context, safety, and agent evaluation
-11. 🚀 **Practical guide**: compute estimation, training monitoring, OOM debugging, and checkpoint recovery
-12. 💬 **FAQ**: common training problems and fine-tuning and alignment practice
-13. 👁️ **Toward multimodal models and agents**: VLM architecture, two-stage training, agent tool use, and agentic RL
-14. 📚 **References**: key papers, core open-source projects, and a learning path
+1. **Overview of LLM training**: core concepts, how the field evolved, and the main components
+2. **Pretraining**: objectives, data sources and mixing, key hyperparameters, MoE, multi-token prediction, sparse/hybrid attention, and mid-training
+3. **Supervised fine-tuning**: SFT objectives, data sources, and recent synthesis and quality-filtering techniques
+4. **Preference alignment**: RLHF, DPO, and GRPO, the training paradigm of reasoning models, and on-policy distillation
+5. **Post-training and catastrophic forgetting**: why models forget during continual learning and how to mitigate it
+6. **Distributed training**: data, tensor, and pipeline parallelism, sequence parallelism, and ZeRO sharding
+7. **Training optimization**: AdamW, Muon, and other optimizers, learning-rate schedules, and Flash Attention
+8. **Quantization**: PTQ and QLoRA low-bit fine-tuning, and accuracy/performance trade-offs across formats
+9. **Data engineering**: best practices for collection, cleaning, deduplication, and mixing
+10. **Evaluation and benchmarks**: knowledge, reasoning, code, long-context, safety, and agent evaluation
+11. **Practical guide**: compute estimation, training monitoring, OOM debugging, and checkpoint recovery
+12. **FAQ**: common training problems and fine-tuning and alignment practice
+13. **Toward multimodal models and agents**: VLM architecture, two-stage training, agent tool use, and agentic RL
+14. **References**: key papers, core open-source projects, and a learning path
 
 ## Intended readers
 {: id="目标读者"}
 
-- 🔬 **researcher**: Understand the complete technology stack of large model training
-- 👨‍💻 **Engineer**: Master engineering practice and optimization skills in actual training
-- 🎓 **student**: Establish a systematic understanding of large model training
-- 💼 **Practitioner**: Track the latest technological progress and industry trends
+- **researcher**: Understand the complete technology stack of large model training
+- **Engineer**: Master engineering practice and optimization skills in actual training
+- **student**: Establish a systematic understanding of large model training
+- **Practitioner**: Track the latest technological progress and industry trends
 
-> **💡 Read instructions**
+> **Read instructions**
 >
 > This article strives to strike a balance between theoretical depth and practical guidance. It not only explains the core principles, but also provides code examples and engineering solutions. The code mainly explains the principles, and some are schematic codes that omit details such as data loading. The cost, GPU memory, accuracy and other figures in the article are mostly magnitude estimates and are affected by the model version, hardware and evaluation protocol. When reproducing, please refer to the original paper or official documents.
 
@@ -95,7 +95,7 @@ This article is divided into 14 main chapters. It is recommended to read selecti
 |**13. VLMs and agents**|Vision-language model architecture, two-stage training, and agent tool-use training|Engineers, researchers|20 minutes|
 |**14. References**|Key papers, flagship open-source projects, and a learning path|All readers|15 minutes|
 
-> **💡 Reading suggestions**
+> **Reading suggestions**
 >
 > - **Beginners**: Focus on reading "1. Basic Overview" → "2. pretraining / 3. SFT / 4. Alignment Stage" → "12. Frequently Asked Questions"
 > - **Engineer**: Focus on reading "11. Practical Guide" → "6. Distributed Training" → "5. Post-Training and Forgetting"
@@ -113,12 +113,12 @@ This article is divided into 14 main chapters. It is recommended to read selecti
 Large model training refers to the process of using massive text data to train neural network models with billions or even trillions of parameters through deep learning algorithms. These models are usually based on the Transformer architecture and can learn the statistical laws and semantic understanding of language.
 
 The goal of training a large model is to allow the model to obtain:
-- 🧠 **Language understanding ability**: Understand the syntax, semantics and context of natural language
-- 📚 **Knowledge Reserve**: Learn world knowledge from training data
-- 🔍 **Reasoning ability**: logical reasoning and problem solving based on existing information
-- ✅ **instructions follow**: accurately understand and execute various instructions from users
+- **Language understanding ability**: Understand the syntax, semantics and context of natural language
+- **Knowledge Reserve**: Learn world knowledge from training data
+- **Reasoning ability**: logical reasoning and problem solving based on existing information
+- **instructions follow**: accurately understand and execute various instructions from users
 
-> **📌 Core concept**
+> **Core concept**
 >
 > - **Scale**: The number of parameters ranges from 1 billion to trillions
 > - **data**: training data usually reaches trillions of tokens
@@ -195,10 +195,10 @@ The differences in data, computing power and hyperparameters between the three s
 Learn the statistical laws, grammatical structures and world knowledge of language from massive unlabeled texts, and train the **Base Model (base model)**.
 
 **core features**:
-- 📊 **has the largest data scale**: trillions of tokens (such as LLaMA-3 using 15T tokens)
-- ⏰ **has the longest training time**: training on thousands of GPUs for weeks to months
-- 💰 **has the highest cost and**: accounting for 80-90% of the total training cost
-- 🎯 **target**: Next Token Prediction (predict the next word)
+- **has the largest data scale**: trillions of tokens (such as LLaMA-3 using 15T tokens)
+- **has the longest training time**: training on thousands of GPUs for weeks to months
+- **has the highest cost and**: accounting for 80-90% of the total training cost
+- **target**: Next Token Prediction (predict the next word)
 
 **Output ability**: Able to continue text writing, but not good at question and answer and instruction following.
 
@@ -208,10 +208,10 @@ Learn the statistical laws, grammatical structures and world knowledge of langua
 Use high-quality instruction-answer pair training to convert the Base Model into a **SFT Model (instruction model)** that can understand instructions.
 
 **core features**:
-- 📊 **small data size**: 10k-100k high-quality samples
-- ⏰ **training time is short**: hours to days
-- 💰 **has lower cost than**: accounting for 5-10% of the total cost
-- 🎯 **target**: Instruction Following
+- **small data size**: 10k-100k high-quality samples
+- **training time is short**: hours to days
+- **has lower cost than**: accounting for 5-10% of the total cost
+- **target**: Instruction Following
 
 **Output capability**: Able to understand and execute user instructions and conduct multiple rounds of dialogue.
 
@@ -221,10 +221,10 @@ Use high-quality instruction-answer pair training to convert the Base Model into
 Optimize model behavior through human feedback or AI feedback to make it more consistent with human expectations and values, and train the **Aligned Model**.
 
 **core features**:
-- 📊 **data scale**: tens of thousands of pairs of preference comparison data
-- ⏰ **training time**: hours to days (large-scale RL for inference models can reach weeks)
-- 💰 **cost**: 5-10% of the total cost
-- 🎯 **method**: RLHF, DPO, RLAIF, GRPO, etc.
+- **data scale**: tens of thousands of pairs of preference comparison data
+- **training time**: hours to days (large-scale RL for inference models can reach weeks)
+- **cost**: 5-10% of the total cost
+- **method**: RLHF, DPO, RLAIF, GRPO, etc.
 
 **output capability**: output is more helpful, safer, and more in line with human values.
 
@@ -299,7 +299,7 @@ A complete large model training system contains the following core elements:
 ## 1.5 Main challenges
 {: id="15-主要挑战"}
 
-> **⚠️ Challenge Overview**
+> **Challenge Overview**
 >
 > Large model training is a very challenging system project that requires a balance among multiple dimensions such as computing resources, data quality, training stability, and model alignment. Successfully training a high-performance large model requires not only technical strength, but also the accumulation of engineering experience.
 
@@ -364,7 +364,7 @@ Unknowns brought about by the expansion of model scale:
 
 Pretraining is the cornerstone of large model training, with the goal of allowing the model to learn the statistical laws of language and world knowledge from massive unlabeled texts.
 
-> **🎯 Introduction to this chapter**
+> **Introduction to this chapter**
 >
 > pretraining is part of the entire training process **The highest cost, the longest time, and the greatest technical difficulty** stage, accounting for 80-90% of the total cost. This chapter will introduce the objective function, data processing, training techniques and cutting-edge technologies of pretraining in detail to help readers understand how to train a base model from scratch.
 
@@ -422,13 +422,13 @@ If you use characters or words directly, you will face the problem that the voca
 ### 2.2.2 Vocabulary size
 {: id="222-词表大小"}
 * **Large word list (such as 100k+)**:
-    * ✅ Advantages: A single Token carries a lot of information, the sequence is shorter, and reasoning is faster.
-    * ❌ Disadvantages: The parameters of the Embedding layer are huge, and sparse words are difficult to fully train.
+    * Advantages: A single Token carries a lot of information, the sequence is shorter, and reasoning is faster.
+    * Disadvantages: The parameters of the Embedding layer are huge, and sparse words are difficult to fully train.
 * **small word list (such as 32k)**:
-    * ✅ Advantages: The Embedding layer is small, the parameter utilization rate is high, and it is suitable for small models.
-    * ❌ Disadvantages: The same sentence generates more Tokens, which increases computational overhead.
+    * Advantages: The Embedding layer is small, the parameter utilization rate is high, and it is suitable for small models.
+    * Disadvantages: The same sentence generates more Tokens, which increases computational overhead.
 
-> **💡 MiniMind experience**: For small models with parameters below 500M, the vocabulary should not be too large (MiniMind only uses a BPE vocabulary of 6,400, a common compromise is 32k), otherwise the Embedding layer will eat up most of the parameters, and the vectors of rare tokens will not be fully updated.
+> **MiniMind experience**: For small models with parameters below 500M, the vocabulary should not be too large (MiniMind only uses a BPE vocabulary of 6,400, a common compromise is 32k), otherwise the Embedding layer will eat up most of the parameters, and the vectors of rare tokens will not be fully updated.
 
 ### 2.2.3 Training a tokenizer
 {: id="223-分词器训练实战"}
@@ -492,9 +492,9 @@ Where $\theta$ is the model parameter.
 - **PaLM, Gemini**: Google's large model
 
 **Advantages**:
-- ✅ Strong generative ability, good at continuation and dialogue
-- ✅ Simple architecture and easy to expand to very large scale
-- ✅ High training efficiency
+- Strong generative ability, good at continuation and dialogue
+- Simple architecture and easy to expand to very large scale
+- High training efficiency
 
 **training cycle diagram**:
 ```python
@@ -544,12 +544,12 @@ Here, $\mathcal{M}$ is the set of masked positions, and $$\mathbf{x}_{\backslash
 - **DeBERTa**: Disentangled Attention
 
 **Advantages**:
-- ✅ Two-way context understanding (can see left and right information at the same time)
-- ✅ Suitable for comprehension tasks (classification, information extraction)
+- Two-way context understanding (can see left and right information at the same time)
+- Suitable for comprehension tasks (classification, information extraction)
 
 **Disadvantages of**:
-- ❌ The gap between pretraining and fine-tuning (pretraining has [MASK], fine-tuning does not)
-- ❌ Weak generation ability
+- The gap between pretraining and fine-tuning (pretraining has [MASK], fine-tuning does not)
+- Weak generation ability
 
 ### 2.3.3 Mixed goals and other variations
 {: id="233-混合目标与其他变体"}
@@ -829,7 +829,7 @@ The accumulation error of matrix multiplication (GEMM) will amplify as the accum
 
 The DeepSeek-V3 report shows that compared with the BF16 baseline, the relative loss error of FP8 training is always less than 0.25%, while significantly reducing GPU memory usage and training compute. This is one of the key techniques that enables it to train a 671B parameter MoE model at a formal training cost of approximately $5.576 million (see Section 11.2.2 for a real-world example).
 
-> **⚠️ Engineering reminder**: FP8 training currently still relies on the hardware native support of the Hopper/Blackwell architecture (Ampere and earlier architectures cannot obtain acceleration benefits), and requires fine processing of dynamic updates of scaling factors at the framework level (such as Transformer Engine, DeepSeek self-developed training framework). Benefits cannot be obtained by simply modifying the `dtype` parameters.
+> **Engineering reminder**: FP8 training currently still relies on the hardware native support of the Hopper/Blackwell architecture (Ampere and earlier architectures cannot obtain acceleration benefits), and requires fine processing of dynamic updates of scaling factors at the framework level (such as Transformer Engine, DeepSeek self-developed training framework). Benefits cannot be obtained by simply modifying the `dtype` parameters.
 
 ---
 
@@ -988,7 +988,7 @@ Mid-training fits naturally with the WSD schedule (Section 2.6.2.1): the stable 
 
 The SFT stage transforms the pretraining model into an assistant that can understand and execute instructions.
 
-> **🎯 Introduction to this chapter**
+> **Introduction to this chapter**
 >
 > SFT is **activate** The key stage of model capability is to allow the Base Model to learn to follow instructions and interact with each other through a small amount of high-quality instruction-response data. This chapter introduces SFT’s data construction, training strategies and efficient fine-tuning techniques (such as LoRA, QLoRA), with special emphasis on **Data quality is far more important than quantity** core concept.
 
@@ -1113,9 +1113,9 @@ def sft_loss(model, batch):
 | **Phi-1** |About 180M tokens|Practice questions generated by GPT-3.5|First pretrain on about 7B tokens "textbook-level" data, and then fine-tune with small-scale high-quality practice questions|
 
 **Key insights**:
-- ✅ 10,000-100,000 high-quality samples are usually sufficient
-- ✅ Data quality is more important than quantity (Proof of Phi series)
-- ✅ Diversity and difficulty distribution are key
+- 10,000-100,000 high-quality samples are usually sufficient
+- Data quality is more important than quantity (Proof of Phi series)
+- Diversity and difficulty distribution are key
 
 ### 3.3.2 Data sources
 {: id="332-数据来源"}
@@ -1136,9 +1136,9 @@ def sft_loss(model, batch):
 - Total cost: much lower than pretraining (usually < 5% of total cost)
 
 **Advantages**:
-- ✅Highest quality and meets human expectations
-- ✅ Strong controllability and can cover specific areas
-- ✅ Suitable for safety critical applications
+- Highest quality and meets human expectations
+- Strong controllability and can cover specific areas
+- Suitable for safety critical applications
 
 **example annotation guide**:
 ```
@@ -1311,9 +1311,9 @@ def quality_check(instruction, response):
 **Method**: Update all parameters of the model
 
 **Features**:
-- ✅ **works best**: fully adapted to new tasks
-- ❌ **is the most expensive and**: needs to store the complete model and gradients
-- ❌ **GPU memory is in high demand**: usually requires 4-8 high-end GPUs
+- Pro · **Best results**: fully adapts to the new task
+- Con · **Highest cost**: stores the complete model and gradients
+- Con · **Large memory requirement**: usually needs 4-8 high-end GPUs
 
 **GPU memory requirement calculation** (consistent with the 16 bytes/parameter derivation in Section 6.5.1):
 ```
@@ -1396,10 +1396,10 @@ class LoRALinear(nn.Module):
 In the actual project, `LoraConfig` + `get_peft_model` of Hugging Face PEFT is directly used. It is responsible for replacing the target layer with the LoRA layer, saving and merging the adapter. See Section 8.4.1.4 for a complete example.
 
 **Advantages**:
-- ✅ **GPU memory occupies less**: only needs to train <1% parameters, no need to save gradients and optimizer states for frozen weights (the training GPU memory of GPT-3 175B in the LoRA paper is reduced from 1.2TB to 350GB)
-- ✅ **has low storage cost**: only need to save the adapter for each task (GPT-3 175B checkpoint reduced from 350GB to about 35MB)
-- ✅ **can be merged with**: After training, it can be merged back to the original model $W = W_0 + BA$
-- ✅ **Modular**: Multiple LoRAs can be trained for different tasks and switched as needed
+- **GPU memory occupies less**: only needs to train <1% parameters, no need to save gradients and optimizer states for frozen weights (the training GPU memory of GPT-3 175B in the LoRA paper is reduced from 1.2TB to 350GB)
+- **has low storage cost**: only need to save the adapter for each task (GPT-3 175B checkpoint reduced from 350GB to about 35MB)
+- **can be merged with**: After training, it can be merged back to the original model $W = W_0 + BA$
+- **Modular**: Multiple LoRAs can be trained for different tasks and switched as needed
 
 **hyperparameter selection**:
 - **rank r**: 8-64, the larger the better the effect but the more parameters
@@ -1409,7 +1409,7 @@ In the actual project, `LoraConfig` + `get_peft_model` of Hugging Face PEFT is d
 - **alpha**: Commonly used is alpha = r or 2r (such as r=16, alpha=32); the QLoRA paper uses r=64, alpha=16
 - **target module**: Early additions to attention projection (`q_proj`, `k_proj`, `v_proj`, `o_proj`); QLoRA paper and Thinking Machines' LoRA Without Regret (2025) found that **covers all linear layers (`gate_proj`, `up_proj`, `down_proj` including MLP) and the effect of** is significantly closer to full parameter fine-tuning
 
-> **⚠️ LoRA and catastrophic forgetting**
+> **LoRA and catastrophic forgetting**
 >
 > Many people think that LoRA can prevent forgetting, but research shows: **LoRA learns less and forgets less** - The reason why LoRA forgets less is because it learns less, and it does not really solve forgetting. The larger the Rank → the more you learn → the more you forget, and the difference with full-parameter fine-tuning is narrowed. See the "Post-Training and catastrophic forgetting" chapter of this article for details.
 
@@ -1501,10 +1501,10 @@ The principles and comparisons of quantization methods such as QLoRA, GPTQ, and 
 
 [Unsloth](https://unsloth.ai) is currently the most popular LoRA/QLoRA acceleration library. It achieves significant speed-up and GPU memory savings by rewriting the underlying CUDA kernel:
 
-- 🚀 **speed**: The training speed is increased by about **2×** (no accuracy loss)
-- 💾 **GPU memory**: VRAM usage reduced by about **70%**
-- 🔌 **Compatible with**: Fully compatible with Hugging Face PEFT/TRL, almost zero migration cost
-- 🤖 **supports model**: Llama, Qwen, Mistral, Gemma, Phi and other 500+ models
+- **speed**: The training speed is increased by about **2×** (no accuracy loss)
+- **GPU memory**: VRAM usage reduced by about **70%**
+- **Compatible with**: Fully compatible with Hugging Face PEFT/TRL, almost zero migration cost
+- **supports model**: Llama, Qwen, Mistral, Gemma, Phi and other 500+ models
 
 **Quickly get started with** (replace `get_peft_model` with the Unsloth version):
 
@@ -1534,7 +1534,7 @@ trainer = SFTTrainer(model=model, ...)
 trainer.train()
 ```
 
-> **💡 Applicable scenarios**: 7B–70B model LoRA/QLoRA fine-tuning on consumer GPU (RTX 3090/4090); GRPO reinforcement learning training (official data GPU memory savings of approximately **80%**). The above speed and GPU memory figures are from the Unsloth official, and the actual benefits vary with the model and sequence length.
+> **Applicable scenarios**: 7B–70B model LoRA/QLoRA fine-tuning on consumer GPU (RTX 3090/4090); GRPO reinforcement learning training (official data GPU memory savings of approximately **80%**). The above speed and GPU memory figures are from the Unsloth official, and the actual benefits vary with the model and sequence length.
 
 ---
 
@@ -1543,7 +1543,7 @@ trainer.train()
 
 The alignment phase aligns the model output with human preferences, values, and safety guidelines.
 
-> **🎯 Introduction to this chapter**
+> **Introduction to this chapter**
 >
 > Preference alignment is from "usable" to "easy to use" **critical leap** , through RLHF, DPO or latest **GRPO** and other technologies make model output more helpful, safer, and more consistent with human values. This chapter compares the principles, advantages and disadvantages of RLHF, DPO and GRPO in detail. **Recommendation: DPO is preferred for simple tasks, and GRPO is preferred for complex reasoning tasks and resource-constrained scenarios.**
 
@@ -1586,10 +1586,10 @@ The alignment phase aligns the model output with human preferences, values, and 
 
 ### 4.1.2 Challenges of RLHF
 {: id="412-rlhf-的挑战"}
-- ❌ **Reward Hacking**: The model may learn to exploit RM’s weaknesses instead of truly improving quality
-- ❌ **training is unstable**: RL training itself tends to diverge
-- ❌ **is computationally expensive.**: 4 large models need to be run at the same time.
-- ❌ **Human annotation is expensive**: about 0.5–2 USD per preference annotation
+- **Reward Hacking**: The model may learn to exploit RM’s weaknesses instead of truly improving quality
+- **training is unstable**: RL training itself tends to diverge
+- **is computationally expensive.**: 4 large models need to be run at the same time.
+- **Human annotation is expensive**: about 0.5–2 USD per preference annotation
 
 ## 4.2 DPO
 {: id="42-dpo"}
@@ -1616,9 +1616,9 @@ $$
 $$
 
 **intuitively understands**:
-- ✅ Increase the probability of the model correctly answering $y_w$
-- ❌ Reduce the probability of the model answering $y_l$
-- 🔒 Control the change amplitude relative to the reference model through $\beta$
+- Increase the probability of the model correctly answering $y_w$
+- Reduce the probability of the model answering $y_l$
+- Control the change amplitude relative to the reference model through $\beta$
 
 ### 4.2.3 Advantages of DPO
 {: id="423-dpo-的优势"}
@@ -1667,10 +1667,10 @@ $$
 ### 4.3.2 Advantages
 {: id="432-优势"}
 
-- ✅ **is low cost**: no manual labeling required, saving 90%+ cost
-- ✅ **scalable**: can generate large-scale preference data
-- ✅ **high quality**: Experiments show that the effect is close to or even exceeds RLHF
-- ✅ **has good consistency**: AI annotation is more consistent than humans
+- **is low cost**: no manual labeling required, saving 90%+ cost
+- **scalable**: can generate large-scale preference data
+- **high quality**: Experiments show that the effect is close to or even exceeds RLHF
+- **has good consistency**: AI annotation is more consistent than humans
 
 ### 4.3.3 Challenges
 {: id="433-挑战"}
@@ -1719,10 +1719,10 @@ $$
 ### 4.4.4 Advantages
 {: id="444-优势"}
 
-- ✅ **Transparent and controllable**: The code of conduct is clear and adjustable
-- ✅ **Autonomous Alignment**: Reduce reliance on human feedback
-- ✅ **Expandable**: Easily expandable to new values and principles
-- ✅ **works well**: Without using any artificial harmful labels, you get a model that is more harmless and less evasive than the RLHF baseline.
+- **Transparent and controllable**: The code of conduct is clear and adjustable
+- **Autonomous Alignment**: Reduce reliance on human feedback
+- **Expandable**: Easily expandable to new values and principles
+- **works well**: Without using any artificial harmful labels, you get a model that is more harmless and less evasive than the RLHF baseline.
 
 ## 4.5 GRPO and reasoning models
 {: id="45-grpo-与推理模型"}
@@ -2056,7 +2056,7 @@ The trajectory distillation in Section 4.8.1 is **off-policy**: the student only
 # 5. Post-training and forgetting
 {: id="5-post-training-与灾难性遗忘"}
 
-> **🎯 Introduction to this chapter**
+> **Introduction to this chapter**
 >
 > Post-Training (post-training) is implemented by large model **last mile** : Based on the general base model, further training is conducted for specific fields or abilities. However, in practice it is ubiquitous **catastrophic forgetting** The acquisition of new skills often comes at the expense of the collapse of old abilities. This chapter systematically sorts out the forgetting phenomenon, influencing factors and forgetting mitigation methods to help you "have the best of both worlds" in Post-Training.
 
@@ -2130,16 +2130,16 @@ Even fine-tuning GPT-3.5 Turbo with completely harmless SFT data like Alpaca res
 The following four tasks of SFT are respectively performed on LLaMA-3: reasoning, medical knowledge, coding, and tool invocation.
 
 Result:
-- ✅ Improved target task capabilities (in line with expectations)
-- ❌ Safety Alignment capability completely crashes **in all situations**
-- ❌ Non-target task ability also dropped significantly (after teaching tool use, math ability plummeted from 19.6% to 3.6%)
+- Improved target task capabilities (in line with expectations)
+- Safety Alignment capability completely crashes **in all situations**
+- Non-target task ability also dropped significantly (after teaching tool use, math ability plummeted from 19.6% to 3.6%)
 
 #### 5.2.1.4 Case 4: Multimodal Post-Training (teaching text models to listen to speech)
 {: id="5214-案例4多模态-post-training教文本模型听语音"}
 
 Add voice input capability to LLaMA (insert Adapter + Sound Encoder), when Post-Training reaches the third epoch:
-- ✅ Enhanced voice emotion recognition capabilities
-- ❌ **JSON format output capability disappears** (This is LLaMA’s original capability, which was completely untrained and collapsed)
+- Enhanced voice emotion recognition capabilities
+- **JSON format output capability disappears** (This is LLaMA’s original capability, which was completely untrained and collapsed)
 
 ---
 
@@ -2335,7 +2335,7 @@ This may explain: why **RL-based training is usually placed at the last stage of
 
 Large model training must rely on distributed parallel technology.
 
-> **🎯 Introduction to this chapter**
+> **Introduction to this chapter**
 >
 > Distributed training is for large model training **Core engineering technology** , without distributed parallelism, it is impossible to train a model that exceeds the GPU memory capacity of a single GPU. This chapter introduces key technologies such as data parallelism, tensor parallelism, pipeline parallelism, and ZeRO, as well as how to choose an appropriate parallel strategy. **core principles** : TP is used when a single layer is too large, PP is used when the number of layers is too large, and DP is used to improve throughput.
 
@@ -2798,7 +2798,7 @@ graph TD
 
 In the training of large language model (LLM), hardware resources (especially GPU GPU memory and bandwidth) and training time are the core bottlenecks. Optimization technology not only determines whether the model can run with limited resources, but also directly determines the convergence speed and final effect of training. This chapter will provide an in-depth analysis of mainstream optimizer selection, learning rate scheduling, gradient processing methods, regularization technology, and attention acceleration operator Flash Attention.
 
-> **🎯 Introduction to this chapter**
+> **Introduction to this chapter**
 >
 > large model training is a **The game between GPU memory and computing efficiency** . The choice of the optimizer determines the lower limit of GPU memory usage, the learning rate and gradient strategy determine whether the model can converge smoothly, and Flash Attention is the cornerstone of currently solving the bottleneck of long text attention calculations. This chapter aims to help readers establish a complete cognitive system from "mathematical formulas" to "engineering implementation".
 
@@ -3310,7 +3310,7 @@ pip install flash-attn --no-build-isolation
 
 Model quantization is one of the core technologies to reduce the computing and storage costs of large models. By converting high-precision floating point numbers (FP32/FP16) to low-precision integers (INT8/INT4), quantization can significantly reduce GPU memory usage and speed up inference while keeping model performance essentially unchanged.
 
-> **🎯 Introduction to this chapter**
+> **Introduction to this chapter**
 >
 > Quantification is a key technology for democratizing large models. **is a 70B model. The FP16 weight requires 140GB GPU memory. After INT4 quantization, it only needs about 35GB** - which means that the weight is reduced from at least 2 A100-80G to 1 (KV Cache is included). This chapter provides an in-depth explanation of quantitative mathematical principles, mainstream methods (GPTQ, AWQ, QLoRA), training strategies, and engineering practices. Core Points: **Quantization is not simple compression, but a carefully designed art of precision-performance trade-off**.
 
@@ -3327,9 +3327,9 @@ $$
 $$
 
 **Core goals**:
-- 📉 **reduces the GPU memory occupied by**: FP16 → INT8 is reduced by 50%, FP16 → INT4 is reduced by 75%
-- ⚡ **accelerated calculation**: integer operations are 2-4 times faster than floating point operations
-- 💰 **Reduce costs**: Smaller models can be deployed on cheaper hardware
+- **reduces the GPU memory occupied by**: FP16 → INT8 is reduced by 50%, FP16 → INT4 is reduced by 75%
+- **accelerated calculation**: integer operations are 2-4 times faster than floating point operations
+- **Reduce costs**: Smaller models can be deployed on cheaper hardware
 
 **Key challenges**:
 - Keep model accuracy from significantly decreasing
@@ -3360,9 +3360,9 @@ Here:
 - $q$: quantized integer
 
 **Features**:
-- ✅ Simple to implement and hardware friendly
-- ✅ Zero point is 0, no additional storage required
-- ❌ Wasted representation range for asymmetrically distributed data
+- Pro: simple to implement and hardware friendly
+- Pro: the zero point is 0, so nothing extra needs to be stored
+- Con: wastes representation range on asymmetrically distributed data
 
 #### 8.1.2.2 Asymmetric Quantization
 {: id="8122-非对称量化asymmetric-quantization"}
@@ -3384,9 +3384,9 @@ $$
 $$
 
 **Features**:
-- ✅ Make better use of quantification range
-- ✅ Fit activation values (usually asymmetric)
-- ❌ Additional storage of zero point parameters is required
+- Pro: makes better use of the quantization range
+- Pro: suits activations, which are usually asymmetric
+- Con: the zero point must be stored as an extra parameter
 
 #### 8.1.2.3 Quantification granularity
 {: id="8123-量化粒度"}
@@ -3468,13 +3468,13 @@ graph LR
 **definition**: After the model training is completed, the weights and activation values ​​are directly quantified without retraining.
 
 **Advantages**:
-- ⚡ **is fast**: can be completed in a few minutes to a few hours
-- 💰 **Low cost**: No training data and GPU resources required
-- 🛠️ **is easy to deploy**: can be directly applied to any pretraining model
+- **is fast**: can be completed in a few minutes to a few hours
+- **Low cost**: No training data and GPU resources required
+- **is easy to deploy**: can be directly applied to any pretraining model
 
 **Disadvantages**:
-- 📉 **precision loss**: especially low bit quantization (INT4/INT2)
-- ⚠️ **High Sensitivity**: Some layers are very sensitive to quantization
+- **precision loss**: especially low bit quantization (INT4/INT2)
+- **High Sensitivity**: Some layers are very sensitive to quantization
 
 **represents method**:
 - **GPTQ**: Layer-by-layer quantization based on second-order information
@@ -3491,12 +3491,12 @@ graph LR
 - Backpropagation: using floating point gradients (STE trick)
 
 **Advantages**:
-- ✅ **has the highest accuracy**: the model actively adapts to quantification
-- ✅ **supports extremely low bits**: INT4, INT2 and even binary
+- **has the highest accuracy**: the model actively adapts to quantification
+- **supports extremely low bits**: INT4, INT2 and even binary
 
 **Disadvantages**:
-- ⏰ **takes long time to train**: needs to be retrained or fine-tuned
-- 💰 **has high cost**: requires training data and GPU resources
+- **takes long time to train**: needs to be retrained or fine-tuned
+- **has high cost**: requires training data and GPU resources
 
 **represents method**:
 - **QLoRA**: 4-bit quantization + LoRA fine-tuning
@@ -3599,9 +3599,9 @@ The quantized weights can also be directly loaded and used by frameworks such as
 > GPU memory is the theoretical value of the weight part (not counting the small overhead of group scale). The rule of the GPTQ paper is: the larger the model, the smaller the increase in confusion caused by 4-bit quantization; at 3-bit, the loss of a small model will be significantly amplified.
 
 **applicable scenarios**:
-- ✅ Inference deployment optimization
-- ✅ Resource constrained environment
-- ✅ Need to quantify quickly (no training required)
+- Inference deployment optimization
+- Resource constrained environment
+- Need to quantify quickly (no training required)
 
 ---
 
@@ -3678,9 +3678,9 @@ model_awq = AutoAWQForCausalLM.from_quantized(quant_path, fuse_layers=True)
 
 |Features| AWQ | GPTQ |
 |------|-----|------|
-|**Quantization speed**|⚡ Fast (5-10 minutes/7B)|Slow (20-30 minutes/7B)|
+|**Quantization speed**| Fast (5-10 minutes/7B)|Slow (20-30 minutes/7B)|
 |**accuracy remains**|✅ Better (especially extremely low bit)|✅ Good|
-|**Inference speed**|⚡⚡ Faster (optimized kernel)|⚡ Fast|
+|**Inference speed**| Faster (optimized kernel)| Fast|
 |**GPU memory occupied**|Same|Same|
 |**calibration data**|Few (~128 samples), not sensitive to distribution|More (~128-1024 samples)|
 
@@ -3769,9 +3769,9 @@ The SmoothQuant paper is verified on OPT-175B, BLOOM-176B, GLM-130B and other mo
 - **efficiency**: Compared with FP16, it is up to about **1.56×, accelerates**, **GPU memory is halved,** can deploy a 530B scale model in a single 8-card node
 
 Key advantages of :
-- ✅ **W8A8** (weight + activation are both INT8) solution that requires no training and has basically lossless accuracy
-- ✅ Hardware friendly: Smoothing factors can be merged into the previous layer weight offline, and standard INT8 GEMM can be used directly during inference.
-- ✅ Suitable for high-throughput server-side inference
+- **W8A8** (weight + activation are both INT8) solution that requires no training and has basically lossless accuracy
+- Hardware friendly: Smoothing factors can be merged into the previous layer weight offline, and standard INT8 GEMM can be used directly during inference.
+- Suitable for high-throughput server-side inference
 
 ---
 
@@ -4023,9 +4023,9 @@ The main conclusions of the BitNet b1.58 paper (Ma et al., 2024):
 - **Prerequisite**: **must be trained from scratch** (quantification-aware training), and the existing FP16 model cannot be directly converted to 1.58-bit; Microsoft subsequently open sourced BitNet b1.58 2B4T (2B parameters, 4T tokens)
 
 **applicable scenarios**:
-- 📱 Device-side deployment (mobile phones, IoT devices)
-- ⚡ Ultra-low latency inference
-- 💰 Ultimate cost optimization
+- Device-side deployment (mobile phones, IoT devices)
+- Ultra-low latency inference
+- Ultimate cost optimization
 
 ---
 
@@ -4105,10 +4105,10 @@ for t in TASKS:
 ```
 
 **Acceptable loss of accuracy**:
-- ✅ **INT8**: <2%
-- ✅ **INT4**: <5%(GPTQ/AWQ)
-- ⚠️ **INT4**: 5-10% (simple quantification)
-- ❌ **INT4**: >10% (quantification failed, strategy needs to be adjusted)
+- **INT8**: <2% (acceptable)
+- **INT4**: <5% (GPTQ/AWQ, acceptable)
+- **INT4**: 5-10% (naive quantization, evaluate carefully)
+- **INT4**: >10% (quantization failed; adjust the strategy)
 
 #### 8.5.2.3 Layers that handle quantization failures
 {: id="8523-处理量化失败的层"}
@@ -4331,7 +4331,7 @@ DeepSeek-V2 takes $d_c = 4d_h$ and $d_h^R = d_h/2$, and only caches $4.5\,d_h$ e
 
 Data is the cornerstone of large model training. High-quality training data directly determines the upper limit of the model's capabilities. This chapter systematically introduces data engineering technology in large model training.
 
-> **🎯 Introduction to this chapter**
+> **Introduction to this chapter**
 >
 > "Garbage in, garbage out"——Data quality directly determines the upper limit of the model. This chapter introduces the complete data processing process such as data collection, quality assessment, deduplication, proportioning, and tokenization. **Core philosophy**: High quality > Large scale, diversity > Single source. Data engineering is often underestimated, but it is the key to successful training.
 
@@ -5063,7 +5063,7 @@ Total cost: approx. $27,022
 - Using Learning Rate Finder
 - Early Stopping
 
-> **⚠️ Cost trap**
+> **Cost trap**
 >
 > - **excessive pretraining**: diminishing returns, it is recommended to monitor validation loss
 > - **Blindly expand the scale**: Verify the effect of the small model first
@@ -5295,7 +5295,7 @@ def resume_training(checkpoint_path):
     return start_step, start_epoch
 ```
 
-> **💡 Best Practice**
+> **Best Practice**
 >
 > - Conduct a small-scale trial run of  (100-1000 steps) before training starts
 > - Set **automatic monitoring alarm** (loss abnormality, GPU failure, etc.)
@@ -5342,7 +5342,7 @@ MiniMind is a minimalist open source LLM training project designed to allow deve
 
 This chapter summarizes large model training **Frequently asked questions and answers** , to help quickly resolve confusion in practice.
 
-> 💡**Tips for**: Make good use of Ctrl+F to search for keywords to quickly locate problems
+> **Tips for**: Make good use of Ctrl+F to search for keywords to quickly locate problems
 
 ## 12.1 Pre-training
 {: id="121-预训练"}
@@ -5365,7 +5365,7 @@ This chapter summarizes large model training **Frequently asked questions and an
   - Recommended: 1.5-2T tokens
   - LLaMA-2 70B uses 2T tokens
 
-**💎 Key Insights**:
+**Key Insights**:
 
 - **Optimum computing power vs Optimal inference**: The optimal ratio of Chinchilla’s computing power is approximately 20 tokens per parameter (approximately 1.4T tokens for a 70B model). However, inference costs account for the majority during deployment, and modern models generally far exceed this ratio. Small models that are "overtrained" - Llama 3 8B used 15T tokens, about 1,900 tokens per parameter, in exchange for stronger capabilities at the same inference cost.
 - **Quality > Quantity**: Phi-1 (1.3B) only uses "textbook-level" data of about 7B tokens, and HumanEval pass@1 reaches 50.6%, exceeding StarCoder-15B, which has more than 10 times the number of parameters.
@@ -5455,21 +5455,21 @@ This chapter summarizes large model training **Frequently asked questions and an
 **A:** Select according to the scene:
 
 **full parameter fine-tuning** (Full Fine-Tuning):
-- ✅ **applicable scenarios**:
+- **applicable scenarios**:
   - Have sufficient GPU resources
   - Need best performance
   - There is a big difference between tasks and pretraining
-- ❌ **Disadvantages of**:
+- **Disadvantages of**:
   - Large GPU memory requirements (needs to store full gradients and optimizer state)
   - Training speed is slow
   - Each task requires a complete copy of the model
 
 **LoRA fine-tuning**:
-- ✅ **applicable scenarios**:
+- **applicable scenarios**:
   - GPU resources are limited
   - Need to train multiple task adapters
   - Experiment and iterate quickly
-- ❌ **Disadvantages of**:
+- **Disadvantages of**:
   - The ability to learn new knowledge is weaker than full parameter fine-tuning. The larger the amount of data, the more obvious the gap.
   - Additional hyperparameters need to be tuned (r, alpha, and a larger learning rate than full-parameter fine-tuning)
 
@@ -5508,13 +5508,13 @@ How big is the difference between **?** Depends on task and data volume:
 > 1,000 high-quality, diverse data > 10,000 low-quality duplicate data
 
 **Data quality standard**:
-- ✅ Clear instructions
-- ✅ Answers are accurate and helpful
-- ✅ Covers a variety of task types
-- ✅ Uniform and standardized format
-- ❌ Avoid templated answers
-- ❌ Avoid error messages
-- ❌ Avoid harmful content
+- Clear instructions
+- Answers are accurate and helpful
+- Covers a variety of task types
+- Uniform and standardized format
+- Avoid templated answers
+- Avoid error messages
+- Avoid harmful content
 
 ---
 
@@ -5641,16 +5641,16 @@ for _ in range(n):
 **A:** DPO is usually a better choice:
 
 **DPO Advantages** (recommended):
-- ✅ More stable training (RL-free exploration-exploitation dilemma)
-- ✅ Easier implementation (no need for PPO, Reward Model)
-- ✅ High computational efficiency (only 2 models vs 4 models)
-- ✅ Same or better effect
-- ✅ Hyperparameters are more robust
+- More stable training (RL-free exploration-exploitation dilemma)
+- Easier implementation (no need for PPO, Reward Model)
+- High computational efficiency (only 2 models vs 4 models)
+- Same or better effect
+- Hyperparameters are more robust
 
 **RLHF Advantages**:
-- ✅ Deep theoretical foundation
-- ✅ New data can be collected online
-- ✅ Suitable for complex reward signals
+- Deep theoretical foundation
+- New data can be collected online
+- Suitable for complex reward signals
 
 **performance comparison**:
 ```
@@ -5797,7 +5797,7 @@ assert 4 * 8 * 4 == 128  # ✓ Just full
 
 **A:** Multi-layer optimization strategy:
 
-**Level 1: Basic optimization** 💡 (zero side effects, must be opened)
+**Level 1: Basic optimization** (zero side effects, must be opened)
 ```python
 # Skills1: mixed precision (FP32→FP16/BF16, Directly halved)
 use_fp16 = True  # or bf16(large model is more recommended)
@@ -5808,10 +5808,10 @@ model.gradient_checkpointing_enable()
 # Skills3: Flash Attention(IOOptimized, fast and economical)
 use_flash_attention = True
 ```
-💾 Save GPU memory: ~30-40%
-⚡ Performance impact: almost none (Flash is even faster)
+Save GPU memory: ~30-40%
+Performance impact: almost none (Flash is even faster)
 
-**Level 2: Intermediate optimization** ⚙️ (slight performance trade-off)
+**Level 2: Intermediate optimization** (slight performance trade-off)
 ```python
 # Skills4: reducebatch + Gradient accumulation (equivalent tobatchunchanged)
 per_device_batch_size = 1      # from4down to1
@@ -5820,10 +5820,10 @@ gradient_accumulation_steps = 32  # accumulate32step update once
 # Skills5: ZeRO-2(Sharding optimizer status, province8Bytes/parameters)
 zero_stage = 2  # The optimizer state is distributed toGPU
 ```
-💾 Save GPU memory: extra 30-40%
-⚡ Performance impact: ~10-20% slower (communication overhead)
+Save GPU memory: extra 30-40%
+Performance impact: ~10-20% slower (communication overhead)
 
-**Level 3: Radical optimization** ⚡ (significant performance loss)
+**Level 3: Radical optimization** (significant performance loss)
 ```python
 # Skills6: ZeRO-3Full sharding + CPUUninstall (parameters are also fragmented)
 # Skills7: Activation checkpoints are also offloaded toCPU(Ultimate GPU memory saving)
@@ -5839,10 +5839,10 @@ deepspeed_config = {
     }
 }
 ```
-💾 Save GPU memory: 40-50% extra (can train super large models)
-⚡ Performance impact: ~2-5x slower (CPU-GPU transmission bottleneck)
+Save GPU memory: 40-50% extra (can train super large models)
+Performance impact: ~2-5x slower (CPU-GPU transmission bottleneck)
 
-**Level 4: The ultimate solution** 🔧 (Change the training method)
+**Level 4: The ultimate solution** (Change the training method)
 ```python
 # Skills8: Quantitative training (QLoRA: 4-bitquantification)
 load_in_4bit = True  # 7Bmodel from14GB→3.5GB
@@ -5850,8 +5850,8 @@ load_in_4bit = True  # 7Bmodel from14GB→3.5GB
 # Skills9: Reduce model size (most direct)
 model_size = "13B"  # from70B→13B, GPU memory decrease5times
 ```
-💾 Save GPU memory: quantize 4x, reduce model size proportionally
-⚡ Performance impact: Quantification is slightly reduced (<2%), small model capabilities are reduced
+Save GPU memory: quantize 4x, reduce model size proportionally
+Performance impact: Quantification is slightly reduced (<2%), small model capabilities are reduced
 
 **GPU memory usage breakdown**:
 ```
@@ -5932,10 +5932,10 @@ for step in range(start_step, total_steps):
 
 After recovery, the loss curve should converge smoothly and there should be no sudden changes or jumps. Checklist:
 
-- ✓ Loss value is continuous
-- ✓ Learning rate is correct
-- ✓ The random number status and data loading position are restored (data order is consistent)
-- ✓ Step counting is correct
+- Loss value is continuous
+- Learning rate is correct
+- The random number status and data loading position are restored (data order is consistent)
+- Step counting is correct
 
 **4. DeepSpeed recovery**
 ```python
@@ -5950,7 +5950,7 @@ _, client_sd = model_engine.load_checkpoint(checkpoint_dir)
 step = client_sd['step']
 ```
 
-> **⚠️ Precautions**
+> **Precautions**
 >
 > - Save checkpoint regularly (every 1000-5000 steps)
 > - Keep multiple historical checkpoints (at least the last 3-5)
@@ -5964,28 +5964,28 @@ step = client_sd['step']
 
 **A:** Multi-dimensional monitoring list:
 
-**✅ Characteristics of health training**:
+**Characteristics of health training**:
 
 1. **Loss curve**
-   - ✓ Smooth decline without significant fluctuations
-   - ✓ The training loss and verification loss in the pretraining stage basically overlap
-   - ✓ The rate of decline is as expected
+   - Smooth decline without significant fluctuations
+   - The training loss and verification loss in the pretraining stage basically overlap
+   - The rate of decline is as expected
 
 2. **gradient indicator**
-   - ✓ Gradient norm is in the range of 0.1-10
-   - ✓ Gradient clipping rate <5%
-   - ✓ No NaN or Inf
+   - Gradient norm is in the range of 0.1-10
+   - Gradient clipping rate <5%
+   - No NaN or Inf
 
 3. **performance indicators**
-   - ✓ GPU utilization >80%
-   - ✓ stable throughput
-   - ✓ Communication time <20%
+   - GPU utilization >80%
+   - stable throughput
+   - Communication time <20%
 
 4. **Learning rate**
-   - ✓ Normal changes according to schedule
-   - ✓ Steady rise during the Warmup period
+   - Normal changes according to schedule
+   - Steady rise during the Warmup period
 
-**❌ Symptoms of abnormal training**:
+**Symptoms of abnormal training**:
 
 |Symptoms|Possible reasons|Check items|
 |------|---------|--------|
