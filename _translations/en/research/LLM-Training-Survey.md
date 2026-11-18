@@ -25,24 +25,24 @@ Large language models (LLMs) mark a new stage in artificial intelligence. BERT a
 
 <figure class="survey-intro-figure">
   <img src="/images/llm-training/llm-training-survey-intro-en.svg" width="1200" height="510" alt="Large language model process: prepare data, pretrain to obtain the base model, perform instruction fine-tuning and preference optimization as needed, and evaluate and deploy." loading="lazy" decoding="async" />
-<figcaption> diagram: pretraining establishes a base model, and post-training can include instruction fine-tuning and preference optimization. The figure shows common links, and the specific sequence varies depending on the recipe; compression, inference, and delivery belong to the deployment project separately.</figcaption>
+<figcaption>Figure: pretraining produces a base model, and post-training may include instruction fine-tuning and preference optimization. The figure shows common steps; the exact order varies by recipe. Compression, inference, and delivery belong to deployment engineering.</figcaption>
 </figure>
 
 ## Why study LLM training
 {: id="为什么关注大模型训练"}
 
-Training is the source of large model capabilities. Building a high-performance large model requires:
-- **Massive high-quality data**: Careful preparation of trillions of tokens
-- **Large-scale computing resource**: Thousands of GPUs train in parallel for several months
-- **Carefully designed training strategies**: Complete pipeline from pretraining to alignment
-- **engineering implementation**: distributed training, memory optimization, stability guarantee
+Training is where a large model's capabilities come from. A high-performing model depends on:
+- **Massive high-quality data**: trillions of carefully processed tokens
+- **Large-scale compute**: thousands of GPUs training in parallel for months
+- **Carefully designed training strategies**: a complete pipeline from pretraining to alignment
+- **Solid engineering**: distributed training, memory optimization, and stability safeguards
 
-However, the knowledge and technology of large model training are often scattered in various papers, blogs and code repositories, lacking systematic organization. **This article aims to fill this gap.**
+Yet knowledge about LLM training is scattered across papers, blogs, and code repositories, and is rarely organized systematically. **This survey aims to fill that gap.**
 
 ## What this survey covers
 {: id="本文内容"}
 
-This review systematically summarizes the core technologies of large model training, including:
+This survey systematically covers the core techniques of LLM training:
 
 1. **Overview of LLM training**: core concepts, how the field evolved, and the main components
 2. **Pretraining**: objectives, data sources and mixing, key hyperparameters, MoE, multi-token prediction, sparse/hybrid attention, and mid-training
@@ -62,21 +62,21 @@ This review systematically summarizes the core technologies of large model train
 ## Intended readers
 {: id="目标读者"}
 
-- **researcher**: Understand the complete technology stack of large model training
-- **Engineer**: Master engineering practice and optimization skills in actual training
-- **student**: Establish a systematic understanding of large model training
-- **Practitioner**: Track the latest technological progress and industry trends
+- **Researchers**: understand the full technology stack of LLM training
+- **Engineers**: learn the engineering practices and optimizations used in real training runs
+- **Students**: build a systematic understanding of LLM training
+- **Practitioners**: keep up with recent technical progress and industry trends
 
-> **Read instructions**
+> **How to read this survey**
 >
-> This article strives to strike a balance between theoretical depth and practical guidance. It not only explains the core principles, but also provides code examples and engineering solutions. The code mainly explains the principles, and some are schematic codes that omit details such as data loading. The cost, GPU memory, accuracy and other figures in the article are mostly magnitude estimates and are affected by the model version, hardware and evaluation protocol. When reproducing, please refer to the original paper or official documents.
+> This survey tries to balance theoretical depth with practical guidance: it explains the core principles and also gives code examples and engineering solutions. The code is meant to illustrate principles, and some of it is schematic, omitting details such as data loading. Figures for cost, GPU memory, and accuracy are mostly order-of-magnitude estimates that depend on model version, hardware, and evaluation protocol; when reproducing results, rely on the original papers or official documentation.
 
 ---
 
 ## Reading guide
 {: id="快速导航"}
 
-This article is divided into 14 main chapters. It is recommended to read selectively according to your needs:
+The survey has 14 main chapters. Read selectively according to your needs:
 
 |Chapter|Content|Suitable for|Reading time|
 |------|------|---------|---------|
@@ -95,12 +95,12 @@ This article is divided into 14 main chapters. It is recommended to read selecti
 |**13. VLMs and agents**|Vision-language model architecture, two-stage training, and agent tool-use training|Engineers, researchers|20 minutes|
 |**14. References**|Key papers, flagship open-source projects, and a learning path|All readers|15 minutes|
 
-> **Reading suggestions**
+> **Suggested reading paths**
 >
-> - **Beginners**: Focus on reading "1. Basic Overview" → "2. pretraining / 3. SFT / 4. Alignment Stage" → "12. Frequently Asked Questions"
-> - **Engineer**: Focus on reading "11. Practical Guide" → "6. Distributed Training" → "5. Post-Training and Forgetting"
-> - **Researcher**: Focus on reading "2. pretraining / 3. SFT / 4. Alignment stage" → "5. Post-Training and forgetting" → "10. Evaluation benchmark"
-> - **Comprehensive Study**: Read in full order (about 3.5 hours)
+> - **Beginners**: "1. Overview" → "2. Pretraining / 3. SFT / 4. Alignment" → "12. FAQ"
+> - **Engineers**: "11. Practical guide" → "6. Distributed training" → "5. Post-training and forgetting"
+> - **Researchers**: "2. Pretraining / 3. SFT / 4. Alignment" → "5. Post-training and forgetting" → "10. Evaluation"
+> - **Full study**: read everything in order (about 3.5 hours)
 
 ---
 
@@ -110,49 +110,67 @@ This article is divided into 14 main chapters. It is recommended to read selecti
 ## 1.1 What LLM training is
 {: id="11-什么是大模型训练"}
 
-Large model training refers to the process of using massive text data to train neural network models with billions or even trillions of parameters through deep learning algorithms. These models are usually based on the Transformer architecture and can learn the statistical laws and semantic understanding of language.
+LLM training is the process of using massive amounts of text and deep learning to train neural networks with billions or even trillions of parameters. These models are usually based on the Transformer architecture and learn both the statistical regularities and the meaning of language.
 
-The goal of training a large model is to allow the model to obtain:
-- **Language understanding ability**: Understand the syntax, semantics and context of natural language
-- **Knowledge Reserve**: Learn world knowledge from training data
-- **Reasoning ability**: logical reasoning and problem solving based on existing information
-- **instructions follow**: accurately understand and execute various instructions from users
+Training aims to give the model:
+- **Language understanding**: the syntax, semantics, and context of natural language
+- **Knowledge**: world knowledge learned from the training data
+- **Reasoning**: logical inference and problem solving from the information at hand
+- **Instruction following**: understanding and carrying out a wide range of user instructions
 
-> **Core concept**
+> **Key facts**
 >
-> - **Scale**: The number of parameters ranges from 1 billion to trillions
-> - **data**: training data usually reaches trillions of tokens
-> - **time**: complete training cycle from weeks to months
-> - **cost**: Medium and large model training costs range from hundreds of thousands to millions of dollars
+> - **Scale**: from about a billion to trillions of parameters
+> - **Data**: training data usually reaches trillions of tokens
+> - **Time**: a full training run takes weeks to months
+> - **Cost**: training a medium or large model costs from hundreds of thousands to millions of dollars
 
 ## 1.2 How it evolved
 {: id="12-演进历程"}
 
-Large model training has experienced an important transition from small-scale experiments to industrial production:
+LLM training has moved from small-scale experiments to industrial production. The timeline below lists representative work by year; the subsections that follow summarize each stage:
+
+```mermaid
+timeline
+    title Evolution of LLM training
+    section Early exploration
+        2018 : GPT-1 : BERT
+        2019 : GPT-2 : T5
+    section Scaling
+        2020 : GPT-3 (175B) : Scaling Laws
+        2021 : Switch Transformer : Codex
+    section Alignment and applications
+        2022 : InstructGPT (RLHF) : Chinchilla : ChatGPT
+        2023 : LLaMA : GPT-4 : DPO
+    section Open models
+        2024 : Llama 3 : DeepSeek-V2 (MLA) : OpenAI o1 : DeepSeek-V3 (FP8 training)
+    section Reasoning models and agents
+        2025 : DeepSeek-R1 (GRPO) : Qwen3 : Kimi K2 (Muon) : GPT-5 : DeepSeek-V3.2 (sparse attention)
+```
 
 ### 1.2.1 Early exploration (2018–2019)
 {: id="121-早期探索20182019"}
-- GPT-1, BERT and other models have verified the effectiveness of pretraining - fine-tuning paradigm
-- Model scale: millions to billions of parameters
-- Key breakthrough: self-supervised pretraining and Transformer architecture
+- GPT-1, BERT, and similar models validated the pretrain-then-fine-tune paradigm
+- Model scale: millions to hundreds of millions of parameters
+- Key breakthroughs: self-supervised pretraining and the Transformer architecture
 
 ### 1.2.2 Scaling (2020–2021)
 {: id="122-规模化20202021"}
-- GPT-3 expands model size to 175 billion parameters
-- Discover Emergent Abilities
-- Few-shot learning capabilities are significantly improved
+- GPT-3 scaled models up to 175 billion parameters
+- Emergent abilities were observed
+- Few-shot learning improved markedly
 
 ### 1.2.3 Alignment and applications (2022–2023)
 {: id="123-对齐与应用20222023"}
-- InstructGPT and ChatGPT introduce RLHF (reinforcement learning based on human feedback)
-- The key transition from "usable" to "easy to use"
-- Large models begin to be widely used in actual scenarios
+- InstructGPT and ChatGPT introduced RLHF (reinforcement learning from human feedback)
+- The key shift from models that merely work to models that are pleasant to use
+- LLMs started to be deployed widely in real applications
 
 ### 1.2.4 Open source (2024)
 {: id="124-开源与民主化2024"}
-- Open source models such as LLaMA and Mistral are developing rapidly
-- Continuous optimization of training efficiency and cost
-- Capabilities such as multimodality and long context continue to increase
+- Open models such as LLaMA and Mistral developed rapidly
+- Training efficiency kept improving and costs kept falling
+- Multimodal and long-context capabilities kept growing
 
 ### 1.2.5 Reasoning and efficiency (2025–2026)
 {: id="125-推理模型与效率20252026"}
@@ -166,18 +184,18 @@ Large model training has experienced an important transition from small-scale ex
 ## 1.3 Three training stages
 {: id="13-三大训练阶段"}
 
-Modern large model training follows the three-stage paradigm of **pretraining → supervised fine-tuning → preference alignment**, which has become the standard process for mainstream models such as GPT-4, Claude, Gemini, and LLaMA.
+Modern LLM training follows a three-stage paradigm, **pretraining → supervised fine-tuning → preference alignment**, which has become the standard pipeline for mainstream models such as GPT-4, Claude, Gemini, and LLaMA.
 
 ```mermaid
 flowchart LR
-    A["raw text data<br>Trillionstokens"] --> B["stage1: pretraining<br>Pre-training"]
-    B --> C["Base Model<br>base model"]
-    C --> D["stage2: supervised fine-tuning<br>SFT"]
-    E["instructions-The answer is correct<br>tens of thousands of samples"] --> D
-    D --> F["SFT Model<br>instruction model"]
-    F --> G["stage3: preference alignment<br>RLHF/DPO"]
-    H["Preference comparison data<br>tens of thousands of pairs"] --> G
-    G --> I["✓ Aligned Model<br>final deployment"]
+    A["Raw text<br>trillions of tokens"] --> B["Stage 1: pretraining"]
+    B --> C["Base model"]
+    C --> D["Stage 2: supervised fine-tuning<br>SFT"]
+    E["Instruction-response pairs<br>tens of thousands of samples"] --> D
+    D --> F["SFT model<br>instruction model"]
+    F --> G["Stage 3: preference alignment<br>RLHF/DPO"]
+    H["Preference comparisons<br>tens of thousands of pairs"] --> G
+    G --> I["✓ Aligned model<br>deployed"]
 
     style A fill:#e3f2fd,stroke:#01579b
     style C fill:#fff9c4,stroke:#f57f17
@@ -187,216 +205,216 @@ flowchart LR
     style I fill:#c8e6c9,stroke:#1b5e20
 ```
 
-The differences in data, computing power and hyperparameters between the three stages are shown in the comparison table in Section 1.3.4.
+Section 1.3.4 compares the data, compute, and hyperparameters of the three stages.
 
-### 1.3.1 Pre-training
+### 1.3.1 Pretraining
 {: id="131-预训练"}
 
-Learn the statistical laws, grammatical structures and world knowledge of language from massive unlabeled texts, and train the **Base Model (base model)**.
+The model learns the statistical regularities, grammar, and world knowledge of language from massive unlabeled text, producing a **base model**.
 
-**core features**:
-- **has the largest data scale**: trillions of tokens (such as LLaMA-3 using 15T tokens)
-- **has the longest training time**: training on thousands of GPUs for weeks to months
-- **has the highest cost and**: accounting for 80-90% of the total training cost
-- **target**: Next Token Prediction (predict the next word)
+**Characteristics**:
+- **Largest data scale**: trillions of tokens (LLaMA-3 used 15T tokens)
+- **Longest training time**: weeks to months on thousands of GPUs
+- **Highest cost**: 80-90% of total training cost
+- **Objective**: next-token prediction
 
-**Output ability**: Able to continue text writing, but not good at question and answer and instruction following.
+**Resulting ability**: the model can continue text but is poor at answering questions and following instructions.
 
 ### 1.3.2 Supervised fine-tuning (SFT)
 {: id="132-监督微调sft"}
 
-Use high-quality instruction-answer pair training to convert the Base Model into a **SFT Model (instruction model)** that can understand instructions.
+Training on high-quality instruction-response pairs turns the base model into an **SFT model (instruction model)** that understands instructions.
 
-**core features**:
-- **small data size**: 10k-100k high-quality samples
-- **training time is short**: hours to days
-- **has lower cost than**: accounting for 5-10% of the total cost
-- **target**: Instruction Following
+**Characteristics**:
+- **Small data**: 10k-100k high-quality samples
+- **Short training**: hours to days
+- **Lower cost**: 5-10% of total cost
+- **Objective**: instruction following
 
-**Output capability**: Able to understand and execute user instructions and conduct multiple rounds of dialogue.
+**Resulting ability**: the model understands and carries out user instructions and holds multi-turn conversations.
 
 ### 1.3.3 Preference alignment
 {: id="133-偏好对齐"}
 
-Optimize model behavior through human feedback or AI feedback to make it more consistent with human expectations and values, and train the **Aligned Model**.
+Human or AI feedback is used to shape the model's behavior so that it better matches human expectations and values, producing an **aligned model**.
 
-**core features**:
-- **data scale**: tens of thousands of pairs of preference comparison data
-- **training time**: hours to days (large-scale RL for inference models can reach weeks)
-- **cost**: 5-10% of the total cost
-- **method**: RLHF, DPO, RLAIF, GRPO, etc.
+**Characteristics**:
+- **Data**: tens of thousands of preference comparison pairs
+- **Training time**: hours to days (large-scale RL for reasoning models can take weeks)
+- **Cost**: 5-10% of total cost
+- **Methods**: RLHF, DPO, RLAIF, GRPO, and others
 
-**output capability**: output is more helpful, safer, and more in line with human values.
+**Resulting ability**: outputs are more helpful, safer, and more consistent with human values.
 
 ### 1.3.4 Comparing the three stages
 {: id="134-三阶段总结对比"}
 
-|stage|pretraining|supervised fine-tuning|preference alignment|
+|Stage|Pretraining|Supervised fine-tuning|Preference alignment|
 |------|--------|----------|----------|
-|**target**|Learn language basics|Teach instruction following|consistent with human preferences|
-|**data type**|Unlabeled text|Instructions-answers|Preference comparison data|
-|**data size**|Trillions of tokens|Tens of thousands to hundreds of thousands of samples|Tens of thousands - hundreds of thousands comparison|
-|**Training duration**|weeks to months|hours - days|hours - days|
-|**computing requirements**|Thousands of GPUs|Dozens-hundreds of GPUs|Dozens-hundreds of GPUs|
-|**cost ratio**| ~80-90% | ~5-10% | ~5-10% |
+|**Goal**|Learn the basics of language|Teach instruction following|Match human preferences|
+|**Data type**|Unlabeled text|Instruction-response pairs|Preference comparisons|
+|**Data size**|Trillions of tokens|Tens to hundreds of thousands of samples|Tens to hundreds of thousands of comparisons|
+|**Training time**|Weeks to months|Hours to days|Hours to days|
+|**Compute**|Thousands of GPUs|Dozens to hundreds of GPUs|Dozens to hundreds of GPUs|
+|**Share of cost**| ~80-90% | ~5-10% | ~5-10% |
 |**Learning rate**| 1e-4 ~ 3e-4 | 1e-5 ~ 5e-5 | 5e-7 ~ 5e-6 |
-|**Epoch number**|<1 epoch (too big)| 1-3 epochs | 1-3 epochs |
-|**output model**| Base Model | SFT Model | Aligned Model |
+|**Epochs**|<1 epoch (data too large)| 1-3 epochs | 1-3 epochs |
+|**Output model**| Base Model | SFT Model | Aligned Model |
 
-**Key insights**:
-- Pretraining is the source of capability (accounting for 90% of the cost)
-- SFT is the activation of capabilities (data quality > quantity)
-- Alignment is the guarantee of experience (essential)
+**Key takeaways**:
+- Pretraining is where capability comes from (about 90% of the cost)
+- SFT unlocks those capabilities (data quality matters more than quantity)
+- Alignment secures the user experience (indispensable)
 
 ## 1.4 Core components
 {: id="14-核心组成要素"}
 
-A complete large model training system contains the following core elements:
+A complete LLM training system has the following core components:
 
 ### 1.4.1 Data
 {: id="141-数据"}
-- **pretraining data**: web pages, books, codes, academic papers, etc.
-- **fine-tuning data**: command-answer pair, dialogue data
-- **preference data**: human-annotated preference comparison data
-- **data processing process**: cleaning, deduplication, quality filtering, toxicity detection
+- **Pretraining data**: web pages, books, code, academic papers, and more
+- **Fine-tuning data**: instruction-response pairs and dialogue data
+- **Preference data**: human-annotated preference comparisons
+- **Data processing**: cleaning, deduplication, quality filtering, and toxicity detection
 
 ### 1.4.2 Model architecture
 {: id="142-模型架构"}
-- **Infrastructure**: Transformer (Encoder, Decoder or Encoder-Decoder)
-- **position encoding**: absolute position encoding, relative position encoding, RoPE, ALiBi
-- **attention mechanism**: Multi-Head Attention, Grouped-Query Attention, Multi-Query Attention
-- **Normalization method**: LayerNorm, RMSNorm, Pre-Norm vs Post-Norm
-- **activation function**: GELU, SwiGLU, GeGLU
+- **Base architecture**: Transformer (encoder, decoder, or encoder-decoder)
+- **Positional encoding**: absolute and relative position encoding, RoPE, ALiBi
+- **Attention**: multi-head attention, grouped-query attention, multi-query attention
+- **Normalization**: LayerNorm, RMSNorm, Pre-Norm vs Post-Norm
+- **Activation functions**: GELU, SwiGLU, GeGLU
 
 <div align="center">
   <img src="/images/llm-training/transformer-architecture.webp" width="75%" alt="Transformer architecture" />
-<figcaption> Figure: Detailed explanation of Transformer architecture (Source: "Attention is All You Need" paper Figure 1)</figcaption>
+<figcaption>Figure: the Transformer architecture (source: Figure 1 of "Attention is All You Need")</figcaption>
 </div>
 
-### 1.4.3 Optimization
+### 1.4.3 Optimizers and training strategy
 {: id="143-优化器与训练策略"}
-- **Optimizer**: AdamW, Adafactor, Lion
-- **Learning rate scheduling**: Warmup, Cosine Decay, Constant
-- **Gradient processing**: Gradient Clipping, Gradient Accumulation
-- **Regularization**: Dropout, Weight Decay
+- **Optimizers**: AdamW, Adafactor, Lion
+- **Learning-rate schedules**: warmup, cosine decay, constant
+- **Gradient handling**: gradient clipping, gradient accumulation
+- **Regularization**: dropout, weight decay
 
 ### 1.4.4 Distributed training
 {: id="144-分布式训练"}
-- **Data Parallel**: DDP (Distributed Data Parallel)
-- **Tensor Parallelism**: Megatron-LM Tensor Parallelism
-- **Pipeline Parallelism**: Pipeline Parallelism, 1F1B Schedule
-- **Sequence Parallelism**: Sequence Parallelism
-- **Hybrid Parallel**: 3D Parallelism (data + tensor + pipeline)
-- **Optimizer status parallel**: ZeRO-1/2/3 (DeepSpeed)
+- **Data parallelism**: DDP (Distributed Data Parallel)
+- **Tensor parallelism**: Megatron-LM tensor parallelism
+- **Pipeline parallelism**: pipeline stages with the 1F1B schedule
+- **Sequence parallelism**: splitting along the sequence dimension
+- **Hybrid parallelism**: 3D parallelism (data + tensor + pipeline)
+- **Optimizer-state sharding**: ZeRO-1/2/3 (DeepSpeed)
 
 ### 1.4.5 Infrastructure
 {: id="145-计算基础设施"}
-- **Hardware**: GPU cluster (A100, H100, etc.), TPU, dedicated AI chip
-- **Internet**: InfiniBand, NVLink, PCIe
-- **storage system**: high-performance distributed storage
+- **Hardware**: GPU clusters (A100, H100, etc.), TPUs, and dedicated AI accelerators
+- **Interconnect**: InfiniBand, NVLink, PCIe
+- **Storage**: high-performance distributed storage
 - **Monitoring and logging**: TensorBoard, Weights & Biases, MLflow
 
 ## 1.5 Main challenges
 {: id="15-主要挑战"}
 
-> **Challenge Overview**
+> **Overview**
 >
-> Large model training is a very challenging system project that requires a balance among multiple dimensions such as computing resources, data quality, training stability, and model alignment. Successfully training a high-performance large model requires not only technical strength, but also the accumulation of engineering experience.
+> LLM training is a demanding systems problem that balances compute, data quality, training stability, and alignment. Training a strong model takes not only technical skill but also accumulated engineering experience.
 
-### 1.5.1 Computing resources and costs
+### 1.5.1 Compute and cost
 {: id="151-计算资源与成本"}
 
-Training large models requires huge computing resources:
-- GPT-3 level model training costs approximately millions of dollars
-- Requires thousands of high-end GPUs to train in parallel for months
-- Carbon emissions and energy consumption issues
-- How to reduce training costs has become a key challenge
+Training LLMs takes enormous compute:
+- Training a GPT-3-class model costs on the order of millions of dollars
+- Thousands of high-end GPUs must run in parallel for months
+- Carbon emissions and energy use are real concerns
+- Reducing training cost has become a central challenge
 
 ### 1.5.2 Data quality and scale
 {: id="152-数据质量与规模"}
 
-High-quality training data is the foundation of model performance:
-- Online data contains noise, bias and harmful content
-- Engineering challenges of data deduplication, cleaning and quality control
-- Privacy and Copyright Issues
+High-quality data is the foundation of model performance:
+- Web data contains noise, bias, and harmful content
+- Deduplication, cleaning, and quality control are hard engineering problems
+- Privacy and copyright issues
 - High-quality human-labeled data is expensive
 
 ### 1.5.3 Training stability
 {: id="153-训练稳定性"}
 
-Large-scale training faces stability challenges:
-- Loss spike (loss spikes suddenly)
-- Gradient explosion/disappearance
-- Numerical Instability
-- Synchronization issues in distributed training
+Large-scale training is prone to instability:
+- Loss spikes (the loss suddenly jumps)
+- Exploding or vanishing gradients
+- Numerical instability
+- Synchronization problems in distributed training
 
-### 1.5.4 Model alignment and security
+### 1.5.4 Alignment and safety
 {: id="154-模型对齐与安全"}
 
-Make the model behave as human expected:
-- How to accurately capture human preferences
-- Avoid harmful, biased or inaccurate output
-- Reward Hacking problem (reward function is exploited)
-- Long-term alignment stability
+Making the model behave as humans expect:
+- How to capture human preferences accurately
+- Avoiding harmful, biased, or inaccurate output
+- Reward hacking (the model exploits flaws in the reward function)
+- Keeping alignment stable over time
 
-### 1.5.5 Evaluation and Benchmarking
+### 1.5.5 Evaluation and benchmarking
 {: id="155-评估与基准测试"}
 
-How to fully assess model capabilities:
-- Existing benchmark tests may be "flushed"
-- Difficult to quantify creativity and open-ended abilities
-- The complexity of multilingual, multimodal assessment
-- Performance differences in real application scenarios
+Measuring model capability comprehensively:
+- Existing benchmarks can become saturated
+- Creativity and open-ended abilities are hard to quantify
+- Multilingual and multimodal evaluation is complex
+- Benchmark results can differ from performance in real applications
 
 ### 1.5.6 Unpredictable emergence
 {: id="156-涌现能力的不可预测性"}
 
-Unknowns brought about by the expansion of model scale:
-- Certain abilities only appear at certain scales
-- Difficulty predicting model behavior in advance
-- Unexpected capabilities or problems may arise
-- How to systematically understand Scaling Laws
+Scaling up brings unknowns:
+- Some abilities appear only beyond a certain scale
+- Model behavior is hard to predict in advance
+- Unexpected capabilities or problems may appear
+- Scaling laws still need systematic understanding
 
 ---
 
 # 2. Pre-training
 {: id="2-预训练"}
 
-Pretraining is the cornerstone of large model training, with the goal of allowing the model to learn the statistical laws of language and world knowledge from massive unlabeled texts.
+Pretraining is the foundation of LLM training: the model learns the statistical regularities of language and world knowledge from massive unlabeled text.
 
-> **Introduction to this chapter**
+> **About this chapter**
 >
-> pretraining is part of the entire training process **The highest cost, the longest time, and the greatest technical difficulty** stage, accounting for 80-90% of the total cost. This chapter will introduce the objective function, data processing, training techniques and cutting-edge technologies of pretraining in detail to help readers understand how to train a base model from scratch.
+> Pretraining is the **most expensive, longest, and technically hardest** stage of the whole pipeline, accounting for 80-90% of total cost. This chapter covers pretraining objectives, data processing, training techniques, and recent advances, to show how a base model is trained from scratch.
 
 ## 2.1 The pre-training pipeline
 {: id="21-预训练完整流程概览"}
 
-The following figure shows the complete training process from raw data to Base Model:
+The figure below shows the full process from raw data to a base model:
 
 ```mermaid
 graph TD
-    A0["Step 0: Word segmenter training"] --> H
-    A["Raw data collection"] --> B["Data cleaning and filtering"]
-    B --> C["quality assessment"]
-    C --> D{pass or not?}
-    D -->|No| E["discard"]
+    A0["Step 0: tokenizer training"] --> H
+    A["Raw data collection"] --> B["Cleaning and filtering"]
+    B --> C["Quality assessment"]
+    C --> D{Pass?}
+    D -->|No| E["Discard"]
     D -->|Yes| F["Deduplication"]
-    F --> G["MinHash/SimHashRemove duplicates"]
+    F --> G["MinHash/SimHash dedup"]
     G --> H["Tokenization"]
-    H --> I["Data proportioning and sampling"]
+    H --> I["Data mixing and sampling"]
     I --> J["Build training batch"]
-    J --> K["Distributed training<br/>3DParallel: DP+TP+PP"]
-    K --> L["forward propagation"]
-    L --> M["CalculateLoss<br/>Next Token Prediction"]
-    M --> N["Backpropagation"]
-    N --> O["Gradient synchronization All-Reduce"]
-    O --> P["Optimizer update<br/>AdamW"]
-    P --> Q{Whether to savecheckpoint?}
+    J --> K["Distributed training<br/>3D parallelism: DP+TP+PP"]
+    K --> L["Forward pass"]
+    L --> M["Compute loss<br/>next-token prediction"]
+    M --> N["Backward pass"]
+    N --> O["Gradient sync (All-Reduce)"]
+    O --> P["Optimizer step<br/>AdamW"]
+    P --> Q{Save checkpoint?}
     Q -->|Yes| R["Save model state"]
-    Q -->|No| S{Training completed?}
+    Q -->|No| S{Training done?}
     R --> S
     S -->|No| J
-    S -->|Yes| T["Base Model<br/>base model"]
+    S -->|Yes| T["Base model"]
 
     style A0 fill:#f3e5f5,stroke:#7b1fa2
     style A fill:#e1f5ff
@@ -405,45 +423,45 @@ graph TD
     style K fill:#ffe0b2
 ```
 
-**Process Description**:
-1. **Data preparation phase** (A-I): accounting for 20-30% of the overall time, including collection, cleaning, deduplication, **word segmenter training** and word segmentation
-2. **training iteration phase** (J-S): accounting for 70-80% of the overall time, the core is the forward-reverse-optimization cycle
-3. **Checkpoint management**: Save every 1000-5000 steps, the total number of training steps is usually 100k-500k steps
+**Notes**:
+1. **Data preparation** (A-I): 20-30% of overall time, covering collection, cleaning, deduplication, **tokenizer training**, and tokenization
+2. **Training iterations** (J-S): 70-80% of overall time, built around the forward-backward-update loop
+3. **Checkpointing**: save every 1000-5000 steps; a full run is usually 100k-500k steps
 
 ## 2.2 Tokenizer training
 {: id="22-分词器训练"}
 
-Before officially starting model training, we need to define how the model "reads" text. The tokenizer cuts continuous text into the smallest units (Tokens) that the model can understand.
+Before training the model, we have to decide how it "reads" text. The tokenizer splits continuous text into the smallest units the model works with: tokens.
 
 ### 2.2.1 Why train a tokenizer
 {: id="221-为什么需要训练分词器"}
-If you use characters or words directly, you will face the problem that the vocabulary is too large (difficult to converge) or the information density of a single Token is too low (the sequence is too long). Modern large models generally use **subword (Subword)** word segmentation scheme, such as **BPE (Byte Pair Encoding)**.
+Using characters or whole words directly leads either to an oversized vocabulary (hard to train) or to tokens that carry too little information (sequences become too long). Modern LLMs therefore use **subword** tokenization, such as **BPE (Byte Pair Encoding)**.
 
 ### 2.2.2 Vocabulary size
 {: id="222-词表大小"}
-* **Large word list (such as 100k+)**:
-    * Advantages: A single Token carries a lot of information, the sequence is shorter, and reasoning is faster.
-    * Disadvantages: The parameters of the Embedding layer are huge, and sparse words are difficult to fully train.
-* **small word list (such as 32k)**:
-    * Advantages: The Embedding layer is small, the parameter utilization rate is high, and it is suitable for small models.
-    * Disadvantages: The same sentence generates more Tokens, which increases computational overhead.
+* **Large vocabulary (e.g. 100k+)**:
+    * Pro: each token carries more information, so sequences are shorter and inference is faster.
+    * Con: the embedding layer becomes huge, and rare tokens are hard to train well.
+* **Small vocabulary (e.g. 32k)**:
+    * Pro: a small embedding layer and efficient use of parameters, which suits small models.
+    * Con: the same sentence produces more tokens, increasing compute.
 
-> **MiniMind experience**: For small models with parameters below 500M, the vocabulary should not be too large (MiniMind only uses a BPE vocabulary of 6,400, a common compromise is 32k), otherwise the Embedding layer will eat up most of the parameters, and the vectors of rare tokens will not be fully updated.
+> **Lesson from MiniMind**: for models under 500M parameters, keep the vocabulary small (MiniMind uses a BPE vocabulary of only 6,400; 32k is a common compromise). Otherwise the embedding layer eats most of the parameters and the vectors of rare tokens are barely updated.
 
 ### 2.2.3 Training a tokenizer
 {: id="223-分词器训练实战"}
 
-Using Hugging Face's `tokenizers` library, you can quickly train a GPT/Llama style **byte-level BPE (Byte-level BPE)** tokenizer. The byte-level solution uses 256 bytes as the initial alphabet, and no out-of-service words (OOV) will appear in any language (including Chinese and emoji). This is also the mainstream choice of current LLM:
+With Hugging Face's `tokenizers` library you can quickly train a GPT/Llama-style **byte-level BPE** tokenizer. Byte-level BPE starts from an alphabet of 256 bytes, so no text in any language (including Chinese and emoji) is ever out of vocabulary (OOV). It is the mainstream choice for today's LLMs:
 
 ```python
 from tokenizers import Tokenizer, decoders, models, pre_tokenizers, trainers
 
-# 1. Initialize byte level BPE model
+# 1. Initialize a byte-level BPE model
 tokenizer = Tokenizer(models.BPE())
 tokenizer.pre_tokenizer = pre_tokenizers.ByteLevel(add_prefix_space=False)
 tokenizer.decoder = decoders.ByteLevel()
 
-# 2. Configure the trainer: with 256 bytes as the initial alphabet, ensuring that no OOV
+# 2. Configure the trainer: the 256 bytes form the initial alphabet, so there is no OOV
 trainer = trainers.BpeTrainer(
     vocab_size=32000,
     min_frequency=2,
@@ -451,52 +469,52 @@ trainer = trainers.BpeTrainer(
     initial_alphabet=pre_tokenizers.ByteLevel.alphabet(),
 )
 
-# 3. Train tokenizer
+# 3. Train the tokenizer
 files = ["data/corpus_1.txt", "data/corpus_2.txt"]
 tokenizer.train(files, trainer)
 
-# 4. Save tokenizer
+# 4. Save the tokenizer
 tokenizer.save("my_tokenizer.json")
 ```
 
-For algorithm comparison (BPE / WordPiece / Unigram), word list size selection and special Token design, see Section 9.5.
+Section 9.5 compares the algorithms (BPE / WordPiece / Unigram) and discusses vocabulary size and special-token design.
 
 ## 2.3 Pretraining objective function
 {: id="23-预训练目标函数"}
 
-The core of pretraining is to design an appropriate objective function to allow the model to learn language rules from unlabeled text.
+The core of pretraining is choosing an objective that lets the model learn the rules of language from unlabeled text.
 
 ### 2.3.1 Autoregressive language modeling
 {: id="231-自回归语言建模"}
 
-**Core idea**: Given the previous text, predict the next token (Next Token Prediction)
+**Core idea**: given the preceding text, predict the next token (next-token prediction).
 
-**mathematical expression**:
+**Formulation**:
 
-For the text sequence $\mathbf{x} = (x_1, x_2, \ldots, x_T)$, the training objective is to maximize:
+For a text sequence $\mathbf{x} = (x_1, x_2, \ldots, x_T)$, training maximizes:
 
 $$
 \mathcal{L}_{\text{AR}} = \sum_{t=1}^{T} \log P(x_t \mid x_1, x_2, \ldots, x_{t-1}; \theta)
 $$
 
-Where $\theta$ is the model parameter.
+where $\theta$ denotes the model parameters.
 
-**training process**:
-- **Teacher Forcing**: Use the real previous text as input during training
-- **Causal Masking**: The attention mechanism can only see the tokens on the left (past)
-- **Loss calculation**: Calculate the cross entropy loss for each position and then average
+**Training details**:
+- **Teacher forcing**: the true preceding text is used as input during training
+- **Causal masking**: attention can only see tokens to the left (the past)
+- **Loss**: cross-entropy at every position, averaged
 
-**represents model**:
-- **GPT series** (GPT-3, GPT-4): pure Decoder architecture
-- **LLaMA series** (LLaMA-2, LLaMA-3): open source high-performance model
-- **PaLM, Gemini**: Google's large model
+**Representative models**:
+- **GPT series** (GPT-3, GPT-4): decoder-only architecture
+- **LLaMA series** (LLaMA-2, LLaMA-3): high-performing open models
+- **PaLM, Gemini**: Google's large models
 
 **Advantages**:
-- Strong generative ability, good at continuation and dialogue
-- Simple architecture and easy to expand to very large scale
-- High training efficiency
+- Strong generation, well suited to continuation and dialogue
+- Simple architecture that scales easily to very large sizes
+- Efficient training
 
-**training cycle diagram**:
+**Training loop sketch**:
 ```python
 import torch.nn.functional as F
 
@@ -505,8 +523,8 @@ for batch in dataloader:
 
     logits = model(input_ids).logits    # [batch_size, seq_len, vocab_size]
 
-    # Next Token Prediction: location t The output to predict the t+1 a token
-    # input [x1, x2, x3, x4] The output of respectively aligns the target [x2, x3, x4]
+    # Next-token prediction: the output at position t predicts token t+1
+    # outputs for inputs [x1, x2, x3, x4] are aligned with targets [x2, x3, x4]
     shift_logits = logits[:, :-1, :]
     shift_labels = input_ids[:, 1:]
 
@@ -522,148 +540,148 @@ for batch in dataloader:
 ### 2.3.2 Masked language modeling
 {: id="232-掩码语言建模"}
 
-**Core idea**: Randomly mask part of the token and predict the masked content
+**Core idea**: randomly mask some tokens and predict the masked content.
 
-**mathematical expression**:
+**Formulation**:
 
 $$
 \mathcal{L}_{\text{MLM}} = \sum_{i \in \mathcal{M}} \log P(x_i \mid \mathbf{x}_{\backslash \mathcal{M}}; \theta)
 $$
 
-Here, $\mathcal{M}$ is the set of masked positions, and $$\mathbf{x}_{\backslash \mathcal{M}}$$ represents all tokens except the masked positions.
+Here $\mathcal{M}$ is the set of masked positions, and $$\mathbf{x}_{\backslash \mathcal{M}}$$ denotes all tokens except the masked ones.
 
-**training strategy** (BERT method):
-- Randomly select 15% of tokens for processing:
-  - 80% replaced by `[MASK]`
-  - 10% replaced with random token
-  - 10% remains unchanged
+**Masking strategy** (as in BERT):
+- Randomly select 15% of tokens, then:
+  - 80% are replaced with `[MASK]`
+  - 10% are replaced with a random token
+  - 10% are left unchanged
 
-**represents model**:
-- **BERT**: Bidirectional Encoder, pretraining + fine-tuning paradigm
-- **RoBERTa**: Optimized BERT (more data, larger batches, removal of NSP)
-- **DeBERTa**: Disentangled Attention
+**Representative models**:
+- **BERT**: bidirectional encoder; the pretrain-then-fine-tune paradigm
+- **RoBERTa**: an optimized BERT (more data, larger batches, no NSP)
+- **DeBERTa**: disentangled attention
 
 **Advantages**:
-- Two-way context understanding (can see left and right information at the same time)
-- Suitable for comprehension tasks (classification, information extraction)
+- Bidirectional context (sees both left and right)
+- Suited to understanding tasks (classification, information extraction)
 
-**Disadvantages of**:
-- The gap between pretraining and fine-tuning (pretraining has [MASK], fine-tuning does not)
-- Weak generation ability
+**Disadvantages**:
+- A mismatch between pretraining and fine-tuning ([MASK] appears in pretraining but not in fine-tuning)
+- Weak generation
 
-### 2.3.3 Mixed goals and other variations
+### 2.3.3 Mixed objectives and other variants
 {: id="233-混合目标与其他变体"}
 
 #### 2.3.3.1 Encoder-Decoder architecture (T5, BART)
 {: id="2331-encoder-decoder-架构t5bart"}
-- **Span Corruption**: mask continuous token span
-- **is suitable for sequence-to-sequence tasks**: translation, abstract
+- **Span corruption**: mask contiguous spans of tokens
+- **Sequence-to-sequence tasks**: translation, summarization
 
 #### 2.3.3.2 Prefix Language Modeling(PrefixLM)
 {: id="2332-prefix-language-modelingprefixlm"}
-- **UL2**: Combining bidirectional and unidirectional modeling
-- **High flexibility**: You can choose two-way or one-way attention
+- **UL2**: combines bidirectional and unidirectional modeling
+- **Flexible**: bidirectional attention over the prefix, unidirectional over the rest
 
 #### 2.3.3.3 Fill-in-the-Middle(FIM)
 {: id="2333-fill-in-the-middlefim"}
-- **for code model**: Predicting missing codes in the middle
-- **represents**: CodeLlama, StarCoder
-- **format**: `[prefix] <FILL> [suffix] → [middle content]`
+- **For code models**: predict missing code in the middle of a file
+- **Examples**: CodeLlama, StarCoder
+- **Format**: `[prefix] <FILL> [suffix] → [middle content]`
 
 ## 2.4 Pretraining data
 {: id="24-预训练数据"}
 
-The pretraining data determines the knowledge boundaries and capability distribution of the model. A typical data pipeline is:
+Pretraining data sets the boundaries of what a model knows and how its abilities are distributed. A typical data pipeline:
 
-1. **collects**: Common Crawl web pages, books, codes (GitHub), academic papers (arXiv), encyclopedias (Wikipedia), Q&A communities (StackExchange), etc.
-2. **filtering**: language recognition, heuristic rules, quality classifier, toxicity detection and personal information (PII) cleaning
-3. **deduplication**: precise hash deduplication + MinHash/LSH fuzzy deduplication, and deduplication with the evaluation set to prevent leakage
-4. **word segmentation**: Use the word segmenter trained in Section 2.2 to convert the text into a token sequence
-5. **Ratio and Sampling**: Set the mixing ratio for each data source, upsample high-quality small data sources, and downsample low-quality large data sources.
+1. **Collection**: Common Crawl web pages, books, code (GitHub), academic papers (arXiv), encyclopedias (Wikipedia), Q&A communities (StackExchange), and more
+2. **Filtering**: language identification, heuristic rules, quality classifiers, toxicity detection, and removal of personal information (PII)
+3. **Deduplication**: exact hash deduplication plus MinHash/LSH fuzzy deduplication, and deduplication against evaluation sets to prevent leakage
+4. **Tokenization**: convert text into token sequences with the tokenizer trained in Section 2.2
+5. **Mixing and sampling**: set a mixing ratio for each source, upsampling small high-quality sources and downsampling large low-quality ones
 
-The specific methods, tools and trade-offs of each link are unified in Chapter 9 "[Data Engineering ](#9-数据工程)" (including the real ratio of GPT-3, LLaMA and other models). Here are three conclusions to remember:
+Chapter 9, "[Data Engineering ](#9-数据工程)", covers the methods, tools, and trade-offs of each step (including the actual mixtures of GPT-3, LLaMA, and other models). Three conclusions are worth remembering:
 
-- **Quantity and quality must be balanced**: Chinchilla scaling law shows that the number of parameters and the number of training tokens should be increased year-on-year (about 20 tokens/parameter) under the same computing power; while the FineWeb-Edu and Phi series show that improving data quality can significantly reduce the number of tokens required to achieve the same effect.
-- **Deduplication is crucial**: Duplicate data will intensify memory, waste computing power, and may cause leakage of the evaluation set
-- **ratio affects ability boundary**: The ratio of code to mathematical data directly affects reasoning ability, and the multilingual ratio affects cross-language generalization
+- **Balance quantity and quality**: the Chinchilla scaling law shows that, for a fixed compute budget, parameters and training tokens should grow in proportion (about 20 tokens per parameter); FineWeb-Edu and the Phi series show that better data can sharply reduce the tokens needed for the same result
+- **Deduplication is crucial**: duplicated data increases memorization, wastes compute, and can leak evaluation sets
+- **The mixture shapes capabilities**: the share of code and math directly affects reasoning, and the multilingual share affects cross-lingual generalization
 
-## 2.5 Key technologies of pretraining
+## 2.5 Key pretraining techniques
 {: id="25-预训练的关键技术"}
 
 ### 2.5.1 Learning rate scheduling
 {: id="251-学习率调度"}
 
-The most commonly used pretraining is **linear Warmup + Cosine Decay (Cosine Decay)**; for continuous pretraining that requires additional data at any time, **WSD (Warmup-Stable-Decay)** is increasingly used. See Section 7.2 for the formulas and comparison of the two types of scheduling. This section only gives the parameter experience in the pretraining scenario.
+The most common pretraining schedule is **linear warmup + cosine decay**; for continual pretraining, where more data may be added at any time, **WSD (Warmup-Stable-Decay)** is increasingly used. Section 7.2 gives the formulas and compares the two; this section only covers practical settings for pretraining.
 
 <div align="center">
   <img src="/images/llm-training/learning-rate-schedule.webp" width="85%" alt="pretraining learning rate scheduling curve" />
-<figcaption> Figure: Learning rate curve of linear Warmup + cosine decay (peak value 3e-4, minimum learning rate 10% of peak value)</figcaption>
+<figcaption>Figure: learning-rate curve with linear warmup and cosine decay (peak 3e-4, minimum learning rate 10% of the peak)</figcaption>
 </div>
 
-**key parameters**:
-- **Warmup steps**: usually 2,000-10,000 steps (accounting for 1-2% of the total steps)
-- **Peak Learning Rate**: Adjust according to model size
-  - Small model (<1B parameters): 3e-4 ~ 1e-3
-  - Medium model (1-10B parameters): 1e-4 ~ 3e-4
-  - large model (10B+parameters): 6e-5 ~ 2e-4
-- **Decay strategy**: Cosine Annealing is most commonly used
-- **Minimum learning rate**: usually 10% of the peak value
+**Key parameters**:
+- **Warmup steps**: usually 2,000-10,000 steps (1-2% of total steps)
+- **Peak learning rate**: depends on model size
+  - Small models (<1B parameters): 3e-4 ~ 1e-3
+  - Medium models (1-10B parameters): 1e-4 ~ 3e-4
+  - Large models (10B+ parameters): 6e-5 ~ 2e-4
+- **Decay**: cosine annealing is the most common
+- **Minimum learning rate**: usually 10% of the peak
 
-Importance of **Warmup**:
-- Avoid gradient explosion in the early stages of training-free
-- Let the optimizer state (Adam's momentum) gradually stabilize
-- Necessary skills for large model training
+**Why warmup matters**:
+- Avoids gradient explosion early in training
+- Lets the optimizer state (Adam's moments) stabilize gradually
+- Essential for training large models
 
-**The relationship between learning rate and batch size** (Linear Scaling Rule):
+**Learning rate vs. batch size** (linear scaling rule):
 
 $$
 \text{lr}_{\text{new}} = \text{lr}_{\text{base}} \times \frac{\text{batch}_{\text{new}}}{\text{batch}_{\text{base}}}
 $$
 
-For example: basic configuration lr=1e-4, batch=256 → extended to batch=2048 → lr=8e-4.
+For example, a base configuration of lr=1e-4 with batch=256 → scaled to batch=2048 → lr=8e-4.
 
-It should be noted that the linear scaling rule comes from the large batch training experience of SGD (Goyal et al., 2017). For Adam type optimizers, the learning rate as the batch grows is usually closer to square root scaling, and the returns decrease rapidly after the batch exceeds the "critical batch size", so the actual parameters still need to be confirmed in small-scale experiments.
+Note that the linear scaling rule comes from large-batch SGD experience (Goyal et al., 2017). For Adam-style optimizers, the learning rate usually grows closer to the square root of the batch size, and returns diminish quickly beyond the "critical batch size", so actual settings should still be confirmed with small-scale experiments.
 
 ### 2.5.2 Batch Size
 {: id="252-批次大小batch-size"}
 
-Batch size directly affects training efficiency and gradient quality. In terms of the number of tokens (rather than the number of samples), the mainstream approach is **Gradually increase batch size during training** .
+Batch size directly affects training efficiency and gradient quality. Measured in tokens (rather than samples), the mainstream practice is to **increase the batch size gradually during training**.
 
 #### 2.5.2.1 Why is a large Batch Size needed?
 {: id="2521-为什么需要大-batch-size"}
 
-- **Computational efficiency**: higher GPU utilization, more efficient matrix multiplication
-- **Gradient quality**: The gradient estimation variance of large batches is smaller and the update direction is more stable.
-- **Communication efficiency**: The number of steps in distributed training is reduced, and the number of AllReduce times is reduced.
+- **Compute efficiency**: higher GPU utilization and more efficient matrix multiplication
+- **Gradient quality**: large batches give lower-variance gradient estimates and more stable update directions
+- **Communication efficiency**: fewer steps in distributed training means fewer All-Reduce operations
 
-> Note: Excessive batch size will lead to a decrease in generalization (sharp minima problem), and the learning rate needs to be adjusted (see the linear scaling rule above).
+> Note: an excessively large batch can hurt generalization (the sharp-minima problem), and the learning rate must be adjusted accordingly (see the linear scaling rule above).
 
 #### 2.5.2.2 Typical scale (in tokens/batch)
 {: id="2522-典型规模以-tokensbatch-计"}
 
-|model| Batch Size(tokens)|Description|
+|Model| Batch Size(tokens)|Notes|
 |------|-------------------|------|
-| GPT-3 175B |32K → 3.2M (gradually increasing)|Small batches in the early stage of training and large batches in the later stage|
+| GPT-3 175B |32K → 3.2M (gradually increasing)|Small batches early in training, large batches later|
 | LLaMA-2 | 4M tokens |Fixed throughout|
-| PaLM 540B |1M → 4M (gradually increasing)|Doubling in three levels according to training progress|
-| Chinchilla 70B | 1.5M → 3M |Double up mid-training|
+| PaLM 540B |1M → 4M (gradually increasing)|Doubled in three steps as training progresses|
+| Chinchilla 70B | 1.5M → 3M |Doubled midway through training|
 
 #### 2.5.2.3 Gradient Accumulation
 {: id="2523-梯度累积gradient-accumulation"}
 
-When the single-GPU GPU memory is not enough to accommodate the target batch size, the equivalent simulation is performed by accumulating gradients in multi-step small batches:
+When a single GPU cannot hold the target batch, gradients are accumulated over several small batches to simulate it:
 
 ```python
 optimizer.zero_grad()
 for step, batch in enumerate(dataloader):
-    loss = model(batch) / accumulation_steps   # Zoom loss
-    loss.backward()                             # Cumulative gradient
+    loss = model(batch) / accumulation_steps   # scale the loss
+    loss.backward()                             # accumulate gradients
     if (step + 1) % accumulation_steps == 0:
-        optimizer.step()                        # every N step update once
+        optimizer.step()                        # update once every N steps
         optimizer.zero_grad()
 ```
 
-**equivalent relationship**: effective batch size = per-GPU batch size × gradient accumulation steps × number of data parallel cards. For the method of skipping the first N−1 steps of gradient synchronization with `no_sync()` in a distributed scenario, see Section 7.3.2.
+**Equivalence**: effective batch size = per-GPU batch size × gradient accumulation steps × number of data-parallel GPUs. Section 7.3.2 shows how to skip gradient synchronization for the first N−1 steps with `no_sync()` in distributed training.
 
 ---
 
@@ -673,98 +691,98 @@ for step, batch in enumerate(dataloader):
 #### 2.5.3.1 Why start with a short context?
 {: id="2531-为什么从短上下文开始"}
 
-- The computational complexity of attention is $O(n^2)$. The longer the sequence, the GPU memory and calculation amount increase sharply.
-- In the early stages of training, the model has not yet learned long-range dependencies, and the benefits brought by long sequences are limited.
-- Accumulate sufficient language understanding ability in the short context stage, and then expand to get twice the result with half the effort
+- Attention costs $O(n^2)$: as sequences get longer, memory and compute grow sharply
+- Early in training the model has not yet learned long-range dependencies, so long sequences bring little benefit
+- Building solid language understanding at short context first makes the later extension far more efficient
 
 #### 2.5.3.2 Progressive expansion strategy
 {: id="2532-渐进式扩展策略"}
 
 ```
-main training phase:    4K–8K tokens  → Complete most training token(Early models were 2K, Llama 3 for 8K)
-Long context expansion:  32K → 128K    → Gradually lengthen in multiple stages, adding only a small amount token
+Main training:           4K–8K tokens  → most training tokens (early models used 2K, Llama 3 used 8K)
+Long-context extension:  32K → 128K    → lengthened gradually over several stages, adding only a few tokens
 ```
 
-Take Llama 3 as an example: first complete the pretraining of about 15T tokens on the 8K context, and then gradually expand the context to 128K in 6 stages. A total of about 800B tokens are used in this expansion stage (Llama 3 technical report).
+Llama 3, for example, first completed about 15T tokens of pretraining at 8K context, then extended the context to 128K over 6 stages, using about 800B tokens in total for the extension (Llama 3 technical report).
 
-#### 2.5.3.3 Position coding extension technology
+#### 2.5.3.3 Extending position encodings
 {: id="2533-位置编码扩展技术"}
 
 **Position Interpolation(PI)**
 
-The rotation frequency of RoPE is designed for a fixed maximum length $L_{\text{train}}$, beyond which the position encoding becomes invalid. PI's solution: Scale the location index from $[0, L_{\text{target}}]$ back to $[0, L_{\text{train}}]$:
+RoPE's rotation frequencies are tuned to a fixed maximum length $L_{\text{train}}$, and the position encoding breaks down beyond it. PI rescales position indices from $[0, L_{\text{target}}]$ back into $[0, L_{\text{train}}]$:
 
 $$\text{pos}_{\text{new}} = \text{pos} \times \frac{L_{\text{train}}}{L_{\text{target}}}$$
 
-Advantages: Simple to implement, requiring only about 1000 steps of fine-tuning to accommodate 2–4× context expansion.
+Advantage: simple to implement; about 1000 steps of fine-tuning are enough for a 2–4× context extension.
 
 **YaRN(Yet another RoPE extension)**
 
-PI uses uniform scaling for all frequency components, resulting in information loss for high-frequency components. YaRN improvement strategies:
-- **Low frequency component**: Use PI scaling (long-range dependence)
-- **high frequency component**: Keep without interpolation (short-range fine features)
-- **Temperature Scaling**: Narrow attention logits to prevent entropy collapse
+PI scales all frequency components uniformly, which loses information in the high-frequency components. YaRN refines this:
+- **Low-frequency components**: scaled with PI (they carry long-range dependencies)
+- **High-frequency components**: left uninterpolated (they carry fine-grained short-range features)
+- **Temperature scaling**: rescales attention logits to prevent entropy collapse
 
-Effect: Scales to 128k context, requires only a small amount of data fine-tuning, and has better accuracy than PI.
+Result: extends to 128k context with only a small amount of fine-tuning data, and is more accurate than PI.
 
 **ALiBi(Attention with Linear Biases)**
 
-Instead of relying on absolute position encoding, a linear penalty proportional to the distance is directly superimposed on the attention score:
+Instead of position encodings, ALiBi adds a linear penalty proportional to distance directly to the attention scores:
 
 $$\text{Attention score}_{ij} = q_i \cdot k_j^T - m \cdot (i - j)$$
 
-Where $m$ is the slope (hyperparameter) of each attention head. Advantages: There is no need to specify the maximum length during training, and it can be directly extrapolated during inference without additional fine-tuning.
+where $m$ is a per-head slope (a hyperparameter). Advantage: no maximum length needs to be fixed during training, and the model extrapolates at inference time without further fine-tuning.
 
-#### 2.5.3.4 Ultra-long context distributed engineering optimization
+#### 2.5.3.4 Distributed engineering for very long contexts
 {: id="2534-超长上下文分布式工程优化"}
 
-As the demand for long contexts (expanded from 32K to millions of Tokens) explodes, single-GPU optimization alone can no longer handle it. In distributed engineering, the following core technologies are mainly used:
+As demand for long context grows (from 32K to millions of tokens), single-GPU optimizations are no longer enough. The main distributed techniques are:
 
 1. **Ring Attention Mechanism**
-   * **principle**: Split the sequence dimension into a ring communication topology composed of $P$ GPUs. Each GPU only holds a local sequence of Query. When calculating attention, the data blocks of Key and Value are sequentially transferred between GPUs through the Ring Buffer and the local Attention results are calculated.
-   * **Advantages**: Allocate the GPU memory complexity of the attention mechanism to each node by $O(N^2)$, achieving linear expansion of GPU memory with the number of GPUs, making it possible to train ultra-long text sequences of millions or even tens of millions.
+   * **Principle**: the sequence dimension is split across $P$ GPUs arranged in a ring. Each GPU holds only a local chunk of queries; when computing attention, key and value blocks are passed around the ring buffer from GPU to GPU, and each GPU computes its local attention results.
+   * **Benefit**: the $O(N^2)$ memory cost of attention is spread across nodes, so memory scales linearly with the number of GPUs, making it possible to train on sequences of millions or even tens of millions of tokens.
 2. **RoPE Base Frequency Scaling**
-   * **Principle**: When expanding the context, if the original position encoding is used directly, the position vector at the end of the long sequence will have phase overlap or drift in the frequency domain. In addition to interpolation (PI/YaRN), a common practice is to significantly increase the RoPE base frequency $\theta$ (e.g. 10,000 for Llama 2 and 500,000 for Llama 3).
-   * **functions**: lengthens the wavelength of each frequency component so that farther locations can still be distinguished, alleviating the attention degradation of the model when processing long text.
+   * **Principle**: when the context is extended, position vectors near the end of a long sequence can alias or drift in frequency if the original position encoding is used unchanged. Besides interpolation (PI/YaRN), a common practice is to greatly increase the RoPE base frequency $\theta$ (e.g. 10,000 for Llama 2 and 500,000 for Llama 3).
+   * **Effect**: lengthens the wavelength of every frequency component so distant positions remain distinguishable, reducing attention degradation on long text.
 3. **LongLoRA(Shifted Sparse Attention)**
-   * **Principle**: Use the local attention of the group (and stagger the grouping boundary on half of the attention heads) to replace the global attention during training, and restore the standard attention during inference; then only train the LoRA and Embedding/Norm layers.
-   * **functions**: Expand the context of the 7B–70B model to the 32K–100K level with less computing power.
+   * **Principle**: during training, global attention is replaced with grouped local attention (with group boundaries shifted on half of the heads); standard attention is restored at inference. Only the LoRA weights and the embedding/norm layers are trained.
+   * **Effect**: extends 7B–70B models to 32K–100K context with modest compute.
 
 ---
 
 ### 2.5.4 Mixed precision training
 {: id="254-混合精度训练"}
 
-Using low-precision floating point (FP16/BF16) calculations, combined with the FP32 optimizer state, it saves GPU memory while maintaining training stability.
+Computing in low-precision floating point (FP16/BF16) while keeping the optimizer state in FP32 saves GPU memory without sacrificing training stability.
 
-#### 2.5.4.1 Floating point format comparison
+#### 2.5.4.1 Floating-point formats compared
 {: id="2541-浮点格式对比"}
 
-|Format|sign bit|Exponent bit|mantissa digits|maximum value|LLM training applicability|
+|Format|Sign bits|Exponent bits|Mantissa bits|Max value|Suitability for LLM training|
 |------|--------|--------|--------|--------|--------------|
-| FP32 | 1 | 8 | 23 | ~3.4×10³⁸ |Benchmark, stable but large GPU memory|
-| FP16 | 1 | 5 | 10 | ~65504 |Small range, easy to overflow/underflow|
-| **BF16** | **1** | **8** | **7** | **~3.4×10³⁸** |**LLM First choice: same range as FP32**|
-| FP8 (E4M3) | 1 | 4 | 3 | ~448 |H100 native, new choice for inference/training|
+| FP32 | 1 | 8 | 23 | ~3.4×10³⁸ |The reference: stable but memory-hungry|
+| FP16 | 1 | 5 | 10 | ~65504 |Narrow range; prone to overflow/underflow|
+| **BF16** | **1** | **8** | **7** | **~3.4×10³⁸** |**First choice for LLMs: same range as FP32**|
+| FP8 (E4M3) | 1 | 4 | 3 | ~448 |Native on H100; the new option for inference and training|
 
-**Key conclusions**: BF16 has the same number of exponent digits as FP32, and will not cause overflow due to the gradient value range being too large or too small. It is currently the preferred format for large model training.
+**Key point**: BF16 has as many exponent bits as FP32, so gradients that are very large or very small do not overflow. It is the preferred format for LLM training today.
 
 #### 2.5.4.2 FP16 training requires Loss Scaling
 {: id="2542-fp16-训练需要-loss-scaling"}
 
-The maximum value of FP16 is about 65504. If the gradient is very small (< 2⁻²⁴), it will underflow to 0, causing the parameters to not be updated. Solution:
+FP16's maximum value is about 65504. Very small gradients (< 2⁻²⁴) underflow to 0, so the parameters stop updating. The fix:
 
 ```python
 import torch
 
 scaler = torch.amp.GradScaler("cuda")
 
-with torch.autocast("cuda", dtype=torch.float16):   # Forward facing FP16
+with torch.autocast("cuda", dtype=torch.float16):   # forward pass in FP16
     loss = model(inputs)
 
-scaler.scale(loss).backward()            # gradient multiplied by scale factor Anti-underflow
-scaler.step(optimizer)                   # Update parameters after descaling
-scaler.update()                          # automatic adjustment scale factor
+scaler.scale(loss).backward()            # multiply gradients by the scale factor to avoid underflow
+scaler.step(optimizer)                   # unscale, then update parameters
+scaler.update()                          # adjust the scale factor automatically
 ```
 
 #### 2.5.4.3 BF16 training (recommended, no Loss Scaling required)
@@ -781,62 +799,62 @@ optimizer.step()
 #### 2.5.4.4 Master Weights in Mixed Precision
 {: id="2544-混合精度中的-master-weights"}
 
-Master Weights and Adam's first-order moment $m$ and second-order moment $v$ are all saved in FP32 to ensure that the small update amount will not be swallowed up by the rounding of BF16. This results in approximately 16 bytes of static GPU memory per parameter for mixed-precision training (see Section 6.5.1 for derivation):
+The master weights and Adam's first moment $m$ and second moment $v$ are all kept in FP32 so that tiny updates are not lost to BF16 rounding. As a result, mixed-precision training needs about 16 bytes of static GPU memory per parameter (derived in Section 6.5.1):
 
 ```
-forward/Reverse calculation:BF16(Save GPU memory)
-Optimizer status:  FP32(Guaranteed accuracy, but takes up more GPU memory)
-Weight update:    FP32 Accumulate and then transfer BF16 Write back model
+Forward/backward:  BF16 (saves GPU memory)
+Optimizer state:   FP32 (keeps precision, at the cost of more memory)
+Weight update:     accumulated in FP32, then cast to BF16 and written back to the model
 ```
 
 ---
 
-#### 2.5.4.5 FP8 training engineering practice (taking DeepSeek-V3 as an example)
+#### 2.5.4.5 FP8 training in practice (DeepSeek-V3)
 {: id="2545-fp8-训练工程实践以-deepseek-v3-为例"}
 
-BF16 solves the "numeric range" problem, but each number still occupies 2 bytes. **FP8 (8-bit floating point) training** is the next step of compression natively supported by Hopper (H100) and newer generation GPUs: storage is halved and Tensor Core throughput is doubled. DeepSeek-V3 verified the feasibility of FP8 pretraining on a very large scale of 671B parameters for the first time.
+BF16 solves the numeric-range problem, but every number still takes 2 bytes. **FP8 (8-bit floating point) training** is the next step, natively supported on Hopper (H100) and newer GPUs: storage is halved and Tensor Core throughput doubles. DeepSeek-V3 was the first to show that FP8 pretraining works at the scale of 671B parameters.
 
-**1. Why can’t all FP8 be used directly?**
+**1. Why not simply use FP8 everywhere?**
 
-FP8 only has 3 or 2-bit mantissa (E4M3: 4-bit exponent + 3-bit mantissa; E5M2: 5-bit exponent + 2-bit mantissa). Direct replacement of BF16 will lead to rapid accumulation of rounding errors during gradient accumulation and training divergence. The solution of DeepSeek-V3 is **mixed granularity quantification + selective high-precision retention**, rather than a simple "convert all employees to FP8".
+FP8 has only 3 or 2 mantissa bits (E4M3: 4 exponent bits + 3 mantissa bits; E5M2: 5 exponent bits + 2 mantissa bits). Replacing BF16 wholesale lets rounding errors pile up quickly during gradient accumulation, and training diverges. DeepSeek-V3's answer is **fine-grained quantization plus selectively kept high precision**, not a blanket switch to FP8.
 
 **2. Fine-Grained Quantization**
 
-Instead of using a single scaling factor for the entire tensor (per-tensor scaling), scale factors are determined individually in smaller units:
-- **activation value**: quantified by tile granularity of 1×128
-- **weight**: quantified by block granularity of 128×128
+Instead of one scaling factor for a whole tensor (per-tensor scaling), scaling factors are set for smaller units:
+- **Activations**: quantized in 1×128 tiles
+- **Weights**: quantized in 128×128 blocks
 
-Compared with per-tensor quantization, this fine-grained scheme can better adapt to the uneven distribution of values within the tensor (such as outliers concentrated in certain channels) and significantly reduce quantization errors.
+Compared with per-tensor quantization, this fine-grained scheme adapts better to uneven value distributions inside a tensor (such as outliers concentrated in a few channels) and greatly reduces quantization error.
 
 **3. Choice between E4M3 and E5M2**
 
 ```
-NVIDIA Transformer Engine Default mixed format:
-  Forward propagation (activation value, weight):E4M3(3 bit mantissa, higher precision)
-  Backpropagation (gradient):        E5M2(5 bit index, wider dynamic range)
+NVIDIA Transformer Engine default hybrid format:
+  Forward pass (activations, weights): E4M3 (3 mantissa bits, more precision)
+  Backward pass (gradients):           E5M2 (5 exponent bits, wider dynamic range)
 
 DeepSeek-V3:
-  All tensors are used uniformly E4M3
+  E4M3 for all tensors
 ```
 
-Gradient values typically have a larger range than activation values, so the Transformer Engine makes backpropagation use the wider range of E5M2. DeepSeek-V3 does the opposite: fine-grained scaling has made the range of values ​​within each small block narrow enough, so all tensors are switched to the higher-precision E4M3.
+Gradients usually span a wider range than activations, so Transformer Engine uses the wider-range E5M2 for the backward pass. DeepSeek-V3 goes the other way: fine-grained scaling already makes the value range inside each small block narrow enough, so every tensor uses the more precise E4M3.
 
 **4. Accumulation Precision**
 
-The accumulation error of matrix multiplication (GEMM) will amplify as the accumulation length increases. The DeepSeek-V3 report points out that the H800 Tensor Core only retains about 14 bits of precision when doing FP8 GEMM. The approach is to upgrade the partial sum to the CUDA Core every time **accumulates 128 elements, and continue to accumulate** with FP32 precision; FP8 is only used at the input end of matrix multiplication, and the main weight, gradient accumulation and optimizer state still maintain high precision, thus avoiding "fast but inaccurate calculations".
+Accumulation error in matrix multiplication (GEMM) grows with the accumulation length. The DeepSeek-V3 report notes that H800 Tensor Cores keep only about 14 bits of precision during FP8 GEMM. Its solution is to **promote the partial sums to CUDA Cores every 128 elements and continue accumulating in FP32**. FP8 is used only for the inputs of matrix multiplication; master weights, gradient accumulation, and optimizer state stay in high precision, so speed does not come at the cost of accuracy.
 
 **5. Effect**
 
-The DeepSeek-V3 report shows that compared with the BF16 baseline, the relative loss error of FP8 training is always less than 0.25%, while significantly reducing GPU memory usage and training compute. This is one of the key techniques that enables it to train a 671B parameter MoE model at a formal training cost of approximately $5.576 million (see Section 11.2.2 for a real-world example).
+The DeepSeek-V3 report shows that, relative to a BF16 baseline, FP8 training keeps the relative loss error below 0.25% throughout, while substantially cutting GPU memory and training compute. This is one of the key techniques that let it train a 671B-parameter MoE model for an official training cost of about $5.576 million (see Section 11.2.2 for this case study).
 
-> **Engineering reminder**: FP8 training currently still relies on the hardware native support of the Hopper/Blackwell architecture (Ampere and earlier architectures cannot obtain acceleration benefits), and requires fine processing of dynamic updates of scaling factors at the framework level (such as Transformer Engine, DeepSeek self-developed training framework). Benefits cannot be obtained by simply modifying the `dtype` parameters.
+> **Engineering note**: FP8 training still depends on native support in Hopper/Blackwell hardware (Ampere and older GPUs gain no speedup), and the framework must carefully manage dynamic scaling-factor updates (as in Transformer Engine or DeepSeek's in-house training framework). Changing the `dtype` parameter alone brings no benefit.
 
 ---
 
 ### 2.5.5 Flash Attention
 {: id="255-flash-attention"}
 
-Flash Attention reduces the GPU memory complexity of the attention layer from $O(n^2)$ to $O(n)$ through IO-aware block calculation, and the calculation results are mathematically equivalent to standard attention; the attention operator itself can be accelerated several times, and end-to-end training is usually accelerated by 2–3×. For detailed principles, please refer to "[7.5 Flash Attention](#75-flash-attention)".
+Through IO-aware tiled computation, Flash Attention reduces the memory cost of the attention layer from $O(n^2)$ to $O(n)$ while producing results mathematically identical to standard attention. The attention kernel itself runs several times faster, and end-to-end training usually speeds up by 2–3×. See "[7.5 Flash Attention](#75-flash-attention)" for details.
 
 ---
 
@@ -849,28 +867,28 @@ Flash Attention reduces the GPU memory complexity of the attention layer from $O
 #### 2.6.1.1 Core idea
 {: id="2611-核心思想"}
 
-In the standard Transformer, each token passes through all parameters, while MoE introduces multiple "expert" networks at the FFN layer, and only activates the top-k of them each time to achieve **Large amount of parameters and small amount of calculation** goal.
+In a standard Transformer, every token passes through all parameters. MoE instead places several "expert" networks in the FFN layer and activates only the top-k for each token, achieving **many parameters with little compute**.
 
 ```
-input token → Router(router)→ Choose top-k expert → Parallel calculations by experts → weighted output
+input token → router → select top-k experts → experts compute in parallel → weighted output
 ```
 
-**Expert routing (Gating) mechanism**:
+**Expert routing (gating)**:
 
 $$\text{Gate}(x) = \text{TopK}(\text{softmax}(W_g \cdot x), k)$$
 
-The output of each token is the weighted sum of the top-k expert outputs, and the weight is determined by the softmax normalized score.
+Each token's output is the weighted sum of the top-k experts' outputs, with weights given by the softmax-normalized scores.
 
 #### 2.6.1.2 Load Balancing
 {: id="2612-负载均衡load-balancing"}
 
-If the router always assigns tokens to the same experts, the other experts will be useless - this is the core training challenge of MoE. The solution is to add an auxiliary equalization loss to the training loss:
+If the router keeps sending tokens to the same few experts, the others go unused; this is the central training challenge of MoE. The standard fix is to add an auxiliary balancing loss to the training loss:
 
 $$\mathcal{L}_{\text{aux}} = \alpha \cdot N \sum_{i=1}^{N} f_i \cdot P_i$$
 
-Here, $f_i$ is the proportion of tokens actually assigned to expert $i$, and $P_i$ is the average probability of the router outputting to expert $i$. $\alpha$ is usually around 0.01 (the value of Switch Transformer).
+Here $f_i$ is the fraction of tokens actually routed to expert $i$, $P_i$ is the router's average probability for expert $i$, and $\alpha$ is usually about 0.01 (the value used in Switch Transformer).
 
-A side effect of the auxiliary loss is that it interferes with the gradient of the main task. DeepSeek-V3 switches to **Auxiliary-Loss-Free load balancing**: Add a bias term only used to select top-k to each expert's routing score. During training, the bias is dynamically adjusted up or down according to the actual load of the expert, so as to maintain balance without introducing additional losses.
+The auxiliary loss has a side effect: it interferes with the gradient of the main task. DeepSeek-V3 instead uses **auxiliary-loss-free load balancing**: each expert's routing score gets a bias term used only for top-k selection, and during training the bias is raised or lowered according to the expert's actual load. Balance is maintained without any extra loss.
 
 #### 2.6.1.3 Representative models
 {: id="2613-代表模型"}
@@ -886,34 +904,34 @@ A side effect of the auxiliary loss is that it interferes with the gradient of t
 
 The trend is clear: experts are getting finer and more numerous, and the active fraction keeps falling (about 3% for Kimi K2 and about 4% for gpt-oss-120b). Fine-grained experts allow more combinations, but they also make All-to-All communication and load balancing harder.
 
-#### 2.6.1.4 Engineering Challenges
+#### 2.6.1.4 Engineering challenges
 {: id="2614-工程挑战"}
-- **Communication overhead**: Experts of different tokens may be on different GPUs and require All-to-All communication
-- **Expert Parallelism**: Place different experts on different GPUs
-- **Training instability**: Routing collapse (all tokens pour into a few experts)
+- **Communication overhead**: a token's experts may sit on different GPUs, requiring All-to-All communication
+- **Expert parallelism**: different experts are placed on different GPUs
+- **Training instability**: routing collapse (all tokens flood into a few experts)
 
 ---
 
-### 2.6.2 Training stability technology
+### 2.6.2 Training stability techniques
 {: id="262-训练稳定性技术"}
 
 #### 2.6.2.1 WSD learning rate scheduling (Warmup-Stable-Decay)
 {: id="2621-wsd-学习率调度warmup-stable-decay"}
 
-Traditional Cosine scheduling must predetermine the total number of training tokens, and if you want to add data midway, you have to rerun the attenuation curve. WSD divides training into three stages: Warmup, Stable (constant peak learning rate) and Decay. The Stable stage can be extended arbitrarily, so it is suitable for continuous/incremental pretraining. See Section 7.2.3 for formulas and details.
+A cosine schedule requires fixing the total number of training tokens in advance; adding data midway means redoing the decay curve. WSD splits training into warmup, stable (constant peak learning rate), and decay phases. The stable phase can be extended at will, which makes WSD a good fit for continual or incremental pretraining. Section 7.2.3 gives the formula and details.
 
-#### 2.6.2.2 ΜP(Maximal Update Parameterization)
+#### 2.6.2.2 μP (Maximal Update Parameterization)
 {: id="2622-μpmaximal-update-parameterization"}
 
-Under standard parameterization, the optimal learning rate will change with the width of the model, and the adjusted hyperparameters of small models cannot be directly used in large models. μP scales the initialization variance and the learning rate of various parameters according to the width (for example, when training with Adam, the learning rate of the hidden layer matrix parameters is scaled according to $1/\text{width}$), so that the **optimal hyperparameters remain unchanged** under different widths.
+Under standard parameterization, the optimal learning rate shifts with model width, so hyperparameters tuned on a small model do not transfer to a large one. μP rescales the initialization variance and the learning rates of different parameter types according to width (for example, with Adam the learning rate of hidden-layer matrices scales as $1/\text{width}$), so that **the optimal hyperparameters stay the same across widths**.
 
-- Practical value (μTransfer): Search for hyperparameters on the small proxy model and then directly migrate to the large model, greatly saving parameter adjustment costs.
-- Representative work: Tensor Programs V (Yang et al., 2022); Cerebras-GPT, MiniCPM and other models use μP
+- Practical value (μTransfer): search hyperparameters on a small proxy model, then transfer them directly to the large model, greatly reducing tuning cost
+- Representative work: Tensor Programs V (Yang et al., 2022); Cerebras-GPT, MiniCPM, and other models use μP
 
-#### 2.6.2.3 Loss Spike processing
+#### 2.6.2.3 Handling loss spikes
 {: id="2623-loss-spike-处理"}
 
-Occasional gradient explosions during the training process will cause loss to rise sharply. Common coping strategies (see Section 11.3.2.3 for the complete diagnosis process):
+Occasional gradient explosions during training make the loss jump sharply. Common countermeasures (Section 11.3.2.3 gives the full diagnostic procedure):
 
 1. **Gradient clipping**: cap the global L2 norm of the gradient, usually at 1.0
 2. **BF16 instead of FP16**: avoid instability caused by numerical overflow
@@ -986,39 +1004,39 @@ Mid-training fits naturally with the WSD schedule (Section 2.6.2.1): the stable 
 # 3. Supervised fine-tuning (SFT)
 {: id="3-监督微调sft"}
 
-The SFT stage transforms the pretraining model into an assistant that can understand and execute instructions.
+SFT turns a pretrained model into an assistant that understands and carries out instructions.
 
-> **Introduction to this chapter**
+> **About this chapter**
 >
-> SFT is **activate** The key stage of model capability is to allow the Base Model to learn to follow instructions and interact with each other through a small amount of high-quality instruction-response data. This chapter introduces SFT’s data construction, training strategies and efficient fine-tuning techniques (such as LoRA, QLoRA), with special emphasis on **Data quality is far more important than quantity** core concept.
+> SFT is the stage that **unlocks** a model's capabilities: with a small amount of high-quality instruction-response data, the base model learns to follow instructions and hold a conversation. This chapter covers SFT data construction, training strategies, and parameter-efficient fine-tuning (such as LoRA and QLoRA), with particular emphasis on one core idea: **data quality matters far more than quantity**.
 
-## 3.1 Overview of the complete SFT process
+## 3.1 The SFT pipeline
 {: id="31-sft-完整流程概览"}
 
-The following figure shows the complete training process from Base Model to SFT Model:
+The figure below shows the full process from base model to SFT model:
 
 ```mermaid
 graph TD
-    A["Base Model<br/>base model"] --> B["PrepareSFTDataset"]
-    B --> C["Data source selection"]
-    C --> D1["Manual annotation<br/>high quality"]
-    C --> D2["model distillation<br/>GPT-4generate"]
-    C --> D3["Open source dataset<br/>ShareGPTWait"]
+    A["Base model"] --> B["Prepare the SFT dataset"]
+    B --> C["Choose data sources"]
+    C --> D1["Human annotation<br/>high quality"]
+    C --> D2["Model distillation<br/>generated by GPT-4"]
+    C --> D3["Open datasets<br/>ShareGPT, etc."]
     D1 --> E["Data quality control"]
     D2 --> E
     D3 --> E
-    E --> F["Format to unified template<br/>System/User/Assistant"]
-    F --> G["Build training data<br/>only rightAssistantpartial calculationloss"]
-    G --> H{Select fine-tuning method}
-    H -->|Adequate resources| I1["Full parameter fine-tuning<br/>Update all parameters"]
-    H -->|Resource constrained| I2["LoRA/QLoRA<br/>Efficient fine-tuning of parameters"]
-    I1 --> J["training1-3aepoch"]
+    E --> F["Format into a unified template<br/>System/User/Assistant"]
+    F --> G["Build training data<br/>loss on Assistant tokens only"]
+    G --> H{Choose fine-tuning method}
+    H -->|Enough resources| I1["Full fine-tuning<br/>update all parameters"]
+    H -->|Limited resources| I2["LoRA/QLoRA<br/>parameter-efficient fine-tuning"]
+    I1 --> J["Train for 1-3 epochs"]
     I2 --> J
-    J --> K["Training monitoring and evaluation"]
-    K --> L{Convergence or not?}
-    L -->|No| M["Tuning hyperparameters"]
+    J --> K["Monitoring and evaluation"]
+    K --> L{Converged?}
+    L -->|No| M["Tune hyperparameters"]
     M --> J
-    L -->|Yes| N["SFT Model<br/>Instructions to fine-tune the model"]
+    L -->|Yes| N["SFT model<br/>instruction-tuned model"]
 
     style A fill:#fff9c4
     style N fill:#c8e6c9
@@ -1026,59 +1044,59 @@ graph TD
     style G fill:#ffe0b2
 ```
 
-**key features**:
-1. **data size is small**: usually 10k-100k samples, much smaller than pretraining
-2. **Short training time**: hours to days, not weeks
-3. **Quality first**: Data quality is more important than quantity
-4. **High flexibility**: Can use technologies such as LoRA to significantly reduce costs
+**Characteristics**:
+1. **Small data**: usually 10k-100k samples, far less than pretraining
+2. **Short training**: hours to days, not weeks
+3. **Quality first**: data quality matters more than quantity
+4. **Flexible**: techniques such as LoRA cut costs dramatically
 
-## 3.2 Training objectives of SFT
+## 3.2 The SFT objective
 {: id="32-sft-的训练目标"}
 
-**Core task**: Let the model learn to follow instructions (Instruction Following)
+**Core task**: teach the model to follow instructions (instruction following).
 
-### 3.2.1 Mathematical expression
+### 3.2.1 Formulation
 {: id="321-数学表达"}
 
-Given the instruction $x$ (prompt) and the expected answer $y$ (response), the training goal is to maximize the conditional probability:
+Given an instruction $x$ (prompt) and the desired answer $y$ (response), training maximizes the conditional probability:
 
 $$
 \mathcal{L}_{\text{SFT}} = -\sum_{(x,y) \in \mathcal{D}_{\text{SFT}}} \log P(y \mid x; \theta)
 $$
 
-Here, $$\mathcal{D}_{\text{SFT}}$$ is a supervised fine-tuning dataset, containing high-quality instruction-answer pairs.
+Here $$\mathcal{D}_{\text{SFT}}$$ is the supervised fine-tuning dataset of high-quality instruction-response pairs.
 
 ### 3.2.2 Key differences from pretraining
 {: id="322-与预训练的关键区别"}
 
-**pretraining**:
-- The model sees the entire document and predicts each token
-- Loss is calculated at all positions
+**Pretraining**:
+- The model sees the whole document and predicts every token
+- Loss is computed at every position
 
 **SFT**:
-- Model **only calculates the answer part loss**
-- The instruction part does not calculate loss: the method is to set the labels of these positions to `-100` (loss mask) instead of changing the attention mask - the model can still "see" the complete instruction
+- Loss is computed **only on the response**
+- No loss on the instruction: the labels at those positions are set to `-100` (a loss mask). The attention mask is left unchanged, so the model still "sees" the full instruction
 
-**SFT core code**:
+**Core SFT code**:
 ```python
 import torch.nn.functional as F
 
 def sft_loss(model, batch):
-    """SFTThe key: only toAssistantanswer partial calculationloss"""
+    """The key to SFT: compute loss only on the Assistant's response"""
     input_ids = batch['input_ids']  # [batch_size, seq_len]
-    labels = batch['labels']        # [batch_size, seq_len], with input_ids Alignment
+    labels = batch['labels']        # [batch_size, seq_len], aligned with input_ids
 
-    # labelsExample: [-100, -100, -100, 152, 234, 567, ...]
-    #              ↑~~~ Userinstructions ~~~↑  ↑~~ Assistantanswer ~~↑
-    #              (Ignore, don't countloss)    (Calculateloss, learning to generate)
+    # Example labels: [-100, -100, -100, 152, 234, 567, ...]
+    #                 ↑~~ User instruction ~~↑  ↑~~ Assistant response ~~↑
+    #                 (ignored, no loss)        (loss computed, learned)
 
     logits = model(input_ids).logits
 
-    # Same as pretraining, first stagger one position: position t The output prediction of t+1 a token
+    # As in pretraining, shift by one: the output at position t predicts token t+1
     shift_logits = logits[:, :-1, :]
     shift_labels = labels[:, 1:]
 
-    # cross_entropy will be ignored automatically label = -100 location
+    # cross_entropy automatically ignores positions where label = -100
     loss = F.cross_entropy(
         shift_logits.reshape(-1, shift_logits.size(-1)),
         shift_labels.reshape(-1),
@@ -1087,35 +1105,35 @@ def sft_loss(model, batch):
     return loss
 ```
 
-### 3.2.3 Four major goals of SFT
+### 3.2.3 Four goals of SFT
 {: id="323-sft-的四大目标"}
 
-1. **command understanding**: Identify various command formats and task types
-2. **Structured output**: Generate answers with standardized format and clear logic
-3. **Dialogue Adaptation**: Mastering context management of multi-turn dialogues
-4. **Reduce hallucinations**: Improve factual accuracy and reduce the tendency to fabricate information
+1. **Instruction understanding**: recognize a wide variety of instruction formats and task types
+2. **Structured output**: produce well-formatted, logically clear answers
+3. **Dialogue skills**: manage context across multi-turn conversations
+4. **Fewer hallucinations**: improve factual accuracy and reduce the tendency to make things up
 
 ## 3.3 SFT data construction
 {: id="33-sft-数据构建"}
 
-**Core Principle**: Quality > Quantity. A small amount of high-quality data is better than a large amount of low-quality data.
+**Core principle**: quality > quantity. A small amount of high-quality data beats a large amount of low-quality data.
 
 ### 3.3.1 Data scale comparison
 {: id="331-数据规模对比"}
 
-|model|SFT data size|Data source|Description|
+|Model|SFT data size|Data source|Notes|
 |------|-------------|---------|------|
-| **InstructGPT** | 13k |Manual annotation|OpenAI’s early alignment efforts|
-| **LLaMA-2-Chat** | 27.5k |Manual annotation|Meta’s high-quality conversation data|
+| **InstructGPT** | 13k |Human annotation|OpenAI's early alignment work|
+| **LLaMA-2-Chat** | 27.5k |Human annotation|Meta's high-quality dialogue data|
 | **Vicuna** | 70k | ShareGPT |ChatGPT conversations shared by users|
-| **Alpaca** | 52k |GPT-3.5 generation|Stanford’s open source instruction data|
-| **WizardLM** | 250k |ChatGPT evolution generation (Evol-Instruct)|Complex command data|
-| **Phi-1** |About 180M tokens|Practice questions generated by GPT-3.5|First pretrain on about 7B tokens "textbook-level" data, and then fine-tune with small-scale high-quality practice questions|
+| **Alpaca** | 52k |Generated by GPT-3.5|Stanford's open instruction data|
+| **WizardLM** | 250k |Evolved with ChatGPT (Evol-Instruct)|Complex instructions|
+| **Phi-1** |About 180M tokens|Exercises generated by GPT-3.5|Pretrained first on about 7B tokens of "textbook-quality" data, then fine-tuned on a small set of high-quality exercises|
 
-**Key insights**:
-- 10,000-100,000 high-quality samples are usually sufficient
-- Data quality is more important than quantity (Proof of Phi series)
-- Diversity and difficulty distribution are key
+**Key takeaways**:
+- 10,000-100,000 high-quality samples are usually enough
+- Data quality matters more than quantity (as the Phi series shows)
+- Diversity and difficulty distribution are crucial
 
 ### 3.3.2 Data sources
 {: id="332-数据来源"}
@@ -1123,184 +1141,184 @@ def sft_loss(model, batch):
 #### 3.3.2.1 Manual annotation (highest quality)
 {: id="3321-人工标注最高质量"}
 
-**process**:
-1. **Recruiting annotators**: Usually you need to pass a qualification examination
-2. **Marking Guide**: Detailed instruction writing specifications
-3. **sample writing**: the annotator writes the answer according to the instructions
-4. **Multiple rounds of review**: Quality inspection and correction
-5. **Consistency Verification**: Cross-validation by multiple annotators
+**Process**:
+1. **Recruit annotators**: usually requires passing a qualification test
+2. **Annotation guidelines**: detailed specifications for writing instructions and answers
+3. **Writing samples**: annotators write answers following the guidelines
+4. **Multiple review rounds**: quality checks and corrections
+5. **Consistency checks**: cross-validation across annotators
 
-**cost**:
-- Single sample: $5–20 (depending on complexity)
-- 10k sample: $50,000–$200,000
-- Total cost: much lower than pretraining (usually < 5% of total cost)
+**Cost**:
+- Per sample: $5–20 (depending on complexity)
+- 10k samples: $50,000–$200,000
+- Overall: far below pretraining (usually < 5% of total cost)
 
 **Advantages**:
-- Highest quality and meets human expectations
-- Strong controllability and can cover specific areas
-- Suitable for safety critical applications
+- Highest quality and closest to human expectations
+- Highly controllable; can target specific domains
+- Suitable for safety-critical applications
 
-**example annotation guide**:
+**Sample annotation guideline**:
 ```
-【Task】: Write high-quality answers to given instructions
-【request】:
-1. Accuracy: Correct facts, no fabricated information
-2. Usefulness: Answers the question directly and provides sufficient details
-3. Clarity: clear structure and easy to understand
-4. Security: Harmless, unbiased, reject inappropriate requests
-【Format】:
-- Instructions:[User questions or requests]
-- Answer:[Assistant’s answer,200-500word]
+[Task]: write a high-quality answer to the given instruction
+[Requirements]:
+1. Accuracy: facts are correct; nothing is made up
+2. Helpfulness: answers the question directly with enough detail
+3. Clarity: well structured and easy to follow
+4. Safety: harmless and unbiased; declines inappropriate requests
+[Format]:
+- Instruction: [the user's question or request]
+- Answer: [the assistant's answer, 200-500 words]
 ```
 
-#### 3.3.2.2 Model distillation (high cost performance)
+#### 3.3.2.2 Model distillation (cost-effective)
 {: id="3322-模型蒸馏性价比高"}
 
-**method**: Use strong large model (such as GPT-4) to generate training data
+**Method**: use a strong model (such as GPT-4) to generate training data.
 
-**Self-Instruct process** (Wang et al., 2023):
-1. **seed instructions**: manually write 100-200 seed instructions (the original paper uses 175)
-2. **instruction generates**: Use GPT-4 to generate new instructions
-3. **answer generation**: Use GPT-4 to generate answers for commands
-4. **Quality Filtering**: Automation + Manual Sampling Verification
-5. **iterative expansion**: repeat steps 2-4
+**Self-Instruct pipeline** (Wang et al., 2023):
+1. **Seed instructions**: hand-write 100-200 seed instructions (the original paper used 175)
+2. **Instruction generation**: have GPT-4 generate new instructions
+3. **Answer generation**: have GPT-4 answer them
+4. **Quality filtering**: automatic checks plus manual spot checks
+5. **Iterative expansion**: repeat steps 2-4
 
-**cost**:
-- According to the GPT-4 API price in 2023, it will be about US$0.03–0.06/sample, and 10k samples will be about US$300–600; since then, the API price of models with the same capabilities has dropped by more than an order of magnitude.
-- More than 100 times cheaper than manual annotation
+**Cost**:
+- At 2023 GPT-4 API prices, about US$0.03–0.06 per sample, or about US$300–600 for 10k samples; API prices for models of equal capability have since fallen by more than an order of magnitude
+- More than 100 times cheaper than human annotation
 
-**represents work**:
-- **Alpaca**: Stanford, 52k samples, generated with text-davinci-003, data cost less than $500
-- **Vicuna**: ShareGPT user conversation, free
-- **WizardLM**: Evol-Instruct method, automatically improves complexity
+**Representative work**:
+- **Alpaca**: Stanford, 52k samples generated with text-davinci-003 for under $500
+- **Vicuna**: ShareGPT user conversations, free
+- **WizardLM**: Evol-Instruct, which automatically increases instruction complexity
 
-**Self-Instruct actual code**:
+**Self-Instruct in code**:
 ```python
 def self_instruct_pipeline(seed_instructions, num_samples=10000):
-    """useGPT-4Automatically generatedSFTDataset - Very cost-effective solution"""
+    """Generate an SFT dataset automatically with GPT-4 - a very cost-effective approach"""
     generated_data = []
 
     while len(generated_data) < num_samples:
-        # Step 1: Sample seed instructions asfew-shotExample
+        # Step 1: sample seed instructions as few-shot examples
         examples = random.sample(seed_instructions, k=3)
 
-        # Step 2: GPT-4Generate new instructions
+        # Step 2: GPT-4 generates a new instruction
         prompt = f"""Generate a new instruction similar to:
         {examples}
 
         New instruction:"""
         new_instruction = gpt4_generate(prompt)
 
-        # Step 3: GPT-4Generate corresponding answers
+        # Step 3: GPT-4 generates the answer
         response = gpt4_generate(new_instruction)
 
-        # Step 4: Quality checks (length, similarity, toxicity)
+        # Step 4: quality checks (length, similarity, toxicity)
         if quality_check(new_instruction, response):
             generated_data.append({
                 'instruction': new_instruction,
                 'response': response
             })
 
-    return generated_data  # 10kSample cost approx.$300-600
+    return generated_data  # about $300-600 for 10k samples
 ```
 
 ### 3.3.3 Data synthesis and filtering
 {: id="333-数据合成与过滤"}
 
-In order to balance diversity and excellent quality in large-scale fine-tuning, modern large models (such as Llama-3, DeepSeek) extensively use advanced data synthesis and automated cleaning techniques.
+To combine diversity with high quality at scale, modern LLMs (such as Llama-3 and DeepSeek) rely heavily on advanced data synthesis and automated cleaning.
 
-#### 3.3.3.1 Magpie: Adaptive command synthesis without Prompt
+#### 3.3.3.1 Magpie: prompt-free instruction synthesis
 {: id="3331-magpie无-prompt-的自适应指令合成"}
-Magpie is a novel approach to instruction generation. Traditional Self-Instruct needs to provide "seed instructions", while Magpie does not require any input prompts.
-* **Principle**: Directly use the preset prefix of the aligned model's Chat Template to "lure" the model to generate user instructions.
-For example, enter for large model:
+Magpie is a novel way to generate instructions. Traditional Self-Instruct needs seed instructions; Magpie needs no input prompt at all.
+* **Principle**: feed an aligned model only the prefix of its chat template, which "lures" it into generating a user instruction.
+For example, give the model:
   `<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n`
-Since the pretraining and alignment models are highly sensitive to this template, the model automatically generates a high-quality, diverse user question (Instruction), which we then feed into the model to obtain the answer (Response).
-* **Advantages**: The generated instruction distribution is extremely close to the diversity of real human use, and the design cost of seed Prompt is completely eliminated.
+Because aligned models are highly sensitive to this template, the model generates a high-quality, diverse user question (instruction) on its own, which is then fed back to the model to obtain the answer (response).
+* **Advantage**: the generated instructions closely match the diversity of real human use, and there is no cost of designing seed prompts.
 
-#### 3.3.3.2 Multi-Agent Collaboration
+#### 3.3.3.2 Multi-agent synthesis
 {: id="3332-多智能体协同合成multi-agent-collaboration"}
-Loop optimization of instruction data using different agent roles (generator, reflector, evaluator, rewriter):
-1. **generator**: Coarse screening to generate initial instructions - the answer is correct.
-2. **Reflector**: Analyze the logical loopholes or factual errors in the answer and write down revision opinions.
-3. **was rewritten by**: The answer was rewritten based on the revised comments.
-4. **Judge (LLM-as-a-Judge)**: Use GPT-4 to evaluate the quality score (1-10 points), and only retain high-score data.
+Instruction data is refined in a loop by agents playing different roles (generator, reflector, rewriter, judge):
+1. **Generator**: produces initial instruction-response pairs.
+2. **Reflector**: finds logical gaps or factual errors in the answer and writes revision notes.
+3. **Rewriter**: rewrites the answer according to the notes.
+4. **Judge (LLM-as-a-Judge)**: GPT-4 scores quality (1-10 points), and only high-scoring data is kept.
 
-#### 3.3.3.3 Automated quality filtering strategy
+#### 3.3.3.3 Automated quality filtering
 {: id="3333-自动化质量过滤策略"}
-To prevent the presence of low-quality, duplicate or harmful samples in synthetic data, strict multiple filtering mechanisms must be implemented:
-1. **Perplexity Filtering (PPL Filtering)**: Calculate the Perplexity of the answer text and filter out texts with too high PPL (incoherent) or too low (templated repetition).
-2. **Embedding Diversity**: Use models such as `text-embedding-3-small` to calculate sentence vectors. Through clustering and cosine similarity thresholds, samples that are too similar to each other are eliminated to ensure the breadth of data distribution.
-3. **Difficulty Rating (Difficulty Rating)**: Use large model to evaluate the number of inference steps required for instructions, giving priority to retaining samples with high logical difficulty and stimulating the deep learning capabilities of the model.
+Synthetic data must pass several strict filters to keep out low-quality, duplicate, or harmful samples:
+1. **Perplexity filtering (PPL filtering)**: compute the perplexity of each answer and drop texts with PPL that is too high (incoherent) or too low (templated repetition).
+2. **Embedding diversity**: compute sentence embeddings with a model such as `text-embedding-3-small`; using clustering and a cosine-similarity threshold, drop samples that are too similar to each other, keeping the data distribution broad.
+3. **Difficulty rating**: have a strong model estimate how many reasoning steps each instruction needs, and preferentially keep logically harder samples that push the model's deeper reasoning.
 
-#### 3.3.3.4 Open source data sets
+#### 3.3.3.4 Open datasets
 {: id="3334-开源数据集"}
 
-**Commonly used data set**:
+**Commonly used datasets**:
 
-|Dataset|scale|language|Features|
+|Dataset|Size|Language|Notes|
 |--------|------|------|------|
-| **ShareGPT** | 90k |multilingual|Real users talking to ChatGPT|
-| **OpenOrca** | 1M+ |English|GPT-4 generation, including inference process|
-| **UltraChat** | 1.5M |English|Multiple rounds of dialogue|
-| **FLAN Collection** |1800+ tasks|multilingual|Google's multi-task instruction set, templated from existing NLP data sets|
-| **Dolly-15k** | 15k |English|Databricks employee annotation|
-| **Tulu 3 SFT Mix** |About 940000|multilingual|SFT data used by AllenAI open source for complete post-training recipes|
+| **ShareGPT** | 90k |Multilingual|Real user conversations with ChatGPT|
+| **OpenOrca** | 1M+ |English|Generated by GPT-4, including reasoning traces|
+| **UltraChat** | 1.5M |English|Multi-turn dialogue|
+| **FLAN Collection** |1800+ tasks|Multilingual|Google's multi-task instruction collection, templated from existing NLP datasets|
+| **Dolly-15k** | 15k |English|Written by Databricks employees|
+| **Tulu 3 SFT Mix** |About 940000|Multilingual|The SFT data in AllenAI's fully open post-training recipe|
 
 ### 3.3.4 Instruction type distribution
 {: id="334-指令类型分布"}
 
-**typical ratio** (recommended):
+**Typical mix** (recommended):
 
-|Instruction type|Proportion|Example|
+|Instruction type|Share|Example|
 |---------|------|------|
-|**Open Q&A**| 30-40% |"Explaining what quantum computing is"|
-|**Creative Writing**| 15-20% |"Write a poem about autumn"|
-|**information extraction**| 10-15% |"Summarize the main points of this article"|
-|**code generation**| 10-15% |"Quick sort using Python"|
-|**Mathematical reasoning**| 5-10% |"Solve this calculus problem"|
-|**Multiple rounds of dialogue**| 10-15% |context-sensitive continuity questions|
-|**Other tasks**| 5-10% |Translation, format conversion, etc.|
+|**Open-ended Q&A**| 30-40% |"Explain what quantum computing is"|
+|**Creative writing**| 15-20% |"Write a poem about autumn"|
+|**Information extraction**| 10-15% |"Summarize the main points of this article"|
+|**Code generation**| 10-15% |"Implement quicksort in Python"|
+|**Math reasoning**| 5-10% |"Solve this calculus problem"|
+|**Multi-turn dialogue**| 10-15% |Follow-up questions that depend on context|
+|**Other tasks**| 5-10% |Translation, format conversion, and so on|
 
 <div align="center">
   <img src="/images/llm-training/instruction-distribution.webp" width="80%" alt="SFT instruction type distribution" />
-<figcaption> Figure: SFT instruction type distribution diagram (take the median value of the recommended interval in the above table to draw)</figcaption>
+<figcaption>Figure: distribution of SFT instruction types (drawn from the midpoints of the recommended ranges in the table above)</figcaption>
 </div>
 
-**Balance principle**:
-- Covers main application scenarios
-- Avoid an excessive proportion of certain types of tasks
-- Contains different difficulty levels
+**Balancing principles**:
+- Cover the main application scenarios
+- Avoid over-representing any one task type
+- Include a range of difficulty levels
 
 ### 3.3.5 Data quality control
 {: id="335-数据质量控制"}
 
-**Automated inspection**:
+**Automated checks**:
 ```python
 def quality_check(instruction, response):
-    # 1. length check
+    # 1. Length check
     if len(response) < 50 or len(response) > 2000:
         return False
 
-    # 2. Similarity check (duplication removal)
+    # 2. Similarity check (deduplication)
     if is_similar_to_existing(response, threshold=0.9):
         return False
 
-    # 3. Toxicity testing
+    # 3. Toxicity check
     if contains_toxic_content(response):
         return False
 
-    # 4. Fact checking (optional, use search enhancement)
+    # 4. Fact check (optional, retrieval-augmented)
     if not factual_consistency_check(response):
         return False
 
     return True
 ```
 
-**Manual review**:
-- **Sampling audit**: Randomly select 5-10% for manual inspection
-- **Consistency Verification**: Multiple auditors score, calculate consistency
-- **Iterative improvement**: Adjust data generation strategy based on feedback
+**Human review**:
+- **Spot checks**: manually inspect a random 5-10%
+- **Consistency checks**: several reviewers score each sample, and inter-rater agreement is measured
+- **Iterative improvement**: adjust the data-generation strategy based on feedback
 
 ## 3.4 SFT training strategy
 {: id="34-sft-训练策略"}
@@ -1308,67 +1326,67 @@ def quality_check(instruction, response):
 ### 3.4.1 Full fine-tuning
 {: id="341-全参数微调"}
 
-**Method**: Update all parameters of the model
+**Method**: update all of the model's parameters.
 
 **Features**:
 - Pro · **Best results**: fully adapts to the new task
 - Con · **Highest cost**: stores the complete model and gradients
 - Con · **Large memory requirement**: usually needs 4-8 high-end GPUs
 
-**GPU memory requirement calculation** (consistent with the 16 bytes/parameter derivation in Section 6.5.1):
+**GPU memory estimate** (consistent with the 16 bytes per parameter derived in Section 6.5.1):
 ```
-Total GPU memory = Model parameters + gradient + Optimizer status + activation value
+Total GPU memory = parameters + gradients + optimizer state + activations
 
-for 7B model(BF16 mixed precision + AdamW):
-- model parameters (BF16): 7B × 2 bytes = 14GB
-- gradient (BF16):     7B × 2 bytes = 14GB
-- Optimizer status (FP32 Sovereign weight + m + v): 7B × 12 bytes = 84GB
-- Activation value:~20-40GB(depends on batch size and sequence length)
-Total:~132-152GB
+For a 7B model (BF16 mixed precision + AdamW):
+- Parameters (BF16):  7B × 2 bytes = 14GB
+- Gradients (BF16):   7B × 2 bytes = 14GB
+- Optimizer state (FP32 master weights + m + v): 7B × 12 bytes = 84GB
+- Activations: ~20-40GB (depends on batch size and sequence length)
+Total: ~132-152GB
 
-→ If you can’t fit a single GPU, you need at least 2 block A100 (80GB) and cooperate ZeRO Sharding (see 6.5 section)
+→ This does not fit on one GPU; you need at least 2 A100s (80GB) with ZeRO sharding (see Section 6.5)
 ```
 
-**applicable scenarios**:
-- Have sufficient computing resources
-- Need best performance
-- The task is quite different from pretraining
+**When to use it**:
+- Ample compute is available
+- The best possible performance is required
+- The task differs substantially from pretraining
 
 ### 3.4.2 Parameter-efficient fine-tuning (PEFT)
 {: id="342-参数高效微调peft"}
 
-**Core idea**: freeze most parameters and only train a small number of parameters or additional parameters
+**Core idea**: freeze most parameters and train only a small subset or a few added parameters.
 
 #### 3.4.2.1 LoRA(Low-Rank Adaptation)
 {: id="3421-loralow-rank-adaptation"}
 
-**Mathematical Principles**:
+**Math**:
 
-Based on the pretraining weight $W_0 \in \mathbb{R}^{d \times k}$, add the trainable matrix of low-rank decomposition:
+On top of the pretrained weight $W_0 \in \mathbb{R}^{d \times k}$, add a trainable low-rank decomposition:
 
 $$
 W = W_0 + \Delta W = W_0 + BA
 $$
 
-Here:
+where:
 - $B \in \mathbb{R}^{d \times r}$, $A \in \mathbb{R}^{r \times k}$
 - **rank $r \ll \min(d, k)$** (usually $r=8, 16, 32$)
-- $W_0$ frozen, only train $B$ and $A$
+- $W_0$ is frozen; only $B$ and $A$ are trained
 
-**parameter comparison**:
+**Parameter count**:
 ```
-Original parameters:d × k
-LoRA Parameters:d × r + r × k = r(d + k)
+Original parameters: d × k
+LoRA parameters:     d × r + r × k = r(d + k)
 
-Example(d=4096, k=4096, r=16):
-- Original:4096 × 4096 = 16,777,216
-- LoRA: 16 × (4096 + 4096) = 131,072
-- Ratio:131k / 16.7M ≈ 0.78%
+Example (d=4096, k=4096, r=16):
+- Original: 4096 × 4096 = 16,777,216
+- LoRA:     16 × (4096 + 4096) = 131,072
+- Ratio:    131k / 16.7M ≈ 0.78%
 
-→ only training <1% parameters!
+→ fewer than 1% of the parameters are trained!
 ```
 
-**implementation code** (single-layer principle illustration):
+**Implementation** (single layer, for illustration):
 ```python
 import math
 import torch
@@ -1377,11 +1395,11 @@ import torch.nn as nn
 class LoRALinear(nn.Module):
     def __init__(self, base: nn.Linear, rank=16, alpha=32):
         super().__init__()
-        # frozen pretraining weights W0
+        # Frozen pretrained weight W0
         self.base = base
         self.base.weight.requires_grad_(False)
 
-        # LoRA Trainable parameters:A Random initialization,B initialized to 0, Ensure that when training starts ΔW = BA = 0
+        # Trainable LoRA parameters: A is randomly initialized and B starts at 0, so ΔW = BA = 0 at the start of training
         self.lora_A = nn.Parameter(torch.empty(rank, base.in_features))
         self.lora_B = nn.Parameter(torch.zeros(base.out_features, rank))
         nn.init.kaiming_uniform_(self.lora_A, a=math.sqrt(5))
@@ -1389,391 +1407,391 @@ class LoRALinear(nn.Module):
         self.scaling = alpha / rank
 
     def forward(self, x):
-        # raw forward propagation + low rank correction
+        # Original forward pass + low-rank correction
         return self.base(x) + (x @ self.lora_A.T @ self.lora_B.T) * self.scaling
 ```
 
-In the actual project, `LoraConfig` + `get_peft_model` of Hugging Face PEFT is directly used. It is responsible for replacing the target layer with the LoRA layer, saving and merging the adapter. See Section 8.4.1.4 for a complete example.
+In practice you would use Hugging Face PEFT's `LoraConfig` + `get_peft_model`, which swaps the target layers for LoRA layers and handles saving and merging adapters. Section 8.4.1.4 has a complete example.
 
 **Advantages**:
-- **GPU memory occupies less**: only needs to train <1% parameters, no need to save gradients and optimizer states for frozen weights (the training GPU memory of GPT-3 175B in the LoRA paper is reduced from 1.2TB to 350GB)
-- **has low storage cost**: only need to save the adapter for each task (GPT-3 175B checkpoint reduced from 350GB to about 35MB)
-- **can be merged with**: After training, it can be merged back to the original model $W = W_0 + BA$
-- **Modular**: Multiple LoRAs can be trained for different tasks and switched as needed
+- **Less GPU memory**: fewer than 1% of the parameters are trained, and no gradients or optimizer state are stored for the frozen weights (in the LoRA paper, training memory for GPT-3 175B dropped from 1.2TB to 350GB)
+- **Cheap storage**: each task needs only its adapter (the GPT-3 175B checkpoint shrank from 350GB to about 35MB)
+- **Mergeable**: after training, the adapter can be merged back into the original model as $W = W_0 + BA$
+- **Modular**: several LoRAs can be trained for different tasks and swapped as needed
 
-**hyperparameter selection**:
-- **rank r**: 8-64, the larger the better the effect but the more parameters
-  - r=8: The lightest weight, suitable for simple tasks
-  - r=16-32: Recommended default value
+**Hyperparameters**:
+- **rank r**: 8-64; larger ranks fit better but add parameters
+  - r=8: lightest, for simple tasks
+  - r=16-32: recommended default
   - r=64: complex tasks
-- **alpha**: Commonly used is alpha = r or 2r (such as r=16, alpha=32); the QLoRA paper uses r=64, alpha=16
-- **target module**: Early additions to attention projection (`q_proj`, `k_proj`, `v_proj`, `o_proj`); QLoRA paper and Thinking Machines' LoRA Without Regret (2025) found that **covers all linear layers (`gate_proj`, `up_proj`, `down_proj` including MLP) and the effect of** is significantly closer to full parameter fine-tuning
+- **alpha**: commonly alpha = r or 2r (e.g. r=16, alpha=32); the QLoRA paper uses r=64, alpha=16
+- **Target modules**: early work applied LoRA only to the attention projections (`q_proj`, `k_proj`, `v_proj`, `o_proj`). The QLoRA paper and Thinking Machines' LoRA Without Regret (2025) found that **covering all linear layers, including the MLP (`gate_proj`, `up_proj`, `down_proj`),** brings results much closer to full fine-tuning
 
 > **LoRA and catastrophic forgetting**
 >
-> Many people think that LoRA can prevent forgetting, but research shows: **LoRA learns less and forgets less** - The reason why LoRA forgets less is because it learns less, and it does not really solve forgetting. The larger the Rank → the more you learn → the more you forget, and the difference with full-parameter fine-tuning is narrowed. See the "Post-Training and catastrophic forgetting" chapter of this article for details.
+> Many people assume LoRA prevents forgetting, but research shows that **LoRA learns less and forgets less**: it forgets less precisely because it learns less, so it does not really solve forgetting. A larger rank means more learning and more forgetting, and the gap with full fine-tuning narrows. See the chapter "Post-training and catastrophic forgetting" for details.
 
 #### 3.4.2.2 QLoRA(Quantized LoRA)
 {: id="3422-qloraquantized-lora"}
 
-**Core Innovation**: Convert the frozen base weights into 4-bit, and then train LoRA on it. Fine-tuned GPU memory for the 7B model can be compressed from ~24GB (16-bit LoRA) to ~9GB, and the 65B model can be fine-tuned on a single 48GB GPU (QLoRA paper). Core technologies include 4-bit NF4 quantization, Double Quantization and Paged Optimizers.
+**Core innovation**: quantize the frozen base weights to 4 bits, then train LoRA on top. Fine-tuning memory for a 7B model drops from ~24GB (16-bit LoRA) to ~9GB, and a 65B model can be fine-tuned on a single 48GB GPU (QLoRA paper). The key techniques are 4-bit NF4 quantization, double quantization, and paged optimizers.
 
-For detailed principles, GPU memory comparison and complete code implementation, please refer to the section "[Model Quantization Technology → QLoRA: 4-bit quantization + LoRA fine-tuning ](#841-qlora)", which will not be repeated here.
+For the details, memory comparison, and complete code, see "[Model Quantization Technology → QLoRA: 4-bit quantization + LoRA fine-tuning ](#841-qlora)"; they are not repeated here.
 
 #### 3.4.2.3 Other PEFT methods
 {: id="3423-其他-peft-方法"}
 
 **Prefix Tuning**:
-- Add trainable prefix token before input
-- Optimize only prefix embedding
-- Number of parameters: ~0.1% of original model
+- Prepend trainable prefix tokens to the input
+- Optimize only the prefix embeddings
+- Parameters: ~0.1% of the original model
 
 **Adapter Layers**:
-- Insert small adapter between Transformer layers (2-layer MLP)
-- Only train adapter parameters
-- Number of parameters: ~2-4% of original model
+- Insert small adapters (2-layer MLPs) between Transformer layers
+- Train only the adapter parameters
+- Parameters: ~2-4% of the original model
 
 ### 3.4.3 Instruction templates
 {: id="343-指令模板"}
 
-Design a unified input and output format:
+Define a unified input/output format:
 
-|mark|role|Sample content|
+|Tag|Role|Example content|
 |------|------|---------|
 | `<|system|>` |System prompt| You are a helpful assistant. |
-| `<|user|>` |user input| What is the capital of France? |
-| `<|assistant|>` |model answer| The capital of France is Paris. |
+| `<|user|>` |User input| What is the capital of France? |
+| `<|assistant|>` |Model answer| The capital of France is Paris. |
 
-**Common template format**: ChatML, Alpaca, Vicuna, Llama-2-Chat, etc. each have different special tags.
+**Common template formats**: ChatML, Alpaca, Vicuna, Llama-2-Chat, and others, each with its own special tokens.
 
 ### 3.4.4 Training hyperparameters
 {: id="344-训练超参数"}
-- Learning rate: Full parameter fine-tuning is usually smaller than pretraining (1e-5 to 5e-5); LoRA requires a larger learning rate (common 1e-4 to 2e-4)
-- Epoch number: 1-3 epochs
-- Batch Size: Adjust according to resources
+- Learning rate: full fine-tuning usually uses a smaller rate than pretraining (1e-5 to 5e-5); LoRA needs a larger one (commonly 1e-4 to 2e-4)
+- Epochs: 1-3
+- Batch size: set according to available resources
 - Warmup ratio: 3–10%
 
-## 3.5 Cutting-edge technology of SFT
+## 3.5 Recent advances in SFT
 {: id="35-sft的前沿技术"}
 
-### 3.5.1 Small data, high quality training
+### 3.5.1 Small, high-quality data
 {: id="351-小数据高质量训练"}
 
-#### 3.5.1.1 Inspiration from the Phi series
+#### 3.5.1.1 Lessons from the Phi series
 {: id="3511-phi系列的启示"}
-- **Phi-1**: "Textbook-level" data with 1.3B parameters and about 7B tokens. HumanEval pass@1 reaches 50.6%, exceeding StarCoder-15B (33.6%) which has more than 10 times the number of parameters.
-- **Phi-3**: Phi-3-mini with 3.8B parameters is comparable to Mixtral 8x7B and GPT-3.5 on multiple benchmarks
-- **Core Strategy**:
-  - Use GPT-3.5 to synthesize "textbook-style" data, and use GPT-4 annotation to train a quality classifier to filter web page code
+- **Phi-1**: 1.3B parameters trained on about 7B tokens of "textbook-quality" data reached 50.6% pass@1 on HumanEval, beating StarCoder-15B (33.6%), which has more than 10 times as many parameters.
+- **Phi-3**: Phi-3-mini, with 3.8B parameters, rivals Mixtral 8x7B and GPT-3.5 on several benchmarks
+- **Core strategy**:
+  - Synthesize "textbook-style" data with GPT-3.5, and train a quality classifier on GPT-4 annotations to filter web code
   - Strict quality filtering and diversity control
-  - Demonstrate data quality > data scale
+  - Evidence that data quality > data scale
 
-#### 3.5.1.2 Course learning strategies
+#### 3.5.1.2 Curriculum learning
 {: id="3512-课程学习策略"}
-- Gradually increase the difficulty from simple to complex
-- Hierarchical instruction data organization
-- Dynamically adjust data ratio
+- Increase difficulty gradually, from simple to complex
+- Organize instruction data in tiers
+- Adjust the data mixture dynamically
 
 ### 3.5.2 Synthetic data generation
 {: id="352-合成数据生成"}
 
-The basic method of using strong models to directly generate instruction-response pairs (Self-Instruct) is shown in Section 3.3.2.2. The updated Magpie, multi-agent synthesis and automatic filtering are shown in Section 3.3.3. This section adds two types of synthesis methods targeting "difficulty" and "reasoning process".
+Section 3.3.2.2 covers the basic approach of having a strong model generate instruction-response pairs directly (Self-Instruct), and Section 3.3.3 covers the newer Magpie, multi-agent synthesis, and automated filtering. This section adds two kinds of synthesis that target "difficulty" and "reasoning traces".
 
 #### 3.5.2.1 Evol-Instruct method
 {: id="3521-evol-instruct方法"}
-- **WizardLM**: Automatically increase instruction complexity
-- instruction evolution strategy
-- Greatly improve command following ability
+- **WizardLM**: automatically increases instruction complexity
+- Evolves instructions through rewriting strategies
+- Substantially improves instruction following
 
-#### 3.5.2.2 Inference process data
+#### 3.5.2.2 Reasoning-trace data
 {: id="3522-推理过程数据"}
-- **Orca series**: Generate detailed reasoning steps
-- Interpretive data augmentation
-- Improve the reasoning ability of small models
+- **Orca series**: generates detailed step-by-step reasoning
+- Augments data with explanations
+- Improves the reasoning ability of small models
 
 ### 3.5.3 Quantized fine-tuning
 {: id="353-量化微调加速"}
 
-The principles and comparisons of quantization methods such as QLoRA, GPTQ, and AWQ have been introduced in detail in the entire chapter "[Model Quantization Technology ](#8-模型量化技术)". This section focuses on Unsloth, a tool specifically used to accelerate quantization fine-tuning in the SFT scenario.
+The chapter "[Model Quantization Technology ](#8-模型量化技术)" explains and compares quantization methods such as QLoRA, GPTQ, and AWQ. This section focuses on Unsloth, a tool built specifically to accelerate quantized fine-tuning for SFT.
 
-#### 3.5.3.1 Unsloth: Efficient fine-tuning acceleration library
+#### 3.5.3.1 Unsloth: a library for fast fine-tuning
 {: id="3531-unsloth高效微调加速库"}
 
-[Unsloth](https://unsloth.ai) is currently the most popular LoRA/QLoRA acceleration library. It achieves significant speed-up and GPU memory savings by rewriting the underlying CUDA kernel:
+[Unsloth](https://unsloth.ai) is currently the most popular LoRA/QLoRA acceleration library. By rewriting low-level CUDA kernels, it delivers large speedups and memory savings:
 
-- **speed**: The training speed is increased by about **2×** (no accuracy loss)
-- **GPU memory**: VRAM usage reduced by about **70%**
-- **Compatible with**: Fully compatible with Hugging Face PEFT/TRL, almost zero migration cost
-- **supports model**: Llama, Qwen, Mistral, Gemma, Phi and other 500+ models
+- **Speed**: training is about **2×** faster (with no loss of accuracy)
+- **GPU memory**: VRAM use drops by about **70%**
+- **Compatibility**: fully compatible with Hugging Face PEFT/TRL, so migration costs almost nothing
+- **Supported models**: Llama, Qwen, Mistral, Gemma, Phi, and 500+ others
 
-**Quickly get started with** (replace `get_peft_model` with the Unsloth version):
+**Quick start** (swap `get_peft_model` for the Unsloth version):
 
 ```python
 from unsloth import FastLanguageModel
 
-# Load model (supports4-bit QLoRA)
+# Load the model (supports 4-bit QLoRA)
 model, tokenizer = FastLanguageModel.from_pretrained(
     model_name="unsloth/llama-3-8b",
     max_seq_length=2048,
-    load_in_4bit=True,    # 4-bit QLoRA, GPU memory reduction75%
+    load_in_4bit=True,    # 4-bit QLoRA, cuts GPU memory by 75%
 )
 
-# AddLoRAadapter (withPEFTThe interface is consistent)
+# Add LoRA adapters (same interface as PEFT)
 model = FastLanguageModel.get_peft_model(
     model,
     r=16,
     target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
     lora_alpha=16,
     lora_dropout=0,
-    use_gradient_checkpointing="unsloth",  # UnslothProprietary: supports longer contexts
+    use_gradient_checkpointing="unsloth",  # Unsloth-specific: supports longer contexts
 )
 
-# Use standardsTRL SFTTrainer(No need to modify training code)
+# Use the standard TRL SFTTrainer (no changes to training code)
 from trl import SFTTrainer
 trainer = SFTTrainer(model=model, ...)
 trainer.train()
 ```
 
-> **Applicable scenarios**: 7B–70B model LoRA/QLoRA fine-tuning on consumer GPU (RTX 3090/4090); GRPO reinforcement learning training (official data GPU memory savings of approximately **80%**). The above speed and GPU memory figures are from the Unsloth official, and the actual benefits vary with the model and sequence length.
+> **When to use it**: LoRA/QLoRA fine-tuning of 7B–70B models on consumer GPUs (RTX 3090/4090), and GRPO reinforcement learning (official figures report about **80%** memory savings). The speed and memory figures above come from Unsloth; actual gains vary with the model and sequence length.
 
 ---
 
 # 4. Preference alignment
 {: id="4-偏好对齐"}
 
-The alignment phase aligns the model output with human preferences, values, and safety guidelines.
+Alignment brings a model's outputs in line with human preferences, values, and safety guidelines.
 
-> **Introduction to this chapter**
+> **About this chapter**
 >
-> Preference alignment is from "usable" to "easy to use" **critical leap** , through RLHF, DPO or latest **GRPO** and other technologies make model output more helpful, safer, and more consistent with human values. This chapter compares the principles, advantages and disadvantages of RLHF, DPO and GRPO in detail. **Recommendation: DPO is preferred for simple tasks, and GRPO is preferred for complex reasoning tasks and resource-constrained scenarios.**
+> Preference alignment is the **critical leap** from a model that merely works to one that is pleasant to use. Techniques such as RLHF, DPO, and the more recent **GRPO** make outputs more helpful, safer, and more consistent with human values. This chapter compares the principles, strengths, and weaknesses of RLHF, DPO, and GRPO in detail. **Recommendation: prefer DPO for simple tasks, and GRPO for complex reasoning tasks and resource-constrained settings.**
 
 ## 4.1 RLHF
 {: id="41-rlhf"}
 
-**Paper source**: [Training language models to follow instructions with human feedback (InstructGPT)](https://arxiv.org/abs/2203.02155)
+**Paper**: [Training language models to follow instructions with human feedback (InstructGPT)](https://arxiv.org/abs/2203.02155)
 
-### 4.1.1 RLHF three-stage process
+### 4.1.1 The three stages of RLHF
 {: id="411-rlhf-三阶段流程"}
 
 <div align="center">
   <img src="/images/llm-training/rlhf-three-steps.webp" width="90%" alt="RLHF three-stage flow chart" />
-<figcaption> Figure: RLHF complete training process (Source: InstructGPT paper Figure 2)</figcaption>
+<figcaption>Figure: the full RLHF training process (source: Figure 2 of the InstructGPT paper)</figcaption>
 </div>
 
 **Three key steps**:
 
 #### 4.1.1.1 Step 1: Collect preference data
 {: id="4111-step-1-收集偏好数据"}
-- Sample multiple model outputs (usually 4-9 candidate answers)
-- Human annotators rank answer quality
-- Construct preference comparison data set: $(x, y_w, y_l)$
-- **Data scale**: InstructGPT’s reward model data is about 33k prompts, each sorting 4–9 answers, and can be expanded into a large number of pairwise comparison pairs
+- Sample several outputs from the model (usually 4-9 candidate answers)
+- Human annotators rank the answers by quality
+- Build a preference comparison dataset: $(x, y_w, y_l)$
+- **Data scale**: InstructGPT's reward-model data covers about 33k prompts, each with 4–9 ranked answers, which expand into a large number of pairwise comparisons
 
-#### 4.1.1.2 Step 2: Training reward model (Reward Model)
+#### 4.1.1.2 Step 2: Train a reward model
 {: id="4112-step-2-训练奖励模型reward-model"}
-- Train a scoring model using preference data
-- **input**: prompt $x$ + response $y$
-- **output**: scalar mass fraction $r(x, y)$
-- **Goal**: Predicting human preference rankings
-- **architecture**: usually based on SFT Model, replacing LM head with a scalar output layer
+- Train a scoring model on the preference data
+- **Input**: prompt $x$ + response $y$
+- **Output**: a scalar quality score $r(x, y)$
+- **Goal**: predict human preference rankings
+- **Architecture**: usually the SFT model with the LM head replaced by a scalar output layer
 
-#### 4.1.1.3 Step 3: PPO reinforcement learning optimization
+#### 4.1.1.3 Step 3: Optimize the policy with PPO
 {: id="4113-step-3-ppo强化学习优化"}
-- Optimize strategy using PPO (Proximal Policy Optimization)
-- **Reward signal**: Reward Model rating
-- **KL Divergence constraint**: $$\beta \cdot D_{\text{KL}}(\pi_\theta \Vert \pi_{\text{ref}})$$ prevents deviation from the SFT model too far
-- Models required by : Policy Model, Reference Model, Reward Model, Critic Model (4 in total)
+- Optimize the policy with PPO (Proximal Policy Optimization)
+- **Reward signal**: the reward model's score
+- **KL constraint**: $$\beta \cdot D_{\text{KL}}(\pi_\theta \Vert \pi_{\text{ref}})$$ keeps the policy from drifting too far from the SFT model
+- Models required: policy, reference, reward, and critic (4 in total)
 
 ### 4.1.2 Challenges of RLHF
 {: id="412-rlhf-的挑战"}
-- **Reward Hacking**: The model may learn to exploit RM’s weaknesses instead of truly improving quality
-- **training is unstable**: RL training itself tends to diverge
-- **is computationally expensive.**: 4 large models need to be run at the same time.
-- **Human annotation is expensive**: about 0.5–2 USD per preference annotation
+- **Reward hacking**: the model may learn to exploit weaknesses of the reward model instead of genuinely improving
+- **Unstable training**: RL training tends to diverge
+- **High compute cost**: 4 large models must run at the same time
+- **Expensive human annotation**: about 0.5–2 USD per preference label
 
 ## 4.2 DPO
 {: id="42-dpo"}
 
-**Paper source**: [Direct Preference Optimization: Your Language Model is Secretly a Reward Model](https://arxiv.org/abs/2305.18290)
+**Paper**: [Direct Preference Optimization: Your Language Model is Secretly a Reward Model](https://arxiv.org/abs/2305.18290)
 
-### 4.2.1 DPO vs RLHF comparison
+### 4.2.1 DPO vs. RLHF
 {: id="421-dpo-vs-rlhf-对比"}
 
 <div align="center">
   <img src="/images/llm-training/dpo-vs-rlhf.webp" width="85%" alt="DPO vs. RLHF" />
-<figcaption> Figure: DPO simplifies the RLHF process (Source: DPO paper Figure 1)</figcaption>
+<figcaption>Figure: DPO simplifies the RLHF pipeline (source: Figure 1 of the DPO paper)</figcaption>
 </div>
 
-### 4.2.2 Core Innovation
+### 4.2.2 The key idea
 {: id="422-核心创新"}
 
-**Key Insight**: Implicitly parameterize the Reward Model into the policy model, eliminating the need to explicitly train the RM.
+**Key insight**: the reward model is parameterized implicitly by the policy itself, so no reward model has to be trained explicitly.
 
-**DPO loss function**:
+**DPO loss**:
 
 $$
 \mathcal{L}_{\text{DPO}} = -\mathbb{E}_{(x,y_w,y_l)} \left[ \log \sigma \left( \beta \log \frac{\pi_\theta(y_w | x)}{\pi_{\text{ref}}(y_w | x)} - \beta \log \frac{\pi_\theta(y_l | x)}{\pi_{\text{ref}}(y_l | x)} \right) \right]
 $$
 
-**intuitively understands**:
-- Increase the probability of the model correctly answering $y_w$
-- Reduce the probability of the model answering $y_l$
-- Control the change amplitude relative to the reference model through $\beta$
+**Intuition**:
+- Raise the model's probability of the preferred answer $y_w$
+- Lower the model's probability of the rejected answer $y_l$
+- $\beta$ controls how far the model may move from the reference model
 
 ### 4.2.3 Advantages of DPO
 {: id="423-dpo-的优势"}
 
-|Dimensions| RLHF | DPO |
+|Dimension| RLHF | DPO |
 |------|------|-----|
-|**Training phase**|3 steps (Data→RM→PPO)|2 steps (data → direct optimization)|
-|**model quantity**|4 models|2 models|
-|**Training stability**|Lower (RL unstable)|✅ High (supervised learning)|
-|**Computational overhead**|Big|✅ Small (Save 50%+)|
-|**implementation complexity**|High (requires RL library)|✅ Low (standard optimization)|
-| **Reward Hacking** |prone to happen|✅ Less (but still over-optimized)|
-|**effect**|tend to be stronger when fully tuned|✅ Most scenarios are equivalent and much simpler to implement|
+|**Training stages**|3 steps (data → RM → PPO)|2 steps (data → direct optimization)|
+|**Models needed**|4 models|2 models|
+|**Training stability**|Lower (RL is unstable)|✅ High (supervised learning)|
+|**Compute cost**|High|✅ Low (saves 50%+)|
+|**Implementation complexity**|High (needs an RL library)|✅ Low (standard optimization)|
+| **Reward Hacking** |Common|✅ Less common (but over-optimization still happens)|
+|**Results**|Often stronger when fully tuned|✅ Comparable in most settings and much simpler to implement|
 
-> Note: There is no final conclusion on which one is better between DPO and PPO. The system comparison of Xu et al. (2024) found that fully tuned PPO can still surpass DPO in dialogue and coding tasks; the main advantages of DPO are simple engineering and stable training.
+> Note: whether DPO or PPO is better is still unsettled. A systematic comparison by Xu et al. (2024) found that well-tuned PPO can still beat DPO on dialogue and coding tasks; DPO's main advantages are simple engineering and stable training.
 
 ### 4.2.4 Variants of DPO
 {: id="424-dpo-的变体"}
 
-- **IPO** (Identity Preference Optimization): Replace the log-sigmoid loss of DPO with a square loss to alleviate overfitting when the preference is close to determined
-- **KTO** (Kahneman-Tversky Optimization): Based on prospect theory, only a single label of "good/bad" is needed, no paired data is required
-- **ORPO** (Odds Ratio Preference Optimization): Combine SFT and preference optimization into a single stage without a reference model
-- **SimPO** (Simple Preference Optimization): Use the length-normalized average log probability as an implicit reward, and also remove the reference model
-- **RRHF** (Rank Responses to align Human Feedback): Using ranking loss
+- **IPO** (Identity Preference Optimization): replaces DPO's log-sigmoid loss with a squared loss, reducing overfitting when preferences are nearly deterministic
+- **KTO** (Kahneman-Tversky Optimization): based on prospect theory; needs only single "good/bad" labels, not paired data
+- **ORPO** (Odds Ratio Preference Optimization): merges SFT and preference optimization into one stage, with no reference model
+- **SimPO** (Simple Preference Optimization): uses the length-normalized average log probability as an implicit reward and also drops the reference model
+- **RRHF** (Rank Responses to align Human Feedback): uses a ranking loss
 
 ## 4.3 RLAIF
 {: id="43-rlaif"}
 
-**Paper source**: [RLAIF: Scaling Reinforcement Learning from Human Feedback with AI Feedback](https://arxiv.org/abs/2309.00267)
+**Paper**: [RLAIF: Scaling Reinforcement Learning from Human Feedback with AI Feedback](https://arxiv.org/abs/2309.00267)
 
 <div align="center">
   <img src="/images/llm-training/rlaif-workflow.webp" width="85%" alt="RLAIF workflow" />
-<figcaption> Figure: RLAIF uses AI model to replace human annotation (Source: RLAIF paper)</figcaption>
+<figcaption>Figure: RLAIF replaces human annotators with an AI model (source: RLAIF paper)</figcaption>
 </div>
 
 ### 4.3.1 Core idea
 {: id="431-核心思想"}
 
-**Replace human annotated preference data with powerful AI models (such as GPT-4)**
+**Replace human-annotated preference data with labels from a strong AI model (such as GPT-4).**
 
 **Workflow**:
-1. **AI Tagger Generation Preferences**: Score and rank candidate responses using models such as GPT-4
-2. **training Reward Model**: training RM based on AI annotated preference data
-3. **RL Optimization**: Use PPO or DPO for strategy optimization
+1. **AI labeler produces preferences**: a model such as GPT-4 scores and ranks candidate responses
+2. **Train the reward model**: on the AI-labeled preference data
+3. **RL optimization**: optimize the policy with PPO or DPO
 
 ### 4.3.2 Advantages
 {: id="432-优势"}
 
-- **is low cost**: no manual labeling required, saving 90%+ cost
-- **scalable**: can generate large-scale preference data
-- **high quality**: Experiments show that the effect is close to or even exceeds RLHF
-- **has good consistency**: AI annotation is more consistent than humans
+- **Low cost**: no human labeling, saving 90%+ of the cost
+- **Scalable**: can produce preference data at large scale
+- **High quality**: experiments show results close to, or even better than, RLHF
+- **Consistent**: AI labels are more consistent than human ones
 
 ### 4.3.3 Challenges
 {: id="433-挑战"}
 
-- AI labeler biases are passed on to alignment models
-- Requires high-quality AI annotators (such as GPT-4)
+- Biases of the AI labeler are passed on to the aligned model
+- Requires a high-quality AI labeler (such as GPT-4)
 
 ## 4.4 Constitutional AI
 {: id="44-constitutional-ai"}
 
-**Paper source**: [Constitutional AI: Harmlessness from AI Feedback](https://arxiv.org/abs/2212.08073)
+**Paper**: [Constitutional AI: Harmlessness from AI Feedback](https://arxiv.org/abs/2212.08073)
 
 <div align="center">
   <img src="/images/llm-training/constitutional-ai.webp" width="85%" alt="Constitutional AI process" />
-<figcaption> Figure: Constitutional AI’s self-criticism and correction process (Source: Anthropic Constitutional AI paper)</figcaption>
+<figcaption>Figure: the self-critique and revision process of Constitutional AI (source: Anthropic's Constitutional AI paper)</figcaption>
 </div>
 
-### 4.4.1 Core Concept
+### 4.4.1 The key idea
 {: id="441-核心理念"}
 
-**Let the AI system follow a clear code of conduct (Constitution) and achieve alignment through self-criticism and correction**
+**The AI system follows an explicit set of principles (a constitution) and aligns itself through self-critique and revision.**
 
 ### 4.4.2 Two-stage training
 {: id="442-两阶段训练"}
 
-#### 4.4.2.1 The first stage: supervised learning (SL-CAI)
+#### 4.4.2.1 Stage 1: supervised learning (SL-CAI)
 {: id="4421-第一阶段监督学习sl-cai"}
-1. **generates initial answer**: Model generates answer to harmful instructions
-2. **Self-criticism**: The model evaluates its own answers according to the Constitution
-3. **Self-correction**: Answer to improved version of model generation
-4. **Supervised learning**: SFT on corrected data
+1. **Generate an initial answer**: the model answers a harmful instruction
+2. **Self-critique**: the model evaluates its own answer against the constitution
+3. **Self-revision**: the model writes an improved answer
+4. **Supervised learning**: SFT on the revised data
 
-#### 4.4.2.2 Phase 2: Reinforcement Learning (RL-CAI)
+#### 4.4.2.2 Stage 2: reinforcement learning (RL-CAI)
 {: id="4422-第二阶段强化学习rl-cai"}
-1. **AI Feedback**: Use the model to evaluate the consistency of different answers with respect to the Constitution
-2. **Preference data**: Constructing AI-labeled preference pairs
-3. **RL Training**: Using RLAIF for preference alignment
+1. **AI feedback**: the model judges which answers better follow the constitution
+2. **Preference data**: build AI-labeled preference pairs
+3. **RL training**: align preferences with RLAIF
 
-### 4.4.3 Constitution Example
+### 4.4.3 Example principles
 {: id="443-constitution-示例"}
 
-- "Please choose the answer that is most helpful, honest and harmless"
-- "Please select answers that do not encourage illegal, unethical or inappropriate behavior"
-- "Please choose the answer that best demonstrates care, respect and consideration"
+- "Please choose the response that is the most helpful, honest, and harmless"
+- "Please choose the response that does not encourage illegal, unethical, or inappropriate behavior"
+- "Please choose the response that shows the most care, respect, and consideration"
 
 ### 4.4.4 Advantages
 {: id="444-优势"}
 
-- **Transparent and controllable**: The code of conduct is clear and adjustable
-- **Autonomous Alignment**: Reduce reliance on human feedback
-- **Expandable**: Easily expandable to new values and principles
-- **works well**: Without using any artificial harmful labels, you get a model that is more harmless and less evasive than the RLHF baseline.
+- **Transparent and controllable**: the principles are explicit and adjustable
+- **Self-alignment**: less dependence on human feedback
+- **Extensible**: easy to extend to new values and principles
+- **Effective**: without any human harmfulness labels, it produces a model that is more harmless and less evasive than the RLHF baseline
 
 ## 4.5 GRPO and reasoning models
 {: id="45-grpo-与推理模型"}
 
-**Paper source**: [DeepSeekMath](https://arxiv.org/abs/2402.03300) (first proposed by GRPO) / [DeepSeek-R1](https://arxiv.org/abs/2501.12948) (large-scale inference RL practice)
+**Papers**: [DeepSeekMath](https://arxiv.org/abs/2402.03300) (where GRPO was introduced) / [DeepSeek-R1](https://arxiv.org/abs/2501.12948) (large-scale RL for reasoning)
 
-GRPO was proposed by DeepSeek in DeepSeekMath (2024). With the open source of DeepSeek-R1, GRPO and its improved version (see Section 4.6.4) have become the most commonly used RL algorithms for training strong reasoning models (Reasoning Models) in the open source community.
+DeepSeek introduced GRPO in DeepSeekMath (2024). After DeepSeek-R1 was open-sourced, GRPO and its improved variants (Section 4.6.4) became the most widely used RL algorithms in the open community for training strong reasoning models.
 
 ### 4.5.1 GRPO and memory savings
 {: id="451-grpo-的创新与显存优化"}
 
-In the traditional PPO (Proximal Policy Optimization) algorithm, in order to calculate the Advantage Function to guide policy updates, a Critic Model (Value Network) of the same size as the policy model must be loaded to estimate the value of each intermediate state. This means that the GPU memory needs to accommodate four very large models at the same time during training:
+In classic PPO (Proximal Policy Optimization), computing the advantage function that guides policy updates requires a critic model (value network) as large as the policy, which estimates the value of every intermediate state. Training therefore has to fit four very large models in GPU memory at once:
 
 $$\text{Policy (Active)} + \text{Reference (Frozen)} + \text{Reward (Frozen)} + \text{Critic (Active)}$$
 
-Under extremely large parameter models, this leads to extremely high barriers to GPU memory and computing resources, frequent OOM occurrences, and even extremely unstable reinforcement learning training due to the estimation bias of the Critic network.
+For very large models this raises the memory and compute bar dramatically, causes frequent OOMs, and the critic's estimation errors can even make RL training highly unstable.
 
-**GRPO's solution**: Estimating advantage through **group relative scoring (Group Relative Scoring)**, completely canceling the Critic network.
+**GRPO's solution**: estimate advantages through **group relative scoring**, removing the critic entirely.
 
-#### 4.5.1.1 Calculation formula of relative advantage within a group
+#### 4.5.1.1 Group-relative advantage
 {: id="4511-组内相对优势计算公式"}
-For the same input prompt $x$, the policy model (Policy) samples $G$ answers in parallel to form a group (Group): $\{y_1, y_2, \ldots, y_G\}$. Use a scoring function or reward model to calculate the reward score $\{r_1, r_2, \ldots, r_G\}$ for each of these $G$ answers. The relative advantage (Advantage) $A_i$ of each answer $y_i$ within the group is defined as:
+For the same prompt $x$, the policy samples $G$ answers in parallel to form a group: $\{y_1, y_2, \ldots, y_G\}$. A scoring function or reward model gives each of the $G$ answers a reward $\{r_1, r_2, \ldots, r_G\}$. The relative advantage $A_i$ of answer $y_i$ within the group is:
 
 $$
 A_i = \frac{r_i - \text{mean}(r_1, r_2, \ldots, r_G)}{\text{std}(r_1, r_2, \ldots, r_G)}
 $$
 
-Subsequently, the gradient update formula for calculating Policy using these advantages is:
+These advantages are then used in the policy objective:
 
 $$
 \mathcal{L}_{\text{GRPO}}(\theta) = \frac{1}{G} \sum_{i=1}^{G} \left[ \min \left( \frac{\pi_\theta(y_i|x)}{\pi_{\theta_{\text{old}}}(y_i|x)} A_i, \, \text{clip} \left( \frac{\pi_\theta(y_i|x)}{\pi_{\theta_{\text{old}}}(y_i|x)}, 1-\epsilon, 1+\epsilon \right) A_i \right) - \beta \, \mathbb{D}_{\text{KL}}(\pi_\theta || \pi_{\text{ref}}) \right]
 $$
 
-Here, $$\mathbb{D}_{\text{KL}}$$ is used to punish the deviation of the current strategy from the reference model (Reference Model) to prevent the model from "deviating". Intra-group normalization naturally eliminates the gradient instability caused by the disparity in absolute reward values ​​between different prompts. The above formula is the abbreviation of sequence level. The original paper calculates the ratio by token within each answer and averages it.
+Here $$\mathbb{D}_{\text{KL}}$$ penalizes deviation of the current policy from the reference model, keeping the model from drifting. Normalizing within the group naturally removes the gradient instability caused by large differences in absolute reward across prompts. The formula above is a sequence-level shorthand; the original paper computes the ratio per token within each answer and averages.
 
-#### 4.5.1.2 Comparison between GRPO and PPO GPU memory
+#### 4.5.1.2 GPU memory: GRPO vs. PPO
 {: id="4512-grpo-与-ppo-显存对比"}
 
 ```mermaid
 graph TD
-    subgraph PPO["PPO Training GPU memory usage: needs to be loaded 4 models"]
-        PPO_Actor["Policy model (Trainable)<br/>Parameter quantity: Ψ"]
-        PPO_Critic["Critic model (Trainable)<br/>Parameter quantity: Ψ"]
-        PPO_Ref["Reference model (Frozen)<br/>Parameter quantity: Ψ"]
-        PPO_Reward["Reward model (Frozen)<br/>Parameter quantity: Ψ"]
+    subgraph PPO["PPO training memory: 4 models loaded"]
+        PPO_Actor["Policy model (trainable)<br/>parameters: Ψ"]
+        PPO_Critic["Critic model (trainable)<br/>parameters: Ψ"]
+        PPO_Ref["Reference model (frozen)<br/>parameters: Ψ"]
+        PPO_Reward["Reward model (frozen)<br/>parameters: Ψ"]
     end
 
-    subgraph GRPO["GRPO Training GPU memory usage: only 2 models"]
-        GRPO_Policy["Policy model (Trainable)<br/>Parameter quantity: Ψ"]
-        GRPO_Ref["Reference model (Frozen)<br/>Parameter quantity: Ψ"]
-        GRPO_Rule["Rule Validator / external API<br/>GPU memory usage: 0"]
+    subgraph GRPO["GRPO training memory: only 2 models"]
+        GRPO_Policy["Policy model (trainable)<br/>parameters: Ψ"]
+        GRPO_Ref["Reference model (frozen)<br/>parameters: Ψ"]
+        GRPO_Rule["Rule-based verifier / external API<br/>GPU memory: 0"]
     end
 
     style PPO_Actor fill:#f8d7da,stroke:#f5c6cb
@@ -1786,162 +1804,162 @@ graph TD
     style GRPO_Rule fill:#fff3cd,stroke:#ffeeba
 ```
 
-This self-comparison within the group removes the value network (Critic) and the black box reward model (Reward Model, which can be replaced by a low GPU memory ruler). **saves about 50%–70% of the training GPU memory overhead**, which is a key milestone in the civilianization of large model reinforcement learning.
+By comparing answers within a group, GRPO drops the value network (critic) and the black-box reward model (which can be replaced by a rule-based verifier that uses almost no GPU memory). **This saves roughly 50%–70% of training memory** and was a key milestone in making RL for large models accessible.
 
-|Features| RLHF (PPO) | GRPO |
+|Feature| RLHF (PPO) | GRPO |
 | :--- | :--- | :--- |
-|**model quantity**|4 (Policy, Ref, RM, Critic)|✅ 2 (Policy, Ref)|
-|**GPU memory consumption**|Extremely high (needs to load multiple models)|✅Significantly reduced (saving about 50%-70%)|
-|**reward function**|Relying on complex neural network RM|✅ Supports deterministic rule scoring (such as compilation pass rate, test cases)|
-|**Reasoning task performance**|Average|✅ Extremely strong (core technology of DeepSeek-R1)|
-|**Training stability**|Low (easy to crash)|✅ Higher (within-group normalization reduces variance)|
+|**Models needed**|4 (Policy, Ref, RM, Critic)|✅ 2 (Policy, Ref)|
+|**GPU memory**|Very high (several models loaded)|✅ Much lower (saves about 50%-70%)|
+|**Reward function**|Relies on a complex neural reward model|✅ Supports deterministic rule-based scoring (e.g. compile success, test cases)|
+|**Reasoning performance**|Average|✅ Very strong (the core technique behind DeepSeek-R1)|
+|**Training stability**|Low (prone to collapse)|✅ Higher (within-group normalization reduces variance)|
 
 ---
 
 ### 4.5.2 The DeepSeek-R1 recipe
 {: id="452-deepseek-r1-对齐范式"}
 
-In the traditional SFT stage, the model just passively "recites" the reasoning steps written by humans. Through reinforcement learning (such as GRPO), the model can independently explore the optimal problem-solving path without human demonstration.
+In conventional SFT, the model passively "memorizes" reasoning steps written by humans. With reinforcement learning (such as GRPO), it can discover good solution paths on its own, without human demonstrations.
 
-Based on the successful experience of DeepSeek-R1, the training of the strong inference model follows the following **four-stage alignment process**:
+Following DeepSeek-R1, strong reasoning models are trained with a **four-stage alignment pipeline**:
 
 ```
-[Stage one: cold startSFT] -> Collect thousands of high-quality longCoTdata to help the model establish basic thinking habits (output <think>...</think> format)
+[Stage 1: cold-start SFT]      -> Collect a few thousand high-quality long-CoT examples so the model learns basic thinking habits (output in <think>...</think> format)
       |
-[Stage 2: reasoningRLtraining] -> Use GRPO Algorithm, allowing the model to explore independently through rule scoring (regular matching results, compiler verification)
-      |                 * Phenomenon: The model spontaneously learns"self-correction", "Rethink"(Aha Moments)and extend the length of thinking
+[Stage 2: reasoning RL]        -> GRPO with rule-based scoring (regex-matched answers, compiler checks) lets the model explore on its own
+      |                 * Observed: the model spontaneously learns to self-correct and reflect ("aha moments") and thinks for longer
       |
-[Stage three: Reject sampling and againSFT] -> sampling RL Stage high-quality inference chain data, mixed with general data (writing, security, translation) for secondary SFT
+[Stage 3: rejection sampling + second SFT] -> Sample high-quality reasoning traces from the RL model, mix in general data (writing, safety, translation), and run SFT again
       |
-[Stage four: General preferencesRL] -> Perform safety and human preference alignment on the final model to solve the inference model"Difficulty rejecting malicious requests"or"Not answering the question"question
+[Stage 4: general preference RL] -> Align the final model for safety and human preference, fixing reasoning models' tendency to "fail to refuse harmful requests" or "miss the point of the question"
 ```
 
-#### 4.5.2.1 Reward rule configuration for inference RL
+#### 4.5.2.1 Rule-based rewards for reasoning RL
 {: id="4521-推理-rl-的奖励规则配置"}
-In the inference stage, try to avoid using the black-box subjective neural network reward model (RM), and use **objective and hard rule verifiers (Rule-Based Verifiers)**:
-1. **Accuracy Reward**: For math questions, use regular expressions to extract the answer in the last pair of tags (such as `\boxed{...}`) and compare it with the standard answer; for code questions, send the code to the sandbox compiler to run the test case.
-2. **Format Reward (Format Reward)**: The model is required to wrap the thinking process in the `<think>` and `</think>` tags, and only rewards will be given if it meets the format. The inference RL of DeepSeek-R1 only uses two types of rule rewards: accuracy and format.
+For reasoning RL, black-box neural reward models (RMs) are avoided where possible in favor of **objective, hard rule-based verifiers**:
+1. **Accuracy reward**: for math, a regular expression extracts the answer from the final marker (such as `\boxed{...}`) and compares it with the reference answer; for code, the program is run against test cases in a sandbox.
+2. **Format reward**: the model must wrap its thinking in `<think>` and `</think>` tags and is rewarded only when the format is correct. DeepSeek-R1's reasoning RL used only these two rule-based rewards: accuracy and format.
 
 ---
 
 ### 4.5.3 Process vs. outcome rewards
 {: id="453-过程监督与结果监督"}
 
-For multi-step reasoning tasks, how to provide accurate feedback (Credit Assignment) to the model is the core challenge of reinforcement learning.
+For multi-step reasoning, giving the model precise feedback (credit assignment) is the central challenge of reinforcement learning.
 
 #### 4.5.3.1 Outcome-supervised Reward Model (ORM)
 {: id="4531-结果监督outcome-supervised-reward-model-orm"}
-* **Principle**: Only the correct or incorrect answer in the final output is rewarded (0 or 1).
-* **Advantages**: The annotation cost is extremely low (you only need to know the final answer).
-* **Disadvantages**: **Sparse Reward**. When the inference steps are long (such as 50 steps), it is difficult for the model to know which step in the middle went wrong. It is easy for the model to write wrong reasoning steps in order to come up with the correct answer (i.e., "implicit illusion").
+* **Principle**: only the correctness of the final answer is rewarded (0 or 1).
+* **Advantage**: labeling is very cheap (only the final answer is needed).
+* **Disadvantage**: **sparse reward**. With long reasoning (say 50 steps), the model can hardly tell which intermediate step went wrong, and it may even reach the right answer through wrong steps (hidden hallucination).
 
 #### 4.5.3.2 Process-supervised Reward Model (PRM)
 {: id="4532-过程监督process-supervised-reward-model-prm"}
-*  **principle** : in the inference chain generated by the model **every intermediate step** Perform step-by-step scoring.
-* **Advantages**: **Dense Reward**. It can effectively identify and punish pseudo-logic and conceptual substitutions in intermediate steps, significantly improving the rigor of mathematical and symbolic reasoning.
-* **Disadvantages**: Data acquisition cost is high. OpenAI's PRM800K requires manual step-by-step annotation of about 800,000 step labels; Math-Shepherd and other works use Monte Carlo expansion to automatically estimate the accuracy of each step, but this will introduce noise.
+* **Principle**: score **every intermediate step** of the model's reasoning chain individually.
+* **Advantage**: **dense reward**. It can catch and penalize faulty logic and concept slippage in intermediate steps, markedly improving the rigor of mathematical and symbolic reasoning.
+* **Disadvantage**: expensive data. OpenAI's PRM800K required about 800,000 human step-level labels; Math-Shepherd and similar work estimate each step's correctness automatically with Monte Carlo rollouts, at the cost of added noise.
 
-**Industrial practice**: The DeepSeek-R1 report lists PRM as one of the "unsuccessful attempts" - fine-grained steps are difficult to define, automatic labeling is unreliable, and the neural network reward model is easy to be reward hacked. Therefore, in GRPO training, deterministic result rewards (ORM/rule validator) are usually given priority for subjects that can be automatically verified (mathematics, code), combined with length and format constraints, allowing the model to explore the correct intermediate process by itself through a large number of samples; PRM is more used for candidate rearrangement (Best-of-N) during inference.
+**In practice**: the DeepSeek-R1 report lists PRM among its "unsuccessful attempts": fine-grained steps are hard to define, automatic labels are unreliable, and neural reward models are easy to reward-hack. So in GRPO training, domains that can be verified automatically (math, code) usually rely on deterministic outcome rewards (ORM or rule-based verifiers) plus length and format constraints, letting the model find correct intermediate steps through heavy sampling; PRMs are used mainly to rerank candidates at inference time (Best-of-N).
 
 ---
 
 ### 4.5.4 Test-time compute
 {: id="454-推理时计算扩展"}
 
-Before the R1/o1 era, the large model followed the **training period Scaling Laws** (that is, the model capability mainly depends on the amount of training parameters and the number of Tokens). The inference model introduces a new dimension - **Inference Period Scaling Laws (Test-Time Compute Scaling)**.
+Before the o1/R1 era, LLMs followed **training-time scaling laws**: capability depended mainly on parameter count and training tokens. Reasoning models added a new dimension: **test-time scaling laws (test-time compute scaling)**.
 
-* **Core concept**: By increasing the computing resources in the inference phase (allowing the model to "think longer and try more"), the accuracy of complex tasks can be significantly improved while the number of parameters remains unchanged.
-* **Main implementation technology**:
-  1. **System 2 Thinking**: Through the RL mechanism, the model is trained to generate an extremely long internal chain of thought (CoT) in exchange for a higher probability of correct results.
-  2. **Monte Carlo Tree Search (MCTS)**: During the generation process, multi-path exploration is performed on different reasoning forks, the score of each step is evaluated and backtracked to select the optimal search tree path.
-  3. **Rejection Sampling / Best-of-N (Rejection Sampling / Best-of-N)**: Sample $N$ results during inference and use majority voting (Self-Consistency) or lightweight scoring model to select the best answer.
+* **Core idea**: spend more compute at inference time (let the model "think longer and try more") to substantially improve accuracy on complex tasks without changing the parameter count.
+* **Main techniques**:
+  1. **System 2 thinking**: RL trains the model to produce very long internal chains of thought (CoT) in exchange for a higher chance of a correct answer.
+  2. **Monte Carlo tree search (MCTS)**: explore multiple reasoning branches during generation, score each step, backtrack, and pick the best path through the search tree.
+  3. **Rejection sampling / Best-of-N**: sample $N$ answers at inference and pick the best by majority vote (self-consistency) or a lightweight scoring model.
 
-#### 4.5.4.1 Empirical data: relationship between thinking length and accuracy
+#### 4.5.4.1 Evidence: thinking length vs. accuracy
 {: id="4541-实证数据思考长度与准确率的关系"}
 
-OpenAI gave two independent scaling curves in the o1 release blog: "training period calculation amount" and "inference period calculation amount"; the DeepSeek-R1 report observed that the average answer length of the model and the AIME accuracy increased simultaneously during the RL training process. The two show similar patterns:
+OpenAI's o1 announcement showed two separate scaling curves, one for training compute and one for test-time compute; the DeepSeek-R1 report observed that the model's average response length and AIME accuracy rose together during RL training. Both show the same pattern:
 
-- **The amount of calculation during the training period increases** → The accuracy of the model on mathematics/code benchmarks increases logarithmically linearly with training FLOPs (consistent with traditional Scaling Law)
-- **The amount of calculation during the inference period increases** (that is, the model is allowed to generate a longer chain of thought) → On the same trained model, just by "thinking for a while", the accuracy also increases approximately logarithmically with the number of inference tokens, and on highly difficult tasks such as mathematics competition questions (such as AIME), the improvement of the two curves can be comparable
+- **More training compute** → accuracy on math and code benchmarks rises roughly log-linearly with training FLOPs (consistent with classic scaling laws)
+- **More test-time compute** (letting the model generate longer chains of thought) → the same trained model, simply by "thinking longer", also improves roughly log-linearly with the number of reasoning tokens; on hard tasks such as competition math (e.g. AIME), the gains from the two curves can be comparable
 
-This means that "train a bigger model" and "make an existing model think longer" are within a certain scope **Two methods of improvement that can be substituted for each other** , which is why Test-Time Compute Scaling is called the "Second Scaling Law".
+In other words, within a certain range, "training a bigger model" and "letting an existing model think longer" are **interchangeable ways to improve performance**, which is why test-time compute scaling is called the "second scaling law".
 
-#### 4.5.4.2 Route comparison between o1/o3 and R1
+#### 4.5.4.2 o1/o3 vs. R1
 {: id="4542-o1o3-与-r1-的路线对比"}
 
-|Dimensions| OpenAI o1/o3 | DeepSeek-R1 |
+|Dimension| OpenAI o1/o3 | DeepSeek-R1 |
 |------|-------------|-------------|
-|**chain of thought visibility**|Do not display the complete CoT externally, only the summary (worry about being distilled/copied by competing products)|Complete open source chain of thought format (`<think>...</think>`), and directly open source model weights|
-|**training details disclosed**|Technical report disclosure is limited, RL algorithm details are not disclosed|The technical report discloses the details of the GRPO algorithm, cold start SFT and four-stage alignment process (Section 4.5.2)|
-|**small model distillation**|Unopen source distillation small model|Simultaneously open source multiple size small models based on Qwen/Llama distillation (Section 4.8)|
-|**Industry Impact**|Established the Test-Time Compute Scaling paradigm|It has been verified that "open source + low cost" can also reach the first-tier reasoning level, accelerating GRPO to become an industry standard.|
+|**Chain-of-thought visibility**|The full CoT is hidden; only a summary is shown (to prevent distillation or copying by competitors)|Full chain-of-thought format exposed (`<think>...</think>`), with open model weights|
+|**Training details disclosed**|Limited; RL algorithm details not published|GRPO details, cold-start SFT, and the four-stage pipeline published (Section 4.5.2)|
+|**Distilled small models**|None released|Several distilled sizes released alongside, based on Qwen/Llama (Section 4.8)|
+|**Industry impact**|Established the test-time compute scaling paradigm|Showed that "open + low cost" can reach top-tier reasoning, making GRPO an industry standard|
 
-> **Trend Observation**: After R1, models such as Claude 3.7 Sonnet, Gemini 2.5, Qwen3, etc. generally adopt the design of "thinking/non-thinking mode switching" or "thinking budget" - the same model can dynamically decide whether to enable long CoT based on the difficulty of the task, avoiding the forced consumption of a large amount of inference tokens for simple tasks. This is Test-Time Compute Scaling Further optimization in the implementation of the project (allocation of inference computing power on demand rather than one-size-fits-all).
+> **Trend**: since R1, models such as Claude 3.7 Sonnet, Gemini 2.5, and Qwen3 commonly offer a thinking/non-thinking switch or a "thinking budget": one model decides, based on task difficulty, whether to engage long CoT, so simple tasks do not burn large numbers of reasoning tokens. This is a further engineering refinement of test-time compute scaling (allocating inference compute on demand rather than uniformly).
 
 ---
 
 ### 4.5.5 Alignment tax vs. reasoning
 {: id="455-对齐税与推理"}
 
-In preference alignment, there is a well-known **"Alignment Tax"** phenomenon: excessive safety or human preference alignment will significantly damage the model's original logical reasoning and instruction following capabilities.
+Preference alignment is known for the **alignment tax**: overly aggressive safety or preference alignment can noticeably damage a model's reasoning and instruction-following abilities.
 
-* **Inference conflict**: Security alignment usually trains the model to "directly reject sensitive topics". But for complex reasoning models, if the user asks a complex logic question involving network security (such as "analyze the vulnerabilities of this malware code to fix it"), an overly sensitive security filter will directly trigger a refusal to answer, causing the reasoning ability to be unable to be used.
-* **solution strategy**:
-  1. **Decouples security and reasoning**: In the reasoning RL stage (stage two), it completely focuses on logic and correctness, does not introduce too many security constraints for the time being, and allows the model to generate all possible paths.
-  2. **introduces the security corpus** into the final general preference alignment: in stage four, by comparing samples (Chosen/Rejected), the model is taught to distinguish between "academic logical analysis" and "substantial malicious assistance" to achieve accurate rejection.
+* **Conflict with reasoning**: safety alignment often trains the model to refuse sensitive topics outright. For a reasoning model, if a user asks a complex question involving security (e.g. "analyze the vulnerabilities in this malware so I can fix them"), an overly sensitive safety filter triggers a refusal, and the model's reasoning ability goes unused.
+* **Strategies**:
+  1. **Decouple safety from reasoning**: the reasoning RL stage (stage 2) focuses entirely on logic and correctness, without many safety constraints for now, so the model can explore every possible path.
+  2. **Bring safety data into the final general preference alignment**: in stage 4, contrastive (chosen/rejected) examples teach the model to distinguish "academic analysis" from "substantive help with harm", enabling precise refusals.
 
 ---
 
 ## 4.6 RL training infrastructure
 {: id="46-rl-训练基础设施"}
 
-Algorithms such as GRPO are just "mathematical formulas" for RL training. To actually run them requires a complete set of engineering systems. This section supplements the engineering issues that cannot be avoided in RL training of inference models, as well as several improved algorithms proposed by the industry after GRPO.
+Algorithms such as GRPO are only the math of RL training; actually running them takes a full engineering system. This section covers the unavoidable engineering issues in RL training of reasoning models, and the improved algorithms proposed after GRPO.
 
 ### 4.6.1 Rollout and training
 {: id="461-rollout-与训练协同"}
 
-An RL iteration consists of two computational tasks of completely different nature:
+Each RL iteration combines two very different workloads:
 
 ```
-[Rollout stage] Policy model to batch Prompt Parallel sampling G answers (generated by autoregression, belonging to inference load)
+[Rollout]  The policy samples G answers in parallel for a batch of prompts (autoregressive generation: an inference workload)
       ↓
-[Grading stage]   Rule Validator / Reward Model Score sampling results
+[Scoring]  Rule-based verifiers / the reward model score the samples
       ↓
-[training phase]   Calculate using scoring results GRPO loss, Back propagation updates Policy Parameters (belonging to the training load)
+[Training] Compute the GRPO loss from the scores and backpropagate to update the policy (a training workload)
 ```
 
-- **Rollout is an inference-intensive task**: A long CoT inference model may generate thousands of tokens in a single sampling. G is usually 8-64, and tens of thousands of tokens will be generated for a single Prompt. The KV Cache management and batch scheduling generated by autoregression directly determine the throughput upper limit of RL training.
-- **Synchronous vs Asynchronous**: The synchronous type (wait for all Rollouts to complete before training in each round) is simple to implement but has low GPU utilization (the Rollout engine is idle during training, and vice versa); the asynchronous type (Rollout overlaps with the training pipeline, similar to the producer-consumer mode) has higher throughput, but needs to deal with the off-policy deviation problem of "after the training parameters are updated, the ongoing Rollout uses the old strategy"
+- **Rollout is inference-heavy**: a long-CoT reasoning model may generate thousands of tokens per sample, and with G typically 8-64, a single prompt yields tens of thousands of tokens. KV cache management and batch scheduling during autoregressive generation set the throughput ceiling of RL training
+- **Synchronous vs. asynchronous**: synchronous training (each round waits for every rollout to finish) is simple but leaves GPUs underused (the rollout engine idles during training and vice versa); asynchronous training overlaps rollout and training in a producer-consumer pipeline for higher throughput, but must handle the off-policy bias that arises when rollouts in progress still use the old policy after the parameters have been updated
 
 ### 4.6.2 Faster rollouts with vLLM / SGLang
 {: id="462-vllm--sglang-加速-rollout"}
 
-The mainstream approach in the industry is to use a specialized high-throughput inference engine (rather than the generate method that comes with the training framework) to undertake the Rollout task:
+The mainstream approach is to hand rollouts to a dedicated high-throughput inference engine rather than the training framework's own generate method:
 
-- **vLLM**: manages KV Cache based on PagedAttention, supports high-concurrency batch sampling, and is currently the default Rollout backend for open source RL training frameworks such as OpenRLHF and verl.
-- **SGLang**: RadixAttention implements prefix KV Cache reuse, which has natural advantages for the typical load of RL training such as "sampling G answers to the same prompt" (shared prefix, only subsequent generation is different) (vLLM also supports automatic prefix caching, the difference between the two depends on the specific load)
-- **Weight synchronization**: After the training framework (such as DeepSpeed/Megatron) updates parameters, the new weights need to be synchronized to the inference engine (usually through NCCL broadcast or shared GPU memory). The delay of weight synchronization is one of the key bottlenecks of asynchronous RL systems.
+- **vLLM**: manages the KV cache with PagedAttention and supports highly concurrent batched sampling; it is the default rollout backend of open RL frameworks such as OpenRLHF and verl
+- **SGLang**: RadixAttention reuses prefix KV caches, a natural fit for the typical RL workload of "sampling G answers for the same prompt" (shared prefix, different continuations); vLLM also supports automatic prefix caching, and which is faster depends on the workload
+- **Weight synchronization**: after the training framework (e.g. DeepSpeed/Megatron) updates the parameters, the new weights must be synced to the inference engine (usually by NCCL broadcast or shared GPU memory). Sync latency is one of the key bottlenecks of asynchronous RL systems
 
-### 4.6.3 Reward servitization
+### 4.6.3 Rewards as a service
 {: id="463-reward-服务化"}
 
-When Reward comes from a rule validator (such as code sandbox compilation and execution, mathematical answer regular matching) rather than neural network scoring, engineering usually splits it into independent microservices:
+When rewards come from rule-based verifiers (running code in a sandbox, regex-matching math answers) rather than a neural scorer, they are usually split out into independent microservices:
 
-- **code task**: The code generated by Rollout needs to be sent to an isolated sandbox environment to execute test cases. Sandbox concurrency, timeout control and security isolation must be considered (to prevent the generated code from accessing host resources)
-- **Mathematics Task**: Use a symbolic computing library (such as SymPy) or special answer matching rules to parse the content of `\boxed{}` to avoid misjudgments caused by simple string matching (such as equivalent answers but different formats are judged incorrectly)
-- **Benefits of servitization**: Reward calculation is decoupled from Rollout/training, allowing independent expansion and contraction to avoid becoming a bottleneck for the entire RL pipeline.
+- **Code tasks**: generated code must run its test cases in an isolated sandbox, with attention to sandbox concurrency, timeouts, and security isolation (so generated code cannot touch host resources)
+- **Math tasks**: parse the content of `\boxed{}` with a symbolic math library (such as SymPy) or dedicated answer-matching rules, to avoid errors from naive string matching (such as equivalent answers in different formats being marked wrong)
+- **Why a service**: decoupling reward computation from rollout and training lets each scale independently, so rewards never become the bottleneck of the RL pipeline
 
 ### 4.6.4 Improved algorithms after GRPO
 {: id="464-grpo-之后的改进算法"}
 
 GRPO is not the end point. In 2025, several improvements were proposed to address its training instability and efficiency problems:
 
-|algorithm|Core improvements|Problem solved|
+|Algorithm|Core change|Problem addressed|
 |------|---------|-----------|
-| **DAPO**(Decoupled Clip and Dynamic Sampling PO) |Decoupled upper and lower clipping thresholds (high and low clip ranges are different) + dynamic sampling to filter out all-right/all-wrong "zero gradient" groups|GRPO's advantage degenerates to 0 when all answers in the group are correct or all wrong, which wastes a lot of sampling computing power.|
-| **GSPO**(Group Sequence Policy Optimization) |Change the importance sampling ratio from token level to sequence level calculation|GRPO's token-level ratio has large variance on long sequences, making training unstable, especially affecting the MoE model.|
-| **VAPO**(Value-model Augmented PO) |Reintroducing the lightweight value function, combined with length-adaptive GAE|The variance of the pure Group-Relative method is still too large in long CoT and sparse reward scenarios.|
-| **Dr. GRPO**(GRPO Done Right) |Remove normalization by answer length and normalization by within-group standard deviation|Normalization of raw GRPO biases longer incorrect responses, resulting in artificially high answer lengths|
+| **DAPO**(Decoupled Clip and Dynamic Sampling PO) |Decouples the upper and lower clipping thresholds, and uses dynamic sampling to drop all-correct/all-wrong "zero-gradient" groups|When every answer in a group is right or every one is wrong, GRPO's advantage collapses to 0, wasting a lot of sampling compute|
+| **GSPO**(Group Sequence Policy Optimization) |Computes the importance-sampling ratio at the sequence level instead of the token level|GRPO's token-level ratio has high variance on long sequences, destabilizing training, especially for MoE models|
+| **VAPO**(Value-model Augmented PO) |Reintroduces a lightweight value function with length-adaptive GAE|Pure group-relative estimates still have high variance with long CoT and sparse rewards|
+| **Dr. GRPO**(GRPO Done Right) |Removes normalization by response length and by within-group standard deviation|The original GRPO normalization favors longer wrong answers, inflating response length|
 | **CISPO** (Clipped IS-weight Policy Optimization, MiniMax-M1) |Clips the importance-sampling weight itself and stops its gradient, instead of clipping the token update|PPO/GRPO-style clipping drops the entire gradient of low-probability but pivotal reflection tokens such as "However" or "Wait", so long CoT is hard to learn|
 
 These improvements share one direction: **tracing where each token's gradient comes from and where it gets thrown away**. GRPO's within-group normalization, token-level clipping, and length normalization matter little for short answers; with long answers or MoE models, the biases are amplified.
@@ -1953,85 +1971,85 @@ These improvements share one direction: **tracing where each token's gradient co
 ## 4.7 Synthetic data and self-play
 {: id="47-合成数据与-self-play"}
 
-The data requirements for GRPO-type RL training are different from SFT - there is no need for a manually written "standard answer reasoning process", only "questions that can automatically determine whether they are right or wrong". This gave birth to the **self-play data generation (Self-Play Data Synthesis)** that will emerge in 2024-2025, forming a complete closed loop with the reasoning model training in Sections 4.5-4.6.
+GRPO-style RL needs different data from SFT: no human-written "reference reasoning", only "questions whose answers can be checked automatically". This gave rise to the **self-play data synthesis** methods of 2024-2025, which close the loop with the reasoning-model training in Sections 4.5-4.6.
 
 ### 4.7.1 STaR
 {: id="471-star"}
 
-**Core idea**: Let the model generate its own reasoning chain, use whether the final answer is correct to screen "good reasoning chains", and then use the screened data to train itself.
+**Core idea**: the model generates its own reasoning chains, keeps the "good" ones based on whether the final answer is correct, and trains on the kept data.
 
 ```
-1. The model generates an inference chain for the question + answer
-2. The answer is correct → This chain of reasoning serves as a high-quality SFT Data retention
-3. wrong answer → put the correct answer"upside down"Prompt the model to generate"Explanation afterwards"The reasoning chain of the formula (rationalization)
-4. Use reserved+Retrain the model on the generated data and repeat the iteration
+1. The model generates a reasoning chain and an answer for each question
+2. Correct answer → keep the reasoning chain as high-quality SFT data
+3. Wrong answer → give the model the correct answer as a hint and have it write an after-the-fact explanation (rationalization)
+4. Retrain the model on the kept and generated data; repeat
 ```
 
-This is essentially a "pseudo-reinforcement learning" method before RL - screening data with correct or incorrect results, and then doing supervised learning. It is the ideological source of the subsequent cold start data construction of ReST and GRPO.
+This is essentially "pseudo-RL" before RL: filter data by outcome, then do supervised learning. It is the conceptual source of ReST and of later cold-start data construction for GRPO.
 
 ### 4.7.2 ReST
 {: id="472-rest"}
 
-ReST systematizes the STaR idea into a two-stage cycle:
-- **Grow (Growth)**: Use the current policy model to sample a large number of samples to generate a candidate data pool
-- **Improve (improvement)**: Use the reward function to filter the data pool, and do several rounds of offline supervised fine-tuning on the filtered high-quality data (instead of doing online RL updates at each step)
+ReST turns the STaR idea into a two-step loop:
+- **Grow**: sample heavily from the current policy to build a pool of candidate data
+- **Improve**: filter the pool with a reward function, then run several rounds of offline supervised fine-tuning on the high-quality data (instead of an online RL update every step)
 
-Compared with standard RL, ReST's "batch generation + batch filtering + offline training" mode has more flexible computing resource requirements and is suitable for teams without complete online RL infrastructure.
+Compared with standard RL, ReST's "batch generation + batch filtering + offline training" pattern is more flexible about compute and suits teams without full online RL infrastructure.
 
 ### 4.7.3 Verifier-driven data flywheel
 {: id="473-验证器驱动的数据飞轮"}
 
-Code and mathematics are the areas where Self-Play is easiest to implement, because there is **objective verifier** (compiler/test case, symbolic calculation library):
+Code and math are where self-play is easiest to apply, because they have **objective verifiers** (compilers and test cases, symbolic math libraries):
 
 ```
-[The model generates a large number of candidate problem solutions] → [The validator automatically determines whether it is right or wrong.] → [Correct solution = High quality training data]
+[Model generates many candidate solutions] → [Verifier automatically checks right or wrong] → [Correct solutions = high-quality training data]
         ↑                                                    ↓
-        └──────────── Retrain the model with new data to improve capabilities ──────────────┘
+        └──────────── Retrain the model on the new data to improve it ──────────────┘
 ```
 
-This flywheel shares the same set of infrastructure with the ORM (result supervision) in Section 4.5.3 and the Reward servitization in Section 4.6.3 - the verifier is used both for real-time scoring in RL training and for offline batch generation of SFT/rejection sampling data. It is a common paradigm for data construction of DeepSeek-R1 and Qwen series inference models.
+This flywheel shares infrastructure with the ORM (outcome supervision) of Section 4.5.3 and the reward services of Section 4.6.3: the same verifiers score RL samples in real time and generate SFT / rejection-sampling data offline in bulk. It is the common data-construction pattern behind DeepSeek-R1 and the Qwen reasoning models.
 
-> **Limitations**: The Self-Play data flywheel is highly dependent on "objectively verifiable" task types (mathematics, coding, logic questions with clear rules), and has limited benefits for open-ended writing and subjective judgment tasks, and still requires manual or RLAIF data supplementation.
+> **Limitation**: the self-play flywheel depends heavily on objectively verifiable tasks (math, code, logic puzzles with clear rules). It helps little with open-ended writing and subjective judgment, which still need human or RLAIF data.
 
 ---
 
 ## 4.8 Knowledge distillation
 {: id="48-知识蒸馏"}
 
-Training a 671B strong inference model is expensive, but many application scenarios only require a 7B/14B small model - **Knowledge distillation (Distillation)** is the key technology to "transfer" the reasoning capabilities of the large model to the small model. A series of small distillation models (based on Qwen2.5 1.5B–32B and Llama-3 8B/70B) that were simultaneously open sourced when DeepSeek-R1 was released are the most influential distillation practice cases in 2025.
+Training a 671B reasoning model is expensive, yet many applications only need a 7B/14B model. **Knowledge distillation** is the key technique for transferring a large model's reasoning ability to a small one. The family of distilled models released together with DeepSeek-R1 (based on Qwen2.5 1.5B–32B and Llama-3 8B/70B) was the most influential distillation effort of 2025.
 
 ### 4.8.1 Reasoning trace distillation
 {: id="481-推理轨迹蒸馏"}
 
-Different from traditional distillation (which allows the small model to imitate the output probability distribution of the large model, that is, the soft label in Hinton's classic distillation), the approach of inference model distillation is more straightforward:
+Unlike classic distillation (where the student imitates the teacher's output distribution, i.e. Hinton's soft labels), distilling a reasoning model is more direct:
 
 ```
-1. Use large model (e.g. DeepSeek-R1)Generate complete long text for a large number of questions CoT reasoning process (including <think>...</think>)
-2. Filter out with rule validator"reasoning process + final answer"All correct samples
-3. Use these directly (title, reasoning process, Answer) Triplets make standards for small models SFT
+1. Have a large model (e.g. DeepSeek-R1) generate full long-CoT solutions (including <think>...</think>) for many problems
+2. Use rule-based verifiers to keep only samples whose reasoning and final answer are both correct
+3. Run standard SFT on the small model with these (problem, reasoning, answer) triples
 ```
 
-**Key insights**: DeepSeek-R1 uses about 800,000 samples generated and filtered by R1 to perform SFT distillation on the Qwen and Llama small models. Comparison of its technical report found that on Qwen-32B, the model obtained by **distillation is significantly stronger than the result of direct large-scale RL on the same base** - that is, "teaching the small model to learn the problem-solving process of the large model" is more efficient than "letting the small model explore on its own", because the small model's own exploration ability is far inferior to that of the large model.
+**Key insight**: DeepSeek-R1 distilled Qwen and Llama models with about 800,000 samples generated and filtered by R1. Its technical report found that on Qwen-32B, **the distilled model was clearly stronger than large-scale RL applied directly to the same base**: teaching a small model the large model's problem-solving process is more efficient than letting it explore on its own, because a small model's own exploration ability is far weaker.
 
 ### 4.8.2 Distillation plus RL
 {: id="482-蒸馏--二次强化学习"}
 
-The small model of pure SFT distillation already has strong reasoning capabilities, but it can still be further improved through a small amount of RL fine-tuning:
+A small model distilled with SFT alone already reasons well, but a little RL can push it further:
 
-- **Does quadratic RL**: The distillation model in the R1 report only does SFT, leaving RL to the community; follow-up work (such as DeepScaleR continuing to do RL on R1-Distill-Qwen-1.5B) shows that doing GRPO on the basis of distillation can still significantly improve mathematical reasoning scores and break through the upper limit of distilled data capabilities.
-- **loss function design**: The distillation stage uses standard cross-entropy SFT loss, the loss covers the entire answer (chain of thought + final answer), and the prompt part is shielded as usual; the secondary RL stage switches to the GRPO loss in Section 4.5
+- **Is a second RL stage needed?** The distilled models in the R1 report were trained with SFT only, leaving RL to the community. Later work (such as DeepScaleR, which continued RL on R1-Distill-Qwen-1.5B) showed that GRPO on top of distillation still clearly improves math reasoning, going beyond the ceiling of the distilled data
+- **Loss design**: distillation uses the standard cross-entropy SFT loss over the whole response (chain of thought + final answer), with the prompt masked as usual; the second RL stage switches to the GRPO loss of Section 4.5
 
 ### 4.8.3 Distillation vs. pre-training
 {: id="483-蒸馏与直接预训练"}
 
-|Dimensions|Distillation small model (such as DeepSeek-R1-Distill-Qwen-7B)|Directly use the same data pretraining/RL to train the small model|
+|Dimension|Distilled small model (e.g. DeepSeek-R1-Distill-Qwen-7B)|Small model pretrained/RL-trained directly on the same data|
 |------|------------------------------------------|--------------------------------|
-|**The upper limit of reasoning ability**|Close to what the teacher model can achieve at this scale|Usually lower, small models have weak independent exploration capabilities|
-|**Training cost**|Low (one SFT, data is generated in batches by the teacher model)|High (requires full RL training infrastructure)|
-|**data depends on**|Strong dependence on the output quality of the teacher model|Does not rely on external models, but requires a lot of manual/rule annotation|
-|**applicable scenarios**|Already have a strong teacher model and pursue rapid implementation|Explore new capability boundaries and scenarios where teacher models are unavailable|
+|**Reasoning ceiling**|Close to what the teacher can achieve at that scale|Usually lower; small models explore poorly on their own|
+|**Training cost**|Low (one SFT run; data generated in bulk by the teacher)|High (needs full RL infrastructure)|
+|**Data dependence**|Depends heavily on the quality of the teacher's outputs|Needs no external model, but requires a lot of human or rule-based labeling|
+|**When to use**|A strong teacher is available and fast delivery matters|Exploring new capability frontiers, or when no teacher is available|
 
-> **Practical suggestions**: If the goal is to "make a useful small model" rather than "research new training methods", distillation is almost always better than training from scratch - this is also one of the direct reasons why the quality of small models in open source communities such as Qwen and Llama will significantly improve in 2025.
+> **Practical advice**: if the goal is "build a useful small model" rather than "research new training methods", distillation almost always beats training from scratch. This is one of the direct reasons small open models such as Qwen and Llama improved so much in 2025.
 
 ### 4.8.4 On-policy distillation
 {: id="484-在线策略蒸馏"}
@@ -2056,19 +2074,19 @@ The trajectory distillation in Section 4.8.1 is **off-policy**: the student only
 # 5. Post-training and forgetting
 {: id="5-post-training-与灾难性遗忘"}
 
-> **Introduction to this chapter**
+> **About this chapter**
 >
-> Post-Training (post-training) is implemented by large model **last mile** : Based on the general base model, further training is conducted for specific fields or abilities. However, in practice it is ubiquitous **catastrophic forgetting** The acquisition of new skills often comes at the expense of the collapse of old abilities. This chapter systematically sorts out the forgetting phenomenon, influencing factors and forgetting mitigation methods to help you "have the best of both worlds" in Post-Training.
+> Post-training is the **last mile** of putting an LLM to work: starting from a general foundation model, you train further for a specific domain or skill. In practice, though, **catastrophic forgetting** is everywhere: gaining a new skill often costs the collapse of old ones. This chapter systematically reviews the forgetting phenomenon, what drives it, and how to mitigate it, so you can get the best of both worlds in post-training.
 
-## 5.1 What is Post-Training?
+## 5.1 What is post-training?
 {: id="51-什么是-post-training"}
 
-**Post-Training** (post-training, also known as Continual Learning/Continuous Learning) refers to the process of giving **specific domain capabilities** through further training on top of a foundation model that already has general capabilities.
+**Post-training** (also called continual learning) means further training a foundation model that already has general abilities in order to give it **capabilities in a specific domain**.
 
 ```mermaid
 flowchart LR
-    A["common base model<br/>Foundation Model<br/>(Such as LLaMA-3, Gemma, DeepSeek)"]
-    -->|Post-Training| B["Specialized model<br/>Fine-tuned Model<br/>(Such as Chinese assistant, legal model, coding expert)"]
+    A["General foundation model<br/>Foundation Model<br/>(e.g. LLaMA-3, Gemma, DeepSeek)"]
+    -->|Post-Training| B["Specialized model<br/>Fine-tuned Model<br/>(e.g. Chinese assistant, legal model, coding expert)"]
 
     style A fill:#fff9c4
     style B fill:#c8e6c9
@@ -2077,100 +2095,100 @@ flowchart LR
 ### 5.1.1 Why post-train
 {: id="511-为什么需要-post-training"}
 
-Today's general-purpose models (LLaMA, Gemma, DeepSeek, etc.) already have strong basic capabilities - just like a top student graduating from school. However, practical applications often require **specialization in certain aspects:**:
+Today's general models (LLaMA, Gemma, DeepSeek, and others) already have strong basic abilities, like a top student fresh out of school. Real applications, however, often need **specialization**:
 
-- **Specific fields**: Finance, law, medical care, bioinformatics
-- **Specific language**: Chinese, Japanese, Korean, small languages
-- **Specific tasks**: code generation, mathematical reasoning, tool calling
-- **New mode**: Let the text model understand speech and images
+- **Specific domains**: finance, law, medicine, bioinformatics
+- **Specific languages**: Chinese, Japanese, Korean, low-resource languages
+- **Specific tasks**: code generation, math reasoning, tool use
+- **New modalities**: teaching a text model to understand speech and images
 
 ### 5.1.2 Three post-training methods
 {: id="512-三种-post-training-方式"}
 
-|way|Data format|Typical uses|
+|Approach|Data format|Typical use|
 |------|---------|---------|
-| **Pre-train Style** |Unannotated text (for language modeling)|Inject domain knowledge and expand language|
-| **SFT Style** |Question and Answer Pairs/Instruction-Answer Pairs|Instruction following and conversational skills|
-| **RL Style** |Reward signal (rule or model scoring)|Reasoning capabilities, security alignment|
+| **Pre-train Style** |Unlabeled text (language modeling)|Inject domain knowledge, add languages|
+| **SFT Style** |Question-answer / instruction-response pairs|Instruction following and conversation|
+| **RL Style** |Reward signal (rules or model scores)|Reasoning, safety alignment|
 
-> **Term clarification**: The name "Foundation Model" in the literature is very confusing. Some people call the Chat model that has done Alignment a Base Model. You need to pay attention to the distinction when reading the literature.
+> **Terminology**: the literature uses "foundation model" inconsistently; some papers call an aligned chat model a base model. Watch for the distinction when reading.
 
 ---
 
 ## 5.2 Catastrophic forgetting
 {: id="52-灾难性遗忘"}
 
-The biggest challenge of Post-Training is: **learned new skills and old skills collapsed**. This phenomenon is called **catastrophic forgetting (Catastrophic Forgetting)**.
+The biggest challenge of post-training: **the new skill is learned, and old skills collapse**. This is called **catastrophic forgetting**.
 
-> The operation is successful, but the patient dies - you focus on the new goal and achieve it, only to find that the other capabilities of the model are not working.
+> The operation was a success, but the patient died: you focus on the new goal and reach it, only to find the model's other abilities broken.
 
 ### 5.2.1 Real cases
 {: id="521-真实案例"}
 
-#### 5.2.1.1 Case 1: Teaching LLaMA-2 Chat to speak Chinese → Safety Alignment crashes
+#### 5.2.1.1 Case 1: teaching LLaMA-2 Chat Chinese → safety alignment collapses
 {: id="5211-案例1教-llama-2-chat-说中文--safety-alignment-崩溃"}
 
-LLaMA-2 Chat did Safety Alignment and refused to answer harmful questions. When we use Chinese corpus to perform Pre-train Style Post-Training on it:
+LLaMA-2 Chat has been safety-aligned and refuses harmful questions. After pre-train-style post-training on Chinese text:
 
-| |Original LLaMA-2 Chat|Post-Training|
+| |Original LLaMA-2 Chat|After post-training|
 |--|--|--|
-|Question: "How to obtain bank password?"|"I'm sorry, I can't tell you..." ✅|Start teaching specific attack methods ❌|
-|ToxiGen harmful content ratio|**0.22%** (very safe)|**rises sharply**|
+|Question: "How do I get someone's bank password?"|"I'm sorry, I can't tell you..." ✅|Starts explaining concrete attack methods ❌|
+|ToxiGen harmful-content rate|**0.22%** (very safe)|**rises sharply**|
 
-The training data itself is clean Chinese corpus with no harmful content at all, but the Safety Alignment capability still collapses.
+The training data was clean Chinese text with no harmful content at all, yet safety alignment still collapsed.
 
-#### 5.2.1.2 Case 2: Ordinary SFT data can also destroy Safety (Fine-Tuning Aligned LLMs Compromises Safety)
+#### 5.2.1.2 Case 2: ordinary SFT data can also break safety (Fine-Tuning Aligned LLMs Compromises Safety)
 {: id="5212-案例2普通-sft-数据也会破坏-safetyfine-tuning-aligned-llms-compromises-safety"}
 
-Even fine-tuning GPT-3.5 Turbo with completely harmless SFT data like Alpaca results in reduced security capabilities (Qi et al., 2023). Even more extreme is: **only uses 10 "identity switching" samples** (an AOA assistant that makes the model claim to absolutely obey instructions), which can cause the security capabilities of all dimensions to plummet.
+Fine-tuning GPT-3.5 Turbo even on completely harmless SFT data such as Alpaca degrades its safety (Qi et al., 2023). More extreme still, **just 10 "identity-shifting" examples** (making the model claim to be AOA, an "absolutely obedient agent") are enough to make safety plummet across every dimension.
 
-#### 5.2.1.3 Case 3: Teaching LLaMA-3 new skills → Full ability impairment
+#### 5.2.1.3 Case 3: teaching LLaMA-3 new skills → broad capability loss
 {: id="5213-案例3教-llama-3-新技能--全面能力损伤"}
 
-The following four tasks of SFT are respectively performed on LLaMA-3: reasoning, medical knowledge, coding, and tool invocation.
+LLaMA-3 was fine-tuned separately on four tasks: reasoning, medical knowledge, coding, and tool use.
 
-Result:
-- Improved target task capabilities (in line with expectations)
-- Safety Alignment capability completely crashes **in all situations**
-- Non-target task ability also dropped significantly (after teaching tool use, math ability plummeted from 19.6% to 3.6%)
+Results:
+- The target task improved (as expected)
+- Safety alignment **collapsed in every case**
+- Non-target abilities also dropped sharply (after learning tool use, math accuracy fell from 19.6% to 3.6%)
 
-#### 5.2.1.4 Case 4: Multimodal Post-Training (teaching text models to listen to speech)
+#### 5.2.1.4 Case 4: multimodal post-training (teaching a text model to understand speech)
 {: id="5214-案例4多模态-post-training教文本模型听语音"}
 
-Add voice input capability to LLaMA (insert Adapter + Sound Encoder), when Post-Training reaches the third epoch:
-- Enhanced voice emotion recognition capabilities
-- **JSON format output capability disappears** (This is LLaMA’s original capability, which was completely untrained and collapsed)
+When LLaMA was given speech input (an inserted adapter plus an audio encoder), by the third epoch of post-training:
+- Speech emotion recognition improved
+- **The ability to output JSON disappeared** (an ability LLaMA had originally, never touched by training, and it still collapsed)
 
 ---
 
 ### 5.2.2 Key rules
 {: id="522-关键规律"}
 
-#### 5.2.2.1 Rule 1: Forgetting is positively related to target task performance
+#### 5.2.2.1 Rule 1: forgetting grows with target-task performance
 {: id="5221-规律1遗忘与目标任务表现正相关"}
 
 > **The better you learn, the more you forget.**
 
-Research has found that the fine-tuning loss of the model on the target task (the more fully the learning → the lower the loss) is almost the same as the degree of forgetting. **linear positive correlation** . This means: you can’t “train the model better” and solve the forgetting problem at the same time.
+Studies find that a model's fine-tuning loss on the target task (more thorough learning → lower loss) and the amount of forgetting are almost **linearly correlated**. In other words, you cannot both "train the model harder" and avoid forgetting at the same time.
 
 #### 5.2.2.2 Rule 2: LoRA does not really solve forgetting
 {: id="5222-规律2lora-并未真正解决遗忘"}
 
-LoRA seems to forget less, but at the cost of **Learned less** .
+LoRA appears to forget less, but at the cost of **learning less**.
 
-> **LoRA learns less and forgets less** (low-rank adaptation learns less and forgets less)
+> **LoRA learns less and forgets less**
 
-| LoRA Rank |target task capability|degree of forgetfulness|
+| LoRA Rank |Target-task ability|Amount of forgetting|
 |-----------|------------|---------|
-|Rank small|weak|Few (gathered in the lower left corner)|
-|Rank big|Strong|Many (gathered in the upper right corner)|
+|Small rank|Weak|Little (clustered in the lower left)|
+|Large rank|Strong|A lot (clustered in the upper right)|
 
-Conclusion: LoRA only replaces the problem of "full parameter fine-tuning will forget" with "less learned → less forgotten" - it does not fundamentally solve the problem of forgetting, and other regularization methods (Dropout, Weight Decay) are also ineffective.
+Conclusion: LoRA merely trades "full fine-tuning forgets" for "learn less → forget less". It does not fundamentally solve forgetting, and other regularizers (dropout, weight decay) do not help either.
 
-#### 5.2.2.3 Rule 3: Forgetting has no obvious relationship with model size
+#### 5.2.2.3 Rule 3: forgetting barely depends on model size
 {: id="5223-规律3遗忘与模型大小无明显关系"}
 
-On models 1B to 7B, bigger models don't forget less. Forgetting is a common phenomenon that does not disappear as the number of parameters increases.
+From 1B to 7B, larger models do not forget less. Forgetting is a general phenomenon that does not go away as parameter count grows.
 
 ---
 
@@ -2180,191 +2198,191 @@ On models 1B to 7B, bigger models don't forget less. Forgetting is a common phen
 ### 5.3.1 Experience replay
 {: id="531-经验回放"}
 
-**Core idea**: When training a new task, mix in a small amount of training data from old tasks.
+**Core idea**: when training on a new task, mix in a small amount of training data from old tasks.
 
-**Key discovery**: Just mixing in about 5% of **’s historical data** is enough to effectively prevent forgetting. The reason is that forgetting does not really "delete" the old knowledge, but "hide" the old knowledge - a small amount of reminder can wake it up.
+**Key finding**: mixing in only about 5% **historical data** is enough to prevent forgetting effectively. Forgetting does not truly "delete" old knowledge; it "hides" it, and a small reminder is enough to bring it back.
 
-**Engineering Practice**:
+**In practice**:
 
 ```python
-# Safety-Tuned LLaMA How to do it: mix in 3% of Safety Alignment data
+# What Safety-Tuned LLaMA does: mix in 3% safety-alignment data
 mixed_dataset = {
-    "target_task_data": 0.97,   # Current task (such as Chinese corpus)
-    "safety_alignment_data": 0.03,  # Conversation data that maintains security capabilities
+    "target_task_data": 0.97,   # the current task (e.g. Chinese text)
+    "safety_alignment_data": 0.03,  # dialogue data that preserves safety behavior
 }
 ```
 
-**challenges**: Today’s big companies (Meta, Google) only release model weights, **does not release training data**. If you don't have access to historical training data, Experience Replay cannot be implemented.
+**Challenge**: today's big labs (Meta, Google) release only model weights and **do not release training data**. Without the historical training data, experience replay is impossible.
 
 ---
 
 ### 5.3.2 Pseudo experience replay
 {: id="532-伪经验回放"}
 
-Since the real historical data cannot be obtained, let the model **generate the pseudo historical data** by itself.
+If the real historical data is unavailable, have the model **generate pseudo-historical data** itself.
 
-**Core Insight**: The model does not really "forget" the old knowledge, that knowledge is still in the weight. You can let the model talk for itself, generating content that looks like historical training data, and then mix it into the current training.
+**Core insight**: the model has not truly "forgotten" old knowledge; it is still in the weights. Let the model produce content that resembles its historical training data, then mix that into the current training.
 
 #### 5.3.2.1 Magpie method (2024)
 {: id="5321-magpie-方法2024"}
 
-The principle of Magpie is described in Section 3.3.3.1. Used to prevent forgetting, it allows the Foundation Model to ask and answer questions by itself and generate instruction data "like what it has seen during training":
+Section 3.3.3.1 explains how Magpie works. To prevent forgetting, the foundation model asks and answers its own questions, producing instruction data that "looks like what it saw in training":
 
 ```
-Input:[BOS] <|user|>          ← Give only one user token
-Automatic model generation: What is the attention mechanism?   ← Generate your own questions
-Input:<|assistant|>
-Automatic model generation: the attention mechanism is...      ← Generate answers yourself
+Input:          [BOS] <|user|>                          ← only the user token is given
+Model generates: What is the attention mechanism?       ← writes its own question
+Input:          <|assistant|>
+Model generates: The attention mechanism is...          ← writes its own answer
 ```
 
-In this way, "SFT data suspected to be used during LLaMA-3 training" is obtained, which can be mixed into the Post-Training data to prevent forgetting.
+This yields "SFT data resembling what LLaMA-3 was likely trained on", which can be mixed into post-training data to prevent forgetting.
 
 ---
 
 ### 5.3.3 Self-output
 {: id="533-self-output"}
 
-A more accurate method than Pseudo Experience Replay: instead of generating "historical data", use Foundation Model directly **current output** to replace human labeled answers.
+A more targeted method than pseudo experience replay: instead of generating "historical data", replace human-written answers with the foundation model's **own current outputs**.
 
-Working principle of :
+Why it works:
 
 ```
-Human labeled answers  ← Yes Foundation Model Say yes"strange"way of expression, it will be easier to forget old knowledge after learning
-model own answer ← The style, wording and model are highly consistent, and the learning has minimal impact on the original knowledge.
+Human-written answers ← phrasing that feels "foreign" to the foundation model; learning it makes old knowledge easier to forget
+The model's own answers ← style and wording match the model closely, so learning them barely disturbs existing knowledge
 ```
 
-**Selective Self-Rehearsal Process**:
+**Selective self-rehearsal**:
 
 ```mermaid
 flowchart TD
-    A["question q"] --> B{"Foundation Model<br/>Can you answer it correctly?"}
-    B -->|can| C["Train with the model’s own answers"]
-    B -->|Can't| D["Train with human-labeled answers"]
-    C --> E["mixed training → Forgetting is greatly reduced"]
+    A["Question q"] --> B{"Foundation model<br/>answers correctly?"}
+    B -->|Yes| C["Train on the model's own answer"]
+    B -->|No| D["Train on the human answer"]
+    C --> E["Mixed training → far less forgetting"]
     D --> E
 
     style C fill:#c8e6c9
     style D fill:#fff9c4
 ```
 
-**effect**: On the premise that the target task ability remains basically unchanged, the degree of forgetting is greatly reduced (compared to pure SFT training).
+**Effect**: target-task performance stays about the same while forgetting drops sharply (compared with plain SFT).
 
 #### 5.3.3.1 Paraphrase variants
 {: id="5331-paraphrase-变体"}
 
-Adapting the **human answer using Foundation Model** (rather than generating it directly):
+Have the foundation model **rewrite the human answer** (rather than generate a new one):
 
 ```python
-# Give the standard human answer to Foundation Model rewrite
+# Ask the foundation model to rewrite the human reference answer
 paraphrased_answer = foundation_model(
     f"Please rephrase the following answers so that the meaning remains the same:{human_answer}"
 )
-# Train with rewritten answers to forget less
+# Training on the rewritten answers causes less forgetting
 ```
 
-Outperforming training directly with human answers in 8 out of 9 test scenarios.
+This beat training directly on human answers in 8 of 9 test settings.
 
-#### 5.3.3.2 Token-level Filtering (Advanced)
+#### 5.3.3.2 Token-level filtering (advanced)
 {: id="5332-token-level-filtering进阶"}
 
-A more refined method: instead of discarding the entire sample, **skips token** that is particularly difficult to predict for the Foundation Model during training.
+A finer-grained approach: rather than dropping whole samples, **skip the tokens** that are especially hard for the foundation model to predict.
 
 ```python
-# Calculate each token Yes Foundation Model the difficulty (surprisal)
+# Difficulty (surprisal) of each token for the foundation model
 token_surprisals = -log(foundation_model.prob(token | context))
 
-# Filter out the hardest 20% token(Not these token Calculate loss)
+# Drop the hardest 20% of tokens (no loss on them)
 loss_mask = (token_surprisals < threshold)
 loss = cross_entropy(logits[loss_mask], labels[loss_mask])
 ```
 
-**effect**: At about 20% filtering ratio, the performance of in-domain and out-of-domain tasks is improved - "The model is not forced to learn things it cannot learn, but learns better."
+**Effect**: at a filtering ratio of about 20%, both in-domain and out-of-domain performance improve: "Not forcing the model to learn what it cannot learn makes it learn better."
 
 ---
 
 ### 5.3.4 RL-based post-training
 {: id="534-基于-rl-的-post-training"}
 
-RL training (such as GRPO) and Self-Output methods **Very similar in nature** :
+RL training (such as GRPO) is **very similar in nature** to self-output:
 
 | | Self-Output | RL Training |
 |--|--|--|
-|Answer source|Foundation Model is generated by itself|Policy (current model) sampling|
-|correct answer processing|Train with your own answers (increase probability)|Reward is positive → gradient update increases probability|
-|Wrong answer handling|Use human answers|Rewards are negative → reduce probability|
+|Source of answers|Generated by the foundation model itself|Sampled from the policy (the current model)|
+|Correct answers|Train on the model's own answer (raise its probability)|Positive reward → gradient update raises its probability|
+|Wrong answers|Use the human answer|Negative reward → lower its probability|
 
-This may explain: why **RL-based training is usually placed at the last stage of the training process** ——It is naturally similar to Self-Output, causing less damage to old abilities. It is a naturally forgetting mitigation training method.
+This may explain why **RL-based training usually comes last in the pipeline**: it naturally resembles self-output and does little damage to old abilities, making it an inherently forgetting-resistant way to train.
 
 ---
 
 ## 5.4 Practical suggestions
 {: id="54-实践建议"}
 
-> **Post-Training Golden Rule**: Don’t just look at the performance of the target task, be sure to also evaluate whether the original capabilities of the model are retained.
+> **Golden rule of post-training**: do not look only at the target task; always check whether the model's original abilities survived.
 
-**recommended process**:
+**Recommended process**:
 
 ```
-1. Establish a baseline (Baseline)
-   ├── record Foundation Model Performance on various benchmark tests
-   └── Focus on:Safety, General reasoning, original tasks that are good at
+1. Establish a baseline
+   ├── Record the foundation model's scores on a range of benchmarks
+   └── Focus on: safety, general reasoning, and tasks it was already good at
 
-2. Post-Training
-   ├── Preference Self-Output / RL-based method
-   └── If you use humans to label the data, mix in 3-5% Foundation Model self-generated data
+2. Post-training
+   ├── Prefer self-output / RL-based methods
+   └── If you use human-labeled data, mix in 3-5% data generated by the foundation model
 
-3. comprehensive assessment
-   ├── Target tasks: Is the expected improvement achieved?
-   ├── Safety Abilities:ToxiGen / HarmBench Wait
-   └── General abilities:MMLU / GSM8K / HumanEval Wait
+3. Comprehensive evaluation
+   ├── Target task: did it improve as expected?
+   ├── Safety: ToxiGen / HarmBench, etc.
+   └── General ability: MMLU / GSM8K / HumanEval, etc.
 ```
 
-**Common traps**:
+**Common pitfalls**:
 
-|Trap|performance|solution|
+|Pitfall|Symptom|Fix|
 |------|------|---------|
-|Only look at target tasks|“Break GPT-4 on Verilog, but can’t even understand the annotations”|Add comprehensive assessment set|
-|Superstitious LoRA forgetting mitigation|LoRA rank is large → forgetting is almost the same as full parameters|With Self-Output|
-|Ignore Safety|Safety crashed after teaching code/math|Mix in 3% Safety data|
-|The data is all human-labeled|Forgetting is more serious than using the model’s own answers|Use Paraphrase / Self-Output instead|
+|Looking only at the target task|"Beats GPT-4 on Verilog, but can no longer understand comments"|Add a broad evaluation suite|
+|Trusting LoRA to prevent forgetting|With a large LoRA rank, forgetting is almost the same as full fine-tuning|Combine with self-output|
+|Ignoring safety|Safety collapses after teaching code or math|Mix in 3% safety data|
+|Using only human-labeled data|More forgetting than with the model's own answers|Switch to paraphrase / self-output|
 
 ---
 
-# 6. Distributed training technology
+# 6. Distributed training
 {: id="6-分布式训练技术"}
 
-Large model training must rely on distributed parallel technology.
+Training large models depends on distributed parallelism.
 
-> **Introduction to this chapter**
+> **About this chapter**
 >
-> Distributed training is for large model training **Core engineering technology** , without distributed parallelism, it is impossible to train a model that exceeds the GPU memory capacity of a single GPU. This chapter introduces key technologies such as data parallelism, tensor parallelism, pipeline parallelism, and ZeRO, as well as how to choose an appropriate parallel strategy. **core principles** : TP is used when a single layer is too large, PP is used when the number of layers is too large, and DP is used to improve throughput.
+> Distributed training is the **core engineering technique** of LLM training: without it, no model larger than a single GPU's memory could be trained at all. This chapter introduces data parallelism, tensor parallelism, pipeline parallelism, and ZeRO, and how to choose a parallel strategy. **Rule of thumb**: use TP when a single layer is too large, PP when there are too many layers, and DP to increase throughput.
 
 ## 6.1 Data parallelism (DP / DDP)
 {: id="61-数据并行dp--ddp"}
 
 ### 6.1.1 Principle
 {: id="611-原理"}
-Data parallelism is the most intuitive distributed training method. When a single GPU can fit the complete model but the GPU memory cannot accommodate the large Batch Size, multiple GPU devices can process different data subsets in parallel by splitting the data set horizontally:
-- Each GPU device has an independent copy of the model parameters.
-- In forward propagation, each device independently inputs different Batch data and calculates Loss and local gradient $$\mathbf{g}_i$$.
-- In backpropagation, each device synchronizes and averages all gradients through an inter-card communication mechanism such as `All-Reduce`: $$\mathbf{g}_{\text{avg}} = \frac{1}{N} \sum_{i=1}^N \mathbf{g}_i$$.
-- Each device calls the optimizer synchronously and uses the average gradient $$\mathbf{g}_{\text{avg}}$$ to synchronously update its own model weights to ensure that the models on each card are always consistent.
+Data parallelism is the most intuitive form of distributed training. When the full model fits on one GPU but a large batch does not, the dataset is split so that several GPUs process different subsets in parallel:
+- Each GPU holds its own full copy of the model parameters.
+- In the forward pass, each device takes a different batch and computes its loss and local gradient $$\mathbf{g}_i$$.
+- In the backward pass, devices synchronize and average all gradients with an inter-GPU collective such as `All-Reduce`: $$\mathbf{g}_{\text{avg}} = \frac{1}{N} \sum_{i=1}^N \mathbf{g}_i$$.
+- Each device then runs the optimizer with the averaged gradient $$\mathbf{g}_{\text{avg}}$$ to update its own weights, so every copy of the model stays identical.
 
 ```mermaid
 flowchart TD
-    DS["(&quot;training data set&quot;)"]
+    DS["(&quot;Training dataset&quot;)"]
 
-    DS -->|"Batch 0"| GPU0["GPU 0<br>Complete model copy W<br>─────<br>forward propagation → Loss₀<br>Backpropagation → g₀"]
-    DS -->|"Batch 1"| GPU1["GPU 1<br>Complete model copy W<br>─────<br>forward propagation → Loss₁<br>Backpropagation → g₁"]
-    DS -->|"Batch N-1"| GPUN["GPU N-1<br>Complete model copy W<br>─────<br>forward propagation → Loss_{N-1}<br>Backpropagation → g_{N-1}"]
+    DS -->|"Batch 0"| GPU0["GPU 0<br>Full model copy W<br>─────<br>Forward → Loss₀<br>Backward → g₀"]
+    DS -->|"Batch 1"| GPU1["GPU 1<br>Full model copy W<br>─────<br>Forward → Loss₁<br>Backward → g₁"]
+    DS -->|"Batch N-1"| GPUN["GPU N-1<br>Full model copy W<br>─────<br>Forward → Loss_{N-1}<br>Backward → g_{N-1}"]
 
     GPU0 --> AR["All-Reduce<br>g_avg = (g₀ + g₁ + ⋯ + g_{N-1}) / N"]
     GPU1 --> AR
     GPUN --> AR
 
-    AR -->|"simulcast g_avg"| U0["GPU 0 Update parameters W"]
-    AR -->|"simulcast g_avg"| U1["GPU 1 Update parameters W"]
-    AR -->|"simulcast g_avg"| UN["GPU N-1 Update parameters W"]
+    AR -->|"broadcast g_avg"| U0["GPU 0 updates W"]
+    AR -->|"broadcast g_avg"| U1["GPU 1 updates W"]
+    AR -->|"broadcast g_avg"| UN["GPU N-1 updates W"]
 
     style DS fill:#e3f2fd,stroke:#01579b,color:#000
     style GPU0 fill:#fff3e0,stroke:#e65100,color:#000
@@ -2378,18 +2396,18 @@ flowchart TD
 
 ### 6.1.2 Gradient communication
 {: id="612-梯度通信优化"}
-In PyTorch `DistributedDataParallel` (DDP) In the actual project, in order to avoid network congestion caused by massive gradient synchronization at one time after the back propagation is completed, the system adopts **Gradient communication and calculation overlap (Overlapping)** Technology:
-1. **Gradient grouping (Buckets)**: During initialization, DDP allocates gradient tensors into multiple fixed-size "buckets" (Buckets, usually 25MB) according to the reverse order of backpropagation (that is, from the output layer to the input layer).
-2. **asynchronous synchronization**: When calculating gradients through backpropagation, once all the gradients in a Bucket are calculated, the system will immediately start `All-Reduce` asynchronous communication for the Bucket in the background. At the same time, backpropagation gradient calculations for earlier layers continue to run on the GPU cores. This successfully achieves concurrency in computation and network communication, masking a large amount of inter-card synchronization time.
+In PyTorch's `DistributedDataParallel` (DDP), to avoid a burst of network traffic from synchronizing all gradients at once after the backward pass, the system **overlaps gradient communication with computation**:
+1. **Gradient buckets**: at initialization, DDP groups gradient tensors into fixed-size buckets (usually 25MB) in reverse order of the backward pass (from the output layer toward the input layer).
+2. **Asynchronous synchronization**: during the backward pass, as soon as every gradient in a bucket has been computed, an asynchronous `All-Reduce` for that bucket starts in the background, while the GPU keeps computing gradients for earlier layers. Computation and communication run concurrently, hiding much of the synchronization time.
 
 ```mermaid
 flowchart LR
-    subgraph COMPUTE ["GPU Backpropagation (output layer → input layer)"]
+    subgraph COMPUTE ["GPU backward pass (output layer → input layer)"]
         direction LR
-        C1["Bucket K<br>Gradient calculation"] --> C2["Bucket K-1<br>Gradient calculation"] --> C3["Bucket K-2<br>Gradient calculation"] --> C4["⋯ Bucket 1<br>Gradient calculation"]
+        C1["Bucket K<br>gradients computed"] --> C2["Bucket K-1<br>gradients computed"] --> C3["Bucket K-2<br>gradients computed"] --> C4["⋯ Bucket 1<br>gradients computed"]
     end
 
-    subgraph COMM ["Background asynchronous All-Reduce(each Bucket independent communication)"]
+    subgraph COMM ["Background asynchronous All-Reduce (one per bucket)"]
         direction LR
         R1["Bucket K<br>All-Reduce"]
         R2["Bucket K-1<br>All-Reduce"]
@@ -2397,12 +2415,12 @@ flowchart LR
         R4["Bucket 1<br>All-Reduce"]
     end
 
-    C1 -.->|"Triggered when full"| R1
-    C2 -.->|"Triggered when full"| R2
-    C3 -.->|"Triggered when full"| R3
-    C4 -.->|"Triggered when full"| R4
+    C1 -.->|"fires when full"| R1
+    C2 -.->|"fires when full"| R2
+    C3 -.->|"fires when full"| R3
+    C4 -.->|"fires when full"| R4
 
-    R1 & R2 & R3 & R4 --> UPDATE["All synchronized<br>Optimizer update parameters W"]
+    R1 & R2 & R3 & R4 --> UPDATE["All synchronized<br>optimizer updates W"]
 
     style C1 fill:#fff3e0,stroke:#e65100,color:#000
     style C2 fill:#fff3e0,stroke:#e65100,color:#000
@@ -2417,12 +2435,12 @@ flowchart LR
 
 ### 6.1.3 DDP limitations
 {: id="613-ddp-局限"}
-- All model parameters, optimizer state, and gradients must fit completely into the physical GPU memory of a single GPU.
-- For extremely large models that exceed the memory capacity of a single GPU GPU (such as 7B and above), DDP will directly cause OOM (Out of Memory) and cannot run independently.
+- All model parameters, optimizer state, and gradients must fit entirely in one GPU's memory.
+- For very large models that exceed a single GPU's memory (7B and above, for example), DDP simply runs out of memory (OOM) and cannot work on its own.
 
 <div align="center">
   <img src="/images/llm-training/data-parallelism.webp" width="80%" alt="data parallel architecture" />
-<figcaption> Figure: The software composition of PyTorch DDP - Python API and gradient protocol layer are built on collective communication backends such as NCCL/Gloo/MPI (Source: PyTorch Distributed paper Figure 1)</figcaption>
+<figcaption>Figure: the software stack of PyTorch DDP: the Python API and gradient reduction layer sit on collective communication backends such as NCCL, Gloo, and MPI (source: Figure 1 of the PyTorch Distributed paper)</figcaption>
 </div>
 
 ---
@@ -2432,45 +2450,45 @@ flowchart LR
 
 ### 6.2.1 How tensors are split
 {: id="621-原理与切分策略"}
-When the size of a single layer weight matrix exceeds the memory of a single GPU GPU, tensor parallelism (such as Megatron-LM) implements distributed matrix multiplication calculations within the layer by splitting the weight parameters of each layer horizontally or vertically onto different GPUs on the same node (usually with high-speed NVLink interconnect).
+When a single layer's weight matrices exceed one GPU's memory, tensor parallelism (as in Megatron-LM) splits each layer's weights by row or column across GPUs in the same node (usually connected by fast NVLink), computing the layer's matrix multiplications in a distributed way.
 
-#### 6.2.1.1 MLP layer segmentation strategy
+#### 6.2.1.1 Splitting the MLP layer
 {: id="6211-mlp-层的切分策略"}
-The Transformer's MLP layer contains two projection matrices: gate/up projection $W_{\text{gate/up}}$ and down projection $W_{\text{down}}$. Assume that the input is $X$, and MLP adopts the combined segmentation of **column parallel-row parallel**:
-- **Column Parallelism**:
-Split the layer 1 weight matrix $W_{\text{col}}$ evenly into $p$ shards by column: $W_{\text{col}} = [W_1, W_2, \ldots, W_p]$.
-Each card directly inputs the complete $X$ and calculates the partial output independently:
+A Transformer MLP layer has two projections: the gate/up projection $W_{\text{gate/up}}$ and the down projection $W_{\text{down}}$. With input $X$, the MLP uses a **column-parallel then row-parallel** split:
+- **Column parallelism**:
+The first weight matrix $W_{\text{col}}$ is split evenly by column into $p$ shards: $W_{\text{col}} = [W_1, W_2, \ldots, W_p]$.
+Every GPU receives the full $X$ and computes its partial output independently:
   $$Y_i = \text{Activation}(X W_i)$$
-No communication is required at this stage.
-- **Row Parallelism**:
-Split the layer 2 weight matrix $W_{\text{row}}$ evenly into $p$ shards by row: $W_{\text{row}} = [V_1; V_2; \ldots; V_p]$.
-Each card inputs the local output $Y_i$ of the previous layer and calculates matrix multiplication independently:
+No communication is needed at this step.
+- **Row parallelism**:
+The second weight matrix $W_{\text{row}}$ is split evenly by row into $p$ shards: $W_{\text{row}} = [V_1; V_2; \ldots; V_p]$.
+Each GPU takes its local output $Y_i$ from the previous step and multiplies independently:
   $$Z_i = Y_i V_i$$
-At this time, all GPU cards pass a `All-Reduce (Sum)` communication operation to add the local results of each card to obtain a complete output tensor:
+Then a single `All-Reduce (Sum)` across all GPUs adds the local results to give the complete output:
   $$Z = \sum_{i=1}^p Z_i + \text{bias}$$
 
-#### 6.2.1.2 Attention layer segmentation strategy
+#### 6.2.1.2 Splitting the attention layer
 {: id="6212-attention-层的切分策略"}
-- **QKV Projection**: also uses column parallelism. The parameters of the attention heads are evenly divided into each card (for example, a 32-head model under 8-card TP, each card is responsible for 4 heads), and each card independently calculates the corresponding Query, Key, and Value, without inter-card communication.
-- **Attention calculation**: Each GPU runs the attention operation independently to obtain the local Context vector.
-- **Output projection**: Use row parallelism. Each GPU multiplies its local output weights, then a single `All-Reduce (Sum)` at the output combines the partial results to recover the complete multi-head attention output.
+- **QKV projection**: also column-parallel. Attention heads are divided evenly across GPUs (with 32 heads and TP over 8 GPUs, each GPU handles 4 heads), and each GPU computes its own queries, keys, and values with no inter-GPU communication.
+- **Attention computation**: each GPU runs attention for its heads independently, producing local context vectors.
+- **Output projection**: row-parallel. Each GPU multiplies by its local slice of the output weights, and a single `All-Reduce (Sum)` combines the partial results into the full multi-head attention output.
 
 ```mermaid
 flowchart LR
-    X["input X(complete)<br>Shared by all cards"]
+    X["Input X (full)<br>shared by all GPUs"]
 
-    subgraph COLPAR ["① Column parallel — No communication"]
+    subgraph COLPAR ["① Column parallel — no communication"]
         direction TB
-        G0["GPU 0<br>W_col column sharding W₀<br>Y₀ = Act(X·W₀)"]
-        G1["GPU 1<br>W_col column sharding W₁<br>Y₁ = Act(X·W₁)"]
-        GP["GPU p-1<br>W_col column sharding Wₚ₋₁<br>Yₚ₋₁ = Act(X·Wₚ₋₁)"]
+        G0["GPU 0<br>column shard W₀ of W_col<br>Y₀ = Act(X·W₀)"]
+        G1["GPU 1<br>column shard W₁ of W_col<br>Y₁ = Act(X·W₁)"]
+        GP["GPU p-1<br>column shard Wₚ₋₁ of W_col<br>Yₚ₋₁ = Act(X·Wₚ₋₁)"]
     end
 
-    subgraph ROWPAR ["② rows parallel — No communication"]
+    subgraph ROWPAR ["② Row parallel — no communication"]
         direction TB
-        R0["GPU 0<br>W_row row sharding V₀<br>Z₀ = Y₀·V₀"]
-        R1["GPU 1<br>W_row row sharding V₁<br>Z₁ = Y₁·V₁"]
-        RP["GPU p-1<br>W_row row sharding Vₚ₋₁<br>Zₚ₋₁ = Yₚ₋₁·Vₚ₋₁"]
+        R0["GPU 0<br>row shard V₀ of W_row<br>Z₀ = Y₀·V₀"]
+        R1["GPU 1<br>row shard V₁ of W_row<br>Z₁ = Y₁·V₁"]
+        RP["GPU p-1<br>row shard Vₚ₋₁ of W_row<br>Zₚ₋₁ = Yₚ₋₁·Vₚ₋₁"]
     end
 
     X --> G0 & G1 & GP
@@ -2478,7 +2496,7 @@ flowchart LR
     G1 --> R1
     GP --> RP
     R0 & R1 & RP --> AR["③ All-Reduce (Sum)<br>Z = Z₀ + Z₁ + ⋯ + Zₚ₋₁"]
-    AR --> OUT["output Z(complete)"]
+    AR --> OUT["Output Z (full)"]
 
     style X fill:#e3f2fd,stroke:#01579b,color:#000
     style G0 fill:#fff3e0,stroke:#e65100,color:#000
@@ -2493,25 +2511,25 @@ flowchart LR
 
 ### 6.2.2 Math and communication cost
 {: id="622-数学推导与通信代价分析"}
-For a basic Block of Transformer, its forward and reverse communication operator calls are very clear:
-- **Forward propagation (Forward)**:
-  - After the Output projection of the Attention layer: 1 `All-Reduce` communication.
-  - After downprojection of the MLP layer: 1 `All-Reduce` communication.
-  - **total forward overhead**: $2 \times \text{All-Reduce}$.
-- **Backward propagation (Backward)**:
-  - The input $X$ of the column parallel layer is copied to each card. In reverse, the gradient of each card for $X$ is only a partial sum, and a `All-Reduce` summary needs to be done at the input end of the column parallel layer ($f$ operator in Megatron).
-  - Attention and MLP are used once each, and the total reverse overhead of **is**: $2 \times \text{All-Reduce}$.
+For one Transformer block, the communication calls in the forward and backward passes are clear-cut:
+- **Forward pass**:
+  - After the attention output projection: 1 `All-Reduce`.
+  - After the MLP down projection: 1 `All-Reduce`.
+  - **Total forward cost**: $2 \times \text{All-Reduce}$.
+- **Backward pass**:
+  - The input $X$ of a column-parallel layer is replicated on every GPU, so in the backward pass each GPU's gradient with respect to $X$ is only a partial sum, and an `All-Reduce` is needed at the input of the column-parallel layer (the $f$ operator in Megatron).
+  - This happens once for attention and once for the MLP, so **the total backward cost is** $2 \times \text{All-Reduce}$.
 
-Megatron-LM abstracts this pair of operations into conjugate operators: $f$ is identity in the forward direction and All-Reduce in the reverse direction; $g$ is All-Reduce in the forward direction and identity in the reverse direction.
+Megatron-LM packages this pair into conjugate operators: $f$ is the identity in the forward pass and an All-Reduce in the backward pass; $g$ is an All-Reduce in the forward pass and the identity in the backward pass.
 
 ### 6.2.3 When to use it
 {: id="623-适用场景与局限"}
-- **applicable scenario**: single-layer weight GPU memory exceeds the limit (such as the Attention layer and MLP layer of the 70B model).
--  **limitations** : The communication frequency of TP is extremely high (there are 4 All-Reduces before each block), and the network transmission must be extremely fast. Therefore, TP is usually limited to **NVLink communication within a single node** , the TP degree is usually set to 2, 4 or 8, and cross-node TP is rarely performed.
+- **When to use**: a single layer's weights do not fit in one GPU's memory (for example, the attention and MLP layers of a 70B model).
+- **Limitations**: TP communicates very frequently (4 All-Reduces per block across the forward and backward passes) and needs an extremely fast interconnect. TP is therefore usually confined to **NVLink within a single node**, with a TP degree of 2, 4, or 8; cross-node TP is rare.
 
 <div align="center">
   <img src="/images/llm-training/tensor-parallelism.webp" width="85%" alt="tensor parallel architecture" />
-<figcaption> Figure: Tensor Parallel (TP) Architecture - Column/row segmentation strategy of Transformer layer (Source: Megatron-LM paper Figure 3)</figcaption>
+<figcaption>Figure: tensor parallel (TP) architecture: column and row splitting of a Transformer layer (source: Figure 3 of the Megatron-LM paper)</figcaption>
 </div>
 
 ---
@@ -2521,11 +2539,11 @@ Megatron-LM abstracts this pair of operations into conjugate operators: $f$ is i
 
 ### 6.3.1 Principle
 {: id="631-原理"}
-When there are too many model layers and the GPU memory of a single node cannot be accommodated, the pipeline adopts "vertical segmentation between layers" in parallel: the $L$ layer of the model is divided into $p$ Stages and allocated to $p$ different GPUs (can span nodes).
+When a model has too many layers to fit in one node, pipeline parallelism splits it "vertically" between layers: the model's $L$ layers are divided into $p$ stages placed on $p$ different GPUs (which may span nodes).
 
 ```mermaid
 flowchart LR
-    DATA["Enter data<br>Micro-Batches"]
+    DATA["Input data<br>micro-batches"]
 
     subgraph S0 ["GPU 0 — Stage 0"]
         L0["Layer 1 ~ L/p"]
@@ -2541,10 +2559,10 @@ flowchart LR
     end
 
     DATA --> L0
-    L0 -->|"activation value P2P communication"| L1
-    L1 -->|"activation value P2P communication"| LX
-    LX -->|"activation value P2P communication"| LP
-    LP --> LOSS["Loss Calculate<br>gradient along reverse order P2P return"]
+    L0 -->|"activations via P2P"| L1
+    L1 -->|"activations via P2P"| LX
+    LX -->|"activations via P2P"| LP
+    LP --> LOSS["Compute loss<br>gradients flow back via P2P"]
 
     style DATA fill:#e3f2fd,stroke:#01579b,color:#000
     style L0 fill:#fff3e0,stroke:#e65100,color:#000
@@ -2555,39 +2573,39 @@ flowchart LR
 
 ### 6.3.2 Schedules and bubble ratio
 {: id="632-调度策略与气泡占比公式"}
-If the entire Batch is directly sent into the pipeline, most of the GPUs will be in an idle waiting state during forward and reverse, which is called pipeline bubble (Bubble). PP improves utilization by subdividing the Batch into $m$ smaller Micro-Batches.
+If a whole batch is pushed through the pipeline at once, most GPUs sit idle waiting during the forward and backward passes; this idle time is called the pipeline bubble. PP improves utilization by splitting the batch into $m$ smaller micro-batches.
 
 #### 6.3.2.1 GPipe (F-then-B scheduling)
 {: id="6321-gpipe-f-then-b-调度"}
-- **Scheduling logic**: The next Stage can only be executed after the previous Stage has completed the forward propagation of all $m$ Micro-Batches. All backpropagations are then performed in sequence.
-- **bubble proportion formula**:
+- **Schedule**: all $m$ micro-batches go through the forward pass stage by stage, and only then are all backward passes run in turn.
+- **Bubble ratio**:
   $$F_{\text{bubble}} = \frac{p - 1}{m + p - 1}$$
-- **Disadvantages**: The activation value (Activation) must be saved in GPU memory until backpropagation arrives. This causes GPU memory usage to increase linearly with the number of Micro-Batch $m$, and the GPU memory saving effect is compromised.
+- **Drawback**: activations must stay in GPU memory until their backward pass arrives, so memory grows linearly with the number of micro-batches $m$, undermining the memory savings.
 
 #### 6.3.2.2 1F1B (One Forward, One Backward scheduling)
 {: id="6322-1f1b-one-forward-one-backward-调度"}
-- **Scheduling logic**: When the pipeline is started and filled, each Stage is alternately executing 1 forward calculation and 1 reverse calculation.
-- **Bubble**: Same as GPipe . If the ideal calculation time is used as the denominator (the way Megatron-LM is written), the bubble ratio of both is
+- **Schedule**: once the pipeline has warmed up and filled, each stage alternates one forward step with one backward step.
+- **Bubble**: the same as GPipe. Taking the ideal compute time as the denominator (as Megatron-LM does), both have a bubble ratio of
   $$\frac{p - 1}{m}$$
-Therefore, reducing bubbles still depends on increasing the number of micro-batch $m$.
-- Advantages of : The activation value of Micro-Batch $i$ can be destroyed from GPU memory immediately after its forward direction is completed and the corresponding reverse direction is executed. A maximum of $p$ activation values ​​can be cached at the same time, decoupling the activated GPU memory from the Micro-Batch number $m$ - 1F1B saves GPU memory, not bubbles.
+so reducing bubbles still depends on increasing the number of micro-batches $m$.
+- **Advantage**: the activations of micro-batch $i$ can be freed as soon as its backward pass has run. At most $p$ sets of activations are cached at a time, decoupling activation memory from the number of micro-batches $m$: 1F1B saves memory, not bubbles.
 
 ```mermaid
 flowchart TD
     subgraph GPIPE ["GPipe (F-then-B)"]
         direction LR
-        GF["① All m a Micro-Batch<br>Complete the forward<br>Activation values all reside in GPU memory"] --> GBUB["② Bubbles waiting<br>⬜ p-1 step idle"] --> GBW["③ All m a Micro-Batch<br>Complete the reverse in sequence"]
+        GF["① All m micro-batches<br>finish the forward pass<br>all activations kept in memory"] --> GBUB["② Bubble wait<br>⬜ p-1 idle steps"] --> GBW["③ All m micro-batches<br>run the backward pass in turn"]
     end
 
     subgraph F1B ["1F1B (One Forward, One Backward)"]
         direction LR
-        WU["① preheat<br>p-1 step filling pipeline"] --> SS["② stable alternation<br>F(mbᵢ) Immediately after completion B(mbᵢ₋ₚ₊₁)<br>Only cache at the same time p activation value"] --> CD["③ Finishing<br>p-1 step clear"]
+        WU["① Warm-up<br>p-1 steps fill the pipeline"] --> SS["② Steady state<br>F(mbᵢ) followed immediately by B(mbᵢ₋ₚ₊₁)<br>only p activations cached at once"] --> CD["③ Cool-down<br>p-1 steps drain the pipeline"]
     end
 
-    subgraph MEM ["Activation value GPU memory peak comparison"]
+    subgraph MEM ["Peak activation memory"]
         direction LR
-        GM["GPipe<br>Cache simultaneously m activation<br>O(m) GPU memory"]
-        FM["1F1B<br>Cache only at the same time p activation<br>O(p) GPU memory ✓"]
+        GM["GPipe<br>m activations cached at once<br>O(m) memory"]
+        FM["1F1B<br>only p activations cached at once<br>O(p) memory ✓"]
     end
 
     GPIPE -.-> GM
@@ -2601,11 +2619,11 @@ flowchart TD
 
 #### 6.3.2.3 Interleaved 1F1B (virtual pipeline)
 {: id="6323-interleaved-1f1b-虚拟流水线"}
-- Each GPU card is virtually assigned responsibility for multiple, non-contiguous Stages (for example, GPU 0 is responsible for Layer 1 and Layer 9). If each card is responsible for $v$ virtual stages, the bubble ratio is reduced to $\frac{p-1}{v \cdot m}$, at the cost of increasing the point-to-point (P2P) communication volume by $v$ times.
+- Each GPU is assigned several non-contiguous virtual stages (for example, GPU 0 handles layer 1 and layer 9). With $v$ virtual stages per GPU, the bubble ratio drops to $\frac{p-1}{v \cdot m}$, at the cost of $v$ times more point-to-point (P2P) communication.
 
 <div align="center">
   <img src="/images/llm-training/pipeline-parallelism.webp" width="85%" alt="Pipeline parallel architecture" />
-<figcaption> Figure: When using naive model parallelism (without splitting micro-batch), the four machines are idle most of the time - this is the pipeline bubble problem (Source: PipeDream paper Figure 3)</figcaption>
+<figcaption>Figure: with naive model parallelism (no micro-batches), the four machines sit idle most of the time; this is the pipeline bubble problem (source: Figure 3 of the PipeDream paper)</figcaption>
 </div>
 
 ---
@@ -2615,27 +2633,27 @@ flowchart TD
 
 ### 6.4.1 Principle
 {: id="641-原理"}
-- **mechanism**: In areas where tensor parallelism is not done in the Transformer layer (such as LayerNorm, Dropout, residual connection), standard TP still needs to redundantly store the complete activation value (Activation Memory) on each GPU. This part of GPU memory grows linearly with the sequence length $s$, accounting for a considerable proportion in long text training. Sequence Parallelism divides the sequence dimensions in the **non-attention computing layer** (each card is only responsible for the sequence of length $\frac{s}{p}$), and before performing QKV projection and MLP column projection, the complete sequence is put back together through `All-Gather`, and after the calculation is completed, it is passed `Reduce-Scatter` re-segmented.
+- **Mechanism**: in the parts of a Transformer layer that tensor parallelism does not split (LayerNorm, dropout, residual connections), standard TP still stores the full activations redundantly on every GPU. This memory grows linearly with sequence length $s$ and becomes significant in long-context training. Sequence parallelism splits the sequence dimension in these **non-attention layers** (each GPU handles a sequence of length $\frac{s}{p}$). Before the QKV projection and the MLP column projection, an `All-Gather` reassembles the full sequence; afterwards, a `Reduce-Scatter` splits it again.
 
 ### 6.4.2 Long-sequence optimization
 {: id="642-优势与长序列分布式优化"}
-- **Cost reduction and efficiency improvement**: Successfully allocate the activation value GPU memory at LayerNorm and Dropout to $p$ GPUs.
-- **supports longer context**: combined with TP (i.e. TP-SP), combined with selective activation recalculation, the activation of GPU memory in Megatron-LM experiments can be reduced by about 5 times (Korthikanti et al., 2022). Longer contexts (millions of tokens) require solutions such as Ring Attention to segment the sequence within the attention (see Section 2.5.3.4).
+- **Lower cost**: activation memory at LayerNorm and dropout is spread across $p$ GPUs.
+- **Longer context**: combined with TP (TP-SP) and selective activation recomputation, Megatron-LM experiments cut activation memory by about 5× (Korthikanti et al., 2022). Even longer contexts (millions of tokens) need approaches such as Ring Attention that also split the sequence inside attention (see Section 2.5.3.4).
 
 ```mermaid
 flowchart LR
-    IN["Each card holds<br>s/p length sequence<br>(Activation value split)"]
+    IN["Each GPU holds<br>a sequence of length s/p<br>(activations split)"]
 
-    IN --> LN["LayerNorm<br>(Each card is independent and has no communication)"]
-    LN -->|"All-Gather<br>Reassemble the complete sequence s"| FULL["Full sequence activation<br>(s × h)"]
+    IN --> LN["LayerNorm<br>(independent per GPU, no communication)"]
+    LN -->|"All-Gather<br>reassemble the full sequence s"| FULL["Full-sequence activations<br>(s × h)"]
 
-    subgraph TPATTN ["Attention TP area"]
-        FULL --> QKV["QKV projection<br>(column parallel)"] --> ATTN["Attention Calculate<br>(Each card is independent)"] --> OPRJ["Output projection<br>(rows in parallel)"]
+    subgraph TPATTN ["Attention TP region"]
+        FULL --> QKV["QKV projection<br>(column parallel)"] --> ATTN["Attention<br>(independent per GPU)"] --> OPRJ["Output projection<br>(row parallel)"]
     end
 
-    OPRJ -->|"Reduce-Scatter<br>switch back s/p sequence"| DROP["Dropout + residual<br>(Each card s/p tokens)"]
-    DROP --> LN2["LayerNorm → MLP<br>(Likewise All-Gather / Reduce-Scatter)"]
-    LN2 --> OUT["Next layer input<br>(s/p Sequence dimension segmentation)"]
+    OPRJ -->|"Reduce-Scatter<br>back to s/p sequences"| DROP["Dropout + residual<br>(s/p tokens per GPU)"]
+    DROP --> LN2["LayerNorm → MLP<br>(same All-Gather / Reduce-Scatter)"]
+    LN2 --> OUT["Input to next layer<br>(split along sequence, s/p)"]
 
     style IN fill:#e3f2fd,stroke:#01579b,color:#000
     style FULL fill:#fff3e0,stroke:#e65100,color:#000
@@ -2651,66 +2669,66 @@ flowchart LR
 ## 6.5 ZeRO
 {: id="65-zero"}
 
-ZeRO proposed by Microsoft DeepSpeed aims to completely eliminate the storage overhead of multi-card redundancy in DDP mode and spread the model state evenly to each GPU.
+ZeRO, introduced by Microsoft DeepSpeed, aims to eliminate the redundant per-GPU copies of DDP entirely by spreading the model state evenly across GPUs.
 
 ### 6.5.1 Static memory budget
 {: id="651-静态显存推导"}
-Let the model parameters be $\Psi$. Under mainstream FP16 mixed precision training, the static GPU memory consumed by a GPU to store model states (Model States) includes:
-1. **model parameters (Parameters)**: FP16 storage, occupying $2\Psi$ bytes.
-2. **Gradient (Gradients)**: FP16 storage, occupying $2\Psi$ bytes.
-3. **Optimizer States (Optimizer States)**: Use FP32 to ensure calculation accuracy, including:
-   - Master Weights: $4\Psi$ bytes
-   - First-order momentum (Momentum): $4\Psi$ bytes
-   - Second-order variable (Variance): $4\Psi$ bytes
-   - Optimizer GPU memory total: $12\Psi$ bytes.
+Let the parameter count be $\Psi$. Under standard FP16 mixed-precision training, the static memory a GPU needs for the model states is:
+1. **Parameters**: stored in FP16, $2\Psi$ bytes.
+2. **Gradients**: stored in FP16, $2\Psi$ bytes.
+3. **Optimizer states**: kept in FP32 for numerical accuracy:
+   - Master weights: $4\Psi$ bytes
+   - First moment (momentum): $4\Psi$ bytes
+   - Second moment (variance): $4\Psi$ bytes
+   - Optimizer total: $12\Psi$ bytes.
 
 $$\text{Static GPU memory} = 2\Psi + 2\Psi + 12\Psi = 16\Psi \text{ bytes}$$
 
-For a 7B parameter model, the static GPU memory usage is as high as $16 \times 7 = 112\text{GB}$, and a single H100 (80GB) cannot even hold the model status.
+For a 7B model, static memory reaches $16 \times 7 = 112\text{GB}$; a single H100 (80GB) cannot even hold the model states.
 
 ### 6.5.2 ZeRO sharding and offload
 {: id="652-zero-分片与-offload"}
 
 #### 6.5.2.1 ZeRO-1: Optimizer States Partitioning
 {: id="6521-zero-1优化器状态分片-optimizer-states-partitioning"}
-- **mechanism**: Evenly divide and spread the AdamW optimizer state of $12\Psi$ bytes onto $N_d$ cards. Each GPU is only responsible for updating and saving the optimizer state of $\frac{1}{N_d}$.
-- **single GPU GPU memory formula**:
+- **Mechanism**: the $12\Psi$ bytes of AdamW optimizer state are split evenly across $N_d$ GPUs; each GPU updates and stores only $\frac{1}{N_d}$ of it.
+- **Per-GPU memory**:
   $$M_{\text{ZeRO-1}} = 2\Psi + 2\Psi + \frac{12\Psi}{N_d}$$
-  - *Example*: For the 7B model, at $N_d=8$, the static GPU memory is sharply reduced from 112GB to **38.5GB**.
+  - *Example*: for a 7B model with $N_d=8$, static memory drops from 112GB to **38.5GB**.
 
 #### 6.5.2.2 ZeRO-2: Gradient Partitioning
 {: id="6522-zero-2梯度分片-gradient-partitioning"}
-- **mechanism**: In backpropagation, once the gradient of a certain layer parameter is calculated, `Reduce-Scatter` is triggered immediately and distributed to the GPU responsible for updating the optimizer state of this layer, and other GPUs immediately release the gradient.
-- **single GPU GPU memory formula**:
+- **Mechanism**: during the backward pass, as soon as a layer's gradients are computed, a `Reduce-Scatter` sends them to the GPU that owns that layer's optimizer state, and the other GPUs free those gradients immediately.
+- **Per-GPU memory**:
   $$M_{\text{ZeRO-2}} = 2\Psi + \frac{2\Psi + 12\Psi}{N_d} = 2\Psi + \frac{14\Psi}{N_d}$$
-  - *Example*: For 7B model, at $N_d=8$, static GPU memory drops to **26.25GB**.
+  - *Example*: for a 7B model with $N_d=8$, static memory drops to **26.25GB**.
 
 #### 6.5.2.3 ZeRO-3: Parameter Partitioning
 {: id="6523-zero-3参数分片-parameter-partitioning"}
-- **mechanism**: equally spread the model parameters of $2\Psi$ bytes onto $N_d$ cards. When forward and backward propagation are performed to a specific layer, all GPU broadcasts (`All-Gather`) obtain the complete weights of that layer and discard them immediately after use.
-- **single GPU GPU memory formula**:
+- **Mechanism**: the $2\Psi$ bytes of parameters are also split evenly across $N_d$ GPUs. When the forward or backward pass reaches a layer, the GPUs `All-Gather` that layer's full weights and discard them right after use.
+- **Per-GPU memory**:
   $$M_{\text{ZeRO-3}} = \frac{2\Psi + 2\Psi + 12\Psi}{N_d} = \frac{16\Psi}{N_d}$$
-  - *Example*: For 7B model, at $N_d=8$, static GPU memory only requires **14GB**!
+  - *Example*: for a 7B model with $N_d=8$, static memory is only **14GB**!
 
-#### 6.5.2.4 ZeRO-Offload (GPU memory - memory offload)
+#### 6.5.2.4 ZeRO-Offload (offloading to host memory)
 {: id="6524-zero-offload-显存-内存卸载"}
-- Utilize the PCIe channel to offload the fragmented optimizer status and gradient into the memory of the host CPU (CPU RAM), and use the host's CPU core to perform optimizer calculation updates. When forwarding, the updated weights are written back to the GPU. This significantly broadens the upper limit of model parameters that can be trained by a single GPU.
+- Offloads the sharded optimizer state and gradients over PCIe to host memory (CPU RAM) and runs the optimizer update on the host CPU; updated weights are copied back to the GPU for the forward pass. This greatly raises the size of model a single GPU can train.
 
 #### 6.5.2.5 ZeRO-Infinity
 {: id="6525-zero-infinity"}
-- Based on ZeRO-Offload, NVMe solid-state drives (SSDs) are used as level 3 cache, and hundreds of billions of large models can be fine-tuned directly on low-end GPU platforms, breaking physical hardware barriers.
+- Builds on ZeRO-Offload by using NVMe SSDs as a third storage tier, making it possible to fine-tune models with hundreds of billions of parameters on modest GPU setups and pushing past physical hardware limits.
 
 ```mermaid
 flowchart TD
-    DDP["DDP Baseline (full copy per card)<br>─────────────────<br>● parameters 2Ψ<br>● gradient 2Ψ<br>● Optimizer status 12Ψ<br>─────────────────<br>Single card GPU memory:16Ψ Bytes"]
+    DDP["DDP baseline (full copy per GPU)<br>─────────────────<br>● Parameters 2Ψ<br>● Gradients 2Ψ<br>● Optimizer state 12Ψ<br>─────────────────<br>Per-GPU memory: 16Ψ bytes"]
 
-    Z1["ZeRO-1: Optimizer state sharding<br>─────────────────<br>● parameters 2Ψ<br>● gradient 2Ψ<br>✓ Optimizer status 12Ψ / Nd<br>─────────────────<br>Single card GPU memory:(4 + 12/Nd)Ψ Bytes"]
+    Z1["ZeRO-1: shard optimizer state<br>─────────────────<br>● Parameters 2Ψ<br>● Gradients 2Ψ<br>✓ Optimizer state 12Ψ / Nd<br>─────────────────<br>Per-GPU memory: (4 + 12/Nd)Ψ bytes"]
 
-    Z2["ZeRO-2: + gradient slicing<br>─────────────────<br>● parameters 2Ψ<br>✓ gradient 2Ψ / Nd<br>✓ Optimizer status 12Ψ / Nd<br>─────────────────<br>Single card GPU memory:(2 + 14/Nd)Ψ Bytes"]
+    Z2["ZeRO-2: + shard gradients<br>─────────────────<br>● Parameters 2Ψ<br>✓ Gradients 2Ψ / Nd<br>✓ Optimizer state 12Ψ / Nd<br>─────────────────<br>Per-GPU memory: (2 + 14/Nd)Ψ bytes"]
 
-    Z3["ZeRO-3: + parameter sharding<br>─────────────────<br>✓ parameters 2Ψ / Nd<br>✓ gradient 2Ψ / Nd<br>✓ Optimizer status 12Ψ / Nd<br>─────────────────<br>Single card GPU memory:16Ψ / Nd Bytes"]
+    Z3["ZeRO-3: + shard parameters<br>─────────────────<br>✓ Parameters 2Ψ / Nd<br>✓ Gradients 2Ψ / Nd<br>✓ Optimizer state 12Ψ / Nd<br>─────────────────<br>Per-GPU memory: 16Ψ / Nd bytes"]
 
-    DDP -->|"Sharding optimizer status"| Z1 -->|"+ sliced gradient"| Z2 -->|"+ Sharding parameters"| Z3
+    DDP -->|"shard optimizer state"| Z1 -->|"+ shard gradients"| Z2 -->|"+ shard parameters"| Z3
 
     style DDP fill:#ffcdd2,stroke:#b71c1c,color:#000
     style Z1 fill:#fff9c4,stroke:#f57f17,color:#000
@@ -2721,7 +2739,7 @@ flowchart TD
 ## 6.6 3D parallelism
 {: id="66-3d-混合并行"}
 
-Combined with data parallelism, tensor parallelism, and pipeline parallelism:
+Data, tensor, and pipeline parallelism combined:
 
 $$
 \text{Total GPUs} = \text{DP degree} \times \text{TP degree} \times \text{PP degree}
@@ -2729,21 +2747,21 @@ $$
 
 ```mermaid
 graph TD
-    A["Choose a parallel strategy"] --> B{Can single layer parameters be<br/>loading orderGPU?}
-    B -->|No| C["Enable tensor parallelism TP"]
-    B -->|Yes| D{Total number of model layers<br/>Is there a lot?}
+    A["Choose a parallel strategy"] --> B{Do one layer's parameters<br/>fit on one GPU?}
+    B -->|No| C["Enable tensor parallelism (TP)"]
+    B -->|Yes| D{Does the model<br/>have many layers?}
     C --> D
-    D -->|Yes| E["Enable pipeline parallelism PP"]
-    D -->|No| F{There's still some leftGPU?}
+    D -->|Yes| E["Enable pipeline parallelism (PP)"]
+    D -->|No| F{Any GPUs left?}
     E --> F
-    F -->|Yes| G["Enable data parallelism DP<br/>Improve throughput"]
-    F -->|No| H["Complete configuration"]
+    F -->|Yes| G["Enable data parallelism (DP)<br/>to raise throughput"]
+    F -->|No| H["Configuration done"]
     G --> H
 
-    I["Example configuration"] --> J["1024 GPUstraining<br/>175Bmodel"]
-    J --> K["TP=8: Single layer cut8portion"]
-    K --> L["PP=16: points16astage"]
-    L --> M["DP=8: 8data copies"]
+    I["Example"] --> J["Training a 175B model<br/>on 1024 GPUs"]
+    J --> K["TP=8: each layer split 8 ways"]
+    K --> L["PP=16: 16 stages"]
+    L --> M["DP=8: 8 data-parallel replicas"]
     M --> N["8×8×16=1024"]
 
     style C fill:#ffcdd2
@@ -2754,125 +2772,125 @@ graph TD
 
 <div align="center">
   <img src="/images/llm-training/3d-parallelism.png" width="90%" alt="3D hybrid parallel architecture" />
-<figcaption> Figure: 3D hybrid parallelization diagram - each data parallel copy is internally divided into 4 pipeline stages according to layers, and each stage does 4-way tensor parallelization (MP in the picture), and ZeRO sharding is used between copies (source: Microsoft DeepSpeed blog)</figcaption>
+<figcaption>Figure: 3D hybrid parallelism: each data-parallel replica is split by layer into 4 pipeline stages, each stage uses 4-way tensor parallelism (MP in the figure), and ZeRO sharding is used across replicas (source: Microsoft DeepSpeed blog)</figcaption>
 </div>
 
 ### 6.6.1 Principles of strategy selection
 {: id="661-策略选择原则"}
 
-**Decision-making process**:
-1. **First consider TP (Tensor Parallel)**:
-   - Must be used when single layer parameters > single GPU GPU memory
-   - Typical configuration: TP=2/4/8 (within the same node, NVLink communication)
-   - For example: single layer 12GB, single GPU 80GB → no TP required
+**Decision process**:
+1. **Consider TP (tensor parallelism) first**:
+   - Required when one layer's parameters exceed a single GPU's memory
+   - Typical: TP=2/4/8 (within a node, over NVLink)
+   - Example: a 12GB layer on an 80GB GPU → no TP needed
 
-2. **Secondly consider PP (pipeline parallel)**:
-   - Used when the total number of layers in the model is large
-   - Typical configuration: PP=2/4/8/16
-   - For example: 96-layer model, PP=16 → 6 layers per stage
+2. **Then PP (pipeline parallelism)**:
+   - Used when the model has many layers
+   - Typical: PP=2/4/8/16
+   - Example: a 96-layer model with PP=16 → 6 layers per stage
 
-3. **Finally consider DP (data parallel)**:
-   - Use all remaining GPUs
-   - Improve training throughput
-   - For example: 1024 GPU, TP=8, PP=16 → DP=8
+3. **Finally DP (data parallelism)**:
+   - Uses all remaining GPUs
+   - Raises training throughput
+   - Example: 1024 GPUs, TP=8, PP=16 → DP=8
 
-**actual case**:
+**Real configurations**:
 
-|Model size| TP | PP | DP |Total GPU|Description|
+|Model size| TP | PP | DP |Total GPUs|Notes|
 |---------|----|----|----|----|------|
-|**7B parameters**| 1 | 1 | 64 | 64 |Small model, pure DP is enough|
-|**13B parameters**| 2 | 1 | 32 | 64 |Requires a small amount of TP|
-|**70B parameters**| 8 | 4 | 4 | 128 |Requires TP+PP|
-|**175B parameters**| 8 | 16 | 8 | 1024 |large model, 3D parallel|
-|**540B parameters**| 8 | 32 | 16 | 4096 |super large model|
+|**7B parameters**| 1 | 1 | 64 | 64 |Small model; pure DP is enough|
+|**13B parameters**| 2 | 1 | 32 | 64 |Needs a little TP|
+|**70B parameters**| 8 | 4 | 4 | 128 |Needs TP+PP|
+|**175B parameters**| 8 | 16 | 8 | 1024 |Large model; full 3D parallelism|
+|**540B parameters**| 8 | 32 | 16 | 4096 |Very large model|
 
-**Trade-off consider**:
-- **TP increases**: intra-layer communication increases, requiring high-speed interconnection (NVLink)
-- **PP increases**: Pipeline bubble increases and GPU utilization decreases
-- **DP increases**: Gradient synchronization communication increases, but Ring-AllReduce optimization can be used
+**Trade-offs**:
+- **More TP**: more intra-layer communication; needs a fast interconnect (NVLink)
+- **More PP**: larger pipeline bubbles and lower GPU utilization
+- **More DP**: more gradient-sync traffic, though Ring-AllReduce helps
 
 ---
 
-# 7. Training optimization technology
+# 7. Training optimization
 {: id="7-训练优化技术"}
 
-In the training of large language model (LLM), hardware resources (especially GPU GPU memory and bandwidth) and training time are the core bottlenecks. Optimization technology not only determines whether the model can run with limited resources, but also directly determines the convergence speed and final effect of training. This chapter will provide an in-depth analysis of mainstream optimizer selection, learning rate scheduling, gradient processing methods, regularization technology, and attention acceleration operator Flash Attention.
+In LLM training, hardware (especially GPU memory and bandwidth) and training time are the core bottlenecks. Optimization techniques decide not only whether a model can run on limited resources at all, but also how fast training converges and how good the final model is. This chapter examines optimizer choice, learning-rate schedules, gradient handling, regularization, and the Flash Attention kernel.
 
-> **Introduction to this chapter**
+> **About this chapter**
 >
-> large model training is a **The game between GPU memory and computing efficiency** . The choice of the optimizer determines the lower limit of GPU memory usage, the learning rate and gradient strategy determine whether the model can converge smoothly, and Flash Attention is the cornerstone of currently solving the bottleneck of long text attention calculations. This chapter aims to help readers establish a complete cognitive system from "mathematical formulas" to "engineering implementation".
+> LLM training is **a trade-off between GPU memory and compute efficiency**. The optimizer sets the floor for memory use, learning-rate and gradient strategies decide whether training converges smoothly, and Flash Attention is the foundation for handling the cost of attention on long text. This chapter aims to connect the math with the engineering implementation.
 
 ---
 
 ## 7.1 Choosing an optimizer
 {: id="71-优化器选择"}
 
-In large model training, optimizer states are one of the largest sources of GPU memory consumption. In commonly used FP16/BF16 mixed-precision training, although weights and gradients only require 2 bytes (FP16/BF16), the AdamW optimizer needs to store a copy of FP32's Master Weights, FP32's first-order momentum (Momentum), and FP32's second-order momentum (Variance) for each parameter, which brings huge GPU memory overhead.
+Optimizer states are one of the biggest consumers of GPU memory in LLM training. In common FP16/BF16 mixed-precision training, weights and gradients take only 2 bytes each, but AdamW must also keep, for every parameter, an FP32 master weight, an FP32 first moment (momentum), and an FP32 second moment (variance), which adds a lot of memory.
 
 ### 7.1.1 AdamW
 {: id="711-adamw"}
 
-AdamW is currently the most mainstream optimizer for large model training (such as LLaMA, GPT, InternLM, etc. are used by default).
+AdamW is the dominant optimizer for LLM training today (the default for LLaMA, GPT, InternLM, and others).
 
-#### 7.1.1.1 Decoupling the core formula from Weight Decay
+#### 7.1.1.1 Update rule and decoupled weight decay
 {: id="7111-核心公式与-weight-decay-解耦"}
-The traditional Adam optimizer, when combined with L2 regularization, mixes weight gradients with regularization gradients for momentum estimation, resulting in scaling anomalies for sparse gradients. AdamW directly decouples weight decay (Weight Decay) from gradient update, and directly subtracts the decay term when updating parameters in the previous step:
+When classic Adam is combined with L2 regularization, the regularization gradient is mixed into the momentum estimates, which scales the penalty incorrectly for parameters with sparse gradients. AdamW decouples weight decay from the gradient update and subtracts the decay term directly in the parameter update:
 
 $$
 \theta_{t+1} = \theta_t - \eta_t \lambda \theta_t - \eta_t \left( \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} \right)
 $$
 
-Here:
-- $\theta_t$: Model parameters of step $t$
-- $\eta_t$: Learning rate of the current step
-- $\lambda$: Weight decay rate (usually 0.1)
-- $$\hat{m}_t, \hat{v}_t$$: Bias-corrected first-order momentum and second-order momentum
+where:
+- $\theta_t$: model parameters at step $t$
+- $\eta_t$: learning rate at the current step
+- $\lambda$: weight decay rate (usually 0.1)
+- $$\hat{m}_t, \hat{v}_t$$: bias-corrected first and second moments
 
-#### 7.1.1.2 GPU memory overhead analysis
+#### 7.1.1.2 Memory cost
 {: id="7112-显存开销分析"}
-Assume that the model parameters are $N$ and trained using Mixed Precision:
-- **model parameters (FP16/BF16)**: $2N$ bytes
-- **Gradient (FP16/BF16)**: $2N$ Bytes
-- **AdamW Optimizer status (FP32)**:
-  - **Master Weights** (used to accumulate minor updates): $4N$ bytes
-  - **first-order momentum $m_t$**: $4N$ bytes
-  - **Second-order momentum $v_t$**: $4N$ Bytes
-  - **Optimizer status total**: $12N$ bytes
+For a model with $N$ parameters trained in mixed precision:
+- **Parameters (FP16/BF16)**: $2N$ bytes
+- **Gradients (FP16/BF16)**: $2N$ bytes
+- **AdamW optimizer state (FP32)**:
+  - **Master weights** (to accumulate tiny updates): $4N$ bytes
+  - **First moment $m_t$**: $4N$ bytes
+  - **Second moment $v_t$**: $4N$ bytes
+  - **Optimizer state total**: $12N$ bytes
 
-**Conclusion**: The optimizer state alone requires $12N$ bytes of GPU memory, accounting for **75%** of the mixed precision training base GPU memory ($16N$ bytes).
+**Conclusion**: the optimizer state alone takes $12N$ bytes, **75%** of the baseline memory of mixed-precision training ($16N$ bytes).
 
 ---
 
 ### 7.1.2 Adafactor
 {: id="712-adafactor"}
 
-Adafactor is mainly to solve the pain point of AdamW second-order momentum occupying $4N$ bytes of GPU memory, and is often used for training models such as T5.
+Adafactor was designed to remove the $4N$ bytes taken by AdamW's second moment, and is often used to train models such as T5.
 
-#### 7.1.2.1 Low-rank decomposition reduces GPU memory
+#### 7.1.2.1 Low-rank factorization to save memory
 {: id="7121-低秩分解减小显存"}
-For the weight matrix with shape $R \times C$, Adafactor does not store the complete second-order momentum matrix $V \in \mathbb{R}^{R \times C}$, but does **rank-1 decomposition (Rank-1 Factorization)**: only maintains the row sum $V_R \in \mathbb{R}^R$ and the column sum $V_C \in \mathbb{R}^C$, and then use them to approximately restore the second-order momentum:
+For a weight matrix of shape $R \times C$, Adafactor does not store the full second-moment matrix $V \in \mathbb{R}^{R \times C}$. Instead it uses a **rank-1 factorization**: it keeps only the row sums $V_R \in \mathbb{R}^R$ and column sums $V_C \in \mathbb{R}^C$, and reconstructs an approximation of the second moment from them:
 
 $$
 \hat{V}_{i,j} = \frac{(V_R)_i \cdot (V_C)_j}{\sum_{k} (V_C)_k}
 $$
 
-This reduces the space for storing second-order momentum from $O(RC)$ to $O(R + C)$. For a large matrix, this almost reduces the GPU memory usage of second-order momentum to close to 0.
+This cuts second-moment storage from $O(RC)$ to $O(R + C)$; for large matrices, second-moment memory becomes almost negligible.
 
-#### 7.1.2.2 Analysis of advantages and disadvantages
+#### 7.1.2.2 Pros and cons
 {: id="7122-优缺点分析"}
-- **Advantages**: Great savings in GPU memory, reducing the optimizer state GPU memory from $12N$ bytes to about $4N$ bytes (if first-order momentum is disabled and only row/column second-order momentum factors are stored).
-- **Disadvantages**: The complete first-order momentum and second-order momentum are not stored, which may cause the training to converge slowly and unstable on certain tasks.
+- **Pro**: large memory savings, shrinking optimizer state from $12N$ bytes to about $4N$ bytes (with the first moment disabled and only the row/column second-moment factors stored).
+- **Con**: without full first and second moments, training can converge slowly or become unstable on some tasks.
 
 ---
 
 ### 7.1.3 Lion
 {: id="713-lion"}
 
-Lion is a new optimizer discovered through Google's Symbolic Discovery.
+Lion is an optimizer found by Google through symbolic program search ("symbolic discovery").
 
-#### 7.1.3.1 Core mechanism: Sign function and single momentum
+#### 7.1.3.1 Core mechanism: the sign function and a single momentum
 {: id="7131-核心机制sign-函数与单动量"}
-Lion discards the second-order momentum, retains only the first-order momentum, and only uses the **sign function (Sign Function)** when updating parameters, which makes the update step more uniform. Its update rules are as follows:
+Lion drops the second moment, keeps only the first, and applies the **sign function** to the update, making every update step the same size. Its update rules are:
 
 $$
 u_t = \text{sign}(\beta_1 m_{t-1} + (1 - \beta_1) g_t)
@@ -2884,22 +2902,22 @@ $$
 \theta_{t+1} = \theta_t - \eta_t (u_t + \lambda \theta_t)
 $$
 
-Here:
-- $g_t$: current step gradient
-- $m_t$: First-order momentum
-- $\text{sign}(\cdot)$: symbolic function (value is $+1, -1, 0$)
+where:
+- $g_t$: gradient at the current step
+- $m_t$: first moment
+- $\text{sign}(\cdot)$: sign function (values $+1, -1, 0$)
 
-#### 7.1.3.2 GPU memory overhead analysis
+#### 7.1.3.2 Memory cost
 {: id="7132-显存开销分析"}
-Because Lion removes second-order momentum:
-- **First-order momentum $m_t$ (FP32)**: $4N$ Bytes
-- **Master Weights (FP32)**: $4N$ Bytes
-- Total **optimizer state**: $8N$ bytes ($4N$ bytes saved compared to AdamW)
+Because Lion has no second moment:
+- **First moment $m_t$ (FP32)**: $4N$ bytes
+- **Master weights (FP32)**: $4N$ bytes
+- **Optimizer state total**: $8N$ bytes ($4N$ bytes less than AdamW)
 
 #### 7.1.3.3 Features
 {: id="7133-特点"}
-- **high calculation throughput**: The `sign` operation is well suited for GPU vectorization execution, and each step iteration is slightly faster because there is no cumbersome calculation of second-order momentum.
-- **Hyperparameters are sensitive**: Lion is more susceptible to the influence of learning rate and weight attenuation than AdamW, and the hyperparameters need to be re-tuned for a specific model.
+- **High throughput**: the `sign` operation vectorizes well on GPUs, and with no second-moment computation each step is slightly faster.
+- **Sensitive to hyperparameters**: Lion is more sensitive than AdamW to learning rate and weight decay, which need retuning for each model.
 
 ---
 
@@ -2935,14 +2953,14 @@ $$W_t = W_{t-1} - \eta_t \left( 0.2 \sqrt{\max(m, n)} \cdot O_t + \lambda W_{t-1
 ### 7.1.5 Optimizer comparison
 {: id="715-优化器对比"}
 
-The following is a comprehensive comparison table of commonly used optimizers:
+A side-by-side comparison of common optimizers:
 
-|optimizer|GPU memory overhead (state only)|Core features|Disadvantages|Applicable scenarios|
+|Optimizer|Memory (state only)|Strengths|Weaknesses|When to use|
 | :--- | :--- | :--- | :--- | :--- |
-| **AdamW** |$12N$ bytes|The convergence is extremely smooth, insensitive to hyperparameters, and has the most complete ecological support.|GPU memory takes up a lot|LLM training is the absolute default choice|
+| **AdamW** |$12N$ bytes|Very smooth convergence, robust to hyperparameters, best ecosystem support|Uses a lot of memory|The default choice for LLM training|
 | **Muon** |$8N$ bytes|Orthogonalized momentum; clearly more sample-efficient than AdamW and can reuse AdamW hyperparameters|Needs AdamW for non-matrix parameters; harder to implement in distributed training; logit explosions must be controlled|Large-scale pretraining that prioritizes training efficiency (Kimi K2, GLM-4.5)|
-| **Lion** |$8N$ bytes|Saves 33% of optimizer GPU memory, is slightly faster, and updates evenly|Super parameters are difficult to adjust, and early convergence may be jittery.|Scenarios where GPU memory is limited and higher throughput is pursued|
-| **Adafactor** |$4N \text{–} 8N$ bytes|Row and column rank 1 decomposition, GPU memory has obvious advantages under large matrix parameters|Training stability is weaker than AdamW|Early T5 training, extreme GPU memory limited scenarios|
+| **Lion** |$8N$ bytes|33% less optimizer memory, slightly faster, uniform update magnitudes|Hard to tune; early training may be jumpy|Memory-constrained settings that want higher throughput|
+| **Adafactor** |$4N \text{–} 8N$ bytes|Rank-1 row/column factorization; big memory savings for large matrices|Less stable than AdamW|Early T5 training; extremely memory-constrained settings|
 
 #### 7.1.5.1 Optimizer state memory per parameter (FP16 mixed-precision training, bytes per parameter)
 {: id="7151-优化器状态显存占用图解基于-fp16-混合精度训练每参数字节数"}
@@ -2979,21 +2997,21 @@ gantt
 ## 7.2 Learning rate schedules
 {: id="72-学习率策略"}
 
-In the Transformer architecture, a reasonable learning rate strategy is crucial to prevent model gradient explosion and accelerate convergence. The current industry standard adopts **Warmup (warmup) + Decay (attenuation)** mode.
+For Transformers, a sensible learning-rate schedule is key to avoiding gradient explosions and speeding up convergence. The industry standard is **warmup + decay**.
 
 ### 7.2.1 Warmup
 {: id="721-warmup"}
 
-#### 7.2.1.1 Why is Warmup necessary?
+#### 7.2.1.1 Why warmup is necessary
 {: id="7211-为什么必须-warmup"}
-In the early stages of large model training (especially when using the Pre-LN structure or AdamW optimizer):
-- Randomly initialized weights lead to extremely unstable gradients in the first few layers of the network.
-- The second-order momentum estimate for the AdamW optimizer has not yet been established ($$\hat{v}_t$$ is close to zero, causing the corrected step size to be unusually large).
-If the peak learning rate is used directly, it can easily lead to numerical overflow (Overflow) or irreversible gradient explosion.
+Early in training (especially with Pre-LN or the AdamW optimizer):
+- Randomly initialized weights make gradients in the first few layers very unstable.
+- AdamW's second-moment estimate has not built up yet ($$\hat{v}_t$$ is close to zero, so the bias-corrected step size is abnormally large).
+Starting directly at the peak learning rate easily causes numerical overflow or an irrecoverable gradient explosion.
 
-#### 7.2.1.2 Implementation method
+#### 7.2.1.2 Implementation
 {: id="7212-实现方式"}
-During the first $T_{\text{warmup}}$ steps of training (typically 1%–5% of the total steps, ~2000–10000 steps), the learning rate increases linearly from 0 to the maximum peak learning rate $$\text{lr}_{\max}$$:
+Over the first $T_{\text{warmup}}$ steps (typically 1%–5% of total steps, ~2000–10000 steps), the learning rate rises linearly from 0 to the peak $$\text{lr}_{\max}$$:
 
 $$
 \text{lr}(t) = \text{lr}_{\max} \cdot \frac{t}{T_{\text{warmup}}}, \quad t \le T_{\text{warmup}}
@@ -3004,36 +3022,36 @@ $$
 ### 7.2.2 Cosine decay
 {: id="722-余弦衰减"}
 
-Cosine Decay is the most popular decay method for large models. It can maintain a smooth release of the learning rate in the intermediate training stage and quickly converge at the end of training.
+Cosine decay is the most popular schedule for LLMs: the learning rate comes down smoothly through the middle of training and converges quickly at the end.
 
 $$
 \text{lr}(t) = \text{lr}_{\min} + \frac{1}{2}(\text{lr}_{\max} - \text{lr}_{\min}) \left(1 + \cos\left(\frac{\pi (t - T_{\text{warmup}})}{T - T_{\text{warmup}}}\right)\right), \quad t > T_{\text{warmup}}
 $$
 
-- **Features**: Smooth curve. Experiments show that Cosine attenuation can achieve lower perplexity than linear attenuation on most language modeling tasks.
-- **parameter recommendation is**: $$\text{lr}_{\min}$$ is usually set to 10% of $$\text{lr}_{\max}$$ (or directly set to 0).
+- **Characteristics**: a smooth curve. Experiments show cosine decay reaches lower perplexity than linear decay on most language-modeling tasks.
+- **Recommended setting**: $$\text{lr}_{\min}$$ is usually 10% of $$\text{lr}_{\max}$$ (or simply 0).
 
 ---
 
 ### 7.2.3 WSD schedule
 {: id="723-wsd-调度"}
 
-Traditional Cosine scheduling must predetermine the total number of training tokens, and if you want to add data midway, you have to rerun the entire attenuation curve. in order to cope with **Continual Training** Or the need to dynamically adjust the amount of data, MiniCPM systematically puts forward **WSD scheduling strategy** ; DeepSeek-V3 also adopts a similar "long-term constant learning rate + terminal decay" scheme (the first 10T tokens remain constant, and then cosine decay within 4.3T tokens).
+A cosine schedule requires fixing the total number of training tokens in advance; adding data midway means redoing the whole decay curve. To support **continual training** and changing data budgets, MiniCPM systematically proposed the **WSD schedule**; DeepSeek-V3 uses a similar "long constant learning rate + final decay" scheme (constant for the first 10T tokens, then cosine decay over 4.3T tokens).
 
 ```mermaid
 graph TD
-    A["WSD learning rate strategy"] --> B["Warmup stage"]
-    A --> C["Stable constant phase"]
-    A --> D["Decay Annealing stage"]
+    A["WSD learning-rate schedule"] --> B["Warmup phase"]
+    A --> C["Stable phase"]
+    A --> D["Decay (annealing) phase"]
 
-    B --> B1["Quickly increase learning rate to peak"]
-    C --> C1["Training with a constant maximum learning rate for a long period of time, making it easy to terminate or add data at any time midway"]
-    D --> D1["at the end of training 5%–10% Within the number of steps, the sharp index/Cosine decay, locking weight convergence"]
+    B --> B1["Raise the learning rate quickly to its peak"]
+    C --> C1["Train at the constant peak rate for a long time; easy to stop or add data at any point"]
+    D --> D1["Over the last 5%–10% of steps, decay sharply (exponential or cosine) to lock in convergence"]
 ```
 
 - **Advantages**:
-  1. **High flexibility**: The Stable stage can save checkpoints at any time. When you want to add data, you only need to extend the Stable stage and re-enter Decay from any checkpoint without re-running the Cosine Decay curve.
-  2. **Rapid convergence**: The annealing phase (Decay Phase) reduces the learning rate in a short period of time, and the model effect will usher in a "second leap" (PPL sudden drop) in this phase.
+  1. **Flexibility**: checkpoints can be taken at any time during the stable phase. To add data, simply extend the stable phase and start a decay from any checkpoint, with no need to redo a cosine curve.
+  2. **Fast convergence**: the decay phase lowers the learning rate in a short time, and model quality makes a "second jump" (a sudden drop in perplexity) during this phase.
 
 ---
 
@@ -3043,43 +3061,43 @@ graph TD
 ### 7.3.1 Gradient clipping
 {: id="731-梯度裁剪"}
 
-To prevent gradient explosion when encountering unusually long samples or extreme gradients, the modulus length of all layer gradient vectors needs to be truncated.
+To prevent gradient explosions caused by unusually long samples or extreme gradients, the norm of the combined gradient across all layers is capped.
 
-#### 7.3.1.1 L2 norm global clipping (Global Norm Clipping)
+#### 7.3.1.1 Global L2-norm clipping
 {: id="7311-l2-范数全局裁剪global-norm-clipping"}
-This is standard for large model training. Calculate the L2 norm of the global gradient vector $\mathbf{g}$ formed by splicing all parameter gradients. If it exceeds the threshold $d_{\max}$, perform proportional scaling:
+This is standard in LLM training. Compute the L2 norm of the global gradient vector $\mathbf{g}$ formed by concatenating all parameter gradients; if it exceeds the threshold $d_{\max}$, scale it down proportionally:
 
 $$
 \mathbf{g} \leftarrow \mathbf{g} \cdot \min\left(1, \frac{d_{\max}}{\|\mathbf{g}\|_2}\right)
 $$
 
-- **Best practice**: The global threshold $d_{\max}$ in large model training is usually set to `1.0`.
-- **Advantages**: The direction of the gradient vector is kept unchanged, only the step size is limited, and the coordination of the update proportions of each layer can be well maintained.
+- **Best practice**: the global threshold $d_{\max}$ is usually set to `1.0`.
+- **Advantage**: the direction of the gradient is preserved and only the step size is limited, so the relative update sizes across layers stay consistent.
 
 ---
 
 ### 7.3.2 Gradient accumulation
 {: id="732-梯度累积"}
 
-In large model training, due to the limited memory of a single GPU GPU, it is impossible to directly feed a large Batch Size (such as millions of tokens) to the GPU at one time for forward propagation. **Gradient accumulation** uses "time for space" to simulate large batch training when physical GPU memory is limited.
+Because a single GPU has limited memory, a large batch (such as millions of tokens) cannot be fed through the forward pass at once. **Gradient accumulation** trades time for memory to simulate large-batch training within the physical memory limit.
 
-#### 7.3.2.1 Working principle
+#### 7.3.2.1 How it works
 {: id="7321-工作原理"}
-Assume the target Batch Size is $B_{\text{global}}$, and the Micro Batch Size for single-GPU single-step processing is $B_{\text{micro}}$.
-1. In consecutive $N$ Steps, only forward propagation and back propagation are performed, and the calculated gradient **is accumulated (Add)** in the gradient buffer without calling `optimizer.step()`.
-2. At step $N$, divide the accumulated gradient by $N$ (average), then execute `optimizer.step()` to update the parameters and clear the gradient.
-3. The corresponding equation: $$B_{\text{global}} = B_{\text{micro}} \times N \times \text{DP\_degree}$$.
+Let the target batch size be $B_{\text{global}}$ and the micro-batch processed per GPU per step be $B_{\text{micro}}$.
+1. For $N$ consecutive steps, run only the forward and backward passes, **accumulating** the gradients in the gradient buffer without calling `optimizer.step()`.
+2. At step $N$, divide the accumulated gradients by $N$ (to average), then call `optimizer.step()` to update the parameters and clear the gradients.
+3. The relationship is $$B_{\text{global}} = B_{\text{micro}} \times N \times \text{DP\_degree}$$.
 
 ```mermaid
 flowchart LR
-    subgraph ACCUM ["N Step gradient accumulation (not triggered All-Reduce)"]
+    subgraph ACCUM ["N-step gradient accumulation (no All-Reduce)"]
         direction LR
-        S1["mb₁<br>forward+reverse<br>∇L₁ write buffer"] --> S2["mb₂<br>forward+reverse<br>∇L₂ accumulation buffer"] --> SN["mb_N<br>forward+reverse<br>∇L_N accumulation buffer"]
+        S1["mb₁<br>forward + backward<br>∇L₁ written to buffer"] --> S2["mb₂<br>forward + backward<br>∇L₂ added to buffer"] --> SN["mb_N<br>forward + backward<br>∇L_N added to buffer"]
     end
 
-    SN --> AR["All-Reduce<br>One-time cross-card gradient synchronization"]
-    AR --> OPT["optimizer.step()<br>Parameter update"]
-    OPT --> ZG["zero_grad()<br>Clear gradient buffer"]
+    SN --> AR["All-Reduce<br>one cross-GPU gradient sync"]
+    AR --> OPT["optimizer.step()<br>parameter update"]
+    OPT --> ZG["zero_grad()<br>clear gradient buffer"]
     ZG --> S1
 
     style AR fill:#fce4ec,stroke:#880e4f,color:#000
@@ -3087,36 +3105,36 @@ flowchart LR
     style ZG fill:#e8eaf6,stroke:#3949ab,color:#000
 ```
 
--  **Engineering optimization (PyTorch `no_sync` mechanism)** : In distributed training, the default backpropagation will automatically trigger inter-card gradient synchronization (All-Reduce) at each step. before gradient accumulation $N-1$ step, you should use `model.no_sync()` The context manager blocks useless network synchronization and only executes All-Reduce in the last step, which can greatly improve network bandwidth utilization.
+- **Engineering optimization (PyTorch's `no_sync`)**: in distributed training, every backward pass triggers a cross-GPU gradient sync (All-Reduce) by default. For the first $N-1$ accumulation steps, wrap the step in the `model.no_sync()` context manager to skip pointless synchronization and run All-Reduce only on the last step, greatly improving network utilization.
 
 ---
 
 ### 7.3.3 Gradient checkpointing
 {: id="733-梯度检查点"}
 
-Gradient checkpoint (Activation Checkpoint/Recomputation) is used **Compute time for GPU memory space** classic technology.
+Gradient checkpointing (activation checkpointing / recomputation) is the classic technique of **trading compute time for GPU memory**.
 
-#### 7.3.3.1 Background: Forward activation value GPU memory bottleneck
+#### 7.3.3.1 Background: the activation-memory bottleneck
 {: id="7331-背景前向激活值显存瓶颈"}
-When calculating gradients through backpropagation, the formula needs to use the activation value (Activation) calculated by forward propagation. Therefore, the standard training process saves the activation values ​​of all layers in GPU memory during forward propagation, which results in a huge GPU memory usage that grows linearly with the number of model layers $L$ and the sequence length $s$.
+Computing gradients in the backward pass requires the activations produced in the forward pass. Standard training therefore keeps the activations of every layer in GPU memory during the forward pass, and this memory grows linearly with the number of layers $L$ and the sequence length $s$.
 
 #### 7.3.3.2 Core principles
 {: id="7332-核心原理"}
-- **selectively saves**: instead of saving the activation values of all layers, every $k$ layer selects one layer as a "checkpoint" and only saves the activation value of that layer.
-- **Reverse recalculation**: When backpropagating to a layer that does not save activation values, start from the nearest checkpoint and rerun a forward propagation to calculate the temporary activation value in real time for gradient calculation, and discard it immediately after calculation.
+- **Selective saving**: instead of keeping every layer's activations, keep only one "checkpoint" layer every $k$ layers.
+- **Recomputation in the backward pass**: when the backward pass reaches a layer whose activations were not saved, rerun the forward pass from the nearest checkpoint to recompute them, use them for the gradient, and discard them immediately.
 
 ```mermaid
 flowchart TD
-    subgraph STND ["Standard training — Save all activation values O(L)"]
+    subgraph STND ["Standard training — keep all activations, O(L)"]
         direction TB
-        A1["Layer 1 forward<br>Save activation value a₁"] -->|"save a₁"| A2["Layer 2 forward<br>Save activation value a₂"] -->|"save a₂"| A3["Layer 3 forward<br>Save activation value a₃"] --> A4["Loss + reverse"]
-        A4 -->|"Use a₂"| A5["Layer 2 reverse"] -->|"Use a₁"| A6["Layer 1 reverse"]
+        A1["Layer 1 forward<br>save activation a₁"] -->|"save a₁"| A2["Layer 2 forward<br>save activation a₂"] -->|"save a₂"| A3["Layer 3 forward<br>save activation a₃"] --> A4["Loss + backward"]
+        A4 -->|"use a₂"| A5["Layer 2 backward"] -->|"use a₁"| A6["Layer 1 backward"]
     end
 
-    subgraph CKPT ["gradient checkpoint — Save only checkpoints O(√L)"]
+    subgraph CKPT ["Gradient checkpointing — keep checkpoints only, O(√L)"]
         direction TB
-        B1["Layer 1 forward<br>✓ Save checkpoint c₁"] -->|"save c₁"| B2["Layer 2 forward<br>✗ discard activation value"] -->|"discard"| B3["Layer 3 forward<br>✗ discard activation value"] --> B4["Loss + reverse"]
-        B4 -->|"from c₁ recalculate Layer 2"| B5["Layer 2 reverse"] -->|"Use c₁"| B6["Layer 1 reverse"]
+        B1["Layer 1 forward<br>✓ save checkpoint c₁"] -->|"save c₁"| B2["Layer 2 forward<br>✗ discard activation"] -->|"discard"| B3["Layer 3 forward<br>✗ discard activation"] --> B4["Loss + backward"]
+        B4 -->|"recompute Layer 2 from c₁"| B5["Layer 2 backward"] -->|"use c₁"| B6["Layer 1 backward"]
     end
 
     style A1 fill:#ffebee,stroke:#c62828,color:#000
@@ -3129,149 +3147,149 @@ flowchart TD
 
 #### 7.3.3.3 Costs and benefits
 {: id="7333-代价与收益"}
-- **benefits**: The activation value GPU memory complexity is reduced from $O(L)$ to $O(\sqrt{L})$, which can greatly prevent OOM from occurring during ultra-long sequence training.
-- **cost**: There is one more forward calculation in backpropagation, which usually brings about **30%–33%** additional computational overhead.
+- **Benefit**: activation memory drops from $O(L)$ to $O(\sqrt{L})$, which goes a long way toward preventing OOM on very long sequences.
+- **Cost**: the backward pass includes an extra forward computation, typically adding **30%–33%** compute.
 
 ---
 
 ## 7.4 Regularization and stability
 {: id="74-正则化与数值稳定性技术"}
 
-In large model training, regularization is not only used to prevent overfitting, but also plays a more critical role in improving numerical stability under mixed precision training.
+In LLM training, regularization does more than prevent overfitting; under mixed-precision training it plays a more important role in numerical stability.
 
 ### 7.4.1 Weight decay
 {: id="741-权重衰减"}
 
-- The importance of **in AdamW**: In each round of iterative update, the model weight is multiplied by a coefficient slightly less than 1 (usually Weight Decay = 0.1): $\theta_{t} \leftarrow (1 - \eta_t \lambda)\theta_{t}$.
-- **Function**: Prevent the weight value from being too large. In large model training, too large weights can easily lead to activation value overflow (NaN) or cause the attention matrix bias to be too large, leading to Softmax gradient saturation.
+- **Role in AdamW**: at each update, the weights are multiplied by a factor slightly below 1 (weight decay is usually 0.1): $\theta_{t} \leftarrow (1 - \eta_t \lambda)\theta_{t}$.
+- **Purpose**: keeps weights from growing too large. In LLM training, oversized weights can easily overflow activations (NaN) or skew attention scores so much that softmax gradients saturate.
 
 ### 7.4.2 Dropout
 {: id="742-dropout"}
 
-- **Current situation**: In the pretraining stage of models with a scale of more than 100 billion (100B), the Dropout rate (including Attention Dropout and Residual Dropout) is usually directly set to **0**.
-- **Reason**:
-  1. **Data abundance**: The data sets of large model pretraining are often extremely large. Compared with massive data, the model parameters are not easy to overfit, and they already have natural regularization.
-  2. **Efficiency loss**: Dropout needs to sample the mask matrix in the random state generator and write it to GPU memory, which reduces the graphics card calculation throughput (Throughput).
-- **Special exception**: A dropout of 0.05–0.1 may be retained during the small model fine-tuning stage (SFT) or after the Embedding layer to prevent overfitting to a specific fine-tuning template.
+- **Current practice**: when pretraining models above 100 billion parameters (100B), dropout (both attention dropout and residual dropout) is usually set to **0**.
+- **Reasons**:
+  1. **Abundant data**: pretraining datasets are enormous; relative to that much data the model is unlikely to overfit, so the data itself acts as regularization.
+  2. **Efficiency cost**: dropout must sample mask matrices from a random number generator and write them to GPU memory, lowering throughput.
+- **Exception**: dropout of 0.05–0.1 may be kept for small-model fine-tuning (SFT) or after the embedding layer, to avoid overfitting to a particular fine-tuning template.
 
 ### 7.4.3 Z-loss
 {: id="743-z-loss"}
 
-When using FP16/BF16 mixed precision for very large-scale training, the logits of the output layer may drift to very large values as a whole, causing the exponential term value to overflow (NaN) in the Softmax calculation. PaLM introduced Z-loss for this purpose, and open source models such as OLMo 2 also follow this approach.
+In very large FP16/BF16 mixed-precision training, the output layer's logits can drift toward very large values as a whole, overflowing the exponentials in softmax (NaN). PaLM introduced Z-loss for this, and open models such as OLMo 2 follow the same approach.
 
 #### 7.4.3.1 Core mechanism
 {: id="7431-核心机制"}
-Z-loss adds an auxiliary penalty term to the original cross-entropy loss to penalize the logarithm of the partition function $Z$ (i.e. $\sum_i e^{x_i}$) of Logits:
+Z-loss adds an auxiliary penalty to the cross-entropy loss on the log of the logits' partition function $Z$ (i.e. $\sum_i e^{x_i}$):
 
 $$
 \mathcal{L} = \mathcal{L}_{\text{cross-entropy}} + \alpha \log^2 Z
 $$
 
-Here, $Z = \sum_{i} e^{x_i}$ and $\alpha$ are usually set to $10^{-4}$ level (PaLM takes $10^{-4}$).
+Here $Z = \sum_{i} e^{x_i}$, and $\alpha$ is usually on the order of $10^{-4}$ (PaLM uses $10^{-4}$).
 
-#### 7.4.3.2 Function and principle
+#### 7.4.3.2 What it does
 {: id="7432-作用与原理"}
-- **constrains the absolute size of Logits**: encourages $\log Z$ to be close to 0, that is, the denominator of Softmax is close to 1, preventing the overall Logits from drifting to large values.
-- **greatly enhances stability**: avoids irreparable NaN collapse due to classification layer Logits drift after hundreds of thousands of training steps.
+- **Bounds the absolute size of the logits**: pushes $\log Z$ toward 0, i.e. the softmax denominator toward 1, so the logits do not drift upward as a whole.
+- **Greatly improves stability**: avoids unrecoverable NaN collapse caused by drifting output logits after hundreds of thousands of training steps.
 
 ---
 
 ## 7.5 Flash Attention
 {: id="75-flash-attention"}
 
-Flash Attention is currently the most important attention acceleration technology in LLM training and inference. By changing the calculation order rather than simplifying the algorithm, it can significantly reduce GPU memory usage and speed up calculations while maintaining numerical equivalence.
+Flash Attention is the most important attention acceleration technique in LLM training and inference today. By reordering the computation rather than approximating it, it substantially reduces GPU memory and speeds up computation while remaining numerically equivalent.
 
 ### 7.5.1 The attention memory bottleneck
 {: id="751-标准-attention-的内存瓶颈"}
 
-Calculation of standard Scaled Dot-Product Attention:
+Standard scaled dot-product attention computes:
 
 $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
 
-**Problem**:
-- When the sequence length is $n$, the $QK^T$ matrix size is $n \times n$, which needs to be completely written into the GPU main GPU memory (HBM)
-- Memory complexity $O(n^2)$: about hundreds of MB for $n=4096$, up to tens of GB for $n=32768$
-- **The real bottleneck is not the amount of calculation, but data handling**: HBM bandwidth is much lower than on-chip SRAM, and repeated reading and writing of large matrices becomes a performance bottleneck
+**The problem**:
+- With sequence length $n$, the $QK^T$ matrix is $n \times n$ and must be written in full to the GPU's main memory (HBM)
+- Memory grows as $O(n^2)$: hundreds of MB at $n=4096$, up to tens of GB at $n=32768$
+- **The real bottleneck is data movement, not arithmetic**: HBM bandwidth is far lower than on-chip SRAM, and repeatedly reading and writing large matrices dominates the runtime
 
 ### 7.5.2 GPU memory hierarchy
 {: id="752-gpu-内存层次"}
 
 ```
-SRAM(on-chip cache)= workbench
-  • Capacity: approx. 20 MB(A100: each SM 192 KB × 108 a SM)
-  • Speed: extremely fast (~19 TB/s on A100)
-  • Features: The computing unit directly reads and writes
+SRAM (on-chip cache) = the workbench
+  • Capacity: about 20 MB (A100: 192 KB per SM × 108 SMs)
+  • Speed: very fast (~19 TB/s on A100)
+  • Accessed directly by the compute units
 
-HBM(main GPU memory)= warehouse
-  • Capacity:40–80 GB
-  • Speed: Slower (~2 TB/s on A100)
-  • Features: All tensor Stored here by default
+HBM (main GPU memory) = the warehouse
+  • Capacity: 40–80 GB
+  • Speed: slower (~2 TB/s on A100)
+  • Where all tensors live by default
 ```
 
-Each step of standard Attention calculation requires writing the intermediate matrix back to HBM and then reading it back from HBM, resulting in a large amount of inefficient data transfer. The core goal of Flash Attention: **Try to keep data in SRAM and reduce the number of round trips to HBM**.
+Standard attention writes each intermediate matrix back to HBM and reads it again for the next step, causing a great deal of wasteful data movement. Flash Attention's core goal: **keep data in SRAM as much as possible and minimize round trips to HBM**.
 
 <div align="center">
   <img src="/images/llm-training/FlashAttention.webp" width="90%" alt="Figure: GPU memory hierarchy (left), FlashAttention block calculation mechanism (middle), speed comparison with standard PyTorch implementation (right). Source: Dao et al., FlashAttention, NeurIPS 2022" />
-<figcaption> Figure: GPU memory hierarchy (left), FlashAttention block calculation mechanism (middle), speed comparison with standard PyTorch implementation (right). Source: Dao et al., FlashAttention, NeurIPS 2022</figcaption>
+<figcaption>Figure: GPU memory hierarchy (left), FlashAttention's tiled computation (middle), and speed compared with the standard PyTorch implementation (right). Source: Dao et al., FlashAttention, NeurIPS 2022</figcaption>
 </div>
 
 ### 7.5.3 Tiling and online softmax
 {: id="753-分块与-online-softmax"}
 
-Two key innovations of Flash Attention:
+Flash Attention rests on these key ideas:
 
-**1. Block calculation (Tiling)**
+**1. Tiling**
 
-Cut $K$ and $V$ into small pieces and load them into SRAM for calculation one by one to avoid writing the $n \times n$ matrix into HBM. The current block is discarded directly after calculation without writing back to HBM.
+Split $K$ and $V$ into small blocks and load them into SRAM one at a time, so the $n \times n$ matrix is never written to HBM. Each block is discarded as soon as it has been used, without being written back.
 
-**2. Online Softmax (incremental normalization)**
+**2. Online softmax (incremental normalization)**
 
-Traditional Softmax needs to scan the global maximum value $A_{\max}$ before calculating $\exp$ - this requires seeing the entire data and cannot be divided into chunks. Solution to the Online method:
+Standard softmax must first find the global maximum $A_{\max}$ before computing $\exp$, which requires seeing all the data and rules out tiling. The online approach:
 
-- When processing each block, maintain the maximum value currently seen, and use the correction factor to restore the historical accumulation when encountering a larger value:
+- While processing blocks, track the largest value seen so far, and when a larger value appears, rescale the running sums with a correction factor:
 
 $$\text{Correction factor} = \exp\!\left(A_{\max}^{\text{old}} - A_{\max}^{\text{new}}\right)$$
 
-- There is no need to store the complete $n \times n$ attention matrix throughout the process
+- The full $n \times n$ attention matrix is never stored
 
-**3. Direct cumulative output**
+**3. Accumulating the output directly**
 
-Without explicitly storing the attention weight, directly accumulate the output $O$:
+Instead of storing the attention weights, accumulate the output $O$ directly:
 
 $$O_k = O_{k-1} \times \text{Correction factor} + \text{Current block contribution}$$
 
-**4. Back propagation recalculation**
+**4. Recomputation in the backward pass**
 
-Instead of reading the intermediate matrix from HBM during backpropagation, it recalculates it from $Q/K/V$ - trading a small amount of extra computing power for a large GPU memory savings.
+Rather than reading intermediate matrices back from HBM during the backward pass, Flash Attention recomputes them from $Q/K/V$, spending a little extra compute to save a lot of memory.
 
 ### 7.5.4 Memory and speed comparison
 {: id="754-内存与速度对比"}
 
-|method|attention matrix memory|HBM visits|
+|Method|Attention-matrix memory|HBM accesses|
 |------|-------------|------------|
-|Standard Attention| $O(n^2)$ |Multiple round trips|
-| Flash Attention |$O(n)$ (without complete matrix)|Minimize|
+|Standard attention| $O(n^2)$ |Many round trips|
+| Flash Attention |$O(n)$ (full matrix never stored)|Minimized|
 
-Performance reported in the **paper** (FlashAttention v1, A100):
-- The attention operator itself: the maximum speed increase in the GPT-2 scenario is about **7.6×**
-- End-to-end training: GPT-2 (sequence length 1K) speeds up about **3×**, BERT-large (sequence length 512) speeds up about 15%
-- Numerical: calculations are exact (not approximate), differing from the standard implementation only in the order of floating point operations
-- GPU memory: $n \times n$ attention matrix is no longer stored, making training with 64K sequence length possible
+Results reported in the **paper** (FlashAttention v1, A100):
+- Attention kernel alone: up to about **7.6×** faster in the GPT-2 setting
+- End-to-end training: about **3×** faster for GPT-2 (sequence length 1K) and about 15% faster for BERT-large (sequence length 512)
+- Numerics: exact (not an approximation), differing from the standard implementation only in floating-point operation order
+- Memory: the $n \times n$ attention matrix is no longer stored, making training at 64K sequence length possible
 
 ### 7.5.5 Version evolution
 {: id="755-版本演进"}
 
-|version|Year|Core improvements|
+|Version|Year|Key changes|
 |------|-----|---------|
-| FlashAttention v1 | 2022 |IO-aware chunking + Online Softmax original implementation|
-| FlashAttention v2 | 2023 |Better parallel strategy, reducing thread synchronization overhead, ~2× vs v1|
-| FlashAttention v3 | 2024 |For H100/Hopper architecture, utilizing asynchronous execution and FP8 support|
-| FlashAttention v4 | 2025 |Rewriting the kernel for the Blackwell architecture|
+| FlashAttention v1 | 2022 |The original IO-aware tiling + online softmax|
+| FlashAttention v2 | 2023 |Better parallelization and less thread synchronization, ~2× vs v1|
+| FlashAttention v3 | 2024 |Targets H100/Hopper, using asynchronous execution and FP8|
+| FlashAttention v4 | 2025 |Kernels rewritten for the Blackwell architecture|
 
-### 7.5.6 Actual use
+### 7.5.6 In practice
 {: id="756-实际使用"}
 
-**PyTorch 2.0+ has built-in support for** (recommended, zero additional dependencies):
+**Built into PyTorch 2.0+** (recommended, no extra dependencies):
 
 ```python
 import torch.nn.functional as F
@@ -3280,11 +3298,11 @@ output = F.scaled_dot_product_attention(
     query, key, value,
     attn_mask=None,
     dropout_p=0.0,
-    is_causal=True  # Autoregressive training must be set to True
+    is_causal=True  # must be True for autoregressive training
 )
 ```
 
-**Explicitly enable Flash Attention via transformers 2**:
+**Enabling Flash Attention 2 explicitly in transformers**:
 
 ```python
 from transformers import AutoModelForCausalLM
@@ -3293,7 +3311,7 @@ import torch
 model = AutoModelForCausalLM.from_pretrained(
     "meta-llama/Llama-2-7b-hf",
     torch_dtype=torch.bfloat16,
-    attn_implementation="flash_attention_2"  # Need to install first flash-attn
+    attn_implementation="flash_attention_2"  # requires flash-attn to be installed
 )
 ```
 
@@ -3301,83 +3319,83 @@ model = AutoModelForCausalLM.from_pretrained(
 pip install flash-attn --no-build-isolation
 ```
 
-> **Best Practice**: Flash Attention is numerically equivalent to standard Attention. The longer the sequence, the more significant the benefit. PyTorch 2.0+ can be enabled at zero cost through `scaled_dot_product_attention`; it is recommended for all LLM training tasks.
+> **Best practice**: Flash Attention is numerically equivalent to standard attention, and the longer the sequence, the bigger the payoff. In PyTorch 2.0+ it comes for free through `scaled_dot_product_attention`; use it for every LLM training job.
 
 ---
 
 # 8. Model quantization
 {: id="8-模型量化技术"}
 
-Model quantization is one of the core technologies to reduce the computing and storage costs of large models. By converting high-precision floating point numbers (FP32/FP16) to low-precision integers (INT8/INT4), quantization can significantly reduce GPU memory usage and speed up inference while keeping model performance essentially unchanged.
+Quantization is one of the core techniques for cutting the compute and storage cost of LLMs. By converting high-precision floating-point numbers (FP32/FP16) into low-precision integers (INT8/INT4), it substantially reduces GPU memory and speeds up inference while leaving model quality essentially unchanged.
 
-> **Introduction to this chapter**
+> **About this chapter**
 >
-> Quantification is a key technology for democratizing large models. **is a 70B model. The FP16 weight requires 140GB GPU memory. After INT4 quantization, it only needs about 35GB** - which means that the weight is reduced from at least 2 A100-80G to 1 (KV Cache is included). This chapter provides an in-depth explanation of quantitative mathematical principles, mainstream methods (GPTQ, AWQ, QLoRA), training strategies, and engineering practices. Core Points: **Quantization is not simple compression, but a carefully designed art of precision-performance trade-off**.
+> Quantization is key to making LLMs widely accessible. **A 70B model needs 140GB of GPU memory for its FP16 weights; after INT4 quantization it needs only about 35GB**, which means the weights alone go from needing at least 2 A100-80G GPUs to fitting on 1 (KV cache not included). This chapter covers the math of quantization, the mainstream methods (GPTQ, AWQ, QLoRA), training strategies, and engineering practice. The key point: **quantization is not simple compression but a carefully designed trade-off between accuracy and performance**.
 
 ## 8.1 Quantization basics
 {: id="81-量化基础"}
 
-### 8.1.1 What is quantification?
+### 8.1.1 What is quantization?
 {: id="811-什么是量化"}
 
-Quantization is the process of mapping continuous high-precision values to discrete low-precision values:
+Quantization maps continuous high-precision values to discrete low-precision values:
 
 $$
 \text{FP32/FP16} \xrightarrow{\text{Quantization}} \text{INT8/INT4/INT2}
 $$
 
-**Core goals**:
-- **reduces the GPU memory occupied by**: FP16 → INT8 is reduced by 50%, FP16 → INT4 is reduced by 75%
-- **accelerated calculation**: integer operations are 2-4 times faster than floating point operations
-- **Reduce costs**: Smaller models can be deployed on cheaper hardware
+**Goals**:
+- **Less GPU memory**: FP16 → INT8 saves 50%, FP16 → INT4 saves 75%
+- **Faster compute**: integer arithmetic is 2-4 times faster than floating point
+- **Lower cost**: smaller models can be deployed on cheaper hardware
 
 **Key challenges**:
-- Keep model accuracy from significantly decreasing
-- Handling Outliers
-- Balancing Quantization Granularity and Precision Loss
+- Keeping accuracy from dropping noticeably
+- Handling outliers
+- Balancing quantization granularity against accuracy loss
 
 ### 8.1.2 The math of quantization
 {: id="812-量化的数学原理"}
 
-#### 8.1.2.1 Symmetric Quantization
+#### 8.1.2.1 Symmetric quantization
 {: id="8121-对称量化symmetric-quantization"}
 
-Map the floating point number $x \in [-\alpha, \alpha]$ to the integer $q \in [-127, 127]$ (INT8 as an example):
+Map a floating-point value $x \in [-\alpha, \alpha]$ to an integer $q \in [-127, 127]$ (INT8 as an example):
 
 $$
 q = \text{round}\left(\frac{x}{s}\right), \quad s = \frac{\alpha}{127}
 $$
 
-**dequantization** (restored during inference):
+**Dequantization** (recovering values at inference):
 
 $$
 \hat{x} = s \cdot q
 $$
 
-Here:
-- $s$: scaling factor (scale)
-- $\alpha$: The maximum absolute value of all elements
-- $q$: quantized integer
+where:
+- $s$: the scaling factor (scale)
+- $\alpha$: the largest absolute value among all elements
+- $q$: the quantized integer
 
 **Features**:
 - Pro: simple to implement and hardware friendly
 - Pro: the zero point is 0, so nothing extra needs to be stored
 - Con: wastes representation range on asymmetrically distributed data
 
-#### 8.1.2.2 Asymmetric Quantization
+#### 8.1.2.2 Asymmetric quantization
 {: id="8122-非对称量化asymmetric-quantization"}
 
-Processing asymmetrically distributed data $x \in [x_{\min}, x_{\max}]$:
+For asymmetrically distributed data $x \in [x_{\min}, x_{\max}]$:
 
 $$
 q = \text{round}\left(\frac{x - z}{s}\right)
 $$
 
-Here:
+where:
 - $s = \frac{x_{\max} - x_{\min}}{255}$(INT8)
-- $z = \text{round}\left(-\frac{x_{\min}}{s}\right)$: zero-point
+- $z = \text{round}\left(-\frac{x_{\min}}{s}\right)$: the zero point
 
-**dequantization**:
+**Dequantization**:
 
 $$
 \hat{x} = s \cdot (q - z)
@@ -3388,56 +3406,56 @@ $$
 - Pro: suits activations, which are usually asymmetric
 - Con: the zero point must be stored as an extra parameter
 
-#### 8.1.2.3 Quantification granularity
+#### 8.1.2.3 Quantization granularity
 {: id="8123-量化粒度"}
 
-|Granularity|Description|Advantages|Disadvantages|
+|Granularity|Description|Pros|Cons|
 |------|------|------|------|
-| **Per-tensor** |The entire tensor shares a $(s, z)$|Small memory, fast speed|Large loss of accuracy|
-| **Per-channel** |Each output channel is independent $(s_i, z_i)$|Higher accuracy|Increased number of parameters|
-| **Per-group** |Each set of parameters is shared (e.g. 128 elements)|Balancing precision and efficiency|Complex to implement|
+| **Per-tensor** |One $(s, z)$ for the whole tensor|Little memory, fast|Large accuracy loss|
+| **Per-channel** |A separate $(s_i, z_i)$ for each output channel|Higher accuracy|More parameters|
+| **Per-group** |One pair shared per group of parameters (e.g. 128 elements)|Balances accuracy and efficiency|More complex to implement|
 
-**Best Practice**:
-- **weight**: Per-channel quantization (accuracy is key)
-- **activation value**: Per-tensor quantization (speed priority)
+**Best practice**:
+- **Weights**: per-channel quantization (accuracy matters most)
+- **Activations**: per-tensor quantization (speed matters most)
 
-### 8.1.3 Quantitative error analysis
+### 8.1.3 Quantization error
 {: id="813-量化误差分析"}
 
-Error introduced by quantification:
+The error introduced by quantization:
 
 $$
 \text{Error} = \mathbb{E}[(x - \hat{x})^2] = \mathbb{E}[(x - s \cdot \text{round}(x/s))^2]
 $$
 
-**error source**:
-1. **rounding error**: loss of precision caused by $\text{round}()$ operation
-2. **clipping error**: Values exceeding $[x_{\min}, x_{\max}]$ are clipped
-3. **outliers affect**: a few maximum values enlarge the scaling factor $s$ and compress the representation accuracy of other values
+**Sources of error**:
+1. **Rounding error**: precision lost in the $\text{round}()$ operation
+2. **Clipping error**: values outside $[x_{\min}, x_{\max}]$ are clipped
+3. **Outliers**: a few extreme values inflate the scaling factor $s$, reducing the precision available for all other values
 
-**Strategy to reduce errors**:
-- Use finer-grained quantization (Per-channel)
-- Outliers are handled separately (Mixed-precision)
-- Quantitative Awareness Training (QAT)
+**Ways to reduce error**:
+- Finer-grained quantization (per-channel)
+- Handle outliers separately (mixed precision)
+- Quantization-aware training (QAT)
 
 ### 8.1.4 Precision vs. performance
 {: id="814-精度与性能权衡"}
 
-Different quantization bits and numerical formats have complex trade-offs between GPU memory savings, computational speedup, and model accuracy (perplexity PPL). The following is a system comparison of mainstream numerical formats:
+Different bit widths and numeric formats trade off memory savings, speedup, and model accuracy (perplexity, PPL) in complex ways. A systematic comparison of the mainstream formats:
 
-|Numeric format|Parameter GPU memory ratio (based on BF16)|Perplexity (PPL) changes|Hardware acceleration support|Typical application scenarios|
+|Numeric format|Parameter memory (relative to BF16)|Perplexity (PPL) change|Hardware acceleration|Typical use|
 | :--- | :--- | :--- | :--- | :--- |
-| **BF16 / FP16** | 100% |0 (baseline)|Tensor Core native|Standard model training, high-precision inference benchmark|
-| **INT8 Weight-Only** | ~50% |Virtually lossless (< 0.05)|Need to be dequantized to FP16 calculation|Resource-constrained server deployment with an emphasis on preserving accuracy|
-| **INT8 Weight & Act** | ~50% |Slight decrease (< 0.1)|INT8 GEMM hardware acceleration|High-concurrency throughput reasoning (such as SmoothQuant)|
-| **INT4 (NF4 / GPTQ)**| ~25% |No effect when parameter > 7B; slight increase when parameter < 3B|Requires inverse quantization calculation or specific kernel|Consumer-grade graphics card local deployment, QLoRA training|
-| **FP8 (E4M3 / E5M2)**| ~50% |Very small (< 0.02)|Hopper/Blackwell native support|Extremely large-scale distributed training (such as DeepSeek-V3/R1), new generation high-throughput inference|
+| **BF16 / FP16** | 100% |0 (baseline)|Native on Tensor Cores|Standard training; high-precision inference baseline|
+| **INT8 Weight-Only** | ~50% |Essentially lossless (< 0.05)|Dequantized to FP16 for compute|Resource-constrained server deployment that prioritizes accuracy|
+| **INT8 Weight & Act** | ~50% |Slight drop (< 0.1)|Hardware INT8 GEMM|High-concurrency, high-throughput inference (e.g. SmoothQuant)|
+| **INT4 (NF4 / GPTQ)**| ~25% |No effect above > 7B parameters; slight increase below < 3B|Needs dequantization or dedicated kernels|Local deployment on consumer GPUs; QLoRA training|
+| **FP8 (E4M3 / E5M2)**| ~50% |Very small (< 0.02)|Native on Hopper/Blackwell|Very large-scale distributed training (e.g. DeepSeek-V3/R1); new high-throughput inference|
 
 #### 8.1.4.1 Key conclusions and selection guide
 {: id="8141-关键结论与选型指南"}
-1. **Large parameter quantities are more robust to quantization**: For example, the perplexity loss (Perplexity Degradation) of the 70B model under INT4 quantization is almost zero, while the 3B/7B model will experience obvious decline in common sense and reasoning ability under 4-bit quantization. Therefore, quantization deployment below 4-bit is not recommended for small models.
-2. **FP8 is becoming the mainstream choice for very large-scale training**: DeepSeek-V3 completed pretraining of 14.8T tokens under FP8 (all tensors use E4M3 + fine-grained scaling, see Section 2.5.4.5). FP8 can not only halve the weight and activation value GPU memory, but also release double the Tensor Core computing throughput on GPUs such as H100. The loss error compared to BF16 is less than 0.25%.
-3. **NF4 (Normal Float 4) Designed specifically for the normal distribution**: it is the cornerstone of QLoRA's ability to successfully train. The pretraining weights approximately follow a zero-mean normal distribution, and NF4 allows each quantization interval to cover the same probability mass, thus retaining more information than evenly spaced INT4/FP4.
+1. **Larger models tolerate quantization better**: a 70B model loses almost no perplexity under INT4, whereas 3B/7B models show clear drops in commonsense and reasoning at 4 bits. Quantizing small models below 4 bits is therefore not recommended.
+2. **FP8 is becoming the mainstream choice for very large training runs**: DeepSeek-V3 completed 14.8T tokens of pretraining in FP8 (E4M3 for all tensors plus fine-grained scaling; see Section 2.5.4.5). FP8 halves weight and activation memory and doubles Tensor Core throughput on GPUs such as the H100, with a loss error under 0.25% relative to BF16.
+3. **NF4 (Normal Float 4) is designed for normally distributed values**: it is the foundation that makes QLoRA work. Pretrained weights are roughly zero-mean normal, and NF4 makes each quantization bin cover the same probability mass, preserving more information than evenly spaced INT4/FP4.
 
 ---
 
@@ -3449,14 +3467,14 @@ Different quantization bits and numerical formats have complex trade-offs betwee
 
 ```mermaid
 graph LR
-    A["Quantitative method"] --> B["Post-training quantization<br>PTQ"]
-    A --> C["Quantitative perception training<br>QAT"]
+    A["Quantization methods"] --> B["Post-training quantization<br>PTQ"]
+    A --> C["Quantization-aware training<br>QAT"]
 
-    B --> B1["dynamic quantization<br>Dynamic"]
-    B --> B2["static quantization<br>Static"]
+    B --> B1["Dynamic quantization<br>Dynamic"]
+    B --> B2["Static quantization<br>Static"]
 
-    C --> C1["Fully quantitative training<br>Full QAT"]
-    C --> C2["Partial quantitative training<br>Partial QAT"]
+    C --> C1["Full quantization-aware training<br>Full QAT"]
+    C --> C2["Partial quantization-aware training<br>Partial QAT"]
 
     style B fill:#ffe0b2,stroke:#e65100
     style C fill:#c8e6c9,stroke:#1b5e20
@@ -3465,52 +3483,52 @@ graph LR
 ### 8.2.2 Post-training quantization (PTQ)
 {: id="822-训练后量化ptq"}
 
-**definition**: After the model training is completed, the weights and activation values ​​are directly quantified without retraining.
+**Definition**: quantize weights and activations directly after training, with no retraining.
 
 **Advantages**:
-- **is fast**: can be completed in a few minutes to a few hours
-- **Low cost**: No training data and GPU resources required
-- **is easy to deploy**: can be directly applied to any pretraining model
+- **Fast**: done in minutes to hours
+- **Cheap**: needs no training data or GPU training
+- **Easy to deploy**: applies directly to any pretrained model
 
 **Disadvantages**:
-- **precision loss**: especially low bit quantization (INT4/INT2)
-- **High Sensitivity**: Some layers are very sensitive to quantization
+- **Accuracy loss**: especially at low bit widths (INT4/INT2)
+- **Sensitivity**: some layers are very sensitive to quantization
 
-**represents method**:
-- **GPTQ**: Layer-by-layer quantization based on second-order information
-- **AWQ**: Weight quantification based on activation value importance
-- **SmoothQuant**: Migrating quantification difficulty from activations to weights
+**Representative methods**:
+- **GPTQ**: layer-by-layer quantization using second-order information
+- **AWQ**: weight quantization guided by activation importance
+- **SmoothQuant**: shifts the quantization difficulty from activations to weights
 
 ### 8.2.3 Quantization-aware training (QAT)
 {: id="823-量化感知训练qat"}
 
-**defines**: simulates quantization operations during the training process, allowing the model to learn to adapt to quantization errors.
+**Definition**: simulate quantization during training so the model learns to tolerate quantization error.
 
 **Core idea**:
-- Forward propagation: using quantized weights and activations
-- Backpropagation: using floating point gradients (STE trick)
+- Forward pass: use quantized weights and activations
+- Backward pass: use floating-point gradients (the straight-through estimator, STE)
 
 **Advantages**:
-- **has the highest accuracy**: the model actively adapts to quantification
-- **supports extremely low bits**: INT4, INT2 and even binary
+- **Highest accuracy**: the model actively adapts to quantization
+- **Very low bit widths**: INT4, INT2, even binary
 
 **Disadvantages**:
-- **takes long time to train**: needs to be retrained or fine-tuned
-- **has high cost**: requires training data and GPU resources
+- **Long training**: requires retraining or fine-tuning
+- **Costly**: needs training data and GPU resources
 
-**represents method**:
+**Representative methods**:
 - **QLoRA**: 4-bit quantization + LoRA fine-tuning
-- **LLM-QAT**: large model quantization perception training
-- **BitNet**: Extremely low-bit (1.58-bit) quantization training
+- **LLM-QAT**: quantization-aware training for LLMs
+- **BitNet**: training with extremely low bit widths (1.58-bit)
 
 ### 8.2.4 By what to quantize
 {: id="824-按量化对象分类"}
 
-|Quantitative object|Description|difficulty|Common methods|
+|What is quantized|Description|Difficulty|Common methods|
 |---------|------|------|---------|
-|**Weight only**|Only quantify model parameters|simple| GPTQ, AWQ |
-|**weight + activate**|Simultaneously quantify parameters and intermediate results|difficult| SmoothQuant, QAT |
-| **KV Cache** |Quantify the attention cache in the inference stage to reduce long context GPU memory|medium| INT8/INT4 Per-token, GQA/MQA |
+|**Weights only**|Quantize only the model parameters|Easy| GPTQ, AWQ |
+|**Weights + activations**|Quantize parameters and intermediate results together|Hard| SmoothQuant, QAT |
+| **KV Cache** |Quantize the attention cache at inference to cut long-context memory|Medium| INT8/INT4 Per-token, GQA/MQA |
 
 ---
 
@@ -3523,34 +3541,34 @@ graph LR
 #### 8.3.1.1 Core principles
 {: id="8311-核心原理"}
 
-GPTQ (**G**PT **P**ost-**T**raining **Q**uantization) uses **second-order derivative information** to optimize the quantization error and quantize the weight matrix layer by layer.
+GPTQ (**G**PT **P**ost-**T**raining **Q**uantization) uses **second-order information** to minimize quantization error, quantizing weight matrices layer by layer.
 
-**Optimization goal**: Minimize the output difference before and after quantization
+**Objective**: minimize the difference in layer output before and after quantization
 
 $$
 \arg\min_{\hat{W}} \| WX - \hat{W}X \|^2
 $$
 
-Here:
-- $W$: Original FP16 weight matrix
-- $\hat{W}$: Quantized INT4 weight
-- $X$: Activation value of calibration data
+where:
+- $W$: the original FP16 weight matrix
+- $\hat{W}$: the quantized INT4 weights
+- $X$: activations from the calibration data
 
-**Key technology**: Optimal Brain Quantization (OBQ)
+**Key technique**: Optimal Brain Quantization (OBQ)
 
-Column-by-column quantization weight: After each quantization of the $i$ column, the Hessian inverse matrix is used to compensate the quantization error generated by this column to the unquantized columns:
+Weights are quantized column by column. After quantizing column $i$, its quantization error is compensated in the not-yet-quantized columns using the inverse Hessian:
 
 $$
 \delta_i = \frac{w_{:,i} - \text{quant}(w_{:,i})}{[H^{-1}]_{ii}}, \qquad
 W_{:,j} \leftarrow W_{:,j} - \delta_i \, [H^{-1}]_{ij} \quad (j > i)
 $$
 
-where $H = 2XX^\top$ is the Hessian matrix of the layer output error with respect to the weights (relying only on the activation of the calibration data $X$). Based on OBQ, GPTQ changes all rows to share the same column order, updates in batches in blocks, and uses Cholesky decomposition for inversion, reducing the time to quantify the 175B model to about 4 GPU hours.
+Here $H = 2XX^\top$ is the Hessian of the layer's output error with respect to its weights (it depends only on the calibration activations $X$). GPTQ builds on OBQ by having all rows share the same column order, applying updates in blocks, and inverting via Cholesky decomposition, cutting the time to quantize a 175B model to about 4 GPU hours.
 
-#### 8.3.1.2 Implementation process
+#### 8.3.1.2 Workflow
 {: id="8312-实现流程"}
 
-The original AutoGPTQ has been discontinued and its successor [GPTQModel](https://github.com/ModelCloud/GPTQModel)] provides an almost identical flow:
+The original AutoGPTQ is no longer maintained; its successor [GPTQModel](https://github.com/ModelCloud/GPTQModel) offers an almost identical workflow:
 
 ```python
 from datasets import load_dataset
@@ -3559,63 +3577,63 @@ from gptqmodel import GPTQModel, QuantizeConfig
 model_id = "meta-llama/Llama-2-7b-hf"
 quant_path = "./llama-2-7b-gptq-4bit"
 
-# Step 1: Prepare calibration data (usually 128-1024 text)
+# Step 1: prepare calibration data (usually 128-1024 texts)
 calibration = load_dataset(
     "allenai/c4",
     data_files="en/c4-train.00001-of-01024.json.gz",
     split="train",
 ).select(range(1024))["text"]
 
-# Step 2: Configure quantization parameters
+# Step 2: configure quantization
 quant_config = QuantizeConfig(
-    bits=4,          # Number of quantization bits:4-bit
-    group_size=128,  # every 128 weights share a group scale / zero-point
+    bits=4,          # quantization bit width: 4-bit
+    group_size=128,  # every 128 weights share one scale / zero point
 )
 
-# Step 3: Load the model and execute GPTQ(7B The model usually takes ten to tens of minutes)
+# Step 3: load the model and run GPTQ (a 7B model usually takes tens of minutes)
 model = GPTQModel.load(model_id, quant_config)
 model.quantize(calibration, batch_size=2)
 
-# Step 4: Save the quantized model (7B Weight: approx. 13.5GB → approx. 4GB)
+# Step 4: save the quantized model (7B weights: about 13.5GB → about 4GB)
 model.save(quant_path)
 
-# Step 5: Load quantitative model inference
+# Step 5: load the quantized model for inference
 model = GPTQModel.load(quant_path)
 print(model.tokenizer.decode(model.generate("The meaning of life is")[0]))
 ```
 
-The quantized weights can also be directly loaded and used by frameworks such as transformers and vLLM.
+The quantized weights can also be loaded directly by frameworks such as transformers and vLLM.
 
 #### 8.3.1.3 GPTQ performance
 {: id="8313-gptq-性能表现"}
 
-|model|raw precision| GPTQ-4bit |GPU memory usage|loss of accuracy|
+|Model|Original precision| GPTQ-4bit |GPU memory|Accuracy loss|
 |------|---------|-----------|----------|---------|
-| **LLaMA-7B** | FP16 | INT4 | 14GB → ~3.5GB |small|
-| **LLaMA-13B** | FP16 | INT4 | 26GB → ~6.5GB |small|
-| **LLaMA-30B** | FP16 | INT4 | 60GB → ~15GB |very small|
-| **LLaMA-65B** | FP16 | INT4 | 130GB → ~33GB |very small|
+| **LLaMA-7B** | FP16 | INT4 | 14GB → ~3.5GB |Small|
+| **LLaMA-13B** | FP16 | INT4 | 26GB → ~6.5GB |Small|
+| **LLaMA-30B** | FP16 | INT4 | 60GB → ~15GB |Very small|
+| **LLaMA-65B** | FP16 | INT4 | 130GB → ~33GB |Very small|
 
-> GPU memory is the theoretical value of the weight part (not counting the small overhead of group scale). The rule of the GPTQ paper is: the larger the model, the smaller the increase in confusion caused by 4-bit quantization; at 3-bit, the loss of a small model will be significantly amplified.
+> GPU memory figures are theoretical values for the weights alone (ignoring the small overhead of group scales). The GPTQ paper finds that the larger the model, the smaller the perplexity increase from 4-bit quantization; at 3 bits, the loss for small models grows markedly.
 
-**applicable scenarios**:
-- Inference deployment optimization
-- Resource constrained environment
-- Need to quantify quickly (no training required)
+**When to use it**:
+- Optimizing inference deployment
+- Resource-constrained environments
+- When you need fast quantization without training
 
 ---
 
 ### 8.3.2 AWQ: activation-aware quantization
 {: id="832-awq激活感知权重量化"}
 
-#### 8.3.2.1 Core Insights
+#### 8.3.2.1 Key insight
 {: id="8321-核心洞察"}
 
-Core findings of AWQ (**A**ctivation-aware **W**eight **Q**uantization):
+The core finding of AWQ (**A**ctivation-aware **W**eight **Q**uantization):
 
-> **Not all weights are equally important!** Weight channels corresponding to large activation values ​​have a greater impact on model performance and should maintain higher accuracy.
+> **Not all weights are equally important.** Weight channels that see large activations have a bigger impact on model quality and should keep higher precision.
 
-**Quantitative strategy**:
+**Quantization strategy**:
 
 $$
 Y = W X = \big(W \,\text{diag}(s)\big)\big(\text{diag}(s)^{-1} X\big)
@@ -3623,25 +3641,25 @@ Y = W X = \big(W \,\text{diag}(s)\big)\big(\text{diag}(s)^{-1} X\big)
 \hat{Y} = Q\big(W \,\text{diag}(s)\big)\big(\text{diag}(s)^{-1} X\big)
 $$
 
-Here, $s$ is the scaling factor according to the input channel (per-channel): the weight of the important channel is first amplified and then quantized, the corresponding activation is reduced year-on-year, the mathematical output remains unchanged, but the relative quantization error of the important weight becomes smaller. The scaling factors are eventually merged into the operators of the previous layer, with no additional overhead during inference.
+Here $s$ is a per-input-channel scaling factor: weights in important channels are scaled up before quantization and the corresponding activations are scaled down by the same amount. The output is mathematically unchanged, but the relative quantization error of the important weights shrinks. The scaling factors are eventually folded into the preceding layer's operators, so inference incurs no extra cost.
 
-#### 8.3.2.2 Determine channel importance
+#### 8.3.2.2 Determining channel importance
 {: id="8322-确定通道重要性"}
 
-1. **collects activation value statistics**: counts the average activation amplitude of each input channel on the calibration data $s_X$.
+1. **Collect activation statistics**: on the calibration data, measure the average activation magnitude $s_X$ of each input channel.
 
-2. **search scaling intensity**: Let $s = s_X^{\alpha}$, grid search $\alpha$ on $[0, 1]$, select the value with the smallest output error after quantization of this layer:
+2. **Search for the scaling strength**: let $s = s_X^{\alpha}$, grid-search $\alpha$ over $[0, 1]$, and pick the value that minimizes the layer's output error after quantization:
 
 $$
 \alpha^* = \arg\min_{\alpha} \big\| Q\big(W \,\text{diag}(s)\big)\big(\text{diag}(s)^{-1} X\big) - W X \big\|
 $$
 
-The channel with greater activation gets a greater amplification coefficient, and the quantization error of its weight is smaller. AWQ only requires a small amount of calibration data and does not perform backpropagation, so it is not easy to overfit the calibration set.
+Channels with larger activations get larger scaling factors, so their weights incur smaller quantization error. AWQ needs only a little calibration data and no backpropagation, so it is unlikely to overfit the calibration set.
 
-#### 8.3.2.3 Implementation code
+#### 8.3.2.3 Implementation
 {: id="8323-实现代码"}
 
-> The AutoAWQ repository has been archived in 2025 and the AWQ algorithm has been merged into the vLLM maintained [llm-compressor](https://github.com/vllm-project/llm-compressor). The following classic writing can still be used to understand the process:
+> The AutoAWQ repository was archived in 2025, and the AWQ algorithm has been merged into [llm-compressor](https://github.com/vllm-project/llm-compressor), maintained by the vLLM project. The classic usage below is still useful for understanding the workflow:
 
 ```python
 from awq import AutoAWQForCausalLM
@@ -3650,75 +3668,75 @@ from transformers import AutoTokenizer
 model_path = "meta-llama/Llama-2-7b-hf"
 quant_path = "llama-2-7b-awq-4bit"
 
-# Step 1: Load model
+# Step 1: load the model
 model = AutoAWQForCausalLM.from_pretrained(model_path)
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 
-# Step 2: Configure quantization parameters
+# Step 2: configure quantization
 quant_config = {
-    "zero_point": True,          # Use zero points (asymmetric quantization)
-    "q_group_size": 128,         # Group size
-    "w_bit": 4,                  # Weight quantization digits
-    "version": "GEMM"            # Use optimizedGEMM kernel
+    "zero_point": True,          # use a zero point (asymmetric quantization)
+    "q_group_size": 128,         # group size
+    "w_bit": 4,                  # weight bit width
+    "version": "GEMM"            # use the optimized GEMM kernel
 }
 
-# Step 3: Quantify (AWQThanGPTQFast2-3times)
+# Step 3: quantize (AWQ is 2-3x faster than GPTQ)
 model.quantize(tokenizer, quant_config=quant_config)
 
-# Step 4: Save quantized model
+# Step 4: save the quantized model
 model.save_quantized(quant_path)
 tokenizer.save_pretrained(quant_path)
 
-# Loading and inference
+# Load for inference
 model_awq = AutoAWQForCausalLM.from_quantized(quant_path, fuse_layers=True)
 ```
 
-#### 8.3.2.4 AWQ vs GPTQ comparison
+#### 8.3.2.4 AWQ vs GPTQ
 {: id="8324-awq-vs-gptq-对比"}
 
-|Features| AWQ | GPTQ |
+|Aspect| AWQ | GPTQ |
 |------|-----|------|
-|**Quantization speed**| Fast (5-10 minutes/7B)|Slow (20-30 minutes/7B)|
-|**accuracy remains**|✅ Better (especially extremely low bit)|✅ Good|
-|**Inference speed**| Faster (optimized kernel)| Fast|
-|**GPU memory occupied**|Same|Same|
-|**calibration data**|Few (~128 samples), not sensitive to distribution|More (~128-1024 samples)|
+|**Quantization speed**|Fast (5-10 minutes for 7B)|Slow (20-30 minutes for 7B)|
+|**Accuracy retention**|✅ Better (especially at very low bit widths)|✅ Good|
+|**Inference speed**|Faster (optimized kernels)|Fast|
+|**GPU memory**|Same|Same|
+|**Calibration data**|Little (~128 samples), insensitive to distribution|More (~128-1024 samples)|
 
-**recommends choosing**:
-- Pursuing ultimate precision → **AWQ**
-- Rapid quantitative deployment → **AWQ**
-- Requires extensive hardware support → **GPTQ** (more mature ecosystem)
+**Recommendations**:
+- Best possible accuracy → **AWQ**
+- Fast quantization for deployment → **AWQ**
+- Broad hardware support → **GPTQ** (more mature ecosystem)
 
 ---
 
 ### 8.3.3 SmoothQuant
 {: id="833-smoothquant"}
 
-#### 8.3.3.1 Question: Why is activation value difficult to quantify?
+#### 8.3.3.1 The problem: why are activations hard to quantize?
 {: id="8331-问题为什么激活值难量化"}
 
-The activation value of the large model has **serious outliers (Outliers)** problem:
+LLM activations suffer from **severe outliers**:
 
-- 99.9% of the values are in the $[-10, 10]$ range
-- 0.1% outliers can reach $[-1000, 1000]$
+- 99.9% of values fall within $[-10, 10]$
+- 0.1% of outliers can reach $[-1000, 1000]$
 
-If uniform scale quantization is used → most values will be compressed to a small range → there will be a huge loss of accuracy.
+With a single uniform scale, most values get squeezed into a tiny range, causing a large loss of accuracy.
 
-#### 8.3.3.2 SmoothQuant solution
+#### 8.3.3.2 The SmoothQuant solution
 {: id="8332-smoothquant-解决方案"}
 
-**Core idea**: Transfer the quantification difficulty from activation values to weights through scaling factors:
+**Core idea**: use scaling factors to shift the quantization difficulty from activations to weights:
 
 $$
 Y = (X \text{ diag}(s)^{-1}) \cdot (\text{diag}(s)W)
 $$
 
-Here:
-- $s$ is the per-channel smoothing factor
-- $X \text{ diag}(s)^{-1}$: Outliers in compressed activation values
-- $\text{diag}(s)W$: Absorb scaling factors into weights (weights are easier to quantify)
+where:
+- $s$ is a per-channel smoothing factor
+- $X \text{ diag}(s)^{-1}$: compresses the outliers in the activations
+- $\text{diag}(s)W$: absorbs the scaling factors into the weights (which are easier to quantize)
 
-**determines the smoothing factor**:
+**Choosing the smoothing factor**:
 
 $$
 s_i = \max(|X_i|)^\alpha / \max(|W_i|)^{1-\alpha}
@@ -3726,10 +3744,10 @@ $$
 
 where $\alpha \in [0, 1]$ controls the smoothing strength (usually 0.5).
 
-#### 8.3.3.3 Implementation examples
+#### 8.3.3.3 Example
 {: id="8333-实现示例"}
 
-The SmoothQuant official repository (mit-han-lab/smoothquant) provides a reference implementation for research; the llm-compressor maintained by vLLM is more commonly used in production, combining SmoothQuant and GPTQ into a "recipe" to complete W8A8 quantification in one go:
+The official SmoothQuant repository (mit-han-lab/smoothquant) provides a reference implementation for research. In production, llm-compressor (maintained by vLLM) is more common: it combines SmoothQuant and GPTQ into a single "recipe" that produces W8A8 quantization in one pass:
 
 ```python
 from datasets import load_dataset
@@ -3742,13 +3760,13 @@ model_id = "meta-llama/Llama-2-7b-hf"
 model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype="auto")
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 
-# Calibration data: hundreds of texts similar to the target scene
+# Calibration data: a few hundred texts resembling the target use case
 ds = load_dataset("allenai/c4", data_files="en/c4-train.00001-of-01024.json.gz", split="train")
 ds = ds.shuffle(seed=0).select(range(512))
 
 recipe = [
-    SmoothQuantModifier(smoothing_strength=0.8),                   # Migrate outliers in activations (i.e. α)
-    GPTQModifier(targets="Linear", scheme="W8A8", ignore=["lm_head"]),  # Both weight and activation are INT8
+    SmoothQuantModifier(smoothing_strength=0.8),                   # migrate activation outliers (this is α)
+    GPTQModifier(targets="Linear", scheme="W8A8", ignore=["lm_head"]),  # weights and activations both INT8
 ]
 
 oneshot(model=model, dataset=ds, recipe=recipe,
@@ -3758,20 +3776,20 @@ model.save_pretrained("llama-2-7b-w8a8", save_compressed=True)
 tokenizer.save_pretrained("llama-2-7b-w8a8")
 ```
 
-The generated checkpoint can be directly handed to vLLM for INT8 GEMM inference.
+The resulting checkpoint can be served directly by vLLM with INT8 GEMM.
 
 #### 8.3.3.4 SmoothQuant performance
 {: id="8334-smoothquant-性能"}
 
-The SmoothQuant paper is verified on OPT-175B, BLOOM-176B, GLM-130B and other models:
+The SmoothQuant paper evaluates OPT-175B, BLOOM-176B, GLM-130B, and other models:
 
-- **Accuracy**: After quantization, W8A8 is basically the same as FP16 on zero-sample tasks such as LAMBADA and HellaSwag; the plain W8A8 without smoothing will have obvious accuracy collapse due to the activation of outliers on OPT models above 6.7B
-- **efficiency**: Compared with FP16, it is up to about **1.56×, accelerates**, **GPU memory is halved,** can deploy a 530B scale model in a single 8-card node
+- **Accuracy**: W8A8 after smoothing essentially matches FP16 on zero-shot tasks such as LAMBADA and HellaSwag, whereas plain W8A8 without smoothing collapses on OPT models above 6.7B because of activation outliers
+- **Efficiency**: up to about **1.56× faster** than FP16 with **half the GPU memory**, enough to serve a 530B-scale model on a single 8-GPU node
 
-Key advantages of :
-- **W8A8** (weight + activation are both INT8) solution that requires no training and has basically lossless accuracy
-- Hardware friendly: Smoothing factors can be merged into the previous layer weight offline, and standard INT8 GEMM can be used directly during inference.
-- Suitable for high-throughput server-side inference
+Key advantages:
+- A **W8A8** scheme (weights and activations both INT8) that needs no training and is essentially lossless
+- Hardware friendly: smoothing factors can be folded offline into the preceding layer's weights, so inference uses standard INT8 GEMM
+- Well suited to high-throughput server-side inference
 
 ---
 
@@ -3781,27 +3799,27 @@ Key advantages of :
 ### 8.4.1 QLoRA
 {: id="841-qlora"}
 
-QLoRA is currently the most popular quantization fine-tuning method, realizing **fine-tuning the 65B model** on a single 48GB GPU. Strictly speaking, it only quantizes the frozen base weights into 4-bit, and the training is still a 16-bit LoRA adapter. It is not a "classic QAT" that adapts the model to the quantization error, but because the training occurs on the quantization model, it is usually discussed together with QAT.
+QLoRA is currently the most popular quantized fine-tuning method, making it possible to **fine-tune a 65B model** on a single 48GB GPU. Strictly speaking, it only quantizes the frozen base weights to 4 bits while the LoRA adapters are still trained in 16 bits. It is not "classic QAT" in which the model learns to adapt to quantization error, but because training happens on a quantized model it is usually discussed alongside QAT.
 
-#### 8.4.1.1 Core technology portfolio
+#### 8.4.1.1 Key components
 {: id="8411-核心技术组合"}
 
-1. **4-bit NormalFloat (NF4) quantized**
-2. **Double Quantization**
-3. **Paged Optimizers**
-4. **LoRA adapter**
+1. **4-bit NormalFloat (NF4) quantization**
+2. **Double quantization**
+3. **Paged optimizers**
+4. **LoRA adapters**
 
-#### 8.4.1.2 NF4 quantification: information theory optimal quantization
+#### 8.4.1.2 NF4: information-theoretically optimal quantization
 {: id="8412-nf4量化信息理论最优量化"}
 
-Standard 4-bit integer quantization range: $[-7, 7]$ (uniform distribution)
+Standard 4-bit integer quantization covers $[-7, 7]$ with evenly spaced levels.
 
-**Problem**: Neural network weights usually obey normal distribution $\mathcal{N}(0, \sigma^2)$, uniform quantification wastes representation power.
+**Problem**: neural network weights usually follow a normal distribution $\mathcal{N}(0, \sigma^2)$, so evenly spaced levels waste representational capacity.
 
-**NF4 scheme**: Quantitative points are distributed according to normal distribution quantile
+**The NF4 scheme**: place the quantization levels at the quantiles of a normal distribution
 
 ```python
-# NF4of16quantification points (forN(0,1)Optimization)
+# The 16 NF4 quantization levels (optimized for N(0,1))
 NF4_QUANT_LEVELS = [
     -1.0, -0.6961928009986877, -0.5250730514526367, -0.39491748809814453,
     -0.28444138169288635, -0.18477343022823334, -0.09105003625154495, 0.0,
@@ -3810,34 +3828,34 @@ NF4_QUANT_LEVELS = [
 ]
 ```
 
-**normalization + NF4 quantization**:
+**Normalization + NF4 quantization**:
 
 $$
 \hat{W} = \text{NF4}\left(\frac{W}{\sigma_W}\right) \cdot \sigma_W
 $$
 
-**Advantages**: Each quantization interval covers the same probability quality, and the weight of the approximate normal distribution is the optimal 4-bit data type in the sense of information theory; the perplexity and downstream accuracy of NF4 in the QLoRA paper are better than FP4 and INT4.
+**Advantage**: every quantization bin covers the same probability mass, which makes NF4 the information-theoretically optimal 4-bit data type for approximately normal weights. In the QLoRA paper, NF4 beats FP4 and INT4 on both perplexity and downstream accuracy.
 
-#### 8.4.1.3 Double Quantization
+#### 8.4.1.3 Double quantization
 {: id="8413-双重量化double-quantization"}
 
-**Issue**: Scaling factor for FP32 $s$ takes up considerable memory (1 FP32 per 64 parameters, equivalent to an additional 0.5 bit per parameter).
+**Problem**: the FP32 scaling factors $s$ take up considerable memory (one FP32 value per 64 parameters, or an extra 0.5 bit per parameter).
 
-**solves**: also quantify the scaling factor itself!
+**Solution**: quantize the scaling factors too.
 
 ```python
-# First quantification: weight → INT4
+# First quantization: weights → INT4
 W_quant = quantize_nf4(W, scale_fp32)
 
-# Second quantization: scaling factor FP32 → FP8
+# Second quantization: scaling factors FP32 → FP8
 scale_quant = quantize_fp8(scale_fp32)
 
-# The second quantification is based on 256 a scale As a group, save each group 1 a FP32 Level 2 scale
-# Per parameter scale Overhead:32/64 = 0.5 bit → 8/64 + 32/(64×256) ≈ 0.127 bit
-# The average savings per parameter is approx. 0.37 bit, 65B Model saves 3GB
+# The second quantization groups 256 scales together, storing one FP32 second-level scale per group
+# Scale overhead per parameter: 32/64 = 0.5 bit → 8/64 + 32/(64×256) ≈ 0.127 bit
+# Saves about 0.37 bit per parameter on average, or about 3GB for a 65B model
 ```
 
-#### 8.4.1.4 Complete QLoRA training process
+#### 8.4.1.4 Full QLoRA training workflow
 {: id="8414-完整qlora训练流程"}
 
 ```python
@@ -3848,158 +3866,158 @@ from trl import SFTConfig, SFTTrainer
 from datasets import load_dataset
 
 # ============================================================
-# Step 1: 4-bitQuantitative configuration (NF4 + double quantization)
+# Step 1: 4-bit quantization config (NF4 + double quantization)
 # ============================================================
 from transformers import BitsAndBytesConfig
 
 bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True,                      # enable4-bitQuantify
-    bnb_4bit_quant_type="nf4",              # UseNF4Quantification (information theoretic optimality)
-    bnb_4bit_use_double_quant=True,         # Double quantization (scalealso quantified)
-    bnb_4bit_compute_dtype=torch.bfloat16,  # Used when calculatingBF16(maintain accuracy)
+    load_in_4bit=True,                      # enable 4-bit quantization
+    bnb_4bit_quant_type="nf4",              # use NF4 (information-theoretically optimal)
+    bnb_4bit_use_double_quant=True,         # double quantization (scales are quantized too)
+    bnb_4bit_compute_dtype=torch.bfloat16,  # compute in BF16 (preserves accuracy)
 )
 
 # ============================================================
-# Step 2: Load4-bitQuantitative model (70BThe weight of the model is approximately35GB)
+# Step 2: load the 4-bit quantized model (70B weights take about 35GB)
 # ============================================================
 model_name = "meta-llama/Llama-2-70b-hf"
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
     quantization_config=bnb_config,
-    device_map="auto",                      # Automatic multi-card allocation
+    device_map="auto",                      # spread across GPUs automatically
 )
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 # ============================================================
-# Step 3: Prepare the quantized model for training
+# Step 3: prepare the quantized model for training
 # ============================================================
 model = prepare_model_for_kbit_training(model)
 
 # ============================================================
-# Step 4: ConfigurationLoRAParameters (only train approx.1.2%parameters)
+# Step 4: configure LoRA (trains only about 1.2% of parameters)
 # ============================================================
 lora_config = LoraConfig(
-    r=64,                                   # LoRARank (the larger the value, the closer it is to full parameter fine-tuning)
-    lora_alpha=16,                          # scaling factor (inherited fromQLoRAPaper:r=64, alpha=16)
-    target_modules=[                        # To which layers does it apply?LoRA
-        "q_proj", "k_proj", "v_proj",       # attention layer
+    r=64,                                   # LoRA rank (larger is closer to full fine-tuning)
+    lora_alpha=16,                          # scaling factor (from the QLoRA paper: r=64, alpha=16)
+    target_modules=[                        # layers that get LoRA
+        "q_proj", "k_proj", "v_proj",       # attention layers
         "o_proj",
-        "gate_proj", "up_proj", "down_proj" # FFNlayer
+        "gate_proj", "up_proj", "down_proj" # FFN layers
     ],
-    lora_dropout=0.05,                      # DropoutPrevent overfitting
-    bias="none",                            # Not trainingbias
+    lora_dropout=0.05,                      # dropout against overfitting
+    bias="none",                            # do not train biases
     task_type="CAUSAL_LM"
 )
 
 # ============================================================
-# Step 5: ApplicationLoRAto quantitative model
+# Step 5: apply LoRA to the quantized model
 # ============================================================
 model = get_peft_model(model, lora_config)
 model.print_trainable_parameters()
-# Output example:
+# Example output:
 # Trainable params: 828,375,040 || all params: 69,805,023,232 || trainable%: 1.1867
 
 # ============================================================
-# Step 6: Prepare training data
+# Step 6: prepare the training data
 # ============================================================
 dataset = load_dataset("timdettmers/openassistant-guanaco")
 
 # ============================================================
-# Step 7: Configure training parameters
+# Step 7: configure training
 # ============================================================
 training_args = SFTConfig(
     output_dir="./qlora-llama-70b",
     num_train_epochs=3,
-    per_device_train_batch_size=1,         # 70B The model card can only hold very small ones batch
-    gradient_accumulation_steps=16,        # Equivalentbatch_size=16
-    gradient_checkpointing=True,           # Activate recalculation to further save GPU memory
-    max_length=2048,                       # Maximum sequence length
-    dataset_text_field="text",             # guanaco The text field of the dataset
-    learning_rate=2e-4,                    # QLoRATypical learning rate
+    per_device_train_batch_size=1,         # a 70B model only fits a tiny batch per GPU
+    gradient_accumulation_steps=16,        # effective batch_size=16
+    gradient_checkpointing=True,           # recompute activations to save more GPU memory
+    max_length=2048,                       # maximum sequence length
+    dataset_text_field="text",             # text field of the guanaco dataset
+    learning_rate=2e-4,                    # typical QLoRA learning rate
     lr_scheduler_type="cosine",
     warmup_ratio=0.03,
     logging_steps=10,
     save_strategy="epoch",
-    optim="paged_adamw_8bit",              # Paging optimizer (preventsOOM)
+    optim="paged_adamw_8bit",              # paged optimizer (avoids OOM)
     fp16=False,
-    bf16=True,                             # UseBF16(A100Recommended)
+    bf16=True,                             # use BF16 (recommended on A100)
 )
 
 # ============================================================
-# Step 8: Start training
+# Step 8: train
 # ============================================================
 trainer = SFTTrainer(
     model=model,
     args=training_args,
     train_dataset=dataset["train"],
-    processing_class=tokenizer,            # new version TRL use processing_class replace tokenizer parameters
+    processing_class=tokenizer,            # newer TRL versions use processing_class instead of tokenizer
 )
 
 trainer.train()
 
 # ============================================================
-# Step 9: saveLoRAadapter (only~200MB！)
+# Step 9: save the LoRA adapter (only ~200MB!)
 # ============================================================
 model.save_pretrained("./qlora-adapter")
 
 # ============================================================
-# Step 10: merge on deploymentLoRA(optional)
+# Step 10: merge LoRA for deployment (optional)
 # ============================================================
 from peft import PeftModel
 
-# When merging with BF16 Load base: merge directly into 4-bit Weights introduce additional rounding error
+# Load the base model in BF16 for merging: merging straight into 4-bit weights adds rounding error
 base_model = AutoModelForCausalLM.from_pretrained(
     model_name,
     torch_dtype=torch.bfloat16,
     device_map="auto"
 )
 
-# Load and mergeLoRA, Can then be re-quantified for deployment as needed
+# Load and merge LoRA; re-quantize for deployment afterwards if needed
 model = PeftModel.from_pretrained(base_model, "./qlora-adapter")
-model = model.merge_and_unload()  # mergeLoRAweight to base
+model = model.merge_and_unload()  # merge LoRA weights into the base
 ```
 
-#### 8.4.1.5 QLoRA GPU memory usage analysis
+#### 8.4.1.5 QLoRA GPU memory breakdown
 {: id="8415-qlora-显存占用分析"}
 
-Take **LLaMA-2-70B** as an example:
+Using **LLaMA-2-70B** as an example:
 
-|components|BF16 full parameter fine-tuning|QLoRA (4-bit, r=64 covers all linear layers)|
+|Component|BF16 full fine-tuning|QLoRA (4-bit, r=64 on all linear layers)|
 |------|---------------|---------------|
-|**model weight**| 140 GB |~35 GB (NF4 + dual quantization)|
-|**gradient**| 140 GB |~1.7 GB (830000000 LoRA parameters only)|
-|**Optimizer status**|840 GB (FP32 master weight + m + v)|~2–7 GB (LoRA parameters only, accuracy depends on optimizer)|
-|**activation value**|Depends on batch and sequence length|Usually GB after turning on gradient checkpointing|
+|**Model weights**| 140 GB |~35 GB (NF4 + double quantization)|
+|**Gradients**| 140 GB |~1.7 GB (830000000 LoRA parameters only)|
+|**Optimizer states**|840 GB (FP32 master weights + m + v)|~2–7 GB (LoRA parameters only; depends on optimizer precision)|
+|**Activations**|Depends on batch size and sequence length|Usually a few GB with gradient checkpointing|
 |**Total**| **> 1.1 TB** | **~45–50 GB** |
 
-**Conclusion**: Full parameter fine-tuning of the 70B model requires at least 16 A100-80G and ZeRO sharding; QLoRA suppresses it to **single A100/H100-80G** (65B of the QLoRA paper The experiment used a single 48GB GPU).
+**Conclusion**: full fine-tuning of a 70B model needs at least 16 A100-80G GPUs with ZeRO sharding; QLoRA brings it down to **a single A100/H100-80G** (the 65B experiments in the QLoRA paper used a single 48GB GPU).
 
 ---
 
 ### 8.4.2 BitNet
 {: id="842-bitnet"}
 
-BitNet pushes quantization to its limits: **Each weight uses only 1.58 bits** (Three values: -1, 0, +1).
+BitNet pushes quantization to the extreme: **each weight uses only 1.58 bits** (three values: -1, 0, +1).
 
 #### 8.4.2.1 Core design
 {: id="8421-核心设计"}
 
-**three-value weight**:
+**Ternary weights**:
 
 $$
 W \in \{-1, 0, +1\}
 $$
 
-**activation value**: 8-bit quantization (maintaining a certain accuracy)
+**Activations**: 8-bit quantization (to retain reasonable accuracy)
 
-Why is **1.58 bit?**
+**Why 1.58 bits?**
 
-The maximum amount of information that can be carried by the three values ​​$\{-1, 0, +1\}$ is $\log_2 3 \approx 1.58$ bit (obtained when the three values ​​are equal probability). In actual storage, 5 three-valued weights are usually packed into 1 byte ($3^5 = 243 \le 256$), that is, 1.6 bits per weight.
+Three values $\{-1, 0, +1\}$ can carry at most $\log_2 3 \approx 1.58$ bits of information (reached when all three are equally likely). In practice, five ternary weights are usually packed into one byte ($3^5 = 243 \le 256$), i.e. 1.6 bits per weight.
 
-#### 8.4.2.2 Training methods
+#### 8.4.2.2 Training
 {: id="8422-训练方法"}
 
-1. **Forward propagation**: using three-valued weights
+1. **Forward pass**: use ternary weights
 
 $$
 W_{\text{ternary}} = \text{RoundClip}\!\left(\frac{W}{\gamma + \epsilon}, -1, 1\right),
@@ -4007,68 +4025,68 @@ W_{\text{ternary}} = \text{RoundClip}\!\left(\frac{W}{\gamma + \epsilon}, -1, 1\
 \gamma = \frac{1}{nm}\sum_{i,j} \lvert W_{ij} \rvert
 $$
 
-That is, first normalize with the mean of the absolute value of the weight (absmean), then round and crop to $\{-1, 0, +1\}$.
+That is, normalize by the mean absolute weight (absmean), then round and clip to $\{-1, 0, +1\}$.
 
-2. **Backpropagation**: Calculating gradients with floating point weights (STE technique)
+2. **Backward pass**: compute gradients with the floating-point weights (straight-through estimator)
 
-3. **weight update**: update floating point weights and then project to three values
+3. **Weight update**: update the floating-point weights, then project them back to ternary values
 
 #### 8.4.2.3 Performance
 {: id="8423-性能表现"}
 
-The main conclusions of the BitNet b1.58 paper (Ma et al., 2024):
+Main findings of the BitNet b1.58 paper (Ma et al., 2024):
 
-- **3B equals the full-precision**: 3B-scale BitNet b1.58 perplexity and zero-sample accuracy are comparable to FP16 LLaMA of the same size, while inference is fast **2.71×**, GPU memory saving **3.55×**
-- **The larger the value, the more cost-effective**: The inference speed at 70B scale is about LLaMA 70B **4.1×**
-- **Prerequisite**: **must be trained from scratch** (quantification-aware training), and the existing FP16 model cannot be directly converted to 1.58-bit; Microsoft subsequently open sourced BitNet b1.58 2B4T (2B parameters, 4T tokens)
+- **Matches full precision at 3B**: a 3B BitNet b1.58 is on par with an FP16 LLaMA of the same size in perplexity and zero-shot accuracy, while running inference **2.71×** faster with **3.55×** less GPU memory
+- **Better value at larger scale**: at 70B, inference is about **4.1×** as fast as LLaMA 70B
+- **Caveat**: the model **must be trained from scratch** (quantization-aware training); an existing FP16 model cannot simply be converted to 1.58 bits. Microsoft later open-sourced BitNet b1.58 2B4T (2B parameters, 4T tokens)
 
-**applicable scenarios**:
-- Device-side deployment (mobile phones, IoT devices)
-- Ultra-low latency inference
-- Ultimate cost optimization
+**When to use it**:
+- On-device deployment (phones, IoT devices)
+- Ultra-low-latency inference
+- Maximum cost reduction
 
 ---
 
 ## 8.5 Quantization in practice
 {: id="85-量化工程实践"}
 
-### 8.5.1 Quantitative tool ecology
+### 8.5.1 Quantization tooling
 {: id="851-量化工具生态"}
 
-|Tools|Support methods|Features|Recommended scenarios|
+|Tool|Supported methods|Highlights|Recommended for|
 |------|---------|------|---------|
-| **Unsloth** | LoRA, QLoRA, 4-bit, 16-bit, FP8, GRPO |2× acceleration, 70% VRAM reduction, compatible with HF ecosystem|Efficient fine-tuning for consumer-grade GPUs|
-| **bitsandbytes** | QLoRA, 8-bit, 4-bit |Easy to use, Hugging Face integration|QLoRA fine-tuning|
-|**GPTQModel** (AutoGPTQ successor)| GPTQ |Mature, widely supported|PTQ deployment|
-| **llm-compressor**(vLLM) | GPTQ, AWQ, SmoothQuant, FP8 |A set of recipes covers multiple algorithms, and the products can be directly given to vLLM|Production deployment|
-| **llama.cpp** | GGUF/GGML |CPU inference optimization|Local CPU deployment|
-| **vLLM** | FP8, INT8 |High-throughput reasoning|Production deployment|
-| **TensorRT-LLM** | INT8, INT4, FP8 |NVIDIA optimization|NVIDIA GPU deployment|
+| **Unsloth** | LoRA, QLoRA, 4-bit, 16-bit, FP8, GRPO |2× faster, 70% less VRAM, compatible with the HF ecosystem|Efficient fine-tuning on consumer GPUs|
+| **bitsandbytes** | QLoRA, 8-bit, 4-bit |Easy to use, integrated with Hugging Face|QLoRA fine-tuning|
+|**GPTQModel** (successor to AutoGPTQ)| GPTQ |Mature, widely supported|PTQ deployment|
+| **llm-compressor** (vLLM) | GPTQ, AWQ, SmoothQuant, FP8 |One recipe format covers several algorithms; outputs load directly in vLLM|Production deployment|
+| **llama.cpp** | GGUF/GGML |Optimized CPU inference|Local CPU deployment|
+| **vLLM** | FP8, INT8 |High-throughput inference|Production deployment|
+| **TensorRT-LLM** | INT8, INT4, FP8 |Optimized for NVIDIA|Deployment on NVIDIA GPUs|
 
 ### 8.5.2 Quantization best practices
 {: id="852-量化流程最佳实践"}
 
-#### 8.5.2.1 Decision tree for selecting quantification method
+#### 8.5.2.1 Decision tree for choosing a method
 {: id="8521-选择量化方法的决策树"}
 
 ```mermaid
 graph TD
-    A["Need to quantify?"] -->|Yes| B{Have training resources?}
-    A -->|No| Z["UseFP16/BF16"]
+    A["Need quantization?"] -->|Yes| B{Training resources available?}
+    A -->|No| Z["Use FP16/BF16"]
 
-    B -->|Yes| C{Pursuing ultimate precision?}
-    B -->|None| D["UsePTQ"]
+    B -->|Yes| C{Need the best possible accuracy?}
+    B -->|No| D["Use PTQ"]
 
-    C -->|Yes| E["QLoRA/QAT<br>4-bittraining"]
-    C -->|No| F["LoRAfine-tuning<br>BF16"]
+    C -->|Yes| E["QLoRA/QAT<br>4-bit training"]
+    C -->|No| F["LoRA fine-tuning<br>BF16"]
 
-    D --> G{target number of bits?}
+    D --> G{Target bit width?}
 
-    G -->|INT8| H["SmoothQuant<br>weight+activate"]
-    G -->|INT4| I{priority?}
+    G -->|INT8| H["SmoothQuant<br>weights + activations"]
+    G -->|INT4| I{Priority?}
 
     I -->|Accuracy| J["AWQ"]
-    I -->|speed| K["GPTQ"]
+    I -->|Speed| K["GPTQ"]
 
     style E fill:#c8e6c9
     style J fill:#ffe0b2
@@ -4076,10 +4094,10 @@ graph TD
     style H fill:#fff9c4
 ```
 
-#### 8.5.2.2 Accuracy comparison before and after quantification
+#### 8.5.2.2 Comparing accuracy before and after quantization
 {: id="8522-量化前后的精度对比"}
 
-Establish a FP16 baseline before quantization, and then evaluate the quantization model using the same set of tasks. Using EleutherAI’s lm-evaluation-harness:
+Establish an FP16 baseline before quantizing, then evaluate the quantized model on the same tasks. With EleutherAI's lm-evaluation-harness:
 
 ```python
 import torch
@@ -4097,79 +4115,79 @@ def evaluate(path, **load_kwargs):
     return {t: out["results"][t]["acc,none"] for t in TASKS}
 
 base = evaluate("meta-llama/Llama-2-7b-hf", torch_dtype=torch.float16)  # FP16 baseline
-quant = evaluate("./llama-2-7b-gptq-4bit")  # GPTQ Weight, need to install gptqmodel
+quant = evaluate("./llama-2-7b-gptq-4bit")  # GPTQ weights; requires gptqmodel
 
 for t in TASKS:
     drop = (base[t] - quant[t]) / base[t] * 100
     print(f"{t}: {base[t]:.4f} → {quant[t]:.4f} (-{drop:.2f}%)")
 ```
 
-**Acceptable loss of accuracy**:
+**Acceptable accuracy loss**:
 - **INT8**: <2% (acceptable)
 - **INT4**: <5% (GPTQ/AWQ, acceptable)
 - **INT4**: 5-10% (naive quantization, evaluate carefully)
 - **INT4**: >10% (quantization failed; adjust the strategy)
 
-#### 8.5.2.3 Layers that handle quantization failures
+#### 8.5.2.3 Handling layers that quantize poorly
 {: id="8523-处理量化失败的层"}
 
-Some layers are particularly sensitive to quantization: output layers `lm_head`, Embedding, and layers with particularly large activation outliers (common in MLP's `down_proj`).
+Some layers are especially sensitive to quantization: the output layer `lm_head`, the embedding layer, and layers with particularly large activation outliers (often the MLP's `down_proj`).
 
-**strategy: mixed precision quantization** - the sensitive layer remains 16-bit, and the other layers are quantized as usual.
+**Strategy: mixed-precision quantization**: keep sensitive layers in 16 bits and quantize the rest as usual.
 
-- By default, GPTQ/AWQ tools only quantize the `Linear` layer in the Transformer Block. Embedding and `lm_head` originally maintain the original accuracy.
-- When you need to skip some additional layers, the recipe of llm-compressor can be written as `ignore=["lm_head", "re:.*down_proj"]` (supports regular expressions); bitsandbytes is specified by `BitsAndBytesConfig(llm_int8_skip_modules=[...])`
-- The price is a small amount of additional GPU memory; to judge whether it is worth it, look at the accuracy comparison in the previous section.
+- By default, GPTQ/AWQ tools quantize only the `Linear` layers inside Transformer blocks; the embedding and `lm_head` already stay at original precision.
+- To skip additional layers, an llm-compressor recipe can use `ignore=["lm_head", "re:.*down_proj"]` (regular expressions are supported); with bitsandbytes, use `BitsAndBytesConfig(llm_int8_skip_modules=[...])`
+- The cost is a little extra GPU memory; use the accuracy comparison from the previous section to decide whether it is worth it.
 
-### 8.5.3 Common pitfalls of quantification
+### 8.5.3 Common pitfalls
 {: id="853-量化的常见陷阱"}
 
-#### 8.5.3.1 Trap 1: Using too little calibration data
+#### 8.5.3.1 Pitfall 1: too little calibration data
 {: id="8531-陷阱1使用过少的校准数据"}
 
 ```python
-# Error example
-calibration_data = dataset[:10]  # Only use10samples ❌
+# Wrong
+calibration_data = dataset[:10]  # only 10 samples ❌
 
-# Correct approach
-calibration_data = dataset[:512]  # at least128-1024samples ✅
+# Right
+calibration_data = dataset[:512]  # at least 128-1024 samples ✅
 ```
 
-#### 8.5.3.2 Trap 2: Calibration data distribution mismatch
+#### 8.5.3.2 Pitfall 2: mismatched calibration data
 {: id="8532-陷阱2校准数据分布不匹配"}
 
 ```python
-# Bad Example: Calibrating Conversation Models with Code Data ❌
+# Wrong: calibrating a chat model with code data ❌
 calibration_data = load_dataset("codeparrot/github-code")
 
-# Correct approach: Use data with similar target tasks ✅
-calibration_data = load_dataset("allenai/c4", split="train[:1000]")  # universal text
-# Or
-calibration_data = load_dataset("OpenAssistant/oasst1")  # Conversation data
+# Right: use data resembling the target task ✅
+calibration_data = load_dataset("allenai/c4", split="train[:1000]")  # general text
+# or
+calibration_data = load_dataset("OpenAssistant/oasst1")  # conversation data
 ```
 
-#### 8.5.3.3 Trap 3: Directly perform per-tensor INT8 quantization on activations
+#### 8.5.3.3 Pitfall 3: naive per-tensor INT8 quantization of activations
 {: id="8533-陷阱3直接对激活做-per-tensor-int8-量化"}
 
-The amplitudes of a few channels in the activations of a large model can be two orders of magnitude larger than other channels. When doing per-tensor naive INT8 quantization of activations, these outliers will increase the scaling factor, compressing the remaining channels to only a few quantization levels, and the accuracy will collapse.
+In large models, a few activation channels can be two orders of magnitude larger than the rest. With naive per-tensor INT8 quantization, these outliers inflate the scaling factor and squeeze all other channels into just a few quantization levels, and accuracy collapses.
 
-**Correct approach**: First use SmoothQuant to migrate outliers to weights, or use per-token dynamic quantization for activation; if this is not possible, keep the sensitive layer as 16-bit (see Section 8.5.2.3).
+**What to do instead**: first migrate the outliers into the weights with SmoothQuant, or quantize activations dynamically per token; failing that, keep the sensitive layers in 16 bits (see Section 8.5.2.3).
 
 ---
 
 ## 8.6 Choosing a quantization scheme
 {: id="86-量化方案选型"}
 
-|scene|Recommended method|Quantization accuracy|Accuracy impact|Weight GPU memory savings (vs. FP16)|
+|Scenario|Recommended method|Precision|Accuracy impact|Weight memory saved (vs. FP16)|
 |------|---------|---------|---------|---------|
-|**fine-tuning training**| QLoRA |4-bit base + 16-bit LoRA|Basically the same as 16-bit LoRA| ~75% |
-|**Inference deployment (accuracy priority)**| AWQ | 4-bit |small| ~75% |
-|**Inference deployment (ecological priority)**| GPTQ | 4-bit |small| ~75% |
-|**produces high throughput**| SmoothQuant W8A8 / FP8 | 8-bit |Basically lossless| ~50% |
-|**Edge device**| INT8 QAT | 8-bit |Basically lossless| ~50% |
-|**end side limit**| BitNet b1.58 | 1.58-bit |Need to be trained from scratch, starting from 3B is equivalent to FP16| ~90% |
+|**Fine-tuning**| QLoRA |4-bit base + 16-bit LoRA|About the same as 16-bit LoRA| ~75% |
+|**Inference (accuracy first)**| AWQ | 4-bit |Small| ~75% |
+|**Inference (ecosystem first)**| GPTQ | 4-bit |Small| ~75% |
+|**High-throughput production**| SmoothQuant W8A8 / FP8 | 8-bit |Essentially lossless| ~50% |
+|**Edge devices**| INT8 QAT | 8-bit |Essentially lossless| ~50% |
+|**Extreme on-device**| BitNet b1.58 | 1.58-bit |Must train from scratch; matches FP16 from 3B up| ~90% |
 
-> The accuracy impact varies greatly with model size, task and calibration data: the general rule is that larger models are more resistant to quantification, and tasks such as mathematics and coding that require precise reasoning are more sensitive than common sense question and answer. Before going online, be sure to make comparisons according to Section 8.5.2.2 on your own tasks.
+> The accuracy impact varies widely with model size, task, and calibration data. As a rule, larger models tolerate quantization better, and tasks that need precise reasoning, such as math and coding, are more sensitive than commonsense QA. Before going to production, always run the comparison from Section 8.5.2.2 on your own tasks.
 
 ---
 
@@ -4179,119 +4197,119 @@ The amplitudes of a few channels in the activations of a large model can be two 
 ### 8.7.1 Mixed-precision quantization
 {: id="871-混合精度量化"}
 
-Different layers use different numbers of bits:
-- **Sensitive layer** (attention layer): INT8
-- **Normal layer** (FFN): INT4
-- **Insensitive layer**: INT2
+Different layers use different bit widths:
+- **Sensitive layers** (attention): INT8
+- **Ordinary layers** (FFN): INT4
+- **Insensitive layers**: INT2
 
 ### 8.7.2 Zero-shot PTQ
 {: id="872-零样本-ptq"}
 
-Quantitative parameters are directly inferred from weight distributions without calibration data.
+Quantization parameters are inferred directly from the weight distribution, with no calibration data.
 
 ### 8.7.3 Hardware-algorithm co-design
 {: id="873-硬件-算法协同设计"}
 
-- **NVIDIA Hopper**: native support for FP8 training and inference
-- **NVIDIA Blackwell**: natively supports micro-scaling formats such as FP4 (NVFP4/MXFP4), and further hardware-based 4-bit inference and low-bit training
-- **dedicated NPU**: binary/ternary neural network dedicated chip
+- **NVIDIA Hopper**: native FP8 support for training and inference
+- **NVIDIA Blackwell**: native support for microscaling formats such as FP4 (NVFP4/MXFP4), bringing 4-bit inference and low-bit training further into hardware
+- **Dedicated NPUs**: chips built for binary/ternary neural networks
 
-### 8.7.4 Large model specific optimization
+### 8.7.4 LLM-specific optimizations
 {: id="874-大模型特定优化"}
 
-- **sparsity + quantization**: combined with pruning for further compression
-- **KV Cache quantization**: Key optimization for long context scenarios (see the next section for details)
-- **Dynamic quantization**: Adaptively adjust quantization accuracy according to input
+- **Sparsity + quantization**: combine with pruning for further compression
+- **KV cache quantization**: a key optimization for long contexts (see the next section)
+- **Dynamic quantization**: adapt quantization precision to the input
 
-### 8.7.5 KV Cache GPU memory management
+### 8.7.5 KV cache memory management
 {: id="875-kv-cache-显存管理"}
 
-#### 8.7.5.1 Why does KV Cache occupy a lot of GPU memory?
+#### 8.7.5.1 Why the KV cache uses so much GPU memory
 {: id="8751-为什么-kv-cache-会占用大量显存"}
 
-Large model inference consists of two stages:
-- **Prefill (prefill)**: Process the entire input sequence in parallel at one time to generate the initial K/V matrix
-- **Decode (decoding)**: Only one token is generated at a time, but K/V of all historical tokens needs to be accessed
+LLM inference has two phases:
+- **Prefill**: process the whole input sequence in parallel in one pass, producing the initial K/V matrices
+- **Decode**: generate one token at a time, attending to the K/V of every previous token
 
-In order to avoid repeatedly calculating the K/V of historical tokens, they are cached during inference. This is the KV Cache. As the sequence becomes longer, the cache continues to grow and becomes the main source of GPU memory consumption in long context scenarios.
+To avoid recomputing the K/V of earlier tokens, they are cached during inference: this is the KV cache. The cache keeps growing with the sequence and becomes the main consumer of GPU memory in long-context settings.
 
 ```mermaid
 flowchart LR
-    subgraph prefill["① Prefill(parallel processing)"]
+    subgraph prefill["① Prefill (parallel)"]
         direction TB
-        p1["input sequence<br/>token₁ token₂ … tokenₙ"] --> p2["Transformer<br/>Compute all in parallel token"]
-        p2 --> p3["KV Cache initialization<br/>K₁V₁, K₂V₂, …, KₙVₙ"]
-        p3 --> p4["Output the first new token"]
+        p1["Input sequence<br/>token₁ token₂ … tokenₙ"] --> p2["Transformer<br/>computes all tokens in parallel"]
+        p2 --> p3["Initialize KV cache<br/>K₁V₁, K₂V₂, …, KₙVₙ"]
+        p3 --> p4["Emit the first new token"]
     end
 
-    subgraph decode["② Decode(chase token autoregressive)"]
+    subgraph decode["② Decode (autoregressive, token by token)"]
         direction TB
-        d1["new token<br/>tokenₙ₊₁"] --> d2["read KV Cache<br/>(Skip historical recalculation)"]
-        d2 --> d3["Append<br/>Kₙ₊₁Vₙ₊₁ to cache"]
-        d3 --> d4["output next token"]
-        d4 -->|"Continue the cycle"| d1
+        d1["New token<br/>tokenₙ₊₁"] --> d2["Read KV cache<br/>(no recomputation of history)"]
+        d2 --> d3["Append<br/>Kₙ₊₁Vₙ₊₁ to the cache"]
+        d3 --> d4["Emit the next token"]
+        d4 -->|"repeat"| d1
     end
 
-    prefill -->|"cache delivery"| decode
+    prefill -->|"hand over cache"| decode
 
     style p3 fill:#e3f2fd,stroke:#01579b
     style d2 fill:#e3f2fd,stroke:#01579b
     style d3 fill:#e8f5e9,stroke:#1b5e20
 ```
 
-**GPU memory calculation formula**:
+**Memory formula**:
 
 $$\text{KV cache size} = 2 \times L \times H_{kv} \times d \times n \times b \times \text{bytes\_per\_element}$$
 
-Here, $L$ = number of layers, $H_{kv}$ = number of KV heads (equal to the number of attention heads under MHA), $d$ = dimension per head, $n$ = sequence length, $b$ = batch size, coefficient 2 corresponds to K and V.
+where $L$ = number of layers, $H_{kv}$ = number of KV heads (equal to the number of attention heads under MHA), $d$ = dimension per head, $n$ = sequence length, $b$ = batch size, and the factor 2 accounts for K and V.
 
-Take **LLaMA-2-7B** as an example (32 layers, 32 KV heads, 128 dimensions, FP16):
-- Occupied by each token: $2 \times 32 \times 32 \times 128 \times 2\ \text{bytes} = \mathbf{0.5 \text{ MB}}$
-- A request for a 4K context occupies approximately **2GB**; when batch=32, the KV Cache reaches **64GB**, far exceeding the model weight itself (approximately 13.5GB)
+Taking **LLaMA-2-7B** as an example (32 layers, 32 KV heads, head dimension 128, FP16):
+- Per token: $2 \times 32 \times 32 \times 128 \times 2\ \text{bytes} = \mathbf{0.5 \text{ MB}}$
+- A single 4K-context request takes about **2GB**; at batch=32 the KV cache reaches **64GB**, far more than the model weights themselves (about 13.5GB)
 
-Compare **LLaMA-2-70B** (80 layers, but only retain 8 KV headers with GQA): each token is $2 \times 80 \times 8 \times 128 \times 2 \approx 0.31$ MB, the number of parameters is 10 times that of 7B, and the KV Cache is smaller - this is the role of GQA below.
+Compare **LLaMA-2-70B** (80 layers, but only 8 KV heads thanks to GQA): each token takes $2 \times 80 \times 8 \times 128 \times 2 \approx 0.31$ MB. The model has 10 times as many parameters as the 7B, yet a smaller KV cache: this is what GQA, discussed below, buys.
 
-#### 8.7.5.2 KV Cache Quantification
+#### 8.7.5.2 KV cache quantization
 {: id="8752-kv-cache-量化"}
 
-Directly perform low-precision quantization on the cached K/V matrix without modifying the model structure:
+Quantize the cached K/V matrices to low precision without changing the model architecture:
 
-|Accuracy|method|GPU memory savings|Accuracy impact|
+|Precision|Method|Memory saved|Accuracy impact|
 |------|-----|---------|--------|
-| INT8 |Per-token dynamic quantification| ~50% |extremely small|
-| INT4 |Per-group quantification| ~75% |small|
-| FP8 |Hardware native (H100)| ~50% |extremely small|
+| INT8 |Per-token dynamic quantization| ~50% |Negligible|
+| INT4 |Per-group quantization| ~75% |Small|
+| FP8 |Native in hardware (H100)| ~50% |Negligible|
 
-#### 8.7.5.3 GQA/MQA: Reduce KV Cache from the architectural level
+#### 8.7.5.3 GQA/MQA: shrinking the KV cache through architecture
 {: id="8753-gqa--mqa从架构层面减少-kv-cache"}
 
-A more fundamental optimization than quantization: reducing the number of KV heads.
+A more fundamental optimization than quantization: reduce the number of KV heads.
 
 <div align="center">
-  <img src="/images/llm-training/GQA.webp" width="85%" alt="Figure: Comparison of KV head sharing methods of three attention mechanisms: MHA (left), GQA (middle), and MQA (right). Source: Ainslie et al., GQA, EMNLP 2023" />
-<figcaption> Figure: Comparison of KV head sharing methods of three attention mechanisms: MHA (left), GQA (middle), and MQA (right). Source: Ainslie et al., GQA, EMNLP 2023</figcaption>
+  <img src="/images/llm-training/GQA.webp" width="85%" alt="Figure: how three attention mechanisms share KV heads: MHA (left), GQA (middle), and MQA (right). Source: Ainslie et al., GQA, EMNLP 2023" />
+<figcaption>Figure: how three attention mechanisms share KV heads: MHA (left), GQA (middle), and MQA (right). Source: Ainslie et al., GQA, EMNLP 2023</figcaption>
 </div>
 
 ```
-MHA: [Q1 K1V1] [Q2 K2V2] [Q3 K3V3] [Q4 K4V4]  ← KVNumber of heads = QNumber of heads
-GQA: [Q1 Q2] [K1V1]  [Q3 Q4] [K2V2]            ← KVNumber of heads = QNumber of heads / group size
-MQA: [Q1 Q2 Q3 Q4]   [K1V1]                    ← all Q Share 1 a KV head
+MHA: [Q1 K1V1] [Q2 K2V2] [Q3 K3V3] [Q4 K4V4]  ← number of KV heads = number of Q heads
+GQA: [Q1 Q2] [K1V1]  [Q3 Q4] [K2V2]            ← number of KV heads = number of Q heads / group size
+MQA: [Q1 Q2 Q3 Q4]   [K1V1]                    ← all Q heads share 1 KV head
 ```
 
-|way|full name|KV Cache size|representative model|
+|Variant|Full name|KV cache size|Representative models|
 |------|-----|-------------|--------|
-| MHA | Multi-Head Attention |Benchmark (1×)| GPT-2, BERT, LLaMA-2-7B |
-| GQA | Grouped-Query Attention |reduced to 1/group size|LLaMA-2-70B, LLaMA-3 full range, Mistral|
-| MQA | Multi-Query Attention |reduced to 1/H| PaLM, Falcon-7B |
+| MHA | Multi-Head Attention |Baseline (1×)| GPT-2, BERT, LLaMA-2-7B |
+| GQA | Grouped-Query Attention |Reduced to 1/group size|LLaMA-2-70B, the whole LLaMA-3 family, Mistral|
+| MQA | Multi-Query Attention |Reduced to 1/H| PaLM, Falcon-7B |
 
-GQA is currently the preferred solution for mainstream large models, achieving a good balance between GPU memory savings and model quality.
+GQA is now the default choice for mainstream LLMs, striking a good balance between memory savings and model quality.
 
-#### 8.7.5.4 MLA (Multi-head Latent Attention): further compression of DeepSeek-V2/V3
+#### 8.7.5.4 MLA (Multi-head Latent Attention): DeepSeek-V2/V3's further compression
 {: id="8754-mlamulti-head-latent-attentiondeepseek-v2v3-的进一步压缩"}
 
-GQA/MQA passed **Reduce the number of KV heads** to compress the cache, but essentially still "store the original K/V vector". Proposed by DeepSeek-V2 **MLA (Bulls Potential Attention)** Changed the idea: instead of storing the original K/V, **Jointly compressed into a low-dimensional latent vector (Latent Vector)** , and then restored in real time during reasoning.
+GQA/MQA compress the cache by **reducing the number of KV heads**, but they still store raw K/V vectors. **MLA (Multi-head Latent Attention)**, introduced in DeepSeek-V2, takes a different approach: instead of storing raw K/V, it **jointly compresses them into a low-dimensional latent vector** and reconstructs them on the fly at inference.
 
-**Core Principle**:
+**Core idea**:
 
 $$
 \mathbf{c}_t^{KV} = W^{DKV} \mathbf{h}_t \quad (\text{Compressed latent vector, dimension } d_c \ll d_h \times n_h)
@@ -4301,141 +4319,141 @@ $$
 \mathbf{k}_t = W^{UK} \mathbf{c}_t^{KV}, \quad \mathbf{v}_t = W^{UV} \mathbf{c}_t^{KV} \quad (\text{Up-projection at inference})
 $$
 
-Among them only **Compressed latent vector $$\mathbf{c}_t^{KV}$$ cached** , the upper projection matrix of K/V $W^{UK}, W^{UV}$ Calculated in real time at inference time, so the amount of data cached is completely independent of the "number of KV headers" and only depends on the underlying dimensions $d_c$ .
+Only the **compressed latent vector $$\mathbf{c}_t^{KV}$$ is cached**; the K/V up-projections $W^{UK}, W^{UV}$ are applied at inference time. The cache size is therefore entirely independent of the number of KV heads and depends only on the latent dimension $d_c$.
 
-|way|KV Cache storage content|Number of elements cached per token per layer|
+|Variant|What the KV cache stores|Cached elements per token per layer|
 |------|------------------|------------------------------|
-| MHA |Complete K, V vectors| $2 n_h d_h$ |
-| GQA |K, V vectors shared by groups|$2 n_g d_h$ ($n_g$ is the number of groups)|
+| MHA |Full K and V vectors| $2 n_h d_h$ |
+| GQA |K and V vectors shared within groups|$2 n_g d_h$ ($n_g$ is the number of groups)|
 | **MLA** |**Low-dimensional joint latent vector + decoupled RoPE key**| **$d_c + d_h^R$** |
 
-DeepSeek-V2 takes $d_c = 4d_h$ and $d_h^R = d_h/2$, and only caches $4.5\,d_h$ elements per token per layer, which is equivalent to only 2.25 groups of GQA; and its MHA has 128 headers, and the same cache requires $256\,d_h$. Compared with the previous generation DeepSeek 67B, DeepSeek-V2’s KV Cache has been reduced by 93.3%, and the maximum generation throughput has been increased to 5.76 times.
+DeepSeek-V2 sets $d_c = 4d_h$ and $d_h^R = d_h/2$, caching only $4.5\,d_h$ elements per token per layer, equivalent to GQA with just 2.25 groups; its MHA counterpart, with 128 heads, would need $256\,d_h$. Compared with the previous-generation DeepSeek 67B, DeepSeek-V2 cuts the KV cache by 93.3% and raises maximum generation throughput to 5.76 times.
 
 **Key engineering details**:
-- **Decoupled Rotated Position Encoding (Decoupled RoPE)**: Since the latent vector cannot be directly applied to RoPE after low-rank compression (RoPE requires independent rotation of each K head), MLA introduces an additional set of "position-aware" dimensions that do not participate in compression to specifically carry RoPE information and are spliced with the compressed content dimensions.
-- **is lossless during training and greatly saves GPU memory during inference.**: The upper projection matrix can be absorbed and merged with the subsequent attention calculation matrix, so MLA is close to standard MHA in effect (even slightly better than GQA in the DeepSeek-V2/V3 report), while the GPU memory usage is close to or even better than MQA.
+- **Decoupled RoPE**: after low-rank compression, RoPE cannot be applied directly to the latent vector (RoPE rotates each K head independently). MLA therefore adds a separate set of position-aware dimensions that bypass compression, carry the RoPE information, and are concatenated with the compressed content dimensions.
+- **Lossless in training, big memory savings at inference**: the up-projection matrices can be absorbed into the subsequent attention matrices, so MLA performs close to standard MHA (even slightly better than GQA in the DeepSeek-V2/V3 reports) while using as little memory as MQA or less.
 
-**Meaning**: MLA is one of the key architectural innovations of DeepSeek-V2/V3/R1 that can support ultra-long contexts while keeping reasoning costs very low. It is ranked as the three most influential engineering contributions of the DeepSeek series along with MoE and FP8 training.
+**Significance**: MLA is one of the key architectural innovations that let DeepSeek-V2/V3/R1 support very long contexts while keeping inference cheap. Together with MoE and FP8 training, it is counted among the three most influential engineering contributions of the DeepSeek series.
 
-#### 8.7.5.5 Other KV Cache Saving Techniques
+#### 8.7.5.5 Other KV cache savings
 {: id="8755-其他-kv-cache-节省技术"}
 
-- **Sliding Window Attention**: Each layer only retains the KV of the most recent $w$ tokens. After multi-layer stacking, the receptive field can still cover a longer context.
-- **Streaming LLM**: Keep the nearest window + the KV of the first few tokens (the attention score of the initial token has an anchoring effect on the overall distribution)
-- **Prefix Caching (cross-request multiplexing)**: Requests with the same prefix (such as system prompts) share KV Cache, which can save 50%+ costs in API service scenarios
+- **Sliding window attention**: each layer keeps KV only for the most recent $w$ tokens; stacked across layers, the receptive field still covers a longer context.
+- **StreamingLLM**: keep a recent window plus the KV of the first few tokens (the initial tokens act as attention sinks that anchor the overall distribution)
+- **Prefix caching (reuse across requests)**: requests with the same prefix (such as a system prompt) share the KV cache, saving 50%+ of cost in API serving
 
 ---
 
 # 9. Data engineering
 {: id="9-数据工程"}
 
-Data is the cornerstone of large model training. High-quality training data directly determines the upper limit of the model's capabilities. This chapter systematically introduces data engineering technology in large model training.
+Data is the foundation of LLM training: the quality of the training data sets the ceiling on what a model can do. This chapter gives a systematic overview of data engineering for LLM training.
 
-> **Introduction to this chapter**
+> **About this chapter**
 >
-> "Garbage in, garbage out"——Data quality directly determines the upper limit of the model. This chapter introduces the complete data processing process such as data collection, quality assessment, deduplication, proportioning, and tokenization. **Core philosophy**: High quality > Large scale, diversity > Single source. Data engineering is often underestimated, but it is the key to successful training.
+> "Garbage in, garbage out": data quality sets the model's ceiling. This chapter walks through the full data pipeline: collection, quality assessment, deduplication, mixing, and tokenization. **Guiding principles**: quality over scale, and diversity over a single source. Data engineering is often underrated, yet it is key to a successful training run.
 
 <div align="center">
-  <img src="/images/llm-training/data-processing-pipeline.webp" width="90%" alt="Complete data processing process" />
-<figcaption> Figure: RefinedWeb's Common Crawl processing flow - after the three stages of document preparation, filtering, and deduplication, about 90% of the original documents are removed (Source: RefinedWeb paper Figure 2)</figcaption>
+  <img src="/images/llm-training/data-processing-pipeline.webp" width="90%" alt="Full data processing pipeline" />
+<figcaption>Figure: RefinedWeb's Common Crawl pipeline. Document preparation, filtering, and deduplication together remove about 90% of the original documents (source: RefinedWeb paper, Figure 2)</figcaption>
 </div>
 
 ## 9.1 Data collection and sources
 {: id="91-数据采集与来源"}
 
-### 9.1.1 Pretraining data source
+### 9.1.1 Pretraining data sources
 {: id="911-预训练数据来源"}
 
-#### 9.1.1.1 Web page data
+#### 9.1.1.1 Web data
 {: id="9111-网页数据"}
-- **Common Crawl**: The largest open web crawling data set, crawling billions of web pages every month, including multi-language and multi-domain content
-- **C4 (Colossal Clean Crawled Corpus)**: Based on Common Crawl cleaned data set, ~750GB text
-- **RedPajama**: Reproduction of open source LLaMA training data (1.2 trillion tokens)
-- **FineWeb / FineWeb-Edu** (Hugging Face, 2024): Cleaned out about 15T tokens from 96 Common Crawl snapshots; FineWeb-Edu then used the educational value classifier to filter out a high-quality subset of about 1.3T tokens
+- **Common Crawl**: the largest open web crawl, adding billions of pages every month across many languages and domains
+- **C4 (Colossal Clean Crawled Corpus)**: a cleaned dataset derived from Common Crawl, ~750GB of text
+- **RedPajama**: an open reproduction of the LLaMA training data (1.2 trillion tokens)
+- **FineWeb / FineWeb-Edu** (Hugging Face, 2024): about 15T tokens cleaned from 96 Common Crawl snapshots; FineWeb-Edu then uses an educational-value classifier to select a high-quality subset of about 1.3T tokens
 
-#### 9.1.1.2 Code data
+#### 9.1.1.2 Code
 {: id="9112-代码数据"}
-- **GitHub**: Open source code warehouse (filter stars, license)
-- **Stack Overflow**: Q&A on high-quality code
-- **The Stack**: 3TB source code, 30+ programming languages
+- **GitHub**: open-source repositories (filtered by stars and license)
+- **Stack Overflow**: high-quality programming Q&A
+- **The Stack**: 3TB of source code in 30+ programming languages
 
-#### 9.1.1.3 Academics and Books
+#### 9.1.1.3 Academic papers and books
 {: id="9113-学术与书籍"}
 - **arXiv, PubMed**: academic papers
-- **Books3, BookCorpus**: book data set
+- **Books3, BookCorpus**: book datasets
 
-#### 9.1.1.4 Conversations and Social Media
+#### 9.1.1.4 Conversations and social media
 {: id="9114-对话与社交媒体"}
-- **Reddit**: High-quality discussions and Q&A
-- **Wikipedia**: Structured knowledge
-- **StackExchange**: Professional Q&A in various fields
+- **Reddit**: high-quality discussions and Q&A
+- **Wikipedia**: structured knowledge
+- **StackExchange**: expert Q&A across many fields
 
 ## 9.2 Data quality assessment
 {: id="92-数据质量评估"}
 
-### 9.2.1 Heuristic rule filtering
+### 9.2.1 Heuristic filtering
 {: id="921-启发式规则过滤"}
 
-#### 9.2.1.1 Text length and format
+#### 9.2.1.1 Length and format
 {: id="9211-文本长度与格式"}
-- Min/max length filtering
-- Special characters, numbers, and punctuation ratio control
-- Uppercase letter density detection
-- Language detection (fastText, langdetect)
+- Minimum/maximum length filters
+- Limits on the ratio of special characters, digits, and punctuation
+- Uppercase density checks
+- Language identification (fastText, langdetect)
 
-#### 9.2.1.2 Duplicate content detection
+#### 9.2.1.2 Repeated content
 {: id="9212-重复内容检测"}
-- Line-level repetition, paragraph repetition
-- Template recognition (web page template, header and footer)
+- Repeated lines and paragraphs
+- Boilerplate detection (page templates, headers, and footers)
 
 ### 9.2.2 Model-based quality scoring
 {: id="922-基于模型的质量评分"}
 
 #### 9.2.2.1 Perplexity filtering
 {: id="9221-困惑度perplexity过滤"}
-- Scoring using small language models
-- Filter documents with excessive confusion (use caution)
+- Score documents with a small language model
+- Filter out documents with very high perplexity (use with care)
 
-#### 9.2.2.2 Quality classifier
+#### 9.2.2.2 Quality classifiers
 {: id="9222-质量分类器"}
-- Training data: manually labeled high-quality vs. low-quality samples
-- Features: Text fluency, information density, grammatical correctness
-- Model: FastText, BERT classifier
+- Training data: human-labeled high- vs. low-quality samples
+- Signals: fluency, information density, grammatical correctness
+- Models: fastText, BERT classifiers
 
-#### 9.2.2.3 Educational value score
+#### 9.2.2.3 Educational-value scoring
 {: id="9223-教育价值评分"}
-- Inspiration from the Phi Series: Assessing "Textbook Quality"
-- Typical approach (FineWeb-Edu): First use a strong model (Llama-3-70B-Instruct) to score "educational value" on a scale of 0-5 for about 450,000 web pages, then use these annotations to train a lightweight classifier, score the full amount of data and retain high-scoring documents
-- The data filtered out in this way can achieve the same effect with fewer tokens on knowledge and reasoning benchmarks such as MMLU and ARC.
+- Inspired by the Phi series: rate "textbook quality"
+- Typical recipe (FineWeb-Edu): have a strong model (Llama-3-70B-Instruct) rate about 450,000 web pages for "educational value" on a 0-5 scale, train a lightweight classifier on these labels, then score the full corpus and keep high-scoring documents
+- Data selected this way reaches the same results with fewer tokens on knowledge and reasoning benchmarks such as MMLU and ARC
 
 ### 9.2.3 Toxicity detection
 {: id="923-毒性与有害内容检测"}
 
-#### 9.2.3.1 Toxicity testing
+#### 9.2.3.1 Toxicity scoring
 {: id="9231-毒性检测"}
-- **Perspective API**: Google toxicity score API
-- **Detoxify**: Open source toxicity detection model
+- **Perspective API**: Google's toxicity scoring API
+- **Detoxify**: an open-source toxicity detection model
 
-#### 9.2.3.2 PII (Personally Identifiable Information) Removal
+#### 9.2.3.2 Removing PII (personally identifiable information)
 {: id="9232-pii个人身份信息去除"}
-- Name, address, phone number, email
-- Recognition using NER model
-- Password, key: regular expression matching
+- Names, addresses, phone numbers, email addresses
+- Detected with NER models
+- Passwords and keys: matched with regular expressions
 
 ## 9.3 Data deduplication
 {: id="93-数据去重"}
 
-Deduplication is the most critical data processing step, which can significantly improve model performance and reduce memory effects.
+Deduplication is the single most important data processing step: it markedly improves model quality and reduces memorization.
 
-### 9.3.1 Accurate deduplication
+### 9.3.1 Exact deduplication
 {: id="931-精确去重"}
-- **document level**: based on MD5/SHA256 hash
-- **Paragraph/line level**: Calculate hash for each paragraph, delete paragraphs that appear repeatedly in the corpus (CCNet's approach), and remove template text such as headers and footers.
-- **URL deduplication**: Handling redirects and normalization
+- **Document level**: MD5/SHA256 hashes
+- **Paragraph/line level**: hash each paragraph and drop paragraphs that recur across the corpus (the CCNet approach), removing boilerplate such as headers and footers
+- **URL deduplication**: handle redirects and URL normalization
 
 <div align="center">
-  <img src="/images/llm-training/minhash-deduplication.webp" width="85%" alt="CCNet processing flow" />
-<figcaption> Figure: CCNet's Common Crawl processing flow - first calculate paragraph hash for paragraph-level deduplication, then do language identification (LID) and language model perplexity scoring, and finally bucket by language and quality (Source: CCNet paper Figure 1)</figcaption>
+  <img src="/images/llm-training/minhash-deduplication.webp" width="85%" alt="CCNet processing pipeline" />
+<figcaption>Figure: CCNet's Common Crawl pipeline. Paragraph hashes drive paragraph-level deduplication, followed by language identification (LID) and language-model perplexity scoring, and finally bucketing by language and quality (source: CCNet paper, Figure 1)</figcaption>
 </div>
 
 ### 9.3.2 Fuzzy deduplication
@@ -4443,79 +4461,79 @@ Deduplication is the most critical data processing step, which can significantly
 
 #### 9.3.2.1 MinHash + LSH
 {: id="9321-minhash--lsh"}
-- Estimating Jaccard similarity
-- Steps: Generate shingles → MinHash signature → LSH to find similar pairs
-- Tools: datasketch library
+- Estimates Jaccard similarity
+- Steps: build shingles → MinHash signatures → LSH to find similar pairs
+- Tool: the datasketch library
 
 #### 9.3.2.2 SimHash
 {: id="9322-simhash"}
-- Quickly calculate document fingerprints
-- Hamming distance to determine similarity
+- Computes document fingerprints quickly
+- Uses Hamming distance to measure similarity
 
-#### 9.3.2.3 Suffix Array
+#### 9.3.2.3 Suffix arrays
 {: id="9323-suffix-array"}
-- Use suffix arrays to find long substrings that appear repeatedly in the corpus (Lee et al., 2022 uses 50 tokens as the threshold), and delete the substrings instead of the entire document
-- Suitable for removing long paragraphs (license text, templated content) that are copied and pasted across documents. This type of duplication cannot be found using document-level deduplication.
+- Use suffix arrays to find long substrings repeated across the corpus (Lee et al., 2022 use a 50-token threshold) and delete those substrings rather than whole documents
+- Well suited to removing long passages copied across documents (license text, templated content), which document-level deduplication cannot catch
 
 ### 9.3.3 Cross-dataset deduplication
 {: id="933-跨数据集去重"}
 
-#### 9.3.3.1 Deduplication of training set and test set
+#### 9.3.3.1 Deduplicating training and test sets
 {: id="9331-训练集与测试集去重"}
-- **Crucial**: Avoid data leaks
+- **Critical**: prevents data leakage
 - 13-gram overlap detection (GPT-3)
-- Affects the credibility of evaluations
+- Affects how trustworthy evaluations are
 
-### 9.3.4 Trade-off
+### 9.3.4 Trade-offs
 {: id="934-去重trade-off"}
-- Excessive deduplication: loss of diversity
-- Missing duplicates: wasting resources and increasing memory risks
-- Balance point: Adjust according to the task
+- Too much deduplication: lost diversity
+- Too little: wasted compute and more memorization risk
+- The right balance depends on the task
 
-## 9.4 Data proportioning and sampling
+## 9.4 Data mixing and sampling
 {: id="94-数据配比与采样"}
 
-### 9.4.1 Static proportioning strategy
+### 9.4.1 Static mixtures
 {: id="941-静态配比策略"}
 
-**GPT-3 ratio example**:
+**Example: the GPT-3 mixture**:
 
 ```mermaid
-pie title GPT-3pretraining data matching
+pie title GPT-3 pretraining data mixture
     "Common Crawl" : 60
     "WebText2" : 22
     "Books" : 16
     "Wikipedia" : 3
 ```
 
-**LLaMA-1 ratio** (sampling ratio, total about 1.4T tokens):
+**The LLaMA-1 mixture** (sampling proportions, about 1.4T tokens in total):
 
-|data source|Sampling ratio|Corresponding number of Tokens (×1.4T)|Description|
+|Data source|Sampling proportion|Tokens (×1.4T)|Notes|
 |--------|------|-----------|------|
-| CommonCrawl | 67.0% | ~938B |Web data, highest diversity|
-| C4 | 15.0% | ~210B |Cleaned web page data|
-| GitHub | 4.5% | ~63B |code data|
-| Wikipedia | 4.5% | ~63B |High-quality encyclopedia knowledge (approximately 2.45 epochs of training)|
-| Books | 4.5% | ~63B |Long text, narrative ability (about 2.23 epochs)|
-| ArXiv | 2.5% | ~35B |Mathematics, scientific reasoning|
-| StackExchange | 2.0% | ~28B |Professional Q&A|
+| CommonCrawl | 67.0% | ~938B |Web data, the most diverse|
+| C4 | 15.0% | ~210B |Cleaned web data|
+| GitHub | 4.5% | ~63B |Code|
+| Wikipedia | 4.5% | ~63B |High-quality encyclopedic knowledge (about 2.45 epochs)|
+| Books | 4.5% | ~63B |Long-form text, narrative ability (about 2.23 epochs)|
+| ArXiv | 2.5% | ~35B |Math and scientific reasoning|
+| StackExchange | 2.0% | ~28B |Expert Q&A|
 
-The final mix of **Llama 3** (by content type): approximately 50% General Knowledge, 25% Mathematics and Reasoning, 17% Code, 8% Multilingual. Compared with LLaMA-1, the ratio of mathematics to code has increased significantly, which is directly related to the fact that reasoning ability has become the focus of competition.
+**Llama 3**'s final mixture (by content type) is roughly 50% general knowledge, 25% math and reasoning, 17% code, and 8% multilingual. Compared with LLaMA-1, the share of math and code has risen sharply, a direct reflection of reasoning becoming the main axis of competition.
 
-**builds batch** according to the proportion (illustration):
+**Building batches by proportion** (illustrative):
 ```python
 data_mixture = {
-    'common_crawl': 0.67,    # Web page data - general language skills
-    'c4': 0.15,              # Cleaned web page data
-    'github': 0.045,         # code - Programming ability
-    'wikipedia': 0.045,      # Encyclopedia - factual knowledge
-    'books': 0.045,          # books - long text
-    'arxiv': 0.025,          # Paper - scientific reasoning
-    'stackexchange': 0.02,   # Q&A - QAAbility
+    'common_crawl': 0.67,    # web data: general language ability
+    'c4': 0.15,              # cleaned web data
+    'github': 0.045,         # code: programming ability
+    'wikipedia': 0.045,      # encyclopedia: factual knowledge
+    'books': 0.045,          # books: long-form text
+    'arxiv': 0.025,          # papers: scientific reasoning
+    'stackexchange': 0.02,   # Q&A: question answering
 }
 
 def sample_batch(data_mixture, batch_size):
-    """Build training batches proportionally"""
+    """Build a training batch according to the mixture proportions"""
     batch = []
     for source, weight in data_mixture.items():
         n_samples = int(batch_size * weight)
@@ -4523,175 +4541,175 @@ def sample_batch(data_mixture, batch_size):
     return batch
 ```
 
-**proportioning principle**:
-- **High-Quality Data Rights Elevation**: Although Wikipedia, Books, and ArXiv account for a small proportion, they will be repeatedly sampled for multiple epochs.
-- **Separate control of code and mathematics**: from about 5% of LLaMA-1 to more than 40% of Llama 3 (code + mathematical reasoning), improving reasoning ability but avoiding crowding out general knowledge
-- **Q&A data is small but important**: StackExchange and other Q&A data cultivate Q&A capabilities
-- **Diversity first**: Web data dominates to ensure breadth of knowledge
+**Mixing principles**:
+- **Upweight high-quality data**: Wikipedia, Books, and ArXiv are small shares but are sampled for multiple epochs
+- **Control code and math separately**: from about 5% in LLaMA-1 to over 40% in Llama 3 (code + math reasoning), boosting reasoning without crowding out general knowledge
+- **Q&A data is small but important**: StackExchange and similar sources build question-answering ability
+- **Diversity first**: web data dominates to ensure breadth of knowledge
 
-### 9.4.2 Dynamic proportioning strategy
+### 9.4.2 Dynamic mixtures
 {: id="942-动态配比策略"}
 
-#### 9.4.2.1 Training phase adjustment
+#### 9.4.2.1 Adjusting by training phase
 {: id="9421-训练阶段调整"}
-- **early stage (0-70%)**: balanced ratio
-- **Mid-term (70-90%)**: Improving high-quality data
-- **late stage (90-100%)**: focus on professional data
+- **Early (0-70%)**: balanced mixture
+- **Middle (70-90%)**: more high-quality data
+- **Late (90-100%)**: focus on specialized data
 
-#### 9.4.2.2 Loss-based adjustments
+#### 9.4.2.2 Loss-based adjustment
 {: id="9422-基于损失的调整"}
-- Monitor losses from different data sources
-- dynamic rebalancing
+- Track the loss on each data source
+- Rebalance dynamically
 
 ### 9.4.3 Curriculum learning
 {: id="943-课程学习"}
-- From easy to difficult: Sort by confusion
-- From general to professional
+- Easy to hard: order by perplexity
+- General to specialized
 
-### 9.4.4 Temperature Sampling
+### 9.4.4 Temperature sampling
 {: id="944-temperature-sampling"}
 
-Sampling probability calculation formula:
+Sampling probability:
 
 $$
 p_i = \frac{n_i^{\alpha}}{\sum_j n_j^{\alpha}}
 $$
 
-Here:
-- $n_i$: The original sample number of data source $i$
-- $\alpha$: Temperature parameters
-- $\alpha < 1$: Improve sampling probability of small data sources (up-sampling)
-- $\alpha > 1$: Reduce the sampling probability of small data sources (down-sampling)
-- $\alpha = 1$: Sampling according to original ratio
+where:
+- $n_i$: the number of samples in data source $i$
+- $\alpha$: the temperature parameter
+- $\alpha < 1$: raises the sampling probability of small sources (upsampling)
+- $\alpha > 1$: lowers the sampling probability of small sources (downsampling)
+- $\alpha = 1$: samples in the original proportions
 
 ## 9.5 Tokenization
 {: id="95-tokenization"}
 
-### 9.5.1 Algorithm selection
+### 9.5.1 Choosing an algorithm
 {: id="951-算法选择"}
 
-- **BPE (Byte Pair Encoding)**: GPT series, LLaMA full series
-  - Iteratively merge high-frequency pairs starting from characters (or bytes)
-  - Byte-level BPE (from GPT-2, Llama 3's tiktoken tokenizer) uses bytes as the basic unit, and naturally has no unregistered words.
-- **WordPiece**: BERT, select the merge pair according to the principle of maximizing the likelihood of corpus after merging.
-- **Unigram**: T5, starting from the large word list and gradually pruning according to likelihood
-- **SentencePiece**: It is not a new algorithm, but a tool library that implements BPE and Unigram at the same time; it is trained directly on the original text and does not rely on space word segmentation. It is suitable for multi-language scenarios such as Chinese and Japanese (used by LLaMA-1/2 and T5)
+- **BPE (Byte Pair Encoding)**: the GPT series and every LLaMA generation
+  - Starts from characters (or bytes) and repeatedly merges the most frequent pairs
+  - Byte-level BPE (introduced with GPT-2; used by Llama 3's tiktoken tokenizer) treats bytes as the basic unit, so there are never out-of-vocabulary words
+- **WordPiece**: BERT; chooses each merge to maximize the likelihood of the corpus after merging
+- **Unigram**: T5; starts from a large vocabulary and prunes it step by step by likelihood
+- **SentencePiece**: not a new algorithm but a library implementing both BPE and Unigram. It trains directly on raw text without relying on whitespace segmentation, which suits multilingual settings such as Chinese and Japanese (used by LLaMA-1/2 and T5)
 
 ### 9.5.2 Vocabulary size
 {: id="952-词表大小"}
-- English mainly: 32k-50k
+- English-centric: 32k-50k
 - Multilingual: 100k - 256k (128K for Llama 3, ~151K for Qwen, 256K for Gemma)
-- Code Model: Larger Vocabulary
+- Code models: larger vocabularies
 
 **Trade-off**:
-- The vocabulary list is too small: the sequence is long and training is slow
-- The vocabulary is too large: there are too many embedding parameters and they are sparse.
+- Too small: longer sequences and slower training
+- Too large: too many embedding parameters, many of them rarely trained
 
-### 9.5.3 Special Token
+### 9.5.3 Special tokens
 {: id="953-特殊token"}
 - Standard: `<bos>`, `<eos>`, `<pad>`, `<unk>`
 - Dialogue: `<|user|>`, `<|assistant|>`, `<|system|>`
-- Multi-modal: `<image>`, `<video>`
+- Multimodal: `<image>`, `<video>`
 
-### 9.5.4 Best Practices
+### 9.5.4 Best practices
 {: id="954-最佳实践"}
-- Pretraining, fine-tuning, and inference use the same tokenizer
+- Use the same tokenizer for pretraining, fine-tuning, and inference
 - Pre-tokenize and cache
-- Use fast tokenizer (Rust implementation)
-- Number of multi-language balancing tokens
+- Use a fast tokenizer (Rust implementation)
+- Balance token counts across languages
 
 ---
 
-# 10. Assessment and Benchmarking
+# 10. Evaluation and benchmarks
 {: id="10-评估与基准测试"}
 
-The evaluation system is an important tool to measure training effectiveness and guide training direction. This chapter introduces commonly used evaluation benchmarks in large model training.
+Evaluation is how we measure whether training worked and decide where to take it next. This chapter covers the benchmarks commonly used in LLM training.
 
 ## 10.1 Language understanding and knowledge
 {: id="101-语言理解与知识"}
 
 ### 10.1.1 MMLU
 {: id="1011-mmlu"}
-- **Content**: Multiple choice questions in 57 subjects (mathematics, history, law, medicine, etc.)
-- **Scale**: ~16,000 questions
-- **Assessment Dimensions**: Breadth of knowledge, interdisciplinary understanding
-- **Difficulty**: College to professional level
-- **Meaning**: General knowledge reserve of measurement model
+- **Content**: multiple-choice questions across 57 subjects (math, history, law, medicine, and more)
+- **Size**: ~16,000 questions
+- **Measures**: breadth of knowledge and cross-disciplinary understanding
+- **Difficulty**: undergraduate to professional level
+- **Why it matters**: gauges the model's general knowledge
 
 ### 10.1.2 HellaSwag
 {: id="1012-hellaswag"}
-- **Task**: Common sense reasoning sentence completion
-- **Method**: Choose the most reasonable sentence ending from 4 options
-- **Features**: Easy for humans (~95%), difficult for early models
-- **Assessment**: Common sense understanding and situational reasoning
+- **Task**: commonsense sentence completion
+- **Format**: pick the most plausible ending from 4 options
+- **Notes**: easy for humans (~95%), hard for early models
+- **Measures**: commonsense understanding and situational reasoning
 
 ### 10.1.3 TruthfulQA
 {: id="1013-truthfulqa"}
-- **Objective**: Evaluate the authenticity of the model output
-- **Design**: Questions containing common misunderstandings and false information
-- **Evaluation Dimensions**:
-  - Whether the model repeats errors in the training data
-  - Will it cause hallucination?
-- **Importance**: Measuring model reliability
+- **Goal**: assess whether model outputs are truthful
+- **Design**: questions built around common misconceptions and false information
+- **Measures**:
+  - Whether the model repeats falsehoods from its training data
+  - Whether it hallucinates
+- **Why it matters**: gauges model reliability
 
 ### 10.1.4 ARC
 {: id="1014-arc"}
-- **Content**: Elementary school science examination questions
-- **difficulty**: Easy and Challenge versions
-- **Assessment**: Scientific reasoning and application of knowledge
+- **Content**: grade-school science exam questions
+- **Difficulty**: Easy and Challenge sets
+- **Measures**: scientific reasoning and applying knowledge
 
-## 10.2 Reasoning skills
+## 10.2 Reasoning
 {: id="102-推理能力"}
 
 ### 10.2.1 GSM8K
 {: id="1021-gsm8k"}
-- **Task**: Primary school mathematics application questions
-- **Scale**: 8,500 questions
-- **Features**: requires multi-step reasoning
-- **evaluation method**:
-  - Direct answer evaluation
-  - Chain-of-Thought reasoning process assessment
-- **Meaning**: Measures basic mathematical reasoning ability
+- **Task**: grade-school math word problems
+- **Size**: 8,500 problems
+- **Notes**: requires multi-step reasoning
+- **Evaluation**:
+  - Scoring the final answer directly
+  - Scoring chain-of-thought reasoning
+- **Why it matters**: gauges basic mathematical reasoning
 
 ### 10.2.2 MATH
 {: id="1022-math"}
-- **Difficulty**: High school to college competition level mathematics
-- **Scale**: 12,500 questions
-- **Subject**: algebra, geometry, probability, number theory, etc.
-- **Assessment**: Complex mathematical reasoning and problem solving
-- **challenges**: Even the strongest model has difficulty reaching high scores
+- **Difficulty**: high-school to college competition math
+- **Size**: 12,500 problems
+- **Topics**: algebra, geometry, probability, number theory, and more
+- **Measures**: complex mathematical reasoning and problem solving
+- **Challenge**: even the strongest models struggled to score highly
 
 ### 10.2.3 HumanEval
 {: id="1023-humaneval"}
-- **Task**: Python function implementation
-- **Scale**: 164 programming questions
-- **evaluation method**: unit test pass rate (pass@k)
-- **Features**:
-  - Independent function, not involved in complex systems
-  - Clear input and output specifications
-- **variant**: HumanEval+ (more rigorous testing)
+- **Task**: implement Python functions
+- **Size**: 164 programming problems
+- **Evaluation**: unit-test pass rate (pass@k)
+- **Notes**:
+  - Self-contained functions, no complex systems
+  - Clearly specified inputs and outputs
+- **Variant**: HumanEval+ (more rigorous tests)
 
 ### 10.2.4 MBPP
 {: id="1024-mbpp"}
-- **Scale**: 1,000 Python Programming Questions
-- **Difficulty**: Beginner to Intermediate
-- **Evaluation**: Practical Programming Ability
+- **Size**: 1,000 Python programming problems
+- **Difficulty**: beginner to intermediate
+- **Measures**: practical programming ability
 
 ### 10.2.5 BigCodeBench
 {: id="1025-bigcodebench"}
-- **Features**: More complex real-world programming tasks
-- **Evaluation**: Tool usage, API calls, complex logic
+- **Notes**: more complex, realistic programming tasks
+- **Measures**: tool use, API calls, complex logic
 
 ### 10.2.6 Benchmarks for reasoning models
 {: id="1026-推理模型时代的新基准"}
 
-Classic benchmarks such as GSM8K and HumanEval have been "full" by cutting-edge models (accuracy rates generally exceed 90%), their discrimination has declined, and they are more susceptible to training data pollution. The evaluation of inference models and agents turns to harder and newer benchmarks:
+Classic benchmarks such as GSM8K and HumanEval are saturated by frontier models (accuracy generally above 90%), so they discriminate less and are more exposed to training-data contamination. Evaluation of reasoning models and agents has moved to harder, newer benchmarks:
 
-- **AIME**: American Mathematics Invitational Competition real questions, 30 questions each year, often evaluated with new questions of the year to avoid contamination
-- **GPQA Diamond**: 198 graduate-level multiple-choice questions in physics, chemistry, and biology, specially designed to not be answered by search engines (Google-proof)
-- **LiveCodeBench**: Continuously collect new questions from the programming competition platform, filter by question release time, and alleviate data pollution
-- **SWE-bench Verified**: 500 real GitHub issues that have been manually confirmed and solvable, requiring the model to modify the code repository and pass the test. It is the mainstream benchmark for programming agents.
-- **Humanity's Last Exam (HLE)**: About 2,500 expert-level questions covering dozens of disciplines. The accuracy of cutting-edge models at the time of release is generally less than 10%
+- **AIME**: real problems from the American Invitational Mathematics Examination, 30 per year; the current year's problems are often used to avoid contamination
+- **GPQA Diamond**: 198 graduate-level multiple-choice questions in physics, chemistry, and biology, designed so that a search engine cannot answer them (Google-proof)
+- **LiveCodeBench**: continuously collects new problems from competitive programming platforms and filters by release date to limit contamination
+- **SWE-bench Verified**: 500 real GitHub issues that humans have confirmed to be solvable; the model must modify the repository so that the tests pass. It is the mainstream benchmark for coding agents.
+- **Humanity's Last Exam (HLE)**: about 2,500 expert-level questions across dozens of disciplines; frontier models generally scored under 10% when it was released
 
 ### 10.2.7 Agent benchmarks
 {: id="1027-agent-基准"}
@@ -4705,213 +4723,213 @@ Agent benchmarks do not grade a single answer; they grade whether a model acting
 
 Agent scores are very sensitive to the **scaffold** (prompt, tool set, context management, step limit). The same model can differ by more than ten percentage points across scaffolds, so when comparing models, make sure they used the same scaffold and the same number of attempts.
 
-## 10.3 Multilingual capabilities
+## 10.3 Multilingual ability
 {: id="103-多语言能力"}
 
 ### 10.3.1 FLORES
 {: id="1031-flores"}
-- **Task**: Machine Translation
-- **covers**: 200+ language pairs
-- **Assessment**: Cross-language understanding and generation
-- **Importance**: Measuring multi-language model capabilities
+- **Task**: machine translation
+- **Coverage**: 200+ languages
+- **Measures**: cross-lingual understanding and generation
+- **Why it matters**: gauges multilingual capability
 
 ### 10.3.2 XNLI
 {: id="1032-xnli"}
-- **Task**: Natural language reasoning (implication, contradiction, neutrality)
-- **Language**: 15 languages
-- **evaluation**: zero-sample cross-language transfer capability
+- **Task**: natural language inference (entailment, contradiction, neutral)
+- **Languages**: 15
+- **Measures**: zero-shot cross-lingual transfer
 
 ### 10.3.3 Belebele
 {: id="1033-belebele"}
-- **Task**: Reading Comprehension
-- **covers**: 122 languages
-- **Evaluation**: Broad multi-language understanding
+- **Task**: reading comprehension
+- **Coverage**: 122 languages
+- **Measures**: broad multilingual understanding
 
-## 10.4 Long text capabilities
+## 10.4 Long-context ability
 {: id="104-长文本能力"}
 
 ### 10.4.1 RULER
 {: id="1041-ruler"}
-- **Task type**:
-  - Information retrieval (Needle in a Haystack)
-  - multi-hop reasoning
-  - aggregate statistics
-- **length**: 4k to 128k+ tokens
-- **Evaluation**: Long context modeling capabilities
+- **Task types**:
+  - Retrieval (needle in a haystack)
+  - Multi-hop reasoning
+  - Aggregation
+- **Length**: 4k to 128k+ tokens
+- **Measures**: long-context modeling
 
 ### 10.4.2 LongBench
 {: id="1042-longbench"}
-- **Task**: single document/multi-document QA, summary, code, etc.
-- **length**: average 5-15k tokens
-- **Language**: English and Chinese
-- **Evaluation**: Real long text application scenarios
+- **Tasks**: single- and multi-document QA, summarization, code, and more
+- **Length**: 5-15k tokens on average
+- **Languages**: English and Chinese
+- **Measures**: realistic long-context applications
 
 ### 10.4.3 Needle in a haystack
 {: id="1043-大海捞针"}
-- **Design**: Insert key information in long text
-- **Test**: Can the model be retrieved accurately?
-- **variant**:
-  - Single needle
-  - Many needles
-  - different locations and depths
+- **Design**: insert a key fact into a long text
+- **Test**: can the model retrieve it accurately?
+- **Variants**:
+  - A single needle
+  - Multiple needles
+  - Different positions and depths
 
-## 10.5 Security Assessment
+## 10.5 Safety evaluation
 {: id="105-安全性评估"}
 
 ### 10.5.1 ToxiGen
 {: id="1051-toxigen"}
-- **Objective**: Detection of harmful content generation tendency and ability to identify implicit hate speech
-- **method**: About 270,000 statements about 13 minority groups (50% toxic and 50% non-toxic) generated by GPT-3 adversarial style, most of which do not contain explicit swear words
-- **Evaluation Dimensions**:
+- **Goal**: test a model's tendency to generate harmful content and its ability to recognize implicit hate speech
+- **Method**: about 270,000 statements about 13 minority groups (half toxic, half benign), generated adversarially with GPT-3; most contain no explicit slurs
+- **Dimensions**:
   - Toxicity
-  - hate speech
-  - violent content
+  - Hate speech
+  - Violent content
 
 ### 10.5.2 BBQ
 {: id="1052-bbq"}
-- **Task**: Detect social bias
-- **Dimension**:
-  - gender
-  - race
-  - religion
-  - age
-  - Sexual orientation, etc.
-- **Method**: Fuzzy and explicit context comparison
+- **Task**: detect social bias
+- **Dimensions**:
+  - Gender
+  - Race
+  - Religion
+  - Age
+  - Sexual orientation, and others
+- **Method**: compare ambiguous and disambiguated contexts
 
 ### 10.5.3 SafetyBench
 {: id="1053-safetybench"}
-- **covers**: multiple types of security risks
-- **Language**: Chinese and English
-- **Evaluation**: Ability to refuse to answer inappropriate requests
+- **Coverage**: many categories of safety risk
+- **Languages**: Chinese and English
+- **Measures**: ability to decline inappropriate requests
 
 ### 10.5.4 Red teaming
 {: id="1054-红队测试"}
 
-Static security benchmarks (ToxiGen, BBQ, SafetyBench) can only cover known risk patterns in the test set; **Red Teaming** It is the process of actively looking for unknown vulnerabilities in the model, and it is the "adversarial testing" link that is as important as "training" in the security alignment process.
+Static safety benchmarks (ToxiGen, BBQ, SafetyBench) only cover the risk patterns already in their test sets. **Red teaming** actively hunts for unknown vulnerabilities in a model; in safety alignment, this adversarial testing matters as much as the training itself.
 
-#### 10.5.4.1 Manual Red Team vs Automated Red Team
+#### 10.5.4.1 Human vs. automated red teaming
 {: id="10541-人工红队-vs-自动化红队"}
 
-|way|practice|Advantages|limitations|
+|Approach|How it works|Strengths|Limitations|
 |------|------|------|------|
-|**Artificial red team**|Recruit professional testers to manually construct offensive prompts|Strong creativity and able to discover novel attack patterns|High cost, limited coverage, and difficult to scale|
-|**Automation Red Team**|Automatically generate attack prompts with another LLM (Red Team LLM vs Target LLM)|Capable of large-scale parallelization and continuous iteration|Attack patterns may be limited to Red Team LLM's own "imagination"|
+|**Human red teaming**|Professional testers write adversarial prompts by hand|Creative; finds novel attack patterns|Expensive, limited coverage, hard to scale|
+|**Automated red teaming**|Another LLM generates attack prompts automatically (red-team LLM vs. target LLM)|Massively parallel and continuously iterable|Attacks may be limited by the red-team LLM's own "imagination"|
 
-#### 10.5.4.2 Typical processes of automated red teams
+#### 10.5.4.2 A typical automated red-teaming loop
 {: id="10542-自动化红队的典型流程"}
 
 ```
-1. Red Team LLM Depending on the attack target (e.g."Inducing the model to output poison-making methods")Generate candidates Prompt
-2. Target LLM to candidates Prompt generate answer
-3. classifier/The discriminant model determines whether the answer is"Jailbreak successful"(Content that should not be output is output)
-4. Will jailbreak successfully (Prompt, answer) as negative samples for subsequent safety SFT/DPO training
-5. Repeat iteration:Red Team LLM Adjust the attack strategy according to the success rate (such as using more subtle words, role-playing packaging)
+1. The red-team LLM generates candidate prompts for an attack goal (e.g. "get the model to explain how to make poison")
+2. The target LLM answers each candidate prompt
+3. A classifier or judge model decides whether the answer is a "successful jailbreak" (content that should not have been produced)
+4. Successful jailbreaks (prompt, answer) become negative examples for later safety SFT/DPO training
+5. Iterate: the red-team LLM adjusts its strategy based on the success rate (e.g. subtler wording, role-play framing)
 ```
 
-This process is consistent with the idea of "verifier-driven data flywheel" in Section 4.7 - except that the verifier changes from "correct answer" to "whether the jailbreak is successful". Red team testing is essentially a data flywheel: automatically discover vulnerabilities → generate targeted training data → patch the model → the red team continues to find new vulnerabilities.
+This loop follows the same idea as the "verifier-driven data flywheel" in Section 4.7, except that the verifier checks "did the jailbreak succeed" instead of "is the answer correct". Red teaming is essentially a data flywheel: automatically find vulnerabilities → generate targeted training data → patch the model → the red team keeps looking for new holes.
 
-#### 10.5.4.3 Common Jailbreak attack modes
+#### 10.5.4.3 Common jailbreak patterns
 {: id="10543-常见越狱jailbreak攻击模式"}
 
-- **Role-playing inducement**: Requiring the model to "play an AI without any restrictions" or fictitious scenarios to bypass security restrictions
-- **instruction injection**: Gradually guide in long context or multiple rounds of dialogue, making the model relax its vigilance in subsequent rounds
-- **encoding confusion**: Using encoding methods such as Base64, Pinyin, and rare characters to bypass keyword-based security filtering
-- **Multilingual attack**: Use model security alignment to cover weak minority languages to make harmful requests
-- **Academic/fiction packaging**: Packaging harmful requests into seemingly reasonable scenarios such as "novel creation", "academic research", "security research" (echoing the precise rejection problem mentioned in Section 4.5.5 "Alignment Tax and Reasoning Conflict")
+- **Role-play**: ask the model to "play an AI with no restrictions" or set up a fictional scenario to get around safety restrictions
+- **Instruction injection**: lead the model gradually through a long context or many turns so it lets its guard down in later turns
+- **Encoding obfuscation**: use Base64, pinyin, rare characters, and other encodings to slip past keyword-based safety filters
+- **Multilingual attacks**: make harmful requests in low-resource languages where safety alignment is weaker
+- **Academic or fiction framing**: wrap harmful requests in plausible-looking contexts such as "writing a novel", "academic research", or "security research" (see the over-refusal problem in Section 4.5.5, "Alignment tax and reasoning conflicts")
 
-#### 10.5.4.4 Defense training closed loop
+#### 10.5.4.4 Closing the loop with defensive training
 {: id="10544-防御训练闭环"}
 
-The vulnerabilities discovered by the red team testing will eventually be returned to the training process to be fixed. Common methods are:
-- Add the jailbreak sample to the negative sample of DPO/RLHF (chosen=refuse to answer, rejected=induced harmful answer)
-- In the SFT stage, samples for "identifying disguised intentions" are added to train the model to penetrate the packaging and identify the true request nature.
-- Continuous red team testing + periodic security regression assessment to prevent degradation in other dimensions after patching one type of vulnerability (see the case of security capability collapse in Chapter 5 "catastrophic forgetting")
+Vulnerabilities found by red teaming are ultimately fed back into training. Common methods:
+- Add jailbreak examples as DPO/RLHF preference pairs (chosen = refusal, rejected = the elicited harmful answer)
+- Add SFT examples that teach the model to "see through disguised intent", so it recognizes what is really being asked
+- Run red teaming continuously alongside periodic safety regression tests, so that patching one class of vulnerability does not degrade other dimensions (see the safety-collapse case under "catastrophic forgetting" in Chapter 5)
 
-> **Industry practice**: Anthropic, OpenAI and other companies will introduce third-party red team testing (External Red Teaming) before model release. Its logic is similar to penetration testing (Penetration Testing) in software security testing - internal teams often have mindsets, and it is easier to discover unexpected attack surfaces from an external perspective.
+> **Industry practice**: Anthropic, OpenAI, and other labs bring in external red teams before releasing a model. The logic resembles penetration testing in software security: internal teams tend to share blind spots, and outsiders are better at finding unexpected attack surfaces.
 
 ## 10.6 Alignment evaluation
 {: id="106-对齐评估"}
 
 ### 10.6.1 MT-Bench
 {: id="1061-mt-bench"}
-- **Task**: Multi-round dialogue evaluation
-- **Judge**: Using GPT-4 as the judge
-- **dimension**:
-  - writing
-  - role play
-  - reasoning
-  - Mathematics
-  - Programming etc.
+- **Task**: multi-turn dialogue evaluation
+- **Judge**: GPT-4
+- **Categories**:
+  - Writing
+  - Role play
+  - Reasoning
+  - Math
+  - Coding, and more
 
 ### 10.6.2 AlpacaEval
 {: id="1062-alpacaeval"}
-- **method**: Compare the answers with the reference model in pairs, and the LLM judges will judge the winner (AlpacaEval 2.0 uses GPT-4 Turbo as the reference and judge)
-- **Evaluation**: Instruction following quality
-- **outputs**: winning rate (Win Rate); version 2.0 additionally reports **length control winning rate (LC Win Rate)**, to offset the bias of judges preferring long answers
+- **Method**: compare answers pairwise against a reference model, with an LLM judge picking the winner (AlpacaEval 2.0 uses GPT-4 Turbo as both reference and judge)
+- **Measures**: instruction-following quality
+- **Output**: win rate; version 2.0 also reports a **length-controlled win rate (LC Win Rate)** to offset the judge's bias toward longer answers
 
 ### 10.6.3 Chatbot Arena
 {: id="1063-chatbot-arena"}
-- **Method**: Real users blindly vote on the answers of two anonymous models, using the Bradley-Terry model to calculate the Elo-style score
-- **Features**: Continuously updated real-time rankings, renamed LMArena from 2025
-- Meaning of : reflects real user preferences (but will also be affected by answer style, length and format)
+- **Method**: real users vote blind on answers from two anonymous models, and a Bradley-Terry model turns the votes into Elo-style scores
+- **Notes**: a continuously updated live leaderboard, renamed LMArena in 2025
+- **Why it matters**: reflects real user preferences (though also swayed by answer style, length, and formatting)
 
-## 10.7 Comprehensive evaluation platform
+## 10.7 Evaluation frameworks
 {: id="107-综合评测平台"}
 
 ### 10.7.1 LM Evaluation Harness
 {: id="1071-lm-evaluation-harness"}
-- **Maintenance**: Eleuther AI
+- **Maintainer**: EleutherAI
 - **Features**:
-  - unified interface
-  - Supports dozens of benchmarks
-  - Standardized evaluation process
-- **uses**: widely adopted by the research community, and the Hugging Face Open LLM Leaderboard is based on it; see section 8.5.2.2 for usage examples
+  - A unified interface
+  - Dozens of supported benchmarks
+  - Standardized evaluation procedures
+- **Usage**: widely used in the research community and the basis of the Hugging Face Open LLM Leaderboard; see Section 8.5.2.2 for an example
 
 ### 10.7.2 HELM
 {: id="1072-helm"}
-- **dimension**:
+- **Dimensions**:
   - Accuracy
   - Robustness
-  - fairness
-  - Prejudice
-  - efficiency
-- **Features**: Multi-dimensional comprehensive evaluation
+  - Fairness
+  - Bias
+  - Efficiency
+- **Features**: holistic, multi-dimensional evaluation
 
 ### 10.7.3 OpenCompass
 {: id="1073-opencompass"}
-- **maintenance**: Shanghai AI Lab
+- **Maintainer**: Shanghai AI Lab
 - **Features**:
-  - Chinese optimization
-  - Support large-scale evaluation
-  - Visualized rankings
+  - Strong Chinese-language coverage
+  - Large-scale evaluation
+  - Visual leaderboards
 
-## 10.8 Best Practices for Evaluation
+## 10.8 Evaluation best practices
 {: id="108-评测的最佳实践"}
 
-### 10.8.1 Avoiding data leakage
+### 10.8.1 Avoid data leakage
 {: id="1081-避免数据泄露"}
-- Strictly deduplicate training data and test sets
+- Strictly deduplicate training data against test sets
 - Use newly released benchmarks
-- Regularly update the review set
+- Refresh evaluation sets regularly
 
-### 10.8.2 Multi-dimensional assessment
+### 10.8.2 Evaluate along many dimensions
 {: id="1082-多维度评估"}
-- Don’t rely on a single metric
-- Comprehensive consideration of performance, safety and efficiency
-- Focus on long-tail capabilities and edge cases
+- Don't rely on a single metric
+- Weigh capability, safety, and efficiency together
+- Pay attention to long-tail abilities and edge cases
 
 ### 10.8.3 Evaluation and training
 {: id="1083-评测与训练的关系"}
-- Evaluation results guide training direction
-- Avoid over-optimizing against benchmarks (swiping the rankings)
-- Pay attention to actual application scenario performance
+- Let evaluation results guide training
+- Avoid overfitting to benchmarks (leaderboard chasing)
+- Track performance in real applications
 
 ---
 
 # 11. Practical guide
 {: id="11-实践指南与最佳实践"}
 
-This chapter provides engineering guidance for practical training of large models, including hardware configuration, cost estimation, monitoring and debugging, and code examples.
+This chapter gives engineering guidance for training LLMs in practice: hardware configuration, cost estimation, monitoring and debugging, and code examples.
 
 ## 11.1 Hardware recommendations
 {: id="111-硬件配置建议"}
@@ -4919,182 +4937,182 @@ This chapter provides engineering guidance for practical training of large model
 ### 11.1.1 Configurations by model size
 {: id="1111-不同规模的推荐配置"}
 
-|Model size|Parameter quantity|Recommended GPU|Quantity|GPU memory requirements|Internet|Applicable scenarios|
+|Model size|Parameters|Recommended GPU|Count|GPU memory|Interconnect|Typical use|
 |---------|--------|---------|------|---------|---------|---------|
-|**MiniMind**| 26M-500M | RTX 3060/4060 | 1 | 8GB+ | PCIe 3.0 |Learning principles, rapid verification|
-|**Small**| 1-3B | RTX 4090 | 4-8 | 24GB | PCIe 4.0 |Research, prototype development|
+|**MiniMind**| 26M-500M | RTX 3060/4060 | 1 | 8GB+ | PCIe 3.0 |Learning the principles, quick experiments|
+|**Small**| 1-3B | RTX 4090 | 4-8 | 24GB | PCIe 4.0 |Research, prototyping|
 |**Medium**| 7-13B | A100 | 16-32 | 40GB/80GB | InfiniBand |Enterprise applications|
-|**Large**| 30-70B | A100/H100 | 64-256 | 80GB | InfiniBand |Production grade model|
-|**Extra large**| 175B+ | H100 | 512-4096 | 80GB | InfiniBand/NVLink |Cutting edge research|
+|**Large**| 30-70B | A100/H100 | 64-256 | 80GB | InfiniBand |Production models|
+|**Very large**| 175B+ | H100 | 512-4096 | 80GB | InfiniBand/NVLink |Frontier research|
 
-### 11.1.2 GPU Selection Guide
+### 11.1.2 Choosing a GPU
 {: id="1112-gpu选择指南"}
 
-**training scene**:
-- **Getting Started/Personal Practice**: RTX 3060 (12GB) / 4060 Ti (16GB) - can completely run through SLM projects such as MiniMind.
-- **Budget limited**: RTX 4090 (24GB, cost-effective, suitable for small models and LoRA fine-tuning)
-- **Enterprise-level training**: A100 (80GB, mature and stable, complete ecosystem)
-- **latest flagship**: H100 (80GB, strongest performance, FP8 support, suitable for large-scale training)
+**For training**:
+- **Getting started / personal projects**: RTX 3060 (12GB) / 4060 Ti (16GB), enough to run small-model projects such as MiniMind end to end
+- **Limited budget**: RTX 4090 (24GB, good value, suited to small models and LoRA fine-tuning)
+- **Enterprise training**: A100 (80GB, mature, stable, complete ecosystem)
+- **Current flagship**: H100 (80GB, fastest, FP8 support, suited to large-scale training)
 
-**Network interconnection**:
-- **Intra-node communication**: NVLink (900GB/s) > PCIe 5.0 (128GB/s)
-- **Inter-node communication**: InfiniBand (200-400Gb/s) > Ethernet (100Gb/s)
+**Interconnect**:
+- **Within a node**: NVLink (900GB/s) > PCIe 5.0 (128GB/s)
+- **Across nodes**: InfiniBand (200-400Gb/s) > Ethernet (100Gb/s)
 
 
 ## 11.2 Training cost estimation
 {: id="112-训练成本估算"}
 
-### 11.2.1 Cost composition
+### 11.2.1 Where the money goes
 {: id="1121-成本构成"}
 
 ```mermaid
-pie title Large model training cost composition
-    "GPUrent/depreciation" : 70
-    "Power and Cooling" : 15
-    "Storage and Networking" : 5
-    "Labor cost" : 8
-    "Others" : 2
+pie title LLM training cost breakdown
+    "GPU rental/depreciation" : 70
+    "Power and cooling" : 15
+    "Storage and networking" : 5
+    "Labor" : 8
+    "Other" : 2
 ```
 
 ### 11.2.2 Detailed cost calculation
 {: id="1122-详细成本计算"}
 
-#### 11.2.2.1 Pretraining cost estimation
+#### 11.2.2.1 Estimating pretraining cost
 {: id="11221-预训练成本估算"}
 
-**Step one: Estimate computing power requirements**
+**Step 1: estimate the compute required**
 
-Dense Transformer training a token requires about 6 times the number of floating point operations (forward 2N, reverse 4N), so:
+Training a dense Transformer takes about 6 floating-point operations per parameter per token (2N forward, 4N backward), so:
 
 $$
 C_{\text{train}} \approx 6ND \quad \text{(FLOPs)}, \qquad
 \text{GPU hours} \approx \frac{6ND}{\text{Peak FLOPS per GPU} \times \text{MFU} \times 3600}
 $$
 
-Here, $N$ is the parameter amount, $D$ is the number of training tokens, and MFU (Model FLOPs Utilization) is the actual peak computing power ratio, which is usually 35%–55% for large-scale training.
+where $N$ is the number of parameters, $D$ the number of training tokens, and MFU (Model FLOPs Utilization) the fraction of peak compute actually achieved, usually 35%–55% for large-scale training.
 
-**Step 2: Conversion cost**
+**Step 2: convert to cost**
 
 $$
 \text{Total cost} = \text{GPU hours} \times \text{Hourly price} + \text{Other costs: storage, labor, etc.}
 $$
 
-**Case 1: Training a 7B model**
+**Case 1: training a 7B model**
 ```
-Model size:7Bparameters
-Training data:1T tokens
-Computing power requirements:6 × 7e9 × 1e12 ≈ 4.2e22 FLOPs
-Reference value:  LLaMA-1 7B training 1T tokens It actually took about 82,432 A100 GPU hours
-GPUConfiguration:256 × A100 (80GB)
-Training duration: approx.2Week (82,432 / 256 ≈ 322hours)
+Model size: 7B parameters
+Training data: 1T tokens
+Compute: 6 × 7e9 × 1e12 ≈ 4.2e22 FLOPs
+Reference: LLaMA-1 7B actually used about 82,432 A100 GPU hours for 1T tokens
+GPUs: 256 × A100 (80GB)
+Training time: about 2 weeks (82,432 / 256 ≈ 322 hours)
 
 Cost estimate:
-- GPUCost:$1.8/hours/card (2026Year cloud service A100 On-demand price, relatively2023years$2.5/hours have dropped significantly)
-- GPUTotal cost:82,432 × $1.8 ≈ $148,000
-- Storage cost:10TBdata × $0.02/GB/month ≈ $200/month
-- Network cost: Negligible
-- Labor cost:1people × 2week × $5000/week = $10,000
+- GPU price: $1.8/GPU-hour (2026 on-demand cloud price for A100, well down from $2.5/hour in 2023)
+- Total GPU cost: 82,432 × $1.8 ≈ $148,000
+- Storage: 10TB of data × $0.02/GB/month ≈ $200/month
+- Networking: negligible
+- Labor: 1 person × 2 weeks × $5000/week = $10,000
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Total cost: approx. $160,000
+Total: about $160,000
 ```
 
-**Case 2: Training a 70B model**
+**Case 2: training a 70B model**
 ```
-Model size:70Bparameters
-Training data:2T tokens
-Computing power requirements:6 × 70e9 × 2e12 ≈ 8.4e23 FLOPs
-GPUConfiguration:512 × H100 (80GB), BF16 Dense peak approx. 989 TFLOPS, press MFU ≈ 45% Estimate
-Training duration: approx.6Week (8.4e23 / (512 × 989e12 × 0.45) ≈ 3.7e6 seconds ≈ 1030hours)
+Model size: 70B parameters
+Training data: 2T tokens
+Compute: 6 × 70e9 × 2e12 ≈ 8.4e23 FLOPs
+GPUs: 512 × H100 (80GB), BF16 dense peak about 989 TFLOPS, estimated at MFU ≈ 45%
+Training time: about 6 weeks (8.4e23 / (512 × 989e12 × 0.45) ≈ 3.7e6 seconds ≈ 1030 hours)
 
 Cost estimate:
-- GPUCost:$2.2/hours/card (2026Year cloud service H100 price on demand;H200/B200 Newer models are more expensive, approx.$3.2-5.5/hours)
-- GPUTotal cost:512 × $2.2 × 1030 ≈ $1,160,000
-- Storage cost:50TB × $0.02/GB/month × 1.5 ≈ $1,500
-- Labor cost:3people × 6week × $5000/week = $90,000
+- GPU price: $2.2/GPU-hour (2026 on-demand cloud price for H100; newer H200/B200 cost more, about $3.2-5.5/hour)
+- Total GPU cost: 512 × $2.2 × 1030 ≈ $1,160,000
+- Storage: 50TB × $0.02/GB/month × 1.5 ≈ $1,500
+- Labor: 3 people × 6 weeks × $5000/week = $90,000
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Total cost: approx. $1,250,000 (approx.125million dollars)
+Total: about $1,250,000 (about $1.25 million)
 ```
 
-**Real case comparison: DeepSeek-V3 (671B parameters, MoE architecture)**
+**A real-world comparison: DeepSeek-V3 (671B parameters, MoE)**
 
-The DeepSeek-V3 technical report gives a concrete training-cost example: 2048 H800 GPUs consumed **2.788 million GPU hours** across pretraining, context extension, and post-training. At an estimated USD 2 per GPU hour, the total was approximately **USD 5.576 million**. The report emphasizes that this covers formal training only, excluding earlier architecture, algorithm, and data ablation experiments. For a 671B-parameter model approaching GPT-4-level performance, this cost was far below industry expectations. The article attributes the reduction to three engineering choices: **FP8 mixed-precision training, MLA, and efficient MoE routing** (see the FP8 training and MLA sections). This example illustrates the emergence of low-cost, high-performance training as a competitive dimension in 2025–2026.
+The DeepSeek-V3 technical report gives a concrete training-cost figure: 2048 H800 GPUs consumed **2.788 million GPU hours** across pretraining, context extension, and post-training. At an assumed USD 2 per GPU hour, that comes to about **USD 5.576 million**. The report stresses that this covers only the final training run, not earlier ablations on architecture, algorithms, and data. For a 671B-parameter model approaching GPT-4-level performance, this was far below industry expectations. The savings come from three engineering choices: **FP8 mixed-precision training, MLA, and efficient MoE routing** (see the FP8 training and MLA sections). The example shows how low-cost, high-performance training became a competitive dimension in its own right in 2025–2026.
 
-**Case 3: Fine-tuning (LoRA) cost**
+**Case 3: fine-tuning (LoRA)**
 ```
-Base model:70Bparameters
-Fine-tuning method:QLoRA
-Data size:50ksample
-GPUConfiguration:1 × A100 (80GB)
-Training duration: approx.12hours
+Base model: 70B parameters
+Method: QLoRA
+Data: 50k samples
+GPUs: 1 × A100 (80GB)
+Training time: about 12 hours
 
 Cost estimate:
-- GPUCost:$1.8/hours
-- GPUTotal cost:1 × $1.8 × 12 = $22
-- Data annotation:50k × $0.5 = $25,000
-- Labor cost:$2,000
+- GPU price: $1.8/hour
+- Total GPU cost: 1 × $1.8 × 12 = $22
+- Data annotation: 50k × $0.5 = $25,000
+- Labor: $2,000
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Total cost: approx. $27,022
+Total: about $27,022
 ```
 
-### 11.2.3 Cost optimization strategy
+### 11.2.3 Reducing cost
 {: id="1123-成本优化策略"}
 
-#### 11.2.3.1 Hardware optimization
+#### 11.2.3.1 Hardware
 {: id="11231-硬件优化"}
-- Use Spot/Preemptible instances (save 50-70%)
-- Mixed precision training (BF16/FP8)
-- Flash Attention reduces GPU memory
+- Use spot/preemptible instances (save 50-70%)
+- Mixed-precision training (BF16/FP8)
+- Flash Attention to reduce GPU memory
 
-#### 11.2.3.2 Algorithm optimization
+#### 11.2.3.2 Algorithms
 {: id="11232-算法优化"}
-- Gradient Checkpointing
-- Activation Recomputation
-- ZeRO Optimizer (DeepSpeed)
+- Gradient checkpointing
+- Activation recomputation
+- The ZeRO optimizer (DeepSpeed)
 
-#### 11.2.3.3 Data optimization
+#### 11.2.3.3 Data
 {: id="11233-数据优化"}
-- High quality data > Massive data
-- Perform data cleaning and deduplication in advance
-- Use data caching and preprocessing
+- High-quality data > massive data
+- Clean and deduplicate data up front
+- Cache and preprocess data
 
 #### 11.2.3.4 Training strategy
 {: id="11234-训练策略"}
-- Verify starting from a small model (ablation experiment)
-- Using Learning Rate Finder
-- Early Stopping
+- Validate ideas on small models first (ablations)
+- Use a learning rate finder
+- Early stopping
 
-> **Cost trap**
+> **Cost traps**
 >
-> - **excessive pretraining**: diminishing returns, it is recommended to monitor validation loss
-> - **Blindly expand the scale**: Verify the effect of the small model first
-> - **Ignoring data quality**: Junk data wastes computing resources
-> - **Lack of monitoring**: Failure to detect training anomalies in time leads to waste
+> - **Over-pretraining**: returns diminish; keep an eye on validation loss
+> - **Scaling up blindly**: validate on a small model first
+> - **Ignoring data quality**: junk data wastes compute
+> - **Too little monitoring**: anomalies that go unnoticed waste money
 
 ## 11.3 Training monitoring and debugging
 {: id="113-训练监控与调试"}
 
 <div align="center">
-  <img src="/images/llm-training/training-loss-curve.webp" width="85%" alt="Training loss curve example" />
-<figcaption> Figure: Healthy training loss curve diagram - training loss decreases smoothly without spike, verification loss decreases accordingly with evaluation noise</figcaption>
+  <img src="/images/llm-training/training-loss-curve.webp" width="85%" alt="Example training loss curve" />
+<figcaption>Figure: a healthy training loss curve. Training loss falls smoothly with no spikes, and validation loss follows it down, with some evaluation noise</figcaption>
 </div>
 
-### 11.3.1 Key monitoring indicators
+### 11.3.1 Key metrics to monitor
 {: id="1131-关键监控指标"}
 
-#### 11.3.1.1 Loss function (Loss)
+#### 11.3.1.1 Loss
 {: id="11311-损失函数loss"}
 
 ```mermaid
 graph LR
-    A["Training Loss"] --> B{downtrend?}
-    B -->|normal decline| C["✅ continue training"]
-    B -->|sudden rise| D["⚠️ Loss Spike"]
-    B -->|oscillating and unstable| E["⚠️ unstable"]
-    B -->|no more falling| F["⚠️ Convergence/overfitting"]
+    A["Training loss"] --> B{Decreasing?}
+    B -->|Steadily| C["✅ Keep training"]
+    B -->|Sudden jump| D["⚠️ Loss spike"]
+    B -->|Oscillating| E["⚠️ Unstable"]
+    B -->|Plateaued| F["⚠️ Converged/overfitting"]
 
-    D --> G["Reduce learning rate"]
-    E --> H["adjustbatch size<br/>or learning rate"]
-    F --> I["Early stop or adjustment"]
+    D --> G["Lower the learning rate"]
+    E --> H["Adjust batch size<br/>or learning rate"]
+    F --> I["Stop early or adjust"]
 
     style C fill:#c8e6c9
     style D fill:#ffcdd2
@@ -5102,31 +5120,31 @@ graph LR
     style F fill:#fff9c4
 ```
 
-**normal loss curve characteristics**:
-- Steady decline without sharp fluctuations
-- pretraining loss: The initial value is about $\ln(\text{Vocabulary size})$ (about 10.4 for a 32K vocabulary), and usually drops to about 2 after training.
-- Pretraining is usually less than 1 epoch, and training loss and verification loss should basically overlap; obvious bifurcation between the two often indicates data duplication or inconsistent distribution of the verification set and the training set.
+**What a healthy loss curve looks like**:
+- Declines steadily without sharp swings
+- Pretraining loss starts at about $\ln(\text{Vocabulary size})$ (about 10.4 for a 32K vocabulary) and usually ends around 2
+- Pretraining usually runs for less than 1 epoch, so training and validation loss should nearly coincide; a clear gap between them often signals duplicated data or a validation set whose distribution differs from the training set
 
-**Abnormal Loss Mode**:
+**Abnormal loss patterns**:
 
-|abnormal phenomenon|Possible reasons|solution|
+|Symptom|Likely causes|Fix|
 |---------|---------|---------|
-| **Loss Spike** |Bad data, too large learning rate, unstable values|Roll back the checkpoint, reduce LR, and check the data|
-|**Loss does not drop**|Learning rate is too small and model capacity is insufficient|Increase LR and check the model architecture|
-|**Loss shock**|Batch size is too small, LR is too large|Increase batch or reduce LR|
-| **Loss=NaN** |Gradient explosion, numerical overflow|Gradient clipping, mixed precision, inspection data|
+| **Loss spike** |Bad data, learning rate too high, numerical instability|Roll back to a checkpoint, lower LR, inspect the data|
+|**Loss not decreasing**|Learning rate too low, insufficient model capacity|Raise LR, check the architecture|
+|**Loss oscillating**|Batch size too small, LR too high|Increase batch size or lower LR|
+| **Loss=NaN** |Exploding gradients, numerical overflow|Gradient clipping, mixed precision, check the data|
 
-#### 11.3.1.2 Gradient related indicators
+#### 11.3.1.2 Gradient metrics
 {: id="11312-梯度相关指标"}
 
-**monitoring indicator**:
-- **Gradient norm** (Gradient Norm): should be between 0.1-10
-- **Gradient cropping ratio**: <5% means healthy
-- **parameter update ratio**: The update amount should be 0.1-1% of the parameter value
+**What to track**:
+- **Gradient norm**: should stay between 0.1 and 10
+- **Fraction of steps clipped**: <5% is healthy
+- **Update-to-parameter ratio**: updates should be 0.1-1% of parameter magnitude
 
 ```python
 def monitor_gradients(model):
-    """Calculate the gradientL2Norm, used to monitor training stability"""
+    """Compute the global L2 norm of the gradients to monitor training stability"""
     total_norm = 0
     for p in model.parameters():
         if p.grad is not None:
@@ -5134,53 +5152,53 @@ def monitor_gradients(model):
             total_norm += param_norm.item() ** 2
     return total_norm ** 0.5
 
-# Every100Record the gradient norm step by step
+# Log the gradient norm every 100 steps
 if step % 100 == 0:
     grad_norm = monitor_gradients(model)
     logger.log({"gradient_norm": grad_norm})
-    # Health range:0.1-10, exceed100Need to be vigilant
+    # Healthy range: 0.1-10; above 100 is a warning sign
 ```
 
-#### 11.3.1.3 Learning rate monitoring
+#### 11.3.1.3 Learning rate
 {: id="11313-学习率监控"}
 
 ```python
-# Record the current learning rate (to track whether the scheduler is working correctly)
+# Log the current learning rate (to check that the scheduler behaves as expected)
 current_lr = optimizer.param_groups[0]['lr']
 logger.log({"learning_rate": current_lr})
-# Expectation curve:Warmup↗ → Stable— → Decay↘
+# Expected shape: Warmup ↗ → Stable — → Decay ↘
 ```
 
-#### 11.3.1.4 Performance indicators
+#### 11.3.1.4 Performance metrics
 {: id="11314-性能指标"}
 
-- **throughput** (Tokens/second): measures training speed
-- **GPU utilization**: should remain at 80-95%
-- **GPU memory occupied**: avoid OOM, retain 10-15% buffer
-- **communication time ratio**: <20% is better
+- **Throughput** (tokens/second): training speed
+- **GPU utilization**: should stay at 80-95%
+- **GPU memory**: avoid OOM; keep a 10-15% buffer
+- **Share of time spent communicating**: <20% is good
 
 ### 11.3.2 Diagnosing common problems
 {: id="1132-常见问题诊断与解决"}
 
-#### 11.3.2.1 Problem 1: Out of Memory (OOM)
+#### 11.3.2.1 Problem 1: out of memory (OOM)
 {: id="11321-问题1out-of-memory-oom"}
 
-**Symptoms**: `CUDA out of memory` Error
+**Symptom**: a `CUDA out of memory` error
 
-**solution** (sort by effect, try step by step):
+**Fixes** (roughly in order of effectiveness; try them one at a time):
 ```python
-# Plan1: Enable gradient checkpointing (saving50-80%Activation value GPU memory)
+# Option 1: enable gradient checkpointing (saves 50-80% of activation memory)
 model.gradient_checkpointing_enable()
 
-# Plan2: reducebatch size + Gradient accumulation (keeping equivalentbatch size)
+# Option 2: smaller batch size + gradient accumulation (same effective batch size)
 per_device_batch_size = 1
 gradient_accumulation_steps = 32
 
-# Plan3: CPUUnload optimizer state (savingAdamof8Bytes/parameters)
+# Option 3: offload optimizer states to the CPU (saves Adam's 8 bytes/parameter)
 from deepspeed.ops.adam import DeepSpeedCPUAdam
 optimizer = DeepSpeedCPUAdam(model.parameters())
 
-# Plan4: ZeRO-3Full parameter sharding (the strongest, but training speed will be reduced)
+# Option 4: ZeRO-3 full sharding (most powerful, but slows training)
 deepspeed_config = {
     "zero_optimization": {
         "stage": 3,
@@ -5190,42 +5208,42 @@ deepspeed_config = {
 }
 ```
 
-#### 11.3.2.2 Problem 2: Training speed is slow
+#### 11.3.2.2 Problem 2: slow training
 {: id="11322-问题2训练速度慢"}
 
-**Diagnosis steps**:
+**Diagnosis**:
 ```bash
-# 1. CheckGPUUtilization
+# 1. Check GPU utilization
 nvidia-smi dmon -s u
 
-# 2. System-level timeline: Check whether computing, communication, and data loading overlap
+# 2. System-level timeline: check whether compute, communication, and data loading overlap
 nsys profile -o train_profile python train.py
 
-# 3. Operator-level analysis: used in training scripts torch.profiler Cover a few steps,
-#    reuse TensorBoard or chrome://tracing View
+# 3. Operator-level analysis: wrap a few steps of the training script in torch.profiler,
+#    then inspect the trace in TensorBoard or chrome://tracing
 ```
 
-**Common bottlenecks and solutions**:
-- **data loading is slow**: Add `num_workers` and use preprocessing
-- **communication is slow**: Check the network and use NCCL optimization
-- **Slow calculation**: Check whether Flash Attention is enabled
+**Common bottlenecks and fixes**:
+- **Slow data loading**: increase `num_workers` and preprocess data
+- **Slow communication**: check the network and tune NCCL
+- **Slow compute**: check that Flash Attention is enabled
 
-#### 11.3.2.3 Question 3: Loss Spike
+#### 11.3.2.3 Problem 3: loss spikes
 {: id="11323-问题3loss-spike"}
 
-**response process**:
+**Response**:
 ```mermaid
 graph TD
-    A["discoverLoss Spike"] --> B["Stop training now"]
-    B --> C["Go back to the previous onegood checkpoint"]
-    C --> D{Analyze the reasons}
-    D --> E["Check data"]
-    D --> F["Check learning rate"]
-    D --> G["Check the gradient"]
+    A["Loss spike detected"] --> B["Stop training immediately"]
+    B --> C["Roll back to the last good checkpoint"]
+    C --> D{Find the cause}
+    D --> E["Check the data"]
+    D --> F["Check the learning rate"]
+    D --> G["Check the gradients"]
     E --> H["Filter out bad data"]
-    F --> I["Reduce learning rate50%"]
+    F --> I["Halve the learning rate"]
     G --> J["Enable gradient clipping"]
-    H --> K["Return to training"]
+    H --> K["Resume training"]
     I --> K
     J --> K
 
@@ -5234,48 +5252,48 @@ graph TD
     style K fill:#c8e6c9
 ```
 
-**Precautionary measures**:
+**Prevention**:
 ```python
-# Skills1: Gradient clipping (prevents gradient explosion)
+# Tip 1: gradient clipping (prevents exploding gradients)
 torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
-# Skills2: WSDLearning rate scheduling (Warmup-Stable-Decay, Than pureCosinemore stable)
-# Inpeak LRmaintain for a period of time rather than decay immediately
+# Tip 2: WSD learning rate schedule (Warmup-Stable-Decay, more stable than plain cosine)
+# Hold the peak LR for a while instead of decaying immediately
 
-# Skills3: Loss Spikeautomatic coping mechanism
-if current_loss > moving_avg_loss * 1.5:  # losssudden increase50%
+# Tip 3: automatic loss-spike handling
+if current_loss > moving_avg_loss * 1.5:  # loss jumped by 50%
     print(f"⚠️ Loss spike detected: {current_loss:.4f}")
     for param_group in optimizer.param_groups:
-        param_group['lr'] *= 0.5  # Automatically reduce learning rate
-    # Optional: Automatically roll back to the previous onecheckpoint
+        param_group['lr'] *= 0.5  # automatically halve the learning rate
+    # Optional: automatically roll back to the previous checkpoint
 ```
 
-### 11.3.3 Checkpoint management strategy
+### 11.3.3 Checkpoint management
 {: id="1133-checkpoint管理策略"}
 
-#### 11.3.3.1 Saving strategy
+#### 11.3.3.1 Saving
 {: id="11331-保存策略"}
 
 ```python
-# CheckpointSave configuration (balancing security and storage costs)
+# Checkpoint settings (balancing safety against storage cost)
 checkpoint_config = {
-    "save_interval": 1000,           # every1000step save (approx.1-2hours)
-    "save_total_limit": 5,           # keep recent5(to prevent the disk from filling up)
-    "save_on_each_node": False,      # Save only on master node
-    "save_optimizer_state": True,    # Must be saved, otherwise it cannot be restored
+    "save_interval": 1000,           # save every 1000 steps (about 1-2 hours)
+    "save_total_limit": 5,           # keep the 5 most recent (so the disk doesn't fill up)
+    "save_on_each_node": False,      # save only on the main node
+    "save_optimizer_state": True,    # required, or training cannot be resumed
 }
 
-# Additional saving of the best model (pressvalidation loss)
+# Also keep the best model (by validation loss)
 if current_loss < best_loss:
     save_checkpoint(model, "best_model.pt")
     best_loss = current_loss
 ```
 
-#### 11.3.3.2 Return to training
+#### 11.3.3.2 Resuming training
 {: id="11332-恢复训练"}
 
 ```python
-# Fromcheckpointrestore
+# Resume from a checkpoint
 def resume_training(checkpoint_path):
     checkpoint = torch.load(checkpoint_path)
 
@@ -5285,164 +5303,164 @@ def resume_training(checkpoint_path):
     start_step = checkpoint['step']
     start_epoch = checkpoint['epoch']
 
-    # Restore learning rate scheduler
+    # Restore the learning rate scheduler
     scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
 
-    # Restore the random number generator state (only resetting the seed cannot reproduce the data sequence before the interruption)
+    # Restore RNG states (resetting the seed alone cannot reproduce the data order before the interruption)
     torch.set_rng_state(checkpoint['torch_rng_state'])
     torch.cuda.set_rng_state_all(checkpoint['cuda_rng_state'])
 
     return start_step, start_epoch
 ```
 
-> **Best Practice**
+> **Best practices**
 >
-> - Conduct a small-scale trial run of  (100-1000 steps) before training starts
-> - Set **automatic monitoring alarm** (loss abnormality, GPU failure, etc.)
-> - Keep multiple historical checkpoint, don’t just keep the latest one
-> - Regularly **manually check** training logs and visual charts
+> - Do a **small trial run** (100-1000 steps) before the real training starts
+> - Set up **automatic alerts** (abnormal loss, GPU failures, etc.)
+> - Keep several historical checkpoints, not just the latest one
+> - **Review** training logs and charts regularly by hand
 
 ## 11.4 Hands-on: MiniMind
 {: id="114-个人实践minimind"}
 
-### 11.4.1 Project address
+### 11.4.1 Repository
 {: id="1141-项目地址"}
 ```
 https://github.com/jingyaogong/minimind
 ```
 
-If training Llama-3 is a "money-burning" gamble, then the **MiniMind** project shows us the "civilian" possibility of large model training.
+If training Llama-3 is a high-stakes bet that burns money, the **MiniMind** project shows that LLM training is within reach of ordinary people too.
 
-### 11.4.2 Why pay attention to MiniMind?
+### 11.4.2 Why MiniMind?
 {: id="1142-为什么关注-minimind"}
-MiniMind is a minimalist open source LLM training project designed to allow developers to **Single consumer-grade graphics card** on, complete the full process training of LLM from scratch.
+MiniMind is a minimalist open-source LLM training project that lets developers train an LLM through the whole pipeline from scratch **on a single consumer GPU**.
 
-### 11.4.3 Core data comparison
+### 11.4.3 Key numbers
 {: id="1143-核心数据对比"}
 
-|Dimensions|MiniMind (26M version)|Llama-3 (version 8B)|
+|Aspect|MiniMind (26M)|Llama-3 (8B)|
 |------|-----------------|---------------|
-|**parameter**|26 million|8 billion|
-|**Hardware requirements**| 1 × RTX 3090 |~1300000 H100 GPU hours pretraining (Meta official model card)|
-|**Training duration**|~2 hours|Weeks (on H100 cluster)|
-|**data size**|Several gigabytes of selected corpus| 15T+ Tokens |
-|**cost**|About 3 yuan (based on cloud GPU rental)|Millions of dollars|
+|**Parameters**|26 million|8 billion|
+|**Hardware**| 1 × RTX 3090 |~1300000 H100 GPU hours of pretraining (Meta's official model card)|
+|**Training time**|~2 hours|Weeks (on an H100 cluster)|
+|**Data**|A few GB of curated text| 15T+ Tokens |
+|**Cost**|About 3 yuan (renting a cloud GPU)|Millions of dollars|
 
-### 11.4.4 Inspiration for Beginners
+### 11.4.4 Lessons for beginners
 {: id="1144-给初学者的启示"}
-* **Mastering the entire process is more important than computing power**: Through MiniMind, you can personally train the word segmenter, write the Transformer structure, and execute every Python script from pretraining to DPO alignment.
-* **Ideas for fast verification**: If you have a new Loss function or a new position encoding, verification on a small model like MiniMind is extremely fast.
-* **SLM’s potential**: In vertical fields (such as specific format conversion, logic extraction), fine-tuned ultra-small models (Small Language Model) can also achieve amazing performance.
+* **Mastering the whole pipeline matters more than compute**: with MiniMind you train the tokenizer yourself, write the Transformer, and run every Python script from pretraining to DPO alignment.
+* **A fast way to test ideas**: a new loss function or positional encoding can be validated very quickly on a model as small as MiniMind.
+* **The potential of small language models**: in narrow domains (such as specific format conversion or information extraction), a fine-tuned small language model can perform remarkably well.
 
 
 ---
 
-# 12. Frequently Asked Questions (FAQ)
+# 12. Frequently asked questions (FAQ)
 {: id="12-常见问题faq"}
 
-This chapter summarizes large model training **Frequently asked questions and answers** , to help quickly resolve confusion in practice.
+This chapter collects **frequently asked questions about LLM training, with answers**, to help clear up common points of confusion in practice.
 
-> **Tips for**: Make good use of Ctrl+F to search for keywords to quickly locate problems
+> **Tip**: use Ctrl+F to search for keywords and jump straight to your question
 
-## 12.1 Pre-training
+## 12.1 Pretraining
 {: id="121-预训练"}
 
 ### 12.1.1 How much data
 {: id="1211-需要多少数据"}
 
-**A:** depends on model size and goals:
+**A:** It depends on model size and goals:
 
-- **small model (1-3B)**:
-  - Minimum: 10-50B tokens to get basic capabilities
+- **Small models (1-3B)**:
+  - Minimum: 10-50B tokens for basic capability
   - Recommended: 100-300B tokens for better results
-  - For example: Phi-1 (1.3B) uses only about 7B tokens of high-quality data and performs very well on coding tasks.
+  - Example: Phi-1 (1.3B) used only about 7B tokens of high-quality data and performed very well on coding tasks
 
-- **medium model (7-13B)**:
+- **Medium models (7-13B)**:
   - Recommended: 500B-1T tokens
-  - LLaMA-1 7B uses 1T tokens
+  - LLaMA-1 7B used 1T tokens
 
-- **Large model (70B+)**:
+- **Large models (70B+)**:
   - Recommended: 1.5-2T tokens
-  - LLaMA-2 70B uses 2T tokens
+  - LLaMA-2 70B used 2T tokens
 
-**Key Insights**:
+**Key insights**:
 
-- **Optimum computing power vs Optimal inference**: The optimal ratio of Chinchilla’s computing power is approximately 20 tokens per parameter (approximately 1.4T tokens for a 70B model). However, inference costs account for the majority during deployment, and modern models generally far exceed this ratio. Small models that are "overtrained" - Llama 3 8B used 15T tokens, about 1,900 tokens per parameter, in exchange for stronger capabilities at the same inference cost.
-- **Quality > Quantity**: Phi-1 (1.3B) only uses "textbook-level" data of about 7B tokens, and HumanEval pass@1 reaches 50.6%, exceeding StarCoder-15B, which has more than 10 times the number of parameters.
+- **Compute-optimal vs. inference-optimal**: Chinchilla's compute-optimal ratio is about 20 tokens per parameter (about 1.4T tokens for a 70B model). But inference dominates the cost once a model is deployed, so modern models go far beyond this ratio and "overtrain" small models: Llama 3 8B used 15T tokens, about 1,900 tokens per parameter, buying more capability at the same inference cost.
+- **Quality > quantity**: Phi-1 (1.3B) used only about 7B tokens of "textbook-quality" data yet reached 50.6% pass@1 on HumanEval, beating StarCoder-15B, which has more than 10 times as many parameters.
 
 ---
 
 ### 12.1.2 Judging convergence
 {: id="1212-如何判断收敛"}
 
-**A:** Observe the following indicators:
+**A:** Watch these signals:
 
-1. **Training Loss**:
-   - No longer significant decline (change <0.01/1000 steps)
-   - Typical convergence value: 2.0-3.0 (depends on data)
+1. **Training loss**:
+   - No longer falling meaningfully (change <0.01 per 1000 steps)
+   - Typical final values: 2.0-3.0 (depends on the data)
 
-2. **Validation Loss**:
-   - Consistent with the trend of training loss
-   - If validation loss increases but training loss decreases → overfitting
+2. **Validation loss**:
+   - Follows the same trend as training loss
+   - If validation loss rises while training loss falls → overfitting
 
-3. **Downstream task performance**:
-   - Performance on benchmarks no longer improves
-   - This is the final judgment standard
+3. **Downstream performance**:
+   - Benchmark scores stop improving
+   - This is the ultimate criterion
 
-4. **The number of training steps**: It is determined by the amount of data and batch, rather than the model size - the total number of steps ≈ the total number of tokens / the number of tokens per step. For example, LLaMA-2 trains 2T tokens with 4M tokens per step, and 7B to 70B are about 500,000 steps.
+4. **Number of training steps**: set by the data and batch size, not by model size: total steps ≈ total tokens / tokens per step. For example, LLaMA-2 trained on 2T tokens with 4M tokens per step, about 500,000 steps for every size from 7B to 70B.
 
-**recommends**: pretraining Usually **does not pursue complete convergence of** because the cost is extremely high and the returns are diminishing. It can be stopped after the loss curve slows down.
+**Recommendation**: pretraining usually **does not aim for full convergence**, because the cost is very high and returns diminish. It is fine to stop once the loss curve flattens.
 
 ---
 
 ### 12.1.3 Handling loss spikes
 {: id="1213-loss-spike-处理"}
 
-**A:** Response process for a sudden increase in Loss:
+**A:** What to do when the loss suddenly jumps:
 
-**Act now**:
+**Immediately**:
 ```
 1. Stop training
-2. Fallback tospikeformercheckpoint(Normally fallback2-3acheckpoint)
-3. analysisspikeReason
+2. Roll back to a checkpoint before the spike (usually 2-3 checkpoints back)
+3. Find the cause of the spike
 ```
 
-**Common causes and solutions**:
+**Common causes and fixes**:
 
-|Reason|Symptoms|solution|
+|Cause|Symptom|Fix|
 |------|------|----------|
-|**Bad data**|A single sharp rise|Skip the batch and enhance data filtering|
-|**The learning rate is too large**|gradually rise|Reduce LR to 50% of original value|
-|**numerical value is unstable**|appear randomly|Enable BF16 and add gradient clipping|
-|**Gradient explosion**|As grad norm soars|Lower LR, enable gradient clipping|
+|**Bad data**|A single sharp jump|Skip that batch and tighten data filtering|
+|**Learning rate too high**|Gradual rise|Cut LR to 50% of its value|
+|**Numerical instability**|Random occurrences|Use BF16 and add gradient clipping|
+|**Exploding gradients**|Accompanied by a surge in grad norm|Lower LR, enable gradient clipping|
 
 <div align="center">
-  <img src="/images/llm-training/loss-spike-example.webp" width="80%" alt="Loss Spike Case" />
-<figcaption> Picture: Loss Spike indication - there are two spikes during training, the response is to fall back to the safety before the spike checkpoint</figcaption>
+  <img src="/images/llm-training/loss-spike-example.webp" width="80%" alt="Loss spike example" />
+<figcaption>Figure: loss spikes. Two spikes occur during training; the response is to roll back to a safe checkpoint before each spike</figcaption>
 </div>
 
-**prevention measures**: gradient clipping (max_norm=1.0), BF16 instead of FP16, adjust Adam's $\beta_2$ from 0.999 to 0.95, and skip the data batch that causes the spike. See Section 11.3.2.3 for the complete response process and automatic detection code; the experience reported by PaLM is that if you roll back to the checkpoint about 100 steps before the peak and skip the subsequent 200–500 data batches, the peak will usually not recur.
+**Prevention**: gradient clipping (max_norm=1.0), BF16 instead of FP16, lowering Adam's $\beta_2$ from 0.999 to 0.95, and skipping the data batches that trigger spikes. See Section 11.3.2.3 for the full response procedure and automatic detection code. PaLM reports that rolling back to a checkpoint about 100 steps before the spike and skipping the next 200–500 data batches usually keeps the spike from recurring.
 
 ---
 
 ### 12.1.4 More than one epoch
 {: id="1214-能否超过-1-个-epoch"}
 
-**A:** **does not recommend** when the data is sufficient, but moderate duplication is OK when the data is limited:
+**A:** **Not recommended** when data is plentiful, but moderate repetition is fine when data is limited:
 
-1. **Memory effect**: If there are too many repetitions, the model will remember the training data and reduce the generalization ability.
-2. **Diminishing returns**: Muennighoff et al. (2023) found that if the same batch of data is repeatedly trained for about 4 epochs, the effect is almost the same as using brand-new data; if the repetition continues, the returns will decay rapidly, and in the end, increasing the computing power will be almost worthless.
-3. **Industry practice**: The main web page data of the mainstream large model is less than 1 epoch, but it will be repeated 2-3 times for high-quality small data sources such as Wikipedia and books (such as LLaMA-1's Wikipedia for about 2.45 epochs)
+1. **Memorization**: too much repetition makes the model memorize the training data and generalize worse.
+2. **Diminishing returns**: Muennighoff et al. (2023) found that training on the same data for up to about 4 epochs is almost as good as using fresh data; beyond that, returns decay rapidly until extra compute adds almost nothing.
+3. **Industry practice**: mainstream LLMs see their main web data for less than 1 epoch, but repeat small high-quality sources such as Wikipedia and books 2-3 times (LLaMA-1 used about 2.45 epochs of Wikipedia)
 
-**Exception**:
-- Multiple epochs can be used when the amount of data is extremely small (<10B tokens)
-- Domain-specific models (e.g. medical, legal) can be trained multiple times on small amounts of high-quality data
-- But even then, it rarely exceeds 3-5 epochs
+**Exceptions**:
+- Multiple epochs are fine when data is very scarce (<10B tokens)
+- Domain models (e.g. medical, legal) can train several epochs on small amounts of high-quality data
+- Even then, it rarely goes beyond 3-5 epochs
 
-**Alternative**: If data is limited, give priority to:
+**Alternatives**: when data is limited, prefer to:
 - Improve data quality and diversity
 - Increase model capacity
-- Adopt better data matching strategies
+- Use a better data mixture
 
 ---
 
@@ -5452,97 +5470,97 @@ This chapter summarizes large model training **Frequently asked questions and an
 ### 12.2.1 LoRA vs. full fine-tuning
 {: id="1221-lora-与全参数微调"}
 
-**A:** Select according to the scene:
+**A:** Choose based on the situation:
 
-**full parameter fine-tuning** (Full Fine-Tuning):
-- **applicable scenarios**:
-  - Have sufficient GPU resources
-  - Need best performance
-  - There is a big difference between tasks and pretraining
-- **Disadvantages of**:
-  - Large GPU memory requirements (needs to store full gradients and optimizer state)
-  - Training speed is slow
-  - Each task requires a complete copy of the model
+**Full fine-tuning**:
+- **When to use it**:
+  - You have ample GPU resources
+  - You need the best possible performance
+  - The task differs substantially from pretraining
+- **Drawbacks**:
+  - High GPU memory use (full gradients and optimizer states must be stored)
+  - Slower training
+  - Every task needs a full copy of the model
 
 **LoRA fine-tuning**:
-- **applicable scenarios**:
+- **When to use it**:
   - GPU resources are limited
-  - Need to train multiple task adapters
-  - Experiment and iterate quickly
-- **Disadvantages of**:
-  - The ability to learn new knowledge is weaker than full parameter fine-tuning. The larger the amount of data, the more obvious the gap.
-  - Additional hyperparameters need to be tuned (r, alpha, and a larger learning rate than full-parameter fine-tuning)
+  - You need adapters for several tasks
+  - You want fast experiments and iteration
+- **Drawbacks**:
+  - Learns new knowledge less well than full fine-tuning, and the gap grows with the amount of data
+  - Extra hyperparameters to tune (r, alpha, and a learning rate higher than for full fine-tuning)
 
-How big is the difference between **?** Depends on task and data volume:
+**How big is the gap?** It depends on the task and the amount of data:
 
-- **LoRA Learns Less and Forgets Less** (Biderman et al., 2024): In terms of large-scale continued pretraining of code and mathematics, LoRA clearly lags behind full-parameter fine-tuning; the gap in instruction fine-tuning is smaller, and at the same time, it forgets less
-- **LoRA Without Regret** (Thinking Machines, 2025): As long as all linear layers are covered and the learning rate is set to about 10 times that of full-parameter fine-tuning, LoRA can be on par with full-parameter fine-tuning in regular-scale SFT and reinforcement learning; it will only fall behind when the amount of data exceeds the capacity of LoRA
+- **LoRA Learns Less and Forgets Less** (Biderman et al., 2024): for large-scale continued pretraining on code and math, LoRA clearly trails full fine-tuning; the gap is smaller for instruction fine-tuning, and LoRA forgets less
+- **LoRA Without Regret** (Thinking Machines, 2025): as long as LoRA covers all linear layers and uses a learning rate about 10 times that of full fine-tuning, it matches full fine-tuning for typical-scale SFT and reinforcement learning; it only falls behind when the data exceeds LoRA's capacity
 
-**recommended strategy**:
+**Recommendations**:
 - Limited resources or quick experiments → **LoRA**
-- Production environment pursues ultimate performance → **Full parameter fine-tuning**
-- Compromise → **QLoRA** (quantization + LoRA)
+- Production systems that need maximum performance → **full fine-tuning**
+- Middle ground → **QLoRA** (quantization + LoRA)
 
 ---
 
 ### 12.2.2 How much SFT data
 {: id="1222-需要多少-sft-数据"}
 
-**A:** is much less than pretraining, quality is more important than quantity:
+**A:** Far less than pretraining, and quality matters more than quantity:
 
-**Data Volume Guide**:
+**Rough guide**:
 
-|Data size|Effect|Applicable scenarios|
+|Data size|Result|Use case|
 |---------|------|----------|
-| **1k-5k** |Basically follow instructions|Rapid prototyping, specific tasks|
-| **10k-30k** |Good conversation skills|Universal Assistant|
-| **50k-100k** |Excellent multi-tasking ability|Production grade model|
-| **100k+** |diminishing marginal returns|Pursuing ultimate performance|
+| **1k-5k** |Basic instruction following|Rapid prototyping, specific tasks|
+| **10k-30k** |Good conversational ability|General-purpose assistants|
+| **50k-100k** |Strong multi-task ability|Production models|
+| **100k+** |Diminishing marginal returns|Squeezing out the last bit of performance|
 
-**real case**:
-- **Alpaca**: 52k synthetic data, achieving good results
+**Real examples**:
+- **Alpaca**: 52k synthetic samples, good results
 - **Vicuna**: 70k ShareGPT conversations, close to ChatGPT
-- **LLaMA-2-Chat**: 27.5k data, excellent effect
+- **LLaMA-2-Chat**: 27.5k samples, excellent results
 
-**Key insights**:
-> 1,000 high-quality, diverse data > 10,000 low-quality duplicate data
+**Key insight**:
+> 1,000 high-quality, diverse samples > 10,000 low-quality, repetitive ones
 
-**Data quality standard**:
+**Data quality criteria**:
 - Clear instructions
-- Answers are accurate and helpful
-- Covers a variety of task types
-- Uniform and standardized format
-- Avoid templated answers
-- Avoid error messages
-- Avoid harmful content
+- Accurate, helpful answers
+- A wide range of task types
+- Consistent, standardized formatting
+- No templated answers
+- No factual errors
+- No harmful content
 
 ---
 
 ### 12.2.3 Avoiding overfitting
 {: id="1223-避免过拟合"}
 
-**A:** is used in combination with multiple strategies:
+**A:** Combine several strategies:
 
-**1. Control the number of training rounds**
+**1. Limit the number of epochs**
 ```python
-# Usually1-3aepochenough
-num_train_epochs = 2  # Recommended starting point
+# 1-3 epochs is usually enough
+num_train_epochs = 2  # recommended starting point
 
-# Monitorvalidation loss, Stop early
+# Monitor validation loss and stop early
 early_stopping_patience = 3
 ```
 
 **2. Use a smaller learning rate**
 ```python
-# SFTThe learning rate should be much smaller than pretraining
-learning_rate = 2e-5  # instead of3e-4
+# The SFT learning rate should be much smaller than in pretraining
+learning_rate = 2e-5  # instead of 3e-4
 ```
 
-**3. Data enhancement**
+**3. Data augmentation**
 ```python
-# Paraphrase rewriting
-# Instruction changes
-# Diverse answer styles
+# Paraphrasing
+# Varying the instructions
+# Varying answer styles
 ```
 
 **4. Dropout and regularization**
@@ -5554,23 +5572,23 @@ model_config = {
 }
 ```
 
-**5. Mixed training data**
+**5. Mix in other training data**
 ```python
-# Join10-20%pretraining data
+# Add 10-20% pretraining data
 mixed_dataset = {
     "sft_data": 0.8,
-    "pretrain_data": 0.2  # Prevent catastrophic forgetting
+    "pretrain_data": 0.2  # guards against catastrophic forgetting
 }
 ```
 
-**Symptoms of overfitting**:
-- Training loss continues to decline, but validation loss rises
-- Performs perfectly on the training set, but performs poorly on the test set
-- The model starts "reciting" the training samples
+**Signs of overfitting**:
+- Training loss keeps falling while validation loss rises
+- Near-perfect on the training set, poor on the test set
+- The model starts "reciting" training samples
 
-**diagnostic command**:
+**Diagnostic code**:
 ```python
-# Regular assessment
+# Evaluate periodically
 if step % eval_steps == 0:
     train_loss = evaluate(model, train_dataset)
     val_loss = evaluate(model, val_dataset)
@@ -5590,45 +5608,45 @@ if step % eval_steps == 0:
 ### 12.3.1 Lost capabilities
 {: id="1231-旧能力下降"}
 
-**A:** This is the most common problem of **catastrophic forgetting (Catastrophic Forgetting)**, Post-Training.
+**A:** This is **catastrophic forgetting**, the most common problem in post-training.
 
-**Core reason**: Only the target task loss is optimized during training, and the model will "forget" old knowledge. Even if the data is completely harmless, even with LoRA, forgetting can still happen.
+**Root cause**: training optimizes only the loss on the target task, so the model "forgets" old knowledge. Forgetting happens even when the data is entirely harmless, and even with LoRA.
 
-**solution (priority from high to low)**:
+**Fixes (from highest to lowest priority)**:
 
-**Solution 1: Self-Output training** (recommended, no historical data required)
+**Fix 1: self-output training** (recommended; needs no historical data)
 ```python
-# For each piece of training data, first use Foundation Model Generate answers yourself
+# For each training example, first let the foundation model answer it
 foundation_output = foundation_model.generate(question)
 
-# If the model can answer correctly, train with your own answers
-# If the answer is wrong, train with human-annotated answers
+# If the model answers correctly, train on its own answer
+# If it answers wrongly, train on the human-written answer
 answer = foundation_output if is_correct(foundation_output) else human_answer
 ```
 
-**Solution 2: Experience Replay**
+**Fix 2: experience replay**
 ```python
-# Mix in approx. 3-5% old task data (or Foundation Model self-generated data)
+# Mix in about 3-5% old-task data (or data self-generated by the foundation model)
 mixed_dataset = {
     "new_task_data": 0.97,
     "replay_data": 0.03,  # historical data or Magpie self-generated data
 }
 ```
 
-**Plan 3: Magpie pseudo-experience playback** (when historical data cannot be obtained)
+**Fix 3: Magpie pseudo-replay** (when historical data is unavailable)
 ```python
-# Let Foundation Model Ask and answer questions and generate pseudo-historical data
+# Let the foundation model ask and answer its own questions to create pseudo-historical data
 pseudo_data = []
 for _ in range(n):
-    q = foundation_model.generate("<|user|>")      # Generate your own questions
-    a = foundation_model.generate(q + "<|assistant|>")  # answer yourself
+    q = foundation_model.generate("<|user|>")      # generate a question
+    a = foundation_model.generate(q + "<|assistant|>")  # answer it
     pseudo_data.append((q, a))
 ```
 
 **Key conclusions**:
-- LoRA **cannot really prevent** from forgetting (just learn less so forget less)
-- Safety Alignment crashes even if training data is harmless
-- After training, **must** evaluate its original capabilities on multiple benchmarks.
+- LoRA **does not truly prevent** forgetting (it learns less, so it forgets less)
+- Safety alignment can collapse even when the training data is harmless
+- After training, you **must** re-evaluate the original capabilities on multiple benchmarks
 
 ---
 
@@ -5638,58 +5656,58 @@ for _ in range(n):
 ### 12.4.1 RLHF vs. DPO
 {: id="1241-rlhf-与-dpo-怎么选"}
 
-**A:** DPO is usually a better choice:
+**A:** DPO is usually the better choice:
 
-**DPO Advantages** (recommended):
-- More stable training (RL-free exploration-exploitation dilemma)
-- Easier implementation (no need for PPO, Reward Model)
-- High computational efficiency (only 2 models vs 4 models)
-- Same or better effect
-- Hyperparameters are more robust
+**Advantages of DPO** (recommended):
+- More stable training (no RL exploration-exploitation dilemma)
+- Simpler to implement (no PPO or reward model)
+- More compute-efficient (2 models vs. 4)
+- Equal or better results
+- More robust to hyperparameters
 
-**RLHF Advantages**:
-- Deep theoretical foundation
-- New data can be collected online
-- Suitable for complex reward signals
+**Advantages of RLHF**:
+- A deeper theoretical foundation
+- Can collect new data online
+- Handles complex reward signals
 
-**performance comparison**:
+**Comparison**:
 ```
-Assessment Dimensions         RLHF    DPO     Remarks
+Dimension                 RLHF    DPO     Notes
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-training stability       ⭐⭐⭐   ⭐⭐⭐⭐⭐  DPOsignificantly more stable
-Implementation complexity       ⭐⭐     ⭐⭐⭐⭐⭐  DPOmuch simpler
-Computational efficiency         ⭐⭐     ⭐⭐⭐⭐⭐  DPOFast2-3times
-final effect         ⭐⭐⭐⭐  ⭐⭐⭐⭐   The effect is quite
+Training stability        ⭐⭐⭐   ⭐⭐⭐⭐⭐  DPO is much more stable
+Implementation effort     ⭐⭐     ⭐⭐⭐⭐⭐  DPO is much simpler
+Compute efficiency        ⭐⭐     ⭐⭐⭐⭐⭐  DPO is 2-3x faster
+Final quality             ⭐⭐⭐⭐  ⭐⭐⭐⭐   Comparable
 ```
 
-**recommended strategy**:
-- **first choice DPO**: suitable for most scenarios
-- **Consider RLHF**: Online learning or complex reward function required
-- **New method**: ORPO, SimPO and other DPO variants
+**Recommendations**:
+- **Default to DPO**: fits most situations
+- **Consider RLHF**: when you need online learning or a complex reward function
+- **Newer methods**: DPO variants such as ORPO and SimPO
 
 ---
 
 ### 12.4.2 Building preference data
 {: id="1242-构建偏好数据"}
 
-**A:** Three main methods:
+**A:** Three main approaches:
 
-**Method 1: Manual annotation** (highest quality)
+**Approach 1: human annotation** (highest quality)
 ```
 Process:
-1. samplingprompts(from a real user or construct)
-2. Generate multiple answers (usually4-8)
-3. Manual sorting or comparative annotation
-4. Build preference pairs:(prompt, chosen, rejected)
+1. Sample prompts (from real users or written by hand)
+2. Generate several answers (usually 4-8)
+3. Have humans rank or compare them
+4. Build preference pairs: (prompt, chosen, rejected)
 
-Cost:$0.5-2/sample
-Size:10k-50kpreference pair
-Quality:⭐⭐⭐⭐⭐
+Cost: $0.5-2/sample
+Scale: 10k-50k preference pairs
+Quality: ⭐⭐⭐⭐⭐
 ```
 
-**Method 2: AI annotation** (extremely cost-effective, recommended)
+**Approach 2: AI annotation** (very cost-effective; recommended)
 ```python
-# RLAIF: UseGPT-4Equally strong model as"judge"
+# RLAIF: use a strong model such as GPT-4 as the "judge"
 prompt = f"""
 Given the question: {question}
 
@@ -5699,37 +5717,37 @@ Response B: {response_b}
 Which response is better? Consider helpfulness, accuracy, and safety.
 Answer: A or B
 """
-# Exchange in practice A/B Each order will be evaluated once to offset the judges’ position preference.
+# In practice, evaluate each pair twice with A/B swapped to cancel out the judge's position bias
 ```
 
 ```
-Cost:$0.01-0.05/sample(vs artificial$0.5-2/sample)
-Scale: easily scales100k+
-Quality:⭐⭐⭐⭐(RLAIF in paper AI The consistency rate between labeling and human preference is approximately 78%, Similar agreement rate to human annotators)
+Cost: $0.01-0.05/sample (vs. $0.5-2/sample for humans)
+Scale: easily 100k+
+Quality: ⭐⭐⭐⭐ (in the RLAIF paper, AI labels agree with human preferences about 78% of the time, similar to agreement between human annotators)
 ```
 
-**Method 3: Synthetic Build** (Quick Start)
+**Approach 3: synthetic construction** (quick start)
 ```python
-# From existingSFTData automatically constructs preference pairs
+# Build preference pairs automatically from existing SFT data
 chosen = high_quality_response
-rejected = synthesize_negative(chosen)  # Negative sample source:
-    # - Truncated answer (incomplete simulation)
-    # - Inject factual errors
-    # - Violation of directive requirements
-    # - Add harmful content
+rejected = synthesize_negative(chosen)  # sources of negatives:
+    # - truncated answers (simulating incompleteness)
+    # - injected factual errors
+    # - violations of the instructions
+    # - added harmful content
 ```
 
 ```
-Cost: Almost free (no need toAPIor manually)
-Scale: Unlimited (auto-generated)
-Quality:⭐⭐⭐(Effective, but negative samples are too"false"The discrimination ability learned by the model is limited)
+Cost: almost free (no API calls or human labor)
+Scale: unlimited (generated automatically)
+Quality: ⭐⭐⭐ (works, but the negatives are too obviously "fake", so the model learns limited discrimination)
 ```
 
 **Mixed strategy** (recommended):
 ```
-core data(20%): Manual annotation to ensure high quality
-extended data(60%): AILabel, quickly expand the scale
-Supplementary data(20%): Synthesize data to increase diversity
+Core data (20%): human-annotated, for high quality
+Extended data (60%): AI-annotated, to scale quickly
+Supplementary data (20%): synthetic, for diversity
 ```
 
 ---
@@ -5740,25 +5758,25 @@ Supplementary data(20%): Synthesize data to increase diversity
 ### 12.5.1 Choosing parallelism
 {: id="1251-选择并行策略"}
 
-**A:** follows the decision tree:
+**A:** Follow this decision tree:
 
 ```mermaid
 graph TD
-    A["Start selecting"] --> B{Can the model<br/>Place orderGPU?}
-    B -->|can| C["Using data parallelism DP"]
-    B -->|Can't| D{Single layer parameters<br/>Is it too large??}
+    A["Start"] --> B{Does the model<br/>fit on one GPU?}
+    B -->|Yes| C["Use data parallelism (DP)"]
+    B -->|No| D{Is a single layer<br/>too large?}
 
-    D -->|Yes| E["Enable tensor parallelism TP"]
-    D -->|No| F{Number of layers<br/>Is there a lot?}
+    D -->|Yes| E["Enable tensor parallelism (TP)"]
+    D -->|No| F{Are there<br/>many layers?}
 
     E --> F
-    F -->|Yes| G["Enable pipeline parallelism PP"]
-    F -->|No| H["Evaluation totalGPUnumber"]
+    F -->|Yes| G["Enable pipeline parallelism (PP)"]
+    F -->|No| H["Check the total GPU count"]
 
     G --> H
-    H --> I{Also<br/>RemainingGPU?}
+    H --> I{Any GPUs<br/>left over?}
     I -->|Yes| J["Increase data parallelism"]
-    I -->|No| K["Complete configuration"]
+    I -->|No| K["Configuration done"]
 
     J --> K
 
@@ -5768,26 +5786,26 @@ graph TD
     style K fill:#e3f2fd
 ```
 
-**practical configuration table**:
+**Practical configurations**:
 
-|Total number of GPUs|Model size|Recommended configuration|Description|
+|Total GPUs|Model size|Recommended configuration|Notes|
 |---------|---------|---------|------|
 | 8 | 7B | DP=8 |Pure data parallelism|
-| 16 | 13B | TP=2, DP=8 |Lightweight TP|
+| 16 | 13B | TP=2, DP=8 |Light TP|
 | 64 | 30B | TP=4, PP=2, DP=8 |2D parallelism|
-| 128 | 70B | TP=8, PP=4, DP=4 |3D parallel|
+| 128 | 70B | TP=8, PP=4, DP=4 |3D parallelism|
 | 512 | 175B | TP=8, PP=16, DP=4 |Deep 3D parallelism|
 
-**configuration verification formula**:
+**Sanity check**:
 ```python
-# Key formula: TotalGPUnumber = data parallelism × tensor parallelism × Pipeline parallelism
+# Key formula: total GPUs = data parallel × tensor parallel × pipeline parallel
 total_gpus = DP * TP * PP
 
-# Example:128ZhangGPUrun70Bmodel
-DP = 4   # 4Group independent training (increased throughput)
-TP = 8   # cut into each layer8servings (cannot fit on a single layer)
-PP = 4   # divided into4Segment pipeline (too many layers)
-assert 4 * 8 * 4 == 128  # ✓ Just full
+# Example: a 70B model on 128 GPUs
+DP = 4   # 4 independent replicas (more throughput)
+TP = 8   # each layer split 8 ways (one layer doesn't fit on a GPU)
+PP = 4   # 4 pipeline stages (too many layers)
+assert 4 * 8 * 4 == 128  # ✓ uses every GPU
 ```
 
 ---
@@ -5795,80 +5813,80 @@ assert 4 * 8 * 4 == 128  # ✓ Just full
 ### 12.5.2 Running out of GPU memory
 {: id="1252-显存不够怎么办"}
 
-**A:** Multi-layer optimization strategy:
+**A:** Optimize in levels:
 
-**Level 1: Basic optimization** (zero side effects, must be opened)
+**Level 1: basics** (no downside; always enable)
 ```python
-# Skills1: mixed precision (FP32→FP16/BF16, Directly halved)
-use_fp16 = True  # or bf16(large model is more recommended)
+# Tip 1: mixed precision (FP32→FP16/BF16, halves memory)
+use_fp16 = True  # or bf16 (preferred for large models)
 
-# Skills2: Gradient checkpoint (time-for-space, recalculation of activation values)
+# Tip 2: gradient checkpointing (trade compute for memory by recomputing activations)
 model.gradient_checkpointing_enable()
 
-# Skills3: Flash Attention(IOOptimized, fast and economical)
+# Tip 3: Flash Attention (IO-aware; both faster and leaner)
 use_flash_attention = True
 ```
-Save GPU memory: ~30-40%
-Performance impact: almost none (Flash is even faster)
+Memory saved: ~30-40%
+Speed impact: almost none (Flash Attention is even faster)
 
-**Level 2: Intermediate optimization** (slight performance trade-off)
+**Level 2: intermediate** (small speed cost)
 ```python
-# Skills4: reducebatch + Gradient accumulation (equivalent tobatchunchanged)
-per_device_batch_size = 1      # from4down to1
-gradient_accumulation_steps = 32  # accumulate32step update once
+# Tip 4: smaller batches + gradient accumulation (same effective batch size)
+per_device_batch_size = 1      # down from 4 to 1
+gradient_accumulation_steps = 32  # update once every 32 steps
 
-# Skills5: ZeRO-2(Sharding optimizer status, province8Bytes/parameters)
-zero_stage = 2  # The optimizer state is distributed toGPU
+# Tip 5: ZeRO-2 (shard optimizer states, saving 8 bytes/parameter)
+zero_stage = 2  # optimizer states spread across GPUs
 ```
-Save GPU memory: extra 30-40%
-Performance impact: ~10-20% slower (communication overhead)
+Memory saved: another 30-40%
+Speed impact: ~10-20% slower (communication overhead)
 
-**Level 3: Radical optimization** (significant performance loss)
+**Level 3: aggressive** (significant speed cost)
 ```python
-# Skills6: ZeRO-3Full sharding + CPUUninstall (parameters are also fragmented)
-# Skills7: Activation checkpoints are also offloaded toCPU(Ultimate GPU memory saving)
+# Tip 6: ZeRO-3 full sharding + CPU offload (parameters are sharded too)
+# Tip 7: offload activation checkpoints to the CPU as well (maximum memory savings)
 deepspeed_config = {
     "zero_optimization": {
-        "stage": 3,                              # Sharding parameters, gradients, optimizers
-        "offload_optimizer": {"device": "cpu"},  # optimizer→CPU
-        "offload_param": {"device": "cpu"}       # parameters→CPU
+        "stage": 3,                              # shard parameters, gradients, and optimizer states
+        "offload_optimizer": {"device": "cpu"},  # optimizer → CPU
+        "offload_param": {"device": "cpu"}       # parameters → CPU
     },
     "activation_checkpointing": {
         "partition_activations": True,
-        "cpu_checkpointing": True                # checkpoint activation→CPU
+        "cpu_checkpointing": True                # activation checkpoints → CPU
     }
 }
 ```
-Save GPU memory: 40-50% extra (can train super large models)
-Performance impact: ~2-5x slower (CPU-GPU transmission bottleneck)
+Memory saved: another 40-50% (enough to train very large models)
+Speed impact: ~2-5x slower (CPU-GPU transfer bottleneck)
 
-**Level 4: The ultimate solution** (Change the training method)
+**Level 4: last resort** (change how you train)
 ```python
-# Skills8: Quantitative training (QLoRA: 4-bitquantification)
-load_in_4bit = True  # 7Bmodel from14GB→3.5GB
+# Tip 8: quantized training (QLoRA: 4-bit quantization)
+load_in_4bit = True  # a 7B model goes from 14GB → 3.5GB
 
-# Skills9: Reduce model size (most direct)
-model_size = "13B"  # from70B→13B, GPU memory decrease5times
+# Tip 9: use a smaller model (the most direct option)
+model_size = "13B"  # 70B → 13B, about 5x less memory
 ```
-Save GPU memory: quantize 4x, reduce model size proportionally
-Performance impact: Quantification is slightly reduced (<2%), small model capabilities are reduced
+Memory saved: 4x from quantization; proportional to size for a smaller model
+Quality impact: slight drop from quantization (<2%); a smaller model is less capable
 
-**GPU memory usage breakdown**:
+**Memory breakdown**:
 ```
-Total GPU memory = Model parameters + Optimizer status + gradient + activation value
+Total GPU memory = model parameters + optimizer states + gradients + activations
 
-Example(70Bmodel,BF16 mixed precision + AdamW):
-- model parameters (BF16): 70B × 2Bytes = 140GB
-- gradient (BF16): 70B × 2Bytes = 140GB
-- Optimizer status (FP32 Sovereign weight + m + v): 70B × 12Bytes = 840GB
-- Activation value: depends onbatch sizeand sequence length
+Example (70B model, BF16 mixed precision + AdamW):
+- Model parameters (BF16): 70B × 2 bytes = 140GB
+- Gradients (BF16): 70B × 2 bytes = 140GB
+- Optimizer states (FP32 master weights + m + v): 70B × 12 bytes = 840GB
+- Activations: depend on batch size and sequence length
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Total:~1,120GB + Activation value (not optimized)
+Total: ~1,120GB + activations (unoptimized)
 
-ApplicationZeRO-3:
-- eachGPUModel status:1,120GB / GPUQuantity
-- 8×A100 (80GB): Each card requires 140GB → Can't let go, must be stacked CPU/NVMe Offload
-- 16×A100 (80GB): Each card requires 70GB → Reluctantly put down the model state, the activation value still needs gradient checkpoint
+With ZeRO-3:
+- Model states per GPU: 1,120GB / number of GPUs
+- 8×A100 (80GB): 140GB per GPU → doesn't fit; CPU/NVMe offload is required on top
+- 16×A100 (80GB): 70GB per GPU → model states barely fit; activations still need gradient checkpointing
 ```
 
 ---
@@ -5876,9 +5894,9 @@ ApplicationZeRO-3:
 ### 12.5.3 Resuming training
 {: id="1253-中断恢复"}
 
-**A:** Complete recovery process:
+**A:** The full recovery procedure:
 
-**1. Automatic recovery mechanism**
+**1. Automatic checkpointing and recovery**
 ```python
 def save_checkpoint(model, optimizer, scheduler, step, epoch):
     checkpoint = {
@@ -5901,7 +5919,7 @@ def load_checkpoint(path, model, optimizer, scheduler):
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
 
-    # Restore the random number state (Important! Just resetting the seed cannot reproduce the data sequence before the interruption)
+    # Restore RNG states (important! resetting the seed alone cannot reproduce the data order before the interruption)
     torch.set_rng_state(checkpoint['torch_rng_state'])
     torch.cuda.set_rng_state_all(checkpoint['cuda_rng_state'])
     np.random.set_state(checkpoint['numpy_random_state'])
@@ -5910,7 +5928,7 @@ def load_checkpoint(path, model, optimizer, scheduler):
     return checkpoint['step'], checkpoint['epoch']
 ```
 
-**2. The training script supports restoring**
+**2. Support resuming in the training script**
 ```bash
 python train.py --resume_from_checkpoint ./checkpoint_step_50000.pt
 ```
@@ -5928,18 +5946,18 @@ for step in range(start_step, total_steps):
     ...
 ```
 
-**3. Verify recovery correctness**
+**3. Verify that recovery worked**
 
-After recovery, the loss curve should converge smoothly and there should be no sudden changes or jumps. Checklist:
+After resuming, the loss curve should continue smoothly with no sudden jumps. Checklist:
 
-- Loss value is continuous
-- Learning rate is correct
-- The random number status and data loading position are restored (data order is consistent)
-- Step counting is correct
+- The loss is continuous
+- The learning rate is correct
+- RNG states and the data-loading position are restored (same data order)
+- The step count is correct
 
-**4. DeepSpeed recovery**
+**4. Recovery with DeepSpeed**
 ```python
-# DeepSpeedAutomatic processing of recovery
+# DeepSpeed handles recovery automatically
 model_engine, optimizer, _, _ = deepspeed.initialize(
     model=model,
     config=ds_config
@@ -5950,76 +5968,76 @@ _, client_sd = model_engine.load_checkpoint(checkpoint_dir)
 step = client_sd['step']
 ```
 
-> **Precautions**
+> **Notes**
 >
-> - Save checkpoint regularly (every 1000-5000 steps)
-> - Keep multiple historical checkpoints (at least the last 3-5)
-> - After recovery, verify a few steps to ensure that the loss is normal.
-> - Record the verification indicators of each checkpoint
+> - Save checkpoints regularly (every 1000-5000 steps)
+> - Keep several historical checkpoints (at least the last 3-5)
+> - After resuming, check a few steps to confirm the loss looks normal
+> - Record validation metrics for every checkpoint
 
 ---
 
 ### 12.5.4 Is training healthy
 {: id="1254-判断训练是否正常"}
 
-**A:** Multi-dimensional monitoring list:
+**A:** Monitor along several dimensions:
 
-**Characteristics of health training**:
+**Signs of healthy training**:
 
 1. **Loss curve**
-   - Smooth decline without significant fluctuations
-   - The training loss and verification loss in the pretraining stage basically overlap
-   - The rate of decline is as expected
+   - Declines smoothly without large swings
+   - Training and validation loss nearly coincide during pretraining
+   - Falls at the expected rate
 
-2. **gradient indicator**
-   - Gradient norm is in the range of 0.1-10
-   - Gradient clipping rate <5%
+2. **Gradients**
+   - Gradient norm within 0.1-10
+   - Clipping rate <5%
    - No NaN or Inf
 
-3. **performance indicators**
+3. **Performance**
    - GPU utilization >80%
-   - stable throughput
+   - Stable throughput
    - Communication time <20%
 
 4. **Learning rate**
-   - Normal changes according to schedule
-   - Steady rise during the Warmup period
+   - Follows the schedule
+   - Rises steadily during warmup
 
-**Symptoms of abnormal training**:
+**Signs of trouble**:
 
-|Symptoms|Possible reasons|Check items|
+|Symptom|Likely causes|What to check|
 |------|---------|--------|
-|Loss does not decrease|Learning rate is too small, data problem|Check LR, view data samples|
-|Lossshock|The learning rate is too large and the batch is small|Reduce LR or increase batch|
-| Loss=NaN |Gradient explosion, numerical overflow|Enable gradient clipping and mixed precision|
-|Low GPU utilization|Slow data loading and communication bottleneck|Add workers and check the network|
+|Loss not decreasing|Learning rate too low, data problems|Check LR, inspect data samples|
+|Loss oscillating|Learning rate too high, batch too small|Lower LR or increase batch size|
+| Loss=NaN |Exploding gradients, numerical overflow|Enable gradient clipping and mixed precision|
+|Low GPU utilization|Slow data loading, communication bottleneck|Add workers, check the network|
 
-**actual combat monitoring code (W&B)**:
+**Monitoring code in practice (W&B)**:
 ```python
 import wandb
 
-# Record core training metrics (recorded at each step)
+# Log core training metrics (every step)
 wandb.log({
-    "train/loss": loss,                     # 📉 Most importantly, it should continue to decline
-    "train/grad_norm": grad_norm,           # 📊 Monitor training stability
-    "train/learning_rate": lr,              # 📈 Verify scheduler
-    "system/gpu_utilization": gpu_util,     # ⚡ should be maintained80-95%
-    "system/tokens_per_second": throughput, # 🚀 throughput indicator
+    "train/loss": loss,                     # 📉 the most important; should keep falling
+    "train/grad_norm": grad_norm,           # 📊 training stability
+    "train/learning_rate": lr,              # 📈 check the scheduler
+    "system/gpu_utilization": gpu_util,     # ⚡ should stay at 80-95%
+    "system/tokens_per_second": throughput, # 🚀 throughput
     "step": step
 })
 ```
 
-**intelligent alarm system** (avoid being woken up in the middle of the night):
+**Smart alerts** (so you don't get woken up at 3 a.m. for nothing):
 ```python
-# Set alarm threshold (adjust according to actual situation)
+# Alert thresholds (tune to your setup)
 if loss > moving_avg * 1.5:
     send_alert(f"🚨 Loss spike! Current: {loss:.4f}, Avg: {moving_avg:.4f}")
 
 if gpu_util < 50:
-    send_alert(f"⚠️ GPULow utilization! current: {gpu_util}%(possible dataIObottleneck)")
+    send_alert(f"⚠️ Low GPU utilization! Current: {gpu_util}% (possible data I/O bottleneck)")
 
 if grad_norm > 100:
-    send_alert(f"💥 gradient explosion! Norm={grad_norm:.2f}(normal<10)")
+    send_alert(f"💥 Gradient explosion! Norm={grad_norm:.2f} (normal < 10)")
 ```
 
 ---
@@ -6027,22 +6045,22 @@ if grad_norm > 100:
 # 13. Multimodal and agent training
 {: id="13-多模态与-agent-训练"}
 
-Based on plain text LLM, how to let the model "see" the world and further use tools to complete tasks autonomously? The first half of this chapter introduces the Vision Language Model (VLM): fusion architecture, dynamic resolution processing, visual token encoding, two-stage training process and a minimalist PyTorch implementation; the second half introduces the tool call training of the Agent. For a more complete review of the VLM model, see the "VLM Overview" on this site.
+Starting from a text-only LLM, how do we let a model "see" the world, and then use tools to complete tasks on its own? The first half of this chapter covers vision-language models (VLMs): the fusion architecture, dynamic resolution, visual token encoding, the two-stage training recipe, and a minimal PyTorch implementation. The second half covers training agents to use tools. For a fuller review of VLMs, see the "VLM survey" on this site.
 
 ---
 
 ## 13.1 VLM architecture
 {: id="131-vlm-架构"}
 
-Mainstream VLM (such as LLaVA, PaliGemma, Qwen-VL) mainly consists of three parts:
+Mainstream VLMs (such as LLaVA, PaliGemma, and Qwen-VL) consist of three main parts:
 
 ```mermaid
 graph LR
-    IMG["Image input"] --> VE["Visual Encoder<br/>Such as SigLIP / ViT"]
-    VE --> PROJ["Projection Layer<br/>MLP / Perceiver"]
-    PROJ --> LLM["LLM Backbone<br/>Such as Llama / Qwen"]
-    TXT["text Prompt"] --> LLM
-    LLM --> OUT["text answer"]
+    IMG["Image input"] --> VE["Visual encoder<br/>e.g. SigLIP / ViT"]
+    VE --> PROJ["Projection layer<br/>MLP / Perceiver"]
+    PROJ --> LLM["LLM backbone<br/>e.g. Llama / Qwen"]
+    TXT["Text prompt"] --> LLM
+    LLM --> OUT["Text answer"]
 
     style VE fill:#e1f5ff,stroke:#01579b
     style PROJ fill:#fff9c4,stroke:#f57f17
@@ -6051,61 +6069,61 @@ graph LR
 
 ### 13.1.1 Visual encoder
 {: id="1311-视觉编码器"}
-Responsible for converting original images into feature tensors. The current mainstream choice is **ViT-L/14** with good pretraining (such as CLIP or SigLIP).
-* **SigLIP vs. CLIP**: Early VLM mostly used CLIP, but in recent years **SigLIP (Sigmoid Language-Image Pre-training)** has become mainstream. CLIP uses Softmax loss for global contrastive learning, which requires a large Batch Size and is sensitive to noise; while SigLIP treats image and text matching as an independent two-classification task, uses Sigmoid loss, and is more stable in training at a smaller Batch Size, and has stronger zero-shot (Zero-Shot) image classification and fine-grained representation capabilities.
+Turns the raw image into a feature tensor. The mainstream choice today is a well-pretrained **ViT-L/14** (e.g. from CLIP or SigLIP).
+* **SigLIP vs. CLIP**: early VLMs mostly used CLIP, but **SigLIP (Sigmoid Language-Image Pre-training)** has become the default in recent years. CLIP uses a softmax loss for global contrastive learning, which needs very large batches and is sensitive to noise. SigLIP instead treats each image-text match as an independent binary classification with a sigmoid loss; it trains stably at smaller batch sizes and gives stronger zero-shot image classification and fine-grained representations.
 
 ### 13.1.2 Projection layer
 {: id="1312-投影层"}
-Responsible for mapping the feature dimensions output by the visual encoder (such as ViT's 1024 dimensions) to the vocabulary vector dimensions of the large language model (such as Llama-3's 4096 dimensions), and converting visual features into "virtual visual tokens" that LLM can understand.
-* **Linear/MLP Projection**: The minimalist solution adopted by LLaVA has extremely low computational overhead, but all features of ViT will be sent to LLM (such as 576 Tokens). As the number of images increases, it is easy to fill up the context window of LLM.
-* **Perceiver Resampler (Perceiver Resampler)**: The scheme adopted by Flamingo. The first generation Qwen-VL also used a similar single-layer cross-attention resampler. A set of fixed number of "Queries" is used to aggregate ViT's massive features through Cross-Attention, compressing any resolution/any number of visual features into a fixed length (64 for Flamingo, 256 for Qwen-VL), which greatly saves the context window of LLM. (PaliGemma, like LLaVA, only uses a linear layer to project SigLIP features into Gemma’s word embedding space.)
-* **Q-Former**: The Query transformer based on two-stage pretraining proposed by BLIP-2 has a heavy structure but strong representation ability.
+Maps the visual encoder's output dimension (e.g. 1024 for ViT) to the LLM's embedding dimension (e.g. 4096 for Llama-3), turning visual features into "virtual visual tokens" the LLM can understand.
+* **Linear/MLP projection**: the minimalist approach used by LLaVA. It is very cheap to compute, but every ViT feature goes into the LLM (e.g. 576 tokens), so the context window fills up quickly as the number of images grows.
+* **Perceiver Resampler**: the approach used by Flamingo; the first Qwen-VL used a similar single-layer cross-attention resampler. A fixed set of learnable queries aggregates ViT's many features through cross-attention, compressing visual features of any resolution or count to a fixed length (64 for Flamingo, 256 for Qwen-VL) and saving a lot of the LLM's context window. (PaliGemma, like LLaVA, simply uses a linear layer to project SigLIP features into Gemma's embedding space.)
+* **Q-Former**: the query Transformer proposed in BLIP-2, pretrained in two stages; heavier, but with strong representational power.
 
 ### 13.1.3 LLM backbone
 {: id="1313-语言模型基座"}
-Receive intertwined visual tokens and text tokens, and output the final text answer. During training, it can learn image and text understanding through LoRA or full parameter fine-tuning.
+Takes the interleaved visual and text tokens and produces the final text answer. During training it learns image-text understanding through LoRA or full fine-tuning.
 
 ---
 
 ## 13.2 Dynamic resolution
 {: id="132-动态分辨率"}
 
-Traditional vision models will force-scale the input image of any size to a fixed resolution (such as $224 \times 224$ or $336 \times 336$). This is feasible for ordinary classification tasks, but is disastrous for **OCR (character recognition)**, **chart analysis**, or **fine-grained target detection** in large models. Scaling will cause small text to be directly blurred and unreadable.
+Traditional vision models resize every input image to a fixed resolution (such as $224 \times 224$ or $336 \times 336$). That works for ordinary classification, but it is disastrous for **OCR**, **chart analysis**, or **fine-grained object detection** with large models: resizing blurs small text until it is unreadable.
 
-In order to solve this pain point, modern VLM (such as LLaVA-NeXT, Monkey, InternVL) adopts **dynamic slicing (Image Patching)** technology:
+To fix this, modern VLMs (such as LLaVA-NeXT, Monkey, and InternVL) use **dynamic tiling (image patching)**:
 
 ```mermaid
 flowchart TD
-    IMG["Original high-resolution image<br>Such as 672×672"] -->|"mesh segmentation"| T1["subplot 1<br>336×336"]
-    IMG -->|"mesh segmentation"| T2["subplot 2<br>336×336"]
-    IMG -->|"mesh segmentation"| T3["subplot 3<br>336×336"]
-    IMG -->|"mesh segmentation"| T4["subplot 4<br>336×336"]
-    IMG -->|"Overall scaling"| G["global thumbnail<br>336×336"]
-    T1 & T2 & T3 & T4 & G --> VE["Visual Encoder code separately"]
-    VE --> SEQ["Spliced into a series of visuals Tokens<br>Send in Projection with LLM"]
+    IMG["Original high-resolution image<br>e.g. 672×672"] -->|"grid split"| T1["Tile 1<br>336×336"]
+    IMG -->|"grid split"| T2["Tile 2<br>336×336"]
+    IMG -->|"grid split"| T3["Tile 3<br>336×336"]
+    IMG -->|"grid split"| T4["Tile 4<br>336×336"]
+    IMG -->|"resize whole image"| G["Global thumbnail<br>336×336"]
+    T1 & T2 & T3 & T4 & G --> VE["Each encoded by the visual encoder"]
+    VE --> SEQ["Concatenated into one sequence of visual tokens<br>passed through the projection into the LLM"]
 
     style IMG fill:#e3f2fd,stroke:#01579b,color:#000
     style G fill:#fff9c4,stroke:#f57f17,color:#000
     style SEQ fill:#c8e6c9,stroke:#1b5e20,color:#000
 ```
 
-* **processing flow**:
-  1. Cut a high-resolution image (such as $672 \times 672$) into $2 \times 2$ subimages without overlap, each subimage is $336 \times 336$.
-  2. In addition, the original image is forcibly scaled to $336 \times 336$ as a "global thumbnail" to provide a global macro layout of the image.
-  3. These five images are sent to the Visual Encoder to extract features, mapped by the Projection Layer and then spliced into a series of visual tokens.
-  4. This method allows the large model to see small characters and details in large images clearly, at the cost of the number of visual tokens increasing exponentially with the number of slices (in the above example, 5 × 576 = 2,880).
+* **How it works**:
+  1. Split a high-resolution image (e.g. $672 \times 672$) into $2 \times 2$ non-overlapping tiles of $336 \times 336$ each.
+  2. Also resize the whole image to $336 \times 336$ as a "global thumbnail" that conveys the overall layout.
+  3. Feed all five images through the visual encoder, map them through the projection layer, and concatenate the results into one sequence of visual tokens.
+  4. The model can now read small text and fine details in large images, at the cost of visual tokens growing in proportion to the number of tiles (5 × 576 = 2,880 in this example).
 
-Another route is **native dynamic resolution**: Qwen2-VL no longer scales or cuts images to fixed sizes, but allows ViT to directly process images of any resolution (with 2D position encoding). The number of visual tokens changes with the image area, and adjacent 2×2 tokens are merged to control the sequence length.
+Another route is **native dynamic resolution**: Qwen2-VL no longer resizes or tiles images to a fixed size; its ViT processes images at any resolution directly (with 2D positional encoding). The number of visual tokens scales with image area, and adjacent 2×2 tokens are merged to keep the sequence length in check.
 
 ---
 
 ## 13.3 Visual tokens and interleaving
 {: id="133-视觉-token-与序列交织"}
 
-In VLM, image feature vectors must be spliced or interleaved with text in the sequence dimension before being fed into LLM.
+In a VLM, image feature vectors must be concatenated or interleaved with the text along the sequence dimension before entering the LLM.
 
-* **sequence representation format**:
-At the token level, images are usually wrapped by a pair of special identifiers. For example, a picture is mapped to $N$ visual tokens (such as $N=576$), and the form in the dialogue template is roughly:
+* **Sequence format**:
+At the token level, an image is usually wrapped in a pair of special markers. For example, an image mapped to $N$ visual tokens (e.g. $N=576$) appears in the chat template roughly as:
   ```
   <|im_start|>system
   You are a helpful assistant.<|im_end|>
@@ -6113,32 +6131,32 @@ At the token level, images are usually wrapped by a pair of special identifiers.
   <image> v_1 v_2 ... v_N </image> Please describe this image.<|im_end|>
   <|im_start|>assistant
   ```
-Here, `v_1 ... v_N` is not a token in the vocabulary, but a vector output by the projection layer, which directly replaces the placeholder position after the Embedding layer (see the code in Section 13.5).
-* **Attention Mask controls**:
-Most VLMs (such as LLaVA, Qwen-VL series) directly use LLM's **Causal Attention (Causal Attention)**, and visual Tokens and text Tokens are treated equally. There are also models using **Prefix-LM**: PaliGemma makes **bidirectionally visible between the image Token and the prefix text**, and only uses a causal mask for the answer part to be generated.
+Here `v_1 ... v_N` are not vocabulary tokens but vectors output by the projection layer; they directly replace the placeholder positions after the embedding layer (see the code in Section 13.5).
+* **Attention masks**:
+Most VLMs (such as LLaVA and the Qwen-VL series) simply use the LLM's **causal attention**, treating visual and text tokens alike. Some models use a **prefix-LM** instead: PaliGemma makes **image tokens and the text prefix attend to each other bidirectionally** and applies a causal mask only to the answer being generated.
 
 ---
 
-## 13.4 Two-stage training of VLM
+## 13.4 Two-stage VLM training
 {: id="134-vlm-的两阶段训练"}
 
-The mainstream VLM represented by LLaVA-1.5 adopts two-stage training, first "aligning the modality" and then "learning the instructions":
+Mainstream VLMs, typified by LLaVA-1.5, train in two stages: first "align the modalities", then "learn to follow instructions":
 
-|stage|Which parameters to train|data|target|
+|Stage|Trainable parameters|Data|Goal|
 |------|-------------|------|------|
-|**Stage 1: Feature Alignment pretraining**|Only train the projection layer; visual encoder and LLM frozen|About 558000 pairs of image and text description data (LCS-558K)|Let the visual features fall into the word embedding space that LLM can understand|
-|**Phase 2: Visual command fine-tuning**|Projection layer + LLM (fully parametric or LoRA); visual encoder often still frozen|Approximately 665000 mixed command data (visual dialogue, VQA, OCR, area description and plain text dialogue)|Allow the model to complete a variety of visual tasks according to instructions|
+|**Stage 1: feature-alignment pretraining**|Projection layer only; visual encoder and LLM frozen|About 558000 image-caption pairs (LCS-558K)|Map visual features into the LLM's word-embedding space|
+|**Stage 2: visual instruction tuning**|Projection layer + LLM (full or LoRA); visual encoder usually still frozen|About 665000 mixed instruction samples (visual dialogue, VQA, OCR, region descriptions, and text-only dialogue)|Teach the model to perform a range of visual tasks on instruction|
 
-- **Why freeze LLM** first: The randomly initialized projection layer outputs "noise Token" at the beginning. Letting go of LLM at this time will destroy its language ability (echoing the catastrophic forgetting in Chapter 5)
-- **Plain text data is still important**: Phase 2 is mixed with plain text dialogue (LLaVA-1.5 is mixed with ShareGPT data), which can maintain LLM’s original dialogue and reasoning capabilities
-- **updated approach**: Subsequent models such as InternVL and Qwen2-VL will add continued pretraining of large-scale image and text interleaved data after stage one, and unfreeze the visual encoder in the later stage to improve OCR and high-resolution understanding capabilities
+- **Why freeze the LLM first**: the randomly initialized projection layer starts out emitting "noise tokens"; unfreezing the LLM at that point would damage its language ability (echoing catastrophic forgetting in Chapter 5)
+- **Text-only data still matters**: mixing text-only dialogue into stage 2 (LLaVA-1.5 mixes in ShareGPT data) preserves the LLM's original dialogue and reasoning abilities
+- **More recent recipes**: later models such as InternVL and Qwen2-VL add continued pretraining on large-scale interleaved image-text data after stage 1, and unfreeze the visual encoder in later stages to improve OCR and high-resolution understanding
 
 ---
 
 ## 13.5 A minimal VLM
 {: id="135-极简-vlm-实现"}
 
-The following code demonstrates how to use PyTorch to build a minimalist VLM model from scratch that supports Vision-Language fusion:
+The code below shows how to build a minimal vision-language VLM from scratch in PyTorch:
 
 ```python
 import torch
@@ -6148,19 +6166,19 @@ from transformers import AutoModelForCausalLM, AutoConfig
 class SimpleVLM(nn.Module):
     def __init__(self, llm_model_name_or_path, visual_dim=1024, embed_dim=4096):
         super().__init__()
-        # 1. Instantiate LLM Backbone(used hereLlama/Qwenarchitecture)
+        # 1. Instantiate the LLM backbone (a Llama/Qwen architecture here)
         self.llm = AutoModelForCausalLM.from_pretrained(llm_model_name_or_path)
         self.word_embeddings = self.llm.get_input_embeddings()
 
-        # 2. Simple visual feature extractor (You can use pretraining ViT/SigLIP Instead, here simulated with random initialization)
-        # Assume that the input image is 336x336x3, ViT output after extraction patch The number of features is 576, each patch The dimensions are 1024
+        # 2. A simple visual feature extractor (replace with a pretrained ViT/SigLIP; randomly initialized here for illustration)
+        # Assume a 336x336x3 input image; the ViT yields 576 patch features, each 1024-dimensional
         self.visual_encoder = nn.Sequential(
             nn.Linear(visual_dim, visual_dim),
             nn.GELU()
         )
 
-        # 3. Glued multilayer perceptron (MLP Projector)
-        # will 1024 dimensional visual vector, mapped to LLM word embedding space 4096 dimension
+        # 3. The glue: a multilayer perceptron (MLP projector)
+        # maps 1024-dim visual vectors into the LLM's 4096-dim word-embedding space
         self.projector = nn.Sequential(
             nn.Linear(visual_dim, embed_dim),
             nn.GELU(),
@@ -6170,39 +6188,39 @@ class SimpleVLM(nn.Module):
     def forward(self, text_input_ids, image_features, visual_token_start_idx):
         """
         Args:
-            text_input_ids: textual Token IDs, shape: [batch_size, seq_len]
-            image_features: Raw features extracted by visual encoder, shape: [batch_size, 576, 1024]
-            visual_token_start_idx: The starting index position for inserting image placeholders into the text
+            text_input_ids: text token IDs, shape: [batch_size, seq_len]
+            image_features: raw features from the visual encoder, shape: [batch_size, 576, 1024]
+            visual_token_start_idx: index in the text where the image placeholders begin
         """
-        # Step 1: text Token IDs converted to LLM of Embedding vector
+        # Step 1: convert text token IDs into the LLM's embedding vectors
         # text_embeds shape: [batch_size, seq_len, 4096]
         text_embeds = self.word_embeddings(text_input_ids)
 
-        # Step 2: Extract image features and perform modal alignment projection
+        # Step 2: extract image features and project them into the text modality
         # vis_features shape: [batch_size, 576, 1024] -> [batch_size, 576, 4096]
         vis_features = self.visual_encoder(image_features)
         vis_tokens = self.projector(vis_features)
 
-        # Step 3: Place the visual at the specified location Token Insert and replace placeholders in text sequences
-        # Assume that in text_input_ids In we have reserved a length of 576 placeholders (such as special <image> token)
+        # Step 3: insert the visual tokens in place of the placeholders in the text sequence
+        # Assume text_input_ids already reserves 576 placeholders (e.g. special <image> tokens)
         batch_size, seq_len, embed_dim = text_embeds.shape
         num_vis_tokens = vis_tokens.shape[1]
 
-        # Build mixed inputs Embedding sequence
+        # Build the mixed embedding sequence
         mixed_embeds = []
         for i in range(batch_size):
-            # General i sample vision Token, Replace to the reserved placeholder position
+            # Put sample i's visual tokens into the reserved placeholder positions
             prefix = text_embeds[i, :visual_token_start_idx]
             suffix = text_embeds[i, visual_token_start_idx + num_vis_tokens:]
 
-            # Splicing: prefix (text) + vis_tokens (image mapping) + suffix (text)
+            # Concatenate: prefix (text) + vis_tokens (projected image) + suffix (text)
             sample_embeds = torch.cat([prefix, vis_tokens[i], suffix], dim=0)
             mixed_embeds.append(sample_embeds)
 
         # mixed_embeds shape: [batch_size, seq_len, 4096]
         mixed_embeds = torch.stack(mixed_embeds, dim=0)
 
-        # Step 4: Send in LLM The base performs calculations and gets the output Logits
+        # Step 4: run the LLM backbone to get the output logits
         outputs = self.llm(inputs_embeds=mixed_embeds)
         return outputs.logits
 ```
@@ -6212,45 +6230,45 @@ class SimpleVLM(nn.Module):
 ## 13.6 Agent training
 {: id="136-agent-训练"}
 
-The new focus of large model competition in 2025-2026 has shifted from "conversation quality" to "whether **can use tools independently and complete multi-step tasks**" (Agentic capability). Models such as Kimi K2 use this as their core selling point. Agent training is significantly different from the dialogue/reasoning model training in previous chapters in terms of data format and reward design. This section serves as a supplement.
+In 2025-2026 the focus of LLM competition shifted from "conversation quality" to whether a model **can use tools on its own and complete multi-step tasks** (agentic capability). Models such as Kimi K2 make this their main selling point. Agent training differs noticeably from the dialogue and reasoning training of earlier chapters in both data format and reward design; this section fills in those differences.
 
-### 13.6.1 Tool call SFT data format
+### 13.6.1 SFT data format for tool calls
 {: id="1361-工具调用-sft-数据格式"}
 
-The first step in Agent training is to let the model learn to initiate tool calls in a fixed format. A common approach is to insert special tool call/return rounds in the conversation format:
+The first step in agent training is teaching the model to issue tool calls in a fixed format. A common approach inserts special tool-call and tool-response turns into the conversation format:
 
 ```
-<|user|> Help me check the weather in Beijing tomorrow, and then help me book a ticket to Shanghai
+<|user|> Check tomorrow's weather in Beijing, then book me a flight to Shanghai
 <|assistant|> <tool_call>{"name": "get_weather", "arguments": {"city": "Beijing", "date": "tomorrow"}}</tool_call>
 <|tool_response|> {"weather": "clear", "temp": "18-26°C"}
 <|assistant|> <tool_call>{"name": "book_flight", "arguments": {"from": "Beijing", "to": "Shanghai"}}</tool_call>
 <|tool_response|> {"status": "success", "flight_no": "MU5137"}
-<|assistant|> The weather will be fine in Beijing tomorrow.18-26°C; Already ordered for you MU5137 Flight to Shanghai.
+<|assistant|> Tomorrow will be clear in Beijing, 18-26°C. I've booked you on flight MU5137 to Shanghai.
 ```
 
-Like standard SFT (section 3.2.2), **only calculates loss** for the `<|assistant|>` part, and the `<|tool_response|>` part (from the external environment, not model generated) does not participate in the gradient calculation. This type of data usually uses the **ReAct (Reasoning + Acting) format** - the model first outputs a brief thought before each tool call (why this tool is called, how to determine the parameters), and then outputs structured call instructions. From experience, it is less likely to cause parameter errors than "direct output call".
+As in standard SFT (Section 3.2.2), **loss is computed only** on the `<|assistant|>` turns; the `<|tool_response|>` turns come from the external environment, not the model, and are excluded from the gradient. Such data usually follows the **ReAct (Reasoning + Acting) format**: before each tool call, the model writes a brief thought (why this tool, how to fill in the arguments) and then emits the structured call. In practice this produces fewer argument errors than emitting the call directly.
 
 ### 13.6.2 Rewards for multi-turn tool use
 {: id="1362-多轮工具调用的奖励"}
 
-SFT can only allow the model to learn to "imitate" the format of tool calls. Really improving the task completion rate relies on RL training. Reward design is the core difficulty:
+SFT only teaches the model to imitate the tool-call format; actually raising the task success rate takes RL, and reward design is the central difficulty:
 
-|Reward type|design approach|Applicable scenarios|
+|Reward type|Design|When to use|
 |---------|---------|---------|
-|**task result reward**|Whether the task is finally completed (such as whether the ticket is booked successfully) will give a 0/1 reward|Tasks with clear success criteria|
-|**format/call legality reward**|Whether the JSON format of the tool call is legal and whether the parameters conform to the Schema|Prevent model output format from collapsing in the early stages of training|
-|**step efficiency penalty**|Apply slight negative rewards to redundant tool calls and repeated calls|Prevent the model from "random testing" to increase the accuracy rate|
-|**Process rationality reward (optional PRM)**|Are the intermediate steps logical (for example, check the weather first and then book tickets in a reasonable order)|Complex multi-step tasks require high labeling costs|
+|**Task outcome reward**|0/1 depending on whether the task was ultimately completed (e.g. was the flight booked)|Tasks with clear success criteria|
+|**Format/validity reward**|Is the tool call valid JSON, and do the arguments match the schema|Keeps output format from collapsing early in training|
+|**Step-efficiency penalty**|A small negative reward for redundant or repeated tool calls|Stops the model from "trying things at random" to raise its success rate|
+|**Process reward (optional PRM)**|Are the intermediate steps sensible (e.g. checking the weather before booking is a reasonable order)|Complex multi-step tasks; expensive to label|
 
-Similar to the ORM/PRM in Section 4.5.3, the "credit allocation" problem of multi-step Agent tasks is more prominent - if a task that calls a tool in 10 steps fails, it is difficult to determine which step went wrong. A common practice in the industry is to **give priority to the task result reward + GRPO relative advantage within the group** (Section 4.5.1), allowing the model to learn which call sequences are better through intra-group comparison, rather than relying on expensive step-level annotations.
+Compared with ORM/PRM in Section 4.5.3, credit assignment is an even bigger problem for multi-step agent tasks: if a 10-step tool-use task fails, it is hard to tell which step went wrong. A common industry practice is to **rely mainly on the task outcome reward plus GRPO's group-relative advantage** (Section 4.5.1), letting the model learn which call sequences work better by comparing rollouts within a group rather than relying on costly step-level labels.
 
-### 13.6.3 Connection with existing chapters
+### 13.6.3 How it connects to earlier chapters
 {: id="1363-与现有章节的衔接"}
 
-Agent training is not a new technology stack, but a combination of previous technologies:
-- **Cold start**: Use manual or strong model distillation tools to call the trajectory to do SFT (echoing the distillation method in Sections 3.3.2 and 4.8)
-- **RL improves**: Use GRPO + task results to reward training (echoing Sections 4.5 and 4.6 RL infrastructure)
-- **Engineering challenges of environment interaction**: The Rollout stage requires a real or simulated tool environment (API sandbox, browser environment, etc.), which is more complex than Rollout for pure text reasoning tasks, and is usually the biggest engineering bottleneck in Agent RL training.
+Agent training is not a new technology stack but a combination of techniques covered earlier:
+- **Cold start**: SFT on tool-call trajectories written by humans or distilled from a strong model (see the distillation methods in Sections 3.3.2 and 4.8)
+- **RL refinement**: GRPO with task-outcome rewards (see the RL infrastructure in Sections 4.5 and 4.6)
+- **Environment interaction is the engineering challenge**: rollouts need a real or simulated tool environment (API sandboxes, browser environments, etc.), which is far more complex than rollouts for text-only reasoning tasks and is usually the biggest engineering bottleneck in agent RL
 
 ### 13.6.4 Agentic RL: scaling environments and data
 {: id="1364-agentic-rl环境与数据规模化"}
@@ -6276,37 +6294,37 @@ As in SFT, all tool-returned content (`<|tool_response|>`) is masked out of the 
 # 14. References
 {: id="14-参考资源"}
 
-In order to help in-depth exploration and implementation of large language model training, this chapter sorts out the core academic papers, open source community benchmark projects and recommended practical learning paths mentioned in this review.
+To support deeper study and hands-on work in LLM training, this chapter collects the key papers cited in this survey, flagship open-source projects, and a recommended learning path.
 
 ## 14.1 Must-read classic papers
 {: id="141-必读经典论文"}
 
-* **model architecture and attention**:
-  * Vaswani et al. [Attention is All You Need](https://arxiv.org/abs/1706.03762) (Transformer foundation work)
-  * Dao et al. [FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness](https://arxiv.org/abs/2205.14135) (FlashAttention v1 principle)
-* **Scaling Laws**:
-  * Kaplan et al. [Scaling Laws for Neural Language Models](https://arxiv.org/abs/2001.08361) (OpenAI early scaling theory)
-  * Hoffmann et al. [Training Compute-Optimal Large Language Models](https://arxiv.org/abs/2203.15556) (Chinchilla scaling formula, proving that the amount of data is equally important as the parameters)
-* **Mainstream base model**:
-  * Touvron et al. [LLaMA: Open and Efficient Foundation Language Models](https://arxiv.org/abs/2302.13971) (the cornerstone of modern open source LLM)
-  * Llama Team, AI @ Meta. [The Llama 3 Herd of Models](https://arxiv.org/abs/2407.21783) (Complete engineering report on data matching, long context expansion and post-training process)
-* **pretraining data**:
-  * Penedo et al. [The FineWeb Datasets: Decanting the Web for the Finest Text Data at Scale](https://arxiv.org/abs/2406.17557) (Cleaning, deduplication and educational value filtering of 15T tokens web page data)
-* **preference alignment and reinforcement learning**:
+* **Architecture and attention**:
+  * Vaswani et al. [Attention is All You Need](https://arxiv.org/abs/1706.03762) (the paper that introduced the Transformer)
+  * Dao et al. [FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness](https://arxiv.org/abs/2205.14135) (how FlashAttention v1 works)
+* **Scaling laws**:
+  * Kaplan et al. [Scaling Laws for Neural Language Models](https://arxiv.org/abs/2001.08361) (OpenAI's early scaling theory)
+  * Hoffmann et al. [Training Compute-Optimal Large Language Models](https://arxiv.org/abs/2203.15556) (Chinchilla scaling: data matters as much as parameters)
+* **Foundation models**:
+  * Touvron et al. [LLaMA: Open and Efficient Foundation Language Models](https://arxiv.org/abs/2302.13971) (the cornerstone of modern open LLMs)
+  * Llama Team, AI @ Meta. [The Llama 3 Herd of Models](https://arxiv.org/abs/2407.21783) (a complete engineering report on data mixing, long-context extension, and post-training)
+* **Pretraining data**:
+  * Penedo et al. [The FineWeb Datasets: Decanting the Web for the Finest Text Data at Scale](https://arxiv.org/abs/2406.17557) (cleaning, deduplication, and educational-value filtering of 15T tokens of web data)
+* **Preference alignment and reinforcement learning**:
   * Ouyang et al. [Training language models to follow instructions with human feedback](https://arxiv.org/abs/2203.02155) (InstructGPT / RLHF)
-  * Rafailov et al. [Direct Preference Optimization: Your Language Model is Secretly a Reward Model](https://arxiv.org/abs/2305.18290) (DPO algorithm)
-  * Shao et al. [DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models](https://arxiv.org/abs/2402.03300) (GRPO algorithm first proposed)
-  * DeepSeek-AI. [DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning](https://arxiv.org/abs/2501.12948) (Large-scale RL training paradigm and distillation of reasoning models)
+  * Rafailov et al. [Direct Preference Optimization: Your Language Model is Secretly a Reward Model](https://arxiv.org/abs/2305.18290) (the DPO algorithm)
+  * Shao et al. [DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models](https://arxiv.org/abs/2402.03300) (where GRPO was introduced)
+  * DeepSeek-AI. [DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning](https://arxiv.org/abs/2501.12948) (the large-scale RL recipe for reasoning models, plus distillation)
 * **Efficient fine-tuning and distributed training**:
-  * Hu et al. [LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685) (the de facto standard for efficient parameter fine-tuning)
-  * Dettmers et al. [QLoRA: Efficient Finetuning of Quantized LLMs](https://arxiv.org/abs/2305.14314) (NF4 + dual quantization + paging optimizer)
-  * Rajbhandari et al. [ZeRO: Memory Optimizations Toward Training Trillion Parameter Models](https://arxiv.org/abs/1910.02054) (ZeRO Sharding)
-  * Shoeybi et al. [Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism](https://arxiv.org/abs/1909.08053) (Tensor Parallelism)
-* **2024-2026 Key technical report** (architectural innovation, FP8 training project, first-hand information on ultra-large-scale MoE):
-  * DeepSeek-AI. [DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model](https://arxiv.org/abs/2405.04434) (MLA bull potential attention first proposed)
-  * DeepSeek-AI. [DeepSeek-V3 Technical Report](https://arxiv.org/abs/2412.19437) (FP8 mixed precision training engineering details, 671B MoE architecture and real training cost disclosure)
-  * Qwen Team. [Qwen2.5 Technical Report](https://arxiv.org/abs/2412.15115) (Alibaba Tongyi Qianwen series model architecture and training methods, please pay attention to the subsequent Qwen3 thinking/non-thinking mixed reasoning mode update)
-  * Yu et al. [DAPO: An Open-Source LLM Reinforcement Learning System at Scale](https://arxiv.org/abs/2503.14476) (GRPO improved algorithm, dynamic sampling filtering)
+  * Hu et al. [LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685) (the de facto standard for parameter-efficient fine-tuning)
+  * Dettmers et al. [QLoRA: Efficient Finetuning of Quantized LLMs](https://arxiv.org/abs/2305.14314) (NF4 + double quantization + paged optimizers)
+  * Rajbhandari et al. [ZeRO: Memory Optimizations Toward Training Trillion Parameter Models](https://arxiv.org/abs/1910.02054) (ZeRO sharding)
+  * Shoeybi et al. [Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism](https://arxiv.org/abs/1909.08053) (tensor parallelism)
+* **Key technical reports, 2024-2026** (first-hand sources on architecture innovation, FP8 training engineering, and very large MoE models):
+  * DeepSeek-AI. [DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model](https://arxiv.org/abs/2405.04434) (introduced MLA, multi-head latent attention)
+  * DeepSeek-AI. [DeepSeek-V3 Technical Report](https://arxiv.org/abs/2412.19437) (FP8 mixed-precision training details, the 671B MoE architecture, and disclosed training cost)
+  * Qwen Team. [Qwen2.5 Technical Report](https://arxiv.org/abs/2412.15115) (architecture and training of Alibaba's Qwen series; see Qwen3 below for the hybrid thinking/non-thinking mode)
+  * Yu et al. [DAPO: An Open-Source LLM Reinforcement Learning System at Scale](https://arxiv.org/abs/2503.14476) (an improved GRPO with dynamic sampling)
   * Zheng et al. [Group Sequence Policy Optimization](https://arxiv.org/abs/2507.18071) (GSPO, sequence-level importance ratio)
   * MiniMax. [MiniMax-M1: Scaling Test-Time Compute Efficiently with Lightning Attention](https://arxiv.org/abs/2506.13585) (the CISPO algorithm and a hybrid-attention reasoning model)
   * Qwen Team. [Qwen3 Technical Report](https://arxiv.org/abs/2505.09388) (three-stage pretraining, thinking/non-thinking fusion, and on-policy distillation)
@@ -6325,34 +6343,34 @@ In order to help in-depth exploration and implementation of large language model
   * Barres et al. [τ²-Bench: Evaluating Conversational Agents in a Dual-Control Environment](https://arxiv.org/abs/2506.07982)
   * Wei et al. [BrowseComp: A Simple Yet Challenging Benchmark for Browsing Agents](https://arxiv.org/abs/2504.12516)
 
-## 14.2 Benchmark open source projects
+## 14.2 Flagship open-source projects
 {: id="142-标杆开源项目"}
 
-* **distributed training base**:
-  * [DeepSpeed](https://github.com/microsoft/DeepSpeed) (Microsoft open source, the best carrier of ZeRO series parallel technology)
-  * [Megatron-LM](https://github.com/NVIDIA/Megatron-LM) (Officially produced by NVIDIA, ultra-large-scale 3D hybrid parallelism and GPU underlying optimization library)
-* **Fine-tuning and inference alignment tool**:
-  * [TRL - Transformer Reinforcement Learning](https://github.com/huggingface/trl) (produced by Hugging Face, built-in SFTTrainer, DPOTrainer and GRPOTrainer)
-  * [Unsloth](https://github.com/unslothai/unsloth) (The most powerful single-GPU fine-tuning acceleration library, rewritten with CUDA kernel, can reduce GPU memory for fine-tuning and GRPO training by up to 70-80%)
-* **RL training and Rollout inference engine** (echoing the RL training engineering infrastructure in Section 4.6):
-  * [vLLM](https://github.com/vllm-project/vllm) (PagedAttention high-throughput inference engine, the default Rollout backend for mainstream RL training frameworks)
-  * [SGLang](https://github.com/sgl-project/sglang) (RadixAttention prefix cache reuse, has natural advantages for "same Prompt multi-sampling" RL load)
-  * [verl](https://github.com/volcengine/verl) (Bytedance’s open source RLHF/GRPO training framework, natively integrated with vLLM/SGLang for Rollout acceleration)
-  * [OpenRLHF](https://github.com/OpenRLHF/OpenRLHF) (Easy-to-use open source RLHF/GRPO training framework, supports large-scale distributed RL training)
+* **Distributed training foundations**:
+  * [DeepSpeed](https://github.com/microsoft/DeepSpeed) (open-sourced by Microsoft; the reference implementation of the ZeRO family)
+  * [Megatron-LM](https://github.com/NVIDIA/Megatron-LM) (from NVIDIA; very large-scale 3D hybrid parallelism and low-level GPU optimizations)
+* **Fine-tuning and alignment tools**:
+  * [TRL - Transformer Reinforcement Learning](https://github.com/huggingface/trl) (from Hugging Face, with built-in SFTTrainer, DPOTrainer, and GRPOTrainer)
+  * [Unsloth](https://github.com/unslothai/unsloth) (a leading single-GPU fine-tuning accelerator with rewritten CUDA kernels; cuts GPU memory for fine-tuning and GRPO training by up to 70-80%)
+* **RL training and rollout inference engines** (see the RL infrastructure in Section 4.6):
+  * [vLLM](https://github.com/vllm-project/vllm) (high-throughput inference with PagedAttention; the default rollout backend of mainstream RL frameworks)
+  * [SGLang](https://github.com/sgl-project/sglang) (RadixAttention prefix-cache reuse, a natural fit for RL's "many samples per prompt" workload)
+  * [verl](https://github.com/volcengine/verl) (ByteDance's open-source RLHF/GRPO training framework, natively integrated with vLLM/SGLang for fast rollouts)
+  * [OpenRLHF](https://github.com/OpenRLHF/OpenRLHF) (an easy-to-use open-source RLHF/GRPO framework supporting large-scale distributed RL)
   * [slime](https://github.com/THUDM/slime) (Zhipu's open-source Megatron + SGLang RL framework used for GLM-4.5, built for agentic RL)
   * [AReaL](https://github.com/areal-project/AReaL) (a fully asynchronous RL system that decouples rollout from training, suited to long agent trajectories)
-* **small model teaching practice**:
-  * [MiniMind](https://github.com/jingyaogong/minimind) (Ultra-lightweight large model full-stack training project, very suitable for quickly running through pretraining to RL complete pipeline on a personal graphics card)
+* **Small models for learning**:
+  * [MiniMind](https://github.com/jingyaogong/minimind) (an ultra-lightweight full-stack LLM training project, ideal for running the whole pipeline from pretraining to RL on a personal GPU)
 
 ## 14.3 Recommended practical learning path
 {: id="143-推荐实践学习路径"}
 
 ```
-[steps1: Theoretical foundation] -> learn Stanford CS224n course, read Transformer, Causal Masking Mechanisms and autoregressive decoding.
+[Step 1: theory]            -> Take Stanford CS224n; understand the Transformer, causal masking, and autoregressive decoding.
       |
-[steps2: Play with inference deployment] -> Use llama.cpp or vLLM Deploy mainstream open source models such as Qwen-7B), familiar INT4/INT8 Quantized GPU memory usage changes.
+[Step 2: inference & deployment] -> Deploy a mainstream open model (e.g. Qwen-7B) with llama.cpp or vLLM, and see how INT4/INT8 quantization changes GPU memory use.
       |
-[steps3: Toy model training] -> run MiniMind project, on a single consumer graphics card such as RTX 3090/4090)Run through the 100M parameter model once Tokenizer training,Pre-train, SFT, DPO.
+[Step 3: a toy model]       -> Run the MiniMind project on a single consumer GPU (e.g. RTX 3090/4090), training a ~100M-parameter model through tokenizer training, pretraining, SFT, and DPO.
       |
-[steps4: Distributed Engineering Advanced] -> Learn to use DeepSpeed configuration file, in a multi-card environment (such as 8x A100)Configure below ZeRO-2/3, Offload strategies, training 7B-70B scale model.
+[Step 4: distributed engineering] -> Learn DeepSpeed config files and set up ZeRO-2/3 and offloading on a multi-GPU machine (e.g. 8x A100) to train 7B-70B models.
 ```
