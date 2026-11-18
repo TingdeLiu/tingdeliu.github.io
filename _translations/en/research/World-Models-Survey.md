@@ -5,23 +5,23 @@ translation_id: world-models-survey
 permalink: /en/World-Models-Survey/
 source_path: _posts/research/2026-04-16-World-Models-Survey.md
 source_url: /World-Models-Survey/
-source_revision_date: 2026-10-24
-translation_updated: 2026-10-24
+source_revision_date: 2026-11-18
+translation_updated: 2026-11-18
 title: "World Models: A Survey"
-date: 2026-10-24
+date: 2026-11-18
 tags: [VLA, World Models, Robotics, Embodied AI, Survey]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
-excerpt: "Foundations, generative architectures, memory, inference efficiency, robot decision-making, representative papers, evaluation benchmarks, and open challenges for embodied world models."
+excerpt: "Foundations, generative architectures, memory, inference efficiency, robot decision-making, representative papers, evaluation benchmarks, and open challenges for embodied world models, updated with Genie 4, the Atlas release, and late-2026 work on faster, open world action models."
 ---
 
 
 # 1. Introduction
 {: id="1-引言"}
 
-The ultimate goal of **embodied intelligence (Embodied AI)** is to develop generalist embodied agents that perceive, reason, and act in the complex, continuous, and irreversible physical world, much as humans do. The rise of **vision-language-action (VLA)** models marks a step toward this goal. By fine-tuning the semantic knowledge and visual reasoning capabilities of multimodal language models (LLMs/VLMs), VLA models map open-ended, high-level language instructions to low-level robot control tokens.
+**Embodied AI** aims for generalist agents that perceive, reason, and complete tasks in a continuous, irreversible physical world. **Vision-language-action (VLA)** models have been the main approach of the past two years. By fine-tuning the semantic knowledge and visual reasoning capabilities of multimodal language models (LLMs/VLMs), VLA models map open-ended, high-level language instructions to low-level robot control tokens.
 
 However, VLA agents that rely solely on reactive mappings face **four fundamental bottlenecks** in physical deployment:
 
@@ -30,14 +30,14 @@ However, VLA agents that rely solely on reactive mappings face **four fundamenta
 3. **Scarce interaction data and long-tail distributions**: Collecting high-quality real-robot teleoperation data is costly and hazardous. Limited offline datasets struggle to cover long-tail scenarios and failure distributions.
 4. **Safety and irreversibility**: Blind trial and error can damage expensive hardware or endanger people. Agents need mechanisms for self-protection and risk prediction before physical execution.
 
-**World models** are introduced as an agent's **“cognitive brain” and “internal physical simulator.”** By modeling the dynamics of the environment over space and time, they aim to support physical understanding, prediction of future outcomes, large-scale synthetic data generation, and policy improvement through imagined experience.
+**World models** target exactly these problems. They learn how the environment evolves over time and in response to actions, and serve as the agent's **internal simulator**. With one, an agent can predict consequences before acting, supplement real data with generated data, and optimize its policy inside the model. Predictions can be wrong, though, so whether a world model is useful ultimately depends on whether it helps downstream decisions (§4.6).
 
 <figure class="survey-intro-figure">
   <img src="/images/wm/world-models-survey-intro-en.svg" width="1200" height="510" alt="The world model predicts the possible future based on current observations and candidate actions, assists planning or learning, and then verifies the results with real interactive observations." loading="lazy" decoding="async" />
 <figcaption>Figure: A world model can predict the evolution of images, states or latent representations for planning, simulation and learning. There are errors in predictions, and future branches in the graph are candidate outcomes, not real observations or physical guarantees.</figcaption>
 </figure>
 
-This article refers to reviews such as Tan et al., 2026 [[1]](#ref-1) and Li et al., 2025/2026 [[2]](#ref-2)), organized in the order of "Definition → Classic Foundation → Engineering Design → Two Large Model Families → Basic Model → Evaluation → Challenge": §2 gives a formal definition and classification framework; §3 reviews classic models The three foundational works of RL; §4 dismantles the key design choices of the world model from the perspective of engineering implementation; §5 and §6 respectively introduce the world generator conditioned on camera/interaction, as well as the four major paradigms and representative work that serve robot decision-making; §7 introduces base models and platforms such as Cosmos and Wan; §8 summarizes the evaluation benchmarks; §9 discusses open challenges and practical implications.
+This article draws on surveys including Tan et al., 2026 [[1]](#ref-1), Li et al., 2025/2026 [[2]](#ref-2), Hou et al., 2026 [[64]](#ref-64), and Lu et al., 2026 [[61]](#ref-61), organized in the order of "Definition → Classic Foundation → Engineering Design → Two Large Model Families → Basic Model → Evaluation → Challenge": §2 gives a formal definition and classification framework; §3 reviews classic models The three foundational works of RL; §4 dismantles the key design choices of the world model from the perspective of engineering implementation; §5 and §6 respectively introduce the world generator conditioned on camera/interaction, as well as the four major paradigms and representative work that serve robot decision-making; §7 introduces base models and platforms such as Cosmos and Wan; §8 summarizes the evaluation benchmarks; §9 discusses open challenges and practical implications.
 
 ---
 
@@ -161,6 +161,7 @@ The following table summarizes the work detailed in the main text in the order o
 | **DreamZero** | 2026 | B · WAM (autoregressive + flow matching) | Joint video-action denoising + real-observation KV-cache updates + asynchronous control | AgiBot unseen-task progress 39.5%; approximately 7Hz on two GB200 GPUs | [§6.2](#paper-dreamzero) |
 | **AIM** | 2026 |B · WAM (diffusion)|Spatial Value Map (ASVM) + Intentional Causal Attention + Value Self-Distillation RL| RoboTwin 2.0 Avg SR 93.1% | [§6.2](#paper-aim) |
 | **Motus** | 2025/2026 | B · WAM(MoT) |Three experts MoT + optical flow latent action + UniDiffuser joint denoising scheduling|RoboTwin 2.0 Avg 87.8%, single step 80ms| [§6.2](#paper-motus) |
+| **GigaWorld-Policy / ForeWAM / OpenWAM, etc.** | 2026 | B · WAM (speed-ups and open frameworks) | Skip video generation at inference, reuse future KV states, training-free state reuse, open composable MoT framework | WAMACHINE training-free speed-up of 1.47–3.05×; OpenWAM 97.8% on LIBERO-Long | [§6.2](#wam-2026h2) |
 | **NavWAM & WAM-Nav** | 2026 |B · WAM (Navigation)|Unified latent space-time canvas + asymmetric horizon + dual-stream feature fusion|Inference 205.7 ms (about 5Hz), 1100× faster than NWM; real robot success rate 79.2% / 85%| [§6.2](#paper-navwam) |
 | **Qwen-RobotWorld** | 2026 |B·World Synthesizer|Dual-stream MMDiT + natural language unified action interface + cross-embodiment grounding| EWMBench 4.60 (#1), WorldModelBench 8.99 | [§6.3](#paper-qwen-robotworld) |
 | **WoVR** | 2026 |B·World Simulator|RL + key frame initialization (KIR) + policy co-evolution (PACE) in the world model|LIBERO average SR 39.95% → 69.2%; real robot 61.7% → 91.7%| [§6.4](#paper-wovr) |
@@ -227,7 +228,8 @@ flowchart TD
 - **2018–2022 (MBRL foundation period)**: World Models proposes V-M-C dream training; PlaNet introduces RSSM; DreamerV1/V2 establishes latent space Actor-Critic;
 - **2023–2024 (Video prior and 3D embryonic period)**: UniPi and SuSIE explore the use of video diffusion models for text-guided planning; GR-1 pioneers autoregressive video action pretraining; 3D-VLA introduces 3D geometric priors; DreamerV3 is released and cleared Minecraft; TD-MPC2 is unified 104 Embodied Control;
 - **2025 (the explosion period of the four major paradigms)**: WorldVLA and UniVLA unified autoregressive sequence modeling; DreamGen and GigaWorld-0 build a data synthesis flywheel; VLA-RFT and WoVR enable internal reinforcement learning of the world model; the Cosmos platform establishes an industrial-grade data and model system;
-- **2026 (the era of all-modal convergence and spatial intelligence)**: Cosmos 3 uses MoT architecture to unify understanding-generation-action; SANA-WM achieves minute-level efficient generation; Lyra 2.0 and Marble lay the foundation for 3DGS to explore the persistent universe; World Labs Atlas releases an all-modal autoregressive flow matching base to combine camera geometry with 3D Deeply incorporated into native modes and empowered Real-to-Sim embodied simulation; Motus, AIM, NavWAM, etc. promote world action models to the mainstream.
+- **2026 (the era of all-modal convergence and spatial intelligence)**: Cosmos 3 uses MoT architecture to unify understanding-generation-action; SANA-WM achieves minute-level efficient generation; Lyra 2.0 and Marble lay the foundation for 3DGS to explore the persistent universe; World Labs Atlas releases an all-modal autoregressive flow matching base to combine camera geometry with 3D Deeply incorporated into native modes and empowered Real-to-Sim embodied simulation; Motus, AIM, NavWAM, etc. promote world action models to the mainstream;
+- **Second half of 2026 (speed, openness, and productization)**: The WAM question shifted from "does it work" to "can it run fast". GigaWorld-Policy, ForeWAM, and WAMACHINE brought inference latency down to the order of 100 ms, and OpenWAM released an open, composable framework. Genie 4 (October) added native audio and conversational real-time editing, and World Labs Atlas (November) moved from early access to a general release with public APIs.
 
 ---
 
@@ -523,6 +525,17 @@ Mask autoregressive model based on **MaskGIT**:
 * **Autoregressive divergence**: Due to autoregressive generation, as the number of steps increases, the video content may gradually deviate from the physical reality or appear artifacts.
 * **Action Mapping**: Although latent actions have been unearthed, further research is still needed to accurately map these discrete Tokens to complex multi-level controls of human intuition (such as the linear joystick of a controller).
 
+#### Follow-ups: from Genie 2 to Genie 4
+{: id="genie-successors"}
+
+After Genie, DeepMind moved from "learning playable environments" toward "real-time, promptable world simulation":
+
+- **Genie 2 (2024.12)**: Generates 3D environments controllable with keyboard and mouse from a single image, with early object interaction and simple physics;
+- **Genie 3 (2025.08)**: The first real-time interactive version, at 720p and 24 fps. Scenes stay consistent for several minutes, and text can trigger "promptable events" such as weather changes or new objects. It reached paying users through Project Genie in January 2026;
+- **Genie 4 (2026.10.27) [[55]](#ref-55)**: The first version to generate audio and character dialogue natively. Users can change the weather, the camera, or add people mid-simulation with natural language, while Gemini keeps the world progressing and coherent. DeepMind showed it simulating a humanoid robot playing checkers together with Gemini, and explicitly lists "training environments for robots and agents" as a use. It is still a research preview for trusted testers; stated limitations include drifting object permanence in long sessions, complex physical interactions, and spatial accuracy.
+
+For embodied AI, this line is still mainly an "environment source" for §6.3 / §6.4: it can cheaply generate diverse scenes, but without a public action interface or metric geometry it cannot yet replace a physics simulator.
+
 ---
 
 ## 5.2 LingBot-World (2026)
@@ -812,61 +825,44 @@ Currently Lyra 2.0 mainly focuses on the generation of static scenes and has not
 
 ## 5.5 Marble & Atlas (World Labs, 2025–2026)
 {: id="paper-marble"}
-——Large world model (LWM) to the new generation Omni spatial intelligence base Atlas
 
-> [!TIP]
-> 💡 **companion article introduction**: Regarding the in-depth integration of 3D geometric representation (such as 3D Gaussian Splatting, NeRF, point cloud) and embodied perception, you can further refer to **{% include content-link.html path='/Spatial-Intelligence-Survey/' fragment='' label=' Panoramic overview of spatial intelligence: from 3D Geometric representation, multimodal spatio-temporal deduction to embodied physical world interaction ' %}**.
+> For more on 3D representations (3DGS, NeRF, point clouds) and embodied perception, see the {% include content-link.html path='/Spatial-Intelligence-Survey/' fragment='' label='Spatial Intelligence Survey' %} on this site.
 
-🔗 **product platform**: [marble.worldlabs.ai](https://marble.worldlabs.ai)
-🔗 **official blog**: [Marble: A Multimodal World Model](https://www.worldlabs.ai/blog/marble-world-model) · [Atlas: A World Model for Spatial Intelligence (2026-09)](https://www.worldlabs.ai/blog/atlas) · [[10]](#ref-10)
-🔗 **API platform**: [platform.worldlabs.ai](https://platform.worldlabs.ai)
+🔗 **Product**: [marble.worldlabs.ai](https://marble.worldlabs.ai) · **API**: [platform.worldlabs.ai](https://platform.worldlabs.ai)
+🔗 **Official blog**: [Marble](https://www.worldlabs.ai/blog/marble-world-model) · [Atlas technical introduction (2026-09)](https://www.worldlabs.ai/blog/atlas) · [Atlas general release (2026-11)](https://www.worldlabs.ai/atlas) · [[10]](#ref-10)
 
 #### Key takeaways
 {: id="精华-4"}
 
-World Labs, co-founded by Li Feifei, represents a completely different AGI pursuit path from the mainstream LLM route—— **spatial intelligence (Spatial Intelligence)** . Its early flagship product **Marble** It is the first commercial product for the public **Large world model (Large World Model, LWM)** Platform that can generate a freely explorable, permanent and persistent 3D Gaussian Splatting world from a single image, video or text; and the latest release on September 1, 2026 **Atlas** , is a new generation that supports the next generation of Marble and embodied physics simulation. **Omni full-mode world model base** . Core breakthroughs and ideas include:
+World Labs follows a "spatial intelligence" route: a world model should output not just video but measurable, exportable 3D structure.
 
-1. **Full-modal unified autoregressive flow matching architecture (Multimodal AR Diffusion Transformer)**: Atlas breaks the long-term separation of 2D video generation and 3D space reconstruction, and pretraining from scratch. It combines the autoregressive sequence characteristics of LLM (inheriting long context KV-cache, distribution scheduling and other engineering acceleration bonuses) and the continuous diffusion model (Rectified Flow)'s high-quality modeling capabilities for high-dimensional visual signals, and anchors text, images, videos, camera poses and 3D depth maps in a unified **shared spatial context (Spatial Context)**.
-2. **Pixel-Perfect Camera Control**: Abandoning the coarse-grained lens control of traditional video models that rely on fuzzy natural language prompts (such as "pan left", "zoom in"), Atlas natively receives explicit 6-DoF camera internal and external parameter trajectories as input features, supporting up to 1 minute, 1440p High-definition spatially consistent long video generation without perspective drift and geometric distortion.
-3. **Sparse view space reconstruction and explicit 3D export**: Input only 1~3 ordinary photos or a video taken at random, Atlas jointly deduce new perspective RGB and geometric depth end-to-end, and output point cloud (Point Clouds) and 3D Gaussian splatter (3DGS). On seven classic 3D reconstruction benchmarks such as DTU, ETH3D, KITTI, and ScanNet, Atlas as a general generation model comprehensively surpasses specialized reconstruction models such as MapAnything, VGGT-1B, and Depth Anything 3.
-4. **Space-time physics simulation and embodied Real-to-Sim-to-Real closed-loop**: Not only supports the use of 3 to 5 ordinary mobile phones to achieve multi-view recording without a studio to achieve "bullet time" space-time refocusing (Video Reframing), but also directly opens up a Real-to-Sim path for embodied navigation and control - from 24 frame Daily mobile phone videos automatically reconstruct the real environment and render the body sensor (RGB-D) stream in real time during robot deduction, supporting rich physical interaction variants of rigid bodies, articulated bodies and deformation software.
-
----
-
-#### 1. Research background and evolution logic: from Marble platform to Atlas base
-{: id="1-研究背景与演进逻辑从-marble-平台到-atlas-基座"}
-
-Li Feifei laid the data foundation for computer vision in the ImageNet era, and the founding of World Labs reflects her judgment on the next stage of AI: **The core capability currently missing from AI is spatial intelligence—the ability to understand, generate, and reason about the three-dimensional physical world.** .
-
-The limitations of existing LLM/VLM are: they are essentially "linguistic creatures", compressing the world into token sequences, and lacking the ability to perceive and act in continuous 3D space; while mainstream video generation models such as Sora and Wan2.1 can generate realistic images, they still essentially flatten the world into a 2D pixel plane and cannot provide deterministic 3D metric geometry, free camera roaming and environment interaction.
-
-The technological evolution of World Labs presents a clear “two-stage collaboration” logic:
-- **Phase 1: Marble (released in November 2025) - Product-level verification and 3DGS space persistent universe**: The first to verify the commercial feasibility of using 3D Gaussian Splatting (3DGS) as the core world representation, constructing space creation workflows such as Chisel, world expansion, and synthesis mode, and realizing a "permanent existence, free roaming" 3D virtual world.
-- **Phase 2: Atlas (released in September 2026) - base-level breakthrough and full-modal spatial intelligence large model**: Officially announced the underlying Omni World Model architecture specifications, seamlessly integrating text, images, videos, camera geometry and 3D depth, opening up "world generation (Generation) - spatial reconstruction (Reconstruction) - The three-in-one unified capability of “Space-time Simulation (Simulation)” serves as the cornerstone of the next generation of Marble and embodied intelligence simulation.
+1. **Two generations with distinct roles**: Marble (2025.11) is a creation platform that turns text, a single image, video, or a coarse 3D layout into a freely explorable 3DGS world. Atlas (technical introduction 2026.09, general release 2026.11.12) is the new underlying model, handling generation, reconstruction, and simulation.
+2. **Unified spatial context**: Atlas is a multimodal autoregressive flow-matching Transformer trained from scratch. Text, images, video frames, camera poses, and depth maps are all anchored in one 3D coordinate frame, and the autoregressive part can reuse LLM serving infrastructure such as the KV cache.
+3. **Explicit camera control**: 6-DoF camera trajectories are a native input rather than text prompts. World Labs reports 1-minute, 1440p controlled videos with consistent geometry.
+4. **Generation and reconstruction in one model**: 1–3 photos are enough to output point clouds or 3DGS, with lower average error across 7 reconstruction benchmarks than dedicated reconstruction models such as MapAnything and VGGT.
+5. **Real-to-Sim for robots**: A 24-frame phone video can be reconstructed into a navigable scene, with RGB-D rendered in real time along a robot trajectory; a few manipulation videos can be turned into interaction variants for rigid, articulated, and deformable objects.
 
 ---
 
-#### 2. Main methods and core innovation points
-{: id="2-主要方法与核心创新点"}
+#### 1. Background and problem
+{: id="marble-background"}
 
-##### Part A: Marble industrial implementation system and 3DGS world representation
-{: id="part-a-marble-工业落地体系与-3dgs-世界表征"}
+Video models such as Sora and Wan2.1 produce realistic frames, but their output stays in 2D pixels: there is no metric geometry, a new viewpoint may contradict an earlier one, and the result is hard to plug into a physics engine. World Labs argues that both embodied AI and content creation need worlds that persist, can be walked through freely, and can be exported as 3D assets. Marble validated this route at the product level with 3DGS, and Atlas brings generation, reconstruction, and simulation into one model.
+
+---
+
+#### 2. Methods and innovations
+{: id="marble-methods"}
+
+##### ① Marble: 3DGS as the world representation
+{: id="marble-3dgs"}
 
 <div align="center">
   <img src="/images/wm/MarbleWorldModelV4.svg" width="90%" alt="Figure: The overall architecture of Marble large world model (LWM): multimodal input is generated through spatial reasoning and 3D world, and the output is a 3D Gaussian Splatting world that can be rendered in real time and freely explored. (Source: World Labs)" loading="lazy" decoding="async" />
 <figcaption> Figure: The overall architecture of Marble large world model (LWM): multimodal input is generated through spatial reasoning and 3D world, and the output is a 3D Gaussian Splatting world that can be rendered in real time and freely explored. (Source: World Labs)</figcaption>
 </div>
 
-**Marble multimodal input system**
-
-Marble supports four types of input modalities, truly realizing multimodal → 3D world generation:
-
-|input type|Description|
-|:---|:---|
-|Text prompt (Text)|Directly describe the look, feel, and content of the target world|
-|Single image (Image)|Extrapolate a single interior photo, landscape or artistic illustration into an explorable 3D world|
-|Video|Reconstruct spatial structure from short videos or 360° panoramic videos|
-|Rough 3D layout (Coarse 3D Layout)|Sketch by hand with Chisel tools or import 3D assets as structural framework|
+Marble accepts four kinds of input: text, a single image, video (including 360° panoramas), and a coarse 3D layout.
 
 <div align="center">
   <img src="/images/wm/i2w-living-room.jpg" width="48%" alt="Research method illustration" loading="lazy" decoding="async" style="aspect-ratio:1080/605" />
@@ -874,84 +870,47 @@ Marble supports four types of input modalities, truly realizing multimodal → 3
 <figcaption> Figure: Image-to-World Example: A single interior photo (left) and a mushroom forest illustration (right) are extrapolated by Marble into a complete explorable 3D world. (Source: World Labs)</figcaption>
 </div>
 
-**3DGS as world representation: the core logic of selection**
-
-Marble's core technology selection is **3D Gaussian Splattering (3DGS)**. 3DGS represents a 3D scene as a set of translucent particles, which has significant advantages in world modelscenarios:
+It uses **3D Gaussian Splatting (3DGS)** as the world representation because 3DGS renders in real time, supports precise camera control and local editing, and streams from phones to VR headsets; together with exported collision meshes, it can go straight into a physics engine.
 
 <div align="center">
   <img src="/images/wm/streaming-3dgs-worlds.jpg" width="90%" alt="Figure: Marble&#x27;s streaming 3DGS rendering: The generated 3D world is represented by Gaussian particles, supporting cross-platform (mobile phone to VR headset) real-time rendering and free perspective exploration. (Source: World Labs)" loading="lazy" decoding="async" style="aspect-ratio:1024/651" />
 <figcaption> Figure: Marble's streaming 3DGS rendering: The generated 3D world is represented by Gaussian particles, supporting cross-platform (mobile phone to VR headset) real-time rendering and free perspective exploration. (Source: World Labs)</figcaption>
 </div>
 
-|Features| NeRF | 3DGS(Marble)|
-|:---|:---:|:---:|
-|real-time rendering| ✗ | ✓ |
-|Precise camera control|limited| ✓ |
-|interactive editing| ✗ | ✓ |
-|Compatible across devices| ✗ |✓ (Mobile → VR)|
-|Physics engine integration|difficult|Naturally compatible|
-
-**Four core functional modules**
-
 <div align="center">
   <img src="/images/wm/3d-as-code.jpg" width="90%" alt="Picture: Chisel Tool: Users determine the world structure through basic 3D shapes such as boxes and planes or import existing 3D assets, and text prompts control the overall style to achieve decoupling of structure and style. (Source: World Labs)" loading="lazy" decoding="async" style="aspect-ratio:1456/816" />
 <figcaption> Picture: Chisel Tool: Users determine the world structure through basic 3D shapes such as boxes and planes or import existing 3D assets, and text prompts control the overall style to achieve decoupling of structure and style. (Source: World Labs)</figcaption>
 </div>
 
-①  **Chisel (AI native 3D sculpting)** : Experimental AI-native 3D modeling tool that allows users to lay out world structure frameworks directly in 3D space with rough geometry (boxes, planes) or import existing 3D assets. The core design principles are **Decoupling structure and style** ——The rough 3D scene determines the spatial structure of the world, and the text prompt controls the overall visual style. The two are independently controllable.
-② **World Expansion (World Expansion)**: Expand the generated world boundary with one click. The user selects the area that needs to be expanded, and Marble automatically generates more continuous and consistent content to fill the selected area, supporting unlimited extension.
-③ **Composition Mode**: Combine any number of independent worlds into a very large-scale space. The position and connection of each sub-world are completely controlled by the user, which is suitable for the construction of game scenes, VFX large-scale scenery or robot simulation test fields.
-④ **Video Enhancement (Video Enhancement)**: Post-process the generated 3D world rendering output to remove artifacts and add dynamic elements (such as characters, particle effects) while maintaining pixel-accurate camera control and 3D structural consistency.
+Marble offers four creation tools built around 3DGS:
 
-**Multi-format export and ecological integration**
+- **Chisel**: Lay out spatial structure with coarse shapes such as boxes and planes or with existing assets, then control style with text, decoupling structure from style;
+- **World Expansion**: Extend a selected region of the world outward while keeping the content continuous;
+- **Composition Mode**: Combine several independent worlds into one large scene, for example game levels or robot test arenas;
+- **Video Enhancement**: Remove artifacts and add dynamic elements to rendered videos while keeping the camera trajectory and geometry unchanged.
 
-|Export format|Purpose|
-|:---|:---|
-| Gaussian Splats |Highest fidelity for real-time rendering, VR/AR interactive tours|
-| Collider Mesh |Low-precision collision mesh for physics engine collision detection simulation|
-| High-Quality Mesh |High-precision triangular mesh for CG industrial production pipelines|
-| Video |Fixed-track high-definition video export for film, television and advertising creation|
+Export formats include Gaussian Splats (real-time rendering / VR), Collider Mesh (physics collisions), High-Quality Mesh (CG pipelines), and fixed-trajectory video.
 
----
+##### ② Atlas: a multimodal autoregressive flow-matching model with a unified spatial context
+{: id="atlas-architecture"}
 
-##### Part B: Atlas new generation Omni spatial intelligence base architecture analysis
-{: id="part-b-atlas-新一代-omni-空间智能基座架构解析"}
+- **Unified spatial context**: Video is treated as a sequence of posed image frames; each image and depth map is bound to an explicit camera pose, and all visual and geometric elements are anchored in 3D coordinates as a spatial working memory. For example, given two unrelated photos placed at different positions in space, the model infers a plausible transition between them (a corridor, a hallway, and so on).
+- **Autoregression + flow matching**: The sequence advances autoregressively, reusing the KV cache, disaggregated serving, and cache-aware routing; each visual latent is denoised with Rectified Flow, so the number of denoising steps trades speed against quality, and CFG and distillation speed-ups apply.
+- **Camera control**: 6-DoF trajectories are a native condition, so compound camera moves such as dolly, pan, and long fly-throughs keep the geometry consistent.
+- **Sparse-view reconstruction**: With 1–3 photos, priors fill in unseen regions; as more views are added, the output shifts toward accurate reconstruction, exported as metric point clouds or 3DGS.
+- **Spatio-temporal simulation**: 3–5 phones are enough for "bullet time" video reframing. For robots, Atlas can reconstruct navigation scenes from short videos and render on-board RGB-D in real time, and can programmatically vary objects, initial positions, lighting, and backgrounds in manipulation scenes to produce training data at scale.
 
-If Marble is the upper-level interactive platform built on the world model, **Atlas is the core engine** of its base. Atlas uses the Multimodal Autoregressive Diffusion Transformer (Multimodal Autoregressive Diffusion Transformer) to build the four pillars of a new generation of world model in a unified spatial context:
+##### ③ General release in November 2026
+{: id="atlas-release"}
 
-###### 1. Unified spatial context and multimodal autoregressive diffusion architecture
-{: id="1-统一空间上下文与多模态自回归扩散架构"}
-- **Multimodal Sequences**: Atlas natively processes text, images, precise camera poses (Camera Poses) and 3D depth maps (3D Depth Maps), and the video is uniformly represented as a sequence of image frames arranged in time series. Each frame image and depth map are forced to be bound to the corresponding explicit camera pose.
-- **Spatial Context**: Unlike large language models that arrange word embeddings in a 1D linear context, Atlas explicitly anchors all visual and geometric elements **in 3D spatial coordinates**, forming a 3D spatial working memory. When generating new content, the model performs spatio-temporal deduction based on this 3D memory. For example, if the user places two unrelated reference photos at different locations in the 3D space, Atlas will automatically deduce and generate a reasonable transition structure (such as corridor, foyer, corner) between the two based on its rich physical world priors.
-- **AR + Diffusion double bonus**:
-  - **Autoregressive feature**: sequentially promotes multimodal sequence generation, and can seamlessly reuse high-performance service technologies of modern LLM infrastructure, including KV-cache state cache, decoupled service scheduling and cache-aware routing;
-  - **flow matching diffusion (Rectified Flow Diffusion) feature**: The continuous flow matching diffusion mechanism is used to gradually denoise high-dimensional continuous visual latent variables. During inference, the generation speed and visual quality can be freely weighed by adjusting the number of denoising steps, and acceleration algorithms such as classifier unguided (CFG) and diffusion distillation (Distillation) are fully absorbed.
-
-###### 2. Pixel-Perfect Camera Trajectory Conditioning
-{: id="2-像素级精准相机控制pixel-perfect-camera-trajectory-conditioning"}
-- Traditional video models based on text cues (such as "camera pans left slowly") suffer from serious ambiguity and cumulative drift. Atlas uses the camera's 6-DoF pose trajectory as a native input modality, supporting fully deterministic control of the viewing angle position, pitch and yaw, and lens speed.
-- Whether it is complex push-pull pan (Pan, Truck, Crane) or long-distance flythrough (Flythrough), Atlas can ensure that the scene geometry and object structure remain strictly consistent in continuous space and time, and supports the generation of movie-level controlled long videos up to **1 minute and 1440p resolution**.
-
-###### 3. Sparse view 3D spatial reconstruction and explicit asset export
-{: id="3-稀疏视图-3d-空间重建与显式资产导出"}
-- Traditional multi-view stereo vision (MVS) or NeRF typically requires intensive shooting of tens or hundreds of views. Atlas integrates powerful general physical knowledge into hidden space, **Only 1~3 ordinary photos are needed** It can jointly predict the RGB image and spatial geometric depth from an unknown perspective that has not been seen before, and complete the backside of the subject and the blind area environment.
-- As the number of input reference images increases (from 1 to dozens), Atlas' "Lenovo brain supplement" smooth annealing becomes "high-precision true restoration" and is directly output at the end as **metric point cloud (Point Clouds)** or converted to **streaming 3D Gaussian Splatting (3DGS)** enables industrial-grade 3D asset export.
-
-###### 4. Space-time physics simulation and robotics Real-to-Sim-to-Real workflow
-{: id="4-时空物理仿真与机器人-real-to-sim-to-real-工作流"}
-- **Lightweight "bullet time" spatio-temporal refocusing (Video Reframing)**: There is no need for expensive professional multi-camera arrays. Researchers only need to use 3 to 5 ordinary smartphones and ordinary tripods to record videos at will. Atlas can reconstruct the space-time field containing dynamic processes, and realize freezing and reconstructing the lens at any angle.
-- **Embodied Navigation Large Scene Simulation and Airborne Sensor Simulation**: Use a mobile phone to record an environmental video containing only 24 frames, and Atlas can reconstruct it into a large-scale 3D roamable space. When the virtual robot cruises along the planned trajectory, Atlas can synchronize and render in real time the RGB images and precise depth maps (RGB-D) observed by the robot's onboard sensors, achieving "integration of simulation scene generation and embodiment perception."
-- **Embodied control interactive physics and diverse variant generation**: From a small number of daily real-life manipulation videos, Atlas can model the physical interaction rules of objects, covering **rigid bodies (Rigid), articulated bodies (Articulated) and deformable software (Deformable)**. Once the task is simulated in the world model, developers can programmatically control and change the object type, initial position, robot arm motion disturbance, environmental lighting and background, continuously injecting high-quality and highly diverse synthetic data for robot policy learning.
+On November 12, 2026, Atlas left early access and was released together with generation and reconstruction tools and developer APIs [[10]](#ref-10). A week earlier, the Frameboy demo showed real-time exploration built on Atlas, at up to about 15 fps according to World Labs (streamed from cloud GPUs). As of this update, World Labs has not released a paper, model card, or weights.
 
 ---
 
-#### 3. Results and findings and quantitative evaluation
-{: id="3-核心结果发现与量化评测"}
+#### 3. Results and findings
+{: id="marble-results"}
 
-##### ① Evaluation of camera controlled generation capabilities (human blind test preference winning rate)
-{: id="-相机受控生成能力评测人类盲测偏好胜率"}
-
-World Labs uses third-party independent evaluators to conduct double-blind comparison tests on single image input + composite camera trajectories (Pan, Truck, Crane, etc. combinations) to evaluate each model's accuracy in following the preset camera trajectories. Atlas overwhelmingly beats the top mainstream models in the industry:
+**Camera-controlled generation (blind human preference)**: Third-party raters compared results for "single image + compound camera trajectory" in a double-blind setup. The table shows the share of votes for Atlas. The more complex the camera move, the more text-controlled models drift and the larger the gap.
 
 |Compare to baseline model|Evaluation tasks|Proportion of voters choosing Atlas (win rate)|
 |:---|:---|:---:|
@@ -961,12 +920,8 @@ World Labs uses third-party independent evaluators to conduct double-blind compa
 | **FLUX 3** |Single image + composite mirror generation| **93%** |
 | **Seedance 2.5** |Single image + composite mirror generation| **94%** |
 
-*Note: As the complexity of the camera trajectory increases, the traditional model that relies on text prompts to control the camera drifts seriously, and the advantages of Atlas's native camera matrix input are further expanded. *
 
-##### ② Sparse view 3D space reconstruction error comparison (AbsRel × 10⁻³, ↓ the lower the better)
-{: id="-稀疏视图-3d-空间重建误差对比absrel--10-越低越好"}
-
-In the demanding sparse input 3D reconstruction task, Atlas receives an input image and its pose and predicts the 3D spatial coordinates of the corresponding pixels. Under the unified evaluation protocol, Atlas is comprehensively compared with representative models specializing in 3D reconstruction (MapAnything, VGGT-1B, Depth Anything 3, Pi3X, etc.) on 7 classic benchmarks:
+**Sparse-view 3D reconstruction (AbsRel × 10⁻³, lower is better)**: Given input images and poses, predict the 3D coordinates of pixels.
 
 |Evaluation benchmark data set| **Atlas (Ours)** | MapAnything | VGGT-1B | Depth Anything 3 | Pi3X |Typical representative model 5|
 |:---|:---:|:---:|:---:|:---:|:---:|:---:|
@@ -979,46 +934,17 @@ In the demanding sparse input 3D reconstruction task, Atlas receives an input im
 | **Tanks & Temples (T&T)** | **42.4** | 42.4 | 47.0 | 40.2 | 55.1 | 60.8 |
 |**ScanNet** (large-scale indoor scene)| **12.4** | 15.7 | 17.4 | 36.6 | 29.0 | 37.0 |
 
-*Evaluation conclusion: As a full-modality general-purpose large model that combines both generation and reconstruction, Atlas's explicit geometry prediction accuracy not only does not suffer from generalization sacrifices, but also surpasses the academic SOTA model that specializes in a single reconstruction task on seven major benchmarks. *
 
-##### ③ Model scaling laws (Scaling Laws)
-{: id="-模型扩展规律scaling-laws"}
-World Labs conducted a series of pretraining verifications on Atlas from small to large on large-scale diversified multimodal corpus. Experiments show that with the continuous expansion of model parameter scale and training calculation (Training Compute), the model shows a stable monotonic increasing trend in long-sequence spatio-temporal consistency, fine-grained physical rationality, and unknown blind zone spatial association capabilities.
-
-##### ④ embodied intelligence × evaluation infrastructure: strategic cooperation with Nimbus Intelligence (January 2026)
-{: id="-具身智能--评测基础设施与光轮智能的战略合作2026-年-1-月"}
-
-In January 2026, World Labs joined forces with the domestic simulation synthetic data company Guanglun Intelligence to systematically solve the three major industry dilemmas of "outdated benchmarks, expensive real robots, and traditional simulation distortions" faced by large-scale evaluation of embodied intelligence:
-
-```mermaid
-flowchart LR
-    WL["World Labs / Atlas\n(Where does the world come from?)\nLWM generate diversity 3D virtual environment\nServing as a testing ground for robot policies"] --> Eval
-    GR["Nimbus Intelligence\n(how progress is measured)\nExtensible evaluation framework\nMulti-dimensional, automated benchmarks"] --> Eval
-    Eval["embodied intelligence evaluation infrastructure\nScalable · Automation · close to reality"] --> Robot["robot VLA Policy\nContinuous iterative optimization"]
-    Robot --> WL
-```
-
-##### ⑤ Business scale and industry recognition
-{: id="-商业规模与行业认可"}
-
-|indicator|data|
-|:---|:---|
-|Marble release time|11 2025|
-|Atlas release time|9 1, 2026 (Early Access)|
-|Funding 2 2026|$1000000000 (total financing $1230000000)|
-|company valuation|~$5000000000 (5× increase from $1000000000 at founding)|
-|Major investors|NVIDIA, AMD, Autodesk, etc.|
-|Industry recognition| Forbes AI 50 2026 |
-|world model track financing changes|$1400000000 (2024) → $6900000000 (2025)|
+As a general generative model, Atlas has a lower average error (25.3) than each dedicated reconstruction model, but it ties MapAnything and trails Depth Anything 3 slightly on T&T, and leads only marginally on KITTI. All numbers come from the World Labs blog and have not been independently reproduced.
 
 ---
 
-#### 4. Limitations and Frontier Challenges
-{: id="4-局限性与前沿挑战"}
+#### 4. Limitations
+{: id="marble-limitations"}
 
-- **Closed-source early access and academic reproducibility**: Atlas is currently in the early access (Early Access) stage for targeted partners. Although the multimodal autoregressive flow matching architecture mechanism and detailed quantitative evaluation have been disclosed, the core model weights and complete training hyperparameters have not yet been made public, and there are still barriers to independent reproduction and secondary fine-tuning by the open source community.
-- **Highly dynamic micro-contact mechanics boundary**: Although Atlas supports the appearance deformation and motion simulation of rigid bodies, articulated bodies and soft bodies, at the "tactile-mechanical physics" level such as high-frequency micro-contact torque, fine friction distribution and continuous fluid dynamics required by robots, it still needs to be combined with traditional physics engines (such as Isaac Sim, MuJoCo) for joint simulation verification.
-- **Ultra-large scene airborne terminal-side deployment**: The number of point clouds and 3D Gaussian Splattinging Gaussian kernels in large-scale environments often reaches millions. When performing real-time streaming deductions on embedded robot edge computing platforms (such as Jetson Orin), it is still necessary to further combine neural Gaussian pruning and LoD hierarchical loading optimization.
+- **Reproducibility**: With no paper, weights, or full training details, and only self-reported evaluations, the research community can hardly reproduce or fine-tune it.
+- **Contact mechanics**: Simulating the appearance and motion of deformable and articulated objects is not the same as the contact forces and friction distributions robots need; it still has to be paired with physics engines such as Isaac Sim or MuJoCo.
+- **On-device deployment**: Large 3DGS scenes often contain millions of Gaussians, so real-time rendering on embedded platforms such as Jetson Orin still requires pruning and LoD streaming.
 
 ---
 
@@ -1317,6 +1243,21 @@ The main engineering advantage of **WAM is that it eliminates the need to search
 |**diffusion / flow matching**|spatial value interface| AIM [[27]](#ref-27) |Spatial Value Map (ASVM) Explicitly Decouples Intent, Self-Distilling RL Optimization|
 |**diffusion / flow matching**|Potential Canvas| NavWAM [[28]](#ref-28) |9 frame world - latent canvas for action, eliminating CEM for 5Hz real-time navigation|
 |**diffusion / flow matching**|asymmetric horizon| WAM-Nav [[29]](#ref-29) |Action long vision (24 steps) + visual short vision (1 step) to prevent drastic changes in perspective and drift|
+|**diffusion / flow matching**|Skip video at inference| GigaWorld-Policy [[56]](#ref-56), DSWAM [[60]](#ref-60) |Action-centered; the video branch only provides supervision during training|
+|**diffusion / flow matching**|Latent future reuse| ForeWAM [[57]](#ref-57) |Forecast without rendering; Future-KV reuses future states|
+|**Open framework**|Composable MoT| OpenWAM [[59]](#ref-59) |Wan2.2-5B video backbone + action expert, with a swappable inverse dynamics head|
+
+### Second half of 2026: WAMs become faster and more open
+{: id="wam-2026h2"}
+
+First-half WAMs (DreamZero, Motus, and others) showed that "video backbone + action head" works, but every decision required generating or denoising future video, with latencies from hundreds of milliseconds to several seconds. Most second-half work targets this:
+
+- **No video generation at inference**: GigaWorld-Policy [[56]](#ref-56) keeps video tokens from affecting action tokens, so video generation can be skipped entirely at inference. It reports running 9× faster than Motus with a 7% higher real-robot success rate, and 95% better than π0.5 on RoboTwin 2.0. DSWAM [[60]](#ref-60) likewise does not generate explicit future video; it uses the WAM as a System 1 executor with an optional VLM subtask planner (System 2), plus TensorRT and asynchronous chunked execution.
+- **Forecast without rendering**: ForeWAM [[57]](#ref-57) separates forecasting the future from rendering frames and reuses future key-value states through Future-KV. With 50 demonstrations per task on RoboCasa it reaches 59.2%, 9.7 points above Fast-WAM; a single-layer-decoder version scores 77.6% on LIBERO-Plus with 88.7 ms per query on an A800, 6.27× faster than Fast-WAM.
+- **Training-free acceleration**: WAMACHINE [[58]](#ref-58) reuses intermediate states across replans, denoising steps, and Transformer layers. Across three architectures on LIBERO and RoboTwin 2.0 it speeds up observation-to-action latency by 1.47–3.05× while keeping 96.69%–99.54% of the original success rate.
+- **Open framework**: OpenWAM [[59]](#ref-59) starts from Wan2.2-5B, does causal pretraining on more than 10,000 hours of robot video, and attaches an action expert via MoT, with swappable modules. LIBERO-Long success rises from 68.4% to 97.8%; on held-out LIBERO-90 tasks, a frozen local-context inverse dynamics head reaches 84.0%, versus 47.0% for the full-context version.
+
+**Summary**: In WAMs, "future video" increasingly acts as auxiliary supervision during training rather than a required output at inference. This is diverging from the "imagine first, then decode" approach of the world planners in §6.1. For a systematic overview, see the WAM survey by Lu et al. [[61]](#ref-61).
 
 ---
 
@@ -2825,7 +2766,8 @@ The world model is progressing rapidly in 2025–2026, but to work reliably in i
 
 The current generative world model is more realistic in terms of microscopic motion, but it still relies on statistical fitting on laws such as rigid body collision impulse conservation, elastic/plastic deformation, fluid splashing, and non-penetrable mold constraints, which easily produces physical illusions.
 - **frontier direction**: Embed **Differentiable Physics Simulators** into the denoising process, using the physical residual as the loss regularization term;
-- **Causal reasoning and counterfactual deduction**: Combined with Causal Discovery, the world model can answer hypothetical questions such as "If the robot arm applies an additional 2N lateral force, will the cup tip over?"
+- **Causal reasoning and counterfactual deduction**: Combined with Causal Discovery, the world model can answer hypothetical questions such as "If the robot arm applies an additional 2N lateral force, will the cup tip over?";
+- **Post-training with judge signals**: RoboImagine [[62]](#ref-62) generates several candidate futures and post-trains on preferences built from semantic feedback by a frozen multimodal model plus pixel- and perceptual-consistency signals. On RT-1, compared with continued SFT, it improves PSNR by 1.26 dB and reduces LPIPS by 11.93%.
 
 ### 3D/4D spatial representation
 {: id="3d4d-空间表示"}
@@ -2839,7 +2781,8 @@ It is difficult for 2D pixel flow to permanently retain the 3D spatial structure
 
 Before the world model can be used for real robot control, it must know when it is untrustworthy.
 - **Frontier Direction**: Introducing **conformal prediction (Conformal Prediction)** and **epistemic uncertainty (Epistemic Uncertainty) quantification** (such as model integration), proactively alarm and switch to manual teleoperation when encountering out-of-distribution scenarios or the risk of collision is too high;
-- **Automated physical rationality audit**: Use physical reasoning VLM (such as Cosmos-Reason1) to act as a "physical referee" to check geometric interference and mechanical rationality before generating results to the policy.
+- **Automated physical rationality audit**: Use physical reasoning VLM (such as Cosmos-Reason1) to act as a "physical referee" to check geometric interference and mechanical rationality before generating results to the policy;
+- **Information decays during imagination**: In a single-seed CARLA + RSSM case study, Kwon et al. [[63]](#ref-63) found that an obstacle probe scores AUC 0.85 on posterior states but drops to 0.71 after 15 imagined steps, while ensemble disagreement reaches only 0.52, close to chance. A plausible-looking imagined rollout does not mean task-relevant information survives, and the usual ensemble uncertainty may not raise an alarm.
 
 ### Long term deduction
 {: id="长时程推演"}
@@ -2869,7 +2812,7 @@ The practice of understanding, generating, predicting and controlling modular as
 For scientific research and engineering teams dedicated to the development of embodied intelligence, VLA and robots, the following five lessons can be extracted from the previous article:
 
 1. **"Data quality and curation" is more important than "blindly expanding parameters"**: The experience of Cosmos Video Curator and EWK data sets shows that the contribution of strict lens segmentation, multi-level physical filtering, and multi-view space and time hierarchical description to the physical world model is often no less than simply increasing DiT parameters;
-2. **Prioritize embracing the World Action Model (WAM) to eliminate online search overhead**: In closed-loop control with strict real-time requirements, the WAM or Latent Canvas architecture should be prioritized to use future visual prediction as self-supervised anchoring to achieve single-step forward 5Hz–15Hz high-frequency output to avoid expensive CEM sampling;
+2. **For real-time closed loops, consider WAMs first and treat video prediction as a training signal**: For control with tight latency requirements, WAM or Latent Canvas architectures avoid online search such as CEM. The lesson from the second half of 2026 is to avoid rendering future video at inference (GigaWorld-Policy, ForeWAM) or to reuse intermediate states (WAMACHINE), bringing latency down to the order of 100 ms (§6.2);
 3. **attaches great importance to implicit space planning and asymmetric spatio-temporal horizon**: In mobile navigation or complex operations with drastic changes in viewing angles, it is important to avoid uncontrolled elongation of autoregressive pixel generation; using "long motion horizon + short implicit space visual look-ahead" can provide the most reliable geometric constraints at a very low cost;
 4. **Be wary of "distribution drift and hallucination vulnerabilities" in reinforcement learning simulators**: When doing RL post-training in a virtual world model, key frame initialization (KIR), policy co-evolution (PACE) and verifiable dense rewards based on physical reasoning VLM must be used to prevent the policy from over-fitting to the generator's physics bug;
 5. **Layout 3D Explicit Representation and Spatial Intelligence Basics**: 2D pixels are dimensionality reduction projections of the 3D physical world. In the long run, Large World Models (LWM) that deeply integrate 3DGS, point cloud and metric geometry are an important direction to solve the spatial generalization problem.
@@ -2877,7 +2820,7 @@ For scientific research and engineering teams dedicated to the development of em
 ## 9.3 Research and Judgment of Technical Route
 {: id="sec-9-3-future-roadmap"}
 
-The development process of embodied intelligence world model reflects the fundamental leap in AI's cognitive ability of the physical world. Looking at the technological evolution from 2018 to 2026, we can clearly sort out three intertwined and evolving technological main lines:
+Work from 2018 to 2026 can be grouped into three intertwined tracks:
 
 ```mermaid
 flowchart TD
@@ -2888,7 +2831,7 @@ flowchart TD
 
     subgraph Track2["Main line two: control and decision-making mechanism"]
         T2_1["open-loop pixel planning<br/>(UniPi, SuSIE, CEM)"] --> T2_2["Unified World Action Model<br/>(WorldVLA, Motus, AIM)"]
-        T2_2 --> T2_3["Dual system imagination closed-loop<br/>(System 1 reaction + System 2 Looking forward)"]
+        T2_2 --> T2_3["Efficient / dual-system WAMs<br/>(GigaWorld-Policy, ForeWAM, DSWAM)"]
     end
 
     subgraph Track3["Main Line Three: Training and Trustworthy Simulation"]
@@ -2909,13 +2852,13 @@ flowchart TD
 ### The integration trend of the four major paradigms
 {: id="四大范式的融合趋势"}
 
-Looking back at the four major paradigms **in**§6 and the representative work **in**§5–§7, we can see that the four major paradigms are not in a competitive relationship that replaces each other, but are accelerating towards deep complementarity:
+The four paradigms in §6 do not replace one another; they are increasingly used in combination:
 
 |Paradigm positioning|Typical representative|Core advantages|core bottleneck|Future integration direction|
 |:---|:---|:---|:---|:---|
 |**① World planner** (Planner)| UniPi, SuSIE, GENE-26.5 |Goal-driven, strong interpretability, flexible generalization|High sampling delay (CEM reaches second level), not suitable for high-frequency control|Hidden space gradient planning, diffusion distillation sampling|
-|**② World action model** (WAM)| WorldVLA, Motus, AIM, NavWAM |5–15Hz high frequency closed-loop, seamless integration of foresight and control|Difficulty in multi-view space-time alignment and long-range trajectory drift|MoT decoupled architecture, space value map (ASVM) intermediary|
-|**③ World synthesizer** (Synthesizer)| Genie, DreamGen, Image2Sim |Unlimited expansion of long-tail data for edge working conditions and strong generalization|Difference between simulation and real domain (Sim2Real), physical illusion|4D dynamic flow generation, optical flow differential motion migration|
+|**② World action model** (WAM)| WorldVLA, Motus, AIM, NavWAM, OpenWAM |5–15Hz high frequency closed-loop, seamless integration of foresight and control|Difficulty in multi-view space-time alignment, long-range trajectory drift, video denoising cost|Skip rendering at inference, state reuse, space value map (ASVM) intermediary|
+|**③ World synthesizer** (Synthesizer)| Genie 3/4, DreamGen, Image2Sim, Atlas |Unlimited expansion of long-tail data for edge working conditions and strong generalization|Difference between simulation and real domain (Sim2Real), physical illusion|4D dynamic flow generation, optical flow differential motion migration|
 |**④ World Simulator** (Simulator)| WoVR, VLA-RFT, SRPO |Low-cost reinforcement learning matrix without real robot loss|Policy Overfitting to Generator Illusion Vulnerability|Key frame replay (KIR), policy co-evolution (PACE)|
 
 ### Three breakthrough directions
@@ -2941,7 +2884,7 @@ The [[n]](#sec-10-references) subscript in the text can jump directly to the cor
 7. <span id="ref-7"></span>*LingBot-World: Open-Source Minute-Scale Interactive World Model* (2026). [arXiv:2601.20540](https://arxiv.org/abs/2601.20540)
 8. <span id="ref-8"></span>Zhu, H., et al. (2026). *SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diffusion Transformer*. [arXiv:2605.15178](https://arxiv.org/abs/2605.15178) · [Project Page](https://nvlabs.github.io/Sana/WM/)
 9. <span id="ref-9"></span>NVIDIA. (2026). *Lyra 2.0: Explorable Generative 3D Worlds at Scale*. [arXiv:2604.13036](https://arxiv.org/abs/2604.13036)
-10. <span id="ref-10"></span>World Labs Team. (2025–2026). *Marble: A Multimodal World Model* & *Atlas: A World Model for Spatial Intelligence*. [worldlabs.ai/blog/marble-world-model](https://www.worldlabs.ai/blog/marble-world-model) · [worldlabs.ai/blog/atlas](https://www.worldlabs.ai/blog/atlas)
+10. <span id="ref-10"></span>World Labs Team. (2025–2026). *Marble: A Multimodal World Model* & *Atlas: A World Model for Spatial Intelligence*. [worldlabs.ai/blog/marble-world-model](https://www.worldlabs.ai/blog/marble-world-model) · [worldlabs.ai/blog/atlas](https://www.worldlabs.ai/blog/atlas) · [Atlas general release (2026-11-12)](https://www.worldlabs.ai/atlas) · [Frameboy (2026-11-05)](https://www.worldlabs.ai/blog/atlas-realtime)
 11. <span id="ref-11"></span>*Image2Sim: Decoupled 3D Gaussian Geometry and One-Step Pixel Flow for Real-Time Neural Simulation* (2026). [arXiv:2607.05765](https://arxiv.org/abs/2607.05765)
 12. <span id="ref-12"></span>Du, Y., et al. (2023). *Learning Universal Policies via Text-Guided Video Generation (UniPi)*. NeurIPS 2023.
 13. <span id="ref-13"></span>Black, K., et al. (2024). *Zero-Shot Robotic Manipulation with Pre-trained Image-Editing Diffusion Models (SuSIE)*. ICLR 2024.
@@ -2986,6 +2929,16 @@ The [[n]](#sec-10-references) subscript in the text can jump directly to the cor
 52. <span id="ref-52"></span>Liu, B., et al. (2023). *LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning*. [libero-project.github.io](https://libero-project.github.io/)
 53. <span id="ref-53"></span>Mees, O., et al. (2022). *CALVIN: A Benchmark for Language-Conditioned Policy Learning for Long-Horizon Robot Manipulation Tasks*. [github.com/mees/calvin](https://github.com/mees/calvin)
 54. <span id="ref-54"></span>Ye, S., et al. (2026). *World Action Models are Zero-shot Policies*. NVIDIA. [arXiv:2602.15922](https://arxiv.org/abs/2602.15922) · [Code](https://github.com/dreamzero0/dreamzero) · [Project Page](https://dreamzero0.github.io/)
+55. <span id="ref-55"></span>Google DeepMind. (2026). *Genie 4: A New Generation of World Simulation*. [deepmind.google/blog](https://deepmind.google/blog/genie-4-a-new-generation-of-world-simulation/)
+56. <span id="ref-56"></span>Ye, A., et al. (2026). *GigaWorld-Policy: An Efficient Action-Centered World–Action Model*. [arXiv:2603.17240](https://arxiv.org/abs/2603.17240)
+57. <span id="ref-57"></span>Huang, J., et al. (2026). *Foresight Without Seeing: Latent Futures for World Action Models*. [arXiv:2608.11605](https://arxiv.org/abs/2608.11605)
+58. <span id="ref-58"></span>Liu, Z., et al. (2026). *Efficient World Action Model Inference with Adaptive Intermediate States*. [arXiv:2609.34608](https://arxiv.org/abs/2609.34608)
+59. <span id="ref-59"></span>Yu, H., et al. (2026). *OpenWAM: An Open Framework for Composable World-Action Models*. [arXiv:2610.07922](https://arxiv.org/abs/2610.07922)
+60. <span id="ref-60"></span>Zhu, J., et al. (2026). *DSWAM: A Dual-System World Action Foundation Model for Fine-Grained Robot Manipulation*. [arXiv:2607.04927](https://arxiv.org/abs/2607.04927)
+61. <span id="ref-61"></span>Lu, Z., et al. (2026). *World-Action Models for Robot Learning and Control: A Survey*. [arXiv:2609.16074](https://arxiv.org/abs/2609.16074)
+62. <span id="ref-62"></span>Wu, H., et al. (2026). *Learning Robotic World Models with Semantic and Visual Feedback*. [arXiv:2611.07850](https://arxiv.org/abs/2611.07850)
+63. <span id="ref-63"></span>Kwon, J., et al. (2026). *The Posterior-Prior Epistemic Gap: When World Model Imagination Fails to Carry Task-Relevant Signals*. [arXiv:2611.14955](https://arxiv.org/abs/2611.14955)
+64. <span id="ref-64"></span>Hou, B., et al. (2026). *World Model for Robot Learning: A Comprehensive Survey*. [arXiv:2605.00080](https://arxiv.org/abs/2605.00080)
 
 ---
 

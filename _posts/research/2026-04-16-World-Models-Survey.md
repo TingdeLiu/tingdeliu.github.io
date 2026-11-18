@@ -3,18 +3,18 @@ layout: post
 lang: zh-CN
 translation_id: world-models-survey
 title: "世界模型综述"
-date: 2026-10-24
+date: 2026-11-18
 tags: [VLA, World Models, Robotics, Embodied AI, Survey]
 categories: research
 comments: true
 author: Tingde Liu
 toc: true
-excerpt: "本文系统梳理具身智能世界模型（World Models）：从认知科学起源与经典有模型强化学习（World Models 2018、DreamerV3、TD-MPC2）的理论奠基，到 Tokenizer、条件注入、生成范式、长程记忆与推理效率等核心工程设计选择；按「世界生成器」与「面向机器人决策的四大范式」两大家族解析 Genie、Lyra 2.0、Marble、WorldVLA、AIM、Motus、WoVR 等代表工作，并介绍 Cosmos、Wan2.1 等基础模型、评测基准体系与六大开放挑战。"
+excerpt: "本文系统梳理具身智能世界模型（World Models）：从认知科学起源与经典有模型强化学习（World Models 2018、DreamerV3、TD-MPC2）的理论奠基，到 Tokenizer、条件注入、生成范式、长程记忆与推理效率等核心工程设计选择；按「世界生成器」与「面向机器人决策的四大范式」两大家族解析 Genie、Lyra 2.0、Marble & Atlas、WorldVLA、DreamZero、AIM、Motus、WoVR 等代表工作，补充 Genie 4、Atlas 正式发布与 2026 下半年 WAM 提速、开放框架等新进展，并介绍 Cosmos、Wan2.1 等基础模型、评测基准体系与六大开放挑战。"
 ---
 
 # 1. 引言
 
-具身智能（Embodied AI）的终极目标是开发能够像人类一样在复杂、连续且不可逆的物理世界中进行感知、推理并执行任务的通用智能体（Generalist Embodied Agents）。近年来，视觉-语言-动作（Vision-Language-Action, VLA）模型的崛起，标志着具身智能向通用化迈出了关键一步。VLA 模型通过微调多模态大语言模型（LLMs/VLMs）的语义常识与视觉推理能力，将开放式高层自然语言指令直接映射到底层机器人控制 Token。
+具身智能（Embodied AI）希望得到能在连续、不可逆的物理世界中感知、推理并完成任务的通用智能体（Generalist Embodied Agents）。视觉-语言-动作（Vision-Language-Action, VLA）模型是近两年最主要的一条路线。VLA 模型通过微调多模态大语言模型（LLMs/VLMs）的语义常识与视觉推理能力，将开放式高层自然语言指令直接映射到底层机器人控制 Token。
 
 然而，单纯依靠反应式映射的 VLA 智能体在真实物理场景部署中面临**四个根本瓶颈**：
 
@@ -23,14 +23,14 @@ excerpt: "本文系统梳理具身智能世界模型（World Models）：从认�
 3. **真实交互数据稀缺与分布长尾（Extreme Data Scarcity）**：高质量的机器人真机遥操作数据获取成本高昂、危险度大，真实世界的长尾场景与失败分布极难被有限的离线数据集所覆盖。
 4. **不可逆破坏与安全性风险（Safety & Irreversibility）**：在物理世界中盲目试错伴随着昂贵的硬件损耗甚至人身安全风险，智能体必须在物理执行前拥有自我保护与风险预判能力。
 
-为了攻克上述挑战，**世界模型（World Models）** 被引入具身智能领域，作为智能体的**“认知大脑”与“内部物理仿真器”**。通过对环境时空演化动力学的深度建模，世界模型赋予了智能体**感知物理常识、脑内推演未来、合成海量数据与在想象中自优化**的核心能力。
+**世界模型（World Models）** 针对的正是这些问题：它学习环境随时间和动作的演化规律，充当智能体的**内部模拟器**。有了它，智能体可以在行动前预测后果、用生成数据补充真实数据，也可以在模型内部做策略优化。不过预测本身会出错，世界模型能不能用，最终仍要看它对下游决策有没有帮助（§4.6）。
 
 <figure class="survey-intro-figure">
   <img src="/images/wm/world-models-survey-intro.webp" width="1672" height="941" alt="世界模型根据当前观测及候选动作预测可能的未来，辅助规划或学习，再以真实交互观测校验结果。" loading="lazy" decoding="async" />
   <figcaption>图：世界模型可预测图像、状态或潜在表示的演化，用于规划、模拟与学习。预测存在误差，图中的未来分支是候选结果，并非真实观测或物理保证。</figcaption>
 </figure>
 
-本文参考 Tan et al., 2026 [[1]](#ref-1) 与 Li et al., 2025/2026 [[2]](#ref-2) 等综述，按「定义 → 经典奠基 → 工程设计 → 两大模型家族 → 基础模型 → 评测 → 挑战」的顺序组织：§2 给出形式化定义与分类框架；§3 回顾经典有模型 RL 的三项奠基工作；§4 从工程实现角度拆解世界模型的关键设计选择；§5、§6 分别介绍以相机 / 交互为条件的世界生成器，以及服务于机器人决策的四大范式与代表工作；§7 介绍 Cosmos、Wan 等基础模型与平台；§8 汇总评测基准；§9 讨论开放挑战与实践启示。
+本文参考 Tan et al., 2026 [[1]](#ref-1)、Li et al., 2025/2026 [[2]](#ref-2)、Hou et al., 2026 [[64]](#ref-64) 与 Lu et al., 2026 [[61]](#ref-61) 等综述，按「定义 → 经典奠基 → 工程设计 → 两大模型家族 → 基础模型 → 评测 → 挑战」的顺序组织：§2 给出形式化定义与分类框架；§3 回顾经典有模型 RL 的三项奠基工作；§4 从工程实现角度拆解世界模型的关键设计选择；§5、§6 分别介绍以相机 / 交互为条件的世界生成器，以及服务于机器人决策的四大范式与代表工作；§7 介绍 Cosmos、Wan 等基础模型与平台；§8 汇总评测基准；§9 讨论开放挑战与实践启示。
 
 ---
 
@@ -145,6 +145,7 @@ flowchart LR
 | **DreamZero** | 2026 | B · WAM（自回归 + 流匹配） | 视频与动作联合去噪 + 真实观测 KV 缓存更新 + 异步控制 | AgiBot 未见任务进度 39.5%；双 GB200 约 7Hz | [§6.2](#paper-dreamzero) |
 | **AIM** | 2026 | B · WAM（扩散） | 空间价值图 (ASVM) + 意图因果注意力 + 价值自蒸馏 RL | RoboTwin 2.0 Avg SR 93.1% | [§6.2](#paper-aim) |
 | **Motus** | 2025/2026 | B · WAM（MoT） | 三专家 MoT + 光流潜动作 + UniDiffuser 联合去噪调度 | RoboTwin 2.0 Avg 87.8%，单步 80ms | [§6.2](#paper-motus) |
+| **GigaWorld-Policy / ForeWAM / OpenWAM 等** | 2026 | B · WAM（提速与开放框架） | 推理时跳过视频生成、未来 KV 复用、免训练状态复用、开源可组合 MoT 框架 | WAMACHINE 免训练提速 1.47–3.05×；OpenWAM LIBERO-Long 97.8% | [§6.2](#wam-2026h2) |
 | **NavWAM & WAM-Nav** | 2026 | B · WAM（导航） | 统一潜时空画布 + 非对称视界 + 双流特征融合 | 推理 205.7 ms（约 5Hz），较 NWM 快 1100×；真机成功率 79.2% / 85% | [§6.2](#paper-navwam) |
 | **Qwen-RobotWorld** | 2026 | B · 世界合成器 | 双流 MMDiT + 自然语言统一动作接口 + 跨本体接地 | EWMBench 4.60 (#1)，WorldModelBench 8.99 | [§6.3](#paper-qwen-robotworld) |
 | **WoVR** | 2026 | B · 世界模拟器 | 世界模型内 RL + 关键帧初始化 (KIR) + 策略协同演化 (PACE) | LIBERO 平均 SR 39.95% → 69.2%；真机 61.7% → 91.7% | [§6.4](#paper-wovr) |
@@ -209,7 +210,8 @@ flowchart TD
 - **2018–2022年（MBRL 奠基期）**：World Models 提出 V-M-C 梦境训练；PlaNet 引入 RSSM；DreamerV1/V2 建立潜空间 Actor-Critic；
 - **2023–2024年（视频先验与 3D 萌芽期）**：UniPi、SuSIE 探索利用视频扩散模型进行文字引导规划；GR-1 开创自回归视频动作预训练；3D-VLA 引入 3D 几何先验；DreamerV3 发表并通关 Minecraft；TD-MPC2 统一 104 种具身控制；
 - **2025年（四大范式爆发期）**：WorldVLA、UniVLA 统一自回归序列建模；DreamGen、GigaWorld-0 构建数据合成飞轮；VLA-RFT、WoVR 开启世界模型内部强化学习；Cosmos 平台建立工业级数据与模型体系；
-- **2026年（全模态收敛与空间智能时代）**：Cosmos 3 以 MoT 架构统一理解-生成-动作；SANA-WM 实现分钟级高效生成；Lyra 2.0 与 Marble 奠定 3DGS 可探索持久宇宙；World Labs Atlas 发布全模态自回归流匹配基座，将相机几何与 3D 深度纳为原生模态并赋能 Real-to-Sim 具身仿真；Motus、AIM、NavWAM 等推动世界动作模型走向主流。
+- **2026年（全模态收敛与空间智能时代）**：Cosmos 3 以 MoT 架构统一理解-生成-动作；SANA-WM 实现分钟级高效生成；Lyra 2.0 与 Marble 奠定 3DGS 可探索持久宇宙；World Labs Atlas 发布全模态自回归流匹配基座，将相机几何与 3D 深度纳为原生模态并赋能 Real-to-Sim 具身仿真；Motus、AIM、NavWAM 等推动世界动作模型走向主流；
+- **2026 年下半年（提速、开放与产品化）**：WAM 的重点从"能不能做"转向"能不能跑得快"，GigaWorld-Policy、ForeWAM、WAMACHINE 把推理延迟压到百毫秒级，OpenWAM 给出开源可组合框架；Genie 4（10 月）加入原生音频与对话式实时编辑，World Labs Atlas（11 月）从早期访问转为正式发布并开放 API。
 
 ---
 
@@ -483,6 +485,16 @@ Genie 提出了 **ST-ViViT** 架构：
 *   **自回归发散**：由于是自回归生成，随着步数增加，视频内容可能会逐渐偏离物理真实或出现伪影。
 *   **动作映射**：虽然挖掘出了潜动作，但将这些离散 Token 精确映射到人类直觉的复杂多级控制（如手柄的线性摇杆）仍需进一步研究。
 
+#### 后续：从 Genie 2 到 Genie 4 {#genie-successors}
+
+Genie 之后，DeepMind 的路线从"学出可玩环境"转向"实时、可提示的世界模拟"：
+
+- **Genie 2（2024.12）**：从单张图像生成可用键鼠操作的 3D 环境，开始出现物体交互与简单物理；
+- **Genie 3（2025.08）**：首个可实时交互的版本，720p、24 fps，场景能在数分钟内保持一致，并支持用文本触发天气、物体出现等"可提示事件"；2026 年 1 月通过 Project Genie 向付费用户开放；
+- **Genie 4（2026.10.27）[[55]](#ref-55)**：首次原生生成音频与角色对话，可在模拟过程中用自然语言改天气、机位或加入人物，由 Gemini 维持世界的推进与一致性。官方演示了与 Gemini 配合模拟人形机器人下棋，明确把"为机器人与智能体构造训练环境"列为用途之一。目前仍是面向受信测试者的研究预览，官方给出的局限包括长时会话中物体恒存性漂移、复杂物理交互和空间精度不足。
+
+从具身智能的角度看，这条线的价值仍在 §6.3 / §6.4 的"环境来源"：它能廉价生成多样场景，但没有公开的动作接口与度量几何，暂时还不能直接替代物理仿真器。
+
 ---
 
 ## 5.2 LingBot-World (2026) {#paper-lingbot-world}
@@ -746,57 +758,40 @@ Lyra 2.0 的核心是一个基于"检索-生成-更新"的自回归循环：
 ---
 
 ## 5.5 Marble & Atlas (World Labs, 2025–2026) {#paper-marble}
-———大型世界模型 (LWM) 到新一代 Omni 空间智能底座 Atlas
 
-> [!TIP]
-> 💡 **姊妹篇导读**：关于 3D 几何表征（如 3D Gaussian Splatting、NeRF、点云）与具身感知的深度融合，可进一步参阅本站的 **[空间智能全景综述：从 3D 几何表征、多模态时空推演到具身物理世界交互](/Spatial-Intelligence-Survey/)**。
+> 3D 表征（3DGS、NeRF、点云）与具身感知的更多内容见本站的 [空间智能综述](/Spatial-Intelligence-Survey/)。
 
-🔗 **产品平台**: [marble.worldlabs.ai](https://marble.worldlabs.ai)  
-🔗 **官方博客**: [Marble: A Multimodal World Model](https://www.worldlabs.ai/blog/marble-world-model) · [Atlas: A World Model for Spatial Intelligence (2026-09)](https://www.worldlabs.ai/blog/atlas) · [[10]](#ref-10)  
-🔗 **API 平台**: [platform.worldlabs.ai](https://platform.worldlabs.ai)
+🔗 **产品**: [marble.worldlabs.ai](https://marble.worldlabs.ai) · **API**: [platform.worldlabs.ai](https://platform.worldlabs.ai)
+🔗 **官方博客**: [Marble](https://www.worldlabs.ai/blog/marble-world-model) · [Atlas 技术介绍（2026-09）](https://www.worldlabs.ai/blog/atlas) · [Atlas 正式发布（2026-11）](https://www.worldlabs.ai/atlas) · [[10]](#ref-10)
 
 #### 精华
 
-由李飞飞联合创立的 World Labs 代表了一种与主流 LLM 路线截然不同的 AGI 追求路径——**空间智能（Spatial Intelligence）**。其早期推出的旗舰产品 **Marble** 是首个面向大众商用的**大型世界模型（Large World Model, LWM）** 平台，能从单图、视频或文本生成可自由探索、永久持久的 3D 高斯泼溅世界；而 2026 年 9 月 1 日最新发布的 **Atlas**，则是支撑下一代 Marble 与具身物理仿真的新一代 **Omni 全模态世界模型基座**。核心突破与思想包括：
+World Labs 走的是"空间智能"路线：世界模型输出的不只是视频，还要有可度量、可导出的 3D 结构。
 
-1. **全模态统一自回归流匹配架构（Multimodal AR Diffusion Transformer）**：Atlas 打破了 2D 视频生成与 3D 空间重建的长期割裂，从头（From Scratch）预训练。它融合了 LLM 的自回归序列特性（继承长上下文 KV-cache、分发调度等工程加速红利）与连续扩散模型（Rectified Flow）对高维视觉信号的高质量建模能力，将文本、图像、视频、相机位姿与 3D 深度图全部锚定在统一的**共享空间上下文（Spatial Context）**中。
-2. **像素级原生相机控制（Pixel-Perfect Camera Control）**：摒弃传统视频模型依赖模糊自然语言提示词（如 "pan left", "zoom in"）的粗粒度控镜，Atlas 原生接收显式 6-DoF 相机内外参轨迹作为输入特征，支持长达 1 分钟、1440p 高清且无视角漂移与几何畸变的空间一致长视频生成。
-3. **稀疏视图空间重建与显式 3D 导出**：输入仅需 1~3 张普通照片或随手拍摄的一段视频，Atlas 端到端联合推演新视角 RGB 与几何深度，输出点云（Point Clouds）与 3D 高斯泼溅（3DGS）。在 DTU、ETH3D、KITTI、ScanNet 等 7 大经典 3D 重建基准上，Atlas 作为通用生成模型全面超越了 MapAnything、VGGT-1B、Depth Anything 3 等专精重建模型。
-4. **时空物理仿真与具身 Real-to-Sim-to-Real 闭环**：不仅支持用 3~5 台普通手机多视角录像免影棚实现“子弹时间”时空重定焦（Video Reframing），更直接开辟了具身导航与操控的 Real-to-Sim 路径——从 24 帧日常手机视频自动重建真实环境，并在机器人推演时实时渲染本体传感器（RGB-D）流，支持刚体、铰接体及变形软体的丰富物理交互变体。
-
----
-
-#### 1. 研究背景与演进逻辑：从 Marble 平台到 Atlas 基座
-
-李飞飞在 ImageNet 时代奠定了计算机视觉的数据基础，World Labs 的创立反映了她对 AI 下一阶段的判断：**当前 AI 缺失的核心能力是空间智能——即理解、生成和推理三维物理世界的能力**。
-
-现有 LLM / VLM 的局限在于：它们本质上是“语言生物”，将世界压缩为 token 序列，缺乏在连续 3D 空间中感知和行动的能力；而 Sora、Wan2.1 等主流视频生成模型虽能生成逼真画面，但本质上仍是将世界压平在 2D 像素平面，无法提供确定性的 3D 度量几何、自由机位漫游与环境交互。
-
-World Labs 的技术演进呈现出明确的“两阶段协同”逻辑：
-- **阶段一：Marble（2025 年 11 月发布）——产品级验证与 3DGS 空间持久宇宙**：率先验证了以 3D 高斯泼溅（3DGS）作为核心世界表征的商业可行性，构建了 Chisel、世界扩展、合成模式等空间创作工作流，实现了“永久存在、自由漫游”的 3D 虚拟世界。
-- **阶段二：Atlas（2026 年 9 月发布）——基座级突破与全模态空间智能大模型**：正式公布了底层 Omni World Model 架构规范，将文本、图像、视频、相机几何与 3D 深度无缝融合，打通了“世界生成（Generation）- 空间重建（Reconstruction）- 时空仿真（Simulation）”三位一体的统一能力，作为下一代 Marble 与具身智能仿真的基石。
+1. **两代产品分工**：Marble（2025.11）是创作平台，从文本、单图、视频或粗糙 3D 布局生成可自由漫游的 3DGS 世界；Atlas（2026.09 技术介绍，2026.11.12 正式发布）是底层的新一代模型，同时承担生成、重建与仿真。
+2. **统一空间上下文**：Atlas 是从头训练的多模态自回归流匹配 Transformer，文本、图像、视频帧、相机位姿和深度图都锚定在同一个 3D 坐标系中，自回归部分可复用 LLM 的 KV-cache 等推理设施。
+3. **显式相机控制**：6-DoF 相机轨迹是原生输入，而非文本提示，官方报告可生成 1 分钟、1440p 且几何一致的受控视频。
+4. **生成与重建合一**：1~3 张照片即可输出点云或 3DGS，在 7 个重建基准上平均误差低于 MapAnything、VGGT 等专用重建模型。
+5. **面向机器人的 Real-to-Sim**：用 24 帧手机视频重建可漫游场景，并沿机器人轨迹实时渲染 RGB-D；可从少量操控视频生成刚体、铰接体、软体交互的变体。
 
 ---
 
-#### 2. 主要方法与核心创新点
+#### 1. 研究背景/问题 {#marble-background}
 
-##### Part A: Marble 工业落地体系与 3DGS 世界表征
+Sora、Wan2.1 一类视频模型画面逼真，但输出停留在 2D 像素：没有度量几何，换个机位就可能前后矛盾，也难以接入物理引擎。World Labs 的判断是，具身智能和内容创作都需要"持久存在、能自由走动、能导出为 3D 资产"的世界。Marble 先用 3DGS 在产品层验证了这条路，Atlas 再把"生成—重建—仿真"三类能力收进同一个模型。
+
+---
+
+#### 2. 主要方法/创新点 {#marble-methods}
+
+##### ① Marble：以 3DGS 为世界表示 {#marble-3dgs}
 
 <div align="center">
   <img src="/images/wm/MarbleWorldModelV4.svg" width="90%" loading="lazy" decoding="async" />
 <figcaption>图：Marble 大型世界模型（LWM）整体架构：多模态输入经过空间推理与 3D 世界生成，输出为可实时渲染、自由探索的 3D 高斯泼溅世界。（图源：World Labs）</figcaption>
 </div>
 
-**Marble 多模态输入体系**
-
-Marble 支持四类输入模态，真正实现了多模态 → 3D 世界的生成：
-
-| 输入类型 | 说明 |
-|:---|:---|
-| 文本提示（Text） | 直接描述目标世界的外观、风格和内容 |
-| 单张图像（Image） | 将单张室内照片、风景图或艺术插画外推为可探索 3D 世界 |
-| 视频片段（Video） | 从短视频或 360° 全景视频中重建空间结构 |
-| 粗糙 3D 布局（Coarse 3D Layout） | 通过 Chisel 工具手绘草图或导入 3D 资产作为结构框架 |
+Marble 接受四类输入：文本、单张图像、视频（含 360° 全景）和粗糙 3D 布局。
 
 <div align="center">
   <img src="/images/wm/i2w-living-room.jpg" width="48%" loading="lazy" decoding="async" style="aspect-ratio:1080/605" />
@@ -804,77 +799,44 @@ Marble 支持四类输入模态，真正实现了多模态 → 3D 世界的生�
 <figcaption>图：Image-to-World 示例：单张室内照片（左）和蘑菇森林插画（右）被 Marble 外推为完整可探索的 3D 世界。（图源：World Labs）</figcaption>
 </div>
 
-**3DGS 作为世界表示：选型的核心逻辑**
-
-Marble 的核心技术选型为 **3D 高斯泼溅（3D Gaussian Splatting, 3DGS）**。3DGS 将 3D 场景表示为一组半透明粒子集合，在世界模型场景下具有显著优势：
+选择 **3D 高斯泼溅（3DGS）** 作为世界表示，是因为它能实时渲染、支持精确相机控制和局部编辑，并能从手机流式渲染到 VR 头显；配合导出的碰撞网格，也可以直接放进物理引擎。
 
 <div align="center">
   <img src="/images/wm/streaming-3dgs-worlds.jpg" width="90%" loading="lazy" decoding="async" style="aspect-ratio:1024/651" />
 <figcaption>图：Marble 的流式 3DGS 渲染：生成的 3D 世界以高斯粒子表示，支持跨平台（手机到 VR 头显）实时渲染与自由视角探索。（图源：World Labs）</figcaption>
 </div>
 
-| 特性 | NeRF | 3DGS（Marble）|
-|:---|:---:|:---:|
-| 实时渲染 | ✗ | ✓ |
-| 精确相机控制 | 有限 | ✓ |
-| 交互式编辑 | ✗ | ✓ |
-| 跨设备兼容 | ✗ | ✓（手机→VR）|
-| 物理引擎集成 | 困难 | 自然兼容 |
-
-**四大核心功能模块**
-
 <div align="center">
   <img src="/images/wm/3d-as-code.jpg" width="90%" loading="lazy" decoding="async" style="aspect-ratio:1456/816" />
 <figcaption>图：Chisel 工具：用户通过盒子、平面等基础 3D 形状或导入现有 3D 资产确定世界结构，文本 prompt 控制整体风格，实现结构与风格的解耦。（图源：World Labs）</figcaption>
 </div>
 
-① **Chisel（AI 原生 3D 雕刻）**：实验性的 AI-native 3D 建模工具，允许用户在 3D 空间中直接用粗糙几何体（盒子、平面）或导入现有 3D 资产布置世界结构框架。核心设计原则是**结构与风格解耦**——粗糙 3D 场景决定世界的空间结构，文本 prompt 控制整体视觉风格，二者独立可控。  
-② **World Expansion（世界扩展）**：一键扩展已生成的世界边界，用户选定需要扩展的区域，Marble 自动生成更多连续一致的内容填充选定区域，支持无限延伸。  
-③ **Composition Mode（合成模式）**：将任意数量的独立世界组合为超大规模空间。各子世界的位置和衔接完全由用户控制，适用于游戏场景、VFX 大型布景或机器人仿真测试场的构建。  
-④ **Video Enhancement（视频增强）**：对生成的 3D 世界渲染输出进行后处理，去除伪影、添加动态元素（如人物、粒子效果），同时保持像素级精确的相机控制和 3D 结构一致性。
+围绕 3DGS，Marble 提供四个创作工具：
 
-**多格式导出与生态集成**
+- **Chisel**：用盒子、平面等粗糙几何体或现有资产搭出空间结构，再用文本控制风格，实现结构与风格解耦；
+- **World Expansion**：选定区域向外扩展世界，保持内容连续；
+- **Composition Mode**：把多个独立世界拼成大场景，可用于游戏关卡或机器人测试场；
+- **Video Enhancement**：对渲染视频去伪影、加入动态元素，同时保持相机轨迹与几何不变。
 
-| 导出格式 | 用途 |
-|:---|:---|
-| Gaussian Splats | 最高保真度，用于实时渲染、VR/AR 交互漫游 |
-| Collider Mesh | 低精度碰撞网格，用于物理引擎碰撞检测仿真 |
-| High-Quality Mesh | 高精度三角网格，用于 CG 工业生产管线 |
-| Video | 固定轨迹高清视频导出，用于影视与广告创作 |
+导出格式包括 Gaussian Splats（实时渲染 / VR）、Collider Mesh（物理碰撞）、High-Quality Mesh（CG 管线）与固定轨迹视频。
 
----
+##### ② Atlas：统一空间上下文的多模态自回归流匹配模型 {#atlas-architecture}
 
-##### Part B: Atlas 新一代 Omni 空间智能基座架构解析
+- **统一空间上下文**：视频被视为带位姿的图像帧序列，每帧图像和深度图都绑定显式相机位姿，所有视觉与几何元素锚定在 3D 坐标中，形成空间工作记忆。例如把两张无关照片放在空间中不同位置，模型会推断两者之间合理的过渡结构（走廊、门厅等）。
+- **自回归 + 流匹配**：序列层面按自回归推进，可复用 KV-cache、解耦式服务与缓存感知路由；单个视觉潜变量用 Rectified Flow 去噪，可按去噪步数权衡速度与质量，并兼容 CFG 与蒸馏加速。
+- **相机控制**：6-DoF 轨迹作为原生条件，推拉摇移、长距离穿越等复合运镜都能保持几何一致。
+- **稀疏视图重建**：1~3 张照片时依靠先验补全不可见区域；输入视图增多后逐渐过渡为精确复原，最终导出度量点云或 3DGS。
+- **时空仿真**：3~5 台手机即可实现"子弹时间"式的视频重定焦；对机器人，可从短视频重建导航场景并实时渲染机载 RGB-D，也可对操控场景程序化改变物体、初始位置、光照与背景，批量生成训练数据。
 
-如果说 Marble 是构筑在世界模型之上的上层交互平台，**Atlas 则是其底座的核心引擎**。Atlas 采用全模态自回归流匹配扩散 Transformer（Multimodal Autoregressive Diffusion Transformer），在统一空间上下文（Spatial Context）中构建了新一代世界模型的四大支柱：
+##### ③ 2026 年 11 月正式发布 {#atlas-release}
 
-###### 1. 统一空间上下文与多模态自回归扩散架构
-- **全模态序列化（Multimodal Sequences）**：Atlas 原生处理文本、图像、精确相机位姿（Camera Poses）以及 3D 深度图（3D Depth Maps），视频被统一表征为时序排列的图像帧序列。每一帧图像与深度图都强制绑定在对应的显式相机位姿上。
-- **空间上下文（Spatial Context）**：与大语言模型将词嵌入排列在 1D 线性上下文中不同，Atlas 将所有视觉与几何元素**显式锚定在 3D 空间坐标中**，构成 3D 空间工作记忆。在生成新内容时，模型基于该 3D 记忆进行时空推演。例如，用户将两张毫不相关的参考照片分别摆放在 3D 空间的不同位置，Atlas 会依据其丰富的物理世界先验，在二者之间自动推演生成合理的过渡结构（如走廊、门厅、拐角）。
-- **AR + Diffusion 双重红利**：
-  - **自回归（Autoregressive）特性**：按序推进多模态序列生成，能够无缝复用现代 LLM 基础设施的高性能服务技术，包括 KV-cache 状态缓存、解耦式服务调度与缓存感知路由；
-  - **流匹配扩散（Rectified Flow Diffusion）特性**：采用连续流匹配扩散机制对高维连续视觉潜变量进行逐步去噪，推理时可通过调节去噪步数在生成速度与视觉质量之间自由权衡，并全面吸收分类器无引导（CFG）与扩散蒸馏（Distillation）等加速算法。
-
-###### 2. 像素级精准相机控制（Pixel-Perfect Camera Trajectory Conditioning）
-- 传统基于文本提示（如 "camera pans left slowly"）的视频模型存在严重的歧义性与累积漂移。Atlas 将相机的 6-DoF 位姿轨迹作为原生输入模态，支持对视角位置、俯仰偏航与运镜速度的完全确定性控制。
-- 无论是复杂的推拉摇移（Pan, Truck, Crane）还是长距离飞越穿梭（Flythrough），Atlas 都能保证场景几何与物体结构在连续时空中保持严格一致，支持长达 **1 分钟、1440p 分辨率**的电影级受控长视频生成。
-
-###### 3. 稀疏视图 3D 空间重建与显式资产导出
-- 传统多视角立体视觉（MVS）或 NeRF 通常需要密集拍摄数十上百张视角。Atlas 将强大的通用物理常识融入隐空间，**仅需 1~3 张普通照片**即可在未见过的未知视角下联合预测 RGB 图像与空间几何深度，补全被摄物体背面与盲区环境。
-- 随着输入参考图像数量的增加（从 1 张增加到数十张），Atlas 的“联想脑补”平滑退火为“高精度真实复原”，并在末端直接输出为**度量点云（Point Clouds）**或转换为**流式 3D 高斯泼溅（3DGS）**，实现工业级 3D 资产导出。
-
-###### 4. 时空物理仿真与机器人 Real-to-Sim-to-Real 工作流
-- **轻量级“子弹时间”时空重定焦（Video Reframing）**：无需造价昂贵的专业多相机阵列，科研人员仅需用 3~5 台普通智能手机配合普通三脚架随手录像，Atlas 便能重构包含动态过程的时空场，实现任意角度冻结与重构运镜。
-- **具身导航大场景仿真与机载传感器模拟**：使用手机录制一段仅包含 24 帧的环境视频，Atlas 即可将其重建为大规模 3D 可漫游空间。在虚拟机器人沿规划轨迹巡航时，Atlas 能够同步且实时渲染机器人机载传感器观测到的 RGB 画面与精确深度图（RGB-D），实现“仿真场景生成与本体感知一体化”。
-- **具身操控交互物理与多样性变体生成**：从少量日常真实操控视频中，Atlas 能够建模物体的物理交互规律，覆盖**刚体（Rigid）、铰接体（Articulated）以及可形变软体（Deformable）**。一旦任务在世界模型中完成仿真，开发者可程序化控制并改变物体类型、初始位置、机械臂动作扰动、环境光照与背景，为机器人策略学习源源不断注入高质量、高多样的合成数据。
+2026 年 11 月 12 日，Atlas 结束早期访问，随生成、重建工具与开发者 API 一起正式发布 [[10]](#ref-10)；一周前的 Frameboy 演示展示了基于 Atlas 的实时漫游，官方称最高约 15 fps（云端 GPU 串流）。截至本文更新，World Labs 仍未发布论文、模型卡或权重。
 
 ---
 
-#### 3. 核心结果/发现与量化评测
+#### 3. 核心结果/发现 {#marble-results}
 
-##### ① 相机受控生成能力评测（人类盲测偏好胜率）
-
-World Labs 采用第三方独立评测人员对单图输入 + 复合运镜轨迹（Pan, Truck, Crane 等组合）进行双盲对比测试，评估各模型对预设相机轨迹的遵循精度。Atlas 以压倒性优势战胜业内主流顶尖模型：
+**相机受控生成（人类盲测偏好）**：第三方评测者对"单图 + 复合运镜轨迹"的结果做双盲比较，下表为选择 Atlas 的比例。运镜越复杂，依赖文本控镜的模型漂移越明显，差距越大。
 
 | 对比基线模型 | 评测任务 | 选民选择 Atlas 的比例（胜率） |
 |:---|:---|:---:|
@@ -884,11 +846,8 @@ World Labs 采用第三方独立评测人员对单图输入 + 复合运镜轨迹
 | **FLUX 3** | 单图 + 复合运镜生成 | **93%** |
 | **Seedance 2.5** | 单图 + 复合运镜生成 | **94%** |
 
-*注：随运镜轨迹复杂度的增加，传统依赖文本提示控镜的模型漂移严重，Atlas 原生相机矩阵输入的优势进一步扩大。*
 
-##### ② 稀疏视图 3D 空间重建误差对比（AbsRel × 10⁻³，↓ 越低越好）
-
-在严苛的稀疏输入 3D 重建任务中，Atlas 接收输入图像及其位姿，预测对应像素的 3D 空间坐标。在统一评测协议下，Atlas 与专精 3D 重建的代表性模型（MapAnything, VGGT-1B, Depth Anything 3, Pi3X 等）在 7 大经典基准上全面对比：
+**稀疏视图 3D 重建（AbsRel × 10⁻³，越低越好）**：给定输入图像与位姿，预测像素的 3D 坐标。
 
 | 评测基准数据集 | **Atlas (Ours)** | MapAnything | VGGT-1B | Depth Anything 3 | Pi3X | 典型代表模型 5 |
 |:---|:---:|:---:|:---:|:---:|:---:|:---:|
@@ -901,42 +860,16 @@ World Labs 采用第三方独立评测人员对单图输入 + 复合运镜轨迹
 | **Tanks & Temples (T&T)** | **42.4** | 42.4 | 47.0 | 40.2 | 55.1 | 60.8 |
 | **ScanNet**（大规模室内场景） | **12.4** | 15.7 | 17.4 | 36.6 | 29.0 | 37.0 |
 
-*评测结论：作为兼具生成与重建的全模态通用大模型，Atlas 的显式几何预测精度不仅没有出现通用泛化牺牲，反而在 7 大基准上全线超越了专精于单项重建任务的学术 SOTA 模型。*
 
-##### ③ 模型扩展规律（Scaling Laws）
-World Labs 在大规模多样化多模态语料上对 Atlas 进行由小到大的系列化预训练验证，实验表明随着模型参数规模与训练计算量（Training Compute）的持续扩展，模型在长序时空一致性、细粒度物理合理性与未知盲区空间联想能力上均展现出稳定的单调递增趋势。
-
-##### ④ 具身智能 × 评测基础设施：与光轮智能的战略合作（2026 年 1 月）
-
-2026 年 1 月，World Labs 与国内仿真合成数据公司光轮智能联手，系统性解决具身智能规模化评测面临的“基准过时、真机昂贵、传统仿真失真”三大行业困境：
-
-```mermaid
-flowchart LR
-    WL["World Labs / Atlas\n（世界从哪来）\nLWM 生成多样化 3D 虚拟环境\n作为机器人策略测试场"] --> Eval
-    GR["光轮智能\n（进步如何被衡量）\n可扩展评测框架\n多维度、自动化基准"] --> Eval
-    Eval["具身智能评测基础设施\n可规模化 · 自动化 · 接近真实"] --> Robot["机器人 VLA 策略\n持续迭代优化"]
-    Robot --> WL
-```
-
-##### ⑤ 商业规模与行业认可
-
-| 指标 | 数据 |
-|:---|:---|
-| Marble 发布时间 | 2025 年 11 月 |
-| Atlas 发布时间 | 2026 年 9 月 1 日（Early Access） |
-| 2026 年 2 月融资 | $10 亿美元（总融资 $12.3 亿） |
-| 公司估值 | ~$50 亿（较创立时 $10 亿增长 5×） |
-| 主要投资方 | NVIDIA、AMD、Autodesk 等 |
-| 行业认可 | Forbes AI 50 2026 |
-| 世界模型赛道融资变化 | $14 亿（2024）→ $69 亿（2025）|
+作为通用生成模型，Atlas 的平均误差（25.3）低于各专用重建模型；但在 T&T 上与 MapAnything 持平、略逊于 Depth Anything 3，KITTI 上也仅小幅领先。以上数字均来自 World Labs 官方博客，尚无独立复现。
 
 ---
 
-#### 4. 局限性与前沿挑战
+#### 4. 局限性 {#marble-limitations}
 
-- **闭源早期访问与学术可复现性**：Atlas 目前处于定向合作伙伴的早期访问（Early Access）阶段，虽然披露了多模态自回归流匹配架构机制与详实量化评测，但核心模型权重与完整训练超参数尚未公开，开源社区自主复现与二次微调仍有门槛。
-- **高动态微观接触力学边界**：虽然 Atlas 支持刚体、铰接体与软体的外观形变与运动模拟，但在机器人需要的高频微观接触力矩、精细摩擦力分布及连续流体动力学等“触觉-力学物理”层面，仍需结合传统物理引擎（如 Isaac Sim、MuJoCo）进行联合仿真验证。
-- **超大场景机载端侧部署**：大规模环境下的点云与 3D 高斯泼溅高斯核数量往往达到数百万量级，在嵌入式机器人边缘计算平台（如 Jetson Orin）上进行实时流式推演时，仍需进一步结合神经高斯剪枝与 LoD 分级加载优化。
+- **可复现性**：没有论文、权重和完整训练细节，评测全部为官方自报，学术界难以复现或微调。
+- **接触力学**：外观与运动层面的软体、铰接体模拟，不等于机器人需要的接触力、摩擦分布等力学量，仍需与 Isaac Sim、MuJoCo 等物理引擎联合使用。
+- **端侧部署**：大场景 3DGS 常有数百万个高斯核，在 Jetson Orin 等嵌入式平台上实时渲染还需要剪枝与 LoD 分级加载。
 
 ---
 
@@ -1216,6 +1149,20 @@ flowchart LR
 | **扩散 / 流匹配** | 空间价值接口 | AIM [[27]](#ref-27) | 空间价值图（ASVM）显式解耦意图，自蒸馏 RL 优化 |
 | **扩散 / 流匹配** | 潜在画布（Canvas） | NavWAM [[28]](#ref-28) | 9帧世界-动作潜在画布，消除 CEM 实现 5Hz 实时导航 |
 | **扩散 / 流匹配** | 非对称视界 | WAM-Nav [[29]](#ref-29) | 动作长视界（24步）+ 视觉短视界（1步），防止视角剧变漂移 |
+| **扩散 / 流匹配** | 推理时跳过视频 | GigaWorld-Policy [[56]](#ref-56), DSWAM [[60]](#ref-60) | 以动作为中心，视频分支只在训练时提供监督 |
+| **扩散 / 流匹配** | 潜在未来复用 | ForeWAM [[57]](#ref-57) | 只预测不渲染，Future-KV 复用未来状态 |
+| **开放框架** | 可组合 MoT | OpenWAM [[59]](#ref-59) | Wan2.2-5B 视频底座 + 动作专家，可替换逆动力学头 |
+
+### 2026 下半年：WAM 走向高效与开放 {#wam-2026h2}
+
+上半年的 WAM（DreamZero、Motus 等）证明了"视频底座 + 动作头"可行，但每次决策都要生成或去噪未来视频，延迟动辄数百毫秒到数秒。下半年的工作大多围绕这一点展开：
+
+- **推理时不再生成视频**：GigaWorld-Policy [[56]](#ref-56) 让视频 token 不影响动作 token，推理时可完全跳过视频生成，报告比 Motus 快 9 倍、真机成功率高 7%，在 RoboTwin 2.0 上比 π0.5 高 95%。DSWAM [[60]](#ref-60) 同样不显式生成未来视频，并把 WAM 作为 System 1 执行器，可选接入 VLM 子任务规划器（System 2），配合 TensorRT 与异步分块执行。
+- **预测但不渲染**：ForeWAM [[57]](#ref-57) 把"预测未来"和"渲染画面"拆开，用 Future-KV 复用未来的键值状态。在每任务 50 条演示的 RoboCasa 上达到 59.2%，比 Fast-WAM 高 9.7 个点；单层解码器版本在 LIBERO-Plus 上为 77.6%，A800 上单次查询 88.7 ms，比 Fast-WAM 快 6.27 倍。
+- **免训练加速**：WAMACHINE [[58]](#ref-58) 在相邻重规划、去噪步与 Transformer 层之间复用中间状态，在 LIBERO 与 RoboTwin 2.0 的三种架构上，观测到动作的延迟加速 1.47–3.05 倍，保留原成功率的 96.69%–99.54%。
+- **开源框架**：OpenWAM [[59]](#ref-59) 以 Wan2.2-5B 为底座，在 1 万小时以上的机器人视频上做因果预训练，再通过 MoT 接入动作专家，各模块可替换。LIBERO-Long 成功率从 68.4% 提升到 97.8%；在未见过的 LIBERO-90 任务上，冻结的局部上下文逆动力学头达到 84.0%，而全上下文版本只有 47.0%。
+
+**小结**："未来视频"在 WAM 中越来越像训练期的辅助监督，而非推理期的必需输出。这与 §6.1 世界规划器"先想象、再解码"的思路正在分化。系统梳理可参考 Lu et al. 的 WAM 专题综述 [[61]](#ref-61)。
 
 ---
 
@@ -2605,7 +2552,8 @@ mindmap
 
 当前生成式世界模型在微观运动上已较逼真，但在刚体碰撞冲量守恒、弹性 / 塑性形变、流体飞溅与不可穿模约束等规律上仍依赖统计拟合，容易产生物理幻觉。
 - **前沿方向**：将**可微物理仿真（Differentiable Physics Simulators）**嵌入去噪过程，以物理残差作为损失正则项；
-- **因果推理与反事实推演**：结合因果发现（Causal Discovery），让世界模型能回答"如果机械臂多施加 2N 的侧向力，杯子是否会倾倒"这类假设性问题。
+- **因果推理与反事实推演**：结合因果发现（Causal Discovery），让世界模型能回答"如果机械臂多施加 2N 的侧向力，杯子是否会倾倒"这类假设性问题；
+- **用评判信号做后训练**：RoboImagine [[62]](#ref-62) 生成多个候选未来，用冻结的多模态模型给语义反馈、再加像素与感知一致性信号做偏好式后训练，在 RT-1 上相对继续 SFT 提升 PSNR 1.26 dB、LPIPS 降低 11.93%。
 
 ### 3D/4D 空间表示
 
@@ -2617,7 +2565,8 @@ mindmap
 
 世界模型用于真机控制前，必须知道自己什么时候不可信。
 - **前沿方向**：引入**共形预测（Conformal Prediction）**与**认知不确定性（Epistemic Uncertainty）量化**（如模型集成），在遇到分布外场景或碰撞风险过高时主动报警并切换到人工遥操作；
-- **自动化物理合理性审计**：用物理推理 VLM（如 Cosmos-Reason1）充当"物理裁判"，在生成结果交给策略前检查几何干涉与力学合理性。
+- **自动化物理合理性审计**：用物理推理 VLM（如 Cosmos-Reason1）充当"物理裁判"，在生成结果交给策略前检查几何干涉与力学合理性；
+- **想象中的信息会衰减**：Kwon et al. [[63]](#ref-63) 在 CARLA + RSSM 的单种子案例中发现，障碍物探针在后验状态上 AUC 为 0.85，想象 15 步后降到 0.71，而集成分歧只有 0.52，接近随机。也就是说，"想象轨迹看起来合理"不等于任务相关信息还在，常用的集成不确定性也未必能报警。
 
 ### 长时程推演
 
@@ -2643,14 +2592,14 @@ mindmap
 对于致力于具身智能、VLA 与机器人开发的科研与工程团队，可以从前文提炼出以下五条经验：
 
 1. **“数据质量与策展”重于“盲目扩大参数”**：Cosmos Video Curator 与 EWK 数据集的经验表明，严格的镜头切分、多级物理过滤、多视角空间与时间分层描述对物理世界模型的贡献，往往不亚于单纯增加 DiT 参数；
-2. **优先拥抱世界动作模型（WAM）以消除在线搜索开销**：在对实时性要求严苛的闭环控制中，应优先采用 WAM 或 Latent Canvas 架构，将未来视觉预测作为自监督锚定，实现单步前向 5Hz–15Hz 高频输出，规避昂贵的 CEM 采样；
+2. **实时闭环优先考虑 WAM，并把视频预测当作训练信号**：对实时性要求高的控制，WAM 或 Latent Canvas 架构可省去 CEM 等在线搜索；2026 下半年的经验是推理时尽量不渲染未来视频（GigaWorld-Policy、ForeWAM），或复用中间状态（WAMACHINE），把延迟压到百毫秒级（§6.2）；
 3. **重视隐空间规划与非对称时空视界**：在视角剧烈变化的移动导航或复杂操作中，切忌无节制拉长自回归像素生成；采用“长动作视界 + 短隐空间视觉前瞻”能以极低成本提供最可靠的几何约束；
 4. **警惕强化学习模拟器中的“分布漂移与幻觉漏洞”**：在虚拟世界模型中做 RL 后训练时，必须配合关键帧初始化（KIR）、策略协同演化（PACE）以及基于物理推理 VLM 的可验证稠密奖励，防止策略过拟合于生成器的物理 bug；
 5. **布局 3D 显式表示与空间智能基础**：2D 像素是 3D 物理世界的降维投影，长期来看，深度融合 3DGS、点云及度量几何的 Large World Models（LWM）是解决空间泛化问题的重要方向。
 
 ## 9.3 技术路线研判 {#sec-9-3-future-roadmap}
 
-具身智能世界模型的发展历程，折射出 AI 对物理世界认知能力的根本跃迁。纵观 2018 至 2026 年的技术演化，我们可以清晰地梳理出三条交织演进的技术主线：
+2018–2026 年的工作可以归纳为三条相互交织的主线：
 
 ```mermaid
 flowchart TD
@@ -2661,7 +2610,7 @@ flowchart TD
 
     subgraph Track2["主线二：控制与决策机制"]
         T2_1["开环像素规划<br/>(UniPi, SuSIE, CEM)"] --> T2_2["统一世界动作模型<br/>(WorldVLA, Motus, AIM)"]
-        T2_2 --> T2_3["双系统想象闭环<br/>(System 1 反应 + System 2 前瞻)"]
+        T2_2 --> T2_3["高效 / 双系统 WAM<br/>(GigaWorld-Policy, ForeWAM, DSWAM)"]
     end
 
     subgraph Track3["主线三：训练与可信仿真"]
@@ -2681,13 +2630,13 @@ flowchart TD
 
 ### 四大范式的融合趋势
 
-回顾 **§6 的四大范式** 与 **§5–§7 的代表工作**，四大范式并非互相替代的竞争关系，而是正加速走向深层互补：
+§6 的四大范式并不是互相替代的关系，而是越来越多地组合使用：
 
 | 范式定位 | 典型代表 | 核心优势 | 核心瓶颈 | 未来融合方向 |
 |:---|:---|:---|:---|:---|
 | **① 世界规划器** (Planner) | UniPi, SuSIE, GENE-26.5 | 目标驱动、可解释性强、灵活泛化 | 采样延迟高 (CEM 达秒级)、不适合高频控制 | 隐空间梯度规划、扩散蒸馏采样 |
-| **② 世界动作模型** (WAM) | WorldVLA, Motus, AIM, NavWAM | 5–15Hz 高频闭环、无缝融合前瞻与控制 | 多视角时空对齐难、长程轨迹漂移 | MoT 解耦架构、空间价值图 (ASVM) 中介 |
-| **③ 世界合成器** (Synthesizer) | Genie, DreamGen, Image2Sim | 无限扩充边缘工况长尾数据、泛化性强 | 仿真与真实域差 (Sim2Real)、物理幻觉 | 4D 动态流生成、光流差分动作迁移 |
+| **② 世界动作模型** (WAM) | WorldVLA, Motus, AIM, NavWAM, OpenWAM | 5–15Hz 高频闭环、无缝融合前瞻与控制 | 多视角时空对齐难、长程轨迹漂移、视频去噪开销 | 推理期跳过渲染、状态复用、空间价值图 (ASVM) 中介 |
+| **③ 世界合成器** (Synthesizer) | Genie 3/4, DreamGen, Image2Sim, Atlas | 无限扩充边缘工况长尾数据、泛化性强 | 仿真与真实域差 (Sim2Real)、物理幻觉 | 4D 动态流生成、光流差分动作迁移 |
 | **④ 世界模拟器** (Simulator) | WoVR, VLA-RFT, SRPO | 免真机损耗的低成本强化学习母体 | 策略过拟合于生成器幻觉漏洞 | 关键帧回放 (KIR)、策略协同演化 (PACE) |
 
 ### 三个突破方向
@@ -2711,7 +2660,7 @@ flowchart TD
 7. <span id="ref-7"></span>*LingBot-World: Open-Source Minute-Scale Interactive World Model* (2026). [arXiv:2601.20540](https://arxiv.org/abs/2601.20540)
 8. <span id="ref-8"></span>Zhu, H., et al. (2026). *SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diffusion Transformer*. [arXiv:2605.15178](https://arxiv.org/abs/2605.15178) · [Project Page](https://nvlabs.github.io/Sana/WM/)
 9. <span id="ref-9"></span>NVIDIA. (2026). *Lyra 2.0: Explorable Generative 3D Worlds at Scale*. [arXiv:2604.13036](https://arxiv.org/abs/2604.13036)
-10. <span id="ref-10"></span>World Labs Team. (2025–2026). *Marble: A Multimodal World Model* & *Atlas: A World Model for Spatial Intelligence*. [worldlabs.ai/blog/marble-world-model](https://www.worldlabs.ai/blog/marble-world-model) · [worldlabs.ai/blog/atlas](https://www.worldlabs.ai/blog/atlas)
+10. <span id="ref-10"></span>World Labs Team. (2025–2026). *Marble: A Multimodal World Model* & *Atlas: A World Model for Spatial Intelligence*. [worldlabs.ai/blog/marble-world-model](https://www.worldlabs.ai/blog/marble-world-model) · [worldlabs.ai/blog/atlas](https://www.worldlabs.ai/blog/atlas) · [Atlas 正式发布（2026-11-12）](https://www.worldlabs.ai/atlas) · [Frameboy（2026-11-05）](https://www.worldlabs.ai/blog/atlas-realtime)
 11. <span id="ref-11"></span>*Image2Sim: Decoupled 3D Gaussian Geometry and One-Step Pixel Flow for Real-Time Neural Simulation* (2026). [arXiv:2607.05765](https://arxiv.org/abs/2607.05765)
 12. <span id="ref-12"></span>Du, Y., et al. (2023). *Learning Universal Policies via Text-Guided Video Generation (UniPi)*. NeurIPS 2023.
 13. <span id="ref-13"></span>Black, K., et al. (2024). *Zero-Shot Robotic Manipulation with Pre-trained Image-Editing Diffusion Models (SuSIE)*. ICLR 2024.
@@ -2756,6 +2705,16 @@ flowchart TD
 52. <span id="ref-52"></span>Liu, B., et al. (2023). *LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning*. [libero-project.github.io](https://libero-project.github.io/)
 53. <span id="ref-53"></span>Mees, O., et al. (2022). *CALVIN: A Benchmark for Language-Conditioned Policy Learning for Long-Horizon Robot Manipulation Tasks*. [github.com/mees/calvin](https://github.com/mees/calvin)
 54. <span id="ref-54"></span>Ye, S., et al. (2026). *World Action Models are Zero-shot Policies*. NVIDIA. [arXiv:2602.15922](https://arxiv.org/abs/2602.15922) · [Code](https://github.com/dreamzero0/dreamzero) · [Project Page](https://dreamzero0.github.io/)
+55. <span id="ref-55"></span>Google DeepMind. (2026). *Genie 4: A New Generation of World Simulation*. [deepmind.google/blog](https://deepmind.google/blog/genie-4-a-new-generation-of-world-simulation/)
+56. <span id="ref-56"></span>Ye, A., et al. (2026). *GigaWorld-Policy: An Efficient Action-Centered World–Action Model*. [arXiv:2603.17240](https://arxiv.org/abs/2603.17240)
+57. <span id="ref-57"></span>Huang, J., et al. (2026). *Foresight Without Seeing: Latent Futures for World Action Models*. [arXiv:2608.11605](https://arxiv.org/abs/2608.11605)
+58. <span id="ref-58"></span>Liu, Z., et al. (2026). *Efficient World Action Model Inference with Adaptive Intermediate States*. [arXiv:2609.34608](https://arxiv.org/abs/2609.34608)
+59. <span id="ref-59"></span>Yu, H., et al. (2026). *OpenWAM: An Open Framework for Composable World-Action Models*. [arXiv:2610.07922](https://arxiv.org/abs/2610.07922)
+60. <span id="ref-60"></span>Zhu, J., et al. (2026). *DSWAM: A Dual-System World Action Foundation Model for Fine-Grained Robot Manipulation*. [arXiv:2607.04927](https://arxiv.org/abs/2607.04927)
+61. <span id="ref-61"></span>Lu, Z., et al. (2026). *World-Action Models for Robot Learning and Control: A Survey*. [arXiv:2609.16074](https://arxiv.org/abs/2609.16074)
+62. <span id="ref-62"></span>Wu, H., et al. (2026). *Learning Robotic World Models with Semantic and Visual Feedback*. [arXiv:2611.07850](https://arxiv.org/abs/2611.07850)
+63. <span id="ref-63"></span>Kwon, J., et al. (2026). *The Posterior-Prior Epistemic Gap: When World Model Imagination Fails to Carry Task-Relevant Signals*. [arXiv:2611.14955](https://arxiv.org/abs/2611.14955)
+64. <span id="ref-64"></span>Hou, B., et al. (2026). *World Model for Robot Learning: A Comprehensive Survey*. [arXiv:2605.00080](https://arxiv.org/abs/2605.00080)
 
 ---
 
