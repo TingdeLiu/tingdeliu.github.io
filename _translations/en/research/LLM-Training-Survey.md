@@ -5,10 +5,10 @@ translation_id: llm-training-survey
 permalink: /en/LLM-Training-Survey/
 source_path: _posts/research/2026-02-06-LLM-Training-Survey.md
 source_url: /LLM-Training-Survey/
-source_revision_date: 2026-10-24
-translation_updated: 2026-10-24
+source_revision_date: 2026-11-18
+translation_updated: 2026-11-18
 title: "Large Language Model Training: A Survey"
-date: 2026-10-24
+date: 2026-11-18
 tags: [LLM, Deep Learning, NLP, Training, AI]
 categories: research
 comments: false
@@ -44,20 +44,20 @@ However, the knowledge and technology of large model training are often scattere
 
 This review systematically summarizes the core technologies of large model training, including:
 
-1. 🏗️ **Large model training basic overview**: large model training concept, evolution process and core components
-2. 🌀 **pretraining stage**: objective function, data source and ratio, core parameter strategy and MoE architecture
-3. 🎯 **supervised fine-tuning stage**: SFT training objectives, data sources and cutting-edge synthesis and quality cleaning technology
-4. 🤝 **preference alignment stage**: RLHF, DPO and GRPO algorithm principles and reasoning model training paradigm
-5. 🔁 **Post-Training and catastrophic forgetting**: Forgetting mechanism and forgetting mitigation strategies in continual learning
-6. 🔀 **distributed training technology**: data/tensor/pipeline parallelism, sequence parallelism and ZeRO state sharding
-7. ⚡ **training optimization technology**: comparison of mainstream optimizers, learning rate strategy and Flash Attention
-8. 📉 **model quantization technology**: PTQ and QLoRA low-bit fine-tuning, different format accuracy/performance trade-offs
-9. 🗂️ **Data Engineering**: Best practices for data collection, cleaning, deduplication and matching
-10. 📈 **Evaluation and Benchmark**: Knowledge, reasoning, code, long text and security evaluation
-11. 🚀 **Practice Guide and Best Practices**: Computing power estimation, training monitoring, OOM debugging and checkpoint recovery
-12. 💬 **Frequently Asked Questions (FAQ)**: Q&A on common training anomalies, fine-tuning and alignment practices
-13. 👁️ **moves towards multimodal and intelligent agents**: VLM vision-language fusion architecture, two-stage training process and Agent tool call training
-14. 📚 **reference resource**: classic papers, core open source projects and large model learning path
+1. 🏗️ **Overview of LLM training**: core concepts, how the field evolved, and the main components
+2. 🌀 **Pretraining**: objectives, data sources and mixing, key hyperparameters, MoE, multi-token prediction, sparse/hybrid attention, and mid-training
+3. 🎯 **Supervised fine-tuning**: SFT objectives, data sources, and recent synthesis and quality-filtering techniques
+4. 🤝 **Preference alignment**: RLHF, DPO, and GRPO, the training paradigm of reasoning models, and on-policy distillation
+5. 🔁 **Post-training and catastrophic forgetting**: why models forget during continual learning and how to mitigate it
+6. 🔀 **Distributed training**: data, tensor, and pipeline parallelism, sequence parallelism, and ZeRO sharding
+7. ⚡ **Training optimization**: AdamW, Muon, and other optimizers, learning-rate schedules, and Flash Attention
+8. 📉 **Quantization**: PTQ and QLoRA low-bit fine-tuning, and accuracy/performance trade-offs across formats
+9. 🗂️ **Data engineering**: best practices for collection, cleaning, deduplication, and mixing
+10. 📈 **Evaluation and benchmarks**: knowledge, reasoning, code, long-context, safety, and agent evaluation
+11. 🚀 **Practical guide**: compute estimation, training monitoring, OOM debugging, and checkpoint recovery
+12. 💬 **FAQ**: common training problems and fine-tuning and alignment practice
+13. 👁️ **Toward multimodal models and agents**: VLM architecture, two-stage training, agent tool use, and agentic RL
+14. 📚 **References**: key papers, core open-source projects, and a learning path
 
 ## Intended readers
 {: id="目标读者"}
@@ -80,20 +80,22 @@ This article is divided into 14 main chapters. It is recommended to read selecti
 
 |Chapter|content|suitable for readers|reading time|
 |------|------|---------|---------|
-|**1. Basic overview**|large model training concept and evolution process|all readers|10 minutes|
-|**2. pretraining stage**|Objective function, data source, core parameters and MoE|⭐Must read for all readers|30 minutes|
-|**3. supervised fine-tuning stage**|SFT training objectives, data construction, synthesis and filtering|⭐Must read for all readers|15 minutes|
-|**4. preference alignment stage**|RLHF, DPO, GRPO and reasoning model RL are aligned|⭐Must read for all readers|15 minutes|
-|**5. Post-Training and Forgetting**|catastrophic forgetting, experience replay and Self-Output|Engineers and researchers ⭐Recommended|15 minutes|
-|**6. Distributed training**|Parallel technologies such as DP/TP/PP/ZeRO|Engineer, researcher|20 minutes|
-|**7. Training optimization**|Optimizer, learning rate, Flash Attention|engineer|15 minutes|
-|**8. Model quantization**|GPTQ/AWQ quantization and QLoRA low-bit fine-tuning|Engineers and researchers ⭐Recommended|20 minutes|
-|**9. Data engineering**|Data collection, cleaning, deduplication and matching|Engineer, researcher|25 minutes|
-|**10. Evaluation benchmark**|MMLU, GSM8K and other evaluation systems|researchers, practitioners|15 minutes|
-|**11. Practical Guide**|Hardware configuration, cost estimation, monitoring and checkpoint recovery|Engineer ⭐Must read|30 minutes|
-|**12. Frequently Asked Questions**|FAQs on common training anomalies and fine-tuning/alignment issues|⭐Recommended by all readers|20 minutes|
-|**13. VLM and Agent**|vision-language model architecture, two-stage fusion training and Agent tool call training|Engineer, researcher|20 minutes|
-|**14. Reference resource**|Classic papers, benchmark open source projects and learning paths|all readers|15 minutes|
+|Chapter|Content|Suitable for|Reading time|
+|------|------|---------|---------|
+|**1. Overview**|What LLM training is and how it evolved|All readers|10 minutes|
+|**2. Pretraining**|Objectives, data sources, key hyperparameters, MoE, and mid-training|All readers ⭐ must read|30 minutes|
+|**3. Supervised fine-tuning**|SFT objectives, data construction, synthesis, and filtering|All readers ⭐ must read|15 minutes|
+|**4. Preference alignment**|RLHF, DPO, GRPO, and RL for reasoning models|All readers ⭐ must read|15 minutes|
+|**5. Post-training and forgetting**|Catastrophic forgetting, experience replay, and Self-Output|Engineers, researchers ⭐ recommended|15 minutes|
+|**6. Distributed training**|DP, TP, PP, ZeRO, and other parallelism techniques|Engineers, researchers|20 minutes|
+|**7. Training optimization**|Optimizers (including Muon), learning rate, Flash Attention|Engineers|15 minutes|
+|**8. Quantization**|GPTQ/AWQ quantization and QLoRA low-bit fine-tuning|Engineers, researchers ⭐ recommended|20 minutes|
+|**9. Data engineering**|Data collection, cleaning, deduplication, and mixing|Engineers, researchers|25 minutes|
+|**10. Evaluation**|MMLU, GSM8K, and other benchmark suites|Researchers, practitioners|15 minutes|
+|**11. Practical guide**|Hardware, cost estimation, monitoring, and checkpoint recovery|Engineers ⭐ must read|30 minutes|
+|**12. FAQ**|Common training problems and fine-tuning/alignment questions|All readers ⭐ recommended|20 minutes|
+|**13. VLMs and agents**|Vision-language model architecture, two-stage training, and agent tool-use training|Engineers, researchers|20 minutes|
+|**14. References**|Key papers, flagship open-source projects, and a learning path|All readers|15 minutes|
 
 > **💡 Reading suggestions**
 >
@@ -156,11 +158,12 @@ Large model training has experienced an important transition from small-scale ex
 
 ### 1.2.5 Reasoning and efficiency (2025–2026)
 {: id="125-推理模型与效率20252026"}
-- **The inference model paradigm is established**: OpenAI o1/o3, DeepSeek-R1 (and subsequent V3. and its improved algorithms) have become the standard paradigm for training strong inference models.
-- **domestically produced large model group is catching up with**: Qwen3 series introduces "thinking/non-thinking" hybrid reasoning mode (the same model can switch between deep thinking and fast response on demand); Kimi K2 uses ultra-large-scale MoE + strong Agentic (tool calling) capabilities as its selling point; MiniMax, GLM, Step Star, etc. continue to iterate
-- **closed source flagship continues to evolve**: GPT-5 series, Claude 4.x (Opus/Sonnet/Haiku) series, and Gemini series continue to compete in reasoning, long context, and Agent capabilities
-- **Architecture Innovation**: MLA (Multi-head Latent Attention) and FP8 training engineering (DeepSeek-V3) have significantly reduced the training and inference costs of hundreds of billions of models, and "low cost and high performance" has become a new competitive dimension
-- **Agent's capabilities have become a new focus**: From "dialogue assistant" to "agent that can use tools independently and complete multi-step tasks", the training goal has expanded from a single round of question and answer to multi-round tool invocation and long-term task planning
+- **Reasoning models become a paradigm**: OpenAI o1/o3 and DeepSeek-R1 (followed by the V3.x series) established test-time compute scaling as a dimension alongside training-time scaling laws. Long chain-of-thought (long CoT) plus RL (GRPO and its successors) became the standard recipe for strong reasoning models
+- **Chinese labs close the gap**: the Qwen3 series introduced a hybrid thinking/non-thinking mode (one model switches between deliberate reasoning and fast answers); Kimi K2 pairs a trillion-parameter MoE with strong agentic (tool-calling) ability; MiniMax, Zhipu GLM, StepFun, and others keep iterating
+- **Closed flagships keep advancing**: the GPT-5 series, Claude 4.x (Opus/Sonnet/Haiku), and the Gemini series compete on reasoning, long context, and agent capabilities
+- **Architecture innovation**: MLA (multi-head latent attention), production FP8 training, and multi-token prediction (DeepSeek-V3) sharply cut the training and inference cost of models with hundreds of billions of parameters. Sparse attention (DSA in DeepSeek-V3.2) and hybrids that mix linear attention with a few full-attention layers (MiniMax-01, Qwen3-Next, Kimi Linear) push long-context cost down further (Section 2.6.4)
+- **More refined training recipes**: a separate mid-training stage now sits between pretraining and post-training, annealing on high-quality math, code, and long-context data (Section 2.6.5). The Muon optimizer has been shown to replace AdamW at trillion-parameter scale (Kimi K2, Section 7.1.4)
+- **Agents become the new focus**: models shift from chat assistants to agents that use tools and finish multi-step tasks on their own. Training objectives expand from single-turn Q&A to multi-turn tool use and long-horizon planning, and RL environments grow from math and code verifiers to executable repositories, terminals, and browser sandboxes (Section 13.6.4)
 
 ## 1.3 Three training stages
 {: id="13-三大训练阶段"}
@@ -871,15 +874,19 @@ Here, $f_i$ is the proportion of tokens actually assigned to expert $i$, and $P_
 
 A side effect of the auxiliary loss is that it interferes with the gradient of the main task. DeepSeek-V3 switches to **Auxiliary-Loss-Free load balancing**: Add a bias term only used to select top-k to each expert's routing score. During training, the bias is dynamically adjusted up or down according to the actual load of the expert, so as to maintain balance without introducing additional losses.
 
-#### 2.6.1.3 Representative model
+#### 2.6.1.3 Representative models
 {: id="2613-代表模型"}
 
-|model|Number of routing experts|Activated per token|total parameters|Activation parameters|
+|Model|Routed experts|Active per token|Total parameters|Active parameters|
 |------|--------|---------|-------------|---------|
-| Switch Transformer |Up to 2048| top-1 | 1.6T |Much smaller than the total parameter|
+| Switch Transformer |Up to 2048| top-1 | 1.6T |Far below the total|
 | Mixtral 8x7B | 8 | top-2 | 47B |About 13B|
-| DeepSeek-V3 |256 (1 additional shared expert)| top-8 | 671B | 37B |
+| DeepSeek-V3 |256 (plus 1 shared expert)| top-8 | 671B | 37B |
 | Qwen3-235B-A22B | 128 | top-8 | 235B | 22B |
+| Kimi K2 |384 (plus 1 shared expert)| top-8 | 1.04T | 32B |
+| gpt-oss-120b | 128 | top-4 | 117B | 5.1B |
+
+The trend is clear: experts are getting finer and more numerous, and the active fraction keeps falling (about 3% for Kimi K2 and about 4% for gpt-oss-120b). Fine-grained experts allow more combinations, but they also make All-to-All communication and load balancing harder.
 
 #### 2.6.1.4 Engineering Challenges
 {: id="2614-工程挑战"}
@@ -910,10 +917,71 @@ Under standard parameterization, the optimal learning rate will change with the 
 
 Occasional gradient explosions during the training process will cause loss to rise sharply. Common coping strategies (see Section 11.3.2.3 for the complete diagnosis process):
 
-1. **Gradient Clipping** (Gradient Clipping): Limit the gradient L2 norm, usually set to 1.0
+1. **Gradient clipping**: cap the global L2 norm of the gradient, usually at 1.0
 2. **BF16 instead of FP16**: avoid instability caused by numerical overflow
-3. **automatically rolls back**: automatically rolls back to the previous checkpoint and lowers the learning rate when monitoring loss mutations
-4. **is stable. Adam configures**: lowers $\beta_2$ from the default 0.999 to 0.95 to reduce the historical dependence of the second-order moment.
+3. **Automatic rollback**: when the loss jumps, roll back to the previous checkpoint and lower the learning rate
+4. **A more stable Adam setting**: lower $\beta_2$ from the default 0.999 to 0.95 so the second moment depends less on old history
+
+#### 2.6.2.4 QK-Norm and QK-Clip
+{: id="2624-qk-norm-与-qk-clip"}
+
+Many loss spikes start in the attention logits. The norms of the queries and keys keep growing during training, $QK^\top$ grows with them, softmax collapses toward one-hot, and the gradients become very unstable. There are two mainstream fixes:
+
+- **QK-Norm**: apply RMSNorm to Q and K separately before computing attention, which bounds the scale of the logits by construction. OLMo 2, Qwen3, and other models use QK-Norm (Qwen3 also drops the QKV bias)
+- **QK-Clip**: MLA folds the key projection into other matrices at inference time, so QK-Norm cannot be inserted per head. Kimi K2 instead checks the maximum logit of every attention head after each update; once it exceeds a threshold $\tau$ (100 for K2), the head's $W_q$ and $W_k$ are scaled down by $\sqrt{\tau / S_{\max}}$ each. It acts only on the offending heads and leaves the forward computation unchanged. Combined with the Muon optimizer (Section 7.1.4), K2 went through 15.5T tokens of pretraining without a single loss spike
+
+---
+
+### 2.6.3 Multi-token prediction (MTP)
+{: id="263-多-token-预测mtp"}
+
+Standard autoregressive training predicts only the next token at each position. **Multi-token prediction** asks each position to also predict tokens further ahead. The training signal becomes denser, and the model is pushed to "plan" what comes next.
+
+- **Parallel heads** (Gloeckle et al., 2024): attach $n$ independent output heads to a shared trunk, predicting the 1st through $n$-th future tokens. The paper reports clear gains on code, growing with model size
+- **Sequential modules** (DeepSeek-V3): the $k$-th MTP module concatenates the hidden state from the previous depth with the embedding of token $i+k$, projects it, passes it through one Transformer block, and predicts token $i+k+1$. The embedding layer and output head are shared with the main model, which keeps the full causal chain
+
+DeepSeek-V3's total loss is the main loss plus a weighted MTP loss:
+
+$$\mathcal{L} = \mathcal{L}_{\text{Main}} + \frac{\lambda}{D} \sum_{k=1}^{D} \mathcal{L}_{\text{MTP}}^{k}$$
+
+V3 uses $D=1$ and sets $\lambda$ to 0.3 for the first 10T tokens and 0.1 afterwards. At inference the MTP module can be dropped, or reused as the draft model for speculative decoding: the second token is accepted about 85%–90% of the time, raising decoding throughput to roughly 1.8×.
+
+---
+
+### 2.6.4 Efficient attention: sparse and hybrid architectures
+{: id="264-高效注意力稀疏与混合架构"}
+
+Full-attention compute grows quadratically with sequence length $L$, and the KV cache grows linearly. Once context reaches 128K or even 1M tokens, attention dominates both training and inference cost. In 2025, two approaches made it into large production models:
+
+**1. Trainable sparse attention**: each query attends to only a small subset of keys.
+
+- **NSA** (Native Sparse Attention, DeepSeek): three parallel branches — compressed coarse-grained blocks, fine-grained blocks selected by importance, and a local sliding window — merged by a gate. It is designed around block-wise GPU memory access and is trained sparsely from pretraining onward
+- **DSA** (DeepSeek Sparse Attention, DeepSeek-V3.2): a lightweight "lightning indexer" (few heads, FP8) scores every past token, and the main attention computes only the top $k$ ($k=2048$). Main-attention complexity drops from $O(L^2)$ to $O(Lk)$. V3.2 was not trained from scratch but continued from V3.1: first the main model is frozen and only the indexer is trained, with a KL loss aligning it to the dense attention distribution; then the whole model is trained in sparse mode
+
+**2. Hybrids of linear attention and a few full-attention layers**: linear attention (and its gated or delta-rule variants) compresses history into a fixed-size state, so complexity is $O(L)$ and the KV cache does not grow with length, but exact retrieval is weak. Models therefore keep a small proportion of full-attention layers:
+
+| Model | Linear attention type | Linear : full |
+|------|--------------|----------------|
+| MiniMax-01 | Lightning Attention | 7 : 1 |
+| Qwen3-Next-80B-A3B | Gated DeltaNet | 3 : 1 |
+| Kimi Linear | Kimi Delta Attention (KDA) | 3 : 1 |
+
+This route is not settled. MiniMax went back to full attention for its later M2 model, arguing that the hybrid's weaknesses on complex multi-hop reasoning and agent tasks did not show up in the evaluations available at the time. For practitioners, the safe reading is: **long-context inference cost is the driving force, but a hybrid must be validated on retrieval, multi-hop reasoning, and long-horizon agent tasks together, not just on perplexity and needle-in-a-haystack**.
+
+---
+
+### 2.6.5 Mid-training
+{: id="265-中期训练mid-training"}
+
+More and more technical reports describe a separate **mid-training** stage between pretraining and post-training: after large-scale general pretraining, the model switches to a smaller, higher-quality data mix while the learning rate is annealed to a low value, specifically to strengthen reasoning, code, and long-context ability.
+
+| Model | Mid-training approach |
+|------|--------------|
+| Llama 3 | Anneals on high-quality code and math data at the end of pretraining; the same procedure is also used to estimate the value of a new dataset cheaply |
+| OLMo 2 | Trains a second stage on the Dolmino mix (high-quality web plus math), annealing linearly to 0, then averages the weights of several annealing runs with different data orders (model souping) |
+| Qwen3 | Three-stage pretraining: about 30T tokens of general data → about 5T tokens of high-quality STEM, code, reasoning, and synthetic data → a 32K long-context stage |
+
+Mid-training fits naturally with the WSD schedule (Section 2.6.2.1): the stable phase keeps consuming general data, the decay phase switches to high-quality data, and the annealing itself becomes mid-training. It also lays the groundwork for post-training: how far long-CoT SFT and reasoning RL can go depends heavily on how much high-quality reasoning data the base model saw in this stage.
 
 ---
 
@@ -1868,7 +1936,7 @@ When Reward comes from a rule validator (such as code sandbox compilation and ex
 ### 4.6.4 Improved algorithms after GRPO
 {: id="464-grpo-之后的改进算法"}
 
-GRPO is not the end point. In 2024-2025, the industry has proposed multiple improvements to address its training instability and efficiency issues:
+GRPO is not the end point. In 2025, several improvements were proposed to address its training instability and efficiency problems:
 
 |algorithm|Core improvements|Problem solved|
 |------|---------|-----------|
@@ -1876,8 +1944,11 @@ GRPO is not the end point. In 2024-2025, the industry has proposed multiple impr
 | **GSPO**(Group Sequence Policy Optimization) |Change the importance sampling ratio from token level to sequence level calculation|GRPO's token-level ratio has large variance on long sequences, making training unstable, especially affecting the MoE model.|
 | **VAPO**(Value-model Augmented PO) |Reintroducing the lightweight value function, combined with length-adaptive GAE|The variance of the pure Group-Relative method is still too large in long CoT and sparse reward scenarios.|
 | **Dr. GRPO**(GRPO Done Right) |Remove normalization by answer length and normalization by within-group standard deviation|Normalization of raw GRPO biases longer incorrect responses, resulting in artificially high answer lengths|
+| **CISPO** (Clipped IS-weight Policy Optimization, MiniMax-M1) |Clips the importance-sampling weight itself and stops its gradient, instead of clipping the token update|PPO/GRPO-style clipping drops the entire gradient of low-probability but pivotal reflection tokens such as "However" or "Wait", so long CoT is hard to learn|
 
-> **Practical Suggestions**: For most teams, GRPO + rule rewards are still the most cost-effective starting point; when serious homogeneity of rewards within the group is observed in the later stages of training (the proportion of all-right/all-wrong samples increases, and the effective gradient signal decreases), then consider introducing DAPO-style dynamic sampling filtering.
+These improvements share one direction: **tracing where each token's gradient comes from and where it gets thrown away**. GRPO's within-group normalization, token-level clipping, and length normalization matter little for short answers; with long answers or MoE models, the biases are amplified.
+
+> **Practical advice**: for most teams, GRPO with rule-based rewards is still the most cost-effective starting point. When rewards within groups become homogeneous late in training (more all-correct or all-wrong groups, fewer useful gradient signals), consider DAPO-style dynamic sampling. If an MoE model collapses for no obvious reason, try GSPO's sequence-level ratio first.
 
 ---
 
@@ -1963,6 +2034,24 @@ The small model of pure SFT distillation already has strong reasoning capabiliti
 |**applicable scenarios**|Already have a strong teacher model and pursue rapid implementation|Explore new capability boundaries and scenarios where teacher models are unavailable|
 
 > **Practical suggestions**: If the goal is to "make a useful small model" rather than "research new training methods", distillation is almost always better than training from scratch - this is also one of the direct reasons why the quality of small models in open source communities such as Qwen and Llama will significantly improve in 2025.
+
+### 4.8.4 On-policy distillation
+{: id="484-在线策略蒸馏"}
+
+The trajectory distillation in Section 4.8.1 is **off-policy**: the student only imitates answers the teacher wrote and never sees what to do after making its own mistake. Once it drifts at inference time into states absent from the teacher data, errors compound. RL is **on-policy**: the student learns from its own mistakes, but each answer earns a single 0/1 reward, which is a very sparse signal.
+
+**On-policy distillation** combines the two:
+
+```
+1. The student samples answers to a batch of prompts on its own (as in an RL rollout)
+2. The teacher computes a probability distribution for every token of the student's answer
+3. The per-token reverse KL divergence KL(student || teacher) is the loss (or negative reward) used to update the student
+```
+
+- **Signal density**: every token gets a score from the teacher, rather than one score per answer, so sample efficiency is far higher than RL
+- **Distribution matching**: the training data come from the student's own distribution, so it learns "what the teacher would do in the places I actually end up"
+- **Origins and use**: the idea goes back to GKD (Agarwal et al., 2024). Qwen3 uses it to transfer its flagship model's ability to small models: off-policy distillation first, then on-policy distillation. The report says this beats running RL directly on the small models while using about one tenth of the GPU hours. In a 2025 blog post, Thinking Machines Lab also showed its efficiency for math reasoning and for restoring instruction following after continued training
+- **Prerequisites**: teacher and student must share a vocabulary (or be aligned), and the teacher must run forward passes online during training
 
 ---
 
@@ -2816,39 +2905,74 @@ Because Lion removes second-order momentum:
 
 ---
 
-### 7.1.4 Optimizer comparison
-{: id="714-优化器对比"}
+### 7.1.4 Muon
+{: id="714-muon"}
+
+Muon (MomentUm Orthogonalized by Newton-Schulz) was introduced by Keller Jordan in 2024 for small-model training speedruns. In 2025 Moonshot AI scaled it to large models and used it in place of AdamW for the trillion-parameter Kimi K2; Zhipu's GLM-4.5 also uses Muon. It is the first optimizer in years to seriously challenge AdamW at frontier scale.
+
+#### 7.1.4.1 Core mechanism: orthogonalizing the momentum
+{: id="7141-核心机制对动量做正交化"}
+
+AdamW rescales the gradient element by element, treating a weight matrix as a bag of independent numbers. Muon treats each 2-D weight matrix as a whole: it accumulates momentum and then "orthogonalizes" the momentum matrix, keeping its singular vectors and pushing all singular values toward 1:
+
+$$M_t = \mu M_{t-1} + G_t, \qquad O_t = \text{NewtonSchulz}(M_t) \approx U V^\top \quad (M_t = U \Sigma V^\top)$$
+
+$$W_t = W_{t-1} - \eta_t \left( 0.2 \sqrt{\max(m, n)} \cdot O_t + \lambda W_{t-1} \right)$$
+
+- **Why orthogonalize**: gradient matrices in language models are often dominated by a few principal directions, and the remaining directions barely move under a direct update. After orthogonalization every direction gets an update of the same size, so "rare directions" are learned too
+- **Newton-Schulz iteration**: an exact SVD is too expensive, so Muon approximates $UV^\top$ with about five steps of a matrix-polynomial iteration. It consists only of matrix multiplications, is cheap on GPUs, and can run in BF16
+- **Two changes for scaling up** (Moonshot, "Muon is Scalable"): add weight decay, so weights and activations stop growing without bound; and multiply by $0.2\sqrt{\max(m,n)}$ so the update RMS matches AdamW's, which lets you reuse learning rates and weight decay already tuned for AdamW
+- **Scope**: Muon applies only to 2-D hidden-layer matrices. Embeddings, the output head, norm scales, and biases still use AdamW
+
+#### 7.1.4.2 Benefits and costs
+{: id="7142-收益与代价"}
+
+- **Sample efficiency**: in Moonshot's scaling experiments, Moonlight (a 16B-parameter MoE) trained with Muon matched AdamW with about 52% of the training FLOPs
+- **Memory**: with a single momentum buffer, the optimizer state equals Lion's ($8N$ bytes including master weights)
+- **Distributed overhead**: Newton-Schulz needs the full matrix, while ZeRO splits matrices across GPUs, so each step gathers the gradient shards, orthogonalizes, and splits them again, adding one communication round and a little redundant compute
+- **Stability**: models trained with Muon are more prone to exploding attention logits. Kimi K2 pairs it with QK-Clip (Section 2.6.2.4); together they are called **MuonClip**
+
+---
+
+### 7.1.5 Optimizer comparison
+{: id="715-优化器对比"}
 
 The following is a comprehensive comparison table of commonly used optimizers:
 
 |optimizer|GPU memory overhead (state only)|Core features|Disadvantages|Applicable scenarios|
 | :--- | :--- | :--- | :--- | :--- |
 | **AdamW** |$12N$ bytes|The convergence is extremely smooth, insensitive to hyperparameters, and has the most complete ecological support.|GPU memory takes up a lot|LLM training is the absolute default choice|
+| **Muon** |$8N$ bytes|Orthogonalized momentum; clearly more sample-efficient than AdamW and can reuse AdamW hyperparameters|Needs AdamW for non-matrix parameters; harder to implement in distributed training; logit explosions must be controlled|Large-scale pretraining that prioritizes training efficiency (Kimi K2, GLM-4.5)|
 | **Lion** |$8N$ bytes|Saves 33% of optimizer GPU memory, is slightly faster, and updates evenly|Super parameters are difficult to adjust, and early convergence may be jittery.|Scenarios where GPU memory is limited and higher throughput is pursued|
 | **Adafactor** |$4N \text{–} 8N$ bytes|Row and column rank 1 decomposition, GPU memory has obvious advantages under large matrix parameters|Training stability is weaker than AdamW|Early T5 training, extreme GPU memory limited scenarios|
 
-#### 7.1.4.1 Optimizer status GPU memory usage diagram (based on FP16 mixed precision training, bytes per parameter)
-{: id="7141-优化器状态显存占用图解基于-fp16-混合精度训练每参数字节数"}
+#### 7.1.5.1 Optimizer state memory per parameter (FP16 mixed-precision training, bytes per parameter)
+{: id="7151-优化器状态显存占用图解基于-fp16-混合精度训练每参数字节数"}
 
 ```mermaid
 gantt
-    title Optimizer status GPU memory usage comparison (For each model parameter, unit: bytes)
+    title Optimizer state memory per model parameter (bytes)
     dateFormat  X
     axisFormat %s
 
-    section AdamW (12Byte status + 4Byte model/gradient = 16B)
-    Model parameters & gradient (FP16) :active, 0, 4
+    section AdamW (12B state + 4B weights/gradients = 16B)
+    Weights & gradients (FP16) :active, 0, 4
     Master Weights (FP32) :crit, 4, 8
-    first order momentum (FP32) :active, 8, 12
-    second order momentum (FP32) :active, 12, 16
+    First moment (FP32) :active, 8, 12
+    Second moment (FP32) :active, 12, 16
 
-    section Lion (8Byte status + 4Byte model/gradient = 12B)
-    Model parameters & gradient (FP16) :active, 0, 4
+    section Muon (8B state + 4B weights/gradients = 12B)
+    Weights & gradients (FP16) :active, 0, 4
     Master Weights (FP32) :crit, 4, 8
-    first order momentum (FP32) :active, 8, 12
+    Momentum (FP32) :active, 8, 12
 
-    section Adafactor (4Byte status + 4Byte model/gradient = 8B)
-    Model parameters & gradient (FP16) :active, 0, 4
+    section Lion (8B state + 4B weights/gradients = 12B)
+    Weights & gradients (FP16) :active, 0, 4
+    Master Weights (FP32) :crit, 4, 8
+    First moment (FP32) :active, 8, 12
+
+    section Adafactor (4B state + 4B weights/gradients = 8B)
+    Weights & gradients (FP16) :active, 0, 4
     Master Weights (FP32) :crit, 4, 8
 ```
 
@@ -4571,6 +4695,18 @@ Classic benchmarks such as GSM8K and HumanEval have been "full" by cutting-edge 
 - **SWE-bench Verified**: 500 real GitHub issues that have been manually confirmed and solvable, requiring the model to modify the code repository and pass the test. It is the mainstream benchmark for programming agents.
 - **Humanity's Last Exam (HLE)**: About 2,500 expert-level questions covering dozens of disciplines. The accuracy of cutting-edge models at the time of release is generally less than 10%
 
+### 10.2.7 Agent benchmarks
+{: id="1027-agent-基准"}
+
+Agent benchmarks do not grade a single answer; they grade whether a model acting step by step in an environment actually gets the job done. Scores usually come from the environment (do the tests pass, is the database in the right state) rather than from comparison with a reference answer:
+
+- **SWE-bench Verified**: see the previous section; it measures editing a code repository so that hidden tests pass
+- **Terminal-Bench**: tasks such as compiling, configuring, debugging, and data processing in a real Linux terminal sandbox, judged by test scripts shipped with each task
+- **τ-bench / τ²-bench**: simulated customer-service scenarios in retail, airline, and telecom. The model talks with a (model-simulated) user over many turns while calling tools under business rules. In τ²-bench the user can also act on the environment, closer to real two-sided collaboration
+- **BrowseComp**: 1,266 questions that require many web searches and cross-checks; answers are short and easy to verify but hard to find directly
+
+Agent scores are very sensitive to the **scaffold** (prompt, tool set, context management, step limit). The same model can differ by more than ten percentage points across scaffolds, so when comparing models, make sure they used the same scaffold and the same number of attempts.
+
 ## 10.3 Multilingual capabilities
 {: id="103-多语言能力"}
 
@@ -5351,8 +5487,8 @@ How big is the difference between **?** Depends on task and data volume:
 
 ---
 
-### 12.2.2 Q6: How much SFT data
-{: id="1222-q6-需要多少sft数据"}
+### 12.2.2 How much SFT data
+{: id="1222-需要多少-sft-数据"}
 
 **A:** is much less than pretraining, quality is more important than quantity:
 
@@ -5658,8 +5794,8 @@ assert 4 * 8 * 4 == 128  # ✓ Just full
 
 ---
 
-### 12.5.2 Q12: Running out of GPU memory
-{: id="1252-q12-显存不够怎么办"}
+### 12.5.2 Running out of GPU memory
+{: id="1252-显存不够怎么办"}
 
 **A:** Multi-layer optimization strategy:
 
@@ -6118,6 +6254,25 @@ Agent training is not a new technology stack, but a combination of previous tech
 - **RL improves**: Use GRPO + task results to reward training (echoing Sections 4.5 and 4.6 RL infrastructure)
 - **Engineering challenges of environment interaction**: The Rollout stage requires a real or simulated tool environment (API sandbox, browser environment, etc.), which is more complex than Rollout for pure text reasoning tasks, and is usually the biggest engineering bottleneck in Agent RL training.
 
+### 13.6.4 Agentic RL: scaling environments and data
+{: id="1364-agentic-rl环境与数据规模化"}
+
+Since the second half of 2025, the focus of agent training has moved from teaching the format to building environments and running RL at scale. Several representative technical reports share these practices:
+
+- **Synthetic tools and tasks**: Kimi K2 collects real MCP tools, has models synthesize thousands of fictional tools, automatically generates tasks and grading rubrics that use them, rolls out multi-turn trajectories with simulated users and simulated tool execution, and finally filters them with a judge model against the rubrics, yielding large-scale tool-use SFT data
+- **Executable environments**: coding tasks use real repositories with Docker environments and unit tests as rewards; terminal and search tasks get their own sandboxes. The DeepSeek-V3.2 report builds more than a thousand such environments and many complex task prompts for post-training RL, and raises post-training compute to over a tenth of pretraining compute
+- **Unified ARC training**: Zhipu's GLM-4.5 trains agentic, reasoning, and coding abilities together in one model and open-sources slime, the RL framework behind it
+
+Compared with the reasoning RL in Section 4.6, agentic RL adds three engineering difficulties:
+
+| Difficulty | Cause | Common practice |
+|------|------|---------|
+| **Very long, uneven trajectories** | One trajectory may contain dozens of tool calls and a lot of returned content; the slowest trajectory holds up the whole batch | Asynchronous rollout (e.g. AReaL, slime) that trains on each trajectory as soon as it finishes; cap and truncate very long trajectories |
+| **Stateful environments with side effects** | Tool calls change external state, and the same action can give different results at different times | One isolated container per trajectory, destroyed afterwards; record-and-replay or mocks for external APIs |
+| **Context explosion** | Web pages and logs returned by tools easily run to tens of thousands of tokens | Train the model to summarize and discard old tool results, or compress context mid-trajectory |
+
+As in SFT, all tool-returned content (`<|tool_response|>`) is masked out of the RL loss; the policy gradient is computed only on tokens the model generated itself.
+
 ---
 
 # 14. References
@@ -6154,6 +6309,23 @@ In order to help in-depth exploration and implementation of large language model
   * DeepSeek-AI. [DeepSeek-V3 Technical Report](https://arxiv.org/abs/2412.19437) (FP8 mixed precision training engineering details, 671B MoE architecture and real training cost disclosure)
   * Qwen Team. [Qwen2.5 Technical Report](https://arxiv.org/abs/2412.15115) (Alibaba Tongyi Qianwen series model architecture and training methods, please pay attention to the subsequent Qwen3 thinking/non-thinking mixed reasoning mode update)
   * Yu et al. [DAPO: An Open-Source LLM Reinforcement Learning System at Scale](https://arxiv.org/abs/2503.14476) (GRPO improved algorithm, dynamic sampling filtering)
+  * Zheng et al. [Group Sequence Policy Optimization](https://arxiv.org/abs/2507.18071) (GSPO, sequence-level importance ratio)
+  * MiniMax. [MiniMax-M1: Scaling Test-Time Compute Efficiently with Lightning Attention](https://arxiv.org/abs/2506.13585) (the CISPO algorithm and a hybrid-attention reasoning model)
+  * Qwen Team. [Qwen3 Technical Report](https://arxiv.org/abs/2505.09388) (three-stage pretraining, thinking/non-thinking fusion, and on-policy distillation)
+  * Kimi Team. [Kimi K2: Open Agentic Intelligence](https://arxiv.org/abs/2507.20534) (the MuonClip optimizer, a trillion-parameter MoE, and large-scale tool-use data synthesis)
+  * GLM-4.5 Team. [GLM-4.5: Agentic, Reasoning, and Coding (ARC) Foundation Models](https://arxiv.org/abs/2508.06471) (unified training of agentic, reasoning, and coding abilities)
+  * DeepSeek-AI. [DeepSeek-V3.2: Pushing the Frontier of Open Large Language Models](https://arxiv.org/abs/2512.02556) (DSA sparse attention and large-scale agent task synthesis)
+* **New architectures and optimizers** (Sections 2.6 and 7.1):
+  * Liu et al. [Muon is Scalable for LLM Training](https://arxiv.org/abs/2502.16982) (weight decay and update-scale matching that let Muon scale to large models)
+  * Gloeckle et al. [Better & Faster Large Language Models via Multi-token Prediction](https://arxiv.org/abs/2404.19737) (multi-token prediction)
+  * Yuan et al. [Native Sparse Attention: Hardware-Aligned and Natively Trainable Sparse Attention](https://arxiv.org/abs/2502.11089) (NSA trainable sparse attention)
+  * MiniMax. [MiniMax-01: Scaling Foundation Models with Lightning Attention](https://arxiv.org/abs/2501.08313) (hybrid of linear and full attention)
+  * Kimi Team. [Kimi Linear: An Expressive, Efficient Attention Architecture](https://arxiv.org/abs/2510.26692) (KDA hybrid linear attention)
+  * Team OLMo. [2 OLMo 2 Furious](https://arxiv.org/abs/2501.00656) (a fully open training recipe, mid-training, and QK-Norm)
+  * Agarwal et al. [On-Policy Distillation of Language Models: Learning from Self-Generated Mistakes](https://arxiv.org/abs/2306.13649) (GKD, on-policy distillation)
+* **Agent evaluation** (Section 10.2.7):
+  * Barres et al. [τ²-Bench: Evaluating Conversational Agents in a Dual-Control Environment](https://arxiv.org/abs/2506.07982)
+  * Wei et al. [BrowseComp: A Simple Yet Challenging Benchmark for Browsing Agents](https://arxiv.org/abs/2504.12516)
 
 ## 14.2 Benchmark open source projects
 {: id="142-标杆开源项目"}
@@ -6169,6 +6341,8 @@ In order to help in-depth exploration and implementation of large language model
   * [SGLang](https://github.com/sgl-project/sglang) (RadixAttention prefix cache reuse, has natural advantages for "same Prompt multi-sampling" RL load)
   * [verl](https://github.com/volcengine/verl) (Bytedance’s open source RLHF/GRPO training framework, natively integrated with vLLM/SGLang for Rollout acceleration)
   * [OpenRLHF](https://github.com/OpenRLHF/OpenRLHF) (Easy-to-use open source RLHF/GRPO training framework, supports large-scale distributed RL training)
+  * [slime](https://github.com/THUDM/slime) (Zhipu's open-source Megatron + SGLang RL framework used for GLM-4.5, built for agentic RL)
+  * [AReaL](https://github.com/areal-project/AReaL) (a fully asynchronous RL system that decouples rollout from training, suited to long agent trajectories)
 * **small model teaching practice**:
   * [MiniMind](https://github.com/jingyaogong/minimind) (Ultra-lightweight large model full-stack training project, very suitable for quickly running through pretraining to RL complete pipeline on a personal graphics card)
 

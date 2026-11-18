@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: llm-training-survey
 title: "大语言模型训练综述"
-date: 2026-10-24
+date: 2026-11-18
 tags: [LLM, Deep Learning, NLP, Training, AI]
 categories: research
 comments: true
@@ -36,18 +36,18 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 本综述系统梳理大模型训练的核心技术，包括：
 
 1. 🏗️ **大模型训练基础概述**：大模型训练概念、演进历程与核心组成
-2. 🌀 **预训练阶段**：目标函数、数据源与配比、核心参数策略与 MoE 架构
+2. 🌀 **预训练阶段**：目标函数、数据源与配比、核心参数策略，MoE、多 Token 预测、稀疏/混合注意力与中期训练
 3. 🎯 **监督微调阶段**：SFT 训练目标、数据来源与前沿合成及质量清洗技术
-4. 🤝 **偏好对齐阶段**：RLHF、DPO 与 GRPO 算法原理及推理模型训练范式
+4. 🤝 **偏好对齐阶段**：RLHF、DPO 与 GRPO 算法原理、推理模型训练范式与在线策略蒸馏
 5. 🔁 **Post-Training 与灾难性遗忘**：持续学习中的遗忘机理与防遗忘策略
 6. 🔀 **分布式训练技术**：数据/张量/流水线并行、序列并行与 ZeRO 状态分片
-7. ⚡ **训练优化技术**：主流优化器对比、学习率策略与 Flash Attention
+7. ⚡ **训练优化技术**：AdamW、Muon 等优化器对比、学习率策略与 Flash Attention
 8. 📉 **模型量化技术**：PTQ 与 QLoRA 低比特微调，不同格式精度/性能权衡
 9. 🗂️ **数据工程**：数据采集、清洗、去重与配比最佳实践
 10. 📈 **评估与基准测试**：知识、推理、代码、长文本及安全性评估
 11. 🚀 **实践指南与最佳实践**：算力估算、训练监控、OOM 调试与断点恢复
 12. 💬 **常见问题 (FAQ)**：训练常见异常、微调与对齐实践答疑
-13. 👁️ **迈向多模态与智能体**：VLM 视觉-语言融合架构、两阶段训练流程与 Agent 工具调用训练
+13. 👁️ **迈向多模态与智能体**：VLM 视觉-语言融合架构、两阶段训练流程、Agent 工具调用与 Agentic RL 训练
 14. 📚 **参考资源**：经典论文、核心开源项目与大模型学习路径
 
 ## 目标读者
@@ -70,12 +70,12 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 | 章节 | 内容 | 适合读者 | 阅读时间 |
 |------|------|---------|---------|
 | **1. 基础概述** | 大模型训练概念、演进历程 | 所有读者 | 10分钟 |
-| **2. 预训练阶段** | 目标函数、数据源、核心参数与MoE | 所有读者 ⭐必读 | 30分钟 |
+| **2. 预训练阶段** | 目标函数、数据源、核心参数、MoE与中期训练 | 所有读者 ⭐必读 | 30分钟 |
 | **3. 监督微调阶段** | SFT训练目标、数据构建、合成与过滤 | 所有读者 ⭐必读 | 15分钟 |
 | **4. 偏好对齐阶段** | RLHF、DPO、GRPO与推理模型RL对齐 | 所有读者 ⭐必读 | 15分钟 |
 | **5. Post-Training与遗忘** | 灾难性遗忘、经验回放与Self-Output | 工程师、研究者 ⭐推荐 | 15分钟 |
 | **6. 分布式训练** | DP/TP/PP/ZeRO等并行技术 | 工程师、研究者 | 20分钟 |
-| **7. 训练优化** | 优化器、学习率、Flash Attention | 工程师 | 15分钟 |
+| **7. 训练优化** | 优化器（含 Muon）、学习率、Flash Attention | 工程师 | 15分钟 |
 | **8. 模型量化** | GPTQ/AWQ量化与QLoRA低比特微调 | 工程师、研究者 ⭐推荐 | 20分钟 |
 | **9. 数据工程** | 数据采集、清洗、去重与配比 | 工程师、研究者 | 25分钟 |
 | **10. 评估基准** | MMLU、GSM8K等评测体系 | 研究者、从业者 | 15分钟 |
@@ -138,10 +138,11 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 
 ### 1.2.5 推理模型与效率（2025–2026）
 - **推理模型范式确立**：OpenAI o1/o3、DeepSeek-R1（及后续 V3.x 系列）将"测试时计算扩展"（Test-Time Compute Scaling）确立为与"训练时 Scaling Law"并列的新维度，长思维链（Long CoT）+ RL（GRPO 及其改进算法）成为训练强推理模型的标准范式
-- **国产大模型集团式追赶**：Qwen3 系列引入"思考/非思考"混合推理模式（同一模型可按需切换深度思考与快速响应）；Kimi K2 以超大规模 MoE + 强 Agentic（工具调用）能力为卖点；MiniMax、智谱 GLM、阶跃星辰等持续迭代
+- **国产大模型集团式追赶**：Qwen3 系列引入"思考/非思考"混合推理模式（同一模型可按需切换深度思考与快速响应）；Kimi K2 以万亿参数 MoE + 强 Agentic（工具调用）能力为卖点；MiniMax、智谱 GLM、阶跃星辰等持续迭代
 - **闭源旗舰持续演进**：GPT-5 系列、Claude 4.x（Opus/Sonnet/Haiku）系列、Gemini 系列在推理、长上下文、Agent 能力上持续竞争
-- **架构创新**：MLA（多头潜在注意力）、FP8 训练工程化（DeepSeek-V3）大幅降低了千亿级模型的训练与推理成本，"低成本高性能"成为新的竞争维度
-- **Agent 能力成为新焦点**：从"对话助手"转向"能自主使用工具、完成多步任务的智能体"，训练目标从单轮问答扩展到多轮工具调用与长程任务规划
+- **架构创新**：MLA（多头潜在注意力）、FP8 训练工程化与多 Token 预测（DeepSeek-V3）大幅降低了千亿级模型的训练与推理成本；稀疏注意力（DeepSeek-V3.2 的 DSA）和"线性注意力 + 少量全注意力"的混合架构（MiniMax-01、Qwen3-Next、Kimi Linear）把长上下文成本继续往下压（见 2.6.4 节）
+- **训练配方细化**：预训练与后训练之间多出一个"中期训练"（Mid-training）阶段，专门用高质量数学、代码、长上下文数据做退火（见 2.6.5 节）；Muon 优化器在万亿参数规模上被验证可替代 AdamW（Kimi K2，见 7.1.4 节）
+- **Agent 能力成为新焦点**：从"对话助手"转向"能自主使用工具、完成多步任务的智能体"，训练目标从单轮问答扩展到多轮工具调用与长程任务规划；RL 的环境从数学/代码验证器扩展到可执行的软件仓库、终端与浏览器沙箱（见 13.6.4 节）
 
 ## 1.3 三大训练阶段
 
@@ -806,6 +807,10 @@ $$\mathcal{L}_{\text{aux}} = \alpha \cdot N \sum_{i=1}^{N} f_i \cdot P_i$$
 | Mixtral 8x7B | 8 | top-2 | 47B | 约 13B |
 | DeepSeek-V3 | 256（另有 1 个共享专家） | top-8 | 671B | 37B |
 | Qwen3-235B-A22B | 128 | top-8 | 235B | 22B |
+| Kimi K2 | 384（另有 1 个共享专家） | top-8 | 1.04T | 32B |
+| gpt-oss-120b | 128 | top-4 | 117B | 5.1B |
+
+趋势很明显：专家越切越细、总数越来越多，激活比例越来越低（Kimi K2 约 3%，gpt-oss-120b 约 4%）。细粒度专家让组合方式更多，但也让 All-to-All 通信和负载均衡更难做。
 
 #### 2.6.1.4 工程挑战
 - **通信开销**：不同 token 的专家可能在不同 GPU 上，需要 All-to-All 通信
@@ -835,6 +840,63 @@ $$\mathcal{L}_{\text{aux}} = \alpha \cdot N \sum_{i=1}^{N} f_i \cdot P_i$$
 2. **BF16 代替 FP16**：避免数值溢出引发的不稳定
 3. **自动回滚**：监测 loss 突变时自动回退到上一个检查点并调低学习率
 4. **稳定 Adam 配置**：将 $\beta_2$ 从默认 0.999 调低至 0.95，减小二阶矩的历史依赖
+
+#### 2.6.2.4 QK-Norm 与 QK-Clip
+
+不少 loss spike 的源头在注意力 logit：Query 和 Key 的范数在训练中不断变大，$QK^\top$ 的数值随之膨胀，softmax 退化成接近 one-hot，梯度变得极不稳定。两种主流处理方式：
+
+- **QK-Norm**：在计算注意力前分别对 Q、K 做 RMSNorm，从结构上限制 logit 的尺度。OLMo 2、Qwen3 等模型都加了 QK-Norm（Qwen3 同时去掉了 QKV 偏置）
+- **QK-Clip**：MLA 推理时要把 Key 的投影吸收进其他矩阵，没法逐头插入 QK-Norm。Kimi K2 的做法是每步更新后检查每个注意力头的最大 logit，一旦超过阈值 $\tau$（K2 取 100），就把该头的 $W_q$、$W_k$ 按 $\sqrt{\tau / S_{\max}}$ 等比例缩小。它只在出问题的头上生效，不改变前向计算。配合 Muon 优化器（7.1.4 节）后，K2 在 15.5T token 的预训练中没有出现 loss spike
+
+---
+
+### 2.6.3 多 Token 预测（MTP）
+
+标准自回归训练每个位置只预测下一个 token。**多 Token 预测**（Multi-Token Prediction）让每个位置额外预测更远的几个 token，训练信号更密，模型也被迫提前"规划"后面的内容。
+
+- **并行头**（Gloeckle et al., 2024）：在共享主干上挂 $n$ 个独立输出头，分别预测第 1 到第 $n$ 个未来 token。论文报告在代码任务上收益明显，且模型越大收益越大
+- **串行模块**（DeepSeek-V3）：第 $k$ 个 MTP 模块把上一深度的隐藏状态与第 $i+k$ 个 token 的嵌入拼接、投影后，过一个 Transformer 块，再预测第 $i+k+1$ 个 token。嵌入层和输出头与主模型共享，保持完整的因果链
+
+DeepSeek-V3 的总损失是主损失加上加权的 MTP 损失：
+
+$$\mathcal{L} = \mathcal{L}_{\text{Main}} + \frac{\lambda}{D} \sum_{k=1}^{D} \mathcal{L}_{\text{MTP}}^{k}$$
+
+V3 取 $D=1$，$\lambda$ 在前 10T token 取 0.3，之后降为 0.1。推理时 MTP 模块可以直接丢弃，也可以当作投机解码（Speculative Decoding）的草稿模型：第二个 token 的接受率在 85%–90% 左右，解码吞吐约提升到 1.8 倍。
+
+---
+
+### 2.6.4 高效注意力：稀疏与混合架构
+
+全注意力的计算量随序列长度 $L$ 二次增长，KV Cache 随 $L$ 线性增长。上下文拉到 128K 甚至 1M 之后，注意力成了训练和推理的主要成本。2025 年出现了两条已经在大模型上落地的路线：
+
+**1. 可训练的稀疏注意力**：每个 query 只关注一小部分 key。
+
+- **NSA**（Native Sparse Attention，DeepSeek）：三个分支并行——压缩后的粗粒度块、按重要性挑出的细粒度块、局部滑动窗口，再用门控合并。设计时对齐了 GPU 的块状访存，预训练阶段就以稀疏方式训练
+- **DSA**（DeepSeek Sparse Attention，DeepSeek-V3.2）：用一个轻量的"闪电索引器"（lightning indexer，少量头、FP8 计算）给每个历史 token 打分，主注意力只算得分最高的 $k$ 个（$k=2048$）。主注意力复杂度从 $O(L^2)$ 降到 $O(Lk)$。V3.2 不是从头训练，而是在 V3.1 上继续训练：先冻结主模型、只用 KL 损失让索引器对齐稠密注意力的分布，再切到稀疏模式整体训练
+
+**2. 线性注意力 + 少量全注意力的混合**：线性注意力（及其门控/Delta 规则变体）把历史压缩成固定大小的状态，复杂度 $O(L)$、KV Cache 不随长度增长，但精确检索能力弱。于是按比例保留少数全注意力层：
+
+| 模型 | 线性注意力类型 | 线性 : 全注意力 |
+|------|--------------|----------------|
+| MiniMax-01 | Lightning Attention | 7 : 1 |
+| Qwen3-Next-80B-A3B | Gated DeltaNet | 3 : 1 |
+| Kimi Linear | Kimi Delta Attention（KDA） | 3 : 1 |
+
+这条路线还没有定论：MiniMax 在后续的 M2 上又回到了全注意力，理由是混合架构在复杂多跳推理和 Agent 任务上的短板，在当时的评测里还看不出来。对训练者来说，比较稳妥的看法是：**超长上下文的推理成本是驱动力，但要用检索、多跳推理和长程 Agent 任务一起验证，不能只看困惑度和"大海捞针"**。
+
+---
+
+### 2.6.5 中期训练（Mid-training）
+
+越来越多的技术报告在预训练和后训练之间单独列出一个**中期训练**阶段：大规模通用预训练结束后，换一批量少质高的数据，把学习率退火到很低，专门补强推理、代码、长上下文等能力。
+
+| 模型 | 中期训练的做法 |
+|------|--------------|
+| Llama 3 | 预训练最后阶段在高质量代码、数学数据上做退火（Annealing）；同样的办法也被用来低成本评估一份新数据的价值 |
+| OLMo 2 | 第二阶段用 Dolmino 混合数据（高质量网页 + 数学）训练并线性退火到 0，再把几次不同顺序的退火结果做权重平均（model souping） |
+| Qwen3 | 三阶段预训练：约 30T token 通用阶段 → 约 5T token 高质量 STEM / 代码 / 推理与合成数据阶段 → 32K 长上下文阶段 |
+
+中期训练和 WSD 调度（2.6.2.1 节）天然契合：Stable 阶段持续吃通用数据，Decay 阶段换成高质量数据，退火本身就成了中期训练。它也为后训练打底——长思维链 SFT 和推理 RL 的上限，很大程度取决于基座在这一阶段见过多少高质量推理数据。
 
 ---
 
@@ -1713,7 +1775,7 @@ GRPO 等算法只是 RL 训练的"数学公式"，真正把它跑起来需要一
 
 ### 4.6.4 GRPO 之后的改进算法
 
-GRPO 并非终点，2024-2025 年业界针对其训练不稳定性和效率问题提出了多个改进：
+GRPO 并非终点，2025 年业界针对其训练不稳定性和效率问题提出了多个改进：
 
 | 算法 | 核心改进 | 解决的问题 |
 |------|---------|-----------|
@@ -1721,8 +1783,11 @@ GRPO 并非终点，2024-2025 年业界针对其训练不稳定性和效率问�
 | **GSPO**（Group Sequence Policy Optimization） | 将重要性采样比率从 token 级别改为序列级别计算 | GRPO 的 token 级比率在长序列上方差大，训练不稳定，尤其影响 MoE 模型 |
 | **VAPO**（Value-model Augmented PO） | 重新引入轻量价值函数，结合长度自适应 GAE | 纯 Group-Relative 方式在长 CoT、稀疏奖励场景下方差仍偏大 |
 | **Dr. GRPO**（GRPO Done Right） | 去掉按回答长度归一化与按组内标准差归一化 | 原始 GRPO 的归一化会偏向更长的错误回答，导致回答长度虚高 |
+| **CISPO**（Clipped IS-weight Policy Optimization，MiniMax-M1） | 不再裁剪 token 的更新，而是裁剪重要性采样权重本身并停止其梯度 | PPO/GRPO 式裁剪会把"However""Wait"这类低概率但关键的反思 token 的梯度整个丢掉，长 CoT 难以学会 |
 
-> **实践建议**：对大多数团队而言，GRPO + 规则奖励仍是性价比最高的起点；当观察到训练后期组内奖励同质化严重（全对/全错样本占比上升、有效梯度信号变少）时，再考虑引入 DAPO 式的动态采样过滤。
+这些改进有一个共同方向：**弄清楚每个 token 的梯度到底是从哪里来、又在哪里被丢掉的**。GRPO 的组内归一化、token 级裁剪和长度归一化，在短回答上影响不大，回答一长、模型一换成 MoE，偏差就会被放大。
+
+> **实践建议**：对大多数团队而言，GRPO + 规则奖励仍是性价比最高的起点；当观察到训练后期组内奖励同质化严重（全对/全错样本占比上升、有效梯度信号变少）时，再考虑引入 DAPO 式的动态采样过滤；训练 MoE 模型时若出现难以解释的崩溃，可以优先尝试 GSPO 的序列级比率。
 
 ---
 
@@ -1800,6 +1865,23 @@ ReST 将 STaR 的思路系统化为两阶段循环：
 | **适用场景** | 已有强教师模型、追求快速落地 | 探索新能力边界、教师模型不可用的场景 |
 
 > **实践建议**：如果目标是"做一个好用的小模型"而非"研究新的训练方法"，蒸馏几乎总是优于从零训练——这也是 Qwen、Llama 等开源社区小模型质量在 2025 年大幅提升的直接原因之一。
+
+### 4.8.4 在线策略蒸馏
+
+4.8.1 节的轨迹蒸馏是**离线策略**（off-policy）的：学生只学教师写好的答案，从没见过自己犯错之后该怎么办。一旦推理时走偏到教师数据里没出现过的状态，错误就会越滚越大。RL 是**在线策略**（on-policy）的，学生从自己的错误里学，但每条回答只得到一个 0/1 奖励，信号太稀疏。
+
+**在线策略蒸馏**（On-Policy Distillation）把两者结合起来：
+
+```
+1. 学生模型对一批 prompt 自己采样回答（和 RL 的 Rollout 一样）
+2. 教师模型对学生回答的每个 token 计算概率分布
+3. 以逐 token 的反向 KL 散度 KL(学生 || 教师) 作为损失（或负奖励），更新学生
+```
+
+- **信号密度**：每个 token 都有教师给出的分数，而不是整条回答一个分数，样本效率远高于 RL
+- **分布匹配**：训练数据来自学生自己的分布，学生学会的是"在我自己会走到的地方，教师会怎么做"
+- **来源与应用**：思路最早见于 GKD（Agarwal et al., 2024）。Qwen3 用它把旗舰模型的能力迁移给小模型：先做离线蒸馏打底，再做在线策略蒸馏，报告称比直接对小模型做 RL 效果更好、所需 GPU 时间约为后者的十分之一。Thinking Machines Lab 在 2025 年的博客中也展示了它在数学推理和"继续训练后恢复指令遵循能力"两类场景下的效率
+- **前提条件**：教师和学生要共用词表（或做对齐），且需要在训练中在线调用教师做前向计算
 
 ---
 
@@ -2588,17 +2670,44 @@ $$
 
 ---
 
-### 7.1.4 优化器对比
+### 7.1.4 Muon
+
+Muon（MomentUm Orthogonalized by Newton-Schulz）最早由 Keller Jordan 在 2024 年的小模型训练速度竞赛中提出。2025 年 Moonshot AI 把它扩展到大模型，并在万亿参数的 Kimi K2 上用它取代了 AdamW，智谱 GLM-4.5 也采用了 Muon。它是这几年第一个在前沿规模上真正撼动 AdamW 的优化器。
+
+#### 7.1.4.1 核心机制：对动量做正交化
+
+AdamW 逐元素地缩放梯度，把权重矩阵当成一堆独立的数。Muon 把每个二维权重矩阵当作整体处理：先累积动量，再把动量矩阵"正交化"，即保留它的奇异向量方向、把所有奇异值拉到 1 附近：
+
+$$M_t = \mu M_{t-1} + G_t, \qquad O_t = \text{NewtonSchulz}(M_t) \approx U V^\top \quad (M_t = U \Sigma V^\top)$$
+
+$$W_t = W_{t-1} - \eta_t \left( 0.2 \sqrt{\max(m, n)} \cdot O_t + \lambda W_{t-1} \right)$$
+
+- **为什么正交化**：语言模型的梯度矩阵往往被少数几个主方向主导，直接更新时其余方向几乎学不动。正交化后各方向的更新幅度相同，"稀有方向"也能得到有效学习
+- **Newton-Schulz 迭代**：精确 SVD 太贵，Muon 用 5 步左右的矩阵多项式迭代近似 $UV^\top$，全部是矩阵乘法，在 GPU 上开销很小，可以用 BF16 计算
+- **扩展到大模型的两个改动**（Moonshot，"Muon is Scalable"）：加入权重衰减，防止权重和激活的数值持续变大；乘上 $0.2\sqrt{\max(m,n)}$，让更新的 RMS 和 AdamW 对齐，于是可以直接复用为 AdamW 调好的学习率和权重衰减
+- **适用范围**：只用于隐藏层的二维矩阵。嵌入层、输出头、Norm 的缩放参数和偏置仍然用 AdamW
+
+#### 7.1.4.2 收益与代价
+
+- **样本效率**：Moonshot 用 Muon 训练的 Moonlight（16B 总参数 MoE）在缩放实验中，只需 AdamW 约 52% 的训练 FLOPs 就能达到相同效果
+- **显存**：只有一份动量，优化器状态与 Lion 相同（含 Master Weights 共 $8N$ 字节）
+- **分布式开销**：Newton-Schulz 需要完整的矩阵，而 ZeRO 会把矩阵切到不同 GPU 上，所以每步要先把梯度分片聚合、正交化后再切回去，多出一次通信和少量重复计算
+- **稳定性**：Muon 训练的模型更容易出现注意力 logit 爆炸。Kimi K2 为此配套了 QK-Clip（2.6.2.4 节），两者合称 **MuonClip**
+
+---
+
+### 7.1.5 优化器对比
 
 以下是常用优化器的综合对比表：
 
 | 优化器 | 显存开销 (仅状态) | 核心特点 | 缺点 | 适用场景 |
 | :--- | :--- | :--- | :--- | :--- |
 | **AdamW** | $12N$ 字节 | 收敛极其平稳，对超参数不敏感，生态支持最完善 | 显存占用极大 | LLM 训练绝对默认选择 |
+| **Muon** | $8N$ 字节 | 动量正交化，样本效率明显高于 AdamW，可复用 AdamW 的超参 | 需配合 AdamW 处理非矩阵参数；分布式实现更复杂，需防 logit 爆炸 | 追求训练效率的大规模预训练（Kimi K2、GLM-4.5） |
 | **Lion** | $8N$ 字节 | 节省 33% 优化器显存，速度稍快，更新幅度均匀 | 超参难调，早期收敛可能有抖动 | 显存受限、追求更高吞吐量的场景 |
 | **Adafactor** | $4N \text{–} 8N$ 字节 | 行列秩 1 分解，大矩阵参数下显存优势明显 | 训练稳定性弱于 AdamW | 早期 T5 训练，极端显存受限场景 |
 
-#### 7.1.4.1 优化器状态显存占用图解（基于 FP16 混合精度训练，每参数字节数）
+#### 7.1.5.1 优化器状态显存占用图解（基于 FP16 混合精度训练，每参数字节数）
 
 ```mermaid
 gantt
@@ -2612,6 +2721,11 @@ gantt
     一阶动量 (FP32) :active, 8, 12
     二阶动量 (FP32) :active, 12, 16
     
+    section Muon (8字节状态 + 4字节模型/梯度 = 12B)
+    模型参数 & 梯度 (FP16) :active, 0, 4
+    Master Weights (FP32) :crit, 4, 8
+    动量 (FP32) :active, 8, 12
+
     section Lion (8字节状态 + 4字节模型/梯度 = 12B)
     模型参数 & 梯度 (FP16) :active, 0, 4
     Master Weights (FP32) :crit, 4, 8
@@ -4198,6 +4312,17 @@ GSM8K、HumanEval 等经典基准已被前沿模型"刷满"（准确率普遍超
 - **SWE-bench Verified**：500 个经人工确认可解的真实 GitHub issue，要求模型修改代码仓库并通过测试，是编程 Agent 的主流基准
 - **Humanity's Last Exam（HLE）**：约 2,500 道覆盖数十个学科的专家级难题，发布时前沿模型的准确率普遍不到 10%
 
+### 10.2.7 Agent 基准
+
+Agent 基准评的不是一次回答，而是模型在环境里连续行动、最后把事情办成的能力。打分通常由环境决定（测试是否通过、数据库状态是否正确），而不是比对参考答案：
+
+- **SWE-bench Verified**：见上节，评的是修改代码仓库、通过隐藏测试的能力
+- **Terminal-Bench**：在真实的 Linux 终端沙箱里完成编译、配置、调试、数据处理等任务，由任务自带的测试脚本判定成败
+- **τ-bench / τ²-bench**：模拟零售、航空、电信等客服场景，模型要一边和（由模型扮演的）用户多轮对话，一边按业务规则调用工具。τ²-bench 中用户也能操作环境，更接近真实的双方协作
+- **BrowseComp**：1,266 道需要在网上多次搜索、交叉比对才能找到答案的问题，答案简短、易于核对，但很难直接搜到
+
+Agent 基准的分数对**脚手架**（scaffold：提示词、工具集、上下文管理、最大步数）非常敏感，同一模型换一套脚手架可能差出十几个百分点。比较不同模型时，要确认它们用的是同一套脚手架和同样的尝试次数。
+
 ## 10.3 多语言能力
 
 ### 10.3.1 FLORES
@@ -4910,7 +5035,7 @@ MiniMind 是一个极简的开源 LLM 训练项目，旨在让开发者在**单�
 
 ---
 
-### 12.2.2 Q6: 需要多少SFT数据？
+### 12.2.2 需要多少 SFT 数据
 
 **A:** 远少于预训练，质量比数量重要：
 
@@ -5208,7 +5333,7 @@ assert 4 * 8 * 4 == 128  # ✓ 刚好用满
 
 ---
 
-### 12.5.2 Q12: 显存不够怎么办？
+### 12.5.2 显存不够怎么办
 
 **A:** 多层优化策略：
 
@@ -5652,6 +5777,24 @@ Agent 训练并非全新的技术栈，而是对前文技术的组合应用：
 - **RL 提升**：用 GRPO + 任务结果奖励训练（呼应 4.5、4.6 节 RL 基础设施）
 - **环境交互的工程挑战**：Rollout 阶段需要真实或模拟的工具环境（API 沙箱、浏览器环境等），比纯文本推理任务的 Rollout 更复杂，通常是 Agent RL 训练中最大的工程瓶颈
 
+### 13.6.4 Agentic RL：环境与数据规模化
+
+2025 年下半年起，Agent 训练的重心从"教会格式"转向"规模化地造环境、做 RL"。几份代表性技术报告的共同做法：
+
+- **合成工具与任务**：Kimi K2 先收集真实的 MCP 工具，再让模型批量合成数千个虚构工具，自动生成调用这些工具的任务和评分标准，再由模拟的用户、模拟的工具执行环境跑出多轮轨迹，最后用评判模型按标准筛选，得到大规模工具调用 SFT 数据
+- **可执行环境**：编程类任务直接用真实代码仓库配 Docker 环境、以单元测试作为奖励；终端、搜索类任务各自搭沙箱。DeepSeek-V3.2 报告构建了上千个此类环境和大量复杂任务提示，用于后训练 RL，并把后训练的算力投入提高到预训练的一成以上
+- **ARC 一体化**：智谱 GLM-4.5 把 Agentic、Reasoning、Coding 三类能力放进同一个模型统一训练，并开源了配套的 RL 框架 slime
+
+和 4.6 节的推理 RL 相比，Agentic RL 在工程上多了三个难点：
+
+| 难点 | 原因 | 常见做法 |
+|------|------|---------|
+| **轨迹极长、长度不均** | 一条轨迹可能包含数十次工具调用和大量工具返回内容，最慢的轨迹拖住整个批次 | 异步 Rollout（如 AReaL、slime），完成一条训练一条；对超长轨迹设上限并截断 |
+| **环境有状态、有副作用** | 工具调用会改变外部状态，同一个动作在不同时刻结果可能不同 | 每条轨迹一个隔离的容器，结束即销毁；对外部 API 做录制回放或模拟 |
+| **上下文爆炸** | 工具返回的网页、日志动辄上万 token | 训练模型主动总结、丢弃旧的工具结果，或在轨迹中途压缩上下文 |
+
+所有工具返回内容（`<|tool_response|>`）同 SFT 一样在 RL 损失中被屏蔽，只对模型自己生成的 token 计算策略梯度。
+
 ---
 
 # 14. 参考资源
@@ -5686,6 +5829,23 @@ Agent 训练并非全新的技术栈，而是对前文技术的组合应用：
   * DeepSeek-AI. [DeepSeek-V3 Technical Report](https://arxiv.org/abs/2412.19437) (FP8 混合精度训练工程细节、671B MoE 架构与真实训练成本披露)
   * Qwen Team. [Qwen2.5 Technical Report](https://arxiv.org/abs/2412.15115) (阿里通义千问系列模型架构与训练方法，关注后续 Qwen3 思考/非思考混合推理模式更新)
   * Yu et al. [DAPO: An Open-Source LLM Reinforcement Learning System at Scale](https://arxiv.org/abs/2503.14476) (GRPO 改进算法，动态采样过滤)
+  * Zheng et al. [Group Sequence Policy Optimization](https://arxiv.org/abs/2507.18071) (GSPO，序列级重要性比率)
+  * MiniMax. [MiniMax-M1: Scaling Test-Time Compute Efficiently with Lightning Attention](https://arxiv.org/abs/2506.13585) (CISPO 算法与混合注意力推理模型)
+  * Qwen Team. [Qwen3 Technical Report](https://arxiv.org/abs/2505.09388) (三阶段预训练、思考/非思考融合与在线策略蒸馏)
+  * Kimi Team. [Kimi K2: Open Agentic Intelligence](https://arxiv.org/abs/2507.20534) (MuonClip 优化器、万亿参数 MoE 与大规模工具调用数据合成)
+  * GLM-4.5 Team. [GLM-4.5: Agentic, Reasoning, and Coding (ARC) Foundation Models](https://arxiv.org/abs/2508.06471) (Agent、推理、代码一体化训练)
+  * DeepSeek-AI. [DeepSeek-V3.2: Pushing the Frontier of Open Large Language Models](https://arxiv.org/abs/2512.02556) (DSA 稀疏注意力与大规模 Agent 任务合成)
+* **架构与优化器新进展**（对应 2.6、7.1 节）：
+  * Liu et al. [Muon is Scalable for LLM Training](https://arxiv.org/abs/2502.16982) (Muon 扩展到大模型的权重衰减与更新尺度调整)
+  * Gloeckle et al. [Better & Faster Large Language Models via Multi-token Prediction](https://arxiv.org/abs/2404.19737) (多 Token 预测)
+  * Yuan et al. [Native Sparse Attention: Hardware-Aligned and Natively Trainable Sparse Attention](https://arxiv.org/abs/2502.11089) (NSA 可训练稀疏注意力)
+  * MiniMax. [MiniMax-01: Scaling Foundation Models with Lightning Attention](https://arxiv.org/abs/2501.08313) (线性注意力与全注意力混合架构)
+  * Kimi Team. [Kimi Linear: An Expressive, Efficient Attention Architecture](https://arxiv.org/abs/2510.26692) (KDA 混合线性注意力)
+  * Team OLMo. [2 OLMo 2 Furious](https://arxiv.org/abs/2501.00656) (完全开放的训练配方，中期训练与 QK-Norm)
+  * Agarwal et al. [On-Policy Distillation of Language Models: Learning from Self-Generated Mistakes](https://arxiv.org/abs/2306.13649) (GKD，在线策略蒸馏)
+* **Agent 评测**（对应 10.2.7 节）：
+  * Barres et al. [τ²-Bench: Evaluating Conversational Agents in a Dual-Control Environment](https://arxiv.org/abs/2506.07982)
+  * Wei et al. [BrowseComp: A Simple Yet Challenging Benchmark for Browsing Agents](https://arxiv.org/abs/2504.12516)
 
 ## 14.2 标杆开源项目
 
@@ -5700,6 +5860,8 @@ Agent 训练并非全新的技术栈，而是对前文技术的组合应用：
   * [SGLang](https://github.com/sgl-project/sglang) (RadixAttention 前缀缓存复用，对"同 Prompt 多采样"的 RL 负载有天然优势)
   * [verl](https://github.com/volcengine/verl) (字节跳动开源的 RLHF/GRPO 训练框架，原生集成 vLLM/SGLang 做 Rollout 加速)
   * [OpenRLHF](https://github.com/OpenRLHF/OpenRLHF) (易用的开源 RLHF/GRPO 训练框架，支持大规模分布式 RL 训练)
+  * [slime](https://github.com/THUDM/slime) (智谱开源，GLM-4.5 使用的 Megatron + SGLang RL 框架，面向 Agentic RL)
+  * [AReaL](https://github.com/areal-project/AReaL) (完全异步的 RL 训练系统，Rollout 与训练解耦，适合长轨迹 Agent 任务)
 * **小模型教学实战**：
   * [MiniMind](https://github.com/jingyaogong/minimind) (超轻量大模型全栈训练项目，非常适合在个人显卡上快速跑通预训练到 RL 完整 Pipeline)
 
