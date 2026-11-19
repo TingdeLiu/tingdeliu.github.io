@@ -117,7 +117,7 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 大模型训练经历了从小规模实验到工业化生产的重要转变。下图按年份列出各阶段的代表性工作，各阶段的要点见后面几小节：
 
 ```mermaid
-%%{init: { 'theme': 'base', 'themeVariables': { 'fontSize': '16px', 'cScale0': '#dbeafe', 'cScale1': '#fef3c7', 'cScale2': '#dcfce7', 'cScale3': '#fce7f3', 'cScale4': '#ede9fe', 'cScaleLabel0': '#1f2937', 'cScaleLabel1': '#1f2937', 'cScaleLabel2': '#1f2937', 'cScaleLabel3': '#1f2937', 'cScaleLabel4': '#1f2937' } } }%%
+%%{init: { 'theme': 'base', 'themeVariables': { 'fontSize': '16px', 'cScale0': '#dbeafe', 'cScale1': '#fef3c7', 'cScale2': '#dcfce7', 'cScale3': '#fce7f3', 'cScale4': '#ede9fe', 'cScale5': '#ffedd5', 'cScaleLabel0': '#1f2937', 'cScaleLabel1': '#1f2937', 'cScaleLabel2': '#1f2937', 'cScaleLabel3': '#1f2937', 'cScaleLabel4': '#1f2937', 'cScaleLabel5': '#1f2937' } } }%%
 timeline
     title 大模型训练演进历程
     2018–2019 早期探索 : GPT-1、BERT : GPT-2、T5
@@ -125,6 +125,7 @@ timeline
     2022–2023 对齐与应用 : InstructGPT（RLHF） : ChatGPT : LLaMA、GPT-4 : DPO
     2024 开源与民主化 : Llama 3 : DeepSeek-V2（MLA） : OpenAI o1 : DeepSeek-V3（FP8）
     2025 推理模型与 Agent : DeepSeek-R1（GRPO） : Qwen3、Kimi K2 : GPT-5 : DeepSeek-V3.2（稀疏注意力）
+    2026 技术汇合 : Kimi K2.5（多模态） : GLM-5（MLA + DSA） : Qwen3.5（混合注意力） : DeepSeek-V4（mHC）
 ```
 
 ### 1.2.1 早期探索（2018–2019）
@@ -153,6 +154,7 @@ timeline
 - **闭源旗舰持续演进**：GPT-5 系列、Claude 4.x（Opus/Sonnet/Haiku）系列、Gemini 系列在推理、长上下文、Agent 能力上持续竞争
 - **架构创新**：MLA（多头潜在注意力）、FP8 训练工程化与多 Token 预测（DeepSeek-V3）大幅降低了千亿级模型的训练与推理成本；稀疏注意力（DeepSeek-V3.2 的 DSA）和"线性注意力 + 少量全注意力"的混合架构（MiniMax-01、Qwen3-Next、Kimi Linear）把长上下文成本继续往下压（见 2.6.4 节）
 - **训练配方细化**：预训练与后训练之间多出一个"中期训练"（Mid-training）阶段，专门用高质量数学、代码、长上下文数据做退火（见 2.6.5 节）；Muon 优化器在万亿参数规模上被验证可替代 AdamW（Kimi K2，见 7.1.4 节）
+- **2026 年上半年，上述技术开始汇合**：Kimi K2.5 在预训练阶段就混入视觉 token，成为原生多模态模型；GLM-5 同时采用 MLA 与 DSA；Qwen3.5 把 Gated DeltaNet 混合注意力并入主线。DeepSeek-V4（总参数 1.6T、激活 49B、100 万上下文）在 32T token 上预训练，用 Muon 优化器和流形约束超连接（mHC）改进残差连接，用压缩 KV Cache 的稀疏注意力处理长上下文，后训练最后以在线策略蒸馏收尾——几乎把本文第 2、4、7 章的新技术集中到了一个模型里
 - **Agent 能力成为新焦点**：从"对话助手"转向"能自主使用工具、完成多步任务的智能体"，训练目标从单轮问答扩展到多轮工具调用与长程任务规划；RL 的环境从数学/代码验证器扩展到可执行的软件仓库、终端与浏览器沙箱（见 13.6.4 节）
 
 ## 1.3 三大训练阶段

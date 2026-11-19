@@ -131,7 +131,7 @@ Training aims to give the model:
 LLM training has moved from small-scale experiments to industrial production. The timeline below lists representative work by year; the subsections that follow summarize each stage:
 
 ```mermaid
-%%{init: { 'theme': 'base', 'themeVariables': { 'fontSize': '16px', 'cScale0': '#dbeafe', 'cScale1': '#fef3c7', 'cScale2': '#dcfce7', 'cScale3': '#fce7f3', 'cScale4': '#ede9fe', 'cScaleLabel0': '#1f2937', 'cScaleLabel1': '#1f2937', 'cScaleLabel2': '#1f2937', 'cScaleLabel3': '#1f2937', 'cScaleLabel4': '#1f2937' } } }%%
+%%{init: { 'theme': 'base', 'themeVariables': { 'fontSize': '16px', 'cScale0': '#dbeafe', 'cScale1': '#fef3c7', 'cScale2': '#dcfce7', 'cScale3': '#fce7f3', 'cScale4': '#ede9fe', 'cScale5': '#ffedd5', 'cScaleLabel0': '#1f2937', 'cScaleLabel1': '#1f2937', 'cScaleLabel2': '#1f2937', 'cScaleLabel3': '#1f2937', 'cScaleLabel4': '#1f2937', 'cScaleLabel5': '#1f2937' } } }%%
 timeline
     title Evolution of LLM training
     2018–2019 Early exploration : GPT-1, BERT : GPT-2, T5
@@ -139,6 +139,7 @@ timeline
     2022–2023 Alignment : InstructGPT (RLHF) : ChatGPT : LLaMA, GPT-4 : DPO
     2024 Open models : Llama 3 : DeepSeek-V2 (MLA) : OpenAI o1 : DeepSeek-V3 (FP8)
     2025 Reasoning and agents : DeepSeek-R1 (GRPO) : Qwen3, Kimi K2 : GPT-5 : DeepSeek-V3.2 (sparse attention)
+    2026 Convergence : Kimi K2.5 (multimodal) : GLM-5 (MLA + DSA) : Qwen3.5 (hybrid attention) : DeepSeek-V4 (mHC)
 ```
 
 ### 1.2.1 Early exploration (2018–2019)
@@ -172,6 +173,7 @@ timeline
 - **Closed flagships keep advancing**: the GPT-5 series, Claude 4.x (Opus/Sonnet/Haiku), and the Gemini series compete on reasoning, long context, and agent capabilities
 - **Architecture innovation**: MLA (multi-head latent attention), production FP8 training, and multi-token prediction (DeepSeek-V3) sharply cut the training and inference cost of models with hundreds of billions of parameters. Sparse attention (DSA in DeepSeek-V3.2) and hybrids that mix linear attention with a few full-attention layers (MiniMax-01, Qwen3-Next, Kimi Linear) push long-context cost down further (Section 2.6.4)
 - **More refined training recipes**: a separate mid-training stage now sits between pretraining and post-training, annealing on high-quality math, code, and long-context data (Section 2.6.5). The Muon optimizer has been shown to replace AdamW at trillion-parameter scale (Kimi K2, Section 7.1.4)
+- **In the first half of 2026, these techniques began to converge**: Kimi K2.5 mixes vision tokens into pretraining, making it natively multimodal; GLM-5 adopts both MLA and DSA; Qwen3.5 brings Gated DeltaNet hybrid attention into its main line. DeepSeek-V4 (1.6T total and 49B active parameters, 1M context) was pretrained on 32T tokens, uses the Muon optimizer and manifold-constrained hyper-connections (mHC) to improve residual connections, handles long context with sparse attention over a compressed KV cache, and finishes post-training with on-policy distillation, bringing most of the new techniques from Chapters 2, 4, and 7 of this survey together in one model
 - **Agents become the new focus**: models shift from chat assistants to agents that use tools and finish multi-step tasks on their own. Training objectives expand from single-turn Q&A to multi-turn tool use and long-horizon planning, and RL environments grow from math and code verifiers to executable repositories, terminals, and browser sandboxes (Section 13.6.4)
 
 ## 1.3 Three training stages
