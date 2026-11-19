@@ -2152,7 +2152,7 @@ To eliminate repeated sampling of the same physical surface from multiple views,
 - **Motivation**: Feeding multi-view pixels directly into the Transformer would blow up GPU memory; voxel pooling compresses multi-view redundancy into a persistent geometric structure, so that up to 90 frames of RGB-D input can be processed at once at inference.
 
 > **Example (voxel pooling arithmetic)**:
-> Suppose an indoor scene has 90 input frames, each producing about 1,000 valid depth pixels, so naive concatenation gives 90,000 visual tokens. The attention matrix would then need up to $90,000^2 \approx 8.1$ billion operations, directly causing GPU out-of-memory (OOM);
+> Suppose an indoor scene has 90 input frames, each producing about 1,000 valid depth pixels, so naive concatenation gives 90,000 visual tokens. The attention matrix would then need up to $90,000^2 \approx 81$ × 10⁸ (8.1 billion) operations, directly causing GPU out-of-memory (OOM);
 > After 5 cm voxel pooling, overlapping points from different views are merged into a single physical point, the number of tokens is compressed to about 4,000-8,000 (a compression ratio of 10 to 20 times), and the attention computation drops to less than $\frac{1}{100}$ of the original, so end-to-end inference on long video streams finishes within 2 seconds.
 
 **2. 3D rotary position encoding and full bidirectional attention (geometry-aware vision-language attention)**
@@ -3036,7 +3036,7 @@ Here:
 - **Process format reward $R_{\mathrm{PF}}$**: Forces the perception steps in the reasoning to follow the format `[Perception Type] [Target Object] : [Value]` (where the perception type is Position, Orientation, or Size, and the value is a normalized coordinate or orientation vector).
 - **Step accuracy reward $R_{\mathrm{Acc}}$**: Rule-based matching directly measures how accurately each anchor coordinate is localized in the intermediate reasoning steps (for example, whether the position L1 distance is within 50 pixels), giving fine-grained step-level supervision.
 
-The relative advantage is computed by normalizing the rewards within the group:
+The relative advantage $A_i$ is computed by normalizing the rewards within the group:
 $$A_i = \frac{r_i - \mathrm{mean}(\{r_j\})}{\mathrm{std}(\{r_j\})}$$
 This updates the policy network and provides rule-based step-level reward guidance without a process reward model (PRM) for scoring.
 

@@ -656,7 +656,7 @@ We can think of each $(\sin, \cos)$ pair as a "hand" in a two-dimensional plane.
 The Transformer is like reading a dashboard of dozens of hands rotating at different speeds, which lets it pinpoint the absolute position of the current token in the sequence.
 
 **Mathematical property: modeling relative position**
-The beauty of choosing sine and cosine is that the model can express **relative position** through a linear transformation. By the angle-addition formulas of trigonometry, for any offset $r$ there is a transformation matrix $M_r$ that depends only on the relative distance $r$, such that:
+The beauty of choosing sine and cosine is that the model can express **relative position** through a linear transformation. By the angle-addition formulas of trigonometry, there is a transformation matrix $M_r$ that depends only on the relative distance $r$, such that:
 $$PE_{pos+r} = M_r \cdot PE_{pos}$$
 This means that, when computing attention, the model can more easily capture the distance between two words rather than only their absolute coordinates.
 
@@ -1482,11 +1482,11 @@ A comparison of the objectives of each method:
 | Skip connection | Step 2 | Optimization |Makes deep networks trainable|
 | Batch norm | Step 2 | Optimization (+Gen) |Depends on batch statistics|
 | Layer norm | Step 2 | Optimization (+Gen) |Standard in Transformers|
-| Cross-entropy | Step 1 | Makes optimization feasible |Standard loss for classification / generation tasks|
-| Dropout | Step 1 | Generalization |Noise regularization during training|
-| Data augmentation | Step 1 | Generalization |Must preserve label semantics|
+| Cross-entropy | Step one | Makes optimization feasible |Standard loss for classification / generation tasks|
+| Dropout | Step one | Generalization |Noise regularization during training|
+| Data augmentation | Step one | Generalization |Must preserve label semantics|
 | L2 reg / AdamW | Step 1/3 | Generalization |Prefers functions with smaller parameter values|
-| Semi-supervised | Step 1 | Generalization |Exploits unlabeled data|
+| Semi-supervised | Step one | Generalization |Exploits unlabeled data|
 
 ### 7.1 Training troubleshooting quick check
 {: id="71-训练排错速查"}

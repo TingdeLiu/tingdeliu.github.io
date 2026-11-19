@@ -688,7 +688,7 @@ Real-robot end-to-end online vision-language navigation experiment: the robot ac
 </div>
 
 4. **Ablation study and system throughput**:
-   - The ablations show that $F_1$ drops from 0.6308 to 0.5780 without the 2D tracker, drops sharply to 0.5201 without Bayesian semantic fusion, and drops to 0.5764 without the geometric-consistency update, confirming that the three components work together to eliminate detection noise.
+   - The ablations show that $F_1$ drops from 0.6308 to 0.5780 without the 2D tracker, $F_1$ drops sharply to 0.5201 without Bayesian semantic fusion, and $F_1$ drops to 0.5764 without the geometric-consistency update, confirming that the three components work together to eliminate detection noise.
    - In terms of speed, pose estimation runs stably at **10 Hz**, 2D open-vocabulary perception at **1 Hz** (processed asynchronously), 3D map updates at **3 Hz**, and 4D scene-graph maintenance at **5 Hz**, so the whole system runs smoothly fully onboard.
 
 ---

@@ -413,7 +413,7 @@ $$
 y = r + \gamma Q_{\bar{w}}(s', \mu_{\bar{\theta}}(s')), \quad \mathcal{L}(w) = \mathbb{E}\left[(Q_w(s,a) - y)^2\right]
 $$
 
-Here $$Q_{\bar{w}}, \mu_{\bar{\theta}}$$ are the parameters of the target networks, updated softly: $\bar{w} \leftarrow \tau w + (1-\tau)\bar{w}$.
+Here $$Q_{\bar{w}}, \mu_{\bar{\theta}}$$ are the parameters of the target networks, soft-updated every $C$ steps: $\bar{w} \leftarrow \tau w + (1-\tau)\bar{w}$.
 
 To encourage exploration, noise (such as OU noise or Gaussian noise) is added to the actions during training.
 
@@ -494,7 +494,7 @@ $$
 \mathcal{L}(\alpha) = \mathbb{E}_{\tilde{a}_t \sim \pi_t}\left[-\alpha \log \pi_t(\tilde{a}_t|s_t) - \alpha \bar{\mathcal{H}}\right]
 $$
 
-Here $\bar{\mathcal{H}}$ is the target entropy (usually set to $-\dim(A)$), so $\alpha$ does not need to be tuned by hand.
+Here $\bar{\mathcal{H}}$ is the target entropy (usually set to $-\dim(A)$), so no manual tuning is needed.
 
 ### PPO vs. SAC vs. TD3
 {: id="ppo-vs-sac-vs-td3-对比"}

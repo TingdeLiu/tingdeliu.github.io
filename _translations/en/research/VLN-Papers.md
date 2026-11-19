@@ -3007,7 +3007,7 @@ Figure 2: Overview of the Dual-Anchoring framework. A unified Video-LLM backbone
   - For any navigation moment $$t$$, the most recently passed landmark frame $$t^*$$ ($$t^* \le t$$) can be retrieved, and **SAM** extracts its high-resolution spatial feature map $$F_{SAM}(o_{t^*})$$ as the ground truth for the backtracking supervision.
 - **Landmark-Centric World Model (backtracking world model)**: A **Learnable Spatial Query Decoder** lets the agent reconstruct the dense spatial features of recent landmarks.
   - **Input**: The Video-LLM's output sequence $$X_t \in \mathbb R^{N \times d_{llm}}$$ at step $$t$$ (containing historical and current visual semantics).
-  - **Processing**: $X_t$ is first projected into a compact latent space, $$\hat X_t = \text{LayerNorm}(X_t W_{in})$$, by a linear layer plus LayerNorm. A set of learnable spatial queries $$Q_{spa}$$ is initialized (each query is a pixel-level anchor at $$H\times W$$ resolution), and cross-attention retrieves local spatial cues from $$\hat X_t$$: $$Z = \text{Softmax}(Q_{spa}\hat X_t^T / \sqrt{d_{attn}})\hat X_t$$. The result is linearly projected to dimension $$d_{sam}$$ and reshaped into a 2D feature map $$F_t$$.
+  - **Processing**: It is first projected into a compact latent space, $$\hat X_t = \text{LayerNorm}(X_t W_{in})$$, by a linear layer plus LayerNorm. A set of learnable spatial queries $$Q_{spa}$$ is initialized (each query is a pixel-level anchor at $$H\times W$$ resolution), and cross-attention retrieves local spatial cues from $$\hat X_t$$: $$Z = \text{Softmax}(Q_{spa}\hat X_t^T / \sqrt{d_{attn}})\hat X_t$$. The result is linearly projected to dimension $$d_{sam}$$ and reshaped into a 2D feature map $$F_t$$.
   - **Output**: The predicted feature map $$F_t$$, aligned with the frozen SAM features by MSE.
   - **Motivation**: It acts as a "rear-view mirror", forcing the internal state to retain dense, distinguishable object information about past trajectories and so preventing memory decay. Unlike **foresight** pixel-level world models such as NWM (which are expensive and neglect history), this method is **hindsight** and operates at the feature level, making it better suited to real-time onboard inference.
 
@@ -3258,7 +3258,7 @@ where $P_{nav} = P_{nav}^{init} \cup P_{stair}$.
 - **Semantic Map ($M_{sem}$)**:
   - **Input**: The egocentric RGB image.
   - **Processing**: YOLO-E performs 2D object detection and instance segmentation to extract each object's 2D mask and category. The depth map and camera pose then project the mask into 3D space to generate an object point cloud. A newly generated object point cloud is merged with existing object features according to 3D IoU and category-label consistency, and a threshold removes noise points.
-  - **Output**: A set of 3D point clouds and labels for $N$ semantic objects:
+  - **Output**: A set of 3D point clouds and labels for N semantic objects:
     $$M_{sem} = \{(P_{obj, j}, c_j)\}_{j=1}^{N_{obj}}$$
 - **Decision Map ($M_{dec}$)**:
   - **Input**: The geometric map $M_{geo}$, the obstacle point cloud $P_{obs}$, and the agent's current position $p_{agent}$.

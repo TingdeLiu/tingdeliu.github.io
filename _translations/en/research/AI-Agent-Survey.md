@@ -1965,7 +1965,7 @@ flowchart TB
 #### Comparison of the three generations of approaches
 {: id="三代技术路线全维度对比"}
 
-|Dimension|Generation 1: DOM parsing / scripted automation|Generation 2: vision-based Computer Use / screenshots|Generation 3: WebMCP browser-native semantic protocol|
+|Dimension|First generation: DOM parsing / scripted automation|Second generation: vision-based Computer Use / screenshots|Third generation: WebMCP browser-native semantic protocol|
 |:-----|:-----------------------------|:---------------------------------|:----------------------------------|
 |**Interaction medium**|Raw HTML DOM tree, XPath, CSS selectors|A continuous stream of page-screenshot pixels|Strongly typed JSON Schema semantic tools|
 |**Tokens per step**|Extremely high (a bloated DOM tree of tens of thousands of tokens)|Very high (1,000-2,500 tokens for one high-resolution screenshot)|**Extremely low** (a single tool call costs only 50-150 tokens)|

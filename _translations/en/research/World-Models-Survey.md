@@ -383,7 +383,7 @@ A rule of thumb: the more geometric precision a **control signal** requires (cam
 |**Discrete autoregressive**| Genie, WorldVLA, Cosmos-Predict1 AR |Naturally streaming and interactive; reuses the KV cache|Errors accumulate gradually; quantization loses detail|
 |**Full-sequence diffusion / flow matching**|Wan2.1, Cosmos-Predict2.5 (93 frames generated at a time)|High image quality and good consistency within a clip|Fixed clip length makes it hard to respond incrementally to new actions|
 |**Block-wise autoregressive diffusion (hybrid)**| LingBot-World, SANA-WM, Lyra 2.0 |Balances image quality and interactivity: denoising within blocks, autoregression across blocks|Training sees the real history while inference sees the model's own generated history (exposure bias), which causes drift|
-|**AR + diffusion twin towers**| Cosmos 3 |Autoregressive understanding and diffusion generation do not interfere with each other|About twice the parameters of a dense model|
+|**AR + diffusion twin towers**| Cosmos 3 |Autoregressive understanding and diffusion generation do not interfere with each other|About 2× the parameters of a dense model|
 
 Starting from a full-sequence diffusion model and converting it into an interactive simulator is a common route in 2026: LingBot-World first pretrains a bidirectional diffusion model on Wan2.2, then converts it into a causal autoregressive system and distills it in post-training (§5.2). To mitigate exposure bias, a common approach is to **feed noisy or self-generated history during training**, as in Lyra 2.0's self-augmented training (§5.4).
 

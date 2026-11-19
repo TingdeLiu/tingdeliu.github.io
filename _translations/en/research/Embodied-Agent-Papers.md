@@ -405,7 +405,7 @@ In the real-robot experiments, the team set up 30 rigorous long-horizon tasks ac
 
 <div align="center">
   <img src="/images/vla/Pigey-droid-results.webp" width="100%" loading="lazy" decoding="async" alt="Success rate (%) on eight capability probes with the real DROID arm: the same π0.5-DROID weights run underneath in every setting" />
-<figcaption>Success rate (%) on eight capability probes with the real DROID arm: the same $\pi_{0.5}$-DROID weights run underneath in every setting</figcaption>
+<figcaption>Success rate (%) on eight capability probes with the real DROID arm: the same π0.5-DROID weights run underneath in every setting</figcaption>
 </div>
 
 <div align="center">

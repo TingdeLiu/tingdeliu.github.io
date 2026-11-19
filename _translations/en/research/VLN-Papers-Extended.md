@@ -2474,7 +2474,7 @@ The dataset score is $CSR = \frac{1}{\lvert I \rvert} \sum_{i \in I} CSR_i$.
 
 > **Worked example**:
 > Suppose a task's ground-truth branch has 2 ordered waypoints (a corridor corner $g_1$ and the living-room door $g_2$) and an endpoint (the sofa $g_3$), so $m_i = 2$.
-> - **Case A (fully correct)**: the agent passes $g_1$ then $g_2$ and stops at $g_3$: $k_i=2, BSA_i=1.0, \text{Success}(i)=1 \implies CSR_i=1, SR_i=1$;
+> - **Case A (fully correct)**: the agent passes $g_1, g_2$ in order and stops at $g_3$: $k_i=2, BSA_i=1.0, \text{Success}(i)=1 \implies CSR_i=1, SR_i=1$;
 > - **Case B (lost halfway)**: the agent passes $g_1$, then gets lost and reaches neither $g_2$ nor $g_3$: $k_i=1, BSA_i=0.5, CSR_i=0, SR_i=0$;
 > - **Case C (wrong branch, lucky stop)**: the agent heads straight down the wrong branch toward the bedroom, which happens to have a sofa too, and stops beside it. Traditional SR scores $SR_i=1$ and calls it a success, but because the agent never visited the correct branch's subgoals ($k_i=0, BSA_i=0$), the new metric correctly reports $CSR_i=0$!
 
@@ -3526,7 +3526,7 @@ $$\tilde{Q}_G(s, a_0) = \text{clip}\left( \frac{c (Q(s, a_0) - \bar{Q}_G(s))}{\s
 GQRM actor optimization objective:
 $$\mathcal L_{\text{GQRM}}(\theta; s, t) = \mathbb E_{a_0 \sim \pi_{\text{old}}(\cdot \mid s), a_t \sim q_{t \mid 0}(\cdot \mid a_0)} \left[ \exp(\tilde{Q}_G(s, a_0) / \lambda) \left\lVert s_\theta(a_t; s, t) - \nabla_{a_t} \log q_{t \mid 0}(a_t \mid a_0) \right\rVert^2 \right]$$
 
-In practice, only the top-$k$ candidate actions with positive advantage in each same-state group are retained, which both reduces noise from low-quality samples and significantly cuts computational cost.
+In practice, only the top $k$ candidate actions with positive advantage in each same-state group (Top-$k$ Positive Advantage) are retained, which both reduces noise from low-quality samples and significantly cuts computational cost.
 
 | Dimension | Traditional DPMD | GQRM (this paper) |
 |---|---|---|
