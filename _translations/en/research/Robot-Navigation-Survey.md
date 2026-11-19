@@ -6,7 +6,7 @@ permalink: /en/Robot-Navigation-Survey/
 source_path: _posts/research/2026-02-27-Robot-Navigation-Survey.md
 source_url: /Robot-Navigation-Survey/
 source_revision_date: 2026-11-11
-translation_updated: 2026-11-11
+translation_updated: 2026-11-19
 title: "Traditional Navigation: A Survey"
 date: 2026-11-11
 tags: [Robotics, Navigation, SLAM, Localization, Mapping, Path Planning, Path Tracking, Perception]
@@ -26,21 +26,21 @@ excerpt: "A survey of the traditional robot navigation stack, from perception, l
 
 Imagine a warehouse robot moving between shelves, picking up goods precisely, and avoiding forklifts and pedestrians that suddenly appear. Or consider a self-driving car traveling safely for hundreds of kilometers in complex traffic. Both depend on a carefully designed **autonomous navigation system**.
 <figure class="survey-intro-figure">
-  <img src="/images/robotics_navigation/robot-navigation-survey-intro-en.svg" width="1200" height="600" alt="Traditional robot navigation achieves target movement through perception and localization, mapping and planning, local control and execution, and continuously receives sensor feedback." loading="lazy" decoding="async" />
-<figcaption>Figure: Traditional navigation revolves around the target position, combines sensing localization, map planning and local control, and corrects motion through sensor feedback; the actual system can adopt different module divisions and map forms.</figcaption>
+  <img src="/images/robotics_navigation/robot-navigation-survey-intro-en.svg" width="1200" height="600" alt="Traditional navigation revolves around the goal position. It combines sensing and localization, map-based planning, and local control, and corrects motion through sensor feedback. Actual systems may divide the modules and represent the map differently." loading="lazy" decoding="async" />
+<figcaption>Figure: Traditional navigation revolves around the goal position. It combines sensing and localization, map-based planning, and local control, and corrects motion through sensor feedback. Actual systems may divide the modules and represent the map differently.</figcaption>
 </figure>
-The core problems solved by autonomous navigation can be simply summarized into three problems:
+The core problems that autonomous navigation solves can be summarized in three questions:
 
 1. **Where am I?** (Localization)
 2. **What is around me?** (Perception and mapping)
 3. **How should I move?** (Planning and control)
 
-These three issues are intertwined and together constitute a complete robot navigation loop.
+These three problems are intertwined, and together they form a complete robot navigation loop.
 
-## 1.2 Navigation Algorithm Stack Overview
+## 1.2 Overview of the navigation algorithm stack
 {: id="12-导航算法栈概览"}
 
-In a complete robot navigation system, sensor data passes through successive processing layers before driving the actuators. The following diagram shows the overall data flow of the navigation algorithm stack:
+In a complete robot navigation system, sensor data passes through successive processing layers before it drives the actuators. The following diagram shows the overall data flow of the navigation stack:
 
 ```mermaid
 %%{init: {'themeVariables': {'fontSize': '18px'}, 'flowchart': {'nodeSpacing': 24, 'rankSpacing': 32}}}%%
@@ -91,189 +91,189 @@ flowchart TB
 ```
 
 <div align="center">
-  <img src="/images/robotics_navigation/robot-navigation-survey-intro-en.svg" width="100%" style="--paper-figure-width: 100%;" alt="Traditional robot navigation flow chart: mapping and localization (SLAM) based on data collected by sensors, and automatic navigation (planning + control) in the constructed environmental map" />
-<figcaption>Figure: Traditional robot navigation flow chart: mapping and localization (SLAM) based on data collected by sensors, and automatic navigation (planning + control) in the constructed environmental map</figcaption>
+  <img src="/images/robotics_navigation/robot-navigation-survey-intro-en.svg" width="100%" style="--paper-figure-width: 100%;" alt="Traditional robot navigation pipeline: mapping and localization (SLAM) from sensor data, then automatic navigation (planning + control) in the constructed environment map" />
+<figcaption>Figure: Traditional robot navigation pipeline: mapping and localization (SLAM) from sensor data, then automatic navigation (planning + control) in the constructed environment map</figcaption>
 </div>
 
 
 ## 1.3 Classical vs. learned navigation
 {: id="13-传统导航-vs-学习型导航"}
 
-Before the rise of deep learning, robot navigation mainly relied on **modular, interpretable traditional algorithm stacks**. Each module has clear responsibilities and can be independently debugged and optimized. This article will systematically introduce the core components of this algorithm stack.
+Before the rise of deep learning, robot navigation relied mainly on **modular, interpretable classical algorithm stacks**. Each module has clear responsibilities and can be debugged and optimized independently. This article systematically introduces the core components of this stack.
 
-| Dimension | Traditional navigation | End-to-end deep learning navigation |
+| Dimension | Classical navigation | End-to-end deep learning navigation |
 |------|---------|-----------------|
-| Interpretability | ✅ Strong, each module can be analyzed | ❌ Weak, black box decision-making |
-| Generalization | ❌ Weak, relies on prior map | ✅ Strong, can be migrated to new scenarios |
-| Language Understanding | ❌ Does not support natural language instructions | ✅ Supports (VLN/VLA) |
-| Debugging difficulty | ✅ Low, module independent debugging | ❌ High, end-to-end traceability is difficult |
-| Computing requirements | ✅ Low, can run on embedded | ❌ High, requires GPU |
-| Safety and reliability | ✅ Predictable behavior | ❌ There is a risk of out-of-distribution generalization |
-| Dynamic obstacle processing | Local planning module can handle | Dependent on training data coverage |
+| Interpretability | ✅ Strong, each module can be analyzed | ❌ Weak, black-box decisions |
+| Generalization | ❌ Weak, relies on a prior map | ✅ Strong, transfers to new scenarios |
+| Language understanding | ❌ Does not support natural-language instructions | ✅ Supported (VLN/VLA) |
+| Debugging difficulty | ✅ Low, modules can be debugged independently | ❌ High, end-to-end failures are hard to trace |
+| Computing requirements | ✅ Low, can run on embedded hardware | ❌ High, requires a GPU |
+| Safety and reliability | ✅ Predictable behavior | ❌ Risk of out-of-distribution failures |
+| Dynamic obstacle handling | The local planning module can handle it | Depends on training data coverage |
 
-> **This article focuses on the traditional algorithm stack**. For information about end-to-end learning navigation (VLN/VLA), please refer to this site [VLN Survey](/en/VLN-Survey/) Series.
+> **This article focuses on the classical algorithm stack.** For end-to-end learned navigation (VLN/VLA), see this site's [VLN Survey](/en/VLN-Survey/) series.
 
 ---
 
 # 2. Perception
 {: id="2-感知perception"}
 
-Perception is the "eyes" of the navigation system. Sensors collect raw data and process it to provide reliable input for localization, mapping and planning.
+Perception is the "eyes" of the navigation system. Sensors collect raw data, and processing turns it into reliable input for localization, mapping, and planning.
 
 ## 2.1 Sensor types and characteristics
 {: id="21-传感器类型与特性对比"}
 
-| Sensor | Output data | Accuracy | Robustness to lighting | Cost | Typical frequency | Typical application |
+| Sensor | Output data | Accuracy | Robustness to lighting | Cost | Typical rate | Typical application |
 |--------|---------|------|--------|------|---------|---------|
-| **2D LiDAR** | Polar coordinate point set | High (cm level) | ✅ Strong | Medium | 10–40 Hz | Indoor mobile robot |
+| **2D LiDAR** | Polar-coordinate point set | High (cm level) | ✅ Strong | Medium | 10–40 Hz | Indoor mobile robots |
 | **3D LiDAR** | Point Cloud (xyz+intensity) | High | ✅ Strong | High | 10–20 Hz | Autonomous driving |
-| **RGB-D camera** | Color image + depth image | Medium (cm–dm level) | ❌ Weak (outdoor) | Low | 30–90 Hz | Indoor short range |
+| **RGB-D camera** | Color image + depth image | Medium (cm–dm level) | ❌ Weak (outdoors) | Low | 30–90 Hz | Short-range indoor use |
 | **Monocular camera** | RGB image | Low (requires calibration) | ❌ Weak | Very low | 30–120 Hz | Visual odometry |
-| **Stereo camera** | Left and right RGB image | Medium | ❌ Weak | Low–medium | 30–60 Hz | Visual SLAM |
-| **IMU** | Angular velocity + linear acceleration | Short-term high | ✅ Strong | Extremely low | 100–1000 Hz | Pose estimation, fusion |
-| **wheel odometry** | Encoder pulse | Medium (easy to accumulate errors) | ✅ Strong | Very low | 50–200 Hz | Short-term displacement estimate |
-| **GPS/RTK** | Longitude and latitude coordinates | Normal 1–5m, RTK cm level | ✅ Strong | Medium–High | 1–10 Hz | Outdoor global localization |
+| **Stereo camera** | Left and right RGB images | Medium | ❌ Weak | Low–medium | 30–60 Hz | Visual SLAM |
+| **IMU** | Angular velocity + linear acceleration | High in the short term | ✅ Strong | Extremely low | 100–1000 Hz | Pose estimation, fusion |
+| **Wheel odometry** | Encoder pulses | Medium (errors accumulate easily) | ✅ Strong | Very low | 50–200 Hz | Short-term displacement estimation |
+| **GPS/RTK** | Latitude/longitude coordinates | Standard 1–5 m, RTK cm level | ✅ Strong | Medium–high | 1–10 Hz | Outdoor global localization |
 
 ### LiDAR
 {: id="激光雷达lidar"}
 
-LiDAR calculates distance by emitting laser pulses **and measuring the return time** (Time of Flight, ToF). It can work under any lighting conditions and output accurate spatial point cloud (Point Cloud).
+LiDAR measures distance by emitting laser pulses **and timing their return** (Time of Flight, ToF). It works under any lighting condition and outputs an accurate spatial point cloud.
 
-**2D LiDAR** (such as Hokuyo UTM-30LX, SICK TiM) scans and outputs a polar coordinate point set on a plane each time, which is suitable for indoor flat environments. **3D LiDAR** (such as Velodyne VLP-16, Ouster OS1) outputs a complete three-dimensional point cloud through multi-line rotation scanning, which is the core sensor for autonomous driving perception.
+**2D LiDAR** (such as Hokuyo UTM-30LX and SICK TiM) outputs a set of polar-coordinate points on a single plane per scan, which suits flat indoor environments. **3D LiDAR** (such as Velodyne VLP-16 and Ouster OS1) outputs a complete three-dimensional point cloud through multi-beam rotating scans, and is the core sensor for autonomous driving perception.
 
 ### Depth camera (RGB-D)
 {: id="深度相机rgb-d"}
 
-RGB-D cameras (such as Intel RealSense D435, Microsoft Kinect) simultaneously acquire color images and the depth value of each pixel through the **structured light** or **time-of-flight (ToF)** principle. The main limitations are: strong outdoor light will interfere with structured light, and the detection range is limited (usually 0.3–6m).
+RGB-D cameras (such as Intel RealSense D435 and Microsoft Kinect) acquire a color image and the depth of each pixel at the same time, using **structured light** or **time-of-flight (ToF)**. The main limitations are that strong outdoor light interferes with structured light, and the sensing range is limited (usually 0.3–6m).
 
 <div align="center">
   <video src="/images/robotics_navigation/Depth_Camera.mp4" data-autoplay preload="none" loop muted playsinline width="70%" style="aspect-ratio:740/330"></video>
-<figcaption>Figure: Depth camera acquisition depth map visualization</figcaption>
+<figcaption>Figure: Visualization of a depth map captured by a depth camera</figcaption>
 </div>
 
 ### IMU and wheel odometry
 {: id="imu-与轮式里程计"}
 
-**An IMU (inertial measurement unit)** combines gyroscopes, which measure angular velocity, and accelerometers, which measure linear acceleration. Its output rate is high (100–1000 Hz), but errors **accumulate through integration** over time, causing drift.
+**An IMU (inertial measurement unit)** combines a gyroscope, which measures angular velocity, and an accelerometer, which measures linear acceleration. Its output rate is high (100–1000 Hz), but errors **accumulate through integration** over time and cause drift.
 
 <div align="center">
   <img src="/images/robotics_navigation/IMU.jpg" width="40%" alt="IMU" />
 <figcaption>Figure: IMU</figcaption>
 </div>
 
-**wheel odometry** calculates displacement through wheel encoders, and has good accuracy on flat roads, but will produce **cumulative errors** on slippery or uneven roads.
+**Wheel odometry** computes displacement from wheel encoders. It is accurate on flat ground but accumulates **cumulative errors** on slippery or uneven surfaces.
 
-The common features of both are: high short-term accuracy, long-term use requires fusion and correction with other sensors.
+What the two have in common is high short-term accuracy; over the long term they must be fused with, and corrected by, other sensors.
 
 
-## 2.2 Perception Data Processing
+## 2.2 Perception data processing
 {: id="22-感知数据处理"}
 
 ### Point cloud filtering
 {: id="点云滤波"}
 
-Raw point clouds usually contain noise and irrelevant points and require preprocessing:
+Raw point clouds usually contain noise and irrelevant points, so they need preprocessing:
 
-**Voxel Grid Filter**: Divide the point cloud space into regular small cubes (voxels), and replace the points in each voxel with the centroid. This not only retains the overall shape of the point cloud, but also greatly reduces the point cloud density and improves the subsequent processing speed.
-
-<div align="center">
-  <img src="/images/robotics_navigation/Voxel_Grid.webp" width="70%" alt="Voxel filtering effect - the original dense point cloud (left) is obtained by voxel downsampling to obtain a uniform sparse point cloud (right)" />
-<figcaption>Figure: Voxel filtering effect - the original dense point cloud (left) is obtained by voxel downsampling to obtain a uniform sparse point cloud (right)</figcaption>
-</div>
-
-**Radius Outlier Removal**: For each point, check the number of neighboring points within its radius r. If the number of adjacent points is less than the threshold, the point is considered to be noise and deleted. Suitable for removing isolated noise.
+**Voxel Grid Filter**: Divide the point cloud space into small regular cubes (voxels) and replace the points in each voxel with their centroid. This preserves the overall shape of the point cloud while greatly reducing its density, which speeds up later processing.
 
 <div align="center">
-  <img src="/images/robotics_navigation/半径滤波.webp" width="70%" alt="Radius filtering effect - isolated points (red) with insufficient neighborhood points are identified as noise and deleted" />
-<figcaption>Figure: Radius filtering effect - isolated points (red) with insufficient neighborhood points are identified as noise and deleted</figcaption>
+  <img src="/images/robotics_navigation/Voxel_Grid.webp" width="70%" alt="Effect of voxel filtering: the original dense point cloud (left) is downsampled into a uniform, sparse point cloud (right)" />
+<figcaption>Figure: Effect of voxel filtering: the original dense point cloud (left) is downsampled into a uniform, sparse point cloud (right)</figcaption>
 </div>
 
-**Pass Through Filter**: Directly intercept the point cloud of the area of interest, for example, only retain points within the 0.1m to 2m height range above the ground.
+**Radius Outlier Removal**: For each point, count the neighbors within radius r. If the count is below a threshold, the point is treated as noise and removed. This is well suited to removing isolated noise points.
+
+<div align="center">
+  <img src="/images/robotics_navigation/半径滤波.webp" width="70%" alt="Effect of radius filtering: isolated points (red) with too few neighbors are identified as noise and removed" />
+<figcaption>Figure: Effect of radius filtering: isolated points (red) with too few neighbors are identified as noise and removed</figcaption>
+</div>
+
+**Pass Through Filter**: Directly crop the point cloud to a region of interest, for example keeping only points between 0.1m and 2m above the ground.
 
 ### Rectangle fitting
 {: id="矩形拟合检测"}
 
-**obstacle bounding-box estimation based on LiDAR point cloud**: Fit the clustered obstacle point cloud to a minimum bounding rectangle (Minimum Bounding Rectangle) to estimate the length, width, orientation and center position of the obstacle. This is a classic method for obstacle perception in autonomous driving and is often used for vehicle detection.
+**LiDAR-based obstacle bounding-box estimation**: Fit a minimum bounding rectangle to each clustered obstacle point cloud to estimate the obstacle's length, width, orientation, and center position. This is a classic obstacle perception method in autonomous driving and is often used for vehicle detection.
 
 <div align="center">
-  <img src="/images/robotics_navigation/Rectangle_Fitting_Detection.webp" width="55%" style="margin:4px" alt="Point cloud rectangular fitting - clustered point cloud (left) fitted to the minimum bounding rectangle (right moving picture)"/>
+  <img src="/images/robotics_navigation/Rectangle_Fitting_Detection.webp" width="55%" style="margin:4px" alt="Rectangle fitting on a point cloud: the clustered point cloud (left) is fitted with a minimum bounding rectangle (right, animated)"/>
   <video src="/images/robotics_navigation/point_cloud_rectangle_fitting.mp4" data-autoplay preload="none" loop muted playsinline width="38%" style="aspect-ratio:800/800; margin:4px"></video>
-<figcaption>Figure: Point cloud rectangular fitting - clustered point cloud (left) fitted to the minimum bounding rectangle (right moving picture)</figcaption>
+<figcaption>Figure: Rectangle fitting on a point cloud: the clustered point cloud (left) is fitted with a minimum bounding rectangle (right, animated)</figcaption>
 </div>
 
 ### Feature extraction
 {: id="特征提取"}
 
-In visual SLAM and camera calibration, feature extraction is crucial:
+Feature extraction is crucial in visual SLAM and camera calibration:
 
-- **corner feature** (Corner): such as **FAST** (extremely fast), **Harris** (classic)
-- **descriptor** (Descriptor): such as **ORB** (rotation invariant + binary, fast), **SIFT** (scale/rotation invariant, high accuracy but slow)
-- **Line Characteristics** (Line): for structured indoor environments (corridors, walls)
+- **Corner features**: such as **FAST** (extremely fast) and **Harris** (classic)
+- **Descriptors**: such as **ORB** (rotation-invariant, binary, fast) and **SIFT** (scale- and rotation-invariant, accurate but slow)
+- **Line features**: for structured indoor environments (corridors, walls)
 
 <div align="center">
-  <img src="/images/robotics_navigation/Corner.webp" width="65%" alt="Corner feature detection - the corner points (intersection points) in the image are the key matching elements of visual SLAM" />
-<figcaption>Figure: Corner feature detection - the corner points (intersection points) in the image are the key matching elements of visual SLAM</figcaption>
+  <img src="/images/robotics_navigation/Corner.webp" width="65%" alt="Corner feature detection: corner points in the image are the key elements matched in visual SLAM" />
+<figcaption>Figure: Corner feature detection: corner points in the image are the key elements matched in visual SLAM</figcaption>
 </div>
 
-## 2.3 Sensor Extrinsic Calibration
+## 2.3 Sensor extrinsic calibration
 {: id="23-传感器外参标定"}
 
-When a system uses multiple sensors, it is necessary to know the **Relative pose** (extrinsic parameters, Extrinsic Parameters) to convert data from different sensors to the same coordinate frame.
+When a system uses multiple sensors, it must know their **relative poses** (extrinsic parameters) in order to convert data from different sensors into the same coordinate frame.
 
-**Estimation of extrinsic parameters based on UKF**: Online estimation of extrinsic parameters using **unscented Kalman filter (UKF)**. Compared with the offline calibration of the calibration target, this method can dynamically estimate and correct the extrinsic parameters during the movement of the robot, which is suitable for scenarios where the sensor installation position may change slightly.
+**UKF-based extrinsic estimation**: Estimate the extrinsic parameters online with an **unscented Kalman filter (UKF)**. Unlike offline calibration with a calibration target, this method can estimate and correct the extrinsics dynamically while the robot moves, which suits settings where a sensor's mounting position may shift slightly.
 
 <div align="center">
   <video src="/images/robotics_navigation/sensor_auto_calibration.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
-<figcaption>Figure: Sensor online automatic calibration process - dynamic estimation and correction of extrinsic parameters between sensors during robot movement</figcaption>
+<figcaption>Figure: Online automatic sensor calibration: the extrinsic parameters between sensors are estimated and corrected dynamically while the robot moves</figcaption>
 </div>
 
-### Sensor Time Synchronization
+### Sensor time synchronization
 {: id="传感器时间同步"}
 
-In addition to spatial calibration (extrinsic parameters) of multi-Sensor frames, **Time synchronization** Also crucial. If the data timestamps of different sensors are not aligned, it will cause the data to be "out of sync" - for example using 0.1 The IMU attitude seconds ago is used to process the laser point cloud of the current frame, and the error cannot be ignored when the robot is moving at high speed.
+Besides spatial calibration (extrinsics) between sensor frames, **time synchronization** is equally important. If the timestamps of different sensors are not aligned, the data will be "out of sync". For example, using the IMU attitude from 0.1 seconds ago to process the current frame's laser point cloud produces an error that cannot be ignored when the robot moves at high speed.
 
 <div align="center">
   <img src="/images/robotics_navigation/时间同步.webp" width="40%" alt="Time synchronization" />
 <figcaption>Figure: Time synchronization</figcaption>
 </div>
 
-**Hardware trigger synchronization (Hardware Trigger)**: All sensors are sampled at the same time through circuit signals. For example, the PPS (pulses per second) signal from GPS acts as a master clock, triggering camera shutters and LiDAR scans. This is the most accurate method, with time errors as low as microseconds, but requires dedicated hardware circuit support.
+**Hardware trigger synchronization**: All sensors sample at the same instant, driven by an electrical signal. For example, the PPS (pulse-per-second) signal from GPS can act as a master clock that triggers the camera shutters and LiDAR scans. This is the most accurate method, with time errors down to microseconds, but it needs dedicated hardware circuitry.
 
-**Software timestamp interpolation (Software Interpolation)**: When hardware triggering is not feasible, timestamp each sensor data packet through a high-precision system clock (such as NTP/PTP), and then align the data by timestamp at the software layer. A common practice is to align the IMU data to the nearest laser frame time by linear interpolation.
+**Software timestamp interpolation**: When hardware triggering is not feasible, stamp each sensor packet with a high-precision system clock (such as NTP/PTP), then align the data by timestamp in software. A common practice is to linearly interpolate the IMU data to the time of the nearest laser frame.
 
-**The impact of misaligned timestamps on SLAM**: The robot continues to move during one frame of laser scanning (approximately 100 ms). If the IMU timestamp is not used for **motion compensation (Motion Distortion Correction)**, the scanning point cloud will appear **distortion (Distortion)** - the first half frame and the second half frame point cloud are misaligned, seriously affecting the scanning matching accuracy. Tightly coupled solutions such as LIO-SAM solve this problem through IMU pre-integration.
+**Impact of misaligned timestamps on SLAM**: The robot keeps moving during a single laser scan (about 100 ms). If the IMU timestamps are not used for **motion distortion correction**, the scanned point cloud is **distorted**: the first and second halves of the scan are misaligned, which seriously degrades scan-matching accuracy. Tightly coupled systems such as LIO-SAM solve this with IMU pre-integration.
 
-## 2.4 Sensor Fusion
+## 2.4 Sensor fusion
 {: id="24-传感器融合"}
 
-A single sensor often has limitations, and fusing multiple sensors can make up for each other's weaknesses.
+A single sensor often has limitations, and fusing several sensors lets them compensate for each other's weaknesses.
 
-**EKF (Extended Kalman Filter) fusion**: Unified fusion of sensor data of different frequencies and different error characteristics (such as IMU high-frequency attitude + GPS low-frequency position + odometry displacement). EKF proceeds alternately through the **prediction step** (predicting the state using the motion model) and the **update step** (correcting the prediction using sensor observations).
+**EKF (Extended Kalman Filter) fusion**: Fuses sensor data with different rates and error characteristics in one framework (for example high-rate IMU attitude, low-rate GPS position, and odometry displacement). The EKF alternates between a **prediction step** (propagating the state with the motion model) and an **update step** (correcting the prediction with sensor observations).
 
-**UKF (unscented Kalman filter) fuses**: EKF uses first-order linearization to approximate the nonlinear system, while UKF uses **Sigma point sampling** to more accurately approximate the mean and covariance of the nonlinear transformation, with higher accuracy in high nonlinear scenarios.
+**UKF (Unscented Kalman Filter) fusion**: The EKF approximates a nonlinear system by first-order linearization, whereas the UKF uses **sigma-point sampling** to approximate the mean and covariance of the nonlinear transformation more accurately, giving higher accuracy in strongly nonlinear scenarios.
 
-**EKF Sensor fusion data flow** (taking multi-sensor robot as an example):
+**EKF sensor fusion data flow** (using a multi-sensor robot as an example):
 
 ```mermaid
 flowchart LR
-    subgraph Sensors["sensor input"]
-        IMU["IMU\n100–1000 Hz\nHigh frequency, short term accuracy"]
-        ODO["wheel odometry\n50–200 Hz\nAccurate on flat surfaces"]
-        GPS["GPS/RTK\n1–10 Hz\nGlobal coordinates, low frequency"]
-        LID["LiDAR matching\n10–40 Hz\nMedium frequency, can provide position correction"]
+    subgraph Sensors["Sensor inputs"]
+        IMU["IMU\n100–1000 Hz\nHigh rate, accurate short-term"]
+        ODO["Wheel odometry\n50–200 Hz\nAccurate on flat surfaces"]
+        GPS["GPS/RTK\n1–10 Hz\nGlobal coordinates, low rate"]
+        LID["LiDAR matching\n10–40 Hz\nMedium rate, provides position correction"]
     end
 
     subgraph EKF["EKF fusion core"]
-        P["prediction step\nusing kinematic models +  odometry /IMU\ncovariance P increase"]
-        U["Update steps\nKalman Gain K\ncovariance P reduce"]
+        P["Prediction step\nKinematic model + odometry / IMU\nCovariance P grows"]
+        U["Update step\nKalman gain K\nCovariance P shrinks"]
     end
 
-    OUT["Fused pose\nPosition + velocity + orientation\nHigh frequency output"]
+    OUT["Fused pose\nPosition + velocity + orientation\nHigh-rate output"]
 
     IMU -->|Predict| P
     ODO -->|Predict| P
-    GPS -->|update| U
-    LID -->|update| U
+    GPS -->|Update| U
+    LID -->|Update| U
     P --> U
     U --> OUT
     OUT -->|Recursive feedback| P
@@ -284,102 +284,102 @@ flowchart LR
 # 3. Localization
 {: id="3-定位localization"}
 
-Localization solves the problem of "where am I": given a map, the robot needs to estimate its position and orientation in the map in real time (i.e. **pose Pose = position + orientation**).
+Localization solves the problem of "where am I": given a map, the robot must estimate its position and orientation in that map in real time (its **pose = position + orientation**).
 
-## 3.1 Problem Definition
+## 3.1 Problem definition
 {: id="31-问题定义"}
 
-Localization problems can be divided into two categories:
+Localization problems fall into three categories:
 
-- **Global Localization (Global Localization)**: The robot does not know the initial position and needs to determine its own pose from scratch. The most difficult, particle filtering is good at dealing with this type of problem.
-- **Pose Tracking**: The approximate initial pose is known and is continuously corrected during movement. EKF/UKF specializes in dealing with these types of issues.
-- **kidnapped robot problem (Kidnapped Robot Problem)**: The robot was suddenly moved to an unfamiliar location during motion and needs to be repositioned.
+- **Global localization**: The robot does not know its initial position and must determine its pose from scratch. This is the hardest case, and particle filters handle it well.
+- **Pose tracking**: The approximate initial pose is known and is continuously corrected during motion. EKF/UKF specialize in this case.
+- **Kidnapped robot problem**: The robot is suddenly moved to an unfamiliar location during operation and must relocalize.
 
 ## 3.2 EKF Localization
 {: id="32-ekf-定位"}
 
-**Intuitive understanding**: Imagine you are walking blindfolded, estimating your position based on step count and turning angle (this is "prediction"); every time you take off the blindfold and glance at a landmark on the map, you use the landmark position to correct your estimate (this is "update"). EKF (Extended Kalman Filter) does the mathematical version of this.
+**Intuition**: Imagine walking blindfolded and estimating your position from your step count and turning angle (this is "prediction"). Each time you lift the blindfold and glance at a landmark on the map, you use the landmark's position to correct your estimate (this is "update"). The EKF (Extended Kalman Filter) is the mathematical version of this process.
 
-**state vector**: $\mathbf{x} = [x, y, \theta]^T$ (position + orientation)
+**State vector**: $\mathbf{x} = [x, y, \theta]^T$ (position + orientation)
 
-**two steps to**:
+**Two steps**:
 
-1. **Prediction step** (Predict): Use motion models (such as odometry data) to predict the pose at the next moment, while the error covariance increases (uncertainty increases):
+1. **Prediction step**: Use the motion model (for example odometry data) to predict the pose at the next time step. The error covariance grows (uncertainty increases):
 
 $$\hat{\mathbf{x}}_{t|t-1} = f(\mathbf{x}_{t-1}, \mathbf{u}_t)$$
 
-2. **update step** (Update): Use sensor observations (such as LiDAR to see road signs) to correct the prediction, and the error covariance is reduced (uncertainty is reduced):
+2. **Update step**: Use sensor observations (for example LiDAR sightings of landmarks) to correct the prediction. The error covariance shrinks (uncertainty decreases):
 
 $$\mathbf{x}_t = \hat{\mathbf{x}}_{t|t-1} + \mathbf{K}_t (\mathbf{z}_t - h(\hat{\mathbf{x}}_{t|t-1}))$$
 
-Here, $$\mathbf{K}_t$$ is the **Kalman gain**, which determines whether to believe the prediction or the observation.
+Here, $$\mathbf{K}_t$$ is the **Kalman gain**, which determines whether to trust the prediction or the observation.
 
-**Intuitive understanding of Kalman gain K**: Imagine that your friend tells you "You are now at the entrance of the library", but your step count estimates that you are inside the library. Who should you trust? The size of K determines this trade-off:
+**Intuition for the Kalman gain K**: Suppose a friend tells you "you are now at the library entrance", but your step count says you are inside the library. Whom should you trust? The size of K decides this trade-off:
 
-- **K → 1 (trust the observation)**: When the sensor noise is low and the prediction uncertainty is large → the observation correction weight is large
-- **K → 0 (believe the prediction)**: When the sensor noise is high → less correction, mainly relying on the motion model
+- **K → 1 (trust the observation)**: When sensor noise is low and prediction uncertainty is large, the observation gets a large correction weight
+- **K → 0 (trust the prediction)**: When sensor noise is high, the correction is small and the filter relies mainly on the motion model
 
 $$\mathbf{K}_t = \mathbf{P}_{t|t-1} \mathbf{H}^T (\mathbf{H} \mathbf{P}_{t|t-1} \mathbf{H}^T + \mathbf{R})^{-1}$$
 
-Here, $\mathbf{P}$ is the prediction uncertainty (the larger → the larger K → the more confident the sensor), and $\mathbf{R}$ is the sensor noise (the larger → the smaller K → the more confident the prediction). The figure below shows the change of the uncertainty ellipse in the prediction → update process:
+Here, $\mathbf{P}$ is the prediction uncertainty (larger P gives larger K, so the sensor is trusted more) and $\mathbf{R}$ is the sensor noise (larger R gives smaller K, so the prediction is trusted more). The figure below shows how the uncertainty ellipse changes through the predict-then-update process:
 
 <div align="center">
-  <img src="/images/robotics_navigation/robot-nav-ekf-ellipse-en.svg" width="90%" alt="EKF uncertainty ellipse change - the ellipse increases after the prediction step (uncertainty increases), the ellipse shrinks after the update step (sensor correction)" />
-<figcaption>Figure: EKF uncertainty ellipse change - the ellipse increases after the prediction step (uncertainty increases), the ellipse shrinks after the update step (sensor correction)</figcaption>
+  <img src="/images/robotics_navigation/robot-nav-ekf-ellipse-en.svg" width="90%" alt="Change of the EKF uncertainty ellipse: the ellipse grows after the prediction step (uncertainty increases) and shrinks after the update step (sensor correction)" />
+<figcaption>Figure: Change of the EKF uncertainty ellipse: the ellipse grows after the prediction step (uncertainty increases) and shrinks after the update step (sensor correction)</figcaption>
 </div>
 
-**applicable scenarios**: known map, known initial position, low non-linear system. The calculation efficiency is high and suitable for real-time operation.
+**Suitable scenarios**: Known map, known initial position, and a weakly nonlinear system. It is computationally efficient and suitable for real-time operation.
 
 <div align="center">
   <video src="/images/robotics_navigation/extended_kalman_filter_localization.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
-<figcaption>Figure: EKF localization simulation - the robot (blue) moves along the trajectory, the green ellipse is the uncertainty estimate, and the red is the EKF localization result</figcaption>
+<figcaption>Figure: EKF localization simulation: the robot (blue) moves along its trajectory, the green ellipse is the estimated uncertainty, and red is the EKF localization result</figcaption>
 </div>
 
-## 3.3 UKF Localization
+## 3.3 UKF localization
 {: id="33-ukf-定位"}
 
-**Difference from EKF**: EKF uses Taylor expansion to make a first-order linear approximation of nonlinear functions, and the error is larger in highly nonlinear systems. UKF (Unscented Kalman Filter) approximates the probability distribution after nonlinear transformation through the carefully selected **Sigma point set**, without the need for derivatives and with higher accuracy.
+**Difference from the EKF**: The EKF linearizes nonlinear functions to first order with a Taylor expansion, which causes larger errors in strongly nonlinear systems. The UKF (Unscented Kalman Filter) instead approximates the probability distribution after the nonlinear transformation with a carefully chosen **set of sigma points**. It needs no derivatives and is more accurate.
 
-**Sigma point sampling**: Extract $2n+1$ Sigma points from the current mean and covariance, propagate through the nonlinear function, and recalculate the mean and covariance.
+**Sigma-point sampling**: Draw $2n+1$ sigma points from the current mean and covariance, propagate them through the nonlinear function, and recompute the mean and covariance.
 
-✅ Higher accuracy than EKF, especially suitable for scenes with strong nonlinearity in motion models
-❌ The computational cost is slightly larger than that of EKF (about 2–3 times that of EKF)
+✅ Higher accuracy than the EKF, especially for motion models with strong nonlinearity
+❌ Slightly higher computational cost than the EKF (about 2–3 times)
 
 <div align="center">
   <video src="/images/robotics_navigation/ekf_vs_ukf_comparison.mp4" data-autoplay preload="none" loop muted playsinline width="80%" style="aspect-ratio:800/800"></video>
-<figcaption>Figure: EKF vs UKF comparison simulation - the pose estimation of UKF (right) converges more accurately in high non-linear scenarios</figcaption>
+<figcaption>Figure: EKF vs. UKF simulation: the UKF's pose estimate (right) converges more accurately in strongly nonlinear scenarios</figcaption>
 </div>
 
 ## 3.4 Particle filter localization
 {: id="34-粒子滤波定位"}
 
-**Intuition**: Use thousands of "particles" (each particle represents a possible pose hypothesis) to represent the probability distribution of the robot's position. Each particle moves according to the motion model (adding random noise), and then each particle is given a score (weight) based on the sensor observation. The closer the particle is to the real observation, the higher the weight. Finally, **resampling (Resampling)** is used to eliminate particles with low weight and copy particles with high weight.
+**Intuition**: Use thousands of "particles" (each one a hypothesis about the pose) to represent the probability distribution of the robot's position. Each particle moves according to the motion model (with added random noise), and then receives a score (weight) based on the sensor observation: the closer a particle is to what is actually observed, the higher its weight. Finally, **resampling** discards low-weight particles and duplicates high-weight ones.
 
 <div align="center">
   <video src="/images/robotics_navigation/particle_filter_localization.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
-<figcaption>Figure: particle filtering localization simulation - initial particles are uniformly distributed (global localization), gradually converging to the true position with movement and observation</figcaption>
+<figcaption>Figure: Particle filter localization simulation: the initial particles are uniformly distributed (global localization) and gradually converge to the true position as the robot moves and observes</figcaption>
 </div>
 
-**AMCL (Adaptive Monte Carlo Localization)**: The widely used particle filtering localization package in ROS supports adaptive particle number (reducing particles after localization convergence saves calculation).
+**AMCL (Adaptive Monte Carlo Localization)**: The widely used particle-filter localization package in ROS. It adapts the number of particles, reducing it once localization has converged to save computation.
 
 The following figure shows the three core stages of the MCL algorithm:
 
 <div align="center">
-  <img src="/images/robotics_navigation/robot-nav-particle-filter-en.svg" width="92%" alt="Three stages of particle filtering (MCL) - ① Particle diffusion after motion update, ② Observation weighting (large particles = high weight), ③ After resampling, particles are concentrated near the real position" />
-<figcaption>Figure: Three stages of particle filtering (MCL) - ① Particle diffusion after motion update, ② Observation weighting (large particles = high weight), ③ After resampling, particles are concentrated near the real position</figcaption>
+  <img src="/images/robotics_navigation/robot-nav-particle-filter-en.svg" width="92%" alt="Three stages of particle filtering (MCL): (1) particles spread out after the motion update, (2) observation weighting (larger particles = higher weight), (3) after resampling, the particles concentrate near the true position" />
+<figcaption>Figure: Three stages of particle filtering (MCL): (1) particles spread out after the motion update, (2) observation weighting (larger particles = higher weight), (3) after resampling, the particles concentrate near the true position</figcaption>
 </div>
 
 **MCL algorithm flow**:
 
 ```mermaid
 flowchart TD
-    INIT["Initialization:\nSpread particles evenly\n(global localization)\nor Gaussian distribution\n(known initial pose)"]
-    MOTION["Motion updates (sampling)\nMove each particle according to the motion model\nAdd random motion noise"]
-    OBS["Observation weighting\nUsing sensor data (laser/RGB-D)\nCalculate observation probability for each particle\nwt = p(zt | xt, map)"]
-    NORM["normalization\nThe sum of all particle weights = 1"]
-    RESAMP[" resampling \nSampling with replacement with weights N particles\n(Low weights are eliminated, high weights are copied)"]
-    EST["pose estimation\nGet the particle with the largest weight / weighted mean"]
-    NEXT["next moment"]
+    INIT["Initialization:\nSpread particles uniformly\n(global localization)\nor sample a Gaussian\n(known initial pose)"]
+    MOTION["Motion update (sampling)\nMove each particle with the motion model\nAdd random motion noise"]
+    OBS["Observation weighting\nUsing sensor data (laser/RGB-D)\nCompute each particle's observation probability\nwt = p(zt | xt, map)"]
+    NORM["Normalization\nAll particle weights sum to 1"]
+    RESAMP["Resampling\nDraw N particles with replacement, by weight\n(low weights are dropped, high weights are duplicated)"]
+    EST["Pose estimation\nTake the highest-weight particle / weighted mean"]
+    NEXT["Next time step"]
 
     INIT --> MOTION
     MOTION --> OBS
@@ -387,67 +387,67 @@ flowchart TD
     NORM --> RESAMP
     RESAMP --> EST
     EST --> NEXT
-    NEXT -->|New motion instructions| MOTION
+    NEXT -->|New motion command| MOTION
 ```
 
-**resampling details**: Naive random resampling will introduce **particle diversity loss** (the same particle is copied multiple times). **system resampling (Systematic Resampling)** takes a random starting point within $[0, 1/N]$, and then samples N times at even intervals, ensuring that each interval is sampled exactly once, effectively avoiding diversity loss, and the computational complexity is still $O(N)$.
+**Resampling details**: Naive random resampling causes **loss of particle diversity** (the same particle is copied many times). **Systematic resampling** avoids this: it picks a random starting point in $[0, 1/N]$ and then samples N times at equal intervals, so each interval is sampled exactly once. This effectively prevents diversity loss, and the computational complexity remains $O(N)$.
 
-**AMCL Adaptive particle number (KLD sampling)**: Fixed particle number is a waste of calculation (there is no need for so many particles after localization convergence), and it is unsafe (too few particles during initialization may miss the true position). **KLD Sampling** Dynamically calculates the required number of particles based on the state space volume covered by the current particle set: the more fully the state space is explored (the more grids are covered), the fewer particles are needed. A typical range in AMCL is 100–5000 particles.
+**AMCL's adaptive particle count (KLD sampling)**: A fixed particle count wastes computation (once localization has converged, so many particles are unnecessary) and is unsafe (too few particles at initialization may miss the true position). **KLD sampling** computes the required number of particles dynamically from the volume of state space covered by the current particle set: the more thoroughly the state space is explored (the more grid cells are covered), the fewer particles are needed. A typical AMCL range is 100–5000 particles.
 
-✅ Supports **global localization** (multi-hypothesis parallel, can handle kidnapped robot problem)
-✅ Friendly to nonlinear systems, no need for linearization
-❌ When the number of particles is large, the calculation overhead is high
-❌ Efficiency decreases in high-dimensional state space (curse of dimensionality)
+✅ Supports **global localization** (parallel multi-hypothesis tracking, so it can handle the kidnapped robot problem)
+✅ Handles nonlinear systems well, with no linearization needed
+❌ High computational cost when the particle count is large
+❌ Efficiency drops in high-dimensional state spaces (curse of dimensionality)
 
 
-## 3.5 Localization based on scan matching
+## 3.5 Scan-matching localization
 {: id="35-基于扫描匹配的定位"}
 
-Scan matching is another type of localization idea: directly align the current LiDAR scan with the reference map (or previous frame scan) to solve the pose transformation.
+Scan matching is another approach to localization: directly align the current LiDAR scan with a reference map (or with the previous scan) to solve for the pose transformation.
 
 ### NDT registration
 {: id="ndt-配准"}
 
-**idea**: Divide the reference point cloud space into regular grids, and the points in each grid are represented by **normal distribution** (mean + covariance). The probability of the currently scanned point cloud in these normal distributions is the matching score, and the matching probability is maximized by optimizing the pose.
+**Idea**: Divide the reference point cloud space into a regular grid and represent the points in each cell with a **normal distribution** (mean + covariance). The probability of the current scan's points under these distributions is the matching score, and the pose is optimized to maximize it.
 
-✅ Robust to point cloud density changes
-✅ High computational efficiency (especially three-dimensional scenes)
-✅ It is one of the mainstream methods of automatic driving localization (HDMap-based Localization)
+✅ Robust to changes in point cloud density
+✅ Computationally efficient (especially in 3D scenes)
+✅ One of the mainstream methods for autonomous-driving localization (HD-map-based localization)
 
 <div align="center">
-  <img src="/images/robotics_navigation/NDT.webp" width="72%" alt="NDT matching principle - alignment diagram of the reference map (grid + normal distribution) and the current scanned point cloud" />
-<figcaption>Figure: NDT matching principle - alignment diagram of the reference map (grid + normal distribution) and the current scanned point cloud</figcaption>
+  <img src="/images/robotics_navigation/NDT.webp" width="72%" alt="NDT matching principle: alignment of the reference map (grid + normal distributions) with the current scan" />
+<figcaption>Figure: NDT matching principle: alignment of the reference map (grid + normal distributions) with the current scan</figcaption>
 </div>
 
 ### ICP registration
 {: id="icp-配准"}
 
-**Idea**: Match the current point cloud with the nearest point pair in the target point cloud, calculate the rigid body transformation (rotation + translation) that minimizes the distance between the matching point pairs, and then iterate and repeat until convergence.
+**Idea**: Pair each point in the current point cloud with its nearest point in the target point cloud, compute the rigid transformation (rotation + translation) that minimizes the distance between the matched pairs, and iterate until convergence.
 
-✅ Simple and intuitive, high accuracy (after convergence)
-❌ Sensitive to initial pose, easy to fall into local optimum
-❌ The calculation complexity is high, and the real-time performance is affected by the point cloud density.
-❌ prone to degeneracy in repetitive structures such as corridors
+✅ Simple and intuitive, with high accuracy (after convergence)
+❌ Sensitive to the initial pose and prone to local optima
+❌ High computational cost, and real-time performance depends on point cloud density
+❌ Prone to degeneracy in repetitive structures such as corridors
 
 <div align="center">
-  <img src="/images/robotics_navigation/ICP.webp" width="72%" alt="ICP iteration process - the green current frame point cloud is gradually aligned with the red reference point cloud, and the distance between the nearest point pairs is reduced in each iteration" />
-<figcaption>Figure: ICP iteration process - the green current frame point cloud is gradually aligned with the red reference point cloud, and the distance between the nearest point pairs is reduced in each iteration</figcaption>
+  <img src="/images/robotics_navigation/ICP.webp" width="72%" alt="ICP iterations: the green current-frame point cloud is gradually aligned with the red reference point cloud, and the distance between nearest-point pairs shrinks with each iteration" />
+<figcaption>Figure: ICP iterations: the green current-frame point cloud is gradually aligned with the red reference point cloud, and the distance between nearest-point pairs shrinks with each iteration</figcaption>
 </div>
 
 ## 3.6 Comparison of localization methods
 {: id="36-定位方法对比汇总"}
 
-| Method | Applicable scenarios | Global localization | Computational overhead | Nonlinear processing | ROS support |
+| Method | Suitable scenarios | Global localization | Computational cost | Nonlinearity handling | ROS support |
 |------|---------|---------|---------|-----------|---------|
-| **EKF** | Known initial pose, low nonlinearity | ❌ | Low | First-order approximation | `robot_localization` |
-| **UKF** | Known initial pose, medium to high nonlinearity | ❌ | Medium | Sigma point approximation | `robot_localization` |
-| **particle filtering /AMCL** | Global localization, unknown initial pose | ✅ | Medium–High | No approximation | `amcl` |
+| **EKF** | Known initial pose, weak nonlinearity | ❌ | Low | First-order approximation | `robot_localization` |
+| **UKF** | Known initial pose, moderate to strong nonlinearity | ❌ | Medium | Sigma-point approximation | `robot_localization` |
+| **Particle filter / AMCL** | Global localization, unknown initial pose | ✅ | Medium–high | No approximation | `amcl` |
 | **NDT** | Autonomous driving, high-precision map localization | Requires initialization | Medium | — | `ndt_cpu` |
-| **ICP** | Fine registration, short range matching | ❌ | Medium – High | — | `pcl_ros` |
+| **ICP** | Fine registration, short-range matching | ❌ | Medium–high | — | `pcl_ros` |
 
 <div align="center">
   <video src="/images/robotics_navigation/ekf_ukf_pf_comparison.mp4" data-autoplay preload="none" loop muted playsinline width="85%" style="aspect-ratio:800/800"></video>
-<figcaption>Figure: EKF / UKF / particle filtering Comparative simulation of three localization methods - Comparison of accuracy and convergence speed in the same scenario</figcaption>
+<figcaption>Figure: Comparative simulation of EKF, UKF, and particle filter localization: accuracy and convergence speed in the same scenario</figcaption>
 </div>
 
 ---
@@ -455,61 +455,61 @@ Scan matching is another type of localization idea: directly align the current L
 # 4. Mapping & SLAM
 {: id="4-建图mapping--slam"}
 
-**SLAM (simultaneous localization and mapping, Simultaneous Localization and Mapping)** solves a "chicken or egg" problem: localization requires a map, and mapping requires knowing the location. The goal of SLAM is to complete localization and mapping at the same time when **has no prior map**.
+**SLAM (Simultaneous Localization and Mapping)** solves a chicken-and-egg problem: localization requires a map, and mapping requires knowing the location. The goal of SLAM is to perform localization and mapping together when **no prior map is available**.
 
-## 4.1 Map Representations
+## 4.1 Map representations
 {: id="41-地图表示形式"}
 
-Different scenarios require different map representations:
+Different scenarios call for different map representations:
 
 ### Binary occupancy grid
 {: id="二值占据栅格"}
 
-Divide the environment space into squares of equal size (usually 5–20 cm/square), and store a probability value in each square, indicating whether the square is occupied (obstructed = 1, passable = 0, unexplored = 0.5). This is the most commonly used map format in indoor robot navigation and is directly supported by ROS `map_server`.
+Divide the environment into equal-sized cells (usually 5–20 cm per cell) and store a probability value in each cell indicating whether it is occupied (occupied = 1, free = 0, unexplored = 0.5). This is the most commonly used map format in indoor robot navigation and is directly supported by the ROS `map_server`.
 
 <div align="center">
   <video src="/images/robotics_navigation/binary_grid_map_construction.mp4" data-autoplay preload="none" loop muted playsinline width="60%" style="aspect-ratio:800/800; margin:4px"></video>
-<figcaption>Figure: Binary occupation grid map construction process</figcaption>
+<figcaption>Figure: Construction of a binary occupancy grid map</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/robotics_navigation/二值占据栅格地图.webp" width="60%" style="margin:4px" alt="Finished map - white = passable, black = obstacle, gray = unexplored"/>
-<figcaption>Figure: Finished map - white = passable, black = obstacle, gray = unexplored</figcaption>
+  <img src="/images/robotics_navigation/二值占据栅格地图.webp" width="60%" style="margin:4px" alt="Finished map: white = free, black = obstacle, gray = unexplored"/>
+<figcaption>Figure: Finished map: white = free, black = obstacle, gray = unexplored</figcaption>
 </div>
 
 ### Costmap
 {: id="代价地图costmap"}
 
-Based on the occupied grid, the area around the obstacle **Inflation** Create a cost layer: the closer you are to the obstacle, the higher the cost. In this way, the robot will automatically maintain a safe distance from obstacles during path planning without additional collision checks. ROS Navigation Stack `costmap_2d` Supports multi-layer costmap (static layer + obstacle layer + inflation layer).
+On top of the occupancy grid, **inflation** around obstacles creates a cost layer: the closer to an obstacle, the higher the cost. The robot then keeps a safe distance from obstacles during path planning without extra collision checks. The ROS Navigation Stack's `costmap_2d` supports multi-layer costmaps (static layer + obstacle layer + inflation layer).
 
 <div align="center">
   <video src="/images/robotics_navigation/cost_grid_map_construction.mp4" data-autoplay preload="none" loop muted playsinline width="55%" style="aspect-ratio:800/800; margin:4px"></video>
-<figcaption>Figure: costmap build</figcaption>
+<figcaption>Figure: Costmap construction</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/robotics_navigation/Costmap.webp" width="38%" style="margin:4px" alt="Finished product costmap - blue = low cost, red = high cost (near obstacles)"/>
-<figcaption>Figure: Finished product costmap - blue = low cost, red = high cost (near obstacles)</figcaption>
+  <img src="/images/robotics_navigation/Costmap.webp" width="38%" style="margin:4px" alt="Finished costmap: blue = low cost, red = high cost (near obstacles)"/>
+<figcaption>Figure: Finished costmap: blue = low cost, red = high cost (near obstacles)</figcaption>
 </div>
 
 ### Potential field map
 {: id="势场地图"}
 
-The target point is regarded as the "lowest point of potential energy", the obstacles are regarded as the "repulsive force source", and the entire space forms a potential energy field. The robot can find the path by moving in the direction of gradient descent. Intuitively, it is similar to a ball rolling naturally to the lowest point on an incline. Main disadvantage: easy to fall into local minimum (Local Minimum).
+The goal is treated as the "lowest point of potential energy" and obstacles as "sources of repulsion", so the whole space forms a potential field. The robot finds a path by moving in the direction of gradient descent, much like a ball rolling down a slope to its lowest point. Its main drawback is that it easily gets trapped in local minima.
 
 <div align="center">
-  <img src="/images/robotics_navigation/势场地图.webp" width="65%" alt="Potential field map - the target (blue trough) produces attractive force, the obstacle (red peak) produces repulsive force, and the gradient direction points to the direction of robot movement" />
-<figcaption>Figure: Potential field map - the target (blue trough) produces attractive force, the obstacle (red peak) produces repulsive force, and the gradient direction points to the direction of robot movement</figcaption>
+  <img src="/images/robotics_navigation/势场地图.webp" width="65%" alt="Potential field map: the goal (blue trough) produces attraction, obstacles (red peaks) produce repulsion, and the gradient direction points along the robot's direction of motion" />
+<figcaption>Figure: Potential field map: the goal (blue trough) produces attraction, obstacles (red peaks) produce repulsion, and the gradient direction points along the robot's direction of motion</figcaption>
 </div>
 
 ### NDT Map
 {: id="ndt-地图ndt-map"}
 
-The normal distribution transformation map mentioned above is suitable for high-precision autonomous driving scenarios. Each grid stores the statistical distribution of the point cloud instead of the original points, greatly compressing the storage space while maintaining localization accuracy.
+The normal distributions transform (NDT) map mentioned above suits high-precision autonomous driving scenarios. Each grid cell stores the statistical distribution of its points instead of the raw points, which compresses storage substantially while preserving localization accuracy.
 
 <div align="center">
-  <img src="/images/robotics_navigation/NDT_Map.jpg" width="65%" alt="EA-NDT processing flow visualization: display of the intermediate stages from semantic segmentation point cloud to H-Map." />
-<figcaption>Figure: EA-NDT processing flow visualization: display of the intermediate stages from semantic segmentation point cloud to H-Map.</figcaption>
+  <img src="/images/robotics_navigation/NDT_Map.jpg" width="65%" alt="EA-NDT processing pipeline: intermediate stages from the semantically segmented point cloud to the H-Map." />
+<figcaption>Figure: EA-NDT processing pipeline: intermediate stages from the semantically segmented point cloud to the H-Map.</figcaption>
 </div>
 
 <div align="center">
@@ -520,20 +520,20 @@ The normal distribution transformation map mentioned above is suitable for high-
 ### OctoMap (octree 3D map)
 {: id="octomap八叉树三维地图"}
 
-**OctoMap** is the de facto standard for 3D robot mapping and is directly supported by the `octomap_server` package in ROS. The core idea: use **octree (Octree)** to recursively subdivide the three-dimensional space. Each leaf node represents a voxel (Voxel) and stores the **occupation probability** of the voxel.
+**OctoMap** is the de facto standard for 3D robot mapping and is directly supported by the `octomap_server` package in ROS. The core idea is to recursively subdivide 3D space with an **octree**. Each leaf node represents a voxel and stores the voxel's **occupancy probability**.
 
-**spatial subdivision principle**:
+**Spatial subdivision principle**:
 
 ```mermaid
 graph TD
-    R["🌐 root node<br/>the whole space"]
-    R --> N1["📦 child node 1<br/>spatial 1/8"]
-    R --> N2["📦 child node 2<br/>spatial 1/8"]
-    R --> ND["… total 8 child node"]
-    R --> N8["📦 child node 8<br/>spatial 1/8"]
+    R["🌐 Root node<br/>the whole space"]
+    R --> N1["📦 Child node 1<br/>1/8 of the space"]
+    R --> N2["📦 Child node 2<br/>1/8 of the space"]
+    R --> ND["… 8 child nodes in total"]
+    R --> N8["📦 Child node 8<br/>1/8 of the space"]
     N1 --> L1["🟩 Leaf node (voxel)<br/>Small enough, stop subdividing"]
     N1 --> L2["🟥 Leaf node (voxel)<br/>Small enough, stop subdividing"]
-    N2 --> N21["📦 Continue to subdivide<br/>of child nodes 1/8"]
+    N2 --> N21["📦 Keep subdividing<br/>into 1/8 child nodes"]
     N21 --> L3["🟨 Leaf node (voxel)"]
 
     style R fill:#4a90d9,color:#fff,stroke:#2c6fad
@@ -547,105 +547,105 @@ graph TD
     style L3 fill:#faad14,color:#fff,stroke:#d48806
 ```
 
-> 🟩 Free voxels 🟥 Occupied voxels 🟨 Unknown voxels Dark nodes = can still be subdivided
+> 🟩 Free voxels  🟥 Occupied voxels  🟨 Unknown voxels  Dark nodes = can still be subdivided
 
 The voxel size (resolution) is typically set to 5–20 cm and can be adjusted as needed.
 
-**Occupancy probability update** (Bayesian update): Each time the light from the laser/depth sensor passes through a voxel, update the logarithmic probability of occupancy (Log-Odds) of the voxel:
+**Occupancy probability update** (Bayesian update): Each time a laser or depth-sensor ray passes through a voxel, the voxel's log-odds of occupancy are updated:
 
 $$L(n) = L(n-1) + \log\frac{P(\text{occ}|\text{hit})}{1 - P(\text{occ}|\text{hit})}$$
 
-After accumulating multiple observations, the voxels are classified as: **occupied (occupied)**, **free (free)**, **unknown (unknown)**.
+After accumulating multiple observations, each voxel is classified as **occupied**, **free**, or **unknown**.
 
-**Memory efficiency**: OctoMap only stores occupied and free nodes, and unknown spaces do not occupy memory. Large-scale indoor scenes (200m², 10cm resolution) usually only require tens of MB, which is far better than directly storing the 3D occupancy grid.
+**Memory efficiency**: OctoMap stores only occupied and free nodes; unknown space takes no memory. A large indoor scene (200m², 10cm resolution) usually needs only tens of MB, far better than storing a dense 3D occupancy grid.
 
-| Properties | OctoMap | Original point cloud |
+| Property | OctoMap | Raw point cloud |
 |------|---------|---------|
 | Memory | Low (sparse octree) | High (12–24 bytes per point) |
-| probability update | ✅ | ❌ |
-| Unknown area representation | ✅ | ❌ |
-| Multi-resolution query | ✅ | ❌ |
+| Probabilistic update | ✅ | ❌ |
+| Unknown-space representation | ✅ | ❌ |
+| Multi-resolution queries | ✅ | ❌ |
 | ROS support | `octomap_server` | `sensor_msgs/PointCloud2` |
 
-✅ Three-dimensional obstacle perception (drone obstacle avoidance, robotic arm grabbing planning)
-✅ Supports dynamic updates (probability decays after obstacles are removed)
-❌ Does not retain color/semantic information (needs to be extended to ColorOctoMap / SemanticOctoMap)
+✅ 3D obstacle perception (drone obstacle avoidance, robot-arm grasp planning)
+✅ Supports dynamic updates (probability decays after an obstacle is removed)
+❌ Does not retain color/semantic information (needs extensions such as ColorOctoMap / SemanticOctoMap)
 
 ### Topological Map
 {: id="拓扑地图topological-map"}
 
-All the aforementioned maps (occupancy grid, NDT, OctoMap) are **metric maps (Metric Map)** - accurately recording the geometric information of the space. The **topological map** is completely different: it abstracts the environment into the graph structure of **nodes (locations) + edges (connected relationships)**, and does not care about precise geometry.
+All of the maps above (occupancy grid, NDT, OctoMap) are **metric maps**, which record the exact geometry of the space. A **topological map** is entirely different: it abstracts the environment into a graph of **nodes (places) and edges (connections)** and ignores precise geometry.
 
 ```mermaid
 graph LR
-    A["entrance hall"] -->|"Corridor 15m"| B["Office area A"]
-    A -->|"stairs"| C["second floor"]
-    B -->|"Corridor 8m"| D["conference room"]
+    A["Entrance hall"] -->|"Corridor 15m"| B["Office area A"]
+    A -->|"Stairs"| C["Second floor"]
+    B -->|"Corridor 8m"| D["Conference room"]
     B -->|"Corridor 8m"| E["Rest area"]
     C -->|"Corridor 20m"| F["Office area B"]
 ```
 
-**node** usually corresponds to a semantic location (room, doorway, corridor intersection), **edge** records the reachability relationship between adjacent nodes (sometimes with distance/direction information).
+A **node** usually corresponds to a semantic place (a room, doorway, or corridor intersection), and an **edge** records the reachability between adjacent nodes (sometimes with distance or direction information).
 
-| Comparison dimension | Metric map | Topological map |
+| Dimension | Metric map | Topological map |
 |---------|---------|---------|
-| represents the granularity | centimeter-level precise coordinates | node/edge (semantic) |
-| Storage overhead | Large (increases linearly with area) | Extremely small |
-| Path planning | Raster search (A*) | Graph search (Dijkstra) |
-| Applicable scale | Indoor small scene (<100m) | Building, multi-floor, park |
-| Localization accuracy | High | Low (can only be positioned to node granularity) |
+| Representation granularity | Centimeter-level precise coordinates | Nodes/edges (semantic) |
+| Storage cost | Large (grows linearly with area) | Extremely small |
+| Path planning | Grid search (A*) | Graph search (Dijkstra) |
+| Suitable scale | Small indoor scenes (<100m) | Buildings, multi-floor sites, campuses |
+| Localization accuracy | High | Low (localizes only to node granularity) |
 
-**Hybrid scheme in practical applications**: Most actual systems use **topological-metric hybrid map (Hybrid Topological-Metric Map)**: The topology layer does high-level path planning across rooms (selecting which nodes to pass through), and the metric layer does fine local navigation and obstacle avoidance near each node. A typical implementation is the `topological_navigation` package of ROS.
+**Hybrid schemes in practice**: Most real systems use a **hybrid topological-metric map**. The topological layer does high-level planning across rooms (choosing which nodes to pass through), and the metric layer handles fine-grained local navigation and obstacle avoidance near each node. A typical implementation is the ROS `topological_navigation` package.
 
-## 4.2 SLAM Problem Overview
+## 4.2 SLAM problem overview
 {: id="42-slam-问题概述"}
 
-The input of SLAM is a sensor data stream (laser scan sequence/image sequence + odometry), and the output is:
+The input to SLAM is a stream of sensor data (a sequence of laser scans or images, plus odometry), and the output is:
 
-1. **Trajectory**: Robot historical motion path
-2. **Map**: Spatial representation of the environment
+1. **Trajectory**: the robot's historical motion path
+2. **Map**: a spatial representation of the environment
 
-The SLAM system is usually divided into two parts: **front-end (Front-end)** and **back-end (Back-end)**:
+A SLAM system is usually divided into a **front-end** and a **back-end**:
 
 ```mermaid
 flowchart LR
     subgraph Frontend["Front-end (data association)"]
-        A["sensor data"] --> B["Feature extraction\nscan match"]
-        B --> C["Initial estimate of pose\n odometry"]
+        A["Sensor data"] --> B["Feature extraction\nScan matching"]
+        B --> C["Initial pose estimate\nOdometry"]
     end
 
-    subgraph Backend["Backend (optimized)"]
+    subgraph Backend["Back-end (optimization)"]
         C --> D["Factor graph construction"]
-        D --> E["loop closure detection \nLoop Closure"]
+        D --> E["Loop closure detection\nLoop Closure"]
         E --> F["Graph optimization\ng2o / GTSAM"]
     end
 
     F --> G["Optimized trajectory\n+ global map"]
 ```
 
-> **SLAM vs. Pure localization (Localization)**: SLAM is "locating while building a map" and is suitable for the first exploration of **unknown environment**. Once the map is built and saved, subsequent deployment only requires **pure localization** on the known map - input sensor data and output the robot's position in the known map, without maintaining or updating the map. The computational cost of pure localization is much lower than that of SLAM: the laser solution uses **AMCL** (adaptive Monte Carlo localization, particle filtering) or **NDT to position**, and the vision solution uses **Relocalization (Relocalization)**. In actual product deployment, the vast majority of robots are in "pure localization mode", and SLAM is only started during the mapping phase or when there are major changes in the environment.
+> **SLAM vs. pure localization**: SLAM means "localizing while building a map" and is suited to the first exploration of an **unknown environment**. Once the map has been built and saved, later deployments only need **pure localization** on the known map: the input is sensor data and the output is the robot's position in the known map, with no map maintenance or updating. Pure localization is much cheaper than SLAM: laser-based solutions use **AMCL** (adaptive Monte Carlo localization, a particle filter) or **NDT-based localization**, and vision-based solutions use **relocalization**. In real product deployments, the vast majority of robots run in "pure localization mode", and SLAM is started only during the mapping phase or when the environment changes substantially.
 
 ## 4.3 LiDAR SLAM
 {: id="43-激光-slam"}
 
-### Cartographer(Google)
+### Cartographer (Google)
 {: id="cartographergoogle"}
 
 [Project homepage](https://github.com/cartographer-project/cartographer)
 
-Google's open source LiDAR SLAM system supports 2D and 3D mapping. Core idea:
+Google's open-source LiDAR SLAM system, which supports 2D and 3D mapping. Core ideas:
 
-- **submap (Submap)**: Insert scanned data into local submaps in segments, and each submap maintains its own consistency
-- **scan matching**: A new scan is coming, first use CSM (correlative scan matching) to give an initial pose, and then use Ceres Solver for fine optimization
-- **loop closure detection**: When the robot returns to the previously explored area, loop closure is detected through brute force search matching to eliminate accumulated errors.
+- **Submaps**: Scan data are inserted in segments into local submaps, and each submap maintains its own consistency
+- **Scan matching**: When a new scan arrives, CSM (correlative scan matching) first provides an initial pose, and the Ceres Solver then refines it
+- **Loop closure detection**: When the robot returns to a previously explored area, loop closures are detected by brute-force search matching, which removes the accumulated error
 
 ✅ Supports real-time 2D/3D mapping
-✅ Excellent effects for large-scale indoor scenes
-✅ ROS 2 has perfect support (`cartographer_ros`)
+✅ Works very well in large-scale indoor scenes
+✅ Well supported in ROS 2 (`cartographer_ros`)
 
 <div align="center">
-  <img src="/images/robotics_navigation/The-workflow-of-the-Google-Cartographer.webp" width="65%" alt="Cartographer map construction flow chart" />
-<figcaption>Figure: Cartographer map construction flow chart</figcaption>
+  <img src="/images/robotics_navigation/The-workflow-of-the-Google-Cartographer.webp" width="65%" alt="Cartographer mapping pipeline" />
+<figcaption>Figure: Cartographer mapping pipeline</figcaption>
 </div>
 
 ### GMapping
@@ -653,11 +653,11 @@ Google's open source LiDAR SLAM system supports 2D and 3D mapping. Core idea:
 
 [Project home page](https://github.com/ros-perception/slam_gmapping)
 
-2D LiDAR SLAM based on particle filtering, each particle maintains an independent grid map and pose estimate. Using **Rao-Blackwellized particle filtering**, the SLAM problem is decomposed into conditionally independent localization and mapping parts.
+A 2D LiDAR SLAM method based on particle filtering, in which each particle maintains its own grid map and pose estimate. It uses a **Rao-Blackwellized particle filter** to decompose the SLAM problem into conditionally independent localization and mapping parts.
 
 ✅ Simple to implement, suitable for small indoor scenes
 ✅ Good real-time performance
-❌ Large scenes require large particle numbers and high memory overhead
+❌ Large scenes need many particles and a lot of memory
 ❌ Does not support 3D mapping
 
 <div align="center">
@@ -669,15 +669,15 @@ Google's open source LiDAR SLAM system supports 2D and 3D mapping. Core idea:
 ### LOAM
 {: id="loam"}
 
-Ji Zhang et al. proposed it in 2014, which is a milestone work in 3D LiDAR SLAM. Core idea:
+Proposed by Ji Zhang et al. in 2014, LOAM is a milestone in 3D LiDAR SLAM. Core ideas:
 
-- Extract **edge line feature** (Edge) and **plane feature** (Planar) from point cloud
-- Use these two types of features to perform **scan matching** and estimate inter-frame poses
-- Separate two threads, high-frequency odometry (Odometry) and low-frequency mapping (Mapping), to run in parallel.
+- Extract **edge features** and **planar features** from the point cloud
+- Use these two types of features for **scan matching** to estimate the pose between frames
+- Run two threads in parallel: high-rate odometry and low-rate mapping
 
 <div align="center">
-  <img src="/images/robotics_navigation/LOAM.webp" width="65%" alt="LOAM software system" />
-<figcaption>Figure: LOAM software system</figcaption>
+  <img src="/images/robotics_navigation/LOAM.webp" width="65%" alt="The LOAM software system" />
+<figcaption>Figure: The LOAM software system</figcaption>
 </div>
 
 [Author project homepage](https://leijiezhang001.github.io/LOAM/)
@@ -688,11 +688,11 @@ Ji Zhang et al. proposed it in 2014, which is a milestone work in 3D LiDAR SLAM.
 
 [Project homepage](https://github.com/RobustFieldAutonomyLab/LeGO-LOAM)
 
-A lightweight version of LOAM, specially optimized for **ground mobile robot**. Using ground segmentation, only features extracted from ground points and non-ground points are used, which greatly reduces the amount of calculation and can run in real time on embedded platforms (such as Jetson).
+A lightweight version of LOAM optimized specifically for **ground mobile robots**. It uses ground segmentation and extracts features separately from ground and non-ground points, which greatly reduces computation and allows real-time operation on embedded platforms (such as Jetson).
 
 <div align="center">
-  <img src="/images/robotics_navigation/LeGO-LOAM.webp" width="65%" alt="LeGO-LOAM system" />
-<figcaption>Figure: LeGO-LOAM system</figcaption>
+  <img src="/images/robotics_navigation/LeGO-LOAM.webp" width="65%" alt="The LeGO-LOAM system" />
+<figcaption>Figure: The LeGO-LOAM system</figcaption>
 </div>
 
 ### LIO-SAM
@@ -700,11 +700,11 @@ A lightweight version of LOAM, specially optimized for **ground mobile robot**. 
 
 [Project homepage](https://github.com/TixiaoShan/LIO-SAM)
 
-**tightly couples** laser inertial odometry, and jointly optimizes LiDAR and IMU data under the **factor graph** framework. Point cloud deskewing and initial pose estimation are provided through IMU pre-integration, and then laser matching is used for correction. The accuracy and robustness are better than the loosely coupled scheme.
+**Tightly coupled** LiDAR-inertial odometry that jointly optimizes LiDAR and IMU data in a **factor graph** framework. IMU pre-integration provides point cloud deskewing and an initial pose estimate, and LiDAR matching then corrects it. Accuracy and robustness are better than loosely coupled schemes.
 
 <div align="center">
-  <img src="/images/robotics_navigation/LIO-SAM.webp" width="65%" alt="LIO-SAM system" />
-<figcaption>Figure: LIO-SAM system</figcaption>
+  <img src="/images/robotics_navigation/LIO-SAM.webp" width="65%" alt="The LIO-SAM system" />
+<figcaption>Figure: The LIO-SAM system</figcaption>
 </div>
 
 **LIO-SAM tightly coupled architecture** (IMU pre-integration + LiDAR factor graph):
@@ -712,27 +712,27 @@ A lightweight version of LOAM, specially optimized for **ground mobile robot**. 
 ```mermaid
 flowchart LR
     subgraph Input["Input data"]
-        IMU2["IMU\nhigh frequency ~200 Hz"]
+        IMU2["IMU\nHigh rate, ~200 Hz"]
         LID2["3D LiDAR\n10–20 Hz"]
-        GPS2["GPS(optional)\nglobal constraints"]
+        GPS2["GPS (optional)\nGlobal constraints"]
     end
 
-    subgraph Frontend2["front end"]
-        PREINT["IMU pre-integration\nInitial value of attitude between frames\nPoint cloud deskewing"]
-        FEAT["Feature extraction\nedge line feature\nplanar features"]
-        SCAN["scan match\nFeature points→map point\nLM Optimize"]
+    subgraph Frontend2["Front-end"]
+        PREINT["IMU pre-integration\nInter-frame pose initial value\nPoint cloud deskewing"]
+        FEAT["Feature extraction\nEdge features\nPlanar features"]
+        SCAN["Scan matching\nFeature points → map points\nLM optimization"]
     end
 
-    subgraph Backend2["backend(GTSAM factor graph)"]
-        FG["factor graph"]
-        IMUFac["IMU preintegration factor"]
+    subgraph Backend2["Back-end (GTSAM factor graph)"]
+        FG["Factor graph"]
+        IMUFac["IMU pre-integration factor"]
         LIDFac["LiDAR odometry factor"]
         GPSFac["GPS factors (optional)"]
-        LOOP2["loop closure detection factor\nKd-tree Search"]
+        LOOP2["Loop closure factor\nKd-tree search"]
         OPT2["iSAM2 incremental optimization"]
     end
 
-    OUT2["Optimized trajectory\n+ Global point cloud map"]
+    OUT2["Optimized trajectory\n+ global point cloud map"]
 
     IMU2 --> PREINT
     LID2 --> FEAT
@@ -752,53 +752,53 @@ flowchart LR
 ## 4.4 Visual SLAM
 {: id="44-视觉-slam"}
 
-Visual SLAM uses cameras instead of LiDAR, which is cheaper but more sensitive to light.
+Visual SLAM uses cameras instead of LiDAR. It is cheaper but more sensitive to lighting.
 
 ### ORB-SLAM3
 {: id="orb-slam3"}
 
-Currently one of the most mature visual SLAM systems, supporting **monocular / stereo / RGB-D / fisheye camera + IMU**.
+One of the most mature visual SLAM systems today, supporting **monocular / stereo / RGB-D / fisheye cameras + IMU**.
 
 [Project homepage](https://github.com/UZ-SLAMLab/ORB_SLAM3)
 
-**key technology**:
-- Feature extraction: **ORB (Oriented FAST and Rotated BRIEF)** descriptor, fast and rotation-invariant
-- Tracking: The current frame matches the map point, and PnP is used to find the pose.
-- Local mapping: maintain a local map and perform Bundle Adjustment optimization
-- loop closure detection: Appearance similarity detection based on **bag of words model (Bag of Words, BoW)**
+**Key techniques**:
+- Feature extraction: **ORB (Oriented FAST and Rotated BRIEF)** descriptors, which are fast and rotation-invariant
+- Tracking: match the current frame against map points and solve for the pose with PnP
+- Local mapping: maintain a local map and optimize it with Bundle Adjustment
+- Loop closure detection: appearance-similarity detection based on a **Bag of Words (BoW)** model
 
 **ORB-SLAM3 three-thread architecture**:
 
 ```mermaid
 flowchart TB
-    CAM["camera input\n(Monocular/Stereo/RGB-D/fish eye)"]
+    CAM["Camera input\n(monocular / stereo / RGB-D / fisheye)"]
 
-    subgraph T1["thread①: Tracking(tracking, real-time)"]
-        ORB_EXT["ORB Feature extraction"]
-        POSE_EST["pose estimation\nMap point matching→PnP\nConstant speed model initial value"]
+    subgraph T1["Thread 1: Tracking (real-time)"]
+        ORB_EXT["ORB feature extraction"]
+        POSE_EST["Pose estimation\nMap point matching → PnP\nConstant-velocity model as initial value"]
         TRACK_ST{"Tracking successful?"}
-        RELOC["Relocalization\nBoW Retrieve candidate frames\nPnP + RANSAC"]
+        RELOC["Relocalization\nBoW retrieves candidate frames\nPnP + RANSAC"]
     end
 
-    subgraph T2["thread②: Local Mapping(Local mapping, slightly slower)"]
+    subgraph T2["Thread 2: Local Mapping (somewhat slower)"]
         KF_INSERT["Keyframe insertion"]
-        MAP_PT["Map point triangulation\nNew map point creation"]
-        LOCAL_BA["local Bundle Adjustment\nCovisible keyframes + Joint optimization of map points"]
-        KF_CULL["Keyframe culling\n90% Map points are observed in other frames → Remove redundancy KF"]
+        MAP_PT["Map point triangulation\nCreate new map points"]
+        LOCAL_BA["Local Bundle Adjustment\nCovisible keyframes + joint optimization of map points"]
+        KF_CULL["Keyframe culling\n90% of map points seen in other frames → remove redundant KF"]
     end
 
-    subgraph T3["thread③: Loop Closing(loop closure, slower)"]
-        BOW_DETECT["BoW  loop closure detection \nSimilar frame candidates"]
-        GEOM_VERIFY["Geometric consistency verification\nEssential matrix verification"]
-        LOOP_FUSE["loop closure fusion\nMap point merge"]
-        GLOBAL_BA["Global Bundle Adjustment\ng2o / Graph optimization"]
+    subgraph T3["Thread 3: Loop Closing (slower)"]
+        BOW_DETECT["BoW loop closure detection\nCandidate similar frames"]
+        GEOM_VERIFY["Geometric consistency check\nEssential matrix verification"]
+        LOOP_FUSE["Loop closure fusion\nMerge map points"]
+        GLOBAL_BA["Global Bundle Adjustment\ng2o / graph optimization"]
     end
 
     CAM --> ORB_EXT
     ORB_EXT --> POSE_EST
     POSE_EST --> TRACK_ST
     TRACK_ST -->|"No"| RELOC
-    TRACK_ST -->|"Yes, and the keyframe conditions are met"| KF_INSERT
+    TRACK_ST -->|"Yes, and keyframe conditions are met"| KF_INSERT
     KF_INSERT --> MAP_PT
     MAP_PT --> LOCAL_BA
     LOCAL_BA --> KF_CULL
@@ -808,30 +808,30 @@ flowchart TB
     LOOP_FUSE --> GLOBAL_BA
 ```
 
-**keyframe selection strategy**: ORB-SLAM3 does not insert keyframes in every frame, but is triggered according to the following conditions: ① The time from the previous keyframe exceeds the threshold; ② The number of map points that can be observed in the current frame drops below the threshold (tracking becomes weak); ③ There are not too many keyframes to be processed in the local map (to avoid backlog). This strategy ensures that keyframes are evenly distributed in space and time, avoiding redundancy.
+**Keyframe selection strategy**: ORB-SLAM3 does not insert a keyframe at every frame. A keyframe is triggered by the following conditions: (1) the time since the previous keyframe exceeds a threshold; (2) the number of map points observed in the current frame drops below a threshold (tracking is getting weak); (3) the local map does not have too many keyframes waiting to be processed (to avoid a backlog). This strategy keeps keyframes evenly distributed in space and time and avoids redundancy.
 
-**Map point management**: Each map point records which key frames it was observed in, and the ORB descriptor in each frame (the average is taken as the representative descriptor). Map points are divided into **local map point** (seen in recent key frames) and **global map point** (complete history). During tracking, only local map points are used for matching (fast), and during BA optimization, only Covisible keyframess are optimized (local BA).
+**Map point management**: Each map point records which keyframes observed it and the ORB descriptor in each of those frames (the mean serves as the representative descriptor). Map points are divided into **local map points** (seen in recent keyframes) and **global map points** (the full history). During tracking, only local map points are used for matching (fast), and during BA only covisible keyframes are optimized (local BA).
 
-**Relocation after loss of tracking**: When continuous frame tracking fails, the system enters **relocation mode**: ① Use the BoW vector of the current frame to retrieve similar frames in the key frame database; ② Use PnP+RANSAC to verify geometric consistency for candidate frames; ③ After finding the matching frame, restore the pose and reinitialize tracking. BoW retrieval is extremely fast (O(1) magnitude) and can be completed within milliseconds.
+**Relocalization after tracking loss**: When tracking fails over consecutive frames, the system enters **relocalization mode**: (1) use the current frame's BoW vector to retrieve similar frames from the keyframe database; (2) verify geometric consistency of the candidate frames with PnP + RANSAC; (3) once a matching frame is found, recover the pose and reinitialize tracking. BoW retrieval is extremely fast (O(1) order) and completes within milliseconds.
 
-✅ High accuracy and supports multiple camera types
-✅ Strong closed-loop detection capabilities in large-scale scenarios
-❌ Pure vision can easily lose tracking in low light/fast motion
+✅ High accuracy, and supports multiple camera types
+✅ Strong loop closure detection in large-scale scenes
+❌ Pure vision easily loses tracking in low light or fast motion
 
 ### VINS-Mono / VINS-Fusion
 {: id="vins-mono--vins-fusion"}
 
 [VINS-Mono](https://github.com/HKUST-Aerial-Robotics/VINS-Mono) | [VINS-Fusion](https://github.com/HKUST-Aerial-Robotics/VINS-Fusion)
 
-The **visual-inertial SLAM** system is open sourced by the Hong Kong University of Science and Technology. The camera and IMU are tightly coupled, and the pose is jointly estimated through **nonlinear optimization (sliding window BA)**. VINS-Fusion further supports stereo and GPS fusion and is a common solution in the fields of autonomous driving and drones.
+A **visual-inertial SLAM** system open-sourced by the Hong Kong University of Science and Technology. It tightly couples the camera and the IMU and estimates the pose jointly through **nonlinear optimization (sliding-window BA)**. VINS-Fusion further supports stereo and GPS fusion, and is a common solution in autonomous driving and drones.
 
-✅ Tight coupling, high precision
-✅ Better robustness to camera pure rotation and weak texture scenes
-✅ Support online extrinsic parameters calibration
+✅ Tightly coupled, high precision
+✅ More robust to pure camera rotation and weakly textured scenes
+✅ Supports online extrinsic calibration
 
 <div align="center">
-  <img src="/images/robotics_navigation/vins_pipeline.webp" width="65%" alt="Visual Inertial System (VINS) with Stereo Vision" />
-<figcaption>Figure: Visual Inertial System (VINS) with Stereo Vision</figcaption>
+  <img src="/images/robotics_navigation/vins_pipeline.webp" width="65%" alt="Visual-inertial system (VINS) with stereo vision" />
+<figcaption>Figure: Visual-inertial system (VINS) with stereo vision</figcaption>
 </div>
 
 
@@ -840,16 +840,16 @@ The **visual-inertial SLAM** system is open sourced by the Hong Kong University 
 
 [Project homepage](https://github.com/JakobEngel/dso)
 
- **direct method** A representative work that directly minimizes the grayscale of image pixels without extracting feature points. **Photometric Error** .
+A representative **direct method**, which minimizes the **photometric error** of image pixel intensities directly, without extracting feature points.
 
-Comparison with **feature method** (ORB-SLAM3):
+Comparison with **feature-based methods** (ORB-SLAM3):
 
-| Comparison dimension | Feature method (ORB-SLAM3) | Direct method (DSO) |
+| Dimension | Feature-based method (ORB-SLAM3) | Direct method (DSO) |
 |---------|---------------|-----------|
-| depends on texture | requires corner features | arbitrary image gradient |
-| Weak texture scene | ❌ Easy to fail | ✅ Relatively better |
-| motion blur | ❌ Difficulty in feature extraction | ❌ Also degeneracy |
-| Computational cost | Medium | Large |
+| Texture dependence | Requires corner features | Any image gradient |
+| Weakly textured scenes | ❌ Fails easily | ✅ Relatively better |
+| Motion blur | ❌ Feature extraction becomes difficult | ❌ Also degrades |
+| Computational cost | Medium | High |
 | Map density | Sparse point cloud | Semi-dense point cloud |
 
 ### RTAB-Map
@@ -857,162 +857,162 @@ Comparison with **feature method** (ORB-SLAM3):
 
 [Project homepage](https://github.com/introlab/rtabmap)
 
-Open sourced by IntRoLab, it is currently the most widely used **multi-modal graph optimization SLAM** system in the ROS ecosystem. It also supports RGB-D cameras, stereo cameras and 3D LiDAR input, and outputs occupied grid maps and dense point cloud maps.
+Open-sourced by IntRoLab, it is currently the most widely used **multi-modal graph-optimization SLAM** system in the ROS ecosystem. It supports RGB-D cameras, stereo cameras, and 3D LiDAR input, and outputs occupancy grid maps and dense point cloud maps.
 
-**Core design: Appearance-based memory management**
+**Core design: appearance-based memory management**
 
-The most unique feature of RTAB-Map is its **online memory management mechanism (Memory Management)**: The system divides key frames into "Working Memory (WM)" and "Long-Term Memory (LTM)". When the number of nodes in WM exceeds the upper limit, the node that has not been accessed for the longest time is transferred to LTM (similar to memory paging in the operating system). During loop closure detection, only search within WM to ensure real-time performance; after loop closure is detected, relevant nodes are awakened from LTM to participate in optimization. This mechanism enables RTAB-Map to maintain real-time (>1 Hz) operation during large-scale long-term mapping.
+The most distinctive feature of RTAB-Map is its **online memory management mechanism**: the system divides keyframes into "Working Memory (WM)" and "Long-Term Memory (LTM)". When the number of nodes in WM exceeds its limit, the node that has gone unaccessed for the longest time is moved to LTM (similar to memory paging in an operating system). During loop closure detection, only WM is searched, which preserves real-time performance; after a loop closure is detected, the relevant nodes are woken up from LTM to take part in optimization. This mechanism lets RTAB-Map run in real time (>1 Hz) during large-scale, long-term mapping.
 
-**key technology module**:
+**Key technical modules**:
 
-- **Appearance loop closure detection**: Extract SURF/ORB features from key frames based on the Bag of Words model (BoW) and calculate the similarity between frames; when the threshold is exceeded, geometric verification is triggered (PnP + RANSAC)
-- **graph optimization backend**: Use g2o/GTSAM to globally optimize the pose graph to eliminate cumulative drift
-- **multi-sensor front end**:
+- **Appearance-based loop closure detection**: Extract SURF/ORB features from keyframes, compute inter-frame similarity with a Bag of Words (BoW) model, and trigger geometric verification (PnP + RANSAC) when a threshold is exceeded
+- **Graph optimization back-end**: Globally optimize the pose graph with g2o/GTSAM to remove accumulated drift
+- **Multi-sensor front-end**:
   - RGB-D mode: ICP point cloud matching + visual odometry (VO)
-  - Laser Mode: ICP/NDT Scan Match
-  - Stereo mode: Parallax depth estimation + VO
-- **output map**: 2D occupancy grid map (can be used directly in ROS Navigation Stack) + 3D color point cloud
+  - LiDAR mode: ICP/NDT scan matching
+  - Stereo mode: disparity-based depth estimation + VO
+- **Output maps**: 2D occupancy grid map (directly usable in the ROS Navigation Stack) + 3D colored point cloud
 
 ```mermaid
 flowchart LR
-    subgraph Input["input"]
+    subgraph Input["Input"]
         RGBD["RGB-D / Stereo\n/ 3D LiDAR"]
-        IMU2["IMU(optional)"]
+        IMU2["IMU (optional)"]
     end
 
-    subgraph Frontend["Frontend: odometry"]
-        VO["Visual/LiDAR odometry\nICP / VO"]
+    subgraph Frontend["Front-end: odometry"]
+        VO["Visual / LiDAR odometry\nICP / VO"]
     end
 
-    subgraph Memory["memory management"]
-        WM["working memory WM\n(Recently N frame keyframe)"]
-        LTM["long term memory LTM\n(Historical keyframes, sleep)"]
-        WM <-->|"Swap in/Swap out"| LTM
+    subgraph Memory["Memory management"]
+        WM["Working memory (WM)\n(keyframes of the most recent N frames)"]
+        LTM["Long-term memory (LTM)\n(historical keyframes, dormant)"]
+        WM <-->|"Swap in / swap out"| LTM
     end
 
-    subgraph Loop[" loop closure detection "]
-        BOW2["BoW Similarity search\n(only WM (within)"]
-        GEO["Geometry verification\nPnP + RANSAC"]
+    subgraph Loop["Loop closure detection"]
+        BOW2["BoW similarity search\n(within WM only)"]
+        GEO["Geometric verification\nPnP + RANSAC"]
     end
 
-    subgraph Backend["Backend: Graph Optimization"]
-        PG["pose graph\ng2o / GTSAM"]
+    subgraph Backend["Back-end: graph optimization"]
+        PG["Pose graph\ng2o / GTSAM"]
     end
 
-    subgraph Output["Output map"]
+    subgraph Output["Output maps"]
         OCC["2D occupancy grid map"]
-        PC["3D Color point cloud"]
+        PC["3D colored point cloud"]
     end
 
     RGBD --> VO
     IMU2 --> VO
-    VO -->|"new keyframe"| WM
+    VO -->|"New keyframe"| WM
     WM --> BOW2
     BOW2 --> GEO
-    GEO -->|"loop closure constraints"| PG
-    VO -->|"odometry constraints"| PG
+    GEO -->|"Loop closure constraint"| PG
+    VO -->|"Odometry constraint"| PG
     PG --> OCC
     PG --> PC
 ```
 
-✅ Multi-sensor support, RGB-D/stereo/LiDAR can be used in one system
-✅ Output standard occupation grid map and seamlessly connect with ROS Navigation Stack
-✅ Online memory management, suitable for long-term large-scale mapping
-✅ Built-in 3D point cloud map, which can be used for downstream tasks such as crawling and 3D reconstruction
-❌ The default parameters consume high memory for large scenes, and parameters such as `Mem/STMSize` need to be tuned.
-❌ Pure visual mode has reduced reliability in weak texture/low light environments
+✅ Multi-sensor support: RGB-D, stereo, and LiDAR can be used in one system
+✅ Outputs standard occupancy grid maps that plug directly into the ROS Navigation Stack
+✅ Online memory management, suited to long-term, large-scale mapping
+✅ Built-in 3D point cloud maps, usable for downstream tasks such as grasping and 3D reconstruction
+❌ The default parameters use a lot of memory in large scenes, so parameters such as `Mem/STMSize` need tuning
+❌ Reliability drops in pure-vision mode in weakly textured or low-light environments
 
 ### Dense visual mapping
 {: id="稠密视觉建图"}
 
-ORB-SLAM3 and DSO output **sparse/semi-dense point cloud**, which cannot be directly used for downstream tasks such as capture planning and three-dimensional reconstruction. Dense mapping systems output complete three-dimensional surface models at the cost of higher computational effort.
+ORB-SLAM3 and DSO output **sparse / semi-dense point clouds**, which cannot be used directly for downstream tasks such as grasp planning or 3D reconstruction. Dense mapping systems output complete 3D surface models, at the cost of more computation.
 
-#### TSDF Map Representations
+#### TSDF map representation
 {: id="tsdf-地图表示"}
 
-**Truncated Signed Distance Function (TSDF)** is the core map representation of dense mapping. Divide the space into a grid of voxels, with each voxel storing:
+The **Truncated Signed Distance Function (TSDF)** is the core map representation of dense mapping. Space is divided into a voxel grid, and each voxel stores:
 
-- **SDF value**: Signed distance of this voxel to the nearest surface (positive = outside of surface, negative = inside, zero = surface)
-- **Weight**: Confidence of cumulative observations
+- **SDF value**: the signed distance from the voxel to the nearest surface (positive = outside the surface, negative = inside, zero = on the surface)
+- **Weight**: the confidence accumulated over observations
 
 $$\text{TSDF}(v) = \text{clip}\left(\frac{d(v)}{\delta},\ -1,\ 1\right)$$
 
-Here, $\delta$ is the truncation distance, and $d(v)$ is the distance from the voxel center to the nearest surface. After the multi-frame depth map is fused, the triangular mesh is extracted at TSDF=0 through the **Marching Cubes algorithm**, which is the reconstructed three-dimensional surface.
+Here, $\delta$ is the truncation distance, and $d(v)$ is the distance from the voxel center to the nearest surface. After multiple depth frames are fused, the **Marching Cubes algorithm** extracts a triangle mesh at TSDF=0, which is the reconstructed 3D surface.
 
 #### KinectFusion
 {: id="kinectfusion"}
 
-Introduced by Microsoft Research in 2011, KinectFusion was the first system for **real-time dense reconstruction using an RGB-D camera**, running entirely on the GPU.
+Introduced by Microsoft Research in 2011, KinectFusion was the first system for **real-time dense reconstruction with an RGB-D camera**, and it runs entirely on the GPU.
 
-**process**:
+**Pipeline**:
 
 ```mermaid
 flowchart LR
-    RGBD["RGB-D frame"] --> ICP["ICP pose estimation\n(Point-to-plane ICP, GPU)"]
-    ICP --> TSDF_UPD["TSDF voxel update\n(GPU parallel writing)"]
+    RGBD["RGB-D frame"] --> ICP["ICP pose estimation\n(point-to-plane ICP, GPU)"]
+    ICP --> TSDF_UPD["TSDF voxel update\n(parallel GPU writes)"]
     TSDF_UPD --> MC["Marching Cubes\nsurface extraction"]
-    MC --> MESH["triangle mesh"]
+    MC --> MESH["Triangle mesh"]
 ```
 
-- **front-end**: Use **GPU point-to-plane ICP** to estimate camera pose in real time (no feature extraction, directly align the depth map point cloud)
-- **Mapping**: Project the depth map along the light direction and update the TSDF voxels (GPU parallel, extremely fast)
-- **Limitations**: The map resolution is fixed, and the scene size is limited by GPU memory (usually within 3m³); there is no loop closure detection, and long-term drift is obvious
+- **Front-end**: Estimates the camera pose in real time with **GPU point-to-plane ICP** (no feature extraction; it aligns the depth-map point clouds directly)
+- **Mapping**: Projects the depth map along the ray direction and updates the TSDF voxels (GPU-parallel, extremely fast)
+- **Limitations**: The map resolution is fixed, and the scene size is limited by GPU memory (usually within 3m³). There is no loop closure detection, so long-term drift is noticeable
 
 #### ElasticFusion
 {: id="elasticfusion"}
 
-ICCV 2015, based on KinectFusion, adds the **elastic deformation (Elastic Deformation)** mechanism, uses **Surfel (directed surface element)** to replace the voxel storage map, and supports non-rigid global optimization:
+ICCV 2015. Built on KinectFusion, it adds an **elastic deformation** mechanism, replaces the voxel map with **surfels (oriented surface elements)**, and supports non-rigid global optimization:
 
-- **Surfel map**: Each Surfel stores location, normal vector, color, radius, and confidence
-- **Elastic loop closure**: After detecting loop closure, instead of rigidly translating the map, non-rigid elastic deformation is applied to the map to smoothly align historical frames.
-- **effect**: suitable for medium-scale indoor scenes (single room), the reconstruction quality is much better than KinectFusion
+- **Surfel map**: Each surfel stores position, normal vector, color, radius, and confidence
+- **Elastic loop closure**: After a loop closure is detected, instead of rigidly translating the map, a non-rigid elastic deformation is applied so that historical frames align smoothly
+- **Effect**: Suited to medium-scale indoor scenes (a single room), with much better reconstruction quality than KinectFusion
 
 #### Dense visual mapping comparison
 {: id="稠密视觉建图对比"}
 
-| system | map representation | loop closure | scene scale | applicable scene |
+| System | Map representation | Loop closure | Scene scale | Suitable scenes |
 |------|---------|------|---------|---------|
-| KinectFusion | TSDF voxel | ❌ | Small (3m³) | Desktop-level reconstruction |
-| ElasticFusion | Surfel | ✅ (Elastic) | Medium (Single Room) | Indoor Fine Reconstruction |
-| RTAB-Map | Point Cloud + Occupation Raster | ✅ | Large (Multiple Rooms) | Navigation + Coarse Reconstruction |
-| ORB-SLAM3 | Sparse point cloud | ✅ | Large | Positioned mainly |
+| KinectFusion | TSDF voxels | ❌ | Small (3m³) | Desktop-scale reconstruction |
+| ElasticFusion | Surfels | ✅ (elastic) | Medium (single room) | Fine indoor reconstruction |
+| RTAB-Map | Point cloud + occupancy grid | ✅ | Large (multiple rooms) | Navigation + coarse reconstruction |
+| ORB-SLAM3 | Sparse point cloud | ✅ | Large | Mainly for localization |
 
 ### Neural implicit SLAM
 {: id="神经隐式-slam"}
 
-Since 2021, NeRF and 3D Gaussian Splatting introduced SLAM, bringing a new map representation paradigm - instead of using discrete voxels or point clouds, **neural networks are used to implicitly encode the geometry and appearance of the** scene.
+Since 2021, NeRF and 3D Gaussian Splatting have entered SLAM, bringing a new paradigm for map representation: instead of discrete voxels or point clouds, **neural networks implicitly encode the scene's geometry and appearance**.
 
-#### NeRF Basics Review
+#### NeRF basics review
 {: id="nerf-基础回顾"}
 
-**Neural Radiation Field (NeRF)** Use an MLP to map spatial coordinates and viewing direction into color and volume density:
+A **Neural Radiance Field (NeRF)** uses an MLP to map spatial coordinates and viewing direction to color and volume density:
 
 $$(\mathbf{c}, \sigma) = F_\theta(\mathbf{x}, \mathbf{d})$$
 
-The pixel color is obtained through volume rendering (Volume Rendering) integration, the photometric loss is calculated by comparing with the real image, and the network weight is optimized by backpropagation. The optimized network serves as an "implicit map" of the scene, allowing new views to be rendered from any perspective.
+Pixel colors are obtained by volume rendering integration, the photometric loss is computed against the real image, and the network weights are optimized by backpropagation. The optimized network serves as an "implicit map" of the scene from which new views can be rendered at any viewpoint.
 
 #### IMAP(2021)
 {: id="imap2021"}
 
-The first system to use NeRF for real-time SLAM. Simultaneously optimize camera pose and scene representation with a single MLP:
+The first system to use NeRF for real-time SLAM. A single MLP jointly optimizes the camera pose and the scene representation:
 
-- **tracking**: fixed network weights, optimizing the current frame pose (minimizing rendering error)
-- **Mapping**: Fixed pose, optimized network weights (update implicit map with historical keyframes)
-- **Limitations**: The capacity of a single MLP is limited, and details of large scenes are lost; the speed is slow and cannot be real-time
+- **Tracking**: Fix the network weights and optimize the current frame's pose (minimizing rendering error)
+- **Mapping**: Fix the poses and optimize the network weights (updating the implicit map from historical keyframes)
+- **Limitations**: A single MLP has limited capacity and loses detail in large scenes; it is also slow and cannot run in real time
 
 #### NICE-SLAM(2022)
 {: id="nice-slam2022"}
 
-Introduce **Multi-Resolution Feature Grid** to replace a single MLP and solve the capacity bottleneck of iMAP:
+Introduces a **multi-resolution feature grid** in place of a single MLP, removing iMAP's capacity bottleneck:
 
-- Three layers of feature grids: coarse, medium and fine, respectively capture geometric information at different scales
-- Local update: only update the currently observed grid area to avoid global forgetting
-- Faster than iMAP, suitable for medium-sized indoor scenes (TUM, Replica datasets)
+- Three feature grids (coarse, medium, and fine) capture geometry at different scales
+- Local updates: only the currently observed grid region is updated, which avoids global forgetting
+- Faster than iMAP, and suited to medium-sized indoor scenes (TUM and Replica datasets)
 
 #### 3D Gaussian Splatting SLAM(2023-2024)
 {: id="3d-gaussian-splatting-slam2023-2024"}
 
-**3DGS-SLAM** Use **three-dimensional Gaussian ellipsoid (3D Gaussian)** to replace NeRF's volume density field, and the rendering speed is increased by more than 100 times (real-time rendering >30 fps), spawned a number of real-time SLAM systems:
+**3DGS-SLAM** uses **3D Gaussian ellipsoids** in place of NeRF's volume density field. Rendering is more than 100 times faster (real-time rendering at >30 fps), and it has spawned a number of real-time SLAM systems:
 
 | System | Map representation | Real-time | Features |
 |------|---------|-------|------|
@@ -1020,59 +1020,59 @@ Introduce **Multi-Resolution Feature Grid** to replace a single MLP and solve th
 | **SplaTAM** (2024) | 3D Gaussian | ✅ | RGB-D, explicit density control |
 | **Gaussian-SLAM** | 3D Gaussian + submap | ✅ | Large scene submap stitching |
 
-Comparison between **NeRF/3DGS SLAM and traditional SLAM**:
+Comparison of **NeRF/3DGS SLAM and traditional SLAM**:
 
-| Dimensions | Traditional SLAM (ORB-SLAM3) | NeRF-SLAM | 3DGS-SLAM |
+| Dimension | Traditional SLAM (ORB-SLAM3) | NeRF-SLAM | 3DGS-SLAM |
 |------|----------------------|-----------|-----------|
-| Map representation | Sparse point cloud | Implicit MLP | 3D Gaussian ellipsoid |
-| New perspective rendering | ❌ | ✅ (slow) | ✅ (real time) |
+| Map representation | Sparse point cloud | Implicit MLP | 3D Gaussian ellipsoids |
+| Novel-view rendering | ❌ | ✅ (slow) | ✅ (real time) |
 | Localization accuracy | High | Medium | Medium |
-| Mapping speed | Real-time | Slow (offline) | Near real-time |
+| Mapping speed | Real time | Slow (offline) | Near real time |
 | Memory | Low | Medium | High (large number of Gaussians) |
-| Downstream tasks | Navigation | Vision generation, simulation | Vision generation, simulation |
+| Downstream tasks | Navigation | View synthesis, simulation | View synthesis, simulation |
 
-> **Outlook**: Neural implicit SLAM currently lags behind traditional SLAM in terms of localization accuracy and real-time performance, but the high-quality renderable map it outputs has unique value for the visual perception and simulation data generation of embodied AI (embodied AI), and is a current research hotspot.
+> **Outlook**: Neural implicit SLAM currently lags behind traditional SLAM in localization accuracy and real-time performance. However, the high-quality, renderable maps it produces have unique value for visual perception and simulation data generation in embodied AI, and it is a current research hotspot.
 
 ## 4.5 SLAM backend optimization
 {: id="45-slam-后端优化"}
 
-The SLAM front-end gives an initial estimate of the pose for each frame, but due to noise accumulation, the error will become larger and larger after a long run. The goal of backend optimization is global consistency.
+The SLAM front-end provides an initial pose estimate for each frame, but noise accumulates and the error grows over a long run. The goal of back-end optimization is global consistency.
 
 ### Bundle adjustment
 {: id="bundle-adjustment"}
 
-**Bundle Adjustment (beam adjustment method)** is the core of visual SLAM back-end optimization. The goal is to **simultaneously adjust the camera pose and the position of the three-dimensional map point** so that the **reprojection error of all map points across all camera frames is minimized**.
+**Bundle Adjustment** is the core of visual SLAM back-end optimization. The goal is to **adjust the camera poses and the 3D map point positions simultaneously** so that the **reprojection error of all map points across all camera frames is minimized**.
 
 
 <div align="center">
-  <img src="/images/robotics_navigation/光束平差法.webp" width="65%" alt="Beam adjustment method" />
-<figcaption>Figure: Beam adjustment method</figcaption>
+  <img src="/images/robotics_navigation/光束平差法.webp" width="65%" alt="Bundle adjustment" />
+<figcaption>Figure: Bundle adjustment</figcaption>
 </div>
 
-**Intuitive analogy**: Imagine you have multiple photos of the same scene taken from different angles, and the initial 3D coordinates (with errors) of the landmarks in the scene. BA is to simultaneously fine-tune the camera position/orientation of each photo, as well as the 3D coordinates of each landmark, so that the sum of the deviations between the "projection point of the landmark calculated based on the camera parameters" and the "actually seen feature point position in the photo" is minimized.
+**Intuitive analogy**: Imagine several photos of the same scene taken from different angles, plus initial (noisy) 3D coordinates of the landmarks in the scene. BA simultaneously fine-tunes each photo's camera position and orientation as well as each landmark's 3D coordinates, so that the sum of deviations between the "landmark projections computed from the camera parameters" and the "feature positions actually seen in the photos" is minimized.
 
 $$\min_{\{P_i\}, \{X_j\}} \sum_{i,j} \| u_{ij} - \pi(P_i, X_j) \|^2$$
 
 Here, $P_i$ is the camera pose, $X_j$ is the 3D coordinate of the map point, $u_{ij}$ is the observed image coordinate, and $\pi(\cdot)$ is the projection function.
 
 **Local BA vs. Global BA trade-offs**:
-- **Local BA** (ORB-SLAM3 real-time optimization): Only optimize the latest Covisible keyframess and their observed map points, the computational cost is small, and it can run in real time (millisecond level). Disadvantage: Global drift cannot be eliminated by local BA.
-- **Global BA** (triggered after loop closure): Optimize all key frames and map points of the entire map, with good global consistency. Disadvantages: The amount of calculation is proportional to the map size. Large scenes may take seconds or even minutes. It can only be executed offline or once after loop closure detection is triggered.
+- **Local BA** (ORB-SLAM3's real-time optimization): Optimizes only the latest covisible keyframes and the map points they observe. The computational cost is small and it runs in real time (millisecond level). Drawback: local BA cannot remove global drift.
+- **Global BA** (triggered after a loop closure): Optimizes all keyframes and map points of the entire map, giving good global consistency. Drawback: the computation grows with map size, and large scenes may take seconds or even minutes, so it can only run offline or once after a loop closure is detected.
 
 ### Factor graphs
 {: id="因子图与图优化"}
 
-Model the SLAM problem as a **factor graph**: nodes (variables) represent robot poses and map points, and edges (factors) represent sensor constraints (such as relative poses between adjacent frames, loop closure constraints). The solution process is to find the variable estimate that minimizes the sum of all constrained errors.
+Model the SLAM problem as a **factor graph**: nodes (variables) represent robot poses and map points, and edges (factors) represent sensor constraints (such as relative poses between adjacent frames and loop closure constraints). Solving it means finding the variable estimates that minimize the sum of all constraint errors.
 
 ```mermaid
 graph LR
-    X0((X0)) -->| odometry | X1((X1))
-    X1 -->| odometry | X2((X2))
-    X2 -->| odometry | X3((X3))
-    X3 -->| odometry | X4((X4))
-    X4 -->| loop closure detection | X0
-    X0 -->|GPS| G0["GPSfactor"]
-    X2 -->|LiDAR| L0["laser factor"]
+    X0((X0)) -->|Odometry| X1((X1))
+    X1 -->|Odometry| X2((X2))
+    X2 -->|Odometry| X3((X3))
+    X3 -->|Odometry| X4((X4))
+    X4 -->|Loop closure detection| X0
+    X0 -->|GPS| G0["GPS factor"]
+    X2 -->|LiDAR| L0["LiDAR factor"]
     style X0 fill:#4a9,color:#fff
     style X4 fill:#4a9,color:#fff
     style G0 fill:#fa4,color:#fff
@@ -1082,90 +1082,90 @@ graph LR
 ### Loop closure
 {: id="回环检测"}
 
-The task of loop closure detection: determine whether the robot has returned to the place it has explored before, so as to add loop closure constraints to eliminate accumulated errors. The entire process is divided into two stages: **appearance retrieval** (quick recall of candidate frames) and **geometry verification** (elimination of false recalls).
+The task of loop closure detection is to determine whether the robot has returned to a place it has visited before, so that a loop closure constraint can be added to remove accumulated error. The process has two stages: **appearance retrieval** (quickly recalling candidate frames) and **geometric verification** (eliminating false recalls).
 
 <div align="center">
-  <img src="/images/robotics_navigation/回环检测算法流程.webp" width="65%" alt="loop closure detection two-stage process" />
-<figcaption>Figure: loop closure detection two-stage process</figcaption>
+  <img src="/images/robotics_navigation/回环检测算法流程.webp" width="65%" alt="The two-stage loop closure detection pipeline" />
+<figcaption>Figure: The two-stage loop closure detection pipeline</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/robotics_navigation/回环检测.jpg" width="65%" alt="loop closure detection rendering" />
-<figcaption>Figure: loop closure detection rendering</figcaption>
+  <img src="/images/robotics_navigation/回环检测.jpg" width="65%" alt="Loop closure detection result" />
+<figcaption>Figure: Loop closure detection result</figcaption>
 </div>
 
-#### Stage 1: Appearance retrieval - Bag of Words model
+#### Stage 1: Appearance retrieval with a Bag of Words model
 {: id="阶段一外观检索--词袋模型bag-of-words"}
 
-The most mainstream loop closure retrieval scheme in visual SLAM is implemented by the **DBoW2 / DBoW3** library (the ORB-SLAM series and RTAB-Map are all based on this).
+The most mainstream loop closure retrieval scheme in visual SLAM is implemented by the **DBoW2 / DBoW3** library (the ORB-SLAM series and RTAB-Map are both built on it).
 
-**(1) offline: building a visual dictionary**
+**(1) Offline: build a visual dictionary**
 
-Extract ORB / BRIEF descriptors on a large number of images, and use **k-means clustering** (usually a hierarchical k-ary tree) to quantize the high-dimensional descriptor space into $K$ "visual words". The dictionary is solidified once training is completed and does not need to be updated during runtime.
+Extract ORB / BRIEF descriptors from a large number of images and use **k-means clustering** (usually a hierarchical k-ary tree) to quantize the high-dimensional descriptor space into $K$ "visual words". The dictionary is fixed once training is complete and does not need to be updated at runtime.
 
 ```
-original descriptor space (128dimensional floating point or 256bit binary)
+Original descriptor space (128-dimensional float or 256-bit binary)
         ↓  Hierarchical k-means
-Visual dictionary (tree structure, leaf nodes = visual word)
+Visual dictionary (tree structure, leaf nodes = visual words)
 ```
 
-**(2) Online: Image → BoW Vector**
+**(2) Online: image → BoW vector**
 
-Extract the ORB descriptor for each key frame, and convert each descriptor **quantize** to the nearest visual word, count the word frequency, and weight it to get a sparse vector:
+Extract ORB descriptors for each keyframe, **quantize** each descriptor to its nearest visual word, count the word frequencies, and apply weighting to obtain a sparse vector:
 
 $$
 v_i = \left[ \text{tf-idf}(w_1),\ \text{tf-idf}(w_2),\ \ldots,\ \text{tf-idf}(w_K) \right]$$
 
-Here, TF-IDF weight $= \text{tf}(w, f) \times \log\frac{N}{n_w}$, $N$ is the total number of frames in the database, and $n_w$ is the number of frames containing the word $w$. Common words (such as edge corners) have low weights, and rare words (such as unique textures) have high weights.
+Here, the TF-IDF weight is $= \text{tf}(w, f) \times \log\frac{N}{n_w}$, where $N$ is the total number of frames in the database and $n_w$ is the number of frames containing the word $w$. Common words (such as edges and corners) get low weights, and rare words (such as distinctive textures) get high weights.
 
-**(3) candidate frame retrieval**
+**(3) Candidate frame retrieval**
 
-When a new keyframe arrives, use its BoW vector to compare **cosine similarity** with all frames in the database, and select the Top-K frames as loop closure candidates. Since the vectors are sparse and the dictionary lookup table is $O(1)$, the retrieval speed is extremely fast (on the order of milliseconds).
+When a new keyframe arrives, its BoW vector is compared by **cosine similarity** with all frames in the database, and the Top-K frames are selected as loop closure candidates. Because the vectors are sparse and dictionary lookup is $O(1)$, retrieval is extremely fast (on the order of milliseconds).
 
-> **Key limitations**: BoW is a pure appearance method, similar lighting/scenes will produce **false recalls** (false positive), so it must be geometrically verified.
+> **Key limitation**: BoW is a purely appearance-based method, and similar lighting or scenes produce **false positives**, so its results must be verified geometrically.
 
 ---
 
-#### Phase 2: Geometric consistency verification - RANSAC
+#### Stage 2: Geometric consistency verification with RANSAC
 {: id="阶段二几何一致性验证--ransac"}
 
 For each candidate frame recalled by BoW, verify whether the **3D geometry between the current frame and the candidate frame is self-consistent**.
 
-**(1) feature point matching**
+**(1) Feature point matching**
 
-For the current frame and the candidate frame, do **brute-force matching (Brute-Force Matching)** based on the ORB descriptor, and obtain a batch of corresponding point pairs $\{(p_i, p_i')\}$.
+Between the current frame and the candidate frame, perform **brute-force matching** on the ORB descriptors to obtain a set of corresponding point pairs $\{(p_i, p_i')\}$.
 
-**(2) RANSAC estimated essential matrix / homography matrix**
+**(2) Estimate the essential or homography matrix with RANSAC**
 
-Since matching point pairs contain a large number of **Outlier** (Mismatching caused by occlusion and repeated textures), directly solving with all points will result in wrong geometric relationships. RANSAC’s approach:
+The matched pairs contain many **outliers** (mismatches caused by occlusion and repeated textures), so solving directly with all points yields a wrong geometric relationship. The RANSAC approach:
 
 ```
-Repeat N Times:
-  1. Randomly sample the minimum set of points (the essential matrix requires 5 point, the homography matrix requires 4 points)
-  2. Solve with minimum point set E or H matrix
-  3. Statistically satisfied E/H interior points of (inlier)Quantity
-Return the solution with the largest number of interior points
+Repeat N times:
+  1. Randomly sample a minimal set of points (5 for the essential matrix, 4 for the homography)
+  2. Solve for the E or H matrix from the minimal set
+  3. Count the inliers consistent with E/H
+Return the solution with the most inliers
 ```
 
-**essential matrix $E$** (pure rotation + translation scene, no plane assumption) satisfies the epipolar constraint:
+The **essential matrix $E$** (general rotation + translation, no planar assumption) satisfies the epipolar constraint:
 
 $$p'^T E\, p = 0, \quad E = t^\wedge R$$
 
-Here, $R$ is the rotation matrix, and $t^\wedge$ is the antisymmetric matrix of the translation vector.
+Here, $R$ is the rotation matrix and $t^\wedge$ is the skew-symmetric matrix of the translation vector.
 
-**(3) inlier threshold judgment**
+**(3) Inlier threshold test**
 
-- Number of interior points $\geq$ Threshold (such as 30) → **Confirm loop closure**, calculate the relative pose of the current frame relative to the candidate frame $T_{loop}$, and add it as a constraint to the pose graph
-- Insufficient inliers → **rejects candidate**, no loop closure is generated this time
+- Number of inliers $\geq$ threshold (such as 30) → **loop closure confirmed**: compute the relative pose $T_{loop}$ of the current frame with respect to the candidate frame and add it to the pose graph as a constraint
+- Too few inliers → **candidate rejected**, and no loop closure is produced this time
 
 ```mermaid
 flowchart LR
-    KF["new keyframe"] --> BOW["BoW Search\nTop-K candidate frame"]
-    BOW --> MATCH["ORB descriptor\nBrute force matching"]
+    KF["New keyframe"] --> BOW["BoW search\nTop-K candidate frames"]
+    BOW --> MATCH["ORB descriptor\nbrute-force matching"]
     MATCH --> RANSAC["RANSAC\nestimate E / H"]
     RANSAC --> CHECK{"Inliers ≥ threshold?"}
-    CHECK -->|"Yes"| LOOP["Confirm loop closure\nAdd pose graph constraints"]
-    CHECK -->|"No"| REJECT["reject candidate"]
+    CHECK -->|"Yes"| LOOP["Confirm loop closure\nAdd pose graph constraint"]
+    CHECK -->|"No"| REJECT["Reject candidate"]
     LOOP --> OPT["Trigger global graph optimization\n(g2o / GTSAM)"]
 ```
 
@@ -1174,504 +1174,504 @@ flowchart LR
 #### Loop closure detection for LiDAR SLAM
 {: id="激光-slam-的回环检测"}
 
-LiDAR SLAM has no image and cannot use BoW. The following solutions are commonly used:
+LiDAR SLAM has no images and cannot use BoW. The following approaches are commonly used:
 
-| method | principle | representative system |
+| Method | Principle | Representative system |
 |------|------|----------|
-| **ICP Violent search** | Traverse historical subgraphs, ICP verification matching | Cartographer |
-| **Kd-tree distance search** | GPS/odometry a priori constraint search range, then ICP verification | LIO-SAM |
-| **Scan Context** | Encode point clouds into 2D descriptors (top-view polar histogram), fast retrieval + rotation invariant | SC-LIO-SAM |
+| **ICP brute-force search** | Traverse historical submaps and verify matches with ICP | Cartographer |
+| **Kd-tree distance search** | Restrict the search range with GPS/odometry priors, then verify with ICP | LIO-SAM |
+| **Scan Context** | Encode the point cloud as a 2D descriptor (top-down polar histogram); fast retrieval and rotation invariance | SC-LIO-SAM |
 
-**Scan Context** is the mainstream solution for laser loop closure detection in recent years: project the 3D point cloud onto a top-view polar coordinate grid, record the maximum height value for each grid, and generate a fixed-size 2D matrix as a "point cloud fingerprint". The similarity between two frames is rotationally invariant via column shift search, and the retrieval speed is much faster than frame-by-frame ICP.
+**Scan Context** is the mainstream approach to LiDAR loop closure detection in recent years. It projects the 3D point cloud onto a top-down polar grid, records the maximum height in each cell, and produces a fixed-size 2D matrix as a "fingerprint" of the point cloud. The similarity between two frames is made rotation-invariant by a column-shift search, and retrieval is much faster than frame-by-frame ICP.
 
-### Main backend optimization libraries
+### Main back-end optimization libraries
 {: id="主要后端优化库"}
 
-- **g2o (General Graph Optimization)**: General graph optimization library, used by ORB-SLAM2/3
-- **GTSAM (Georgia Tech Smoothing and Mapping)**: factor graph optimization library, used by LIO-SAM
-- **iSAM2 (Incremental Smoothing and Mapping 2)**: Incremental optimization algorithm in GTSAM, supporting real-time updates without re-optimizing the entire graph each time
+- **g2o (General Graph Optimization)**: a general graph optimization library, used by ORB-SLAM2/3
+- **GTSAM (Georgia Tech Smoothing and Mapping)**: a factor graph optimization library, used by LIO-SAM
+- **iSAM2 (Incremental Smoothing and Mapping 2)**: the incremental optimization algorithm in GTSAM, which supports real-time updates without re-optimizing the whole graph each time
 
-## 4.6 Laser vs. Visual SLAM comparison
+## 4.6 LiDAR vs. visual SLAM comparison
 {: id="46-激光-vs-视觉-slam-对比"}
 
-| Comparison dimension | LiDAR SLAM | Visual SLAM |
+| Dimension | LiDAR SLAM | Visual SLAM |
 |---------|---------|---------|
 | Sensor cost | High (hundreds to tens of thousands of yuan) | Low |
-| Accuracy | High (cm level) | Medium (depends on the scene) |
-| Light dependence | No | Yes (difficulty in low light/overexposure) |
-| Map type | Point cloud/occupied raster | Sparse point cloud/semi-dense |
-| Dynamic obstacle handling | Normal | Difficult |
-| Corridor degeneracy problem | Easy (lack of geometric constraints) | Texture dependent |
-| represents the algorithm | Cartographer, LIO-SAM | ORB-SLAM3, VINS-Mono |
-| Typical applications | Indoor robot, autonomous driving | Drone, handheld device |
+| Accuracy | High (cm level) | Medium (scene-dependent) |
+| Lighting dependence | None | Yes (struggles in low light / overexposure) |
+| Map type | Point cloud / occupancy grid | Sparse / semi-dense point cloud |
+| Dynamic obstacle handling | Average | Difficult |
+| Corridor degeneracy | Prone (lacks geometric constraints) | Depends on texture |
+| Representative algorithms | Cartographer, LIO-SAM | ORB-SLAM3, VINS-Mono |
+| Typical applications | Indoor robots, autonomous driving | Drones, handheld devices |
 
-> **RTAB-Map** spans two columns: it supports laser and visual dual-mode input, and its accuracy and applicable scenarios are between the two. It is the most comprehensive out-of-the-box solution in the ROS ecosystem.
+> **RTAB-Map** spans both columns: it accepts both LiDAR and visual input, and its accuracy and suitable scenarios fall between the two. It is the most comprehensive out-of-the-box solution in the ROS ecosystem.
 
 ## 4.7 SLAM degeneracy and deployment
 {: id="47-slam-退化与部署挑战"}
 
-SLAM systems often perform well in laboratory environments, but encounter various degeneracy scenarios in real deployments, resulting in localization failures or map errors. Understanding these scenarios and selecting algorithms accordingly is the key to engineering.
+SLAM systems often perform well in laboratory environments but meet various degenerate scenarios in real deployments, causing localization failures or map errors. Understanding these scenarios and choosing algorithms accordingly is the key to engineering practice.
 
 <div align="center">
-  <img src="/images/robotics_navigation/棘手场景.webp" width="65%" alt="Troublesome scene" />
-<figcaption>Figure: Troublesome scene</figcaption>
+  <img src="/images/robotics_navigation/棘手场景.webp" width="65%" alt="Challenging scenes" />
+<figcaption>Figure: Challenging scenes</figcaption>
 </div>
 
 ### 4.7.1 Geometric degeneracy
 {: id="471-几何退化"}
 
-**Corridor degeneracy** (Corridor Degeneracy): LiDAR SLAM faces severe challenges in long corridors. The walls on both sides of the corridor are highly symmetrical, and the characteristics of the laser point cloud along the corridor direction are almost the same, resulting in the displacement **along the corridor direction being unable to be constrained** (the normal direction constraint of scan matching is missing). The performance is as follows: drifting along the corridor and good horizontal localization.
+**Corridor degeneracy**: LiDAR SLAM faces severe challenges in long corridors. The walls on both sides are highly symmetrical, and the laser point cloud looks almost identical along the corridor direction, so displacement **along the corridor cannot be constrained** (scan matching lacks constraints along that direction). The symptom is drift along the corridor while lateral localization remains good.
 
 **Countermeasures**:
-- Combined with IMU or wheel odometry to constrain movement along corridors
-- Supplementary constraints with ceiling and floor structures using 3D LiDAR
-- LIO-SAM's IMU pre-integration provides constraints in the degeneracy direction
+- Combine with an IMU or wheel odometry to constrain motion along the corridor
+- Use 3D LiDAR to add constraints from ceiling and floor structures
+- LIO-SAM's IMU pre-integration provides constraints in the degenerate direction
 
-**Open outdoor degeneracy**: In environments that lack three-dimensional structures such as large parking lots and fields, the laser point cloud is sparse and NDT/ICP convergence is difficult. **Countermeasure**: Fusion of GPS global constraints.
+**Open outdoor degeneracy**: In environments lacking 3D structure, such as large parking lots and fields, the laser point cloud is sparse and NDT/ICP struggle to converge. **Countermeasure**: fuse global GPS constraints.
 
 ### 4.7.2 Dynamic environment challenges
 {: id="472-动态环境挑战"}
 
-SLAM assumes that the environment is static, but in reality pedestrians, vehicles, and moving furniture will cause dynamic interference:
+SLAM assumes a static environment, but in reality pedestrians, vehicles, and moving furniture cause dynamic interference:
 
-- **Fake map point**: Dynamic obstacles are incorrectly built into the static map
-- **tracking failure**: A large number of dynamic objects cause scan matching failure
-- **loop closure false detection**: BoW recalls wrong keyframes after scene layout changes
+- **Ghost map points**: Dynamic obstacles are wrongly built into the static map
+- **Tracking failure**: A large number of dynamic objects makes scan matching fail
+- **False loop closures**: BoW recalls the wrong keyframes after the scene layout changes
 
 **Countermeasures**:
-- Point cloud dynamic object filtering (based on motion consistency detection)
-- Semantic segmentation filters point clouds for dynamic categories (pedestrians, vehicles)
-- Using Motion Segmentation in Visual SLAM
+- Dynamic object filtering on point clouds (based on motion consistency detection)
+- Semantic segmentation to filter dynamic categories (pedestrians, vehicles) from point clouds
+- Motion segmentation in visual SLAM
 
 ### 4.7.3 Lighting and weather
 {: id="473-光照与天气"}
 
-Visual SLAM is extremely sensitive to light:
+Visual SLAM is extremely sensitive to lighting:
 
-| Scenario | Impact on eigenmethod | Impact on direct method |
+| Scenario | Impact on feature-based methods | Impact on direct methods |
 |------|------------|------------|
-| Low light (night) | ORB feature extraction failed | Photometric error calculation is unstable |
-| Overexposure (backlight) | Feature descriptor is unstable | The gradient in the saturated area is zero |
-| Fast motion | Motion blur, feature blur | Optical flow assumption violation |
-| Rain/fog | Features obscured | Visibility reduced |
+| Low light (night) | ORB feature extraction fails | Photometric error computation becomes unstable |
+| Overexposure (backlight) | Feature descriptors become unstable | Gradients in saturated regions are zero |
+| Fast motion | Motion blur, blurred features | Violates the brightness-constancy assumption |
+| Rain/fog | Features are obscured | Reduced visibility |
 
 **Countermeasures**:
-- Visual-Inertial SLAM (VINS-Mono/ORB-SLAM3 IMU mode): IMU maintains short-term localization when feature tracking fails
-- HDR camera or active lighting (structured light) adapts to lighting changes
-- Event Camera is immune to motion blur and is a current research hotspot
+- Visual-inertial SLAM (VINS-Mono / ORB-SLAM3 IMU mode): the IMU maintains short-term localization when feature tracking fails
+- HDR cameras or active illumination (structured light) to adapt to lighting changes
+- Event cameras are immune to motion blur and are a current research hotspot
 
 ### 4.7.4 Long-term map maintenance
 {: id="474-长期地图维护与场景变化"}
 
-Long-term deployment faces the problem of map aging: seasonal changes (falling leaves, snow), renovations, furniture movement, etc. will make the original map invalid.
+Long-term deployment faces map aging: seasonal changes (falling leaves, snow), renovations, and moved furniture can invalidate the original map.
 
 **Mitigation strategies**:
-- **Incremental map update**: When the sensor observation is inconsistent with the existing map beyond the threshold, a local map update is triggered
-- **Multiple map management** (ORB-SLAM3 support): Create new submaps when scene switching or tracking is lost, merge after recovery
-- **Semantic Map**: Replace original points with semantic labels (door/wall/column), semantic features are more stable than geometric features
+- **Incremental map update**: When sensor observations disagree with the existing map beyond a threshold, trigger a local map update
+- **Multi-map management** (supported by ORB-SLAM3): Create a new submap when the scene changes or tracking is lost, and merge after recovery
+- **Semantic maps**: Replace raw points with semantic labels (door / wall / column); semantic features are more stable than geometric ones
 
 ### 4.7.5 Embedded compute limits
 {: id="475-嵌入式平台计算约束"}
 
-Robots are often equipped with embedded platforms (Jetson Nano / Xavier / Orin) with limited computing power, and a complete SLAM system requires higher computing power:
+Robots are often equipped with embedded platforms (Jetson Nano / Xavier / Orin) with limited computing power, while a complete SLAM system demands considerable compute:
 
-| Component | CPU computing power requirement | GPU acceleration feasibility |
+| Component | CPU compute requirement | GPU acceleration feasibility |
 |------|-----------|------------|
-| ORB feature extraction | Medium (SIMD can be accelerated) | ✅ (CUDA ORB) |
-| LiDAR Scan Match (NDT/ICP) | High | Partial (PCL GPU) |
+| ORB feature extraction | Medium (SIMD can accelerate) | ✅ (CUDA ORB) |
+| LiDAR scan matching (NDT/ICP) | High | Partial (PCL GPU) |
 | Bundle Adjustment | Extremely High | ✅ (g2o CUDA) |
-| loop closure detection (BoW search) | Low | Unnecessary |
-| particle filtering (AMCL 500 particles) | low | unnecessary |
+| Loop closure detection (BoW search) | Low | Unnecessary |
+| Particle filter (AMCL, 500 particles) | Low | Unnecessary |
 
 **Practical suggestions**:
-- Prioritize the use of lightweight systems: LeGO-LOAM (embedded friendly), AMCL (low computing power localization)
-- Front-end (feature extraction, scan matching) should be accelerated on GPU as much as possible
-- Back-end optimization can run at reduced frequency (10 Hz front-end + 1–2 Hz back-end BA)
-- Use iSAM2 incremental optimization to avoid full-graph re-optimization
+- Prefer lightweight systems: LeGO-LOAM (embedded-friendly) and AMCL (low-compute localization)
+- Accelerate the front-end (feature extraction, scan matching) on the GPU wherever possible
+- Run back-end optimization at a reduced rate (10 Hz front-end + 1–2 Hz back-end BA)
+- Use iSAM2 incremental optimization to avoid re-optimizing the full graph
 
-> **Note**: More details in the real deployment of visual SLAM (scenario adaptability research related to TITS 2026) will be added later.
+> **Note**: More details on real-world deployment of visual SLAM (scenario adaptability research related to TITS 2026) will be added later.
 
 ## 4.8 Summary of commonly used datasets
 {: id="48-常用数据集汇总"}
 
-| Dataset | Sensor | Scenario | Main purpose | Address |
+| Dataset | Sensors | Scenario | Main purpose | URL |
 |--------|-------|------|---------|------|
-| **KITTI** | LiDAR+stereo+GPS/IMU | Outdoor road | Visual/LiDAR odometry, 3D target detection | kitti.is.tue.mpg.de |
+| **KITTI** | LiDAR + stereo + GPS/IMU | Outdoor roads | Visual/LiDAR odometry, 3D object detection | kitti.is.tue.mpg.de |
 | **TUM** | RGB-D | Indoor | RGB-D SLAM evaluation | vision.in.tum.de |
-| **EuRoC** | Stereo+IMU | Indoor Drone | VIO evaluation | rpg.ifi.uzh.ch |
-| **nuScenes** | 6 cameras + laser + radar + GPS/IMU | Outdoor roads | Autonomous driving perception | nuscenes.org |
-| **Newer College** | 3D LiDAR + IMU | Outdoor Campus | 3D LiDAR SLAM | ori.ox.ac.uk |
-| **Hilti SLAM** | Multi-laser+camera+IMU | Construction site | Multi-sensor SLAM evaluation | hilti-challenge.com |
+| **EuRoC** | Stereo + IMU | Indoor drone | VIO evaluation | rpg.ifi.uzh.ch |
+| **nuScenes** | 6 cameras + LiDAR + radar + GPS/IMU | Outdoor roads | Autonomous driving perception | nuscenes.org |
+| **Newer College** | 3D LiDAR + IMU | Outdoor campus | 3D LiDAR SLAM | ori.ox.ac.uk |
+| **Hilti SLAM** | Multiple LiDARs + cameras + IMU | Construction sites | Multi-sensor SLAM evaluation | hilti-challenge.com |
 
 ---
 
-# 5. Path Planning
+# 5. Path planning
 {: id="5-路径规划path-planning"}
 
-Path planning solves the problem of "how should I go": find a collision-free path from the starting point to the end point in a known (or locally known) map.
+Path planning solves the problem of "how should I get there": finding a collision-free path from the start to the goal in a known (or locally known) map.
 
-## 5.1 Global Path Planning: Search Methods
+## 5.1 Global path planning: search methods
 {: id="51-全局路径规划搜索类"}
 
-The search algorithm searches for the optimal path on the **discretized grid map**.
+Search algorithms look for the optimal path on a **discretized grid map**.
 
 ### Dijkstra's algorithm
 {: id="dijkstra-算法"}
 
-**idea**: Starting from the starting point, like ripples spreading, gradually explore all reachable nodes in the order of **cost from small to large** until the end point is found. Guaranteed to find the path with the least cost (optimality).
+**Idea**: Starting from the start node, explore all reachable nodes in order of **increasing cost**, like ripples spreading outward, until the goal is found. It is guaranteed to find the lowest-cost path (optimality).
 
 ✅ Guaranteed optimal solution
-❌ No directionality, large number of nodes to expand on a large map, low efficiency
-❌ Time complexity $O(V \log V + E)$, $V$ is the number of nodes, $E$ is the number of edges
+❌ No directionality: many nodes are expanded on a large map, so it is inefficient
+❌ Time complexity $O(V \log V + E)$, where $V$ is the number of nodes and $E$ is the number of edges
 
 <div align="center">
   <video src="/images/robotics_navigation/dijkstra_search.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:1000/800; margin:4px"></video>
   <video src="/images/robotics_navigation/dijkstra_navigate.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:800/800; margin:4px"></video>
-<figcaption>Figure: Dijkstra search process (left) and navigation results (right) - expansion nodes spread in concentric circles with no directionality</figcaption>
+<figcaption>Figure: Dijkstra search process (left) and navigation result (right): the expanded nodes spread in concentric circles with no directionality</figcaption>
 </div>
 
 ### A* (A-Star) algorithm
 {: id="aa-star算法"}
 
-**idea**: Add the **heuristic function h(n)** (estimate the cost from the current node to the end point, usually using Euclidean distance or Manhattan distance) based on Dijkstra, so that the search has a clear direction and priority is given to exploring nodes that "look closer to the end point".
+**Idea**: On top of Dijkstra, add a **heuristic function h(n)** (an estimate of the cost from the current node to the goal, usually the Euclidean or Manhattan distance). This gives the search a clear direction and explores nodes that "look closer to the goal" first.
 
 $$f(n) = g(n) + h(n)$$
 
-Here, $g(n)$ is the actual cost from the starting point to the node $n$, and $h(n)$ is the estimated value of the heuristic function.
+Here, $g(n)$ is the actual cost from the start to node $n$, and $h(n)$ is the heuristic estimate.
 
 ✅ Guaranteed optimal solution (when $h(n)$ does not overestimate the actual cost)
 ✅ Much faster than Dijkstra (directional search)
-❌ The amount of calculation in high-dimensional space (such as 3D) is still large
+❌ Still computationally heavy in high-dimensional spaces (such as 3D)
 
-**Selection of heuristic function h(n)**: Different heuristic functions are suitable for different movement constraints:
+**Choosing the heuristic function h(n)**: Different heuristics suit different movement constraints:
 
-| Heuristic function | Formula | Applicable scenario | Properties |
+| Heuristic function | Formula | Suitable scenario | Properties |
 |---------|------|---------|------|
-| **Manhattan distance** | $\|dx\| + \|dy\|$ | Only allows movement in the 4 direction (up, down, left and right) | Admissible for 4-connected movement |
-| **Euclidean distance** | $\sqrt{dx^2 + dy^2}$ | Allows movement in any direction | Admissible for movement in any direction |
-| **Octile distance** | $\max(\|dx\|,\|dy\|) + (\sqrt{2}-1)\min(\|dx\|,\|dy\|)$ | Allow 8 direction movement (including diagonal) | Tighter than Euclidean in 8 directions (faster search) |
+| **Manhattan distance** | $\|dx\| + \|dy\|$ | Only 4-directional movement (up, down, left, right) | Admissible for 4-connected movement |
+| **Euclidean distance** | $\sqrt{dx^2 + dy^2}$ | Movement in any direction | Admissible for movement in any direction |
+| **Octile distance** | $\max(\|dx\|,\|dy\|) + (\sqrt{2}-1)\min(\|dx\|,\|dy\|)$ | 8-directional movement (including diagonals) | Tighter than Euclidean in 8 directions (faster search) |
 
-> **Admissibility**: $h(n)$ Never overestimate the true cost and ensure that A* finds the optimal solution. If $h(n) = 0$, A* reduces to Dijkstra (the slowest and optimal). The larger $h(n)$, the faster it is, but it may be overestimated and lose optimality.
+> **Admissibility**: $h(n)$ must never overestimate the true cost, which ensures that A* finds the optimal solution. If $h(n) = 0$, A* reduces to Dijkstra (slowest, but optimal). The larger $h(n)$ is, the faster the search, but it may overestimate the cost and lose optimality.
 
-The following figure shows the search process of A* on the 10×10 grid:
+The following figure shows A*'s search process on a 10×10 grid:
 
 <div align="center">
-  <img src="/images/robotics_navigation/robot-nav-astar-grid-en.svg" width="75%" alt="A* search diagram - gray (evaluated closed set) / orange (open set to be evaluated) / green (optimal path), obstacles (dark) are bypassed" />
-<figcaption>Figure: A* search diagram - gray (evaluated closed set) / orange (open set to be evaluated) / green (optimal path), obstacles (dark) are bypassed</figcaption>
+  <img src="/images/robotics_navigation/robot-nav-astar-grid-en.svg" width="75%" alt="A* search illustration: gray = evaluated (closed set), orange = to be evaluated (open set), green = optimal path; obstacles (dark) are bypassed" />
+<figcaption>Figure: A* search illustration: gray = evaluated (closed set), orange = to be evaluated (open set), green = optimal path; obstacles (dark) are bypassed</figcaption>
 </div>
 
 <div align="center">
   <video src="/images/robotics_navigation/astar_search.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:1000/800; margin:4px"></video>
   <video src="/images/robotics_navigation/astar_navigate.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:800/800; margin:4px"></video>
-<figcaption>Figure: A* search process (left) and navigation results (right) - directional, expansion nodes are concentrated in the target direction</figcaption>
+<figcaption>Figure: A* search process (left) and navigation result (right): the search is directional, and the expanded nodes concentrate toward the goal</figcaption>
 </div>
 
 ### Bidirectional A*
 {: id="双向-abidirectional-a"}
 
-Search in both directions from the start and end points simultaneously, stopping when the two search wavefronts meet. The average number of search nodes is about half that of one-way A*, which is suitable for situations where the start and end points are far apart.
+Search from the start and the goal simultaneously, and stop when the two search fronts meet. The average number of nodes searched is about half that of one-way A*, which suits cases where the start and goal are far apart.
 
 <div align="center">
   <video src="/images/robotics_navigation/astar_bidirectional_search.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:1000/800; margin:4px"></video>
   <video src="/images/robotics_navigation/astar_bidirectional_navigate.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:800/800; margin:4px"></video>
-<figcaption>Figure: Two-way A* search (left, both ends are expanded simultaneously) and navigation results (right)</figcaption>
+<figcaption>Figure: Bidirectional A* search (left, expanding from both ends at once) and navigation result (right)</figcaption>
 </div>
 
 ### Hybrid A*
 {: id="hybrid-a混合-a"}
 
-**Problem with standard A***: Pathfinding on the grid, ignoring the kinematic constraints of the vehicle. A car cannot move sideways, it has a minimum turning radius.
+**Problem with standard A***: It searches on a grid and ignores the vehicle's kinematic constraints. A car cannot move sideways and has a minimum turning radius.
 
-Improvement of **Hybrid A***: Discretize the continuous state space of the vehicle ($x, y, \theta$), consider executable steering operations (such as arcs with different curvatures) when expanding each node, and ensure that the generated path is suitable for vehicles with nonholonomic constraints (differential wheeled/Ackermann ) **is actually feasible**.
+**Hybrid A*** improves on this by discretizing the vehicle's continuous state space ($x, y, \theta$) and considering executable steering actions (such as arcs of different curvatures) when expanding each node, so the generated path is **actually feasible** for vehicles with nonholonomic constraints (differential-drive or Ackermann).
 
-✅ Generate kinematic feasible paths
-✅ Suitable for parking scenes and narrow passages
-❌ The computational cost is larger than standard A*
-❌ Need to be combined with post-processing smoothing such as Reeds-Shepp curve
+✅ Generates kinematically feasible paths
+✅ Suited to parking scenarios and narrow passages
+❌ Higher computational cost than standard A*
+❌ Needs post-processing such as Reeds-Shepp curves for smoothing
 
 <div align="center">
   <video src="/images/robotics_navigation/astar_hybrid_search.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:1000/800; margin:4px"></video>
   <video src="/images/robotics_navigation/astar_hybrid_navigate.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:800/800; margin:4px"></video>
-<figcaption>Figure: Hybrid A* search (left) and navigation results (right) - generating a smooth feasible path that takes into account vehicle kinematic constraints</figcaption>
+<figcaption>Figure: Hybrid A* search (left) and navigation result (right): a smooth, feasible path that respects the vehicle's kinematic constraints</figcaption>
 </div>
 
-### A* algorithm engineering optimization
+### Engineering optimizations for A*
 {: id="a-算法工程优化"}
 
-In actual engineering applications (such as autonomous driving or mobile robots), the paths generated by the original A* often have problems such as redundant nodes and sharp corners. Mainstream optimization strategies include:
+In real engineering applications (such as autonomous driving or mobile robots), paths generated by plain A* often have redundant nodes and sharp corners. Mainstream optimization strategies include:
 
-1. **adaptive heuristic function weight**:
-Introduce the dynamic weight coefficient $\lambda$ to make the heuristic function change with the position:
+1. **Adaptive heuristic weight**:
+Introduce a dynamic weight coefficient $\lambda$ so that the heuristic weight varies with position:
    $$f(n) = g(n) + (1 + \lambda \cdot \frac{d_{to\_end}}{d_{total}})h(n)$$
-Increase the weight when approaching the starting point to increase the search speed (similar to greedy search); decrease the weight when approaching the end point to ensure the optimality of the path.
+Increase the weight near the start to speed up the search (similar to greedy search), and decrease it near the goal to preserve path optimality.
 
-2. **Path Simplification (Douglas-Peucker Algorithm)**:
-The raw paths produced by A* often contain a large number of collinear redundant nodes. The **Douglas-Peucker (DP)** algorithm can eliminate unnecessary intermediate points while maintaining the path topological characteristics, greatly simplifying the path description, and improving the efficiency of subsequent trajectory smoothing.
+2. **Path simplification (Douglas-Peucker algorithm)**:
+The raw paths produced by A* often contain many redundant collinear nodes. The **Douglas-Peucker (DP)** algorithm removes unnecessary intermediate points while preserving the path's topology, which greatly simplifies the path description and makes the subsequent trajectory smoothing more efficient.
 
-3. **Quadratic smoothing (B-spline curve)**:
-For the streamlined key points, use **B-Spline** or fifth-order polynomial for fitting. This converts the polygonal path of A* into a continuous, higher-order differentiable smooth arc, ensuring that it adheres to the dynamic constraints of the chassis (such as centripetal acceleration limits).
+3. **Smoothing (B-spline curves)**:
+Fit the simplified key points with a **B-spline** or a fifth-order polynomial. This turns A*'s polyline path into a continuous, higher-order differentiable smooth curve that respects the chassis dynamics constraints (such as a centripetal acceleration limit).
 
 <div align="center">
-  <img src="/images/robotics_navigation/astar_optimization.webp" width="75%" alt="A* path optimization process - original raster path (left) → DP simplified key points (middle) → B-spline smooth trajectory (right)" />
-<figcaption>Figure: A* path optimization process - original raster path (left) → DP simplified key points (middle) → B-spline smooth trajectory (right)</figcaption>
+  <img src="/images/robotics_navigation/astar_optimization.webp" width="75%" alt="A* path optimization pipeline: original grid path (left) → DP-simplified key points (middle) → B-spline smoothed trajectory (right)" />
+<figcaption>Figure: A* path optimization pipeline: original grid path (left) → DP-simplified key points (middle) → B-spline smoothed trajectory (right)</figcaption>
 </div>
 
 
 <div align="center">
-  <img src="/images/robotics_navigation/astar_optimization_campare.webp" width="75%" alt="Before optimization, the A* algorithm has dense search points (Fig. 2a) and many path turning points; after optimization, not only the number of search points is reduced sharply (Fig. 2b), but the path is also simpler and smoother, and the search efficiency and path quality are both improved." />
-<figcaption>Figure: Before optimization, the A* algorithm has dense search points (Fig. 2a) and many path turning points; after optimization, not only the number of search points is reduced sharply (Fig. 2b), but the path is also simpler and smoother, and the search efficiency and path quality are both improved.</figcaption>
+  <img src="/images/robotics_navigation/astar_optimization_campare.webp" width="75%" alt="Before optimization, A* has dense search points (Fig. 2a) and many turning points on the path. After optimization, the number of search points drops sharply (Fig. 2b) and the path is simpler and smoother, improving both search efficiency and path quality." />
+<figcaption>Figure: Before optimization, A* has dense search points (Fig. 2a) and many turning points on the path. After optimization, the number of search points drops sharply (Fig. 2b) and the path is simpler and smoother, improving both search efficiency and path quality.</figcaption>
 </div>
 
 ### Fast Marching Method (FMM)
 {: id="快速行进法fmm"}
 
-**Idea**: FMM was proposed by J.A. Sethian in 1996, which models the path planning problem as a **wavefront propagation** problem. Propagate the "time wavefront" from the target point to the surroundings, record the shortest time $T(\mathbf{x})$ for the wave to arrive at each grid, and construct a global **arrival time field**; during planning, gradient descent in the $-\nabla T$ direction from the starting point can be used to obtain the global optimal path.
+**Idea**: FMM was proposed by J.A. Sethian in 1996 and models path planning as a **wavefront propagation** problem. A "time wavefront" propagates outward from the goal, and the shortest arrival time $T(\mathbf{x})$ at each grid cell is recorded, building a global **arrival time field**. For planning, gradient descent along $-\nabla T$ from the start yields the globally optimal path.
 
 <div align="center">
-  <img src="/images/robotics_navigation/fmm.webp" width="90%" alt="FMM planning process - velocity potential field W(x) (left, low speed near obstacles) → arrival time field T(x) (middle, low cost in blue area) → gradient descent path (right)" />
-<figcaption>Figure: FMM planning process - velocity potential field W(x) (left, low speed near obstacles) → arrival time field T(x) (middle, low cost in blue area) → gradient descent path (right)</figcaption>
+  <img src="/images/robotics_navigation/fmm.webp" width="90%" alt="FMM planning process: speed field W(x) (left, low speed near obstacles) → arrival time field T(x) (middle, low cost in blue regions) → gradient descent path (right)" />
+<figcaption>Figure: FMM planning process: speed field W(x) (left, low speed near obstacles) → arrival time field T(x) (middle, low cost in blue regions) → gradient descent path (right)</figcaption>
 </div>
 
 **Eikonal Equation**:
 
 $$|\nabla T(\mathbf{x})| = \frac{1}{F(\mathbf{x})}$$
 
-Here, $T(\mathbf{x})$ is the minimum time (path cost) for the wave to reach the point $\mathbf{x}$ from the target, $F(\mathbf{x}) > 0$ is the **propagation speed of the point** - free space $F=1$, near the edge of the obstacle $F \to 0$, through Costmap's distance transform assignment naturally incorporates terrain costs.
+Here, $T(\mathbf{x})$ is the minimum time (path cost) for the wave to reach the point $\mathbf{x}$ from the goal, and $F(\mathbf{x}) > 0$ is the **propagation speed at that point**: $F=1$ in free space and $F \to 0$ near obstacle edges. Assigning it through the costmap's distance transform naturally incorporates terrain costs.
 
-**core algorithm steps (narrow-band propagation, Dijkstra-like)**:
+**Core algorithm steps (narrow-band propagation, Dijkstra-like)**:
 
-1. **initializes**: target point $T_{goal}=0$, all other nodes $T=\infty$; add the target point to the min-heap
-2. **pops up the top of the** heap (the current smallest node $T$), marked as "determined"
-3. For each undetermined neighbor, use the **Eikonal update formula** to calculate the candidate arrival time:
+1. **Initialize**: goal $T_{goal}=0$, all other nodes $T=\infty$; push the goal onto a min-heap
+2. **Pop the heap top** (the node with the smallest current $T$) and mark it as "determined"
+3. For each undetermined neighbor, compute a candidate arrival time with the **Eikonal update formula**:
 
-Assume $T_h = \min(T_{left}, T_{right})$, $T_v = \min(T_{up}, T_{down})$ (take the determined minimum value in adjacent directions), then:
+Let $T_h = \min(T_{left}, T_{right})$ and $T_v = \min(T_{up}, T_{down})$ (the smallest determined value in each pair of opposite directions). Then:
 
    $$T_{new} = \begin{cases} \dfrac{T_h + T_v + \sqrt{2/F^2 - (T_h - T_v)^2}}{2} & \text{if } |T_h - T_v| < 1/F \\ \min(T_h, T_v) + \dfrac{1}{F} & \text{otherwise (one-sided update)} \end{cases}$$
 
-4. If $T_{new}$ is smaller, insert (or update) the neighbor into the min-heap
+4. If $T_{new}$ is smaller than the current value, insert (or update) the neighbor in the min-heap
 5. Repeat steps 2–4 until the heap is empty
 
-**path extraction**: starting from the starting point, perform gradient descent along the $-\nabla T$ direction. Since the Eikonal equation guarantees that the $T$ field **is monotonic and has no local minimum**, the gradient descent will definitely converge to the target point and generate the global optimal path.
+**Path extraction**: Starting from the start, perform gradient descent along $-\nabla T$. Because the Eikonal equation guarantees that the $T$ field **is monotonic with no local minima**, gradient descent always converges to the goal and yields the globally optimal path.
 
-✅ Path **naturally smooth**: continuous wave front propagation, no raster aliasing
-✅ **is built once, and the whole picture can be checked.**: After the $T$ field is built, any starting point can be directly gradient-descent, which is suitable for querying the same target multiple times.
-✅ Naturally integrate **non-uniform terrain cost** through $F(\mathbf{x})$ (slope, ground type, etc.)
-✅ **is the global optimal** (continuous space meaning), and there is no local minimum problem of the traditional potential field method.
-❌ Heuristic function cannot be used to accelerate, **must traverse the entire map**, $O(N \log N)$ ($N$ is the total number of rasters)
-❌ **single-end single-end** planning that is not suitable for very large maps (A* is faster)
-❌ When the resolution is low, the gradient descent path is still slightly jagged and needs to be smoothed by post-processing.
+✅ **Naturally smooth** paths: the wavefront propagates continuously, with no grid aliasing
+✅ **Build once, query from anywhere**: after the $T$ field is built, gradient descent can start from any point, which suits repeated queries to the same goal
+✅ Naturally incorporates **non-uniform terrain cost** through $F(\mathbf{x})$ (slope, ground type, etc.)
+✅ **Globally optimal** (in the continuous sense), with none of the local-minimum problems of the classical potential field method
+❌ Cannot be accelerated with a heuristic and **must traverse the entire map**, $O(N \log N)$ ($N$ is the total number of grid cells)
+❌ Not suited to **single-query** planning on very large maps (A* is faster)
+❌ At low resolution the gradient descent path is still slightly jagged and needs post-processing smoothing
 
-Comparison between **and other algorithms**:
+**Comparison with other algorithms**:
 
-| Comparison dimensions | FMM | Dijkstra | A* |
+| Dimension | FMM | Dijkstra | A* |
 |---------|-----|----------|----|
-| Core model | Continuous Eikonal equation | Discrete graph search | Discrete graph + heuristic function |
-| Path smoothness | Natural smoothness | Sawtooth | Sawtooth (post-processing required) |
-| Single planning speed | Slow (full picture) | Slow (full picture) | Fast (directional) |
-| Multi-end query | ✅ (one build) | needs to be run repeatedly | needs to be run repeatedly |
-| Non-uniform cost | ✅ ($F$ field) | ✅ (Edge weight) | ✅ (Edge weight) |
+| Core model | Continuous Eikonal equation | Discrete graph search | Discrete graph + heuristic |
+| Path smoothness | Naturally smooth | Jagged | Jagged (needs post-processing) |
+| Single-query speed | Slow (full map) | Slow (full map) | Fast (directional) |
+| Multi-query | ✅ (build once) | Must be rerun each time | Must be rerun each time |
+| Non-uniform cost | ✅ ($F$ field) | ✅ (edge weights) | ✅ (edge weights) |
 
-**Typical applications**: terrain path planning (rover non-uniform ground), ROS `navfn` full-grid potential field construction, image distance transformation and skeleton extraction, computer graphics geodesic distance calculation.
+**Typical applications**: terrain path planning (rovers on non-uniform ground), full-grid potential field construction in ROS `navfn`, image distance transforms and skeleton extraction, and geodesic distance computation in computer graphics.
 
 
 
 ### Fast Marching Square(FM²)
 {: id="fast-marching-squarefm"}
 
-FM² was proposed by Garrido et al. (2006) on the basis of FMM. The core idea is **twice in series with FMM**. By constructing a velocity field proportional to the distance to the obstacle, the wavefront can automatically "bypass" the dangerous area and plan a natural and safe smooth path.
+FM² was proposed by Garrido et al. (2006) as an extension of FMM. Its core idea is to **run FMM twice in series**. By constructing a speed field proportional to the distance to obstacles, the wavefront automatically "bypasses" dangerous regions, producing a natural, safe, and smooth path.
 
 <div align="center">
-  <img src="/images/robotics_navigation/fm2.webp" width="90%" alt="FM² planning process - original binary map (first left) → Dilated Map (second left) → arrival time field T(x) (second right) → safe path (first right), the path is naturally far away from the edge of the obstacle" />
-<figcaption>Figure: FM² planning process - original binary map (first left) → Dilated Map (second left) → arrival time field T(x) (second right) → safe path (first right), the path is naturally far away from the edge of the obstacle</figcaption>
+  <img src="/images/robotics_navigation/fm2.webp" width="90%" alt="FM² planning process: original binary map (far left) → dilated map (second from left) → arrival time field T(x) (second from right) → safe path (far right). The path naturally stays away from obstacle edges" />
+<figcaption>Figure: FM² planning process: original binary map (far left) → dilated map (second from left) → arrival time field T(x) (second from right) → safe path (far right). The path naturally stays away from obstacle edges</figcaption>
 </div>
 
 **Two-stage algorithm**:
 
-1. **first stage - construct velocity field $W(\mathbf{x})$**: run with all **obstacle grids** as the source point ($T=0$) FMM, obtain the **arrival time distance field** from each point in the whole graph to the nearest obstacle; normalize the distance field as the velocity field:
+1. **Stage 1: construct the speed field $W(\mathbf{x})$**: Run FMM with all **obstacle cells** as sources ($T=0$) to obtain the **arrival-time distance field** from every point in the map to the nearest obstacle, then normalize it into a speed field:
 
    $$W(\mathbf{x}) = f\!\left(d_{\text{obs}}(\mathbf{x})\right), \quad W \in (0,\,1]$$
 
-The closer to the obstacle, the smaller the $W(\mathbf{x})$ (the lower the speed); the $W \to 1$ is at the center of the free space.
+The closer to an obstacle, the smaller $W(\mathbf{x})$ is (the lower the speed); $W \to 1$ at the center of free space.
 
-2. **Second stage - path planning**: Run FMM again with the target point as the source point and $W(\mathbf{x})$ as the propagation speed, and calculate the arrival time field $T(\mathbf{x})$; the path is obtained by descending along the $-\nabla T$ gradient from the starting point.
+2. **Stage 2: path planning**: Run FMM again with the goal as the source and $W(\mathbf{x})$ as the propagation speed to compute the arrival time field $T(\mathbf{x})$; the path is obtained by descending along $-\nabla T$ from the start.
 
-**Why the path is naturally safe**: near obstacles $W$ low → slow wave propagation → $T$ value high → automatically detours to $W$ large (away from obstacles) "high-speed zone" during gradient descent, maintaining a safety margin without any post-processing.
+**Why the path is naturally safe**: Near obstacles $W$ is low, so the wave propagates slowly and $T$ is high. Gradient descent therefore detours automatically into "high-speed zones" where $W$ is large (away from obstacles), keeping a safety margin without any post-processing.
 
-✅ The velocity field **inherently encodes path safety**, without the need to expand obstacles or set safety radius parameters
-✅ Both FMMs ensure global optimality and smooth paths
-✅ Applicable to any dimensional space (also applicable to high-dimensional planning of robotic arms)
-❌ Two full-graph FMMs, twice as much calculation as standard FMM
-❌ The velocity field may suppress the velocity too low in a narrow channel, resulting in an overly conservative path
+✅ The speed field **inherently encodes path safety**, so there is no need to inflate obstacles or set a safety radius parameter
+✅ Both FMM passes guarantee global optimality and smooth paths
+✅ Applicable to spaces of any dimension (including high-dimensional robot-arm planning)
+❌ Two full-map FMM passes, twice the computation of standard FMM
+❌ The speed field may suppress speed too much in narrow passages, giving an overly conservative path
 
 **Main variants**:
 
-| variant | improvement |
+| Variant | Improvement |
 |------|-------|
-| **FM²\*** | In the second stage, the target heuristic function is added, and the wavefront propagates in a directional manner to reduce unnecessary full-graph expansion and improve the speed |
-| **FMDirectional** | Fixed the problem of FM² having too large safety margin in open spaces, making the path closer to the obstacle passable area |
-| **Fast Marching Learning (FML)** | Use historical path experience to modify the velocity field to achieve trajectory recurrence and planning acceleration |
+| **FM²\*** | Adds a goal heuristic in the second stage so that the wavefront propagates directionally, avoiding unnecessary full-map expansion and improving speed |
+| **FMDirectional** | Fixes FM²'s overly large safety margin in open spaces, making the path hug the traversable side of obstacles more closely |
+| **Fast Marching Learning (FML)** | Uses past path experience to modify the speed field, enabling trajectory reuse and faster planning |
 
 
 
-## 5.2 Global planning: sampling-based
+## 5.2 Global planning: sampling-based methods
 {: id="52-全局路径规划采样类"}
 
-The sampling algorithm constructs a path by **random sampling**. It does not require explicit rasterization of the map and is suitable for high-dimensional space and complex geometric constraint scenarios.
+Sampling-based algorithms construct a path by **random sampling**. They do not need an explicit grid map and suit high-dimensional spaces and scenarios with complex geometric constraints.
 
 ### RRT
 {: id="rrt"}
 
-**Idea**: Grow a tree from the starting point, randomly pick a point each time, find the nearest node on the tree, extend a small step towards the random point, and join the tree if there is no collision. A path is found when a node of the tree is close enough to the end.
+**Idea**: Grow a tree from the start. Each time, pick a random point, find the nearest node on the tree, extend a small step toward the random point, and add the new node to the tree if there is no collision. A path is found when some tree node comes close enough to the goal.
 
 **Core steps**:
 
-1. Initialization: tree $\mathcal{T}$ with starting point only $x_{start}$
-2. **randomly samples** $x_{rand} \sim \mathcal{U}(\mathcal{X})$ (sometimes $p_{goal} \approx 5\%$ directly samples the end point with a certain probability to accelerate convergence)
+1. Initialization: a tree $\mathcal{T}$ containing only the start $x_{start}$
+2. **Random sampling** $x_{rand} \sim \mathcal{U}(\mathcal{X})$ (sometimes the goal is sampled directly with probability $p_{goal} \approx 5\%$ to speed up convergence)
 3. **Nearest neighbor** $x_{near} = \arg\min_{x \in \mathcal{T}} \|x - x_{rand}\|$
-4. **step** $x_{new} = x_{near} + \delta \cdot \frac{x_{rand} - x_{near}}{\|x_{rand} - x_{near}\|}$, where $\delta$ is the step size (step_size)
-5. **collision detection**: If $x_{near} \to x_{new}$ has no obstacle, then $x_{new}$ will be added to the tree with the edge weight of $\delta$
+4. **Steering** $x_{new} = x_{near} + \delta \cdot \frac{x_{rand} - x_{near}}{\|x_{rand} - x_{near}\|}$, where $\delta$ is the step size (`step_size`)
+5. **Collision check**: If $x_{near} \to x_{new}$ is obstacle-free, add $x_{new}$ to the tree with edge weight $\delta$
 6. Repeat until $\|x_{new} - x_{goal}\| < \epsilon$
 
-Key parameter `step_size`: If it is too large, it will fail to cross the obstacle. If it is too small, the convergence will be extremely slow. It is usually taken as 1%–5% of the diagonal of the map.
+Key parameter `step_size`: if it is too large, the tree cannot get past obstacles; if it is too small, convergence is extremely slow. It is usually set to 1%–5% of the map diagonal.
 
-✅ Naturally handle high-dimensional space (robotic arm planning)
+✅ Handles high-dimensional spaces naturally (robot-arm planning)
 ✅ No rasterization required
-❌ **does not guarantee optimality** (the path found is usually more tortuous)
-❌ The final path requires additional smoothing (commonly used B-Spline or Shortcut smoothing)
+❌ **No optimality guarantee** (the path found is usually quite winding)
+❌ The final path needs extra smoothing (B-spline or shortcut smoothing is commonly used)
 
 <div align="center">
   <video src="/images/robotics_navigation/rrt_search.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:1000/800; margin:4px"></video>
   <video src="/images/robotics_navigation/rrt_navigate.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:800/800; margin:4px"></video>
-<figcaption>Figure: RRT random tree expansion process (left) and planned path (right) - path twists and turns, non-optimal</figcaption>
+<figcaption>Figure: RRT random tree expansion (left) and planned path (right): the path is winding and not optimal</figcaption>
 </div>
 
 ### RRT*
 {: id="rrt-1"}
 
-The improved version of RRT adds two key steps to the standard RRT: **nearest neighbor Choose Parent** and **Rewiring**.
+An improved version of RRT that adds two key steps to the standard algorithm: **Choose Parent** and **Rewiring**.
 
-**Choose Parent**: Rather than selecting the nearest neighbor directly, consider the nodes in the radius-$r$ neighborhood $$\mathcal{X}_{near}$$ and choose the parent with the **lowest cost from the start**:
+**Choose Parent**: Rather than simply taking the nearest neighbor, consider the nodes in the radius-$r$ neighborhood $$\mathcal{X}_{near}$$ and choose the parent with the **lowest cost from the start**:
 
 $$x_{parent} = \arg\min_{x \in \mathcal{X}_{near}} \left[ \text{cost}(x) + d(x, x_{new}) \right]$$
 
-**Rewiring**: After adding $x_{new}$, check every node $x_{near}$ in $$\mathcal{X}_{near}$$. If routing through $x_{new}$ reduces the cost of reaching $x_{near}$, remove the old parent edge of $x_{near}$ and make $x_{new}$ its new parent.
+**Rewiring**: After adding $x_{new}$, check every node $x_{near}$ in $$\mathcal{X}_{near}$$. If routing through $x_{new}$ lowers the cost of reaching $x_{near}$, remove $x_{near}$'s old parent edge and make $x_{new}$ its new parent.
 
-The search radius $r$ shrinks with the number of sampling points $n$: $r(n) = \gamma \left(\frac{\log n}{n}\right)^{1/d}$ ($d$ is the spatial dimension), ensuring asymptotic optimization while controlling the amount of calculation.
+The search radius $r$ shrinks as the number of samples $n$ grows: $r(n) = \gamma \left(\frac{\log n}{n}\right)^{1/d}$ ($d$ is the spatial dimension), which ensures asymptotic optimality while keeping the computation under control.
 
-✅ Asymptotic optimality (the more paths sampled, the better)
-✅ Shares the same sampling framework as RRT, easy to implement
-❌ Each time a new node is added, it needs to traverse the neighbor set, and the single-step time complexity $O(\log n)$ is higher than that of RRT's $O(1)$
-❌ The convergence speed is slow, and the sampling time may not be enough during real-time planning.
+✅ Asymptotic optimality (the more samples, the better the path)
+✅ Shares RRT's sampling framework and is easy to implement
+❌ Each new node requires traversing its neighbor set; the per-step time complexity $O(\log n)$ is higher than RRT's $O(1)$
+❌ Slow convergence, and there may not be enough sampling time in real-time planning
 
 <div align="center">
   <video src="/images/robotics_navigation/rrt_star_search.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:1000/800; margin:4px"></video>
   <video src="/images/robotics_navigation/rrt_star_navigate.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:800/800; margin:4px"></video>
-<figcaption>Figure: RRT* search process (left, path continues to be optimized after reconnection) and planned path (right) - smoother than RRT</figcaption>
+<figcaption>Figure: RRT* search process (left, the path keeps improving after rewiring) and planned path (right): smoother than RRT</figcaption>
 </div>
 
 ### Bidirectional RRT*
 {: id="双向-rrt"}
 
-Grow an RRT* tree ($$\mathcal{T}_a$$, $$\mathcal{T}_b$$) from the starting point $x_{start}$ and the end point $x_{goal}$. Each iteration alternately expands the two trees:
+Grow an RRT* tree ($$\mathcal{T}_a$$, $$\mathcal{T}_b$$) from each of the start $x_{start}$ and the goal $x_{goal}$. Each iteration alternately expands the two trees:
 
-1. Perform one-step RRT* expansion on $$\mathcal{T}_a$$ to obtain the new node $x_{new}$
-2. Try connecting $x_{new}$ to its nearest node $x_{b,near}$ in $$\mathcal{T}_b$$ with a collision-free path
-3. If the connection is successful, merge the two sub-paths to obtain the candidate complete path; retain the complete path with the smallest cost
-4. The roles of the two trees are reversed ($$\mathcal{T}_a \leftrightarrow \mathcal{T}_b$$) and continued iterative optimization
+1. Perform one RRT* expansion step on $$\mathcal{T}_a$$ to obtain a new node $x_{new}$
+2. Try to connect $x_{new}$ to its nearest node $x_{b,near}$ in $$\mathcal{T}_b$$ with a collision-free path
+3. If the connection succeeds, merge the two sub-paths into a candidate complete path, and keep the complete path with the lowest cost
+4. Swap the roles of the two trees ($$\mathcal{T}_a \leftrightarrow \mathcal{T}_b$$) and continue iterating
 
-The advantage of **comes from**: two trees "grow in opposite directions", which effectively avoids the blind diffusion of one-way trees in a wide space. The search volume is reduced from $O(r^d)$ to $O(2 \cdot (r/2)^d)$, and the convergence speed is about one order of magnitude faster than one-way RRT*.
+The advantage is that the two trees "grow toward each other", which effectively avoids the blind diffusion of a one-way tree in a wide space. The search volume drops from $O(r^d)$ to $O(2 \cdot (r/2)^d)$, and convergence is about an order of magnitude faster than one-way RRT*.
 
 <div align="center">
   <video src="/images/robotics_navigation/rrt_star_bidirectional_search.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:1000/800; margin:4px"></video>
   <video src="/images/robotics_navigation/rrt_star_bidirectional_navigate.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:800/800; margin:4px"></video>
-<figcaption>Figure: Bidirectional RRT* search (left, red and blue trees meet) and planned path (right)</figcaption>
+<figcaption>Figure: Bidirectional RRT* search (left, the red and blue trees meet) and planned path (right)</figcaption>
 </div>
 
 ### Informed RRT*
 {: id="informed-rrt"}
 
-Further improvement: When an initial solution $c_{best}$ is found, the sampling is limited to the **elliptical area**. The two foci of this ellipse are $x_{start}$ and $x_{goal}$, the major semi-axis is $a = c_{best}/2$, and the minor semi-axis is:
+A further improvement: once an initial solution $c_{best}$ is found, sampling is restricted to an **ellipsoidal region**. The two foci of the ellipse are $x_{start}$ and $x_{goal}$, the semi-major axis is $a = c_{best}/2$, and the semi-minor axis is:
 
 $$b = \frac{1}{2}\sqrt{c_{best}^2 - \|x_{goal} - x_{start}\|^2}$$
 
-**Intuition**: Only points within the ellipse can make the path cost lower than $c_{best}$ (the definition of the ellipse is exactly the sum of the distances to the two focal points $\leq c_{best}$). As the path continues to be optimized, $c_{best}$ decreases, the ellipse continues to shrink, and the sampling becomes more and more "accurate" to avoid wasting sampling in invalid areas.
+**Intuition**: Only points inside the ellipse can yield a path cost lower than $c_{best}$ (the ellipse is defined precisely as the set of points whose summed distance to the two foci is $\leq c_{best}$). As the path keeps improving, $c_{best}$ decreases and the ellipse keeps shrinking, so sampling becomes more and more focused and no samples are wasted in irrelevant regions.
 
-When sampling, the uniform random point $x_{ball} \sim \mathcal{U}(\mathcal{B}^d)$ within the standard circle is mapped to the elliptical coordinate frame through affine transformation: $x_{rand} = C \cdot L \cdot x_{ball} + x_{center}$, where $C$ is the rotation matrix (making the main axis of the ellipse align with the $x_{start} \to x_{goal}$ direction), $L = \text{diag}(a, b, \ldots, b)$.
+When sampling, a uniform random point $x_{ball} \sim \mathcal{U}(\mathcal{B}^d)$ in the unit ball is mapped into the ellipsoid's coordinate frame by an affine transformation: $x_{rand} = C \cdot L \cdot x_{ball} + x_{center}$, where $C$ is the rotation matrix (aligning the ellipsoid's major axis with the $x_{start} \to x_{goal}$ direction) and $L = \text{diag}(a, b, \ldots, b)$.
 
 <div align="center">
   <video src="/images/robotics_navigation/informed_rrt_star_search.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:1000/800; margin:4px"></video>
   <video src="/images/robotics_navigation/informed_rrt_star_navigate.mp4" data-autoplay preload="none" loop muted playsinline width="46%" style="aspect-ratio:800/800; margin:4px"></video>
-<figcaption>Figure: Informed RRT* search (left, elliptical sampling area shrinks as the path improves) and planned path (right)</figcaption>
+<figcaption>Figure: Informed RRT* search (left, the elliptical sampling region shrinks as the path improves) and planned path (right)</figcaption>
 </div>
 
-## 5.3 Local planning and avoidance
+## 5.3 Local planning and obstacle avoidance
 {: id="53-局部路径规划动态避障"}
 
-Global planning assumes that the map is static, but in reality there will be dynamic obstacles (pedestrians, other robots). Local planning re-plans in real time during robot movement to handle dynamic obstacles.
+Global planning assumes a static map, but real environments contain dynamic obstacles (pedestrians, other robots). Local planning replans in real time while the robot moves, to handle dynamic obstacles.
 
 ### DWA
 {: id="dwa"}
 
-**idea**: Sampling the speed command $(v, \omega)$ in the **reachable speed window** (limited by acceleration) around the current speed of the robot, predict each trajectory with the motion model, according to **target direction + speed + Obstacle distance** is comprehensively scored, and the optimal speed command is selected for execution.
+**Idea**: Sample velocity commands $(v, \omega)$ within the **reachable velocity window** (limited by acceleration) around the robot's current velocity, predict each resulting trajectory with the motion model, score it on **goal heading + speed + obstacle distance**, and execute the best command.
 
-Construction of **dynamic window**: Velocity space $(v, \omega)$ needs to satisfy three constraints at the same time, and take the intersection:
+**Constructing the dynamic window**: The velocity space $(v, \omega)$ must satisfy three constraints at once, so take their intersection:
 
-- **speed limit**: $v \in [v_{min}, v_{max}]$, $\omega \in [\omega_{min}, \omega_{max}]$
-- **dynamic window** (acceleration limit): $$v \in [v_c - \dot{v}_{max} \cdot \Delta t,\ v_c + \dot{v}_{max} \cdot \Delta t]$$, $\omega$ similar
-- **Accessibility constraint**: The distance to the nearest obstacle on the trajectory $> 0$ (and the robot can brake before reaching the obstacle)
+- **Velocity limits**: $v \in [v_{min}, v_{max}]$, $\omega \in [\omega_{min}, \omega_{max}]$
+- **Dynamic window** (acceleration limits): $$v \in [v_c - \dot{v}_{max} \cdot \Delta t,\ v_c + \dot{v}_{max} \cdot \Delta t]$$, and similarly for $\omega$
+- **Admissibility constraint**: The distance to the nearest obstacle along the trajectory is $> 0$ (and the robot can brake before reaching the obstacle)
 
-**scoring function**:
+**Scoring function**:
 
 $$G(v, \omega) = \sigma\bigl(\alpha \cdot \text{heading}(v,\omega) + \beta \cdot \text{dist}(v,\omega) + \gamma \cdot \text{velocity}(v,\omega)\bigr)$$
 
-The meaning of the three components:
-- $\text{heading}$: The angle difference between the end of the trajectory and the direction of the target point (the smaller, the better, to encourage the robot to turn to the target)
-- $\text{dist}$: Minimum distance from the nearest obstacle on the trajectory (the bigger the better, encourage staying away from obstacles)
-- $\text{velocity}$: Line speed $v$ itself (bigger is better, encourages fast forwarding)
-- $\sigma(\cdot)$ is the normalization function, $\alpha, \beta, \gamma$ is the weight
+The three components mean:
+- $\text{heading}$: the angle between the trajectory's end direction and the direction to the goal (smaller is better; encourages turning toward the goal)
+- $\text{dist}$: the distance to the nearest obstacle along the trajectory (larger is better; encourages staying away from obstacles)
+- $\text{velocity}$: the forward speed $v$ itself (larger is better; encourages moving fast)
+- $\sigma(\cdot)$ is a normalization function, and $\alpha, \beta, \gamma$ are weights
 
-✅ Fast calculation (ms level), suitable for real-time obstacle avoidance
-✅ ROS `dwa_local_planner` works right out of the box
-❌ Speed search space is limited and easy to fail in narrow channels
-❌ Only considers short-term trajectories (about 1–3 s) and cannot handle obstacles that require "detours"
+✅ Fast computation (millisecond level), suited to real-time obstacle avoidance
+✅ ROS `dwa_local_planner` works out of the box
+❌ The velocity search space is limited, so it easily fails in narrow passages
+❌ Considers only short-horizon trajectories (about 1–3 s) and cannot handle obstacles that require a "detour"
 
-**Improved variant: Fuzzy DWA (Fuzzy DWA)**
-The evaluation weight of traditional DWA ($\alpha, \beta, \gamma$) is fixed, making it difficult to balance "high-speed driving" and "narrow obstacle avoidance". **fuzzy DWA** introduces a fuzzy inference engine, taking the **target distance** and **nearest obstacle distance** as inputs to dynamically adjust the sampling weight. For example: when the obstacle is very close, greatly increase $\beta$ (obstacle avoidance weight) and reduce $\gamma$ (speed weight) to make the obstacle avoidance behavior smoother and less stiff.
+**Improved variant: Fuzzy DWA**
+The scoring weights of traditional DWA ($\alpha, \beta, \gamma$) are fixed, which makes it hard to balance "high-speed driving" against "obstacle avoidance in tight spaces". **Fuzzy DWA** introduces a fuzzy inference engine that takes the **goal distance** and the **nearest obstacle distance** as inputs and adjusts the weights dynamically. For example, when an obstacle is very close, it greatly increases $\beta$ (the obstacle avoidance weight) and reduces $\gamma$ (the speed weight), making avoidance smoother and less abrupt.
 
 <div align="center">
-  <img src="/images/robotics_navigation/DWA.webp" width="65%" alt="Dynamic window method" />
-<figcaption>Figure: Dynamic window method</figcaption>
+  <img src="/images/robotics_navigation/DWA.webp" width="65%" alt="The dynamic window approach" />
+<figcaption>Figure: The dynamic window approach</figcaption>
 </div>
 
 ### TEB
 {: id="teb"}
 
-**Idea**: Treat the path as a "rubber band", and add the time dimension to become a "timed elastic band". TEB models the local planning problem as a **sparse nonlinear least squares optimization**:
+**Idea**: Treat the path as a "rubber band" and add the time dimension to make it a "timed elastic band". TEB models local planning as a **sparse nonlinear least-squares optimization**:
 
-**State representation**: the path is represented by a series of pose sequences with timestamps $$\mathcal{B} = \{x_i, \Delta T_i\}_{i=1}^{n}$$, where $x_i = (p_x, p_y, \theta)$ and $\Delta T_i$ are the time intervals between adjacent waypoints.
+**State representation**: The path is represented by a sequence of timestamped poses $$\mathcal{B} = \{x_i, \Delta T_i\}_{i=1}^{n}$$, where $x_i = (p_x, p_y, \theta)$ and $\Delta T_i$ is the time interval between adjacent waypoints.
 
-**Optimization goal** (weighted sum of multiple constraints):
+**Optimization objective** (a weighted sum of multiple constraints):
 
 $$\min_{\mathcal{B}} \sum_k \gamma_k f_k(\mathcal{B})$$
 
-The meaning of each constraint item:
+The meaning of each constraint term:
 
-| constraint item | meaning |
+| Constraint term | Meaning |
 |--------|------|
-| $f_{short}$ | The shortest path length (the smallest sum of waypoint distances) |
-| $f_{obs}$ | Obstacle distance constraint (all waypoints are away from obstacles $> d_{min}$) |
+| $f_{short}$ | Shortest path length (smallest sum of waypoint distances) |
+| $f_{obs}$ | Obstacle distance constraint (all waypoints stay away from obstacles by $> d_{min}$) |
 | $f_{kin}$ | Kinematic feasibility (nonholonomic constraints: curvature $\leq \kappa_{max}$, minimum turning radius) |
-| $f_{vel}$ | Speed constraint ($v \leq v_{max}$, $\omega \leq \omega_{max}$) |
-| $f_{acc}$ | Acceleration constraint ($\|\dot{v}\| \leq a_{max}$, $\|\dot{\omega}\| \leq \alpha_{max}$) |
+| $f_{vel}$ | Velocity constraints ($v \leq v_{max}$, $\omega \leq \omega_{max}$) |
+| $f_{acc}$ | Acceleration constraints ($\|\dot{v}\| \leq a_{max}$, $\|\dot{\omega}\| \leq \alpha_{max}$) |
 
-The optimization uses the **g2o sparse graph optimization framework**: each waypoint is a node and each constraint is an edge. Levenberg–Marquardt or Gauss-Newton is used to iteratively solve the problem. Usually 10–30 times iterations can converge.
+The optimization uses the **g2o sparse graph optimization framework**: each waypoint is a node and each constraint is an edge, and Levenberg–Marquardt or Gauss-Newton iterations solve the problem. It usually converges within 10–30 iterations.
 
-✅ Generate smooth, kinematically feasible trajectories
-✅ Support dynamic obstacles (obstacles are also modeled as nodes in the graph)
-✅ Support reverse (allow $v < 0$)
-❌ The computational cost is larger than that of DWA, about 50–200 ms
-❌ Parameter tuning is complicated (constraint weights $\gamma_k$ interact with each other)
-❌ Sensitive to the quality of the initial path. When the global planning result is poor, the local area may fall into the local optimum.
+✅ Generates smooth, kinematically feasible trajectories
+✅ Supports dynamic obstacles (obstacles are also modeled as nodes in the graph)
+✅ Supports reversing (allows $v < 0$)
+❌ Higher computational cost than DWA, about 50–200 ms
+❌ Complicated parameter tuning (the constraint weights $\gamma_k$ interact with each other)
+❌ Sensitive to the quality of the initial path; when the global plan is poor, the local optimization may fall into a local optimum
 
 <div align="center">
   <img src="/images/robotics_navigation/TEB.webp" width="65%" alt="Timed Elastic Band" />
@@ -1681,119 +1681,119 @@ The optimization uses the **g2o sparse graph optimization framework**: each wayp
 ### Potential field method
 {: id="势场法"}
 
-The simplest and most intuitive method of local obstacle avoidance: end point generation **attractive force field** , obstacles are generated **repulsive force field** , the robot moves downward along the gradient direction of the potential field.
+The simplest and most intuitive local obstacle avoidance method: the goal generates an **attractive force field** and obstacles generate a **repulsive force field**, and the robot moves down the gradient of the potential field.
 
-**attractive force potential** (parabolic shape, the farther away from the target, the greater the attractive force):
+**Attractive potential** (parabolic: the farther from the goal, the stronger the attraction):
 
 $$U_{att}(q) = \frac{1}{2} k_{att} \cdot d^2(q, q_{goal})$$
 
-**repulsive force potential** (effective when $d(q, O) < Q^*$ away from the obstacle):
+**Repulsive potential** (active when the distance to an obstacle satisfies $d(q, O) < Q^*$):
 
 $$U_{rep}(q) = \begin{cases} \dfrac{1}{2} k_{rep} \left(\dfrac{1}{d(q,O)} - \dfrac{1}{Q^*}\right)^2 & \text{if } d(q,O) \leq Q^* \\ 0 & \text{otherwise} \end{cases}$$
 
-The resultant force received by the robot is a negative gradient: $F(q) = -\nabla U_{att}(q) - \nabla U_{rep}(q)$, and it moves in the direction of the resultant force.
+The resultant force on the robot is the negative gradient: $F(q) = -\nabla U_{att}(q) - \nabla U_{rep}(q)$, and the robot moves in the direction of the resultant force.
 
-The cause of the **local minimum**: In an obstacle-dense area, the attractive force direction at a certain point is exactly the same size and opposite to the repulsive force direction, the gradient is zero, and the robot falls into a "false end point".
+**Cause of local minima**: In an obstacle-dense region, at some point the attractive force can be exactly equal and opposite to the repulsive force. The gradient is then zero and the robot is trapped at a "false goal".
 
-**Mitigation method**: random disturbance (Random Walk), increasing the potential weight of the global target, combined with global planning to lead the way, etc.
+**Mitigations**: random perturbation (random walk), increasing the potential weight of the global goal, leading the way with global planning, and so on.
 
-✅ Simple to implement and extremely fast to calculate (O (number of obstacles))
-✅ Can generate continuous force instructions, suitable for direct coupling with the controller
-❌ **local minimum problem** (the robot may be stuck at the equilibrium point of attractive force and repulsive force)
-❌ The repulsive forces on both sides of the obstacle in a narrow passage are superimposed. The resultant force is perpendicular to the direction of the passage and the robot cannot pass.
-❌ When approaching the target, the attractive force approaches zero. If there is still repulsive force, the robot may not reach the end point.
+✅ Simple to implement and extremely fast to compute (O(number of obstacles))
+✅ Produces continuous force commands, suitable for direct coupling with a controller
+❌ **Local minimum problem** (the robot may get stuck at an equilibrium between attraction and repulsion)
+❌ In a narrow passage the repulsive forces from both sides add up, the resultant force points perpendicular to the passage, and the robot cannot get through
+❌ Near the goal the attraction approaches zero, so if repulsion is still present the robot may fail to reach the goal
 
 <div align="center">
   <video src="/images/robotics_navigation/potential_field_demo.mp4" data-autoplay preload="none" loop muted playsinline width="65%" style="aspect-ratio:800/800"></video>
-<figcaption>Figure: potential field method obstacle avoidance demonstration - the robot moves along the attractive force / repulsive force, and may stagnate when encountering a local minimum</figcaption>
+<figcaption>Figure: Potential field obstacle avoidance demo: the robot moves under attractive and repulsive forces and may stall at a local minimum</figcaption>
 </div>
 
 ### MPPI (Model Predictive Path Integral)
 {: id="mppi模型预测路径积分"}
 
-**Model Predictive Path Integral idea**: It is a random variant of **model predictive control (MPC)**. At the current moment, forward sample **a large number of random control sequences** (through GPU parallel sampling), use the motion model to simulate the future state of each trajectory, calculate the **information-theoretic weighted average** according to the trajectory cost as the current control output, and then repeat the receding horizon.
+**Idea of Model Predictive Path Integral**: MPPI is a stochastic variant of **model predictive control (MPC)**. At the current time step it samples **a large number of random control sequences** forward (in parallel on the GPU), simulates the future states of each trajectory with the motion model, computes an **information-theoretic weighted average** of the sequences according to trajectory cost as the current control output, and then repeats in a receding-horizon fashion.
 
 <div align="center">
   <video src="/images/robotics_navigation/mppi_path_tracking.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
-<figcaption>Figure: MPPI path tracking simulation - GPU parallel sampling of a large number of trajectories (translucent lines), weighted average to obtain optimal control</figcaption>
+<figcaption>Figure: MPPI path tracking simulation: a large number of trajectories are sampled in parallel on the GPU (translucent lines), and their weighted average gives the optimal control</figcaption>
 </div>
 
-**algorithm flow**:
+**Algorithm flow**:
 
-1. Current control sequence $U = \{u_0, u_1, \ldots, u_{T-1}\}$, sampled disturbance sequence $K$ $\epsilon^{(k)} \sim \mathcal{N}(0, \Sigma)$
-2. For each trajectory $k$, parallel forward simulation $T$ steps are performed to calculate the cost:
+1. Take the current control sequence $U = \{u_0, u_1, \ldots, u_{T-1}\}$ and sample $K$ disturbance sequences $\epsilon^{(k)} \sim \mathcal{N}(0, \Sigma)$
+2. For each trajectory $k$, simulate $T$ steps forward in parallel and compute its cost:
    $$S^{(k)} = \sum_{t=0}^{T-1} \left[ c(x_t^{(k)}) + \lambda \, u_t^\top \Sigma^{-1} \epsilon_t^{(k)} \right] + \phi(x_T^{(k)})$$
 Here, $c(x_t)$ is the state cost (collision penalty, path deviation, etc.), $\phi$ is the terminal cost, and $\lambda$ is the temperature parameter.
-3. Calculate the **exponential weight** of each trajectory (the lower the cost, the greater the weight):
+3. Compute the **exponential weight** of each trajectory (the lower the cost, the larger the weight):
    $$w^{(k)} = \frac{\exp\!\left(-\frac{1}{\lambda} S^{(k)}\right)}{\sum_{j=1}^K \exp\!\left(-\frac{1}{\lambda} S^{(j)}\right)}$$
-4. Weighted average update control sequence: $u_t \leftarrow u_t + \sum_k w^{(k)} \epsilon_t^{(k)}$
-5. Execute $u_0$, move the sliding window forward one step, repeat
+4. Update the control sequence with the weighted average: $u_t \leftarrow u_t + \sum_k w^{(k)} \epsilon_t^{(k)}$
+5. Execute $u_0$, shift the sliding window forward one step, and repeat
 
-**Temperature parameter $\lambda$** controls the "exploration-exploitation" trade-off: when $\lambda \to 0$, almost only the trajectory with the lowest cost is used (greedy), when $\lambda \to \infty$, all trajectories are equally weighted (purely random).
+The **temperature parameter $\lambda$** controls the exploration-exploitation trade-off: as $\lambda \to 0$, almost only the lowest-cost trajectory is used (greedy); as $\lambda \to \infty$, all trajectories are weighted equally (purely random).
 
-✅ No need to solve the optimal control problem (just forward simulation, no gradient)
-✅ Naturally supports nonlinear systems and non-convex cost functions (such as step costs of collisions)
-✅ GPU parallel sampling ($K$ up to $10^3 \text{–} 10^4$), can handle complex obstacle distribution
-❌ A relatively accurate motion model is required (accumulation of simulation errors will lead to trajectory deviation)
-❌ The amount of calculation is large, and a GPU is usually required to achieve real-time control frequency ($\geq 10$ Hz)
+✅ No need to solve an optimal control problem (only forward simulation, no gradients)
+✅ Naturally supports nonlinear systems and non-convex cost functions (such as step costs for collisions)
+✅ GPU-parallel sampling ($K$ up to $10^3 \text{–} 10^4$) can handle complex obstacle distributions
+❌ Requires a fairly accurate motion model (accumulated simulation error causes trajectory deviation)
+❌ Computationally heavy; a GPU is usually needed to reach a real-time control rate ($\geq 10$ Hz)
 
-**Parameter Setting Guide**:
+**Parameter tuning guide**:
 
-The core parameters of MPPI can be divided into three groups: **sampling scale**, **exploration intensity**, and **cost design**.
+The core parameters of MPPI fall into three groups: **sampling scale**, **exploration intensity**, and **cost design**.
 
 **① Sampling scale: $K$ (number of trajectories) × $T$ (number of prediction steps) × $dt$ (step size)**
 
-The three jointly determine the computational cost and planning quality, and are the first parameters that need to be determined.
+These three jointly determine the computational cost and planning quality, and should be fixed first.
 
-| Parameter | Nav2 Default value | Physical meaning | Adjustment direction |
+| Parameter | Nav2 default | Physical meaning | Tuning direction |
 |------|-----------|---------|---------|
-| $K$ (`batch_size`) | 2000 | Total number of trajectories per parallel sampling | GPU When the computing power is sufficient, try to increase it (4000–8000), and the trajectory diversity will be better |
-| $T$ (`time_steps`) | 56 | The number of forward prediction steps for each trajectory | Increase when the scene is complex (narrow roads, sharp turns); high-speed scenes also need to increase |
-| $dt$ (`model_dt`) | 0.05 s | Time interval for each step | Total prediction window $= T \times dt$, usually maintained 2–5 s is suitable |
+| $K$ (`batch_size`) | 2000 | Total number of trajectories per parallel sampling | When GPU compute is sufficient, try increasing it (4000–8000) for better trajectory diversity |
+| $T$ (`time_steps`) | 56 | Number of forward prediction steps per trajectory | Increase for complex scenes (narrow passages, sharp turns) and for high-speed scenes |
+| $dt$ (`model_dt`) | 0.05 s | Time interval per step | Total prediction window $= T \times dt$, usually kept at 2–5 s |
 
-> **experience**: First fix $dt = 0.05$ s, set $T \times dt$ to 1.5 times the time required for the robot to pass the longest obstacle corridor at maximum speed, and then decide $K$ based on the GPU computing power.
+> **Rule of thumb**: First fix $dt = 0.05$ s, set $T \times dt$ to 1.5 times the time the robot needs to traverse the longest obstacle corridor at maximum speed, and then choose $K$ according to the GPU's computing power.
 
 **② Exploration intensity: $\lambda$ (temperature) and $\Sigma$ (noise covariance)**
 
-$\Sigma$ determines the amplitude of trajectory perturbation, and $\lambda$ determines the degree to which high-cost trajectories are suppressed.
+$\Sigma$ determines the amplitude of the trajectory perturbations, and $\lambda$ determines how strongly high-cost trajectories are suppressed.
 
-| Parameter | Nav2 Default value | Problem when too small | Problem when too large |
+| Parameter | Nav2 default | Problem if too small | Problem if too large |
 |------|-----------|------------|------------|
-| $\lambda$ (`temperature`) | 0.3 | Only trusts a very small number of low-cost trajectories, poor noise robustness | All trajectories have approximately equal weights, controlling random jitter |
-| $\sigma_v$ (`vx_std`) | 0.5 m/s | Trajectories are clustered near the current speed and detours cannot be explored | Too many high-speed/reverse trajectories and the control is not smooth |
-| $\sigma_\omega$ (`wz_std`) | 0.5 rad/s | Insufficient steering exploration, narrow obstacle avoidance is easy to fail | Trajectory is scattered, output control frequently turns sharply |
+| $\lambda$ (`temperature`) | 0.3 | Trusts only a handful of low-cost trajectories; poor robustness to noise | All trajectories get nearly equal weights, so the control output jitters randomly |
+| $\sigma_v$ (`vx_std`) | 0.5 m/s | Trajectories cluster near the current speed and detours cannot be explored | Too many high-speed / reversing trajectories, so control is not smooth |
+| $\sigma_\omega$ (`wz_std`) | 0.5 rad/s | Insufficient steering exploration, so avoidance in narrow spaces fails easily | Trajectories scatter and the output control turns sharply and often |
 
-> **adjustment idea**: $\sigma_v, \sigma_\omega$ is first set to 30%–50% of the speed upper limit, and then the coverage of the trajectory bundle (trajectory bundle) is observed through simulation. If the trajectories are all piled together, the noise will be increased, and if the trajectories are extremely divergent, the noise will be reduced. $\lambda$ is adjusted between 0.1–1.0, using a small value (more conservative) for scenes with dense obstacles, and a large value (smoother) for open scenes.
+> **Tuning approach**: First set $\sigma_v, \sigma_\omega$ to 30%–50% of the speed upper limit, then check the coverage of the trajectory bundle in simulation. If the trajectories are all piled together, increase the noise; if they diverge wildly, reduce it. Tune $\lambda$ between 0.1 and 1.0: use a small value (more conservative) in scenes with dense obstacles and a large value (smoother) in open scenes.
 
-**③ Critics (cost evaluator) - Nav2 MPPI's cost plugin system**
+**③ Critics (cost evaluators): the cost plugin system of Nav2 MPPI**
 
-Nav2's `nav2_mppi_controller` splits the cost function $c(x_t)$ into a set of **pluggable critic plug-ins**. Each critic independently calculates a score, and the final weighted sum is:
+Nav2's `nav2_mppi_controller` splits the cost function $c(x_t)$ into a set of **pluggable critic plugins**. Each critic computes its own score, and the final cost is the weighted sum:
 
 $$c(x_t) = \sum_i w_i \cdot \text{Critic}_i(x_t)$$
 
-Each Critic can be switched individually through `enabled: true/false`, and `weight` controls its proportion in the total cost. Nav2’s built-in Critics are as follows:
+Each critic can be switched on or off individually with `enabled: true/false`, and `weight` controls its share of the total cost. Nav2's built-in critics are listed below:
 
-| Critic | Default weight | Scoring criterion | Typical adjustment scenario |
+| Critic | Default weight | Scoring criterion | Typical tuning scenario |
 |--------|---------|---------|------------|
-| **ObstaclesCritic** | 10.0 | Entering the obstacle area is punished according to the costmap value (LETHAL/INSCRIBED gives extremely high punishment) | Increase when obstacle avoidance ability is weak; decrease appropriately in open scenes |
-| **CostCritic** | 3.81 | Based on costmap **continuous gradient** score, better than ObstaclesCritic More "soft" | Used together with ObstaclesCritic to provide smooth repulsive force |
-| **GoalCritic** | 5.0 | Penalty The distance between the end point of the predicted trajectory and the navigation target | Dominates the behavior when approaching the target; it can be reduced when far away from the target |
-| **GoalAngleCritic** | 3.0 | Penalizes the deviation between the robot's direction and the target direction | Increase when precise alignment is required after reaching the target |
-| **PathAlignCritic** | 14.0 | Penalizes the trajectory for deviating from the global path (lateral deviation) | Increase when accurate road following is required; reduce dynamic obstacle avoidance scenarios |
-| **PathFollowCritic** | 4.0 | Encourage the trajectory to advance in the direction of the global path (forward follow-up) | Increase when the robot repeatedly spins in place |
-| **PathAngleCritic** | 2.0 | Penalizes the angle difference between the robot's orientation and the tangent direction of the path | Increases when the robot walks sideways or understeers |
-| **PreferForwardCritic** | 5.0 | Penalize reverse motion ($v_x < 0$) | Scenes that allow reversing (parking) can be disabled or set 0 |
-| **TwirlingCritic** | 10.0 | Penalty for continuous rotation in place (oversteer) | Increase this weight when the robot keeps spinning in front of obstacles |
+| **ObstaclesCritic** | 10.0 | Penalizes entering obstacle regions according to the costmap value (LETHAL/INSCRIBED incur an extremely high penalty) | Increase when obstacle avoidance is weak; reduce appropriately in open scenes |
+| **CostCritic** | 3.81 | Scores by the **continuous gradient** of the costmap, "softer" than ObstaclesCritic | Use together with ObstaclesCritic to provide smooth repulsion |
+| **GoalCritic** | 5.0 | Penalizes the distance between the predicted trajectory's endpoint and the navigation goal | Dominates behavior when approaching the goal; can be reduced when far from it |
+| **GoalAngleCritic** | 3.0 | Penalizes deviation between the robot's heading and the goal heading | Increase when precise alignment is needed after reaching the goal |
+| **PathAlignCritic** | 14.0 | Penalizes the trajectory's (lateral) deviation from the global path | Increase when accurate path following is needed; reduce in dynamic obstacle avoidance scenarios |
+| **PathFollowCritic** | 4.0 | Encourages the trajectory to advance along the global path (forward progress) | Increase when the robot repeatedly spins in place |
+| **PathAngleCritic** | 2.0 | Penalizes the angle difference between the robot's heading and the path tangent | Increase when the robot moves sideways or understeers |
+| **PreferForwardCritic** | 5.0 | Penalizes reverse motion ($v_x < 0$) | Can be disabled or set to 0 in scenes that allow reversing (parking) |
+| **TwirlingCritic** | 10.0 | Penalizes continuous rotation in place (oversteering) | Increase this weight when the robot keeps spinning in front of obstacles |
 
-**Relative weighting**: The sum of the weights of the obstacle class (ObstaclesCritic + CostCritic) should usually be **greater than the** path tracking class (PathAlignCritic + PathFollowCritic), otherwise the robot will crash into dynamic obstacles in order to follow the path.
+**Relative weighting**: The summed weight of the obstacle critics (ObstaclesCritic + CostCritic) should usually be **greater than** that of the path-tracking critics (PathAlignCritic + PathFollowCritic); otherwise the robot will run into dynamic obstacles in order to follow the path.
 
 **Recommended tuning sequence**:
 
-1. **Retain only ObstaclesCritic + CostCritic**, and adjusts it so that the robot can bypass obstacles without colliding.
-2. **Add PathAlignCritic + PathFollowCritic** and adjusts the robot to follow the global path
-3. **Add GoalCritic + GoalAngleCritic** to ensure the correct pose when reaching the goal
-4. **Join** TwirlingCritic / PreferForwardCritic on demand to fix specific motion defects
-5. **Do not adjust multiple weights at the same time**. Only change one at a time, and observe changes in behavior before continuing.
+1. **Keep only ObstaclesCritic + CostCritic** and tune until the robot goes around obstacles without colliding.
+2. **Add PathAlignCritic + PathFollowCritic** and tune until the robot follows the global path.
+3. **Add GoalCritic + GoalAngleCritic** to ensure the correct pose on arrival at the goal.
+4. **Add TwirlingCritic / PreferForwardCritic** as needed to fix specific motion defects.
+5. **Do not change several weights at once.** Change one at a time and observe the change in behavior before continuing.
 
 **Example YAML configuration**:
 ```yaml
@@ -1824,89 +1824,89 @@ FollowPath:
 ### Whole-body collision checking
 {: id="全身碰撞检测"}
 
-The previous DWA / TEB / potential field method / MPPI all approximate the robot as a point **or a circle**, and then expand the obstacles according to a fixed radius. This approximation is accurate for circular chassis (sweepers, circular AGVs); but for **quadruped robots, forklifts, and long-strip AGV**, any value for the inflation radius is wrong:
+The DWA / TEB / potential field / MPPI methods above all approximate the robot as a point **or a circle** and then inflate obstacles by a fixed radius. That approximation is accurate for circular chassis (sweepers, circular AGVs), but for **quadruped robots, forklifts, and long, narrow AGVs**, any single inflation radius is wrong:
 
-| How to find the inflation radius | Collision model occupation | 0.50 m wide door | Consequences |
+| How the inflation radius is chosen | Collision model footprint | 0.50 m wide door | Consequence |
 |---|---|---|---|
-| ① According to **width** $r = 0.16$ m | diameter 0.31 m | Passage allowed | Once turned inside the door, the actual lateral area 0.70 m → **missed detection and hit the wall** |
-| ② According to **length** $r = 0.35$ m | diameter 0.70 m | Passage rejected | Obviously you can pass by walking straight → **Too conservative, take the long way around** |
-| ③ **Orientation-aware twin cylinders** | Go straight 0.31 m / Turn around 0.70 m | You can pass by going straight, but turning is rejected | Neither missed detection nor conservative |
+| ① By **width**, $r = 0.16$ m | Diameter 0.31 m | Passage allowed | Once the robot turns inside the doorway, its actual lateral extent becomes 0.70 m → **missed detection, hits the wall** |
+| ② By **length**, $r = 0.35$ m | Diameter 0.70 m | Passage rejected | The robot could clearly pass by going straight → **too conservative, takes the long way around** |
+| ③ **Orientation-aware double cylinder** | Heading straight 0.31 m / turned sideways 0.70 m | Passes when going straight, rejected when turned | Neither misses collisions nor is overly conservative |
 
-(The example body is 0.70 m × 0.31 m, which is close to the body size of Unitree Go2)
+(The example body is 0.70 m × 0.31 m, close to the body size of the Unitree Go2)
 
-**idea**: Use a small number of geometric primitives **to cover the robot body**, so that the collision area changes with the orientation. A common practice on quadruped robots is **double cylinder coverage**: place two vertical cylinders along the longitudinal axis of the body, and pre-expand **the occupancy map according to the cylinder radius and upper and lower clearance**, so whole-body collision checking **reduces to querying the voxels** where the two circle centers are located. The two point queries are almost the same as the point model, but the accuracy is close to the rectangular model.
+**Idea**: Cover the robot body with a small number of geometric primitives so that the collision region changes with orientation. A common practice for quadruped robots is **double-cylinder coverage**: place two vertical cylinders along the body's longitudinal axis and pre-inflate **the occupancy map by the cylinder radius and the upper and lower clearances**, so that whole-body collision checking **reduces to querying the voxels** at the two circle centers. Two point queries cost almost the same as the point model, while the accuracy approaches that of the rectangular model.
 
 <div align="center">
-  <img src="/images/robotics_navigation/SCAN-Planner-twin-cylinder.webp" width="80%" alt="Dual cylindrical footprint towards perception. (a) The robot body is covered by two vertical cylinders with longitudinal offset and clearance parameters; (b) Along the B-spline control points, collision detection is simplified to querying the transformed circle center in the inflated occupancy map" />
-<figcaption>Figure: Dual cylindrical footprint towards perception. (a) The robot body is covered by two vertical cylinders with longitudinal offset and clearance parameters; (b) Along the B-spline control points, collision detection is simplified to querying the transformed circle center in the inflated occupancy map</figcaption>
+  <img src="/images/robotics_navigation/SCAN-Planner-twin-cylinder.webp" width="80%" alt="Orientation-aware double-cylinder footprint. (a) The robot body is covered by two vertical cylinders, parameterized by longitudinal offset and clearances; (b) Along the B-spline control points, collision checking reduces to querying the transformed circle centers in the inflated occupancy map" />
+<figcaption>Figure: Orientation-aware double-cylinder footprint. (a) The robot body is covered by two vertical cylinders, parameterized by longitudinal offset and clearances; (b) Along the B-spline control points, collision checking reduces to querying the transformed circle centers in the inflated occupancy map</figcaption>
 </div>
 
-**key parameters**:
+**Key parameters**:
 
-| Parameter | Meaning | Value selection |
+| Parameter | Meaning | Choice of value |
 |---|---|---|
-| $d_{off}$ | Longitudinal offset of the center of the cylinder relative to the center of the robot body | The two cylinders must cover the front and rear ends of the robot body, usually the length of the robot body 1/4 |
-| $d_{xy}$ | Horizontal clearance (cylinder radius) | Slightly larger than the half width of the robot body, leaving a margin for localization error |
-| $d_{up}$ | Upward clearance | Maximum vertical height covering the body and overhead sensor + Safety margin, used to distinguish **overhead obstacles that really block the road** and **tabletops/shelves with sufficient clearance** |
-| $d_{down}$ | Downward clearance | Nominal center height of robot body minus $d_{step}$ |
-| $d_{step}$ | The maximum step height that can be crossed | is determined by the body's movement ability, and obstacles lower than this value are excluded from the expansion area |
+| $d_{off}$ | Longitudinal offset of each cylinder center from the body center | The two cylinders must cover the front and rear ends of the body, usually 1/4 of the body length |
+| $d_{xy}$ | Horizontal clearance (cylinder radius) | Slightly larger than half the body width, leaving a margin for localization error |
+| $d_{up}$ | Upward clearance | Covers the maximum vertical height of the body and overhead sensors, plus a safety margin; used to distinguish **overhead obstacles that truly block the way** from **tabletops/shelves with enough clearance** |
+| $d_{down}$ | Downward clearance | The body's nominal center height minus $d_{step}$ |
+| $d_{step}$ | Maximum step height that can be crossed | Determined by the robot's locomotion ability; obstacles lower than this are excluded from the inflation zone |
 
-The pair of $d_{up}$ and $d_{down}$ is something that the 2.5D elevation map cannot do: the elevation map flattens the tabletop into a "terrain", and it is impossible to express whether you can get under the table; and the upper and lower clearances clearly distinguish between "there is something above your head but it is high enough" and "there is something under your feet but it is low enough".
+The pair $d_{up}$ and $d_{down}$ gives something a 2.5D elevation map cannot: an elevation map flattens a tabletop into "terrain" and cannot express whether the robot can pass under the table, whereas the upper and lower clearances clearly distinguish "something is above your head but high enough" from "something is under your feet but low enough".
 
-**Where does orientation come from?** Including yaw as an optimization variable increases the state dimension and solver complexity. A less expensive approach **derives orientation** from the local tangent of the position trajectory:
+**Where does the orientation come from?** Making yaw an optimization variable increases the state dimension and solver complexity. A cheaper approach is to **derive the orientation** from the local tangent of the position trajectory:
 
 $$\psi_i = \mathrm{atan2}\!\left(\mathbf e_y^\top (Q_{i+1} - Q_{i-1}),\; \mathbf e_x^\top (Q_{i+1} - Q_{i-1})\right)$$
 
-Here, $Q_i$ is the B-spline control point, and $Q_{i+1} - Q_{i-1}$ is the finite difference approximation of the local motion direction.
+Here, $Q_i$ is a B-spline control point, and $Q_{i+1} - Q_{i-1}$ is a finite-difference approximation of the local direction of motion.
 
-> **Why this can be done**: The heading of the quadruped robot can be decoupled from the direction of movement, but aligning the body with the direction of movement can exactly minimize the lateral projection in the narrow channel - this is not only the most natural behavior during execution (the controller can just track the trajectory tangent), but also makes the collision detection consistent with the actual execution, without any additional yaw control variables.
+> **Why this works**: A quadruped's heading can be decoupled from its direction of motion, but aligning the body with the direction of motion exactly minimizes the lateral projection in a narrow passage. This is not only the most natural behavior at execution time (the controller can simply track the trajectory tangent), it also keeps collision checking consistent with actual execution, with no extra yaw control variables.
 
-**3D planning of ground robot: z-direction gradient suppression**
+**3D planning for ground robots: suppressing the z gradient**
 
-Directly optimizing ground robots as "flying 3D rigid bodies" will lead to an absurd result: the planner found **Jump over the obstacle** The path is the shortest, so lift the trajectory upwards. This is fine for drones, but completely unfeasible for ground robots that must be supported by contact.
+Directly optimizing a ground robot as a "flying 3D rigid body" leads to an absurd result: the planner finds that **jumping over the obstacle** gives the shortest path and lifts the trajectory upward. That is fine for drones, but entirely infeasible for ground robots, which must stay in contact with the ground.
 
-The correct approach is to avoid obstacles **Mainly occurs in the horizontal direction** , the vertical direction only follows the terrain trend:
+The correct approach is to let obstacle avoidance **happen mainly in the horizontal direction**, while the vertical direction only follows the terrain trend:
 
-1. **Height regularization initialization** - first use polynomial to generate the initial path, and then redistribute the height linearly between the starting point and the local target according to **cumulative horizontal arc length**. The $xy$ projection remains unchanged, and the $z$ becomes a linear profile along the horizontal travel distance, serving as a stable vertical baseline before optimization.
-2. **Projection A\* Guide** - After detecting the collision segment, the detour path is not searched in the complete 3D grid, but is limited to a **inclined search surface** that is interpolated from the height of the two end points. Each search node is only represented by "horizontal grid coordinates + interpolated height", the search space is reduced from 3D to 2.5D, and it naturally fits the terrain slope.
-3. **z Gradient suppression** - suppress the vertical component during optimization and update, and convert all repulsive force into lateral deformation.
+1. **Height-regularized initialization**: First generate an initial path with a polynomial, then redistribute the height linearly between the start and the local goal according to **cumulative horizontal arc length**. The $xy$ projection stays unchanged and $z$ becomes a linear profile along the horizontal travel distance, which serves as a stable vertical baseline before optimization.
+2. **Projected A\* guidance**: After a colliding segment is detected, the detour is not searched in the full 3D grid but restricted to a **tilted search surface** interpolated from the heights of the two endpoints. Each search node is represented only by "horizontal grid coordinates + interpolated height", which reduces the search space from 3D to 2.5D and fits the terrain slope naturally.
+3. **z-gradient suppression**: Suppress the vertical component during optimization updates, and convert all repulsion into lateral deformation.
 
 <div align="center">
-  <img src="/images/robotics_navigation/SCAN-Planner-z-suppression.webp" width="80%" alt="Projected rebound deformation on staircase terrain. Blue is the highly regularized polynomial initialization, providing a nominal vertical profile; green is the optimized B-spline, which circumvents obstacles through horizontal deformation under the guidance of the red rebound gradient to avoid unnecessary vertical oscillations" />
-<figcaption>Figure: Projected rebound deformation on staircase terrain. Blue is the highly regularized polynomial initialization, providing a nominal vertical profile; green is the optimized B-spline, which circumvents obstacles through horizontal deformation under the guidance of the red rebound gradient to avoid unnecessary vertical oscillations</figcaption>
+  <img src="/images/robotics_navigation/SCAN-Planner-z-suppression.webp" width="80%" alt="Projected rebound deformation on staircase terrain. Blue is the height-regularized polynomial initialization, which provides a nominal vertical profile; green is the optimized B-spline, which avoids obstacles through horizontal deformation guided by the red rebound gradient and avoids unnecessary vertical oscillation" />
+<figcaption>Figure: Projected rebound deformation on staircase terrain. Blue is the height-regularized polynomial initialization, which provides a nominal vertical profile; green is the optimized B-spline, which avoids obstacles through horizontal deformation guided by the red rebound gradient and avoids unnecessary vertical oscillation</figcaption>
 </div>
 
-Without this step, the 3D planner would give a short path "flying over the obstacle" in the stair scene; with it, the trajectory retains the climbing tendency induced by the stair while avoiding the obstacle laterally.
+Without this step, the 3D planner would produce a short path that "flies over the obstacle" in the staircase scene; with it, the trajectory keeps the climbing tendency induced by the stairs while avoiding the obstacle laterally.
 
 **Local map boundaries and dead-end recovery**
 
-During long-distance navigation, the robot only maintains one **Robot-centered sliding occupancy map** (A fixed-size circular buffer, when the map is translated, only the replaced address is replaced and the overlapping area is retained to achieve zero copy). This brings up an old problem that DWA/TEB also encounters: **The local planner gets stuck when a subgoal falls behind a newly observed obstacle, or simply outside the map boundaries.** .
+During long-distance navigation, the robot maintains only a **robot-centered sliding occupancy map** (a fixed-size circular buffer: when the map shifts, only the cells being replaced are overwritten and the overlapping region is kept, achieving zero copy). This brings back an old problem that DWA/TEB also encounter: **the local planner gets stuck when a subgoal falls behind a newly observed obstacle, or simply outside the map boundary.**
 
 The boundary fallback strategy converts "planning failure" into "bounded recovery actions":
 
-1. Temporarily add a layer outside the rolling map boundary **One-pixel wide virtual free layer** , is only used to generate hypothesis paths and is not considered an executable free space;
-2. If the target is unreachable within the map, A\* search is allowed to enter the virtual layer;
-3. Take the boundary voxel **where the** hypothesis path leaves the rolling map as the fallback target and replace the original local target;
-4. Generate final paths with full-body collision detection withwithin the actual rolling map.
+1. Temporarily add a **one-cell-wide virtual free layer** outside the rolling map boundary, used only to generate hypothetical paths and not treated as executable free space;
+2. If the goal is unreachable within the map, A\* search is allowed to enter the virtual layer;
+3. Take the boundary voxel **where the hypothetical path leaves the rolling map** as the fallback target, replacing the original local goal;
+4. Generate the final path within the actual rolling map using whole-body collision checking.
 
 <div align="center">
-  <img src="/images/robotics_navigation/SCAN-Planner-boundary-fallback.webp" width="80%" alt="Projection A* guidance and boundary fallback. (a) When the target is reachable within the rolling map, the final path bypasses the occupied voxels; (b) In the case of a dead end, assuming that the path is allowed to enter the virtual free layer outside the map boundary, the voxels leaving the boundary are selected as the fallback target, forming a bounded recovery movement" />
-<figcaption>Figure: Projection A* guidance and boundary fallback. (a) When the target is reachable within the rolling map, the final path bypasses the occupied voxels; (b) In the case of a dead end, assuming that the path is allowed to enter the virtual free layer outside the map boundary, the voxels leaving the boundary are selected as the fallback target, forming a bounded recovery movement</figcaption>
+  <img src="/images/robotics_navigation/SCAN-Planner-boundary-fallback.webp" width="80%" alt="Projected A* guidance and boundary fallback. (a) When the goal is reachable within the rolling map, the final path goes around the occupied voxels; (b) In a dead end, hypothetical paths are allowed to enter the virtual free layer outside the map boundary, and the voxel where the path leaves the boundary is chosen as the fallback target, forming a bounded recovery motion" />
+<figcaption>Figure: Projected A* guidance and boundary fallback. (a) When the goal is reachable within the rolling map, the final path goes around the occupied voxels; (b) In a dead end, hypothetical paths are allowed to enter the virtual free layer outside the map boundary, and the voxel where the path leaves the boundary is chosen as the fallback target, forming a bounded recovery motion</figcaption>
 </div>
 
-The effect is: the robot will not shake in place in a dead end. Instead, it will walk towards the edge of the map and include the new area for observation, and the next round of re-planning will naturally get out of trouble.
+The effect is that the robot does not jitter in place in a dead end. Instead it walks toward the map edge to bring new area into view, and the next replanning round naturally gets it out of trouble.
 
-✅ The collision accuracy is close to the rectangular/polygon model, and the cost is close to the point model (only 2 voxels are checked for each detection point)
-✅ The upper and lower clearances can clearly distinguish between overhead obstacles and low obstacles that can be crossed, which is not possible with the 2.5D elevation map.
-✅ Orientation is induced by the trajectory tangent and does not increase optimization variables
-✅ Sliding map + boundary fallback, the memory is bounded and you can get out of trouble under long-distance navigation
-❌ The double cylinder is still a conservative coverage and is not accurate enough for a more irregularly shaped body (a mobile platform with a robotic arm)
-❌ Relying on dense point cloud and high-frequency odometry (typical configuration is 3D LiDAR + LIO), pure 2D LiDAR platform cannot be used
-❌ Compared with the pure 2D costmap of DWA/TEB, the memory and update overhead of 3D occupancy grids are significantly higher
+✅ Collision accuracy close to rectangular/polygon models at a cost close to the point model (only 2 voxels are checked per query point)
+✅ The upper and lower clearances clearly distinguish overhead obstacles from low obstacles that can be stepped over, which a 2.5D elevation map cannot do
+✅ Orientation is induced by the trajectory tangent and adds no optimization variables
+✅ Sliding map + boundary fallback: bounded memory, and the robot can escape from dead ends during long-distance navigation
+❌ The double cylinder is still a conservative cover and is not accurate enough for more irregular bodies (such as a mobile platform with a robot arm)
+❌ Relies on dense point clouds and high-rate odometry (typically 3D LiDAR + LIO); pure 2D LiDAR platforms cannot use it
+❌ Compared with the pure 2D costmaps of DWA/TEB, the memory and update costs of the 3D occupancy grid are significantly higher
 
-> **When is it needed?** Robot aspect ratio > 2 , and exist in the working environment **Narrow passages of the same magnitude as the body size** or **overhead suspension structure** (tables, shelves, pipes). If it is a round chassis running in an open room, isotropic expansion is enough, and adding this machinery will only increase the cost.
+> **When is it needed?** When the robot's aspect ratio is > 2 and the working environment contains **narrow passages comparable to the body size** or **overhanging structures** (tables, shelves, pipes). A round chassis running in an open room needs only isotropic inflation, and adding this machinery would only increase cost.
 
-**Representative implementation**: SCAN-Planner ([arXiv:2606.19555](https://arxiv.org/abs/2606.19555), [code](https://github.com/wuyi2121/SCAN-Planner)) was validated on Unitree Go2 with Livox Mid-360 and FAST-LIO2, with all modules running in real time on Jetson Orin NX. Simulation comparisons used MARSIM (40 m × 20 m, 100–500 random obstacles, 50 trials per group):
+**Representative implementation**: SCAN-Planner ([arXiv:2606.19555](https://arxiv.org/abs/2606.19555), [code](https://github.com/wuyi2121/SCAN-Planner)) was validated on a Unitree Go2 with a Livox Mid-360 and FAST-LIO2, with all modules running in real time on a Jetson Orin NX. Simulation comparisons used MARSIM (40 m × 20 m, 100–500 random obstacles, 50 trials per group):
 
 | Method | Success Rate ↑ | Collision Rate ↓ | SPL ↑ |
 |---|---|---|---|
@@ -1916,52 +1916,52 @@ The effect is: the robot will not shake in place in a dead end. Instead, it will
 | ART-Planner | 0.44 | 0.56 | 0.31 |
 | **SCAN-Planner** | **1.00** | **0.00** | **0.95** |
 
-The long-range real robot test includes cross-floor inspection of a three-story office building (149 m / 251 s) and campus-scale last-mile delivery (367 m / 589 s, global routing is provided by a commercial navigation map, and local planning is undertaken by this method).
+The long-range real-robot tests include cross-floor inspection of a three-story office building (149 m / 251 s) and campus-scale last-mile delivery (367 m / 589 s), where global routing is supplied by a commercial navigation map and local planning is handled by this method.
 
 ## 5.4 Costmap layers
 {: id="54-代价地图层次"}
 
-> **ROS1 vs ROS2**: The `costmap_2d` plug-in has the same architecture in the two versions (layered overlay, layer plug-in with the same name), and the namespace writing method of configuring YAML is slightly different. Nav2 adds two new layers, `VoxelLayer` (3D voxel barrier) and `SpeedLimitLayer` (regional speed limit), and the rest of the concepts are exactly the same.
+> **ROS 1 vs. ROS 2**: The `costmap_2d` plugin architecture is the same in both versions (layered overlay, layer plugins with the same names); only the namespace conventions in the YAML configuration differ slightly. Nav2 adds two new layers, `VoxelLayer` (3D voxel obstacles) and `SpeedLimitLayer` (regional speed limits); all other concepts are identical.
 
-`costmap_2d` adopts **layered superposition** architecture, multi-layer costmaps are merged in order, and finally the **maximum cost value** of each grid cell is taken:
+`costmap_2d` uses a **layered overlay** architecture: the layers are merged in order, and the final value of each grid cell is the **maximum cost** across layers:
 
-| Layer name | Function | Typical update frequency |
+| Layer | Function | Typical update rate |
 |------|------|------------|
-| **Static layer** (StaticLayer) | Read the occupancy grid map generated by SLAM and initialize the impassable area | Extremely low (one-time load at startup) |
-| **Obstacle layer** (ObstacleLayer) | Subscribe to laser/point cloud, use ray-casting to mark/clear obstacle grids | High (synchronized with sensor frame rate, approx. 10–20 Hz) |
-| **Voxel layer** (VoxelLayer, Nav2) | 3D voxel aware, filtered floor/ceiling and projected to 2D | High |
-| **inflation layer** (InflationLayer) | The outward expansion cost gradient of the LETHAL lattice decays from 253 to 0 | from near to far Updated with obstacle layer |
-| **Custom layer** | Prohibited areas, semantic annotations, speed limit areas, etc. | Customized |
+| **Static layer** (StaticLayer) | Reads the occupancy grid map produced by SLAM and initializes the impassable regions | Extremely low (loaded once at startup) |
+| **Obstacle layer** (ObstacleLayer) | Subscribes to laser / point cloud data and marks or clears obstacle cells by ray casting | High (in step with the sensor frame rate, about 10–20 Hz) |
+| **Voxel layer** (VoxelLayer, Nav2) | 3D voxel-aware; filters floor/ceiling and projects to 2D | High |
+| **Inflation layer** (InflationLayer) | The cost gradient spreading outward from LETHAL cells decays from 253 to 0 | Updated together with the obstacle layer |
+| **Custom layer** | Keep-out zones, semantic annotations, speed-limit zones, etc. | Custom |
 
 <div align="center">
-  <img src="/images/robotics_navigation/robot-nav-costmap-layers-en.svg" width="88%" alt="costmap hierarchical structure - static layer + obstacle layer + inflation layer superposition, the maximum value of each layer is used to generate the final costmap" />
-<figcaption>Figure: costmap hierarchical structure - static layer + obstacle layer + inflation layer superposition, the maximum value of each layer is used to generate the final costmap</figcaption>
+  <img src="/images/robotics_navigation/robot-nav-costmap-layers-en.svg" width="88%" alt="Costmap layer structure: the static, obstacle, and inflation layers are overlaid, and the maximum across layers gives the final costmap" />
+<figcaption>Figure: Costmap layer structure: the static, obstacle, and inflation layers are overlaid, and the maximum across layers gives the final costmap</figcaption>
 </div>
 
-### Cost Values
+### Cost values
 {: id="代价值定义"}
 
-Each grid cell stores a uint8 (0–255) cost value, with the following meaning:
+Each grid cell stores a uint8 (0–255) cost value, with the following meanings:
 
 | Cost value | Symbolic constant | Meaning |
 |--------|---------|------|
-| **0** | FREE | Free space, passable |
-| **1–252** | — | Inflation gradient (the closer to the obstacle, the larger), the planner will try to avoid high-cost areas |
-| **253** | INSCRIBED | When the robot center is here, its footprint **must** be in contact with the obstacle (equal to the inscribed circle just touching the edge) |
-| **254** | LETHAL | The obstacle itself (or the direct projection of the obstacle grid) |
-| **255** | UNKNOWN | Unknown area that has not been observed by sensors |
+| **0** | FREE | Free space, traversable |
+| **1–252** | — | Inflation gradient (higher closer to obstacles); the planner tries to avoid high-cost areas |
+| **253** | INSCRIBED | When the robot center is here, its footprint **must** touch an obstacle (equivalent to the inscribed circle just touching the edge) |
+| **254** | LETHAL | The obstacle itself (or the direct projection of an obstacle cell) |
+| **255** | UNKNOWN | Unknown area not yet observed by sensors |
 
 ### Footprint (robot footprint)
 {: id="footprint机器人轮廓"}
 
-Footprint is the 2D polygon footprint of the robot in the XY plane and is the basis for costmap to calculate the dangerous area. From this two radii are derived:
+The footprint is the robot's 2D polygon outline in the XY plane and is the basis on which the costmap computes dangerous areas. Two radii are derived from it:
 
-- **Inscribed circle radius** $r_{ins}$: The maximum circle radius that can fit into the footprint. When the robot center distance is $\leq r_{ins}$, **must collide with**, corresponding to the INSCRIBED (253) cost
-- **circumscribed circle radius** $r_{circ}$: the minimum circle radius that can cover the footprint. When the robot center is between $(r_{ins}, r_{circ}]$ and the obstacle, **may collide with** (depending on the orientation)
+- **Inscribed circle radius** $r_{ins}$: the radius of the largest circle that fits inside the footprint. When the distance from the robot center to an obstacle is $\leq r_{ins}$, a collision **is certain**, corresponding to the INSCRIBED (253) cost
+- **Circumscribed circle radius** $r_{circ}$: the radius of the smallest circle that covers the footprint. When the distance from the robot center to an obstacle lies in $(r_{ins}, r_{circ}]$, a collision **is possible** (depending on orientation)
 
 Configuration example:
 ```yaml
-# Round robot (simple)
+# Circular robot (simple)
 robot_radius: 0.22
 
 # Non-circular robot (polygonal footprint)
@@ -1975,182 +1975,182 @@ $$\text{cost}(d) = \begin{cases} 254 & d \leq 0 \text{ (obstacle cell)} \\ 253 &
 
 Here, $d$ is the distance to the nearest obstacle, $r_{inf}$ is `inflation_radius`, and $k$ is `cost_scaling_factor`.
 
-**parameter intuition**:
-- `inflation_radius` The bigger the obstacle is, the wider the "influence range" of the obstacle is, and the narrow channel is more difficult to pass, but the path is safer
-- The larger `cost_scaling_factor` is → the steeper the penalty attenuation. The penalty for being close to an obstacle is high but decreases quickly when moving away.
-- **recommended value**: `inflation_radius` = $r_{ins}$ + 0.1–0.3 m (safety margin depends on localization accuracy and speed)
+**Parameter intuition**:
+- The larger `inflation_radius` is, the wider the obstacle's "range of influence": narrow passages become harder to traverse, but paths are safer
+- The larger `cost_scaling_factor` is, the steeper the cost decay: the penalty near an obstacle is high but drops quickly with distance
+- **Recommended value**: `inflation_radius` = $r_{ins}$ + 0.1–0.3 m (the safety margin depends on localization accuracy and speed)
 
-### Global costmap vs local costmap
+### Global costmap vs. local costmap
 {: id="全局代价地图-vs-局部代价地图"}
 
-Two sets of costmaps are configured independently and serve different planners:
+The two costmaps are configured independently and serve different planners:
 
-| Comparison item | Global costmap | Local costmap |
+| Item | Global costmap | Local costmap |
 |--------|------------|------------|
-| **Range** | The entire map (or large area) | Small window around the robot (such as 4 m × 4 m) |
-| **follows the robot** | No (fixed in `map` frame) | Yes (Rolling Window, always centered on the robot) |
-| **Included layers** | Static layer + obstacle layer (optional) + inflation layer | Obstacle layer + inflation layer (no static layer required) |
-| **update frequency** | low (static layer is almost unchanged) | high (real-time sensor driver) |
-| **Service object** | Global planner (A*, Navfn) | Local planner (DWA, TEB, MPPI) |
-| **Main functions** | Provides a collision-free global path skeleton | Avoids dynamic obstacles in real time and executes smoothly |
+| **Range** | The entire map (or a large area) | A small window around the robot (such as 4 m × 4 m) |
+| **Follows the robot** | No (fixed in the `map` frame) | Yes (rolling window, always centered on the robot) |
+| **Layers included** | Static layer + obstacle layer (optional) + inflation layer | Obstacle layer + inflation layer (no static layer needed) |
+| **Update rate** | Low (the static layer barely changes) | High (driven by real-time sensor data) |
+| **Consumer** | Global planner (A*, Navfn) | Local planner (DWA, TEB, MPPI) |
+| **Main role** | Provides a collision-free skeleton of the global path | Avoids dynamic obstacles in real time and executes smoothly |
 
-> **Key difference**: The local costmap does not load the static layer, because the static layer is a globally consistent large map, and loading it into a small window will miss the "known obstacles" outside the window. Local maps only trust real-time data within the current sensor field of view.
+> **Key difference**: The local costmap does not load the static layer, because the static layer is a large, globally consistent map, and loading it into a small window would miss "known obstacles" outside the window. The local map trusts only real-time data within the current sensor field of view.
 
-## 5.5 Comparison of Planning Algorithms
+## 5.5 Comparison of planning algorithms
 {: id="55-规划算法对比汇总"}
 
-| algorithm | type | optimality | completeness | Computation speed | applicable scenario |
+| Algorithm | Type | Optimality | Completeness | Speed | Suitable scenarios |
 |------|------|--------|--------|---------|---------|
-| **Dijkstra** | Search (Global) | ✅ Optimal | ✅ | Slow | Small-scale grid map |
-| **A*** | Search (Global) | ✅ Best | ✅ | Medium | Indoor Navigation, Autonomous Driving |
-| **Hybrid A*** | Search (Global) | Approximate | ✅ | Moderate | nonholonomic constraints vehicle (autonomous parking) |
-| **FMM** | Search (Global) | ✅ Optimal (Continuous) | ✅ | Slow (Full grid) | Non-uniform terrain, multi-start query, smooth path requirements |
-| **RRT** | sampling (global) | ❌ | probabilistically complete | fast | High-dimensional space, robotic arm |
-| **RRT*** | sampling (global) | asymptotically optimal | probabilistically complete | medium | High-dimensional space |
-| **DWA** | Local | Local optimal | ❌ | Extremely fast | Indoor mobile robot real-time obstacle avoidance |
-| **TEB** | Local | Local optimal | ❌ | Medium | Complex local environment requires smooth trajectory |
-| **potential field method** | local | ❌ | ❌ | extremely fast | Simple scene, assisted guidance |
-| **MPPI** | Sampling (local) | asymptotically optimal | probabilistically complete | medium (GPU acceleration) | Nonlinear dynamics, off-road unmanned vehicle, dynamic obstacle avoidance |
+| **Dijkstra** | Search (global) | ✅ Optimal | ✅ | Slow | Small-scale grid maps |
+| **A*** | Search (global) | ✅ Optimal | ✅ | Medium | Indoor navigation, autonomous driving |
+| **Hybrid A*** | Search (global) | Approximate | ✅ | Medium | Vehicles with nonholonomic constraints (autonomous parking) |
+| **FMM** | Search (global) | ✅ Optimal (continuous) | ✅ | Slow (full grid) | Non-uniform terrain, multi-query planning, smooth-path requirements |
+| **RRT** | Sampling (global) | ❌ | Probabilistically complete | Fast | High-dimensional spaces, robot arms |
+| **RRT*** | Sampling (global) | Asymptotically optimal | Probabilistically complete | Medium | High-dimensional spaces |
+| **DWA** | Local | Locally optimal | ❌ | Extremely fast | Real-time obstacle avoidance for indoor mobile robots |
+| **TEB** | Local | Locally optimal | ❌ | Medium | Complex local environments that need smooth trajectories |
+| **Potential field** | Local | ❌ | ❌ | Extremely fast | Simple scenes, assisted guidance |
+| **MPPI** | Sampling (local) | Asymptotically optimal | Probabilistically complete | Medium (GPU-accelerated) | Nonlinear dynamics, off-road unmanned vehicles, dynamic obstacle avoidance |
 
 ---
 
-# 6. Path Tracking
+# 6. Path tracking
 {: id="6-路径跟踪path-tracking"}
 
-Path planning gives an ideal path, and the task of the **path tracking controller** is to make the robot actually follow this path. Due to the presence of noise, model errors and external interference in the real world, the controller needs to calculate corrections in real time.
+Path planning provides an ideal path, and the job of the **path tracking controller** is to make the robot actually follow it. Because of noise, model errors, and external disturbances in the real world, the controller must compute corrections in real time.
 
-## 6.1 Pure Pursuit Control
+## 6.1 Pure Pursuit control
 {: id="61-纯追踪控制"}
 
-Pure Pursuit Control (Pure Pursuit) **Intuition**: Imagine you are driving, staring at a target point at a fixed distance ahead (**Lookahead distance $L_d$**), and constantly adjusting the steering wheel to turn towards it. That’s the thinking behind Pure Pursuit.
+**Intuition** for Pure Pursuit control: Imagine you are driving, fixing your eyes on a target point a set distance ahead (the **lookahead distance $L_d$**) and constantly steering toward it. That is the idea behind Pure Pursuit.
 
-**core formula**:
+**Core formula**:
 
 $$\delta = \arctan\left(\frac{2L\sin\alpha}{L_d}\right)$$
 
 Here:
-- $\delta$ = Front wheel angle (control amount)
+- $\delta$ = front wheel steering angle (the control output)
 - $L$ = wheelbase
-- $\alpha$ = The angle between the target point direction and the vehicle heading
-- $L_d$ = Lookahead distance (usually the distance traveled within 1–2 times the current speed)
+- $\alpha$ = the angle between the direction to the target point and the vehicle heading
+- $L_d$ = lookahead distance (usually 1–2 times the distance traveled at the current speed)
 
 <div align="center">
-  <img src="/images/robotics_navigation/robot-nav-pure-pursuit-en.svg" width="85%" alt="Pure Pursuit geometric relationship - the center of the rear axle is the reference point, draw a circle with the lookahead distance L_d as the radius, the intersection with the reference path is the target point T, the angle α determines the front wheel rotation angle δ" />
-<figcaption>Figure: Pure Pursuit geometric relationship - the center of the rear axle is the reference point, draw a circle with the lookahead distance $L_d$ as the radius, the intersection with the reference path is the target point T, the angle α determines the front wheel rotation angle δ</figcaption>
+  <img src="/images/robotics_navigation/robot-nav-pure-pursuit-en.svg" width="85%" alt="Pure Pursuit geometry: the rear axle center is the reference point; a circle of radius L_d (the lookahead distance) around it intersects the reference path at the target point T, and the angle α determines the front wheel steering angle δ" />
+<figcaption>Figure: Pure Pursuit geometry: the rear axle center is the reference point; a circle of radius $L_d$ (the lookahead distance) around it intersects the reference path at the target point T, and the angle α determines the front wheel steering angle δ</figcaption>
 </div>
 
 ✅ Extremely simple to implement
-✅ Robust to path noise (natural smoothing effect)
-❌ The lookahead distance requires manual parameter adjustment
-❌ Large tracking error at high speed (pure geometric control, ignoring dynamics)
+✅ Robust to path noise (a natural smoothing effect)
+❌ The lookahead distance must be tuned by hand
+❌ Large tracking error at high speed (purely geometric control that ignores dynamics)
 
-**Lookahead distance $L_d$ Parameter adjustment practice suggestions**:
+**Practical suggestions for tuning the lookahead distance $L_d$**:
 
-$L_d$ is the only key parameter that needs to be adjusted for Pure Pursuit, which has a great impact on performance:
+$L_d$ is the only key parameter that must be tuned in Pure Pursuit, and it has a large effect on performance:
 
-| $L_d$ Settings | Behavioral characteristics | Applicable scenarios |
+| $L_d$ setting | Behavior | Suitable scenarios |
 |-----------|---------|---------|
-| **Too small** (< 0.5m @ 1m/s) | The steering is too aggressive and oscillates frequently | — |
-| **Moderate** | Smooth tracking, slight path error | General navigation |
-| **Too large** (> 3m @ 1m/s) | Take the "big curve" to cut the angle, the straight effect is good but the turning error is large | High-speed straight |
+| **Too small** (< 0.5m @ 1m/s) | Steering is too aggressive and oscillates frequently | — |
+| **Moderate** | Smooth tracking with slight path error | General navigation |
+| **Too large** (> 3m @ 1m/s) | Cuts corners in "big arcs"; good on straights but large error in turns | High-speed straight driving |
 
-**Speed Adaptive Parameter** (Adaptive Pure Pursuit): Use $L_d = k \cdot v$, where the typical $k$ value is:
-- Indoor robot (up to 1 m/s): $k \approx 1.5 \text{–} 2.0$
-- Warehousing AGV (up to 2 m/s): $k \approx 1.0 \text{–} 1.5$
+**Speed-adaptive parameter** (Adaptive Pure Pursuit): Use $L_d = k \cdot v$, where typical values of $k$ are:
+- Indoor robots (up to 1 m/s): $k \approx 1.5 \text{–} 2.0$
+- Warehouse AGVs (up to 2 m/s): $k \approx 1.0 \text{–} 1.5$
 - Autonomous driving (up to 30 km/h): $k \approx 0.5 \text{–} 1.0$
 
-Another practical tip: Set the **minimum value** of $L_d$ (such as 0.3 m) to avoid oscillation caused by the lookahead distance approaching zero at low speeds.
+Another practical tip: set a **minimum value** for $L_d$ (such as 0.3 m) to avoid the oscillation caused by the lookahead distance approaching zero at low speed.
 
 <div align="center">
   <video src="/images/robotics_navigation/pure_pursuit_path_tracking.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
-<figcaption>Figure: Pure Pursuit path tracking simulation - the vehicle looks ahead at the lookahead point and smoothly tracks the reference path</figcaption>
+<figcaption>Figure: Pure Pursuit path tracking simulation: the vehicle looks ahead to the lookahead point and smoothly tracks the reference path</figcaption>
 </div>
 
 ## 6.2 Adaptive tracking control
 {: id="62-自适应追踪控制"}
 
-Adaptive Pursuit Control (Adaptive Pure Pursuit) will lookahead distance $L_d$ with speed **dynamic association** :
+Adaptive Pure Pursuit **dynamically couples** the lookahead distance $L_d$ to the speed:
 
 $$L_d = k \cdot v$$
 
-Here, $k$ is the proportional coefficient, and $v$ is the current speed. When the speed is fast, the lookahead is longer (stable), and when the speed is slow, the lookahead is shorter (accurate). This solves the problem of large differences in the performance of fixed lookahead distances at different speeds.
+Here, $k$ is a proportional coefficient and $v$ is the current speed. At high speed the lookahead is longer (more stable), and at low speed it is shorter (more accurate). This solves the problem that a fixed lookahead distance performs very differently at different speeds.
 
 <div align="center">
   <video src="/images/robotics_navigation/adaptive_pure_pursuit_path_tracking.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
-<figcaption>Figure: Adaptive Pure Pursuit path tracking - lookahead distance is dynamically adjusted with speed, and performance is stable at each speed range</figcaption>
+<figcaption>Figure: Adaptive Pure Pursuit path tracking: the lookahead distance is adjusted dynamically with speed, giving stable performance across speed ranges</figcaption>
 </div>
 
 ## 6.3 Rear wheel feedback control
 {: id="63-后轮反馈控制"}
 
-Rear Wheel Feedback uses the center point **of the rear axle of the vehicle** as the tracking reference point (rather than the front axle or center of gravity) to directly eliminate the lateral error and heading error of the rear wheel on the reference path. Rear Wheel Feedback has a stricter mathematical convergence guarantee than Pure Pursuit.
+Rear wheel feedback uses the **center of the vehicle's rear axle** as the tracking reference point (rather than the front axle or the center of gravity) and directly eliminates the rear wheel's lateral and heading errors relative to the reference path. It has stronger mathematical convergence guarantees than Pure Pursuit.
 
 <div align="center">
   <video src="/images/robotics_navigation/rear_wheel_feedback_tracking.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
-<figcaption>Figure: Rear wheel feedback control path tracking simulation - the rear axle is used as the reference point, the lateral error converges faster</figcaption>
+<figcaption>Figure: Rear wheel feedback path tracking simulation: with the rear axle as the reference point, the lateral error converges faster</figcaption>
 </div>
 
-## 6.4 Stanley Controller
+## 6.4 Stanley controller
 {: id="64-stanley-控制器"}
 
-The control law proposed by the Stanford University autonomous driving team (for the DARPA Challenge) is based on the **front axle midpoint**:
+The control law proposed by the Stanford autonomous driving team (for the DARPA Challenge), based on the **midpoint of the front axle**:
 
 $$\delta = \psi_e + \arctan\left(\frac{k \cdot e}{v}\right)$$
 
 Here:
 - $\psi_e$ = heading error
-- $e$ = Lateral deviation of front axle to path
-- $k$ = Gain coefficient
+- $e$ = lateral deviation of the front axle from the path
+- $k$ = gain coefficient
 - $v$ = current speed
 
-The first term corrects the heading deviation, and the second term corrects the lateral deviation. The faster the speed, the smaller the lateral error correction (to avoid high-speed sharp turns).
+The first term corrects the heading error, and the second corrects the lateral deviation. The faster the vehicle moves, the smaller the lateral correction (to avoid sharp turns at high speed).
 
-✅ Better accuracy than Pure Pursuit
+✅ More accurate than Pure Pursuit
 ✅ Good accuracy at low speed (parking)
-❌ At extremely low speed, the $\arctan(k \cdot e / v)$ item tends to be saturated and needs to be processed.
+❌ At extremely low speed, the $\arctan(k \cdot e / v)$ term saturates and must be handled specially
 ❌ Does not explicitly consider path curvature
 
 <div align="center">
   <video src="/images/robotics_navigation/stanley_path_tracking.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
-<figcaption>Figure: Stanley controller path tracking simulation - correcting heading error and lateral deviation at the same time, with higher accuracy at turns</figcaption>
+<figcaption>Figure: Stanley controller path tracking simulation: heading error and lateral deviation are corrected simultaneously, with higher accuracy in turns</figcaption>
 </div>
 
 ## 6.5 LQR path tracking
 {: id="65-lqr-路径跟踪"}
 
-**Linear Quadratic Regulator** models the path tracking problem as **optimal control problem**. Under the vehicle linearization model, LQR solves the optimal control law that minimizes the following cost function:
+The **Linear Quadratic Regulator (LQR)** formulates path tracking as an **optimal control problem**. Under a linearized vehicle model, LQR solves for the optimal control law that minimizes the following cost function:
 
 $$J = \sum_{t=0}^{\infty} \left( \mathbf{e}_t^T \mathbf{Q} \mathbf{e}_t + u_t^T \mathbf{R} u_t \right)$$
 
-Here, $$\mathbf{e}_t$$ is the tracking error (lateral deviation and heading error), $u_t$ is the control input (steering angle), and $\mathbf{Q}$ and $\mathbf{R}$ are weight matrices. Larger $\mathbf{Q}$ weights prioritize reducing tracking error; larger $\mathbf{R}$ weights prioritize smoother control.
+Here, $$\mathbf{e}_t$$ is the tracking error (lateral deviation and heading error), $u_t$ is the control input (steering angle), and $\mathbf{Q}$ and $\mathbf{R}$ are weight matrices. A larger $\mathbf{Q}$ prioritizes reducing tracking error; a larger $\mathbf{R}$ prioritizes smoother control.
 
-✅ Theoretically optimal and high accuracy
-✅ System response is smooth
-❌ Rely on accurate linearization model
-❌ $\mathbf{Q}$, $\mathbf{R}$ matrix parameter adjustment requires experience
+✅ Theoretically optimal and highly accurate
+✅ Smooth system response
+❌ Depends on an accurate linearized model
+❌ Tuning the $\mathbf{Q}$ and $\mathbf{R}$ matrices requires experience
 
 <div align="center">
   <video src="/images/robotics_navigation/lqr_path_tracking.mp4" data-autoplay preload="none" loop muted playsinline width="75%" style="aspect-ratio:800/800"></video>
-<figcaption>Figure: LQR path tracking simulation - the optimal control law minimizes the tracking error and the response is smooth and stable</figcaption>
+<figcaption>Figure: LQR path tracking simulation: the optimal control law minimizes tracking error, and the response is smooth and stable</figcaption>
 </div>
 
 ## 6.6 Path tracking comparison
 {: id="66-路径跟踪算法对比汇总"}
 
-| Controller | Tracking accuracy | Computational cost | Number of parameters | Applicable speed | Typical application |
+| Controller | Tracking accuracy | Computational cost | Number of parameters | Suitable speed | Typical application |
 |--------|---------|--------|---------|---------|---------|
-| **Pure Pursuit** | Low–Medium | Very Low | 1 ($L_d$) | Low – Medium | Simple indoor robot |
-| **Adaptive Pure Pursuit** | Medium | Very Low | 1 ($k$) | Full speed range | General mobile robot |
-| **Stanley** | Medium–High | Low | 1 ($k$) | Low–High | Autonomous Driving |
-| **Rear wheel feedback** | Medium – High | Low | Low | Full speed range | Differential wheeled robot |
-| **LQR** | High | Medium | 2 ($\mathbf{Q}$, $\mathbf{R}$) | Low–High | Autonomous driving, high-precision robot |
+| **Pure Pursuit** | Low–medium | Very low | 1 ($L_d$) | Low–medium | Simple indoor robots |
+| **Adaptive Pure Pursuit** | Medium | Very low | 1 ($k$) | Full speed range | General mobile robots |
+| **Stanley** | Medium–high | Low | 1 ($k$) | Low–high | Autonomous driving |
+| **Rear wheel feedback** | Medium–high | Low | Few | Full speed range | Differential-drive robots |
+| **LQR** | High | Medium | 2 ($\mathbf{Q}$, $\mathbf{R}$) | Low–high | Autonomous driving, high-precision robots |
 
 ---
 
 # 7. Kinematic models
 {: id="7-运动学模型"}
 
-All algorithms for path planning and motion control, their speed constraints, trajectory curvature, and control variables are based on specific kinematic models. Different chassis structures correspond to completely different state equations, which directly determine which planning/tracking algorithms are available and how constraints are modeled. This chapter systematically sorts out three types of mainstream models.
+Every path planning and motion control algorithm builds on a specific kinematic model, which determines its velocity constraints, trajectory curvature, and control variables. Different chassis structures have entirely different state equations, which directly determine which planning and tracking algorithms are usable and how constraints are modeled. This chapter systematically covers three mainstream models.
 
 ---
 
@@ -2160,17 +2160,17 @@ All algorithms for path planning and motion control, their speed constraints, tr
 ### Mechanical configuration
 {: id="机构特征"}
 
-The differential drive chassis consists of two independent drive wheels (left wheel $\omega_L$, right wheel $\omega_R$) and a number of passive caster wheels. Steering is achieved through the difference in speed between the two wheels. Typical platforms: TurtleBot, Husky, indoor mobile robot.
+A differential-drive chassis consists of two independently driven wheels (left wheel $\omega_L$, right wheel $\omega_R$) and a number of passive caster wheels. Steering is achieved through the speed difference between the two wheels. Typical platforms: TurtleBot, Husky, indoor mobile robots.
 
 <div align="center">
-  <img src="/images/robotics_navigation/differential_drive_model-en.svg" width="60%" alt="differential drive Chassis structure diagram: left and right wheels are driven independently, r is the wheel radius, 2b is the track width" />
-<figcaption> differential drive Chassis structure diagram: left and right wheels are driven independently, $r$ is the wheel radius, $2b$ is the track width</figcaption>
+  <img src="/images/robotics_navigation/differential_drive_model-en.svg" width="60%" alt="Differential-drive chassis structure: the left and right wheels are driven independently, r is the wheel radius, and 2b is the track width" />
+<figcaption>Differential-drive chassis structure: the left and right wheels are driven independently, $r$ is the wheel radius, and $2b$ is the track width</figcaption>
 </div>
 
 ### Kinematic equations
 {: id="运动学方程"}
 
-Assume that the wheel radius is $r$, and the track width (distance between the wheel centers) is $2b$, then:
+Let the wheel radius be $r$ and the track width (the distance between wheel centers) be $2b$. Then:
 
 $$v = \frac{r(\omega_R + \omega_L)}{2}, \quad \omega = \frac{r(\omega_R - \omega_L)}{2b}$$
 
@@ -2178,30 +2178,30 @@ The robot's state $\mathbf{q} = [x, y, \theta]^\top$ in the world frame satisfie
 
 $$\dot{x} = v\cos\theta, \quad \dot{y} = v\sin\theta, \quad \dot{\theta} = \omega$$
 
-Written in matrix form:
+In matrix form:
 
 $$\dot{\mathbf{q}} = \begin{bmatrix} \cos\theta & 0 \\ \sin\theta & 0 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} v \\ \omega \end{bmatrix}$$
 
-The control input is the linear velocity $v$ and the angular velocity $\omega$. The rotation speed of each wheel is obtained through inverse kinematics solution:
+The control inputs are the linear velocity $v$ and the angular velocity $\omega$. Each wheel's rotation speed follows from the inverse kinematics:
 
 $$\omega_R = \frac{v + b\omega}{r}, \quad \omega_L = \frac{v - b\omega}{r}$$
 
-### Constraints and Properties
+### Constraints and properties
 {: id="约束与特性"}
 
 | Property | Description |
 |------|------|
-| **Degrees of freedom** | 2 ($v$, $\omega$), nonholonomic constraints (cannot translate laterally) |
-| **Turning radius** | $R = v / \omega$, optional $0$ (rotate in place) |
-| **The instantaneous rotation center** | is located on the extension line connecting the two wheels. $\omega_L = -\omega_R$ rotates in place on the axis |
-| **Speed constraint** | $\vert v \vert \le v_{\max}$, $\vert\omega\vert \le \omega_{\max}$, each wheel speed does not exceed the hardware upper limit |
+| **Degrees of freedom** | 2 ($v$, $\omega$), nonholonomic constraint (cannot translate sideways) |
+| **Turning radius** | $R = v / \omega$, can be $0$ (rotate in place) |
+| **Instantaneous center of rotation** | Lies on the line through the two wheels; $\omega_L = -\omega_R$ rotates in place about the axle center |
+| **Velocity constraints** | $\vert v \vert \le v_{\max}$, $\vert\omega\vert \le \omega_{\max}$, and each wheel speed stays within the hardware limit |
 
 ### Impact on planning algorithms
 {: id="对规划算法的影响"}
 
-- **DWA**: The speed sampling space is the $(v, \omega)$ two-dimensional rectangle, which can support rotation in place without minimum turning radius constraints.
--  **TEB** : Can be directly constrained $v$ ,  $\omega$ and its derivative (acceleration), the differential model optimization has a high degree of freedom.
-- **Pure Pursuit / LQR**: Usually $\omega$ is used as the control output to directly control the angular velocity.
+- **DWA**: The velocity sampling space is the two-dimensional rectangle in $(v, \omega)$. Rotation in place is supported, with no minimum turning radius constraint.
+- **TEB**: Can directly constrain $v$, $\omega$, and their derivatives (accelerations); the differential model leaves a lot of freedom in the optimization.
+- **Pure Pursuit / LQR**: $\omega$ is usually used as the control output, directly controlling the angular velocity.
 
 ---
 
@@ -2211,39 +2211,39 @@ $$\omega_R = \frac{v + b\omega}{r}, \quad \omega_L = \frac{v - b\omega}{r}$$
 ### Mechanical configuration
 {: id="机构特征-1"}
 
-The Ackermann chassis is designed after the steering geometry of a car: rear-wheel drive, front-wheel steering; the two front wheels rotate around their respective steering knuckles. Ideally, the four-wheel instantaneous rotation centers are collinear, eliminating tire sideslip. Typical platforms: Autonomous passenger cars, AgileX Scout, Jackal (Small 4WD/Ackermann hybrid).
+The Ackermann chassis follows the steering geometry of a car: rear-wheel drive and front-wheel steering, with the two front wheels turning about their own steering knuckles. Ideally the instantaneous centers of rotation of the four wheels are collinear, which eliminates tire sideslip. Typical platforms: autonomous passenger cars, AgileX Scout, Jackal (a small 4WD/Ackermann hybrid).
 
 <div align="center">
-  <img src="/images/robotics_navigation/ackermann_geometry-en.svg" width="65%" alt="Ackermann steering geometry: the instantaneous rotation centers of the four wheels are collinear, and the inner and outer wheel rotation angles are different to eliminate sideslip" />
-<figcaption> Ackermann steering geometry: the instantaneous rotation centers of the four wheels are collinear, and the inner and outer wheel rotation angles are different to eliminate sideslip</figcaption>
+  <img src="/images/robotics_navigation/ackermann_geometry-en.svg" width="65%" alt="Ackermann steering geometry: the instantaneous centers of rotation of the four wheels are collinear, and the inner and outer wheels turn through different angles to eliminate sideslip" />
+<figcaption>Ackermann steering geometry: the instantaneous centers of rotation of the four wheels are collinear, and the inner and outer wheels turn through different angles to eliminate sideslip</figcaption>
 </div>
 
 ### Geometric relations
 {: id="几何关系"}
 
-Suppose the wheelbase (center distance between front and rear axles) is $L$, and the equivalent front wheel angle is $\delta$, then the turning radius is:
+Let the wheelbase (distance between the front and rear axles) be $L$ and the equivalent front wheel steering angle be $\delta$. The turning radius is then:
 
 $$R = \frac{L}{\tan\delta}$$
 
-The actual front wheel angles inside and outside satisfy (complete Ackermann condition):
+The actual inner and outer front wheel angles satisfy (the full Ackermann condition):
 
 $$\cot\delta_{out} - \cot\delta_{in} = \frac{W}{L}$$
 
-Here, $W$ is the track width. In practice, a single equivalent front-wheel steering angle $\delta$ is commonly used.
+Here, $W$ is the track width. In practice a single equivalent front-wheel steering angle $\delta$ is commonly used.
 
 ### Kinematics (bicycle model)
 {: id="运动学方程自行车模型近似"}
 
-Merge the front and rear wheels into a single wheel to get the classic **bicycle model**:
+Merging the front and rear wheels into a single wheel gives the classic **bicycle model**:
 
 <div align="center">
-  <img src="/images/robotics_navigation/bicycle_model-en.svg" width="55%" alt="bicycle model simplified: wheelbase L, front wheel angle \delta, rear wheel as reference point" />
-<figcaption> bicycle model simplified: wheelbase $L$, front wheel angle $\delta$, rear wheel as reference point</figcaption>
+  <img src="/images/robotics_navigation/bicycle_model-en.svg" width="55%" alt="Simplified bicycle model: wheelbase L, front wheel angle δ, with the rear wheel as the reference point" />
+<figcaption>Simplified bicycle model: wheelbase $L$, front wheel angle $\delta$, with the rear wheel as the reference point</figcaption>
 </div>
 
 $$\dot{x} = v\cos\theta, \quad \dot{y} = v\sin\theta, \quad \dot{\theta} = \frac{v\tan\delta}{L}$$
 
-The control inputs are longitudinal speed $v$ and front wheel angle $\delta$, curvature $\kappa = \tan\delta / L$.
+The control inputs are the longitudinal speed $v$ and the front wheel angle $\delta$, and the curvature is $\kappa = \tan\delta / L$.
 
 Discretization (forward Euler, step $\Delta t$):
 
@@ -2253,23 +2253,23 @@ y_{k+1} &= y_k + v_k \sin\theta_k \cdot \Delta t \\
 \theta_{k+1} &= \theta_k + \frac{v_k \tan\delta_k}{L} \cdot \Delta t
 \end{aligned}$$
 
-### Constraints and Properties
+### Constraints and properties
 {: id="约束与特性-1"}
 
 | Property | Description |
 |------|------|
-| **degrees of freedom** | 2 ($v$, $\delta$), nonholonomic constraints |
-| **Minimum turning radius** | $R_{\min} = L / \tan\delta_{\max}$, cannot rotate in place |
-| **Curvature continuity** | The turning angle change rate is limited by the steering actuator, and the path must have continuous curvature ($C^1$) |
-| **High-speed stability** | The tire slip angle cannot be ignored at high speed and needs to be expanded to a dynamic model |
+| **Degrees of freedom** | 2 ($v$, $\delta$), nonholonomic constraint |
+| **Minimum turning radius** | $R_{\min} = L / \tan\delta_{\max}$; cannot rotate in place |
+| **Curvature continuity** | The steering rate is limited by the steering actuator, so the path must have continuous curvature ($C^1$) |
+| **High-speed stability** | The tire slip angle cannot be ignored at high speed, so a dynamic model is needed instead |
 
 ### Impact on planning algorithms
 {: id="对规划算法的影响-1"}
 
-- **Hybrid A\***: Taking $(x, y, \theta)$ as the state, use Ackermann's equation of motion to expand the nodes to generate a continuous path with curvature, which can be tracked directly.
-- **TEB**: Ackermann mode needs to be turned on to constrain the upper limit of $\lvert\delta\rvert \le \delta_{\max}$ and $\dot{\delta}$, and the minimum curvature radius of the trajectory is limited.
-- **Pure Pursuit / Stanley**: Output front wheel angle $\delta$, which is a tracking control law specially derived for Ackermann vehicles.
-- **MPC**: Using the bicycle model as the prediction model, constraining $\delta$ and $\dot{\delta}$, it is suitable for high-speed and accurate tracking.
+- **Hybrid A\***: With $(x, y, \theta)$ as the state, nodes are expanded with the Ackermann equations of motion, producing a continuous, curvature-bearing path that can be tracked directly.
+- **TEB**: Ackermann mode must be enabled to constrain $\lvert\delta\rvert \le \delta_{\max}$ and $\dot{\delta}$, which bounds the trajectory's minimum curvature radius.
+- **Pure Pursuit / Stanley**: These output the front wheel angle $\delta$ and are tracking control laws derived specifically for Ackermann vehicles.
+- **MPC**: Uses the bicycle model as the prediction model and constrains $\delta$ and $\dot{\delta}$; suited to high-speed, accurate tracking.
 
 ---
 
@@ -2279,31 +2279,31 @@ y_{k+1} &= y_k + v_k \sin\theta_k \cdot \Delta t \\
 ### Mechanical configuration
 {: id="机构特征-2"}
 
-The omnidirectional chassis uses a special wheel structure (Mecanum wheels or omnidirectional wheels) to achieve independent translation in any direction within the plane without rotating the robot body. Typical structure:
+An omnidirectional chassis uses special wheels (Mecanum wheels or omni wheels) to translate independently in any direction within the plane without rotating the robot body. Typical structures:
 
 | Configuration | Number of wheels | Features |
 |------|------|------|
-| **Three-wheel omnidirectional** | 3 | The wheels form 120°, with simple structure and good ground adaptability |
-| **four-wheel Mecanum** | 4 | The roller and the axle are in 45°, most commonly used in industrial warehousing |
-| **four-wheel omnidirectional (90° roller)** | 4 | roller vertical axle, steering torque weaker than Mecanum |
+| **Three-wheel omnidirectional** | 3 | The wheels are spaced 120° apart; simple structure and good adaptability to the ground |
+| **Four-wheel Mecanum** | 4 | Rollers at 45° to the axles; the most common choice in industrial warehousing |
+| **Four-wheel omnidirectional (90° rollers)** | 4 | Rollers perpendicular to the axles; weaker steering torque than Mecanum |
 
-Typical platforms: warehousing AMR (Amazon Kiva class), laboratory mobile operation robot (HSR, TIAGo).
+Typical platforms: warehouse AMRs (Amazon Kiva class) and laboratory mobile manipulators (HSR, TIAGo).
 
 <div align="center">
-  <img src="/images/robotics_navigation/mecanum_wheel_layout-en.svg" width="65%" alt="four-wheel Mecanum chassis layout: rollers and axles are in 45°, left front/right rear are in the same direction, right front/left rear are in opposite directions" />
-<figcaption> four-wheel Mecanum chassis layout: rollers and axles are in 45°, left front/right rear are in the same direction, right front/left rear are in opposite directions</figcaption>
+  <img src="/images/robotics_navigation/mecanum_wheel_layout-en.svg" width="65%" alt="Four-wheel Mecanum chassis layout: the rollers are at 45° to the axles; the front-left and rear-right rollers share one orientation, and the front-right and rear-left rollers the opposite one" />
+<figcaption>Four-wheel Mecanum chassis layout: the rollers are at 45° to the axles; the front-left and rear-right rollers share one orientation, and the front-right and rear-left rollers the opposite one</figcaption>
 </div>
 
 ### Four-wheel Mecanum kinematic equations
 {: id="四轮-mecanum-运动学方程"}
 
-Assume that the four-wheel layout is a rectangle, the half wheelbase is $l_x$ (longitudinal), $l_y$ (transverse), the wheel radius is $r$, and the angle between the roller and the wheel axle is $45°$, then the inverse kinematics (robot speed → wheel speed):
+Assume the four wheels form a rectangle with half wheelbases $l_x$ (longitudinal) and $l_y$ (lateral), wheel radius $r$, and rollers at $45°$ to the wheel axle. The inverse kinematics (robot velocity → wheel speeds) is then:
 
 $$\begin{bmatrix} \omega_1 \\ \omega_2 \\ \omega_3 \\ \omega_4 \end{bmatrix} = \frac{1}{r} \begin{bmatrix} 1 & -1 & -(l_x+l_y) \\ 1 & 1 & (l_x+l_y) \\ 1 & 1 & -(l_x+l_y) \\ 1 & -1 & (l_x+l_y) \end{bmatrix} \begin{bmatrix} v_x \\ v_y \\ \omega_z \end{bmatrix}$$
 
-Wheel number convention: $\omega_1$=left front, $\omega_2$=right front, $\omega_3$=left rear, $\omega_4$=right rear.
+Wheel numbering convention: $\omega_1$ = front left, $\omega_2$ = front right, $\omega_3$ = rear left, $\omega_4$ = rear right.
 
-For forward kinematics (wheel speed → robot speed), take the pseudo-inverse of the upper matrix ($\frac{1}{4}$ times transposed at full rank):
+For forward kinematics (wheel speeds → robot velocity), take the pseudo-inverse of the matrix above (at full rank, $\frac{1}{4}$ times its transpose):
 
 $$\begin{bmatrix} v_x \\ v_y \\ \omega_z \end{bmatrix} = \frac{r}{4} \begin{bmatrix} 1 & 1 & 1 & 1 \\ -1 & 1 & 1 & -1 \\ -\frac{1}{l_x+l_y} & \frac{1}{l_x+l_y} & -\frac{1}{l_x+l_y} & \frac{1}{l_x+l_y} \end{bmatrix} \begin{bmatrix} \omega_1 \\ \omega_2 \\ \omega_3 \\ \omega_4 \end{bmatrix}$$
 
@@ -2315,95 +2315,95 @@ $$\dot{\mathbf{q}} = \begin{bmatrix} \cos\theta & -\sin\theta & 0 \\ \sin\theta 
 {: id="三轮全向运动学方程"}
 
 <div align="center">
-  <img src="/images/robotics_navigation/three_wheel_omni-en.svg" width="50%" alt="three-wheel omnidirectional chassis: the three wheels are evenly distributed 120°, d is the distance from the wheel center to the chassis center" />
-<figcaption> three-wheel omnidirectional chassis: the three wheels are evenly distributed 120°, $d$ is the distance from the wheel center to the chassis center</figcaption>
+  <img src="/images/robotics_navigation/three_wheel_omni-en.svg" width="50%" alt="Three-wheel omnidirectional chassis: the three wheels are evenly spaced at 120°, and d is the distance from each wheel center to the chassis center" />
+<figcaption>Three-wheel omnidirectional chassis: the three wheels are evenly spaced at 120°, and $d$ is the distance from each wheel center to the chassis center</figcaption>
 </div>
 
-The three wheels form $120°$. Let the installation angle of the $i$ wheel be $\phi_i = 120°(i-1)$:
+The three wheels are spaced $120°$ apart. Let the mounting angle of wheel $i$ be $\phi_i = 120°(i-1)$:
 
 $$\omega_i = \frac{1}{r}\left(-\sin\phi_i \cdot v_x + \cos\phi_i \cdot v_y + d \cdot \omega_z\right), \quad i=1,2,3$$
 
-Here, $d$ is the distance from the wheel to the center of the chassis. Inverse solution:
+Here, $d$ is the distance from each wheel to the chassis center. The inverse solution is:
 
 $$\begin{bmatrix} v_x \\ v_y \\ \omega_z \end{bmatrix} = \frac{2r}{3} \begin{bmatrix} -\sin\phi_1 & -\sin\phi_2 & -\sin\phi_3 \\ \cos\phi_1 & \cos\phi_2 & \cos\phi_3 \\ \frac{1}{2d} & \frac{1}{2d} & \frac{1}{2d} \end{bmatrix} \begin{bmatrix} \omega_1 \\ \omega_2 \\ \omega_3 \end{bmatrix}$$
 
-### Constraints and Properties
+### Constraints and properties
 {: id="约束与特性-2"}
 
 | Property | Description |
 |------|------|
 | **Degrees of freedom** | 3 ($v_x$, $v_y$, $\omega_z$), holonomic motion |
-| **Lateral translation** | Can be arbitrarily traversed, without lateral constraints, and has the highest degree of freedom in path planning |
-| **Terrain adaptability** | Mecanum The rollers are in contact with the ground, and the ground is uneven and slips seriously |
-| **odometry accuracy** | Roller slippage causes significant error in wheel odometry, requiring fusion of IMU/laser |
-| **Loading capacity** | Weaker than differential/Ackermann, roller contact stress concentration |
+| **Lateral translation** | Can move freely in any direction with no lateral constraint, giving the most freedom in path planning |
+| **Terrain adaptability** | Mecanum rollers contact the ground at small patches; slip is severe on uneven ground |
+| **Odometry accuracy** | Roller slip causes large errors in wheel odometry, so IMU/LiDAR fusion is required |
+| **Load capacity** | Weaker than differential/Ackermann because of stress concentration at the roller contacts |
 
 ### Impact on planning algorithms
 {: id="对规划算法的影响-2"}
 
-- **Global planning**: Standard A\* / Dijkstra can be used directly to plan on the grid map. The path has no curvature constraints and can be reached in any direction.
-- **DWA**: The velocity space is expanded to $(v_x, v_y, \omega_z)$ three dimensions, or equivalently to $(v, \theta_{vel}, \omega_z)$, with a larger sampling space.
-- **path tracking**: No complex tracking control law is required, simple PID can be used to control the three channels $x$, $y$ and $\theta$ respectively, and are independently decoupled.
-- **MPC**: The prediction model is linear (ignoring slip), the constraint is the upper limit of each wheel speed, and the design is simpler than Ackermann.
+- **Global planning**: Standard A\* / Dijkstra can plan directly on the grid map. The path has no curvature constraint, and the robot can move in any direction.
+- **DWA**: The velocity space expands to the three dimensions $(v_x, v_y, \omega_z)$ (or equivalently $(v, \theta_{vel}, \omega_z)$), giving a larger sampling space.
+- **Path tracking**: No complex tracking control law is needed. Simple PID controllers can control the $x$, $y$, and $\theta$ channels independently, since they are decoupled.
+- **MPC**: The prediction model is linear (ignoring slip) and the constraints are per-wheel speed limits, so the design is simpler than for Ackermann.
 
 ---
 
-## 7.4 Comparing the three models
+## 7.4 Comparison of the three models
 {: id="74-三类模型综合对比"}
 
-| Comparison dimensions | differential drive | Ackermann steering | omnidirectional wheels (Mecanum) |
+| Dimension | Differential drive | Ackermann steering | Omnidirectional wheels (Mecanum) |
 |----------|----------|------------|-------------------|
 | **Constraint type** | Nonholonomic (2-DoF) | Nonholonomic (2-DoF) | Holonomic (3-DoF) |
-| **Rotate in place** | Support | Not support | Support |
+| **Rotate in place** | Supported | Not supported | Supported |
 | **Lateral translation** | Not supported | Not supported | Supported |
 | **Minimum turning radius** | 0 | $L/\tan\delta_{\max}$ | 0 |
 | **Path curvature requirement** | Low | Requires continuous curvature | Unconstrained |
 | **High-speed stability** | Medium | High (mature automotive solution) | Low (slip) |
-| **odometry accuracy** | High | Medium (tire slip) | Low (roller slip) |
-| **Adaptation planning algorithm** | DWA, TEB, Pure Pursuit | Hybrid A\*, TEB (Ackermann), Stanley, MPC | A\*, DWA(3D), PID decoupling |
-| **Typical application scenarios** | Indoor service robot | Autonomous driving, outdoor vehicles | Warehousing AMR, mobile operation |
+| **Odometry accuracy** | High | Medium (tire slip) | Low (roller slip) |
+| **Compatible planning algorithms** | DWA, TEB, Pure Pursuit | Hybrid A\*, TEB (Ackermann), Stanley, MPC | A\*, DWA (3D), decoupled PID |
+| **Typical application scenarios** | Indoor service robots | Autonomous driving, outdoor vehicles | Warehouse AMRs, mobile manipulation |
 
-> **Engineering Selection Principles**: Differential priority for indoor narrow roads (flexible turning, low cost); priority for outdoor high-speed Ackermann (good stability, mature tire model); omnidirectional wheels for storage/operation scenarios that require lateral movement (high efficiency, but need to compensate for slippage).
+> **Engineering selection principles**: Prefer differential drive for narrow indoor passages (flexible turning, low cost); prefer Ackermann for high-speed outdoor use (good stability, mature tire models); use omnidirectional wheels for warehouse and manipulation scenarios that need lateral movement (high efficiency, but slip must be compensated).
 
 ---
 
 # 8. Motion control
 {: id="8-运动控制"}
 
-Path tracking (Chapter 6) solves the geometric problem of "which direction to go in", while **motion control** solves the dynamic problem of "how to accurately execute these instructions" - the system model, physical constraints, disturbance suppression and optimality need to be considered. This chapter introduces the model-based control methods commonly used in robot navigation.
+Path tracking (Chapter 6) solves the geometric problem of "which way to go", while **motion control** solves the dynamic problem of "how to execute these commands accurately", which requires accounting for the system model, physical constraints, disturbance rejection, and optimality. This chapter introduces the model-based control methods commonly used in robot navigation.
 
 ## 8.1 PID control
 {: id="81-pid-控制"}
 
-PID (Proportional-Integral-Derivative) is the most widely used controller in engineering and is the basis for understanding more complex control algorithms.
+PID (Proportional-Integral-Derivative) is the most widely used controller in engineering and the foundation for understanding more complex control algorithms.
 
-**control law**:
+**Control law**:
 
 $$u(t) = K_p e(t) + K_i \int_0^t e(\tau)\,d\tau + K_d \frac{de(t)}{dt}$$
 
-Here, $e(t)$ is the error (such as lateral deviation or heading error), and the three items are:
-- **P (proportional)**: The larger the current error, the greater the correction; the response is fast but may overshoot.
-- **I (integral)**: eliminate steady-state error (accumulated historical error); an excessive integral gain can cause oscillation
-- **D (derivative)**: predict error trend, suppress overshoot; sensitive to noise
+Here, $e(t)$ is the error (such as lateral deviation or heading error), and the three terms are:
+- **P (proportional)**: The larger the current error, the larger the correction; the response is fast but may overshoot.
+- **I (integral)**: Eliminates steady-state error (accumulated past error); too large an integral gain can cause oscillation
+- **D (derivative)**: Anticipates the error trend and suppresses overshoot; sensitive to noise
 
-**discrete form** (used in actual code):
+**Discrete form** (used in actual code):
 
 $$u_k = K_p e_k + K_i \sum_{j=0}^{k} e_j \Delta t + K_d \frac{e_k - e_{k-1}}{\Delta t}$$
 
 <div align="center">
-  <img src="/images/robotics_navigation/pid_block_diagram-en.svg" width="92%" alt="PID controller structure - P/I/D three-way parallel calculation, weighted summation output control quantity u(t), y(t) through feedback and the difference between the set value r(t) to obtain the error e(t)" />
-<figcaption>Figure: PID controller structure - P/I/D three-way parallel calculation, weighted summation output control quantity u(t), y(t) through feedback and the difference between the set value r(t) to obtain the error e(t)</figcaption>
+  <img src="/images/robotics_navigation/pid_block_diagram-en.svg" width="92%" alt="PID controller structure: the P, I, and D terms are computed in parallel and summed into the control output u(t); the output y(t) is fed back and compared with the setpoint r(t) to obtain the error e(t)" />
+<figcaption>Figure: PID controller structure: the P, I, and D terms are computed in parallel and summed into the control output u(t); the output y(t) is fed back and compared with the setpoint r(t) to obtain the error e(t)</figcaption>
 </div>
 
-✅ Simple implementation, intuitive parameter adjustment
-✅ No system model required (pure empirical parameter adjustment)
-❌ Fixed parameters, difficult to adapt to nonlinear and time-varying systems
-❌ Unable to explicitly handle constraints (such as maximum speed, maximum steering angle)
+✅ Simple to implement, with intuitive parameter tuning
+✅ No system model required (purely empirical tuning)
+❌ Fixed parameters make it hard to adapt to nonlinear and time-varying systems
+❌ Cannot handle constraints explicitly (such as maximum speed or maximum steering angle)
 
 ## 8.2 Fuzzy PID
 {: id="82-模糊-pid"}
 
-Fuzzy PID is a direct evolution of PID: it retains the feedback loop structure of PID and introduces **Fuzzy Inference System** right $K_p, K_i, K_d$ Three gains are made **Online self-tuning** , allowing the controller to automatically adapt to different working conditions.
+Fuzzy PID is a direct evolution of PID: it keeps PID's feedback loop structure and introduces a **fuzzy inference system** that **self-tunes the three gains $K_p, K_i, K_d$ online**, so the controller adapts automatically to different operating conditions.
 
 ### System structure
 {: id="系统结构"}
@@ -2411,8 +2411,8 @@ Fuzzy PID is a direct evolution of PID: it retains the feedback loop structure o
 ```mermaid
 flowchart LR
     E["e(t)\nError"] --> FIS
-    DE["ė(t)\nerror rate of change"] --> FIS
-    subgraph FIS["fuzzy inference engine"]
+    DE["ė(t)\nError rate of change"] --> FIS
+    subgraph FIS["Fuzzy inference engine"]
         F1["Fuzzification"] --> F2["Rule inference\nRule Inference"]
         F2 --> F3["Defuzzification"]
     end
@@ -2427,7 +2427,7 @@ flowchart LR
 ### Fuzzification
 {: id="模糊化fuzzification"}
 
-Map the continuous error $e$ and error change rate $\dot{e}$ to 7 linguistic variables (fuzzy sets):
+Map the continuous error $e$ and error rate $\dot{e}$ to 7 linguistic variables (fuzzy sets):
 
 | Symbol | Meaning |
 |------|------|
@@ -2439,12 +2439,12 @@ Map the continuous error $e$ and error change rate $\dot{e}$ to 7 linguistic var
 | **PM** | Positive Medium |
 | **PB** | Positive Big |
 
-Each linguistic variable corresponds to a **membership function** (usually a triangle or trapezoidal function). The continuous input value is calculated through the membership degree to obtain the "degree of ownership" of each linguistic variable.
+Each linguistic variable corresponds to a **membership function** (usually triangular or trapezoidal). Evaluating the membership function on a continuous input gives the "degree of membership" in each linguistic variable.
 
-### Fuzzy rules (Rule Base)
+### Fuzzy rules (rule base)
 {: id="模糊规则rule-base"}
 
-The rule form is **IF** $e$ is A **AND** $\dot{e}$ is B **THEN** $\Delta K_p$ is C. Taking $\Delta K_p$ as an example, the typical rule table (7 × 7):
+Rules take the form **IF** $e$ is A **AND** $\dot{e}$ is B **THEN** $\Delta K_p$ is C. Taking $\Delta K_p$ as an example, the typical rule table (7 × 7) is:
 
 | $e$ \ $\dot{e}$ | NB | NM | NS | ZO | PS | PM | PB |
 |---------|----|----|----|----|----|----|-----|
@@ -2456,125 +2456,125 @@ The rule form is **IF** $e$ is A **AND** $\dot{e}$ is B **THEN** $\Delta K_p$ is
 | **PM** | PS | ZO | NS | NM | NM | NM | NB |
 | **PB** | ZO | ZO | NM | NM | NM | NB | NB |
 
-**Rule Intuition**: When the error is large (NB/PB), the proportional gain needs to be increased ($\Delta K_p$ takes PB) and pulled back quickly; when the error approaches zero (ZO), the proportion should be reduced and the differential should be increased to prevent overshoot. The rule table design logic of $\Delta K_i$ and $\Delta K_d$ is similar but the goals are different.
+**Rule intuition**: When the error is large (NB/PB), the proportional gain should be increased ($\Delta K_p$ takes PB) to pull the error back quickly; when the error approaches zero (ZO), the proportional gain should be reduced and the derivative gain increased to prevent overshoot. The rule tables for $\Delta K_i$ and $\Delta K_d$ follow similar logic but serve different goals.
 
 ### Defuzzification
 {: id="去模糊化defuzzification"}
 
-The most commonly used **center of gravity method (Centroid Method)**:
+The most commonly used method is the **centroid (center of gravity) method**:
 
 $$\Delta K_p = \frac{\sum_j \mu_j \cdot c_j}{\sum_j \mu_j}$$
 
-Here, $\mu_j$ is the activation intensity of rule $j$, and $c_j$ is the central value of the corresponding output fuzzy set. Finally, the accurate $\Delta K_p$, $\Delta K_i$, and $\Delta K_d$ increments are obtained, which are superimposed on the basic value:
+Here, $\mu_j$ is the activation strength of rule $j$ and $c_j$ is the center value of the corresponding output fuzzy set. This gives crisp increments $\Delta K_p$, $\Delta K_i$, and $\Delta K_d$, which are added to the base values:
 
 $$K_p = K_{p0} + \Delta K_p, \quad K_i = K_{i0} + \Delta K_i, \quad K_d = K_{d0} + \Delta K_d$$
 
-### Core differences from fixed PID
+### Core differences from fixed-gain PID
 {: id="与固定-pid-的核心差异"}
 
 | Scenario | Fixed PID | Fuzzy PID |
 |------|---------|---------|
-| Large error startup stage | Gain is fixed, may overshoot | Automatically increases $K_p$, quickly zooms in |
-| is approaching the target stage | Integral saturation causes oscillation | Automatically decreases $K_i$, increases $K_d$, and brakes smoothly |
-| Load mutation/nonlinear disturbance | Need to manually adjust the gain again | Fuzzy rule automatic compensation |
+| Large-error startup phase | Gains are fixed and may overshoot | Automatically increases $K_p$ to close the gap quickly |
+| Approaching the goal | Integral saturation causes oscillation | Automatically decreases $K_i$ and increases $K_d$, braking smoothly |
+| Sudden load change / nonlinear disturbance | Gains must be retuned manually | Fuzzy rules compensate automatically |
 
-✅ **does not require an accurate model**: purely empirical rule driven, suitable for nonlinear systems that are difficult to model
-✅ **is computationally efficient**: a fuzzy inference only requires table lookup + interpolation, µs level, suitable for embedded platforms
-✅ **is highly robust**: the suppression of parameter perturbations and external disturbances is better than fixed gain PID
-❌ The rule table requires domain experience design, and the number of rules increases exponentially with the input dimension (7×7=49 items/gain)
-❌ Lack of rigorous proof of optimality and stability (compare LQR/MPC)
+✅ **No accurate model required**: driven purely by empirical rules, suited to nonlinear systems that are hard to model
+✅ **Computationally efficient**: a fuzzy inference needs only table lookup and interpolation (microsecond level), suitable for embedded platforms
+✅ **Robust**: better suppression of parameter perturbations and external disturbances than fixed-gain PID
+❌ The rule table requires domain experience to design, and the number of rules grows exponentially with the input dimension (7×7=49 entries per gain)
+❌ No rigorous optimality or stability proofs (compare LQR/MPC)
 
 ## 8.3 Model predictive control (MPC)
 {: id="83-模型预测控制mpc"}
 
-MPC is currently one of the most popular methods in autonomous driving and high-precision robot control. **core idea** : In each control cycle, based on the current state and system model, solve a **finite-horizon optimization problem** , output an optimal control sequence, but only execute the first step, and then solve it again in the next cycle - that is, " **receding-horizon optimization with feedback correction** ".
+MPC is currently one of the most popular methods in autonomous driving and high-precision robot control. **Core idea**: In each control cycle, solve a **finite-horizon optimization problem** based on the current state and the system model, output an optimal control sequence, execute only its first step, and solve again in the next cycle. This is "**receding-horizon optimization with feedback correction**".
 
 <div align="center">
-  <img src="/images/robotics_navigation/mpc_rolling_horizon-en.svg" width="92%" alt="MPC receding horizon - at the current moment k, predict N steps forward to obtain the optimal control sequence; only execute the first step u_k, and re-optimize with the new state in the next cycle to achieve rolling feedback" />
-<figcaption>Figure: MPC receding horizon - at the current moment k, predict N steps forward to obtain the optimal control sequence; only execute the first step u_k, and re-optimize with the new state in the next cycle to achieve rolling feedback</figcaption>
+  <img src="/images/robotics_navigation/mpc_rolling_horizon-en.svg" width="92%" alt="MPC receding horizon: at the current time k, predict N steps ahead to obtain the optimal control sequence; execute only the first step u_k, then re-optimize from the new state in the next cycle, which gives rolling feedback" />
+<figcaption>Figure: MPC receding horizon: at the current time k, predict N steps ahead to obtain the optimal control sequence; execute only the first step u_k, then re-optimize from the new state in the next cycle, which gives rolling feedback</figcaption>
 </div>
 
-**optimization problem form**:
+**Form of the optimization problem**:
 
 $$\min_{u_0, \ldots, u_{N-1}} \sum_{k=0}^{N-1} \left( \mathbf{x}_k^T \mathbf{Q} \mathbf{x}_k + u_k^T \mathbf{R} u_k \right) + \mathbf{x}_N^T \mathbf{P} \mathbf{x}_N$$
 
 $$\text{s.t.} \quad \mathbf{x}_{k+1} = f(\mathbf{x}_k, u_k), \quad \mathbf{x}_k \in \mathcal{X}, \quad u_k \in \mathcal{U}$$
 
 Here:
-- $N$ = Prediction Horizon, typical value 10–30 steps
-- $\mathbf{Q}, \mathbf{R}$ = weight matrix of state error and control quantity ($\mathbf{Q}$ is large → priority is given to reducing tracking error; $\mathbf{R}$ is large → priority is given to reducing control amplitude)
-- $\mathcal{X}, \mathcal{U}$ = state constraints and control constraints (such as maximum speed, maximum steering angle)
+- $N$ = prediction horizon, typically 10–30 steps
+- $\mathbf{Q}, \mathbf{R}$ = weight matrices for state error and control effort (large $\mathbf{Q}$ prioritizes reducing tracking error; large $\mathbf{R}$ prioritizes reducing control magnitude)
+- $\mathcal{X}, \mathcal{U}$ = state and control constraints (such as maximum speed and maximum steering angle)
 - $\mathbf{P}$ = terminal cost matrix (to ensure closed-loop stability)
 
-✅ **explicitly handles constraints**: physical constraints such as speed upper limit and acceleration limit are directly written into optimization constraints
-✅ **multi-step forward-looking**: predict the future $N$ steps, slow down in advance before the bend, instead of waiting until the curvature increases before reacting
-✅ **unified framework**: path tracking, speed planning, and soft obstacle avoidance can be processed in the same optimization problem
-❌ Large amount of calculation, requiring efficient QP/NLP solver (OSQP, CasADi+IPOPT)
-❌ Rely on accurate system model, model mismatch will affect performance
-❌ Complex parameter adjustment ($N$, $\mathbf{Q}$, $\mathbf{R}$, constraint boundaries, terminal sets)
+✅ **Handles constraints explicitly**: physical limits such as the speed upper bound and acceleration limits are written directly into the optimization constraints
+✅ **Multi-step look-ahead**: predicts the next $N$ steps, so it slows down before a bend instead of reacting only after the curvature increases
+✅ **Unified framework**: path tracking, speed planning, and soft obstacle avoidance can be handled in the same optimization problem
+❌ Computationally heavy, requiring an efficient QP/NLP solver (OSQP, CasADi+IPOPT)
+❌ Depends on an accurate system model; model mismatch degrades performance
+❌ Complex tuning ($N$, $\mathbf{Q}$, $\mathbf{R}$, constraint bounds, terminal sets)
 
 **Linear MPC vs. Nonlinear MPC (NMPC)**:
 
 | Type | Model | Solver | Computational cost | Typical scenario |
 |------|------|--------|--------|---------|
-| **Linear MPC** | Linear kinematic model | QP (OSQP) | Medium | Low-speed AGV, mobile robot |
-| **Nonlinear MPC** | Complete nonlinear model | NLP (CasADi+IPOPT) | High | High-speed autonomous driving, UAV |
+| **Linear MPC** | Linear kinematic model | QP (OSQP) | Medium | Low-speed AGVs, mobile robots |
+| **Nonlinear MPC** | Full nonlinear model | NLP (CasADi+IPOPT) | High | High-speed autonomous driving, UAVs |
 
-## 8.4 Comparison of Controllers
+## 8.4 Comparison of controllers
 {: id="84-控制器对比汇总"}
 
-| controller | requires model | processing constraints | computational cost | accuracy | typical application |
+| Controller | Needs a model | Handles constraints | Computational cost | Accuracy | Typical application |
 |--------|---------|---------|--------|------|---------|
-| **PID** | No | No | Very low | Medium | Embedded chassis, simple scene |
-| **Fuzzy PID** | No | No | Low | Medium–High | Nonlinear perturbation, embedded platform |
-| **LQR** | Yes (linear) | No (soft constraints) | Medium | High | High precision path tracking |
-| **Linear MPC** | Yes (Linear) | Yes | Medium–High | High | Low-speed robot, AGV |
-| **Nonlinear MPC** | Yes (nonlinear) | Yes | High | Extremely high | High-speed autonomous driving, drone |
+| **PID** | No | No | Very low | Medium | Embedded chassis, simple scenes |
+| **Fuzzy PID** | No | No | Low | Medium–high | Nonlinear disturbances, embedded platforms |
+| **LQR** | Yes (linear) | No (soft constraints) | Medium | High | High-precision path tracking |
+| **Linear MPC** | Yes (linear) | Yes | Medium–high | High | Low-speed robots, AGVs |
+| **Nonlinear MPC** | Yes (nonlinear) | Yes | High | Extremely high | High-speed autonomous driving, drones |
 
 ---
 
-# 9. Full Navigation Stack Integration
+# 9. Full navigation stack integration
 {: id="9-完整导航栈集成"}
 
-## 9.1 Coordinate frame and TF tree
+## 9.1 Coordinate frames and the TF tree
 {: id="91-坐标系与-tf-树"}
 
-Data exchange between each module of the navigation stack (sensor, localization, planning, control) requires clear "which coordinate frame this pose/point is relative to." ROS uses the **TF2** library to uniformly manage this transformation tree.
+Exchanging data between the modules of the navigation stack (sensing, localization, planning, control) requires being clear about which coordinate frame each pose or point is expressed in. ROS uses the **TF2** library to manage this transform tree in a unified way.
 
 ### Four core coordinate frames
 {: id="四个核心坐标系"}
 
-| Coordinate system | ROS frame name | Semantics | Publisher |
+| Frame | ROS frame name | Semantics | Publisher |
 |--------|----------|------|---------|
-| World/map frame | `map` | Globally consistent fixed system, the origin is usually the starting point of mapping | SLAM / AMCL localization node |
-| Odometry frame | `odom` | Taking the starting point as the origin, the odometry is obtained by integrating, **is continuous but will drift** | wheel odometry / IMU Fusion Node |
-| Robot body frame | `base_link` | Fixed in the center of the chassis | Robot driver / URDF |
-| Sensor frame | `lidar_link`, etc. | fixedly connected to each sensor installation position | URDF static TF |
+| World/map frame | `map` | Globally consistent fixed frame; the origin is usually the starting point of mapping | SLAM / AMCL localization node |
+| Odometry frame | `odom` | Origin at the start; obtained by integrating odometry, **continuous but drifting** | Wheel odometry / IMU fusion node |
+| Robot body frame | `base_link` | Fixed at the chassis center | Robot driver / URDF |
+| Sensor frame | `lidar_link`, etc. | Rigidly attached to each sensor's mounting position | URDF static TF |
 
-**TF The relationship between the tree structure and each module**:
+**How the TF tree relates to each module**:
 
 ```mermaid
 flowchart TB
-    MAP["🗺️ map\nGlobally consistent fixed system\norigin = Starting point of mapping"]
-    ODOM["📍 odom\nodometry integral system\nContinuous but drifting"]
-    BASE["🤖 base_link\nRobot Chassis Center"]
+    MAP["🗺️ map\nGlobally consistent fixed frame\norigin = starting point of mapping"]
+    ODOM["📍 odom\nOdometry integration frame\nContinuous but drifting"]
+    BASE["🤖 base_link\nRobot chassis center"]
     LIDAR["📡 lidar_link"]
     CAM["📷 camera_link"]
     IMU["🔄 imu_link"]
 
-    SLAM["SLAM / AMCL\nLocate node"]
-    WHEEL["wheel odometry\n/ IMUFusion"]
-    URDF["URDF\nstatic transformation"]
+    SLAM["SLAM / AMCL\nLocalization node"]
+    WHEEL["Wheel odometry\n/ IMU fusion"]
+    URDF["URDF\nstatic transforms"]
 
-    MAP -->|"T_map^odom\nCorrect drift (jump)"| ODOM
-    ODOM -->|"T_odom^base\ncontinuous smoothing"| BASE
-    BASE -->|"Fixed extrinsic parameters"| LIDAR
-    BASE -->|"Fixed extrinsic parameters"| CAM
-    BASE -->|"Fixed extrinsic parameters"| IMU
+    MAP -->|"T_map^odom\nCorrects drift (jumps)"| ODOM
+    ODOM -->|"T_odom^base\ncontinuous, smooth"| BASE
+    BASE -->|"Fixed extrinsics"| LIDAR
+    BASE -->|"Fixed extrinsics"| CAM
+    BASE -->|"Fixed extrinsics"| IMU
 
-    SLAM -.->|publish| MAP
-    WHEEL -.->|publish| ODOM
-    URDF -.->|publish| BASE
+    SLAM -.->|publishes| MAP
+    WHEEL -.->|publishes| ODOM
+    URDF -.->|publishes| BASE
 
     style MAP fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
     style ODOM fill:#fef9c3,stroke:#eab308,color:#713f12
@@ -2588,240 +2588,240 @@ flowchart TB
 ```
 
 <div align="center">
-  <img src="/images/robotics_navigation/tf_frames_xyz-en.svg" width="92%" alt="XYZ axes of three core coordinate frames - map (blue point) is fixed at the global origin, odom (orange point) drifts with odometry, base_link (green point) follows the movement of the robot and has a yaw angle θ; the Z axis is vertical to the outside of the paper (right-hand coordinate frame)" />
-<figcaption>Figure: XYZ axes of three core coordinate frames - map (blue point) is fixed at the global origin, odom (orange point) drifts with odometry, base_link (green point) follows the movement of the robot and has a yaw angle θ; the Z axis is vertical to the outside of the paper (right-hand coordinate frame)</figcaption>
+  <img src="/images/robotics_navigation/tf_frames_xyz-en.svg" width="92%" alt="XYZ axes of the three core coordinate frames: map (blue point) is fixed at the global origin, odom (orange point) drifts with the odometry, and base_link (green point) moves with the robot and has a yaw angle θ; the Z axis points out of the page (right-handed frame)" />
+<figcaption>Figure: XYZ axes of the three core coordinate frames: map (blue point) is fixed at the global origin, odom (orange point) drifts with the odometry, and base_link (green point) moves with the robot and has a yaw angle θ; the Z axis points out of the page (right-handed frame)</figcaption>
 </div>
 
 ### Why are `map` and `odom` separated?
 {: id="为什么-map-和-odom-要分开"}
 
-- **`odom` ensures continuity**: odometry integral will not jump and the controller can track smoothly
-- **`map` ensures global consistency**: SLAM loop closure or AMCL correction will update `map→odom` but does not affect the continuity of `odom→base_link`
-- If merged into one system, each localization correction will cause the pose to jump instantaneously, causing the controller to become unstable.
+- **`odom` ensures continuity**: odometry integration does not jump, so the controller can track smoothly
+- **`map` ensures global consistency**: SLAM loop closures or AMCL corrections update `map→odom` without affecting the continuity of `odom→base_link`
+- If the two were merged into one frame, every localization correction would make the pose jump instantaneously and destabilize the controller.
 
-`map→odom` This transformation is exactly the output **of the** localization node, which corrects the accumulated drift of odometry in real time.
+The `map→odom` transform is exactly the **output of the localization node**, which corrects the accumulated odometry drift in real time.
 
 ### Homogeneous transformation matrix
 {: id="齐次变换矩阵"}
 
-The transformation between coordinate frames is represented by the $4\times4$ homogeneous matrix ($SE(3)$ elements):
+Transforms between coordinate frames are represented by $4\times4$ homogeneous matrices (elements of $SE(3)$):
 
 $$T_{A}^{B} = \begin{bmatrix} R_{3\times3} & t_{3\times1} \\ \mathbf{0}^T & 1 \end{bmatrix}, \quad p^B = T_A^B \cdot p^A$$
 
-**chain transformation**: $T_{map}^{base} = T_{map}^{odom} \cdot T_{odom}^{base}$
+**Chaining transforms**: $T_{map}^{base} = T_{map}^{odom} \cdot T_{odom}^{base}$
 
-**inverse transformation**: $T_B^A = \left(T_A^B\right)^{-1} = \begin{bmatrix} R^T & -R^T t \\ \mathbf{0}^T & 1 \end{bmatrix}$
+**Inverse transform**: $T_B^A = \left(T_A^B\right)^{-1} = \begin{bmatrix} R^T & -R^T t \\ \mathbf{0}^T & 1 \end{bmatrix}$
 
-The plane navigation degeneracy is $SE(2)$, and the pose $(x, y, \theta)$ corresponds to:
+Planar navigation reduces to $SE(2)$, and the pose $(x, y, \theta)$ corresponds to:
 
 $$T = \begin{bmatrix} \cos\theta & -\sin\theta & x \\ \sin\theta & \cos\theta & y \\ 0 & 0 & 1 \end{bmatrix}$$
 
-**Debugging Tips**: `ros2 run tf2_tools view_frames` can export the current TF tree as PDF; `ros2 run tf2_ros tf2_echo map base_link` can print the transformation between two frames in real time.
+**Debugging tips**: `ros2 run tf2_tools view_frames` exports the current TF tree as a PDF; `ros2 run tf2_ros tf2_echo map base_link` prints the transform between two frames in real time.
 
-## 9.2 ROS 1 navigation stack
+## 9.2 The ROS 1 navigation stack
 {: id="92-ros1-导航栈"}
 
-`move_base` of ROS 1 provides a classic navigation stack integration solution:
+ROS 1's `move_base` provides a classic integrated navigation stack:
 
 ```mermaid
 flowchart TB
     subgraph MoveBase["move_base"]
-        GM["global planner\nNavfn / GlobalPlanner"] --> GCM["global costmap\nGlobal Costmap"]
-        LM["local planner\nDWA / TEB"] --> LCM["local costmap\nLocal Costmap"]
-        GM -->|global path global_plan| LM
-        LM -->|speed command cmd_vel| VEL
-        REC["recovery behaviors\nRecovery Behaviors"]
+        GM["Global planner\nNavfn / GlobalPlanner"] --> GCM["Global costmap\nGlobal Costmap"]
+        LM["Local planner\nDWA / TEB"] --> LCM["Local costmap\nLocal Costmap"]
+        GM -->|global path: global_plan| LM
+        LM -->|velocity command: cmd_vel| VEL
+        REC["Recovery behaviors\nRecovery Behaviors"]
     end
 
-    GOAL[/target pose goal/] --> MoveBase
-    MAP[/static map map/] --> GCM
+    GOAL[/goal pose: goal/] --> MoveBase
+    MAP[/static map: map/] --> GCM
     SCAN[/LiDAR scan/] --> GCM & LCM
-    ODOM[/ odometry  odom/] --> MoveBase
+    ODOM[/odometry: odom/] --> MoveBase
     VEL[/cmd_vel/] --> Robot["Robot chassis"]
-    AMCL["AMCL Localization"] --> MoveBase
-    LM -- stuck/timeout --> REC
-    REC -- Try again after recovery --> GM
+    AMCL["AMCL localization"] --> MoveBase
+    LM -- stuck / timeout --> REC
+    REC -- retry after recovery --> GM
 ```
 
-### Move_base state machine
+### The move_base state machine
 {: id="move_base-状态机"}
 
-`move_base` has a four-state machine inside:
+`move_base` has an internal state machine with four states:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> PLANNING : target received
-    PLANNING --> CONTROLLING : Global path planning successful
+    [*] --> PLANNING : goal received
+    PLANNING --> CONTROLLING : Global planning succeeded
     PLANNING --> CLEARING : Planning failed
     CONTROLLING --> PLANNING : Local planner requests replanning
     CONTROLLING --> CLEARING : Robot stuck / timeout
-    CONTROLLING --> [*] : reach target
+    CONTROLLING --> [*] : Goal reached
     CLEARING --> PLANNING : Recovery behavior completed, try again
     CLEARING --> [*] : All recovery attempts failed
 ```
 
-- **PLANNING**: Call the global planner to generate a global path from the current location to the target (low frequency, by default only triggered when a new target or local planning request is received)
-- **CONTROLLING**: Call the local planner to continuously generate `cmd_vel` at a frequency of about 10–20 Hz and track the global path
-- **CLEARING**: Enter when global or local planning fails, execute the recovery behavior list in sequence, and return to PLANNING to try again after execution.
+- **PLANNING**: Calls the global planner to generate a global path from the current position to the goal (low frequency; by default triggered only when a new goal or a local planning request arrives)
+- **CONTROLLING**: Calls the local planner to continuously generate `cmd_vel` at about 10–20 Hz and track the global path
+- **CLEARING**: Entered when global or local planning fails; runs the list of recovery behaviors in order, then returns to PLANNING to try again
 
 ### Recovery behaviors
 {: id="恢复行为链"}
 
-`move_base` The default `recovery_behaviors` is executed in sequence:
+By default, `move_base` executes the `recovery_behaviors` in order:
 
-| Step | Behavior | Nature | Trigger reason |
+| Step | Behavior | Action | Trigger reason |
 |------|------|------|---------|
-| ① | `conservative_reset` | Clear local costmap obstacles outside 3 m radius | Sensor noise mislabels distant free areas |
-| ② | `rotate_recovery` | Rotate in place 360°, reconstruct costmap with new sensor data | costmap expired or robot attitude estimation error |
-| ③ | `aggressive_reset` | Clear all **outside the footprint** local costmap obstacles | Still unable to find the path after conservative clearing |
-| ④ | `rotate_recovery` | Rotate again 360° | Re-perceive the environment after aggressive clearing |
+| ① | `conservative_reset` | Clear local costmap obstacles outside a 3 m radius | Sensor noise mislabels distant free space |
+| ② | `rotate_recovery` | Rotate in place by 360° and rebuild the costmap from new sensor data | The costmap is stale or the robot's pose estimate is wrong |
+| ③ | `aggressive_reset` | Clear all local costmap obstacles **outside the footprint** | No path can be found even after conservative clearing |
+| ④ | `rotate_recovery` | Rotate by 360° again | Re-perceive the environment after aggressive clearing |
 
-After all failures `move_base` publishes the `aborted` result and stops.
+After all of them fail, `move_base` publishes an `aborted` result and stops.
 
 **Typical topic interface**:
 
 | Topic | Direction | Description |
 |------|------|------|
-| `/move_base/goal` | Input | Navigation target pose (ActionLib) |
+| `/move_base/goal` | Input | Navigation goal pose (ActionLib) |
 | `/map` | Input | Static map |
 | `/scan` | Input | LiDAR data |
-| `/odom` | Input | odometry |
+| `/odom` | Input | Odometry |
 | `/amcl_pose` | Input | Localization result |
-| `/cmd_vel` | Output | Speed command (linear speed + angular speed) |
+| `/cmd_vel` | Output | Velocity command (linear + angular velocity) |
 | `/move_base/result` | Output | Navigation result (succeeded / aborted / preempted) |
 
-**Frequency difference between two costmaps**: The global costmap is updated slowly (only updated when the static layer changes), and the local costmap is updated frequently (synchronized with the sensor frame rate, about 5–20 Hz), ensuring real-time obstacle avoidance without wasting computing resources.
+**Update-rate difference between the two costmaps**: The global costmap is updated slowly (only when the static layer changes), while the local costmap is updated frequently (in step with the sensor frame rate, about 5–20 Hz). This keeps obstacle avoidance real-time without wasting compute.
 
 ## 9.3 Nav2 (ROS 2) architecture
 {: id="93-nav2ros-2架构"}
 
-Nav2 is the navigation stack of ROS 2. Compared with `move_base`, the core change is to replace the hard-coded state machine with the **behavior tree**, which decouples the navigation logic from the code to a configurable XML file.
+Nav2 is the navigation stack of ROS 2. Compared with `move_base`, its core change is replacing the hard-coded state machine with a **behavior tree**, which moves the navigation logic out of code and into a configurable XML file.
 
-### Five major server architectures
+### The five major servers
 {: id="五大服务器架构"}
 
 ```mermaid
 flowchart TB
-    BTN["BT Navigator\n(read BT XML, drives the entire navigation process)"]
+    BTN["BT Navigator\n(reads the BT XML and drives the whole navigation process)"]
 
     BTN -->|ComputePathToPose| PS["Planner Server\nGlobal planning\nNavFn / Smac / Theta*"]
-    BTN -->|FollowPath| CS["Controller Server\nlocal control\nDWB / TEB / MPPI"]
-    BTN -->|Recovery Action| RS["Recovery Server\nrecovery behaviors\nclear_costmap / spin / wait / backup"]
-    BTN -->|SmoothPath| SS["Smoother Server\npath smoothing\nSimple / Savitzky-Golay"]
+    BTN -->|FollowPath| CS["Controller Server\nLocal control\nDWB / TEB / MPPI"]
+    BTN -->|Recovery Action| RS["Recovery Server\nRecovery behaviors\nclear_costmap / spin / wait / backup"]
+    BTN -->|SmoothPath| SS["Smoother Server\nPath smoothing\nSimple / Savitzky-Golay"]
 
     PS --> GCM["global costmap"]
     CS --> LCM["local costmap"]
     CS -->|cmd_vel| Robot["Robot chassis"]
-    RS -->|Spin in place / Back| Robot
+    RS -->|Spin in place / back up| Robot
 ```
 
-Each Server is an independent ROS 2 node that communicates through the Action interface. Plug-ins can be replaced independently without affecting other modules.
+Each server is an independent ROS 2 node that communicates through the Action interface. Plugins can be replaced independently without affecting other modules.
 
 ### Lifecycle nodes
 {: id="生命周期节点"}
 
-All Nav2 nodes implement the ROS 2 life cycle interface, and the state transition is as follows:
+All Nav2 nodes implement the ROS 2 lifecycle interface, with the following state transitions:
 
 ```
 Unconfigured → Inactive → Active → Deactivating → Inactive → Finalized
 ```
 
-- **Unconfigured → Inactive** (`configure`): Load parameters, initialize plug-in, do not receive data
-- **Inactive → Active** (`activate`): Start subscribing to topics, publishing data, and entering normal working status
-- **Active → Inactive** (`deactivate`): Stop processing and retain resources (can be quickly reactivated)
-- The startup sequence is managed uniformly by `nav2_lifecycle_manager` to avoid race conditions caused by out-of-order initialization of nodes.
+- **Unconfigured → Inactive** (`configure`): Load parameters and initialize plugins, without receiving data
+- **Inactive → Active** (`activate`): Start subscribing to topics and publishing data, and enter normal operation
+- **Active → Inactive** (`deactivate`): Stop processing but keep resources (can be reactivated quickly)
+- The startup order is managed centrally by `nav2_lifecycle_manager`, avoiding race conditions caused by nodes initializing out of order.
 
 ### Default BT navigation flow
 {: id="行为树bt默认导航流程"}
 
-Simplified logic of Nav2 default BT (`navigate_w_replanning_and_recovery.xml`):
+Simplified logic of Nav2's default BT (`navigate_w_replanning_and_recovery.xml`):
 
 ```mermaid
 flowchart TD
-    START([Navigation target received]) --> PLAN["ComputePathToPose\nGlobal planning"]
-    PLAN -->|success| FOLLOW["FollowPath\nlocal control tracking"]
-    PLAN -->|failed| R1["ClearEntireCostmap\nClear local costmap"]
+    START([Navigation goal received]) --> PLAN["ComputePathToPose\nGlobal planning"]
+    PLAN -->|Success| FOLLOW["FollowPath\nLocal control and tracking"]
+    PLAN -->|Failed| R1["ClearEntireCostmap\nClear local costmap"]
     R1 --> PLAN
 
-    FOLLOW -->|reach target| DONE([Navigation successful])
-    FOLLOW -->|stuck / timeout| R2["ClearEntireCostmap\nClear local costmap"]
+    FOLLOW -->|Goal reached| DONE([Navigation succeeded])
+    FOLLOW -->|Stuck / timeout| R2["ClearEntireCostmap\nClear local costmap"]
     R2 --> PLAN2["Replan globally"]
-    PLAN2 -->|Still failed| R3["Spin\nSpin in place 180°"]
+    PLAN2 -->|Still failing| R3["Spin\nSpin in place 180°"]
     R3 --> PLAN3["Replan globally"]
-    PLAN3 -->|Still failed| R4["Wait\nwait 5 s"]
+    PLAN3 -->|Still failing| R4["Wait\nWait 5 s"]
     R4 --> PLAN4["Replan globally"]
-    PLAN4 -->|Still failed| R5["Backup\nBack 0.3 m"]
+    PLAN4 -->|Still failing| R5["Backup\nBack up 0.3 m"]
     R5 --> PLAN5["Final global planning attempt"]
-    PLAN5 -->|Still failed| FAIL([Navigation failed / abort])
+    PLAN5 -->|Still failing| FAIL([Navigation failed / abort])
 ```
 
 ### The recovery chain
 {: id="失败恢复链详解"}
 
-| Recovery behavior | Parameters (default value) | Principle | Applicable scenarios |
+| Recovery behavior | Parameters (default) | Principle | Suitable scenarios |
 |---------|-------------|------|---------|
-| **ClearEntireCostmap** | The clearing range is configurable | Send a clearing request to the Costmap service to erase all marks on the obstacle layer and force the next sensor scan to rebuild | False sensor detections, dynamic obstacle left but not cleared from costmap |
-| **Spin** | `target_yaw: 1.57 rad` (adjustable) | Rotate the target angle in place at the maximum allowed angular speed, continuously update the costmap during the period, and eliminate the blind zone of the viewing angle | The robot fell into a local blind spot and the costmap was contaminated by old data |
-| **Wait** | `duration: 5.0 s` | Stop publishing `cmd_vel`, wait for the specified time and then plan again | Dynamic obstacles (pedestrians) temporarily block the road, waiting for them to move away by themselves |
-| **Backup** | `backup_dist: 0.30 m`, `backup_speed: 0.025 m/s` | Publish negative linear speed to the rear, slowly retreat the specified distance (the rear must be clear of obstacles) | The front of the robot is caught by an obstacle and needs to make room for re-planning |
+| **ClearEntireCostmap** | Clearing range is configurable | Sends a clear request to the costmap service to erase all marks on the obstacle layer, forcing the next sensor scan to rebuild them | False sensor detections; a dynamic obstacle has left but was not cleared from the costmap |
+| **Spin** | `target_yaw: 1.57 rad` (adjustable) | Rotates in place to the target angle at the maximum allowed angular speed, continuously updating the costmap to eliminate blind spots in the field of view | The robot is in a local blind spot and the costmap is contaminated by old data |
+| **Wait** | `duration: 5.0 s` | Stops publishing `cmd_vel`, waits for the specified time, then plans again | Dynamic obstacles (pedestrians) temporarily block the way and will leave on their own |
+| **Backup** | `backup_dist: 0.30 m`, `backup_speed: 0.025 m/s` | Publishes a negative linear velocity to reverse slowly by the specified distance (the area behind must be clear of obstacles) | The front of the robot is trapped by an obstacle and it must make room before replanning |
 
-Design logic of **execution sequence**:
-- First `ClearEntireCostmap` (the lightest, only changes data, does not move)
-- `Spin` again (re-perceive the surrounding environment)
-- Then `Wait` (make way for dynamic obstacles)
-- Finally `Backup` (physical escape, highest risk, placed last)
+Design logic of the **execution order**:
+- `ClearEntireCostmap` first (the lightest: it only changes data and does not move the robot)
+- Then `Spin` (re-perceive the surroundings)
+- Then `Wait` (give way to dynamic obstacles)
+- `Backup` last (a physical escape, the riskiest, so it goes at the end)
 
-After each recovery step, the global planning is re-triggered. As long as one step is successful, the recovery chain will be jumped out and navigation will continue. After all failures, BT returns `FAILURE`, and Action Server publishes `aborted` results.
+After each recovery step, global planning is triggered again. As soon as one step succeeds, the recovery chain is exited and navigation continues. If all fail, the BT returns `FAILURE` and the Action Server publishes an `aborted` result.
 
-**Custom recovery behavior**: Implement the `nav2_core::Recovery` interface, register it in the `recovery_server.plugins` list of `nav2_params.yaml`, and then add the corresponding node in BT XML.
+**Custom recovery behaviors**: Implement the `nav2_core::Recovery` interface, register it in the `recovery_server.plugins` list of `nav2_params.yaml`, and then add the corresponding node to the BT XML.
 
 ### When recovery triggers
 {: id="常见恢复触发时机实机经验"}
 
-The trigger sources of the recovery chain can be divided into the following four categories, corresponding to different root causes and treatment directions:
+The triggers of the recovery chain fall into the following four categories, each corresponding to a different root cause and remedy:
 
-**① The local map is temporarily unfeasible**
+**① The local map is temporarily infeasible**
 
-Sensor noise or instantaneous occlusion "blocks" the local costmap, `FollowPath` cannot find the legal speed (`follow_path_error`), and directly triggers recovery:
+Sensor noise or momentary occlusion "blocks" the local costmap, so `FollowPath` cannot find a valid velocity (`follow_path_error`) and recovery is triggered directly:
 
-| Root cause | Typical phenomenon | Recommended treatment |
+| Root cause | Typical symptom | Recommended remedy |
 |------|---------|---------|
-| Glass/mirror reflection | The laser produces a false obstacle point cloud in front of the glass, and "ghost obstacles" appear on the local map | First execute `ClearEntireCostmap` to clear false alarms and rebuild the map; or filter the glass reflection points |
-| The flow of people/carts momentarily blocks the road | Pedestrians walk into the sensor field of view, and part of the path is instantly blocked | `Wait` Wait for the dynamic obstacle to leave; if triggered frequently, the size can be increased `controller_patience` |
-| Point cloud noise spurts | Single frame noise points mark the grid that should be free | Turn down `obstacle_range` or turn on point cloud filtering (`min_obstacle_height` filters ground reflection) |
+| Glass/mirror reflection | The laser produces a false obstacle point cloud in front of the glass, and "ghost obstacles" appear on the local map | First run `ClearEntireCostmap` to clear the false detections and rebuild the map, or filter out glass reflection points |
+| A stream of people or carts momentarily blocks the way | Pedestrians walk into the sensor's field of view and part of the path is suddenly blocked | Use `Wait` for the dynamic obstacle to leave; if this triggers often, increase `controller_patience` |
+| Bursts of point cloud noise | Noise points in a single frame mark cells that should be free | Lower `obstacle_range` or enable point cloud filtering (`min_obstacle_height` filters ground reflections) |
 
 **② Progress check failed (robot stuck)**
 
-The robot shakes slightly in place but the cumulative displacement is not enough to exceed the threshold (Nav2 default: displacement within 10 s < 0.5 m). BT's `GoalReached` or progress check node determines that it is stuck, triggering recovery:
+The robot jitters slightly in place, but its cumulative displacement does not exceed the threshold (Nav2 default: displacement < 0.5 m within 10 s). The BT's `GoalReached` or progress-check node judges the robot to be stuck and triggers recovery:
 
-| Root cause | Typical phenomenon | Recommended treatment |
+| Root cause | Typical symptom | Recommended remedy |
 |------|---------|---------|
-| Narrow doorway/close to wall | The robot is close to the wall, and the expansion cost prevents it from moving forward, but the path planning still gives a path close to the wall. | Increase `inflation_radius` to make the global planning automatically stay away from the wall; or increase `min_obstacle_dist` (TEB) |
-| Local optimum in the corner | The robot is clamped by obstacles on three sides, with high costs on the front, rear, left and right, oscillation and jitter | `Backup` Back up to make room; if it happens frequently, check whether `enable_homotopy_class_planning` is turned on |
-| The progress threshold is too strict | The robot is decelerating reasonably but is misjudged as stuck | Relax appropriately `progress_checker_distance` (Nav2) or `oscillation_distance` (move_base) |
+| Narrow doorway / close to a wall | The robot is near a wall, the inflation cost keeps it from moving forward, yet path planning still returns a path hugging the wall | Increase `inflation_radius` so global planning keeps away from walls automatically, or increase `min_obstacle_dist` (TEB) |
+| Local optimum in a corner | The robot is boxed in by obstacles on three sides, costs are high in front, behind, left, and right, and it oscillates and jitters | Use `Backup` to make room; if this happens often, check whether `enable_homotopy_class_planning` is turned on |
+| Progress threshold too strict | The robot is decelerating normally but is misjudged as stuck | Relax `progress_checker_distance` (Nav2) or `oscillation_distance` (move_base) appropriately |
 
-**③ TF / timing problem**
+**③ TF / timing problems**
 
-`map→odom→base_link` The transformation is temporarily unavailable (TF timeout) or the timestamp is inconsistent. The controller cannot obtain a consistent state estimate, and recovery is triggered after continuous planning failure:
+The `map→odom→base_link` transform is temporarily unavailable (TF timeout) or the timestamps are inconsistent. The controller cannot obtain a consistent state estimate, and recovery is triggered after repeated planning failures:
 
-| Root cause | Typical phenomenon | Recommended treatment |
+| Root cause | Typical symptom | Recommended remedy |
 |------|---------|---------|
-| AMCL localization is lost | particle filtering diverges, `map→odom` transition jumps or stops publishing | Check laser data quality; increase `max_particles`; provide better initial pose |
-| odometry delay | `odom→base_link` timestamp lags behind controller expectations, TF query timeout | Check chassis driver release frequency (recommended $\geq$ 50 Hz); troubleshooting `transform_tolerance` Configuration |
-| Node startup race | SLAM / AMCL is not ready yet, the navigation stack has received the target | Use `nav2_lifecycle_manager` to ensure that all dependent nodes are Active before accepting the target |
+| AMCL localization lost | The particle filter diverges, and the `map→odom` transform jumps or stops being published | Check the laser data quality; increase `max_particles`; provide a better initial pose |
+| Odometry delay | The `odom→base_link` timestamp lags behind what the controller expects, and TF lookups time out | Check the chassis driver's publishing rate (recommended $\geq$ 50 Hz); check the `transform_tolerance` configuration |
+| Node startup race | SLAM / AMCL is not ready yet, but the navigation stack has already received a goal | Use `nav2_lifecycle_manager` to ensure all dependent nodes are Active before accepting a goal |
 
-**④ The global path is feasible but the local dynamics is not feasible**
+**④ The global path is feasible but locally infeasible given the dynamics**
 
-The path given by the global planning (A\* / Smac) is geometrically collision-free, but the local planner (DWA / MPPI) is constrained by speed, acceleration and obstacles, and cannot give a safe control sequence that satisfies the constraints in a short time:
+The path from global planning (A\* / Smac) is geometrically collision-free, but the local planner (DWA / MPPI), constrained by velocity, acceleration, and obstacles, cannot produce a safe, constraint-satisfying control sequence in the short term:
 
-| Root cause | Typical phenomenon | Recommended treatment |
+| Root cause | Typical symptom | Recommended remedy |
 |------|---------|---------|
-| The global path is too tight. | The global path cut angle passes through the edge of the expansion area, and the DWA sampling speed all hits the inflation layer. | Increase the global costmap `inflation_radius` to force the global path to be more central; or increase `path_distance_bias` |
-| The corner is too sharp | Smac/Navfn gives 90° sharp turn, but `minimum_turning_radius` does not allow | to increase `minimum_turning_radius`; or switch to Smac Hybrid A\* that supports kinematic constraints |
-| Difficulty in convergence near the goal | Obstacle penalties, attitude constraints, and noise conflict with each other when approaching the goal, the controller stops-and-go, and eventually times out and enters recovery | Increase `goal_dist_tol` (Nav2 Controller) to relax the arrival determination; check whether the target point is within the expansion zone |
-| MPPI Critics Weight conflict | `ObstaclesCritic` and `GoalCritic` have similar weights, causing oscillation near obstacles | Reduce the weight of `GoalCritic` or increase it `ObstaclesCritic`; enable `TwirlingCritic` inhibit rotation |
+| Global path too tight | The global path cuts corners through the edge of the inflation zone, and all DWA sampled velocities hit the inflation layer | Increase the global costmap's `inflation_radius` to push the global path toward the center, or increase `path_distance_bias` |
+| Corner too sharp | Smac/Navfn produces a 90° sharp turn that `minimum_turning_radius` does not allow | Increase `minimum_turning_radius`, or switch to Smac Hybrid A\*, which supports kinematic constraints |
+| Difficulty converging near the goal | Obstacle penalties, pose constraints, and noise conflict near the goal, so the controller stops and starts, eventually times out, and enters recovery | Increase `goal_dist_tol` (Nav2 Controller) to relax the arrival check; check whether the goal lies in the inflation zone |
+| MPPI critic weight conflict | `ObstaclesCritic` and `GoalCritic` have similar weights, causing oscillation near obstacles | Reduce the weight of `GoalCritic` or increase that of `ObstaclesCritic`; enable `TwirlingCritic` to suppress rotation |
 
-## 9.4 Parameter Tuning Key Points
+## 9.4 Key points in parameter tuning
 {: id="94-参数调优要点"}
 
 Tuning a navigation stack means **coordinating its modules**: an upstream parameter error can appear as a downstream failure. Tune in the order costmap → global planner → local planner → recovery behaviors.
@@ -2829,98 +2829,98 @@ Tuning a navigation stack means **coordinating its modules**: an upstream parame
 ### Costmap
 {: id="代价地图costmap-1"}
 
-| Parameter | Position | Typical value | Symptoms of too small | Symptoms of too large |
+| Parameter | Scope | Typical value | Symptom if too small | Symptom if too large |
 |------|------|--------|-----------|-----------|
-| `inflation_radius` | Global & local | Robot radius + 0.1–0.3 m | Path is against the wall, collision risk | The narrow passage is blocked and there is no path |
-| `cost_scaling_factor` | Global & local | 3.0–5.0 | Smooth cost gradient, does not exclude obstacles | The robot completely stagnated in the expansion zone |
-| `obstacle_range` | Local obstacle layer | 2.5–4.0 m | Near obstacles are ignored | Distant false alarm obstacle pollution cost map |
-| `raytrace_range` | Local obstacle layer | 3.0–5.0 m | The cost is not cleared after the dynamic obstacle leaves | The clearing range is too large and the legal obstacles are mistakenly cleared |
-| `update_frequency` | Partial | 5–10 Hz | Costmap update lags, obstacle avoidance is slow | CPU usage is too high |
-| `publish_frequency` | Partial | Same as update | Rviz Visualization delay, debugging difficulty | — |
+| `inflation_radius` | Global & local | Robot radius + 0.1–0.3 m | Path hugs walls, collision risk | Narrow passages are blocked and no path exists |
+| `cost_scaling_factor` | Global & local | 3.0–5.0 | Gentle cost gradient that does not repel from obstacles | The robot gets completely stuck inside the inflation zone |
+| `obstacle_range` | Local obstacle layer | 2.5–4.0 m | Nearby obstacles are ignored | Distant false obstacles pollute the costmap |
+| `raytrace_range` | Local obstacle layer | 3.0–5.0 m | Costs are not cleared after a dynamic obstacle leaves | The clearing range is too large and valid obstacles are cleared by mistake |
+| `update_frequency` | Local | 5–10 Hz | Costmap updates lag and obstacle avoidance is slow | CPU usage too high |
+| `publish_frequency` | Local | Same as update | RViz visualization lags, making debugging difficult | — |
 
-> **Core Principles**: `inflation_radius` $\geq$ The radius of the inscribed circle of the robot. Otherwise, the LETHAL area does not cover the robot's footprint, and the path planner will treat inaccessible points as passable.
+> **Core principle**: `inflation_radius` $\geq$ the robot's inscribed circle radius. Otherwise the LETHAL region does not cover the robot's footprint, and the path planner will treat unreachable points as traversable.
 
-### Global Planner
+### Global planner
 {: id="全局规划器global-planner"}
 
-**Navfn / NavFn(A\* / Dijkstra)**:
+**Navfn (A\* / Dijkstra)**:
 
 | Parameter | Typical value | Description |
 |------|--------|------|
-| `use_astar` | `true` | Enable A* (about 2–5 × faster than Dijkstra), it is recommended to enable |
-| `allow_unknown` | `false` | Whether it is allowed to travel through unknown areas; open exploration scene settings `true` |
-| `default_tolerance` | 0.0–0.5 m | Allowable deviation when the end point is on an obstacle; too large will cause the robot to "arrive early" |
-| `planner_frequency` | 0.0 (on demand) or 1–2 Hz | 0.0 = Only replan when new goals are received or partial planning fails, saving CPU |
+| `use_astar` | `true` | Enables A* (about 2–5 × faster than Dijkstra); recommended |
+| `allow_unknown` | `false` | Whether paths may pass through unknown areas; set to `true` for open exploration scenes |
+| `default_tolerance` | 0.0–0.5 m | Allowed deviation when the goal lies on an obstacle; too large makes the robot "arrive early" |
+| `planner_frequency` | 0.0 (on demand) or 1–2 Hz | 0.0 = replan only when a new goal arrives or local planning fails, which saves CPU |
 
-**Smac Planner(Nav2 Hybrid A\*)**:
+**Smac Planner (Nav2 Hybrid A\*)**:
 
 | Parameter | Typical value | Description |
 |------|--------|------|
-| `minimum_turning_radius` | 0.2–0.5 m | Minimum turning radius, matched with robot kinematics |
-| `angle_quantization_bins` | 72 | Angle discretization accuracy (72 = 5° resolution), the larger the path, the smoother the path but the more memory |
-| `analytic_expansion_ratio` | 3.5 | Analyze the extended frequency; the larger it is, the faster it will find the end point but the path quality is slightly worse |
-| `max_iterations` | 1000000 | Prevent infinite planning in complex scenarios; report planning failure after triggering |
+| `minimum_turning_radius` | 0.2–0.5 m | Minimum turning radius, matched to the robot's kinematics |
+| `angle_quantization_bins` | 72 | Angular discretization (72 = 5° resolution); larger values give smoother paths but use more memory |
+| `analytic_expansion_ratio` | 3.5 | Frequency of analytic expansion; larger values reach the goal faster but give slightly worse path quality |
+| `max_iterations` | 1000000 | Prevents endless planning in complex scenes; planning failure is reported once it is hit |
 
 ### Local planner
 {: id="局部规划器"}
 
-**DWA(`dwa_local_planner` / Nav2 DWB)**:
+**DWA (`dwa_local_planner` / Nav2 DWB)**:
 
-| Parameter | Typical value | Symptoms of too small | Symptoms of too large |
+| Parameter | Typical value | Symptom if too small | Symptom if too large |
 |------|--------|-----------|-----------|
-| `max_vel_x` | 0.3–1.0 m/s | Robot is too slow | Insufficient braking distance, collision |
+| `max_vel_x` | 0.3–1.0 m/s | The robot is too slow | Braking distance is insufficient, causing collisions |
 | `min_vel_x` | 0.0–0.1 m/s | — | The robot cannot stop |
-| `max_rot_vel` | 0.5–1.5 rad/s | Slow steering, poor corner tracking | Spin in place, dizzy |
-| `acc_lim_x` | 1.0–2.5 m/s² | Slow start/brake | Rapid acceleration and deceleration, odometry pulley slipping |
-| `sim_time` | 1.5–3.0 s | Short-sighted, unable to bypass | Large amount of calculation, reduced control frequency |
-| `path_distance_bias` | 32.0 | Do not follow the path, roam freely | Failed to bypass dynamic obstacles for following the path |
-| `goal_distance_bias` | 20.0 | Don’t stop when you are almost to the goal | Eager to get to the end, ignoring the path in the middle |
-| `occdist_scale` | 0.02 | Driving against the wall | Completely stagnant near obstacles |
+| `max_rot_vel` | 0.5–1.5 rad/s | Slow steering and poor corner tracking | Spins in place and becomes disoriented |
+| `acc_lim_x` | 1.0–2.5 m/s² | Slow start and braking | Abrupt acceleration and deceleration, wheel slip that corrupts odometry |
+| `sim_time` | 1.5–3.0 s | Short-sighted, cannot go around obstacles | Heavy computation and a reduced control rate |
+| `path_distance_bias` | 32.0 | Does not follow the path and wanders freely | So eager to follow the path that it cannot avoid dynamic obstacles |
+| `goal_distance_bias` | 20.0 | Does not stop when nearly at the goal | So eager to reach the goal that it ignores the path along the way |
+| `occdist_scale` | 0.02 | Drives along walls | Gets completely stuck near obstacles |
 
-**TEB(`teb_local_planner`)**:
+**TEB (`teb_local_planner`)**:
 
 | Parameter | Typical value | Description |
 |------|--------|------|
-| `max_vel_x` / `max_vel_theta` | Same as DWA | Speed upper limit |
-| `min_obstacle_dist` | 0.2–0.4 m | The minimum distance between the path point and the obstacle; less than this value is a constraint violation |
-| `inflation_dist` | 0.5–0.8 m | soft constraint area, the cost increases sharply after exceeding; set to `inflation_radius` 1.2–1.5× |
-| `dt_ref` | 0.3–0.4 s | Timed Elastic Band reference time step; the smaller the path points, the denser the accuracy, but the calculation is slow |
-| `max_samples` | 500 | g2o Maximum number of iterations; if too few, the optimization will not converge |
-| `enable_homotopy_class_planning` | `true` | Enable multi-topology path search (surround obstacles and select the best from both sides). It is strongly recommended to enable | in complex environments
+| `max_vel_x` / `max_vel_theta` | Same as DWA | Velocity limits |
+| `min_obstacle_dist` | 0.2–0.4 m | Minimum distance between a path point and an obstacle; anything below it violates the constraint |
+| `inflation_dist` | 0.5–0.8 m | Soft-constraint zone in which the cost rises sharply beyond the limit; set it to 1.2–1.5× `inflation_radius` |
+| `dt_ref` | 0.3–0.4 s | Reference time step of the Timed Elastic Band; smaller values give denser, more accurate path points but slower computation |
+| `max_samples` | 500 | Maximum number of g2o iterations; if too small, the optimization does not converge |
+| `enable_homotopy_class_planning` | `true` | Enables multi-topology path search (go around an obstacle and pick the better of the two sides); strongly recommended in complex environments |
 
-### Recovery behavior
+### Recovery behaviors
 {: id="恢复行为"}
 
-| Parameter | Position | Typical value | Description |
+| Parameter | Package | Typical value | Description |
 |------|------|--------|------|
-| `conservative_reset_dist` | move_base | 3.0 m | The radius of conservative clearing; too small is insufficient to clear the scope, and too large will miss a large area |
-| `clearing_rotation_allowed` | move_base | `true` | allows rotation recovery; pure straight-moving robots (AGV) need to set `false` |
-| `oscillation_timeout` | move_base | 10.0 s | Determine the timeout time for the robot to oscillate in place; enter CLEARING after triggering |
-| `oscillation_distance` | move_base | 0.2 m | If the displacement is less than this value and exceeds timeout, it will be judged as oscillation |
+| `conservative_reset_dist` | move_base | 3.0 m | Radius of the conservative clearing; too small clears too little, too large wipes a big area by mistake |
+| `clearing_rotation_allowed` | move_base | `true` | Allows rotation-based recovery; robots that can only move straight (AGVs) need `false` |
+| `oscillation_timeout` | move_base | 10.0 s | Timeout for judging that the robot is oscillating in place; CLEARING is entered once it triggers |
+| `oscillation_distance` | move_base | 0.2 m | If the displacement is below this value for longer than the timeout, the robot is judged to be oscillating |
 
 ### Nav2 core global parameters
 {: id="nav2-核心全局参数"}
 
 | Parameter | File | Typical value | Description |
 |------|------|--------|------|
-| `controller_frequency` | nav2_params.yaml | 20 Hz | Frequency of local controller publishing cmd_vel |
+| `controller_frequency` | nav2_params.yaml | 20 Hz | Rate at which the local controller publishes cmd_vel |
 | `planner_patience` | — | 5.0 s | Enter recovery after global planning times out |
-| `controller_patience` | — | 15.0 s | Enter recovery after local control timeout |
-| `recovery_behavior_enabled` | — | `true` | If the robot gets stuck and reports failure directly after shutdown, it is suitable for safety priority scenarios |
+| `controller_patience` | — | 15.0 s | Enter recovery after local control times out |
+| `recovery_behavior_enabled` | — | `true` | If disabled, the robot reports failure immediately when it gets stuck; suited to safety-first scenarios |
 
-### Tuning sequence suggestions
+### Suggested tuning sequence
 {: id="调优顺序建议"}
 
 ```
-① costmap: adjust first inflation_radius, Confirm no collision
+① Costmap: tune inflation_radius first and confirm there are no collisions
        ↓
-② Global planning: Confirm that you can A Arrive B find path
+② Global planning: confirm a path can be found from A to B
        ↓
-③ Local planning: first adjust the upper speed limit, and then sim_time, Final tune bias weight
+③ Local planning: tune the speed limits first, then sim_time, and finally the bias weights
        ↓
-④ Recovery behavior: After triggering recovery, observe whether the robot can get out of trouble and adjust timeout/distance threshold
+④ Recovery behaviors: after recovery triggers, check whether the robot gets out of trouble, and tune the timeout / distance thresholds
        ↓
-⑤ Overall joint debugging: in reality/Run the complete navigation in the simulation scene and observe the lag/Oscillation/Too many detours and other issues
+⑤ Full-system tuning: run the complete navigation in real or simulated scenes and watch for lag, oscillation, excessive detours, and similar problems
 ```
 
 ---
@@ -2928,24 +2928,24 @@ Tuning a navigation stack means **coordinating its modules**: an upstream parame
 # 10. Classical vs. end-to-end navigation
 {: id="10-传统导航与端到端导航"}
 
-| Comparison dimension | Traditional navigation stack (SLAM+A*+DWA) | End-to-end deep learning (VLN/VLA) |
+| Dimension | Classical navigation stack (SLAM+A*+DWA) | End-to-end deep learning (VLN/VLA) |
 |---------|----------------------|----------------------|
-| **map depends on** | requires pre-built map (or real-time SLAM) | does not require a priori map |
-| **Command form** | Coordinate target point (x, y, θ) | Natural language ("Go to the kitchen") |
-| **Generalization ability** | Weak (the map needs to be rebuilt when changing the environment) | Strong (cross-scenario generalization) |
-| **Interpretability** | ✅ Strong (each module is traceable) | ❌ Weak (black box network) |
-| **Computing resources** | Can run on CPU | requires GPU |
-| **Dynamic scene** | Local planning processing (DWA/TEB) | Implicit learning (depending on training data) |
-| **Safety guarantees** | ✅ Collision detection is explicitly controllable | ❌ Safety boundary is difficult to guarantee |
-| **Common sense reasoning** | ❌ None (pure geometry) | ✅ Support (such as LLM reasoning) |
-| **Development and debugging** | Independent debugging of each module | End-to-end training, difficult to locate problems |
-| **Long-term stability** | ✅ Strong behavioral certainty | ❌ Out-of-distribution scenarios may fail |
-| **Typical representative** | ROS Nav Stack, Nav2 | VLN-BERT, NavGPT, VoxPoser |
+| **Map dependence** | Requires a pre-built map (or real-time SLAM) | No prior map required |
+| **Command form** | Coordinate goal (x, y, θ) | Natural language ("Go to the kitchen") |
+| **Generalization** | Weak (the map must be rebuilt when the environment changes) | Strong (generalizes across scenarios) |
+| **Interpretability** | ✅ Strong (each module is traceable) | ❌ Weak (black-box network) |
+| **Computing resources** | Runs on a CPU | Requires a GPU |
+| **Dynamic scenes** | Handled by local planning (DWA/TEB) | Learned implicitly (depends on training data) |
+| **Safety guarantees** | ✅ Collision checking is explicit and controllable | ❌ Safety boundaries are hard to guarantee |
+| **Commonsense reasoning** | ❌ None (pure geometry) | ✅ Supported (such as LLM reasoning) |
+| **Development and debugging** | Modules are debugged independently | End-to-end training makes problems hard to localize |
+| **Long-term stability** | ✅ Highly deterministic behavior | ❌ May fail in out-of-distribution scenarios |
+| **Typical representatives** | ROS Nav Stack, Nav2 | VLN-BERT, NavGPT, VoxPoser |
 
 **Practical suggestions**:
-- Factory, warehousing, medical, etc. **Structured and high safety requirements** Scenario → Traditional Navigation Stack
-- Family services, guided tours, etc. **Unstructured, need to understand natural language** Scenario → Learning Navigation
-- **Hybrid architecture** is becoming a trend: using the traditional navigation stack to handle low-level safety and precise control, and using VLM/LLM to handle high-level semantic understanding and task decomposition
+- Factories, warehouses, hospitals, and similar **structured scenarios with high safety requirements** → classical navigation stack
+- Home service, guided tours, and similar **unstructured scenarios that require understanding natural language** → learned navigation
+- **Hybrid architectures** are becoming a trend: use the classical navigation stack for low-level safety and precise control, and use a VLM/LLM for high-level semantic understanding and task decomposition
 
 ---
 
@@ -2957,8 +2957,8 @@ Tuning a navigation stack means **coordinating its modules**: an upstream parame
 
 | Tool | Function | Link |
 |------|------|------|
-| **PCL (Point Cloud Library)** | Point cloud processing algorithm library (filtering, segmentation, matching, features) | pcl.org |
-| **Open3D** | Point cloud and 3D data processing, Python friendly | open3d.org |
+| **PCL (Point Cloud Library)** | Point cloud processing library (filtering, segmentation, registration, features) | pcl.org |
+| **Open3D** | Point cloud and 3D data processing, Python-friendly | open3d.org |
 | **OpenCV** | Image processing and feature extraction | opencv.org |
 
 ### Localization
@@ -2966,73 +2966,73 @@ Tuning a navigation stack means **coordinating its modules**: an upstream parame
 
 | Tool | Function | ROS package |
 |------|------|--------|
-| **robot_localization** | EKF/UKF Multi-sensor fusion | `robot_localization` |
-| **AMCL** | particle filtering adaptive Monte Carlo localization | `amcl` |
-| **NDT_CPU** | NDT scan match | `ndt_cpu` |
+| **robot_localization** | EKF/UKF multi-sensor fusion | `robot_localization` |
+| **AMCL** | Adaptive Monte Carlo localization (particle filter) | `amcl` |
+| **NDT_CPU** | NDT scan matching | `ndt_cpu` |
 
 ### SLAM
 {: id="slam"}
 
 | Tool | Type | Features |
 |------|------|------|
-| **Cartographer** | 2D LiDAR/3D | by Google, production available |
-| **GMapping** | 2D LiDAR | Lightweight, suitable for indoor use |
-| **LIO-SAM** | LiDAR + IMU | High precision, GTSAM backend |
-| **LOAM / LeGO-LOAM** | 3D LiDAR | Classic, ground robot optimized version |
-| **ORB-SLAM3** | Visual + IMU | Supports multiple cameras, high accuracy |
-| **VINS-Mono/Fusion** | Visual + IMU | Drone/Mobile Navigation |
-| **RTAB-Map** | RGB-D/stereo/laser | Multi-modal, ROS out-of-the-box, built-in memory management |
-| **hdl_graph_slam** | 3D LiDAR | graph optimization, support NDT/ICP |
+| **Cartographer** | 2D/3D LiDAR | From Google, production-ready |
+| **GMapping** | 2D LiDAR | Lightweight, suited to indoor use |
+| **LIO-SAM** | LiDAR + IMU | High precision, GTSAM back-end |
+| **LOAM / LeGO-LOAM** | 3D LiDAR | Classic, with a ground-robot-optimized version |
+| **ORB-SLAM3** | Visual + IMU | Supports multiple camera types, high accuracy |
+| **VINS-Mono/Fusion** | Visual + IMU | Drones / mobile navigation |
+| **RTAB-Map** | RGB-D / stereo / LiDAR | Multi-modal, out of the box in ROS, built-in memory management |
+| **hdl_graph_slam** | 3D LiDAR | Graph optimization, supports NDT/ICP |
 
 ### Path planning
 {: id="路径规划"}
 
 | Tool | Function |
 |------|------|
-| **OMPL (Open Motion Planning Library)** | Sampling planning algorithm library (RRT*, PRM*, etc.) |
-| **Moveit!** | Robot arm motion planning (integrated OMPL) |
-| **NavFn / GlobalPlanner** | ROS Global Planning (Dijkstra/A*) |
-| **DWA Local Planner** | ROS dynamic window method local planning |
-| **TEB Local Planner** | ROS timed elastic band local planning |
-| **Smac Planner** | Nav2 built-in Hybrid A* planner |
+| **OMPL (Open Motion Planning Library)** | Library of sampling-based planning algorithms (RRT*, PRM*, etc.) |
+| **MoveIt!** | Robot arm motion planning (integrates OMPL) |
+| **NavFn / GlobalPlanner** | ROS global planning (Dijkstra/A*) |
+| **DWA Local Planner** | ROS dynamic window local planner |
+| **TEB Local Planner** | ROS timed elastic band local planner |
+| **Smac Planner** | Nav2's built-in Hybrid A* planner |
 
 ### Simulation
 {: id="仿真"}
 
 | Tool | Function |
 |------|------|
-| **Gazebo** | ROS default physical simulator, supports sensor simulation |
-| **Isaac Sim (NVIDIA)** | GPU accelerated ray tracing simulation, synthetic data generation |
-| **CARLA** | Special simulator for autonomous driving, urban scene |
-| **Webots** | Cross-platform open source robot simulation |
+| **Gazebo** | The default ROS physics simulator, with sensor simulation |
+| **Isaac Sim (NVIDIA)** | GPU-accelerated ray-traced simulation, synthetic data generation |
+| **CARLA** | Dedicated autonomous driving simulator with urban scenes |
+| **Webots** | Cross-platform open-source robot simulation |
 
 ---
 
 # 12. Summary and outlook
 {: id="12-小结与展望"}
 
-## What This Survey Covers
+## What this survey covers
 {: id="本文回顾"}
 
-This article systematically sorts out the five core modules of the traditional robot navigation algorithm stack:
+This article systematically reviews the five core modules of the classical robot navigation algorithm stack:
 
-1. **Perception**: LiDAR/camera/IMU each has its own advantages and disadvantages, and sensor fusion (EKF/UKF) is the key to improving robustness
-2. **localization**: EKF/UKF is suitable for real-time pose tracking, particle filtering (AMCL) supports global localization, and NDT/ICP provides accurate scan matching
-3. **Mapping/SLAM**: LiDAR SLAM (Cartographer, LIO-SAM) has high accuracy and is available around the clock; visual SLAM (ORB-SLAM3, VINS-Mono) is low-cost but sensitive to light; RTAB-Map spans multiple modes and can be used out of the box; factor graph back-end optimization is currently mainstream
-4. **Path planning**: A*/Hybrid A* is used for global planning, DWA/TEB is used for local dynamic obstacle avoidance, and costmap is the "common language" of both
-5. **path tracking**: Pure Pursuit / Stanley is a geometric method, simple to implement, suitable for low-speed scenarios
-6. **Motion control**: PID is the foundation, LQR provides optimal linear control, MPC can explicitly handle constraints and multi-step lookahead, and fuzzy PID is more robust under nonlinear disturbances
+1. **Perception**: LiDAR, cameras, and IMUs each have their own strengths and weaknesses, and sensor fusion (EKF/UKF) is the key to better robustness
+2. **Localization**: EKF/UKF suit real-time pose tracking, particle filtering (AMCL) supports global localization, and NDT/ICP provide accurate scan matching
+3. **Mapping / SLAM**: LiDAR SLAM (Cartographer, LIO-SAM) is accurate and works around the clock; visual SLAM (ORB-SLAM3, VINS-Mono) is low-cost but sensitive to lighting; RTAB-Map spans multiple modalities and works out of the box; factor-graph back-end optimization is currently the mainstream
+4. **Path planning**: A*/Hybrid A* for global planning, DWA/TEB for local dynamic obstacle avoidance, with the costmap as the "common language" of both
+5. **Path tracking**: Pure Pursuit / Stanley are geometric methods that are simple to implement and suit low-speed scenarios
+6. **Motion control**: PID is the foundation, LQR provides optimal linear control, MPC can handle constraints and multi-step look-ahead explicitly, and fuzzy PID is more robust under nonlinear disturbances
 
 ## Outlook
 {: id="展望"}
 
-The traditional navigation algorithm stack has become quite mature after decades of development, but it still faces challenges:
+The classical navigation algorithm stack has matured over decades of development, but it still faces challenges:
 
-- **Corridor degeneracy, dynamic scenes, unstructured terrain**: Putting forward higher requirements for SLAM robustness
-- **Multi-robot collaborative SLAM**: Trade-off between distributed mapping and communication efficiency
-- **Lack of semantic understanding**: The traditional algorithm lacks the semantic ability of "this is the kitchen", limiting its application in daily service scenarios
+- **Corridor degeneracy, dynamic scenes, and unstructured terrain**: these demand greater SLAM robustness
+- **Multi-robot collaborative SLAM**: the trade-off between distributed mapping and communication efficiency
+- **Lack of semantic understanding**: classical algorithms lack semantic concepts such as "this is the kitchen", which limits their use in everyday service scenarios
 
-The current research trend is the hybrid architecture **of "traditional navigation + large model"**: retaining the safety and reliability of the traditional navigation stack, introducing LLM/VLM in the task planning and semantic understanding layer, and building a next-generation robot system that can understand human intentions and act autonomously in the complex real world.
+The current research trend is a **hybrid architecture of "classical navigation + large models"**: retain the safety and reliability of the classical navigation stack, and introduce LLMs/VLMs at the task planning and semantic understanding layers, to build next-generation robot systems that can understand human intent and act autonomously in complex real-world settings.
 
 > For vision-language navigation (VLN) and VLA foundation models, see the [VLN Survey](/en/VLN-Survey/) and [VLA Survey (Chinese)](/VLA-Survey/) series.
 

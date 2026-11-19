@@ -6,7 +6,7 @@ permalink: /en/Agentic-Navigation-Papers/
 source_path: _posts/research/2026-11-07-VLN-Papers-AgenticNav.md
 source_url: /Agentic-Navigation-Papers/
 source_revision_date: 2026-11-14
-translation_updated: 2026-11-14
+translation_updated: 2026-11-19
 title: "VLN Papers: Agentic Navigation"
 date: 2026-11-14
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
@@ -38,11 +38,11 @@ excerpt: "26 readings on tool use, active interaction, spatial memory, and conti
 
 **Background and problem**
 
-Most existing goal navigation methods rely on depth sensors or pre-built maps to construct 2.5D scene representations, which limits their applicability and generalization capabilities in real environments. Zero-shot goal navigation requires the robot to identify and navigate to objects beyond the scope of predefined categories, and existing methods have limited performance in open vocabulary scenarios. Mapless methods usually make decisions based only on current observations, ignoring historical trajectory information, and are prone to local deadlocks.
+Most existing goal-navigation methods rely on depth sensors or pre-built maps to construct 2.5D scene representations, which limits their applicability and generalization in real environments. Zero-shot goal navigation requires the robot to find and reach objects outside a predefined category set, yet existing methods perform poorly in open-vocabulary settings. Mapless methods usually decide from the current observation alone and ignore the trajectory history, so they easily get stuck in local dead ends.
 
 **Method and innovations**
 
-PanoNav is a zero-shot goal navigation framework without a map and using only RGB images. It contains two core modules:
+PanoNav is a zero-shot goal-navigation framework that uses only RGB images and no map. It has two core modules:
 
 <div align="center">
   <img src="/images/vln/panonav-framework-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:2009/562" alt="Overall architecture of PanoNav framework" />
@@ -51,55 +51,55 @@ Overall architecture of PanoNav framework
 </figcaption>
 </div>
 
-**panoramic Scene Parsing:**
+**Panoramic scene parsing:**
 
 *Local direction analysis:*
-- **lattice image enhancement**: Convert each RGB image into a lattice image, enhance plane position understanding through the Scaffold method, and serve as MLLM input together with the RGB image
-- **spatial relationship diagram construction**: MLLM uses geometric distance relationships and plane position relationships to construct spatial relationship diagrams and generate detailed descriptions in each direction (object existence, spatial relationships, room types, etc.)
+- **Lattice image enhancement**: Convert each RGB image into a lattice image to strengthen the MLLM's understanding of planar positions via the Scaffold method; the lattice image is fed to the MLLM together with the RGB image
+- **Spatial relationship graph construction**: The MLLM builds a spatial relationship graph from geometric distance relations and planar position relations, and generates a detailed description of each direction (object presence, spatial relations, room type, etc.)
 
 <div align="center">
-  <img src="/images/vln/panonav-panoramic-parsing.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:996/395" alt="panoramic scene parsing module: from RGB input to local direction description" />
+  <img src="/images/vln/panonav-panoramic-parsing.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:996/395" alt="Panoramic scene parsing module: from RGB input to local direction descriptions" />
 <figcaption>
-panoramic scene parsing module: from RGB input to local direction description
+Panoramic scene parsing module: from RGB input to local direction descriptions
 </figcaption>
 </div>
 
 *Global panoramic summary:*
-- **Overall perception of the environment**: Overall analysis of the robot's surrounding environment, identifying the types of objects existing in the environment and the current room type (such as kitchen, corridor)
-- **Implicit self-localization**: Provides implicit self-localization information through global summary to help the robot understand its position in the larger environment
+- **Overall perception of the environment**: Analyze the robot's surroundings as a whole, identifying the object types present and the current room type (e.g., kitchen, corridor)
+- **Implicit self-localization**: The global summary provides implicit localization cues that help the robot understand its position in the larger environment
 
-**Dynamic Memory-guided Decision-Making:**
+**Dynamic memory-guided decision-making:**
 
-- **Dynamic bounded memory queue**: Stores the latest global scene summary. The queue length is fixed. When the queue is full, new elements will be added and the oldest elements will be removed.
-- **Decision-making process**:
-  - When the memory queue is not full: decisions are based only on the current local description and global summary
-  - When the memory queue is full: Decision-making combines current information and historical memory information to avoid repeated exploration of visited areas
-- **action selection**: The decision result includes the navigation direction and a sign of whether the target is found, and the locomotion controller performs the corresponding action.
+- **Dynamic bounded memory queue**: Stores the most recent global scene summaries. The queue has a fixed length; once it is full, each new entry evicts the oldest one.
+- **Decision process**:
+  - Queue not full: decisions rely only on the current local description and global summary
+  - Queue full: decisions combine the current information with historical memory, which avoids re-exploring visited areas
+- **Action selection**: The decision output contains the navigation direction and a flag indicating whether the target has been found; the locomotion controller then executes the corresponding action.
 
 <div align="center">
-  <img src="/images/vln/panonav-dynamic-memory.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:997/617" alt="Dynamic memory guides decision-making mechanism" />
+  <img src="/images/vln/panonav-dynamic-memory.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:997/617" alt="Dynamic memory-guided decision mechanism" />
 <figcaption>
-Dynamic memory guides decision-making mechanism
+Dynamic memory-guided decision mechanism
 </figcaption>
 </div>
 
-**task setting:**
-- **observation data**: RGB images in six directions (spaced 60 degrees) are acquired at each time step to form a panoramic view and do not rely on depth sensors or GPS
-- **action space**: stop, move forward (0.25 meters), turn left/right (30 degrees), look up/down
-- **Mission goal**: Find the target object according to language instructions in an unseen environment and navigate to the target location
+**Task setting:**
+- **Observations**: At each time step, six RGB images (60 degrees apart) form a panoramic view; no depth sensor or GPS is used
+- **Action space**: stop, move forward (0.25 m), turn left/right (30 degrees), look up/down
+- **Goal**: Find the target object specified by a language instruction in an unseen environment and navigate to it
 
 **Results and findings**
 
-- **Performance advantage**: PanoNav’s success on the HM3D dataset rate (SR) reaches 43.5%, and SPL reaches 23.7%, which is significantly better than PixNav (SR=37.9%, SPL=20.5%) and ZSON (SR=25.5%, SPL=12.6%), and even exceeds methods that partially rely on maps and closed vocabularies.
-- **Deadlock avoidance**: In a highly deceptive environment, the dynamic memory mechanism achieves 48.0% success rate and 19.2% SPL, and the escape rate from the local area reaches 82.0%
-- **ablation experimental verification**:
-  - Importance of panoramic views: Performance drops significantly when using only three views (SR=19.5%, SPL=9.97%)
-  - Advantages of decoupling analysis and decision-making: The decoupling method (SR=43.5%, SPL=23.7%) is better than directly outputting decisions from MLLM (SR=38.5%, SPL=22.57%)
-  - The key role of dynamic memory: performance drops significantly after removing dynamic memory (SR=38.5%, SPL=22.57%)
+- **Performance**: On HM3D, PanoNav reaches a success rate (SR) of 43.5% and an SPL of 23.7%, clearly outperforming PixNav (SR=37.9%, SPL=20.5%) and ZSON (SR=25.5%, SPL=12.6%), and even surpassing methods that partly rely on maps and closed vocabularies.
+- **Dead-end avoidance**: In a highly deceptive environment, the dynamic memory mechanism achieves a 48.0% success rate and 19.2% SPL, with an 82.0% rate of escaping local regions
+- **Ablation studies**:
+  - Panoramic views matter: performance drops sharply with only three views (SR=19.5%, SPL=9.97%)
+  - Decoupling analysis from decision-making helps: the decoupled design (SR=43.5%, SPL=23.7%) beats having the MLLM output decisions directly (SR=38.5%, SPL=22.57%)
+  - Dynamic memory is essential: performance drops sharply once it is removed (SR=38.5%, SPL=22.57%)
 
 **Limitations**
 
-Although PanoNav has significantly improved the performance of map-free zero-shot navigation, in the future it is still necessary to explore the use of multi-modal information (such as voice, gestures, etc.) to build a more powerful memory queue to further improve the robustness and generalization ability of map-free goal navigation.
+Although PanoNav substantially improves mapless zero-shot navigation, future work should explore multimodal cues (e.g., speech and gestures) to build a stronger memory queue and further improve the robustness and generalization of mapless goal navigation.
 
 ---
 
@@ -111,45 +111,45 @@ Although PanoNav has significantly improved the performance of map-free zero-sho
 
 **Background and problem**
 
-In dynamic, unstructured environments, robots require a tight combination of mobility, manipulation, and real-time perception to perform complex tasks. Most of the existing research is limited to desktop scenarios, fails to solve the problems of limited perception and limited actuator range unique to mobile platforms, and has insufficient generalization capabilities in open-world environments.
+In dynamic, unstructured environments, robots must tightly combine mobility, manipulation, and real-time perception to perform complex tasks. Most existing work is confined to tabletop scenarios and does not address the limited perception and limited actuator reach specific to mobile platforms, and it generalizes poorly to open-world environments.
 
 **Method and innovations**
 
-ODYSSEY proposed a unified mobile manipulation framework, including two core modules: hierarchical planning and whole-body control:
+ODYSSEY proposes a unified mobile-manipulation framework with two core modules, hierarchical planning and whole-body control:
 
 <div align="center">
-  <img src="/images/vln/odyssey-framework-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1163/385" alt="Overall architecture of ODYSSEY framework" />
+  <img src="/images/vln/odyssey-framework-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1163/385" alt="Overall architecture of the ODYSSEY framework" />
 <figcaption>
-Overall architecture of ODYSSEY framework
+Overall architecture of the ODYSSEY framework
 </figcaption>
 </div>
 
-**Long-term mission planner:**
-- **Global task-level planning**: Fusion of RGB and LiDAR streams to build an empty-semantic representation of the scene, using pre-trained basic model to map the instance graph to the scene
-- Use GPT-4.1 to decompose natural language instructions into atomic action sequences (navigation, grabbing, placing, etc.) and output a rough target waypoint
-- The waypoint is projected to the 2D occupancy map, and the collision-free target attitude is determined through local search.
+**Long-horizon task planner:**
+- **Global task-level planning**: Fuse RGB and LiDAR streams to build an open-semantic scene representation, and use pre-trained foundation models to map instances into a scene graph
+- Use GPT-4.1 to decompose natural-language instructions into sequences of atomic actions (navigation, grasping, placing, etc.) and output a coarse target waypoint
+- The waypoint is projected onto a 2D occupancy map, and a collision-free target pose is found by local search
 
-**Partial operation:**
-- Using wrist-mounted depth observations to guide a visual-verbal model to generate accurate end-effector poses
-- Qwen2.5-VL-72B-InstructModel infers task-related touch points based on RGB observations and text descriptions
-- Apply geometric constraints based on the main axis and surface normal of the target object to determine the orientation of the end effector.
+**Local manipulation:**
+- Wrist-mounted depth observations guide a vision-language model to generate accurate end-effector poses
+- The Qwen2.5-VL-72B-Instruct model infers task-relevant contact points from RGB observations and text descriptions
+- Geometric constraints based on the principal axis and surface normal of the target object determine the end-effector orientation
 
 <div align="center">
-  <img src="/images/vln/odyssey-whole-body-control.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:995/1427" alt="Two-stage whole body control strategy training process" />
+  <img src="/images/vln/odyssey-whole-body-control.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:995/1427" alt="Training pipeline of the two-stage whole-body control policy" />
 <figcaption>
-Two-stage whole body control strategy training process
+Training pipeline of the two-stage whole-body control policy
 </figcaption>
 </div>
 
-**whole body control strategy:**
-- A single network maps observation vectors (motor commands, end effector targets, ground height maps, gravity vectors, proprioceptive states, etc.) to target actions
-- **Two-stage training**: The first stage fixes the training movement of the robot arm joints; the second stage controls all 18 joints and uses a terrain-invariant end-effector sampling strategy
-- Introduce gait reward, frequency reward and end effector tracking items, and use domain randomization to enhance adaptability
+**Whole-body control policy:**
+- A single network maps the observation vector (motion commands, end-effector targets, ground height map, gravity vector, proprioceptive state, etc.) to target actions
+- **Two-stage training**: The first stage trains locomotion with the arm joints fixed; the second stage controls all 18 joints and uses a terrain-invariant end-effector sampling strategy
+- Gait, frequency, and end-effector tracking reward terms are introduced, and domain randomization improves adaptability
 
-**simulation benchmark test:**
-- Build a diverse asset library containing 50 rigid objects, 15 containers, 30 joint structures, and 10 draggable objects
-- The benchmark test includes 10 real scenes (indoor homes, supermarkets, restaurants, outdoor courtyards, etc.)
-- The long-term tasks include 246 indoor and 58 outdoor variations involving various skills such as grasping, reorientation, container placement, and joint manipulation.
+**Simulation benchmark:**
+- A diverse asset library is built, containing 50 rigid objects, 15 containers, 30 articulated structures, and 10 draggable objects
+- The benchmark includes 10 real scenes (indoor homes, supermarkets, restaurants, outdoor courtyards, etc.)
+- The long-horizon tasks comprise 246 indoor and 58 outdoor variants involving skills such as grasping, reorientation, container placement, and articulated-object manipulation
 
 <div align="center">
   <img src="/images/vln/odyssey-results-comparison.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:677/343" alt="Performance comparison with baseline methods" />
@@ -160,41 +160,41 @@ Performance comparison with baseline methods
 
 **Results and findings**
 
-- **Short-term task**: Better than the PerAct baseline in the ARNOLDBenchmark test, relying only on a single egocentric camera to achieve stronger generalization capabilities, and the performance remains stable on unseen datasets
-- **Long-term tasks**: Achieve an overall success rate of more than 40% on 8 long-term mobile manipulation tasks, maintain a success rate of more than 60% for each atomic skill category, and demonstrate reliable coordination capabilities
-- **Low-level policy**: Better than the RoboDuet baseline in base speed tracking, end-effector attitude tracking performance is equivalent, and has stronger adaptability on different terrains
-- **Sim-to-Real migration**: Successful real-world deployment on Unitree Go2+Arx5 platform, verifying the practicality of the framework in "Navigate to Fetch" and "Fetch and Place" tasks
+- **Short-horizon tasks**: Outperforms the PerAct baseline on the ARNOLD benchmark; relying on a single egocentric camera, it generalizes better and stays stable on unseen datasets
+- **Long-horizon tasks**: Achieves an overall success rate above 40% on 8 long-horizon mobile-manipulation tasks and above 60% for each atomic skill category, demonstrating reliable coordination
+- **Low-level policy**: Beats the RoboDuet baseline in base velocity tracking, matches it in end-effector pose tracking, and adapts better to different terrains
+- **Sim-to-real transfer**: Deployed successfully in the real world on a Unitree Go2 + Arx5 platform, validating the framework on the "Navigate to Fetch" and "Fetch and Place" tasks
 
 **Limitations**
 
-model has limitations in spatial reasoning of object geometry, resulting in poor gripper alignment and inaccurate localization of slender handles or partially obscured items. Furthermore, there are occasional failures when grasping small objects, mainly due to insufficient end-effector tracking and visual perception accuracy.
+The model's spatial reasoning about object geometry is limited, leading to poor gripper alignment and inaccurate localization of slender handles or partially occluded items. In addition, grasping small objects occasionally fails, mainly because of insufficient end-effector tracking and visual perception accuracy.
 
 ---
 
 ## 3. Agentic Embodied Control (2026)
 {: id="agentic-embodied-control"}
-——The general agent under the minimalist interface directly controls the embodied interaction cycle, and the zero-shot performance is comparable to the industrial-level training strategy.
+——A general agent under a minimalist interface directly controls the embodied interaction loop, with zero-shot performance comparable to industrial-scale trained policies
 
 📄 **Paper**: [arXiv:2607.26148](https://arxiv.org/abs/2607.26148)
 
 ### Key takeaways
 {: id="精华-5"}
-1. **Fundamental reflection on controlling paradigm**: Breaking the inherent model of embodied navigation relying on "specialized strategy training" or "artificial fixed workflow/dual-brain handover state machine", proving that the universal large model with frozen weights can completely autonomously control the interaction loop and achieve top performance under zero samples with only the code agent framework (Harness) and the most minimalist perception and action interface.
-2. **Strong control through a minimal interface**: with only $512 \times 512$ monocular RGB images (no depth, panoramas, mapping, or pose feedback) and four discrete primitives—forward $0.25\text{ m}$, turn left $15^\circ$, turn right $15^\circ$, and stop—frontier reasoning models (Fable-5 / Opus-5) achieve $70.7\% \sim 78\%$ success on continuous R2R-CE, comparable to navigation policies trained at industrial scale.
-3. Single-axis decoupling of **capability source**: The ablation experiment confirms that the the underlying foundation model **plays a decisive role** (model switching leads to an SR span as high as $5\% \sim 72\%$), while the difference between different general Agent Harnesses is minimal (only $1.7\% \sim 7.3\%$).
-4. **The emergence of hybrid interface synergy**: Forcing the agent to use the waypoint predictor (Forced Waypoint) actually limits the fine-tuning alignment of the strong model; when the waypoint is opened as an optional tool (Hybrid Interface), the agent independently emerges the strategy of "long-distance waypoint selection for fast cruising + target close cut primitive fine-tuning" achieves $76.7\%$ success with $50\%$ of the steps and less than one quarter of the time.
-5. **Silent Failure and Embodied Grounding Gap**: An in-depth audit of 30 failure cases found that the agent has a serious "doubt without corrective action" phenomenon (the thinking chain has detected a navigation deviation but still executes an error termination); the deployment of the physical quadruped quadruped robot shows that "inference capabilities are transferable, but embodiment awareness is not transferable", and the lack of size awareness and persistent spatial memory is the core bottleneck restricting long-range autonomy.
+1. **Rethinking the control paradigm**: Breaking with the usual pattern of embodied navigation that relies on "specialized policy training" or "hand-fixed workflows / dual-brain handover state machines", the paper shows that a general-purpose large model with frozen weights can autonomously control the whole interaction loop and reach top zero-shot performance, using only a code-agent framework (Harness) and the most minimal perception and action interface.
+2. **Strong control through a minimal interface**: With only $512 \times 512$ monocular RGB images (no depth, panoramas, mapping, or pose feedback) and four discrete primitives—forward $0.25\text{ m}$, turn left $15^\circ$, turn right $15^\circ$, and stop—frontier reasoning models (Fable-5 / Opus-5) achieve $70.7\% \sim 78\%$ success on continuous R2R-CE, comparable to navigation policies trained at industrial scale.
+3. **Isolating the source of capability**: Ablations confirm that the underlying foundation model **plays the decisive role** (switching models changes SR across a span as wide as $5\% \sim 72\%$), whereas the differences between general-purpose agent harnesses are minimal (only $1.7\% \sim 7.3\%$).
+4. **Emergent synergy in a hybrid interface**: Forcing the agent to use a waypoint predictor (Forced Waypoint) actually constrains strong models; when the waypoint predictor is offered as an optional tool (Hybrid Interface), the agent spontaneously adopts a strategy of "long-range waypoints for fast cruising + primitive actions for fine adjustment near the target", reaching $76.7\%$ success with $50\%$ of the steps and less than one quarter of the time.
+5. **Silent failure and the embodied grounding gap**: A detailed audit of 30 failure cases reveals a serious "doubt without corrective action" phenomenon (the chain of thought notices a navigation deviation, yet the agent still executes an erroneous stop). Deployment on a physical quadruped robot shows that "reasoning transfers, but embodiment awareness does not"; the lack of body-size awareness and persistent spatial memory is the core bottleneck for long-range autonomy.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-5"}
-- **There are two major technical routes for embodied navigation and the dilemma of external control**:
-  - **end-to-end training policies (Trained Policies)**: Such as NaVid, StreamVLN, etc., through massive embodied data training dedicated network, mapping observations into actions frame by frame. This type of method is highly sensitive to data distribution and lacks high-level generalization and reflective error correction capabilities when encountering out-of-distribution obstacles or unseen instructions.
-  - **Fixed Workflows & Dual-Brain**: Such as MapGPT, NavCoT, ABot-N1, etc., although large models are introduced, the models are strictly limited to fixed pipelines written by humans (for example, deep mapping is called first, topology planning is called, and then handed over to the low-level controller). The agent cannot freely decide based on the current situation when to observe, when to take a few more steps, and when to abandon existing assumptions.
+- **Two technical routes for embodied navigation, and the dilemma of external control**:
+  - **End-to-end trained policies**: Methods such as NaVid and StreamVLN train a dedicated network on massive embodied data that maps observations to actions frame by frame. They are highly sensitive to the data distribution and lack high-level generalization and reflective error correction when facing out-of-distribution obstacles or unseen instructions.
+  - **Fixed workflows and dual-brain designs**: Methods such as MapGPT, NavCoT, and ABot-N1 introduce large models but strictly confine them to human-written fixed pipelines (e.g., first call depth mapping, then topological planning, then hand over to a low-level controller). The agent cannot freely decide, based on the current situation, when to observe, when to take a few more steps, or when to abandon existing hypotheses.
 - **Core research questions**:
   - Can navigation-specific external scaffolding be removed entirely—external maps, depth sensors, predefined heuristic search, and specialized policy networks—and **high-level control authority be entrusted directly to a general-purpose reasoning agent**?
-  - With the most minimalist monocular front-view perspective and discrete action interface, how high is the upper limit of embodied control of the general-purpose large model? Where are its true capability boundaries and grounding points?
+  - With only a monocular front-view image and a discrete action interface, how high is the ceiling of embodied control for a general-purpose large model? Where are its true capability boundaries and grounding gaps?
 
 ---
 
@@ -202,74 +202,74 @@ model has limitations in spatial reasoning of object geometry, resulting in poor
 {: id="2-主要方法创新点-5"}
 
 <div align="center">
-  <img src="/images/vln/Agentic-Embodied-Control-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/789" alt="Figure 1: Comparison of ownership of embodied interaction loop control rights (left), minimalist interface interaction probe architecture (middle), and comparison of success rates with strong baselines on R2R-CE (right)" />
+  <img src="/images/vln/Agentic-Embodied-Control-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/789" alt="Figure 1: Who holds control of the embodied interaction loop (left), the minimalist-interface interaction probe (middle), and success rate against strong baselines on R2R-CE (right)" />
 <figcaption>
-Figure 1: Comparison of ownership of embodied interaction loop control rights (left), minimalist interface interaction probe architecture (middle), and comparison of success rates with strong baselines on R2R-CE (right)
+Figure 1: Who holds control of the embodied interaction loop (left), the minimalist-interface interaction probe (middle), and success rate against strong baselines on R2R-CE (right)
 </figcaption>
 </div>
 
-#### ① Overview of the overall framework: Agentic Embodied Control
+#### ① Overall framework: Agentic Embodied Control
 {: id="-整体框架概述智能体自主具身控制agentic-embodied-control"}
-The paper proposes a minimalist embodied control probe system. The entire system consists of three layers of completely decoupled components: **universal code agent framework (Harness)**, **minimalist perception action interface (Interface)** and **Multimodal inferenceModel (model)** with frozen weights. The agent has complete control over the entire interaction process. Based on natural language instructions and historical interaction records, it can independently decide to call observation tools, step actions or terminate tasks in each round.
+The paper proposes a minimalist probe system for embodied control. It consists of three fully decoupled layers: a **general-purpose code-agent framework (Harness)**, a **minimalist perception-action interface (Interface)**, and a **multimodal reasoning model (Model)** with frozen weights. The agent has complete control over the interaction process: given a natural-language instruction and the interaction history, it independently decides in each round whether to call the observation tool, execute steps, or terminate the task.
 
-#### ② In-depth analysis module by module (input → processing → output → design motivation)
+#### ② Module-by-module analysis (input → processing → output → motivation)
 {: id="-逐模块深度解析输入--处理--输出--设计动机"}
 
 1. **General agent framework layer (Harness Layer)**
-   - **Input**: Natural language navigation instructions issued by the user and the historical call text/image context of the current session.
-   - **processing process**: Directly adopt a common framework designed for code engineering (such as Open source's `mini-swe-agent`, Anthropic's `Claude Agent SDK` or OpenAI's `Codex CLI`). The framework is only responsible for prompt word splicing, tool distribution execution, and maintaining context sessions. **does not include any navigation-specific state estimation, topology map construction, or backtracking strategies**.
-   - **output**: formatted tool call request (Tool Calls) and environment return results.
-   - **Design motivation**: Strip away all peripheral code logic that is manually customized around navigation tasks to ensure that the experiment purely tests the underlying model's own embodied inference and autonomous decision-making capabilities.
+   - **Input**: The natural-language navigation instruction issued by the user, plus the text/image context of earlier calls in the current session.
+   - **Processing**: Directly adopts a general framework designed for code engineering (such as the open-source `mini-swe-agent`, Anthropic's `Claude Agent SDK`, or OpenAI's `Codex CLI`). The framework is only responsible for assembling prompts, dispatching tool execution, and maintaining the session context. **It contains no navigation-specific state estimation, topological map construction, or backtracking strategy**.
+   - **Output**: Formatted tool-call requests (Tool Calls) and the results returned by the environment.
+   - **Motivation**: Strip away all peripheral code logic hand-crafted for navigation, so that the experiment purely tests the base model's own embodied reasoning and autonomous decision-making.
 
 2. **Minimalist perception tool `observe()`**
-   - **input**: The agent initiates a parameterless call when it needs to confirm the surrounding environment.
-   - **processing process**: Environment rendering and returning a single $512 \times 512$ resolution RGB image directly in front of the current agent. **Calling this tool will not advance the simulator time step or consume the step budget**.
-   - **output**: single front-view RGB image. No panoramic perspective, no depth map, no target detection frame, no semantic segmentation, no laser point cloud.
-   - **Design motivation**: Force the agent to get rid of its dependence on panoramic images and depth sensors, and examine the model's ability to maintain spatial orientation and landmark memory in the mind based only on the monocular front-view image sequence.
+   - **Input**: The agent makes a parameterless call whenever it needs to check its surroundings.
+   - **Processing**: The environment renders and returns a single $512 \times 512$ RGB image directly ahead of the agent. **Calling this tool neither advances the simulator time step nor consumes the step budget**.
+   - **Output**: A single front-view RGB image. No panoramic view, depth map, detection boxes, semantic segmentation, or laser point cloud.
+   - **Motivation**: Force the agent to give up its dependence on panoramas and depth sensors, and test whether the model can maintain spatial orientation and landmark memory in its head from monocular front-view images alone.
 
 3. **Minimalist action tool `step(actions)`**
-   - **input**: an ordered sequence list of four Habitat discrete action primitives (such as `["LEFT", "LEFT", "FORWARD", "FORWARD", "FORWARD"]`). The four primitives include:
+   - **Input**: An ordered list of Habitat discrete action primitives (such as `["LEFT", "LEFT", "FORWARD", "FORWARD", "FORWARD"]`). There are four primitives:
      - `FORWARD`: move forward $0.25\text{ m}$;
-     - `LEFT`: Turn left on the spot $15^\circ$;
-     - `RIGHT`: Turn right in place $15^\circ$;
-     - `STOP`: Declare the task is completed and actively terminate the evaluation.
-   - **processing process**: The underlying controller executes the action sequence in order, subject to the maximum total budget of 500 discrete primitives in a single episode.
-   - **Output**: Only the number of primitives actually executed and the number of remaining available steps are returned. **does not return any visual observation, does not return collision signals, does not return pose or coordinate drift data**.
-   - **design motivation**: allows the model to independently determine the action granularity based on the grasp of the environment (it can send a single rotation fine-tuning, or a series of combinations to advance); hides collision and pose information to force the model to actively call `observe()` after execution, and introspectively infer whether a collision or jamming occurs by comparing the parallax changes of the before and after images.
+     - `LEFT`: turn left in place by $15^\circ$;
+     - `RIGHT`: turn right in place by $15^\circ$;
+     - `STOP`: declare the task complete and actively end the evaluation.
+   - **Processing**: The low-level controller executes the action sequence in order, subject to a total budget of 500 discrete primitives per episode.
+   - **Output**: Only the number of primitives actually executed and the number of remaining steps. **No visual observation, collision signal, or pose/coordinate drift data is returned**.
+   - **Motivation**: Lets the model choose the action granularity based on its grasp of the environment (a single fine rotation, or a batch of combined actions to advance); hiding collision and pose information forces the model to call `observe()` after execution and infer introspectively whether it collided or got stuck by comparing the parallax between the before and after images.
 
 <div align="center">
-  <img src="/images/vln/Agentic-Embodied-Control-episode-trace.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/548" alt="Figure 2: Complete execution log reconstruction of a successful navigation episode in R2R-CE continuous environment, showing the agent&#x27;s autonomous corrective and spatial reflection process" />
+  <img src="/images/vln/Agentic-Embodied-Control-episode-trace.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/548" alt="Figure 2: Reconstructed full execution log of a successful navigation episode in the continuous R2R-CE environment, showing the agent's autonomous error correction and spatial reflection" />
 <figcaption>
-Figure 2: Complete execution log reconstruction of a successful navigation episode in R2R-CE continuous environment, showing the agent's autonomous corrective and spatial reflection process
+Figure 2: Reconstructed full execution log of a successful navigation episode in the continuous R2R-CE environment, showing the agent's autonomous error correction and spatial reflection
 </figcaption>
 </div>
 
-#### ③ End-to-end interactive data flow and autonomous corrective mechanism
+#### ③ End-to-end interaction data flow and autonomous error-correction mechanism
 {: id="-端到端交互数据流与自主纠偏机制"}
-As shown in Figure 2, in a complete navigation test (including 20 observations, 20 steps, and a total of 111 discrete primitive actions), the agent demonstrated a highly self-consistent inference and adaptive adjustment cycle:
-- **vision establishment and steering**: Initially observed when facing the wall, Modelinference found that "it needs to be turned 180 degrees, that is, 12 consecutive calls of 15-degree left turns" and issued `L×12` in batches.
-- **Collision and yaw sensing**: Call `observe()` after executing `F×5` and find that the field of view has almost remained unchanged. model wrote in the thinking chain "I almost didn't move, maybe the right side hit the corner of the bed; let me deflect a little to the left to avoid it", and then issued `L2 F4` independently. Get out of trouble successfully.
-- **Exploration and Rewind**: After accidentally entering a small room with a dressing table, model checked the instructions and found that "the original instructions did not mention this room, and you should go directly through the corridor to the bathroom." He immediately turned around and realigned the corridor and finally executed `STOP` autonomously at the target $2.98\text{ m}$ away from the bathroom.
+As shown in Figure 2, in one complete navigation test (20 observations, 20 steps, and 111 discrete primitive actions in total), the agent exhibits a highly self-consistent cycle of reasoning and adaptive adjustment:
+- **Establishing orientation and turning**: At the start the agent faces a wall; the model reasons that "it needs to turn 180 degrees, i.e., 12 consecutive 15-degree left turns", and issues `L×12` as a batch.
+- **Collision and yaw sensing**: After executing `F×5`, the agent calls `observe()` and finds that the view has barely changed. The model writes in its chain of thought, "I hardly moved; maybe the right side hit the corner of the bed. Let me veer slightly left to avoid it", and then independently issues `L2 F4`, getting out of the jam successfully.
+- **Exploration and backtracking**: After accidentally entering a small room with a dressing table, the model rereads the instruction and finds that "the instruction never mentions this room; I should go straight along the corridor to the bathroom". It immediately turns around, realigns with the corridor, and finally issues `STOP` autonomously at a point $2.98\text{ m}$ from the bathroom.
 
 ---
 
-#### ④ Difficulty Dimensionality Reduction 1: The Essential Transition of Embodied Control paradigm (Control Authority)
+#### ④ Worked example 1: The essential shift in the embodied control paradigm (control authority)
 {: id="-难点降维-1具身控制范式的本质跃迁control-authority"}
 
-Many readers may easily misunderstand this work as “another zero-shot method for running VLN using Prompt”. The core difference lies in the control authority of **and the tool calling mode**.
+Many readers may easily mistake this work for "yet another zero-shot VLN method that runs on prompting". The core difference lies in **who holds control authority and how tools are called**.
 
-| Control paradigm | Ownership of control rights | Core mechanism | Behavior when encountering exceptions/obstacles | Representative methods |
+| Control paradigm | Who holds control | Core mechanism | Behavior on exceptions/obstacles | Representative methods |
 |---|---|---|---|---|
-| **end-to-end policy network (Policy)** | External environment loop | Each input image of a single neural network is directly mapped to an action | Lack of high-level reflection, easy to fall into local oscillations in dead ends | NaVid, StreamVLN |
-| **Fixed pipeline (Workflow)** | External Python script | Rule code hard-coded fixed process (map construction → find waypoints → planning → execution) | The process is rigid and cannot dynamically change the observation frequency or seek help from other tools according to immediate difficulties | MapGPT, SmartWay |
-| **Slow-Fast Dual-Brain System (Dual-Brain)** | Default handover protocol | Slow VLM plans high-level sub-goals and fixes the handover to the fast-action expert network | The handover logic and update frequency are manually programmed, and high-level intentions are often distorted by low-level strategies | ABot-N1, InternVLA-N1 |
-| **Agent Autonomous Control (Agentic Control)** | **inferenceModel itself** | The unified large-scale model independently decides when to sense, take a few steps, check the map or select a waypoint | The model has complete independent control over retry, detour, redirection and early termination | **Method of this article** |
+| **End-to-end policy network (Policy)** | External environment loop | A single neural network maps each input image directly to an action | Lacks high-level reflection and easily oscillates in dead ends | NaVid, StreamVLN |
+| **Fixed pipeline (Workflow)** | External Python script | Hard-coded rule-based process (map construction → waypoint finding → planning → execution) | The process is rigid: it cannot dynamically change the observation frequency or seek help from other tools according to the difficulty at hand | MapGPT, SmartWay |
+| **Slow-Fast dual-brain system (Dual-Brain)** | Fixed handover protocol | A slow VLM plans high-level sub-goals and hands them off to a fast action expert network | The handover logic and update frequency are hand-programmed, and high-level intent is often distorted by the low-level policy | ABot-N1, InternVLA-N1 |
+| **Autonomous agent control (Agentic Control)** | **The reasoning model itself** | A single large model decides on its own when to sense, how many steps to take, whether to check the map, or which waypoint to pick | The model has full autonomy over retrying, detouring, changing direction, and terminating early | **This paper's method** |
 
 ```mermaid
 graph TD
     subgraph "Agentic Embodied Control decision loop"
         A["Input: language instruction + conversation history"] --> B["General-purpose model reasoning (CoT)"]
-        B --> C{"model chooses the next step"}
+        B --> C{"Model chooses the next step"}
         C -- "Need a new view" --> D["Call observe() for forward-facing monocular RGB"]
         C -- "Execute movement" --> E["Call step([ACTIONS...]) to dispatch discrete actions"]
         C -- "Confirm arrival" --> F["Send STOP to end evaluation"]
@@ -282,31 +282,31 @@ graph TD
 
 ---
 
-#### ⑤ Difficulty Dimensionality Reduction 2: Collaborative Emergence of Hybrid Interface
+#### ⑤ Worked example 2: Emergent collaboration in the hybrid interface
 {: id="-难点降维-2混合动作接口hybrid-interface的协同涌现"}
 
-Forcing the agent to bind a waypoint predictor (Forced Waypoint) will often weaken the performance of the strong model; but if the **discrete primitive** and the **trained waypoint predictor** are simultaneously opened to the agent as an optional tool (Hybrid Interface), the intelligent body will independently combine a very inspiring "thick and thin collaboration" strategy.
+Forcing the agent to use a waypoint predictor (Forced Waypoint) often weakens a strong model. But when both the **discrete primitives** and the **trained waypoint predictor** are offered to the agent as optional tools (Hybrid Interface), the agent spontaneously combines them into an inspiring "coarse-and-fine collaboration" strategy.
 
-> **Give a specific example**:
-> Suppose the task is to start from the living room, walk through a 10-meter long corridor, enter the master bedroom and stop at the bedside table (total distance is about 14 meters).
-> - **pure primitive mode**: Since each advance is only $0.25\text{ m}$, walking through the 10-meter corridor requires the model to repeatedly issue $40$ forward primitives and frequently call `observe()` to check the door openings on both sides of the corridor. It is easy to repeatedly fine-tune the yaw at a small angle, and the total consumption is about $90$ primitive steps and nearly $40$ model interactive calls (it takes about $210\text{ s}$).
-> - **Mandatory waypoint mode**: the model must choose from at most 5 waypoints supplied by the predictor. Open corridors can be traversed quickly with 2–3 waypoints, but within the final narrow $1\text{ m}$ near a bedside table, candidates may fail to follow the bed edge or lie too close to a wall. This causes inaccurate stopping or collisions, and overshoot is common at complex corners.
-> - **Hybrid mode (Hybrid)**: The agent calls 3~4 autonomously and continuously in the first 80% of the long corridor. **waypoint navigation** fast cruise; once the bedside table is detected in the field of view and enters the close-up view, the model immediately actively switches to the **discrete primitive tool**, finely aligning the final stop point with the micro-steps of $0.25\text{ m}$ and $15^\circ$.
-> **result**: The number of steps was cut from 87 steps to 48 steps, the number of calling rounds was reduced by half, the interaction time was sharply reduced from $210\text{ s}$ to $112\text{ s}$, and the success rate was increased from pure primitive $68.3\%$ to $76.7\%$!
+> **Example**:
+> Suppose the task is to start in the living room, walk down a 10-meter corridor, enter the master bedroom, and stop at the bedside table (about 14 meters in total).
+> - **Pure primitive mode**: Since each step advances only $0.25\text{ m}$, crossing the 10-meter corridor requires the model to issue $40$ forward primitives and call `observe()` frequently to check the doorways on both sides. It easily falls into repeated small yaw corrections, consuming about $90$ primitive steps and nearly $40$ model interaction calls (about $210\text{ s}$).
+> - **Forced waypoint mode**: The model must choose from at most 5 waypoints supplied by the predictor. Open corridors can be crossed quickly with 2–3 waypoints, but within the final narrow $1\text{ m}$ near the bedside table, candidates may fail to follow the bed edge or lie too close to a wall. This causes inaccurate stops or collisions, and overshoot is common at complex corners.
+> - **Hybrid mode**: In the first 80% of the long corridor, the agent autonomously makes 3–4 consecutive **waypoint navigation** calls to cruise quickly; once the bedside table is detected and comes into close view, the model immediately switches to the **discrete primitive tool**, aligning the final stopping point with fine steps of $0.25\text{ m}$ and $15^\circ$.
+> **Result**: The step count falls from 87 to 48, the number of calls is halved, interaction time drops sharply from $210\text{ s}$ to $112\text{ s}$, and the success rate rises from $68.3\%$ (pure primitives) to $76.7\%$.
 
 ---
 
-#### ⑥ Difficulty Dimensionality Reduction 3: “Silent Failure” and “No Change in Suspect” of Embodied Intelligence
+#### ⑥ Worked example 3: "Silent failure" and "doubt without correction" in embodied agents
 {: id="-难点降维-3具身智能体的无声失效与有疑无改"}
 
-Detailed tracking of 30 failed episodes revealed the deep behavioral flaws of the current general-purpose model in embodied environments.
+A detailed trace of 30 failed episodes reveals deep behavioral flaws of current general-purpose models in embodied environments.
 
-| Failure category | Percentage (n=30) | Median final distance from target | Typical performance and root causes |
+| Failure category | Share (n=30) | Median final distance to target | Typical behavior and root cause |
 |---|---|---|---|
-| **A. Wrong Referent / Branch (Wrong Referent / Branch)** | $40.0\%$ (12 cases) | $17.3\text{ m}$ | The instruction contains multiple ambiguous doorways or bifurcated roads. model chose the wrong passage in the first step and headed all the way to a completely unrelated room. |
-| **B. Stop Decision (Stop Decision)** | $23.3\%$ (7 cases) | $4.9\text{ m}$ | model saw the target object mentioned in the instruction (such as sofa) in the field of view, but the object was a reference object along the way rather than the final destination, and the model terminated prematurely (Object-anchored overshoot/undershoot). |
-| **C. Lost and Divergent Search (Runaway Search)** | $26.7\%$ (8 cases) | $18.6\text{ m}$ | After missing the key corner, the model did not choose to turn around and backtrack, but blindly expanded the search range in the unseen area, getting further and further away from the target. |
-| **D. Geometric Collision Trap (Geometry / Trap)** | $10.0\%$ (3 cases) | $5.5\text{ m}$ | Due to the lack of collision feedback, the model is repeatedly blocked in the dead corners of tables and chairs, but it is impossible to tell whether it is stuck from pure vision. |
+| **A. Wrong referent / branch (Wrong Referent / Branch)** | $40.0\%$ (12 cases) | $17.3\text{ m}$ | The instruction contains several ambiguous doorways or forks. The model chooses the wrong passage at the first step and heads all the way into a completely unrelated room. |
+| **B. Stop decision (Stop Decision)** | $23.3\%$ (7 cases) | $4.9\text{ m}$ | The model sees the object mentioned in the instruction (such as a sofa) in its view, but that object is only a landmark along the way rather than the final destination, and the model terminates prematurely (object-anchored overshoot/undershoot). |
+| **C. Lost and divergent search (Runaway Search)** | $26.7\%$ (8 cases) | $18.6\text{ m}$ | After missing a key corner, the model does not turn around and backtrack, but blindly widens the search in unseen areas and drifts further and further from the target. |
+| **D. Geometric collision trap (Geometry / Trap)** | $10.0\%$ (3 cases) | $5.5\text{ m}$ | Lacking collision feedback, the model is repeatedly blocked in the dead corners around tables and chairs, and cannot tell from vision alone that it is stuck. |
 
 ```mermaid
 graph TD
@@ -324,63 +324,63 @@ graph TD
 {: id="3-核心结果发现-5"}
 
 <div align="center">
-  <img src="/images/vln/Agentic-Embodied-Control-ablations.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/508" alt="Figure 3: Uniaxial ablation experimental results. (A) model capabilities span 5~72 SR; (B) The difference between Open source and manufacturer Harness is only 2~7 SR; (C) The roadmap interface is a life-saving straw for weak models, but it has a negative impact on strong models and dense environments" />
+  <img src="/images/vln/Agentic-Embodied-Control-ablations.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/508" alt="Figure 3: Single-axis ablation results. (A) Model capability spans an SR range of 5–72; (B) the gap between the open-source and vendor harnesses is only 2–7 SR; (C) the waypoint interface is a lifeline for weak models, but hurts strong models and dense environments" />
 <figcaption>
-Figure 3: Uniaxial ablation experimental results. (A) model capabilities span 5~72 SR; (B) The difference between Open source and manufacturer Harness is only 2~7 SR; (C) The roadmap interface is a life-saving straw for weak models, but it has a negative impact on strong models and dense environments
+Figure 3: Single-axis ablation results. (A) Model capability spans an SR range of 5–72; (B) the gap between the open-source and vendor harnesses is only 2–7 SR; (C) the waypoint interface is a lifeline for weak models, but hurts strong models and dense environments
 </figcaption>
 </div>
 
-#### ① Comparison of R2R-CE main list results
+#### ① Main results on R2R-CE
 {: id="-r2r-ce-主榜成绩对比"}
-On the standard R2R-CE val-unseen (rand100 subset), the general agent under the minimalist interface shows amazing zero-shot performance:
-- **Top performance**: Fable-5 achieves **$78.0\%$ success rate (SR) under Claude Agent SDK (maximum think budget)** and **$65.27\%$ path weighted success rate (SPL)**; Opus-5 reaches **$70.7 \pm 3.5\%$ SR**.
-- **surpasses similar zero-shot system**: significantly ahead of AgenticNav ($55.0\%$ SR) and Open-Nav ($50.0\%$ SR), which also use maps, explicit memory and depth tools in zero-shot settings.
-- **is comparable to the industrial-grade training strategy**: directly approaching and partially surpassing dedicated strategies fully trained on tens of thousands of hours of embodied data, such as Qwen-RobotNav (full validation set $72.0\%$ SR), NavFM ($77.2\%$ SR), and StreamVLN ($64.9\%$ SR).
+On the standard R2R-CE val-unseen (rand100 subset), the general-purpose agent under the minimalist interface shows remarkable zero-shot performance:
+- **Top performance**: Fable-5 achieves **$78.0\%$ success rate (SR) under the Claude Agent SDK (maximum thinking budget)** and **$65.27\%$ SPL**; Opus-5 reaches **$70.7 \pm 3.5\%$ SR**.
+- **Surpasses comparable zero-shot systems**: Clearly ahead of AgenticNav ($55.0\%$ SR) and Open-Nav ($50.0\%$ SR), which use maps, explicit memory, and depth tools in zero-shot settings.
+- **Comparable to industrial-scale trained policies**: Approaches, and in some cases surpasses, dedicated policies trained on tens of thousands of hours of embodied data, such as Qwen-RobotNav ($72.0\%$ SR on the full validation set), NavFM ($77.2\%$ SR), and StreamVLN ($64.9\%$ SR).
 
-#### ② Three-dimensional decoupling discovery of model, Harness and interface
+#### ② Three-axis decoupling of model, harness, and interface
 {: id="-模型harness-与接口的三维解耦发现"}
-1. **model Axis (model Dominates)**: With the Harness and interface fixed, just replacing the underlying VLM can cause a huge performance span of $5\% \sim 72\%$ (Qwen3.5-4B only $5\%$, GPT-5.6 up to $60\%$, Fable-5 up to $72\%$). It shows that embodied navigation capability is essentially the natural emergence of multi-modal spatial reasoning and long-context instruction tracking capabilities.
-2. **Harness (Harness is Modest)**: Comparing the lightweight Open source `mini-swe-agent` with the closed source `Claude SDK` / `Codex CLI`, the performance difference under the same model is only between $1.7\% \sim 7.3\%$.
-3. **Thinking Budget (Reasoning Effort)**: Increasing the model's thinking chain calculation (Reasoning Effort) has significant benefits for some models (Fable-5 soars from the default $68.3\%$ to the max effort $78.0\%$, improving $+9.7\%$), but the income of small models is not stable.
-4. **The double-edged sword effect of road marking tools**:
-   - On R2R-CE, for weaker models (such as Qwen3.5-4B/9B), the landmark predictor saves the success rate from $5\%/7\%$ to $43\%/44\%$; but for top models (Fable-5/Opus-5), the improvement brought by the forced use of landmarks is only $+0.7\% \sim +1.3\%$.
-   - On the **VLNVerse** benchmark, which has denser obstacles and more complex paths, the forced roadmap interface actually causes the Sonnet-5 success rate to decrease. $6\%$ ($78\% \rightarrow 72\%$), Fable-5 decreases. $4\%$ ($84\% \rightarrow 80\%$), and the collision rate increased by 4 to 6 times.
+1. **Model axis (the model dominates)**: With the harness and interface fixed, merely swapping the underlying VLM produces a huge performance span of $5\% \sim 72\%$ (Qwen3.5-4B only $5\%$, GPT-5.6 up to $60\%$, Fable-5 up to $72\%$). This indicates that embodied navigation ability essentially emerges naturally from multimodal spatial reasoning and long-context instruction tracking.
+2. **Harness (the harness matters little)**: Comparing the lightweight open-source `mini-swe-agent` with the closed-source `Claude SDK` / `Codex CLI`, the performance difference for the same model is only $1.7\% \sim 7.3\%$.
+3. **Thinking budget (reasoning effort)**: Spending more chain-of-thought compute brings clear gains for some models (Fable-5 jumps from $68.3\%$ at default effort to $78.0\%$ at max effort, a gain of $+9.7\%$), but the benefit for small models is unstable.
+4. **The double-edged sword of the waypoint tool**:
+   - On R2R-CE, for weaker models (such as Qwen3.5-4B/9B), the waypoint predictor lifts the success rate from $5\%/7\%$ to $43\%/44\%$; for top models (Fable-5/Opus-5), however, forcing its use brings only $+0.7\% \sim +1.3\%$.
+   - On the **VLNVerse** benchmark, which has denser obstacles and more complex paths, the forced waypoint interface actually lowers the success rate of Sonnet-5 by $6\%$ ($78\% \rightarrow 72\%$) and Fable-5 by $4\%$ ($84\% \rightarrow 80\%$), while the collision rate rises 4 to 6 times.
 
-#### ③ Real four-legged quadruped robot (Unitree Go2) physical deployment
+#### ③ Physical deployment on a real quadruped robot (Unitree Go2)
 {: id="-真实四足机器狗unitree-go2实体部署"}
-Thirty-one exploratory experiments conducted in real office building environments showed:
-- The **inference capability was successfully migrated to**: the intelligent agent can perfectly understand complex conditional instructions (such as "If $3+4=7$, then turn left, otherwise turn right"), multi-stage "get the object and return" state tracking, and complete target locking through subtle visual features (such as "walk toward the person wearing white shoes").
-- **Proprioception is completely missing**: Since the agent does not know its own physical dimensions (length, width and position of the hind legs), the camera issues a left-turn command prematurely as soon as it passes through the door frame, causing the quadruped robot's rear torso to directly hit the door frame and get stuck (Figure 10); in addition, the open-loop step execution causes the cumulative drift of the yaw angle, and counting confusion occurs when continuously passing the pillar across viewing angles (Figure 11).
+Thirty-one exploratory experiments in a real office building showed:
+- **Reasoning ability transfers successfully**: The agent perfectly understands complex conditional instructions (such as "If $3+4=7$, turn left; otherwise turn right"), tracks multi-stage "fetch the object and return" states, and locks onto targets through subtle visual cues (such as "walk toward the person wearing white shoes").
+- **Body awareness is completely missing**: Since the agent does not know its own physical dimensions (body length, width, and hind-leg position), it issues a left-turn command as soon as the camera passes the door frame, so the quadruped's rear torso hits the door frame and gets stuck (Figure 10). In addition, open-loop step execution causes cumulative yaw drift, and counting becomes confused when passing pillars across consecutive viewpoints (Figure 11).
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-5"}
-- **The context and time overhead of long-distance tasks skyrocketed**: On long-distance benchmark RxR-CE, the pure primitive success rate plummeted from $70\%$ to $26\%$; the historical tokens generated by a single episode of interaction reached $33\text{k} \sim 169\text{k}$, and the median time-consuming of a single decision exceeded 200 seconds, extremely lacking of compact and efficient long-lasting spatial memory and state integration mechanism.
-- **Open-loop control and introspection error correction closed loop are missing**: The lack of ontology physical perception and collision feedback can easily cause geometric stuck in the real physical world; at the same time, there is a serious "self-doubt but blind termination" behavior within the model, and there is an urgent need to establish a true self-verification and active backtracking exploration closed loop.
+- **Context and time overhead explode on long-range tasks**: On the long-range benchmark RxR-CE, the pure-primitive success rate plummets from $70\%$ to $26\%$; a single episode generates $33\text{k} \sim 169\text{k}$ history tokens and the median time per decision exceeds 200 seconds, so a compact and efficient long-term spatial memory and state integration mechanism is badly needed.
+- **Missing open-loop control and introspective error-correction loop**: Without embodied physical perception and collision feedback, the agent easily gets geometrically stuck in the real world; the model also shows a serious "self-doubt but blind termination" behavior, so a genuine closed loop of self-verification and active backtracking exploration is urgently needed.
 
 ---
 
 ## 4. ReMEmbR (2024)
 {: id="remembr"}
-——Robotic navigation question and answer and physical target generation based on retrieval-enhanced long-range spatiotemporal memory
+——Robot question answering and physical goal generation based on retrieval-augmented long-horizon spatiotemporal memory
 
 📄 **Paper**: [arXiv:2409.13682](https://arxiv.org/abs/2409.13682) · 🏛️ **ICRA 2025** · [Project Page](https://nvidia-ai-iot.github.io/remembr)
 
 ### Key takeaways
 {: id="精华-7"}
-1. **Long-range spatiotemporal memory decoupling**: In view of the huge historical data faced by mobile robots in continuous operations of tens of minutes to hours, it is proposed to decouple the memory building (Memory Building) and query inference (Querying) stages to solve the problem of GPU memory explosion and computing delay when traditional multi-modal large models face ultra-long contexts.
-2. **Multi-modal spatio-temporal vector library**: The lightweight video multi-modal model (VILA) is called online during operation to generate underlying event description subtitles for continuous video clips, and the text embedding, three-dimensional dimensional coordinates $(x, y, z)$ and timestamps are uniformly stored in the vector database to compactly represent and record environmental dynamics.
-3. **Agent iterative multi-hop retrieval**: In the query phase, a large language model is introduced as a decision-making state machine, and multiple function calls (text/location/time retrieval) are adaptively initiated based on space, time or descriptive questions for multi-step iterative search and pruning, minimizing inference context while ensuring clue integrity.
-4. **Metric executable target generation**: Breaking through the limitation of traditional embodied question and answer only outputting natural language text, supporting the direct output of precise spatial three-dimensional coordinates, seamlessly connecting with classic mobile chassis navigation stacks such as ROS 2 Nav2 and driving physical navigation.
-5. **End-to-end real-robot validation**: Implemented on-device lightweight VLM subtitle extraction, speech recognition and vector retrieval on the Nova Carter robot equipped with Jetson Orin, and successfully performed open semantic question answering and navigation object finding after cruising in a real office area for 25 minutes.
+1. **Decoupled long-horizon spatiotemporal memory**: Mobile robots in continuous operation over tens of minutes to hours face enormous amounts of history. To avoid the GPU memory explosion and computation latency that conventional multimodal large models suffer on ultra-long contexts, the paper decouples memory building from query inference.
+2. **Multimodal spatiotemporal vector database**: A lightweight video multimodal model (VILA) runs online to generate low-level event captions for consecutive video clips; the text embeddings, three-dimensional coordinates $(x, y, z)$, and timestamps are stored together in a vector database, compactly recording how the environment evolves.
+3. **Iterative multi-hop retrieval by an agent**: In the query phase, a large language model acts as a decision state machine and adaptively issues multiple function calls (text, location, and time retrieval) depending on whether the question is spatial, temporal, or descriptive, performing iterative multi-step search and pruning that minimizes the reasoning context while keeping the clues complete.
+4. **Metric, executable goal generation**: Going beyond traditional embodied question answering that outputs only natural-language text, the system can directly output precise 3D spatial coordinates, which connect seamlessly to classic mobile-base navigation stacks such as ROS 2 Nav2 and drive physical navigation.
+5. **End-to-end real-robot validation**: On a Nova Carter robot equipped with a Jetson Orin, the authors run on-device lightweight VLM captioning, speech recognition, and vector retrieval, and successfully perform open-semantic question answering and object-finding navigation after cruising a real office area for 25 minutes.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-7"}
-- **The scalability dilemma of long-range historical representation**: Robots will observe a large number of dynamic events and non-static objects during long-term cruising. The computational cost of existing multi-modal long context models (such as 1M+ context) expands linearly or quadratically with historical growth, and it is difficult for traditional scene graphs or metric semantic maps to record the evolution of the time dimension.
-- **Embodied Q&A lacks physical executability**: Existing embodied Q&A benchmarks (such as OpenEQA) are mostly limited to short videos of 30 seconds to 1-2 minutes, and the output is mostly qualitative text answers (such as "on the tea room table"), which the robot cannot directly parse into metric coordinate targets that can be used by the underlying navigation system.
+- **The scalability dilemma of long-horizon history representation**: During long cruises, robots observe many dynamic events and non-static objects. The computational cost of existing multimodal long-context models (e.g., 1M+ contexts) grows linearly or quadratically with the history, and traditional scene graphs or metric semantic maps struggle to record how things evolve over time.
+- **Embodied QA lacks physical executability**: Existing embodied QA benchmarks (such as OpenEQA) are mostly limited to short videos of 30 seconds to 1–2 minutes, and their outputs are mostly qualitative text answers (such as "on the tea room table"), which a robot cannot directly parse into metric coordinate goals usable by the underlying navigation system.
 
 ---
 
@@ -388,63 +388,63 @@ Thirty-one exploratory experiments conducted in real office building environment
 {: id="2-主要方法创新点-7"}
 
 <div align="center">
-  <img src="/images/vln/ReMEmbR-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1418/603" alt="ReMEmbR The overall framework of the system: consists of two stages of decoupling: online memory building (Memory Building) and multi-hop query inference (Querying). On the right is the NaVQA dataset question and answer type and real robot deployment link" />
+  <img src="/images/vln/ReMEmbR-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1418/603" alt="Overall framework of ReMEmbR: two decoupled stages, online memory building and multi-hop query inference. On the right: the question types of the NaVQA dataset and the real-robot deployment pipeline" />
 <figcaption>
-ReMEmbR The overall framework of the system: consists of two stages of decoupling: online memory building (Memory Building) and multi-hop query inference (Querying). On the right is the NaVQA dataset question and answer type and real robot deployment link
+Overall framework of ReMEmbR: two decoupled stages, online memory building and multi-hop query inference. On the right: the question types of the NaVQA dataset and the real-robot deployment pipeline
 </figcaption>
 </div>
 
-#### ① Overview of the overall framework
+#### ① Overall framework
 {: id="-整体框架概述-1"}
-ReMEmbR（Retrieval-augmented Memory for Embodied Robots) consists of two core subsystems: **online memory construction stage** and **query inference stage**: The former continuously compresses the sensor stream and converts it into a multi-modal vector library with spatiotemporal metadata during the robot cruise; the latter is used by LLM-Agent when receiving natural language questions from users. Drive multiple rounds of spatiotemporal retrieval functions to refine the minimum necessary memory subset and generate answer or navigation target coordinates.
+ReMEmbR (Retrieval-augmented Memory for Embodied Robots) consists of two core subsystems, an **online memory-building stage** and a **query-inference stage**. The former continuously compresses the sensor stream during the robot's cruise into a multimodal vector database with spatiotemporal metadata; the latter, upon receiving a natural-language question from a user, has an LLM agent drive multiple rounds of spatiotemporal retrieval functions to distill the minimal necessary memory subset and generate an answer or navigation goal coordinates.
 
 <div align="center">
-  <img src="/images/vln/ReMEmbR-teaser.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:697/719" alt="The robot runs continuously for a long time and accumulates long-range history. ReMEmbR supports efficient aggregation of spatiotemporal dynamic information and physical metric target localization" />
+  <img src="/images/vln/ReMEmbR-teaser.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:697/719" alt="The robot runs continuously for a long time and accumulates a long history. ReMEmbR supports efficient aggregation of spatiotemporal dynamics and metric goal localization" />
 <figcaption>
-The robot runs continuously for a long time and accumulates long-range history. ReMEmbR supports efficient aggregation of spatiotemporal dynamic information and physical metric target localization
+The robot runs continuously for a long time and accumulates a long history. ReMEmbR supports efficient aggregation of spatiotemporal dynamics and metric goal localization
 </figcaption>
 </div>
 
-#### ② Explain module by module
+#### ② Module-by-module explanation
 {: id="-逐模块讲解-1"}
 
-**1. Online memory building module (Memory Building)**
-- **input**: forward-looking monocular camera continuous video frame $H_I$, robot local localization coordinates $H_P = (x, y, z)$ (derived from lidar odometry, GPS or AMCL), timestamp $H_T$.
-- **processes**: for every $t=3$ seconds of continuous observation (sampling 6 frames at 2 FPS), the video multi-modal model VILA is called (the training end uses VILA1.5-13B, and the on-device deployment uses the quantized version VILA-3B) to generate local semantic event subtitles $L_{i:i+t}$; the lightweight text encoder `mxbai-embed-large-v1` is then used to generate the sentence vector $E(L_{i:i+t})$.
-- **outputs**: Insert a structured tuple $$\langle E(L_{i:i+t}), (x,y,z)_{i:i+t}, t_{i:i+t} \rangle$$ into the multi-modal vector database $V$ in real time.
-- **design motivation**: Question and answer questions are unpredictable before the task, and a general and information-dense spatio-temporal representation must be constructed without a priori Query; the vector database supports efficient approximate nearest neighbor (ANN) retrieval of tens of millions of vectors.
+**1. Online memory-building module (Memory Building)**
+- **Input**: Continuous frames $H_I$ from the forward-facing monocular camera, the robot's local pose $H_P = (x, y, z)$ (from lidar odometry, GPS, or AMCL), and timestamps $H_T$.
+- **Processing**: For every $t=3$ seconds of observation (6 frames sampled at 2 FPS), the video multimodal model VILA (VILA1.5-13B during training, and the quantized VILA-3B for on-device deployment) generates a local semantic event caption $L_{i:i+t}$; the lightweight text encoder `mxbai-embed-large-v1` then produces the sentence embedding $E(L_{i:i+t})$.
+- **Output**: A structured tuple $$\langle E(L_{i:i+t}), (x,y,z)_{i:i+t}, t_{i:i+t} \rangle$$ is inserted into the multimodal vector database $V$ in real time.
+- **Motivation**: Questions are unpredictable before the task, so a general, information-dense spatiotemporal representation must be built without knowing the query in advance; the vector database supports efficient approximate nearest neighbor (ANN) retrieval over tens of millions of vectors.
 
-**2. State machine querying agent module (Querying Agent)**
-- **input**: user questions $Q$ (covering spatial location, time point/duration, environment description) and historical accumulated retrieved context $R_{0:i}$.
-- **processing**: LLM-Agent, as a decision-making state machine, adaptively calls the following three types of spatio-temporal retrieval functions according to the current clues to generate retrieval subsets:
-  - Text retrieval $f_l(\text{object})$: Match the closest semantically related $m$ fragments in the vector library based on cosine similarity;
-  - Spatial location retrieval $f_p((x, y, z))$: Retrieve adjacent $m$ historical trajectory segments based on metric coordinate radius;
-  - Time range search $f_t(\text{"HH:MM:SS"})$: Grab $m$ fragments before and after the corresponding time according to the timestamp window.
-- **output**: If the current memory is enough to answer the question, output a formatted JSON dictionary (including text parsing, $(x, y, z)$ three-dimensional coordinates, timestamp or duration); if the information is insufficient, carry supplementary clues and enter the next round of iterative retrieval (up to 3 rounds).
+**2. Querying agent module (Querying Agent), a state machine**
+- **Input**: The user question $Q$ (covering spatial location, time point/duration, or environment description) and the retrieved context accumulated so far, $R_{0:i}$.
+- **Processing**: The LLM agent acts as a decision state machine and adaptively calls the following three types of spatiotemporal retrieval functions according to the current clues to produce a retrieved subset:
+  - Text retrieval $f_l(\text{object})$: finds the $m$ most semantically related segments in the vector database by cosine similarity;
+  - Spatial retrieval $f_p((x, y, z))$: retrieves the $m$ nearest historical trajectory segments within a metric coordinate radius;
+  - Temporal retrieval $f_t(\text{"HH:MM:SS"})$: fetches the $m$ segments before and after the given time within a timestamp window.
+- **Output**: If the current memory suffices to answer the question, the agent outputs a formatted JSON dictionary (containing the text answer, $(x, y, z)$ 3D coordinates, and timestamp or duration); otherwise it carries supplementary clues into the next round of iterative retrieval (up to 3 rounds).
 
-#### ③ Formalization of optimal historical subset sampling
+#### ③ Formalization of optimal history-subset sampling
 {: id="-最优历史子集采样形式化"}
-For a complete history $H_{1:K}$ that is $K$ minutes long, directly calculating the posterior probability $p(A \mid Q, H_{1:K})$ is too computationally intensive. ReMEmbR formalizes it as the optimal sampling problem of finding the minimum sufficient history subset $$R^* \subseteq H_{1:K}$$:
+For a full history $H_{1:K}$ that is $K$ minutes long, computing the posterior $p(A \mid Q, H_{1:K})$ directly is too expensive. ReMEmbR formalizes the problem as finding the minimal sufficient history subset $$R^* \subseteq H_{1:K}$$:
 
 $$p(A \mid H_{1:K}, Q) = p(A \mid R^*, Q) \approx p(A \mid R, Q)$$
 
 $$R^* = \arg\min_R \lvert R \rvert \quad \text{s.t.} \quad \arg\max_A p(A \mid R, Q) = \arg\max_{A'} p(A' \mid H, Q)$$
 
-Through the vector library sampling strategy $F: V \to R$, LLM-Agent only needs to process a very small subset $R$, so that long-range inference can be completed in constant time.
+With the vector-database sampling strategy $F: V \to R$, the LLM agent only needs to process a very small subset $R$, so long-horizon reasoning can be completed in constant time.
 
-#### ④ Difficulty dimensionality reduction: memory representation paradigm comparison and multi-step retrieval
+#### ④ Worked example: memory representation paradigms and multi-step retrieval
 {: id="-难点降维记忆表征范式对比与多步检索"}
 
-| Dimension | Full length context (such as Gemini 1.5M) | Single vector search RAG | ReMEmbR iteration Agent |
+| Dimension | Full-length context (e.g., Gemini 1.5M) | Single-shot vector-retrieval RAG | ReMEmbR iterative agent |
 |---|---|---|---|
-| Computation and GPU memory overhead | Linear/quadratic expansion with video duration, prone to OOM if it exceeds 10 minutes | Fixed single vector retrieval, low overhead | Multi-path retrieval within 3 steps, constant level overhead (~25s) |
-| Spatio-temporal multi-hop inference | The full amount of information is within the context, but attention is easily lost in long sequences | Only text similarity is matched, and spatial proximity or time backtracking correlation cannot be performed | The state machine adaptively combines text, coordinates, and time multi-way functions to converge layer by layer |
-| Output physical executability | Only output language text, it is difficult to accurately generate metric coordinates | Usually only text fragments are provided | Structured output $(x,y,z)$ coordinates, directly connected to Nav2 navigation chassis |
+| Compute and GPU memory overhead | Grows linearly/quadratically with video duration; prone to OOM beyond 10 minutes | Fixed single vector retrieval, low overhead | Multi-way retrieval within 3 steps, constant-level overhead (~25s) |
+| Spatiotemporal multi-hop reasoning | All information is in the context, but attention is easily lost over long sequences | Matches only text similarity, so it cannot exploit spatial proximity or temporal backtracking correlations | A state machine adaptively combines text, coordinate, and time functions and converges layer by layer |
+| Physical executability of the output | Outputs only language text, so accurate metric coordinates are hard to generate | Usually provides only text snippets | Structured $(x,y,z)$ coordinate output that connects directly to the Nav2 navigation base |
 
-> **Take** as an example: the robot cruises in the building for 20 minutes (generating about 400 3-second video clips, and the full input needs to process hundreds of thousands of tokens).
-> User asked: "Where is the red badge I lost 5 minutes ago?"
-> - A simple single RAG only searches for "red work badges". If the robot saw the work badge at the table at the 2nd minute and the 15th minute, a single text retrieval can easily confuse the timeline and extract wrong coordinates;
-> - ReMEmbR's Agent calls $f_l(\text{"red badge"})$ in the first round to obtain relevant candidate fragments, and in the second round calls $f_t(\text{"current time minus 5 minutes"})$ based on questions to narrow the time window. Only 6 key fragments (approximately 600 tokens) are captured in the two rounds, and the coordinates of $(x,y,z)$ are accurately locked, and the token consumption is reduced by more than 99%.
+> **Example**: The robot cruises through a building for 20 minutes (producing about 400 three-second video clips; feeding everything in would require processing hundreds of thousands of tokens).
+> The user asks: "Where is the red badge I lost 5 minutes ago?"
+> - A simple single-shot RAG only searches for "red work badge". If the robot saw a work badge on a table at both the 2nd and the 15th minute, a single text retrieval easily confuses the timeline and returns the wrong coordinates;
+> - ReMEmbR's agent calls $f_l(\text{"red badge"})$ in the first round to obtain candidate segments, then in the second round calls $f_t(\text{"current time minus 5 minutes"})$ based on the question to narrow the time window. Only 6 key segments (about 600 tokens) are fetched over the two rounds, the $(x,y,z)$ coordinates are pinned down precisely, and token consumption drops by more than 99%.
 
 ```mermaid
 graph TD
@@ -461,17 +461,17 @@ graph TD
     G --> H["Natural-language reply or (x,y,z) sent to Nav2 for base navigation"]
 ```
 
-#### ⑤ NaVQA evaluation benchmark construction
+#### ⑤ Construction of the NaVQA benchmark
 {: id="-navqa-评测基准构建"}
 
 <div align="center">
-  <img src="/images/vln/ReMEmbR-navqa-dataset.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:695/542" alt="NaVQA evaluation dataset: covering short (&lt;2 min), medium (2–7 min), and long (&gt;7 min) three duration ranges, covering three categories of question and answer tasks: spatial coordinates, time points/duration and descriptive questions" />
+  <img src="/images/vln/ReMEmbR-navqa-dataset.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:695/542" alt="NaVQA evaluation dataset: three duration ranges, short (&lt;2 min), medium (2–7 min), and long (&gt;7 min), covering three categories of QA tasks: spatial coordinates, time points/durations, and descriptive questions" />
 <figcaption>
-NaVQA evaluation dataset: covering short (&lt;2 min), medium (2–7 min), and long (&gt;7 min) three duration ranges, covering three categories of question and answer tasks: spatial coordinates, time points/duration and descriptive questions
+NaVQA evaluation dataset: three duration ranges, short (&lt;2 min), medium (2–7 min), and long (&gt;7 min), covering three categories of QA tasks: spatial coordinates, time points/durations, and descriptive questions
 </figcaption>
 </div>
 
-Based on the real outdoor/indoor multi-weather large-scale cruise dataset CODa (Clearpath Husky robot collection), a NaVQA benchmark containing 210 expert-labeled samples was constructed, divided into three time intervals (short &lt;2 min, medium 2–7 min, long &gt;7 min), covering binary judgment (32%), spatial coordinate localization (34%), time points (14%), duration statistics (4%) and open description (16%).
+Built on CODa, a large-scale real-world outdoor/indoor multi-weather cruise dataset collected with a Clearpath Husky robot, the NaVQA benchmark contains 210 expert-labeled samples split into three duration ranges (short &lt;2 min, medium 2–7 min, long &gt;7 min), covering binary judgments (32%), spatial coordinate localization (34%), time points (14%), duration statistics (4%), and open-ended descriptions (16%).
 
 ---
 
@@ -479,56 +479,56 @@ Based on the real outdoor/indoor multi-weather large-scale cruise dataset CODa (
 {: id="3-核心结果发现-7"}
 
 <div align="center">
-  <img src="/images/vln/ReMEmbR-correctness-curve.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:697/484" alt="The overall accuracy change trend with the growth of video duration: Multi-frame full VLM faces GPU memory explosion (OOM) in medium and long videos, while ReMEmbR maintains significantly higher accuracy on long videos" />
+  <img src="/images/vln/ReMEmbR-correctness-curve.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:697/484" alt="Overall accuracy trend as video duration grows: the multi-frame full VLM runs out of GPU memory (OOM) on medium and long videos, while ReMEmbR maintains markedly higher accuracy on long videos" />
 <figcaption>
-The overall accuracy change trend with the growth of video duration: Multi-frame full VLM faces GPU memory explosion (OOM) in medium and long videos, while ReMEmbR maintains significantly higher accuracy on long videos
+Overall accuracy trend as video duration grows: the multi-frame full VLM runs out of GPU memory (OOM) on medium and long videos, while ReMEmbR maintains markedly higher accuracy on long videos
 </figcaption>
 </div>
 
-- **Better long-video question answering**: on videos longer than 7 minutes, GPT-4o-based ReMEmbR reaches **0.65** descriptive-answer accuracy, **46.25m** spatial localization error, and **3.6s** temporal error. These improve on the full-caption baseline (56.0m spatial error, 8.0s temporal error). The multiframe VLM cannot process medium or long videos because it runs out of GPU memory (OOM).
-- **Low query latency with approximately constant scaling**: on a 21.5-minute video, ReMEmbR takes about **25 seconds** per query, with latency largely independent of total video duration. In comparison, a multiframe VLM takes up to 90 seconds even on a 5.5-minute video.
-- **Multi-step iterative retrieval is the key to performance**: ablation experiments show that if it degrades to a single retrieval (1-call RAG), the overall accuracy drops from 0.61 to 0.50 (long video), confirming the dependence of complex spatiotemporal multi-hop inference on iterative retrieval closed loops.
-- **Fine-grained time segmentation is crucial**: Accuracy is 0.61 with captions for 3-second video clips (2 FPS), but falls to 0.38 with coarse 12-second clips (0.5 FPS), indicating that critical transient information is seriously lost due to reduced temporal resolution.
+- **Better long-video question answering**: On videos longer than 7 minutes, GPT-4o-based ReMEmbR reaches a descriptive-answer accuracy of **0.65**, a spatial localization error of **46.25m**, and a temporal error of **3.6s**. These improve on the full-caption baseline (56.0m spatial error, 8.0s temporal error). The multi-frame VLM cannot process medium or long videos because it runs out of GPU memory (OOM).
+- **Low query latency that scales roughly constantly**: On a 21.5-minute video, ReMEmbR takes about **25 seconds** per query, with latency largely independent of the total video duration. By comparison, a multi-frame VLM takes up to 90 seconds even on a 5.5-minute video.
+- **Multi-step iterative retrieval is the key to performance**: Ablations show that degrading to a single retrieval (1-call RAG) drops overall accuracy from 0.61 to 0.50 (long videos), confirming that complex spatiotemporal multi-hop reasoning depends on an iterative retrieval loop.
+- **Fine-grained temporal segmentation is crucial**: Accuracy is 0.61 with captions for 3-second clips (2 FPS) but falls to 0.38 with coarse 12-second clips (0.5 FPS), showing that critical transient information is badly lost when the temporal resolution is reduced.
 
 <div align="center">
-  <img src="/images/vln/ReMEmbR-robot-deployment.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:697/902" alt="Nova Carter mobile robot real office scene deployment: After 25 minutes of cruise memory construction, it successfully responded to open semantic navigation commands such as &quot;Take me to a place with a good view&quot;, &quot;Go get potato chips&quot;" />
+  <img src="/images/vln/ReMEmbR-robot-deployment.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:697/902" alt="Deployment of the Nova Carter mobile robot in a real office: after building memory during a 25-minute cruise, it responds successfully to open-semantic navigation commands such as &quot;Take me to a place with a good view&quot; and &quot;Go get potato chips&quot;" />
 <figcaption>
-Nova Carter mobile robot real office scene deployment: After 25 minutes of cruise memory construction, it successfully responded to open semantic navigation commands such as "Take me to a place with a good view", "Go get potato chips"
+Deployment of the Nova Carter mobile robot in a real office: after building memory during a 25-minute cruise, it responds successfully to open-semantic navigation commands such as "Take me to a place with a good view" and "Go get potato chips"
 </figcaption>
 </div>
 
-- **real robot on-device closed-loop verification**: Jetson Orin 32GB, 3D LiDAR, quantitative version VILA-3B and Whisper ASR are equipped on the Nova Carter robot. It first performs 25 minutes of autonomous cruise mapping to build a memory bank, and then tests fuzzy semantic instructions. For example, when faced with "Take me to a place with good scenery", the Agent automatically retrieves the coordinates corresponding to the large floor-to-ceiling window, green plants and open space and navigates directly to the lobby through Nav2.
+- **On-device closed-loop validation on a real robot**: The Nova Carter robot is equipped with a Jetson Orin 32GB, a 3D LiDAR, the quantized VILA-3B, and Whisper ASR. It first cruises autonomously for 25 minutes to build a memory bank, and is then tested with fuzzy semantic instructions. For example, given "Take me to a place with a good view", the agent automatically retrieves the coordinates of the large floor-to-ceiling windows, green plants, and open space, and navigates straight to the lobby through Nav2.
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-7"}
-- **Repeated memory dilution and redundant expansion**: When the robot is stationary or repeatedly cruises in the same area, the vector library will continue to write similar fragments, and long-term operation may dilute the retrieval accuracy of key effective information.
-- **Fine-grained ambiguity of the lightweight perception model**: Limited by edge computing power, there is object confusion when using the 3B level quantized visual subtitle model (for example, a silver water dispenser is described as a "silver machine", resulting in it being misidentified as a soda vending machine).
+- **Memory dilution and redundant growth from repetition**: When the robot stays still or cruises repeatedly in the same area, the vector database keeps writing similar segments, and long-term operation may dilute the retrieval accuracy of the key useful information.
+- **Fine-grained ambiguity of the lightweight perception model**: Limited by edge compute, the 3B-class quantized visual captioning model confuses objects (for example, a silver water dispenser is described as a "silver machine" and then misidentified as a soda vending machine).
 
 ---
 
 ## 5. SuperMap (2026)
 {: id="supermap"}
-———Real-time 4D spatiotemporal semantic SLAM and dynamic scene graph system for vision-language navigation
+——Real-time 4D spatiotemporal semantic SLAM and dynamic scene graphs for vision-language navigation
 
 📄 **Paper**: [RSS 2026](https://www.roboticsproceedings.org/rss22/p052.pdf) · [Project Page](https://superodometry.com/supermap) · [Code (to be released) ](https://github.com/superxslam/SuperMap) · 🏛️ **RSS 2026**
 
 ### Key takeaways
 {: id="精华-8"}
 
-1. In order to solve the problems of instance drift and stale semantic accumulation in open vocabulary semantic mapping in dynamic environments, the first real-time, open vocabulary, instance-level 4D spatio-temporal semantic SLAM system SuperMap for vision-language navigation (VLN) is proposed.
-2. The architecture combines high-frequency geometric SLAM (SuperOdometry) and asynchronous 2D open vocabulary perception (GroundingDINO + SAM2), and solves the cross-frame instance association problem under violent robot motion through 3D to 2D motion compensation prior.
-3. A three-state depth residual discrimination and probability occupation update mechanism based on geometric consistency is proposed, which can keenly detect environmental changes (such as the addition, movement and removal of objects), and uses Bayesian semantic fusion to suppress single frame false detections.
-4. A 4D dynamic scene graph containing spatial geometric topological edges and temporal evolution edges is constructed, and complex 3D point clouds and temporal video streams are abstracted into a compact symbolic structure, providing a native and efficient query interface for multi-modal large models (VLM).
-5. The entire system runs in full real-time on a mobile robot board equipped with Intel i9 and RTX 4090 at a rate of 10 Hz pose estimation and 5 Hz scene graph update, significantly surpassing existing solutions in ScanNet Semantic benchmark and real scene dynamic navigation.
+1. To address instance drift and the accumulation of stale semantics in open-vocabulary semantic mapping in dynamic environments, the paper proposes SuperMap, the first real-time, open-vocabulary, instance-level 4D spatiotemporal semantic SLAM system for vision-language navigation (VLN).
+2. The architecture combines high-frequency geometric SLAM (SuperOdometry) with asynchronous 2D open-vocabulary perception (GroundingDINO + SAM2), and uses a 3D-to-2D motion-compensation prior to solve cross-frame instance association under violent robot motion.
+3. A geometric-consistency-based three-state depth-residual test with probabilistic occupancy updates is proposed, which sensitively detects environmental changes (such as objects being added, moved, or removed), while Bayesian semantic fusion suppresses single-frame false detections.
+4. A 4D dynamic scene graph containing spatial geometric topology edges and temporal evolution edges is built, abstracting complex 3D point clouds and temporal video streams into a compact symbolic structure that gives vision-language models (VLMs) a native and efficient query interface.
+5. The whole system runs fully in real time on a mobile robot equipped with an Intel i9 and an RTX 4090, with 10 Hz pose estimation and 5 Hz scene-graph updates, and significantly surpasses existing solutions on the ScanNet semantic benchmark and in real dynamic navigation scenes.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-8"}
 
-Mobile robots face severe and continuous changes in environmental dynamics when performing open-vocabulary navigation tasks such as "go to the monitor next to the whiteboard" or "get back to the chair next to the plant" in a human-real environment. Most existing semantic mapping methods assume a static environment or rely on offline full scene reconstruction (such as ConceptGraphs, HOV-SG), while traditional dynamic SLAM systems are mostly limited to closed set priors or only focus on short-term human movement, and cannot continuously track the long-term movement and birth-death evolution of objects outside the field of view. This results in intermittent, viewpoint-sensitive 2D predictions of the multi-modal base model (VLM) that are prone to instance ID fragmentation and semantic staleness when directly projected onto a 3D map, hindering reliable spatial reasoning for downstream language-guided navigation.
+When performing open-vocabulary navigation tasks such as "go to the monitor next to the whiteboard" or "return to the chair next to the plant" in real human environments, mobile robots face severe and continuous environmental change. Most existing semantic mapping methods assume a static environment or rely on offline reconstruction of the whole scene (such as ConceptGraphs and HOV-SG), while traditional dynamic SLAM systems are mostly limited to closed-set priors or focus only on short-term human motion, and cannot continuously track the long-term movement and appearance/disappearance of objects outside the field of view. As a result, the intermittent, viewpoint-sensitive 2D predictions of vision-language foundation models (VLMs) easily cause instance ID fragmentation and stale semantics when projected directly onto a 3D map, hindering reliable spatial reasoning for downstream language-guided navigation.
 
 ---
 
@@ -536,90 +536,90 @@ Mobile robots face severe and continuous changes in environmental dynamics when 
 {: id="2-主要方法创新点-8"}
 
 <div align="center">
-  <img src="/images/vln/SuperMap-concept.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1446/937" alt="SuperMap 4D spatio-temporal SLAM overview: Able to track short-term human movements and long-term environmental changes (such as trash can removal, cart entry) in real time, and maintain a consistent 4D spatio-temporal scene graph" />
+  <img src="/images/vln/SuperMap-concept.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1446/937" alt="SuperMap 4D spatiotemporal SLAM overview: it tracks short-term human motion and long-term environmental changes (such as a trash can being removed or a cart entering) in real time, and maintains a consistent 4D spatiotemporal scene graph" />
 <figcaption>
-SuperMap 4D spatio-temporal SLAM overview: Able to track short-term human movements and long-term environmental changes (such as trash can removal, cart entry) in real time, and maintain a consistent 4D spatio-temporal scene graph
+SuperMap 4D spatiotemporal SLAM overview: it tracks short-term human motion and long-term environmental changes (such as a trash can being removed or a cart entering) in real time, and maintains a consistent 4D spatiotemporal scene graph
 </figcaption>
 </div>
 
-#### ① Overview of the overall framework
+#### ① Overall framework
 {: id="-整体框架概述-2"}
 
-SuperMap is a 4D spatio-temporal SLAM system that runs entirely on the robot's onboard computing platform. It is composed of the **geometry layer (online 3D Reconstruction)**, **instance layer (spatio-temporal instance association and probability update)**, and **topology layer (4D scene graph construction and VLM interaction)** are composed of three core modules. The geometry layer provides high-frequency and accurate metric poses and dense geometry; the instance layer uses 3D priors for motion compensation tracking and dynamic elimination of failed objects; the topology layer abstracts the metric map into a 4D scene graph carrying spatial topology and life cycle trajectories for efficient analysis by large language/multi-modal models.
+SuperMap is a 4D spatiotemporal SLAM system that runs entirely on the robot's onboard computing platform. It consists of three core modules: a **geometry layer (online 3D reconstruction)**, an **instance layer (spatiotemporal instance association and probabilistic update)**, and a **topology layer (4D scene graph construction and VLM interaction)**. The geometry layer provides high-frequency, accurate metric poses and dense geometry; the instance layer uses 3D priors for motion-compensated tracking and removes stale objects dynamically; the topology layer abstracts the metric map into a 4D scene graph carrying spatial topology and lifecycle trajectories, which large language/multimodal models can analyze efficiently.
 
 <div align="center">
-  <img src="/images/vln/SuperMap-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1446/898" alt="SuperMap system architecture diagram: from bottom to top, it is divided into online 3D reconstruction geometry layer, spatiotemporal object update instance layer and VLM-oriented 4D scene graph topology layer" />
+  <img src="/images/vln/SuperMap-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1446/898" alt="SuperMap system architecture: from bottom to top, the online 3D reconstruction geometry layer, the spatiotemporal object-update instance layer, and the VLM-oriented 4D scene graph topology layer" />
 <figcaption>
-SuperMap system architecture diagram: from bottom to top, it is divided into online 3D reconstruction geometry layer, spatiotemporal object update instance layer and VLM-oriented 4D scene graph topology layer
+SuperMap system architecture: from bottom to top, the online 3D reconstruction geometry layer, the spatiotemporal object-update instance layer, and the VLM-oriented 4D scene graph topology layer
 </figcaption>
 </div>
 
-#### ② Explain module by module
+#### ② Module-by-module explanation
 {: id="-逐模块讲解-2"}
 
-- **geometry layer (online 3D dense reconstruction)**:
-  - **Input**: Synchronized LiDAR point cloud, RGB image and high frequency IMU data stream.
-  - **processing**: SuperOdometry is used as the laser-visual-inertial (LVI) odometry backbone network to solve the robot's 6-DoF pose $T_{WB}^{(t)}$ and camera pose in real time at 10 Hz under the world coordinate system $W$ $P_t = T_{WC}^{(t)} = T_{WB}^{(t)} \cdot T_{BC}$, and outputs a shaded dense 3D geometric point cloud.
-  - **outputs**: high-precision robot trajectory $P_{1:T}$ and dense 3D observation data $Q_t = \{C_t, D_t\}$.
-  - **Design motivation**: Provides a physical anchoring basis for subsequent physical back-projection of 2D semantics to 3D space, temporal motion compensation, and global map consistency.
+- **Geometry layer (online dense 3D reconstruction)**:
+  - **Input**: Synchronized LiDAR point clouds, RGB images, and a high-frequency IMU data stream.
+  - **Processing**: SuperOdometry serves as the LiDAR-visual-inertial (LVI) odometry backbone, solving the robot's 6-DoF pose $T_{WB}^{(t)}$ in the world frame $W$ at 10 Hz in real time, together with the camera pose $P_t = T_{WC}^{(t)} = T_{WB}^{(t)} \cdot T_{BC}$, and outputs a colored dense 3D point cloud.
+  - **Output**: A high-precision robot trajectory $P_{1:T}$ and dense 3D observations $Q_t = \{C_t, D_t\}$.
+  - **Motivation**: Provides the physical anchor for the subsequent back-projection of 2D semantics into 3D space, temporal motion compensation, and global map consistency.
 
-- **instance layer (spatio-temporal instance association and dynamic consistency maintenance)**:
-  - **input**: a collection of 3D object instances in the current frame RGB image $C_t$, depth observation $D_t$, and historical global map $M_{t-1}$.
-  - **handles**:
-    1. **2D Open vocabulary detection and segmentation**: Use GroundingDINO for open vocabulary bounding box detection, and SAM2 for instance mask extraction.
-    2. **3D to 2D motion compensation hybrid tracking**: Project the 3D centroid $X_i$ of the object instance in the historical map to the image plane through the current camera pose $P_t$ to obtain the predicted pixel centroid $\hat c_i(t) = \pi(K \cdot P_t^{-1} \cdot X_i)$, used as the state transition prior of Kalman filter, replacing the traditional linear motion assumption.
-    3. **geometric consistency three-state discrimination and occupancy update**: Calculate the residual of the projected depth $d_{proj} = \lVert T_{CW} X_k \rVert_z$ of map point $X_k$ and the current measured depth of the sensor $D(u)$ $\Delta d = d_{proj} - D(u)$ strictly distinguishes between Observable, Unobservable and Disappeared, and implements a log-odds occupation penalty on vanishing points.
-    4. **Bayesian semantic fusion**: Maintains the polynomial confidence distribution of object categories, performs recursive updates combined with the detector confusion matrix, and automatically filters out occasional misclassification of single frames.
-  - **outputs**: a spatiotemporally consistent global 3D instance-level semantic map $M_t = \{ O_t^j \} _{j=1}^{N_t}$.
-  - **Design motivation**: Solve the instance ID drift under severe viewing angle changes, and autonomously identify and eliminate the afterimages of moved/disappeared objects in long-term runs.
+- **Instance layer (spatiotemporal instance association and dynamic consistency maintenance)**:
+  - **Input**: The current-frame RGB image $C_t$, the depth observation $D_t$, and the set of 3D object instances in the historical global map $M_{t-1}$.
+  - **Processing**:
+    1. **2D open-vocabulary detection and segmentation**: GroundingDINO performs open-vocabulary bounding-box detection, and SAM2 extracts instance masks.
+    2. **Hybrid tracking with 3D-to-2D motion compensation**: The 3D centroid $X_i$ of an object instance in the historical map is projected onto the image plane via the current camera pose $P_t$ to obtain the predicted pixel centroid $\hat c_i(t) = \pi(K \cdot P_t^{-1} \cdot X_i)$, which serves as the state-transition prior of a Kalman filter in place of the traditional linear motion assumption.
+    3. **Three-state geometric-consistency test and occupancy update**: The residual $\Delta d = d_{proj} - D(u)$ between the projected depth $d_{proj} = \lVert T_{CW} X_k \rVert_z$ of a map point $X_k$ and the sensor's current measured depth $D(u)$ strictly separates Observable, Unobservable, and Disappeared states, and a log-odds occupancy penalty is applied to disappeared points.
+    4. **Bayesian semantic fusion**: Maintains a multinomial confidence distribution over object categories and updates it recursively with the detector's confusion matrix, automatically filtering out occasional single-frame misclassifications.
+  - **Output**: A spatiotemporally consistent global 3D instance-level semantic map $M_t = \{ O_t^j \} _{j=1}^{N_t}$.
+  - **Motivation**: Resolves instance ID drift under severe viewpoint changes, and autonomously identifies and removes the ghosts of objects that have moved or disappeared during long-term operation.
 
 - **Topology layer (4D scene graph construction and VLM interface)**:
-  - **Input**: global instance collection and its 3D spatial bounding box, centroid and timing trajectory.
-  - **handles**: Build graph structure $G = (V, E_S, E_T)$. Node $V$ represents an object instance; space edge $E_S$ is automatically established based on space geometry predicates (such as $On$, $Beside$, $Under$); time series edge $E_T$ connects the evolution trajectories of the same instance at different time steps.
-  - **output**: structured 4D dynamic scene graph, and subgraph Prompt after text serialization (Serialization).
-  - **Design motivation**: Reduce the dimensionality of massive dense point clouds into compact topological structures rich in semantics and spatial/temporal relationships, and reduce the computational overhead and illusion of multi-modal large models.
+  - **Input**: The set of global instances with their 3D bounding boxes, centroids, and temporal trajectories.
+  - **Processing**: Builds the graph $G = (V, E_S, E_T)$. Nodes $V$ are object instances; spatial edges $E_S$ are established automatically from geometric spatial predicates (such as $On$, $Beside$, $Under$); temporal edges $E_T$ link the evolution trajectory of the same instance across time steps.
+  - **Output**: A structured 4D dynamic scene graph, and subgraph prompts after text serialization.
+  - **Motivation**: Compresses massive dense point clouds into a compact topology rich in semantic and spatial/temporal relations, reducing the compute overhead and hallucination of large multimodal models.
 
-#### ③ end-to-end data flow
+#### ③ End-to-end data flow
 {: id="-端到端数据流"}
 
-The flow path of a complete environmental observation frame from sensor input to the final generated navigation action is as follows:
-LiDAR and camera collect multi-modal data $\to$ Geometry layer solves poses in real time $P_t$ and generates local point cloud $\to$ Asynchronous open vocabulary module extracts 2D masks $\to$ Combines historical 3D centroid projection for 3D-2D cross-modal association, assigns/updates unique instance ID $\to$ Deep residual geometry check classifies point cloud status, updates point occupancy and semantic distribution $\to$ Dynamically refreshes the spatial predicate edges and temporal edges of the 4D scene graph $\to$ Serializes relevant local subgraphs into structured text and injects them into VLM $\to$ VLM parses instructions and executes them in `<answer>` The target instance ID $\to$ is output in the tag. The parser retrieves the corresponding 3D physical center of mass coordinates from the scene graph as a waypoint (Waypoint), which drives the chassis navigation controller.
+The path of one complete observation frame, from sensor input to the final navigation action, is as follows:
+LiDAR and camera collect multimodal data $\to$ the geometry layer solves the pose $P_t$ in real time and generates a local point cloud $\to$ the asynchronous open-vocabulary module extracts 2D masks $\to$ 3D-2D cross-modal association with the projected historical 3D centroids assigns or updates a unique instance ID $\to$ the depth-residual geometric check classifies point states and updates point occupancy and semantic distributions $\to$ the spatial-predicate edges and temporal edges of the 4D scene graph are refreshed $\to$ the relevant local subgraph is serialized into structured text and injected into the VLM $\to$ the VLM parses the instruction and outputs the target instance ID inside an `<answer>` tag $\to$ the parser retrieves the corresponding 3D centroid coordinates from the scene graph as a waypoint, which drives the chassis navigation controller.
 
-#### ④ Core formula and update mechanism
+#### ④ Core formulas and update mechanism
 {: id="-核心公式与更新机制"}
 
-- **3D to 2D projection prior**:
+- **3D-to-2D projection prior**:
   $$\hat c_i(t) = \pi\left(K \cdot P_t^{-1} \cdot X_i\right)$$
-Among them, $X_i$ is the 3D centroid of the instance in the map, $K$ is the camera internal parameter, and $\pi(\cdot)$ is the perspective projection function.
+Here $X_i$ is the 3D centroid of the instance in the map, $K$ is the camera intrinsic matrix, and $\pi(\cdot)$ is the perspective projection function.
 
-- **Geometrically consistent deep residual three-state classification**:
-Define the projected depth residual $\Delta d = d_{proj} - D(u)$, where $d_{proj} = \lVert T_{CW} X_k \rVert_z$ is the expected depth of the map point under the camera system, and $D(u)$ is the measured depth of the sensor at the corresponding pixel $u = \pi(X_k)$. The status discrimination criterion is:
+- **Three-state classification by geometrically consistent depth residual**:
+Define the projected-depth residual $\Delta d = d_{proj} - D(u)$, where $d_{proj} = \lVert T_{CW} X_k \rVert_z$ is the expected depth of the map point in the camera frame and $D(u)$ is the sensor's measured depth at the corresponding pixel $u = \pi(X_k)$. The state criterion is:
   $$s_k^{(t)} = \begin{cases} \text{Observable (visible)}, & \text{if } \lvert \Delta d \rvert \le \tau_\epsilon \\ \text{Unobservable (occluded / behind the surface)}, & \text{if } \Delta d > \tau_\epsilon \\ \text{Disappeared (absent / in front of the surface)}, & \text{if } \Delta d < -\tau_\epsilon \end{cases}$$
 
-- **Log-Odds Update**:
+- **Log-odds update**:
   $$L(o_k \mid Q_{1:t}) = L(o_k \mid Q_{1:t-1}) + \text{logit}(P(o_k \mid Q_t))$$
-For points judged as Disappeared, a negative probability penalty is given to quickly prune stale geometry from the global map.
+For points judged as Disappeared, a negative probability penalty is applied so that stale geometry is quickly pruned from the global map.
 
 - **Bayesian semantic fusion update**:
   $$P(L_j = c \mid z_{1:t}) = \eta \cdot P(z_t \mid L_j = c) \cdot P(L_j = c \mid z_{1:t-1})$$
-Among them, $P(z_t \mid L_j = c)$ is the empirical confusion matrix of the open set detector, and $\eta$ is the normalization constant.
+Here $P(z_t \mid L_j = c)$ is the empirical confusion matrix of the open-set detector, and $\eta$ is a normalization constant.
 
-- **space topology edge geometry predicate (take $On$ relationship as an example)**:
+- **Geometric predicate for spatial topology edges (taking the $On$ relation as an example)**:
   $$\text{On}(A, B) \iff \left(z_A^{\min} \approx z_B^{\max}\right) \land \left(\text{IoU} _{xy}(B_A, B_B) > \gamma\right)$$
 
-#### ⑤ Difficulty dimensionality reduction device
+#### ⑤ Worked examples
 {: id="-难点降维装置"}
 
-##### Device A - Minimal concrete example (depth residual determination and motion compensation)
+##### Example A: A minimal concrete case (depth-residual test and motion compensation)
 {: id="装置-a--最小具体例子深度残差判定与运动补偿"}
 
-> **Take the example**: Suppose the 3D centroid of a trash can recorded in the map is $(2.0, 0.0, 0.5)\text{m}$ in the world coordinate system.
-> 1. **Motion compensation**: When the robot chassis turns sharply right $30^\circ$, the image plane position deviation predicted by pure 2D linear Kalman filter exceeds 120 pixels, resulting in tracking loss; while SuperMap uses high-frequency pose $P_t$ to directly convert 3D The center of mass is projected to the current frame, and the pixel coordinate error instantly converges to within 3 pixels, accurately locking the association.
-> 2. **Depth residual three-state determination**: Set the depth threshold $\tau_\epsilon = 0.1\text{m}$, the original expected projection depth of the trash can is $d_{proj} = 2.0\text{m}$.
->    - **Scene 1 (occluded)**: Someone walked by and blocked the trash can. The sensor measured the depth of the human body in front of it $D(u) = 1.2\text{m}$, and the residual was $\Delta d = 2.0 - 1.2 = +0.8\text{m} > 0.1\text{m}$. The system determined it to be `Unobservable` (occluded). The memory of the trash can was retained and no accidental deletion was performed.
->    - **Scenario 2 (moved)**: The cleaning staff moved the trash can, and the sensor directly measured the depth of the rear wall $D(u) = 3.5\text{m}$, with a residual $\Delta d = 2.0 - 3.5 = -1.5\text{m} < -0.1\text{m}$. The system determined it to be `Disappeared` (disappeared), triggering log-odds Negative penalty, the trash can will be removed from the currently active map within a few frames and time-series birth and death events will be recorded.
+> **Example**: Suppose the 3D centroid of a trash can recorded in the map is $(2.0, 0.0, 0.5)\text{m}$ in the world frame.
+> 1. **Motion compensation**: When the robot chassis turns sharply right by $30^\circ$, the image-plane position predicted by a pure 2D linear Kalman filter is off by more than 120 pixels, so tracking is lost; SuperMap instead uses the high-frequency pose $P_t$ to project the 3D centroid directly into the current frame, and the pixel error instantly converges to within 3 pixels, locking the association accurately.
+> 2. **Three-state depth-residual test**: Set the depth threshold $\tau_\epsilon = 0.1\text{m}$; the originally expected projected depth of the trash can is $d_{proj} = 2.0\text{m}$.
+>    - **Case 1 (occluded)**: Someone walks by and blocks the trash can. The sensor measures the depth of the human body in front, $D(u) = 1.2\text{m}$, giving a residual $\Delta d = 2.0 - 1.2 = +0.8\text{m} > 0.1\text{m}$. The system classifies it as `Unobservable` (occluded), keeps the memory of the trash can, and does not delete it by mistake.
+>    - **Case 2 (moved)**: A cleaner moves the trash can, and the sensor directly measures the depth of the rear wall, $D(u) = 3.5\text{m}$, giving a residual $\Delta d = 2.0 - 3.5 = -1.5\text{m} < -0.1\text{m}$. The system classifies it as `Disappeared`, triggers the negative log-odds penalty, removes the trash can from the currently active map within a few frames, and records the temporal birth and death events.
 
-##### Device B - Homemade Mermaid flowchart (4D dynamic scene graph and VLM closed-loop control)
+##### Example B: Flowchart of the 4D dynamic scene graph and closed-loop VLM control
 {: id="装置-b--自制-mermaid-流程图4d-动态场景图与-vlm-闭环控制"}
 
 ```mermaid
@@ -639,16 +639,16 @@ graph TD
     L --> M["Local motion planning and base execution"]
 ```
 
-##### Device C — Before / After Core Mechanics Comparison Chart
+##### Example C: Before/after comparison of the core mechanisms
 {: id="装置-c--before--after-核心机制对比表"}
 
-| Evaluation dimension | Traditional 3D scene graph (such as ConceptGraphs / HOV-SG) | Traditional semantic SLAM (such as Kimera / OVO-SLAM) | This article’s solution SuperMap |
+| Dimension | Traditional 3D scene graphs (such as ConceptGraphs / HOV-SG) | Traditional semantic SLAM (such as Kimera / OVO-SLAM) | SuperMap (this paper) |
 |---|---|---|---|
-| **mapping mode** | Offline global scan post-batch processing (takes minutes to hours) | Online real-time operation (10-30 Hz) | **fully onboard online real-time operation (10 Hz pose/5 Hz scene map)** |
-| **vocabulary flexibility** | Open vocabulary (SAM + CLIP clustering) | Closed set predefined categories (fixed CNN) | **Open vocabulary (GroundingDINO + SAM2 combination)** |
-| **Dynamic environment adaptation** | Assuming a static environment, dynamic objects cause ghosting and ghosting | Only filter short-term moving people and ignore long-term environmental changes | **Unified modeling of short-term movement and long-term object relocation/birth and death** |
-| **instance maintenance mechanism** | Simple spatial overlap heuristic, easy to fragment in the long run | Only maintain local feature points or geometric surface elements | **3D motion compensation + depth residual consistency + Bayesian fusion** |
-| **downstream inference interface** | Static graph structure query, unable to perceive the historical trajectory of objects | Only metric occupation grid or closed set semantic grid is provided | **4D spatiotemporal dynamic graph + VLM structured Prompt closed-loop control** |
+| **Mapping mode** | Offline batch processing after a global scan (minutes to hours) | Online real-time operation (10-30 Hz) | **Fully onboard online real-time operation (10 Hz pose / 5 Hz scene graph)** |
+| **Vocabulary flexibility** | Open vocabulary (SAM + CLIP clustering) | Closed-set predefined categories (fixed CNN) | **Open vocabulary (GroundingDINO + SAM2)** |
+| **Adaptation to dynamic environments** | Assumes a static environment; dynamic objects cause ghosting | Filters only short-term moving people and ignores long-term environmental changes | **Unified modeling of short-term motion and long-term object relocation/appearance/disappearance** |
+| **Instance maintenance mechanism** | Simple spatial-overlap heuristics that easily fragment over long runs | Maintains only local feature points or geometric surfels | **3D motion compensation + depth-residual consistency + Bayesian fusion** |
+| **Downstream reasoning interface** | Static graph structure queries that cannot perceive an object's historical trajectory | Provides only a metric occupancy grid or a closed-set semantic grid | **4D spatiotemporal dynamic graph + closed-loop control through structured VLM prompts** |
 
 ---
 
@@ -656,53 +656,53 @@ graph TD
 {: id="3-核心结果发现-8"}
 
 <div align="center">
-  <img src="/images/vln/SuperMap-spatio-temporal-consistency.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1448/731" alt="Qualitative evaluation of spatio-temporal consistency in real dynamic environments: In the events of new objects (buckets, carts, safety warning signs) and disappearances (chairs, plants, trash cans), the system maintains long-term stable 3D instance association and ID consistency" />
+  <img src="/images/vln/SuperMap-spatio-temporal-consistency.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1448/731" alt="Qualitative evaluation of spatiotemporal consistency in real dynamic environments: through the appearance of new objects (buckets, carts, safety warning signs) and the disappearance of others (chairs, plants, trash cans), the system maintains stable long-term 3D instance association and ID consistency" />
 <figcaption>
-Qualitative evaluation of spatio-temporal consistency in real dynamic environments: In the events of new objects (buckets, carts, safety warning signs) and disappearances (chairs, plants, trash cans), the system maintains long-term stable 3D instance association and ID consistency
+Qualitative evaluation of spatiotemporal consistency in real dynamic environments: through the appearance of new objects (buckets, carts, safety warning signs) and the disappearance of others (chairs, plants, trash cans), the system maintains stable long-term 3D instance association and ID consistency
 </figcaption>
 </div>
 
-1. **ScanNet benchmark evaluation is significantly ahead of**:
-   - **category-level semantic segmentation**: SuperMap achieved an accuracy (Acc) of **55.48%**, significantly surpassing object-level benchmark ConceptGraphs (31.05%), ConceptFusion (34.10%) and HOV-SG (35.17%).
-   - **Instance-level 3D segmentation (mAP)**: On typical furniture categories such as chairs (Chair), windows (Window), refrigerators (Refrigerator) and sofas (Sofa), SuperMap's $\text{mAP} _{50}$ reaches respectively **63.76%**, **42.20%**, **62.50%** and **33.35%**, while HOV-SG and ConceptGraphs, which rely on global point cloud clustering, score close to 0.
+1. **Clear lead on the ScanNet benchmark**:
+   - **Category-level semantic segmentation**: SuperMap reaches an accuracy (Acc) of **55.48%**, clearly surpassing the object-level baselines ConceptGraphs (31.05%), ConceptFusion (34.10%), and HOV-SG (35.17%).
+   - **Instance-level 3D segmentation (mAP)**: On typical furniture categories such as chair, window, refrigerator, and sofa, SuperMap's $\text{mAP} _{50}$ reaches **63.76%**, **42.20%**, **62.50%**, and **33.35%** respectively, while HOV-SG and ConceptGraphs, which rely on global point-cloud clustering, score close to 0.
 
-2. **Long-period real dynamic environment spatio-temporal change detection**:
-   - In a 10-minute real robot experiment covering the complex indoor scene of $30\text{m} \times 20\text{m}$, SuperMap achieved excellent detection recall and change recall in the appearance and disappearance tests of six types of target objects (buckets and chairs reached **1.000** full score recall).
-   - Comparing the baseline DualMap due to unstable 2D segmentation, 3D bounding boxes are frequently filtered, and the object detection recall rate is close to 0; while Khronos suffers from severe frame loss and semantic degradation due to the inference bottleneck.
+2. **Spatiotemporal change detection in long-duration real dynamic environments**:
+   - In a 10-minute real-robot experiment covering a complex indoor scene of $30\text{m} \times 20\text{m}$, SuperMap achieves excellent detection recall and change recall in appearance and disappearance tests on six object categories (buckets and chairs reach a perfect recall of **1.000**).
+   - The baseline DualMap, because of unstable 2D segmentation, has its 3D bounding boxes filtered out frequently, and its object-detection recall is close to 0; Khronos suffers from severe frame dropping and semantic degradation caused by its inference bottleneck.
 
 <div align="center">
-  <img src="/images/vln/SuperMap-reasoning-comparison.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1446/630" alt="4D Comparison of scene graph input and original video input on VLM space/timing inference: scene graph input shows higher reliability and anti-hallucination ability in both spatial topology disambiguation and historical trajectory backtracking" />
+  <img src="/images/vln/SuperMap-reasoning-comparison.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1446/630" alt="Comparison of 4D scene-graph input and raw video input for VLM spatial/temporal reasoning: scene-graph input shows higher reliability and stronger resistance to hallucination in both spatial-topology disambiguation and historical-trajectory backtracking" />
 <figcaption>
-4D Comparison of scene graph input and original video input on VLM space/timing inference: scene graph input shows higher reliability and anti-hallucination ability in both spatial topology disambiguation and historical trajectory backtracking
+Comparison of 4D scene-graph input and raw video input for VLM spatial/temporal reasoning: scene-graph input shows higher reliability and stronger resistance to hallucination in both spatial-topology disambiguation and historical-trajectory backtracking
 </figcaption>
 </div>
 
-3. **VLM spatial logic and timing inference advantages**:
-   - Compared with directly sending the original video frames to VLM (Gemini 2.0 Flash), serializing 4D based on SuperMap The scene graph input scheme is in **spatial metric logic** (such as accurately locating a fire extinguisher based on the relative position of plants and cones) and **temporal history backtracking** (along temporal edges $E_T$ The spatial perspective distortion and long-time illusion of large multi-modal models are significantly reduced in the task of tracing the movement trajectory of a backpack and retrieving lost items.
+3. **Advantages in VLM spatial logic and temporal reasoning**:
+   - Compared with feeding raw video frames directly to the VLM (Gemini 2.0 Flash), the scheme that serializes the SuperMap 4D scene graph significantly reduces the spatial perspective distortion and long-horizon hallucination of large multimodal models, both in **spatial metric logic** (e.g., locating a fire extinguisher precisely from the relative positions of plants and cones) and in **temporal history backtracking** (e.g., tracing a backpack's movement trajectory along temporal edges $E_T$ and retrieving lost items).
 
 <div align="center">
-  <img src="/images/vln/SuperMap-vln-experiments.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1446/499" alt="real robotend-to-end online vision-language navigation experiment: The robot accurately distinguishes 4 whiteboards with the same appearance based on the spatial relationship in the scene graph, and accurately completes multi-hop spatial relationship retrieval navigation" />
+  <img src="/images/vln/SuperMap-vln-experiments.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1446/499" alt="Real-robot end-to-end online vision-language navigation experiment: the robot accurately tells apart 4 identical-looking whiteboards using the spatial relations in the scene graph, and completes multi-hop spatial-relation retrieval navigation correctly" />
 <figcaption>
-real robotend-to-end online vision-language navigation experiment: The robot accurately distinguishes 4 whiteboards with the same appearance based on the spatial relationship in the scene graph, and accurately completes multi-hop spatial relationship retrieval navigation
+Real-robot end-to-end online vision-language navigation experiment: the robot accurately tells apart 4 identical-looking whiteboards using the spatial relations in the scene graph, and completes multi-hop spatial-relation retrieval navigation correctly
 </figcaption>
 </div>
 
-4. **ablation experiment and system throughput**:
-   - The ablation verification shows that $F_1$ drops from 0.6308 to 0.5780 in the absence of a 2D tracker; $F_1$ drops sharply to 0.5201 in the absence of Bayesian semantic fusion; and $F_1$ drops to 0.5764 in the absence of geometric consistency updates, confirming the key role of the collaboration of the three in eliminating detection noise.
-   - In terms of running speed, pose estimation is stable at **10 Hz**, 2D open vocabulary perception runs at **1 Hz** (asynchronous processing), 3D map update is **3 Hz**, 4D The scene graph maintenance is maintained at **5 Hz**, achieving fully onboard smooth operation.
+4. **Ablation study and system throughput**:
+   - The ablations show that $F_1$ drops from 0.6308 to 0.5780 without the 2D tracker, drops sharply to 0.5201 without Bayesian semantic fusion, and drops to 0.5764 without the geometric-consistency update, confirming that the three components work together to eliminate detection noise.
+   - In terms of speed, pose estimation runs stably at **10 Hz**, 2D open-vocabulary perception at **1 Hz** (processed asynchronously), 3D map updates at **3 Hz**, and 4D scene-graph maintenance at **5 Hz**, so the whole system runs smoothly fully onboard.
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-8"}
 
-SuperMap's dense trajectory tracking capabilities are still limited when dealing with extremely high-speed moving targets (such as running pedestrians or rapidly thrown objects); in addition, the current 2D open vocabulary detection still relies on a given prompt candidate vocabulary. In the future, it is necessary to further integrate an automated open-world object autonomous discovery mechanism to achieve no prior deployment.
+SuperMap's dense trajectory tracking is still limited for extremely fast-moving targets (such as running pedestrians or rapidly thrown objects). In addition, the current 2D open-vocabulary detection still relies on a given candidate vocabulary of prompts; future work should integrate an automatic mechanism for autonomously discovering objects in the open world, enabling deployment without prior knowledge.
 
 ---
 
 ## 6. GSMem (2026)
 {: id="gsmem"}
-———3D Gaussian Splatting as a lasting spatial memory for embodied exploration and inference
+——3D Gaussian Splatting as persistent spatial memory for embodied exploration and reasoning
 
 📄 **Paper**: [arXiv:2603.19137](https://arxiv.org/abs/2603.19137)
 
@@ -711,68 +711,68 @@ SuperMap's dense trajectory tracking capabilities are still limited when dealing
 ### Key takeaways
 {: id="精华-9"}
 
-The core insight of GSMem is to use 3D Gaussian Splatting (3DGS) as a persistent spatial memory with "post-hoc re-observability" capability, allowing the agent to re-render the explored area from any optimal viewpoint without physical return visits, fundamentally breaking through the inherent bottleneck of permanent memory loss caused by discrete detection failure. The two-layer retrieval mechanism (object-level scene graph + semantic-level CLIP language field) complements each other: the scene graph provides structured localization, and the language field is recalled when detection is missing. The two together drive optimal viewpoint rendering to provide high-fidelity visual evidence for VLM. The hybrid exploration strategy dynamically combines VLM semantic correlation with 3DGS geometric information gain based on Fisher information matrix trace approximation, adaptively switches between task-oriented exploration and global coverage, taking into account efficiency and robustness. Introducing continuous radiance fields into embodied navigation memory is an important paradigm transfer, and its "re-rendering after writing" feature is particularly critical for long-term navigation tasks.
+The core insight of GSMem is to use 3D Gaussian Splatting (3DGS) as a persistent spatial memory with "post-hoc re-observability": the agent can re-render an explored area from any optimal viewpoint without physically revisiting it, which fundamentally overcomes the permanent memory loss caused by discrete detection failures. The two-level retrieval mechanism (an object-level scene graph plus a semantic-level CLIP language field) is complementary: the scene graph provides structured localization, and the language field is recalled when detection is missing. Together they drive optimal-viewpoint rendering that gives the VLM high-fidelity visual evidence. The hybrid exploration strategy dynamically combines VLM semantic relevance with the 3DGS geometric information gain (approximated by the trace of the Fisher information matrix), adaptively switching between task-oriented exploration and global coverage to balance efficiency and robustness. Introducing continuous radiance fields into embodied navigation memory is an important paradigm shift, and its "write once, re-render later" property is particularly valuable for long-horizon navigation tasks.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-9"}
 
-Embodied navigation requires the agent to actively explore and continuously accumulate spatial knowledge in an unknown environment. Existing methods rely on two types of representations: discrete 3D scene graphs (such as ConceptGraphs) rely on detection modules, and missed target detection will lead to unrecoverable memory holes; methods based on view snapshots (such as 3D-Mem) have fixed and sparse viewing angles and cannot re-observe the explored area from the optimal viewing angle, so the quality of visual evidence provided for VLM inference is limited. The above methods all lack post-hoc re-observability: the agent is locked in the fixed observation during the initial exploration and cannot "recall" past scenes from a new perspective like humans.
+Embodied navigation requires an agent to explore actively and continuously accumulate spatial knowledge in an unknown environment. Existing methods rely on two kinds of representation. Discrete 3D scene graphs (such as ConceptGraphs) depend on a detection module, so a missed detection leaves an unrecoverable hole in memory. View-snapshot methods (such as 3D-Mem) store fixed, sparse viewpoints and cannot re-observe an explored area from the optimal viewpoint, which limits the quality of the visual evidence provided for VLM reasoning. Both lack post-hoc re-observability: the agent is locked into whatever it observed during initial exploration and cannot "recall" a past scene from a new viewpoint the way humans do.
 
 ---
 
 ### 2. Method and innovations
 {: id="2-主要方法创新点-9"}
 
-**Overall frame overview**
+**Framework overview**
 
-GSMem maintains three parallel structures in real time during active exploration: 3DGS geometry and appearance maps, CLIP language embedding fields included with every Gaussian, and object-level scene graphs. When a query arrives, the multi-layer retrieval-rendering mechanism locates the relevant area and renders the optimal viewpoint image, and VLM infers accordingly; when no frontier provides sufficient semantic clues, it switches to geometric exploration based on information gain.
+During active exploration, GSMem maintains three parallel structures in real time: a 3DGS geometry-and-appearance map, a CLIP language embedding field attached to every Gaussian, and an object-level scene graph. When a query arrives, a multi-level retrieval-and-rendering mechanism locates the relevant region and renders an image from the optimal viewpoint, on which the VLM reasons; when no frontier offers sufficient semantic clues, the system switches to geometric exploration driven by information gain.
 
 <div align="center">
-  <img src="/images/vln/GSMem-teaser.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:975/739" alt="GSMem System Overview: Outside the real exploration path (yellow line), the agent can directly &quot;re-observe&quot; any explored area (purple line) through 3DGS memory without the need for physical navigation to return" />
+  <img src="/images/vln/GSMem-teaser.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:975/739" alt="GSMem system overview: besides the actual exploration path (yellow line), the agent can directly &quot;re-observe&quot; any explored area (purple line) through the 3DGS memory, without physically navigating back" />
 <figcaption>
-GSMem System Overview: Outside the real exploration path (yellow line), the agent can directly "re-observe" any explored area (purple line) through 3DGS memory without the need for physical navigation to return
+GSMem system overview: besides the actual exploration path (yellow line), the agent can directly "re-observe" any explored area (purple line) through the 3DGS memory, without physically navigating back
 </figcaption>
 </div>
 
-**3DGS Mapping and Online Language Field**
+**3DGS mapping and online language field**
 
-Each 3D Gaussian $$g_i$$ carries an additional 32-dimensional language embedding (obtained from 768-dimensional CLIP features compressed by an autoencoder). In order to avoid the optimization overhead of high-dimensional language features, "weight-consistent inverse aggregation" is proposed: in forward rendering, 2D pixel features are generated by 3D Gaussian alpha-blending, and in reverse, 2D CLIP features are assigned to each Gaussian with exactly the same blending weight, achieving online semantic update with zero optimization overhead:
+Each 3D Gaussian $$g_i$$ carries an extra 32-dimensional language embedding (768-dimensional CLIP features compressed by an autoencoder). To avoid the optimization overhead of high-dimensional language features, the paper proposes "weight-consistent inverse aggregation": in the forward pass, 2D pixel features are produced by alpha-blending the 3D Gaussians; in the reverse pass, 2D CLIP features are assigned back to each Gaussian with exactly the same blending weights, giving online semantic updates with zero optimization overhead:
 
 $$\mathbf{f}_i^t = \frac{W_i^{t-1}\mathbf{f}_i^{t-1} + \sum_{k \in \mathcal{T}_t} \sum_p w_{i,p,k}^t \mathbf{f}_{p,k}^{2D}}{W_i^t}$$
 
-At the same time, object-level scene graphs (including 3D positions, semantic labels, and highest confidence detection perspectives), TSDF maps, and frontier maps are maintained.
+In addition, the system maintains an object-level scene graph (with 3D positions, semantic labels, and the highest-confidence detection viewpoints), a TSDF map, and a frontier map.
 
-**Multi-layer retrieval-rendering mechanism**
+**Multi-level retrieval-and-rendering mechanism**
 
 <div align="center">
-  <img src="/images/vln/GSMem-retrieval-rendering.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:983/587" alt="Multi-layer retrieval-rendering mechanism: object-level retrieval (scene graph) and semantic-level retrieval (3DGS language field) locate ROI in parallel, and then provide high-fidelity visual evidence for VLM through optimal viewpoint selection and 3DGS rendering" />
+  <img src="/images/vln/GSMem-retrieval-rendering.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:983/587" alt="Multi-level retrieval-and-rendering mechanism: object-level retrieval (scene graph) and semantic-level retrieval (3DGS language field) locate ROIs in parallel, and optimal viewpoint selection plus 3DGS rendering then provide high-fidelity visual evidence for the VLM" />
 <figcaption>
-Multi-layer retrieval-rendering mechanism: object-level retrieval (scene graph) and semantic-level retrieval (3DGS language field) locate ROI in parallel, and then provide high-fidelity visual evidence for VLM through optimal viewpoint selection and 3DGS rendering
+Multi-level retrieval-and-rendering mechanism: object-level retrieval (scene graph) and semantic-level retrieval (3DGS language field) locate ROIs in parallel, and optimal viewpoint selection plus 3DGS rendering then provide high-fidelity visual evidence for the VLM
 </figcaption>
 </div>
 
-Given a task query, two complementary retrieval paths are triggered simultaneously:
-- **Object-level retrieval**: VLM sorts all objects in the scene graph by semantic relevance, and selects the top-$K_\text{obj}$ candidate as ROI
-- **Semantic-level retrieval**: Encode the query as CLIP embedding, recall the relevant Gaussian with cosine similarity $> \tau_\text{clip}$ in the language field, and retain top-$K_\text{cluster}$ spatially coherent groups as ROI after KD-Tree clustering
+Given a task query, two complementary retrieval paths are triggered at the same time:
+- **Object-level retrieval**: The VLM ranks all objects in the scene graph by semantic relevance and selects the top-$K_\text{obj}$ candidates as ROIs
+- **Semantic-level retrieval**: The query is encoded as a CLIP embedding, Gaussians in the language field with cosine similarity $> \tau_\text{clip}$ are recalled, and after KD-Tree clustering the top-$K_\text{cluster}$ spatially coherent groups are kept as ROIs
 
-For each ROI, 108 candidate viewpoints (36 azimuth angles × 3 elevation angles) were evenly sampled on a horizontal circular trajectory and screened through two stages of scoring: Phase 1 was based on visibility score $S_\text{vis}$ (TSDF ray casting) + projection area score $S_A$ (Gaussian penalty encourages appropriate viewing distance) to select the top-10; Phase 2 was further based on 3DGS opacity score $S_\text{opa}$ Evaluate the actual rendering quality, and comprehensively analyze $S_\text{final} = S_\text{vis} + S_A + S_\text{opa}$ to select the optimal viewpoint. Finally, the quality of the rendered image is improved through a single-step diffusion model and then sent to VLM inference.
+For each ROI, 108 candidate viewpoints (36 azimuths × 3 elevations) are sampled uniformly on a horizontal circular trajectory and filtered by two-stage scoring. Stage 1 selects the top 10 using a visibility score $S_\text{vis}$ (TSDF ray casting) plus a projected-area score $S_A$ (a Gaussian penalty that encourages an appropriate viewing distance); stage 2 further evaluates the actual rendering quality with a 3DGS opacity score $S_\text{opa}$ and picks the optimal viewpoint by the combined score $S_\text{final} = S_\text{vis} + S_A + S_\text{opa}$. Finally, a single-step diffusion model improves the quality of the rendered image before it is passed to the VLM for reasoning.
 
 **Hybrid exploration strategy**
 
 <div align="center">
-  <img src="/images/vln/GSMem-hybrid-exploration.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:983/604" alt="Hybrid exploration strategy: When the semantic relevance of any frontier exceeds the threshold, it is directed to the task target first; otherwise, it switches to geometric coverage exploration based on 3DGS information gain (uncertainty heat map)" />
+  <img src="/images/vln/GSMem-hybrid-exploration.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:983/604" alt="Hybrid exploration strategy: when the semantic relevance of any frontier exceeds the threshold, the agent heads for the task target first; otherwise it switches to geometric coverage exploration driven by 3DGS information gain (an uncertainty heat map)" />
 <figcaption>
-Hybrid exploration strategy: When the semantic relevance of any frontier exceeds the threshold, it is directed to the task target first; otherwise, it switches to geometric coverage exploration based on 3DGS information gain (uncertainty heat map)
+Hybrid exploration strategy: when the semantic relevance of any frontier exceeds the threshold, the agent heads for the task target first; otherwise it switches to geometric coverage exploration driven by 3DGS information gain (an uncertainty heat map)
 </figcaption>
 </div>
 
-Compute two types of scores for each candidate frontier:
-- **Semantic correlation analysis** $s_i^\text{sem} \in [0,1]$: VLM evaluates the correlation between frontier observation images and task queries
-- **Geometric coverage score** $s_i^\text{geo}$: Information gain based on Fisher information matrix (FIM), approximated by T-optimality proxy as the trace of FIM increment $$s_i^\text{geo} \approx \text{Tr}(\mathbf{I}_i)$$, which can be directly calculated by the rendering Jacobian without truth supervision
+Two scores are computed for each candidate frontier:
+- **Semantic relevance score** $s_i^\text{sem} \in [0,1]$: the VLM evaluates how relevant the frontier's observation image is to the task query
+- **Geometric coverage score** $s_i^\text{geo}$: an information gain based on the Fisher information matrix (FIM), approximated by a T-optimality proxy, namely the trace of the FIM increment $$s_i^\text{geo} \approx \text{Tr}(\mathbf{I}_i)$$, which can be computed directly from the rendering Jacobian without ground-truth supervision
 
-Explore decision rules:
+Exploration decision rule:
 
 $$i^* = \begin{cases} \arg\max_i \, s_i^\text{sem}, & \text{if } \max_i s_i^\text{sem} > \tau_s \\ \arg\max_i \, s_i^\text{geo}, & \text{otherwise} \end{cases}$$
 
@@ -799,12 +799,12 @@ $$i^* = \begin{cases} \arg\max_i \, s_i^\text{sem}, & \text{if } \max_i s_i^\tex
 | 3D-Mem | 62.9 | 44.7 |
 | **GSMem (Ours)** | **67.2** | **46.9** |
 
-The advantage of GSMem in long-term navigation tasks is more significant than A-EQA (SR +4.3 vs LLM-Match +2.8), verifying the special value of persistent memory for long-term accumulation tasks. ablation research shows that: removing the CLIP language field -4.5 SR, removing the optimal viewpoint selection -2.7 SR, and removing the mixed exploration, the SPL drops by -4.1, indicating that the geometric coverage strategy contributes significantly to exploration efficiency.
+GSMem's advantage on long-horizon navigation is more pronounced than on A-EQA (SR +4.3 vs. LLM-Match +2.8), confirming the special value of persistent memory for tasks that accumulate over a long time. Ablations show that removing the CLIP language field costs 4.5 SR, removing optimal viewpoint selection costs 2.7 SR, and removing hybrid exploration lowers SPL by 4.1, indicating that the geometric coverage strategy contributes substantially to exploration efficiency.
 
 <div align="center">
-  <img src="/images/vln/GSMem-case-analysis.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:983/702" alt="case comparison (3D-Mem vs GSMem): (a-c) 3D-Mem causes errors due to false negatives (white robe, fig tree) or semantic misdetection (white door is recognized as a refrigerator), GSMem correctly locates through semantic field retrieval; (d) When the viewing angle is limited, GSMem successfully identifies hanging clothes through optimal viewpoint re-rendering" />
+  <img src="/images/vln/GSMem-case-analysis.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:983/702" alt="Case comparison (3D-Mem vs. GSMem): (a-c) 3D-Mem makes errors because of false negatives (a white robe, a fig tree) or semantic misdetections (a white door recognized as a refrigerator), while GSMem localizes correctly through semantic-field retrieval; (d) when the viewpoint is restricted, GSMem identifies the hanging clothes successfully by re-rendering from the optimal viewpoint" />
 <figcaption>
-case comparison (3D-Mem vs GSMem): (a-c) 3D-Mem causes errors due to false negatives (white robe, fig tree) or semantic misdetection (white door is recognized as a refrigerator), GSMem correctly locates through semantic field retrieval; (d) When the viewing angle is limited, GSMem successfully identifies hanging clothes through optimal viewpoint re-rendering
+Case comparison (3D-Mem vs. GSMem): (a-c) 3D-Mem makes errors because of false negatives (a white robe, a fig tree) or semantic misdetections (a white door recognized as a refrigerator), while GSMem localizes correctly through semantic-field retrieval; (d) when the viewpoint is restricted, GSMem identifies the hanging clothes successfully by re-rendering from the optimal viewpoint
 </figcaption>
 </div>
 
@@ -813,31 +813,31 @@ case comparison (3D-Mem vs GSMem): (a-c) 3D-Mem causes errors due to false negat
 ### 4. Limitations
 {: id="4-局限性-9"}
 
-The current system relies on RGB-D input, and depth noise or high-occlusion scenes will affect the quality of 3DGS mapping, thereby reducing retrieval and rendering accuracy; single-step diffusion enhancement introduces additional inference delay, and there is still room for optimization in real-time deployment (currently about 1.2 s/step).
+The current system relies on RGB-D input, and depth noise or heavily occluded scenes degrade the quality of 3DGS mapping and hence the accuracy of retrieval and rendering; single-step diffusion enhancement adds inference latency, and real-time deployment still has room for optimization (currently about 1.2 s/step).
 
 ---
 
 ## 7. CGFM-Nav (2026)
 {: id="cgfm-nav"}
-——— Life-long multimodal embodied navigation by coupling explicit relational graph memory and implicit continuous semantic fields
+——Lifelong multimodal embodied navigation by coupling explicit relational graph memory with an implicit continuous semantic field
 
 📄 **Paper**: [arXiv:2608.29114](https://arxiv.org/abs/2608.29114)
 
 ### Key takeaways
 {: id="精华-11"}
-1. **Graph-field dual cognitive representation**: Cognitive Graph-Field Memory (CGFM) is proposed, which couples the discrete object semantic topology map and the continuous 2D semantic-boundary diffusion field in the same system, corresponding to "precision backtracking memory" and "fuzzy spatial intuition" in human navigation respectively.
-2. **Efficient exploration guided by intuition**: When the target is not retrieved in the graph, there is no need to roam blindly. Instead, the semantic evidence in the graph is back-projected into a spatial diffusion field, which prioritizes guiding the robot to explore the unknown boundary (Frontier) with the highest semantic relevance, greatly reducing the lifetime navigation search overhead.
-3. **Closed-loop suppression and graph update**: Dynamically update node status through multi-view verification mechanism (YES / NO-UNCERTAIN / NO-CONFIRMED); excluded false detection candidates physically mask their semantic field contributions in the current subtask, eliminating repeated retries and deadlocks of large models from the bottom.
-4. **Lightweight Open sourceModel surpasses cloud GPT-4o**: On the GOAT-Bench lifelong multi-modal navigation benchmark, using Open source locally deployable Qwen3-VL-8B, the overall success rate reached 63.0%, surpassing the baseline equipped with cloud GPT-4o MSGNav (60.0%) proves that structured field memory can effectively bridge the capability gap of the basic model.
+1. **Graph-field dual cognitive representation**: Cognitive Graph-Field Memory (CGFM) is proposed, which couples a discrete object-semantic topology graph with a continuous 2D semantic-frontier diffusion field in a single system, corresponding to "precise backtracking memory" and "fuzzy spatial intuition" in human navigation, respectively.
+2. **Intuition-guided efficient exploration**: When the target cannot be retrieved from the graph, the robot does not roam blindly. Instead, the semantic evidence in the graph is back-projected into a spatial diffusion field that guides the robot first toward the unknown frontier with the highest semantic relevance, greatly reducing the search overhead of lifelong navigation.
+3. **Closed-loop suppression and graph updates**: A multi-view verification mechanism (YES / NO-UNCERTAIN / NO-CONFIRMED) dynamically updates node states; rejected false-detection candidates are physically masked out of the semantic field within the current subtask, eliminating at the root the repeated retries and dead loops of large models.
+4. **A lightweight open-source model surpasses cloud GPT-4o**: On the GOAT-Bench lifelong multimodal navigation benchmark, using the locally deployable open-source Qwen3-VL-8B, the overall success rate reaches 63.0%, surpassing the baseline MSGNav equipped with cloud GPT-4o (60.0%), which shows that structured field memory can effectively bridge the capability gap of the base model.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-11"}
-In Lifelong Open-Vocabulary Embodied Navigation for families and complex environments, the robot needs to continuously perform navigation subtasks for multiple cross-modal targets (categories, natural language descriptions, or reference images) in unmodeled scenes, and retain historical map memory across subtasks.
-The existing navigation methods based on large language model/multimodal large model (LLM/VLM) mainly have two core bottlenecks:
-1. **The disconnect between explicit memory and target-free exploration**: Discrete object scene graphs are good at accurate retrieval and topological backtracking of known objects, but once the target does not exist in the current memory, the agent degenerates into random exploration of geometric frontier points (Frontier), lacking spatial semantic intuitive guidance.
-2. **Retry illusion and context overhead under multi-modal targets**: Over time, the ever-expanding scene graph leads to severe expansion of the VLM context window; and when the target is confused, there is a lack of explicit suppression mechanism for failed attempts, causing the agent to repeatedly go to the same wrong object.
+In lifelong open-vocabulary embodied navigation for homes and other complex environments, a robot must continuously carry out navigation subtasks for multiple cross-modal targets (categories, natural-language descriptions, or reference images) in unmapped scenes, while retaining historical map memory across subtasks.
+Existing navigation methods based on large language models / multimodal large models (LLM/VLM) have two core bottlenecks:
+1. **Disconnect between explicit memory and goal-free exploration**: Discrete object scene graphs excel at accurate retrieval and topological backtracking of known objects, but once the target is absent from the current memory, the agent degenerates into random exploration of geometric frontiers, lacking semantic spatial intuition to guide it.
+2. **Retry hallucination and context overhead under multimodal targets**: Over time, the ever-growing scene graph severely inflates the VLM's context window; and when the target is ambiguous, there is no explicit mechanism for suppressing failed attempts, so the agent repeatedly goes to the same wrong object.
 
 ---
 
@@ -845,73 +845,73 @@ The existing navigation methods based on large language model/multimodal large m
 {: id="2-主要方法创新点-11"}
 
 <div align="center">
-  <img src="/images/vln/CGFM-Nav-concept-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1416/726" alt="Figure 1: Overview of CGFM cognitive map field memory mechanism. The discrete object scene graph serves as an explicit relational memory to support accurate recall; the continuous semantic-boundary field serves as an implicit intuitive bias to guide efficient exploration." />
+  <img src="/images/vln/CGFM-Nav-concept-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1416/726" alt="Figure 1: Overview of the CGFM cognitive graph-field memory mechanism. The discrete object scene graph serves as explicit relational memory to support accurate recall; the continuous semantic-frontier field serves as an implicit intuitive bias to guide efficient exploration." />
 <figcaption>
-Figure 1: Overview of CGFM cognitive map field memory mechanism. The discrete object scene graph serves as an explicit relational memory to support accurate recall; the continuous semantic-boundary field serves as an implicit intuitive bias to guide efficient exploration.
+Figure 1: Overview of the CGFM cognitive graph-field memory mechanism. The discrete object scene graph serves as explicit relational memory to support accurate recall; the continuous semantic-frontier field serves as an implicit intuitive bias to guide efficient exploration.
 </figcaption>
 </div>
 
-#### ① Overview of the overall framework
+#### ① Overall framework
 {: id="-整体框架概述-3"}
-CGFM-Nav adopts a training-free architecture as a whole, which is mainly composed of **perception and graph construction (Perception & Graph)**, **semantic-frontier field construction (Semantic-Frontier Field)**, **Adaptive subgraph selection (Subgraph Selection)**, **VLM inference (VLM Reasoning) with decision memory** and **Action execution and multi-view closed-loop verification (Action & Verification)** is composed of five modules. The system forms a closed loop of seamless switching and continuous updating between known goals and unknown exploration.
+CGFM-Nav is training-free overall and consists of five modules: **perception and graph construction (Perception & Graph)**, **semantic-frontier field construction (Semantic-Frontier Field)**, **adaptive subgraph selection (Subgraph Selection)**, **VLM reasoning with decision memory (VLM Reasoning)**, and **action execution with multi-view closed-loop verification (Action & Verification)**. The system forms a closed loop that switches seamlessly between known goals and unknown exploration and keeps updating itself.
 
 <div align="center">
-  <img src="/images/vln/CGFM-Nav-framework-pipeline.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1421/664" alt="Figure 2: CGFM-Nav system architecture diagram. RGB-D input constructs a multi-modal scene graph and projects it to generate a semantic field; VLM issues actions based on filtered subgraphs and decision logs, and the verification results drive closed-loop memory updates." />
+  <img src="/images/vln/CGFM-Nav-framework-pipeline.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1421/664" alt="Figure 2: CGFM-Nav system architecture. RGB-D input builds a multimodal scene graph, which is projected to generate a semantic field; the VLM issues actions based on the filtered subgraph and the decision log, and the verification results drive closed-loop memory updates." />
 <figcaption>
-Figure 2: CGFM-Nav system architecture diagram. RGB-D input constructs a multi-modal scene graph and projects it to generate a semantic field; VLM issues actions based on filtered subgraphs and decision logs, and the verification results drive closed-loop memory updates.
+Figure 2: CGFM-Nav system architecture. RGB-D input builds a multimodal scene graph, which is projected to generate a semantic field; the VLM issues actions based on the filtered subgraph and the decision log, and the verification results drive closed-loop memory updates.
 </figcaption>
 </div>
 
-#### ② Explain module by module
+#### ② Module-by-module explanation
 {: id="-逐模块讲解-3"}
 
 **1. Perception and multimodal scene graph construction (Perception & Graph Memory)**
-- **Input**: Continuous RGB-D sensor frames onboard the robot.
-- **handles**: Use YOLOv8-World and SAM for open vocabulary target detection and precise pixel segmentation; use CLIP to extract appearance features of each target. Incrementally building persistent multimodal scene graphs $$\mathcal{G}_t = (\mathcal{V}_t, \mathcal{E}_t)$$.
-- **outputs**: node $$v_i = (c_i, p_i, z_i, \mathcal{I}_i)$$, which stores object category $c_i$, 3D spatial coordinates $p_i$, visual semantic features $z_i$ and historical multi-view observation image collection $$\mathcal{I}_i$$; edge $$\mathcal{E}_t$$ records the spatial topology and relationships between objects.
-- **Design Motivation**: In particular, target verification statistics (number of verifications, subtasks, identification results, and multi-perspective feedback logs) are added to each node.
+- **Input**: Continuous RGB-D sensor frames from the robot.
+- **Processing**: YOLOv8-World and SAM perform open-vocabulary object detection and precise pixel segmentation, and CLIP extracts the appearance features of each object. A persistent multimodal scene graph $$\mathcal{G}_t = (\mathcal{V}_t, \mathcal{E}_t)$$ is built incrementally.
+- **Output**: Nodes $$v_i = (c_i, p_i, z_i, \mathcal{I}_i)$$ storing the object category $c_i$, the 3D position $p_i$, the visual semantic feature $z_i$, and the set of historical multi-view observation images $$\mathcal{I}_i$$; the edges $$\mathcal{E}_t$$ record the spatial topology and relations between objects.
+- **Design note**: Each node additionally carries verification statistics (number of verifications, subtask, recognition result, and multi-view feedback log).
 
-**2. Continuous Semantic-Frontier Field Construction**
-- **Input**: Current multimodal scene graph $$\mathcal{G}_t$$, mission goal description $q$, and 2D occupancy raster map.
-- **handles**:
-  1. Calculate the CLIP similarity between the graph node and the target $q$, and subtract the background baseline to get the net correlation score $s_i(q)$.
-  2. Verify the mask (set to 0) for nodes that have been confirmed and excluded by the current subtask, and do not spread energy into the field.
-  3. Treat each valid object as a spatial point source, and its semantic influence decays exponentially along the geodesic distance (Geodesic Distance) of unobstructed free space: $w_i(x) = \exp(-d(x, p_i)/\tau)$.
-  4. For each grid unit $x$, aggregate the $K_s$ objects with the largest local contribution to generate a continuous semantic field:
+**2. Continuous semantic-frontier field construction**
+- **Input**: The current multimodal scene graph $$\mathcal{G}_t$$, the task goal description $q$, and the 2D occupancy grid map.
+- **Processing**:
+  1. Compute the CLIP similarity between each graph node and the goal $q$, and subtract the background baseline to obtain the net relevance score $s_i(q)$.
+  2. Mask (set to 0) nodes already verified and rejected in the current subtask, so that they spread no energy into the field.
+  3. Treat each valid object as a spatial point source whose semantic influence decays exponentially with the geodesic distance through unobstructed free space: $w_i(x) = \exp(-d(x, p_i)/\tau)$.
+  4. For each grid cell $x$, aggregate the $K_s$ objects with the largest local contributions to produce a continuous semantic field:
      $$S_t(x \mid q) = \sum_{i \in \mathrm{Top}K_s(x)} s_i(q) w_i(x)$$
-  5. Extract the geometric frontier point set $$\mathcal{C}_t = \{f_1, \dots, f_M\}$$ at the intersection of free space and unknown area, and calculate the exploration score $U_t(f \mid q)$ of each frontier point: the average semantic field strength in a small neighborhood, and divide it by the geodesic navigation cost of the robot to the frontier point.
-- **Output**: Continuous heat map with semantic exploration priority and frontier point score ranking.
+  5. Extract the set of geometric frontiers $$\mathcal{C}_t = \{f_1, \dots, f_M\}$$ at the boundary between free and unknown space, and compute an exploration score $U_t(f \mid q)$ for each frontier: the mean semantic field strength in a small neighborhood, divided by the geodesic navigation cost from the robot to that frontier.
+- **Output**: A continuous heat map of semantic exploration priority and a ranked list of frontier scores.
 
-> **Give an example (stuck point dimensionality reduction device A: semantic field and frontier point calculation)**:
-> Assuming that the task is "find the stroller", the robot constructs a scene graph containing 3 objects in the living room:
-> - Object A (folding chair): The previous navigation failed verification and was recorded as `NO-CONFIRMED`. The verification mask directly sets its net score to $s_A(q) = 0$ and no longer diffuses any semantic energy;
-> - Object B (dining table): low correlation with the stroller, after subtracting the background baseline $s_B(q) = 0$;
-> - Object C (baby bottle): strongly semantically related to the stroller, calculated as $s_C(q) = 0.8$.
+> **Example (worked example A: semantic field and frontier scoring)**:
+> Suppose the task is "find the stroller", and the robot has built a scene graph containing 3 objects in the living room:
+> - Object A (folding chair): an earlier navigation attempt failed verification and was recorded as `NO-CONFIRMED`. The verification mask sets its net score directly to $s_A(q) = 0$, so it no longer diffuses any semantic energy;
+> - Object B (dining table): weakly related to the stroller, with $s_B(q) = 0$ after subtracting the background baseline;
+> - Object C (baby bottle): strongly related to the stroller, with a computed $s_C(q) = 0.8$.
 >
-> There are now two frontier candidate points in the unexplored area:
-> - Frontier point 1 (close to object C, 1 meter away from the object, attenuation weight $w=0.7$; 2 meters away from the robot): the local semantic field is $0.8 \times 0.7 = 0.56$; after combining the distance cost, the exploration score is as high as $0.56 / 2 = 0.28$;
-> - Frontier point 2 (near the kitchen, far from object C, $w \approx 0$ after attenuation; only 1 meter from the robot): local semantic field is 0, exploration score is almost 0.
+> There are now two candidate frontiers in the unexplored area:
+> - Frontier 1 (near object C, 1 meter from it, decay weight $w=0.7$; 2 meters from the robot): the local semantic field is $0.8 \times 0.7 = 0.56$; after accounting for the distance cost, the exploration score is as high as $0.56 / 2 = 0.28$;
+> - Frontier 2 (near the kitchen, far from object C, so $w \approx 0$ after decay; only 1 meter from the robot): the local semantic field is 0 and the exploration score is almost 0.
 >
-> Even if the robot has never seen the stroller, it can accurately steer towards the unknown corridor around object C under the guidance of the continuous semantic field instead of blindly exploring the kitchen.
+> Even though the robot has never seen the stroller, the continuous semantic field steers it accurately toward the unknown corridor around object C instead of blindly exploring the kitchen.
 
-**3. Semantic-Guided Subgraph Selection**
-- **input**: full scene graph $$\mathcal{G}_t$$ and target $q$.
-- **processes**: directly reuses the CLIP correlation in field calculation, selects positively correlated nodes and their first-order neighbors to form the semantic seed set $$\mathcal{V}_{seed}$$; the remaining nodes are compressed into the residual graph $$\hat{\mathcal{G}}_{res}$$, and are handed over to VLM for supplementary selection based on common sense. After pruning, a compact key subgraph $$\tilde{\mathcal{G}}_t$$ is formed.
-- **output**: lightweight structured prompt information input to the large model.
+**3. Semantic-guided subgraph selection (Semantic-Guided Subgraph Selection)**
+- **Input**: The full scene graph $$\mathcal{G}_t$$ and the goal $q$.
+- **Processing**: Directly reuses the CLIP relevance from the field computation, selecting positively correlated nodes and their first-order neighbors as the semantic seed set $$\mathcal{V}_{seed}$$; the remaining nodes are compressed into a residual graph $$\hat{\mathcal{G}}_{res}$$, from which the VLM makes supplementary selections based on common sense. Pruning yields a compact key subgraph $$\tilde{\mathcal{G}}_t$$.
+- **Output**: A lightweight structured prompt for the large model.
 
-**4. VLM Reasoning with Decision Memory**
-- **input**: target $q$, key subgraph $$\tilde{\mathcal{G}}_t$$ and decision memory $$\mathcal{D}_t$$ (attempted candidate points recorded by time, destination type and short inference summary).
-- **processing**: VLM makes one of three types of decisions: select object node $v_i$, select historical image $I_{i,j}$, or issue exploration command `EXPLORE`.
-- **output**: discrete high-level decision-making instruction $d_t$.
+**4. VLM reasoning with decision memory (VLM Reasoning with Decision Memory)**
+- **Input**: The goal $q$, the key subgraph $$\tilde{\mathcal{G}}_t$$, and the decision memory $$\mathcal{D}_t$$ (candidates already tried, recorded by time, destination type, and a short reasoning summary).
+- **Processing**: The VLM makes one of three kinds of decisions: select an object node $v_i$, select a historical image $I_{i,j}$, or issue the exploration command `EXPLORE`.
+- **Output**: A discrete high-level decision instruction $d_t$.
 
-**5. Action shunt and closed-loop multi-view verification (Action & Verification)**
-- **input**: Decision instruction $d_t$ with semantic boundary fields.
-- **processing and flow**:
-  - If it is a known object/image: Send the coordinates directly, and call VLM after navigation arrives for multi-view observation verification (return `YES`, `NO-UNCERTAIN` or `NO-CONFIRMED`);
-  - If it is `EXPLORE`: If there is a frontier point, select the one with the highest score; if there is no frontier point but there is an incompletely explored semantic peak, navigate to the highest response center of the semantic map; if there is no frontier point, report failure.
-  - Objects that are successfully verified enter the next subtask; objects that fail to be verified record node masks and block their field diffusion; uncertain objects are re-identified from additional perspectives.
+**5. Action dispatch and closed-loop multi-view verification (Action & Verification)**
+- **Input**: The decision instruction $d_t$ and the semantic-frontier field.
+- **Processing and flow**:
+  - For a known object/image: send its coordinates directly, and after arriving, call the VLM for multi-view observation verification (returning `YES`, `NO-UNCERTAIN`, or `NO-CONFIRMED`);
+  - For `EXPLORE`: if frontiers exist, pick the highest-scoring one; if there are no frontiers but an incompletely explored semantic peak remains, navigate to the highest-response center of the semantic map; if neither exists, report failure.
+  - Objects that pass verification move on to the next subtask; objects that fail verification get a node mask recorded, which blocks their field diffusion; uncertain objects are re-identified from additional viewpoints.
 
-#### ③ Reader’s perspective: closed-loop status and decision-making flow diagram (stuck point dimensionality reduction device B)
+#### ③ Closed-loop states and decision flow (worked example B)
 {: id="-读者视角闭环状态与决策流转图卡点降维装置-b"}
 
 ```mermaid
@@ -937,67 +937,67 @@ graph TD
     N --> B
 ```
 
-#### ④ Core difference: Mechanism comparison with the classic baseline MSGNav (stuck point dimensionality reduction device C)
+#### ④ Core difference: mechanism comparison with the classic baseline MSGNav (worked example C)
 {: id="-核心差异与经典基线-msgnav-的机制对比卡点降维装置-c"}
 
-| Mechanism dimension | Classic baseline MSGNav | This article CGFM-Nav |
+| Mechanism | Classic baseline MSGNav | CGFM-Nav (this paper) |
 |---|---|---|
-| **Exploration Guidance Method** | Pure geometric boundary exploration or undirected random roaming | Back-projection of scene graph evidence into a continuous semantic field, empowering frontier point semantic bias |
-| **subgraph prompt filtering** | Rule full search or plain text LLM filtering | Semantic seed set of multiplexed field correlation + residual graph VLM common sense supplement |
-| **Error retry suppression** | Rely on historical logs stuffed in short-term text context | Node-level physical verification mask, completely cut off the gravity of the wrong object in the field |
-| **Deployment model Threshold** | Heavy reliance on expensive and high-latency cloud GPT-4o | Local Open source lightweight Qwen3-VL-8B can surpass the performance of large cloud models |
+| **Exploration guidance** | Purely geometric frontier exploration or undirected random roaming | Scene-graph evidence is back-projected into a continuous semantic field, giving frontiers a semantic bias |
+| **Subgraph prompt filtering** | Rule-based full search or text-only LLM filtering | Reuses the field relevance as a semantic seed set, supplemented by the VLM's commonsense over the residual graph |
+| **Suppressing erroneous retries** | Relies on history logs stuffed into the short-term text context | Node-level physical verification masks that completely cut off the pull of a wrong object in the field |
+| **Deployment barrier** | Heavily depends on expensive, high-latency cloud GPT-4o | The locally deployed open-source lightweight Qwen3-VL-8B can surpass the performance of large cloud models |
 
 #### ⑤ Training and inference settings
 {: id="-训练与推理设定"}
-- **does not require training (Training-Free)**: The whole framework is a pure zero-shot inference architecture, the perception module uses pre-trained YOLOv8-World + SAM + CLIP, and the decision-making inference and multi-perspective verification use the Open source lightweight Qwen3-VL-8B-Instruct.
-- **Lifelong memory retention**: The scene graph and its verification mask are fully preserved between multiple subtasks of the same scene; only the short-term decision log is reset across subtasks and the semantic field is reconstructed according to the new goal.
+- **Training-free**: The whole framework is a purely zero-shot inference architecture; the perception modules use pre-trained YOLOv8-World + SAM + CLIP, and decision reasoning and multi-view verification use the open-source lightweight Qwen3-VL-8B-Instruct.
+- **Lifelong memory retention**: The scene graph and its verification masks are fully preserved across the subtasks of the same scene; only the short-term decision log is reset between subtasks, and the semantic field is rebuilt for the new goal.
 
 ---
 
 ### 3. Results and findings
 {: id="3-核心结果发现-11"}
-The evaluation results on the extremely challenging lifelong cross-modal navigation benchmark **GOAT-Bench** (including 36 unseen scenes, 278 multi-modal subtasks, covering categories, language descriptions and reference image targets) show that:
+The evaluation results on the extremely challenging lifelong cross-modal navigation benchmark **GOAT-Bench** (36 unseen scenes, 278 multimodal subtasks, covering category, language-description, and reference-image goals) show that:
 
-1. **significantly improves** with the same base: Under a fair comparison using Open source **Qwen3-VL-8B**, CGFM-Nav compares to MSGNav:
-   - The overall success rate (SR) increased from **53.2% to 63.0%** (+9.8%);
-   - The path length weighted success rate (SPL) increased from **30.0% to 39.6%** (+9.6%);
-   - Especially significant jumps were achieved in category goals (SR: 63.6% → **72.7%**) and language goals (SR: 48.4% → **61.5%**).
-2. **lightweight device-side counterattack on cloud flagship**: CGFM-Nav equipped with local 8B parameter multi-modal model, in overall SR (**63.0%** vs 60.0%), category Comprehensively surpassed the cloud-based closed-source flagship in terms of SR (**72.7%** vs 63.6%) and language SR (**61.5%** vs 57.2%) The MSGNav of **GPT-4o** verifies the effect of high-quality environmental cognitive representations on making up for the gap in the large model base.
-3. **Image target relies on fine-grained matching**: In the image target subtask, due to the lack of generalization knowledge at the category level, it relies more on point-to-point matching of underlying pixel features. Although CGFM-Nav is significantly improved compared to the same base baseline (SR: 46.6% → 53.4%), there is still a slight gap compared to GPT-4o, indicating that the image target is very important to VLM. Its own fine-grained cross-view feature extraction capability puts forward higher requirements.
+1. **Significant gains with the same base model**: In a fair comparison using the open-source **Qwen3-VL-8B**, CGFM-Nav versus MSGNav:
+   - The overall success rate (SR) rises from **53.2% to 63.0%** (+9.8%);
+   - The success weighted by path length (SPL) rises from **30.0% to 39.6%** (+9.6%);
+   - Particularly large jumps are seen on category goals (SR: 63.6% → **72.7%**) and language goals (SR: 48.4% → **61.5%**).
+2. **A lightweight on-device model beats the cloud flagship**: CGFM-Nav, equipped with a local 8B-parameter multimodal model, comprehensively surpasses MSGNav with cloud-based closed-source **GPT-4o** in overall SR (**63.0%** vs. 60.0%), category SR (**72.7%** vs. 63.6%), and language SR (**61.5%** vs. 57.2%), showing that high-quality environment representations can make up for the gap in the large-model base.
+3. **Image goals rely on fine-grained matching**: In image-goal subtasks, which lack category-level generalization knowledge, success depends more on point-to-point matching of low-level pixel features. Although CGFM-Nav improves markedly over the baseline with the same base model (SR: 46.6% → 53.4%), a slight gap to GPT-4o remains, indicating that image goals place higher demands on the VLM's own fine-grained cross-view feature extraction.
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-11"}
-1. The current verification is still limited to the GOAT-Bench simulation environment, and the long-term robustness under non-ideal factors such as sensor noise, dynamic pedestrian occlusion and odometry drift has not been fully verified on a real physical wheeled robot.
-2. The representation and search of image objects are still limited by the granularity of global CLIP features, and there is a lack of local feature retrieval mechanism specifically oriented to finely aligning the appearance of object instances.
+1. Verification is still limited to the GOAT-Bench simulation environment; long-term robustness under non-ideal factors such as sensor noise, occlusion by moving pedestrians, and odometry drift has not been fully verified on a real wheeled robot.
+2. The representation and retrieval of image goals are still limited by the granularity of global CLIP features, and there is no local-feature retrieval mechanism dedicated to finely aligning the appearance of object instances.
 
 ---
 
 ## 8. NavMCP (2026)
 {: id="navmcp"}
-———The first long-range embodied navigation framework that scaffolds and encapsulates the Navigation Foundation model (NFM) into an agent actuator.
+——The first long-horizon embodied navigation framework that scaffolds a Navigation Foundation Model (NFM) into an agent's executor
 
 📄 **Paper**: [arXiv:2608.30396](https://arxiv.org/abs/2608.30396)
 
 ### Key takeaways
 {: id="精华-14"}
-1. **Core Insight**: Long-range physical world interaction faces the dilemma of "high-level macro inference" and "low-level micro closed loop". The existing visual language model (VLM) has serious long-range action drift, while the navigation foundation model (NFM) has excellent local embodied execution capabilities, but is limited to a single round and lacks a persistent task state across rounds.
-2. **paradigm breaks through**: NavMCP breaks the traditional practice of simply treating the navigation model as a black-box single-step tool (Episodic Tool Interface), and proposes the first scaffolding (Scaffolding) protocol system that uses NFM as the physical execution layer of long-range embodied agents to achieve long-range closed-loop exploration without fine-tuning any underlying model.
-3. **Architecture Mechanism**: Construct a three-channel protocol of "Intent - Observation - Memory" to solve the three major gaps of disconnection between instructions and intentions, loss of key observations along the way, and cross-call memory fault, and transform one-time waypoint planning into a cumulative and traceable embodied cognitive process.
-4. **Decision-making philosophy**: Introduce an asymmetric arbitration mechanism based on the evidence chain, which not only records "what is seen", but also explicitly precipitates negative evidence (Negative Evidence) of "which areas are excluded", allowing the agent to have the ability to explore non-monotone hypothesis testing with purpose.
-5. **Migration Enlightenment**: It has completely refreshed the strongest results on the three major embodied question and answer benchmarks (HM-EQA, MT-HM3D, and EXPRESS-Bench), and achieved ultra-50-meter ultra-long-range real environment exploration on the Yushu Unitree Go2 quadruped robot, proving that layered scaffolding of domain-based models and general-purpose large models is an important path to physical intelligence.
+1. **Core insight**: Long-horizon interaction with the physical world faces a dilemma between "high-level macro reasoning" and "low-level micro closed loops". Existing vision-language models (VLMs) suffer from serious long-range action drift, while navigation foundation models (NFMs) have excellent local embodied execution but are limited to a single round and lack a persistent task state across rounds.
+2. **Paradigm breakthrough**: NavMCP breaks with the traditional practice of treating a navigation model merely as a black-box, single-step tool (Episodic Tool Interface), and proposes the first scaffolding protocol system that uses an NFM as the physical execution layer of a long-horizon embodied agent, achieving long-horizon closed-loop exploration without fine-tuning any underlying model.
+3. **Architecture and mechanism**: A three-channel "Intent - Observation - Memory" protocol closes three gaps: the disconnect between instructions and intent, the loss of key observations along the way, and the memory break between calls. It turns one-shot waypoint planning into a cumulative, traceable embodied cognitive process.
+4. **Decision philosophy**: An asymmetric, evidence-chain-based arbitration mechanism records not only "what was seen" but also explicitly distills negative evidence about "which areas have been ruled out", giving the agent the ability to carry out purposeful, non-monotonic hypothesis-testing exploration.
+5. **Transfer and implications**: It sets new state-of-the-art results on three embodied question answering benchmarks (HM-EQA, MT-HM3D, and EXPRESS-Bench), and achieves real-world exploration over distances exceeding 50 meters on a Unitree Go2 quadruped robot, showing that layering a domain-specific model under a general-purpose large model is an important path toward physical intelligence.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-14"}
-Embodied Question Answering (EQA) and real physical environment search require agents to explore long-range in large unknown scenes to collect visual evidence. Existing methods fall into a dilemma and architectural differences: if the general large model (VLM) is allowed to directly predict the underlying actions or local waypoints, trajectory drift, deadlock and execution fragility will frequently occur in long-term and long-span scenarios; if a dedicated navigation foundation model (Navigation Foundation model, NFM, such as Qwen-RobotNav, Uni-NaVid, etc.) is introduced, traditional agents only encapsulate it as a conventional single-turn tool (Episodic Tool) Call) - Send a single command to the navigation model. After the bottom run is completed, only the end state and the final single field of view will be returned.
+Embodied Question Answering (EQA) and real-world search require agents to explore large unknown scenes over long horizons to collect visual evidence. Existing methods face a dilemma. If a general-purpose large model (VLM) is asked to predict low-level actions or local waypoints directly, trajectory drift, deadlocks, and brittle execution occur frequently over long durations and distances. If a dedicated navigation foundation model (NFM, such as Qwen-RobotNav or Uni-NaVid) is introduced, traditional agents merely wrap it as an ordinary single-turn tool (Episodic Tool Call): a single command is sent to the navigation model, and once the low-level run finishes, only the final state and the last single view are returned.
 
 This conventional single-episode interface has a serious **episodic interface gap** in long-horizon evidence collection:
-1. **Mismatch between instruction and intent**: High-level VLM focuses on "what information to verify/what clues to find", while the underlying navigation model requires specific path instructions, and a single-sentence route command cannot convey the search budget and semantic boundaries;
-2. **Intermediate observation loss (Intermediate observation loss)**: The target object may flash by as the robot passes through the corridor or door gap. Only returning to the terminal perspective will discard a large number of high-value perception clues in the entire trajectory;
-3. **Lack of cross-call accumulation**: The underlying execution memory is cleared after a single call. If the upper level lacks a structured memory ledger, it cannot record "which rooms have been fully inspected", leading to repeated searches or blind circles. On the HM-EQA benchmark, the degradation to the traditional single-round interface directly brings a dramatic performance cliff of 14.9%.
+1. **Mismatch between instruction and intent**: The high-level VLM cares about "what information to verify / what clues to look for", whereas the low-level navigation model needs concrete route instructions; a single route command cannot convey the search budget and semantic boundaries;
+2. **Loss of intermediate observations**: The target object may flash by as the robot passes through a corridor or a doorway. Returning only the terminal view discards a large amount of high-value perceptual clues from the entire trajectory;
+3. **No accumulation across calls**: The low-level execution memory is cleared after each call. Without a structured memory ledger at the upper level, the system cannot record "which rooms have been fully inspected", leading to repeated searches or aimless circling. On the HM-EQA benchmark, degrading to the traditional single-round interface directly causes a sharp performance drop of 14.9%.
 
 ---
 
@@ -1005,25 +1005,25 @@ This conventional single-episode interface has a serious **episodic interface ga
 {: id="2-主要方法创新点-14"}
 
 <div align="center">
-  <img src="/images/vln/NavMCP-system-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1278/545" alt="The overall architecture of the NavMCP system: the high-level VLM agent dispatches sub-goals to the navigation foundation model (NFM) through the intent channel. The NFM autonomously completes the closed-loop movement from the non-privileged ego-vehicle perspective. The trajectory data along the way is converted into journey evidence with source references through the observation channel, and the dynamically updated EQA context state is maintained in the memory channel." />
+  <img src="/images/vln/NavMCP-system-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1278/545" alt="Overall architecture of NavMCP: the high-level VLM agent dispatches sub-goals to the navigation foundation model (NFM) through the intent channel. The NFM autonomously completes closed-loop movement from a non-privileged egocentric view. The trajectory data collected along the way is converted into journey evidence with source references through the observation channel, and the dynamically updated EQA context state is maintained in the memory channel." />
 <figcaption>
-The overall architecture of the NavMCP system: the high-level VLM agent dispatches sub-goals to the navigation foundation model (NFM) through the intent channel. The NFM autonomously completes the closed-loop movement from the non-privileged ego-vehicle perspective. The trajectory data along the way is converted into journey evidence with source references through the observation channel, and the dynamically updated EQA context state is maintained in the memory channel.
+Overall architecture of NavMCP: the high-level VLM agent dispatches sub-goals to the navigation foundation model (NFM) through the intent channel. The NFM autonomously completes closed-loop movement from a non-privileged egocentric view. The trajectory data collected along the way is converted into journey evidence with source references through the observation channel, and the dynamically updated EQA context state is maintained in the memory channel.
 </figcaption>
 </div>
 
-#### ① Overview of the overall framework
+#### ① Overall framework
 {: id="-整体框架概述-6"}
-NavMCP (Navigation model Context Protocol) adopts a two-layer division of labor architecture: **high-level VLM agent acts as the "inference brain"**, responsible for task goal decomposition, evidence requirement inference, search area planning and when to terminate and answer; **bottom-level NFM (named with Qwen-RobotNav (represented by**) as the "physical execution limb", responsible for completing obstacle avoidance and robust closed-loop waypoint tracking under the unprivileged first-person RGB perspective and self-built local topology map. The two interact through decoupled and closely coordinated three-channel protocol gating, which not only expands the physical action vision of VLM, but also expands the long-range inference vision of NFM.
+NavMCP (Navigation model Context Protocol) adopts a two-layer division of labor: the **high-level VLM agent acts as the "reasoning brain"**, responsible for decomposing the task goal, inferring evidence requirements, planning the search region, and deciding when to stop and answer; the **low-level NFM (represented by Qwen-RobotNav) acts as the "physical execution limb"**, responsible for obstacle avoidance and robust closed-loop waypoint tracking from a non-privileged first-person RGB view and a self-built local topological map. The two interact through a decoupled yet tightly coordinated three-channel protocol, which extends the VLM's physical action horizon as well as the NFM's long-horizon reasoning horizon.
 
-#### Difficulty dimensionality reduction: traditional tool calling vs NavMCP three-channel protocol
+#### Worked example: traditional tool calling vs. the NavMCP three-channel protocol
 {: id="难点降维传统工具调用-vs-navmcp-三通道协议"}
 
-| Dimensions | Traditional tool call (Episodic Interface) | NavMCP scaffolding protocol (this article's plan) |
+| Dimension | Traditional tool call (Episodic Interface) | NavMCP scaffolding protocol (this paper's approach) |
 |---|---|---|
-| **Intent expression (Intent)** | Single-sentence control instructions (such as "Turn left toward the master bedroom"), lack of budget constraints and search mode distinction | Structured semantic call `(mode, goal, budget, constraints)`, distinguish between object search and instruction navigation dual modes |
-| **Observation Feedback (Observation)** | Only the final destination status and the last frame image are returned, and all key visual information along the way is lost | Sampling keyframe sequences along the trajectory at equal steps, and the trajectory summarizer generates a journey artifact with keyframe source references |
-| **Cross-wheel memory (Memory)** | Relies on the original interactive dialogue context, long sequences quickly exceed the window and it is easy to forget negative clues | Explicitly maintain the ternary state $C_t = (H_t, E_t, U_t)$, structure the positive and negative evidence ledger, and securely compress the original tool trajectory |
-| **Decision Criteria (Arbitration)** | Direct and hasty answer based on whether the target is seen in a single line of sight | Three-stage asymmetric arbitration based on `analyze_status`: direct image support is required for confirmation, and evidence of full coverage of the area is required for falsification |
+| **Intent expression (Intent)** | A single-sentence control instruction (such as "Turn left toward the master bedroom"), with no budget constraint and no distinction of search modes | A structured semantic call `(mode, goal, budget, constraints)` that distinguishes the object-search and instruction-navigation modes |
+| **Observation feedback (Observation)** | Returns only the final destination state and the last frame, losing all key visual information along the way | Keyframes are sampled at equal step intervals along the trajectory, and a trajectory summarizer produces journey evidence with keyframe source references |
+| **Cross-call memory (Memory)** | Relies on the raw interaction dialogue context; long sequences quickly exceed the window and negative clues are easily forgotten | Explicitly maintains the three-part state $C_t = (H_t, E_t, U_t)$, structures a ledger of positive and negative evidence, and safely compresses the raw tool trajectories |
+| **Decision criteria (Arbitration)** | Answers hastily based on whether the target was seen from a single viewpoint | Three-stage asymmetric arbitration based on `analyze_status`: confirmation requires direct image support, and refutation requires evidence of full coverage of the area |
 
 ```mermaid
 graph TD
@@ -1039,177 +1039,177 @@ graph TD
     J --> B
 ```
 
-#### ② Module-by-module explanation: NavMCP three-channel core mechanism
+#### ② Module-by-module explanation: the NavMCP three-channel core mechanism
 {: id="-逐模块讲解navmcp-三通道核心机制"}
 
-##### 1. Intent Channel: From evidence requirements to structured navigation calls
+##### 1. Intent channel: from evidence requirements to structured navigation calls
 {: id="1-意图通道intent-channel从证据需求到结构化导航调用"}
-After inferring the missing information, the high-level agent does not need to write low-level motor instructions or subtle waypoints, but instead issues structured semantic navigation calls through protocol gating:
+After inferring what information is missing, the high-level agent does not write low-level motor commands or fine waypoints, but issues a structured semantic navigation call through the protocol:
 $$\text{Call} _t = (\text{mode}, \text{sub\_goal}, \text{budget}, \text{constraints})$$
-- **dual-mode decoupling**:
-  - `navigate_to_object` (object goal navigation mode): Enter the specific object category name or referent object, and the underlying NFM independently performs semantic-driven local exploration and approximation;
-  - `navigate_by_instruction` (vision-language navigation mode): Enter high-level natural language instructions containing regions, paths, or topological landmarks (such as "Go through the hallway and enter the bedroom at the end").
-- **Budget and boundary constraints**: Use `budget` to control the maximum number of steps at the bottom layer to prevent the underlying model from falling into a local infinite loop; use `constraints` to provide semantic obstacle avoidance suggestions. The underlying actuator only relies on the topological occupancy graph constructed in real time during the body's own RGB observation, pose estimation and exploration process, without the need to predict the scene's true value or privileged geometric information.
+- **Decoupled dual modes**:
+  - `navigate_to_object` (object-goal navigation mode): takes a specific object category name or a referent object, and the low-level NFM independently performs semantics-driven local exploration and approach;
+  - `navigate_by_instruction` (vision-language navigation mode): takes a high-level natural-language instruction containing regions, paths, or topological landmarks (such as "Go through the hallway and enter the bedroom at the end").
+- **Budget and boundary constraints**: `budget` caps the maximum number of low-level steps to keep the underlying model from falling into a local infinite loop; `constraints` provides semantic obstacle-avoidance suggestions. The low-level executor relies only on its own RGB observations, pose estimates, and the topological occupancy graph built in real time during exploration, and needs no ground-truth scene information or privileged geometry.
 
 <div align="center">
-  <img src="/images/vln/NavMCP-three-channel-interface.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1286/697" alt="The internal flow logic of NavMCP three-channel scaffolding: the intention channel is responsible for task semantic alignment, the observation channel is responsible for mapping spatio-temporal trajectories into structured perception evidence with confidence and image source labels, and the memory channel is responsible for supporting persistent evidence ledger updates across multiple rounds of interactions." />
+  <img src="/images/vln/NavMCP-three-channel-interface.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1286/697" alt="Internal flow of the NavMCP three-channel scaffold: the intent channel handles semantic alignment of the task, the observation channel maps spatiotemporal trajectories into structured perceptual evidence labeled with confidence and image sources, and the memory channel supports persistent evidence-ledger updates across multiple rounds of interaction." />
 <figcaption>
-The internal flow logic of NavMCP three-channel scaffolding: the intention channel is responsible for task semantic alignment, the observation channel is responsible for mapping spatio-temporal trajectories into structured perception evidence with confidence and image source labels, and the memory channel is responsible for supporting persistent evidence ledger updates across multiple rounds of interactions.
+Internal flow of the NavMCP three-channel scaffold: the intent channel handles semantic alignment of the task, the observation channel maps spatiotemporal trajectories into structured perceptual evidence labeled with confidence and image sources, and the memory channel supports persistent evidence-ledger updates across multiple rounds of interaction.
 </figcaption>
 </div>
 
-##### 2. Observation Channel: From dynamic trajectories to source-anchored evidence
+##### 2. Observation channel: from dynamic trajectories to source-anchored evidence
 {: id="2-观测通道observation-channel从动态轨迹到来源锚定证据"}
-After the underlying actuator completes a single-modal navigation, it outputs the original trajectory record $r_t = (s_t, b_t, \ell_t, p_t, K_t)$, where $s_t$ is the completion flag, $b_t$ is the stop reason, $\ell_t$ is the total walking path length, $p_t$ is the final pose, and $K_t = \{I_{t,1}, \dots, I_{t,n}\}$ A collection of keyframes along the way.
-- **key frame isometric sampling**: In order to take into account visual coverage and context cost, the system samples a self-view frame every $\Delta = 4$ steps, and the upper limit of a single call is truncated to $M = 16$ frames.
-- **VLM Trajectory Summarizer**: Input these key frames into the lightweight multi-modal descriptor to extract structured journey evidence:
+After the low-level executor completes one navigation call, it outputs a raw trajectory record $r_t = (s_t, b_t, \ell_t, p_t, K_t)$, where $s_t$ is the completion flag, $b_t$ is the stop reason, $\ell_t$ is the total path length, $p_t$ is the final pose, and $K_t = \{I_{t,1}, \dots, I_{t,n}\}$ is the set of keyframes collected along the way.
+- **Uniform keyframe sampling**: To balance visual coverage against context cost, the system samples an egocentric frame every $\Delta = 4$ steps, truncated to at most $M = 16$ frames per call.
+- **VLM trajectory summarizer**: These keyframes are fed to a lightweight multimodal describer that extracts structured journey evidence:
   $$z_t = (q_t, R_t, O_t, P_t, D_t)$$
-Among them, $q_t$ records the status of sub-goal achievement; $R_t$ summarizes the transition between rooms and areas; $O_t$ extracts significant observation objects; $P_t$ records planning topology clues (such as the discovery of unexplored stairwells and ajar doors); $D_t$ records uncertainty and execution anomalies.
-- **source anchor tuple (Source Grounding)**: Each object or area mentioned in $O_t$ and $R_t$ is forced to bind a five-tuple label $(n, i, v, h, c)$ (name, associated keyframe index, perspective orientation, relative space hint, confidence). It is strictly prohibited for summarizers to infer unobserved states without basis.
+Here $q_t$ records whether the sub-goal was achieved; $R_t$ summarizes transitions between rooms and areas; $O_t$ extracts salient observed objects; $P_t$ records planning topology clues (such as an unexplored stairwell or an ajar door); and $D_t$ records uncertainty and execution anomalies.
+- **Source grounding tuple**: Every object or area mentioned in $O_t$ and $R_t$ must be bound to a five-tuple label $(n, i, v, h, c)$ (name, associated keyframe index, view direction, relative spatial hint, confidence). The summarizer is strictly forbidden from inferring unobserved states without basis.
 
-##### 3. Memory Channel: Cross-call evidence ledger and conservative context compression
+##### 3. Memory channel: cross-call evidence ledger and conservative context compression
 {: id="3-记忆通道memory-channel跨调用证据账本与保守上下文压缩"}
-To resolve context explosion caused by multiple calls, NavMCP maintains explicit ternary EQA context state:
+To prevent context explosion caused by multiple calls, NavMCP maintains an explicit three-part EQA context state:
 $$C_t = (H_t, E_t, U_t)$$
-- **Evidence ledger $E_t$**: Record positive evidence with source index (Positive Evidence, such as "A lighted desk lamp was found on the bedside table of the master bedroom, source frame keyframe_3"), Negative Evidence (Negative Evidence, such as "The panoramic view of the study was checked, and no printer was found"). The ledger is maintained by `write_notebook`, using the FIFO queue limit to retain 100 deduplication records, and directly injects the Prompt header during each round of inference.
-- **pending target pool $U_t$**: Maintains unconfirmed or fuzzy inferred targets to be investigated, and guides the distribution of the next intention channel.
-- **Conservative context compression strategy**: Only after the key perception information has been refined and externalized to $E_t$ and $U_t$ and marked with keyframe references, the system allows the previous round of lengthy original tool execution logs and intermediate visual diagrams to be replaced with minimalist placeholders. This ensures that even if context truncation occurs during long-term interactions, the core decision-making chain will not be damaged at all.
+- **Evidence ledger $E_t$**: Records positive evidence with source indices (e.g., "A lit desk lamp was found on the bedside table of the master bedroom, source frame keyframe_3") and negative evidence (e.g., "The panoramic view of the study was checked and no printer was found"). The ledger is maintained via `write_notebook`, keeps 100 deduplicated records under a FIFO limit, and is injected directly into the head of the prompt in every round of reasoning.
+- **Pending target pool $U_t$**: Maintains unconfirmed or vaguely inferred targets awaiting investigation, and guides what the next intent-channel call requests.
+- **Conservative context compression**: Only after key perceptual information has been distilled and externalized into $E_t$ and $U_t$ with keyframe references does the system allow the lengthy raw tool logs and intermediate images of earlier rounds to be replaced with minimal placeholders. This ensures that even if the context is truncated during long interactions, the core decision chain is not damaged at all.
 
-#### Difficulty Dimensionality Reduction: Journey Analysis Capture and Asymmetric Arbitration Specific Examples
+#### Worked example: journey analysis capture and asymmetric arbitration
 {: id="难点降维journey-analysis-沿途捕获与非对称仲裁具体实例"}
 
-> **Give a specific example**:
-> When the robot answered the question "Is the lamp on the bedside table on?", the intent channel emitted `navigate_by_instruction("walk through the corridor into the master bedroom")` and the bottom layer moved 16 consecutive steps.
-> 1. **The traditional tool calls**: after walking through the bottom floor, it stops in front of the master bedroom wardrobe, and only the last frame of the wardrobe image is returned. The agent completely missed the bedside table, judged that "the lamp was not found", and had to blindly search again.
-> 2. **NavMCP observation channel**: sample 4 key frames according to $\Delta=4$. In the second key frame (the robot is passing by the half-open door of the master bedroom), the bedside table and lampshade are vaguely captured in the door crack on the right side of the screen. The VLM trajectory summarizer extracts the evidence tuple: `("table lamp", frame_2, "door gap on the right", "beside the master-bedroom bed", "uncertain")` and writes it directly to the pending target $U_t$.
-> 3. **Asymmetric arbitration mechanism**: The next round of planner calls `analyze_status` to activate special local verification. At this time, the system complies with the **asymmetric evidence rule**:
->    - **confirms (Positive)**: must rely on unambiguous high-definition direct visual evidence (call `zoom_in_object` to zoom in to view the lighting status of the desk lamp);
->    - **Falsification (Negative)**: To draw a negative conclusion that "there is no desk lamp in the room", a panoramic 360-degree scan and an evidence chain covering all blind spots in the room must be provided. It is strictly prohibited to arbitrarily regard "mere lack of sight" as "the object does not exist".
+> **Example**:
+> While answering "Is the lamp on the bedside table on?", the robot's intent channel emits `navigate_by_instruction("walk through the corridor into the master bedroom")`, and the low level moves 16 consecutive steps.
+> 1. **Traditional tool call**: After the run, the robot stops in front of the master bedroom wardrobe, and only the last frame, showing the wardrobe, is returned. The agent completely misses the bedside table, concludes that "the lamp was not found", and has to search blindly again.
+> 2. **NavMCP observation channel**: 4 keyframes are sampled at $\Delta=4$. In the second keyframe (the robot is passing the half-open door of the master bedroom), the bedside table and lampshade are faintly captured through the door gap on the right of the image. The VLM trajectory summarizer extracts the evidence tuple `("table lamp", frame_2, "door gap on the right", "beside the master-bedroom bed", "uncertain")` and writes it directly into the pending targets $U_t$.
+> 3. **Asymmetric arbitration**: In the next round, the planner calls `analyze_status` to trigger targeted local verification. The system then follows the **asymmetric evidence rule**:
+>    - **Confirmation (positive)**: requires unambiguous, high-definition direct visual evidence (call `zoom_in_object` to zoom in and check whether the desk lamp is lit);
+>    - **Refutation (negative)**: To conclude that "there is no desk lamp in the room", the agent must provide a 360-degree panoramic scan and an evidence chain covering all blind spots of the room. It is strictly forbidden to treat "merely not having seen it" as "the object does not exist".
 
 <div align="center">
-  <img src="/images/vln/NavMCP-evidence-guided-search.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1278/610" alt="Explore-EQA mission record (looking for a small black sofa): The agent continuously checked 5 rooms during long-range exploration and accumulated negative evidence to avoid going back; the mid-range target distance curve showed rational and non-monotonic characteristics (first widening the distance to systematically exclude other areas, and then accurately converging to the target corner)." />
+  <img src="/images/vln/NavMCP-evidence-guided-search.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1278/610" alt="Explore-EQA task record (looking for a small black sofa): during long-range exploration the agent checks 5 rooms in succession and accumulates negative evidence to avoid backtracking; the mid-course distance-to-target curve is rational and non-monotonic (first moving away to systematically rule out other areas, then converging precisely on the target corner)." />
 <figcaption>
-Explore-EQA mission record (looking for a small black sofa): The agent continuously checked 5 rooms during long-range exploration and accumulated negative evidence to avoid going back; the mid-range target distance curve showed rational and non-monotonic characteristics (first widening the distance to systematically exclude other areas, and then accurately converging to the target corner).
+Explore-EQA task record (looking for a small black sofa): during long-range exploration the agent checks 5 rooms in succession and accumulates negative evidence to avoid backtracking; the mid-course distance-to-target curve is rational and non-monotonic (first moving away to systematically rule out other areas, then converging precisely on the target corner).
 </figcaption>
 </div>
 
-#### ③ Assisted sensing toolset and verification protocol
+#### ③ Auxiliary perception toolset and verification protocol
 {: id="-辅助感知工具集与验证协议"}
-To eliminate ambiguity before final decision-making, NavMCP exposes a library of fine-grained visual perception tools to the agent:
-- **Reader Tools**:
-  - `look_around`: Call the panoramic four-way camera to obtain 360-degree surround perception and scene feasible topology;
-  - `analyze_status`: Three-stage evidence arbiter, inputs the current panoramic, historical keyframes and notepad, and outputs evidence adequacy and missing types;
-  - `zoom_in_object`: Crop and enlarge candidate targets to conduct fine-grained attribute (switch status, text, small parts) fine discrimination;
-  - `review_image`: Retrieve archived historical keyframes for review.
-- **Detector Tools**:
-  - `detect_objects_360`, `detect_objects`: Target localization and counting based on open vocabulary detector and SAM;
-  - `estimate_depth`: Metric-level depth and reachable distance estimation based on Depth-Anything.
+To eliminate ambiguity before the final decision, NavMCP exposes a library of fine-grained visual perception tools to the agent:
+- **Reader tools**:
+  - `look_around`: calls the four-way panoramic camera to obtain 360-degree surround perception and the feasible topology of the scene;
+  - `analyze_status`: a three-stage evidence arbiter that takes the current panorama, historical keyframes, and the notebook as input, and outputs whether the evidence is sufficient and which kinds are missing;
+  - `zoom_in_object`: crops and enlarges candidate targets for fine-grained discrimination of attributes (switch state, text, small parts);
+  - `review_image`: retrieves archived historical keyframes for review.
+- **Detector tools**:
+  - `detect_objects_360`, `detect_objects`: target localization and counting based on an open-vocabulary detector and SAM;
+  - `estimate_depth`: metric depth and reachable-distance estimation based on Depth-Anything.
 
-#### Difficult Dimensionality Reduction: Equivalent Agent Steps Compensation Calculation
+#### Worked example: compensating for equivalent agent steps
 {: id="难点降维等效探索步数equivalent-agent-steps补偿计算"}
 
-In the embodied navigation evaluation, the traditional Frontier exploration baseline (such as Explore-EQA, FAST-EQA) moves in a teleportation manner, and its single-step decision-making displacement is strictly limited to within 3 meters. A single closed-loop call of NFM may move more than ten meters autonomously. If a long-distance NFM call is directly counted as only 1 step, it will cause serious evaluation unfairness to the traditional baseline; but if all the underlying physical control cycles are counted as high-level steps, it cannot reflect the savings in high-level large model call overhead of NFM closed-loop execution.
+In embodied navigation evaluation, traditional frontier-exploration baselines (such as Explore-EQA and FAST-EQA) move by teleportation, with a single-step displacement strictly limited to within 3 meters. A single closed-loop NFM call may move autonomously for more than ten meters. Counting a long NFM call as just 1 step would be seriously unfair to the traditional baselines; but counting every low-level physical control cycle as a high-level step would fail to reflect the savings in high-level large-model calls that NFM closed-loop execution brings.
 
-To this end, the paper uses 3 meters as the basic conversion unit and designs the **equivalent agent steps (Equivalent Agent Steps)**:
+To this end, the paper takes 3 meters as the basic conversion unit and designs the **equivalent agent steps**:
 $$n_{\text{eq}} = H + \sum_{k=1}^K \max\left(0, \left\lceil \frac{L_k}{3\text{ m}} \right\rceil - 1\right), \quad \hat{n} _{\text{eq}} = \frac{n_{\text{eq}}}{N}$$
-Among them, $H$ is the actual number of high-level VLM calls, $K$ is the total number of NFM calls, $L_k$ is the physical arc length of the $k$th NFM actual motion trajectory, $N = \lfloor \sqrt{A \times 3} \rfloor$ is the scene-based passable area $A$ The theoretical total budget steps.
+Here $H$ is the actual number of high-level VLM calls, $K$ is the total number of NFM calls, $L_k$ is the physical arc length of the trajectory actually traveled in the $k$th NFM call, and $N = \lfloor \sqrt{A \times 3} \rfloor$ is the theoretical total step budget derived from the scene's traversable area $A$.
 
-> **hand calculation example**:
-> Assume that the total step budget of a certain scene is $N = 50$ steps. The agent called VLM a total of $H = 3$ times at the high level:
-> - The 1st call to NFM moved 2.5 meters: due to $L_1 \le 3\text{m}$, $\lceil 2.5/3 \rceil - 1 = 0$, compensation 0 steps;
-> - 2nd call to NFM across long corridor, moved 8.2 meters: $\lceil 8.2/3 \rceil - 1 = 3 - 1 = 2$ step compensation;
-> - 3rd call to NFM cross-room search, moved 11.0 meters: $\lceil 11.0/3 \rceil - 1 = 4 - 1 = 3$ step compensation.
+> **Worked calculation**:
+> Suppose a scene has a total step budget of $N = 50$ steps. At the high level, the agent calls the VLM $H = 3$ times in total:
+> - The 1st NFM call moves 2.5 meters: since $L_1 \le 3\text{m}$, $\lceil 2.5/3 \rceil - 1 = 0$, so 0 steps of compensation;
+> - The 2nd NFM call crosses a long corridor and moves 8.2 meters: $\lceil 8.2/3 \rceil - 1 = 3 - 1 = 2$ steps of compensation;
+> - The 3rd NFM call searches across rooms and moves 11.0 meters: $\lceil 11.0/3 \rceil - 1 = 4 - 1 = 3$ steps of compensation.
 >
-> The final equivalent total number of steps is $n_{\text{eq}} = 3 + (0 + 2 + 3) = 8$ steps, and the normalized step consumption is:
+> The final equivalent total is $n_{\text{eq}} = 3 + (0 + 2 + 3) = 8$ steps, and the normalized step consumption is:
 > $$\hat{n} _{\text{eq}} = \frac{8}{50} = 0.16$$
-> This conversion not only rigorously compensates for long-range physical displacement, but also truly reflects that NavMCP reduces the frequency of high-level large model interactions by more than 70% compared to traditional single-step exploration.
+> This conversion not only compensates rigorously for long physical displacements, but also truly reflects that NavMCP reduces the frequency of high-level large-model interactions by more than 70% compared with traditional single-step exploration.
 
 ---
 
 ### 3. Results and findings
 {: id="3-核心结果发现-14"}
 
-#### ① The three major EQA benchmarks comprehensively surpassed SOTA
+#### ① State-of-the-art results on all three EQA benchmarks
 {: id="-三大-eqa-基准全面超越-sota"}
-In the three major benchmark tests, NavMCP achieved significant breakthroughs (using Qwen3.6-Plus agent and Qwen-RobotNav-8B actuator):
-- **HM-EQA (500 multiple-choice questions and answers)**: NavMCP reaches **76.7%** accuracy, significantly surpassing the previous strongest method FAST-EQA (69.2%) reaching **7.5 percentage points**. At the same time, the number of normalized high-level exploration steps is only **0.15**, which reduces the number of high-level large model calls by 77% compared with FAST-EQA's 0.65, and has both extremely high accuracy and ultimate energy efficiency.
-- **MT-HM3D (multi-target, cross-room complex question answering)**: The accuracy reaches **54.4%**, which is 3.9 percentage points ahead of FAST-EQA (50.5%).
-- **EXPRESS-Bench (2,044 long-range free-form questions and answers)**: In the free-form question and answer evaluation, the LLM score reached **79.27**, and the path exploration efficiency weighted index $E_{\text{path}}$ reached **33.96**, significantly ahead of Fine-EQA (63.95/25.58) and ToolEQA (65.77/25.82).
+On the three benchmarks, NavMCP achieves significant breakthroughs (using the Qwen3.6-Plus agent and the Qwen-RobotNav-8B executor):
+- **HM-EQA (500 multiple-choice questions)**: NavMCP reaches **76.7%** accuracy, **7.5 percentage points** above the previous strongest method FAST-EQA (69.2%). Its normalized number of high-level exploration steps is only **0.15**, which cuts high-level large-model calls by 77% relative to FAST-EQA's 0.65, delivering both very high accuracy and excellent efficiency.
+- **MT-HM3D (multi-target, cross-room complex question answering)**: Accuracy reaches **54.4%**, 3.9 percentage points ahead of FAST-EQA (50.5%).
+- **EXPRESS-Bench (2,044 long-range open-ended questions)**: In open-ended question answering, the LLM score reaches **79.27** and the path-efficiency-weighted metric $E_{\text{path}}$ reaches **33.96**, clearly ahead of Fine-EQA (63.95/25.58) and ToolEQA (65.77/25.82).
 
-#### ② System-wide alignment test under strict control of variables (HM-EQA, fixed Qwen3.5-397B-A17B)
+#### ② System-level comparison under strictly controlled variables (HM-EQA, fixed Qwen3.5-397B-A17B)
 {: id="-严格控制变量下的全系统对齐测试hm-eqa固定-qwen35-397b-a17b"}
-In order to eliminate the impact of large model base differences, the paper was retested on the premise of uniformly using Open source Qwen3.5-397B-A17B as the decision-making agent, unified initial state, unified budget and perception tool:
+To remove the influence of differences between large-model bases, the paper re-tests all methods using the open-source Qwen3.5-397B-A17B as the decision agent, with the same initial state, the same budget, and the same perception tools:
 - Explore-EQA：57.6%
 - ToolEQA：60.8%
 - FAST-EQA：63.5%
-- **NavMCP + Qwen-RobotNav-8B**: **74.0%** (10.5 to 16.4 percentage points ahead of benchmark).
+- **NavMCP + Qwen-RobotNav-8B**: **74.0%** (10.5 to 16.4 percentage points ahead of the baselines).
 
-#### ③ Double-layer division of labor and complementary ablation (Architecture Ablation)
+#### ③ Complementary roles of the two layers (architecture ablation)
 {: id="-双层分工互补性消融architecture-ablation"}
-- **fixes the bottom NFM and changes the high-level agent**:
-  - No intelligent agent (blind guess based on initial perspective only): 38.2%
-  - Single-round passive Agent (only single panoramic shot): 58.4%
+- **Fix the low-level NFM, vary the high-level agent**:
+  - No agent (blind guess from the initial view only): 38.2%
+  - Single-round passive agent (one panoramic shot only): 58.4%
   - Traditional reactive agent (fixed exploration loop): 62.0%
-  - Full NavMCP scaffold (Qwen3.5): **74.0%** (Qwen3.6-Plus further reaches 76.7%).
-  - *Conclusion*: No matter how powerful the underlying navigation model is, it lacks high-level adaptive hypothesis testing and memory accumulation, and is unable to handle complex embodied inference.
-- **fixes the high-level agent and changes the underlying navigation actuator**:
+  - Full NavMCP scaffold (Qwen3.5): **74.0%** (Qwen3.6-Plus raises it further to 76.7%).
+  - *Conclusion*: However powerful the underlying navigation model is, without high-level adaptive hypothesis testing and memory accumulation it cannot handle complex embodied reasoning.
+- **Fix the high-level agent, vary the low-level navigation executor**:
   - NavMCP + Random Walk: 60.9%
-  - NavMCP + Frontier Exploration (traditional frontier point detection): 65.3%
+  - NavMCP + Frontier Exploration (traditional frontier detection): 65.3%
   - NavMCP + StreamVLN：69.3%
   - NavMCP + Qwen-RobotNav-4B：73.3%
   - NavMCP + Qwen-RobotNav-8B：**74.0%**
-  - *Conclusion*: High-level agents cannot make up for the fragile physical execution of the bottom layer. Stronger language-conditional closed-loop navigators can transform high-level semantic requirements into higher-quality spatiotemporal observations.
+  - *Conclusion*: A high-level agent cannot compensate for fragile low-level physical execution. A stronger language-conditioned closed-loop navigator turns high-level semantic requirements into higher-quality spatiotemporal observations.
 
-#### ④ Protocol channel ablation experiment (Protocol Ablation on HM-EQA)
+#### ④ Protocol channel ablation (Protocol Ablation on HM-EQA)
 {: id="-协议通道消融实验protocol-ablation-on-hm-eqa"}
-- **directly degrades to the traditional single-round tool interface (Episodic Interface)**: performance plummets **14.9 percentage points** (74.0% $\to$ 59.1%), directly confirming the fatality of round gaps to long-range physical interactions;
-- **degrades to Terminal-only Observation return (Terminal-only Observation)**: Performance loss **5.9 percentage points** (down to 68.1%), confirming that key frames and process observations along the way are crucial to evidence collection;
-- **Remove the EQA context ledger of the memory channel**: Performance loss **4.6 percentage points** (down to 69.4%);
-- **removes VLM Journey Analysis (Journey Analysis)**: performance loss **4.4 percentage points** (down to 69.6%);
-- **Sparse keyframe sampling (from 4 steps/16 frames to 8 steps/8 frames)**: Performance loss **2.8 percentage points** (down to 71.2%).
+- **Degrading directly to the traditional single-round tool interface (Episodic Interface)**: performance plummets by **14.9 percentage points** (74.0% $\to$ 59.1%), directly confirming how damaging the episodic gap is for long-horizon physical interaction;
+- **Degrading to terminal-only observation returns (Terminal-only Observation)**: performance drops by **5.9 percentage points** (to 68.1%), confirming that keyframes and process observations along the way are crucial for evidence collection;
+- **Removing the EQA context ledger of the memory channel**: performance drops by **4.6 percentage points** (to 69.4%);
+- **Removing the VLM journey analysis (Journey Analysis)**: performance drops by **4.4 percentage points** (to 69.6%);
+- **Sparser keyframe sampling (from 4 steps/16 frames to 8 steps/8 frames)**: performance drops by **2.8 percentage points** (to 71.2%).
 
 <div align="center">
-  <img src="/images/vln/NavMCP-real-robot-navigation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1286/1504" alt="Yushu Unitree Go2 quadruped robot real environment measurement: Facing ultra-long-range exploration tasks of more than 50 meters across multiple functional areas, NavMCP guides the quadruped robot to decompose high-level goals into progressive sub-goals anchored by landmarks, with a success rate of 78.3%, showing a huge advantage over the reactive baseline." />
+  <img src="/images/vln/NavMCP-real-robot-navigation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1286/1504" alt="Real-world test on the Unitree Go2 quadruped robot: on ultra-long-range exploration tasks of more than 50 meters across multiple functional areas, NavMCP guides the robot to decompose high-level goals into progressive, landmark-anchored sub-goals, reaching a 78.3% success rate and showing a large advantage over reactive baselines." />
 <figcaption>
-Yushu Unitree Go2 quadruped robot real environment measurement: Facing ultra-long-range exploration tasks of more than 50 meters across multiple functional areas, NavMCP guides the quadruped robot to decompose high-level goals into progressive sub-goals anchored by landmarks, with a success rate of 78.3%, showing a huge advantage over the reactive baseline.
+Real-world test on the Unitree Go2 quadruped robot: on ultra-long-range exploration tasks of more than 50 meters across multiple functional areas, NavMCP guides the robot to decompose high-level goals into progressive, landmark-anchored sub-goals, reaching a 78.3% success rate and showing a large advantage over reactive baselines.
 </figcaption>
 </div>
 
-#### ⑤ Real robot deployment: Yushu Unitree Go2 physical verification
+#### ⑤ Real-robot deployment: physical validation on the Unitree Go2
 {: id="-真实机器人部署宇树-unitree-go2-物理验证"}
-In a real office building environment, in the face of unstructured obstacles, ranging drift and sensing noise, real robot tests were conducted on three levels of difficulty: single room (Low), cross-room (Medium) and super-20-meter large-scale multi-area (High) (fixed Qwen3.6-Plus):
-- **Single room level (Low, 20 rounds)**: Reactive 80%, Frontier 70%, **NavMCP 90%**;
-- **Cross-room level (Medium, 20 rounds)**: Reactive dropped to 35%, Frontier 60%, **NavMCP maintained 85%**;
-- **Super 20-meter wide range exploration (High, 20 rounds)**: Reactive completely collapsed to **0%**, Frontier was only **15%**, and **NavMCP still maintains a success rate of up to 60%**!
-- **Overall real-robot success rate**: NavMCP reaches **78.3%**, showing an overwhelming advantage compared to Frontier (48.3%) and Reactive (38.3%), proving that the longer the task duration and the more complex the environment, the more obvious the advantages of layered scaffolding.
+In a real office building, facing unstructured obstacles, odometry drift, and sensing noise, real-robot tests were run at three difficulty levels: single room (Low), cross-room (Medium), and large-scale multi-area over 20 meters (High) (fixed Qwen3.6-Plus):
+- **Single room (Low, 20 trials)**: Reactive 80%, Frontier 70%, **NavMCP 90%**;
+- **Cross-room (Medium, 20 trials)**: Reactive drops to 35%, Frontier 60%, **NavMCP holds at 85%**;
+- **Large-scale exploration over 20 meters (High, 20 trials)**: Reactive collapses completely to **0%**, Frontier reaches only **15%**, and **NavMCP still maintains a success rate of 60%**!
+- **Overall real-robot success rate**: NavMCP reaches **78.3%**, an overwhelming advantage over Frontier (48.3%) and Reactive (38.3%), showing that the longer the task and the more complex the environment, the more pronounced the advantage of layered scaffolding.
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-14"}
-1. **High-level model calculation overhead and response delay**: NavMCP relies on large-parameter VLM (such as Qwen3.6-Plus or 397B-level model) for each round of multi-modal journey analysis and evidence arbitration. The inference delay of high-level large models is higher than that of traditional lightweight heuristic algorithms. In the future, it is necessary to explore on-device small models or reinforcement learning distillation solutions;
-2. **Object duplication and counting ambiguity under multi-view sampling**: When the same object is photographed multiple times in multiple key frames or different camera angles along the way, VLM still occasionally encounters cross-view duplication errors in dense small object counting tasks;
-3. **Dynamic environment and unsteady physical interference**: The current test is mainly carried out in relatively static large indoor scenes. In extremely challenging real-life scenes containing violent dynamic pedestrian flow or sudden changes in lighting, the local deadlock and recovery mechanism of the underlying NFM still has room for further improvement.
+1. **Compute overhead and response latency of the high-level model**: NavMCP relies on a large-parameter VLM (such as Qwen3.6-Plus or a 397B-class model) for the multimodal journey analysis and evidence arbitration in every round. The inference latency of high-level large models is higher than that of traditional lightweight heuristics; future work should explore on-device small models or reinforcement-learning distillation;
+2. **Duplicate objects and counting ambiguity under multi-view sampling**: When the same object is captured repeatedly across multiple keyframes or camera angles along the way, the VLM still occasionally makes cross-view duplication errors in dense small-object counting tasks;
+3. **Dynamic environments and unsteady physical interference**: Current tests are mainly conducted in relatively static, large indoor scenes. In extremely challenging real-world scenes with heavy pedestrian flow or sudden lighting changes, the low-level NFM's local deadlock-recovery mechanism still has room for improvement.
 
 ---
 
 ## 9. SysNav (2026)
 {: id="sysnav"}
-———Multi-Level Systematic Cooperation Enables Real-World, Cross-Embodiment Object Navigation
+——Multi-Level Systematic Cooperation Enables Real-World, Cross-Embodiment Object Navigation
 
 📄 **Paper**: [arXiv:2603.06914](https://arxiv.org/abs/2603.06914) · [Project Page](https://cmu-vln.github.io/) · [Code](https://github.com/zwandering/SysNav)
 
 ### Key takeaways
 {: id="精华-18"}
 
-SysNav redefines ObjectNav as a system-level problem and completely decouples the three layers of semantic reasoning, navigation planning, and locomotion control, which is worth learning from. The core insight is that VLM should not be used for fine-grained frontier-level decision-making, but should be limited to high-level planning at the room level to achieve the best balance between inference capabilities and spatial reliability. The three-layer scene graph (Room→Viewpoint→Object) provides a structured context for VLM and is the key infrastructure for efficient inference of VLM. The two VLM calling modes, Early-stop and Room-query, are triggered on demand, effectively avoiding redundant VLM calls. The system was deployed on three robotic platforms, verifying the value of modular design for cross-platform generalization.
+SysNav redefines ObjectNav as a system-level problem and fully decouples semantic reasoning, navigation planning, and locomotion control into three layers, which is worth learning from. The core insight is that the VLM should not be used for fine-grained, frontier-level decisions but should be limited to room-level high-level planning, striking the best balance between reasoning ability and spatial reliability. The three-level scene graph (Room→Viewpoint→Object) gives the VLM structured context and is the key infrastructure for efficient VLM reasoning. The two VLM invocation modes, Early-stop and Room-query, are triggered on demand and effectively avoid redundant VLM calls. The system is deployed on three robot platforms, verifying the value of a modular design for cross-platform generalization.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-17"}
 
-Object Navigation (ObjectNav) requires the robot to independently find the target object in an unknown indoor environment, and it needs to handle complex spatial structure, long-range planning and semantic understanding at the same time. Existing methods treat ObjectNav as a single policy learning problem, and it is difficult for end-to-endModel to take into account multiple sub-challenges; and over-reliance on VLM for frontier-level decision-making will lead to frequent backtracking and inefficient behavior due to VLM's lack of accurate 3D spatial understanding.
+Object Navigation (ObjectNav) requires a robot to find a target object on its own in an unknown indoor environment, handling complex spatial structure, long-horizon planning, and semantic understanding at the same time. Existing methods treat ObjectNav as a single policy-learning problem, and an end-to-end model struggles to cover all of these sub-challenges; moreover, relying too heavily on the VLM for frontier-level decisions leads to frequent backtracking and inefficient behavior, because the VLM lacks accurate 3D spatial understanding.
 
 ---
 
@@ -1217,43 +1217,43 @@ Object Navigation (ObjectNav) requires the robot to independently find the targe
 {: id="2-主要方法创新点-17"}
 
 <div align="center">
-  <img src="/images/vln/SysNav-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1416/966" alt="SysNav implements building-level long-range ObjectNav in a variety of real-world environments and cross-platform robots" />
+  <img src="/images/vln/SysNav-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1416/966" alt="SysNav performs building-scale long-horizon ObjectNav in a variety of real-world environments and on different robot platforms" />
 <figcaption>
-SysNav implements building-level long-range ObjectNav in a variety of real-world environments and cross-platform robots
+SysNav performs building-scale long-horizon ObjectNav in a variety of real-world environments and on different robot platforms
 </figcaption>
 </div>
 
-SysNav is a three-layer decoupled ObjectNav system. Each layer focuses on sub-problems of different granularities:
+SysNav is a three-layer decoupled ObjectNav system, with each layer focusing on a sub-problem of a different granularity:
 
 **High level - semantic reasoning (Semantic Reasoning)**
 
-Construct a three-layer scene graph representation $\mathcal{R}$:
-- **Room Node** $v^r$: Fit the wall and divide independent rooms through the vertical distribution of point clouds. Each node stores room categories, 2D top views and representative RGB images.
-- **Viewpoint Node** $v^v$: Added when the coverage changes significantly, storing location, coverage area and panoramic images to achieve efficient semantic storage
-- **Object Node** $v^o$: Instantiated using open vocabulary detection (YOLOv8x + SAM2), each node stores category, confidence, 3D point cloud, bounding box and self-attributes
+Build a three-level scene graph representation $\mathcal{R}$:
+- **Room Node** $v^r$: Fits walls and separates independent rooms from the vertical distribution of the point cloud. Each node stores the room category, a 2D top view, and representative RGB images.
+- **Viewpoint Node** $v^v$: Added when the coverage changes significantly; stores the position, coverage area, and panoramic images for efficient semantic storage
+- **Object Node** $v^o$: Instantiated with open-vocabulary detection (YOLOv8x + SAM2); each node stores the category, confidence, 3D point cloud, bounding box, and its own attributes
 
-Edge types include: Room-Room (doorway connection), Room-Viewpoint (containment relationship), Room-Object (containment relationship), Viewpoint-Object (visibility), Object-Object (space constraints, added as needed).
+Edge types include: Room-Room (doorway connection), Room-Viewpoint (containment), Room-Object (containment), Viewpoint-Object (visibility), and Object-Object (spatial constraints, added as needed).
 
-The VLM Reasoning component (Gemini-2.5-flash) performs semantic reasoning based on the above scene graph and provides room-level navigation guidance.
+The VLM reasoning component (Gemini-2.5-flash) performs semantic reasoning on this scene graph and provides room-level navigation guidance.
 
-**Middle level - Room-based Navigation**
+**Middle level - room-based navigation (Room-based Navigation)**
 
 <div align="center">
-  <img src="/images/vln/SysNav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1416/895" alt="SysNav system architecture: three-layer decoupling of high-level semantic reasoning, middle-level room navigation, and low-level locomotion control" />
+  <img src="/images/vln/SysNav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1416/895" alt="SysNav system architecture: three decoupled layers, namely high-level semantic reasoning, middle-level room navigation, and low-level locomotion control" />
 <figcaption>
-SysNav system architecture: three-layer decoupling of high-level semantic reasoning, middle-level room navigation, and low-level locomotion control
+SysNav system architecture: three decoupled layers, namely high-level semantic reasoning, middle-level room navigation, and low-level locomotion control
 </figcaption>
 </div>
 
-Treat the room as the smallest semantic planning unit, use an efficient classical exploration algorithm in the room, and only call VLM when the room switches:
+The room is treated as the smallest semantic planning unit; an efficient classical exploration algorithm is used inside a room, and the VLM is called only when switching rooms:
 
-- **In-room Exploration**: Two-level planning (local + global) to cover the score $w_{cov}(c_i) = \lvert \mathcal S_{cov}(c_i) \cap \hat{\mathcal S} \rvert$ selects pose candidates, uses TSP to generate exploration paths, and the rolling window mechanism coordinates local and global plans
-- **Early-stop mode**: When entering a new room, VLM determines whether to terminate the current room exploration early and switch to the new room based on the contextual information $\mathcal C_{es}$ (room attributes, observed objects, task goals)
-- **Room-query mode**: When the target is not found after the current room exploration, VLM is based on the unexplored room information $\mathcal C_{rq}$ inference of the next room that is most likely to contain the target.
+- **In-room exploration**: Two-level planning (local + global) selects pose candidates by the coverage score $w_{cov}(c_i) = \lvert \mathcal S_{cov}(c_i) \cap \hat{\mathcal S} \rvert$, generates the exploration path with TSP, and uses a rolling-window mechanism to coordinate the local and global plans
+- **Early-stop mode**: When entering a new room, the VLM decides, from the context information $\mathcal C_{es}$ (room attributes, observed objects, task goal), whether to stop exploring the current room early and move on to the new room
+- **Room-query mode**: When the target is not found after the current room has been explored, the VLM infers, from the unexplored-room information $\mathcal C_{rq}$, the next room most likely to contain the target.
 
-**Low level - Base Autonomy**
+**Low level - base autonomy (Base Autonomy)**
 
-Design a cross-platform basic autonomous module to convert path points into specific locomotion control instructions for each platform (wheeled robot, quadruped Unitree Go2, humanoid Unitree G1), including path point following, collision avoidance and terrain traversability analysis.
+A cross-platform base autonomy module converts waypoints into locomotion commands for each platform (wheeled robot, Unitree Go2 quadruped, Unitree G1 humanoid), covering waypoint following, collision avoidance, and terrain traversability analysis.
 
 ---
 
@@ -1267,113 +1267,113 @@ Qualitative results of SysNav in real environments on wheeled, quadruped, and hu
 </figcaption>
 </div>
 
-**simulation benchmark** (4 benchmarks, compared with SOTA):
-- HM3D-v1: SR **63.7%**, SPL **30.5%** (significantly ahead of the next best ApexNav’s 59.6%/33.0%)
-- HM3D-v2: SR **80.8%**, SPL **37.2%** (suboptimal ApexNav 76.2%/38.0%)
+**Simulation benchmarks** (4 benchmarks, compared with SOTA):
+- HM3D-v1: SR **63.7%**, SPL **30.5%** (clearly ahead of the runner-up ApexNav's 59.6%/33.0% in SR)
+- HM3D-v2: SR **80.8%**, SPL **37.2%** (runner-up ApexNav 76.2%/38.0%)
 - MP3D：SR **50.7%**，SPL **18.1%**
-- HM3D-OVON: SR **54.9%**, SPL **26.1%** (suboptimal MTU3D 40.8%/12.1%, improvement 14.1%/6.5%)
+- HM3D-OVON: SR **54.9%**, SPL **26.1%** (runner-up MTU3D 40.8%/12.1%, an improvement of 14.1%/6.5%)
 
-**Real environment** (190 experiments, comparing VLFM and InstructNav):
-- Hard setting (targets in different rooms): SR **97.5%**, SPT **71.8**, AT **67.6s** (Hard setting SR is improved from suboptimal 61.1%, SPT increased by 51.1%, AT decreased by 29.8s)
-- Navigation efficiency is improved compared to the existing ObjectNav baseline **4-5×**
+**Real environments** (190 experiments, compared with VLFM and InstructNav):
+- Hard setting (targets in different rooms): SR **97.5%**, SPT **71.8**, AT **67.6s** (SR in the hard setting improves from the runner-up's 61.1%, SPT increases by 51.1%, and AT decreases by 29.8s)
+- Navigation efficiency improves by **4-5×** over existing ObjectNav baselines
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-17"}
 
-The SPL improvement in simulation is smaller than SR because the strict coverage strategy designed for real scenes will cause slight over-coverage in simulation; in addition, the multi-room layout poses limited additional challenges to the system because more dense obstacles in moderately difficult scenes will reduce the speed.
+The SPL gain in simulation is smaller than the SR gain, because the strict coverage strategy designed for real scenes causes slight over-coverage in simulation; in addition, multi-room layouts pose only limited extra challenge to the system, since the denser obstacles in moderately difficult scenes slow it down.
 
 
 ---
 
 ## 10. EvoMemNav (2026)
 {: id="evomemnav"}
-———— An efficient self-evolving fine-grained topological memory framework based on lightweight graph prior and multi-view reflection in zero-shot embodied navigation
+——An efficient self-evolving fine-grained topological memory framework based on a lightweight graph prior and multi-view reflection for zero-shot embodied navigation
 
 📄 **Paper**: [arXiv:2606.03509](https://arxiv.org/abs/2606.03509v1) · [Code (to be released) ](https://github.com/caicaiya123/EvoMemNav)
 
 ### Key takeaways
 {: id="精华-20"}
 
-1. **Pure visual memory design**: Proposes the visual-semantic memory graph (VSMGraph), which stores the original visual view (View) as a first-class citizen (first-class) in the graph node, avoiding the information compression and noise accumulation of traditional detection-centered scene graphs, and eliminating the need for high 3D reconstruction overhead.
-2. **Budgeted Coarse-to-Fine**: Decompose the decision into a coarse stage (Explore, filter and route to the front or anchor point) and a fine stage (Search+Verify, only make VLM decisions and multi-view Stop verification for short lists), while reducing VLM latency and Token While counting, it also solves the problem of ambiguity and premature stop of multiple instances of the same type.
-3. **Reflection-driven self-evolving memory (RDCMA)**: An online prior update mechanism without training is designed. After the subtask ends, by evaluating the trajectory events and stop results, the lightweight target condition prior (Episode-STM and Scene-LTM) attached to the graph node is updated to guide subsequent decisions.
-4. **is out-of-the-box and efficient and versatile.**: achieves significant SR/SPL improvements on GOAT-Bench and HM3D, performs better than 3D-Mem, while reducing the number of VLM calls by 41% and reducing the total time by 39% without any weight training or fine-tuning.
+1. **Purely visual memory design**: Proposes the Visual-Semantic Memory Graph (VSMGraph), which stores the original visual view (View) as a first-class citizen in the graph nodes, avoiding the information compression and noise accumulation of traditional detection-centric scene graphs and removing the need for costly 3D reconstruction.
+2. **Budgeted coarse-to-fine decisions**: Decisions are split into a coarse stage (Explore: filter and route to a frontier or anchor) and a fine stage (Search+Verify: the VLM decides only over a short list and performs multi-view Stop verification). This lowers VLM latency and token counts while also solving the ambiguity among multiple instances of the same category and premature stopping.
+3. **Reflection-driven self-evolving memory (RDCMA)**: A training-free online prior-update mechanism is designed. After a subtask ends, it evaluates the trajectory events and stop results and updates the lightweight goal-conditioned priors (Episode-STM and Scene-LTM) attached to graph nodes, which guide subsequent decisions.
+4. **Out-of-the-box, efficient, and general**: Achieves significant SR/SPL improvements on GOAT-Bench and HM3D and outperforms 3D-Mem, while cutting VLM calls by 41% and total time by 39%, without any weight training or fine-tuning.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-19"}
 
-In long-range zero-shot embodied navigation (Zero-Shot Embodied Navigation), it is crucial to establish a memory system that can support long-term planning. However, existing memory representation schemes have the following limitations:
-1. **Detector-centric Scene Graphs**: Compressing observations into sparse object nodes will discard fine-grained visual cues such as texture and spatial layout, and detector errors (such as category noise) will accumulate in downstream inference, leading to decision-making errors.
-2. **3D-reconstruction-based Memory**: It will generate high computing and storage overhead at runtime, and is incompatible with powerful VLM that can only directly inference images.
-3. **Image-based topological graph cache (Image-based Topological Graphs)**: It lacks a structured organization of rooms, frontiers or accessibility, and is easily confused in multi-instance scenes of objects of the same category, resulting in premature stopping (Premature Stop) before the wrong instance, and the memory lacks the ability to evolve, and failure lessons cannot be reused.
+In long-horizon zero-shot embodied navigation (Zero-Shot Embodied Navigation), it is crucial to build a memory system that supports long-term planning. However, existing memory representations have the following limitations:
+1. **Detector-centric scene graphs**: Compressing observations into sparse object nodes discards fine-grained visual cues such as texture and spatial layout, and detector errors (such as category noise) accumulate in downstream reasoning, leading to wrong decisions.
+2. **3D-reconstruction-based memory**: Incurs high compute and storage overhead at runtime, and is incompatible with powerful VLMs that can only reason directly over images.
+3. **Image-based topological graphs**: They lack a structured organization of rooms, frontiers, or reachability, and are easily confused in scenes with multiple instances of the same category, causing premature stopping (Premature Stop) at the wrong instance; the memory also cannot evolve, so lessons from failures cannot be reused.
 
 ---
 
 ### 2. Method and innovations
 {: id="2-主要方法创新点-19"}
 
-#### Overall framework overview
+#### Framework overview
 {: id="整体框架概述"}
-EvoMemNav consists of three core parts: a hierarchical topological memory graph (VSMGraph) built on an occupancy grid, a dual-stage "coarse-to-fine" navigation controller (Coarse-to-Fine Policy), and a training-free reflection-driven online self-evolving prior module (RDCMA). The system receives posed RGB-D observations at each time step and updates the topology map; when making navigation decisions, coarse decisions are used for candidate filtering and navigation, and then VLM is used for fine-grained precise routing and multi-view Stop verification; at the end of the subtask, the reflection mechanism writes the results back to lightweight statistics (STM/LTM) in the graph to guide future navigation.
+EvoMemNav consists of three core parts: a hierarchical topological memory graph (VSMGraph) built on an occupancy grid, a two-stage "coarse-to-fine" navigation controller (Coarse-to-Fine Policy), and a training-free, reflection-driven online self-evolving prior module (RDCMA). At each time step the system receives posed RGB-D observations and updates the topological map. When making navigation decisions, the coarse stage filters candidates and navigates, and the VLM then performs fine-grained routing and multi-view Stop verification. At the end of a subtask, the reflection mechanism writes the results back into lightweight statistics (STM/LTM) in the graph to guide future navigation.
 
 <div align="center">
-  <img src="/images/vln/EvoMemNav-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1322/990" alt="EvoMemNav core concepts and process overview (VSMGraph, coarse-to-fine navigation decision-making, reflective writing)" />
+  <img src="/images/vln/EvoMemNav-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1322/990" alt="EvoMemNav core concepts and process overview (VSMGraph, coarse-to-fine navigation decisions, reflective writing)" />
 <figcaption>
-EvoMemNav core concepts and process overview (VSMGraph, coarse-to-fine navigation decision-making, reflective writing)
+EvoMemNav core concepts and process overview (VSMGraph, coarse-to-fine navigation decisions, reflective writing)
 </figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vln/EvoMemNav-framework.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1322/920" alt="EvoMemNav Detailed framework: including image-based VSMGraph topological memory graph, budget-constrained &quot;coarse-to-fine&quot; navigation decision system, and reflection-driven online self-evolving prior writing strategy" />
+  <img src="/images/vln/EvoMemNav-framework.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1322/920" alt="EvoMemNav detailed framework: the image-based VSMGraph topological memory graph, the budget-constrained &quot;coarse-to-fine&quot; navigation decision system, and the reflection-driven online self-evolving prior writing strategy" />
 <figcaption>
-EvoMemNav Detailed framework: including image-based VSMGraph topological memory graph, budget-constrained "coarse-to-fine" navigation decision system, and reflection-driven online self-evolving prior writing strategy
+EvoMemNav detailed framework: the image-based VSMGraph topological memory graph, the budget-constrained "coarse-to-fine" navigation decision system, and the reflection-driven online self-evolving prior writing strategy
 </figcaption>
 </div>
 
-#### Module by module explanation
+#### Module-by-module explanation
 {: id="逐模块讲解"}
 
-**① Visual-Semantic Memory Graph (VSMGraph) to construct**
-- **input**: posed RGB-D observation stream $I_t = \langle I_t^{rgb}, I_t^{depth}, p_t \rangle$ and 2D occupancy grid $M_t$ as metric support.
-- **handles**: Add view nodes along the robot's motion trajectory online to the occupancy grid, and establish navigability edges based on collision-free paths. A 3D target candidate cache $O_{map}$ is maintained through the lightweight target detection model (YOLOv8-World & SAM), but it is only used to add weak labels (visibility edges) of "target visibility" to view nodes and is not used to compress image information. View nodes are divided into:
-  - **Anchor Views** $V_{A,t}$: An explored area rich in object observations, storing original images, poses and visible target weak labels.
-  - **Frontier Views** $V_{F,t}$: An unexplored area located at the exploration boundary, connected to the nearest explored view, representing the explorable frontier direction.
-At the same time, CLIP is used to extract the room category and classify each view $\rho_v$, forming a hierarchical topology map of "Room-View-Object" (Room-View-Object).
-- **output**: graph structure $G_t = (R_t, V_t, O_t, E_t)$.
-- **Design motivation**: Use the original view as a first-class citizen memory, fully retaining fine-grained details for direct image-level analysis and verification by VLM, avoiding hard classification errors caused by detection errors; at the same time, using topological edges and room category soft labels to accelerate retrieval.
+**① Visual-Semantic Memory Graph (VSMGraph) construction**
+- **Input**: The posed RGB-D observation stream $I_t = \langle I_t^{rgb}, I_t^{depth}, p_t \rangle$ and a 2D occupancy grid $M_t$ as metric support.
+- **Processing**: View nodes are added online to the occupancy grid along the robot's trajectory, with traversability edges established from collision-free paths. A 3D goal-candidate cache $O_{map}$ is maintained by a lightweight object detection model (YOLOv8-World & SAM), but it is only used to attach weak "goal visibility" labels (visibility edges) to view nodes and not to compress image information. View nodes are divided into:
+  - **Anchor Views** $V_{A,t}$: explored areas rich in object observations, storing the original image, pose, and weak labels of visible goals.
+  - **Frontier Views** $V_{F,t}$: unexplored areas at the exploration boundary, connected to the nearest explored view, representing explorable frontier directions.
+In addition, CLIP extracts the room category and classifies each view $\rho_v$, forming a hierarchical "Room-View-Object" topological map.
+- **Output**: The graph structure $G_t = (R_t, V_t, O_t, E_t)$.
+- **Motivation**: Using the original view as first-class memory fully retains fine-grained detail for direct image-level analysis and verification by the VLM, avoiding hard-classification errors caused by detection mistakes; topological edges and soft room-category labels are used to speed up retrieval.
 
 <div align="center">
-  <img src="/images/vln/EvoMemNav-vsmgraph.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1322/851" alt="VSMGraph construction process: organize visual information based on topological relationships and room-view-object hierarchical structure" />
+  <img src="/images/vln/EvoMemNav-vsmgraph.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1322/851" alt="VSMGraph construction process: organizing visual information by topological relations and the room-view-object hierarchy" />
 <figcaption>
-VSMGraph construction process: organize visual information based on topological relationships and room-view-object hierarchical structure
+VSMGraph construction process: organizing visual information by topological relations and the room-view-object hierarchy
 </figcaption>
 </div>
 
 **② Budget-constrained coarse-to-fine navigation decision (Coarse-to-Fine Policy)**
-- **input**: multi-modal target $g$, current topology map $G_t$.
-- **handles**:
-  - **Coarse stage (Explore - Candidate Compression and Routing)**: Filter from a large number of anchor and frontier views to retain only the most relevant Top-K candidates (the anchor candidate set $C_t^A$ has a budget limit of $K_A$, and the frontier candidate set $C_t^F$ has a budget limit of $K_F$). Candidates are initially screened through room class association and lightweight target hits. If the anchor point set is empty, it is routed directly to the frontier; if it is not empty, it enters the fine stage.
-  - **fine stage (Search+Verify - local selection and verification)**: Input the filtered candidate pool $C_t = C_t^A \cup C_t^F$ to VLM (Qwen3-VL-8B). VLM only needs to perform a single-step inference on this streamlined short list:
+- **Input**: The multimodal goal $g$ and the current topological map $G_t$.
+- **Processing**:
+  - **Coarse stage (Explore - candidate compression and routing)**: Filters a large number of anchor and frontier views and keeps only the most relevant Top-K candidates (the anchor candidate set $C_t^A$ has budget $K_A$, and the frontier candidate set $C_t^F$ has budget $K_F$). Candidates are first screened by room-category association and lightweight goal hits. If the anchor set is empty, the agent is routed directly to a frontier; otherwise it enters the fine stage.
+  - **Fine stage (Search+Verify - local selection and verification)**: The filtered candidate pool $C_t = C_t^A \cup C_t^F$ is given to the VLM (Qwen3-VL-8B). The VLM only needs to reason in a single step over this streamlined short list:
     $$a_t, \sigma_t = \text{VLM}(g, C_t)$$
-Among them, $a_t$ is the selected target point, and $\sigma_t \in \{\text{certain}, \text{uncertain}, \text{unknown}\}$ is the confidence level. If VLM selects the anchor view but the confidence level is insufficient (`uncertain`/`unknown`), the system will be forced to downgrade to frontier exploration to avoid blind decision-making.
-  - **Verification step (Verify - Multi-view Stop Verification)**: When the agent reaches the selected anchor view, it does not stop immediately, but calls VLM to combine the multi-angle view of the agent at the current position for final multi-view Stop verification, returning `STOP` or `RESELECT`. If it is determined to be `RESELECT`, the current anchor point will be pulled into the cooling queue and returned to the coarse stage to prevent premature stopping errors due to local field of view limitations.
-  - **recovery mechanism (Recover)**: If a deadlock or multiple coolings are detected, the Recover mechanism will be triggered, forcing the agent to perform pure frontier exploration for a period of time.
-- **output**: next motion path end point or `STOP` instruction.
-- **Design motivation**: Use coarse filtering to control the computational overhead of VLM (to avoid token explosion for full image retrieval), while performing local fine-grained comparison at the multi-view image level to improve the accuracy of multi-instance discrimination.
+Here $a_t$ is the selected target point and $\sigma_t \in \{\text{certain}, \text{uncertain}, \text{unknown}\}$ is the confidence level. If the VLM selects an anchor view but the confidence is insufficient (`uncertain`/`unknown`), the system is forced to fall back to frontier exploration to avoid blind decisions.
+  - **Verification step (Verify - multi-view Stop verification)**: When the agent reaches the selected anchor view, it does not stop immediately; instead it calls the VLM to perform a final multi-view Stop verification using multi-angle views at the current position, returning `STOP` or `RESELECT`. If the result is `RESELECT`, the current anchor is put into a cooldown queue and the agent returns to the coarse stage, preventing premature-stop errors caused by a limited local field of view.
+  - **Recovery mechanism (Recover)**: If a deadlock or repeated cooldowns are detected, the Recover mechanism is triggered, forcing the agent to perform pure frontier exploration for a while.
+- **Output**: The endpoint of the next motion path, or the `STOP` command.
+- **Motivation**: Coarse filtering keeps the VLM's compute overhead under control (avoiding the token explosion of retrieving over all images), while local fine-grained comparison at the multi-view image level improves the accuracy of distinguishing multiple instances.
 
 **③ Reflection-driven online memory adaptation (RDCMA)**
-- **Input**: Movement trajectory events of historical subtasks (such as frequently visited rooms, blocked exploration frontiers, loop detection, etc.) and multi-view verification results (STOP / RESELECT).
-- **processing**: At the end of the task, the results are summarized into lightweight statistical priors with the target condition signature $s_g$ (category or modality), and written back to the graph structure attached to the corresponding room/view/front node:
-  - **Short-term memory (Episode-STM)**: Cache the obstacle avoidance and path penalty information in the current episode to avoid repeatedly spinning in a task, and reset it at the end of the episode.
-  - **Long-term memory (Scene-LTM)**: Record the support probability of specific objects in the room (for example, the kitchen is more likely to have a refrigerator) and the stopping reliability of specific anchor points, long-term retention, and reuse across subtasks.
-In the Explore stage, these priors adjust the filtered candidate ranking in a "weighted tie-breaker" manner to guide the direction of exploration; in the Verify stage, they are input to VLM as hints to indicate whether the current region has been successfully verified before.
-Eliminate stale priors through exponential decay, retain only Top-K items, and suppress conflicting priors.
-- **Output**: Graph-attached memory prior.
-- **design motivation**: To achieve non-parametric lightweight adaptation, the agent can become "smarter and smarter" over time in unknown lifelong learning tasks. The more familiar it is with the current environment, the higher the navigation success rate.
+- **Input**: The trajectory events of historical subtasks (such as frequently visited rooms, blocked exploration frontiers, and loop detections) and multi-view verification results (STOP / RESELECT).
+- **Processing**: At the end of a task, the results are summarized into lightweight statistical priors keyed by the goal-conditioned signature $s_g$ (category or modality) and written back to the corresponding room/view/frontier nodes attached to the graph:
+  - **Short-term memory (Episode-STM)**: Caches obstacle-avoidance and path-penalty information within the current episode to avoid circling repeatedly within one task, and is reset at the end of the episode.
+  - **Long-term memory (Scene-LTM)**: Records the probability that a room supports specific objects (for example, a kitchen is more likely to contain a refrigerator) and the stopping reliability of specific anchors; it is kept for the long term and reused across subtasks.
+In the Explore stage, these priors adjust the ranking of filtered candidates as a "weighted tie-breaker" to guide the exploration direction; in the Verify stage, they are fed to the VLM as hints indicating whether the current region has been successfully verified before.
+Stale priors are eliminated through exponential decay, only the Top-K items are retained, and conflicting priors are suppressed.
+- **Output**: Memory priors attached to the graph.
+- **Motivation**: To achieve non-parametric, lightweight adaptation, so that in unknown lifelong tasks the agent grows "smarter and smarter" over time: the more familiar it is with the current environment, the higher its navigation success rate.
 
 <div align="center">
   <img src="/images/vln/EvoMemNav-rdcma.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1322/698" alt="How reflection-driven online memory adaptation (RDCMA) works" />
@@ -1387,68 +1387,68 @@ How reflection-driven online memory adaptation (RDCMA) works
 ### 3. Results and findings
 {: id="3-核心结果发现-19"}
 
-1. **GOAT-Bench Lifelong multi-modal navigation**:
-On the GOAT-Bench VAL-UNSEEN validation set, EvoMemNav achieved the best results of **59.6% SR** and **38.9% SPL** (see table below), significantly ahead of previous image-level topology memory methods. 3D-Mem (42.6% SR / 22.8% SPL) and MSGNav (52.0% SR / 29.6% SPL).
+1. **GOAT-Bench lifelong multimodal navigation**:
+On the GOAT-Bench val-unseen split, EvoMemNav achieves the best results of **59.6% SR** and **38.9% SPL** (see the table below), clearly ahead of the earlier image-level topological memory methods 3D-Mem (42.6% SR / 22.8% SPL) and MSGNav (52.0% SR / 29.6% SPL).
 
 | Method | Category | No training required | SR (%) ↑ | SPL (%) ↑ |
 |---|---|---|---|---|
 | SenseAct-NN Monolithic [20] | Monolithic learning type | ❌ | 12.3 | 6.8 |
 | CLIP on Wheels [20] | Modular zero-shot | ✓ | 16.1 | 10.4 |
-| Modular GOAT [20] | Modular zero sample | ✓ | 24.9 | 17.2 |
+| Modular GOAT [20] | Modular zero-shot | ✓ | 24.9 | 17.2 |
 | TANGO [28] | Modular zero-shot | ✓ | 32.1 | 16.5 |
 | 3D-Mem [46] | Modular topology | ✓ | 42.6 | 22.8 |
 | MSGNav [17] | Modular topology | ✓ | 52.0 | 29.6 |
 | **EvoMemNav (Ours)** | **Modular topology (self-evolution)** | **✓** | **59.6** | **38.9** |
 
 2. **HM3D ObjectGoal Navigation**:
-On the HM3D task of pure goal navigation (ObjectGoal), EvoMemNav has set or approached the highest level of the training-free method on both HM3Dv1 (59.2% SR / 33.6% SPL) and HM3Dv2 (63.8% SR / 39.4% SPL).
+On the HM3D pure goal-navigation task (ObjectGoal), EvoMemNav sets or approaches the best results among training-free methods on both HM3Dv1 (59.2% SR / 33.6% SPL) and HM3Dv2 (63.8% SR / 39.4% SPL).
 
-3. **ablation experiment and efficiency analysis**:
-   - Compared with the topology baseline without coarse filtering at all, adding VSMGraph increased SR by 7.2%, and the coarse filtering (Coarse) module directly brought a huge SR jump of **+11.6%**, which is the main factor in performance improvement.
-   - The reflection module RDCMA further improved the overall SR by 4.0% (from 60.8% to 64.8%), and this gain was most obvious in the 3rd to 5th subtasks (Mid subtasks), indicating that as the memory continues to be written and evolved in the scene, the agent's performance becomes more and more robust.
-   - Compared with 3D-Mem, thanks to the decision-making shortlist mechanism in the coarse stage, the number of VLM calls has been reduced from 10.7 to 6.5 times (a reduction of 39%), and the time consumption of a single subtask has plummeted from 102.2s to 58.7s (a reduction of 42.5%), achieving a perfect balance between performance and efficiency.
+3. **Ablations and efficiency analysis**:
+   - Relative to a topological baseline with no coarse filtering at all, adding VSMGraph increases SR by 7.2%, and the coarse filtering (Coarse) module alone brings a huge SR jump of **+11.6%**, making it the main source of the performance gain.
+   - The reflection module RDCMA further improves the overall SR by 4.0% (from 60.8% to 64.8%), and the gain is most evident in the 3rd to 5th subtasks (mid-sequence subtasks), indicating that as memory keeps being written and evolving within a scene, the agent's performance becomes increasingly robust.
+   - Compared with 3D-Mem, thanks to the shortlist mechanism of the coarse stage, the number of VLM calls drops from 10.7 to 6.5 (a 39% reduction) and the time per subtask plummets from 102.2s to 58.7s (a 42.5% reduction), striking an excellent balance between performance and efficiency.
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-19"}
 
-1. **Multi-modal target recognition is still limited by the perception module**: Although the use of VSMGraph avoids the absolute dependence of downstream inference on the target detection frame, the generation of soft tags in the rough screening stage still needs to rely on 2D detectors such as YOLOv8-World and SAM. In extremely noisy or low-light environments, if the detection labels are completely lost or deviated, it may cause the correct anchor points to be missed from the Top-K list during filtering, thus dragging down the accuracy of rough screening.
-2. **Reflection on a priori expression and retrieval granularity can still be optimized**: The current RDCMA a priori writing is achieved by doing simple support and error rate counting of discrete CLIP room types and stop events. For extremely complex room structures with very discrete distribution or large-scale open worlds out of the box, simple graph counting may face memory conflict problems. In the future, non-parametric contextual memory retrieval based on small-scale vector embedding can be considered.
+1. **Multimodal goal recognition is still limited by the perception module**: Although VSMGraph removes the absolute dependence of downstream reasoning on detection boxes, generating the soft labels for the coarse stage still depends on 2D detectors such as YOLOv8-World and SAM. In extremely noisy or low-light environments, if detection labels are completely lost or biased, the correct anchor may be dropped from the Top-K list during filtering, dragging down the accuracy of coarse screening.
+2. **Prior expression and retrieval granularity in reflection can still be improved**: The current RDCMA prior writing is based on simple support and error-rate counts over discrete CLIP room types and stop events. For extremely complex room structures with very scattered distributions, or for large-scale out-of-the-box open worlds, simple graph counting may suffer from memory conflicts. Non-parametric contextual memory retrieval based on small-scale vector embeddings could be considered in the future.
 
 ---
 
 ## 11. Harness Robotic OS (2026)
 {: id="harness-robotic-os"}
-———Upgrading quadruped inspection from a navigation stack to an embodied agent runtime
+——Upgrading quadruped inspection from a navigation stack to an embodied agent runtime
 
 📄 **Paper**: [arXiv:2609.11225](https://arxiv.org/abs/2609.11225)
 
-The paper focuses on embodied agent runtime, skill orchestration, hierarchical memory and self-evolution management. The complete reading has been moved to {% include content-link.html path='/Embodied-Agent-Papers/' fragment='#harness-robotic-os' label='Embodied Agents: Paper Readings — Harness Robotic OS' %}.
+The paper focuses on the embodied agent runtime, skill orchestration, hierarchical memory, and self-evolution management. The full reading has been moved to {% include content-link.html path='/Embodied-Agent-Papers/' fragment='#harness-robotic-os' label='Embodied Agents: Paper Readings — Harness Robotic OS' %}.
 
 ---
 
 ## 12. SparseNav (2026)
 {: id="sparsenav"}
-——Less is more: training-free VLN with “on-demand” semantic awareness based on instructions
+——Less is more: training-free VLN with instruction-driven "on-demand" semantic perception
 
 📄 **Paper**: [arXiv:2609.26408](https://arxiv.org/abs/2609.26408)
 
 ### Key takeaways
 {: id="精华-23"}
 
-- A more complete semantic map is **not always better**: retain geometry persistently, but perceive, map, and remember semantics only when the current instruction calls for them.
-- Turn "whether to call the segmentation model" itself into a decision made by VLM, and the perception changes from "running every frame" to "event-triggered", which not only saves computing power but also reduces noise annotation in the map.
-- Candidate points include both frontier points (exploring the unknown) and local left/front/right points (completing maneuvers such as "go straight and then turn left" in a known area), both of which are indispensable.
-- The BEV image shown to the VLM should be centered on the robot and oriented upward, so that "top/left/right" on the image directly corresponds to "front/left/right" in the language - this represents a difference of 12.5 points SR.
-- VLM is only responsible for "selecting which candidate point". The trajectory is handed over to the classic A* planner for execution, and semantic decision-making and measurement execution are completely decoupled.
+- A more complete semantic map is **not always better**: keep the geometry persistently, but perceive, map, and remember semantics only when the current instruction calls for them.
+- Turn "whether to call the segmentation model" into a decision made by the VLM itself, so that perception shifts from "running on every frame" to "event-triggered", which saves compute and also reduces noisy annotations in the map.
+- Candidate points include both frontier points (exploring the unknown) and local left/front/right points (completing maneuvers such as "go straight and then turn left" in a known area); both are indispensable.
+- The BEV image shown to the VLM should be centered on the robot and oriented upward, so that "top/left/right" in the image directly corresponds to "front/left/right" in the language; this makes a difference of 12.5 SR points.
+- The VLM is only responsible for "choosing which candidate point"; the trajectory is handed to a classic A* planner for execution, so semantic decision-making and metric execution are fully decoupled.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-22"}
 
-Map-based training-free VLN usually marks all objects that can be recognized in the field of view onto a semantic map (such as MapNav's Annotated Semantic Map). But for the current decision-making step, the vast majority of objects are irrelevant to the instructions: they waste segmentation computing power, clutter the map seen by VLM, and introduce false detections. The author therefore raises a question: **has wider semantic coverage, will it definitely improve the instruction following?**
+Map-based training-free VLN usually marks every recognizable object in the field of view onto a semantic map (such as the Annotated Semantic Map of MapNav). But for the current decision step, the vast majority of objects are irrelevant to the instruction: they waste segmentation compute, clutter the map seen by the VLM, and introduce false detections. The authors therefore ask: **does wider semantic coverage necessarily improve instruction following?**
 
 ---
 
@@ -1456,57 +1456,57 @@ Map-based training-free VLN usually marks all objects that can be recognized in 
 {: id="2-主要方法创新点-22"}
 
 <div align="center">
-  <img src="/images/vln/SparseNav-motivation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1416/1029" alt="Dense semantic map vs. sparse semantic map: For the instruction &quot;turn left between the sofa and the kitchen countertop&quot;, the dense method marked a large number of irrelevant objects, and SparseNav only grounded the two landmarks of the sofa and the kitchen countertop, while retaining the complete geometry" />
+  <img src="/images/vln/SparseNav-motivation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1416/1029" alt="Dense vs. sparse semantic maps: for the instruction &quot;turn left between the sofa and the kitchen countertop&quot;, the dense method marks a large number of irrelevant objects, whereas SparseNav grounds only the two landmarks, the sofa and the kitchen countertop, while retaining the complete geometry" />
 <figcaption>
-Dense semantic map vs. sparse semantic map: For the instruction "turn left between the sofa and the kitchen countertop", the dense method marked a large number of irrelevant objects, and SparseNav only grounded the two landmarks of the sofa and the kitchen countertop, while retaining the complete geometry
+Dense vs. sparse semantic maps: for the instruction "turn left between the sofa and the kitchen countertop", the dense method marks a large number of irrelevant objects, whereas SparseNav grounds only the two landmarks, the sofa and the kitchen countertop, while retaining the complete geometry
 </figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vln/SparseNav-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1421/812" alt="SparseNav overall framework: Instruction manager maintains sub-instruction progress and current landmark query; VLM visibility judgment determines whether to call open vocabulary segmentation; mask + depth projection updates sparse landmark memory; VLM selects waypoint among mixed candidate points, and the path planner executes" />
+  <img src="/images/vln/SparseNav-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1421/812" alt="SparseNav overall framework: the instruction manager maintains sub-instruction progress and the current landmark query; the VLM's visibility judgment decides whether to call open-vocabulary segmentation; mask + depth projection updates the sparse landmark memory; the VLM selects a waypoint among the mixed candidate points, and the path planner executes it" />
 <figcaption>
-SparseNav overall framework: Instruction manager maintains sub-instruction progress and current landmark query; VLM visibility judgment determines whether to call open vocabulary segmentation; mask + depth projection updates sparse landmark memory; VLM selects waypoint among mixed candidate points, and the path planner executes
+SparseNav overall framework: the instruction manager maintains sub-instruction progress and the current landmark query; the VLM's visibility judgment decides whether to call open-vocabulary segmentation; mask + depth projection updates the sparse landmark memory; the VLM selects a waypoint among the mixed candidate points, and the path planner executes it
 </figcaption>
 </div>
 
-**① Overview of the overall framework**
+**① Overall framework**
 
-SparseNav consists of four modules: **instruction manager** is responsible for dismantling instructions, tracking progress and giving "what landmarks to find now"; **geometry memory** $M_t^G$ continuous maintenance obstacles/free space BEV; **Sparse semantic perception** Only calls segmentation when needed and writes the landmark center into sparse memory $M_t^S$; **Mixed candidate points + VLM decision-making** Selects a waypoint among the frontier point and the local direction point, and hands it to the classic planner for execution. Agent state writing:
+SparseNav consists of four modules: the **instruction manager** splits the instruction, tracks progress, and gives "which landmarks to look for now"; the **geometry memory** $M_t^G$ continuously maintains a BEV map of obstacles and free space; **sparse semantic perception** calls segmentation only when needed and writes landmark centers into the sparse memory $M_t^S$; **mixed candidate points + VLM decision** selects a waypoint among frontier points and local direction points and hands it to a classic planner for execution. The agent state is written as:
 
 $$\mathcal M_t = (M_t^G, M_t^S, E_t, q_t)$$
 
-Among them, $E_t$ is the observation of the last few frames, and $q_t$ is the instruction progress.
+Here $E_t$ is the observations of the last few frames, and $q_t$ is the instruction progress.
 
-**② Explain** module by module
+**② Module-by-module explanation**
 
-**Geometry-Centric Spatial Memory**
+**Geometry-centric spatial memory (Geometry-Centric Spatial Memory)**
 - **Input**: RGB-D (or LiDAR) point cloud + odometry pose
-- **processing**: Take the point with a height of $z_{min} < z < z_{max}$ and rasterize it into an obstacle map according to the resolution $\rho$; use elliptical expansion to connect the scattered wall observations, and then perform morphological closing operation to fill the small holes; expand the obstacles according to the robot radius $r_a = 0.1$ m
-- **outputs**: a BEV picture of **centered on the robot and facing upward**. The coordinates are transformed to $p^{ego} = R(-\theta_t)(p - p_t)$, and the front of $+x$ corresponds to the top of the image, $+y$ The left side corresponds to the left side of the image.
-- **Design motivation**: Geometry is the basis of obstacle avoidance and planning, which must be durable and complete; and "facing upward" allows the direction on the picture to naturally align with the "front/left/right" in the language, and VLM no longer needs to do mental rotation.
+- **Processing**: Points with height $z_{min} < z < z_{max}$ are rasterized into an obstacle map at resolution $\rho$; elliptical dilation connects scattered wall observations, and a morphological closing fills small holes; obstacles are then inflated by the robot radius $r_a = 0.1$ m
+- **Output**: A BEV image **centered on the robot and facing upward**. Coordinates are transformed as $p^{ego} = R(-\theta_t)(p - p_t)$, so the front ($+x$) corresponds to the top of the image and the left ($+y$) corresponds to the left of the image.
+- **Motivation**: Geometry is the basis of obstacle avoidance and planning, so it must be persistent and complete; and "facing upward" makes directions in the image align naturally with "front/left/right" in language, so the VLM no longer has to do mental rotation.
 
-> **gives an example of**: the robot is located at world coordinates $(5, 5)$, facing due east ($\theta_t = 0°$); the sofa is at $(5, 7)$, which is 2 m due north of the robot.
-> In the fixed north-up global map (north-up), the sofa is drawn "above" the robot, and VLM can easily read it as "sofa in front";
-> After changing to the upward-facing image, first translate and then rotate $-\theta_t$ to get $p^{ego} = (0, 2)$, which is 2 m in the $+y$ direction. Draw **on the left side of the robot** - directly opposite to the instruction "The sofa is on your left".
-> In the ablation of the paper, the global north-up is only 30.3% SR, with the robot as the center but not rotating is 36.2%, and with the robot as the center and facing upward is 42.8%.
+> **Example**: The robot is at world coordinates $(5, 5)$, facing due east ($\theta_t = 0°$); the sofa is at $(5, 7)$, 2 m due north of the robot.
+> In a fixed north-up global map, the sofa is drawn "above" the robot, and the VLM can easily read it as "the sofa is in front";
+> After switching to the upward-facing image, translating first and then rotating by $-\theta_t$ gives $p^{ego} = (0, 2)$, i.e., 2 m along $+y$. It is drawn **on the left of the robot**, exactly matching the instruction "the sofa is on your left".
+> In the paper's ablation, the global north-up map reaches only 30.3% SR, a robot-centered but non-rotating map reaches 36.2%, and a robot-centered, upward-facing map reaches 42.8%.
 
-**Hybrid Waypoint Proposal**
-- **input**: geometry BEV, robot pose
-- **handles**:
-  - **frontier candidate** $\mathcal C_t^F$: clustering of passable grids adjacent to unknown areas, eliminating small clusters, and selecting a reachable point with obstacle avoidance margin for each cluster
-  - **local direction candidate** $\mathcal C_t^L$: Place a point in each of the three directions of the current $\{-\phi, 0, +\phi\}$ and at a distance of $d_l$. Points falling in obstacles or disconnected areas are discarded or projected back to free space.
-- **output**: candidate set $\mathcal C_t = \mathcal C_t^F \cup \mathcal C_t^L$, each point is rendered on the BEV with a number
-- **Design motivation**: The forward point can only guide "to places you have never seen before", but many command actions occur in known areas ("go straight first, then turn left when you get to the sofa"), and the local left/front/right points just fill this gap.
+**Hybrid waypoint proposal (Hybrid Waypoint Proposal)**
+- **Input**: The geometry BEV and the robot pose
+- **Processing**:
+  - **Frontier candidates** $\mathcal C_t^F$: cluster the traversable grid cells adjacent to unknown areas, discard small clusters, and pick one reachable point with an obstacle-avoidance margin for each cluster
+  - **Local direction candidates** $\mathcal C_t^L$: place one point at distance $d_l$ in each of the three directions $\{-\phi, 0, +\phi\}$ relative to the current heading. Points that fall inside obstacles or disconnected areas are discarded or projected back to free space.
+- **Output**: The candidate set $\mathcal C_t = \mathcal C_t^F \cup \mathcal C_t^L$; each point is rendered with a number on the BEV
+- **Motivation**: Frontier points can only guide the agent "to places it has never seen", but many instruction actions take place in known areas ("go straight first, then turn left when you reach the sofa"), and the local left/front/right points fill exactly this gap.
 
-**Hierarchical Instruction Management**
-- **Input**: Complete Instructions $I$
-- **processing**: split into ordered sub-instructions $S = (s_1, \dots, s_K)$, maintenance progress $q_t = (i_t, S_t^{done})$; record and advance when the current sub-instruction is completed
-- **output**: completed / current / to be completed three goals, and the current **landmark query** $l_i$ (can contain multiple tags, such as {couch, kitchen counter})
-- **Design motivation**: Avoid VLM repeatedly executing completed actions while deciding "which semantics should be sensed at this moment" - this is the source of sparse perception
+**Hierarchical instruction management (Hierarchical Instruction Management)**
+- **Input**: The full instruction $I$
+- **Processing**: Split it into ordered sub-instructions $S = (s_1, \dots, s_K)$ and maintain the progress $q_t = (i_t, S_t^{done})$; when the current sub-instruction is completed, record it and advance
+- **Output**: Three sets of goals (completed / current / pending), and the current **landmark query** $l_i$ (which can contain multiple labels, such as {couch, kitchen counter})
+- **Motivation**: Prevents the VLM from re-executing completed actions while deciding "which semantics should be perceived right now"; this is the source of sparse perception
 
-**Sparse semantic awareness of instruction conditions (core innovation)**
+**Instruction-conditioned sparse semantic perception (core innovation)**
 
-This is the most critical part of the paper and the easiest to mention in one sentence: When **semantic perception occurs and what is perceived, it is determined by the current sub-instruction.**
+This is the most critical part of the paper, and it can be summed up in one sentence: **when semantic perception happens, and what is perceived, are determined by the current sub-instruction.**
 
 ```mermaid
 graph TD
@@ -1521,10 +1521,10 @@ graph TD
     H --> I
 ```
 
-- **semantic trigger**: VLM reads $(O_t, E_t, s_i, l_i)$, outputs the visibility score and the decision of whether to ground or not $z_t \in \{0, 1\}$; it is triggered only when "the landmark is highly likely to be visible, and its measurement position will affect the next decision", and has a time cooldown to avoid repeated calls
-- **Open vocabulary segmentation**: Use SAM 3 to use landmark text as a prompt to obtain instance masks
-- **2D→3D projection**: The effective depth pixels in the mask are back-projected using camera internal parameters, transformed to the map coordinate system, and clustered after removing outliers
-- **sparse memory**: $M_t^S = \{(\ell_j, \mu_j)\}$, only labels and cluster centers are stored; different instances of the same label are stored separately; new observations update the nearest matching cluster, otherwise create a new one; **landmarks that are no longer queried will also retain** for subsequent reuse
+- **Semantic trigger**: The VLM reads $(O_t, E_t, s_i, l_i)$ and outputs a visibility score and a decision on whether to ground, $z_t \in \{0, 1\}$; grounding is triggered only when "the landmark is very likely visible and its metric position will affect the next decision", with a time cooldown to avoid repeated calls
+- **Open-vocabulary segmentation**: SAM 3 uses the landmark text as a prompt to obtain instance masks
+- **2D→3D projection**: Valid depth pixels inside the mask are back-projected with the camera intrinsics, transformed into the map frame, and clustered after outlier removal
+- **Sparse memory**: $M_t^S = \{(\ell_j, \mu_j)\}$ stores only labels and cluster centers; different instances of the same label are stored separately; a new observation updates the nearest matching cluster, or creates a new one otherwise; **landmarks that are no longer queried are also retained** for later reuse
 
 | Dimensions | Dense semantic maps (such as MapNav) | SparseNav |
 |---|---|---|
@@ -1532,18 +1532,18 @@ graph TD
 | When to sense | Continuously sense every frame | Triggered only when VLM determines that it is visible and useful |
 | What is stored in the map | A large number of category color blocks | Geometry + a small number of labels and centers of landmarks |
 
-**③ end-to-end data flow**
+**③ End-to-end data flow**
 
-One decision: RGB-D and odometry update geometry BEV → Instruction manager gives the current sub-instruction and landmark query → VLM determines whether to trigger segmentation, and when triggered, the landmark center is written into sparse memory → Generate frontier + local candidate points and render numbers → VLM reads $X_t = \{M_t^G, M_t^S, E_t, s_i, q_t, \mathcal C_t\}$, outputs a candidate number and short reason → A* plans a collision-free trajectory on the expanded obstacle map and executes → Execution feedback is used to determine whether to switch sub-instructions or stop.
+One decision step: RGB-D and odometry update the geometry BEV → the instruction manager provides the current sub-instruction and landmark query → the VLM decides whether to trigger segmentation, and if triggered, the landmark center is written into the sparse memory → frontier + local candidate points are generated and rendered with numbers → the VLM reads $X_t = \{M_t^G, M_t^S, E_t, s_i, q_t, \mathcal C_t\}$ and outputs a candidate number with a short rationale → A* plans a collision-free trajectory on the inflated obstacle map and executes it → execution feedback decides whether to switch sub-instructions or stop.
 
-**④ Training target**
+**④ Training**
 
-None. The whole process **training-free**, all experiments (including real robot) use GPT-5 as the VLM and SAM 3 as the segmentation model.
+None. The whole pipeline is **training-free**; all experiments (including the real robot) use GPT-5 as the VLM and SAM 3 as the segmentation model.
 
 <div align="center">
-  <img src="/images/vln/SparseNav-qualitative.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1418/796" alt="Qualitative example: Each of the five sub-command stages is equipped with a first-person view and BEV; the asterisk marks the moment when semantic grounding is actually triggered (sofa + kitchen countertop, front door, side door), and the remaining stages reuse existing landmarks and geometry candidates" />
+  <img src="/images/vln/SparseNav-qualitative.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1418/796" alt="Qualitative example: each of the five sub-instruction stages is shown with a first-person view and the BEV; the asterisk marks the moments when semantic grounding is actually triggered (sofa + kitchen countertop, front door, side door), while the remaining stages reuse existing landmarks and geometric candidates" />
 <figcaption>
-Qualitative example: Each of the five sub-command stages is equipped with a first-person view and BEV; the asterisk marks the moment when semantic grounding is actually triggered (sofa + kitchen countertop, front door, side door), and the remaining stages reuse existing landmarks and geometry candidates
+Qualitative example: each of the five sub-instruction stages is shown with a first-person view and the BEV; the asterisk marks the moments when semantic grounding is actually triggered (sofa + kitchen countertop, front door, side door), while the remaining stages reuse existing landmarks and geometric candidates
 </figcaption>
 </div>
 
@@ -1552,29 +1552,29 @@ Qualitative example: Each of the five sub-command stages is equipped with a firs
 ### 3. Results and findings
 {: id="3-核心结果发现-22"}
 
-**benchmark results (Val-Unseen)**:
+**Benchmark results (Val-Unseen)**:
 
 | Method | Setup | R2R-CE SR | R2R-CE SPL | RxR-CE SR | RxR-CE nDTW |
 |---|---|---|---|---|---|
-| InstructNav | Zero sample | 31.0 | 24.0 | – | – |
-| CA-Nav | Zero sample | 25.3 | 10.8 | 19.0 | 13.5 |
-| DreamNav | Zero sample | 32.8 | 28.9 | – | – |
+| InstructNav | Zero-shot | 31.0 | 24.0 | – | – |
+| CA-Nav | Zero-shot | 25.3 | 10.8 | 19.0 | 13.5 |
+| DreamNav | Zero-shot | 32.8 | 28.9 | – | – |
 | MapNav | Supervision | 39.7 | 37.2 | 32.6 | 43.5 |
 | ETPNav | Oversight | 57.0 | 49.0 | 54.8 | 61.9 |
 | **SparseNav** | training-free | **42.8** | 35.2 | **40.7** | 48.6 |
 
-**Key ablation**:
-- **Semantic policy** (R2R-CE SR): No semantics 34.6 → Dense + persistent-aware 36.7 → Dense + On-demand 38.8 → Instruction-related + On-demand 40.2 → **Instruction-related + On-demand 42.8**. Both dimensions "perception range" and "triggering timing" contribute
-- **candidate point**: only local points 29.1, only front points 35.2, front + front 37.4, front + left/front/right 42.8
-- **landmark localization**: VLM direct estimation position 34.6 (error 1.56 m, worse than 36.5 without localization), labeling frame 40.2 (0.51 m), segmentation 42.8 (0.12 m)
-- **instructions and memory** (RxR-CE): complete instructions 29.8 → + timing memory 31.5 → sub instructions 33.2 → + progress tracking 35.0 → + persistent landmark memory 40.7; persistent landmark memory has the largest single contribution (+5.7)
-- **Trigger quality**: Cycle trigger accuracy/recall 41.5/45.6, visibility only 72.1/99.8, sub-command awareness **90.4/99.8**
-- **real robot**: Unitree Go2 + RealSense D455 (mapping and landmark grounding) + Livox MID-360 (localization), no pre-built map, complete landmark conditional instructions such as "turn left to the quadruped robot, pass the humanoid robot, enter the next room and stop" in multiple indoor scenes
+**Key ablations**:
+- **Semantic policy** (R2R-CE SR): No semantics 34.6 → Dense + persistent perception 36.7 → Dense + on-demand 38.8 → Instruction-related + persistent 40.2 → **Instruction-related + on-demand 42.8**. Both dimensions, "perception scope" and "trigger timing", contribute
+- **Candidate points**: local points only 29.1, frontier points only 35.2, frontier + forward 37.4, frontier + left/front/right 42.8
+- **Landmark localization**: the VLM estimating position directly 34.6 (error 1.56 m, worse than the 36.5 without localization), bounding-box annotation 40.2 (0.51 m), segmentation 42.8 (0.12 m)
+- **Instructions and memory** (RxR-CE): full instruction 29.8 → + temporal memory 31.5 → sub-instructions 33.2 → + progress tracking 35.0 → + persistent landmark memory 40.7; persistent landmark memory has the largest single contribution (+5.7)
+- **Trigger quality**: periodic triggering precision/recall 41.5/45.6, visibility only 72.1/99.8, sub-instruction-aware **90.4/99.8**
+- **Real robot**: Unitree Go2 + RealSense D455 (mapping and landmark grounding) + Livox MID-360 (localization), with no pre-built map; it completes landmark-conditioned instructions such as "turn left at the quadruped robot, pass the humanoid robot, enter the next room and stop" in several indoor scenes
 
 <div align="center">
-  <img src="/images/vln/SparseNav-real-robot.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1419/767" alt="real robot deployment: (a) Go2 platform and navigation architecture; (b)–(e) Turn left, pass the humanoid robot, enter the adjacent room, and stop four execution fragments. The lower right corner is the corresponding BEV" />
+  <img src="/images/vln/SparseNav-real-robot.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1419/767" alt="Real-robot deployment: (a) the Go2 platform and navigation architecture; (b)–(e) four execution snippets: turn left, pass the humanoid robot, enter the adjacent room, and stop. The lower-right corner shows the corresponding BEV" />
 <figcaption>
-real robot deployment: (a) Go2 platform and navigation architecture; (b)–(e) Turn left, pass the humanoid robot, enter the adjacent room, and stop four execution fragments. The lower right corner is the corresponding BEV
+Real-robot deployment: (a) the Go2 platform and navigation architecture; (b)–(e) four execution snippets: turn left, pass the humanoid robot, enter the adjacent room, and stop. The lower-right corner shows the corresponding BEV
 </figcaption>
 </div>
 
@@ -1583,31 +1583,31 @@ real robot deployment: (a) Go2 platform and navigation architecture; (b)–(e) T
 ### 4. Limitations
 {: id="4-局限性-22"}
 
-Candidate points are generated by rules, and VLM can only choose from the preset frontier and left/front/right points, which may miss waypoints that better fit the instructions. Although on-demand segmentation saves perception overhead, VLM inference is still the main delay. The serial "perception→inference→execution" will cause the robot to stop and wait for decisions. In addition, the comparison with other methods in the table is based on cross-paper data (different episodes and backbone models). The real robot part only has qualitative display and no success rate statistics.
+Candidate points are generated by rules, and the VLM can only choose among the preset frontier and left/front/right points, so it may miss waypoints that better fit the instruction. Although on-demand segmentation saves perception overhead, VLM inference remains the main source of latency; the serial "perceive→reason→execute" loop makes the robot stop and wait for decisions. In addition, the comparison with other methods in the table uses cross-paper data (different episodes and backbone models). The real-robot part is only qualitative, with no success-rate statistics.
 
 ---
 
 ## 13. Talk2Escape (2026)
 {: id="talk2escape"}
-——When you get lost, just ask: Turn multi-round conversations into VLN’s closed-loop error correction channel
+——When lost, just ask: turning multi-turn dialogue into a closed-loop error-correction channel for VLN
 
 📄 **Paper**: [arXiv:2609.28296](https://arxiv.org/abs/2609.28296) · [Project Page](https://zeruili22.github.io/talk2escape/)
 
 ### Key takeaways
 {: id="精华-24"}
 
-- The essence of single-round VLN is open loop: an instruction is executed to the end without any verification or error correction mechanism in the middle. Small deviations will accumulate along the way and cause task failure.
-- Dialogue serves as **a runtime error-correction safety net**: the robot pauses and requests help only when an anomaly is detected, rather than merely supplementing its initial plan.
-- "When to ask" is more critical than "what to ask": sparse, targeted deviation triggering is better than high-frequency or timed questioning, and asking too many questions will disrupt the internal inference (intervention fatigue) of a strong agent.
-- Before asking for help, "translate" the multi-perspective observation into a short question with landmarks, so that the respondent (human or Oracle) can reliably answer it.
-- The module has nothing to do with the base and can be directly connected to zero-shot agents such as NavGPT, MapGPT, and GTA. The cleaner the history and the more action-centered the base, the better it can digest natural language error correction.
+- Single-round VLN is essentially open-loop: an instruction is executed to the end with no verification or error-correction mechanism in between, so small deviations accumulate along the way and cause the task to fail.
+- Dialogue serves as **a runtime error-correction safety net**: the robot pauses and asks for help only when an anomaly is detected, rather than merely supplementing its initial plan.
+- "When to ask" matters more than "what to ask": sparse, targeted deviation-triggered questions beat high-frequency or timed questioning, and asking too much disrupts the internal reasoning of a strong agent (intervention fatigue).
+- Before asking for help, multi-view observations are "translated" into a short question with landmarks, so that the respondent (a human or an Oracle) can answer reliably.
+- The module is independent of the base agent and can be attached directly to zero-shot agents such as NavGPT, MapGPT, and GTA. The cleaner the history and the more action-centric the base, the better it digests natural-language error correction.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-23"}
 
-Mainstream VLN is a single-round paradigm: the agent receives an instruction and executes it in an open loop. There is no mechanism to check progress, request clarification, or recover from errors. On a real robot, sensor noise, odometry drift, and unmapped obstacles are inevitable. A small deviation may push the robot into a "lost" state that cannot be recovered. Existing conversational VLNs mostly treat conversations as supplementary information for initial planning, rely on fine-tuning of conversation data, and assume that communication is instant and execution is error-free.
+Mainstream VLN is a single-round paradigm: the agent receives an instruction and executes it open-loop, with no mechanism to check progress, request clarification, or recover from errors. On a real robot, sensor noise, odometry drift, and unmapped obstacles are unavoidable, and a small deviation may push the robot into a "lost" state it cannot recover from. Existing conversational VLN methods mostly treat dialogue as supplementary information for the initial plan, depend on fine-tuning with dialogue data, and assume that communication is instantaneous and execution is error-free.
 
 ---
 
@@ -1615,20 +1615,20 @@ Mainstream VLN is a single-round paradigm: the agent receives an instruction and
 {: id="2-主要方法创新点-23"}
 
 <div align="center">
-  <img src="/images/vln/Talk2Escape-paradigm.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:699/748" alt="Comparison of paradigm: The left is a single-wheel open-loop VLN, which cannot be recovered once it goes astray; the right is Talk2Escape&#x27;s closed-loop dialogue paradigm. The agent proactively asks for help when it makes a mistake, and the expert gives corrective tips and then re-plans" />
+  <img src="/images/vln/Talk2Escape-paradigm.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:699/748" alt="Paradigm comparison: on the left, single-round open-loop VLN, which cannot recover once it goes astray; on the right, Talk2Escape's closed-loop dialogue paradigm, in which the agent proactively asks for help when it errs, and the expert gives corrective hints before the agent re-plans" />
 <figcaption>
-Comparison of paradigm: The left is a single-wheel open-loop VLN, which cannot be recovered once it goes astray; the right is Talk2Escape's closed-loop dialogue paradigm. The agent proactively asks for help when it makes a mistake, and the expert gives corrective tips and then re-plans
+Paradigm comparison: on the left, single-round open-loop VLN, which cannot recover once it goes astray; on the right, Talk2Escape's closed-loop dialogue paradigm, in which the agent proactively asks for help when it errs, and the expert gives corrective hints before the agent re-plans
 </figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vln/Talk2Escape-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1420/783" alt="Talk2Escape framework: ① The base agent outputs kinematic status and actions; ② The kinematics monitor detects spinning or deviation in place and triggers a pause; ③ The visual-language translator converts the current RGB-D observation into a short help question; ④ Oracle/human gives correction tips based on relative orientation and distance; ⑤ The entire dialogue is injected into MLLM Prompt word, the agent re-plans accordingly" />
+  <img src="/images/vln/Talk2Escape-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1420/783" alt="Talk2Escape framework: ① The base agent outputs its kinematic state and actions; ② the kinematic monitor detects spinning in place or deviation and triggers a pause; ③ the vision-language translator converts the current RGB-D observation into a short help request; ④ the Oracle/human gives corrective hints based on relative direction and distance; ⑤ the whole dialogue is injected into the MLLM prompt, and the agent re-plans accordingly" />
 <figcaption>
-Talk2Escape framework: ① The base agent outputs kinematic status and actions; ② The kinematics monitor detects spinning or deviation in place and triggers a pause; ③ The visual-language translator converts the current RGB-D observation into a short help question; ④ Oracle/human gives correction tips based on relative orientation and distance; ⑤ The entire dialogue is injected into MLLM Prompt word, the agent re-plans accordingly
+Talk2Escape framework: ① The base agent outputs its kinematic state and actions; ② the kinematic monitor detects spinning in place or deviation and triggers a pause; ③ the vision-language translator converts the current RGB-D observation into a short help request; ④ the Oracle/human gives corrective hints based on relative direction and distance; ⑤ the whole dialogue is injected into the MLLM prompt, and the agent re-plans accordingly
 </figcaption>
 </div>
 
-**① Overview of the overall framework**
+**① Overall framework**
 
 Talk2Escape is an intervention module attached to any zero-shot base agent. A **kinematic monitor** detects trouble; a **vision-language translator** expresses the situation as a question; and **prompt generation and injection** inserts corrective information into the base MLLM prompt. It adds communication actions $\mathcal A^c$ alongside physical actions $\mathcal A^p$, changing the policy from $a_t = \pi(H_t)$ to $a_t = \pi(H_t \cup D_k)$. Here, $D_k = \{(Q_1, F_1), \dots, (Q_k, F_k)\}$ is the question–answer history up to interaction $k$. No fine-tuning is performed; Gemini 3.1 Pro is the reasoning engine.
 
@@ -1644,69 +1644,69 @@ graph TD
     G --> A
 ```
 
-**② Explain** module by module
+**② Module-by-module explanation**
 
-**Base Navigation Agent**
-- **Input**: RGB-D view $O_t$, pose $p_t$, history $H_t$ in four orthogonal directions (0°/90°/180°/270°) per step
-- **handles**: MLLM specifies the navigation target with normalized pixel coordinates $(u, v)$; stronger bases (such as GTA) also maintain TSDF top view and topology map
-- **output**: physical action (discrete action, relative waypoint or pixel coordinate), handed over to the underlying controller for execution
-- **design motivation**: Talk2Escape does not change the base, only adds a closed loop to the outer layer, so it can be verified to be "independent of the base"
+**Base navigation agent (Base Navigation Agent)**
+- **Input**: At each step, RGB-D views $O_t$ in four orthogonal directions (0°/90°/180°/270°), the pose $p_t$, and the history $H_t$
+- **Processing**: The MLLM specifies the navigation target with normalized pixel coordinates $(u, v)$; stronger bases (such as GTA) also maintain a TSDF top view and a topological map
+- **Output**: A physical action (discrete action, relative waypoint, or pixel coordinate), handed to the low-level controller for execution
+- **Motivation**: Talk2Escape does not change the base agent and only adds a closed loop around it, so "independence from the base" can be verified
 
-**Kinematics monitor and trigger conditions (core stuck point)**
+**Kinematic monitor and trigger conditions (core mechanism)**
 
-The paper compares six intervention strategies: None (no intervention), Repeat, Deviation, Hybrid (or the two), Periodic (a prompt is given every $k_{per} = 5$ step), and Human-in-the-Loop. The two automatic trigger conditions are:
+The paper compares six intervention strategies: None (no intervention), Repeat, Deviation, Hybrid (either of the two), Periodic (a prompt every $k_{per} = 5$ steps), and Human-in-the-Loop. The two automatic trigger conditions are:
 
-- **Repeat trigger (turn in place)**: Within the radius of the current position $r = 0.5$ m, it has been visited at least $n = 3$ times in history:
+- **Repeat trigger (turning in place)**: within radius $r = 0.5$ m of the current position, the agent has been visited at least $n = 3$ times in its history:
 
 $$\mathcal C_{rep}(t) = \mathbb 1\left[ \left\lvert \{ \tau \in [0, t] : \lVert p_\tau - p_t \rVert_{xz} < r \} \right\rvert \ge n \right]$$
 
-- **Deviation trigger (continuously moving away from the target)**: Set $d_t = \lVert p_t - p_g \rVert_{xz}$ as the horizontal distance to the target, and use the sliding average of the window $k = 2$ to compare the "last two steps" and "the next two steps":
+- **Deviation trigger (continuously moving away from the target)**: let $d_t = \lVert p_t - p_g \rVert_{xz}$ be the horizontal distance to the target, and compare "the last two steps" with "the two steps before" using a sliding average over a window of $k = 2$:
 
 $$\mathcal C_{away}(t) = \mathbb 1\left[ \bar d_{t,k} > \bar d_{t-k,k} \right], \quad \bar d_{t,k} = \frac{1}{k} \sum_{i=0}^{k-1} d_{t-i}$$
 
-> **Take for example** (Deviation trigger, $k = 2$): the distance to the target in four consecutive steps is 8.0, 7.0, 7.2, 7.6 m.
-> If you only look at a single step, the third step from 7.0 to 7.2 triggers a false trigger - it's just a small motion jitter.
-> Use sliding average: the average of the last two steps is $(7.6 + 7.2)/2 = 7.4$, the average of the previous two steps is $(7.0 + 8.0)/2 = 7.5$, $7.4 < 7.5$, **does not trigger**.
-> The next step distance becomes 8.0: the average of the last two steps is $(8.0 + 7.6)/2 = 7.8$, the average of the previous two steps is $(7.2 + 7.0)/2 = 7.1$, $7.8 > 7.1$, **triggers** - at this time it is really continuing to move away from the target.
+> **Example** (deviation trigger, $k = 2$): the distances to the target over four consecutive steps are 8.0, 7.0, 7.2, 7.6 m.
+> Looking at a single step only, the third step (7.0 to 7.2) would cause a false trigger; it is just small motion jitter.
+> With the sliding average: the mean of the last two steps is $(7.6 + 7.2)/2 = 7.4$ and the mean of the two steps before is $(7.0 + 8.0)/2 = 7.5$; since $7.4 < 7.5$, it **does not trigger**.
+> If the next step's distance becomes 8.0: the mean of the last two steps is $(8.0 + 7.6)/2 = 7.8$ and the mean of the two before is $(7.2 + 7.0)/2 = 7.1$; since $7.8 > 7.1$, it **triggers**, because the agent really is continuing to move away from the target.
 
-Note: Deviation triggering requires knowing the target position $p_g$, which is true value information in the simulation; on the real robot, the human supervisor decides whether to intervene according to the same criteria.
+Note: the deviation trigger requires knowing the target position $p_g$, which is ground-truth information in simulation; on the real robot, a human supervisor decides whether to intervene according to the same criterion.
 
-**Vision-Language Translator (Help-Seeking)**
-- **input**: four views when triggered RGB-D observation + trigger type
-- **processing**: MLLM completes three things in sequence: summarizes the local scene; determines the most likely failure mode based on trigger conditions (driving in the corridor, facing a dead end, stuck at an intersection); generating a short help question
-- **output**: For example, "I'm stuck at this intersection and there's a sofa in front of me. Where should I go?"
-- **Design motivation**: The original multi-view image has a large amount of information and is difficult to understand quickly; the translator is constrained to only mention observable landmarks and relative directions, and does not speculate on unseen areas
+**Vision-language translator (Help-Seeking)**
+- **Input**: The four-view RGB-D observations at the moment of triggering, plus the trigger type
+- **Processing**: The MLLM does three things in order: summarizes the local scene; determines the most likely failure mode from the trigger condition (wandering in a corridor, facing a dead end, stuck at an intersection); and generates a short help request
+- **Output**: For example, "I'm stuck at this intersection and there's a sofa in front of me. Where should I go?"
+- **Motivation**: Raw multi-view images carry a lot of information and are hard to grasp quickly; the translator is constrained to mention only observable landmarks and relative directions, and not to speculate about unseen areas
 
 **Oracle prompt generation and injection**
-- **input**: agent orientation $\psi_t$, target azimuth angle $\phi_t = \mathrm{atan2}(p_g^z - p_t^z,\ p_g^x - p_t^x)$
-- **processing**: Calculate the relative angle $\theta_t = \phi_t - \psi_t \in (-180°, 180°]$; if $d_t < d_{th}$ answers "You are very close to the target", otherwise it answers "The target is on your [left/right], turn to [left/right] about $\lvert \theta_t \rvert$ degrees, distance $d_t$ meters"
-- **Output**: The question and answer pair is written to the MLLM prompt word in the dedicated **Navigation Assistance** block, positioned between the historical context and the current visual input
-- **design motivation**: Give clear, self-centered corrective instructions to allow the agent to jump out of the current failure state
+- **Input**: The agent's heading $\psi_t$ and the target azimuth $\phi_t = \mathrm{atan2}(p_g^z - p_t^z,\ p_g^x - p_t^x)$
+- **Processing**: Compute the relative angle $\theta_t = \phi_t - \psi_t \in (-180°, 180°]$; if $d_t < d_{th}$, answer "You are very close to the target"; otherwise answer "The target is on your [left/right]; turn [left/right] by about $\lvert \theta_t \rvert$ degrees; the distance is $d_t$ meters"
+- **Output**: The question-answer pair is written into the MLLM prompt in a dedicated **Navigation Assistance** block, placed between the historical context and the current visual input
+- **Motivation**: Gives clear, egocentric corrective instructions so the agent can escape its current failure state
 
-**③ Training target**
+**③ Training**
 
-None. The entire framework runs on frozen MLLM with zero samples and does not rely on any dialogue data fine-tuning.
+None. The whole framework runs zero-shot on a frozen MLLM and does not rely on fine-tuning with any dialogue data.
 
 ---
 
 ### 3. Results and findings
 {: id="3-核心结果发现-23"}
 
-**R2R-CE / RxR-CE (Val-Unseen sampling subset: R2R-CE 100 strips, RxR-CE 260 strips)**:
+**R2R-CE / RxR-CE (Val-Unseen sampled subsets: 100 episodes for R2R-CE, 260 for RxR-CE)**:
 
 | Methods | R2R-CE SR | R2R-CE SPL | RxR-CE SR | RxR-CE SPL | RxR-CE nDTW |
 |---|---|---|---|---|---|
 | Efficient-VLN (best supervision) | 64.2 | 55.9 | 67.0 | 54.3 | 68.4 |
-| GTA (zero sample) | 48.8 | 41.8 | 46.2 | 39.3 | 57.4 |
+| GTA (zero-shot) | 48.8 | 41.8 | 46.2 | 39.3 | 57.4 |
 | T2E + NavGPT | 64.0 | 46.4 | 50.4 | 27.2 | 45.7 |
 | **T2E + GTA** | **72.0** | 49.4 | **62.9** | 34.2 | 49.9 |
 
-- SR is greatly improved, but SPL and nDTW on RxR-CE are reduced: error correction requires backtracking and detours, and the path becomes longer. This is a trade-off of "exchanging path efficiency for success rate"
-- **values are inconsistent with**: the abstract states that the R2R-CE SR is 66.0%, while the T2E + GTA given in Table I and the text is 72.0%; in Table IV, Deviation is triggered on the same 100 episodes, the SPL is 49.4, but the SR is 66.0%. The paper does not explain the difference between the two. Please be careful when citing.
-- **VLNVerse (base independent)**: NavGPT 19.3 → +CoT 28.7 → **+T2E 84.6**; MapGPT 25.5 → +CoT 42.2 → +T2E 67.0. Passive thinking chain is far inferior to active dialogue
-- **found counter-intuitively that**: MapGPT is better than NavGPT when used alone, but it is even worse when T2E is attached. The author attributes this to a modal mismatch - the large number of absolute 3D coordinates in the MapGPT hints conflicts with the relative, egocentric hints given by Oracle.
+- SR improves greatly, but SPL and nDTW on RxR-CE decrease: error correction requires backtracking and detours, so paths get longer. This is a trade-off of "exchanging path efficiency for success rate"
+- **Inconsistent numbers**: The abstract states an R2R-CE SR of 66.0%, whereas Table I and the text give 72.0% for T2E + GTA; in Table IV, Deviation triggering on the same 100 episodes gives an SPL of 49.4 but an SR of 66.0%. The paper does not explain the discrepancy. Please be careful when citing.
+- **VLNVerse (base-agnostic)**: NavGPT 19.3 → +CoT 28.7 → **+T2E 84.6**; MapGPT 25.5 → +CoT 42.2 → +T2E 67.0. A passive chain of thought is far inferior to active dialogue
+- **A counter-intuitive finding**: MapGPT outperforms NavGPT on its own, but is even worse once T2E is attached. The authors attribute this to a modality mismatch: the many absolute 3D coordinates in MapGPT's hints conflict with the relative, egocentric hints given by the Oracle.
 
-**trigger strategy ablation (R2R-CE, the same 100 episodes, the base is GTA)**:
+**Trigger strategy ablation (R2R-CE, the same 100 episodes, GTA as the base)**:
 
 | Strategy | SR | SPL | Trigger Rate |
 |---|---|---|---|
@@ -1717,21 +1717,21 @@ None. The entire framework runs on frozen MLLM with zero samples and does not re
 | Periodic (k=5) | 63.0 | 46.5 | 10.2% |
 | Human-in-the-Loop | 74.5 | 61.2 | 9.8% |
 
-Hybrid triggered too frequently, but dropped to 54.0%, which shows that asking more questions is not necessarily better.
+Hybrid triggers too frequently and falls to 54.0%, showing that asking more questions is not necessarily better.
 
 <div align="center">
-  <img src="/images/vln/Talk2Escape-intervention-frequency.webp" width="70%" loading="lazy" decoding="async" style="aspect-ratio:697/598" alt="The impact of timing intervention interval k on different bases: the weak base NavGPT decreases approximately linearly as the interval becomes larger (relying on continuous external guidance); the strong base GTA is in an inverted U shape, k=5 is the best, and asking too frequently will interrupt its internal inference" />
+  <img src="/images/vln/Talk2Escape-intervention-frequency.webp" width="70%" loading="lazy" decoding="async" style="aspect-ratio:697/598" alt="Effect of the periodic intervention interval k on different bases: for the weak base NavGPT, performance decreases roughly linearly as the interval grows (it depends on continuous external guidance); for the strong base GTA, it follows an inverted U with k=5 the best, and asking too frequently interrupts its internal reasoning" />
 <figcaption>
-The impact of timing intervention interval k on different bases: the weak base NavGPT decreases approximately linearly as the interval becomes larger (relying on continuous external guidance); the strong base GTA is in an inverted U shape, k=5 is the best, and asking too frequently will interrupt its internal inference
+Effect of the periodic intervention interval k on different bases: for the weak base NavGPT, performance decreases roughly linearly as the interval grows (it depends on continuous external guidance); for the strong base GTA, it follows an inverted U with k=5 the best, and asking too frequently interrupts its internal reasoning
 </figcaption>
 </div>
 
-**real robot (Unitree Go2, gimbal depth camera scans orthogonal view, MLLM asynchronous output waypoint)**: SR increased from 40.0% of GTA to 62.0%, NE decreased from 3.66 m to 3.31 m; supervision method VLN-BERT 16.0%, RDP 20.0%. The real robot uses human supervisors to intervene according to Deviation criteria.
+**Real robot (Unitree Go2, gimbal depth camera scanning orthogonal views, MLLM outputting waypoints asynchronously)**: SR rises from GTA's 40.0% to 62.0% and NE falls from 3.66 m to 3.31 m; the supervised methods VLN-BERT and RDP reach 16.0% and 20.0%. On the real robot, human supervisors intervene according to the Deviation criterion.
 
 <div align="center">
-  <img src="/images/vln/Talk2Escape-real-world.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:695/792" alt="real robot example: The upper agent misunderstood the instruction and went to the wrong door, and the human gave the correction &quot;It&#x27;s not this door, go to the area behind you&quot;; the lower agent changed its route accordingly, reached the correct target and was confirmed" />
+  <img src="/images/vln/Talk2Escape-real-world.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:695/792" alt="Real-robot example: in the upper row the agent misreads the instruction and goes to the wrong door, and the human gives the correction &quot;It's not this door, go to the area behind you&quot;; in the lower row the agent changes its route accordingly, reaches the correct target, and is confirmed" />
 <figcaption>
-real robot example: The upper agent misunderstood the instruction and went to the wrong door, and the human gave the correction "It's not this door, go to the area behind you"; the lower agent changed its route accordingly, reached the correct target and was confirmed
+Real-robot example: in the upper row the agent misreads the instruction and goes to the wrong door, and the human gives the correction "It's not this door, go to the area behind you"; in the lower row the agent changes its route accordingly, reaches the correct target, and is confirmed
 </figcaption>
 </div>
 
@@ -1740,13 +1740,13 @@ real robot example: The upper agent misunderstood the instruction and went to th
 ### 4. Limitations
 {: id="4-局限性-23"}
 
-The Oracle prompts and Deviation triggers in the simulation directly use the target's true position (azimuth and distance), which is equivalent to privileged information and is not compared under the same conditions as the method that only relies on single-round instructions; real robot relies on human supervisors. The author also pointed out the "asymmetric context" bottleneck: humans only see discrete static images, and it is difficult to restore the robot's global orientation and local obstacles, and the prompts given may be vague. In addition, R2R-CE is only evaluated on 100 sampling episodes, and the statistics fluctuate greatly.
+The Oracle prompts and Deviation triggers in simulation directly use the target's true position (azimuth and distance), which amounts to privileged information, so the comparison with methods that rely only on single-round instructions is not like-for-like; the real robot relies on human supervisors. The authors also point out an "asymmetric context" bottleneck: humans see only discrete static images and can hardly reconstruct the robot's global orientation and local obstacles, so the hints they give may be vague. In addition, R2R-CE is evaluated on only 100 sampled episodes, so the statistics fluctuate considerably.
 
 ---
 
 ## 14. SuperNav (2026)
 {: id="supernav"}
-———Turn a general-purpose multimodal model into a continuing navigation agent through navigation skills, visual-point tools, and context management
+——Turn a general-purpose multimodal model into a continuing navigation agent through navigation skills, visual-point tools, and context management
 
 📄 **Paper**: [arXiv:2610.12126](https://arxiv.org/abs/2610.12126) · [Project Page](https://zju3dv.github.io/SuperNav/)
 
@@ -1940,7 +1940,7 @@ Demand-driven evaluation measures ordered arrivals at relevant targets rather th
 
 ## 15. NavHarness (2026)
 {: id="navharness"}
-———Sustain navigation through cross-session handovers, external memory, and two-stage verification
+——Sustain navigation through cross-session handovers, external memory, and two-stage verification
 
 📄 **Paper**: [arXiv:2609.34276](https://arxiv.org/abs/2609.34276) · [Code](https://github.com/billzhao1030/NavHarness) · [Project Page](https://billzhao1030.github.io)
 
@@ -1952,7 +1952,7 @@ NavHarness is an embodied-agent harness centered on continuing navigation. It ke
 
 ## 16. EvoLife (2026)
 {: id="evolife"}
-———Turn directions into place memories so that the next navigation task can build on experience
+——Turn directions into place memories so that the next navigation task can build on experience
 
 📄 **Paper**: [arXiv:2610.39446v1](https://arxiv.org/abs/2610.39446v1) · [Project Page](https://kai-sheng-caesar.github.io/EvoLife-Web/)
 
@@ -2100,21 +2100,21 @@ The main results rely on strong multimodal backbones, RGB-D geometry, simulator 
 
 ## 17. Open-Nav (2025)
 {: id="open-nav"}
-———Zero-Shot VLN in Continuous Environment with Open-Source LLMs
+——Zero-Shot VLN in Continuous Environments with Open-Source LLMs
 
 📄 **Paper**: [arXiv:2409.18794](https://arxiv.org/abs/2409.18794) · 🏛️ **ICRA 2025**
 
 ### Key takeaways
 {: id="open-nav-精华-5"}
 
-The core contribution of Open-Nav is to replace the expensive GPT-4 API with a locally deployed open source LLM while maintaining competitive performance, which has important implications for privacy-sensitive real-world robot deployments. The three-stage spatial-temporal CoT (instruction understanding → progress estimation → decision making) designed in the paper is a reusable LLM navigation reasoning framework and is worth learning from. The idea of ​​using SpatialBot + RAM to jointly enhance visual perception - one is responsible for spatial relationship understanding, and the other is responsible for fine-grained target recognition - effectively bridges the gap in visual perception between open source LLM and GPT-4. Real-world evaluation results show that Open-Nav without training even surpasses the SOTA method with supervised training, indicating that the generalization ability of LLM has significant advantages in out-of-distribution scenarios.
+The core contribution of Open-Nav is to replace the expensive GPT-4 API with a locally deployed open-source LLM while maintaining competitive performance, which matters for privacy-sensitive real-world robot deployments. The three-stage spatial-temporal CoT (instruction understanding → progress estimation → decision making) is a reusable LLM navigation reasoning framework worth learning from. Using SpatialBot + RAM together to enhance visual perception, one for spatial-relation understanding and the other for fine-grained object recognition, effectively closes the visual perception gap between open-source LLMs and GPT-4. Real-world results show that the training-free Open-Nav even surpasses state-of-the-art methods trained with supervision, indicating that LLM generalization has a significant advantage in out-of-distribution scenarios.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-4"}
 
-Vision-and-Language Navigation in Continuous Environments (VLN-CE) requires agents to navigate in unseen 3D indoor environments based on natural language instructions. Existing LLM-based zero-shot methods (such as NavGPT, DiscussionNav) rely heavily on the GPT-4 API, which involves high token fees and the risk of user environment data privacy leakage. They are mainly verified in discrete environments and are difficult to be directly applied to continuous real-world scenarios.
+Vision-and-Language Navigation in Continuous Environments (VLN-CE) requires an agent to navigate unseen 3D indoor environments by following natural-language instructions. Existing LLM-based zero-shot methods (such as NavGPT and DiscussNav) rely heavily on the GPT-4 API, which incurs high token costs and risks leaking users' environment data. They are also mainly validated in discrete environments and are hard to apply directly to continuous real-world scenes.
 
 ---
 
@@ -2122,54 +2122,54 @@ Vision-and-Language Navigation in Continuous Environments (VLN-CE) requires agen
 {: id="2-主要方法创新点-4"}
 
 <div align="center">
-  <img src="/images/vln/Open-Nav-motivation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:697/557" alt="Comparison between GPT-based Navigator and Open-Source LLM-based Navigator: The latter requires no API fees, and environmental data does not leave the local device, protecting user privacy." />
+  <img src="/images/vln/Open-Nav-motivation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:697/557" alt="Comparison between a GPT-based navigator and an open-source LLM-based navigator: the latter needs no API fees, and environment data never leaves the local device, protecting user privacy." />
 <figcaption>
-Comparison between GPT-based Navigator and Open-Source LLM-based Navigator: The latter requires no API fees, and environmental data does not leave the local device, protecting user privacy.
+Comparison between a GPT-based navigator and an open-source LLM-based navigator: the latter needs no API fees, and environment data never leaves the local device, protecting user privacy.
 </figcaption>
 </div>
 
 The Open-Nav framework consists of three core modules:
 
-**1. Waypoint Prediction module**
+**1. Waypoint prediction module (Waypoint Prediction)**
 
-Use a Transformer-based waypoint prediction model that fuses RGB and depth image features (two dedicated ResNet50 branches):
+A Transformer-based waypoint prediction model fuses RGB and depth image features (two dedicated ResNet50 branches):
 
 $$v_i^{rgbd} = W_m(f_{\text{ResNet-RGB}}(I_i^{rgb}) \| f_{\text{ResNet-Depth}}(I_i^d))$$
 
-After Transformer processing, a candidate path point heat map is generated, and then K candidate direction points $$\Delta W = \{\Delta w_i\}_{i=1}^K$$ are filtered out through NMS. Each candidate point is represented by angle and distance.
+After Transformer processing, a candidate waypoint heat map is generated, and K candidate direction points $$\Delta W = \{\Delta w_i\}_{i=1}^K$$ are then selected via NMS. Each candidate point is represented by an angle and a distance.
 
-**2. Scene Perception module**
+**2. Scene perception module (Scene Perception)**
 
-For challenges requiring accurate spatial understanding in continuous environments, scene description is enhanced using two complementary models:
+To meet the demand for accurate spatial understanding in continuous environments, two complementary models are used to enhance the scene description:
 
-- **SpatialBot**: Spatial understanding VLM, input RGB+depth map, output text description containing distance and spatial relationship between objects
-- **RAM** (Recognize Anything Model): Fine-grained target detection, identifying the categories and three-dimensional positions of all objects in the scene
+- **SpatialBot**: a spatial-understanding VLM that takes RGB + depth maps as input and outputs a text description containing distances and spatial relations between objects
+- **RAM** (Recognize Anything Model): fine-grained object detection that identifies the categories and 3D positions of all objects in the scene
 
-The two outputs are merged into a unified textual scene observation $O_{text} = \langle D_{spatial}, \{o_i\}\rangle$, providing rich spatial context for LLM.
+The two outputs are merged into a unified textual scene observation $O_{text} = \langle D_{spatial}, \{o_i\}\rangle$, giving the LLM rich spatial context.
 
 <div align="center">
-  <img src="/images/vln/Open-Nav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1419/882" alt="Open-Nav overall architecture: Waypoint Prediction module identifies candidate guide waypoints, Scene Perception module (RAM + SpatialBot) extracts object positions and spatial relationships, and LLM Navigator performs three-stage CoT reasoning and outputs actions." />
+  <img src="/images/vln/Open-Nav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1419/882" alt="Open-Nav overall architecture: the waypoint prediction module identifies candidate waypoints, the scene perception module (RAM + SpatialBot) extracts object positions and spatial relations, and the LLM navigator performs three-stage CoT reasoning and outputs actions." />
 <figcaption>
-Open-Nav overall architecture: Waypoint Prediction module identifies candidate guide waypoints, Scene Perception module (RAM + SpatialBot) extracts object positions and spatial relationships, and LLM Navigator performs three-stage CoT reasoning and outputs actions.
+Open-Nav overall architecture: the waypoint prediction module identifies candidate waypoints, the scene perception module (RAM + SpatialBot) extracts object positions and spatial relations, and the LLM navigator performs three-stage CoT reasoning and outputs actions.
 </figcaption>
 </div>
 
-**3. LLM Navigator: Three-stage space-timing Chain-of-Thought**
+**3. LLM navigator: three-stage spatial-temporal chain of thought**
 
-This is the core innovation of Open-Nav. At each navigation step, LLM sequentially completes three inference stages:
+This is the core innovation of Open-Nav. At each navigation step, the LLM completes three reasoning stages in sequence:
 
-- **Instruction Comprehension**: Decompose navigation instructions into action sequences and landmark lists, using dedicated prompts to extract structured information
-- **Progress Estimation**: Based on historical trajectories and current observations, determine which subtasks have been completed through four steps: landmark verification, direction analysis, and action completion assessment.
-- **Decision Making**: Integrate the spatial description, historical trajectory summary and progress estimation results of the current candidate waypoint, generate the reasoning process and select the optimal direction point
+- **Instruction comprehension**: Decompose the navigation instruction into an action sequence and a landmark list, using dedicated prompts to extract structured information
+- **Progress estimation**: From the historical trajectory and current observations, determine which subtasks are already completed through four steps, including landmark verification, direction analysis, and action completion assessment
+- **Decision making**: Combine the spatial descriptions of the current candidate waypoints, the summary of the historical trajectory, and the progress estimate to produce a reasoning process and select the best direction point
 
-The framework deploys four open source LLMs locally via [Ollama](https://ollama.ai/): Llama3.1-70B, Qwen2-72B, Gemma2-27B, Phi3-14B.
+The framework deploys four open-source LLMs locally via [Ollama](https://ollama.ai/): Llama3.1-70B, Qwen2-72B, Gemma2-27B, and Phi3-14B.
 
 ---
 
 ### 3. Results and findings
 {: id="3-核心结果发现-4"}
 
-**Simulation Environment (R2R-CE Dataset)**:
+**Simulation environment (R2R-CE dataset)**:
 
 | Methods | SR↑ | SPL↑ | nDTW↑ |
 |------|-----|------|--------|
@@ -2177,39 +2177,39 @@ The framework deploys four open source LLMs locally via [Ollama](https://ollama.
 | Open-Nav-Llama3.1 (this article) | **16** | **12.90** | **44.99** |
 | Open-Nav-GPT4 (this article) | 19 | 16.10 | 45.79 |
 
-Open-Nav uses open source LLM to surpass DiscussNav-GPT4 in both SR and SPL, proving that open source LLM with good perceptual enhancement is comparable to closed source solutions.
+Using open-source LLMs, Open-Nav surpasses DiscussNav-GPT4 in both SR and SPL, showing that an open-source LLM with good perception enhancement is comparable to closed-source solutions.
 
-**Real World Environment (Office/Lab/Game Room)**:
+**Real-world environments (office / lab / game room)**:
 
 <div align="center">
-  <img src="/images/vln/Open-Nav-real-world-env.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:694/248" alt="Real-world testing environment: office, laboratory, game room, each scene is marked with 20 instructions (including simple and complex instructions)." />
+  <img src="/images/vln/Open-Nav-real-world-env.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:694/248" alt="Real-world test environments: an office, a laboratory, and a game room, each scene with 20 instructions (both simple and complex)." />
 <figcaption>
-Real-world testing environment: office, laboratory, game room, each scene is marked with 20 instructions (including simple and complex instructions).
+Real-world test environments: an office, a laboratory, and a game room, each scene with 20 instructions (both simple and complex).
 </figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vln/Open-Nav-real-world-demo.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:654/302" alt="The navigation process of Open-Nav in the real environment is visualized. The right side shows the step-by-step reasoning process of LLM Navigator, reflecting the interpretability of the CoT thinking chain." />
+  <img src="/images/vln/Open-Nav-real-world-demo.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:654/302" alt="Visualization of Open-Nav's navigation process in a real environment. The right side shows the LLM navigator's step-by-step reasoning, reflecting the interpretability of the CoT." />
 <figcaption>
-The navigation process of Open-Nav in the real environment is visualized. The right side shows the step-by-step reasoning process of LLM Navigator, reflecting the interpretability of the CoT thinking chain.
+Visualization of Open-Nav's navigation process in a real environment. The right side shows the LLM navigator's step-by-step reasoning, reflecting the interpretability of the CoT.
 </figcaption>
 </div>
 
-In all real scenarios: Open-Nav-Llama3.1 reaches **SR=35, NE=2.39**, surpassing supervised training CMA (SR=23), RecBERT (SR=27), and BEVBert (SR=20), verifying the superiority of LLM generalization ability in out-of-distribution scenarios.
+Across all real scenarios, Open-Nav-Llama3.1 reaches **SR=35, NE=2.39**, surpassing the supervised CMA (SR=23), RecBERT (SR=27), and BEVBert (SR=20), verifying the advantage of LLM generalization in out-of-distribution scenarios.
 
-**Comparison of different open source LLMs (simulated environment navigation performance)**:
+**Comparison of different open-source LLMs (navigation performance in simulation)**:
 
 <div align="center">
-  <img src="/images/vln/Open-Nav-llm-action-decomposition.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:1321/453" alt="Performance comparison of four open source LLMs on action decomposition tasks (SPICE/BLEU/METEOR/ROUGE)." />
+  <img src="/images/vln/Open-Nav-llm-action-decomposition.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:1321/453" alt="Performance comparison of four open-source LLMs on the action decomposition task (SPICE/BLEU/METEOR/ROUGE)." />
 <figcaption>
-Performance comparison of four open source LLMs on action decomposition tasks (SPICE/BLEU/METEOR/ROUGE).
+Performance comparison of four open-source LLMs on the action decomposition task (SPICE/BLEU/METEOR/ROUGE).
 </figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vln/Open-Nav-llm-landmark-extraction.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:646/315" alt="Performance comparison of four open source LLMs on landmark extraction tasks. Llama3.1-70B performs best in landmark extraction, Qwen2-72B scores highest in action decomposition, but Llama3.1-70B is the best overall in final navigation performance (SR=16, SPL=12.90)." />
+  <img src="/images/vln/Open-Nav-llm-landmark-extraction.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:646/315" alt="Performance comparison of four open-source LLMs on the landmark extraction task. Llama3.1-70B is best at landmark extraction and Qwen2-72B scores highest on action decomposition, but Llama3.1-70B is the best overall in final navigation performance (SR=16, SPL=12.90)." />
 <figcaption>
-Performance comparison of four open source LLMs on landmark extraction tasks. Llama3.1-70B performs best in landmark extraction, Qwen2-72B scores highest in action decomposition, but Llama3.1-70B is the best overall in final navigation performance (SR=16, SPL=12.90).
+Performance comparison of four open-source LLMs on the landmark extraction task. Llama3.1-70B is best at landmark extraction and Qwen2-72B scores highest on action decomposition, but Llama3.1-70B is the best overall in final navigation performance (SR=16, SPL=12.90).
 </figcaption>
 </div>
 
@@ -2218,33 +2218,33 @@ Performance comparison of four open source LLMs on landmark extraction tasks. Ll
 ### 4. Limitations
 {: id="4-局限性-4"}
 
-The current inference speed of open source LLM is slow, and the computational efficiency in real environments still needs to be improved; the paper does not explore the potential of fine-tuning open source LLM for navigation tasks, and the performance gap with GPT-4 can be further narrowed in the future.
+The inference speed of open-source LLMs is currently slow, so computational efficiency in real environments still needs improvement; the paper does not explore the potential of fine-tuning open-source LLMs for navigation, and the performance gap to GPT-4 could be narrowed further in the future.
 
 ---
 
 ## 18. AgentVLN (2026)
 {: id="agentvln"}
-———Towards Agentic Vision-and-Language Navigation
+——Towards Agentic Vision-and-Language Navigation
 
 📄 **Paper**: [arXiv:2603.17670](https://arxiv.org/abs/2603.17670) · 🏛️ **ECCV 2026** · [Project Page](https://allenxinn.github.io/AgentVLN/) · [Code](https://github.com/Allenxinn/AgentVLN)
 
 ### Key takeaways
 {: id="精华-13"}
 
-The most valuable idea for AgentVLN is the **VLM-as-Brain** paradigm: using VLM as a brain purely for high-level semantic reasoning and skill scheduling, it encapsulates low-level capabilities such as perception, planning, and control into a modular, plug-and-play skill library, completely decoupling cognition and execution.
+The most valuable idea in AgentVLN is the **VLM-as-Brain** paradigm: the VLM serves purely as a brain for high-level semantic reasoning and skill scheduling, while low-level capabilities such as perception, planning, and control are encapsulated into a modular, plug-and-play skill library, completely decoupling cognition from execution.
 
-Cross-space representation mapping (back-projecting 3D topological waypoints into pixel-aligned 2D visual cues) is an elegant design that bridges the gap between 2D VLM and the 3D physical world without additional parameters.
+Cross-space representation mapping (back-projecting 3D topological waypoints into pixel-aligned 2D visual cues) is an elegant design that bridges the gap between the 2D VLM and the 3D physical world without extra parameters.
 
-QD-PCoT shows how to give the model metacognitive capabilities: proactively ask questions when faced with spatial ambiguity, and call on perceptual skills to obtain depth information instead of blindly outputting coordinates.
+QD-PCoT shows how to give a model metacognitive ability: when facing spatial ambiguity, it proactively asks questions and calls perception skills to obtain depth information instead of blindly outputting coordinates.
 
-The 3B parameter count surpasses the previous SOTA of 7B+ in both R2R/RxR lists, proving that structured hierarchical reasoning is far more efficient than brute-force parameter scaling. This framework can be directly deployed on the Jetson embedded edge platform and has strong deployment value.
+With only 3B parameters, it surpasses the previous 7B+ state of the art on both R2R and RxR, showing that structured hierarchical reasoning is far more efficient than brute-force parameter scaling. The framework can be deployed directly on an embedded Jetson edge platform, giving it strong practical value.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-12"}
 
-Vision-and-Language Navigation (VLN) requires embodied agents to convert complex natural language instructions into long-term, continuous space navigation behaviors. Current VLN systems face three core bottlenecks: the cross-spatial mismatch between VLM's inherent 2D semantic understanding and 3D geometric perception; scale ambiguity caused by monocular RGB images leads to failure of local target positioning; and large parameter models cannot meet the real-time reasoning needs of edge devices.
+Vision-and-Language Navigation (VLN) requires embodied agents to turn complex natural-language instructions into long-horizon, continuous spatial navigation behavior. Current VLN systems face three core bottlenecks: the cross-space mismatch between the VLM's inherent 2D semantic understanding and 3D geometric perception; the scale ambiguity of monocular RGB images, which makes local target localization fail; and large models whose parameter counts cannot meet the real-time reasoning needs of edge devices.
 
 ---
 
@@ -2252,46 +2252,46 @@ Vision-and-Language Navigation (VLN) requires embodied agents to convert complex
 {: id="2-主要方法创新点-10"}
 
 <div align="center">
-  <img src="/images/vln/AgentVLN-framework-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:979/605" alt="AgentVLN overall framework: The VLM-as-Brain paradigm decomposes long-term navigation into the alternating invocation of perception skills (Perception Skills) and planning skills (Planning Skills), supplemented by QD-PCoT to handle spatial ambiguity." />
+  <img src="/images/vln/AgentVLN-framework-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:979/605" alt="AgentVLN overall framework: the VLM-as-Brain paradigm decomposes long-horizon navigation into alternating calls to perception skills (Perception Skills) and planning skills (Planning Skills), supplemented by QD-PCoT to handle spatial ambiguity." />
 <figcaption>
-AgentVLN overall framework: The VLM-as-Brain paradigm decomposes long-term navigation into the alternating invocation of perception skills (Perception Skills) and planning skills (Planning Skills), supplemented by QD-PCoT to handle spatial ambiguity.
+AgentVLN overall framework: the VLM-as-Brain paradigm decomposes long-horizon navigation into alternating calls to perception skills (Perception Skills) and planning skills (Planning Skills), supplemented by QD-PCoT to handle spatial ambiguity.
 </figcaption>
 </div>
 
-**VLM-as-Brain Paradigm and POSMDP Modeling**
+**VLM-as-Brain paradigm and POSMDP modeling**
 
-AgentVLN formalizes the VLN task as the Partially Observable Semi-Markov Decision Process (POSMDP) $\mathcal{M} = \langle \mathcal{S}, \mathcal{O}, \mathcal{F}, \mathcal{T}, \mathcal{I}, \mathcal{H} \rangle$. As a central controller, VLM generates skill calling instructions at each decision step $t$ based on historical context $$\mathcal{H}_t$$, visual observations $o_t$ and natural language instructions $\mathcal{I}$:
+AgentVLN formalizes the VLN task as a Partially Observable Semi-Markov Decision Process (POSMDP) $\mathcal{M} = \langle \mathcal{S}, \mathcal{O}, \mathcal{F}, \mathcal{T}, \mathcal{I}, \mathcal{H} \rangle$. As the central controller, at each decision step $t$ the VLM generates a skill-call instruction from the history $$\mathcal{H}_t$$, the visual observation $o_t$, and the natural-language instruction $\mathcal{I}$:
 
 $$c_k \sim \pi_\theta(f \mid \mathcal{H}_{t_k}, o_{t_k}, \mathcal{I}), \quad f \in \mathcal{F}$$
 
-The skill library $\mathcal{F}$ is divided into two categories: **Perception skills** $\mathcal F_{percep}$ ($\tau=0$, extract geometric/semantic features from the environment without delay, update the global state $\mathcal{S}$) and **Planning skills** $\mathcal F_{plan}$ ($\tau>0$, execute a multi-step physical action sequence). Specifically including: Back-Projection, Global Planning, Obstacle Avoidance, Incremental Exploration Map, Feasible Waypoints and other modules. This hierarchical design allows VLM to be completely disconnected from low-level motion details and focus on high-level semantic-spatial matching.
+The skill library $\mathcal{F}$ is divided into two categories: **perception skills** $\mathcal F_{percep}$ ($\tau=0$; extract geometric/semantic features from the environment with no delay and update the global state $\mathcal{S}$) and **planning skills** $\mathcal F_{plan}$ ($\tau>0$; execute a multi-step sequence of physical actions). They include Back-Projection, Global Planning, Obstacle Avoidance, Incremental Exploration Map, Feasible Waypoints, and other modules. This hierarchical design lets the VLM stay entirely detached from low-level motion details and focus on high-level semantic-spatial matching.
 
-**Cross-Space Representation Mapping**
+**Cross-space representation mapping (Cross-Space Representation Mapping)**
 
-To solve the problem that VLM cannot directly perceive 3D geometry, AgentVLN designed a set of inverse perspective projection mechanisms. Perception skills first construct a global occupancy grid map through back-projection of RGB-D observations to generate a three-dimensional waypoint $\mathbf{P}^w_{path} = [X_{path}, Y_{path}, 0]^T$; then project the 3D waypoint back to pixel coordinates through the camera internal parameter matrix $K$ and the current pose $T_t$:
+To solve the problem that a VLM cannot directly perceive 3D geometry, AgentVLN designs an inverse perspective projection mechanism. Perception skills first build a global occupancy grid map by back-projecting RGB-D observations and generate a 3D waypoint $\mathbf{P}^w_{path} = [X_{path}, Y_{path}, 0]^T$; the 3D waypoint is then projected back to pixel coordinates through the camera intrinsic matrix $K$ and the current pose $T_t$:
 
 $$s \cdot \mathbf{p}^{img}_{path} = KR_t^{-1}(\mathbf{P}^w_{path} - \mathbf{t}_t)$$
 
-In this way, VLM only needs to select the most matching waypoint based on semantics in 2D pixel space, and then use planning skills to restore it to a 3D control signal, achieving a seamless bridge between 2D visual semantics and 3D physical structures.
+In this way, the VLM only needs to select the best-matching waypoint semantically in 2D pixel space, and planning skills then convert it back into a 3D control signal, seamlessly bridging 2D visual semantics and 3D physical structure.
 
 **Context-aware fine-grained self-correction and active exploration**
 
-When there is no feasible waypoint that satisfies the command semantics in the current observation $o_t$ (such as occlusion, blind zone, trajectory deviation), AgentVLN does not force the long-distance blind displacement, but outputs fine-grained atomic actions $$a_t \sim \pi_\theta(a \mid \mathcal{H}_t, o_t, \mathcal{I})$$, $a \in \{\text{Forward, Left, Right}\}$. After the autonomous look-around restores the visible waypoint, it switches back to the macro skill call, effectively suppressing the accumulation of long trajectory errors.
+When the current observation $o_t$ contains no feasible waypoint that satisfies the instruction semantics (for example because of occlusion, a blind spot, or trajectory deviation), AgentVLN does not force a long blind move, but outputs fine-grained atomic actions $$a_t \sim \pi_\theta(a \mid \mathcal{H}_t, o_t, \mathcal{I})$$, $a \in \{\text{Forward, Left, Right}\}$. After looking around autonomously to recover a visible waypoint, it switches back to macro skill calls, effectively suppressing the accumulation of long-trajectory errors.
 
 **Query-Driven Perceptual Chain-of-Thought (QD-PCoT)**
 
 <div align="center">
-  <img src="/images/vln/AgentVLN-performance-comparison.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:575/583" alt="AgentVLN-3B&#x27;s parameter count-success rate comparison on RxR-CE Val-Unseen surpasses all previous methods of 7B+ with 3B parameter count." />
+  <img src="/images/vln/AgentVLN-performance-comparison.webp" width="80%" loading="lazy" decoding="async" style="aspect-ratio:575/583" alt="Parameter count vs. success rate of AgentVLN-3B on RxR-CE Val-Unseen: with 3B parameters it surpasses all previous 7B+ methods." />
 <figcaption>
-AgentVLN-3B's parameter count-success rate comparison on RxR-CE Val-Unseen surpasses all previous methods of 7B+ with 3B parameter count.
+Parameter count vs. success rate of AgentVLN-3B on RxR-CE Val-Unseen: with 3B parameters it surpasses all previous 7B+ methods.
 </figcaption>
 </div>
 
-To address the monocular scale ambiguity in the local target positioning stage, AgentVLN introduces the QD-PCoT mechanism. When the model detects spatial ambiguity, it does not blindly return pixel coordinates, but generates an intermediate natural language query (such as *"How many meters is the chair in front of me?"*) and calls the perception skill $\mathcal F_{percep}$ to obtain accurate depth feedback. This feedback is injected into the context in the form of incremental text prompts, guiding the model to finally output the accurate target pixel coordinate $\mathbf p_{target}^{img} = [u_{target}, v_{target}, 1]^T$, which is then converted into the 3D target coordinate $\mathbf{P}^w_{target}$ by back-projection of the depth map to achieve accurate docking.
+To address monocular scale ambiguity in the local target localization stage, AgentVLN introduces the QD-PCoT mechanism. When the model detects spatial ambiguity, it does not blindly return pixel coordinates; instead it generates an intermediate natural-language query (such as *"How many meters away is the chair in front of me?"*) and calls the perception skill $\mathcal F_{percep}$ to obtain accurate depth feedback. This feedback is injected into the context as an incremental text prompt, guiding the model to finally output the accurate target pixel coordinates $\mathbf p_{target}^{img} = [u_{target}, v_{target}, 1]^T$, which are then converted into the 3D target coordinates $\mathbf{P}^w_{target}$ by back-projecting the depth map for precise docking.
 
-**AgentVLN-Instruct Dataset**
+**AgentVLN-Instruct dataset**
 
-A large-scale instruction tuning dataset, AgentVLN-Instruct (based on the Habitat simulator), was constructed, which contains four key components: a dynamic stage routing mechanism driven by target visibility (simulating the human cognitive model of "first coarse navigation, then fine positioning"), generalizable skill call annotation, localized reasoning data, and active question and answer interactive pairs. The foundation model is Qwen2.5-VL-3B, the visual encoder is frozen during training, optimized with AdamW, and uses 32 NVIDIA A100 GPUs.
+A large-scale instruction-tuning dataset, AgentVLN-Instruct (built on the Habitat simulator), is constructed with four key components: a dynamic stage-routing mechanism driven by target visibility (imitating the human cognitive pattern of "coarse navigation first, fine positioning later"), generalizable skill-call annotations, localization reasoning data, and active question-answer interaction pairs. The base model is Qwen2.5-VL-3B; during training the visual encoder is frozen, optimization uses AdamW, and 32 NVIDIA A100 GPUs are used.
 
 ---
 
@@ -2299,162 +2299,162 @@ A large-scale instruction tuning dataset, AgentVLN-Instruct (based on the Habita
 {: id="agentvln-3-核心结果发现-11"}
 
 <div align="center">
-  <img src="/images/vln/AgentVLN-navigation-visualization.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:981/625" alt="AgentVLN navigation visualization: The green dot is the pixel-level visual prompt generated by the perception skill, and the red circle is the waypoint selected by the planning skill; it automatically switches to fine-grained atomic actions when encountering visual occlusion." />
+  <img src="/images/vln/AgentVLN-navigation-visualization.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:981/625" alt="AgentVLN navigation visualization: the green dots are pixel-level visual prompts generated by perception skills, and the red circle is the waypoint selected by planning skills; when visual occlusion is encountered, the agent switches automatically to fine-grained atomic actions." />
 <figcaption>
-AgentVLN navigation visualization: The green dot is the pixel-level visual prompt generated by the perception skill, and the red circle is the waypoint selected by the planning skill; it automatically switches to fine-grained atomic actions when encountering visual occlusion.
+AgentVLN navigation visualization: the green dots are pixel-level visual prompts generated by perception skills, and the red circle is the waypoint selected by planning skills; when visual occlusion is encountered, the agent switches automatically to fine-grained atomic actions.
 </figcaption>
 </div>
 
-- **R2R-CE Val-Unseen**: AgentVLN-3B reaches SR=67.2%, SPL=64.7%, surpassing similar SOTA InternVLA-N1-8.3B (SR+9.0%, SPL+10.7%), achieving comprehensive surpassing with less than half the number of parameters
-- **RxR-CE Val-Unseen**: SR=69.5%, SPL=61.3%, nDTW=74.6%, also refresh SOTA
-- **ablation analysis**: Only introducing VLM-as-Brain + cross-space mapping, SR increased from the baseline 38.6% to 59.7%; adding CDFG fine-grained self-correction reached 65.6%; the final integrated QD-PCoT reached 67.2%
-- **Timing context**: The optimal number of historical frames K=8 (SR=67.2%, SPL=64.7%). If it is too short, it will be short-sighted, and if it is too long, the attention will be diluted.
-- **Real World Deployment**: Based on Unitree Go2 quadruped robot + Intel RealSense D455, combined with RTAB-Map SLAM, it can achieve accurate navigation in indoor and outdoor scenes and support Jetson edge real-time inference.
+- **R2R-CE Val-Unseen**: AgentVLN-3B reaches SR=67.2% and SPL=64.7%, surpassing the comparable state of the art InternVLA-N1-8.3B (SR +9.0%, SPL +10.7%), a comprehensive win with less than half the parameters
+- **RxR-CE Val-Unseen**: SR=69.5%, SPL=61.3%, nDTW=74.6%, also setting a new state of the art
+- **Ablation analysis**: VLM-as-Brain + cross-space mapping alone raises SR from the 38.6% baseline to 59.7%; adding CDFG fine-grained self-correction reaches 65.6%; the full model with QD-PCoT reaches 67.2%
+- **Temporal context**: The optimal number of history frames is K=8 (SR=67.2%, SPL=64.7%). Too few makes the agent short-sighted, and too many dilutes attention.
+- **Real-world deployment**: On a Unitree Go2 quadruped robot + Intel RealSense D455 combined with RTAB-Map SLAM, it navigates accurately in indoor and outdoor scenes and supports real-time inference on Jetson edge devices.
 
 ---
 
 ### 4. Limitations
 {: id="agentvln-4-局限性-11"}
 
-AgentVLN currently relies on a depth sensor (RGB-D) to support accurate 3D back-projection, and its scale ambiguity processing capabilities in pure RGB monocular scenes are still limited; in addition, the expansion and maintenance of the skill library requires a certain engineering cost, and its zero-shot adaptation ability to new scenes has yet to be systematically evaluated.
+AgentVLN currently relies on a depth sensor (RGB-D) for accurate 3D back-projection, and its ability to handle scale ambiguity in pure monocular RGB scenes is still limited; in addition, extending and maintaining the skill library carries some engineering cost, and its zero-shot adaptation to new scenes has yet to be evaluated systematically.
 
 ---
 
 ## 19. CA-VLN (2026)
 {: id="ca-vln"}
-——— Multi-modal large model embodied navigation framework based on dual-agent collaboration
+——A multimodal large-model embodied navigation framework based on dual-agent collaboration
 
 📄 **Paper**: [Sensors 2026](https://doi.org/10.3390/s26041254) · 🏛️ **Sensors 2026**
 
 ### Key takeaways
 {: id="精华-21"}
 ---
-1. **Dual-agent collaboration mechanism**: Decouples high-level common sense cognition from underlying episodic memory, and effectively improves the generalization and backtracking capabilities of embodied navigation agents in unseen environments through the collaboration of knowledge agents and hierarchical history agents.
-2. **Progressive Online Knowledge Generation**: During reasoning, the agent dynamically generates and retrieves Top-K relevant semantic knowledge facts based on original instructions and real-time visual observations, reducing dependence on static offline knowledge bases.
-3. **Hierarchical topological memory design**: Constructing the episodic memory topology map through hierarchical descriptions at the perspective layer and path layer not only retains temporal continuity, but also effectively prevents memory explosion caused by wandering or reciprocating motion.
-4. **Two-stage parameter efficient fine-tuning**: LoRA is used to constrain the trainable parameters within 10M, and the dual-agent and multi-modal fusion modules are fine-tuned successively to achieve low-cost domain adaptation of large models in specific navigation tasks.
-5. **Sim-to-Real Enlightenment of Decoupled Generalization**: Binding navigation strategies to relatively stable semantic concepts and connectivity relationships instead of fragile low-level visual textures provides an excellent transferable design for overcoming Sim-to-Real domain shift.
+1. **Dual-agent collaboration mechanism**: Decouples high-level commonsense cognition from low-level episodic memory; through the collaboration of a knowledge agent and a hierarchical history agent, it effectively improves the generalization and backtracking abilities of embodied navigation agents in unseen environments.
+2. **Progressive online knowledge generation**: During inference, the agent dynamically generates and retrieves the Top-K most relevant semantic facts from the original instruction and real-time visual observations, reducing dependence on a static offline knowledge base.
+3. **Hierarchical topological memory design**: The episodic memory topology map is built from hierarchical descriptions at a viewpoint level and a path level, which preserves temporal continuity and effectively prevents memory explosion caused by wandering or back-and-forth motion.
+4. **Two-stage parameter-efficient fine-tuning**: LoRA keeps the trainable parameters within 10M, and the dual agents and the multimodal fusion module are fine-tuned in turn, achieving low-cost domain adaptation of large models to specific navigation tasks.
+5. **Implications of decoupled generalization for sim-to-real**: Tying the navigation policy to relatively stable semantic concepts and connectivity relations rather than fragile low-level visual textures offers a highly transferable design for overcoming the sim-to-real domain shift.
 
 ### 1. Background and problem
 {: id="1-研究背景问题-20"}
 ---
-Vision-language navigation (VLN) requires agents to find paths in complex 3D environments based on natural language instructions. However, traditional end-to-end methods have poor generalization performance when facing unseen environments, and are easily lost or stuck in loops due to the lack of long-term historical context in large-scale scenarios. Although multimodal large models (MLLM) have been introduced into embodied navigation in recent years, the huge parameters of the large model that directly output navigation actions will bring about a huge "Domain Gap" and extremely high computational delays. How to skillfully integrate the common sense reasoning advantages of the large model with the fine underlying local decision-making and spatial topology memory is still an urgent problem to be solved.
+Vision-language navigation (VLN) requires an agent to find paths in complex 3D environments from natural-language instructions. However, traditional end-to-end methods generalize poorly to unseen environments, and in large scenes they easily get lost or stuck in loops for lack of long-term historical context. Although multimodal large models (MLLMs) have recently been introduced into embodied navigation, having a large model with huge parameter counts output navigation actions directly causes a severe "domain gap" and extremely high computational latency. How to combine the commonsense reasoning strengths of large models with fine-grained low-level local decision-making and spatial topological memory remains an urgent open problem.
 
 ### 2. Method and innovations
 {: id="2-主要方法创新点-18"}
 ---
 <div align="center">
-  <img src="/images/vln/CA-VLN-overall-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1113/952" alt="CA-VLN overall collaboration architecture: including Knowledge Agent and Hierarchical History Agent, supplemented by multi-modal feature retrieval" />
+  <img src="/images/vln/CA-VLN-overall-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1113/952" alt="CA-VLN overall collaboration architecture: including the Knowledge Agent and the Hierarchical History Agent, supplemented by multimodal feature retrieval" />
 <figcaption>
-CA-VLN overall collaboration architecture: including Knowledge Agent and Hierarchical History Agent, supplemented by multi-modal feature retrieval
+CA-VLN overall collaboration architecture: including the Knowledge Agent and the Hierarchical History Agent, supplemented by multimodal feature retrieval
 </figcaption>
 </div>
 
-#### ① Overview of the overall framework
+#### ① Overall framework
 {: id="-整体框架概述-8"}
-CA-VLN proposes a dual-agent collaboration framework composed of a Knowledge Reasoning Agent and a Hierarchical History Agent, and uses a specialized multi-modal fusion module to deeply interact with vision, text, common sense and memory features, and finally output action decisions.
+CA-VLN proposes a dual-agent collaboration framework composed of a Knowledge Reasoning Agent and a Hierarchical History Agent, and uses a dedicated multimodal fusion module to let visual, textual, commonsense, and memory features interact deeply before finally outputting action decisions.
 
 <div align="center">
-  <img src="/images/vln/CA-VLN-interaction-flow.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1114/919" alt="CA-VLN Agent interaction and information flow: Knowledge Agent extracts semantic features, History Agent maintains situation memory and guides action decisions" />
+  <img src="/images/vln/CA-VLN-interaction-flow.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1114/919" alt="CA-VLN agent interaction and information flow: the Knowledge Agent extracts semantic features, and the History Agent maintains episodic memory and guides action decisions" />
 <figcaption>
-CA-VLN Agent interaction and information flow: Knowledge Agent extracts semantic features, History Agent maintains situation memory and guides action decisions
+CA-VLN agent interaction and information flow: the Knowledge Agent extracts semantic features, and the History Agent maintains episodic memory and guides action decisions
 </figcaption>
 </div>
 
-#### ② Explain module by module
+#### ② Module-by-module explanation
 {: id="-逐模块讲解-6"}
 - **Knowledge Reasoning Agent**
-  - **Input**: Original natural language instructions, real-time multi-view images from the current perspective.
-  - **Processing**: During training, the original instructions are spliced with the ground truth trajectories, and MLLM generates accurate step-by-step instructions and extracts key entities; during inference, in the absence of ground truth, the large model adopts a step-by-step prompting strategy to identify visible object attributes in the scene from color, shape, and size, describe the spatial layout, and use the CLIP text encoder to retrieve between the current instructions and preset facts to obtain the Top-K most relevant semantic facts (such as "Dining table is near the kitchen").
-  - **Output**: Extracted key semantic entity feature vectors and retrieved Top-K semantic fact feature vectors.
-  - **Design Motivation**: In order to bridge the context gap between MLLM and downstream navigation action decisions, the large model is used as a "high-level planner and common sense retriever" to assist multi-modal alignment with natural language description.
+  - **Input**: The original natural-language instruction and real-time multi-view images from the current viewpoint.
+  - **Processing**: During training, the original instruction is concatenated with the ground-truth trajectory, and the MLLM generates accurate step-by-step instructions and extracts key entities. During inference, where no ground truth is available, the large model uses a step-by-step prompting strategy to identify the attributes of visible objects in the scene (color, shape, size) and describe the spatial layout, and the CLIP text encoder retrieves between the current instruction and preset facts to obtain the Top-K most relevant semantic facts (such as "The dining table is near the kitchen").
+  - **Output**: The feature vectors of the extracted key semantic entities and of the retrieved Top-K semantic facts.
+  - **Motivation**: To bridge the context gap between the MLLM and downstream navigation action decisions, the large model serves as a "high-level planner and commonsense retriever" that aids multimodal alignment through natural-language descriptions.
 
 - **Hierarchical History Agent**
-  - **Input**: The graph topology at the current moment, the local scene description of the historical traversal nodes, and the CLIP features of the image.
-  - **Processing**: Maintain a two-layer hierarchical structure: One is the **Viewpoint Hierarchy**, which uses LLaVA to generate a triplet description containing location type, salient visual features and connected area relationships for each newly visited observation point; in order to avoid memory explosion caused by wandering and reciprocating motion, new nodes are only added when the agent advances to a new observation point. The second is **Path Hierarchy**, which cascades the descriptions of visited perspectives according to the timeline, and uses MLLM to semantically enhance the global path.
-  - **Output**: Hierarchical history feature vector $H_{hist}$ and connection description of topological nodes.
-  - **Design motivation**: Overcome the shortcomings of traditional graph neural networks that are lost in long-distance dependencies and long-range backtracking due to the lack of high-level timing semantics.
+  - **Input**: The current graph topology, the local scene descriptions of previously visited nodes, and the CLIP image features.
+  - **Processing**: Maintains a two-level hierarchy. The first is the **Viewpoint Hierarchy**, in which LLaVA generates, for each newly visited viewpoint, a triplet description containing the location type, salient visual features, and connected-area relations; to avoid the memory explosion caused by wandering and back-and-forth motion, a new node is added only when the agent advances to a new viewpoint. The second is the **Path Hierarchy**, which concatenates the descriptions of visited viewpoints along the timeline and uses the MLLM to semantically enrich the global path.
+  - **Output**: The hierarchical history feature vector $H_{hist}$ and the connection descriptions of topological nodes.
+  - **Motivation**: Overcomes the weakness of traditional graph neural networks, which get lost in long-range dependencies and long-range backtracking because they lack high-level temporal semantics.
 
 - **History Enhancement Module (HEM)**
-  - **Input**: Unenhanced local node feature vector $V_t$, candidate node feature vector $v_i$, and associated memory vector $m_s$ retrieved from episodic memory.
-  - **Processing**: First, perform nonlinear fusion of node features and memory features through MLP:
+  - **Input**: The unenhanced local node feature vector $V_t$, the candidate node feature vectors $v_i$, and the associated memory vector $m_s$ retrieved from episodic memory.
+  - **Processing**: First, an MLP performs nonlinear fusion of node features and memory features:
     $$\tilde{V}_t = \text{MLP}([V_t; m_s]), \quad \tilde{v}_i = \text{MLP}([v_i; m_s])$$
-Global dependencies are then established through the Graph-Aware Transformer (GAT). GAT internally contains a cross-attention layer (used to model node feature relationships) and a self-attention layer (used to encode topological layout). The calculation formula is:
+Global dependencies are then established by a Graph-Aware Transformer (GAT). The GAT contains a cross-attention layer (modeling relations between node features) and a self-attention layer (encoding the topological layout). The formula is:
     $$\tilde{h}'_t = \text{GAT}(\tilde{h}_t) = \text{softmax}\left(\frac{(\tilde{h}_t W_q)(\tilde{h}_t W_k)^T}{\sqrt{d}} + M\right)\tilde{h}_t W_v$$
-The bias matrix $M = D W_a + b_d$ is used to integrate the topological distance graph and limit the influence between unreachable nodes.
-  - **Output**: Enhanced global historical trajectory feature representation $$\tilde{H}_t = \{\tilde{h}'_1, \tilde{h}'_2, \dots, \tilde{h}'_{t-1}\}$$.
-  - **Design motivation**: Make the historical representation rich in temporal and semantic information, as well as precise geometric structure constraints, thereby improving the accuracy of backtracking decision-making.
+The bias matrix $M = D W_a + b_d$ integrates the topological distance graph and limits the influence between mutually unreachable nodes.
+  - **Output**: The enhanced global historical trajectory feature representation $$\tilde{H}_t = \{\tilde{h}'_1, \tilde{h}'_2, \dots, \tilde{h}'_{t-1}\}$$.
+  - **Motivation**: Makes the historical representation rich in temporal and semantic information as well as precise geometric structural constraints, thereby improving the accuracy of backtracking decisions.
 
-- **Multi-modal fusion and action prediction module**
-  - This module contains two sub-parts: **Instruction Guided Feature Fusion (IGFF)** and **Knowledge-Aware Visual Semantic Interactor (KVSI)**.
-  - **IGFF module**: Extract the global semantic features of the instruction `[CLS]` Token, and calculate the response weight of each visual area feature $o_i$ through cross attention, so that the agent focuses on the landmarks related to the instruction:
+- **Multimodal fusion and action prediction module**
+  - This module has two sub-parts: **Instruction Guided Feature Fusion (IGFF)** and **Knowledge-Aware Visual Semantic Interactor (KVSI)**.
+  - **IGFF module**: Extracts the global semantic feature of the instruction (the `[CLS]` token) and computes the response weight of each visual region feature $o_i$ through cross-attention, so that the agent focuses on landmarks related to the instruction:
     $$\eta_i = \text{softmax}\left(\frac{o_i W_q \hat{W}_0^T}{\sqrt{d}}\right), \quad \bar{o}_i = \eta_i o_i$$
-  - **KVSI module**: Integrate visual and knowledge features. First, the alignment score $a_{ij}$ between the visual query and the knowledge key is calculated through cross attention, and the local features of the fused semantic knowledge are obtained:
+  - **KVSI module**: Integrates visual and knowledge features. It first computes the alignment score $a_{ij}$ between visual queries and knowledge keys through cross-attention to obtain local features fused with semantic knowledge:
     $$a_{ij} = \text{softmax}\left(\frac{Q K^T}{\sqrt{d}}\right), \quad o'_i = \sum_{j} a_{ij} \cdot V_j$$
-Afterwards, the spatial relationship is refined through self-attention, and an adaptive view weighting mechanism is introduced to calculate the importance score for each candidate view based on the historical context. Finally, the weighted context representation is calculated through Softmax normalization.
+Spatial relations are then refined through self-attention, and an adaptive view-weighting mechanism computes an importance score for each candidate view based on the historical context. Finally, the weighted context representation is obtained via Softmax normalization.
 
 <div align="center">
-  <img src="/images/vln/CA-VLN-multimodal-fusion.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1113/1008" alt="Multi-modal fusion and action prediction: Combining KVSI and IGFF mechanisms, using semantic, historical and local candidate perspectives respectively for global and local prediction" />
+  <img src="/images/vln/CA-VLN-multimodal-fusion.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1113/1008" alt="Multimodal fusion and action prediction: combining the KVSI and IGFF mechanisms and using the semantic, historical, and local candidate views for global and local prediction respectively" />
 <figcaption>
-Multi-modal fusion and action prediction: Combining KVSI and IGFF mechanisms, using semantic, historical and local candidate perspectives respectively for global and local prediction
+Multimodal fusion and action prediction: combining the KVSI and IGFF mechanisms and using the semantic, historical, and local candidate views for global and local prediction respectively
 </figcaption>
 </div>
 
-#### ③ end-to-end data flow
+#### ③ End-to-end data flow
 {: id="ca-vln--端到端数据流"}
-At every decision-making step $t$:
+At every decision step $t$:
 1. The agent obtains the panoramic visual observation $O_t$ from the current environment.
-2. The knowledge reasoning agent combines the current instructions with the description generated online by the multi-modal model to retrieve the Top-K semantic fact knowledge $K_{emb}$.
-3. The hierarchical historical agent updates the graph topology and uses HEM to obtain enhanced global trajectory features $$\tilde{H}_t$$.
-4. The extracted visual features, knowledge features, instruction features and entity features are input into the multi-modal fusion module respectively, and KVSI is used for knowledge-visual alignment, and IGFF is used for instruction-visual alignment to obtain refined local candidate feature representations.
-5. The global action prediction branch uses graph attention to model the global topology graph and instruction intersection to output a global candidate score, while the local action prediction branch performs local scoring for adjacent navigation candidates of the current node.
-6. After adaptive weighted fusion, the two use Softmax to decide the next action with the highest probability (execute movement or stop), and update the history and topology at the next moment.
+2. The knowledge reasoning agent combines the current instruction with the descriptions generated online by the multimodal model to retrieve the Top-K semantic facts $K_{emb}$.
+3. The hierarchical history agent updates the graph topology and uses the HEM to obtain the enhanced global trajectory features $$\tilde{H}_t$$.
+4. The extracted visual, knowledge, instruction, and entity features are fed into the multimodal fusion module; KVSI performs knowledge-visual alignment and IGFF performs instruction-visual alignment, yielding refined local candidate feature representations.
+5. The global action prediction branch models the global topology graph and its interaction with the instruction through graph attention and outputs global candidate scores, while the local action prediction branch scores the adjacent navigation candidates of the current node locally.
+6. After adaptive weighted fusion, the two are passed through Softmax to choose the highest-probability next action (move or stop), and the history and topology are updated at the next time step.
 
-#### ④ Training objective/loss function
+#### ④ Training objective and loss function
 {: id="-训练目标--损失函数-2"}
-The model adopts two-stage fine-tuning. First, LoRA is used to fine-tune the instructions of LLaVA-7B, limiting the trainable parameters to less than 10M, and optimizing its ability to generate stepwise instructions and hierarchical history descriptions. The agent is then frozen and the fusion and action prediction modules are jointly fine-tuned. The action prediction branch is optimized using a hybrid loss of behavior cloning (Imitation Learning) and reinforcement learning.
+The model uses two-stage fine-tuning. First, LoRA is used to instruction-tune LLaVA-7B with the trainable parameters limited to under 10M, optimizing its ability to generate step-by-step instructions and hierarchical history descriptions. This agent is then frozen, and the fusion and action prediction modules are fine-tuned jointly. The action prediction branch is optimized with a hybrid loss of behavior cloning (imitation learning) and reinforcement learning.
 
 ### 3. Results and findings
 {: id="ca-vln-3-核心结果发现-19"}
 ---
-- **R2R dataset performance**: On the unseen validation set, CA-VLN reached a Success Rate (SR) of **73.31%** (an increase of **+1.79%** compared to the baseline DUET) and an SPL of **61.95%** (an improvement of **+1.53%**); on the unseen test set, the SR reached **70.27%** and the SPL reached **60.31%**, surpassing SOTA methods such as HAMT and KERM.
-- **REVERIE and SOON performance**: On the REVERIE dataset, which contains rich object positioning requirements, the SR in unseen scenes reaches **50.99%**, and the object positioning index RGSR is improved by **+2.85%**; on the SOON dataset with longer paths and more complex spatial structures, the SR on unseen validation reaches **37.32%** (+1.02%), indicating that hierarchical history and knowledge enhancement have significant gains for large-scale exploration.
-- **Ablation experiments and hyperparameter analysis**: Hierarchical history, entity guidance, large model step-by-step instructions, etc. all provide positive gains. Sensitivity analysis of Top-K shows that the optimal Top-K setting for knowledge retrieval is between 3 and 5. If it is too high (Top-K > 5), the performance will plummet due to the introduction of redundant or illusory information.
+- **Performance on R2R**: On the unseen validation set, CA-VLN reaches a success rate (SR) of **73.31%** (**+1.79%** over the DUET baseline) and an SPL of **61.95%** (**+1.53%**); on the unseen test set, SR reaches **70.27%** and SPL **60.31%**, surpassing state-of-the-art methods such as HAMT and KERM.
+- **Performance on REVERIE and SOON**: On REVERIE, which has rich object-grounding requirements, the SR in unseen scenes reaches **50.99%** and the object grounding metric RGSR improves by **+2.85%**; on SOON, with longer paths and more complex spatial structures, the unseen-validation SR reaches **37.32%** (+1.02%), indicating that hierarchical history and knowledge enhancement bring significant gains for large-scale exploration.
+- **Ablations and hyperparameter analysis**: Hierarchical history, entity guidance, and large-model step-by-step instructions all provide positive gains. A sensitivity analysis of Top-K shows that the optimal setting for knowledge retrieval is between 3 and 5; if it is too high (Top-K > 5), performance plummets because of the redundant or hallucinated information introduced.
 
 ### 4. Limitations
 {: id="ca-vln-4-局限性-19"}
 ---
-- **Sensitive to visually sparse scenes**: In visually minimalist scenes that lack significant landmarks and object textures, the semantic enhancement effect of the navigation instructions will be reduced due to the inability of the knowledge reasoning agent to capture rich entity attributes.
-- **Computation and reasoning delay**: Due to the introduction of online MLLM's text description retrieval and graph attention calculation, the reasoning time of each navigation decision has increased by about **15%** compared to the baseline (but better path planning, that is, higher SPL, reduces the total number of navigation steps, providing partial compensation for the total time consumption).
+- **Sensitivity to visually sparse scenes**: In minimalist scenes that lack salient landmarks and object textures, the semantic enhancement of navigation instructions weakens because the knowledge reasoning agent cannot capture rich entity attributes.
+- **Computation and inference latency**: Because of the online MLLM text-description retrieval and the graph attention computation, the inference time of each navigation decision increases by about **15%** compared with the baseline (although better path planning, i.e., higher SPL, reduces the total number of navigation steps and partly compensates for the total time).
 
 
 ---
 
 ## 20. ReflectVLN (2026)
 {: id="reflectvln"}
-——Embodied vision-language navigation based on reflective reasoning and two-way interaction mechanism
+——Embodied vision-language navigation based on reflective reasoning and a two-way interaction mechanism
 
 📄 **Paper**: [arXiv:2607.12680](https://arxiv.org/abs/2607.12680) · 🏛️ **IROS 2026**
 
 ### Key takeaways
 {: id="精华-29"}
 
-- Upgrade the one-way cascade structure of "slow planning-fast execution" in the traditional vision-language navigation (VLN) to a two-way closed-loop interaction architecture between the intent agent and execution agent.
-- Introducing the **Trigger Token mechanism** (`<VLNBOA>`, `<VLNBOR>`, `<VLNBOC>`), the execution agent monitors the sub-goal completion and yaw deviation in real time during the navigation process, realizing **on-demand high-level reflection and re-planning**, avoiding the waste of resources with fixed frequency refresh and the semantic disconnect of one-way cascade.
-- **Action-CoT** (path condition dual query training mechanism) is proposed to predict implicit coarse-grained future routes before predicting short-term actions and introduce global topological path constraints for local control.
-- Build a **single-round reflection-driven data generation pipeline** (Reflection-Driven Data Pipeline), collect policy Rollout failure samples and introduce Oracle expert intervention and VLM reflection generation. High-quality error correction data is generated through three-party cross-validation. It can significantly improve the recovery ability of the agent in long-term unknown environments without the need for large-scale pre-training or multiple rounds of iterative data enhancement.
+- Upgrades the one-way cascade of "slow planning, fast execution" in traditional vision-language navigation (VLN) to a two-way closed-loop interaction architecture between an intent agent and an execution agent.
+- Introduces a **trigger token mechanism** (`<VLNBOA>`, `<VLNBOR>`, `<VLNBOC>`): the execution agent monitors sub-goal completion and yaw deviation in real time during navigation, enabling **on-demand high-level reflection and re-planning** and avoiding both the resource waste of fixed-frequency refreshes and the semantic disconnect of a one-way cascade.
+- **Action-CoT** (a dual-query training mechanism conditioned on the path) is proposed: before predicting short-term actions, the model predicts an implicit coarse-grained future route, introducing a global topological path constraint on local control.
+- A **single-round reflection-driven data generation pipeline** (Reflection-Driven Data Pipeline) is built: failure samples from policy rollouts are collected, and Oracle expert intervention and VLM reflection are introduced; three-way cross-validation then yields high-quality error-correction data. This significantly improves the agent's recovery ability in long-horizon unknown environments without large-scale pre-training or multiple rounds of iterative data augmentation.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-28"}
 
-During the long-range execution of vision-language navigation in a continuous environment (VLN-CE), small control errors of the robot tend to accumulate and cause yaw. Most of the existing high- and low-level decoupling (Slow-Fast or Dual-System) methods use one-way communication: the high-level outputs language sub-goals at a fixed frequency, and the low-level executes in one direction, lacking semantic progress tracking and fault diagnosis closed loops during the execution process. When the robot yaws, the upper level cannot receive deviation feedback in time, resulting in a lag in replanning. In addition, traditional methods lack explicit reflection mechanisms to identify, diagnose, and correct navigation failures.
+During long-horizon execution of vision-language navigation in continuous environments (VLN-CE), small control errors of the robot tend to accumulate and cause yaw drift. Most existing methods that decouple high-level and low-level control (Slow-Fast or Dual-System) communicate in one direction: the high level outputs language sub-goals at a fixed frequency and the low level simply executes them, so there is no closed loop of semantic progress tracking and fault diagnosis during execution. When the robot drifts off course, the high level cannot receive the deviation feedback in time, so replanning lags. In addition, traditional methods lack an explicit reflection mechanism to identify, diagnose, and correct navigation failures.
 
 <div align="center">
-  <img src="/images/vln/ReflectVLN-paradigm-comparison.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:499/720" alt="Comparison between ReflectVLN and traditional Slow-Fast/dual system navigation framework. (a) The traditional cascade method delivers sub-goals in one direction; (b) ReflectVLN defines three trigger tokens (&lt;VLNBOR&gt; starts regular reflection to generate the next sub-goal, &lt;VLNBOC&gt; starts error correction reflection and diagnose errors, and &lt;VLNBBOA&gt; maintains pure action execution) to control the intent Agent in a closed loop on demand." />
+  <img src="/images/vln/ReflectVLN-paradigm-comparison.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:499/720" alt="Comparison between ReflectVLN and the traditional Slow-Fast / dual-system navigation framework. (a) The traditional cascade passes sub-goals in one direction; (b) ReflectVLN defines three trigger tokens (&lt;VLNBOR&gt; starts regular reflection to generate the next sub-goal, &lt;VLNBOC&gt; starts error-correction reflection to diagnose errors, and &lt;VLNBOA&gt; keeps pure action execution) to control the intent agent in an on-demand closed loop." />
 <figcaption>
-Comparison between ReflectVLN and traditional Slow-Fast/dual system navigation framework. (a) The traditional cascade method delivers sub-goals in one direction; (b) ReflectVLN defines three trigger tokens (&lt;VLNBOR&gt; starts regular reflection to generate the next sub-goal, &lt;VLNBOC&gt; starts error correction reflection and diagnose errors, and &lt;VLNBBOA&gt; maintains pure action execution) to control the intent Agent in a closed loop on demand.
+Comparison between ReflectVLN and the traditional Slow-Fast / dual-system navigation framework. (a) The traditional cascade passes sub-goals in one direction; (b) ReflectVLN defines three trigger tokens (&lt;VLNBOR&gt; starts regular reflection to generate the next sub-goal, &lt;VLNBOC&gt; starts error-correction reflection to diagnose errors, and &lt;VLNBOA&gt; keeps pure action execution) to control the intent agent in an on-demand closed loop.
 </figcaption>
 </div>
 
@@ -2463,69 +2463,69 @@ Comparison between ReflectVLN and traditional Slow-Fast/dual system navigation f
 ### 2. Method and innovations
 {: id="reflectvln-2-主要方法创新点-26"}
 
-The ReflectVLN architecture consists of two independently parameterized Agents: **Intention Agent (Intention Agent, $\theta_{int}$)** and **Execution Agent ($\theta_{exe}$)**, both initialized based on the Qwen2.5-VL-3B model.
+The ReflectVLN architecture consists of two independently parameterized agents: an **Intention Agent ($\theta_{int}$)** and an **Execution Agent ($\theta_{exe}$)**, both initialized from the Qwen2.5-VL-3B model.
 
 <div align="center">
-  <img src="/images/vln/ReflectVLN-architecture-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:983/737" alt="ReflectVLN overall architecture diagram. As a high-level reflective planner, the intent agent receives visual history, natural language instructions and execution feedback, and generates reflective sub-goal descriptions; the execution agent conditions the sub-goals and current observations, outputs continuous motion trajectories and status tokens that regulate subsequent dual-agent interactions." />
+  <img src="/images/vln/ReflectVLN-architecture-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:983/737" alt="ReflectVLN overall architecture. As a high-level reflective planner, the intention agent receives the visual history, the natural-language instruction, and execution feedback, and generates reflective sub-goal descriptions; the execution agent, conditioned on the sub-goal and the current observation, outputs continuous motion trajectories and status tokens that regulate subsequent interaction between the two agents." />
 <figcaption>
-ReflectVLN overall architecture diagram. As a high-level reflective planner, the intent agent receives visual history, natural language instructions and execution feedback, and generates reflective sub-goal descriptions; the execution agent conditions the sub-goals and current observations, outputs continuous motion trajectories and status tokens that regulate subsequent dual-agent interactions.
+ReflectVLN overall architecture. As a high-level reflective planner, the intention agent receives the visual history, the natural-language instruction, and execution feedback, and generates reflective sub-goal descriptions; the execution agent, conditioned on the sub-goal and the current observation, outputs continuous motion trajectories and status tokens that regulate subsequent interaction between the two agents.
 </figcaption>
 </div>
 
-#### ① Overview of the overall framework
+#### ① Overall framework
 {: id="-整体框架概述-11"}
-The system consists of high-level intent Agent and low-level execution Agent. The intent agent is responsible for sub-task decomposition and yaw reflection of global long-range instructions; the execution agent is responsible for grounding sub-goals into short-term continuous motion control in the local field of view and evaluating the execution status in real time. The two establish event-driven two-way closed-loop communication through the explicit **Status Token interface** (Status Tokens) instead of a fixed frequency of one-way command issuance.
+The system consists of a high-level intention agent and a low-level execution agent. The intention agent handles sub-task decomposition of the global long-horizon instruction and reflection on yaw deviation; the execution agent grounds sub-goals into short-term continuous motion control within the local field of view and evaluates the execution status in real time. The two establish event-driven two-way closed-loop communication through an explicit **status token interface** (Status Tokens), instead of issuing one-way commands at a fixed frequency.
 
-#### ② Explain module by module
+#### ② Module-by-module explanation
 {: id="-逐模块讲解-9"}
 
-- **Intention Agent（Intention Agent, $\theta_{int}$）**
-  - **Input**: Global natural language instruction $\ell$, monocular RGB historical observation $I_{t-H:t}$, and status trigger signal $z_t \in \{R, C\}$ sent by the execution agent.
-  - **Processing process**: Based on the multi-modal understanding and generation capabilities of VLM, when the regular trigger signal $z_t = R$ (`<VLNBOR>`) is received, the next executable sub-goal description $c_t$ is generated based on the route progress; when the error correction trigger signal is received When $z_t = C$ (`<VLNBOC>`), diagnose the cause of yaw and output the sub-target description with corrective actions.
-  - **Output**: Structured natural language sub-target text $c_t$.
-  - **Design motivation**: Directly utilize the language reasoning capabilities of VLM to complete advanced semantic planning, avoiding the introduction of additional target detectors or complex pixel-level target calibration.
+- **Intention Agent ($\theta_{int}$)**
+  - **Input**: The global natural-language instruction $\ell$, the monocular RGB observation history $I_{t-H:t}$, and the status trigger signal $z_t \in \{R, C\}$ sent by the execution agent.
+  - **Processing**: Based on the VLM's multimodal understanding and generation abilities, when the regular trigger signal $z_t = R$ (`<VLNBOR>`) is received, it generates the description $c_t$ of the next executable sub-goal according to the route progress; when the error-correction trigger signal $z_t = C$ (`<VLNBOC>`) is received, it diagnoses the cause of the yaw and outputs a sub-goal description with corrective actions.
+  - **Output**: The structured natural-language sub-goal text $c_t$.
+  - **Motivation**: Directly leverages the VLM's language reasoning for high-level semantic planning, avoiding an extra object detector or complex pixel-level goal calibration.
 
-- **Execution Agent (Execution Agent with Action-CoT, $\theta_{exe}$)**
-  - **Input**: Global instruction $\ell$, current language subgoal $c_t$, and historical visual observation $I_{t-H:t}$.
-  - **Processing process (Action-CoT path condition double query)**:
-    1. First, learnable navigation queries (Navigation Queries, $Q_{nav}$) are used to predict implicit coarse-grained future routes $$\hat{P}_t = \text{MLP}_{nav}(f_{\theta_{exe}}(X, Q_{nav}))$$ for longer horizons.
-    2. Splice the coarse-grained route feature $E_{nav}$ with the action query (Action Queries, $Q_{act}$) to predict the short-term control action $$\hat{A}_t = \text{MLP}_{act}(f_{\theta_{exe}}(X, [E_{nav}; Q_{act}]))$$.
-    3. At the same time, the language generation head autoregression is used to predict a discrete state Token $z_t \in \{A, R, C\}$.
-  - **Output**: Continuous motion control quantity $$\hat{A}_t$$ (including plane relative displacement $(\Delta x_t, \Delta y_t)$, orientation angle $(\cos\phi_t, \sin\phi_t)$ and stop probability logit $s_t$) and interaction status Token $z_t$.
-  - **Design motivation**: Break the traditional plain text CoT model, model "Thought" as a coarse-grained future path constraint, and explicitly improve the spatiotemporal consistency of the route of local action prediction.
+- **Execution Agent with Action-CoT ($\theta_{exe}$)**
+  - **Input**: The global instruction $\ell$, the current language sub-goal $c_t$, and the historical visual observations $I_{t-H:t}$.
+  - **Processing (Action-CoT: dual queries conditioned on the path)**:
+    1. First, learnable navigation queries ($Q_{nav}$) are used to predict an implicit coarse-grained future route over a longer horizon, $$\hat{P}_t = \text{MLP}_{nav}(f_{\theta_{exe}}(X, Q_{nav}))$$.
+    2. The coarse-grained route feature $E_{nav}$ is concatenated with the action queries ($Q_{act}$) to predict the short-term control action $$\hat{A}_t = \text{MLP}_{act}(f_{\theta_{exe}}(X, [E_{nav}; Q_{act}]))$$.
+    3. At the same time, the language generation head autoregressively predicts a discrete status token $z_t \in \{A, R, C\}$.
+  - **Output**: The continuous motion control quantity $$\hat{A}_t$$ (including the planar relative displacement $(\Delta x_t, \Delta y_t)$, the orientation $(\cos\phi_t, \sin\phi_t)$, and the stop-probability logit $s_t$) and the interaction status token $z_t$.
+  - **Motivation**: Breaks away from the traditional plain-text CoT and models the "thought" as a coarse-grained future path constraint, explicitly improving the spatiotemporal consistency of the route behind local action prediction.
 
 #### ③ Closed-loop data flow and interaction logic
 {: id="-闭环数据流与交互逻辑"}
-1. At the initial moment, the intent Agent generates the first sub-target $c_1$.
-2. At each time step $t$, the executing Agent outputs short-range action $$\hat{A}_t$$ and status Token $z_t$ based on $c_t$ and visual history.
-3. If $z_t = \langle \text{VLNBOA} \rangle$, the agent is executed to run independently for short-term control without calling the high-level intent agent;
-4. If $z_t = \langle \text{VLNBOR} \rangle$, it indicates that the current sub-goal has been completed, triggering the intent Agent to generate the next regular sub-goal;
-5. If $z_t = \langle \text{VLNBOC} \rangle$, it indicates that the agent detects severe yaw, triggers the intent Agent to perform error diagnosis and outputs the error correction sub-goal.
+1. At the initial moment, the intention agent generates the first sub-goal $c_1$.
+2. At each time step $t$, the execution agent outputs a short-horizon action $$\hat{A}_t$$ and a status token $z_t$ based on $c_t$ and the visual history.
+3. If $z_t = \langle \text{VLNBOA} \rangle$, the execution agent keeps running on its own for short-term control, without calling the high-level intention agent;
+4. If $z_t = \langle \text{VLNBOR} \rangle$, the current sub-goal has been completed, which triggers the intention agent to generate the next regular sub-goal;
+5. If $z_t = \langle \text{VLNBOC} \rangle$, the agent has detected a severe yaw, which triggers the intention agent to diagnose the error and output a corrective sub-goal.
 
 #### ④ Training objective and loss function
 {: id="-训练目标与损失函数-2"}
 
 - **Stage I: Action-CoT pre-training**
-Define a single control point prediction loss as a combination of position loss, orientation loss and stop loss:
+The prediction loss for a single control point is defined as a combination of a position loss, an orientation loss, and a stop loss:
   $$\mathcal{L}_{traj}(\hat{U}, U^*) = \lambda_{pos} \mathcal{L}_{pos} + \lambda_{ang} \mathcal{L}_{ang} + \lambda_{stop} \mathcal{L}_{stop}$$
-Action-CoT pre-training total loss combines short-term action loss and coarse-grained route loss:
+The total Action-CoT pre-training loss combines the short-term action loss and the coarse-grained route loss:
   $$\mathcal{L}_{WP} = \mathcal{L}_{traj}(\hat{A}, A^*) + \beta \mathcal{L}_{traj}(\hat{P}, P^*)$$
-Among them, set the weight $\lambda_{pos} = \lambda_{ang} = \lambda_{stop} = 1.0$ and the route regular weight $\beta = 0.1$.
+The weights are set to $\lambda_{pos} = \lambda_{ang} = \lambda_{stop} = 1.0$, and the route regularization weight to $\beta = 0.1$.
 
 - **Stage II: State-aware joint fine-tuning**
-  - **Intent Agent Goal**: Autoregressive language modeling of regular requests and error correction requests:
+  - **Intention agent objective**: autoregressive language modeling of regular requests and error-correction requests:
     $$\mathcal{L}_{int}^{(z)} = -\sum_{j=1}^{T} \log p_{\theta_{int}}(y_j^* \mid y_{<j}^*, \ell, I_{t-H:t}, z)$$
-  - **Execution Agent Goal**: Jointly predict actions and status Token:
+  - **Execution agent objective**: jointly predict actions and the status token:
     $$\mathcal{L}_{exe} = \mathbf{1}[z_t^* = A] \mathcal{L}_{WP} + \lambda_{status} \mathcal{L}_{status}$$
-Among them $$\mathcal{L}_{status} = -\log p_{\theta_{exe}}(z_t^* \mid \ell, c_t, I_{t-H:t})$$.
+Here $$\mathcal{L}_{status} = -\log p_{\theta_{exe}}(z_t^* \mid \ell, c_t, I_{t-H:t})$$.
 
 #### ⑤ Reflection-driven data construction pipeline
 {: id="-反思驱动的数据构建流水线"}
 
 <div align="center">
-  <img src="/images/vln/ReflectVLN-reflective-data-pipeline.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:983/559" alt="Reflection-driven data generation pipeline. (1) Expert data collection; (2) Policy Rollout produces yaw failure, calling Oracle experts to calculate the rescue trajectory and VLM to generate reflection text; (3) Quality filtering and three-party cross-validation to produce a high-quality reflection error correction training set." />
+  <img src="/images/vln/ReflectVLN-reflective-data-pipeline.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:983/559" alt="Reflection-driven data generation pipeline. (1) Expert data collection; (2) policy rollouts produce yaw failures, for which an Oracle expert computes a rescue trajectory and a VLM generates reflection text; (3) quality filtering and three-way cross-validation produce a high-quality reflective error-correction training set." />
 <figcaption>
-Reflection-driven data generation pipeline. (1) Expert data collection; (2) Policy Rollout produces yaw failure, calling Oracle experts to calculate the rescue trajectory and VLM to generate reflection text; (3) Quality filtering and three-party cross-validation to produce a high-quality reflection error correction training set.
+Reflection-driven data generation pipeline. (1) Expert data collection; (2) policy rollouts produce yaw failures, for which an Oracle expert computes a rescue trajectory and a VLM generates reflection text; (3) quality filtering and three-way cross-validation produce a high-quality reflective error-correction training set.
 </figcaption>
 </div>
 
@@ -2534,40 +2534,40 @@ Reflection-driven data generation pipeline. (1) Expert data collection; (2) Poli
 ### 3. Results and findings
 {: id="3-核心结果发现-27"}
 
-Comprehensive evaluation on standard continuous environment vision-language navigation benchmarks (R2R-CE and RxR-CE Val-Unseen) on Matterport3D:
+Comprehensive evaluation on the standard continuous-environment vision-language navigation benchmarks on Matterport3D (R2R-CE and RxR-CE Val-Unseen):
 
 <div align="center">
-  <img src="/images/vln/ReflectVLN-qualitative-examples.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:975/779" alt="Qualitative visual comparison on R2R Val-Unseen. Above: sub-goal grounding and progress tracking; below: off-orbit and yaw detection and successful error correction recovery based on closed-loop re-planning." />
+  <img src="/images/vln/ReflectVLN-qualitative-examples.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:975/779" alt="Qualitative comparison on R2R Val-Unseen. Top: sub-goal grounding and progress tracking; bottom: detection of off-track drift and yaw, and successful error-correction recovery through closed-loop re-planning." />
 <figcaption>
-Qualitative visual comparison on R2R Val-Unseen. Above: sub-goal grounding and progress tracking; below: off-orbit and yaw detection and successful error correction recovery based on closed-loop re-planning.
+Qualitative comparison on R2R Val-Unseen. Top: sub-goal grounding and progress tracking; bottom: detection of off-track drift and yaw, and successful error-correction recovery through closed-loop re-planning.
 </figcaption>
 </div>
 
-1. **SOTA Navigation Performance**:
-   - **R2R-CE benchmark**: Achieved **62.8% success rate (SR)** and **58.5% SPL** under pure monocular RGB conditions (compared to StreamVLN baseline SR improvement of 5.9 percentage points, the same as DualVLN's 58.5% SPL).
-   - **RxR-CE benchmark**: Achieved **66.0% success rate (SR)** and **57.2% SPL** on the long-instruction complex RxR-CE (13.1 percentage points higher than the StreamVLN baseline SR, surpassing the 61.4% SR / 51.8% SPL of DualVLN based on the 7B model).
+1. **State-of-the-art navigation performance**:
+   - **R2R-CE benchmark**: Achieves a **62.8% success rate (SR)** and **58.5% SPL** with monocular RGB only (SR is 5.9 percentage points above the StreamVLN baseline, and SPL matches DualVLN's 58.5%).
+   - **RxR-CE benchmark**: Achieves a **66.0% success rate (SR)** and **57.2% SPL** on the long-instruction, complex RxR-CE (13.1 percentage points higher SR than the StreamVLN baseline, surpassing the 61.4% SR / 51.8% SPL of the 7B-model-based DualVLN).
 
 2. **High data and parameter efficiency**:
-   - Compared with DualVLN (7B model, 12M training samples, introduction of additional ScaleVLN data) and CorrectNav (7B model, multi-round flywheel iteration), ReflectVLN only uses **2×3B parameter architecture** and **1.5M expert data + 100k single-round reflection data**, which means it achieves better overall performance.
+   - Compared with DualVLN (7B model, 12M training samples, extra ScaleVLN data) and CorrectNav (7B model, multi-round flywheel iteration), ReflectVLN uses only a **2×3B-parameter architecture** and **1.5M expert samples + 100k single-round reflection samples**, yet achieves better overall performance.
 
-3. **ablation experiment and on-demand triggering efficiency**:
-   - **Action-CoT effect**: The introduction of coarse-grained route prediction of path conditions increases the SR from 52.8% to 60.0% and the SPL from 50.1% to 57.2%.
-   - **Advantages of on-demand triggering**: Compared with fixed step size triggering (such as calling high-level every 4 steps or 12 steps), on-demand triggering achieves the highest success rate (62.8% vs 61.8%/59.4%).
-   - **Frequency of high-level calls**: During the inference phase, the intent agent is triggered and called once on average every **9.63 execution steps**, which significantly reduces the computational burden of high-level language inference in slow systems.
+3. **Ablations and efficiency of on-demand triggering**:
+   - **Effect of Action-CoT**: Introducing path-conditioned coarse-grained route prediction raises SR from 52.8% to 60.0% and SPL from 50.1% to 57.2%.
+   - **Advantage of on-demand triggering**: Compared with fixed-interval triggering (such as calling the high level every 4 or 12 steps), on-demand triggering achieves the highest success rate (62.8% vs. 61.8%/59.4%).
+   - **Frequency of high-level calls**: At inference time, the intention agent is triggered once every **9.63 execution steps** on average, which significantly reduces the computational burden of high-level language reasoning in the slow system.
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-27"}
 
-- The decoupled dual-agent architecture in this article uses two 3B models independently (the total parameter count is 6B). Compared with the ablation of the single 7B model, the total parameter count alignment is not strictly controlled;
-- The evaluation indicators mainly focus on the high-level invocation frequency (Invocation frequency) triggered on demand. In the future, it is still necessary to further measure the end-to-end delay (Latency) and actual FLOPs power consumption on actual hardware devices.
+- The decoupled dual-agent architecture uses two independent 3B models (6B parameters in total). Compared with the single-7B-model ablation, the total parameter counts are not strictly aligned;
+- The evaluation focuses mainly on the invocation frequency of on-demand high-level calls. In the future, end-to-end latency and actual FLOPs and power consumption still need to be measured on real hardware.
 
 ---
 
 ## 21. AgenticNav (2026)
 {: id="agenticnav"}
-———Reconstruct zero-shot continuous environment navigation (VLN-CE) into a VLM callable Tool-Calling architecture
+——Reconstructing zero-shot navigation in continuous environments (VLN-CE) as a VLM tool-calling architecture
 
 📄 **Paper**: [arXiv:2606.10577](https://arxiv.org/abs/2606.10577)
 
@@ -2575,89 +2575,89 @@ Qualitative visual comparison on R2R Val-Unseen. Above: sub-goal grounding and p
 
 ### Key takeaways
 {: id="精华-31"}
-1. **Paradigm Reconstruction**: Redefine zero-shot continuous environment vision-language navigation (VLN-CE) as the Tool-Calling interaction Harness between VLM and the environment, breaking the dependence on additionally trained waypoint predictors (Waypoint Predictor).
-2. **Pixel-level waypoint-free action control**: Action Tool is proposed to allow VLM to directly click the target pixel $(u,v)$ in the RGB image, and the background Harness completes the back-projection, ground plane steering/step calculation and swept-corridor sweeping safety collision check.
-3. **Depth Perception on Demand**: Designed by Pixel-Depth Tool, VLM can query the true physical depth and $5\times 5$ local depth statistics of specific pixels on demand, without the need for full depth maps or implicit predictions.
-4. **Lightweight Agentic Memory**: Build a Memory mechanism that combines the bird's-eye view Map Image and the on-demand Recall Tool to only call the historical node RGB view when necessary, completely solving the problem of prompt context overload and cross-episode dependency.
-5. **SOTA performance and real robot generalization**: On the R2R-CE benchmark, using GPT-5.5 as the VLM core achieves **55% SR** and **48.41% SPL** (significantly exceeding SmartWay's 44% SR / 35.04% SPL); it demonstrates extremely strong Zero-Shot Sim-to-Real generalization capabilities in real four-wheeled robots and complex indoor and outdoor scenes.
+1. **Paradigm reconstruction**: Redefines zero-shot vision-language navigation in continuous environments (VLN-CE) as a tool-calling interaction harness between a VLM and the environment, removing the dependence on an additionally trained waypoint predictor.
+2. **Pixel-level, waypoint-free action control**: An action tool is proposed that lets the VLM click a target pixel $(u,v)$ in the RGB image directly, while the background harness performs the back-projection, the ground-plane turn/step computation, and a swept-corridor safety collision check.
+3. **On-demand depth perception**: With the Pixel-Depth Tool, the VLM can query the true physical depth of specific pixels and $5\times 5$ local depth statistics on demand, with no need for a full depth map or implicit prediction.
+4. **Lightweight agentic memory**: A memory mechanism combining a bird's-eye-view Map Image with an on-demand Recall Tool retrieves historical node RGB views only when necessary, completely avoiding prompt context overload and cross-episode dependence.
+5. **State-of-the-art performance and real-robot generalization**: On the R2R-CE benchmark, using GPT-5.5 as the VLM core, it achieves **55% SR** and **48.41% SPL** (far above SmartWay's 44% SR / 35.04% SPL); it also shows very strong zero-shot sim-to-real generalization on a real four-wheeled robot in complex indoor and outdoor scenes.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-30"}
 
-Zero-shot continuous environment vision-language navigation (Zero-Shot VLN-CE) requires the agent to complete continuous motion control in an unseen 3D physical scene without predefined navigation graph (Navigation Graph) and policy fine-tuning, relying only on natural language instructions and visual/depth perception. The rapid development of large language/visual language models (VLM) has made it the core of high-level decision-making, but existing methods have three serious bottlenecks:
-- **Limited action space**: SOTA methods such as Open-Nav and SmartWay generally rely on additionally trained waypoint prediction networks (Waypoint Predictor) to recommend candidate action points. If the predictor does not reveal the critical directions/goals required by the instruction, the VLM will be limited to the wrong candidate set and cannot select the correct path.
-- **Lack of geometry/depth perception**: The existing architecture treats the depth input as a black box to the waypoint predictor, or forces the VLM to directly parse complex dense depth maps, making it difficult for the VLM to accurately evaluate the physical distance and spatial accessibility of the target object.
-- **Memory mechanism dilemma**: Traditional methods maintain memory by continuously splicing historical text/visual frames to Prompt, causing the Context to quickly overload and introduce a large amount of irrelevant interference; or relying on cross-episode (Cross-episode) experience retrieval (such as EvoNav), weakening the strict zero-shot assumption.
+Zero-shot vision-language navigation in continuous environments (Zero-Shot VLN-CE) requires an agent to perform continuous motion control in unseen 3D physical scenes, without a predefined navigation graph or policy fine-tuning, relying only on natural-language instructions and visual/depth perception. The rapid progress of large language/vision-language models (VLMs) has made them the core of high-level decision-making, but existing methods have three serious bottlenecks:
+- **Limited action space**: State-of-the-art methods such as Open-Nav and SmartWay generally rely on an additionally trained waypoint prediction network (Waypoint Predictor) to recommend candidate action points. If the predictor fails to expose the critical directions or goals required by the instruction, the VLM is confined to a wrong candidate set and cannot choose the correct path.
+- **Lack of geometric/depth perception**: Existing architectures either treat the depth input as a black box inside the waypoint predictor or force the VLM to parse complex dense depth maps directly, making it hard for the VLM to evaluate the physical distance and spatial reachability of target objects accurately.
+- **Memory dilemma**: Traditional methods maintain memory by continually appending historical text/visual frames to the prompt, which quickly overloads the context and introduces a lot of irrelevant interference; others rely on cross-episode experience retrieval (such as EvoNav), which weakens the strict zero-shot assumption.
 
 ---
 
 ### 2. Method and innovations
 {: id="2-主要方法创新点-28"}
 
-AgenticNav reconstructs zero-shot VLN-CE into a lightweight **Tool-Calling Harness**, decoupling action generation, depth perception and historical memory into 4 callable tool interfaces (Action Tool, Depth Tool, Recall Tool, Stop Tool). While retaining the semantic reasoning and perceptual freedom of VLM, numerical geometry calculations and safety checks are handled by deterministic physical Harness.
+AgenticNav recasts zero-shot VLN-CE as a lightweight **tool-calling harness**, decoupling action generation, depth perception, and historical memory into four callable tool interfaces (Action Tool, Depth Tool, Recall Tool, Stop Tool). The VLM keeps its freedom of semantic reasoning and perception, while numerical geometry computation and safety checks are handled by a deterministic physical harness.
 
 <div align="center">
-  <img src="/images/vln/AgenticNav-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/475" alt="Comparison between AgenticNav and the traditional Zero-Shot VLN-CE architecture: breaking the movement restrictions of the traditional Waypoint Predictor, the full depth map perception bottleneck and the long prompt memory overload." />
+  <img src="/images/vln/AgenticNav-overview.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/475" alt="Comparison between AgenticNav and the traditional zero-shot VLN-CE architecture: it removes the movement restriction of the traditional waypoint predictor, the bottleneck of full-depth-map perception, and the overload of long prompt memory." />
 <figcaption>
-Comparison between AgenticNav and the traditional Zero-Shot VLN-CE architecture: breaking the movement restrictions of the traditional Waypoint Predictor, the full depth map perception bottleneck and the long prompt memory overload.
+Comparison between AgenticNav and the traditional zero-shot VLN-CE architecture: it removes the movement restriction of the traditional waypoint predictor, the bottleneck of full-depth-map perception, and the overload of long prompt memory.
 </figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vln/AgenticNav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/702" alt="AgenticNav system overall workflow: VLM makes decisions based on the current RGB and Map Image, can query the depth (Depth Tool) on demand, recall historical visual nodes (Recall Tool), and trigger the Action Tool to perform safe movements by clicking on the RGB target pixel." />
+  <img src="/images/vln/AgenticNav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/702" alt="AgenticNav overall workflow: the VLM makes decisions from the current RGB image and the Map Image, can query depth on demand (Depth Tool), recall historical visual nodes (Recall Tool), and trigger the Action Tool to perform safe movement by clicking a target pixel in the RGB image." />
 <figcaption>
-AgenticNav system overall workflow: VLM makes decisions based on the current RGB and Map Image, can query the depth (Depth Tool) on demand, recall historical visual nodes (Recall Tool), and trigger the Action Tool to perform safe movements by clicking on the RGB target pixel.
+AgenticNav overall workflow: the VLM makes decisions from the current RGB image and the Map Image, can query depth on demand (Depth Tool), recall historical visual nodes (Recall Tool), and trigger the Action Tool to perform safe movement by clicking a target pixel in the RGB image.
 </figcaption>
 </div>
 
-#### ① Overview of the overall framework
+#### ① Overall framework
 {: id="-整体框架概述-13"}
-AgenticNav consists of **VLM decision-making core** and **four deterministic Tool interfaces**:
-1. **Action Tool (`move_to`)**: Responsible for converting image pixels selected by VLM into safe continuous control quantities.
-2. **Depth Tool (`query_depth`)**: Responsible for providing VLM with precise physical distances and local surface features of specific pixels.
-3. **Agentic Memory (`Map Image` + `recall`)**: Responsible for maintaining global trajectory awareness and on-demand retrieval of local details.
-4. **Stop Tool (`stop`)**: Responsible for determining navigation termination.
+AgenticNav consists of a **VLM decision core** and **four deterministic tool interfaces**:
+1. **Action Tool (`move_to`)**: converts the image pixel selected by the VLM into safe continuous control quantities.
+2. **Depth Tool (`query_depth`)**: provides the VLM with the precise physical distance and local surface features of specific pixels.
+3. **Agentic Memory (`Map Image` + `recall`)**: maintains global trajectory awareness and retrieves local details on demand.
+4. **Stop Tool (`stop`)**: decides when navigation terminates.
 
-#### ② Explain module by module
+#### ② Module-by-module explanation
 {: id="-逐模块讲解-11"}
 
-##### 1. Waypoint-Free Action Tool (`move_to(k, u, v)`)
+##### 1. Waypoint-free Action Tool (`move_to(k, u, v)`)
 {: id="1-waypoint-free-action-tool-move_tok-u-v"}
-- **Input**: VLM selected view index $k$ and normalized pixel coordinates $(u, v) \in [0,1]^2$.
+- **Input**: The view index $k$ chosen by the VLM and normalized pixel coordinates $(u, v) \in [0,1]^2$.
 - **Processing**:
-  - **Geometric back-projection**: Combined with the camera internal parameter $K$, external parameter $T_k$ and depth value $d = D_t^k(x, y)$, back-project the pixel $(x, y)$ into a 3D target point in the robot coordinate system:
+  - **Geometric back-projection**: Using the camera intrinsics $K$, extrinsics $T_k$, and the depth value $d = D_t^k(x, y)$, back-project the pixel $(x, y)$ into a 3D target point in the robot frame:
     $$p_t = T_k \left( d K^{-1} [x, y, 1]^\top \right)$$
-  - **Motion Calculation**: Extract the ground plane azimuth angle $\theta = \text{bearing}(p_{t,xz})$, and calculate the actual forward distance according to the maximum step limit $\rho_{\max}$, stop margin $m$ and step discretization interval $\Delta$:
+  - **Motion computation**: Extract the ground-plane bearing $\theta = \text{bearing}(p_{t,xz})$ and compute the actual forward distance from the maximum step limit $\rho_{\max}$, the stop margin $m$, and the step discretization interval $\Delta$:
     $$\rho = \Delta \left\lfloor \frac{\min\left(\rho_{\max}, \max(0, \|p_{t,xz}\| - m)\right)}{\Delta} \right\rfloor$$
-  - **Swept-Corridor Sweep Safety Check**: Filter out all obstacle point clusters $P_t$ located within the robot body height interval $[y_{\min}, y_{\max}]$. Check whether there is a collision point in the robot sweep corridor along the heading vector $b_\theta = (-\sin\theta, \cos\theta)$ and the lateral vector $\ell_\theta = (\cos\theta, \sin\theta)$:
+  - **Swept-corridor safety check**: Keep all obstacle points $P_t$ within the robot's body-height interval $[y_{\min}, y_{\max}]$, and check whether any collision point lies in the corridor swept by the robot along the heading vector $b_\theta = (-\sin\theta, \cos\theta)$ and the lateral vector $\ell_\theta = (\cos\theta, \sin\theta)$:
     $$\text{Safe}(\theta, \rho) = \mathbf{1} \left[ \nexists q \in P_t : 0 \lt q_{xz} \cdot b_\theta \lt \rho + r_a \land |q_{xz} \cdot \ell_\theta| \lt r_a \right]$$
-Among them, $r_a$ is the radius of the robot. If a collision is detected, `Reselect` feedback is returned to prompt VLM to reselect; if it is safe, `Execute(θ, ρ)` is output.
-- **Design motivation**: Abandon the supervised training waypoint predictor and give VLM the freedom to directly select any visually accessible location in the visual scene (such as a specific door gap, the end of the corridor, next to furniture).
+Here $r_a$ is the robot radius. If a collision is detected, `Reselect` feedback is returned to prompt the VLM to choose again; if the move is safe, `Execute(θ, ρ)` is output.
+- **Motivation**: Drops the supervised-trained waypoint predictor and gives the VLM the freedom to select any visually reachable location in the scene directly (such as a particular doorway, the end of a corridor, or the side of a piece of furniture).
 
-##### 2. On-Demand Pixel-Depth Tool (`query_depth(P)`)
+##### 2. On-demand Pixel-Depth Tool (`query_depth(P)`)
 {: id="2-on-demand-pixel-depth-tool-query_depthp"}
-- **Input**: Batch set of candidate pixels $$P = \{ p_i = (k_i, u_i, v_i) \}_{i=1}^m$$.
-- **Processing**: Sample the phase depth map of each query point and return structured information:
+- **Input**: A batch of candidate pixels $$P = \{ p_i = (k_i, u_i, v_i) \}_{i=1}^m$$.
+- **Processing**: Sample the depth map of the corresponding view at each query point and return structured information:
   $$D(p_i) = \left( d_i, s_i^{5 \times 5}, \hat{\theta}_i, \hat{\rho}_i \right)$$
-Among them, $d_i$ is the physical depth (meters), $s_i^{5 \times 5}$ is the minimum, mean and median depth within the $5\times 5$ window centered on the pixel (used to determine whether it falls on the edge or a flat surface), $$\hat{\theta}_i$$ and $$\hat{\rho}_i$$ are pre-calculated action previews.
-- **Design motivation**: Dense depth maps are extremely difficult for VLM to parse quantitatively. On-demand query enables VLM to accurately compare different directions (such as "whether the left channel is clear" and "how far away is the door ahead") before making decisions, providing reliable local spatial geometry evidence.
+Here $d_i$ is the physical depth (in meters), $s_i^{5 \times 5}$ is the minimum, mean, and median depth within the $5\times 5$ window centered on the pixel (used to judge whether it lies on an edge or a flat surface), and $$\hat{\theta}_i$$ and $$\hat{\rho}_i$$ are precomputed action previews.
+- **Motivation**: Dense depth maps are extremely hard for a VLM to parse quantitatively. On-demand queries let the VLM compare different directions accurately (such as "is the left passage clear" and "how far away is the door ahead") before deciding, providing reliable local spatial geometry evidence.
 
-##### 3. Agentic Memory and Visual Recall Tool
+##### 3. Agentic memory and the visual Recall Tool
 {: id="3-agentic-memory-与-visual-recall-tool"}
-- **Input and structure**: The internal memory of Episode is represented as $$\mathcal{M}_t = (B_t, \mathcal{C}_t)$$.
-  - $B_t$ is a **topology Map Image** placed directly in Prompt, which visually displays historical trajectory nodes and current orientation.
+- **Input and structure**: The in-episode memory is represented as $$\mathcal{M}_t = (B_t, \mathcal{C}_t)$$.
+  - $B_t$ is a **topological Map Image** placed directly in the prompt, visually showing the historical trajectory nodes and the current orientation.
   - $$\mathcal{C}_t$$ is the cache of all past observation views.
-- **Recall mechanism**: When VLM needs to check early road signs (such as "the sign you just saw at the intersection"), it calls `recall(p, k)` and only extracts the single-frame RGB image $$R_t(p, k) = \mathcal{C}_t[p, k]$$ of the $p$ perspective $k$ and appends it to Prompt.
-- **Design motivation**: Prevent Prompt from overflowing as the number of navigation steps increases, avoid useless visual frames from interfering with VLM's attention, and achieve efficient long-distance navigation.
+- **Recall mechanism**: When the VLM needs to check an earlier landmark (such as "the sign you just saw at the intersection"), it calls `recall(p, k)`, which fetches only the single-frame RGB image $$R_t(p, k) = \mathcal{C}_t[p, k]$$ of view $k$ at node $p$ and appends it to the prompt.
+- **Motivation**: Keeps the prompt from overflowing as the number of navigation steps grows, prevents useless visual frames from distracting the VLM's attention, and enables efficient long-range navigation.
 
 #### ③ Reasoning and interaction process
 {: id="-推理与交互流程"}
-1. At the initial moment, VLM receives language commands, the current panoramic RGB image and the initial Map Image $B_t$.
-2. VLM can call `query_depth` as many times as needed to evaluate the distance to a target point of interest, or call `recall` to backtrack a specific historical view.
-3. VLM calls `move_to` to output target pixels; Harness evaluates safety checks. If it is safe, drive the robot to move and update the Map Image; if it is unsafe, feedback `Reselect` to prompt a new decision.
-4. After reaching the target area, VLM calls `stop()` to complete the task.
+1. At the initial moment, the VLM receives the language instruction, the current panoramic RGB images, and the initial Map Image $B_t$.
+2. The VLM can call `query_depth` as many times as needed to evaluate the distance to a point of interest, or call `recall` to look back at a specific historical view.
+3. The VLM calls `move_to` to output a target pixel; the harness evaluates the safety check. If the move is safe, the robot is driven to move and the Map Image is updated; if not, `Reselect` feedback prompts a new decision.
+4. After reaching the target area, the VLM calls `stop()` to complete the task.
 
 ---
 
@@ -2665,45 +2665,45 @@ Among them, $d_i$ is the physical depth (meters), $s_i^{5 \times 5}$ is the mini
 {: id="3-核心结果发现-29"}
 
 <div align="center">
-  <img src="/images/vln/AgenticNav-realworld.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/841" alt="real-world robot deployment comparison: AgenticNav can accurately pass through narrow door openings and long corridors without waypoint predictor constraints, and significantly surpasses SmartWay in four views mode." />
+  <img src="/images/vln/AgenticNav-realworld.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1118/841" alt="Real-robot deployment comparison: AgenticNav passes accurately through narrow doorways and long corridors without the constraints of a waypoint predictor, and significantly surpasses SmartWay in four-view mode." />
 <figcaption>
-real-world robot deployment comparison: AgenticNav can accurately pass through narrow door openings and long corridors without waypoint predictor constraints, and significantly surpasses SmartWay in four views mode.
+Real-robot deployment comparison: AgenticNav passes accurately through narrow doorways and long corridors without the constraints of a waypoint predictor, and significantly surpasses SmartWay in four-view mode.
 </figcaption>
 </div>
 
-#### 1. R2R-CE Simulation Evaluation (R2R-CEval Unseen 100 Episodes)
+#### 1. R2R-CE simulation evaluation (R2R-CE Val-Unseen, 100 episodes)
 {: id="1-r2r-ce-simulation-评估r2r-ceval-unseen-100-episodes"}
-Under the strict same VLM Backbone (GPT-5.5 / Gemini-2.5-Pro), AgenticNav refreshed the Zero-Shot VLN-CE performance record:
-- **AgenticNav-GPT-5.5** achieved **55% SR**, **48.41% SPL**, **65% OSR**, **63.41 nDTW** and **5.19 m NE**. Compared with the SOTA Baseline **SmartWay-GPT-5.5** (SR 44%, SPL 35.04%) reproduced with Backbone, the SR is improved **11%**, SPL increased significantly by **13.37%**.
-- **AgenticNav-Gemini-2.5-Pro** achieves **49% SR**, surpassing Open-Nav (23% SR) and EvoNav (43% SR) which relies on cross-episode experience retrieval.
+With strictly the same VLM backbones (GPT-5.5 / Gemini-2.5-Pro), AgenticNav sets a new record for zero-shot VLN-CE performance:
+- **AgenticNav-GPT-5.5** achieves **55% SR**, **48.41% SPL**, **65% OSR**, **63.41 nDTW**, and **5.19 m NE**. Compared with the state-of-the-art baseline **SmartWay-GPT-5.5** (SR 44%, SPL 35.04%) reproduced with the same backbone, SR improves by **11%** and SPL by **13.37%**.
+- **AgenticNav-Gemini-2.5-Pro** achieves **49% SR**, surpassing Open-Nav (23% SR) and EvoNav (43% SR), which relies on cross-episode experience retrieval.
 
-#### 2. Ablation Experimental Analysis (Ablation Study)
+#### 2. Ablation study
 {: id="2-消融实验分析ablation-study"}
-Perform strip testing on each Tool module on R2R-CE:
-- **Replace Action Tool with Waypoint Predictor**: SR dropped by 5% (55% $\to$ 50%), SPL dropped by 4.42%, proving that freely selecting visual target pixels is better than selecting candidate waypoints recommended by the model.
-- **Remove Depth Tool**: SR plummets to 42%; if the complete depth map is directly input, SR recovers to 53%, but is still lower than 55% of on-demand query, proving that structured local depth query is more suitable for VLM's inference mode.
-- **Remove Agentic Memory**: SR drops to 41%; if only Map Image is retained without Recall Tool, SR is 51%, proving that Visual Recall Tool is indispensable in long-range/sign recognition tasks.
+Each tool module is ablated on R2R-CE:
+- **Replacing the Action Tool with a waypoint predictor**: SR drops by 5% (55% $\to$ 50%) and SPL by 4.42%, showing that freely selecting target pixels in the image is better than choosing among candidate waypoints recommended by a model.
+- **Removing the Depth Tool**: SR plummets to 42%; feeding the complete depth map directly recovers SR to 53%, still below the 55% of on-demand queries, showing that structured local depth queries suit the VLM's reasoning mode better.
+- **Removing Agentic Memory**: SR drops to 41%; keeping only the Map Image without the Recall Tool gives an SR of 51%, showing that the visual Recall Tool is indispensable for long-range and landmark-recognition tasks.
 
-#### 3. Real-World real robot test
+#### 3. Real-robot tests
 {: id="3-real-world-实机测试"}
-Deployed on four-wheeled omnidirectional robots in 30 complex real-world scenarios including laboratories, offices and outdoor courtyards:
-- **Single-view mode (1-view)**: SR reaches 33.3%, navigation error NE is 3.20m (SmartWay is 23.3% / 3.57m).
-- **four views mode (4-view)**: SR increased to **46.7%**, NE dropped to 2.67m, doubled compared to SmartWay success rate (the advantage is particularly significant in wide-angle scenes such as outdoor courtyards).
+Deployed on a four-wheeled omnidirectional robot in 30 complex real-world scenarios, including laboratories, offices, and outdoor courtyards:
+- **Single-view mode (1-view)**: SR reaches 33.3% with a navigation error NE of 3.20m (SmartWay: 23.3% / 3.57m).
+- **Four-view mode (4-view)**: SR rises to **46.7%** and NE falls to 2.67m, double SmartWay's success rate (the advantage is especially pronounced in wide-field scenes such as outdoor courtyards).
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-29"}
 
-1. **Strong dependence on basic VLM decision-making capabilities**: Failure analysis shows that 88.9% of failures in simulation and 71.4% of failures in the real world originate from incorrect judgments of VLM itself (such as wrong room/branch selection or final docking deviation), and hardware and control failures only account for a very small proportion.
-2. **Cloud API latency and network dependence**: Relying on large-scale VLM APIs in the cloud brings obvious inference delays and network fluctuation risks, limiting real-time high-frequency closed-loop control capabilities.
-3. **Environment Assumption Dependence**: Relies on accurate local positioning and RGB-D sensor quality, limited performance in extremely featureless or depth-deficient areas.
+1. **Strong dependence on the base VLM's decision-making ability**: Failure analysis shows that 88.9% of failures in simulation and 71.4% of failures in the real world stem from the VLM's own misjudgments (such as choosing the wrong room or branch, or final docking deviation), while hardware and control failures account for only a very small share.
+2. **Cloud API latency and network dependence**: Relying on large cloud-hosted VLM APIs brings noticeable inference latency and the risk of network fluctuations, limiting real-time high-frequency closed-loop control.
+3. **Dependence on environmental assumptions**: It relies on accurate local localization and RGB-D sensor quality, and performs worse in extremely featureless or depth-deficient areas.
 
 ---
 
 ## 22. HarnessVLN (2026)
 {: id="harnessvln"}
-——A set of Agent Harness, which compresses the two types of navigation "instruction following" and "finding objects" into the same tool calling protocol
+——An agent harness that compresses the two navigation tasks, "instruction following" and "object search", into a single tool-calling protocol
 
 📄 **Paper**: [arXiv:2609.15195](https://arxiv.org/abs/2609.15195) · [Project Page](https://agibot-harnessvln.netlify.app/)
 
@@ -2712,50 +2712,50 @@ Deployed on four-wheeled omnidirectional robots in 30 complex real-world scenari
 ### Key takeaways
 {: id="精华-39"}
 
-The real bottleneck of training-independent navigation is not whether the planner is smart enough, but the lack of an arbitration layer between "semantically reasonable proposals" and "whether they can be physically executed" - HarnessVLN explicitly implements this arbitration layer.
+The real bottleneck of training-free navigation is not whether the planner is smart enough, but the lack of an arbitration layer between "semantically reasonable proposals" and "what can actually be executed physically". HarnessVLN implements this arbitration layer explicitly.
 
-The approach is to downgrade MLLM from the decision-maker to the proposer: every tool call it outputs must first pass the three verifications of evidence freshness, geometric reachability, and sub-goal consistency before it is allowed to be dispatched. Even Stop is only an "application" and not a "command".
+The approach is to demote the MLLM from decision-maker to proposer: every tool call it outputs must first pass three checks (evidence freshness, geometric reachability, and sub-goal consistency) before it may be dispatched. Even Stop is only a "request", not a "command".
 
-The memory is split into two complementary sets - event memory (task center, which stores complete failure trajectories) and spatio-temporal graph ST Graph (environment center, which stores reusable spatial evidence plus lightweight failure annotations and references back to events), which not only maintains traceability, but also prevents things entering the MLLM context from expanding linearly with the length of the trajectory.
+Memory is split into two complementary parts: event memory (task-centric, storing complete failure trajectories) and the spatiotemporal graph ST Graph (environment-centric, storing reusable spatial evidence plus lightweight failure annotations that point back to events). This preserves traceability while keeping what enters the MLLM context from growing linearly with trajectory length.
 
-The protocol remains unchanged and the actuators are replaceable, so the same set of Harness consumes the four benchmarks of VLN-CE R2R/RxR and HM3D-v2/OVON at the same time, and is directly migrated to the humanoid robot.
+The protocol stays fixed and the executors are replaceable, so the same harness handles the four benchmarks VLN-CE R2R/RxR and HM3D-v2/OVON at once, and transfers directly to a humanoid robot.
 
-The core idea of ​​migration is: **Add a layer of "pre-dispatch verification + structured feedback infusion" runtime to the agent, which can better connect semantic reasoning back to physical execution** than continuing to adjust the prompt.
+The core takeaway: **adding a runtime layer of "pre-dispatch verification + structured feedback injection" to the agent connects semantic reasoning back to physical execution better than continuing to tune prompts.**
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-38"}
 
-Both instruction following and target object navigation tasks require the agent to connect language to part of the observable environment, accumulate spatial knowledge while walking, and judge whether its actions really advance the task. The training method is effective on the target task, but if the task form or environment is changed, the data must be collected again; the MLLM-driven training-independent method bypasses training, but generally treats the model as a planner in the task-specific pipeline - how to retain evidence, how to verify proposals, and how failure affects subsequent decisions are still determined by the peripheral pipeline. So the old problem remains: recognizing the target does not mean reaching it, and taking action does not mean completing the sub-goal; old observations, unreachable goals, and execution failures will make subsequent planning more and more deviated from the actual task status, manifested in repeated attempts or error termination.
+Both instruction following and object navigation require an agent to tie language to parts of the observable environment, accumulate spatial knowledge while moving, and judge whether its actions really advance the task. Trained methods are effective on their target task, but changing the task form or the environment requires collecting data again. MLLM-driven training-free methods bypass training, but they generally treat the model as a planner inside a task-specific pipeline: how evidence is retained, how proposals are verified, and how failures affect later decisions are still decided by the surrounding pipeline. The old problems therefore remain: recognizing the target does not mean reaching it, and taking an action does not mean completing the sub-goal; stale observations, unreachable goals, and execution failures make later planning drift further from the actual task state, showing up as repeated attempts or wrong termination.
 
 ---
 
 ### 2. Method and innovations
 {: id="2-主要方法创新点-36"}
 
-**Overall Framework**: HarnessVLN consists of four components - **MLLM Planner** is only responsible for proposing semantic operations, **Agent Harness** is responsible for assembling context, verifying proposals, dispatching tools and feedback, **Hierarchical Event Memory** is responsible for recording task progress and execution events, **Persistence ST Graph** is responsible for precipitating reusable spatial evidence. The four close the loop through a set of **unified tool interface**: context assembly → proposal verification → tool distribution → feedback integration → reassembly.
+**Overall framework**: HarnessVLN has four components. The **MLLM planner** only proposes semantic operations; the **agent harness** assembles the context, verifies proposals, dispatches tools, and handles feedback; the **hierarchical event memory** records task progress and execution events; the **persistent ST Graph** accumulates reusable spatial evidence. The four close a loop through a **unified tool interface**: context assembly → proposal verification → tool dispatch → feedback integration → reassembly.
 
 <div align="center">
-  <img src="/images/vln/HarnessVLN-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1320/950" alt="HarnessVLN Overall architecture: MLLM Planner only mentions &quot;operation proposals&quot;, Agent Harness completes evidence/geometry/task consistency verification before dispatch, and the structured feedback returned by the tool then updates the event memory and ST Graph" />
+  <img src="/images/vln/HarnessVLN-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1320/950" alt="HarnessVLN overall architecture: the MLLM planner only makes &quot;operation proposals&quot;; the agent harness completes evidence/geometry/task-consistency verification before dispatch, and the structured feedback returned by the tool then updates the event memory and the ST Graph" />
 <figcaption>
-HarnessVLN Overall architecture: MLLM Planner only mentions "operation proposals", Agent Harness completes evidence/geometry/task consistency verification before dispatch, and the structured feedback returned by the tool then updates the event memory and ST Graph
+HarnessVLN overall architecture: the MLLM planner only makes "operation proposals"; the agent harness completes evidence/geometry/task-consistency verification before dispatch, and the structured feedback returned by the tool then updates the event memory and the ST Graph
 </figcaption>
 </div>
 
-#### Stuck point 1: After talking for a long time, what is the difference between Harness and the ordinary "MLLM as planner" assembly line?
+#### Question 1: What exactly differs between a harness and an ordinary "MLLM as planner" pipeline?
 {: id="卡点一说了半天harness-和普通的mllm-当-planner流水线到底差在哪"}
 
-The only difference is one sentence: **What MLLM says no longer directly counts**. In traditional pipelines, whatever the model outputs is executed, Harness inserts a gate between the model and the environment.
+The difference is one sentence: **what the MLLM says no longer counts directly**. In a traditional pipeline, whatever the model outputs gets executed; the harness inserts a gate between the model and the environment.
 
-| Dimensions | Traditional MLLM-as-planner pipeline | Agent Harness by HarnessVLN |
+| Dimension | Traditional MLLM-as-planner pipeline | HarnessVLN's agent harness |
 |---|---|---|
-| The role of MLLM | Decision-maker: The output action is directly issued for execution | Proposer: The output is an "operation proposal", pending review |
-| Suggest how to grounding | The downstream module tries its best to execute, whether it succeeds or not depends on luck | Check three things before dispatching: evidence source and freshness, target geometric reachability, and whether it is consistent with the current sub-goal |
-| How to use failure | It only reflects "this step failed", and the same one will be raised in the next round | Write to reflection memory, and hang lightweight annotation at the corresponding location of ST Graph to lower the next round of retrieval score |
-| Stop and stop | Stop when the model says stop | The model can only "apply", and it can only be issued after the triple gate control of semantics ∧ geometry ∧ progress |
+| Role of the MLLM | Decision-maker: its output action is dispatched for execution directly | Proposer: its output is an "operation proposal" awaiting review |
+| Grounding of proposals | Downstream modules do their best to execute; success depends on luck | Three things are checked before dispatch: evidence source and freshness, geometric reachability of the target, and consistency with the current sub-goal |
+| Use of failures | Only reflects "this step failed", and the same proposal reappears in the next round | Written into reflection memory, with a lightweight annotation attached at the corresponding place in the ST Graph to lower its retrieval score in the next round |
+| Stopping | Stops whenever the model says stop | The model can only "request", and the stop is issued only after the triple gate of semantics ∧ geometry ∧ progress |
 
-Drawing a runtime loop is the picture below. Pay attention to the return edge that fails the verification - it is the difference between the entire framework and the pipeline: the rejected proposal will not disappear, but will become a piece of negative evidence in the next round of context.
+The runtime loop is drawn below. Note the return edge for failed verification: it is what separates this framework from a pipeline. A rejected proposal does not vanish but becomes a piece of negative evidence in the next round's context.
 
 ```mermaid
 graph TD
@@ -2770,25 +2770,25 @@ graph TD
     H --> B
 ```
 
-#### 2.1 Harness’ status and decision-making cycle
+#### 2.1 Harness state and decision cycle
 {: id="21-harness-的状态与决策循环"}
 
-At decision step $t$, Harness maintains the status
+At decision step $t$, the harness maintains the state
 
 $$
 S_t = \langle x,\ \omega_t,\ p_t,\ z_t,\ M_t,\ G_t \rangle
 $$
 
-Among them, $x$ is the task specification (a route instruction, or a target object category), $\omega_t$ is the pose-aligned RGB-D observation and local geometric map, $p_t$ is the agent pose, $z_t$ is the task progress, and $M_t$ is hierarchical event memory, and $G_t$ is persistent ST Graph.
+where $x$ is the task specification (a route instruction or a target object category), $\omega_t$ is the pose-aligned RGB-D observation and local geometric map, $p_t$ is the agent pose, $z_t$ is the task progress, $M_t$ is the hierarchical event memory, and $G_t$ is the persistent ST Graph.
 
-**Both types of tasks share the same state definition, and the difference only lies in $z_t$**: When the instruction is following, $z_t$ records the current route segment, satisfied motion constraints, and observed landmarks; when ObjectNav is used, $z_t$ records the explored area, candidate target hypothesis, and its verification status. The tasks have changed, the progress representation and completion criteria have changed, but the Harness protocol itself has not changed a word - this is the fundamental reason why it can cover both types of tasks at the same time.
+**Both kinds of tasks share the same state definition, and the only difference lies in $z_t$**: for instruction following, $z_t$ records the current route segment, the motion constraints already satisfied, and the landmarks observed; for ObjectNav, $z_t$ records the explored area, the candidate target hypotheses, and their verification status. The task changes, and so do the progress representation and completion criteria, but the harness protocol itself does not change at all. This is the fundamental reason why it can cover both kinds of tasks.
 
-Single-step loop (paper Algorithm 1): If the observation is inconsistent with the pose, re-`Observe` → Record the event → Merge the graph → Get the current active sub-goal → Retrieve experience by sub-goal → Assemble the context → MLLM makes a proposal → **Validate** → Dispatch the tool → Update the status with feedback.
+Single-step loop (Algorithm 1 in the paper): if the observation is inconsistent with the pose, re-`Observe` → record the event → merge the graph → get the currently active sub-goal → retrieve experience by sub-goal → assemble the context → the MLLM makes a proposal → **verify** → dispatch the tool → update the state with the feedback.
 
 #### 2.2 Unified tool interface
 {: id="22-统一工具接口"}
 
-All heterogeneous capabilities are wrapped into a shared input and output contract, so replacing any individual tool does not require changing the MLLM Planner or Harness protocol:
+All heterogeneous capabilities are wrapped into a shared input/output contract, so replacing any individual tool requires no change to the MLLM planner or the harness protocol:
 
 | Tools | Roles | Features |
 |---|---|---|
@@ -2801,101 +2801,101 @@ All heterogeneous capabilities are wrapped into a shared input and output contra
 | `backtrack` | Restore | Return to a previously visited location and confirm arrival |
 | `request_stop` | Termination | Verify whether the task is actually completed before terminating execution |
 
-#### 2.3 Hierarchical event memory $M_t$ (task center)
+#### 2.3 Hierarchical event memory $M_t$ (task-centric)
 {: id="23-分层事件记忆-m_t任务中心"}
 
-- **Working memory**: Current observations, bounded panoramic history, active target hypotheses, recent tool feedback. **Leaves only the short-term context needed for one-step decision-making, so it does not grow infinitely with the trajectory length**.
-- **Progress memory**: task decomposition and completion status. Each sub-goal has a unique id and one of four states - pending / active / completed / blocked; **At most one active at the same time**, and the mark completed must be supported by posture-aligned observations or successful tool results, blocking the planner's way of advancing the task just by saying it is completed.
-- **Reflection memory**: Completely records sub-goal level execution events - unreachable target, inconsistent grounding, collision, no progress, backtracking failure, rejected stop request. Each entry contains event id, task context, location, timestamp, tool feedback and supporting observations.
+- **Working memory**: Current observations, a bounded panoramic history, active target hypotheses, and recent tool feedback. **It keeps only the short-term context needed for a one-step decision, so it does not grow without bound with trajectory length**.
+- **Progress memory**: Task decomposition and completion status. Each sub-goal has a unique id and one of four states: pending / active / completed / blocked. **At most one sub-goal is active at a time**, and marking one completed must be supported by a pose-aligned observation or a successful tool result, which stops the planner from advancing the task just by claiming it is done.
+- **Reflection memory**: Fully records sub-goal-level execution events: unreachable target, inconsistent grounding, collision, no progress, failed backtracking, and rejected stop requests. Each entry contains the event id, task context, location, timestamp, tool feedback, and supporting observations.
 
-#### 2.4 Space-time diagram hosted by Harness $G_t$ (Environmental Center)
+#### 2.4 Harness-hosted spatiotemporal graph $G_t$ (environment-centric)
 {: id="24-harness-托管的时空图-g_t环境中心"}
 
 $$
 G_t = \left( V_t^P \cup V_t^E,\ E_t,\ T_t \right)
 $$
 
-$V_t^P$ is a place node, $V_t^E$ is an entity node, $E_t$ is a typed spatial relationship, and $T_t$ stores timestamps and lightweight event annotations.
+$V_t^P$ are place nodes, $V_t^E$ are entity nodes, $E_t$ are typed spatial relations, and $T_t$ stores timestamps and lightweight event annotations.
 
-- **Place node** summarizes visited locations, supporting observations and accessible waypoints; spatially compatible observations are merged into existing places, otherwise new nodes are created; adjacent places are connected by bidirectional `NavigableTo` edges to form a persistent topology that can be reused for forward and backtracking.
-- **Entity node** represents the ObjectNav target and the landmark mentioned in the instruction, with semantic aliases, spatial assumptions, confidence and supporting perspective; `ObservedFrom` retains the traceability information of "when and from which perspective it was seen", and `Contains` encodes coarse-grained place-entity attribution. **It is precisely because of the traceability that Harness can retrieve both the "target hypothesis" and the "evidence required to verify this hypothesis"**.
-- **Task condition retrieval**: Before each MLLM decision, score the place node according to the current active sub-goal $g_t$
+- **Place nodes** summarize visited locations, their supporting observations, and accessible waypoints; spatially compatible observations are merged into an existing place, and otherwise a new node is created; adjacent places are linked by bidirectional `NavigableTo` edges, forming a persistent topology that can be reused for moving forward and for backtracking.
+- **Entity nodes** represent the ObjectNav target and the landmarks mentioned in the instruction, with semantic aliases, spatial hypotheses, confidence, and supporting views; `ObservedFrom` keeps the traceability information of "when and from which view it was seen", and `Contains` encodes the coarse-grained place-entity membership. **Thanks to this traceability, the harness can retrieve both the "target hypothesis" and the "evidence needed to verify that hypothesis"**.
+- **Task-conditioned retrieval**: Before each MLLM decision, place nodes are scored according to the current active sub-goal $g_t$:
 
 $$
 s(v_i \mid g_t) = R(v_i, g_t) + \lambda_{rec} C(v_i) + \lambda_{sal} A(v_i) - \lambda_{fail} P(v_i, g_t)
 $$
 
-where $R$ is semantic relatedness (implemented with local IDF weighted cosine similarity), $C$ is freshness, $A$ is spatial saliency, and $P$ is the historical failure to which the penalty applies.
+where $R$ is semantic relevance (implemented as locally IDF-weighted cosine similarity), $C$ is freshness, $A$ is spatial saliency, and $P$ is the penalty for applicable historical failures.
 
-#### Stuck point 2: Both event memory and ST Graph seem to store history, why are they divided into two sets?
+#### Question 2: Event memory and the ST Graph both seem to store history, so why two separate structures?
 {: id="卡点二事件记忆和-st-graph-看起来都在存历史为什么要分两套"}
 
-Because they answer two different questions: event memory answers "**What did I do on this mission**", and ST Graph answers "**What does this house look like**". The former is rolling and bounded as the task progresses; the latter is accumulated continuously across sub-goals.
+Because they answer two different questions: event memory answers "**what did I do in this task**", while the ST Graph answers "**what does this house look like**". The former rolls forward and stays bounded as the task progresses; the latter accumulates continuously across sub-goals.
 
-| Dimensions | Event Memory (event memory) | ST Graph (space-time graph) |
+| Dimension | Event memory | ST Graph (spatiotemporal graph) |
 |---|---|---|
-| Perspective and lifespan | Task center, rolling with sub-goals, working part bounded | Environment center, persistent across sub-goals, accumulated throughout the episode |
-| What to store | Three layers: working (current observation and recent feedback) / progress (sub-goal state machine) / reflection (complete failure event) | place node, entity node, typed space relationship, timestamp |
-| Failure record | Authoritative full quantity: event id, task context, location, timestamp, tool feedback, support observation | Only attach the light annotation "Failed here under this sub-goal", plus a reference pointing back to the original event |
-| Read by whom | Assemble the current decision context | Score according to $s(v_i \mid g_t)$ to select the top-K locations and feed it to MLLM |
+| Perspective and lifespan | Task-centric, rolls forward with sub-goals, working part bounded | Environment-centric, persists across sub-goals, accumulates over the whole episode |
+| What it stores | Three layers: working (current observation and recent feedback) / progress (sub-goal state machine) / reflection (complete failure events) | Place nodes, entity nodes, typed spatial relations, timestamps |
+| Failure records | The authoritative full record: event id, task context, location, timestamp, tool feedback, supporting observations | Only a light annotation "failed here under this sub-goal", plus a reference pointing back to the original event |
+| Read by | Assembles the current decision context | Scored by $s(v_i \mid g_t)$ to select the top-K places to feed to the MLLM |
 
-The key design is in the last two lines: **Only one copy of the complete trajectory of failure is stored (in reflection memory), and only "pointer weighting" is placed in the picture**. This enables failure-aware retrieval and recovery without copying the execution history in the graph. The relevance of the annotation will also be dynamically adjusted - if the sub-goal changes or new evidence overturns it, the weight will decrease; if similar failures occur repeatedly, the weight will increase; at the same time, the punishment has an upper limit to avoid a branch being permanently blacklisted just because it failed once.
+The key design lies in the last two lines: **the complete failure trajectory is stored only once (in reflection memory), and only a "pointer with a weight" is placed in the graph**. This enables failure-aware retrieval and recovery without copying execution history into the graph. The annotation's weight is also adjusted dynamically: it decreases when the sub-goal changes or new evidence overturns it, and increases when similar failures recur; the penalty is also capped, so that a branch is not permanently blacklisted just because it failed once.
 
-> **For example (how to calculate the search score)**: Suppose there are only 3 place nodes in the graph, and the current sub-goal is "Go to the kitchen to find the dishwasher". According to the weight given by the appendix of the paper (freshness 0.3, significance 0.3, 0.5 deduction for each failed application, maximum deduction limit 1.0):
+> **Example (how the retrieval score is computed)**: Suppose the graph has only 3 place nodes and the current sub-goal is "Go to the kitchen to find the dishwasher". Using the weights given in the paper's appendix (freshness 0.3, saliency 0.3, a 0.5 deduction for each applicable failure, with a maximum deduction of 1.0):
 >
-> - Node A (kitchen, just viewed 3 steps ago): $0.9 + 0.3 \times 1.0 + 0.3 \times 0.8 = 1.44$
-> - Node B (on the other side of the kitchen, seen 60 steps ago, and failed to navigate into the wall from here last time): $0.85 + 0.3 \times 0.2 + 0.3 \times 0.7 - 0.5 = 0.62$
+> - Node A (kitchen, viewed just 3 steps ago): $0.9 + 0.3 \times 1.0 + 0.3 \times 0.8 = 1.44$
+> - Node B (the other side of the kitchen, seen 60 steps ago, and the last attempt to navigate from here into a wall failed): $0.85 + 0.3 \times 0.2 + 0.3 \times 0.7 - 0.5 = 0.62$
 > - Node C (bedroom): $0.1 + 0.3 \times 0.5 + 0.3 \times 0.3 = 0.34$
 >
-> Take the three with the highest scores as seeds, expand each one by one jump, and return up to 5 places - **It is always these 5 places and their entities that enter the MLLM context, but the graph can continue to grow with the trajectory**. This is the specific meaning of "the graph grows but the context does not grow".
+> The three highest-scoring nodes are taken as seeds, each is expanded by one hop, and at most 5 places are returned. **Only these 5 places and their entities ever enter the MLLM context, while the graph itself can keep growing with the trajectory.** This is the concrete meaning of "the graph grows but the context does not".
 
-#### 2.5 Grounded enforcement and evidence-based termination
+#### 2.5 Grounded execution and evidence-based termination
 {: id="25-接地执行与基于证据的终止"}
 
-MLLM proposes semantic commands, and physical execution requires grounded targets and executable control quantities, so Navigation Executor is made into a **replaceable Harness hosting tool**: Harness is responsible for grounding and verification, and Executor is only responsible for path planning and local control. Commands are only dispatched when "supported by evidence + geometrically reachable + consistent with active sub-goals and applicable failure history"; the Executor returns structured feedback such as arrival/collision/unreachable/no progress for updating status, event memory and graph. **Forward and backtracking follow the same "verification-execution-update" loop**.
+The MLLM proposes semantic commands, whereas physical execution needs grounded targets and executable control quantities, so the navigation executor is made a **replaceable harness-hosted tool**: the harness handles grounding and verification, and the executor only handles path planning and local control. A command is dispatched only when it is "supported by evidence + geometrically reachable + consistent with the active sub-goal and the applicable failure history"; the executor returns structured feedback such as arrived/collision/unreachable/no progress, which is used to update the state, event memory, and graph. **Moving forward and backtracking follow the same "verify-execute-update" loop**.
 
-Termination is also arbitrated by Harness - MLLM can propose a stop, but cannot directly issue an environment-level Stop action. The request is accepted if and only if
+Termination is also arbitrated by the harness: the MLLM can propose a stop but cannot issue an environment-level Stop action directly. The request is accepted if and only if
 
 $$
 F_{stop} = F_{semantic} \wedge F_{geometric} \wedge F_{progress}
 $$
 
-Three items respectively verify the target identity, geometric validity and task completion. ObjectNav requires that the target is visually supported and falls within the stopping radius; instruction following requires that the current evidence supports the last route segment, the referenced landmark, and the grounded end point. **Rejected requests will be written to the event memory and trigger further observation, target refinement, continued approach or backtracking**.
+The three terms verify the target identity, geometric validity, and task completion respectively. ObjectNav requires that the target be visually supported and lie within the stopping radius; instruction following requires that the current evidence support the last route segment, the referenced landmark, and the grounded endpoint. **A rejected request is written to event memory and triggers further observation, target refinement, continued approach, or backtracking**.
 
-> **For example (how to save a failure by stopping gating)**: Paper Figure 8, HM3D-OVON Episode 1297, the target category is picture.
+> **Example (how stop gating saves a failure)**: Figure 8 of the paper, HM3D-OVON episode 1297, with the target category picture.
 >
-> In step 216, the agent thinks it has arrived: according to the projected navigation target point, the distance is only **0.40 m**, which is lower than the projection target threshold of 1.0 m. It "looks" like it is time to stop.
+> At step 216, the agent thinks it has arrived: according to the projected navigation target point, the distance is only **0.40 m**, below the projected-target threshold of 1.0 m, so it "looks" like time to stop.
 >
-> But Harness doesn't believe this number - it prioritizes grabbing a frame of **fresh depth**: taking the median of the 5×5 neighborhood on the detection frame anchor point (requiring the patch standard deviation not to exceed 0.5 m), it reads **4.65 m**, far exceeding the depth threshold of 2.5 m, so $F_{geometric}$ is not established, the stop application is rejected, and the event is stored in the database.
+> But the harness does not trust this number. It first captures a frame of **fresh depth**: taking the median over the 5×5 neighborhood of the detection-box anchor point (requiring the patch standard deviation to be at most 0.5 m), it reads **4.65 m**, far above the depth threshold of 2.5 m. Hence $F_{geometric}$ does not hold, the stop request is rejected, and the event is recorded in memory.
 >
-> The agent continues to approach, and the new depth reads **1.53 m** at step 429, and the door passes; it actually stops at step 430, and the end distance of the benchmark evaluation is **0.13 m**, which is successful.
+> The agent keeps approaching; at step 429 the new depth reads **1.53 m** and passes the gate, it actually stops at step 430, and the final distance in the benchmark evaluation is **0.13 m**, a success.
 >
-> In a word: **The projected target point can only show "I went to where I thought I was", and fresh depth can show "I am really next to that object"**. The value of Harness is to choose to trust the sensor rather than the plan when the two conflict.
+> In short: **the projected target point only shows "I went where I thought I should go", whereas fresh depth shows "I am really next to that object"**. The value of the harness is that, when the two conflict, it chooses to trust the sensor over the plan.
 
 <div align="center">
-  <img src="/images/vln/HarnessVLN-stop-validation-case.webp" width="95%" loading="lazy" decoding="async" style="aspect-ratio:1320/491" alt="The actual effect of stop gating: the stop application in step 216 was rejected due to the fresh depth of 4.65 m, the agent continued to approach, and the stop application was successfully terminated at 0.13 m in step 430" />
+  <img src="/images/vln/HarnessVLN-stop-validation-case.webp" width="95%" loading="lazy" decoding="async" style="aspect-ratio:1320/491" alt="The actual effect of stop gating: the stop request at step 216 was rejected because of the fresh depth of 4.65 m, the agent kept approaching, and the stop request at step 430 was accepted at 0.13 m, ending the episode successfully" />
 <figcaption>
-The actual effect of stop gating: the stop application in step 216 was rejected due to the fresh depth of 4.65 m, the agent continued to approach, and the stop application was successfully terminated at 0.13 m in step 430
+The actual effect of stop gating: the stop request at step 216 was rejected because of the fresh depth of 4.65 m, the agent kept approaching, and the stop request at step 430 was accepted at 0.13 m, ending the episode successfully
 </figcaption>
 </div>
 
-The runtime panel below grounds all the previous abstract states at once - pay attention to the STOP GATE count (requested / gate pass / gate fail / rejected) in panel ⑤, the node edge count of ST Graph, and the `evidence` id hanging behind each TODO in panel ⑦: **The two words "complete" are always tied to a backtracking observation in the system**.
+The runtime panel below grounds all the abstract states above at once. Note the STOP GATE counts (requested / gate pass / gate fail / rejected) in panel ⑤, the node and edge counts of the ST Graph, and the `evidence` id attached to each TODO in panel ⑦: **the word "completed" is always tied to a backtracking observation in the system**.
 
 <div align="center">
-  <img src="/images/vln/HarnessVLN-runtime-dashboard.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1320/836" alt="Runtime panel: ① Running status ② RGB observation with ground frame ③ Navigation map ④ Legend ⑤ Harness status (decision, stop gate, ST Graph count, executor count) ⑥ Task and current action ⑦ TODO memory with evidence id" />
+  <img src="/images/vln/HarnessVLN-runtime-dashboard.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1320/836" alt="Runtime panel: ① running status ② RGB observation with grounding boxes ③ navigation map ④ legend ⑤ harness status (decisions, stop gate, ST Graph counts, executor counts) ⑥ task and current action ⑦ TODO memory with evidence ids" />
 <figcaption>
-Runtime panel: ① Running status ② RGB observation with ground frame ③ Navigation map ④ Legend ⑤ Harness status (decision, stop gate, ST Graph count, executor count) ⑥ Task and current action ⑦ TODO memory with evidence id
+Runtime panel: ① running status ② RGB observation with grounding boxes ③ navigation map ④ legend ⑤ harness status (decisions, stop gate, ST Graph counts, executor counts) ⑥ task and current action ⑦ TODO memory with evidence ids
 </figcaption>
 </div>
 
-**Implementation configuration**: 640×480 synchronized RGB-D, 79° horizontal field of view; GroundingDINO plus SAM to provide open-vocabulary target areas and segmentation masks; Navigation Executor uses FMM planner for planar motion, and calls NavDP when going up and down stairs. In the main simulation experiment, the instruction following uses GPT-5.5, and the ObjectNav uses GPT-5.6-luna - **All reasoning functions (task decomposition, navigation planning, target grounding, stop verification, recovery) in the same episode share a model, and only the prompt** is changed.
+**Implementation configuration**: 640×480 synchronized RGB-D with a 79° horizontal field of view; GroundingDINO plus SAM provide open-vocabulary target regions and segmentation masks; the navigation executor uses an FMM planner for planar motion and calls NavDP for going up and down stairs. In the main simulation experiments, instruction following uses GPT-5.5 and ObjectNav uses GPT-5.6-luna. **All reasoning functions within one episode (task decomposition, navigation planning, target grounding, stop verification, recovery) share one model, and only the prompt changes**.
 
 ---
 
 ### 3. Results and findings
 {: id="3-核心结果发现-37"}
 
-**instruction following (VLN-CE val-unseen)**: Among the training-independent methods, both R2R and RxR have the highest SR. Compared with AgenticNav, which also uses GPT-5.5, R2R's SR is 5.8 points higher and OSR is 7.7 points higher. Compared with HSGM, RxR's SR is 12.1 points higher, SPL is 12.9 points higher, and nDTW is equivalent.
+**Instruction following (VLN-CE val-unseen)**: Among training-free methods, it achieves the highest SR on both R2R and RxR. Compared with AgenticNav, which also uses GPT-5.5, R2R SR is 5.8 points higher and OSR is 7.7 points higher. Compared with HSGM, RxR SR is 12.1 points higher, SPL is 12.9 points higher, and nDTW is comparable.
 
 | Method | R2R NE↓ | R2R OSR↑ | R2R SR↑ | R2R SPL↑ | RxR SR↑ | RxR SPL↑ | RxR nDTW↑ |
 |---|---|---|---|---|---|---|---|
@@ -2906,7 +2906,7 @@ Runtime panel: ① Running status ② RGB observation with ground frame ③ Navi
 | AgenticNav-GPT-5.5 | 5.19 | 65.0 | 55.0 | **48.4** | – | – | – |
 | **HarnessVLN-GPT-5.5** | **4.01** | **72.7** | **60.8** | 43.5 | **53.9** | **38.0** | 54.8 |
 
-**Target object navigation**: HM3D-v2 got the highest SR (76.0%) among training-independent methods; HM3D-OVON achieved SR 59.3% and SPL 36.6%, **the highest among all listed methods (including supervised methods)**, 9.1 points and 4.0 points higher than DRIVE-Nav.
+**Object navigation**: HM3D-v2 reaches the highest SR (76.0%) among training-free methods; HM3D-OVON reaches an SR of 59.3% and an SPL of 36.6%, **the highest among all listed methods (including supervised ones)**, 9.1 points and 4.0 points above DRIVE-Nav.
 
 | Method | Training required | HM3D-v2 SR↑ | HM3D-v2 SPL↑ | OVON SR↑ | OVON SPL↑ |
 |---|---|---|---|---|---|
@@ -2916,7 +2916,7 @@ Runtime panel: ① Running status ② RGB observation with ground frame ③ Navi
 | MSGNav [CVPR26] | ✗ | 74.4 | 33.4 | 48.3 | 27.0 |
 | **HarnessVLN** | ✗ | **76.0** | 37.9 | **59.3** | **36.6** |
 
-**ablation (100 fixed subsets each, accumulation is on)**: Event memory is the largest single gain, ST Graph is the second, and SPL is improved at the same time, stop verification and then make another stab. Compared with the basic agent, the SR of R2R and OVON in complete Harness increased by 18.0 and 10.0 points respectively, and the OSR–SR gap narrowed in both tasks.
+**Ablation (100 fixed episodes each, components added cumulatively)**: Event memory gives the largest single gain, the ST Graph comes second and also improves SPL, and stop verification adds a further small gain. Compared with the base agent, the full harness raises SR on R2R and OVON by 18.0 and 10.0 points respectively, and the OSR–SR gap narrows on both tasks.
 
 | Mem. | Graph | Stop | R2R SR↑ | R2R SPL↑ | R2R Gap↓ | OVON SR↑ | OVON SPL↑ | OVON Gap↓ |
 |---|---|---|---|---|---|---|---|---|
@@ -2925,9 +2925,9 @@ Runtime panel: ① Running status ② RGB observation with ground frame ③ Navi
 | ✓ | ✓ | ✗ | 60.0 | 35.4 | 15.0 | 53.0 | 34.2 | 18.0 |
 | ✓ | ✓ | ✓ | **64.0** | **35.8** | **13.0** | **55.0** | 33.0 | 19.0 |
 
-**An honest counterexample**: Stopping verification raised SR from 53.0 to 55.0 on OVON, but caused SPL to drop from 34.2 to 33.0, and the OSR-SR gap increased from 18.0 to 19.0 - **Stronger verification leads to a higher completion rate at the expense of detours and more cautious termination**, which are not in the same direction.
+**An honest counterexample**: Stop verification raises SR on OVON from 53.0 to 55.0, but lowers SPL from 34.2 to 33.0 and widens the OSR-SR gap from 18.0 to 19.0. **Stronger verification buys a higher completion rate at the cost of detours and more cautious termination**, so the metrics do not all move in the same direction.
 
-**Model sensitivity (fixed 100 sets of OVON subsets)**: The protocol and tools remain unchanged and only the base is changed, the SR swings between 51.0 (Qwen3.8-flash) to 63.0 (GPT-6-astra); while under the same base GPT-5.6-luna, HarnessVLN’s 55.0 versus MSGNav’s 37.0, indicating that the  **gain mainly comes from Harness rather than the model itself**.
+**Model sensitivity (fixed 100-episode OVON subset)**: With the protocol and tools unchanged and only the base model swapped, SR swings between 51.0 (Qwen3.8-flash) and 63.0 (GPT-6-astra); and with the same base GPT-5.6-luna, HarnessVLN's 55.0 compares with MSGNav's 37.0, indicating that the **gain comes mainly from the harness rather than from the model itself**.
 
 | Methods | Base Model | SR↑ | SPL↑ | OSR↑ | Gap↓ |
 |---|---|---|---|---|---|
@@ -2936,19 +2936,19 @@ Runtime panel: ① Running status ② RGB observation with ground frame ③ Navi
 | HarnessVLN | GPT-6-astra | **63.0** | **39.4** | **76.0** | 13.0 |
 | HarnessVLN | Qwen3.8-flash | 51.0 | 32.8 | 75.0 | 24.0 |
 
-**real robot deployment**: AgiBot A3U full-size humanoid robot (1.74 m, 3D LiDAR plus multi-channel RGB-D and fisheye cameras, NVIDIA Thor onboard computing power), head stereo camera as the main visual sensor, Fast FoundationStereo to produce dense volume depth, **planning model replaced with local Qwen-3.8-27B**. Three scenarios: continuous instruction following (walk to the intersection in front of Room 806, turn left and stop at the trash can next to the water dispenser, and then go to the refrigerator), open word list object search, and the combined task of "first stop at the sign at the door and then look for the vending machine." ST Graph preserves landmark and target evidence between route following and object search, supporting continuity between stages.
+**Real-robot deployment**: An AgiBot A3U full-size humanoid robot (1.74 m, 3D LiDAR plus multiple RGB-D and fisheye cameras, NVIDIA Thor onboard compute), with the head stereo camera as the main visual sensor and Fast FoundationStereo producing dense metric depth; the **planning model is replaced with a local Qwen-3.8-27B**. Three scenarios: continuous instruction following (walk to the intersection in front of Room 806, turn left and stop at the trash can next to the water dispenser, then go to the refrigerator), open-vocabulary object search, and a combined task of "first stop at the sign at the door, then look for the vending machine". The ST Graph preserves landmark and target evidence between route following and object search, supporting continuity across stages.
 
 <div align="center">
-  <img src="/images/vln/HarnessVLN-real-world.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1317/873" alt="Three examples of real robot navigation: continuous instruction following, open-vocabulary object search, and a combined task of route following and object search; on the right is the synchronously constructed ST Graph" />
+  <img src="/images/vln/HarnessVLN-real-world.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1317/873" alt="Three real-robot navigation examples: continuous instruction following, open-vocabulary object search, and a combined route-following and object-search task; on the right is the synchronously built ST Graph" />
 <figcaption>
-Three examples of real robot navigation: continuous instruction following, open-vocabulary object search, and a combined task of route following and object search; on the right is the synchronously constructed ST Graph
+Three real-robot navigation examples: continuous instruction following, open-vocabulary object search, and a combined route-following and object-search task; on the right is the synchronously built ST Graph
 </figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vln/HarnessVLN-teaser.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1320/839" alt="is a Harness set that covers four benchmarks and two types of tasks, and can be migrated to the humanoid robot" />
+  <img src="/images/vln/HarnessVLN-teaser.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1320/839" alt="is one harness that covers four benchmarks and two kinds of tasks, and can be transferred to a humanoid robot" />
 <figcaption>
-is a Harness set that covers four benchmarks and two types of tasks, and can be migrated to the humanoid robot
+is one harness that covers four benchmarks and two kinds of tasks, and can be transferred to a humanoid robot
 </figcaption>
 </div>
 
@@ -2957,84 +2957,84 @@ is a Harness set that covers four benchmarks and two types of tasks, and can be 
 ### 4. Limitations
 {: id="4-局限性-37"}
 
-Paper description: The current orchestration and verification rules of Harness are preset and lack a self-evolution mechanism in open environment interaction. There are two points worth noting from the data - **Tougher verification is not free**, HarnessVLN’s R2R SPL (43.5) is lower than AgenticNav (48.4), which also uses GPT-5.5, HM3D-v2 SPL (37.9) is also lower than FiLM-Nav and DRIVE-Nav’s 41.3, stopping verification on OVON even lowers SPL and increases OSR–SR at the same time gap; **still quite sensitive to the base model**, after switching to Qwen3.8-flash, OVON's SR dropped by 4 points, and the OSR-SR gap expanded from 19 to 24, indicating that "seeing it but not being able to walk through the door" is still the main failure mode.
+As the paper states, the current orchestration and verification rules of the harness are preset and lack a mechanism for self-evolution through interaction in open environments. Two points in the data are worth noting. **Stricter verification is not free**: HarnessVLN's R2R SPL (43.5) is lower than AgenticNav's (48.4), which also uses GPT-5.5, and its HM3D-v2 SPL (37.9) is also lower than the 41.3 of FiLM-Nav and DRIVE-Nav; stop verification on OVON even lowers SPL while widening the OSR–SR gap. It is also **still quite sensitive to the base model**: after switching to Qwen3.8-flash, OVON SR drops by 4 points and the OSR-SR gap widens from 19 to 24, indicating that "seeing the target but being unable to get through the door" remains the main failure mode.
 
 ---
 
 ## 23. GPT-6-Astra (2026)
 {: id="gpt-6-astra"}
-———The general foundation model only relies on monocular RGB and primitive movements, and can run through the continuous environment vision-language navigation with zero-shot.
+——A general foundation model, using only monocular RGB and primitive movements, can complete vision-language navigation in continuous environments zero-shot
 
 📄 **Paper**: [arXiv:2609.29861v2](https://arxiv.org/abs/2609.29861v2) · [Project Page](https://daiguangzhao.github.io/gpt-6-astra-for-vln/)
 
-> This section is organized based on v2 (2026-09-25). v2 is only one day away from v1 (2026-09-24), but the single run of each level of inference intensity is changed to the average of three runs, and cross-run consistency analysis is supplemented; 79.0% / 76.0% of v1 is a single result, which has been replaced by 81.3% / 75.7%.
+> This section is based on v2 (2026-09-25). v2 appeared only one day after v1 (2026-09-24), but replaces the single run at each reasoning-effort level with the average of three runs and adds a cross-run consistency analysis; v1's 79.0% / 76.0% were single-run results and are replaced here by 81.3% / 75.7%.
 
 ---
 
 ### Key takeaways
 {: id="精华-41"}
 
-- "Look" is also made into a tool that the model can decide when to call - `observe()` does not consume steps, and `step()` does not return images after execution - the interface only has two verbs: "look" and "move". What is measured is the navigation ability of the foundation model itself, not the ability of peripheral modules.
-- After removing the "scaffolding" of waypoint predictor, panoramic, depth, and prebuilt maps, and adding a primitive motion of 0.25 m / 15° to monocular RGB, the average of three runs on R2R-CE-100 still reached SR 81.3±2.5%, SPL 71.5±1.7% (ultra), and SR is higher than Table 1 Reported values for all zero-shot and training-based methods in (the evaluation subsets are different and should be treated with caution). This is only the result under the same interface and fixed task set. The paper proposes "how to combine general capabilities and navigation-specific capabilities" based on this, and does not prove that scaffolding is redundant.
-- Only looking at SR will miss three types of problems: the difference between OSR and SR (there are 1–3 episodes in each run where the target circle is entered but parked at the wrong location), low nDTW success (EP42 took about 2.4 times the distance to arrive; about 9% of the successful trajectories of three runs have nDTW lower than 50%), and "empty walking" with unchanged pixels (EP176 walked 8 times in a row) The step screen has not changed), corresponding to stop judgment, route following and execution confirmation respectively.
-- Multiple runs separate the "difficulty of the task itself" from the "jitter between runs": medium and ultra were run three times each, and out of 100 tasks, 62 were successful six times, 8 were failed six times, and 30 were good and bad. The average SR value of ultra is 5.7 points higher than that of medium, but only 6 of the 14 tasks that were completely failed by medium were successful at least once under ultra, and another 3 tasks that were completely successful by medium failed once by ultra. If you think about it for a while, what changes is the outcome of individual tasks, and there is no systematic repair of execution and endpoint verification.
-- Inspiration for VLN research: The paper (v2) advocates studying which general models of navigation capabilities can be directly provided and which areas need to be supplemented by navigation-specific learning. It proposes three directions: spatial representation, navigation experience, and acquired control skills, but it is clearly stated that these directions are only motivations and have not been evaluated. The author's inference: The value of navigation-specific components should be measured by "what kind of measurable remaining failures have been repaired in the foundation model" (route deviation, invalid action, error stop).
+- "Looking" is also made a tool that the model decides when to call: `observe()` does not consume steps, and `step()` returns no image after execution, so the interface has only two verbs, "look" and "move". What is measured is the navigation ability of the foundation model itself, not that of surrounding modules.
+- With the "scaffolding" of waypoint predictors, panoramas, depth, and pre-built maps removed, and only monocular RGB plus primitive motions of 0.25 m / 15° remaining, the three-run average on R2R-CE-100 still reaches SR 81.3±2.5% and SPL 71.5±1.7% (ultra), and the SR is higher than the reported values of all zero-shot and trained methods in Table 1 (the evaluation subsets differ, so treat this with caution). This is only the result under the same interface and a fixed task set. Building on it, the paper raises the question of "how to combine general capabilities with navigation-specific ones", and does not prove that scaffolding is redundant.
+- Looking at SR alone misses three kinds of problems: the gap between OSR and SR (in each run, 1–3 episodes enter the target circle but stop at the wrong place), successes with low nDTW (EP42 traveled about 2.4 times the shortest distance to arrive; about 9% of the successful trajectories over the three runs have nDTW below 50%), and "empty walking" in which the pixels do not change (in EP176 the image did not change over 8 consecutive forward steps). These correspond to stop judgment, route following, and execution confirmation respectively.
+- Multiple runs separate the "difficulty of the task itself" from "jitter between runs": medium and ultra were each run three times, and of the 100 tasks, 62 succeeded all six times, 8 failed all six times, and 30 were mixed. The average SR of ultra is 5.7 points higher than that of medium, but only 6 of the 14 tasks that medium failed completely succeeded at least once under ultra, and another 3 tasks that medium always completed failed once under ultra. On reflection, what changes is the outcome of individual tasks, with no systematic repair of execution or endpoint verification.
+- Implications for VLN research: The paper (v2) advocates studying which navigation capabilities general models can provide directly and which areas need to be supplemented by navigation-specific learning. It proposes three directions (spatial representation, navigation experience, and learned control skills), but states clearly that these directions are only motivation and have not been evaluated. The author's inference: the value of a navigation-specific component should be measured by "which measurable remaining failures of the foundation model it repairs" (route deviation, invalid actions, wrong stops).
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-40"}
 
-VLN-CE (continuous environment vision-language navigation) requires the agent to turn and advance step by step according to natural language instructions in a continuous 3D space, and stop at the correct position, testing the long-range cooperation of perception, reasoning, memory and action. After GPT-4, Gemini-2.5-Pro, and Qwen2.5-VL, the mainstream approach to zero-shot VLN is to put a navigation-specific "scaffolding" on a general model - a trained waypoint predictor, panoramic RGB-D, a manually designed planning and memory module, and even pre-exploration mapping - so the score reflects the entire system rather than the model itself. This report from Singapore Management University and the Australian Machine Learning Institute does not propose new methods, but follows the minimalist interface setting of Embodied Agents Take Control (arXiv:2607.26148) to ask: Take away all the scaffolding, how far can OpenAI's general model GPT-6-Astra navigate by itself, and where will it fail?
+VLN-CE (vision-language navigation in continuous environments) requires an agent to turn and advance step by step in continuous 3D space following a natural-language instruction, and stop at the correct position, testing the long-horizon coordination of perception, reasoning, memory, and action. After GPT-4, Gemini-2.5-Pro, and Qwen2.5-VL, the mainstream approach to zero-shot VLN has been to put a navigation-specific "scaffold" around a general model, such as a trained waypoint predictor, panoramic RGB-D, hand-designed planning and memory modules, or even pre-exploration mapping, so the score reflects the whole system rather than the model itself. This report from Singapore Management University and the Australian Institute for Machine Learning proposes no new method. Following the minimalist interface setting of Embodied Agents Take Control (arXiv:2607.26148), it asks: with all the scaffolding removed, how far can OpenAI's general model GPT-6-Astra navigate on its own, and where does it fail?
 
 ---
 
 ### 2. Method and innovations
 {: id="2-主要方法创新点-38"}
 
-This is an evaluation report. The "method" refers to three things: a minimalist navigation interface, an evaluation protocol aligned with existing zero-shot work, and a behavioral analysis framework based on interaction logs. The report did not disclose the structure, training data or scale of GPT-6-Astra. It only stated that it is a closed-source general model of OpenAI that provides two levels of inference intensity, medium (default) and ultra, in Codex.
+This is an evaluation report. Its "method" consists of three things: a minimalist navigation interface, an evaluation protocol aligned with existing zero-shot work, and a behavioral analysis framework based on interaction logs. The report does not disclose the architecture, training data, or scale of GPT-6-Astra; it only states that it is a closed-source general model from OpenAI that offers two reasoning-effort levels in Codex, medium (default) and ultra.
 
-**Overall Framework**
+**Overall framework**
 
 <div align="center">
-  <img src="/images/vln/GPT-6-Astra-interface.webp" width="60%" loading="lazy" decoding="async" style="aspect-ratio:677/774" alt="Navigation interface: GPT-6-Astra In the Codex harness session, call observe() via MCP to obtain monocular RGB, call step() to perform primitive actions; the top view and reference path on the right are only for illustration, and" />
+  <img src="/images/vln/GPT-6-Astra-interface.webp" width="60%" loading="lazy" decoding="async" style="aspect-ratio:677/774" alt="Navigation interface: within a Codex harness session, GPT-6-Astra calls observe() through MCP to obtain monocular RGB and calls step() to perform primitive actions; the top view and reference path on the right are for illustration only, and" />
 <figcaption>
-Navigation interface: GPT-6-Astra In the Codex harness session, call observe() via MCP to obtain monocular RGB, call step() to perform primitive actions; the top view and reference path on the right are only for illustration, and
+Navigation interface: within a Codex harness session, GPT-6-Astra calls observe() through MCP to obtain monocular RGB and calls step() to perform primitive actions; the top view and reference path on the right are for illustration only, and
 </figcaption>
 </div>
 
-The system consists of three parts: **Codex harness** is only responsible for maintaining a continuous session and does not participate in any navigation decisions; **MCP (Model Context Protocol, a standard protocol for model calling external tools) tool layer** only exposes two tools `observe()` and `step(actions)`; **VLN-CE simulator** executes actions and determines success or failure. Understanding commands, when to look, how to move, and when to stop are all determined by GPT-6-Astra within a session.
+The system consists of three parts: the **Codex harness** only maintains a continuous session and takes no part in any navigation decision; the **MCP (Model Context Protocol, a standard protocol for models to call external tools) tool layer** exposes only two tools, `observe()` and `step(actions)`; the **VLN-CE simulator** executes the actions and judges success or failure. Understanding the instruction, when to look, how to move, and when to stop are all decided by GPT-6-Astra within one session.
 
 Compared with a typical zero-shot VLN-CE system, this interface is "minimalist" in the following ways:
 
 | Dimensions | Typical zero-shot VLN-CE method | Interface to this report |
 |---|---|---|
-| Observation | 360° panoramic, most with depth; some methods pre-explore the scene and reconstruct it (such as SpatialAnt) | 512×512 monocular RGB, adjust `observe()` if you want; no depth, no map, no pose |
-| Action space | The trained waypoint predictor gives candidate points, and the model selects one from them | Primitive action sequence: forward 0.25 m, turn left/right 15°, camera pitch 30°, STOP |
-| Process | Manually designed planning, memory, and action selection modules | No navigation-specific modules, harness only maintains sessions |
-| Navigation training | Some methods are fine-tuned on navigation data | No navigation fine-tuning is performed |
+| Observation | 360° panorama, mostly with depth; some methods pre-explore and reconstruct the scene (such as SpatialAnt) | 512×512 monocular RGB, with `observe()` called when wanted; no depth, no map, no pose |
+| Action space | A trained waypoint predictor gives candidate points and the model selects one | Primitive action sequence: forward 0.25 m, turn left/right 15°, camera pitch 30°, STOP |
+| Pipeline | Hand-designed planning, memory, and action-selection modules | No navigation-specific modules; the harness only maintains the session |
+| Navigation training | Some methods are fine-tuned on navigation data | No navigation fine-tuning |
 
-**Module 1: Observation Tool `observe()`**
+**Module 1: Observation tool `observe()`**
 
-- **Input**: no parameters
-- **Processing**: Read the current camera perspective, do not advance the simulator, and do not consume the action budget
-- **Output**: A 512×512 monocular RGB. Scene map, reference trajectory, target coordinates, global pose and depth are not provided.
-- **Design motivation**: Turn "looking" into an action actively selected by the model - how many times and when to look are determined by the model, thereby testing its active perception ability, rather than feeding a panoramic sheet at each step by an external process
+- **Input**: none
+- **Processing**: Reads the current camera view; does not advance the simulator and does not consume the action budget
+- **Output**: A 512×512 monocular RGB image. No scene map, reference trajectory, target coordinates, global pose, or depth is provided.
+- **Motivation**: Makes "looking" an action the model chooses actively; how many times and when to look is up to the model, which tests its active perception rather than having an external process feed a panorama at every step
 
-**Module 2: Action Tool `step(actions)`**
+**Module 2: Action tool `step(actions)`**
 
-- **Input**: An ordered sequence of primitive actions, multiple primitives can be packaged in one call
-- **Processing**: The simulator executes in sequence
-- **Output**: Execution count, remaining budget, whether to terminate - **No image returned**, you must adjust it again if you want to see the image after execution `observe()`
-- **Design motivation**: The action granularity is kept to a minimum and does not rely on any trained waypoint predictor; "no picture is given after the action" also means that the model has to judge whether the action is really effective, which is the foreshadowing of the execution failure analysis later.
+- **Input**: An ordered sequence of primitive actions; several primitives can be packed into one call
+- **Processing**: The simulator executes them in order
+- **Output**: The number executed, the remaining budget, and whether the episode has terminated. **No image is returned**; to see the image after execution, `observe()` must be called again
+- **Motivation**: Keeps the action granularity minimal and relies on no trained waypoint predictor; "no image after the action" also means the model must judge for itself whether the action actually took effect, which sets up the execution-failure analysis later.
 
-> **For example**: The instruction "turn right into the corridor" is approximately 6 right turns (6 × 15° = 90°). A call "L × 6, F × 4" of EP42 in Figure 3 means turning left 90° and then moving forward 1 m (4 × 0.25 m) in one `step()`. Packing multiple primitives only saves the number of calls, and each primitive is still included in the 500 action budget - which is only enough to walk straight for about 125 meters.
+> **Example**: The instruction "turn right into the corridor" is roughly 6 right turns (6 × 15° = 90°). The call "L × 6, F × 4" of EP42 in Figure 3 means turning left by 90° and then moving forward 1 m (4 × 0.25 m) in one `step()`. Packing multiple primitives only saves the number of calls; every primitive still counts against the 500-action budget, which is only enough to walk straight for about 125 meters.
 
 **Module 3: Codex harness and task prompt**
 
-The task prompt describes the tool usage, budget and stopping conditions; the harness maintains the session, allowing the model to continuously accumulate the pictures it has seen and the actions it has performed in the same context. GPT-6-Astra runs the entire episode in two levels of inference intensity: medium and ultra. The two levels share the same prompt and tools.
+The task prompt describes tool usage, the budget, and the stopping conditions; the harness maintains the session, letting the model accumulate the images it has seen and the actions it has executed in the same context. GPT-6-Astra runs each whole episode at two reasoning-effort levels, medium and ultra, which share the same prompt and tools.
 
-**end-to-end data flow (redrawn in reader version)**
+**End-to-end data flow (redrawn for readers)**
 
 ```mermaid
 graph TD
@@ -3051,79 +3051,79 @@ graph TD
     E -- "500 actions or 2400 s exhausted" --> I
 ```
 
-**Evaluation Agreement**
+**Evaluation protocol**
 
-- **Data**: R2R-CE-100, that is, 100 val-unseen episodes introduced by Open-Nav, covering 10 scenes, using the same protocol as EvoNav, Open-Nav, SmartWay and other zero-shot work; the numbers of the training method in Table 1 come from the full amount of val-unseen
-- **Budget**: Each episode has a maximum of 500 primitive actions and 2,400 s. It ends when STOP is called or any budget is exhausted.
-- **Number of runs**: Each level of inference intensity was run three times. Table 1 and Table 2 report the mean ± sample standard deviation; three runs are regarded as repeated observations of the same batch of tasks (v1 is a single run)
-- **Successful Determination**: Explicitly call STOP, and the geodesic distance from the end point to the target is less than 3 m
+- **Data**: R2R-CE-100, i.e., the 100 val-unseen episodes introduced by Open-Nav, covering 10 scenes, using the same protocol as zero-shot work such as EvoNav, Open-Nav, and SmartWay; the numbers for trained methods in Table 1 come from the full val-unseen set
+- **Budget**: Each episode allows at most 500 primitive actions and 2,400 s. It ends when STOP is called or either budget is exhausted.
+- **Number of runs**: Each reasoning-effort level was run three times. Tables 1 and 2 report the mean ± sample standard deviation; the three runs are treated as repeated observations of the same set of tasks (v1 was a single run)
+- **Success criterion**: STOP is called explicitly, and the geodesic distance from the endpoint to the goal is less than 3 m
 
-**Evaluation Indicators**
+**Evaluation metrics**
 
-The report uses five indicators together because they answer different questions:
+The report uses five metrics together because they answer different questions:
 
-- **SR** (success rate): The proportion of distance less than 3 m from the target during STOP - "Arrival or not"
-- **NE** (navigation error): geodesic distance from the end point to the target, in meters - "how far"
-- **OSR** (oracle success rate): Any point on the trajectory that has entered the 3 m circle is counted as "passing by"
-- **SPL**: Success rate weighted by path length - "Is the result efficient?"
+- **SR** (success rate): the proportion of episodes in which the distance to the goal at STOP is below 3 m, i.e., "did it arrive?"
+- **NE** (navigation error): the geodesic distance from the endpoint to the goal, in meters, i.e., "how far off?"
+- **OSR** (oracle success rate): any point of the trajectory that entered the 3 m circle counts as "passing by"
+- **SPL**: success rate weighted by path length, i.e., "was it efficient?"
 
 $$\text{SPL} = \frac{1}{N}\sum_{i=1}^{N} S_i \cdot \frac{\ell_i}{\max(p_i, \ell_i)}$$
 
-Among them, $S_i$ is whether the $i$ episode is successful, $\ell_i$ is the shortest path length, and $p_i$ is the actual walking length.
+Here $S_i$ indicates whether episode $i$ succeeded, $\ell_i$ is the shortest path length, and $p_i$ is the actual path length traveled.
 
-- **nDTW** (Normalized Dynamic Time Warping): Press the cumulative distance after point-by-point alignment between the actual trajectory $Q$ and the reference path $R$ to 0–1 - "Is it following the route described by the instruction?"
+- **nDTW** (normalized dynamic time warping): the cumulative distance after point-by-point alignment of the actual trajectory $Q$ with the reference path $R$, normalized to 0–1, i.e., "did it follow the route described by the instruction?"
 
 $$\text{nDTW}(R, Q) = \exp\left(-\frac{\mathrm{DTW}(R, Q)}{\lvert R \rvert \cdot d_{th}}\right)$$
 
-Among them, $d_{th}$ takes a success radius of 3 m.
+Here $d_{th}$ is the success radius of 3 m.
 
-> **For example**: Among the 100 episodes of the first run of ultra, 79 were successful, 3 trajectories entered the 3m target circle but eventually stopped outside the circle, and 18 never entered the target circle. So SR = 79%, OSR = (79 + 3) / 100 = 82% - these three points between OSR and SR are "passing by but not stopping". The three runs were 79 / 81 / 84 successes and 3 / 3 / 1 lap failures, respectively. The mean values ​​are therefore SR 81.3 and OSR 83.7, corresponding to Table 1. Let’s look at the successful EP42 (the first run): the end point error is only 0.7 m, and it is still recorded as a success; but SPL 41.2% means that the actual distance is about 1 / 0.412 ≈ 2.4 times of the shortest path, and nDTW 27.5% shows that the trajectory and the reference route hardly fit - it first walked into the bedroom, found that the order was wrong, and turned back to the kitchen to start again.
+> **Example**: Among the 100 episodes of the first ultra run, 79 succeeded, 3 trajectories entered the 3 m goal circle but finally stopped outside it, and 18 never entered the goal circle. So SR = 79% and OSR = (79 + 3) / 100 = 82%; these 3 points between OSR and SR are cases of "passing by but not stopping". The three runs had 79 / 81 / 84 successes and 3 / 3 / 1 circle-entering failures respectively, so the means are SR 81.3 and OSR 83.7, matching Table 1. Now consider the successful EP42 (first run): its endpoint error is only 0.7 m and it is still recorded as a success; but an SPL of 41.2% means the actual distance is about 1 / 0.412 ≈ 2.4 times the shortest path, and an nDTW of 27.5% shows that the trajectory hardly fits the reference route. It first walked into the bedroom, found the order was wrong, and turned back to the kitchen to start over.
 
-**Behavior Analysis Framework**
+**Behavior analysis framework**
 
-In addition to the aggregated indicators, the author checked the interaction logs of three ultra runs one by one (tool calls, actual executed actions and corresponding RGB images), and organized the analysis according to three groups of questions:
+Beyond the aggregate metrics, the authors went through the interaction logs of the three ultra runs one by one (tool calls, actually executed actions, and the corresponding RGB images) and organized the analysis around three groups of questions:
 
-- **Ability side**: How to ground spatial reference (4.1), whether reaching the target is equal to following the route (4.2), how to adjust actions (4.3)
-- **Failure side**: Where does route following break (5.1), whether it can recover from execution difficulties (5.2), and whether it can stop at the correct location (5.3)
-- **Stability side**: How many times did the same task succeed in six evaluations (medium × 3 + ultra × 3), distinguish between "continuous failure" and "inter-run jitter", and answer whether increasing inference intensity can solve the failure (5.4)
+- **Capabilities**: how spatial references are grounded (4.1), whether reaching the goal equals following the route (4.2), and how actions are adjusted (4.3)
+- **Failures**: where route following breaks (5.1), whether the agent can recover from execution difficulties (5.2), and whether it can stop at the correct place (5.3)
+- **Stability**: how many times the same task succeeded in six evaluations (medium × 3 + ultra × 3), distinguishing "persistent failure" from "run-to-run jitter", and answering whether higher reasoning effort fixes the failures (5.4)
 
-The author also emphasizes that logs can only support the analysis of "observable behavior". They can neither confirm whether a single semantic judgment is correct, nor can they see the internal reasoning of the model.
+The authors also stress that logs can only support analysis of "observable behavior": they can neither confirm whether a single semantic judgment is correct nor reveal the model's internal reasoning.
 
 ---
 
 ### 3. Results and findings
 {: id="3-核心结果发现-39"}
 
-**Main results: monocular RGB, zero sample, ultra's SR, SPL, OSR, and NE are all the best in Table 1 of the paper**
+**Main results: with monocular RGB and zero-shot, ultra's SR, SPL, OSR, and NE are all the best in Table 1 of the paper**
 
 <div align="center">
-  <img src="/images/vln/GPT-6-Astra-sr-comparison.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1394/625" alt="SR comparison on R2R-CE (v2, average of three runs): The left is the zero-shot method, ultra (81.3%) is 15.3 points higher than the best zero-shot SpatialAnt (66.0%, panoramic + pre-exploration mapping); the right is the training method (full val-unseen), which is better than Qwen-RobotNav (72.1%, panoramic) + 15.6 million mixed source samples) is 9.2 points higher; the blue column is medium (75.7%). The evaluation subsets and settings are different, and the author notes that the comparison is not strictly fair" />
+  <img src="/images/vln/GPT-6-Astra-sr-comparison.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1394/625" alt="SR comparison on R2R-CE (v2, three-run average): on the left are zero-shot methods, where ultra (81.3%) is 15.3 points above the best zero-shot method SpatialAnt (66.0%, panorama + pre-exploration mapping); on the right are trained methods (full val-unseen), where it is 9.2 points above Qwen-RobotNav (72.1%, panorama + 15.6 million mixed-source samples); the blue bar is medium (75.7%). The evaluation subsets and settings differ, and the authors note that the comparison is not strictly fair" />
 <figcaption>
-SR comparison on R2R-CE (v2, average of three runs): The left is the zero-shot method, ultra (81.3%) is 15.3 points higher than the best zero-shot SpatialAnt (66.0%, panoramic + pre-exploration mapping); the right is the training method (full val-unseen), which is better than Qwen-RobotNav (72.1%, panoramic) + 15.6 million mixed source samples) is 9.2 points higher; the blue column is medium (75.7%). The evaluation subsets and settings are different, and the author notes that the comparison is not strictly fair
+SR comparison on R2R-CE (v2, three-run average): on the left are zero-shot methods, where ultra (81.3%) is 15.3 points above the best zero-shot method SpatialAnt (66.0%, panorama + pre-exploration mapping); on the right are trained methods (full val-unseen), where it is 9.2 points above Qwen-RobotNav (72.1%, panorama + 15.6 million mixed-source samples); the blue bar is medium (75.7%). The evaluation subsets and settings differ, and the authors note that the comparison is not strictly fair
 </figcaption>
 </div>
 
-Representative rows taken from Table 1 (NE units are meters, remainder are percentages; GPT-6-Astra two rows are means ± sample standard deviations of three runs):
+Representative rows from Table 1 (NE in meters, the rest in percent; the two GPT-6-Astra rows are the mean ± sample standard deviation of three runs):
 
 | Method | Type | Evaluation Set | Perspective | NE↓ | OSR↑ | SR↑ | SPL↑ |
 |---|---|---|---|---|---|---|---|
-| GC-VLN | Zero sample | Full | monocular | 7.3 | 41.8 | 33.6 | 16.3 |
-| AgenticNav-GPT-5.5 | Zero sample | R2R-CE-100 | panoramic | 5.2 | 65.0 | 55.0 | 48.4 |
-| HarnessVLN-GPT-5.5 | zero sample | – | panoramic | 4.0 | 72.7 | 60.8 | 43.5 |
+| GC-VLN | Zero-shot | Full | monocular | 7.3 | 41.8 | 33.6 | 16.3 |
+| AgenticNav-GPT-5.5 | Zero-shot | R2R-CE-100 | panoramic | 5.2 | 65.0 | 55.0 | 48.4 |
+| HarnessVLN-GPT-5.5 | Zero-shot | – | panoramic | 4.0 | 72.7 | 60.8 | 43.5 |
 | SpatialAnt | zero-shotd | Author-sampled | panoramic | 4.4 | 76.0 | 66.0 | 54.4 |
 | Image2Nav | Training | Full | monocular | 4.0 | 72.9 | 66.3 | 61.5 |
 | Qwen-RobotNav-8B | Training | Full | monocular | 4.4 | 72.7 | 65.7 | 59.6 |
 | OmniNav | Training | Full | panoramic | 3.7 | 74.6 | 69.5 | 66.1 |
 | Qwen-RobotNav-8B | Training | Full | panoramic | 3.5 | 78.5 | 72.1 | 66.6 |
-| **GPT-6-Astra (medium)** | Zero sample | R2R-CE-100 | monocular | 3.0±0.4 | 80.7±2.1 | 75.7±1.5 | 65.6±2.1 |
-| **GPT-6-Astra(ultra)** | Zero sample | R2R-CE-100 | monocular | **2.9±0.2** | **83.7±1.5** | **81.3±2.5** | **71.5±1.7** |
+| **GPT-6-Astra (medium)** | Zero-shot | R2R-CE-100 | monocular | 3.0±0.4 | 80.7±2.1 | 75.7±1.5 | 65.6±2.1 |
+| **GPT-6-Astra(ultra)** | Zero-shot | R2R-CE-100 | monocular | **2.9±0.2** | **83.7±1.5** | **81.3±2.5** | **71.5±1.7** |
 
-- Among the zero-shot methods that are also monocular RGB, the previous best GC-VLN has only 33.6% SR / 16.3% SPL, and the SR of GPT-6-Astra is more than twice as high.
-- Ultra's NE of 2.9 m is the lowest in Table 1, lower than the strongest training model Qwen-RobotNav-8B (panoramic, 3.5 m); in terms of SPL, only ultra (71.5) is higher than all training methods in Table 1, and medium's 65.6 is lower than Qwen-RobotNav-8B panoramic (66.6) and OmniNav (66.1). Table 1 Not included Robostral Navigate: It achieved 77.4% SR and 74.2 SPL with monocular RGB on full val-unseen. The SR is higher than medium’s 75.7 and SPL is higher than ultra’s 71.5 (NE 3.20 m is not as good as ultra’s 2.9 m)
-- Ultra compared to medium: SR +5.7, SPL +5.9 (the paper is calculated based on the values before rounding), OSR 83.7 vs. 80.7, nDTW 74.0 vs. 70.5, NE 2.9 vs. 3.0 m. The standard deviation of the two bins is between 1.5–2.5 points, which the paper positions as a descriptive comparison of the two configurations
-- The author repeatedly reminds: the training method uses the full amount of val-unseen, SpatialAnt uses the author's self-sampled episodes and relies on scene reconstruction and simulator depth. HarnessVLN does not indicate a subset. These comparisons only illustrate competitiveness and do not constitute a conclusion on the advantages and disadvantages under the same conditions.
+- Among zero-shot methods that also use monocular RGB, the previous best, GC-VLN, reaches only 33.6% SR / 16.3% SPL; GPT-6-Astra's SR is more than twice as high.
+- Ultra's NE of 2.9 m is the lowest in Table 1, lower than that of the strongest trained model Qwen-RobotNav-8B (panorama, 3.5 m); in SPL, only ultra (71.5) is higher than all trained methods in Table 1, while medium's 65.6 is lower than Qwen-RobotNav-8B with panorama (66.6) and OmniNav (66.1). Table 1 does not include Robostral Navigate, which achieves 77.4% SR and 74.2 SPL with monocular RGB on the full val-unseen set: its SR is higher than medium's 75.7 and its SPL is higher than ultra's 71.5 (its NE of 3.20 m is worse than ultra's 2.9 m)
+- Ultra vs. medium: SR +5.7, SPL +5.9 (computed by the paper from unrounded values), OSR 83.7 vs. 80.7, nDTW 74.0 vs. 70.5, NE 2.9 vs. 3.0 m. The standard deviation of both configurations is between 1.5 and 2.5 points, and the paper positions this as a descriptive comparison of two configurations
+- The authors repeatedly remind readers that trained methods use the full val-unseen set, SpatialAnt uses episodes sampled by its own authors and relies on scene reconstruction and simulator depth, and HarnessVLN does not specify its subset. These comparisons only show competitiveness and do not establish which is better under identical conditions.
 
-**Spatial reference: Ordinal formula is more stable than landmark relative formula (but the number of tasks is small and the fluctuation is large)**
+**Spatial references: ordinal expressions are more stable than landmark-relative expressions (but the number of tasks is small and the fluctuation large)**
 
 | Instruction subset | N | SR | SPL | nDTW |
 |---|---|---|---|---|
@@ -3131,43 +3131,43 @@ Representative rows taken from Table 1 (NE units are meters, remainder are perce
 | Ordinal selection ("second room" "rightmost door") | 14 | 95.2±8.2 | 77.3±8.2 | 75.9±3.2 |
 | Landmark relative selection ("on the left of...", "between...", "behind...") | 13 | 74.4±11.8 | 69.0±8.1 | 73.9±2.0 |
 
-(Mean ± sample standard deviation of three runs, ultra setting.) In EP218, after the model left the bedroom, it first recognized a bathroom as the "first room on the left" in the interaction log, and then walked to the next door; in EP244, it selected the door opening on the "left side of the white double door". Both cases were successful in six evaluations (two levels of inference intensity × three times). The NEs of the first ultra run were 2.6 m and 1.8 m respectively. The author notes that this is the score of the entire task, not the accuracy of a single spatial relationship judgment; the two subsets may overlap, and the scene layout and difficulty are also different. There are only 14 and 13 tasks, and the standard deviation itself is 8–12 points. The difference should not be directly attributed to "spatial relationship difficulty".
+(Mean ± sample standard deviation over three runs, ultra setting.) In EP218, after leaving the bedroom the model first recognized a bathroom as "the first room on the left" in the interaction log and then walked to the next door; in EP244, it picked the doorway "to the left of the white double door". Both succeeded in all six evaluations (two reasoning-effort levels × three runs). The NE of the first ultra run was 2.6 m and 1.8 m respectively. The authors note that this is the score of the whole task, not the accuracy of a single spatial-relation judgment; the two subsets may overlap, and their scene layouts and difficulty also differ. There are only 14 and 13 tasks, and the standard deviation itself is 8–12 points, so the difference should not be attributed directly to "difficulty of spatial relations".
 
-**Arrive ≠ Follow the route**
+**Arriving ≠ following the route**
 
-- There were a total of 244 successful trajectories in the three ultra runs (79 + 81 + 84, which are repeated observations of the same batch of tasks, not 244 different tasks). The median nDTW was between 90.3%–91.0%, and most of them followed the reference route; but there were still 8, 7, and 7 below 50% each time, accounting for 9.0±1.0% of the successful trajectories. EP116 has an end point error of 0.1 m and nDTW of 89.2%, which is a typical example of line bonding; EP42 is a success after a significant detour.
-- There are 16, 16, and 12 trajectories in each run in the log recording action adjustments after obvious route deviations or difficulty in access, of which 10, 6, and 7 were successful; the median SPL of these successful trajectories was only 45.5%, 30.3%, and 35.6%, and the median nDTW was 8.9%–44.3%. This only counts recorded adjustments, and the score covers the complete trajectory including retracement, which cannot explain the causal effect of the adjustment itself on success or failure.
+- The three ultra runs have 244 successful trajectories in total (79 + 81 + 84, which are repeated observations of the same set of tasks, not 244 different tasks). The median nDTW is between 90.3% and 91.0%, and most follow the reference route; but 8, 7, and 7 trajectories in the respective runs still fall below 50%, accounting for 9.0±1.0% of successful trajectories. EP116, with an endpoint error of 0.1 m and an nDTW of 89.2%, is a typical example of close route fit; EP42 is a success after a significant detour.
+- In each run, 16, 16, and 12 trajectories have logged action adjustments after an obvious route deviation or difficulty getting through, of which 10, 6, and 7 succeeded; the median SPL of these successful trajectories is only 45.5%, 30.3%, and 35.6%, and the median nDTW ranges from 8.9% to 44.3%. This counts only recorded adjustments, and the score covers the complete trajectory including backtracking, so it cannot explain the causal effect of the adjustment itself on success or failure.
 
 <div align="center">
-  <img src="/images/vln/GPT-6-Astra-route-following.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1598/557" alt="Route fit of &#x27;s three ultra runs: (a) nDTW–SPL scatter points of successful trajectories, the number of successes in each run is 79 / 81 / 84 in the brackets of the legend; (b) the number of trajectories where route or action adjustments were recorded and their success or failure, the right side is the median SPL of the winners" />
+  <img src="/images/vln/GPT-6-Astra-route-following.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1598/557" alt="Route fit of the three ultra runs: (a) nDTW–SPL scatter of successful trajectories, with the number of successes in each run (79 / 81 / 84) shown in the legend; (b) the number of trajectories with recorded route or action adjustments and whether they succeeded, with the median SPL of the successful ones on the right" />
 <figcaption>
-Route fit of 's three ultra runs: (a) nDTW–SPL scatter points of successful trajectories, the number of successes in each run is 79 / 81 / 84 in the brackets of the legend; (b) the number of trajectories where route or action adjustments were recorded and their success or failure, the right side is the median SPL of the winners
+Route fit of the three ultra runs: (a) nDTW–SPL scatter of successful trajectories, with the number of successes in each run (79 / 81 / 84) shown in the legend; (b) the number of trajectories with recorded route or action adjustments and whether they succeeded, with the median SPL of the successful ones on the right
 </figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vln/GPT-6-Astra-EP42-backtracking.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1598/601" alt="The return process of EP42 (command: kitchen → small living room → left-hand bedroom): t=135 The model found that it entered the bedroom, which did not match the order of &quot;kitchen-living room-bedroom&quot;, so it turned left and returned to the kitchen, passed through the living room, and finally entered the correct bedroom and STOP; succeeded, but the nDTW was only 27.5% and the SPL was 41.2%. t is the number of executed primitive actions" />
+  <img src="/images/vln/GPT-6-Astra-EP42-backtracking.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1598/601" alt="The backtracking process of EP42 (instruction: kitchen → small living room → left-hand bedroom): at t=135 the model finds that it has entered a bedroom, which does not match the order &quot;kitchen-living room-bedroom&quot;, so it turns left and returns to the kitchen, passes through the living room, and finally enters the correct bedroom and calls STOP; it succeeds, but the nDTW is only 27.5% and the SPL is 41.2%. t is the number of executed primitive actions" />
 <figcaption>
-The return process of EP42 (command: kitchen → small living room → left-hand bedroom): t=135 The model found that it entered the bedroom, which did not match the order of "kitchen-living room-bedroom", so it turned left and returned to the kitchen, passed through the living room, and finally entered the correct bedroom and STOP; succeeded, but the nDTW was only 27.5% and the SPL was 41.2%. t is the number of executed primitive actions
+The backtracking process of EP42 (instruction: kitchen → small living room → left-hand bedroom): at t=135 the model finds that it has entered a bedroom, which does not match the order "kitchen-living room-bedroom", so it turns left and returns to the kitchen, passes through the living room, and finally enters the correct bedroom and calls STOP; it succeeds, but the nDTW is only 27.5% and the SPL is 41.2%. t is the number of executed primitive actions
 </figcaption>
 </div>
 
-**Failure modes: three categories: route, execution, and stop**
+**Failure modes: three categories (route, execution, and stop)**
 
 <div align="center">
-  <img src="/images/vln/GPT-6-Astra-failures.webp" width="90%" loading="lazy" decoding="async" style="aspect-ratio:1598/1234" alt="Repeated evaluation distinguishes continuous failure from operational fluctuations: (a) The results of three ultra runs (successful 79/81/84, entered the target circle but stopped wrongly 3/3/1, never entered the circle 18/16/15); (b) The distribution of the number of successes in the same batch of 100 tasks under medium and ultra, 62 were all successful six times, 8 All six times failed; (c) EP176’s RGB image remained unchanged after eight consecutive forward actions, and finally exhausted the 500-step budget and NE 35.4 m; (d) EP1133 failed all six times and stopped near the arch, with NE fluctuating between 5.6–12.3 m and always exceeding 3 m" />
+  <img src="/images/vln/GPT-6-Astra-failures.webp" width="90%" loading="lazy" decoding="async" style="aspect-ratio:1598/1234" alt="Repeated evaluation distinguishes persistent failures from run-to-run fluctuation: (a) results of the three ultra runs (successes 79/81/84, entered the goal circle but stopped wrongly 3/3/1, never entered the circle 18/16/15); (b) distribution of the number of successes on the same 100 tasks under medium and ultra: 62 tasks succeeded all six times and 8 failed all six times; (c) the RGB image of EP176 stays unchanged after eight consecutive forward actions, and the agent finally exhausts the 500-step budget with an NE of 35.4 m; (d) EP1133 failed all six times and stopped near an arch, with NE fluctuating between 5.6 and 12.3 m and always above 3 m" />
 <figcaption>
-Repeated evaluation distinguishes continuous failure from operational fluctuations: (a) The results of three ultra runs (successful 79/81/84, entered the target circle but stopped wrongly 3/3/1, never entered the circle 18/16/15); (b) The distribution of the number of successes in the same batch of 100 tasks under medium and ultra, 62 were all successful six times, 8 All six times failed; (c) EP176’s RGB image remained unchanged after eight consecutive forward actions, and finally exhausted the 500-step budget and NE 35.4 m; (d) EP1133 failed all six times and stopped near the arch, with NE fluctuating between 5.6–12.3 m and always exceeding 3 m
+Repeated evaluation distinguishes persistent failures from run-to-run fluctuation: (a) results of the three ultra runs (successes 79/81/84, entered the goal circle but stopped wrongly 3/3/1, never entered the circle 18/16/15); (b) distribution of the number of successes on the same 100 tasks under medium and ultra: 62 tasks succeeded all six times and 8 failed all six times; (c) the RGB image of EP176 stays unchanged after eight consecutive forward actions, and the agent finally exhausts the 500-step budget with an NE of 35.4 m; (d) EP1133 failed all six times and stopped near an arch, with NE fluctuating between 5.6 and 12.3 m and always above 3 m
 </figcaption>
 </div>
 
-- **Route Following Breaks**: In each ultra run, 10–13 failed finish lines were at least 5 m away from the target, and 5–8 of them were more than 10 m away, indicating that the remaining errors were more likely to be significant deviations rather than narrow misses. The instruction of EP513 mentioned the fireplace living room, two white sofas and the entrance to the adjacent dining room. In the first run, the model announced its arrival when it finally saw the fireplace and light-colored seats, but the NE was 14.5 m; in the other two ultra runs, it succeeded - the local landmarks were aligned, which does not mean that it has reached the place mentioned in the instruction. This was a failure in execution, not that the task was impossible, and the log could not locate the first wrong location.
-- **Execution difficulties and recovery**: Among the 1,103 action batches with readable observations at both ends, the three ultra runs had a total of 11 batches of pure forward actions, distributed among 10 trajectories. The RGB before and after execution was the same pixel by pixel (no visible displacement, but it does not mean that a collision was measured), and 6 of the trajectories were still successful in the end; EP70 entered the next room after turning and advancing near the narrow door and succeeded; EP176 in 8 After the forward screen remained unchanged, the budget of 500 steps was consumed, and the end point was 35.4 m away from the target. It failed in three runs of ultra, but succeeded in two runs of medium. It can be seen that the problem is unstable execution and recovery, rather than a failure of the task. Making an action does not mean that it has actually moved, nor does it mean that it has effectively recovered.
-- **Stop judgment**: In each ultra run, 96–99 trajectories are actively stopped by the model, and 1–3 failed trajectories enter and then leave the success radius each time. In the first run of EP705, the model reported stopping after seeing a fire extinguisher next to the door. The final NE was 12.3 m. The same task was successful in the other two ultra runs.
+- **Route following breaks**: In each ultra run, 10–13 failed endpoints are at least 5 m from the goal, and 5–8 of them are more than 10 m away, indicating that the remaining errors are more likely large deviations than narrow misses. The instruction of EP513 mentions a fireplace living room, two white sofas, and the entrance to the adjacent dining room. In the first run, the model announced arrival when it finally saw the fireplace and light-colored seats, but the NE was 14.5 m; in the other two ultra runs it succeeded. Aligning local landmarks does not mean having reached the place the instruction refers to. This was an execution failure rather than an impossible task, and the logs cannot pinpoint the first wrong location.
+- **Execution difficulties and recovery**: Among the 1,103 action batches with readable observations at both ends, the three ultra runs contain a total of 11 batches of pure forward actions, spread over 10 trajectories, in which the RGB before and after execution is pixel-for-pixel identical (no visible displacement, though this does not mean a collision was detected); 6 of those trajectories still succeeded in the end. EP70 entered the next room after turning and advancing near a narrow door and succeeded; EP176 consumed the whole 500-step budget after 8 forward steps with an unchanged image and ended 35.4 m from the goal; it failed in all three ultra runs but succeeded in two medium runs. The problem is thus unstable execution and recovery rather than an impossible task. Issuing an action does not mean the agent has actually moved, nor that it has recovered effectively.
+- **Stop judgment**: In each ultra run, 96–99 trajectories were stopped actively by the model, and 1–3 failed trajectories per run entered and then left the success radius. In the first run of EP705, the model reported stopping after seeing a fire extinguisher next to the door; the final NE was 12.3 m. The same task succeeded in the other two ultra runs.
 
-**How many failures can be solved by increasing the strength of reasoning?**
+**How many failures can be solved by raising reasoning effort?**
 
-Interleave the success times of three runs of medium and ultra on the same batch of 100 tasks (paper Figure 4b):
+Cross-tabulating the success counts of the three medium runs and the three ultra runs on the same 100 tasks (Figure 4b of the paper):
 
 | ultra number of successes ＼ medium number of successes | 0 | 1 | 2 | 3 |
 |---|---|---|---|---|
@@ -3176,33 +3176,33 @@ Interleave the success times of three runs of medium and ultra on the same batch
 | **1** | 4 | 3 | 0 | 0 |
 | **0** | **8** | 1 | 1 | 0 |
 
-> **How to read this table**: The 62 tasks in the upper right corner were all successful in six evaluations, the 8 tasks in the lower left corner were all failed in six evaluations, and the remaining 30 tasks were good and bad. This is an extra layer of information than the crosstab of "run each of the two gears once": part of the "turnover" or "rollover" in a single run is just the normal fluctuation of the same task in different runs.
+> **How to read this table**: The 62 tasks in the upper right corner succeeded in all six evaluations, the 8 tasks in the lower left failed in all six, and the remaining 30 were mixed. This carries one more layer of information than a cross-tab of "one run of each of the two levels": some of the "flips" seen in a single run are just ordinary fluctuation of the same task across runs.
 
-- Among the 14 tasks (first column) that failed all three times on medium, 6 succeeded at least once under ultra, and 8 still failed completely; conversely, among the tasks that succeeded all three times on medium, 3 failed in a certain run of ultra. Higher inference strength does not guarantee reliable completion, and the paper makes it clear that these observations cannot explain the cause of every persistent failure.
-- EP1133 is one of the eight missions that failed six times: the end point NE of medium is 7.5–11.4 m, and the ultra is 5.6–12.3 m. A smaller NE cannot be regarded as a stable improvement.
+- Of the 14 tasks that failed all three times under medium (first column), 6 succeeded at least once under ultra and 8 still failed completely; conversely, among the tasks that succeeded all three times under medium, 3 failed in some ultra run. Higher reasoning effort does not guarantee reliable completion, and the paper makes clear that these observations cannot explain the cause of every persistent failure.
+- EP1133 is one of the eight tasks that failed all six times: the endpoint NE is 7.5–11.4 m under medium and 5.6–12.3 m under ultra. A smaller NE should not be taken as a stable improvement.
 
-**Author’s suggestions for subsequent VLN research**
+**The authors' suggestions for future VLN research**
 
-- The general model can complete competitive navigation through a minimalist "observation-action" interface. It is worth studying: which capabilities can be directly provided by the general model, and which areas need to be supplemented by navigation-specific learning; the paper states that how to divide labor between general models and special methods is still an empirical issue
-- There are three types of possible supplementary methods: spatial representation (matching current observations with the places traveled and completed instruction steps, to help progress tracking and end-point verification), navigation experience (using trajectories or demonstrations during reasoning, to help path selection and error correction), and learned control skills (efficient movement and recovery routines); these supplements should retain the flexibility of the model to observe and adjust its route by itself. The paper itself emphasizes that these directions are just motivations and have not been evaluated.
-- Follow-up evaluations should fix the model, tasks, observations, primitive actions and budgets, disclose any additional information, do component ablation and multiple runs, and report task success, path efficiency, reference path fit and progress tracking, recovery, and stop behaviors together. At the same time, the reasoning cost and delay should be given, and then the migration should be tested in more environments, instruction lengths, and layouts.
+- A general model can complete competitive navigation through a minimalist "observe-act" interface. It is worth studying which capabilities a general model can provide directly and which areas need navigation-specific learning; the paper states that how to divide the labor between general models and specialized methods remains an empirical question
+- Three kinds of supplements are possible: spatial representation (matching current observations against places traveled and completed instruction steps, to help progress tracking and endpoint verification), navigation experience (using trajectories or demonstrations during reasoning, to help path selection and error correction), and learned control skills (efficient movement and recovery routines). These supplements should preserve the model's flexibility to observe and adjust its route on its own. The paper itself stresses that these directions are only motivation and have not been evaluated.
+- Follow-up evaluations should fix the model, tasks, observations, primitive actions, and budgets; disclose any extra information; run component ablations and multiple runs; and report task success, path efficiency, reference-path fit and progress tracking, recovery, and stop behavior together. Reasoning cost and latency should also be reported, and transfer should then be tested across more environments, instruction lengths, and layouts.
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-39"}
 
-Only evaluated on R2R-CE-100 (100 episodes, 10 scenes), each run three times; the multiple runs added by v2 illustrate the repeatability on the same task set, but do not illustrate generalization. It is still different from the training method on the full val-unseen and Author-sampled SpatialAnt; the standard deviation of the three runs (ultra is 2.5 points) only reflects the fluctuation between runs, and the sampling error of the 100 tasks itself is still there: the author roughly calculated based on the binomial distribution, the standard error of 81.3% SR is about 3.9 percentage points, leading Qwen-RobotNav's 9.2 The point is about 2.4 times the standard error, which is more generous than the case of v1, but it is still not the same set conclusion.
+Only R2R-CE-100 (100 episodes, 10 scenes) was evaluated, with three runs each; the multiple runs added in v2 show repeatability on the same task set but not generalization. The set still differs from the full val-unseen set used by trained methods and from the author-sampled episodes of SpatialAnt; the standard deviation over three runs (2.5 points for ultra) reflects only run-to-run fluctuation, and the sampling error of the 100 tasks themselves remains: a rough binomial estimate by the authors puts the standard error of the 81.3% SR at about 3.9 percentage points, so the 9.2-point lead over Qwen-RobotNav is about 2.4 times the standard error. This is more generous than in v1, but it is still not a conclusion on the same task set.
 
-GPT-6-Astra is a closed-source model, and it cannot be ruled out that its training data contains navigation data - the paper clearly states that "zero sample" only means that the author has not fine-tuned navigation, but does not mean that the model has never seen navigation data; inference costs and delays also currently restrict actual deployment.
+GPT-6-Astra is a closed-source model, and it cannot be ruled out that its training data contains navigation data. The paper states explicitly that "zero-shot" only means the authors did no navigation fine-tuning, not that the model has never seen navigation data; inference cost and latency also currently limit real deployment.
 
-The author plans to expand to RxR-CE, NavRAG-CE and other datasets with more environments and instructions.
+The authors plan to extend the evaluation to RxR-CE, NavRAG-CE, and other datasets with more environments and instructions.
 
 ---
 
 ## 24. NavGPT-3 (2026)
 {: id="navgpt-3"}
-———Asynchronous planning, action, and monitoring, closed through inspectable execution evidence
+——Asynchronous planning, action, and monitoring, closed through inspectable execution evidence
 
 📄 **Paper**: [arXiv:2610.10787](https://arxiv.org/abs/2610.10787) · [Code](https://github.com/metacognitionai/NavGPT-3) · [Project Page](https://metacognitionai.github.io/NavGPT3/)
 
@@ -3375,7 +3375,7 @@ The system depends on a remote Planner, a large vision-language model, and conti
 
 ## 25. HSGNav (2026)
 {: id="hsgnav"}
-———Revisable hypotheses for small tabletop objects, supporting multi-scale lifelong object search
+——Revisable hypotheses for small tabletop objects, supporting multi-scale lifelong object search
 
 📄 **Paper**: [arXiv:2611.10547](https://arxiv.org/abs/2611.10547)
 

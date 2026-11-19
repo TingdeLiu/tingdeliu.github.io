@@ -6,7 +6,7 @@ permalink: /en/VLA-Survey/
 source_path: _posts/research/2026-01-24-VLA-Survey.md
 source_url: /VLA-Survey/
 source_revision_date: 2026-10-24
-translation_updated: 2026-10-24
+translation_updated: 2026-11-19
 title: "Vision-Language-Action Models: A Survey"
 date: 2026-10-24
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
@@ -23,14 +23,14 @@ excerpt: "Action representations, training methods, closed-loop execution, datas
 # Introduction
 {: id="引言"}
 
-The Vision-Language-Action (VLA) model studies a specific question: Can the **robot combine visual observation and language instructions to directly generate executable actions and continue to modify its behavior after environmental changes?** This requires the model to simultaneously solve "what is the goal", "where is the object" and "how to move next". Correct language understanding is only one step.
+Vision-Language-Action (VLA) models study a specific question: can a **robot combine visual observations and language instructions to generate executable actions directly, and keep adjusting its behavior as the environment changes?** This requires the model to solve "what is the goal", "where is the object", and "how to move next" at the same time. Understanding the language correctly is only one step.
 
-[RT-1](https://arxiv.org/abs/2212.06817) demonstrates the potential of large-scale multi-task robot policies; [RT-2](https://arxiv.org/abs/2307.15818) transfers knowledge from pretraining vision-language models to action prediction. Since then, research has followed several intersecting lines: improving action representation and generation, expanding cross-robot data, enhancing temporal memory and task decomposition, and using interactive feedback to improve policies. These routes can be used in combination and cannot simply be understood as the new architecture phasing out the old architecture in turn.
+[RT-1](https://arxiv.org/abs/2212.06817) demonstrates the potential of large-scale multi-task robot policies; [RT-2](https://arxiv.org/abs/2307.15818) transfers knowledge from pretraining vision-language models to action prediction. Since then, research has followed several intersecting lines: improving action representation and generation, scaling up cross-robot data, strengthening temporal memory and task decomposition, and using interactive feedback to improve policies. These lines can be combined and should not be read as new architectures successively replacing old ones.
 
-This article focuses on **robot manipulation and mobile manipulation**, taking into account the action policy, world model and data tools that support VLA. ACT, Diffusion Policy, UMI, and UniSim are closely related to VLA, but they respectively assume the roles of policy learning, data collection, or environmental prediction, and need to be distinguished when reading. The comparison in this article uses the experimental settings of each paper as the boundary; benchmark success rates, demonstration videos, and real deployment reliability provide different levels of evidence. The article-by-article methods, illustrations and experimental limitations are concentrated in the supporting {% include content-link.html path='/VLA-Papers/' fragment='' label='VLA Paper Readings ' %}.
+This survey focuses on **robot manipulation and mobile manipulation**, and also covers the action policies, world models, and data tools that support VLA. ACT, Diffusion Policy, UMI, and UniSim are closely related to VLA, but they play different roles (policy learning, data collection, and environment prediction, respectively), which should be kept apart when reading. Comparisons here are bounded by each paper's own experimental setting; benchmark success rates, demonstration videos, and real-world deployment reliability constitute different levels of evidence. Per-paper methods, figures, and experimental limitations are collected in the companion {% include content-link.html path='/VLA-Papers/' fragment='' label='VLA Paper Readings ' %}.
 
 <figure class="survey-intro-figure">
-  <img src="/images/vla/vla-survey-intro-en.svg" width="1200" height="510" alt="VLA closed-loop: Vision, language and proprioceptive state input action policies, predict action chunks, and obtain new observations after robot execution." loading="lazy" decoding="async" />
+  <img src="/images/vla/vla-survey-intro-en.svg" width="1200" height="510" alt="VLA closed loop: the action policy takes vision, language, and proprioceptive state as input, predicts action chunks, and obtains new observations after the robot executes them." loading="lazy" decoding="async" />
 <figcaption>Figure: VLA converts visual observations, language instructions and proprioceptive state into action predictions; after execution, new observations are obtained to form a closed-loop that is continuously modified.</figcaption>
 </figure>
 
@@ -42,56 +42,56 @@ This article focuses on **robot manipulation and mobile manipulation**, taking i
 ## 1.1 What is VLA?
 {: id="11-什么是vla"}
 
-VLA is an action prediction model conditioned on visual observations and language tasks. Common inputs also include joint status, gripper status, multi-camera images and historical observations; the output is usually the end-effector pose increment, joint target or an action sequence, which is then executed by the robot controller. It does not have to output the motor current directly, nor does it have to do all the planning and safety checks in a network.
+A VLA is an action prediction model conditioned on visual observations and a language task. Common additional inputs include joint state, gripper state, multi-camera images, and past observations; the output is usually an end-effector pose increment, a joint target, or an action sequence, which the robot controller then executes. It does not have to output motor currents directly, nor must a single network handle all planning and safety checks.
 
-This process can be summarized using conditional policies:
+This process can be summarized as a conditional policy:
 
 $$
 A_t \sim \pi_\theta(\cdot \mid o_{\leq t},\ell,s_t),\qquad
 A_t=(a_t,\ldots,a_{t+H-1})
 $$
 
-Here, $o$ represents observation, $\ell$ represents instruction, $s_t$ represents proprioceptive state, and $H$ is the action chunk length. $H=1$ corresponds to single-step prediction; $H>1$ corresponds to action chunking. After predicting the entire action, the system can execute only part of it and then re-plan based on new observations.
+Here, $o$ denotes observations, $\ell$ the instruction, $s_t$ the proprioceptive state, and $H$ the action chunk length. $H=1$ corresponds to single-step prediction and $H>1$ to action chunking. After predicting a whole chunk, the system can execute only part of it and then replan from new observations.
 
 <div align="center">
-  <img src="/images/vla/openvla_approach.webp" alt="OpenVLA's vision, language and action modeling framework" width="1118" height="750" style="width: 80%;" loading="lazy" decoding="async" />
-<figcaption>OpenVLA: From pretraining vision-language representation to robot action prediction.</figcaption>
+  <img src="/images/vla/openvla_approach.webp" alt="OpenVLA's framework for modeling vision, language, and action" width="1118" height="750" style="width: 80%;" loading="lazy" decoding="async" />
+<figcaption>OpenVLA: from pretrained vision-language representations to robot action prediction.</figcaption>
 </div>
 
-|concept|main output|Relationship to VLA|
+|Concept|Main output|Relationship to VLA|
 |---|---|---|
-| VLM |text, semantic representation, or structured description|Can be used as the pretraining backbone of VLA; being able to describe actions does not mean being able to control the robot|
-| VLA |Actions conditioned by vision and language|Mapping task semantics to the robot’s action space|
-| ACT / Diffusion Policy |action sequence|Provides action chunking and continuous distribution modeling methods; the original method does not require large-scale VLM as a necessary component|
-|world model|future observations, states, or latent representations|Can assist prediction, planning and data generation, requiring additional mechanisms to be converted into executable policies|
-|robotic system|Complete closed-loop of sensing, planning, control and execution|VLA is the policy component and still relies on calibration, drivers, controllers and runtime monitoring|
+| VLM |Text, semantic representations, or structured descriptions|Can serve as the pretrained backbone of a VLA; being able to describe actions does not mean being able to control a robot|
+| VLA |Actions conditioned on vision and language|Maps task semantics to the robot's action space|
+| ACT / Diffusion Policy |Action sequences|Provide methods for action chunking and continuous distribution modeling; the original methods do not require a large-scale VLM|
+|World model|Future observations, states, or latent representations|Can assist prediction, planning, and data generation; additional mechanisms are needed to turn it into an executable policy|
+|Robot system|The complete closed loop of sensing, planning, control, and execution|The VLA is the policy component and still relies on calibration, drivers, controllers, and runtime monitoring|
 
 ## 1.2 VLA system architecture
 {: id="12-vla系统架构"}
 
-### Execution from input to closed-loop
+### From input to closed-loop execution
 {: id="从输入到闭环执行"}
 
 ```mermaid
 flowchart LR
-    O["Multi-view images and historical observations"] --> E["visual encoder"]
-    L["language instructions"] --> B["multimodal backbone"]
+    O["Multi-view images and past observations"] --> E["Visual encoder"]
+    L["Language instruction"] --> B["Multimodal backbone"]
     E --> B
-    S["proprioceptive state"] --> A["Action prediction module"]
+    S["Proprioceptive state"] --> A["Action prediction module"]
     B --> A
-    A --> C["Action transformation and constraint checking"]
-    C --> R["Underlying controllers and robots"]
+    A --> C["Action conversion and constraint checking"]
+    C --> R["Low-level controller and robot"]
     R --> O
     R --> S
 ```
 
-**Vision Encoder** determines how to extract object, space and scene features. OpenVLA incorporates DINOv2 and SigLIP representations; multi-camera models also need to handle perspective correspondence, time synchronization and occlusion. The number of encoders alone does not determine performance; input resolution, pretraining goals, and data coverage are equally important.
+The **vision encoder** determines how object, spatial, and scene features are extracted. OpenVLA fuses DINOv2 and SigLIP representations; multi-camera models must also handle view correspondence, time synchronization, and occlusion. The number of encoders alone does not determine performance; input resolution, pretraining objectives, and data coverage matter just as much.
 
-**multimodal backbone** fuses task semantics and observations. Some models directly fine-tune VLM to predict action tokens, and some models let VLM provide conditions for specialized action experts. The so-called System 2 / System 1 usually describes the division of labor between semantic processing and action generation, and it cannot be assumed that the model must have an explicit task planner or a fixed running frequency.
+The **multimodal backbone** fuses task semantics with observations. Some models fine-tune a VLM directly to predict action tokens, while others let the VLM provide conditioning for a dedicated action expert. The so-called System 2 / System 1 split usually describes a division of labor between semantic processing and action generation; it should not be assumed that the model has an explicit task planner or runs at a fixed frequency.
 
-**action prediction module** needs to handle action dimensions, time correlation and multiple solutions at the same time. For example, there can be multiple reasonable paths around an obstacle, and directly averaging different demonstrations may produce unexecutable actions. The way of action generation and whether to use language reasoning and whether to layer are different design dimensions.
+The **action prediction module** must handle action dimensionality, temporal correlation, and multiple valid solutions at once. For example, there can be several reasonable paths around an obstacle, and directly averaging different demonstrations may produce an unexecutable action. How actions are generated, whether language reasoning is used, and whether the system is hierarchical are separate design dimensions.
 
-### How action chunk forms closed-loop
+### How action chunking forms a closed loop
 {: id="动作块如何形成闭环"}
 
 The action chunk length $H$ specifies **how many steps a single prediction covers**. The number of steps actually executed, $k$, determines how soon the system observes again, with $1\leq k\leq H$. A policy can predict a longer trajectory for coherent motion while executing only its first $k$ steps before observing again. This increases the number of inference calls but reduces the time spent acting on outdated images.
@@ -108,159 +108,159 @@ The action chunk length $H$ specifies **how many steps a single prediction cover
     <div class="vla-chunk-cells"><span class="vla-chunk-executed">a₁</span><span class="vla-chunk-executed">a₂</span><span>a₃</span><span>a₄</span><span>a₅</span><span>a₆</span><span>a₇</span><span>a₈</span></div>
 <div class="vla-chunk-notes"><strong> has been executed, obtaining new observations </strong><span> The remaining actions are re-evaluated based on new observations </span></div>
   </div>
-<figcaption> a closed-loop loop: the predicted length H and the actual execution length k are two different design quantities, and feedback is returned from the robot to the next round of observations.</figcaption>
+<figcaption>The closed loop: the predicted length H and the executed length k are two different design quantities, and feedback returns from the robot to the next round of observations.</figcaption>
 </figure>
 
-Taking $H=8$ and $k=2$ as examples, the policy predicts eight steps at a time and executes two steps before re-planning. If inference and communication take more than the time to execute two steps, the robot may still wait for new actions; asynchronous inference, action buffering, or fast editing policies can reduce pauses, but it must be checked whether the remaining actions are still valid when new observations arrive. {% include content-link.html path='/VLA-Papers/' fragment='#5-35-real-time-expo-ft-2026' label='Real-Time EXPO-FT' %}'s slow proposal and fast editing are aimed at this timeliness issue in dynamic environments.
+Take $H=8$ and $k=2$ as an example: the policy predicts eight steps at a time and executes two before replanning. If inference and communication take longer than executing two steps, the robot may still wait for new actions; asynchronous inference, action buffering, or fast editing policies can reduce the pauses, but one must check whether the remaining actions are still valid when new observations arrive. {% include content-link.html path='/VLA-Papers/' fragment='#5-35-real-time-expo-ft-2026' label='Real-Time EXPO-FT' %}'s slow proposal and fast editing target this timeliness problem in dynamic environments.
 
-### Action representation and generation methods
+### Action representations and generation methods
 {: id="动作表示与生成方式"}
 
 <div class="vla-decoder-diagram" markdown="1" role="region" aria-label="Comparison chart of action generation methods, horizontally scrollable" tabindex="0">
 
 ```mermaid
 flowchart TB
-    C["Observation and mission conditions"] --> T["discrete action token"]
-    C --> R["continuous action regression"]
+    C["Observation and task conditions"] --> T["Discrete action tokens"]
+    C --> R["Continuous action regression"]
     C --> D["Diffusion or flow matching"]
     T --> T1["Autoregressive or parallel decoding"]
     R --> R1["Directly predict action chunks"]
     D --> D1["Iteratively generate action chunks from noise"]
-    T1 --> A["action sequence"]
+    T1 --> A["Action sequence"]
     R1 --> A
     D1 --> A
 ```
 
 </div>
 
-|method|representative work|main value|Issues to weigh|
+|Method|Representative work|Main value|Trade-offs to weigh|
 |---|---|---|---|
-|discretized single step action| RT-2, OpenVLA |Reuse token prediction interface|Quantization accuracy, sequence length and serial decoding delay|
-|Compress action sequence into token| FAST, ActionPiece |Exploit temporal redundancy and maintain physical relationships between actions|Compression error, relational fidelity, vocabulary and decoding strategies|
-|Continuous Action Regression/Latent Variable Policy|Regression scheme in ACT, OpenVLA-OFT|Output action chunk once, and the deployment path is direct|Modeling, training objectives and action smoothness of multi-solution actions|
-|diffusion policy| Diffusion Policy |Modeling multimodal continuous action distributions|Number of sampling steps and closed-loop delay|
-|flow matching action expert| π₀ |Combine VLM conditions with continuous action generation|Number of integration steps, model size and asynchronous execution configuration|
+|Discretized single-step actions| RT-2, OpenVLA |Reuses the token prediction interface|Quantization accuracy, sequence length, and serial decoding latency|
+|Compress action sequences into tokens| FAST, ActionPiece |Exploits temporal redundancy and preserves physical relationships between actions|Compression error, relational fidelity, vocabulary, and decoding strategy|
+|Continuous action regression / latent-variable policies|The regression schemes in ACT and OpenVLA-OFT|Outputs an action chunk in one shot, giving a direct deployment path|Modeling of multi-solution actions, training objectives, and action smoothness|
+|Diffusion policy| Diffusion Policy |Models multimodal continuous action distributions|Number of sampling steps and closed-loop latency|
+|Flow-matching action expert| π₀ |Combines VLM conditioning with continuous action generation|Number of integration steps, model size, and asynchronous execution configuration|
 
-Action chunking can reduce the invocation overhead of stepwise prediction, but the longer the chunks, the more stale observations used during execution may be. There is no one-to-one correspondence between the generation method and the control frequency. For related methods, see [ACT](https://arxiv.org/abs/2304.13705), [Diffusion Policy](https://arxiv.org/abs/2303.04137), [FAST](https://arxiv.org/abs/2501.09747) and [π₀](https://arxiv.org/abs/2410.24164).
+Action chunking can reduce the invocation overhead of step-by-step prediction, but the longer the chunk, the staler the observations used during execution may become. There is no one-to-one correspondence between the generation method and the control frequency. For related methods, see [ACT](https://arxiv.org/abs/2304.13705), [Diffusion Policy](https://arxiv.org/abs/2303.04137), [FAST](https://arxiv.org/abs/2501.09747) and [π₀](https://arxiv.org/abs/2410.24164).
 
 Two empirical studies from October 2026 show that the bottleneck in action generation is not always where the headline metric points. [ProAct](https://arxiv.org/abs/2610.09170) finds that an action tokenizer needs more than accurate reconstruction: the policy must also predict the right tokens for new observations, and tokens it gets wrong should still decode into reasonable actions. [When One Step Is Enough](https://arxiv.org/abs/2610.30735) reports that across six flow-matching VLAs, one-step Euler integration roughly matches multi-step sampling once a model is well trained and has enough capacity. Fewer integration steps may therefore not require extra distillation, but the finding depends on training and model scale, so it should be checked again before applying it to smaller models or new tasks.
 
-### Unified policy and hierarchical system
+### Unified policies and hierarchical systems
 {: id="统一策略与层级系统"}
 
-|Organization|working method|Applicable considerations|Main limitations|
+|Organization|How it works|Advantages|Main limitations|
 |---|---|---|---|
-|direct action policy|Predicting actions from observations and tasks|Simple interface facilitates joint training|Long-horizon task progress and failure reasons may be implicit in the representation|
-|Explicit hierarchy|The high level generates subtasks or subgoals, and the low level executes them|Facilitates task composition, supervision and re-planning|High and low layer interfaces will introduce information loss and delay|
-|Hierarchical representation of joint training|Learn the association between subtasks and actions within the model|Semantic knowledge and action data can be shared|Need to check whether the intermediate representation actually improves closed-loop behavior|
+|Direct action policy|Predicts actions from observations and the task|A simple interface that eases joint training|Long-horizon task progress and failure causes may stay implicit in the representation|
+|Explicit hierarchy|The high level generates subtasks or subgoals and the low level executes them|Eases task composition, supervision, and replanning|The interface between levels introduces information loss and latency|
+|Jointly trained hierarchical representation|Learns the association between subtasks and actions inside the model|Semantic knowledge and action data can be shared|Must check whether the intermediate representation actually improves closed-loop behavior|
 
-End-to-end training and hierarchies are not mutually exclusive; having readable intermediate text does not mean interpretation is faithful. When comparing architectures, focus on error recovery, task completion time, and the intervenability of intermediate decisions, not just whether a chain of thought is output.
+End-to-end training and hierarchy are not mutually exclusive, and readable intermediate text does not mean the explanation is faithful. When comparing architectures, focus on error recovery, task completion time, and whether intermediate decisions can be intervened on, rather than merely whether a chain of thought is output.
 
-## 1.3 Differences between VLA and traditional robot control
+## 1.3 How VLA differs from traditional robot control
 {: id="13-vla与传统机器人控制的区别"}
 
-What VLA changes is the way of learning from tasks to actions. Kinematics, trajectory tracking, and feedback control remain components of most practical systems.
+What VLA changes is how the mapping from tasks to actions is learned. Kinematics, trajectory tracking, and feedback control remain components of most practical systems.
 
-|Dimensions|Typical approach to modular systems|Typical practices for VLA policies|Practical trade-offs|
+|Dimension|Typical modular system|Typical VLA policy|Practical trade-offs|
 |---|---|---|---|
-|Task description|State machine, rule or target pose|Natural language and visual conditions|Language is more flexible, but vague instructions require clarification or constraints|
-|Perception and action association|Explicit geometry, planning and control interfaces|Learn from demonstrations|The learning policy reduces some manual modeling and also relies on data coverage|
-|Adaptation to new tasks|Adjust rules, trajectories and parameters|Fine-tune policies, add demonstrations or tips|Both options require verification of migration costs|
-|Debugging|Check the errors of each module|Analyzing data, characterization, and closed-loop failure|Observable logs and modular interfaces still have value|
-|execution constraints|imposed by planner, controller|Often requires external controllers and constraint layers|Learning policies do not automatically guarantee reachability, stability, or security|
+|Task description|State machines, rules, or target poses|Natural language and visual conditions|Language is more flexible, but vague instructions require clarification or constraints|
+|Linking perception to action|Explicit geometry, planning, and control interfaces|Learned from demonstrations|A learned policy removes some manual modeling but depends on data coverage|
+|Adapting to new tasks|Adjust rules, trajectories, and parameters|Fine-tune the policy, add demonstrations, or change prompts|Both options require verifying the cost of transfer|
+|Debugging|Check the errors of each module|Analyze the data, representations, and closed-loop failures|Observable logs and modular interfaces remain valuable|
+|Execution constraints|Imposed by the planner and controller|Often require an external controller and a constraint layer|A learned policy does not automatically guarantee reachability, stability, or safety|
 
-In fixed production lines and high-precision repetitive tasks, traditional solutions may be easier to verify and lower cost. The research value of VLA is mainly reflected in whether transferable behavioral capabilities can be obtained with less specialized design when tasks and scenarios change more; this advantage needs to be demonstrated with specific experiments.
+On fixed production lines and in high-precision repetitive tasks, traditional solutions may be easier to verify and cheaper. The research value of VLA lies mainly in whether transferable behavior can be obtained with less task-specific engineering when tasks and scenes vary more; this advantage must be demonstrated by concrete experiments.
 
-## 1.4 VLA task classification
+## 1.4 Taxonomy of VLA tasks
 {: id="14-vla任务分类"}
 
-Task complexity, operation objects and action interfaces are independent dimensions. "Pick up the cup" also contains many control steps, and a single semantic task cannot be equated to a single step action.
+Task complexity, manipulated objects, and action interfaces are independent dimensions. Even "pick up the cup" contains many control steps, and a single semantic task cannot be equated with a single-step action.
 
-|Dimensions|typical type|Core difficulties|Recommended indicators to observe|
+|Dimension|Typical types|Core difficulties|Recommended metrics|
 |---|---|---|---|
-|time span|Short skills, multi-stage, long-horizon tasks|Historical memory, progress judgment, failure recovery|Success rate of the entire task, number of consecutive subtasks, and number of recoveries|
-|interactive objects|Rigid bodies, deformable objects, tools and contact operations|Occlusion, deformation and contact state estimation|Grasping stability, final state error, contact failure|
-|action interface|End pose, joint target, velocity or force related commands|Coordinate system, unit, controller matching|Tracking error, latency, constraint firing rate|
-|scene scope|Desktop, dual-arm collaboration, mobile manipulation|Coupling of perspective changes, accessibility and navigation operations|Cross-scenario performance, task time, manual intervention|
-|generalization condition|New objects, new layouts, new tasks, new robots|The difference between training distribution and deployment distribution|Success rates are reported separately under various distribution changes.|
+|Time span|Short skills, multi-stage tasks, long-horizon tasks|Memory of history, progress judgment, failure recovery|Whole-task success rate, number of consecutive subtasks completed, and number of recoveries|
+|Manipulated objects|Rigid bodies, deformable objects, tools, and contact-rich manipulation|Occlusion, deformation, and contact-state estimation|Grasp stability, final-state error, contact failures|
+|Action interface|End-effector pose, joint targets, velocity or force commands|Coordinate frames, units, controller matching|Tracking error, latency, constraint-trigger rate|
+|Scene scope|Tabletop, bimanual collaboration, mobile manipulation|Viewpoint changes, reachability, and the coupling of navigation and manipulation|Cross-scene performance, task time, manual intervention|
+|Generalization condition|New objects, new layouts, new tasks, new robots|The gap between the training and deployment distributions|Success rates reported separately under each kind of distribution shift|
 
-The dimension of the action vector cannot be directly equated to the degree of freedom of the manipulator. For example, "3D translation + 3D rotation + gripper" describes the action interface and does not mean that the model outputs seven joint angles.
+The dimensionality of the action vector cannot be directly equated with the degrees of freedom of the manipulator. For example, "3D translation + 3D rotation + gripper" describes the action interface and does not mean the model outputs seven joint angles.
 
 <span id="vla-model-comparison" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 1.5 Horizontal comparison and summary of mainstream VLA models
+## 1.5 Side-by-side comparison of mainstream VLA models
 {: id="15-主流vla模型横向对比汇总"}
 
-The following table compares representative work according to **research issues and technology trade-offs**. The scores under different robots, data and evaluation protocols are not combined into a unified ranking. For the experiments and diagrams one by one, see {% include content-link.html path='/VLA-Papers/' fragment='' label='Supporting Paper Intensive Reading ' %}.
+The following table compares representative work by **research question and technical trade-off**. Scores obtained under different robots, data, and evaluation protocols are not merged into a single ranking. For the experiments and figures of each paper, see {% include content-link.html path='/VLA-Papers/' fragment='' label='Companion Paper Readings ' %}.
 
-|work|core issues|Main design|Boundaries to focus on when reading|
+|Work|Core question|Main design|Caveats when reading|
 |---|---|---|---|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-1-rt-1-2022' label='RT-1' %} |Can multi-tasking robotics policies scale with data size?|Language condition Transformer and action discretization|Not equivalent to fine-tuning on pretraining large-scale VLM|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-2-rt-2-2023' label='RT-2' %} |Can network vision-language knowledge help operations?|Encode actions into tokens and train jointly|Semantic generalization does not equate to acquisition of untrained motor skills|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-9-openvla-2024' label='OpenVLA' %} |How to reproduce and adapt a generic VLA|Dual visual encoder, 7B backbone and open source fine-tuning process|The original version and subsequent training programs such as OFT should be compared separately.|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-10-pi0-2024' label='π₀' %} |How to generate high-frequency continuous action chunks|VLM and flow matching action expert|Distinguish between action execution frequency and policy update frequency|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-11-pi05-2025' label='π₀.5' %} |How to generalize to new home environments|Joint training of heterogeneous data and high- and low-level prediction|Unseen environments do not mean that any unseen tasks can be completed|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-12-pi06-2025' label='π*₀.₆' %} |How to use execution experience to improve your policy|RECAP and expert intervention data|Account for interaction, reward annotation, and manual correction costs|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-1-rt-1-2022' label='RT-1' %} |Can a multi-task robot policy scale with data size?|Language-conditioned Transformer with action discretization|Not equivalent to fine-tuning a large pretrained VLM|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-2-rt-2-2023' label='RT-2' %} |Can web-scale vision-language knowledge help manipulation?|Encode actions as tokens and train jointly|Semantic generalization does not mean acquiring motor skills that were never trained|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-9-openvla-2024' label='OpenVLA' %} |How to reproduce and adapt a generalist VLA|Dual visual encoders, a 7B backbone, and an open fine-tuning pipeline|The original version and later training recipes such as OFT should be compared separately|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-10-pi0-2024' label='π₀' %} |How to generate high-frequency continuous action chunks|VLM plus a flow-matching action expert|Distinguish action execution frequency from policy update frequency|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-11-pi05-2025' label='π₀.5' %} |How to generalize to new home environments|Joint training on heterogeneous data with high-level and low-level prediction|An unseen environment does not mean any unseen task can be completed|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-12-pi06-2025' label='π*₀.₆' %} |How to use execution experience to improve the policy|RECAP and expert-intervention data|Account for the costs of interaction, reward annotation, and manual correction|
 | {% include content-link.html path='/VLA-Papers/' fragment='#513-π7-a-steerable-generalist-robotic-foundation-model-2026' label='π₀.7' %} |Can prompts control how an action is performed?|Multimodal context of subtask instructions, subgoal images and training metadata|Separate the gain from steerability from the gain from model and data scale|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-18-gr00t-2025' label='GR00T' %} |How a universal robot model combines data and tool chains|Division of work between vision-language module and motion experts|Clarify model version, robot adaptation and training data range|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-18-gr00t-2025' label='GR00T' %} |How a generalist robot model combines data and toolchains|Division of labor between a vision-language module and a motion expert|Clarify the model version, robot adaptation, and range of training data|
 | {% include content-link.html path='/VLA-Papers/' fragment='#5-20-xvla-2025' label='X-VLA' %} |How to adapt to heterogeneous hardware at low cost|Soft prompts learned per embodiment|A new robot still needs target data; report how much|
-| {% include content-link.html path='/VLA-Papers/' fragment='#525-qwen-vla-2026' label='Qwen-VLA' %} |Can manipulation, navigation and trajectory prediction share one model?|Unified action and trajectory prediction with a DiT flow-matching decoder|Check whether joint training degrades individual tasks|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-13-acot-vla-2026' label='ACoT-VLA' %} |Can intermediate action intentions assist execution?|Structured reasoning in action space|Requires intermediate representation ablation and additional inference cost comparison|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-18-internvla-a1.5-2026' label='InternVLA-A1.5' %} |How spatial positioning and future prediction assist actions|Space and forward supervision|Examine oversight data costs and benefits for each task|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-29-zr-0' label='ZR-0' %} |How to share cross-robot semantic representations|Intensive ECoT supervision, skipping ECoT generation during inference|Skipping text generation does not equal zero latency for the entire policy|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-30-robottt' label='RoboTTT' %} |How to take advantage of long history without continually growing the attention cache|Fast weights as loop states|Updating memory during testing is not equivalent to online reward optimization|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-31-s-vla' label='S²-VLA' %} |How to adjust feature fusion with task stages|State space guided adaptive attention|Verify income under unified long-horizon task protocol|
+| {% include content-link.html path='/VLA-Papers/' fragment='#525-qwen-vla-2026' label='Qwen-VLA' %} |Can manipulation, navigation, and trajectory prediction share one model?|Unified action and trajectory prediction with a DiT flow-matching decoder|Check whether joint training degrades individual tasks|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-13-acot-vla-2026' label='ACoT-VLA' %} |Can intermediate action intentions assist execution?|Structured reasoning in action space|Requires ablations of the intermediate representation and a comparison of the added inference cost|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-18-internvla-a1.5-2026' label='InternVLA-A1.5' %} |How spatial grounding and future prediction assist actions|Spatial and future-prediction supervision|Examine the supervision data cost and the benefit on each task|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-29-zr-0' label='ZR-0' %} |How to share semantic representations across robots|Dense ECoT supervision, skipping ECoT generation at inference|Skipping text generation does not mean zero latency for the whole policy|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-30-robottt' label='RoboTTT' %} |How to exploit long history without a continually growing attention cache|Fast weights as recurrent state|Updating memory at test time is not equivalent to online reward optimization|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-31-s-vla' label='S²-VLA' %} |How to adjust feature fusion by task stage|State-space-guided adaptive attention|Verify the gains under a unified long-horizon task protocol|
 | {% include content-link.html path='/VLA-Papers/' fragment='#5-27-harness-vla' label='Harness VLA' %} |Can an external orchestrator cover the weak spots of an end-to-end policy?|A frozen VLA as the contact primitive; analytic primitives and a high-level planner handle the remaining steps|Count planner calls, memory upkeep and retries|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-28-turbovla' label='TurboVLA' %} |How to reduce the cost of vision-language action fusion|Lightweight coding and direct cross-modal interaction|Report hardware, precision, action chunk and latency caliber|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-32-lingbot-vla-20-2026' label='LingBot-VLA 2.0' %} |How to scale to multi-tasking and full-body robotics|Approximately 60000 hours of mixed pretraining, whole body movement interface and future prediction|Separately report platform progress, success rates, and data costs|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-33-tau0-vla-2026' label='τ₀-VLA' %} |Which high-level decisions are worth spending more inference power on?|Perform memory and world model guided subtask searches|Distinguish between hierarchical decomposition benefits and additional search benefits|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-34-actionpiece-2026' label='ActionPiece' %} |Whether the action token retains local physical relationships|Physical sorting consistency index and quantitative supervision|The scope of application is discrete autoregressive action representation|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-35-real-time-expo-ft-2026' label='Real-Time EXPO-FT' %} |How to do a quick closed-loop fix for inference latency|Slow VLA proposals and fast editing policies for online RL|The boundary between real robot dynamic short tasks and online data cap|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-36-bee-2026' label='Bee' %} |How to use human correction for online policy improvement|Adjusting human corrective constraints by action dimension|Counts pre-collection corrections and manual takeover during training|
-| {% include content-link.html path='/VLA-Papers/' fragment='#5-37-ace-brain-05-2026' label='ACE-Brain-0.5' %} |Can perception, planning, execution and evaluation share one embodied backbone?|Per-task training, parameter merging, then brief mixed fine-tuning|Evaluate each capability separately and check how reliable execution assessment is|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-28-turbovla' label='TurboVLA' %} |How to reduce the cost of vision-language-action fusion|Lightweight encoding and direct cross-modal interaction|Report hardware, precision, action chunk, and how latency is measured|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-32-lingbot-vla-20-2026' label='LingBot-VLA 2.0' %} |How to scale to multi-task and whole-body robot control|About 60,000 hours of mixed pretraining, a whole-body motion interface, and future prediction|Separately report platform progress, success rates, and data costs|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-33-tau0-vla-2026' label='τ₀-VLA' %} |Which high-level decisions are worth spending more inference compute on?|Memory- and world-model-guided subtask search|Separate the benefit of hierarchical decomposition from the benefit of the additional search|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-34-actionpiece-2026' label='ActionPiece' %} |Whether action tokens preserve local physical relationships|A physical ordering-consistency metric and quantization supervision|Applies to discrete autoregressive action representations|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-35-real-time-expo-ft-2026' label='Real-Time EXPO-FT' %} |How to repair inference latency with a fast closed loop|Slow VLA proposals plus a fast editing policy trained with online RL|Limited to short dynamic real-robot tasks and to the scale of online data|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-36-bee-2026' label='Bee' %} |How to use human corrections for online policy improvement|Adjusting the human-correction constraint per action dimension|Count the corrections collected beforehand and manual takeovers during training|
+| {% include content-link.html path='/VLA-Papers/' fragment='#5-37-ace-brain-05-2026' label='ACE-Brain-0.5' %} |Can perception, planning, execution, and evaluation share one embodied backbone?|Per-task training, parameter merging, then brief mixed fine-tuning|Evaluate each capability separately and check how reliable execution assessment is|
 | {% include content-link.html path='/VLA-Papers/' fragment='#38-dreamzero-2026' label='DreamZero / GR00T 2' %} |Can a video world model serve directly as a zero-shot policy?|A 14B autoregressive video diffusion model generates future frames and actions together|The metric is task progress; 7 Hz needs two GB200s|
 | {% include content-link.html path='/VLA-Papers/' fragment='#39-cosmos-policy-2026' label='Cosmos Policy' %} |Can a video model become a policy without architectural changes?|Actions, states and values encoded as latent frames; single-stage post-training plus test-time planning|About 5 seconds per action chunk with planning enabled|
 
-If the purpose is to reproduce, you should first confirm whether the weights, data processing, training configuration and evaluation code match. Code disclosure, weight disclosure, data disclosure and allowing commercial use are different conditions. You must check the corresponding version of the warehouse and license respectively.
+If the goal is to reproduce a result, first confirm that the weights, data processing, training configuration, and evaluation code match. Released code, released weights, released data, and permission for commercial use are different conditions; check the corresponding repository version and license for each.
 
-## 1.6 Architecture evolution and development trends
+## 1.6 Architectural evolution and trends
 {: id="16-架构演进与发展趋势"}
 
-### Several main lines of technological evolution
+### Main lines of technical evolution
 {: id="技术演进的几条主线"}
 
-|Main line|representative work|what changed|What has not been resolved|
+|Main line|Representative work|What changed|What remains unresolved|
 |---|---|---|---|
-|Semantic knowledge transfer| RT-2, OpenVLA |Introducing vision-language pretraining into action learning|There is still a gap between semantic understanding and precise physical execution|
-|Action sequence modeling| ACT, Diffusion Policy, π₀, FAST, ActionPiece |Extend from stepwise output to action chunk and check discretization relation fidelity|Closed-loop response and delay compensation under fast disturbance|
-|cross-robot learning| RT-X, OpenVLA, GR00T, LingBot-VLA 2.0 |Share data and partial representations across platforms|Action interface, sensing configuration and embodied differences|
-|long term decision making| π₀.5, RoboTTT, S²-VLA, τ₀-VLA |Introduce subtasks, memories, stage representations or world modelsearches|Reliably determine success, detect failure, and recover|
-|Improve from experience| π*₀.₆ / RECAP, Real-Time EXPO-FT, Bee |Optimize policies with execution data, rewards, and human corrections|Interaction cost, real-time latency, reward quality and old skill retention|
-|System orchestration and runtime reliability| Harness VLA, ACE-Brain-0.5, P², RESCUE |Move planning, memory, execution assessment and failure monitoring into the system layer|Alarm timing, false-alarm cost and the overhead of external modules|
+|Semantic knowledge transfer| RT-2, OpenVLA |Brought vision-language pretraining into action learning|A gap remains between semantic understanding and precise physical execution|
+|Action sequence modeling| ACT, Diffusion Policy, π₀, FAST, ActionPiece |Moved from step-by-step output to action chunks and to the fidelity of relations under discretization|Closed-loop response and latency compensation under fast disturbances|
+|Cross-robot learning| RT-X, OpenVLA, GR00T, LingBot-VLA 2.0 |Share data and part of the representation across platforms|Differences in action interface, sensing configuration, and embodiment|
+|Long-horizon decision making| π₀.5, RoboTTT, S²-VLA, τ₀-VLA |Introduce subtasks, memory, stage representations, or world-model search|Reliably judging success, detecting failure, and recovering|
+|Improving from experience| π*₀.₆ / RECAP, Real-Time EXPO-FT, Bee |Optimize policies with execution data, rewards, and human corrections|Interaction cost, real-time latency, reward quality, and retention of old skills|
+|System orchestration and runtime reliability| Harness VLA, ACE-Brain-0.5, P², RESCUE |Move planning, memory, execution assessment, and failure monitoring into the system layer|Alarm timing, the cost of false alarms, and the overhead of external modules|
 
-These advances affect representation, action generation, data, and training mechanisms respectively. For example, TTT is a way of processing history, and Flow Matching is a way of generating action distribution. The two can coexist.
+These advances affect representation, action generation, data, and training mechanisms, respectively. For example, TTT is a way of processing history and flow matching is a way of generating an action distribution; the two can coexist.
 
-### Division of labor among four types of learning signals
+### The division of labor among four types of learning signals
 {: id="四类学习信号的分工"}
 
-Calling both training data “sizes” masks the differences in supervision they provide. Internet graphics help identify objects and understand instructions; robotic demonstrations connect observations to actions; synthetic environments and future predictions add explorable states; and post-execution rewards and manual correction point out where the policy actually failed. Adding a certain type of data cannot automatically replace another type of signal.
+Lumping all training data together as "scale" masks the differences in the supervision they provide. Internet graphics help identify objects and understand instructions; robotic demonstrations connect observations to actions; synthetic environments and future predictions add explorable states; and post-execution rewards and manual correction point out where the policy actually failed. Adding a certain type of data cannot automatically replace another type of signal.
 
 <figure class="vla-signal-figure" aria-label="Learning signals provided by four types of data and feedback respectively">
 <div class="vla-signal-row"><strong> Graphics, text and language </strong><span> Objects, relationships and target semantics </span><small> Lack of executable contact actions </small></div>
 <div class="vla-signal-row"><strong> robot demonstration </strong><span> Correspondence of observed actions </span><small> is limited by task and embodied coverage </small></div>
 <div class="vla-signal-row"><strong>Simulation and prediction</strong><span>Perturbations, results and candidate futures</span><small>Need to be verified to be consistent with real dynamics</small></div>
 <div class="vla-signal-row"><strong>Deployment feedback</strong><span>Failure, recovery and policy improvements</span><small>has interaction, labeling and takeover costs</small></div>
-<figcaption> The source of supervision determines what the model can learn, and also determines what type of closed-loop evidence is needed.</figcaption>
+<figcaption>The source of supervision determines what the model can learn, and also what kind of closed-loop evidence is needed.</figcaption>
 </figure>
 
-{% include content-link.html path='/VLA-Papers/' fragment='#5-2-rt-2-2023' label='RT-2' %} more directly examines the transfer of vision-language knowledge to action tasks; {% include content-link.html path='/VLA-Papers/' fragment='#5-3-rt-x-2023' label='RT-X' %} and {% include content-link.html path='/VLA-Papers/' fragment='#5-32-lingbot-vla-20-2026' label='LingBot-VLA 2.0' %} focus on the scale and interface of cross-embodiment demonstrations; {% include content-link.html path='/VLA-Papers/' fragment='#5-33-tau0-vla-2026' label='τ₀-VLA' %} Use future predictions for high-level candidate selection; {% include content-link.html path='/VLA-Papers/' fragment='#5-12-pi06-2025' label='RECAP' %} and {% include content-link.html path='/VLA-Papers/' fragment='#5-36-bee-2026' label='Bee' %} use execution experience or manual correction. They solve different training bottlenecks, and the newly added data and computing budget should be recorded at the same time when comparing.
+{% include content-link.html path='/VLA-Papers/' fragment='#5-2-rt-2-2023' label='RT-2' %} more directly examines how vision-language knowledge transfers to action tasks; {% include content-link.html path='/VLA-Papers/' fragment='#5-3-rt-x-2023' label='RT-X' %} and {% include content-link.html path='/VLA-Papers/' fragment='#5-32-lingbot-vla-20-2026' label='LingBot-VLA 2.0' %} focus on the scale and interface of cross-embodiment demonstrations; {% include content-link.html path='/VLA-Papers/' fragment='#5-33-tau0-vla-2026' label='τ₀-VLA' %} uses future predictions for high-level candidate selection; {% include content-link.html path='/VLA-Papers/' fragment='#5-12-pi06-2025' label='RECAP' %} and {% include content-link.html path='/VLA-Papers/' fragment='#5-36-bee-2026' label='Bee' %} use execution experience or manual correction. They address different training bottlenecks, and when comparing them the added data and compute budget should be recorded as well.
 
-### The role and verification of world model
+### The role and verification of world models
 {: id="世界模型的作用与验证"}
 
-The world model can provide future visual subgoals, candidate action results, or synthetic training trajectories. {% include content-link.html path='/VLA-Papers/' fragment='#5-8-unisim-2024' label='UniSim' %} shows the research path of learning interactive environment; {% include content-link.html path='/VLA-Papers/' fragment='#5-33-tau0-vla-2026' label='τ₀-VLA' %} uses prediction results for high-level subtask search. But visually sound generation results may lack the correct contact, mass, friction, and causal response. Further verification is needed during evaluation: whether the prediction is correctly controlled by actions, whether it can improve downstream policies, and whether the benefits are transferred to the real environment.
+A world model can provide future visual subgoals, candidate action outcomes, or synthetic training trajectories. {% include content-link.html path='/VLA-Papers/' fragment='#5-8-unisim-2024' label='UniSim' %} shows a research path toward learning interactive environments; {% include content-link.html path='/VLA-Papers/' fragment='#5-33-tau0-vla-2026' label='τ₀-VLA' %} uses prediction results for high-level subtask search. But visually plausible generations may lack correct contact, mass, friction, and causal response. Evaluation therefore needs further checks: whether the prediction is correctly controlled by actions, whether it improves downstream policies, and whether the gains transfer to the real environment.
 
-Research trends can be summarized into three open questions: Can more semantic supervision improve actions rather than just interpretations? Can longer histories reduce failures caused by insufficient observability? Can deployment feedback improve overall mission reliability at an acceptable cost? Answers to these questions should come from controlled comparisons and closed-loop experiments.
+The research trends can be summarized as three open questions. Can more semantic supervision improve actions rather than merely explanations? Can longer histories reduce failures caused by partial observability? Can deployment feedback improve overall task reliability at an acceptable cost? The answers should come from controlled comparisons and closed-loop experiments.
 
 ### Research directions in October 2026
 {: id="vla-recent-trends"}
@@ -281,352 +281,352 @@ These papers share one premise: **whole-task success rate is not enough to descr
 ## 1.7 VLA open source ecosystem
 {: id="17-vla开源生态"}
 
-The reproduction of VLA relies on the cooperation of models, data, tools and hardware.
+Reproducing a VLA depends on models, data, tools, and hardware working together.
 
-|level|Represent resources|Main purpose|Check before use|
+|Level|Representative resources|Main purpose|Check before use|
 |---|---|---|---|
-|model| [OpenVLA](https://github.com/openvla/openvla), [openpi](https://github.com/Physical-Intelligence/openpi) |Reasoning, fine-tuning and policy adaptation|Weighted version, input interface, normalized statistics and license|
-|data| [Open X-Embodiment](https://robotics-transformer-x.github.io/) |Multi-data source robot pretraining|Sampling mixing, action units, coordinate systems, language annotation and authorization|
-|Tools| [LeRobot](https://github.com/huggingface/lerobot) |Document, train, evaluate and deploy|Data format versions, supported policies and robot drivers|
-|Simulation| [Genesis](https://github.com/Genesis-Embodied-AI/Genesis), [ManiSkill](https://github.com/haosulab/ManiSkill) |Environment interaction, data generation and evaluation|Physical setup, sensor models and real migration gaps|
-|Hardware and acquisition| [ALOHA](https://tonyzhaozh.github.io/aloha/), [UMI](https://umi-gripper.github.io/) |teleoperation or handheld demonstration collection|Workspace, calibration, time synchronization and recurrence costs|
+|Model| [OpenVLA](https://github.com/openvla/openvla), [openpi](https://github.com/Physical-Intelligence/openpi) |Inference, fine-tuning, and policy adaptation|Weights version, input interface, normalization statistics, and license|
+|Data| [Open X-Embodiment](https://robotics-transformer-x.github.io/) |Robot pretraining on multi-source data|Sampling mixture, action units, coordinate frames, language annotations, and licensing|
+|Tools| [LeRobot](https://github.com/huggingface/lerobot) |Recording, training, evaluation, and deployment|Data format versions, supported policies, and robot drivers|
+|Simulation| [Genesis](https://github.com/Genesis-Embodied-AI/Genesis), [ManiSkill](https://github.com/haosulab/ManiSkill) |Environment interaction, data generation, and evaluation|Physics settings, sensor models, and the sim-to-real gap|
+|Hardware and data collection| [ALOHA](https://tonyzhaozh.github.io/aloha/), [UMI](https://umi-gripper.github.io/) |Teleoperated or handheld demonstration collection|Workspace, calibration, time synchronization, and the cost of reproducing the setup|
 
-Unifying file formats only solves part of the problem of data access. Different data sources, even if they all use RLDS, may use different action semantics and control frequencies. Cross-robot training still requires motion transformation, normalization, sampling balancing, and quality filtering. Opening the weights does not mean that the pretraining data and the complete training process are made public.
+A unified file format solves only part of the data-access problem. Different data sources, even if they all use RLDS, may use different action semantics and control frequencies. Cross-robot training still requires action conversion, normalization, sampling balancing, and quality filtering. Releasing weights does not mean the pretraining data and the full training process are public.
 
 <span id="vla-training-recipe" class="vla-anchor-alias" aria-hidden="true"></span>
 
 ## 1.8 Training paradigm: from pretraining to deployment feedback
 {: id="18-训练范式从预训练到部署反馈"}
 
-A VLA training sample usually contains at least observations, task conditions, proprioceptive state, and subsequently performed actions; some data also provide subtask text, future observations, rewards, or manual corrections. **These additional fields determine what targets can be trained**: When only the image and text are aligned with the data, the model can learn semantics, but cannot directly learn the gripper command of a certain robot; only when successfully demonstrated, the model will imitate the actions within the distribution, but it is difficult to know how to recover after deviating from the trajectory.
+A VLA training sample usually contains at least observations, task conditions, proprioceptive state, and subsequently performed actions; some data also provide subtask text, future observations, rewards, or manual corrections. **These additional fields determine which objectives can be trained.** When the data only aligns images and text, the model can learn semantics but cannot directly learn the gripper commands of a particular robot; when only successful demonstrations are available, the model imitates in-distribution actions but has difficulty knowing how to recover after deviating from the trajectory.
 
-|stage|Input and supervision|What is the main thing to get?|What needs to be verified individually|
+|Stage|Input and supervision|What is mainly gained|What needs to be verified separately|
 |---|---|---|---|
-|vision-language pretraining|Images, text, Q&A, etc.|Objects, relations and task semantics|Whether comprehension ability is retained after accessing movement training|
-|Robot action pretraining|Multitasking trajectories, status and actions|Universal action priors and partial cross-scenario transfer|Data blending, action interfaces, and cross-embodiment negative migration|
-|Target task adaptation|A small amount of specific robot demonstrations or expert data|Precise adaptation of gripper, viewing angle, contact and target status|Does the benefit of new tasks come at the expense of forgetting old tasks?|
-|Deployment feedback improvements|Failure trajectories, rewards, corrections and takeovers|Resilience and on-site distribution adaptation|Number of interactions, labor costs, and safety margins|
+|Vision-language pretraining|Images, text, question answering, etc.|Objects, relations, and task semantics|Whether comprehension is retained after action training is added|
+|Robot action pretraining|Multi-task trajectories, states, and actions|General action priors and some cross-scene transfer|Data mixing, action interfaces, and negative transfer across embodiments|
+|Target-task adaptation|A small amount of demonstration or expert data from the specific robot|Precise adaptation to the gripper, viewpoint, contact, and target state|Whether gains on the new task come at the expense of forgetting old tasks|
+|Deployment feedback|Failure trajectories, rewards, corrections, and takeovers|Robustness and adaptation to the on-site distribution|Number of interactions, labor costs, and safety margins|
 
-These stages are the framework for analysis, not a fixed pipeline in which all models must be executed sequentially. {% include content-link.html path='/VLA-Papers/' fragment='#5-2-rt-2-2023' label='RT-2' %} focuses on examining vision-language knowledge transfer, {% include content-link.html path='/VLA-Papers/' fragment='#5-9-openvla-2024' label='OpenVLA' %} provides an open cross-robot action training and adaptation path, {% include content-link.html path='/VLA-Papers/' fragment='#5-11-pi05-2025' label='π₀.5' %} uses data from different sources for multi-stage tasks, and {% include content-link.html path='/VLA-Papers/' fragment='#5-12-pi06-2025' label='RECAP' %} and {% include content-link.html path='/VLA-Papers/' fragment='#5-36-bee-2026' label='Bee' %} Study separately how execution experience and human correction can continue to improve the policy.
+These stages are an analytical framework, not a fixed pipeline that every model executes in sequence. {% include content-link.html path='/VLA-Papers/' fragment='#5-2-rt-2-2023' label='RT-2' %} focuses on examining vision-language knowledge transfer, {% include content-link.html path='/VLA-Papers/' fragment='#5-9-openvla-2024' label='OpenVLA' %} provides an open cross-robot action training and adaptation path, {% include content-link.html path='/VLA-Papers/' fragment='#5-11-pi05-2025' label='π₀.5' %} uses data from different sources for multi-stage tasks, while {% include content-link.html path='/VLA-Papers/' fragment='#5-12-pi06-2025' label='RECAP' %} and {% include content-link.html path='/VLA-Papers/' fragment='#5-36-bee-2026' label='Bee' %} each study how execution experience and human correction can keep improving the policy.
 
-### Action interfaces often fail before loss functions
+### Action interfaces often fail before loss functions do
 {: id="动作接口通常比损失函数更先出错"}
 
-Before training, the action definition should be written into an executable contract: is the output a joint target, an absolute terminal pose, or a pose increment? Is rotation represented by Euler angles, axis angles or something else? What are the opening and closing values ​​and units of the gripper? How much physical time does an action cover? Different robots can share the policy backbone, but normalized statistics, coordinate transformation and controller adaptation often need to be processed separately. The resulting failure of directly interpreting "relative end-effector displacements" for one data set as "absolute joint targets" for another platform cannot be attributed to the VLA architecture.
+Before training, write the action definition down as an executable contract: is the output a joint target, an absolute end-effector pose, or a pose increment? Is rotation represented by Euler angles, axis-angle, or something else? What are the open and closed values and units of the gripper? How much physical time does one action cover? Different robots can share a policy backbone, but normalization statistics, coordinate transforms, and controller adaptation often need to be handled separately. A failure that results from reading one dataset's "relative end-effector displacements" as another platform's "absolute joint targets" cannot be blamed on the VLA architecture.
 
-Demonstrations are usually cut into $(o_t,\ell,s_t,A_t)$ by time window. Adjacent windows on the same trajectory are highly correlated. Randomly assign training and test sets by frame so that the test images appear approximately in training; the division should be performed at the trajectory, object, scene or acquisition session level. The action chunk tag must also be consistent with the camera timestamp, control frequency, and actual replanning interval at execution time. Otherwise, the offline loss is very low, and the closed-loop may still be short-circuited due to a few frames of misalignment.
+Demonstrations are usually cut into $(o_t,\ell,s_t,A_t)$ by time window, and adjacent windows on the same trajectory are highly correlated. Splitting training and test sets randomly by frame lets near-duplicates of the test images appear in training; the split should be made at the trajectory, object, scene, or collection-session level. The action chunk labels must also be consistent with the camera timestamps, the control frequency, and the actual replanning interval at execution time. Otherwise the offline loss can be very low while the closed loop still breaks down because of a misalignment of a few frames.
 
-### How to tell if a new training phase is really effective
+### How to tell whether a new training stage really helps
 {: id="怎样判断新训练阶段真正有效"}
 
-When comparing "adding pretraining", "adding future prediction" or "adding online feedback", first fix the backbone, target task data, action interface and initial evaluation status, and then only change the corresponding supervision or training stage. In addition to target task performance, performance degradation under language understanding, old robotics tasks, and perturbations should also be examined. For online methods, the horizontal axis must at least include the amount of robot interaction and manual intervention; only comparing the final success rate will mistakenly record the benefits brought by more data or longer training as algorithm benefits.
+When comparing "adding pretraining", "adding future prediction", or "adding online feedback", first fix the backbone, the target-task data, the action interface, and the initial evaluation state, and then change only the corresponding supervision or training stage. Beyond target-task performance, also examine degradation in language understanding, on earlier robot tasks, and under perturbations. For online methods, the horizontal axis should at least include the amount of robot interaction and human intervention; comparing only the final success rate would wrongly credit the algorithm for gains that come from more data or longer training.
 
 Auxiliary objectives should also be compared under the same training budget. [What Should Robot Policies Learn to Predict?](https://arxiv.org/abs/2610.21915) uses a sample-level router to assign each training sample either to action prediction or to an auxiliary objective. On LIBERO, CALVIN and real-robot tasks, suitable latent-action or future-vision supervision beats action-only training even when action prediction receives no more than half of the samples, and future-vision targets generally do better. The result depends on the chosen representation, such as DINOv3, V-JEPA 2 or video-generation features, and does not mean auxiliary supervision always helps.
 
 <span id="vla-learning-path" class="vla-anchor-alias" aria-hidden="true"></span>
 
-## 1.9 Embodied intelligence learning and entry route
+## 1.9 Learning path into embodied intelligence
 {: id="19-具身智能学习与入门路线"}
 
-With the goal of being able to reproduce, explain and diagnose a closed-loop task, the learning path can be divided into four steps:
+With the goal of being able to reproduce, explain, and diagnose a closed-loop task, the learning path can be divided into four steps:
 
-1. **Understanding the data and control interface**: Starting from existing data or simulation, check images, status, actions and timestamps; confirm units, coordinate systems and normalization. You can first play back a correct trajectory and then train the policy.
-2. **Establish a behavioral clone baseline**: Use ACT or Diffusion Policy to run fixed tasks and record the success rate, task time and failure type. Verify what happens when you change the initial state, lighting, or object position.
-3. **introduces language conditions and pretraining model**: Select the OpenVLA or openpi configuration consistent with the device and data interface, and compare the benefits of training from scratch, freezing the backbone, and fine-tuning. Keep data partitioning and evaluation protocols consistent.
-4. **checks real closed-loop and generalization**: performs real robot verification when hardware conditions are met, covering new layout, disturbance, failure recovery and manual takeover; while recording inference latency, execution frequency and continuous running performance.
+1. **Understand the data and control interface.** Starting from existing data or simulation, inspect images, states, actions, and timestamps, and confirm units, coordinate frames, and normalization. Replay a correct trajectory first, then train a policy.
+2. **Establish a behavior cloning baseline.** Run fixed tasks with ACT or Diffusion Policy and record success rate, task time, and failure types. Check what happens when you change the initial state, lighting, or object position.
+3. **Introduce language conditioning and a pretrained model.** Choose an OpenVLA or openpi configuration consistent with your hardware and data interface, and compare training from scratch, freezing the backbone, and fine-tuning. Keep the data split and evaluation protocol consistent.
+4. **Check real closed-loop behavior and generalization.** When hardware allows, verify on a real robot, covering new layouts, disturbances, failure recovery, and manual takeover, while recording inference latency, execution frequency, and performance over continuous running.
 
-An exercise should leave at least data description, fixed evaluation set, reproducible configuration and failure cases. Whether the deployment requirements are met depends on the error cost and operational constraints of the specific task, and a unified "60% success rate" cannot be used as the passing criterion.
+An exercise should leave behind at least a data description, a fixed evaluation set, a reproducible configuration, and failure cases. Whether deployment requirements are met depends on the cost of errors and the operating constraints of the specific task; no universal "60% success rate" can serve as the passing criterion.
 
-# 2. VLA Core Challenges
+# 2. Core challenges of VLA
 {: id="2-vla核心挑战"}
 
-This chapter is organized in a problem-driven manner: it links methods to observable failures and explains how to judge whether improvements are effective.
+This chapter is organized around problems: it links methods to observable failures and explains how to judge whether an improvement is effective.
 
-|challenge|Common failures|key verification|
+|Challenge|Common failures|Key verification|
 |---|---|---|
-|Representation and physical grounding|Can't find the right object but can't hold it firmly; confusion between reference and coordinates|Spatial, contact and language perturbation experiments|
-|planning and execution|Subtasks are missing; actions are lagging; repeated execution after failure|closed-loop latency, task completion time and recovery rate|
-|Generalization and adaptation|Scene changes are invalid; new skills overwrite old skills|Independent distribution changes and continual learning evaluation|
-|Safe and reliable interaction|Cross-border action; false positive success; unreasonable takeover|Constraint triggering, rejection accuracy, and takeover costs|
-|Data and Reviews|Data leakage; inconsistent action definitions; incomparable scores|Data traceability, partitioning protocols and experimental configurations|
+|Representation and physical grounding|Finds the right object but cannot hold it firmly; confuses reference frames and coordinates|Spatial, contact, and language perturbation experiments|
+|Planning and execution|Subtasks are skipped; actions lag; the same step is repeated after a failure|Closed-loop latency, task completion time, and recovery rate|
+|Generalization and adaptation|Fails when the scene changes; new skills overwrite old ones|Independent distribution shifts and continual-learning evaluation|
+|Safe and reliable interaction|Out-of-bounds actions; false-positive success judgments; unreasonable takeovers|Constraint triggering, rejection accuracy, and takeover cost|
+|Data and evaluation|Data leakage; inconsistent action definitions; incomparable scores|Data provenance, splitting protocols, and experimental configurations|
 
-## 2.1 Multi-modal alignment and physical world modeling
+## 2.1 Multimodal alignment and physical-world modeling
 {: id="21-多模态对齐与物理世界建模"}
 
 ### The gap between correct semantics and correct actions
 {: id="语义正确与动作正确之间的差距"}
 
-"Pick up the cup on the left" simultaneously includes object recognition, reference frame, grasping pose and reachability. VLM can answer the position of the cup, but it does not guarantee that the action head can generate the correct contact trajectory. Training needs to map semantic features to states, actions, and results; evaluation requires changing instructions, target locations, and distractors respectively to avoid policies that only rely on scene shortcuts to complete tasks.
+"Pick up the cup on the left" simultaneously involves object recognition, a reference frame, a grasp pose, and reachability. A VLM can answer where the cup is, but that does not guarantee the action head can generate the correct contact trajectory. Training must map semantic features to states, actions, and outcomes; evaluation must vary the instruction, the target location, and the distractors separately, to rule out policies that complete tasks by relying only on scene shortcuts.
 
-Three sets of diagnoses can be made with the same task: just rewrite the language expression of "left cup" and observe whether the target is still selected; keep the instruction unchanged, move the cup and camera, and check the target positioning and coordinate transformation; keep the target unchanged, change the cup handle orientation or contact conditions, and check whether the grasp is stable. The three sets of changes emphasize semantics, space, and control respectively, but errors may also be transferred to each other. Recording the target selected by the model, predicted actions and final contact results can better locate the failure link than just reporting the success rate of the entire task.
+Three diagnostics can be run on the same task: rewrite only the phrasing of "left cup" and see whether the same target is still selected; keep the instruction fixed, move the cup and the camera, and check target localization and coordinate transforms; keep the target fixed, change the handle orientation or contact conditions, and check whether the grasp stays stable. The three sets of changes probe semantics, space, and control respectively, though errors can also propagate between them. Recording the target the model selected, the predicted actions, and the final contact outcome locates the failing link better than reporting only the success rate of the whole task.
 
 Recent diagnostics suggest that language plays a weaker role in action than expected. A [mechanistic interpretability study](https://arxiv.org/abs/2610.10178) applies activation patching to π₀.5 and GR00T N1.7 on LIBERO: both models are fairly insensitive to abstract rephrasing and even to references to objects that do not exist, yet react strongly to empty instructions and to directional words. [SIMPLER-IN](https://arxiv.org/abs/2610.21251) separates instructions about *what* to do from instructions about *how* to do it, and finds that how-level details do not help current VLAs and even lower their success. A paraphrase test therefore only shows that a model tolerates wording changes; it does not show that the model understands execution constraints stated in the instruction.
 
 ### Space and contact representation
 {: id="空间与接触表示"}
 
-Multi-view RGB, depth, point cloud, occupancy representation and force-tactile signals can supplement different information and also introduce calibration, noise and synchronization costs respectively. {% include content-link.html path='/VLA-Papers/' fragment='#5-7-dp3-2024' label='DP3' %} and {% include content-link.html path='/VLA-Papers/' fragment='#5-26-spatialvla' label='SpatialVLA' %} provide different ideas for spatial representation. The data volume and camera configuration should be fixed when comparing to determine whether the gain comes from the representation method or additional sensing information.
+Multi-view RGB, depth, point clouds, occupancy representations, and force-tactile signals each supply different information, and each also brings its own calibration, noise, and synchronization costs. {% include content-link.html path='/VLA-Papers/' fragment='#5-7-dp3-2024' label='DP3' %} and {% include content-link.html path='/VLA-Papers/' fragment='#5-26-spatialvla' label='SpatialVLA' %} offer different approaches to spatial representation. When comparing, fix the data volume and camera configuration to determine whether the gain comes from the representation itself or from the additional sensing information.
 
 ### Future predictions and physical consistency
 {: id="未来预测与物理一致性"}
 
-Predicting future images or potential states can provide training signals for actions, but low pixel error does not equate to good control. The key is being able to distinguish the consequences of candidate actions, especially collisions, occlusions, sliding and irreversible operations. The evaluation of the world modelshould include multi-step errors and downstream closed-loop gains, and check whether the model is still credible in the failure state. [DRILL](https://arxiv.org/abs/2610.30814) gives a direct counterexample: a world model with lower next-frame pixel error can produce worse policy gradients, while one trained for policy return has 17% higher pixel error yet yields a better downstream policy.
+Predicting future images or latent states can provide training signals for actions, but low pixel error does not equal good control. What matters is being able to distinguish the consequences of candidate actions, especially collisions, occlusions, slipping, and irreversible operations. Evaluating a world model should include multi-step error and downstream closed-loop gains, and check whether the model remains credible in failure states. [DRILL](https://arxiv.org/abs/2610.30814) gives a direct counterexample: a world model with lower next-frame pixel error can produce worse policy gradients, while one trained for policy return has 17% higher pixel error yet yields a better downstream policy.
 
-## 2.2 Instruction following, planning and robust real-time execution
+## 2.2 Instruction following, planning, and robust real-time execution
 {: id="22-指令跟随规划与鲁棒实时执行"}
 
-### Long-horizon tasks require progress status and recovery mechanisms
+### Long-horizon tasks need progress tracking and recovery mechanisms
 {: id="长任务需要进度状态和恢复机制"}
 
-Task breakdown is just the starting point. The system also needs to determine when subtasks are completed, when to re-observe, and where to recover after failure. {% include content-link.html path='/VLA-Papers/' fragment='#5-11-pi05-2025' label='π₀.5' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-13-acot-vla-2026' label='ACoT-VLA' %}, and {% include content-link.html path='/VLA-Papers/' fragment='#5-27-harness-vla' label='Harness VLA' %} provide examples of hierarchical prediction, intermediate action intent, and external execution management, respectively. For these systems, additional model calls, retries, and human involvement should be factored into the cost.
+Task decomposition is only the starting point. The system must also determine when a subtask is complete, when to observe again, and where to resume after a failure. {% include content-link.html path='/VLA-Papers/' fragment='#5-11-pi05-2025' label='π₀.5' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-13-acot-vla-2026' label='ACoT-VLA' %}, and {% include content-link.html path='/VLA-Papers/' fragment='#5-27-harness-vla' label='Harness VLA' %} provide examples of hierarchical prediction, intermediate action intent, and external execution management, respectively. For such systems, the additional model calls, retries, and human involvement should be counted as costs.
 
-Even if the conditional success probability of each subtask is $p$, a task that must complete $N$ steps continuously will only have a success probability of $p^N$ under simplifying assumptions. For example, it is about 36% for $p=0.95$ and $N=20$. This is just an example of error accumulation; real tasks are also affected by failure correlation and recovery mechanisms.
+Even if each subtask succeeds with conditional probability $p$, a task that must complete $N$ steps in a row succeeds with probability only $p^N$ under simplifying assumptions. For example, it is about 36% for $p=0.95$ and $N=20$. This is just an illustration of error accumulation; real tasks are also affected by failure correlations and recovery mechanisms.
 
 <figure class="vla-reliability-figure" aria-label="When the single-step success rate is 95%, the schematic diagram of the continuous task success rate decreasing with the number of steps">
 <div class="vla-reliability-row"><span>1 Step </span><div class="vla-reliability-track"><i style="width:95%"></i></div><strong>95%</strong></div>
 <div class="vla-reliability-row"><span>5 Step </span><div class="vla-reliability-track"><i style="width:77%"></i></div><strong>77%</strong></div>
 <div class="vla-reliability-row"><span>10 Step</span><div class="vla-reliability-track"><i style="width:60%"></i></div><strong>60%</strong></div>
 <div class="vla-reliability-row"><span>20 Step </span><div class="vla-reliability-track"><i style="width:36%"></i></div><strong>36%</strong></div>
-<figcaption> indicates the calculation of 0.95 to the Nth power: assuming that each step is independent, all must be successful, and there are no retries; it is not an actual test result of any paper or robot.</figcaption>
+<figcaption>The calculation of 0.95 to the Nth power: assuming each step is independent, all steps must succeed, and there are no retries. It is not an actual measurement from any paper or robot.</figcaption>
 </figure>
 
-Therefore, the long-horizon task method should not only improve the proportion of "right next step", but also report whether **failure can be detected, whether partial retries can continue the task, and how long it takes** to recover. If a failure necessitates a reset, task throughput may be much lower than the single-segment success rate would suggest; if it is safe to retry, the number of retries and manual takeover should be reported together with the final success rate.
+Long-horizon methods should therefore not only raise the fraction of correct next steps, but also report whether **failures can be detected, whether a partial retry can continue the task, and how long recovery takes**. If a failure requires a reset, task throughput may be much lower than the single-segment success rate suggests; if retrying is safe, the number of retries and manual takeovers should be reported together with the final success rate.
 
-### Distinguish between four "speeds"
+### Four kinds of "speed" to distinguish
 {: id="区分四种速度"}
 
-|indicator|meaning|Common misunderstandings|
+|Metric|Meaning|Common misunderstanding|
 |---|---|---|
-|single inference latency|The time from model input to output action|Treat offline batch speed as online latency|
-|Policy update frequency|Number of times per second to generate action plans based on new observations|Confused with the sampling frequency within the action chunk|
-|action execution frequency|The number of times the controller sends or performs an action per second|Consider 50 Hz execution to mean full VLM inference 50 times per second|
-|task throughput|Number of effective tasks completed per unit time|Ignore retries, resets and manual intervention|
+|Single-inference latency|Time from model input to output action|Treating offline batch speed as online latency|
+|Policy update frequency|How many times per second a new action plan is generated from new observations|Confusing it with the sampling frequency within an action chunk|
+|Action execution frequency|How many times per second the controller sends or executes an action|Assuming 50 Hz execution means running full VLM inference 50 times per second|
+|Task throughput|Number of effective tasks completed per unit time|Ignoring retries, resets, and manual intervention|
 
-Action chunking, parallel decoding, caching and asynchronous execution act on different aspects. [OpenVLA-OFT](https://arxiv.org/abs/2502.19645) studies the efficiency of fine-tuning and action generation; [FAST](https://arxiv.org/abs/2501.09747) studies action sequence compression. The training acceleration, action throughput and single inference acceleration in the paper must be reported separately and cannot be written as "several times faster".
+Action chunking, parallel decoding, caching, and asynchronous execution act on different aspects of latency. [OpenVLA-OFT](https://arxiv.org/abs/2502.19645) studies the efficiency of fine-tuning and action generation; [FAST](https://arxiv.org/abs/2501.09747) studies action sequence compression. Training speedup, action throughput, and single-inference speedup must be reported separately in a paper and cannot be summarized as "several times faster".
 
-When evaluating real-time performance, the entire link of image acquisition, transmission, preprocessing, inference, action conversion, and controller communication should be covered, and high-quantile latency should be reported. The length of the action chunk, how many steps are executed at a time, and whether midway updates are allowed will all change the robot's ability to respond to disturbances.
+When evaluating real-time performance, cover the entire chain of image capture, transmission, preprocessing, inference, action conversion, and controller communication, and report high-percentile latency. The action chunk length, how many steps are executed each time, and whether mid-chunk updates are allowed all change the robot's ability to respond to disturbances.
 
-## 2.3 From generalization to continuous adaptation
+## 2.3 From generalization to continual adaptation
 {: id="23-从泛化到持续适应"}
 
-### First define what “unseen” is
+### First define what “unseen” means
 {: id="先定义未见是什么"}
 
-|generalized type|changing factors|Factors that should be fixed or explained|
+|Generalization type|What changes|What should be held fixed or explained|
 |---|---|---|
-|visual generalization|Background, lighting, texture, distractions|Task and motor skills|
-|spatial generalization|Object position, orientation, camera angle|Work space and calibration range|
-|Semantics and combinatorial generalization|Instruction expression, object combination, sub-task sequence|Does it include new motor skills?|
-|cross-robot migration|Body, gripper, sensor, action interface|Whether to allow adaptation data and parameter updates|
-| Sim-to-Real |Images and dynamics shift from simulation to reality|Real data usage and number of parameter adjustments|
+|Visual generalization|Background, lighting, texture, distractors|The task and motor skills|
+|Spatial generalization|Object position, orientation, camera angle|Workspace and calibration range|
+|Semantic and compositional generalization|Instruction phrasing, object combinations, subtask order|Whether it requires new motor skills|
+|Cross-robot transfer|Embodiment, gripper, sensors, action interface|Whether adaptation data and parameter updates are allowed|
+| Sim-to-Real |Images and dynamics shift from simulation to reality|How much real data is used and how many parameter adjustments are made|
 
-The "zero sample" must indicate relative to which change, and whether the same type of task has been seen in pretraining. Small amounts of target data fine-tuning, contextual demonstrations, and completely unadapted deployments should also be reported separately.
+"Zero-shot" must state relative to which change it is zero-shot, and whether the same type of task was seen in pretraining. Fine-tuning on a small amount of target data, in-context demonstrations, and fully unadapted deployment should also be reported separately.
 
-### Adaptation mechanisms should not be confused with
+### Adaptation mechanisms should not be conflated
 {: id="适应机制不应混为一谈"}
 
-Offline fine-tuning uses data collected in advance to update parameters; continual learning also needs to check whether old skills are forgotten; online reinforcement learning optimizes policies based on interactive rewards; TTT can make use of history by updating internal states or fast weights during testing. The latter does not automatically imply the use of reward learning. [RoboTTT](https://arxiv.org/abs/2607.15275) uses fast weights as historical memory, while {% include content-link.html path='/VLA-Papers/' fragment='#5-12-pi06-2025' label='RECAP' %} focuses on policy improvements brought by execution experience.
+Offline fine-tuning updates parameters with data collected in advance; continual learning must also check whether old skills are forgotten; online reinforcement learning optimizes the policy from interactive rewards; TTT can exploit history by updating internal states or fast weights at test time, which does not automatically imply reward-based learning. [RoboTTT](https://arxiv.org/abs/2607.15275) uses fast weights as historical memory, while {% include content-link.html path='/VLA-Papers/' fragment='#5-12-pi06-2025' label='RECAP' %} focuses on policy improvement from execution experience.
 
-When comparing these methods, it is necessary to document the performance before and after adaptation, the number of interactions, manual correction, computational cost, and cross-task transfer or forgetting. Only reporting the best task performance after adaptation will cover up additional resource consumption.
+When comparing these methods, document performance before and after adaptation, the number of interactions, manual corrections, computational cost, and cross-task transfer or forgetting. Reporting only the best task performance after adaptation hides the additional resource consumption.
 
-## 2.4 Security, explainability and reliable interaction
+## 2.4 Safety, interpretability, and reliable interaction
 {: id="24-安全性可解释性与可靠交互"}
 
-Linguistic rules, rejected output, and readable reasoning can aid interaction, but do not alone constitute physical execution guarantees. A complete system should be divided into three levels: whether the policy understands the constraints, whether the output action satisfies limitations such as work space and speed, and whether it can detect anomalies and stop in time during execution.
+Language rules, refusal outputs, and readable reasoning can aid interaction, but on their own do not constitute a guarantee of safe physical execution. A complete system should be assessed at three levels: whether the policy understands the constraints, whether the output actions satisfy limits such as workspace and speed, and whether anomalies can be detected and execution stopped in time.
 
-|level|What can be observed|What this evidence does not establish|
+|Level|What can be observed|What this evidence does not establish|
 |---|---|---|
-|task understanding|Whether to identify ambiguities, disallowed targets, or missing conditions|It cannot be inferred that the motion process always satisfies the constraints|
-|action constraints|Limit, reach, collision or speed checks|It cannot be inferred that the perceptual and physical models are completely correct|
-|Runtime monitoring|Contact exception, timeout, failure detection and takeover|It cannot be inferred that every unknown fault can be discovered|
-|Interpretability|Whether subtasks, target locations, and intermediate reasoning are checkable|That the explanation faithfully reflects the actual cause of a decision|
+|Task understanding|Whether ambiguities, disallowed targets, or missing conditions are identified|It does not follow that the motion always satisfies the constraints|
+|Action constraints|Limit, reachability, collision, or speed checks|It does not follow that the perception and physics models are fully correct|
+|Runtime monitoring|Contact anomalies, timeouts, failure detection, and takeover|It does not follow that every unknown fault can be detected|
+|Interpretability|Whether subtasks, target locations, and intermediate reasoning can be checked|That the explanation faithfully reflects the actual cause of a decision|
 
-Valuable measurements include error acceptance versus error rejection, anomaly detection latency, constraint violation rate, number of manual takeovers, and post-recovery task success rate. Runtime monitoring must also answer what happens after an alarm. [RESCUE](https://arxiv.org/abs/2610.13516) replays more than a hundred thousand counterfactual branches on OpenVLA-OFT and π₀.5 and finds that whether a failure can be recovered depends on the combination of state and intervention; a monitor with better detection scores does not necessarily lower intervention cost. [P²](https://arxiv.org/abs/2610.31613) shows that linear progress probes on the policy's own activations already match external VLM monitors, so monitoring does not necessarily require calling another large model. Only by deleting, replacing, or interfering with the intermediate reasoning can we further determine whether it actually affects the action.
+Useful measurements include false acceptance versus false rejection, anomaly detection latency, constraint violation rate, number of manual takeovers, and task success rate after recovery. Runtime monitoring must also answer what happens after an alarm. [RESCUE](https://arxiv.org/abs/2610.13516) replays more than a hundred thousand counterfactual branches on OpenVLA-OFT and π₀.5 and finds that whether a failure can be recovered depends on the combination of state and intervention; a monitor with better detection scores does not necessarily lower the intervention cost. [P²](https://arxiv.org/abs/2610.31613) shows that linear progress probes on the policy's own activations already match external VLM monitors, so monitoring does not necessarily require calling another large model. Only by deleting, replacing, or perturbing the intermediate reasoning can one determine whether it actually affects the action.
 
-## 2.5 Data Construction and Benchmark Testing Standards
+## 2.5 Data construction and benchmarking standards
 {: id="25-数据构建与基准测试标准"}
 
 ### Data quality and consistency
 {: id="数据质量与一致性"}
 
-The difficulty with multi-source robot data is semantic and temporal consistency. It is necessary to check whether the action uses absolute values ​​or increments, what representation of rotation is used, the direction of opening and closing of the gripper, camera and control timestamps, and how to mark the failure trajectory. Randomly dividing the training set and test set by frame can easily leak adjacent moments; more reasonable division units are usually trajectories, scenes, objects or acquisition sessions.
+The difficulty with multi-source robot data is semantic and temporal consistency. One must check whether actions use absolute values or increments, which rotation representation is used, the open/close direction of the gripper, the camera and control timestamps, and how failed trajectories are labeled. Splitting training and test sets randomly by frame easily leaks adjacent moments; more reasonable split units are usually trajectories, scenes, objects, or collection sessions.
 
-Number of traces, number of frames, and number of acquisition hours are not directly interchangeable. Longer videos or more frequent recordings do not automatically lead to more independent skills. Data comparison should also include task coverage, robot distribution, proportion of successful and failed samples, and language annotation quality.
+The number of trajectories, the number of frames, and the number of collection hours are not interchangeable. Longer videos or higher recording frequency do not automatically yield more independent skills. Data comparisons should also cover task coverage, robot distribution, the proportion of successful and failed samples, and language annotation quality.
 
-### Understanding Benchmark Scores
+### Interpreting benchmark scores
 {: id="读懂基准分数"}
 
-[LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO)’s original task division needs to be distinguished from subsequent VLA common evaluation combinations; [SimplerEnv](https://simpler-env.github.io/) uses simulation to approximate real evaluation conditions and cannot replace real robot testing. CALVIN's continuous task completion performance, LIBERO's task success rate, and real robot's hour-level throughput measure different abilities.
+[LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO)'s original task split should be distinguished from the evaluation combinations commonly used by later VLA work; [SimplerEnv](https://simpler-env.github.io/) approximates real evaluation conditions in simulation and cannot replace real-robot testing. CALVIN's consecutive-task completion, LIBERO's task success rate, and a real robot's hourly throughput measure different abilities.
 
-A set of comparable experiments should at least account for:
+A set of comparable experiments should account for at least the following:
 
-1. **training conditions**: pretraining weights, target task data, perspective, proprioceptive state and additional supervision.
-2. **evaluation protocol**: baseline version, task set, initial state, random seed, number of trials per task and success criteria.
-3. **execution conditions**: device, accuracy, action chunk length, re-planning interval, maximum number of steps and retry budget.
-4. **Result statistics**: task-by-task performance, summary method, variance or confidence interval, and failure type.
-5. **Additional costs**: Manual intervention, external planner, reward annotation, fine-tuning and online adaptation budget.
+1. **Training conditions**: pretrained weights, target-task data, camera views, proprioceptive state, and additional supervision.
+2. **Evaluation protocol**: benchmark version, task set, initial states, random seeds, number of trials per task, and success criteria.
+3. **Execution conditions**: hardware, numerical precision, action chunk length, replanning interval, maximum number of steps, and retry budget.
+4. **Result statistics**: per-task performance, aggregation method, variance or confidence intervals, and failure types.
+5. **Additional costs**: manual intervention, external planners, reward annotation, and fine-tuning and online-adaptation budgets.
 
-Single-task fine-tuning, multi-task joint training and continual learning cannot directly merge rankings even if they use the same environment. The actual significance of a small average score improvement should be judged based on repeated experiments and costs.
+Single-task fine-tuning, multi-task joint training, and continual learning cannot be merged into one ranking even when they use the same environment. The real significance of a small improvement in the average score should be judged from repeated experiments and costs.
 
 <span id="vla-datasets" class="vla-anchor-alias" aria-hidden="true"></span>
 
-# 3. VLA mainstream data set
+# 3. Mainstream VLA datasets
 {: id="3-vla主流数据集"}
 
-When selecting data resources, you must first distinguish four types of objects: **downloadable robot trajectories, collection tools, simulation environments that can generate data, and fixed protocol evaluation benchmarks**. They solve different problems and cannot be sorted by "size" alone. The following table uses the statistical caliber when the paper or project was released; the actual training subset and subsequent versions may be different.
+When choosing data resources, first distinguish four kinds of objects: **downloadable robot trajectories, collection tools, simulation environments that can generate data, and evaluation benchmarks with fixed protocols**. They solve different problems and cannot be ranked by "size" alone. The following table uses the statistics as of the paper's or project's release; the actual training subset and later versions may differ.
 
-|Resources|Type|representative size or scope|Main purpose|
+|Resource|Type|Representative size or scope|Main purpose|
 |---|---|---|---|
-| Open X-Embodiment |cross-robot data collection|The original project covers 22 types of robots and millions of trajectories|cross-robot pretraining|
-| ProcCorpus-60M |Training corpus with dense inference annotation|About 60000000 frames and more than 400000 trajectories|cross-robot semantic supervision|
-|RT-1 data|Real robot demonstration|About 130000 trajectories and more than 700 tasks|Multi-task operation learning|
-| BridgeData V2 |real operating data|60096 trajectories, 24 environments|Language condition operations and migration|
-| DROID |Multi-scenario real operation data|About 76000 trajectories, 350 hours, 564 scenes|Scenario generalization and pretraining|
-| RH20T |Multimodal robot data|Visual, force, audio and motion information|Exposure manipulation and cross-modal learning|
-| ALOHA / UMI |Hardware and demonstration acquisition system|Release version statistics by task and data|Two-arm or handheld demonstration collection|
-| CALVIN / LIBERO |Simulation data and evaluation|Long-horizon task portfolio/knowledge transfer|Repeatable policy comparison|
-| MimicGen |Demo Amplification System|Generating trajectories from a small number of seed demos|Data generation and augmentation|
-| SimplerEnv / VLABench |Evaluation environment and benchmarks|Real condition approximation / linguistic conditional operation|Generalized diagnosis and closed-loop evaluation|
-| RoboDojo |Unified evaluation benchmark for simulation and real robot|42 simulation tasks, 18 real robot tasks|Comparison of cross-model capabilities and public rankings|
-| LeRobotDataset |Data formats and tools|Varies with specific community datasets|Data recording, reading and training integration|
-| Ego4D |Human first-person video|Large scale daily activity videos|Visual and interactive representation pretraining|
+| Open X-Embodiment |Cross-robot data collection|The original project covers 22 robot types and millions of trajectories|Cross-robot pretraining|
+| ProcCorpus-60M |Training corpus with dense reasoning annotations|About 60,000,000 frames and more than 400,000 trajectories|Cross-robot semantic supervision|
+|RT-1 data|Real-robot demonstrations|About 130,000 trajectories and more than 700 tasks|Multi-task manipulation learning|
+| BridgeData V2 |Real-robot manipulation data|60,096 trajectories, 24 environments|Language-conditioned manipulation and transfer|
+| DROID |Real manipulation data across many scenes|About 76,000 trajectories, 350 hours, 564 scenes|Scene generalization and pretraining|
+| RH20T |Multimodal robot data|Visual, force, audio, and motion information|Contact-rich manipulation and cross-modal learning|
+| ALOHA / UMI |Hardware and demonstration collection systems|Statistics by task and data release version|Bimanual or handheld demonstration collection|
+| CALVIN / LIBERO |Simulated data and evaluation|Long-horizon task sequences / knowledge transfer|Repeatable policy comparison|
+| MimicGen |Demonstration amplification system|Generates trajectories from a small number of seed demonstrations|Data generation and augmentation|
+| SimplerEnv / VLABench |Evaluation environment and benchmark|Approximation of real conditions / language-conditioned manipulation|Generalization diagnosis and closed-loop evaluation|
+| RoboDojo |Unified simulated and real-robot evaluation benchmark|42 simulated tasks, 18 real-robot tasks|Cross-model capability comparison and public rankings|
+| LeRobotDataset |Data format and tools|Varies with the specific community dataset|Integrated data recording, loading, and training|
+| Ego4D |Human first-person video|Large-scale videos of daily activities|Pretraining of visual and interaction representations|
 
-## 3.1 Large-scale cross-robot data set
+## 3.1 Large-scale cross-robot datasets
 {: id="31-大规模跨机器人数据集"}
 
 ### Open X-Embodiment Dataset
 {: id="open-x-embodiment-dataset"}
 
-[Open X-Embodiment (OXE)](https://robotics-transformer-x.github.io/) brings together robot data from multiple institutions, with the original project covering 22 robots, 527 skill categories, and 160,266 tasks. The RT-X study, in which the training strategy was selected on a mix of data, showed that cross-robot data sharing can produce positive transfer; the entire data volume of the set cannot be considered the actual training volume of each model.
+[Open X-Embodiment (OXE)](https://robotics-transformer-x.github.io/) brings together robot data from multiple institutions; the original project covers 22 robots, 527 skills, and 160,266 tasks. The RT-X study, which trained policies on a mixture of the data, showed that sharing data across robots can produce positive transfer; the full volume of the collection should not be taken as the actual training volume of each model.
 
 <div align="center">
-  <img src="/images/vla/oxe_figure.webp" alt="Open X-Embodiment cross-robot data and task distribution" width="1416" height="508" style="width: 90%;" loading="lazy" decoding="async" />
-<figcaption>Open X-Embodiment: Cross-institution, cross-robot data sharing. Source: RT-X Project.</figcaption>
+  <img src="/images/vla/oxe_figure.webp" alt="Open X-Embodiment: cross-robot data and task distribution" width="1416" height="508" style="width: 90%;" loading="lazy" decoding="async" />
+<figcaption>Open X-Embodiment: data sharing across institutions and robots. Source: RT-X project.</figcaption>
 </div>
 
-OXE uses RLDS to organize trajectories, but there are still differences in cameras, action definitions, control frequencies, and annotation quality for different subsets. Before use, you should check the actual data mixing configuration and record the filter conditions, sampling weights and conversion methods. The ~970,000 training trajectories used by OpenVLA are of a specific mix and should not be taken directly as a fixed scale across all versions of OXE.
+OXE organizes trajectories with RLDS, but different subsets still differ in cameras, action definitions, control frequencies, and annotation quality. Before use, check the actual data-mixture configuration and record the filtering conditions, sampling weights, and conversion methods. The roughly 970,000 training trajectories used by OpenVLA come from one specific mixture and should not be taken as a fixed size across all versions of OXE.
 
-### ProcCorpus-60M Dataset
+### ProcCorpus-60M dataset
 {: id="proccorpus-60m-dataset"}
 
-[The ProcCorpus-60M reported in ZR-0 paper](https://arxiv.org/abs/2606.30552) contains about 60 million frames, about 1000 hours, and more than 400,000 trajectories, and 96.8% of the frames have dense ECoT annotations. Its value lies in providing semantic supervision such as scene, goal and task decomposition for cross-robot learning.
+[The ProcCorpus-60M reported in ZR-0 paper](https://arxiv.org/abs/2606.30552) contains about 60 million frames, about 1,000 hours, and more than 400,000 trajectories, with 96.8% of frames carrying dense ECoT annotations. Its value lies in providing semantic supervision such as scene, goal, and task decomposition for cross-robot learning.
 
-Data volume and downloadable range need to be checked separately; actual replication should also check annotation generation costs, error propagation, and whether there are task or scenario overlaps. For related models, see {% include content-link.html path='/VLA-Papers/' fragment='#5-29-zr-0' label='ZR-0' %}.
+Data volume and what is actually downloadable need to be checked separately; a real replication should also examine annotation generation cost, error propagation, and whether tasks or scenes overlap. For the related model, see {% include content-link.html path='/VLA-Papers/' fragment='#5-29-zr-0' label='ZR-0' %}.
 
-### RT-1 Dataset
+### RT-1 dataset
 {: id="rt-1-dataset"}
 
-[RT-1](https://arxiv.org/abs/2212.06817) uses about 130,000 real robot demonstrations, covering more than 700 tasks. It is suitable for explaining how multi-task data on the same robot supports a common policy, and also provides a data source for subsequent cross-robot training. When reading, the robot arm movement, gripper, chassis and control mode should be distinguished, and all trajectories cannot be uniformly regarded as seven-dimensional robot arm movements.
+[RT-1](https://arxiv.org/abs/2212.06817) uses about 130,000 real-robot demonstrations covering more than 700 tasks. It suits explaining how multi-task data on a single robot supports a shared policy, and it also provides a data source for later cross-robot training. When reading it, distinguish arm motion, gripper, base, and control mode; not all trajectories can be treated uniformly as seven-dimensional arm motion.
 
-## 3.2 Two-arm and dexterous operation data set
+## 3.2 Bimanual and dexterous manipulation datasets
 {: id="32-双臂与灵巧操作数据集"}
 
-### ALOHA / ACT Dataset
+### ALOHA / ACT dataset
 {: id="aloha--act-dataset"}
 
-[ALOHA and ACT](https://tonyzhaozh.github.io/aloha/) provide dual-arm teleoperation hardware and action chunking algorithms respectively. The data usually includes multi-camera images, proprioceptive state and arm movements; specific tasks, number of demonstrations and collection frequency should be recorded according to the corresponding data release. The data protocols of ALOHA, Mobile ALOHA and subsequent platforms also need to be distinguished.
+[ALOHA and ACT](https://tonyzhaozh.github.io/aloha/) provide, respectively, bimanual teleoperation hardware and an action chunking algorithm. The data usually includes multi-camera images, proprioceptive state, and arm actions; the specific tasks, number of demonstrations, and collection frequency should be taken from the corresponding data release. The data protocols of ALOHA, Mobile ALOHA, and later platforms must also be distinguished.
 
-This type of data is suitable for studying the coordination and fine operation of both arms. When using it, focus on checking the master-slave arm calibration, camera layout, gripper status and joint targets; the action chunk length needs to be explained together with the recording frequency. For details on the method, see {% include content-link.html path='/VLA-Papers/' fragment='#5-4-act-2023' label='ACT' %}.
+This type of data suits the study of two-arm coordination and fine manipulation. When using it, pay particular attention to leader-follower arm calibration, camera layout, gripper state, and joint targets; the action chunk length must be explained together with the recording frequency. For details on the method, see {% include content-link.html path='/VLA-Papers/' fragment='#5-4-act-2023' label='ACT' %}.
 
-### UMI (Universal Manipulation Interface) Dataset
+### UMI (Universal Manipulation Interface) dataset
 {: id="umi-universal-manipulation-interface-dataset"}
 
-[UMI](https://umi-gripper.github.io/) Use a handheld gripper to capture demonstrations and design strategic interfaces to migrate the demonstrations to the robot. The key is not only reducing acquisition equipment, but also including pose estimation, action representation and delay matching. The handheld trajectory still needs to meet the reachability and motion constraints of the execution robot, and cannot be sent directly without conversion.
+[UMI](https://umi-gripper.github.io/) uses a handheld gripper to capture demonstrations and a carefully designed policy interface to transfer them to the robot. The point is not only to reduce collection equipment but also to handle pose estimation, action representation, and latency matching. A handheld trajectory must still satisfy the reachability and motion constraints of the executing robot and cannot be sent to it without conversion.
 
-UMI is a collection and policy learning framework. Specific public data are organized by tasks. For details, see {% include content-link.html path='/VLA-Papers/' fragment='#5-6-umi-2024' label='UMI paper analysis ' %}.
+UMI is a collection and policy-learning framework; the public data are organized by task. For details, see {% include content-link.html path='/VLA-Papers/' fragment='#5-6-umi-2024' label='UMI paper reading ' %}.
 
-## 3.3 Simulator data set
+## 3.3 Simulation datasets
 {: id="33-模拟器数据集"}
 
 ### CALVIN (Composing Actions from Language and Vision)
 {: id="calvin-composing-actions-from-language-and-vision"}
 
-[CALVIN](https://github.com/mees/calvin) Evaluating long-term execution with a linguistically conditioned continuous manipulation task. Common results report the success rate of completing 1-5 consecutive subtasks, and the average number of consecutive tasks completed (up to 5).
+[CALVIN](https://github.com/mees/calvin) evaluates long-horizon execution with language-conditioned sequential manipulation tasks. Common results report the success rate of completing 1 to 5 consecutive subtasks and the average number of consecutively completed tasks (up to 5).
 
-The data division must be clear: **ABC→D** means that only A, B, and C environments are used for training, and the test is in D; **ABCD→D** includes D environment data in the training phase. The two cannot be used together to account for generalization to unseen environments. Completing multiple instructions in succession does not mean that the model autonomously generates task decomposition.
+The data split must be stated clearly: **ABC→D** means training uses only environments A, B, and C and testing is in D; **ABCD→D** includes environment D data in training. The two cannot be pooled when assessing generalization to unseen environments. Completing several instructions in succession does not mean the model generates the task decomposition on its own.
 
 ### LIBERO (Lifelong Benchmark for Robot Manipulation)
 {: id="libero-lifelong-benchmark-for-robot-manipulation"}
 
-[LIBERO code](https://github.com/Lifelong-Robot-Learning/LIBERO) and [Original paper](https://arxiv.org/abs/2306.03310) provide 130 tasks and human teleoperation demonstrations, with raw data of 50 items per task, about 6,500 items in total. The tasks are divided into Spatial, Object, Goal (10 each) and LIBERO-100; the latter is further divided into 90 pretraining tasks and 10 downstream tasks.
+[LIBERO code](https://github.com/Lifelong-Robot-Learning/LIBERO) and [Original paper](https://arxiv.org/abs/2306.03310) provide 130 tasks with human teleoperated demonstrations, 50 raw demonstrations per task and about 6,500 in total. The tasks are divided into Spatial, Object, and Goal (10 each) and LIBERO-100, the last of which is further split into 90 pretraining tasks and 10 downstream tasks.
 
-Subsequent VLA often reports four sets of results: Spatial, Object, Goal, and Long, where Long corresponds to the commonly used LIBERO-10 task set. When citing scores, it should be clear which combination of packages was used, as well as the data preprocessing and initialization protocols.
+Later VLA work often reports four sets of results: Spatial, Object, Goal, and Long, where Long corresponds to the commonly used LIBERO-10 task set. When citing scores, state which task suites were used, as well as the data preprocessing and initialization protocols.
 
-**Continuous learning indicator**: Forward transfer (FWT) examines the help of existing knowledge in subsequent new task learning; backward transfer (BWT) examines the change in old task performance after learning a new task, which may be positive or negative due to forgetting. The original paper actually reports FWT, negative backward transfer NBT and learning curve area AUC; the lower the NBT, the less forgetting. The average success rate of multi-task joint training is not a substitute for continual learning results.
+**Continual learning metrics**: forward transfer (FWT) measures how much existing knowledge helps in learning subsequent new tasks; backward transfer (BWT) measures the change in old-task performance after learning a new task, which can be positive or negative because of forgetting. The original paper actually reports FWT, negative backward transfer (NBT), and the area under the learning curve (AUC); the lower the NBT, the less forgetting. The average success rate of multi-task joint training is not a substitute for continual-learning results.
 
 ### RLBench / MetaWorld
 {: id="rlbench--metaworld"}
 
-[RLBench](https://sites.google.com/view/rlbench) provides simulated manipulation tasks and demonstration generation capabilities; [MetaWorld](https://meta-world.github.io/) organizes multi-task and meta-learning control problems. They are suitable for setting up controlled experiments, but not all configurations come with image, language and action interfaces consistent with VLA, and the conversion process needs to be explained when reusing.
+[RLBench](https://sites.google.com/view/rlbench) provides simulated manipulation tasks and demonstration generation; [MetaWorld](https://meta-world.github.io/) organizes multi-task and meta-learning control problems. Both suit controlled experiments, but not every configuration ships with image, language, and action interfaces consistent with VLA, and the conversion process needs to be explained when they are reused.
 
 ### MimicGen
 {: id="mimicgen"}
 
-[MimicGen](https://mimicgen.github.io/) Automatically synthesizes more operation trajectories from a small number of seed demonstrations, mainly through object-related trajectory transformation, sub-task organization and simulation execution to achieve amplification. The number of generations is not equal to the number of independent skills; the costs of scenario construction, subtask definition, failure screening, and manual preparation also need to be included.
+[MimicGen](https://mimicgen.github.io/) automatically synthesizes more manipulation trajectories from a small number of seed demonstrations, mainly through object-centric trajectory transformation, subtask organization, and execution in simulation. The number of generated trajectories is not the number of independent skills; the costs of scene construction, subtask definition, failure filtering, and manual preparation must also be counted.
 
-## 3.4 Real-world data sets
+## 3.4 Real-world datasets
 {: id="34-真实世界数据集"}
 
-### Bridge Dataset (BridgeData V2)
+### Bridge dataset (BridgeData V2)
 {: id="bridge-dataset-bridgedata-v2"}
 
-[BridgeData V2](https://rail-berkeley.github.io/bridgedata/) contains 60,096 trajectories, 24 environments, and 13 skill categories. Of these, 50,365 were from teleoperation and 9,731 were from scripted fetch-and-place policies. It provides language task annotation and incorporates object, camera pose, and workspace changes.
+[BridgeData V2](https://rail-berkeley.github.io/bridgedata/) contains 60,096 trajectories across 24 environments and 13 skills. Of these, 50,365 come from teleoperation and 9,731 from scripted pick-and-place policies. It provides language task annotations and varies objects, camera poses, and workspaces.
 
-This type of data is suitable for studying desktop operations and language condition transfer. Comparative experiments need to indicate the versions used, whether script trajectories are included, and whether training and test scenarios overlap.
+This type of data suits the study of tabletop manipulation and language-conditioned transfer. Comparative experiments should state the version used, whether scripted trajectories are included, and whether training and test scenes overlap.
 
-### RH20T Dataset
+### RH20T dataset
 {: id="rh20t-dataset"}
 
-[RH20T](https://rh20t.github.io/) is designed for multimodal robot skill learning, records visual, force sense, audio and motion information, and provides corresponding calibration data. It is suitable for studying contact states, multimodal fusion and demonstration transfer.
+[RH20T](https://rh20t.github.io/) is designed for multimodal robot skill learning; it records visual, force, audio, and motion information and provides the corresponding calibration data. It suits the study of contact states, multimodal fusion, and demonstration transfer.
 
-Force/torque measurements are a different modality than high-resolution fingertip tactile images; available sensors should be determined by actual data configuration and cannot be assumed to contain the same tactile or synchronization accuracy for all trajectories.
+Force/torque measurements are a different modality from high-resolution fingertip tactile images; the available sensors should be determined from the actual data configuration, and one cannot assume that all trajectories contain the same tactile signals or synchronization accuracy.
 
-### DROID Dataset
+### DROID dataset
 {: id="droid-dataset"}
 
-[DROID](https://droid-dataset.github.io/) contains approximately 76,000 demos, 350 hours of interaction, 564 scenarios and 86 types of tasks at launch, with participation from 50 collectors. Its unified platform features Franka Panda, two external binocular cameras and a wrist-mounted binocular camera.
+[DROID](https://droid-dataset.github.io/) contained approximately 76,000 demonstrations, 350 hours of interaction, 564 scenes, and 86 tasks at release, collected by 50 data collectors. Its unified platform consists of a Franka Panda arm, two external stereo cameras, and a wrist-mounted stereo camera.
 
-DROID emphasizes the diversity of scenarios under the same hardware and is suitable for studying cross-environment migration. The official has subsequently updated the language annotation and some camera calibrations, and the data version used should be recorded when reproducing.
+DROID emphasizes scene diversity under the same hardware and suits the study of cross-environment transfer. The authors have since updated the language annotations and some camera calibrations, so the data version used should be recorded when reproducing results.
 
-### LeRobot Dataset (HuggingFace)
+### LeRobot dataset (Hugging Face)
 {: id="lerobot-dataset-huggingface"}
 
-[LeRobot](https://github.com/huggingface/lerobot) provides robot data recording and training tools; LeRobotDataset is a data organization method, not a fixed-scale data set. Actual data quality, bot interfaces, authorization, and training-test divisions are determined by each data publisher.
+[LeRobot](https://github.com/huggingface/lerobot) provides tools for recording robot data and for training; LeRobotDataset is a way of organizing data, not a dataset of fixed size. Actual data quality, robot interfaces, licensing, and train-test splits are determined by each data publisher.
 
-## 3.5 Human-computer interaction data set
+## 3.5 Human interaction datasets
 {: id="35-人机交互数据集"}
 
 ### Ego4D
 {: id="ego4d"}
 
-[Ego4D](https://ego4d-data.org/) provides human first-person daily activity videos and multi-category task annotations. It can help learn object interaction and temporal representations, but human videos typically do not contain joint commands that can directly supervise robots. When used in VLA, additional action correspondence, latent action learning, or robot data alignment mechanisms are required.
+[Ego4D](https://ego4d-data.org/) provides first-person videos of human daily activities with multi-category task annotations. It can help learn object interaction and temporal representations, but human videos typically contain no joint commands that could directly supervise a robot. Using it in VLA requires an additional action-correspondence, latent-action-learning, or robot-data-alignment mechanism.
 
-## 3.6 Evaluation Benchmark
+## 3.6 Evaluation benchmarks
 {: id="36-评测基准"}
 
 ### SIMPLER / SimplerEnv
 {: id="simpler--simplerenv"}
 
-[SimplerEnv](https://simpler-env.github.io/) uses visual matching and environment change settings to approximate some real robot policy evaluation conditions in simulation. The research focus is on the consistency between simulation evaluation and real performance, rather than providing a uniform fixed total number of tasks for all robots.
+[SimplerEnv](https://simpler-env.github.io/) uses visual-matching and environment-variation settings to approximate some real-robot policy evaluation conditions in simulation. The research focus is the consistency between simulated evaluation and real performance, rather than providing a uniform, fixed set of tasks for all robots.
 
-Results should be reported with reference to the robot, task set, visual match, or variation settings. Extended versions of tasks and language protocols should be annotated separately, and their statistics should not be attributed to the original SimplerEnv.
+Results should be reported together with the robot, task set, and visual-matching or variation settings. Extended task versions and language protocols should be labeled separately, and their statistics should not be attributed to the original SimplerEnv.
 
 ### VLABench
 {: id="vlabench"}
 
-[VLABench](https://vlabench.github.io/) Robot operation oriented to language conditions, including a variety of tasks and scenarios, used to study language understanding, common sense and execution ability. The specific task division, indicators and generation configuration used must be stated with the paper or code version.
+[VLABench](https://vlabench.github.io/) targets language-conditioned robot manipulation, with a variety of tasks and scenes, to study language understanding, common sense, and execution ability. The specific task split, metrics, and generation configuration used must be stated along with the paper or code version.
 
 ### RoboDojo
 {: id="robodojo"}
 
-[RoboDojo](https://robodojo-benchmark.com/) simultaneously provides 42 simulation tasks and 18 real robot tasks, and compares different policies using a unified protocol in [Official Ranking](https://robodojo-benchmark.com/leaderboard). The simulation covers five types of abilities: generalization, memory, fine operation, long-horizon tasks and open instructions. When reading their rankings, you should distinguish between complete task success rate (SR) and Score that includes partial progress, as well as simulation and real robot rankings; they are not equivalent to scores on LIBERO or other benchmarks. For the specific protocol, see [original paper](https://arxiv.org/abs/2607.04434).
+[RoboDojo](https://robodojo-benchmark.com/) provides 42 simulated tasks and 18 real-robot tasks, and compares different policies under a unified protocol on its [official leaderboard](https://robodojo-benchmark.com/leaderboard). The simulation covers five kinds of abilities: generalization, memory, fine manipulation, long-horizon tasks, and open-ended instructions. When reading its rankings, distinguish the full-task success rate (SR) from the Score that includes partial progress, and the simulation ranking from the real-robot ranking; neither is equivalent to scores on LIBERO or other benchmarks. For the specific protocol, see [original paper](https://arxiv.org/abs/2607.04434).
 
 ### ManiSkill3 / RoboCasa
 {: id="maniskill3--robocasa"}
 
-[ManiSkill](https://maniskill.ai/) provides parallel simulation, data and task tools; [RoboCasa](https://robocasa.ai/) focuses on the kitchen operating environment. They can be used for both data generation and policy evaluation, but "how many environments are supported to be generated" and "how many tasks are actually evaluated" are different statistics.
+[ManiSkill](https://maniskill.ai/) provides parallel simulation, data, and task tools; [RoboCasa](https://robocasa.ai/) focuses on kitchen manipulation environments. Both can be used for data generation and for policy evaluation, but "how many environments can be generated" and "how many tasks are actually evaluated" are different statistics.
 
-The selection should be based on the research questions: verifying parallel training efficiency, cross-scenario changes, and long-horizon task operations require different configurations. Good performance in simulation is also verified by sensing, dynamics and execution latency of real systems.
+The choice should follow the research question: verifying parallel training efficiency, cross-scene variation, and long-horizon manipulation each require a different configuration. Good performance in simulation still has to be verified against the sensing, dynamics, and execution latency of the real system.
 
 ### Robustness diagnostic benchmarks
 {: id="鲁棒性诊断基准"}
@@ -638,7 +638,7 @@ Together these benchmarks show that a near-perfect score on the original LIBERO 
 ### From benchmark scores to real abilities
 {: id="从基准分数到真实能力"}
 
-Evaluation evidence has different coverage areas and is suitable for troubleshooting problems layer by layer. Offline action errors can check tags and action interfaces, but cannot prove the success of closed-loop; fixed simulation tasks facilitate repeated comparison, but may rely on scene shortcuts; perturbation tests test new objects, perspectives, and layouts; real robot experiments only introduce real contact, sensing noise, and system delays.
+Evaluation evidence covers different ground and suits layer-by-layer troubleshooting. Offline action error can check labels and action interfaces but cannot prove closed-loop success; fixed simulated tasks make repeated comparison easy but may rely on scene shortcuts; perturbation tests probe new objects, viewpoints, and layouts; and only real-robot experiments introduce real contact, sensing noise, and system latency.
 
 <figure class="vla-evidence-figure" aria-label="Four layers of evaluation evidence from offline indicators to real robot closed-loop">
   <ol class="vla-evidence-steps">
@@ -647,72 +647,72 @@ Evaluation evidence has different coverage areas and is suitable for troubleshoo
 <li><strong> Distribution changes </strong><span> New layout, new objects, visual and dynamic disturbances </span></li>
 <li><strong> real robot closed-loop </strong><span>Completion rate, time-consuming, recovery, manual intervention and safety constraints</span></li>
   </ol>
-<figcaption>The upper layer of evidence makes up for the risks that the lower layer cannot cover; the results of the previous layer cannot be directly deduced from the results of the next layer.</figcaption>
+<figcaption>Each higher layer of evidence covers risks the lower layers cannot; results at one layer cannot be inferred directly from results at another.</figcaption>
 </figure>
 
-For example, RoboDojo's **Score** can reflect the partial progress of the unfinished task, while **SR** requires the complete completion; the gap between the two can help discover the policy of "making the last step but failing". If the real robot only tries 10 times per task, the success or failure of one time will change by 10 percentage points. The results of each task, repeated rounds and failure fragments should be disclosed instead of just giving the overall average. [RoboDojo original paper](https://arxiv.org/abs/2607.04434) and [Official list](https://robodojo-benchmark.com/leaderboard) provide reading entrances split by ability dimensions.
+For example, RoboDojo's **Score** reflects partial progress on unfinished tasks, while **SR** requires full completion; the gap between the two can reveal policies that "get to the last step but fail". If a real robot tries each task only 10 times, a single success or failure shifts the result by 10 percentage points. Per-task results, repeated rounds, and failure segments should be disclosed rather than only an overall average. [RoboDojo original paper](https://arxiv.org/abs/2607.04434) and [Official list](https://robodojo-benchmark.com/leaderboard) provide entry points for reading the results broken down by ability dimension.
 
 # 4. Application scenarios of VLA
 {: id="4-vla的应用场景"}
 
-The application value of VLA depends on whether the adaptation benefits brought about by task changes can cover the costs of data collection, calculation and system integration. The task demonstration in the paper provides evidence of capabilities, and production deployment also requires a longer period of reliability evaluation.
+The application value of VLA depends on whether the adaptability it brings when tasks change can cover the costs of data collection, compute, and system integration. Task demonstrations in papers provide evidence of capability; production deployment additionally requires a longer period of reliability evaluation.
 
-|scene|Tasks worth studying|Potential value of VLA|Key deployment metrics|
+|Scenario|Tasks worth studying|Potential value of VLA|Key deployment metrics|
 |---|---|---|---|
-|Flexible manufacturing|Multi-variety sorting, pre-assembly positioning, material handling|Handle product changes through task conditions and small-scale adaptation|Contact accuracy, cycle time, failure cost and reset time|
-|Home & Services|Organizing, laundry handling, desk cleaning|Adapt to changes in objects, layouts, and instructions|Overall task completion rate, recovery rate, intervention and continuous running time|
-|Warehousing and Logistics|Picking, bagging and rearranging of changing items|Reduce specialized policy design for each item|throughput, damage rate, long-tail item performance|
-|mobile manipulation|Pick and place across regions and operate along the way|Combining language goals, navigation and local operations|Combined arrival and operation success rate, positioning error and mission time|
+|Flexible manufacturing|Multi-variety sorting, pre-assembly positioning, material handling|Handle product changes through task conditioning and small-scale adaptation|Contact accuracy, cycle time, failure cost, and reset time|
+|Home and service|Tidying, handling laundry, cleaning desks|Adapt to changes in objects, layouts, and instructions|Overall task completion rate, recovery rate, interventions, and continuous running time|
+|Warehousing and logistics|Picking, bagging, and rearranging changing items|Reduce item-specific policy design|Throughput, damage rate, long-tail item performance|
+|Mobile manipulation|Picking and placing across areas and operating along the way|Combine language goals, navigation, and local manipulation|Combined arrival-and-manipulation success rate, positioning error, and task time|
 
-Pure visual quality inspection is mainly a perception task; only when the system generates operating actions based on the inspection results, it enters the VLA scope discussed in this article. Open environments such as agriculture and construction can be used as extended research directions, and their maturity cannot be directly inferred from desktop experiments.
+Pure visual quality inspection is mainly a perception task; it falls within the VLA scope discussed here only when the system generates manipulation actions based on the inspection results. Open environments such as agriculture and construction are possible extended research directions, and their maturity cannot be inferred directly from tabletop experiments.
 
 ### From demo to usable: warehouse picking as an example
 {: id="从演示到可用以仓储拣选为例"}
 
-"Being able to put items into boxes" is not a clear enough deployment goal. In the research phase, you can first fix the robotic arm, camera and object collection to establish a reproducible grabbing and placing baseline; then introduce new packaging, occlusion, stacking and target box position changes to confirm whether the performance degradation comes from the perception, grabbing or action interface. After entering the site, it is also necessary to calculate the hourly **Effective number of picks** , counting identification, attempt, retry, reset, manual takeover and damage into the same task cycle.
+"Being able to put items into boxes" is not a clear enough deployment goal. In the research phase, first fix the arm, camera, and object set to establish a reproducible pick-and-place baseline; then introduce new packaging, occlusion, stacking, and changes in target-box position to determine whether the performance degradation comes from perception, grasping, or the action interface. Once on site, also compute the **effective picks per hour**, counting recognition, attempts, retries, resets, manual takeovers, and damage within the same task cycle.
 
-This also explains why a higher simulation success rate does not necessarily mean higher production line throughput. A policy that requires frequent retries or manual resets may perform well in a single trial, but may not run continuously. For home organization and mobile manipulation, task duration, object and scene changes, recovery policies, and labor costs should also be supplemented to determine whether general capabilities actually reduce specialized engineering efforts.
+This also explains why a higher simulated success rate does not necessarily mean higher production-line throughput. A policy that needs frequent retries or manual resets may do well in a single trial yet be unable to run continuously. For household tidying and mobile manipulation, task duration, object and scene variation, recovery policies, and labor cost should also be added to judge whether general capability actually reduces task-specific engineering.
 
 <span id="vla-papers" class="vla-anchor-alias" aria-hidden="true"></span>
 
 # 5. Paper readings
 {: id="5-论文精读"}
 
-The article-by-article methods, experiments, illustrations and limitations have been moved to {% include content-link.html path='/VLA-Papers/' fragment='' label='VLA Paper Readings ' %}; the page opens with a {% include content-link.html path='/VLA-Papers/' fragment='#vla-ranking-robodojo' label='snapshot of the official RoboDojo leaderboard' %}, and each paper's own matched-setting comparison table sits in the experiments part of its reading. The page keeps the original paper anchors, so links from anywhere in this survey still work. The reading path is still given here according to the research questions.
+The per-paper methods, experiments, figures, and limitations have moved to {% include content-link.html path='/VLA-Papers/' fragment='' label='VLA Paper Readings ' %}; that page opens with a {% include content-link.html path='/VLA-Papers/' fragment='#vla-ranking-robodojo' label='snapshot of the official RoboDojo leaderboard' %}, and each paper's own matched-setting comparison table sits in the experiments part of its reading. That page keeps the original paper anchors, so links from anywhere in this survey still work. A reading path organized by research question is still given here.
 
-|reading path|representative work|Questions worth asking|
+|Reading path|Representative work|Questions worth asking|
 |---|---|---|
-|Base model and cross-robot| {% include content-link.html path='/VLA-Papers/' fragment='#5-1-rt-1-2022' label='RT-1' %} → {% include content-link.html path='/VLA-Papers/' fragment='#5-2-rt-2-2023' label='RT-2' %} → {% include content-link.html path='/VLA-Papers/' fragment='#5-9-openvla-2024' label='OpenVLA' %} → {% include content-link.html path='/VLA-Papers/' fragment='#513-π7-a-steerable-generalist-robotic-foundation-model-2026' label='π₀.7' %} → {% include content-link.html path='/VLA-Papers/' fragment='#5-32-lingbot-vla-20-2026' label='LingBot-VLA 2.0' %} |How scale and heterogeneous data translate into tasks and embodied generalization|
+|Foundation models and cross-robot learning| {% include content-link.html path='/VLA-Papers/' fragment='#5-1-rt-1-2022' label='RT-1' %} → {% include content-link.html path='/VLA-Papers/' fragment='#5-2-rt-2-2023' label='RT-2' %} → {% include content-link.html path='/VLA-Papers/' fragment='#5-9-openvla-2024' label='OpenVLA' %} → {% include content-link.html path='/VLA-Papers/' fragment='#513-π7-a-steerable-generalist-robotic-foundation-model-2026' label='π₀.7' %} → {% include content-link.html path='/VLA-Papers/' fragment='#5-32-lingbot-vla-20-2026' label='LingBot-VLA 2.0' %} |How scale and heterogeneous data translate into tasks and embodied generalization|
 |Action generation and representation| {% include content-link.html path='/VLA-Papers/' fragment='#5-4-act-2023' label='ACT' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-10-pi0-2024' label='π₀' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-34-actionpiece-2026' label='ActionPiece' %} |What have changed in action chunk, generation method and discretization?|
-|long-horizon task reasoning| {% include content-link.html path='/VLA-Papers/' fragment='#5-11-pi05-2025' label='π₀.5' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-30-robottt' label='RoboTTT' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-33-tau0-vla-2026' label='τ₀-VLA' %} |Can memory, subtasks and world modelsearch improve closed-loop success rate?|
-|Online improvements and real-time execution| {% include content-link.html path='/VLA-Papers/' fragment='#5-12-pi06-2025' label='RECAP' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-35-real-time-expo-ft-2026' label='Real-Time EXPO-FT' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-36-bee-2026' label='Bee' %} |How to account for robot interaction, human correction, and delay costs|
+|Long-horizon task reasoning| {% include content-link.html path='/VLA-Papers/' fragment='#5-11-pi05-2025' label='π₀.5' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-30-robottt' label='RoboTTT' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-33-tau0-vla-2026' label='τ₀-VLA' %} |Can memory, subtasks and world modelsearch improve closed-loop success rate?|
+|Online improvement and real-time execution| {% include content-link.html path='/VLA-Papers/' fragment='#5-12-pi06-2025' label='RECAP' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-35-real-time-expo-ft-2026' label='Real-Time EXPO-FT' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-36-bee-2026' label='Bee' %} |How to account for robot interaction, human correction, and delay costs|
 |Unified frameworks and system orchestration| {% include content-link.html path='/VLA-Papers/' fragment='#525-qwen-vla-2026' label='Qwen-VLA' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-27-harness-vla' label='Harness VLA' %}, {% include content-link.html path='/VLA-Papers/' fragment='#5-37-ace-brain-05-2026' label='ACE-Brain-0.5' %} |Should capabilities live in one model or in external orchestration, and what does each cost?|
 
-The results of recent papers still need to be understood according to the evaluation protocol: LingBot-VLA 2.0's GM-100, ActionPiece's LIBERO, τ₀-VLA's long-task real robot experiment, and the task success rate of online reinforcement learning, which cannot be directly sorted. New October 2026 work not yet covered in the paper readings is summarized under [research directions in Section 1.6](#vla-recent-trends).
+The results of recent papers must still be interpreted according to their evaluation protocols: LingBot-VLA 2.0's GM-100, ActionPiece's LIBERO, τ₀-VLA's long-horizon real-robot experiments, and the task success rates of online reinforcement learning cannot be ranked against one another directly. New October 2026 work not yet covered in the paper readings is summarized under [research directions in Section 1.6](#vla-recent-trends).
 
 ---
 
 # 6. Summary and Outlook
 {: id="6-总结与展望"}
 
-VLA connects vision-language knowledge to action learning, but the general capability comes from the combination of data, representation, action generation and closed-loop execution. RT-2 and OpenVLA illustrate that pretraining semantics can help robot manipulations; ACT, Diffusion Policy, π₀, and ActionPiece indicate that action sequences and their representation are equally critical; τ₀-VLA, Real-Time EXPO-FT, and Bee respectively put calculations, fast feedback, and manual correction into different failure links. Work from the second half of 2026 shifts attention further to the system layer: Harness VLA and ACE-Brain-0.5 organize planning, execution and assessment, while runtime monitoring, test-time verification and robustness diagnostic benchmarks begin to measure when and why policies fail. For a complete analysis of related papers, see {% include content-link.html path='/VLA-Papers/' fragment='' label='VLA Paper Intensive Reading ' %}.
+VLA connects vision-language knowledge to action learning, but general capability comes from the combination of data, representation, action generation, and closed-loop execution. RT-2 and OpenVLA show that pretrained semantics can help robot manipulation; ACT, Diffusion Policy, π₀, and ActionPiece show that action sequences and their representation are equally critical; τ₀-VLA, Real-Time EXPO-FT, and Bee place computation, fast feedback, and manual correction at different failure points. Work from the second half of 2026 moves attention further to the system layer: Harness VLA and ACE-Brain-0.5 organize planning, execution, and assessment, while runtime monitoring, test-time verification, and robustness diagnostic benchmarks begin to measure when and why policies fail. For complete analyses of the related papers, see {% include content-link.html path='/VLA-Papers/' fragment='' label='VLA Paper Readings ' %}.
 
-From this review, three research judgments can be formed:
+This survey supports three research judgments:
 
-1. **structural design should correspond to measurable causes of failure.** Before adding reasoning, spatial representation or memory modules, you should first confirm whether the bottleneck comes from semantics, insufficient observation, action accuracy or execution delay, and then use ablation to verify.
-2. **generalization ability needs to be reported separately.** New scenarios, new tasks and new robots are different problems; the benefits of cross-robot pretraining do not mean that no interface adaptation is required.
-3. **deployment benefits should be calculated based on complete tasks.** Higher benchmark scores, or action throughput, only translate into real value if retries, resets, human intervention, and computational costs are acceptable.
+1. **Architectural design should correspond to measurable causes of failure.** Before adding reasoning, spatial representation, or memory modules, first confirm whether the bottleneck comes from semantics, insufficient observation, action accuracy, or execution latency, and then verify it with ablations.
+2. **Generalization should be reported separately.** New scenes, new tasks, and new robots are different problems; the benefits of cross-robot pretraining do not mean that no interface adaptation is needed.
+3. **Deployment benefits should be computed on complete tasks.** Higher benchmark scores or action throughput translate into real value only if retries, resets, human intervention, and compute costs are acceptable.
 
-|research questions|A direction worthy of advancement|evidence to support the conclusion|
+|Research question|A direction worth pursuing|Evidence needed to support a conclusion|
 |---|---|---|
-|How to deal with spatial and contact uncertainty|Multi-perspective, spatial representation and force-haptic integration|Perturbation and contact experiments under fixed data budget|
-|How to complete longer tasks|Hierarchical decision-making, historical memory and failure recovery|The success rate, recovery rate and additional delay of the entire long-horizon task|
-|How to effectively leverage deployment experience|Correct data, reward learning and continuous adaptation|Interaction cost curve, performance changes of old and new tasks|
-|How to reduce data costs|cross-robot shares, demonstrates amplification and synthesis of data|Budget comparison and real system migration effects|
-|How to create trustworthy reviews|Fixed version, independent division, multiple tests|Reproducible configurations, confidence intervals and failure cases|
-|How to cut losses in time during deployment|Runtime monitoring, failure attribution and test-time verification|Alarm timing, false-alarm cost and completion cost after intervention|
+|How to deal with spatial and contact uncertainty|Multiple views, spatial representations, and force-tactile integration|Perturbation and contact experiments under a fixed data budget|
+|How to complete longer tasks|Hierarchical decision making, memory of history, and failure recovery|Whole-task success rate, recovery rate, and added latency on long-horizon tasks|
+|How to make effective use of deployment experience|Correction data, reward learning, and continual adaptation|Interaction-cost curves and performance changes on old and new tasks|
+|How to reduce data costs|Cross-robot sharing, demonstration amplification, and synthetic data|Comparisons under equal budgets and transfer results on real systems|
+|How to build trustworthy evaluations|Fixed versions, independent splits, repeated tests|Reproducible configurations, confidence intervals, and failure cases|
+|How to cut losses in time during deployment|Runtime monitoring, failure attribution, and test-time verification|Alarm timing, the cost of false alarms, and the completion cost after intervention|
 
-For practical research, a clear explanation of "which type of failure was solved under which conditions" is more valuable than unqualified claims of universality, real-time, or optimality. This is also a question that needs to be answered continuously as you move from a single demonstration to a stable robotic system.
+For practical research, a clear account of "which type of failure was solved under which conditions" is more valuable than unqualified claims of generality, real-time performance, or optimality. This is also a question that must be answered continuously on the way from a single demonstration to a stable robotic system.
 
 ---
 
@@ -721,7 +721,7 @@ For practical research, a clear explanation of "which type of failure was solved
 
 **Added in October 2026**
 
-- [Towards Agentic Robots: Model, Data, Environment, and Harness](https://arxiv.org/abs/2610.20442) - Survey of agentic robots in 17 categories across model, data, environment and harness
+- [Towards Agentic Robots: Model, Data, Environment, and Harness](https://arxiv.org/abs/2610.20442) - Survey of agentic robots, organized into 17 categories across model, data, environment, and harness
 - [Progress Probes P²](https://arxiv.org/abs/2610.31613) - Lightweight runtime monitoring from the policy's internal activations
 - [RESCUE](https://arxiv.org/abs/2610.13516) - Counterfactual evaluation of interventions triggered by runtime monitors
 - [Failure Attribution for VLA Models](https://arxiv.org/abs/2610.27277) - Estimating what removing a visual corruption would change in the current episode
@@ -746,30 +746,30 @@ For practical research, a clear explanation of "which type of failure was solved
 
 **Earlier entries**
 
-- [LingBot-VLA 2.0: From Foundation to Application](https://arxiv.org/abs/2607.06403) - Multi-embodiment data, whole body motion interface and future prediction
-- [τ₀-VLA](https://arxiv.org/abs/2608.16885) - world model guided high-level subtask search
+- [LingBot-VLA 2.0: From Foundation to Application](https://arxiv.org/abs/2607.06403) - Multi-embodiment data, whole-body motion interface, and future prediction
+- [τ₀-VLA](https://arxiv.org/abs/2608.16885) - World-model-guided high-level subtask search
 - [ActionPiece](https://arxiv.org/abs/2609.18487) - Action tokenization with physical relationship fidelity
 - [Real-Time EXPO-FT](https://arxiv.org/abs/2609.18207) - Real-time editing policy and online reinforcement learning
-- [Bee](https://arxiv.org/abs/2609.27450) - Online Reinforcement Learning under Manual Correction Constraints
-- [An Anatomy of Vision-Language-Action Models](https://arxiv.org/abs/2512.11362) - Summary of modules, development context and challenge classification
-- [VLA-Survey-Anatomy GitHub](https://github.com/SuyuZ1/VLA-Survey-Anatomy) - Supporting project page for the above review
+- [Bee](https://arxiv.org/abs/2609.27450) - Online reinforcement learning under manual-correction constraints
+- [An Anatomy of Vision-Language-Action Models](https://arxiv.org/abs/2512.11362) - A summary of modules, development lineage, and a taxonomy of challenges
+- [VLA-Survey-Anatomy GitHub](https://github.com/SuyuZ1/VLA-Survey-Anatomy) - Companion project page for the review above
 - [ZR-0: Training Vision-Language-Action Models with Dense Embodied Chain-of-Thought Supervision](https://arxiv.org/abs/2606.30552) - Zhipu AI & China Renmin University, ProcCorpus-60M
 - [RoboTTT: Context Scaling for Robot Policies](https://arxiv.org/abs/2607.15275) - NVIDIA GEAR Lab & Stanford
 - [S²-VLA: State-Space Guided Vision-Language-Action Models for Long-Horizon Manipulation](https://arxiv.org/abs/2606.27872) - East China Normal University & SJTU (IJCAI 2026)
-- [TurboVLA: Real-Time Vision-Language-Action Model at 32 Hz on an RTX 4090](https://arxiv.org/abs/2607.27205) - Direct Connect $V+L \to A$ High Frequency Lightweight VLA
+- [TurboVLA: Real-Time Vision-Language-Action Model at 32 Hz on an RTX 4090](https://arxiv.org/abs/2607.27205) - Lightweight, high-frequency VLA with a direct $V+L \to A$ connection
 - [Vision-Language-Action Models for Robotics: A Review Towards Real-World Applications](https://vla-survey.github.io/)
 - [10 Open Challenges Steering the Future of Vision-Language-Action Models](https://arxiv.org/abs/2511.05936)
-- [State of VLA Research at ICLR 2026](https://mbreuss.github.io/blog_post_iclr_26_vla.html) - Research dynamic index, technical conclusions are subject to the original paper
-- [Muhayyuddin's VLA Repository](https://muhayyuddin.github.io/VLAs/) - Model, data and simulation resource index
-- [OpenVLA](https://github.com/openvla/openvla) - 7B parameter open source VLA model
-- [π₀ (openpi)](https://github.com/Physical-Intelligence/openpi) - Physical Intelligence Flow Matching VLA
-- [Octo](https://octo-models.github.io/) - Universal Robot Policy
-- [LeRobot](https://github.com/huggingface/lerobot) - Hugging Face Robot Learning Library
+- [State of VLA Research at ICLR 2026](https://mbreuss.github.io/blog_post_iclr_26_vla.html) - An index of research developments; technical conclusions should be checked against the original papers
+- [Muhayyuddin's VLA Repository](https://muhayyuddin.github.io/VLAs/) - Index of models, data, and simulation resources
+- [OpenVLA](https://github.com/openvla/openvla) - Open-source 7B-parameter VLA model
+- [π₀ (openpi)](https://github.com/Physical-Intelligence/openpi) - Physical Intelligence's flow-matching VLA
+- [Octo](https://octo-models.github.io/) - Generalist robot policy
+- [LeRobot](https://github.com/huggingface/lerobot) - Hugging Face robot learning library
 - [RT-2 Blog](https://deepmind.google/blog/rt-2-new-model-translates-vision-and-language-into-action/) - Google DeepMind
-- [Open X-Embodiment](https://robotics-transformer-x.github.io/) - cross-robot data collection and RT-X research
+- [Open X-Embodiment](https://robotics-transformer-x.github.io/) - Cross-robot data collection and the RT-X study
 - [Bridge Dataset](https://rail-berkeley.github.io/bridgedata/) - 60k tabletop manipulation trajectories
 - [LIBERO](https://libero-project.github.io/) - Lifelong Robot Learning Benchmark
-- [CALVIN](http://calvin.cs.uni-freiburg.de/) - Long-sequence combinatorial task benchmark
+- [CALVIN](http://calvin.cs.uni-freiburg.de/) - Benchmark for long-horizon compositional tasks
 - [RLBench](https://sites.google.com/view/rlbench) - 100+ simulated manipulation tasks
 - [SIMPLER](https://simpler-env.github.io/) - Standardized VLA evaluation platform
 

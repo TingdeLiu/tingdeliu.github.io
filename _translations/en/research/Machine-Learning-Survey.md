@@ -6,7 +6,7 @@ permalink: /en/Machine-Learning-Survey/
 source_path: _posts/research/2026-04-03-Machine-Learning-Survey.md
 source_url: /Machine-Learning-Survey/
 source_revision_date: 2026-10-26
-translation_updated: 2026-10-26
+translation_updated: 2026-11-19
 title: "Machine Learning: A Survey"
 date: 2026-10-26
 tags: [Machine Learning, Deep Learning, Algorithm, Foundation Models]
@@ -23,62 +23,62 @@ excerpt: "Learning paradigms, data splits and evaluation, classical algorithms, 
 
 Machine learning (ML) studies how to learn patterns from data and apply them to unseen samples. Understanding it requires more than remembering model names: **What signals does a model learn from, what assumptions guide its predictions, and how can we establish that it generalizes to real-world settings?**
 
-This article starts from the learning paradigm and modeling process, and introduces traditional machine learning, deep neural networks, pretrained models and generative models in sequence. Various methods are not simple substitution relationships: linear models are easy to explain and diagnose, tree models are suitable for many tabular tasks, and deep networks are good at learning complex representations; which one to choose requires a combination of data, evaluation indicators, and deployment costs.
+This survey starts from learning paradigms and the modeling workflow, and then covers traditional machine learning, deep neural networks, pretrained models, and generative models in turn. The methods are not simple substitutes for one another: linear models are easy to explain and diagnose, tree models suit many tabular tasks, and deep networks are good at learning complex representations; which to choose depends on the data, the evaluation metrics, and the deployment cost.
 
 <figure class="survey-intro-figure">
-  <img src="/images/ML/machine-learning-survey-intro-en.svg" width="1200" height="540" alt="Four common learning signals for machine learning: supervised labels, unsupervised structures, self-supervised goals, and interactive rewards for reinforcement learning." loading="lazy" decoding="async" />
-<figcaption>Figure: Understanding supervision, unsupervised, self-supervised and reinforcement learning according to learning signals. They are not completely mutually exclusive; deep learning and foundation models belong to another division dimension and can be combined with different training paradigms.</figcaption>
+  <img src="/images/ML/machine-learning-survey-intro-en.svg" width="1200" height="540" alt="Figure: Supervised, unsupervised, self-supervised, and reinforcement learning, organized by learning signal. They are not strictly mutually exclusive; deep learning and foundation models belong to a different dimension of classification and can be combined with different training paradigms." loading="lazy" decoding="async" />
+<figcaption>Figure: Supervised, unsupervised, self-supervised, and reinforcement learning, organized by learning signal. They are not strictly mutually exclusive; deep learning and foundation models belong to a different dimension of classification and can be combined with different training paradigms.</figcaption>
 </figure>
 
 <!-- more -->
 
-## Reading Guide
+## Reading guide
 {: id="阅读指南"}
 
-**Intended readers**: students, engineers and researchers who have basic programming, linear algebra and probability theory knowledge and want to establish a machine learning knowledge framework. This article focuses on the connection between classic principles and methods and does not serve as a ranking of the latest models.
+**Intended readers**: students, engineers, and researchers with basic knowledge of programming, linear algebra, and probability who want to build a framework of machine learning knowledge. This survey focuses on the connections between classic principles and methods and is not a ranking of the latest models.
 
-|reading objectives|Suggested Chapters|Questions to take away|
+|Reading goal|Suggested sections|Questions to take away|
 |:---|:---|:---|
-|Establish an overall understanding|[§2 Basic Overview](#ml-basics)|What is the difference between learning signals, model assumptions, optimization and generalization?|
-|Start a modeling project|[§2.9 Experimental process ](#ml-workflow)|How to segment data, avoid leaks, and choose metrics?|
-|Handle tabular and small-sample data|[§3.2–§3.11 Traditional method ](#ml-classical)|What are the prerequisites for linear models, tree models, and distance methods?|
-|Understand deep learning|[§3.12–§3.15 Deep Network ](#ml-deep)|What are the differences in the structural preferences of MLP, CNN, RNN, and Transformer?|
-|Understanding language models|[§3.16 Pre-training and alignment](#ml-pretraining)|What problems do BERT, GPT, RLHF, and DPO solve respectively?|
-|Understand generative and robot policies|[§3.17–§3.20 generative models ](#ml-generation)|How do GAN, VAE, diffusion and autoregression model distribution?|
-|Choose a starting plan|[§4 Selection and summary](#ml-selection)|How to establish a baseline and then determine whether a complex model is needed?|
+|Build an overall understanding|[§2 Fundamentals](#ml-basics)|How do learning signals, model assumptions, optimization, and generalization differ?|
+|Start a modeling project|[§2.9 Experimental workflow](#ml-workflow)|How do I split the data, avoid leakage, and choose metrics?|
+|Handle tabular and small-sample data|[§3.2–§3.11 Traditional methods](#ml-classical)|What assumptions do linear models, tree models, and distance-based methods rely on?|
+|Understand deep learning|[§3.12–§3.15 Deep networks](#ml-deep)|How do the structural inductive biases of MLPs, CNNs, RNNs, and Transformers differ?|
+|Understand language models|[§3.16 Pretraining and alignment](#ml-pretraining)|What problems do BERT, GPT, RLHF, and DPO each solve?|
+|Understand generative models and robot policies|[§3.17–§3.20 Generative models](#ml-generation)|How do GANs, VAEs, diffusion, and autoregressive models model a distribution?|
+|Choose a starting approach|[§4 Model selection and summary](#ml-selection)|How do I establish a baseline and then decide whether a complex model is needed?|
 
-**How to read this survey**: Each section first gives the core points and intuition, and then introduces the mechanism, formulas and applicable boundaries. The suggestions in the table are experimental starting points and are not guarantees of algorithm performance. The robot direction can be combined with [§2.2.3 reinforcement learning ](#ml-rl) and [§3.20.2 Diffusion Policy](#ml-policy) reading.
+**How to read this survey**: each section first gives the key points and intuition, and then introduces the mechanism, formulas, and limits of applicability. The suggestions in the tables are starting points for experiments, not guarantees of algorithm performance. For robotics, read it together with [§2.2.3 Reinforcement learning](#ml-rl) and [§3.20.2 Diffusion Policy](#ml-policy).
 
 <a id="ml-basics"></a>
 
-# 2. Basic overview of machine learning
+# 2. Fundamentals of machine learning
 {: id="2-机器学习基本概述"}
 
 ## 2.1 What is machine learning?
 {: id="21-什么是机器学习"}
 
-Machine learning is a multi-field interdisciplinary subject involving probability theory, statistics, approximation theory, convex analysis, algorithm complexity theory, etc. Its core idea is: **Let computers analyze data through algorithms, learn patterns from them, and use these patterns to make predictions and decisions about unknown events in the real world.** . The model adjusts parameters through training; new data may only improve performance if the quality, coverage, and training methods are appropriate. The model will not automatically become better simply because more data is added.
+Machine learning is an interdisciplinary field drawing on probability theory, statistics, approximation theory, convex analysis, computational complexity, and more. Its core idea is: **to have computers analyze data with algorithms, learn patterns from it, and use those patterns to make predictions and decisions about unknown events in the real world.** A model adjusts its parameters through training; new data improves performance only if its quality, coverage, and the training method are appropriate. The model will not automatically become better simply because more data is added.
 
 ## 2.2 Learning paradigms
 {: id="22-学习范式与分类体系"}
 
-The following types of learning methods can be understood from the source of supervision signals. They are not completely mutually exclusive: the same system can do self-supervised pre-training, then supervised fine-tuning, and finally optimize decisions through reinforcement learning. Deep learning describes the model and representation learning methods, and is not in the same classification dimension as supervised learning and reinforcement learning.
+The following kinds of learning methods can be understood in terms of where the supervision signal comes from. They are not strictly mutually exclusive: the same system can be pretrained with self-supervision, then fine-tuned with supervision, and finally optimized for decision making with reinforcement learning. Deep learning describes the model and the representation-learning approach, and is not on the same classification axis as supervised or reinforcement learning.
 
 ### 2.2.1 Supervised learning
 {: id="221-监督学习"}
 
-Supervised learning is the most mature and widely used paradigm. Its training data consists of the input feature $\mathbf{x}$ and the corresponding label (Ground Truth) $y$. The goal of the model is to learn a mapping function $f: \mathbf{x} \rightarrow y$.
+Supervised learning is the most mature and widely used paradigm. Its training data consists of input features $\mathbf{x}$ and the corresponding labels (ground truth) $y$, and the goal is to learn a mapping function $f: \mathbf{x} \rightarrow y$.
 
-- **core tasks**: Classification (labels are discrete categories) and regression (Regression, labels are continuous values).
+- **Core tasks**: classification (labels are discrete categories) and regression (labels are continuous values).
 
-- **Representative algorithms**: linear regression, logistic regression, SVM, decision tree, and most deep neural networks.
+- **Representative algorithms**: linear regression, logistic regression, SVMs, decision trees, and most deep neural networks.
 
 ### 2.2.2 Unsupervised learning
 {: id="222-无监督学习"}
 
-The unsupervised learning data **does not have the label**, and the model needs to independently explore the potential structure, pattern or distribution within the data.
+Unsupervised learning uses data **without labels**, and the model must discover the latent structure, patterns, or distribution in the data on its own.
 
-- **Core tasks**: Clustering, Dimensionality Reduction, Anomaly Detection.
+- **Core tasks**: clustering, dimensionality reduction, and anomaly detection.
 
 - **Representative algorithms**: K-Means, PCA, Autoencoder, Gaussian Mixture Model (GMM).
 
@@ -87,246 +87,246 @@ The unsupervised learning data **does not have the label**, and the model needs 
 ### 2.2.3 Reinforcement learning
 {: id="223-强化学习"}
 
-Reinforcement learning focuses on how the agent takes actions in the environment to maximize the cumulative reward. It uses rewards as feedback, which can be given immediately or delayed; training can come from online interactions or use existing interaction data for offline learning.
+Reinforcement learning studies how an agent should act in an environment to maximize cumulative reward. It uses reward as feedback, which can be immediate or delayed; training can come from online interaction or, in offline learning, from existing interaction data.
 
-- **Core concepts**: State, Action, Reward, Policy, Value Function.
+- **Core concepts**: state, action, reward, policy, and value function.
 
 - **Representative algorithms**: Q-Learning, DQN, PPO, SAC.
 
 <div align="center">
-  <img src="/images/ML/RL.webp" width="60%" alt="Schematic diagram of reinforcement learning algorithm" />
-<figcaption>Figure: Schematic diagram of reinforcement learning algorithm</figcaption>
+  <img src="/images/ML/RL.webp" width="60%" alt="Figure: Schematic of a reinforcement learning algorithm" />
+<figcaption>Figure: Schematic of a reinforcement learning algorithm</figcaption>
 </div>
 
-### 2.2.4 Semi- and self-supervised learning
+### 2.2.4 Semi-supervised and self-supervised learning
 {: id="224-半监督与自监督学习"}
 
-- **Semi-supervised learning**: Use a small amount of labeled data and a large amount of unlabeled data for training to reduce labeling costs.
+- **Semi-supervised learning**: trains on a small amount of labeled data together with a large amount of unlabeled data to reduce labeling cost.
 
-- **self-supervised learning**: Constructing supervised signals from the data itself (such as predicting the next word or recovering occluded image areas) is an important training method for modern language models and many visual pretrained models.
+- **Self-supervised learning**: constructs supervision signals from the data itself (such as predicting the next word or recovering masked image regions); it is an important training method for modern language models and many pretrained vision models.
 
-## 2.3 Core elements
+## 2.3 Core components
 {: id="23-核心要素与系统架构"}
 
-A typical machine learning process usually includes the following five core elements:
+A typical machine learning pipeline includes the following five core components:
 
-1. **Data (Data)**: The basic resource for model learning. Quality, coverage and annotation reliability directly affect the upper limit; it usually also includes data cleaning and preprocessing.
+1. **Data**: the basic resource a model learns from. Its quality, coverage, and annotation reliability directly set the performance ceiling; it usually also involves data cleaning and preprocessing.
 
-2. **Feature Engineering (Feature Engineering)**: Convert raw data into feature vectors understandable by the model. Traditional ML strongly relies on this.
+2. **Feature engineering**: converting raw data into feature vectors the model can work with. Traditional ML relies heavily on it.
 
-3. **Model Hypothesis Space**: Specifies the set of functions that the model can express, such as linear combination, tree model partitioning or neural network representation.
+3. **Hypothesis space**: the set of functions the model can express, such as linear combinations, tree-based partitions, or neural network representations.
 
-4. **Objective Function**: Defines the metric of "good" and "bad", usually consisting of loss function (Loss Function) and regularization item (Regularization).
+4. **Objective function**: defines what counts as "good" or "bad", and usually consists of a loss function and a regularization term.
 
-5. **Optimization Algorithm**: A strategy for solving the objective function to minimize (or maximize) parameters, such as Gradient Descent, Adam, etc.
+5. **Optimization algorithm**: the procedure for finding the parameters that minimize (or maximize) the objective function, such as gradient descent or Adam.
 
 ## 2.4 Development history
 {: id="24-发展历程"}
 
-Several representative nodes are listed below. Symbolic reasoning and machine learning have developed in parallel for a long time, and traditional methods have not lost their value due to the rise of deep learning.
+Several representative milestones are listed below. Symbolic reasoning and machine learning developed in parallel for a long time, and traditional methods have not lost their value with the rise of deep learning.
 
-|period|representative node|changes in approach|
+|Period|Representative milestones|Change in approach|
 |:---|:---|:---|
-|1950–1980|Perceptron, expert system, and backpropagation research|From artificial rules to trainable parametric models, explore multiple routes in parallel|
-|1990–2000|SVM, random forest, gradient boosting|Emphasis on statistical generalization, kernel methods and ensemble learning|
-|2010–2016 years| AlexNet, ResNet, DQN, AlphaGo |Multi-layer representation learning combines large-scale data and computing resources|
-|2017–2020 years| Transformer, BERT, GPT-3, DDPM |Self-attention, pre-training transfer and denoising generation development|
-|2020 era|Multimodal foundation model, generative strategy, preference optimization|Study cross-task migration, generation capabilities, alignment and deployment efficiency|
+|1950–1980|Perceptron, expert systems, and research on backpropagation|From hand-written rules to trainable parametric models, with several routes explored in parallel|
+|1990–2000|SVMs, random forests, gradient boosting|Emphasis on statistical generalization, kernel methods, and ensemble learning|
+|2010–2016| AlexNet, ResNet, DQN, AlphaGo |Multi-layer representation learning combined with large-scale data and compute|
+|2017–2020| Transformer, BERT, GPT-3, DDPM |Self-attention, pretraining and transfer, and the development of denoising-based generation|
+|2020s|Multimodal foundation models, generative policies, preference optimization|Research on cross-task transfer, generation capability, alignment, and deployment efficiency|
 
-The main line of development is **Coordinated changes in representation, objective function, data, and computing resources** , not all tasks should be switched to the latest architecture.
+The main thread of development is the **coordinated change of representation, objective function, data, and compute**; this does not mean every task should switch to the latest architecture.
 
 ## 2.5 Main challenges
 {: id="25-主要挑战"}
 
-Despite the fruitful results, machine learning still faces many challenges in practical implementation:
+Despite its achievements, machine learning still faces many challenges in practice:
 
-- **overfitting and out-of-distribution generalization**: The model performs well on the training set, but may fail after unseen data or distribution changes.
+- **Overfitting and out-of-distribution generalization**: a model may perform well on the training set but fail on unseen data or after the distribution shifts.
 
-- **Data quality and data leakage**: Noise, bias, repeated samples, and information leakage between the training set and the test set will lead to distortion of the evaluation results.
+- **Data quality and data leakage**: noise, bias, duplicate samples, and information leaking between the training and test sets distort the evaluation results.
 
-- **High dimensionality and computational cost**: High-dimensional features will bring sample sparseness and computational overhead; large model training and inference also require a large amount of GPU/TPU resources.
+- **High dimensionality and computational cost**: high-dimensional features bring sample sparsity and computational overhead; training and running large models also takes a large amount of GPU/TPU resources.
 
-- **Interpretability and fairness**: The decision-making basis of complex models is difficult to trace, and data bias may amplify unfairness between different groups.
+- **Interpretability and fairness**: the basis for a complex model's decisions is hard to trace, and bias in the data may amplify unfairness between groups.
 
-- **Evaluation and Security**: Offline indicators may not represent real usage effects, and reliability, privacy, robustness and alignment still need to be continuously verified.
+- **Evaluation and safety**: offline metrics may not reflect real-world performance, and reliability, privacy, robustness, and alignment all require continued verification.
 
 ## 2.6 Directions and outlook
 {: id="26-关键技术方向与未来展望"}
 
-Machine learning continues to evolve on the frontiers of methodology and application. The following directions focus on representation, migration, adaptation, and reliability respectively, and cannot be regarded as solved problems:
+Machine learning continues to evolve at the frontiers of both methods and applications. The following directions center on representation, transfer, adaptation, and reliability, respectively, and none of them should be regarded as a solved problem:
 
-- **Representation Learning (Representation Learning)**: Automatically learn effective feature representation of data, reducing manual feature design, but still requires appropriate data processing, input representation and task design.
+- **Representation learning**: automatically learning effective feature representations from data, which reduces manual feature design but still requires appropriate data processing, input representations, and task design.
 
-- **Transfer Learning (Transfer Learning)**: Transfer the knowledge learned in one field/task to another related field/task, which greatly alleviates the problem of data scarcity.
+- **Transfer learning**: transferring knowledge learned in one domain or task to another related one, which greatly alleviates data scarcity.
 
-- **Meta-Learning**: Also known as "learning to learn", it aims to give the model the ability to quickly adapt to new tasks (such as Few-shot Learning).
+- **Meta-learning**: also known as "learning to learn", it aims to give a model the ability to adapt quickly to new tasks (as in few-shot learning).
 
-- **Cross-task generalization**: Research whether the model can be transferred to new tasks, new environments and new distributions. Artificial General Intelligence (AGI) is a longer-term research goal whose achievement cannot be inferred from a single benchmark score.
+- **Cross-task generalization**: studying whether a model can transfer to new tasks, new environments, and new distributions. Artificial general intelligence (AGI) is a longer-term research goal, and progress toward it cannot be inferred from a single benchmark score.
 
-- **Trustworthy & Aligned AI (Trustworthy & Aligned AI)**: Ensure that the goals of the AI system are consistent with human values and have security, fairness and transparency.
+- **Trustworthy and aligned AI**: ensuring that an AI system's goals are consistent with human values and that it is safe, fair, and transparent.
 
-- **AI for Science**: Use machine learning to solve complex computing problems in basic science fields such as physics, chemistry, biology (such as AlphaFold).
+- **AI for science**: using machine learning to solve complex computational problems in fundamental sciences such as physics, chemistry, and biology (for example, AlphaFold).
 
 ## 2.7 Mainstream application scenarios
 {: id="27-主流应用场景"}
 
-Machine learning has now deeply penetrated into all aspects of the digital and physical worlds:
+Machine learning has now permeated nearly every aspect of the digital and physical worlds:
 
 ### 2.7.1 Computer Vision (CV)
 {: id="271-计算机视觉-cv"}
 
-- **Core tasks**: image classification, target detection (such as YOLO series), semantic segmentation, and image generation.
+- **Core tasks**: image classification, object detection (such as the YOLO series), semantic segmentation, and image generation.
 
-- **Application**: face recognition, medical image analysis, industrial defect detection.
+- **Applications**: face recognition, medical image analysis, and industrial defect detection.
 
 ### 2.7.2 Natural Language Processing (NLP)
 {: id="272-自然语言处理-nlp"}
 
-- **Core tasks**: machine translation, text summarization, sentiment analysis, dialogue system.
+- **Core tasks**: machine translation, text summarization, sentiment analysis, and dialogue systems.
 
-- **Application**: ChatGPT and other intelligent assistants, intelligent customer service, and automatic document review.
+- **Applications**: intelligent assistants such as ChatGPT, automated customer service, and automatic document review.
 
-### 2.7.3 Recommendation and ads
+### 2.7.3 Recommendation and advertising
 {: id="273-推荐系统与计算广告"}
 
-- The monetization core of Internet giants. Through technologies such as collaborative filtering and deep cross network, the matching probability between users' historical behaviors and items is mined to achieve accurate push.
+- The monetization core of major internet companies. Techniques such as collaborative filtering and deep cross networks mine the probability that a user's past behavior matches an item, enabling accurate targeting.
 
 ### 2.7.4 Robotics and embodied AI
 {: id="274-机器人与具身智能"}
 
-- Combining reinforcement learning, vision and large language models allows robots to realize perception, planning, navigation and dexterous operation in complex physical environments. Such tasks also take into account observation noise, action delays, physical constraints, and distribution changes in closed-loop execution.
+- Combining reinforcement learning, vision, and large language models lets robots perceive, plan, navigate, and manipulate dexterously in complex physical environments. Such tasks must also contend with observation noise, action latency, physical constraints, and distribution shift during closed-loop execution.
 
 ## 2.8 Datasets, benchmarks and frameworks
 {: id="28-数据集基准与框架"}
 
-### 2.8.1 Classic data set and benchmark
+### 2.8.1 Classic datasets and benchmarks
 {: id="281-经典数据集与基准"}
 
-|Dataset|field|Characteristics and historical significance|
+|Dataset|Domain|Characteristics and historical significance|
 |:---|:---|:---|
-| **ImageNet** |CV (category)|The complete data set needs to be distinguished from the ILSVRC subset; the common ImageNet-1K refers to approximately 1.28 million training images and 1,000 classes.|
-| **COCO** |CV (detection segmentation)|Released by Microsoft, it features rich multi-objective, multi-context annotation of complex scenes.|
-| **MNIST** |CV (entry)|The handwritten digit recognition set is known as the "Hello World" in the field of machine learning.|
-| **GLUE** | NLP |A comprehensive benchmark for evaluating natural language understanding models, driving the BERT era.|
+| **ImageNet** |CV (classification)|The full dataset should be distinguished from the ILSVRC subset; the commonly used ImageNet-1K has about 1.28 million training images and 1,000 classes.|
+| **COCO** |CV (detection and segmentation)|Released by Microsoft, it features rich multi-object annotation of complex scenes in context.|
+| **MNIST** |CV (introductory)|A handwritten digit recognition set, known as the "Hello World" of machine learning.|
+| **GLUE** | NLP |A comprehensive benchmark for evaluating natural language understanding models, which drove the BERT era.|
 
 ### 2.8.2 Tools and frameworks
 {: id="282-主流工具与开源框架"}
 
-- **Scikit-learn**: A traditional machine learning library under Python that provides unified interfaces for linear models, tree models, SVM, clustering, preprocessing and model evaluation.
+- **Scikit-learn**: a traditional machine learning library for Python that provides unified interfaces for linear models, tree models, SVMs, clustering, preprocessing, and model evaluation.
 
-- **XGBoost / LightGBM**: Gradient boosting tree framework commonly used for tabular data. The specific speed and accuracy need to be compared on the task.
+- **XGBoost / LightGBM**: gradient-boosted tree frameworks commonly used for tabular data. Their speed and accuracy must be compared on the task at hand.
 
-- **TensorFlow**: Google’s open source deep learning framework, with a complete ecosystem for industrial deployment.
+- **TensorFlow**: Google's open-source deep learning framework, with a complete ecosystem for industrial deployment.
 
-- **PyTorch**: Meta’s open source deep learning framework is widely used in research and large model training due to its dynamic graph mechanism and ease of use, and has a mature deployment ecosystem.
+- **PyTorch**: Meta's open-source deep learning framework, widely used in research and large-model training thanks to its dynamic computation graphs and ease of use, and with a mature deployment ecosystem.
 
-- **Hugging Face**: Provides model and data set hosting, as well as tool libraries such as `transformers`; when using pretrained weights, you need to check the training purpose, license and restrictions in the model card.
+- **Hugging Face**: provides model and dataset hosting as well as libraries such as `transformers`; when using pretrained weights, check the intended use, license, and restrictions in the model card.
 
 <a id="ml-workflow"></a>
 
 ## 2.9 Modeling and evaluation
 {: id="29-建模与评估流程"}
 
-Knowing the name of the algorithm is not enough. For a reproducible modeling experiment, you need to first define the task and verification method, and then optimize the model.
+Knowing an algorithm's name is not enough. For a reproducible modeling experiment, first define the task and the validation method, and only then optimize the model.
 
-### 2.9.1 Fitting, optimization, generalization
+### 2.9.1 Fitting, optimization, and generalization
 {: id="291-区分拟合优化与泛化"}
 
-Taking supervised learning as an example, given $n$ training samples, a common goal is to minimize the empirical risk and regularization terms:
+Taking supervised learning as an example, given $n$ training samples, a common objective is to minimize the empirical risk plus a regularization term:
 
 $$
 \hat{\theta} = \arg\min_{\theta}\left[\frac{1}{n}\sum_{i=1}^{n}\ell(f_{\theta}(\mathbf{x}_i),y_i)+\lambda\Omega(\theta)\right]
 $$
 
-Here, $f_\theta$ is the model, $\ell$ measures the prediction error, $\Omega$ constrains the model complexity, and $\lambda$ controls the constraint strength. **optimization** focuses on whether the training target can be reduced, and **generalization** focuses on the performance on unseen samples; low training loss does not mean that the model is reliable.
+Here $f_\theta$ is the model, $\ell$ measures the prediction error, $\Omega$ constrains the model complexity, and $\lambda$ controls the strength of the constraint. **Optimization** is about whether the training objective can be driven down, and **generalization** is about performance on unseen samples; a low training loss does not mean the model is reliable.
 
-Parameters (such as linear weights) are learned by the training process; hyperparameters (such as tree depth, regularization strength, learning rate) are usually selected using the validation set. If the training and validation errors are both high, it may be due to underfitting, insufficient features, or incomplete optimization; if the training error is low but the validation error is high, overfitting and distribution differences should be investigated.
+Parameters (such as linear weights) are learned during training; hyperparameters (such as tree depth, regularization strength, and learning rate) are usually chosen on the validation set. If both training and validation errors are high, the cause may be underfitting, insufficient features, or incomplete optimization; if the training error is low but the validation error is high, investigate overfitting and distribution differences.
 
-### 2.9.2 Split before preprocessing
+### 2.9.2 Split first, then preprocess
 {: id="292-先划分数据再预处理"}
 
-1. **Clear the forecast time point and target**: The input can only contain information available at the time of actual forecast. For example, to predict whether a user churns, fields generated after churn cannot be used as features.
-2. **retains the test set**: the training set is used for fitting, the validation set is used for parameter adjustment and threshold selection, and the test set is used for the final evaluation after the solution is determined. Repeatedly changing the model based on test results will cause the test set to lose its independence.
-3. **Matching deployment scenario division**: Approximately independent and identically distributed classification samples can be divided randomly in a hierarchical manner; time series are divided according to time; related samples of the same user, device or robot trajectory should be divided into groups to avoid cross-collection leakage.
-4. **only fits the training set and preprocesses**: standardization, missing value filling, feature selection and PCA all need to be fitted on the training set first, and then applied to the validation and test sets. During cross-validation, each fold must be refitted and can be managed with `Pipeline`.
-5. **records reproducible conditions**: save data versions, partitions, random seeds, hyperparameters and evaluation scripts; small-sample or high variance tasks should report multi-fold or multiple running results.
+1. **Define the prediction time point and target clearly**: the input may contain only information available at the time of the actual prediction. For example, when predicting whether a user will churn, fields generated after the churn cannot be used as features.
+2. **Hold out a test set**: use the training set for fitting, the validation set for tuning and threshold selection, and the test set for the final evaluation once the approach is settled. Repeatedly changing the model based on test results makes the test set lose its independence.
+3. **Make the split match the deployment scenario**: roughly i.i.d. classification samples can be split randomly with stratification; time series should be split by time; related samples from the same user, device, or robot trajectory should be split by group to avoid leakage across sets.
+4. **Fit preprocessing on the training set only**: standardization, missing-value imputation, feature selection, and PCA must all be fitted on the training set first and then applied to the validation and test sets. In cross-validation, each fold must be refitted, which `Pipeline` can manage.
+5. **Record the conditions needed for reproducibility**: save data versions, splits, random seeds, hyperparameters, and evaluation scripts; for small-sample or high-variance tasks, report multi-fold or multiple-run results.
 
-Cross-validation is mainly used for model selection in the development stage and does not mean that time and grouping structure can be ignored. If you also want to use cross-validation to estimate the generalization performance of the program after parameter adjustment, nested cross-validation can be used. See [scikit-learn data leakage guide ](https://scikit-learn.org/stable/common_pitfalls.html) and [cross-validation document ](https://scikit-learn.org/stable/modules/cross_validation.html)].
+Cross-validation is mainly used for model selection during development and does not mean the temporal or grouping structure can be ignored. If you also want to use cross-validation to estimate the generalization performance of the whole procedure after tuning, use nested cross-validation. See the [scikit-learn guide to data leakage](https://scikit-learn.org/stable/common_pitfalls.html) and the [cross-validation documentation](https://scikit-learn.org/stable/modules/cross_validation.html).
 
-### 2.9.3 Metrics should match task cost
+### 2.9.3 Metrics should match the cost of the task
 {: id="293-指标必须对应任务代价"}
 
-|Task|Common indicators|Interpretation points|
+|Task|Common metrics|Interpretation notes|
 |:---|:---|:---|
-|Return| MAE, RMSE, $R^2$ |RMSE is more sensitive to large errors; $R^2$ can be negative and cannot be directly ranked across different data sets|
-|Classification|Precision, Recall, F1, confusion matrix|First clarify the positive class, threshold and false negative/false positive cost; when the class is unbalanced, you cannot just look at Accuracy|
-|Sort by category|ROC-AUC, PR curve, Average Precision (AP)|ROC-AUC measures ranking; when positive classes are rare, you should also look at PR/AP. AP is not exactly the same as trapezoidal integral PR-AUC.|
-|Probability prediction|Log loss, Brier score, calibration curve|Can be sorted correctly, does not mean that the output "80% probability" is consistent with the actual frequency|
-|clustering|Silhouette coefficient, stability, domain inspection|Internal geometric indicators do not guarantee that clusters correspond to real business or semantic categories|
-|Generation and Robot Control|Distribution indicators, manual evaluation, success rate, delay|Realistic images do not mean correct facts; low offline action error does not mean successful closed-loop tasks|
+|Regression| MAE, RMSE, $R^2$ |RMSE is more sensitive to large errors; $R^2$ can be negative and cannot be used to rank models directly across different datasets|
+|Classification|Precision, recall, F1, confusion matrix|First clarify the positive class, the threshold, and the costs of false negatives and false positives; when classes are imbalanced, do not look at accuracy alone|
+|Ranking|ROC-AUC, PR curve, average precision (AP)|ROC-AUC measures ranking quality; when positives are rare, also look at PR/AP. AP is not exactly the same as PR-AUC computed by trapezoidal integration.|
+|Probability prediction|Log loss, Brier score, calibration curve|Ranking correctly does not mean an output of "80% probability" matches the actual frequency|
+|Clustering|Silhouette coefficient, stability, domain-expert inspection|Internal geometric metrics do not guarantee that clusters correspond to real business or semantic categories|
+|Generation and robot control|Distribution metrics, human evaluation, success rate, latency|Realistic images do not mean correct facts; low offline action error does not mean the closed-loop task succeeds|
 
-For example, when the positive class only accounts for 1%, all predictions for the negative class have an Accuracy of 99%, but the Recall of the positive class is 0. The threshold should be chosen on the validation set based on the actual cost, rather than the default 0.5. For indicator definitions, see [scikit-learn evaluation document ](https://scikit-learn.org/stable/modules/model_evaluation.html).
+For example, when the positive class is only 1% of the data, predicting every sample as negative gives an accuracy of 99% but a recall of 0 for the positive class. The threshold should be chosen on the validation set according to the actual costs, not left at the default 0.5. For metric definitions, see the [scikit-learn model evaluation documentation](https://scikit-learn.org/stable/modules/model_evaluation.html).
 
 ### 2.9.4 Baselines and error analysis
 {: id="294-基线与误差分析"}
 
-First establish naive baselines such as majority class and mean prediction, and then compare linear models, tree models or pretrained representations. If the improvement for a complex model is small, the inference latency, memory and maintenance costs should also be reported. Check which categories, time periods or groups of people the model failed, and then decide to supplement the data, change the features, adjust the target or change the architecture.
+First establish naive baselines such as the majority class and mean prediction, and then compare linear models, tree models, or pretrained representations. If a complex model improves little, also report its inference latency, memory, and maintenance costs. Examine which classes, time periods, or groups of people the model fails on, and then decide whether to add data, change the features, adjust the objective, or change the architecture.
 
-Continue to monitor input distribution, prediction quality, and feedback latency after launch. Offline testing only illustrates the performance of the model under specific data and evaluation protocols, and cannot replace post-deployment inspection.
+After launch, keep monitoring the input distribution, prediction quality, and feedback latency. Offline testing only shows how the model performs under specific data and evaluation protocols and cannot replace monitoring after deployment.
 
 # 3. Classic algorithms
 {: id="3-经典算法与代表性模型"}
 
-This chapter organizes content by model structure and purpose. The same method may span multiple categories, for example Transformer can be used for supervised classification, self-supervised pre-training or generative modeling; AE mainly learns representations and does not automatically define sampleable generative distributions.
+This chapter is organized by model structure and purpose. The same method may span several categories: for example, a Transformer can be used for supervised classification, self-supervised pretraining, or generative modeling; an autoencoder mainly learns representations and does not automatically define a distribution that can be sampled from.
 
 ## 3.1 Algorithm overview
 {: id="31-核心算法分类概览"}
 
-Before delving into specific models, the following table sorts out the classic algorithm classifications and their representative models in machine learning:
+Before going into specific models, the following table organizes the classic algorithm categories in machine learning and their representative models:
 
 |Category|Representative models/techniques|Main features|Application scenarios|
 | :--- | :--- | :--- | :--- |
-|**linear model**|Linear regression, logistic regression|Simple and easy to understand, small amount of calculation and strong interpretability|House price prediction, click-through rate prediction (CTR)|
-|**Integrated learning**|Random Forest, XGBoost, LightGBM|Strong robustness and excellent processing effect on tabular data|Financial risk control, search sorting|
-|**Traditional Statistics/Probability**|SVM, KNN, Naive Bayes, HMM|Rigorous theory and suitable for small-sample tasks|Text classification, speech recognition, biometric information|
-|**Clustering and Dimensionality Reduction**| K-Means, PCA, t-SNE |unsupervised, discover the underlying structure of data|User profiling, data compression, visualization|
-|**Deep Neural Network**| CNN, RNN, LSTM, MLP |Powerful nonlinear fitting and feature extraction capabilities|Image recognition, natural language processing|
-|**Large model cornerstone**| Transformer, BERT, GPT |Good at modeling long-distance dependencies and supporting large-scale pre-training|Text generation, question answering, multimodal understanding|
-|**Generative model**| GAN, VAE, Diffusion Models |Learn data distribution and generate high-quality new samples|AI painting, video generation, molecular design|
+|**Linear models**|Linear regression, logistic regression|Simple and easy to understand, cheap to compute, highly interpretable|House price prediction, click-through rate (CTR) prediction|
+|**Ensemble learning**|Random forest, XGBoost, LightGBM|Robust and performs very well on tabular data|Financial risk control, search ranking|
+|**Traditional statistical / probabilistic methods**|SVM, KNN, naive Bayes, HMM|Rigorous theory; suited to small-sample tasks|Text classification, speech recognition, biometrics|
+|**Clustering and dimensionality reduction**| K-Means, PCA, t-SNE |Unsupervised; discover the underlying structure of data|User profiling, data compression, visualization|
+|**Deep neural networks**| CNN, RNN, LSTM, MLP |Powerful nonlinear fitting and feature extraction|Image recognition, natural language processing|
+|**Foundations of large models**| Transformer, BERT, GPT |Good at modeling long-range dependencies and support large-scale pretraining|Text generation, question answering, multimodal understanding|
+|**Generative models**| GAN, VAE, diffusion models |Learn the data distribution and generate high-quality new samples|AI image generation, video generation, molecular design|
 
 ---
 
-> **Part A · Traditional machine learning (§3.2 – §3.11)** – From linear assumptions, tree partitioning, local distance to probabilistic modeling; interpretability and computational cost vary by method.
+> **Part A · Traditional machine learning (§3.2 – §3.11)**: from linear assumptions, tree partitioning, and local distances to probabilistic modeling; interpretability and computational cost vary by method.
 
 <a id="ml-classical"></a>
 
 ## 3.2 Linear regression and regularization
 {: id="32-线性回归与正则化"}
 
-> **Core points**: a straight line/hyperplane fitting data; L2 regular (Ridge) prevents overfitting, L1 regular (Lasso) comes with feature selection.
+> **Key points**: fit the data with a line or hyperplane; L2 regularization (Ridge) guards against overfitting, and L1 regularization (Lasso) comes with built-in feature selection.
 
-Linear Regression is the most foundation model in regression analysis, assuming a linear relationship between target variables and features. The objective function is usually to minimize the mean square error (MSE).
+Linear regression is the most fundamental model in regression analysis; it assumes a linear relationship between the target variable and the features. The objective is usually to minimize the mean squared error (MSE).
 
-> **Intuitively understands**: It is like drawing a "best fit line" on a scatter plot - the goal is to find the straight line that minimizes the sum of squares of the residuals of all points in the direction of the target variable. Regularization is equivalent to adding another constraint on the basis of "good fitting": don't let the weights grow too large.
+> **Intuition**: it is like drawing a "best-fit line" on a scatter plot: the goal is to find the line that minimizes the sum of squared residuals of all points along the target-variable direction. Regularization adds another constraint on top of "fit well": do not let the weights grow too large.
 
 <div align="center">
-  <img src="/images/ML/linear_regression_diagram.webp" width="60%" alt="Schematic diagram of linear regression algorithm" />
-<figcaption>Figure: Schematic diagram of linear regression algorithm</figcaption>
+  <img src="/images/ML/linear_regression_diagram.webp" width="60%" alt="Figure: Schematic of linear regression" />
+<figcaption>Figure: Schematic of linear regression</figcaption>
 </div>
 
-- **mathematical expression**: $y = \mathbf{w}^T \mathbf{x} + b$
+- **Mathematical form**: $y = \mathbf{w}^T \mathbf{x} + b$
 
-Here, $\mathbf{w}$ is the weight vector of each feature (the coefficient size is affected by feature scale and correlation, and cannot be directly regarded as importance or causal effect), $\mathbf{x}$ is the input feature vector, and $b$ is the offset (intercept). The entire formula is "weighted sum plus a benchmark".
+Here $\mathbf{w}$ is the weight vector over the features (coefficient magnitudes are affected by feature scale and correlation and cannot be read directly as importance or causal effect), $\mathbf{x}$ is the input feature vector, and $b$ is the bias (intercept). The whole formula is a weighted sum plus a baseline.
 
-- **Optimization method**: The closed-form solution (normal equation) can be solved directly through the least squares method, or the gradient descent method can be used for iterative optimization.
+- **Optimization**: it can be solved directly in closed form by least squares (the normal equations), or optimized iteratively with gradient descent.
 
-- **regularization (Regularization)**: In order to prevent overfitting from occurring when the feature dimension is high, the regularization penalty term is often introduced in the loss function:
+- **Regularization**: to prevent overfitting when the feature dimension is high, a regularization penalty is often added to the loss function:
 
-  - **Ridge regression (L2 regularization)**: Add the $\lambda \|\mathbf{w}\|_2^2$ item to limit the sum of squares and shrinkage coefficients of parameters to alleviate estimation instability caused by multicollinearity; it is usually necessary to unify the feature scale before regularization.
+  - **Ridge regression (L2 regularization)**: adds the term $\lambda \|\mathbf{w}\|_2^2$, which limits the sum of squares of the parameters and shrinks the coefficients, easing the estimation instability caused by multicollinearity; features usually need to be put on a common scale before regularization.
 
-  - **Lasso regression (L1 regularization)**: Add the $\lambda \|\mathbf{w}\|_1$ item to limit the absolute value sum of parameters. The geometric characteristics of L1 regularization make it easy to generate sparse solutions (ie, compress some weights into 0), so it comes with a feature selection function.
+  - **Lasso regression (L1 regularization)**: adds the term $\lambda \|\mathbf{w}\|_1$, which limits the sum of the absolute values of the parameters. The geometry of the L1 penalty readily produces sparse solutions (some weights are driven exactly to 0), so it performs feature selection as a by-product.
 
-|Can be tried first|need attention|
+|Good first uses|Things to watch for|
 |:---|:---|
 |Features have a linear relationship with target variables|There is a complex nonlinear relationship between features and targets|
 |Need for interpretable models|There are a lot of outliers in the data|
@@ -335,223 +335,223 @@ Here, $\mathbf{w}$ is the weight vector of each feature (the coefficient size is
 ## 3.3 Logistic regression
 {: id="33-逻辑回归"}
 
-> **Core points**: The logarithmic probability is a linear function of the feature, and the binary probability is output through Sigmoid; it uses classification loss training instead of fitting a linear regression first.
+> **Key points**: the log-odds are a linear function of the features, and a sigmoid turns them into a binary class probability; the model is trained with a classification loss rather than by first fitting a linear regression.
 
-Although it is named "regression", logistic regression is mainly used for **classification**; here we introduce the two-classification form, and multinomial logistic regression can be used for multiple classifications. Based on linear regression, it introduces a nonlinear Sigmoid activation function to map the continuous linear output to the $(0, 1)$ interval, thus giving it probabilistic meaning.
+Despite its name, logistic regression is mainly used for **classification**; here we describe the binary form, and multinomial logistic regression handles multiple classes. On top of linear regression, it introduces a nonlinear sigmoid function that maps the continuous linear output into the interval $(0, 1)$, giving it a probabilistic meaning.
 
-> **intuitively understands**: Logistic regression is a "squeezer" outside linear regression - squeezing any real number score between 0 and 1, and then treating this value directly as the "probability of belonging to the positive class". The higher the score, the closer the probability is to 1; the lower the score, the closer the probability is to 0.
+> **Intuition**: logistic regression is a "squeezer" wrapped around linear regression: it squeezes any real-valued score into the range between 0 and 1 and then treats that value directly as the "probability of belonging to the positive class". The higher the score, the closer the probability is to 1; the lower the score, the closer it is to 0.
 
 <div align="center">
-  <img src="/images/ML/logistic_regression.png" width="60%" alt="Logistic regression algorithm diagram" />
-<figcaption>Figure: Schematic diagram of logistic regression algorithm</figcaption>
+  <img src="/images/ML/logistic_regression.png" width="60%" alt="Figure: Schematic of logistic regression" />
+<figcaption>Figure: Schematic of logistic regression</figcaption>
 </div>
 
-- **core function**:
+- **Core function**:
 
 $$P(y=1 \mid \mathbf{x}) = \sigma(\mathbf{w}^T \mathbf{x} + b) = \frac{1}{1 + e^{-(\mathbf{w}^T \mathbf{x} + b)}}$$
 
-where $\mathbf{w}^T \mathbf{x} + b$ is the linear "raw score" and $\sigma(\cdot)$ is the sigmoid function (that "squeezer"). When the score is 0, 0.5 is output. The larger the score, the closer it is to 1, and the smaller the score, the closer it is to 0.
+where $\mathbf{w}^T \mathbf{x} + b$ is the linear "raw score" and $\sigma(\cdot)$ is the sigmoid function (the "squeezer"). A score of 0 gives an output of 0.5; the larger the score, the closer the output is to 1, and the smaller the score, the closer it is to 0.
 
-- **loss function**: Cross-Entropy Loss, derived through maximum likelihood estimation.
+- **Loss function**: cross-entropy loss, derived from maximum likelihood estimation.
 
-- **Features**: Low calculation cost, fast speed, output with clear probabilistic interpretation, often used in basic scenarios such as credit score cards and advertising click-through rate (CTR) estimation in financial risk control.
+- **Characteristics**: cheap to compute and fast, with an output that has a clear probabilistic interpretation; often used in basic scenarios such as credit scorecards in financial risk control and ad click-through rate (CTR) estimation.
 
-|Can be tried first|need attention|
+|Good first uses|Things to watch for|
 |:---|:---|
 |Two classification tasks require probability output|There is a strong nonlinear relationship between features|
 |Sparse text features, need for fast classification baseline|Complex inputs such as raw images often require extracting a suitable representation first|
 
-## 3.4 Decision Tree
+## 3.4 Decision trees
 {: id="34-决策树-decision-tree"}
 
-> **Core points**: The data is recursively divided by a series of if-then rules, which is naturally interpretable; however, a single tree has large variance and is easy to overfitting, so it needs to be pruned or integrated.
+> **Key points**: the data is partitioned recursively by a series of if-then rules, which is naturally interpretable; however, a single tree has high variance and overfits easily, so it needs pruning or ensembling.
 
-Decision trees imitate the human thinking process based on rule judgment and classify or regress data through a tree structure. Each internal node represents a conditional judgment on a certain feature, the branch represents the judgment result, and the leaf node represents the final predicted category or value.
+Decision trees imitate human rule-based reasoning and classify or regress data through a tree structure. Each internal node represents a test on a feature, each branch represents the outcome of the test, and each leaf node represents the final predicted class or value.
 
-> **Intuition**: Just like the "guessing game" played in childhood - "Is this fruit red? → Is it → round? → Yes → Apple!" Each bifurcation point asks a question that can best distinguish the current data, narrowing down the scope layer by layer, and finally making a judgment.
+> **Intuition**: it is like the guessing game we played as children: "Is this fruit red? → Is it round? → Yes → An apple!" Each split asks the question that best separates the current data, narrowing the range layer by layer until a decision is made.
 
 <div align="center">
-  <img src="/images/ML/decision_tree.webp" width="60%" alt="Decision tree structure diagram" />
-<figcaption>Figure: Decision tree structure diagram</figcaption>
+  <img src="/images/ML/decision_tree.webp" width="60%" alt="Figure: Structure of a decision tree" />
+<figcaption>Figure: Structure of a decision tree</figcaption>
 </div>
 
-- **Split Criteria**:
+- **Splitting criteria**:
 
-  - **ID3 algorithm**: Selects features based on **information gain** (Information Gain), and tends to select features with more values.
+  - **ID3**: selects features by **information gain**, and tends to favor features with many values.
 
-  - **C4.5 Algorithm**: Improved based on **information gain rate** (Gain Ratio) to alleviate the problem of information gain preferring high cardinality features.
+  - **C4.5**: improves on this with the **gain ratio**, which alleviates information gain's preference for high-cardinality features.
 
-  - **CART algorithm**: The classification tree uses **Gini index** (Gini Impurity), and the regression tree uses square error. CART is a binary tree that is the basis of many ensemble tree models.
+  - **CART**: classification trees use the **Gini impurity** and regression trees use squared error. CART builds binary trees and is the basis of many tree ensemble models.
 
-- **Advantages and Disadvantages**: Shallow trees are easy to interpret and usually do not require standardization; missing value and categorical feature support depend on the specific implementation and cannot be inferred from the name "decision tree". Deep trees are easy to overfitting, and the complexity can be controlled through the maximum depth, the minimum number of samples of leaf nodes, and pruning.
+- **Pros and cons**: shallow trees are easy to interpret and usually need no feature standardization; support for missing values and categorical features depends on the specific implementation and cannot be inferred from the name "decision tree". Deep trees overfit easily, and their complexity can be controlled through the maximum depth, the minimum number of samples per leaf, and pruning.
 
-|Can be tried first|need attention|
+|Good first uses|Things to watch for|
 |:---|:---|
 |Requires clear rules and shallow decision paths|It is easy to overfitting when the tree is too deep and there are too few leaf node samples.|
 |Non-linear tabular data, usually without standardization|Category features may need to be encoded; high-precision tasks can be compared with ensemble methods|
 
-## 3.5 Random Forest (Random Forest)
+## 3.5 Random forests
 {: id="35-随机森林-random-forest"}
 
-> **Core points**: Bagging integrates multiple separately trained decision trees in parallel, voting/average output; reduces variance, strong anti-noise, and can evaluate feature importance.
+> **Key points**: bagging trains multiple decision trees independently in parallel and combines them by voting or averaging; it reduces variance, is robust to noise, and can estimate feature importance.
 
-**Bagging (Bootstrap Aggregating)** is a parallel ensemble learning paradigm that samples data with replacement and trains multiple base learners, and then aggregates their results to reduce variance. Random forest is a representative method of bagging.
+**Bagging (bootstrap aggregating)** is a parallel ensemble learning paradigm: it samples the data with replacement, trains multiple base learners, and then aggregates their outputs to reduce variance. Random forest is a representative bagging method.
 
-> **Intuition**: It is equivalent to forming an "expert committee" - each expert (decision tree) only looks at some data and some features, makes their own judgment, and finally votes. Individual experts may be biased, but the collective average opinion is often more accurate and robust.
+> **Intuition**: it is like convening an "expert committee": each expert (decision tree) sees only part of the data and some of the features, forms their own judgment, and then everyone votes. Individual experts may be biased, but the collective average opinion is usually more accurate and robust.
 
 <div align="center">
-  <img src="/images/ML/random_forest.webp" width="60%" alt="Schematic diagram of random forest algorithm" />
-<figcaption>Figure: Schematic diagram of random forest algorithm</figcaption>
+  <img src="/images/ML/random_forest.webp" width="60%" alt="Figure: Schematic of the random forest algorithm" />
+<figcaption>Figure: Schematic of the random forest algorithm</figcaption>
 </div>
 
-- **core mechanism**: By randomly sampling training samples with replacement (Bootstrap), multiple decision trees trained separately are constructed; their predictions may still be related. At the same time, when each node is split, only the optimal dividing features are selected from the features of a random subset.
+- **Core mechanism**: training samples are drawn at random with replacement (bootstrap) to build multiple independently trained decision trees (their predictions may still be correlated). In addition, when each node is split, the best splitting feature is chosen only from a random subset of the features.
 
-- **result output**: The classification task produces the final result through multiple tree voting, and the regression task takes the average.
+- **Output**: for classification, the final result is decided by a vote among the trees; for regression, their predictions are averaged.
 
-- **Features**: Reduces the variance of ensemble predictions by reducing the correlation between trees, but may still be overfitting. Feature importance based on node purity may be biased towards high cardinality features and can be combined with validation set permutation importance analysis; neither represents causality.
+- **Characteristics**: it reduces the variance of the ensemble prediction by decorrelating the trees, but can still overfit. Feature importance based on node purity may be biased toward high-cardinality features and can be complemented by permutation importance on a validation set; neither represents causality.
 
-|Can be tried first|need attention|
+|Good first uses|Things to watch for|
 |:---|:---|
 |Structured/tabular data, don’t want to adjust too many parameters|Very high-dimensional sparse data (such as text TF-IDF)|
 |Nonlinear feature interaction requires a robust starting solution|Missing value support depends on implementation; the advantages and disadvantages of Boosting need to be verified|
 
-## 3.6 Gradient boosting tree
+## 3.6 Gradient-boosted trees
 {: id="36-梯度提升树"}
 
-> **Core points**: Gradient boosting fits the negative gradient of the current integrated model round by round; it is equivalent to the fitting residual under square loss. XGBoost and LightGBM provide efficient implementation.
+> **Key points**: gradient boosting fits, round by round, the negative gradient of the current ensemble, which under squared loss is equivalent to fitting the residual. XGBoost and LightGBM provide efficient implementations.
 
-**Boosting** is a serial integrated learning paradigm with the core idea of "continuous error correction". The subsequent model focuses on the samples that the previous model predicted incorrectly, and weights and accumulates them.
+**Boosting** is a sequential ensemble learning paradigm whose core idea is continual error correction. Each subsequent model focuses on the samples the previous models got wrong, and the models' outputs are weighted and accumulated.
 
-> **Intuition**: It's like a set of questions that students got wrong - after completing the first round, the second round focuses on practicing the questions they got wrong last time, and the third round focuses on practicing the questions they got wrong last time... Each round focuses on making up for the weaknesses of the previous round, and ultimately forms a model that is strong in all aspects.
+> **Intuition**: it is like a student working through a workbook of problems they got wrong: after the first round, the second round concentrates on the problems missed in the first, the third on those missed in the second, and so on. Each round makes up for the weaknesses of the previous one, and in the end you have a model that is strong across the board.
 
 <div align="center">
-  <img src="/images/ML/gradient_boosting.webp" class="paper-figure-wide" width="100%" alt="Gradient boosted decision tree (GBDT) diagram" />
-<figcaption>Figure: Gradient boosting decision tree (GBDT) diagram</figcaption>
+  <img src="/images/ML/gradient_boosting.webp" class="paper-figure-wide" width="100%" alt="Figure: Gradient-boosted decision trees (GBDT)" />
+<figcaption>Figure: Gradient-boosted decision trees (GBDT)</figcaption>
 </div>
 
-- **GBDT (Gradient Boosting Decision Tree)**: Using the regression tree as the base learner (including when used for classification tasks), each iteration continuously approaches the true value by overfitting the **negative gradient** (residual under square loss) of the previous model.
+- **GBDT (Gradient Boosting Decision Tree)**: uses regression trees as base learners (including for classification tasks); each iteration approaches the target more closely by fitting the **negative gradient** (the residual under squared loss) of the previous model.
 
-- **XGBoost (eXtreme Gradient Boosting)**: A gradient boosting framework using regularization goals and efficient tree construction methods. It not only introduces second-order derivative information (Taylor expansion) into the objective function to accelerate convergence, but also adds L1 and L2 regularization terms to control model complexity. In addition, it supports automatic processing of missing values ​​and parallel calculation of features, and has long been used as a strong baseline in Kaggle tabular data competitions.
+- **XGBoost (eXtreme Gradient Boosting)**: a gradient boosting framework with a regularized objective and efficient tree construction. It brings second-order derivative information (a Taylor expansion) into the objective to speed up convergence and adds L1 and L2 regularization terms to control model complexity. It also handles missing values automatically and parallelizes over features, and has long been a strong baseline in Kaggle tabular-data competitions.
 
-- **LightGBM**: A more efficient Boosting framework launched by Microsoft. By introducing the histogram-based decision tree algorithm, one-sided gradient sampling (GOSS), and exclusive feature bundling (EFB), the training efficiency in some tasks is improved; whether these technologies are enabled and their effects depend on the configuration and data.
+- **LightGBM**: a more efficient boosting framework from Microsoft. It improves training efficiency on some tasks through histogram-based decision tree learning, gradient-based one-side sampling (GOSS), and exclusive feature bundling (EFB); whether these techniques are enabled, and how much they help, depends on the configuration and the data.
 
-|Can be tried first|need attention|
+|Good first uses|Things to watch for|
 |:---|:---|
 |Structured tabular data, pursuit of accuracy|Unstructured data such as images/text|
 |Data contains missing values (XGBoost automatically handles)|Very few training samples, easy to overfitting|
 
-## 3.7 K nearest neighbor algorithm (KNN)
+## 3.7 K-nearest neighbors (KNN)
 {: id="37-k近邻算法-knn"}
 
-> **Core points**: Lazy learning - no training, only memory, vote/average based on the nearest K neighbors when predicting; simple and intuitive but slow inference, sensitive to scale, and affected by the disaster of dimensionality.
+> **Key points**: lazy learning: there is no training, only memorization, and prediction votes or averages over the K nearest neighbors; simple and intuitive, but inference is slow, it is sensitive to feature scale, and it suffers from the curse of dimensionality.
 
-KNN is a typical "Lazy Learning" algorithm. It does not fit an explicit parameterized prediction function and mainly saves training samples. In actual implementation, it is also possible to build a nearest neighbor search index.
+KNN is a typical "lazy learning" algorithm. It does not fit an explicit parametric prediction function and mainly stores the training samples. In practice, a nearest-neighbor search index can also be built.
 
-> **Intuition**: It's like asking for directions in a strange city - without relying on any map (no training required), just ask the nearest $K$ passers-by around you and get the opinion of the majority. It completely relies on the simple assumption that "birds of a feather flock together and people flock together".
+> **Intuition**: it is like asking for directions in an unfamiliar city: without any map (no training), you simply ask the $K$ nearest passers-by and go with the majority opinion. It relies entirely on the simple assumption that "birds of a feather flock together".
 
 <div align="center">
-  <img src="/images/ML/knn.webp" width="60%" alt="K nearest neighbor (KNN) algorithm diagram" />
-<figcaption>Figure: K nearest neighbor (KNN) algorithm diagram</figcaption>
+  <img src="/images/ML/knn.webp" width="60%" alt="Figure: The K-nearest neighbors (KNN) algorithm" />
+<figcaption>Figure: The K-nearest neighbors (KNN) algorithm</figcaption>
 </div>
 
-- **prediction mechanism**: When predicting, calculate the distance (such as Euclidean distance, Manhattan distance) between the test sample and all training samples, and find the nearest $K$ samples in the feature space.
+- **Prediction mechanism**: at prediction time, compute the distance (such as Euclidean or Manhattan distance) between the test sample and all training samples, and find the $K$ nearest samples in feature space.
 
-- **Decision rule**: Majority voting is used for classification tasks and the mean is used for regression tasks. A distance weighting mechanism can be introduced, the closer the distance, the greater the weight.
+- **Decision rule**: majority voting for classification and the mean for regression. Distance weighting can be introduced so that closer neighbors get larger weights.
 
-- **Disadvantages**: Brutal search requires comparing all training samples; tree index can speed up some low-dimensional tasks, but the benefits are limited in high dimensions. Distance is affected by feature scale, and a suitable metric should usually be standardized or designed.
+- **Drawbacks**: brute-force search must compare against all training samples; tree-based indexes can speed up some low-dimensional tasks, but the benefit is limited in high dimensions. Distances are affected by feature scale, so features usually need to be standardized or a suitable metric designed.
 
-|Can be tried first|need attention|
+|Good first uses|Things to watch for|
 |:---|:---|
 |Small data set, rapid prototyping|Large data sets (prediction speed decreases linearly with sample size)|
 |Irregular data distribution and non-spherical category boundaries|High-dimensional data (seriously affected by the curse of dimensionality)|
 
-## 3.8 Naive Bayes and HMM
+## 3.8 Naive Bayes and HMMs
 {: id="38-朴素贝叶斯与-hmm"}
 
-> **Core points**: Naive Bayes assumes independent feature conditions, fast training, and good text classification effect; the "hidden state + observation" of HMM modeling sequence is suitable for explicitly describing the relationship between state transition and observation generation.
+> **Key points**: naive Bayes assumes the features are conditionally independent, trains fast, and works well for text classification; an HMM models a sequence as "hidden states plus observations", which suits explicitly describing how states transition and how observations are generated.
 
 ### Naive Bayes
 {: id="朴素贝叶斯-naive-bayes"}
 
-Naive Bayes is a classification algorithm based on Bayes' theorem, which makes an extremely strong but very efficient "naive" assumption—— **Features are conditionally independent of each other** .
+Naive Bayes is a classification algorithm based on Bayes' theorem that makes an extremely strong but very efficient "naive" assumption: **the features are conditionally independent of one another**.
 
-> **Intuition**: Just like a judge judging a case based on multiple "independent clues" - assuming that each clue does not affect each other, multiply the support of each clue, and choose the conclusion with the highest score. This independence assumption is rarely true in reality, but it is often sufficient in practice.
+> **Intuition**: it is like a judge weighing a case from several "independent clues": assuming the clues do not influence one another, multiply the support each one gives and pick the conclusion with the highest score. This independence assumption is rarely true in reality, but it is often good enough in practice.
 
 <div align="center">
-  <img src="/images/ML/naive_bayes.webp" width="60%" alt="Naive Bayes classifier diagram" />
-<figcaption>Figure: Schematic diagram of Naive Bayes classifier</figcaption>
+  <img src="/images/ML/naive_bayes.webp" width="60%" alt="Figure: Schematic of the naive Bayes classifier" />
+<figcaption>Figure: Schematic of the naive Bayes classifier</figcaption>
 </div>
 
-- **Bayes’ theorem**: Given the sample characteristics $\mathbf{x} = (x_1, x_2, \dots, x_n)$, the posterior probability is:
+- **Bayes' theorem**: given the sample features $\mathbf{x} = (x_1, x_2, \dots, x_n)$, the posterior probability is:
 
 $$ P(y \mid \mathbf{x}) = \frac{P(\mathbf{x} \mid y) \cdot P(y)}{P(\mathbf{x})} $$
 
-**formula interpretation**: $P(y \mid \mathbf{x})$ is "the probability that the sample belongs to the category $y$ after seeing the feature $\mathbf{x}$" (posterior); $P(\mathbf{x} \mid y)$ is "$y$" "The likelihood" (likelihood) that a class sample will have this set of features; $P(y)$ is the prior probability of the class. The denominator $P(\mathbf{x})$ is the same for all categories and can be ignored when classifying.
+**Reading the formula**: $P(y \mid \mathbf{x})$ is "the probability that the sample belongs to class $y$ after seeing the features $\mathbf{x}$" (the posterior); $P(\mathbf{x} \mid y)$ is the likelihood that a sample of class $y$ has this set of features; $P(y)$ is the prior probability of the class. The denominator $P(\mathbf{x})$ is the same for all classes and can be ignored when classifying.
 
-- **Naive hypothesis**: Assuming that each feature is conditionally independent under a given category, the joint probability is decomposed into the product of the probabilities of each feature:
+- **Naive assumption**: assuming the features are conditionally independent given the class, the joint probability factorizes into a product of per-feature probabilities:
 
 $$ P(\mathbf{x} \mid y) = \prod_{i=1}^n P(x_i \mid y) $$
 
-- **Classification decision**: Select the category that maximizes the posterior probability, that is:
+- **Decision rule**: choose the class that maximizes the posterior probability, that is:
 
 $$\hat{y} = \arg\max_y P(y) \prod_{i=1}^n P(x_i \mid y)$$
 
-- **Features**: Although the conditional independence assumption is rarely strictly true in reality, Naive Bayes can often achieve amazing results in text classification (spam filtering, sentiment analysis), and the training speed is extremely fast and suitable for very large-scale data.
+- **Characteristics**: although the conditional independence assumption is rarely strictly true, naive Bayes often achieves surprisingly good results in text classification (spam filtering, sentiment analysis), and training is extremely fast, which suits very large datasets.
 
-|Can be tried first|need attention|
+|Good first uses|Things to watch for|
 |:---|:---|
 |Text classification (spam filtering, sentiment analysis)|There is a strong correlation between features|
 |Fast baselines with very few samples|Requires precise probabilistic calibration|
 
-### Hidden Markov Model (HMM)
+### Hidden Markov models (HMMs)
 {: id="隐马尔可夫模型-hmm"}
 
-HMM is a probabilistic graphical model for processing sequence data, containing an unseen hidden state sequence and a visible observation sequence.
+An HMM is a probabilistic graphical model for sequence data, consisting of an unobserved sequence of hidden states and an observed sequence of observations.
 
-> **Intuition**: Just like a doctor infers the internal cause (viral infection or bacterial infection, which is an invisible "hidden state") by observing symptoms (fever, cough, which are visible "observations"). The cause itself is invisible, but the most likely sequence of causes can be deduced from the sequence of symptoms.
+> **Intuition**: it is like a doctor inferring the underlying cause (a viral or bacterial infection, the invisible "hidden state") from observed symptoms (fever, cough, the visible "observations"). The cause itself cannot be seen, but the most likely sequence of causes can be deduced from the sequence of symptoms.
 
 <div align="center">
-  <img src="/images/ML/hmm.webp" width="60%" alt="Hidden Markov model (HMM) state transition diagram" />
-<figcaption>Figure: Hidden Markov Model (HMM) state transition diagram</figcaption>
+  <img src="/images/ML/hmm.webp" width="60%" alt="Figure: State transition diagram of a hidden Markov model (HMM)" />
+<figcaption>Figure: State transition diagram of a hidden Markov model (HMM)</figcaption>
 </div>
 
 - **Two core assumptions**:
 
-  - **Markov hypothesis**: The current hidden state $s_t$ only depends on the previous hidden state $s_{t-1}$, which is $P(s_t \mid s_1, \dots, s_{t-1}) = P(s_t \mid s_{t-1})$.
+  - **Markov assumption**: the current hidden state $s_t$ depends only on the previous hidden state $s_{t-1}$, that is, $P(s_t \mid s_1, \dots, s_{t-1}) = P(s_t \mid s_{t-1})$.
 
-  - **observation independence hypothesis**: The current observation $o_t$ only depends on the current hidden state $s_t$, that is, $P(o_t \mid s_1, \dots, s_t) = P(o_t \mid s_t)$.
+  - **Observation independence assumption**: the current observation $o_t$ depends only on the current hidden state $s_t$, that is, $P(o_t \mid s_1, \dots, s_t) = P(o_t \mid s_t)$.
 
-- **Three basic questions**:
+- **Three basic problems**:
 
-  1. **Evaluation question**: Given model parameters, calculate the probability of a certain observation sequence (forward-backward algorithm).
+  1. **Evaluation problem**: given the model parameters, compute the probability of an observation sequence (forward-backward algorithm).
 
-  2. **decoding problem**: Given an observation sequence, find the most likely hidden state sequence (Viterbi algorithm).
+  2. **Decoding problem**: given an observation sequence, find the most likely hidden state sequence (Viterbi algorithm).
 
-  3. **Learning problem**: Estimating model parameters from observational data (Baum-Welch/EM algorithm).
+  3. **Learning problem**: estimate the model parameters from observed data (Baum-Welch/EM algorithm).
 
-- **application scenarios**: early speech recognition, part-of-speech tagging (POS tagging), gene sequence analysis. Although many speech and NLP tasks turn to deep models, HMMs are still valuable in sequence problems with state interpretation, limited data, and clear domain constraints.
+- **Applications**: early speech recognition, part-of-speech (POS) tagging, and gene sequence analysis. Although many speech and NLP tasks have moved to deep models, HMMs remain valuable for sequence problems that need interpretable states, have limited data, and have clear domain constraints.
 
-## 3.9 Support Vector Machine (SVM)
+## 3.9 Support vector machines (SVMs)
 {: id="39-支持向量机-svm"}
 
-> **Core points**: Find the classification hyperplane with the largest interval; the kernel technique models nonlinear boundaries through implicit feature mapping, but does not guarantee that the data is separable, nor can it eliminate statistical dimensionality problems.
+> **Key points**: find the separating hyperplane with the largest margin; the kernel trick models nonlinear boundaries through an implicit feature mapping, but it does not guarantee that the data is separable, nor can it eliminate statistical problems caused by dimensionality.
 
-Before deep learning was widely used, SVM (Support Vector Machines) was an important baseline in small-sample and high-dimensional classification tasks.
+Before deep learning became widespread, the support vector machine (SVM) was an important baseline for small-sample and high-dimensional classification tasks.
 
-> **Intuition**: Imagine two groups of points distributed on the plane. SVM needs to draw a line in the middle so that the two groups of points are as far away from this line as possible - just like digging a "moat" as wide as possible between the two armies. The optimal boundary is determined by the support vector and its coefficient; in the case of soft margin, some samples are also allowed to enter the interval or be misclassified.
+> **Intuition**: imagine two groups of points on a plane. An SVM draws a line between them so that both groups are as far from the line as possible, like digging the widest possible "moat" between two armies. The optimal boundary is determined by the support vectors and their coefficients; with a soft margin, some samples are also allowed to fall inside the margin or be misclassified.
 
 <div align="center">
-  <img src="/images/ML/svm.webp" width="60%" alt="Support vector machine (SVM) classification surface and interval diagram" />
-<figcaption>Figure: Support vector machine (SVM) classification surface and interval diagram</figcaption>
+  <img src="/images/ML/svm.webp" width="60%" alt="Figure: The separating surface and margin of a support vector machine (SVM)" />
+<figcaption>Figure: The separating surface and margin of a support vector machine (SVM)</figcaption>
 </div>
 
--  **core idea** : Try to find a hyperplane in the feature space so that samples of different categories are not only correctly separated, but also **Geometric Margin Maximization** . This pursuit of "maximum interval" gives SVM extremely strong generalization capabilities.
+-  **Core idea**: find a hyperplane in feature space that not only separates samples of different classes correctly but also **maximizes the geometric margin**. This pursuit of the maximum margin gives SVMs strong generalization ability.
 
-- **support vector**: The training samples with non-zero coefficients in the dual problem are called support vectors. The support vectors of soft-margin SVM may also fall within the margin or even be misclassified.
+- **Support vectors**: the training samples with nonzero coefficients in the dual problem are called support vectors. In a soft-margin SVM, support vectors may also fall inside the margin or even be misclassified.
 
--  **Kernel Trick** : When the data is linearly inseparable in the original space, SVM cleverly implicitly maps low-dimensional features to high-dimensional (or even infinite-dimensional) space through kernel functions (such as linear kernel, polynomial kernel, Gaussian RBF kernel), thereby constructing nonlinear decision boundaries. The kernel technique eliminates the need to explicitly construct high-dimensional features, but still has kernel matrix calculation costs and overfitting risks.
+-  **Kernel trick**: when the data is not linearly separable in the original space, an SVM uses a kernel function (such as the linear, polynomial, or Gaussian RBF kernel) to map low-dimensional features implicitly into a high-dimensional (even infinite-dimensional) space, thereby building a nonlinear decision boundary. The kernel trick avoids constructing the high-dimensional features explicitly, but kernel matrix computation still costs time and overfitting remains a risk.
 
-|Can be tried first|need attention|
+|Good first uses|Things to watch for|
 |:---|:---|
 |Small sample, high-dimensional data (text, gene features)|Large-scale kernel SVM is computationally and storage expensive; linear SVM can use more scalable solvers|
 |Feature Dimension >> Sample Number Scenario|Probability output is required (SVM itself does not output probabilities)|
@@ -559,30 +559,30 @@ Before deep learning was widely used, SVM (Support Vector Machines) was an impor
 ## 3.10 K-Means clustering
 {: id="310-k-means-聚类"}
 
-> **Core points**: unsupervised clustering classic baseline, alternately updates "sample allocation → centroid position" to convergence; requires a preset K value, is only good at spherical clusters, and is sensitive to initial values and outliers.
+> **Key points**: a classic baseline for unsupervised clustering that alternately updates the sample assignments and the centroid positions until convergence; it requires K to be set in advance, handles only roughly spherical clusters well, and is sensitive to initialization and outliers.
 
 The most classic and widely used unsupervised clustering algorithm.
 
-> **intuitively understands**: It's like choosing $K$ squad leaders - first randomly assign a squad leader, and all students in the class will approach the nearest squad leader; then reselect the center of each group as the new squad leader...and repeat this until the squad leader's position is stable.
+> **Intuition**: it is like choosing $K$ squad leaders: first pick leaders at random, and every student joins the nearest one; then take the center of each group as the new leader, and repeat until the leaders' positions stop changing.
 
 <div align="center">
-  <img src="/images/ML/kmeans.webp" width="60%" alt="Schematic diagram of K-Means clustering process" />
-<figcaption>Figure: Schematic diagram of K-Means clustering process</figcaption>
+  <img src="/images/ML/kmeans.webp" width="60%" alt="Figure: The K-Means clustering process" />
+<figcaption>Figure: The K-Means clustering process</figcaption>
 </div>
 
-- **algorithm flow**:
+- **Algorithm**:
 
-  1. Randomly initialize $K$ cluster centers (Centroids).
+  1. Randomly initialize $K$ cluster centers (centroids).
 
-  2. Traverse all samples and assign them to the nearest cluster center.
+  2. Go through all samples and assign each to its nearest cluster center.
 
-  3. According to the assigned clusters, the centroid of each cluster (that is, the mean of all samples) is recalculated and the cluster center is updated.
+  3. Recompute the centroid of each cluster (the mean of all its samples) from the current assignments and update the cluster centers.
 
-  4. Repeat steps 2 and 3 until the cluster centers no longer change significantly (converge) or the maximum number of iterations is reached.
+  4. Repeat steps 2 and 3 until the cluster centers no longer change significantly (convergence) or the maximum number of iterations is reached.
 
-- **Advantages and Disadvantages**: The algorithm is simple and efficient. The time complexity of a typical Lloyd iteration is $O(nKdi)$ ($d$ is the feature dimension, $i$ is the number of iterations); but it is sensitive to the selection of initial values and outliers, and $K$ must be specified in advance. value, prefers clusters with approximately spherical shapes and similar scales, and is difficult to process data with complex manifold distributions.
+- **Pros and cons**: the algorithm is simple and efficient. The time complexity of a typical Lloyd iteration is $O(nKdi)$ ($d$ is the feature dimension and $i$ the number of iterations); but it is sensitive to the choice of initial values and to outliers, $K$ must be specified in advance, it prefers roughly spherical clusters of similar scale, and it has difficulty with data on complex manifolds.
 
-|Can be tried first|need attention|
+|Good first uses|Things to watch for|
 |:---|:---|
 |The data distribution is close to spherical and the sizes of each cluster are similar.|Cluster shapes are irregular (use DBSCAN instead)|
 |Quickly obtain clustering results and user portrait grouping|Scenarios where the $K$ value is difficult to determine|
@@ -590,568 +590,568 @@ The most classic and widely used unsupervised clustering algorithm.
 ## 3.11 PCA and t-SNE
 {: id="311-pca-与-t-sne"}
 
-> **Core points**: PCA does linear dimensionality reduction and preserves global variance; t-SNE does nonlinear dimensionality reduction and preserves local manifold structure, which is the first choice for 2D/3D visualization.
+> **Key points**: PCA performs linear dimensionality reduction and preserves global variance; t-SNE performs nonlinear dimensionality reduction and preserves local manifold structure, making it a first choice for 2D/3D visualization.
 
-- **Principal Component Analysis (PCA)**: A classic linear dimensionality reduction method. The core idea is to project the potentially relevant original high-dimensional features into a new orthogonal coordinate system through orthogonal transformation. These new coordinate axes (principal components) are arranged according to the size of the data variance. Retaining the first few principal components with the largest variance can minimize the squared reconstruction error under a given linear subspace dimension; the direction of high variance does not necessarily contain the most beneficial information for downstream prediction.
+- **Principal component analysis (PCA)**: a classic linear dimensionality reduction method. Its core idea is to project possibly correlated high-dimensional features into a new orthogonal coordinate system through an orthogonal transformation. The new axes (principal components) are ordered by the amount of variance of the data they capture. Keeping the first few principal components with the largest variance minimizes the squared reconstruction error for a given linear-subspace dimension; directions of high variance do not necessarily carry the information most useful for downstream prediction.
 
-  > **intuitively understands**: It's like taking a photo of a three-dimensional object - choose a "shooting angle" that best retains information, so that the projected 2D image has the largest amount of information (maximum variance). PCA automatically finds this optimal angle.
-
-<div align="center">
-  <img src="/images/ML/pca.webp" width="60%" alt="Schematic diagram of principal component analysis (PCA) dimensionality reduction" />
-<figcaption>Figure: Principal component analysis (PCA) dimensionality reduction diagram</figcaption>
-</div>
-
-- **t-SNE (t-Distributed Stochastic Neighbor Embedding)**: A nonlinear dimensionality reduction algorithm mainly used to map high-dimensional data to 2D or 3D space for visualization. It expresses similarity by converting the Euclidean distance between data points into conditional probabilities, and uses t-distribution to alleviate the "crowding problem" when high-dimensional space is mapped to low-dimensional. It can excellently maintain the local manifold structure and intra-class aggregation characteristics of the data.
-
-  > **Intuitively understands**: It is like flattening a ball of high-dimensional "plasticine" on the table. Try to keep the points that are close to each other still close after flattening, and the points that are far away do not have the same strong distance to maintain constraints. Therefore the inter-cluster distances, areas and gaps in the graph cannot be directly interpreted as the real structure of the original space.
+  > **Intuition**: it is like photographing a three-dimensional object: you choose the "camera angle" that preserves the most information, so that the projected 2D image carries the most information (maximum variance). PCA finds this optimal angle automatically.
 
 <div align="center">
-  <img src="/images/ML/tsne.webp" width="60%" alt="t-SNE dimensionality reduction visualization diagram" />
-<figcaption>Figure: t-SNE dimensionality reduction visualization diagram</figcaption>
+  <img src="/images/ML/pca.webp" width="60%" alt="Figure: Dimensionality reduction with principal component analysis (PCA)" />
+<figcaption>Figure: Dimensionality reduction with principal component analysis (PCA)</figcaption>
 </div>
 
-t-SNE is sensitive to hyperparameters such as random initialization and perplexity, and cannot prove the classification effect or discover "real categories" solely by clustering in the graph; it is mainly an exploration tool and should not directly replace the generalizable dimensionality reduction process in prediction tasks. See [scikit-learn manifold learning document ](https://scikit-learn.org/stable/modules/manifold.html#t-sne).
+- **t-SNE (t-distributed stochastic neighbor embedding)**: a nonlinear dimensionality reduction algorithm used mainly to map high-dimensional data into 2D or 3D space for visualization. It expresses similarity by converting Euclidean distances between data points into conditional probabilities, and uses a t-distribution to alleviate the "crowding problem" when mapping from high-dimensional to low-dimensional space. It preserves the local manifold structure and the within-class clustering of the data very well.
+
+  > **Intuition**: it is like flattening a ball of high-dimensional "plasticine" onto a table. Points that were close are kept close after flattening, while points that were far apart are under no strong constraint to stay that far apart. The distances between clusters, their areas, and the gaps in the plot therefore cannot be read directly as the real structure of the original space.
+
+<div align="center">
+  <img src="/images/ML/tsne.webp" width="60%" alt="Figure: A t-SNE dimensionality reduction visualization" />
+<figcaption>Figure: A t-SNE dimensionality reduction visualization</figcaption>
+</div>
+
+t-SNE is sensitive to hyperparameters such as the random initialization and perplexity, and clusters in the plot alone cannot prove a classification effect or reveal "real categories"; it is mainly an exploratory tool and should not directly replace a generalizable dimensionality reduction step in prediction tasks. See the [scikit-learn manifold learning documentation](https://scikit-learn.org/stable/modules/manifold.html#t-sne).
 
 ---
 
-> **Part B · Deep learning basics (§3.12 – §3.15)** - Learn representations through multi-layer nonlinear transformations, using backpropagation to calculate gradients.
+> **Part B · Deep learning basics (§3.12 – §3.15)**: learn representations through multi-layer nonlinear transformations, using backpropagation to compute gradients.
 >
-> This chapter only outlines the core context; activation functions, optimizers, normalization, regularization and training techniques can be further read: {% include content-link.html path='/Deep-Learning-Survey/' fragment='' label='"Review of deep learning" ' %}.
+> This chapter only outlines the core ideas; for activation functions, optimizers, normalization, regularization, and training techniques, see: {% include content-link.html path='/Deep-Learning-Survey/' fragment='' label='"Review of deep learning" ' %}.
 
 <a id="ml-deep"></a>
 
-## 3.12 MLP and backpropagation
+## 3.12 MLPs and backpropagation
 {: id="312-mlp-与反向传播"}
 
-> **Core points**: fully connected layer + nonlinear activation + backpropagation; strong function expression ability under appropriate conditions; expression ability, trainability and generalization ability need to be judged separately.
+> **Key points**: fully connected layers + nonlinear activations + backpropagation; under suitable conditions, strong expressive power; expressiveness, trainability, and generalization must be judged separately.
 
-Deep learning (Deep Learning, DL) extracts high-order features of data through multi-layer nonlinear transformation. Multilayer Perceptron (MLP) is the most basic feedforward neural network and the starting point for understanding all deep networks.
+Deep learning (DL) extracts high-level features from data through multiple layers of nonlinear transformation. The multilayer perceptron (MLP) is the most basic feedforward neural network and the starting point for understanding all deep networks.
 
-> **Intuitively understands**: Just like an assembly line - the raw materials (input features) go through multiple processing steps (hidden layers), and each step uses an activation function to introduce "bends", allowing the assembly line to process any complex shape (function). The deeper the layer, the more complex the "processing logic" that can be expressed.
+> **Intuition**: it is like an assembly line: the raw materials (input features) pass through several processing steps (hidden layers), and each step uses an activation function to introduce a "bend", so the line can produce any complex shape (function). The more layers, the more complex the "processing logic" it can express.
 
 <div align="center">
-  <img src="/images/DL/neural-network.svg" width="60%" alt="Schematic diagram of a typical deep neural network structure" />
-<figcaption>Figure: Schematic diagram of a typical deep neural network structure</figcaption>
+  <img src="/images/DL/neural-network.svg" width="60%" alt="Figure: Structure of a typical deep neural network" />
+<figcaption>Figure: Structure of a typical deep neural network</figcaption>
 </div>
 
-- **structure**: consists of an input layer, one or more hidden layers and an output layer, with full connections between layers. Each neuron receives a weighted sum of the outputs of the previous layer and is processed by a nonlinear activation function. The calculation of a single layer can be expressed as:
+- **Structure**: an input layer, one or more hidden layers, and an output layer, with full connections between layers. Each neuron receives a weighted sum of the previous layer's outputs and passes it through a nonlinear activation function. The computation of a single layer can be written as:
 
 $$ \mathbf{h} = \sigma(\mathbf{W}\mathbf{x} + \mathbf{b}) $$
 
-in $\mathbf{W}$ is the weight matrix of this layer (the strength of each connection), $\mathbf{x}$ is the output of the previous layer, $\mathbf{b}$ is the bias vector, $\sigma$ is a nonlinear activation function—— **Without it, multi-layer linear transformation is equivalent to single-layer linear transformation, and the network loses the meaning of depth.** .
+where $\mathbf{W}$ is the weight matrix of this layer (the strength of each connection), $\mathbf{x}$ is the output of the previous layer, $\mathbf{b}$ is the bias vector, and $\sigma$ is a nonlinear activation function. **Without it, a stack of linear transformations is equivalent to a single linear transformation, and the network loses the point of depth.**
 
-- **Activation function**: The introduction of nonlinearity is the key to deep networks - without an activation function, multi-layer linear transformation is equivalent to a single layer. Common activation functions:
+- **Activation functions**: introducing nonlinearity is the key to deep networks; without an activation function, multiple linear layers are equivalent to a single layer. Common activation functions:
 
-  - **Sigmoid**: $\sigma(x) = \frac{1}{1+e^{-x}}$, output $(0,1)$, easy gradient disappears.
+  - **Sigmoid**: $\sigma(x) = \frac{1}{1+e^{-x}}$, with output in $(0,1)$; gradients vanish easily.
 
-  - **Tanh**: Output $(-1,1)$, zero centralization, but still with vanishing gradient problem.
+  - **Tanh**: output in $(-1,1)$ and zero-centered, but it still suffers from vanishing gradients.
 
-  - **ReLU**: $\text{ReLU}(x) = \max(0, x)$, which is simple to calculate and alleviates vanishing gradients, is one of the commonly used activation functions. Negative interval gradients of zero may result in persistent inactivation of neurons; Leaky ReLU, GELU, etc. are other common choices.
+  - **ReLU**: $\text{ReLU}(x) = \max(0, x)$, which is cheap to compute and alleviates vanishing gradients, is one of the most commonly used activation functions. Its zero gradient on the negative side can leave neurons permanently inactive; Leaky ReLU, GELU, and others are other common choices.
 
-- **Universal Approximation Theorem**: Under conditions such as appropriate activation functions, a sufficiently wide single hidden layer network can arbitrarily approximate a continuous function in a compact domain. This theorem does not guarantee that the required width is acceptable, nor does it guarantee that it can be trained with limited data or that generalization is good; deep structures have higher expression efficiency for certain functions.
+- **Universal approximation theorem**: under conditions such as a suitable activation function, a sufficiently wide single-hidden-layer network can approximate any continuous function on a compact domain arbitrarily well. The theorem does not guarantee that the required width is acceptable, nor that the network can be trained from limited data or will generalize well; deep architectures represent certain functions more efficiently.
 
-- **Backpropagation**: The cornerstone of neural network training.
+- **Backpropagation**: the cornerstone of neural network training.
 
-  1. **Forward propagation**: The input data is calculated layer by layer to obtain the predicted output and loss $\mathcal{L}$.
+  1. **Forward pass**: the input is propagated layer by layer to obtain the predicted output and the loss $\mathcal{L}$.
 
-  2. **Backpropagation**: Based on the calculus-based **chain rule**, the gradient of the loss for each parameter is calculated layer by layer in reverse from the output layer. For example, the gradient for weight $W_{ij}$: $\frac{\partial \mathcal{L}}{\partial W_{ij}} = \frac{\partial \mathcal{L}}{\partial \hat{y}} \cdot \frac{\partial \hat{y}}{\partial h} \cdot \frac{\partial h}{\partial W_{ij}}$.
+  2. **Backward pass**: using the **chain rule** of calculus, the gradient of the loss with respect to each parameter is computed layer by layer in reverse, starting from the output layer. For example, the gradient for weight $W_{ij}$: $\frac{\partial \mathcal{L}}{\partial W_{ij}} = \frac{\partial \mathcal{L}}{\partial \hat{y}} \cdot \frac{\partial \hat{y}}{\partial h} \cdot \frac{\partial h}{\partial W_{ij}}$.
 
-  3. **parameter update**: Use gradient descent algorithm to update parameters, such as SGD: $\mathbf{W} \leftarrow \mathbf{W} - \eta \frac{\partial \mathcal{L}}{\partial \mathbf{W}}$.
+  3. **Parameter update**: update the parameters with a gradient descent algorithm, for example SGD: $\mathbf{W} \leftarrow \mathbf{W} - \eta \frac{\partial \mathcal{L}}{\partial \mathbf{W}}$.
 
-- **Commonly used optimizer**:
+- **Common optimizers**:
 
-  - **SGD + Momentum**: Accumulate historical gradients to reduce directional oscillation and improve the convergence speed of some optimization problems.
+  - **SGD + momentum**: accumulates past gradients to reduce oscillation in direction and speeds up convergence on some optimization problems.
 
-  - **Adam**: Adaptive learning rate optimizer, which combines the advantages of Momentum and RMSProp and is suitable for many deep learning tasks; whether it is better than SGD depends on the task and parameter adjustment.
+  - **Adam**: an adaptive learning-rate optimizer that combines the advantages of momentum and RMSProp and suits many deep learning tasks; whether it beats SGD depends on the task and on tuning.
 
-|Can be tried first|need attention|
+|Good first uses|Things to watch for|
 |:---|:---|
 |Getting started with deep learning for general tabular data|Image (using CNN), sequence (using RNN/Transformer)|
 |Classification/regression tasks after feature engineering improvement|The amount of data is very small (large number of parameters, easy to overfitting)|
 
-## 3.13 Convolutional Neural Network (CNN)
+## 3.13 Convolutional neural networks (CNNs)
 {: id="313-卷积神经网络-cnn"}
 
-> **Core points**: Local receptive field + weight sharing + pooling, born for grid data such as images; ResNet residual connection allows the network to be trained to hundreds of layers, which is the cornerstone of computer vision.
+> **Key points**: local receptive fields + weight sharing + pooling, designed for grid-structured data such as images; ResNet's residual connections let networks be trained to hundreds of layers, making them a cornerstone of computer vision.
 
-CNN is a neural network architecture designed specifically for processing grid-like topological data (such as the 2D pixel grid of an image) and is a cornerstone of the field of computer vision.
+A CNN is a neural network architecture designed specifically for grid-structured data (such as the 2D pixel grid of an image) and is a cornerstone of computer vision.
 
-> **Intuition**: The convolution kernel of CNN is like a sliding "magnifying glass", scanning the image area by area - identifying edges and colors in the shallow layer, texture and shape in the middle layer, and combining high-level semantics such as "ears" and "eyes" in the deep layer. Layers of abstraction, finally recognizing "this is a cat".
+> **Intuition**: a CNN's convolution kernel is like a sliding "magnifying glass" that scans the image region by region: shallow layers pick out edges and colors, middle layers textures and shapes, and deep layers combine them into high-level semantics such as "ears" and "eyes". Abstraction builds up layer by layer until the network recognizes "this is a cat".
 
 <div align="center">
-  <img src="/images/DL/lenet.svg" width="80%" alt="LeNet-5 classic convolutional neural network architecture" />
-<figcaption>Picture: LeNet-5 Classic convolutional neural network architecture</figcaption>
+  <img src="/images/DL/lenet.svg" width="80%" alt="Figure: LeNet-5, a classic convolutional neural network architecture" />
+<figcaption>Figure: LeNet-5, a classic convolutional neural network architecture</figcaption>
 </div>
 
 - **Core mechanism**:
 
-  - **local receptive field and convolution kernel**: Use small filters (convolution kernels) to slide on the input feature map to extract local features (such as edges, textures), greatly reducing the amount of parameters.
+  - **Local receptive fields and convolution kernels**: small filters (convolution kernels) slide over the input feature map to extract local features (such as edges and textures), greatly reducing the number of parameters.
 
-  - **Weight sharing**: The same convolution kernel traverses the entire image, making the model have translational equivariance.
+  - **Weight sharing**: the same convolution kernel is applied across the whole image, giving the model translation equivariance.
 
-  - **Pooling layer (Pooling)**: Such as max pooling, used for downsampling and local aggregation, which can improve tolerance to small displacements, but does not guarantee strict translation invariance. Striding and boundary processing also affect the equivariant properties of the network.
+  - **Pooling layers**: such as max pooling, used for downsampling and local aggregation; they improve tolerance to small shifts but do not guarantee strict translation invariance. Strides and boundary handling also affect the network's equivariance properties.
 
-- **Classic architecture**: LeNet-5 (early handwritten digit recognition), AlexNet (detonating deep learning), VGG (stacked small convolution kernels), ResNet (introducing residual connections to solve the problem of deep network degradation, with a depth of up to hundreds of layers).
+- **Classic architectures**: LeNet-5 (early handwritten digit recognition), AlexNet (which set off the deep learning boom), VGG (stacked small convolution kernels), and ResNet (residual connections that solve the degradation problem of deep networks, allowing depths of hundreds of layers).
 
-|Can be tried first|need attention|
+|Good first uses|Things to watch for|
 |:---|:---|
 |Grid data such as images and videos|Pure sequence/text data (use Transformer instead)|
 |Requires translation invariance and local feature extraction|Very small amount of data (can be mitigated by transfer learning)|
 
-## 3.14 RNN, LSTM and GRU
+## 3.14 RNNs, LSTMs, and GRUs
 {: id="314-rnnlstm-与-gru"}
 
-> **Core points**: The hidden state gives the network time memory; LSTM/GRU uses a gating mechanism to alleviate the gradient problem in long-distance dependent learning, and was the main force in sequence modeling before the emergence of Transformer.
+> **Key points**: the hidden state gives the network a memory over time; LSTMs and GRUs use gating to alleviate gradient problems when learning long-range dependencies, and were the workhorses of sequence modeling before the Transformer.
 
-The recurrent neural network family has experienced the evolution of **RNN → LSTM → GRU**. LSTM and GRU are two different gating structures. The method proposed later is not necessarily better on every task.
+The recurrent neural network family evolved from **RNN to LSTM to GRU**. LSTM and GRU are two different gating structures, and the one proposed later is not necessarily better on every task.
 
-### RNN — basic recurrent structure
+### RNN: the basic recurrent structure
 {: id="rnn--基础循环结构"}
 
-RNN is specially used to process variable-length sequence data such as text, speech, and time series. Unlike ordinary neural networks, it retains a "hidden state" when processing each time step and passes it to the next step, giving the network temporal memory.
+RNNs are designed for variable-length sequence data such as text, speech, and time series. Unlike ordinary neural networks, an RNN keeps a "hidden state" at each time step and passes it to the next step, giving the network a memory over time.
 
-> **Intuition**: Just like a reader who memorizes while reading - each step merges "current input + previous step memory" into a new memory and passes it to the next step.
+> **Intuition**: it is like a reader who keeps a running memory while reading: at each step, "current input + memory from the previous step" is merged into a new memory and passed on to the next step.
 
 <div align="center">
-  <img src="/images/ML/RNN.webp" width="80%" alt="RNN & LSTM/GRU structure comparison" />
-<figcaption>Figure: RNN & LSTM/GRU structure comparison</figcaption>
+  <img src="/images/ML/RNN.webp" width="80%" alt="Figure: Structure comparison of RNN and LSTM/GRU" />
+<figcaption>Figure: Structure comparison of RNN and LSTM/GRU</figcaption>
 </div>
 
-- **hidden state mechanism**: The calculation of each time step is $h_t = \tanh(W_h h_{t-1} + W_x x_t + b)$, where $h_{t-1}$ is the hidden state of the previous step and $x_t$ is the current input.
+- **Hidden-state mechanism**: the computation at each time step is $h_t = \tanh(W_h h_{t-1} + W_x x_t + b)$, where $h_{t-1}$ is the hidden state of the previous step and $x_t$ is the current input.
 
-- **Difficulty in long-distance dependencies**: Backpropagation in the time dimension (BPTT) requires multiple consecutive gradients, which is prone to vanishing gradients or explosion, making it difficult for basic RNN to stably learn distant dependencies.
+- **Difficulty with long-range dependencies**: backpropagation through time (BPTT) multiplies many consecutive gradients, which is prone to vanishing or exploding gradients, so a basic RNN has difficulty learning distant dependencies stably.
 
-### LSTM — gated memory
+### LSTM: gated memory
 {: id="lstm--门控记忆"}
 
-The Long Short-Term Memory network provides a more direct gradient propagation path and alleviates the difficulty of long-term dependent learning by introducing **cell state (Cell State)** and three gating mechanisms. However, it does not guarantee that the gradient will never disappear or explode.
+The long short-term memory (LSTM) network introduces a **cell state** and three gating mechanisms, which give gradients a more direct propagation path and ease the difficulty of learning long-term dependencies. It does not, however, guarantee that gradients will never vanish or explode.
 
-> **Intuition**: LSTM Three switches are installed for the memory - **forgetting gate** determines "which old memories can be deleted", **input gate** determines "which new information is worth remembering", **output gate** determines "which part of the memory is now output to the outside world". The cell state is like a highway, and the degree of information retention is determined by the gate value.
+> **Intuition**: an LSTM puts three switches on its memory: the **forget gate** decides "which old memories can be erased", the **input gate** decides "which new information is worth remembering", and the **output gate** decides "which part of the memory to expose now". The cell state is like a highway, and the gate values determine how much information is retained.
 
-- **forget gate**: $f_t = \sigma(W_f [h_{t-1}, x_t] + b_f)$, output 0~1 determines which of the old cell states are retained (0 = completely forgotten, 1 = completely retained).
+- **Forget gate**: $f_t = \sigma(W_f [h_{t-1}, x_t] + b_f)$; its output between 0 and 1 determines how much of the old cell state is kept (0 = forget completely, 1 = keep completely).
 
-- **input gate**: $i_t = \sigma(W_i [h_{t-1}, x_t] + b_i)$, determines which new information is written; the candidate content is $$\tilde{C}_t = \tanh(W_C [h_{t-1}, x_t] + b_C)$$.
+- **Input gate**: $i_t = \sigma(W_i [h_{t-1}, x_t] + b_i)$ determines which new information is written; the candidate content is $$\tilde{C}_t = \tanh(W_C [h_{t-1}, x_t] + b_C)$$.
 
-- **cell status update**: $$C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t$$, selective new information is added after the old memory is selectively forgotten ($\odot$ is element-wise multiplication).
+- **Cell state update**: $$C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t$$, in which selected new information is added after the old memory has been selectively forgotten ($\odot$ is element-wise multiplication).
 
-- **output gate**: $o_t = \sigma(W_o [h_{t-1}, x_t] + b_o)$, the final output is $h_t = o_t \odot \tanh(C_t)$, which determines what is output to the current step.
+- **Output gate**: $o_t = \sigma(W_o [h_{t-1}, x_t] + b_o)$, and the final output is $h_t = o_t \odot \tanh(C_t)$, which determines what is exposed at the current step.
 
-### GRU — lightweight improvements
+### GRU: a lightweight variant
 {: id="gru--轻量化改进"}
 
-Gated Recurrent Unit (Cho et al. 2014) is a simplification of LSTM: three gates are merged into two, independent cell states are canceled, and there are usually fewer parameters for the same input and hidden state dimensions. The specific speed and effect still need to be measured.
+The gated recurrent unit (GRU, Cho et al. 2014) is a simplification of the LSTM: the three gates are merged into two and the separate cell state is removed, so it usually has fewer parameters for the same input and hidden dimensions. Its actual speed and effectiveness still need to be measured.
 
-> **intuitively understands**: GRU combines the forget gate and the input gate into a **update gate** ("how many old ones should be retained and how many new ones should be introduced"), and uses **reset gate** to control the impact of historical information. The structure is simpler and reasoning is faster.
+> **Intuition**: a GRU merges the forget and input gates into a single **update gate** ("how much of the old to keep and how much of the new to bring in") and uses a **reset gate** to control the influence of past information. The structure is simpler and inference is faster.
 
-- **reset gate**: $r_t = \sigma(W_r [h_{t-1}, x_t])$, controls the impact of the previous hidden state on the candidate state, which is equivalent to "restart" when close to 0.
+- **Reset gate**: $r_t = \sigma(W_r [h_{t-1}, x_t])$ controls how much the previous hidden state influences the candidate state; when it is close to 0, it is effectively a "restart".
 
-- **update gate**: $z_t = \sigma(W_z [h_{t-1}, x_t])$, which simultaneously plays the role of forgetting gate and input gate: $$h_t = (1-z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t$$.
+- **Update gate**: $z_t = \sigma(W_z [h_{t-1}, x_t])$ plays the roles of the forget gate and the input gate at once: $$h_t = (1-z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t$$.
 
-- **Selection Suggestions**: When the sequence is long or stronger memory capacity is required, try LSTM; when pursuing training speed or when resources are limited, try GRU first. The effect of the two depends on the task and data. It is recommended to compare through the validation set.
+- **Practical advice**: when sequences are long or stronger memory is needed, try an LSTM; when training speed matters or resources are limited, try a GRU first. How well each works depends on the task and data, so compare them on a validation set.
 
-|Can be tried first|need attention|
+|Good first uses|Things to watch for|
 |:---|:---|
 |Short to medium length sequences (time series prediction, speech frames)|Very long sequences (Transformer parallel processing is more efficient)|
 |Resource constraints require lightweight real-time inference (GRU preferred)|Need to capture distant context in text|
 
-## 3.15 Transformer Architecture
+## 3.15 The Transformer architecture
 {: id="315-transformer-架构"}
 
-> **Core points**: With Self-Attention as the core, parallel modeling of global long-distance dependencies; Transformer has become the infrastructure of many languages, multi-modal and generative models.
+> **Key points**: with self-attention at its core, it models global long-range dependencies in parallel; the Transformer has become the infrastructure of many language, multimodal, and generative models.
 
-Transformer (Vaswani et al., 2017, "Attention Is All You Need") takes self-attention and feed-forward networks as its core, gets rid of the serial dependence of cyclic structures, and has become an important architecture of many modern foundation models.
+The Transformer (Vaswani et al., 2017, "Attention Is All You Need") is built around self-attention and feed-forward networks, removes the sequential dependence of recurrent structures, and has become an important architecture for many modern foundation models.
 
-> **Intuition**: Transformer is like a "global conference room" - each token can interact directly with the position allowed by the mask (self-attention), and there is no need to rely on "messaging" to transmit information like RNN. Therefore, it can process in parallel and efficiently capture context dependencies at any distance.
+> **Intuition**: a Transformer is like a "global meeting room": each token can interact directly with every position the mask allows (self-attention), with no need to pass information along by "relaying messages" as an RNN does. It can therefore process in parallel and capture contextual dependencies at any distance efficiently.
 
 <div align="center">
-  <img src="/images/DL/transformer-architecture.webp" width="80%" alt="Transformer model architecture (source: Vaswani et al., 2017)" />
-<figcaption>Figure: Transformer model architecture (Source: Vaswani et al., 2017)</figcaption>
+  <img src="/images/DL/transformer-architecture.webp" width="80%" alt="Figure: The Transformer architecture (source: Vaswani et al., 2017)" />
+<figcaption>Figure: The Transformer architecture (source: Vaswani et al., 2017)</figcaption>
 </div>
 
 ### Self-attention
 {: id="自注意力"}
 
-Global self-attention without causal restrictions allows each element in the sequence to focus on other positions; causal self-attention can only focus on the current position and the previous position, and calculate the association weight between them, thereby capturing global long-distance dependencies in parallel.
+Self-attention without a causal restriction lets each element of the sequence attend to every other position; causal self-attention can attend only to the current and earlier positions. In both cases it computes association weights between positions, thereby capturing global long-range dependencies in parallel.
 
-- The input sequence is generated through three linear transformations: **Query ($Q$)**, **Key ($K$)**, **Value ($V$)** matrix.
+- The input sequence is passed through three linear transformations to produce the **query ($Q$)**, **key ($K$)**, and **value ($V$)** matrices.
 
-- The attention weight is calculated by the dot product of $Q$ and $K$, and then weighted by Softmax normalization $V$:
+- The attention weights are computed from the dot product of $Q$ and $K$, normalized with a softmax, and used to take a weighted sum of $V$:
 
 $$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V $$
 
-**formula interpretation**: $Q$ = "What am I looking for", $K$ = "What keywords can I provide", $V$ = "My actual content". $Q \cdot K^T$ calculates the correlation score of each pair of tokens and divides it by $\sqrt{d_k}$ to prevent the Softmax gradient from disappearing due to excessive scores. Finally, $V$ is weighted and summed to obtain a new representation of each token that incorporates contextual information.
+**Reading the formula**: $Q$ is "what I am looking for", $K$ is "what keywords I can offer", and $V$ is "my actual content". $Q \cdot K^T$ computes a relevance score for each pair of tokens, and dividing by $\sqrt{d_k}$ keeps overly large scores from making the softmax gradient vanish. Finally, $V$ is summed with these weights to give each token a new representation that incorporates context.
 
 ### Multi-head attention
 {: id="多头注意力"}
 
-Split $Q, K, V$ into $h$ independent "heads", each head calculates attention in different subspaces, and finally splices:
+$Q, K, V$ are split into $h$ independent "heads"; each head computes attention in a different subspace, and the results are concatenated:
 
 $$ \text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \dots, \text{head}_h)W^O $$
 
-Different heads can focus on different levels of relationships (grammatical relationships, semantic relationships, positional relationships, etc.) at the same time, greatly improving expression capabilities.
+Different heads can attend to different kinds of relations (syntactic, semantic, positional, and so on) at the same time, which greatly improves expressive power.
 
-### Transformer Block Structure
+### Structure of a Transformer block
 {: id="transformer-block-结构"}
 
-Basic Encoder Block and common Decoder-only Block include the following two types of sub-layers, which are combined with **residual connection and LayerNorm** to improve training stability; the Decoder of the original Encoder-Decoder model also includes cross-attention:
+The basic encoder block and the common decoder-only block contain the following two kinds of sublayers, combined with **residual connections and LayerNorm** to improve training stability; the decoder of the original encoder-decoder model also includes cross-attention:
 
-1. **Multi-head self-attention layer**: Capture the dependencies between tokens.
-2. **Feedforward Network (FFN)**: Two layers of linear transformation sandwich an activation function, and each position is independently transformed nonlinearly: $\text{FFN}(x) = W_2 \cdot \text{ReLU}(W_1 x + b_1) + b_2$.
+1. **Multi-head self-attention layer**: captures dependencies between tokens.
+2. **Feed-forward network (FFN)**: two linear transformations with an activation function in between, applying a nonlinear transformation to each position independently: $\text{FFN}(x) = W_2 \cdot \text{ReLU}(W_1 x + b_1) + b_2$.
 
 ### Positional encoding
 {: id="位置编码"}
 
-Without position encoding and order-dependent masks, the self-attention pair arrangement is **equivariant**: scrambling the input will cause the output to be rearranged in the same way, rather than the output being completely unchanged. Therefore, it is usually necessary to add location information to distinguish the order. The original solution used sine/cosine functions to encode absolute position; subsequently, relative position encoding schemes such as RoPE (rotational position encoding, adopted by LLaMA series) and ALiBi were developed.
+Without positional encoding or an order-dependent mask, self-attention is **equivariant** to permutations: shuffling the input shuffles the output in the same way, rather than leaving the output completely unchanged. Positional information therefore usually has to be added to distinguish order. The original design used sine/cosine functions to encode absolute position; relative positional encoding schemes such as RoPE (rotary position embedding, adopted by the LLaMA series) and ALiBi were developed later.
 
-### Encoder-Decoder architecture
+### The encoder-decoder architecture
 {: id="encoder-decoder-架构"}
 
-- **Encoder**: $N$ Blocks are stacked, and the input tokens can follow each other in both directions, which is suitable for "understanding" tasks (such as source language encoding for machine translation).
-- **Decoder**: The same $N$ Blocks, but the self-attention layer adds **causal mask (Causal Mask)** - each token Only the content before it can be seen (autoregressive generation); and **cross attention layer**, $Q$ from Decoder, and $K, V$ from Encoder are added to realize attention to the source language.
+- **Encoder**: $N$ stacked blocks in which the input tokens can attend to each other in both directions, suited to "understanding" tasks (such as encoding the source sentence in machine translation).
+- **Decoder**: also $N$ stacked blocks, but the self-attention layer adds a **causal mask**, so each token can only see the content before it (autoregressive generation); a **cross-attention layer** is also added, with $Q$ coming from the decoder and $K, V$ from the encoder, to attend to the source sentence.
 
 ### Why Transformers replaced RNNs
 {: id="transformer-为何取代-rnn"}
 
-RNN must be processed serially in time steps ($O(n)$ serial dependency) and cannot fully utilize GPU parallelism; Self-Attention calculates the relationship of all token pairs in parallel at once (training complexity $O(n^2 d)$), which facilitates parallel processing of sequences in training and shortens the information path between remote locations. However, deep Transformers may still have optimization and gradient problems; standard autoregressive inference still proceeds according to the generation step, and attention also has a secondary computational cost. [Original paper ](https://arxiv.org/abs/1706.03762) discusses these architectural differences.
+An RNN must process time steps serially ($O(n)$ sequential dependency) and cannot fully exploit GPU parallelism; self-attention computes the relations between all token pairs in parallel in one pass (training complexity $O(n^2 d)$), which makes parallel processing of sequences during training easy and shortens the information path between distant positions. Deep Transformers can still have optimization and gradient problems, however; standard autoregressive inference still proceeds step by step, and attention has quadratic computational cost. [Original paper ](https://arxiv.org/abs/1706.03762) discusses these architectural differences.
 
-|Can be tried first|need attention|
+|Good first uses|Things to watch for|
 |:---|:---|
-|Long sequences, need global context (NLP, multi-modal)|GPU memory consumption is large when the sequence is very long ($O(n^2)$, requires optimization such as Flash Attention)|
-|Large-scale pre-training scenarios with sufficient data volume|Very small data set (weak inductive bias, not as fast as CNN convergence)|
+|Long sequences that need global context (NLP, multimodal)|GPU memory use is large for very long sequences ($O(n^2)$; optimizations such as FlashAttention are needed)|
+|Large-scale pretraining with plenty of data|Very small datasets (weak inductive bias; converges more slowly than a CNN)|
 
 ---
 
-> **Part C · Pre-training large model paradigm (§3.16)** - Transformer × massive unlabeled corpus, the new paradigm of "pre-training + fine-tuning/Prompt" has completely changed NLP and gave birth to the era of large models.
+> **Part C · The pretrained large-model paradigm (§3.16)**: Transformers plus massive unlabeled corpora; the new "pretraining + fine-tuning / prompting" paradigm completely changed NLP and gave rise to the era of large models.
 
 <a id="ml-pretraining"></a>
 
 ## 3.16 BERT and GPT
 {: id="316-bert-与-gpt"}
 
-> **Core points**: BERT uses a bidirectional Encoder to be good at understanding tasks (classification, extraction); GPT uses an autoregressive Decoder to be good at generation, and can improve interactive behavior by combining instruction fine-tuning and preference optimization.
+> **Key points**: BERT uses a bidirectional encoder and is good at understanding tasks (classification, extraction); GPT uses an autoregressive decoder and is good at generation, and its interactive behavior can be improved with instruction fine-tuning and preference optimization.
 
-Here we compare two representative pre-training methods. They are not a strict demarcation between "understanding" and "generating": Decoder-only models can also do classification, and Encoder-Decoder models (such as T5) provide another way of organizing.
+Here we compare two representative pretraining approaches. They are not a strict dividing line between "understanding" and "generating": decoder-only models can also do classification, and encoder-decoder models (such as T5) offer another way to organize things.
 
-> **Intuition**: BERT is like doing a fill-in-the-blank question - randomly remove a few words from the sentence and let the model guess it based on the context, forcing it to understand the two-way context. GPT is like continuing a story - giving you the first half, word by word, learning language rules through a large number of sequence predictions, and can be adapted to tasks such as question and answer, coding, etc.; these abilities require specific evaluation.
+> **Intuition**: BERT is like a fill-in-the-blank exercise: a few words are removed from the sentence at random and the model must guess them from the context, which forces it to understand the context in both directions. GPT is like continuing a story: given the first half, it continues word by word, learning the rules of language through a huge number of next-token predictions, and it can be adapted to tasks such as question answering and coding; these abilities must be evaluated specifically.
 
-### BERT — Bidirectional Encoder Paradigm
+### BERT: the bidirectional encoder paradigm
 {: id="bert--双向编码器范式"}
 
-BERT (Bidirectional Encoder Representations from Transformers, Google 2018) adopts the **Encoder** part of Transformer. The core innovation lies in bidirectional context modeling.
+BERT (Bidirectional Encoder Representations from Transformers, Google, 2018) uses the **encoder** part of the Transformer. Its core innovation is modeling context in both directions.
 
-- **pre-training task**:
+- **Pretraining tasks**:
 
-  - **Masked Language Model (MLM)**: The token of 15% is randomly selected as the prediction target; in these positions, 80% is replaced with `[MASK]`, 10% is replaced with a random token, 10% Leave it as is. The model predicts the original token based on the bidirectional context. The proportion is for the "selected position", not the entire input. [BERT’s original paper ](https://arxiv.org/html/1810.04805v2) gives the specific process.
+  - **Masked language model (MLM)**: 15% of the tokens are randomly selected as prediction targets; at these positions, 80% are replaced with `[MASK]`, 10% with a random token, and 10% are left unchanged. The model predicts the original token from the bidirectional context. The percentages refer to the selected positions, not the whole input. The [original BERT paper](https://arxiv.org/html/1810.04805v2) gives the exact procedure.
 
-  - **Next sentence prediction (NSP)**: Determine whether two sentences are contextually continuous and help the model learn inter-sentence semantics.
+  - **Next sentence prediction (NSP)**: decide whether two sentences follow each other in context, which helps the model learn relations between sentences.
 
-- **usage paradigm - "pre-training + fine-tuning"**: first pre-train on large-scale unlabeled corpus, and then fine-tune with a small amount of labeled data on specific downstream tasks. BERT has significantly set records on benchmarks such as GLUE and SQuAD, defining the standard paradigm in the NLU era.
+- **Usage paradigm, "pretraining + fine-tuning"**: first pretrain on a large unlabeled corpus, then fine-tune on a specific downstream task with a small amount of labeled data. BERT set records by a wide margin on benchmarks such as GLUE and SQuAD and defined the standard paradigm of the natural language understanding era.
 
-- **Limitations**: MLM's `[MASK]` tag does not exist during inference, resulting in a distribution mismatch between pre-training and inference (Pretrain-Finetune Discrepancy); and the Encoder architecture is not good at text generation tasks.
+- **Limitations**: the `[MASK]` token used by MLM does not exist at inference time, creating a distribution mismatch between pretraining and downstream use (the pretrain-finetune discrepancy); and the encoder architecture is not good at text generation.
 
-- **follow-up development**: RoBERTa (removing NSP, larger data and longer training), ALBERT (parameter sharing compression), DeBERTa (decoupling attention) and other further optimizations.
+- **Follow-up work**: further improvements include RoBERTa (dropping NSP, with more data and longer training), ALBERT (compression through parameter sharing), and DeBERTa (disentangled attention).
 
-### GPT — Autoregressive decoder paradigm
+### GPT: the autoregressive decoder paradigm
 {: id="gpt--自回归解码器范式"}
 
-GPT (Generative Pre-trained Transformer, OpenAI) uses the **Decoder-only** structure with causal self-attention (usually without the cross-attention to the Encoder in the original translation model), and generates text token by token through autoregression.
+GPT (Generative Pre-trained Transformer, OpenAI) uses a **decoder-only** structure with causal self-attention (usually without the cross-attention to an encoder found in the original translation model) and generates text token by token autoregressively.
 
-- **pre-training task - predict the next token**: given the previous text $x_1, x_2, \dots, x_{t-1}$, predict the next token $x_t$. Training usually minimizes the negative log-likelihood, which is equivalent to maximizing the sequence log-likelihood:
+- **Pretraining task, next-token prediction**: given the preceding text $x_1, x_2, \dots, x_{t-1}$, predict the next token $x_t$. Training usually minimizes the negative log-likelihood, which is equivalent to maximizing the sequence log-likelihood:
 
 $$ \mathcal{L}_{\mathrm{NLL}} = -\sum_{t=1}^{T} \log P(x_t \mid x_1, \dots, x_{t-1}; \theta) $$
 
-The Causal Mask is used to ensure that only the previous token can be seen at each position to ensure autoregressive constraints.
+A causal mask ensures that each position can only see earlier tokens, which enforces the autoregressive constraint.
 
-- **Scaling Laws and Emergent Ability**: The language model loss exhibits an empirical scaling relationship with parameters, data and calculation scale within a certain experimental range, but this cannot guarantee that all task capabilities can be improved simultaneously. "Emergence" is also affected by evaluation metrics: discrete scores may show continuous improvements as sudden jumps, and should be interpreted in conjunction with the task, model family, and measurement method. See [Kaplan et al.](https://arxiv.org/abs/2001.08361) and [Study on emergent measurement](https://arxiv.org/abs/2304.15004).
+- **Scaling laws and emergent abilities**: within a certain experimental range, language model loss follows an empirical scaling relationship with the number of parameters, the amount of data, and the amount of compute, but this does not guarantee that all task capabilities improve at the same time. "Emergence" is also affected by the evaluation metric: a discrete score can make a continuous improvement look like a sudden jump, so it should be interpreted together with the task, the model family, and the measurement method. See [Kaplan et al.](https://arxiv.org/abs/2001.08361) and [a study of emergence and measurement](https://arxiv.org/abs/2304.15004).
 
-- **Historical representative model** (used to understand method evolution, not a complete product list):
+- **Representative historical models** (to illustrate how the methods evolved, not a complete product list):
 
-|model|Parameter quantity|key breakthrough|
+|Model|Parameters|Key breakthrough|
 |:---|:---|:---|
-| GPT-1 |117 million|Verified the feasibility of "unsupervised pre-training + supervised fine-tuning"|
-| GPT-2 |1.5 billion|Demonstrates zero-shot capabilities, and the quality of text generation arouses social concern|
-| GPT-3 |175 billion|In-context Learning, few-shot capabilities are amazing and no fine-tuning is required|
-| GPT-4 |Undisclosed|Multi-modality (text + image input), RLHF alignment, stronger reasoning capabilities|
+| GPT-1 |117 million|Verified the feasibility of "unsupervised pretraining + supervised fine-tuning"|
+| GPT-2 |1.5 billion|Demonstrated zero-shot ability; the quality of its generated text raised social concerns|
+| GPT-3 |175 billion|In-context learning: striking few-shot ability with no fine-tuning needed|
+| GPT-4 |Undisclosed|Multimodality (text + image input), RLHF alignment, stronger reasoning|
 
-- **Instruction fine-tuning and preference optimization**: Supervised fine-tuning (SFT) learning demonstration answer; the typical RLHF process reuses preference data to train the reward model, and uses methods such as PPO to optimize the strategy. DPO directly uses preference pairs to optimize the language model, without the need to separately train an explicit reward model or run PPO during the fine-tuning process. Both rely on the quality of feedback and cannot guarantee factual accuracy or eliminate all risks. See [InstructGPT](https://arxiv.org/abs/2203.02155) and [DPO](https://arxiv.org/abs/2305.18290).
+- **Instruction fine-tuning and preference optimization**: supervised fine-tuning (SFT) learns from demonstration answers; the typical RLHF pipeline trains a reward model on preference data and then optimizes the policy with a method such as PPO. DPO optimizes the language model directly on preference pairs, without training a separate explicit reward model or running PPO during fine-tuning. Both depend on the quality of the feedback and cannot guarantee factual accuracy or eliminate all risks. See [InstructGPT](https://arxiv.org/abs/2203.02155) and [DPO](https://arxiv.org/abs/2305.18290).
 
-### Comparison of two paradigms
+### Comparing the two paradigms
 {: id="两大范式对比"}
 
-|Dimensions| BERT(Encoder) | GPT(Decoder) |
+|Dimension| BERT (encoder) | GPT (decoder) |
 |:---|:---|:---|
-|attention direction|Bidirectional (full context)|One-way (see the previous article only)|
-|Pre-training tasks|Masked language model (fill in the blank)|Next token prediction (continuation)|
-|good at task|Understanding classes (classification, extraction, matching)|Generative classes (conversation, writing, reasoning)|
-|Use paradigm|Pre-training + fine-tuning|Pre-training + Prompting/In-context Learning|
-|Selection considerations|Suitable for fixed output, representation extraction and task fine-tuning|Suitable for open-ended output; still needs to evaluate cost, illusion, and task performance|
+|Attention direction|Bidirectional (full context)|Unidirectional (earlier tokens only)|
+|Pretraining task|Masked language modeling (fill in the blank)|Next-token prediction (continuation)|
+|Strong at|Understanding tasks (classification, extraction, matching)|Generation tasks (dialogue, writing, reasoning)|
+|Usage paradigm|Pretraining + fine-tuning|Pretraining + prompting / in-context learning|
+|Selection considerations|Suited to fixed outputs, representation extraction, and task fine-tuning|Suited to open-ended outputs; cost, hallucination, and task performance still need to be evaluated|
 
 ---
 
-> **Part D · Generative model (§3.17 – §3.20)** - From adversarial game (GAN) to probabilistic modeling (VAE) to denoising diffusion (Diffusion), AI moves from "understanding data" to "creating data".
+> **Part D · Generative models (§3.17 – §3.20)**: from adversarial games (GANs) to probabilistic modeling (VAEs) to denoising diffusion, AI moves from "understanding data" to "creating data".
 
 <a id="ml-generation"></a>
 
 ## 3.17 GANs
 {: id="317-生成对抗网络-gan"}
 
-> **Core points**: Generator and discriminator game confrontation, G for fraud, D for fraud; sampling usually only requires one generator forward, but the training may be unstable and there is a risk of model collapse.
+> **Key points**: a generator and a discriminator play an adversarial game, with G trying to fool and D trying to catch it; sampling usually needs only one forward pass of the generator, but training can be unstable and mode collapse is a risk.
 
-GAN (Generative Adversarial Network) learns to generate distribution through confrontational training of generator and discriminator.
+A GAN (generative adversarial network) learns a generative distribution through adversarial training of a generator and a discriminator.
 
-> **intuitively understands**: Just like the game between the currency counterfeiter (generator G) and the currency examiner (discriminator D) - G continuously improves the level of counterfeiting, and D continuously improves the identification ability. The two compete with each other and evolve together, with the goal of making the generated samples closer to the true distribution, but training does not guarantee an ideal equilibrium.
+> **Intuition**: it is like the contest between a counterfeiter (generator G) and a bank inspector (discriminator D): G keeps improving its forgeries while D keeps improving its detection. The two compete and improve together, with the aim of making the generated samples ever closer to the true distribution, though training does not guarantee an ideal equilibrium.
 
 <div align="center">
-  <img src="/images/ML/gan.webp" width="60%" alt="Generative adversarial network (GAN) architecture diagram" />
-<figcaption>Figure: Generative Adversarial Network (GAN) architecture diagram</figcaption>
+  <img src="/images/ML/gan.webp" width="60%" alt="Figure: Architecture of a generative adversarial network (GAN)" />
+<figcaption>Figure: Architecture of a generative adversarial network (GAN)</figcaption>
 </div>
 
-- **architecture**: contains two mutually antagonistic neural networks - **generator (Generator, G)** and **discriminator (Discriminator, D)**.
+- **Architecture**: two neural networks that oppose each other: a **generator (G)** and a **discriminator (D)**.
 
-- The core idea of **is**: the generator starts from the random noise $\mathbf{z} \sim p_z(z)$ and tries to generate a realistic fake sample $G(\mathbf{z})$; the discriminator receives the real sample $\mathbf{x}$ and the generated sample $G(\mathbf{z})$, and outputs a probability value $D(\cdot) \in [0,1]$, represents the confidence level that "this sample is true". The two constantly compete and evolve together during training.
+- **Core idea**: the generator starts from random noise $\mathbf{z} \sim p_z(z)$ and tries to produce realistic fake samples $G(\mathbf{z})$; the discriminator receives real samples $\mathbf{x}$ and generated samples $G(\mathbf{z})$ and outputs a probability $D(\cdot) \in [0,1]$ representing its confidence that "this sample is real". The two compete and improve together throughout training.
 
-- **objective function (minimax game)**:
+- **Objective (minimax game)**:
 
 $$ \min_G \max_D \; \mathbb{E}_{\mathbf{x} \sim p_{data}}[\log D(\mathbf{x})] + \mathbb{E}_{\mathbf{z} \sim p_z}[\log(1 - D(G(\mathbf{z})))] $$
 
-Interpretation of the **formula**: $\mathbb{E}[\log D(\mathbf{x})]$ is D’s score on the real sample (the bigger the better); $\mathbb{E}[\log(1-D(G(\mathbf{z})))]$ is D’s judgment on the fake sample – D wants this to be big (fake samples get low scores), G wants this to be small (let fake samples fool D). **Under theoretical conditions such as ideal capacity and global optimality**, the optimal discriminator output 0.5 is when the generated distribution is equal to the true distribution. In actual training, the output is close to 0.5. It may also be that the discriminator has not learned well and cannot be used alone as proof of generation quality.
+**Reading the formula**: $\mathbb{E}[\log D(\mathbf{x})]$ is D's score on real samples (the larger the better); $\mathbb{E}[\log(1-D(G(\mathbf{z})))]$ is D's judgment of fake samples: D wants it large (fake samples get low scores), while G wants it small (so that fake samples fool D). **Under theoretical conditions such as ideal capacity and global optimality**, the optimal discriminator outputs 0.5 when the generated distribution equals the true distribution. In actual training, an output near 0.5 may also mean the discriminator has not learned well, so it cannot be used by itself as evidence of generation quality.
 
-- **training process**:
+- **Training procedure**:
 
-  1. Fix G, train D for several steps: use real samples (label=1) and generated samples (label=0) to train a two-classifier.
+  1. Fix G and train D for several steps: train a binary classifier on real samples (label 1) and generated samples (label 0).
 
-  2. Fix D and train G in one step: generate fake samples and send them to D, and update G with the feedback gradient of D to make the generated samples more realistic.
+  2. Fix D and train G for one step: generate fake samples, feed them to D, and update G with the gradient fed back from D so that the generated samples look more realistic.
 
-  3. Repeat the above process alternately until convergence.
+  3. Alternate the two steps until convergence.
 
-- **Frequently Asked Questions and Improvements**:
+- **Common problems and improvements**:
 
-  - **Mode Collapse**: G only learns to generate a few types of samples, losing the diversity of data.
+  - **Mode collapse**: G learns to generate only a few types of samples and loses the diversity of the data.
 
-  - **Training instability**: The capabilities of G and D need to be balanced, otherwise the gradient disappears or explodes.
+  - **Training instability**: the strengths of G and D must be kept balanced, or gradients vanish or explode.
 
-  - **improved variant**: WGAN (replacing JS divergence with Wasserstein distance to alleviate training instability), StyleGAN (introducing style control to generate high-resolution faces), CycleGAN (image style transfer without paired data).
+  - **Improved variants**: WGAN (replaces the JS divergence with the Wasserstein distance to ease training instability), StyleGAN (introduces style control to generate high-resolution faces), and CycleGAN (image style transfer without paired data).
 
-- **application scenarios**: image generation, super-resolution reconstruction (SRGAN), image restoration (Inpainting), style transfer, and data augmentation.
+- **Applications**: image generation, super-resolution (SRGAN), image inpainting, style transfer, and data augmentation.
 
-|Can be tried first|need attention|
+|Good first uses|Things to watch for|
 |:---|:---|
-|Image style transfer, super-resolution reconstruction|Requires training stability and generation diversity|
-|Data augmentation (enlarging small data sets)|Need for accurate probabilistic modeling|
+|Image style transfer, super-resolution|Needs training stability and generation diversity|
+|Data augmentation (enlarging small datasets)|Needs accurate probabilistic modeling|
 
-## 3.18 Autoencoder
+## 3.18 Autoencoders
 {: id="318-自编码器-autoencoder"}
 
-> **Core points**: Encoder-Decoder bottleneck structure learning compression representation, which can be regarded as nonlinear PCA; good at denoising/dimensionality reduction/anomaly detection, but the latent space is irregular and not suitable for directly generating new samples.
+> **Key points**: an encoder-decoder with a bottleneck learns a compressed representation and can be viewed as a nonlinear PCA; it is good at denoising, dimensionality reduction, and anomaly detection, but its latent space is irregular and not suited to generating new samples directly.
 
-Autoencoder (AE) is an unsupervised learning neural network model whose core goal is to learn a compressed representation of data.
+An autoencoder (AE) is an unsupervised neural network whose core goal is to learn a compressed representation of the data.
 
-> **intuitively understands**: It's like "compressing a file and then decompressing it" - compressing a picture into dozens of numbers (encoding), and then restoring the picture from these dozens of numbers (decoding). The bottleneck structure forces the network to cram the most key takeaways of information into a few numbers and automatically learn the essential characteristics of the data.
+> **Intuition**: it is like compressing a file and then decompressing it: a picture is compressed into a few dozen numbers (encoding), and then restored from those numbers (decoding). The bottleneck forces the network to cram the most essential information into a few numbers and thus to learn the essential characteristics of the data automatically.
 
 <div align="center">
-  <img src="/images/ML/ae.webp" width="60%" alt="Autoencoder (AE) architecture diagram" />
-<figcaption>Figure: Autoencoder (AE) architecture diagram</figcaption>
+  <img src="/images/ML/ae.webp" width="60%" alt="Figure: Architecture of an autoencoder (AE)" />
+<figcaption>Figure: Architecture of an autoencoder (AE)</figcaption>
 </div>
 
-- **architecture**: composed of **encoder (Encoder)** $f_\theta$ and **decoder (Decoder)** $g_\phi$ Composed of two parts. The encoder compresses the high-dimensional input $\mathbf{x} \in \mathbb{R}^n$ into a low-dimensional latent representation $\mathbf{z} = f_\theta(\mathbf{x}) \in \mathbb{R}^d$ (where $d \ll n$), and the decoder maps $\mathbf{z}$ back to the original space to generate the reconstruction $\hat{\mathbf{x}} = g_\phi(\mathbf{z})$.
+- **Architecture**: composed of two parts, an **encoder** $f_\theta$ and a **decoder** $g_\phi$. The encoder compresses the high-dimensional input $\mathbf{x} \in \mathbb{R}^n$ into a low-dimensional latent representation $\mathbf{z} = f_\theta(\mathbf{x}) \in \mathbb{R}^d$ (where $d \ll n$), and the decoder maps $\mathbf{z}$ back to the original space to produce the reconstruction $\hat{\mathbf{x}} = g_\phi(\mathbf{z})$.
 
-- **Core idea**: Use the "bottleneck" structure (low-dimensional hidden layer) to force the network to learn the most essential features in the data and discard redundant information. It can be compared to a nonlinear PCA.
+- **Core idea**: the "bottleneck" structure (a low-dimensional hidden layer) forces the network to learn the most essential features of the data and discard redundant information. It can be compared to a nonlinear PCA.
 
-- **loss function**: Minimize the reconstruction error, such as mean square error:
+- **Loss function**: minimize the reconstruction error, such as the mean squared error:
 
 $$ \mathcal{L} = \|\mathbf{x} - \hat{\mathbf{x}}\|^2 = \|\mathbf{x} - g_\phi(f_\theta(\mathbf{x}))\|^2 $$
 
-**formula interpretation**: $\mathbf{x}$ is the original input, $\hat{\mathbf{x}}$ is the reconstructed output, and the loss is "how distorted the restoration is." After the training is completed, the hidden vector $\mathbf{z}$ extracted by the encoder $f_\theta$ is the compressed representation of the data ($d \ll n$).
+**Reading the formula**: $\mathbf{x}$ is the original input, $\hat{\mathbf{x}}$ is the reconstructed output, and the loss measures how distorted the reconstruction is. After training, the latent vector $\mathbf{z}$ extracted by the encoder $f_\theta$ is the compressed representation of the data ($d \ll n$).
 
 - **Main variants**:
 
-  - **denoising autoencoder (Denoising AE, DAE)**: Input artificially noisy $\tilde{\mathbf{x}}$, and the training model recovers clean $\mathbf{x}$, forcing the network to learn more robust features.
+  - **Denoising autoencoder (DAE)**: the input is deliberately corrupted with noise to give $\tilde{\mathbf{x}}$, and the model is trained to recover the clean $\mathbf{x}$, forcing the network to learn more robust features.
 
-  - **Sparse Autoencoder (Sparse AE)**: Apply sparse constraints (such as KL divergence penalty) on the hidden layer, so that only a few neurons are activated, resulting in more interpretable features.
+  - **Sparse autoencoder**: applies a sparsity constraint (such as a KL-divergence penalty) to the hidden layer so that only a few neurons are active, giving more interpretable features.
 
-  - **Contractive AE**: Add the Frobenius norm penalty of the encoder Jacobian matrix to the loss to make the hidden layer representation insensitive to small input perturbations.
+  - **Contractive autoencoder**: adds a penalty on the Frobenius norm of the encoder's Jacobian to the loss, making the latent representation insensitive to small input perturbations.
 
-- **Limitations**: Ordinary AE does not explicitly match the constraints of sampleable priors; randomly sampled latent vectors may fall in areas rarely covered by training encodings, and decoding quality cannot be guaranteed. This does not mean that the encoding or decoding functions are mathematically discontinuous. Therefore, AE is good at compression and reconstruction, but **is not suitable for directly generating new samples**. This is exactly the problem that VAE wants to solve.
+- **Limitations**: an ordinary AE does not explicitly impose a sampleable prior; a randomly sampled latent vector may fall in a region rarely covered by the training encodings, so decoding quality cannot be guaranteed. This does not mean the encoder or decoder is mathematically discontinuous. An AE is therefore good at compression and reconstruction but **not suited to generating new samples directly**. This is exactly the problem the VAE sets out to solve.
 
-- **application scenarios**: nonlinear dimensionality reduction and feature learning, image denoising, anomaly detection (reconstruction error is used as the candidate score, but abnormal samples may also be well reconstructed and need to be verified separately).
+- **Applications**: nonlinear dimensionality reduction and feature learning, image denoising, and anomaly detection (the reconstruction error serves as a candidate score, but anomalous samples may also be reconstructed well and must be verified separately).
 
-|Can be tried first|need attention|
+|Good first uses|Things to watch for|
 |:---|:---|
-|Data dimensionality reduction, feature learning, image denoising|Need to generate completely new samples (use VAE/Diffusion instead)|
-|Anomaly detection (reconstruction error as anomaly score)|Hidden space interpretability and continuity requirements are high|
+|Dimensionality reduction, feature learning, image denoising|Needs to generate entirely new samples (use a VAE or diffusion instead)|
+|Anomaly detection (reconstruction error as the anomaly score)|Needs an interpretable, continuous latent space|
 
-## 3.19 Variational autoencoder (VAE)
+## 3.19 Variational autoencoders (VAEs)
 {: id="319-变分自编码器-vae"}
 
-> **Core points**: VAE specifies priors for latent variables and approximates posteriors with encoders; simultaneously learns reconstructed and sampled generative distributions through variational inference.
+> **Key points**: a VAE places a prior on the latent variables and approximates the posterior with the encoder; through variational inference, it learns a generative distribution that supports both reconstruction and sampling.
 
-**Intuition**: Ordinary AE gives each input a certain code, while VAE gives a probability distribution of a set of possible codes. Both reconstruction quality and prior constraints are taken into consideration during training, and prior sampling and decoding are performed during generation. It encourages a more organized latent space, but does not guarantee that every sampling point corresponds to a reasonable sample.
+**Intuition**: an ordinary AE gives each input one deterministic code, whereas a VAE gives a probability distribution over possible codes. Training balances reconstruction quality against the prior constraint, and generation samples from the prior and decodes. This encourages a better-organized latent space but does not guarantee that every sampled point corresponds to a reasonable sample.
 
 <div align="center">
-  <img src="/images/ML/vae.png" width="60%" alt="Encoding, sampling and decoding process of variational autoencoder" />
-<figcaption>Figure: Variational autoencoder (VAE) architecture diagram</figcaption>
+  <img src="/images/ML/vae.png" width="60%" alt="Figure: Architecture of a variational autoencoder (VAE)" />
+<figcaption>Figure: Architecture of a variational autoencoder (VAE)</figcaption>
 </div>
 
-The encoder gives an approximate posterior $q_\phi(\mathbf{z}\mid\mathbf{x})$, the decoder defines the observation distribution $p_\theta(\mathbf{x}\mid\mathbf{z})$, and a commonly used prior is $p(\mathbf{z})=\mathcal{N}(0,I)$. VAE maximizes evidence lower bound (ELBO):
+The encoder gives an approximate posterior $q_\phi(\mathbf{z}\mid\mathbf{x})$, the decoder defines the observation distribution $p_\theta(\mathbf{x}\mid\mathbf{z})$, and a commonly used prior is $p(\mathbf{z})=\mathcal{N}(0,I)$. A VAE maximizes the evidence lower bound (ELBO):
 
 $$
 \log p_\theta(\mathbf{x}) \geq \mathcal{L}_{\mathrm{ELBO}} = \mathbb{E}_{q_\phi(\mathbf{z}\mid\mathbf{x})}[\log p_\theta(\mathbf{x}\mid\mathbf{z})] - D_{\mathrm{KL}}\big(q_\phi(\mathbf{z}\mid\mathbf{x})\,\|\,p(\mathbf{z})\big)
 $$
 
-Implementations typically **minimize negative ELBO**. The first term encourages reconstruction, and the second term constrains the difference between approximate posterior and prior. Under the fixed-variance Gaussian observation model, the negative log-likelihood can be written as the squared reconstruction error with coefficients plus a constant; therefore "reconstructed MSE + KL" is written under specific assumptions and is not a universal accurate goal for all VAEs. [Original paper ](https://arxiv.org/abs/1312.6114) gives variational derivation.
+Implementations typically **minimize the negative ELBO**. The first term encourages reconstruction, and the second constrains the difference between the approximate posterior and the prior. Under a Gaussian observation model with fixed variance, the negative log-likelihood can be written as a scaled squared reconstruction error plus a constant; "reconstruction MSE + KL" is therefore the form under specific assumptions, not a universally exact objective for all VAEs. The [original paper](https://arxiv.org/abs/1312.6114) gives the variational derivation.
 
-For a diagonal Gaussian posterior, the encoder outputs mean $\boldsymbol{\mu}$ and log variance $\log\boldsymbol{\sigma}^2$, sampled by reparameterization:
+For a diagonal Gaussian posterior, the encoder outputs the mean $\boldsymbol{\mu}$ and the log-variance $\log\boldsymbol{\sigma}^2$, and sampling uses the reparameterization trick:
 
 $$
 \mathbf{z}=\boldsymbol{\mu}+\boldsymbol{\sigma}\odot\boldsymbol{\epsilon},\qquad \boldsymbol{\epsilon}\sim\mathcal{N}(0,I)
 $$
 
-The randomness comes from independent noise, and the gradient can be passed back to the encoder as the mean and standard deviation. Sample directly from the prior when generating, no need to input original samples.
+The randomness comes from independent noise, so gradients can be passed back to the encoder through the mean and standard deviation. At generation time, sample directly from the prior; no original sample needs to be input.
 
-|Can be tried first|need attention|
+|Good first uses|Things to watch for|
 |:---|:---|
-|Latent variable modeling, data compression, generation and interpolation|Smooth interpolation does not guarantee reasonable semantics, and the sampling quality depends on the model and training.|
-|Provides encoders/decoders for latent space generative models|Simple Gaussian decoders may produce ambiguous results; too strong KL may cause posterior collapse|
+|Latent-variable modeling, data compression, generation, and interpolation|Smooth interpolation does not guarantee reasonable semantics, and sample quality depends on the model and training|
+|Provides the encoder/decoder for latent-space generative models|A simple Gaussian decoder may produce blurry results; too strong a KL term may cause posterior collapse|
 
-AE, VAE and diffusion models can also be combined: latent space diffusion is first generated on the compressed representation and then the image is restored through the decoder.
+AEs, VAEs, and diffusion models can also be combined: latent diffusion generates on the compressed representation and then restores the image through the decoder.
 
 ## 3.20 Diffusion models
 {: id="320-扩散模型"}
 
-> **Core points**: Establish the generation process through learning goals under different noise levels; taking DDPM as an example, train to predict noise, and iteratively update samples when sampling.
+> **Key points**: the generative process is built from learning objectives at different noise levels; taking DDPM as an example, the model is trained to predict noise and samples are updated iteratively during sampling.
 
-Diffusion Models model data distribution by learning the reverse generation process of the noise process. The following takes [DDPM](https://arxiv.org/abs/2006.11239) as an example; [Latent space diffusion ](https://arxiv.org/abs/2112.10752) performs a similar process on the compressed representation obtained by the encoder to reduce computational costs.
+Diffusion models model a data distribution by learning to reverse a noising process. The following takes [DDPM](https://arxiv.org/abs/2006.11239) as an example; [latent diffusion](https://arxiv.org/abs/2112.10752) performs a similar process on the compressed representation obtained from an encoder to reduce computational cost.
 
-> **intuitively understands**: just like the creative process of a sculptor - not directly carving the finished product, but starting from a piece of marble (pure noise), carefully carving it one by one (denoising each step), and finally presenting a clear work. Each step makes corrections based on the current sample and generation conditions; the results still depend on the model error and sampling settings.
+> **Intuition**: it is like a sculptor's creative process: rather than carving the finished piece directly, you start from a block of marble (pure noise) and carve it carefully, one pass at a time (one denoising step each), until a clear work emerges. Each step makes corrections based on the current sample and the generation conditions; the results still depend on model error and sampling settings.
 
 <div align="center">
-  <img src="/images/ML/diffusion_models.webp" width="60%" alt="Schematic diagram of forward and reverse processes of Diffusion Model" />
-<figcaption>Figure: Diffusion Model (Diffusion Model) forward and reverse process diagram</figcaption>
+  <img src="/images/ML/diffusion_models.webp" width="60%" alt="Figure: The forward and reverse processes of a diffusion model" />
+<figcaption>Figure: The forward and reverse processes of a diffusion model</figcaption>
 </div>
 
--  **core idea** : Transform the "generation" problem into a "denoising" problem. The model does not directly learn how to generate images from noise in one step, but instead learns how **Recover clear images from pure noise step by step** .
+-  **Core idea**: turn the "generation" problem into a "denoising" problem. The model does not learn to generate an image from noise in a single step; instead it learns how to **recover a clear image from pure noise step by step**.
 
-- **forward diffusion process (noising, Fixed)**: Given a real image $$\mathbf{x}_0$$, according to the predefined noise schedule $$\beta_1, \beta_2, \dots, \beta_T$$, Gaussian noise is gradually superimposed:
+- **Forward diffusion process (noising, fixed)**: given a real image $$\mathbf{x}_0$$, Gaussian noise is added gradually according to a predefined noise schedule $$\beta_1, \beta_2, \dots, \beta_T$$:
 
 $$ q(\mathbf{x}_t | \mathbf{x}_{t-1}) = \mathcal{N}(\mathbf{x}_t; \sqrt{1-\beta_t}\,\mathbf{x}_{t-1}, \beta_t \mathbf{I}) $$
 
-With a suitable noise schedule, after enough steps (the original DDPM used $T=1000$), $$\mathbf{x}_T$$ becomes approximately pure Gaussian noise $$\mathcal{N}(0, \mathbf{I})$$. Using the accumulated parameter $$\bar{\alpha}_t = \prod_{s=1}^t (1-\beta_s)$$, you can jump directly from $$\mathbf{x}_0$$ to any time step:
+With a suitable noise schedule and enough steps (the original DDPM used $T=1000$), $$\mathbf{x}_T$$ becomes approximately pure Gaussian noise $$\mathcal{N}(0, \mathbf{I})$$. Using the cumulative product $$\bar{\alpha}_t = \prod_{s=1}^t (1-\beta_s)$$, one can jump directly from $$\mathbf{x}_0$$ to any time step:
 
 $$\mathbf{x}_t = \sqrt{\bar{\alpha}_t}\,\mathbf{x}_0 + \sqrt{1-\bar{\alpha}_t}\,\boldsymbol{\epsilon}$$
 
-- **reverse denoising process (generated, Learned)**: train a noise prediction network $$\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)$$ (U-Net or Transformer can be used), learn to predict the added noise $$\boldsymbol{\epsilon}$$ at each time step $t$. A commonly used simplified noise prediction loss is (it is weighted differently from the full variational objective):
+- **Reverse denoising process (generation, learned)**: train a noise-prediction network $$\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)$$ (a U-Net or Transformer can be used) to predict the noise $$\boldsymbol{\epsilon}$$ that was added at each time step $t$. A commonly used simplified noise-prediction loss is (it weights terms differently from the full variational objective):
 
 $$ \mathcal{L} = \mathbb{E}_{t, \mathbf{x}_0, \boldsymbol{\epsilon}} \left[ \|\boldsymbol{\epsilon} - \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)\|^2 \right] $$
 
-Interpretation of the **formula**: $$\boldsymbol{\epsilon}$$ is the actual noise added in the forward process, and $$\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)$$ is the network's prediction of this noise at step $t$ - the training goal is to minimize the mean square error of the two. After the training is completed, the generation starts from the pure noise $$\mathbf{x}_T$$, repeatedly calling the network to predict and remove the noise, and gradually restores the clear image $$\mathbf{x}_0$$.
+**Reading the formula**: $$\boldsymbol{\epsilon}$$ is the noise actually added in the forward process, and $$\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)$$ is the network's prediction of that noise at step $t$; the training objective is to minimize the mean squared error between the two. After training, generation starts from pure noise $$\mathbf{x}_T$$, repeatedly calls the network to predict and remove noise, and gradually recovers the clear image $$\mathbf{x}_0$$.
 
-- **condition generation and guidance**:
+- **Conditional generation and guidance**:
 
-  - **Classifier-Free Guidance**: Randomly discard conditions during training so that the same network can give conditional and unconditional predictions; combine the two and adjust the guidance strength during inference $w$. Stronger guidance may enhance condition compliance, or it may reduce diversity or produce artifacts. This is a key technology in Vincentian graph models such as Stable Diffusion.
+  - **Classifier-free guidance**: the condition is randomly dropped during training so that the same network can give both conditional and unconditional predictions; at inference the two are combined, with the guidance strength $w$ adjustable. Stronger guidance can improve adherence to the condition but may also reduce diversity or produce artifacts. It is a key technique in text-to-image models such as Stable Diffusion.
 
-  - **Text condition**: Convert the text into a vector through an encoder such as CLIP, and inject it into the cross-attention layer of U-Net to achieve "text description → image generation".
+  - **Text conditioning**: the text is converted into vectors by an encoder such as CLIP and injected into the U-Net's cross-attention layers, enabling "text description → image generation".
 
-- Comparison between **and GAN/VAE**: The following table compares the mechanisms of typical implementations, and is not a quality ranking under unified data and budget.
+- **Comparison with GANs and VAEs**: the following table compares the mechanisms of typical implementations; it is not a quality ranking under a unified dataset and budget.
 
-|Dimensions| GAN | VAE |diffusion model|
+|Dimension| GAN | VAE |Diffusion model|
 |:---|:---|:---|:---|
-|learning objectives|Generator versus discriminator|Maximize ELBO|Goals such as denoising and score estimation|
-|Typical sampling path|The noise passes through the generator once forward|The latent variable is passed through the decoder once forward|Iteratively update starting from noise|
-|common difficulties|Confrontation training imbalance and model collapse|Reconstruction and KL trade-off, posterior collapse|Multi-step reasoning cost, guidance and diversity trade-offs|
-|Conditional control|Tags or other conditions can be added|Constructable condition VAE|Conditional networking and bootstrapping available|
+|Learning objective|Generator versus discriminator|Maximize the ELBO|Objectives such as denoising and score estimation|
+|Typical sampling path|Noise passes once forward through the generator|A latent variable passes once forward through the decoder|Iterative updates starting from noise|
+|Common difficulties|Imbalance in adversarial training and mode collapse|The reconstruction-versus-KL trade-off, posterior collapse|Multi-step inference cost, and the guidance-versus-diversity trade-off|
+|Conditional control|Labels or other conditions can be added|A conditional VAE can be built|Conditional networks and guidance can be used|
 
-- **Accelerated sampling**: DDIM, DPM-Solver, etc. can reduce the number of sampling steps; the number of noise time steps in training is not equal to the number of network calls during inference. Few-step models can also be obtained by distillation, and speed and quality need to be evaluated together.
-- **application scenario**: image generation, editing, audio synthesis and action sequence modeling. Whether it is suitable for real-time tasks requires measuring the latency of the entire system, and cannot be judged by the name "diffusion" alone.
+- **Faster sampling**: DDIM, DPM-Solver, and similar methods can reduce the number of sampling steps; the number of noise time steps used in training is not the same as the number of network calls at inference. Few-step models can also be obtained by distillation, and speed and quality must be evaluated together.
+- **Applications**: image generation and editing, audio synthesis, and action-sequence modeling. Whether it suits real-time tasks requires measuring the latency of the whole system and cannot be judged from the word "diffusion" alone.
 
-> **Advanced reading**: The following distinguishes three easily confused levels: what network to use (U-Net / Transformer), what variables to generate (image / action), and how to organize the generation process (diffusion / autoregression).
+> **Advanced reading**: the following separates three easily confused levels: which network is used (U-Net / Transformer), which variables are generated (images / actions), and how the generation process is organized (diffusion / autoregression).
 
 ### 3.20.1 U-Net vs. DiT
 {: id="3201-u-net-与-dit"}
 
-**diffusion describes the generation and training methods, and U-Net/Transformer describes the network structure. The two are not of the same dimension.** Replacing the backbone does not necessarily mean changing the target function; the same Transformer backbone can also use different generation targets.
+**Diffusion describes the generation and training method, while U-Net/Transformer describes the network structure; the two are not on the same axis.** Replacing the backbone does not necessarily change the objective function, and the same Transformer backbone can be used with different generation objectives.
 
-|Dimensions|U-Net backbone|Original DiT|
+|Dimension|U-Net backbone|Original DiT|
 |:---|:---|:---|
-|structure|Multi-scale encoder/decoder with skip connection, can add attention|Cut the noisy latent variables into patch tokens and process them with Transformer|
-|structural preference|Locality, multi-scale feature reuse|Token interaction through attention, relying on position and conditional representation|
-|conditional injection|Temporal embedding; text conditional model can add cross-attention|The original paper compares various solutions. The main model uses adaLN-Zero to inject time and category conditions.|
-|Compute concerns|Resolution, number of channels, attention layer configuration|Number of tokens, hidden dimensions and number of layers; global attention has a secondary interaction cost|
-|represent| DDPM, Stable Diffusion 1.x/2.x | DiT(Peebles & Xie, ICCV 2023) |
+|Structure|Multi-scale encoder/decoder with skip connections; attention can be added|Splits the noisy latent into patch tokens and processes them with a Transformer|
+|Inductive bias|Locality and multi-scale feature reuse|Token interaction through attention, relying on positional and conditioning representations|
+|Condition injection|Timestep embedding; text-conditioned models can add cross-attention|The original paper compares several schemes; the main model uses adaLN-Zero to inject time and class conditions|
+|Compute considerations|Resolution, number of channels, attention-layer configuration|Number of tokens, hidden dimension, and number of layers; global attention has quadratic interaction cost|
+|Representative models| DDPM, Stable Diffusion 1.x/2.x | DiT(Peebles & Xie, ICCV 2023) |
 
-[DiT original paper ](https://arxiv.org/abs/2212.09748) observed within the scope of their ImageNet experiments that increasing model computation was associated with lower FID. This supports the scalability potential of this structure, but does not constitute a law of "outperform U-Net at any scale and on any data". U-Net with attention can also model global relationships, and it cannot be simply described as having only local receptive fields.
+The [original DiT paper](https://arxiv.org/abs/2212.09748) observed, within the scope of its ImageNet experiments, that increasing model compute was associated with lower FID. This supports the scalability potential of the architecture but does not establish a law that it outperforms U-Net at any scale and on any data. A U-Net with attention can also model global relationships, so it cannot simply be described as having only local receptive fields.
 
-The difference between **DiT and Flow Matching**: DiT is an architectural choice; Flow Matching generates samples by learning the velocity field on a continuous path. Stable Diffusion 3 uses Rectified Flow with a multi-modal Transformer and cannot be directly equated to "original DiT + DDPM noise loss". The relevant mechanism can be found in [SD3 paper ](https://arxiv.org/abs/2403.03206).
+**DiT versus flow matching**: DiT is an architectural choice, whereas flow matching generates samples by learning a velocity field along a continuous path. Stable Diffusion 3 uses rectified flow with a multimodal Transformer and cannot simply be equated with "the original DiT + the DDPM noise loss". The relevant mechanism is described in the [SD3 paper](https://arxiv.org/abs/2403.03206).
 
 <a id="ml-policy"></a>
 
 ### 3.20.2 Diffusion Policy
 {: id="3202-diffusion-policy"}
 
-[Diffusion Policy](https://arxiv.org/abs/2303.04137) (Chi et al., 2023) is a **imitation learning** method: learning an observation-conditioned action distribution from demonstration data. It is not a reinforcement learning algorithm per se trained with rewards, nor does it necessarily include language input.
+[Diffusion Policy](https://arxiv.org/abs/2303.04137) (Chi et al., 2023) is an **imitation learning** method: it learns an observation-conditioned action distribution from demonstration data. It is not in itself a reinforcement learning algorithm trained with rewards, nor does it necessarily include language input.
 
-Let the observation condition be $$\mathbf{o}_t$$, the prediction length be $H$, and the action clip be $$\mathbf{A}_t=(\mathbf{a}_t,\ldots,\mathbf{a}_{t+H-1})$$. Add noise to the demonstration actions during training and learn conditional noise prediction:
+Let the observation condition be $$\mathbf{o}_t$$, the prediction horizon be $H$, and the action chunk be $$\mathbf{A}_t=(\mathbf{a}_t,\ldots,\mathbf{a}_{t+H-1})$$. During training, noise is added to the demonstrated actions and the model learns conditional noise prediction:
 
 $$
 \mathcal{L}_{\mathrm{policy}} = \mathbb{E}_{\mathbf{A}_t,\mathbf{o}_t,k,\boldsymbol{\epsilon}}\left[\left\|\boldsymbol{\epsilon}-\boldsymbol{\epsilon}_\theta(\mathbf{A}_t^{(k)},k,\mathbf{o}_t)\right\|^2\right]
 $$
 
-Here $t$ is the environment time and $k$ is the diffusion time step. The two cannot be mixed. During inference, segments are generated from action noise, only part of them are executed, and then re-planned based on new observations, that is, **rolling time domain control**.
+Here $t$ is the environment time and $k$ is the diffusion time step; the two must not be confused. At inference, an action chunk is generated from action noise, only part of it is executed, and the policy then replans from new observations, which is **receding-horizon control**.
 
-- **Multimodal action distribution**: There may be two reasonable paths, left and right, around obstacles. Deterministic MSE regression might output a mean path; conditional diffusion can express multiple modes, but other probabilistic strategies can also model multimodal distributions.
-- **action clip**: Joint prediction of multiple time steps helps timing consistency; it still needs to face model errors, environmental changes and closed-loop distribution shifts, and error accumulation cannot be guaranteed to be eliminated.
-- **Architecture and Cost**: The original work has studied two types of implementations: convolution and Transformer, and Transformer was not introduced later. Control frequency is also affected by the number of denoising steps, visual encoding, and hardware.
+- **Multimodal action distributions**: there may be two reasonable paths around an obstacle, one on the left and one on the right. Deterministic MSE regression may output the mean path; conditional diffusion can represent multiple modes, though other probabilistic policies can also model multimodal distributions.
+- **Action chunks**: jointly predicting multiple time steps helps temporal consistency; the policy still has to cope with model error, environment changes, and closed-loop distribution shift, and error accumulation is not guaranteed to be eliminated.
+- **Architecture and cost**: the original work studied two implementations, convolutional and Transformer-based (the Transformer variant was not introduced later). The control frequency is also affected by the number of denoising steps, the visual encoding, and the hardware.
 
-Related work needs to be distinguished by goal: RDT-1B uses diffusion action modeling; [π₀](https://arxiv.org/abs/2410.24164) uses Flow Matching and is combined with a pretrained visual language model. Both can iteratively generate continuous actions, but the training objectives cannot be confused with the same DDPM denoising loss. When comparing performance, it is also necessary to align demonstration data, robot morphology, and mission protocols.
+Related work must be distinguished by its objective: RDT-1B uses diffusion for action modeling, while [π₀](https://arxiv.org/abs/2410.24164) uses flow matching combined with a pretrained vision-language model. Both generate continuous actions iteratively, but their training objectives should not be conflated with the same DDPM denoising loss. When comparing performance, the demonstration data, robot embodiment, and task protocols must also be aligned.
 
 ### 3.20.3 Diffusion vs. autoregressive
 {: id="3203-扩散与自回归对比"}
 
-Autoregressive (AR) decomposes the joint distribution according to conditional probability; diffusion generates samples through a multi-step reverse process. Both can use Transformers, and both can express multimodal distributions.
+Autoregressive (AR) models factorize the joint distribution into conditional probabilities; diffusion generates samples through a multi-step reverse process. Both can use Transformers, and both can express multimodal distributions.
 
-|Dimensions|autoregressive|Diffusion (taking common continuous diffusion as an example)|
+|Dimension|Autoregressive|Diffusion (taking common continuous diffusion as an example)|
 |:---|:---|:---|
-|probabilistic organization| $$p(x)=\prod_i p(x_i\mid x_{<i})$$ |Step by step update the entire sample starting from the noise|
-|training and inference|Teacher forcing training of standard Transformer can be parallelized; typical samples are generated in steps|Training can sample noise time steps; different time steps are executed sequentially during sampling, and positions within steps can be parallelized.|
-|Output length|Common terminators generate variable-length sequences|The shape or length is often preset, and length conditions and blocking mechanisms can also be added.|
-|Source of error|Model conditional distribution error, and training/inference context differences|Denoising prediction error, sampling discretization error and conditional distribution shift|
-|Likely|If each conditional distribution can be evaluated, the sequence likelihood can be calculated|DDPM often uses variational bounds; other forms also have different likelihood estimation methods|
-|data type|Commonly seen in discrete tokens, continuous conditional distributions can also be output.|Common in continuous signals, but also in discrete diffusion|
-|cost factor|Output length, cache, network cost per step and decoding method|Number of denoising steps, output size, network cost and sampler|
+|Probabilistic factorization| $$p(x)=\prod_i p(x_i\mid x_{<i})$$ |Refines the entire sample step by step, starting from noise|
+|Training and inference|A standard Transformer can be trained in parallel with teacher forcing; samples are typically generated step by step|Training can sample noise time steps at random; at sampling time the time steps run sequentially, while positions within a step can be parallelized|
+|Output length|Variable-length sequences are commonly generated with a terminator token|The shape or length is often preset; length conditioning and block-wise mechanisms can also be added|
+|Sources of error|Error in the modeled conditional distributions, and differences between training and inference context|Denoising prediction error, sampling discretization error, and conditional distribution shift|
+|Likelihood|If each conditional distribution can be evaluated, the sequence likelihood can be computed|DDPM often uses a variational bound; other formulations have different likelihood-estimation methods|
+|Data type|Common for discrete tokens, but can also output continuous conditional distributions|Common for continuous signals, but discrete diffusion also exists|
+|Cost factors|Output length, caching, per-step network cost, and decoding method|Number of denoising steps, output size, network cost, and sampler|
 
-Therefore, **"Autoregression is only suitable for discrete data", "Diffusion has no error accumulation" and "Diffusion must be faster than autoregression" are not universal conclusions**. Selection should be based on comparing quality, coverage, controllability, and end-to-end latency with similar data and budget.
+Therefore, **"autoregression only suits discrete data", "diffusion has no error accumulation", and "diffusion must be faster than autoregression" are not universal conclusions**. The choice should be based on comparing quality, coverage, controllability, and end-to-end latency under similar data and budgets.
 
-For text diffusion, please refer to [LLaDA](https://arxiv.org/abs/2502.09992); for hybrid modeling, please refer to [Transfusion](https://arxiv.org/abs/2408.11039), which combines text autoregressive objectives and image diffusion objectives in one model. These works demonstrate that different generative approaches can be combined, rather than necessarily substituted for each other.
+For text diffusion, see [LLaDA](https://arxiv.org/abs/2502.09992); for hybrid modeling, see [Transfusion](https://arxiv.org/abs/2408.11039), which combines a text autoregressive objective and an image diffusion objective in one model. These works show that different generative approaches can be combined rather than necessarily replacing one another.
 
 <a id="ml-selection"></a>
 
 # 4. Summary
 {: id="4-总结"}
 
-## 4.1 How to choose the first model
+## 4.1 How to choose a first model
 {: id="41-如何选择第一个模型"}
 
-First establish candidates based on data format and task constraints, and then compare using the same division and indicators. The following is a starting plan, not a final ranking.
+First establish candidates based on the data format and task constraints, and then compare them using the same split and metrics. The following is a starting point, not a final ranking.
 
-|Problems and Constraints|Starting plan|What to check next|
+|Problem and constraints|Starting approach|What to check next|
 |:---|:---|:---|
-|Tabular regression or classification, need to be easy to diagnose|regularization linear/logistic regression, versus random forest or gradient boosting tree|Are nonlinear interactions important and are the returns of complex models stable?|
-|High-dimensional sparse text classification|TF-IDF + Logistic Regression, Linear SVM or Naive Bayes|Whether the error comes from insufficient semantics and context, and whether pre-training representation is required|
-|Image tasks, the amount of annotation is limited|Feature/fine-tuning of pretrained CNN or visual Transformer|Data augmentation, domain differences, input resolution and latency|
-|Time series or streaming signal|Seasonal/lagged baselines, compared to tree models, RNNs or other sequence networks|Is the time division reasonable? Is there any future information leakage?|
-|Structural exploration and visualization|Comparison of PCA and K-Means after normalization; t-SNE auxiliary observation|Is the distance metric reasonable and does the structure change with settings?|
-|Open language or multimodal generation|Pre-trained generative models suitable for the task|Task accuracy, condition compliance, computational cost and output reliability|
-|Robot Demonstration Learning|Simple behavioral clone baselines against action clips or generative strategies|Closed-loop success rate, recovery capability, control frequency and data coverage|
+|Tabular regression or classification that must be easy to diagnose|Regularized linear/logistic regression, compared with random forests or gradient-boosted trees|Do nonlinear interactions matter, and are the gains from complex models stable?|
+|High-dimensional sparse text classification|TF-IDF + logistic regression, linear SVM, or naive Bayes|Whether the errors come from insufficient semantics and context, and whether pretrained representations are needed|
+|Image tasks with limited annotation|Features from, or fine-tuning of, a pretrained CNN or vision Transformer|Data augmentation, domain differences, input resolution, and latency|
+|Time series or streaming signals|Seasonal/lag baselines, compared with tree models, RNNs, or other sequence networks|Is the temporal split reasonable? Is any future information leaking?|
+|Structure exploration and visualization|PCA and K-Means after normalization, with t-SNE as a supplementary view|Is the distance metric reasonable, and does the structure change with the settings?|
+|Open-ended language or multimodal generation|A pretrained generative model suited to the task|Task accuracy, adherence to conditions, computational cost, and output reliability|
+|Robot learning from demonstrations|A simple behavior-cloning baseline, compared with action chunking or generative policies|Closed-loop success rate, recovery ability, control frequency, and data coverage|
 
-## 4.2 Reading and Practice Sequence
+## 4.2 Suggested order for reading and practice
 {: id="42-阅读与实践顺序"}
 
-1. **First master the experimental method**: Starting from linear/logistic regression, understand loss, regularization, data division and evaluation indicators.
-2. **Compare the structural hypothesis again**: Use the same task to compare trees, distance methods and neural networks to observe how they utilize features and samples.
-3. **finally studies pre-training and generation**: understands representation transfer, probabilistic modeling and conditional generation, and then goes deeper into Transformer, VAE, diffusion and policy learning.
+1. **Master experimental method first**: starting from linear and logistic regression, understand losses, regularization, data splitting, and evaluation metrics.
+2. **Then compare structural assumptions**: use the same task to compare trees, distance-based methods, and neural networks, and observe how each uses features and samples.
+3. **Study pretraining and generation last**: understand representation transfer, probabilistic modeling, and conditional generation, and then go deeper into Transformers, VAEs, diffusion, and policy learning.
 
-The training details of deep networks can be extended to read {% include content-link.html path='/Deep-Learning-Survey/' fragment='' label='"Review of deep learning" ' %}; when it comes to reward-driven sequence decision-making, you can read {% include content-link.html path='/Reinforcement-Learning-Survey/' fragment='' label='"Review of reinforcement learning" ' %}.
+For the training details of deep networks, see {% include content-link.html path='/Deep-Learning-Survey/' fragment='' label='"Review of deep learning" ' %}; for reward-driven sequential decision making, see {% include content-link.html path='/Reinforcement-Learning-Survey/' fragment='' label='"Review of reinforcement learning" ' %}.
 
-To understand a method, you must at least be able to explain it **Learning signals, structural assumptions, optimization goals and failure conditions** . Only with a credible verification design can model comparison be meaningful; only with error analysis can there be a clear direction by increasing data and complexity.
+To understand a method, you should at least be able to explain its **learning signal, structural assumptions, optimization objective, and failure conditions**. Model comparisons are meaningful only with a credible validation design, and only error analysis gives a clear direction for adding data or complexity.
 
 # References
 {: id="参考资料"}
@@ -1240,4 +1240,4 @@ To understand a method, you must at least be able to explain it **Learning signa
 81. Scikit-learn developers. [Common pitfalls and recommended practices](https://scikit-learn.org/stable/common_pitfalls.html); [Cross-validation](https://scikit-learn.org/stable/modules/cross_validation.html); [Metrics and scoring](https://scikit-learn.org/stable/modules/model_evaluation.html).
 82. Schaeffer, R., Miranda, B., & Koyejo, S. (2023). *Are Emergent Abilities of Large Language Models a Mirage?* NeurIPS 2023. [arXiv:2304.15004](https://arxiv.org/abs/2304.15004)
 
-**Reading Tips**: The pictures are provided to assist understanding; please refer to the corresponding original paper for specific algorithm definitions, training settings and experimental conclusions.
+**Reading tip**: the figures are provided to aid understanding; for precise algorithm definitions, training settings, and experimental conclusions, refer to the corresponding original papers.

@@ -6,7 +6,7 @@ permalink: /en/VLN-Survey/
 source_path: _posts/research/2026-01-04-VLN-Survey.md
 source_url: /VLN-Survey/
 source_revision_date: 2026-11-11
-translation_updated: 2026-11-11
+translation_updated: 2026-11-19
 title: "Vision-Language Navigation: A Survey"
 date: 2026-11-11
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
@@ -446,7 +446,7 @@ Long-horizon navigation requires continual judgment of "which part of the instru
 
 [SeekVLN](https://arxiv.org/abs/2609.37353v1) goes further into cases where the current view is insufficient for judging progress: the policy can either navigate directly or observe more, then continue with the added evidence. Its training compares the subsequent progress of looking again versus navigating directly from the same state. The extra observation cost must be reported separately; the gain from adding views on demand cannot all be attributed to stronger reasoning, and the mode switch alone does not make the method tool orchestration or fast-slow control.
 
-For example, the instruction is "pass the sofa, turn left, and stop before the second door". When the side door is not visible, an additional observation may help most; when the junction has already been missed, the agent must back up and correct its progress; when it keeps moving after arriving, the stopping condition needs analysis. Count these three error types separately, then check whether recovery actually preserves the instruction's constraints along the route.
+Suppose the instruction is "pass the sofa, turn left, and stop before the second door". When the side door is not visible, an additional observation may help most; when the junction has already been missed, the agent must back up and correct its progress; when it keeps moving after arriving, the stopping condition needs analysis. Count these three error types separately, then check whether recovery actually preserves the instruction's constraints along the route.
 
 [DA-Nav recovery data (Chinese)](/VLN-Papers-Outdoor/#da-nav-method) illustrate another training route: induce deviations during simulation data collection, discard the disturbance segment, retain recovery demonstrations, and supervise deviation states, corrective actions, and trajectories. This is not online reinforcement learning. Evaluation must also distinguish recovery success per deviation event from whole-task success.
 
@@ -662,7 +662,7 @@ R(\tau)&=w_s\mathbf 1[\mathrm{success}]
 \end{aligned}
 $$
 
-Here $\tau^*$ is the reference route, $N_{\mathrm{collision}}$ is the number of collisions, and $T$ here denotes the number of execution steps; the weights control the relative influence of different goals, and dense signals such as distance progress can be issued per step separately. Long-horizon tasks should calibrate costs by accumulated totals over the whole episode, so that hundreds of step penalties do not overwhelm the success reward. Before adopting a reward, compare the term scores of expert, shortcut, detour, collision, and early-stop trajectories to confirm that their ordering matches the task requirements.
+Here $\tau^*$ is the reference route, $N_{\mathrm{collision}}$ is the number of collisions, and $T$ is the number of execution steps; the weights control the relative influence of different goals, and dense signals such as distance progress can be issued per step separately. Long-horizon tasks should calibrate costs by accumulated totals over the whole episode, so that hundreds of step penalties do not overwhelm the success reward. Before adopting a reward, compare the term scores of expert, shortcut, detour, collision, and early-stop trajectories to confirm that their ordering matches the task requirements.
 
 **Keep the training information available to the reward separate from the information visible to the policy.** Simulation can score with goal ground truth, navigation meshes, and reference routes, but the deployed actor should read only the observations, instructions, and memory the protocol allows. If a critic uses privileged state to aid training, state that separately. Otherwise, gains obtained from true goal coordinates cannot serve as evidence of navigating from vision and language alone.
 

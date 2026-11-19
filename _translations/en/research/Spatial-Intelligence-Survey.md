@@ -6,7 +6,7 @@ permalink: /en/Spatial-Intelligence-Survey/
 source_path: _posts/research/2026-04-29-Spatial-Intelligence-Survey.md
 source_url: /Spatial-Intelligence-Survey/
 source_revision_date: 2026-11-14
-translation_updated: 2026-11-14
+translation_updated: 2026-11-19
 title: "Spatial Intelligence: A Survey"
 date: 2026-11-14
 tags: [Spatial Intelligence, 3D Vision, NeRF, Point Cloud, Embodied AI, Survey]
@@ -22,78 +22,78 @@ excerpt: "3D perception, point clouds, depth estimation, neural reconstruction a
 {: id="1-引言"}
 
 <figure class="survey-intro-figure">
-  <img src="/images/si/spatial-intelligence-survey-intro-en.svg" width="1200" height="510" alt="The four interrelated capabilities of spatial intelligence: three-dimensional perception, spatial representation, relational reasoning, and spatial interaction are jointly constrained by geometry and semantics." loading="lazy" decoding="async" />
-<figcaption> Figure: Spatial intelligence connects three-dimensional perception, spatial representation, relational reasoning and action. The four blocks are interrelated capability divisions. Algorithms can be used in combination and do not represent a single technology evolution path.</figcaption>
+  <img src="/images/si/spatial-intelligence-survey-intro-en.svg" width="1200" height="510" alt="Figure: Spatial intelligence connects three-dimensional perception, spatial representation, relational reasoning, and action. The four blocks are interrelated divisions of capability; algorithms can be combined across them, and the blocks do not represent a single line of technological evolution." loading="lazy" decoding="async" />
+<figcaption>Figure: Spatial intelligence connects three-dimensional perception, spatial representation, relational reasoning, and action. The four blocks are interrelated divisions of capability; algorithms can be combined across them, and the blocks do not represent a single line of technological evolution.</figcaption>
 </figure>
 
 Spatial intelligence is the ability of AI systems to perceive, understand, reason about, and interact with the three-dimensional physical world. Like the spatial cognition that humans develop from infancy, it encompasses object shapes, scene layouts, spatial relationships, and dynamic changes. As a foundation of embodied AI, the field has advanced rapidly with deep learning, neural rendering, and large multimodal models.
 
-From the perspective of application value, spatial intelligence Across multiple high-value fields: in **autonomous driving**, accurate three-dimensional perception and dynamic object detection are the prerequisites for safe driving; in **robot control**, six degrees of freedom The spatial understanding determines the grasping success rate of the robotic arm; in the **augmented reality and virtual reality (AR/VR)**, real-time high-quality three-dimensional reconstruction and spatial anchoring are the keys to the immersive experience; in the **embodied In the AI agent**, spatial memory and three-dimensional scene graph are the basis for task planning and navigation.
+In terms of application value, spatial intelligence cuts across several high-value fields. In **autonomous driving**, accurate three-dimensional perception and dynamic object detection are prerequisites for safe driving. In **robot control**, six-degree-of-freedom spatial understanding determines the grasp success rate of a robotic arm. In **augmented and virtual reality (AR/VR)**, real-time, high-quality three-dimensional reconstruction and spatial anchoring are the key to an immersive experience. In **embodied AI agents**, spatial memory and three-dimensional scene graphs underpin task planning and navigation.
 
-The core challenges facing spatial intelligence research come from the inherent complexity of 3D data: the scarcity and expense of 3D annotated data, the diversity of representations between point clouds/voxels/implicit expressions, the time variability of real-world dynamic scenes, and the cross-modal fusion problem of 3D geometry and semantic understanding. In recent years, from NeRF to 3D Gaussian Splatting (3DGS), from PointNet to Point Transformer, from monocular depth estimation to spatial reasoning VLM, the field of spatial intelligence is experiencing rapid iteration of technology paradigms.
+The core challenges of spatial intelligence research stem from the inherent complexity of 3D data: 3D annotations are scarce and expensive; point clouds, voxels, and implicit representations are very diverse; real-world dynamic scenes change over time; and 3D geometry must be fused with semantic understanding across modalities. In recent years, from NeRF to 3D Gaussian Splatting (3DGS), from PointNet to Point Transformer, and from monocular depth estimation to spatial-reasoning VLMs, the technical paradigms of the field have been iterating rapidly.
 
-This article aims to systematically review the research progress of spatial intelligence and provide a reference for learning and researching spatial intelligence.
+This survey systematically reviews research progress in spatial intelligence and serves as a reference for learning and research in the field.
 
-> 💡 **knowledge system and related reading**:
-> This article focuses on **three-dimensional geometric perception, neural three-dimensional reconstruction (NeRF/3DGS) and spatial reasoning (3D-LLM / Spatial VLM / embodied perception)**.
-> If you are interested in the **universal multimodal large model base (ViT encoder evolution, cross-modal Projector/Q-Former alignment, multimodal pretraining and post-training full process)**, please read the review of the base: {% include content-link.html path='/VLM-Survey/' fragment='' label='"VLM Review: Panorama of Multimodal Fusion Methods" ' %}.
+> 💡 **Knowledge map and related reading**:
+> This survey focuses on **three-dimensional geometric perception, neural 3D reconstruction (NeRF/3DGS), and spatial reasoning (3D-LLMs, spatial VLMs, embodied perception)**.
+> If you are interested in the **general multimodal foundation model stack (the evolution of ViT encoders, cross-modal alignment with projectors and Q-Formers, and the full pipeline of multimodal pretraining and post-training)**, read the foundational survey: {% include content-link.html path='/VLM-Survey/' fragment='' label='"VLM Review: Panorama of Multimodal Fusion Methods" ' %}.
 > Paper-by-paper readings are in the companion page {% include content-link.html path='/Spatial-Intelligence-Papers/' fragment='' label='Spatial Intelligence: Paper Readings' %} (26 papers in five groups).
 
-# 2. Spatial intelligence basic overview
+# 2. Fundamentals of spatial intelligence
 {: id="2-空间智能基本概述"}
 
 ## 2.1 What is spatial intelligence?
 {: id="21-什么是空间智能"}
 
-Spatial intelligence is a multi-level capability system, from low-level geometric perception to high-level spatial reasoning, which can be divided into the following four levels:
+Spatial intelligence is a multi-level capability system, ranging from low-level geometric perception to high-level spatial reasoning, and can be divided into four levels:
 
-1. **Spatial Perception (Spatial Perception)**: Obtain three-dimensional geometric information, including depth estimation, point cloud acquisition and processing, and three-dimensional shape reconstruction.
-2. **Spatial Reconstruction**: Establish a three-dimensional model of the scene from multi-view images or sensor data, including SLAM, MVS, NeRF, 3DGS and other technologies.
-3. **Spatial Understanding**: Semantic analysis of 3D scenes, including 3D object detection, 3D instance segmentation, scene graph generation and visual grounding.
-4. **spatial reasoning (Spatial Reasoning)**: High-order cognition in three-dimensional space, including spatial relationship judgment (Is object A to the left of B?), perspective transformation reasoning, and language-guided three-dimensional interaction.
+1. **Spatial perception**: obtaining three-dimensional geometric information, including depth estimation, point cloud acquisition and processing, and 3D shape reconstruction.
+2. **Spatial reconstruction**: building a three-dimensional model of a scene from multi-view images or sensor data, using techniques such as SLAM, MVS, NeRF, and 3DGS.
+3. **Spatial understanding**: semantic analysis of 3D scenes, including 3D object detection, 3D instance segmentation, scene graph generation, and visual grounding.
+4. **Spatial reasoning**: higher-order cognition in three-dimensional space, including judging spatial relations (is object A to the left of B?), reasoning about viewpoint changes, and language-guided 3D interaction.
 
-These four levels constitute the complete capability stack of spatial intelligence: perception provides raw data for reconstruction, reconstruction provides a geometric basis for understanding, and understanding provides semantic context for reasoning.
+Together these four levels form the complete capability stack of spatial intelligence: perception supplies raw data for reconstruction, reconstruction provides the geometric basis for understanding, and understanding provides the semantic context for reasoning.
 
-## 2.2 Perceptual hardware basics
+## 2.2 Sensing hardware basics
 {: id="22-感知硬件基础"}
 
-The source of spatial intelligence is a variety of sensors, and hardware characteristics directly determine the selection of algorithms and the upper limit of perception:
+Spatial intelligence draws its input from a variety of sensors, and the hardware characteristics directly determine the choice of algorithms and the upper limit of perception:
 
-|Sensor type|Principle|Advantages|limitations|Application scenarios|
+|Sensor type|Principle|Advantages|Limitations|Application scenarios|
 |:-----------|:-----|:-----|:-----|:---------|
-|**Lidar (LiDAR)**|Laser Time of Flight (ToF)|Extremely high precision, immune to light interference, direct 3D|High cost, sparse point cloud, no color|Autonomous driving, terrain mapping|
-|**RGB-D camera**|Structured light/local ToF|Pixel-level alignment, high indoor accuracy|Outdoors are susceptible to interference and have limited range.|Robot navigation, AR/VR|
-|**Stereo vision (Stereo)**|Binocular disparity calculation|Low cost, suitable for indoor and outdoor use|Depends on texture, poor low light performance|Industrial vision, obstacle avoidance|
-|**Monocular camera**|perspective projection|Extremely cheap and easy to deploy|There is scale ambiguity and a priori needs to be learned.|Consumer electronics, wide area surveillance|
-|**event camera**|Pixel-level brightness changes|Extremely high dynamic range, low latency|Low spatial resolution and heterogeneous output|High-speed motion capture, drones|
+|**LiDAR**|Laser time of flight (ToF)|Extremely high precision, immune to ambient light, direct 3D measurement|High cost, sparse point clouds, no color|Autonomous driving, terrain mapping|
+|**RGB-D camera**|Structured light / local ToF|Pixel-level alignment, high indoor accuracy|Susceptible to interference outdoors and limited in range|Robot navigation, AR/VR|
+|**Stereo vision**|Binocular disparity computation|Low cost, usable indoors and outdoors|Depends on texture, performs poorly in low light|Industrial vision, obstacle avoidance|
+|**Monocular camera**|Perspective projection|Extremely cheap and easy to deploy|Scale ambiguity; priors must be learned|Consumer electronics, wide-area surveillance|
+|**Event camera**|Per-pixel brightness changes|Extremely high dynamic range, low latency|Low spatial resolution and a heterogeneous output format|High-speed motion capture, drones|
 
-## 2.3 Core elements and technical system
+## 2.3 Core elements and technical landscape
 {: id="23-核心要素与技术体系"}
 
-The technical system of spatial intelligence revolves around **three-dimensional representation**. The mainstream forms are compared as follows:
+The technical landscape of spatial intelligence is organized around **three-dimensional representations**. The mainstream forms compare as follows:
 
-|Representation|Features|Hardware adaptation|Represent technology|
+|Representation|Characteristics|Hardware fit|Representative techniques|
 |:---------|:-----|:---------|:---------|
-|point cloud (Point Cloud)|Sparse, unordered, direct collection| LiDAR, RGB-D | PointNet, Point Transformer |
-|Voxel Grid|Regular, dense, and memory intensive|global modeling| VoxNet, OccNet |
-|Mesh|Patch representation, suitable for rendering|3D scanning| Marching Cubes |
-|Implicit Field|Continuous, differentiable, memory efficient|multi-view images| NeRF, SDF |
-|3D Gaussian|Explicit, fast rendering, optimizable|multi-view images| 3DGS |
-|Depth Map|Pixel-aligned, computationally friendly|Monocular/Binocular| Monocular Depth Estimation |
+|Point cloud|Sparse, unordered, directly acquired| LiDAR, RGB-D | PointNet, Point Transformer |
+|Voxel grid|Regular, dense, memory-intensive|Global modeling| VoxNet, OccNet |
+|Mesh|Surface-patch representation, suited to rendering|3D scanning| Marching Cubes |
+|Implicit field|Continuous, differentiable, memory-efficient|Multi-view images| NeRF, SDF |
+|3D Gaussians|Explicit, fast rendering, optimizable|Multi-view images| 3DGS |
+|Depth map|Pixel-aligned, computationally friendly|Monocular / stereo cameras| Monocular depth estimation |
 
-## 2.4 Evaluation Index Cheat Sheet
+## 2.4 Evaluation metrics cheat sheet
 {: id="24-评价指标速查表"}
 
-|Dimensions|indicator|meaning|Applicable tasks|
+|Dimension|Metric|Meaning|Applicable tasks|
 |:-----|:-----|:-----|:---------|
-|**Geometric accuracy**| CD (Chamfer Distance) |average euclidean distance between point sets|point cloud registration, shape reconstruction|
-| | EMD (Earth Mover's Distance) |Bulldozer distance between two distributions|Shape generation, point cloud generation|
-| | AbsRel / RMSE |Absolute error and root mean square error of depth prediction|Depth estimation|
-|**Understanding accuracy**| mIoU (Mean IoU) |The average intersection ratio between the prediction area and the true value area|Semantic/instance segmentation, occupancy prediction|
-| | mAP (Mean Average Precision) |Average precision mean (recall/precision at multiple thresholds)|3D object detection|
-|**Reasoning/Dialogue**| CIDEr / BLEU-4 |Co-occurrence similarity between generated text and reference answers| 3D Captioning / 3D VQA |
-| | EM (Exact Match) |The proportion of answers that match exactly|3D Visual Q&A|
-|**Reconstruction quality**| PSNR / SSIM |Peak signal-to-noise ratio and structural similarity of rendered images|Perspective synthesis (NeRF/3DGS)|
+|**Geometric accuracy**| CD (Chamfer Distance) |Average Euclidean distance between point sets|Point cloud registration, shape reconstruction|
+| | EMD (Earth Mover's Distance) |Earth mover's distance between two distributions|Shape generation, point cloud generation|
+| | AbsRel / RMSE |Absolute relative error and root mean square error of depth prediction|Depth estimation|
+|**Understanding accuracy**| mIoU (Mean IoU) |Average intersection over union between predicted and ground-truth regions|Semantic/instance segmentation, occupancy prediction|
+| | mAP (Mean Average Precision) |Mean of average precision (recall/precision at multiple thresholds)|3D object detection|
+|**Reasoning / dialogue**| CIDEr / BLEU-4 |Co-occurrence similarity between generated text and reference answers| 3D captioning / 3D VQA |
+| | EM (Exact Match) |Proportion of answers that match exactly|3D visual question answering|
+|**Reconstruction quality**| PSNR / SSIM |Peak signal-to-noise ratio and structural similarity of rendered images|Novel view synthesis (NeRF/3DGS)|
 
 ## 2.5 Trends and convergence
 {: id="25-研究趋势与汇聚路径"}
@@ -148,9 +148,9 @@ graph TD
 ## 2.6 Camera models and projection
 {: id="26-相机模型与投影几何基础"}
 
-One of the mathematical foundations of spatial intelligence is the **pinhole camera model (Pinhole Camera Model)**, which accurately describes how points in the three-dimensional world are projected onto the two-dimensional image plane through the center of the lens. Understanding camera projection is a necessary prerequisite for understanding SfM, stereo vision, NeRF pose input, and VGGT camera parameter output.
+One of the mathematical foundations of spatial intelligence is the **pinhole camera model**, which describes precisely how points in the three-dimensional world are projected onto the two-dimensional image plane through the lens center. Understanding camera projection is a prerequisite for understanding SfM, stereo vision, NeRF pose inputs, and VGGT's camera parameter outputs.
 
-<div align="center"><img src="/images/si/pcv_camera_projection.webp" width="85%" alt="Figure: Decomposition of camera projection matrix P = K · RT · [Id | -X₀], combine the external parameters (rotation R, projection center X₀) with the internal parameter matrix K Explicit separation. (Source: Author LUH Photogrammetric Computer Vision courseware)" loading="lazy" decoding="async" style="aspect-ratio:2339/1435"/><figcaption> Figure: Decomposition of camera projection matrix P = K · R<sup>T</sup> · [Id | -X₀], combine the external parameters (rotation R, projection center X₀) with the internal parameter matrix K Explicit separation. (Source: Author LUH Photogrammetric Computer Vision courseware)</figcaption></div>
+<div align="center"><img src="/images/si/pcv_camera_projection.webp" width="85%" alt="Figure: Decomposition of the camera projection matrix P = K · RT · [Id | -X₀], explicitly separating the extrinsic parameters (rotation R, projection center X₀) from the intrinsic matrix K. (Source: LUH Photogrammetric Computer Vision course slides)" loading="lazy" decoding="async" style="aspect-ratio:2339/1435"/><figcaption> Figure: Decomposition of the camera projection matrix P = K · R<sup>T</sup> · [Id | -X₀], explicitly separating the extrinsic parameters (rotation R, projection center X₀) from the intrinsic matrix K. (Source: LUH Photogrammetric Computer Vision course slides)</figcaption></div>
 
 ### Pinhole camera projection
 {: id="针孔相机投影"}
@@ -159,73 +159,73 @@ Given a homogeneous point $$\widetilde{\mathbf{X}}_w = (X, Y, Z, 1)^T$$ in the w
 
 $$\lambda \begin{pmatrix} u \\ v \\ 1 \end{pmatrix} = P \, \widetilde{\mathbf{X}}_w = K [R \mid \mathbf{t}] \begin{pmatrix} X \\ Y \\ Z \\ 1 \end{pmatrix}$$
 
-Here, $\lambda$ is the scale factor (depth), $K$ is the internal parameter matrix, and $[R \mid \mathbf{t}]$ is the external parameter (rotation + translation).
+Here, $\lambda$ is the scale factor (depth), $K$ is the intrinsic matrix, and $[R \mid \mathbf{t}]$ holds the extrinsic parameters (rotation + translation).
 
-**Intrinsic Matrix** $K$ describes the optical and geometric characteristics of the camera:
+**Intrinsic matrix** $K$ describes the optical and geometric characteristics of the camera:
 
 $$K = \begin{pmatrix} f_x & s & c_x \\ 0 & f_y & c_y \\ 0 & 0 & 1 \end{pmatrix}$$
 
-- $f_x, f_y$: Horizontal/vertical focal length in pixels, for square pixels $f_x = f_y = f$
-- $(c_x, c_y)$: principal point, that is, the intersection of the optical axis and the image plane
-- $s$: pixel tilt coefficient (usually zero for modern cameras)
+- $f_x, f_y$: horizontal and vertical focal lengths in pixels; for square pixels, $f_x = f_y = f$
+- $(c_x, c_y)$: the principal point, i.e., where the optical axis meets the image plane
+- $s$: pixel skew coefficient (usually zero for modern cameras)
 
-**external parameters (Extrinsic Parameters)** $[R \mid \mathbf{t}]$: rotation matrix $R \in SO(3)$ and translation vector $\mathbf{t} \in \mathbb{R}^3$ describe the pose of the camera coordinate system relative to the world coordinate system.
+**Extrinsic parameters** $[R \mid \mathbf{t}]$: the rotation matrix $R \in SO(3)$ and translation vector $\mathbf{t} \in \mathbb{R}^3$ describe the pose of the camera coordinate system relative to the world coordinate system.
 
 ### Lens distortion model
 {: id="镜头畸变模型"}
 
-Real lenses have non-linear distortion and need to be corrected after projection. The most commonly used **radial distortion (Radial Distortion)**:
+Real lenses exhibit nonlinear distortion, which must be corrected after projection. The most common model is **radial distortion**:
 
 $$\begin{cases} x_d = x(1 + k_1 r^2 + k_2 r^4 + k_3 r^6) \\ y_d = y(1 + k_1 r^2 + k_2 r^4 + k_3 r^6) \end{cases}, \quad r^2 = x^2 + y^2$$
 
-Here, $(x, y)$ is the normalized camera coordinate, and $k_1, k_2, k_3$ is the radial distortion coefficient (negative values produce barrel distortion, and positive values produce pincushion distortion). **tangential distortion** is caused by lens installation eccentricity, and an additional parameter $p_1, p_2$ is introduced.
+Here, $(x, y)$ are the normalized camera coordinates, and $k_1, k_2, k_3$ are the radial distortion coefficients (negative values produce barrel distortion, positive values produce pincushion distortion). **Tangential distortion** arises from decentering in lens mounting and introduces two additional parameters $p_1, p_2$.
 
 ### Camera calibration
 {: id="相机标定"}
 
-The goal of **camera calibration** is to estimate $K$ and distortion parameters from known three-dimensional to two-dimensional corresponding points.
+The goal of **camera calibration** is to estimate $K$ and the distortion parameters from known 3D-to-2D correspondences.
 
-- **direct linear transformation (DLT)**: linearize $P\widetilde{\mathbf{X}} = \lambda\widetilde{\mathbf{x}}$ to $A\mathbf{p} = 0$, and solve the 11 degrees of freedom of $P$ through SVD. At least 6 point pairs are required, which is the most basic calibration method.
-- **Zhang calibration method** (Zhang, TPAMI 2000): Using a multi-pose plane checkerboard, first estimate the homography matrix $H$ under each posture, then use multiple $H$ constraints to decompose the internal reference $K$, and finally use Levenberg-Marquardt Nonlinear optimization jointly refines the internal and external participation distortion coefficients. It has been integrated into OpenCV `calibrateCamera()` and is currently the most mainstream practical calibration method.
+- **Direct linear transformation (DLT)**: linearize $P\widetilde{\mathbf{X}} = \lambda\widetilde{\mathbf{x}}$ into $A\mathbf{p} = 0$ and solve for the 11 degrees of freedom of $P$ via SVD. At least 6 point pairs are required; this is the most basic calibration method.
+- **Zhang's calibration method** (Zhang, TPAMI 2000): using a planar checkerboard in multiple poses, first estimate the homography $H$ for each pose, then use the constraints from multiple $H$ to decompose out the intrinsics $K$, and finally refine the intrinsics, extrinsics, and distortion coefficients jointly with Levenberg-Marquardt nonlinear optimization. It is integrated into OpenCV's `calibrateCamera()` and is currently the most widely used practical calibration method.
 
 ---
 
-## 2.7 Rotation representation
+## 2.7 Rotation representations
 {: id="27-旋转表示"}
 
-Three-dimensional rotation is the core mathematical tool of spatial intelligence. From the camera pose of NeRF/3DGS to the orientation of the robot's end effector, rotation is everywhere. **Lie group $SO(3)$** (Special Orthogonal Group) is an algebraic structure of rotation, and different parameterization methods have their own trade-offs:
+Three-dimensional rotation is a core mathematical tool of spatial intelligence. From NeRF/3DGS camera poses to the orientation of a robot end effector, rotation is everywhere. The **Lie group $SO(3)$** (the special orthogonal group) is the algebraic structure of rotations, and different parameterizations each have their own trade-offs:
 
-|express|Number of parameters|degrees of freedom|Advantages|limitations|
+|Representation|Parameters|Degrees of freedom|Advantages|Limitations|
 |:-----|:------|:------|:-----|:-----|
-|Rotation matrix $R \in SO(3)$| 9 | 3 |The operation is straightforward and the combination is simple|Need to satisfy orthogonal constraint $RR^T=I,\det R=1$; redundant|
-|Euler angle $(\phi,\theta,\psi)$| 3 | 3 |Intuitive and easy to set manually|**Gimbal Lock** problem, unstable interpolation|
-|Shaft angle $(\mathbf{n}, \theta)$| 4 | 3 |The physical meaning is clear (rotation around an axis)|Not suitable for gradient optimization; $\theta$ is strange when close to 0|
-|Quaternion $\mathbf{q}=(w,x,y,z)$| 4 | 3 |Smooth interpolation (SLERP), no singularity, numerical stability|There is double coverage ($\mathbf{q}$ and $-\mathbf{q}$ represent the same rotation)|
+|Rotation matrix $R \in SO(3)$| 9 | 3 |Direct to apply and simple to compose|Must satisfy the orthogonality constraint $RR^T=I,\det R=1$; redundant|
+|Euler angles $(\phi,\theta,\psi)$| 3 | 3 |Intuitive and easy to set by hand|**Gimbal lock**; unstable interpolation|
+|Axis-angle $(\mathbf{n}, \theta)$| 4 | 3 |Clear physical meaning (rotation about an axis)|Poorly suited to gradient optimization; $\theta$ is singular near 0|
+|Quaternion $\mathbf{q}=(w,x,y,z)$| 4 | 3 |Smooth interpolation (SLERP), no singularities, numerically stable|Double cover ($\mathbf{q}$ and $-\mathbf{q}$ represent the same rotation)|
 
-**universal joint lock**: Euler angle In a specific configuration (such as pitch angle $\theta=\pm 90°$), the two rotation axes coincide, resulting in the loss of one degree of freedom. This is the main reason why Euler angle interpolation must be avoided in 3D animation and robot control.
+**Gimbal lock**: in certain configurations of Euler angles (such as pitch $\theta=\pm 90°$), two rotation axes coincide and one degree of freedom is lost. This is the main reason Euler-angle interpolation must be avoided in 3D animation and robot control.
 
-**unit quaternion rotation**: The quaternion $\mathbf{q} = w + x\mathbf{i} + y\mathbf{j} + z\mathbf{k}$ of $\|\mathbf{q}\|=1$ corresponds to the unique rotation, rotation point $\mathbf{p}$:
+**Unit quaternion rotation**: a quaternion $\mathbf{q} = w + x\mathbf{i} + y\mathbf{j} + z\mathbf{k}$ with $\|\mathbf{q}\|=1$ corresponds to a unique rotation, which rotates a point $\mathbf{p}$ as:
 $$\mathbf{p}' = \mathbf{q} \otimes \mathbf{p} \otimes \mathbf{q}^{-1}$$
 
-The orientation of each Gaussian ellipsoid in 3DGS is parameterized with quaternions (to ensure the continuity of gradient optimization on rotating manifolds), and the camera extrinsic parameters output by VGGT are also represented using quaternions. **Rodrigues The formula** provides a conversion bridge between the rotation matrix and the axis angle, and is a commonly used differential tool in SfM and Bundle Adjustment:
+The orientation of each Gaussian ellipsoid in 3DGS is parameterized with a quaternion (which keeps gradient-based optimization continuous on the rotation manifold), and the camera extrinsics output by VGGT are also expressed as quaternions. The **Rodrigues formula** provides the bridge between rotation matrices and axis-angle representations, and is a commonly used differentiable tool in SfM and bundle adjustment:
 $$R = I + \sin\theta [\mathbf{n}]_\times + (1-\cos\theta) [\mathbf{n}]_\times^2$$
 
-Here, $$[\mathbf{n}]_\times$$ is the antisymmetric matrix of the rotation axis $\mathbf{n}$.
+Here, $$[\mathbf{n}]_\times$$ is the skew-symmetric matrix of the rotation axis $\mathbf{n}$.
 
 ---
 
-# 3. Task classification system
+# 3. Task taxonomy
 {: id="3-任务分类体系"}
 
-**1. Geometry perception class**: with the core of obtaining and processing three-dimensional geometric information. Typical tasks include monocular/binocular **depth estimation**, **point cloud registration** (ICP, RANSAC), **normal vector estimation**, etc.
+**1. Geometric perception**: centered on acquiring and processing three-dimensional geometric information. Typical tasks include monocular/stereo **depth estimation**, **point cloud registration** (ICP, RANSAC), and **surface normal estimation**.
 
-**2. Three-dimensional reconstruction class**: Recover the three-dimensional structure of the scene from image sequences or sensor data. Includes **SfM**, **MVS**, **SLAM**, **Neural Implicit Reconstruction (NeRF, 3DGS)**, etc.
+**2. Three-dimensional reconstruction**: recovering the 3D structure of a scene from image sequences or sensor data. This includes **SfM**, **MVS**, **SLAM**, and **neural implicit reconstruction (NeRF, 3DGS)**.
 
-**3. Three-dimensional detection and recognition class**: Locate and classify objects in three-dimensional space. Including **3D object detection**, **3D instance/semantic segmentation**, **3D scene graph generation**.
+**3. Three-dimensional detection and recognition**: locating and classifying objects in three-dimensional space. This includes **3D object detection**, **3D instance/semantic segmentation**, and **3D scene graph generation**.
 
-**4. Spatial understanding and reasoning category**: Establishing high-level understanding at the three-dimensional semantic level. Including **three-dimensional visual grounding**, **three-dimensional visual question answering**, **spatial relationship reasoning**.
+**4. Spatial understanding and reasoning**: building high-level understanding at the 3D semantic level. This includes **3D visual grounding**, **3D visual question answering**, and **spatial relation reasoning**.
 
-**5. Embodied spatial navigation class**: using spatial intelligence in the context of active exploration by agents. Including **goal-driven navigation**, **three-dimensional semantic map construction**, **spatial memory network**.
+**5. Embodied spatial navigation**: applying spatial intelligence in settings where an agent actively explores. This includes **goal-driven navigation**, **3D semantic map construction**, and **spatial memory networks**.
 
 ---
 
@@ -237,91 +237,91 @@ Here, $$[\mathbf{n}]_\times$$ is the antisymmetric matrix of the rotation axis $
 
 ### PointNet
 {: id="pointnet"}
-**PointNet** (Qi et al., CVPR 2017) is the first deep neural network to learn end-to-end directly on an unordered 3D point cloud, completely changing the research paradigm of 3D deep learning. Its core design idea is to maintain **substitution invariance** for any arrangement of point sets, and learn the input alignment transformation through T-Net, thereby improving the robustness to rigid body transformation.
+**PointNet** (Qi et al., CVPR 2017) is the first deep neural network to learn end to end directly on unordered 3D point clouds, and it completely changed the research paradigm of 3D deep learning. Its core design idea is to maintain **permutation invariance** to any ordering of the point set, and to learn an input alignment transform through T-Net, which improves robustness to rigid transformations.
 
-**core design**:
-- A shared MLP is applied independently to each point to map the point coordinates into a high-dimensional feature space.
-- Use **symmetry function (max pooling)** to aggregate global features and naturally solve the disorder problem.
-- T-Net (Transformer Network) learns the alignment transformation ($3\times3$) and feature alignment transformation ($64\times64$) of the input point cloud to improve rotation robustness.
+**Core design**:
+- A shared MLP is applied independently to each point, mapping point coordinates into a high-dimensional feature space.
+- A **symmetric function (max pooling)** aggregates global features, which naturally resolves the ordering problem.
+- T-Net (Transformer Network) learns an alignment transform for the input point cloud ($3\times3$) and one for the features ($64\times64$), improving robustness to rotation.
 
-**Core Features**:
-- No voxelization is required, the original point cloud is processed directly, and the calculation is efficient.
-- It can be used for three types of tasks: classification, part segmentation, and semantic segmentation.
-- It established the basic paradigm of point cloud deep learning "point independent processing + symmetric aggregation".
+**Key characteristics**:
+- No voxelization is needed: the raw point cloud is processed directly, which is computationally efficient.
+- It supports three types of tasks: classification, part segmentation, and semantic segmentation.
+- It established the basic paradigm of point cloud deep learning: independent per-point processing plus symmetric aggregation.
 
 <div align="center">
-  <img src="/images/si/PointNet-architecture.webp" width="90%" alt="PointNet network architecture: Apply shared MLP to each point independently to extract features, obtain global feature vectors through Max Pooling symmetric aggregation, and T-Net learns alignment transformations for input point coordinates (3×3) and feature space (64×64) respectively." loading="lazy" decoding="async" style="aspect-ratio:1800/658" />
-<figcaption>PointNet network architecture: Apply shared MLP to each point independently to extract features, obtain global feature vectors through Max Pooling symmetric aggregation, and T-Net learns alignment transformations for input point coordinates (3×3) and feature space (64×64) respectively.</figcaption>
+  <img src="/images/si/PointNet-architecture.webp" width="90%" alt="PointNet architecture: a shared MLP is applied to each point independently to extract features, max pooling aggregates them symmetrically into a global feature vector, and T-Net learns alignment transforms for the input point coordinates (3×3) and the feature space (64×64)." loading="lazy" decoding="async" style="aspect-ratio:1800/658" />
+<figcaption>PointNet architecture: a shared MLP is applied to each point independently to extract features, max pooling aggregates them symmetrically into a global feature vector, and T-Net learns alignment transforms for the input point coordinates (3×3) and the feature space (64×64).</figcaption>
 </div>
 
 ---
 
 ### PointNet++
 {: id="pointnet-1"}
-**PointNet++** (Qi et al., NeurIPS 2017) aims at the defect that PointNet cannot capture local geometric structures and introduces a hierarchical local feature learning mechanism.
+**PointNet++** (Qi et al., NeurIPS 2017) addresses PointNet's inability to capture local geometric structure by introducing a hierarchical local feature learning mechanism.
 
 **Core design**:
-- **Farthest Point Sampling (FPS)**: Recursively select the point farthest from the selected point set to obtain a spatially uniformly distributed sampling subset.
-- **Ball Query Grouping**: Taking the sampling point as the center, collect local point sets in the spherical neighborhood.
-- **Hierarchical PointNet**: Apply PointNet on local point sets to extract local features, and then aggregate them again on higher-level local areas, analogous to the receptive field of CNN expanding layer by layer.
-- **Multi-scale grouping (MSG)**: Aggregates features in spherical domains of different radii to enhance the robustness to point cloud density changes.
+- **Farthest point sampling (FPS)**: recursively selects the point farthest from the already selected set, yielding a spatially uniform subset.
+- **Ball query grouping**: takes each sampled point as a center and gathers the local point set within a spherical neighborhood.
+- **Hierarchical PointNet**: applies PointNet to local point sets to extract local features, then aggregates again over larger local regions, analogous to a CNN's receptive field expanding layer by layer.
+- **Multi-scale grouping (MSG)**: aggregates features over spherical neighborhoods of different radii, making the network more robust to changes in point density.
 
-**core features**:
-- It solves the problem of PointNet's insufficient perception of local geometric information.
-- Adaptively handle non-uniform point cloud density.
-- It established the point cloud learning standard paradigm of "sampling + grouping + aggregation", and subsequent work (DGCNN, Point Transformer, etc.) was expanded under this framework.
+**Key characteristics**:
+- It remedies PointNet's weak perception of local geometry.
+- It handles non-uniform point density adaptively.
+- It established the standard paradigm of sampling, grouping, and aggregation for point cloud learning, within which later work (DGCNN, Point Transformer, etc.) developed.
 
 <div align="center">
-  <img src="/images/si/PointNet2-architecture.webp" width="90%" alt="PointNet++ Hierarchical feature learning: through repeated stacking of FPS sampling → Ball Query grouping → PointNet local feature extraction, the receptive field is expanded layer by layer; the segmentation task additionally uses interpolation upsampling to transfer features back to the original point set." loading="lazy" decoding="async" style="aspect-ratio:1800/747" />
-<figcaption>PointNet++ Hierarchical feature learning: through repeated stacking of FPS sampling → Ball Query grouping → PointNet local feature extraction, the receptive field is expanded layer by layer; the segmentation task additionally uses interpolation upsampling to transfer features back to the original point set.</figcaption>
+  <img src="/images/si/PointNet2-architecture.webp" width="90%" alt="PointNet++ hierarchical feature learning: FPS sampling, ball-query grouping, and PointNet local feature extraction are stacked repeatedly so that the receptive field expands layer by layer; for segmentation, interpolation-based upsampling additionally propagates features back to the original point set." loading="lazy" decoding="async" style="aspect-ratio:1800/747" />
+<figcaption>PointNet++ hierarchical feature learning: FPS sampling, ball-query grouping, and PointNet local feature extraction are stacked repeatedly so that the receptive field expands layer by layer; for segmentation, interpolation-based upsampling additionally propagates features back to the original point set.</figcaption>
 </div>
 
 ---
 
 ### DGCNN
 {: id="dgcnn"}
-**DGCNN** (Dynamic Graph CNN, Wang et al., TOG 2019) introduces graph neural network (GNN) into point cloud processing. Different from constructing a fixed k-nearest neighbor graph in Euclidean space, DGCNN dynamically updates the k-NN graph in the **feature space** to capture point pair relationships that are semantically similar but not necessarily spatially adjacent.
+**DGCNN** (Dynamic Graph CNN, Wang et al., TOG 2019) brings graph neural networks (GNNs) into point cloud processing. Rather than building a fixed k-nearest-neighbor graph in Euclidean space, DGCNN dynamically updates the k-NN graph in **feature space**, capturing relations between points that are semantically similar but not necessarily spatially adjacent.
 
 The **EdgeConv** operation computes edge features between each point and its k nearest neighbors:
 $$e_{ij} = h_\Theta(x_i,\ x_j - x_i)$$
-Obtain new node features by aggregating edge features. After each layer of EdgeConv, the graph structure is recomputed (dynamically updated) in the feature space, allowing the network to retain both local and non-local geometric information.
+New node features are obtained by aggregating the edge features. After each EdgeConv layer, the graph structure is recomputed (dynamically updated) in feature space, allowing the network to retain both local and non-local geometric information.
 
-**core features**:
-- Dynamic graph structures capture semantic associations rather than relying solely on spatial proximity.
-- EdgeConv operates simply and efficiently, and is easy to integrate into various point cloud architectures.
+**Key characteristics**:
+- The dynamic graph structure captures semantic associations rather than relying on spatial proximity alone.
+- EdgeConv is simple and efficient, and easy to integrate into various point cloud architectures.
 
 <div align="center">
-  <img src="/images/si/DGCNN-EdgeConv.png" width="85%" alt="DGCNN architecture and EdgeConv operation: dynamically construct a k-NN graph in the feature space (recalculated at each layer), calculate the edge features of the center point and neighbors and then aggregate them; multi-layer EdgeConv stacking followed by Max Pooling to obtain the global descriptor." loading="lazy" decoding="async" style="aspect-ratio:1048/580" />
-<figcaption>DGCNN architecture and EdgeConv operation: dynamically construct a k-NN graph in the feature space (recalculated at each layer), calculate the edge features of the center point and neighbors and then aggregate them; multi-layer EdgeConv stacking followed by Max Pooling to obtain the global descriptor.</figcaption>
+  <img src="/images/si/DGCNN-EdgeConv.png" width="85%" alt="DGCNN architecture and the EdgeConv operation: a k-NN graph is built dynamically in feature space (recomputed at every layer), edge features between each center point and its neighbors are computed and aggregated; after stacked EdgeConv layers, max pooling produces the global descriptor." loading="lazy" decoding="async" style="aspect-ratio:1048/580" />
+<figcaption>DGCNN architecture and the EdgeConv operation: a k-NN graph is built dynamically in feature space (recomputed at every layer), edge features between each center point and its neighbors are computed and aggregated; after stacked EdgeConv layers, max pooling produces the global descriptor.</figcaption>
 </div>
 
 ---
 
 ### Point Transformer
 {: id="point-transformer"}
-**Point Transformer v1** (Zhao et al., ICCV 2021) introduces self-attention mechanism into point cloud processing. Its **vector self-attention** assigns independent attention weights to each feature dimension (different from scalar attention), and introduces position encoding to capture local geometric relationships:
+**Point Transformer v1** (Zhao et al., ICCV 2021) introduces the self-attention mechanism into point cloud processing. Its **vector self-attention** assigns an independent attention weight to each feature dimension (unlike scalar attention) and introduces positional encoding to capture local geometric relations:
 $$y_i = \sum_{x_j \in \mathcal{N}(x_i)} \rho\!\left(\gamma\!\left(\phi(x_i) - \psi(x_j) + \delta\right)\right) \odot \left(\alpha(x_j) + \delta\right)$$
-Here, $\delta$ is the point position encoding, $\rho$ is the softmax normalization, and $\gamma$ is the relationship network. **Point Transformer v2** (Wu et al., NeurIPS 2022) introduces grouped vector attention and multi-head mechanisms, achieving the best performance at the time on benchmarks such as ScanNet semantic segmentation.
+Here, $\delta$ is the point positional encoding, $\rho$ is softmax normalization, and $\gamma$ is the relation network. **Point Transformer v2** (Wu et al., NeurIPS 2022) introduces grouped vector attention and a multi-head mechanism, achieving the best performance at the time on benchmarks such as ScanNet semantic segmentation.
 
-**core features**:
+**Key characteristics**:
 - Transformer-based local self-attention captures fine-grained local geometric features.
-- The position encoding design makes the network explicitly aware of the point cloud geometry.
-- The standard architecture of point cloud Transformer has been established, and the subsequent Point Transformer v3 (2024) will further pretrain on large-scale data.
+- The positional encoding design makes the network explicitly aware of point cloud geometry.
+- It established the standard architecture of the point cloud Transformer, and the subsequent Point Transformer v3 (2024) further pretrains on large-scale data.
 
 <div align="center">
-  <img src="/images/si/PointTransformer-attention.webp" width="85%" alt="Point Transformer Vector self-attention: assign independent attention weights to each feature dimension (different from scalar attention), position encoding δ is based on neighbor point coordinate difference learning, while injecting attention weights and value vectors to capture local geometric relationships." loading="lazy" decoding="async" style="aspect-ratio:850/294" />
-<figcaption>Point Transformer Vector self-attention: assign independent attention weights to each feature dimension (different from scalar attention), position encoding δ is based on neighbor point coordinate difference learning, while injecting attention weights and value vectors to capture local geometric relationships.</figcaption>
+  <img src="/images/si/PointTransformer-attention.webp" width="85%" alt="Point Transformer vector self-attention: an independent attention weight is assigned to each feature dimension (unlike scalar attention); the positional encoding δ is learned from neighboring point coordinate differences and is injected into both the attention weights and the value vectors to capture local geometric relations." loading="lazy" decoding="async" style="aspect-ratio:850/294" />
+<figcaption>Point Transformer vector self-attention: an independent attention weight is assigned to each feature dimension (unlike scalar attention); the positional encoding δ is learned from neighboring point coordinate differences and is injected into both the attention weights and the value vectors to capture local geometric relations.</figcaption>
 </div>
 
 ---
 
 ### 3D perception foundation models
 {: id="三维感知基础模型"}
-**Uni3D** (Zhou et al., ICLR 2024) is the first large-scale unified 3D perception base model. Through comparative pretraining on more than 10 million 3D objects, Uni3D has learned universal 3D point cloud features across categories and data sets, and has made breakthrough progress in tasks such as zero-shot 3D understanding and cross-modal retrieval (point cloud ↔ image ↔ text).
+**Uni3D** (Zhou et al., ICLR 2024) is the first large-scale unified 3D perception foundation model. Through contrastive pretraining on more than 10 million 3D objects, Uni3D learns general 3D point cloud features that transfer across categories and datasets, and it makes breakthrough progress on tasks such as zero-shot 3D understanding and cross-modal retrieval (point cloud ↔ image ↔ text).
 
-**OpenShape** (Liu et al., NeurIPS 2023) uses text-3D shape pairs for large-scale multimodal contrastive learning, transfers CLIP's open vocabulary understanding capabilities to the 3D field, and supports zero-shot 3D classification (about 85% top-1 accuracy on ModelNet40, no 3D training data required).
+**OpenShape** (Liu et al., NeurIPS 2023) performs large-scale multimodal contrastive learning with text-3D shape pairs, transferring CLIP's open-vocabulary understanding to the 3D domain and supporting zero-shot 3D classification (about 85% top-1 accuracy on ModelNet40 without any 3D training data).
 
-**Point-BERT** (Yu et al., CVPR 2022) and **Point-MAE** (Pang et al., ECCV 2022) introduce BERT/MAE self-supervised pretraining into the point cloud field to promote the formation of three-dimensional perception base models.
+**Point-BERT** (Yu et al., CVPR 2022) and **Point-MAE** (Pang et al., ECCV 2022) bring BERT/MAE-style self-supervised pretraining to point clouds, helping foundation models for 3D perception take shape.
 
 ---
 
@@ -330,54 +330,54 @@ Here, $\delta$ is the point position encoding, $\rho$ is the softmax normalizati
 
 ### DPT
 {: id="dpt"}
-**DPT** (Dense Prediction Transformer, Ranftl et al., ICCV 2021) introduces the visual Transformer (ViT) into the dense prediction task (depth estimation and semantic segmentation), and integrates the patch token feature maps of each layer of ViT into the decoder to achieve high-resolution dense output.
+**DPT** (Dense Prediction Transformer, Ranftl et al., ICCV 2021) introduces the vision Transformer (ViT) to dense prediction tasks (depth estimation and semantic segmentation), fusing the patch-token feature maps from each ViT layer into the decoder to produce high-resolution dense outputs.
 
-DPT training uses **scale-invariant loss (Scale-Invariant Loss)**:
+DPT is trained with a **scale-invariant loss**:
 $$\mathcal{L}_{si} = \frac{1}{n}\sum_i d_i^2 - \frac{\lambda}{n^2}\left(\sum_i d_i\right)^2$$
-Here, $$d_i = \log \hat{y}_i - \log y_i$$ is the difference between the logarithm of the predicted value and the true value, and $\lambda$ controls the weight of the global scale penalty term. This loss is insensitive to absolute scale and adapts to the inherent scale ambiguity of monocular depth estimation.
+Here, $$d_i = \log \hat{y}_i - \log y_i$$ is the difference between the logarithms of the prediction and the ground truth, and $\lambda$ controls the weight of the global scale penalty term. This loss is insensitive to absolute scale, which suits the inherent scale ambiguity of monocular depth estimation.
 
-**Core Features**:
-- For the first time, pure ViT feature extraction is used in depth estimation, taking advantage of large receptive fields to capture global scene structure.
-- Multi-scale feature fusion captures different levels of depth information from coarse to fine.
-- Strong cross-dataset generalization in relatively deep zero-shot transfer.
+**Key characteristics**:
+- It is the first to use pure ViT features for depth estimation, exploiting the large receptive field to capture global scene structure.
+- Multi-scale feature fusion captures depth information at different levels, from coarse to fine.
+- It generalizes strongly across datasets in zero-shot relative-depth transfer.
 
 <div align="center">
-  <img src="/images/si/DPT-architecture.webp" width="90%" alt="DPT architecture: Use ViT as the backbone to extract multi-layer patch tokens, restore the spatial resolution through the Reassemble operation to obtain multi-scale feature maps, and then gradually upsample and fuse them through the Fusion decoder to output high-resolution dense depth predictions." loading="lazy" decoding="async" style="aspect-ratio:1800/665" />
-<figcaption>DPT architecture: Use ViT as the backbone to extract multi-layer patch tokens, restore the spatial resolution through the Reassemble operation to obtain multi-scale feature maps, and then gradually upsample and fuse them through the Fusion decoder to output high-resolution dense depth predictions.</figcaption>
+  <img src="/images/si/DPT-architecture.webp" width="90%" alt="DPT architecture: a ViT backbone extracts multi-layer patch tokens, a Reassemble operation restores spatial resolution to obtain multi-scale feature maps, and a Fusion decoder progressively upsamples and fuses them to output a high-resolution dense depth prediction." loading="lazy" decoding="async" style="aspect-ratio:1800/665" />
+<figcaption>DPT architecture: a ViT backbone extracts multi-layer patch tokens, a Reassemble operation restores spatial resolution to obtain multi-scale feature maps, and a Fusion decoder progressively upsamples and fuses them to output a high-resolution dense depth prediction.</figcaption>
 </div>
 
 ---
 
 ### Depth Anything Series
 {: id="depth-anything-系列"}
-**Depth Anything** (Yang et al., CVPR 2024) is the most representative base model for monocular depth estimation so far. Its core innovation lies in the large-scale **semi-supervised data engine**: using 1.5 million annotated images as seeds, using the teacher model to generate pseudo labels for 62 million unlabeled images, and then using strong data enhancement to perform forced generalization training on the student model, breaking through the bottleneck of annotated data.
+**Depth Anything** (Yang et al., CVPR 2024) is so far the most representative foundation model for monocular depth estimation. Its core innovation is a large-scale **semi-supervised data engine**: 1.5 million labeled images serve as seeds, a teacher model generates pseudo-labels for 62 million unlabeled images, and a student model is then trained on them under strong data augmentation, forcing it to generalize and breaking through the labeled-data bottleneck.
 
-**Depth Anything V2** (NeurIPS 2024) further introduces high-quality synthetic data (Hypersim, Virtual KITTI) to improve fine-grained depth prediction, and provides an absolute scale (Metric Depth) version, which is suitable for application scenarios that require real depth values such as robot navigation.
+**Depth Anything V2** (NeurIPS 2024) further introduces high-quality synthetic data (Hypersim, Virtual KITTI) to improve fine-grained depth prediction, and provides a metric depth version suited to applications that need real depth values, such as robot navigation.
 
-**Core Features**:
-- DINOv2 serves as the backbone network to provide powerful semantic priors.
-- The zero-sample generalization ability is significantly better than the previous generation model, and the performance is stable in unseen scenes.
-- Detail quality (edge sharpness, thin structures) is significantly improved in the V2 version.
+**Key characteristics**:
+- DINOv2 serves as the backbone, providing strong semantic priors.
+- Zero-shot generalization is significantly better than the previous generation of models, with stable performance on unseen scenes.
+- Detail quality (edge sharpness, thin structures) is significantly improved in V2.
 
 <div align="center">
-  <img src="/images/si/DepthAnything-pipeline.webp" width="90%" alt="Depth Anything semi-supervised data engine: train the teacher model with 1.5 million labeled images, generate pseudo labels for 62 million unlabeled images, and then train the student model with strong data enhancement (color distortion, CutMix, etc.) to force it to learn a more robust depth prior." loading="lazy" decoding="async" style="aspect-ratio:1409/514" />
-<figcaption>Depth Anything semi-supervised data engine: train the teacher model with 1.5 million labeled images, generate pseudo labels for 62 million unlabeled images, and then train the student model with strong data enhancement (color distortion, CutMix, etc.) to force it to learn a more robust depth prior.</figcaption>
+  <img src="/images/si/DepthAnything-pipeline.webp" width="90%" alt="Depth Anything semi-supervised data engine: a teacher model is trained on 1.5 million labeled images and generates pseudo-labels for 62 million unlabeled images; a student model is then trained with strong data augmentation (color distortion, CutMix, etc.), forcing it to learn a more robust depth prior." loading="lazy" decoding="async" style="aspect-ratio:1409/514" />
+<figcaption>Depth Anything semi-supervised data engine: a teacher model is trained on 1.5 million labeled images and generates pseudo-labels for 62 million unlabeled images; a student model is then trained with strong data augmentation (color distortion, CutMix, etc.), forcing it to learn a more robust depth prior.</figcaption>
 </div>
 
 ---
 
 ### Marigold
 {: id="marigold"}
-**Marigold** (Ke et al., CVPR 2024) introduces the diffusion model into depth estimation, using the image prior contained in Stable Diffusion to achieve powerful zero-sample depth estimation by fine-tuning on a small amount of real depth data. The core insight is: Pretraining: Rich scene geometry priors are encoded in the diffusion model, which can be efficiently transferred to the depth estimation task without large-scale retraining.
+**Marigold** (Ke et al., CVPR 2024) introduces diffusion models to depth estimation, using the image prior contained in Stable Diffusion and fine-tuning on a small amount of real depth data to achieve strong zero-shot depth estimation. The core insight is that a pretrained diffusion model encodes rich scene geometry priors, which can be transferred efficiently to depth estimation without large-scale retraining.
 
-**core features**:
-- A generative depth estimation framework based on diffusion models to generate depth maps through multi-step denoising.
-- SOTA performance can be achieved with only fine-tuning on a small amount of labeled data.
-- The generated depth map has rich details and clear boundaries, especially in weak/repeated texture areas.
+**Key characteristics**:
+- A generative depth estimation framework based on diffusion models, producing depth maps through multi-step denoising.
+- State-of-the-art performance is achieved with fine-tuning on only a small amount of labeled data.
+- The generated depth maps are rich in detail with sharp boundaries, especially in textureless or repetitive-texture regions.
 
 <div align="center">
-  <img src="/images/si/Marigold-pipeline.webp" width="85%" alt="Marigold inference process: Encode RGB images into Stable Diffusion latent space, generate depth map latent variables through iterative denoising steps, and finally decode into relative depth maps." loading="lazy" decoding="async" style="aspect-ratio:732/400" />
-<figcaption>Marigold inference process: Encode RGB images into Stable Diffusion latent space, generate depth map latent variables through iterative denoising steps, and finally decode into relative depth maps.</figcaption>
+  <img src="/images/si/Marigold-pipeline.webp" width="85%" alt="Marigold inference process: the RGB image is encoded into Stable Diffusion's latent space, the depth latent is generated through iterative denoising steps, and it is finally decoded into a relative depth map." loading="lazy" decoding="async" style="aspect-ratio:732/400" />
+<figcaption>Marigold inference process: the RGB image is encoded into Stable Diffusion's latent space, the depth latent is generated through iterative denoising steps, and it is finally decoded into a relative depth map.</figcaption>
 </div>
 
 ---
@@ -385,52 +385,52 @@ Here, $$d_i = \log \hat{y}_i - \log y_i$$ is the difference between the logarith
 ### Classic stereo vision and dense matching
 {: id="经典立体视觉与密集匹配"}
 
-Before the emergence of deep learning methods, **stereo vision (Stereo Vision)** was the mainstream method for recovering depth from images. Understanding its principles will help you grasp which classic pain points are solved by methods such as Depth Anything and Marigold.
+Before deep learning methods emerged, **stereo vision** was the mainstream way to recover depth from images. Understanding its principles helps clarify which classic pain points methods such as Depth Anything and Marigold address.
 
 ### Epipolar geometry
 {: id="对极几何"}
 
-**Epipolar Geometry** describes the geometric constraint relationship of the same scene in two images, which is the theoretical basis of stereo matching. Given the corresponding points $$\mathbf{x}_1$$ and $$\mathbf{x}_2$$ (homogeneous coordinates) in two images, they satisfy:
+**Epipolar geometry** describes the geometric constraint between two images of the same scene and is the theoretical basis of stereo matching. Given corresponding points $$\mathbf{x}_1$$ and $$\mathbf{x}_2$$ (in homogeneous coordinates) in two images, they satisfy:
 
 $$\mathbf{x}_2^T F \mathbf{x}_1 = 0$$
 
-Here, $F \in \mathbb{R}^{3 \times 3}$ (rank 2) is the **fundamental matrix (Fundamental Matrix)**, which contains the relative pose and internal reference information of the two cameras. If the internal parameters of the two cameras $K_1, K_2$ are known, the corresponding essential matrix (Essential Matrix) **is**:
+Here, $F \in \mathbb{R}^{3 \times 3}$ (rank 2) is the **fundamental matrix**, which encodes the relative pose and the intrinsics of the two cameras. If the intrinsics $K_1, K_2$ of the two cameras are known, the corresponding **essential matrix** is:
 
 $$E = K_2^T F K_1 = [\mathbf{t}]_\times R$$
 
-$E$ only encodes the extrinsic rotation $R$ and the (normalized) translation direction $\mathbf{t}$, and the relative pose can be recovered through SVD decomposition. Epipolar constraints reduce the two-dimensional search space to one-dimensional search on the **epipolar line (Epipolar Line)**, which is the core acceleration method of all stereo matching algorithms.
+$E$ encodes only the extrinsic rotation $R$ and the (normalized) translation direction $\mathbf{t}$, and the relative pose can be recovered through SVD decomposition. The epipolar constraint reduces a two-dimensional search to a one-dimensional search along the **epipolar line**, which is the core speedup of all stereo matching algorithms.
 
  <div align="center">  <img src="/images/si/pcv_epipolar_geometry.webp" width="70%" alt="Figure: Epipolar geometry. The projection centers X₀′, X₀″ and the object point" loading="lazy" decoding="async" style="aspect-ratio:2339/1435"/><figcaption> Figure: Epipolar geometry. The projection centers X₀′, X₀″ and the object point</figcaption></div>
 
-### Stereo Correction and Parallax Depth
+### Stereo rectification and disparity-based depth
 {: id="立体纠正与视差深度"}
 
-After **stereo correction (Stereo Rectification)** is performed on the image pair, the optical axes of the two cameras are parallel, the epipolar line becomes a horizontal scan line, and the corresponding point is only displaced in the horizontal direction - **Parallax (Disparity)** $d = u_L - u_R$. From similar triangles:
+After **stereo rectification** of an image pair, the optical axes of the two cameras become parallel, the epipolar lines become horizontal scan lines, and corresponding points are displaced only horizontally; this displacement is the **disparity** $d = u_L - u_R$. From similar triangles:
 
 $$Z = \frac{f \cdot B}{d}$$
 
-in $f$ is the focal length, $B$ for **Baseline** (Binocular distance), $Z$ for depth. The greater the parallax, the closer the distance; the parallax tends to zero, and the depth tends to infinity - this is the existence of monocular depth estimation. **scale ambiguity** geometric nature.
+where $f$ is the focal length, $B$ is the **baseline** (the distance between the two cameras), and $Z$ is the depth. The larger the disparity, the closer the point; as disparity tends to zero, depth tends to infinity. This is the geometric root of the **scale ambiguity** in monocular depth estimation.
 
-<div align="center"><img src="/images/si/pcv_stereo_rectification.webp" width="80%" alt="picture: epipolar image generation (stereoscopic correction). The original image plane is reprojected to a common plane parallel to the baseline through two homography transformations H′, H″, so that the epipolar lines are aligned as horizontal scan lines. (Source: Author LUH Photogrammetric Computer Vision courseware)" loading="lazy" decoding="async" style="aspect-ratio:2339/1435"/><figcaption> picture: epipolar image generation (stereoscopic correction). The original image plane is reprojected to a common plane parallel to the baseline through two homography transformations H′, H″, so that the epipolar lines are aligned as horizontal scan lines. (Source: Author LUH Photogrammetric Computer Vision courseware)</figcaption></div>
+<div align="center"><img src="/images/si/pcv_stereo_rectification.webp" width="80%" alt="Figure: Epipolar image generation (stereo rectification). The original image planes are reprojected onto a common plane parallel to the baseline through two homographies H′ and H″, so that the epipolar lines become aligned horizontal scan lines. (Source: LUH Photogrammetric Computer Vision course slides)" loading="lazy" decoding="async" style="aspect-ratio:2339/1435"/><figcaption> Figure: Epipolar image generation (stereo rectification). The original image planes are reprojected onto a common plane parallel to the baseline through two homographies H′ and H″, so that the epipolar lines become aligned horizontal scan lines. (Source: LUH Photogrammetric Computer Vision course slides)</figcaption></div>
 
 ### Semi-global matching (SGM)
 {: id="半全局匹配sgm"}
 
-**SGM** (Semi-Global Matching, Hirschmüller, TPAMI 2008) is a representative algorithm of classic dense disparity estimation and is still the industrial baseline in the fields of autonomous driving and aerial survey. The core idea is to approximate the pixel-by-pixel cost minimization problem as a one-dimensional path integral along multiple directions, and integrate the local matching cost and global smoothness constraints:
+**SGM** (Semi-Global Matching, Hirschmüller, TPAMI 2008) is a representative algorithm for classic dense disparity estimation and remains an industrial baseline in autonomous driving and aerial surveying. Its core idea is to approximate the pixel-wise cost minimization problem with one-dimensional path-wise aggregation along multiple directions, combining the local matching cost with a global smoothness constraint:
 
 $$E(D) = \sum_{\mathbf{p}} \left( C(\mathbf{p}, D_\mathbf{p}) + \sum_{\mathbf{q} \in N_\mathbf{p}} P_1 T[|D_\mathbf{p} - D_\mathbf{q}| = 1] + P_2 T[|D_\mathbf{p} - D_\mathbf{q}| > 1] \right)$$
 
-Here, $C(\mathbf{p}, d)$ is the matching cost of pixel $\mathbf{p}$ under the parallax $d$, and $P_1, P_2$ is the penalty term for small/large parallax jump respectively. SGM approaches global energy minimization with a linear complexity close to $O(WH)$ through path accumulation in 8 directions (Left/Right/Top/Bottom and diagonal).
+Here, $C(\mathbf{p}, d)$ is the matching cost of pixel $\mathbf{p}$ at disparity $d$, and $P_1, P_2$ are the penalty terms for small and large disparity jumps, respectively. By aggregating paths in 8 directions (left/right/up/down and diagonals), SGM approximates global energy minimization with near-linear $O(WH)$ complexity.
 
-<div align="center"><img src="/images/si/pcv_sgm_cost.webp" width="80%" alt="plot: SGM cost aggregation energy function (Hirschmüller, PAMI 2008). The first item is the pixel-by-pixel matching cost, and the second and third items impose penalties P₁ and P₂ respectively on small (1 pixel) and large parallax jumps to achieve local smoothing constraints. (Source: Author LUH Photogrammetric Computer Vision courseware)" loading="lazy" decoding="async" style="aspect-ratio:2041/1387"/><figcaption> plot: SGM cost aggregation energy function (Hirschmüller, PAMI 2008). The first item is the pixel-by-pixel matching cost, and the second and third items impose penalties P₁ and P₂ respectively on small (1 pixel) and large parallax jumps to achieve local smoothing constraints. (Source: Author LUH Photogrammetric Computer Vision courseware)</figcaption></div>
+<div align="center"><img src="/images/si/pcv_sgm_cost.webp" width="80%" alt="Figure: SGM cost aggregation energy function (Hirschmüller, PAMI 2008). The first term is the pixel-wise matching cost; the second and third terms impose penalties P₁ and P₂ on small (1 pixel) and large disparity jumps, respectively, enforcing a local smoothness constraint. (Source: LUH Photogrammetric Computer Vision course slides)" loading="lazy" decoding="async" style="aspect-ratio:2041/1387"/><figcaption> Figure: SGM cost aggregation energy function (Hirschmüller, PAMI 2008). The first term is the pixel-wise matching cost; the second and third terms impose penalties P₁ and P₂ on small (1 pixel) and large disparity jumps, respectively, enforcing a local smoothness constraint. (Source: LUH Photogrammetric Computer Vision course slides)</figcaption></div>
 
-**Census transformation** is a commonly used matching cost for SGM. It encodes the size relationship between each position in the pixel neighborhood and the center pixel as a binary string, and then uses the Hamming distance to measure the similarity. It is naturally robust to illumination changes and avoids the defect of being sensitive to absolute brightness when directly using pixel grayscale difference (SAD/SSD).
+The **Census transform** is a commonly used matching cost for SGM. It encodes the relation between each position in a pixel's neighborhood and the center pixel as a binary string, and then measures similarity with the Hamming distance. It is naturally robust to illumination changes and avoids the sensitivity to absolute brightness of directly using pixel intensity differences (SAD/SSD).
 
-Limitations of **SGM** is what drives the rise of deep learning methods (such as Depth Anything, Marigold):
-- The matching cost in textureless areas (white walls, uniform floors) degrades, resulting in large "holes";
-- Transparent/reflective objects violate the Lambertian assumption and the classical cost function fails;
-- The parameter ($P_1, P_2$) needs to be manually adjusted according to the scene, and the generalization is weak;
-- The stereo method must rely on calibrated binocular cameras and cannot be used in monocular scenes.
+The limitations of **SGM** are what drove the rise of deep learning methods (such as Depth Anything and Marigold):
+- In textureless regions (white walls, uniform floors) the matching cost degrades, leaving large "holes";
+- Transparent and reflective objects violate the Lambertian assumption, so the classic cost function fails;
+- The parameters ($P_1, P_2$) must be tuned by hand for each scene, and generalization is weak;
+- Stereo methods depend on a calibrated binocular camera and cannot be used in monocular settings.
 
 ---
 
@@ -440,73 +440,73 @@ Limitations of **SGM** is what drives the rise of deep learning methods (such as
 ### Classic SfM/MVS pipeline
 {: id="经典-sfmmvs-管线"}
 
-Before neural rendering came along, **Structure from Motion (SfM)** It is a standard framework for reconstructing 3D scenes from unconstrained image sets. Understanding the classic pipeline is the prerequisite for understanding the "revolutionary" end-to-end feedforward methods such as DUSt3R and VGGT.
+Before neural rendering, **Structure from Motion (SfM)** was the standard framework for reconstructing 3D scenes from unconstrained image sets. Understanding the classic pipeline is a prerequisite for understanding the "revolutionary" end-to-end feed-forward methods such as DUSt3R and VGGT.
 
-**Classic SfM Process**:
+**Classic SfM pipeline**:
 
-1. **feature extraction**: **SIFT** (Scale-Invariant Feature Transform, Lowe, IJCV 2004) detects scale space extreme points through difference of Gaussians (DoG) and extracts 128 The dimensional Histogram of Oriented Gradients (HOG) descriptor achieves scale, rotation and illumination invariance and is the most robust image matching feature in the past two decades.
-2. **feature matching + RANSAC**: Perform descriptor nearest neighbor matching on image pairs, use **RANSAC (Random Sample Consensus)** robust estimation basic matrix $F$, and automatically eliminate mismatches (outliers) by iterative random sampling.
-3. **Relative pose estimation**: Recover the rotation $R$ and translation direction $\mathbf{t}$ between the two cameras from the essential matrix $$E = [\mathbf{t}]_\times R$$ through SVD decomposition (4 candidate solutions, the unique solution is determined through the positive depth constraint).
-4. **Triangulation (Triangulation)**: After the poses of the two cameras are known, linear least squares (DLT) is used to restore the 3D point coordinates $\mathbf{X}$ for the matching point pairs, and solve the system of equations $$\mathbf{x}_i \times (P_i \mathbf{X}) = 0$$.
-5. **Incremental reconstruction**: Using the best matching image pair as a seed, new images are registered into the reconstructed point cloud through PnP+RANSAC, and the sparse 3D structure is continuously expanded.
-6. **Bundle Adjustment (BA)**: Jointly optimize all camera poses $$\{R_i, \mathbf{t}_i\}$$ and 3D point coordinates $\{X_j\}$, minimizing **reprojection error**:
+1. **Feature extraction**: **SIFT** (Scale-Invariant Feature Transform, Lowe, IJCV 2004) detects scale-space extrema with the difference of Gaussians (DoG) and extracts 128-dimensional histogram-of-oriented-gradients descriptors, achieving invariance to scale, rotation, and illumination; it has been the most robust image matching feature for the past two decades.
+2. **Feature matching + RANSAC**: descriptors are matched by nearest neighbor across image pairs, and **RANSAC (Random Sample Consensus)** robustly estimates the fundamental matrix $F$, automatically rejecting mismatches (outliers) through iterative random sampling.
+3. **Relative pose estimation**: the rotation $R$ and translation direction $\mathbf{t}$ between the two cameras are recovered from the essential matrix $$E = [\mathbf{t}]_\times R$$ via SVD decomposition (4 candidate solutions; the unique solution is chosen using the positive-depth constraint).
+4. **Triangulation**: once the two camera poses are known, linear least squares (DLT) recovers the 3D coordinates $\mathbf{X}$ of matched point pairs by solving the system $$\mathbf{x}_i \times (P_i \mathbf{X}) = 0$$.
+5. **Incremental reconstruction**: starting from the best-matching image pair as a seed, new images are registered into the reconstructed point cloud via PnP+RANSAC, continuously extending the sparse 3D structure.
+6. **Bundle adjustment (BA)**: all camera poses $$\{R_i, \mathbf{t}_i\}$$ and 3D point coordinates $\{X_j\}$ are jointly optimized to minimize the **reprojection error**:
 $$\min_{\{R_i,\mathbf{t}_i\},\{X_j\}} \sum_{i,j} \rho\!\left(\left\|\mathbf{x}_{ij} - \pi(R_i X_j + \mathbf{t}_i)\right\|^2\right)$$
-Here, $\pi(\cdot)$ is the perspective projection, and $\rho(\cdot)$ is the robust kernel function (Huber). BA is the core of SfM accuracy and is usually implemented with Ceres Solver.
-7. **dense reconstruction (MVS)**: Based on the sparse SfM pose, the dense depth map is restored pixel by pixel through algorithms such as **PatchMatch MVS**, and then fused into a dense point cloud or voxel.
+Here, $\pi(\cdot)$ is the perspective projection and $\rho(\cdot)$ is a robust kernel function (Huber). BA is the core of SfM accuracy and is usually implemented with Ceres Solver.
+7. **Dense reconstruction (MVS)**: starting from the sparse SfM poses, algorithms such as **PatchMatch MVS** recover dense depth maps pixel by pixel, which are then fused into a dense point cloud or voxels.
 
-**COLMAP** (Schönberger & Frahm, CVPR 2016) is currently the most mainstream open source SfM+MVS system. It integrates the entire process mentioned above. Works such as DUST3R and VGGT all use COLMAP reconstruction results as the pose accuracy evaluation benchmark (AUC@5°/10°/20°).
+**COLMAP** (Schönberger & Frahm, CVPR 2016) is currently the most widely used open-source SfM+MVS system and integrates the entire pipeline above. Works such as DUSt3R and VGGT all use COLMAP reconstructions as the benchmark for pose accuracy evaluation (AUC@5°/10°/20°).
 
-**Classic The core limitations of SfM** are the fundamental driving forces behind the neural rendering revolution:
-- **is extremely slow**: BA for large scenes takes hours or even days;
-- **sparse output**: The final point cloud is sparse, and you need to run MVS again to get the dense result;
-- **Weak texture failure**: SIFT features are sparsely matched in low texture areas (white walls, sky);
-- **has no semantics**: pure geometric pipeline, unable to perceive object categories and semantic relationships;
-- **scene independent**: cannot be generalized across scenes, and the complete pipeline needs to be re-run for each new scene.
+**The core limitations of classic SfM** are the fundamental driving forces behind the neural rendering revolution:
+- **Extremely slow**: BA on large scenes takes hours or even days;
+- **Sparse output**: the final point cloud is sparse, and MVS must be run again to obtain a dense result;
+- **Failure on weak texture**: SIFT features match sparsely in low-texture regions (white walls, sky);
+- **No semantics**: it is a purely geometric pipeline and cannot perceive object categories or semantic relations;
+- **Scene-specific**: it does not generalize across scenes, and the whole pipeline must be re-run for every new scene.
 
 ---
 
 ### NeRF
 {: id="nerf"}
-**NeRF** (Neural Radiance Fields, Mildenhall et al., ECCV 2020) is one of the most influential works in the field of 3D vision in recent years. NeRF uses a fully connected network $F_\Theta: (\mathbf{x}, \mathbf{d}) \to (\mathbf{c}, \sigma)$ to map the three-dimensional coordinates $\mathbf{x}$ and viewing direction $\mathbf{d}$ into color $\mathbf{c}$ and volume density $\sigma$, and synthesizes the image through a differentiable volume rendering equation:
+**NeRF** (Neural Radiance Fields, Mildenhall et al., ECCV 2020) is one of the most influential works in 3D vision in recent years. NeRF uses a fully connected network $F_\Theta: (\mathbf{x}, \mathbf{d}) \to (\mathbf{c}, \sigma)$ to map a three-dimensional coordinate $\mathbf{x}$ and viewing direction $\mathbf{d}$ to a color $\mathbf{c}$ and a volume density $\sigma$, and synthesizes images through a differentiable volume rendering equation:
 $$\hat{C}(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\,\sigma\!\left(\mathbf{r}(t)\right)\mathbf{c}\!\left(\mathbf{r}(t),\mathbf{d}\right)\mathrm{d}t$$
-Where $T(t) = \exp\!\bigl(-\int_{t_n}^{t}\sigma(\mathbf{r}(s))\,\mathrm{d}s\bigr)$ is the cumulative transmittance along the ray. Supervised network training with photometric loss of reconstructed images versus real images (MSE/SSIM).
+where $T(t) = \exp\!\bigl(-\int_{t_n}^{t}\sigma(\mathbf{r}(s))\,\mathrm{d}s\bigr)$ is the accumulated transmittance along the ray. The network is trained with a photometric loss (MSE/SSIM) between reconstructed and real images.
 
-**Core Features**:
-- Fully implicit continuous representation, memory efficient, capable of rendering at any resolution.
+**Key characteristics**:
+- A fully implicit, continuous representation that is memory-efficient and can render at any resolution.
 - Differentiable rendering enables end-to-end optimization without explicit 3D supervision.
-- High-quality new perspective synthesis, good at detailed textures and specular reflections.
-- Limitations: slow training (several hours/scene), only representing static scenes, and no generalization between different scenes.
+- High-quality novel view synthesis, good at fine textures and specular reflections.
+- Limitations: slow training (several hours per scene), represents only static scenes, and does not generalize across scenes.
 
 <div align="center">
-  <img src="/images/wm/NeRF-Pipeline.webp" width="90%" alt="NeRF rendering principle: Use Coarse MLP to estimate the density distribution after uniform sampling along the camera ray, then sample the importance of high-density areas and send it to Fine MLP. Finally, the pixel color is obtained by integrating the volume rendering equation, and the luminosity loss of the real image is back-propagated to optimize the network weight." loading="lazy" decoding="async" style="aspect-ratio:971/555" />
-<figcaption>NeRF rendering principle: Use Coarse MLP to estimate the density distribution after uniform sampling along the camera ray, then sample the importance of high-density areas and send it to Fine MLP. Finally, the pixel color is obtained by integrating the volume rendering equation, and the luminosity loss of the real image is back-propagated to optimize the network weight.</figcaption>
+  <img src="/images/wm/NeRF-Pipeline.webp" width="90%" alt="NeRF rendering principle: a coarse MLP estimates the density distribution after uniform sampling along each camera ray; importance sampling is then applied to high-density regions and the samples are fed to a fine MLP. The pixel color is obtained by integrating the volume rendering equation, and the photometric loss against the real image is backpropagated to optimize the network weights." loading="lazy" decoding="async" style="aspect-ratio:971/555" />
+<figcaption>NeRF rendering principle: a coarse MLP estimates the density distribution after uniform sampling along each camera ray; importance sampling is then applied to high-density regions and the samples are fed to a fine MLP. The pixel color is obtained by integrating the volume rendering equation, and the photometric loss against the real image is backpropagated to optimize the network weights.</figcaption>
 </div>
 
-**Important extensions**: Mip-NeRF (processing aliasing), Mip-NeRF 360 (unbounded scenes), Instant-NGP (hash encoding, accelerated to second level), Block-NeRF (large-scale urban scenes).
+**Important extensions**: Mip-NeRF (anti-aliasing), Mip-NeRF 360 (unbounded scenes), Instant-NGP (hash encoding, speeding training up to seconds), and Block-NeRF (large-scale urban scenes).
 
 ---
 
 ### 3D Gaussian Splatting
 {: id="3d-gaussian-splatting"}
-**3D Gaussian Splatting** (Kerbl et al., SIGGRAPH 2023) is the most important breakthrough in the field of 3D reconstruction in 2023. **real-time high-quality** rendering has completely changed the field of neural rendering.
+**3D Gaussian Splatting** (Kerbl et al., SIGGRAPH 2023) is the most important breakthrough in 3D reconstruction in 2023. Its **real-time, high-quality** rendering has completely changed the field of neural rendering.
 
-3DGS explicitly represents the scene as a set of anisotropic three-dimensional Gaussians, each Gaussian is described by the following parameters:
+3DGS represents a scene explicitly as a set of anisotropic 3D Gaussians, each described by the following parameters:
 - Position (mean) $\mu \in \mathbb{R}^3$
-- Covariance matrix, decomposed by rotation matrix $R$ and scaling vector $s$: $\Sigma = RSS^TR^T$
+- Covariance matrix, factored into a rotation matrix $R$ and a scaling vector $s$: $\Sigma = RSS^TR^T$
 - Opacity $\alpha$
 - Spherical harmonic (SH) coefficients, describing view-dependent appearance
 
-During rendering, the three-dimensional Gaussian is projected onto the image plane (Splatting), sorted by depth and then $\alpha$-blended to obtain the final pixel color. The adaptive density control mechanism automatically clones or deletes Gaussian elements based on gradient information to achieve automatic calibration of geometric details.
+During rendering, the 3D Gaussians are projected onto the image plane (splatting), sorted by depth, and then $\alpha$-blended to obtain the final pixel color. An adaptive density control mechanism automatically clones or removes Gaussians based on gradient information, refining geometric detail automatically.
 
-**core features**:
-- Explicit representation avoids NeRF's volumetric rendering overhead and enables real-time rendering (>30 FPS @ 1080p).
-- Differentiable and supports end-to-end gradient optimization.
-- The training speed is much faster than NeRF (minutes) and the rendering quality is higher.
-- Limitations: The number of Gaussian primitives is huge (millions) and the storage overhead is large; the modeling of textureless smooth areas is weak.
+**Key characteristics**:
+- The explicit representation avoids NeRF's volume rendering overhead and enables real-time rendering (>30 FPS at 1080p).
+- It is differentiable and supports end-to-end gradient optimization.
+- Training is much faster than NeRF (minutes) and rendering quality is higher.
+- Limitations: the number of Gaussian primitives is huge (millions), so storage overhead is large; modeling of textureless smooth regions is weak.
 
 <div align="center">
-  <img src="/images/wm/3DGS-pipeline-overview.webp" width="90%" alt="3D Gaussian Splatting Overview: Initialize Gaussian primitives from SfM sparse point cloud, project three-dimensional Gaussians to the image plane and then sort by depth for alpha-blended rendering, gradient-driven adaptive density control (Clone/Split) to automatically propagate or prune Gaussians." loading="lazy" decoding="async" style="aspect-ratio:1430/383" />
-<figcaption>3D Gaussian Splatting Overview: Initialize Gaussian primitives from SfM sparse point cloud, project three-dimensional Gaussians to the image plane and then sort by depth for alpha-blended rendering, gradient-driven adaptive density control (Clone/Split) to automatically propagate or prune Gaussians.</figcaption>
+  <img src="/images/wm/3DGS-pipeline-overview.webp" width="90%" alt="3D Gaussian Splatting overview: Gaussian primitives are initialized from the sparse SfM point cloud, projected onto the image plane, and sorted by depth for alpha-blended rendering; gradient-driven adaptive density control (clone/split) automatically densifies or prunes the Gaussians." loading="lazy" decoding="async" style="aspect-ratio:1430/383" />
+<figcaption>3D Gaussian Splatting overview: Gaussian primitives are initialized from the sparse SfM point cloud, projected onto the image plane, and sorted by depth for alpha-blended rendering; gradient-driven adaptive density control (clone/split) automatically densifies or prunes the Gaussians.</figcaption>
 </div>
 
 ---
@@ -514,9 +514,9 @@ During rendering, the three-dimensional Gaussian is projected onto the image pla
 ### End-to-end dense reconstruction
 {: id="端到端稠密重建"}
 
-**DUSt3R** (Wang et al., CVPR 2024) proposes a new paradigm of end-to-end dense 3D reconstruction, which unifies the traditional SfM pipeline (feature matching → pose estimation → dense reconstruction) into a single Transformer network: input any image pair (without known camera parameters), directly predict dense point maps (Pointmap), and then fuse multiple maps through global optimization. DUSt3R breaks through the traditional method's reliance on high-overlapping image pairs and remains robust under extreme viewing angle changes.
+**DUSt3R** (Wang et al., CVPR 2024) proposes a new paradigm of end-to-end dense 3D reconstruction that folds the traditional SfM pipeline (feature matching → pose estimation → dense reconstruction) into a single Transformer network: given any image pair (with no known camera parameters), it directly predicts dense pointmaps, and multiple pairs are then fused by global alignment. DUSt3R removes the traditional methods' reliance on highly overlapping image pairs and remains robust under extreme viewpoint changes.
 
-**MASt3R** (Leroy et al., 2024) adds local feature matching capabilities based on DUSt3R, further improving the robustness and accuracy of multi-view 3D reconstruction, while supporting sparse matching tasks. Together, they represent an important transition from 3D reconstruction to "feedforward base models".
+**MASt3R** (Leroy et al., 2024) adds local feature matching on top of DUSt3R, further improving the robustness and accuracy of multi-view 3D reconstruction while also supporting sparse matching tasks. Together they mark an important transition from 3D reconstruction to feed-forward foundation models.
 
 ---
 
@@ -589,7 +589,7 @@ Generated, explorable 3D worlds are also becoming products. In October 2025 Worl
 ### Dynamic scene modeling (4D)
 {: id="动态场景建模-4d"}
 
-Static 3DGS has limitations in modeling dynamic scenes. **Dynamic 3D Gaussians** (Luiten et al., 3DV 2024) introduces time trajectories for each Gaussian to track the dynamic movement of particles in multi-frame scenes; **4D Gaussian Splatting** (Wu et al., CVPR 2024) realizes real-time rendering of dynamic scenes through the Gaussian deformation field in the time dimension; **Deformable 3D Gaussians** (Yang et al., CVPR 2024) focuses on non-rigid body deformation modeling, opening a new direction for dynamic modeling of robot interaction scenes.
+Static 3DGS is limited in modeling dynamic scenes. **Dynamic 3D Gaussians** (Luiten et al., 3DV 2024) assigns each Gaussian a temporal trajectory to track the motion of particles across multi-frame scenes; **4D Gaussian Splatting** (Wu et al., CVPR 2024) renders dynamic scenes in real time through a Gaussian deformation field over the time dimension; **Deformable 3D Gaussians** (Yang et al., CVPR 2024) focuses on modeling non-rigid deformation, opening a new direction for modeling dynamic robot interaction scenes.
 
 ---
 
@@ -598,138 +598,138 @@ Static 3DGS has limitations in modeling dynamic scenes. **Dynamic 3D Gaussians**
 
 ### VoxelNet / SECOND / PointPillars
 {: id="voxelnet--second--pointpillars"}
-**VoxelNet** (Zhou & Tuzel, CVPR 2018) is the first end-to-end framework to learn 3D object detection directly from lidar point cloud. It voxels the point cloud, uses a VFE (Voxel Feature Encoding) layer to extract local features in each non-empty voxel, and then completes detection through a three-dimensional convolutional backbone network and RPN, eliminating artificial feature engineering. However, due to the use of conventional dense three-dimensional convolution, its calculation and GPU memory overhead are extremely high, which limits its real-time performance.
+**VoxelNet** (Zhou & Tuzel, CVPR 2018) is the first end-to-end framework to learn 3D object detection directly from LiDAR point clouds. It voxelizes the point cloud, uses VFE (Voxel Feature Encoding) layers to extract local features within each non-empty voxel, and then completes detection with a 3D convolutional backbone and an RPN, eliminating hand-crafted feature engineering. However, because it uses conventional dense 3D convolution, its computation and GPU memory costs are extremely high, which limits real-time performance.
 
 <div align="center">
   <img src="/images/si/voxelnet_architecture.webp" width="90%" alt="VoxelNet Architecture" loading="lazy" decoding="async" style="aspect-ratio:838/431" />
 <figcaption>VoxelNet Architecture</figcaption>
 </div>
 
-**SECOND** (Sparsely Embedded Convolutional Detection, Yan et al., Sensors 2018) Aiming at the high cost of conventional three-dimensional convolution in VoxelNet, **sparse convolution (Sparse Convolution)** and manifold sparse convolution (Submanifold Sparse Convolution), the convolution calculation is only performed on non-empty voxels, which greatly improves the training and inference speed, and improves the angle regression loss function, making the voxel-based method truly of practical value.
+**SECOND** (Sparsely Embedded Convolutional Detection, Yan et al., Sensors 2018) addresses the high cost of VoxelNet's conventional 3D convolution by introducing **sparse convolution** and submanifold sparse convolution, which perform computation only on non-empty voxels. This greatly speeds up training and inference, and together with an improved angle regression loss makes voxel-based methods genuinely practical.
 
 <div align="center">
   <img src="/images/si/SECOND_architecture.jpg" width="90%" alt="SECOND Architecture" loading="lazy" decoding="async" style="aspect-ratio:1440/1228" />
 <figcaption>SECOND Architecture</figcaption>
 </div>
 
-**PointPillars** (Lang et al., CVPR 2019) goes a step further and simplifies voxelization to "Pillar" encoding - compressing the point cloud into a two-dimensional pseudo image along the height direction, thereby replacing 3D convolution (whether dense or sparse) with an efficient 2D CNN, and the inference speed is increased to 62 FPS(GPU). PointPillars achieves an excellent engineering balance between speed and accuracy, becoming the classic industry baseline in autonomous driving LiDAR perception.
+**PointPillars** (Lang et al., CVPR 2019) goes a step further and simplifies voxelization into a "pillar" encoding: the point cloud is compressed along the height direction into a 2D pseudo-image, so that an efficient 2D CNN replaces 3D convolution (dense or sparse), and inference speed rises to 62 FPS (GPU). PointPillars strikes an excellent engineering balance between speed and accuracy and became the classic industry baseline for LiDAR perception in autonomous driving.
 
-**core features**:
-- Voxel/columnar encoding converts unordered point clouds into regular feature maps and is compatible with mature 2D/3D CNN frameworks.
-- PointPillars drives real-time deployment of 3D inspection systems on embedded hardware.
+**Key characteristics**:
+- Voxel/pillar encoding turns unordered point clouds into regular feature maps compatible with mature 2D/3D CNN frameworks.
+- PointPillars enabled real-time deployment of 3D detection systems on embedded hardware.
 
 <div align="center">
-  <img src="/images/si/PointPillars-architecture.png" width="90%" alt="PointPillars architecture: compress the point cloud into a columnar (Pillar) pseudo-image along the height direction, extract the columnar features through PointNet and scatter them back to the 2D BEV feature map, and then output the three-dimensional bounding box through the 2D CNN backbone network and SSD detection head." loading="lazy" decoding="async" style="aspect-ratio:720/230" />
-<figcaption>PointPillars architecture: compress the point cloud into a columnar (Pillar) pseudo-image along the height direction, extract the columnar features through PointNet and scatter them back to the 2D BEV feature map, and then output the three-dimensional bounding box through the 2D CNN backbone network and SSD detection head.</figcaption>
+  <img src="/images/si/PointPillars-architecture.png" width="90%" alt="PointPillars architecture: the point cloud is compressed along the height direction into a pillar-based pseudo-image; PointNet extracts pillar features, which are scattered back onto a 2D BEV feature map; a 2D CNN backbone and an SSD detection head then output 3D bounding boxes." loading="lazy" decoding="async" style="aspect-ratio:720/230" />
+<figcaption>PointPillars architecture: the point cloud is compressed along the height direction into a pillar-based pseudo-image; PointNet extracts pillar features, which are scattered back onto a 2D BEV feature map; a 2D CNN backbone and an SSD detection head then output 3D bounding boxes.</figcaption>
 </div>
 
 ---
 
 ### BEVFormer
 {: id="bevformer"}
-**BEVFormer** (Li et al., ECCV 2022) is a milestone work in purely visual (no LiDAR) 3D perception. The core idea is to query multi-camera image features into a unified **bird's eye view (BEV)** space through **deformable attention (Deformable Attention)**, and introduce **timing BEV Feature fusion** captures motion information.
+**BEVFormer** (Li et al., ECCV 2022) is a milestone in purely vision-based (LiDAR-free) 3D perception. Its core idea is to query multi-camera image features into a unified **bird's-eye-view (BEV)** space via **deformable attention**, and to introduce **temporal BEV feature fusion** to capture motion information.
 
-**core design**:
-- Query is preset on the BEV plane to sample features from multi-view images through spatial cross-attention (avoiding the computational overhead of dense feature transformation).
-- Temporal self-attention aligns historical BEV features with the current frame, implicitly encoding speed and motion information.
-- It significantly surpassed the previous generation of purely visual methods on the nuScenes data set, triggering a research boom in "pure visual autonomous driving perception".
+**Core design**:
+- Queries are preset on the BEV plane and sample features from multi-view images through spatial cross-attention (avoiding the computational overhead of dense feature transformation).
+- Temporal self-attention aligns historical BEV features with the current frame, implicitly encoding velocity and motion information.
+- It significantly surpassed the previous generation of vision-only methods on nuScenes, triggering a research boom in vision-only autonomous driving perception.
 
-**Core Features**:
-- No need for expensive LiDAR, just a camera to achieve 3D perception close to LiDAR level.
-- BEV unified representation supports multi-task joint training such as detection, tracking, and map segmentation.
+**Key characteristics**:
+- No expensive LiDAR is needed: cameras alone achieve 3D perception close to LiDAR level.
+- The unified BEV representation supports joint multi-task training such as detection, tracking, and map segmentation.
 
 <div align="center">
-  <img src="/images/si/BEVFormer-architecture.png" width="90%" alt="BEVFormer architecture: Preset grid Query in the BEV plane, project sampling features from multi-camera images to BEV space through spatial cross-attention, and then use temporal self-attention to fuse historical BEV frames to implicitly encode motion information, and finally send it to the detection/segmentation head." loading="lazy" decoding="async" style="aspect-ratio:720/271" />
-<figcaption>BEVFormer architecture: Preset grid Query in the BEV plane, project sampling features from multi-camera images to BEV space through spatial cross-attention, and then use temporal self-attention to fuse historical BEV frames to implicitly encode motion information, and finally send it to the detection/segmentation head.</figcaption>
+  <img src="/images/si/BEVFormer-architecture.png" width="90%" alt="BEVFormer architecture: a grid of queries is preset on the BEV plane, features are projected and sampled from the multi-camera images into BEV space through spatial cross-attention, and temporal self-attention then fuses historical BEV frames to implicitly encode motion; the result is fed to the detection/segmentation heads." loading="lazy" decoding="async" style="aspect-ratio:720/271" />
+<figcaption>BEVFormer architecture: a grid of queries is preset on the BEV plane, features are projected and sampled from the multi-camera images into BEV space through spatial cross-attention, and temporal self-attention then fuses historical BEV frames to implicitly encode motion; the result is fed to the detection/segmentation heads.</figcaption>
 </div>
 
 ---
 
 ### Semantic occupancy prediction
 {: id="语义占用预测与表示演进"}
-**Semantic Occupancy Prediction** has received widespread attention in autonomous driving in recent years. Unlike 3D object detection, which outputs a limited number of bounding boxes, occupancy prediction assigns semantic labels to each area (voxel) in the scene, and can more naturally handle arbitrarily shaped special-shaped obstacles and long-tail targets (such as fallen cartons, construction guardrails, hanging cables), and is therefore regarded as the key path to "universal obstacle perception". However, dense voxel representation naturally faces the memory and computing explosion problem of $O(N^3)$. The technological evolution of the entire field is essentially an optimization trajectory that continuously approaches the triangular constraint of "high resolution × low computing power × consistent timing":
+**Semantic occupancy prediction** has received widespread attention in autonomous driving in recent years. Unlike 3D object detection, which outputs a limited number of bounding boxes, occupancy prediction assigns a semantic label to every region (voxel) of the scene. It can therefore handle arbitrarily shaped obstacles and long-tail objects (such as fallen cartons, construction barriers, and hanging cables) more naturally, and is regarded as a key path to "universal obstacle perception". Dense voxel representations, however, inherently face an $O(N^3)$ explosion in memory and computation. The technical evolution of the whole field is essentially an optimization trajectory that keeps approaching the triangular constraint of high resolution, low compute, and temporal consistency:
 
 ```mermaid
 graph LR
-    A["① Dense Transformer<br/>(2022-2023)<br/>TPVFormer / OccFormer / SurroundOcc"] --> B["② sparse & adaptive resolution<br/>(2023-2024)<br/>AdaOcc / SparseOcc / GaussianFormer"]
-    B --> C["③ linear complexity & world model<br/>(2025-)<br/>OccMamba / OccRWKV / GaussianWorld"]
+    A["① Dense Transformer<br/>(2022-2023)<br/>TPVFormer / OccFormer / SurroundOcc"] --> B["② Sparse & adaptive resolution<br/>(2023-2024)<br/>AdaOcc / SparseOcc / GaussianFormer"]
+    B --> C["③ Linear complexity & world models<br/>(2025-)<br/>OccMamba / OccRWKV / GaussianWorld"]
     style A fill:#fff5f5,stroke:#fca5a5
     style B fill:#fffbeb,stroke:#fcd34d
     style C fill:#f0fdf4,stroke:#86efac
 ```
 
-**1) Dense Transformer Paradigm (2022–2023)**: **TPVFormer** (Huang et al., CVPR 2023) Extends BEV to Tri-Perspective View, TPV), which approximates 3D space with three orthogonal planes instead of a complete voxel grid, striking a balance between computational efficiency and perceptual integrity; **OccFormer**, **SurroundOcc** further improves the reconstruction quality through 3D/dual attention. This stage established the end-to-end paradigm of "surround image → 3D voxel semantics", but the GPU memory and latency overhead caused by dense attention have become the main bottleneck for real-time deployment on the car side.
+**1) Dense Transformer paradigm (2022–2023)**: **TPVFormer** (Huang et al., CVPR 2023) extends BEV to the Tri-Perspective View (TPV), approximating 3D space with three orthogonal planes instead of a full voxel grid, which balances computational efficiency and perceptual completeness; **OccFormer** and **SurroundOcc** further improve reconstruction quality through 3D/dual attention. This stage established the end-to-end paradigm of "surround-view images → 3D voxel semantics", but the GPU memory and latency costs of dense attention became the main bottleneck for real-time on-vehicle deployment.
 
-**2) Sparse and adaptive resolution representation (2023–2024)**: The core idea is that "good steel is used on the blade", and all voxels are no longer calculated equally. **AdaOcc** (Adaptive-Resolution Occupancy Prediction) introduces an adaptive resolution mechanism - using high resolution in safety-critical regions of interest (ROI) such as near and complex obstacles, and using low resolution in distant open areas to break the trade-off of efficiency and accuracy; **SparseOcc / Fully Sparse Occupancy** pushes sparsity to the extreme, only calculating non-empty areas in the entire pipeline, significantly compressing delays; there is even a work (**Occupancy as Set of Points**) that completely abandons the regular voxel grid and uses point sets to flexibly represent occupancy, which can better characterize thin structures and edges. Inspired by 3DGS, **GaussianFormer** (Wang et al., ECCV 2024)/**GaussianFormer-2** (CVPR 2025) uses a set of 3D Gaussians replace dense voxels and model occupancy with "probabilistic superposition", significantly compressing memory while preserving fine-grained geometry.
+**2) Sparse and adaptive-resolution representations (2023–2024)**: the core idea is to spend effort where it counts, rather than computing all voxels equally. **AdaOcc** (Adaptive-Resolution Occupancy Prediction) introduces an adaptive resolution mechanism that uses high resolution in safety-critical regions of interest (ROIs) such as nearby and complex obstacles and low resolution in distant open areas, breaking the trade-off between efficiency and accuracy; **SparseOcc / Fully Sparse Occupancy** pushes sparsity to the extreme, computing only non-empty regions throughout the pipeline and significantly reducing latency; one line of work (**Occupancy as Set of Points**) abandons the regular voxel grid altogether and represents occupancy flexibly with point sets, better capturing thin structures and edges. Inspired by 3DGS, **GaussianFormer** (Wang et al., ECCV 2024) and **GaussianFormer-2** (CVPR 2025) replace dense voxels with a set of 3D Gaussians and model occupancy as a probabilistic superposition, significantly reducing memory while preserving fine-grained geometry.
 
-**3) Linear Complexity Architecture and Sequential World Model (2025–)**: The quadratic complexity of Transformer becomes an Achilles heel in high-resolution 3D space, and a new generation of work turns to the linear complexity backbone. **OccMamba** (CVPR 2025) is the first network to introduce the state space model (SSM/Mamba) into occupancy prediction. It maintains spatial locality through 3D-to-1D expansion such as Hilbert curve, and cooperates with the hierarchical Mamba module to implement $O(N)$ Complexity; **OccRWKV** uses a linear RNN architecture to explore real-time deployment on the end side. At the same time, occupancy prediction is moving from "single frame perception" to "sequential world model": **GaussianWorld** (CVPR 2025) not only predicts the current occupancy status in streaming input, but also predicts future 3D occupancy evolution, emphasizing timing consistency; facing the occlusion problem, **Collaborative Semantic Occupancy Prediction** uses vehicle-to-vehicle collaboration (V2V) to integrate multi-view features to "see through" occlusion, significantly improving IoU.
+**3) Linear-complexity architectures and temporal world models (2025–)**: the quadratic complexity of Transformers becomes an Achilles' heel in high-resolution 3D space, and a new generation of work turns to linear-complexity backbones. **OccMamba** (CVPR 2025) is the first network to introduce a state space model (SSM/Mamba) into occupancy prediction. It preserves spatial locality through 3D-to-1D unfolding such as the Hilbert curve and, together with hierarchical Mamba modules, achieves $O(N)$ complexity; **OccRWKV** uses a linear RNN architecture to explore real-time on-device deployment. At the same time, occupancy prediction is moving from single-frame perception to temporal world models: **GaussianWorld** (CVPR 2025) predicts not only the current occupancy state on streaming input but also the future evolution of 3D occupancy, emphasizing temporal consistency; to deal with occlusion, **Collaborative Semantic Occupancy Prediction** uses vehicle-to-vehicle (V2V) collaboration to fuse multi-view features and "see through" occluders, significantly improving IoU.
 
-> Summary of the evolution of : Occupancy prediction evolves step by step along the lines of "dense computing → adaptive/sparse representation → linear complexity → temporal world model". Behind it is the same main line - pushing the perceptual resolution, computing efficiency and timing prediction capabilities to the new Pareto frontier under the limited computing power of the vehicle.
+> **Summary of the evolution**: occupancy prediction progresses step by step along the line of dense computation → adaptive/sparse representations → linear complexity → temporal world models. Behind it is one main thread: pushing perceptual resolution, computational efficiency, and temporal prediction to a new Pareto frontier under the limited compute available on a vehicle.
 
-**3D Scene Graph** organizes spatial semantics from another perspective: representing the scene as a graph structure, nodes representing object instances, and edges representing spatial relationships (above/below, left/right, support, etc.), supporting language query and logical reasoning. **3DSSG** (Wald et al., CVPR 2020) is a representative dataset and baseline work in this direction. Occupancy prediction provides "dense geometry + semantics", and scene graphs provide "sparse structure + relationships". The two often complement each other in embodied navigation and task planning.
+**3D scene graphs** organize spatial semantics from another perspective: a scene is represented as a graph whose nodes are object instances and whose edges are spatial relations (above/below, left/right, support, etc.), supporting language queries and logical reasoning. **3DSSG** (Wald et al., CVPR 2020) is a representative dataset and baseline in this direction. Occupancy prediction provides dense geometry plus semantics, while scene graphs provide sparse structure plus relations; the two often complement each other in embodied navigation and task planning.
 
 ---
 
-## 4.5 Spatial-aware language model
+## 4.5 Spatially aware language models
 {: id="45-空间感知语言模型"}
 
-> 💡 **Architecture background tip**: Spatial-aware language model (3D MLLM / Spatial VLM) is usually extended based on the 2D general multimodal large model (for example, by introducing a 3D geometry encoder, point cloud Tokenizer or spatial position Prompt). For the core mechanism of general multimodal fusion (linear projection/cross-attention/Q-Former) and the complete training tuning pipeline, please refer to the front-end base article: {% include content-link.html path='/VLM-Survey/' fragment='#vlm-methods' label='"VLM Overview: 4. Core Methods for Implementing Multi-modality" ' %} and {% include content-link.html path='/VLM-Survey/' fragment='#vlm-training' label='"6. VLM Training Process and Key Technologies" ' %}.
+> 💡 **Architecture background**: spatially aware language models (3D MLLMs / spatial VLMs) are usually extended from general 2D multimodal large models (for example, by introducing a 3D geometry encoder, a point cloud tokenizer, or spatial positional prompts). For the core mechanisms of general multimodal fusion (linear projection, cross-attention, Q-Former) and the complete training and tuning pipeline, see the foundational survey: {% include content-link.html path='/VLM-Survey/' fragment='#vlm-methods' label='"VLM Overview: 4. Core Methods for Implementing Multi-modality" ' %} and {% include content-link.html path='/VLM-Survey/' fragment='#vlm-training' label='"6. VLM Training Process and Key Technologies" ' %}.
 
 ### ScanRefer & ScanQA
 {: id="scanrefer--scanqa"}
-**ScanRefer** (Chen et al., ECCV 2020) proposed the **three-dimensional visual grounding (3D Visual Grounding)** task: given a natural language description (such as "the brown chair near the door"), in the three-dimensional point cloud Locate the target object in the scene (output a 3D bounding box). The ScanRefer dataset contains 51,583 verbal descriptions of objects in ScanNet scans and is a core benchmark for 3D verbal localization directions. After ScanRefer, **Nr3D/Sr3D** (Achlioptas et al., 2020) and **ScanQA** (Azuma et al., CVPR 2022) further expanded the evaluation dimensions of three-dimensional language understanding.
+**ScanRefer** (Chen et al., ECCV 2020) proposed the task of **3D visual grounding**: given a natural language description (such as "the brown chair near the door"), locate the target object in a 3D point cloud scene (outputting a 3D bounding box). The ScanRefer dataset contains 51,583 language descriptions of objects in ScanNet scans and is a core benchmark for 3D language grounding. After ScanRefer, **Nr3D/Sr3D** (Achlioptas et al., 2020) and **ScanQA** (Azuma et al., CVPR 2022) further broadened the evaluation dimensions of 3D language understanding.
 
 <div align="center">
-  <img src="/images/si/ScanRefer-grounding.webp" width="85%" alt="ScanRefer 3D visual grounding example: Given a natural language description (such as &quot;brown chair near the door&quot;), the model locates the target in the 3D point cloudscene and outputs the 3D bounding box. It needs to simultaneously understand the spatial relationship clues in the language and resolve ambiguities in the point cloud." loading="lazy" decoding="async" style="aspect-ratio:1800/941" />
-<figcaption>ScanRefer 3D visual grounding example: Given a natural language description (such as "brown chair near the door"), the model locates the target in the 3D point cloudscene and outputs the 3D bounding box. It needs to simultaneously understand the spatial relationship clues in the language and resolve ambiguities in the point cloud.</figcaption>
+  <img src="/images/si/ScanRefer-grounding.webp" width="85%" alt="ScanRefer 3D visual grounding example: given a natural language description (such as &quot;brown chair near the door&quot;), the model locates the target in the 3D point cloud scene and outputs a 3D bounding box. It must understand the spatial-relation cues in the language and resolve ambiguities in the point cloud at the same time." loading="lazy" decoding="async" style="aspect-ratio:1800/941" />
+<figcaption>ScanRefer 3D visual grounding example: given a natural language description (such as "brown chair near the door"), the model locates the target in the 3D point cloud scene and outputs a 3D bounding box. It must understand the spatial-relation cues in the language and resolve ambiguities in the point cloud at the same time.</figcaption>
 </div>
 
 ---
 
 ### 3D-LLM
 {: id="3d-llm"}
-**3D-LLM** (Hong et al., NeurIPS 2023) extends large language models (LLM) to three-dimensional perception tasks for the first time. By injecting 3D point cloud features into the context of LLM (using a 3D feature extractor based on the diffusion model to map the point cloud into a token sequence), 3D-LLM supports multiple types of tasks such as 3D scene question answering, 3D visual grounding, and 3D dialogue, without the need to design dedicated modules for each task.
+**3D-LLM** (Hong et al., NeurIPS 2023) is the first to extend large language models (LLMs) to 3D perception tasks. By injecting 3D point cloud features into the LLM's context (using a diffusion-model-based 3D feature extractor to map the point cloud into a token sequence), 3D-LLM supports many task types, such as 3D scene question answering, 3D visual grounding, and 3D dialogue, without designing a dedicated module for each task.
 
-**Core Features**:
-- Migrate the open language understanding capabilities of LLM to three-dimensional scene perception, giving the model three-dimensional perception capabilities.
-- Support diverse 3D-language tasks and demonstrate the feasibility of a unified framework.
-- Laying the foundation for subsequent three-dimensional multimodal large model (3D MLLM).
+**Key characteristics**:
+- It transfers the open-ended language understanding of LLMs to 3D scene perception, giving the model 3D perception capabilities.
+- It supports diverse 3D-language tasks and demonstrates the feasibility of a unified framework.
+- It lays the foundation for subsequent 3D multimodal large models (3D MLLMs).
 
 <div align="center">
-  <img src="/images/si/3DLLM-architecture.png" width="90%" alt="3D-LLM framework: Utilizes a 3D feature extractor based on the diffusion model to map the point cloudscene into a token sequence, injects it into the context window of LLM, and supports tasks such as scene question and answer, visual grounding and multi-round dialogue." loading="lazy" decoding="async" style="aspect-ratio:841/461" />
-<figcaption>3D-LLM framework: Utilizes a 3D feature extractor based on the diffusion model to map the point cloudscene into a token sequence, injects it into the context window of LLM, and supports tasks such as scene question and answer, visual grounding and multi-round dialogue.</figcaption>
+  <img src="/images/si/3DLLM-architecture.png" width="90%" alt="3D-LLM framework: a diffusion-model-based 3D feature extractor maps the point cloud scene into a token sequence, which is injected into the LLM's context window to support tasks such as scene question answering, visual grounding, and multi-turn dialogue." loading="lazy" decoding="async" style="aspect-ratio:841/461" />
+<figcaption>3D-LLM framework: a diffusion-model-based 3D feature extractor maps the point cloud scene into a token sequence, which is injected into the LLM's context window to support tasks such as scene question answering, visual grounding, and multi-turn dialogue.</figcaption>
 </div>
 
 ---
 
 ### SpatialVLM
 {: id="spatialvlm"}
-**SpatialVLM** (Chen et al., CVPR 2024) is specifically designed to address the spatial reasoning shortcomings of the vision-language model (VLM). Existing VLMs (such as GPT-4V) perform poorly on quantitative spatial reasoning problems such as "How far is object A from object B?" SpatialVLM performs special fine-tuning of spatial reasoning on VLM by building a large-scale **spatial reasoning question and answer data set** - which uses three-dimensional sensors to automatically generate quantitatively labeled question and answer pairs covering distance estimation, orientation judgment, size comparison and other types.
+**SpatialVLM** (Chen et al., CVPR 2024) is designed specifically to address the weak spatial reasoning of vision-language models (VLMs). Existing VLMs (such as GPT-4V) perform poorly on quantitative spatial reasoning questions such as "How far is object A from object B?" SpatialVLM fine-tunes a VLM specifically for spatial reasoning by building a large-scale **spatial reasoning question-answering dataset**, which uses 3D sensing to automatically generate quantitatively labeled question-answer pairs covering distance estimation, orientation judgment, size comparison, and other types.
 
-**Core Features**:
-- The first work to systematically improve the quantitative spatial reasoning capabilities of VLM.
-- Automated data generation pipelines scale to large scale and do not rely on manual annotation.
-- Dramatically improve performance in spatial reasoning-intensive downstream tasks such as robot manipulation.
+**Key characteristics**:
+- The first work to systematically improve the quantitative spatial reasoning of VLMs.
+- The automated data generation pipeline scales up without relying on manual annotation.
+- It substantially improves performance on downstream tasks that depend heavily on spatial reasoning, such as robot manipulation.
 
 <div align="center">
-  <img src="/images/si/SpatialVLM-pipeline.webp" width="85%" alt="SpatialVLM data generation pipeline: Use three-dimensional sensor data to automatically generate quantitative spatial reasoning question and answer pairs such as distance estimation, orientation judgment, size comparison, etc., and perform special spatial reasoning fine-tuning on VLM to significantly improve the accuracy of the model on quantitative spatial problems." loading="lazy" decoding="async" style="aspect-ratio:1800/915" />
-<figcaption>SpatialVLM data generation pipeline: Use three-dimensional sensor data to automatically generate quantitative spatial reasoning question and answer pairs such as distance estimation, orientation judgment, size comparison, etc., and perform special spatial reasoning fine-tuning on VLM to significantly improve the accuracy of the model on quantitative spatial problems.</figcaption>
+  <img src="/images/si/SpatialVLM-pipeline.webp" width="85%" alt="SpatialVLM data generation pipeline: 3D sensor data is used to automatically generate quantitative spatial reasoning question-answer pairs such as distance estimation, orientation judgment, and size comparison, and the VLM is fine-tuned on them for spatial reasoning, significantly improving its accuracy on quantitative spatial questions." loading="lazy" decoding="async" style="aspect-ratio:1800/915" />
+<figcaption>SpatialVLM data generation pipeline: 3D sensor data is used to automatically generate quantitative spatial reasoning question-answer pairs such as distance estimation, orientation judgment, and size comparison, and the VLM is fine-tuned on them for spatial reasoning, significantly improving its accuracy on quantitative spatial questions.</figcaption>
 </div>
 
 ---
 
 ### EmbodiedScan
 {: id="embodiedscan"}
- **EmbodiedScan** (Wang et al., CVPR 2024) proposed a comprehensive embodied 3D scene understanding benchmark, covering multiple tasks such as 3D object detection, 3D visual grounding, and 3D question answering, emphasizing the understanding of the agent from the perspective of the agent. **Actively explore perspectives** Understand 3D scenes (first-person RGB-D stream input) rather than offline full point cloudscans. EmbodiedScan contains 5000+ scenes and 1.46 million+ instance annotations, making it one of the largest embodied 3D scene understanding datasets currently.
+**EmbodiedScan** (Wang et al., CVPR 2024) proposed a comprehensive embodied 3D scene understanding benchmark covering tasks such as 3D object detection, 3D visual grounding, and 3D question answering, and emphasizing understanding from the agent's own perspective. It requires the agent to **actively explore viewpoints** to understand the 3D scene (taking a first-person RGB-D stream as input) rather than working from offline, complete point cloud scans. EmbodiedScan contains 5,000+ scenes and 1.46 million+ instance annotations, making it one of the largest embodied 3D scene understanding datasets to date.
 
-**core features**:
-- A unified multi-task embodied 3D understanding framework that is close to the perception mode of real robot deployment.
-- Emphasis on real-time, incremental 3D scene understanding rather than offline processing of complete point cloud.
-- Introducing multi-granularity spatial language alignment to support fine-grained object-level and scene-level descriptions.
+**Key characteristics**:
+- A unified multi-task framework for embodied 3D understanding that is close to how real robots perceive when deployed.
+- It emphasizes real-time, incremental 3D scene understanding rather than offline processing of complete point clouds.
+- It introduces multi-granularity spatial-language alignment, supporting fine-grained object-level and scene-level descriptions.
 
 <div align="center">
-  <img src="/images/si/EmbodiedScan-overview.webp" width="90%" alt="EmbodiedScan framework overview: Taking the first-person RGB-D perspective stream actively explored by the agent as input, it uniformly supports multi-task evaluation such as 3D object detection, 3D visual grounding and scene question and answer." loading="lazy" decoding="async" style="aspect-ratio:1800/828" />
-<figcaption>EmbodiedScan framework overview: Taking the first-person RGB-D perspective stream actively explored by the agent as input, it uniformly supports multi-task evaluation such as 3D object detection, 3D visual grounding and scene question and answer.</figcaption>
+  <img src="/images/si/EmbodiedScan-overview.webp" width="90%" alt="EmbodiedScan framework overview: taking the first-person RGB-D stream from the agent's active exploration as input, it uniformly supports multi-task evaluation such as 3D object detection, 3D visual grounding, and scene question answering." loading="lazy" decoding="async" style="aspect-ratio:1800/828" />
+<figcaption>EmbodiedScan framework overview: taking the first-person RGB-D stream from the agent's active exploration as input, it uniformly supports multi-task evaluation such as 3D object detection, 3D visual grounding, and scene question answering.</figcaption>
 </div>
 
 ---
@@ -764,7 +764,7 @@ The four lines are not exclusive: {% include content-link.html path='/Spatial-In
 Both reconstruction heads are trained jointly with text supervision, so the model gains 3D perception without changing its input format (still video frames + instructions). Ross3D reached the state of the art at the time on several 3D scene understanding benchmarks; its **semi-supervised experiments** show that large amounts of "purely visual, language-free" 3D data can substantially improve performance, a scalable way around the 3D vision-language data bottleneck in the same spirit as Depth Anything (§4.2), which drives foundation models with massive unlabeled data.
 
 <div align="center">
-  <img src="/images/si/Ross3D-architecture.webp" width="95%" alt="Ross3D’s two types of 3D-aware reconstruction targets (Source: Ross3D official repository Haochen-Wang409/ross3d). Left: Cross-view reconstruction - after masking part of the video frame, the masked view is restored by LLM by aggregating overlapping views; Right: Global view reconstruction - aggregating all views to reconstruct the bird&#x27;s-eye view (BEV) of the scene. Both reconstructions are jointly trained with text supervision, implicitly injecting 3D perception into a multimodal large model designed for 2D content." loading="lazy" decoding="async" style="aspect-ratio:1800/403" />
+  <img src="/images/si/Ross3D-architecture.webp" width="95%" alt="Ross3D’s two 3D-aware reconstruction objectives (source: the official Ross3D repository Haochen-Wang409/ross3d). Left: cross-view reconstruction, in which the LLM recovers masked video frames by aggregating overlapping views; right: global-view reconstruction, which aggregates all views to reconstruct the scene's bird's-eye view (BEV). Both are trained jointly with text supervision, implicitly injecting 3D perception into a multimodal model designed for 2D content." loading="lazy" decoding="async" style="aspect-ratio:1800/403" />
 <figcaption>Ross3D’s two 3D-aware reconstruction objectives (source: the official Ross3D repository Haochen-Wang409/ross3d). Left: cross-view reconstruction, in which the LLM recovers masked video frames by aggregating overlapping views; right: global-view reconstruction, which aggregates all views to reconstruct the scene's bird's-eye view (BEV). Both are trained jointly with text supervision, implicitly injecting 3D perception into a multimodal model designed for 2D content.</figcaption>
 </div>
 

@@ -6,7 +6,7 @@ permalink: /en/VLA-Papers/
 source_path: _posts/research/2026-10-01-VLA-Papers.md
 source_url: /VLA-Papers/
 source_revision_date: 2026-10-19
-translation_updated: 2026-10-24
+translation_updated: 2026-11-19
 title: "Vision-Language-Action: Paper Readings"
 date: 2026-10-24
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
@@ -58,18 +58,18 @@ Papers are numbered in the order they were added; old section anchors still work
 # Paper readings
 {: id="5-论文精读"}
 
-This article contains 39 representative works, including VLA models, action policies, acquisition methods and world models. Together they explain technical sources, but are not all part of the VLA, nor are they exhaustive rankings. You can jump to the corresponding paper through the search above or the side table of contents.
+This article covers 39 representative works, including VLA models, action policies, data-acquisition methods, and world models. Together they trace the technical lineage of VLA, but not all of them are VLA models, and the list is not an exhaustive ranking. Use the search box above or the side table of contents to jump to a paper.
 
-|Read the topic|Suggested tandem work|Main questions|
+|Topic|Suggested papers to read together|Main questions|
 |---|---|---|
 |Formation of VLA| RT-1 → RT-2 → RT-X → OpenVLA |What do scale, semantic transfer and cross-robot data contribute?|
-|Actions and Demonstrations| ACT, Diffusion Policy, UMI, DP3, π₀ |How action chunking, generation distribution, and sensing interfaces affect control|
-|Generalization and experiential learning| π₀.5, π*₀.₆, π₀.7 |How to combine environment migration, execution feedback and behavioral guidance|
-|reasoning and memory| ACoT-VLA, ZR-0, RoboTTT, S²-VLA |What is the value of intermediate supervision, historical states and task stages?|
-|Data and Systems| UniSim, InternData-A1, RoboGen, GR00T |How data generation and system components support policy learning|
-|recent developments| LingBot-VLA 2.0, τ₀-VLA, ActionPiece, Real-Time EXPO-FT, Bee |How large-scale generalization, search, action encoding, and online learning form a closed-loop|
+|Actions and demonstrations| ACT, Diffusion Policy, UMI, DP3, π₀ |How action chunking, generative action distributions, and sensing interfaces affect control|
+|Generalization and learning from experience| π₀.5, π*₀.₆, π₀.7 |How to combine environment transfer, execution feedback, and behavioral guidance|
+|Reasoning and memory| ACoT-VLA, ZR-0, RoboTTT, S²-VLA |What is the value of intermediate supervision, historical states and task stages?|
+|Data and systems| UniSim, InternData-A1, RoboGen, GR00T |How data generation and system components support policy learning|
+|Recent developments| LingBot-VLA 2.0, τ₀-VLA, ActionPiece, Real-Time EXPO-FT, Bee |How large-scale generalization, search, action encoding, and online learning fit into a closed loop|
 
-Each section is organized by research questions, core methods, experimental results, and limitations. Numerical results correspond only to the experimental conditions of the cited paper; please also review the training data, robot platform, and evaluation protocol when comparing. The title year follows the paper or conference version of each section; the date of the first preprint and official publication may be different, please refer to the bibliographic information in the link.
+Each section is organized by research question, core method, experimental results, and limitations. Numbers apply only to the experimental conditions of the cited paper; when comparing, also check the training data, robot platform, and evaluation protocol. The year in each title follows the paper or conference version; the dates of the first preprint and official publication may differ, so refer to the bibliographic information in the link.
 
 ---
 
@@ -82,62 +82,62 @@ Robotics Transformer for Real-World Control at Scale
 📄 **Paper**: https://arxiv.org/abs/2212.06817
 
 <div align="center">
-  <img src="/images/vla/rt1_arch.webp" alt="RT-1 architecture diagram: Transformer policy based on EfficientNet visual encoder and Token Learner (Source: RT-1 Project)" width="1118" height="776" style="width: 90%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/rt1_arch.webp" alt="RT-1 architecture: a Transformer policy built on an EfficientNet visual encoder and TokenLearner (Source: RT-1 Project)" width="1118" height="776" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
-RT-1 architecture diagram: Transformer policy based on EfficientNet visual encoder and Token Learner (Source: RT-1 Project)
+RT-1 architecture: a Transformer policy built on an EfficientNet visual encoder and TokenLearner (Source: RT-1 Project)
 </figcaption>
 </div>
 
 **Key takeaways**
 
-RT-1 investigates whether transferable robot policies can be trained on large-scale multi-task data. It adds language conditions to visual encoding, compresses visual tokens and predicts discrete actions. TokenLearner compresses 81 spatial tokens per frame into 8; 512 is the feature channel dimension. It provides experience for scaling visuomotor policies, but is not equivalent to RT-2 obtained from pretraining large-scale VLM fine-tuning.
+RT-1 investigates whether transferable robot policies can be trained on large-scale multi-task data. It adds language conditioning to visual encoding, compresses visual tokens, and predicts discrete actions. TokenLearner compresses 81 spatial tokens per frame into 8; 512 is the feature channel dimension. It offers experience in scaling visuomotor policies, but it is not equivalent to RT-2, which comes from fine-tuning a large pretrained VLM.
 
 ---
 
 **Background and problem**
 
-Robot control methods before 2022 generally rely on dedicated networks trained on small-scale data, which are difficult to generalize to new tasks and new scenarios. The effectiveness of Transformer+ on large-scale data has been proven in the language and vision fields, but whether the same paradigm can be transferred to real-world robot control has not yet been proven. Core question: Can **train a single Transformer network with large-scale multi-task real robot data to achieve high success rates on hundreds of tasks and generalize to unseen tasks?**
+Robot control methods before 2022 generally relied on dedicated networks trained on small-scale data, which generalize poorly to new tasks and scenes. Transformers have proven effective on large-scale data in language and vision, but it was unclear whether the same paradigm transfers to real-world robot control. Core question: **can a single Transformer trained on large-scale multi-task real-robot data achieve high success rates on hundreds of tasks and generalize to unseen ones?**
 
 ---
 
 **Methods and innovations**
 
-**architecture design**:
+**Architecture**:
 
-|module|design|function|
+|Module|Design|Function|
 |------|------|------|
-|**Visual encoding**| EfficientNet-B3 + Token Learner |Compress the image into 8 visual tokens and efficiently extract semantic features|
-|**Language encoding**| Universal Sentence Encoder (USE) |Map task instructions into fixed-length embeddings|
-|**backbone network**|Transformer (8 layers, 19M parameters)|Processing visual history of language conditions to predict action tokens|
-|**action modeling**|Discretization (256 bins/dimension)|11-dimensional motion interface: 6-dimensional end position, 1-dimensional gripper, 3-dimensional chassis, 1-dimensional control mode|
+|**Visual encoding**| EfficientNet-B3 + Token Learner |Compresses the image into 8 visual tokens and efficiently extracts semantic features|
+|**Language encoding**| Universal Sentence Encoder (USE) |Maps task instructions to fixed-length embeddings|
+|**Backbone**|Transformer (8 layers, 19M parameters)|Processes the language-conditioned visual history to predict action tokens|
+|**Action modeling**|Discretization (256 bins/dimension)|11-dimensional action interface: 6-D end-effector pose, 1-D gripper, 3-D base, 1-D control mode|
 
-**Data scale**: 130k real trajectories were collected on the Everyday Robots robot, covering 700+ tasks, various objects and scenes, and took 17 months of manual teleoperation.
+**Data scale**: 130k real trajectories were collected on Everyday Robots platforms over 17 months of human teleoperation, covering 700+ tasks and a variety of objects and scenes.
 
-**Inference efficiency**: The paper system runs at about 3 Hz; visual token compression is used to reduce the amount of calculation. The main model is not autoregressively generated one by one according to the action dimensions. Autoregressive action prediction is the ablation setting in the paper. See [RT-1 §5.1 and Table 13](https://arxiv.org/html/2212.06817v2).
+**Inference efficiency**: The system runs at about 3 Hz, with visual token compression used to reduce computation. The main model does not generate actions autoregressively dimension by dimension; autoregressive action prediction is an ablation setting in the paper. See [RT-1 §5.1 and Table 13](https://arxiv.org/html/2212.06817v2).
 
 ---
 
 **Results and findings**
 
-**has seen the task (training distribution)**:
-- The average task success rate is **97.0%**, significantly exceeding BC-Z (66.0%) and SayCan (65.8%)
-- Maintain stable high performance on 700+ different tasks, proving the effectiveness of large-scale multi-task training
+**Seen tasks (training distribution)**:
+- Average task success rate of **97.0%**, significantly above BC-Z (66.0%) and SayCan (65.8%)
+- Stable high performance across 700+ distinct tasks, confirming the effectiveness of large-scale multi-task training
 
-**Unseen task (zero-shot generalization)**:
-- Unseen task success rate **76.0%**, far exceeding the 20-40% level of previous methods
-- Prove that the Transformer architecture can learn transferable underlying skills from multi-task training
+**Unseen tasks (zero-shot generalization)**:
+- Success rate on unseen tasks of **76.0%**, far above the 20-40% of earlier methods
+- Shows that a Transformer can learn transferable low-level skills from multi-task training
 
-**result boundary**: The above success rate corresponds to the task distribution defined by the author. More data is beneficial in this study, but there are no fixed returns to scale across tasks, data quality, and robots.
+**Scope of the results**: The success rates above apply to the task distribution defined by the authors. More data helps in this study, but returns to scale are not fixed across tasks, data quality, and robots.
 
 ---
 
 **Limitations**
 
-- Language conditions support task differentiation and combinatorial generalization, but semantic reasoning ability needs to be assessed separately
-- Data acquisition is expensive (requires specialized operators and specific robotic hardware) and difficult to reproduce
-- The visual encoder uses a fixed resolution and is not good at fine-grained operations.
-- Action quantization introduces accuracy loss, and performance drops significantly in fine contact tasks
-- The main training and evaluation are focused on the Everyday Robots platform, and the limited cross-robot experiments are not enough to prove arbitrary embodiment migration.
+- Language conditioning supports task discrimination and compositional generalization, but semantic reasoning ability needs separate evaluation
+- Data collection is expensive (specialized operators and specific robot hardware) and hard to reproduce
+- The visual encoder uses a fixed resolution and is poorly suited to fine-grained manipulation
+- Action quantization costs precision, and performance drops markedly on fine contact-rich tasks
+- Training and evaluation focus mainly on the Everyday Robots platform; the limited cross-robot experiments do not show transfer to arbitrary embodiments
 
 ---
 
@@ -150,60 +150,60 @@ Vision-Language-Action Models Transfer Web Knowledge to Robotic Control
 📄 **Paper**: https://arxiv.org/abs/2307.15818
 
 <div align="center">
-  <img src="/images/vla/rt2_overview.webp" alt="RT-2 Architecture Overview: Directly fine-tune the pretraining VLM output action token (Source: RT-2 Project)" width="1322" height="702" style="width: 90%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/rt2_overview.webp" alt="RT-2 overview: a pretrained VLM is fine-tuned directly to output action tokens (Source: RT-2 Project)" width="1322" height="702" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
-RT-2 Architecture Overview: Directly fine-tune the pretraining VLM output action token (Source: RT-2 Project)
+RT-2 overview: a pretrained VLM is fine-tuned directly to output action tokens (Source: RT-2 Project)
 </figcaption>
 </div>
 
 **Key takeaways**
 
-RT-2 is a true paradigm breakthrough in the field of VLA: by representing robot actions as language tokens, VLM’s next-token prediction capabilities are seamlessly extended to action generation without modifying the model architecture. The most critical discovery is "emergent capabilities" - RT-2 can perform new types of reasoning tasks that have never appeared in robot data (such as "pick up objects that can put out fires"), which come directly from VLM's Internet knowledge. This discovery redefines the boundaries of what is possible in robot learning.
+RT-2 is a genuine paradigm shift for VLA: by representing robot actions as language tokens, it extends the VLM's next-token prediction to action generation without changing the model architecture. The most important finding is "emergent capabilities": RT-2 can perform new kinds of reasoning tasks that never appear in the robot data (such as "pick up the object that can put out a fire"), which come directly from the VLM's web knowledge. This redefines what is possible in robot learning.
 
 ---
 
 **Background and problem**
 
-Large vision-language models (VLMs) have shown excellent performance in cross-modal understanding and common sense reasoning, but these capabilities cannot be directly used for robot control. The traditional approach is to use VLM for high-level planning and then cooperate with low-level controllers to execute actions - this introduces information loss and alignment errors between modules. Core question: Can **directly fine-tune VLM into a VLA model that can perform physical actions while retaining the semantic understanding and reasoning capabilities of pretraining?**
+Large vision-language models (VLMs) perform well at cross-modal understanding and commonsense reasoning, but these abilities cannot be used directly for robot control. The traditional approach uses a VLM for high-level planning and a low-level controller to execute actions, which introduces information loss and alignment errors between modules. Core question: **can a VLM be fine-tuned directly into a VLA model that executes physical actions while retaining the semantic understanding and reasoning learned in pretraining?**
 
 ---
 
 **Methods and innovations**
 
-**Core Innovation: Action as Language token**
+**Core innovation: actions as language tokens**
 
 ```
-traditional way: Vision + Language → VLM → text planning → low level controller → action
-RT-2way: Vision + Language → VLA → actiontokenSequence (direct control)
+Traditional: Vision + Language → VLM → text plan → low-level controller → action
+RT-2: Vision + Language → VLA → action token sequence (direct control)
 ```
 
-**architecture**:
+**Architecture**:
 - Base models: PaLI-X (5B, 55B) and PaLM-E (12B) variants
-- Encode the end-effector pose, gripper and termination mark as discrete tokens; the continuous action dimension is quantized into 256 intervals
-- Co-fine-tuning with visual-linguistic data: alternately train on robot demonstration data and Internet VL data to prevent catastrophic forgetting
+- End-effector pose, gripper, and termination flag are encoded as discrete tokens; each continuous action dimension is quantized into 256 bins
+- Co-fine-tuning with vision-language data: training alternates between robot demonstrations and web VL data to prevent catastrophic forgetting
 
 **Key design decisions**:
-- Robot demonstration and vision-language tasks are jointly fine-tuned to take into account both motor learning and original vision-language abilities
-- Action tokens are directly inserted into the language vocabulary and autoregressive decoding is used to generate action sequences.
-- Support chain-of-thought reasoning: generate reasoning text before generating actions
+- Robot demonstrations and vision-language tasks are fine-tuned jointly, preserving both motor learning and the original vision-language abilities
+- Action tokens are inserted directly into the language vocabulary, and action sequences are generated by autoregressive decoding
+- Supports chain-of-thought reasoning: reasoning text is generated before the action
 
 ---
 
 **Results and findings**
 
-[RT-2 official experiment](https://robotics-transformer2.github.io/) evaluates seen tasks, new objects, background changes, and semantic reasoning respectively. Under author agreement, pretraining VLM brings knowledge that helps select objects, understand symbols, and complete operations semantically. The CoT variant demonstrates the possibility of generating intermediate reasoning before actions.
+The [official RT-2 experiments](https://robotics-transformer2.github.io/) evaluate seen tasks, new objects, background changes, and semantic reasoning separately. According to the authors, pretraining the VLM brings knowledge that helps with selecting objects, understanding symbols, and completing operations semantically. The CoT variant shows that generating intermediate reasoning before actions is possible.
 
-These results indicate that semantic knowledge can influence action selection, but do not prove that the robot has learned new motor skills beyond the training data. RT-2 and cross-robot trained RT-2-X should also be discussed separately, the latter being studied in the next section.
+These results indicate that semantic knowledge can influence action selection, but they do not prove that the robot has learned new motor skills beyond the training data. RT-2 and the cross-robot RT-2-X should also be discussed separately; the latter is covered in the next section.
 
 ---
 
 **Limitations**
 
-- The 55B parameter model is extremely computationally expensive and cannot be deployed on edge devices. The inference speed is only about 1-3Hz.
-- Completely closed source (internal to Google), unable to be reproduced or fine-tuned by external researchers, which promoted subsequent open source work (OpenVLA)
-- Action tokenization introduces a loss of precision, making it difficult to perform fine manipulations that require sub-millimeter precision.
-- co-fine-tuning is sensitive to data mixing ratio, making debugging complex
-- Cross-embodiment migration capabilities on new robotic platforms are still limited
+- The 55B model is extremely expensive to run and cannot be deployed on edge devices; inference speed is only about 1-3 Hz
+- Fully closed source (internal to Google), so external researchers cannot reproduce or fine-tune it, which motivated later open-source work (OpenVLA)
+- Action tokenization loses precision, making fine manipulation that needs sub-millimeter accuracy difficult
+- Co-fine-tuning is sensitive to the data mixing ratio, which makes debugging complex
+- Cross-embodiment transfer to new robot platforms remains limited
 
 ---
 
@@ -216,53 +216,53 @@ Open X-Embodiment: Robotic Learning Datasets and RT-X Models
 📄 **Paper**: https://arxiv.org/abs/2310.08864
 
 <div align="center">
-  <img src="/images/vla/oxe_figure.webp" alt="Open X-Embodiment Dataset: Original project covers diverse data distribution of 22 robots (Source: RT-X Project)" width="1416" height="508" style="width: 90%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/oxe_figure.webp" alt="Open X-Embodiment dataset: the original project pools diverse data from 22 robots (Source: RT-X Project)" width="1416" height="508" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
-Open X-Embodiment Dataset: Original project covers diverse data distribution of 22 robots (Source: RT-X Project)
+Open X-Embodiment dataset: the original project pools diverse data from 22 robots (Source: RT-X Project)
 </figcaption>
 </div>
 
 **Key takeaways**
 
-OXE and RT-X jointly verify an important hypothesis: **Data from different robots can benefit from each other in some settings** . This positive migration depends on the model capacity, data mix and action interface and does not exclude negative migration. This provides key evidence for robot learning to move from "laboratory island" to "shared data ecology", and is the theoretical basis for the subsequent construction of large-scale data sets such as AgiBot World and InternData-A1.
+OXE and RT-X together verify an important hypothesis: **data from different robots can benefit one another in some settings**. This positive transfer depends on model capacity, data mix, and action interface, and negative transfer is not ruled out. It provides key evidence for robot learning moving from "lab islands" to a "shared data ecosystem" and is the rationale for later large-scale datasets such as AgiBot World and InternData-A1.
 
 ---
 
 **Background and problem**
 
-Robot learning data is extremely fragmented: each laboratory collects data independently, using different robots, different task definitions, and different storage formats, resulting in data that cannot be shared and reused. Even if a single laboratory has enough data, it can only train a specialized model suitable for the robots in that laboratory. Core question: Can **integrate data from 22 different robots from multiple laboratories around the world and prove that the jointly trained model is better than the model trained only on a single robot data?**
+Robot learning data is highly fragmented: each lab collects its own data with different robots, task definitions, and storage formats, so data cannot be shared or reused. Even a lab with enough data can only train a specialist model for its own robot. Core question: **can data from 22 robots across labs worldwide be integrated, and can a jointly trained model outperform models trained on a single robot's data?**
 
 ---
 
 **Methods and innovations**
 
-**Open X-Embodiment data set**:
-- **Scale**: The original OXE project brings together millions of trajectories, covering 22 robot types, from 21 institutions; RT-X uses a selected data mix from them
-- **Unified format**: Uses RLDS (Reinforcement Learning Datasets) format to standardize heterogeneous data, including RGB images, language instructions, robot joint angles/end effector actions
-- **coverage**: from 7-DOF desktop robotic arm (WidowX, Franka) to mobile robot (Hello Stretch), covering a variety of operating skills such as grabbing, pushing and pulling, and flipping
+**Open X-Embodiment dataset**:
+- **Scale**: The original OXE project pools millions of trajectories covering 22 robot types from 21 institutions; RT-X uses a selected data mixture from it
+- **Unified format**: Heterogeneous data is standardized in RLDS (Reinforcement Learning Datasets) format, including RGB images, language instructions, and robot joint angles / end-effector actions
+- **Coverage**: From 7-DoF tabletop arms (WidowX, Franka) to mobile robots (Hello Stretch), covering skills such as grasping, pushing and pulling, and flipping
 
 **RT-X training strategy**:
-- Train RT-1 backbone (RT-1-X) and RT-2 backbone (RT-2-X) separately on OXE data
-- Cross-embodiment co-training: The model infers tasks through language instructions and visual observations during inference, without the need for robot type identification.
-- Use a weighted mixed sampling strategy for different data sets to balance differences in data size
+- RT-1 backbone (RT-1-X) and RT-2 backbone (RT-2-X) are trained separately on OXE data
+- Cross-embodiment co-training: at inference the model infers the task from language instructions and visual observations, without needing the robot type
+- A weighted mixture sampling strategy balances differences in dataset size
 
 ---
 
 **Results and findings**
 
-The RT-1-X and RT-2-X experiments in the paper show that cross-robot training can produce positive transfer on multiple target platforms and semantic tasks. This conclusion depends on the selected data set, model capacity and training settings; OXE is the data set and RT-X is the policy trained using its subset, and the scope of the two cannot be equated.
+The RT-1-X and RT-2-X experiments show that cross-robot training can produce positive transfer on several target platforms and semantic tasks. This conclusion depends on the chosen dataset, model capacity, and training settings; OXE is the dataset and RT-X the policy trained on a subset of it, so the two should not be equated.
 
-RLDS provides trajectory organization specifications, and motion standardization and data sampling are still completed by the training process. The original experiments and results of each robot can be found in [RT-X official project](https://robotics-transformer-x.github.io/).
+RLDS specifies how trajectories are organized; action normalization and data sampling are still handled by the training pipeline. Per-robot experiments and results are in the [official RT-X project](https://robotics-transformer-x.github.io/).
 
 ---
 
 **Limitations**
 
-- The amount of data in the 22 robot platforms is seriously imbalanced, and the performance improvement of long-tail robots is limited.
-- The quality of raw data is uneven (different laboratories have different collection standards), introducing noise
-- It does not include emerging forms such as arms and full-body humanoids, and the coverage is still limited.
-- A specific training pipeline may only select some sensing modalities; this is different from the range of fields that the RLDS format itself can accommodate
-- Evaluation protocols are not uniform, and performance comparisons between different laboratories are biased
+- Data volume is severely imbalanced across the 22 robot platforms, and gains for long-tail robots are limited
+- Raw data quality is uneven (collection standards differ between labs), which introduces noise
+- Emerging embodiments such as bimanual arms and full-body humanoids are not included, so coverage is still limited
+- A given training pipeline may use only some sensing modalities; this differs from the range of fields the RLDS format itself can hold
+- Evaluation protocols are not unified, so performance comparisons across labs are biased
 
 ---
 
@@ -277,18 +277,18 @@ RLDS provides trajectory organization specifications, and motion standardization
 ### Key takeaways
 {: id="精华"}
 
-This paper demonstrates how to use low-cost hardware to achieve high-precision dual-arm cooperative operation. The core highlights include:
-- **Low-cost system design**: A high-performance dual-arm teleoperation and autonomous learning platform was built using off-the-shelf robots and 3D printing parts for less than $20,000.
-- **ACT algorithm**: Action Chunking with Transformers is proposed to reduce compound interest errors and improve timing consistency by predicting action sequences (rather than single-step actions).
-- **Temporal Ensembling (Temporal Ensembling)**: Extremely smooth and precise robot motion is achieved through weighted averaging of overlapping action chunks.
-- **Efficient learning**: It only takes 10 minutes (about 50 times) of demonstration to achieve an 80-90% success rate in difficult and precise operation tasks such as opening cans and inserting batteries.
+This paper shows how to achieve high-precision bimanual manipulation with low-cost hardware. Highlights:
+- **Low-cost system**: A high-performance bimanual teleoperation and autonomous learning platform built from off-the-shelf robots and 3D-printed parts for under $20,000.
+- **ACT algorithm**: Action Chunking with Transformers predicts action sequences rather than single steps, which reduces compounding errors and improves temporal consistency.
+- **Temporal ensembling**: Weighted averaging of overlapping action chunks yields very smooth and precise motion.
+- **Efficient learning**: Only about 10 minutes of demonstrations (around 50 demos) suffice for 80-90% success on difficult, precise tasks such as opening cans and inserting batteries.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题"}
 
-Delicate dual-arm coordinated operations (such as threading needles and plugging and unplugging batteries) often require expensive, high-precision robots and complex sensors. Traditional imitation learning (such as behavioral cloning) faces challenges in these tasks: **Compounding Errors** This can cause movements to deviate from the target, and non-stationarity in human demonstrations (such as pauses) is difficult to model. This article explores whether learning can be used to enable cheap and less accurate hardware to perform these delicate tasks.
+Delicate bimanual manipulation (such as threading a needle or plugging and unplugging a battery) usually requires expensive, high-precision robots and complex sensing. Conventional imitation learning (e.g., behavioral cloning) struggles here: **compounding errors** push the motion away from the target, and non-stationarity in human demonstrations (such as pauses) is hard to model. This paper asks whether learning can let cheap, imprecise hardware perform these delicate tasks.
 
 ---
 
@@ -296,71 +296,71 @@ Delicate dual-arm coordinated operations (such as threading needles and plugging
 {: id="2-主要方法创新点"}
 
 <div align="center">
-  <img src="/images/vla/ALOHA-overview.webp" alt="ALOHA System Overview: Low-cost dual-arm teleoperation and demonstration of fine manipulation skills" width="1446" height="558" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/ALOHA-overview.webp" alt="ALOHA system overview: low-cost bimanual teleoperation and demonstrations of fine manipulation skills" width="1446" height="558" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-ALOHA System Overview: Low-cost dual-arm teleoperation and demonstration of fine manipulation skills
+ALOHA system overview: low-cost bimanual teleoperation and demonstrations of fine manipulation skills
 </figcaption>
 </div>
 
 #### ALOHA hardware system
 {: id="aloha-硬件系统"}
-The paper designs a low-cost open source dual-arm system named **ALOHA**.
+The paper presents **ALOHA**, a low-cost, open-source bimanual system.
 
 <div align="center">
-  <img src="/images/vla/ALOHA-hardware-details.webp" alt="ALOHA hardware details: multi-view camera layout, 3D printing teleoperation mechanism and robot specifications" width="1446" height="442" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/ALOHA-hardware-details.webp" alt="ALOHA hardware details: multi-view camera layout, 3D-printed teleoperation mechanism, and robot specifications" width="1446" height="442" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-ALOHA hardware details: multi-view camera layout, 3D printing teleoperation mechanism and robot specifications
+ALOHA hardware details: multi-view camera layout, 3D-printed teleoperation mechanism, and robot specifications
 </figcaption>
 </div>
 
-1. **Structure**: Contains two sets of ViperX 6-degree-of-freedom manipulators (as actuators) and two sets of smaller WidowX manipulators (as teleoperation controllers).
-2. **teleoperation**: The user drives the execution arm in real time by operating a smaller control arm. In order to improve fine manipulation capabilities, a 3D printed "handle and scissors" mechanism is designed to support continuous gripper control.
-3. **Perception**: The system is equipped with 4 ordinary web cameras (two fixed in front/above and two fixed on the wrist of the execution arm), providing multi-view visual feedback.
+1. **Structure**: Two 6-DoF ViperX arms (as the follower arms that execute actions) and two smaller WidowX arms (as the leader arms used for teleoperation).
+2. **Teleoperation**: The user drives the follower arms in real time by moving the smaller leader arms. To improve fine manipulation, a 3D-printed "handle and scissors" mechanism supports continuous gripper control.
+3. **Perception**: The system carries 4 ordinary webcams (two fixed in front of and above the workspace, and two mounted on the wrists of the follower arms), providing multi-view visual feedback.
 
 #### ACT learning algorithm
 {: id="act-学习算法"}
-In order to solve the problem of error accumulation in imitation learning, the paper proposes **Action Chunking with Transformers (ACT)**.
+To address error accumulation in imitation learning, the paper proposes **Action Chunking with Transformers (ACT)**.
 
 <div align="center">
-  <img src="/images/vla/ACT-architecture.webp" alt="ACT algorithm architecture: action sequence prediction based on CVAE and Transformer" width="1446" height="471" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/ACT-architecture.webp" alt="ACT architecture: action sequence prediction based on a CVAE and a Transformer" width="1446" height="471" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-ACT algorithm architecture: action sequence prediction based on CVAE and Transformer
+ACT architecture: action sequence prediction based on a CVAE and a Transformer
 </figcaption>
 </div>
 
-1. **action chunk (Action Chunking)**: Different from the traditional method of predicting single-step action $a_t$, ACT predicts the action sequence $a_{t:t+k}$ of $k$ steps in the future at each observation point $s_t$. This significantly shortens the effective timing span of the task (by $k$ times), thereby mitigating compounding errors.
+1. **Action chunking**: Unlike traditional methods that predict a single-step action $a_t$, ACT predicts the sequence of the next $k$ actions $a_{t:t+k}$ at each observation $s_t$. This shortens the effective horizon of the task by a factor of $k$, mitigating compounding errors.
 
 <div align="center">
-  <img src="/images/vla/Action-Chunking-Temporal-Ensemble.webp" alt="Temporal integration: smoothing robot motion through overlapping action chunks" width="715" height="433" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/Action-Chunking-Temporal-Ensemble.webp" alt="Temporal ensembling: smoothing robot motion with overlapping action chunks" width="715" height="433" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-Temporal integration: smoothing robot motion through overlapping action chunks
+Temporal ensembling: smoothing robot motion with overlapping action chunks
 </figcaption>
 </div>
 
-2. **CVAE Modeling**: Using conditional variational autoencoders (CVAE) to deal with multimodality (that is, the possibility of multiple valid paths in the same scene) in human demonstrations.
+2. **CVAE modeling**: A conditional variational autoencoder (CVAE) handles the multimodality of human demonstrations (that is, the same scene admits several valid paths).
 
 <div align="center">
-  <img src="/images/vla/CVAE.webp" alt="CVAE architecture: ideal for trajectory generation" width="1800" height="544" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/CVAE.webp" alt="CVAE architecture: well suited to trajectory generation" width="1800" height="544" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-CVAE architecture: ideal for trajectory generation
+CVAE architecture: well suited to trajectory generation
 </figcaption>
 </div>
 
-3. **Transformer architecture**: Use Transformer's encoder-decoder structure to fuse multi-view images and joint position information, and generate coherent action chunks.
+3. **Transformer architecture**: A Transformer encoder-decoder fuses multi-view images and joint positions and generates coherent action chunks.
 
-4. **Temporal Ensembling (Temporal Ensembling)**: During inference, the system makes predictions in each frame and performs a weighted average of overlapping action chunks. This approach not only improves the robustness of prediction, but also eliminates the sense of discontinuity in actions when switching "action chunks".
+4. **Temporal ensembling**: At inference time the policy predicts at every frame and takes a weighted average over the overlapping action chunks. This makes predictions more robust and removes the jerkiness when switching between action chunks.
 
 <div align="center">
-  <img src="/images/vla/ACT-detailed-training.webp" alt="ACT detailed training process (Training)" width="1212" height="1047" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/ACT-detailed-training.webp" alt="ACT training procedure" width="1212" height="1047" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-ACT detailed training process (Training)
+ACT training procedure
 </figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vla/ACT-detailed-testing.webp" alt="ACT detailed reasoning/testing process (Testing)" width="1112" height="574" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/ACT-detailed-testing.webp" alt="ACT inference procedure" width="1112" height="574" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-ACT detailed reasoning/testing process (Testing)
+ACT inference procedure
 </figcaption>
 </div>
 
@@ -369,18 +369,18 @@ ACT detailed reasoning/testing process (Testing)
 ### 3. Results and findings
 {: id="3-核心结果发现"}
 
-- **Excellent performance**: In multiple complex dual-arm operation tasks, ACT significantly outperforms previous SOTA methods (such as BC-ConvMLP, BeT, RT-1). For example, in the "battery insertion" task, ACT achieved a success rate of 96%, while the baseline method was almost impossible to complete.
-- **Data-efficient**: With only 50 human demonstrations per task (~10 minutes of data), the model learns to make closed-loop adjustments in dynamic and stochastic environments.
-- **High frequency necessity**: Experiments have proven that a control frequency of 50Hz is crucial for fine manipulations, and reducing the frequency to 5Hz will cause the operation completion time to increase by more than 62%.
-- **closed-loop Robustness**: Thanks to multi-view visual feedback and ACT architecture, the robot can correct small deviations in the demonstration in real time and adapt to slight changes in object position.
+- **Strong performance**: On several complex bimanual tasks, ACT clearly outperforms earlier SOTA methods (such as BC-ConvMLP, BeT, and RT-1). For example, on the "battery insertion" task ACT reaches a 96% success rate, while the baselines almost never complete it.
+- **Data-efficient**: With only 50 human demonstrations per task (about 10 minutes of data), the model learns to make closed-loop corrections in dynamic, stochastic environments.
+- **High control frequency matters**: Experiments show that a 50 Hz control frequency is crucial for fine manipulation; reducing it to 5 Hz increases task completion time by more than 62%.
+- **Closed-loop robustness**: Thanks to multi-view visual feedback and the ACT architecture, the robot can correct small deviations from the demonstrations in real time and adapt to slight changes in object position.
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性"}
 
-- **Hardware Limitations**: Due to the torque limitations of the low-cost motor, ALOHA has difficulty handling tasks that require large amounts of force (such as tightening bottle caps or lifting heavy objects).
-- **Sensory loss**: The current system relies only on vision and lacks force feedback, which still poses challenges when handling extremely complex contacts (such as dismantling complex candy packaging).
+- **Hardware limits**: Because of the torque limits of the low-cost motors, ALOHA struggles with tasks that need large forces (such as tightening a bottle cap or lifting heavy objects).
+- **Missing sensing**: The current system relies on vision alone and has no force feedback, which remains a challenge for extremely complex contacts (such as unwrapping intricate candy packaging).
 
 ---
 
@@ -393,21 +393,21 @@ Visuomotor Policy Learning via Action Diffusion
 📄 **Paper**: https://arxiv.org/abs/2303.04137
 
 <div align="center">
-  <img src="/images/vla/diffusion_policy_teaser.webp" alt="Diffusion Policy: Multimodal action modeling based on diffusion process (Source: Columbia University)" width="1360" height="610" style="width: 90%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/diffusion_policy_teaser.webp" alt="Diffusion Policy: multimodal action modeling based on a diffusion process (Source: Columbia University)" width="1360" height="610" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
-Diffusion Policy: Multimodal action modeling based on diffusion process (Source: Columbia University)
+Diffusion Policy: multimodal action modeling based on a diffusion process (Source: Columbia University)
 </figcaption>
 </div>
 
 **Key takeaways**
 
-The core insight of Diffusion Policy is that the distribution of robot actions is essentially **multimodal** (There are multiple reasonable ways to perform the same task), and the traditional mean square error loss function averages out these patterns, resulting in an "average action" - which is not like any kind of reasonable action. Diffusion models are naturally able to express multimodal distributions, and Action Chunking (predicting multiple actions at once) further improves the fluency of long-sequence tasks. These two designs have become the common basis for subsequent VLA action decoding (π₀’s Flow Matching, ACoT-VLA’s action reasoning).
+The core insight of Diffusion Policy is that the distribution of robot actions is inherently **multimodal** (there are several reasonable ways to perform the same task), and the traditional mean-squared-error loss averages these modes into an "average action" that resembles no reasonable action. Diffusion models naturally express multimodal distributions, and action chunking (predicting several actions at once) further improves smoothness on long-horizon tasks. These two designs have become the common basis for action decoding in later VLAs (flow matching in π₀, action reasoning in ACoT-VLA).
 
 ---
 
 **Background and problem**
 
-Imitation learning methods (such as BC-RNN, IBC) have unstable performance on fine manipulation tasks. The core problem is that the robot demonstration data naturally has **multimodality** : For the same task, experts can grab from the left or from the right, and both trajectories are correct. Traditional regression loss (MSE) averages the two modes, resulting in output "fuzzy intermediate state" actions and failure. Core questions: **How to model multimodal, high-dimensional action distributions for robot policy learning so that it can reliably perform complex operations that require fine contacts?** 
+Imitation learning methods (such as BC-RNN and IBC) behave unstably on fine manipulation tasks. The core problem is that robot demonstration data is inherently **multimodal**: for the same task, an expert may grasp from the left or from the right, and both trajectories are correct. A traditional regression loss (MSE) averages the two modes, so the policy outputs a "blurry intermediate" action and fails. Core question: **how can multimodal, high-dimensional action distributions be modeled for robot policy learning so that the policy reliably performs complex manipulation that requires fine contact?**
 
 ---
 
@@ -416,31 +416,31 @@ Imitation learning methods (such as BC-RNN, IBC) have unstable performance on fi
 **Diffusion model as policy**:
 
 ```
-traditional policy: π(o_t) → a_t  (deterministic mapping)
-diffusion policy: a_t ~ p_θ(·|o_t)  (conditional distribution sampling)
-          Denoising via iteration: a^K → a^(K-1) → ... → a^0
+Traditional policy: π(o_t) → a_t  (deterministic mapping)
+Diffusion policy: a_t ~ p_θ(·|o_t)  (sampling from a conditional distribution)
+          Iterative denoising: a^K → a^(K-1) → ... → a^0
 ```
 
 **Two architecture variants**:
 
-|Architecture|visual backbone|denoising network|Reasoning speed|
+|Architecture|Visual backbone|Denoising network|Inference speed|
 |------|---------|---------|---------|
-| **CNN-Diffusion** |ResNet-18 (sequential stacking)| 1D-UNet |Fast (~20Hz)|
-| **Transformer-Diffusion** |ViT + positional encoding| Transformer |Stable but slower|
+| **CNN-Diffusion** |ResNet-18 (stacked sequentially)| 1D-UNet |Fast (~20 Hz)|
+| **Transformer-Diffusion** |ViT + positional encoding| Transformer |More stable but slower|
 
-**key design**:
-- **Action Chunking**: Predict the $T_p=16$ step action sequence (instead of a single step) at once to alleviate compounding errors and improve the fluency of long-horizon tasks
-- **DDIM accelerated inference**: Use DDIM to compress the original 100-step DDPM to 10 steps to meet real-time control requirements
-- **Receding horizon executes**: only the first $T_a=8$ step of the predicted action sequence is executed each time, keeping closed-loop feedback
+**Key designs**:
+- **Action chunking**: Predicts an action sequence of $T_p=16$ steps at once (rather than a single step) to alleviate compounding errors and improve smoothness on long-horizon tasks
+- **Accelerated inference with DDIM**: DDIM compresses the original 100-step DDPM to 10 steps to meet real-time control requirements
+- **Receding-horizon execution**: Only the first $T_a=8$ steps of the predicted action sequence are executed each time, preserving closed-loop feedback
 
-**training target**:
+**Training objective**:
 $$\mathcal{L} = \mathbb{E}_{t, a_0, \epsilon}\left[\|\epsilon - \epsilon_\theta(a_t, t, o_t)\|^2\right]$$
 
 ---
 
 **Results and findings**
 
-**simulation benchmark** (compared with BC-RNN and IBC):
+**Simulation benchmarks** (compared with BC-RNN and IBC):
 
 |Task| Diffusion Policy(CNN) | Diffusion Policy(Trans) | BC-RNN |
 |------|----------------------|------------------------|--------|
@@ -448,21 +448,21 @@ $$\mathcal{L} = \mathbb{E}_{t, a_0, \epsilon}\left[\|\epsilon - \epsilon_\theta(
 | Block Pushing | **99.0%** | 98.0% | 78.0% |
 |Kitchen (multi-step sequence)| 79.7% | **86.0%** | 66.1% |
 
-**Real robot experiment (Franka arm)**:
-- Average success rate **76.3%** on 6 precision operation tasks (tableware placement, can opening, plug connection, etc.)
+**Real-robot experiments (Franka arm)**:
+- Average success rate of **76.3%** on 6 precision manipulation tasks (placing tableware, opening a can, plugging in a connector, etc.)
 - Significantly better than BC-RNN (56.2%) and IBC (51.0%)
 
-**Multimodality verification**: In the "cup placement" task, Diffusion Policy stably generates two different reasonable trajectories (front placement/side placement), while BC-RNN can only generate "intermediate state" failure actions.
+**Multimodality check**: On the "cup placement" task, Diffusion Policy stably generates two different reasonable trajectories (placing from the front or from the side), while BC-RNN can only produce failing "intermediate" actions.
 
 ---
 
 **Limitations**
 
-- Diffusion inference requires multiple iterations (10 steps even with DDIM), has higher inference latency than direct prediction, and limits ultra-high frequency control (>50Hz)
-- Only uses visual and proprioceptive input, without the ability to follow language instructions, and cannot handle multi-tasking scenarios
-- No improvement in semantic scene understanding and task generalization (designed for low-level action modeling)
-- Sensitive to presentation data quality, noisy or inconsistent presentations can impact distribution modeling quality
-- Lack of explicit task reasoning mechanism, not suitable for complex multi-step tasks that require long-term planning
+- Diffusion inference needs multiple iterations (10 steps even with DDIM), so latency is higher than direct prediction, which limits very-high-frequency control (>50 Hz)
+- Uses only visual and proprioceptive input, cannot follow language instructions, and cannot handle multi-task settings
+- Does not improve semantic scene understanding or task generalization (it is designed for low-level action modeling)
+- Sensitive to demonstration quality: noisy or inconsistent demonstrations degrade the quality of the learned distribution
+- Lacks an explicit task-reasoning mechanism, so it is not suited to complex multi-step tasks that require long-horizon planning
 
 ---
 
@@ -480,11 +480,11 @@ $$\mathcal{L} = \mathbb{E}_{t, a_0, \epsilon}\left[\|\epsilon - \epsilon_\theta(
 ### Key takeaways
 {: id="精华-1"}
 
-UMI is an extremely low-cost, high-efficiency robot learning framework jointly proposed by Stanford, Columbia, and Toyota Research Institute (TRI). Its core highlights include:
-- **Portable collection hardware**: With only a handheld gripper with GoPro (BOM about $370), you can collect data in any real scene (such as cafes, kitchens, parks) without the need for real robots to participate in the collection.
-- **Ingenious sensor design**: Use GoPro’s fisheye lens to obtain an ultra-wide viewing angle, and achieve implicit binocular vision (Stereo) through side mirrors (Side Mirrors) to obtain depth perception.
-- **Hardware-independent policy interface**: Introduces action representation based on **relative trajectory (Relative Trajectory)** and **delay matching (Latency) during inference Matching)**, so that the data collected in one place and the trained model can be seamlessly deployed to robots of different brands and different degrees of freedom.
-- **Powerful generalization ability**: Under training with diverse "wild" data, the robot has demonstrated strong zero-shot generalization ability and can cope with never-seen environments, lighting and objects.
+UMI is an extremely low-cost, efficient robot learning framework proposed jointly by Stanford, Columbia, and Toyota Research Institute (TRI). Highlights:
+- **Portable collection hardware**: With just a handheld gripper carrying a GoPro (BOM about $370), data can be collected in any real scene (such as cafes, kitchens, and parks) without a real robot taking part in the collection.
+- **Clever sensor design**: The GoPro's fisheye lens gives an ultra-wide field of view, and side mirrors provide implicit stereo vision for depth perception.
+- **Hardware-independent policy interface**: It introduces an action representation based on **relative trajectories** and **latency matching** at inference time, so data collected anywhere and the trained model can be deployed seamlessly on robots of different brands and degrees of freedom.
+- **Strong generalization**: Trained on diverse in-the-wild data, the robot shows strong zero-shot generalization to never-before-seen environments, lighting, and objects.
 
 ---
 
@@ -492,9 +492,9 @@ UMI is an extremely low-cost, high-efficiency robot learning framework jointly p
 {: id="1-研究背景问题-1"}
 
 Traditional robot imitation learning faces two major problems:
-1. **teleoperation is costly**: requires expensive hardware and skilled operators, and is usually limited to laboratories.
-2. **There is an Embodiment Gap in human videos**: Directly learning human freehand operation videos is difficult to convert into robot joint/gripper control.
-UMI adopts the intermediate form of "hand-held gripper", which not only retains the flexibility of human operation, but is also highly aligned with the robot in vision and movement.
+1. **Teleoperation is costly**: It requires expensive hardware and skilled operators, and is usually confined to laboratories.
+2. **Human videos have an embodiment gap**: Learning directly from videos of bare human hands is hard to convert into robot joint or gripper control.
+UMI adopts the hand-held gripper as an intermediate form, which retains the flexibility of human operation while being closely aligned with the robot in both vision and motion.
 
 ---
 
@@ -502,24 +502,24 @@ UMI adopts the intermediate form of "hand-held gripper", which not only retains 
 {: id="2-主要方法创新点-1"}
 
 <div align="center">
-  <img src="/images/vla/UMI-overview.webp" alt="UMI Framework: Zero-shot Migration from Outdoor Demonstrations to Robotic Policies" width="1438" height="579" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/UMI-overview.webp" alt="UMI framework: zero-shot transfer from in-the-wild demonstrations to robot policies" width="1438" height="579" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-UMI Framework: Zero-shot Migration from Outdoor Demonstrations to Robotic Policies
+UMI framework: zero-shot transfer from in-the-wild demonstrations to robot policies
 </figcaption>
 </div>
 
-#### Hardware Design: Informative Demonstration Interface
+#### Hardware design: an informative demonstration interface
 {: id="硬件设计信息丰富的演示接口"}
-1. **fisheye lens (Fisheye)**: 155-degree ultra-wide angle, which provides rich context while avoiding occlusion when operating at close range.
-2. **Side Mirrors**: Adding two mirrors to the edge of the image is equivalent to adding two virtual cameras, providing key depth information.
-3. **IMU Perceptual Tracking**: Using the IMU data recorded by GoPro and SLAM, high-precision 6DoF attitude tracking can be maintained even when fast movements or visual features are missing.
-4. **Continuous Gripper Control**: Tracks gripper opening and closing through visual markers, supporting finer force and timing control (such as throwing objects) than binary opening and closing.
+1. **Fisheye lens**: A 155-degree ultra-wide view that provides rich context while avoiding occlusion during close-range manipulation.
+2. **Side mirrors**: Two mirrors at the edges of the image act as two virtual cameras and supply key depth information.
+3. **IMU tracking**: Combining the GoPro's IMU data with SLAM keeps 6-DoF pose tracking accurate even during fast motion or when visual features are missing.
+4. **Continuous gripper control**: Gripper opening and closing are tracked through visual markers, allowing finer force and timing control than binary open/close (for example, throwing objects).
 
-#### Algorithm Design: Cross-Platform Policy Interface
+#### Algorithm design: a cross-platform policy interface
 {: id="算法设计跨平台的策略接口"}
-1. **Latency Matching**: Accurately measures and compensates for camera acquisition, inference and execution delays to ensure action synchronization, which is critical for dynamic tasks such as "throwing".
-2. **Relative trajectory representation**: The action is not defined in global coordinates, but relative to the current gripper position. This eliminates the need for complex calibration of the robot and allows it to function even when moving the robot base.
-3. **Diffusion Policy**: Use the diffusion model to model complex multimodal distributions in human demonstrations (for example, you can choose left or right to bypass obstacles).
+1. **Latency matching**: Camera capture, inference, and execution delays are measured and compensated so that actions stay synchronized, which is critical for dynamic tasks such as throwing.
+2. **Relative trajectory representation**: Actions are defined relative to the current gripper pose rather than in global coordinates. This removes the need for complex robot calibration and keeps the policy working even when the robot base moves.
+3. **Diffusion Policy**: A diffusion model captures the complex multimodal distributions in human demonstrations (for example, going left or right around an obstacle).
 
 ---
 
@@ -527,27 +527,27 @@ UMI Framework: Zero-shot Migration from Outdoor Demonstrations to Robotic Polici
 {: id="3-核心实验结果"}
 
 <div align="center">
-  <img src="/images/vla/UMI-tasks.webp" alt="UMI challenge tasks: coffee cup arrangement, dynamic throwing, folding clothes with both arms, washing dishes" width="1446" height="1153" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/UMI-tasks.webp" alt="UMI challenge tasks: arranging coffee cups, dynamic throwing, bimanual cloth folding, and dishwashing" width="1446" height="1153" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-UMI challenge tasks: coffee cup arrangement, dynamic throwing, folding clothes with both arms, washing dishes
+UMI challenge tasks: arranging coffee cups, dynamic throwing, bimanual cloth folding, and dishwashing
 </figcaption>
 </div>
 
 1. **Complex task capability**:
-   - **Dynamic Tossing**: Successfully throw the object into the basket that is beyond the reach of the robot, with a success rate of 87.5%.
-   - **Bimanual Folding**: The two arms work together to fold clothes, reflecting the importance of relative posture expression.
-   - **long-range dishwashing (Dish Washing)**: involves 7 steps such as turning on and off the faucet, applying dish soap, wiping, rinsing, etc., and is extremely robust to interference (such as sudden addition of food, moving base).
-2. **Zero-shot generalizes**:
-   - In new outdoor scenes such as cafes and fountains, the UMI policy achieved a success rate of **71.7%** for never-before-seen cups. A model trained only on narrow domain (lab) data has a success rate of 0%.
+   - **Dynamic tossing**: Successfully throws objects into a basket beyond the robot's reach, with a success rate of 87.5%.
+   - **Bimanual folding**: The two arms cooperate to fold cloth, which shows the importance of the relative pose representation.
+   - **Long-horizon dishwashing**: Involves 7 steps such as turning the faucet on and off, applying dish soap, scrubbing, and rinsing, and is highly robust to disturbances (such as food being added suddenly or the base being moved).
+2. **Zero-shot generalization**:
+   - In new in-the-wild scenes such as cafes and fountains, the UMI policy achieves a **71.7%** success rate on never-before-seen cups, whereas a model trained only on narrow-domain (lab) data achieves 0%.
 3. **Cross-platform deployment**:
-   - The same set of trained models can be run directly on UR5 and Franka robots, with a success rate of around 90%.
+   - The same trained model runs directly on UR5 and Franka robots with a success rate of around 90%.
 
 ---
 
 ### 4. Summary and significance
 {: id="4-总结与意义"}
 
-UMI proves that **data diversity is better than model fine-tuning**. Rather than laboriously optimizing your model in a single environment, take advantage of UMI's extremely portable nature to collect data from massive amounts of real-world scenarios in a matter of hours. This policy of “rural areas surrounding cities” points the way to a truly universal robot manipulation policy.
+UMI shows that **data diversity beats model fine-tuning**. Rather than laboriously optimizing a model in a single environment, exploit UMI's extreme portability to collect data from a huge range of real-world scenes within hours. This "surround the cities from the countryside" strategy points the way to a truly universal robot manipulation policy.
 
 ---
 
@@ -563,22 +563,22 @@ UMI proves that **data diversity is better than model fine-tuning**. Rather than
 ### Key takeaways
 {: id="精华-2"}
 
-DP3 is a research result of cooperation between Shanghai Qizhi Research Institute, Tsinghua University, Shanghai Jiao Tong University and other institutions. Its core contribution is to prove the great value of 3D space understanding ability for robot policy learning:
--  **Data is extremely efficient** : Among the 72 simulation tasks, only **10 human demos** can accomplish most tasks, achieving a relative improvement of 24.2% over baseline methods such as 2D Diffusion Policy.
-- **3D visual representation**: Abandoning complex 2D image processing, using **sparse point cloud (Sparse Point Clouds)** extracted from single-view depth map. Get compact and powerful 3D features using a lightweight MLP encoder.
--  **Excellent generalization** : Thanks to the essential properties of 3D modality, DP3 **Spatial location, perspective, object appearance and instances** It shows natural generalization ability in multiple dimensions.
-- **Deployment is safe and reliable**: In real robot experiments, DP3 rarely issued abnormal instructions that exceeded safety limits, which is in sharp contrast to the frequent abnormal behavior of the 2D baseline method.
+DP3 is a collaboration between the Shanghai Qi Zhi Institute, Tsinghua University, Shanghai Jiao Tong University, and other institutions. Its core contribution is to demonstrate the great value of 3D spatial understanding for robot policy learning:
+- **Highly data-efficient**: Across 72 simulation tasks, **10 human demonstrations** are enough for most tasks, a relative improvement of 24.2% over baselines such as 2D Diffusion Policy.
+- **3D visual representation**: Instead of complex 2D image processing, DP3 uses **sparse point clouds** extracted from a single-view depth map, and a lightweight MLP encoder yields compact yet powerful 3D features.
+- **Excellent generalization**: Thanks to the intrinsic properties of the 3D modality, DP3 generalizes naturally across **spatial position, viewpoint, object appearance, and object instances**.
+- **Safe and reliable deployment**: In real-robot experiments, DP3 rarely issued abnormal commands that exceeded safety limits, in sharp contrast to the frequent abnormal behavior of 2D baselines.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-2"}
 
-Although visual imitation learning allows robots to learn a variety of skills, it usually requires massive amounts of data (for example, 2D Diffusion Policy usually requires 100-200 demonstrations).
-Its core bottleneck lies in:
-1. Limitations of **2D information**: 2D images are difficult to provide accurate depth and spatial topological information, causing the model to require more data to "brain-fill" spatial relationships.
-2. **Difficulty in generalization**: 2D policies are highly susceptible to perspective changes, lighting changes, and background interference.
-DP3 aims to reduce data requirements and improve generalization by introducing 3D visual representations to allow models to “innately” understand three-dimensional space.
+Although visual imitation learning lets robots acquire a wide range of skills, it usually needs a great deal of data (for example, 2D Diffusion Policy typically needs 100-200 demonstrations).
+The core bottlenecks are:
+1. **Limits of 2D information**: 2D images provide little accurate depth or spatial-topology information, so the model needs more data to "fill in" spatial relationships.
+2. **Hard to generalize**: 2D policies are easily thrown off by changes in viewpoint, lighting, and background.
+DP3 aims to reduce data requirements and improve generalization by introducing a 3D visual representation, so that the model "innately" understands three-dimensional space.
 
 ---
 
@@ -586,22 +586,22 @@ DP3 aims to reduce data requirements and improve generalization by introducing 3
 {: id="2-主要方法创新点-2"}
 
 <div align="center">
-  <img src="/images/vla/DP3-overview.webp" alt="DP3 architecture overview: from single-view point cloud to 3D representation to diffusion model-based decision-making process" width="1446" height="775" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/DP3-overview.webp" alt="DP3 architecture overview: from a single-view point cloud to a 3D representation to diffusion-based decision making" width="1446" height="775" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-DP3 architecture overview: from single-view point cloud to 3D representation to diffusion model-based decision-making process
+DP3 architecture overview: from a single-view point cloud to a 3D representation to diffusion-based decision making
 </figcaption>
 </div>
 
-#### Perception: compact 3D representations
+#### Perception: a compact 3D representation
 {: id="感知-perception紧凑的-3d-表征"}
-1. **point cloud processing**: Obtain the depth map from a single-view depth camera and convert it to a point cloud. In order to eliminate background interference, the model will be cropped (Crop) and down-sampled to 512 or 1024 points using **Farthest Point Sampling (FPS)**.
-2. **no color processing**: Experiments found that **discarding the color channel** actually helps improve the model's generalization ability to the appearance of objects (such as cups of different colors).
-3. **lightweight encoder**: Extract 64-dimensional features using a simple three-layer MLP + Max Pooling. This "small but refined" design outperforms large pretraining point cloud models in robot control tasks.
+1. **Point cloud processing**: A depth map from a single-view depth camera is converted into a point cloud. To remove background interference, the point cloud is cropped and then downsampled to 512 or 1024 points with **farthest point sampling (FPS)**.
+2. **No color**: Experiments found that **discarding the color channel** actually improves generalization to object appearance (such as cups of different colors).
+3. **Lightweight encoder**: A simple three-layer MLP with max pooling extracts 64-dimensional features. This "small but refined" design outperforms large pretrained point-cloud models on robot control tasks.
 
-#### Decision: Diffusion policy in 3D conditions
+#### Decision: a diffusion policy conditioned on 3D features
 {: id="决策-decision3d-条件下的扩散策略"}
-1. **Conditional action generation**: The diffusion model uses the extracted 3D features and the robot's joint pose (q) as conditions to convert Gaussian noise into a coherent action sequence through an iterative denoising process.
-2. **Spatiotemporal understanding**: The diffusion model is responsible for capturing the complex multimodal distribution of actions, while the 3D features are responsible for providing accurate spatial position reference.
+1. **Conditional action generation**: The diffusion model takes the extracted 3D features and the robot's joint pose (q) as conditions and converts Gaussian noise into a coherent action sequence through iterative denoising.
+2. **Spatiotemporal understanding**: The diffusion model captures the complex multimodal distribution of actions, while the 3D features provide accurate spatial position references.
 
 ---
 
@@ -609,27 +609,27 @@ DP3 architecture overview: from single-view point cloud to 3D representation to 
 {: id="3-核心实验结果-1"}
 
 <div align="center">
-  <img src="/images/vla/DP3-tasks.webp" alt="Performance of DP3 in simulation tasks and real-world dexterity manual tasks" width="1443" height="658" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/DP3-tasks.webp" alt="Performance of DP3 on simulation tasks and real-world dexterous-hand tasks" width="1443" height="658" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-Performance of DP3 in simulation tasks and real-world dexterity manual tasks
+Performance of DP3 on simulation tasks and real-world dexterous-hand tasks
 </figcaption>
 </div>
 
-1. **Small sample learning**:
-   - In the simulation environment, with only 10 demonstrations, the average success rate of DP3 is far ahead.
-   - In real environments (such as making dumplings, rolling things, drilling and other dexterous hand tasks), only 40 demonstrations are needed, and the success rate reaches **85%**.
-2. **comprehensively generalizes**:
-   - **Spatial generalization**: DP3 can still operate accurately in 3D space outside the training range.
-   - **Appearance generalization**: Able to handle new objects with completely different colors and textures.
+1. **Few-shot learning**:
+   - In simulation, with only 10 demonstrations, DP3's average success rate is far ahead.
+   - In the real world (dexterous-hand tasks such as making dumplings, rolling dough, and drilling), only 40 demonstrations are needed to reach a success rate of **85%**.
+2. **Broad generalization**:
+   - **Spatial generalization**: DP3 still operates accurately in 3D positions outside the training range.
+   - **Appearance generalization**: It handles new objects with completely different colors and textures.
 3. **Inference efficiency**:
-   - Although 3D processing is introduced, thanks to the minimalist encoder design, DP3 can still maintain a high inference speed on NVIDIA 2080 Ti to meet real-time control requirements.
+   - Although 3D processing is introduced, the minimalist encoder keeps inference fast on an NVIDIA 2080 Ti, meeting real-time control requirements.
 
 ---
 
 ### 4. Summary and significance
 {: id="4-总结与意义-1"}
 
-The success of DP3 once again emphasizes the importance of **perceptual representation (Visual Representation)** in robot learning. By combining 3D representation with powerful diffusion strategies, DP3 provides an efficient, concise and highly generalizable technical path to solve the "data hunger" problem in embodied intelligence.
+DP3's success once again underlines the importance of **visual representation** in robot learning. By combining a 3D representation with a powerful diffusion policy, DP3 offers an efficient, concise, and highly generalizable route to the "data hunger" problem in embodied intelligence.
 
 ---
 
@@ -645,18 +645,18 @@ The success of DP3 once again emphasizes the importance of **perceptual represen
 ### Key takeaways
 {: id="精华-3"}
 
-UniSim is an important work proposed by Google DeepMind at ICLR 2024, aiming to build a general simulator capable of simulating real-world interactions:
-- **Unified interface**: Proposes a unified framework of "Action-in-Video-out" to map different modal actions (language, robot control, camera path) into a unified action space.
-- **Massive heterogeneous data fusion**: Cleverly integrates Internet graphic and text data, robot manipulation data, human activity videos and 3D scanning data, and uses the focus of different data (such as rich scenes of Internet data and high-frequency actions of robot data) to complement the capabilities of the simulator.
-- **Autoregressive long-range simulation**: Using the video diffusion model as the core, time-series coherent long-range simulation is achieved through conditional observation prediction (Observation Prediction).
-- **closed-loop application**: Demonstrates that high-level vision-language policies (VLM) and low-level reinforcement learning (RL) policies trained in UniSim can be directly deployed to real robots without modification (Zero-shot Sim-to-Real).
+UniSim, proposed by Google DeepMind at ICLR 2024, aims to build a general simulator of real-world interaction:
+- **Unified interface**: Proposes a unified "action-in, video-out" framework that maps actions of different modalities (language, robot control, camera paths) into a single action space.
+- **Fusing massive heterogeneous data**: Integrates web image-text data, robot manipulation data, human activity videos, and 3D scans, using the complementary strengths of each source (such as the rich scenes of web data and the high-frequency actions of robot data) to build the simulator's abilities.
+- **Autoregressive long-horizon simulation**: With a video diffusion model at its core, UniSim achieves temporally coherent long-horizon simulation through conditional observation prediction.
+- **Closed-loop applications**: High-level vision-language policies (VLMs) and low-level reinforcement learning (RL) policies trained in UniSim can be deployed to real robots without modification (zero-shot sim-to-real).
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-3"}
 
-The biggest obstacle to building real-world simulators is **Data set heterogeneity** . Internet data (LAION) has rich objects and scenes but lacks actions; robot data has precise actions but single scenes and small scale; human activity data has complex interactions but ambiguous action labels. The core idea of ​​UniSim is: **Can these “rich” data in different dimensions be stitched together through a unified model to build an all-encompassing simulator?** 
+The biggest obstacle to building a real-world simulator is **dataset heterogeneity**. Web data (LAION) has rich objects and scenes but no actions; robot data has precise actions but few scenes and small scale; human activity data has complex interactions but ambiguous action labels. The core idea of UniSim is: **can these complementary "rich" dimensions of data be stitched together by one unified model to build an all-encompassing simulator?**
 
 ---
 
@@ -664,79 +664,79 @@ The biggest obstacle to building real-world simulators is **Data set heterogenei
 {: id="2-主要方法创新点-3"}
 
 <div align="center">
-  <img src="/images/vla/UniSim-overview.webp" alt="UniSim Overview: Integrating Internet scenes, robot manipulations, human activities, navigation, panoramic scanning and simulation rendering data" width="1118" height="576" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/UniSim-overview.webp" alt="UniSim overview: integrating web scenes, robot manipulation, human activities, navigation, panoramic scans, and simulation-rendered data" width="1118" height="576" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-UniSim Overview: Integrating Internet scenes, robot manipulations, human activities, navigation, panoramic scanning and simulation rendering data
+UniSim overview: integrating web scenes, robot manipulation, human activities, navigation, panoramic scans, and simulation-rendered data
 </figcaption>
 </div>
 
-#### Data Orchestration
+#### Data orchestration
 {: id="数据编排-data-orchestration"}
-To handle heterogeneous data from different sources, UniSim adopts the following policies:
-1. **Unified action space**: All actions are eventually converted into continuous representations. Language instructions are processed through T5 embeddings, and low-level controls (e.g., Δx, Δy) are discretized and spliced ​​with language embeddings.
-2. **Multi-modal alignment**: For static images, treat titles as actions; for 3D scans, use camera pose differences to construct actions; for videos, use action labels or predicted motion trajectories.
+To handle heterogeneous data from different sources, UniSim adopts the following strategies:
+1. **Unified action space**: All actions are converted into continuous representations. Language instructions are encoded with T5 embeddings, and low-level controls (e.g., Δx, Δy) are discretized and concatenated with the language embeddings.
+2. **Multimodal alignment**: For static images, captions are treated as actions; for 3D scans, camera pose differences are used to construct actions; for videos, action labels or predicted motion trajectories are used.
 
-#### Core architecture: observation prediction based on video diffusion
+#### Core architecture: observation prediction with video diffusion
 {: id="核心架构基于视频扩散的观察预测"}
-UniSim is modeled as a conditional probability model $p(o_t \mid h_{t-1}, a_{t-1})$, that is, given the historical observation $h_{t-1}$ and the current action $a_{t-1}$, predict the next observation frame $o_t$.
+UniSim is modeled as a conditional probability model $p(o_t \mid h_{t-1}, a_{t-1})$: given the history of observations $h_{t-1}$ and the current action $a_{t-1}$, predict the next observation frame $o_t$.
 
 <div align="center">
-  <img src="/images/vla/UniSim-training-inference.webp" alt="UniSim’s training and inference process: based on conditional video diffusion model, supporting multiple modal action inputs" width="1118" height="515" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/UniSim-training-inference.webp" alt="UniSim training and inference: based on a conditional video diffusion model, supporting action inputs of multiple modalities" width="1118" height="515" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-UniSim’s training and inference process: based on conditional video diffusion model, supporting multiple modal action inputs
+UniSim training and inference: based on a conditional video diffusion model, supporting action inputs of multiple modalities
 </figcaption>
 </div>
 
-- **Video U-Net**: Uses the video U-Net architecture containing 5.6 billion parameters to ensure video quality and coherence through interleaved temporal/spatial attention layers.
-- **Autoregressive generation**: By using the last frame generated in the previous section as the condition for the next section (History Conditioning), UniSim can generate a coherent interaction sequence of dozens of steps.
+- **Video U-Net**: A video U-Net with 5.6 billion parameters, with interleaved temporal and spatial attention layers to ensure video quality and coherence.
+- **Autoregressive generation**: By conditioning each segment on the last frame generated in the previous one (history conditioning), UniSim can generate coherent interaction sequences of dozens of steps.
 
 ---
 
 ### 3. Application scenario display
 {: id="3-应用场景展示"}
 
-#### Action-rich and long-range simulation
+#### Action-rich, long-horizon simulation
 {: id="动作丰富且长程的模拟"}
-UniSim can not only simulate simple movements, but also simulate complex interactions based on language instructions.
+UniSim can simulate not only simple motions but also complex interactions driven by language instructions.
 
 <div align="center">
-  <img src="/images/vla/UniSim-action-rich.webp" alt="UniSim's action richness demonstration: simulating different tasks such as &quot;washing hands&quot;, &quot;cutting carrots&quot;, and &quot;navigation&quot; from the same initial frame" width="566" height="294" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/UniSim-action-rich.webp" alt="UniSim's action richness: simulating different tasks such as 'washing hands', 'cutting carrots', and 'navigation' from the same initial frame" width="566" height="294" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-UniSim's action richness demonstration: simulating different tasks such as "washing hands", "cutting carrots", and "navigation" from the same initial frame
+UniSim's action richness: simulating different tasks such as "washing hands", "cutting carrots", and "navigation" from the same initial frame
 </figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vla/UniSim-long-horizon.webp" alt="Long-range simulation demonstration: Autoregressive simulation 8-step interaction, the model can successfully maintain the state of the object (such as the orange still exists after being put into the drawer)" width="1118" height="745" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/UniSim-long-horizon.webp" alt="Long-horizon simulation: autoregressive simulation of an 8-step interaction, in which the model keeps object states consistent (for example, the orange is still there after being put into the drawer)" width="1118" height="745" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-Long-range simulation demonstration: Autoregressive simulation 8-step interaction, the model can successfully maintain the state of the object (such as the orange still exists after being put into the drawer)
+Long-horizon simulation: autoregressive simulation of an 8-step interaction, in which the model keeps object states consistent (for example, the orange is still there after being put into the drawer)
 </figcaption>
 </div>
 
-#### Policy training and zero-shot migration
+#### Policy training and zero-shot transfer
 {: id="策略训练与-zero-shot-迁移"}
-The most powerful thing about UniSim is that it can serve as a "training ground":
-- **VLM policy**: By generating long-range data with hindsight labels (Hindsight Relabeling) in the simulator, the vision-language model's ability to handle complex tasks is significantly improved.
-- **RL training**: The underlying RL agent can perform millions of closed-loop interactive learning in UniSim. Since the simulator is visually very close to the real world, the trained policy can be run directly on the real robot.
+UniSim's greatest strength is that it can serve as a "training ground":
+- **VLM policy**: Generating long-horizon data with hindsight relabeling in the simulator significantly improves the vision-language model's ability to handle complex tasks.
+- **RL training**: A low-level RL agent can perform millions of closed-loop interactions in UniSim. Because the simulator is visually very close to the real world, the trained policy can run directly on a real robot.
 
 ---
 
 ### 4. Core experimental results
 {: id="4-核心实验结果"}
 
-1. **Sim-to-Real performance**: In the Language Table robot task, the goal achievement rate (RDG) of the VLM policy enhanced with UniSim training in the real environment increased by 3-4 times.
-2. **Bottom-level control improvement**: By optimizing REINFORCE in the simulator, the success rate of the VLA policy on tasks that lack expert demonstrations such as "pointing to objects" has been increased from 12% to 71%.
-3. **data enhancement**: PaLI-X is fine-tuned using only video data generated by UniSim. The performance on the video description (Video Captioning) task is close to 84% of that using real data, and has better generalization.
+1. **Sim-to-real performance**: On the Language Table robot task, the real-environment goal-reaching rate (RDG) of the VLM policy trained with UniSim improves by 3-4 times.
+2. **Better low-level control**: By optimizing with REINFORCE in the simulator, the success rate of the VLA policy on tasks that lack expert demonstrations, such as "pointing at objects", rises from 12% to 71%.
+3. **Data augmentation**: PaLI-X fine-tuned only on video data generated by UniSim reaches about 84% of the video captioning performance obtained with real data, and generalizes better.
 
 ---
 
-### 5. Limitations and thinking
+### 5. Limitations and discussion
 {: id="5-局限性与思考"}
 
 Although UniSim is an important step forward, it still faces the following challenges:
-- **Illusion problem**: When unrealistic instructions are entered (such as asking to "wash hands" on the desktop), the model will produce the illusion of dramatic changes in the background.
-- **Long-range memory limitations**: Since conditional observation only covers a limited historical frame, extremely long-range memory retention (such as object consistency after multiple rounds of interaction) still needs to be improved.
-- **Physical authenticity**: Current simulations mainly focus on the visual level and lack physical feedback from non-visual dimensions such as mechanics and touch.
+- **Hallucination**: Given unrealistic instructions (such as asking to "wash hands" on a tabletop), the model hallucinates dramatic changes in the background.
+- **Limited long-horizon memory**: Conditioning covers only a limited number of past frames, so very long-horizon memory (such as object consistency after many rounds of interaction) still needs improvement.
+- **Physical fidelity**: The current simulation focuses on the visual level and lacks non-visual physical feedback such as mechanics and touch.
 
 ---
 
@@ -744,129 +744,129 @@ Although UniSim is an important step forward, it still faces the following chall
 
 ## 9. OpenVLA (2024)
 {: id="5-9-openvla-2024"}
-——Open source vision-language-action model
+——An Open-Source Vision-Language-Action Model
 
 📄 **Paper**: https://arxiv.org/abs/2406.09246v3
 
 **Key takeaways**
 
-This paper shows how to build an open source large-scale robot control model. The core ideas worth learning include:
-1. Using the vision-language model of pretraining as the basis, end-to-end training is achieved by treating robot actions as language tokens.
-2. Training on a large-scale diverse robot dataset (970,000 trajectories) significantly improves generalization capabilities
-3. Fusion of multiple visual encoders (SigLIP + DINOv2) can simultaneously capture semantic and spatial information to improve robot control performance
-4. Parameter efficient fine-tuning (LoRA) and quantization technology enable the 7B parameter model to be deployed and fine-tuned on consumer-grade GPUs
-5. Completely open source models, code and training processes provide important infrastructure for community research
+This paper shows how to build an open-source, large-scale robot control model. The core ideas worth learning are:
+1. Starting from a pretrained vision-language model and treating robot actions as language tokens enables end-to-end training.
+2. Training on a large, diverse robot dataset (970,000 trajectories) significantly improves generalization.
+3. Fusing two visual encoders (SigLIP + DINOv2) captures both semantic and spatial information and improves robot control.
+4. Parameter-efficient fine-tuning (LoRA) and quantization allow the 7B model to be deployed and fine-tuned on consumer-grade GPUs.
+5. Fully open-sourcing the model, code, and training recipe provides important infrastructure for community research.
 
 **Background and problem**
 
-Existing robot manipulation policies are difficult to generalize to objects, scenes, and tasks beyond the training data. Although visual-language base models have demonstrated strong generalization capabilities on Internet-scale data, existing visual-language-action models (VLA) are either closed-source or lack methods for efficient fine-tuning to new robot settings, hindering the widespread application of VLA in the field of robotics.
+Existing robot manipulation policies struggle to generalize to objects, scenes, and tasks beyond their training data. Although vision-language foundation models have shown strong generalization on web-scale data, existing vision-language-action (VLA) models are either closed-source or lack methods for efficient fine-tuning to new robot setups, which hinders the broad adoption of VLAs in robotics.
 
 **Methods and innovations**
 
-OpenVLA is a 7B parameter open source vision-language-action model trained on 970,000 robot demonstration trajectories in the Open X-Embodiment dataset. The model architecture consists of three key components:
+OpenVLA is a 7B-parameter open-source vision-language-action model trained on 970,000 robot demonstration trajectories from the Open X-Embodiment dataset. The architecture has three key components:
 
-1. **Fusion Visual Encoder ("Three Stooges" collaboration logic)**: Using a multi-backbone visual encoding policy, the visual features are physically isolated and optimized individually:
-   - **DINOv2**: Provides powerful geometric and spatial features (understanding "where", good at object positioning and depth perception).
-   - **SigLIP**: Provides powerful semantic understanding (understanding "what", good at aligning natural language instructions).
-   - **CLIP/Other**: Provide complementary visual characteristics.
-This "combination punch" mode allows the 7B model to defeat the 55B massive model with a single encoder in terms of information processing efficiency.
+1. **Fused visual encoder (complementary backbones)**: A multi-backbone visual encoding strategy in which each backbone contributes a different kind of visual feature:
+   - **DINOv2**: Provides strong geometric and spatial features (understanding "where"; good at object localization and depth perception).
+   - **SigLIP**: Provides strong semantic understanding (understanding "what"; good at aligning with natural-language instructions).
+   - **CLIP / others**: Provide complementary visual features.
+This combination lets the 7B model beat a much larger 55B model that uses a single encoder, in terms of how efficiently it processes information.
 
-2. **Projector**: A 2-layer MLP projects visual features into the input space of a language model.
+2. **Projector**: A 2-layer MLP projects the visual features into the input space of the language model.
 
-3. **language model backbone ("Zhuge Liang" brain)**: Based on Llama 2 7B, as a unified decision-making center, it integrates spatial information and semantic information for instruction reasoning.
+3. **Language model backbone (the "brain")**: Built on Llama 2 7B, it acts as a unified decision-making center that integrates spatial and semantic information for instruction reasoning.
 
 <div align="center">
-  <img src="/images/vla/openvla_architecture.webp" alt="OpenVLA model architecture diagram: end-to-end prediction process from image observation and language instructions to 7-dimensional robot actions (Source: OpenVLA arXiv)" width="1118" height="750" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/openvla_architecture.webp" alt="OpenVLA architecture: the end-to-end pipeline from image observations and language instructions to 7-dimensional robot actions (Source: OpenVLA arXiv)" width="1118" height="750" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-OpenVLA model architecture diagram: end-to-end prediction process from image observation and language instructions to 7-dimensional robot actions (Source: <a href="https://arxiv.org/abs/2406.09246">OpenVLA arXiv</a>)
+OpenVLA architecture: the end-to-end pipeline from image observations and language instructions to 7-dimensional robot actions (Source: <a href="https://arxiv.org/abs/2406.09246">OpenVLA arXiv</a>)
 </figcaption>
 </div>
 
-**training strategy**:
-- Action discretization: quantize each dimension of continuous actions into 256 bins, using 1-99 quantile as the quantification range
-- Use the least used 256 tokens in Llama tokenizer to represent discretized actions
-- End-to-end fine-tuning of all parameters (including visual encoder), training on 64 A100 GPUs for 14 days
-- Complete 27 epochs until the action token accuracy exceeds 95%
+**Training strategy**:
+- Action discretization: each dimension of the continuous action is quantized into 256 bins, using the 1st-99th percentile range as the quantization range
+- The 256 least-used tokens in the Llama tokenizer are used to represent the discretized actions
+- All parameters (including the visual encoder) are fine-tuned end to end, training on 64 A100 GPUs for 14 days
+- Training runs for 27 epochs, until action token accuracy exceeds 95%
 
 **Data processing**:
-- Filtering datasets with third-person camera and single-arm end-effector control from Open X-Embodiment
-- Use Octo's data mixing weights to upsample data sets with high diversity
-- Filter all-zero actions in the Bridge data set to improve model performance
+- Select datasets from Open X-Embodiment that have a third-person camera and single-arm end-effector control
+- Use Octo's data mixture weights to upsample highly diverse datasets
+- Filter out all-zero actions in the Bridge dataset to improve model performance
 
-**OpenVLA training process**: Fine-tuning pretraining VLM (Llama-2 7B) on 970k robot trajectories (Open X-Embodiment data set) to predict robot actions, using action tokenization to achieve end-to-end learning. See [paper Figure 2](https://arxiv.org/abs/2406.09246) for details.
+**OpenVLA training process**: A pretrained VLM (Llama-2 7B) is fine-tuned on 970k robot trajectories (the Open X-Embodiment dataset) to predict robot actions, with action tokenization enabling end-to-end learning. See [paper Figure 2](https://arxiv.org/abs/2406.09246) for details.
 
 ```mermaid
 flowchart LR
-    A["pretraining VLM<br/>Prismatic-7B(Llama-2)"] --> B["action Token ization<br/>256 bins uniform discretization"]
-    B --> C["OXE Data fine-tuning<br/>970k Robot trajectory"]
-    C --> D["Autoregressive action prediction head<br/>next-token prediction"]
-    D --> E["7-DOF continuous action<br/>Δxyz + ΔRxyz + gripper"]
+    A["Pretrained VLM<br/>Prismatic-7B (Llama-2)"] --> B["Action tokenization<br/>uniform 256-bin discretization"]
+    B --> C["Fine-tuning on OXE data<br/>970k robot trajectories"]
+    C --> D["Autoregressive action prediction<br/>next-token prediction"]
+    D --> E["7-DoF continuous action<br/>Δxyz + ΔRxyz + gripper"]
     style A fill:#e3f2fd,stroke:#1565c0
     style C fill:#e8f5e9,stroke:#2e7d32
     style E fill:#fff3e0,stroke:#e65100
 ```
 
-**Fine-tuning and deployment optimization**:
-- **LoRA fine-tuning**: LoRA with rank=32 can match the full-parameter fine-tuning performance. It only needs to train 1.4% parameters and can be completed by a single A100 GPU.
-- **Quantitative inference**: 4-bit quantization reduces GPU memory requirements from 16.8GB to 7.0GB without significant performance degradation
-- **inference speed**: running at 6Hz on RTX 4090 (bfloat16), the quantized speed needs to be measured according to the hardware and operator implementation, and cannot be directly inferred from the bit width reduction
+**Fine-tuning and deployment optimizations**:
+- **LoRA fine-tuning**: LoRA with rank 32 matches full-parameter fine-tuning performance. It trains only 1.4% of the parameters and can be completed on a single A100 GPU.
+- **Quantized inference**: 4-bit quantization cuts GPU memory requirements from 16.8 GB to 7.0 GB without significant performance degradation
+- **Inference speed**: Runs at 6 Hz on an RTX 4090 (bfloat16); the speed after quantization depends on the hardware and operator implementation and cannot be inferred directly from the reduction in bit width
 
 **Results and findings**
 
-1. **Multi-task and multi-robot review**:
-   - The paper reports an average success rate of 16.5 percentage points higher than RT-2-X across 29 tasks and multiple robot settings.
-   - This result corresponds to the authors' task set and data conditions and cannot be reduced to gains from a single component of the dual visual encoder.
-   - When comparing visual, motor, physical, and semantic generalization, task groupings should be viewed separately; the overall average score does not mean that all groupings are better.
+1. **Multi-task, multi-robot evaluation**:
+   - The paper reports an average success rate 16.5 percentage points higher than RT-2-X across 29 tasks and multiple robot setups.
+   - This result corresponds to the authors' task set and data conditions and cannot be attributed solely to the dual visual encoder.
+   - When comparing visual, motor, physical, and semantic generalization, the task groups should be examined separately; a better overall average does not mean every group is better.
 
-2. **Source of evidence**: Model and data settings can be found in [OpenVLA paper](https://arxiv.org/abs/2406.09246) and [official project](https://openvla.github.io/).
+2. **Source of evidence**: Model and data settings are given in the [OpenVLA paper](https://arxiv.org/abs/2406.09246) and the [official project page](https://openvla.github.io/).
 
-3. **data efficiently adapts to**:
-   - On 7 tasks of Franka robot (10-150 demonstrations), the average success rate after OpenVLA fine-tuning is 63.8%
+3. **Data-efficient adaptation**:
+   - On 7 Franka robot tasks (10-150 demonstrations), the average success rate after fine-tuning OpenVLA is 63.8%
    - On single-instruction tasks, Diffusion Policy performs better (66.7% vs 53.5%)
-   - On multi-instruction tasks, OpenVLA is significantly better than Diffusion Policy (91.7% vs 19.4%)
-   - OpenVLA is the only method to achieve ≥50% success rate on all tasks
+   - On multi-instruction tasks, OpenVLA is far better than Diffusion Policy (91.7% vs 19.4%)
+   - OpenVLA is the only method to reach a success rate of at least 50% on all tasks
 
-**Data Efficient Adaptation Experiment**: OpenVLA performs best on highly diverse multi-instruction tasks. It only needs a few demonstrations (10-50) to achieve a high success rate on new tasks, which is significantly better than scratch training and other pretraining VLA models. See [paper Figure 4](https://arxiv.org/abs/2406.09246) for details.
+**Data-efficient adaptation experiments**: OpenVLA performs best on highly diverse multi-instruction tasks. It needs only a few demonstrations (10-50) to reach a high success rate on new tasks, significantly better than training from scratch and other pretrained VLA models. See [paper Figure 4](https://arxiv.org/abs/2406.09246) for details.
 
 4. **Computational efficiency**:
-   - LoRA fine-tuning (rank=32) matches the performance of full-parameter fine-tuning, and GPU memory requirements are reduced from 163.3GB to 59.7GB
-   - 4-bit quantitative inference performance remains unchanged (71.9% vs 71.3%), and memory usage is halved
-   - Ready to deploy and fine-tune on consumer GPUs
+   - LoRA fine-tuning (rank 32) matches full-parameter fine-tuning, reducing GPU memory requirements from 163.3 GB to 59.7 GB
+   - 4-bit quantized inference performance stays essentially unchanged (71.9% vs 71.3%) while memory usage is halved
+   - Can be deployed and fine-tuned on consumer GPUs
 
-5. **open source impact**:
-   - The weights, training, and fine-tuning codes are disclosed to provide a basis for reproduction and adaptation.
-   - Supports HuggingFace integration and provides fine-tuned notebooks
-   - Provides critical infrastructure for community research on VLA
+5. **Open-source impact**:
+   - Weights, training code, and fine-tuning code are released, providing a basis for reproduction and adaptation.
+   - Supports HuggingFace integration and provides fine-tuning notebooks
+   - Provides critical infrastructure for community research on VLAs
 
-**Developer Quick Start (OpenVLA usage example):**
+**Developer quick start (OpenVLA usage example):**
 
 ```python
 import torch
 from PIL import Image
 from transformers import AutoModelForVision2Seq, AutoProcessor
 
-# Load pretraining model
+# Load the pretrained model
 model_id = "openvla/openvla-7b"
 processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
 model = AutoModelForVision2Seq.from_pretrained(
     model_id, torch_dtype=torch.bfloat16, low_cpu_mem_usage=True, trust_remote_code=True
 ).to("cuda")
 
-# Prepare the current camera RGB Image; action prediction is demonstrated only once here
+# Prepare the current RGB camera image; action prediction is demonstrated only once here
 image = Image.open("observation.png").convert("RGB")
 prompt = "In: What action should the robot take to pick up the red bowl?\nOut:"
 inputs = processor(images=image, text=prompt, return_tensors="pt").to("cuda", dtype=torch.bfloat16)
 
-# Generate action
+# Generate the action
 action = model.predict_action(**inputs, unnorm_key="bridge_orig")
 print(f"Predicted Action: {action}")
 ```
 
-This example requires `observation.png` to be prepared first. `bridge_orig` uses action normalized statistics corresponding to the training data; when adapting your own robot, you must change to matching data statistics and check the action coordinate system, unit and controller interface. It is not a complete real robot control loop. The dependent version is subject to [OpenVLA official warehouse](https://github.com/openvla/openvla).
+This example requires `observation.png` to be prepared first. `bridge_orig` uses the action normalization statistics of its training data; when adapting to your own robot, you must switch to matching dataset statistics and check the action coordinate frame, units, and controller interface. It is not a complete real-robot control loop. Dependency versions follow the [official OpenVLA repository](https://github.com/openvla/openvla).
 
 **Limitations**
 
-The original version of OpenVLA only supports single-image observation input and does not support multiple camera views, proprioceptive information, or observation history. The inference speed (6Hz) is still not fast enough for high-frequency control tasks (such as ALOHA at 50Hz). Although it is better than existing generalization policies, the success rate on test tasks is usually <90%, and there is still room for improvement in reliability. Due to computational limitations, many VLA design issues (such as basic VLM scale, collaborative training strategies, optimal visual features, etc.) have not been fully explored.
+The original version of OpenVLA supports only single-image observations and does not handle multiple camera views, proprioceptive information, or observation history. Its inference speed (6 Hz) is still too slow for high-frequency control tasks (such as ALOHA at 50 Hz). Although it generalizes better than existing policies, its success rate on test tasks is usually below 90%, so reliability still has room for improvement. Because of limited compute, many VLA design questions (such as the scale of the base VLM, co-training strategies, and optimal visual features) remain unexplored.
 
 ---
 
@@ -876,58 +876,58 @@ The original version of OpenVLA only supports single-image observation input and
 {: id="5-10-pi0-2024"}
 A Vision-Language-Action Flow Model for General Robot Control
 
-📄 **Paper**: [π₀ Original paper](https://arxiv.org/abs/2410.24164) · **Code**: [openpi](https://github.com/Physical-Intelligence/openpi)
+📄 **Paper**: [π₀ original paper](https://arxiv.org/abs/2410.24164) · **Code**: [openpi](https://github.com/Physical-Intelligence/openpi)
 
 <div align="center">
-  <img src="/images/vla/pi0_architecture.webp" alt="π₀ Architecture: PaliGemma Backbone and Flow Matching Action Expert" width="1446" height="957" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/pi0_architecture.webp" alt="π₀ combines vision-language pretraining with continuous action chunk generation. Source: Physical Intelligence." width="1446" height="957" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>π₀ combines vision-language pretraining with continuous action chunk generation. Source: Physical Intelligence.</figcaption>
 </div>
 
 ### Key takeaways
 {: id="精华-4"}
 
-The core design of π₀ is to let the pretraining VLM provide semantic and visual conditions, and then a dedicated action expert generates continuous action chunks. It combines language knowledge transfer with dexterous control, but the effect depends on the robot data, model structure and execution configuration.
+The core design of π₀ is to let a pretrained VLM provide semantic and visual conditioning, with a dedicated action expert generating continuous action chunks. It combines language knowledge transfer with dexterous control, but the effect depends on the robot data, model structure, and execution configuration.
 
-### 1. Research questions and structure
+### 1. Research question and architecture
 {: id="1-研究问题与架构"}
 
-The original model adds an action expert of about 300M parameters to the PaliGemma of about 3B parameters, totaling about **3.3B**. Inputs include images, language, and robot states; action experts use Flow Matching to learn conditional action distributions. Attention masks control the flow of information between vision-language prefixes, states, and noisy actions; this is the specific design of π₀ and is not a form of attention that all VLAs must adopt.
+The original model adds an action expert of about 300M parameters to the roughly 3B-parameter PaliGemma, for a total of about **3.3B**. Inputs include images, language, and robot state; the action expert uses flow matching to learn the conditional action distribution. Attention masks control the flow of information among the vision-language prefix, the state, and the noisy actions; this is a specific design of π₀, not a form of attention that every VLA must adopt.
 
-### 2. How Flow Matching generates actions
+### 2. How flow matching generates actions
 {: id="2-flow-matching-如何生成动作"}
 
-To illustrate the training objectives, the time direction of "noise to data" is used below. Let $z$ be Gaussian noise, $A$ be the demonstration action chunk, and $c$ be the observation and task conditions:
+To illustrate the training objective, the following uses the "noise to data" time direction. Let $z$ be Gaussian noise, $A$ the demonstration action chunk, and $c$ the observation and task conditions:
 
 $$
 x_\tau=(1-\tau)z+\tau A,\qquad
 \mathcal{L}=\mathbb{E}\left[\|v_\theta(x_\tau,\tau,c)-(A-z)\|^2\right].
 $$
 
-The model learns the conditional velocity field under different noise levels; starting from the noise during inference, actions are generated through numerical integration. The training interpolation path is a straight line, which does not mean that the learned sampling trajectory must be the shortest path, nor does it guarantee that high accuracy can be obtained in only 1-3 steps. The original paper deployment uses **10-step integration and 50-step action chunk**.
+The model learns the conditional velocity field at different noise levels; at inference time, it starts from noise and generates actions by numerical integration. The training interpolation path is a straight line, which does not mean the learned sampling trajectory must be the shortest path, nor does it guarantee high accuracy in just 1-3 steps. The original paper deploys **10-step integration and 50-step action chunks**.
 
 ### 3. High-frequency execution and closed-loop latency
 {: id="3-高频执行与闭环延迟"}
 
-The original paper reports a single inference time of approximately **73 ms** under the RTX 4090 configuration. For a 50 Hz robot, reasoning is repeated after each execution of 25 steps and about 0.5 seconds. Therefore, 50 Hz refers to the action execution frequency, not the closed-loop inference frequency of the full VLM. When comparing to diffusion or discrete policies, the hardware, number of sampling steps, action lengths, and execution protocols need to be unified. The above configuration is shown in [π₀ Appendix](https://arxiv.org/html/2410.24164v1) of the original paper.
+The original paper reports a single inference time of about **73 ms** on an RTX 4090. For a 50 Hz robot, inference is repeated after every 25 executed steps (about 0.5 seconds). Thus 50 Hz is the action execution frequency, not the closed-loop inference frequency of the full VLM. When comparing against diffusion or discrete policies, the hardware, number of sampling steps, action length, and execution protocol must be aligned. The configuration above is given in the [π₀ appendix](https://arxiv.org/html/2410.24164v1) of the original paper.
 
-### 4. How to interpret experimental results
+### 4. How to interpret the experimental results
 {: id="4-实验结果应如何理解"}
 
-The paper studies task execution, language instruction following, and fine-tuning of new skills after pretraining, covering operations such as folding clothes, cleaning desktops, bagging, and assembling cartons. The results support the conclusion that large-scale multi-robot training can be combined with continuous motion expertise.
+The paper studies task execution, language instruction following, and fine-tuning for new skills after pretraining, covering tasks such as folding clothes, cleaning a table, bagging, and assembling cartons. The results support the conclusion that large-scale multi-robot training can be combined with continuous-motion expertise.
 
-It is necessary to distinguish between tasks covered by pretraining, unseen instances and specialized fine-tuning tasks. The zero samples in the paper do not mean that the model has not seen relevant action skills; nor can long-horizon task demonstrations directly replace continuous running statistics that include resets, failures, and human intervention.
+One must distinguish between tasks covered by pretraining, unseen instances, and specialized fine-tuning tasks. The paper's zero-shot setting does not mean the model has never seen the relevant motor skills, and a long-horizon task demonstration cannot directly replace continuous-run statistics that include resets, failures, and human intervention.
 
-### 5. The difference between π₀-FAST and flow matching versions
+### 5. π₀-FAST versus the flow-matching version
 {: id="5-π-fast-与流匹配版本的区别"}
 
-[FAST](https://arxiv.org/abs/2501.09747) Use discrete cosine transform and BPE to compress action sequences, allowing autoregressive models to effectively learn high-frequency actions. π₀-FAST is a related model that adopts this token representation and should not be called a general-purpose inference accelerated version of the flow matching decoder.
+[FAST](https://arxiv.org/abs/2501.09747) uses the discrete cosine transform and BPE to compress action sequences, allowing autoregressive models to learn high-frequency actions effectively. π₀-FAST is a related model that adopts this token representation; it should not be described as a general inference-accelerated version of the flow-matching decoder.
 
-The author reports that the training compute required to achieve similar performance is reduced by about **5 times** at most; in the paper RTX 4090 comparison, π₀-FAST inference for each action chunk is about **750 ms**, and flow matching π₀ is lower than **100 ms**. Faster training convergence and faster online inference are two different things. Source: [FAST §VI-E, §VI-F](https://arxiv.org/html/2501.09747v1).
+The authors report that the training compute needed to reach similar performance is reduced by up to about **5 times**; in the paper's RTX 4090 comparison, π₀-FAST inference takes about **750 ms** per action chunk, versus under **100 ms** for flow-matching π₀. Faster training convergence and faster online inference are two different things. Source: [FAST §VI-E, §VI-F](https://arxiv.org/html/2501.09747v1).
 
 ### 6. Limitations
 {: id="6-局限性"}
 
-Data coverage, robot interfaces, and observation distribution still limit migration. Long action chunks reduce the frequency of model calls and also increase the response delay to disturbances during execution. Actual deployment should combine the selection of action chunk length, replanning interval and controller configuration, and then check the contact error, failure recovery and task throughput.
+Data coverage, robot interfaces, and observation distributions still limit transfer. Long action chunks reduce how often the model is called, but also increase the response delay to disturbances during execution. In real deployment, the choice of action chunk length, replanning interval, and controller configuration should be combined, and contact errors, failure recovery, and task throughput should then be checked.
 
 ---
 
@@ -943,24 +943,24 @@ Data coverage, robot interfaces, and observation distribution still limit migrat
 ### Key takeaways
 {: id="精华-5"}
 
-This is the latest breakthrough work of the Physical Intelligence team on **Open-World Generalization (Open-World Generalization)**. π0.5 is a new VLA model based on π0:
-- **Heterogeneous data collaborative training**: Only a small part of the data (2.4% of the first stage of training) comes from real mobile manipulation robots. The remaining 97.6% of the data comes from other stationary robots, high-level semantic predictions, human verbal instructions, and network multimodal data (such as image description, question and answer, object detection).
-- **Hierarchical reasoning architecture**: In the execution phase, the model first predicts "high-level semantic subtasks" (such as "pick up the plate"), and then predicts underlying robot actions (Low-level Action Chunks) based on this subtask.
-- **environment generalization experiment**: The paper shows that the end-to-end learning robot system can perform long-range, multi-stage dexterous operation tasks (such as cleaning the kitchen or bedroom) for up to 10 to 15 minutes in the real home environment **that is not covered by** training.
+This is the latest breakthrough from the Physical Intelligence team on **open-world generalization**. π0.5 is a new VLA model built on π0:
+- **Co-training on heterogeneous data**: Only a small part of the data (2.4% in the first training stage) comes from real mobile manipulation robots. The remaining 97.6% comes from other stationary robots, high-level semantic predictions, verbal human instructions, and web multimodal data (such as image captioning, question answering, and object detection).
+- **Hierarchical reasoning architecture**: At execution time, the model first predicts a "high-level semantic subtask" (such as "pick up the plate") and then predicts the low-level robot action chunk conditioned on that subtask.
+- **Environment generalization experiments**: The paper shows that an end-to-end learned robot system can perform long-horizon, multi-stage dexterous tasks (such as cleaning a kitchen or bedroom) for 10 to 15 minutes in real homes **not covered by** the training data.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-4"}
 
-If robots are to be truly useful, they must leave the laboratory and deal with a variety of, unforeseen situations in the real world. Although recent VLA models have achieved impressive results in end-to-end control, **How far their generalization ability can go in the "wild environment" is still an unsolved mystery** .
+If robots are to be truly useful, they must leave the laboratory and cope with the varied, unforeseen situations of the real world. Although recent VLA models have achieved impressive end-to-end control results, **how far their generalization can go in "in-the-wild" environments remains an open question**.
 
-If a mobile robot is asked to clean a kitchen it has never seen before, it needs multiple levels of generalization capabilities:
-1. Simple grasping skills need to generalize to new objects.
-2. Existing skills need to be combined into new sequences.
-3. The robot needs to understand the semantics of the scene (for example, which is a drawer and which might be a dish-drying rack).
+If a mobile robot is asked to clean a kitchen it has never seen, it needs several levels of generalization:
+1. Simple grasping skills must generalize to new objects.
+2. Existing skills must be composed into new sequences.
+3. The robot must understand the semantics of the scene (for example, which is a drawer and which might be a dish rack).
 
-The traditional approach of covering all family scenarios through "violent piles of data" is unrealistic. The core idea of ​​π0.5 is: Like humans, **uses knowledge from other channels (books, other people’s experiences, etc.) to achieve generalization through multimodal collaborative training.**
+The traditional approach of covering every household scenario by brute-force data piling is unrealistic. The core idea of π0.5 is that, like humans, it **draws on knowledge from other sources (books, other people's experience, etc.) and achieves generalization through multimodal co-training.**
 
 ---
 
@@ -968,26 +968,26 @@ The traditional approach of covering all family scenarios through "violent piles
 {: id="2-主要方法创新点-4"}
 
 <div align="center">
-  <img src="/images/vla/pi05-overview.webp" alt="π0.5 architecture and training data source: Integrate network multimodal data, object detection, high-level sub-task instructions, and various robot action data, allowing it to be deployed in new homes out of the box" width="1446" height="891" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/pi05-overview.webp" alt="π0.5 architecture and training data sources: web multimodal data, object detection, high-level subtask instructions, and various robot action data are integrated so the model can be deployed in new homes out of the box" width="1446" height="891" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-π0.5 architecture and training data source: Integrate network multimodal data, object detection, high-level sub-task instructions, and various robot action data, allowing it to be deployed in new homes out of the box
+π0.5 architecture and training data sources: web multimodal data, object detection, high-level subtask instructions, and various robot action data are integrated so the model can be deployed in new homes out of the box
 </figcaption>
 </div>
 
-#### Heterogeneous Knowledge Sources
+#### Heterogeneous knowledge sources
 {: id="多样化异构的知识来源-heterogeneous-knowledge-sources"}
-The training data for π0.5 is more than just “videos of robots in action”. It integrates:
-1. **Multi-modal network data**: Utilize Internet-level image question and answer, target positioning and other tasks to provide the model with a priori scene understanding capabilities.
-2. **High-level semantic prediction and language instruction**: Introducing human verbal guidance containing long-range task structure into training.
-3. **Other robot data**: Use data from fixed robotic arms or other platforms in the laboratory to enrich the underlying motion skill library.
+The training data for π0.5 is more than "videos of robots in action". It integrates:
+1. **Multimodal web data**: Web-scale image question answering, object localization, and similar tasks give the model prior scene understanding.
+2. **High-level semantic prediction and language instructions**: Verbal human guidance that contains long-horizon task structure is introduced into training.
+3. **Other robot data**: Data from stationary arms and other platforms in the lab enriches the library of low-level motor skills.
 
-#### Hierarchical Architecture
+#### Hierarchical architecture
 {: id="层次化的架构设计-hierarchical-architecture"}
-The design of the model is very straightforward: it is pretrained on a mixture of network data and multiple robots, and then fine-tuned using data containing low-level actions and high-level semantic labels.
-When inference:
-1. **High-level reasoning**: The model first infers the most appropriate "Semantic Subtask" at the moment, such as "Pick up the cutting board".
-2. The bottom layer of **executes**: Subsequently, the model outputs the corresponding bottom robot control action based on the subtask label.
-This design of breaking down complex tasks allows low-level actions to benefit from data from other simple robots, while high-level reasoning can benefit from network text and image data.
+The model's design is quite straightforward: it is pretrained on a mixture of web data and multi-robot data, and then fine-tuned on data containing low-level actions and high-level semantic labels.
+At inference time:
+1. **High-level reasoning**: The model first infers the most appropriate "semantic subtask" for the moment, such as "pick up the cutting board".
+2. **Low-level execution**: The model then outputs the corresponding low-level robot control actions conditioned on the subtask label.
+Breaking complex tasks down this way lets low-level actions benefit from data of other, simpler robots, while high-level reasoning benefits from web text and image data.
 
 ---
 
@@ -995,22 +995,22 @@ This design of breaking down complex tasks allows low-level actions to benefit f
 {: id="3-核心实验结果-2"}
 
 <div align="center">
-  <img src="/images/vla/pi05-kitchen-cleaning.webp" alt="π0.5 Performs cleaning tasks in a kitchen that has never been seen before, able to perform complex commands such as &quot;close cabinet doors&quot;, &quot;put items in drawers&quot;, &quot;wipe up spills&quot;, etc." width="1446" height="352" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/pi05-kitchen-cleaning.webp" alt="π0.5 cleaning a kitchen it has never seen, executing complex commands such as 'close the cabinet door', 'put the items in the drawer', and 'wipe up the spill'" width="1446" height="352" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-π0.5 Performs cleaning tasks in a kitchen that has never been seen before, able to perform complex commands such as "close cabinet doors", "put items in drawers", "wipe up spills", etc.
+π0.5 cleaning a kitchen it has never seen, executing complex commands such as "close the cabinet door", "put the items in the drawer", and "wipe up the spill"
 </figcaption>
 </div>
 
-- **Breakthrough in long-distance tasks**: Experiments have proven that π0.5 can continuously control the mobile manipulation robot for 10 to 15 minutes with only one high-level prompt to complete extremely complex daily household chores such as cleaning the kitchen, making beds, and hanging towels.
-- **environment migration**: All evaluation tasks are performed in the new family **where** does not exist at all in the training data, proving that the system has extremely powerful Open-World Generalization capabilities.
-- **The necessity of collaborative training**: ablation Experiments show that without collaborative training of heterogeneous data, the model will not be able to complete complex long-horizon tasks in these unfamiliar real environments.
+- **Breakthrough on long-horizon tasks**: Experiments show that π0.5 can continuously control a mobile manipulation robot for 10 to 15 minutes from a single high-level prompt, completing very complex household chores such as cleaning a kitchen, making a bed, and hanging towels.
+- **Environment transfer**: All evaluation tasks are performed in new homes that **do not appear at all** in the training data, showing that the system has strong open-world generalization.
+- **The necessity of co-training**: Ablation experiments show that without co-training on heterogeneous data, the model cannot complete complex long-horizon tasks in these unfamiliar real environments.
 
 ---
 
 ### 4. Summary and significance
 {: id="4-总结与意义-2"}
 
-π0.5 proves that through **mixed heterogeneous data source** (rather than simply expanding the training data of the target robot), the end-to-end robot system can emerge with strong generalization capabilities. This method of combining Internet-scale semantic knowledge with the robot's underlying action skills through "hierarchical reasoning" provides an extremely feasible technical paradigm for the large-scale implementation of general household robots in the future.
+π0.5 shows that **mixing heterogeneous data sources** (rather than simply scaling up training data on the target robot) lets an end-to-end robot system develop strong generalization. Combining web-scale semantic knowledge with the robot's low-level motor skills through "hierarchical reasoning" offers a highly practical technical paradigm for deploying general-purpose household robots at scale.
 
 ---
 
@@ -1026,23 +1026,23 @@ This design of breaking down complex tasks allows low-level actions to benefit f
 ### Key takeaways
 {: id="精华-6"}
 
-This is another major breakthrough by the Physical Intelligence team in the field of embodied intelligence. The core lies in solving how large-scale vision-language-action (VLA) models can be implemented in the real world. **Reinforcement Learning (RL)** The problem of continuous self-evolution:
-- **RECAP Framework**: A general method called RECAP (Empirical and Modified Reinforcement Learning based on Advantage Alignment Policy) is proposed. It allows VLA models to integrate extremely diverse data sources: expert demonstrations, autonomous execution data, and real-time human teleoperation intervention when the robot makes mistakes.
-- **Advantage Conditioning**: Unlike traditional policy gradients (PPO, etc.) which are difficult to apply to large Flow-matching models, RECAP allows the model to directly learn "what action is better" by adding a simple "Advantage Indicator" to the model input.
-- **performance leap**: On the most difficult tasks, RECAP more than doubled the robot's **throughput (number of successes per unit time)**, while reducing the task failure rate by about 50%.
-- **Engineering feat**: The trained π*0.6 model can make espresso coffee for 13 hours without interruption, or automatically fold various complex clothes in a completely unfamiliar home for two hours.
+This is another major breakthrough from the Physical Intelligence team in embodied intelligence. It addresses how a large vision-language-action (VLA) model can keep improving itself in the real world through **reinforcement learning (RL)**:
+- **RECAP framework**: A general method called RECAP (RL with Experience and Corrections via Advantage-conditioned Policies) is proposed. It lets a VLA model integrate very diverse data sources: expert demonstrations, autonomous execution data, and real-time human teleoperated interventions when the robot makes mistakes.
+- **Advantage conditioning**: Unlike traditional policy gradients (PPO, etc.), which are hard to apply to large flow-matching models, RECAP lets the model learn directly "which action is better" by adding a simple "advantage indicator" to its input.
+- **Performance leap**: On the hardest tasks, RECAP more than doubles the robot's **throughput (successes per unit time)** while cutting the task failure rate by about 50%.
+- **Engineering feat**: The trained π*0.6 model can make espresso for 13 hours without interruption, or fold a variety of complex garments for two hours in a completely unfamiliar home.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-5"}
 
-"Practice makes perfect" is the core of human learning. Although existing VLA models can master skills through imitation learning (BC), they struggle to surpass the level of human demonstrators and cannot self-correct after deployment.
+"Practice makes perfect" is at the core of human learning. Although existing VLA models can master skills through imitation learning (BC), they struggle to surpass the human demonstrators and cannot correct themselves after deployment.
 
-There are three major challenges in applying reinforcement learning to large VLA models:
-1. **Algorithm stability**: Traditional RL algorithms are often extremely unstable on large-scale models.
-2. **Data heterogeneity**: How to take advantage of both "perfect demonstration" and "autonomous attempt full of errors but including corrections"?
-3. **Real-world feedback**: How to obtain reward signals efficiently without a simulation environment?
+Applying reinforcement learning to large VLA models poses three major challenges:
+1. **Algorithm stability**: Traditional RL algorithms are often highly unstable on large models.
+2. **Data heterogeneity**: How can one exploit both "perfect demonstrations" and "autonomous attempts that contain errors but also corrections"?
+3. **Real-world feedback**: How can reward signals be obtained efficiently without a simulation environment?
 
 ---
 
@@ -1050,23 +1050,23 @@ There are three major challenges in applying reinforcement learning to large VLA
 {: id="2-主要方法创新点-5"}
 
 <div align="center">
-  <img src="/images/vla/pistar06-recap.webp" alt="RECAP workflow: starting from the pretraining VLA, collecting autonomous trajectories and human corrections through deployment, updating the value function, and aligning the training strategy through advantages" width="1438" height="678" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/pistar06-recap.webp" alt="RECAP workflow: starting from a pretrained VLA, collect autonomous trajectories and human corrections through deployment, update the value function, and train the policy with advantage conditioning" width="1438" height="678" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-RECAP workflow: starting from the pretraining VLA, collecting autonomous trajectories and human corrections through deployment, updating the value function, and aligning the training strategy through advantages
+RECAP workflow: starting from a pretrained VLA, collect autonomous trajectories and human corrections through deployment, update the value function, and train the policy with advantage conditioning
 </figcaption>
 </div>
 
 #### RECAP training loop
 {: id="recap-训练循环"}
-1. **Data collection**: Let the robot attempt tasks independently. If something goes wrong, humans can step in to correct it.
-2. **Value Function Training**: Train a multi-task distribution value function to evaluate the successful "number of steps" in the current observation distance.
-3. **Advantage alignment training**: Label each action with a "positive/negative advantage" label based on the evaluation of the value function. During training, the model is asked to learn to predict actions based on this label.
+1. **Data collection**: Let the robot attempt tasks on its own. If something goes wrong, a human can step in to correct it.
+2. **Value function training**: Train a multi-task distributional value function that estimates, from the current observation, the number of steps remaining until success.
+3. **Advantage-conditioned training**: Label each action as having a "positive" or "negative" advantage according to the value function's estimate. During training, the model learns to predict actions conditioned on this label.
 
 #### Core model: π*0.6
 {: id="核心模型π06"}
-π*0.6 is the RL version of the π0.6 model. Its bottom layer is the 4 billion parameter Gemma 3 VLM plus an 860 million parameter flow matching (Flow-matching) action expert.
-- **Conditional Advantage**: Add "Advantage: positive/negative" as input to the Prompt of the model, so that the model can extract the optimal action by setting a positive advantage during inference.
-- **Knowledge Insulation**: Ensure that action generation and high-level reasoning do not interfere with each other, improving system stability.
+π*0.6 is the RL version of the π0.6 model. Its backbone is the 4-billion-parameter Gemma 3 VLM plus an 860-million-parameter flow-matching action expert.
+- **Advantage conditioning**: "Advantage: positive/negative" is added to the model's prompt as input, so that at inference time the model can elicit the best action by setting a positive advantage.
+- **Knowledge insulation**: Ensures that action generation and high-level reasoning do not interfere with each other, improving system stability.
 
 ---
 
@@ -1074,50 +1074,50 @@ RECAP workflow: starting from the pretraining VLA, collecting autonomous traject
 {: id="3-核心实验结果-3"}
 
 <div align="center">
-  <img src="/images/vla/pistar06-teaser.webp" alt="π*0.6 Challenge tasks: fold clothes of various materials, assemble industrial cartons, and use a professional coffee machine to make double espresso" width="1446" height="585" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/pistar06-teaser.webp" alt="π*0.6 challenge tasks: folding clothes of various materials, assembling industrial cartons, and making double espresso with a professional coffee machine" width="1446" height="585" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-π*0.6 Challenge tasks: fold clothes of various materials, assemble industrial cartons, and use a professional coffee machine to make double espresso
+π*0.6 challenge tasks: folding clothes of various materials, assembling industrial cartons, and making double espresso with a professional coffee machine
 </figcaption>
 </div>
 
 - **Extremely robust**:
-  - **makes coffee**: including a series of fine movements such as grinding powder, pressing powder, locking the handle, extracting, and holding the cup, and supports continuous operation for up to 13 hours.
-  - **Carton Assembly**: In a real factory scenario, cardboard that will stick to each other and deform is processed, and the throughput is increased from the initial 5 times per hour to more than 10 times per hour.
-- **significant indicator improvement**:
-  - In complex laundry folding tasks, the success rate increased from 70% to over 90%.
-  - Experiments have shown that RECAP's dominance alignment method far outperforms traditional AWR (dominance weighted regression) and PPO algorithms in performance.
+  - **Making coffee**: Involves a series of fine movements such as grinding, tamping, locking the portafilter, brewing, and holding the cup, and supports continuous operation for up to 13 hours.
+  - **Carton assembly**: In a real factory setting, cardboard that sticks together and deforms is handled, and throughput rises from an initial 5 per hour to more than 10 per hour.
+- **Significant improvements in metrics**:
+  - On the complex laundry-folding task, the success rate rises from 70% to over 90%.
+  - Experiments show that RECAP's advantage conditioning far outperforms traditional AWR (advantage-weighted regression) and PPO.
 
 ---
 
 ### 4. Summary and significance
 {: id="4-总结与意义-3"}
 
-π*0.6 and RECAP mark the leap from "static imitation" to "dynamic evolution" of robot learning. It demonstrates that even without a simulator, large-scale VLA models can quickly master extremely delicate, long-range, and uncertain industrial and household skills through autonomous attempts in the real world and a small amount of human guidance.
+π*0.6 and RECAP mark robot learning's leap from "static imitation" to "dynamic evolution". They show that, even without a simulator, a large VLA model can quickly master extremely delicate, long-horizon, and uncertain industrial and household skills through autonomous attempts in the real world and a small amount of human guidance.
 
 ---
 
 ## 13. π₀.7: a Steerable Generalist Robotic Foundation Model (2026)
 {: id="513-π7-a-steerable-generalist-robotic-foundation-model-2026"}
-——Controllable universal robot base model with zero-sample cross-configuration migration and task combination capabilities
+——A steerable generalist robot foundation model with zero-shot cross-embodiment transfer and compositional task abilities
 
 📄 **Paper**: [arXiv:2604.15483](https://arxiv.org/abs/2604.15483)
 
 ### Key takeaways
 {: id="精华-7"}
-1. proposed π0.7, a 5B parameter general vision-language-action (VLA) model that achieves powerful out-of-the-box capabilities by introducing multimodal context (sub-task instructions, sub-goal images, training metadata).
-2. The core innovation lies in "controllability": by randomly discarding and injecting detailed execution details (such as movement quality, speed, whether there are errors) during training, the model can perform high-quality and difficult dexterity tasks through Prompt guidance (Steering) during inference.
-3. Remarkable zero-shot cross-configuration transfer is achieved: models can directly transfer dexterous skills learned on lightweight platforms (such as folding laundry) to higher-payload industrial robotic arms (such as the UR5e).
-4. Introducing combinatorial generalization based on language "coaching", users can guide the model through step-by-step instructions to complete never-before-seen long-horizon tasks of up to 5 minutes.
-5. Successfully integrated heterogeneous data sets including robot demonstrations, autonomous operation failure data, human videos and Internet multimodal data, and proved that multimodal Prompt can solve the ambiguity problem caused by different data quality.
+1. Proposes π0.7, a 5B-parameter general vision-language-action (VLA) model that achieves strong out-of-the-box capabilities by introducing multimodal context (subtask instructions, subgoal images, and training metadata).
+2. The core innovation is "steerability": by randomly dropping and injecting detailed execution information (such as motion quality, speed, and whether errors occur) during training, the model can, at inference time, be steered through prompts to perform difficult dexterous tasks with high quality.
+3. Remarkable zero-shot cross-embodiment transfer: the model can directly transfer dexterous skills learned on lightweight platforms (such as laundry folding) to industrial arms with higher payloads (such as the UR5e).
+4. Compositional generalization through language "coaching": users can guide the model step by step with instructions to complete never-before-seen long-horizon tasks of up to 5 minutes.
+5. Successfully integrates heterogeneous datasets, including robot demonstrations, failure data from autonomous operation, human videos, and web multimodal data, and shows that multimodal prompts can resolve the ambiguity caused by differences in data quality.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-6"}
-Although the current basic robot model (VLA) has made progress in scale and generalization, it still faces several core challenges:
-- **cannot perform complex tasks**: Even after large-scale pretraining, the model often needs targeted fine-tuning when handling never-before-seen dexterous tasks or long-horizon tasks.
-- **Data heterogeneity problem**: Large-scale data (such as human videos, autonomous failure data) often contain different execution policies and qualities. Simply training will lead to sub-optimal performance after the model learns the "average".
-- **Poor cross-configuration generalization**: It is difficult to seamlessly transfer skills between robots with different shapes and dynamic characteristics.
+Although current robot foundation models (VLAs) have progressed in scale and generalization, they still face several core challenges:
+- **Difficulty with complex tasks**: Even after large-scale pretraining, models often still need targeted fine-tuning for never-before-seen dexterous or long-horizon tasks.
+- **Data heterogeneity**: Large-scale data (such as human videos and autonomous failure data) often mixes different execution strategies and quality levels. Naive training leads the model to learn the "average" and yields suboptimal performance.
+- **Poor cross-embodiment generalization**: Skills are hard to transfer seamlessly between robots with different morphologies and dynamics.
 
 ---
 
@@ -1125,42 +1125,42 @@ Although the current basic robot model (VLA) has made progress in scale and gene
 {: id="2-主要方法创新点-6"}
 
 <div align="center">
-  <img src="/images/vla/pi0.7-overview.webp" alt="π0.7 overall framework: By combining robot demonstrations, autonomous data, human videos and network multimodal data for training, detailed Prompts (commands, sub-goals, metadata) are used to achieve precise guidance of actions." width="1446" height="1014" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>π0.7 Overall framework: By combining robot demonstrations, autonomous data, human videos and network multimodal data for training, detailed Prompts (commands, sub-goals, metadata) are used to achieve precise guidance of actions.</figcaption>
+  <img src="/images/vla/pi0.7-overview.webp" alt="π0.7 overall framework: trained on robot demonstrations, autonomous data, human videos, and web multimodal data, with detailed prompts (instructions, subgoals, metadata) used to steer actions precisely." width="1446" height="1014" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>π0.7 overall framework: trained on robot demonstrations, autonomous data, human videos, and web multimodal data, with detailed prompts (instructions, subgoals, metadata) used to steer actions precisely.</figcaption>
 </div>
 
-#### ① Overview of the overall framework
+#### ① Overall framework
 {: id="-整体框架概述"}
-π0.7 is a 5 billion parameter VLA model whose core architecture consists of a 4B parameter vision-language model (VLM) backbone, a MEM-style video history encoder (400M parameters), and a lightweight action expert module (860M parameters). The system directly generates continuous action chunks by receiving current visual observations, historical information, and a set of rich contextual information (Prompts).
+π0.7 is a 5-billion-parameter VLA model whose core architecture consists of a 4B-parameter vision-language model (VLM) backbone, a MEM-style video history encoder (400M parameters), and a lightweight action expert module (860M parameters). Given the current visual observation, historical information, and a set of rich contextual information (prompts), the system directly generates continuous action chunks.
 
 <div align="center">
-  <img src="/images/vla/pi0.7-architecture.webp" alt="π0.7 network architecture: includes Gemma3 VLM backbone, video history encoder and action expert based on flow matching (Flow Matching)." width="1448" height="812" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>π0.7 network architecture: includes Gemma3 VLM backbone, video history encoder and action expert based on flow matching (Flow Matching).</figcaption>
+  <img src="/images/vla/pi0.7-architecture.webp" alt="π0.7 network architecture: a Gemma3 VLM backbone, a video history encoder, and a flow-matching action expert." width="1448" height="812" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>π0.7 network architecture: a Gemma3 VLM backbone, a video history encoder, and a flow-matching action expert.</figcaption>
 </div>
 
-#### ②Explanation of core modules
+#### ② Core modules
 {: id="-核心模块讲解"}
 
-**Multimodal context guidance (Steerable Prompting):**
-This is the soul of π0.7. In order to handle heterogeneous data and achieve precise control, the model receives the following Ct information during training:
-- **Subtask Instructions**: Based on the total task (such as "cleaning the kitchen"), the semantic instructions of the current step (such as "pick up the knife") are provided.
-- **subgoal images (Subgoal Images)**: generated by a 14B parameter BAGEL world model, depicting the near future state that the robot should reach, and providing the model with visual clues for spatial grounding.
-- **Episode Metadata (Episode Metadata)**: Explicitly mark the quality of the data (1-5 points), speed (number of execution steps) and whether there are errors. This allows the model to learn from failed data (marked as "errors") and guide the generation of optimal actions by setting "high quality, error-free" during inference.
+**Multimodal context for steering (steerable prompting):**
+This is the heart of π0.7. To handle heterogeneous data and achieve precise control, the model receives the following context during training:
+- **Subtask instructions**: Given the overall task (such as "clean the kitchen"), a semantic instruction for the current step (such as "pick up the knife").
+- **Subgoal images**: Generated by a 14B-parameter BAGEL world model, they depict the near-future state the robot should reach and give the model visual cues for spatial grounding.
+- **Episode metadata**: Explicitly marks data quality (scored 1-5), speed (number of execution steps), and whether errors occurred. This lets the model learn from failed data (marked as "with errors") and, at inference time, elicit optimal actions by setting "high quality, error-free".
 
 <div align="center">
-  <img src="/images/vla/pi0.7-prompt-modalities.webp" alt="Prompt multimodal schematic: Contains subtasks, visual subgoals, and metadata that work together to disambiguate large-scale heterogeneous datasets." width="1446" height="904" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>Prompt Multimodal schematic: Contains subtasks, visual subgoals, and metadata that work together to disambiguate large-scale heterogeneous datasets.</figcaption>
+  <img src="/images/vla/pi0.7-prompt-modalities.webp" alt="Multimodal prompt schematic: subtasks, visual subgoals, and metadata work together to disambiguate large-scale heterogeneous datasets." width="1446" height="904" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Multimodal prompt schematic: subtasks, visual subgoals, and metadata work together to disambiguate large-scale heterogeneous datasets.</figcaption>
 </div>
 
-**Action expert and flow matching (Flow Matching):**
-Unlike traditional discrete token prediction, π0.7 uses flow matching objectives to train action experts. This module is a small Transformer that focuses on the activation of the VLM backbone and generates 50-step continuous action chunks (Action Chunks). This design not only captures the multimodal distribution of motion, but also enables high-speed inference (as low as 38ms on the H100).
+**Action expert and flow matching:**
+Unlike traditional discrete token prediction, π0.7 trains its action expert with a flow-matching objective. This module is a small Transformer that attends to the activations of the VLM backbone and generates 50-step continuous action chunks. This design captures the multimodal distribution of actions and also enables fast inference (as low as 38 ms on an H100).
 
 #### ③ End-to-end data flow
 {: id="-端到端数据流"}
-1. **Input stage**: Receive up to 4 camera images (frontal, hand-eye, etc.) and 6 historical frames.
-2. **feature encoding**: The video encoder compresses historical observations and inputs them into the Gemma3 VLM together with the current observations.
-3. **Context fusion**: Subtask text, generated sub-goal graph, and expected metadata (such as speed = high quality) are spliced as Token.
-4. **action generation**: Based on the latent space representation of the VLM output, the action expert generates 50 actions through 5 steps of denoising iteration.
+1. **Input**: Up to 4 camera images (front, wrist, etc.) and 6 historical frames.
+2. **Feature encoding**: The video encoder compresses the historical observations and feeds them into the Gemma3 VLM together with the current observations.
+3. **Context fusion**: The subtask text, the generated subgoal image, and the desired metadata (such as speed and high quality) are concatenated as tokens.
+4. **Action generation**: Based on the latent representation output by the VLM, the action expert generates 50 actions through 5 denoising steps.
 
 ---
 
@@ -1168,32 +1168,32 @@ Unlike traditional discrete token prediction, π0.7 uses flow matching objective
 {: id="3-核心结果发现-1"}
 
 <div align="center">
-  <img src="/images/vla/pi0.7-dexterity-results.webp" alt="Out-of-the-box dexterity task performance: π0.7 On tasks such as folding laundry, making coffee, and assembling boxes, its performance is comparable to or even better than expert models specifically fine-tuned with reinforcement learning." width="1446" height="1096" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>'s out-of-the-box dexterity task performance: π0.7 In tasks such as folding clothes, making coffee, and assembling boxes, its performance is comparable to or even better than expert models specifically fine-tuned through reinforcement learning.</figcaption>
+  <img src="/images/vla/pi0.7-dexterity-results.webp" alt="π0.7's out-of-the-box dexterity performance: on tasks such as folding clothes, making coffee, and assembling boxes, it matches or even exceeds expert models specifically fine-tuned with reinforcement learning." width="1446" height="1096" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>π0.7's out-of-the-box dexterity performance: on tasks such as folding clothes, making coffee, and assembling boxes, it matches or even exceeds expert models specifically fine-tuned with reinforcement learning.</figcaption>
 </div>
 
-- **Powerful out-of-the-box**: Without any task-specific post-training, π0.7 can complete challenging dexterity tasks, such as cucumber cutting, peeling, and operating a coffee machine.
-- **Excellent cross-configuration generalization**: In the absence of UR5e laundry folding data at all, the model successfully transferred skills learned on the source robot arm (called a “warship” arm in the Chinese edition) to UR5e, with performance approaching that of an experienced human remote operator.
+- **Strong out-of-the-box performance**: Without any task-specific post-training, π0.7 can complete challenging dexterous tasks, such as slicing a cucumber, peeling, and operating a coffee machine.
+- **Excellent cross-embodiment generalization**: With no UR5e laundry-folding data at all, the model successfully transferred skills learned on the source robot arm to the UR5e, with performance approaching that of an experienced human teleoperator.
 
 <div align="center">
-  <img src="/images/vla/pi0.7-cross-embodiment.webp" alt="Cross-robot configuration transfer results: Even if the morphology and dynamics are hugely different, π0.7 can generate new policies adapted to the target robot (such as changing from two-arm cooperation to one-arm operation)." width="1448" height="843" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> cross-robot configuration transfer results: Even if the morphology and dynamics are hugely different, π0.7 can generate new policies adapted to the target robot (such as changing from dual-arm cooperation to single-arm operation).</figcaption>
+  <img src="/images/vla/pi0.7-cross-embodiment.webp" alt="Cross-embodiment transfer results: even when morphology and dynamics differ greatly, π0.7 can generate new policies adapted to the target robot (for example, going from bimanual cooperation to single-arm operation)." width="1448" height="843" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Cross-embodiment transfer results: even when morphology and dynamics differ greatly, π0.7 can generate new policies adapted to the target robot (for example, going from bimanual cooperation to single-arm operation).</figcaption>
 </div>
 
-- **Combined new task execution**: Through the language "coach", users can teach the robot on-site to complete brand-new tasks, such as using an air fryer that has never been seen before.
+- **Executing new composed tasks**: Through a language "coach", users can teach the robot on the spot to complete entirely new tasks, such as using an air fryer it has never seen.
 
 <div align="center">
-  <img src="/images/vla/pi0.7-language-coaching.webp" alt="Language Coaching Example: Teach a robot to complete the task of &quot;loading the air fryer&quot; with step-by-step language instructions." width="1446" height="330" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> Language Coach Example: Teach the robot to complete the "loading air fryer" task through step-by-step language instructions.</figcaption>
+  <img src="/images/vla/pi0.7-language-coaching.webp" alt="Language coaching example: teaching the robot the 'load the air fryer' task through step-by-step language instructions." width="1446" height="330" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Language coaching example: teaching the robot the "load the air fryer" task through step-by-step language instructions.</figcaption>
 </div>
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-1"}
-1. **There is still a gap in zero-sample success rate**: Although it performs amazingly on dexterity tasks, its success rate (60-80%) on never-seen task/configuration combinations is still lower than known tasks (>90%).
-2. **world model depends on**: The generation of visual sub-targets requires extremely high quality of the world model, and failure to generate it will directly affect VLA's decision-making.
-3. **It is difficult to define "never seen"**: Due to the large scale and complexity of the training set, it is difficult to strictly prove that a certain task has no relevant shadow in the data set.
+1. **A gap remains in zero-shot success rate**: Although it performs impressively on dexterous tasks, its success rate on never-seen task/embodiment combinations (60-80%) is still lower than on known tasks (>90%).
+2. **Dependence on the world model**: Generating visual subgoals demands a very high-quality world model, and a failed generation directly affects the VLA's decisions.
+3. **"Never seen" is hard to define**: Given the scale and complexity of the training set, it is hard to prove strictly that a task has no related examples in the dataset.
 
 ---
 
@@ -1202,107 +1202,107 @@ Unlike traditional discrete token prediction, π0.7 uses flow matching objective
 ## 14. ACoT-VLA (2026)
 {: id="5-13-acot-vla-2026"}
 **Subtitle**: Action Chain-of-Thought for Vision-Language-Action Models
-**Translated title**: A vision-language-action model for reasoning in action space
+**Translated title**: A vision-language-action model that reasons in action space
 
 📄 **Paper**: [arXiv:2601.11404](https://arxiv.org/abs/2601.11404)
 
 <div align="center">
-  <img src="/images/vla/acot_vla_teaser.webp" alt="ACoT-VLA: Perform chain of thought reasoning directly in the action space, and generate coarse-grained reference trajectories to guide the final denoising action (Source: ACoT-VLA Project)" width="673" height="782" style="width: 90%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/acot_vla_teaser.webp" alt="ACoT-VLA: reasoning chains carried out directly in action space, generating a coarse reference trajectory to guide the final denoised action (Source: ACoT-VLA Project)" width="673" height="782" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
-ACoT-VLA: Perform chain of thought reasoning directly in the action space, and generate coarse-grained reference trajectories to guide the final denoising action (Source: ACoT-VLA Project)
+ACoT-VLA: reasoning chains carried out directly in action space, generating a coarse reference trajectory to guide the final denoised action (Source: ACoT-VLA Project)
 </figcaption>
 </div>
 
 **Key takeaways**
-The core innovation of this paper is to transfer the reasoning process from the language/visual space to the action space. Points worthy of reference include: (1) reasoning directly in the action space, providing homogeneous movement guidance, bridging the gap between semantics and kinematics; (2) the complementary design of the explicit reasoner (EAR) and the implicit reasoner (IAR), providing both trajectory-level and semantic-level guidance; (3) Teacher Forcing stabilizes the training strategy to avoid optimization interference of the inference module on the action head; (4) through action-level Guidance greatly improves the robustness and error resistance of long-horizon tasks.
+The core innovation of this paper is to move the reasoning process from language/visual space into action space. Points worth borrowing: (1) reasoning directly in action space provides homogeneous motion guidance and bridges the gap between semantics and kinematics; (2) the complementary designs of the Explicit Action Reasoner (EAR) and the Implicit Action Reasoner (IAR) provide trajectory-level and semantic-level guidance, respectively; (3) a teacher-forcing training strategy stabilizes training and prevents the reasoning module from interfering with the optimization of the action head; (4) action-level guidance greatly improves robustness and resistance to error accumulation on long-horizon tasks.
 **Comparison of different CoT paradigms**:
 
-|paradigm|intermediate representation|Advantages|limitations|
+|Paradigm|Intermediate representation|Advantages|Limitations|
 |------|---------|------|------|
-|**(a) Language CoT**|Subtask description|Strong interpretability|The semantic-action gap is large|
-|**(b) Vision CoT**|target image|Visually intuitive|Missing kinematic information|
-|**(c) Action CoT** (this article)|Coarse-grained action trajectories|Homogenized guidance, directly executable|Requires additional inference modules|
+|**(a) Language CoT**|Subtask description|Strong interpretability|Large semantic-action gap|
+|**(b) Vision CoT**|Goal image|Visually intuitive|Missing kinematic information|
+|**(c) Action CoT** (this paper)|Coarse action trajectory|Homogeneous guidance, directly executable|Requires extra inference modules|
 
-For details, see [ACoT-VLA paper Figure 1](https://arxiv.org/abs/2601.11404)
+See [ACoT-VLA paper Figure 1](https://arxiv.org/abs/2601.11404) for details.
 
 **Background and problem**
-Existing VLA models mainly perform reasoning in the visual-linguistic space (such as language CoT prediction subtask, visual CoT synthesis target image), but the guidance of action execution by these reasoning forms is indirect and suboptimal. VLM pretraining mainly focuses on semantic understanding rather than physical dynamics. Although world model can predict future visual states, it is still limited to visual representation. Both have a semantic-kinematic gap and are difficult to provide sufficient fine-grained guidance for accurate low-level action generation.
+Existing VLA models mainly reason in vision-language space (for example, language CoT predicts subtasks and visual CoT synthesizes goal images), but this kind of reasoning guides action execution only indirectly and suboptimally. VLM pretraining focuses on semantic understanding rather than physical dynamics. World models can predict future visual states, but remain confined to visual representations. Both suffer from a semantic-kinematic gap and struggle to provide enough fine-grained guidance for accurate low-level action generation.
 
 **Methods and innovations**
 
-This article proposes the **Action Chain-of-Thought (ACoT)** paradigm, which redefines the reasoning process as a structured sequence of action intentions and performs deliberation directly in the action space. The ACoT-VLA framework consists of three core components:
+This paper proposes the **Action Chain-of-Thought (ACoT)** paradigm, which recasts the reasoning process as a structured sequence of action intentions and deliberates directly in action space. The ACoT-VLA framework has three core components:
 
 **ACoT-VLA overall architecture** (three core modules):
 
 ```
-VLMFeatures ────┬─→ EAR (Explicit Action Reasoner)
-            │    ↓ Coarse-grained reference trajectories Z^ex
+VLM features ───┬─→ EAR (Explicit Action Reasoner)
+            │    ↓ coarse reference trajectory Z^ex
             │
 noisy action├─→ IAR (Implicit Action Reasoner)
             │    ↓ implicit action prior Z^im
             │
             └─→ AGP (Action-Guided Prediction)
-                 ↓ Fusion explicit+implicit guidance
+                 ↓ fuse explicit + implicit guidance
               final action prediction
 ```
 
-**detailed architecture diagram** see [ACoT-VLA paper Figure 2](https://arxiv.org/abs/2601.11404)
+For the detailed architecture diagram, see [ACoT-VLA paper Figure 2](https://arxiv.org/abs/2601.11404)
 
 **1. Explicit Action Reasoner (EAR)**
-- Designed as a lightweight Transformer, taking noisy action sequence as input
-- Capture timing dependencies through self-attention, and cross-attention inject multimodal context from the key-value cache of VLM
-- Use flow matching training to independently generate coarse-grained reference trajectories $$a^{ref}_{t:t+H^{ref}-1}$$
-- Reference trajectories are encoded to form explicit action space guidance $Z^{ex}$
+- A lightweight Transformer that takes a noisy action sequence as input
+- Captures temporal dependencies through self-attention, and injects multimodal context from the VLM's key-value cache through cross-attention
+- Trained with flow matching to independently generate a coarse reference trajectory $$a^{ref}_{t:t+H^{ref}-1}$$
+- The reference trajectory is encoded to form explicit action-space guidance $Z^{ex}$
 
 **2. Implicit Action Reasoner (IAR)**
-- Directly operate the key-value cache of VLM to extract implicit motion clues
-- For each layer of VLM features, use the learnable query matrix $Q_i$ to extract action-related information through cross-attention
-- Downsampling strategy reduces computational overhead: reduce the dimensionality of KV cache to $d' \ll d$
-- Implicit action guidance $Z^{im}$ is formed after cross-layer aggregation, capturing visual affordances and action semantics
+- Operates directly on the VLM's key-value cache to extract implicit motion cues
+- For each layer of VLM features, a learnable query matrix $Q_i$ extracts action-related information through cross-attention
+- A downsampling strategy reduces computational overhead: the KV cache dimension is reduced to $d' \ll d$
+- After cross-layer aggregation, this forms the implicit action guidance $Z^{im}$, capturing visual affordances and action semantics
 
 **3. Action-Guided Prediction (AGP)**
-- Treat noisy action embedding as query $Q_{action}$, with dual cross-attention with $Z^{ex}$ and $Z^{im}$
-- Fusion of explicit and implicit guidance through self-attention: $\bar{h} = \text{Self-Attn}([S^{ex}; S^{im}])$
-- The final action head $$\pi^{head}_\theta$$ predicts denoised action sequences based on aggregated representations
+- The noisy action embedding serves as the query $Q_{action}$ and attends to both $Z^{ex}$ and $Z^{im}$ through dual cross-attention
+- Explicit and implicit guidance are fused through self-attention: $\bar{h} = \text{Self-Attn}([S^{ex}; S^{im}])$
+- The final action head $$\pi^{head}_\theta$$ predicts the denoised action sequence from the aggregated representation
 
-**training strategy**:
-- Flow matching loss optimizes EAR and action head simultaneously
-- Teacher Forcing stabilization: $Z^{ex}$ is calculated directly from the ground-truth trajectory during training, and switches to self-conditioning mode during inference.
+**Training strategy**:
+- A flow-matching loss optimizes the EAR and the action head jointly
+- Teacher forcing for stabilization: during training, $Z^{ex}$ is computed directly from the ground-truth trajectory; at inference, it switches to self-conditioning
 
 **Results and findings**
 
-**simulation experiment**:
-- LIBERO: 98.5% average success rate (SOTA), 1.6% higher than π0.5, with the most significant improvement in LIBERO-Long (long time domain) (96.0% vs 92.4%)
-- LIBERO-Plus: 84.1%, significantly surpassed in the robustness test, especially in camera angle changes (+11.6%), robot initial state disturbance (+16.3%), and sensor noise (+12.5%).
-- VLABench: Intention Score 63.5%, Progress Score 47.4%, significant improvements of +12.6% IS and +7.2% PS on unseen-texture track
+**Simulation experiments**:
+- LIBERO: 98.5% average success rate (SOTA), 1.6% above π0.5, with the largest gain on LIBERO-Long (long-horizon) (96.0% vs 92.4%)
+- LIBERO-Plus: 84.1%, significantly ahead in robustness tests, especially under camera viewpoint changes (+11.6%), robot initial-state perturbations (+16.3%), and sensor noise (+12.5%)
+- VLABench: Intention Score 63.5% and Progress Score 47.4%, with significant gains of +12.6% IS and +7.2% PS on the unseen-texture track
 
-**Real world deployment**:
+**Real-world deployment**:
 
-- The average success rate on the AgiBot G1 robot is 66.7% (vs. 61.0% for π0.5 and 33.8% for π0)
-- Cross-embodiment verification: equally effective on the AgileX platform, proving the versatility of the method
+- Average success rate on the AgiBot G1 robot is 66.7% (vs. 61.0% for π0.5 and 33.8% for π0)
+- Cross-embodiment validation: equally effective on the AgileX platform, showing the generality of the method
 
-**Real-world experiment**: Evaluation of three operating tasks on the AgiBot G1 robot
+**Real-world experiments**: Evaluation of three manipulation tasks on the AgiBot G1 robot
 
 |Task|Description| ACoT-VLA | π₀.5 | π₀ |
 |------|------|----------|------|-----|
-|**Wipe stains**|Detect and remove desktop stains| 70.0% | 65.0% | 38.0% |
-|**pour water**|Grab the water bottle and pour it into the cup| 66.7% | 60.0% | 32.0% |
-|**open set crawl**|Grab unseen objects according to instructions| 63.3% | 58.0% | 31.5% |
+|**Wipe stains**|Detect and wipe off stains on the tabletop| 70.0% | 65.0% | 38.0% |
+|**Pour water**|Grasp the water bottle and pour it into the cup| 66.7% | 60.0% | 32.0% |
+|**Open-set grasping**|Grasp unseen objects according to instructions| 63.3% | 58.0% | 31.5% |
 |**Average success rate**| - | **66.7%** | 61.0% | 33.8% |
 
-**Key findings**: ACoT-VLA performs well on cross-embodiment platforms (AgiBot G1, AgileX), proving the versatility of action spatial reasoning.
+**Key findings**: ACoT-VLA performs well across embodiments (AgiBot G1, AgileX), showing the generality of action-space reasoning.
 
-For details, see [ACoT-VLA paper Table 3-4](https://arxiv.org/abs/2601.11404)
+See [ACoT-VLA paper Tables 3-4](https://arxiv.org/abs/2601.11404) for details.
 
-**ablation research key findings**:
-- EAR alone increases 1.4% (LIBERO), IAR alone increases 1.2%
-- The combined use of EAR+IAR achieves optimal results, proving the complementarity of explicit and implicit guidance.
-- The reference action horizon works best when it is 15-30, and it is not good if it is too long or too short.
-- The performance is optimal when the EAR parameter size is 300M. Over-parameterization will lead to over-fitting.
-- The inference delay only increases by about 20ms (91ms → 112ms), and the performance-efficiency trade-off is excellent
+**Key ablation findings**:
+- EAR alone improves performance by 1.4% (LIBERO), and IAR alone by 1.2%
+- Using EAR and IAR together gives the best results, showing that explicit and implicit guidance are complementary.
+- A reference action horizon of 15-30 works best; too long or too short is worse.
+- Performance is best with a 300M-parameter EAR; over-parameterization leads to overfitting.
+- Inference latency increases by only about 20 ms (91 ms → 112 ms), an excellent performance-efficiency trade-off
 
 **Limitations**
-This approach requires additional inference modules, which although has a relatively small computational overhead may present challenges on resource-constrained platforms. In addition, the current action representation still uses action chunks (joint angles/end effector poses) and lacks explicit geometric structures. In the future, action representation can be extended to a geometrically interpretable 3D space to further release the reasoning potential of ACoT.
+This approach requires extra inference modules; although their computational overhead is relatively small, they may pose challenges on resource-constrained platforms. In addition, the current action representation still uses action chunks (joint angles / end-effector poses) and lacks explicit geometric structure. In the future, the action representation could be extended to a geometrically interpretable 3D space to further unlock the reasoning potential of ACoT.
 
 ---
 ---
@@ -1311,140 +1311,140 @@ This approach requires additional inference modules, which although has a relati
 ## 15. VLM4VLA (2026)
 {: id="5-14-vlm4vla-2026"}
 **Subtitle**: Revisiting Vision-Language Models in Vision-Language-Action Models
-**Translated title**: Re-examining the vision-language model in the vision-language-action model
+**Translated title**: Re-examining the vision-language model in vision-language-action models
 
 📄 **Paper**: [arXiv:2601.03309](https://arxiv.org/abs/2601.03309)
 
 <div align="center">
-  <img src="/images/vla/vlm4vla_network.webp" alt="VLM4VLA minimal adaptation architecture diagram: introducing learnable Action Query Token to extract embodied knowledge from frozen VLM (Source: VLM4VLA Project)" width="1118" height="924" style="width: 90%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/vlm4vla_network.webp" alt="VLM4VLA minimal adaptation architecture: a learnable action query token is introduced to extract embodied knowledge from a frozen VLM (Source: VLM4VLA Project)" width="1118" height="924" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
-VLM4VLA minimal adaptation architecture diagram: introducing learnable Action Query Token to extract embodied knowledge from frozen VLM (Source: VLM4VLA Project)
+VLM4VLA minimal adaptation architecture: a learnable action query token is introduced to extract embodied knowledge from a frozen VLM (Source: VLM4VLA Project)
 </figcaption>
 </div>
 
 **Key takeaways**
 
-The core ideas worth learning from this paper include: fair evaluation of the impact of different VLMs on downstream task performance by minimizing the adaptation pipeline; finding that the general capabilities of VLM are not strongly related to embodied control performance, challenging common assumptions; identifying the visual encoder (rather than the language component) as the performance bottleneck, revealing the domain gap between VLM pretraining goals and embodied action planning requirements; and proposing a policy for continuous performance improvement by injecting control-related supervision signals into the visual encoder.
+The core ideas worth learning from this paper: it minimizes the adaptation pipeline to evaluate fairly how different VLMs affect downstream performance; it finds that a VLM's general capabilities are not strongly correlated with embodied control performance, challenging a common assumption; it identifies the visual encoder (rather than the language component) as the performance bottleneck, revealing a domain gap between VLM pretraining objectives and the requirements of embodied action planning; and it proposes a strategy for steady performance gains by injecting control-related supervision signals into the visual encoder.
 
 **Background and problem**
 
-Current Vision-Language-Action (VLA) model research mainly focuses on the improvement of network architecture, training paradigms and action decoding schemes, but rarely systematically studies a core issue: how the selection and capabilities of the underlying Vision-Language Model (VLM) affect the performance of the VLA policy. Existing work lacks a fair experimental framework to evaluate the contribution of different VLMs to downstream robotic task performance.
+Current research on vision-language-action (VLA) models focuses mainly on improving network architectures, training paradigms, and action decoding schemes, and rarely studies a core question systematically: how does the choice and capability of the underlying vision-language model (VLM) affect VLA policy performance? Existing work lacks a fair experimental framework for evaluating how much different VLMs contribute to downstream robot task performance.
 
 **Methods and innovations**
 
-The paper proposes the **VLM4VLA** framework, which is a minimal adaptation pipeline that converts general VLM to VLA policies by introducing less than 1% of new parameters to ensure fair and efficient comparison.
+The paper proposes the **VLM4VLA** framework, a minimal adaptation pipeline that converts a general VLM into a VLA policy by introducing less than 1% new parameters, enabling a fair and efficient comparison.
 
-**VLM4VLA Framework Overview**: Minimize the adaptation pipeline and fairly evaluate the impact of different VLMs on VLA performance
+**VLM4VLA framework overview**: A minimal adaptation pipeline for fairly evaluating how different VLMs affect VLA performance
 
-**evaluation process**:
-1. VLM backbone network selection (9 types including Qwen2.5VL, Paligemma, Kosmos-2, etc.)
-2. Optional auxiliary embodied task fine-tuning (visual pointing, depth estimation, etc.)
-3. Downstream control task evaluation (Calvin, SimplerEnv, Libero)
-4. Systematic analysis (general ability correlation, modal-level ablation, training strategy impact)
+**Evaluation pipeline**:
+1. VLM backbone selection (9 models, including Qwen2.5VL, Paligemma, and Kosmos-2)
+2. Optional fine-tuning on auxiliary embodied tasks (visual pointing, depth estimation, etc.)
+3. Evaluation on downstream control tasks (Calvin, SimplerEnv, Libero)
+4. Systematic analysis (correlation with general ability, modality-level ablation, impact of training strategy)
 
-For details, see [VLM4VLA paper Figure 1](https://arxiv.org/abs/2601.03309)
+See [VLM4VLA paper Figure 1](https://arxiv.org/abs/2601.03309) for details.
 
-**core architecture design**:
+**Core architecture design**:
 
-**VLM4VLA Network architecture**:
+**VLM4VLA network architecture**:
 
 ```
-image + language instructions
+Image + language instruction
     ↓
-[VLM Encoder] (Freeze or fine-tune)
+[VLM Encoder] (frozen or fine-tuned)
     ↓
-Action Query Token (can be learned,<1%parameters)
+Action Query Token (learnable, <1% of parameters)
     ↓
-[MLP Policy Head] (L1/L2 loss, non-diffusion)
+[MLP Policy Head] (L1/L2 loss, no diffusion)
     ↓
-action chunk output
+Action chunk output
 ```
 
-**Design Principles**: Minimize new parameters (<1%), use simple MLP instead of diffusion to ensure fair comparison.
+**Design principles**: Minimize new parameters (<1%) and use a simple MLP instead of diffusion to ensure a fair comparison.
 
-For details, see [VLM4VLA paper Figure 2](https://arxiv.org/abs/2601.03309)
+See [VLM4VLA paper Figure 2](https://arxiv.org/abs/2601.03309) for details.
 
-- Introducing the learnable **Action Query token** to extract embodied relevant knowledge from VLM
-- Use the simple **MLP-based policy head** decoding action to avoid the randomness introduced by diffusion/flow-matching
-- Use **L1/L2 loss** instead of diffusion loss to improve inference stability and evaluation robustness
-- All VLM parameters (vision encoder, LLM, word embeddings) are all trained during fine-tuning of downstream tasks
+- A learnable **action query token** extracts embodiment-relevant knowledge from the VLM
+- A simple **MLP policy head** decodes the actions, avoiding the randomness introduced by diffusion/flow matching
+- An **L1/L2 loss** replaces the diffusion loss to improve inference stability and evaluation robustness
+- All VLM parameters (vision encoder, LLM, word embeddings) are trained when fine-tuning on downstream tasks
 
-**Three-dimensional experimental design**:
+**Three-axis experimental design**:
 
-1. **General capability evaluation**: Compare the performance of 9 open source VLMs (1B-30B parameters) as VLA backbone networks, including Qwen2.5VL/Qwen3VL series, Paligemma series, Kosmos-2
-2. **Embodied specific ability assessment**: Use 7 auxiliary embodied tasks (visual grounding, depth estimation, trajectory prediction, etc.) to fine-tune VLM and test the impact on downstream control tasks
-3. **modal level ablation**: Freeze/fine-tune the vision and language encoders independently, and test the effect of injecting control-related information (FAST tokenizer) into the vision encoder
+1. **General capability evaluation**: Compare 9 open-source VLMs (1B-30B parameters) as VLA backbones, including the Qwen2.5VL/Qwen3VL series, the Paligemma series, and Kosmos-2
+2. **Embodiment-specific capability evaluation**: Fine-tune the VLM on 7 auxiliary embodied tasks (visual grounding, depth estimation, trajectory prediction, etc.) and test the effect on downstream control tasks
+3. **Modality-level ablation**: Freeze or fine-tune the vision and language encoders independently, and test the effect of injecting control-related information (the FAST tokenizer) into the vision encoder
 
-**Evaluation Benchmark**: Tested on three simulated environments
-- **Calvin ABC-D**: trained in ABC scene, tested in D scene (cross-scenario generalization)
-- **SimplerEnv-Bridge**: trained on real BridgeV2 data, tested in simulation environment
-- **Libero-Long**: 10 long-line-of-sight operation tasks
+**Evaluation benchmarks**: Tested in three simulated environments
+- **Calvin ABC-D**: trained on scenes A, B, and C and tested on scene D (cross-scene generalization)
+- **SimplerEnv-Bridge**: trained on real BridgeV2 data and tested in a simulated environment
+- **Libero-Long**: 10 long-horizon manipulation tasks
 
-**core found**:
+**Core findings**:
 
-**Core discovery: Correlation analysis of VLM general capabilities and VLA performance**
+**Core finding: correlation between VLM general capability and VLA performance**
 
-|Benchmark|VLM capability correlation coefficient|Conclusion|
+|Benchmark|Correlation of VLM capability with VLA performance|Conclusion|
 |---------|----------------|------|
-| **Calvin ABC-D** |r = 0.839 (strong positive correlation)|VLM general capabilities are helpful for cross-scenario generalization|
-| **SimplerEnv-Bridge** |r ≈ 0 (no correlation)|VLM general capabilities fail to predict control performance|
-| **Libero-Long** |r ≈ 0 (no correlation)|VLM general capabilities fail to predict control performance|
+| **Calvin ABC-D** |r = 0.839 (strong positive correlation)|A VLM's general capabilities help cross-scene generalization|
+| **SimplerEnv-Bridge** |r ≈ 0 (no correlation)|A VLM's general capabilities fail to predict control performance|
+| **Libero-Long** |r ≈ 0 (no correlation)|A VLM's general capabilities fail to predict control performance|
 
-**Enlightenment**: VLM pretraining is necessary but not sufficient, and general VQA capabilities are not equivalent to embodied control capabilities.
+**Takeaway**: VLM pretraining is necessary but not sufficient; general VQA ability is not equivalent to embodied control ability.
 
-For details, see [VLM4VLA paper Figure 3](https://arxiv.org/abs/2601.03309)
+See [VLM4VLA paper Figure 3](https://arxiv.org/abs/2601.03309) for details.
 
-1. **VLM general capabilities are necessary but insufficient**: VLM initialization provides consistency gains compared to training from scratch, but VLM’s general VQA capabilities cannot predict its performance on embodied control tasks
-2. **The effect of fine-tuning on auxiliary embodied tasks is limited**: Fine-tuning VLM on tasks such as visual pointing, spatial understanding, and embedded VQA did not improve the downstream control performance, and even decreased slightly.
+1. **A VLM's general capabilities are necessary but not sufficient**: VLM initialization gives consistent gains over training from scratch, but a VLM's general VQA ability does not predict its performance on embodied control tasks
+2. **Fine-tuning on auxiliary embodied tasks has limited effect**: Fine-tuning the VLM on tasks such as visual pointing, spatial understanding, and embodied VQA did not improve downstream control performance, and even lowered it slightly.
 
-**Assisted Embodied Task Fine-tuning Effect**: Surprising Discovery
+**Effect of fine-tuning on auxiliary embodied tasks**: a surprising finding
 
-|Auxiliary tasks|theoretical expectation|Actual effect|
+|Auxiliary task|Expected effect|Actual effect|
 |---------|---------|---------|
-| Visual Pointing |✅ Spatial understanding should be improved|❌ Performance is slightly degraded|
-| Depth Estimation |✅ Should enhance 3D perception|❌ Performance is slightly degraded|
-| Trajectory Prediction |✅ Action planning should be improved|❌ Performance is slightly degraded|
-| Embodied VQA |✅ Embodied understanding should be strengthened|❌ Performance is slightly degraded|
+| Visual pointing |✅ Spatial understanding should improve|❌ Performance slightly degraded|
+| Depth estimation |✅ 3D perception should improve|❌ Performance slightly degraded|
+| Trajectory prediction |✅ Action planning should improve|❌ Performance slightly degraded|
+| Embodied VQA |✅ Embodied understanding should improve|❌ Performance slightly degraded|
 
-**Conclusion**: Assisted embodied task fine-tuning failed to improve downstream control performance, and even had a slight negative impact. This challenges the common assumption that embodied pretraining is beneficial.
+**Conclusion**: Fine-tuning on auxiliary embodied tasks failed to improve downstream control performance and even had a slight negative effect. This challenges the common assumption that embodied pretraining is beneficial.
 
-For details, see [VLM4VLA paper Figure 4](https://arxiv.org/abs/2601.03309)
+See [VLM4VLA paper Figure 4](https://arxiv.org/abs/2601.03309) for details.
 
-3. **Vision encoder is the key bottleneck**: Freezing the visual encoder causes significant performance degradation (1.0-3.0 points on Calvin), while freezing word embeddings has almost no impact
-4. **There is a semantic gap between visual-language understanding and low-level control**: By injecting the action token prediction task into the vision encoder, a +18.1% performance improvement can be obtained even if the encoder is frozen, proving that there is a fundamental misalignment between VLM visual features and control requirements
+3. **The vision encoder is the key bottleneck**: Freezing the vision encoder causes a significant performance drop (1.0-3.0 points on Calvin), while freezing the word embeddings has almost no effect
+4. **A semantic gap separates vision-language understanding from low-level control**: Injecting an action-token prediction task into the vision encoder yields a +18.1% improvement even when the encoder is frozen, showing a fundamental misalignment between VLM visual features and control requirements
 
-**VLM and VLA training trajectories are different**:
+**VLM and VLA training trajectories differ**:
 
 ```
-parameter space
+Parameter space
 
-VLMTask optimal area ←──────┐
-                      │ point of divergence
+VLM-task optimum ←──────┐
+                      │ divergence point
        common starting point ──→ ○ ────┘
                       │
-VLATask optimal area ←──────┘
+VLA-task optimum ←──────┘
 ```
 
 **Key insights**:
-- VLM and VLA learn in the same direction in the early stages of training (shared visual-language understanding)
-- But at a certain point in time, they diverge and move towards different optimal areas.
-- This explains why freezing the vision encoder causes performance degradation
-- Visual-verbal understanding is fundamentally different from low-level control
+- VLM and VLA learn in the same direction early in training (shared vision-language understanding)
+- At some point, however, they diverge and move toward different optima.
+- This explains why freezing the vision encoder degrades performance
+- Vision-language understanding is fundamentally different from low-level control
 
-For details, see [VLM4VLA paper Figure 5](https://arxiv.org/abs/2601.03309)
+See [VLM4VLA paper Figure 5](https://arxiv.org/abs/2601.03309) for details.
 
 **Results and findings**
 
-- **Calvin ABC-D**: Qwen3VL-2B reaches the best performance (average completion of 4.142 tasks), close to SOTA VLA (pi0: 3.509)
-- **SimplerEnv-Bridge**: The smallest Kosmos-2 (1.7B) achieves the highest success rate (60.4%), surpassing the larger Qwen series models
-- **Libero-Long**: Qwen3VL-2B and Kosmos-2 both achieve 55%+ success rate, better than other VLMs
-- **Scratch training performance**: The performance of the model without VLM pretraining drops by 60-70%, proving that VLM pretraining is crucial for VLA generalization
-- **Real-to-Sim gap is not the main reason**: After fine-tuning the action prediction task of VLM on real images, freezing the vision encoder still leads to performance degradation, indicating that the problem stems from the essential difference between visual-language tasks and low-level control tasks
-- **Vision encoder fine-tuning necessity**: On the SimplerEnv-Bridge task, unfreezing the vision encoder and injecting control information improves the performance from 27.6% to 45.7% (+18.1%)
+- **Calvin ABC-D**: Qwen3VL-2B achieves the best performance (an average of 4.142 tasks completed), close to SOTA VLAs (pi0: 3.509)
+- **SimplerEnv-Bridge**: The smallest model, Kosmos-2 (1.7B), achieves the highest success rate (60.4%), surpassing larger Qwen models
+- **Libero-Long**: Qwen3VL-2B and Kosmos-2 both reach success rates above 55%, better than the other VLMs
+- **Training from scratch**: Without VLM pretraining, performance drops by 60-70%, showing that VLM pretraining is crucial for VLA generalization
+- **The real-to-sim gap is not the main cause**: After fine-tuning the VLM on action prediction with real images, freezing the vision encoder still degrades performance, indicating that the problem stems from the essential difference between vision-language tasks and low-level control tasks
+- **Vision encoder fine-tuning is necessary**: On SimplerEnv-Bridge, unfreezing the vision encoder and injecting control information raises performance from 27.6% to 45.7% (+18.1%)
 
 **Limitations**
 
-The research did not conduct experiments on physical robots, mainly due to considerations of fairness and repeatability. Although analysis shows that the VLM-VLA gap stems from task heterogeneity rather than a simple sim-to-real gap, real-world deployment is still the ultimate goal. The paper's comprehensive simulation benchmark results can provide a valuable reference for future research.
+The study ran no experiments on physical robots, mainly for reasons of fairness and repeatability. Although the analysis suggests that the VLM-VLA gap stems from task heterogeneity rather than a simple sim-to-real gap, real-world deployment remains the ultimate goal. The paper's comprehensive simulation benchmark results can serve as a valuable reference for future research.
 
 ---
 <span id="516-twinbrainvla-2026-5-15-twinbrain-vla-2026" class="vla-anchor-alias" aria-hidden="true"></span>
@@ -1452,129 +1452,129 @@ The research did not conduct experiments on physical robots, mainly due to consi
 ## 16. TwinBrainVLA (2026)
 {: id="5-15-twinbrain-vla-2026"}
 **Subtitle**: Unleashing VLM Potential in Embodied Tasks via Asymmetric Dual-Transformer Mixture
-**Translated title**: Unleashing the potential of general-purpose VLM in embodied tasks through an asymmetric dual-Transformer hybrid mechanism
+**Translated title**: Unleashing the potential of general-purpose VLMs in embodied tasks through an asymmetric dual-Transformer mixture
 
 📄 **Paper**: [arXiv:2601.14133](https://arxiv.org/abs/2601.14133)
 
 <div align="center">
-  <img src="/images/vla/twinbrain_framework.webp" alt="TwinBrainVLA: An asymmetric dual-stream architecture that simulates the division of labor between the left and right brains. The Left Brain is responsible for semantic anchors and the Right Brain is responsible for action reasoning (Source: TwinBrainVLA Project)" width="541" height="491" style="width: 90%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/twinbrain_framework.webp" alt="TwinBrainVLA: an asymmetric dual-stream architecture that mimics the division of labor between the left and right brain. The Left Brain provides semantic anchoring and the Right Brain handles action reasoning (Source: TwinBrainVLA Project)" width="541" height="491" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
-TwinBrainVLA: An asymmetric dual-stream architecture that simulates the division of labor between the left and right brains. The Left Brain is responsible for semantic anchors and the Right Brain is responsible for action reasoning (Source: TwinBrainVLA Project)
+TwinBrainVLA: an asymmetric dual-stream architecture that mimics the division of labor between the left and right brain. The Left Brain provides semantic anchoring and the Right Brain handles action reasoning (Source: TwinBrainVLA Project)
 </figcaption>
 </div>
 
 **Key takeaways**
 
-This paper shows how to solve the catastrophic forgetting problem in the VLA model through structured decoupling. The core ideas worth learning include: using a dual-stream architecture to separate high-level semantic understanding and low-level motion control, retaining pretraining knowledge by freezing the "generalist" branch while training the "specialist" branch to learn embodied skills, using an asymmetric attention mechanism to achieve knowledge transfer without destroying the original ability, and using Flow-Matching to generate continuous actions instead of discrete tokenization. This "left- and right-brain" design philosophy provides a new paradigm for building universal robots that possess both cognitive abilities and physical dexterity.
+This paper shows how to solve catastrophic forgetting in VLA models through structured decoupling. The core ideas worth learning: a dual-stream architecture separates high-level semantic understanding from low-level motor control; the "generalist" branch is frozen to retain pretrained knowledge while the "specialist" branch learns embodied skills; an asymmetric attention mechanism transfers knowledge without destroying the original abilities; and flow matching generates continuous actions instead of discrete tokenization. This "left brain / right brain" design philosophy offers a new paradigm for building general-purpose robots with both cognitive ability and physical dexterity.
 
 **Background and problem**
 
-The current Vision-Language-Action (VLA) model usually directly fine-tunes the pretraining Vision-Language Model (VLM) for robot control tasks. However, this approach has a fundamental conflict between maintaining high-level semantic understanding and learning low-level fine motor skills, leading to "catastrophic forgetting" - the model sacrifices its original open-world language capabilities and visual reasoning capabilities to adapt to robot manipulations.
+Current vision-language-action (VLA) models usually fine-tune a pretrained vision-language model (VLM) directly for robot control. However, this approach has a fundamental conflict between maintaining high-level semantic understanding and learning low-level fine motor skills, leading to "catastrophic forgetting": the model sacrifices its original open-world language and visual reasoning abilities to adapt to robot manipulation.
 
 **Methods and innovations**
 
-**Vanilla VLA and TwinBrainVLA architecture comparison**:
+**Comparison of a vanilla VLA and TwinBrainVLA architectures**:
 
-|Architecture|VLM use|catastrophic forgetting|proprioception|Performance|
+|Architecture|VLM usage|Catastrophic forgetting|Proprioception|Performance|
 |------|---------|-----------|---------|------|
-| **Vanilla VLA** |Single VLM fine-tuning|✅ Serious|❌ Limited|⚠️ Medium|
-| **TwinBrainVLA** |Dual VLM (frozen + trainable)|❌Avoid|✅ Specially coded|✅ Excellent|
+| **Vanilla VLA** |Single VLM, fine-tuned|✅ Severe|❌ Limited|⚠️ Medium|
+| **TwinBrainVLA** |Dual VLM (frozen + trainable)|❌ Avoided|✅ Dedicated encoding|✅ Excellent|
 
-The paper proposes TwinBrainVLA, a dual-stream VLA architecture inspired by hemispheric lateralization, to achieve joint robot control by coordinating "generalist VLM" and "embodied specialist VLM":
+The paper proposes TwinBrainVLA, a dual-stream VLA architecture inspired by hemispheric lateralization, which coordinates a "generalist VLM" and an "embodied specialist VLM" for joint robot control:
 
-**1. Asymmetric Dual-VLM Backbone Network (Asymmetric Dual-VLM Backbone)**
+**1. Asymmetric dual-VLM backbone**
 
-- **Left Brain (Left Brain - Generalist)**: Frozen pretraining VLM, retaining open world knowledge and command following ability. Input contains only visual and language tokens: `H⁰_L = [V(I); T(T)]`
+- **Left Brain (generalist)**: A frozen pretrained VLM that retains open-world knowledge and instruction-following ability. Its input contains only visual and language tokens: `H⁰_L = [V(I); T(T)]`
 
-- **Right Brain**: Trainable VLM, specifically for embodied movement control. Input fused visual, language and proprioceptive state information: `H⁰_R = [V(I); T(T); φ(s)]`, where φ is a lightweight MLP State Encoder that projects the robot state s (joint angle, end effector pose, etc.) into the VLM embedding space
+- **Right Brain**: A trainable VLM dedicated to embodied motor control. Its input fuses visual, language, and proprioceptive state information: `H⁰_R = [V(I); T(T); φ(s)]`, where φ is a lightweight MLP state encoder that projects the robot state s (joint angles, end-effector pose, etc.) into the VLM embedding space
 
-**2. AsyMoT mechanism (Asymmetric Mixture-of-Transformers)**
+**2. The AsyMoT mechanism (Asymmetric Mixture-of-Transformers)**
 
 **TwinBrainVLA framework and AsyMoT mechanism**:
 
 ```
-Left Brain (freeze generalistVLM)          Right Brain (Trainable professionalsVLM)
+Left Brain (frozen generalist VLM)          Right Brain (trainable specialist VLM)
   [V; T]                           [V; T; φ(s)]
-     ↓ independentSelf-Attn                    ↓ AsyMoT
-  H_L (Semantic features) ─────sg───→ [K_L; K_R] ← Q_R
+     ↓ independent self-attention              ↓ AsyMoT
+  H_L (semantic features) ─────sg───→ [K_L; K_R] ← Q_R
                               [V_L; V_R]
                                    ↓
-                            Fusion features H_R
+                            Fused features H_R
                                    ↓
                           Flow-Matching Action Expert
                                    ↓
                               Continuous action output
 ```
 
-**AsyMoT core mechanism**:
-1. Left Brain runs independently and retains pretraining capabilities
-2. Right Brain's Query attend to the Key-Value of the double branch (via stop-gradient)
-3. Implement knowledge transfer without destroying original semantic anchors
+**Core AsyMoT mechanism**:
+1. The Left Brain runs independently and retains its pretrained capabilities
+2. The Right Brain's queries attend to the keys and values of both branches (via stop-gradient)
+3. Knowledge is transferred without destroying the original semantic anchor
 
-For details, see [TwinBrainVLA paper Figure 2](https://arxiv.org/abs/2601.14133)
+See [TwinBrainVLA paper Figure 2](https://arxiv.org/abs/2601.14133) for details.
 
-The core innovation lies in the dual-stream interaction method:
+The core innovation is the way the two streams interact:
 
-- **Left Brain**: Keep frozen, run the self-attention mechanism independently to retain pretraining capabilities
+- **Left Brain**: Kept frozen; it runs self-attention independently to retain its pretrained capabilities
   ```
   H^(l+1)_L = Attn(Q^l_L, K^l_L, V^l_L) + FFN(H^l_L)
   ```
 
-- **Right Brain**: Trainable, using Asymmetric Joint Attention - Query comes from Right Brain, and Key and Value are constructed by splicing two branches:
+- **Right Brain**: Trainable, using asymmetric joint attention: queries come from the Right Brain, while keys and values are formed by concatenating the two branches:
   ```
   K_joint = [sg(K^l_L); K^l_R]
   V_joint = [sg(V^l_L); V^l_R]
   H^(l+1)_R = Softmax(Q^l_R(K_joint)^T / √d_k) V_joint + FFN(H^l_R)
   ```
 
-Here, sg(·) represents the stop-gradient operation, ensuring that the Left Brain serves as a stable "semantic anchor" to provide high-level reasoning features, while the Right Brain dynamically integrates these semantics and fine proprioceptive cues to reason about spatial actions.
+Here, sg(·) denotes the stop-gradient operation, which ensures the Left Brain acts as a stable "semantic anchor" supplying high-level reasoning features, while the Right Brain dynamically integrates these semantics with fine-grained proprioceptive cues to reason about spatial actions.
 
-**3. Flow-Matching Action Expert**
+**3. Flow-matching action expert**
 
-- Adopts Diffusion Transformer (DiT) architecture and generates high-precision continuous control signals through flow matching training strategy, surpassing the discrete tokenization paradigm
+- Adopts a Diffusion Transformer (DiT) architecture and generates high-precision continuous control signals through a flow-matching training strategy, going beyond the discrete tokenization paradigm
 
-- The key difference is the source of the condition: using the spatially rich representation H_R of the trainable Right Brain to inject DiT via cross-attention
+- The key difference is the source of the condition: the spatially rich representation H_R of the trainable Right Brain is injected into the DiT through cross-attention
 
-- Flow-Matching loss function:
+- Flow-matching loss function:
   ```
   L_FM(ψ) = E_{t,a₀,a₁}[||v_ψ(a_t, t, H_R) - (a₁ - a₀)||²]
   ```
 
 **4. Asymmetric training strategy**
 
-- Training target: `L_total = L_FM(θ_R, ψ, φ; D_robot)`, only using robot action loss, without mixing general vision-language datasets
+- Training objective: `L_total = L_FM(θ_R, ψ, φ; D_robot)`, using only the robot action loss, without mixing in general vision-language datasets
 
-- Parameter update policy: Strictly freeze Left Brain parameters `∇θ_L = 0`, gradients are only propagated in Right Brain (θ_R), Action Expert (ψ) and State Encoder (φ)
+- Parameter update policy: The Left Brain parameters are strictly frozen (`∇θ_L = 0`); gradients propagate only through the Right Brain (θ_R), the action expert (ψ), and the state encoder (φ)
 
-- In the AsyMoT fusion layer, the gradient flow from Left Brain is explicitly blocked through stop-gradient to ensure that it serves as a stable semantic anchor and is not disturbed by the high variance gradient of the robot control task.
+- In the AsyMoT fusion layers, the gradient flow from the Left Brain is explicitly blocked by stop-gradient, so that it remains a stable semantic anchor undisturbed by the high-variance gradients of the robot control task.
 
-Summary of main innovations:
-- The first VLA architecture to explicitly decouple general semantic understanding and embodied perception through an asymmetric dual-stream design
-- The AsyMoT mechanism realizes information exchange and joint training of two isomorphic VLM paths.
-- Structured immunity catastrophic forgetting - Right Brain focuses on controlling dynamics, Left Brain implicitly protects language and semantic priors
+Main innovations:
+- The first VLA architecture to explicitly decouple general semantic understanding from embodied perception through an asymmetric dual-stream design
+- The AsyMoT mechanism enables information exchange and joint training between two isomorphic VLM pathways.
+- Structural immunity to catastrophic forgetting: the Right Brain focuses on control dynamics, while the Left Brain implicitly protects language and semantic priors
 
 **Results and findings**
 
 **SimplerEnv Benchmark** (WidowX Robot):
-- TwinBrainVLA + Qwen3-VL-4B-Instruct reaches the average success rate of **62.0%**, surpassing the strongest baseline Isaac-GR00T-N1.6 (57.1%) **4.9 percentage points**
+- TwinBrainVLA + Qwen3-VL-4B-Instruct reaches an average success rate of **62.0%**, surpassing the strongest baseline Isaac-GR00T-N1.6 (57.1%) by **4.9 percentage points**
 - TwinBrainVLA + Qwen2.5-VL-3B-Instruct reaches **58.4%**, also surpassing all baseline methods
-- Achieve 83.3% on the "Put Eggplant in Yellow Basket" task, demonstrating strong object manipulation abilities
+- Achieves 83.3% on the "Put Eggplant in Yellow Basket" task, demonstrating strong object manipulation ability
 
-**RoboCasa benchmark** (GR1 robot desktop operation, 24 tasks):
-- TwinBrainVLA + Qwen3-VL-4B-Instruct reaches the average success rate of **54.6%**, significantly exceeding:
+**RoboCasa benchmark** (GR1 robot tabletop manipulation, 24 tasks):
+- TwinBrainVLA + Qwen3-VL-4B-Instruct reaches an average success rate of **54.6%**, significantly exceeding:
   - Isaac-GR00T-N1.6 (47.6%) **+7.0%**
   - QwenGR00T (47.8%) **+6.8%**
   - QwenPI (43.9%) **+10.7%**
-- Demonstrate excellent fine manipulation skills in complex desktop scenarios and verify the effectiveness of decoupled semantic understanding and embodied perception
+- Shows excellent fine manipulation in complex tabletop scenes and validates the effectiveness of decoupling semantic understanding from embodied perception
 
 **Key findings**:
-- Despite not undergoing large-scale robot action pretraining, TwinBrainVLA achieved SOTA performance in both benchmarks
-- The dual-brain architecture exhibits strong generalization across different VLM families (Qwen2.5-VL and Qwen3-VL)
-- Explicitly retain the comprehensive visual understanding capabilities of pretraining VLM while achieving superior operational performance
+- Even without large-scale robot action pretraining, TwinBrainVLA achieves SOTA performance on both benchmarks
+- The dual-brain architecture generalizes well across different VLM families (Qwen2.5-VL and Qwen3-VL)
+- Explicitly retains the broad visual understanding of the pretrained VLM while achieving superior manipulation performance
 
 **Limitations**
 
-The current implementation requires that Left Brain and Right Brain share the same model architecture to ensure compatible hidden state dimensions. Future research directions include: exploring a more decoupled model architecture (such as supporting heterogeneous backbone through learnable projection layers), integrating specialized embodied VLM checkpoints to initialize Right Brain, extending to complete OXE data set training to fully utilize the capacity of the dual-stream architecture, and evaluating in a wider range of benchmarks and real robot scenarios.
+The current implementation requires the Left Brain and Right Brain to share the same architecture so that their hidden-state dimensions are compatible. Future directions include: exploring more decoupled architectures (such as supporting heterogeneous backbones through learnable projection layers), initializing the Right Brain from specialized embodied VLM checkpoints, extending training to the full OXE dataset to make full use of the dual-stream architecture's capacity, and evaluating on a wider range of benchmarks and real-robot scenarios.
 
 ---
 
@@ -1587,117 +1587,117 @@ The current implementation requires that Left Brain and Right Brain share the sa
 📄 **Paper**: https://arxiv.org/abs/2601.02456
 
 <div align="center">
-  <img src="/images/vla/internvla_a1_teaser.webp" alt="InternVLA-A1 architecture diagram: Unified understanding, generation and action architecture based on MoT (Source: InternVLA-A1 Project)" width="1326" height="868" style="width: 90%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/internvla_a1_teaser.webp" alt="InternVLA-A1 architecture: a unified understanding, generation, and action architecture based on MoT (Source: InternVLA-A1 Project)" width="1326" height="868" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
-InternVLA-A1 architecture diagram: Unified understanding, generation and action architecture based on MoT (Source: InternVLA-A1 Project)
+InternVLA-A1 architecture: a unified understanding, generation, and action architecture based on MoT (Source: InternVLA-A1 Project)
 </figcaption>
 </div>
 
 **Key takeaways**
 
-The core innovation of InternVLA-A1 is to unify semantic understanding, visual foresight and action execution into a single Mixture-of-Transformers (MoT) framework, using "imagine the future" to guide current actions, which is especially suitable for dynamic scenes. Its hierarchical data pyramid (synthetic simulation data + real data mixed pretraining) effectively bridges the sim-to-real gap and is worth learning from VLA researchers. The introduction of Generation Expert allows the model to internalize the causal relationship between actions and environmental dynamics by jointly training visual prediction and action prediction goals, which is a key design to improve dynamic robustness. As an action decoder, Flow Matching not only retains the semantic understanding capabilities of MLLM, but also obtains fine modeling of multimodal action distribution.
+The core innovation of InternVLA-A1 is to unify semantic understanding, visual foresight, and action execution in a single Mixture-of-Transformers (MoT) framework, using "imagining the future" to guide current actions, which is especially suited to dynamic scenes. Its hierarchical data pyramid (mixed pretraining on synthetic simulation data and real data) effectively bridges the sim-to-real gap and is worth learning from for VLA researchers. The Generation Expert lets the model internalize the causal relationship between actions and environment dynamics by jointly training the visual prediction and action prediction objectives, a key design for dynamic robustness. As the action decoder, flow matching both preserves the MLLM's semantic understanding and gives a fine-grained model of the multimodal action distribution.
 
 ---
 
 **Background and problem**
 
-Mainstream VLA models (such as π₀, GR00T N1.5) are built based on MLLM and have strong semantic understanding capabilities, but essentially lack the ability to reason about the dynamics of the physical world - they perform reactive perception-to-action mapping rather than predicting how the state will evolve. Although existing video prediction methods that introduce World Model (such as VPP, Genie Envisioner) can predict future observations, they have weak semantic grounding and are sensitive to prediction errors. The goal of this paper is to build a unified architecture that can tightly couple semantic understanding and dynamic prediction at the same time.
+Mainstream VLA models (such as π₀ and GR00T N1.5) are built on MLLMs and have strong semantic understanding, but essentially lack the ability to reason about the dynamics of the physical world: they perform reactive perception-to-action mapping rather than predicting how the state will evolve. Existing methods that bring in world models through video prediction (such as VPP and Genie Envisioner) can predict future observations, but their semantic grounding is weak and they are sensitive to prediction errors. This paper aims to build a unified architecture that tightly couples semantic understanding with dynamics prediction.
 
 ---
 
 **Methods and innovations**
 
-InternVLA-A1 uses the **Mixture-of-Transformers (MoT)** architecture to coordinate the work of three expert modules:
+InternVLA-A1 uses a **Mixture-of-Transformers (MoT)** architecture to coordinate three expert modules:
 
 **(1) Understanding Expert**
-Directly reuse the existing MLLM architecture (InternVL3-1B or Qwen3-VL-2.13B), process multi-view observations `o_t` through the ViT visual encoder, process language instructions `l` through the text Tokenizer, and splice the two into prefix tokens `h_und` to provide semantic context for downstream experts.
+Reuses an existing MLLM architecture directly (InternVL3-1B or Qwen3-VL-2.13B): a ViT visual encoder processes the multi-view observations `o_t`, a text tokenizer processes the language instruction `l`, and the two are concatenated into prefix tokens `h_und` that provide semantic context for the downstream experts.
 
 **(2) Generation Expert**
-Inspired by Janus Pro, the **decoupled visual encoding** policy is used - ViT (high-level semantics) is used for understanding, and VAE (pixel-level fidelity) is used for generation. Specifically, the Cosmos CI8×8 continuous VAE tokenizer is used to encode the input image into latent features `z_t`, and then the spatial dimension is compressed to 4×4 (only 16 tokens per frame) through the convolutional layer. The Transformer latent dimension is aligned and sent to the generation expert. The generation expert predicts the latent `ẑ_{t+m}` of the future frame based on the historical frame `z_{t-m}` and the current frame `z_t`, taking `h_und` as the condition, and finally reconstructs the predicted image through deconvolution and Cosmos decoder.
+Inspired by Janus Pro, it uses a **decoupled visual encoding** strategy: the ViT (high-level semantics) is used for understanding and a VAE (pixel-level fidelity) for generation. Specifically, a Cosmos CI8×8 continuous VAE tokenizer encodes the input image into latent features `z_t`, and a convolutional layer then compresses the spatial dimensions to 4×4 (only 16 tokens per frame). After alignment to the Transformer latent dimension, these are sent to the generation expert. Conditioned on `h_und`, the generation expert predicts the latent `ẑ_{t+m}` of the future frame from the historical frame `z_{t-m}` and the current frame `z_t`, and the predicted image is finally reconstructed through deconvolution and the Cosmos decoder.
 
 <div align="center">
-  <img src="/images/vla/InternVLA-A1-architecture.webp" alt="InternVLA-A1 architecture details: Three experts interact through Unified Masked Self-Attention to understand the semantic context of the expert's output and generate expert predictions of future visual states. The action expert generates control instructions based on the two." width="1330" height="952" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/InternVLA-A1-architecture.webp" alt="InternVLA-A1 architecture details: the three experts interact through unified masked self-attention. The understanding expert outputs semantic context, the generation expert predicts future visual states, and the action expert generates control commands based on both." width="1330" height="952" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-InternVLA-A1 architecture details: Three experts interact through Unified Masked Self-Attention to understand the semantic context of the expert's output and generate expert predictions of future visual states. The action expert generates control instructions based on the two.
+InternVLA-A1 architecture details: the three experts interact through unified masked self-attention. The understanding expert outputs semantic context, the generation expert predicts future visual states, and the action expert generates control commands based on both.
 </figcaption>
 </div>
 
 **(3) Action Expert**
-Conditional on the language target `l`, the current observation (via `h_und`), the proprioceptive `q_t` and the generation expert's predicted latent `ẑ_{t+m}`, the target prediction action chunk is predicted using **Flow Matching** `â_{t:t+k}`. Starting from Gaussian noise during sampling, the target action is obtained by solving the ODE through the Euler iteration method.
+Conditioned on the language goal `l`, the current observation (via `h_und`), the proprioceptive state `q_t`, and the latent `ẑ_{t+m}` predicted by the generation expert, the action expert predicts the target action chunk `â_{t:t+k}` with **flow matching**. Sampling starts from Gaussian noise, and the target actions are obtained by solving the ODE with Euler iteration.
 
-**(4)Unified Masked Self-Attention**
-Implement block attention masks for information flow between three experts: cumulative segment masks ensure one-way transmission of information flow (understanding → generation → action); prefix blocks (visual + language) are completely bidirectional; generation blocks are fully bidirectional and only receive Cosmos latent tokens; action chunks are divided into state tokens (only focus on itself and earlier blocks) and action tokens (pay attention to each other).
+**(4) Unified masked self-attention**
+Block attention masks govern information flow among the three experts: cumulative segment masks ensure one-way flow (understanding → generation → action); the prefix block (vision + language) is fully bidirectional; the generation block is fully bidirectional and receives only Cosmos latent tokens; the action chunk is split into state tokens (which attend only to themselves and earlier blocks) and action tokens (which attend to one another).
 
-**(5) Optimization target**
+**(5) Optimization objective**
 Jointly optimize two goals:
 
-- **visual foresight generates**:
+- **Visual foresight generation**:
 
 $$\mathcal{L}_{\text{gen}} = \mathbb{E}\left[\|f_{\text{gen}}(z_{t-m}, z_t; h_{\text{und}}) - \text{sg}[z_{t+m}]\|^2\right]$$
 
-- **Flow Matching action prediction**:
+- **Flow-matching action prediction**:
 
 $$\mathcal{L}_{\text{action}} = \mathbb{E}\left[\|v_\theta(l, \{o_i\}_{i=t-m}^t, q_t, a_{t:t+k}^\tau) - (a_{t:t+k} - \epsilon)\|^2\right]$$
 
-- **total loss** (including $\lambda = 0.01$):
+- **Total loss** (with $\lambda = 0.01$):
 
 $$\mathcal{L}_{\text{total}} = \lambda \cdot \mathcal{L}_{\text{gen}} + \mathcal{L}_{\text{action}}$$
 
 **(6) Hierarchical data pyramid**
 
 <div align="center">
-  <img src="/images/vla/InternVLA-A1-data-pyramid.webp" alt="Hierarchical data pyramid: the bottom layer is large-scale open source demonstration data (AgiBot-World), the middle layer is simulation synthetic data (InternData-A1), and the top layer is special real data" width="1187" height="636" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/InternVLA-A1-data-pyramid.webp" alt="Hierarchical data pyramid: the bottom layer is large-scale open-source demonstration data (AgiBot-World), the middle layer is synthetic simulation data (InternData-A1), and the top layer is specialized real-world data" width="1187" height="636" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-Hierarchical data pyramid: the bottom layer is large-scale open source demonstration data (AgiBot-World), the middle layer is simulation synthetic data (InternData-A1), and the top layer is special real data
+Hierarchical data pyramid: the bottom layer is large-scale open-source demonstration data (AgiBot-World), the middle layer is synthetic simulation data (InternData-A1), and the top layer is specialized real-world data
 </figcaption>
 </div>
 
-pretraining data mixing recipe (total 533M+ frame):
-- InternData-A1 (ARX Lift-2): 96M frame (18%)
-- InternData-A1 (AgileX): 122.5M frame (23%)
-- InternData-A1 (Franka): 90.5M frame (17%)
-- InternData-A1 (Genie-1): 16M frame (3%)
-- AgiBot-World (Beta): 208M frame (39%)
+Pretraining data mixture (533M+ frames in total):
+- InternData-A1 (ARX Lift-2): 96M frames (18%)
+- InternData-A1 (AgileX): 122.5M frames (23%)
+- InternData-A1 (Franka): 90.5M frames (17%)
+- InternData-A1 (Genie-1): 16M frames (3%)
+- AgiBot-World (Beta): 208M frames (39%)
 
-After pretraining, use a small amount of special real data to perform post-training fine-tuning to adapt to the target deployment environment.
+After pretraining, a small amount of specialized real data is used for post-training fine-tuning to adapt to the target deployment environment.
 
 **(7) Model scale**
-- InternVLA-A1 (2B): Understanding=InternVL3 (0.94B) + Gen/Act=Qwen2.5 (0.36B each), 1.8B in total
-- InternVLA-A1 (3B): Understanding=Qwen3-VL (2.13B) + Gen/Act=Qwen3 (0.44B each), 3.2B in total
-- Inference speed: ~13 Hz both (NVIDIA RTX 4090)
+- InternVLA-A1 (2B): Understanding = InternVL3 (0.94B) + Gen/Act = Qwen2.5 (0.36B each), 1.8B in total
+- InternVLA-A1 (3B): Understanding = Qwen3-VL (2.13B) + Gen/Act = Qwen3 (0.44B each), 3.2B in total
+- Inference speed: about 13 Hz for both (NVIDIA RTX 4090)
 
 ---
 
 **Results and findings**
 
-**general tasks (10 real tasks, Table 4)**:
-- The average success rate of InternVLA-A1 (3B) is **75.1%**, which is 60.6% higher than that of π₀ (3.3B) **14.5%**
-- InternVLA-A1 (2B) surpassed the larger π₀ (3.3B) model by 64.7%, highlighting the advantages of architecture and data quality
-- The performance is particularly outstanding in fine manipulation tasks (Make Sandwich: 93.3% vs 66.7%; Operate Oven: 86.7% vs 73.3%)
+**General tasks (10 real-world tasks, Table 4)**:
+- InternVLA-A1 (3B) reaches an average success rate of **75.1%**, **14.5%** higher than π₀ (3.3B) at 60.6%
+- InternVLA-A1 (2B) reaches 64.7% and surpasses the larger π₀ (3.3B), highlighting the advantages of architecture and data quality
+- Performance is especially strong on fine manipulation tasks (Make Sandwich: 93.3% vs 66.7%; Operate Oven: 86.7% vs 73.3%)
 
-**Dynamic scene special task (Figure 6)**:
+**Dynamic-scene tasks (Figure 6)**:
 
 <div align="center">
-  <img src="/images/vla/InternVLA-A1-dynamic-results.webp" alt="Comparison of the success rates of Express Sorting and In-motion Ingredient Picking tasks: InternVLA-A1 (3B) significantly leads the baseline with 80% and 93.3%" width="1326" height="498" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/InternVLA-A1-dynamic-results.webp" alt="Success rates on the Express Sorting and In-motion Ingredient Picking tasks: InternVLA-A1 (3B) leads the baselines by a wide margin with 80% and 93.3%" width="1326" height="498" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-Comparison of the success rates of Express Sorting and In-motion Ingredient Picking tasks: InternVLA-A1 (3B) significantly leads the baseline with 80% and 93.3%
+Success rates on the Express Sorting and In-motion Ingredient Picking tasks: InternVLA-A1 (3B) leads the baselines by a wide margin with 80% and 93.3%
 </figcaption>
 </div>
 
 - Express Sorting: π₀ only 36.7%, GR00T N1.5 only 40.0%, InternVLA-A1 (3B) up to **80.0%** (+40% or more)
-- In-motion Ingredient Picking: The baseline is only 20.0%, InternVLA-A1 (3B) reaches **93.3%** (+73.3%)
+- In-motion Ingredient Picking: the baseline reaches only 20.0%, while InternVLA-A1 (3B) reaches **93.3%** (+73.3%)
 
-**simulation benchmark (RoboTwin 2.0, 50 tasks)**: InternVLA-A1 (3B) Easy/Hard are 65.0%/25.4% respectively, exceeding π₀’s 54.5%/19.8% (+10.5%/+5.6%)
+**Simulation benchmark (RoboTwin 2.0, 50 tasks)**: InternVLA-A1 (3B) scores 65.0% / 25.4% on Easy / Hard, exceeding π₀'s 54.5% / 19.8% (+10.5% / +5.6%)
 
-**ablation experiment**:
-- Removed pretraining: average success rate dropped from 77.0% to 25.4% (↓51.6%)
-- Generation Expert removed: average success rate dropped from 77.0% to 57.6% (↓19.4%), 11/12 tasks were degraded
+**Ablation experiments**:
+- Without pretraining: average success rate drops from 77.0% to 25.4% (↓51.6%)
+- Without the Generation Expert: average success rate drops from 77.0% to 57.6% (↓19.4%), with 11 of 12 tasks degraded
 
 ---
 
 **Limitations**
 
-Understanding experts lack joint training with multimodal VQA data sets, resulting in degradation of general semantic reasoning and complex instruction following capabilities; the visual foresight module sacrifices the fidelity of image prediction to ensure real-time reasoning efficiency, and the granularity of generating future frames is limited.
+The Understanding Expert lacks joint training with multimodal VQA datasets, which degrades general semantic reasoning and complex instruction following; the visual foresight module sacrifices image prediction fidelity to keep inference real-time, so the granularity of the generated future frames is limited.
 
 ---
 
@@ -1711,119 +1711,119 @@ Understanding experts lack joint training with multimodal VQA data sets, resulti
 
 **Key takeaways**
 
-1. InternVLA-A1.5 is proposed, a Mixture-of-Transformers (MoT) robot control architecture that unifies visual-language understanding, physical world dynamic prediction (latent prediction), and continuous action generation.
-2. The "Latent Querying" mechanism is used to convert future predictions into lightweight foresight latent space queries, and the physical world dynamics prior is absorbed by supervising the frozen pretraining video generation model (WAN2.2) without the need for pixel-level image generation in the inference stage, ensuring real-time closed-loop control (0.1s delay).
-3. A multi-stage training pipeline is constructed: the first stage unifies the robot demonstration and VQA tasks into chat-template discrete Token autoregression, retaining the semantics and instruction following capabilities of the backbone VLM; the second stage collaboratively trains continuous action generation and foresight latent coding.
-4. Achieve state-of-the-art performance on 6 simulation benchmarks (LIBERO, RoboTwin, DOMINO, EBench, SimplerEnv, LIBERO-Plus) and real physical world tasks, demonstrating excellent generalization and execution stability on unseen action combinations and long-range chemical experimental tasks (MOF reactions).
+1. Proposes InternVLA-A1.5, a Mixture-of-Transformers (MoT) robot control architecture that unifies vision-language understanding, physical-world dynamics prediction (latent prediction), and continuous action generation.
+2. A "latent querying" mechanism turns future prediction into lightweight foresight queries in latent space; the physical-world dynamics prior is absorbed by supervising a frozen pretrained video generation model (WAN2.2), so no pixel-level image generation is needed at inference time, which preserves real-time closed-loop control (0.1 s latency).
+3. Builds a multi-stage training pipeline: the first stage unifies robot demonstrations and VQA tasks into chat-template discrete-token autoregression, preserving the semantics and instruction following of the backbone VLM; the second stage jointly trains continuous action generation and foresight latent encoding.
+4. Achieves state-of-the-art performance on 6 simulation benchmarks (LIBERO, RoboTwin, DOMINO, EBench, SimplerEnv, LIBERO-Plus) and on real-world tasks, with excellent generalization and execution stability on unseen action compositions and long-horizon chemistry experiment tasks (MOF reactions).
 
 ---
 
 **Background and problem**
 
-The current VLA (Vision-Language-Action) model faces the following bottlenecks when handling smart manipulation and dynamic interactions:
-- **Semantic drift and instruction decay**: After the introduction of continuous action generation and heavy generation tasks, traditional VLA training often abandons large-scale VQA or language modeling data, resulting in the gradual degradation of the original semantic understanding and instruction following capabilities of the base VLM.
-- **Heterogeneous targets interfere with each other**: Simultaneously optimizing loss functions of various forms and scales such as future image reconstruction, action regression, and language prediction, it is easy to cause conflicts in joint training.
-- **Training video prediction from scratch is expensive**: Existing physical world models tend to train the reconstruction of future image pixels from scratch, failing to make full use of the rich spatiotemporal dynamics priors contained in Internet-level pretraining video generation models (such as WAN2.2, Sora).
+Current VLA (vision-language-action) models face the following bottlenecks in dexterous manipulation and dynamic interaction:
+- **Semantic drift and instruction decay**: Once continuous action generation and heavy generation tasks are introduced, traditional VLA training often drops large-scale VQA or language modeling data, so the base VLM's original semantic understanding and instruction following gradually degrade.
+- **Interference among heterogeneous objectives**: Jointly optimizing losses of different forms and scales, such as future image reconstruction, action regression, and language prediction, easily causes conflicts in joint training.
+- **Training video prediction from scratch is expensive**: Existing physical world models tend to train future-pixel reconstruction from scratch, failing to exploit the rich spatiotemporal dynamics priors in web-scale pretrained video generation models (such as WAN2.2 and Sora).
 
 ---
 
 **Methods and innovations**
 
 <div align="center">
-  <img src="/images/vla/InternVLA-A1.5-overview.webp" alt="Overview of the overall architecture of InternVLA-A1.5. By splicing the lightweight action/prediction expert module onto the pretraining VLM backbone, it achieves the unification of understanding, potential prediction and action generation." width="1323" height="1114" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>InternVLA-A1.5 Overview of the overall architecture, by splicing the lightweight action/prediction expert module onto the pretraining VLM backbone, it achieves the unification of understanding, potential prediction and action generation.</figcaption>
+  <img src="/images/vla/InternVLA-A1.5-overview.webp" alt="InternVLA-A1.5 overall architecture: a lightweight action/prediction expert module attached to a pretrained VLM backbone unifies understanding, latent prediction, and action generation." width="1323" height="1114" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>InternVLA-A1.5 overall architecture: a lightweight action/prediction expert module attached to a pretrained VLM backbone unifies understanding, latent prediction, and action generation.</figcaption>
 </div>
 
-**(1) Overview of the overall framework**
-InternVLA-A1.5 adopts Mixture-of-Transformers (MoT) hybrid architecture, which consists of two core parts:
-1. A pretrained VLM backbone (Qwen-3.5 2B) responsible for multimodal perception and high-level planning reasoning.
-2. A lightweight unified expert module (Unified Expert, 460M parameters), responsible for flow matching prediction of continuous actions and potential prediction query (Foresight Tokens).
-The two share part of the full attention layer, achieving deep coupling of semantic priors and refined physical manipulation.
+**(1) Overall framework**
+InternVLA-A1.5 adopts a Mixture-of-Transformers (MoT) architecture with two core parts:
+1. A pretrained VLM backbone (Qwen-3.5 2B) responsible for multimodal perception and high-level planning and reasoning.
+2. A lightweight unified expert module (460M parameters) responsible for flow-matching prediction of continuous actions and for latent prediction queries (Foresight Tokens).
+The two share some of the full-attention layers, achieving deep coupling of semantic priors and fine-grained physical manipulation.
 
-**(2) pretraining VLM Backbone (VLM Backbone)**
-- **input**: Receive the robot camera image $o_t$ from the $K$ perspective, natural language instructions $\ell$, control mode $m$ (such as joint control `<joint>`, end control `<end_effector>`, Q&A `<vqa>`) and the uniformly discretized binned proprioceptive state of the robot $q_t$.
-- **processing**: VLM uses standard Qwen3.5 visual and text encoders to convert multi-view image and text concatenation into Token embeddings, and processes them through the base's Transformer block (alternating 3 Gated DeltaNet linear attention layers with 1 standard full attention layer).
-- **outputs**: In the first stage of multi-stage training, VLM outputs a subtask description of text type $\hat{\ell}$ and a discrete action token encoded by the FAST discretization tokenizer; in the second stage, it provides the unified expert with the global semantic context latent feature $H_t$.
-- **design motivation**: retain the strong semantic generalization of the base VLM for complex instructions and scene question and answer, and prevent the robot from encountering semantic drift (Semantic Drift) when conducting large-scale motion policy training.
+**(2) Pretrained VLM backbone**
+- **Input**: Robot camera images $o_t$ from $K$ viewpoints, a natural-language instruction $\ell$, a control mode $m$ (such as joint control `<joint>`, end-effector control `<end_effector>`, or Q&A `<vqa>`), and the robot's proprioceptive state $q_t$, uniformly discretized into bins.
+- **Processing**: The VLM uses the standard Qwen3.5 visual and text encoders to convert the concatenated multi-view images and text into token embeddings, and processes them through the backbone's Transformer blocks (alternating 3 Gated DeltaNet linear-attention layers with 1 standard full-attention layer).
+- **Output**: In the first stage of multi-stage training, the VLM outputs a text subtask description $\hat{\ell}$ and discrete action tokens encoded by the FAST discretization tokenizer; in the second stage, it provides the unified expert with the global semantic context latent features $H_t$.
+- **Motivation**: Preserve the base VLM's strong semantic generalization on complex instructions and scene question answering, and prevent semantic drift when the robot undergoes large-scale motion-policy training.
 
-**(3) Unified Expert & Action Prediction**
-- **input**: receives the semantic latent features $H_t$ generated by the VLM backbone, a set of learnable latent prediction queries (Foresight Tokens) $Q_f$, and the noise action chunk $\epsilon$ injected during the flow matching (Flow Matching) denoising process.
-- **handles**: The expert module adopts the same structure as Qwen-3.5-Text, but its hidden channel dimension is smaller (460M parameters). It maintains its own independent Gated DeltaNet linear attention layer to handle action details, while performing cross-module feature fusion through a shared VLM full attention layer with $H_t$. In this module, learnable Foresight Tokens act as future query slots, while action prediction leverages flow matching to predict the velocity field $v_{\theta}^{\text{act}}$.
-- **output**: generate the continuous control trajectory action chunk $$\mathbf{a}_{t:t+H}$$ from the current moment to the future $H$ steps.
-- **Design motivation**: Compared with discrete Token prediction, the flow-matching generation of low-dimensional continuous control experts is more suitable for low-latency (0.1s closed-loop feedback) and high-precision real-robot robot arm control.
+**(3) Unified expert and action prediction**
+- **Input**: The semantic latent features $H_t$ from the VLM backbone, a set of learnable latent prediction queries (Foresight Tokens) $Q_f$, and the noisy action chunk $\epsilon$ injected during flow-matching denoising.
+- **Processing**: The expert module uses the same structure as Qwen-3.5-Text but with a smaller hidden channel dimension (460M parameters). It keeps its own independent Gated DeltaNet linear-attention layers to handle action details, and fuses features across modules with $H_t$ through the shared VLM full-attention layers. In this module the learnable Foresight Tokens act as future query slots, while action prediction uses flow matching to predict the velocity field $v_{\theta}^{\text{act}}$.
+- **Output**: A continuous control trajectory, the action chunk $$\mathbf{a}_{t:t+H}$$ from the current moment to $H$ steps ahead.
+- **Motivation**: Compared with discrete token prediction, flow-matching generation by a low-dimensional continuous control expert is better suited to low-latency (0.1 s closed-loop feedback), high-precision real-robot arm control.
 
-**(4) Latent Foresight Mechanism**
-- **input**: Foresight Tokens $Z_f^t$ using the unified expert output are projected as conditional encoding $C_f^t$, and the video Latent $x_1$ containing the splicing of the current and future $N$ frames.
-- **handles**: the video generation model WAN2.2-5B using pretraining and completely frozen parameters (Frozen) serves as the world model. We inject the Foresight latent encoding $C_f^t$ into the cross-attention mechanism of the WAN. By imposing a flow matching supervised loss on the latent space of the video generation model, backpropagation updates the Foresight Tokens $Q_f$ and unified experts, while the WAN itself parameters are not updated.
-- **output**: Outputs optimized Foresight latent embeddings during the training phase; during the inference phase, the video generation model is completely discarded, without any computational overhead.
-- **Design motivation**: The generation details of "how the physical world evolves" are completely hosted on the video large model that already has strong generalization capabilities. The robot policy only needs to learn "What to imagine" instead of "how to draw", which eliminates the huge computational cost of real robot reasoning while retaining the world model dynamics prior.
+**(4) Latent foresight mechanism**
+- **Input**: The Foresight Tokens $Z_f^t$ output by the unified expert, projected into a conditioning encoding $C_f^t$, and the video latent $x_1$ obtained by concatenating the current frame and the next $N$ frames.
+- **Processing**: A pretrained video generation model, WAN2.2-5B, with fully frozen parameters serves as the world model. The foresight latent encoding $C_f^t$ is injected into WAN's cross-attention. By applying a flow-matching supervised loss in the video generation model's latent space, backpropagation updates the Foresight Tokens $Q_f$ and the unified expert, while WAN's own parameters are not updated.
+- **Output**: Optimized foresight latent embeddings during training; at inference the video generation model is discarded entirely, adding no computational overhead.
+- **Motivation**: The generative details of "how the physical world evolves" are fully delegated to a large video model that already generalizes strongly. The robot policy only needs to learn "what to imagine" rather than "how to draw", which removes the heavy computational cost of real-robot inference while retaining the world model's dynamics prior.
 
 <div align="center">
-  <img src="/images/vla/InternVLA-A1.5-framework.webp" alt="The MoT architecture of InternVLA-A1.5 demonstrates the attention fusion method of pretraining VLM backbone and unified experts, as well as the process of generating Foresight Tokens and continuous actions." width="1326" height="641" style="width: 100%;" loading="lazy" decoding="async" />
-The MoT architecture of<figcaption>InternVLA-A1.5 shows the attention fusion method of pretraining VLM backbone and unified experts, as well as the process of Foresight Tokens and continuous action generation.</figcaption>
+  <img src="/images/vla/InternVLA-A1.5-framework.webp" alt="The MoT architecture of InternVLA-A1.5, showing how the pretrained VLM backbone and the unified expert fuse through attention, and the flow of Foresight Tokens and continuous action generation." width="1326" height="641" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>The MoT architecture of InternVLA-A1.5, showing how the pretrained VLM backbone and the unified expert fuse through attention, and the flow of Foresight Tokens and continuous action generation.</figcaption>
 </div>
 
 **(5) End-to-end data flow**
-1. **multi-view multimodal input**: splicing $K$ view camera image token, task description text, control mode and discrete state.
-2. **Multi-modal alignment perception**: The input passes through the VLM backbone, extracts the context representation $H_t$ and predicts the next sub-task semantic description $\hat{\ell}$.
-3. **spatiotemporal prediction and embedding fusion**: The learnable $Q_f$ is injected into the unified expert and interacts with attention $H_t$ to generate features $Z_f^t$ with future trend information. During training, this part of the latent coding is used to guide frozen WAN2.2 video generation; during inference, it is directly used for the next step.
-4. **action denoising generates**: taking the noise $\epsilon$ as input, in the action expert with $H_t$ and $Q_f$ as conditions, the Flow Matching velocity field is gradually iteratively denoised through Euler integration, and finally outputs continuous action chunks $$\mathbf{a}_{t:t+H}$$.
+1. **Multi-view multimodal input**: The $K$ camera-image tokens, task description text, control mode, and discretized state are concatenated.
+2. **Multimodal alignment and perception**: The input passes through the VLM backbone, which extracts the context representation $H_t$ and predicts the semantic description $\hat{\ell}$ of the next subtask.
+3. **Spatiotemporal prediction and embedding fusion**: The learnable $Q_f$ is injected into the unified expert and interacts with $H_t$ through attention to produce features $Z_f^t$ carrying future-trend information. During training, this latent encoding guides the frozen WAN2.2 video generation; during inference, it is used directly in the next step.
+4. **Action denoising**: Taking the noise $\epsilon$ as input, the action expert conditioned on $H_t$ and $Q_f$ iteratively denoises the flow-matching velocity field via Euler integration and finally outputs the continuous action chunk $$\mathbf{a}_{t:t+H}$$.
 
-**(6) Training target/loss function**
-The multi-stage training of InternVLA-A1.5 relies on the following core loss function.
+**(6) Training objectives and loss functions**
+The multi-stage training of InternVLA-A1.5 relies on the following core losses.
 
-- **The first stage: VLM Transferring (semantic migration)**
-At this stage, VQA data and discretized robot control data are mixed for autoregressive prediction, and only the forward cross-entropy loss of the Label (subtask description $\hat{\ell}$ and FAST discrete action Token $a$) part is calculated:
+- **Stage 1: VLM transfer (semantic transfer)**
+In this stage, VQA data and discretized robot control data are mixed for autoregressive prediction, and only the forward cross-entropy loss on the label part (the subtask description $\hat{\ell}$ and FAST discrete action tokens $a$) is computed:
   $$L_{\text{stage1}} = -\mathbb{E}_{(\mathbf{o}_t, \ell, \mathbf{y}) \sim \mathcal{D}} \left[ \sum_{i=1}^{M+N} \log p_{\theta}(y_i \mid \mathbf{o}_t, \ell, \mathbf{y}_{<i}) \right]$$
-Where $$\mathbf{y} = (\hat{\ell}_1, \dots, \hat{\ell}_M, a_1, \dots, a_N)$$ is a spliced sequence containing subtasks and actions.
+Where $$\mathbf{y} = (\hat{\ell}_1, \dots, \hat{\ell}_M, a_1, \dots, a_N)$$ is the concatenated sequence of subtask and action tokens.
 
-- **The second stage: Foresight and Action Joint Training**
-This stage introduces video latent prediction loss $L_{\text{video}}$ and action flow matching loss $L_{\text{action}}$.
-  - **Potential video prediction loss**:
+- **Stage 2: joint foresight and action training**
+This stage introduces the video latent prediction loss $L_{\text{video}}$ and the action flow-matching loss $L_{\text{action}}$.
+  - **Latent video prediction loss**:
     $$L_{\text{video}} = \mathbb{E}_{x_0, x_1, C_f^t, s} \left[ \lVert u(x_s, C_f^t, s) - v_s \rVert_2^2 \right]$$
-Used to allow Foresight Tokens to draw dynamic representations from the WAN.
-  - **action prediction loss**:
+Lets the Foresight Tokens draw dynamics representations from WAN.
+  - **Action prediction loss**:
     $$L_{\text{action}} = \mathbb{E}_{\mathbf{a}_{t:t+H}, \epsilon, \tau} \left[ \lVert v_{\theta}^{\text{act}}(\mathbf{a}_{t:t+H}^{\tau}, H_t, Q_f) - (\mathbf{a}_{t:t+H} - \epsilon) \rVert_2^2 \right]$$
-Used to predict continuous motion interpolation trajectory velocity fields.
+Predicts the velocity field of the continuous action interpolation trajectory.
   - **Total joint loss**:
     $$L_{\text{stage2}} = L_{\text{stage1}} + \alpha L_{\text{video}} + \beta L_{\text{action}}$$
-In practice, the weight parameter is set to $\alpha = 1, \beta = 10$.
+In practice, the weights are set to $\alpha = 1, \beta = 10$.
 
 <div align="center">
-  <img src="/images/vla/InternVLA-A1.5-foresight-mechanism.webp" alt="Foresight prediction mechanism data flow: Compute spatiotemporal regression on the video diffusion generative model (WAN) through Foresight latent coding, and pass the gradient back to optimize the expert representation." width="1326" height="534" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>Foresight prediction mechanism data flow: Compute spatiotemporal regression on the video diffusion generation model (WAN) through Foresight latent coding, and propagate gradients back to optimize expert representation.</figcaption>
+  <img src="/images/vla/InternVLA-A1.5-foresight-mechanism.webp" alt="Foresight prediction data flow: spatiotemporal regression is computed on the video diffusion model (WAN) through the foresight latent encoding, and gradients are propagated back to optimize the expert's representations." width="1326" height="534" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Foresight prediction data flow: spatiotemporal regression is computed on the video diffusion model (WAN) through the foresight latent encoding, and gradients are propagated back to optimize the expert's representations.</figcaption>
 </div>
 
-**(7) Inference process**
-During inference (real robot deployment), in order to ensure real-time closed-loop control, the inference process is modified as follows:
-1. **discards the video branch**: During inference, the WAN2.2-5B video model and its VAE and DiT layers are completely discarded and no pixel-level video decoding is required.
-2. **KV cache reuse**: The key-value pair cache of the VLM backbone when extracting contextual latent features $H_t$ is reused in the action denoising calculation. In the multi-step reverse denoising iteration (such as 5 steps) of Euler integration, the action expert only updates the denoising calculation of the action itself, ensuring high frame rate and low latency of the control instruction output (in About 0.1s/step on RTX 5090).
+**(7) Inference procedure**
+At inference (real-robot deployment), the procedure is modified as follows to ensure real-time closed-loop control:
+1. **Discard the video branch**: At inference, the WAN2.2-5B video model and its VAE and DiT layers are discarded entirely, and no pixel-level video decoding is needed.
+2. **KV cache reuse**: The key-value cache of the VLM backbone from extracting the context latent features $H_t$ is reused in the action denoising computation. In the multi-step reverse denoising of Euler integration (for example, 5 steps), the action expert only updates the denoising computation of the action itself, ensuring a high frame rate and low latency for control outputs (about 0.1 s/step on an RTX 5090).
 
 ---
 
 **Results and findings**
 
 <div align="center">
-  <img src="/images/vla/InternVLA-A1.5-realworld-results.webp" alt="Real-world operation task performance: InternVLA-A1.5 has achieved leading results in the three instruction following tasks of Sort Tubes, Insert Tubes, and Move Tubes, and the MOF long-range chemical synthesis task, especially in precise insertion and long-range control." width="1328" height="555" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> real-world operation task performance: InternVLA-A1.5 has achieved leading results in the three instruction following tasks of Sort Tubes, Insert Tubes, and Move Tubes, and the MOF long-range chemical synthesis task, especially in precise insertion and long-range control.</figcaption>
+  <img src="/images/vla/InternVLA-A1.5-realworld-results.webp" alt="Real-world manipulation performance: InternVLA-A1.5 achieves leading results on the three instruction-following tasks Sort Tubes, Insert Tubes, and Move Tubes and on the long-horizon MOF chemical synthesis task, especially in precise insertion and long-horizon control." width="1328" height="555" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Real-world manipulation performance: InternVLA-A1.5 achieves leading results on the three instruction-following tasks Sort Tubes, Insert Tubes, and Move Tubes and on the long-horizon MOF chemical synthesis task, especially in precise insertion and long-horizon control.</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vla/InternVLA-A1.5-generalization.webp" alt="Comparison of ablation in the seen versus held-out (unseen combinatorial generalization) instruction binding task. InternVLA-A1.5 has the most robust generalization performance on the OOD task." width="1328" height="536" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> Comparison of ablation in the seen and held-out (unseen combinatorial generalization) instruction binding tasks. InternVLA-A1.5 has the most robust generalization performance on the OOD task.</figcaption>
+  <img src="/images/vla/InternVLA-A1.5-generalization.webp" alt="Ablation comparison on instruction-binding tasks with seen and held-out (unseen compositional generalization) instructions. InternVLA-A1.5 generalizes most robustly on the OOD tasks." width="1328" height="536" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Ablation comparison on instruction-binding tasks with seen and held-out (unseen compositional generalization) instructions. InternVLA-A1.5 generalizes most robustly on the OOD tasks.</figcaption>
 </div>
 
-- **completely surpasses the mainstream VLA policy**: in the SimplerEnv simulation test, the average success rate reaches **80.8%** (leading $\pi_{0.5}$ by 23.7 percentage points), and on RoboTwin it reaches **93.2%**.
-- **Powerful combination and extrapolation generalization ability (OOD Generalization)**: InternVLA-A1.5 maintains a very high success rate under the held-out combination real robot task (that is, the combination of untrained tube colors and target box/holes). This verifies the successful retention of VLM base semantic understanding by the first stage of VQA co-training.
-- **Long-Horizon Tasks show advantages (Long-Horizon Tasks)**: In a 13-step chemical experiment (MOF) where the environment will undergo non-physical contact changes (such as pouring liquids, inserting and removing funnels and plugs), the success rate of InternVLA-A1.5 reached **76.4%** and $\pi_{0.5}$ only 29.3%, Motus failed completely. This is due to two points: first, the displayed subtask text planning (let the policy know what it is doing at all times); second, the spatiotemporal potential prediction learns the physical dynamic causes and effects such as liquid level changes.
-- **ablation experimental analysis**: As shown in Table 8, removing potential video loss (w/o video loss) or directly removing Foresight Tokens will cause the success rate of the policy to drop significantly under zero-shot (such as LIBERO-Plus, DOMINO), proving that prior distillation of the hidden space physical world is the key to improving robustness.
+- **Clearly surpasses mainstream VLA policies**: On SimplerEnv simulation, the average success rate reaches **80.8%** (23.7 percentage points ahead of $\pi_{0.5}$), and on RoboTwin it reaches **93.2%**.
+- **Strong compositional and extrapolative generalization (OOD generalization)**: InternVLA-A1.5 keeps a very high success rate on the held-out-combination real-robot tasks (that is, untrained combinations of tube color and target box/hole). This confirms that VQA co-training in the first stage successfully preserves the VLM backbone's semantic understanding.
+- **Advantages on long-horizon tasks**: In a 13-step chemistry experiment (MOF) where the environment undergoes non-physical-contact changes (such as pouring liquids and inserting and removing funnels and stoppers), InternVLA-A1.5 reaches a success rate of **76.4%** versus only 29.3% for $\pi_{0.5}$, while Motus fails completely. This is due to two factors: first, explicit subtask text planning (the policy always knows what it is doing); second, spatiotemporal latent prediction learns physical cause and effect such as liquid-level changes.
+- **Ablation analysis**: As shown in Table 8, removing the latent video loss (w/o video loss) or removing the Foresight Tokens directly causes the policy's success rate to drop markedly under zero-shot settings (such as LIBERO-Plus and DOMINO), showing that distilling a physical-world prior into the latent space is key to robustness.
 
 ---
 
 **Limitations**
 
-1. **is limited to the supervision of short-range action space and time.**: Foresight's prediction window only covers the time span of the current action chunk. Although the model has obtained physical intuition of the current posture and short-term trajectory, it does not yet support long-term future trajectory conception and explicit planning from a long perspective.
-2. **Upper bound limit of world model dynamics**: Because the WAN video generation model is completely frozen during training, the prior obtained by InternVLA-A1.5 completely depends on the coverage of embodied scenes by the WAN itself pretraining data set. In the face of extreme or non-daily industrial scenes, physical common sense may fail.
+1. **Limited to short-horizon action-space supervision**: Foresight's prediction window covers only the time span of the current action chunk. Although the model gains physical intuition about the current pose and short-term trajectory, it does not yet support long-term future trajectory imagination or explicit long-horizon planning.
+2. **Upper bound set by the world model's dynamics**: Because the WAN video generation model is completely frozen during training, the prior InternVLA-A1.5 obtains depends entirely on how well WAN's own pretraining dataset covers embodied scenes. In extreme or non-everyday industrial scenes, its physical commonsense may fail.
 
 ---
 
@@ -1836,110 +1836,110 @@ During inference (real robot deployment), in order to ensure real-time closed-lo
 📄 **Paper**: https://arxiv.org/abs/2511.16651
 
 <div align="center">
-  <img src="/images/vla/interndata_a1_teaser.webp" alt="InternData-A1: Large-scale high-fidelity synthetic dataset generation pipeline (Source: InternData-A1 Project)" width="1328" height="823" style="width: 90%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/interndata_a1_teaser.webp" alt="InternData-A1: a large-scale, high-fidelity synthetic data generation pipeline (Source: InternData-A1 Project)" width="1328" height="823" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
-InternData-A1: Large-scale high-fidelity synthetic dataset generation pipeline (Source: InternData-A1 Project)
+InternData-A1: a large-scale, high-fidelity synthetic data generation pipeline (Source: InternData-A1 Project)
 </figcaption>
 </div>
 
 **Key takeaways**
 
-In the downstream evaluation set by the author, this article compared the effects of synthetic data and real data pretraining; the synthetic data solution achieved competitive results. This supports further research on synthetic data, but it cannot be inferred that it can replace real data on all tasks. The data synthesis pipeline is completely decoupled (environment construction, skill sets, Domain Randomization, and trajectory generation are independently modularized), greatly reducing labor costs (less than $0.003 per episode). ablation experiments reveal that **trajectory diversity** (articulation + long-horizon tasks) rather than a single scale is the core driving force for effective VLA pretraining, which has important guiding significance for data collection strategies. Large-scale domain randomization shrinks the simulation-to-real visual gap to approximately 1:8 simulation-to-real data equivalent ratio, emphasizing the importance of rendering fidelity and randomization. Open source datasets and generation pipelines provide the embodied AI community with reproducible, large-scale data infrastructure.
+In the downstream evaluations set by the authors, this paper compares pretraining on synthetic data versus real data; the synthetic-data approach achieves competitive results. This supports further research on synthetic data, but it cannot be inferred that synthetic data can replace real data on all tasks. The data synthesis pipeline is fully decoupled (environment construction, skill sets, domain randomization, and trajectory generation are independent modules), which greatly reduces labor cost (under $0.003 per episode). Ablations reveal that **trajectory diversity** (articulated objects plus long-horizon tasks), rather than scale alone, is the core driver of effective VLA pretraining, which has important implications for data collection strategy. Large-scale domain randomization shrinks the sim-to-real visual gap to roughly a 1:8 sim-to-real data equivalence ratio, underscoring the importance of rendering fidelity and randomization. The open-sourced dataset and generation pipeline give the embodied AI community reproducible, large-scale data infrastructure.
 
 ---
 
 **Background and problem**
 
-Existing VLA models have proven the effectiveness of large-scale real robot data pretraining, but whether synthetic data alone can achieve the same effect has not been systematically verified. Real data collection is expensive, requiring professional teleoperators, special hardware and a lot of manpower, and is difficult to reproduce in most research institutions; existing simulation data sets cover a narrow skill set (mainly pick-and-place), only involve rigid objects, and have not been verified in large-scale VLA pretraining.
+Existing VLA models have proven the effectiveness of pretraining on large-scale real robot data, but whether synthetic data alone can achieve the same effect has not been systematically verified. Collecting real data is expensive: it requires professional teleoperators, specialized hardware, and a great deal of labor, and is hard to reproduce at most research institutions. Existing simulated datasets cover a narrow set of skills (mainly pick-and-place), involve only rigid objects, and have not been validated in large-scale VLA pretraining.
 
 ---
 
 **Methods and innovations**
 
-InternData-A1 is a large-scale high-fidelity synthetic dataset containing 630k trajectories, 7,433 hours, covering 4 robot postures (AgiBot Genie-1, Franka Emika Panda, AgileX Split Aloha, ARX Lift-2), 18 skills, 70 tasks, and 227 indoor scenes.
+InternData-A1 is a large-scale, high-fidelity synthetic dataset containing 630k trajectories and 7,433 hours, covering 4 robot embodiments (AgiBot Genie-1, Franka Emika Panda, AgileX Split Aloha, ARX Lift-2), 18 skills, 70 tasks, and 227 indoor scenes.
 
 <div align="center">
-  <img src="/images/vla/InternData-A1-data-statistics.webp" alt="InternData-A1 data statistics overview: 4 postures, 70 tasks, 3185 rigid objects, 321 articulation objects, 20 costumes, a total of 630k episodes, 401.4M frame, 7433.9 hours" width="1326" height="636" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/InternData-A1-data-statistics.webp" alt="InternData-A1 data statistics: 4 embodiments, 70 tasks, 3185 rigid objects, 321 articulated objects, 20 garments, 630k episodes in total, 401.4M frames, 7433.9 hours" width="1326" height="636" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-InternData-A1 data statistics overview: 4 postures, 70 tasks, 3185 rigid objects, 321 articulation objects, 20 costumes, a total of 630k episodes, 401.4M frame, 7433.9 hours
+InternData-A1 data statistics: 4 embodiments, 70 tasks, 3185 rigid objects, 321 articulated objects, 20 garments, 630k episodes in total, 401.4M frames, 7433.9 hours
 </figcaption>
 </div>
 
-### Data synthesis Pipeline (4-stage fully automatic)
+### Data synthesis pipeline (4 stages, fully automatic)
 {: id="数据合成-pipeline4-阶段全自动"}
 
 <div align="center">
-  <img src="/images/vla/InternData-A1-pipeline.webp" alt="InternData-A1 data synthesis pipeline, including four stages: environment construction, skill set, Domain Randomization, and trajectory generation and storage" width="1326" height="987" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/InternData-A1-pipeline.webp" alt="InternData-A1 data synthesis pipeline, with four stages: environment construction, skill composition, domain randomization, and trajectory generation and storage" width="1326" height="987" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-InternData-A1 data synthesis pipeline, including four stages: environment construction, skill set, Domain Randomization, and trajectory generation and storage
+InternData-A1 data synthesis pipeline, with four stages: environment construction, skill composition, domain randomization, and trajectory generation and storage
 </figcaption>
 </div>
 
-**1. Environment Construction**
-- **Embodiment**: Supports 4 postures, all defined in USD format and verified by collision dynamics
-- **Scene Library**: 227 indoor scenes (kitchen, study room, dining room, living room) from GRScenes-100, each scene is annotated with detailed operating area metadata
-- **Object Library**: Covers four types of objects: rigid (3185, including automatic grasp pose annotation), articulated (321, including joint axes and physical parameters), deformable (20 real scanned garments, simulated with Vertex Block Descent), and fluid (particle system + isosurface rendering)
+**1. Environment construction**
+- **Embodiment**: Supports 4 robot embodiments, all defined in USD format and verified with collision dynamics
+- **Scene library**: 227 indoor scenes (kitchen, study, dining room, living room) from GRScenes-100, each annotated with detailed metadata on operable regions
+- **Object library**: Covers four types of objects: rigid (3185, with automatic grasp pose annotation), articulated (321, with joint axes and physical parameters), deformable (20 real scanned garments, simulated with Vertex Block Descent), and fluid (particle system + isosurface rendering)
 
-**2. Skill Composition**
-- Each skill is a modular script policy, input: object state, robot state, user constraints; output: waypoints sequence (end-effector 6D pose)
-- Contains 18 atomic skills such as Pick, Place, and Push, which can be combined into complete tasks through simple configuration files
-- Supports parallel and sequential execution of both arms, and can be extended to new objects, scenes, and postures without additional code
+**2. Skill composition**
+- Each skill is a modular scripted policy; input: object state, robot state, and user constraints; output: a waypoint sequence (6D end-effector poses)
+- Includes 18 atomic skills such as Pick, Place, and Push, which can be composed into complete tasks through simple configuration files
+- Supports parallel and sequential execution of both arms, and can be extended to new objects, scenes, and embodiments without additional code
 - 18 long-horizon tasks (each involving at least 3 consecutive skills), 124,789 trajectories in total
 
-**3. Domain Randomization**
-- **Visual diversity**: Camera viewing angle ±5° rotation, ±5cm translation; 174 ambient light maps (random light temperature and intensity); target objects can be replaced from similar assets
-- **Trajectory diversity**: Object poses are randomly sampled within a task-specific spatial range; AnyGrasp generates millions of grasp candidates, and finally randomly selects one of the top-40; the contact areas of articulated and deformable objects are expanded into neighborhoods
+**3. Domain randomization**
+- **Visual diversity**: Camera viewpoint with ±5° rotation and ±5 cm translation; 174 environment light maps (random color temperature and intensity); target objects can be swapped for similar assets
+- **Trajectory diversity**: Object poses are sampled randomly within a task-specific spatial range; AnyGrasp generates millions of grasp candidates, from which one of the top 40 is chosen at random; the contact regions of articulated and deformable objects are expanded into neighborhoods
 
-**4. Generation & Storage**
-- Interpolate dense joint space actions between waypoints using the **CuRobo** motion planner
-- Store only successfully completed trajectories (Isaac Sim physics verification), converted to **LeRobot** format
-- Records: object metadata, language instructions, multi-view RGB, camera parameters, robot body awareness status and action tags
+**4. Generation and storage**
+- The **CuRobo** motion planner interpolates dense joint-space actions between waypoints
+- Only successfully completed trajectories are stored (verified by Isaac Sim physics) and converted to **LeRobot** format
+- Records: object metadata, language instructions, multi-view RGB, camera parameters, robot proprioceptive state, and action labels
 
-**5. Framework Optimization**
-- **Stage Decoupling**: Trajectory planning (CPU-bound) and visual rendering (GPU-bound) are decoupled into a pipeline architecture, and planning failure does not trigger redundant rendering
-- **Dynamic Resource Scheduling**: Both Planner and Renderer adopt parallel batch processing policy + dynamic scheduling algorithm
-- **Stack Render**: Stacked rendering technology further improves GPU utilization
-- **Cluster Stability**: Balancer module load balancing + Supervisor module monitoring, overall throughput improvement **2–3×**, production cost lower than **$0.003/episode**
+**5. Framework optimization**
+- **Stage decoupling**: Trajectory planning (CPU-bound) and visual rendering (GPU-bound) are decoupled into a pipeline architecture, so a planning failure does not trigger redundant rendering
+- **Dynamic resource scheduling**: Both the planner and the renderer use parallel batch processing with a dynamic scheduling algorithm
+- **Stacked rendering**: Stacked rendering further improves GPU utilization
+- **Cluster stability**: A balancer module for load balancing and a supervisor module for monitoring raise overall throughput by **2-3×**, with production cost below **$0.003/episode**
 
 ---
 
 **Results and findings**
 
-Comparison between **and π-dataset (49 simulation tasks)**
-- π₀(InternData-A1) vs official π₀: Easy mode **60.0% vs 55.0%** (+5%), Hard mode **26.5% vs 20.0%** (+6.5%)
-- Improvements in Hard mode illustrate that the robustness provided by InternData-A1's large-scale domain randomization is maintained in downstream fine-tuning
+**Comparison with the π-dataset (49 simulation tasks)**
+- π₀ (InternData-A1) vs official π₀: Easy mode **60.0% vs 55.0%** (+5%), Hard mode **26.5% vs 20.0%** (+6.5%)
+- The gains in Hard mode show that the robustness provided by InternData-A1's large-scale domain randomization carries over to downstream fine-tuning
 
-Comparison of **and π-dataset (9 real-world tasks)**
+**Comparison with the π-dataset (9 real-world tasks)**
 <div align="center">
-  <img src="/images/vla/InternData-A1-realworld-comparison.webp" alt="Performance comparison of InternData-A1 on 9 real-world tasks, including 5 regular tasks and 4 dexterous tasks, outperforming the π-dataset by an average of 6.2%" width="1328" height="515" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/InternData-A1-realworld-comparison.webp" alt="Performance of InternData-A1 on 9 real-world tasks (5 regular tasks and 4 dexterous tasks), outperforming the π-dataset by 6.2% on average" width="1328" height="515" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-Performance comparison of InternData-A1 on 9 real-world tasks, including 5 regular tasks and 4 dexterous tasks, outperforming the π-dataset by an average of 6.2%
+Performance of InternData-A1 on 9 real-world tasks (5 regular tasks and 4 dexterous tasks), outperforming the π-dataset by 6.2% on average
 </figcaption>
 </div>
 
-- Outperforms π-dataset **6.2%** on average on 5 common tasks (including Place Markpen, Pass Bottle, Heat Sandwich, Sort Rubbish, Sweep Trash)
-- Performance comparable to π-dataset on 4 dexterity tasks (Sort Parts, Unscrew Cap, Fold Clothes, Zip Bag) using new posture ARX AC One (not seen in training data)
+- Outperforms the π-dataset by **6.2%** on average on 5 common tasks (Place Markpen, Pass Bottle, Heat Sandwich, Sort Rubbish, Sweep Trash)
+- Performance comparable to the π-dataset on 4 dexterous tasks (Sort Parts, Unscrew Cap, Fold Clothes, Zip Bag), using a new embodiment, ARX AC One, not seen in the training data
 
-Comparison between **and open source data sets (49 simulations + 2 real tasks)**
-- InternData-A1 leads significantly: Easy **60.0%** vs OXE 32.5% / Agibot World 52.5% / RoboCasa 50.0%
-- Real mission Sort Rubbish: **90.0%** vs OXE 40.0%; Pass Bottle: **60.0%** vs RoboCasa 13.3%
+**Comparison with open-source datasets (49 simulation tasks + 2 real-world tasks)**
+- InternData-A1 leads clearly: Easy **60.0%** vs OXE 32.5% / AgiBot World 52.5% / RoboCasa 50.0%
+- Real-world task Sort Rubbish: **90.0%** vs OXE 40.0%; Pass Bottle: **60.0%** vs RoboCasa 13.3%
 
-**Sim-to-Real migration**
+**Sim-to-real transfer**
 <div align="center">
-  <img src="/images/vla/InternData-A1-sim2real-results.webp" alt="Six sim-to-real tasks achieve over 50% success rate using only 500 simulation episodes" width="1330" height="527" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/InternData-A1-sim2real-results.webp" alt="Six sim-to-real tasks reach over 50% success rate using only 500 simulation episodes" width="1330" height="527" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-Six sim-to-real tasks achieve over 50% success rate using only 500 simulation episodes
+Six sim-to-real tasks reach over 50% success rate using only 500 simulation episodes
 </figcaption>
 </div>
 
-- The success rate of direct zero-sample migration exceeds 50% in 10 tasks; only 500 pieces of simulation data are needed to achieve a high success rate
-- For basic skill tasks (Sort Rubbish, Wipe Stain), 200 simulation episodes ≈ 200 real data
-- For complex tasks (Flip Package, Instructional Pick), the simulation-to-real equivalent ratio is approximately **8:1**
+- Direct zero-shot transfer exceeds 50% success on 10 tasks; only 500 simulated episodes are needed to reach a high success rate
+- For basic skill tasks (Sort Rubbish, Wipe Stain), 200 simulated episodes ≈ 200 real episodes
+- For complex tasks (Flip Package, Instructional Pick), the sim-to-real equivalence ratio is about **8:1**
 
-**ablation experiment (data composition analysis)**
-- Removing performance degradation for Base or Long-horizon tasks > Removing PnP tasks to illustrate that task variety is more important than single task size
-- Removing the Articulation task (only 11.67%) resulted in a significant decrease, indicating that articulated operations can expand action space diversity
-- Core conclusion: **Trajectory Diversity is the core driver of effective pretraining**
+**Ablation experiments (data composition analysis)**
+- Removing the Base or Long-horizon tasks degrades performance more than removing the PnP tasks, showing that task variety matters more than the scale of any single task
+- Removing the articulation tasks (only 11.67% of the data) causes a significant drop, showing that articulated manipulation widens the diversity of the action space
+- Core conclusion: **trajectory diversity is the core driver of effective pretraining**
 
 <span id="520-isaac-gr00t-2025-2026-5-18-gr00t-2025" class="vla-anchor-alias" aria-hidden="true"></span>
 
@@ -1952,21 +1952,21 @@ Generalist Robot 00 Technology
 ### Key takeaways
 {: id="精华-8"}
 
-GR00T combines vision-language representation with motion experts, accompanied by robotic adaptation and data tools. The following architecture is based on the original paper **N1**. Subsequent versions should view the model cards separately, and the parameters and results of different versions cannot be combined and used.
+GR00T combines vision-language representations with an action expert, accompanied by robot adaptation and data tools. The architecture below is based on the original **N1** paper. For later versions, consult the model cards separately; parameters and results of different versions cannot be mixed.
 
 ### Methods and execution
 {: id="方法与执行方式"}
 
-The vision-language module of N1 extracts conditional representations, and the action module generates action sequences through Flow Matching. System 2 / System 1 describes the division of labor between the two parts and should not be directly equated to the explicit long-range planner and the underlying controller that can independently handle balance and obstacle avoidance.
+The vision-language module of N1 extracts conditioning representations, and the action module generates action sequences through flow matching. System 2 / System 1 describes the division of labor between the two parts and should not be equated with an explicit long-horizon planner plus a low-level controller that independently handles balance and obstacle avoidance.
 
-In the L40 configuration of the original paper, the author reports that System 2 is 10 Hz and System 1 is 120 Hz, and gives the data of approximately 63.9 ms to generate a 16-step action chunk under bf16 conditions. These are implementation-specific operating metrics and do not imply that any GR00T version will have the same closed-loop frequencies. Source: [GR00T N1 Original paper](https://arxiv.org/html/2503.14734v1).
+In the L40 configuration of the original paper, the authors report 10 Hz for System 2 and 120 Hz for System 1, and give about 63.9 ms to generate a 16-step action chunk in bf16. These are implementation-specific operating metrics and do not imply that any GR00T version will have the same closed-loop frequencies. Source: [GR00T N1 original paper](https://arxiv.org/html/2503.14734v1).
 
 ### Results and applicable boundaries
 {: id="结果与适用边界"}
 
-This paper studies general policy learning through multi-robot data and synthetic data. Pretraining, target robot adaptation and task fine-tuning should be distinguished during evaluation. Cross-platform training cannot be written directly as zero-sample control of any new robot.
+This paper studies generalist policy learning from multi-robot data and synthetic data. Pretraining, target-robot adaptation, and task fine-tuning should be distinguished during evaluation. Cross-platform training cannot simply be described as zero-shot control of any new robot.
 
-The tool chain can reduce some of the integration work, but the weights, training data, pretraining process and deployment hardware still need to be checked separately. When choosing this route, focus on confirming the robot interface, data format, training resources, and measured inference latency supported by the current version.
+The toolchain can reduce some of the integration work, but the weights, training data, pretraining process, and deployment hardware still need to be checked separately. When choosing this route, focus on confirming the robot interface, data format, training resources, and measured inference latency supported by the current version.
 
 NVIDIA's next-generation Isaac GR00T 2 switches to a world action model architecture; see [38. DreamZero](#38-dreamzero-2026) for the research behind it.
 
@@ -1976,97 +1976,97 @@ NVIDIA's next-generation Isaac GR00T 2 switches to a world action model architec
 
 ## 21. Xiaomi-Robotics-0 (2026)
 {: id="5-19-xiaomi-r0-2026"}
-MoT Architecture for Real-Time Bimanual Manipulation—the real-time benchmark of domestic open source VLA
+MoT Architecture for Real-Time Bimanual Manipulation: a real-time benchmark among domestic open-source VLAs
 
 📄 **Paper**: [Xiaomi Robot Lab](https://github.com/Xiaomi-Robotics)
 
 <div align="center">
-  <img src="/images/vla/xiaomi_r0_architecture.webp" alt="Xiaomi-R0: Low-latency dual-arm operation architecture based on Mixture-of-Transformers (MoT) (Source: Xiaomi Robotics)" width="1328" height="826" style="width: 90%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/xiaomi_r0_architecture.webp" alt="Xiaomi-R0: a low-latency bimanual manipulation architecture based on Mixture-of-Transformers (MoT) (Source: Xiaomi Robotics)" width="1328" height="826" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
-Xiaomi-R0: Low-latency dual-arm operation architecture based on Mixture-of-Transformers (MoT) (Source: Xiaomi Robotics)
+Xiaomi-R0: a low-latency bimanual manipulation architecture based on Mixture-of-Transformers (MoT) (Source: Xiaomi Robotics)
 </figcaption>
 </div>
 
 **Key takeaways**
 
-Xiaomi-R0 proposes the **Mixture-of-Transformers (MoT)** architecture to address the common inference delay problem of VLA models in actual deployment. By decoupling and parallelizing the sensing and control modules, Xiaomi-R0 successfully implements high-frequency closed-loop control on consumer-grade GPUs (such as RTX 4090). This model performs well in dexterous operations with both arms (such as disassembling Lego and folding towels) and is one of the fastest-implemented engineering masterpieces in the domestic open source camp.
+Xiaomi-R0 proposes a **Mixture-of-Transformers (MoT)** architecture to address the inference latency that VLA models commonly suffer in real deployment. By decoupling and parallelizing the perception and control modules, Xiaomi-R0 achieves high-frequency closed-loop control on consumer-grade GPUs (such as the RTX 4090). The model performs well in dexterous bimanual manipulation (such as disassembling Lego and folding towels) and is one of the most impressive engineering efforts among domestic open-source models.
 
 ---
 
 **Background and problem**
 
-When performing real-time inference on large VLA models (such as 7B+ parameters), it is often difficult to reach the 20Hz+ frequency required for robot control, resulting in "stuttering" in the action or execution failure due to visual lag.
+Real-time inference with large VLA models (such as those with 7B+ parameters) often struggles to reach the 20 Hz+ frequency required for robot control, causing "stuttering" motion or execution failures due to visual lag.
 
 ---
 
 **Methods and innovations**
 
-- **MoT architecture**: adopts hybrid expert mode, dividing the model into "reasoning experts" and "execution experts". Inference experts process slow semantics, and execution experts quickly adjust actions under high-frequency visual flow.
-- **Low-latency optimization**: Extremely compressed action token generation path, greatly shortening the time link from image input to signal output.
-- **Dual-arm collaboration enhancement**: Data enhancement is specifically performed for the spatio-temporal consistency in dual-arm operation, improving the smoothness of left- and right-hand coordination.
+- **MoT architecture**: Adopts a mixture-of-experts design that splits the model into a "reasoning expert" and an "execution expert". The reasoning expert handles slow semantics, while the execution expert quickly adjusts actions under the high-frequency visual stream.
+- **Low-latency optimization**: The action token generation path is heavily compressed, greatly shortening the pipeline from image input to signal output.
+- **Better bimanual coordination**: Data augmentation targets spatiotemporal consistency in bimanual manipulation, improving the smoothness of left-right hand coordination.
 
 ---
 
 **Results and findings**
 
-- The success rate on general lists such as LIBERO reaches **98.7%**.
-- For the first time in the open source field, real-time, highly dynamic dual-arm cooperative operation on an unseen object was demonstrated.
-- It is proved that through reasonable architectural optimization, even a medium-sized VLA can challenge massive closed-source models in real-time.
+- Reaches a success rate of **98.7%** on general benchmarks such as LIBERO.
+- Demonstrates, for the first time in the open-source field, real-time, highly dynamic bimanual cooperative manipulation of an unseen object.
+- Shows that with sensible architectural optimization, even a medium-sized VLA can challenge massive closed-source models in real time.
 
 ---
 
 **Limitations**
 
-- The model's long-range logical reasoning ability is slightly weaker than π₀.5.
-- The robustness to complex lighting and extreme dynamic scenes still needs to be improved.
+- Long-horizon logical reasoning is slightly weaker than π₀.5.
+- Robustness to complex lighting and extremely dynamic scenes still needs improvement.
 
 ---
 <span id="522-x-vla-2025-5-20-xvla-2025" class="vla-anchor-alias" aria-hidden="true"></span>
 
 ## 22. X-VLA (2025)
 {: id="5-20-xvla-2025"}
-Scalable Cross-Embodied Learning with Soft Prompting — A concrete example of complete open source in academia
+Scalable Cross-Embodiment Learning with Soft Prompting: a concrete example of full open-sourcing in academia
 
 📄 **Paper**: [Tsinghua AIR & Shanghai AI Lab](https://github.com/X-VLA)
 
 <div align="center">
-  <img src="/images/vla/xvla_architecture.webp" alt="X-VLA: Cross-embodiment adaptive architecture based on Soft Prompting, low-cost adaptation to heterogeneous hardware (Source: X-VLA Project)" width="1372" height="869" style="width: 90%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/xvla_architecture.webp" alt="X-VLA: a cross-embodiment adaptive architecture based on soft prompting, enabling low-cost adaptation to heterogeneous hardware (Source: X-VLA Project)" width="1372" height="869" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
-X-VLA: Cross-embodiment adaptive architecture based on Soft Prompting, low-cost adaptation to heterogeneous hardware (Source: X-VLA Project)
+X-VLA: a cross-embodiment adaptive architecture based on soft prompting, enabling low-cost adaptation to heterogeneous hardware (Source: X-VLA Project)
 </figcaption>
 </div>
 
 **Key takeaways**
 
-X-VLA is a completely open source project jointly launched by Tsinghua AIR and Shanghai AI Laboratory. Its core contribution is to solve the problem of "one brain controlling all robots" through **Soft Prompting (soft prompting)** technology. Compared with the traditional fine-tuning of each hardware, X-VLA only needs to learn a very small scale of robot-specific prompts to transfer common physical laws to different robotic arms and humanoid robots. The project is fully open to the public from code, data, weights to evaluation benchmarks, and is the most thorough open source model in academia.
+X-VLA is a fully open-source project jointly launched by Tsinghua AIR and Shanghai AI Laboratory. Its core contribution is to address the problem of "one brain controlling all robots" through **soft prompting**. Instead of the traditional per-hardware fine-tuning, X-VLA only needs to learn a very small set of robot-specific prompts to transfer shared physical regularities to different robot arms and humanoids. The project is open from code, data, and weights to evaluation benchmarks, making it the most thoroughly open-sourced model in academia.
 
 ---
 
 **Background and problem**
 
-Robot hardware has different shapes (number of joints, arm lengths, degrees of freedom). How to use a unified pretraining model to adapt to all hardware without causing performance conflicts (negative transfer)?
+Robot hardware varies in form (number of joints, arm length, degrees of freedom). How can a single pretrained model adapt to all hardware without performance conflicts (negative transfer)?
 
 ---
 
 **Methods and innovations**
 
-- **Soft Prompting**: Introduce a learnable "Hardware Description Token" into the VLM input layer to automatically align the action spaces of different robots.
-- **Large-scale cross-domain data set**: Integrate heterogeneous data including operation, navigation and even partial autonomous driving, verifying the cross-domain versatility of physical knowledge.
-- **open evaluation benchmark**: refreshes the five major mainstream simulation benchmarks and provides a standardized physical test protocol.
+- **Soft prompting**: A learnable "hardware description token" is introduced at the VLM input layer to automatically align the action spaces of different robots.
+- **Large-scale cross-domain dataset**: Integrates heterogeneous data, including manipulation, navigation, and even some autonomous driving, verifying the cross-domain generality of physical knowledge.
+- **Open evaluation benchmark**: Sets new results on five mainstream simulation benchmarks and provides a standardized physical test protocol.
 
 ---
 
 **Results and findings**
 
-- The cost of adapting new hardware is reduced by more than 90%, and deployment requires only a minimal amount of new data.
-- It proves that "base model + hardware adaptation layer" is an efficient path to achieve universal embodied intelligence.
+- The cost of adapting to new hardware drops by more than 90%, and deployment needs only a minimal amount of new data.
+- Shows that "foundation model + hardware adaptation layer" is an efficient path to general embodied intelligence.
 
 ---
 
 **Limitations**
 
-- In tasks requiring extremely fine force feedback, the upper limit on the accuracy of soft cues is limited by the perceptual resolution of the backbone network.
-- Currently, the main focus is on kinematic alignment, and modeling of complex contact dynamics is still in the early stages.
+- On tasks requiring extremely fine force feedback, the accuracy ceiling of soft prompts is limited by the perceptual resolution of the backbone network.
+- The current focus is mainly on kinematic alignment, and modeling of complex contact dynamics is still at an early stage.
 
 ---
 
@@ -2078,62 +2078,62 @@ Robot hardware has different shapes (number of joints, arm lengths, degrees of f
 
 **Background and problem**
 
-Currently, the understanding, world modeling and control capabilities of embodied intelligence are modeled in different models in isolation. This fragmentation hinders the realization of unified multimodal generation capabilities and also limits learning from large-scale heterogeneous data. Existing methods divide the supposedly unified system into five independent modeling tasks: VLA (visual-language-action model), WM (world model), IDM (inverse dynamics model), VGM (video generation model) and video-action joint prediction model. Two core challenges include: how to unify these multimodal generation capabilities in a single framework, and how to leverage large-scale heterogeneous data (Internet videos, egocentric human demonstrations, multi-robot trajectories) for pretraining of action experts.
+Currently, understanding, world modeling, and control in embodied intelligence are modeled in isolation by different models. This fragmentation prevents unified multimodal generation and also limits learning from large-scale heterogeneous data. Existing methods split what should be a unified system into five independent modeling tasks: VLA (vision-language-action model), WM (world model), IDM (inverse dynamics model), VGM (video generation model), and a video-action joint prediction model. Two core challenges follow: how to unify these multimodal generation capabilities in a single framework, and how to use large-scale heterogeneous data (web videos, egocentric human demonstrations, multi-robot trajectories) to pretrain the action expert.
 
 **Methods and innovations**
 
 <div align="center">
-  <img src="/images/vln/motus-architecture-overview.webp" alt="Motus overall architecture: Mixture-of-Transformer structure integrates understanding experts, video generation experts and action experts" width="874" height="762" style="width: 90%;" loading="lazy" decoding="async" />
+  <img src="/images/vln/motus-architecture-overview.webp" alt="Motus overall architecture: a Mixture-of-Transformers structure that integrates an understanding expert, a video generation expert, and an action expert" width="874" height="762" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
-Motus overall architecture: Mixture-of-Transformer structure integrates understanding experts, video generation experts and action experts
+Motus overall architecture: a Mixture-of-Transformers structure that integrates an understanding expert, a video generation expert, and an action expert
 </figcaption>
 </div>
 
-Motus proposes a unified latent action world model, which achieves the integration of five modeling paradigms through the following innovations:
+Motus proposes a unified latent action world model, which integrates the five modeling paradigms through the following innovations:
 
-**1. Mixture-of-Transformer (MoT) architecture:**
-- **Tri-model Joint Attention**: Connect the multi-head self-attention layers of three experts to achieve cross-modal knowledge fusion while retaining the specific functions of each expert
-  - Understanding Expert: Based on Qwen3-VL-2B (253.5M parameters), it has 3D positioning and spatial understanding capabilities
-  - Video Generation Expert: Using Wan 2.2 5B as the basic video model
-  - Action Expert: Transformer structure (641.5M parameters), the same depth as Wan
-- **total model size**: 8B parameters (VGM 5.00B + VLM 2.13B + Act Expert 641.5M + Und Expert 253.5M)
+**1. Mixture-of-Transformers (MoT) architecture:**
+- **Tri-model joint attention**: The multi-head self-attention layers of the three experts are connected to fuse knowledge across modalities while preserving each expert's specific function
+  - Understanding expert: Based on Qwen3-VL-2B (253.5M parameters), with 3D grounding and spatial understanding abilities
+  - Video generation expert: Uses Wan 2.2 5B as the base video model
+  - Action expert: A Transformer (641.5M parameters) with the same depth as Wan
+- **Total model size**: 8B parameters (VGM 5.00B + VLM 2.13B + action expert 641.5M + understanding expert 253.5M)
 
 <!-- <div align="center">
-  <img src="https://r-c-group.github.io/blog_media/images/motus-tri-model-attention.png" width="100%" alt="Detailed explanation of three-modal joint attention mechanism" />
+  <img src="https://r-c-group.github.io/blog_media/images/motus-tri-model-attention.png" width="100%" alt="Tri-model joint attention mechanism in detail" />
 <figcaption>
-Detailed explanation of three-modal joint attention mechanism
+Tri-model joint attention mechanism in detail
 </figcaption>
 </div> -->
 
 **2. UniDiffuser scheduler:**
-- Assign different time steps τ_o, τ_a and noise scales to videos and actions
-- Supports flexible switching of five reasoning modes: VLA, world model, IDM, VGM, video-action joint prediction
-- Use the rectified flow objective function:
+- Assigns different timesteps τ_o, τ_a and noise scales to video and actions
+- Supports flexible switching among five inference modes: VLA, world model, IDM, VGM, and joint video-action prediction
+- Uses the rectified flow objective:
   - $$l_{\text{action}} = \mathbb{E} \left[ \left\| v^{\theta_a} - (\epsilon_a - a_{t+1:t+k}) \right\|^2 \right]$$
   - $$l_{\text{obs}} = \mathbb{E} \left[ \left\| v^{\theta_o} - (\epsilon_o - o_{t+1:t+k}) \right\|^2 \right]$$
 
 <!-- - l_action = E[||v^θ_a - (ε_a - a_{t+1:t+k})||²]   - l_obs = E[||v^θ_o - (ε_o - o_{t+1:t+k})||²] -->
 
-**3. Latent Actions - Pixel-level "incremental actions":**
+**3. Latent actions: pixel-level "delta actions":**
 
 <div align="center">
-  <img src="/images/vln/motus-latent-action-vae.webp" alt="Latent action VAE architecture: from optical flow to latent action representation" width="598" height="838" style="width: 60%;" loading="lazy" decoding="async" />
+  <img src="/images/vln/motus-latent-action-vae.webp" alt="Latent action VAE architecture: from optical flow to a latent action representation" width="598" height="838" style="width: 60%;" loading="lazy" decoding="async" />
 <figcaption>
-Latent action VAE architecture: from optical flow to latent action representation
+Latent action VAE architecture: from optical flow to a latent action representation
 </figcaption>
 </div>
 
-- **Optical flow representation**: Using DPFlow to calculate optical flow as a universal motion representation, converting it to an RGB image
-- **Deep Compressed Autoencoder (DC-AE)**: Compresses high-dimensional optical flow into a 4×512-dimensional token, and then projects it to a 14-dimensional latent action vector through a lightweight encoder
-- **training strategy**: Mix 90% unlabeled data (self-supervised reconstruction) + 10% labeled trajectories (task-independent data + standard demonstration)
-- **distribution alignment**: Introducing task-independent data (AnyPos method), using Curobo to randomly sample the target robot action space
+- **Optical flow representation**: DPFlow computes optical flow as a universal motion representation, which is converted to an RGB image
+- **Deep Compression Autoencoder (DC-AE)**: Compresses the high-dimensional optical flow into 4×512-dimensional tokens, which a lightweight encoder then projects to a 14-dimensional latent action vector
+- **Training strategy**: Mixes 90% unlabeled data (self-supervised reconstruction) with 10% labeled trajectories (task-agnostic data + standard demonstrations)
+- **Distribution alignment**: Task-agnostic data (the AnyPos method) is introduced, using CuRobo to randomly sample the target robot's action space
 - **Loss function**: $$\mathcal{L} = \mathcal{L}_{\text{recon}} + \lambda_a \left\| a_{\text{real}} - a_{\text{pred}} \right\|^2 + \beta \mathcal{L}_{\text{KL}}$$
 <!-- - **Loss function**:L = L_recon + λ_a||a_real - a_pred||² + βL_KL -->
 
-**4. Action dense-video sparse prediction policy:**
-- Video frame rate: 8 frame @ 5Hz
-- action chunk: 48 steps @ 30Hz
-- Balance the number of tokens by downsampling video frames to prevent overfitting video prediction and weakening action prediction capabilities
+**4. Dense-action, sparse-video prediction policy:**
+- Video frame rate: 8 frames @ 5 Hz
+- Action chunk: 48 steps @ 30 Hz
+- The number of tokens is balanced by downsampling video frames, preventing the model from overfitting to video prediction and weakening its action prediction
 
 **5. Three-stage training process:**
 
@@ -2144,69 +2144,69 @@ Motus three-stage training process and data pyramid
 </figcaption>
 </div>
 
-- **Phase 1 (Video Generation)**: Adapting VGM using multi-robot trajectories, egocentric human videos, and synthetic data (training VGM only, ~8000 GPU hours)
-- **Phase 2 (unified training of latent actions)**: Freeze VLM, pretrain the entire Motus model on video, language and latent actions (about 10,000 GPU hours)
-- **Phase 3 (supervised fine-tuning)**: Fine-tuning using real motion on target robot data (~400 GPU hours)
+- **Stage 1 (video generation)**: Adapts the VGM using multi-robot trajectories, egocentric human videos, and synthetic data (VGM only, about 8000 GPU hours)
+- **Stage 2 (unified latent-action training)**: Freezes the VLM and pretrains the entire Motus model on video, language, and latent actions (about 10,000 GPU hours)
+- **Stage 3 (supervised fine-tuning)**: Fine-tunes with real actions on target robot data (about 400 GPU hours)
 
-**6. Six-layer data pyramid:**
-- **Level 1**: Web data (VGM and VLM pretraining)
+**6. Six-level data pyramid:**
+- **Level 1**: Web data (for VGM and VLM pretraining)
 - **Level 2**: Egocentric human video (Egodex: 230,949 samples)
 - **Level 3**: Synthetic data (RoboTwin: 27,500 samples)
-- **Level 4**: Task-independent data (AnyPos: 1,000 samples)
-- **Level 5**: Multi-robot mission trajectory data (Agibot: 728,209 + RDT: 6,083 + RoboMind: 16,861)
-- **Level 6**: Target robot mission trajectory data (In-house: 2,000 samples)
+- **Level 4**: Task-agnostic data (AnyPos: 1,000 samples)
+- **Level 5**: Multi-robot task trajectory data (Agibot: 728,209 + RDT: 6,083 + RoboMind: 16,861)
+- **Level 6**: Target-robot task trajectory data (in-house: 2,000 samples)
 
 <div align="center">
-  <img src="/images/vln/motus-embodied-data-pyramid.webp" alt="Embodied data pyramid: from Level 1 to Level 6, the amount of data decreases but the quality increases" width="1126" height="838" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vln/motus-embodied-data-pyramid.webp" alt="Embodied data pyramid: from Level 1 to Level 6, the amount of data decreases while its quality increases" width="1126" height="838" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-Embodied data pyramid: from Level 1 to Level 6, the amount of data decreases but the quality increases
+Embodied data pyramid: from Level 1 to Level 6, the amount of data decreases while its quality increases
 </figcaption>
 </div>
 
 **Results and findings**
 
-**simulation environment (RoboTwin 2.0) performance:**
-- Average success rate of randomized scenarios: 87.02% (Motus) vs 72.84% (X-VLA) vs 43.84% (π0.5)
-- Compared with X-VLA, it is increased by 15% and compared with π0.5, it is increased by 45%.
-- Evaluated on 50 tasks, including strong background and environment randomization (random background, cluttered desktop, table height disturbance, random lighting)
-- Cleaning scene success rate: 88.66% (Motus) vs 72.80% (X-VLA) vs 42.98% (π0.5)
+**Simulation (RoboTwin 2.0) performance:**
+- Average success rate in randomized scenes: 87.02% (Motus) vs 72.84% (X-VLA) vs 43.84% (π0.5)
+- A 15% improvement over X-VLA and 45% over π0.5.
+- Evaluated on 50 tasks with strong background and environment randomization (random backgrounds, cluttered tabletops, table height perturbations, random lighting)
+- Clean-scene success rate: 88.66% (Motus) vs 72.80% (X-VLA) vs 42.98% (π0.5)
 
 <div align="center">
-  <img src="/images/vln/motus-robotwin-results.webp" alt="Comparison of RoboTwin 2.0 simulation benchmark test results" width="1064" height="779" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vln/motus-robotwin-results.webp" alt="Results on the RoboTwin 2.0 simulation benchmark" width="1064" height="779" style="width: 100%;" loading="lazy" decoding="async" />
 <figcaption>
-Comparison of RoboTwin 2.0 simulation benchmark test results
+Results on the RoboTwin 2.0 simulation benchmark
 </figcaption>
 </div>
 
-**Real world experiment:**
-- **Two platforms**: AC-One and Agilex-Aloha-2 dual-arm robot
-- **9 complex tasks**: testing spatial understanding, deformable object manipulation, precise fluid control, visual understanding, and long-term planning
-  - Tasks include: folding towels, making coffee using a drip coffee machine, grinding coffee beans, putting bread in the oven, getting water from the dispenser, pouring water for flowers, and pressing keyboard keys
+**Real-world experiments:**
+- **Two platforms**: AC-One and Agilex-Aloha-2 bimanual robots
+- **9 complex tasks**: Testing spatial understanding, deformable object manipulation, precise fluid control, visual understanding, and long-horizon planning
+  - Tasks include: folding towels, making coffee with a drip coffee machine, grinding coffee beans, putting bread in the oven, getting water from the dispenser, watering flowers, and pressing keyboard keys
 
-- **AC-One platform**: average partial success rate 63.22% (Motus) vs 25.86% (no pretraining) vs 14.79% (π0.5)
-  - Outstanding tasks: grinding coffee beans 92% vs 0% (without pretraining), brewing coffee 62% vs 0%, placing cubes on the plate 100% vs 60%
+- **AC-One platform**: average partial success rate 63.22% (Motus) vs 25.86% (without pretraining) vs 14.79% (π0.5)
+  - Standout tasks: grinding coffee beans 92% vs 0% (without pretraining), brewing coffee 62% vs 0%, placing cubes on a plate 100% vs 60%
 
-- **Agilex-Aloha-2 platform**: average 59.30% (Motus) vs 26.60% (no pretraining) vs 48.60% (π0.5)
-  - Outstanding tasks: getting water from the water dispenser 96% vs 8% (without pretraining), folding towels 39% vs 0%
+- **Agilex-Aloha-2 platform**: average 59.30% (Motus) vs 26.60% (without pretraining) vs 48.60% (π0.5)
+  - Standout tasks: getting water from the dispenser 96% vs 8% (without pretraining), folding towels 39% vs 0%
 
 <div align="center">
-  <img src="/images/vln/motus-real-world-tasks.webp" alt="Demonstration of the execution of Motus on real-world complex tasks" width="675" height="1320" style="width: 60%;" loading="lazy" decoding="async" />
+  <img src="/images/vln/motus-real-world-tasks.webp" alt="Motus executing complex real-world tasks" width="675" height="1320" style="width: 60%;" loading="lazy" decoding="async" />
 <figcaption>
-Demonstration of the execution of Motus on real-world complex tasks
+Motus executing complex real-world tasks
 </figcaption>
 </div>
 
 **Other benchmarks:**
 - **LIBERO-Long**: 97.6% success rate (tied with X-VLA for the best, reaching state-of-the-art)
-- **VLABench**: In Distribution average 0.48 (vs π0.5’s 0.43), Cross Category average 0.25 (vs π0.5’s 0.22)
+- **VLABench**: In-distribution average 0.48 (vs 0.43 for π0.5), cross-category average 0.25 (vs 0.22 for π0.5)
 
-**ablation experimental verification:**
-- **Importance of training stage**: Complete Motus (stage 2 pretraining) 87.02% vs only stage 1 81.86% (+10.02% improvement)
-- **IDM mode performance**: Action MSE 0.014 (Motus) vs 0.044 (ResNet18+MLP) vs 0.122 (DINOv2+MLP), significantly better than the specially trained IDM baseline
-- Competitiveness of **VLA mode**: 83.90% success rate, close to 87.02% performance of joint mode
-- **world model generation quality**: FID 11.209, FVD 61.209, SSIM 0.866, PSNR 25.07 (evaluated on two platforms)
+**Ablation results:**
+- **Importance of the training stage**: Full Motus (stage 2 pretraining) 87.02% vs stage 1 only 81.86% (+10.02%)
+- **IDM mode performance**: Action MSE 0.014 (Motus) vs 0.044 (ResNet18+MLP) vs 0.122 (DINOv2+MLP), significantly better than specially trained IDM baselines
+- **Competitiveness of VLA mode**: 83.90% success rate, close to the 87.02% of joint mode
+- **World model generation quality**: FID 11.209, FVD 61.209, SSIM 0.866, PSNR 25.07 (evaluated on two platforms)
 
-Empirical verification of five unified modes of **:**
+**Empirical verification of the five unified modes:**
 $$
 \begin{aligned}
 \text{1. VLA:} & \quad p(a_{t+1:t+k} \mid o_t, \ell) && \text{--- predict actions from observations and language} \\
@@ -2224,15 +2224,15 @@ $$
 5. Video-action joint prediction: p(o_{t+1:t+k}, a_{t+1:t+k} | o_t, ℓ) - generate videos and actions simultaneously -->
 
 <div align="center">
-  <img src="/images/vln/motus-vgm-mode-visualization.webp" alt="Visualization of the Motus VGM pattern (future video generation from observations and language) on Agilex-Aloha-2: top row of each group is real execution, bottom row is model generation" width="1249" height="1018" style="width: 90%;" loading="lazy" decoding="async" />
+  <img src="/images/vln/motus-vgm-mode-visualization.webp" alt="Visualization of Motus's VGM mode (future video generation from observations and language) on Agilex-Aloha-2: the top row of each group is real execution, the bottom row is model generation" width="1249" height="1018" style="width: 90%;" loading="lazy" decoding="async" />
 <figcaption>
-Visualization of the Motus VGM pattern (future video generation from observations and language) on Agilex-Aloha-2: top row of each group is real execution, bottom row is model generation
+Visualization of Motus's VGM mode (future video generation from observations and language) on Agilex-Aloha-2: the top row of each group is real execution, the bottom row is model generation
 </figcaption>
 </div>
 
 **Limitations**
 
-Current methods require significant computing resources (~18,400 GPU hours total training). Performance on some complex tasks (such as folding towels) is still limited, with a partial success rate of only 39%. Although cross-embodiment generalization is improved through latent actions, further research is needed. Future work will explore more advanced unified model architectures, pursue more general motion priors, and learn latent actions from Internet-scale general videos. In addition, it is necessary to study how to reduce deployment costs and improve the robustness of models under extreme conditions.
+The current method requires substantial computing resources (about 18,400 GPU hours of training in total). Performance on some complex tasks (such as folding towels) remains limited, with a partial success rate of only 39%. Although latent actions improve cross-embodiment generalization, further research is needed. Future work will explore more advanced unified model architectures, pursue more general motion priors, and learn latent actions from general web-scale videos. It will also study how to reduce deployment cost and improve robustness under extreme conditions.
 
 <span id="524-robogen-2024-5-23-robogen-2024" class="vla-anchor-alias" aria-hidden="true"></span>
 
@@ -2242,21 +2242,21 @@ Current methods require significant computing resources (~18,400 GPU hours total
 
 📄 **Paper**: [arXiv:2311.01455](https://arxiv.org/abs/2311.01455) (ICML 2024)
 🌐 **Project**: [https://robogen-ai.github.io/](https://robogen-ai.github.io/)
-🔗 **simulation backend**: [RoboGen paper](https://arxiv.org/html/2311.01455v2) uses the internal Genesis version provided by the development team; this is a tool usage relationship.
+🔗 **Simulation backend**: The [RoboGen paper](https://arxiv.org/html/2311.01455v2) uses the in-house version of Genesis provided by the development team; this is a tool-usage relationship.
 
 ### Key takeaways
 {: id="精华-9"}
 
-RoboGen is the first complete implementation of "Generative Simulation" proposed by CMU, Tsinghua, MIT, UMass and other teams. The core idea can be summarized in one sentence: **uses the base model to automatically generate the entire "task-scenario-supervision signal-policy" process, allowing robot skill learning to get rid of manual annotation and achieve nearly unlimited data expansion**.
+RoboGen is the first complete implementation of "generative simulation", proposed by CMU, Tsinghua, MIT, UMass, and other teams. The core idea can be summarized in one sentence: **use foundation models to automatically generate the entire "task-scene-supervision signal-policy" pipeline, so that robot skill learning no longer depends on manual annotation and data can be scaled almost without limit**.
 
-- **Propose-Generate-Learn self-driven loop**: The agent autonomously proposes tasks → automatically builds simulation scenarios → automatically generates training supervision → automatically learns policies, which can be polled infinitely.
-- **has unprecedented coverage**: a single pipeline simultaneously covers the task spectrum of rigid bodies, articulated bodies, soft bodies, bipedal/quadrupedal movements, etc. The paper shows 106+ automatically generated skills (opening drawers, unlocking safes, kneading dough, climbing stairs, backflips...).
-- The task diversity of **is significantly better than the artificial data set**: it surpasses Behavior-100, RLBench, MetaWorld, Maniskill2 and GenSim in the same period in four indicators: Self-BLEU, SentenceBert, ViT, and CLIP.
-- **The role of the simulation backend**: execute policies and generate data through a unified environment interface; the framework can in principle replace the simulation platform.
+- **Self-driven propose-generate-learn loop**: The agent autonomously proposes tasks, automatically builds simulation scenes, automatically generates training supervision, and automatically learns policies, and the loop can run indefinitely.
+- **Unprecedented coverage**: A single pipeline covers rigid bodies, articulated bodies, soft bodies, bipedal/quadrupedal locomotion, and more. The paper shows 106+ automatically generated skills (opening drawers, unlocking safes, kneading dough, climbing stairs, backflips, ...).
+- **Task diversity clearly exceeds human-built datasets**: It surpasses Behavior-100, RLBench, MetaWorld, ManiSkill2, and the contemporaneous GenSim on four metrics: Self-BLEU, SentenceBERT, ViT, and CLIP.
+- **Role of the simulation backend**: It executes policies and generates data through a unified environment interface; in principle the framework can swap in a different simulation platform.
 
 <div align="center">
-  <img src="/images/vla/RoboGen-overview.webp" alt="25 representative tasks and corresponding skills automatically generated by RoboGen: covering rigid bodies, articulated bodies, soft bodies (kneading/shaping/rolling/bending noodles) and bipedal/quadrupedal movements" width="1367" height="869" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>RoboGen automatically generates 25 representative tasks and corresponding skills: covering rigid bodies, articulated bodies, soft bodies (kneading/shaping/rolling/bending noodles) and bipedal/quadrupedal movements</figcaption>
+  <img src="/images/vla/RoboGen-overview.webp" alt="25 representative tasks and skills automatically generated by RoboGen, covering rigid bodies, articulated bodies, soft bodies (kneading, shaping, rolling, and bending dough), and bipedal/quadrupedal locomotion" width="1367" height="869" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>25 representative tasks and skills automatically generated by RoboGen, covering rigid bodies, articulated bodies, soft bodies (kneading, shaping, rolling, and bending dough), and bipedal/quadrupedal locomotion</figcaption>
 </div>
 
 ---
@@ -2264,59 +2264,59 @@ RoboGen is the first complete implementation of "Generative Simulation" proposed
 ### 1. Background and problem
 {: id="1-研究背景问题-7"}
 
-Simulation data is regarded as the key to breaking the data bottleneck of real robots, but traditional simulation benchmarks (RLBench, MetaWorld, Behavior-100, etc.) rely heavily on manual construction: each task requires manual design of assets, layout, reward functions, and evaluation logic, and the expansion cost is extremely high. As a result, even the largest manual benchmarks can only cover dozens to more than a hundred tasks. At the same time, FM/LLM/VLM already has capabilities in semantic priors, code generation, 3D asset retrieval/generation, etc. However, most of the existing "base model + robot" work (Code as Policies, VoxPoser, SayCan, etc.) directly allows LLM to output policies or subtasks, and still requires a ready-made simulation environment.
+Simulation data is seen as the key to breaking the data bottleneck of real robots, but traditional simulation benchmarks (RLBench, MetaWorld, Behavior-100, etc.) rely heavily on manual construction: every task requires hand-designed assets, layouts, reward functions, and evaluation logic, so the cost of expansion is extremely high. As a result, even the largest manual benchmarks cover only dozens to slightly over a hundred tasks. Meanwhile, foundation models (LLMs/VLMs) already offer semantic priors, code generation, and 3D asset retrieval/generation. However, most existing "foundation model + robot" work (Code as Policies, VoxPoser, SayCan, etc.) has the LLM output policies or subtasks directly and still requires a ready-made simulation environment.
 
-> **Core question**: Can the "semantics + code + generation" capabilities of the base model be used to automatically generate a complete training pipeline of "task – scenario – assets – reward – algorithm selection – policy"?
+> **Core question**: Can the "semantics + code + generation" abilities of foundation models be used to automatically generate a complete training pipeline of "task, scene, assets, reward, algorithm choice, and policy"?
 
 ---
 
 ### 2. Methods and innovations
 {: id="2-主要方法创新点-7"}
 
-RoboGen's overall pipeline consists of four stages (paper Figure 2):
+RoboGen's overall pipeline has four stages (paper Figure 2):
 
 ```
 A) Task Proposal  →  B) Scene Generation  →  C) Training Supervision Generation  →  D) Skill Learning
 ```
 
 <div align="center">
-  <img src="/images/vla/RoboGen-architecture.webp" alt="RoboGen four-stage fully automatic pipeline: Task Proposal / Scene Generation / Training Supervision Generation / Skill Learning" width="1369" height="627" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>RoboGen four-stage fully automatic pipeline: Task Proposal / Scene Generation / Training Supervision Generation / Skill Learning</figcaption>
+  <img src="/images/vla/RoboGen-architecture.webp" alt="RoboGen's four-stage fully automatic pipeline: task proposal, scene generation, training supervision generation, and skill learning" width="1369" height="627" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>RoboGen's four-stage fully automatic pipeline: task proposal, scene generation, training supervision generation, and skill learning</figcaption>
 </div>
 
-#### A. Task Proposal
+#### A. Task proposal
 {: id="a-task-proposal任务提议"}
-- Use "robot type + randomly sampled objects" as a seed (object-based initialization), or use 11 types of example tasks as an example-based seed (applicable to foot/software).
-- GPT-4 receives PartNetMobility's URDF joint information and semantic annotations, and generates: 1) task name; 2) natural language description; 3) additional objects required to complete the task; 4) involved joints/links.
-- By repeatedly sampling different objects and examples, an open task flow with no semantic duplication can be produced.
+- Use "robot type + randomly sampled objects" as the seed (object-based initialization), or use 11 kinds of example tasks as the seed (example-based, applicable to legged robots and soft bodies).
+- GPT-4 receives the URDF joint information and semantic annotations from PartNet-Mobility and generates: 1) a task name; 2) a natural language description; 3) the additional objects needed to complete the task; 4) the joints/links involved.
+- By repeatedly sampling different objects and examples, an open-ended stream of semantically non-duplicate tasks can be produced.
 
-#### B. Scene Generation
+#### B. Scene generation
 {: id="b-scene-generation场景生成"}
-All four sub-products are automatically determined by GPT-4:
+All four sub-outputs are determined automatically by GPT-4:
 
-|Sub-product|Implementation method|
+|Sub-output|Implementation|
 | --- | --- |
-| **Relevant assets** |Additional objects proposed by LLM → Retrieval of top-k=10 in Objaverse (800k+ assets), secondary verification semantic matching by Gemini-Pro VLM|
-| **Asset size** |LLM reasoning "realistic size + task relative size" (e.g. drawer should be larger than book)|
-| **Initial configuration** |LLM sets the initial joint angle of the articulated object (the window should be open during the window closing task)|
-| **Scene configuration** |LLM gives spatial relationships ("Knife on the chopping board") and guarantees collision avoidance|
+| **Relevant assets** |Additional objects proposed by the LLM → top-k=10 retrieval from Objaverse (800k+ assets), with a second round of semantic-matching verification by the Gemini-Pro VLM|
+| **Asset size** |The LLM reasons about "realistic size + size relative to the task" (e.g., a drawer should be larger than a book)|
+| **Initial configuration** |The LLM sets the initial joint angles of articulated objects (e.g., the window should be open in a window-closing task)|
+| **Scene configuration** |The LLM specifies spatial relationships ("the knife is on the chopping board") and guarantees collision avoidance|
 
-For software tasks, GPT-4 is used to generate target shape description → Midjourney Vincentian graph → Zero-1-to-3 graph to generate 3D Mesh to construct controllable target geometry.
+For soft-body tasks, GPT-4 generates a target shape description, Midjourney turns it into an image, and Zero-1-to-3 generates a 3D mesh from the image to build a controllable target geometry.
 
-#### C. Training Supervision Generation
+#### C. Training supervision generation
 {: id="c-training-supervision-generation监督信号生成"}
 - **Task decomposition**: GPT-4 splits long-horizon tasks into subtasks (such as "turn on the microwave → grab the soup bowl → put it in → close the door → set the timer knob").
-- **algorithm selection**: Each subtask automatically selects one from three options: RL (SAC), Gradient-based Trajectory Optimization, and Action Primitive + Motion Planning (BIT*):
-  - Intensive contact/continuous control/knob type → RL;
-  - Soft body deformation (kneading dough, shaping) → gradient optimization (based on differentiable simulation);
-  - Grab/approach/release/path planning → action primitives + motion planning.
-- **reward generation**: Rigid body/motion tasks use low-level state quantities to construct rewards; software tasks use earth-mover distance to align the current shape and the target shape.
+- **Algorithm selection**: Each subtask automatically selects one of three options: RL (SAC), gradient-based trajectory optimization, or action primitives + motion planning (BIT*):
+  - Contact-rich / continuous control / knob-type tasks → RL;
+  - Soft-body deformation (kneading dough, shaping) → gradient-based optimization (via differentiable simulation);
+  - Grasping / approaching / releasing / path planning → action primitives + motion planning.
+- **Reward generation**: Rigid-body and locomotion tasks build rewards from low-level state quantities; soft-body tasks use the earth mover's distance to align the current shape with the target shape.
 
-#### D. Skill Learning
+#### D. Skill learning
 {: id="d-skill-learning技能学习"}
-- Use an internal version of Genesis as the simulation execution backend.
-- RL: SAC + 256-256-256 MLP, each subtask is trained with 1M environment steps; long-horizon tasks use N=8 rounds, and the highest reward state is used as the initial state of the next period.
-- Software: Adam for gradient optimization; motion planning: BIT*.
+- An in-house version of Genesis is used as the simulation backend.
+- RL: SAC with a 256-256-256 MLP, each subtask trained for 1M environment steps; long-horizon tasks use N=8 rounds, and the highest-reward state is used as the initial state of the next round.
+- Soft body: Adam for gradient-based optimization; motion planning: BIT*.
 
 ---
 
@@ -2325,49 +2325,49 @@ For software tasks, GPT-4 is used to generate target shape description → Midjo
 
 **Task diversity (paper Table 1, smaller is better):**
 
-|indicator| RoboGen | Behavior-100 | RLBench | MetaWorld | Maniskill2 | GenSim |
+|Metric| RoboGen | Behavior-100 | RLBench | MetaWorld | Maniskill2 | GenSim |
 | :-- | --: | --: | --: | --: | --: | --: |
 |Number of tasks| 106 | 100 | 106 | 50 | 20 | 70 |
 | Self-BLEU ↓ | **0.284** | 0.299 | 0.317 | 0.322 | 0.674 | 0.378 |
-| SentenceBert Sim ↓ | **0.165** | 0.210 | 0.200 | 0.263 | 0.194 | 0.288 |
+| SentenceBERT Sim ↓ | **0.165** | 0.210 | 0.200 | 0.263 | 0.194 | 0.288 |
 | Scene ViT Sim ↓ | **0.193** | 0.389 | 0.375 | 0.517 | 0.332 | 0.717 |
 | Scene CLIP Sim ↓ | **0.762** | 0.833 | 0.864 | 0.867 | 0.828 | 0.932 |
 
-→ RoboGen's diversity in both semantic and visual dimensions is significantly better than the existing manual benchmark and parallel work GenSim, verifying the scalability of the "base model + open asset library".
+→ RoboGen's diversity in both semantic and visual dimensions is significantly better than existing manual benchmarks and the contemporaneous GenSim, verifying the scalability of "foundation model + open asset library".
 
-**ablation and failure analysis:**
-- Removing size verification significantly degrades the BLIP-2 scene alignment score; removing object verification also worsens it.
-- On the 12 articulated object manipulation tasks, if only pure RL (removing action primitives) is used, the success rate drops from an average of ~0.92 to close to 0.
-- Among the 155 fully automatically generated tasks: 13 failed due to mismatch in retrieval objects; 6 rewarded mismatches because LLM misunderstood the semantics of joint angles (such as reversing the "open" and "closed" angles); a small number exceeded asset capabilities due to complex functions (stapler inserting nails).
+**Ablation and failure analysis:**
+- Removing size validation significantly lowers the BLIP-2 scene alignment score; removing object validation also makes it worse.
+- On the 12 articulated-object manipulation tasks, using pure RL alone (without action primitives) drops the success rate from an average of about 0.92 to nearly 0.
+- Among the 155 fully automatically generated tasks: 13 failed because of mismatched retrieved objects; 6 had mismatched rewards because the LLM misunderstood the semantics of joint angles (for example, reversing the "open" and "closed" angles); and a small number exceeded the assets' capabilities because of complex functions (a stapler driving staples).
 
-**long-range mission example (paper Figure 3):**
-- "Retrieve a gold bar from the safe", "Heat up a bowl of soup using the microwave", "Put the toy into the storage", and "Move the toy out of the box" can all be automatically disassembled, automatically awarded, and automatically learned into complete sequences.
+**Long-horizon task examples (paper Figure 3):**
+- "Retrieve a gold bar from the safe", "Heat up a bowl of soup using the microwave", "Put the toy into the storage", and "Move the toy out of the box" can all be automatically decomposed, assigned rewards, and learned as complete sequences.
 
 <div align="center">
-  <img src="/images/vla/RoboGen-skills.webp" alt="Policy snapshots of 4 long-horizon tasks: each task is automatically decomposed into 5–7 subtasks by LLM, and learning algorithms are adaptively allocated according to RL/action primitives/motion planning" width="1148" height="631" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> Policy snapshot of 4 long-distance tasks: Each task is automatically broken down into 5–7 subtasks by LLM, and the learning algorithm is adaptively allocated according to RL/action primitives/motion planning</figcaption>
+  <img src="/images/vla/RoboGen-skills.webp" alt="Policy snapshots of 4 long-horizon tasks: each task is automatically decomposed by the LLM into 5-7 subtasks, and a learning algorithm is assigned adaptively among RL, action primitives, and motion planning" width="1148" height="631" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Policy snapshots of 4 long-horizon tasks: each task is automatically decomposed by the LLM into 5-7 subtasks, and a learning algorithm is assigned adaptively among RL, action primitives, and motion planning</figcaption>
 </div>
 
 ---
 
-### 4. Limitations and meaning
+### 4. Limitations and significance
 {: id="4-局限性与意义"}
 
 **Limitations**: 
-- Still relies on closed-source LLM (GPT-4) and external asset libraries, and the quality of retrieval/generation of long-tail objects (such as staples) is unstable;
-- LLM's semantic judgment on the state of articulated joints may still be wrong, and a small number of reward functions need to be manually verified;
-- Visual authenticity and tactile/mechanical feedback have not been unified into the production pipeline;
-- Sim-to-Real was not verified end-to-end in the paper.
+- Still relies on a closed-source LLM (GPT-4) and external asset libraries, and the quality of retrieval/generation for long-tail objects (such as staples) is unstable;
+- The LLM's semantic judgment of articulated joint states can still be wrong, and a small number of reward functions need manual verification;
+- Visual realism and tactile/mechanical feedback are not yet integrated into the production pipeline;
+- Sim-to-real transfer was not verified end to end in the paper.
 
-**significance and subsequent impact**:
-- **Paradigm value**: RoboGen is the first system to hand over all four stages of "task-scenario-supervision-policy" to the base model, establishing "generative simulation" as the third data source after real robot teleoperation and Internet video.
-- **The boundary between tools and methods**: RoboGen's contribution lies in organizing tasks, scenarios, supervision and skill learning processes; using an internal Genesis version does not prove that the simulator was derived from this method.
+**Significance and subsequent impact**:
+- **Paradigm value**: RoboGen is the first system to hand all four stages of "task, scene, supervision, and policy" over to foundation models, establishing "generative simulation" as a third data source after real-robot teleoperation and web video.
+- **The boundary between tool and method**: RoboGen's contribution lies in organizing the task, scene, supervision, and skill-learning pipeline; its use of an in-house Genesis version does not show that the simulator was derived from this method.
 
 ---
 
 ## 25. Qwen-VLA (2026)
 {: id="525-qwen-vla-2026"}
-——Embodied base model that unifies operation, navigation and trajectory prediction
+——An embodied foundation model unifying manipulation, navigation, and trajectory prediction
 
 📄 **Paper**: https://arxiv.org/abs/2605.30280
 
@@ -2376,18 +2376,18 @@ For software tasks, GPT-4 is used to generate target shape description → Midjo
 ### Key takeaways
 {: id="精华-10"}
 
-- Heterogeneous embodied tasks such as operation, navigation, and human perspective actions essentially share the same computing structure: given visual observations, language instructions, and embodiment descriptions, predicting future action sequences—Qwen-VLA uses a unified action-and-trajectory prediction framework to absorb them all into a single model.
-- DiT-based flow matching is the key bridge to "decompress" the discrete VLM token space and the continuous high-dimensional action space; text-to-action pretraining (T2A) is used to warm up DiT before CPT/SFT, allowing the decoder to learn language → action priors without visual shortcuts.
-- Embodiment-aware prompt conditioning encodes the robot platform, control frequency, and prediction time domain into text prompts, and can support cross-model sharing of 10+ robot forms without any architectural changes.
-- Zero-padding unifies the heterogeneous action space: different robot action dimensions are aligned to the maximum dimension and zero-padded. The per-channel effectiveness mask prevents padding from contaminating the gradient. The architecture parameters are minimal and the effect is comparable to complex solutions.
-- RL fine-tuning (PPO + GAE) only collects sparse rewards in a single simulation environment, but the improvements can be forward transferred across environments: performance improvements also appear on benchmarks such as RoboCasa and DOMINO that do not participate in RL rollout.
+- Heterogeneous embodied tasks such as manipulation, navigation, and egocentric human actions essentially share the same computational structure: given visual observations, language instructions, and an embodiment description, predict a future action sequence. Qwen-VLA uses a unified action-and-trajectory prediction framework to absorb them all into a single model.
+- DiT-based flow matching is the key bridge that "decompresses" the discrete VLM token space into the continuous high-dimensional action space; text-to-action pretraining (T2A) warms up the DiT before CPT/SFT, letting the decoder learn language-to-action priors without visual shortcuts.
+- Embodiment-aware prompt conditioning encodes the robot platform, control frequency, and prediction horizon into the text prompt, and can support sharing across 10+ robot embodiments with no architectural changes.
+- Zero-padding unifies heterogeneous action spaces: the action dimensions of different robots are aligned to the maximum dimension and zero-padded, and a per-channel validity mask keeps padding from contaminating the gradient. The architecture has very few parameters yet matches the effect of complex solutions.
+- RL fine-tuning (PPO + GAE) collects only sparse rewards in a single simulation environment, yet the gains transfer across environments: improvements also appear on benchmarks that did not take part in the RL rollouts, such as RoboCasa and DOMINO.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-8"}
 
-Existing embodied intelligence systems are highly specialized: the operation model is designed for desktop/dexterous operations, and the navigation model focuses on indoor waypoint prediction. The two cannot be transferred across tasks, environments, and cross-robot forms, and are difficult to scale like general visual-language pretraining. The core challenge is that operation and navigation appear to be completely heterogeneous in terms of output format, control frequency, action dimensions, and evaluation protocols, but in fact they share the same computing structure—both require the agent to conditionalize visual observations, language instructions, and embodiment constraints to predict future action sequences that are physically and semantically consistent. Qwen-VLA leverages this insight to unify the two into a single VLA model.
+Existing embodied intelligence systems are highly specialized: manipulation models are designed for tabletop/dexterous manipulation, and navigation models focus on indoor waypoint prediction. The two cannot transfer across tasks, environments, or robot embodiments, and are hard to scale like general vision-language pretraining. The core challenge is that manipulation and navigation appear completely heterogeneous in output format, control frequency, action dimensionality, and evaluation protocol, yet they in fact share the same computational structure: both require the agent to condition on visual observations, language instructions, and embodiment constraints to predict future action sequences that are physically and semantically consistent. Qwen-VLA builds on this insight to unify the two in a single VLA model.
 
 ---
 
@@ -2395,57 +2395,57 @@ Existing embodied intelligence systems are highly specialized: the operation mod
 {: id="2-主要方法创新点-8"}
 
 <div align="center">
-  <img src="/images/vla/QwenVLA-architecture-overview.webp" alt="Qwen-VLA overall architecture: Qwen3.5 VLM backbone + DiT flow-matching action expert, simultaneously supporting three types of tasks: VLA (operation), VLN (navigation) and VL (language understanding)" width="1278" height="658" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>Qwen-VLA overall architecture: Qwen3.5 VLM backbone + DiT flow-matching action expert, simultaneously supporting three types of tasks: VLA (operation), VLN (navigation) and VL (language understanding)</figcaption>
+  <img src="/images/vla/QwenVLA-architecture-overview.webp" alt="Qwen-VLA overall architecture: a Qwen3.5 VLM backbone + a DiT flow-matching action expert, supporting three kinds of tasks at once: VLA (manipulation), VLN (navigation), and VL (language understanding)" width="1278" height="658" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Qwen-VLA overall architecture: a Qwen3.5 VLM backbone + a DiT flow-matching action expert, supporting three kinds of tasks at once: VLA (manipulation), VLN (navigation), and VL (language understanding)</figcaption>
 </div>
 
-**① Overview of the overall framework**
+**① Overall framework**
 
-Qwen-VLA consists of two core modules: **Qwen3.5-4B visual-language backbone** (responsible for high-level perception and reasoning) and **single-flow DiT-style flow-matching action expert** (responsible for fine continuous action generation), both through VLM Hidden state splicing jointly serves three types of tasks: operation, navigation and vision-language understanding.
+Qwen-VLA consists of two core modules: a **Qwen3.5-4B vision-language backbone** (responsible for high-level perception and reasoning) and a **single-stream DiT-style flow-matching action expert** (responsible for fine-grained continuous action generation). The two are connected by concatenating the VLM hidden states, and together serve three kinds of tasks: manipulation, navigation, and vision-language understanding.
 
-**② Explain** module by module
+**② Module-by-module walkthrough**
 
-**VLM trunk (Qwen3.5-4B)**
-- **input**: multi-view RGB image (ego, left wrist, right wrist camera, each wrapped with view mark `<|tag_start|> <image> <|tag_end|>`) + language command + embodiment description prompt
-- **processing**: ViT generates visual tokens, which are interleaved with text tokens after spatial merging and input into the hybrid attention Transformer (most layers are gated linear attention, and a few layers are GQA softmax attention) to achieve unified encoding of images, videos and languages.
-- **Output**: VLM hidden state sequence for action expert conditioning
-- **design motivation**: reuse powerful vision-language pretraining capabilities to avoid learning perception and grounding from scratch; hybrid attention takes into account both efficiency and accuracy in long multimodal sequences
+**VLM backbone (Qwen3.5-4B)**
+- **Input**: Multi-view RGB images (ego, left wrist, and right wrist cameras, each wrapped in a view marker `<|tag_start|> <image> <|tag_end|>`) + language instruction + embodiment description prompt
+- **Processing**: A ViT produces visual tokens, which are interleaved with text tokens after spatial merging and fed into a hybrid-attention Transformer (most layers use gated linear attention and a few use GQA softmax attention), giving a unified encoding of images, video, and language.
+- **Output**: A sequence of VLM hidden states used to condition the action expert
+- **Motivation**: Reuse the powerful vision-language pretraining so that perception and grounding need not be learned from scratch; hybrid attention balances efficiency and accuracy on long multimodal sequences
 
-**Action expert (DiT flow-matching, about 1.15B parameters, 16 DiT blocks)**
-- **input**: VLM hidden state + action chunk with noise (dimension $$\mathbf Y \in \mathbb{R}^{H \times K}$$, K is the maximum number of channels shared by all embodiments, effective dimension c ≤ K, the rest are zero-padded)
-- **processing**: After VLM hidden state splicing noisy action chunk, 16 DiT blocks combined with self-attention, AdaLN timestep conditioning and multi-segment RoPE processing; per-channel effectiveness mask **M** ensures that padding does not participate in the gradient
-- **outputs**: predicts the velocity field $$v_\theta$$, and produces clean action chunks through several steps of Euler integration (from τ=1 to τ=0) during inference.
-- **Design motivation**: flow-matching naturally handles the multimodality of continuous high-dimensional action distribution; single-flow design allows VLM semantic features to fully interact with action sequences
+**Action expert (DiT flow matching, about 1.15B parameters, 16 DiT blocks)**
+- **Input**: VLM hidden states + a noisy action chunk (dimension $$\mathbf Y \in \mathbb{R}^{H \times K}$$, where K is the maximum number of channels shared by all embodiments, the effective dimension is c ≤ K, and the rest is zero-padded)
+- **Processing**: The VLM hidden states are concatenated with the noisy action chunk and processed by 16 DiT blocks combining self-attention, AdaLN timestep conditioning, and multi-segment RoPE; a per-channel validity mask **M** ensures that padding does not contribute to the gradient
+- **Output**: Predicts the velocity field $$v_\theta$$ and, at inference, produces a clean action chunk through several Euler integration steps (from τ=1 to τ=0).
+- **Motivation**: Flow matching naturally handles the multimodality of continuous high-dimensional action distributions; the single-stream design lets VLM semantic features interact fully with the action sequence
 
-**Embodiment-aware Prompt Conditioning**
+**Embodiment-aware prompt conditioning**
 
-Add a text description before each training sample (the only platform-specific interface, without any architectural changes):
+A text description is prepended to every training sample (the only platform-specific interface, with no architectural change):
 ```
 The robot is {robot_tag} with {arms}. The control frequency is {FPS} Hz.
 Please predict the next {chunk_size} control actions to execute: {instruction}.
 ```
-Covering 10+ platforms such as WidowX, Franka, ALOHA, AgiBot, and humanoid robots, the control modes cover ΔEF, absolute joint angle, dexterous hand, etc.
+It covers 10+ platforms such as WidowX, Franka, ALOHA, AgiBot, and humanoid robots, with control modes including ΔEF, absolute joint angles, and dexterous hands.
 
-**Unified Action-and-Trajectory representation (Zero-Padding)**
+**Unified action-and-trajectory representation (zero-padding)**
 
-The target tensor $$\mathbf Y \in \mathbb{R}^{H \times K}$$, the c dimension of the effective action is placed in the first c dimension, and the rest are filled with zeros:
-- **operation**: Δ end effector pose/joint angle/clamp opening and closing
-- **navigation**: $(\Delta x, \Delta y, \Delta\theta)$ waypoint sequence
-- **Human body perspective**: SE(3) wrist motion + 10-dimensional eigengrasp coefficient (45-dimensional gesture PCA compression), a total of 32 dimensions/step
+The target tensor $$\mathbf Y \in \mathbb{R}^{H \times K}$$ holds the c effective action dimensions in its first c dimensions, with the rest filled with zeros:
+- **Manipulation**: Δ end-effector pose / joint angles / gripper open-close
+- **Navigation**: $(\Delta x, \Delta y, \Delta\theta)$ waypoint sequence
+- **Egocentric human data**: SE(3) wrist motion + 10-dimensional eigengrasp coefficients (PCA compression of a 45-dimensional hand pose), 32 dimensions per step in total
 
 **③ End-to-end data flow**
 
-embodiment prompt + image → VLM backbone generates hidden state → splicing noisy action chunks → joint processing of 16 DiT blocks → predicting velocity field → Euler integration outputs clean action chunks
+Embodiment prompt + image → VLM backbone produces hidden states → concatenate the noisy action chunk → joint processing by 16 DiT blocks → predict the velocity field → Euler integration outputs a clean action chunk
 
-**④ Training target**
+**④ Training objectives**
 
-**Flow-matching action loss** (per-channel two-level average to prevent padding from dominating the gradient):
+**Flow-matching action loss** (a per-channel, two-level average keeps padding from dominating the gradient):
 
 $$\ell_k = \frac{\sum_{h=1}^{H} M_{h,k} \left\lVert \left(v_\theta(\mathbf Y_\tau, \tau \mid o_{1:t}, x, e, z) - (\mathbf Y_1 - \mathbf Y_0)\right)_{h,k} \right\rVert_2^2}{\sum_{h=1}^{H} M_{h,k}}$$
 
 $$\mathcal{L}_\text{act} = \mathbb{E}_{\tau, \mathbf Y_0, \mathbf Y_1} \left[ \frac{1}{c} \sum_{k=0}^{c-1} \ell_k \right]$$
 
-**Visual language loss** (next-token prediction, preventing catastrophic forgetting):
+**Vision-language loss** (next-token prediction, to prevent catastrophic forgetting):
 
 $$\mathcal{L}_\text{vl} = -\sum_i \log p_\theta(w_i \mid w_{<i}, o_{1:t})$$
 
@@ -2454,32 +2454,32 @@ $$\mathcal{L}_\text{vl} = -\sum_i \log p_\theta(w_i \mid w_{<i}, o_{1:t})$$
 **⑤ Four-stage progressive training**
 
 <div align="center">
-  <img src="/images/vla/QwenVLA-training-recipe.webp" alt="Four stages of training: Stage I (T2A, freeze VLM and only train DiT) → Stage II/III (CPT & SFT, unfreeze dual modules to introduce images) → Stage IV (RL, environment sparse reward optimization closed-loop success rate)" width="1277" height="603" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> four-stage training: Stage I (T2A, frozen VLM only trains DiT) → Stage II/III (CPT & SFT, unfreeze dual modules to introduce images) → Stage IV (RL, environment sparse reward optimization closed-loop success rate)</figcaption>
+  <img src="/images/vla/QwenVLA-training-recipe.webp" alt="Four-stage training: Stage I (T2A: the VLM is frozen and only the DiT is trained) → Stage II/III (CPT and SFT: both modules are unfrozen and images are introduced) → Stage IV (RL: sparse environment rewards optimize the closed-loop success rate)" width="1277" height="603" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Four-stage training: Stage I (T2A: the VLM is frozen and only the DiT is trained) → Stage II/III (CPT and SFT: both modules are unfrozen and images are introduced) → Stage IV (RL: sparse environment rewards optimize the closed-loop success rate)</figcaption>
 </div>
 
-- **Stage I — T2A (Text-to-Action pretraining)**: Freeze VLM, train DiT only with text + embodiment prompt, **does not introduce image**. The goal is to let DiT learn "language → action decompression" prior; use Sigmoid-Normal to sample the intermediate timestep (maximize the amount of information), the optimal step is 2000 (too many will lead to overfitting, resulting in −10.7pp degradation). Pure synthetic data (Syn only) → 64.1%, pure real data (Real only) → 51.0%, 20% Syn + 80% Real hybrid optimal → **71.1%** (+10.2pp vs. no T2A).
-- **Stage II — CPT (continue pretraining)**: Unfreeze all parameters, jointly train on a mixture of multi-source heterogeneous data (74.2% operational trajectory, 7.5% navigation, 6.0% human body, 3.7% synthetic simulation, 8.5% VL data), grounding T2A action a priori to visual observation.
-- **Stage III — SFT (supervised fine-tuning)**: Two-way parallel fine-tuning from CPT checkpoint - multi-task SFT (VQA + operation + navigation balanced sampling) and real robot SFT (ALOHA teleoperation data).
-- **Stage IV - RL (Reinforcement Learning)**: Optimizing sparse binary success rewards (R=1 completed / R=0 not completed) in SimplerEnv with **PPO + GAE** in SimplerEnv, 128 parallel environment instances. The log-probability of flow-matching is calculated analytically on Euler steps by converting deterministic ODEs into SDEs and injecting noise, without the need for numerical integration.
+- **Stage I: T2A (text-to-action pretraining)**: Freeze the VLM and train only the DiT with text + embodiment prompts, **without introducing images**. The goal is to let the DiT learn the "language → action decompression" prior; intermediate timesteps are sampled with a sigmoid-normal distribution (to maximize information), and the optimal number of steps is 2000 (more leads to overfitting, a -10.7pp degradation). Purely synthetic data (Syn only) → 64.1%, purely real data (Real only) → 51.0%, and a hybrid of 20% Syn + 80% Real is best at → **71.1%** (+10.2pp vs. no T2A).
+- **Stage II: CPT (continued pretraining)**: Unfreeze all parameters and train jointly on a mixture of heterogeneous multi-source data (74.2% manipulation trajectories, 7.5% navigation, 6.0% egocentric human data, 3.7% synthetic simulation, 8.5% VL data), grounding the T2A action prior in visual observations.
+- **Stage III: SFT (supervised fine-tuning)**: Two parallel fine-tuning branches from the CPT checkpoint: multi-task SFT (VQA + manipulation + navigation with balanced sampling) and real-robot SFT (ALOHA teleoperation data).
+- **Stage IV: RL (reinforcement learning)**: Optimizes a sparse binary success reward (R=1 if completed, R=0 otherwise) in SimplerEnv with **PPO + GAE**, using 128 parallel environment instances. The log-probability of flow matching is computed analytically on the Euler steps by converting the deterministic ODE into an SDE and injecting noise, with no need for numerical integration.
 
 **Large-scale synthetic data (ROBOINF pipeline)**
 
 <div align="center">
-  <img src="/images/vla/QwenVLA-synthetic-data.webp" alt="Examples of synthetic data generated by ROBOINF: short-term tasks (placing staplers, rotating cake shovels) and long-horizon tasks (organizing drinks + sponges), including sub-task segmentation supervision" width="1282" height="1057" style="width: 100%;" loading="lazy" decoding="async" />
-Examples of synthetic data generated by<figcaption>ROBOINF: short-term tasks (placing staplers, rotating cake shovels) and long-horizon tasks (organizing drinks + sponges), including sub-task segmentation supervision</figcaption>
+  <img src="/images/vla/QwenVLA-synthetic-data.webp" alt="Examples of synthetic data generated by ROBOINF: short-horizon tasks (placing a stapler, rotating a cake server) and long-horizon tasks (organizing drinks + sponges), including subtask segmentation supervision" width="1282" height="1057" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Examples of synthetic data generated by ROBOINF: short-horizon tasks (placing a stapler, rotating a cake server) and long-horizon tasks (organizing drinks + sponges), including subtask segmentation supervision</figcaption>
 </div>
 
-The ROBOINF pipeline automatically builds scenes in IsaacLab (20 desktop scenes × 10 pose configurations = 200 base scenes), generates 450 tasks (half/half short/long time domain), 300 trajectories per task, and randomizes lighting/viewing/background/texture/controller parameters. At the same time, pure language-action data (7.2M items) were constructed, covering 6 types of single-arm robots × 6 types of operation templates, as the main corpus of T2A Stage I.
+The ROBOINF pipeline automatically builds scenes in IsaacLab (20 tabletop scenes × 10 pose configurations = 200 base scenes) and generates 450 tasks (half short-horizon, half long-horizon) with 300 trajectories per task, randomizing lighting, viewpoint, background, texture, and controller parameters. It also constructs pure language-action data (7.2M items) covering 6 types of single-arm robots × 6 types of manipulation templates, which serves as the main corpus for T2A Stage I.
 
 ---
 
 ### 3. Results and findings
 {: id="3-核心结果发现-3"}
 
-**operation (simulation, single general model vs. each benchmark expert model)**:
+**Manipulation (simulation, a single generalist model vs. per-benchmark expert models)**:
 
-|benchmark| Qwen-VLA-Instruct |The strongest expert|
+|Benchmark| Qwen-VLA-Instruct |Strongest expert|
 |------|-------------------|---------|
 | LIBERO | **97.9%** | ABot-M0 98.6% |
 | Simpler-WidowX | **73.7%** | StarVLA-OFT 64.6% |
@@ -2487,42 +2487,42 @@ The ROBOINF pipeline automatically builds scenes in IsaacLab (20 desktop scenes 
 | RoboTwin-Hard | **87.2%** | ABot-M0 85.0% ✓ |
 | RoboCasa-GR1 | **56.7%** | Being-H0.5 53.3% |
 
-**operation (real robot ALOHA dual arms)**: average task in domain after fine-tuning **83.6%**, OOD success rate **76.9%** (vs. π0.5 41.5%), with pretraining vs. without pretraining, the gap is as high as +35.1pp (83.6% vs. 48.5%), proving that pretraining represents a significant value in migration.
+**Manipulation (real ALOHA bimanual robot)**: After fine-tuning, the average in-domain task success is **83.6%** and the OOD success rate is **76.9%** (vs. 41.5% for π0.5). With versus without pretraining, the gap is as large as +35.1pp (83.6% vs. 48.5%), showing that pretraining brings significant value for transfer.
 
-**Navigation (VLN-CE Val-Unseen)**: R2R Maximum OSR **69.0%**, SR **57.5%**; RxR SR **59.6%**, SPL **47.8%**, both surpass open source baselines such as StreamVLN and NaVILA.
+**Navigation (VLN-CE Val-Unseen)**: R2R best OSR **69.0%** and SR **57.5%**; RxR SR **59.6%** and SPL **47.8%**, both surpassing open-source baselines such as StreamVLN and NaVILA.
 
-**OOD dynamic operation (DOMINO, zero sample)**: SR **26.6%**, MS **39.5**, only relying on current frame observation and no dynamic operation training data, surpasses specialized DOMINO Finely tuned PUMA (17.2%/35.0%).
+**OOD dynamic manipulation (DOMINO, zero-shot)**: SR **26.6%** and MS **39.5**; relying only on current-frame observations and with no dynamic-manipulation training data, it surpasses the specially fine-tuned DOMINO model PUMA (17.2% / 35.0%).
 
-**ablation Key findings**: T2A warm-up brings +10.2pp; VL data joint training brings +4.9pp in complex tasks (RoboCasa); RL post-training brings +2.9pp in the training environment, and no catastrophic forgetting (maximum fluctuation <0.6pp) on all other benchmarks; without adding proprioceptive state, only loss ≤1.3pp, visual information is sufficient.
+**Key ablation findings**: T2A warm-up brings +10.2pp; joint training with VL data brings +4.9pp on complex tasks (RoboCasa); RL post-training brings +2.9pp in the training environment with no catastrophic forgetting on any other benchmark (maximum fluctuation <0.6pp); omitting the proprioceptive state costs at most 1.3pp, so visual information is sufficient.
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-2"}
 
-The scale of embodied action data is much smaller than that of VL data, and the robustness of long-tail objects and contact-rich tasks (such as cloth folding, slotting) is still insufficient; there are optimization trade-offs in joint operation/navigation/VL training, and action-enhanced training will slightly damage pure VL and navigation evaluation indicators; current evaluation is mainly based on short-time domain, benchmark-driven, and long-term real deployment (fault recovery, scene memory) is still an unsolved challenge.
+Embodied action data is far smaller in scale than VL data, and robustness on long-tail objects and contact-rich tasks (such as cloth folding and insertion) remains insufficient. Joint manipulation/navigation/VL training involves optimization trade-offs: action-enhanced training slightly hurts pure VL and navigation metrics. Current evaluation is mainly short-horizon and benchmark-driven, and long-term real deployment (failure recovery, scene memory) remains an unsolved challenge.
 <span id="526-spatialvla-2025-5-26-spatialvla" class="vla-anchor-alias" aria-hidden="true"></span>
 
 ## 26. SpatialVLA (2025)
 {: id="5-26-spatialvla"}
-——Embodied intelligence base model that integrates 3D spatial representation and adaptive action mesh
+——An embodied foundation model integrating 3D spatial representations and adaptive action grids
 
 📄 **Paper**: https://arxiv.org/abs/2501.15830
 
 ### Key takeaways
 {: id="精华-11"}
-- **SpatialVLA** is proposed, which significantly improves the robot's spatial perception and fine manipulation capabilities by introducing 3D spatial priors into the VLA (Vision-Language-Action) model.
-- The **egocentric 3D position encoding (Ego3D Position Encoding)** is designed, which uses the relative depth predicted by ZoeDepth for back projection, and can integrate the 3D spatial structure into the 2D image features without the need for camera external parameter calibration.
-- **Adaptive Action Grids (Adaptive Action Grids)** are proposed, which non-uniformly discretizes the action space according to the action Gaussian distribution in the offline data set, effectively improving the accuracy of action expression and reducing the number of predicted Tokens at each step from 7 to 3.
-- **Spatial Embedding Adaptation** is proposed, which re-discretizes the action space according to the distribution of the new data set during downstream fine-tuning, and uses trilinear interpolation to initialize the embedding of new Tokens to achieve efficient multi-robot adaptation.
-- It was evaluated in simulation environments such as 24 real robot tasks and SimplerEnv, demonstrating strong zero-shot generalization capabilities, especially robustness to changes in height, viewpoint, and lighting.
+- Proposes **SpatialVLA**, which significantly improves a robot's spatial perception and fine manipulation by introducing 3D spatial priors into a vision-language-action (VLA) model.
+- Designs **Ego3D position encoding**, which back-projects the relative depth predicted by ZoeDepth and can integrate 3D spatial structure into 2D image features without camera extrinsic calibration.
+- Proposes **adaptive action grids**, which discretize the action space non-uniformly according to the Gaussian distribution of actions in the offline dataset, effectively improving the precision of action representation and reducing the number of tokens predicted per step from 7 to 3.
+- Proposes **spatial embedding adaptation**, which re-discretizes the action space according to the distribution of the new dataset during downstream fine-tuning and initializes the embeddings of new tokens by trilinear interpolation, enabling efficient multi-robot adaptation.
+- Evaluated on 24 real-robot tasks and in simulation environments such as SimplerEnv, it shows strong zero-shot generalization, especially robustness to changes in height, viewpoint, and lighting.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-9"}
-- Existing VLA models (such as OpenVLA, RT-2) mainly rely on 2D image input and lack precise spatial understanding of the 3D physical world, which limits robots to perform fine manipulations (such as dynamic obstacle avoidance, accurate grasping of objects of different heights) in complex and changeable 3D spaces.
-- There are two major challenges in establishing a universal VLA model with 3D space perception: First, the camera poses and parameters of different robot platforms are inconsistent, making it difficult to align the 3D observation space; second, different robots have different action ranges, control degrees of freedom, and controllers, making it difficult to learn unified and generalizable spatial action expressions.
+- Existing VLA models (such as OpenVLA and RT-2) rely mainly on 2D image input and lack precise spatial understanding of the 3D physical world, which limits robots in fine manipulation within complex, changing 3D spaces (such as dynamic obstacle avoidance and accurately grasping objects at different heights).
+- Building a general VLA model with 3D spatial perception poses two major challenges: first, the camera poses and parameters differ across robot platforms, making it hard to align the 3D observation space; second, different robots have different action ranges, control degrees of freedom, and controllers, making it hard to learn a unified, generalizable spatial action representation.
 
 ---
 
@@ -2530,55 +2530,55 @@ The scale of embodied action data is much smaller than that of VL data, and the 
 {: id="2-主要方法创新点-9"}
 
 <div align="center">
-  <img src="/images/vla/SpatialVLA-highlights.webp" alt="SpatialVLA Overview: Combining Ego3D position encoding with adaptive action meshes for pretraining on 1.1 million real robot trajectories to achieve excellent 3D spatial understanding, zero-shot generalization, and rapid fine-tuning." width="1446" height="779" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>SpatialVLA Overview: Combining Ego3D position encoding with adaptive action meshes for pretraining on 1.1 million real robot trajectories, achieving excellent 3D spatial understanding, zero-shot generalization, and rapid fine-tuning.</figcaption>
+  <img src="/images/vla/SpatialVLA-highlights.webp" alt="SpatialVLA overview: combining Ego3D position encoding with adaptive action grids, pretrained on 1.1 million real-robot trajectories, it achieves strong 3D spatial understanding, zero-shot generalization, and fast fine-tuning." width="1446" height="779" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>SpatialVLA overview: combining Ego3D position encoding with adaptive action grids, pretrained on 1.1 million real-robot trajectories, it achieves strong 3D spatial understanding, zero-shot generalization, and fast fine-tuning.</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vla/SpatialVLA-architecture.webp" alt="SpatialVLA architecture diagram: receives image and language instructions, uses SigLIP to extract image features and fuses them with Ego3D position coding, and predicts 3 spatial action tokens (translation, rotation, gripper) through Gemma 2 autoregression." width="1446" height="660" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>SpatialVLA architecture diagram: receives image and language instructions, uses SigLIP to extract image features and fuses them with Ego3D position coding, and predicts 3 spatial action tokens (translation, rotation, gripper) through Gemma 2 autoregression.</figcaption>
+  <img src="/images/vla/SpatialVLA-architecture.webp" alt="SpatialVLA architecture: it takes an image and a language instruction, uses SigLIP to extract image features fused with Ego3D position encoding, and autoregressively predicts 3 spatial action tokens (translation, rotation, gripper) with Gemma 2." width="1446" height="660" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>SpatialVLA architecture: it takes an image and a language instruction, uses SigLIP to extract image features fused with Ego3D position encoding, and autoregressively predicts 3 spatial action tokens (translation, rotation, gripper) with Gemma 2.</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vla/SpatialVLA-action-grids.webp" alt="Adaptive action grid design: Fit Gaussian distribution according to the action statistics of the data set, and divide the intervals with equal probability on the probability density function, thereby non-uniformly dividing the translation and rotation action space." width="715" height="744" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> adaptive action grid design: Fit Gaussian distribution according to the action statistics of the data set, and divide the intervals on the probability density function with equal probability, thereby non-uniformly dividing the translation and rotation action space.</figcaption>
+  <img src="/images/vla/SpatialVLA-action-grids.webp" alt="Adaptive action grid design: a Gaussian distribution is fitted to the dataset's action statistics, and the probability density function is divided into equal-probability intervals, so the translation and rotation action spaces are partitioned non-uniformly." width="715" height="744" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Adaptive action grid design: a Gaussian distribution is fitted to the dataset's action statistics, and the probability density function is divided into equal-probability intervals, so the translation and rotation action spaces are partitioned non-uniformly.</figcaption>
 </div>
 
-#### ① Overview of the overall framework
+#### ① Overall framework
 {: id="-整体框架概述-1"}
-The overall SpatialVLA framework is built on the multimodal large model PaliGemma 2 and consists of the SigLIP image encoder, ZoeDepth depth prediction module, Ego3D position encoder, Gemma 2 language model backbone and adaptive action mesh decoder. The system receives a single RGB image and language instructions, first extracts and calculates the image representation that incorporates 3D geometric features, then predicts discrete spatial action tokens through autoregression, and finally de-discretizes and outputs continuous control signals.
+The SpatialVLA framework is built on the multimodal model PaliGemma 2 and consists of the SigLIP image encoder, the ZoeDepth depth prediction module, the Ego3D position encoder, the Gemma 2 language model backbone, and an adaptive action grid decoder. The system takes a single RGB image and a language instruction, first extracts image representations that incorporate 3D geometric features, then autoregressively predicts discrete spatial action tokens, and finally de-discretizes them into continuous control signals.
 
-#### ② Explain module by module
+#### ② Module-by-module walkthrough
 {: id="-逐模块讲解"}
-1. **Ego3D space observation module (Ego3D Position Encoding)**:
-   - **input**: RGB image $o_t$.
-   - **processes**: Use the fixed ZoeDepth model to predict the relative depth map $D$, back-project it into the egocentric coordinate system through the camera internal parameters, and calculate the 3D position $P$ of each pixel. At the same time, SigLIP is used to extract the 2D semantic features $X$ of the image. Pass the 3D position $P$ into the sinusoidal position encoder and project it to the semantic space through a learnable MLP to obtain the 3D position encoding $P'$. Finally, it is directly added to the 2D image feature $X$ to obtain $O_{3d}$:
+1. **Ego3D spatial observation module (Ego3D position encoding)**:
+   - **Input**: RGB image $o_t$.
+   - **Processing**: A frozen ZoeDepth model predicts the relative depth map $D$, which is back-projected into the egocentric coordinate frame through the camera intrinsics to compute the 3D position $P$ of each pixel. At the same time, SigLIP extracts the 2D semantic features $X$ of the image. The 3D position $P$ is passed through a sinusoidal position encoder and projected into the semantic space by a learnable MLP to obtain the 3D position encoding $P'$, which is finally added directly to the 2D image features $X$ to give $O_{3d}$:
      $$O_{3d} = X + \text{MLP}(\gamma(P))$$
-   - **output**: combines 3D geometric features and 2D semantic features of image features.
-   - **Design motivation**: Constructing 3D coordinates under the egocentric camera framework avoids the problem of complex camera-robot external parameter calibration due to different camera installation positions, and achieves universal 3D observation space alignment of cross-embodiment.
+   - **Output**: Image features that combine 3D geometric features and 2D semantic features.
+   - **Motivation**: Building 3D coordinates in the egocentric camera frame avoids the complex camera-robot extrinsic calibration that arises from different camera mounting positions, achieving a universal 3D observation-space alignment across embodiments.
 
-2. **Adaptive Action Grids**:
-   - **Input**: Continuous 7 degrees of freedom motion $a = \{x, y, z, \text{roll}, \text{pitch}, \text{yaw}, \text{grip}\}$.
-   - **processing**: In order to enable the autoregressive architecture to effectively predict continuous actions, a discrete action space is designed. The translation part is converted to polar coordinates $(\phi, \theta, r)$ to decouple movement direction and distance. Fit the Gaussian distribution $N(\mu_a, \Sigma_a)$ of each action component in the data set, and divide $M$ intervals with equal probability on the cumulative distribution function (CDF) probability axis to achieve non-uniform action grid division. Specifically, the translation amount $(\phi, \theta, r)$ is discretized into $32 \times 16 \times 8 = 4096$ grid points; the rotation amount $(\text{roll}, \text{pitch}, \text{yaw})$ is discretized into $16 \times 16 \times 16 = 4096$ grid points respectively; the gripper action is discretized into 2 bins. Arrange these three parts linearly to form an action word list $E_a$ of size $V = 8194$.
-   - **outputs**: discrete spatial action Token (translation Token, rotation Token, gripper Token).
-   - **design motivation**: Using Gaussian distribution fitting for non-uniform segmentation can provide higher resolution for fine control in high-frequency areas of action (such as near the origin). And each step of prediction is reduced from 7 Tokens in RT-2 to 3 Tokens, which greatly speeds up the reasoning.
+2. **Adaptive action grids**:
+   - **Input**: A continuous 7-DoF action $a = \{x, y, z, \text{roll}, \text{pitch}, \text{yaw}, \text{grip}\}$.
+   - **Processing**: To let the autoregressive architecture predict continuous actions effectively, a discrete action space is designed. The translation part is converted to polar coordinates $(\phi, \theta, r)$ to decouple movement direction from distance. A Gaussian distribution $N(\mu_a, \Sigma_a)$ is fitted to each action component in the dataset, and $M$ equal-probability intervals are cut along the probability axis of the cumulative distribution function (CDF), giving a non-uniform action grid. Specifically, the translation $(\phi, \theta, r)$ is discretized into $32 \times 16 \times 8 = 4096$ grid points; the rotation $(\text{roll}, \text{pitch}, \text{yaw})$ is discretized into $16 \times 16 \times 16 = 4096$ grid points; and the gripper action is discretized into 2 bins. These three parts are arranged linearly to form an action vocabulary $E_a$ of size $V = 8194$.
+   - **Output**: Discrete spatial action tokens (translation token, rotation token, gripper token).
+   - **Motivation**: Non-uniform partitioning from a fitted Gaussian gives higher resolution to the high-frequency regions of the action distribution (such as near the origin), which benefits fine control. Each step predicts 3 tokens instead of the 7 in RT-2, which greatly speeds up inference.
 
-3. **Spatial Embedding Adaptation**:
-   - **Input**: Fine-tuned dataset for new robots/scenarios.
-   - **processing**: In the post-training fine-tuning stage, the Gaussian distribution is refitted for the new data set and the new action grid point $G_{\text{new}}$ is constructed. In order to retain the universal action prior of pretraining, trilinear interpolation is used to embed the action of pretraining $E_a$ according to the spatial geometric distance. The interpolation is projected into the new action embedding $E_{a^{\text{new}}}$:
+3. **Spatial embedding adaptation**:
+   - **Input**: The fine-tuning dataset for a new robot or scenario.
+   - **Processing**: In the post-training fine-tuning stage, the Gaussian distribution is refitted on the new dataset and new action grid points $G_{\text{new}}$ are built. To retain the general action prior from pretraining, trilinear interpolation over spatial geometric distance projects the pretrained action embeddings $E_a$ into the new action embeddings $E_{a^{\text{new}}}$:
      $$e_{a^{\text{new}}}^i = \sum_{j=1}^K w_j e_a^j$$
-   - **Output**: High-precision alignment of the initial Token Embedding of the new action distribution.
-   - **design motivation**: alleviate the distribution drift caused by the difference in action range in new fine-tuning scenes, provide better fine-tuning initialization and accelerate the convergence of the action decoding layer.
+   - **Output**: Initial token embeddings that are well aligned with the new action distribution.
+   - **Motivation**: Alleviates the distribution drift caused by differences in action range in new fine-tuning scenes, provides a better fine-tuning initialization, and speeds up convergence of the action decoding layer.
 
 #### ③ End-to-end data flow
 {: id="-端到端数据流-1"}
-At each decision step, the model receives monocular RGB images and text instructions. The images are fused into a 3D observation space representation using ZoeDepth and SigLIP. Then, the 3D observation features are projected into the Token representation of Gemma 2 through MultiModal Projector, and spliced ​​with language instructions. The backbone network autoregressively predicts the future $T=4$ steps (a total of 12 Action Tokens) actions at one time, and de-discretizes and decodes them into continuous control sequences, which are finally executed by the controller.
+At each decision step, the model receives a monocular RGB image and a text instruction. The image is fused into a 3D observation-space representation using ZoeDepth and SigLIP. The 3D observation features are then projected into Gemma 2's token space by a multimodal projector and concatenated with the language instruction. The backbone autoregressively predicts the actions of the next $T=4$ steps (12 action tokens in total) in one pass, which are de-discretized and decoded into a continuous control sequence and finally executed by the controller.
 
-#### ④ Training goals and losses
+#### ④ Training objective and loss
 {: id="-训练目标与损失"}
-The model uses the standard autoregressive cross-entropy (Cross-Entropy) loss function for joint optimization on 1.1 million real trajectory data:
+The model is optimized jointly on 1.1 million real-trajectory samples with the standard autoregressive cross-entropy loss:
 $$\mathcal{L}(\theta) = \mathbb{E}_{p(A_t|o_t)} [\mathcal{L}(a_t, \tilde{a}_t)]$$
-Classification prediction errors are calculated for translation, rotation and gripper discrete Tokens, and text embeddings are frozen to prevent degradation of language generalization capabilities.
+Classification errors are computed on the discrete translation, rotation, and gripper tokens, and the text embeddings are frozen to prevent degradation of language generalization.
 
 ---
 
@@ -2586,40 +2586,40 @@ Classification prediction errors are calculated for translation, rotation and gr
 {: id="3-核心结果发现-4"}
 
 <div align="center">
-  <img src="/images/vla/SpatialVLA-zero-shot-eval.webp" alt="Real robot evaluation: SpatialVLA achieved the highest average success rate in zero-shot tests involving language understanding, background and pose changes, and dynamic disturbances on the WidowX platform." width="1446" height="574" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> Real Robot Evaluation: Zero-shot tests including language understanding, background and pose changes, and dynamic interference were conducted on the WidowX platform, and SpatialVLA achieved the highest average success rate.</figcaption>
+  <img src="/images/vla/SpatialVLA-zero-shot-eval.webp" alt="Real-robot evaluation: zero-shot tests on the WidowX platform covering language understanding, background and pose changes, and dynamic interference; SpatialVLA achieves the highest average success rate." width="1446" height="574" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Real-robot evaluation: zero-shot tests on the WidowX platform covering language understanding, background and pose changes, and dynamic interference; SpatialVLA achieves the highest average success rate.</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vla/SpatialVLA-franka-adaptation.webp" alt="Franka robot adaptation results: Demonstrating performance under single task, instruction following and multi-task fine-tuning, SpatialVLA as a pretraining initialization model outperforms OpenVLA, Octo and Diffusion Policy trained from scratch." width="715" height="517" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>Franka robot adaptation results: Demonstrating performance under single task, instruction following and multi-task fine-tuning, SpatialVLA as a pretraining initialization model outperforms OpenVLA, Octo and Diffusion Policy trained from scratch.</figcaption>
+  <img src="/images/vla/SpatialVLA-franka-adaptation.webp" alt="Franka robot adaptation results: performance under single-task, instruction-following, and multi-task fine-tuning; SpatialVLA, as a pretrained initialization, outperforms OpenVLA, Octo, and Diffusion Policy trained from scratch." width="715" height="517" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Franka robot adaptation results: performance under single-task, instruction-following, and multi-task fine-tuning; SpatialVLA, as a pretrained initialization, outperforms OpenVLA, Octo, and Diffusion Policy trained from scratch.</figcaption>
 </div>
 
 <div align="center">
-  <img src="/images/vla/SpatialVLA-spatial-understanding-eval.webp" alt="Spatial understanding ability verification: Comparing the performance of different policies in complex spatial layout tasks such as processing spatial instructions and height changes, SpatialVLA shows obvious advantages." width="1446" height="536" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> Spatial Understanding Ability Verification: Comparing the performance of different policies in complex spatial layout tasks such as processing spatial instructions and height changes, SpatialVLA shows obvious advantages.</figcaption>
+  <img src="/images/vla/SpatialVLA-spatial-understanding-eval.webp" alt="Spatial understanding verification: performance of different policies on complex spatial-layout tasks such as handling spatial instructions and height changes; SpatialVLA shows clear advantages." width="1446" height="536" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Spatial understanding verification: performance of different policies on complex spatial-layout tasks such as handling spatial instructions and height changes; SpatialVLA shows clear advantages.</figcaption>
 </div>
 
-- **SimplerEnv Zero-sample simulation evaluation (Google Robot & WidowX)**:
-  - In the Visual Matching evaluation of the Google Robot task, SpatialVLA's zero-sample success rate reached **71.9%**, which is significantly superior to RoboVLM (56.3%) and OpenVLA (27.7%), and even surpassed the 55B parameter RT-2-X (60.7%).
-  - In more complex Variant Aggregation (covering different viewing angles and lighting), SpatialVLA maintains a very high success rate of **68.8%**.
-  - In the WidowX task, the fine-tuned SpatialVLA achieved an average success rate of **42.7%**, and achieved a complete victory of **100.0%** in the "Put the eggplant into the yellow basket" task.
-- **Real environment WidowX & Franka experiment**:
-  - In the face of artificial dynamic interference (such as moving eggplants/carrots being grabbed), SpatialVLA can flexibly follow the hand to complete closed-loop grabbing, and its robustness is better than OpenVLA.
-  - In the Franka platform fine-tuning, SpatialVLA achieved the highest generalization success rate (**73%**) with 3D position encoding when faced with the spatial instruction ("Put on the truck closest to the robot").
-- **LIBERO Simulation evaluation**:
-  - Ranked first overall in all four LIBERO sub-task suites (Spatial, Object, Goal, Long). Especially in the **LIBERO-Spatial** suite, which focuses on the spatial relative relationship of objects, it achieved an excellent result of **88.2%**.
-- **ablation experimental conclusion**:
-  - **3D position encoding effect**: After removing Ego3D position encoding, the success rate in Variant Aggregation dropped sharply by about **12%**, proving that the injection of 3D information greatly helps the model cope with changes in viewpoints and environmental materials.
-  - **Action Grid Resolution**: When the resolution of the adaptive grid is increased from 1026 to 8194, it provides the best control precision; but continuing to increase to larger resolutions will bring about diminishing marginal effects and parameter redundancy.
-  - **interpolation adaptation effect**: In LIBERO fine-tuning, the introduction of Spatial Embedding Adaptation can additionally bring **4.6% - 5.4%** performance improvement, verifying the effectiveness of interpolation initialization on spatial action alignment.
+- **SimplerEnv zero-shot simulation evaluation (Google Robot & WidowX)**:
+  - In the Visual Matching evaluation of the Google Robot tasks, SpatialVLA's zero-shot success rate reaches **71.9%**, significantly better than RoboVLM (56.3%) and OpenVLA (27.7%), and even surpassing the 55B-parameter RT-2-X (60.7%).
+  - In the more complex Variant Aggregation setting (covering different viewpoints and lighting), SpatialVLA maintains a high success rate of **68.8%**.
+  - On WidowX tasks, the fine-tuned SpatialVLA reaches an average success rate of **42.7%**, and a perfect **100.0%** on the "Put the eggplant into the yellow basket" task.
+- **Real-world WidowX & Franka experiments**:
+  - Facing deliberate dynamic interference (such as a moving eggplant/carrot being grasped), SpatialVLA can follow the object flexibly and complete closed-loop grasping, with better robustness than OpenVLA.
+  - When fine-tuned on the Franka platform, SpatialVLA with 3D position encoding achieves the highest generalization success rate (**73%**) on spatial instructions ("Put on the truck closest to the robot").
+- **LIBERO simulation evaluation**:
+  - Ranks first overall across all four LIBERO suites (Spatial, Object, Goal, Long). In particular, on **LIBERO-Spatial**, which focuses on the spatial relations between objects, it achieves an excellent **88.2%**.
+- **Ablation conclusions**:
+  - **Effect of 3D position encoding**: Without Ego3D position encoding, the success rate in Variant Aggregation drops sharply by about **12%**, showing that injecting 3D information greatly helps the model cope with changes in viewpoint and environment material.
+  - **Action grid resolution**: Raising the adaptive grid resolution from 1026 to 8194 gives the best control precision; increasing it further brings diminishing returns and parameter redundancy.
+  - **Effect of interpolation adaptation**: In LIBERO fine-tuning, spatial embedding adaptation brings an additional **4.6% - 5.4%** improvement, verifying the effectiveness of interpolated initialization for spatial action alignment.
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-3"}
-- **long-sequence tasks depend on**: Although the model performs well in short-period closed-loop control, it is limited by the architectural design of a single frame plus history token, and has limited improvement in tasks that require long-term memory and multi-stage planning (such as LIBERO-Long). A longer-lasting history awareness layer needs to be developed in the future.
-- **High-dimensional action expansion is difficult**: The current Gaussian distribution fitting is designed for single-arm 7-degree-of-freedom actions. If it is extended to multi-dimensional high-degree-of-freedom tasks such as dual-arm collaboration and dexterous hand manipulation, the number of grid combinations will increase exponentially, and it is necessary to design a more efficient space-sharing grid or an implicit generation and decoding mechanism.
+- **Long-horizon tasks**: Although the model performs well in short-horizon closed-loop control, its single-frame-plus-history-token design limits gains on tasks that require long-term memory and multi-stage planning (such as LIBERO-Long). A longer-lasting history-aware layer needs to be developed.
+- **Scaling to high-dimensional actions is hard**: The current Gaussian-fit design targets single-arm 7-DoF actions. Extending to high-DoF tasks such as bimanual cooperation and dexterous manipulation would make the number of grid combinations grow exponentially, so a more efficient shared spatial grid or an implicit generative decoding mechanism is needed.
 <span id="527-harness-vla-2026-5-27-harness-vla" class="vla-anchor-alias" aria-hidden="true"></span>
 
 ## 27. Harness VLA (2026)
@@ -2629,76 +2629,76 @@ Classification prediction errors are calculated for translation, rotation and gr
 ### Key takeaways
 {: id="精华-12"}
 
-- **Discovers capability asymmetry and decouples control**: Reveals that the end-to-end Vision-Language-Action (VLA) model is extremely strong in contact-rich local action prediction, but extremely fragile in language understanding, long-term planning and spatial transportation. The frozen pretraining VLA is encapsulated into a single "contact primitive" (`VLA_ACT`), and the non-contact operations are completely coordinated by the deterministic analytic primitives (Analytic Primitives) and the high-level Agentic Planner.
-- **Build physical REPL closed-loop Harness**: Build closed-loop Agentic Harness, abstracting robot control into an interactive interface similar to software REPL. Combined with real-time RGB-D deep rebinding and sensor feedback, high-level LLM/VLM can call primitives in structured JSON and implement dynamic trial and error and reset.
-- **Double-layer memory enhances generalization and avoids pitfalls**: Design Task Specific Memory to parameterize the JSONL trace of the reference solution, and cooperate with Global Memory to summarize cross-task general rules (Success Rules) and failure models (Failure Models, such as empty capture and pseudo-success filtering) to eliminate blind repeated failures.
-- **significantly improves performance with zero fine-tuning**: On strong perturbation benchmarks (LIBERO-Pro, RoboCasa365, RoboTwin C2R) that include spatial position replacement and instruction redirection, the baseline success rate is improved without fine-tuning the low-layer VLA weights at all. 38.6%~50.2%, showing excellent robustness and out-of-distribution generalization ability.
+- **Capability asymmetry and decoupled control**: The paper reveals that end-to-end vision-language-action (VLA) models are extremely strong at local action prediction in contact-rich phases, but extremely fragile in language understanding, long-horizon planning, and spatial transport. The frozen pretrained VLA is encapsulated as a single "contact primitive" (`VLA_ACT`), while non-contact operations are coordinated entirely by deterministic analytic primitives and a high-level agentic planner.
+- **A physical REPL closed-loop harness**: Builds a closed-loop agentic harness that abstracts robot control into an interactive interface similar to a software REPL. Combined with real-time RGB-D depth re-binding and sensor feedback, a high-level LLM/VLM can call primitives in structured JSON and carry out dynamic trial and error and resets.
+- **Two-layer memory improves generalization and avoids pitfalls**: Task-specific memory parameterizes the JSONL trace of a reference solution, and global memory summarizes cross-task general rules (success rules) and failure patterns (failure models, such as empty grasps and false-success filtering), eliminating blind repeated failures.
+- **Large gains with zero fine-tuning**: On strongly perturbed benchmarks (LIBERO-Pro, RoboCasa365, RoboTwin C2R) involving spatial position swaps and instruction redirection, the baseline success rate improves by 38.6%~50.2% without fine-tuning the low-level VLA weights at all, showing excellent robustness and out-of-distribution generalization.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-10"}
 
-In recent years, end-to-end Vision-Language-Action (VLA) models (such as OpenVLA, $\pi_0$, GR00T, etc.) have made significant progress in imitation learning and complex contact actions. However, the performance of this type of monolithic VLA model deteriorates sharply when faced with real deployment perturbations, such as natural language instruction redirection (Task Redirection), spatial object position swap (Position Swap), or non-distribution (OOD) scenarios. The root cause is that the language understanding channel of the VLA model often degrades to weak conditions in end-to-end training. The model tends to blindly memorize the visual motion trajectories in the training set, and lacks high-level semantic binding and spatial transportation control capabilities.
+In recent years, end-to-end vision-language-action (VLA) models (such as OpenVLA, $\pi_0$, and GR00T) have made significant progress in imitation learning and complex contact-rich actions. However, the performance of such monolithic VLA models deteriorates sharply under real-world deployment perturbations, such as redirection of natural-language instructions (task redirection), swapping of object positions (position swap), or out-of-distribution (OOD) scenarios. The root cause is that the language-understanding channel of a VLA often degrades into a weak condition during end-to-end training. The model tends to blindly memorize the visual-motion trajectories of the training set and lacks high-level semantic binding and spatial transport control.
 
-On the other hand, although LLM-based Code-as-Policies or Agent tool calling frameworks have excellent high-level planning capabilities, they frequently fail in fine manipulations that lack contact awareness (such as irregular object grabbing, mechanism hinge manipulation), and lack a memory mechanism that summarizes physical trial and error into long-term reusable experience.
+On the other hand, although LLM-based Code-as-Policies and agent tool-calling frameworks have excellent high-level planning ability, they frequently fail at fine manipulation that requires contact awareness (such as grasping irregular objects or operating articulated mechanisms), and they lack a memory mechanism that distills physical trial and error into long-term reusable experience.
 
-**Core question**: How to retain the powerful contact-intensive control capabilities of pretraining frozen VLA, while eliminating its blindness in high-level semantic understanding and spatial transportation control, to achieve highly robust long-term robot control under zero fine-tuning?
+**Core question**: How can one retain the strong contact-rich control of a pretrained, frozen VLA while eliminating its blindness in high-level semantic understanding and spatial transport control, achieving highly robust long-horizon robot control with zero fine-tuning?
 
 ---
 
 ### 2. Methods and innovations
 {: id="2-主要方法创新点-10"}
 
-Harness VLA proposes an asymmetric layered architecture that limits the frozen VLA to a contact-intensive primitive called by the Agent, and hands control to the Agentic Planner and unified primitive library driven by LLM/VLM, supplemented by a two-layer memory system.
+Harness VLA proposes an asymmetric layered architecture that confines the frozen VLA to a contact-rich primitive called by an agent, and hands control to an LLM/VLM-driven agentic planner and a unified primitive library, supplemented by a two-layer memory system.
 
 <div align="center">
-  <img src="/images/vla/HarnessVLA-architecture.webp" alt="Harness VLA system overall architecture and interaction process" width="1320" height="1109" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>Harness VLA system overall architecture and interaction process</figcaption>
+  <img src="/images/vla/HarnessVLA-architecture.webp" alt="Overall architecture and interaction process of the Harness VLA system" width="1320" height="1109" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Overall architecture and interaction process of the Harness VLA system</figcaption>
 </div>
 
-#### ① Overview of the overall framework
+#### ① Overall framework
 {: id="-整体框架概述-2"}
 
 The Harness VLA system consists of four core modules:
-1. **Agentic Planner**: High-level cognitive decision-making core, responsible for parsing task instructions, analyzing real-time RGB-D and proprioceptive observations, retrieving memories and deciding on the current execution primitives;
-2. **Unified Primitive Library $$ \mathcal P $$**: Contains deterministic analysis primitives (Analytic Primitives) and called frozen VLA primitives (`VLA_ACT`);
-3. **closed-loop Harness (Agentic Harness)**: Runtime contract based on REPL form, responsible for JSON instruction serialization, physics engine execution, observation refresh, error capture and memory storage;
-4. **double-layer memory system**: includes Task Specific Memory (storage parameterized success trajectory JSONL) and Global Memory (precipitation of general success rules and failure models).
+1. **Agentic planner**: The high-level cognitive decision core, responsible for parsing task instructions, analyzing real-time RGB-D and proprioceptive observations, retrieving memories, and deciding the primitive to execute next;
+2. **Unified primitive library $$ \mathcal P $$**: Contains deterministic analytic primitives and the invoked frozen VLA primitive (`VLA_ACT`);
+3. **Closed-loop agentic harness**: A REPL-style runtime contract responsible for JSON command serialization, physics engine execution, observation refresh, error capture, and memory storage;
+4. **Two-layer memory system**: Includes task-specific memory (storing parameterized successful trajectories as JSONL) and global memory (distilling general success rules and failure models).
 
 <div align="center">
-  <img src="/images/vla/HarnessVLA-concept.webp" alt="Expanding the out-of-distribution trajectory space of frozen VLAs via memory-guided primitive composition" width="1320" height="893" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> Expanding the out-of-distribution trajectory space of frozen VLA via memory-guided primitive combination</figcaption>
+  <img src="/images/vla/HarnessVLA-concept.webp" alt="Expanding the out-of-distribution trajectory space of a frozen VLA through memory-guided primitive composition" width="1320" height="893" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Expanding the out-of-distribution trajectory space of a frozen VLA through memory-guided primitive composition</figcaption>
 </div>
 
-#### ② Explain module by module
+#### ② Module-by-module walkthrough
 {: id="-逐模块讲解-1"}
 
-- **closed-loop Harness and Agentic Planner**
-  - **input**: multimodal observation tuple $o_t = (I_{rgb}^t, I_d^t, q_t)$ (including Agent perspective RGB image, aligned depth map $I_d^t$ and end effector/gripper status $q_t$), natural language task description $\ell$, and the context retrieved from the memory system.
-  - **processes**: Planner observes the physical state and visual images, infers the primitives required for the next step, and outputs the corresponding structured JSON call parameters $c_t \in \mathcal P$.
-  - **output**: The physics engine directly receives the JSON call and drives the robot movement until the internal termination condition of the primitive is met, then returns the refreshed observation $o_{t+1}$ and status $q_{t+1}$.
-  - **Design motivation**: Packaging robot control into a closed-loop contract similar to REPL, so that LLM does not need to predict low-level continuous joint torques and focuses on high-level combination reasoning and error correction.
+- **Closed-loop harness and agentic planner**
+  - **Input**: The multimodal observation tuple $o_t = (I_{rgb}^t, I_d^t, q_t)$ (the agent-view RGB image, the aligned depth map $I_d^t$, and the end-effector/gripper state $q_t$), the natural-language task description $\ell$, and context retrieved from the memory system.
+  - **Processing**: The planner observes the physical state and visual images, infers the primitive needed next, and outputs the corresponding structured JSON call parameters $c_t \in \mathcal P$.
+  - **Output**: The physics engine receives the JSON call directly and drives the robot until the primitive's internal termination condition is met, then returns the refreshed observation $o_{t+1}$ and state $q_{t+1}$.
+  - **Motivation**: Packaging robot control as a REPL-like closed-loop contract frees the LLM from predicting low-level continuous joint torques, so it can focus on high-level compositional reasoning and error correction.
 
-- **unified primitive library ($$ \mathcal P $$)**
-  - **Analytic Primitives**: Physical primitives based on robot kinematics and classic controllers without any training data. It is divided into **composite primitive** (such as `MOVE_TO`, `NAVIGATE_TO`, which receives the world coordinate system target point and calls the built-in IK solver to coordinate multi-degree-of-freedom motion) and **atomic primitive** (such as `ROTATE`, `SET_GRIPPER`, `BASE_VELOCITY`, drive single-dimensional set points). Responsible for space front adjustment (staging), transportation, positioning and gripper release.
-  - **VLA primitive (`VLA_ACT`)**: Encapsulates the pretraining frozen VLA model (such as $\pi_0$, OpenVLA, LingBot-VLA, etc.) into a single primitive interface. Receive prompt words and real-time camera views, generate local action chunks and perform contact-intensive interactions (such as irregular object grabbing, door/microwave oven, etc. mechanism manipulation).
-  - **design motivation**: Utilize the high certainty of analytical primitives to eliminate posture drift in continuous movement; utilize the contact sensing of `VLA_ACT` to complete complex grasping that cannot be described by analytical solutions.
+- **Unified primitive library ($$ \mathcal P $$)**
+  - **Analytic primitives**: Physical primitives based on robot kinematics and classical controllers, requiring no training data. They are divided into **composite primitives** (such as `MOVE_TO` and `NAVIGATE_TO`, which take a target point in the world frame and call a built-in IK solver to coordinate multi-DoF motion) and **atomic primitives** (such as `ROTATE`, `SET_GRIPPER`, and `BASE_VELOCITY`, which drive single-dimension setpoints). They handle spatial staging, transport, positioning, and gripper release.
+  - **VLA primitive (`VLA_ACT`)**: Encapsulates a pretrained, frozen VLA model (such as $\pi_0$, OpenVLA, or LingBot-VLA) as a single primitive interface. It receives a prompt and real-time camera views, generates local action chunks, and performs contact-rich interactions (such as grasping irregular objects and operating mechanisms like doors or microwave ovens).
+  - **Motivation**: The high determinism of analytic primitives removes pose drift during continuous motion, while the contact sensitivity of `VLA_ACT` handles complex grasps that cannot be described analytically.
 
-- **Dual-Layer Memory Architecture**
-  - **Task Specific Memory (Task Specific Memory)**: In the exploration Bootstrapping stage, the Agent autonomously interacts with trial and error on the reference seed environment, and exports the primitive execution sequence as a JSONL file after success. The key innovation lies in parameterizing specific 3D coordinates into symbolic perception queries (Perception Queries). During the deployment evaluation phase, the Agent reads this JSONL trajectory and rebinds the target coordinates based on the current real-time RGB-D depth map to solve the spatial displacement (Position Swap) problem.
-  - **Global Memory**: Accumulate common experience across tasks. It includes the **success rule** (such as the optimal Prompt mode to build the full task context) and the **failure model** (the establishment of defense judgment rules for air capture, false success, unstable pre-contact points and other modes) to prevent Planner from making repeated mistakes in different tasks.
+- **Two-layer memory architecture**
+  - **Task-specific memory**: In the exploratory bootstrapping stage, the agent interacts with a reference seed environment by autonomous trial and error and, on success, exports the primitive execution sequence as a JSONL file. The key innovation is to parameterize specific 3D coordinates into symbolic perception queries. In the deployment evaluation stage, the agent reads this JSONL trajectory and rebinds the target coordinates from the current real-time RGB-D depth map, which solves the spatial displacement (position swap) problem.
+  - **Global memory**: Accumulates experience shared across tasks. It includes **success rules** (such as the best prompt pattern for building the full task context) and **failure models** (defensive rules for patterns such as empty grasps, false success, and unstable pre-contact points), preventing the planner from repeating mistakes across tasks.
 
-#### ③ Life cycle and execution flow
+#### ③ Lifecycle and execution flow
 {: id="-生命周期与执行流"}
 
-1. **Exploratory Bootstrapping Phase**: On the reference seed task, Planner has `RESET` authority and ample time budget. Planner experiments with different pre-contact postures, `VLA_ACT` trigger timing, and early exit thresholds. Task Specific Memory (JSONL) and Global Memory are generated after successful exploration.
-2. **Deployment Evaluation Phase**: Evaluation in an unseen external environment (position replacement, instruction change, random initial seed). Disable `RESET` and limit the total number of steps. Planner extracts the template from Task Specific Memory, rebinds the coordinates with live RGB-D, and executes it stably with reference to Global Memory pitfall avoidance rules.
+1. **Exploratory bootstrapping phase**: On the reference seed task, the planner has `RESET` authority and a generous time budget. It experiments with different pre-contact poses, `VLA_ACT` trigger timings, and early-exit thresholds. After successful exploration, task-specific memory (JSONL) and global memory are generated.
+2. **Deployment evaluation phase**: Evaluation in unseen external environments (position swaps, instruction changes, random initial seeds), with `RESET` disabled and the total number of steps limited. The planner extracts a template from task-specific memory, rebinds the coordinates with live RGB-D, and executes stably by following the pitfall-avoidance rules in global memory.
 
-#### ④ Dynamic retry mechanism (Adaptive VLA Invocation & Re-staging)
+#### ④ Dynamic retry mechanism (adaptive VLA invocation and re-staging)
 {: id="-动态重试机制adaptive-vla-invocation--re-staging"}
 
-Planner treats `VLA_ACT` as a local primitive that can be re-posed and retried. If unsuccessful grasping or contact deviation is detected after executing `VLA_ACT`, Planner uses parsing primitives (such as `MOVE_TO`) to move the robot back to a pre-contact pose (Re-staging) that is safe and consistent with the VLA visual distribution, and then triggers `VLA_ACT` again to retry, which greatly improves the fault tolerance rate for execution disturbances.
+The planner treats `VLA_ACT` as a local primitive that can be re-posed and retried. If a failed grasp or contact deviation is detected after `VLA_ACT` executes, the planner uses analytic primitives (such as `MOVE_TO`) to move the robot back to a pre-contact pose that is safe and consistent with the VLA's visual distribution (re-staging), and then triggers `VLA_ACT` again to retry, which greatly improves tolerance to execution disturbances.
 
 ---
 
@@ -2706,62 +2706,62 @@ Planner treats `VLA_ACT` as a local primitive that can be re-posed and retried. 
 {: id="3-核心结果发现-5"}
 
 <div align="center">
-  <img src="/images/vla/HarnessVLA-libero-pro.webp" alt="Out-of-distribution terminal state comparison on LIBERO-Pro: behavioral differences between end-to-end VLA and Harness VLA" width="1320" height="548" style="width: 100%;" loading="lazy" decoding="async" />
-Comparison of out-of-distribution terminal status on<figcaption>LIBERO-Pro: behavioral differences between end-to-end VLA and Harness VLA</figcaption>
+  <img src="/images/vla/HarnessVLA-libero-pro.webp" alt="LIBERO-Pro: out-of-distribution terminal states and behavioral differences between an end-to-end VLA and Harness VLA" width="1320" height="548" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>LIBERO-Pro: out-of-distribution terminal states and behavioral differences between an end-to-end VLA and Harness VLA</figcaption>
 </div>
 
-- **LIBERO-Pro strong perturbation test (Table 2 & Table 3)**: In the LIBERO-Pro evaluation including spatial position replacement (SPATIAL/OBJECT/GOAL-S) and instruction redirection (GOAL-T, etc.), Harness VLA (CC) / (Codex) achieved **47.5% / The average success rate of** is 56.3%, which is an increase of 41.4 and 50.2 percentage points respectively compared with the strongest baseline ($$ \pi_{RLinf} $$ only 6.1% and $\pi_0$ only 1.1%).
+- **LIBERO-Pro strong-perturbation test (Tables 2 and 3)**: In the LIBERO-Pro evaluation, which includes spatial position swaps (SPATIAL/OBJECT/GOAL-S) and instruction redirection (GOAL-T, etc.), Harness VLA (CC) / (Codex) achieves average success rates of **47.5% / 56.3%**, improvements of 41.4 and 50.2 percentage points over the strongest baselines ($$ \pi_{RLinf} $$ at only 6.1% and $\pi_0$ at only 1.1%).
 
 <div align="center">
-  <img src="/images/vla/HarnessVLA-vla-budget.webp" alt="The relationship between the number of adaptive VLA calls and the task success rate" width="1320" height="699" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> The relationship curve between the number of adaptive VLA calls and the task success rate</figcaption>
+  <img src="/images/vla/HarnessVLA-vla-budget.webp" alt="Relationship between the number of adaptive VLA calls and task success rate" width="1320" height="699" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Relationship between the number of adaptive VLA calls and task success rate</figcaption>
 </div>
 
-- **RoboCasa365 Complex kitchen environment (Table 4)**: In the RoboCasa365 test covering long-term, composite tools and hinge mechanisms, the Harness VLA success rate reached **38.6% (Codex) / 36.3% (CC)**, significantly outperforming Cap-X (13.2%).
-- **RoboTwin C2R zero-sample migration (Table 6)**: Under the Clean-to-Randomized migration setting, using LingBot-VLA trained in the Clean environment as the `VLA_ACT` base backend, the success rate of directly deploying the VLA is 50.4%, and the Harness VLA improves it to **58.4%**.
+- **RoboCasa365 complex kitchen environments (Table 4)**: On RoboCasa365, which covers long-horizon tasks, composite tools, and articulated mechanisms, Harness VLA reaches a success rate of **38.6% (Codex) / 36.3% (CC)**, significantly outperforming Cap-X (13.2%).
+- **RoboTwin C2R zero-shot transfer (Table 6)**: In the clean-to-randomized transfer setting, with LingBot-VLA trained in the clean environment as the `VLA_ACT` backend, deploying the VLA directly gives a success rate of 50.4%, and Harness VLA raises it to **58.4%**.
 
 <div align="center">
-  <img src="/images/vla/HarnessVLA-rollout-cases.webp" alt="Typical Rollout cases where parsing and disassembly are alternately called with contact-intensive operations" width="1320" height="761" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> Typical Rollout case  for alternate calls of analytical disassembly and contact-intensive operations</figcaption>
+  <img src="/images/vla/HarnessVLA-rollout-cases.webp" alt="A typical rollout case in which analytic primitives and contact-rich manipulation alternate" width="1320" height="761" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>A typical rollout case in which analytic primitives and contact-rich manipulation alternate</figcaption>
 </div>
 
-- **Key Findings**:
-  1. *Semantic Rebinding (Key Finding 1)*: As shown in Figure 3, when the instruction target is redirected, the traditional VLA blindly repeats the training trajectory, while the Harness VLA parses the instruction through the Planner and rebinds the target point in combination with RGB-D.
-  2. *Adaptive VLA rearrangement and retry (Key Finding 2)*: As shown in Figure 4, as the upper limit of allowed `VLA_ACT` calls increases, the task success rate rises rapidly and then saturates, proving that moderate pre-adjustment and retry are the key to ensuring a high success rate.
-  3. *Task Attribution (Key Finding 3)*: Analysis shows that the analytical primitives in the successful trajectory bear most of the spatial displacement and positioning, while the VLA is accurately constrained to the local contact stage.
+- **Key findings**:
+  1. *Semantic rebinding (Key Finding 1)*: As shown in Figure 3, when the instruction target is redirected, a traditional VLA blindly repeats the training trajectory, while Harness VLA parses the instruction through the planner and rebinds the target point using RGB-D.
+  2. *Adaptive VLA re-staging and retry (Key Finding 2)*: As shown in Figure 4, as the allowed upper limit of `VLA_ACT` calls increases, the task success rate rises rapidly and then saturates, showing that moderate pre-adjustment and retry are the key to a high success rate.
+  3. *Task attribution (Key Finding 3)*: The analysis shows that in successful trajectories the analytic primitives carry most of the spatial displacement and positioning, while the VLA is confined precisely to the local contact phase.
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-4"}
 
-1. **relies on the inference delay of high-level VLM/LLM**: The closed-loop REPL mode relies on the closed-loop inference and decision-making of the high-level large model, and is still limited by API response delays in extremely dynamic scenarios that require millisecond-level (>50Hz) high-frequency obstacle avoidance or real-time continuous feedback.
-2. The **Bootstrapping stage requires a trial and error budget**: to construct Task Specific Memory and Global Memory, the premise is that the use of `RESET` is allowed on the reference seed task and a certain amount of independent exploration trial and error time is provided.
+1. **Reliance on the inference latency of the high-level VLM/LLM**: The closed-loop REPL mode depends on closed-loop inference and decisions by a large high-level model, so in extremely dynamic scenes that need millisecond-level, high-frequency (>50 Hz) obstacle avoidance or real-time continuous feedback it is still limited by API response latency.
+2. **The bootstrapping stage requires a trial-and-error budget**: Building task-specific and global memory presupposes that `RESET` is allowed on the reference seed task and that a certain amount of independent exploration time is available.
 <span id="528-turbovla-2026-5-28-turbovla" class="vla-anchor-alias" aria-hidden="true"></span>
 
 ## 28. TurboVLA (2026)
 {: id="5-28-turbovla"}
-——Real-time vision-language action model: 32 Hz control and less than 1 GB GPU memory usage on RTX 4090
+——A real-time vision-language-action model: 32 Hz control and under 1 GB of GPU memory on an RTX 4090
 
 📄 **Paper**: https://arxiv.org/abs/2607.27205
 
 ### Key takeaways
 {: id="精华-13"}
 
-- Traditional VLA models (such as OpenVLA, $\pi_{0.5}$) generally use an LLM with more than 100 million/billion parameters as the core ($V \to L \to A$), resulting in high computing and GPU memory overhead for each control inference, making it difficult to meet real-time high-frequency control requirements.
-- TurboVLA reconstructs this paradigm, proposes a direct-connected visual-language action mapping ($V+L \to A$), uses lightweight BERT to extract instruction semantics, and directly fuses image and text features through a 6-layer Bidirectional Vision-Language Interaction module.
-- Combined with the ACT-style Transformer decoder, TurboVLA can predict consecutive action chunks (Action Chunking) in parallel in a single forward pass, completely getting rid of the large language model backbone and autoregressive decoding.
-- On RTX 4090, TurboVLA contains only 0.2B parameters and less than 0.9 GB of inference GPU memory, with end-to-end inference latency as low as 31.2 ms (>30 Hz control frequency), achieving an average success rate of 97.7% on the LIBERO simulation benchmark, and performance that matches or exceeds that of huge LLM-centric VLAs.
-- This work effectively proves that the underlying execution-level control of the robot does not require the tens-billion-parameter LLM as the center of perception and action, opening up a new path for efficient and low-cost embodied control deployment.
+- Traditional VLA models (such as OpenVLA and $\pi_{0.5}$) generally use an LLM with hundreds of millions to billions of parameters as the core ($V \to L \to A$), so each control inference carries high compute and GPU memory overhead, making real-time high-frequency control hard to meet.
+- TurboVLA reworks this paradigm with a direct vision-language-to-action mapping ($V+L \to A$): a lightweight BERT extracts instruction semantics, and a 6-layer bidirectional vision-language interaction module fuses image and text features directly.
+- Combined with an ACT-style Transformer decoder, TurboVLA predicts consecutive action chunks in parallel in a single forward pass, completely dispensing with the large language model backbone and autoregressive decoding.
+- On an RTX 4090, TurboVLA has only 0.2B parameters and uses under 0.9 GB of GPU memory for inference, with end-to-end latency as low as 31.2 ms (>30 Hz control frequency). It achieves an average success rate of 97.7% on the LIBERO simulation benchmark, matching or exceeding huge LLM-centric VLAs.
+- This work shows that low-level, execution-level robot control does not need a multi-billion-parameter LLM at the center of perception and action, opening a new path for efficient, low-cost embodied control deployment.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-11"}
 
-- **Computational bottleneck of traditional LLM-centric VLA**: Current robot control policies based on vision-language action (VLA) (such as RT-2, OpenVLA, $\pi_0$, $\pi_{0.5}$) generally place the large language model (LLM) at the core of perception and control (i.e. $V \to L \to A$ path). Visual observations are mapped to the Token space of the LLM, spliced ​​with instructions, and processed by the LLM with tens of billions/billions of parameters to generate actions.
-- **'s high latency and high resource dependence make it difficult to deploy** at the edge: Even for non-autoregressive models equipped with independent action experts (such as $\pi_{0.5}$), their visual and instruction features still need to pass through a huge LLM backbone, with inference delays usually reaching 80–200 ms and GPU memory requirements as high as 8–16 GB. This limits the robot control update frequency (usually only around 10 Hz) and cannot be deployed on computing power-constrained edge terminals or consumer-grade graphics cards.
-- **Core observation and research motivation**: In the underlying execution-level control tasks of the robotic arm (such as "stack three bowls"), natural language instructions are mainly used to determine which skill and target object should be executed currently. The policy does not require open text generation or complex task decomposition. Therefore, once the instruction semantics are obtained, the language conditions can be directly injected into the visual features through efficient visual-language interaction, thereby constructing a minimalist and efficient control mapping of $V+L \to A$.
+- **Computational bottleneck of traditional LLM-centric VLAs**: Current robot control policies based on vision-language-action (VLA) models (such as RT-2, OpenVLA, $\pi_0$, and $\pi_{0.5}$) generally place a large language model (LLM) at the core of perception and control (the $V \to L \to A$ path). Visual observations are mapped into the LLM's token space, concatenated with the instruction, and processed by an LLM with billions of parameters to generate actions.
+- **High latency and heavy resource dependence make edge deployment difficult**: Even for non-autoregressive models with an independent action expert (such as $\pi_{0.5}$), the visual and instruction features still have to pass through a huge LLM backbone, with inference latency typically 80-200 ms and GPU memory requirements as high as 8-16 GB. This limits the control update rate (usually only about 10 Hz) and rules out deployment on compute-constrained edge devices or consumer-grade graphics cards.
+- **Core observation and motivation**: In low-level, execution-level arm control tasks (such as "stack three bowls"), natural-language instructions mainly serve to determine which skill and target object to execute at the moment. The policy needs neither open-ended text generation nor complex task decomposition. Therefore, once the instruction semantics are obtained, the language condition can be injected directly into the visual features through efficient vision-language interaction, yielding a minimalist and efficient $V+L \to A$ control mapping.
 
 ---
 
@@ -2769,80 +2769,80 @@ Comparison of out-of-distribution terminal status on<figcaption>LIBERO-Pro: beha
 {: id="2-主要方法创新点-11"}
 
 <div align="center">
-  <img src="/images/vla/TurboVLA-vs-LLMcentric-VLA.webp" alt="Figure 1: Comparison between traditional LLM-centric VLA architecture (left) and TurboVLA direct language interaction architecture (right) and LIBERO performance-latency frontier" width="1122" height="745" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> Figure 1: Comparison between traditional LLM-centric VLA architecture (left) and TurboVLA direct language interaction architecture (right) and LIBERO performance - Latency Frontier</figcaption>
+  <img src="/images/vla/TurboVLA-vs-LLMcentric-VLA.webp" alt="Figure 1: Comparison of the traditional LLM-centric VLA architecture (left) and TurboVLA's direct language-interaction architecture (right), and the LIBERO performance-latency frontier" width="1122" height="745" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Figure 1: Comparison of the traditional LLM-centric VLA architecture (left) and TurboVLA's direct language-interaction architecture (right), and the LIBERO performance-latency frontier</figcaption>
 </div>
 
-#### Architecture evolution comparison
+#### Architecture comparison
 {: id="架构演进对比"}
 
-There are essential differences between the traditional VLA model and TurboVLA in terms of calculation path and resource consumption:
+The traditional VLA model and TurboVLA differ fundamentally in computation path and resource consumption:
 
-|Dimensions|Traditional LLM-centric VLA ($\pi_{0.5}$ / OpenVLA)|This article TurboVLA (Ours)|
+|Dimension|Traditional LLM-centric VLA ($\pi_{0.5}$ / OpenVLA)|TurboVLA (ours)|
 |---|---|---|
-|**mapping paradigm**|Indirect paradigm $V \to L \to A$ (LLM as the core representation hub)|Direct paradigm $V+L \to A$ (modality independent encoding + direct interaction)|
-|**language encoder**|Hundreds of millions to billions of parameters for large language models (such as PaLI-X, Llama, Qwen)|Lightweight BERT/T5-Small (only retaining Token-level semantics)|
-|**Modal fusion mechanism**|Splicing visual and text tokens and integrating them in LLM deep self-attention|6-layer bidirectional visual and language cross-attention (Bidirectional Cross-Attn)|
-|**action generates**|Autoregressive Token Prediction or LLM followed by Action Expert|ACT style Transformer parallel decoding of consecutive action chunks (Action Chunks)|
-|**Inference latency and GPU memory**|Latency 80–200 ms, GPU memory 8–16 GB (control frequency ~10 Hz)|**Latency 31.2 ms, GPU memory < 0.9 GB(control frequency > 30 Hz)**|
+|**Mapping paradigm**|Indirect paradigm $V \to L \to A$ (the LLM is the core representation hub)|Direct paradigm $V+L \to A$ (independent modality encoding + direct interaction)|
+|**Language encoder**|Large language model with hundreds of millions to billions of parameters (such as PaLI-X, Llama, Qwen)|Lightweight BERT/T5-Small (retains only token-level semantics)|
+|**Modality fusion**|Concatenating visual and text tokens and fusing them in the LLM's deep self-attention|6-layer bidirectional vision-language cross-attention|
+|**Action generation**|Autoregressive token prediction, or an LLM followed by an action expert|ACT-style Transformer that decodes consecutive action chunks in parallel|
+|**Inference latency and GPU memory**|Latency 80-200 ms, GPU memory 8-16 GB (control frequency about 10 Hz)|**Latency 31.2 ms, GPU memory < 0.9 GB (control frequency > 30 Hz)**|
 
-> **Take** as an example: Traditional VLA models such as $\pi_{0.5}$ have 3.4B parameters, predict an action chunk to take 93.6 ms and occupy 12.8 GB GPU memory; while TurboVLA has only 0.2B total parameters (only $\pi_{0.5}$’s) 6%), inference only takes 31.2 ms once, and the GPU memory usage is less than 0.9 GB. This jumps the policy control frequency from 11 Hz to 32 Hz, enabling high-frequency closed-loop control on a single consumer RTX 4090 graphics card.
+> **Example**: A traditional VLA model such as $\pi_{0.5}$ has 3.4B parameters, takes 93.6 ms to predict an action chunk, and occupies 12.8 GB of GPU memory; TurboVLA has only 0.2B parameters in total (just 6% of $\pi_{0.5}$), needs only 31.2 ms per inference, and uses under 0.9 GB of GPU memory. This raises the policy control frequency from 11 Hz to 32 Hz, enabling high-frequency closed-loop control on a single consumer RTX 4090.
 
 <div align="center">
-  <img src="/images/vla/TurboVLA-architecture-overview.webp" alt="Figure 2: TurboVLA overall architecture (a) and details of the two-way language interaction module (b)" width="1118" height="810" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> Figure 2: TurboVLA overall architecture (a) and details of the two-way language interaction module (b)</figcaption>
+  <img src="/images/vla/TurboVLA-architecture-overview.webp" alt="Figure 2: TurboVLA overall architecture (a) and details of the bidirectional language interaction module (b)" width="1118" height="810" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Figure 2: TurboVLA overall architecture (a) and details of the bidirectional language interaction module (b)</figcaption>
 </div>
 
 #### Overall framework and data flow
 {: id="整体框架与数据流"}
 
-The overall architecture of TurboVLA consists of three core parts: **multimodal feature encoding**, **two-way language interaction**, and **continuous action chunk decoder**.
+The overall architecture of TurboVLA has three core parts: **multimodal feature encoding**, **bidirectional language interaction**, and a **continuous action chunk decoder**.
 
 ```mermaid
 graph TD
-    A["visual observation (multiple perspectives RGB)"] --> B["DINOv3 visual encoder"]
-    C["language instructions (Text Command)"] --> D["BERT text encoder"]
-    B --> E["visual characteristics Z_v (N_v × d)"]
-    D --> F["Command characteristics Z_l (N_l × d)"]
-    E --> G["Two-way viewing language interaction module (6 × FusionLayer)"]
+    A["Visual observation (multi-view RGB)"] --> B["DINOv3 visual encoder"]
+    C["Language instruction (text command)"] --> D["BERT text encoder"]
+    B --> E["Visual features Z_v (N_v × d)"]
+    D --> F["Instruction features Z_l (N_l × d)"]
+    E --> G["Bidirectional vision-language interaction module (6 × FusionLayer)"]
     F --> G
-    G --> H["vision-language fusion representation Z_vl"]
-    I["robot proprioceptive state (Robot State s_n)"] --> J["status encoder f_state"]
-    J --> K["Status characteristics Z_s"]
-    H --> L["ACT action chunk decoder (Transformer Decoder)"]
+    G --> H["Vision-language fused representation Z_vl"]
+    I["Robot proprioceptive state (s_n)"] --> J["State encoder f_state"]
+    J --> K["State features Z_s"]
+    H --> L["ACT action chunk decoder (Transformer decoder)"]
     K --> L
-    M["Learnable action query Q_a"] --> L
+    M["Learnable action queries Q_a"] --> L
     L --> N["Continuous action chunk prediction A_hat (H × d_a)"]
 ```
 
-#### Detailed explanation module by module
+#### Module-by-module details
 {: id="逐模块详细讲解"}
 
-##### ① Multimodal Feature Encoding
+##### ① Multimodal feature encoding
 {: id="-多模态特征编码-multimodal-feature-encoding"}
-- **instruction features**: Natural language instruction $x$ extracts Token-level features through the lightweight BERT model, and transforms them into the policy dimension $d = 256$ through the projection layer $P_l$:
+- **Instruction features**: A lightweight BERT model extracts token-level features from the natural-language instruction $x$, and a projection layer $P_l$ maps them to the policy dimension $d = 256$:
   $$Z^l = P_l(f_{\mathrm{text}}(x)) \in \mathbb{R}^{N_l \times d}$$
-Maintaining the complete Token sequence rather than the scalar pooling vector can provide fine-grained guidance of objects, attributes and spatial relationships for subsequent visual attention.
-- **visual features**: For the RGB image observation $$I^{(i)}_n$$ of $K$ cameras, pretraining DINOv3 is used to extract spatial visual features, superimpose view embedding and position encoding and then splice:
+Keeping the complete token sequence rather than a single pooled vector provides fine-grained guidance on objects, attributes, and spatial relations for the subsequent visual attention.
+- **Visual features**: For the RGB observations $$I^{(i)}_n$$ of $K$ cameras, a pretrained DINOv3 extracts spatial visual features, to which view embeddings and position encodings are added before concatenation:
   $$Z^{v,(i)}_n = P_v(f_{\mathrm{img}}(I^{(i)}_n)) + E^{(i)}_{\mathrm{pos}} + e^{(i)}_{\mathrm{view}}, \quad Z^v_n = [Z^{v,(1)}_n; \dots; Z^{v,(K)}_n]$$
-- **proprioceptive state feature**: robot joint angle, terminal posture and other states $s_n$ is independently encoded by the lightweight projection layer as $Z^s_n = f_{\mathrm{state}}(s_n)$ and directly sent to the terminal action decoder to avoid interfering with the visual-language semantic matching of the upstream scene.
+- **Proprioceptive state features**: The robot state $s_n$ (joint angles, end-effector pose, etc.) is encoded independently by a lightweight projection layer as $Z^s_n = f_{\mathrm{state}}(s_n)$ and sent directly to the final action decoder, so as not to interfere with the upstream vision-language semantic matching.
 
-##### ② Bidirectional Vision-Language Interaction module (Bidirectional Vision-Language Interaction)
+##### ② Bidirectional vision-language interaction module
 {: id="-双向视语言交互模块-bidirectional-vision-language-interaction"}
-Visual and linguistic features, which are encoded independently, are not clearly related to each other. TurboVLA introduces the $N = 6$ layer-alternating bidirectional cross-attention module:
-- **Visual-to-Instruction Cross-Attn**: Using the instruction feature as Query and the visual feature as Key/Value, the current physical scene context is injected into the instruction representation.
-- **Language-to-Visual Cross-Attn (Instruction-to-Visual Cross-Attn)**: Using the visual feature as Query and the instruction feature as Key/Value, let the task semantics directly modulate the relevant visual patch.
-- After two-way interaction, the two-way features are spliced into the vision-language fusion representation $$Z^{vl}_n = [V^N_n; L^N_n]$$ at the final level, effectively establishing the corresponding relationship between objects and instruction semantics.
+Independently encoded visual and language features have no explicit correspondence with each other. TurboVLA introduces a module of $N = 6$ alternating bidirectional cross-attention layers:
+- **Visual-to-instruction cross-attention**: The instruction features serve as the query and the visual features as the key/value, injecting the current physical scene context into the instruction representation.
+- **Instruction-to-visual cross-attention**: The visual features serve as the query and the instruction features as the key/value, so that task semantics directly modulate the relevant visual patches.
+- After the bidirectional interaction, the two streams of features are concatenated at the last layer into the vision-language fused representation $$Z^{vl}_n = [V^N_n; L^N_n]$$, effectively establishing the correspondence between objects and instruction semantics.
 
-##### ③ Continuous Action Chunk Decoder (Continuous Action Chunk Prediction)
+##### ③ Continuous action chunk prediction
 {: id="-连续动作块解码器-continuous-action-chunk-prediction"}
-Based on the ACT-style Transformer decoder, using $H$ learnable action Query $Q_a = [q_1, \dots, q_H]$, combined with the vision-language representation $$Z^{vl}_n$$ and the robot state $Z^s_n$, a single forward propagation directly predicts the continuous action chunks of $H$ steps in the future:
+Based on an ACT-style Transformer decoder, $H$ learnable action queries $Q_a = [q_1, \dots, q_H]$ are combined with the vision-language representation $$Z^{vl}_n$$ and the robot state $Z^s_n$, and a single forward pass directly predicts the continuous action chunk of the next $H$ steps:
 $$\hat{A}_n = D_{\theta}(Q_a, [Z^{vl}_n; Z^s_n]) \in \mathbb{R}^{H \times d_a}$$
-The training process uses the $\ell_1$ loss function under Behavior Cloning without any auxiliary language modeling loss.
+Training uses an $\ell_1$ loss under behavior cloning, with no auxiliary language-modeling loss.
 
 <div align="center">
-  <img src="/images/vla/TurboVLA-deployment-comparison.webp" alt="Figure 3: Comparison between edge terminal direct inference and remote server inference and TurboVLA real-time action generation pipeline" width="981" height="557" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> Figure 3: Comparison between edge terminal direct inference and remote server inference and TurboVLA real-time action generation pipeline</figcaption>
+  <img src="/images/vla/TurboVLA-deployment-comparison.webp" alt="Figure 3: Comparison of direct on-device inference and remote-server inference, and the TurboVLA real-time action generation pipeline" width="981" height="557" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Figure 3: Comparison of direct on-device inference and remote-server inference, and the TurboVLA real-time action generation pipeline</figcaption>
 </div>
 
 ---
@@ -2851,50 +2851,50 @@ The training process uses the $\ell_1$ loss function under Behavior Cloning with
 {: id="3-核心结果发现-6"}
 
 <div align="center">
-  <img src="/images/vla/TurboVLA-realworld-evaluation.webp" alt="Figure 4: Comparison of real-world evaluation scenarios and experimental success rates based on the AgileX Piper robotic arm" width="1118" height="533" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> Figure 4: Comparison of real-world evaluation scenarios and experimental success rates based on the AgileX Piper robotic arm</figcaption>
+  <img src="/images/vla/TurboVLA-realworld-evaluation.webp" alt="Figure 4: Real-world evaluation scenarios and experimental success rates with the AgileX Piper robot arm" width="1118" height="533" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Figure 4: Real-world evaluation scenarios and experimental success rates with the AgileX Piper robot arm</figcaption>
 </div>
 
--  **LIBERO Simulation Benchmark Performance** : In 2,000 evaluations on LIBERO 4 sub-test sets (Spatial, Object, Goal, Long), TurboVLA reached **97.7% average success rate** , surpassing the parameter number that is more than ten times larger $\pi_{0.5}$ (96.9%), OpenVLA (76.5%), OpenVLA-OFT (97.1%) and VLA-JEPA (97.2%).
-- **RoboTwin 2.0 dual-arm control expansion**: In 50 dual-arm coordinated control tasks, TurboVLA (ViT-L backbone, 0.4B parameters) achieved an average success rate of 60.2% (inference delay 43.4 ms), significantly better than $\pi_{0.5}$ (57.0%, 95.6 ms) and StarVLA-$\alpha$ (50.3%, 74.9 ms).
-- **Real robotic arm deployment**: In the four real manipulation tasks of the AgileX Piper robotic arm (grabbing rollers, removing playing cards, pressing staplers, and stacking three bowls), TurboVLA achieved success rates of 92.5%, 80.0%, 90.0%, and 87.5% respectively, completely surpassing those under the same settings. $\pi_{0.5}$.
-- **ablation experiment key findings**:
-  - **Language conditions are indispensable**: After removing the language conditions, the average success rate of LIBERO plummeted from 97.7% to 70.8% (the Goal subset dropped from 97.4% to 11.6%), proving that the policy must rely on text to distinguish different behaviors in the same scenario.
-  - **'s two-way interaction is better than one-way and splicing**: no-interaction splicing is 95.2%, one-way interaction is 96.1%–96.5%, and two-way interaction reaches the optimal 97.7%.
-  - **text encoder is versatile**: switching to T5-Small (97.1%) or SigLIP-Base (95.5%) can maintain a high success rate, indicating that execution-level control does not require a specific LLM vocabulary space.
+- **LIBERO simulation benchmark performance**: In 2,000 evaluations across the 4 LIBERO test suites (Spatial, Object, Goal, Long), TurboVLA reaches an **average success rate of 97.7%**, surpassing $\pi_{0.5}$, which has more than ten times as many parameters (96.9%), as well as OpenVLA (76.5%), OpenVLA-OFT (97.1%), and VLA-JEPA (97.2%).
+- **RoboTwin 2.0 bimanual control**: On 50 bimanual coordination tasks, TurboVLA (ViT-L backbone, 0.4B parameters) reaches an average success rate of 60.2% (inference latency 43.4 ms), significantly better than $\pi_{0.5}$ (57.0%, 95.6 ms) and StarVLA-$\alpha$ (50.3%, 74.9 ms).
+- **Real robot arm deployment**: On four real manipulation tasks with the AgileX Piper arm (grasping a roller, removing a playing card, pressing a stapler, and stacking three bowls), TurboVLA achieves success rates of 92.5%, 80.0%, 90.0%, and 87.5%, respectively, all above $\pi_{0.5}$ under the same settings.
+- **Key ablation findings**:
+  - **Language conditioning is indispensable**: Removing it drops the LIBERO average success rate from 97.7% to 70.8% (the Goal subset falls from 97.4% to 11.6%), showing that the policy must rely on text to distinguish different behaviors in the same scene.
+  - **Bidirectional interaction beats unidirectional interaction and concatenation**: No interaction (concatenation) gives 95.2%, unidirectional interaction 96.1%-96.5%, and bidirectional interaction reaches the best 97.7%.
+  - **The text encoder is interchangeable**: Switching to T5-Small (97.1%) or SigLIP-Base (95.5%) still maintains a high success rate, indicating that execution-level control does not need a specific LLM vocabulary space.
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-5"}
 
-- **lacks high-level task planning capabilities**: TurboVLA is specially designed for execution-level specific instructions (Concrete Execution-level Instructions). After removing LLM, it loses its open common sense reasoning and long sequence high-level task decomposition capabilities.
-- **Complex cross-modal reasoning is limited**: For complex tasks that require multi-step implicit reasoning (such as "find the bottle opener first and then open the leftmost drink bottle"), the upper large language model still needs to perform high-level planning and output sub-goal instructions, combined with TurboVLA's efficient execution path.
+- **No high-level task planning**: TurboVLA is designed specifically for concrete execution-level instructions. With the LLM removed, it loses open-ended commonsense reasoning and long-horizon high-level task decomposition.
+- **Limited complex cross-modal reasoning**: For complex tasks that need multi-step implicit reasoning (such as "find the bottle opener first and then open the leftmost drink bottle"), a large upstream language model is still needed for high-level planning and for outputting subgoal instructions, combined with TurboVLA's efficient execution path.
 <span id="529-zr-0-2026-5-29-zr-0" class="vla-anchor-alias" aria-hidden="true"></span>
 
 ## 29. ZR-0 (2026)
 {: id="5-29-zr-0"}
-——2.6B end-to-end VLA model based on dense Embodied Chain of Thinking (ECoT) supervision and cross-embodiment reasoning/execution decoupling
+——A 2.6B end-to-end VLA model based on dense Embodied Chain-of-Thought (ECoT) supervision and cross-embodiment decoupling of reasoning and execution
 
 📄 **Paper**: https://arxiv.org/abs/2606.30552
 
 ### Key takeaways
 {: id="精华-14"}
 
-1. **Cross-Embodiment Alignment**: Aiming at the problem of heterogeneous underlying states and action spaces of single-arm, double-arm, and humanoid robots, ZR-0 pointed out that high-level cognitive processes such as object recognition, scene perception, and subtask decomposition are highly shared between different ontologies, and innovatively proposed to use Dense Embodiment Thinking Chain (Dense ECoT) as a supervision signal to achieve cross-embodiment semantic alignment.
-2.  **System 1 / System 2 dual-stream architecture and zero-latency bypass during inference** : System 2 (Qwen3-VL-2B) is responsible for learning rich physical world common sense and ECoT reasoning during training; System 1 (DiT action expert) predicts continuous action chunks through Flow Matching. A dedicated attention mask (Attention Mask) is designed to allow action experts to only interactively input Prompt features. **Completely skip autoregressive generation of textual ECoTs on inference deployment** , taking into account high-level reasoning generalization and high-frequency real-time control.
-3. **ultra-large-scale dense annotation data set ProcCorpus-60M**: Integrating mainstream open source robot data sets such as DROID, RH20T, OXE, and Bridge, a large-scale data set containing 60 million frames (approximately 1,000 hours, 400,000 trajectories) was constructed, and 96.8% of the frames had structured ECoT Annotation (scene description, progress evaluation, future planning, atomic action decomposition, target object BBox, discrete action Token).
-4. **Visual-Language Data Co-training (Co-training)**: Mixing CapsFusion and Pixmo universal graphic and text multimodal data while fine-tuning the robot's actions, effectively preventing end-to-end action training from catastrophic forgetting of VLM's open vocabulary common sense understanding ability.
-5. **full-form simulation and real-robot generalization verification**: demonstrated excellent generalization performance and instruction following accuracy in single-arm (LIBERO), dual-arm (RoboTwin 2.0), humanoid robot (RoboCasa GR-1 Tabletop) simulation benchmarks and real xArm manipulator multi-task evaluation.
+1. **Cross-embodiment alignment**: Addressing the heterogeneous low-level states and action spaces of single-arm, bimanual, and humanoid robots, ZR-0 points out that high-level cognitive processes such as object recognition, scene perception, and subtask decomposition are highly shared across embodiments, and proposes using dense embodied chain-of-thought (Dense ECoT) as the supervision signal to achieve cross-embodiment semantic alignment.
+2. **System 1 / System 2 dual-stream architecture with a zero-latency bypass at inference**: System 2 (Qwen3-VL-2B) learns rich physical-world commonsense and ECoT reasoning during training; System 1 (a DiT action expert) predicts continuous action chunks through flow matching. A dedicated attention mask lets the action expert interact only with the prompt features. **Autoregressive generation of ECoT text is skipped entirely at inference**, balancing high-level reasoning generalization with high-frequency real-time control.
+3. **ProcCorpus-60M, an ultra-large-scale densely annotated dataset**: Integrating mainstream open-source robot datasets such as DROID, RH20T, OXE, and Bridge, a large dataset of 60 million frames (about 1,000 hours, 400,000 trajectories) was built, with 96.8% of frames carrying structured ECoT annotations (scene description, progress assessment, future plan, atomic action decomposition, target object bounding boxes, and discrete action tokens).
+4. **Vision-language data co-training**: Mixing in general image-text multimodal data from CapsFusion and Pixmo while fine-tuning on robot actions effectively prevents end-to-end action training from catastrophically forgetting the VLM's open-vocabulary commonsense understanding.
+5. **Validation of generalization across all embodiments, in simulation and on real robots**: ZR-0 shows excellent generalization and instruction-following accuracy on simulation benchmarks for single-arm (LIBERO), bimanual (RoboTwin 2.0), and humanoid (RoboCasa GR-1 Tabletop) robots, and in multi-task evaluation on a real xArm manipulator.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-12"}
 
-- **Heterogeneous Dilemma of Cross-Ontology Migration**: The core obstacle in building a universal embodied operation policy lies in cross-embodiment generalization. Different robot platforms have fundamental differences in the degree of freedom of the manipulator (6-DoF vs 7-DoF), control interface (joint angle vs end-effector pose), chassis type (fixed base vs mobile chassis), and sensor configuration. Traditional zero-padding or semantic dimension mapping only stays at the format level and cannot allow the model to learn deep semantic features that are transferable across hardware.
--  **High-level cognitive sharing vs low-level action specificity** : Although the underlying execution details vary from hardware to hardware, the differences between humans and robots when performing operational tasks **High-level cognitive decision-making loop** are common (for example, whether it is a 6-degree-of-freedom or 7-degree-of-freedom robotic arm, picking up a cup from the table requires "identifying the cup position". $\to$ Plan a close route $\to$ Align the gripper $\to$ The logical evolution of "closed gripper").
-- **Conflict between reasoning delay and reasoning ability**: The traditional VLA model with chain of thought (CoT) reasoning requires word-by-word autoregressive decoding of a long text reasoning process during reasoning, resulting in extremely high computing delays (a single step takes hundreds of milliseconds or more) and cannot meet the needs of high-frequency closed-loop action control. The ZR-0 is designed to resolve this contradiction.
+- **Heterogeneity dilemma in cross-embodiment transfer**: The core obstacle to building a universal embodied manipulation policy is cross-embodiment generalization. Robot platforms differ fundamentally in manipulator degrees of freedom (6-DoF vs 7-DoF), control interface (joint angles vs end-effector pose), chassis type (fixed base vs mobile base), and sensor configuration. Traditional zero-padding or semantic-dimension mapping stays at the format level and cannot make the model learn deep semantic features that transfer across hardware.
+- **Shared high-level cognition vs. specific low-level actions**: Although low-level execution details vary across hardware, the **high-level cognitive decision loop** that humans and robots go through when performing manipulation tasks is common (for example, whether the arm is 6-DoF or 7-DoF, picking up a cup from a table requires the logical progression "identify the cup position $\to$ plan an approach path $\to$ align the gripper $\to$ close the gripper").
+- **Conflict between reasoning latency and reasoning ability**: Traditional VLA models with chain-of-thought (CoT) reasoning must decode a long textual reasoning process token by token at inference time, causing extremely high compute latency (hundreds of milliseconds or more per step) that cannot meet the needs of high-frequency closed-loop action control. ZR-0 is designed to resolve this contradiction.
 
 ---
 
@@ -2902,45 +2902,45 @@ The training process uses the $\ell_1$ loss function under Behavior Cloning with
 {: id="2-主要方法创新点-12"}
 
 <div align="center">
-  <img src="/images/vla/ZR-0-framework.webp" alt="Figure 1: ZR-0 overall architecture and dual-stream training process. System 2 VLM receives multimodal input during the training period and generates structured ECoT with Next-Token Prediction supervision; System 1 DiT action expert predicts continuous action chunks through Flow Matching, and the cross-attention mask ensures that it only relies on the input Prompt features." width="1118" height="621" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> Figure 1: ZR-0 overall architecture and dual-stream training process. System 2 VLM receives multimodal input during the training period and generates structured ECoT with Next-Token Prediction supervision; System 1 DiT action expert predicts continuous action chunks through Flow Matching, and the cross-attention mask ensures that it only relies on the input Prompt features.</figcaption>
+  <img src="/images/vla/ZR-0-framework.webp" alt="Figure 1: ZR-0 overall architecture and dual-stream training process. During training, the System 2 VLM receives multimodal input and generates structured ECoT supervised by next-token prediction; the System 1 DiT action expert predicts continuous action chunks through flow matching, and a cross-attention mask ensures that it relies only on the input prompt features." width="1118" height="621" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Figure 1: ZR-0 overall architecture and dual-stream training process. During training, the System 2 VLM receives multimodal input and generates structured ECoT supervised by next-token prediction; the System 1 DiT action expert predicts continuous action chunks through flow matching, and a cross-attention mask ensures that it relies only on the input prompt features.</figcaption>
 </div>
 
 #### ① Overall architecture: System 1 / System 2 dual-stream collaboration
 {: id="-整体架构system-1--system-2-双流协同"}
 
-ZR-0 contains two core sub-modules based on the dual-system theory of cognitive science:
-- **System 2 (slow cognitive large model)**: Based on the pretraining `Qwen3-VL-2B-Instruct` backbone, input the multi-view camera image $o_t = [img_1, \dots, img_n]$ and the natural language instruction $l$ to generate a structured embodied chain of thought (ECoT) sequence $r_t$.
-- **System 1 (Quick Action Expert)**: Continuous action flow matching expert based on Diffusion Transformer (DiT). Receive the robot proprioceptive state $s_t$ and the top-level feature $f_t$ extracted by VLM, and generate the future $H$ step continuous action chunk $A_t = [a_t, a_{t+1}, \dots, a_{t+H-1}]$ in a single time.
+ZR-0 contains two core submodules based on the dual-system theory of cognitive science:
+- **System 2 (slow cognitive model)**: Based on the pretrained `Qwen3-VL-2B-Instruct` backbone, it takes multi-view camera images $o_t = [img_1, \dots, img_n]$ and a natural-language instruction $l$ as input and generates a structured embodied chain-of-thought (ECoT) sequence $r_t$.
+- **System 1 (fast action expert)**: A continuous action flow-matching expert based on a Diffusion Transformer (DiT). It takes the robot proprioceptive state $s_t$ and the top-level features $f_t$ extracted by the VLM, and generates the continuous action chunk of the next $H$ steps $A_t = [a_t, a_{t+1}, \dots, a_{t+H-1}]$ in one pass.
 
-#### ② Key innovation: Zero-overhead bypass design during inference period (Inference-Time Bypass)
+#### ② Key innovation: a zero-overhead inference-time bypass
 {: id="-关键创新推理期零开销旁路设计inference-time-bypass"}
 
-- **DiT module attention ratio**: Each DiT block adopts the asymmetric structure of **1 layer of self-attention + 3 layers of cross-attention** (different from the conventional 1:1 design), which enhances the full absorption of visual and language features by actions.
-- **Cross-Attention Mask mechanism**: When DiT cross-attention interacts, the attention mask is explicitly applied. **only allows Query (action and status Token) to access the features corresponding to the input Prompt (image + instruction) in VLM, shielding all subsequently generated ECoT Token features**.
-- **Zero-latency inference advantage**: Since action generation does not rely on the generated ECoT text hidden state at all, the inference phase **does not require autoregressive decoding of any ECoT text**. VLM only needs a single forward propagation (Single Forward Pass) encoded input observation to directly drive the Action Expert sampling action.
+- **Attention ratio in the DiT block**: Each DiT block uses an asymmetric structure of **1 self-attention layer + 3 cross-attention layers** (unlike the conventional 1:1 design), which strengthens the actions' absorption of visual and language features.
+- **Cross-attention mask**: In the DiT's cross-attention, an attention mask is applied explicitly, **allowing queries (action and state tokens) to access only the VLM features corresponding to the input prompt (image + instruction) and masking all subsequently generated ECoT token features**.
+- **Zero-latency inference advantage**: Because action generation does not depend on the hidden states of the generated ECoT text at all, **no ECoT text needs to be decoded autoregressively** at inference time. The VLM only needs a single forward pass to encode the input observation, which then directly drives the action expert to sample actions.
 
 #### ③ Six elements of structured ECoT cognition (ProcCorpus-60M)
 {: id="-结构化-ecot-认知六要素-proccorpus-60m"}
 
-In order to give the model a full range of embodied reasoning capabilities, ProcCorpus-60M automatically builds a six-level structured cognitive chain for each frame in the trajectory:
-1. **Scene Description**: Summarizes the environment layout and key objects to improve open visual scene perception.
-2. **Progress Assessment**: Summarizes the completed progress and gives two-category completion instructions (Yes/No) to enhance task progress perception.
-3. **Future Plan (Future Plan)**: Use natural language to describe the remaining steps required to achieve the goal, strengthening temporal reasoning and long-term planning.
-4. **To-Do Actions (atomic action decomposition)**: Decompose future planning into standardized verb-object phrases (such as `Grasp the blue plate`) to establish hardware-independent cross-embodiment transferable representations.
-5. **Target Objects (target object positioning)**: Output the 2D bounding box BBox of key objects in JSON format, providing explicit visual grounding guidance.
-6. **Discrete Actions (Discrete Action Token)**: The discrete action Token generated by FAST Tokenizer builds a compact bridge between high-level reasoning and low-level continuous control.
+To give the model full-spectrum embodied reasoning ability, ProcCorpus-60M automatically builds a six-part structured cognitive chain for each frame of a trajectory:
+1. **Scene description**: Summarizes the environment layout and key objects, improving open-vocabulary visual scene perception.
+2. **Progress assessment**: Summarizes the progress made and gives a binary completion judgment (yes/no), strengthening perception of task progress.
+3. **Future plan**: Describes in natural language the remaining steps needed to reach the goal, strengthening temporal reasoning and long-horizon planning.
+4. **To-do actions (atomic action decomposition)**: Decomposes the future plan into standardized verb-object phrases (such as `Grasp the blue plate`), building hardware-independent representations that transfer across embodiments.
+5. **Target objects (target localization)**: Outputs the 2D bounding boxes of key objects in JSON format, providing explicit visual grounding guidance.
+6. **Discrete actions**: Discrete action tokens generated by the FAST tokenizer build a compact bridge between high-level reasoning and low-level continuous control.
 
-#### ④ Joint training loss function
+#### ④ Joint training loss
 {: id="-联合训练损失函数"}
 
-ZR-0 jointly optimizes the language modeling loss and flow matching denoising loss in the training phase:
+ZR-0 jointly optimizes the language modeling loss and the flow-matching denoising loss during training:
 $$\mathcal{L} = \mathcal{L}_{\mathrm{ntp}} + \alpha \mathcal{L}_{\mathrm{fm}}$$
 - **ECoT supervision loss**:
   $$\mathcal{L}_{\mathrm{ntp}} = -\mathbb{E}_{\mathcal{D}} \left[ \sum_i \log \pi_{\theta'}(r_t^i \mid l, o_t, r_t^{<i}) \right]$$
-- **flow matching action denoising loss**:
+- **Flow-matching action denoising loss**:
   $$\mathcal{L}_{\mathrm{fm}} = \mathbb{E}_{\mathcal{D}, \tau, \epsilon} \left[ \|\pi_\theta(l, o_t, s_t, A_t^\tau, \tau) - (A_t - \epsilon)\|^2 \right]$$
-Here, the flow matching time step $\tau \sim \text{Beta}(1.5, 1.0)$ gives greater sampling weight to the high noise stage.
+Here, the flow-matching timestep $\tau \sim \text{Beta}(1.5, 1.0)$ gives greater sampling weight to the high-noise stage.
 
 ---
 
@@ -2948,51 +2948,51 @@ Here, the flow matching time step $\tau \sim \text{Beta}(1.5, 1.0)$ gives greate
 {: id="3-核心结果发现-7"}
 
 <div align="center">
-  <img src="/images/vla/ZR-0-realworld-tasks.webp" alt="Figure 2: Real-world xArm robotic arm multi-task experimental evaluation setup (including instruction following, color cognition, long-range planning, spatial reasoning and OCR semantic understanding)" width="1118" height="541" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> Figure 2: Real-world xArm robotic arm multi-task experimental evaluation setup (including instruction following, color cognition, long-range planning, spatial reasoning and OCR semantic understanding)</figcaption>
+  <img src="/images/vla/ZR-0-realworld-tasks.webp" alt="Figure 2: Real-world multi-task evaluation setup with an xArm robot arm (covering instruction following, color recognition, long-horizon planning, spatial reasoning, and OCR semantic understanding)" width="1118" height="541" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Figure 2: Real-world multi-task evaluation setup with an xArm robot arm (covering instruction following, color recognition, long-horizon planning, spatial reasoning, and OCR semantic understanding)</figcaption>
 </div>
 
-- **multimodal simulation benchmark is fully ahead of**:
-  - **single-arm control (LIBERO)**: comprehensively surpasses OpenVLA, $\pi_0$ and Octo in the four major subsets of LIBERO-Spatial, Object, Goal and Long.
-  - **dual-arm control (RoboTwin 2.0)**: Demonstrates high coordination and precise spatial action decoupling capabilities in 20 complex dual-arm coordination tasks.
-  - **Humanoid Control (RoboCasa GR-1 Tabletop)**: The migration ability to a high-degree-of-freedom humanoid robot is verified in complex home desktop scenarios.
-- **real robot deployment verification**: Four types of real physical tests covering spatial orientation reasoning, OCR character understanding, fine-grained object operation and long-range multi-stage planning were carried out on the xArm robotic arm. ZR-0 demonstrated an operation success rate of up to 85%+ in new scenarios and new object distributions.
-- **ablation experiment key conclusions**:
-  - **The necessity of dense ECoT**: Removing ECoT supervision (only using action regression) leads to a 28.4% drop in cross-embodiment transfer success rate;
-  - **Bypass lossless verification during inference period**: Comparing "generate ECoT during inference period" and "skip ECoT during inference period", the action control success rate of the two is exactly the same, but the inference delay is reduced by more than 85%, which proves the effectiveness of the feature mask decoupling mechanism.
+- **Leading across multimodal simulation benchmarks**:
+  - **Single-arm control (LIBERO)**: Comprehensively surpasses OpenVLA, $\pi_0$, and Octo on all four subsets LIBERO-Spatial, Object, Goal, and Long.
+  - **Bimanual control (RoboTwin 2.0)**: Shows strong coordination and precise decoupling of spatial actions on 20 complex bimanual coordination tasks.
+  - **Humanoid control (RoboCasa GR-1 Tabletop)**: Transfer to a high-DoF humanoid is verified in complex home tabletop scenes.
+- **Real-robot deployment**: Four kinds of real physical tests covering spatial orientation reasoning, OCR text understanding, fine-grained object manipulation, and long-horizon multi-stage planning were run on an xArm arm. ZR-0 achieves manipulation success rates of 85%+ on new scenes and new object distributions.
+- **Key ablation conclusions**:
+  - **Necessity of dense ECoT**: Removing ECoT supervision (using only action regression) lowers the cross-embodiment transfer success rate by 28.4%;
+  - **Lossless bypass at inference**: Comparing "generate ECoT at inference" with "skip ECoT at inference", the action control success rates are exactly the same, while inference latency drops by more than 85%, demonstrating the effectiveness of the feature-mask decoupling mechanism.
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-6"}
 
-1. **Dependence on offline automatic annotation quality**: The ProcCorpus-60M data set relies on the upstream large model to generate ECoT pseudo-labels, and labeling noise (such as BBox drift under complex occlusion) may affect the purity of the intermediate representation.
-2. **One-way feedback lacks dynamic reflection during testing**: Since the inference stage skips the autoregressive generation of ECoT, the model cannot output text self-correction or perform language-based reflection re-planning in real time during execution.
+1. **Dependence on offline automatic annotation quality**: The ProcCorpus-60M dataset relies on upstream large models to generate ECoT pseudo-labels, and labeling noise (such as bounding-box drift under complex occlusion) may affect the purity of the intermediate representation.
+2. **One-way feedback and no dynamic reflection at test time**: Because the inference stage skips autoregressive ECoT generation, the model cannot output text self-corrections or perform language-based reflective replanning in real time during execution.
 <span id="530-robottt-2026-5-30-robottt" class="vla-anchor-alias" aria-hidden="true"></span>
 
 ## 30. RoboTTT (2026)
 {: id="5-30-robottt"}
-——Extension of embodied policy attention context to test-time training (TTT) vision-language-action model with 8K Timesteps
+——Extending the attention context of embodied policies to 8K timesteps with test-time training (TTT) vision-language-action models
 
 📄 **Paper**: https://arxiv.org/abs/2607.15275
 
 ### Key takeaways
 {: id="精华-15"}
 
-* The test-time training (TTT) used to extend long context in the language model was successfully introduced into the embodied vision-language-action (VLA) policy, which increased the historical context length of action control by three orders of magnitude to 8K timesteps (the corresponding duration depends on the input sampling frequency).
-* Gradient descent is used to dynamically update Fast Weights as a loop state during testing, so that the policy can implicitly remember a long history, and the inference calculation time remains constant ($$O(1)$$ remains unchanged with the context length).
-* Sequence Action Forcing and Truncated Backpropagation (TBPTT) are proposed to solve the problems of multi-level noise sampling and GPU memory explosion in long sequence Diffusion Transformer training.
-* The innovative design of DAgger Distillation and One-Shot Video Imitation implicitly distills "failure-correction" mapping and human demonstration videos into fast weights, achieving adaptive error correction and single-sample task generalization without online manual intervention.
-* It is revealed for the first time that the pretraining context length has a sustained scaling effect on the closed-loop control performance of the robot (8K is about 63% better than 1K, according to the main text of the paper), opening up a new scaling dimension for the embodied large model in addition to the amount of parameters and data.
+* Test-time training (TTT), used to extend long context in language models, is successfully introduced into embodied vision-language-action (VLA) policies, increasing the historical context length of action control by three orders of magnitude to 8K timesteps (the corresponding duration depends on the input sampling frequency).
+* Gradient descent dynamically updates fast weights as a recurrent state at test time, letting the policy implicitly remember a long history while inference compute stays constant ($$O(1)$$ in the context length).
+* Sequence action forcing and truncated backpropagation through time (TBPTT) are proposed to solve the problems of multi-level noise sampling and GPU memory blow-up when training long-sequence Diffusion Transformers.
+* The innovative design of DAgger distillation and one-shot video imitation implicitly distills "failure-correction" mappings and human demonstration videos into the fast weights, achieving adaptive error correction and single-sample task generalization without online human intervention.
+* It is shown for the first time that the pretraining context length has a sustained scaling effect on the closed-loop control performance of robots (8K is about 63% better than 1K, according to the main text of the paper), opening a new scaling dimension for large embodied models beyond parameter count and data volume.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-13"}
 
-* **Core issues and motivations**: Most of the existing mainstream robot base models (such as GR00T-N1.7, OpenVLA, etc.) only rely on a single frame or extremely short historical observations (usually 2–8 frames), and cannot establish a long-term control context in multi-stage complex tasks that last several minutes. However, long visual action context is crucial for single-sample video demonstration imitation, online adaptive error correction in deployment history, and long-range manipulation.
-* **Technical bottleneck**: In the context of long visual actions, traditional Full Attention faces expensive KV Cache GPU memory and computational overhead as the sequence length grows; while linear associated cyclic structures such as RNN or Gated DeltaNet have insufficient expressive capabilities when fitting thousands of steps of high-dimensional visual-action continuous flow.
-* **This article’s solution**: This article proposes **RoboTTT** (Test-Time-Training Robot Policies), which introduces TTT into the VLA policy. By using gradient descent to update Fast Weights online during the training and testing phases, the historical context is dynamically compressed into the model parameter space, and the robot vision-action context is expanded to 8K timesteps (more than 3000 times higher than the existing SOTA) while ensuring that the inference delay is a constant order.
+* **Core problem and motivation**: Most existing mainstream robot foundation models (such as GR00T-N1.7 and OpenVLA) rely only on a single frame or very short observation histories (usually 2-8 frames), and cannot build a long-term control context in multi-stage complex tasks lasting several minutes. Yet a long visual-action context is crucial for one-shot imitation from video demonstrations, online adaptive error correction from the deployment history, and long-horizon manipulation.
+* **Technical bottleneck**: With long visual-action contexts, traditional full attention faces expensive KV cache memory and compute as the sequence length grows, while linear recurrent structures such as RNNs or Gated DeltaNet lack the expressive power to fit visual-action streams of thousands of high-dimensional steps.
+* **Our solution**: This paper proposes **RoboTTT** (test-time-training robot policies), which introduces TTT into VLA policies. By using gradient descent to update fast weights online during both training and testing, the historical context is dynamically compressed into the model's parameter space, extending the robot's visual-action context to 8K timesteps (more than 3000 times that of existing SOTA) while keeping inference latency constant.
 
 ---
 
@@ -3000,50 +3000,50 @@ Here, the flow matching time step $\tau \sim \text{Beta}(1.5, 1.0)$ gives greate
 {: id="2-主要方法创新点-13"}
 
 <div align="center">
-  <img src="/images/vla/RoboTTT-architecture.webp" alt="RoboTTT overall architecture, sequence training and inference process" width="1328" height="716" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>RoboTTT overall architecture, sequence training and inference process</figcaption>
+  <img src="/images/vla/RoboTTT-architecture.webp" alt="RoboTTT overall architecture, sequence training, and inference process" width="1328" height="716" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>RoboTTT overall architecture, sequence training, and inference process</figcaption>
 </div>
 
-#### ① Overview of the overall framework
+#### ① Overall framework
 {: id="-整体框架概述-3"}
-RoboTTT is built on the flow matching (Flow-Matching) policy Backbone (this article uses GR00T N1.7 by default), including the VLM encoder, DiT (Diffusion Transformer) action head, and TTT layer (TTT Layer) embedded in DiT. In the time dimension, the attention mechanism within DiT only handles the interaction of multimodal tokens within a single step, while the sequence long dependency transfer across time steps is entirely borne by the fast weight $$\mathbf{W}$$ of the TTT layer.
+RoboTTT is built on a flow-matching policy backbone (this paper uses GR00T N1.7 by default), including a VLM encoder, a DiT (Diffusion Transformer) action head, and TTT layers embedded in the DiT. Along the time dimension, attention within the DiT handles only the interaction of multimodal tokens within a single step, while the long-range sequence dependency across timesteps is carried entirely by the fast weights $$\mathbf{W}$$ of the TTT layers.
 
-#### ② Explain module by module
+#### ② Module-by-module walkthrough
 {: id="-逐模块讲解-2"}
 
-* **VLM Encoder and Register Tokens**:
-  * **Input**: Current and historical RGB image $$o_t$$.
-  * **processes**: VLM extracts visual-language Token $$\Phi_t$$. In order to avoid excessive computational overhead caused by directly feeding the high-dimensional and large number of $$\Phi_t$$ into the TTT layer, RoboTTT introduces $$N=16$$ learnable Register Tokens $$R_t$$ at each time step. Register Tokens absorb the visual and language information of this step through Cross-Attention, and carry multimodal context compression to the TTT layer.
-  * **outputs**: Register Tokens $$R_t$$ that absorb visual-linguistic features.
-* **DiT Action Head and Gated TTT Layer**:
-  * **input**: Register Tokens $$R_t$$, proprioception Token $$q_t$$ and noise adding action Token $$\tilde{A}_t$$.
-  * **Processing**: Access the TTT layer after each Self/Cross-Attention layer of DiT. TTT’s fast weight $$f_{\mathbf{W}}$$ (using 2-layer MLP) is updated online using Key-Value associated learning:
+* **VLM encoder and register tokens**:
+  * **Input**: Current and historical RGB images $$o_t$$.
+  * **Processing**: The VLM extracts vision-language tokens $$\Phi_t$$. To avoid the excessive compute overhead of feeding the high-dimensional, numerous $$\Phi_t$$ directly into the TTT layer, RoboTTT introduces $$N=16$$ learnable register tokens $$R_t$$ at each timestep. The register tokens absorb this step's visual and language information through cross-attention and carry the compressed multimodal context into the TTT layer.
+  * **Output**: Register tokens $$R_t$$ that have absorbed the vision-language features.
+* **DiT action head and gated TTT layer**:
+  * **Input**: Register tokens $$R_t$$, the proprioception token $$q_t$$, and the noised action token $$\tilde{A}_t$$.
+  * **Processing**: A TTT layer follows each self-/cross-attention layer of the DiT. The TTT fast weights $$f_{\mathbf{W}}$$ (a 2-layer MLP) are updated online through key-value associative learning:
     $$\mathbf{W}_t \leftarrow \mathbf{W}_{t-1} - \eta \nabla_{\mathbf{W}} \mathcal{L}_{\text{FW}}(f_{\mathbf{W}_{t-1}}(\mathbf{K}_t), \mathbf{V}_t)$$
-Here, $$\mathcal{L}_{\text{FW}}$$ is the mean square error loss, and the output $$O_t = f_{\mathbf{W}_t}(\mathbf{Q}_t)$$ is calculated in the Apply step. In order to protect the original strong generalization ability of the pretraining VLA model, a learnable Tanh gating mechanism is designed:
+Here, $$\mathcal{L}_{\text{FW}}$$ is the mean squared error loss, and the output $$O_t = f_{\mathbf{W}_t}(\mathbf{Q}_t)$$ is computed in the Apply step. To protect the strong generalization of the pretrained VLA model, a learnable tanh gating mechanism is designed:
     $$O = \tanh(\alpha) \odot O_{\text{TTT}} + O_{\text{attn}}$$
-Initialize $$\alpha \approx 0.001$$ at the beginning to make the model transition smoothly in the early stage of training.
-  * **Design motivation**: Fast weight provides nonlinear implicit memory capacity, and the gradient update during testing makes it have stronger long sequence fitting and information retrieval capabilities than linear Associative State.
-* **Sequence Action Forcing (sequence action forcing)**:
-  * **Design**: In long sequence training of length $$T$$, different Flow-Matching noise levels $$u \sim \text{Beta}(1.5, 1)$$ are independently sampled for Action Chunk $$A_t$$ at each time step.
-  * **Motivation**: If the entire sequence shares a single noise level, it will cause a serious mismatch between the noise distribution during training and closed-loop deployment. Independent sampling ensures that the model can predict robustly at each time step in long sequences.
-* **TBPTT (Truncated Backpropagation Through Time)**: 
-  * **design**: Divide the long sequence into several Segments, truncate the gradient flow of slow weights (Slow Weights) at the Segment boundary, but retain the continuous transfer of fast weights $$\mathbf{W}_t$$ across Segments.
-  * **Motivation**: GPU memory overhead only depends on the length of a single Segment rather than the total sequence length, allowing the model to break through GPU memory limitations and complete 8K-level ultra-long sequence pretraining.
+Initializing $$\alpha \approx 0.001$$ lets the model transition smoothly in the early stage of training.
+  * **Motivation**: Fast weights provide nonlinear implicit memory, and the gradient updates at test time give them stronger long-sequence fitting and information retrieval than a linear associative state.
+* **Sequence action forcing**:
+  * **Design**: In long-sequence training of length $$T$$, a different flow-matching noise level $$u \sim \text{Beta}(1.5, 1)$$ is sampled independently for the action chunk $$A_t$$ at each timestep.
+  * **Motivation**: If the whole sequence shared a single noise level, the noise distribution during training would be badly mismatched with that in closed-loop deployment. Independent sampling ensures that the model predicts robustly at every timestep of a long sequence.
+* **TBPTT (truncated backpropagation through time)**:
+  * **Design**: The long sequence is divided into several segments; gradient flow through the slow weights is truncated at segment boundaries, while the fast weights $$\mathbf{W}_t$$ continue to be passed across segments.
+  * **Motivation**: GPU memory overhead depends only on the length of a single segment rather than the total sequence length, allowing the model to break through memory limits and complete ultra-long 8K-level sequence pretraining.
 
 <div align="center">
-  <img src="/images/vla/RoboTTT-dagger-distillation.webp" alt="DAgger Distillation and long context adaptive error correction mechanism" width="1326" height="760" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>DAgger Distillation and long context adaptive error correction mechanism</figcaption>
+  <img src="/images/vla/RoboTTT-dagger-distillation.webp" alt="DAgger distillation and the long-context adaptive error-correction mechanism" width="1326" height="760" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>DAgger distillation and the long-context adaptive error-correction mechanism</figcaption>
 </div>
 
-#### ③ Innovative usage paradigm: DAgger Distillation and single-sample video imitation
+#### ③ New usage paradigms: DAgger distillation and one-shot video imitation
 {: id="-创新使用范式dagger-distillation-与-单样本视频模仿"}
 
-* **DAgger Distillation (DAgger distillation)**:
-  * In the interaction trajectory, the robot's incorrect action $$A_t^{\text{R}}$$ alternates with the human's corrective action $$A_t^{\text{H}}$$. During training, the complete trajectories (including incorrect actions) are used to update the fast weight $$\mathbf{W}_t$$, but the Flow-Matching loss is only calculated on the human corrective actions.
-  * As a result, the algorithm adaptive capability of "recognition failure $$\to$$ execution correction" is implicitly distilled into the fast weight parameter update logic, so that the robot can automatically adaptively recover after its own action error without manual intervention during deployment.
-* **One-Shot Video Imitation (single sample video imitation)**:
-  * The human demonstration video frame sequence and the robot execution trajectory are spliced into the same training sequence, Mask removes the action loss on the video frame, and only uses video features to update fast weights.
-  * When reasoning, you only need to input a human demonstration video of an unseen configuration in the pre-context, and the policy can retrieve the task goal from the implicit state of the fast weight and complete precise control.
+* **DAgger distillation**:
+  * In an interaction trajectory, the robot's erroneous actions $$A_t^{\text{R}}$$ alternate with the human's corrective actions $$A_t^{\text{H}}$$. During training, the complete trajectory (including the erroneous actions) is used to update the fast weights $$\mathbf{W}_t$$, but the flow-matching loss is computed only on the human corrective actions.
+  * In this way, the adaptive ability of "recognizing failure $$\to$$ correcting execution" is implicitly distilled into the update logic of the fast-weight parameters, so that during deployment the robot can recover on its own after its own action errors, without human intervention.
+* **One-shot video imitation**:
+  * The frame sequence of a human demonstration video and the robot's execution trajectory are concatenated into one training sequence; a mask removes the action loss on the video frames, so only the video features are used to update the fast weights.
+  * At inference, it is enough to put a human demonstration video of an unseen configuration in the preceding context; the policy can then retrieve the task goal from the implicit state of the fast weights and complete the task with precise control.
 
 ---
 
@@ -3051,52 +3051,52 @@ Initialize $$\alpha \approx 0.001$$ at the beginning to make the model transitio
 {: id="3-核心结果发现-8"}
 
 <div align="center">
-  <img src="/images/vla/RoboTTT-context-scaling.webp" alt="pretraining context length Scaling curve and long-range assembly task benchmark comparison" width="1333" height="765" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> pretraining context length Scaling curve and long-range assembly task benchmark comparison</figcaption>
+  <img src="/images/vla/RoboTTT-context-scaling.webp" alt="Scaling curve of pretraining context length and benchmark comparison on long-horizon assembly tasks" width="1333" height="765" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Scaling curve of pretraining context length and benchmark comparison on long-horizon assembly tasks</figcaption>
 </div>
 
-*  **Comprehensive performance of long-range control tasks** : In three real-world difficult dual-arm control tasks: Pup Go Car (2 minutes), Circuit (1 minute) and Gear Bot (5 minutes and 10 stages of assembly), RoboTTT achieved **79%** The average task completion degree is improved compared to the single-step baseline GR00T N1.7 (42%) **87%** , and is **only** A method to achieve Full Success on a 5-minute ultra-long-range Gear Bot mission.
-*  **Context Length Scaling Effect** : The author compared the pretraining contexts from 128 to 8K; the task completion scores of 1K and 8K were respectively **43.9% vs. 71.5%** , the relative improvement of the main text report is about 63% (the abstract is 62%). This trend results from the length and tasks measured in the paper and should not be extrapolated to unlimited growth. In contrast, the performance of GDN based on recurrent memory does not improve with context growth.
-* **Single sample imitation and adaptive robustness**:
-  * In single-sample video imitation, RoboTTT achieved **65%** completion (6/10 completely successful), while GDN completely failed (0/10);
-  * Under external physical interference (forcibly removing installed components), RoboTTT's self-healing success rate reaches **83%** (15/20 and 18/20), which is significantly better than the short context baseline (53%).
-* **DAgger Distillation gain**: Compared with the traditional DAgger that only fine-tunes on the corrected data, DAgger Distillation greatly improves RoboTTT's task completion **36%**.
+* **Overall performance on long-horizon control tasks**: On three difficult real-world bimanual tasks, Pup Go Car (2 minutes), Circuit (1 minute), and Gear Bot (5 minutes, 10 assembly stages), RoboTTT raises the average task completion from **79%** for the single-step baseline GR00T N1.7 (42%) to **87%**, and is **the only** method to achieve full success on the 5-minute ultra-long-horizon Gear Bot task.
+* **Context length scaling**: The authors compare pretraining contexts from 128 to 8K; the task completion scores at 1K and 8K are **43.9% vs. 71.5%**, a relative improvement of about 63% as reported in the main text (62% in the abstract). This trend holds for the lengths and tasks measured in the paper and should not be extrapolated to unlimited growth. In contrast, the performance of GDN, which is based on recurrent memory, does not improve as the context grows.
+* **One-shot imitation and adaptive robustness**:
+  * In one-shot video imitation, RoboTTT achieves **65%** completion (6/10 full successes), while GDN fails completely (0/10);
+  * Under external physical disturbance (forcibly removing installed components), RoboTTT's self-recovery success rate reaches **83%** (15/20 and 18/20), significantly better than the short-context baseline (53%).
+* **Gain from DAgger distillation**: Compared with traditional DAgger, which only fine-tunes on the corrected data, DAgger distillation improves RoboTTT's task completion by a large margin of **36%**.
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-7"}
 
-* 8K-level long context sequence pretraining has high requirements for high-quality continuous motion data, and requires large computing resource support during the training phase.
-* The update of fast weights relies on the auxiliary target based on MSE. The representation stability and generalization boundary when encountering extreme environmental mutations (such as large changes in illumination or violent shaking of the viewing angle) still need to be further explored.
+* Pretraining on 8K-level long context sequences places high demands on high-quality continuous motion data and requires substantial computing resources during training.
+* The fast-weight update relies on an auxiliary MSE-based objective. Its representation stability and generalization limits under extreme environmental changes (such as large lighting changes or violent camera shaking) remain to be explored.
 <span id="531-s-vla-2026-5-31-s-vla" class="vla-anchor-alias" aria-hidden="true"></span>
 
 ## 31. S²-VLA (2026)
 {: id="5-31-s-vla"}
-——State space guided dynamic adaptive attention vision-language-action model: Overcoming the cumulative error of long-range embodied control
+——A state-space-guided, dynamically adaptive attention vision-language-action model: overcoming cumulative error in long-horizon embodied control
 
 📄 **Paper**: https://arxiv.org/abs/2606.27872
 
 ### Key takeaways
 {: id="精华-16"}
 
-1. **breaks through the static fusion bottleneck**: In order to solve the problem of error accumulation (Compounding Error) caused by fixed static fusion weights in traditional VLA in long-term multi-step tasks, the first long-range control framework based on **state space guided adaptive attention (SSGAA)** is proposed.
-2. **Belief State Tracking**: Maintaining compact internal belief states within policies $b_t$, leveraging lightweight GRU Recursively encoding historical action-perception pairs and embodiment feedback, self-supervision emerges in end-to-end action prediction without any stage labels to perceive the macro execution stages (approach, grab, align, place) and execution deviations of the task.
-3. **Three-way complementary attention and stage adaptive gating**: Designed three-way parallel attention for spatial visual perception (Low-Level Visual Cross-Attn), semantic task intention (High-Level Intent Cross-Attn) and temporal action consistency (Action Sequence Self-Attn), and dynamically allocated weights through the gating network driven by belief states to achieve adaptive representation fusion for stage perception.
-4.  **Lightweight model leaps and bounds** : Contains only 2B parameters and requires only 7 GB GPU memory for deployment, but achieved on the LIBERO simulation benchmark **98.2% average success rate** (Long-Horizon reaches 96.4%), achieving an average success rate of 78.1% on SimplerEnv-Bridge (WidowX), completely surpassing the mainstream 7B/8B scale VLA model.
-5. **Two-arm physical control and robust obstacle avoidance**: On the ALOHA two-arm mobile platform, multi-stage complex long-range operations such as building block stacking, desktop arrangement, and tableware transfer with both hands were successfully completed. The actual measurement proved that SSGAA significantly suppressed the accumulation of errors during the execution process.
+1. **Breaking the static-fusion bottleneck**: To solve the compounding error that fixed, static fusion weights cause in traditional VLAs on long, multi-step tasks, it proposes the first long-horizon control framework based on **state-space-guided adaptive attention (SSGAA)**.
+2. **Belief state tracking**: The policy maintains a compact internal belief state $b_t$, using a lightweight GRU to recursively encode historical action-perception pairs and embodiment feedback. Learned in a self-supervised way within end-to-end action prediction, with no stage labels, it perceives the macro execution stage of the task (approach, grasp, align, place) and execution deviations.
+3. **Three-way complementary attention and stage-adaptive gating**: Three parallel attention pathways are designed for spatial visual perception (low-level visual cross-attention), semantic task intent (high-level intent cross-attention), and temporal action consistency (action-sequence self-attention). A gating network driven by the belief state allocates weights dynamically, achieving stage-aware adaptive representation fusion.
+4. **A lightweight model with a big leap**: With only 2B parameters and 7 GB of GPU memory for deployment, it reaches a **98.2% average success rate** on the LIBERO simulation benchmark (96.4% on Long-Horizon) and an average success rate of 78.1% on SimplerEnv-Bridge (WidowX), comprehensively surpassing mainstream 7B/8B-scale VLA models.
+5. **Bimanual physical control and robust obstacle avoidance**: On the ALOHA bimanual mobile platform, it successfully completed multi-stage, complex, long-horizon bimanual tasks such as block stacking, tabletop arrangement, and tableware handover. Measurements show that SSGAA significantly suppresses error accumulation during execution.
 
 ---
 
 ### 1. Background and problem
 {: id="1-研究背景问题-14"}
 
-- **Error accumulation and collapse in long-horizon tasks**: Existing vision-language-action (VLA) models perform well in single-step short-range tasks, but in long-range operation tasks that require multi-step continuous reasoning (such as "put the cream cheese box and butter into the basket in sequence"), the success rate often declines sharply. The root cause is that small deviations from early decisions will continue to propagate and amplify in the long chain of actions.
-- **Inherent limitations of static multimodal fusion**: Mainstream VLA models adopt fixed static weights or a single attention bottleneck when combining visual, language and historical action features. However, there are essential differences in the requirements for information sources at different stages of real physical manipulation:
-  - exist **Initial macro planning stage** , the model needs to be highly focused on the global semantic intent of the language instructions;
-  - In the **fine alignment capture stage**, the model must be highly focused on local geometry and spatial pixel details;
-  - During the **trajectory execution transition phase**, it is necessary to highly maintain the smoothness and continuity of the timing actions.
-- The lack of adaptive perception of the physical stage of the task is the core pain point of existing static VLA models that frequently fail in long-horizon tasks.
+- **Error accumulation and collapse in long-horizon tasks**: Existing vision-language-action (VLA) models perform well on single-step, short-horizon tasks, but on long-horizon manipulation tasks that need continuous multi-step reasoning (such as "put the cream cheese box and the butter into the basket in sequence"), their success rate often drops sharply. The root cause is that small deviations in early decisions keep propagating and amplifying along the long chain of actions.
+- **Inherent limitations of static multimodal fusion**: Mainstream VLA models combine visual, language, and historical action features with fixed static weights or a single attention bottleneck. Yet the information needs differ fundamentally across the stages of real physical manipulation:
+  - In the **initial macro-planning stage**, the model must focus strongly on the global semantic intent of the language instruction;
+  - In the **fine alignment and grasping stage**, the model must focus strongly on local geometry and pixel-level spatial detail;
+  - In the **trajectory execution and transition stage**, it must strongly maintain the smoothness and continuity of the temporal actions.
+- The lack of adaptive awareness of the task's physical stage is the core pain point behind the frequent failures of existing static VLA models on long-horizon tasks.
 
 ---
 
@@ -3104,51 +3104,51 @@ Initialize $$\alpha \approx 0.001$$ at the beginning to make the model transitio
 {: id="2-主要方法创新点-14"}
 
 <div align="center">
-  <img src="/images/vla/S2-VLA-concept.webp" alt="Figure 1: Comparison of the evolution of attention stages in long-range manipulation between traditional static fusion VLA (left) and S²-VLA state space guided adaptive attention (right)" width="694" height="591" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> Figure 1: Comparison of the evolution of attention stages in long-range control between traditional static fusion VLA (left) and S²-VLA state space guided adaptive attention (right)</figcaption>
+  <img src="/images/vla/S2-VLA-concept.webp" alt="Figure 1: Evolution of attention across stages in long-horizon control: traditional static-fusion VLA (left) versus S²-VLA with state-space-guided adaptive attention (right)" width="694" height="591" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Figure 1: Evolution of attention across stages in long-horizon control: traditional static-fusion VLA (left) versus S²-VLA with state-space-guided adaptive attention (right)</figcaption>
 </div>
 
-#### ① Overall framework: Belief state-driven VLA paradigm
+#### ① Overall framework: a belief-state-driven VLA paradigm
 {: id="-整体框架信念状态驱动的-vla-范式"}
 
-S²-VLA receives multi-view visual observation $V_t$, natural language instructions $L_t$ and robot proprioceptive state $P_t$. The model consists of **Qwen3-VL-2B backbone**, **belief state update module (GRU)** and **24 layer SSGAA action head**.
+S²-VLA takes multi-view visual observations $V_t$, a natural-language instruction $L_t$, and the robot proprioceptive state $P_t$. The model consists of a **Qwen3-VL-2B backbone**, a **belief state update module (GRU)**, and a **24-layer SSGAA action head**.
 
 <div align="center">
-  <img src="/images/vla/S2-VLA-architecture.webp" alt="Figure 2: Schematic diagram of S²-VLA overall architecture and SSGAA adaptive multimodal data flow" width="1418" height="640" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>Figure 2: S²-VLA overall architecture and SSGAA adaptive multimodal data flow schematic diagram</figcaption>
+  <img src="/images/vla/S2-VLA-architecture.webp" alt="Figure 2: S²-VLA overall architecture and the adaptive multimodal data flow of SSGAA" width="1418" height="640" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Figure 2: S²-VLA overall architecture and the adaptive multimodal data flow of SSGAA</figcaption>
 </div>
 
-#### ② Detailed explanation module by module
+#### ② Module-by-module details
 {: id="-逐模块详细讲解"}
 
-##### 1. Internal Belief State Modeling
+##### 1. Internal belief state modeling
 {: id="1-内部信念状态belief-state建模"}
-To maintain temporal causal consistency over the long term, the model maintains a compact implicit belief state $b_t \in \mathbb{R}^{d_b}$. At each time step $t$ with action header layer $l$:
+To maintain temporal causal consistency over long horizons, the model keeps a compact implicit belief state $b_t \in \mathbb{R}^{d_b}$. At each timestep $t$ and action head layer $l$:
 $$\begin{aligned}
 (o_t^{(l)}, h_t^{(l)}) &= f_\phi(h_t^{(l-1)}, A_{t-K:t-1}, P_t) \\
 b_t^{(l)} &= W_b \cdot o_t^{(l)} + \beta_b
 \end{aligned}$$
-Here, $f_\phi$ is implemented by lightweight GRU, and $A_{t-K:t-1}$ is a historical backtracking action sequence. Belief states do not require external stage annotations and are learned entirely end-to-end in the backpropagation of action prediction losses, spontaneously emerging dynamic representations of task progress and physical perturbations.
+Here, $f_\phi$ is implemented by a lightweight GRU, and $A_{t-K:t-1}$ is the historical lookback action sequence. The belief state needs no external stage annotations; it is learned entirely end to end through backpropagation of the action prediction loss, and dynamic representations of task progress and physical perturbations emerge spontaneously.
 
-##### 2. Three-way complementary attention mechanism (SSGAA Pathways)
+##### 2. Three-way complementary attention mechanism (SSGAA pathways)
 {: id="2-三路互补注意力机制-ssgaa-pathways"}
-SSGAA has established three parallel attention pathways with complementary functions:
-- **Low-Level Visual Cross-Attn**: Query is the learnable action sequence, Key/Value is the VLM visual token hidden state $C_{\mathrm{vis}}$, extracts sub-pixel level object geometry and spatial orientation details:
+SSGAA establishes three parallel attention pathways with complementary roles:
+- **Low-level visual cross-attention**: The query is the learnable action sequence, and the key/value are the VLM visual-token hidden states $C_{\mathrm{vis}}$, extracting sub-pixel-level object geometry and spatial orientation details:
   $$O_{\mathrm{vis}} = \text{Softmax}\left(\frac{Q (C_{\mathrm{vis}} W_{\mathrm{vis}}^k)^\top}{\sqrt{d}}\right) (C_{\mathrm{vis}} W_{\mathrm{vis}}^v)$$
-- **High-Level Intent Cross-Attn**: Key/Value is the VLM top-level intention Token $C_{\mathrm{ite}}$, extracting macro task goals and constraints:
+- **High-level intent cross-attention**: The key/value are the VLM top-level intent tokens $C_{\mathrm{ite}}$, extracting macro task goals and constraints:
   $$O_{\mathrm{ite}} = \text{Softmax}\left(\frac{Q (C_{\mathrm{ite}} W_{\mathrm{ite}}^k)^\top}{\sqrt{d}}\right) (C_{\mathrm{ite}} W_{\mathrm{ite}}^v)$$
-- **Action Sequence Self-Attn**: Perform bidirectional self-attention within the action Query sequence to maintain the continuity of physical dynamics between consecutive $K$ future action chunks.
+- **Action-sequence self-attention**: Bidirectional self-attention within the action query sequence maintains the continuity of physical dynamics across the $K$ consecutive future action chunks.
 
-##### 3. Belief-Guided Gating
+##### 3. Belief-guided gating
 {: id="3-信念引导的动态门控网络-belief-guided-gating"}
-At layer $l$, the gated network dynamically calculates the normalized weight of the three-way attention based on the current belief state $b_t^{(l)}$:
+At layer $l$, the gating network dynamically computes the normalized weights of the three attention pathways from the current belief state $b_t^{(l)}$:
 $$\begin{bmatrix} g_{\mathrm{vis}}^{(l)}, g_{\mathrm{ite}}^{(l)}, g_{\mathrm{act}}^{(l)} \end{bmatrix}^\top = \text{Softmax}\left(\text{MLP}_g^{(l)}(b_t^{(l)})\right)$$
-Three-way features are linearly weighted and fused according to dynamic weights:
+The three streams of features are linearly weighted and fused according to the dynamic weights:
 $$H^{(l)} = g_{\mathrm{vis}}^{(l)} \cdot O_{\mathrm{vis}}^{(l)} + g_{\mathrm{ite}}^{(l)} \cdot O_{\mathrm{ite}}^{(l)} + g_{\mathrm{act}}^{(l)} \cdot O_{\mathrm{act}}^{(l)}$$
 
-##### 4. Parallel non-autoregressive action decoding (Parallel Decoding)
+##### 4. Parallel non-autoregressive action decoding
 {: id="4-并行非自回归动作解码-parallel-decoding"}
-After 24 layers of SSGAA iterations, the top-level output is processed by LayerNorm and linear projection to output $K$ consecutive action chunks in the future at once:
+After 24 layers of SSGAA iterations, the top-level output passes through LayerNorm and a linear projection to output the $K$ consecutive future action chunks in one pass:
 $$\hat{A}_{t:t+K-1} = \text{LN}(H^{(L_{\mathrm{out}})}) W_{\mathrm{out}}^\top + \beta_{\mathrm{out}}$$
 
 ---
@@ -3157,30 +3157,30 @@ $$\hat{A}_{t:t+K-1} = \text{LN}(H^{(L_{\mathrm{out}})}) W_{\mathrm{out}}^\top + 
 {: id="3-核心结果发现-9"}
 
 <div align="center">
-  <img src="/images/vla/S2-VLA-realworld.webp" alt="Figure 3: Real-world long-range control experiment of ALOHA dual-arm robot (including picking and placing blocks, handing over tableware with both arms, stacking and sorting)" width="692" height="550" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> Figure 3: ALOHA dual-arm robot real-world long-range control experiment (including picking and placing blocks, handing over tableware with both arms, stacking and sorting)</figcaption>
+  <img src="/images/vla/S2-VLA-realworld.webp" alt="Figure 3: Real-world long-horizon control experiments with the ALOHA bimanual robot (including block pick-and-place, bimanual tableware handover, and stacking and sorting)" width="692" height="550" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Figure 3: Real-world long-horizon control experiments with the ALOHA bimanual robot (including block pick-and-place, bimanual tableware handover, and stacking and sorting)</figcaption>
 </div>
 
-- **LIBERO long-range operation benchmark SOTA**: In 2,000 evaluations of the four major subsets of LIBERO (Spatial, Object, Goal, Long), S²-VLA achieved **98.2% average success rate**, in the most challenging The **Long-Horizon subset reaches 96.4%**, surpassing OpenVLA-OFT (94.5%), $\pi_0$ (85.2%), MemoryVLA (93.4%) and 8.5B UnifiedVLA (94.0%).
-- **SimplerEnv-Bridge cross-domain real robot simulation**: reaches **78.1% average success rate** in 4 classic operation tasks of WidowX robot arm, significantly surpassing $\pi_0$-Beta (68.4%) and OpenVLA (4.2%).
-- **ALOHA Real-machine dual-arm deployment**: It shows high smoothness and self-correction ability in four real tasks of box sorting, double-layer stacking, desktop arrangement and dual-arm tableware delivery.
+- **SOTA on the LIBERO long-horizon manipulation benchmark**: In 2,000 evaluations across the four LIBERO subsets (Spatial, Object, Goal, Long), S²-VLA achieves a **98.2% average success rate**, and **96.4% on the most challenging Long-Horizon subset**, surpassing OpenVLA-OFT (94.5%), $\pi_0$ (85.2%), MemoryVLA (93.4%), and the 8.5B UnifiedVLA (94.0%).
+- **SimplerEnv-Bridge cross-domain real-robot simulation**: It reaches a **78.1% average success rate** on 4 classic WidowX arm manipulation tasks, significantly surpassing $\pi_0$-Beta (68.4%) and OpenVLA (4.2%).
+- **Real bimanual deployment on ALOHA**: It shows high smoothness and self-correction on four real tasks: box sorting, double-layer stacking, tabletop arrangement, and bimanual tableware delivery.
 
 <div align="center">
-  <img src="/images/vla/S2-VLA-visualization.webp" alt="Figure 4: Visualization of dynamic changes in three-way gating weights of S²-VLA in different task stages (the intention weight is the highest in the approach stage, and the visual weight is adaptively amplified in the contact stage)" width="1410" height="537" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption> Figure 4: Visualization of dynamic changes in three-way gating weights of S²-VLA in different task stages (the intention weight is the highest in the approach stage, and the visual weight is adaptively amplified in the contact stage)</figcaption>
+  <img src="/images/vla/S2-VLA-visualization.webp" alt="Figure 4: Dynamic changes of S²-VLA's three-way gating weights across task stages (the intent weight is highest in the approach stage, and the visual weight is adaptively amplified in the contact stage)" width="1410" height="537" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Figure 4: Dynamic changes of S²-VLA's three-way gating weights across task stages (the intent weight is highest in the approach stage, and the visual weight is adaptively amplified in the contact stage)</figcaption>
 </div>
 
-- **ablation experiment key findings**:
-  - **Dynamic gating effectiveness**: After removing dynamic gating (fixed weight static fusion), the LIBERO-Long success rate dropped by 1.4% to 95.0%;
-  - **has the best gating effect in the middle layer.**: Applying belief state gating on the 12th layer (middle layer) brings the most significant gain (+1.4%). Excessive blind gating on all layers will lead to unstable optimization.
+- **Key ablation findings**:
+  - **Effectiveness of dynamic gating**: Removing dynamic gating (static fusion with fixed weights) lowers the LIBERO-Long success rate by 1.4% to 95.0%;
+  - **Gating works best in the middle layers**: Applying belief-state gating at layer 12 (a middle layer) brings the largest gain (+1.4%). Gating indiscriminately at all layers leads to unstable optimization.
 
 ---
 
 ### 4. Limitations
 {: id="4-局限性-8"}
 
-1. **relies on continuous proprioceptive input**: The recursive update of belief state $b_t$ is highly dependent on the robot body joint/end feedback (Proprioception). If the hardware sensor is lost or there is severe delay jitter, it may affect the accuracy of state tracking.
-2. **Discrete high-level re-planning capabilities are limited**: The model focuses on adaptive attention adjustment at the execution level. For extreme situations such as irreversible damage to the environment (such as the target object falling out of the console), it is still necessary to access the upper-layer large language model for high-level re-planning.
+1. **Reliance on continuous proprioceptive input**: The recursive update of the belief state $b_t$ depends heavily on the robot's joint/end-effector feedback (proprioception). If a hardware sensor is lost or has severe latency jitter, the accuracy of state tracking may suffer.
+2. **Limited discrete high-level replanning**: The model focuses on adaptive attention adjustment at the execution level. In extreme situations such as irreversible damage to the environment (for example, the target object falling off the table), it still needs to be connected to an upstream large language model for high-level replanning.
 
 ---
 
@@ -3192,32 +3192,32 @@ $$\hat{A}_{t:t+K-1} = \text{LN}(H^{(L_{\mathrm{out}})}) W_{\mathrm{out}}^\top + 
 ### Research questions
 {: id="研究问题"}
 
-After the basic VLA progresses in laboratory tasks, it will still be limited by the motion interface and training data coverage if it is replaced with a full-body mobile platform, dexterous hands, or a new dual-arm combination. LingBot-VLA 2.0 attempts to simultaneously expand **tasks and embodied coverage**, expand the whole body action space, and improve timing judgment through future state prediction. It is more of a system-wide extension, and results cannot be attributed to a single module.
+After a base VLA makes progress on laboratory tasks, it is still limited by its action interface and training data coverage when moved to a whole-body mobile platform, dexterous hands, or a new bimanual setup. LingBot-VLA 2.0 attempts to expand **task and embodiment coverage** at the same time, extend the whole-body action space, and improve temporal judgment through future state prediction. It is more of a system-wide extension, and results cannot be attributed to any single module.
 
 ### Core method
 {: id="核心方法"}
 
-The paper reports about **60,000 hours of** pretraining material, of which about 50,000 hours of robot trajectories cover 20 robot configurations, and about 10,000 hours of human first-person video. Different ontologies are mapped to a 55-dimensional unified state and action interface, covering arms, ends, grippers, hands, waists, heads and movement signals; sparse MoE action experts handle different tasks and embodiment modes. The future prediction auxiliary task combines video semantic representation and depth geometric cues. Therefore, the model must learn not only "the next action" but also "how the scene will change after the action." The joint contribution of these data and auxiliary supervision needs to be read in conjunction with the ablation of the paper.
+The paper reports about **60,000 hours** of pretraining material, of which about 50,000 hours are robot trajectories covering 20 robot configurations and about 10,000 hours are human egocentric video. Different embodiments are mapped to a unified 55-dimensional state and action interface covering arms, end-effectors, grippers, hands, waist, head, and locomotion signals; sparse MoE action experts handle different tasks and embodiment modes. The future-prediction auxiliary task combines video semantic representations with depth geometry cues, so the model must learn not only "the next action" but also "how the scene will change after the action". The joint contribution of these data and auxiliary supervision should be read together with the paper's ablations.
 
 <div align="center">
-  <img src="/images/vla/LingBot-VLA-2.0-architecture.webp" alt="LingBot - A unified action space for VLA 2.0, MoE action experts and a distillation framework for current and future visual queries" width="1425" height="579" style="width: 100%;" loading="lazy" decoding="async" />
-The overall framework of<figcaption>LingBot-VLA 2.0: connecting heterogeneous robot actions with MoE experts on the left, and supervising current and future queries with deep and video teacher models on the right. Source: Paper Figure 1.</figcaption>
+  <img src="/images/vla/LingBot-VLA-2.0-architecture.webp" alt="LingBot-VLA 2.0: on the left, MoE experts connect heterogeneous robot actions; on the right, depth and video teacher models supervise the current and future queries. Source: Paper Figure 1." width="1425" height="579" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>LingBot-VLA 2.0: on the left, MoE experts connect heterogeneous robot actions; on the right, depth and video teacher models supervise the current and future queries. Source: Paper Figure 1.</figcaption>
 </div>
 
 ### Experiments and evidence
 {: id="实验与证据"}
 
-Average Agilex Cobot Magic on GM-100's nine dual-arm task, generalist hybrid training setting **Progress/Success Rate** for **66.2% / 34.4%** , the previous version was 58.2% / 30.0%; Galaxea R1 Pro was **34.6% / 15.6%** , 32.7% / 15.6% in the previous edition. Therefore, "progress improvement" should not be written as a significant improvement in the success rate of both platforms. In the two mobile manipulation tasks, compared with the π₀.5 reproduced in the paper, both the in-domain and position perturbation settings have gains; however, for example, the out-of-domain success rate of the Astribot S1 item-into-refrigerator task is only **13.3%** (15 trials).
+Averaged over nine bimanual GM-100 tasks, under the generalist mixed-training setting the **progress / success rate** is **66.2% / 34.4%** on Agilex Cobot Magic (the previous version: 58.2% / 30.0%) and **34.6% / 15.6%** on Galaxea R1 Pro (previous version: 32.7% / 15.6%). Therefore, "improved progress" should not be written as a significant improvement in success rate on both platforms. On the two mobile manipulation tasks, compared with the π₀.5 reproduced in the paper, there are gains in both the in-domain and position-perturbation settings; however, for example, the out-of-domain success rate on Astribot S1's put-item-into-refrigerator task is only **13.3%** (15 trials).
 
 <span id="vla-ranking-gm100" class="vla-anchor-alias" aria-hidden="true"></span>
 
 **Matched-setting comparison: GM-100 on two platforms**
 
-[LingBot-VLA 2.0 Paper Table 5](https://arxiv.org/abs/2607.06403) Averaged across nine dual-arm tasks for each platform under *generalist mixed-training* settings. Progress measures intermediate milestones, and success rate requires the final state of the task to be completed. The two robots **ranked** respectively; the training data and recipes of each model are not completely consistent, so the ranking cannot be attributed to the architecture alone.
+[LingBot-VLA 2.0 Paper Table 5](https://arxiv.org/abs/2607.06403) Averages over nine bimanual tasks per platform under the *generalist mixed-training* setting. Progress measures intermediate milestones, while success rate requires the final task state to be completed. The two robots are **ranked** separately; the training data and recipes of the models are not entirely consistent, so the ranking cannot be attributed to the architecture alone.
 
 **Agilex Cobot Magic** (sorted by success rate; unit: %)
 
-|model|Success rate ↑|Progress ↑|
+|Model|Success rate ↑|Progress ↑|
 |---|---:|---:|
 | LingBot-VLA 2.0 | **34.4** | **66.2** |
 | [π₀.5](#5-11-pi05-2025) | 32.2 | 59.1 |
@@ -3225,9 +3225,9 @@ Average Agilex Cobot Magic on GM-100's nine dual-arm task, generalist hybrid tra
 | [GR00T N1.7](#5-18-gr00t-2025) | 17.8 | 36.3 |
 {: .vla-leaderboard-table }
 
-**Galaxea R1 Pro** (Success rates are sorted by progress when tied; unit: %)
+**Galaxea R1 Pro** (success rates sorted by progress in case of ties; unit: %)
 
-|model|Success rate ↑|Progress ↑|
+|Model|Success rate ↑|Progress ↑|
 |---|---:|---:|
 | LingBot-VLA 2.0 | **15.6** | **34.6** |
 | LingBot-VLA 1.0 | **15.6** | 32.7 |
@@ -3235,10 +3235,10 @@ Average Agilex Cobot Magic on GM-100's nine dual-arm task, generalist hybrid tra
 | [GR00T N1.7](#5-18-gr00t-2025) | 5.6 | 16.4 |
 {: .vla-leaderboard-table }
 
-### Limitations and Enlightenments
+### Limitations and takeaways
 {: id="局限与启示"}
 
-The cross-embodiment results here are still a comparison under the specified platform, task and author's training recipe, and the entire set of 60,000 hours of data is not a small-scale setting that can be directly reproduced. There is a significant gap between the progress of GM-100 and the final success rate, indicating that there is still a bottleneck in completing the final step of fine placement of **or releasing**. Evaluating such base models should report platform, task, perturbation type and data size separately and not just quote an average.
+The cross-embodiment results here are still comparisons under specific platforms, tasks, and the authors' training recipe, and the full 60,000-hour dataset is not a small-scale setting that can be reproduced directly. There is a significant gap between progress and final success rate on GM-100, indicating that completing the final step of fine placement **or release** is still a bottleneck. Evaluations of such foundation models should report platform, task, perturbation type, and data scale separately rather than quoting only an average.
 
 ---
 
@@ -3250,39 +3250,39 @@ The cross-embodiment results here are still a comparison under the specified pla
 ### Research questions
 {: id="研究问题-1"}
 
-The failure of long-horizon tasks may come from "wrong selection of the next subtask", which cannot be remedied even if the underlying actions are executed accurately. τ₀-VLA uses additional inference budget for **high-level subtask decisions**: the high-level proposes the next step based on current observations and execution memory, and the low-level VLA is executed on different robots. The key question is whether additional searches can improve the true closed-loop success rate, rather than just the offline subtask prediction score.
+Failures on long-horizon tasks may come from "choosing the wrong next subtask", which cannot be remedied even if the low-level actions are executed accurately. τ₀-VLA spends additional inference budget on **high-level subtask decisions**: the high level proposes the next step from the current observation and execution memory, and the low-level VLA executes it on different robots. The key question is whether the extra search can improve the true closed-loop success rate, rather than just an offline subtask prediction score.
 
 ### Core method
 {: id="核心方法-1"}
 
-When the top management lacks confidence in a direct proposal, the system performs a "proposal-prediction-evaluation" search: the VLM generates candidate subtasks, the world model predicts the visual results after the candidates are completed, the value model evaluates the task progress, and then the beam search retains promising branches, and the reflection module determines the next subtask. Real observations after execution are written back to memory to avoid treating predictions as facts that have already happened. The low-level policy was trained on **40,115 hours of** heterogeneous real robot data reported by the author, using a unified action interface to handle fixed base, two-arm and mobile manipulation.
+When the high level lacks confidence in a direct proposal, the system runs a "propose-predict-evaluate" search: the VLM generates candidate subtasks, the world model predicts the visual outcome after each candidate is completed, the value model evaluates task progress, beam search retains the promising branches, and a reflection module decides the next subtask. Real observations after execution are written back to memory, so that predictions are not treated as facts that have already happened. The low-level policy is trained on the **40,115 hours** of heterogeneous real-robot data reported by the authors, using a unified action interface to handle fixed-base, bimanual, and mobile manipulation.
 
 <div align="center">
-  <img src="/images/vla/Tau0-VLA-hierarchical-search.webp" alt="τ₀-VLA high-level subtask policy, low-level action policy and world model guided beam search" width="1524" height="639" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>τ₀-VLA’s two-layer architecture and test-time search: the high-level reads the execution memory, and candidate subtasks undergo future picture prediction and value evaluation before being handed over to the low-level policy for execution. Source: Paper Fig. 2.</figcaption>
+  <img src="/images/vla/Tau0-VLA-hierarchical-search.webp" alt="τ₀-VLA's two-level architecture and test-time search: the high level reads the execution memory, and candidate subtasks go through future-frame prediction and value evaluation before being handed to the low-level policy for execution. Source: Paper Fig. 2." width="1524" height="639" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>τ₀-VLA's two-level architecture and test-time search: the high level reads the execution memory, and candidate subtasks go through future-frame prediction and value evaluation before being handed to the low-level policy for execution. Source: Paper Fig. 2.</figcaption>
 </div>
 
 ### Experiments and evidence
 {: id="实验与证据-1"}
 
-In four long real robot tasks of about 12 minutes in length, after fixing the low-level policy, the average success rate of direct whole task execution was **27.5%**, and the *Plan Once* of high-level decomposition and no search was **45.0%**; 10 trials each. When searching during separate inspection and testing, milk tea production is improved from **5/10** to **7/10**, and book sorting is improved from **6/10** to **9/10**, room arrangement from **5/10** to **7/10**. The former group answers whether hierarchicalization is useful, and the latter group answers whether additional searches within the hierarchical system are useful. The two cannot be mixed into one gain.
+On four long real-robot tasks of about 12 minutes each, with the low-level policy fixed, the average success rate is **27.5%** for direct whole-task execution and **45.0%** for *Plan Once*, which decomposes at the high level without search; 10 trials each. When search is examined separately at test time, milk tea making improves from **5/10** to **7/10**, book sorting from **6/10** to **9/10**, and room arrangement from **5/10** to **7/10**. The former comparison answers whether hierarchy is useful, and the latter answers whether extra search within the hierarchical system is useful; the two cannot be merged into a single gain.
 
 <span id="vla-ranking-tau0" class="vla-anchor-alias" aria-hidden="true"></span>
 
 **Matched-setting comparison: Plan Once vs. test-time search**
 
-[τ₀-VLA Paper Table III](https://arxiv.org/abs/2608.16885) The low-level policy is fixed and only high-level direct planning (Plan Once) and test-time search (TTC) are compared. Each real robot task is evaluated 10 times; in the table **The number of successful tasks** , not to be mixed with another set of experiments in the paper "direct execution vs hierarchical decomposition".
+[τ₀-VLA Paper Table III](https://arxiv.org/abs/2608.16885) With the low-level policy fixed, only high-level direct planning (Plan Once) and test-time search (TTC) are compared. Each real-robot task is evaluated 10 times; the table shows the **number of successful runs**, which should not be mixed with the paper's other experiment, "direct execution vs. hierarchical decomposition".
 
-|high-level decision-making|Making milk tea ↑|Organize books ↑|Tidy up the room ↑|
+|High-level decision-making|Making milk tea ↑|Sorting books ↑|Tidying the room ↑|
 |---|---:|---:|---:|
 |TTC Search| **7/10** | **9/10** | **7/10** |
 | Plan Once | 5/10 | 6/10 | 5/10 |
 {: .vla-leaderboard-table }
 
-### Limitations and Enlightenments
+### Limitations and takeaways
 {: id="局限与启示-1"}
 
-High-level world model prediction, candidate search, and reflection will increase decision-making delays and computational costs; the success rate of 10 real robot trials also has large statistical fluctuations. For time-sensitive contact actions, increasing high-level calculations may not be more effective than improving low-level visual closed-loop. Suitable for key reproduction is the Plan Once/search control **under the same low-level policy of**, which also reports the search trigger rate, delay and failure location at the same time.
+High-level world-model prediction, candidate search, and reflection increase decision latency and compute cost, and the success rates from 10 real-robot trials also fluctuate considerably statistically. For time-sensitive contact actions, adding high-level computation may not be more effective than improving the low-level visual closed loop. The part worth reproducing is the Plan Once vs. search control **under the same low-level policy**, also reporting the search trigger rate, latency, and failure locations.
 
 ---
 
@@ -3294,35 +3294,35 @@ High-level world model prediction, candidate search, and reflection will increas
 ### Research questions
 {: id="研究问题-2"}
 
-Autoregressive VLA needs to first compress continuous actions into tokens. Just looking at the reconstruction mean square error may not reveal a more dangerous problem: although both actions are approximately reconstructed, the fine-tuning direction that was originally closer to the target is reversed after decoding. ActionPiece thus follows **physical proximity between actions** , not just point-by-point numerical similarity.
+An autoregressive VLA must first compress continuous actions into tokens. Looking only at reconstruction mean squared error may hide a more dangerous problem: even when two actions are both approximately reconstructed, the fine-tuning direction that was originally closer to the target can be reversed after decoding. ActionPiece therefore follows the **physical proximity between actions**, not just point-by-point numerical similarity.
 
 ### Core method
 {: id="核心方法-2"}
 
-The paper proposes *physical rank consistency* (PRC), which checks how much the near-far ranking of local physical distances is retained after the action is encoded and decoded. Distance takes into account translation, rotation and gripper simultaneously. ActionPiece uses a Transformer codec with residual vector quantization, and adds two supervisions in addition to the reconstruction loss: **PRP**, which keeps the latent representations in proximity order, and **QR**, which constrains the codeword assignment probability. After training the tokenizer, freeze it and use the predicted token sequence to restore the action chunk through the decoder; the policy itself still uses standard autoregressive training.
+The paper proposes *physical rank consistency* (PRC), which checks how much of the near-far ranking of local physical distances is preserved after an action is encoded and decoded. The distance accounts for translation, rotation, and gripper at the same time. ActionPiece uses a Transformer codec with residual vector quantization and adds two supervision terms beyond the reconstruction loss: **PRP**, which keeps the latent representations in proximity order, and **QR**, which constrains the codeword assignment probabilities. After the tokenizer is trained, it is frozen, and the predicted token sequence is restored to an action chunk by the decoder; the policy itself still uses standard autoregressive training.
 
 <div align="center">
-  <img src="/images/vla/ActionPiece-tokenizer.webp" alt="ActionPiece compares near and far actions, trains PRP with QR constraints, and uses discrete tokens for autoregressive VLA" width="1407" height="684" style="width: 100%;" loading="lazy" decoding="async" />
-The action coding process of<figcaption>ActionPiece: the physical near-far relationship of the original action simultaneously constrains the feature distance and codeword allocation, and the trained token is used for the autoregressive policy. Source: Paper Figure 1.</figcaption>
+  <img src="/images/vla/ActionPiece-tokenizer.webp" alt="ActionPiece action encoding: the physical near-far relationships of the original actions constrain both the feature distance and the codeword assignment, and the trained tokens are used for the autoregressive policy. Source: Paper Figure 1." width="1407" height="684" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>ActionPiece action encoding: the physical near-far relationships of the original actions constrain both the feature distance and the codeword assignment, and the trained tokens are used for the autoregressive policy. Source: Paper Figure 1.</figcaption>
 </div>
 
 ### Experiments and evidence
 {: id="实验与证据-2"}
 
-Under the same Qwen3-VL-4B backbone, demonstration data, prompts, training budget and 8-step action execution protocol, LIBERO's average success rate is **94.8%**. The suboptimal ActionCodec in this table is **93.7%**; LIBERO-Plus is not used The perturbation test of data training is **68.8%**, and the suboptimal FAST of this table is **64.3%**. The paper also reports SimplerEnv **71.9%**, VLA-Arena L0–L2 **51.5%**. In the 55-group tokenizer-benchmark evaluation, the Spearman correlation between PRC and downstream success rate is **0.681**, which is higher than the reconstruction index of **0.544**; the correlation supports the usefulness of this indicator, but does not prove causality by itself. The evidence of causality also depends on controlled comparison and ablation.
+Under the same Qwen3-VL-4B backbone, demonstration data, prompts, training budget, and 8-step action execution protocol, the average LIBERO success rate is **94.8%**; the runner-up in this table, ActionCodec, reaches **93.7%**. On the LIBERO-Plus perturbation test, whose data is not used for training, it reaches **68.8%**, and the runner-up in this table, FAST, reaches **64.3%**. The paper also reports **71.9%** on SimplerEnv and **51.5%** on VLA-Arena L0-L2. In the 55-group tokenizer benchmark, the Spearman correlation between PRC and downstream success rate is **0.681**, higher than the **0.544** of the reconstruction metric; the correlation supports the usefulness of this metric but does not by itself prove causation. Evidence of causation also depends on controlled comparisons and ablations.
 
 <div align="center">
-  <img src="/images/vla/ActionPiece-PRC-results.webp" alt="Correlation between reconstruction accuracy, physical ordering consistency and policy success rate in the ActionPiece paper, and LIBERO-Plus comparison" width="1422" height="426" style="width: 100%;" loading="lazy" decoding="async" />
-The<figcaption> paper compares the reconstruction index and PRC with the policy success rate respectively. The right side shows the comparison of LIBERO-Plus ablation and tokenizer under the same policy settings. Source: Paper Figure 2.</figcaption>
+  <img src="/images/vla/ActionPiece-PRC-results.webp" alt="The paper compares the reconstruction metric and PRC against the policy success rate. The right side shows the LIBERO-Plus ablation and tokenizer comparison under the same policy settings. Source: Paper Figure 2." width="1422" height="426" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>The paper compares the reconstruction metric and PRC against the policy success rate. The right side shows the LIBERO-Plus ablation and tokenizer comparison under the same policy settings. Source: Paper Figure 2.</figcaption>
 </div>
 
 <span id="vla-ranking-actionpiece" class="vla-anchor-alias" aria-hidden="true"></span>
 
 **Matched-setting comparison: LIBERO / LIBERO-Plus**
 
-[ActionPiece paper Table 1](https://arxiv.org/abs/2609.18487) uses the same Qwen3-VL-4B backbone, demo data, hints, global batch size, training budget, and 8-step prediction and execution protocol; LIBERO-Plus is not involved in training. Sorted by **LIBERO-Plus success rate**, the values ​​are all percentages.
+[ActionPiece paper Table 1](https://arxiv.org/abs/2609.18487) uses the same Qwen3-VL-4B backbone, demonstration data, prompts, global batch size, training budget, and 8-step prediction-and-execution protocol; LIBERO-Plus is not used in training. Sorted by **LIBERO-Plus success rate**; all values are percentages.
 
-|action tokenizer| LIBERO ↑ | LIBERO-Plus ↑ |
+|Action tokenizer| LIBERO ↑ | LIBERO-Plus ↑ |
 |---|---:|---:|
 | ActionPiece | **94.8** | **68.8** |
 | FAST | 92.1 | 64.3 |
@@ -3332,12 +3332,12 @@ The<figcaption> paper compares the reconstruction index and PRC with the policy 
 | Standard RVQ | 90.9 | 60.4 |
 {: .vla-leaderboard-table }
 
-\* FASTerVQ is a self-implemented version of this paper based on public methods. The comparison controls the policy settings, but different tokenizers retain their own output lengths and vocabularies; this table does not infer that their inference latencies are the same.
+\* FASTerVQ is the authors' own implementation based on public methods. The comparison controls the policy settings, but each tokenizer keeps its own output length and vocabulary; this table does not imply that their inference latencies are the same.
 
-### Limitations and Enlightenments
+### Limitations and takeaways
 {: id="局限与启示-2"}
 
-The results are mainly for **discrete autoregressive action representation**, and it cannot be directly inferred that flow matching or continuous regression action heads will also benefit. Different tokenizers retain their own native output length and vocabulary, so latency and token number are also worth comparing together. The method reminds us that numerical reconstruction, local relations, and closed-loop behavior should also be looked at when evaluating action compression.
+The results mainly concern **discrete autoregressive action representations**, and it cannot be inferred directly that flow-matching or continuous-regression action heads would benefit as well. Different tokenizers keep their own native output length and vocabulary, so latency and token count are also worth comparing together. The method is a reminder that, when evaluating action compression, one should look at numerical reconstruction, local relations, and closed-loop behavior together.
 
 ---
 
@@ -3349,30 +3349,30 @@ The results are mainly for **discrete autoregressive action representation**, an
 ### Research questions
 {: id="研究问题-3"}
 
-Large VLA inference is slow, and by the time the action chunk is actually executed, the observations on which it was generated may be out of date. Merely sending actions asynchronously can alleviate pauses, but it cannot automatically learn to handle dynamic objects. Real-Time EXPO-FT focuses on how **'s VLA with inference latency improves** on real fast tasks with a small amount of online interaction.
+Large-VLA inference is slow, and by the time an action chunk is actually executed, the observations it was generated from may be out of date. Simply sending actions asynchronously can relieve pauses, but it cannot automatically learn to handle dynamic objects. Real-Time EXPO-FT focuses on how a VLA with **inference latency** can improve on genuinely fast real-world tasks with only a small amount of online interaction.
 
 ### Core method
 {: id="核心方法-3"}
 
-The method separates slow proposals and fast reactions: pretraining VLA asynchronously generates multiple candidate action chunks; lightweight *edit policy* modifies candidates in time based on the latest observations, and then the Q function selects the action chunk for execution, and uses reinforcement learning to improve this process. This still utilizes the behavioral priors of the large model while giving high-frequency feedback to smaller modules. "Real-time" here means that the author's given control system can react during the execution of actions and cannot be understood in isolation from hardware, frequency and delay budgets.
+The method separates slow proposals from fast reactions: a pretrained VLA asynchronously generates several candidate action chunks; a lightweight *edit policy* revises the candidates in time according to the latest observations; a Q function then selects the action chunk to execute, and reinforcement learning improves this process. This still exploits the behavioral priors of the large model while giving the smaller module high-frequency feedback. "Real-time" here means that the authors' control system can react while actions are being executed; it cannot be understood in isolation from the hardware, frequency, and latency budget.
 
 <div align="center">
-  <img src="/images/vla/Real-Time-EXPO-FT-inference.webp" alt="Slow VLA in Real-Time EXPO-FT asynchronously generates candidate action chunks, and the fast editing policy corrects and selects actions based on new observations" width="1503" height="606" style="width: 100%;" loading="lazy" decoding="async" />
-Execution and training of<figcaption>Real-Time EXPO-FT: The left side continues to execute and quickly edit candidate actions during slow VLA inference, and the right side shows Q function training. Source: Paper Fig. 2.</figcaption>
+  <img src="/images/vla/Real-Time-EXPO-FT-inference.webp" alt="Real-Time EXPO-FT execution and training: the left side keeps executing and quickly editing candidate actions during slow VLA inference, and the right side shows Q-function training. Source: Paper Fig. 2." width="1503" height="606" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Real-Time EXPO-FT execution and training: the left side keeps executing and quickly editing candidate actions during slow VLA inference, and the right side shows Q-function training. Source: Paper Fig. 2.</figcaption>
 </div>
 
 ### Experiments and evidence
 {: id="实验与证据-3"}
 
-In 10 delay simulation environments of Kinetix, the paper reports that this method has **10/10** The term achieves the best results among the compared delayed and non-delayed methods. The four dynamic real robot tasks are dynamic picking, rolling ball balancing, object passing, and table football kicking; each has the most online robot data **10 minutes** , evaluate each **30 times** . The average number of successes in the author's table is from the supervised policy's **12.5/30 (about 42%)** Raise to **29/30 (about 97%)** ; where the rolling ball balance is **28/30** , not all four items have perfect scores.
+On 10 latency-simulated Kinetix environments, the paper reports that this method achieves the best result among the compared delayed and non-delayed methods in **10/10** of them. The four dynamic real-robot tasks are dynamic picking, rolling-ball balancing, object passing, and table football kicking; each uses at most **10 minutes** of online robot data and is evaluated **30 times**. In the authors' table, the average number of successes rises from **12.5/30 (about 42%)** for the supervised policy to **29/30 (about 97%)**; the rolling-ball balancing task reaches **28/30**, so not all four tasks have perfect scores.
 
 <span id="vla-ranking-expo" class="vla-anchor-alias" aria-hidden="true"></span>
 
 **Matched-setting comparison: four dynamic real-robot tasks**
 
-[Real-Time EXPO-FT paper Table I](https://arxiv.org/abs/2609.18207) is evaluated 30 times on each of the four dynamic real robot tasks. The upper limit of online robot data collection is 10 minutes per task. Sorted by the average number of successes of the four tasks; the update methods and gradient steps of different algorithms are different. The table reflects the **system-level comparison** reported in the paper.
+[Real-Time EXPO-FT paper Table I](https://arxiv.org/abs/2609.18207) Each of the four dynamic real-robot tasks is evaluated 30 times. The cap on online robot data collection is 10 minutes per task. Rows are sorted by the average number of successes over the four tasks; the update methods and gradient steps differ across algorithms. The table reflects the **system-level comparison** reported in the paper.
 
-|method|Dynamic Picking ↑|Rolling ball balance ↑|Object transfer ↑|football kicking ↑|Average of four tasks ↑|
+|Method|Dynamic picking ↑|Rolling-ball balancing ↑|Object passing ↑|Table football kicking ↑|Average over four tasks ↑|
 |---|---:|---:|---:|---:|---:|
 | Real-Time EXPO-FT | **30/30** | **28/30** | **30/30** | **28/30** | **29/30** |
 | EXPO-FT + RTC | 24/30 | 23/30 | 27/30 | 26/30 | 25/30 |
@@ -3384,10 +3384,10 @@ In 10 delay simulation environments of Kinetix, the paper reports that this meth
 | RLPD | 0/30 | 12/30 | 0/30 | 6/30 | 4.5/30 |
 {: .vla-leaderboard-table }
 
-### Limitations and Enlightenments
+### Limitations and takeaways
 {: id="局限与启示-3"}
 
-These four tasks emphasize rapid response and are not yet representative of long-term open operations. The online data cap also only counts task interactions and should not be misinterpreted as the pretraining and deployment costs of the entire system. A true comparison should fix the pretraining strategy, robot control frequency and delay, and record the computing power and failure recovery costs required for editing policy updates.
+These four tasks emphasize fast response and are not yet representative of long-horizon open-ended manipulation. The online data cap also counts only task interactions and should not be misread as the pretraining and deployment cost of the whole system. A true comparison should fix the pretraining strategy, robot control frequency, and latency, and record the compute and failure-recovery costs needed to update the edit policy.
 
 ---
 
@@ -3399,30 +3399,30 @@ These four tasks emphasize rapid response and are not yet representative of long
 ### Research questions
 {: id="研究问题-4"}
 
-Free exploration of real robots is expensive, and manual takeover and correction can provide key constraints, but it may not be reasonable to directly imitate each corrective action: the correction of some action dimensions is very consistent in the same situation, and there may be multiple feasible options for other dimensions. Bee treats corrections as **Evidence of the strength of constraints** , use it to guide online reinforcement learning, instead of treating each takeover as the only standard answer.
+Free exploration on real robots is expensive, and human takeover and correction can provide key constraints, but directly imitating every corrective action may not be reasonable: corrections along some action dimensions are very consistent in the same situation, while other dimensions may admit several feasible choices. Bee treats corrections as **evidence of constraint strength** and uses them to guide online reinforcement learning, rather than treating each takeover as the only correct answer.
 
 ### Core method
 {: id="核心方法-4"}
 
-Freeze the task at π₀.5 after fine-tuning and let the lightweight residual policy revise its action proposals. *Correction Model* learns to predict how people will correct, and estimates the correction variance of each action dimension: the more consistent the correction, the closer the dimension is to the person's choice; the more dispersed the correction, the wider the optimization space. The critic, residual policy, and constraint multipliers are trained on online data; manual takeover is no longer required during testing. The "frozen VLA" in the paper refers to freezing the base model in the online RL stage, and task-level behavioral cloning fine-tuning has been done before.
+The π₀.5 that has been fine-tuned on the task is frozen, and a lightweight residual policy revises its action proposals. A *correction model* learns to predict how a person would correct, and estimates the correction variance of each action dimension: the more consistent the corrections, the more closely that dimension follows the person's choice; the more dispersed the corrections, the more room there is for optimization. The critic, the residual policy, and the constraint multipliers are trained on online data; human takeover is no longer needed at test time. The "frozen VLA" in the paper means the base model is frozen during the online RL stage, after task-level behavior-cloning fine-tuning has already been done.
 
 <div align="center">
-  <img src="/images/vla/Bee-correction-rl.webp" alt="Bee Proposes Actions with Freeze VLA to Correct Model An Online Reinforcement Learning Framework for Constraining Residual Policies by Action Dimension" width="1518" height="594" style="width: 100%;" loading="lazy" decoding="async" />
-<figcaption>Bee imports manual correction into the Correction Model to constrain the residual policy with predicted dimension-level consistency; the empirical and correction buffers for online RL are also marked in the figure. Source: Paper Fig. 1.</figcaption>
+  <img src="/images/vla/Bee-correction-rl.webp" alt="Bee feeds human corrections into the correction model, which constrains the residual policy with predicted dimension-level consistency; the figure also marks the experience and correction buffers used in online RL. Source: Paper Fig. 1." width="1518" height="594" style="width: 100%;" loading="lazy" decoding="async" />
+<figcaption>Bee feeds human corrections into the correction model, which constrains the residual policy with predicted dimension-level consistency; the figure also marks the experience and correction buffers used in online RL. Source: Paper Fig. 1.</figcaption>
 </div>
 
 ### Experiments and evidence
 {: id="实验与证据-4"}
 
-The authors used matched robot data budget comparisons on three real robot tasks of phone charging, snack racking, and cloth alignment, and LIBERO-PRO's bowl placement simulation task. The average success rate of the four items is **91.2%** , compared with RLT is **57.5%** , DSRL is **42.1%** ; The manual intervention rates of the three real robot tasks are also lower than those of RLT. It should be noted that phone charging and fabric alignment are only for **Delicate operation stage** The success rate was recorded, and the snack rack and bowl placement were counted as the whole task; the mean and standard deviation of each paper were reported after three rounds of 20 evaluations each.
+The authors compare under matched robot-data budgets on three real-robot tasks (phone charging, snack rack, and cloth alignment) and the LIBERO-PRO bowl-placing simulation task. The average success rate over the four tasks is **91.2%**, versus **57.5%** for RLT and **42.1%** for DSRL; the human intervention rates on the three real-robot tasks are also lower than those of RLT. Note that phone charging and cloth alignment record success only for the **delicate manipulation stage**, while snack rack and bowl placing count the whole task; the paper reports the mean and standard deviation over three runs of 20 evaluations each.
 
 <span id="vla-ranking-bee" class="vla-anchor-alias" aria-hidden="true"></span>
 
 **Matched-setting comparison: three real-robot tasks**
 
-[Bee paper Table I](https://arxiv.org/abs/2609.27450) starts from the same fine-tuned VLA and matches about 20 pre-collected correction fragments and online data budgets for each task. The following table only lists the success rate (%) of three real robot tasks; **phone charging and cloth alignment only assess the fine-manipulation stage, and snack rack assesses the entire task**, so the total cross-task ranking is not calculated.
+[Bee paper Table I](https://arxiv.org/abs/2609.27450) starts from the same fine-tuned VLA and matches about 20 pre-collected correction clips and the online data budget for each task. The table below lists only the success rates (%) on the three real-robot tasks; **phone charging and cloth alignment assess only the fine-manipulation stage, while snack rack assesses the whole task**, so no overall cross-task ranking is computed.
 
-|method|Phone Charging: The Fine-manipulation stage ↑|Snack rack: the whole task ↑|Fabric Alignment: Fine-manipulation stage ↑|
+|Method|Phone charging: fine-manipulation stage ↑|Snack rack: whole task ↑|Cloth alignment: fine-manipulation stage ↑|
 |---|---:|---:|---:|
 | Bee | **100.0** | **85.0** | **90.0** |
 | RLT | 58.3 | 21.7 | 73.3 |
@@ -3430,9 +3430,9 @@ The authors used matched robot data budget comparisons on three real robot tasks
 |Initial policy| 90.0 | 0.0 | 36.7 |
 {: .vla-leaderboard-table }
 
-Among the two groups of Bee and RLT that need to be manually taken over during training, the intervention rate of Bee corresponding to the three tasks is **12.2% / 17.0% / 65.3%**, and the RLT is **22.5% / 62.1% / 85.3%**; The Initial policy and DSRL do not use online manual takeover and should not be ranked directly after treating their intervention rate as 0%.
+Among the two methods that need human takeover during training, Bee and RLT, the intervention rates on the three tasks are **12.2% / 17.0% / 65.3%** for Bee and **22.5% / 62.1% / 85.3%** for RLT; the initial policy and DSRL use no online human takeover, and their intervention rate should not be treated as 0% and ranked directly.
 
-### Limitations and Enlightenments
+### Limitations and takeaways
 {: id="局限与启示-4"}
 
 The roughly 20 pre-collected human correction clips and human takeovers during training remain practical costs; “online policy improvement” does not mean learning without human involvement. Success criteria differ across the four tasks, so the average summarizes the authors' experiments rather than a common measure of long-horizon task completion. Bee emphasizes **learning from human corrections**, whereas Real-Time EXPO-FT emphasizes **rapid feedback in dynamic environments**. Their costs should be evaluated using different accounting conventions.
@@ -3473,7 +3473,7 @@ It is useful to read this work alongside {% include content-link.html path='/VLA
 {: id="共享语义骨干与快速动作通路"}
 
 <div align="center">
-  <img src="/images/vla/ACE-Brain-0.5-architecture.webp" alt="ACE-Brain-0.5 shared vision-language backbone, fast vision pathway, action expert, and four capability interfaces" width="1278" height="609" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/ACE-Brain-0.5-architecture.webp" alt="Overall architecture: spatial, navigation, manipulation, and progress data connect to a shared model. Outputs include spatial grounding, language plans, navigation and manipulation actions, and progress estimates. Source: Figure 2, PDF page 7." width="1278" height="609" style="width: 100%;" loading="lazy" decoding="async" />
   <figcaption>Overall architecture: spatial, navigation, manipulation, and progress data connect to a shared model. Outputs include spatial grounding, language plans, navigation and manipulation actions, and progress estimates. Source: Figure 2, PDF page 7.</figcaption>
 </div>
 
@@ -3538,7 +3538,7 @@ Navigation correction focuses on states encountered after the robot's own policy
 These diagnostic metadata construct offline supervision and are not provided to the policy during evaluation. The experiment therefore demonstrates teacher-assisted corrective data expansion, without establishing continuous autonomous improvement in real environments without a teacher.
 
 <div align="center">
-  <img src="/images/vla/ACE-Brain-0.5-navigation-correction.webp" alt="Navigation observations and trajectories before and after corrective retraining" width="892" height="486" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/ACE-Brain-0.5-navigation-correction.webp" alt="Navigation correction example: route choices at an intermediate stage before and after self-improvement; Table 7 supplies quantitative evidence. This illustrates policy behavior rather than oracle takeover during evaluation. Source: Figure 4, PDF page 18." width="892" height="486" style="width: 100%;" loading="lazy" decoding="async" />
   <figcaption>Navigation correction example: route choices at an intermediate stage before and after self-improvement; Table 7 supplies quantitative evidence. This illustrates policy behavior rather than oracle takeover during evaluation. Source: Figure 4, PDF page 18.</figcaption>
 </div>
 
@@ -3569,7 +3569,7 @@ VOC in RBM-EVAL measures the correlation between predicted and ground-truth prog
 Refined uses author-selected tasks sensitive to temporal order and adds reversed videos as an extra controlled test. Its scores should not be mixed into the original standard evaluation leaderboard.
 
 <div align="center">
-  <img src="/images/vla/ACE-Brain-0.5-progress-evaluation.webp" alt="Ground-truth progress and model predictions for successful, reversed, and failed trajectories" width="1413" height="726" style="width: 100%;" loading="lazy" decoding="async" />
+  <img src="/images/vla/ACE-Brain-0.5-progress-evaluation.webp" alt="Successful, reversed, and failed progress-estimation examples: ideal progress should decline when a task is reversed or undone, rather than increasing simply with frame index. These are qualitative examples; Table 6 reports aggregate results. Source: Figure 3, PDF page 17." width="1413" height="726" style="width: 100%;" loading="lazy" decoding="async" />
   <figcaption>Successful, reversed, and failed progress-estimation examples: ideal progress should decline when a task is reversed or undone, rather than increasing simply with frame index. These are qualitative examples; Table 6 reports aggregate results. Source: Figure 3, PDF page 17.</figcaption>
 </div>
 
@@ -3627,7 +3627,7 @@ Baselines are GR00T N1.6 and π₀.5, each trained from VLM weights only and fro
 - **New-robot adaptation**: post-training on the YAM bimanual robot with about 30 minutes (55 trajectories) of play data keeps language following and generalization to new objects, but the paper reports this qualitatively only.
 - **Ablations**: 14B clearly beats 5B (50% vs. 21%), while VLAs scaled to 8B or 32B stay at 0%; diverse data beats repetitive data (50% vs. 33%).
 
-### Limitations and Enlightenments
+### Limitations and takeaways
 {: id="局限与启示-5"}
 
 The main metric is **task progress**, not success rate, and most tasks are the authors' own, so the numbers cannot be compared directly with success rates in other papers. The 7 Hz figure needs two GB200s, far more than VLAs that run above 20 Hz on consumer GPUs. Visual memory covers only about 6 seconds, so long tasks still need a high-level planner; sub-centimeter precision remains a weakness, and most failures come from video generation errors. The cross-embodiment and human-video experiments use only tens of minutes of data.
@@ -3663,7 +3663,7 @@ Video generation models have learned spatio-temporal dynamics from huge amounts 
 - **Planning gain**: on the two hardest ALOHA tasks, planning with the future-state value V(s′) raises the average score by **12.5** points and beats the model-free variant that predicts Q(s, a).
 - **Ablations**: removing the auxiliary training targets costs 1.5 points on LIBERO; training from scratch without video pretraining costs 3.9 points on LIBERO and 18.7 points on shirt folding.
 
-### Limitations and Enlightenments
+### Limitations and takeaways
 {: id="局限与启示-6"}
 
 With planning enabled each action chunk takes about 5 seconds and best-of-N relies on several GPUs in parallel, which rules out dynamic tasks. Accurate world-model prediction outside the demonstration distribution needs substantial rollout data, and planning is a single layer of best-of-N search. LIBERO is close to saturation, so the gap between 98.5% and roughly 97% means little; the few-shot RoboCasa result and the real-robot planning ablation are more convincing. The work shows that "video model as policy" works without an added action head and gives value-guided test-time search a unified interface; see the previous section for how it differs from [DreamZero](#38-dreamzero-2026).
