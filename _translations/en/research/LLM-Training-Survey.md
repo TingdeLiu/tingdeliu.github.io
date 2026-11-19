@@ -5,10 +5,10 @@ translation_id: llm-training-survey
 permalink: /en/LLM-Training-Survey/
 source_path: _posts/research/2026-02-06-LLM-Training-Survey.md
 source_url: /LLM-Training-Survey/
-source_revision_date: 2026-11-18
-translation_updated: 2026-11-18
+source_revision_date: 2026-11-19
+translation_updated: 2026-11-19
 title: "Large Language Model Training: A Survey"
-date: 2026-11-18
+date: 2026-11-19
 tags: [LLM, Deep Learning, NLP, Training, AI]
 categories: research
 comments: false
@@ -131,22 +131,14 @@ Training aims to give the model:
 LLM training has moved from small-scale experiments to industrial production. The timeline below lists representative work by year; the subsections that follow summarize each stage:
 
 ```mermaid
-%%{init: { 'theme': 'base', 'themeVariables': { 'fontSize': '15px', 'cScale0': '#dbeafe', 'cScale1': '#fef3c7', 'cScale2': '#dcfce7', 'cScale3': '#fce7f3', 'cScale4': '#ede9fe', 'cScaleLabel0': '#1f2937', 'cScaleLabel1': '#1f2937', 'cScaleLabel2': '#1f2937', 'cScaleLabel3': '#1f2937', 'cScaleLabel4': '#1f2937' } } }%%
+%%{init: { 'theme': 'base', 'themeVariables': { 'fontSize': '16px', 'cScale0': '#dbeafe', 'cScale1': '#fef3c7', 'cScale2': '#dcfce7', 'cScale3': '#fce7f3', 'cScale4': '#ede9fe', 'cScaleLabel0': '#1f2937', 'cScaleLabel1': '#1f2937', 'cScaleLabel2': '#1f2937', 'cScaleLabel3': '#1f2937', 'cScaleLabel4': '#1f2937' } } }%%
 timeline
     title Evolution of LLM training
-    section Early exploration
-        2018 : GPT-1 : BERT
-        2019 : GPT-2 : T5
-    section Scaling
-        2020 : GPT-3 (175B) : Scaling Laws
-        2021 : Switch Transformer : Codex
-    section Alignment and applications
-        2022 : InstructGPT (RLHF) : Chinchilla : ChatGPT
-        2023 : LLaMA : GPT-4 : DPO
-    section Open models
-        2024 : Llama 3 : DeepSeek-V2 (MLA) : OpenAI o1 : DeepSeek-V3 (FP8 training)
-    section Reasoning models and agents
-        2025 : DeepSeek-R1 (GRPO) : Qwen3 : Kimi K2 (Muon) : GPT-5 : DeepSeek-V3.2 (sparse attention)
+    2018–2019 Early exploration : GPT-1, BERT : GPT-2, T5
+    2020–2021 Scaling : GPT-3 (175B) : Scaling laws : Switch Transformer
+    2022–2023 Alignment : InstructGPT (RLHF) : ChatGPT : LLaMA, GPT-4 : DPO
+    2024 Open models : Llama 3 : DeepSeek-V2 (MLA) : OpenAI o1 : DeepSeek-V3 (FP8)
+    2025 Reasoning and agents : DeepSeek-R1 (GRPO) : Qwen3, Kimi K2 : GPT-5 : DeepSeek-V3.2 (sparse attention)
 ```
 
 ### 1.2.1 Early exploration (2018–2019)

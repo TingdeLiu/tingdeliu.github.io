@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: llm-training-survey
 title: "大语言模型训练综述"
-date: 2026-11-18
+date: 2026-11-19
 tags: [LLM, Deep Learning, NLP, Training, AI]
 categories: research
 comments: true
@@ -117,22 +117,14 @@ excerpt: "大语言模型训练是当前人工智能领域最前沿的研究方�
 大模型训练经历了从小规模实验到工业化生产的重要转变。下图按年份列出各阶段的代表性工作，各阶段的要点见后面几小节：
 
 ```mermaid
-%%{init: { 'theme': 'base', 'themeVariables': { 'fontSize': '15px', 'cScale0': '#dbeafe', 'cScale1': '#fef3c7', 'cScale2': '#dcfce7', 'cScale3': '#fce7f3', 'cScale4': '#ede9fe', 'cScaleLabel0': '#1f2937', 'cScaleLabel1': '#1f2937', 'cScaleLabel2': '#1f2937', 'cScaleLabel3': '#1f2937', 'cScaleLabel4': '#1f2937' } } }%%
+%%{init: { 'theme': 'base', 'themeVariables': { 'fontSize': '16px', 'cScale0': '#dbeafe', 'cScale1': '#fef3c7', 'cScale2': '#dcfce7', 'cScale3': '#fce7f3', 'cScale4': '#ede9fe', 'cScaleLabel0': '#1f2937', 'cScaleLabel1': '#1f2937', 'cScaleLabel2': '#1f2937', 'cScaleLabel3': '#1f2937', 'cScaleLabel4': '#1f2937' } } }%%
 timeline
     title 大模型训练演进历程
-    section 早期探索
-        2018 : GPT-1 : BERT
-        2019 : GPT-2 : T5
-    section 规模化
-        2020 : GPT-3（175B）: Scaling Laws
-        2021 : Switch Transformer : Codex
-    section 对齐与应用
-        2022 : InstructGPT（RLHF）: Chinchilla : ChatGPT
-        2023 : LLaMA : GPT-4 : DPO
-    section 开源与民主化
-        2024 : Llama 3 : DeepSeek-V2（MLA）: OpenAI o1 : DeepSeek-V3（FP8 训练）
-    section 推理模型与 Agent
-        2025 : DeepSeek-R1（GRPO）: Qwen3 : Kimi K2（Muon）: GPT-5 : DeepSeek-V3.2（稀疏注意力）
+    2018–2019 早期探索 : GPT-1、BERT : GPT-2、T5
+    2020–2021 规模化 : GPT-3（175B） : Scaling Laws : Switch Transformer
+    2022–2023 对齐与应用 : InstructGPT（RLHF） : ChatGPT : LLaMA、GPT-4 : DPO
+    2024 开源与民主化 : Llama 3 : DeepSeek-V2（MLA） : OpenAI o1 : DeepSeek-V3（FP8）
+    2025 推理模型与 Agent : DeepSeek-R1（GRPO） : Qwen3、Kimi K2 : GPT-5 : DeepSeek-V3.2（稀疏注意力）
 ```
 
 ### 1.2.1 早期探索（2018–2019）
