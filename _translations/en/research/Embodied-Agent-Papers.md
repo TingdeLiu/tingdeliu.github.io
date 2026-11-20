@@ -6,7 +6,7 @@ permalink: /en/Embodied-Agent-Papers/
 source_path: _posts/research/2026-03-06-Embodied-Agent-Papers.md
 source_url: /Embodied-Agent-Papers/
 source_revision_date: 2026-11-07
-translation_updated: 2026-11-19
+translation_updated: 2026-11-20
 title: "Embodied Agents: Paper Readings"
 date: 2026-11-07
 tags: [Agent, Embodied AI, Robotics, VLA, Deep Learning]
@@ -1019,7 +1019,7 @@ The takeaway: **the convention provides most of the grounding, and the semantic 
 ReAct-style agents usually generate a single atomic action per round, read the environment feedback after executing it, and then call a large model to decide the next step, so deterministic routines in long-horizon tasks require multiple model calls. Simply switching to output a variable-length action sequence in one go and then training with standard reinforcement learning does not necessarily learn well. The paper observes phenomena such as single-action collapse, overly long action blocks that lower the success rate, and unstable multi-action PPO training. The authors attribute the core difficulty to learning action-block boundaries: sparse terminal rewards lack supervision that directly signals "now is the time to pause and observe again."
 
 <div align="center">
-  <img src="/images/agent/SPACE-multiaction-failure-modes.webp" width="80%" alt="Single-action collapse and over-commitment in multi-action GRPO&quot; loading=&quot;lazy&quot; decoding=&quot;async" />
+  <img src="/images/agent/SPACE-multiaction-failure-modes.webp" width="80%" alt="Single-action collapse and over-commitment in multi-action GRPO" loading="lazy" decoding="async" />
 <figcaption>Allowing multiple actions per output does not guarantee effective chunking: different backbone models exhibit single-action collapse and over-commitment, respectively</figcaption>
 </div>
 
@@ -1029,7 +1029,7 @@ ReAct-style agents usually generate a single atomic action per round, read the e
 {: id="2-主要方法创新点-5"}
 
 <div align="center">
-  <img src="/images/agent/SPACE-architecture.webp" width="100%" alt="SPACE skill induction, hybrid sampling, joint training, and deployment pipeline&quot; loading=&quot;lazy&quot; decoding=&quot;async" />
+  <img src="/images/agent/SPACE-architecture.webp" width="100%" alt="SPACE skill induction, hybrid sampling, joint training, and deployment pipeline" loading="lazy" decoding="async" />
 <figcaption>Programmatic skills are generated from successful trajectories. Skill calls are expanded into raw action blocks and trained together with directly sampled action blocks; only the action-block policy is kept at test time</figcaption>
 </div>
 
@@ -1154,7 +1154,7 @@ The end-to-end procedure is: hybrid sampling → expanding skill trajectories �
 For example, on ALFWorld Unseen with Qwen3-4B, decision rounds drop by about **78.9%**. By contrast, Llama's Multi-action GRPO itself needs only 5.4/5.5 rounds against SPACE's 5.0/5.2, so the main advantage there is that the success rate rises from 71.1%/65.6% to 96.1%/94.5%; this cannot be generalized to a 70% reduction in rounds against every multi-action baseline.
 
 <div align="center">
-  <img src="/images/agent/SPACE-training-dynamics.webp" width="100%" alt="Training curves of SPACE and multi-action reinforcement-learning baselines&quot; loading=&quot;lazy&quot; decoding=&quot;async" />
+  <img src="/images/agent/SPACE-training-dynamics.webp" width="100%" alt="Training curves of SPACE and multi-action reinforcement-learning baselines" loading="lazy" decoding="async" />
 <figcaption>ALFWorld Unseen success-rate curve of Qwen3-4B, the number of actions per round for the two backbones, and the change in policy entropy; in the later stage, SPACE keeps roughly 3-4 actions per round</figcaption>
 </div>
 
@@ -1171,7 +1171,7 @@ For example, on ALFWorld Unseen with Qwen3-4B, decision rounds drop by about **7
 Removing either component lowers the success rate and increases the number of decision rounds, supporting the complementary roles of skill-based boundary supervision and block-aware optimization.
 
 <div align="center">
-  <img src="/images/agent/SPACE-rollout-efficiency.webp" width="80%" alt="Effect of the total number of sampled training decisions and of the raw action-block sampling ratio&quot; loading=&quot;lazy&quot; decoding=&quot;async" />
+  <img src="/images/agent/SPACE-rollout-efficiency.webp" width="80%" alt="Effect of the total number of sampled training decisions and of the raw action-block sampling ratio" loading="lazy" decoding="async" />
 <figcaption>The left panel counts the LLM rounds sampled during ALFWorld training, not the number of tokens; the right panel compares the raw action-block sampling ratios on ScienceWorld, where 0.75 has the fewest decision rounds and 0.875 has a higher success rate</figcaption>
 </div>
 
