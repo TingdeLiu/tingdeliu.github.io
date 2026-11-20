@@ -1,10 +1,10 @@
 {
   "source": "_posts/research/2026-02-27-Robot-Navigation-Survey.md",
   "translation": "_translations/en/research/Robot-Navigation-Survey.md",
-  "reviewed_on": "2026-11-19",
-  "source_revision_date": "2026-11-11",
+  "reviewed_on": "2026-11-20",
+  "source_revision_date": "2026-11-20",
   "sections": {
-    "metadata": "32337e92a8f3cacbbb86726d08e1679c3f1ff4a76adeab66c1b7e0e0f0b5fdc1",
+    "metadata": "06661b406aede31edbfd7d8d0e6b1914184d49f17018321d2b480cdc430ea8e9",
     "introduction": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "1. 引言": "b968f1f3f8960b540c41930426830a6742961e1b91e2406903e41bccead0b32e",
     "1.1 为什么需要自主导航？": "ee1c2d72000a4b23d5fcef82cc71ffbb88650e9388239691e505e5cc47bbb267",
@@ -26,7 +26,7 @@
     "3.1 问题定义": "4b77c1cc8421af4df8a9ff42cd1a29de8503c12054e81ba8d0f5736d6751080f",
     "3.2 EKF 定位": "220c41f81217c4d889d2ef14e417c615e9dae9531df46da558681eeef6168067",
     "3.3 UKF 定位": "dc39f70d5a7b151c69d9e01103cd2e3241c1385ccbfb9caa9c24c39644b59427",
-    "3.4 粒子滤波定位": "7d4d7142d3e01f14df3c75dda57e66669f0d5aa4db9ee7b23662aa342c1750d2",
+    "3.4 粒子滤波定位": "a17bd1570c500f8370dc25083a0a4631d3581662ff62baafc63d827d75f3fb78",
     "3.5 基于扫描匹配的定位": "f0ec735611435fe06b8904300faa9a65c3fae2837a4456160572b96ba9faeceb",
     "NDT 配准": "079a76f3b9571f0f2174ad66c6d1e76c161efaf1656f98183bc8a54122ce8db5",
     "ICP 配准": "7cea07d69341534e42e763e480d3b832a9b09a79b91229c9afeb5993d5e6e94b",
@@ -145,7 +145,7 @@
     "为什么 `map` 和 `odom` 要分开？": "4e9998fe6bc2eaf31edcad4d30395b510fca2a1432843a6f48c280330681e6db",
     "齐次变换矩阵": "a4704ed29eea9c8c180a5b4b0b0425bc8988a3b801f1bacf0f31f70e1cef0e41",
     "9.2 ROS1 导航栈": "e142ef1a24db6da366f64c56421606da0769957753e61bc9756176f9e21546c7",
-    "move_base 状态机": "6b9b90de7b0dd559f092049b44c65de84e6cd1adf1c79d9b0b8632a26538d374",
+    "move_base 状态机": "0447e11a1491b1ca9ac09c37f8c1b45ae8cbf225420b1ba86914c19983744714",
     "恢复行为链": "a8197f0768b3566c8dbdd3922c3c1635e28ef5066f675b93c1b1c10c6728547c",
     "9.3 Nav2（ROS 2）架构": "1ce7d004161788e3dbe9622a36fed3c06dfb79643867a029cd9e1a3de737303c",
     "五大服务器架构": "581f7587081b4b96f528c371ae76bd1a61ae09466c848bc2e279384e58863a28",
@@ -168,7 +168,7 @@
     "路径规划": "e1df9005fd8a1bb03a91ff07a331ab42e93e6d796d928c1d87cd93ab4bcdfbd5",
     "仿真": "f4ef4edc8f213849ecf44bdcfe4adc8049f2e5c305c61d661ccd172f34b2d3f2",
     "12. 小结与展望": "7c3a00ee739f1985e99b9148becd002120f0a27936e1a46b15474ae3892afaf1",
-    "本文回顾": "e1bb900b67d2e3842f1d22b25fbd8c09484372ee5df9ce71ae283a21bf0bdcc1",
+    "本文回顾": "eacb58d8efb075b113148e224bd7af07292c1e477a2c60dea6ae4e70065b9f3b",
     "展望": "ad869b551afed5e3813a0a44ce8940500164518b50e8c970e6b0187ed95a8bb8"
   }
 }

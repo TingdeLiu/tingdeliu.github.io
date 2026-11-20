@@ -5,10 +5,10 @@ translation_id: robot-navigation-survey
 permalink: /en/Robot-Navigation-Survey/
 source_path: _posts/research/2026-02-27-Robot-Navigation-Survey.md
 source_url: /Robot-Navigation-Survey/
-source_revision_date: 2026-11-11
-translation_updated: 2026-11-19
+source_revision_date: 2026-11-20
+translation_updated: 2026-11-20
 title: "Traditional Navigation: A Survey"
-date: 2026-11-11
+date: 2026-11-20
 tags: [Robotics, Navigation, SLAM, Localization, Mapping, Path Planning, Path Tracking, Perception]
 categories: research
 comments: false
@@ -392,7 +392,7 @@ flowchart TD
 
 **Resampling details**: Naive random resampling causes **loss of particle diversity** (the same particle is copied many times). **Systematic resampling** avoids this: it picks a random starting point in $[0, 1/N]$ and then samples N times at equal intervals, so each interval is sampled exactly once. This effectively prevents diversity loss, and the computational complexity remains $O(N)$.
 
-**AMCL's adaptive particle count (KLD sampling)**: A fixed particle count wastes computation (once localization has converged, so many particles are unnecessary) and is unsafe (too few particles at initialization may miss the true position). **KLD sampling** computes the required number of particles dynamically from the volume of state space covered by the current particle set: the more thoroughly the state space is explored (the more grid cells are covered), the fewer particles are needed. A typical AMCL range is 100–5000 particles.
+**AMCL's adaptive particle count (KLD sampling)**: A fixed particle count wastes computation (once localization has converged, so many particles are unnecessary) and is unsafe (too few particles at initialization may miss the true position). **KLD sampling** computes the required number of particles dynamically from the volume of state space covered by the current particle set: the more spread out the particles are (the more grid cells are covered), the more particles are needed; once localization converges and the particles concentrate in a few cells, the required count drops accordingly. A typical AMCL range is 100–5000 particles.
 
 ✅ Supports **global localization** (parallel multi-hypothesis tracking, so it can handle the kidnapped robot problem)
 ✅ Handles nonlinear systems well, with no linearization needed
@@ -2646,7 +2646,7 @@ flowchart TB
 ### The move_base state machine
 {: id="move_base-状态机"}
 
-`move_base` has an internal state machine with four states:
+`move_base` has an internal state machine with three states:
 
 ```mermaid
 stateDiagram-v2
@@ -3014,7 +3014,7 @@ Tuning a navigation stack means **coordinating its modules**: an upstream parame
 ## What this survey covers
 {: id="本文回顾"}
 
-This article systematically reviews the five core modules of the classical robot navigation algorithm stack:
+This article systematically reviews the six core modules of the classical robot navigation algorithm stack:
 
 1. **Perception**: LiDAR, cameras, and IMUs each have their own strengths and weaknesses, and sensor fusion (EKF/UKF) is the key to better robustness
 2. **Localization**: EKF/UKF suit real-time pose tracking, particle filtering (AMCL) supports global localization, and NDT/ICP provide accurate scan matching

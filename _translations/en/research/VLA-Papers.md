@@ -5,10 +5,10 @@ translation_id: vla-papers
 permalink: /en/VLA-Papers/
 source_path: _posts/research/2026-10-01-VLA-Papers.md
 source_url: /VLA-Papers/
-source_revision_date: 2026-10-19
-translation_updated: 2026-11-19
+source_revision_date: 2026-11-20
+translation_updated: 2026-11-20
 title: "Vision-Language-Action: Paper Readings"
-date: 2026-10-24
+date: 2026-11-20
 tags: [VLA, VLM, Robotics, Manipulation, Deep Learning]
 categories: research
 comments: false
@@ -765,10 +765,9 @@ Existing robot manipulation policies struggle to generalize to objects, scenes, 
 
 OpenVLA is a 7B-parameter open-source vision-language-action model trained on 970,000 robot demonstration trajectories from the Open X-Embodiment dataset. The architecture has three key components:
 
-1. **Fused visual encoder (complementary backbones)**: A multi-backbone visual encoding strategy in which each backbone contributes a different kind of visual feature:
+1. **Fused visual encoder (complementary backbones)**: A dual-backbone visual encoding strategy in which the two backbones extract features separately and their outputs are concatenated:
    - **DINOv2**: Provides strong geometric and spatial features (understanding "where"; good at object localization and depth perception).
    - **SigLIP**: Provides strong semantic understanding (understanding "what"; good at aligning with natural-language instructions).
-   - **CLIP / others**: Provide complementary visual features.
 This combination lets the 7B model beat a much larger 55B model that uses a single encoder, in terms of how efficiently it processes information.
 
 2. **Projector**: A 2-layer MLP projects the visual features into the input space of the language model.
@@ -1173,7 +1172,7 @@ Unlike traditional discrete token prediction, π0.7 trains its action expert wit
 </div>
 
 - **Strong out-of-the-box performance**: Without any task-specific post-training, π0.7 can complete challenging dexterous tasks, such as slicing a cucumber, peeling, and operating a coffee machine.
-- **Excellent cross-embodiment generalization**: With no UR5e laundry-folding data at all, the model successfully transferred skills learned on the source robot arm to the UR5e, with performance approaching that of an experienced human teleoperator.
+- **Excellent cross-embodiment generalization**: With no UR5e laundry-folding data at all, the model successfully transferred skills learned on lightweight robot arms to the UR5e, with performance approaching that of an experienced human teleoperator.
 
 <div align="center">
   <img src="/images/vla/pi0.7-cross-embodiment.webp" alt="Cross-embodiment transfer results: even when morphology and dynamics differ greatly, π0.7 can generate new policies adapted to the target robot (for example, going from bimanual cooperation to single-arm operation)." width="1448" height="843" style="width: 100%;" loading="lazy" decoding="async" />
