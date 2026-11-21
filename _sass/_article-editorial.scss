@@ -213,14 +213,16 @@
   .gift-hint { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
   .gift-hint kbd { padding: 1px 6px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); font: 11px $code-font; white-space: nowrap; }
 
-  .star-card { display: flex; align-items: flex-start; justify-content: space-between; gap: 32px; margin: 48px 0 32px; padding: 28px 32px; border: 1px solid var(--rule); background: var(--panel); }
+  .star-card { margin: 48px 0 32px; padding: 28px 32px; border: 1px solid var(--rule); background: var(--panel); }
   .star-card-copy { min-width: 0; }
   .star-card-title { margin: 0 0 6px; color: var(--ink); font: 500 17px $base-font; }
   .star-card-text { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.8; }
-  .star-card .sponsor-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 16px; padding: 8px 14px; border: 1px solid var(--rule); color: var(--accent); font: 14px $base-font; text-decoration: none; }
+  .star-card-actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; margin-top: 18px; }
+  .star-card .sponsor-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 14px; border: 1px solid var(--rule); color: var(--accent); font: 14px $base-font; text-decoration: none; }
   .star-card .sponsor-link:hover { border-color: var(--accent); background: var(--paper); }
-  .gift-card { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; flex-shrink: 0; }
-  .gift-card .gift-panel { width: 290px; }
+  .gift-card { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; max-width: 100%; }
+  .gift-card .gift-trigger { min-height: 44px; font-size: 14px; }
+  .gift-card .gift-panel { width: 290px; max-width: 100%; }
 }
 
 @keyframes gift-lid {
@@ -294,9 +296,7 @@
 
 @media screen and (max-width: 640px) {
   .article-page {
-    .star-card { flex-direction: column; gap: 20px; padding: 24px 20px; }
-    .gift-card { align-items: flex-start; max-width: 100%; }
-    .gift-card .gift-panel { max-width: 100%; }
+    .star-card { padding: 24px 20px; }
     .article-masthead { padding: 18px 20px; min-height: 76px; gap: 20px; flex-wrap: wrap; }
     .article-masthead nav { order: 3; width: 100%; justify-content: space-between; gap: 16px; padding-top: 12px; font-size: 12px; }
     .article-masthead .article-github { margin-left: auto; padding: 5px 10px; font-size: 12px; }

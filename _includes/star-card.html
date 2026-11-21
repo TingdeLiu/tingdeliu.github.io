@@ -3,10 +3,12 @@
     <p class="star-card-title">{% if page_lang == 'en' %}Found these notes helpful?{% else %}这些笔记对你有帮助吗？{% endif %}</p>
     {% if site.sponsors_url %}
     <p class="star-card-text">{% if page_lang == 'en' %}You can support paper readings, weekly digests, and site maintenance through GitHub Sponsors.{% else %}欢迎通过 GitHub Sponsors 支持论文整理、周报更新与网站维护。{% endif %}</p>
-    {% include sponsor-link.html article=true %}
     {% else %}
     <p class="star-card-text">{% if page_lang == 'en' %}Star the site on GitHub to follow new readings and weekly digests.{% else %}在 GitHub 上 Star 本站，关注新的论文精读和周报。{% endif %}</p>
     {% endif %}
   </div>
-  {% include gift-star.html variant='card' %}
+  <div class="star-card-actions">
+    {% if site.sponsors_url %}{% include sponsor-link.html article=true %}{% endif %}
+    {% include gift-star.html variant='card' %}
+  </div>
 </aside>
