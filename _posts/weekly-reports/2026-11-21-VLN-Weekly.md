@@ -4,6 +4,7 @@ lang: zh-CN
 translation_id: vln-weekly-2026-11-21
 title: "具身导航周报 · 第 14 期"
 date: 2026-11-21
+last_modified_at: 2026-11-21
 issue_number: 14
 period_start: 2026-11-13
 period_end: 2026-11-20
@@ -33,11 +34,16 @@ excerpt: "本期选读 26 项工作。VLN-Flash 在固定输入上将动作解�
 
 **在小动作空间里，一次前向即可评分多条短计划。**
 
-**[论文](https://arxiv.org/abs/2611.19287v1)** · [图 1](https://arxiv.org/html/2611.19287v1/Architecture.png) · 主线：VLN · 指令跟随 · R2R-CE / RxR-CE（连续环境）
+**[论文](https://arxiv.org/abs/2611.19287v1)** · 主线：VLN · 指令跟随 · R2R-CE / RxR-CE（连续环境）
 
 **问题。** 多步自回归动作解码要依次前向，生成速度受限。执行器若一次走完整段动作，也可能错过更新观察的时机。
 
 **方法。** 用树形注意力在一次前向中给候选动作前缀评分，再根据候选前缀的分数差动态选择本轮执行长度。导航骨干保持冻结。
+
+<div align="center">
+<img src="https://arxiv.org/html/2611.19287v1/Architecture.png" alt="VLN-Flash 并行动作解码架构" width="100%" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+<figcaption>图 1：树形注意力让模型在一次前向中为多条候选动作前缀评分。 <a href="https://arxiv.org/html/2611.19287v1/Architecture.png">论文原图</a></figcaption>
+</div>
 
 **证据。** 固定输入的动作解码较自回归快 2.75 倍（Uni-NaVid）和 2.57 倍（StreamVLN）；在 RxR-CE val-unseen 上，Uni-NaVid 的 SR 从 55.1% 到 57.8%。Unitree GO2 上，同一 StreamVLN 骨干完成 52/60 条指令，自回归组完成 49/60 条。
 
@@ -50,11 +56,16 @@ excerpt: "本期选读 26 项工作。VLN-Flash 在固定输入上将动作解�
 
 **让相似指令下的成功和失败反馈都参与策略更新。**
 
-**[论文](https://arxiv.org/abs/2611.19901v1)** · [图 2](https://arxiv.org/html/2611.19901v1/pipeline.png) · 主线：VLN · 在线适应 · REVERIE / R2R（离散环境）、R2R-CE（连续环境）
+**[论文](https://arxiv.org/abs/2611.19901v1)** · 主线：VLN · 在线适应 · REVERIE / R2R（离散环境）、R2R-CE（连续环境）
 
 **问题。** 在线 VLN 已获得的反馈往往只用于当前回合，后续遇到相似指令时还要重新试错。
 
 **方法。** 成败记忆按指令相似度检索历史回合，并补充随机样本。更新策略时相对于冻结的预训练先验提高成功轨迹的偏好、压低失败轨迹的偏好，以约束行为漂移。
+
+<div align="center">
+<img src="https://arxiv.org/html/2611.19901v1/pipeline.png" alt="R2A 在线导航适应流程" width="100%" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+<figcaption>图 2：检索与当前指令相关的成功和失败回合，结合当前反馈更新导航策略。 <a href="https://arxiv.org/html/2611.19901v1/pipeline.png">论文原图</a></figcaption>
+</div>
 
 **证据。** 在离散 REVERIE val-unseen 上，论文报告 DUET 在线适应后，SR 从 46.98% 到 69.84%，SPL 从 33.73% 到 50.98%。保留在线适应但移除回放记忆时，SR 为 64.49%。
 
@@ -67,11 +78,16 @@ excerpt: "本期选读 26 项工作。VLN-Flash 在固定输入上将动作解�
 
 **省下的模型调用需要和导航成功率一起计账。**
 
-**[论文](https://arxiv.org/abs/2611.25587v1)** · [图 1](https://arxiv.org/html/2611.25587v1/workflow.png) · 主线：VLN · 航点执行 · HM3D-OVON / R2R-CE（连续环境）
+**[论文](https://arxiv.org/abs/2611.25587v1)** · 主线：VLN · 航点执行 · HM3D-OVON / R2R-CE（连续环境）
 
 **问题。** 每次执行都调用视觉语言模型开销较高。缓存航点在转弯、遇阻或接近终点后又可能失效。
 
 **方法。** 冻结策略先预测一串航点，再依据保留的视觉上下文、完成线索与控制器反馈决定是否刷新。策略发出停止信号时，可利用访问历史做至多一次移动修正，无需额外调用模型。
+
+<div align="center">
+<img src="https://arxiv.org/html/2611.25587v1/workflow.png" alt="CHAC 航点预测与缓存刷新流程" width="100%" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+<figcaption>图 1：策略先预测航点，执行中根据视觉上下文和控制器反馈决定何时刷新。 <a href="https://arxiv.org/html/2611.25587v1/workflow.png">论文原图</a></figcaption>
+</div>
 
 **证据。** HM3D-OVON 和 R2R-CE 的模型调用分别减少 33.4% 和 64.7%，SR 分别下降 0.63 和 10.82 个百分点。四项物理任务每种方法跑 40 次，CHAC 成功 18 次，原生执行成功 14 次。
 
@@ -84,11 +100,16 @@ excerpt: "本期选读 26 项工作。VLN-Flash 在固定输入上将动作解�
 
 **每次子任务切换都需要有证据支持。**
 
-**[论文](https://arxiv.org/abs/2611.20676v1)** · [图 2](https://arxiv.org/html/2611.20676v1/framework_overview_v2.png) · 主线：具身 Agentic 导航 · 长程指令跟随 · R2R-CE / RxR-CE（连续环境）
+**[论文](https://arxiv.org/abs/2611.20676v1)** · 主线：具身 Agentic 导航 · 长程指令跟随 · R2R-CE / RxR-CE（连续环境）
 
 **问题。** 长路线分解后，执行器可能提前停止或已偏离路线。未经检查就切换子任务，局部误差会传到后续步骤。
 
 **方法。** 执行器联合学习进度推理和动作预测。停止后，验证器决定推进、续跑或回到最近一次确认的锚点，重新取景并重试当前子任务。
+
+<div align="center">
+<img src="https://arxiv.org/html/2611.20676v1/framework_overview_v2.png" alt="LeaP-VLN 进度验证与恢复框架" width="100%" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+<figcaption>图 2：验证器在子任务停止后核验进展，并决定推进、续跑或从已确认的锚点恢复。 <a href="https://arxiv.org/html/2611.20676v1/framework_overview_v2.png">论文原图</a></figcaption>
+</div>
 
 **证据。** R2R-CE val-unseen 上，论文报告 SR 为 67.5%，对照 CorrectNav 为 65.1%，两者 SPL 分别为 59.1% 和 62.3%。RxR-CE val-unseen 的 SR 为 69.6%。AgiBot Genie 02 展示了一条含三段子任务的室内路线。
 
@@ -101,11 +122,16 @@ excerpt: "本期选读 26 项工作。VLN-Flash 在固定输入上将动作解�
 
 **只在执行异常时调用有明确权限的复核器。**
 
-**[论文](https://arxiv.org/abs/2611.19912v1)** · [图 1](https://arxiv.org/html/2611.19912v1/figures/1.png) · 主线：具身 Agentic 导航 · 室内物体搜索 · 六类仿真任务与四足机器人试验
+**[论文](https://arxiv.org/abs/2611.19912v1)** · 主线：具身 Agentic 导航 · 室内物体搜索 · 六类仿真任务与四足机器人试验
 
 **问题。** 搜索途中可能停滞，远程推理返回的动作也可能因证据过时或目标变化而失效。
 
 **方法。** 阻塞、执行失败或连续两段低进展才触发 Jev，复核范围限于规划器授权的动作集。单执行器在动作前检查版本、时效和是否已消费，另由本地 RGB 反射模块拦截前进动作。
+
+<div align="center">
+<img src="https://arxiv.org/html/2611.19912v1/figures/1.png" alt="AgenticJevNav 的物体搜索与事件触发复核示例" width="100%" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+<figcaption>图 1：搜索中的受阻和低进展等异常可触发 Jev 复核，目标更新后会撤销过时请求。 <a href="https://arxiv.org/html/2611.19912v1/figures/1.png">论文原图</a></figcaption>
+</div>
 
 **证据。** 六类仿真任务共 60 次，SR 为 73.33%，最强仅 Agent 对照为 51.67%，成功回合均时分别为 140.55 s 和 120.40 s。GENISOM L1 在一处真机场景成功 21/30 次，含限额内确认未找到目标的任务。
 

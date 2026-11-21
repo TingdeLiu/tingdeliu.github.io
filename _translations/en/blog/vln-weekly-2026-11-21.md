@@ -9,6 +9,7 @@ source_revision_date: 2026-11-21
 translation_updated: 2026-11-21
 title: "Embodied Navigation Weekly · Issue 14"
 date: 2026-11-21
+last_modified_at: 2026-11-21
 period_start: 2026-11-13
 period_end: 2026-11-20
 issue_number: 14
@@ -37,11 +38,16 @@ excerpt: "This issue covers 26 selected works. VLN-Flash speeds up action decodi
 
 **A single forward pass can score several short plans in a small action space.**
 
-**[Paper](https://arxiv.org/abs/2611.19287v1)** · [Figure 1](https://arxiv.org/html/2611.19287v1/Architecture.png) · Track: VLN · Instruction following · R2R-CE / RxR-CE (continuous environments)
+**[Paper](https://arxiv.org/abs/2611.19287v1)** · Track: VLN · Instruction following · R2R-CE / RxR-CE (continuous environments)
 
 **Problem.** Multi-step autoregressive action decoding requires sequential forward passes. Executing a full action chunk can also miss a useful opportunity to observe the scene again.
 
 **Method.** Tree attention scores candidate action prefixes in one forward pass. The gap between candidate scores determines how many actions to execute before the next observation. The navigation backbone stays frozen.
+
+<div align="center">
+<img src="https://arxiv.org/html/2611.19287v1/Architecture.png" alt="VLN-Flash parallel action decoding architecture" width="100%" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+<figcaption>Figure 1. Tree attention lets the model score multiple candidate action prefixes in one forward pass. <a href="https://arxiv.org/html/2611.19287v1/Architecture.png">Original figure</a></figcaption>
+</div>
 
 **Evidence.** On matched inputs, action decoding was 2.75× faster for Uni-NaVid and 2.57× faster for StreamVLN than autoregressive decoding. On RxR-CE val-unseen, Uni-NaVid SR rose from 55.1% to 57.8%. On a Unitree GO2, the same StreamVLN backbone completed 52/60 instructions with VLN-Flash and 49/60 with autoregressive decoding.
 
@@ -54,11 +60,16 @@ excerpt: "This issue covers 26 selected works. VLN-Flash speeds up action decodi
 
 **Use both successful and failed episodes to adapt to similar instructions.**
 
-**[Paper](https://arxiv.org/abs/2611.19901v1)** · [Figure 2](https://arxiv.org/html/2611.19901v1/pipeline.png) · Track: VLN · Online adaptation · REVERIE / R2R (discrete), R2R-CE (continuous)
+**[Paper](https://arxiv.org/abs/2611.19901v1)** · Track: VLN · Online adaptation · REVERIE / R2R (discrete), R2R-CE (continuous)
 
 **Problem.** Online VLN systems often use acquired feedback only for the current episode, so a later episode with a similar instruction can repeat the same mistakes.
 
 **Method.** The success–failure memory retrieves episodes by instruction similarity and adds randomly sampled experiences. Policy updates favor successful trajectories and disfavor failed ones relative to a frozen pretrained prior, limiting behavioral drift.
+
+<div align="center">
+<img src="https://arxiv.org/html/2611.19901v1/pipeline.png" alt="R2A online navigation adaptation pipeline" width="100%" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+<figcaption>Figure 2. The agent retrieves successful and failed episodes and uses them alongside current feedback to update its navigation policy. <a href="https://arxiv.org/html/2611.19901v1/pipeline.png">Original figure</a></figcaption>
+</div>
 
 **Evidence.** On discrete REVERIE val-unseen, the paper reports DUET SR rising from 46.98% to 69.84% and SPL from 33.73% to 50.98% with online adaptation. Keeping online adaptation and removing replay memory yielded 64.49% SR.
 
@@ -71,11 +82,16 @@ excerpt: "This issue covers 26 selected works. VLN-Flash speeds up action decodi
 
 **Account for navigation success alongside the model calls saved.**
 
-**[Paper](https://arxiv.org/abs/2611.25587v1)** · [Figure 1](https://arxiv.org/html/2611.25587v1/workflow.png) · Track: VLN · Waypoint execution · HM3D-OVON / R2R-CE (continuous environments)
+**[Paper](https://arxiv.org/abs/2611.25587v1)** · Track: VLN · Waypoint execution · HM3D-OVON / R2R-CE (continuous environments)
 
 **Problem.** Calling a vision-language model at every execution decision is expensive. Cached waypoints can lose validity after a turn, blockage, or approach to the goal.
 
 **Method.** A frozen policy predicts a sequence of waypoints. Retained visual context, completion cues, and controller feedback determine when to refresh. When the policy calls for a stop, visitation history can inform at most one corrective move without another model call.
+
+<div align="center">
+<img src="https://arxiv.org/html/2611.25587v1/workflow.png" alt="CHAC waypoint prediction and cache refresh workflow" width="100%" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+<figcaption>Figure 1. The policy predicts waypoints, then uses visual context and controller feedback to decide when to refresh them. <a href="https://arxiv.org/html/2611.25587v1/workflow.png">Original figure</a></figcaption>
+</div>
 
 **Evidence.** Model calls fell by 33.4% on HM3D-OVON and 64.7% on R2R-CE, with SR drops of 0.63 and 10.82 percentage points, respectively. Across four physical tasks with 40 trials per method, CHAC succeeded 18 times and native execution succeeded 14 times.
 
@@ -88,11 +104,16 @@ excerpt: "This issue covers 26 selected works. VLN-Flash speeds up action decodi
 
 **Require evidence before moving to the next subtask.**
 
-**[Paper](https://arxiv.org/abs/2611.20676v1)** · [Figure 2](https://arxiv.org/html/2611.20676v1/framework_overview_v2.png) · Track: embodied agentic navigation · Long-horizon instruction following · R2R-CE / RxR-CE (continuous environments)
+**[Paper](https://arxiv.org/abs/2611.20676v1)** · Track: embodied agentic navigation · Long-horizon instruction following · R2R-CE / RxR-CE (continuous environments)
 
 **Problem.** During a decomposed route, an executor can stop early or stray from the route. Advancing without checking can propagate a local error to later subtasks.
 
 **Method.** The executor jointly learns progress reasoning and action prediction. On a stop, a verifier chooses whether to advance, continue, or return to the last verified anchor, observe the scene again, and retry the current subtask.
+
+<div align="center">
+<img src="https://arxiv.org/html/2611.20676v1/framework_overview_v2.png" alt="LeaP-VLN progress verification and recovery framework" width="100%" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+<figcaption>Figure 2. At a subtask stop, the verifier checks progress and decides whether to advance, continue, or recover from a confirmed anchor. <a href="https://arxiv.org/html/2611.20676v1/framework_overview_v2.png">Original figure</a></figcaption>
+</div>
 
 **Evidence.** On R2R-CE val-unseen, the paper reports LeaP-VLN SR of 67.5% versus CorrectNav's 65.1%, with SPL of 59.1% versus 62.3%. RxR-CE val-unseen SR was 69.6%. An AgiBot Genie 02 demonstration showed one indoor route with three subtasks.
 
@@ -105,11 +126,16 @@ excerpt: "This issue covers 26 selected works. VLN-Flash speeds up action decodi
 
 **Give the reviewer bounded authority and call it when execution stalls.**
 
-**[Paper](https://arxiv.org/abs/2611.19912v1)** · [Figure 1](https://arxiv.org/html/2611.19912v1/figures/1.png) · Track: embodied agentic navigation · Indoor object search · Six simulated task families and quadruped trials
+**[Paper](https://arxiv.org/abs/2611.19912v1)** · Track: embodied agentic navigation · Indoor object search · Six simulated task families and quadruped trials
 
 **Problem.** Search can stall, and an action returned by remote inference can become stale when the evidence or goal changes.
 
 **Method.** Blockage, execution failure, or two consecutive low-progress segments trigger Jev to review an authorized action set. A single executor checks version, freshness, and prior consumption before acting. A local RGB reflex can veto forward motion.
+
+<div align="center">
+<img src="https://arxiv.org/html/2611.19912v1/figures/1.png" alt="AgenticJevNav object search and event-driven verification examples" width="100%" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+<figcaption>Figure 1. Blockage and low progress can trigger Jev review during search, while goal revisions revoke obsolete requests. <a href="https://arxiv.org/html/2611.19912v1/figures/1.png">Original figure</a></figcaption>
+</div>
 
 **Evidence.** Across six simulated task families and 60 trials, SR was 73.33% versus 51.67% for the strongest agent-only control. Successful trials averaged 140.55 s and 120.40 s, respectively. A GENISOM L1 succeeded in 21/30 trials in one physical setting, including tasks with a valid not-found report within budget.
 
