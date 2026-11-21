@@ -4,7 +4,7 @@ lang: zh-CN
 translation_id: vln-papers
 permalink: /VLN-Papers/
 title: "VLN 论文精读：指令跟随篇"
-date: 2026-11-14
+date: 2026-11-21
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -1531,6 +1531,7 @@ KV cache 复用对多轮对话解码延迟的影响：全轮次 KV cache 保持�
 2. 当前的混合上下文建模策略在更长视野的导航场景中仍然面临挑战，保持扩展序列上的一致推理较为困难
 3. 依赖显式动作历史作为对话上下文的一部分，为异步推理和部署带来额外复杂性，需要同步过去的动作以保持对话连贯性
 
+**后续工作。** VLN-Flash（2026）复用冻结的 StreamVLN，用树形注意力在一次前向中为多个短动作前缀评分，再根据候选之间的分数差决定执行几步后重新观察。论文在 A800 上以相同输入对比原生自回归解码，StreamVLN 单次动作回复的平均耗时从 182.8 ms 降至 71.1 ms（2.57×）。该结果适用于小型离散动作空间中的短序列。[论文](https://arxiv.org/abs/2611.19287)
 
 ---
 

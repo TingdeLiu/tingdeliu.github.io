@@ -5,10 +5,10 @@ translation_id: vln-papers
 permalink: /en/VLN-Papers/
 source_path: _posts/research/2026-01-05-VLN-Papers-InstructionFollowing.md
 source_url: /VLN-Papers/
-source_revision_date: 2026-11-14
-translation_updated: 2026-11-19
+source_revision_date: 2026-11-21
+translation_updated: 2026-11-21
 title: "VLN Papers: Instruction Following"
-date: 2026-11-14
+date: 2026-11-21
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
@@ -1580,6 +1580,7 @@ Effect of KV-cache reuse on multi-turn decoding latency. Retaining the full cach
 2. The mixed-context strategy still struggles with longer-horizon navigation, where consistent reasoning over extended sequences is difficult.
 3. Explicit action history forms part of the dialogue context. Asynchronous inference and deployment therefore require synchronizing past actions to maintain dialogue coherence.
 
+**Follow-up work.** VLN-Flash (2026) keeps StreamVLN frozen and uses tree attention to score several short action prefixes in one forward pass. The margin between candidate scores determines how many actions to execute before observing again. On an A800 with matched inputs, the mean time for a complete StreamVLN action reply fell from 182.8 ms with native autoregressive decoding to 71.1 ms (2.57×). This result applies to short sequences in a small discrete action space. [Paper](https://arxiv.org/abs/2611.19287)
 
 ---
 
