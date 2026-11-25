@@ -1,11 +1,11 @@
 {
   "source": "_posts/research/2026-11-07-VLN-Papers-AgenticNav.md",
   "translation": "_translations/en/research/Agentic-Navigation-Papers.md",
-  "reviewed_on": "2026-11-19",
-  "source_revision_date": "2026-11-14",
+  "reviewed_on": "2026-11-25",
+  "source_revision_date": "2026-11-25",
   "sections": {
-    "metadata": "82179085e361300599b898c4538b979d765f1d09a076b4741dec20dee1f4f93a",
-    "introduction": "38303fc34dce87c1fb87a43734b3fdeb671db02d77b59379768dc13c672a5840",
+    "metadata": "f30d64e40f6139acedea37d3d24fa3708052dcf18580b37be5c8d74d9cb7cb3f",
+    "introduction": "b18c593d87c1b1db1469592fb9ea0c1f011f267c31b5b527493e2cffc76393bd",
     "Agentic 导航论文精读": "ead9a0fa8143490ef5a25cbc149bd6bb5a372b6effbbac47a77aec4571b0ba2e",
     "paper:panonav / 1. PanoNav (2025)": "5e657dbccdf25628156d12dc7e97f4e0004e394c63aba6a888a5f65e345cfbf4",
     "paper:odyssey / 2. ODYSSEY (2025)": "2956aac02c125c6703ca106dd943086d1251a9b276f30b9ea0a7789e832a8f9e",
@@ -211,7 +211,13 @@
     "paper:h2e / 2. 主要方法/创新点": "916545bd1194119caa039d5736af8a667595fbe33a3cd4a8cedf96f930febedd",
     "paper:h2e / 3. 核心结果/发现": "f143cc526504be29f972cb9f6c99f2880c53828e7586436d3458ed7ac48b3a5b",
     "paper:h2e / 4. 局限性": "d19cca06f0de42a5a36da6049e723927d3b44186b86886270bbbf33abea09716",
+    "paper:agenticjevnav / 27. AgenticJevNav (2026)": "92d172fd08467ff4ab0d635e8aaa111020f9669804143b2b2c7eb4c5dde7c20d",
+    "paper:agenticjevnav / 精华": "92185309082690718c00763517dd9445d8b1562c5ac67f5e011d1f7b8fc82a95",
+    "paper:agenticjevnav / 1. 研究背景/问题": "590c3a762e01729777fdbc1981899e754165b93121462590fc1b008f9d9707ca",
+    "paper:agenticjevnav / 2. 主要方法/创新点": "7455b380a4dad3ef17511cb67751cecbfa9710c386bb8c77f2c06e009b574d7a",
+    "paper:agenticjevnav / 3. 核心结果/发现": "77fa5a5f8bf75394491539dbe023964411b14efda7353b20c7b1ed274a5772f0",
+    "paper:agenticjevnav / 4. 局限性": "4f82233ff3307f77cde77cfa67cff2ac0739c4ed96ba087de6fc1edfada12ce1",
     "参考资料": "c6909a34733f06b163d2f52bf177742b01cc4b7963a27bbf7c699ec4da5e31d1",
-    "论文引用": "0ccbbfed91bd86ed2d4687684bfce16ed5a57ed11f6bd2b7b110fb7384389276"
+    "论文引用": "8f79022e34a4d5e878098d30b854e66e33ea244d17be132af151af0a9837c0ad"
   }
 }

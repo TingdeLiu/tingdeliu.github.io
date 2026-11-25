@@ -5,22 +5,22 @@ translation_id: agentic-navigation-papers
 permalink: /en/Agentic-Navigation-Papers/
 source_path: _posts/research/2026-11-07-VLN-Papers-AgenticNav.md
 source_url: /Agentic-Navigation-Papers/
-source_revision_date: 2026-11-14
-translation_updated: 2026-11-19
+source_revision_date: 2026-11-25
+translation_updated: 2026-11-25
 title: "VLN Papers: Agentic Navigation"
-date: 2026-11-14
+date: 2026-11-25
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
 toc_expand: 2
-excerpt: "26 readings on tool use, active interaction, spatial memory, and continuing navigation."
+excerpt: "27 readings on tool use, active interaction, spatial memory, and continuing navigation."
 ---
 
 
 
-> This collection covers 26 works on how LLM/VLM agents call perception and movement tools, request help, read and write spatial memory, and replan or resume tasks using execution feedback. It includes supporting work on mobile manipulation and spatial mapping; individual papers need not implement every mechanism.
+> This collection covers 27 works on how LLM/VLM agents call perception and movement tools, request help, read and write spatial memory, and replan or resume tasks using execution feedback. It includes supporting work on mobile manipulation and spatial mapping; individual papers need not implement every mechanism.
 >
 > Papers are grouped by research focus. Agent systems evaluated on goal navigation, such as SuperNav, NavHarness, and EvoLife, are read here. See [Goal Navigation](/en/VLN-Papers-Extended/) for goal-navigation methods and leaderboards, and [Instruction Following](/en/VLN-Papers/) for instruction-following methods and results.
 
@@ -3665,6 +3665,82 @@ Only one benchmark, one VLA, and one agent are studied, all in simulation. The d
 
 ---
 
+## 27. AgenticJevNav (2026)
+{: id="agenticjevnav"}
+———Trigger review on execution anomalies and discard stale decisions
+
+📄 **Paper**: [arXiv:2611.19912v1](https://arxiv.org/abs/2611.19912v1) · [Project Page](http://106.55.248.254/)
+
+### Key takeaways
+{: id="精华-52"}
+
+In language-model navigation, the main planner can retain responsibility for the goal and request review only when an action is blocked, fails, or makes little progress twice in a row. The reviewer selects from authorized actions, and the executor checks that the decision still matches the goal, observation, and pose and has yet to be consumed. A local RGB check can stop forward motion while remote inference is pending. In the paper's ablation, reviewing every 5 seconds used more calls, while event-triggered review achieved higher success and path efficiency on these tasks.
+
+---
+
+### 1. Background and problem
+{: id="1-研究背景问题-51"}
+
+The robot uses local RGB views and odometry to find a specific instance by category, attribute, or spatial relation and stop at a suitable position. When motion is blocked, it has to decide whether another model should review the action. The user can also revise the goal mid-motion, making a late reply based on the old goal obsolete.
+
+---
+
+### 2. Main method
+{: id="2-主要方法创新点-49"}
+
+<div align="center">
+  <img src="/images/vln/AgenticJevNav-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1458/634" />
+<figcaption>Figure 2. The Agent maintains the goal and authorizes candidate actions. Jev reviews only after an anomaly. Both paths share pre-execution checks, and the local RGB check can stop forward motion independently.</figcaption>
+</div>
+
+AgenticJevNav assigns goal planning, anomaly review, and motion execution to three modules. The Agent uses current observations and execution feedback to propose the next motion segment. Jev reviews it when triggered, a single executor validates and carries out actions, and the local RGB check can veto forward motion during execution.
+
+**Versioned evidence and instance memory.** The system stores candidate attributes, spatial relations, image boxes, observation times, and source information, along with capture poses and execution history. It associates a new observation with an existing candidate only after a small pose change and a unique box-overlap match. It records observations from substantially different viewpoints as unconfirmed candidates. The Agent uses a compact memory summary to guide search and requires current evidence to move or claim arrival.
+
+**The Agent owns the goal and authorizes actions.** After each motion segment, the Agent takes a fresh RGB frame, odometry, a memory summary, and previous execution feedback. It returns current visual semantics, a primary action, and an authorized set. Common actions include moving forward, turning in place, stopping, and replanning. Before moving forward, the Agent checks that the center of the target or passage box falls within the normalized horizontal interval $[0.38, 0.62]$. Otherwise, it turns and observes again. To claim arrival, it needs a visible, centered target in the current view and a stop command with zero translation and yaw. The system stops directly and scores the claim independently.
+
+**Jev reviews anomalies.** One blocked or failed action, or two consecutive low-progress segments, triggers Jev. It receives structured evidence that includes current semantics, odometry, local history, and the Agent's candidates. It returns five judgments covering skill routing, success verification, failure detection, recovery routing, and task progress. A suggested skill must belong to the authorized set and meet the simulation routing confidence threshold of 0.35. If Jev reports a definite failure with confidence of at least 0.85, the recovery suggestion must reach 0.80 or the proposal is rejected. Stop and reobserve maps to a stop, while other recovery choices return control to the Agent. Success and progress judgments are recorded, and independent criteria determine arrival.
+
+> Suppose the robot barely moves forward for two segments in a row. On the next cycle, the Agent authorizes moving forward, turning right, stopping, and replanning. Jev can recommend a right turn. If a right turn is absent from the authorized set, the executor rejects it even when Jev assigns it high confidence.
+
+**The executor checks goal version, freshness, and prior consumption.** Each request is tied to a mission, goal revision, skill number, and snapshot number. A reply must match the current execution slot. The robot's pose must be within 0.8 m and 35° of the capture pose, and at most 8 seconds may elapse from request creation. The executor also checks action authorization and records the request identifier before handling it. That identifier cannot be reused even if handling fails.
+
+> Suppose the robot is looking for a chair and the user switches the goal to a suitcase. The goal revision advances from 3 to 4, immediately revoking the old request and motion. Even if the old reply comes back after only 2 seconds and the robot has stayed in place, the system discards it because it belongs to revision 3.
+
+**Time-limited motion and a local RGB stop check.** The executor uses odometry error to produce bounded velocity commands. In simulation, each skill has a 12-second lease and each command is valid for 250 ms. Waiting for remote inference does not renew the lease. An independent CPU thread runs NanoDet over the forward corridor in the lower image and by default confirms an obstacle after matching boxes of the same class across two consecutive frames. Missing or stale detector outputs also veto forward motion. Motion outcomes and vetoes feed the next planning cycle.
+
+The system uses pretrained components without navigation-specific weight updates. It observes again at the end of each segment before deciding whether to trigger Jev. Simulation uses odometry derived from ideal poses, and the physical robot uses onboard odometry. The policy receives no depth, LiDAR, maps, or target coordinates.
+
+---
+
+### 3. Main results
+{: id="3-核心结果发现-50"}
+
+- **Main simulation comparison (Table I).** Each method runs 10 trials per task family across six families, for 60 trials. AgenticJevNav succeeds in 44 trials (73.33%), 21.67 percentage points above direct adoption of Agent proposals (51.67%, 31/60). The rule-based anomaly handling control achieves 40.00% (24/60). The arXiv abstract notes that the aggregate comparison involves differing trial protocols. Success weighted by path length (SPL) is 0.591 on static tasks T1–T4, compared with 0.474 for the highest-scoring control. Successful trials average 140.55 seconds, versus 120.40 and 106.85 seconds for the two Agent controls.
+- **Ablations (Table II).** Switching from anomaly-triggered review to a 5-second timer increases mean calls from 12.42 to 18.53 and reduces success from 73.33% to 65.00%. When Jev's judgments are advisory only, success is 71.67% and SPL is 0.525. Removing instance memory and disabling the local RGB check reduce success to 61.67% and 65.00%, respectively.
+- **Simulation failures (Figure 3).** Of 16 failed trials, 7 ran out of budget while searching after a goal revision. Another 3 claimed arrival too early at about 1.83 m from the target bounding box, outside the 1.6 m scoring threshold. All three early claims met the heading criterion.
+
+<div align="center">
+  <img src="/images/vln/AgenticJevNav-sim-failures.webp" width="85%" loading="lazy" decoding="async" style="aspect-ratio:702/1032" />
+<figcaption>Figure 3. The top panel counts the 16 simulation failures by outcome. The bottom panel plots final distance and heading error to show which trials fell outside the success region.</figcaption>
+</div>
+
+- **Physical robot (Table III).** The GENISOM L1 succeeds in 21/30 trials (70.0%) in one indoor setting. It succeeds in 3/5 goal-revision trials and 2/5 trials involving comparative object size. All five bounded non-detection reports meet the reporting rule. Sessions average 196.3 seconds, including cleanup and waiting after a report.
+
+<div align="center">
+  <img src="/images/vln/AgenticJevNav-real-goal-revision.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1455/354" />
+<figcaption>Figure 5. In physical trial R5.5, the goal changes from a chair to a suitcase at 22.7 seconds. The robot then realigns, approaches, and stops. The frame at 50 seconds shows the revised goal.</figcaption>
+</div>
+
+---
+
+### 4. Limitations
+{: id="4-局限性-50"}
+
+Version and authorization checks determine whether a decision is still eligible for execution, while errors in instance identification and arrival judgment remain possible. The RGB check lacks metric distances and validation of whole-body collision avoidance, the physical trials cover one indoor setting, and serial inference still incurs substantial waiting time.
+
+---
+
 # References
 {: id="navigation-references"}
 {: id="navigation-references"}
@@ -3699,6 +3775,7 @@ Only one benchmark, one VLA, and one agent are studied, all in simulation. The d
 24. **NavGPT-3** (2026). Asynchronous planning, action, and monitoring, closed through inspectable execution evidence. arXiv: [2610.10787](https://arxiv.org/abs/2610.10787)
 25. **HSGNav** (2026). Revisable hypotheses for small tabletop objects, supporting multi-scale lifelong object search. arXiv: [2611.10547](https://arxiv.org/abs/2611.10547)
 26. **H2E** (2026). Distilling the successful experience of the LLM agent that calls a VLA back into the VLA, so no planner is needed at test time. arXiv: [2611.16246](https://arxiv.org/abs/2611.16246)
+27. **AgenticJevNav** (2026). Trigger review on execution anomalies and discard stale decisions. arXiv: [2611.19912v1](https://arxiv.org/abs/2611.19912v1)
 
 <script>
 (function () {
@@ -3729,6 +3806,7 @@ Only one benchmark, one VLA, and one agent are studied, all in simulation. The d
     { m: "NavGPT-3", t: ['Dual systems', 'Agentic', 'Continuous environments', 'Real-robot deployment'] },
     { m: "HSGNav", t: ['Agentic', 'Topological maps', 'Zero-shot', 'Datasets'] },
     { m: "H2E", t: ['End-to-end', 'Continuous environments', 'Data augmentation'] },
+    { m: "AgenticJevNav", t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
   ];
 
 

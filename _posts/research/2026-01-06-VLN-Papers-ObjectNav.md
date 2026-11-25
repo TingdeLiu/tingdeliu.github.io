@@ -4,7 +4,7 @@ lang: zh-CN
 translation_id: vln-papers-extended
 permalink: /VLN-Papers-Extended/
 title: "VLN 论文精读：目标导航"
-date: 2026-11-14
+date: 2026-11-25
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: true
@@ -166,10 +166,13 @@ excerpt: "26 篇目标导航及支撑方法精读，覆盖 ObjectNav、图像目
 | [EvoLife (四视角)](/Agentic-Navigation-Papers/#evolife) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">100 条子集、特权向导</span> | 2026 | VL-LN | 免训练 | GPT-6 Astra (ultra) | 99 | 76.2 | – |
 | [EvoLife (四视角)](/Agentic-Navigation-Papers/#evolife) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">100 条子集、特权向导</span> | 2026 | CoIN | 免训练 | GPT-6 Astra (ultra) | 100 | 73.5 | – |
 | [EvoLife (四视角)](/Agentic-Navigation-Papers/#evolife) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">50 条序列、特权向导</span> | 2026 | LHPR-VLN | 免训练 | GPT-6 Astra (ultra) | 98 | – | – |
+| [AgenticJevNav (单目)](/Agentic-Navigation-Papers/#agenticjevnav) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | AgenticJevNav（六任务模拟） | 免训练 | GPT-6 Astra (low) | 73.33 | 59.1 | – |
 
 注：GOAT-Bench 为 val-unseen，一个 episode 内依次给出类别、文字描述或图像形式的多个目标。IsaacLab 40-Scenes 为 X-NavDP 的点目标评测；ABotN-PointBench、Short-Horizon OVON 与 ABotN-POIBench 为 ABot-N1 的自建设定，PointBench 室内用零碰撞成功率（SR<1col），室外用三次碰撞内成功率（SR<3col），两者判定不同；POIBench 以到达入口 2 m 内为成功。HM3D (Point-Goal, 先验探索帧) 为 VNT-PA 的设定：规划器只读取一段先验探索轨迹的深度帧与位姿，不看当前视图，以停在目标 0.2 m 内为成功。仅有一行的基准不加粗；自建基准的结果不宜与其他表的数字比较。
 
 SuperNav 的 InteriorGS (Single-Object) 与 InteriorGS (Ordered Multi-Object) 是 Habitat-GS 中各 150 项的自建实例导航任务；多目标包含 2–5 个目标，要求按序到达批准视点的可导航距离 1 m 内并显式 STOP。Demand-Bench (Ordered Navigation) 使用 200 项需求驱动任务的改编协议，要求按序进入相关物体水平包围盒的 2 m 范围、不重复使用物体并显式 STOP，没有额外可见性检查；其数字不能直接与 DemandAgent 原协议比较，也不代表完成搬运或整理活动。同组两行比较 SuperNav 的几何与学习式后端，底层几何资源不同。
+
+AgenticJevNav 的 SR 统计六类模拟任务的 60 次试验，SPL 仅统计 T1–T4 四类静态任务的 40 次试验。
 
 # 目标导航论文精读
 {: id="goal-navigation-readings"}
@@ -3646,6 +3649,7 @@ graph TD
     { n: "24. NavGPT-3 (2026)", a: "navgpt-3", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['双系统', 'Agentic', '连续环境', '实机部署'] },
     { n: "25. HSGNav (2026)", a: "hsgnav", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '拓扑图', '零样本', '数据集'] },
     { n: "26. H2E (2026)", a: "h2e", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['端到端', '连续环境', '数据增强'] },
+    { n: "27. AgenticJevNav (2026)", a: "agenticjevnav", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '连续环境', '实机部署'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',
