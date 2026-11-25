@@ -179,6 +179,7 @@ li {
 }
 
 // References use native numbering so multi-digit markers keep a stable gutter.
+.entry :is(h2#paper-citations, h2#论文引用) + ol,
 .entry ol.paper-references {
   list-style: decimal outside;
   padding-left: 3.2em;
