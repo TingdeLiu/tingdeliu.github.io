@@ -7204,7 +7204,7 @@ $$P_{\text{model}} = 1 - \beta_t = \alpha^{t/T}$$
 | **IROS** | [ReflectVLN](/Agentic-Navigation-Papers/#reflectvln) (2026) |
 | **CoRL** | [X-NavDP](/VLN-Papers-Extended/#x-navdp) (2026) |
 | **RO-MAN** | [R2RIE-CE & IEDL](#r2rie-ce-iedl) (2024) |
-| **期刊** | [GaussNav](/VLN-Papers-Extended/#gaussnav) (IEEE TPAMI 2025)、[CausalNav](/VLN-Papers-Outdoor/#causalnav) (IEEE RA-L)、[HumanoidVLN](#humanoidvln) (IEEE RA-L)、[Skill-Nav](/VLN-Papers-Extended/#skill-nav) (Vicinagearth / Springer 2025)、[CA-VLN](/Agentic-Navigation-Papers/#ca-vln) (Sensors 2026) |
+| **期刊** | [GaussNav](/VLN-Papers-Extended/#gaussnav) (IEEE TPAMI 2025)、[CausalNav](/VLN-Papers-Outdoor/#causalnav) (IEEE RA-L)、[HumanoidVLN](#humanoidvln) (IEEE RA-L)、[Skill-Nav](/VLN-Papers-Extended/#skill-nav) (Vicinagearth / Springer 2025)、[CA-VLN](/Agentic-Navigation-Papers/#ca-vln) (Sensors 2026)、[ROAM](/VLN-Papers-Outdoor/#roam) (Science Robotics 2026) |
 
 ## 论文引用
 {: id="论文引用"}
@@ -7341,6 +7341,7 @@ $$P_{\text{model}} = 1 - \beta_t = \alpha^{t/T}$$
     { n: "6. MOSU2 (2026)", a: "mosu2", url: "/VLN-Papers-Outdoor/", label: "户外导航篇", t: ['Agentic', '连续环境', '实机部署'] },
     { n: "7. LM-Nav (2022)", a: "lm-nav", url: "/VLN-Papers-Outdoor/", label: "户外导航篇", t: ['零样本', '连续环境', '实机部署'] },
     { n: "3. DA-Nav (2026)", a: "da-nav", url: "/VLN-Papers-Outdoor/", label: "户外导航篇", t: ['CoT', '数据集', '连续环境', '实机部署'] },
+    { n: "9. ROAM (2026)", a: "roam", url: "/VLN-Papers-Outdoor/", label: "户外导航篇", t: ['强化学习', '连续环境', '实机部署'] },
     { n: "1. VLFM (2023)", a: "vlfm", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['SLAM', '零样本', '实机部署'] },
     { n: "2. NoMaD (2023)", a: "nomad", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['端到端', '扩散模型', '零样本', '实机部署'] },
     { n: "3. VL-Nav (2025)", a: "vl-nav", url: "/VLN-Papers-Extended/", label: "目标导航篇", t: ['端到端', '零样本', '实机部署'] },

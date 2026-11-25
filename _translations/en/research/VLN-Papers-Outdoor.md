@@ -5,20 +5,20 @@ translation_id: vln-papers-outdoor
 permalink: /en/VLN-Papers-Outdoor/
 source_path: _posts/research/2026-01-06-VLN-Papers-Outdoor.md
 source_url: /VLN-Papers-Outdoor/
-source_revision_date: 2026-11-12
-translation_updated: 2026-11-17
+source_revision_date: 2026-11-25
+translation_updated: 2026-11-25
 title: "VLN Papers: Outdoor Navigation"
-date: 2026-11-12
+date: 2026-11-25
 translation_scope: complete
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
 toc_expand: 2
-excerpt: "Eight outdoor navigation readings covering map guidance, web-video learning, language landmarks, drift recovery, traffic interaction, and history backtracking, with separate evaluation protocols and deployment conditions."
+excerpt: "Nine outdoor navigation readings covering map guidance, web-video learning, language landmarks, drift recovery, traffic interaction, history backtracking, and alpine hiking, with separate evaluation protocols and deployment conditions."
 ---
 
-> This companion to the [VLN survey](/en/VLN-Survey/) examines how robots combine maps, language, and vision to navigate city streets, sidewalks, and outdoor trails over long distances. It contains eight readings: WayTrace, CausalNav, DA-Nav, CityWalker, UrbanNav, MOSU2, LM-Nav, and Compass 1. Topics extend from map guidance and semantic retrieval to web-video learning, landmark grounding, drift recovery, traffic interaction, and long-history backtracking. MOSU is introduced as the predecessor of MOSU2, not counted separately. Compass 1 is a general indoor–outdoor navigation method; this collection emphasizes its outdoor deployment and persistent memory, without treating its aggregate score as an outdoor-only metric.
+> This companion to the [VLN survey](/en/VLN-Survey/) examines how robots combine maps, language, and vision to navigate city streets, sidewalks, and outdoor trails over long distances. It contains nine readings: WayTrace, CausalNav, DA-Nav, CityWalker, UrbanNav, MOSU2, LM-Nav, Compass 1, and ROAM. Topics extend from map guidance and semantic retrieval to web-video learning, landmark grounding, drift recovery, traffic interaction, long-history backtracking, and quadruped hiking in the Alps. MOSU is introduced as the predecessor of MOSU2, not counted separately. Compass 1 is a general indoor–outdoor navigation method; this collection emphasizes its outdoor deployment and persistent memory, without treating its aggregate score as an outdoor-only metric.
 >
 > Related collections cover [instruction following](/en/VLN-Papers/), [goal navigation](/en/VLN-Papers-Extended/), and [agentic navigation](/en/Agentic-Navigation-Papers/). Outdoor evaluations are recorded separately, including routes, localization errors, and human intervention conditions.
 
@@ -53,6 +53,7 @@ SPL retains the original table's scale. The mixed-town CSR of 98.15% is the **re
 | [MOSU2](#mosu2-results) | Pretrained modules; no joint fine-tuning for the new reasoning pipeline | Unweighted mean of SR across five interaction groups | 94.2% | Not pooled trial SR; mean decision latency 3.83 s; cloud calls required |
 | [LM-Nav](#lm-nav-results) | No additional fine-tuning: frozen GPT-3, CLIP, ViNG | Original Table 1, Net Success for two sets of 10 queries | 80% in both sets | Environment mapped by human traversal first; the prose's 85% differs from the table |
 | [Compass 1](#compass-1-results) | Trained: real and web videos jointly | Original Figure 7, four scenarios × eight tasks × ten repeats, 320 real trials | Overall SR 79.4%; outdoor Complex / Terrace / Street about 79% / 81% / 74% | Overall includes the indoor office; rounded scenario values, 80 trials each; odometry and remote GPU required, not comparable across custom benchmarks |
+| [ROAM](#roam-results) | Trained: simulated RL policies and a pretrained VLM | Two field routes in the Alps, with autonomy measured by time | Zermatt 10.1 km (96.7%), Seealpsee 2.38 km (97.5%) | One run per route, with human intervention on both |
 
 MOSU's GND traversability ratio, CityWalker/UrbanNav offline trajectory errors, and LM-Nav planning success are not merged into task SR. See individual results for breakdowns, sensor dependencies, and evidence limits.
 
@@ -969,6 +970,107 @@ KV caching/CUDA Graph reduce latency by 80.4% at 63 frames; asynchronous executi
 Persistent backtracking and multistage SR remain only 58% and 50%. Occlusion, turning errors, reflections, and obstacles on return routes still cause lost targets or collisions; a nearly two-minute example does not establish indefinite persistent memory.
 Real deployment depends on odometry-based closed-loop control and a remote high-end GPU, so monocular RGB policy input does not mean the whole robot needs no pose support. Four scenarios, custom tasks, and limited embodiment transfer do not establish arbitrary open-world or full 3D flight generalization.
 
+## 9. ROAM (2026)
+{: id="roam"}
+———Turning scene semantics into terrain costs for quadruped route and foothold selection
+
+📄 **Paper**: [arXiv:2611.25215v1](https://arxiv.org/abs/2611.25215v1) · [Project Page](https://roam-hiking.github.io/) · [Code](https://github.com/leggedrobotics/roam) · 🏛️ **Science Robotics 2026**
+
+---
+
+### Key takeaways
+{: id="roam-takeaways"}
+
+1. A VLM names and scores the terrain and objects in view. Open-vocabulary segmentation assigns those scores to pixels, giving local policies a map for route and foothold selection.
+2. Risk, suitability for foot contact, and route preference are separate fields. The robot can normally favor a trail, step safely on grass, and use the grass as a detour when the trail closes.
+3. Slow semantic reasoning can support fast control. The segmenter applies its latest labels to new frames while local navigation and locomotion policies read the map at their own rates.
+4. Both control policies train on simulated geometric and semantic map layers. The real robot supplies the same inputs through perception, keeping the controller training independent of photorealistic signs, lakes, or grass.
+
+---
+
+### 1. Background and problem
+{: id="roam-background"}
+
+Quadrupeds can already traverse loose stones, slopes, and stairs. Terrain geometry alone gives little indication of why a flat lakeside lawn, private pasture, or construction site should be avoided. A VLM can interpret these cues, while precise pixel localization and real-time control call for faster components. ROAM records the VLM's judgments in a local elevation map that can influence both the route and individual footholds.
+
+---
+
+### 2. Method and innovations
+{: id="roam-method"}
+
+<div align="center">
+  <img src="/images/vln/ROAM-overview.webp" alt="ROAM architecture and quadruped control" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1434/1208" />
+<figcaption>Figure 1. The VLM generates terrain labels and three semantic fields. Segmentation projects the semantics into an elevation map, and the local navigation and locomotion policies output velocity and actuator commands, respectively.</figcaption>
+</div>
+
+ROAM combines scene assessment, semantic elevation mapping, and two levels of control. The VLM uses the current view and context to judge the risk and role of each terrain class. Segmentation and mapping align those judgments with the physical terrain. The local navigation policy reads the map to choose a heading and speed, and the locomotion policy adjusts foot placements and drives the legs.
+
+**① Scene assessment assigns labels and three scores to the terrain in view**
+
+The field setup uses cloud-hosted `gpt-4-vision-preview` to process front and rear RGB views, task instructions, the robot's capabilities, and recent memories. It returns structured JSON with three fields per label, each ranging from $0$ to $1$.
+
+| Field | Question it answers | How the controller uses it |
+|---|---|---|
+| `risk` | How dangerous is it for the robot to travel through this area? | Local navigation avoids high-risk regions |
+| `steppable` | Is this surface suitable for foot contact? | Locomotion avoids unsuitable footholds |
+| `preferred_area` | How desirable is this area when it is possible to traverse it? | Local navigation favors the designated trail |
+
+For example, flat grass can bear the robot's weight, while a paved path is usually the first choice. A construction sign can raise the trail's risk and make the grass the preferred detour. The VLM can restore the trail's priority after reading the end-of-construction sign. Queries run every 10 seconds under normal conditions. Subsequent prompts include the last three text memories and an average of recent label scores. A parallel YOLO detector pauses the robot when it spots a sign and adds a crop of the sign to the VLM query.
+
+**② Open-vocabulary segmentation turns class scores into local map costs**
+
+The segmenter receives the current RGB image and the vocabulary generated by the VLM. It estimates a class probability distribution at each pixel. Each field is a probability-weighted sum of the scores for all classes, including `other`.
+
+$$s_f(u,v)=\sum_\ell p_\ell(u,v)\,v_{\ell,f}$$
+
+Here, $p_\ell(u,v)$ is the probability of class $\ell$ at pixel $(u,v)$, and $v_{\ell,f}$ is that class's score for field $f$. Applying the same probabilities to each of the three fields produces three dense semantic layers.
+
+> **Example.** Suppose a pixel is 80% likely to be trail and 20% likely to be grass. With the paper's illustrative risk scores of 0.1 and 0.5, that pixel's risk is $0.8\times0.1+0.2\times0.5=0.18$. A pixel nearer the grass with probabilities of 20% trail and 80% grass has a risk of 0.42, giving the two sides of the trail edge different costs.
+
+The segmenter reuses the latest VLM labels and scores at 6 Hz. Depth cameras and LiDAR provide surface geometry. The mapping module projects pixel semantics into a shared 2.5D elevation map and fuses observations across frames. The map covers 8 × 8 m around the robot with a 4 cm resolution. Each cell can store ground height and all three semantic fields.
+
+**③ Two reinforcement learning policies select routes and footholds at different rates**
+
+- **Local navigation (10 Hz)** reads the local waypoint, terrain height, and risk map and outputs base velocity and yaw rate. When the robot is in a preferred area, the system adds virtual height to less preferred areas nearby to encourage it to stay on the trail. If the robot is already in a non-preferred area, the system removes this height adjustment so it can detour across traversable ground. During training, a pretrained locomotion policy builds a traversability graph in simulation. A reward of $-1.0$ applies when the graph node nearest a foot is marked untraversable.
+- **Locomotion (50 Hz)** reads the velocity command, proprioceptive state, terrain height, and samples of the steppable layer to produce joint controls. Perlin noise generates steppable and non-steppable patches in simulation. The teacher policy trains with velocity tracking, joint-velocity and torque terms, and a $0.1$ deduction for contact in a non-steppable area. A student policy learns from the teacher with noisy observations. At deployment, real elevation and steppable layers replace the simulated inputs.
+
+For a long-range mission, the operator selects rough waypoints on a satellite map and OpenRouteService builds a global reference route. Localization fuses GNSS, LiDAR SLAM, and other inputs to transform the route into the robot's frame. An 8 m lookahead selects the local goal. The semantic map guides the route to that goal and the choice of footholds.
+
+---
+
+### 3. Main results and findings
+{: id="roam-results"}
+
+**Alpine field hikes.** ANYmal D completed a **10.1 km** route in Zermatt with **1,220 m** of descent and **96.7%** time-based autonomy. The **2.38 km** route around Seealpsee reached **97.5%** autonomy. A missed construction fence in segmentation, safety concerns near the lake, and an impassable gate led to human intervention. Each route was run once.
+
+<div align="center">
+  <img src="/images/vln/ROAM-alpine-hikes.webp" alt="Zermatt and Seealpsee routes and trailside photographs" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1437/1442" />
+<figcaption>Figure 3. Zermatt and Seealpsee trajectories and photographs along gravel slopes, trails beside railway tracks, lakeshores, and pastures.</figcaption>
+</div>
+
+**Campus route comparison.** On a **1.2 km** course at Hönggerberg, ROAM bypassed obstacles when the global route strayed into bushes and identified a mannequin on the path. It detoured across grass after reading a construction sign and returned to the trail after reading the sign marking the end of construction. The geometry-only baseline continued into the construction area. ViNT followed previously recorded goal images, hit the barrier, and required human intervention.
+
+<div align="center">
+  <img src="/images/vln/ROAM-campus-comparison.webp" alt="Comparison of three navigation methods on the campus route" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1312/1466" />
+<figcaption>Figure 4. The campus comparison covers global route offsets (A), mannequin avoidance (B), and how risk maps, preference maps, and field trajectories changed after reading construction signs (C).</figcaption>
+</div>
+
+**Static-image path evaluation.** The authors planned paths with A* on the semantic risk map and compared them with VLM outputs consisting of direct pixel coordinates or selected markers. Table 1 pools trajectory pixels across **27 images valid for all methods**. For ROAM A*, **99.1%** of path pixels fell within human-annotated safe areas and **86.8%** within preferred areas. The ratios were **90.0% / 55.0%** for a straight line and **67.0% / 36.3%** for the goal-conditioned pixel-coordinate method. For **27/27** ROAM A* paths, the endpoint lay no farther from the goal than **20%** of the straight-line distance between the start and goal.
+
+<div align="center">
+  <img src="/images/vln/ROAM-output-abstractions.webp" alt="VLM output interfaces and static-image path evaluation" width="100%" loading="lazy" decoding="async" style="aspect-ratio:939/1457" />
+<figcaption>Figure 6. VLM output abstractions range from semantic labels to joint actions (A). The evaluation compares paths on the same image (B) and aggregates safe-area and preferred-area metrics (C).</figcaption>
+</div>
+
+**Prompt ablation.** Across 12 images containing signs, the full prompt achieved a macro-averaged IoU of **0.904**. It dropped to **0.612** with fixed labels and to **0.803** when directional terms were allowed. Labels need to account for the context and refer to regions the segmenter can locate.
+
+---
+
+### 4. Limitations
+{: id="roam-limitations"}
+
+Long-range navigation still requires a global reference route. The field deployment relied on a cloud-hosted VLM and network access, and the main experiments took place in daylight with good visibility. Segmentation errors can undermine correct VLM judgments. Visual reasoning remains unreliable for contact properties such as thin ice or deep mud and for judging stair heights beyond the robot's capabilities.
+
 # Related work and further reading
 {: id="outdoor-related-readings"}
 
@@ -996,3 +1098,4 @@ This collection focuses on outdoor ground robots. Aerial navigation and autonomo
 6. **MOSU2** (2026). *MOSU2: Long-range Navigation System with Multi-modal Scene Understanding*. arXiv: [2611.11148v1](https://arxiv.org/abs/2611.11148v1). Predecessor **MOSU** (2025): [2507.04686v1](https://arxiv.org/abs/2507.04686v1).
 7. **LM-Nav** (2022). *LM-Nav: Robotic Navigation with Large Pre-Trained Models of Language, Vision, and Action*. arXiv: [2207.04429v2](https://arxiv.org/abs/2207.04429v2).
 8. **Compass 1** (2026). Hai Zhang, Siqi Liang et al. *Compass 1: Towards Open-World and Persistent Embodied Navigation from Monocular RGB Videos*. arXiv: [2611.12087v1](https://arxiv.org/abs/2611.12087v1).
+9. **ROAM** (2026). Takahiro Miki et al. *Bridging vision-language reasoning and learned control for legged navigation in the wild*. [arXiv:2611.25215v1](https://arxiv.org/abs/2611.25215v1) · [Science Robotics 2026](https://doi.org/10.1126/scirobotics.aee1549).

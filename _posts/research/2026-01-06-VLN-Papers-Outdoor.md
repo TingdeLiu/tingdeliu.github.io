@@ -3,7 +3,7 @@ layout: post
 lang: zh-CN
 translation_id: vln-papers-outdoor
 title: "VLN 论文精读：户外导航"
-date: 2026-11-12
+date: 2026-11-25
 permalink: /VLN-Papers-Outdoor/
 tags: [VLN, Outdoor Navigation, Robotics, Computer Vision, Deep Learning]
 categories: research
@@ -11,11 +11,11 @@ comments: true
 author: Tingde Liu
 toc: true
 toc_expand: 2
-excerpt: "户外具身导航论文精读，聚焦地图指引、城市街道与野外步道中的长距离导航；收录 8 篇精读，覆盖地图指引、网络视频学习、语言地标、偏航恢复、交通交互与历史回溯，分别记录评测协议和实机部署条件。"
+excerpt: "户外具身导航论文精读，聚焦地图指引、城市街道与野外步道中的长距离导航；收录 9 篇精读，覆盖地图指引、网络视频学习、语言地标、偏航恢复、交通交互、历史回溯与高山徒步，分别记录评测协议和实机部署条件。"
 ---
 
 
-> 本篇是 [VLN 综述](/VLN-Survey/)的配套户外导航阅读，关注机器人如何结合地图、语言与视觉，在城市街道、人行道和野外步道上完成长距离任务。当前收录 8 篇精读：WayTrace、CausalNav、DA-Nav、CityWalker、UrbanNav、MOSU2、LM-Nav 与 Compass 1。内容从地图指引与语义检索，延伸到网络视频学习、语言地标落地、偏航恢复、交通交互和长历史回溯；MOSU 作为 MOSU2 的前置方法介绍，不重复计篇。Compass 1 是覆盖室内外的通用导航方法，本篇重点关注其户外部署与持久记忆机制，不将其汇总成绩视为纯户外指标。
+> 本篇是 [VLN 综述](/VLN-Survey/)的配套户外导航阅读，关注机器人如何结合地图、语言与视觉，在城市街道、人行道和野外步道上完成长距离任务。当前收录 9 篇精读：WayTrace、CausalNav、DA-Nav、CityWalker、UrbanNav、MOSU2、LM-Nav、Compass 1 与 ROAM。内容从地图指引与语义检索，延伸到网络视频学习、语言地标落地、偏航恢复、交通交互、长历史回溯和四足机器人高山徒步。MOSU 作为 MOSU2 的前置方法介绍，不重复计篇。Compass 1 是覆盖室内外的通用导航方法，本篇重点关注其户外部署与持久记忆机制，不将其汇总成绩视为纯户外指标。
 >
 > 相关方向见[指令跟随篇](/VLN-Papers/)、[目标导航篇](/VLN-Papers-Extended/)与 [Agentic 导航篇](/Agentic-Navigation-Papers/)。户外评测单独记录路线、定位误差和人工干预条件。
 
@@ -50,6 +50,7 @@ SPL 沿用原表尺度。混合城镇评测的 CSR 98.15% 是**偏航事件的�
 | [MOSU2](#mosu2-results) | 预训练模块组合；新增推理流程无联合微调 | 五类交互场景组 SR 的非加权平均 | 94.2% | 非全部试验合并 SR；平均决策延迟 3.83 s；含云端调用 |
 | [LM-Nav](#lm-nav-results) | 免额外微调：冻结 GPT-3、CLIP、ViNG | 原文 Table 1，两组各 10 条查询的 Net Success | 两组均 80% | 目标环境先人工遍历建图；正文 85% 与表格口径存在差异 |
 | [Compass 1](#compass-1-results) | 训练：真实视频 + 网络视频联合训练 | 原文 Figure 7，四场景 × 八任务 × 十次，共 320 次实机测试 | 总 SR 79.4%；户外 Complex / Terrace / Street 分别约 79% / 81% / 74% | 总 SR 含室内办公室；分场景值沿用图中取整，各 80 次；依赖里程计与远端 GPU，不与其他自建基准排名 |
+| [ROAM](#roam-results) | 训练：仿真 RL 策略与预训练 VLM | 两条阿尔卑斯山区实机路线，按任务用时统计自主率 | Zermatt 10.1 km（96.7%），Seealpsee 2.38 km（97.5%） | 每条路线各跑一次，均有人工介入 |
 
 MOSU 的 GND 可通行比例、CityWalker/UrbanNav 的离线轨迹误差和 LM-Nav 的规划成功率不混入任务 SR；具体分项、传感器依赖和证据限制见各篇结果段。
 
@@ -974,6 +975,107 @@ KV-cache 与 CUDA Graph 在 63 帧时将延迟降低 80.4%，异步执行进一�
 持续回溯和多阶段任务仍分别只有 58% 与 50% 的成功率，动态遮挡、转弯误差、玻璃反射及返回路上的障碍仍会导致丢失目标或碰撞，近两分钟案例也不足以证明无限期持久记忆。
 此外，真实部署依赖里程计闭环控制和远端高性能 GPU，单目 RGB 的输入口径不能被扩大解释为整机不需要位姿支持；四场景、自定义任务及受限的跨机器人测试，也仍不足以证明任意开放环境或完整三维飞行的泛化能力。
 
+## 9. ROAM (2026)
+{: id="roam"}
+———把场景语义变成地形代价，让四足机器人在山野里选路和落脚
+
+📄 **Paper**: [arXiv:2611.25215v1](https://arxiv.org/abs/2611.25215v1) · [Project Page](https://roam-hiking.github.io/) · [Code](https://github.com/leggedrobotics/roam) · 🏛️ **Science Robotics 2026**
+
+---
+
+### 精华
+{: id="roam-takeaways"}
+
+1. VLM 给当前场景里的地物命名和打分，开放词汇分割把这些分数落到像素上，局部策略再据此选路和落脚。
+2. 把风险、可落脚性和路线偏好分开表达，草地可以踩、平时可以绕开，步道封闭时又能成为绕行路线。
+3. 慢速语义推理可以和快速控制共存。分割器用最新的标签持续处理新画面，局部导航和运动策略按各自的频率读取地图。
+4. 两个控制策略都用仿真生成的几何和语义图层训练，真机用相同的输入表示接入感知系统，仿真无需复现告示牌、湖泊和草地的真实外观。
+
+---
+
+### 1. 研究背景/问题
+{: id="roam-background"}
+
+四足机器人已经能走过碎石、斜坡和台阶，但地形几何很难解释为什么平坦的湖边草地、私人牧场或施工路段需要避开。VLM 能读出这些场景线索，但像素定位和推理速度难以满足实时控制。ROAM 用局部高程地图承接 VLM 的判断，让地图上的同一片区域既能影响路线，也能影响脚落在哪里。
+
+---
+
+### 2. 主要方法/创新点
+{: id="roam-method"}
+
+<div align="center">
+  <img src="/images/vln/ROAM-overview.webp" alt="ROAM 系统架构与四足运动控制" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1434/1208" />
+<figcaption>图 1　ROAM 系统总览。VLM 生成地物标签和三个语义字段，分割模块将语义投影到高程地图，局部导航和运动策略分别输出速度指令和执行器指令</figcaption>
+</div>
+
+ROAM 由场景评估、语义高程建图和两级控制组成。VLM 结合当前画面和上下文判断各类地物的风险与用途，分割和建图模块把这些判断对齐到实际地形，局部导航策略读地图选方向和速度，运动策略据此调整落脚并驱动四条腿。
+
+**① 场景评估为当前地物生成标签和三个分数**
+
+真机使用云端 `gpt-4-vision-preview`，输入前后摄像头的 RGB 图、任务说明、机器人的能力与近期记忆，输出结构化 JSON。每个标签有三个 $0$ 到 $1$ 的字段。
+
+| 字段 | 回答的问题 | 控制端如何使用 |
+|---|---|---|
+| 风险 `risk` | 整个机身经过这里有多危险？ | 局部导航绕开高风险区域 |
+| 可落脚性 `steppable` | 脚接触这个表面是否合适？ | 运动策略避开不适合落脚的位置 |
+| 路线偏好 `preferred_area` | 可以通过时，这里有多适合当路线？ | 局部导航尽量沿指定步道行走 |
+
+例如，平坦草地可以承重，铺装小路通常仍是首选。看到施工告示后，VLM 可以提高小路的风险并让草地成为偏好路线，看到施工结束标志后再把小路恢复为优先选择。常规查询每 10 秒发起一次，最近三次的文字记忆及标签分值的平均值进入后续提示。并行的 YOLO 检测器发现告示牌时，机器人暂停，并把告示牌裁图补进本次 VLM 查询。
+
+**② 开放词汇分割把类别分数变成地图上的局部代价**
+
+分割模型接收 VLM 当次生成的地物词表和当前 RGB 图，每个像素都得到一组类别概率。某一字段的值等于各类别分数按像素概率加权求和，`other` 也参与计算。
+
+$$s_f(u,v)=\sum_\ell p_\ell(u,v)\,v_{\ell,f}$$
+
+其中 $p_\ell(u,v)$ 是像素 $(u,v)$ 属于类别 $\ell$ 的概率，$v_{\ell,f}$ 是该类在字段 $f$ 上的分数。用同一组概率分别计算三个字段，得到三张稠密语义图。
+
+> **举个例子**：如果一个像素有 80% 概率是小路、20% 是草地，按论文示例的风险分数 0.1 和 0.5，它的风险就是 $0.8\times0.1+0.2\times0.5=0.18$。靠近草地一侧的像素如果变成 20% 小路、80% 草地，风险就升到 0.42，于是路沿两侧会形成不同的代价。
+
+分割以 6 Hz 重用最近一次 VLM 返回的标签和分数。深度相机与 LiDAR 提供地表几何，建图模块把像素语义投影到同一张 2.5D 高程地图并跨帧融合。地图覆盖机器人周围 8 × 8 m，网格分辨率为 4 cm，每格可同时保存地面高度和三个语义字段。
+
+**③ 两个强化学习策略按各自频率选路和落脚**
+
+- **局部导航（10 Hz）**读取局部航点、地形高度和风险图，输出基座速度与偏航角速度。机器人位于偏好区域时，周围非偏好区域会被赋予额外的虚拟高度，让策略倾向于留在步道上。机器人已经在非偏好区域时，系统撤掉这层高度修正，让它能沿可通行地面绕行。训练时先用预训练运动策略在仿真里建立可通行图，脚的最近图节点被标作不可通行时施加 $-1.0$ 的奖励惩罚。
+- **运动控制（50 Hz）**读取速度指令、机器人本体状态、地形高度和可落脚性采样，输出关节控制。仿真用 Perlin 噪声生成可踩和禁踩斑块，按速度跟踪、关节速度与力矩等项训练教师策略，踩到禁踩区域时再扣 $0.1$。随后把教师蒸馏为可用带噪观测的学生策略，部署时由真实高程和可落脚性图层替换仿真输入。
+
+长程任务由操作者在卫星图上指定粗略航点，OpenRouteService 生成全局参考路线。定位系统融合 GNSS、LiDAR SLAM 等信息，把路线转换到机器人坐标系，再按 8 m 前视距离选出局部目标。语义地图影响的是机器人走向局部目标的实际路线和落脚位置。
+
+---
+
+### 3. 核心结果/发现
+{: id="roam-results"}
+
+**阿尔卑斯山区实地徒步。** ANYmal D 在 Zermatt 完成 **10.1 km** 路线，海拔下降 **1,220 m**，按任务用时统计的自主率是 **96.7%**。Seealpsee 环湖路线长 **2.38 km**，自主率是 **97.5%**。施工区围栏分割失误、湖边安全顾虑和无法通过的闸门都曾导致人工介入，两条路线各跑一次。
+
+<div align="center">
+  <img src="/images/vln/ROAM-alpine-hikes.webp" alt="Zermatt 和 Seealpsee 的路线与沿途照片" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1437/1442" />
+<figcaption>图 3　Zermatt 与 Seealpsee 的实地轨迹和沿途照片，覆盖碎石坡、铁路旁步道、湖岸及牧场</figcaption>
+</div>
+
+**校园路线对照。** 在 **1.2 km** 的 Hönggerberg 校园路线中，ROAM 能在全局路线偏入灌木时绕开障碍，也会识别路上的人体模型。读到施工告示后，它绕行草地，读到施工结束标志后重返步道。几何基线继续沿原方向进入施工区，依赖预拍目标图像的 ViNT 撞到路障并需要人工介入。
+
+<div align="center">
+  <img src="/images/vln/ROAM-campus-comparison.webp" alt="三种导航方法在校园路线上的对照" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1312/1466" />
+<figcaption>图 4　校园对照实验。A 为全局路线偏移，B 为人体模型避障，C 对比读取施工告示前后的风险图、偏好图和实地轨迹</figcaption>
+</div>
+
+**静态图像路径评测。** 作者用 A* 在语义风险图上生成路径，与 VLM 直接输出像素坐标或挑选标记点的方案对比。表 1 在 **27 张共同有效图像**上汇总路径像素，ROAM A* 有 **99.1%** 落在人工标注的安全区域，**86.8%** 落在偏好区域。直线路径的两项比例为 **90.0% / 55.0%**，按目标输出像素坐标的方案为 **67.0% / 36.3%**。ROAM A* 有 **27/27** 条路径达到终点判据，即路径末端到目标的距离在起终点直线距离的 **20%** 以内。
+
+<div align="center">
+  <img src="/images/vln/ROAM-output-abstractions.webp" alt="VLM 输出接口与静态图像路径评测" width="100%" loading="lazy" decoding="async" style="aspect-ratio:939/1457" />
+<figcaption>图 6　VLM 输出方式比较。A 概括从语义标签到关节动作的几种接口，B 对比同一幅图上的路径，C 汇总安全区与偏好区指标</figcaption>
+</div>
+
+**提示词消融。** 在 12 张含告示牌的图像上，完整提示的宏平均 IoU 为 **0.904**，使用固定标签时降至 **0.612**，取消方向词限制后降至 **0.803**。标签既要随上下文更新，也要让分割模型能够在图像里找到对应区域。
+
+---
+
+### 4. 局限性
+{: id="roam-limitations"}
+
+长程导航仍需要全局参考路线，实地部署依赖云端 VLM 和网络连接，主要实验在日间能见度较好的条件下进行。VLM 读对了场景也可能被分割错误拖累，视觉判断对薄冰、深泥等接触属性以及超过机体能力的台阶高度仍不可靠。
+
 # 相关工作与跨篇阅读
 {: id="outdoor-related-readings"}
 
@@ -999,3 +1101,4 @@ KV-cache 与 CUDA Graph 在 63 帧时将延迟降低 80.4%，异步执行进一�
 6. **MOSU2** (2026). *MOSU2: Long-range Navigation System with Multi-modal Scene Understanding*. arXiv: [2611.11148v1](https://arxiv.org/abs/2611.11148v1). 前置方法 **MOSU** (2025): [2507.04686v1](https://arxiv.org/abs/2507.04686v1).
 7. **LM-Nav** (2022). *LM-Nav: Robotic Navigation with Large Pre-Trained Models of Language, Vision, and Action*. arXiv: [2207.04429v2](https://arxiv.org/abs/2207.04429v2).
 8. **Compass 1** (2026). Hai Zhang, Siqi Liang et al. *Compass 1: Towards Open-World and Persistent Embodied Navigation from Monocular RGB Videos*. arXiv: [2611.12087v1](https://arxiv.org/abs/2611.12087v1).
+9. **ROAM** (2026). Takahiro Miki et al. *Bridging vision-language reasoning and learned control for legged navigation in the wild*. [arXiv:2611.25215v1](https://arxiv.org/abs/2611.25215v1) · [Science Robotics 2026](https://doi.org/10.1126/scirobotics.aee1549).

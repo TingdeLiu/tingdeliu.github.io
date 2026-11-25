@@ -2,8 +2,8 @@
   "source": "_posts/research/2026-01-06-VLN-Papers-Outdoor.md",
   "translation": "_translations/en/research/VLN-Papers-Outdoor.md",
   "stage": "complete",
-  "updated_on": "2026-11-12",
-  "total_papers": 8,
+  "updated_on": "2026-11-25",
+  "total_papers": 9,
   "completed_papers": {
     "waytrace": {
       "source_hash": "fc339d0b259ee23b770dd636fc242b1bd82f340f09ef5872a0b76cc6431c6b32",
@@ -34,7 +34,11 @@
       "status": "translated-and-content-parity-validated"
     },
     "compass-1": {
-      "source_hash": "7a22419db0eb27b79138bee45d8cba36fb442431a0ad693735f5fa316102b6e4",
+      "source_hash": "e88d7d4d061f9e076202567f27f24627954f18de827e81fbae325bd7c5575dc7",
+      "status": "translated-and-content-parity-validated"
+    },
+    "roam": {
+      "source_hash": "bce1463a52c6653d7ab95b0c6da2bc3196c713d41cd19f948c9bbc9201b2b479",
       "status": "translated-and-content-parity-validated"
     }
   }
