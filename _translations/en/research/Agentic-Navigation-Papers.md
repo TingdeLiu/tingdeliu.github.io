@@ -5,22 +5,22 @@ translation_id: agentic-navigation-papers
 permalink: /en/Agentic-Navigation-Papers/
 source_path: _posts/research/2026-11-07-VLN-Papers-AgenticNav.md
 source_url: /Agentic-Navigation-Papers/
-source_revision_date: 2026-11-25
-translation_updated: 2026-11-25
+source_revision_date: 2026-11-26
+translation_updated: 2026-11-26
 title: "VLN Papers: Agentic Navigation"
-date: 2026-11-25
+date: 2026-11-26
 tags: [VLN, VLA, Robotics, Computer Vision, Deep Learning]
 categories: research
 comments: false
 author: Tingde Liu
 toc: true
 toc_expand: 2
-excerpt: "27 readings on tool use, active interaction, spatial memory, and continuing navigation."
+excerpt: "28 readings on tool use, active interaction, spatial memory, and continuing navigation."
 ---
 
 
 
-> This collection covers 27 works on how LLM/VLM agents call perception and movement tools, request help, read and write spatial memory, and replan or resume tasks using execution feedback. It includes supporting work on mobile manipulation and spatial mapping; individual papers need not implement every mechanism.
+> This collection covers 28 works on how LLM/VLM agents call perception and movement tools, request help, read and write spatial memory, and replan or resume tasks using execution feedback. It includes supporting work on mobile manipulation and spatial mapping; individual papers need not implement every mechanism.
 >
 > Papers are grouped by research focus. Agent systems evaluated on goal navigation, such as SuperNav, NavHarness, and EvoLife, are read here. See [Goal Navigation](/en/VLN-Papers-Extended/) for goal-navigation methods and leaderboards, and [Instruction Following](/en/VLN-Papers/) for instruction-following methods and results.
 
@@ -1936,6 +1936,8 @@ Unitree Go2 demonstrations use four-view RGB and LiDAR geometric execution to fi
 Semantic and completion judgments depend on the MLLM, and inference cost and latency variation affect execution efficiency. Geometric execution requires maps or scene geometry, while learned-backend path efficiency and long-sequence reliability need improvement.
 Demand-driven evaluation measures ordered arrivals at relevant targets rather than carrying out activities such as moving objects or organizing a workspace. External benchmark comparisons differ in protocol, and robot validation is mainly qualitative.
 
+The follow-up adds map-grounded memory and cross-session relocalization. See [SuperNav-1.5](#supernav-1-5).
+
 ---
 
 ## 15. NavHarness (2026)
@@ -3741,6 +3743,85 @@ Version and authorization checks determine whether a decision is still eligible 
 
 ---
 
+## 28. SuperNav-1.5 (2026)
+{: id="supernav-1-5"}
+———Grounding semantic memory in an occupancy map for repeat visits
+
+📄 **Paper**: [arXiv:2611.29912v2](https://arxiv.org/abs/2611.29912v2) · [Project Page](https://zju3dv.github.io/SuperNav-1.5/)
+
+### Takeaways
+{: id="supernav-1-5-takeaways"}
+
+The occupancy map records where the robot can travel, and the agent saves places worth revisiting as memory nodes. The system captions keyframes asynchronously to collect clues about areas it has yet to explore. When the robot starts from a new position, the agent uses visual clues to narrow the search in the saved map, and geometric registration estimates the robot's pose. On Habitat-GS ordered multi-object navigation, success rises from 34.00% to 52.00% and SPL rises from 0.1388 to 0.2494.
+
+---
+
+### 1. Research problem
+{: id="supernav-1-5-background"}
+
+A robot asked to find a chair, then a wardrobe, and finally a TV can encounter later targets early. An image or text record can remind the agent what it saw, but it gives no route by itself. A scene graph can encode spatial relations at the cost of more nodes and edges for the agent to process. Reusing memory across sessions also requires locating the robot in the saved map.
+
+---
+
+### 2. Method
+{: id="supernav-1-5-method"}
+
+<div align="center">
+  <img src="/images/vln/SuperNav-1.5-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1396/838" alt="SuperNav-1.5 builds and queries map-grounded memory for exploration, relocalization, and navigation" />
+<figcaption>Figure 2 shows how SuperNav-1.5 builds and queries its area-segmented occupancy map and memory nodes, then uses them for relocalization and navigation.</figcaption>
+</div>
+
+SuperNav-1.5 retains the agent and visual-point navigation interface of [SuperNav](#supernav). It adds an area-segmented occupancy map, agent-maintained memory nodes, and cross-session relocalization. The agent selects a destination based on the observations and task, and the geometric executor drives the robot to that map location.
+
+**Asynchronous mapping and segmentation.** In simulation, Cartographer uses synchronized depth observations and simulator odometry to maintain two aligned 2D occupancy grids. The structural grid takes a depth slice near camera height to capture clean wall and doorway boundaries for segmentation and relocalization. The planning grid projects depth points within a height range onto the floor to retain obstacles such as low furniture. Watershed segmentation divides free space into areas. The displayed map marks the robot pose, unexplored areas, and memory nodes. On a Unitree Go2, the system builds a 2D costmap in the world frame from LiDAR and odometry.
+
+**Clues collected in transit and persistent memory.** Movement tools typically return the final observation. SuperNav-1.5 saves four-view RGB keyframes with their poses during movement and captions them asynchronously with Qwen3.5-2B. If an area contains keyframes, the system uses all four captions from the keyframe closest to its centroid. Otherwise, it uses the caption from the nearby view with the most rays entering the area. The agent can separately create or update a persistent node with a name, a description, factual records, and a SLAM pose for revisiting it. Nodes can be looked up by name or keyword, and the occupancy grid supplies routes between locations.
+
+> Suppose two views from the hallway have 2 and 6 rays entering the wardrobe area. The system attaches the second view's caption as a clue. After checking the wardrobe in person, the agent can record the observation and its SLAM pose in a node, then look it up when the wardrobe becomes the active goal.
+
+**Cross-session relocalization.** A new session first builds a map in its own coordinate frame. The agent compares current images with old node descriptions and reports the best candidate area. The system crops the saved occupancy map around that area, matches the current local map against the crop, and refines translation and rotation using scan matching and ICP. It applies the planar rigid transform from the new frame to the saved frame only after checking occupied and free space agreement, trajectory coverage, and ambiguity between candidate matches. While evidence is insufficient, mapping continues in the current local frame. In simulation, the ablation that removes agent guidance still has a background geometry-only relocalizer.
+
+> Two hallways in the saved map may have similar right-angle walls, and a short scan might match both. If a red stool in the current view matches a description in memory, the agent can narrow the search to the area where the stool was recorded. Registration then estimates position and heading within that area. Once the alignment passes the checks, the robot can navigate to the old target coordinates.
+
+<div align="center">
+  <img src="/images/vln/SuperNav-1.5-relocalization.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1394/366" alt="Three relocalization cases comparing agent guidance in blue and geometry-only matching in orange" />
+<figcaption>Figure 8 compares registration with a semantic area prior (blue) and geometry-only registration (orange). Similar walls or limited observations can cause geometry-only matching to select another location.</figcaption>
+</div>
+
+**From map markers to actions.** The geometric executor resolves the selected unexplored area or memory node to a goal coordinate and runs A* on the planning grid. In simulation it simplifies the grid path into waypoints, then compiles them into discrete turns and forward steps. It can replan when movement is blocked or the observed pose diverges from the predicted pose. The existing visual-point interface can still handle visible goals. The system uses pretrained models for reasoning and captioning.
+
+<div align="center">
+  <img src="/images/vln/SuperNav-1.5-ordered-navigation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1389/521" alt="The robot records a wardrobe and TV before revisiting them in the required chair, wardrobe, TV order" />
+<figcaption>Figure 3 follows the chair, wardrobe, and TV task. The agent saves the wardrobe and TV when first seen and returns to each when it becomes the active goal.</figcaption>
+</div>
+
+---
+
+### 3. Results
+{: id="supernav-1-5-results"}
+
+SR is success rate. For each successful episode, SPL divides the shortest reference path length by the executed path length, capped at 1. Failed episodes receive 0.
+
+- **HM3D-OVON** uses 120 episodes from val-unseen. Success requires an explicit STOP within a navigable distance strictly below 1 m from an approved goal viewpoint. Under a 3600-second budget, SuperNav-1.5 reaches 80.00% SR and 0.4317 SPL. The paper lists 73.33% and 0.4105 for SuperNav under the same budget. A separate 500-step group reports 78.33% SR and 0.4354 SPL. The supplement notes that three episodes with goals unreachable on the navigation mesh are each counted as successful with SPL 1.
+- **Habitat-GS** has 150 single-object and 150 ordered multi-object tasks. Single-object SR and SPL rise from 78.00% and 0.4127 to 79.33% and 0.4246. For ordered multi-object tasks, they rise from 34.00% and 0.1388 to 52.00% and 0.2494. Across the 38 tasks containing at least five goals, fifth-prefix success is 60.53%, versus 39.47% for the geometric SuperNav executor. Integrating HarnessVLN's event memory and spatiotemporal graph into the same SuperNav runtime gives 35.33% SR and 0.1797 SPL on the multi-object tasks.
+- **Demand-Bench** has 200 tasks. Compared with SuperNav, SR rises from 59.50% to 61.00% and SPL rises from 0.1801 to 0.3867. The larger improvement is in path efficiency.
+- **Cross-session reuse** is evaluated on the 150 Habitat-GS single-object tasks. In session 2, both systems start from the same new spawn and search for the same target. Reusing session 1 memory raises SR from 78.00% to 82.00% and SPL from 0.4364 to 0.5022. On a 40-task changed-spawn ablation, SPL is 0.5329 for the full system, 0.4381 without agent guidance, and 0.3622 with relocalization disabled.
+- **Embodied question answering and real-robot demos.** On 150 Habitat-GS questions, accuracy rises from 81.33% for SuperNav to 87.33% with the same GPT-6.1-sol reasoning model. A Unitree Go2 demonstrates finding an elevator before revisiting a water dispenser, ordered multi-object search, and finding a water dispenser in response to “thirsty” before returning to the start.
+
+<div align="center">
+  <img src="/images/vln/SuperNav-1.5-real-world-navigation.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1390/1029" alt="Unitree Go2 demonstrations of revisiting a water dispenser, ordered object search, and demand-driven navigation" />
+<figcaption>Figure 5 shows indoor Unitree Go2 demonstrations of revisiting a goal, ordered multi-object navigation, and demand-driven navigation.</figcaption>
+</div>
+
+---
+
+### 4. Limitations
+{: id="supernav-1-5-limitations"}
+
+Executable memory depends on map and pose accuracy. Depth or LiDAR noise and odometry drift can degrade routing and cross-session alignment. The quantitative cross-session evaluation revisits the same target in the same scene, and the real-robot evidence is qualitative, leaving open how well the stored map holds up as the environment changes over time.
+
+---
+
 # References
 {: id="navigation-references"}
 {: id="navigation-references"}
@@ -3776,6 +3857,7 @@ Version and authorization checks determine whether a decision is still eligible 
 25. **HSGNav** (2026). Revisable hypotheses for small tabletop objects, supporting multi-scale lifelong object search. arXiv: [2611.10547](https://arxiv.org/abs/2611.10547)
 26. **H2E** (2026). Distilling the successful experience of the LLM agent that calls a VLA back into the VLA, so no planner is needed at test time. arXiv: [2611.16246](https://arxiv.org/abs/2611.16246)
 27. **AgenticJevNav** (2026). Trigger review on execution anomalies and discard stale decisions. arXiv: [2611.19912v1](https://arxiv.org/abs/2611.19912v1)
+28. **SuperNav-1.5** (2026). Structured Spatial Memory For Agentic Navigation Systems. arXiv: [2611.29912v2](https://arxiv.org/abs/2611.29912v2)
 
 <script>
 (function () {
@@ -3793,6 +3875,7 @@ Version and authorization checks determine whether a decision is still eligible 
     { m: "Harness Robotic OS", t: ['Agentic', 'Real-robot deployment'] },
     { m: "SparseNav", t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
     { m: "Talk2Escape", t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
+    { m: "SuperNav-1.5", t: ['Agentic', 'SLAM', 'Zero-shot', 'Real-robot deployment'] },
     { m: "SuperNav", t: ['Agentic', 'Zero-shot', 'Real-robot deployment', 'Datasets'] },
     { m: "NavHarness", t: ['Agentic', 'Zero-shot', 'SLAM', 'Continuous environments'] },
     { m: "EvoLife", t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },

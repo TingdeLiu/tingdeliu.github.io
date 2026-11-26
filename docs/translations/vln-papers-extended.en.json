@@ -1,17 +1,17 @@
 {
   "source": "_posts/research/2026-01-06-VLN-Papers-ObjectNav.md",
   "translation": "_translations/en/research/VLN-Papers-Extended.md",
-  "reviewed_on": "2026-11-25",
-  "source_revision_date": "2026-11-25",
+  "reviewed_on": "2026-11-26",
+  "source_revision_date": "2026-11-26",
   "sections": {
-    "metadata": "d72d3192a424c66e5e9f0ec8b5c3c14f4c4d7c491b7f26767303acff6d6a36df",
+    "metadata": "e5a017aaa876353a1d1e7f5451bc063043a1bf8601efa803f63140857060ac7d",
     "introduction": "bc47efad1827b0cbbbe1014593a834a04933b410983144c6c3774b5e07326cee",
     "目标导航性能排行榜": "249796beb0be9adf00e733252ae7e7a044d596a1386f62bea85d83e6a98d0c04",
     "④ 封闭类别物体目标 · ObjectNav（HM3D · MP3D · Gibson）": "2ed52eb42b7feb53dad1d469b33be94256d74f2f5424a7300ee56d1d5aab3840",
-    "⑤ 开放词汇物体目标 · HM3D-OVON": "920d3c8ab84ee09cef15739b9e335ac69ca6bf7559833c0187f5eb1d8d6e8f4d",
+    "⑤ 开放词汇物体目标 · HM3D-OVON": "ed7aedf659491085472d1086eeedb30d415db16523ee0502f6a24b2e241f6dd6",
     "⑥ 图像目标 · HM3D-IIN / Image-Goal": "43c65b60ca622f0ea41b99135525b7514e99b287bfd38011f1bdef61d4ca9245",
     "⑦ 点目标 · Point-Goal": "73c18cb096c1cb5bf668a5b61ffdb3966a724a9787bc7a1b8fe380bd7a6bae1a",
-    "⑧ 多模态目标与自建基准": "87f8d3d7d0c12fb31275a989681d83128748ccaf0c5a81f7f888dda78089f1a9",
+    "⑧ 多模态目标与自建基准": "e2f53eee981e520f11086fc8a7c78496892565453363dce7d613b91bb59e1929",
     "目标导航论文精读": "e590ebd37b708576d264ff23e8a0f4cc60c4ce34472e8ac7476067f7b3eaea5e",
     "paper:vlfm / 1. VLFM (2023)": "4f3c9215a77857d1f095baf86c2ee7569b3b30a591a4cb374d1d8ea9b6ce2b2b",
     "paper:nomad / 2. NoMaD (2023)": "7b9d6604f53ac524b4bf94822075f722fe5c265bf5478ab80b4d28b4b348bb64",
@@ -188,6 +188,6 @@
     "paper:x-navdp / 4. 局限性": "68004e962e8e18f8a6f3fff9738fdc2a99c109cece08676664c796690cd781a4",
     "参考资料": "c6909a34733f06b163d2f52bf177742b01cc4b7963a27bbf7c699ec4da5e31d1",
     "论文引用": "1ee1f25d4269aaa3f78e7e6096ab38363c24e6dc69ba5f604f754ee1f701961c",
-    "已迁移的 Agentic 导航精读": "0ecdb2fdc9fbefe82de84eb5d434a49b47617292b4fa5edbe6ee0598b37f3caf"
+    "已迁移的 Agentic 导航精读": "2e7252dcff2da6e5bef1c75d06bf3cea8a7f26dee4de6cb45ab5f489035561b7"
   }
 }

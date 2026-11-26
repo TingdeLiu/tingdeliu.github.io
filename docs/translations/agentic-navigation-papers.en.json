@@ -1,11 +1,11 @@
 {
   "source": "_posts/research/2026-11-07-VLN-Papers-AgenticNav.md",
   "translation": "_translations/en/research/Agentic-Navigation-Papers.md",
-  "reviewed_on": "2026-11-25",
-  "source_revision_date": "2026-11-25",
+  "reviewed_on": "2026-11-26",
+  "source_revision_date": "2026-11-26",
   "sections": {
-    "metadata": "f30d64e40f6139acedea37d3d24fa3708052dcf18580b37be5c8d74d9cb7cb3f",
-    "introduction": "b18c593d87c1b1db1469592fb9ea0c1f011f267c31b5b527493e2cffc76393bd",
+    "metadata": "c1fc3c6b20c45f3bd5eebf2c1eb26dcfd32424c278f81977856ac12af922fd5b",
+    "introduction": "bff2fc5108a660b3f7ba7f89bda362c5a29739f841834fac6922df8b463645ed",
     "Agentic 导航论文精读": "ead9a0fa8143490ef5a25cbc149bd6bb5a372b6effbbac47a77aec4571b0ba2e",
     "paper:panonav / 1. PanoNav (2025)": "5e657dbccdf25628156d12dc7e97f4e0004e394c63aba6a888a5f65e345cfbf4",
     "paper:odyssey / 2. ODYSSEY (2025)": "2956aac02c125c6703ca106dd943086d1251a9b276f30b9ea0a7789e832a8f9e",
@@ -118,7 +118,7 @@
     "paper:supernav / 1. 研究背景/问题": "770fb1dcc8ec53bf5e243e25e7defb05de338aad8ac8cf2b254ad3e0297d3efe",
     "paper:supernav / 2. 主要方法/创新点": "671135400fdfb6af96191869cd252877e6515dc4dd175aa526430aa0c6de7595",
     "paper:supernav / 3. 核心结果/发现": "582be76591682d98dd2d12f41970b7c4e0b98af83b81f9aa08bad2973a1ee8ab",
-    "paper:supernav / 4. 局限性": "8cc6f2ecd052cd8a0f56be86148eda79b5fb8c3c18d485ebe63c69dd84d27b45",
+    "paper:supernav / 4. 局限性": "14ea8925f5e8cc5494c3da6d68cf0914cfd821d8be2533486fe7a94f69a314a5",
     "paper:navharness / 15. NavHarness (2026)": "3ef34cc6cdaa54eba963999cc61c04862af6ce38f5511501781896926a41c940",
     "paper:evolife / 16. EvoLife (2026)": "77e965750f1f0f22ab81b28e80b76758c39181cf17bef6f7a4f6f22444146c3f",
     "paper:evolife / 精华": "b9c485afca7db4de7c08a84d4dbebc0bcd84fe214e12fb7bcd013ffacf009581",
@@ -217,7 +217,13 @@
     "paper:agenticjevnav / 2. 主要方法/创新点": "7455b380a4dad3ef17511cb67751cecbfa9710c386bb8c77f2c06e009b574d7a",
     "paper:agenticjevnav / 3. 核心结果/发现": "77fa5a5f8bf75394491539dbe023964411b14efda7353b20c7b1ed274a5772f0",
     "paper:agenticjevnav / 4. 局限性": "4f82233ff3307f77cde77cfa67cff2ac0739c4ed96ba087de6fc1edfada12ce1",
+    "paper:supernav-1-5 / 28. SuperNav-1.5 (2026)": "0d6139e052f01554250708840a93d14b759ed35b6b760d7fcb62f8e08c807cb8",
+    "paper:supernav-1-5 / 精华": "a9a061c2915cafcff207eee795bca9b49cfa8ea8f834fef9798c8476b3d3eefa",
+    "paper:supernav-1-5 / 1. 研究背景/问题": "293add32792cc31dcc1ed1b858e89cbf938ab683849f8686753bbc9667d3393d",
+    "paper:supernav-1-5 / 2. 主要方法/创新点": "3f1fcbb59e0c5897e8df4ae34cae09a6cf14683d916d4095fdc2575d79ef038c",
+    "paper:supernav-1-5 / 3. 核心结果/发现": "33f4c30cc42550055f8b1b103c895a65684d4c858458997083561065c23168e6",
+    "paper:supernav-1-5 / 4. 局限性": "dbb50d9edb7994e5a3211b0282b7be74aa943f9c382b75c082537563198e53b3",
     "参考资料": "c6909a34733f06b163d2f52bf177742b01cc4b7963a27bbf7c699ec4da5e31d1",
-    "论文引用": "0badbdb30652316d1f21558f3ef11e74cf054c0cccb0629d9cbbfb4d149d6a0e"
+    "论文引用": "e04e9a366f5356a87ad181498c612d8ce718622428ef6fe153e042d85d2f9a88"
   }
 }

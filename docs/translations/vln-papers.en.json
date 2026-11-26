@@ -1,10 +1,10 @@
 {
   "source": "_posts/research/2026-01-05-VLN-Papers-InstructionFollowing.md",
   "translation": "_translations/en/research/VLN-Papers.md",
-  "reviewed_on": "2026-11-25",
-  "source_revision_date": "2026-11-25",
+  "reviewed_on": "2026-11-26",
+  "source_revision_date": "2026-11-26",
   "sections": {
-    "metadata": "92711629ef76512866358b9b0d8f0b368f2c2b1605530f36dc689e91403be00f",
+    "metadata": "33b37e14a07570ee92f07f94d935fd73c30e5f780de22076e4bcf9de6a97a97c",
     "introduction": "05837fdefdeb710af454a635dc9bc78e60583324966f080a985fd08714a6d8e2",
     "性能排行榜": "9a2cf6f3f7b09b17a1a12403f1808af21030840081cad6069071e3f40443206e",
     "① R2R-CE": "f6859b7c8e0499918678562008c7f5d55ab56a13a9aeca4f21811bd4ae13c3db",
@@ -475,6 +475,6 @@
     "参考资料": "37b0f14294c325d590ec513f27a4d22572998634a6132090258473b1ca1b7f2b",
     "已发表论文（会议 / 期刊）": "cd643459e93d5c2413889339a62ca1db3819bc3597308720d202cb5d09b05078",
     "论文引用": "aca4897b609cd4d418457c872f8afe7921d9f0d208842b72828dd9fc07b46696",
-    "已迁移的论文精读": "5e18d853df61a4fc6053ccbeb468fe7ea6bb0b7ac0a08e417c916b77b021e676"
+    "已迁移的论文精读": "0bcc83f35d23ad4166f3c41d581e51c750267110d57f48b240bc01037c304a05"
   }
 }
