@@ -47,7 +47,9 @@ Continuous environment · English commands · val-unseen (1839 items in total)
 |Model|Year|Paradigm|Base model|SR ↑|SPL ↑|NE ↓|OSR ↑|Open source|
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
 | [EvoLife (four views)](/en/Agentic-Navigation-Papers/#evolife) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100-episode subset; privileged guide</span> | 2026 | Training-free | GPT-6 Astra (ultra) | 100 | 82.2 | 0.95 | 100 | – |
-|[NavGPT-3 (four views · Astra)](/en/Agentic-Navigation-Papers/#navgpt-3) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Trained|GPT-6-Astra/Qwen3-VL-8B|**81.51**|70.42|**2.18**|**86.99**|[Yes](https://github.com/metacognitionai/NavGPT-3)|
+| [Navigent (multi-view)](/en/Agentic-Navigation-Papers/#navigent) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> | 2026 | Training-free | GPT-6 | **84.0** | 72.9 | 2.22 | 86.1 | [Yes](https://github.com/MarsLab-Navigent/Navigent) |
+| [Navigent (multi-view)](/en/Agentic-Navigation-Papers/#navigent) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100-episode subset</span> | 2026 | Training-free | GPT-6 | 82.0 | 72.3 | 3.54 | 85.0 | [Yes](https://github.com/MarsLab-Navigent/Navigent) |
+|[NavGPT-3 (four views · Astra)](/en/Agentic-Navigation-Papers/#navgpt-3) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Trained|GPT-6-Astra/Qwen3-VL-8B|81.51|70.42|**2.18**|**86.99**|[Yes](https://github.com/metacognitionai/NavGPT-3)|
 |[GPT-6-Astra (monocular · ultra)](/en/Agentic-Navigation-Papers/#gpt-6-astra) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100 subset </span>|2026|Training-free|GPT-6-Astra|81.3|71.5|2.9|83.7|No|
 |[Robostral Navigate (monocular)](#robostral-navigate)|2026|Trained|Mistral-8B|77.4|**74.2**|3.20|81.3|No|
 |[SimpleVLN (monocular)](#simplevln)|2026|Trained|Qwen3.5-9B|76.7|72.6|2.63|84.1|No|
@@ -103,6 +105,8 @@ Qwen-RobotNav uses arXiv v3: the panoramic row is the 8B model (base Qwen3-VL-8B
 
 The three gray GPT-6-Astra and AgenticNav rows are evaluated only on R2R-CE-100: 100 episodes (covering 10 scenes) drawn by Open-Nav from val-unseen. Training-free methods generally report only this subset to control the cost of large-model calls. One episode equals one percentage point.
 
+Navigent runs a frozen GPT-6 and uses training routes to select prompt and execution-critic patches offline. Navigation model weights stay fixed, so the table classifies it as training-free. Its 84.0 SR comes from the full split, and its 82.0 SR comes from the Open-Nav100 ablation subset.
+
 At an SR around 81%, the standard error is about 4 points (a 95% interval of roughly 73-89), versus about 1 point on the full 1839 episodes. GPT-6-Astra reports the mean of three runs from arXiv v2 (v1 is a single run at 79.0 / 76.0); the standard deviation across the three runs is only 1.5-2.5 points, which reflects run-to-run variation only and does not include the sampling error of the 100 tasks themselves.
 
 These rows are placed in the table by SR and are not bolded. They are for reference against the full-split rows only.
@@ -118,6 +122,7 @@ Continuous environment · Multilingual commands (English/Hindi/Telugu) · val-un
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
 | [EvoLife (four views)](/en/Agentic-Navigation-Papers/#evolife) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> <span class="lb-flag">100-episode subset; privileged guide</span> | 2026 | Training-free | GPT-6 Astra (ultra) | 100 | 75.4 | 0.71 | 100 | – |
 |[NavGPT-3 (four views · Astra)](/en/Agentic-Navigation-Papers/#navgpt-3) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span>|2026|Trained|GPT-6-Astra/Qwen3-VL-8B|**90.43**|**74.31**|**1.56**|–|[Yes](https://github.com/metacognitionai/NavGPT-3)|
+| [Navigent (multi-view)](/en/Agentic-Navigation-Papers/#navigent) <span class="lb-api" title="Calls a closed model such as GPT, Gemini or Claude through an API at inference time">Closed API</span> | 2026 | Training-free | GPT-6 | 86.0 | 69.1 | 1.92 | – | [Yes](https://github.com/MarsLab-Navigent/Navigent) |
 |[SimpleVLN (monocular)](#simplevln)|2026|Trained|Qwen3.5-9B|80.1|69.9|2.51|–|No|
 |[NavGPT VLA 8B (four views)](/en/Agentic-Navigation-Papers/#navgpt-3)|2026|Trained|Qwen3-VL-8B|78.19|68.98|3.05|–|[Yes](https://github.com/metacognitionai/NavGPT-3)|
 |[Qwen-RobotNav (panoramic)](#qwen-robotnav)|2026|Trained|Qwen3-VL-8B|76.5|65.7|3.58|–|No|
@@ -246,7 +251,7 @@ Search notes (2026-10-20): The [official MMSP 2025 challenge](https://hcplab-sys
 ## Component adoption matrix
 {: id="要素打勾矩阵"}
 
-To compare the technical recipes of **leading models with R2R-CE SR ≥ 60%**, the table below records components for all 28 entries with SR ≥ 60% in leaderboard ①, each checked against its paper. Qwen-RobotNav's panoramic / monocular configurations and NavGPT-3's full system / standalone VLA 8B are listed separately, and SR is shown to one decimal place. Gray subset results, such as R2R-CE-100, have too few samples and use different evaluation protocols, so they are excluded from the matrix. See the note below.
+To compare the technical recipes of **leading models with R2R-CE SR ≥ 60%**, the table below records components for all 29 entries with SR ≥ 60% in leaderboard ①, each checked against its paper. Qwen-RobotNav's panoramic / monocular configurations and NavGPT-3's full system / standalone VLA 8B are listed separately, and SR is shown to one decimal place. Gray subset results, such as R2R-CE-100, have too few samples and use different evaluation protocols, so they are excluded from the matrix. See the note below.
 
 **Judgment criteria:** Assess the configuration that produced the reported R2R-CE score. Components not disclosed in the paper are marked –.
 
@@ -266,38 +271,39 @@ To compare the technical recipes of **leading models with R2R-CE SR ≥ 60%**, t
 
 | Rank | Model | R2R-CE SR ↑ | Data scaling | Multi-view | Fast / slow | Agentic | Pixel grounding | Continuous actions | RL | DAgger / corrections | Context compression | Open source |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 1 | [**NavGPT-3**](/en/Agentic-Navigation-Papers/#navgpt-3) (four views · Astra) | **81.5%** | ✓ | ✓ | ✓ | ✓ | – | ✓ | – | ✓ | ✓ | ✓ |
-| 2 | [**Robostral Navigate**](#robostral-navigate) (monocular) | **77.4%** | ✓ | – | ✓ | – | ✓ | ✓ | ✓ | – | ✓ | – |
-| 3 | [**SimpleVLN**](#simplevln) (monocular) | **76.7%** | ✓ | – | – | – | – | – | ✓ | ✓ | – | – |
-| 4 | [**NavGPT VLA 8B**](/en/Agentic-Navigation-Papers/#navgpt-3) (four views) | **74.5%** | ✓ | ✓ | – | – | – | ✓ | – | ✓ | ✓ | ✓ |
-| 5 | [**Efficient-VLN**](#efficient-vln) (monocular) | **73.2%** | – | – | – | – | – | – | – | ✓ | ✓ | – |
-| 6 | [**Qwen-RobotNav**](#qwen-robotnav) (panoramic) | **72.1%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | – |
-| 7 | [**ABot-N1**](#abot-n1) (three cameras) | **70.9%** | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | – | – |
-| 8 | [**Image2Nav**](#image2sim) (180° FOV) | **70.3%** | ✓ | ✓ | – | – | – | – | – | ✓ | ✓ | ✓ |
-| 9 | [**GroundingVLN**](#groundingvln) (three cameras) | **69.9%** | – | ✓ | ✓ | – | ✓ | – | ✓ | – | – | – |
-| 10 | [**OmniNav**](#omninav) (multi-view) | **69.5%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | ✓ |
-| 11 | [**RSI-Nav**](#rsi-nav) (monocular) | **68.6%** | ✓ | – | – | – | – | – | – | – | – | ✓ |
-| 12 | [**LightNav-0**](#lightnav-0) (monocular) | **68.5%** | ✓ | – | – | – | ✓ | – | ✓ | ✓ | ✓ | ✓ |
-| 13 | [**AstraNav-World**](#astranav-world) (multi-view) | **67.9%** | – | ✓ | – | – | – | ✓ | – | – | – | ✓ |
-| 14 | [**SeekVLN**](#seekvln) (monocular, three views on demand) | **67.5%** | ✓ | – | – | – | – | – | ✓ | ✓ | – | – |
-| 15 | [**SEDualVLN**](#sedualvln) (monocular) | **67.3%** | – | – | ✓ | ✓ | – | – | – | ✓ | ✓ | – |
-| 16 | [**AgentVLN**](/en/Agentic-Navigation-Papers/#agentvln) (monocular) | **67.2%** | – | – | ✓ | ✓ | ✓ | – | – | – | – | ✓ |
-| 17 | [**Qwen-RobotNav**](#qwen-robotnav) (monocular) | **66.9%** | ✓ | – | – | – | – | ✓ | – | – | ✓ | – |
-| 18 | [**TAMP-Nav**](#tamp-nav) (multi-view) | **66.2%** | – | ✓ | ✓ | – | ✓ | – | ✓ | – | ✓ | ✓ |
-| 19 | [**Dual-Anchoring**](#dual-anchoring) (monocular) | **65.6%** | ✓ | – | – | – | – | – | – | ✓ | ✓ | – |
-| 20 | [**AwareVLN**](#awarevln) (monocular) | **65.4%** | – | – | – | – | – | – | – | ✓ | – | ✓ |
-| 21 | [**CorrectNav**](#correctnav) (monocular) | **65.1%** | ✓ | – | – | – | – | – | – | ✓ | – | ✓ |
-| 22 | [**DualVLN**](#dualvln) (monocular) | **64.3%** | ✓ | – | ✓ | – | ✓ | ✓ | – | ✓ | ✓ | ✓ |
-| 23 | [**VLN-Cache**](#vln-cache) (monocular) | **63.1%** | ✓ | – | ✓ | – | ✓ | ✓ | – | ✓ | ✓ | – |
-| 24 | [**ReflectVLN**](/en/Agentic-Navigation-Papers/#reflectvln) (monocular) | **62.8%** | ✓ | – | ✓ | – | – | ✓ | – | ✓ | – | – |
-| 25 | [**NavFoM**](#navfom) (multi-view) | **61.7%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | – |
-| 26 | [**GA-VLN**](#ga-vln) (monocular) | **61.0%** | – | – | – | – | – | – | – | – | ✓ | ✓ |
-| 27 | [**HarnessVLN**](/en/Agentic-Navigation-Papers/#harnessvln) (monocular RGB-D) | **60.8%** | – | – | ✓ | ✓ | ✓ | – | – | – | ✓ | – |
-| 28 | [**JanusVLN**](#janusvln) (monocular) | **60.5%** | ✓ | – | – | – | – | – | – | ✓ | ✓ | ✓ |
-| **Statistics** | **Component adoption** | **Highest 81.5%** | **19/28 (68%)** | **10/28 (36%)** | **11/28 (39%)** | **4/28 (14%)** | **9/28 (32%)** | **12/28 (43%)** | **7/28 (25%)** | **16/28 (57%)** | **18/28 (64%)** | **14/28 (50%)** |
+| 1 | [**Navigent**](/en/Agentic-Navigation-Papers/#navigent) (multi-view) | **84.0%** | – | ✓ | – | ✓ | ✓ | – | – | – | – | ✓ |
+| 2 | [**NavGPT-3**](/en/Agentic-Navigation-Papers/#navgpt-3) (four views · Astra) | **81.5%** | ✓ | ✓ | ✓ | ✓ | – | ✓ | – | ✓ | ✓ | ✓ |
+| 3 | [**Robostral Navigate**](#robostral-navigate) (monocular) | **77.4%** | ✓ | – | ✓ | – | ✓ | ✓ | ✓ | – | ✓ | – |
+| 4 | [**SimpleVLN**](#simplevln) (monocular) | **76.7%** | ✓ | – | – | – | – | – | ✓ | ✓ | – | – |
+| 5 | [**NavGPT VLA 8B**](/en/Agentic-Navigation-Papers/#navgpt-3) (four views) | **74.5%** | ✓ | ✓ | – | – | – | ✓ | – | ✓ | ✓ | ✓ |
+| 6 | [**Efficient-VLN**](#efficient-vln) (monocular) | **73.2%** | – | – | – | – | – | – | – | ✓ | ✓ | – |
+| 7 | [**Qwen-RobotNav**](#qwen-robotnav) (panoramic) | **72.1%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | – |
+| 8 | [**ABot-N1**](#abot-n1) (three cameras) | **70.9%** | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | – | – |
+| 9 | [**Image2Nav**](#image2sim) (180° FOV) | **70.3%** | ✓ | ✓ | – | – | – | – | – | ✓ | ✓ | ✓ |
+| 10 | [**GroundingVLN**](#groundingvln) (three cameras) | **69.9%** | – | ✓ | ✓ | – | ✓ | – | ✓ | – | – | – |
+| 11 | [**OmniNav**](#omninav) (multi-view) | **69.5%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | ✓ |
+| 12 | [**RSI-Nav**](#rsi-nav) (monocular) | **68.6%** | ✓ | – | – | – | – | – | – | – | – | ✓ |
+| 13 | [**LightNav-0**](#lightnav-0) (monocular) | **68.5%** | ✓ | – | – | – | ✓ | – | ✓ | ✓ | ✓ | ✓ |
+| 14 | [**AstraNav-World**](#astranav-world) (multi-view) | **67.9%** | – | ✓ | – | – | – | ✓ | – | – | – | ✓ |
+| 15 | [**SeekVLN**](#seekvln) (monocular, three views on demand) | **67.5%** | ✓ | – | – | – | – | – | ✓ | ✓ | – | – |
+| 16 | [**SEDualVLN**](#sedualvln) (monocular) | **67.3%** | – | – | ✓ | ✓ | – | – | – | ✓ | ✓ | – |
+| 17 | [**AgentVLN**](/en/Agentic-Navigation-Papers/#agentvln) (monocular) | **67.2%** | – | – | ✓ | ✓ | ✓ | – | – | – | – | ✓ |
+| 18 | [**Qwen-RobotNav**](#qwen-robotnav) (monocular) | **66.9%** | ✓ | – | – | – | – | ✓ | – | – | ✓ | – |
+| 19 | [**TAMP-Nav**](#tamp-nav) (multi-view) | **66.2%** | – | ✓ | ✓ | – | ✓ | – | ✓ | – | ✓ | ✓ |
+| 20 | [**Dual-Anchoring**](#dual-anchoring) (monocular) | **65.6%** | ✓ | – | – | – | – | – | – | ✓ | ✓ | – |
+| 21 | [**AwareVLN**](#awarevln) (monocular) | **65.4%** | – | – | – | – | – | – | – | ✓ | – | ✓ |
+| 22 | [**CorrectNav**](#correctnav) (monocular) | **65.1%** | ✓ | – | – | – | – | – | – | ✓ | – | ✓ |
+| 23 | [**DualVLN**](#dualvln) (monocular) | **64.3%** | ✓ | – | ✓ | – | ✓ | ✓ | – | ✓ | ✓ | ✓ |
+| 24 | [**VLN-Cache**](#vln-cache) (monocular) | **63.1%** | ✓ | – | ✓ | – | ✓ | ✓ | – | ✓ | ✓ | – |
+| 25 | [**ReflectVLN**](/en/Agentic-Navigation-Papers/#reflectvln) (monocular) | **62.8%** | ✓ | – | ✓ | – | – | ✓ | – | ✓ | – | – |
+| 26 | [**NavFoM**](#navfom) (multi-view) | **61.7%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | – |
+| 27 | [**GA-VLN**](#ga-vln) (monocular) | **61.0%** | – | – | – | – | – | – | – | – | ✓ | ✓ |
+| 28 | [**HarnessVLN**](/en/Agentic-Navigation-Papers/#harnessvln) (monocular RGB-D) | **60.8%** | – | – | ✓ | ✓ | ✓ | – | – | – | ✓ | – |
+| 29 | [**JanusVLN**](#janusvln) (monocular) | **60.5%** | ✓ | – | – | – | – | – | – | ✓ | ✓ | ✓ |
+| **Statistics** | **Component adoption** | **Highest 84.0%** | **19/29 (66%)** | **11/29 (38%)** | **11/29 (38%)** | **5/29 (17%)** | **10/29 (34%)** | **12/29 (41%)** | **7/29 (24%)** | **16/29 (55%)** | **18/29 (62%)** | **15/29 (52%)** |
 {: .vln-component-matrix}
 
-Note: VLN-Cache is a training-free token-caching layer on DualVLN and inherits its other components. OmniNav uses only its fast system (VLM + waypoint regression head) for R2R / RxR; slow-system frontier exploration is used only for OVON, so the dual-system column is marked –. Qwen-RobotNav's collaboration with a high-level planning agent applies only to long-horizon tasks such as EQA; its R2R-CE score comes from the navigation model itself. System 1 in both Dual-Anchoring and SEDualVLN uses StreamVLN, inheriting its sliding-window KV and voxel pruning. HarnessVLN is the only training-free method in the matrix; its pixel grounding uses `ground_target` to locate a subgoal in an image region before querying depth. ABot-N1's 30M pretraining samples and DAgger rollouts, and Image2Nav's discrete outputs and online DAgger, are recorded from their respective arXiv papers.
+Note: VLN-Cache is a training-free token-caching layer on DualVLN and inherits its other components. OmniNav uses only its fast system (VLM + waypoint regression head) for R2R / RxR; slow-system frontier exploration is used only for OVON, so the dual-system column is marked –. Qwen-RobotNav's collaboration with a high-level planning agent applies only to long-horizon tasks such as EQA; its R2R-CE score comes from the navigation model itself. System 1 in both Dual-Anchoring and SEDualVLN uses StreamVLN, inheriting its sliding-window KV and voxel pruning. HarnessVLN uses `ground_target` to locate a subgoal in an image region before querying depth. ABot-N1's 30M pretraining samples and DAgger rollouts, and Image2Nav's discrete outputs and online DAgger, are recorded from their respective arXiv papers.
 
 SeekVLN's classifications: C2PO is PPO post-training, so RL is marked ✓. The model directly outputs discrete text actions, while mode tokens control additional observation; this does not constitute a fast/slow dual system, Agentic architecture, or continuous action head under these criteria. It uses a monocular camera and adds left, front, and right views only during SEEK. The multiple-camera column is therefore marked – under the “multi-view or panoramic input at every step” criterion, which does not imply zero additional perception cost. All four R2R baseline metrics match the configuration with 1.6M extra samples in [Aux-Think Table 1](https://arxiv.org/html/2505.11886v4). **Based on this metric correspondence, we infer** that data scaling and DAgger data are inherited from the base model, and mark both ✓; SeekVLN does not separately identify the base checkpoint. Historical-frame sampling does not disclose a dedicated token / KV compression mechanism, so context compression is marked –. No code or weight link is provided in the paper, so open source is provisionally marked –.
 
@@ -311,57 +317,59 @@ SimpleVLN is classified using the Qwen3.5-9B configuration that reaches 76.7% on
 
 Efficient-VLN is classified using the arXiv v2 Qwen3-VL-8B configuration (v1 reported 64.2%, and some papers cite that older number). Its final training set has 106K samples (30K original R2R-CE + RxR-CE, 30K self-collected Adaptive DAgger corrective trajectories, and a 46K ScaleVLN subset), below 1M, so data scaling is marked –; corrective data collected from the policy's own rollouts mark DAgger ✓. Inference caches KV before rotation and encodes only the current frame at each step, and training packs multiple steps that share a visual prefix, so context compression is marked ✓. It uses monocular RGB, directly outputs action chunks of four discrete actions, and is trained with SFT only, so multiple cameras, fast/slow dual system, Agentic, pixel grounding, continuous action head, and RL are marked –. No official code or weights were found on 2026-10-24, so open source is marked –.
 
+Navigent uses a direction-labeled multi-view composite at every step. GPT-6 coordinates pose and depth checks, route review, and return to visited nodes. The system back-projects an image point or entrance box into a world-coordinate anchor that can interrupt subsequent motion, so multiple cameras, Agentic and pixel grounding are checked. Motion uses discrete primitives, and history images are sampled uniformly. Offline rollouts evaluate prompt and critic-code patches while model weights stay frozen.
+
 ## Analysis of adoption rates
 {: id="统计研判"}
 
-Divide the 28 entries into two tiers at 68% SR and compare component adoption:
+Divide the 29 entries into two tiers at 68% SR and compare component adoption:
 
-| Element | First tier (SR ≥ 68%, 12 entries) | Second tier (60%–68%, 16 entries) | Total (28 entries) |
+| Element | First tier (SR ≥ 68%, 13 entries) | Second tier (60%–68%, 16 entries) | Total (29 entries) |
 |:--|:--:|:--:|:--:|
-| Data scaling | 10/12 (83%) | 9/16 (56%) | 19/28 (68%) |
-| Multiple cameras | 7/12 (58%) | 3/16 (19%) | 10/28 (36%) |
-| Fast/slow dual system | 4/12 (33%) | 7/16 (44%) | 11/28 (39%) |
-| Agentic | 1/12 (8%) | 3/16 (19%) | 4/28 (14%) |
-| Pixel grounding | 4/12 (33%) | 5/16 (31%) | 9/28 (32%) |
-| Continuous action head | 6/12 (50%) | 6/16 (38%) | 12/28 (43%) |
-| **Reinforcement learning** | **5/12 (42%)** | **2/16 (12%)** | 7/28 (25%) |
-| DAgger / corrective data | 7/12 (58%) | 9/16 (56%) | 16/28 (57%) |
-| Context compression | 8/12 (67%) | 10/16 (62%) | 18/28 (64%) |
-| Open source | 6/12 (50%) | 8/16 (50%) | 14/28 (50%) |
+| Data scaling | 10/13 (77%) | 9/16 (56%) | 19/29 (66%) |
+| Multiple cameras | 8/13 (62%) | 3/16 (19%) | 11/29 (38%) |
+| Fast/slow dual system | 4/13 (31%) | 7/16 (44%) | 11/29 (38%) |
+| Agentic | 2/13 (15%) | 3/16 (19%) | 5/29 (17%) |
+| Pixel grounding | 5/13 (38%) | 5/16 (31%) | 10/29 (34%) |
+| Continuous action head | 6/13 (46%) | 6/16 (38%) | 12/29 (41%) |
+| **Reinforcement learning** | **5/13 (38%)** | **2/16 (12%)** | 7/29 (24%) |
+| DAgger / corrective data | 7/13 (54%) | 9/16 (56%) | 16/29 (55%) |
+| Context compression | 8/13 (62%) | 10/16 (62%) | 18/29 (62%) |
+| Open source | 7/13 (54%) | 8/16 (50%) | 15/29 (52%) |
 
 > These comparisons show correlations within leading models. Gains attributable to a component must be assessed through each paper's ablations.
 
-1. **RL adoption still differs between tiers, but RL is not required for the first tier (42% vs 12%):**
-   - Five of the 12 first-tier entries use navigation RL post-training: Robostral uses CISPO, SimpleVLN uses DAPO, ABot-N1 uses GRPO, GroundingVLN uses GEAR, and LightNav-0 uses GRPO. The second tier includes SeekVLN and TAMP-Nav among 16 entries. NavGPT-3, the standalone NavGPT VLA 8B, Efficient-VLN, and RSI-Nav use no navigation RL post-training and reach the first tier with 81.51%, 74.51%, 73.2%, and 68.6%; the general-purpose Planner called by the full system does not count as navigation RL in this column.
+1. **RL adoption still differs between tiers, but RL is not required for the first tier (38% vs 12%):**
+   - Five of the 13 first-tier entries use navigation RL post-training: Robostral uses CISPO, SimpleVLN uses DAPO, ABot-N1 uses GRPO, GroundingVLN uses GEAR, and LightNav-0 uses GRPO. The second tier includes SeekVLN and TAMP-Nav among 16 entries. NavGPT-3, the standalone NavGPT VLA 8B, Efficient-VLN, and RSI-Nav use no navigation RL post-training and reach the first tier with 81.51%, 74.51%, 73.2%, and 68.6%; the general-purpose Planner called by the full system does not count as navigation RL in this column.
    - Controlled ablations provide stronger evidence: removing GEAR reduces GroundingVLN SR from 69.9% to 57.2%, and replacing it with a naive 2D pixel-distance reward gives 66.2%. SimpleVLN runs 40 DAPO steps on synthesized tasks, raising Qwen3-VL-4B from 65.4% to 73.8% R2R-CE SR, and its binary success reward beats an SPL reward (70.1% vs 68.9% under GRPO). On SeekVLN's 613-route deduplicated subset, removing counterfactual rewards reduces SR from 68.5% to 65.1%. These subset scores are not directly comparable with the full leaderboard.
    - Geometric rewards can supervise pixel targets and continuous waypoints, and can also train active observation through geodesic-distance changes after discrete actions. The RL checkmark records only adoption, not reward design or training quality.
 2. **Spatial-target outputs are more common in the first tier, but standalone policies and full systems should be read separately:**
-   - Eight of the 12 first-tier entries output pixel targets or continuous waypoints, and the other four output discrete actions: SimpleVLN reaches 76.7% with monocular RGB and discrete action chunks, Efficient-VLN likewise reaches 73.2% with monocular discrete action chunks, Image2Nav uses 10M synthetic trajectories and a 180° field of view, and RSI-Nav reaches 68.6% with monocular RGB and policy-synchronized synthetic supervision. The corresponding proportion in the second tier is 9/16; the other seven are discrete-action models, the highest being SeekVLN at 67.5%.
-   - Continuous action heads appear in 6/12 (50%) versus 6/16 (38%), and pixel grounding in 4/12 (33%) versus 5/16 (31%). NavGPT-3's continuous waypoints come from the VLA, while the Planner itself chooses tools and language instructions; the LocateAnything grounding data used in training do not make it a pixel-target navigation interface.
+   - Nine of the 13 first-tier entries use pixel targets or continuous waypoints. Navigent uses pixel anchors for execution checks and discrete primitives for motion. The other four output discrete actions: SimpleVLN reaches 76.7% with monocular RGB and discrete action chunks, Efficient-VLN likewise reaches 73.2% with monocular discrete action chunks, Image2Nav uses 10M synthetic trajectories and a 180° field of view, and RSI-Nav reaches 68.6% with monocular RGB and policy-synchronized synthetic supervision. The corresponding proportion in the second tier is 9/16; the other seven are discrete-action models, the highest being SeekVLN at 67.5%.
+   - Continuous action heads appear in 6/13 (46%) versus 6/16 (38%), and pixel grounding in 5/13 (38%) versus 5/16 (31%). NavGPT-3's continuous waypoints come from the VLA, while the Planner itself chooses tools and language instructions; the LocateAnything grounding data used in training do not make it a pixel-target navigation interface.
    - Measurable output interfaces make spatial rewards easier to use, but SeekVLN shows that discrete text actions can also learn from subsequent environment changes, and SimpleVLN pushes a discrete action-chunk policy past 76% with only a binary task-success reward. The relationship between interface and RL cannot be explained by cross-paper adoption rates alone.
 3. **Large-scale data coverage is a common condition for high scores, while data quality and source composition also change results:**
-   - In the first tier, 10/12 (83%) use at least 1M training samples or trajectories: the two NavGPT-3 rows share about 19.28M effective records, SimpleVLN pools expert demonstrations from R2R, RxR, and ScaleVLN, and others include ABot-N1's 30M, Qwen-RobotNav's 15.6M, Image2Nav's 10M, OmniNav's 9.2M, Robostral's 2.4M, and LightNav-0's 4K+ hours of simulation data. RSI-Nav's recursive stage produces about 2.5M instruction-following samples and 1.1M instruction-generation samples; the two cannot be added as a count of independent trajectories.
+   - In the first tier, 10/13 (77%) use at least 1M training samples or trajectories: the two NavGPT-3 rows share about 19.28M effective records, SimpleVLN pools expert demonstrations from R2R, RxR, and ScaleVLN, and others include ABot-N1's 30M, Qwen-RobotNav's 15.6M, Image2Nav's 10M, OmniNav's 9.2M, Robostral's 2.4M, and LightNav-0's 4K+ hours of simulation data. RSI-Nav's recursive stage produces about 2.5M instruction-following samples and 1.1M instruction-generation samples; the two cannot be added as a count of independent trajectories.
    - As NavGPT VLA 8B's cumulative training mixture grows from 1.70M to 19.28M, its R2R-CE SR rises from 65.3% to 74.51%. Each stage changes data quantity and task composition together, so not all of the gain can be attributed to sample count. Its 19.28M also includes different views and augmented versions of the same route, so it is not a count of independent trajectories.
    - Efficient-VLN reaches 73.2% with only 106K samples (30K of them self-collected DAgger trajectories), GroundingVLN reaches 69.9% with 188K samples, and TAMP-Nav reaches 66.2% with 90K synthetic cold-start trajectories plus two-stage GRPO; these remain references for reducing data requirements. Beyond SeekVLN's 111K new FRG samples, it also inherits the base model's extra data and DAgger data, so its full training volume should not be written as 111K.
 4. **The first tier uses multiple cameras more often, but monocular methods also score highly:**
-   - Multi-view or panoramic inputs appear in 7/12 first-tier entries (58%) and 3/16 second-tier entries (19%). In within-model comparisons, Qwen-RobotNav 8B gives 72.1% panoramic versus 65.7% monocular, and 4B gives 69.5% versus 66.9%; NavFoM gives 61.7% with four views versus 56.2% with a single view. The two Qwen-RobotNav matrix rows take the best configuration of each setting, so subtracting them is not a same-model gain.
-   - NavGPT-3, currently highest in SR, uses four views; Robostral's monocular 77.4%, SimpleVLN's monocular 76.7%, Efficient-VLN's monocular 73.2%, and LightNav-0's monocular 68.5% show that a wider field of view is not required for a high score. NavGPT-3's four-view simulation score and its forward-monocular Go2 deployment are also not the same evaluation configuration.
+   - Multi-view or panoramic inputs appear in 8/13 first-tier entries (62%) and 3/16 second-tier entries (19%). In within-model comparisons, Qwen-RobotNav 8B gives 72.1% panoramic versus 65.7% monocular, and 4B gives 69.5% versus 66.9%; NavFoM gives 61.7% with four views versus 56.2% with a single view. The two Qwen-RobotNav matrix rows take the best configuration of each setting, so subtracting them is not a same-model gain.
+   - Navigent leads the full-split leaderboard at 84.0% SR with multi-view input, and NavGPT-3 reaches 81.51% using four views; Robostral's monocular 77.4%, SimpleVLN's monocular 76.7%, Efficient-VLN's monocular 73.2%, and LightNav-0's monocular 68.5% show that a wider field of view is not required for a high score. NavGPT-3's four-view simulation score and its forward-monocular Go2 deployment are also not the same evaluation configuration.
    - SeekVLN scans side views on demand with a monocular camera and reaches 73% SR with adaptive observation in a 100-task intervention experiment, above the 62% of observing every two steps. This is subset evidence for active perception and should not be mixed with the full leaderboard.
 5. **The value of dual systems and Agentic designs must be judged through within-system ablations:**
-   - Fast/slow dual systems appear in 4/12 first-tier entries (33%) and 7/16 second-tier entries (44%); Agentic designs in 1/12 (8%) versus 3/16 (19%). SimpleVLN ranks third in the first tier without adding any module, changing only input organization and the training pipeline, which further shows that neither structure is required for a high score. NavGPT-3 is now an Agentic entry in the first tier, so the earlier conclusion that "Agentic entries are all in the second tier" no longer holds, but these proportions also cannot show that tool calling by itself determines the tier.
+   - Fast/slow dual systems appear in 4/13 first-tier entries (31%) and 7/16 second-tier entries (44%); Agentic designs in 2/13 (15%) versus 3/16 (19%). SimpleVLN reaches 76.7% SR through input organization and training changes, with no added module. Navigent and NavGPT-3 are the two first-tier Agentic entries. Their within-system ablations are the basis for evaluating the effects of tool use.
    - Adding GPT-6 Astra and the full Harness to the same 8B VLA raises R2R-CE SR from 74.51% to 81.51% and RxR-CE from 78.19% to 90.43%, while also adding a remote Planner, route evidence, maps, backtracking, and their costs, so the gain cannot be attributed to the dual-system structure alone.
    - In the 100-task tool ablation, Astra already reaches 83% SR with maps and backtracking and no VLA, while the full configuration with the VLA reaches 82%. The VLA's direct value is cutting the action-inference interval to an average of 0.78 seconds and reducing planning rounds. Reviewing every 16 steps raises another configuration's SR from 77% to 83%, but increases cumulative tokens about 12.9 times, so more frequent supervision should not be treated as a cost-free accuracy gain.
-   - HarnessVLN reaches 60.8% SR as a training-free method, but with SPL 43.5; outside the matrix, GPT-6-Astra also scores highly with a fixed monocular interface on R2R-CE-100. Results from different base models and evaluation sets are suited to forming hypotheses, not to replacing matched comparisons.
+   - Navigent reaches 84.0% full-split SR with a frozen GPT-6. With prompts fixed on Open-Nav100, enabling geometry checks and route review together raises SR from 77% to 82%. Those 5 points reflect the combined change. HarnessVLN reaches 60.8% SR as a training-free method, but with SPL 43.5; outside the matrix, GPT-6-Astra also scores highly with a fixed monocular interface on R2R-CE-100. Results from different base models and evaluation sets are suited to forming hypotheses, not to replacing matched comparisons.
 6. **DAgger and context compression are widespread; specific mechanisms explain more than checkmarks:**
-   - DAgger / corrective data appear in 7/12 first-tier entries (58%) and 9/16 second-tier entries (56%), 16/28 (57%) overall; context compression in 8/12 (67%) versus 10/16 (62%), 18/28 (64%) overall. Neither alone explains the SR tier, but DAgger is the largest single step in SimpleVLN's data ablation (+7.5 points on R2R-CE and +8.1 on RxR-CE). Efficient-VLN's ablation also points to data scheduling: replacing fixed-ratio DAgger with Adaptive DAgger that decays over steps (letting the model drive early and handing over to the expert later) raises R2R-CE SR from 60.3% to 67.8% and RxR-CE from 63.8% to 75.6%.
+   - DAgger / corrective data appear in 7/13 first-tier entries (54%) and 9/16 second-tier entries (56%), 16/29 (55%) overall; context compression in 8/13 (62%) versus 10/16 (62%), 18/29 (62%) overall. Neither alone explains the SR tier, but DAgger is the largest single step in SimpleVLN's data ablation (+7.5 points on R2R-CE and +8.1 on RxR-CE). Efficient-VLN's ablation also points to data scheduling: replacing fixed-ratio DAgger with Adaptive DAgger that decays over steps (letting the model drive early and handing over to the expert later) raises R2R-CE SR from 60.3% to 67.8% and RxR-CE from 63.8% to 75.6%.
    - NavGPT VLA relabels DAgger off-route states to supervise the shortest-path direction from the current position to the goal; Codec shifts image resolution under a budget constraint toward history observations that change more, and matches the position-based allocation rule when capacity is sufficient.
    - Other context mechanisms include JanusVLN's sliding-window KV, GA-VLN's BEV pooling, TAMP-Nav's keyframes and STI tokens, Efficient-VLN's pre-rotation KV cache and packed-training prefix sharing, LightNav-0's slow/fast history compression, and HarnessVLN's bounded working memory and graph retrieval. They act at different points and should not be treated as equivalent algorithms just because they share a checkmark.
 7. **The first tier now has higher-scoring public implementations, but reproduction scope still needs checking:**
-   - In this matrix, open-source availability is 6/12 (50%) in the first tier and 8/16 (50%) in the second, so it is no longer the case that "most first-tier entries are closed". The two NavGPT rows come from the same paper and share the VLA; the statistics count entries, not independent models or experiments.
+   - In this matrix, open-source availability is 7/13 (54%) in the first tier and 8/16 (50%) in the second. The two NavGPT rows come from the same paper and share the VLA; the statistics count entries, not independent models or experiments.
    - The [NavGPT-3 official repository](https://github.com/metacognitionai/NavGPT-3) publishes VLA inference, the Harness, simulation evaluation, and configurations, supporting reproduction of the standalone VLA as well as study of the full system. The full system still depends on a remote Planner, so public code does not mean that all runtime costs and deployment components are open.
    - The ZEOS-based Unitree deployment runtime code is still to be released separately, so simulation evaluation and real-robot thread preemption should be reproduced separately. Image2Nav, OmniNav, and LightNav-0 remain leading references with public implementations, and the open-source column for other entries keeps its earlier review records.
 
-**Summary:** Comparing these 28 entries still shows only correlation; some entries share models or training data, so adoption rates should not be read as component contributions. NavGPT-3 builds an inspectable, backtrackable execution interface on the same VLA and reaches 81.51% SR with its four-view full system; it also shows that dual-system control frequency, the corrective ability of a toolchain, and the context cost of route review must be evaluated separately. SeekVLN's active observation and RSI-Nav's closed synthetic-supervision loop show, respectively, that discrete actions can also use geometric feedback and that a monocular discrete-action policy can reach the first tier through better data. SimpleVLN goes further, reaching 76.7% with an unmodified native MLLM trained through IL–DAgger–RL, which suggests that gains from added modules should be judged against a native baseline trained with an equally strong pipeline. Efficient-VLN reaches 73.2% without RL or data scaling, relying only on DAgger scheduling and training–inference alignment (the action-isolating mask), a counterexample to the correlation that "the first tier relies on data scaling". GPT-6-Astra's high score outside the matrix still comes from a 100-episode subset; it should be kept as a signal of general-model navigation ability, not mixed with full results. NavGPT-3's approach to the RxR human baseline should also note that humans used a discrete environment, rather than claiming navigation is solved under the same real-robot protocol.
+**Summary:** Comparing these 29 entries still shows only correlation; some entries share models or training data, so adoption rates should not be read as component contributions. Navigent reaches 84.0% SR on the full split with multi-view observations, geometric execution checks, backtracking, and a frozen GPT-6. NavGPT-3 builds an inspectable, backtrackable execution interface on the same VLA and reaches 81.51% SR with its four-view full system; it also shows that dual-system control frequency, the corrective ability of a toolchain, and the context cost of route review must be evaluated separately. SeekVLN's active observation and RSI-Nav's closed synthetic-supervision loop show, respectively, that discrete actions can also use geometric feedback and that a monocular discrete-action policy can reach the first tier through better data. SimpleVLN goes further, reaching 76.7% with an unmodified native MLLM trained through IL–DAgger–RL, which suggests that gains from added modules should be judged against a native baseline trained with an equally strong pipeline. Efficient-VLN reaches 73.2% without RL or data scaling, relying only on DAgger scheduling and training–inference alignment (the action-isolating mask), a counterexample to the correlation that "the first tier relies on data scaling". GPT-6-Astra's high score outside the matrix still comes from a 100-episode subset; it should be kept as a signal of general-model navigation ability, not mixed with full results. NavGPT-3's approach to the RxR human baseline should also note that humans used a discrete environment, rather than claiming navigation is solved under the same real-robot protocol.
 
 ---
 
@@ -7784,6 +7792,7 @@ The following table organizes papers with publication information tagged by conf
     { n: "26. H2E (2026)", a: "h2e", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['End-to-end', 'Continuous environments', 'Data augmentation'] },
     { n: "27. AgenticJevNav (2026)", a: "agenticjevnav", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
     { n: "28. SuperNav-1.5 (2026)", a: "supernav-1-5", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'SLAM', 'Zero-shot', 'Real-robot deployment'] },
+    { n: "29. Navigent (2026)", a: "navigent", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Continuous environments', 'Real-robot deployment'] },
   ];
 
   var ALL_TAGS = ['Dual systems', 'End-to-end', 'Agentic', 'CoT', 'Diffusion models', 'Topological maps', 'SLAM', 'Gaussian representations',

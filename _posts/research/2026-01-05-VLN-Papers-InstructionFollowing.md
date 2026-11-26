@@ -42,7 +42,9 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 | 模型 | 年份 | 范式 | 基模 | SR ↑ | SPL ↑ | NE ↓ | OSR ↑ | 开源 |
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
 | [EvoLife (四视角)](/Agentic-Navigation-Papers/#evolife) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">100 条子集、特权向导</span> | 2026 | 免训练 | GPT-6 Astra (ultra) | 100 | 82.2 | 0.95 | 100 | – |
-| [NavGPT-3 (四视角 · Astra)](/Agentic-Navigation-Papers/#navgpt-3) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 训练 | GPT-6-Astra/Qwen3-VL-8B | **81.51** | 70.42 | **2.18** | **86.99** | [是](https://github.com/metacognitionai/NavGPT-3) |
+| [Navigent (多目)](/Agentic-Navigation-Papers/#navigent) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 免训练 | GPT-6 | **84.0** | 72.9 | 2.22 | 86.1 | [是](https://github.com/MarsLab-Navigent/Navigent) |
+| [Navigent (多目)](/Agentic-Navigation-Papers/#navigent) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">100 条子集</span> | 2026 | 免训练 | GPT-6 | 82.0 | 72.3 | 3.54 | 85.0 | [是](https://github.com/MarsLab-Navigent/Navigent) |
+| [NavGPT-3 (四视角 · Astra)](/Agentic-Navigation-Papers/#navgpt-3) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 训练 | GPT-6-Astra/Qwen3-VL-8B | 81.51 | 70.42 | **2.18** | **86.99** | [是](https://github.com/metacognitionai/NavGPT-3) |
 | [GPT-6-Astra (单目 · ultra)](/Agentic-Navigation-Papers/#gpt-6-astra) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">100 条子集</span> | 2026 | 免训练 | GPT-6-Astra | 81.3 | 71.5 | 2.9 | 83.7 | 否 |
 | [Robostral Navigate (单目)](#robostral-navigate) | 2026 | 训练 | Mistral-8B | 77.4 | **74.2** | 3.20 | 81.3 | 否 |
 | [SimpleVLN (单目)](#simplevln) | 2026 | 训练 | Qwen3.5-9B | 76.7 | 72.6 | 2.63 | 84.1 | 否 |
@@ -94,6 +96,8 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 
 补充：NavGPT-3 两行分别为 GPT-6 Astra Planner + 8B VLA 的完整系统，以及独立的 NavGPT VLA 8B，均使用四视角与全量 Val-Unseen；其 VLA 经过导航数据训练，两行均归为“训练”，不能因 Planner 无导航微调就标为免训练。81.51 为完整系统的 SR，SPL 70.42 仍低于 Robostral Navigate 的 74.2；已公开代码包含 VLA 推理、Harness 与仿真评测，实机部署运行时代码仍待另行发布。
 
+Navigent 以冻结的 GPT-6 运行，离线用训练路线筛选提示词和执行检查代码补丁，全程冻结导航模型权重，归为免训练。84.0 SR 为全量结果，82.0 SR 来自 Open-Nav100 消融子集。
+
 ## ② RxR-CE
 {: id="-rxr-ce"}
 
@@ -103,6 +107,7 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 |:-----|:----:|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
 | [EvoLife (四视角)](/Agentic-Navigation-Papers/#evolife) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> <span class="lb-flag">100 条子集、特权向导</span> | 2026 | 免训练 | GPT-6 Astra (ultra) | 100 | 75.4 | 0.71 | 100 | – |
 | [NavGPT-3 (四视角 · Astra)](/Agentic-Navigation-Papers/#navgpt-3) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 训练 | GPT-6-Astra/Qwen3-VL-8B | **90.43** | **74.31** | **1.56** | – | [是](https://github.com/metacognitionai/NavGPT-3) |
+| [Navigent (多目)](/Agentic-Navigation-Papers/#navigent) <span class="lb-api" title="推理时调用 GPT / Gemini / Claude 等闭源大模型的 API">闭源 API</span> | 2026 | 免训练 | GPT-6 | 86.0 | 69.1 | 1.92 | – | [是](https://github.com/MarsLab-Navigent/Navigent) |
 | [SimpleVLN (单目)](#simplevln) | 2026 | 训练 | Qwen3.5-9B | 80.1 | 69.9 | 2.51 | – | 否 |
 | [NavGPT VLA 8B (四视角)](/Agentic-Navigation-Papers/#navgpt-3) | 2026 | 训练 | Qwen3-VL-8B | 78.19 | 68.98 | 3.05 | – | [是](https://github.com/metacognitionai/NavGPT-3) |
 | [Qwen-RobotNav (全景)](#qwen-robotnav) | 2026 | 训练 | Qwen3-VL-8B | 76.5 | 65.7 | 3.58 | – | 否 |
@@ -231,7 +236,7 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 ## 要素打勾矩阵
 {: id="要素打勾矩阵"}
 
-为了清晰揭示 **R2R-CE SR ≥ 60% 前列模型的技术 Recipe（解法组合）**，下表对排行榜 ① 中 SR ≥ 60% 的全部 28 个条目逐篇核对原文后打勾（✓）；Qwen-RobotNav 的全景 / 单目配置、NavGPT-3 的完整系统 / 独立 VLA 8B 分别列行，SR 统一显示一位小数。排行榜里灰显的子集成绩（如 R2R-CE-100）样本太少、口径不同，不计入矩阵，见表下说明。
+为了清晰揭示 **R2R-CE SR ≥ 60% 前列模型的技术 Recipe（解法组合）**，下表对排行榜 ① 中 SR ≥ 60% 的全部 29 个条目逐篇核对原文后打勾（✓）；Qwen-RobotNav 的全景 / 单目配置、NavGPT-3 的完整系统 / 独立 VLA 8B 分别列行，SR 统一显示一位小数。排行榜里灰显的子集成绩（如 R2R-CE-100）样本太少、口径不同，不计入矩阵，见表下说明。
 
 **打勾口径**：按取得该 R2R-CE 成绩的那套配置判定，论文未披露的一律记为 –。
 
@@ -251,38 +256,39 @@ excerpt: "本文系统梳理 VLN 指令跟随任务的论文，涵盖 DualVLN、
 
 | 排名 | 模型 | R2R-CE SR ↑ | 堆数据 | 堆相机 | 快慢双系统 | Agentic | 像素 Grounding | 连续动作头 | 强化学习 | DAgger / 纠偏数据 | 上下文压缩 | 开源 |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 1 | [**NavGPT-3**](/Agentic-Navigation-Papers/#navgpt-3) (四视角 · Astra) | **81.5%** | ✓ | ✓ | ✓ | ✓ | – | ✓ | – | ✓ | ✓ | ✓ |
-| 2 | [**Robostral Navigate**](#robostral-navigate) (单目) | **77.4%** | ✓ | – | ✓ | – | ✓ | ✓ | ✓ | – | ✓ | – |
-| 3 | [**SimpleVLN**](#simplevln) (单目) | **76.7%** | ✓ | – | – | – | – | – | ✓ | ✓ | – | – |
-| 4 | [**NavGPT VLA 8B**](/Agentic-Navigation-Papers/#navgpt-3) (四视角) | **74.5%** | ✓ | ✓ | – | – | – | ✓ | – | ✓ | ✓ | ✓ |
-| 5 | [**Efficient-VLN**](#efficient-vln) (单目) | **73.2%** | – | – | – | – | – | – | – | ✓ | ✓ | – |
-| 6 | [**Qwen-RobotNav**](#qwen-robotnav) (全景) | **72.1%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | – |
-| 7 | [**ABot-N1**](#abot-n1) (三相机) | **70.9%** | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | – | – |
-| 8 | [**Image2Nav**](#image2sim) (180° FOV) | **70.3%** | ✓ | ✓ | – | – | – | – | – | ✓ | ✓ | ✓ |
-| 9 | [**GroundingVLN**](#groundingvln) (三相机) | **69.9%** | – | ✓ | ✓ | – | ✓ | – | ✓ | – | – | – |
-| 10 | [**OmniNav**](#omninav) (多目) | **69.5%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | ✓ |
-| 11 | [**RSI-Nav**](#rsi-nav) (单目) | **68.6%** | ✓ | – | – | – | – | – | – | – | – | ✓ |
-| 12 | [**LightNav-0**](#lightnav-0) (单目) | **68.5%** | ✓ | – | – | – | ✓ | – | ✓ | ✓ | ✓ | ✓ |
-| 13 | [**AstraNav-World**](#astranav-world) (多目) | **67.9%** | – | ✓ | – | – | – | ✓ | – | – | – | ✓ |
-| 14 | [**SeekVLN**](#seekvln) (单目，按需三视角) | **67.5%** | ✓ | – | – | – | – | – | ✓ | ✓ | – | – |
-| 15 | [**SEDualVLN**](#sedualvln) (单目) | **67.3%** | – | – | ✓ | ✓ | – | – | – | ✓ | ✓ | – |
-| 16 | [**AgentVLN**](/Agentic-Navigation-Papers/#agentvln) (单目) | **67.2%** | – | – | ✓ | ✓ | ✓ | – | – | – | – | ✓ |
-| 17 | [**Qwen-RobotNav**](#qwen-robotnav) (单目) | **66.9%** | ✓ | – | – | – | – | ✓ | – | – | ✓ | – |
-| 18 | [**TAMP-Nav**](#tamp-nav) (多目) | **66.2%** | – | ✓ | ✓ | – | ✓ | – | ✓ | – | ✓ | ✓ |
-| 19 | [**Dual-Anchoring**](#dual-anchoring) (单目) | **65.6%** | ✓ | – | – | – | – | – | – | ✓ | ✓ | – |
-| 20 | [**AwareVLN**](#awarevln) (单目) | **65.4%** | – | – | – | – | – | – | – | ✓ | – | ✓ |
-| 21 | [**CorrectNav**](#correctnav) (单目) | **65.1%** | ✓ | – | – | – | – | – | – | ✓ | – | ✓ |
-| 22 | [**DualVLN**](#dualvln) (单目) | **64.3%** | ✓ | – | ✓ | – | ✓ | ✓ | – | ✓ | ✓ | ✓ |
-| 23 | [**VLN-Cache**](#vln-cache) (单目) | **63.1%** | ✓ | – | ✓ | – | ✓ | ✓ | – | ✓ | ✓ | – |
-| 24 | [**ReflectVLN**](/Agentic-Navigation-Papers/#reflectvln) (单目) | **62.8%** | ✓ | – | ✓ | – | – | ✓ | – | ✓ | – | – |
-| 25 | [**NavFoM**](#navfom) (多目) | **61.7%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | – |
-| 26 | [**GA-VLN**](#ga-vln) (单目) | **61.0%** | – | – | – | – | – | – | – | – | ✓ | ✓ |
-| 27 | [**HarnessVLN**](/Agentic-Navigation-Papers/#harnessvln) (单目 RGB-D) | **60.8%** | – | – | ✓ | ✓ | ✓ | – | – | – | ✓ | – |
-| 28 | [**JanusVLN**](#janusvln) (单目) | **60.5%** | ✓ | – | – | – | – | – | – | ✓ | ✓ | ✓ |
-| **统计** | **各要素采纳频次** | **最高 81.5%** | **19/28 (68%)** | **10/28 (36%)** | **11/28 (39%)** | **4/28 (14%)** | **9/28 (32%)** | **12/28 (43%)** | **7/28 (25%)** | **16/28 (57%)** | **18/28 (64%)** | **14/28 (50%)** |
+| 1 | [**Navigent**](/Agentic-Navigation-Papers/#navigent) (多目) | **84.0%** | – | ✓ | – | ✓ | ✓ | – | – | – | – | ✓ |
+| 2 | [**NavGPT-3**](/Agentic-Navigation-Papers/#navgpt-3) (四视角 · Astra) | **81.5%** | ✓ | ✓ | ✓ | ✓ | – | ✓ | – | ✓ | ✓ | ✓ |
+| 3 | [**Robostral Navigate**](#robostral-navigate) (单目) | **77.4%** | ✓ | – | ✓ | – | ✓ | ✓ | ✓ | – | ✓ | – |
+| 4 | [**SimpleVLN**](#simplevln) (单目) | **76.7%** | ✓ | – | – | – | – | – | ✓ | ✓ | – | – |
+| 5 | [**NavGPT VLA 8B**](/Agentic-Navigation-Papers/#navgpt-3) (四视角) | **74.5%** | ✓ | ✓ | – | – | – | ✓ | – | ✓ | ✓ | ✓ |
+| 6 | [**Efficient-VLN**](#efficient-vln) (单目) | **73.2%** | – | – | – | – | – | – | – | ✓ | ✓ | – |
+| 7 | [**Qwen-RobotNav**](#qwen-robotnav) (全景) | **72.1%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | – |
+| 8 | [**ABot-N1**](#abot-n1) (三相机) | **70.9%** | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | – | – |
+| 9 | [**Image2Nav**](#image2sim) (180° FOV) | **70.3%** | ✓ | ✓ | – | – | – | – | – | ✓ | ✓ | ✓ |
+| 10 | [**GroundingVLN**](#groundingvln) (三相机) | **69.9%** | – | ✓ | ✓ | – | ✓ | – | ✓ | – | – | – |
+| 11 | [**OmniNav**](#omninav) (多目) | **69.5%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | ✓ |
+| 12 | [**RSI-Nav**](#rsi-nav) (单目) | **68.6%** | ✓ | – | – | – | – | – | – | – | – | ✓ |
+| 13 | [**LightNav-0**](#lightnav-0) (单目) | **68.5%** | ✓ | – | – | – | ✓ | – | ✓ | ✓ | ✓ | ✓ |
+| 14 | [**AstraNav-World**](#astranav-world) (多目) | **67.9%** | – | ✓ | – | – | – | ✓ | – | – | – | ✓ |
+| 15 | [**SeekVLN**](#seekvln) (单目，按需三视角) | **67.5%** | ✓ | – | – | – | – | – | ✓ | ✓ | – | – |
+| 16 | [**SEDualVLN**](#sedualvln) (单目) | **67.3%** | – | – | ✓ | ✓ | – | – | – | ✓ | ✓ | – |
+| 17 | [**AgentVLN**](/Agentic-Navigation-Papers/#agentvln) (单目) | **67.2%** | – | – | ✓ | ✓ | ✓ | – | – | – | – | ✓ |
+| 18 | [**Qwen-RobotNav**](#qwen-robotnav) (单目) | **66.9%** | ✓ | – | – | – | – | ✓ | – | – | ✓ | – |
+| 19 | [**TAMP-Nav**](#tamp-nav) (多目) | **66.2%** | – | ✓ | ✓ | – | ✓ | – | ✓ | – | ✓ | ✓ |
+| 20 | [**Dual-Anchoring**](#dual-anchoring) (单目) | **65.6%** | ✓ | – | – | – | – | – | – | ✓ | ✓ | – |
+| 21 | [**AwareVLN**](#awarevln) (单目) | **65.4%** | – | – | – | – | – | – | – | ✓ | – | ✓ |
+| 22 | [**CorrectNav**](#correctnav) (单目) | **65.1%** | ✓ | – | – | – | – | – | – | ✓ | – | ✓ |
+| 23 | [**DualVLN**](#dualvln) (单目) | **64.3%** | ✓ | – | ✓ | – | ✓ | ✓ | – | ✓ | ✓ | ✓ |
+| 24 | [**VLN-Cache**](#vln-cache) (单目) | **63.1%** | ✓ | – | ✓ | – | ✓ | ✓ | – | ✓ | ✓ | – |
+| 25 | [**ReflectVLN**](/Agentic-Navigation-Papers/#reflectvln) (单目) | **62.8%** | ✓ | – | ✓ | – | – | ✓ | – | ✓ | – | – |
+| 26 | [**NavFoM**](#navfom) (多目) | **61.7%** | ✓ | ✓ | – | – | – | ✓ | – | – | ✓ | – |
+| 27 | [**GA-VLN**](#ga-vln) (单目) | **61.0%** | – | – | – | – | – | – | – | – | ✓ | ✓ |
+| 28 | [**HarnessVLN**](/Agentic-Navigation-Papers/#harnessvln) (单目 RGB-D) | **60.8%** | – | – | ✓ | ✓ | ✓ | – | – | – | ✓ | – |
+| 29 | [**JanusVLN**](#janusvln) (单目) | **60.5%** | ✓ | – | – | – | – | – | – | ✓ | ✓ | ✓ |
+| **统计** | **各要素采纳频次** | **最高 84.0%** | **19/29 (66%)** | **11/29 (38%)** | **11/29 (38%)** | **5/29 (17%)** | **10/29 (34%)** | **12/29 (41%)** | **7/29 (24%)** | **16/29 (55%)** | **18/29 (62%)** | **15/29 (52%)** |
 {: .vln-component-matrix}
 
-注：VLN-Cache 是套在 DualVLN 上的免训练 Token 缓存层，其余要素随 DualVLN 继承；OmniNav 的 R2R / RxR 评测只走快系统（VLM + 航点回归头），慢系统的前沿探索只用于 OVON，故双系统记 –；Qwen-RobotNav 与上层规划 Agent 的协作只用于 EQA 等长程任务，R2R-CE 成绩来自模型本体；Dual-Anchoring 与 SEDualVLN 的系统 1 均以 StreamVLN 为骨干，继承其滑动窗口 KV 与体素剪枝；HarnessVLN 是表中唯一的免训练方法，其像素 Grounding 指 `ground_target` 工具把子目标落到图像区域后再查深度。ABot-N1 的 30M 预训练样本与 DAgger rollout、Image2Nav 的离散动作输出与在线 DAgger，均依据各自 arXiv 原文补充。
+注：VLN-Cache 是套在 DualVLN 上的免训练 Token 缓存层，其余要素随 DualVLN 继承；OmniNav 的 R2R / RxR 评测只走快系统（VLM + 航点回归头），慢系统的前沿探索只用于 OVON，故双系统记 –；Qwen-RobotNav 与上层规划 Agent 的协作只用于 EQA 等长程任务，R2R-CE 成绩来自模型本体；Dual-Anchoring 与 SEDualVLN 的系统 1 均以 StreamVLN 为骨干，继承其滑动窗口 KV 与体素剪枝；HarnessVLN 的像素 Grounding 指 `ground_target` 工具把子目标落到图像区域后再查深度。ABot-N1 的 30M 预训练样本与 DAgger rollout、Image2Nav 的离散动作输出与在线 DAgger，均依据各自 arXiv 原文补充。
 
 SeekVLN 的判定依据：C2PO 为 PPO 后训练，强化学习记 ✓；模型直接输出离散文本动作，模式 token 控制补充观察，不构成本表定义的快慢双系统、Agentic 或连续动作头。它使用单目相机，仅在 SEEK 时追加左、前、右视角，按“每步输入多目或全景”的口径，堆相机记 –，但这不代表没有额外感知开销。其基线四项 R2R 数字与 [Aux-Think 原文表1](https://arxiv.org/html/2505.11886v4) 的 1.6M 额外数据配置一致，故按指标对应关系**推断**堆数据与 DAgger 数据随底座继承，分别记 ✓；SeekVLN 未单列基础 checkpoint 标识。历史帧采样未披露专门的 Token / KV 压缩机制，上下文压缩记 –；论文未附代码或权重链接，开源暂记 –。
 
@@ -296,57 +302,59 @@ SimpleVLN 的判定依据：矩阵取 R2R-CE 76.7% 的 Qwen3.5-9B 配置。专�
 
 Efficient-VLN 的判定依据：矩阵取 arXiv v2 的 Qwen3-VL-8B 配置（v1 曾报告 64.2%，部分论文引用的是该旧数字）。最终训练集为 106K 样本（R2R-CE + RxR-CE 原始 30K、自采 Adaptive DAgger 纠偏轨迹 30K、ScaleVLN 子集 46K），未达 1M，堆数据记 –；用策略自身 rollout 采集纠偏数据，DAgger 记 ✓。推理时缓存旋转前的 KV、每步只编码当前帧，训练时多步打包共享视觉前缀，上下文压缩记 ✓。单目 RGB、直接输出 4 个离散动作组成的动作块、只做 SFT，堆相机、快慢双系统、Agentic、像素 Grounding、连续动作头与强化学习均记 –；2026-10-24 未检索到官方代码或权重，开源记 –。
 
+Navigent 每步输入带方向标签的多视角拼图，GPT-6 调度位姿与深度检查、指令复查和节点回退。图像点或入口框可经深度反投影为世界坐标锚点，约束后续动作是否继续，因此堆相机、Agentic 与像素 Grounding 记 ✓。运动命令采用离散原语，历史图用均匀抽帧。离线 rollout 用来复测提示词与检查代码补丁，模型权重始终冻结。
+
 ## 统计研判
 {: id="统计研判"}
 
-以 68% 为界把 28 个条目分成两档，比较各要素的采纳率：
+以 68% 为界把 29 个条目分成两档，比较各要素的采纳率：
 
-| 要素 | 第一梯队（SR ≥ 68%，12 个） | 第二梯队（60%–68%，16 个） | 合计（28 个） |
+| 要素 | 第一梯队（SR ≥ 68%，13 个） | 第二梯队（60%–68%，16 个） | 合计（29 个） |
 |:--|:--:|:--:|:--:|
-| 堆数据 | 10/12 (83%) | 9/16 (56%) | 19/28 (68%) |
-| 堆相机 | 7/12 (58%) | 3/16 (19%) | 10/28 (36%) |
-| 快慢双系统 | 4/12 (33%) | 7/16 (44%) | 11/28 (39%) |
-| Agentic | 1/12 (8%) | 3/16 (19%) | 4/28 (14%) |
-| 像素 Grounding | 4/12 (33%) | 5/16 (31%) | 9/28 (32%) |
-| 连续动作头 | 6/12 (50%) | 6/16 (38%) | 12/28 (43%) |
-| **强化学习** | **5/12 (42%)** | **2/16 (12%)** | 7/28 (25%) |
-| DAgger / 纠偏数据 | 7/12 (58%) | 9/16 (56%) | 16/28 (57%) |
-| 上下文压缩 | 8/12 (67%) | 10/16 (62%) | 18/28 (64%) |
-| 开源 | 6/12 (50%) | 8/16 (50%) | 14/28 (50%) |
+| 堆数据 | 10/13 (77%) | 9/16 (56%) | 19/29 (66%) |
+| 堆相机 | 8/13 (62%) | 3/16 (19%) | 11/29 (38%) |
+| 快慢双系统 | 4/13 (31%) | 7/16 (44%) | 11/29 (38%) |
+| Agentic | 2/13 (15%) | 3/16 (19%) | 5/29 (17%) |
+| 像素 Grounding | 5/13 (38%) | 5/16 (31%) | 10/29 (34%) |
+| 连续动作头 | 6/13 (46%) | 6/16 (38%) | 12/29 (41%) |
+| **强化学习** | **5/13 (38%)** | **2/16 (12%)** | 7/29 (24%) |
+| DAgger / 纠偏数据 | 7/13 (54%) | 9/16 (56%) | 16/29 (55%) |
+| 上下文压缩 | 8/13 (62%) | 10/16 (62%) | 18/29 (62%) |
+| 开源 | 7/13 (54%) | 8/16 (50%) | 15/29 (52%) |
 
 > 以下是前列模型内部的采纳率对比，只能说明相关性；某个要素能带来多少增益，要以各论文的消融为准。
 
-1. **强化学习的采纳率仍有差异，但不是进入第一梯队的必要条件（42% vs 12%）**：
-   - 第一梯队 12 个条目里有 5 个做了导航 RL 后训练：Robostral 的 CISPO、SimpleVLN 的 DAPO、ABot-N1 的 GRPO、GroundingVLN 的 GEAR、LightNav-0 的 GRPO；第二梯队 16 个里为 SeekVLN 与 TAMP-Nav 两个。NavGPT-3、独立 NavGPT VLA 8B、Efficient-VLN 与 RSI-Nav 均未进行导航 RL 后训练，分别以 81.51%、74.51%、73.2% 和 68.6% 进入第一梯队；完整系统调用的通用 Planner 不能按这一列算作导航 RL。
+1. **强化学习的采纳率仍有差异，但不是进入第一梯队的必要条件（38% vs 12%）**：
+   - 第一梯队 13 个条目里有 5 个做了导航 RL 后训练：Robostral 的 CISPO、SimpleVLN 的 DAPO、ABot-N1 的 GRPO、GroundingVLN 的 GEAR、LightNav-0 的 GRPO；第二梯队 16 个里为 SeekVLN 与 TAMP-Nav 两个。NavGPT-3、独立 NavGPT VLA 8B、Efficient-VLN 与 RSI-Nav 均未进行导航 RL 后训练，分别以 81.51%、74.51%、73.2% 和 68.6% 进入第一梯队；完整系统调用的通用 Planner 不能按这一列算作导航 RL。
    - 更直接的证据仍来自配置内消融：GroundingVLN 去掉 GEAR，SR 从 69.9% 降到 57.2%；改用朴素 2D 像素距离奖励则降到 66.2%。SimpleVLN 在合成任务上做 40 步 DAPO，Qwen3-VL-4B 的 R2R-CE SR 从 65.4% 升到 73.8%，且二值成功奖励优于 SPL 奖励（GRPO 下 70.1% 对 68.9%）。SeekVLN 在 613 条去重路线子集上移除反事实奖励，SR 从 68.5% 降到 65.1%，这些子集数字不能与全量榜直接混比。
    - 几何奖励既能监督像素目标、连续航点，也能用离散动作后的测地距离变化训练主动观察；矩阵中的 RL 勾选只记录采用与否，不衡量奖励设计或训练质量。
 2. **空间目标输出在第一梯队更常见，独立策略与完整系统仍需分开看**：
-   - 第一梯队 12 个条目中有 8 个输出像素目标或连续航点，另四个直接输出离散动作：SimpleVLN 以单目 RGB 和离散动作块达到 76.7%，Efficient-VLN 同样以单目离散动作块达到 73.2%，Image2Nav 使用 10M 合成轨迹与 180° 视场，RSI-Nav 则用单目 RGB 与策略同步的合成监督达到 68.6%；第二梯队这一比例为 9/16，其余 7 个是离散动作模型，最高为 SeekVLN 的 67.5%。
-   - 连续动作头采纳率为 6/12（50%）对 6/16（38%），像素 Grounding 为 4/12（33%）对 5/16（31%）。NavGPT-3 的连续航点来自 VLA，Planner 本身选择工具和语言指令；训练中的 LocateAnything 定位数据不能据此算作导航时的像素目标接口。
+   - 第一梯队 13 个条目中有 9 个使用像素目标或连续航点，其中 Navigent 用像素锚点检查执行、用离散原语控制运动。其余四个直接输出离散动作：SimpleVLN 以单目 RGB 和离散动作块达到 76.7%，Efficient-VLN 同样以单目离散动作块达到 73.2%，Image2Nav 使用 10M 合成轨迹与 180° 视场，RSI-Nav 则用单目 RGB 与策略同步的合成监督达到 68.6%；第二梯队这一比例为 9/16，其余 7 个是离散动作模型，最高为 SeekVLN 的 67.5%。
+   - 连续动作头采纳率为 6/13（46%）对 6/16（38%），像素 Grounding 为 5/13（38%）对 5/16（31%）。NavGPT-3 的连续航点来自 VLA，Planner 本身选择工具和语言指令；训练中的 LocateAnything 定位数据不能据此算作导航时的像素目标接口。
    - 可度量的输出接口便于使用空间奖励，但 SeekVLN 表明离散文本动作也可通过后续环境变化学习，SimpleVLN 则只用任务成功与否的二值奖励就让离散动作块策略跨过 76%，接口与 RL 的关系不能只靠跨论文采纳率解释。
 3. **大规模数据覆盖是高分的常见条件，数据质量与来源组成也会改变结果**：
-   - 第一梯队 10/12（83%）使用了至少 1M 训练样本或轨迹：NavGPT-3 两行共享约 19.28M 有效记录，SimpleVLN 汇聚 R2R、RxR 与 ScaleVLN 的专家示范，其他包括 ABot-N1 的 30M、Qwen-RobotNav 的 15.6M、Image2Nav 的 10M、OmniNav 的 9.2M、Robostral 的 2.4M，以及 LightNav-0 的 4K+ 小时仿真数据；RSI-Nav 的递归阶段产生约 2.5M 指令跟随样本与 1.1M 指令生成样本，两者不能相加当作独立轨迹数。
+   - 第一梯队 10/13（77%）使用了至少 1M 训练样本或轨迹：NavGPT-3 两行共享约 19.28M 有效记录，SimpleVLN 汇聚 R2R、RxR 与 ScaleVLN 的专家示范，其他包括 ABot-N1 的 30M、Qwen-RobotNav 的 15.6M、Image2Nav 的 10M、OmniNav 的 9.2M、Robostral 的 2.4M，以及 LightNav-0 的 4K+ 小时仿真数据；RSI-Nav 的递归阶段产生约 2.5M 指令跟随样本与 1.1M 指令生成样本，两者不能相加当作独立轨迹数。
    - NavGPT VLA 8B 的累计训练混合从 1.70M 扩至 19.28M 后，R2R-CE SR 从 65.3% 升至 74.51%；每阶段同时改变数据量与任务组成，因此不能把全部增益归因于样本数量。其 19.28M 还包含同一路线的不同视角及增强版本，不是独立轨迹数。
    - Efficient-VLN 只用 106K 样本（其中 30K 为自采 DAgger 轨迹）达到 73.2%，GroundingVLN 以 188K 样本达到 69.9%，TAMP-Nav 以 90K 合成轨迹冷启动加两级 GRPO 达到 66.2%，仍是减少数据需求的参考。SeekVLN 新增的 111K FRG 样本之外还继承底座额外数据与 DAgger 数据，不能把完整训练量写成 111K。
 4. **第一梯队更常使用多相机，单目仍有高分方法**：
-   - 第一梯队 7/12（58%）使用多目或全景，第二梯队为 3/16（19%）。同模型对照中，Qwen-RobotNav 8B 全景 72.1% 对单目 65.7%，4B 为 69.5% 对 66.9%；NavFoM 四视角 61.7% 对单视角 56.2%。矩阵中 Qwen-RobotNav 两行分别取各设定的最好配置，两行相减不是同模型增量。
-   - 当前 SR 最高的 NavGPT-3 使用四视角；Robostral 的单目 77.4%、SimpleVLN 的单目 76.7%、Efficient-VLN 的单目 73.2% 和 LightNav-0 的单目 68.5% 说明更广视野不是取得高分的必要条件。NavGPT-3 的仿真四视角成绩与 Go2 前向单目部署也不能混作同一评测配置。
+   - 第一梯队 8/13（62%）使用多目或全景，第二梯队为 3/16（19%）。同模型对照中，Qwen-RobotNav 8B 全景 72.1% 对单目 65.7%，4B 为 69.5% 对 66.9%；NavFoM 四视角 61.7% 对单视角 56.2%。矩阵中 Qwen-RobotNav 两行分别取各设定的最好配置，两行相减不是同模型增量。
+   - Navigent 以多视角取得全量榜最高的 84.0% SR，NavGPT-3 使用四视角取得 81.51%；Robostral 的单目 77.4%、SimpleVLN 的单目 76.7%、Efficient-VLN 的单目 73.2% 和 LightNav-0 的单目 68.5% 说明更广视野不是取得高分的必要条件。NavGPT-3 的仿真四视角成绩与 Go2 前向单目部署也不能混作同一评测配置。
    - SeekVLN 通过单目相机按需扫描侧视角，在 100 条任务干预实验中以自适应观察取得 73% SR，高于固定每两步观察的 62%；这是主动感知的子集证据，不能与全量榜混用。
 5. **双系统与 Agentic 的价值需要用系统内消融判断**：
-   - 快慢双系统采纳率为第一梯队 4/12（33%）、第二梯队 7/16（44%）；Agentic 为 1/12（8%）对 3/16（19%）。SimpleVLN 不加任何模块、只改输入组织与训练流程就排在第一梯队第三，进一步说明这两类结构不是高分的必要条件。NavGPT-3 已成为第一梯队的 Agentic 条目，因此“Agentic 都在第二梯队”的旧结论不再成立，但比例也不能证明工具调用本身决定高低档位。
+   - 快慢双系统采纳率为第一梯队 4/13（31%）、第二梯队 7/16（44%）；Agentic 为 2/13（15%）对 3/16（19%）。SimpleVLN 不加任何模块、只改输入组织与训练流程达到 76.7% SR。第一梯队的 Agentic 条目为 Navigent 与 NavGPT-3，工具调用的增益要结合各自的消融判断。
    - 在同一个 8B VLA 上加入 GPT-6 Astra 与完整 Harness，R2R-CE SR 从 74.51% 升到 81.51%，RxR-CE 从 78.19% 升到 90.43%，同时引入了远程 Planner、路线证据、地图与回溯等额外能力和成本，不能只归因于双系统结构。
    - 100 条工具消融中，Astra 用地图与回溯、不调用 VLA 已有 83% SR，加入 VLA 的完整配置为 82%；VLA 的直接价值是把动作推理间隔降至平均 0.78 秒并减少规划轮次。每 16 步复查虽把另一组配置的 SR 从 77% 提升到 83%，累计 token 却增加约 12.9 倍，不能把更频繁监督当作没有代价的精度提升。
-   - HarnessVLN 以免训练方法取得 60.8% SR，但 SPL 为 43.5；矩阵外 GPT-6-Astra 在 R2R-CE-100 的单目固定接口上也有高分。这些基座与评测集不同的结果适合用于提出假设，不能代替同条件对照。
+   - Navigent 在冻结 GPT-6 的情况下取得 84.0% 全量 SR。固定提示词的 Open-Nav100 对照中，同时开启几何检查与路线复查把 SR 从 77% 提高到 82%，这 5 个点反映组合改动。HarnessVLN 以免训练方法取得 60.8% SR，但 SPL 为 43.5；矩阵外 GPT-6-Astra 在 R2R-CE-100 的单目固定接口上也有高分。这些基座与评测集不同的结果适合用于提出假设，不能代替同条件对照。
 6. **DAgger 与上下文压缩普遍存在，具体机制比打勾更有解释力**：
-   - DAgger / 纠偏数据为第一梯队 7/12（58%）、第二梯队 9/16（56%），合计 16/28（57%）；上下文压缩为第一梯队 8/12（67%）、第二梯队 10/16（62%），合计 18/28（64%）。两者都不能单独解释 SR 档位，但 SimpleVLN 的数据消融里 DAgger 是单项增益最大的一步（R2R-CE +7.5、RxR-CE +8.1 个点）。Efficient-VLN 的消融也指向数据调度：把固定混合比的 DAgger 换成随步数衰减的 Adaptive DAgger（早期让模型自己走、后期交给专家），R2R-CE SR 从 60.3% 升到 67.8%，RxR-CE 从 63.8% 升到 75.6%。
+   - DAgger / 纠偏数据为第一梯队 7/13（54%）、第二梯队 9/16（56%），合计 16/29（55%）；上下文压缩为第一梯队 8/13（62%）、第二梯队 10/16（62%），合计 18/29（62%）。两者都不能单独解释 SR 档位，但 SimpleVLN 的数据消融里 DAgger 是单项增益最大的一步（R2R-CE +7.5、RxR-CE +8.1 个点）。Efficient-VLN 的消融也指向数据调度：把固定混合比的 DAgger 换成随步数衰减的 Adaptive DAgger（早期让模型自己走、后期交给专家），R2R-CE SR 从 60.3% 升到 67.8%，RxR-CE 从 63.8% 升到 75.6%。
    - NavGPT VLA 重新标注 DAgger 偏航状态，监督从当前位置到目标的最短路径方向；Codec 则在预算约束下把图像分辨率移向变化更大的历史观测，容量充足时与位置分配规则一致。
    - 其他上下文机制包括 JanusVLN 的滑动窗口 KV、GA-VLN 的 BEV 池化、TAMP-Nav 的关键帧与 STI Token、Efficient-VLN 的旋转前 KV 缓存与打包训练前缀共享、LightNav-0 的慢快历史压缩，以及 HarnessVLN 的有界工作记忆与图检索。它们作用于不同位置，不能因同列为 ✓ 就视作等价算法。
 7. **第一梯队已有更高分的公开实现，复现范围仍要核对**：
-   - 本次矩阵中的开源率为第一梯队 6/12（50%）、第二梯队 8/16（50%），不再是“第一梯队多数未开源”。两行 NavGPT 配置来自同一论文并共享 VLA，统计是条目数，不是独立模型或独立实验数。
+   - 本次矩阵中的开源率为第一梯队 7/13（54%）、第二梯队 8/16（50%）。两行 NavGPT 配置来自同一论文并共享 VLA，统计是条目数，不是独立模型或独立实验数。
    - [NavGPT-3 官方仓库](https://github.com/metacognitionai/NavGPT-3)公开了 VLA 推理、Harness、仿真评测与配置，既可复现独立 VLA，也可研究完整系统；完整系统还依赖远程 Planner，公开代码不等于全部运行成本与部署组件都开放。
    - 基于 ZEOS 的 Unitree 部署运行时代码仍待另行发布，因此仿真评测与实机线程抢占应区分复现。Image2Nav、OmniNav、LightNav-0 仍是已有公开实现的前列参考，其他条目的开源列沿用各自核对记录。
 
-**小结**：这 28 个条目的比较仍只说明相关性，部分条目共享模型或训练数据，不能把采纳率当作要素贡献。NavGPT-3 在相同 VLA 上构建可检查、可回溯的执行接口，以四视角完整系统达到 81.51% SR；它也表明，双系统的控制频率、工具链的纠错能力和路线复查的上下文成本需要分别评估。SeekVLN 的主动观察与 RSI-Nav 的合成监督闭环，分别说明离散动作也能利用几何反馈，以及单目离散动作策略可通过数据改进进入第一梯队；SimpleVLN 更进一步，以不改架构的原生 MLLM 配合 IL–DAgger–RL 达到 76.7%，提示许多附加模块的增益需要与同等训练流程下的原生基线对比后再判断；Efficient-VLN 不用 RL、不堆数据，只靠 DAgger 调度和训练-推理对齐（动作隔离掩码）就达到 73.2%，是“第一梯队靠堆数据”这一相关性的反例。矩阵外 GPT-6-Astra 的高分仍来自 100 条子集，应保留为通用模型导航能力的信号，不能与全量结果混比；NavGPT-3 接近 RxR 人类基线也应注明人类使用离散环境，而非宣称同一实机协议下已经解决导航。
+**小结**：这 29 个条目的比较仍只说明相关性，部分条目共享模型或训练数据，不能把采纳率当作要素贡献。Navigent 用多视角、几何执行检查和回退机制，以冻结的 GPT-6 取得 84.0% SR，为全量评测补上了一条高分免训练结果。NavGPT-3 在相同 VLA 上构建可检查、可回溯的执行接口，以四视角完整系统达到 81.51% SR；它也表明，双系统的控制频率、工具链的纠错能力和路线复查的上下文成本需要分别评估。SeekVLN 的主动观察与 RSI-Nav 的合成监督闭环，分别说明离散动作也能利用几何反馈，以及单目离散动作策略可通过数据改进进入第一梯队；SimpleVLN 更进一步，以不改架构的原生 MLLM 配合 IL–DAgger–RL 达到 76.7%，提示许多附加模块的增益需要与同等训练流程下的原生基线对比后再判断；Efficient-VLN 不用 RL、不堆数据，只靠 DAgger 调度和训练-推理对齐（动作隔离掩码）就达到 73.2%，是“第一梯队靠堆数据”这一相关性的反例。矩阵外 GPT-6-Astra 的高分仍来自 100 条子集，应保留为通用模型导航能力的信号，不能与全量结果混比；NavGPT-3 接近 RxR 人类基线也应注明人类使用离散环境，而非宣称同一实机协议下已经解决导航。
 
 ---
 
@@ -7397,6 +7405,7 @@ $$P_{\text{model}} = 1 - \beta_t = \alpha^{t/T}$$
     { n: "26. H2E (2026)", a: "h2e", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['端到端', '连续环境', '数据增强'] },
     { n: "27. AgenticJevNav (2026)", a: "agenticjevnav", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '连续环境', '实机部署'] },
     { n: "28. SuperNav-1.5 (2026)", a: "supernav-1-5", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', 'SLAM', '零样本', '实机部署'] },
+    { n: "29. Navigent (2026)", a: "navigent", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '连续环境', '实机部署'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',

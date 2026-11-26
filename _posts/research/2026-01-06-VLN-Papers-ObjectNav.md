@@ -3659,6 +3659,7 @@ graph TD
     { n: "26. H2E (2026)", a: "h2e", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['端到端', '连续环境', '数据增强'] },
     { n: "27. AgenticJevNav (2026)", a: "agenticjevnav", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '零样本', '连续环境', '实机部署'] },
     { n: "28. SuperNav-1.5 (2026)", a: "supernav-1-5", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', 'SLAM', '零样本', '实机部署'] },
+    { n: "29. Navigent (2026)", a: "navigent", url: "/Agentic-Navigation-Papers/", label: "Agentic 导航篇", t: ['Agentic', '连续环境', '实机部署'] },
   ];
 
   var ALL_TAGS = ['双系统', '端到端', 'Agentic', 'CoT', '扩散模型', '拓扑图', 'SLAM', '高斯表示',

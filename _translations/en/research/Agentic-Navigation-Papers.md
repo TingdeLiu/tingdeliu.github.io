@@ -15,12 +15,12 @@ comments: false
 author: Tingde Liu
 toc: true
 toc_expand: 2
-excerpt: "28 readings on tool use, active interaction, spatial memory, and continuing navigation."
+excerpt: "29 readings on tool use, active interaction, spatial memory, and continuing navigation."
 ---
 
 
 
-> This collection covers 28 works on how LLM/VLM agents call perception and movement tools, request help, read and write spatial memory, and replan or resume tasks using execution feedback. It includes supporting work on mobile manipulation and spatial mapping; individual papers need not implement every mechanism.
+> This collection covers 29 works on how LLM/VLM agents call perception and movement tools, request help, read and write spatial memory, and replan or resume tasks using execution feedback. It includes supporting work on mobile manipulation and spatial mapping; individual papers need not implement every mechanism.
 >
 > Papers are grouped by research focus. Agent systems evaluated on goal navigation, such as SuperNav, NavHarness, and EvoLife, are read here. See [Goal Navigation](/en/VLN-Papers-Extended/) for goal-navigation methods and leaderboards, and [Instruction Following](/en/VLN-Papers/) for instruction-following methods and results.
 
@@ -3822,6 +3822,97 @@ Executable memory depends on map and pose accuracy. Depth or LiDAR noise and odo
 
 ---
 
+## 29. Navigent (2026)
+{: id="navigent"}
+———Checking navigation execution against measured motion and landmark position
+
+📄 **Paper**: [arXiv:2611.34249](https://arxiv.org/abs/2611.34249) · [Code](https://github.com/MarsLab-Navigent/Navigent) · [Project Page](https://marslab-navigent.github.io/navigent.github.io/)
+
+### Key takeaways
+{: id="navigent-key-takeaways"}
+
+Long-horizon navigation raises two questions at every step. Did the robot move as commanded, and did the motion bring it closer to the landmark in the instruction? Navigent uses pose and depth to check each motion primitive. When it detects a discrepancy, it cancels the rest of the sequence and lets a frozen GPT-6 use a fresh view to choose a local correction or a return to a visited node. Offline, every patch is tested on complete routes, including prior successes and failures. Only a patch with a positive net gain advances to the next round.
+
+---
+
+### 1. Background and problem
+{: id="navigent-background"}
+
+Vision-and-language navigation (VLN) requires a robot to match the landmarks, sequence of turns, and destination in a long instruction to the scene as it moves. A multimodal large language model (MLLM) can choose a suitable action and still encounter an obstacle, drift sideways, or move as requested while passing the wrong entrance. These small discrepancies can accumulate until the agent loses track of progress or finishes a sequence before noticing the error.
+
+---
+
+### 2. Method and innovations
+{: id="navigent-method"}
+
+<div align="center">
+  <img src="/images/vln/Navigent-architecture.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1324/825" alt="Navigent online navigation and offline patch evaluation" />
+<figcaption>Figure 2. Online navigation uses visual memory to plan actions, and the geometry-grounded critic can trigger a fresh observation or backtracking. Offline, the system diagnoses failures from trajectories and tests patches to prompts or critic code.</figcaption>
+</div>
+
+**Visual memory and short execution segments.** At each decision, Navigent combines direction-labeled RGB views into one current observation and samples up to 8 composites uniformly from the chronological archive. GPT-6 receives those images along with frame IDs, pose, and visited-node records. The sampling spans the route and keeps its earliest and most recent observations. The limit covers newly attached history images at each decision. The current image is separate, and conversation history persists throughout the episode. The model estimates which instruction event it has reached and proposes forward, turn, or stop commands. The executor runs only a short prefix, expanding commands into fixed-distance forward steps and fixed-angle turns before the next observation. Navigent records the trajectory and node connections and checks geometry using local depth and self-pose, without building a dense RGB-D map.
+
+**Geometry-Grounded Execution Critic (GEC).** Before a forward step, the executor estimates nearby clearance from depth in a central image corridor. After the move, GEC checks the actual motion and the robot's position relative to landmarks.
+
+1. **Action-to-motion consistency.** The executor projects the measured horizontal displacement onto the heading before execution to obtain forward progress and lateral drift. Several forward steps with little progress trigger a stall alert. A backward or substantially sideways displacement triggers a direction conflict once the motion is large enough. For a declared stair maneuver, GEC also checks the sign and amount of vertical progress.
+2. **Motion-to-landmark consistency.** The model selects a landmark pixel in a named camera view or proposes a bounding box for an entrance. The executor uses a stable local depth estimate, camera geometry, and self-pose to project the pixel or box center into world coordinates, then tracks its horizontal distance and bearing. GEC interrupts when an anchor goes from ahead to behind or gets materially farther away despite an expected approach. A ray through a doorway can hit the wall beyond it, so the anchor provides geometric evidence. The agent uses the images to identify the entrance and determine whether it has passed through it.
+
+> Suppose the robot moves exactly 0.5 m forward as planned. The motion check passes. If the instruction requires turning into a door on the right and its anchor has moved from ahead-right to behind-right, the second check cancels the remaining forward steps and the agent looks again.
+
+**Recovery after interruption.** GEC discards the remaining moves and returns a fresh observation, execution state, and any relevant entrance alert to GPT-6. The model uses the visual history to choose a local adjustment or a visited node. On a return, the executor generates motion primitives along the recorded trajectory in reverse order and applies the same geometric checks. A periodic review also compares the current view and retained keyframes with the instruction. When the model submits `STOP` with an empty movement list, the executor requires a nonempty ordered event list and checks that every event before the last is marked reached or passed. The model recognizes the destination.
+
+**Offline self-improvement.** The authors collect model proposals, executed motion, and outcomes on a fixed set of training routes. An offline GPT-6 groups failures by observable cause and uses successful routes as controls. Each round produces 3 independent prompt or GEC-code patches against the same parent. Every candidate reruns the entire set from the same initial states and with the same execution budget. Selection uses the net change in successful routes $\Delta$.
+
+$$
+\Delta = R - L
+$$
+
+Here $R$ counts routes that switch from failure to success, and $L$ counts routes that switch from success to failure. The highest-scoring patch advances if its score is positive. Model weights stay frozen throughout, and the chosen prompts and GEC logic are fixed during evaluation.
+
+> If patch A fixes 3 routes and breaks 2, it gains 1. If patch B fixes 2 and breaks none, it gains 2 and wins. Rerunning only the failed routes would miss those regressions.
+
+---
+
+### 3. Main results
+{: id="navigent-results"}
+
+**Full continuous-environment benchmarks.** SR is the success rate, SPL weights success by path efficiency, and NE is the final distance to the goal. Both benchmarks use Habitat's validation-unseen splits (Table 1 of the paper).
+
+| Benchmark | Episodes | SR ↑ | SPL ↑ | NE ↓ | Other metrics |
+|---|---:|---:|---:|---:|---|
+| R2R-CE | 1,839 | 84.0% | 72.9% | 2.22 m | OSR 86.1% |
+| RxR-CE | 3,669 | 86.0% | 69.1% | 1.92 m | nDTW 79.7% |
+
+Relative to the HarnessVLN results reported in Table 1, Navigent gains 24.4 and 29.3 percentage points in SR and SPL on R2R-CE, and 34.6 and 31.0 points on RxR-CE.
+
+**Open-Nav100 ablations.** With the rest of the configuration fixed, reattaching 8 uniformly sampled history images yields 82.0% SR and 72.3% SPL. Keeping the conversation without reattaching images yields 78.0% and 68.2%. With the navigation prompt fixed, adding GEC and route review raises SR from 77% to 82% and SPL from 69.5% to 72.3%. Starting with stall detection, the cumulative addition of prompt refinement, depth prechecks, visual anchors, and periodic review raises SR from 73% to 82% and SPL from 63.6% to 72.3%.
+
+<div align="center">
+  <img src="/images/vln/Navigent-history-ablation.webp" width="90%" loading="lazy" decoding="async" style="aspect-ratio:646/499" alt="Open-Nav100 results for six history-frame selection strategies" />
+<figcaption>Figure 3. Uniform sampling of 8 frames gives the highest SR, oracle success rate (OSR), and SPL on Open-Nav100. OSR measures how often a route came within the success radius at any point.</figcaption>
+</div>
+
+<div align="center">
+  <img src="/images/vln/Navigent-self-improvement.webp" width="90%" loading="lazy" decoding="async" style="aspect-ratio:644/503" alt="Open-Nav100 results across five rounds of offline self-improvement" />
+<figcaption>Figure 4. SR, OSR, and SPL on Open-Nav100 as prompt and execution-check changes are added.</figcaption>
+</div>
+
+**Robot trials.** An AgileX SCOUT MINI supplies geometry to GEC through RealSense D456 depth and wheel odometry. The authors run 2 indoor and 4 outdoor instructions 5 times each. A trial succeeds if the robot chooses to stop within 1 m of the target. It succeeds in 27/30 trials (90.0%).
+
+<div align="center">
+  <img src="/images/vln/Navigent-navigation-examples.webp" width="100%" loading="lazy" decoding="async" style="aspect-ratio:1326/1239" alt="Real-robot and Habitat examples of instruction following" />
+<figcaption>Figure 5. Real-robot cases above and Habitat cases below. The robot approaches two cylinders in the designated order and stops in front of the second white pillar in a separate trial.</figcaption>
+</div>
+
+---
+
+### 4. Limitations
+{: id="navigent-limitations"}
+
+The simulator supplies Habitat ground-truth pose. The real-world evaluation uses one platform, 6 instructions, and 30 trials, leaving performance across platforms and under long-term odometry drift open. Offline updates currently target the navigation prompts and execution checks. The geometric alerts depend on depth quality and the model's selection of image points.
+
+---
+
 # References
 {: id="navigation-references"}
 {: id="navigation-references"}
@@ -3858,6 +3949,7 @@ Executable memory depends on map and pose accuracy. Depth or LiDAR noise and odo
 26. **H2E** (2026). Distilling the successful experience of the LLM agent that calls a VLA back into the VLA, so no planner is needed at test time. arXiv: [2611.16246](https://arxiv.org/abs/2611.16246)
 27. **AgenticJevNav** (2026). Trigger review on execution anomalies and discard stale decisions. arXiv: [2611.19912v1](https://arxiv.org/abs/2611.19912v1)
 28. **SuperNav-1.5** (2026). Structured Spatial Memory For Agentic Navigation Systems. arXiv: [2611.29912v2](https://arxiv.org/abs/2611.29912v2)
+29. **Navigent** (2026). Navigent: A Geometry-Grounded Agentic Framework for Vision Language Navigation. arXiv: [2611.34249](https://arxiv.org/abs/2611.34249)
 
 <script>
 (function () {
@@ -3890,6 +3982,7 @@ Executable memory depends on map and pose accuracy. Depth or LiDAR noise and odo
     { m: "HSGNav", t: ['Agentic', 'Topological maps', 'Zero-shot', 'Datasets'] },
     { m: "H2E", t: ['End-to-end', 'Continuous environments', 'Data augmentation'] },
     { m: "AgenticJevNav", t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
+    { m: "Navigent", t: ['Agentic', 'Continuous environments', 'Real-robot deployment'] },
   ];
 
 

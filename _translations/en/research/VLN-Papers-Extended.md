@@ -3778,6 +3778,7 @@ Figure 4: Ablation of the exploration policy: the importance of goal-free pertur
     { n: "26. H2E (2026)", a: "h2e", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['End-to-end', 'Continuous environments', 'Data augmentation'] },
     { n: "27. AgenticJevNav (2026)", a: "agenticjevnav", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Zero-shot', 'Continuous environments', 'Real-robot deployment'] },
     { n: "28. SuperNav-1.5 (2026)", a: "supernav-1-5", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'SLAM', 'Zero-shot', 'Real-robot deployment'] },
+    { n: "29. Navigent (2026)", a: "navigent", url: "/en/Agentic-Navigation-Papers/", label: "Agentic navigation", t: ['Agentic', 'Continuous environments', 'Real-robot deployment'] },
   ];
 
   var ALL_TAGS = ['Dual systems', 'End-to-end', 'Agentic', 'CoT', 'Diffusion models', 'Topological maps', 'SLAM', 'Gaussian representations',
