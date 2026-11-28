@@ -1,48 +1,45 @@
 {% comment %}
-  首页「最近更新」：按 date: 列出最近修订的综述与随笔（周报另有专栏）。
-  说明文字来自 _data/updates.yml，且只在其 date 与文章当前 date 一致时显示。
+  首页「最近更新」：只展示 _data/updates.yml 里登记的内容新增（新文章、新收录的精读），
+  按登记顺序取前 3 条，同一篇文章只出现一次。小修小改不登记，也就不会出现在这里。
   调用方需先设置 home_entries、label、lookup（见 home-index.html）。
 {% endcomment %}
-{% assign update_limit = include.limit | default: 6 %}
+{% assign update_limit = include.limit | default: 3 %}
 {% assign update_count = 0 %}
-{% assign update_sorted = home_entries | sort: 'date' | reverse %}
+{% assign update_seen = '|' %}
 {% capture update_rows %}
-{% for post in update_sorted %}
+{% for entry in site.data.updates %}
   {% if update_count >= update_limit %}{% break %}{% endif %}
-  {% if post.categories contains 'weekly' %}{% continue %}{% endif %}
+  {% assign entry_url = entry.slug | prepend: '/' | append: '/' %}
+  {% assign entry_mark = entry.slug | append: '|' | prepend: '|' %}
+  {% if update_seen contains entry_mark %}{% continue %}{% endif %}
+  {% assign post = home_entries | where: lookup, entry_url | first %}
+  {% unless post %}{% continue %}{% endunless %}
+  {% assign update_seen = update_seen | append: entry.slug | append: '|' %}
   {% assign update_count = update_count | plus: 1 %}
-  {% assign revised = post.date | date: '%Y-%m-%d' %}
-  {% assign key = post[lookup] %}
+  {% assign revised = entry.date | date: '%Y-%m-%d' %}
   {% assign source = post.path %}
   {% if lookup == 'source_url' %}{% assign source = post.source_path %}{% endif %}
   {% assign created = source | split: '/' | last | slice: 0, 10 %}
-  {% assign note = nil %}
-  {% for entry in site.data.updates %}
-    {% assign entry_url = entry.slug | prepend: '/' | append: '/' %}
-    {% assign entry_date = entry.date | date: '%Y-%m-%d' %}
-    {% if entry_url == key and entry_date == revised %}{% assign note = entry[label] %}{% break %}{% endif %}
-  {% endfor %}
   <li data-updated="{{ revised }}"><a href="{{ post.url | relative_url }}">
     {% if created == revised %}
       <span class="home-update-kind is-new">{% if label == 'en' %}New{% else %}新文{% endif %}</span>
     {% else %}
-      <span class="home-update-kind">{% if label == 'en' %}Updated{% else %}更新{% endif %}</span>
+      <span class="home-update-kind">{% if label == 'en' %}Added{% else %}新增{% endif %}</span>
     {% endif %}
     <span class="home-update-body">
       <span class="home-update-title">{{ post.title | escape }}</span>
-      {% if note %}<span class="home-update-note">{{ note | escape }}</span>{% endif %}
+      {% if entry[label] %}<span class="home-update-note">{{ entry[label] | escape }}</span>{% endif %}
     </span>
-    <time datetime="{{ revised }}">{{ post.date | date: '%m-%d' }}</time>
+    <time datetime="{{ revised }}">{{ entry.date | date: '%m-%d' }}</time>
   </a></li>
 {% endfor %}
 {% endcapture %}
 {% if update_count > 0 %}
 <section class="home-updates" data-home-updates>
   <h2 class="home-section">
-    {% if label == 'en' %}Recently updated{% else %}最近更新{% endif %}
-    <span>{% if label == 'en' %}by latest revision{% else %}按最近修订排序{% endif %}</span>
+    {% if label == 'en' %}Recently added{% else %}最近更新{% endif %}
     <span class="home-unseen" data-unseen-count hidden
-      data-template="{% if label == 'en' %}{n} since your last visit{% else %}上次来访后有 {n} 篇有变化{% endif %}"></span>
+      data-template="{% if label == 'en' %}{n} since your last visit{% else %}上次来访后有 {n} 条新内容{% endif %}"></span>
   </h2>
   <ol>{{ update_rows }}</ol>
 </section>

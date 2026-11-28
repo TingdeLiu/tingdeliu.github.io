@@ -1,41 +1,26 @@
-# 首页「最近更新」里每篇文章下方的一句话说明。
+# 首页「最近更新」：只登记读者值得回来看的内容新增，首页取最上面 3 条。
 #
-# 首页按文章 front matter 的 date: 自动列出最近修订的综述与随笔（周报另有专栏，不在此列）。
-# 这里只负责「改了什么」：给某次修订写一句说明，读者一眼就知道值不值得再点进去。
+# 该登记：发布一篇新文章（综述、论文精读篇、随笔），或在已有文章里新收录精读 / 新增一大块内容。
+# 不登记：排行榜补数字、勘误、改措辞、调样式、修链接等小改动和技术性修改。
+# 周报有自己的专栏，不在这里登记。
 #
 # - slug：文章 URL 去掉首尾斜杠，例如 /VLN-Papers/ 写 VLN-Papers。
-# - date：必须与文章当前的 date: 完全一致（加引号）。文章再次修订、date 变了以后，
-#   旧说明自动不再显示，不会把上一次的改动说成这一次的。
-# - zh / en：中文首页与英文首页各自显示的文字；缺 en 时英文首页只显示标题和日期。
+# - date：这次新增发布的日期（加引号）。与文章文件名日期相同时显示「新文」，否则显示「新增」。
+# - zh / en：中文首页与英文首页各自显示的一句话；缺 en 时英文首页只显示标题和日期。
 #
-# 新条目加在最上面；旧条目可以保留，不影响显示。
+# 新条目加在最上面；同一篇文章只显示最新的一条，旧条目可以保留。
 
 - slug: Agentic-Navigation-Papers
   date: "2026-11-26"
   zh: 新增 AgenticJevNav、SuperNav-1.5、Navigent 三篇精读
   en: New readings on AgenticJevNav, SuperNav-1.5 and Navigent
 
-- slug: VLN-Papers-Extended
-  date: "2026-11-26"
-  zh: 目标导航排行榜加入 SuperNav-1.5 成绩
-  en: SuperNav-1.5 added to the object-navigation leaderboards
-
-- slug: VLN-Papers
-  date: "2026-11-26"
-  zh: 指令跟随排行榜加入 Navigent 成绩
-  en: Navigent added to the instruction-following leaderboards
-
 - slug: VLN-Papers-Outdoor
   date: "2026-11-25"
   zh: 新增 ROAM 精读：四足机器人高山徒步导航
   en: New reading on ROAM, quadruped navigation on alpine trails
 
-- slug: LLM-Training-Survey
-  date: "2026-11-19"
-  zh: 补充 2025–2026 训练进展，新增演进时间线
-  en: Added 2025–2026 training advances and an evolution timeline
-
-- slug: World-Models-Survey
-  date: "2026-11-18"
-  zh: 补充 2026 下半年进展，精简 Marble 与 Atlas 两节
-  en: Added late-2026 advances and tightened the Marble and Atlas sections
+- slug: Spatial-Intelligence-Papers
+  date: "2026-11-14"
+  zh: 空间智能论文精读独立成篇，收录 26 篇代表性论文
+  en: Spatial intelligence paper readings now have their own page, with 26 papers

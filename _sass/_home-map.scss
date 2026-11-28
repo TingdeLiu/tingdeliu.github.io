@@ -12,11 +12,6 @@
   .home-hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding: 24px 0 56px; }
   h1 { font-size: clamp(30px, 3.6vw, 42px); line-height: 1.2; font-weight: 600; }
   .home-lede { margin: 14px 0 0; max-width: 34em; color: var(--muted); font-size: 16px; line-height: 1.7; }
-  .home-latest {
-    display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; color: var(--ink); font-size: 14px;
-    > span:first-child { padding: 2px 8px; border-radius: 4px; background: var(--accent); color: #fff; font: 12px $code-font; }
-    &:hover { color: var(--accent); }
-  }
   .home-section { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; font-size: 22px; font-weight: 600; }
   .home-section span, h3 span { color: var(--muted); font: 12px $code-font; }
   .home-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 56px; }
