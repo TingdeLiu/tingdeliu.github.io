@@ -31,6 +31,22 @@
     &:hover { color: var(--accent); }
   }
   time, .weekly-period { flex-shrink: 0; color: var(--muted); font: 12px $code-font; }
+  .home-updates {
+    margin-bottom: 56px;
+    ol { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--ink); }
+    .home-section { flex-wrap: wrap; }
+    .home-unseen { color: var(--accent); }
+    li a { justify-content: flex-start; }
+    time { margin-left: auto; }
+  }
+  .home-update-kind {
+    flex-shrink: 0; min-width: 4.5em; padding: 1px 6px; border: 1px solid var(--rule); border-radius: 4px;
+    color: var(--muted); font: 12px $code-font; text-align: center;
+    &.is-new { border-color: var(--accent); color: var(--accent); }
+  }
+  .is-unseen .home-update-kind { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .home-update-body { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; min-width: 0; }
+  .home-update-note { color: var(--muted); font-size: 14px; }
   .home-feeds { margin-top: 24px; }
   .home-all { display: inline-block; margin-top: 14px; color: var(--accent); font-size: 14px; }
   @media (max-width: 760px) {

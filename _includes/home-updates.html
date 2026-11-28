@@ -1,0 +1,50 @@
+{% comment %}
+  首页「最近更新」：按 date: 列出最近修订的综述与随笔（周报另有专栏）。
+  说明文字来自 _data/updates.yml，且只在其 date 与文章当前 date 一致时显示。
+  调用方需先设置 home_entries、label、lookup（见 home-index.html）。
+{% endcomment %}
+{% assign update_limit = include.limit | default: 6 %}
+{% assign update_count = 0 %}
+{% assign update_sorted = home_entries | sort: 'date' | reverse %}
+{% capture update_rows %}
+{% for post in update_sorted %}
+  {% if update_count >= update_limit %}{% break %}{% endif %}
+  {% if post.categories contains 'weekly' %}{% continue %}{% endif %}
+  {% assign update_count = update_count | plus: 1 %}
+  {% assign revised = post.date | date: '%Y-%m-%d' %}
+  {% assign key = post[lookup] %}
+  {% assign source = post.path %}
+  {% if lookup == 'source_url' %}{% assign source = post.source_path %}{% endif %}
+  {% assign created = source | split: '/' | last | slice: 0, 10 %}
+  {% assign note = nil %}
+  {% for entry in site.data.updates %}
+    {% assign entry_url = entry.slug | prepend: '/' | append: '/' %}
+    {% assign entry_date = entry.date | date: '%Y-%m-%d' %}
+    {% if entry_url == key and entry_date == revised %}{% assign note = entry[label] %}{% break %}{% endif %}
+  {% endfor %}
+  <li data-updated="{{ revised }}"><a href="{{ post.url | relative_url }}">
+    {% if created == revised %}
+      <span class="home-update-kind is-new">{% if label == 'en' %}New{% else %}新文{% endif %}</span>
+    {% else %}
+      <span class="home-update-kind">{% if label == 'en' %}Updated{% else %}更新{% endif %}</span>
+    {% endif %}
+    <span class="home-update-body">
+      <span class="home-update-title">{{ post.title | escape }}</span>
+      {% if note %}<span class="home-update-note">{{ note | escape }}</span>{% endif %}
+    </span>
+    <time datetime="{{ revised }}">{{ post.date | date: '%m-%d' }}</time>
+  </a></li>
+{% endfor %}
+{% endcapture %}
+{% if update_count > 0 %}
+<section class="home-updates" data-home-updates>
+  <h2 class="home-section">
+    {% if label == 'en' %}Recently updated{% else %}最近更新{% endif %}
+    <span>{% if label == 'en' %}by latest revision{% else %}按最近修订排序{% endif %}</span>
+    <span class="home-unseen" data-unseen-count hidden
+      data-template="{% if label == 'en' %}{n} since your last visit{% else %}上次来访后有 {n} 篇有变化{% endif %}"></span>
+  </h2>
+  <ol>{{ update_rows }}</ol>
+</section>
+<script src="{{ '/assets/js/home-updates.js' | relative_url }}" defer></script>
+{% endif %}

@@ -50,6 +50,7 @@
     </div>
     {% include language-switch.html site=true %}
   </header>
+  {% include home-updates.html %}
   <h2 class="home-section">{% if label == 'en' %}Research map{% else %}研究地图{% endif %} <span>{% if label == 'en' %}{{ total }} articles{% else %}{{ total }} 篇{% endif %}</span></h2>
   <div class="home-grid">
     <div>{{ left }}</div>
